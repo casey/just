@@ -72,9 +72,19 @@ fn main() {
     Some(make) => make,
   };
 
+  let mut justfile = "justfile";
+
   loop {
     match std::fs::metadata("justfile") {
       Ok(metadata) => if metadata.is_file() { break; },
+      Err(error) => die!("Error fetching justfile metadata: {}", error),
+    }
+
+    match std::fs::metadata("Justfile") {
+      Ok(metadata) => if metadata.is_file() {
+        justfile = "Justfile";
+        break; 
+      },
       Err(error) => die!("Error fetching justfile metadata: {}", error),
     }
 
@@ -103,7 +113,7 @@ fn main() {
     command.arg("--always-make").arg("--no-print-directory");
   }
 
-  command.arg("-f").arg("justfile");
+  command.arg("-f").arg(justfile);
 
   for recipe in recipes {
     command.arg(recipe);
