@@ -77,7 +77,11 @@ fn main() {
   loop {
     match std::fs::metadata("justfile") {
       Ok(metadata) => if metadata.is_file() { break; },
-      Err(error) => die!("Error fetching justfile metadata: {}", error),
+      Err(error) => {
+        if error.kind() != std::io::ErrorKind::NotFound {
+          die!("Error fetching justfile metadata: {}", error)
+        }
+      }
     }
 
     match std::fs::metadata("Justfile") {
@@ -85,7 +89,11 @@ fn main() {
         justfile = "Justfile";
         break; 
       },
-      Err(error) => die!("Error fetching justfile metadata: {}", error),
+      Err(error) => {
+        if error.kind() != std::io::ErrorKind::NotFound {
+          die!("Error fetching Justfile metadata: {}", error)
+        };
+      }
     }
 
     match std::env::current_dir() {
