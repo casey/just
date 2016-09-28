@@ -13,6 +13,10 @@ Adding one argument specifies the recipe:
 
 `j compile`
 
+Multiple recipes can be run in order:
+
+`j lint compile test`
+
 Arguments after `--` are exported as `ARG0, ARG1, ..., ARGN`, which can be used in the justfile. To run recipe `compile` and export `ARG0=bar` and `ARG1=baz`:
 
 `just compile -- bar baz`
