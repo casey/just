@@ -1,5 +1,17 @@
-#[macro_use]
-extern crate brev;
+macro_rules! warn {
+  ($($arg:tt)*) => {{
+    extern crate std;
+    use std::io::prelude::*;
+    let _ = writeln!(&mut std::io::stderr(), $($arg)*);
+  }};
+}
+macro_rules! die {
+  ($($arg:tt)*) => {{
+    extern crate std;
+    warn!($($arg)*);
+    std::process::exit(-1)
+  }};
+}
 
 #[derive(PartialEq, Clone, Copy)]
 enum Make {
