@@ -1,7 +1,10 @@
 [package]
 name = "j"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Casey Rodarmor <casey@rodarmor.com>"]
+license = "WTFPL/MIT/Apache"
+description = "a command runner"
+homepage = "https://github.com/casey/j"
 
 [dependencies]
 
