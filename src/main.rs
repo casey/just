@@ -97,7 +97,7 @@ fn main() {
     }
 
     match std::env::current_dir() {
-      Ok(pathbuf) => if pathbuf.as_os_str() == "/" { die!("No justfile found"); },
+      Ok(pathbuf) => if pathbuf.as_os_str() == "/" { die!("No justfile found."); },
       Err(error) => die!("Error getting current dir: {}", error),
     }
 
