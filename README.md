@@ -68,4 +68,6 @@ Even for small, personal projects, it's nice to be able to go into an old projec
 
 If you have a feature request, do open an issue and let me know.
 
-Happy computing!
+I hope you enjoy using j, and find great success and satisfaction in all your computational endeavors!
+
+😸
