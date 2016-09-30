@@ -1,0 +1,74 @@
+notes
+-----
+
+- look through all justfiles for features of make that I use
+- ask travis for his justfile
+
+- add tests
+  . test all existing behavior
+  . add parsing tests
+  . check dependency ordering
+
+- remove make dependency
+  . recipes must be '[a-z][a-z0-9-]*'
+  . only allow tabs or spaces, but not both in a recipe
+  . simple, but with recipe dependencies
+  . increased indentation for line continuations
+  . be as strict as possible, to make future additions
+    backwords compatible
+
+- add optional shebangs to recipes
+  . extract and run script
+  . preserve line numbers
+  . pass args as real args
+
+- ~/.justfile
+  . is this for non-project specific commands, so that when you
+    type .j in any directory, it uses it as a justfile?
+  . or is it for commands which are useful across projects?
+
+- allow a top-level shebang to script in whatever language
+  you like. all recipes are now implicitly in that language
+  . extract script up until --
+  . this may be ill-advised
+  . how do i deal with running the prelude multiple times?
+  . multiple top level shebangs?
+    #!/usr/bin/env python3
+    ... python prelude
+    ---
+    python-recipe:
+      print("hello")
+    #!/usr/bin/env perl
+    ... perl prelude
+    ---
+    perl-recipe:
+      print "hello"
+
+- what is the story for allowing justfiles in subdirectories?
+  use a different name, like 'subjustfile' or 'jfile'.
+  recurse up to the justfile, but add recipes in any jfile
+  that you find along the way. recipes in justfile are accessible,
+  and run from the justfile dir. recipes in jfile are run from jfile
+  dir. refuse to run if a recipe in justfile and jfile conflict
+
+- add a command for fanning out?
+  `j --all build` fans out into subdirectories and builds
+
+- rust is a given, so one option is to write a very simple shell
+  language and only call binaries from cargo. include some kind
+  of dependency description, and install those binaries. should
+  look at rc for inspiration. 'cargo cult' is a great name
+
+- mascot?
+  . tower of babel
+  . howl's moving castle
+  . testuo
+  . thoth
+  . kali
+
+- would it be useful to expose original directory to j recipes?
+
+- comedy option: super complex recipe lines:
+  a: b c # run b and c, then a
+  b | a: c # run c, then b, and pipe output of b into a
+  a >> a.log: # run a and append output to a.log
