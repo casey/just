@@ -57,7 +57,9 @@ notes
 - rust is a given, so one option is to write a very simple shell
   language and only call binaries from cargo. include some kind
   of dependency description, and install those binaries. should
-  look at rc for inspiration. 'cargo cult' is a great name
+  look at rc for inspiration. 'cargo cult' is a great name.
+  perhaps it could avoid barewords, and actually have types that
+  map to rust types.
 
 - mascot?
   . tower of babel
@@ -72,3 +74,5 @@ notes
   a: b c # run b and c, then a
   b | a: c # run c, then b, and pipe output of b into a
   a >> a.log: # run a and append output to a.log
+  a B C: # a takes B and C as command line args, like j a HELLO BOB
+         # can enforce at command line
