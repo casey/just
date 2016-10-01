@@ -2,7 +2,8 @@ extern crate regex;
 
 use std::io::prelude::*;
 
-use std::{io, fs, env, collections};
+use std::{io, fs, env};
+use std::collections::{HashSet, BTreeMap};
 
 macro_rules! warn {
   ($($arg:tt)*) => {{
@@ -28,21 +29,21 @@ struct Recipe<'a> {
   name:               &'a str,
   leading_whitespace: &'a str,
   commands:           Vec<&'a str>,
-  dependencies:       collections::HashSet<&'a str>,
+  dependencies:       HashSet<&'a str>,
 }
 
 struct Resolver<'a> {
-  recipes:  &'a collections::BTreeMap<&'a str, Recipe<'a>>,
-  resolved: collections::HashSet<&'a str>,
-  seen:     collections::HashSet<&'a str>,
+  recipes:  &'a BTreeMap<&'a str, Recipe<'a>>,
+  resolved: HashSet<&'a str>,
+  seen:     HashSet<&'a str>,
   stack:    Vec<&'a str>,
 }
 
-fn resolve<'a> (recipes: &'a collections::BTreeMap<&'a str, Recipe<'a>>) {
+fn resolve<'a> (recipes: &'a BTreeMap<&'a str, Recipe<'a>>) {
   let mut resolver = Resolver {
     recipes:  recipes,
-    resolved: collections::HashSet::new(),
-    seen:     collections::HashSet::new(),
+    resolved: HashSet::new(),
+    seen:     HashSet::new(),
     stack:    vec![],
   };
 
@@ -114,7 +115,7 @@ fn main() {
   let name_re       = re(r"^[a-z](-[a-z]|[a-z])*$");
   let whitespace_re = re(r"\s+");
 
-  let mut recipes = collections::BTreeMap::new();
+  let mut recipes = BTreeMap::new();
   let mut current_recipe: Option<Recipe> = None;
   for (i, line) in contents.lines().enumerate() {
     if blank_re.is_match(line) {
@@ -150,7 +151,7 @@ fn main() {
     } else if let Some(captures) = label_re.captures(line) {
       let name = captures.at(1).unwrap();
       let rest = captures.at(3).unwrap().trim();
-      let mut dependencies = collections::HashSet::new();
+      let mut dependencies = HashSet::new();
       for part in whitespace_re.split(rest) {
         if name_re.is_match(part) {
           if dependencies.contains(part) {
