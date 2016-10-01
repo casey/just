@@ -31,3 +31,9 @@ compile:
 # clean up
 clean:
 	rm -r tmp
+
+a: b
+	echo a
+
+b: a
+	echo b

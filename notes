@@ -1,13 +1,23 @@
 notes
 -----
 
-- look through all justfiles for features of make that I use
-- ask travis for his justfile
-
 - add tests
   . test all existing behavior
   . add parsing tests
   . check dependency ordering
+
+- parsing tests
+  . --list: make sure the right dependencies are listed
+  . --show: make sure the recipe contents is parsed
+
+- look through all justfiles for features of make that I use. so far:
+  . phony
+  . SHELL := zsh
+  . quiet
+  . make variables
+
+- ask travis for his justfile
+
 
 - remove make dependency
   . recipes must be '[a-z][a-z0-9-]*'

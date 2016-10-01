@@ -5,3 +5,7 @@ authors = ["Casey Rodarmor <casey@rodarmor.com>"]
 license = "WTFPL/MIT/Apache-2.0"
 description = "a command runner"
 homepage = "https://github.com/casey/j"
+
+[dependencies]
+
+regex = "*"
