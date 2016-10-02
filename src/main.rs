@@ -130,7 +130,7 @@ struct Justfile<'a> {
 fn parse<'a>(text: &'a str) -> Result<Justfile, Error> {
   let shebang_re    = re(r"^\s*#!(.*)$");
   let comment_re    = re(r"^\s*#[^!].*$");
-  let command_re    = re(r"^(\s+)(.*)$");
+  let command_re    = re(r"^(\s+).*$");
   let blank_re      = re(r"^\s*$");
   let label_re      = re(r"^([a-z](-[a-z]|[a-z])*):(.*)$");
   let name_re       = re(r"^[a-z](-[a-z]|[a-z])*$");
@@ -157,8 +157,7 @@ fn parse<'a>(text: &'a str) -> Result<Justfile, Error> {
               found:    leading_whitespace,
             }));
           }
-          let command = captures.at(2).unwrap();
-          recipe.commands.push(command);
+          recipe.commands.push(line.split_at(recipe.leading_whitespace.len()).1);
           current_recipe = Some(recipe);
           continue;
         },
