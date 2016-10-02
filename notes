@@ -6,9 +6,18 @@ notes
   . add parsing tests
   . check dependency ordering
 
+- allow leading tabs or leading spaces, but not a mix
+  after leading tabs, additional spaces or tabs are allowed
+  for line continuation
+  after leading spaces, only additional spaces are allowed
+  for line continuation
+
 - parsing tests
   . --list: make sure the right dependencies are listed
   . --show: make sure the recipe contents is parsed
+
+make sure that bad names are disallowed
+trigger all errors
 
 - look through all justfiles for features of make that I use. so far:
   . phony
