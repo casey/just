@@ -1,0 +1,339 @@
+#[cfg(test)]
+mod tests;
+
+extern crate regex;
+
+use std::io::prelude::*;
+
+use std::{fs, fmt};
+use std::collections::{BTreeMap, BTreeSet, HashSet};
+use std::fmt::Display;
+use regex::Regex;
+
+macro_rules! warn {
+  ($($arg:tt)*) => {{
+    extern crate std;
+    use std::io::prelude::*;
+    let _ = writeln!(&mut std::io::stderr(), $($arg)*);
+  }};
+}
+macro_rules! die {
+  ($($arg:tt)*) => {{
+    extern crate std;
+    warn!($($arg)*);
+    std::process::exit(-1)
+  }};
+}
+
+pub trait Slurp {
+  fn slurp(&mut self) -> Result<String, std::io::Error>;
+}
+
+impl Slurp for fs::File {
+  fn slurp(&mut self) -> Result<String, std::io::Error> {
+    let mut destination = String::new();
+    try!(self.read_to_string(&mut destination));
+    Ok(destination)
+  }
+}
+
+fn re(pattern: &str) -> Regex {
+  Regex::new(pattern).unwrap()
+}
+
+pub struct Recipe<'a> {
+  line:               usize,
+  name:               &'a str,
+  leading_whitespace: &'a str,
+  commands:           Vec<&'a str>,
+  dependencies:       BTreeSet<&'a str>,
+}
+
+#[derive(Debug)]
+pub struct Error<'a> {
+  text: &'a str,
+  line: usize,
+  kind: ErrorKind<'a>
+}
+
+#[derive(Debug, PartialEq)]
+enum ErrorKind<'a> {
+  BadRecipeName{name: &'a str},
+  CircularDependency{circle: Vec<&'a str>},
+  DuplicateDependency{name: &'a str},
+  DuplicateRecipe{first: usize, name: &'a str},
+  TabAfterSpace{whitespace: &'a str},
+  MixedLeadingWhitespace{whitespace: &'a str},
+  InconsistentLeadingWhitespace{expected: &'a str, found: &'a str},
+  Shebang,
+  UnknownDependency{name: &'a str, unknown: &'a str},
+  Unparsable,
+  UnparsableDependencies,
+}
+
+fn error<'a>(text: &'a str, line: usize, kind: ErrorKind<'a>) 
+  -> Error<'a>
+{
+  Error {
+    text: text,
+    line: line,
+    kind: kind,
+  }
+}
+
+fn show_whitespace(text: &str) -> String {
+  text.chars().map(|c| match c { '\t' => 't', ' ' => 's', _ => c }).collect()
+}
+
+fn mixed(text: &str) -> bool {
+  !(text.chars().all(|c| c == ' ') || text.chars().all(|c| c == '\t'))
+}
+
+fn tab_after_space(text: &str) -> bool {
+  let mut space = false;
+  for c in text.chars() {
+    match c {
+      ' ' => space = true,
+      '\t' => if space {
+        return true;
+      },
+      _ => {},
+    }
+  }
+  return false;
+}
+
+impl<'a> Display for Error<'a> {
+  fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+    try!(write!(f, "justfile:{}: ", self.line));
+
+    match self.kind {
+      ErrorKind::BadRecipeName{name} => {
+        try!(writeln!(f, "recipe name does not match /[a-z](-[a-z]|[a-z])*/: {}", name));
+      }
+      ErrorKind::CircularDependency{ref circle} => {
+        try!(write!(f, "circular dependency: {}", circle.join(" -> ")));
+        return Ok(());
+      }
+      ErrorKind::DuplicateDependency{name} => {
+        try!(writeln!(f, "duplicate dependency: {}", name));
+      }
+      ErrorKind::DuplicateRecipe{first, name} => {
+        try!(write!(f, "duplicate recipe: {} appears on lines {} and {}", 
+                    name, first, self.line));
+        return Ok(());
+      }
+      ErrorKind::TabAfterSpace{whitespace} => {
+        try!(writeln!(f, "found tab after space: {}", show_whitespace(whitespace)));
+      }
+      ErrorKind::MixedLeadingWhitespace{whitespace} => {
+        try!(writeln!(f,
+          "inconsistant leading whitespace: recipe started with {}:",
+          show_whitespace(whitespace)
+        ));
+      }
+      ErrorKind::InconsistentLeadingWhitespace{expected, found} => {
+        try!(writeln!(f,
+          "inconsistant leading whitespace: recipe started with {} but found line with {}:",
+          show_whitespace(expected), show_whitespace(found)
+        ));
+      }
+      ErrorKind::Shebang => {
+        try!(writeln!(f, "shebang \"#!\" is reserved syntax"))
+      }
+      ErrorKind::UnknownDependency{name, unknown} => {
+        try!(writeln!(f, "recipe {} has unknown dependency {}", name, unknown));
+      }
+      ErrorKind::Unparsable => {
+        try!(writeln!(f, "could not parse line:"));
+      }
+      ErrorKind::UnparsableDependencies => {
+        try!(writeln!(f, "could not parse dependencies:"));
+      }
+    }
+
+    match self.text.lines().nth(self.line) {
+      Some(line) => try!(write!(f, "{}", line)),
+      None => die!("internal error: Error has invalid line number: {}", self.line),
+    }
+
+    Ok(())
+  }
+}
+
+pub struct Justfile<'a> {
+  pub recipes: BTreeMap<&'a str, Recipe<'a>>,
+}
+
+impl<'a> Justfile<'a> {
+  pub fn first(&self) -> Option<&'a str> {
+    let mut first: Option<&Recipe<'a>> = None;
+    for (_, recipe) in self.recipes.iter() {
+      if let Some(first_recipe) = first {
+        if recipe.line < first_recipe.line {
+          first = Some(recipe)
+        }
+      } else {
+        first = Some(recipe);
+      }
+    }
+    first.map(|recipe| recipe.name)
+  }
+
+  pub fn run(&self, recipes: &[&str]) {
+    if recipes.len() == 0 {
+      println!("running first recipe");
+    } else {
+      for recipe in recipes {
+        println!("running {}...", recipe);
+      }
+    }
+  }
+
+  pub fn contains(&self, name: &str) -> bool {
+    self.recipes.contains_key(name)
+  }
+}
+
+pub fn parse<'a>(text: &'a str) -> Result<Justfile, Error> {
+  let shebang_re    = re(r"^\s*#!(.*)$"           );
+  let comment_re    = re(r"^\s*#([^!].*)?$"       );
+  let command_re    = re(r"^(\s+).*$"             );
+  let blank_re      = re(r"^\s*$"                 );
+  let label_re      = re(r"^([^#]*):(.*)$"        );
+  let name_re       = re(r"^[a-z](-[a-z]|[a-z])*$");
+  let whitespace_re = re(r"\s+"                   );
+
+  let mut recipes: BTreeMap<&'a str, Recipe<'a>> = BTreeMap::new();
+  let mut current_recipe: Option<Recipe> = None;
+  for (i, line) in text.lines().enumerate() {
+    if blank_re.is_match(line) {
+      continue;
+    } else if shebang_re.is_match(line) {
+      return Err(error(text, i, ErrorKind::Shebang));
+    }
+
+    if let Some(mut recipe) = current_recipe {
+      match command_re.captures(line) {
+        Some(captures) => {
+          let leading_whitespace = captures.at(1).unwrap();
+          if tab_after_space(leading_whitespace) {
+            return Err(error(text, i, ErrorKind::TabAfterSpace{
+              whitespace: leading_whitespace,
+            }));
+          } else if recipe.leading_whitespace == "" {
+            if mixed(leading_whitespace) {
+              return Err(error(text, i, ErrorKind::MixedLeadingWhitespace{
+                whitespace: leading_whitespace
+              }));
+            }
+            recipe.leading_whitespace = leading_whitespace;
+          } else if !line.starts_with(recipe.leading_whitespace) {
+            return Err(error(text, i, ErrorKind::InconsistentLeadingWhitespace{
+              expected: recipe.leading_whitespace,
+              found:    leading_whitespace,
+            }));
+          }
+          recipe.commands.push(line.split_at(recipe.leading_whitespace.len()).1);
+          current_recipe = Some(recipe);
+          continue;
+        },
+        None => {
+          recipes.insert(recipe.name, recipe);
+          current_recipe = None;
+        },
+      }
+    }
+    
+    if comment_re.is_match(line) {
+      // ignore
+    } else if let Some(captures) = label_re.captures(line) {
+      let name = captures.at(1).unwrap();
+      if !name_re.is_match(name) {
+        return Err(error(text, i, ErrorKind::BadRecipeName {
+          name: name,
+        }));
+      }
+      if let Some(recipe) = recipes.get(name) {
+        return Err(error(text, i, ErrorKind::DuplicateRecipe {
+          first: recipe.line,
+          name: name,
+        }));
+      }
+
+      let rest = captures.at(2).unwrap().trim();
+      let mut dependencies = BTreeSet::new();
+      for part in whitespace_re.split(rest) {
+        if name_re.is_match(part) {
+          if dependencies.contains(part) {
+            return Err(error(text, i, ErrorKind::DuplicateDependency{
+              name: part,
+            }));
+          }
+          dependencies.insert(part);
+        } else {
+          return Err(error(text, i, ErrorKind::UnparsableDependencies));
+        }
+      }
+
+      current_recipe = Some(Recipe{
+        line:               i,
+        name:               name,
+        leading_whitespace: "",
+        commands:           vec![],
+        dependencies:      dependencies,
+      });
+    } else {
+      return Err(error(text, i, ErrorKind::Unparsable));
+    }
+  }
+
+  if let Some(recipe) = current_recipe {
+    recipes.insert(recipe.name, recipe);
+  }
+
+  let mut resolved = HashSet::new();
+  let mut seen     = HashSet::new();
+  let mut stack    = vec![];
+
+  fn resolve<'a>(
+    text:     &'a str,
+    recipes:  &BTreeMap<&str, Recipe<'a>>,
+    resolved: &mut HashSet<&'a str>,
+    seen:     &mut HashSet<&'a str>,
+    stack:    &mut Vec<&'a str>,
+    recipe:   &Recipe<'a>,
+  ) -> Result<(), Error<'a>> {
+    stack.push(recipe.name);
+    seen.insert(recipe.name);
+    for dependency_name in &recipe.dependencies {
+      match recipes.get(dependency_name) {
+        Some(dependency) => if !resolved.contains(dependency.name) {
+          if seen.contains(dependency.name) {
+            let first = stack[0];
+            stack.push(first);
+            return Err(error(text, recipe.line, ErrorKind::CircularDependency {
+              circle: stack.iter()
+                .skip_while(|name| **name != dependency.name)
+                .cloned().collect()
+            }));
+          }
+          return resolve(text, recipes, resolved, seen, stack, dependency);
+        },
+        None => return Err(error(text, recipe.line, ErrorKind::UnknownDependency {
+          name:    recipe.name,
+          unknown: dependency_name
+        })),
+      }
+    }
+    resolved.insert(recipe.name);
+    stack.pop();
+    Ok(())
+  }
+
+  for (_, ref recipe) in &recipes {
+    try!(resolve(text, &recipes, &mut resolved, &mut seen, &mut stack, &recipe));
+  }
+
+  Ok(Justfile{recipes: recipes})
+}

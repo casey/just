@@ -8,4 +8,5 @@ homepage = "https://github.com/casey/j"
 
 [dependencies]
 
-regex = "*"
+regex = "^0.1.77"
+clap = "^2.0.0"
