@@ -1,8 +1,5 @@
-# just a makefile with no special magic
-
 test:
-	cargo build
-	./target/debug/j args -- a b c
+	cargo test
 
 # list all recipies
 list:
@@ -31,9 +28,3 @@ compile:
 # clean up
 clean:
 	rm -r tmp
-
-a: b
-	echo a
-
-b: a
-	echo b

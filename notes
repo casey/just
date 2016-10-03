@@ -1,98 +1,51 @@
 notes
 -----
 
-- add tests
-  . test all existing behavior
-  . add parsing tests
-  . check dependency ordering
-
-- allow leading tabs or leading spaces, but not a mix
-  after leading tabs, additional spaces or tabs are allowed
-  for line continuation
-  after leading spaces, only additional spaces are allowed
-  for line continuation
-
-- parsing tests
-  . --list: make sure the right dependencies are listed
-  . --show: make sure the recipe contents is parsed
-
-- make sure that bad names are disallowed
-- trigger all errors
-- make sure that extra whitespace is not a parse error
-
 - look through all justfiles for features of make that I use. so far:
   . phony
   . SHELL := zsh
   . quiet
   . make variables
+- ask travis for his justfiles
 
-- ask travis for his justfile
+command line arguments:
+- --show recipe: print recipe information
+- --list if there's a bad recipe given
 
+execution:
+- indent for line continuation
+- use sh -c to execute lines
 
-- remove make dependency
-  . recipes must be '[a-z][a-z0-9-]*'
-  . only allow tabs or spaces, but not both in a recipe
-  . simple, but with recipe dependencies
-  . increased indentation for line continuations
-  . be as strict as possible, to make future additions
-    backwords compatible
+polyglot:
+- recipes can have shebangs
+- extract and run script
+- preserve line numbers
+- whole file can have shebang
+  . allow launching binaries from cargo
+  . script until --
+  . all recipes are then in that language?
 
-- add optional shebangs to recipes
-  . extract and run script
-  . preserve line numbers
-  . pass args as real args
-
-- ~/.justfile
+extras:
+- args
+- ~/.justfile: 
   . is this for non-project specific commands, so that when you
     type .j in any directory, it uses it as a justfile?
   . or is it for commands which are useful across projects?
-
-- allow a top-level shebang to script in whatever language
-  you like. all recipes are now implicitly in that language
-  . extract script up until --
-  . this may be ill-advised
-  . how do i deal with running the prelude multiple times?
-  . multiple top level shebangs?
-    #!/usr/bin/env python3
-    ... python prelude
-    ---
-    python-recipe:
-      print("hello")
-    #!/usr/bin/env perl
-    ... perl prelude
-    ---
-    perl-recipe:
-      print "hello"
-
+- super complex recipe lines:
+  a: b c # run b and c, then a
+  b | a: c # run c, then b, and pipe output of b into a
+  a >> a.log: # run a and append output to a.log
+  a B C: # a takes B and C as command line args, like j a HELLO BOB
+         # can enforce at command line
 - what is the story for allowing justfiles in subdirectories?
   use a different name, like 'subjustfile' or 'jfile'.
   recurse up to the justfile, but add recipes in any jfile
   that you find along the way. recipes in justfile are accessible,
   and run from the justfile dir. recipes in jfile are run from jfile
   dir. refuse to run if a recipe in justfile and jfile conflict
-
-- add a command for fanning out?
-  `j --all build` fans out into subdirectories and builds
-
 - rust is a given, so one option is to write a very simple shell
-  language and only call binaries from cargo. include some kind
-  of dependency description, and install those binaries. should
-  look at rc for inspiration. 'cargo cult' is a great name.
-  perhaps it could avoid barewords, and actually have types that
-  map to rust types.
-
-- mascot?
-  . tower of babel
-  . howl's moving castle
-  . testuo
-  . thoth
-  . kali
-
-- would it be useful to expose original directory to j recipes?
-
-- comedy option: super complex recipe lines:
-  a: b c # run b and c, then a
-  b | a: c # run c, then b, and pipe output of b into a
-  a >> a.log: # run a and append output to a.log
-  a B C: # a takes B and C as command line args, like j a HELLO BOB
-         # can enforce at command line
+  command parser and use that instead of the system shell. this
+  would make recipes work across systems with incompatible shells.
+  additionally, we could also define a mode where it will only call
+  commands from cargo, which would make recipes work across systems
+  with incompatible userlands 'rc' or 'cargo cult' is a great name
