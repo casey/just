@@ -61,38 +61,25 @@ fn main() {
 
   let justfile = j::parse(&text).unwrap_or_else(|error| die!("{}", error));
 
-  if let Some(recipes) = matches.values_of("recipe") {
-    let mut missing = vec![];
-    for recipe in recipes {
-      if !justfile.recipes.contains_key(recipe) {
-        missing.push(recipe);
-      }
-    }
-    if missing.len() > 0 {
-      die!("unknown recipe{}: {}", if missing.len() == 1 { "" } else { "s" }, missing.join(" "));
-    }
-  }
-
   if matches.is_present("list") {
-    if justfile.recipes.len() == 0 {
+    if justfile.count() == 0 {
       warn!("Justfile contains no recipes");
     } else {
-      warn!("{}", justfile.recipes.keys().cloned().collect::<Vec<_>>().join(" "));
+      warn!("{}", justfile.recipes().join(" "));
     }
     std::process::exit(0);
   }
 
-  if let Some(values) = matches.values_of("recipe") {
-    let names = values.collect::<Vec<_>>();
-    for name in names.iter() {
-      if !justfile.contains(name) {
-        die!("Justfile does not contain recipe \"{}\"", name);
-      }
-    }
-    justfile.run(&names)
+  let names = if let Some(names) = matches.values_of("recipe") {
+    names.collect::<Vec<_>>()
   } else if let Some(name) = justfile.first() {
-    justfile.run(&[name])
+    vec![name]
   } else {
     die!("Justfile contains no recipes");
+  };
+
+  if let Err(run_error) = justfile.run(&names) {
+    warn!("{}", run_error);
+    std::process::exit(if let j::RunError::Code{code, ..} = run_error { code } else { -1 });
   }
 }

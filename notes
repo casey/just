@@ -1,6 +1,13 @@
 notes
 -----
 
+-- report double compile error
+-- actually run recipes
+-- actually parse recipe and validate contents
+-- think about maybe using multiple cores
+-- should pre-requisite order really be arbitrary?
+-- test plan order
+
 - look through all justfiles for features of make that I use. so far:
   . phony
   . SHELL := zsh
@@ -8,9 +15,11 @@ notes
   . make variables
 - ask travis for his justfiles
 
+- comment code
+
 command line arguments:
 - --show recipe: print recipe information
-- --list if there's a bad recipe given
+- --list recipes if  a bad recipe given
 
 execution:
 - indent for line continuation

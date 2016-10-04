@@ -41,12 +41,62 @@ fn re(pattern: &str) -> Regex {
   Regex::new(pattern).unwrap()
 }
 
-pub struct Recipe<'a> {
+struct Recipe<'a> {
   line:               usize,
   name:               &'a str,
   leading_whitespace: &'a str,
   commands:           Vec<&'a str>,
   dependencies:       BTreeSet<&'a str>,
+}
+
+impl<'a> Recipe<'a> {
+  fn run(&self) -> Result<(), RunError<'a>> {
+    // TODO: actually run recipes
+    warn!("running {}", self.name);
+    for command in &self.commands {
+     warn!("{}", command);
+    }
+    // Err(RunError::Code{recipe: self.name, code: -1})
+    Ok(())
+  }
+}
+
+fn resolve<'a>(
+  text:     &'a str,
+  recipes:  &BTreeMap<&str, Recipe<'a>>,
+  resolved: &mut HashSet<&'a str>,
+  seen:     &mut HashSet<&'a str>,
+  stack:    &mut Vec<&'a str>,
+  recipe:   &Recipe<'a>,
+) -> Result<(), Error<'a>> {
+  if resolved.contains(recipe.name) {
+    return Ok(())
+  }
+  stack.push(recipe.name);
+  seen.insert(recipe.name);
+  for dependency_name in &recipe.dependencies {
+    match recipes.get(dependency_name) {
+      Some(dependency) => if !resolved.contains(dependency.name) {
+        if seen.contains(dependency.name) {
+          let first = stack[0];
+          stack.push(first);
+          return Err(error(text, recipe.line, ErrorKind::CircularDependency {
+            circle: stack.iter()
+              .skip_while(|name| **name != dependency.name)
+              .cloned().collect()
+          }));
+        }
+        return resolve(text, recipes, resolved, seen, stack, dependency);
+      },
+      None => return Err(error(text, recipe.line, ErrorKind::UnknownDependency {
+        name:    recipe.name,
+        unknown: dependency_name
+      })),
+    }
+  }
+  resolved.insert(recipe.name);
+  stack.pop();
+  Ok(())
 }
 
 #[derive(Debug)]
@@ -162,7 +212,7 @@ impl<'a> Display for Error<'a> {
 }
 
 pub struct Justfile<'a> {
-  pub recipes: BTreeMap<&'a str, Recipe<'a>>,
+  recipes: BTreeMap<&'a str, Recipe<'a>>,
 }
 
 impl<'a> Justfile<'a> {
@@ -180,18 +230,67 @@ impl<'a> Justfile<'a> {
     first.map(|recipe| recipe.name)
   }
 
-  pub fn run(&self, recipes: &[&str]) {
-    if recipes.len() == 0 {
-      println!("running first recipe");
-    } else {
-      for recipe in recipes {
-        println!("running {}...", recipe);
-      }
-    }
+  pub fn count(&self) -> usize {
+    self.recipes.len()
   }
 
-  pub fn contains(&self, name: &str) -> bool {
-    self.recipes.contains_key(name)
+  pub fn recipes(&self) -> Vec<&'a str> {
+    self.recipes.keys().cloned().collect()
+  }
+
+  fn run_recipe(&self, recipe: &Recipe<'a>, ran: &mut HashSet<&'a str>) -> Result<(), RunError> {
+    for dependency_name in &recipe.dependencies {
+      if !ran.contains(dependency_name) {
+        try!(self.run_recipe(&self.recipes[dependency_name], ran));
+      }
+    }
+    try!(recipe.run());
+    ran.insert(recipe.name);
+    Ok(())
+  }
+
+  pub fn run<'b>(&'a self, names: &[&'b str]) -> Result<(), RunError<'b>> 
+    where 'a: 'b
+  {
+    let mut missing = vec![];
+    for recipe in names {
+      if !self.recipes.contains_key(recipe) {
+        missing.push(*recipe);
+      }
+    }
+    if missing.len() > 0 {
+      return Err(RunError::UnknownRecipes{recipes: missing});
+    }
+    let recipes = names.iter().map(|name| self.recipes.get(name).unwrap()).collect::<Vec<_>>();
+    let mut ran = HashSet::new();
+    for recipe in recipes {
+      try!(self.run_recipe(recipe, &mut ran));
+    }
+    Ok(())
+  }
+}
+
+pub enum RunError<'a> {
+  UnknownRecipes{recipes: Vec<&'a str>},
+  // Signal{recipe: &'a str, signal: i32},
+  Code{recipe: &'a str, code: i32},
+}
+
+impl<'a> Display for RunError<'a> {
+  fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+    match self {
+      &RunError::UnknownRecipes{ref recipes} => {
+        if recipes.len() == 1 { 
+          try!(write!(f, "Justfile does not contain recipe: {}", recipes[0]));
+        } else {
+          try!(write!(f, "Justfile does not contain recipes: {}", recipes.join(" ")));
+        };
+      },
+      &RunError::Code{recipe, code} => {
+        try!(write!(f, "Recipe \"{}\" failed with code {}", recipe, code));
+      },
+    }
+    Ok(())
   }
 }
 
@@ -295,41 +394,6 @@ pub fn parse<'a>(text: &'a str) -> Result<Justfile, Error> {
   let mut resolved = HashSet::new();
   let mut seen     = HashSet::new();
   let mut stack    = vec![];
-
-  fn resolve<'a>(
-    text:     &'a str,
-    recipes:  &BTreeMap<&str, Recipe<'a>>,
-    resolved: &mut HashSet<&'a str>,
-    seen:     &mut HashSet<&'a str>,
-    stack:    &mut Vec<&'a str>,
-    recipe:   &Recipe<'a>,
-  ) -> Result<(), Error<'a>> {
-    stack.push(recipe.name);
-    seen.insert(recipe.name);
-    for dependency_name in &recipe.dependencies {
-      match recipes.get(dependency_name) {
-        Some(dependency) => if !resolved.contains(dependency.name) {
-          if seen.contains(dependency.name) {
-            let first = stack[0];
-            stack.push(first);
-            return Err(error(text, recipe.line, ErrorKind::CircularDependency {
-              circle: stack.iter()
-                .skip_while(|name| **name != dependency.name)
-                .cloned().collect()
-            }));
-          }
-          return resolve(text, recipes, resolved, seen, stack, dependency);
-        },
-        None => return Err(error(text, recipe.line, ErrorKind::UnknownDependency {
-          name:    recipe.name,
-          unknown: dependency_name
-        })),
-      }
-    }
-    resolved.insert(recipe.name);
-    stack.pop();
-    Ok(())
-  }
 
   for (_, ref recipe) in &recipes {
     try!(resolve(text, &recipes, &mut resolved, &mut seen, &mut stack, &recipe));
