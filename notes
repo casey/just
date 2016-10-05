@@ -1,6 +1,8 @@
 notes
 -----
 
+- fix --show to not print final newline, add a helper that iterates over
+  (item, first, last)
 - look through all justfiles for features of make that I use. so far:
   . phony
   . SHELL := zsh
@@ -11,7 +13,6 @@ notes
 
 command line arguments:
 - --show recipe: print recipe information
-- --list recipes if  a bad recipe given
 
 execution:
 - indent for line continuation

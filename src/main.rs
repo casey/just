@@ -29,6 +29,11 @@ fn main() {
          .short("l")
          .long("list")
          .help("Lists available recipes"))
+    .arg(Arg::with_name("show")
+         .short("s")
+         .long("show")
+         .takes_value(true)
+         .help("Show information about a recipe"))
     .arg(Arg::with_name("recipe")
          .multiple(true)
          .help("recipe(s) to run, defaults to the first recipe in the justfile"))
@@ -68,6 +73,16 @@ fn main() {
       warn!("{}", justfile.recipes().join(" "));
     }
     std::process::exit(0);
+  }
+
+  if let Some(name) = matches.value_of("show") {
+    match justfile.get(name) {
+      Some(recipe) => {
+        warn!("{}", recipe);
+        std::process::exit(0);
+      }
+      None => die!("justfile contains no recipe \"{}\"", name)
+    }
   }
 
   let names = if let Some(names) = matches.values_of("recipe") {

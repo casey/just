@@ -41,12 +41,22 @@ fn re(pattern: &str) -> Regex {
   Regex::new(pattern).unwrap()
 }
 
-struct Recipe<'a> {
+pub struct Recipe<'a> {
   line:               usize,
   name:               &'a str,
   leading_whitespace: &'a str,
   commands:           Vec<&'a str>,
   dependencies:       BTreeSet<&'a str>,
+}
+
+impl<'a> Display for Recipe<'a> {
+  fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+    try!(writeln!(f, "{}:", self.name));
+    for command in self.commands.iter() {
+      try!(writeln!(f, "    {}", command));
+    }
+    Ok(())
+  }
 }
 
 #[cfg(unix)]
@@ -299,6 +309,10 @@ impl<'a> Justfile<'a> {
       try!(self.run_recipe(recipe, &mut ran));
     }
     Ok(())
+  }
+
+  pub fn get(&self, name: &str) -> Option<&Recipe<'a>> {
+    self.recipes.get(name)
   }
 }
 
