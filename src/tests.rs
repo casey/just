@@ -1,3 +1,5 @@
+extern crate tempdir;
+
 use super::{ErrorKind, Justfile};
 
 fn expect_error(text: &str, line: usize, expected_error_kind: ErrorKind) {
@@ -129,4 +131,44 @@ fn parse() {
 fn first() {
   let justfile = expect_success("#hello\n#goodbye\na:\nb:\nc:\n");
   assert!(justfile.first().unwrap() == "a");
+}
+
+#[test]
+fn unknown_recipes() {
+  match expect_success("a:\nb:\nc:").run(&["a", "x", "y", "z"]).unwrap_err() {
+    super::RunError::UnknownRecipes{recipes} => assert_eq!(recipes, &["x", "y", "z"]),
+    other @ _ => panic!("expected an unknown recipe error, but got: {}", other),
+  }
+}
+
+#[test]
+fn code_error() {
+  match expect_success("fail:\n @function x { return 100; }; x").run(&["fail"]).unwrap_err() {
+    super::RunError::Code{recipe, code} => {
+      assert_eq!(recipe, "fail");
+      assert_eq!(code, 100);
+    },
+    other @ _ => panic!("expected an code run error, but got: {}", other),
+  }
+}
+
+#[test]
+fn run_order() {
+  let tmp = tempdir::TempDir::new("run_order").unwrap_or_else(|err| panic!("tmpdir: failed to create temporary directory: {}", err));
+  let path = tmp.path().to_str().unwrap_or_else(|| panic!("tmpdir: path was not valid UTF-8")).to_owned();
+  let text = r"
+a:
+  @touch a
+
+b: a
+  @mv a b
+
+c: b
+  @mv b c
+
+d: c
+  @rm c
+";
+  super::std::env::set_current_dir(path).expect("failed to set current directory");
+  expect_success(text).run(&["a", "d"]).unwrap();
 }

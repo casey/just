@@ -2,11 +2,10 @@ notes
 -----
 
 -- report double compile error
--- actually run recipes
--- actually parse recipe and validate contents
--- think about maybe using multiple cores
 -- should pre-requisite order really be arbitrary?
 -- test plan order
+
+-- use multiple cores
 
 - look through all justfiles for features of make that I use. so far:
   . phony
