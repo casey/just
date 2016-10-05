@@ -1,6 +1,6 @@
 test:
 	cargo test
-	cargo run -- quine
+	cargo run -- quine clean > /dev/null 2> /dev/null
 
 # list all recipies
 list:

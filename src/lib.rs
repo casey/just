@@ -5,7 +5,7 @@ extern crate regex;
 
 use std::io::prelude::*;
 
-use std::{fs, fmt};
+use std::{fs, fmt, process, io};
 use std::collections::{BTreeMap, BTreeSet, HashSet};
 use std::fmt::Display;
 use regex::Regex;
@@ -49,14 +49,46 @@ struct Recipe<'a> {
   dependencies:       BTreeSet<&'a str>,
 }
 
+#[cfg(unix)]
+fn error_from_signal<'a>(recipe: &'a str, exit_status: process::ExitStatus) -> RunError<'a> {
+  use std::os::unix::process::ExitStatusExt;
+  match exit_status.signal() {
+    Some(signal) => RunError::Signal{recipe: recipe, signal: signal},
+    None => RunError::UnknownFailure{recipe: recipe},
+  }
+}
+
+#[cfg(windows)]
+fn error_from_signal<'a>(recipe: &'a str, exit_status: process::ExitStatus) -> RunError<'a> {
+  RunError::UnknownFailure{recipe: recipe}
+}
+
 impl<'a> Recipe<'a> {
   fn run(&self) -> Result<(), RunError<'a>> {
-    // TODO: actually run recipes
-    warn!("running {}", self.name);
     for command in &self.commands {
-     warn!("{}", command);
+      let mut command = *command;
+      if !command.starts_with("@") {
+        warn!("{}", command);
+      } else {
+        command = &command[1..]; 
+      }
+      let status = process::Command::new("sh")
+        .arg("-c")
+        .arg(command)
+        .status();
+      try!(match status {
+        Ok(exit_status) => if let Some(code) = exit_status.code() {
+          if code == 0 {
+            Ok(())
+          } else {
+            Err(RunError::Code{recipe: self.name, code: code})
+          }
+        } else {
+          Err(error_from_signal(self.name, exit_status))
+        },
+        Err(io_error) => Err(RunError::IoError{recipe: self.name, io_error: io_error})
+      });
     }
-    // Err(RunError::Code{recipe: self.name, code: -1})
     Ok(())
   }
 }
@@ -270,10 +302,13 @@ impl<'a> Justfile<'a> {
   }
 }
 
+#[derive(Debug)]
 pub enum RunError<'a> {
   UnknownRecipes{recipes: Vec<&'a str>},
-  // Signal{recipe: &'a str, signal: i32},
+  Signal{recipe: &'a str, signal: i32},
   Code{recipe: &'a str, code: i32},
+  UnknownFailure{recipe: &'a str},
+  IoError{recipe: &'a str, io_error: io::Error},
 }
 
 impl<'a> Display for RunError<'a> {
@@ -288,6 +323,19 @@ impl<'a> Display for RunError<'a> {
       },
       &RunError::Code{recipe, code} => {
         try!(write!(f, "Recipe \"{}\" failed with code {}", recipe, code));
+      },
+      &RunError::Signal{recipe, signal} => {
+        try!(write!(f, "Recipe \"{}\" wast terminated by signal {}", recipe, signal));
+      }
+      &RunError::UnknownFailure{recipe} => {
+        try!(write!(f, "Recipe \"{}\" failed for an unknown reason", recipe));
+      },
+      &RunError::IoError{recipe, ref io_error} => {
+        try!(match io_error.kind() {
+          io::ErrorKind::NotFound => write!(f, "Recipe \"{}\" could not be run because j could not find `sh` the command:\n{}", recipe, io_error),
+          io::ErrorKind::PermissionDenied => write!(f, "Recipe \"{}\" could not be run because j could not run `sh`:\n{}", recipe, io_error),
+          _ => write!(f, "Recipe \"{}\" could not be run because of an IO error while launching the `sh`:\n{}", recipe, io_error),
+        });
       },
     }
     Ok(())
