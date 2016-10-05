@@ -1,19 +1,12 @@
 notes
 -----
 
--- report double compile error
--- should pre-requisite order really be arbitrary?
--- test plan order
-
--- use multiple cores
-
 - look through all justfiles for features of make that I use. so far:
   . phony
   . SHELL := zsh
   . quiet
   . make variables
 - ask travis for his justfiles
-
 - comment code
 
 command line arguments:
@@ -35,6 +28,7 @@ polyglot:
 
 extras:
 - args
+- use launch recipes asyncronously
 - ~/.justfile: 
   . is this for non-project specific commands, so that when you
     type .j in any directory, it uses it as a justfile?
