@@ -1,34 +1,32 @@
 notes
 -----
 
+todo:
 - fix --show to not print final newline, add a helper that iterates over
   (item, first, last)
+- comment code
 - look through all justfiles for features of make that I use. so far:
   . phony
   . SHELL := zsh
   . quiet
   . make variables
 - ask travis for his justfiles
-- comment code
-
-command line arguments:
-- --show recipe: print recipe information
-
-execution:
-- indent for line continuation
-- use sh -c to execute lines
 
 polyglot:
 - recipes can have shebangs
 - extract and run script
 - preserve line numbers
-- whole file can have shebang
+- special 'prelude recipe"
   . allow launching binaries from cargo
   . script until --
   . all recipes are then in that language?
 
 extras:
-- args
+- args can be passed after --, or with some special syntax:
+  a: 1 2 3 :
+- should also add an annotation for recipes
+  a FOO BAR, export variables FOO and BAR with args
+- indent for line continuation
 - use launch recipes asyncronously
 - ~/.justfile: 
   . is this for non-project specific commands, so that when you
