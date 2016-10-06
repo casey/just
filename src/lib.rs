@@ -52,8 +52,12 @@ pub struct Recipe<'a> {
 impl<'a> Display for Recipe<'a> {
   fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
     try!(writeln!(f, "{}:", self.name));
-    for command in self.commands.iter() {
-      try!(writeln!(f, "    {}", command));
+    for (i, command) in self.commands.iter().enumerate() {
+      if i + 1 < self.commands.len() {
+        try!(writeln!(f, "    {}", command));
+      } {
+        try!(write!(f, "    {}", command));
+      }
     }
     Ok(())
   }
