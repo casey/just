@@ -1,5 +1,5 @@
 test:
-	cargo test
+	cargo test --lib
 	cargo run -- quine
 
 # list all recipies
