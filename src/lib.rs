@@ -87,7 +87,7 @@ impl<'a> Recipe<'a> {
         command = &command[1..]; 
       }
       let status = process::Command::new("sh")
-        .arg("-c")
+        .arg("-cu")
         .arg(command)
         .status();
       try!(match status {
