@@ -1,16 +1,9 @@
 notes
 -----
 
-todo:
-- fix --show to not print final newline, add a helper that iterates over
-  (item, first, last)
 - comment code
-- look through all justfiles for features of make that I use. so far:
-  . phony
-  . SHELL := zsh
-  . quiet
-  . make variables
-- ask travis for his justfiles
+- fix docs (note that shell is invoked with -cu)
+- publish to github and cargo
 
 polyglot:
 - recipes can have shebangs
