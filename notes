@@ -1,24 +1,29 @@
 notes
 -----
 
+polyglot:
+- recipes can have shebangs on first line
+- complain if there is extra leading whitespace in a non-shebang recipe
+- extract and run script
+- preserve line numbers
+
+- change name to "a polyglot command runner"
 - comment code
 - fix docs (note that shell is invoked with -cu)
 - publish to github and cargo
+- spam facebook, reddit
 
-polyglot:
-- recipes can have shebangs
-- extract and run script
-- preserve line numbers
-- special 'prelude recipe"
-  . allow launching binaries from cargo
-  . script until --
-  . all recipes are then in that language?
-
-extras:
+wishlist:
+- preludes:
+  may be nice to allow all recipes in a given langauge to share
+  functions, variables, etc. could have a "prelude" recipe
+  which was included as a prefix to other recipes
+- windows support: currently calling 'sh', which won't work on windows
 - args can be passed after --, or with some special syntax:
   a: 1 2 3 :
 - should also add an annotation for recipes
   a FOO BAR, export variables FOO and BAR with args
+  fail if doesn't get two arguments
 - indent for line continuation
 - use launch recipes asyncronously
 - ~/.justfile: 

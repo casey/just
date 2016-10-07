@@ -22,7 +22,7 @@ fn check_recipe(
   name: &str,
   line: usize,
   leading_whitespace: &str,
-  commands: &[&str],
+  lines: &[&str],
   dependencies: &[&str]
 ) {
   let recipe = match justfile.recipes.get(name) {
@@ -30,9 +30,9 @@ fn check_recipe(
     None => panic!("Justfile had no recipe \"{}\"", name),
   };
   assert_eq!(recipe.name, name);
-  assert_eq!(recipe.line, line);
+  assert_eq!(recipe.line_number, line);
   assert_eq!(recipe.leading_whitespace, leading_whitespace);
-  assert_eq!(recipe.commands, commands);
+  assert_eq!(recipe.lines, lines);
   assert_eq!(recipe.dependencies.iter().cloned().collect::<Vec<_>>(), dependencies);
 }
 
@@ -87,13 +87,19 @@ fn inconsistent_leading_whitespace() {
 
 #[test]
 fn shebang() {
-  expect_error("#!/bin/sh", 0, ErrorKind::Shebang);
-  expect_error("a:\n #!/bin/sh", 1, ErrorKind::Shebang);
+  expect_error("#!/bin/sh", 0, ErrorKind::OuterShebang);
+  expect_error("a:\n echo hello\n #!/bin/sh", 2, ErrorKind::NonLeadingShebang{recipe:"a"});
 }
 
 #[test]
 fn unknown_dependency() {
   expect_error("a: b", 0, ErrorKind::UnknownDependency{name: "a", unknown: "b"});
+}
+
+#[test]
+fn extra_whitespace() {
+  expect_error("a:\n blah\n  blarg", 2, ErrorKind::ExtraLeadingWhitespace);
+  expect_success("a:\n #!\n  print(1)");
 }
 
 #[test]
