@@ -42,21 +42,23 @@ fn re(pattern: &str) -> Regex {
 }
 
 pub struct Recipe<'a> {
-  line:               usize,
+  line_number:        usize,
+  label:              &'a str,
   name:               &'a str,
   leading_whitespace: &'a str,
-  commands:           Vec<&'a str>,
+  lines:              Vec<&'a str>,
   dependencies:       BTreeSet<&'a str>,
+  shebang:            bool,
 }
 
 impl<'a> Display for Recipe<'a> {
   fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-    try!(writeln!(f, "{}:", self.name));
-    for (i, command) in self.commands.iter().enumerate() {
-      if i + 1 < self.commands.len() {
-        try!(writeln!(f, "    {}", command));
+    try!(writeln!(f, "{}", self.label));
+    for (i, line) in self.lines.iter().enumerate() {
+      if i + 1 < self.lines.len() {
+        try!(writeln!(f, "    {}", line));
       } {
-        try!(write!(f, "    {}", command));
+        try!(write!(f, "    {}", line));
       }
     }
     Ok(())
@@ -79,7 +81,8 @@ fn error_from_signal<'a>(recipe: &'a str, exit_status: process::ExitStatus) -> R
 
 impl<'a> Recipe<'a> {
   fn run(&self) -> Result<(), RunError<'a>> {
-    for command in &self.commands {
+    // TODO: if shebang, run as script
+    for command in &self.lines {
       let mut command = *command;
       if !command.starts_with("@") {
         warn!("{}", command);
@@ -126,7 +129,7 @@ fn resolve<'a>(
         if seen.contains(dependency.name) {
           let first = stack[0];
           stack.push(first);
-          return Err(error(text, recipe.line, ErrorKind::CircularDependency {
+          return Err(error(text, recipe.line_number, ErrorKind::CircularDependency {
             circle: stack.iter()
               .skip_while(|name| **name != dependency.name)
               .cloned().collect()
@@ -134,7 +137,7 @@ fn resolve<'a>(
         }
         return resolve(text, recipes, resolved, seen, stack, dependency);
       },
-      None => return Err(error(text, recipe.line, ErrorKind::UnknownDependency {
+      None => return Err(error(text, recipe.line_number, ErrorKind::UnknownDependency {
         name:    recipe.name,
         unknown: dependency_name
       })),
@@ -160,8 +163,10 @@ enum ErrorKind<'a> {
   DuplicateRecipe{first: usize, name: &'a str},
   TabAfterSpace{whitespace: &'a str},
   MixedLeadingWhitespace{whitespace: &'a str},
+  ExtraLeadingWhitespace,
   InconsistentLeadingWhitespace{expected: &'a str, found: &'a str},
-  Shebang,
+  OuterShebang,
+  NonLeadingShebang{recipe: &'a str},
   UnknownDependency{name: &'a str, unknown: &'a str},
   Unparsable,
   UnparsableDependencies,
@@ -228,14 +233,20 @@ impl<'a> Display for Error<'a> {
           show_whitespace(whitespace)
         ));
       }
+      ErrorKind::ExtraLeadingWhitespace => {
+        try!(writeln!(f, "line has extra leading whitespace"));
+      }
       ErrorKind::InconsistentLeadingWhitespace{expected, found} => {
         try!(writeln!(f,
           "inconsistant leading whitespace: recipe started with {} but found line with {}:",
           show_whitespace(expected), show_whitespace(found)
         ));
       }
-      ErrorKind::Shebang => {
-        try!(writeln!(f, "shebang \"#!\" is reserved syntax"))
+      ErrorKind::OuterShebang => {
+        try!(writeln!(f, "a shebang \"#!\" is reserved syntax outside of recipes"))
+      }
+      ErrorKind::NonLeadingShebang{..} => {
+        try!(writeln!(f, "a shebang \"#!\" may only appear on the first line of a recipe"))
       }
       ErrorKind::UnknownDependency{name, unknown} => {
         try!(writeln!(f, "recipe {} has unknown dependency {}", name, unknown));
@@ -266,7 +277,7 @@ impl<'a> Justfile<'a> {
     let mut first: Option<&Recipe<'a>> = None;
     for (_, recipe) in self.recipes.iter() {
       if let Some(first_recipe) = first {
-        if recipe.line < first_recipe.line {
+        if recipe.line_number < first_recipe.line_number {
           first = Some(recipe)
         }
       } else {
@@ -374,8 +385,6 @@ pub fn parse<'a>(text: &'a str) -> Result<Justfile, Error> {
   for (i, line) in text.lines().enumerate() {
     if blank_re.is_match(line) {
       continue;
-    } else if shebang_re.is_match(line) {
-      return Err(error(text, i, ErrorKind::Shebang));
     }
 
     if let Some(mut recipe) = current_recipe {
@@ -399,7 +408,7 @@ pub fn parse<'a>(text: &'a str) -> Result<Justfile, Error> {
               found:    leading_whitespace,
             }));
           }
-          recipe.commands.push(line.split_at(recipe.leading_whitespace.len()).1);
+          recipe.lines.push(line.split_at(recipe.leading_whitespace.len()).1);
           current_recipe = Some(recipe);
           continue;
         },
@@ -412,6 +421,8 @@ pub fn parse<'a>(text: &'a str) -> Result<Justfile, Error> {
     
     if comment_re.is_match(line) {
       // ignore
+    } else if shebang_re.is_match(line) {
+      return Err(error(text, i, ErrorKind::OuterShebang));
     } else if let Some(captures) = label_re.captures(line) {
       let name = captures.at(1).unwrap();
       if !name_re.is_match(name) {
@@ -421,7 +432,7 @@ pub fn parse<'a>(text: &'a str) -> Result<Justfile, Error> {
       }
       if let Some(recipe) = recipes.get(name) {
         return Err(error(text, i, ErrorKind::DuplicateRecipe {
-          first: recipe.line,
+          first: recipe.line_number,
           name: name,
         }));
       }
@@ -442,11 +453,13 @@ pub fn parse<'a>(text: &'a str) -> Result<Justfile, Error> {
       }
 
       current_recipe = Some(Recipe{
-        line:               i,
+        line_number:        i,
+        label:              line,
         name:               name,
         leading_whitespace: "",
-        commands:           vec![],
-        dependencies:      dependencies,
+        lines:              vec![],
+        dependencies:       dependencies,
+        shebang:            false,
       });
     } else {
       return Err(error(text, i, ErrorKind::Unparsable));
@@ -455,6 +468,24 @@ pub fn parse<'a>(text: &'a str) -> Result<Justfile, Error> {
 
   if let Some(recipe) = current_recipe {
     recipes.insert(recipe.name, recipe);
+  }
+
+  let leading_whitespace_re = re(r"^\s+");
+
+  for recipe in recipes.values_mut() {
+    for (i, line) in recipe.lines.iter().enumerate() {
+      let line_number = recipe.line_number + 1 + i;
+      if shebang_re.is_match(line) {
+        if i == 0 {
+          recipe.shebang = true;
+        } else {
+          return Err(error(text, line_number, ErrorKind::NonLeadingShebang{recipe: recipe.name}));
+        }
+      }
+      if !recipe.shebang && leading_whitespace_re.is_match(line) {
+        return Err(error(text, line_number, ErrorKind::ExtraLeadingWhitespace));
+      }
+    }
   }
 
   let mut resolved = HashSet::new();
