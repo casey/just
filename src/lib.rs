@@ -2,6 +2,7 @@
 mod tests;
 
 extern crate regex;
+extern crate tempdir;
 
 use std::io::prelude::*;
 
@@ -9,6 +10,8 @@ use std::{fs, fmt, process, io};
 use std::collections::{BTreeMap, BTreeSet, HashSet};
 use std::fmt::Display;
 use regex::Regex;
+
+use std::os::unix::fs::PermissionsExt;
 
 macro_rules! warn {
   ($($arg:tt)*) => {{
@@ -81,18 +84,51 @@ fn error_from_signal<'a>(recipe: &'a str, exit_status: process::ExitStatus) -> R
 
 impl<'a> Recipe<'a> {
   fn run(&self) -> Result<(), RunError<'a>> {
-    // TODO: if shebang, run as script
-    for command in &self.lines {
-      let mut command = *command;
-      if !command.starts_with("@") {
-        warn!("{}", command);
-      } else {
-        command = &command[1..]; 
+    if self.shebang {
+      let tmp = try!(
+        tempdir::TempDir::new("j")
+        .map_err(|error| RunError::TmpdirIoError{recipe: self.name, io_error: error})
+      );
+      let mut path = tmp.path().to_path_buf();
+      path.push(self.name);
+      {
+        let mut f = try!(
+          fs::File::create(&path)
+          .map_err(|error| RunError::TmpdirIoError{recipe: self.name, io_error: error})
+        );
+        let mut text = String::new();
+        // add the shebang
+        text += self.lines[0];
+        text += "\n";
+        // add blank lines so that lines in the generated script
+        // have the same line number as the corresponding lines
+        // in the justfile
+        for _ in 1..(self.line_number + 2) {
+          text += "\n"
+        }
+        for line in &self.lines[1..] {
+          text += line;
+          text += "\n";
+        }
+        try!(
+          f.write_all(text.as_bytes())
+          .map_err(|error| RunError::TmpdirIoError{recipe: self.name, io_error: error})
+        );
       }
-      let status = process::Command::new("sh")
-        .arg("-cu")
-        .arg(command)
-        .status();
+
+      // get current permissions
+      let mut perms = try!(
+        fs::metadata(&path)
+        .map_err(|error| RunError::TmpdirIoError{recipe: self.name, io_error: error})
+      ).permissions();
+
+      // make the script executable
+      let current_mode = perms.mode();
+      perms.set_mode(current_mode | 0o100);
+      try!(fs::set_permissions(&path, perms).map_err(|error| RunError::TmpdirIoError{recipe: self.name, io_error: error}));
+
+      // run it!
+      let status = process::Command::new(path).status();
       try!(match status {
         Ok(exit_status) => if let Some(code) = exit_status.code() {
           if code == 0 {
@@ -103,8 +139,33 @@ impl<'a> Recipe<'a> {
         } else {
           Err(error_from_signal(self.name, exit_status))
         },
-        Err(io_error) => Err(RunError::IoError{recipe: self.name, io_error: io_error})
+        Err(io_error) => Err(RunError::TmpdirIoError{recipe: self.name, io_error: io_error})
       });
+    } else {
+      for command in &self.lines {
+        let mut command = *command;
+        if !command.starts_with("@") {
+          warn!("{}", command);
+        } else {
+          command = &command[1..]; 
+        }
+        let status = process::Command::new("sh")
+          .arg("-cu")
+          .arg(command)
+          .status();
+        try!(match status {
+          Ok(exit_status) => if let Some(code) = exit_status.code() {
+            if code == 0 {
+              Ok(())
+            } else {
+              Err(RunError::Code{recipe: self.name, code: code})
+            }
+          } else {
+            Err(error_from_signal(self.name, exit_status))
+          },
+          Err(io_error) => Err(RunError::IoError{recipe: self.name, io_error: io_error})
+        });
+      }
     }
     Ok(())
   }
@@ -261,8 +322,8 @@ impl<'a> Display for Error<'a> {
 
     match self.text.lines().nth(self.line) {
       Some(line) => try!(write!(f, "{}", line)),
-      None => die!("internal error: Error has invalid line number: {}", self.line),
-    }
+      None => try!(write!(f, "internal error: Error has invalid line number: {}", self.line)),
+    };
 
     Ok(())
   }
@@ -338,6 +399,7 @@ pub enum RunError<'a> {
   Code{recipe: &'a str, code: i32},
   UnknownFailure{recipe: &'a str},
   IoError{recipe: &'a str, io_error: io::Error},
+  TmpdirIoError{recipe: &'a str, io_error: io::Error},
 }
 
 impl<'a> Display for RunError<'a> {
@@ -366,6 +428,8 @@ impl<'a> Display for RunError<'a> {
           _ => write!(f, "Recipe \"{}\" could not be run because of an IO error while launching the `sh`:\n{}", recipe, io_error),
         });
       },
+      &RunError::TmpdirIoError{recipe, ref io_error} =>
+        try!(write!(f, "Recipe \"{}\" could not be run because of an IO error while trying to create a temporary directory or write a file to that directory`:\n{}", recipe, io_error)),
     }
     Ok(())
   }
