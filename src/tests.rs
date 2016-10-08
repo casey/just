@@ -86,7 +86,7 @@ fn inconsistent_leading_whitespace() {
 }
 
 #[test]
-fn shebang() {
+fn shebang_errors() {
   expect_error("#!/bin/sh", 0, ErrorKind::OuterShebang);
   expect_error("a:\n echo hello\n #!/bin/sh", 2, ErrorKind::NonLeadingShebang{recipe:"a"});
 }
@@ -154,7 +154,7 @@ fn code_error() {
       assert_eq!(recipe, "fail");
       assert_eq!(code, 100);
     },
-    other @ _ => panic!("expected an code run error, but got: {}", other),
+    other @ _ => panic!("expected a code run error, but got: {}", other),
   }
 }
 
@@ -177,4 +177,28 @@ d: c
 ";
   super::std::env::set_current_dir(path).expect("failed to set current directory");
   expect_success(text).run(&["a", "d"]).unwrap();
+}
+
+#[test]
+fn shebang() {
+  // this test exists to make sure that shebang recipes
+  // are run correctly. although it is still executed
+  // by sh its behavior depends on the value of a
+  // variable, which would not be available if it were
+  // a plain recipe
+  let text = "
+a:
+ #!/usr/bin/env sh
+ code=200
+ function x { return $code; }
+ x
+";
+
+  match expect_success(text).run(&["a"]).unwrap_err() {
+    super::RunError::Code{recipe, code} => {
+      assert_eq!(recipe, "a");
+      assert_eq!(code, 200);
+    },
+    other @ _ => panic!("expected an code run error, but got: {}", other),
+  }
 }
