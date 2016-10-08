@@ -2,11 +2,7 @@ notes
 -----
 
 polyglot:
-- recipes can have shebangs on first line
-- complain if there is extra leading whitespace in a non-shebang recipe
-- extract and run script
-- preserve line numbers
-
+- get the extracted script and test its structure
 - change name to "a polyglot command runner"
 - comment code
 - fix docs (note that shell is invoked with -cu)
