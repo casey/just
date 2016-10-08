@@ -182,15 +182,15 @@ d: c
 #[test]
 fn shebang() {
   // this test exists to make sure that shebang recipes
-  // are run correctly. although it is still executed
-  // by sh its behavior depends on the value of a
-  // variable, which would not be available if it were
-  // a plain recipe
+  // run correctly. although this script is still
+  // executed by sh its behavior depends on the value of a
+  // variable and continuing even though a command fails
   let text = "
 a:
  #!/usr/bin/env sh
  code=200
  function x { return $code; }
+ x
  x
 ";
 
