@@ -3,6 +3,7 @@ test:
 	cargo run -- quine clean > /dev/null 2> /dev/null
 
 publish:
+	git push github master
 	cargo publish
 
 # make a quine, compile it, and verify it
