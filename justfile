@@ -24,6 +24,8 @@ create:
 clean:
 	rm -r tmp
 
+polyglot: python js perl sh ruby
+
 python:
 	#!/usr/bin/env python3
 	print('Hello from python!')

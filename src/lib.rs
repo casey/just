@@ -50,7 +50,7 @@ pub struct Recipe<'a> {
   name:               &'a str,
   leading_whitespace: &'a str,
   lines:              Vec<&'a str>,
-  dependencies:       BTreeSet<&'a str>,
+  dependencies:       Vec<&'a str>,
   shebang:            bool,
 }
 
@@ -502,15 +502,15 @@ pub fn parse<'a>(text: &'a str) -> Result<Justfile, Error> {
       }
 
       let rest = captures.at(2).unwrap().trim();
-      let mut dependencies = BTreeSet::new();
+      let mut dependencies = vec![];
       for part in whitespace_re.split(rest) {
         if name_re.is_match(part) {
-          if dependencies.contains(part) {
+          if dependencies.contains(&part) {
             return Err(error(text, i, ErrorKind::DuplicateDependency{
               name: part,
             }));
           }
-          dependencies.insert(part);
+          dependencies.push(part);
         } else {
           return Err(error(text, i, ErrorKind::UnparsableDependencies));
         }
