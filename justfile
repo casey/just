@@ -2,6 +2,9 @@ test:
 	cargo test --lib
 	cargo run -- quine clean > /dev/null 2> /dev/null
 
+publish:
+	cargo publish
+
 # make a quine, compile it, and verify it
 quine: create
 	cc tmp/gen0.c -o tmp/gen0
