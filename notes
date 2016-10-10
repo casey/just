@@ -3,9 +3,10 @@ notes
 
 polyglot:
 - get the extracted script and test its structure
+- can I add rust docs for the command/binary?
 - change name to "a polyglot command runner"
 - comment code
-- fix docs (note that shell is invoked with -cu)
+- fix docs (note that shell is invoked with -cu, explain -c and -u)
 - publish to github and cargo
 - spam facebook, reddit
 
