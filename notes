@@ -76,6 +76,15 @@ different ways of setting arguments:
 
 wishlist:
 - ability to export environment variables
+polyglot:
+- get the extracted script and test its structure
+- change name to "a polyglot command runner"
+- comment code
+- fix docs (note that shell is invoked with -cu)
+- publish to github and cargo
+- spam facebook, reddit
+
+wishlist:
 - preludes:
   may be nice to allow all recipes in a given langauge to share
   functions, variables, etc. could have a "prelude" recipe
