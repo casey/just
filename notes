@@ -1,7 +1,27 @@
 notes
 -----
 
-polyglot:
+- parse arguments and store in recipe
+- parse lines into fragments and store in recipe
+- positional error messages
+
+j: 
+- vector of substitutions
+  point to start, end, and &str which is name of variable
+- also add a vector of substitutions
+- indent for line continuation
+- multiple names for short names are actually kind of nice
+- multiple {{}} per line
+- single assignment variables
+- matched /{{.*?}}.*/ then unmatched /{{.*/
+- echo subbed line
+- static errors when variables are missing {{}}, even if recipe isn't run
+- ignore comment lines
+- post to facebook to get beta testers
+- j user email list (how to engage users more generally?)
+- see if dotbot guy likes it
+- advertise on facebook to get users
+
 - get the extracted script and test its structure
 - can I add rust docs for the command/binary?
 - change name to "a polyglot command runner"
@@ -10,7 +30,52 @@ polyglot:
 - publish to github and cargo
 - spam facebook, reddit
 
+- duplicate argument test
+- should duplicate dependency mention recipe?
+- get rid of panics
+
+- doc comments on recipes
+- in depth usage string with doc comments, args, dependencies
+
+get rid of unused public items
+tokenize error returns successfully parsed tokens
+tokenize continues after parse error but inserts parse error into token stream
+make sure regexes are only compiled once
+fix grammar.txt to reflect reality
+
+- create a really long example justfile
+  . unzip tarball
+  . update package manager deps
+  . clean
+  . update logs (repetitive git flow)
+
+- full documentation
+  . habit of using clever commands and writing little scripts
+  . very low friction to write a script (no new file, chmod, add to rcs)
+  . make list of contributors, include travis
+
+variable setting
+variable substitution:  {{}}
+command line arguments: must be specified in recipe 'a foo bar:'
+quote
+
+arguments are subbed in with {{variable_name}}
+doesn't conflict with shell syntax
+doesn't conflict with jquery
+conflicts a little bit with rust, but can be overcome
+very common in many template languages
+
+different ways of setting arguments:
+
+- go for something like python, so we can use full python at the top level
+- go for something like rust, so we can use rust at the top level
+- don't do barewords, we need strings anyways, so parse them
+- x = 10
+- export x = 10
+- export x
+
 wishlist:
+- ability to export environment variables
 - preludes:
   may be nice to allow all recipes in a given langauge to share
   functions, variables, etc. could have a "prelude" recipe

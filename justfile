@@ -1,6 +1,9 @@
 test:
 	cargo test --lib
-	cargo run -- quine clean > /dev/null 2> /dev/null
+	#cargo run -- quine clean > /dev/null 2> /dev/null
+
+backtrace:
+	RUST_BACKTRACE=1 cargo test --lib
 
 publish:
 	git push github master
