@@ -4,6 +4,12 @@ notes
 - parse arguments and store in recipe
 - parse lines into fragments and store in recipe
 - positional error messages
+- use clippy
+- allow calling recipes in a justfile in a different
+  directory:
+  - ../foo # ../justfile:foo
+  - xyz/foo # xyz/justfile:foo
+- #![deny(missing_docs)]
 
 j: 
 - vector of substitutions
