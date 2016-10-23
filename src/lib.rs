@@ -1,6 +1,10 @@
 #[cfg(test)]
 mod tests;
 
+mod app;
+
+pub use app::app;
+
 #[macro_use]
 extern crate lazy_static;
 extern crate regex;
@@ -30,7 +34,7 @@ macro_rules! die {
   }};
 }
 
-pub trait Slurp {
+trait Slurp {
   fn slurp(&mut self) -> Result<String, std::io::Error>;
 }
 
@@ -46,16 +50,17 @@ fn re(pattern: &str) -> Regex {
   Regex::new(pattern).unwrap()
 }
 
-pub struct Recipe<'a> {
+#[derive(PartialEq, Debug)]
+struct Recipe<'a> {
   line_number:        usize,
-  label:              &'a str,
   name:               &'a str,
-  // leading_whitespace: &'a str,
   lines:              Vec<&'a str>,
   // fragments:          Vec<Vec<Fragment<'a>>>,
   // variables:          BTreeSet<&'a str>,
   dependencies:       Vec<&'a str>,
-  // arguments:          Vec<&'a str>,
+  dependency_tokens:  Vec<Token<'a>>,
+  arguments:          Vec<&'a str>,
+  argument_tokens:    Vec<Token<'a>>,
   shebang:            bool,
 }
 
@@ -65,20 +70,6 @@ enum Fragment<'a> {
   Variable{name: &'a str},
 }
 */
-
-impl<'a> Display for Recipe<'a> {
-  fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-    try!(writeln!(f, "{}", self.label));
-    for (i, line) in self.lines.iter().enumerate() {
-      if i + 1 < self.lines.len() {
-        try!(writeln!(f, "    {}", line));
-      } {
-        try!(write!(f, "    {}", line));
-      }
-    }
-    Ok(())
-  }
-}
 
 #[cfg(unix)]
 fn error_from_signal<'a>(recipe: &'a str, exit_status: process::ExitStatus) -> RunError<'a> {
@@ -183,9 +174,30 @@ impl<'a> Recipe<'a> {
   }
 }
 
-/*
+impl<'a> Display for Recipe<'a> {
+  fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+    try!(write!(f, "{}", self.name));
+    for argument in &self.arguments {
+      try!(write!(f, " {}", argument));
+    }
+    try!(write!(f, ":"));
+    for dependency in &self.dependencies {
+      try!(write!(f, " {}", dependency))
+    }
+    for (i, line) in self.lines.iter().enumerate() {
+      if i == 0 {
+        try!(writeln!(f, ""));
+      }
+      try!(write!(f, "    {}", line));
+      if i + 1 < self.lines.len() {
+        try!(writeln!(f, ""));
+      }
+    }
+    Ok(())
+  }
+}
+
 fn resolve<'a>(
-  text:     &'a str,
   recipes:  &BTreeMap<&str, Recipe<'a>>,
   resolved: &mut HashSet<&'a str>,
   seen:     &mut HashSet<&'a str>,
@@ -197,23 +209,24 @@ fn resolve<'a>(
   }
   stack.push(recipe.name);
   seen.insert(recipe.name);
-  for dependency_name in &recipe.dependencies {
-    match recipes.get(dependency_name) {
+  for dependency_token in &recipe.dependency_tokens {
+    match recipes.get(dependency_token.lexeme) {
       Some(dependency) => if !resolved.contains(dependency.name) {
         if seen.contains(dependency.name) {
           let first = stack[0];
           stack.push(first);
-          return Err(error(text, recipe.line_number, ErrorKind::CircularDependency {
+          return Err(dependency_token.error(ErrorKind::CircularDependency {
+            recipe: recipe.name,
             circle: stack.iter()
               .skip_while(|name| **name != dependency.name)
               .cloned().collect()
           }));
         }
-        return resolve(text, recipes, resolved, seen, stack, dependency);
+        return resolve(recipes, resolved, seen, stack, dependency);
       },
-      None => return Err(error(text, recipe.line_number, ErrorKind::UnknownDependency {
-        name:    recipe.name,
-        unknown: dependency_name
+      None => return Err(dependency_token.error(ErrorKind::UnknownDependency {
+        recipe:  recipe.name,
+        unknown: dependency_token.lexeme
       })),
     }
   }
@@ -221,108 +234,103 @@ fn resolve<'a>(
   stack.pop();
   Ok(())
 }
-*/
 
 #[derive(Debug, PartialEq)]
-pub struct Error<'a> {
+struct Error<'a> {
   text:   &'a str,
   index:  usize,
   line:   usize,
   column: usize,
+  width:  Option<usize>,
   kind:   ErrorKind<'a>,
 }
 
 #[derive(Debug, PartialEq)]
 enum ErrorKind<'a> {
-  // BadRecipeName{name: &'a str},
-  // CircularDependency{circle: Vec<&'a str>},
-  // DuplicateDependency{name: &'a str},
-  // DuplicateArgument{recipe: &'a str, argument: &'a str},
-  // DuplicateRecipe{first: usize, name: &'a str},
-  // TabAfterSpace{whitespace: &'a str},
-  // MixedLeadingWhitespace{whitespace: &'a str},
-  // ExtraLeadingWhitespace,
+  BadName{name: &'a str},
+  CircularDependency{recipe: &'a str, circle: Vec<&'a str>},
+  DuplicateDependency{recipe: &'a str, dependency: &'a str},
+  DuplicateArgument{recipe: &'a str, argument: &'a str},
+  DuplicateRecipe{recipe: &'a str, first: usize},
+  MixedLeadingWhitespace{whitespace: &'a str},
+  ExtraLeadingWhitespace,
   InconsistentLeadingWhitespace{expected: &'a str, found: &'a str},
   OuterShebang,
-  // NonLeadingShebang{recipe: &'a str},
-  // UnknownDependency{name: &'a str, unknown: &'a str},
-  // Unparsable,
-  // UnparsableDependencies,
+  AssignmentUnimplemented,
+  UnknownDependency{recipe: &'a str, unknown: &'a str},
   UnknownStartOfToken,
+  UnexpectedToken{expected: Vec<TokenClass>, found: TokenClass},
   InternalError{message: String},
 }
-
-// fn error<'a>(text: &'a str, line: usize, kind: ErrorKind<'a>) 
-//   -> Error<'a>
-// {
-//   Error {
-//     text: text,
-//     line: line,
-//     kind: kind,
-//   }
-// }
 
 fn show_whitespace(text: &str) -> String {
   text.chars().map(|c| match c { '\t' => 't', ' ' => 's', _ => c }).collect()
 }
 
-/*
-fn mixed(text: &str) -> bool {
+fn mixed_whitespace(text: &str) -> bool {
   !(text.chars().all(|c| c == ' ') || text.chars().all(|c| c == '\t'))
 }
-*/
 
-/*
-fn tab_after_space(text: &str) -> bool {
-  let mut space = false;
-  for c in text.chars() {
-    match c {
-      ' ' => space = true,
-      '\t' => if space {
-        return true;
+struct Or<'a, T: 'a + Display>(&'a [T]);
+
+impl<'a, T: Display> Display for Or<'a, T> {
+  fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+    match self.0.len() {
+      0 => {},
+      1 => try!(write!(f, "{}", self.0[0])),
+      2 => try!(write!(f, "{} or {}", self.0[0], self.0[1])),
+      _ => for (i, item) in self.0.iter().enumerate() {
+        try!(write!(f, "{}", item));
+        if i == self.0.len() - 1 {
+        } else if i == self.0.len() - 2 {
+          try!(write!(f, ", or "));
+        } else {
+          try!(write!(f, ", "))
+        }
       },
-      _ => {},
     }
+    Ok(())
   }
-  return false;
 }
-*/
 
 impl<'a> Display for Error<'a> {
   fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
     try!(write!(f, "justfile:{}: ", self.line));
 
     match self.kind {
-      // ErrorKind::BadRecipeName{name} => {
-      //   try!(writeln!(f, "recipe name does not match /[a-z](-[a-z]|[a-z])*/: {}", name));
-      // }
-      // ErrorKind::CircularDependency{ref circle} => {
-      //   try!(write!(f, "circular dependency: {}", circle.join(" -> ")));
-      //   return Ok(());
-      // }
-      // ErrorKind::DuplicateArgument{recipe, argument} => {
-      //  try!(writeln!(f, "recipe {} has duplicate argument: {}", recipe, argument));
-      //}
-      // ErrorKind::DuplicateDependency{name} => {
-      //   try!(writeln!(f, "duplicate dependency: {}", name));
-      // }
-      // ErrorKind::DuplicateRecipe{first, name} => {
-      //   try!(write!(f, "duplicate recipe: {} appears on lines {} and {}", 
-      //               name, first, self.line));
-      //   return Ok(());
-      // }
-      // ErrorKind::TabAfterSpace{whitespace} => {
-      //   try!(writeln!(f, "found tab after space: {}", show_whitespace(whitespace)));
-      // }
-      // ErrorKind::MixedLeadingWhitespace{whitespace} => {
-      //   try!(writeln!(f,
-      //     "inconsistant leading whitespace: recipe started with {}:",
-      //     show_whitespace(whitespace)
-      //   ));
-      // }
-      // ErrorKind::ExtraLeadingWhitespace => {
-      //   try!(writeln!(f, "line has extra leading whitespace"));
-      // }
+      ErrorKind::BadName{name} => {
+         try!(writeln!(f, "name did not match /[a-z](-?[a-z0-9])*/: {}", name));
+      }
+      ErrorKind::CircularDependency{recipe, ref circle} => {
+        try!(write!(f, "recipe {} has circular dependency: {}", recipe, circle.join(" -> ")));
+        return Ok(());
+      }
+      ErrorKind::DuplicateArgument{recipe, argument} => {
+        try!(writeln!(f, "recipe {} has duplicate argument: {}", recipe, argument));
+      }
+      ErrorKind::UnexpectedToken{ref expected, found} => {
+        try!(writeln!(f, "expected {} but found {}", Or(expected), found));
+      }
+      ErrorKind::DuplicateDependency{recipe, dependency} => {
+        try!(writeln!(f, "recipe {} has duplicate dependency: {}", recipe, dependency));
+      }
+      ErrorKind::DuplicateRecipe{recipe, first} => {
+        try!(write!(f, "duplicate recipe: {} appears on lines {} and {}", 
+                    recipe, first, self.line));
+        return Ok(());
+      }
+      ErrorKind::MixedLeadingWhitespace{whitespace} => {
+        try!(writeln!(f,
+          "found a mix of tabs and spaces in leading whitespace: {}\n leading whitespace may consist of tabs or spaces, but not both",
+          show_whitespace(whitespace)
+        ));
+      }
+      ErrorKind::ExtraLeadingWhitespace => {
+        try!(writeln!(f, "recipe line has extra leading whitespace"));
+      }
+      ErrorKind::AssignmentUnimplemented => {
+        try!(writeln!(f, "variable assignment is not yet implemented"));
+      }
       ErrorKind::InconsistentLeadingWhitespace{expected, found} => {
         try!(writeln!(f,
           "inconsistant leading whitespace: recipe started with \"{}\" but found line with \"{}\":",
@@ -332,18 +340,9 @@ impl<'a> Display for Error<'a> {
       ErrorKind::OuterShebang => {
         try!(writeln!(f, "a shebang \"#!\" is reserved syntax outside of recipes"))
       }
-      // ErrorKind::NonLeadingShebang{..} => {
-      //  try!(writeln!(f, "a shebang \"#!\" may only appear on the first line of a recipe"))
-      //}
-      // ErrorKind::UnknownDependency{name, unknown} => {
-      //   try!(writeln!(f, "recipe {} has unknown dependency {}", name, unknown));
-      // }
-      // ErrorKind::Unparsable => {
-      //   try!(writeln!(f, "could not parse line:"));
-      // }
-      // ErrorKind::UnparsableDependencies => {
-      //   try!(writeln!(f, "could not parse dependencies:"));
-      // }
+      ErrorKind::UnknownDependency{recipe, unknown} => {
+        try!(writeln!(f, "recipe {} has unknown dependency {}", recipe, unknown));
+      }
       ErrorKind::UnknownStartOfToken => {
         try!(writeln!(f, "uknown start of token:"));
       }
@@ -354,19 +353,21 @@ impl<'a> Display for Error<'a> {
 
     match self.text.lines().nth(self.line) {
       Some(line) => try!(write!(f, "{}", line)),
-      None => try!(write!(f, "internal error: Error has invalid line number: {}", self.line)),
+      None => if self.index != self.text.len() {
+        try!(write!(f, "internal error: Error has invalid line number: {}", self.line))
+      },
     };
 
     Ok(())
   }
 }
 
-pub struct Justfile<'a> {
+struct Justfile<'a> {
   recipes: BTreeMap<&'a str, Recipe<'a>>,
 }
 
 impl<'a> Justfile<'a> {
-  pub fn first(&self) -> Option<&'a str> {
+  fn first(&self) -> Option<&'a str> {
     let mut first: Option<&Recipe<'a>> = None;
     for (_, recipe) in self.recipes.iter() {
       if let Some(first_recipe) = first {
@@ -380,11 +381,11 @@ impl<'a> Justfile<'a> {
     first.map(|recipe| recipe.name)
   }
 
-  pub fn count(&self) -> usize {
+  fn count(&self) -> usize {
     self.recipes.len()
   }
 
-  pub fn recipes(&self) -> Vec<&'a str> {
+  fn recipes(&self) -> Vec<&'a str> {
     self.recipes.keys().cloned().collect()
   }
 
@@ -399,7 +400,7 @@ impl<'a> Justfile<'a> {
     Ok(())
   }
 
-  pub fn run<'b>(&'a self, names: &[&'b str]) -> Result<(), RunError<'b>> 
+  fn run<'b>(&'a self, names: &[&'b str]) -> Result<(), RunError<'b>> 
     where 'a: 'b
   {
     let mut missing = vec![];
@@ -419,13 +420,13 @@ impl<'a> Justfile<'a> {
     Ok(())
   }
 
-  pub fn get(&self, name: &str) -> Option<&Recipe<'a>> {
+  fn get(&self, name: &str) -> Option<&Recipe<'a>> {
     self.recipes.get(name)
   }
 }
 
 #[derive(Debug)]
-pub enum RunError<'a> {
+enum RunError<'a> {
   UnknownRecipes{recipes: Vec<&'a str>},
   Signal{recipe: &'a str, signal: i32},
   Code{recipe: &'a str, code: i32},
@@ -467,22 +468,25 @@ impl<'a> Display for RunError<'a> {
   }
 }
 
+#[derive(Debug, PartialEq)]
 struct Token<'a> {
   index:  usize,
   line:   usize,
   column: usize,
+  text:   &'a str,
   prefix: &'a str,
   lexeme: &'a str,
   class:  TokenClass,
 }
 
 impl<'a> Token<'a> {
-  fn error(&self, text: &'a str, kind: ErrorKind<'a>) -> Error<'a> {
+  fn error(&self, kind: ErrorKind<'a>) -> Error<'a> {
     Error {
-      text:   text,
-      index:  self.index,
+      text:   self.text,
+      index:  self.index + self.prefix.len(),
       line:   self.line,
-      column: self.column,
+      column: self.column + self.prefix.len(),
+      width:  Some(self.lexeme.len()),
       kind:   kind,
     }
   }
@@ -501,6 +505,23 @@ enum TokenClass {
   Eof,
 }
 
+impl Display for TokenClass {
+  fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+    try!(write!(f, "{}", match *self {
+      Name    => "name",
+      Colon   => "\":\"",
+      Equals  => "\"=\"",
+      Comment => "comment",
+      Line    => "command",
+      Indent  => "indent",
+      Dedent  => "dedent",
+      Eol     => "end of line",
+      Eof     => "end of file",
+    }));
+    Ok(())
+  }
+}
+
 use TokenClass::*;
 
 fn token(pattern: &str) -> Regex {
@@ -513,14 +534,14 @@ fn token(pattern: &str) -> Regex {
 
 fn tokenize(text: &str) -> Result<Vec<Token>, Error> {
   lazy_static! {
-    static ref EOF:     Regex = token(r"(?-m)$"                );
-    static ref NAME:    Regex = token(r"[a-z]((_|-)?[a-z0-9])*");
-    static ref COLON:   Regex = token(r":"                     );
-    static ref EQUALS:  Regex = token(r"="                     );
-    static ref COMMENT: Regex = token(r"#([^!].*)?$"           );
-    static ref EOL:     Regex = token(r"\n|\r\n"               );
-    static ref LINE:    Regex = re(r"^(?m)[ \t]+[^ \t\n\r].*$");
-    static ref INDENT:  Regex = re(r"^([ \t]*)[^ \t\n\r]"     );
+    static ref EOF:       Regex = token(r"(?-m)$"                );
+    static ref NAME:      Regex = token(r"([a-zA-Z0-9_-]+)"      );
+    static ref COLON:     Regex = token(r":"                     );
+    static ref EQUALS:    Regex = token(r"="                     );
+    static ref COMMENT:   Regex = token(r"#([^!].*)?$"           );
+    static ref EOL:       Regex = token(r"\n|\r\n"               );
+    static ref LINE:      Regex = re(r"^(?m)[ \t]+[^ \t\n\r].*$");
+    static ref INDENT:    Regex = re(r"^([ \t]*)[^ \t\n\r]"     );
   }
 
   fn indentation(text: &str) -> Option<&str> {
@@ -541,6 +562,7 @@ fn tokenize(text: &str) -> Result<Vec<Token>, Error> {
         index:  index,
         line:   line,
         column: column,
+        width:  None,
         kind:   $kind,
       })
     }};
@@ -559,7 +581,9 @@ fn tokenize(text: &str) -> Result<Vec<Token>, Error> {
         }
         // indent: was no indentation, now there is
         (None, Some(current @ _)) => {
-          // check mixed leading whitespace
+          if mixed_whitespace(current) {
+            return error!(ErrorKind::MixedLeadingWhitespace{whitespace: current})
+          }
           indent = Some(current);
           Some(Indent)
         }
@@ -577,18 +601,31 @@ fn tokenize(text: &str) -> Result<Vec<Token>, Error> {
             });
           }
           None
-          // check tabs after spaces
         }
       } {
         tokens.push(Token {
           index:  index,
           line:   line,
           column: column,
+          text:   text,
           prefix: "",
           lexeme: "",
           class:  class,
         });
       }
+    }
+
+    // insert a dedent if we're indented and we hit the end of the file
+    if indent.is_some() && EOF.is_match(rest) {
+      tokens.push(Token {
+        index:  index,
+        line:   line,
+        column: column,
+        text:   text,
+        prefix: "",
+        lexeme: "",
+        class:  Dedent,
+      });
     }
 
     let (prefix, lexeme, class) = 
@@ -626,6 +663,7 @@ fn tokenize(text: &str) -> Result<Vec<Token>, Error> {
       line:   line,
       column: column,
       prefix: prefix,
+      text:   text,
       lexeme: lexeme,
       class:  class,
     });
@@ -650,9 +688,18 @@ fn tokenize(text: &str) -> Result<Vec<Token>, Error> {
   Ok(tokens)
 }
 
-pub fn parse<'a>(text: &'a str) -> Result<Justfile, Error> {
+fn parse<'a>(text: &'a str) -> Result<Justfile, Error> {
   let tokens = try!(tokenize(text));
-  let filtered: Vec<_> = tokens.into_iter().filter(|t| t.class != Comment).collect();
+  let filtered: Vec<_> = tokens.into_iter().filter(|token| token.class != Comment).collect();
+  if let Some(token) = filtered.iter().find(|token| {
+    lazy_static! {
+      static ref GOOD_NAME: Regex = re("^[a-z](-?[a-z0-9])*$");
+    }
+    token.class == Name && !GOOD_NAME.is_match(token.lexeme)
+  }) {
+    return Err(token.error(ErrorKind::BadName{name: token.lexeme}));
+  }
+
   let parser = Parser{
     text: text,
     tokens: filtered.into_iter().peekable()
@@ -667,7 +714,10 @@ struct Parser<'a> {
 }
 
 impl<'a> Parser<'a> {
-  /*
+  fn peek(&mut self, class: TokenClass) -> bool {
+    self.tokens.peek().unwrap().class == class
+  }
+
   fn accept(&mut self, class: TokenClass) -> Option<Token<'a>> {
     if self.peek(class) {
       self.tokens.next()
@@ -680,80 +730,134 @@ impl<'a> Parser<'a> {
     self.accept(class).is_some()
   }
 
-  fn peek(&mut self, class: TokenClass) -> bool {
-    self.tokens.peek().unwrap().class == class
-  }
-  */
-
-  /*
-
-  fn expect(&mut self, class: TokenClass) {
-    if !self.accepted(class) {
-      panic!("we fucked");
+  fn expect(&mut self, class: TokenClass) -> Option<Token<'a>> {
+    if self.peek(class) {
+      self.tokens.next();
+      None
+    } else {
+      self.tokens.next()
     }
   }
-  */
 
-  /*
+  fn expect_eol(&mut self) -> Option<Token<'a>> {
+    if self.peek(Eol) {
+      self.accept(Eol);
+      None
+    } else if self.peek(Eof) {
+      None
+    } else {
+      self.tokens.next()
+    }
+  }
 
-
-  // fn accept(&mut self) -> Result<Token<'t>, Error<'t>> {
-  // match self.peek(
-  // }
-
-  fn recipe(&mut self, name: &'a str) -> Result<Recipe<'a>, Error<'a>> {
+  fn recipe(&mut self, name: &'a str, line_number: usize) -> Result<Recipe<'a>, Error<'a>> {
     let mut arguments = vec![];
-    loop {
-      if let Some(name_token) = self.accept(Name) {
-        if arguments.contains(&name_token.lexeme) {
-          return Err(error(self.text, name_token.line, ErrorKind::DuplicateArgument{
-            recipe: name, argument: name_token.lexeme}));
-        }
-        arguments.push(name_token.lexeme);
-      } else {
-        break;
+    let mut argument_tokens = vec![];
+    while let Some(argument) = self.accept(Name) {
+      if arguments.contains(&argument.lexeme) {
+        return Err(argument.error(ErrorKind::DuplicateArgument{
+          recipe: name, argument: argument.lexeme
+        }));
       }
+      arguments.push(argument.lexeme);
+      argument_tokens.push(argument);
     }
 
-    self.expect(Colon);
+    if let Some(token) = self.expect(Colon) {
+      return Err(self.unexpected_token(&token, &[Name, Colon]));
+    }
 
     let mut dependencies = vec![];
-    loop {
-      if let Some(name_token) = self.accept(Name) {
-        if dependencies.contains(&name_token.lexeme) {
-          panic!("duplicate dependency");
-          // return Err(error(self.text, name_token.line, ErrorKind::DuplicateDependency{
-          // name: name_token.lexeme}));
+    let mut dependency_tokens = vec![];
+    while let Some(dependency) = self.accept(Name) {
+      if dependencies.contains(&dependency.lexeme) {
+        return Err(dependency.error(ErrorKind::DuplicateDependency {
+          recipe:     name,
+          dependency: dependency.lexeme
+        }));
+      }
+      dependencies.push(dependency.lexeme);
+      dependency_tokens.push(dependency);
+    }
+
+    if let Some(token) = self.expect_eol() {
+      return Err(self.unexpected_token(&token, &[Name, Eol, Eof]));
+    }
+
+    let mut lines = vec![];
+    let mut shebang = false;
+
+    if self.accepted(Indent) {
+      while !self.peek(Dedent) {
+        if let Some(line) = self.accept(Line) {
+          if lines.len() == 0 {
+            if line.lexeme.starts_with("#!") {
+              shebang = true;
+            }
+          } else if !shebang && (line.lexeme.starts_with(" ") || line.lexeme.starts_with("\t")) {
+            return Err(line.error(ErrorKind::ExtraLeadingWhitespace));
+          }
+
+          lines.push(line.lexeme);
+          if !self.peek(Dedent) {
+            if let Some(token) = self.expect_eol() {
+              return Err(self.unexpected_token(&token, &[Eol]));
+            }
+          }
+        } else if let Some(_) = self.accept(Eol) {
+        } else {
+          let token = self.tokens.next().unwrap();
+          return Err(self.unexpected_token(&token, &[Line, Eol]));
         }
-        dependencies.push(name_token.lexeme);
-      } else {
-        break;
+      }
+
+      if let Some(token) = self.expect(Dedent) {
+        return Err(self.unexpected_token(&token, &[Dedent]));
       }
     }
 
-    // if !self.accept_eol() {
-    //   return Err(error(self.text, i, ErrorKind::UnparsableDependencies));
-    // }
-
-    panic!("we fucked");
-    // Ok(Recipe{
-    // })
+    Ok(Recipe {
+      line_number:       line_number,
+      name:              name,
+      dependencies:      dependencies,
+      dependency_tokens: dependency_tokens,
+      arguments:         arguments,
+      argument_tokens:   argument_tokens,
+      lines:             lines,
+      shebang:           shebang,
+    })
   }
-  */
 
-  fn error(self, token: &Token<'a>, kind: ErrorKind<'a>) -> Error<'a> {
-    token.error(self.text, kind)
+  fn unexpected_token(&self, found: &Token<'a>, expected: &[TokenClass]) -> Error<'a> {
+    found.error(ErrorKind::UnexpectedToken {
+      expected: expected.to_vec(),
+      found:    found.class,
+    })
   }
 
   fn file(mut self) -> Result<Justfile<'a>, Error<'a>> {
-    let recipes = BTreeMap::new();
+    let mut recipes = BTreeMap::<&str, Recipe>::new();
 
     loop {
       match self.tokens.next() {
         Some(token) => match token.class {
           Eof => break,
           Eol => continue,
-          _ => return Err(self.error(&token, ErrorKind::InternalError {
+          Name => if let Some(equals) = self.accept(Equals) {
+            return Err(equals.error(ErrorKind::AssignmentUnimplemented));
+          } else {
+            if let Some(recipe) = recipes.remove(token.lexeme) {
+              return Err(token.error(ErrorKind::DuplicateRecipe {
+                recipe: recipe.name,
+                first:  recipe.line_number
+              }));
+            }
+            recipes.insert(token.lexeme, try!(self.recipe(token.lexeme, token.line)));
+          },
+          Comment => return Err(token.error(ErrorKind::InternalError {
+            message: "found comment in token stream".to_string()
+          })),
+          _ => return Err(token.error(ErrorKind::InternalError {
             message: format!("unhandled token class: {:?}", token.class)
           })),
         },
@@ -762,6 +866,7 @@ impl<'a> Parser<'a> {
           index:  0,
           line:   0,
           column: 0,
+          width:  None,
           kind:   ErrorKind::InternalError {
             message: "unexpected end of token stream".to_string()
           }
@@ -769,35 +874,18 @@ impl<'a> Parser<'a> {
       }
     }
 
-    /*
-    loop {
-      if self.accepted(Eof) { break;    }
-      if self.accept_eol()  { continue; }
-
-      match self.tokens.next() {
-        Some(Token{class: Name, lexeme: name, ..}) => {
-          if self.accepted(Equals) {
-            panic!("Variable assignment not yet implemented");
-          } else {
-            if recipes.contains_key(name) {
-              // return Err(error(self.text, line, ErrorKind::DuplicateDependency{
-              //   name: name,
-              // }));
-              panic!("duplicate dep");
-            }
-            let recipe = try!(self.recipe(name));
-            recipes.insert(name, recipe);
-          }
-        }
-        _ => panic!("got something else")
-      };
-    }
-    */
-
-    if let Some(ref token) = self.tokens.next() {
-      return Err(self.error(token, ErrorKind::InternalError{
+    if let Some(token) = self.tokens.next() {
+      return Err(token.error(ErrorKind::InternalError{
         message: format!("unexpected token remaining after parsing completed: {:?}", token.class)
       }))
+    }
+
+    let mut resolved = HashSet::new();
+    let mut seen     = HashSet::new();
+    let mut stack    = vec![];
+
+    for recipe in recipes.values() {
+      try!(resolve(&recipes, &mut resolved, &mut seen, &mut stack, &recipe));
     }
 
     Ok(Justfile{recipes: recipes})
