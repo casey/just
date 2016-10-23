@@ -7,7 +7,7 @@ extern crate tempdir;
 use std::io::prelude::*;
 
 use std::{fs, fmt, process, io};
-use std::collections::{BTreeMap, BTreeSet, HashSet};
+use std::collections::{BTreeMap, HashSet};
 use std::fmt::Display;
 use regex::Regex;
 
@@ -50,17 +50,19 @@ pub struct Recipe<'a> {
   name:               &'a str,
   leading_whitespace: &'a str,
   lines:              Vec<&'a str>,
-  fragments:          Vec<Vec<Fragment<'a>>>,
-  variables:          BTreeSet<&'a str>,
+  // fragments:          Vec<Vec<Fragment<'a>>>,
+  // variables:          BTreeSet<&'a str>,
   dependencies:       Vec<&'a str>,
-  arguments:          Vec<&'a str>,
+  // arguments:          Vec<&'a str>,
   shebang:            bool,
 }
 
+/*
 enum Fragment<'a> {
   Text{text: &'a str},
   Variable{name: &'a str},
 }
+*/
 
 impl<'a> Display for Recipe<'a> {
   fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
@@ -452,9 +454,9 @@ impl<'a> Display for RunError<'a> {
 }
 
 struct Token<'a> {
-  index:  usize,
+  // index:  usize,
   line:   usize,
-  col:    usize,
+  // col:    usize,
   prefix: &'a str,
   lexeme: &'a str,
   class:  TokenClass,
@@ -521,7 +523,7 @@ fn tokenize(text: &str) -> Result<Vec<Token>, Error> {
 
   let mut tokens     = vec![];
   let mut rest       = text;
-  let mut index      = 0;
+  // let mut index      = 0;
   let mut line       = 0;
   let mut col        = 0;
   let mut indent: Option<&str> = None;
@@ -561,9 +563,9 @@ fn tokenize(text: &str) -> Result<Vec<Token>, Error> {
         }
       } {
         tokens.push(Token {
-          index:  index,
+          // index:  index,
           line:   line,
-          col:    col,
+          // col:    col,
           prefix: "",
           lexeme: "",
           class:  class,
@@ -722,9 +724,9 @@ fn tokenize(text: &str) -> Result<Vec<Token>, Error> {
     let len = prefix.len() + lexeme.len();
 
     tokens.push(Token {
-      index:  index,
+      // index:  index,
       line:    line,
-      col:    col,
+      // col:    col,
       prefix: prefix,
       lexeme: lexeme,
       class:  class,
@@ -744,7 +746,7 @@ fn tokenize(text: &str) -> Result<Vec<Token>, Error> {
     }
 
     rest = &rest[len..];
-    index += len;
+    // index += len;
   }
 
   Ok(tokens)
@@ -1044,9 +1046,9 @@ pub fn parse<'a>(text: &'a str) -> Result<Justfile, Error> {
         name:               name,
         leading_whitespace: "",
         lines:              vec![],
-        fragments:          vec![],
-        variables:          BTreeSet::new(),
-        arguments:          vec![],
+        // fragments:          vec![],
+        // variables:          BTreeSet::new(),
+        // arguments:          vec![],
         dependencies:       dependencies,
         shebang:            false,
       });

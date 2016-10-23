@@ -1,3 +1,4 @@
+/*
 extern crate tempdir;
 
 use super::{ErrorKind, Justfile};
@@ -209,6 +210,9 @@ a:
   }
 }
 
+
+*/
+
 fn tokenize_success(text: &str, expected_summary: &str) {
   let tokens = super::tokenize(text).unwrap();
   let roundtrip = tokens.iter().map(|t| {
@@ -218,10 +222,10 @@ fn tokenize_success(text: &str, expected_summary: &str) {
     s
   }).collect::<Vec<_>>().join("");
   assert_eq!(text, roundtrip);
-  assert_eq!(token_summary(tokens), expected_summary);
+  assert_eq!(token_summary(&tokens), expected_summary);
 }
 
-fn token_summary(tokens: Vec<super::Token>) -> String {
+fn token_summary(tokens: &[super::Token]) -> String {
   tokens.iter().map(|t| {
     match t.class {
       super::TokenClass::Line{..}    => "*",
