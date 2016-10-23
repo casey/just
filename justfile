@@ -1,12 +1,15 @@
 test:
 	cargo test --lib
 
-# cargo run -- quine clean > /dev/null 2> /dev/null
+test-quine:
+	cargo run -- quine clean
 
 backtrace:
 	RUST_BACKTRACE=1 cargo test --lib
 
 publish:
+	# make sure version is up to date
+	grep 'version("'`sed -En 's/version = "([^"]+)"/\1/p' Cargo.toml`'")' src/app.rs
 	git push github master
 	cargo publish
 
