@@ -37,13 +37,6 @@ fn check_recipe(
   assert_eq!(recipe.dependencies.iter().cloned().collect::<Vec<_>>(), dependencies);
 }
 
-fn expect_success(text: &str) -> Justfile {
-  match super::parse(text) {
-    Ok(justfile) => justfile,
-    Err(error) => panic!("Expected successful parse but got error {}", error),
-  }
-}
-
 #[test]
 fn circular_dependency() {
   expect_error("a: b\nb: a", 1, ErrorKind::CircularDependency{circle: vec!["a", "b", "a"]});
@@ -213,6 +206,8 @@ a:
 
 */
 
+use super::{Token, Error, ErrorKind, Justfile};
+
 fn tokenize_success(text: &str, expected_summary: &str) {
   let tokens = super::tokenize(text).unwrap();
   let roundtrip = tokens.iter().map(|t| {
@@ -225,7 +220,20 @@ fn tokenize_success(text: &str, expected_summary: &str) {
   assert_eq!(token_summary(&tokens), expected_summary);
 }
 
-fn token_summary(tokens: &[super::Token]) -> String {
+fn tokenize_error(text: &str, expected: Error) {
+  if let Err(error) = super::tokenize(text) {
+    assert_eq!(error.text,   expected.text);
+    assert_eq!(error.index,  expected.index);
+    assert_eq!(error.line,   expected.line);
+    assert_eq!(error.column, expected.column);
+    assert_eq!(error.kind,   expected.kind);
+    assert_eq!(error,        expected);
+  } else {
+    panic!("tokenize() succeeded but expected: {}\n{}", expected, text);
+  }
+}
+
+fn token_summary(tokens: &[Token]) -> String {
   tokens.iter().map(|t| {
     match t.class {
       super::TokenClass::Line{..}    => "*",
@@ -239,6 +247,13 @@ fn token_summary(tokens: &[super::Token]) -> String {
       super::TokenClass::Eof         => ".",
     }
   }).collect::<Vec<_>>().join("")
+}
+
+fn parse_success(text: &str) -> Justfile {
+  match super::parse(text) {
+    Ok(justfile) => justfile,
+    Err(error) => panic!("Expected successful parse but got error {}", error),
+  }
 }
 
 #[test]
@@ -263,4 +278,69 @@ bob:
   ";
   
   tokenize_success(text, "$N:$>*$*$$*$$*$$<N:$>*$.");
+
+  tokenize_success("a:=#", "N:=#.")
+}
+
+#[test]
+fn inconsistent_leading_whitespace() {
+  let text = "a:
+ 0
+ 1
+\t2
+";
+  tokenize_error(text, Error {
+    text:   text,
+    index:  9,
+    line:   3,
+    column: 0,
+    kind:   ErrorKind::InconsistentLeadingWhitespace{expected: " ", found: "\t"},
+  });
+
+  let text = "a:
+\t\t0
+\t\t 1
+\t  2
+";
+  tokenize_error(text, Error {
+    text:   text,
+    index:  12,
+    line:   3,
+    column: 0,
+    kind:   ErrorKind::InconsistentLeadingWhitespace{expected: "\t\t", found: "\t  "},
+  });
+}
+
+#[test]
+fn outer_shebang() {
+  let text = "#!/usr/bin/env bash";
+  tokenize_error(text, Error {
+    text:   text,
+    index:  0,
+    line:   0,
+    column: 0,
+    kind:   ErrorKind::OuterShebang
+  });
+}
+
+#[test]
+fn unknown_start_of_token() {
+  let text = "~";
+  tokenize_error(text, Error {
+    text:   text,
+    index:  0,
+    line:   0,
+    column: 0,
+    kind:   ErrorKind::UnknownStartOfToken
+  });
+}
+
+#[test]
+fn parse() {
+  parse_success("
+
+# hello
+
+
+  ");
 }

@@ -5,11 +5,31 @@ notes
 - parse lines into fragments and store in recipe
 - positional error messages
 - use clippy
+- document everything, including internal stuff
+- spam in rust irc chat when done
+- use "kind" instead of class
+- should i use // comments, since that's what's used in rust?
+- vim and emacs syntax hilighting
+- gah, maybe I should change it back to 'just'
+  . makes more sense as a name
+  . suggest j as alias
+  . should see if people are using 'j'
+  . doesn't conflict with autojmp
 - allow calling recipes in a justfile in a different
   directory:
   - ../foo # ../justfile:foo
   - xyz/foo # xyz/justfile:foo
 - #![deny(missing_docs)]
+  // error on tab after space
+  // error on mixed leading whitespace
+  // error on inconsistent leading whitespace
+  // outer shebang
+  // strict recipe name checking, be lenient in tokenizing
+  //   but strict in parsing
+  // duplicate recipe name error
+  // duplicate dependency error
+  // differentiate shebang and non-shebang recipe
+  // resolve each recipe after parsing
 
 j: 
 - vector of substitutions
