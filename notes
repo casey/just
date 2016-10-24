@@ -9,16 +9,20 @@ notes
     although maybe only after a '--': j build -- a=hello
 - parse lines into {{fragments}} and allow argument substitution
 - change error messages to underline problem token
-- should i use // comments, since that's what's used in rust?
 - allow calling recipes in a justfile in a different directory:
   - just ../foo  # ../justfile:foo
   - just xyz/foo # xyz/justfile:foo
   - just xyz/    # xyz/justfile:DEFAULT
+  - this is going to be hard. should a single recipe with a slash
+    require that all recipes have slashes?
+    or should non-slash recipes still run in this directory?
+    will need to change things a great deal
 - assignment
   . export environment variables
   . no barewords
 - indentation is line continuation
 - static errors when variables are missing {{}}, even if recipe isn't run
+- write some tests to test the binary itself and all command line flags
 
 - change name back to 'just'
   . suggest j as alias
@@ -58,8 +62,3 @@ later:
   may be nice to allow all recipes in a given langauge to share
   functions, variables, etc. could have a "prelude" recipe
   which was included as a prefix to other recipes
-- windows support: currently calling 'sh', which won't work on windows
-  the answer will probably be to write a 'sh' clone and to only
-  call binaries from cargo
-- run recipes asyncronously
-- lint with clippy once it runs on stable

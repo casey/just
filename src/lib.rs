@@ -72,7 +72,7 @@ enum Fragment<'a> {
 */
 
 #[cfg(unix)]
-fn error_from_signal<'a>(recipe: &'a str, exit_status: process::ExitStatus) -> RunError<'a> {
+fn error_from_signal(recipe: &str, exit_status: process::ExitStatus) -> RunError {
   use std::os::unix::process::ExitStatusExt;
   match exit_status.signal() {
     Some(signal) => RunError::Signal{recipe: recipe, signal: signal},
@@ -81,7 +81,7 @@ fn error_from_signal<'a>(recipe: &'a str, exit_status: process::ExitStatus) -> R
 }
 
 #[cfg(windows)]
-fn error_from_signal<'a>(recipe: &'a str, exit_status: process::ExitStatus) -> RunError<'a> {
+fn error_from_signal(recipe: &str, exit_status: process::ExitStatus) -> RunError {
   RunError::UnknownFailure{recipe: recipe}
 }
 
@@ -147,7 +147,7 @@ impl<'a> Recipe<'a> {
     } else {
       for command in &self.lines {
         let mut command = *command;
-        if !command.starts_with("@") {
+        if !command.starts_with('@') {
           warn!("{}", command);
         } else {
           command = &command[1..]; 
@@ -369,7 +369,7 @@ struct Justfile<'a> {
 impl<'a> Justfile<'a> {
   fn first(&self) -> Option<&'a str> {
     let mut first: Option<&Recipe<'a>> = None;
-    for (_, recipe) in self.recipes.iter() {
+    for recipe in self.recipes.values() {
       if let Some(first_recipe) = first {
         if recipe.line_number < first_recipe.line_number {
           first = Some(recipe)
@@ -409,7 +409,7 @@ impl<'a> Justfile<'a> {
         missing.push(*recipe);
       }
     }
-    if missing.len() > 0 {
+    if !missing.is_empty() {
       return Err(RunError::UnknownRecipes{recipes: missing});
     }
     let recipes = names.iter().map(|name| self.recipes.get(name).unwrap()).collect::<Vec<_>>();
@@ -437,31 +437,31 @@ enum RunError<'a> {
 
 impl<'a> Display for RunError<'a> {
   fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-    match self {
-      &RunError::UnknownRecipes{ref recipes} => {
+    match *self {
+      RunError::UnknownRecipes{ref recipes} => {
         if recipes.len() == 1 { 
           try!(write!(f, "Justfile does not contain recipe: {}", recipes[0]));
         } else {
           try!(write!(f, "Justfile does not contain recipes: {}", recipes.join(" ")));
         };
       },
-      &RunError::Code{recipe, code} => {
+      RunError::Code{recipe, code} => {
         try!(write!(f, "Recipe \"{}\" failed with code {}", recipe, code));
       },
-      &RunError::Signal{recipe, signal} => {
+      RunError::Signal{recipe, signal} => {
         try!(write!(f, "Recipe \"{}\" wast terminated by signal {}", recipe, signal));
       }
-      &RunError::UnknownFailure{recipe} => {
+      RunError::UnknownFailure{recipe} => {
         try!(write!(f, "Recipe \"{}\" failed for an unknown reason", recipe));
       },
-      &RunError::IoError{recipe, ref io_error} => {
+      RunError::IoError{recipe, ref io_error} => {
         try!(match io_error.kind() {
           io::ErrorKind::NotFound => write!(f, "Recipe \"{}\" could not be run because j could not find `sh` the command:\n{}", recipe, io_error),
           io::ErrorKind::PermissionDenied => write!(f, "Recipe \"{}\" could not be run because j could not run `sh`:\n{}", recipe, io_error),
           _ => write!(f, "Recipe \"{}\" could not be run because of an IO error while launching the `sh`:\n{}", recipe, io_error),
         });
       },
-      &RunError::TmpdirIoError{recipe, ref io_error} =>
+      RunError::TmpdirIoError{recipe, ref io_error} =>
         try!(write!(f, "Recipe \"{}\" could not be run because of an IO error while trying to create a temporary directory or write a file to that directory`:\n{}", recipe, io_error)),
     }
     Ok(())
@@ -572,15 +572,12 @@ fn tokenize(text: &str) -> Result<Vec<Token>, Error> {
     if column == 0 {
       if let Some(class) = match (indent, indentation(rest)) {
         // ignore: was no indentation and there still isn't
-        (None, Some("")) => {
-          None
-        }
-        // ignore: current line is blank
-        (_, None) => {
+        //         or current line is blank
+        (None, Some("")) | (_, None) => {
           None
         }
         // indent: was no indentation, now there is
-        (None, Some(current @ _)) => {
+        (None, Some(current)) => {
           if mixed_whitespace(current) {
             return error!(ErrorKind::MixedLeadingWhitespace{whitespace: current})
           }
@@ -688,7 +685,7 @@ fn tokenize(text: &str) -> Result<Vec<Token>, Error> {
   Ok(tokens)
 }
 
-fn parse<'a>(text: &'a str) -> Result<Justfile, Error> {
+fn parse(text: &str) -> Result<Justfile, Error> {
   let tokens = try!(tokenize(text));
   let filtered: Vec<_> = tokens.into_iter().filter(|token| token.class != Comment).collect();
   if let Some(token) = filtered.iter().find(|token| {
@@ -790,11 +787,11 @@ impl<'a> Parser<'a> {
     if self.accepted(Indent) {
       while !self.peek(Dedent) {
         if let Some(line) = self.accept(Line) {
-          if lines.len() == 0 {
+          if lines.is_empty() {
             if line.lexeme.starts_with("#!") {
               shebang = true;
             }
-          } else if !shebang && (line.lexeme.starts_with(" ") || line.lexeme.starts_with("\t")) {
+          } else if !shebang && (line.lexeme.starts_with(' ') || line.lexeme.starts_with('\t')) {
             return Err(line.error(ErrorKind::ExtraLeadingWhitespace));
           }
 

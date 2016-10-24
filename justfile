@@ -7,11 +7,20 @@ test-quine:
 backtrace:
 	RUST_BACKTRACE=1 cargo test --lib
 
-publish:
+publish: clippy
 	# make sure version is up to date
 	grep 'version("'`sed -En 's/version = "([^"]+)"/\1/p' Cargo.toml`'")' src/app.rs
-	git push github master
+	git push github master:master
 	cargo publish
+
+clippy:
+	rustup run nightly cargo clippy
+
+install-clippy:
+	rustup run nightly cargo install clippy
+
+install-nightly:
+	rustup install nightly
 
 # make a quine, compile it, and verify it
 quine: create
