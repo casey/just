@@ -1,7 +1,6 @@
 notes
 -----
 
-- parse lines into {{fragments}}
 - assignment
   . export environment variables
   . no barewords
@@ -10,6 +9,7 @@ notes
   . '' strings with no escapes
   . except {{ and }} are special and an be escaped \{{hello}} = "{{hello}}"
   . allow concatination: "hello, " + person + "!"
+  . resolve dependencies between variables
   . static errors when variables are missing {{}}, even if recipe isn't run
 - write some tests to test the binary itself and all command line flags
 - parse arguments on command line:
@@ -17,6 +17,7 @@ notes
   . by position: j build hello
   . with marker: j build hello : clean hello :
   . after --   : j build -- foo baz
+  . fast errors when arguments are missing
   . could also allow this to override variables
     although maybe only after a '--': j build -- a=hello
   . sub arguments into recipes
