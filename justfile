@@ -40,6 +40,7 @@ create:
 clean:
 	rm -r tmp
 
+# run all polyglot recipes
 polyglot: python js perl sh ruby
 
 python:
