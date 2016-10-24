@@ -13,7 +13,7 @@ extern crate tempdir;
 use std::io::prelude::*;
 
 use std::{fs, fmt, process, io};
-use std::collections::{BTreeMap, HashSet};
+use std::collections::{BTreeMap, BTreeSet, HashSet};
 use std::fmt::Display;
 use regex::Regex;
 
@@ -55,8 +55,8 @@ struct Recipe<'a> {
   line_number:        usize,
   name:               &'a str,
   lines:              Vec<&'a str>,
-  // fragments:          Vec<Vec<Fragment<'a>>>,
-  // variables:          BTreeSet<&'a str>,
+  fragments:          Vec<Vec<Fragment<'a>>>,
+  variables:          BTreeSet<&'a str>,
   dependencies:       Vec<&'a str>,
   dependency_tokens:  Vec<Token<'a>>,
   arguments:          Vec<&'a str>,
@@ -64,12 +64,11 @@ struct Recipe<'a> {
   shebang:            bool,
 }
 
-/*
+#[derive(PartialEq, Debug)]
 enum Fragment<'a> {
   Text{text: &'a str},
   Variable{name: &'a str},
 }
-*/
 
 #[cfg(unix)]
 fn error_from_signal(recipe: &str, exit_status: process::ExitStatus) -> RunError {
@@ -184,13 +183,23 @@ impl<'a> Display for Recipe<'a> {
     for dependency in &self.dependencies {
       try!(write!(f, " {}", dependency))
     }
-    for (i, line) in self.lines.iter().enumerate() {
+
+
+    for (i, fragments) in self.fragments.iter().enumerate() {
       if i == 0 {
         try!(writeln!(f, ""));
       }
-      try!(write!(f, "    {}", line));
-      if i + 1 < self.lines.len() {
-        try!(writeln!(f, ""));
+      for (j, fragment) in fragments.iter().enumerate() {
+        if j == 0 {
+          try!(write!(f, "    "));
+        }
+        match *fragment {
+          Fragment::Text{text} => try!(write!(f, "{}", text)),
+          Fragment::Variable{name} => try!(write!(f, "{}{}{}", "{{", name, "}}")),
+        }
+      }
+      if i + 1 < self.fragments.len() {
+        try!(write!(f, "\n"));
       }
     }
     Ok(())
@@ -253,6 +262,8 @@ enum ErrorKind<'a> {
   DuplicateArgument{recipe: &'a str, argument: &'a str},
   DuplicateRecipe{recipe: &'a str, first: usize},
   MixedLeadingWhitespace{whitespace: &'a str},
+  UnmatchedInterpolationDelimiter{recipe: &'a str},
+  BadInterpolationVariableName{recipe: &'a str, text: &'a str},
   ExtraLeadingWhitespace,
   InconsistentLeadingWhitespace{expected: &'a str, found: &'a str},
   OuterShebang,
@@ -339,6 +350,12 @@ impl<'a> Display for Error<'a> {
       }
       ErrorKind::OuterShebang => {
         try!(writeln!(f, "a shebang \"#!\" is reserved syntax outside of recipes"))
+      }
+      ErrorKind::UnmatchedInterpolationDelimiter{recipe} => {
+        try!(writeln!(f, "recipe {} contains an unmatched {}", recipe, "{{"))
+      }
+      ErrorKind::BadInterpolationVariableName{recipe, text} => {
+        try!(writeln!(f, "recipe {} contains a bad variable interpolation: {}", recipe, text))
       }
       ErrorKind::UnknownDependency{recipe, unknown} => {
         try!(writeln!(f, "recipe {} has unknown dependency {}", recipe, unknown));
@@ -782,6 +799,7 @@ impl<'a> Parser<'a> {
     }
 
     let mut lines = vec![];
+    let mut line_tokens = vec![];
     let mut shebang = false;
 
     if self.accepted(Indent) {
@@ -794,8 +812,8 @@ impl<'a> Parser<'a> {
           } else if !shebang && (line.lexeme.starts_with(' ') || line.lexeme.starts_with('\t')) {
             return Err(line.error(ErrorKind::ExtraLeadingWhitespace));
           }
-
           lines.push(line.lexeme);
+          line_tokens.push(line);
           if !self.peek(Dedent) {
             if let Some(token) = self.expect_eol() {
               return Err(self.unexpected_token(&token, &[Eol]));
@@ -813,6 +831,46 @@ impl<'a> Parser<'a> {
       }
     }
 
+    let mut fragments = vec![];
+    let mut variables = BTreeSet::new();
+
+    lazy_static! {
+      static ref FRAGMENT:  Regex = re(r"^(.*?)\{\{(.*?)\}\}"               );
+      static ref UNMATCHED: Regex = re(r"^.*?\{\{"                          );
+      static ref VARIABLE:  Regex = re(r"^[ \t]*([a-z](-?[a-z0-9])*)[ \t]*$");
+    }
+
+    for line in &line_tokens {
+      let mut line_fragments = vec![];
+      let mut rest = line.lexeme;
+      while !rest.is_empty() {
+        if let Some(captures) = FRAGMENT.captures(rest) {
+          let prefix = captures.at(1).unwrap();
+          if !prefix.is_empty() {
+            line_fragments.push(Fragment::Text{text: prefix});
+          }
+          let interior = captures.at(2).unwrap();
+          if let Some(captures) = VARIABLE.captures(interior) {
+            let name = captures.at(1).unwrap();
+            line_fragments.push(Fragment::Variable{name: name});
+            variables.insert(name);
+          } else {
+            return Err(line.error(ErrorKind::BadInterpolationVariableName{
+              recipe: name, 
+              text: interior,
+            }));
+          }
+          rest = &rest[captures.at(0).unwrap().len()..];
+        } else if UNMATCHED.is_match(rest) {
+          return Err(line.error(ErrorKind::UnmatchedInterpolationDelimiter{recipe: name}));
+        } else {
+          line_fragments.push(Fragment::Text{text: rest});
+          rest = "";
+        }
+      }
+      fragments.push(line_fragments);
+    }
+
     Ok(Recipe {
       line_number:       line_number,
       name:              name,
@@ -820,6 +878,8 @@ impl<'a> Parser<'a> {
       dependency_tokens: dependency_tokens,
       arguments:         arguments,
       argument_tokens:   argument_tokens,
+      fragments:         fragments,
+      variables:         variables,
       lines:             lines,
       shebang:           shebang,
     })

@@ -58,6 +58,10 @@ fn parse_summary(input: &str, output: &str) {
   for recipe in justfile.recipes {
     s += &format!("{}\n", recipe.1);
   }
+  if s != output {
+    println!("got:\n\"{}\"\n", s);
+    println!("\texpected:\n\"{}\"", output);
+  }
   assert_eq!(s, output);
 }
 
@@ -174,12 +178,14 @@ z:
 hello a b    c   : x y    z #hello
   #! blah
   #blarg
+  {{ hello }}
   1
   2
   3
 ", "hello a b c: x y z
     #! blah
     #blarg
+    {{hello}}
     1
     2
     3
@@ -433,4 +439,30 @@ fn bad_recipe_names() {
   bad_name("a: 9a",  "9a",   3, 0, 3);
   bad_name("a: 9a",  "9a",   3, 0, 3);
   bad_name("a:\nZ:", "Z",    3, 1, 0);
+}
+
+#[test]
+fn bad_interpolation_variable_name() {
+  let text = "a:\n echo {{hello--hello}}";
+  parse_error(text, Error {
+    text:   text,
+    index:  4,
+    line:   1,
+    column: 1,
+    width:  Some(21),
+    kind:   ErrorKind::BadInterpolationVariableName{recipe: "a", text: "hello--hello"}
+  });
+}
+
+#[test]
+fn unmatched_interpolation_delimiter() {
+  let text = "a:\n echo {{";
+  parse_error(text, Error {
+    text:   text,
+    index:  4,
+    line:   1,
+    column: 1,
+    width:  Some(7),
+    kind:   ErrorKind::UnmatchedInterpolationDelimiter{recipe: "a"}
+  });
 }
