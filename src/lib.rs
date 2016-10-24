@@ -259,7 +259,7 @@ enum ErrorKind<'a> {
   AssignmentUnimplemented,
   UnknownDependency{recipe: &'a str, unknown: &'a str},
   UnknownStartOfToken,
-  UnexpectedToken{expected: Vec<TokenClass>, found: TokenClass},
+  UnexpectedToken{expected: Vec<TokenKind>, found: TokenKind},
   InternalError{message: String},
 }
 
@@ -476,7 +476,7 @@ struct Token<'a> {
   text:   &'a str,
   prefix: &'a str,
   lexeme: &'a str,
-  class:  TokenClass,
+  class:  TokenKind,
 }
 
 impl<'a> Token<'a> {
@@ -493,7 +493,7 @@ impl<'a> Token<'a> {
 }
 
 #[derive(Debug, PartialEq, Clone, Copy)]
-enum TokenClass {
+enum TokenKind {
   Name,
   Colon,
   Equals,
@@ -505,7 +505,7 @@ enum TokenClass {
   Eof,
 }
 
-impl Display for TokenClass {
+impl Display for TokenKind {
   fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
     try!(write!(f, "{}", match *self {
       Name    => "name",
@@ -522,7 +522,7 @@ impl Display for TokenClass {
   }
 }
 
-use TokenClass::*;
+use TokenKind::*;
 
 fn token(pattern: &str) -> Regex {
   let mut s = String::new();
@@ -714,11 +714,11 @@ struct Parser<'a> {
 }
 
 impl<'a> Parser<'a> {
-  fn peek(&mut self, class: TokenClass) -> bool {
+  fn peek(&mut self, class: TokenKind) -> bool {
     self.tokens.peek().unwrap().class == class
   }
 
-  fn accept(&mut self, class: TokenClass) -> Option<Token<'a>> {
+  fn accept(&mut self, class: TokenKind) -> Option<Token<'a>> {
     if self.peek(class) {
       self.tokens.next()
     } else {
@@ -726,11 +726,11 @@ impl<'a> Parser<'a> {
     }
   }
 
-  fn accepted(&mut self, class: TokenClass) -> bool {
+  fn accepted(&mut self, class: TokenKind) -> bool {
     self.accept(class).is_some()
   }
 
-  fn expect(&mut self, class: TokenClass) -> Option<Token<'a>> {
+  fn expect(&mut self, class: TokenKind) -> Option<Token<'a>> {
     if self.peek(class) {
       self.tokens.next();
       None
@@ -828,7 +828,7 @@ impl<'a> Parser<'a> {
     })
   }
 
-  fn unexpected_token(&self, found: &Token<'a>, expected: &[TokenClass]) -> Error<'a> {
+  fn unexpected_token(&self, found: &Token<'a>, expected: &[TokenKind]) -> Error<'a> {
     found.error(ErrorKind::UnexpectedToken {
       expected: expected.to_vec(),
       found:    found.class,

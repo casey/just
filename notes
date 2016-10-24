@@ -9,8 +9,6 @@ notes
     although maybe only after a '--': j build -- a=hello
 - parse lines into {{fragments}} and allow argument substitution
 - change error messages to underline problem token
-- try clippy
-- use "kind" instead of class
 - should i use // comments, since that's what's used in rust?
 - allow calling recipes in a justfile in a different directory:
   - just ../foo  # ../justfile:foo
@@ -66,3 +64,4 @@ later:
   and dir with --directory/-d, so i can do:
   alias .j='just -j ~/.justfile -d ~'
 - run recipes asyncronously
+- lint with clippy once it runs on stable

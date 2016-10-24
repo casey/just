@@ -2,7 +2,7 @@ extern crate tempdir;
 
 use super::{Token, Error, ErrorKind, Justfile};
 
-use super::TokenClass::*;
+use super::TokenKind::*;
 
 fn tokenize_success(text: &str, expected_summary: &str) {
   let tokens = super::tokenize(text).unwrap();
@@ -32,15 +32,15 @@ fn tokenize_error(text: &str, expected: Error) {
 fn token_summary(tokens: &[Token]) -> String {
   tokens.iter().map(|t| {
     match t.class {
-      super::TokenClass::Line{..}    => "*",
-      super::TokenClass::Name        => "N",
-      super::TokenClass::Colon       => ":",
-      super::TokenClass::Equals      => "=",
-      super::TokenClass::Comment{..} => "#",
-      super::TokenClass::Indent{..}  => ">",
-      super::TokenClass::Dedent      => "<",
-      super::TokenClass::Eol         => "$",
-      super::TokenClass::Eof         => ".",
+      super::TokenKind::Line{..}    => "*",
+      super::TokenKind::Name        => "N",
+      super::TokenKind::Colon       => ":",
+      super::TokenKind::Equals      => "=",
+      super::TokenKind::Comment{..} => "#",
+      super::TokenKind::Indent{..}  => ">",
+      super::TokenKind::Dedent      => "<",
+      super::TokenKind::Eol         => "$",
+      super::TokenKind::Eof         => ".",
     }
   }).collect::<Vec<_>>().join("")
 }
