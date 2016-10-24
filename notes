@@ -5,12 +5,14 @@ notes
   . export environment variables
   . no barewords
   . use the same rules as rust: https://doc.rust-lang.org/reference.html#string-literals
-  . \xHH, \u{HHHHHH}, \n, \r, \t, \0, \\, no other escapes
+  . \xHH, \u{HHHHHH}, \n, \r, \t, \0, \\, \{ no other escapes
   . '' strings with no escapes
-  . except {{ and }} are special and an be escaped \{{hello}} = "{{hello}}"
   . allow concatination: "hello, " + person + "!"
   . resolve dependencies between variables
+  . disallow reassignment
   . static errors when variables are missing {{}}, even if recipe isn't run
+  . run interpolated instead of lines
+  . make quine use assignment and interpolation
 - write some tests to test the binary itself and all command line flags
 - parse arguments on command line:
   . by name:     j build a=hello
