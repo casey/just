@@ -54,10 +54,13 @@ notes
   . clean
   . update logs (repetitive git flow)
 - full documentation
+  . talk about why the syntax is so unforgiving
   . habit of using clever commands and writing little scripts
   . very low friction to write a script (no new file, chmod, add to rcs)
   . make list of contributors, include travis
   . alias .j='just --justfile ~/.justfile --working-directory ~'
+  . lay out the structure of the code, mention tests, give tips
+    for contributing
 - vim and emacs syntax hilighting (use makefile syntax hilighting for now)
 - split up code into modules for easier reading
   . parsing
