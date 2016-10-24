@@ -1,13 +1,25 @@
 notes
 -----
 
-- parse arguments on command line by name:
-  . j build a=hello
+- parse lines into {{fragments}}
+- assignment
+  . export environment variables
+  . no barewords
+  . use the same rules as rust: https://doc.rust-lang.org/reference.html#string-literals
+  . \xHH, \u{HHHHHH}, \n, \r, \t, \0, \\, no other escapes
+  . '' strings with no escapes
+  . except {{ and }} are special and an be escaped \{{hello}} = "{{hello}}"
+  . allow concatination: "hello, " + person + "!"
+  . static errors when variables are missing {{}}, even if recipe isn't run
+- write some tests to test the binary itself and all command line flags
+- parse arguments on command line:
+  . by name:     j build a=hello
   . by position: j build hello
-  . with marker: j a 1 : hello 2 :
+  . with marker: j build hello : clean hello :
+  . after --   : j build -- foo baz
   . could also allow this to override variables
     although maybe only after a '--': j build -- a=hello
-- parse lines into {{fragments}} and allow argument substitution
+  . sub arguments into recipes
 - change error messages to underline problem token
 - allow calling recipes in a justfile in a different directory:
   - just ../foo  # ../justfile:foo
@@ -17,12 +29,10 @@ notes
     require that all recipes have slashes?
     or should non-slash recipes still run in this directory?
     will need to change things a great deal
-- assignment
-  . export environment variables
-  . no barewords
 - indentation is line continuation
-- static errors when variables are missing {{}}, even if recipe isn't run
-- write some tests to test the binary itself and all command line flags
+- add post requirements:
+  # do c then a then b
+  a: c b~
 
 - change name back to 'just'
   . suggest j as alias
@@ -44,7 +54,7 @@ notes
   . habit of using clever commands and writing little scripts
   . very low friction to write a script (no new file, chmod, add to rcs)
   . make list of contributors, include travis
-  . alias .j='just -j ~/.justfile -d ~'
+  . alias .j='just --justfile ~/.justfile --working-directory ~'
 - vim and emacs syntax hilighting (use makefile syntax hilighting for now)
 - split up code into modules for easier reading
   . parsing
@@ -56,9 +66,3 @@ notes
   . facebook friends
   . irc
   . r/rust
-
-later:
-- preludes:
-  may be nice to allow all recipes in a given langauge to share
-  functions, variables, etc. could have a "prelude" recipe
-  which was included as a prefix to other recipes
