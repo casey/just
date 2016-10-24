@@ -293,6 +293,19 @@ fn circular_dependency() {
 }
 
 #[test]
+fn self_dependency() {
+  let text = "a: a";
+  parse_error(text, Error {
+    text:   text,
+    index:  3,
+    line:   0,
+    column: 3,
+    width:  Some(1),
+    kind:   ErrorKind::CircularDependency{recipe: "a", circle: vec!["a", "a"]}
+  });
+}
+
+#[test]
 fn unknown_dependency() {
   let text = "a: b";
   parse_error(text, Error {
