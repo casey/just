@@ -14,6 +14,11 @@ notes
   - just ../foo  # ../justfile:foo
   - just xyz/foo # xyz/justfile:foo
   - just xyz/    # xyz/justfile:DEFAULT
+- assignment
+  . export environment variables
+  . no barewords
+- indentation is line continuation
+- static errors when variables are missing {{}}, even if recipe isn't run
 
 - change name back to 'just'
   . suggest j as alias
@@ -35,6 +40,7 @@ notes
   . habit of using clever commands and writing little scripts
   . very low friction to write a script (no new file, chmod, add to rcs)
   . make list of contributors, include travis
+  . alias .j='just -j ~/.justfile -d ~'
 - vim and emacs syntax hilighting (use makefile syntax hilighting for now)
 - split up code into modules for easier reading
   . parsing
@@ -48,11 +54,6 @@ notes
   . r/rust
 
 later:
-- indentation is line continuation
-- assignment
-  . export environment variables
-  . no barewords
-- static errors when variables are missing {{}}, even if recipe isn't run
 - preludes:
   may be nice to allow all recipes in a given langauge to share
   functions, variables, etc. could have a "prelude" recipe
@@ -60,8 +61,5 @@ later:
 - windows support: currently calling 'sh', which won't work on windows
   the answer will probably be to write a 'sh' clone and to only
   call binaries from cargo
-- allow specifying justfile on command line with --justfile/-j
-  and dir with --directory/-d, so i can do:
-  alias .j='just -j ~/.justfile -d ~'
 - run recipes asyncronously
 - lint with clippy once it runs on stable

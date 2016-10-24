@@ -32,36 +32,67 @@ pub fn app() {
          .short("s")
          .long("show")
          .takes_value(true)
-         .help("Show information about a recipe"))
+         .value_name("recipe")
+         .help("Show information about <recipe>"))
+    .arg(Arg::with_name("working-directory")
+         .long("working-directory")
+         .takes_value(true)
+         .help("Use <working-directory> as working directory. --justfile must also be set"))
+    .arg(Arg::with_name("justfile")
+         .long("justfile")
+         .takes_value(true)
+         .help("Use <justfile> as justfile. --working-directory must also be set"))
     .arg(Arg::with_name("recipe")
          .multiple(true)
          .help("recipe(s) to run, defaults to the first recipe in the justfile"))
     .get_matches();
 
-  loop {
-    match fs::metadata("justfile") {
-      Ok(metadata) => if metadata.is_file() { break; },
-      Err(error) => {
-        if error.kind() != io::ErrorKind::NotFound {
-          die!("Error fetching justfile metadata: {}", error)
+  // it is not obvious to me what we should do if only one of --justfile and
+  // --working-directory are passed. refuse to run in that case to avoid
+  // suprises.
+  if matches.is_present("justfile") ^ matches.is_present("working-directory") {
+    die!("--justfile and --working-directory may only be used together");
+  }
+
+  let justfile_option = matches.value_of("justfile");
+  let working_directory_option = matches.value_of("working-directory");
+
+  let text;
+  if let (Some(file), Some(directory)) = (justfile_option, working_directory_option) {
+    text = fs::File::open(file)
+      .unwrap_or_else(|error| die!("Error opening justfile: {}", error))
+      .slurp()
+      .unwrap_or_else(|error| die!("Error reading justfile: {}", error));
+
+    if let Err(error) = env::set_current_dir(directory) {
+      die!("Error changing directory to {}: {}", directory, error);
+    }
+  } else {
+    loop {
+      match fs::metadata("justfile") {
+        Ok(metadata) => if metadata.is_file() { break; },
+        Err(error) => {
+          if error.kind() != io::ErrorKind::NotFound {
+            die!("Error fetching justfile metadata: {}", error)
+          }
         }
+      }
+
+      match env::current_dir() {
+        Ok(pathbuf) => if pathbuf.as_os_str() == "/" { die!("No justfile found."); },
+        Err(error) => die!("Error getting current dir: {}", error),
+      }
+
+      if let Err(error) = env::set_current_dir("..") {
+        die!("Error changing directory: {}", error);
       }
     }
 
-    match env::current_dir() {
-      Ok(pathbuf) => if pathbuf.as_os_str() == "/" { die!("No justfile found."); },
-      Err(error) => die!("Error getting current dir: {}", error),
-    }
-
-    if let Err(error) = env::set_current_dir("..") {
-      die!("Error changing directory: {}", error);
-    }
+    text = fs::File::open("justfile")
+      .unwrap_or_else(|error| die!("Error opening justfile: {}", error))
+      .slurp()
+      .unwrap_or_else(|error| die!("Error reading justfile: {}", error));
   }
-
-  let text = fs::File::open("justfile")
-    .unwrap_or_else(|error| die!("Error opening justfile: {}", error))
-    .slurp()
-    .unwrap_or_else(|error| die!("Error reading justfile: {}", error));
 
   let justfile = super::parse(&text).unwrap_or_else(|error| die!("{}", error));
 
