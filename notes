@@ -1,147 +1,67 @@
 notes
 -----
 
-- parse arguments and store in recipe
-- parse lines into fragments and store in recipe
-- positional error messages
-- use clippy
-- document everything, including internal stuff
-- spam in rust irc chat when done
+- parse arguments on command line by name:
+  . j build a=hello
+  . by position: j build hello
+  . with marker: j a 1 : hello 2 :
+  . could also allow this to override variables
+    although maybe only after a '--': j build -- a=hello
+- parse lines into {{fragments}} and allow argument substitution
+- change error messages to underline problem token
+- try clippy
 - use "kind" instead of class
 - should i use // comments, since that's what's used in rust?
-- vim and emacs syntax hilighting
-- gah, maybe I should change it back to 'just'
-  . makes more sense as a name
+- allow calling recipes in a justfile in a different directory:
+  - just ../foo  # ../justfile:foo
+  - just xyz/foo # xyz/justfile:foo
+  - just xyz/    # xyz/justfile:DEFAULT
+
+- create some kind of group feedback forum:
+  . email list, reddit
+- change name back to 'just'
   . suggest j as alias
-  . should see if people are using 'j'
-  . doesn't conflict with autojmp
-- allow calling recipes in a justfile in a different
-  directory:
-  - ../foo # ../justfile:foo
-  - xyz/foo # xyz/justfile:foo
-- #![deny(missing_docs)]
-  // error on tab after space
-  // error on mixed leading whitespace
-  // error on inconsistent leading whitespace
-  // outer shebang
-  // strict recipe name checking, be lenient in tokenizing
-  //   but strict in parsing
-  // duplicate recipe name error
-  // duplicate dependency error
-  // differentiate shebang and non-shebang recipe
-  // resolve each recipe after parsing
-
-j: 
-- vector of substitutions
-  point to start, end, and &str which is name of variable
-- also add a vector of substitutions
-- indent for line continuation
-- multiple names for short names are actually kind of nice
-- multiple {{}} per line
-- single assignment variables
-- matched /{{.*?}}.*/ then unmatched /{{.*/
-- echo subbed line
-- static errors when variables are missing {{}}, even if recipe isn't run
-- ignore comment lines
-- post to facebook to get beta testers
-- j user email list (how to engage users more generally?)
-- see if dotbot guy likes it
-- advertise on facebook to get users
-
-- get the extracted script and test its structure
-- can I add rust docs for the command/binary?
-- change name to "a polyglot command runner"
-- comment code
-- fix docs (note that shell is invoked with -cu, explain -c and -u)
-- publish to github and cargo
-- spam facebook, reddit
-
-- duplicate argument test
-- should duplicate dependency mention recipe?
-- get rid of panics
-
-- doc comments on recipes
-- in depth usage string with doc comments, args, dependencies
-
-get rid of unused public items
-tokenize error returns successfully parsed tokens
-tokenize continues after parse error but inserts parse error into token stream
-make sure regexes are only compiled once
-fix grammar.txt to reflect reality
-
-- create a really long example justfile
-  . unzip tarball
-  . update package manager deps
+- change description to "a polyglot command runner"?
+- document all code, including private stuff
+  (can this be enforced with a lint?)
+  #![deny(missing_docs)]
+- note that shell is invoked with -cu, explain -c and -u
+- document all features with example justfiles
+  (also make them runnable as tests)
+  . update tarball dep
+  . check version string
   . clean
   . update logs (repetitive git flow)
-
 - full documentation
   . habit of using clever commands and writing little scripts
   . very low friction to write a script (no new file, chmod, add to rcs)
   . make list of contributors, include travis
+- vim and emacs syntax hilighting (use makefile syntax hilighting for now)
+- split up code into modules for easier reading
+  . parsing
+  . tokenizing
+  . executing
+- make sure there isn't any unused code
 
-variable setting
-variable substitution:  {{}}
-command line arguments: must be specified in recipe 'a foo bar:'
-quote
+- try to get some users
+  . facebook friends
+  . irc
+  . r/rust
 
-arguments are subbed in with {{variable_name}}
-doesn't conflict with shell syntax
-doesn't conflict with jquery
-conflicts a little bit with rust, but can be overcome
-very common in many template languages
-
-different ways of setting arguments:
-
-- go for something like python, so we can use full python at the top level
-- go for something like rust, so we can use rust at the top level
-- don't do barewords, we need strings anyways, so parse them
-- x = 10
-- export x = 10
-- export x
-
-wishlist:
-- ability to export environment variables
-polyglot:
-- get the extracted script and test its structure
-- change name to "a polyglot command runner"
-- comment code
-- fix docs (note that shell is invoked with -cu)
-- publish to github and cargo
-- spam facebook, reddit
-
-wishlist:
+later:
+- indentation is line continuation
+- assignment
+  . export environment variables
+  . no barewords
+- static errors when variables are missing {{}}, even if recipe isn't run
 - preludes:
   may be nice to allow all recipes in a given langauge to share
   functions, variables, etc. could have a "prelude" recipe
   which was included as a prefix to other recipes
 - windows support: currently calling 'sh', which won't work on windows
-- args can be passed after --, or with some special syntax:
-  a: 1 2 3 :
-- should also add an annotation for recipes
-  a FOO BAR, export variables FOO and BAR with args
-  fail if doesn't get two arguments
-- indent for line continuation
-- use launch recipes asyncronously
-- ~/.justfile: 
-  . is this for non-project specific commands, so that when you
-    type .j in any directory, it uses it as a justfile?
-  . or is it for commands which are useful across projects?
-- super complex recipe lines:
-  a: b c # run b and c, then a
-  b | a: c # run c, then b, and pipe output of b into a
-  a >> a.log: # run a and append output to a.log
-  a B C: # a takes B and C as command line args, like j a HELLO BOB
-         # can enforce at command line
-- what is the story for allowing justfiles in subdirectories?
-  use a different name, like 'subjustfile' or 'jfile'.
-  recurse up to the justfile, but add recipes in any jfile
-  that you find along the way. recipes in justfile are accessible,
-  and run from the justfile dir. recipes in jfile are run from jfile
-  dir. refuse to run if a recipe in justfile and jfile conflict
-- rust is a given, so one option is to write a very simple shell
-  command parser and use that instead of the system shell. this
-  would make recipes work across systems with incompatible shells.
-  additionally, we could also define a mode where it will only call
-  commands from cargo, which would make recipes work across systems
-  with incompatible userlands 'rc' or 'cargo cult' is a great name
+  the answer will probably be to write a 'sh' clone and to only
+  call binaries from cargo
+- allow specifying justfile on command line with --justfile/-j
+  and dir with --directory/-d, so i can do:
+  alias .j='just -j ~/.justfile -d ~'
+- run recipes asyncronously
