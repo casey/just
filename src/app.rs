@@ -23,7 +23,7 @@ pub fn app() {
   let matches = App::new("j")
     .version("0.2.0")
     .author("Casey R. <casey@rodarmor.com>")
-    .about("Just a command runner")
+    .about("Just a command runner - https://github.com/casey/j")
     .arg(Arg::with_name("list")
          .short("l")
          .long("list")
