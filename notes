@@ -17,11 +17,12 @@ notes
   - just xyz/foo # xyz/justfile:foo
   - just xyz/    # xyz/justfile:DEFAULT
 
-- create some kind of group feedback forum:
-  . email list, reddit
 - change name back to 'just'
   . suggest j as alias
+- create some kind of group feedback forum:
+  . email list, reddit
 - change description to "a polyglot command runner"?
+- update readme
 - document all code, including private stuff
   (can this be enforced with a lint?)
   #![deny(missing_docs)]
