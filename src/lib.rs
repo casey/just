@@ -70,6 +70,23 @@ enum Fragment<'a> {
   Variable{name: &'a str},
 }
 
+enum Expression<'a> {
+  Variable{name: &'a str},
+  String{contents: &'a str},
+  Concatination{lhs: Box<Expression<'a>>, rhs: Box<Expression<'a>>},
+}
+
+impl<'a> Display for Expression<'a> {
+  fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+    match *self {
+      Expression::Variable     {name            } => try!(write!(f, "{}", name)),
+      Expression::String       {contents        } => try!(write!(f, "\"{}\"", contents)),
+      Expression::Concatination{ref lhs, ref rhs} => try!(write!(f, "{} + {}", lhs, rhs)),
+    }
+    Ok(())
+  }
+}
+
 #[cfg(unix)]
 fn error_from_signal(recipe: &str, exit_status: process::ExitStatus) -> RunError {
   use std::os::unix::process::ExitStatusExt;
@@ -206,42 +223,135 @@ impl<'a> Display for Recipe<'a> {
   }
 }
 
-fn resolve<'a>(
-  recipes:  &BTreeMap<&str, Recipe<'a>>,
-  resolved: &mut HashSet<&'a str>,
-  seen:     &mut HashSet<&'a str>,
-  stack:    &mut Vec<&'a str>,
-  recipe:   &Recipe<'a>,
-) -> Result<(), Error<'a>> {
-  if resolved.contains(recipe.name) {
-    return Ok(())
+fn resolve<'a>(recipes:  &BTreeMap<&'a str, Recipe<'a>>) -> Result<(), Error<'a>> {
+  let mut resolver = Resolver {
+    seen:     HashSet::new(),
+    stack:    vec![],
+    resolved: HashSet::new(),
+    recipes:  recipes,
+  };
+  
+  for recipe in recipes.values() {
+    try!(resolver.resolve(&recipe));
   }
-  stack.push(recipe.name);
-  seen.insert(recipe.name);
-  for dependency_token in &recipe.dependency_tokens {
-    match recipes.get(dependency_token.lexeme) {
-      Some(dependency) => if !resolved.contains(dependency.name) {
-        if seen.contains(dependency.name) {
-          let first = stack[0];
-          stack.push(first);
-          return Err(dependency_token.error(ErrorKind::CircularDependency {
-            recipe: recipe.name,
-            circle: stack.iter()
-              .skip_while(|name| **name != dependency.name)
-              .cloned().collect()
-          }));
-        }
-        return resolve(recipes, resolved, seen, stack, dependency);
-      },
-      None => return Err(dependency_token.error(ErrorKind::UnknownDependency {
-        recipe:  recipe.name,
-        unknown: dependency_token.lexeme
-      })),
-    }
-  }
-  resolved.insert(recipe.name);
-  stack.pop();
+
   Ok(())
+}
+
+struct Resolver<'a: 'b, 'b> {
+  stack:    Vec<&'a str>,
+  seen:     HashSet<&'a str>,
+  resolved: HashSet<&'a str>,
+  recipes:  &'b BTreeMap<&'a str, Recipe<'a>>
+}
+
+impl<'a, 'b> Resolver<'a, 'b> {
+  fn resolve(&mut self, recipe: &Recipe<'a>) -> Result<(), Error<'a>> {
+    if self.resolved.contains(recipe.name) {
+      return Ok(())
+    }
+    self.stack.push(recipe.name);
+    self.seen.insert(recipe.name);
+    for dependency_token in &recipe.dependency_tokens {
+      match self.recipes.get(dependency_token.lexeme) {
+        Some(dependency) => if !self.resolved.contains(dependency.name) {
+          if self.seen.contains(dependency.name) {
+            let first = self.stack[0];
+            self.stack.push(first);
+            return Err(dependency_token.error(ErrorKind::CircularRecipeDependency {
+              recipe: recipe.name,
+              circle: self.stack.iter()
+                .skip_while(|name| **name != dependency.name)
+                .cloned().collect()
+            }));
+          }
+          return self.resolve(dependency);
+        },
+        None => return Err(dependency_token.error(ErrorKind::UnknownDependency {
+          recipe:  recipe.name,
+          unknown: dependency_token.lexeme
+        })),
+      }
+    }
+    self.resolved.insert(recipe.name);
+    self.stack.pop();
+    Ok(())
+  }
+}
+
+fn evaluate<'a>(
+  assignments:       &BTreeMap<&'a str, Expression<'a>>,
+  assignment_tokens: &BTreeMap<&'a str, Token<'a>>,
+) -> Result<BTreeMap<&'a str, String>, Error<'a>> {
+  let mut evaluator = Evaluator{
+    seen:              HashSet::new(),
+    stack:             vec![],
+    evaluated:         BTreeMap::new(),
+    assignments:       assignments,
+    assignment_tokens: assignment_tokens,
+  };
+  for name in assignments.keys() {
+    try!(evaluator.evaluate_assignment(name));
+  }
+  Ok(evaluator.evaluated)
+}
+
+struct Evaluator<'a: 'b, 'b> {
+  stack:             Vec<&'a str>,
+  seen:              HashSet<&'a str>,
+  evaluated:         BTreeMap<&'a str, String>,
+  assignments:       &'b BTreeMap<&'a str, Expression<'a>>,
+  assignment_tokens: &'b BTreeMap<&'a str, Token<'a>>,
+}
+
+impl<'a, 'b> Evaluator<'a, 'b> {
+  fn evaluate_assignment(&mut self, name: &'a str) -> Result<(), Error<'a>> {
+    if self.evaluated.contains_key(name) {
+      return Ok(());
+    }
+
+    self.stack.push(name);
+    self.seen.insert(name);
+
+    if let Some(expression) = self.assignments.get(name) {
+      let value = try!(self.evaluate_expression(expression));
+      self.evaluated.insert(name, value);
+    } else {
+      let token = self.assignment_tokens.get(name).unwrap();
+      return Err(token.error(ErrorKind::UnknownVariable {variable: name}));
+    }
+
+    self.stack.pop();
+    Ok(())
+  }
+
+  fn evaluate_expression(&mut self, expression: &Expression<'a>,) -> Result<String, Error<'a>> {
+    Ok(match *expression {
+      Expression::Variable{name} => {
+        if self.evaluated.contains_key(name) {
+          self.evaluated.get(name).unwrap().clone()
+        } else if self.seen.contains(name) {
+          let token = self.assignment_tokens.get(name).unwrap();
+          self.stack.push(name);
+          return Err(token.error(ErrorKind::CircularVariableDependency {
+            variable: name,
+            circle:   self.stack.clone(),
+          }));
+        } else {
+          try!(self.evaluate_assignment(name));
+          self.evaluated.get(name).unwrap().clone()
+        }
+      }
+      Expression::String{contents} => {
+        contents.to_string()
+      }
+      Expression::Concatination{ref lhs, ref rhs} => {
+        try!(self.evaluate_expression(lhs))
+        +
+        &try!(self.evaluate_expression(rhs))
+      }
+    })
+  }
 }
 
 #[derive(Debug, PartialEq)]
@@ -257,18 +367,21 @@ struct Error<'a> {
 #[derive(Debug, PartialEq)]
 enum ErrorKind<'a> {
   BadName{name: &'a str},
-  CircularDependency{recipe: &'a str, circle: Vec<&'a str>},
+  CircularRecipeDependency{recipe: &'a str, circle: Vec<&'a str>},
+  CircularVariableDependency{variable: &'a str, circle: Vec<&'a str>},
   DuplicateDependency{recipe: &'a str, dependency: &'a str},
   DuplicateArgument{recipe: &'a str, argument: &'a str},
   DuplicateRecipe{recipe: &'a str, first: usize},
+  DuplicateVariable{variable: &'a str},
+  ArgumentShadowsVariable{argument: &'a str},
   MixedLeadingWhitespace{whitespace: &'a str},
   UnmatchedInterpolationDelimiter{recipe: &'a str},
   BadInterpolationVariableName{recipe: &'a str, text: &'a str},
   ExtraLeadingWhitespace,
   InconsistentLeadingWhitespace{expected: &'a str, found: &'a str},
   OuterShebang,
-  AssignmentUnimplemented,
   UnknownDependency{recipe: &'a str, unknown: &'a str},
+  UnknownVariable{variable: &'a str},
   UnknownStartOfToken,
   UnexpectedToken{expected: Vec<TokenKind>, found: TokenKind},
   InternalError{message: String},
@@ -312,12 +425,23 @@ impl<'a> Display for Error<'a> {
       ErrorKind::BadName{name} => {
          try!(writeln!(f, "name did not match /[a-z](-?[a-z0-9])*/: {}", name));
       }
-      ErrorKind::CircularDependency{recipe, ref circle} => {
-        try!(write!(f, "recipe {} has circular dependency: {}", recipe, circle.join(" -> ")));
+      ErrorKind::CircularRecipeDependency{recipe, ref circle} => {
+        if circle.len() == 2 {
+          try!(write!(f, "recipe 1{} depends on itself", recipe));
+        } else {
+          try!(write!(f, "recipe {} has circular dependency: {}", recipe, circle.join(" -> ")));
+        }
+        return Ok(());
+      }
+      ErrorKind::CircularVariableDependency{variable, ref circle} => {
+        try!(write!(f, "assignment to {} has circular dependency: {}", variable, circle.join(" -> ")));
         return Ok(());
       }
       ErrorKind::DuplicateArgument{recipe, argument} => {
         try!(writeln!(f, "recipe {} has duplicate argument: {}", recipe, argument));
+      }
+      ErrorKind::DuplicateVariable{variable} => {
+        try!(writeln!(f, "variable \"{}\" is has multiple definitions", variable));
       }
       ErrorKind::UnexpectedToken{ref expected, found} => {
         try!(writeln!(f, "expected {} but found {}", Or(expected), found));
@@ -330,6 +454,9 @@ impl<'a> Display for Error<'a> {
                     recipe, first, self.line));
         return Ok(());
       }
+      ErrorKind::ArgumentShadowsVariable{argument} => {
+        try!(writeln!(f, "argument {} shadows variable of the same name", argument));
+      }
       ErrorKind::MixedLeadingWhitespace{whitespace} => {
         try!(writeln!(f,
           "found a mix of tabs and spaces in leading whitespace: {}\n leading whitespace may consist of tabs or spaces, but not both",
@@ -338,9 +465,6 @@ impl<'a> Display for Error<'a> {
       }
       ErrorKind::ExtraLeadingWhitespace => {
         try!(writeln!(f, "recipe line has extra leading whitespace"));
-      }
-      ErrorKind::AssignmentUnimplemented => {
-        try!(writeln!(f, "variable assignment is not yet implemented"));
       }
       ErrorKind::InconsistentLeadingWhitespace{expected, found} => {
         try!(writeln!(f,
@@ -360,8 +484,11 @@ impl<'a> Display for Error<'a> {
       ErrorKind::UnknownDependency{recipe, unknown} => {
         try!(writeln!(f, "recipe {} has unknown dependency {}", recipe, unknown));
       }
+      ErrorKind::UnknownVariable{variable} => {
+        try!(writeln!(f, "variable \"{}\" is unknown", variable));
+      }
       ErrorKind::UnknownStartOfToken => {
-        try!(writeln!(f, "uknown start of token:"));
+        try!(writeln!(f, "unknown start of token:"));
       }
       ErrorKind::InternalError{ref message} => {
         try!(writeln!(f, "internal error, this may indicate a bug in j: {}\n consider filing an issue: https://github.com/casey/j/issues/new", message));
@@ -380,7 +507,9 @@ impl<'a> Display for Error<'a> {
 }
 
 struct Justfile<'a> {
-  recipes: BTreeMap<&'a str, Recipe<'a>>,
+  recipes:     BTreeMap<&'a str, Recipe<'a>>,
+  assignments: BTreeMap<&'a str, Expression<'a>>,
+  values:      BTreeMap<&'a str, String>,
 }
 
 impl<'a> Justfile<'a> {
@@ -439,6 +568,27 @@ impl<'a> Justfile<'a> {
 
   fn get(&self, name: &str) -> Option<&Recipe<'a>> {
     self.recipes.get(name)
+  }
+}
+
+impl<'a> Display for Justfile<'a> {
+  fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+    let mut items = self.recipes.len() + self.assignments.len();
+    for (name, expression) in &self.assignments {
+      try!(write!(f, "{} = {} # \"{}\"", name, expression, self.values.get(name).unwrap()));
+      items -= 1;
+      if items != 0 {
+        try!(write!(f, "\n"));
+      }
+    }
+    for recipe in self.recipes.values() {
+      try!(write!(f, "{}", recipe));
+      items -= 1;
+      if items != 0 {
+        try!(write!(f, "\n"));
+      }
+    }
+    Ok(())
   }
 }
 
@@ -513,6 +663,8 @@ impl<'a> Token<'a> {
 enum TokenKind {
   Name,
   Colon,
+  StringToken,
+  Plus,
   Equals,
   Comment,
   Line,
@@ -525,15 +677,17 @@ enum TokenKind {
 impl Display for TokenKind {
   fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
     try!(write!(f, "{}", match *self {
-      Name    => "name",
-      Colon   => "\":\"",
-      Equals  => "\"=\"",
-      Comment => "comment",
-      Line    => "command",
-      Indent  => "indent",
-      Dedent  => "dedent",
-      Eol     => "end of line",
-      Eof     => "end of file",
+      Name        => "name",
+      Colon       => "\":\"",
+      Plus        => "\"+\"",
+      Equals      => "\"=\"",
+      StringToken => "string",
+      Comment     => "comment",
+      Line        => "command",
+      Indent      => "indent",
+      Dedent      => "dedent",
+      Eol         => "end of line",
+      Eof         => "end of file",
     }));
     Ok(())
   }
@@ -555,7 +709,9 @@ fn tokenize(text: &str) -> Result<Vec<Token>, Error> {
     static ref NAME:      Regex = token(r"([a-zA-Z0-9_-]+)"      );
     static ref COLON:     Regex = token(r":"                     );
     static ref EQUALS:    Regex = token(r"="                     );
+    static ref PLUS:      Regex = token(r"[+]"                   );
     static ref COMMENT:   Regex = token(r"#([^!].*)?$"           );
+    static ref STRING:    Regex = token("\"[a-z0-9]\""           );
     static ref EOL:       Regex = token(r"\n|\r\n"               );
     static ref LINE:      Regex = re(r"^(?m)[ \t]+[^ \t\n\r].*$");
     static ref INDENT:    Regex = re(r"^([ \t]*)[^ \t\n\r]"     );
@@ -658,16 +814,18 @@ fn tokenize(text: &str) -> Result<Vec<Token>, Error> {
       (captures.at(1).unwrap(), captures.at(2).unwrap(), Eof)
     } else if let Some(captures) = COLON.captures(rest) {
       (captures.at(1).unwrap(), captures.at(2).unwrap(), Colon)
+    } else if let Some(captures) = PLUS.captures(rest) {
+      (captures.at(1).unwrap(), captures.at(2).unwrap(), Plus)
     } else if let Some(captures) = EQUALS.captures(rest) {
       (captures.at(1).unwrap(), captures.at(2).unwrap(), Equals)
     } else if let Some(captures) = COMMENT.captures(rest) {
       (captures.at(1).unwrap(), captures.at(2).unwrap(), Comment)
+    } else if let Some(captures) = STRING.captures(rest) {
+      (captures.at(1).unwrap(), captures.at(2).unwrap(), StringToken)
+    } else if rest.starts_with("#!") {
+      return error!(ErrorKind::OuterShebang)
     } else {
-      return if rest.starts_with("#!") {
-        error!(ErrorKind::OuterShebang)
-      } else {
-        error!(ErrorKind::UnknownStartOfToken)
-      };
+      return error!(ErrorKind::UnknownStartOfToken)
     };
 
     let len = prefix.len() + lexeme.len();
@@ -764,6 +922,13 @@ impl<'a> Parser<'a> {
     }
   }
 
+  fn unexpected_token(&self, found: &Token<'a>, expected: &[TokenKind]) -> Error<'a> {
+    found.error(ErrorKind::UnexpectedToken {
+      expected: expected.to_vec(),
+      found:    found.class,
+    })
+  }
+
   fn recipe(&mut self, name: &'a str, line_number: usize) -> Result<Recipe<'a>, Error<'a>> {
     let mut arguments = vec![];
     let mut argument_tokens = vec![];
@@ -778,7 +943,13 @@ impl<'a> Parser<'a> {
     }
 
     if let Some(token) = self.expect(Colon) {
-      return Err(self.unexpected_token(&token, &[Name, Colon]));
+      // if we haven't accepted any arguments, an equals
+      // would have been fine as part of an expression
+      if arguments.is_empty() {
+        return Err(self.unexpected_token(&token, &[Name, Colon, Equals]));
+      } else {
+        return Err(self.unexpected_token(&token, &[Name, Colon]));
+      }
     }
 
     let mut dependencies = vec![];
@@ -885,23 +1056,42 @@ impl<'a> Parser<'a> {
     })
   }
 
-  fn unexpected_token(&self, found: &Token<'a>, expected: &[TokenKind]) -> Error<'a> {
-    found.error(ErrorKind::UnexpectedToken {
-      expected: expected.to_vec(),
-      found:    found.class,
-    })
+  fn expression(&mut self) -> Result<Expression<'a>, Error<'a>> {
+    let first = self.tokens.next().unwrap();
+    let lhs = match first.class {
+      Name        => Expression::Variable{name: first.lexeme},
+      StringToken => Expression::String{contents: &first.lexeme[1..2]},
+      _           => return Err(self.unexpected_token(&first, &[Name, StringToken])),
+    };
+
+    if self.accepted(Plus) {
+      let rhs = try!(self.expression());
+      Ok(Expression::Concatination{lhs: Box::new(lhs), rhs: Box::new(rhs)})
+    } else if let Some(token) = self.expect_eol() {
+      Err(self.unexpected_token(&token, &[Plus, Eol]))
+    } else {
+      Ok(lhs)
+    }
   }
 
   fn file(mut self) -> Result<Justfile<'a>, Error<'a>> {
     let mut recipes = BTreeMap::<&str, Recipe>::new();
+    let mut assignments = BTreeMap::<&str, Expression>::new();
+    let mut assignment_tokens = BTreeMap::<&str, Token<'a>>::new();
 
     loop {
       match self.tokens.next() {
         Some(token) => match token.class {
           Eof => break,
           Eol => continue,
-          Name => if let Some(equals) = self.accept(Equals) {
-            return Err(equals.error(ErrorKind::AssignmentUnimplemented));
+          Name => if self.accepted(Equals) {
+            if assignments.contains_key(token.lexeme) {
+              return Err(token.error(ErrorKind::DuplicateVariable {
+                variable: token.lexeme,
+              }));
+            }
+            assignments.insert(token.lexeme, try!(self.expression()));
+            assignment_tokens.insert(token.lexeme, token);
           } else {
             if let Some(recipe) = recipes.remove(token.lexeme) {
               return Err(token.error(ErrorKind::DuplicateRecipe {
@@ -937,14 +1127,38 @@ impl<'a> Parser<'a> {
       }))
     }
 
-    let mut resolved = HashSet::new();
-    let mut seen     = HashSet::new();
-    let mut stack    = vec![];
+    try!(resolve(&recipes));
 
     for recipe in recipes.values() {
-      try!(resolve(&recipes, &mut resolved, &mut seen, &mut stack, &recipe));
+      for argument in &recipe.argument_tokens {
+        if assignments.contains_key(argument.lexeme) {
+          return Err(argument.error(ErrorKind::ArgumentShadowsVariable {
+            argument: argument.lexeme
+          }));
+        }
+      }
+      
+      for variable in &recipe.variables {
+        if !(assignments.contains_key(variable) || recipe.arguments.contains(variable)) {
+          panic!("we fucked");
+        }
+      }
     }
 
-    Ok(Justfile{recipes: recipes})
+    // variables have no associated tokens because fragment parsing
+    // is done in parsing
+    // 
+    // options:
+    // . do it in parsing but generate tokens then
+    // . do it in lexing
+    // . generate error positions by hand
+
+    let values = try!(evaluate(&assignments, &assignment_tokens));
+
+    Ok(Justfile{
+      recipes:     recipes,
+      assignments: assignments,
+      values:      values,
+    })
   }
 }

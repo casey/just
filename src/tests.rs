@@ -35,6 +35,8 @@ fn token_summary(tokens: &[Token]) -> String {
       super::TokenKind::Line{..}    => "*",
       super::TokenKind::Name        => "N",
       super::TokenKind::Colon       => ":",
+      super::TokenKind::StringToken => "\"",
+      super::TokenKind::Plus        => "+",
       super::TokenKind::Equals      => "=",
       super::TokenKind::Comment{..} => "#",
       super::TokenKind::Indent{..}  => ">",
@@ -54,15 +56,12 @@ fn parse_success(text: &str) -> Justfile {
 
 fn parse_summary(input: &str, output: &str) {
   let justfile = parse_success(input);
-  let mut s = String::new();
-  for recipe in justfile.recipes {
-    s += &format!("{}\n", recipe.1);
-  }
+  let s = justfile.to_string();
   if s != output {
     println!("got:\n\"{}\"\n", s);
     println!("\texpected:\n\"{}\"", output);
+    assert_eq!(s, output);
   }
-  assert_eq!(s, output);
 }
 
 fn parse_error(text: &str, expected: Error) {
@@ -175,38 +174,37 @@ fn parse() {
 x:
 y:
 z:
+foo = \"x\"
+goodbye = \"y\"
 hello a b    c   : x y    z #hello
   #! blah
   #blarg
-  {{ hello }}
+  {{ foo }}abc{{ goodbye\t   }}xyz
   1
   2
   3
-", "hello a b c: x y z
+", "foo = \"x\" # \"x\"
+goodbye = \"y\" # \"y\"
+hello a b c: x y z
     #! blah
     #blarg
-    {{hello}}
+    {{foo}}abc{{goodbye}}xyz
     1
     2
     3
 x:
 y:
-z:
-");
-}
+z:");
 
+  parse_summary(
+r#"a = "0"
+c = a + b + a + b
+b = "1"
+"#, 
 
-#[test]
-fn assignment_unimplemented() {
-  let text = "a = z";
-  parse_error(text, Error {
-    text:   text,
-    index:  2,
-    line:   0,
-    column: 2,
-    width:  Some(1),
-    kind:   ErrorKind::AssignmentUnimplemented
-  });
+r#"a = "0" # "0"
+b = "1" # "1"
+c = a + b + a + b # "0101""#);
 }
 
 #[test]
@@ -237,7 +235,7 @@ fn missing_eol() {
 
 #[test]
 fn eof_test() {
-  parse_summary("x:\ny:\nz:\na b c: x y z", "a b c: x y z\nx:\ny:\nz:\n");
+  parse_summary("x:\ny:\nz:\na b c: x y z", "a b c: x y z\nx:\ny:\nz:");
 }
 
 #[test]
@@ -250,6 +248,19 @@ fn duplicate_argument() {
     column: 4,
     width:  Some(1),
     kind:   ErrorKind::DuplicateArgument{recipe: "a", argument: "b"}
+  });
+}
+
+#[test]
+fn argument_shadows_varible() {
+  let text = "foo = \"h\"\na foo:";
+  parse_error(text, Error {
+    text:   text,
+    index:  12,
+    line:   1,
+    column: 2,
+    width:  Some(3),
+    kind:   ErrorKind::ArgumentShadowsVariable{argument: "foo"}
   });
 }
 
@@ -280,7 +291,7 @@ fn duplicate_recipe() {
 }
 
 #[test]
-fn circular_dependency() {
+fn circular_recipe_dependency() {
   let text = "a: b\nb: a";
   parse_error(text, Error {
     text:   text,
@@ -288,12 +299,38 @@ fn circular_dependency() {
     line:   1,
     column: 3,
     width:  Some(1),
-    kind:   ErrorKind::CircularDependency{recipe: "b", circle: vec!["a", "b", "a"]}
+    kind:   ErrorKind::CircularRecipeDependency{recipe: "b", circle: vec!["a", "b", "a"]}
   });
 }
 
 #[test]
-fn self_dependency() {
+fn circular_variable_dependency() {
+  let text = "a = b\nb = a";
+  parse_error(text, Error {
+    text:   text,
+    index:  0,
+    line:   0,
+    column: 0,
+    width:  Some(1),
+    kind:   ErrorKind::CircularVariableDependency{variable: "a", circle: vec!["a", "b", "a"]}
+  });
+}
+
+#[test]
+fn duplicate_variable() {
+  let text = "a = \"0\"\na = \"0\"";
+  parse_error(text, Error {
+    text:   text,
+    index:  8,
+    line:   1,
+    column: 0,
+    width:  Some(1),
+    kind:   ErrorKind::DuplicateVariable{variable: "a"}
+  });
+}
+
+#[test]
+fn self_recipe_dependency() {
   let text = "a: a";
   parse_error(text, Error {
     text:   text,
@@ -301,7 +338,20 @@ fn self_dependency() {
     line:   0,
     column: 3,
     width:  Some(1),
-    kind:   ErrorKind::CircularDependency{recipe: "a", circle: vec!["a", "a"]}
+    kind:   ErrorKind::CircularRecipeDependency{recipe: "a", circle: vec!["a", "a"]}
+  });
+}
+
+#[test]
+fn self_variable_dependency() {
+  let text = "a = a";
+  parse_error(text, Error {
+    text:   text,
+    index:  0,
+    line:   0,
+    column: 0,
+    width:  Some(1),
+    kind:   ErrorKind::CircularVariableDependency{variable: "a", circle: vec!["a", "a"]}
   });
 }
 

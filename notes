@@ -2,23 +2,29 @@ notes
 -----
 
 - assignment
-  . export environment variables
-  . no barewords
+  . can argument shadow variables?
+    . yes, why not
+    . no, it's confusing
+  . static errors when variables are missing {{}}, even if recipe isn't run
   . use the same rules as rust: https://doc.rust-lang.org/reference.html#string-literals
   . \xHH, \u{HHHHHH}, \n, \r, \t, \0, \\, \{ no other escapes
   . '' strings with no escapes
-  . allow concatination: "hello, " + person + "!"
-  . resolve dependencies between variables
-  . disallow reassignment
-  . static errors when variables are missing {{}}, even if recipe isn't run
   . run interpolated instead of lines
   . make quine use assignment and interpolation
+  . make strings more than one character
+   .re-order evaluate assignment
+- disallow unused arguments and variables
+- allow exporting environment variables
 - write some tests to test the binary itself and all command line flags
+- remove unhandled token stuff
 - parse arguments on command line:
-  . by name:     j build a=hello
-  . by position: j build hello
-  . with marker: j build hello : clean hello :
-  . after --   : j build -- foo baz
+  . ugly but conservative: j build --set a=hello
+  . by export:             A=HELLO j build
+  . by export 2:           BUILD.A=HELLO j build
+  . by name:               j build a=hello
+  . by position:           j build hello
+  . with marker:           j build hello : clean hello :
+  . after --   :           j build -- foo baz
   . fast errors when arguments are missing
   . could also allow this to override variables
     although maybe only after a '--': j build -- a=hello
@@ -33,10 +39,14 @@ notes
     or should non-slash recipes still run in this directory?
     will need to change things a great deal
 - indentation is line continuation
+- add context to unexpected_token error
+  "while parsing a recipe"
+  "while parsing an expression"
 - add post requirements:
   # do c then a then b
   a: c b~
 
+- rewrite grammar.txt
 - change name back to 'just'
   . suggest j as alias
 - create some kind of group feedback forum:
@@ -55,6 +65,8 @@ notes
   . update logs (repetitive git flow)
 - full documentation
   . talk about why the syntax is so unforgiving
+    easier to accept a program that you once rejected than to
+    no longer accept a program or change its meaning
   . habit of using clever commands and writing little scripts
   . very low friction to write a script (no new file, chmod, add to rcs)
   . make list of contributors, include travis
