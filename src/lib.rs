@@ -57,6 +57,7 @@ struct Recipe<'a> {
   lines:              Vec<&'a str>,
   fragments:          Vec<Vec<Fragment<'a>>>,
   variables:          BTreeSet<&'a str>,
+  variable_tokens:    Vec<Token<'a>>,
   dependencies:       Vec<&'a str>,
   dependency_tokens:  Vec<Token<'a>>,
   arguments:          Vec<&'a str>,
@@ -71,7 +72,7 @@ enum Fragment<'a> {
 }
 
 enum Expression<'a> {
-  Variable{name: &'a str},
+  Variable{name: &'a str, token: Token<'a>},
   String{contents: &'a str},
   Concatination{lhs: Box<Expression<'a>>, rhs: Box<Expression<'a>>},
 }
@@ -79,7 +80,7 @@ enum Expression<'a> {
 impl<'a> Display for Expression<'a> {
   fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
     match *self {
-      Expression::Variable     {name            } => try!(write!(f, "{}", name)),
+      Expression::Variable     {name, ..        } => try!(write!(f, "{}", name)),
       Expression::String       {contents        } => try!(write!(f, "\"{}\"", contents)),
       Expression::Concatination{ref lhs, ref rhs} => try!(write!(f, "{} + {}", lhs, rhs)),
     }
@@ -327,7 +328,7 @@ impl<'a, 'b> Evaluator<'a, 'b> {
 
   fn evaluate_expression(&mut self, expression: &Expression<'a>,) -> Result<String, Error<'a>> {
     Ok(match *expression {
-      Expression::Variable{name} => {
+      Expression::Variable{name, ref token} => {
         if self.evaluated.contains_key(name) {
           self.evaluated.get(name).unwrap().clone()
         } else if self.seen.contains(name) {
@@ -337,6 +338,8 @@ impl<'a, 'b> Evaluator<'a, 'b> {
             variable: name,
             circle:   self.stack.clone(),
           }));
+        } else if !self.assignments.contains_key(name) {
+          return Err(token.error(ErrorKind::UnknownVariable{variable: name}));
         } else {
           try!(self.evaluate_assignment(name));
           self.evaluated.get(name).unwrap().clone()
@@ -375,7 +378,7 @@ enum ErrorKind<'a> {
   DuplicateVariable{variable: &'a str},
   ArgumentShadowsVariable{argument: &'a str},
   MixedLeadingWhitespace{whitespace: &'a str},
-  UnmatchedInterpolationDelimiter{recipe: &'a str},
+  UnclosedInterpolationDelimiter,
   BadInterpolationVariableName{recipe: &'a str, text: &'a str},
   ExtraLeadingWhitespace,
   InconsistentLeadingWhitespace{expected: &'a str, found: &'a str},
@@ -475,8 +478,8 @@ impl<'a> Display for Error<'a> {
       ErrorKind::OuterShebang => {
         try!(writeln!(f, "a shebang \"#!\" is reserved syntax outside of recipes"))
       }
-      ErrorKind::UnmatchedInterpolationDelimiter{recipe} => {
-        try!(writeln!(f, "recipe {} contains an unmatched {}", recipe, "{{"))
+      ErrorKind::UnclosedInterpolationDelimiter => {
+        try!(writeln!(f, "unmatched {}", "{{"))
       }
       ErrorKind::BadInterpolationVariableName{recipe, text} => {
         try!(writeln!(f, "recipe {} contains a bad variable interpolation: {}", recipe, text))
@@ -657,6 +660,22 @@ impl<'a> Token<'a> {
       kind:   kind,
     }
   }
+
+  /*
+  fn split(
+    self,
+    leading_prefix_len:  usize,
+    lexeme_len:          usize,
+    trailing_prefix_len: usize,
+  ) -> (Token<'a>, Token<'a>) {
+    let len = self.prefix.len() + self.lexeme.len();
+
+    // let length = self.prefix.len() + self.lexeme.len();
+    // if lexeme_start > lexeme_end || lexeme_end > length {
+    // }
+    // panic!("Tried to split toke
+  }
+  */
 }
 
 #[derive(Debug, PartialEq, Clone, Copy)]
@@ -667,9 +686,12 @@ enum TokenKind {
   Plus,
   Equals,
   Comment,
-  Line,
   Indent,
   Dedent,
+  InterpolationStart,
+  InterpolationEnd,
+  Text,
+  Line,
   Eol,
   Eof,
 }
@@ -677,17 +699,20 @@ enum TokenKind {
 impl Display for TokenKind {
   fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
     try!(write!(f, "{}", match *self {
-      Name        => "name",
-      Colon       => "\":\"",
-      Plus        => "\"+\"",
-      Equals      => "\"=\"",
-      StringToken => "string",
-      Comment     => "comment",
-      Line        => "command",
-      Indent      => "indent",
-      Dedent      => "dedent",
-      Eol         => "end of line",
-      Eof         => "end of file",
+      Name               => "name",
+      Colon              => "\":\"",
+      Plus               => "\"+\"",
+      Equals             => "\"=\"",
+      StringToken        => "string",
+      Text               => "command text",
+      InterpolationStart => "{{",
+      InterpolationEnd   => "}}",
+      Comment            => "comment",
+      Line               => "command",
+      Indent             => "indent",
+      Dedent             => "dedent",
+      Eol                => "end of line",
+      Eof                => "end of file",
     }));
     Ok(())
   }
@@ -703,19 +728,43 @@ fn token(pattern: &str) -> Regex {
   re(&s)
 }
 
-fn tokenize(text: &str) -> Result<Vec<Token>, Error> {
+fn tokenize<'a>(text: &'a str) -> Result<Vec<Token>, Error> {
   lazy_static! {
-    static ref EOF:       Regex = token(r"(?-m)$"                );
-    static ref NAME:      Regex = token(r"([a-zA-Z0-9_-]+)"      );
-    static ref COLON:     Regex = token(r":"                     );
-    static ref EQUALS:    Regex = token(r"="                     );
-    static ref PLUS:      Regex = token(r"[+]"                   );
-    static ref COMMENT:   Regex = token(r"#([^!].*)?$"           );
-    static ref STRING:    Regex = token("\"[a-z0-9]\""           );
-    static ref EOL:       Regex = token(r"\n|\r\n"               );
-    static ref LINE:      Regex = re(r"^(?m)[ \t]+[^ \t\n\r].*$");
-    static ref INDENT:    Regex = re(r"^([ \t]*)[^ \t\n\r]"     );
+    static ref EOF:                 Regex = token(r"(?-m)$"                );
+    static ref NAME:                Regex = token(r"([a-zA-Z0-9_-]+)"      );
+    static ref COLON:               Regex = token(r":"                     );
+    static ref EQUALS:              Regex = token(r"="                     );
+    static ref PLUS:                Regex = token(r"[+]"                   );
+    static ref COMMENT:             Regex = token(r"#([^!].*)?$"           );
+    static ref STRING:              Regex = token("\"[a-z0-9]\""           );
+    static ref EOL:                 Regex = token(r"\n|\r\n"               );
+    static ref INTERPOLATION_END:   Regex = token(r"[{][{]"                );
+    static ref LINE:                Regex = re(r"^(?m)[ \t]+[^ \t\n\r].*$");
+    static ref INDENT:              Regex = re(r"^([ \t]*)[^ \t\n\r]"     );
+    static ref INTERPOLATION_START: Regex = re(r"^[{][{]"                 );
+    static ref LEADING_TEXT:        Regex = re(r"(?m)(.+?)[{][{]"         );
+    static ref TEXT:                Regex = re(r"(?m)(.+?)$"              );
   }
+
+  #[derive(PartialEq)]
+  enum State<'a> {
+    Start,
+    Indent(&'a str),
+    Text,
+    Interpolation,
+  }
+
+  /*
+  struct Stack<'a> {
+    states: Vec<StateKind<'a>>
+  }
+
+  impl<'a> State<'a> {
+    fn current(&self) -> State {
+      self.states.last()
+    }
+  }
+  */
 
   fn indentation(text: &str) -> Option<&str> {
     INDENT.captures(text).map(|captures| captures.at(1).unwrap())
@@ -726,7 +775,9 @@ fn tokenize(text: &str) -> Result<Vec<Token>, Error> {
   let mut index                = 0;
   let mut line                 = 0;
   let mut column               = 0;
-  let mut indent: Option<&str> = None;
+  // let mut indent: Option<&str> = None;
+  // let mut state                = StateKind::Start;
+  let mut state = vec![State::Start];
 
   macro_rules! error {
     ($kind:expr) => {{
@@ -743,27 +794,29 @@ fn tokenize(text: &str) -> Result<Vec<Token>, Error> {
 
   loop {
     if column == 0 {
-      if let Some(class) = match (indent, indentation(rest)) {
+      if let Some(class) = match (state.last().unwrap(), indentation(rest)) {
         // ignore: was no indentation and there still isn't
         //         or current line is blank
-        (None, Some("")) | (_, None) => {
+        (&State::Start, Some("")) | (_, None) => {
           None
         }
         // indent: was no indentation, now there is
-        (None, Some(current)) => {
+        (&State::Start, Some(current)) => {
           if mixed_whitespace(current) {
             return error!(ErrorKind::MixedLeadingWhitespace{whitespace: current})
           }
-          indent = Some(current);
+          //indent = Some(current);
+          state.push(State::Indent(current));
           Some(Indent)
         }
         // dedent: there was indentation and now there isn't
-        (Some(_), Some("")) => {
-          indent = None;
+        (&State::Indent(_), Some("")) => {
+          // indent = None;
+          state.pop();
           Some(Dedent)
         }
         // was indentation and still is, check if the new indentation matches
-        (Some(previous), Some(current)) => {
+        (&State::Indent(previous), Some(current)) => {
           if !current.starts_with(previous) {
             return error!(ErrorKind::InconsistentLeadingWhitespace{
               expected: previous,
@@ -771,6 +824,12 @@ fn tokenize(text: &str) -> Result<Vec<Token>, Error> {
             });
           }
           None
+        }
+        // at column 0 in some other state: this should never happen
+        (&State::Text, _) | (&State::Interpolation, _) => {
+          return error!(ErrorKind::InternalError{
+            message: "unexpected state at column 0".to_string()
+          });
         }
       } {
         tokens.push(Token {
@@ -786,32 +845,67 @@ fn tokenize(text: &str) -> Result<Vec<Token>, Error> {
     }
 
     // insert a dedent if we're indented and we hit the end of the file
-    if indent.is_some() && EOF.is_match(rest) {
-      tokens.push(Token {
-        index:  index,
-        line:   line,
-        column: column,
-        text:   text,
-        prefix: "",
-        lexeme: "",
-        class:  Dedent,
-      });
+    if &State::Start != state.last().unwrap() {
+      if EOF.is_match(rest) {
+        tokens.push(Token {
+          index:  index,
+          line:   line,
+          column: column,
+          text:   text,
+          prefix: "",
+          lexeme: "",
+          class:  Dedent,
+        });
+      }
     }
 
     let (prefix, lexeme, class) = 
-    if let (0, Some(indent), Some(captures)) = (column, indent, LINE.captures(rest)) {
+    if let (0, &State::Indent(indent), Some(captures)) = (column, state.last().unwrap(), LINE.captures(rest)) {
       let line = captures.at(0).unwrap();
       if !line.starts_with(indent) {
         return error!(ErrorKind::InternalError{message: "unexpected indent".to_string()});
       }
-      let (prefix, lexeme) = line.split_at(indent.len());
-      (prefix, lexeme, Line)
+      //let (prefix, lexeme) = line.split_at(indent.len());
+      state.push(State::Text);
+      //(prefix, lexeme, Line)
+
+      // state we can produce text, {{, or eol tokens
+
+      // will produce text, name, {{, tokens }}, until end of line
+
+      (&line[0..indent.len()], "", Line)
+    } else if let Some(captures) = EOF.captures(rest) {
+      (captures.at(1).unwrap(), captures.at(2).unwrap(), Eof)
+    } else if let &State::Text = state.last().unwrap() {
+      if let Some(captures) = INTERPOLATION_START.captures(rest) {
+        state.push(State::Interpolation);
+        ("", captures.at(0).unwrap(), InterpolationStart)
+      } else if let Some(captures) = LEADING_TEXT.captures(rest) {
+        ("", captures.at(1).unwrap(), Text)
+      } else if let Some(captures) = TEXT.captures(rest) {
+        ("", captures.at(1).unwrap(), Text)
+      } else if let Some(captures) = EOL.captures(rest) {
+        state.pop();
+        (captures.at(1).unwrap(), captures.at(2).unwrap(), Eol)
+      } else {
+        return error!(ErrorKind::InternalError{
+          message: format!("Could not match token in text state: \"{}\"", rest)
+        });
+      }
+    } else if let Some(captures) = INTERPOLATION_END.captures(rest) {
+      if state.last().unwrap() != &State::Interpolation {
+        // improve error
+        panic!("interpolation end outside of interpolation state");
+      }
+      state.pop();
+      (captures.at(1).unwrap(), captures.at(2).unwrap(), InterpolationEnd)
     } else if let Some(captures) = NAME.captures(rest) {
       (captures.at(1).unwrap(), captures.at(2).unwrap(), Name)
     } else if let Some(captures) = EOL.captures(rest) {
+      if state.last().unwrap() == &State::Interpolation {
+        panic!("interpolation must be closed at end of line");
+      }
       (captures.at(1).unwrap(), captures.at(2).unwrap(), Eol)
-    } else if let Some(captures) = EOF.captures(rest) {
-      (captures.at(1).unwrap(), captures.at(2).unwrap(), Eof)
     } else if let Some(captures) = COLON.captures(rest) {
       (captures.at(1).unwrap(), captures.at(2).unwrap(), Colon)
     } else if let Some(captures) = PLUS.captures(rest) {
@@ -839,6 +933,14 @@ fn tokenize(text: &str) -> Result<Vec<Token>, Error> {
       lexeme: lexeme,
       class:  class,
     });
+
+    if len == 0 {
+      match tokens.last().unwrap().class {
+        Eof => {},
+        _ => return Err(tokens.last().unwrap().error(
+          ErrorKind::InternalError{message: format!("zero length token: {:?}", tokens.last().unwrap())})),
+      }
+    }
 
     match tokens.last().unwrap().class {
       Eol => {
@@ -944,7 +1046,7 @@ impl<'a> Parser<'a> {
 
     if let Some(token) = self.expect(Colon) {
       // if we haven't accepted any arguments, an equals
-      // would have been fine as part of an expression
+      // would have been fine as part of an assignment
       if arguments.is_empty() {
         return Err(self.unexpected_token(&token, &[Name, Colon, Equals]));
       } else {
@@ -1004,17 +1106,21 @@ impl<'a> Parser<'a> {
 
     let mut fragments = vec![];
     let mut variables = BTreeSet::new();
+    let mut variable_tokens = vec![];
 
     lazy_static! {
       static ref FRAGMENT:  Regex = re(r"^(.*?)\{\{(.*?)\}\}"               );
       static ref UNMATCHED: Regex = re(r"^.*?\{\{"                          );
-      static ref VARIABLE:  Regex = re(r"^[ \t]*([a-z](-?[a-z0-9])*)[ \t]*$");
+      static ref VARIABLE:  Regex = re(r"^([ \t]*)([a-z](-?[a-z0-9])*)[ \t]*$");
     }
 
     for line in &line_tokens {
       let mut line_fragments = vec![];
       let mut rest = line.lexeme;
+      let mut index = line.index;
+      let mut column = line.column;
       while !rest.is_empty() {
+        let advanced;
         if let Some(captures) = FRAGMENT.captures(rest) {
           let prefix = captures.at(1).unwrap();
           if !prefix.is_empty() {
@@ -1022,22 +1128,35 @@ impl<'a> Parser<'a> {
           }
           let interior = captures.at(2).unwrap();
           if let Some(captures) = VARIABLE.captures(interior) {
-            let name = captures.at(1).unwrap();
+            let prefix = captures.at(1).unwrap();
+            let name = captures.at(2).unwrap();
             line_fragments.push(Fragment::Variable{name: name});
             variables.insert(name);
+            variable_tokens.push(Token {
+              index:  index + line.prefix.len(),
+              line:   line.line,
+              column: column + line.prefix.len(),
+              text:   line.text,
+              prefix: prefix,
+              lexeme: name,
+              class:  Name,
+            });
           } else {
             return Err(line.error(ErrorKind::BadInterpolationVariableName{
               recipe: name, 
               text: interior,
             }));
           }
-          rest = &rest[captures.at(0).unwrap().len()..];
+          advanced = captures.at(0).unwrap().len();
         } else if UNMATCHED.is_match(rest) {
-          return Err(line.error(ErrorKind::UnmatchedInterpolationDelimiter{recipe: name}));
+          return Err(line.error(ErrorKind::UnclosedInterpolationDelimiter));
         } else {
           line_fragments.push(Fragment::Text{text: rest});
-          rest = "";
-        }
+          advanced = rest.len();
+        };
+        index += advanced;
+        column += advanced;
+        rest = &rest[advanced..];
       }
       fragments.push(line_fragments);
     }
@@ -1051,6 +1170,7 @@ impl<'a> Parser<'a> {
       argument_tokens:   argument_tokens,
       fragments:         fragments,
       variables:         variables,
+      variable_tokens:   variable_tokens,
       lines:             lines,
       shebang:           shebang,
     })
@@ -1059,7 +1179,7 @@ impl<'a> Parser<'a> {
   fn expression(&mut self) -> Result<Expression<'a>, Error<'a>> {
     let first = self.tokens.next().unwrap();
     let lhs = match first.class {
-      Name        => Expression::Variable{name: first.lexeme},
+      Name        => Expression::Variable{name: first.lexeme, token: first},
       StringToken => Expression::String{contents: &first.lexeme[1..2]},
       _           => return Err(self.unexpected_token(&first, &[Name, StringToken])),
     };
@@ -1138,20 +1258,13 @@ impl<'a> Parser<'a> {
         }
       }
       
-      for variable in &recipe.variables {
-        if !(assignments.contains_key(variable) || recipe.arguments.contains(variable)) {
-          panic!("we fucked");
+      for variable in &recipe.variable_tokens {
+        let name = variable.lexeme;
+        if !(assignments.contains_key(&name) || recipe.arguments.contains(&name)) {
+          return Err(variable.error(ErrorKind::UnknownVariable{variable: name}));
         }
       }
     }
-
-    // variables have no associated tokens because fragment parsing
-    // is done in parsing
-    // 
-    // options:
-    // . do it in parsing but generate tokens then
-    // . do it in lexing
-    // . generate error positions by hand
 
     let values = try!(evaluate(&assignments, &assignment_tokens));
 
