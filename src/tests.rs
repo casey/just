@@ -53,7 +53,6 @@ fn token_summary(tokens: &[Token]) -> String {
   }).collect::<Vec<_>>().join("")
 }
 
-/*
 fn parse_success(text: &str) -> Justfile {
   match super::parse(text) {
     Ok(justfile) => justfile,
@@ -84,7 +83,6 @@ fn parse_error(text: &str, expected: Error) {
     panic!("Expected {:?} but parse succeeded", expected.kind);
   }
 }
-*/
 
 #[test]
 fn tokenize_recipe_interpolation_eol() {
@@ -196,7 +194,7 @@ fn tokenize_tabs_then_tab_space() {
 }
 
 #[test]
-fn outer_shebang() {
+fn tokenize_outer_shebang() {
   let text = "#!/usr/bin/env bash";
   tokenize_error(text, Error {
     text:   text,
@@ -209,7 +207,7 @@ fn outer_shebang() {
 }
 
 #[test]
-fn unknown_start_of_token() {
+fn tokenize_unknown() {
   let text = "~";
   tokenize_error(text, Error {
     text:   text,
@@ -221,7 +219,6 @@ fn unknown_start_of_token() {
   });
 }
 
-/*
 #[test]
 fn parse_empty() {
   parse_summary("
@@ -239,20 +236,22 @@ x:
 y:
 z:
 foo = \"x\"
+bar = foo
 goodbye = \"y\"
 hello a b    c   : x y    z #hello
   #! blah
   #blarg
-  {{ foo }}abc{{ goodbye\t   }}xyz
+  {{ foo + bar}}abc{{ goodbye\t  + \"x\" }}xyz
   1
   2
   3
-", "foo = \"x\" # \"x\"
+", "bar = foo # \"x\"
+foo = \"x\" # \"x\"
 goodbye = \"y\" # \"y\"
 hello a b c: x y z
     #! blah
     #blarg
-    {{foo}}abc{{goodbye}}xyz
+    {{foo + bar}}abc{{goodbye + \"x\"}}xyz
     1
     2
     3
@@ -457,69 +456,10 @@ fn write_or() {
 }
 
 #[test]
-fn run_shebang() {
-  // this test exists to make sure that shebang recipes
-  // run correctly. although this script is still
-  // executed by sh its behavior depends on the value of a
-  // variable and continuing even though a command fails,
-  // whereas in plain recipes variables are not available
-  // in subsequent lines and execution stops when a line
-  // fails
-  let text = "
-a:
- #!/usr/bin/env sh
- code=200
- function x { return $code; }
- x
- x
-";
-
-  match parse_success(text).run(&["a"]).unwrap_err() {
-    super::RunError::Code{recipe, code} => {
-      assert_eq!(recipe, "a");
-      assert_eq!(code, 200);
-    },
-    other => panic!("expected an code run error, but got: {}", other),
-  }
-}
-
-#[test]
-fn run_order() {
-  let tmp = tempdir::TempDir::new("run_order").unwrap_or_else(|err| panic!("tmpdir: failed to create temporary directory: {}", err));
-  let path = tmp.path().to_str().unwrap_or_else(|| panic!("tmpdir: path was not valid UTF-8")).to_owned();
-  let text = r"
-b: a
-  @mv a b
-
-a:
-  @touch a
-
-d: c
-  @rm c
-
-c: b
-  @mv b c
-";
-  super::std::env::set_current_dir(path).expect("failed to set current directory");
-  parse_success(text).run(&["a", "d"]).unwrap();
-}
-
-#[test]
 fn unknown_recipes() {
   match parse_success("a:\nb:\nc:").run(&["a", "x", "y", "z"]).unwrap_err() {
     super::RunError::UnknownRecipes{recipes} => assert_eq!(recipes, &["x", "y", "z"]),
     other @ _ => panic!("expected an unknown recipe error, but got: {}", other),
-  }
-}
-
-#[test]
-fn code_error() {
-  match parse_success("fail:\n @function x { return 100; }; x").run(&["fail"]).unwrap_err() {
-    super::RunError::Code{recipe, code} => {
-      assert_eq!(recipe, "fail");
-      assert_eq!(code, 100);
-    },
-    other @ _ => panic!("expected a code run error, but got: {}", other),
   }
 }
 
@@ -576,24 +516,24 @@ fn bad_interpolation_variable_name() {
   let text = "a:\n echo {{hello--hello}}";
   parse_error(text, Error {
     text:   text,
-    index:  4,
+    index:  11,
     line:   1,
-    column: 1,
-    width:  Some(21),
-    kind:   ErrorKind::BadInterpolationVariableName{recipe: "a", text: "hello--hello"}
+    column: 8,
+    width:  Some(12),
+    kind:   ErrorKind::BadName{name: "hello--hello"}
   });
 }
 
 #[test]
 fn unclosed_interpolation_delimiter() {
-  let text = "a:\n echo {{";
+  let text = "a:\n echo {{ foo";
   parse_error(text, Error {
     text:   text,
-    index:  4,
+    index:  15,
     line:   1,
-    column: 1,
-    width:  Some(7),
-    kind:   ErrorKind::UnclosedInterpolationDelimiter,
+    column: 12,
+    width:  Some(0),
+    kind:   ErrorKind::UnexpectedToken{expected: vec![Plus, Eol, InterpolationEnd], found: Dedent},
   });
 }
 
@@ -621,15 +561,82 @@ fn unknown_interpolation_variable() {
     width:  Some(5),
     kind:   ErrorKind::UnknownVariable{variable: "hello"},
   });
+}
 
-  // let text = "x:\n echo\n {{ lol }}";
-  // parse_error(text, Error {
-  //   text:   text,
-  //   index:  11,
-  //   line:   2,
-  //   column: 2,
-  //   width:  Some(3),
-  //   kind:   ErrorKind::UnknownVariable{variable: "lol"},
-  // });
+#[test]
+fn unknown_second_interpolation_variable() {
+  let text = "wtf=\"x\"\nx:\n echo\n foo {{wtf}} {{ lol }}";
+  parse_error(text, Error {
+    text:   text,
+    index:  33,
+    line:   3,
+    column: 16,
+    width:  Some(3),
+    kind:   ErrorKind::UnknownVariable{variable: "lol"},
+  });
+}
+
+#[test]
+fn run_order() {
+  let tmp = tempdir::TempDir::new("run_order").unwrap_or_else(|err| panic!("tmpdir: failed to create temporary directory: {}", err));
+  let path = tmp.path().to_str().unwrap_or_else(|| panic!("tmpdir: path was not valid UTF-8")).to_owned();
+  let text = r"
+b: a
+  @mv a b
+
+a:
+  @touch F
+  @touch a
+
+d: c
+  @rm c
+
+c: b
+  @mv b c";
+  tokenize_success(text, "$N:N$>^_$$<N:$>^_$^_$$<N:N$>^_$$<N:N$>^_<.");
+  super::std::env::set_current_dir(path).expect("failed to set current directory");
+  parse_success(text).run(&["a", "d"]).unwrap();
+  if let Err(_) = super::std::fs::metadata("F") {
+    panic!("recipes did not run");
+  }
+}
+
+/*
+#[test]
+fn run_shebang() {
+  // this test exists to make sure that shebang recipes
+  // run correctly. although this script is still
+  // executed by sh its behavior depends on the value of a
+  // variable and continuing even though a command fails,
+  // whereas in plain recipes variables are not available
+  // in subsequent lines and execution stops when a line
+  // fails
+  let text = "
+a:
+ #!/usr/bin/env sh
+ code=200
+ function x { return $code; }
+ x
+ x
+";
+
+  match parse_success(text).run(&["a"]).unwrap_err() {
+    super::RunError::Code{recipe, code} => {
+      assert_eq!(recipe, "a");
+      assert_eq!(code, 200);
+    },
+    other => panic!("expected an code run error, but got: {}", other),
+  }
+}
+
+#[test]
+fn code_error() {
+  match parse_success("fail:\n @function x { return 100; }; x").run(&["fail"]).unwrap_err() {
+    super::RunError::Code{recipe, code} => {
+      assert_eq!(recipe, "fail");
+      assert_eq!(code, 100);
+    },
+    other @ _ => panic!("expected a code run error, but got: {}", other),
+  }
 }
 */

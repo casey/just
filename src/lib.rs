@@ -13,7 +13,7 @@ extern crate tempdir;
 use std::io::prelude::*;
 
 use std::{fs, fmt, process, io};
-use std::collections::{BTreeMap, BTreeSet, HashSet};
+use std::collections::{BTreeMap, HashSet};
 use std::fmt::Display;
 use regex::Regex;
 
@@ -54,10 +54,11 @@ fn re(pattern: &str) -> Regex {
 struct Recipe<'a> {
   line_number:        usize,
   name:               &'a str,
-  lines:              Vec<&'a str>,
-  fragments:          Vec<Vec<Fragment<'a>>>,
-  variables:          BTreeSet<&'a str>,
-  variable_tokens:    Vec<Token<'a>>,
+  lines:              Vec<String>,
+  // fragments:          Vec<Vec<Fragment<'a>>>,
+  // variables:          BTreeSet<&'a str>,
+  // variable_tokens:    Vec<Token<'a>>,
+  new_lines:          Vec<Vec<Fragmant<'a>>>,
   dependencies:       Vec<&'a str>,
   dependency_tokens:  Vec<Token<'a>>,
   arguments:          Vec<&'a str>,
@@ -66,15 +67,45 @@ struct Recipe<'a> {
 }
 
 #[derive(PartialEq, Debug)]
-enum Fragment<'a> {
-  Text{text: &'a str},
-  Variable{name: &'a str},
+enum Fragmant<'a> {
+  Text{text: Token<'a>},
+  Expression{expression: Expression<'a>},
 }
 
+#[derive(PartialEq, Debug)]
 enum Expression<'a> {
   Variable{name: &'a str, token: Token<'a>},
   String{contents: &'a str},
   Concatination{lhs: Box<Expression<'a>>, rhs: Box<Expression<'a>>},
+}
+
+impl<'a> Expression<'a> {
+  fn variables(&'a self) -> Variables<'a> {
+    Variables {
+      stack: vec![self],
+    }
+  }
+}
+
+struct Variables<'a> {
+  stack: Vec<&'a Expression<'a>>,
+}
+
+impl<'a> Iterator for Variables<'a> {
+  type Item = &'a Token<'a>;
+
+  fn next(&mut self) -> Option<&'a Token<'a>> {
+    match self.stack.pop() {
+      None                                               => None,
+      Some(&Expression::Variable{ref token,..})          => Some(token),
+      Some(&Expression::String{..})                      => None,
+      Some(&Expression::Concatination{ref lhs, ref rhs}) => {
+        self.stack.push(lhs);
+        self.stack.push(rhs);
+        self.next()
+      }
+    }
+  }
 }
 
 impl<'a> Display for Expression<'a> {
@@ -118,7 +149,7 @@ impl<'a> Recipe<'a> {
         );
         let mut text = String::new();
         // add the shebang
-        text += self.lines[0];
+        text += &self.lines[0];
         text += "\n";
         // add blank lines so that lines in the generated script
         // have the same line number as the corresponding lines
@@ -127,7 +158,7 @@ impl<'a> Recipe<'a> {
           text += "\n"
         }
         for line in &self.lines[1..] {
-          text += line;
+          text += &line;
           text += "\n";
         }
         try!(
@@ -163,7 +194,7 @@ impl<'a> Recipe<'a> {
       });
     } else {
       for command in &self.lines {
-        let mut command = *command;
+        let mut command = &command[0..];
         if !command.starts_with('@') {
           warn!("{}", command);
         } else {
@@ -202,21 +233,20 @@ impl<'a> Display for Recipe<'a> {
       try!(write!(f, " {}", dependency))
     }
 
-
-    for (i, fragments) in self.fragments.iter().enumerate() {
+    for (i, pieces) in self.new_lines.iter().enumerate() {
       if i == 0 {
         try!(writeln!(f, ""));
       }
-      for (j, fragment) in fragments.iter().enumerate() {
+      for (j, piece) in pieces.iter().enumerate() {
         if j == 0 {
           try!(write!(f, "    "));
         }
-        match *fragment {
-          Fragment::Text{text} => try!(write!(f, "{}", text)),
-          Fragment::Variable{name} => try!(write!(f, "{}{}{}", "{{", name, "}}")),
+        match piece {
+          &Fragmant::Text{ref text} => try!(write!(f, "{}", text.lexeme)),
+          &Fragmant::Expression{ref expression} => try!(write!(f, "{}{}{}", "{{", expression, "}}")),
         }
       }
-      if i + 1 < self.fragments.len() {
+      if i + 1 < self.new_lines.len() {
         try!(write!(f, "\n"));
       }
     }
@@ -378,8 +408,6 @@ enum ErrorKind<'a> {
   DuplicateVariable{variable: &'a str},
   ArgumentShadowsVariable{argument: &'a str},
   MixedLeadingWhitespace{whitespace: &'a str},
-  UnclosedInterpolationDelimiter,
-  BadInterpolationVariableName{recipe: &'a str, text: &'a str},
   ExtraLeadingWhitespace,
   InconsistentLeadingWhitespace{expected: &'a str, found: &'a str},
   OuterShebang,
@@ -477,12 +505,6 @@ impl<'a> Display for Error<'a> {
       }
       ErrorKind::OuterShebang => {
         try!(writeln!(f, "a shebang \"#!\" is reserved syntax outside of recipes"))
-      }
-      ErrorKind::UnclosedInterpolationDelimiter => {
-        try!(writeln!(f, "unmatched {}", "{{"))
-      }
-      ErrorKind::BadInterpolationVariableName{recipe, text} => {
-        try!(writeln!(f, "recipe {} contains a bad variable interpolation: {}", recipe, text))
       }
       ErrorKind::UnknownDependency{recipe, unknown} => {
         try!(writeln!(f, "recipe {} has unknown dependency {}", recipe, unknown));
@@ -660,22 +682,6 @@ impl<'a> Token<'a> {
       kind:   kind,
     }
   }
-
-  /*
-  fn split(
-    self,
-    leading_prefix_len:  usize,
-    lexeme_len:          usize,
-    trailing_prefix_len: usize,
-  ) -> (Token<'a>, Token<'a>) {
-    let len = self.prefix.len() + self.lexeme.len();
-
-    // let length = self.prefix.len() + self.lexeme.len();
-    // if lexeme_start > lexeme_end || lexeme_end > length {
-    // }
-    // panic!("Tried to split toke
-  }
-  */
 }
 
 #[derive(Debug, PartialEq, Clone, Copy)]
@@ -1071,29 +1077,37 @@ impl<'a> Parser<'a> {
       return Err(self.unexpected_token(&token, &[Name, Eol, Eof]));
     }
 
-    enum Piece<'a> {
-      Text{text: Token<'a>},
-      Expression{expression: Expression<'a>},
-    }
-
     let mut new_lines = vec![];
+    let mut shebang = false;
 
     if self.accepted(Indent) {
       while !self.accepted(Dedent) {
+        if self.accepted(Eol) {
+          continue;
+        }
         if let Some(token) = self.expect(Line) {
           return Err(token.error(ErrorKind::InternalError{
-            message: format!("Expected a dedent but got {}", token.class)
+            message: format!("Expected a line but got {}", token.class)
           }))
         }
         let mut pieces = vec![];
 
-        while !self.accepted(Eol) {
+        while !(self.accepted(Eol) || self.peek(Dedent)) {
           if let Some(token) = self.accept(Text) {
-            pieces.push(Piece::Text{text: token});
+            if pieces.is_empty() {
+              if new_lines.is_empty() {
+                if token.lexeme.starts_with("#!") {
+                  shebang = true;
+                }
+              } else if !shebang && token.lexeme.starts_with(" ") || token.lexeme.starts_with("\t") {
+                return Err(token.error(ErrorKind::ExtraLeadingWhitespace));
+              }
+            }
+            pieces.push(Fragmant::Text{text: token});
           } else if let Some(token) = self.expect(InterpolationStart) {
             return Err(self.unexpected_token(&token, &[Text, InterpolationStart, Eol]));
           } else {
-            pieces.push(Piece::Expression{expression: try!(self.expression(true))});
+            pieces.push(Fragmant::Expression{expression: try!(self.expression(true))});
             if let Some(token) = self.expect(InterpolationEnd) {
               return Err(self.unexpected_token(&token, &[InterpolationEnd]));
             }
@@ -1104,8 +1118,7 @@ impl<'a> Parser<'a> {
       }
     }
 
-    panic!("done!");
-
+    /*
     let mut lines = vec![];
     let mut line_tokens = vec![];
     let mut shebang = false;
@@ -1195,6 +1208,7 @@ impl<'a> Parser<'a> {
       }
       fragments.push(line_fragments);
     }
+    */
 
     Ok(Recipe {
       line_number:       line_number,
@@ -1203,10 +1217,12 @@ impl<'a> Parser<'a> {
       dependency_tokens: dependency_tokens,
       arguments:         arguments,
       argument_tokens:   argument_tokens,
-      fragments:         fragments,
-      variables:         variables,
-      variable_tokens:   variable_tokens,
-      lines:             lines,
+      // fragments:         fragments,
+      // variables:         variables,
+      // variable_tokens:   variable_tokens,
+      lines:             vec![],
+      new_lines:         new_lines,
+      // lines:             lines,
       shebang:           shebang,
     })
   }
@@ -1226,7 +1242,7 @@ impl<'a> Parser<'a> {
       Ok(lhs)
     } else if let Some(token) = self.expect_eol() {
       if interpolation {
-        Err(self.unexpected_token(&token, &[Plus, Eol, InterpolationEnd]))
+        return Err(self.unexpected_token(&token, &[Plus, Eol, InterpolationEnd]))
       } else {
         Err(self.unexpected_token(&token, &[Plus, Eol]))
       }
@@ -1298,11 +1314,36 @@ impl<'a> Parser<'a> {
           }));
         }
       }
-      
-      for variable in &recipe.variable_tokens {
-        let name = variable.lexeme;
-        if !(assignments.contains_key(&name) || recipe.arguments.contains(&name)) {
-          return Err(variable.error(ErrorKind::UnknownVariable{variable: name}));
+
+      for line in &recipe.new_lines {
+        for piece in line {
+          if let &Fragmant::Expression{ref expression} = piece {
+            for variable in expression.variables() {
+              let name = variable.lexeme;
+              if !(assignments.contains_key(&name) || recipe.arguments.contains(&name)) {
+                // There's a borrow issue here that seems to difficult to solve.
+                // The error derived from the variable token has too short a lifetime,
+                // so we create a new error from its contents, which do live long
+                // enough.
+                //
+                // I suspect the solution here is to give recipes, pieces, and expressions
+                // two lifetime parameters instead of one, with one being the lifetime
+                // of the struct, and the second being the lifetime of the tokens
+                // that it contains
+                let error = variable.error(ErrorKind::UnknownVariable{variable: name});
+                return Err(Error {
+                  text:   self.text,
+                  index:  error.index,
+                  line:   error.line,
+                  column: error.column,
+                  width:  error.width,
+                  kind:   ErrorKind::UnknownVariable {
+                    variable: &self.text[error.index..error.index + error.width.unwrap()],
+                  }
+                });
+              }
+            }
+          }
         }
       }
     }

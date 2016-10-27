@@ -37,6 +37,8 @@ notes
     or should non-slash recipes still run in this directory?
     will need to change things a great deal
 - indentation is line continuation
+- should i disallow a shebang recipe where the shebang isn't on the first line?
+- add insane borrow checker issue to issue tracker
 - add context to unexpected_token error
   "while parsing a recipe"
   "while parsing an expression"
