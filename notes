@@ -1,18 +1,15 @@
 notes
 -----
 
-- need to actually produce recipe lines
 - test rendered recipe lines
 
-- assignment
-  . add tokenizing test that covers interpolation
+- implement string parsing
   . use the same rules as rust: https://doc.rust-lang.org/reference.html#string-literals
   . \xHH, \u{HHHHHH}, \n, \r, \t, \0, \\, \{ no other escapes
   . '' strings with no escapes
-  . run interpolated instead of lines
+
+- assignment
   . make quine use assignment and interpolation
-  . make strings more than one character
-   .re-order evaluate assignment
 - do proper handling of the state stack at EOF 
 - disallow unused arguments and variables
 - allow exporting environment variables

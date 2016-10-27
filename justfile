@@ -22,6 +22,9 @@ install-clippy:
 install-nightly:
 	rustup install nightly
 
+sloc:
+	@cat src/*.rs | wc -l
+
 # make a quine, compile it, and verify it
 quine: create
 	cc tmp/gen0.c -o tmp/gen0
