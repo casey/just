@@ -738,12 +738,12 @@ fn tokenize<'a>(text: &'a str) -> Result<Vec<Token>, Error> {
     static ref COMMENT:             Regex = token(r"#([^!].*)?$"           );
     static ref STRING:              Regex = token("\"[a-z0-9]\""           );
     static ref EOL:                 Regex = token(r"\n|\r\n"               );
-    static ref INTERPOLATION_END:   Regex = token(r"[{][{]"                );
+    static ref INTERPOLATION_END:   Regex = token(r"[}][}]"                );
     static ref LINE:                Regex = re(r"^(?m)[ \t]+[^ \t\n\r].*$");
     static ref INDENT:              Regex = re(r"^([ \t]*)[^ \t\n\r]"     );
     static ref INTERPOLATION_START: Regex = re(r"^[{][{]"                 );
-    static ref LEADING_TEXT:        Regex = re(r"(?m)(.+?)[{][{]"         );
-    static ref TEXT:                Regex = re(r"(?m)(.+?)$"              );
+    static ref LEADING_TEXT:        Regex = re(r"^(?m)(.+?)[{][{]"        );
+    static ref TEXT:                Regex = re(r"^(?m)(.+)"               );
   }
 
   #[derive(PartialEq)]
@@ -1071,6 +1071,41 @@ impl<'a> Parser<'a> {
       return Err(self.unexpected_token(&token, &[Name, Eol, Eof]));
     }
 
+    enum Piece<'a> {
+      Text{text: Token<'a>},
+      Expression{expression: Expression<'a>},
+    }
+
+    let mut new_lines = vec![];
+
+    if self.accepted(Indent) {
+      while !self.accepted(Dedent) {
+        if let Some(token) = self.expect(Line) {
+          return Err(token.error(ErrorKind::InternalError{
+            message: format!("Expected a dedent but got {}", token.class)
+          }))
+        }
+        let mut pieces = vec![];
+
+        while !self.accepted(Eol) {
+          if let Some(token) = self.accept(Text) {
+            pieces.push(Piece::Text{text: token});
+          } else if let Some(token) = self.expect(InterpolationStart) {
+            return Err(self.unexpected_token(&token, &[Text, InterpolationStart, Eol]));
+          } else {
+            pieces.push(Piece::Expression{expression: try!(self.expression(true))});
+            if let Some(token) = self.expect(InterpolationEnd) {
+              return Err(self.unexpected_token(&token, &[InterpolationEnd]));
+            }
+          }
+        }
+
+        new_lines.push(pieces);
+      }
+    }
+
+    panic!("done!");
+
     let mut lines = vec![];
     let mut line_tokens = vec![];
     let mut shebang = false;
@@ -1176,7 +1211,7 @@ impl<'a> Parser<'a> {
     })
   }
 
-  fn expression(&mut self) -> Result<Expression<'a>, Error<'a>> {
+  fn expression(&mut self, interpolation: bool) -> Result<Expression<'a>, Error<'a>> {
     let first = self.tokens.next().unwrap();
     let lhs = match first.class {
       Name        => Expression::Variable{name: first.lexeme, token: first},
@@ -1185,10 +1220,16 @@ impl<'a> Parser<'a> {
     };
 
     if self.accepted(Plus) {
-      let rhs = try!(self.expression());
+      let rhs = try!(self.expression(interpolation));
       Ok(Expression::Concatination{lhs: Box::new(lhs), rhs: Box::new(rhs)})
+    } else if interpolation && self.peek(InterpolationEnd) {
+      Ok(lhs)
     } else if let Some(token) = self.expect_eol() {
-      Err(self.unexpected_token(&token, &[Plus, Eol]))
+      if interpolation {
+        Err(self.unexpected_token(&token, &[Plus, Eol, InterpolationEnd]))
+      } else {
+        Err(self.unexpected_token(&token, &[Plus, Eol]))
+      }
     } else {
       Ok(lhs)
     }
@@ -1210,7 +1251,7 @@ impl<'a> Parser<'a> {
                 variable: token.lexeme,
               }));
             }
-            assignments.insert(token.lexeme, try!(self.expression()));
+            assignments.insert(token.lexeme, try!(self.expression(false)));
             assignment_tokens.insert(token.lexeme, token);
           } else {
             if let Some(recipe) = recipes.remove(token.lexeme) {

@@ -12,8 +12,11 @@ fn tokenize_success(text: &str, expected_summary: &str) {
     s += t.lexeme;
     s
   }).collect::<Vec<_>>().join("");
+  let summary = token_summary(&tokens);
+  if summary != expected_summary {
+    panic!("token summary mismatch:\nexpected: {}\ngot:      {}\n", expected_summary, summary);
+  }
   assert_eq!(text, roundtrip);
-  assert_eq!(token_summary(&tokens), expected_summary);
 }
 
 fn tokenize_error(text: &str, expected: Error) {
@@ -32,10 +35,10 @@ fn tokenize_error(text: &str, expected: Error) {
 fn token_summary(tokens: &[Token]) -> String {
   tokens.iter().map(|t| {
     match t.class {
-      super::TokenKind::Line{..}           => "*",
+      super::TokenKind::Line{..}           => "^",
       super::TokenKind::Name               => "N",
       super::TokenKind::Colon              => ":",
-      super::TokenKind::StringToken        => "\"",
+      super::TokenKind::StringToken        => "'",
       super::TokenKind::Plus               => "+",
       super::TokenKind::Equals             => "=",
       super::TokenKind::Comment{..}        => "#",
@@ -50,6 +53,7 @@ fn token_summary(tokens: &[Token]) -> String {
   }).collect::<Vec<_>>().join("")
 }
 
+/*
 fn parse_success(text: &str) -> Justfile {
   match super::parse(text) {
     Ok(justfile) => justfile,
@@ -80,15 +84,61 @@ fn parse_error(text: &str, expected: Error) {
     panic!("Expected {:?} but parse succeeded", expected.kind);
   }
 }
+*/
 
 #[test]
-fn tokenize() {
+fn tokenize_recipe_interpolation_eol() {
+  let text = "foo:
+ {{hello}}
+";
+  tokenize_success(text, "N:$>^{N}$<.");
+}
+
+#[test]
+fn tokenize_recipe_interpolation_eof() {
+  let text = "foo:
+ {{hello}}";
+  tokenize_success(text, "N:$>^{N}<.");
+}
+
+#[test]
+fn tokenize_recipe_complex_interpolation_expression() {
+  let text = "foo:\n {{a + b + \"z\" + blarg}}";
+  tokenize_success(text, "N:$>^{N+N+'+N}<.");
+}
+
+#[test]
+fn tokenize_recipe_multiple_interpolations() {
+  let text = "foo:\n {{a}}0{{b}}1{{c}}";
+  tokenize_success(text, "N:$>^{N}_{N}_{N}<.");
+}
+
+#[test]
+fn tokenize_junk() {
   let text = "bob
 
 hello blah blah blah : a b c #whatever
 ";
   tokenize_success(text, "N$$NNNN:NNN#$.");
+}
 
+#[test]
+fn tokenize_empty_lines() {
+  let text = "
+hello:
+  asdf
+  bsdf
+
+  csdf
+
+  dsdf
+  ";
+
+  tokenize_success(text, "$N:$>^_$^_$$^_$$^_$<.");
+}
+
+#[test]
+fn tokenize_multiple() {
   let text = "
 hello:
   a
@@ -101,15 +151,18 @@ hello:
 bob:
   frank
   ";
-  
-  tokenize_success(text, "$N:$>*$*$$*$$*$$<N:$>*$<.");
 
+  tokenize_success(text, "$N:$>^_$^_$$^_$$^_$$<N:$>^_$<.");
+}
+
+
+#[test]
+fn tokenize_comment() {
   tokenize_success("a:=#", "N:=#.")
 }
 
-/*
 #[test]
-fn inconsistent_leading_whitespace() {
+fn tokenize_space_then_tab() {
   let text = "a:
  0
  1
@@ -123,7 +176,10 @@ fn inconsistent_leading_whitespace() {
     width:  None,
     kind:   ErrorKind::InconsistentLeadingWhitespace{expected: " ", found: "\t"},
   });
+}
 
+#[test]
+fn tokenize_tabs_then_tab_space() {
   let text = "a:
 \t\t0
 \t\t 1
@@ -138,7 +194,6 @@ fn inconsistent_leading_whitespace() {
     kind:   ErrorKind::InconsistentLeadingWhitespace{expected: "\t\t", found: "\t  "},
   });
 }
-*/
 
 #[test]
 fn outer_shebang() {
@@ -166,6 +221,7 @@ fn unknown_start_of_token() {
   });
 }
 
+/*
 #[test]
 fn parse_empty() {
   parse_summary("
@@ -176,7 +232,6 @@ fn parse_empty() {
   ", "");
 }
 
-/*
 #[test]
 fn parse_complex() {
   parse_summary("
@@ -205,7 +260,6 @@ x:
 y:
 z:");
 }
-*/
 
 #[test]
 fn parse_assignments() {
@@ -402,7 +456,6 @@ fn write_or() {
   assert_eq!("1, 2, 3, or 4", super::Or(&[1,2,3,4]).to_string());
 }
 
-/*
 #[test]
 fn run_shebang() {
   // this test exists to make sure that shebang recipes
@@ -429,9 +482,7 @@ a:
     other => panic!("expected an code run error, but got: {}", other),
   }
 }
-*/
 
-/*
 #[test]
 fn run_order() {
   let tmp = tempdir::TempDir::new("run_order").unwrap_or_else(|err| panic!("tmpdir: failed to create temporary directory: {}", err));
@@ -452,7 +503,6 @@ c: b
   super::std::env::set_current_dir(path).expect("failed to set current directory");
   parse_success(text).run(&["a", "d"]).unwrap();
 }
-*/
 
 #[test]
 fn unknown_recipes() {
@@ -462,7 +512,6 @@ fn unknown_recipes() {
   }
 }
 
-/*
 #[test]
 fn code_error() {
   match parse_success("fail:\n @function x { return 100; }; x").run(&["fail"]).unwrap_err() {
@@ -473,9 +522,7 @@ fn code_error() {
     other @ _ => panic!("expected a code run error, but got: {}", other),
   }
 }
-*/
 
-/*
 #[test]
 fn extra_whitespace() {
   // we might want to make extra leading whitespace a line continuation in the future,
@@ -493,14 +540,13 @@ fn extra_whitespace() {
   // extra leading whitespace is okay in a shebang recipe
   parse_success("a:\n #!\n  print(1)");
 }
-*/
 
 #[test]
 fn bad_recipe_names() {
   // We are extra strict with names. Although the tokenizer
   // will tokenize anything that matches /[a-zA-Z0-9_-]+/
   // as a name, we throw an error if names do not match
-  // /[a-z](-?[a-z])*/. This is to support future expansion
+  // / [a-z](-?[a-z])* /. This is to support future expansion
   // of justfile and command line syntax.
   fn bad_name(text: &str, name: &str, index: usize, line: usize, column: usize) {
     parse_error(text, Error {
@@ -525,7 +571,6 @@ fn bad_recipe_names() {
   bad_name("a:\nZ:", "Z",    3, 1, 0);
 }
 
-/*
 #[test]
 fn bad_interpolation_variable_name() {
   let text = "a:\n echo {{hello--hello}}";
@@ -538,9 +583,7 @@ fn bad_interpolation_variable_name() {
     kind:   ErrorKind::BadInterpolationVariableName{recipe: "a", text: "hello--hello"}
   });
 }
-*/
 
-/*
 #[test]
 fn unclosed_interpolation_delimiter() {
   let text = "a:\n echo {{";
@@ -553,7 +596,6 @@ fn unclosed_interpolation_delimiter() {
     kind:   ErrorKind::UnclosedInterpolationDelimiter,
   });
 }
-*/
 
 #[test]
 fn unknown_expression_variable() {
@@ -570,7 +612,6 @@ fn unknown_expression_variable() {
 
 #[test]
 fn unknown_interpolation_variable() {
-  /*
   let text = "x:\n {{   hello}}";
   parse_error(text, Error {
     text:   text,
@@ -580,17 +621,15 @@ fn unknown_interpolation_variable() {
     width:  Some(5),
     kind:   ErrorKind::UnknownVariable{variable: "hello"},
   });
-  */
 
-  /*
-  let text = "x:\n echo\n {{ lol }}";
-  parse_error(text, Error {
-    text:   text,
-    index:  11,
-    line:   2,
-    column: 2,
-    width:  Some(3),
-    kind:   ErrorKind::UnknownVariable{variable: "lol"},
-  });
-  */
+  // let text = "x:\n echo\n {{ lol }}";
+  // parse_error(text, Error {
+  //   text:   text,
+  //   index:  11,
+  //   line:   2,
+  //   column: 2,
+  //   width:  Some(3),
+  //   kind:   ErrorKind::UnknownVariable{variable: "lol"},
+  // });
 }
+*/
