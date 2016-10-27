@@ -601,6 +601,16 @@ c: b
   }
 }
 
+#[test]
+fn run_arguments_not_supported() {
+  let text = "a foo:";
+  match parse_success(text).run(&["a"]) {
+    Err(super::RunError::MissingArguments) => {}
+    result => panic!("Expecting MissingArguments from run() but got {:?}", result),
+  }
+}
+
+
 /*
 #[test]
 fn run_shebang() {

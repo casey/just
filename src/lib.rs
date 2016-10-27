@@ -585,6 +585,11 @@ impl<'a> Justfile<'a> {
     }
     let recipes = names.iter().map(|name| self.recipes.get(name).unwrap()).collect::<Vec<_>>();
     let mut ran = HashSet::new();
+    for recipe in &recipes {
+      if !recipe.arguments.is_empty() {
+        return Err(RunError::MissingArguments);
+      }
+    }
     for recipe in recipes {
       try!(self.run_recipe(recipe, &mut ran));
     }
@@ -620,6 +625,7 @@ impl<'a> Display for Justfile<'a> {
 #[derive(Debug)]
 enum RunError<'a> {
   UnknownRecipes{recipes: Vec<&'a str>},
+  MissingArguments,
   Signal{recipe: &'a str, signal: i32},
   Code{recipe: &'a str, code: i32},
   UnknownFailure{recipe: &'a str},
@@ -636,6 +642,9 @@ impl<'a> Display for RunError<'a> {
         } else {
           try!(write!(f, "Justfile does not contain recipes: {}", recipes.join(" ")));
         };
+      },
+      RunError::MissingArguments => {
+        try!(write!(f, "Running recipes with arguments is not yet supported"));
       },
       RunError::Code{recipe, code} => {
         try!(write!(f, "Recipe \"{}\" failed with code {}", recipe, code));

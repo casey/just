@@ -15,6 +15,7 @@ notes
 - allow exporting environment variables
 - write some tests to test the binary itself and all command line flags
 - remove unhandled token stuff
+- test that run runs first recipe by default
 - parse arguments on command line:
   . ugly but conservative: j build --set a=hello
   . by export:             A=HELLO j build
