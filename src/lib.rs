@@ -54,11 +54,8 @@ fn re(pattern: &str) -> Regex {
 struct Recipe<'a> {
   line_number:        usize,
   name:               &'a str,
-  lines:              Vec<String>,
-  // fragments:          Vec<Vec<Fragment<'a>>>,
-  // variables:          BTreeSet<&'a str>,
-  // variable_tokens:    Vec<Token<'a>>,
-  new_lines:          Vec<Vec<Fragmant<'a>>>,
+  lines:              Vec<Vec<Fragment<'a>>>,
+  evaluated_lines:    Vec<String>,
   dependencies:       Vec<&'a str>,
   dependency_tokens:  Vec<Token<'a>>,
   arguments:          Vec<&'a str>,
@@ -67,7 +64,7 @@ struct Recipe<'a> {
 }
 
 #[derive(PartialEq, Debug)]
-enum Fragmant<'a> {
+enum Fragment<'a> {
   Text{text: Token<'a>},
   Expression{expression: Expression<'a>},
 }
@@ -149,7 +146,7 @@ impl<'a> Recipe<'a> {
         );
         let mut text = String::new();
         // add the shebang
-        text += &self.lines[0];
+        text += &self.evaluated_lines[0];
         text += "\n";
         // add blank lines so that lines in the generated script
         // have the same line number as the corresponding lines
@@ -157,7 +154,7 @@ impl<'a> Recipe<'a> {
         for _ in 1..(self.line_number + 2) {
           text += "\n"
         }
-        for line in &self.lines[1..] {
+        for line in &self.evaluated_lines[1..] {
           text += &line;
           text += "\n";
         }
@@ -193,7 +190,7 @@ impl<'a> Recipe<'a> {
         Err(io_error) => Err(RunError::TmpdirIoError{recipe: self.name, io_error: io_error})
       });
     } else {
-      for command in &self.lines {
+      for command in &self.evaluated_lines {
         let mut command = &command[0..];
         if !command.starts_with('@') {
           warn!("{}", command);
@@ -233,7 +230,7 @@ impl<'a> Display for Recipe<'a> {
       try!(write!(f, " {}", dependency))
     }
 
-    for (i, pieces) in self.new_lines.iter().enumerate() {
+    for (i, pieces) in self.lines.iter().enumerate() {
       if i == 0 {
         try!(writeln!(f, ""));
       }
@@ -242,11 +239,11 @@ impl<'a> Display for Recipe<'a> {
           try!(write!(f, "    "));
         }
         match piece {
-          &Fragmant::Text{ref text} => try!(write!(f, "{}", text.lexeme)),
-          &Fragmant::Expression{ref expression} => try!(write!(f, "{}{}{}", "{{", expression, "}}")),
+          &Fragment::Text{ref text} => try!(write!(f, "{}", text.lexeme)),
+          &Fragment::Expression{ref expression} => try!(write!(f, "{}{}{}", "{{", expression, "}}")),
         }
       }
-      if i + 1 < self.new_lines.len() {
+      if i + 1 < self.lines.len() {
         try!(write!(f, "\n"));
       }
     }
@@ -313,6 +310,7 @@ impl<'a, 'b> Resolver<'a, 'b> {
 fn evaluate<'a>(
   assignments:       &BTreeMap<&'a str, Expression<'a>>,
   assignment_tokens: &BTreeMap<&'a str, Token<'a>>,
+  recipes:           &mut BTreeMap<&'a str, Recipe<'a>>,
 ) -> Result<BTreeMap<&'a str, String>, Error<'a>> {
   let mut evaluator = Evaluator{
     seen:              HashSet::new(),
@@ -324,6 +322,22 @@ fn evaluate<'a>(
   for name in assignments.keys() {
     try!(evaluator.evaluate_assignment(name));
   }
+
+  for recipe in recipes.values_mut() {
+    for fragments in &recipe.lines {
+      let mut line = String::new();
+      for fragment in fragments {
+        match fragment {
+          &Fragment::Text{ref text} => line += text.lexeme,
+          &Fragment::Expression{ref expression} => {
+            line += &try!(evaluator.evaluate_expression(&expression));
+          }
+        }
+      }
+      recipe.evaluated_lines.push(line);
+    }
+  }
+
   Ok(evaluator.evaluated)
 }
 
@@ -356,7 +370,7 @@ impl<'a, 'b> Evaluator<'a, 'b> {
     Ok(())
   }
 
-  fn evaluate_expression(&mut self, expression: &Expression<'a>,) -> Result<String, Error<'a>> {
+  fn evaluate_expression(&mut self, expression: &Expression<'a>) -> Result<String, Error<'a>> {
     Ok(match *expression {
       Expression::Variable{name, ref token} => {
         if self.evaluated.contains_key(name) {
@@ -745,20 +759,21 @@ fn token(pattern: &str) -> Regex {
 
 fn tokenize<'a>(text: &'a str) -> Result<Vec<Token>, Error> {
   lazy_static! {
-    static ref EOF:                 Regex = token(r"(?-m)$"                );
-    static ref NAME:                Regex = token(r"([a-zA-Z0-9_-]+)"      );
-    static ref COLON:               Regex = token(r":"                     );
-    static ref EQUALS:              Regex = token(r"="                     );
-    static ref PLUS:                Regex = token(r"[+]"                   );
-    static ref COMMENT:             Regex = token(r"#([^!].*)?$"           );
-    static ref STRING:              Regex = token("\"[a-z0-9]\""           );
-    static ref EOL:                 Regex = token(r"\n|\r\n"               );
-    static ref INTERPOLATION_END:   Regex = token(r"[}][}]"                );
-    static ref LINE:                Regex = re(r"^(?m)[ \t]+[^ \t\n\r].*$");
-    static ref INDENT:              Regex = re(r"^([ \t]*)[^ \t\n\r]"     );
-    static ref INTERPOLATION_START: Regex = re(r"^[{][{]"                 );
-    static ref LEADING_TEXT:        Regex = re(r"^(?m)(.+?)[{][{]"        );
-    static ref TEXT:                Regex = re(r"^(?m)(.+)"               );
+    static ref EOF:                       Regex = token(r"(?-m)$"                );
+    static ref NAME:                      Regex = token(r"([a-zA-Z0-9_-]+)"      );
+    static ref COLON:                     Regex = token(r":"                     );
+    static ref EQUALS:                    Regex = token(r"="                     );
+    static ref PLUS:                      Regex = token(r"[+]"                   );
+    static ref COMMENT:                   Regex = token(r"#([^!].*)?$"           );
+    static ref STRING:                    Regex = token("\"[a-z0-9]\""           );
+    static ref EOL:                       Regex = token(r"\n|\r\n"               );
+    static ref INTERPOLATION_END:         Regex = token(r"[}][}]"                );
+    static ref INTERPOLATION_START_TOKEN: Regex = token(r"[{][{]"               );
+    static ref LINE:                      Regex = re(r"^(?m)[ \t]+[^ \t\n\r].*$");
+    static ref INDENT:                    Regex = re(r"^([ \t]*)[^ \t\n\r]"     );
+    static ref INTERPOLATION_START:       Regex = re(r"^[{][{]"                 );
+    static ref LEADING_TEXT:              Regex = re(r"^(?m)(.+?)[{][{]"        );
+    static ref TEXT:                      Regex = re(r"^(?m)(.+)"               );
   }
 
   #[derive(PartialEq)]
@@ -769,30 +784,16 @@ fn tokenize<'a>(text: &'a str) -> Result<Vec<Token>, Error> {
     Interpolation,
   }
 
-  /*
-  struct Stack<'a> {
-    states: Vec<StateKind<'a>>
-  }
-
-  impl<'a> State<'a> {
-    fn current(&self) -> State {
-      self.states.last()
-    }
-  }
-  */
-
   fn indentation(text: &str) -> Option<&str> {
     INDENT.captures(text).map(|captures| captures.at(1).unwrap())
   }
 
-  let mut tokens               = vec![];
-  let mut rest                 = text;
-  let mut index                = 0;
-  let mut line                 = 0;
-  let mut column               = 0;
-  // let mut indent: Option<&str> = None;
-  // let mut state                = StateKind::Start;
-  let mut state = vec![State::Start];
+  let mut tokens = vec![];
+  let mut rest   = text;
+  let mut index  = 0;
+  let mut line   = 0;
+  let mut column = 0;
+  let mut state  = vec![State::Start];
 
   macro_rules! error {
     ($kind:expr) => {{
@@ -880,14 +881,7 @@ fn tokenize<'a>(text: &'a str) -> Result<Vec<Token>, Error> {
       if !line.starts_with(indent) {
         return error!(ErrorKind::InternalError{message: "unexpected indent".to_string()});
       }
-      //let (prefix, lexeme) = line.split_at(indent.len());
       state.push(State::Text);
-      //(prefix, lexeme, Line)
-
-      // state we can produce text, {{, or eol tokens
-
-      // will produce text, name, {{, tokens }}, until end of line
-
       (&line[0..indent.len()], "", Line)
     } else if let Some(captures) = EOF.captures(rest) {
       (captures.at(1).unwrap(), captures.at(2).unwrap(), Eof)
@@ -907,12 +901,12 @@ fn tokenize<'a>(text: &'a str) -> Result<Vec<Token>, Error> {
           message: format!("Could not match token in text state: \"{}\"", rest)
         });
       }
+    } else if let Some(captures) = INTERPOLATION_START_TOKEN.captures(rest) {
+      (captures.at(1).unwrap(), captures.at(2).unwrap(), InterpolationStart)
     } else if let Some(captures) = INTERPOLATION_END.captures(rest) {
-      if state.last().unwrap() != &State::Interpolation {
-        // improve error
-        panic!("interpolation end outside of interpolation state");
+      if state.last().unwrap() == &State::Interpolation {
+        state.pop();
       }
-      state.pop();
       (captures.at(1).unwrap(), captures.at(2).unwrap(), InterpolationEnd)
     } else if let Some(captures) = NAME.captures(rest) {
       (captures.at(1).unwrap(), captures.at(2).unwrap(), Name)
@@ -1086,7 +1080,7 @@ impl<'a> Parser<'a> {
       return Err(self.unexpected_token(&token, &[Name, Eol, Eof]));
     }
 
-    let mut new_lines = vec![];
+    let mut lines = vec![];
     let mut shebang = false;
 
     if self.accepted(Indent) {
@@ -1104,7 +1098,7 @@ impl<'a> Parser<'a> {
         while !(self.accepted(Eol) || self.peek(Dedent)) {
           if let Some(token) = self.accept(Text) {
             if pieces.is_empty() {
-              if new_lines.is_empty() {
+              if lines.is_empty() {
                 if token.lexeme.starts_with("#!") {
                   shebang = true;
                 }
@@ -1112,18 +1106,18 @@ impl<'a> Parser<'a> {
                 return Err(token.error(ErrorKind::ExtraLeadingWhitespace));
               }
             }
-            pieces.push(Fragmant::Text{text: token});
+            pieces.push(Fragment::Text{text: token});
           } else if let Some(token) = self.expect(InterpolationStart) {
             return Err(self.unexpected_token(&token, &[Text, InterpolationStart, Eol]));
           } else {
-            pieces.push(Fragmant::Expression{expression: try!(self.expression(true))});
+            pieces.push(Fragment::Expression{expression: try!(self.expression(true))});
             if let Some(token) = self.expect(InterpolationEnd) {
               return Err(self.unexpected_token(&token, &[InterpolationEnd]));
             }
           }
         }
 
-        new_lines.push(pieces);
+        lines.push(pieces);
       }
     }
 
@@ -1229,8 +1223,8 @@ impl<'a> Parser<'a> {
       // fragments:         fragments,
       // variables:         variables,
       // variable_tokens:   variable_tokens,
-      lines:             vec![],
-      new_lines:         new_lines,
+      evaluated_lines:             vec![],
+      lines:         lines,
       // lines:             lines,
       shebang:           shebang,
     })
@@ -1290,9 +1284,7 @@ impl<'a> Parser<'a> {
           Comment => return Err(token.error(ErrorKind::InternalError {
             message: "found comment in token stream".to_string()
           })),
-          _ => return Err(token.error(ErrorKind::InternalError {
-            message: format!("unhandled token class: {:?}", token.class)
-          })),
+          _ => return return Err(self.unexpected_token(&token, &[Name])),
         },
         None => return Err(Error {
           text:   self.text,
@@ -1324,9 +1316,9 @@ impl<'a> Parser<'a> {
         }
       }
 
-      for line in &recipe.new_lines {
+      for line in &recipe.lines {
         for piece in line {
-          if let &Fragmant::Expression{ref expression} = piece {
+          if let &Fragment::Expression{ref expression} = piece {
             for variable in expression.variables() {
               let name = variable.lexeme;
               if !(assignments.contains_key(&name) || recipe.arguments.contains(&name)) {
@@ -1357,7 +1349,7 @@ impl<'a> Parser<'a> {
       }
     }
 
-    let values = try!(evaluate(&assignments, &assignment_tokens));
+    let values = try!(evaluate(&assignments, &assignment_tokens, &mut recipes));
 
     Ok(Justfile{
       recipes:     recipes,

@@ -1,6 +1,9 @@
 notes
 -----
 
+- need to actually produce recipe lines
+- test rendered recipe lines
+
 - assignment
   . add tokenizing test that covers interpolation
   . use the same rules as rust: https://doc.rust-lang.org/reference.html#string-literals
@@ -14,7 +17,6 @@ notes
 - disallow unused arguments and variables
 - allow exporting environment variables
 - write some tests to test the binary itself and all command line flags
-- remove unhandled token stuff
 - test that run runs first recipe by default
 - parse arguments on command line:
   . ugly but conservative: j build --set a=hello

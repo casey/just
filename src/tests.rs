@@ -525,6 +525,19 @@ fn bad_interpolation_variable_name() {
 }
 
 #[test]
+fn interpolation_outside_of_recipe() {
+  let text = "{{";
+  parse_error(text, Error {
+    text:   text,
+    index:  0,
+    line:   0,
+    column: 0,
+    width:  Some(2),
+    kind:   ErrorKind::UnexpectedToken{expected: vec![Name], found: InterpolationStart},
+  });
+}
+
+#[test]
 fn unclosed_interpolation_delimiter() {
   let text = "a:\n echo {{ foo";
   parse_error(text, Error {
@@ -610,7 +623,6 @@ fn run_arguments_not_supported() {
   }
 }
 
-/*
 #[test]
 fn run_shebang() {
   // this test exists to make sure that shebang recipes
@@ -648,4 +660,3 @@ fn code_error() {
     other @ _ => panic!("expected a code run error, but got: {}", other),
   }
 }
-*/
