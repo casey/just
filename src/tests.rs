@@ -610,7 +610,6 @@ fn run_arguments_not_supported() {
   }
 }
 
-
 /*
 #[test]
 fn run_shebang() {
