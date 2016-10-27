@@ -1,56 +1,43 @@
 notes
 -----
 
-- test rendered recipe lines
+- test evaluated recipe lines
+
+- properly handle state stack at EOF
 
 - implement string parsing
   . use the same rules as rust: https://doc.rust-lang.org/reference.html#string-literals
   . \xHH, \u{HHHHHH}, \n, \r, \t, \0, \\, \{ no other escapes
   . '' strings with no escapes
 
-- assignment
-  . make quine use assignment and interpolation
-- do proper handling of the state stack at EOF 
-- disallow unused arguments and variables
-- allow exporting environment variables
-- write some tests to test the binary itself and all command line flags
-- test that run runs first recipe by default
-- parse arguments on command line:
-  . ugly but conservative: j build --set a=hello
-  . by export:             A=HELLO j build
-  . by export 2:           BUILD.A=HELLO j build
-  . by name:               j build a=hello
-  . by position:           j build hello
-  . with marker:           j build hello : clean hello :
-  . after --   :           j build -- foo baz
+- integration testing
+  . run app with command line options and test output
+  . exercise all features and all command line options
+  . test that first recipe runs by default
+
+- underline problem token in error messages
+
+- add context to unexpected_token error
+  "while parsing a recipe"
+  "while parsing an expression"
+
+- figure out argument passing:
+  . flag:        j build --set a=hello
+  . by export:   A=HELLO j build
+  . by export 2: BUILD.A=HELLO j build
+  . by name:     j build a=hello
+  . by position: j build hello
+  . with marker: j build hello : clean hello :
+  . after --   : j build -- foo baz
   . fast errors when arguments are missing
   . could also allow this to override variables
     although maybe only after a '--': j build -- a=hello
   . sub arguments into recipes
-- change error messages to underline problem token
-- allow calling recipes in a justfile in a different directory:
-  - just ../foo  # ../justfile:foo
-  - just xyz/foo # xyz/justfile:foo
-  - just xyz/    # xyz/justfile:DEFAULT
-  - this is going to be hard. should a single recipe with a slash
-    require that all recipes have slashes?
-    or should non-slash recipes still run in this directory?
-    will need to change things a great deal
-- indentation is line continuation
-- should i disallow a shebang recipe where the shebang isn't on the first line?
-- add insane borrow checker issue to issue tracker
-- add context to unexpected_token error
-  "while parsing a recipe"
-  "while parsing an expression"
-- add post requirements:
-  # do c then a then b
-  a: c b~
+
+- before release:
 
 - rewrite grammar.txt
-- change name back to 'just'
-  . suggest j as alias
-- create some kind of group feedback forum:
-  . email list, reddit
+- change name back to 'just', suggest j as alias
 - change description to "a polyglot command runner"?
 - update readme
 - document all code, including private stuff
@@ -74,14 +61,22 @@ notes
   . lay out the structure of the code, mention tests, give tips
     for contributing
 - vim and emacs syntax hilighting (use makefile syntax hilighting for now)
-- split up code into modules for easier reading
-  . parsing
-  . tokenizing
-  . executing
 - make sure there isn't any unused code
 - ask users to contribute their justfiles
-
 - try to get some users
   . facebook friends
   . irc
   . r/rust
+
+enhancements:
+
+- add post requirements:
+  # do c then a then b
+  a: c b~
+- allow calling recipes in a justfile in a different directory:
+  . just ../foo  # ../justfile:foo
+  . just xyz/foo # xyz/justfile:foo
+  . just xyz/    # xyz/justfile:DEFAULT
+  . get all directories, if more than one, fork just for each
+- allow setting and exporting environment variables
+- indentation or slash for line continuation
