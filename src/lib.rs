@@ -66,7 +66,7 @@ struct Recipe<'a> {
 #[derive(PartialEq, Debug)]
 enum Fragment<'a> {
   Text{text: Token<'a>},
-  Expression{expression: Expression<'a>},
+  Expression{expression: Expression<'a>, value: Option<String>},
 }
 
 #[derive(PartialEq, Debug)]
@@ -240,7 +240,8 @@ impl<'a> Display for Recipe<'a> {
         }
         match piece {
           &Fragment::Text{ref text} => try!(write!(f, "{}", text.lexeme)),
-          &Fragment::Expression{ref expression} => try!(write!(f, "{}{}{}", "{{", expression, "}}")),
+          &Fragment::Expression{ref expression, value: None} => try!(write!(f, "{}{} # ? {}", "{{", expression, "}}")),
+          &Fragment::Expression{ref expression, value: Some(ref string)} => try!(write!(f, "{}{} # \"{}\"{}", "{{", expression, string, "}}")),
         }
       }
       if i + 1 < self.lines.len() {
@@ -324,13 +325,15 @@ fn evaluate<'a>(
   }
 
   for recipe in recipes.values_mut() {
-    for fragments in &recipe.lines {
+    for mut fragments in recipe.lines.iter_mut() {
       let mut line = String::new();
-      for fragment in fragments {
+      for mut fragment in fragments.iter_mut() {
         match fragment {
-          &Fragment::Text{ref text} => line += text.lexeme,
-          &Fragment::Expression{ref expression} => {
-            line += &try!(evaluator.evaluate_expression(&expression));
+          &mut Fragment::Text{ref text} => line += text.lexeme,
+          &mut Fragment::Expression{ref expression, ref mut value} => {
+            let evaluated = &try!(evaluator.evaluate_expression(&expression));
+            *value = Some(evaluated.clone());
+            line += evaluated;
           }
         }
       }
@@ -1110,7 +1113,9 @@ impl<'a> Parser<'a> {
           } else if let Some(token) = self.expect(InterpolationStart) {
             return Err(self.unexpected_token(&token, &[Text, InterpolationStart, Eol]));
           } else {
-            pieces.push(Fragment::Expression{expression: try!(self.expression(true))});
+            pieces.push(Fragment::Expression{
+              expression: try!(self.expression(true)), value: None
+            });
             if let Some(token) = self.expect(InterpolationEnd) {
               return Err(self.unexpected_token(&token, &[InterpolationEnd]));
             }
@@ -1318,7 +1323,7 @@ impl<'a> Parser<'a> {
 
       for line in &recipe.lines {
         for piece in line {
-          if let &Fragment::Expression{ref expression} = piece {
+          if let &Fragment::Expression{ref expression, ..} = piece {
             for variable in expression.variables() {
               let name = variable.lexeme;
               if !(assignments.contains_key(&name) || recipe.arguments.contains(&name)) {

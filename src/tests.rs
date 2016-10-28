@@ -251,7 +251,7 @@ goodbye = \"y\" # \"y\"
 hello a b c: x y z
     #! blah
     #blarg
-    {{foo + bar}}abc{{goodbye + \"x\"}}xyz
+    {{foo + bar # \"xx\"}}abc{{goodbye + \"x\" # \"yx\"}}xyz
     1
     2
     3

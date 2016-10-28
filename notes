@@ -1,8 +1,6 @@
 notes
 -----
 
-- test evaluated recipe lines
-
 - properly handle state stack at EOF
 
 - implement string parsing
