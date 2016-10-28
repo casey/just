@@ -1,35 +1,13 @@
 notes
 -----
 
-- implement string parsing
-
-\n \r \t \\ \"
-        let mut evaluated = String::new();
-        let mut escape = false;
-        for c in contents.chars() {
-          if escape {
-            match c {
-              'n'   => evaluated.push('\n'),
-              'r'   => evaluated.push('\r'),
-              't'   => evaluated.push('\t'),
-              '\\'  => evaluated.push('\\'),
-              '"'   => evaluated.push('"'),
-              other => panic!("bad escape sequence: {}", other),
-            }
-          } else if c == '\\' {
-            escape = true;
-          } else {
-            evaluated.push(c);
-          }
-        }
-        if escape {
-        }
-        evaluated
+- get weird of that weird extra printing
 
 - integration testing
   . run app with command line options and test output
   . exercise all features and all command line options
   . test that first recipe runs by default
+  . test that a few error messages are correct
 
 - underline problem token in error messages
 
@@ -53,6 +31,7 @@ notes
 - before release:
 
 - rewrite grammar.txt
+- make it clear it's beta
 - change name back to 'just', suggest j as alias
 - change description to "a polyglot command runner"?
 - update readme

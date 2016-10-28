@@ -396,6 +396,48 @@ fn duplicate_variable() {
 }
 
 #[test]
+fn unterminated_string() {
+  let text = r#"a = ""#;
+  parse_error(text, Error {
+    text:   text,
+    index:  3,
+    line:   0,
+    column: 3,
+    width:  None,
+    kind:   ErrorKind::UnterminatedString,
+  });
+}
+
+#[test]
+fn unterminated_string_with_escapes() {
+  let text = r#"a = "\n\t\r\"\\"#;
+  parse_error(text, Error {
+    text:   text,
+    index:  3,
+    line:   0,
+    column: 3,
+    width:  None,
+    kind:   ErrorKind::UnterminatedString,
+  });
+}
+
+#[test]
+fn string_quote_escape() {
+  parse_summary(
+    r#"a = "hello\"""#,
+    r#"a = "hello\"" # "hello"""#
+  );
+}
+
+#[test]
+fn string_escapes() {
+  parse_summary(
+            r#"a = "\n\t\r\"\\""#,
+    concat!(r#"a = "\n\t\r\"\\" "#, "# \"\n\t\r\"\\\"")
+  );
+}
+
+#[test]
 fn self_recipe_dependency() {
   let text = "a: a";
   parse_error(text, Error {

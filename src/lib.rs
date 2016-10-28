@@ -26,6 +26,7 @@ macro_rules! warn {
     let _ = writeln!(&mut std::io::stderr(), $($arg)*);
   }};
 }
+
 macro_rules! die {
   ($($arg:tt)*) => {{
     extern crate std;
@@ -72,7 +73,7 @@ enum Fragment<'a> {
 #[derive(PartialEq, Debug)]
 enum Expression<'a> {
   Variable{name: &'a str, token: Token<'a>},
-  String{contents: &'a str},
+  String{raw: &'a str, cooked: String},
   Concatination{lhs: Box<Expression<'a>>, rhs: Box<Expression<'a>>},
 }
 
@@ -93,9 +94,8 @@ impl<'a> Iterator for Variables<'a> {
 
   fn next(&mut self) -> Option<&'a Token<'a>> {
     match self.stack.pop() {
-      None                                               => None,
+      None | Some(&Expression::String{..})               => None,
       Some(&Expression::Variable{ref token,..})          => Some(token),
-      Some(&Expression::String{..})                      => None,
       Some(&Expression::Concatination{ref lhs, ref rhs}) => {
         self.stack.push(lhs);
         self.stack.push(rhs);
@@ -109,7 +109,7 @@ impl<'a> Display for Expression<'a> {
   fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
     match *self {
       Expression::Variable     {name, ..        } => try!(write!(f, "{}", name)),
-      Expression::String       {contents        } => try!(write!(f, "\"{}\"", contents)),
+      Expression::String       {raw, ..         } => try!(write!(f, "\"{}\"", raw)),
       Expression::Concatination{ref lhs, ref rhs} => try!(write!(f, "{} + {}", lhs, rhs)),
     }
     Ok(())
@@ -155,7 +155,7 @@ impl<'a> Recipe<'a> {
           text += "\n"
         }
         for line in &self.evaluated_lines[1..] {
-          text += &line;
+          text += line;
           text += "\n";
         }
         try!(
@@ -238,10 +238,10 @@ impl<'a> Display for Recipe<'a> {
         if j == 0 {
           try!(write!(f, "    "));
         }
-        match piece {
-          &Fragment::Text{ref text} => try!(write!(f, "{}", text.lexeme)),
-          &Fragment::Expression{ref expression, value: None} => try!(write!(f, "{}{} # ? {}", "{{", expression, "}}")),
-          &Fragment::Expression{ref expression, value: Some(ref string)} => try!(write!(f, "{}{} # \"{}\"{}", "{{", expression, string, "}}")),
+        match *piece {
+          Fragment::Text{ref text} => try!(write!(f, "{}", text.lexeme)),
+          Fragment::Expression{ref expression, value: None} => try!(write!(f, "{}{} # ? {}", "{{", expression, "}}")),
+          Fragment::Expression{ref expression, value: Some(ref string)} => try!(write!(f, "{}{} # \"{}\"{}", "{{", expression, string, "}}")),
         }
       }
       if i + 1 < self.lines.len() {
@@ -325,12 +325,12 @@ fn evaluate<'a>(
   }
 
   for recipe in recipes.values_mut() {
-    for mut fragments in recipe.lines.iter_mut() {
+    for fragments in &mut recipe.lines {
       let mut line = String::new();
       for mut fragment in fragments.iter_mut() {
-        match fragment {
-          &mut Fragment::Text{ref text} => line += text.lexeme,
-          &mut Fragment::Expression{ref expression, ref mut value} => {
+        match *fragment {
+          Fragment::Text{ref text} => line += text.lexeme,
+          Fragment::Expression{ref expression, ref mut value} => {
             let evaluated = &try!(evaluator.evaluate_expression(&expression));
             *value = Some(evaluated.clone());
             line += evaluated;
@@ -392,8 +392,8 @@ impl<'a, 'b> Evaluator<'a, 'b> {
           self.evaluated.get(name).unwrap().clone()
         }
       }
-      Expression::String{contents} => {
-        contents.to_string()
+      Expression::String{ref cooked, ..} => {
+        cooked.clone()
       }
       Expression::Concatination{ref lhs, ref rhs} => {
         try!(self.evaluate_expression(lhs))
@@ -416,23 +416,25 @@ struct Error<'a> {
 
 #[derive(Debug, PartialEq)]
 enum ErrorKind<'a> {
+  ArgumentShadowsVariable{argument: &'a str},
   BadName{name: &'a str},
   CircularRecipeDependency{recipe: &'a str, circle: Vec<&'a str>},
   CircularVariableDependency{variable: &'a str, circle: Vec<&'a str>},
-  DuplicateDependency{recipe: &'a str, dependency: &'a str},
   DuplicateArgument{recipe: &'a str, argument: &'a str},
+  DuplicateDependency{recipe: &'a str, dependency: &'a str},
   DuplicateRecipe{recipe: &'a str, first: usize},
   DuplicateVariable{variable: &'a str},
-  ArgumentShadowsVariable{argument: &'a str},
-  MixedLeadingWhitespace{whitespace: &'a str},
   ExtraLeadingWhitespace,
   InconsistentLeadingWhitespace{expected: &'a str, found: &'a str},
-  OuterShebang,
-  UnknownDependency{recipe: &'a str, unknown: &'a str},
-  UnknownVariable{variable: &'a str},
-  UnknownStartOfToken,
-  UnexpectedToken{expected: Vec<TokenKind>, found: TokenKind},
   InternalError{message: String},
+  InvalidEscapeSequence{character: char},
+  MixedLeadingWhitespace{whitespace: &'a str},
+  OuterShebang,
+  UnexpectedToken{expected: Vec<TokenKind>, found: TokenKind},
+  UnknownDependency{recipe: &'a str, unknown: &'a str},
+  UnknownStartOfToken,
+  UnknownVariable{variable: &'a str},
+  UnterminatedString,
 }
 
 fn show_whitespace(text: &str) -> String {
@@ -485,6 +487,9 @@ impl<'a> Display for Error<'a> {
         try!(write!(f, "assignment to {} has circular dependency: {}", variable, circle.join(" -> ")));
         return Ok(());
       }
+      ErrorKind::InvalidEscapeSequence{character} => {
+        try!(writeln!(f, "\\{}", character.escape_default().collect::<String>()));
+      }
       ErrorKind::DuplicateArgument{recipe, argument} => {
         try!(writeln!(f, "recipe {} has duplicate argument: {}", recipe, argument));
       }
@@ -531,6 +536,9 @@ impl<'a> Display for Error<'a> {
       }
       ErrorKind::UnknownStartOfToken => {
         try!(writeln!(f, "unknown start of token:"));
+      }
+      ErrorKind::UnterminatedString => {
+        try!(writeln!(f, "unterminated string"));
       }
       ErrorKind::InternalError{ref message} => {
         try!(writeln!(f, "internal error, this may indicate a bug in j: {}\n consider filing an issue: https://github.com/casey/j/issues/new", message));
@@ -760,7 +768,7 @@ fn token(pattern: &str) -> Regex {
   re(&s)
 }
 
-fn tokenize<'a>(text: &'a str) -> Result<Vec<Token>, Error> {
+fn tokenize(text: &str) -> Result<Vec<Token>, Error> {
   lazy_static! {
     static ref EOF:                       Regex = token(r"(?-m)$"                );
     static ref NAME:                      Regex = token(r"([a-zA-Z0-9_-]+)"      );
@@ -768,7 +776,7 @@ fn tokenize<'a>(text: &'a str) -> Result<Vec<Token>, Error> {
     static ref EQUALS:                    Regex = token(r"="                     );
     static ref PLUS:                      Regex = token(r"[+]"                   );
     static ref COMMENT:                   Regex = token(r"#([^!].*)?$"           );
-    static ref STRING:                    Regex = token("\"[^\"]*\""             );
+    static ref STRING:                    Regex = token("\""                     );
     static ref EOL:                       Regex = token(r"\n|\r\n"               );
     static ref INTERPOLATION_END:         Regex = token(r"[}][}]"                );
     static ref INTERPOLATION_START_TOKEN: Regex = token(r"[{][{]"               );
@@ -864,18 +872,16 @@ fn tokenize<'a>(text: &'a str) -> Result<Vec<Token>, Error> {
     }
 
     // insert a dedent if we're indented and we hit the end of the file
-    if &State::Start != state.last().unwrap() {
-      if EOF.is_match(rest) {
-        tokens.push(Token {
-          index:  index,
-          line:   line,
-          column: column,
-          text:   text,
-          prefix: "",
-          lexeme: "",
-          kind:   Dedent,
-        });
-      }
+    if &State::Start != state.last().unwrap() && EOF.is_match(rest) {
+      tokens.push(Token {
+        index:  index,
+        line:   line,
+        column: column,
+        text:   text,
+        prefix: "",
+        lexeme: "",
+        kind:   Dedent,
+      });
     }
 
     let (prefix, lexeme, kind) = 
@@ -888,7 +894,7 @@ fn tokenize<'a>(text: &'a str) -> Result<Vec<Token>, Error> {
       (&line[0..indent.len()], "", Line)
     } else if let Some(captures) = EOF.captures(rest) {
       (captures.at(1).unwrap(), captures.at(2).unwrap(), Eof)
-    } else if let &State::Text = state.last().unwrap() {
+    } else if let State::Text = *state.last().unwrap() {
       if let Some(captures) = INTERPOLATION_START.captures(rest) {
         state.push(State::Interpolation);
         ("", captures.at(0).unwrap(), InterpolationStart)
@@ -927,7 +933,34 @@ fn tokenize<'a>(text: &'a str) -> Result<Vec<Token>, Error> {
     } else if let Some(captures) = COMMENT.captures(rest) {
       (captures.at(1).unwrap(), captures.at(2).unwrap(), Comment)
     } else if let Some(captures) = STRING.captures(rest) {
-      (captures.at(1).unwrap(), captures.at(2).unwrap(), StringToken)
+      let prefix = captures.at(1).unwrap();
+      let contents = &rest[prefix.len()+1..];
+      if contents.is_empty() {
+        return error!(ErrorKind::UnterminatedString);
+      }
+      // die on \n or \r
+      // stop on unescaped "
+      let mut len = 0;
+      let mut escape = false;
+      for c in contents.chars() { 
+        if c == '\n' || c == '\r' {
+          return error!(ErrorKind::UnterminatedString);
+        } else if !escape && c == '"' {
+          break;
+        } else if !escape && c == '\\' {
+          escape = true;
+        } else if escape {
+          escape = false;
+        }
+        len += c.len_utf8();
+      }
+      let start = prefix.len();
+      let content_end = start + len + 1;
+      if escape || content_end >= rest.len() {
+        return error!(ErrorKind::UnterminatedString);
+      }
+      println!("{} {} {:?}", start, content_end, contents.chars().collect::<Vec<_>>());
+      (prefix, &rest[start..content_end + 1], StringToken)
     } else if rest.starts_with("#!") {
       return error!(ErrorKind::OuterShebang)
     } else {
@@ -1105,7 +1138,7 @@ impl<'a> Parser<'a> {
                 if token.lexeme.starts_with("#!") {
                   shebang = true;
                 }
-              } else if !shebang && token.lexeme.starts_with(" ") || token.lexeme.starts_with("\t") {
+              } else if !shebang && token.lexeme.starts_with(' ') || token.lexeme.starts_with('\t') {
                 return Err(token.error(ErrorKind::ExtraLeadingWhitespace));
               }
             }
@@ -1143,8 +1176,34 @@ impl<'a> Parser<'a> {
     let first = self.tokens.next().unwrap();
     let lhs = match first.kind {
       Name        => Expression::Variable{name: first.lexeme, token: first},
-      StringToken => Expression::String{contents: &first.lexeme[1..first.lexeme.len() - 1]},
-      _           => return Err(self.unexpected_token(&first, &[Name, StringToken])),
+      StringToken => {
+        let raw = &first.lexeme[1..first.lexeme.len() - 1];
+        let mut cooked = String::new();
+        let mut escape = false;
+        for c in raw.chars() {
+          if escape {
+            match c {
+              'n'   => cooked.push('\n'),
+              'r'   => cooked.push('\r'),
+              't'   => cooked.push('\t'),
+              '\\'  => cooked.push('\\'),
+              '"'   => cooked.push('"'),
+              other => return Err(first.error(ErrorKind::InvalidEscapeSequence {
+                character: other,
+              })),
+            }
+            escape = false;
+            continue;
+          }
+          if c == '\\' {
+            escape = true;
+            continue;
+          }
+          cooked.push(c);
+        }
+        Expression::String{raw: raw, cooked: cooked}
+      }
+      _ => return Err(self.unexpected_token(&first, &[Name, StringToken])),
     };
 
     if self.accepted(Plus) {
@@ -1227,7 +1286,7 @@ impl<'a> Parser<'a> {
 
       for line in &recipe.lines {
         for piece in line {
-          if let &Fragment::Expression{ref expression, ..} = piece {
+          if let Fragment::Expression{ref expression, ..} = *piece {
             for variable in expression.variables() {
               let name = variable.lexeme;
               if !(assignments.contains_key(&name) || recipe.arguments.contains(&name)) {
