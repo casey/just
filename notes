@@ -3,7 +3,6 @@ notes
 
 - integration testing
   . get value of variable --evaluate --variable
-  . --info that prints whole justfile
   . run app with command line options and test full output (stderr and stdout)
   . exercise all features and all command line options
   . underline problem token in error messages

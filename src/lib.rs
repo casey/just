@@ -644,7 +644,7 @@ impl<'a> Display for Justfile<'a> {
       }
       items -= 1;
       if items != 0 {
-        try!(write!(f, "\n"));
+        try!(write!(f, "\n\n"));
       }
     }
     for recipe in self.recipes.values() {
@@ -655,7 +655,7 @@ impl<'a> Display for Justfile<'a> {
       }
       items -= 1;
       if items != 0 {
-        try!(write!(f, "\n"));
+        try!(write!(f, "\n\n"));
       }
     }
     Ok(())

@@ -28,6 +28,9 @@ pub fn app() {
          .short("l")
          .long("list")
          .help("Lists available recipes"))
+    .arg(Arg::with_name("debug")
+         .long("debug")
+         .help("Prints the justfile with debugging information, such as evaluated expression and assignment"))
     .arg(Arg::with_name("show")
          .short("s")
          .long("show")
@@ -95,6 +98,11 @@ pub fn app() {
   }
 
   let justfile = super::parse(&text).unwrap_or_else(|error| die!("{}", error));
+
+  if matches.is_present("debug") {
+    println!("{:#}", justfile);
+    process::exit(0);
+  }
 
   if matches.is_present("list") {
     if justfile.count() == 0 {

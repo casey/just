@@ -246,8 +246,11 @@ hello a b    c   : x y    z #hello
   2
   3
 ", "bar = foo # \"xx\"
+
 foo = \"xx\" # \"xx\"
+
 goodbye = \"y\" # \"y\"
+
 hello a b c: x y z
     #! blah
     #blarg
@@ -255,8 +258,11 @@ hello a b c: x y z
     1
     2
     3
+
 x:
+
 y:
+
 z:");
 }
 
@@ -269,7 +275,9 @@ b = "1"
 "#, 
 
 r#"a = "0" # "0"
+
 b = "1" # "1"
+
 c = a + b + a + b # "0101""#);
 }
 
@@ -301,7 +309,7 @@ fn missing_eol() {
 
 #[test]
 fn eof_test() {
-  parse_summary("x:\ny:\nz:\na b c: x y z", "a b c: x y z\nx:\ny:\nz:");
+  parse_summary("x:\ny:\nz:\na b c: x y z", "a b c: x y z\n\nx:\n\ny:\n\nz:");
 }
 
 #[test]
