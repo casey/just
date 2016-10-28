@@ -959,7 +959,6 @@ fn tokenize(text: &str) -> Result<Vec<Token>, Error> {
       if escape || content_end >= rest.len() {
         return error!(ErrorKind::UnterminatedString);
       }
-      println!("{} {} {:?}", start, content_end, contents.chars().collect::<Vec<_>>());
       (prefix, &rest[start..content_end + 1], StringToken)
     } else if rest.starts_with("#!") {
       return error!(ErrorKind::OuterShebang)
