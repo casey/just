@@ -938,8 +938,6 @@ fn tokenize(text: &str) -> Result<Vec<Token>, Error> {
       if contents.is_empty() {
         return error!(ErrorKind::UnterminatedString);
       }
-      // die on \n or \r
-      // stop on unescaped "
       let mut len = 0;
       let mut escape = false;
       for c in contents.chars() { 
