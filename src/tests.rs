@@ -62,7 +62,7 @@ fn parse_success(text: &str) -> Justfile {
 
 fn parse_summary(input: &str, output: &str) {
   let justfile = parse_success(input);
-  let s = justfile.to_string();
+  let s = format!("{:#}", justfile);
   if s != output {
     println!("got:\n\"{}\"\n", s);
     println!("\texpected:\n\"{}\"", output);

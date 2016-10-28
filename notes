@@ -2,11 +2,10 @@ notes
 -----
 
 - integration testing
-  . --show should not display variable and expression values
+  . get value of variable --evaluate --variable
+  . --info that prints whole justfile
   . run app with command line options and test full output (stderr and stdout)
   . exercise all features and all command line options
-  . test that a few error messages are correct
-  . test full output
   . underline problem token in error messages
 
 - figure out argument passing:
@@ -61,6 +60,8 @@ notes
 enhancements:
 
 - save result of commands in variables
+- multi line strings
+- raw strings
 - iteration: {{x for x in y}}
 - allow calling recipes in a justfile in a different directory:
   . just ../foo  # ../justfile:foo

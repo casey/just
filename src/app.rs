@@ -108,7 +108,7 @@ pub fn app() {
   if let Some(name) = matches.value_of("show") {
     match justfile.get(name) {
       Some(recipe) => {
-        warn!("{}", recipe);
+        println!("{}", recipe);
         process::exit(0);
       }
       None => die!("justfile contains no recipe \"{}\"", name)

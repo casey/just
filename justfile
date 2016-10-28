@@ -1,7 +1,7 @@
 test-all: test test-integration
 
 test:
-	cargo test --lib --test integration
+	cargo test --lib
 
 test-integration: build
 	cargo test --test integration

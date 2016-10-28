@@ -238,10 +238,17 @@ impl<'a> Display for Recipe<'a> {
         if j == 0 {
           try!(write!(f, "    "));
         }
-        match *piece {
-          Fragment::Text{ref text} => try!(write!(f, "{}", text.lexeme)),
-          Fragment::Expression{ref expression, value: None} => try!(write!(f, "{}{} # ? {}", "{{", expression, "}}")),
-          Fragment::Expression{ref expression, value: Some(ref string)} => try!(write!(f, "{}{} # \"{}\"{}", "{{", expression, string, "}}")),
+        if f.alternate() {
+          match *piece {
+            Fragment::Text{ref text} => try!(write!(f, "{}", text.lexeme)),
+            Fragment::Expression{ref expression, value: None} => try!(write!(f, "{}{} # ? {}", "{{", expression, "}}")),
+            Fragment::Expression{ref expression, value: Some(ref string)} => try!(write!(f, "{}{} # \"{}\"{}", "{{", expression, string, "}}")),
+          }
+        } else {
+          match *piece {
+            Fragment::Text{ref text} => try!(write!(f, "{}", text.lexeme)),
+            Fragment::Expression{ref expression, ..} => try!(write!(f, "{}{}{}", "{{", expression, "}}")),
+          }
         }
       }
       if i + 1 < self.lines.len() {
@@ -630,14 +637,22 @@ impl<'a> Display for Justfile<'a> {
   fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
     let mut items = self.recipes.len() + self.assignments.len();
     for (name, expression) in &self.assignments {
-      try!(write!(f, "{} = {} # \"{}\"", name, expression, self.values.get(name).unwrap()));
+      if f.alternate() {
+        try!(write!(f, "{} = {} # \"{}\"", name, expression, self.values.get(name).unwrap()));
+      } else {
+        try!(write!(f, "{} = {}", name, expression));
+      }
       items -= 1;
       if items != 0 {
         try!(write!(f, "\n"));
       }
     }
     for recipe in self.recipes.values() {
-      try!(write!(f, "{}", recipe));
+      if f.alternate() {
+        try!(write!(f, "{:#}", recipe));
+      } else {
+        try!(write!(f, "{}", recipe));
+      }
       items -= 1;
       if items != 0 {
         try!(write!(f, "\n"));

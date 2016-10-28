@@ -120,21 +120,45 @@ c: b";
   );
 }
 
-// #[test]
-// fn show() {
-//   let text = 
-// r#"hello = "foo"
-// recipe:
-//  echo {{hello}}"#;
-//   integration_test(
-//     "show",
-//     &["--show", "recipe"],
-//     text,
-//     0,
-//     "foo\n",
-//     "",
-//   );
-// }
+#[test]
+fn select() {
+  let text = 
+"b:
+  @echo b
+a:
+  @echo a
+d:
+  @echo d
+c:
+  @echo c";
+  integration_test(
+    "select",
+    &["d", "c"],
+    text,
+    0,
+    "d\nc\n",
+    "",
+  );
+}
+
+#[test]
+fn show() {
+  let text = 
+r#"hello = "foo"
+bar = hello + hello
+recipe:
+ echo {{hello + "bar" + bar}}"#;
+  integration_test(
+    "show",
+    &["--show", "recipe"],
+    text,
+    0,
+    r#"recipe:
+    echo {{hello + "bar" + bar}}
+"#,
+    "",
+  );
+}
 
 #[test]
 fn status() {
