@@ -633,8 +633,6 @@ fn unknown_second_interpolation_variable() {
 
 #[test]
 fn run_order() {
-  let tmp = tempdir::TempDir::new("run_order").unwrap_or_else(|err| panic!("tmpdir: failed to create temporary directory: {}", err));
-  let path = tmp.path().to_str().unwrap_or_else(|| panic!("tmpdir: path was not valid UTF-8")).to_owned();
   let text = r"
 b: a
   @mv a b
@@ -649,11 +647,6 @@ d: c
 c: b
   @mv b c";
   tokenize_success(text, "$N:N$>^_$$<N:$>^_$^_$$<N:N$>^_$$<N:N$>^_<.");
-  super::std::env::set_current_dir(path).expect("failed to set current directory");
-  parse_success(text).run(&["a", "d"]).unwrap();
-  if let Err(_) = super::std::fs::metadata("F") {
-    panic!("recipes did not run");
-  }
 }
 
 #[test]

@@ -61,3 +61,44 @@ fn simple() {
     "echo hello\n",
   )
 }
+
+#[test]
+fn quiet() {
+  integration_test(
+    "quiet",
+    &[],
+    "default:\n @echo hello",
+    0,
+    "hello\n",
+    "",
+  )
+}
+
+#[test]
+fn order() {
+  let text = "
+b: a
+  echo b
+  @mv a b
+
+a:
+  echo a
+  @touch F
+  @touch a
+
+d: c
+  echo d
+  @rm c
+
+c: b
+  echo c
+  @mv b c";
+  integration_test(
+    "order",
+    &["a", "d"],
+    text,
+    0,
+    "a\nb\nc\nd\n",
+    "echo a\necho b\necho c\necho d\n",
+  );
+}
