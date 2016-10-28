@@ -1,11 +1,20 @@
 test:
 	cargo test --lib
 
+test-integration: build
+	cargo test --test integration
+
 test-quine:
 	cargo run -- quine clean
 
+test-integ:
+	cargo run -- --justfile integration-tests/justfile --working-directory integration-tests
+
 backtrace:
 	RUST_BACKTRACE=1 cargo test --lib
+
+build:
+	cargo build
 
 publish: clippy
 	# make sure version is up to date

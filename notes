@@ -1,19 +1,16 @@
 notes
 -----
 
-- get weird of that weird extra printing
-
 - integration testing
-  . run app with command line options and test output
+  . --show should not display variable and expression values
+  . test --list
+  . test that status code of failing test is reported
+  . run app with command line options and test full output (stderr and stdout)
   . exercise all features and all command line options
   . test that first recipe runs by default
   . test that a few error messages are correct
-
-- underline problem token in error messages
-
-- add context to unexpected_token error
-  "while parsing a recipe"
-  "while parsing an expression"
+  . test full output
+  . underline problem token in error messages
 
 - figure out argument passing:
   . flag:        j build --set a=hello
@@ -31,7 +28,8 @@ notes
 - before release:
 
 - rewrite grammar.txt
-- make it clear it's beta
+- make it clear it's beta, mention that, as a command runner
+  there is probably a higher than normal chance of disaster
 - change name back to 'just', suggest j as alias
 - change description to "a polyglot command runner"?
 - update readme
@@ -57,7 +55,7 @@ notes
     for contributing
 - vim and emacs syntax hilighting (use makefile syntax hilighting for now)
 - make sure there isn't any unused code
-- ask users to contribute their justfiles
+- ask users to contribute their justfiles as tests
 - try to get some users
   . facebook friends
   . irc
@@ -65,13 +63,13 @@ notes
 
 enhancements:
 
-- add post requirements:
-  # do c then a then b
-  a: c b~
+- save result of commands in variables
+- iteration: {{x for x in y}}
 - allow calling recipes in a justfile in a different directory:
   . just ../foo  # ../justfile:foo
   . just xyz/foo # xyz/justfile:foo
   . just xyz/    # xyz/justfile:DEFAULT
-  . get all directories, if more than one, fork just for each
 - allow setting and exporting environment variables
 - indentation or slash for line continuation
+- figure out some way to allow changing directories in
+  plain recipes
