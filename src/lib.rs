@@ -694,7 +694,7 @@ struct Token<'a> {
   text:   &'a str,
   prefix: &'a str,
   lexeme: &'a str,
-  class:  TokenKind,
+  kind:   TokenKind,
 }
 
 impl<'a> Token<'a> {
@@ -768,7 +768,7 @@ fn tokenize<'a>(text: &'a str) -> Result<Vec<Token>, Error> {
     static ref EQUALS:                    Regex = token(r"="                     );
     static ref PLUS:                      Regex = token(r"[+]"                   );
     static ref COMMENT:                   Regex = token(r"#([^!].*)?$"           );
-    static ref STRING:                    Regex = token("\"[a-z0-9]\""           );
+    static ref STRING:                    Regex = token("\"[^\"]*\""             );
     static ref EOL:                       Regex = token(r"\n|\r\n"               );
     static ref INTERPOLATION_END:         Regex = token(r"[}][}]"                );
     static ref INTERPOLATION_START_TOKEN: Regex = token(r"[{][{]"               );
@@ -813,7 +813,7 @@ fn tokenize<'a>(text: &'a str) -> Result<Vec<Token>, Error> {
 
   loop {
     if column == 0 {
-      if let Some(class) = match (state.last().unwrap(), indentation(rest)) {
+      if let Some(kind) = match (state.last().unwrap(), indentation(rest)) {
         // ignore: was no indentation and there still isn't
         //         or current line is blank
         (&State::Start, Some("")) | (_, None) => {
@@ -858,7 +858,7 @@ fn tokenize<'a>(text: &'a str) -> Result<Vec<Token>, Error> {
           text:   text,
           prefix: "",
           lexeme: "",
-          class:  class,
+          kind:   kind,
         });
       }
     }
@@ -873,12 +873,12 @@ fn tokenize<'a>(text: &'a str) -> Result<Vec<Token>, Error> {
           text:   text,
           prefix: "",
           lexeme: "",
-          class:  Dedent,
+          kind:   Dedent,
         });
       }
     }
 
-    let (prefix, lexeme, class) = 
+    let (prefix, lexeme, kind) = 
     if let (0, &State::Indent(indent), Some(captures)) = (column, state.last().unwrap(), LINE.captures(rest)) {
       let line = captures.at(0).unwrap();
       if !line.starts_with(indent) {
@@ -943,18 +943,18 @@ fn tokenize<'a>(text: &'a str) -> Result<Vec<Token>, Error> {
       prefix: prefix,
       text:   text,
       lexeme: lexeme,
-      class:  class,
+      kind:   kind,
     });
 
     if len == 0 {
-      match tokens.last().unwrap().class {
+      match tokens.last().unwrap().kind {
         Eof => {},
         _ => return Err(tokens.last().unwrap().error(
           ErrorKind::InternalError{message: format!("zero length token: {:?}", tokens.last().unwrap())})),
       }
     }
 
-    match tokens.last().unwrap().class {
+    match tokens.last().unwrap().kind {
       Eol => {
         line += 1;
         column = 0;
@@ -976,12 +976,12 @@ fn tokenize<'a>(text: &'a str) -> Result<Vec<Token>, Error> {
 
 fn parse(text: &str) -> Result<Justfile, Error> {
   let tokens = try!(tokenize(text));
-  let filtered: Vec<_> = tokens.into_iter().filter(|token| token.class != Comment).collect();
+  let filtered: Vec<_> = tokens.into_iter().filter(|token| token.kind != Comment).collect();
   if let Some(token) = filtered.iter().find(|token| {
     lazy_static! {
       static ref GOOD_NAME: Regex = re("^[a-z](-?[a-z0-9])*$");
     }
-    token.class == Name && !GOOD_NAME.is_match(token.lexeme)
+    token.kind == Name && !GOOD_NAME.is_match(token.lexeme)
   }) {
     return Err(token.error(ErrorKind::BadName{name: token.lexeme}));
   }
@@ -1000,24 +1000,24 @@ struct Parser<'a> {
 }
 
 impl<'a> Parser<'a> {
-  fn peek(&mut self, class: TokenKind) -> bool {
-    self.tokens.peek().unwrap().class == class
+  fn peek(&mut self, kind: TokenKind) -> bool {
+    self.tokens.peek().unwrap().kind == kind
   }
 
-  fn accept(&mut self, class: TokenKind) -> Option<Token<'a>> {
-    if self.peek(class) {
+  fn accept(&mut self, kind: TokenKind) -> Option<Token<'a>> {
+    if self.peek(kind) {
       self.tokens.next()
     } else {
       None
     }
   }
 
-  fn accepted(&mut self, class: TokenKind) -> bool {
-    self.accept(class).is_some()
+  fn accepted(&mut self, kind: TokenKind) -> bool {
+    self.accept(kind).is_some()
   }
 
-  fn expect(&mut self, class: TokenKind) -> Option<Token<'a>> {
-    if self.peek(class) {
+  fn expect(&mut self, kind: TokenKind) -> Option<Token<'a>> {
+    if self.peek(kind) {
       self.tokens.next();
       None
     } else {
@@ -1039,7 +1039,7 @@ impl<'a> Parser<'a> {
   fn unexpected_token(&self, found: &Token<'a>, expected: &[TokenKind]) -> Error<'a> {
     found.error(ErrorKind::UnexpectedToken {
       expected: expected.to_vec(),
-      found:    found.class,
+      found:    found.kind,
     })
   }
 
@@ -1093,7 +1093,7 @@ impl<'a> Parser<'a> {
         }
         if let Some(token) = self.expect(Line) {
           return Err(token.error(ErrorKind::InternalError{
-            message: format!("Expected a line but got {}", token.class)
+            message: format!("Expected a line but got {}", token.kind)
           }))
         }
         let mut pieces = vec![];
@@ -1126,98 +1126,6 @@ impl<'a> Parser<'a> {
       }
     }
 
-    /*
-    let mut lines = vec![];
-    let mut line_tokens = vec![];
-    let mut shebang = false;
-
-    if self.accepted(Indent) {
-      while !self.peek(Dedent) {
-        if let Some(line) = self.accept(Line) {
-          if lines.is_empty() {
-            if line.lexeme.starts_with("#!") {
-              shebang = true;
-            }
-          } else if !shebang && (line.lexeme.starts_with(' ') || line.lexeme.starts_with('\t')) {
-            return Err(line.error(ErrorKind::ExtraLeadingWhitespace));
-          }
-          lines.push(line.lexeme);
-          line_tokens.push(line);
-          if !self.peek(Dedent) {
-            if let Some(token) = self.expect_eol() {
-              return Err(self.unexpected_token(&token, &[Eol]));
-            }
-          }
-        } else if let Some(_) = self.accept(Eol) {
-        } else {
-          let token = self.tokens.next().unwrap();
-          return Err(self.unexpected_token(&token, &[Line, Eol]));
-        }
-      }
-
-      if let Some(token) = self.expect(Dedent) {
-        return Err(self.unexpected_token(&token, &[Dedent]));
-      }
-    }
-
-    let mut fragments = vec![];
-    let mut variables = BTreeSet::new();
-    let mut variable_tokens = vec![];
-
-    lazy_static! {
-      static ref FRAGMENT:  Regex = re(r"^(.*?)\{\{(.*?)\}\}"               );
-      static ref UNMATCHED: Regex = re(r"^.*?\{\{"                          );
-      static ref VARIABLE:  Regex = re(r"^([ \t]*)([a-z](-?[a-z0-9])*)[ \t]*$");
-    }
-
-    for line in &line_tokens {
-      let mut line_fragments = vec![];
-      let mut rest = line.lexeme;
-      let mut index = line.index;
-      let mut column = line.column;
-      while !rest.is_empty() {
-        let advanced;
-        if let Some(captures) = FRAGMENT.captures(rest) {
-          let prefix = captures.at(1).unwrap();
-          if !prefix.is_empty() {
-            line_fragments.push(Fragment::Text{text: prefix});
-          }
-          let interior = captures.at(2).unwrap();
-          if let Some(captures) = VARIABLE.captures(interior) {
-            let prefix = captures.at(1).unwrap();
-            let name = captures.at(2).unwrap();
-            line_fragments.push(Fragment::Variable{name: name});
-            variables.insert(name);
-            variable_tokens.push(Token {
-              index:  index + line.prefix.len(),
-              line:   line.line,
-              column: column + line.prefix.len(),
-              text:   line.text,
-              prefix: prefix,
-              lexeme: name,
-              class:  Name,
-            });
-          } else {
-            return Err(line.error(ErrorKind::BadInterpolationVariableName{
-              recipe: name, 
-              text: interior,
-            }));
-          }
-          advanced = captures.at(0).unwrap().len();
-        } else if UNMATCHED.is_match(rest) {
-          return Err(line.error(ErrorKind::UnclosedInterpolationDelimiter));
-        } else {
-          line_fragments.push(Fragment::Text{text: rest});
-          advanced = rest.len();
-        };
-        index += advanced;
-        column += advanced;
-        rest = &rest[advanced..];
-      }
-      fragments.push(line_fragments);
-    }
-    */
-
     Ok(Recipe {
       line_number:       line_number,
       name:              name,
@@ -1225,21 +1133,17 @@ impl<'a> Parser<'a> {
       dependency_tokens: dependency_tokens,
       arguments:         arguments,
       argument_tokens:   argument_tokens,
-      // fragments:         fragments,
-      // variables:         variables,
-      // variable_tokens:   variable_tokens,
-      evaluated_lines:             vec![],
-      lines:         lines,
-      // lines:             lines,
+      evaluated_lines:   vec![],
+      lines:             lines,
       shebang:           shebang,
     })
   }
 
   fn expression(&mut self, interpolation: bool) -> Result<Expression<'a>, Error<'a>> {
     let first = self.tokens.next().unwrap();
-    let lhs = match first.class {
+    let lhs = match first.kind {
       Name        => Expression::Variable{name: first.lexeme, token: first},
-      StringToken => Expression::String{contents: &first.lexeme[1..2]},
+      StringToken => Expression::String{contents: &first.lexeme[1..first.lexeme.len() - 1]},
       _           => return Err(self.unexpected_token(&first, &[Name, StringToken])),
     };
 
@@ -1266,7 +1170,7 @@ impl<'a> Parser<'a> {
 
     loop {
       match self.tokens.next() {
-        Some(token) => match token.class {
+        Some(token) => match token.kind {
           Eof => break,
           Eol => continue,
           Name => if self.accepted(Equals) {
@@ -1306,7 +1210,7 @@ impl<'a> Parser<'a> {
 
     if let Some(token) = self.tokens.next() {
       return Err(token.error(ErrorKind::InternalError{
-        message: format!("unexpected token remaining after parsing completed: {:?}", token.class)
+        message: format!("unexpected token remaining after parsing completed: {:?}", token.kind)
       }))
     }
 
@@ -1356,7 +1260,7 @@ impl<'a> Parser<'a> {
 
     let values = try!(evaluate(&assignments, &assignment_tokens, &mut recipes));
 
-    Ok(Justfile{
+    Ok(Justfile {
       recipes:     recipes,
       assignments: assignments,
       values:      values,

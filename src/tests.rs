@@ -34,7 +34,7 @@ fn tokenize_error(text: &str, expected: Error) {
 
 fn token_summary(tokens: &[Token]) -> String {
   tokens.iter().map(|t| {
-    match t.class {
+    match t.kind {
       super::TokenKind::Line{..}           => "^",
       super::TokenKind::Name               => "N",
       super::TokenKind::Colon              => ":",
@@ -235,7 +235,7 @@ fn parse_complex() {
 x:
 y:
 z:
-foo = \"x\"
+foo = \"xx\"
 bar = foo
 goodbye = \"y\"
 hello a b    c   : x y    z #hello
@@ -245,13 +245,13 @@ hello a b    c   : x y    z #hello
   1
   2
   3
-", "bar = foo # \"x\"
-foo = \"x\" # \"x\"
+", "bar = foo # \"xx\"
+foo = \"xx\" # \"xx\"
 goodbye = \"y\" # \"y\"
 hello a b c: x y z
     #! blah
     #blarg
-    {{foo + bar # \"xx\"}}abc{{goodbye + \"x\" # \"yx\"}}xyz
+    {{foo + bar # \"xxxx\"}}abc{{goodbye + \"x\" # \"yx\"}}xyz
     1
     2
     3

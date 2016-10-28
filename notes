@@ -1,12 +1,30 @@
 notes
 -----
 
-- properly handle state stack at EOF
-
 - implement string parsing
-  . use the same rules as rust: https://doc.rust-lang.org/reference.html#string-literals
-  . \xHH, \u{HHHHHH}, \n, \r, \t, \0, \\, \{ no other escapes
-  . '' strings with no escapes
+
+\n \r \t \\ \"
+        let mut evaluated = String::new();
+        let mut escape = false;
+        for c in contents.chars() {
+          if escape {
+            match c {
+              'n'   => evaluated.push('\n'),
+              'r'   => evaluated.push('\r'),
+              't'   => evaluated.push('\t'),
+              '\\'  => evaluated.push('\\'),
+              '"'   => evaluated.push('"'),
+              other => panic!("bad escape sequence: {}", other),
+            }
+          } else if c == '\\' {
+            escape = true;
+          } else {
+            evaluated.push(c);
+          }
+        }
+        if escape {
+        }
+        evaluated
 
 - integration testing
   . run app with command line options and test output
