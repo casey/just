@@ -51,11 +51,11 @@ fn integration_test(
 }
 
 #[test]
-fn simple() {
+fn default() {
   integration_test(
-    "simple",
+    "default",
     &[],
-    "default:\n echo hello",
+    "default:\n echo hello\nother: \n echo bar",
     0,
     "hello\n",
     "echo hello\n",
@@ -100,5 +100,54 @@ c: b
     0,
     "a\nb\nc\nd\n",
     "echo a\necho b\necho c\necho d\n",
+  );
+}
+
+#[test]
+fn list() {
+  let text = 
+"b: a
+a:
+d: c
+c: b";
+  integration_test(
+    "list",
+    &["--list"],
+    text,
+    0,
+    "a b c d\n",
+    "",
+  );
+}
+
+// #[test]
+// fn show() {
+//   let text = 
+// r#"hello = "foo"
+// recipe:
+//  echo {{hello}}"#;
+//   integration_test(
+//     "show",
+//     &["--show", "recipe"],
+//     text,
+//     0,
+//     "foo\n",
+//     "",
+//   );
+// }
+
+#[test]
+fn status() {
+  let text = 
+"
+recipe:
+ @function f { return 100; }; f";
+  integration_test(
+    "status",
+    &[],
+    text,
+    100,
+    "",
+    "Recipe \"recipe\" failed with exit code 100\n",
   );
 }

@@ -672,7 +672,7 @@ impl<'a> Display for RunError<'a> {
         try!(write!(f, "Running recipes with arguments is not yet supported"));
       },
       RunError::Code{recipe, code} => {
-        try!(write!(f, "Recipe \"{}\" failed with code {}", recipe, code));
+        try!(write!(f, "Recipe \"{}\" failed with exit code {}", recipe, code));
       },
       RunError::Signal{recipe, signal} => {
         try!(write!(f, "Recipe \"{}\" wast terminated by signal {}", recipe, signal));

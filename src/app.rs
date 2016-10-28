@@ -100,7 +100,7 @@ pub fn app() {
     if justfile.count() == 0 {
       warn!("Justfile contains no recipes");
     } else {
-      warn!("{}", justfile.recipes().join(" "));
+      println!("{}", justfile.recipes().join(" "));
     }
     process::exit(0);
   }
@@ -125,7 +125,6 @@ pub fn app() {
 
   if let Err(run_error) = justfile.run(&names) {
     warn!("{}", run_error);
-    //process::exit(if let super::RunError::Code{code, ..} = run_error { code } else { -1 });
-    process::exit(-1);
+    process::exit(if let super::RunError::Code{code, ..} = run_error { code } else { -1 });
   }
 }

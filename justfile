@@ -1,8 +1,11 @@
+test-all: test test-integration
+
 test:
-	cargo test --lib
+	cargo test --lib --test integration
 
 test-integration: build
 	cargo test --test integration
+
 
 test-quine:
 	cargo run -- quine clean

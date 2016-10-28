@@ -3,11 +3,8 @@ notes
 
 - integration testing
   . --show should not display variable and expression values
-  . test --list
-  . test that status code of failing test is reported
   . run app with command line options and test full output (stderr and stdout)
   . exercise all features and all command line options
-  . test that first recipe runs by default
   . test that a few error messages are correct
   . test full output
   . underline problem token in error messages
