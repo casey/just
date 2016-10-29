@@ -35,20 +35,21 @@ fn tokenize_error(text: &str, expected: Error) {
 fn token_summary(tokens: &[Token]) -> String {
   tokens.iter().map(|t| {
     match t.kind {
+      super::TokenKind::Backtick           => "`",
+      super::TokenKind::Colon              => ":",
+      super::TokenKind::Comment{..}        => "#",
+      super::TokenKind::Dedent             => "<",
+      super::TokenKind::Eof                => ".",
+      super::TokenKind::Eol                => "$",
+      super::TokenKind::Equals             => "=",
+      super::TokenKind::Indent{..}         => ">",
+      super::TokenKind::InterpolationEnd   => "}",
+      super::TokenKind::InterpolationStart => "{",
       super::TokenKind::Line{..}           => "^",
       super::TokenKind::Name               => "N",
-      super::TokenKind::Colon              => ":",
-      super::TokenKind::StringToken        => "'",
       super::TokenKind::Plus               => "+",
-      super::TokenKind::Equals             => "=",
-      super::TokenKind::Comment{..}        => "#",
-      super::TokenKind::Indent{..}         => ">",
+      super::TokenKind::StringToken        => "'",
       super::TokenKind::Text               => "_",
-      super::TokenKind::InterpolationStart => "{",
-      super::TokenKind::InterpolationEnd   => "}",
-      super::TokenKind::Dedent             => "<",
-      super::TokenKind::Eol                => "$",
-      super::TokenKind::Eof                => ".",
     }
   }).collect::<Vec<_>>().join("")
 }

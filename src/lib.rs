@@ -77,6 +77,7 @@ enum Fragment<'a> {
 enum Expression<'a> {
   Variable{name: &'a str, token: Token<'a>},
   String{raw: &'a str, cooked: String},
+  Backtick{raw: &'a str},
   Concatination{lhs: Box<Expression<'a>>, rhs: Box<Expression<'a>>},
 }
 
@@ -97,7 +98,7 @@ impl<'a> Iterator for Variables<'a> {
 
   fn next(&mut self) -> Option<&'a Token<'a>> {
     match self.stack.pop() {
-      None | Some(&Expression::String{..})               => None,
+      None | Some(&Expression::String{..}) | Some(&Expression::Backtick{..}) => None,
       Some(&Expression::Variable{ref token,..})          => Some(token),
       Some(&Expression::Concatination{ref lhs, ref rhs}) => {
         self.stack.push(lhs);
@@ -111,9 +112,10 @@ impl<'a> Iterator for Variables<'a> {
 impl<'a> Display for Expression<'a> {
   fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
     match *self {
-      Expression::Variable     {name, ..        } => try!(write!(f, "{}", name)),
-      Expression::String       {raw, ..         } => try!(write!(f, "\"{}\"", raw)),
+      Expression::Backtick     {raw, ..         } => try!(write!(f, "`{}`", raw)),
       Expression::Concatination{ref lhs, ref rhs} => try!(write!(f, "{} + {}", lhs, rhs)),
+      Expression::String       {raw, ..         } => try!(write!(f, "\"{}\"", raw)),
+      Expression::Variable     {name, ..        } => try!(write!(f, "{}", name)),
     }
     Ok(())
   }
@@ -486,6 +488,9 @@ impl<'a, 'b> Evaluator<'a, 'b> {
       Expression::String{ref cooked, ..} => {
         Some(cooked.clone())
       }
+      Expression::Backtick{raw, ..} => {
+        Some(raw.to_string())
+      }
       Expression::Concatination{ref lhs, ref rhs} => {
         let lhs = try!(self.evaluate_expression(lhs, arguments));
         let rhs = try!(self.evaluate_expression(rhs, arguments));
@@ -515,11 +520,11 @@ enum ErrorKind<'a> {
   BadName{name: &'a str},
   CircularRecipeDependency{recipe: &'a str, circle: Vec<&'a str>},
   CircularVariableDependency{variable: &'a str, circle: Vec<&'a str>},
+  DependencyHasArguments{recipe: &'a str, dependency: &'a str},
   DuplicateArgument{recipe: &'a str, argument: &'a str},
   DuplicateDependency{recipe: &'a str, dependency: &'a str},
   DuplicateRecipe{recipe: &'a str, first: usize},
   DuplicateVariable{variable: &'a str},
-  DependencyHasArguments{recipe: &'a str, dependency: &'a str},
   ExtraLeadingWhitespace,
   InconsistentLeadingWhitespace{expected: &'a str, found: &'a str},
   InternalError{message: String},
@@ -778,15 +783,15 @@ impl<'a> Display for Justfile<'a> {
 
 #[derive(Debug)]
 enum RunError<'a> {
-  UnknownRecipes{recipes: Vec<&'a str>},
-  NonLeadingRecipeWithArguments{recipe: &'a str},
   ArgumentCountMismatch{recipe: &'a str, found: usize, expected: usize},
-  Signal{recipe: &'a str, signal: i32},
   Code{recipe: &'a str, code: i32},
-  UnknownFailure{recipe: &'a str},
-  IoError{recipe: &'a str, io_error: io::Error},
-  TmpdirIoError{recipe: &'a str, io_error: io::Error},
   InternalError{message: String},
+  IoError{recipe: &'a str, io_error: io::Error},
+  NonLeadingRecipeWithArguments{recipe: &'a str},
+  Signal{recipe: &'a str, signal: i32},
+  TmpdirIoError{recipe: &'a str, io_error: io::Error},
+  UnknownFailure{recipe: &'a str},
+  UnknownRecipes{recipes: Vec<&'a str>},
 }
 
 impl<'a> Display for RunError<'a> {
@@ -859,39 +864,41 @@ impl<'a> Token<'a> {
 
 #[derive(Debug, PartialEq, Clone, Copy)]
 enum TokenKind {
-  Name,
+  Backtick,
   Colon,
-  StringToken,
-  Plus,
-  Equals,
   Comment,
-  Indent,
   Dedent,
-  InterpolationStart,
-  InterpolationEnd,
-  Text,
-  Line,
-  Eol,
   Eof,
+  Eol,
+  Equals,
+  Indent,
+  InterpolationEnd,
+  InterpolationStart,
+  Line,
+  Name,
+  Plus,
+  StringToken,
+  Text,
 }
 
 impl Display for TokenKind {
   fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
     try!(write!(f, "{}", match *self {
-      Name               => "name",
+      Backtick           => "backtick",
       Colon              => "\":\"",
-      Plus               => "\"+\"",
+      Comment            => "comment",
+      Dedent             => "dedent",
+      Eof                => "end of file",
+      Eol                => "end of line",
       Equals             => "\"=\"",
+      Indent             => "indent",
+      InterpolationEnd   => "}}",
+      InterpolationStart => "{{",
+      Line               => "command",
+      Name               => "name",
+      Plus               => "\"+\"",
       StringToken        => "string",
       Text               => "command text",
-      InterpolationStart => "{{",
-      InterpolationEnd   => "}}",
-      Comment            => "comment",
-      Line               => "command",
-      Indent             => "indent",
-      Dedent             => "dedent",
-      Eol                => "end of line",
-      Eof                => "end of file",
     }));
     Ok(())
   }
@@ -909,20 +916,21 @@ fn token(pattern: &str) -> Regex {
 
 fn tokenize(text: &str) -> Result<Vec<Token>, Error> {
   lazy_static! {
-    static ref EOF:                       Regex = token(r"(?-m)$"                );
-    static ref NAME:                      Regex = token(r"([a-zA-Z0-9_-]+)"      );
+    static ref BACKTICK:                  Regex = token(r"`[^`\n\r]*`"           );
     static ref COLON:                     Regex = token(r":"                     );
-    static ref EQUALS:                    Regex = token(r"="                     );
-    static ref PLUS:                      Regex = token(r"[+]"                   );
     static ref COMMENT:                   Regex = token(r"#([^!].*)?$"           );
-    static ref STRING:                    Regex = token("\""                     );
+    static ref EOF:                       Regex = token(r"(?-m)$"                );
     static ref EOL:                       Regex = token(r"\n|\r\n"               );
+    static ref EQUALS:                    Regex = token(r"="                     );
     static ref INTERPOLATION_END:         Regex = token(r"[}][}]"                );
     static ref INTERPOLATION_START_TOKEN: Regex = token(r"[{][{]"               );
-    static ref LINE:                      Regex = re(r"^(?m)[ \t]+[^ \t\n\r].*$");
+    static ref NAME:                      Regex = token(r"([a-zA-Z0-9_-]+)"      );
+    static ref PLUS:                      Regex = token(r"[+]"                   );
+    static ref STRING:                    Regex = token("\""                     );
     static ref INDENT:                    Regex = re(r"^([ \t]*)[^ \t\n\r]"     );
     static ref INTERPOLATION_START:       Regex = re(r"^[{][{]"                 );
     static ref LEADING_TEXT:              Regex = re(r"^(?m)(.+?)[{][{]"        );
+    static ref LINE:                      Regex = re(r"^(?m)[ \t]+[^ \t\n\r].*$");
     static ref TEXT:                      Regex = re(r"^(?m)(.+)"               );
   }
 
@@ -1063,6 +1071,8 @@ fn tokenize(text: &str) -> Result<Vec<Token>, Error> {
         panic!("interpolation must be closed at end of line");
       }
       (captures.at(1).unwrap(), captures.at(2).unwrap(), Eol)
+    } else if let Some(captures) = BACKTICK.captures(rest) {
+      (captures.at(1).unwrap(), captures.at(2).unwrap(), Backtick)
     } else if let Some(captures) = COLON.captures(rest) {
       (captures.at(1).unwrap(), captures.at(2).unwrap(), Colon)
     } else if let Some(captures) = PLUS.captures(rest) {
@@ -1312,6 +1322,7 @@ impl<'a> Parser<'a> {
     let first = self.tokens.next().unwrap();
     let lhs = match first.kind {
       Name        => Expression::Variable{name: first.lexeme, token: first},
+      Backtick    => Expression::Backtick{raw: &first.lexeme[1..first.lexeme.len() - 1]},
       StringToken => {
         let raw = &first.lexeme[1..first.lexeme.len() - 1];
         let mut cooked = String::new();

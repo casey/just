@@ -1,7 +1,12 @@
 notes
 -----
 
-- save result of commands in variables: `hello`
+- save result of commands in variables
+  . backticks: `echo hello`
+  . backtick evaluation returns None inside of recipe bodies on initial evaluation
+  . when you run the recipe, then you execute it
+  . eval shebang recipes all at once, but plain recipes line by line
+  . we want to avoid executing backticks before we need them
 
 - set variables from the command line:
   . j --set build linux
