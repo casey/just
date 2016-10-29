@@ -15,6 +15,7 @@ build:
 
 publish: clippy build
 	# make sure version is up to date
+	git diff --no-ext-diff --quiet --exit-code
 	grep 'version("'`sed -En 's/version = "([^"]+)"/\1/p' Cargo.toml`'")' src/app.rs
 	git push github master:master
 	cargo publish
