@@ -198,3 +198,19 @@ recipe:
     "Recipe \"recipe\" failed with exit code 100\n",
   );
 }
+
+#[test]
+fn error() {
+  integration_test(
+    "error",
+    &[],
+    "bar:\nhello:\nfoo: bar baaaaaaaz hello",
+    255,
+    "",
+    "error: recipe foo has unknown dependency baaaaaaaz
+  |
+3 | foo: bar baaaaaaaz hello
+  |          ^^^^^^^^^
+",
+  );
+}

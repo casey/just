@@ -479,7 +479,7 @@ impl<'a, T: Display> Display for Or<'a, T> {
 
 impl<'a> Display for Error<'a> {
   fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-    try!(write!(f, "justfile:{}: ", self.line));
+    try!(write!(f, "error: "));
     
     match self.kind {
       ErrorKind::BadName{name} => {
@@ -487,7 +487,7 @@ impl<'a> Display for Error<'a> {
       }
       ErrorKind::CircularRecipeDependency{recipe, ref circle} => {
         if circle.len() == 2 {
-          try!(write!(f, "recipe {} depends on itself", recipe));
+          try!(write!(f, "recipe {} depends on itself:", recipe));
         } else {
           try!(write!(f, "recipe {} has circular dependency: {}", recipe, circle.join(" -> ")));
         }
@@ -556,9 +556,15 @@ impl<'a> Display for Error<'a> {
     }
 
     match self.text.lines().nth(self.line) {
-      Some(line) => try!(write!(f, "{}", line)),
+      Some(line) => {
+        let line_number_width = self.line.to_string().len();
+        try!(write!(f, "{0:1$} |\n", "", line_number_width));
+        try!(write!(f, "{} | {}\n", self.line + 1, line));
+        try!(write!(f, "{0:1$} |", "", line_number_width));
+        try!(write!(f, " {0:1$}{2:^<3$}", "", self.column, "", self.width.unwrap_or(0)));
+      },
       None => if self.index != self.text.len() {
-        try!(write!(f, "internal error: Error has invalid line number: {}", self.line))
+        try!(write!(f, "internal error: Error has invalid line number: {}", self.line + 1))
       },
     };
 

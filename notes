@@ -1,9 +1,6 @@
 notes
 -----
 
-- integration testing
-  . underline problem token in error messages
-
 - figure out argument passing:
   . flag:        j build --set a=hello
   . by export:   A=HELLO j build
