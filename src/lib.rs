@@ -483,46 +483,46 @@ impl<'a> Display for Error<'a> {
     
     match self.kind {
       ErrorKind::BadName{name} => {
-         try!(writeln!(f, "name did not match /[a-z](-?[a-z0-9])*/: {}", name));
+         try!(writeln!(f, "name `{}` did not match /[a-z](-?[a-z0-9])*/", name));
       }
       ErrorKind::CircularRecipeDependency{recipe, ref circle} => {
         if circle.len() == 2 {
-          try!(write!(f, "recipe {} depends on itself:", recipe));
+          try!(write!(f, "recipe `{}` depends on itself", recipe));
         } else {
-          try!(write!(f, "recipe {} has circular dependency: {}", recipe, circle.join(" -> ")));
+          try!(write!(f, "recipe `{}` has circular dependency `{}`", recipe, circle.join(" -> ")));
         }
         return Ok(());
       }
       ErrorKind::CircularVariableDependency{variable, ref circle} => {
-        try!(write!(f, "assignment to {} has circular dependency: {}", variable, circle.join(" -> ")));
+        try!(write!(f, "assignment to `{}` has circular dependency: `{}`", variable, circle.join(" -> ")));
         return Ok(());
       }
       ErrorKind::InvalidEscapeSequence{character} => {
-        try!(writeln!(f, "\\{}", character.escape_default().collect::<String>()));
+        try!(writeln!(f, "`\\{}` is not a valid escape sequence", character.escape_default().collect::<String>()));
       }
       ErrorKind::DuplicateArgument{recipe, argument} => {
-        try!(writeln!(f, "recipe {} has duplicate argument: {}", recipe, argument));
+        try!(writeln!(f, "recipe `{}` has duplicate argument `{}`", recipe, argument));
       }
       ErrorKind::DuplicateVariable{variable} => {
-        try!(writeln!(f, "variable \"{}\" is has multiple definitions", variable));
+        try!(writeln!(f, "variable `{}` is has multiple definitions", variable));
       }
       ErrorKind::UnexpectedToken{ref expected, found} => {
         try!(writeln!(f, "expected {} but found {}", Or(expected), found));
       }
       ErrorKind::DuplicateDependency{recipe, dependency} => {
-        try!(writeln!(f, "recipe {} has duplicate dependency: {}", recipe, dependency));
+        try!(writeln!(f, "recipe `{}` has duplicate dependency `{}`", recipe, dependency));
       }
       ErrorKind::DuplicateRecipe{recipe, first} => {
-        try!(write!(f, "duplicate recipe: {} appears on lines {} and {}", 
+        try!(write!(f, "recipe `{}` first defined on line {} is redefined on line {}", 
                     recipe, first, self.line));
         return Ok(());
       }
       ErrorKind::ArgumentShadowsVariable{argument} => {
-        try!(writeln!(f, "argument {} shadows variable of the same name", argument));
+        try!(writeln!(f, "argument `{}` shadows variable of the same name", argument));
       }
       ErrorKind::MixedLeadingWhitespace{whitespace} => {
         try!(writeln!(f,
-          "found a mix of tabs and spaces in leading whitespace: {}\n leading whitespace may consist of tabs or spaces, but not both",
+          "found a mix of tabs and spaces in leading whitespace: `{}`\n leading whitespace may consist of tabs or spaces, but not both",
           show_whitespace(whitespace)
         ));
       }
@@ -531,18 +531,18 @@ impl<'a> Display for Error<'a> {
       }
       ErrorKind::InconsistentLeadingWhitespace{expected, found} => {
         try!(writeln!(f,
-          "inconsistant leading whitespace: recipe started with \"{}\" but found line with \"{}\":",
+          "inconsistant leading whitespace: recipe started with `{}` but found line with `{}`:",
           show_whitespace(expected), show_whitespace(found)
         ));
       }
       ErrorKind::OuterShebang => {
-        try!(writeln!(f, "a shebang \"#!\" is reserved syntax outside of recipes"))
+        try!(writeln!(f, "a shebang `#!` is reserved syntax outside of recipes"))
       }
       ErrorKind::UnknownDependency{recipe, unknown} => {
-        try!(writeln!(f, "recipe {} has unknown dependency {}", recipe, unknown));
+        try!(writeln!(f, "recipe `{}` has unknown dependency `{}`", recipe, unknown));
       }
       ErrorKind::UnknownVariable{variable} => {
-        try!(writeln!(f, "variable \"{}\" is unknown", variable));
+        try!(writeln!(f, "variable `{}` is unknown", variable));
       }
       ErrorKind::UnknownStartOfToken => {
         try!(writeln!(f, "unknown start of token:"));

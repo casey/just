@@ -207,7 +207,7 @@ fn error() {
     "bar:\nhello:\nfoo: bar baaaaaaaz hello",
     255,
     "",
-    "error: recipe foo has unknown dependency baaaaaaaz
+    "error: recipe `foo` has unknown dependency `baaaaaaaz`
   |
 3 | foo: bar baaaaaaaz hello
   |          ^^^^^^^^^
