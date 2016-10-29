@@ -13,8 +13,3 @@ clap = "^2.0.0"
 tempdir = "^0.3.5"
 lazy_static = "^0.2.1"
 brev = "^0.1.6"
-
-[[test]]
-
-name = "integration"
-path = "src/integration.rs"

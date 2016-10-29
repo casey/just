@@ -1,5 +1,8 @@
 #[cfg(test)]
-mod tests;
+mod unit;
+
+#[cfg(test)]
+mod integration;
 
 mod app;
 

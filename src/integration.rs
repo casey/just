@@ -2,7 +2,7 @@ extern crate tempdir;
 extern crate brev;
 
 use tempdir::TempDir;
-use std::process::Command;
+use super::std::process::Command;
 
 fn integration_test(
   name:            &str,
@@ -17,7 +17,7 @@ fn integration_test(
   let mut path = tmp.path().to_path_buf();
   path.push("justfile");
   brev::dump(path, justfile);
-  let mut binary = std::env::current_dir().unwrap();
+  let mut binary = super::std::env::current_dir().unwrap();
   binary.push("./target/debug/j");
   let output = Command::new(binary)
     .current_dir(tmp.path())
@@ -33,15 +33,15 @@ fn integration_test(
     failure = true;
   }
 
-  let stdout = std::str::from_utf8(&output.stdout).unwrap();
+  let stdout = super::std::str::from_utf8(&output.stdout).unwrap();
   if stdout != expected_stdout {
-    println!("bad stdout: {:?} != {:?}", stdout, expected_stdout);
+    println!("bad stdout:\ngot:\n{}\n\nexpected:\n{}", stdout, expected_stdout);
     failure = true;
   }
 
-  let stderr = std::str::from_utf8(&output.stderr).unwrap();
+  let stderr = super::std::str::from_utf8(&output.stderr).unwrap();
   if stderr != expected_stderr {
-    println!("bad stderr: {:?} != {:?}", stderr, expected_stderr);
+    println!("bad stdout:\ngot:\n{}\n\nexpected:\n{}", stderr, expected_stderr);
     failure = true;
   }
 
@@ -155,6 +155,29 @@ recipe:
     0,
     r#"recipe:
     echo {{hello + "bar" + bar}}
+"#,
+    "",
+  );
+}
+
+#[test]
+fn debug() {
+  let text = 
+r#"hello = "foo"
+bar = hello + hello
+recipe:
+ echo {{hello + "bar" + bar}}"#;
+  integration_test(
+    "debug",
+    &["--debug"],
+    text,
+    0,
+    r#"bar = hello + hello # "foofoo"
+
+hello = "foo" # "foo"
+
+recipe:
+    echo {{hello + "bar" + bar # "foobarfoofoo"}}
 "#,
     "",
   );
