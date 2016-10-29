@@ -1,18 +1,17 @@
 notes
 -----
 
-- figure out argument passing:
-  . flag:        j build --set a=hello
-  . by export:   A=HELLO j build
-  . by export 2: BUILD.A=HELLO j build
-  . by name:     j build a=hello
-  . by position: j build hello
-  . with marker: j build hello : clean hello :
-  . after --   : j build -- foo baz
-  . fast errors when arguments are missing
-  . could also allow this to override variables
-    although maybe only after a '--': j build -- a=hello
+- arguments:
+  . change evaluate_expression to evaluate_lines
+  . fast errors when arguments are not passed
+  . don't assume that argument count is correct
+  . don't unwrap errors in evaluate line
   . sub arguments into recipes
+
+- save result of commands in variables: `hello`
+
+- set variables from the command line: j --set build linux
+
 
 - before release:
 
@@ -56,15 +55,12 @@ notes
 enhancements:
 
 - colored error messages
-- save result of commands in variables
 - multi line strings (maybe not in recipe interpolations)
-- raw strings
+- raw strings with ''
 - iteration: {{x for x in y}}
 - allow calling recipes in a justfile in a different directory:
   . just ../foo  # ../justfile:foo
   . just xyz/foo # xyz/justfile:foo
   . just xyz/    # xyz/justfile:DEFAULT
 - allow setting and exporting environment variables
-- indentation or slash for line continuation
-- figure out some way to allow changing directories in
-  plain recipes
+- indentation or slash for line continuation in plain recipes

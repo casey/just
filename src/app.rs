@@ -45,7 +45,7 @@ pub fn app() {
          .long("justfile")
          .takes_value(true)
          .help("Use <justfile> as justfile. --working-directory must also be set"))
-    .arg(Arg::with_name("recipe")
+    .arg(Arg::with_name("arguments")
          .multiple(true)
          .help("recipe(s) to run, defaults to the first recipe in the justfile"))
     .get_matches();
@@ -123,15 +123,15 @@ pub fn app() {
     }
   }
 
-  let names = if let Some(names) = matches.values_of("recipe") {
-    names.collect::<Vec<_>>()
-  } else if let Some(name) = justfile.first() {
-    vec![name]
+  let arguments = if let Some(arguments) = matches.values_of("arguments") {
+    arguments.collect::<Vec<_>>()
+  } else if let Some(recipe) = justfile.first() {
+    vec![recipe]
   } else {
     die!("Justfile contains no recipes");
   };
 
-  if let Err(run_error) = justfile.run(&names) {
+  if let Err(run_error) = justfile.run(&arguments) {
     warn!("{}", run_error);
     process::exit(if let super::RunError::Code{code, ..} = run_error { code } else { -1 });
   }

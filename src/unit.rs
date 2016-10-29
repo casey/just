@@ -339,6 +339,19 @@ fn argument_shadows_varible() {
 }
 
 #[test]
+fn dependency_with_arguments() {
+  let text = "foo arg:\nb: foo";
+  parse_error(text, Error {
+    text:   text,
+    index:  12,
+    line:   1,
+    column: 3,
+    width:  Some(3),
+    kind:   ErrorKind::DependencyHasArguments{recipe: "b", dependency: "foo"}
+  });
+}
+
+#[test]
 fn duplicate_dependency() {
   let text = "a b c: b c z z";
   parse_error(text, Error {
@@ -442,6 +455,16 @@ fn string_escapes() {
   parse_summary(
             r#"a = "\n\t\r\"\\""#,
     concat!(r#"a = "\n\t\r\"\\" "#, "# \"\n\t\r\"\\\"")
+  );
+}
+
+#[test]
+fn arguments() {
+  parse_summary(
+"a b c:
+  {{b}} {{c}}",
+"a b c:
+    {{b # ? }} {{c # ? }}",
   );
 }
 
@@ -640,7 +663,7 @@ fn unknown_second_interpolation_variable() {
 }
 
 #[test]
-fn run_order() {
+fn tokenize_order() {
   let text = r"
 b: a
   @mv a b
@@ -655,15 +678,6 @@ d: c
 c: b
   @mv b c";
   tokenize_success(text, "$N:N$>^_$$<N:$>^_$^_$$<N:N$>^_$$<N:N$>^_<.");
-}
-
-#[test]
-fn run_arguments_not_supported() {
-  let text = "a foo:";
-  match parse_success(text).run(&["a"]) {
-    Err(super::RunError::MissingArguments) => {}
-    result => panic!("Expecting MissingArguments from run() but got {:?}", result),
-  }
 }
 
 #[test]
@@ -703,3 +717,19 @@ fn code_error() {
     other @ _ => panic!("expected a code run error, but got: {}", other),
   }
 }
+
+#[test]
+fn run_args() {
+  let text = r#"
+a return code:
+ @function x { {{return}} {{code + "0"}}; }; x"#;
+
+  match parse_success(text).run(&["a", "return", "15"]).unwrap_err() {
+    super::RunError::Code{recipe, code} => {
+      assert_eq!(recipe, "a");
+      assert_eq!(code, 150);
+    },
+    other => panic!("expected an code run error, but got: {}", other),
+  }
+}
+

@@ -1,11 +1,8 @@
-test:
+test: build
 	cargo test --lib
 
 test-quine:
 	cargo run -- quine clean
-
-test-integ:
-	cargo run -- --justfile integration-tests/justfile --working-directory integration-tests
 
 backtrace:
 	RUST_BACKTRACE=1 cargo test --lib
