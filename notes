@@ -3,7 +3,13 @@ notes
 
 - save result of commands in variables
   . backticks: `echo hello`
-  . backtick evaluation returns None inside of recipe bodies on initial evaluation
+  . backticks in assignments are evaluated before the first recipe is run
+  . backticks in recipes are evaluated before that recipe is run
+  . should i do deferred evaluation for everything and just resolve initially?
+  . should i merge evaluator into Justfile?
+  . backtick evaluation returns None initially
+  . justfile.run() evaluates all backticks in assignments
+  . should i have a resolve step and an deval step? should they be different code?
   . when you run the recipe, then you execute it
   . eval shebang recipes all at once, but plain recipes line by line
   . we want to avoid executing backticks before we need them
