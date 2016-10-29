@@ -13,7 +13,7 @@ backtrace:
 build:
 	cargo build
 
-publish: clippy
+publish: clippy build
 	# make sure version is up to date
 	grep 'version("'`sed -En 's/version = "([^"]+)"/\1/p' Cargo.toml`'")' src/app.rs
 	git push github master:master
