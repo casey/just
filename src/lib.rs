@@ -480,14 +480,14 @@ impl<'a, T: Display> Display for Or<'a, T> {
 impl<'a> Display for Error<'a> {
   fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
     try!(write!(f, "justfile:{}: ", self.line));
-
+    
     match self.kind {
       ErrorKind::BadName{name} => {
          try!(writeln!(f, "name did not match /[a-z](-?[a-z0-9])*/: {}", name));
       }
       ErrorKind::CircularRecipeDependency{recipe, ref circle} => {
         if circle.len() == 2 {
-          try!(write!(f, "recipe 1{} depends on itself", recipe));
+          try!(write!(f, "recipe {} depends on itself", recipe));
         } else {
           try!(write!(f, "recipe {} has circular dependency: {}", recipe, circle.join(" -> ")));
         }

@@ -20,6 +20,9 @@ notes
 - before release:
 
 - rewrite grammar.txt
+- start with an example justfile
+- then installation instructions
+- then a long guide
 - make it clear it's beta, mention that, as a command runner
   there is probably a higher than normal chance of disaster
 - change name back to 'just', suggest j as alias
@@ -55,8 +58,9 @@ notes
 
 enhancements:
 
+- colored error messages
 - save result of commands in variables
-- multi line strings
+- multi line strings (maybe not in recipe interpolations)
 - raw strings
 - iteration: {{x for x in y}}
 - allow calling recipes in a justfile in a different directory:
