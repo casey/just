@@ -1,6 +1,12 @@
 notes
 -----
 
+- deferred evaluation, even though it's good for testing, is a bad idea
+  i should have a resolve assignments phase which just checks,
+  an evaluate assignments phase which runs before any recipe
+  and a evaluate recipe phase that runs when a recipe is run
+  and produces the evaluated lines
+
 - save result of commands in variables
   . backticks: `echo hello`
   . backticks in assignments are evaluated before the first recipe is run
@@ -13,6 +19,8 @@ notes
   . when you run the recipe, then you execute it
   . eval shebang recipes all at once, but plain recipes line by line
   . we want to avoid executing backticks before we need them
+
+- nicely convert a map to option string to a map to string
 
 - set variables from the command line:
   . j --set build linux
@@ -61,6 +69,7 @@ notes
 
 enhancements:
 
+- use cow strings where we currently use String
 - colored error messages
 - multi line strings (maybe not in recipe interpolations)
 - raw strings with ''
