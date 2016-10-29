@@ -733,3 +733,26 @@ a return code:
   }
 }
 
+#[test]
+fn missing_args() {
+  match parse_success("a b c d:").run(&["a", "b", "c"]).unwrap_err() {
+    super::RunError::ArgumentCountMismatch{recipe, found, expected} => {
+      assert_eq!(recipe, "a");
+      assert_eq!(found, 2);
+      assert_eq!(expected, 3);
+    },
+    other => panic!("expected an code run error, but got: {}", other),
+  }
+}
+
+#[test]
+fn missing_default() {
+  match parse_success("a b c d:\n echo {{b}}{{c}}{{d}}").run(&["a"]).unwrap_err() {
+    super::RunError::ArgumentCountMismatch{recipe, found, expected} => {
+      assert_eq!(recipe, "a");
+      assert_eq!(found, 0);
+      assert_eq!(expected, 3);
+    },
+    other => panic!("expected an code run error, but got: {}", other),
+  }
+}

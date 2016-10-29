@@ -135,31 +135,24 @@ fn error_from_signal(recipe: &str, exit_status: process::ExitStatus) -> RunError
 
 impl<'a> Recipe<'a> {
   fn run(&self, arguments: &[&'a str], scope: &BTreeMap<&'a str, String>) -> Result<(), RunError<'a>> {
-    let mut evaluated_lines = vec![];
-    for fragments in &self.lines {
-      let mut line = String::new();
-      for fragment in fragments.iter() {
-        match *fragment {
-          Fragment::Text{ref text} => line += text.lexeme,
-          Fragment::Expression{value: Some(ref value), ..} => {
-            line += &value;
-          }
-          Fragment::Expression{ref expression, value: None} => {
-            let mut arg_map = BTreeMap::new();
-            for (i, argument) in arguments.iter().enumerate() {
-              arg_map.insert(*self.arguments.get(i).unwrap(), *argument);
-            }
-            line += &evaluate_expression(
-              expression,
-              &scope,
-              &BTreeMap::new(),
-              &BTreeMap::new(),
-              &arg_map,
-            ).unwrap().unwrap();
-          }
-        }
+    let mut arg_map = BTreeMap::new();
+    for (i, argument) in arguments.iter().enumerate() {
+      arg_map.insert(*self.arguments.get(i).unwrap(), Some(*argument));
+    }
+
+    let evaluated_lines;
+    match evaluate_lines(&self.lines, &scope, &arg_map) {
+      Err(error) => {
+        return Err(RunError::InternalError {
+          message: format!("deferred evaluation failed {}", error),
+        });
       }
-      evaluated_lines.push(line);
+      Ok(None) => {
+        return Err(RunError::InternalError {
+          message: "deferred evaluation returned None".to_string(),
+        });
+      }
+      Ok(Some(lines)) => evaluated_lines = lines,
     }
 
     if self.shebang {
@@ -377,26 +370,42 @@ fn evaluate<'a>(
   Ok(evaluated)
 }
 
-fn evaluate_expression<'a: 'b, 'b> (
-  expression:        &Expression<'a>,
-  scope:             &BTreeMap<&'a str, String>,
-  assignments:       &'b BTreeMap<&'a str, Expression<'a>>,
-  assignment_tokens: &'b BTreeMap<&'a str, Token<'a>>,
-  arguments:         &BTreeMap<&str, &str>,
-) -> Result<Option<String>, Error<'a>> {
+fn evaluate_lines<'a>(
+  lines:     &Vec<Vec<Fragment<'a>>>,
+  scope:     &BTreeMap<&'a str, String>,
+  arguments: &BTreeMap<&str, Option<&str>>
+) -> Result<Option<Vec<String>>, Error<'a>> {
   let mut evaluator = Evaluator{
     seen:              HashSet::new(),
     stack:             vec![],
     evaluated:         &mut BTreeMap::new(),
     scope:             scope,
-    assignments:       assignments,
-    assignment_tokens: assignment_tokens,
+    assignments:       &BTreeMap::new(),
+    assignment_tokens: &BTreeMap::new(),
   };
-  let mut argument_options = BTreeMap::new();
-  for (name, value) in arguments.iter() {
-    argument_options.insert(*name, Some(*value));
+
+  let mut evaluated_lines = vec![];
+  for fragments in lines {
+    let mut line = String::new();
+    for fragment in fragments.iter() {
+      match *fragment {
+        Fragment::Text{ref text} => line += text.lexeme,
+        Fragment::Expression{value: Some(ref value), ..} => {
+          line += &value;
+        }
+        Fragment::Expression{ref expression, value: None} => {
+          if let Some(value) = try!(evaluator.evaluate_expression(expression, &arguments)) {
+            line += &value;
+          } else {
+            return Ok(None);
+          }
+        }
+      }
+    }
+    evaluated_lines.push(line);
   }
-  evaluator.evaluate_expression(expression, &argument_options)
+
+  Ok(Some(evaluated_lines))
 }
 
 struct Evaluator<'a: 'b, 'b> {
@@ -777,6 +786,7 @@ enum RunError<'a> {
   UnknownFailure{recipe: &'a str},
   IoError{recipe: &'a str, io_error: io::Error},
   TmpdirIoError{recipe: &'a str, io_error: io::Error},
+  InternalError{message: String},
 }
 
 impl<'a> Display for RunError<'a> {
@@ -815,6 +825,9 @@ impl<'a> Display for RunError<'a> {
       },
       RunError::TmpdirIoError{recipe, ref io_error} =>
         try!(write!(f, "Recipe \"{}\" could not be run because of an IO error while trying to create a temporary directory or write a file to that directory`:\n{}", recipe, io_error)),
+      RunError::InternalError{ref message} => {
+        try!(writeln!(f, "internal error, this may indicate a bug in j: {}\n consider filing an issue: https://github.com/casey/j/issues/new", message));
+      }
     }
     Ok(())
   }

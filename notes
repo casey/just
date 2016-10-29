@@ -1,20 +1,16 @@
 notes
 -----
 
-- arguments:
-  . change evaluate_expression to evaluate_lines
-  . fast errors when arguments are not passed
-  . don't assume that argument count is correct
-  . don't unwrap errors in evaluate line
-  . sub arguments into recipes
-
 - save result of commands in variables: `hello`
 
-- set variables from the command line: j --set build linux
-
+- set variables from the command line:
+  . j --set build linux
+  . j build=linux
 
 - before release:
 
+- where can users get help?
+  - irc, email, github, mailing list
 - rewrite grammar.txt
 - start with an example justfile
 - then installation instructions
