@@ -11,6 +11,8 @@ todo
   . just xyz/    # xyz/justfile:DEFAULT
   . path prefix is starting dir, so just ../foo can run ../../justfile:foo
   . how does this interact with a=b/hello?
+  . can you use more than one path this way?
+  . do we just recursively invoke just for each?
 
 - change name back to 'just', suggest j as alias
 
@@ -50,3 +52,4 @@ todo
   . facebook friends
   . irc
   . r/rust
+  . hacker news

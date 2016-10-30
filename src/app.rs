@@ -23,7 +23,7 @@ macro_rules! die {
 
 pub fn app() {
   let matches = App::new("j")
-    .version("0.2.8")
+    .version("0.2.9")
     .author("Casey Rodarmor <casey@rodarmor.com>")
     .about("Just a command runner - https://github.com/casey/j")
     .arg(Arg::with_name("list")
