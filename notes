@@ -1,70 +1,58 @@
 todo
 ----
 
-before release
---------------
-
-- where can users get help?
-  - irc, email, github, mailing list
-- rewrite grammar.txt
-- start with an example justfile
-- then installation instructions
-- then a long guide
-- make it clear it's beta, mention that, as a command runner
-  there is probably a higher than normal chance of disaster
-- change name back to 'just', suggest j as alias
-- change description to "a polyglot command runner"?
-- update readme
-- document all code, including private stuff
-  (can this be enforced with a lint?)
-  #![deny(missing_docs)]
-- note that shell is invoked with -cu, explain -c and -u
-- document all features with example justfiles
-  (also make them runnable as tests, maybe, at least parse them)
-  . update tarball dep
-  . check version string
-  . clean
-  . update logs (repetitive git flow)
-- full documentation
-  . man page
-  . record sessions and replay them to output docs
-  . talk about why the syntax is so unforgiving
-    easier to accept a program that you once rejected than to
-    no longer accept a program or change its meaning
-  . habit of using clever commands and writing little scripts
-  . debugging with --debug or --evaluate
-  . `` strips a single newline
-  . very low friction to write a script (no new file, chmod, add to rcs)
-  . make list of contributors, include travis
-  . alias .j='just --justfile ~/.justfile --working-directory ~'
-  . lay out the structure of the code, mention tests, give tips
-    for contributing
-- vim and emacs syntax hilighting (use makefile syntax hilighting for now)
-- make sure there isn't any unused code
-- ask users to contribute their justfiles as tests
-- try to get some users
-  . facebook friends
-  . irc
-  . r/rust
-
-enhancements
-------------
-
-- lazy assignment: don't evaluate unused assignments
-- use cow strings where we currently use String
-- colored error messages
-- multi line strings (maybe not in recipe interpolations)
-- raw strings with ''
-- iteration: {{x for x in y}}
-- allow calling recipes in a justfile in a different directory:
-  . just ../foo  # ../justfile:foo
-  . just xyz/foo # xyz/justfile:foo
-  . just xyz/    # xyz/justfile:DEFAULT
-  . path prefix is starting dir, so just ../foo can run ../../justfile:foo
 - allow setting and exporting environment variables
   . export a as "HELLO_BAR"
   . export a
   . export HELLO_BAR = a
   . export CC_FLAGS = "-g"
-  . will have to support crazy names
+
+- raw strings with ''
+- multi line strings (not in recipe interpolations)
 - indentation or slash for line continuation in plain recipes
+
+- allow calling recipes in a justfile in a different directory:
+  . just ../foo  # ../justfile:foo
+  . just xyz/foo # xyz/justfile:foo
+  . just xyz/    # xyz/justfile:DEFAULT
+  . path prefix is starting dir, so just ../foo can run ../../justfile:foo
+  . how does this interact with a=b/hello?
+
+- change name back to 'just', suggest j as alias
+
+- readme:
+  . start with an example justfile
+  . make it clear it's beta, mention that, as a command runner
+    there is probably a higher than normal chance of disaster
+  . installation instructions
+  . long guide
+  . talk about all command line flags
+  . vim and emacs syntax hilighting (use makefile syntax hilighting for now)
+  . `` strips a single newline
+  . habit of using clever commands and writing little scripts
+  . alias .j='just --justfile ~/.justfile --working-directory ~'
+  . very low friction to write a script (no new file, chmod, add to rcs)
+  . note that shell is invoked with -u
+  . users can email me for help
+  . make list of contributors, include travis
+  . ask users to contribute their justfiles as tests
+  . please open an issue for feature requests
+
+- big example justfile
+  . justfile.example
+  . lots of comments
+  . parse them
+  . update tarball dep
+  . check version string
+  . clean
+  . update logs (repetitive git flow)
+  . quine
+
+- rewrite grammar.txt
+
+- try to get some users
+  . travis
+  . recurse center
+  . facebook friends
+  . irc
+  . r/rust
