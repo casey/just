@@ -167,7 +167,7 @@ fn run_backtick<'a>(raw: &str, _token: &Token<'a>) -> Result<String, RunError<'a
         return Err(backtick_error_from_signal(output.status));
       }
       match std::str::from_utf8(&output.stdout) {
-        Err(error) => return Err(RunError::BacktickUtf8Error{utf8_error: error}),
+        Err(error) => Err(RunError::BacktickUtf8Error{utf8_error: error}),
         Ok(utf8) => {
           Ok(if utf8.ends_with('\n') {
             &utf8[0..utf8.len()-1]
