@@ -2,7 +2,7 @@ extern crate tempdir;
 
 use super::{Token, Error, ErrorKind, Justfile, RunError};
 use super::TokenKind::*;
-use std::collections::BTreeMap;
+use std::collections::BTreeMap as Map;
 
 fn tokenize_success(text: &str, expected_summary: &str) {
   let tokens = super::tokenize(text).unwrap();
@@ -579,7 +579,7 @@ fn conjoin_and() {
 
 #[test]
 fn unknown_recipes() {
-  match parse_success("a:\nb:\nc:").run(&BTreeMap::new(), &["a", "x", "y", "z"], false, false).unwrap_err() {
+  match parse_success("a:\nb:\nc:").run(&Map::new(), &["a", "x", "y", "z"], false, false).unwrap_err() {
     RunError::UnknownRecipes{recipes} => assert_eq!(recipes, &["x", "y", "z"]),
     other => panic!("expected an unknown recipe error, but got: {}", other),
   }
@@ -601,49 +601,6 @@ fn extra_whitespace() {
 
   // extra leading whitespace is okay in a shebang recipe
   parse_success("a:\n #!\n  print(1)");
-}
-
-#[test]
-fn bad_recipe_names() {
-  // We are extra strict with names. Although the tokenizer
-  // will tokenize anything that matches /[a-zA-Z0-9_-]+/
-  // as a name, we throw an error if names do not match
-  // / [a-z](-?[a-z])* /. This is to support future expansion
-  // of justfile and command line syntax.
-  fn bad_name(text: &str, name: &str, index: usize, line: usize, column: usize) {
-    parse_error(text, Error {
-      text:   text,
-      index:  index,
-      line:   line,
-      column: column,
-      width:  Some(name.len()),
-      kind:   ErrorKind::BadName{name: name}
-    });
-  }
-
-  bad_name("-a",     "-a",   0, 0, 0);
-  bad_name("_a",     "_a",   0, 0, 0);
-  bad_name("a-",     "a-",   0, 0, 0);
-  bad_name("a_",     "a_",   0, 0, 0);
-  bad_name("a__a",   "a__a", 0, 0, 0);
-  bad_name("a--a",   "a--a", 0, 0, 0);
-  bad_name("a: a--", "a--",  3, 0, 3);
-  bad_name("a: 9a",  "9a",   3, 0, 3);
-  bad_name("a: 9a",  "9a",   3, 0, 3);
-  bad_name("a:\nZ:", "Z",    3, 1, 0);
-}
-
-#[test]
-fn bad_interpolation_variable_name() {
-  let text = "a:\n echo {{hello--hello}}";
-  parse_error(text, Error {
-    text:   text,
-    index:  11,
-    line:   1,
-    column: 8,
-    width:  Some(12),
-    kind:   ErrorKind::BadName{name: "hello--hello"}
-  });
 }
 
 #[test]
@@ -747,7 +704,7 @@ a:
  x
 ";
 
-  match parse_success(text).run(&BTreeMap::new(), &["a"], false, false).unwrap_err() {
+  match parse_success(text).run(&Map::new(), &["a"], false, false).unwrap_err() {
     RunError::Code{recipe, code} => {
       assert_eq!(recipe, "a");
       assert_eq!(code, 200);
@@ -758,7 +715,7 @@ a:
 
 #[test]
 fn code_error() {
-  match parse_success("fail:\n @function x { return 100; }; x").run(&BTreeMap::new(), &["fail"], false, false).unwrap_err() {
+  match parse_success("fail:\n @function x { return 100; }; x").run(&Map::new(), &["fail"], false, false).unwrap_err() {
     RunError::Code{recipe, code} => {
       assert_eq!(recipe, "fail");
       assert_eq!(code, 100);
@@ -773,7 +730,7 @@ fn run_args() {
 a return code:
  @function x { {{return}} {{code + "0"}}; }; x"#;
 
-  match parse_success(text).run(&BTreeMap::new(), &["a", "return", "15"], false, false).unwrap_err() {
+  match parse_success(text).run(&Map::new(), &["a", "return", "15"], false, false).unwrap_err() {
     RunError::Code{recipe, code} => {
       assert_eq!(recipe, "a");
       assert_eq!(code, 150);
@@ -784,7 +741,7 @@ a return code:
 
 #[test]
 fn missing_args() {
-  match parse_success("a b c d:").run(&BTreeMap::new(), &["a", "b", "c"], false, false).unwrap_err() {
+  match parse_success("a b c d:").run(&Map::new(), &["a", "b", "c"], false, false).unwrap_err() {
     RunError::ArgumentCountMismatch{recipe, found, expected} => {
       assert_eq!(recipe, "a");
       assert_eq!(found, 2);
@@ -796,7 +753,7 @@ fn missing_args() {
 
 #[test]
 fn missing_default() {
-  match parse_success("a b c d:\n echo {{b}}{{c}}{{d}}").run(&BTreeMap::new(), &["a"], false, false).unwrap_err() {
+  match parse_success("a b c d:\n echo {{b}}{{c}}{{d}}").run(&Map::new(), &["a"], false, false).unwrap_err() {
     RunError::ArgumentCountMismatch{recipe, found, expected} => {
       assert_eq!(recipe, "a");
       assert_eq!(found, 0);
@@ -808,7 +765,7 @@ fn missing_default() {
 
 #[test]
 fn backtick_code() {
-  match parse_success("a:\n echo {{`function f { return 100; }; f`}}").run(&BTreeMap::new(), &["a"], false, false).unwrap_err() {
+  match parse_success("a:\n echo {{`function f { return 100; }; f`}}").run(&Map::new(), &["a"], false, false).unwrap_err() {
     RunError::BacktickCode{code, token} => {
       assert_eq!(code, 100);
       assert_eq!(token.lexeme, "`function f { return 100; }; f`");
@@ -819,7 +776,7 @@ fn backtick_code() {
 
 #[test]
 fn unknown_overrides() {
-  let mut overrides = BTreeMap::new();
+  let mut overrides = Map::new();
   overrides.insert("foo", "bar");
   overrides.insert("baz", "bob");
   match parse_success("a:\n echo {{`function f { return 100; }; f`}}")

@@ -16,9 +16,9 @@ extern crate tempdir;
 use std::io::prelude::*;
 
 use std::{fs, fmt, process, io};
-use std::collections::{BTreeMap, HashSet};
 use std::fmt::Display;
 use regex::Regex;
+use std::collections::{BTreeMap as Map, BTreeSet as Set};
 
 use std::os::unix::fs::PermissionsExt;
 
@@ -188,17 +188,17 @@ impl<'a> Recipe<'a> {
   fn run(
     &self,
     arguments: &[&'a str],
-    scope:     &BTreeMap<&'a str, String>,
+    scope:     &Map<&'a str, String>,
     dry_run:   bool,
   ) -> Result<(), RunError<'a>> {
     let argument_map = arguments .iter().enumerate()
       .map(|(i, argument)| (self.arguments[i], *argument)).collect();
 
     let mut evaluator = Evaluator {
-      evaluated:   BTreeMap::new(),
+      evaluated:   Map::new(),
       scope:       scope,
-      assignments: &BTreeMap::new(),
-      overrides:   &BTreeMap::new(),
+      assignments: &Map::new(),
+      overrides:   &Map::new(),
     };
 
     if self.shebang {
@@ -339,14 +339,14 @@ impl<'a> Display for Recipe<'a> {
 }
 
 fn resolve_recipes<'a>(
-  recipes:     &BTreeMap<&'a str, Recipe<'a>>,
-  assignments: &BTreeMap<&'a str, Expression<'a>>,
+  recipes:     &Map<&'a str, Recipe<'a>>,
+  assignments: &Map<&'a str, Expression<'a>>,
   text:        &'a str,
 ) -> Result<(), Error<'a>> {
   let mut resolver = Resolver {
-    seen:              HashSet::new(),
+    seen:              Set::new(),
     stack:             vec![],
-    resolved:          HashSet::new(),
+    resolved:          Set::new(),
     recipes:           recipes,
   };
   
@@ -393,9 +393,9 @@ fn resolve_recipes<'a>(
 
 struct Resolver<'a: 'b, 'b> {
   stack:    Vec<&'a str>,
-  seen:     HashSet<&'a str>,
-  resolved: HashSet<&'a str>,
-  recipes:  &'b BTreeMap<&'a str, Recipe<'a>>,
+  seen:     Set<&'a str>,
+  resolved: Set<&'a str>,
+  recipes:  &'b Map<&'a str, Recipe<'a>>,
 }
 
 impl<'a, 'b> Resolver<'a, 'b> {
@@ -433,16 +433,16 @@ impl<'a, 'b> Resolver<'a, 'b> {
 }
 
 fn resolve_assignments<'a>(
-  assignments:       &BTreeMap<&'a str, Expression<'a>>,
-  assignment_tokens: &BTreeMap<&'a str, Token<'a>>,
+  assignments:       &Map<&'a str, Expression<'a>>,
+  assignment_tokens: &Map<&'a str, Token<'a>>,
 ) -> Result<(), Error<'a>> {
 
   let mut resolver = AssignmentResolver {
     assignments:       assignments,
     assignment_tokens: assignment_tokens,
     stack:             vec![],
-    seen:              HashSet::new(),
-    evaluated:         HashSet::new(),
+    seen:              Set::new(),
+    evaluated:         Set::new(),
   };
 
   for name in assignments.keys() {
@@ -453,11 +453,11 @@ fn resolve_assignments<'a>(
 }
 
 struct AssignmentResolver<'a: 'b, 'b> {
-  assignments:       &'b BTreeMap<&'a str, Expression<'a>>,
-  assignment_tokens: &'b BTreeMap<&'a str, Token<'a>>,
+  assignments:       &'b Map<&'a str, Expression<'a>>,
+  assignment_tokens: &'b Map<&'a str, Token<'a>>,
   stack:             Vec<&'a str>,
-  seen:              HashSet<&'a str>,
-  evaluated:         HashSet<&'a str>,
+  seen:              Set<&'a str>,
+  evaluated:         Set<&'a str>,
 }
 
 impl<'a: 'b, 'b> AssignmentResolver<'a, 'b> {
@@ -507,12 +507,12 @@ impl<'a: 'b, 'b> AssignmentResolver<'a, 'b> {
 }
 
 fn evaluate_assignments<'a>(
-  assignments: &BTreeMap<&'a str, Expression<'a>>,
-  overrides:   &BTreeMap<&str, &str>,
-) -> Result<BTreeMap<&'a str, String>, RunError<'a>> {
+  assignments: &Map<&'a str, Expression<'a>>,
+  overrides:   &Map<&str, &str>,
+) -> Result<Map<&'a str, String>, RunError<'a>> {
   let mut evaluator = Evaluator {
-    evaluated:   BTreeMap::new(),
-    scope:       &BTreeMap::new(),
+    evaluated:   Map::new(),
+    scope:       &Map::new(),
     assignments: assignments,
     overrides:   overrides,
   };
@@ -525,17 +525,17 @@ fn evaluate_assignments<'a>(
 }
 
 struct Evaluator<'a: 'b, 'b> {
-  evaluated:   BTreeMap<&'a str, String>,
-  scope:       &'b BTreeMap<&'a str, String>,
-  assignments: &'b BTreeMap<&'a str, Expression<'a>>,
-  overrides:   &'b BTreeMap<&'b str, &'b str>,
+  evaluated:   Map<&'a str, String>,
+  scope:       &'b Map<&'a str, String>,
+  assignments: &'b Map<&'a str, Expression<'a>>,
+  overrides:   &'b Map<&'b str, &'b str>,
 }
 
 impl<'a, 'b> Evaluator<'a, 'b> {
   fn evaluate_line(
     &mut self,
     line:      &[Fragment<'a>],
-    arguments: &BTreeMap<&str, &str>
+    arguments: &Map<&str, &str>
   ) -> Result<String, RunError<'a>> {
     let mut evaluated = String::new();
     for fragment in line {
@@ -558,7 +558,7 @@ impl<'a, 'b> Evaluator<'a, 'b> {
       if let Some(value) = self.overrides.get(name) {
         self.evaluated.insert(name, value.to_string());
       } else {
-        let value = try!(self.evaluate_expression(expression, &BTreeMap::new()));
+        let value = try!(self.evaluate_expression(expression, &Map::new()));
         self.evaluated.insert(name, value);
       }
     } else {
@@ -573,7 +573,7 @@ impl<'a, 'b> Evaluator<'a, 'b> {
   fn evaluate_expression(
     &mut self,
     expression: &Expression<'a>,
-    arguments: &BTreeMap<&str, &str>
+    arguments: &Map<&str, &str>
   ) -> Result<String, RunError<'a>> {
     Ok(match *expression {
       Expression::Variable{name, ..} => {
@@ -616,7 +616,6 @@ struct Error<'a> {
 #[derive(Debug, PartialEq)]
 enum ErrorKind<'a> {
   ArgumentShadowsVariable{argument: &'a str},
-  BadName{name: &'a str},
   CircularRecipeDependency{recipe: &'a str, circle: Vec<&'a str>},
   CircularVariableDependency{variable: &'a str, circle: Vec<&'a str>},
   DependencyHasArguments{recipe: &'a str, dependency: &'a str},
@@ -698,9 +697,6 @@ impl<'a> Display for Error<'a> {
     try!(write!(f, "error: "));
     
     match self.kind {
-      ErrorKind::BadName{name} => {
-         try!(writeln!(f, "name `{}` did not match /[a-z](-?[a-z0-9])*/", name));
-      }
       ErrorKind::CircularRecipeDependency{recipe, ref circle} => {
         if circle.len() == 2 {
           try!(write!(f, "recipe `{}` depends on itself", recipe));
@@ -792,8 +788,8 @@ impl<'a> Display for Error<'a> {
 }
 
 struct Justfile<'a> {
-  recipes:     BTreeMap<&'a str, Recipe<'a>>,
-  assignments: BTreeMap<&'a str, Expression<'a>>,
+  recipes:     Map<&'a str, Recipe<'a>>,
+  assignments: Map<&'a str, Expression<'a>>,
 }
 
 impl<'a, 'b> Justfile<'a> where 'a: 'b {
@@ -821,7 +817,7 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
 
   fn run(
     &'a self,
-    overrides: &BTreeMap<&'a str, &'a str>,
+    overrides: &Map<&'a str, &'a str>,
     arguments: &[&'a str],
     dry_run:   bool,
     evaluate:  bool,
@@ -842,7 +838,7 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
       return Ok(());
     }
 
-    let mut ran = HashSet::new();
+    let mut ran = Set::new();
 
     for (i, argument) in arguments.iter().enumerate() {
       if let Some(recipe) = self.recipes.get(argument) {
@@ -885,8 +881,8 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
     &'c self,
     recipe:    &Recipe<'a>,
     arguments: &[&'a str],
-    scope:     &BTreeMap<&'c str, String>,
-    ran:       &mut HashSet<&'a str>,
+    scope:     &Map<&'c str, String>,
+    ran:       &mut Set<&'a str>,
     dry_run:   bool,
   ) -> Result<(), RunError> {
     for dependency_name in &recipe.dependencies {
@@ -1103,17 +1099,17 @@ fn token(pattern: &str) -> Regex {
 
 fn tokenize(text: &str) -> Result<Vec<Token>, Error> {
   lazy_static! {
-    static ref BACKTICK:                  Regex = token(r"`[^`\n\r]*`"           );
-    static ref COLON:                     Regex = token(r":"                     );
-    static ref COMMENT:                   Regex = token(r"#([^!].*)?$"           );
-    static ref EOF:                       Regex = token(r"(?-m)$"                );
-    static ref EOL:                       Regex = token(r"\n|\r\n"               );
-    static ref EQUALS:                    Regex = token(r"="                     );
-    static ref INTERPOLATION_END:         Regex = token(r"[}][}]"                );
-    static ref INTERPOLATION_START_TOKEN: Regex = token(r"[{][{]"               );
-    static ref NAME:                      Regex = token(r"([a-zA-Z0-9_-]+)"      );
-    static ref PLUS:                      Regex = token(r"[+]"                   );
-    static ref STRING:                    Regex = token("\""                     );
+    static ref BACKTICK:                  Regex = token(r"`[^`\n\r]*`"               );
+    static ref COLON:                     Regex = token(r":"                         );
+    static ref COMMENT:                   Regex = token(r"#([^!].*)?$"               );
+    static ref EOF:                       Regex = token(r"(?-m)$"                    );
+    static ref EOL:                       Regex = token(r"\n|\r\n"                   );
+    static ref EQUALS:                    Regex = token(r"="                         );
+    static ref INTERPOLATION_END:         Regex = token(r"[}][}]"                    );
+    static ref INTERPOLATION_START_TOKEN: Regex = token(r"[{][{]"                    );
+    static ref NAME:                      Regex = token(r"([a-zA-Z_-][a-zA-Z0-9_-]*)");
+    static ref PLUS:                      Regex = token(r"[+]"                       );
+    static ref STRING:                    Regex = token("\""                         );
     static ref INDENT:                    Regex = re(r"^([ \t]*)[^ \t\n\r]"     );
     static ref INTERPOLATION_START:       Regex = re(r"^[{][{]"                 );
     static ref LEADING_TEXT:              Regex = re(r"^(?m)(.+?)[{][{]"        );
@@ -1347,15 +1343,6 @@ fn tokenize(text: &str) -> Result<Vec<Token>, Error> {
 fn parse(text: &str) -> Result<Justfile, Error> {
   let tokens = try!(tokenize(text));
   let filtered: Vec<_> = tokens.into_iter().filter(|token| token.kind != Comment).collect();
-  if let Some(token) = filtered.iter().find(|token| {
-    lazy_static! {
-      static ref GOOD_NAME: Regex = re("^[a-z](-?[a-z0-9])*$");
-    }
-    token.kind == Name && !GOOD_NAME.is_match(token.lexeme)
-  }) {
-    return Err(token.error(ErrorKind::BadName{name: token.lexeme}));
-  }
-
   let parser = Parser{
     text: text,
     tokens: filtered.into_iter().peekable()
@@ -1563,9 +1550,10 @@ impl<'a> Parser<'a> {
   }
 
   fn file(mut self) -> Result<Justfile<'a>, Error<'a>> {
-    let mut recipes = BTreeMap::<&str, Recipe>::new();
-    let mut assignments = BTreeMap::<&str, Expression>::new();
-    let mut assignment_tokens = BTreeMap::<&str, Token<'a>>::new();
+    let mut recipes           = Map::<&str, Recipe>::new();
+    let mut assignments       = Map::<&str, Expression>::new();
+    let mut assignment_tokens = Map::<&str, Token<'a>>::new();
+    let mut exports           = Set::<&str>::new();
 
     loop {
       match self.tokens.next() {
