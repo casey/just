@@ -1,7 +1,7 @@
 notes
 -----
 
-- unit tests for as many error types as possible
+- unit tests for as many backtick error types as possible
 - integration tests for as many error types as possible, errors should underline backtick token
 - test shebang recipe `` evaluation order
   make sure that nothing happens if a `` fails on a later line
