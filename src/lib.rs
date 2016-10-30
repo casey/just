@@ -1386,16 +1386,24 @@ fn parse(text: &str) -> Result<Justfile, Error> {
   let tokens = try!(tokenize(text));
   let filtered: Vec<_> = tokens.into_iter().filter(|token| token.kind != Comment).collect();
   let parser = Parser {
-    text:   text,
-    tokens: itertools::put_back(filtered),
+    text:              text,
+    tokens:            itertools::put_back(filtered),
+    recipes:           Map::<&str, Recipe>::new(),
+    assignments:       Map::<&str, Expression>::new(),
+    assignment_tokens: Map::<&str, Token>::new(),
+    exports:           Set::<&str>::new(),
   };
   let justfile = try!(parser.file());
   Ok(justfile)
 }
 
 struct Parser<'a> {
-  text:   &'a str,
-  tokens: itertools::PutBack<std::vec::IntoIter<Token<'a>>>
+  text:              &'a str,
+  tokens:            itertools::PutBack<std::vec::IntoIter<Token<'a>>>,
+  recipes:           Map<&'a str, Recipe<'a>>,
+  assignments:       Map<&'a str, Expression<'a>>,
+  assignment_tokens: Map<&'a str, Token<'a>>,
+  exports:           Set<&'a str>,
 }
 
 impl<'a> Parser<'a> {
@@ -1445,13 +1453,20 @@ impl<'a> Parser<'a> {
     })
   }
 
-  fn recipe(&mut self, name: &'a str, line_number: usize) -> Result<Recipe<'a>, Error<'a>> {
+  fn recipe(&mut self, name: Token<'a>) -> Result<(), Error<'a>> {
+    if let Some(recipe) = self.recipes.get(name.lexeme) {
+      return Err(name.error(ErrorKind::DuplicateRecipe {
+        recipe: recipe.name,
+        first:  recipe.line_number
+      }));
+    }
+
     let mut arguments = vec![];
     let mut argument_tokens = vec![];
     while let Some(argument) = self.accept(Name) {
       if arguments.contains(&argument.lexeme) {
         return Err(argument.error(ErrorKind::DuplicateArgument{
-          recipe: name, argument: argument.lexeme
+          recipe: name.lexeme, argument: argument.lexeme
         }));
       }
       arguments.push(argument.lexeme);
@@ -1473,7 +1488,7 @@ impl<'a> Parser<'a> {
     while let Some(dependency) = self.accept(Name) {
       if dependencies.contains(&dependency.lexeme) {
         return Err(dependency.error(ErrorKind::DuplicateDependency {
-          recipe:     name,
+          recipe:     name.lexeme,
           dependency: dependency.lexeme
         }));
       }
@@ -1528,17 +1543,20 @@ impl<'a> Parser<'a> {
       }
     }
 
-    Ok(Recipe {
-      line_number:       line_number,
-      name:              name,
+    self.recipes.insert(name.lexeme, Recipe {
+      line_number:       name.line,
+      name:              name.lexeme,
       dependencies:      dependencies,
       dependency_tokens: dependency_tokens,
       arguments:         arguments,
       argument_tokens:   argument_tokens,
       lines:             lines,
       shebang:           shebang,
-    })
+    });
+
+    Ok(())
   }
+
 
   fn expression(&mut self, interpolation: bool) -> Result<Expression<'a>, Error<'a>> {
     let first = self.tokens.next().unwrap();
@@ -1594,12 +1612,20 @@ impl<'a> Parser<'a> {
     }
   }
 
-  fn file(mut self) -> Result<Justfile<'a>, Error<'a>> {
-    let mut recipes           = Map::<&str, Recipe>::new();
-    let mut assignments       = Map::<&str, Expression>::new();
-    let mut assignment_tokens = Map::<&str, Token<'a>>::new();
-    let mut exports           = Set::<&str>::new();
+  fn assignment(&mut self, name: Token<'a>, export: bool) -> Result<(), Error<'a>> {
+    if self.assignments.contains_key(name.lexeme) {
+      return Err(name.error(ErrorKind::DuplicateVariable {variable: name.lexeme}));
+    }
+    if export {
+      self.exports.insert(name.lexeme);
+    }
+    let expression = try!(self.expression(false));
+    self.assignments.insert(name.lexeme, expression);
+    self.assignment_tokens.insert(name.lexeme, name);
+    Ok(())
+  }
 
+  fn file(mut self) -> Result<Justfile<'a>, Error<'a>> {
     loop {
       match self.tokens.next() {
         Some(token) => match token.kind {
@@ -1608,40 +1634,15 @@ impl<'a> Parser<'a> {
           Name => if token.lexeme == "export" {
             let next = self.tokens.next().unwrap();
             if next.kind == Name && self.accepted(Equals) {
-              if assignments.contains_key(next.lexeme) {
-                return Err(token.error(ErrorKind::DuplicateVariable {
-                  variable: next.lexeme,
-                }));
-              }
-              exports.insert(next.lexeme);
-              assignments.insert(next.lexeme, try!(self.expression(false)));
-              assignment_tokens.insert(next.lexeme, next);
+              try!(self.assignment(next, true));
             } else {
               self.tokens.put_back(next);
-              if let Some(recipe) = recipes.get(token.lexeme) {
-                return Err(token.error(ErrorKind::DuplicateRecipe {
-                  recipe: recipe.name,
-                  first:  recipe.line_number
-                }));
-              }
-              recipes.insert(token.lexeme, try!(self.recipe(token.lexeme, token.line)));
+              try!(self.recipe(token));
             }
           } else if self.accepted(Equals) {
-            if assignments.contains_key(token.lexeme) {
-              return Err(token.error(ErrorKind::DuplicateVariable {
-                variable: token.lexeme,
-              }));
-            }
-            assignments.insert(token.lexeme, try!(self.expression(false)));
-            assignment_tokens.insert(token.lexeme, token);
+            try!(self.assignment(token, false));
           } else {
-            if let Some(recipe) = recipes.get(token.lexeme) {
-              return Err(token.error(ErrorKind::DuplicateRecipe {
-                recipe: recipe.name,
-                first:  recipe.line_number
-              }));
-            }
-            recipes.insert(token.lexeme, try!(self.recipe(token.lexeme, token.line)));
+            try!(self.recipe(token));
           },
           Comment => return Err(token.error(ErrorKind::InternalError {
             message: "found comment in token stream".to_string()
@@ -1667,11 +1668,11 @@ impl<'a> Parser<'a> {
       }))
     }
 
-    try!(resolve_recipes(&recipes, &assignments, self.text));
+    try!(resolve_recipes(&self.recipes, &self.assignments, self.text));
 
-    for recipe in recipes.values() {
+    for recipe in self.recipes.values() {
       for argument in &recipe.argument_tokens {
-        if assignments.contains_key(argument.lexeme) {
+        if self.assignments.contains_key(argument.lexeme) {
           return Err(argument.error(ErrorKind::ArgumentShadowsVariable {
             argument: argument.lexeme
           }));
@@ -1679,7 +1680,7 @@ impl<'a> Parser<'a> {
       }
 
       for dependency in &recipe.dependency_tokens {
-        if !recipes[dependency.lexeme].arguments.is_empty() {
+        if !self.recipes[dependency.lexeme].arguments.is_empty() {
           return Err(dependency.error(ErrorKind::DependencyHasArguments {
             recipe: recipe.name,
             dependency: dependency.lexeme,
@@ -1688,12 +1689,12 @@ impl<'a> Parser<'a> {
       }
     }
 
-    try!(resolve_assignments(&assignments, &assignment_tokens));
+    try!(resolve_assignments(&self.assignments, &self.assignment_tokens));
 
     Ok(Justfile {
-      recipes:     recipes,
-      assignments: assignments,
-      exports:     exports,
+      recipes:     self.recipes,
+      assignments: self.assignments,
+      exports:     self.exports,
     })
   }
 }
