@@ -797,3 +797,14 @@ fn missing_default() {
     other => panic!("expected an code run error, but got: {}", other),
   }
 }
+
+#[test]
+fn backtick_code() {
+  match parse_success("a:\n echo {{`function f { return 100; }; f`}}").run(&["a"]).unwrap_err() {
+    super::RunError::BacktickCode{code, token} => {
+      assert_eq!(code, 100);
+      assert_eq!(token.lexeme, "`function f { return 100; }; f`");
+    },
+    other => panic!("expected an code run error, but got: {}", other),
+  }
+}

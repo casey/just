@@ -148,7 +148,7 @@ fn backtick_error_from_signal(exit_status: process::ExitStatus) -> RunError<'sta
   RunError::BacktickUnknownFailure
 }
 
-fn run_backtick<'a>(raw: &str, _token: &Token<'a>) -> Result<String, RunError<'a>> {
+fn run_backtick<'a>(raw: &str, token: &Token<'a>) -> Result<String, RunError<'a>> {
   let output = process::Command::new("sh")
     .arg("-cu")
     .arg(raw)
@@ -160,6 +160,7 @@ fn run_backtick<'a>(raw: &str, _token: &Token<'a>) -> Result<String, RunError<'a
       if let Some(code) = output.status.code() {
         if code != 0 {
           return Err(RunError::BacktickCode {
+            token: token.clone(),
             code: code,
           });
         }
@@ -877,7 +878,7 @@ enum RunError<'a> {
   TmpdirIoError{recipe: &'a str, io_error: io::Error},
   UnknownFailure{recipe: &'a str},
   UnknownRecipes{recipes: Vec<&'a str>},
-  BacktickCode{code: i32},
+  BacktickCode{code: i32, token: Token<'a>},
   BacktickIoError{io_error: io::Error},
   BacktickSignal{signal: i32},
   BacktickUtf8Error{utf8_error: std::str::Utf8Error},
@@ -920,14 +921,27 @@ impl<'a> Display for RunError<'a> {
       },
       RunError::TmpdirIoError{recipe, ref io_error} =>
         try!(write!(f, "Recipe \"{}\" could not be run because of an IO error while trying to create a temporary directory or write a file to that directory`:\n{}", recipe, io_error)),
-      RunError::BacktickCode{code} => {
-        try!(writeln!(f, "backtick failed with exit code {}", code));
+      RunError::BacktickCode{code, ref token} => {
+        try!(write!(f, "backtick failed with exit code {}\n", code));
+        match token.text.lines().nth(token.line) {
+          Some(line) => {
+            let line_number_width = token.line.to_string().len();
+            try!(write!(f, "{0:1$} |\n", "", line_number_width));
+            try!(write!(f, "{} | {}\n", token.line + 1, line));
+            try!(write!(f, "{0:1$} |", "", line_number_width));
+            try!(write!(f, " {0:1$}{2:^<3$}", "",
+                        token.column + token.prefix.len(), "", token.lexeme.len()));
+          },
+          None => if token.index != token.text.len() {
+            try!(write!(f, "internal error: Error has invalid line number: {}", token.line + 1))
+          },
+        }
       }
       RunError::BacktickSignal{signal} => {
-        try!(writeln!(f, "backtick was terminated by signal {}", signal));
+        try!(write!(f, "backtick was terminated by signal {}", signal));
       }
       RunError::BacktickUnknownFailure => {
-        try!(writeln!(f, "backtick failed for an uknown reason"));
+        try!(write!(f, "backtick failed for an uknown reason"));
       }
       RunError::BacktickIoError{ref io_error} => {
         try!(match io_error.kind() {
@@ -940,14 +954,15 @@ impl<'a> Display for RunError<'a> {
         try!(write!(f, "backtick succeeded but stdout was not utf8: {}", utf8_error));
       }
       RunError::InternalError{ref message} => {
-        try!(writeln!(f, "internal error, this may indicate a bug in j: {}\n consider filing an issue: https://github.com/casey/j/issues/new", message));
+        try!(write!(f, "internal error, this may indicate a bug in j: {}\n consider filing an issue: https://github.com/casey/j/issues/new", message));
       }
     }
+
     Ok(())
   }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 struct Token<'a> {
   index:  usize,
   line:   usize,

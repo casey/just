@@ -261,3 +261,91 @@ fn backtick_trimming() {
     "echo 'Hello, world!'\n",
   );
 }
+
+#[test]
+fn backtick_code_assignment() {
+  integration_test(
+    "backtick_code_assignment",
+    &[],
+    "b = a\na = `function f { return 100; }; f`\nbar:\n echo '{{`function f { return 200; }; f`}}'",
+    100,
+    "",
+    "backtick failed with exit code 100
+  |
+2 | a = `function f { return 100; }; f`
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+",
+  );
+}
+
+#[test]
+fn backtick_code_interpolation() {
+  integration_test(
+    "backtick_code_interpolation",
+    &[],
+    "b = a\na = `echo hello`\nbar:\n echo '{{`function f { return 200; }; f`}}'",
+    200,
+    "",
+    "backtick failed with exit code 200
+  |
+4 |  echo '{{`function f { return 200; }; f`}}'
+  |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+",
+  );
+}
+
+#[test]
+fn shebang_backtick_failure() {
+  integration_test(
+    "shebang_backtick_failure",
+    &[],
+    "foo:
+ #!/bin/sh
+ echo hello
+ echo {{`exit 123`}}",
+    123,
+    "",
+    "backtick failed with exit code 123
+  |
+4 |  echo {{`exit 123`}}
+  |         ^^^^^^^^^^
+",
+  );
+}
+
+#[test]
+fn command_backtick_failure() {
+  integration_test(
+    "command_backtick_failure",
+    &[],
+    "foo:
+ echo hello
+ echo {{`exit 123`}}",
+    123,
+    "hello\n",
+    "echo hello\nbacktick failed with exit code 123
+  |
+3 |  echo {{`exit 123`}}
+  |         ^^^^^^^^^^
+",
+  );
+}
+
+#[test]
+fn assignment_backtick_failure() {
+  integration_test(
+    "assignment_backtick_failure",
+    &[],
+    "foo:
+ echo hello
+ echo {{`exit 111`}}
+a = `exit 222`",
+    222,
+    "",
+    "backtick failed with exit code 222
+  |
+4 | a = `exit 222`
+  |     ^^^^^^^^^^
+",
+  );
+}

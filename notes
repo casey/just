@@ -1,15 +1,6 @@
 notes
 -----
 
-- unit tests for as many backtick error types as possible
-- integration tests for as many error types as possible, errors should underline backtick token
-- test shebang recipe `` evaluation order
-  make sure that nothing happens if a `` fails on a later line
-- test command recipe `` evaluation order
-  do some stuff, then have a line with a `` that fails
-  make sure that stuff before that actually happened
-  make sure that result error code is correct
-
 - --debug tests that:
   - should consider renaming it to --evaluate if it actually evaluates stuff
   - test values of assignments

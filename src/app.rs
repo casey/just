@@ -133,6 +133,10 @@ pub fn app() {
 
   if let Err(run_error) = justfile.run(&arguments) {
     warn!("{}", run_error);
-    process::exit(if let super::RunError::Code{code, ..} = run_error { code } else { -1 });
+    match run_error {
+      super::RunError::Code{code, ..        } => process::exit(code),
+      super::RunError::BacktickCode{code, ..} => process::exit(code),
+      _ => process::exit(-1),
+    }
   }
 }
