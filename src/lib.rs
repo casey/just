@@ -134,7 +134,21 @@ fn error_from_signal(recipe: &str, exit_status: process::ExitStatus) -> RunError
   RunError::UnknownFailure{recipe: recipe}
 }
 
-fn run_backtick<'a>(raw: &'a str, _token: &Token) -> Result<String, RunError<'a>> {
+#[cfg(unix)]
+fn backtick_error_from_signal(exit_status: process::ExitStatus) -> RunError<'static> {
+  use std::os::unix::process::ExitStatusExt;
+  match exit_status.signal() {
+    Some(signal) => RunError::BacktickSignal{signal: signal},
+    None => RunError::BacktickUnknownFailure,
+  }
+}
+
+#[cfg(windows)]
+fn backtick_error_from_signal(exit_status: process::ExitStatus) -> RunError<'static> {
+  RunError::BacktickUnknownFailure
+}
+
+fn run_backtick<'a>(raw: &str, _token: &Token<'a>) -> Result<String, RunError<'a>> {
   let output = process::Command::new("sh")
     .arg("-cu")
     .arg(raw)
@@ -142,33 +156,36 @@ fn run_backtick<'a>(raw: &'a str, _token: &Token) -> Result<String, RunError<'a>
     .output();
 
   match output {
-    Ok(output) => if let Some(code) = output.status.code() {
-      if code != 0 {
-        return Err(RunError::BacktickCode {
-          raw: raw,
-          code: code,
-        });
+    Ok(output) => {
+      if let Some(code) = output.status.code() {
+        if code != 0 {
+          return Err(RunError::BacktickCode {
+            code: code,
+          });
+        }
+      } else {
+        return Err(backtick_error_from_signal(output.status));
       }
-    },
-    _ => {}
+      match std::str::from_utf8(&output.stdout) {
+        Err(error) => return Err(RunError::BacktickUtf8Error{utf8_error: error}),
+        Ok(utf8) => {
+          Ok(if utf8.ends_with('\n') {
+            &utf8[0..utf8.len()-1]
+          } else if utf8.ends_with("\r\n") {
+            &utf8[0..utf8.len()-2]
+          } else {
+            utf8
+          }.to_string())
+        }
+      }
+    }
+    Err(error) => Err(RunError::BacktickIoError{io_error: error}),
   }
-
-  // if !output.status.success() {
-  //   panic!("backtick evaluation failed");
-  // }
-
-  // warn!("{}", 
-
-  // status
-  // stdout
-  // stderr
-
-  Ok("".into())
 }
 
 impl<'a> Recipe<'a> {
   fn run(
-    &'a self,
+    &self,
     arguments: &[&'a str],
     scope:     &BTreeMap<&'a str, String>
   ) -> Result<(), RunError<'a>> {
@@ -475,7 +492,7 @@ impl<'a: 'b, 'b> AssignmentResolver<'a, 'b> {
 }
 
 fn evaluate_assignments<'a>(
-  assignments: &'a BTreeMap<&'a str, Expression<'a>>,
+  assignments: &BTreeMap<&'a str, Expression<'a>>,
 ) -> Result<BTreeMap<&'a str, String>, RunError<'a>> {
   let mut evaluator = Evaluator {
     evaluated:         BTreeMap::new(),
@@ -499,7 +516,7 @@ struct Evaluator<'a: 'b, 'b> {
 impl<'a, 'b> Evaluator<'a, 'b> {
   fn evaluate_line(
     &mut self,
-    line:      &'a [Fragment<'a>],
+    line:      &[Fragment<'a>],
     arguments: &BTreeMap<&str, &str>
   ) -> Result<String, RunError<'a>> {
     let mut evaluated = String::new();
@@ -533,7 +550,7 @@ impl<'a, 'b> Evaluator<'a, 'b> {
 
   fn evaluate_expression(
     &mut self,
-    expression: &'a Expression<'a>,
+    expression: &Expression<'a>,
     arguments: &BTreeMap<&str, &str>
   ) -> Result<String, RunError<'a>> {
     Ok(match *expression {
@@ -808,7 +825,7 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
 
   fn run_recipe<'c>(
     &'c self,
-    recipe:    &'c Recipe<'a>,
+    recipe:    &Recipe<'a>,
     arguments: &[&'a str],
     scope:     &BTreeMap<&'c str, String>,
     ran:       &mut HashSet<&'a str>
@@ -860,10 +877,11 @@ enum RunError<'a> {
   TmpdirIoError{recipe: &'a str, io_error: io::Error},
   UnknownFailure{recipe: &'a str},
   UnknownRecipes{recipes: Vec<&'a str>},
-  BacktickCode{raw: &'a str, code: i32},
-  // BacktickSignal{backtick: Token<'a>, code: i32},
-  // BacktickIoError{backtick: Token<'a>, io_error: io::Error},
-  // BacktickUTF8Error
+  BacktickCode{code: i32},
+  BacktickIoError{io_error: io::Error},
+  BacktickSignal{signal: i32},
+  BacktickUtf8Error{utf8_error: std::str::Utf8Error},
+  BacktickUnknownFailure,
 }
 
 impl<'a> Display for RunError<'a> {
@@ -897,11 +915,30 @@ impl<'a> Display for RunError<'a> {
         try!(match io_error.kind() {
           io::ErrorKind::NotFound => write!(f, "Recipe \"{}\" could not be run because j could not find `sh` the command:\n{}", recipe, io_error),
           io::ErrorKind::PermissionDenied => write!(f, "Recipe \"{}\" could not be run because j could not run `sh`:\n{}", recipe, io_error),
-          _ => write!(f, "Recipe \"{}\" could not be run because of an IO error while launching the `sh`:\n{}", recipe, io_error),
+          _ => write!(f, "Recipe \"{}\" could not be run because of an IO error while launching `sh`:\n{}", recipe, io_error),
         });
       },
       RunError::TmpdirIoError{recipe, ref io_error} =>
         try!(write!(f, "Recipe \"{}\" could not be run because of an IO error while trying to create a temporary directory or write a file to that directory`:\n{}", recipe, io_error)),
+      RunError::BacktickCode{code} => {
+        try!(writeln!(f, "backtick failed with exit code {}", code));
+      }
+      RunError::BacktickSignal{signal} => {
+        try!(writeln!(f, "backtick was terminated by signal {}", signal));
+      }
+      RunError::BacktickUnknownFailure => {
+        try!(writeln!(f, "backtick failed for an uknown reason"));
+      }
+      RunError::BacktickIoError{ref io_error} => {
+        try!(match io_error.kind() {
+          io::ErrorKind::NotFound => write!(f, "backtick could not be run because j could not find `sh` the command:\n{}", io_error),
+          io::ErrorKind::PermissionDenied => write!(f, "backtick could not be run because j could not run `sh`:\n{}", io_error),
+          _ => write!(f, "backtick could not be run because of an IO error while launching `sh`:\n{}", io_error),
+        });
+      }
+      RunError::BacktickUtf8Error{ref utf8_error} => {
+        try!(write!(f, "backtick succeeded but stdout was not utf8: {}", utf8_error));
+      }
       RunError::InternalError{ref message} => {
         try!(writeln!(f, "internal error, this may indicate a bug in j: {}\n consider filing an issue: https://github.com/casey/j/issues/new", message));
       }

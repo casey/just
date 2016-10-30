@@ -41,7 +41,7 @@ fn integration_test(
 
   let stderr = super::std::str::from_utf8(&output.stderr).unwrap();
   if stderr != expected_stderr {
-    println!("bad stdout:\ngot:\n{}\n\nexpected:\n{}", stderr, expected_stderr);
+    println!("bad stderr:\ngot:\n{}\n\nexpected:\n{}", stderr, expected_stderr);
     failure = true;
   }
 
@@ -142,6 +142,28 @@ c:
 }
 
 #[test]
+fn print() {
+  let text = 
+"b:
+  echo b
+a:
+  echo a
+d:
+  echo d
+c:
+  echo c";
+  integration_test(
+    "select",
+    &["d", "c"],
+    text,
+    0,
+    "d\nc\n",
+    "echo d\necho c\n",
+  );
+}
+
+
+#[test]
 fn show() {
   let text = 
 r#"hello = "foo"
@@ -213,5 +235,29 @@ fn error() {
 3 | foo: bar baaaaaaaz hello
   |          ^^^^^^^^^
 ",
+  );
+}
+
+#[test]
+fn backtick_success() {
+  integration_test(
+    "backtick_success",
+    &[],
+    "a = `printf Hello,`\nbar:\n printf '{{a + `printf ' world!'`}}'",
+    0,
+    "Hello, world!",
+    "printf 'Hello, world!'\n",
+  );
+}
+
+#[test]
+fn backtick_trimming() {
+  integration_test(
+    "backtick_trimming",
+    &[],
+    "a = `echo Hello,`\nbar:\n echo '{{a + `echo ' world!'`}}'",
+    0,
+    "Hello, world!\n",
+    "echo 'Hello, world!'\n",
   );
 }

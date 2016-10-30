@@ -1,14 +1,10 @@
 notes
 -----
 
-- actually run backticks
-  . test all error types, errors should underline backtick token
-  . test success in assignment
-  . test success in recipe interpolations
-
+- unit tests for as many error types as possible
+- integration tests for as many error types as possible, errors should underline backtick token
 - test shebang recipe `` evaluation order
   make sure that nothing happens if a `` fails on a later line
-
 - test command recipe `` evaluation order
   do some stuff, then have a line with a `` that fails
   make sure that stuff before that actually happened
@@ -57,6 +53,7 @@ notes
     no longer accept a program or change its meaning
   . habit of using clever commands and writing little scripts
   . debugging with --debug or --evaluate
+  . `` strips a single newline
   . very low friction to write a script (no new file, chmod, add to rcs)
   . make list of contributors, include travis
   . alias .j='just --justfile ~/.justfile --working-directory ~'
