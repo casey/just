@@ -1103,6 +1103,7 @@ enum TokenKind {
   Name,
   Plus,
   StringToken,
+  RawString,
   Text,
 }
 
@@ -1123,6 +1124,7 @@ impl Display for TokenKind {
       Name               => "name",
       Plus               => "\"+\"",
       StringToken        => "string",
+      RawString          => "raw string",
       Text               => "command text",
     }));
     Ok(())
@@ -1152,6 +1154,7 @@ fn tokenize(text: &str) -> Result<Vec<Token>, Error> {
     static ref NAME:                      Regex = token(r"([a-zA-Z_-][a-zA-Z0-9_-]*)");
     static ref PLUS:                      Regex = token(r"[+]"                       );
     static ref STRING:                    Regex = token("\""                         );
+    static ref RAW_STRING:                Regex = token(r#"'[^'\r\n]*'"#             );
     static ref INDENT:                    Regex = re(r"^([ \t]*)[^ \t\n\r]"     );
     static ref INTERPOLATION_START:       Regex = re(r"^[{][{]"                 );
     static ref LEADING_TEXT:              Regex = re(r"^(?m)(.+?)[{][{]"        );
@@ -1308,6 +1311,8 @@ fn tokenize(text: &str) -> Result<Vec<Token>, Error> {
       (captures.at(1).unwrap(), captures.at(2).unwrap(), Equals)
     } else if let Some(captures) = COMMENT.captures(rest) {
       (captures.at(1).unwrap(), captures.at(2).unwrap(), Comment)
+    } else if let Some(captures) = RAW_STRING.captures(rest) {
+      (captures.at(1).unwrap(), captures.at(2).unwrap(), RawString)
     } else if let Some(captures) = STRING.captures(rest) {
       let prefix = captures.at(1).unwrap();
       let contents = &rest[prefix.len()+1..];
@@ -1561,11 +1566,15 @@ impl<'a> Parser<'a> {
   fn expression(&mut self, interpolation: bool) -> Result<Expression<'a>, Error<'a>> {
     let first = self.tokens.next().unwrap();
     let lhs = match first.kind {
-      Name        => Expression::Variable{name: first.lexeme, token: first},
-      Backtick    => Expression::Backtick{
+      Name        => Expression::Variable {name: first.lexeme, token: first},
+      Backtick    => Expression::Backtick {
         raw:   &first.lexeme[1..first.lexeme.len()-1],
         token: first
       },
+      RawString => {
+        let raw = &first.lexeme[1..first.lexeme.len() - 1];
+        Expression::String{raw: raw, cooked: raw.to_string()}
+      }
       StringToken => {
         let raw = &first.lexeme[1..first.lexeme.len() - 1];
         let mut cooked = String::new();

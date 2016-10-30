@@ -1,7 +1,6 @@
 todo
 ----
 
-- raw strings with ''
 - multi line strings (not in recipe interpolations)
 - indentation or slash for line continuation in plain recipes
 

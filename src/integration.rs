@@ -533,3 +533,19 @@ recipe:
     "echo recipe A-IS-A\n",
   );
 }
+
+#[test]
+fn raw_string() {
+  integration_test(
+    &[],
+    r#"
+export exported_variable = '\\\\\\"'
+
+recipe:
+  echo {{`echo recipe $exported_variable`}}
+"#,
+    0,
+    "recipe \\\"\n",
+    "echo recipe \\\\\\\"\n",
+  );
+}

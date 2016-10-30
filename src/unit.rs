@@ -48,7 +48,8 @@ fn token_summary(tokens: &[Token]) -> String {
       super::TokenKind::Line{..}           => "^",
       super::TokenKind::Name               => "N",
       super::TokenKind::Plus               => "+",
-      super::TokenKind::StringToken        => "'",
+      super::TokenKind::StringToken        => "\"",
+      super::TokenKind::RawString          => "'",
       super::TokenKind::Text               => "_",
     }
   }).collect::<Vec<_>>().join("")
@@ -86,6 +87,14 @@ fn parse_error(text: &str, expected: Error) {
 }
 
 #[test]
+fn tokanize_strings() {
+  tokenize_success(
+    r#"a = "'a'" + '"b"' + "'c'" + '"d"'"#,
+    r#"N="+'+"+'."#
+  );
+}
+
+#[test]
 fn tokenize_recipe_interpolation_eol() {
   let text = "foo:
  {{hello}}
@@ -103,7 +112,7 @@ fn tokenize_recipe_interpolation_eof() {
 #[test]
 fn tokenize_recipe_complex_interpolation_expression() {
   let text = "foo:\n {{a + b + \"z\" + blarg}}";
-  tokenize_success(text, "N:$>^{N+N+'+N}<.");
+  tokenize_success(text, "N:$>^{N+N+\"+N}<.");
 }
 
 #[test]
