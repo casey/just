@@ -1,9 +1,9 @@
 [root]
 name = "j"
-version = "0.2.6"
+version = "0.2.7"
 dependencies = [
  "brev 0.1.6 (registry+https://github.com/rust-lang/crates.io-index)",
- "clap 2.16.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "clap 2.16.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "lazy_static 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "regex 0.1.80 (registry+https://github.com/rust-lang/crates.io-index)",
  "tempdir 0.3.5 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -38,7 +38,7 @@ dependencies = [
 
 [[package]]
 name = "clap"
-version = "2.16.2"
+version = "2.16.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "ansi_term 0.9.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -183,7 +183,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum ansi_term 0.9.0 (registry+https://github.com/rust-lang/crates.io-index)" = "23ac7c30002a5accbf7e8987d0632fa6de155b7c3d39d0067317a391e00a2ef6"
 "checksum bitflags 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)" = "aad18937a628ec6abcd26d1489012cc0e18c21798210f491af69ded9b881106d"
 "checksum brev 0.1.6 (registry+https://github.com/rust-lang/crates.io-index)" = "79571b60a8aa293f43b46370d8ba96fed28a5bee1303ea0e015d175ed0c63b40"
-"checksum clap 2.16.2 (registry+https://github.com/rust-lang/crates.io-index)" = "08aac7b078ec0a58e1d4b43cfb11d47001f8eb7c6f6f2bda4f5eed43c82491f1"
+"checksum clap 2.16.3 (registry+https://github.com/rust-lang/crates.io-index)" = "0ab91429d96eece6d6cf8a737105f0e255fea039fed86e2118ff8d3fd69601dd"
 "checksum glob 0.2.11 (registry+https://github.com/rust-lang/crates.io-index)" = "8be18de09a56b60ed0edf84bc9df007e30040691af7acd1c41874faac5895bfb"
 "checksum kernel32-sys 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)" = "7507624b29483431c0ba2d82aece8ca6cdba9382bff4ddd0f7490560c056098d"
 "checksum lazy_static 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)" = "49247ec2a285bb3dcb23cbd9c35193c025e7251bfce77c1d5da97e6362dffe7f"

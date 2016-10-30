@@ -1,6 +1,6 @@
 [package]
 name = "j"
-version = "0.2.6"
+version = "0.2.7"
 authors = ["Casey Rodarmor <casey@rodarmor.com>"]
 license = "WTFPL/MIT/Apache-2.0"
 description = "a command runner"
