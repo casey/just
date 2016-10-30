@@ -4,7 +4,7 @@ extern crate regex;
 use std::{io, fs, env, process};
 use std::collections::BTreeMap;
 use self::clap::{App, Arg};
-use super::Slurp;
+use super::{Slurp, RunError};
 
 macro_rules! warn {
   ($($arg:tt)*) => {{
@@ -166,8 +166,7 @@ pub fn app() {
   if let Err(run_error) = justfile.run(&overrides, &arguments, dry_run, evaluate) {
     warn!("{}", run_error);
     match run_error {
-      super::RunError::Code{code, ..        } => process::exit(code),
-      super::RunError::BacktickCode{code, ..} => process::exit(code),
+      RunError::Code{code, .. } | RunError::BacktickCode{code, ..} => process::exit(code),
       _ => process::exit(-1),
     }
   }
