@@ -76,7 +76,7 @@ enum Fragment<'a> {
 enum Expression<'a> {
   Variable{name: &'a str, token: Token<'a>},
   String{raw: &'a str, cooked: String},
-  Backtick{token: Token<'a>},
+  Backtick{raw: &'a str, token: Token<'a>},
   Concatination{lhs: Box<Expression<'a>>, rhs: Box<Expression<'a>>},
 }
 
@@ -111,8 +111,7 @@ impl<'a> Iterator for Variables<'a> {
 impl<'a> Display for Expression<'a> {
   fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
     match *self {
-      Expression::Backtick     {ref token           } => 
-        try!(write!(f, "`{}`", &token.lexeme[1..token.lexeme.len()-1])),
+      Expression::Backtick     {raw, ..         } => try!(write!(f, "`{}`", raw)),
       Expression::Concatination{ref lhs, ref rhs} => try!(write!(f, "{} + {}", lhs, rhs)),
       Expression::String       {raw, ..         } => try!(write!(f, "\"{}\"", raw)),
       Expression::Variable     {name, ..        } => try!(write!(f, "{}", name)),
@@ -135,13 +134,41 @@ fn error_from_signal(recipe: &str, exit_status: process::ExitStatus) -> RunError
   RunError::UnknownFailure{recipe: recipe}
 }
 
-fn run_backtick<'a>(backtick: &Token<'a>) -> Result<String, RunError<'a>> {
+fn run_backtick<'a>(raw: &'a str, _token: &Token) -> Result<String, RunError<'a>> {
+  let output = process::Command::new("sh")
+    .arg("-cu")
+    .arg(raw)
+    .stderr(process::Stdio::inherit())
+    .output();
+
+  match output {
+    Ok(output) => if let Some(code) = output.status.code() {
+      if code != 0 {
+        return Err(RunError::BacktickCode {
+          raw: raw,
+          code: code,
+        });
+      }
+    },
+    _ => {}
+  }
+
+  // if !output.status.success() {
+  //   panic!("backtick evaluation failed");
+  // }
+
+  // warn!("{}", 
+
+  // status
+  // stdout
+  // stderr
+
   Ok("".into())
 }
 
 impl<'a> Recipe<'a> {
   fn run(
-    &self,
+    &'a self,
     arguments: &[&'a str],
     scope:     &BTreeMap<&'a str, String>
   ) -> Result<(), RunError<'a>> {
@@ -157,7 +184,7 @@ impl<'a> Recipe<'a> {
     if self.shebang {
       let mut evaluated_lines = vec![];
       for line in &self.lines {
-        evaluated_lines.push(try!(evaluator.evaluate_line(line, &argument_map)));
+        evaluated_lines.push(try!(evaluator.evaluate_line(&line, &argument_map)));
       }
 
       let tmp = try!(
@@ -218,7 +245,7 @@ impl<'a> Recipe<'a> {
       });
     } else {
       for line in &self.lines {
-        let evaluated = &try!(evaluator.evaluate_line(line, &argument_map));
+        let evaluated = &try!(evaluator.evaluate_line(&line, &argument_map));
         let mut command = evaluated.as_str();
         if !command.starts_with('@') {
           warn!("{}", command);
@@ -437,19 +464,18 @@ impl<'a: 'b, 'b> AssignmentResolver<'a, 'b> {
           return Err(token.error(ErrorKind::UndefinedVariable{variable: name}));
         }
       }
-      Expression::String{..} => {}
-      Expression::Backtick{..} => {}
       Expression::Concatination{ref lhs, ref rhs} => {
         try!(self.resolve_expression(lhs));
         try!(self.resolve_expression(rhs));
       }
+      Expression::String{..} | Expression::Backtick{..} => {}
     }
     Ok(())
   }
 }
 
 fn evaluate_assignments<'a>(
-  assignments: &BTreeMap<&'a str, Expression<'a>>,
+  assignments: &'a BTreeMap<&'a str, Expression<'a>>,
 ) -> Result<BTreeMap<&'a str, String>, RunError<'a>> {
   let mut evaluator = Evaluator {
     evaluated:         BTreeMap::new(),
@@ -473,7 +499,7 @@ struct Evaluator<'a: 'b, 'b> {
 impl<'a, 'b> Evaluator<'a, 'b> {
   fn evaluate_line(
     &mut self,
-    line:      &Vec<Fragment<'a>>,
+    line:      &'a [Fragment<'a>],
     arguments: &BTreeMap<&str, &str>
   ) -> Result<String, RunError<'a>> {
     let mut evaluated = String::new();
@@ -507,7 +533,7 @@ impl<'a, 'b> Evaluator<'a, 'b> {
 
   fn evaluate_expression(
     &mut self,
-    expression: &Expression<'a>,
+    expression: &'a Expression<'a>,
     arguments: &BTreeMap<&str, &str>
   ) -> Result<String, RunError<'a>> {
     Ok(match *expression {
@@ -528,7 +554,7 @@ impl<'a, 'b> Evaluator<'a, 'b> {
         }
       }
       Expression::String{ref cooked, ..} => cooked.clone(),
-      Expression::Backtick{ref token} => try!(run_backtick(token)),
+      Expression::Backtick{raw, ref token} => try!(run_backtick(raw, token)),
       Expression::Concatination{ref lhs, ref rhs} => {
         try!(self.evaluate_expression(lhs, arguments))
           +
@@ -782,7 +808,7 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
 
   fn run_recipe<'c>(
     &'c self,
-    recipe:    &Recipe<'a>,
+    recipe:    &'c Recipe<'a>,
     arguments: &[&'a str],
     scope:     &BTreeMap<&'c str, String>,
     ran:       &mut HashSet<&'a str>
@@ -834,9 +860,10 @@ enum RunError<'a> {
   TmpdirIoError{recipe: &'a str, io_error: io::Error},
   UnknownFailure{recipe: &'a str},
   UnknownRecipes{recipes: Vec<&'a str>},
-  // BacktickExecutionCode{backtick: Token<'a>, code: i32},
-  // BacktickExecutionSignal{backtick: Token<'a>, code: i32},
+  BacktickCode{raw: &'a str, code: i32},
+  // BacktickSignal{backtick: Token<'a>, code: i32},
   // BacktickIoError{backtick: Token<'a>, io_error: io::Error},
+  // BacktickUTF8Error
 }
 
 impl<'a> Display for RunError<'a> {
@@ -1370,7 +1397,10 @@ impl<'a> Parser<'a> {
     let first = self.tokens.next().unwrap();
     let lhs = match first.kind {
       Name        => Expression::Variable{name: first.lexeme, token: first},
-      Backtick    => Expression::Backtick{token: first},
+      Backtick    => Expression::Backtick{
+        raw:   &first.lexeme[1..first.lexeme.len()-1],
+        token: first
+      },
       StringToken => {
         let raw = &first.lexeme[1..first.lexeme.len() - 1];
         let mut cooked = String::new();

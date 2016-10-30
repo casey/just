@@ -137,6 +137,22 @@ hello:
 }
 
 #[test]
+fn tokenize_interpolation_backticks() {
+  tokenize_success(
+    "hello:\n echo {{`echo hello` + `echo goodbye`}}",
+    "N:$>^_{`+`}<."
+  );
+}
+
+#[test]
+fn tokenize_assignment_backticks() {
+  tokenize_success(
+    "a = `echo hello` + `echo goodbye`",
+    "N=`+`."
+  );
+}
+
+#[test]
 fn tokenize_multiple() {
   let text = "
 hello:
@@ -280,6 +296,30 @@ r#"a = "0"
 b = "1"
 
 c = a + b + a + b"#);
+}
+
+#[test]
+fn parse_assignment_backticks() {
+  parse_summary(
+"a = `echo hello`
+c = a + b + a + b
+b = `echo goodbye`", 
+
+"a = `echo hello`
+
+b = `echo goodbye`
+
+c = a + b + a + b");
+}
+
+#[test]
+fn parse_interpolation_backticks() {
+  parse_summary(
+r#"a:
+ echo {{  `echo hello` + "blarg"   }} {{   `echo bob`   }}"#, 
+r#"a:
+    echo {{`echo hello` + "blarg"}} {{`echo bob`}}"#, 
+ );
 }
 
 #[test]

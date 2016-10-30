@@ -1,8 +1,6 @@
 notes
 -----
 
-- test that `` is parsed and tokenized correctly at the top level and inside interpolations
-
 - actually run backticks
   . test all error types, errors should underline backtick token
   . test success in assignment
