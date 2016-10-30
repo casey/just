@@ -284,16 +284,54 @@ impl<'a> Display for Recipe<'a> {
   }
 }
 
-fn resolve<'a>(recipes:  &BTreeMap<&'a str, Recipe<'a>>) -> Result<(), Error<'a>> {
+fn resolve_recipes<'a>(
+  recipes:     &BTreeMap<&'a str, Recipe<'a>>,
+  assignments: &BTreeMap<&'a str, Expression<'a>>,
+  text:        &'a str,
+) -> Result<(), Error<'a>> {
   let mut resolver = Resolver {
-    seen:     HashSet::new(),
-    stack:    vec![],
-    resolved: HashSet::new(),
-    recipes:  recipes,
+    seen:              HashSet::new(),
+    stack:             vec![],
+    resolved:          HashSet::new(),
+    recipes:           recipes,
   };
   
   for recipe in recipes.values() {
     try!(resolver.resolve(&recipe));
+  }
+
+  for recipe in recipes.values() {
+    for line in &recipe.lines {
+      for fragment in line {
+        if let Fragment::Expression{ref expression, ..} = *fragment {
+          for variable in expression.variables() {
+            let name = variable.lexeme;
+            if !(assignments.contains_key(name) || recipe.arguments.contains(&name)) {
+              // There's a borrow issue here that seems too difficult to solve.
+              // The error derived from the variable token has too short a lifetime,
+              // so we create a new error from its contents, which do live long
+              // enough.
+              //
+              // I suspect the solution here is to give recipes, pieces, and expressions
+              // two lifetime parameters instead of one, with one being the lifetime
+              // of the struct, and the second being the lifetime of the tokens
+              // that it contains
+              let error = variable.error(ErrorKind::UnknownVariable{variable: name});
+              return Err(Error {
+                text:   text,
+                index:  error.index,
+                line:   error.line,
+                column: error.column,
+                width:  error.width,
+                kind:   ErrorKind::UnknownVariable {
+                  variable: &text[error.index..error.index + error.width.unwrap()],
+                }
+              });
+            }
+          }
+        }
+      }
+    }
   }
 
   Ok(())
@@ -303,7 +341,7 @@ struct Resolver<'a: 'b, 'b> {
   stack:    Vec<&'a str>,
   seen:     HashSet<&'a str>,
   resolved: HashSet<&'a str>,
-  recipes:  &'b BTreeMap<&'a str, Recipe<'a>>
+  recipes:  &'b BTreeMap<&'a str, Recipe<'a>>,
 }
 
 impl<'a, 'b> Resolver<'a, 'b> {
@@ -336,6 +374,81 @@ impl<'a, 'b> Resolver<'a, 'b> {
     }
     self.resolved.insert(recipe.name);
     self.stack.pop();
+    Ok(())
+  }
+}
+
+fn resolve_assignments<'a>(
+  assignments:       &BTreeMap<&'a str, Expression<'a>>,
+  assignment_tokens: &BTreeMap<&'a str, Token<'a>>,
+) -> Result<(), Error<'a>> {
+
+  let mut resolver = AssignmentResolver {
+    assignments:       assignments,
+    assignment_tokens: assignment_tokens,
+    stack:             vec![],
+    seen:              HashSet::new(),
+    evaluated:         HashSet::new(),
+  };
+
+  for name in assignments.keys() {
+    try!(resolver.resolve_assignment(name));
+  }
+
+  Ok(())
+}
+
+struct AssignmentResolver<'a: 'b, 'b> {
+  assignments:       &'b BTreeMap<&'a str, Expression<'a>>,
+  assignment_tokens: &'b BTreeMap<&'a str, Token<'a>>,
+  stack:             Vec<&'a str>,
+  seen:              HashSet<&'a str>,
+  evaluated:         HashSet<&'a str>,
+}
+
+impl<'a: 'b, 'b> AssignmentResolver<'a, 'b> {
+  fn resolve_assignment(&mut self, name: &'a str) -> Result<(), Error<'a>> {
+    if self.evaluated.contains(name) {
+      return Ok(());
+    }
+
+    self.seen.insert(name);
+    self.stack.push(name);
+
+    if let Some(expression) = self.assignments.get(name) {
+      try!(self.resolve_expression(expression));
+      self.evaluated.insert(name);
+    } else {
+      panic!();
+    }
+    Ok(())
+  }
+
+  fn resolve_expression(&mut self, expression: &Expression<'a>) -> Result<(), Error<'a>> {
+    match *expression {
+      Expression::Variable{name, ref token} => {
+        if self.evaluated.contains(name) {
+          return Ok(());
+        } else if self.seen.contains(name) {
+          let token = self.assignment_tokens.get(name).unwrap();
+          self.stack.push(name);
+          return Err(token.error(ErrorKind::CircularVariableDependency {
+            variable: name,
+            circle:   self.stack.clone(),
+          }));
+        } else if self.assignments.contains_key(name) {
+          try!(self.resolve_assignment(name));
+        } else {
+          return Err(token.error(ErrorKind::UnknownVariable{variable: name}));
+        }
+      }
+      Expression::String{..} => {}
+      Expression::Backtick{..} => {}
+      Expression::Concatination{ref lhs, ref rhs} => {
+        try!(self.resolve_expression(lhs));
+        try!(self.resolve_expression(rhs));
+      }
+    }
     Ok(())
   }
 }
@@ -1420,7 +1533,7 @@ impl<'a> Parser<'a> {
       }))
     }
 
-    try!(resolve(&recipes));
+    try!(resolve_recipes(&recipes, &assignments, self.text));
 
     for recipe in recipes.values() {
       for argument in &recipe.argument_tokens {
@@ -1439,39 +1552,9 @@ impl<'a> Parser<'a> {
           }));
         }
       }
-
-      for line in &recipe.lines {
-        for piece in line {
-          if let Fragment::Expression{ref expression, ..} = *piece {
-            for variable in expression.variables() {
-              let name = variable.lexeme;
-              if !(assignments.contains_key(&name) || recipe.arguments.contains(&name)) {
-                // There's a borrow issue here that seems to difficult to solve.
-                // The error derived from the variable token has too short a lifetime,
-                // so we create a new error from its contents, which do live long
-                // enough.
-                //
-                // I suspect the solution here is to give recipes, pieces, and expressions
-                // two lifetime parameters instead of one, with one being the lifetime
-                // of the struct, and the second being the lifetime of the tokens
-                // that it contains
-                let error = variable.error(ErrorKind::UnknownVariable{variable: name});
-                return Err(Error {
-                  text:   self.text,
-                  index:  error.index,
-                  line:   error.line,
-                  column: error.column,
-                  width:  error.width,
-                  kind:   ErrorKind::UnknownVariable {
-                    variable: &self.text[error.index..error.index + error.width.unwrap()],
-                  }
-                });
-              }
-            }
-          }
-        }
-      }
     }
+
+    try!(resolve_assignments(&assignments, &assignment_tokens));
 
     let values = 
       try!(evaluate(&assignments, &assignment_tokens, &mut recipes));

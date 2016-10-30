@@ -7,6 +7,15 @@ notes
   and a evaluate recipe phase that runs when a recipe is run
   and produces the evaluated lines
 
+- --debug tests that:
+  - should consider renaming it to --evaluate if it actually evaluates stuff
+  - test values of assignments
+  - test values of interpolations
+
+- remove evaluated_lines field from recipe
+
+- change unknown variable to undefined variable
+
 - save result of commands in variables
   . backticks: `echo hello`
   . backticks in assignments are evaluated before the first recipe is run
@@ -19,6 +28,8 @@ notes
   . when you run the recipe, then you execute it
   . eval shebang recipes all at once, but plain recipes line by line
   . we want to avoid executing backticks before we need them
+
+- --debug mode will evaluate everything and print values after assignments and interpolation expressions
 
 - nicely convert a map to option string to a map to string
 
@@ -54,6 +65,7 @@ notes
     easier to accept a program that you once rejected than to
     no longer accept a program or change its meaning
   . habit of using clever commands and writing little scripts
+  . debugging with --debug or --evaluate
   . very low friction to write a script (no new file, chmod, add to rcs)
   . make list of contributors, include travis
   . alias .j='just --justfile ~/.justfile --working-directory ~'
