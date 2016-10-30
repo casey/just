@@ -59,7 +59,6 @@ struct Recipe<'a> {
   line_number:        usize,
   name:               &'a str,
   lines:              Vec<Vec<Fragment<'a>>>,
-  evaluated_lines:    Vec<String>,
   dependencies:       Vec<&'a str>,
   dependency_tokens:  Vec<Token<'a>>,
   arguments:          Vec<&'a str>,
@@ -70,14 +69,14 @@ struct Recipe<'a> {
 #[derive(PartialEq, Debug)]
 enum Fragment<'a> {
   Text{text: Token<'a>},
-  Expression{expression: Expression<'a>, value: Option<String>},
+  Expression{expression: Expression<'a>},
 }
 
 #[derive(PartialEq, Debug)]
 enum Expression<'a> {
   Variable{name: &'a str, token: Token<'a>},
   String{raw: &'a str, cooked: String},
-  Backtick{raw: &'a str},
+  Backtick{token: Token<'a>},
   Concatination{lhs: Box<Expression<'a>>, rhs: Box<Expression<'a>>},
 }
 
@@ -112,7 +111,8 @@ impl<'a> Iterator for Variables<'a> {
 impl<'a> Display for Expression<'a> {
   fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
     match *self {
-      Expression::Backtick     {raw, ..         } => try!(write!(f, "`{}`", raw)),
+      Expression::Backtick     {ref token           } => 
+        try!(write!(f, "`{}`", &token.lexeme[1..token.lexeme.len()-1])),
       Expression::Concatination{ref lhs, ref rhs} => try!(write!(f, "{} + {}", lhs, rhs)),
       Expression::String       {raw, ..         } => try!(write!(f, "\"{}\"", raw)),
       Expression::Variable     {name, ..        } => try!(write!(f, "{}", name)),
@@ -135,33 +135,31 @@ fn error_from_signal(recipe: &str, exit_status: process::ExitStatus) -> RunError
   RunError::UnknownFailure{recipe: recipe}
 }
 
+fn run_backtick<'a>(backtick: &Token<'a>) -> Result<String, RunError<'a>> {
+  Ok("".into())
+}
+
 impl<'a> Recipe<'a> {
   fn run(
     &self,
     arguments: &[&'a str],
-    scope: &BTreeMap<&str, String>
+    scope:     &BTreeMap<&'a str, String>
   ) -> Result<(), RunError<'a>> {
-    let mut arg_map = BTreeMap::new();
-    for (i, argument) in arguments.iter().enumerate() {
-      arg_map.insert(*self.arguments.get(i).unwrap(), *argument);
-    }
+    let argument_map = arguments .iter().enumerate()
+      .map(|(i, argument)| (self.arguments[i], *argument)).collect();
 
-    let evaluated_lines;
-    match evaluate_lines(&self.lines, &scope, &arg_map) {
-      Err(error) => {
-        return Err(RunError::InternalError {
-          message: format!("deferred evaluation failed {}", error),
-        });
-      }
-      Ok(None) => {
-        return Err(RunError::InternalError {
-          message: "deferred evaluation returned None".to_string(),
-        });
-      }
-      Ok(Some(lines)) => evaluated_lines = lines,
-    }
+    let mut evaluator = Evaluator {
+      evaluated:   BTreeMap::new(),
+      scope:       scope,
+      assignments: &BTreeMap::new(),
+    };
 
     if self.shebang {
+      let mut evaluated_lines = vec![];
+      for line in &self.lines {
+        evaluated_lines.push(try!(evaluator.evaluate_line(line, &argument_map)));
+      }
+
       let tmp = try!(
         tempdir::TempDir::new("j")
         .map_err(|error| RunError::TmpdirIoError{recipe: self.name, io_error: error})
@@ -219,8 +217,9 @@ impl<'a> Recipe<'a> {
         Err(io_error) => Err(RunError::TmpdirIoError{recipe: self.name, io_error: io_error})
       });
     } else {
-      for command in &evaluated_lines {
-        let mut command = &command[0..];
+      for line in &self.lines {
+        let evaluated = &try!(evaluator.evaluate_line(line, &argument_map));
+        let mut command = evaluated.as_str();
         if !command.starts_with('@') {
           warn!("{}", command);
         } else {
@@ -312,14 +311,14 @@ fn resolve_recipes<'a>(
               // two lifetime parameters instead of one, with one being the lifetime
               // of the struct, and the second being the lifetime of the tokens
               // that it contains
-              let error = variable.error(ErrorKind::UnknownVariable{variable: name});
+              let error = variable.error(ErrorKind::UndefinedVariable{variable: name});
               return Err(Error {
                 text:   text,
                 index:  error.index,
                 line:   error.line,
                 column: error.column,
                 width:  error.width,
-                kind:   ErrorKind::UnknownVariable {
+                kind:   ErrorKind::UndefinedVariable {
                   variable: &text[error.index..error.index + error.width.unwrap()],
                 }
               });
@@ -415,7 +414,7 @@ impl<'a: 'b, 'b> AssignmentResolver<'a, 'b> {
       try!(self.resolve_expression(expression));
       self.evaluated.insert(name);
     } else {
-      panic!();
+      return Err(internal_error(format!("attempted to resolve unknown assignment `{}`", name)));
     }
     Ok(())
   }
@@ -426,7 +425,7 @@ impl<'a: 'b, 'b> AssignmentResolver<'a, 'b> {
         if self.evaluated.contains(name) {
           return Ok(());
         } else if self.seen.contains(name) {
-          let token = self.assignment_tokens.get(name).unwrap();
+          let token = &self.assignment_tokens[name];
           self.stack.push(name);
           return Err(token.error(ErrorKind::CircularVariableDependency {
             variable: name,
@@ -435,7 +434,7 @@ impl<'a: 'b, 'b> AssignmentResolver<'a, 'b> {
         } else if self.assignments.contains_key(name) {
           try!(self.resolve_assignment(name));
         } else {
-          return Err(token.error(ErrorKind::UnknownVariable{variable: name}));
+          return Err(token.error(ErrorKind::UndefinedVariable{variable: name}));
         }
       }
       Expression::String{..} => {}
@@ -465,37 +464,6 @@ fn evaluate_assignments<'a>(
   Ok(evaluator.evaluated)
 }
 
-fn evaluate_lines<'a>(
-  lines:     &Vec<Vec<Fragment<'a>>>,
-  scope:     &BTreeMap<&'a str, String>,
-  arguments: &BTreeMap<&str, &str>
-) -> Result<Option<Vec<String>>, RunError<'a>> {
-  let mut evaluator = Evaluator {
-    evaluated:   BTreeMap::new(),
-    scope:       scope,
-    assignments: &BTreeMap::new(),
-  };
-
-  let mut evaluated_lines = vec![];
-  for fragments in lines {
-    let mut line = String::new();
-    for fragment in fragments.iter() {
-      match *fragment {
-        Fragment::Text{ref text} => line += text.lexeme,
-        Fragment::Expression{value: Some(ref value), ..} => {
-          line += &value;
-        }
-        Fragment::Expression{ref expression, value: None} => {
-          line += &try!(evaluator.evaluate_expression(expression, &arguments));
-        }
-      }
-    }
-    evaluated_lines.push(line);
-  }
-
-  Ok(Some(evaluated_lines))
-}
-
 struct Evaluator<'a: 'b, 'b> {
   evaluated:   BTreeMap<&'a str, String>,
   scope:       &'b BTreeMap<&'a str, String>,
@@ -503,6 +471,23 @@ struct Evaluator<'a: 'b, 'b> {
 }
 
 impl<'a, 'b> Evaluator<'a, 'b> {
+  fn evaluate_line(
+    &mut self,
+    line:      &Vec<Fragment<'a>>,
+    arguments: &BTreeMap<&str, &str>
+  ) -> Result<String, RunError<'a>> {
+    let mut evaluated = String::new();
+    for fragment in line {
+      match *fragment {
+        Fragment::Text{ref text} => evaluated += text.lexeme,
+        Fragment::Expression{ref expression} => {
+          evaluated += &try!(self.evaluate_expression(expression, arguments));
+        }
+      }
+    }
+    Ok(evaluated)
+  }
+
   fn evaluate_assignment(&mut self, name: &'a str) -> Result<(), RunError<'a>> {
     if self.evaluated.contains_key(name) {
       return Ok(());
@@ -512,7 +497,9 @@ impl<'a, 'b> Evaluator<'a, 'b> {
       let value = try!(self.evaluate_expression(expression, &BTreeMap::new()));
       self.evaluated.insert(name, value);
     } else {
-      panic!("internal error: unknown assigment");
+      return Err(RunError::InternalError { 
+        message: format!("attempted to evaluated unknown assignment {}", name)
+      });
     }
 
     Ok(())
@@ -526,24 +513,22 @@ impl<'a, 'b> Evaluator<'a, 'b> {
     Ok(match *expression {
       Expression::Variable{name, ..} => {
         if self.evaluated.contains_key(name) {
-          self.evaluated.get(name).unwrap().clone()
+          self.evaluated[name].clone()
         } else if self.scope.contains_key(name) {
-          self.scope.get(name).unwrap().clone()
+          self.scope[name].clone()
         } else if self.assignments.contains_key(name) {
           try!(self.evaluate_assignment(name));
-          self.evaluated.get(name).unwrap().clone()
+          self.evaluated[name].clone()
         } else if arguments.contains_key(name) {
-          arguments.get(name).unwrap().to_string()
+          arguments[name].to_string()
         } else {
-          panic!("internal error: unknown error");
+          return Err(RunError::InternalError { 
+            message: format!("attempted to evaluate undefined variable `{}`", name)
+          });
         }
       }
-      Expression::String{ref cooked, ..} => {
-        cooked.clone()
-      }
-      Expression::Backtick{raw, ..} => {
-        raw.to_string()
-      }
+      Expression::String{ref cooked, ..} => cooked.clone(),
+      Expression::Backtick{ref token} => try!(run_backtick(token)),
       Expression::Concatination{ref lhs, ref rhs} => {
         try!(self.evaluate_expression(lhs, arguments))
           +
@@ -583,8 +568,19 @@ enum ErrorKind<'a> {
   UnexpectedToken{expected: Vec<TokenKind>, found: TokenKind},
   UnknownDependency{recipe: &'a str, unknown: &'a str},
   UnknownStartOfToken,
-  UnknownVariable{variable: &'a str},
+  UndefinedVariable{variable: &'a str},
   UnterminatedString,
+}
+
+fn internal_error(message: String) -> Error<'static> {
+  Error {
+    text:   "",
+    index:  0,
+    line:   0,
+    column: 0,
+    width:  None,
+    kind:   ErrorKind::InternalError { message: message }
+  }
 }
 
 fn show_whitespace(text: &str) -> String {
@@ -684,8 +680,8 @@ impl<'a> Display for Error<'a> {
       ErrorKind::UnknownDependency{recipe, unknown} => {
         try!(writeln!(f, "recipe `{}` has unknown dependency `{}`", recipe, unknown));
       }
-      ErrorKind::UnknownVariable{variable} => {
-        try!(writeln!(f, "variable `{}` is unknown", variable));
+      ErrorKind::UndefinedVariable{variable} => {
+        try!(writeln!(f, "variable `{}` not defined", variable));
       }
       ErrorKind::UnknownStartOfToken => {
         try!(writeln!(f, "unknown start of token:"));
@@ -743,7 +739,7 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
     self.recipes.keys().cloned().collect()
   }
 
-  fn run(&'a self, arguments: &[&'b str]) -> Result<(), RunError<'b>> {
+  fn run(&'a self, arguments: &[&'a str]) -> Result<(), RunError<'a>> {
     let scope = try!(evaluate_assignments(&self.assignments));
     let mut ran = HashSet::new();
 
@@ -778,17 +774,17 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
     if !missing.is_empty() {
       return Err(RunError::UnknownRecipes{recipes: missing});
     }
-    for recipe in arguments.iter().map(|name| self.recipes.get(name).unwrap()) {
+    for recipe in arguments.iter().map(|name| &self.recipes[name]) {
       try!(self.run_recipe(recipe, &[], &scope, &mut ran));
     }
     Ok(())
   }
 
-  fn run_recipe(
-    &self,
+  fn run_recipe<'c>(
+    &'c self,
     recipe:    &Recipe<'a>,
     arguments: &[&'a str],
-    scope:     &BTreeMap<&str, String>,
+    scope:     &BTreeMap<&'c str, String>,
     ran:       &mut HashSet<&'a str>
   ) -> Result<(), RunError> {
     for dependency_name in &recipe.dependencies {
@@ -838,6 +834,9 @@ enum RunError<'a> {
   TmpdirIoError{recipe: &'a str, io_error: io::Error},
   UnknownFailure{recipe: &'a str},
   UnknownRecipes{recipes: Vec<&'a str>},
+  // BacktickExecutionCode{backtick: Token<'a>, code: i32},
+  // BacktickExecutionSignal{backtick: Token<'a>, code: i32},
+  // BacktickIoError{backtick: Token<'a>, io_error: io::Error},
 }
 
 impl<'a> Display for RunError<'a> {
@@ -1114,7 +1113,9 @@ fn tokenize(text: &str) -> Result<Vec<Token>, Error> {
       (captures.at(1).unwrap(), captures.at(2).unwrap(), Name)
     } else if let Some(captures) = EOL.captures(rest) {
       if state.last().unwrap() == &State::Interpolation {
-        panic!("interpolation must be closed at end of line");
+        return error!(ErrorKind::InternalError { 
+          message: "hit EOL while still in interpolation state".to_string()
+        });
       }
       (captures.at(1).unwrap(), captures.at(2).unwrap(), Eol)
     } else if let Some(captures) = BACKTICK.captures(rest) {
@@ -1172,10 +1173,12 @@ fn tokenize(text: &str) -> Result<Vec<Token>, Error> {
     });
 
     if len == 0 {
-      match tokens.last().unwrap().kind {
+      let last = tokens.last().unwrap();
+      match last.kind {
         Eof => {},
-        _ => return Err(tokens.last().unwrap().error(
-          ErrorKind::InternalError{message: format!("zero length token: {:?}", tokens.last().unwrap())})),
+        _ => return Err(last.error(ErrorKind::InternalError{
+          message: format!("zero length token: {:?}", last)
+        })),
       }
     }
 
@@ -1339,7 +1342,7 @@ impl<'a> Parser<'a> {
             return Err(self.unexpected_token(&token, &[Text, InterpolationStart, Eol]));
           } else {
             pieces.push(Fragment::Expression{
-              expression: try!(self.expression(true)), value: None
+              expression: try!(self.expression(true))
             });
             if let Some(token) = self.expect(InterpolationEnd) {
               return Err(self.unexpected_token(&token, &[InterpolationEnd]));
@@ -1358,7 +1361,6 @@ impl<'a> Parser<'a> {
       dependency_tokens: dependency_tokens,
       arguments:         arguments,
       argument_tokens:   argument_tokens,
-      evaluated_lines:   vec![],
       lines:             lines,
       shebang:           shebang,
     })
@@ -1368,7 +1370,7 @@ impl<'a> Parser<'a> {
     let first = self.tokens.next().unwrap();
     let lhs = match first.kind {
       Name        => Expression::Variable{name: first.lexeme, token: first},
-      Backtick    => Expression::Backtick{raw: &first.lexeme[1..first.lexeme.len() - 1]},
+      Backtick    => Expression::Backtick{token: first},
       StringToken => {
         let raw = &first.lexeme[1..first.lexeme.len() - 1];
         let mut cooked = String::new();
@@ -1478,7 +1480,7 @@ impl<'a> Parser<'a> {
       }
 
       for dependency in &recipe.dependency_tokens {
-        if !recipes.get(dependency.lexeme).unwrap().arguments.is_empty() {
+        if !recipes[dependency.lexeme].arguments.is_empty() {
           return Err(dependency.error(ErrorKind::DependencyHasArguments {
             recipe: recipe.name,
             dependency: dependency.lexeme,

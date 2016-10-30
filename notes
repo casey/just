@@ -1,19 +1,20 @@
 notes
 -----
 
+- test that `` is parsed and tokenized correctly at the top level and inside interpolations
 
-- all assignments are evaluated before running anything
-- for shebang recipes, all expressions are evaluated first
-- for non-shebang recipes, lines are evaluated one by one and executed
+- actually run backticks
+  . test all error types, errors should underline backtick token
+  . test success in assignment
+  . test success in recipe interpolations
 
-- later we can decide to not evaluate assignments that aren't referenced
-  by any recipe
+- test shebang recipe `` evaluation order
+  make sure that nothing happens if a `` fails on a later line
 
-- deferred evaluation, even though it's good for testing, is a bad idea
-  i should have a resolve assignments phase which just checks,
-  an evaluate assignments phase which runs before any recipe
-  and a evaluate recipe phase that runs when a recipe is run
-  and produces the evaluated lines
+- test command recipe `` evaluation order
+  do some stuff, then have a line with a `` that fails
+  make sure that stuff before that actually happened
+  make sure that result error code is correct
 
 - --debug tests that:
   - should consider renaming it to --evaluate if it actually evaluates stuff
@@ -22,26 +23,8 @@ notes
   - test results of concatination
   - test string escape parsing
 
-- remove evaluated_lines field from recipe
-
-- change unknown variable to undefined variable
-
-- save result of commands in variables
-  . backticks: `echo hello`
-  . backticks in assignments are evaluated before the first recipe is run
-  . backticks in recipes are evaluated before that recipe is run
-  . should i do deferred evaluation for everything and just resolve initially?
-  . should i merge evaluator into Justfile?
-  . backtick evaluation returns None initially
-  . justfile.run() evaluates all backticks in assignments
-  . should i have a resolve step and an deval step? should they be different code?
-  . when you run the recipe, then you execute it
-  . eval shebang recipes all at once, but plain recipes line by line
-  . we want to avoid executing backticks before we need them
-
 - --debug mode will evaluate everything and print values after assignments and interpolation expressions
-
-- nicely convert a map to option string to a map to string
+  . should it evaluate `` in recipes?
 
 - set variables from the command line:
   . j --set build linux
@@ -65,7 +48,7 @@ notes
   #![deny(missing_docs)]
 - note that shell is invoked with -cu, explain -c and -u
 - document all features with example justfiles
-  (also make them runnable as tests)
+  (also make them runnable as tests, maybe, at least parse them)
   . update tarball dep
   . check version string
   . clean
@@ -91,6 +74,7 @@ notes
 
 enhancements:
 
+- lazy assignment: don't evaluate unused assignments
 - use cow strings where we currently use String
 - colored error messages
 - multi line strings (maybe not in recipe interpolations)

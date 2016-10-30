@@ -633,7 +633,7 @@ fn unknown_expression_variable() {
     line:   0,
     column: 4,
     width:  Some(2),
-    kind:   ErrorKind::UnknownVariable{variable: "yy"},
+    kind:   ErrorKind::UndefinedVariable{variable: "yy"},
   });
 }
 
@@ -646,7 +646,7 @@ fn unknown_interpolation_variable() {
     line:   1,
     column: 6,
     width:  Some(5),
-    kind:   ErrorKind::UnknownVariable{variable: "hello"},
+    kind:   ErrorKind::UndefinedVariable{variable: "hello"},
   });
 }
 
@@ -659,7 +659,7 @@ fn unknown_second_interpolation_variable() {
     line:   3,
     column: 16,
     width:  Some(3),
-    kind:   ErrorKind::UnknownVariable{variable: "lol"},
+    kind:   ErrorKind::UndefinedVariable{variable: "lol"},
   });
 }
 
