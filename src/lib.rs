@@ -197,6 +197,7 @@ impl<'a> Recipe<'a> {
       evaluated:   BTreeMap::new(),
       scope:       scope,
       assignments: &BTreeMap::new(),
+      overrides:   &BTreeMap::new(),
     };
 
     if self.shebang {
@@ -494,11 +495,13 @@ impl<'a: 'b, 'b> AssignmentResolver<'a, 'b> {
 
 fn evaluate_assignments<'a>(
   assignments: &BTreeMap<&'a str, Expression<'a>>,
+  overrides:   &BTreeMap<&str, &str>,
 ) -> Result<BTreeMap<&'a str, String>, RunError<'a>> {
   let mut evaluator = Evaluator {
-    evaluated:         BTreeMap::new(),
-    scope:             &BTreeMap::new(),
-    assignments:       assignments,
+    evaluated:   BTreeMap::new(),
+    scope:       &BTreeMap::new(),
+    assignments: assignments,
+    overrides:   overrides,
   };
 
   for name in assignments.keys() {
@@ -512,6 +515,7 @@ struct Evaluator<'a: 'b, 'b> {
   evaluated:   BTreeMap<&'a str, String>,
   scope:       &'b BTreeMap<&'a str, String>,
   assignments: &'b BTreeMap<&'a str, Expression<'a>>,
+  overrides:   &'b BTreeMap<&'b str, &'b str>,
 }
 
 impl<'a, 'b> Evaluator<'a, 'b> {
@@ -538,8 +542,12 @@ impl<'a, 'b> Evaluator<'a, 'b> {
     }
 
     if let Some(expression) = self.assignments.get(name) {
-      let value = try!(self.evaluate_expression(expression, &BTreeMap::new()));
-      self.evaluated.insert(name, value);
+      if let Some(value) = self.overrides.get(name) {
+        self.evaluated.insert(name, value.to_string());
+      } else {
+        let value = try!(self.evaluate_expression(expression, &BTreeMap::new()));
+        self.evaluated.insert(name, value);
+      }
     } else {
       return Err(RunError::InternalError { 
         message: format!("attempted to evaluated unknown assignment {}", name)
@@ -635,26 +643,41 @@ fn mixed_whitespace(text: &str) -> bool {
   !(text.chars().all(|c| c == ' ') || text.chars().all(|c| c == '\t'))
 }
 
-struct Or<'a, T: 'a + Display>(&'a [T]);
+struct And<'a, T: 'a + Display>(&'a [T]);
+struct Or <'a, T: 'a + Display>(&'a [T]);
+
+impl<'a, T: Display> Display for And<'a, T> {
+  fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+    conjoin(f, self.0, "and")
+  }
+}
 
 impl<'a, T: Display> Display for Or<'a, T> {
   fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-    match self.0.len() {
+    conjoin(f, self.0, "or")
+  }
+}
+
+fn conjoin<T: Display>(
+  f:           &mut fmt::Formatter,
+  values:      &[T],
+  conjunction: &str,
+) -> Result<(), fmt::Error> {
+    match values.len() {
       0 => {},
-      1 => try!(write!(f, "{}", self.0[0])),
-      2 => try!(write!(f, "{} or {}", self.0[0], self.0[1])),
-      _ => for (i, item) in self.0.iter().enumerate() {
+      1 => try!(write!(f, "{}", values[0])),
+      2 => try!(write!(f, "{} {} {}", values[0], conjunction, values[1])),
+      _ => for (i, item) in values.iter().enumerate() {
         try!(write!(f, "{}", item));
-        if i == self.0.len() - 1 {
-        } else if i == self.0.len() - 2 {
-          try!(write!(f, ", or "));
+        if i == values.len() - 1 {
+        } else if i == values.len() - 2 {
+          try!(write!(f, ", {} ", conjunction));
         } else {
           try!(write!(f, ", "))
         }
       },
     }
     Ok(())
-  }
 }
 
 impl<'a> Display for Error<'a> {
@@ -783,8 +806,20 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
     self.recipes.keys().cloned().collect()
   }
 
-  fn run(&'a self, arguments: &[&'a str]) -> Result<(), RunError<'a>> {
-    let scope = try!(evaluate_assignments(&self.assignments));
+  fn run(
+    &'a self,
+    overrides: &BTreeMap<&'a str, &'a str>,
+    arguments: &[&'a str]
+  ) -> Result<(), RunError<'a>> {
+    let unknown_overrides = overrides.keys().cloned()
+      .filter(|name| !self.assignments.contains_key(name))
+      .collect::<Vec<_>>();
+
+    if !unknown_overrides.is_empty() {
+      return Err(RunError::UnknownOverrides{overrides: unknown_overrides});
+    }
+
+    let scope = try!(evaluate_assignments(&self.assignments, overrides));
     let mut ran = HashSet::new();
 
     for (i, argument) in arguments.iter().enumerate() {
@@ -878,6 +913,7 @@ enum RunError<'a> {
   TmpdirIoError{recipe: &'a str, io_error: io::Error},
   UnknownFailure{recipe: &'a str},
   UnknownRecipes{recipes: Vec<&'a str>},
+  UnknownOverrides{overrides: Vec<&'a str>},
   BacktickCode{code: i32, token: Token<'a>},
   BacktickIoError{io_error: io::Error},
   BacktickSignal{signal: i32},
@@ -894,6 +930,10 @@ impl<'a> Display for RunError<'a> {
         } else {
           try!(write!(f, "Justfile does not contain recipes: {}", recipes.join(" ")));
         };
+      },
+      RunError::UnknownOverrides{ref overrides} => {
+        try!(write!(f, "{} set on the command line but not present in justfile",
+                    And(overrides)))
       },
       RunError::NonLeadingRecipeWithArguments{recipe} => {
         try!(write!(f, "Recipe `{}` takes arguments and so must be the first and only recipe specified on the command line", recipe));

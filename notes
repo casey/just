@@ -7,13 +7,7 @@ notes
   - test values of interpolations
   - test results of concatination
   - test string escape parsing
-
-- --debug mode will evaluate everything and print values after assignments and interpolation expressions
-  . should it evaluate `` in recipes?
-
-- set variables from the command line:
-  . j --set build linux
-  . j build=linux
+  - should it evaluate `` in recipes?
 
 - before release:
 
@@ -39,6 +33,8 @@ notes
   . clean
   . update logs (repetitive git flow)
 - full documentation
+  . man page
+  . record sessions and replay them to output docs
   . talk about why the syntax is so unforgiving
     easier to accept a program that you once rejected than to
     no longer accept a program or change its meaning
@@ -71,4 +67,9 @@ enhancements:
   . just xyz/foo # xyz/justfile:foo
   . just xyz/    # xyz/justfile:DEFAULT
 - allow setting and exporting environment variables
+  . export a as "HELLO_BAR"
+  . export a
+  . export HELLO_BAR = a
+  . export CC_FLAGS = "-g"
+  . will have to support crazy names
 - indentation or slash for line continuation in plain recipes

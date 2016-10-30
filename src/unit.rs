@@ -1,8 +1,8 @@
 extern crate tempdir;
 
-use super::{Token, Error, ErrorKind, Justfile};
-
+use super::{Token, Error, ErrorKind, Justfile, RunError};
 use super::TokenKind::*;
+use std::collections::BTreeMap;
 
 fn tokenize_success(text: &str, expected_summary: &str) {
   let tokens = super::tokenize(text).unwrap();
@@ -562,7 +562,7 @@ fn mixed_leading_whitespace() {
 }
 
 #[test]
-fn write_or() {
+fn conjoin_or() {
   assert_eq!("1",             super::Or(&[1      ]).to_string());
   assert_eq!("1 or 2",        super::Or(&[1,2    ]).to_string());
   assert_eq!("1, 2, or 3",    super::Or(&[1,2,3  ]).to_string());
@@ -570,10 +570,18 @@ fn write_or() {
 }
 
 #[test]
+fn conjoin_and() {
+  assert_eq!("1",             super::And(&[1      ]).to_string());
+  assert_eq!("1 and 2",        super::And(&[1,2    ]).to_string());
+  assert_eq!("1, 2, and 3",    super::And(&[1,2,3  ]).to_string());
+  assert_eq!("1, 2, 3, and 4", super::And(&[1,2,3,4]).to_string());
+}
+
+#[test]
 fn unknown_recipes() {
-  match parse_success("a:\nb:\nc:").run(&["a", "x", "y", "z"]).unwrap_err() {
-    super::RunError::UnknownRecipes{recipes} => assert_eq!(recipes, &["x", "y", "z"]),
-    other @ _ => panic!("expected an unknown recipe error, but got: {}", other),
+  match parse_success("a:\nb:\nc:").run(&BTreeMap::new(), &["a", "x", "y", "z"]).unwrap_err() {
+    RunError::UnknownRecipes{recipes} => assert_eq!(recipes, &["x", "y", "z"]),
+    other => panic!("expected an unknown recipe error, but got: {}", other),
   }
 }
 
@@ -739,8 +747,8 @@ a:
  x
 ";
 
-  match parse_success(text).run(&["a"]).unwrap_err() {
-    super::RunError::Code{recipe, code} => {
+  match parse_success(text).run(&BTreeMap::new(), &["a"]).unwrap_err() {
+    RunError::Code{recipe, code} => {
       assert_eq!(recipe, "a");
       assert_eq!(code, 200);
     },
@@ -750,12 +758,12 @@ a:
 
 #[test]
 fn code_error() {
-  match parse_success("fail:\n @function x { return 100; }; x").run(&["fail"]).unwrap_err() {
-    super::RunError::Code{recipe, code} => {
+  match parse_success("fail:\n @function x { return 100; }; x").run(&BTreeMap::new(), &["fail"]).unwrap_err() {
+    RunError::Code{recipe, code} => {
       assert_eq!(recipe, "fail");
       assert_eq!(code, 100);
     },
-    other @ _ => panic!("expected a code run error, but got: {}", other),
+    other => panic!("expected a code run error, but got: {}", other),
   }
 }
 
@@ -765,8 +773,8 @@ fn run_args() {
 a return code:
  @function x { {{return}} {{code + "0"}}; }; x"#;
 
-  match parse_success(text).run(&["a", "return", "15"]).unwrap_err() {
-    super::RunError::Code{recipe, code} => {
+  match parse_success(text).run(&BTreeMap::new(), &["a", "return", "15"]).unwrap_err() {
+    RunError::Code{recipe, code} => {
       assert_eq!(recipe, "a");
       assert_eq!(code, 150);
     },
@@ -776,8 +784,8 @@ a return code:
 
 #[test]
 fn missing_args() {
-  match parse_success("a b c d:").run(&["a", "b", "c"]).unwrap_err() {
-    super::RunError::ArgumentCountMismatch{recipe, found, expected} => {
+  match parse_success("a b c d:").run(&BTreeMap::new(), &["a", "b", "c"]).unwrap_err() {
+    RunError::ArgumentCountMismatch{recipe, found, expected} => {
       assert_eq!(recipe, "a");
       assert_eq!(found, 2);
       assert_eq!(expected, 3);
@@ -788,8 +796,8 @@ fn missing_args() {
 
 #[test]
 fn missing_default() {
-  match parse_success("a b c d:\n echo {{b}}{{c}}{{d}}").run(&["a"]).unwrap_err() {
-    super::RunError::ArgumentCountMismatch{recipe, found, expected} => {
+  match parse_success("a b c d:\n echo {{b}}{{c}}{{d}}").run(&BTreeMap::new(), &["a"]).unwrap_err() {
+    RunError::ArgumentCountMismatch{recipe, found, expected} => {
       assert_eq!(recipe, "a");
       assert_eq!(found, 0);
       assert_eq!(expected, 3);
@@ -800,10 +808,24 @@ fn missing_default() {
 
 #[test]
 fn backtick_code() {
-  match parse_success("a:\n echo {{`function f { return 100; }; f`}}").run(&["a"]).unwrap_err() {
-    super::RunError::BacktickCode{code, token} => {
+  match parse_success("a:\n echo {{`function f { return 100; }; f`}}").run(&BTreeMap::new(), &["a"]).unwrap_err() {
+    RunError::BacktickCode{code, token} => {
       assert_eq!(code, 100);
       assert_eq!(token.lexeme, "`function f { return 100; }; f`");
+    },
+    other => panic!("expected an code run error, but got: {}", other),
+  }
+}
+
+#[test]
+fn unknown_overrides() {
+  let mut overrides = BTreeMap::new();
+  overrides.insert("foo", "bar");
+  overrides.insert("baz", "bob");
+  match parse_success("a:\n echo {{`function f { return 100; }; f`}}")
+  .run(&overrides, &["a"]).unwrap_err() {
+    RunError::UnknownOverrides{overrides} => {
+      assert_eq!(overrides, &["baz", "foo"]);
     },
     other => panic!("expected an code run error, but got: {}", other),
   }

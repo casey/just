@@ -349,3 +349,52 @@ a = `exit 222`",
 ",
   );
 }
+
+#[test]
+fn unknown_override_options() {
+  integration_test(
+    "unknown_override_options",
+    &["--set", "foo", "bar", "a", "b", "--set", "baz", "bob", "--set", "a", "b"],
+    "foo:
+ echo hello
+ echo {{`exit 111`}}
+a = `exit 222`",
+    255,
+    "",
+    "baz and foo set on the command line but not present in justfile\n",
+  );
+}
+
+#[test]
+fn unknown_override_args() {
+  integration_test(
+    "unknown_override_args",
+    &["foo=bar", "baz=bob", "a=b", "a", "b"],
+    "foo:
+ echo hello
+ echo {{`exit 111`}}
+a = `exit 222`",
+    255,
+    "",
+    "baz and foo set on the command line but not present in justfile\n",
+  );
+}
+
+#[test]
+fn overrides_first() {
+  integration_test(
+    "unknown_override_args",
+    &["foo=bar", "a=b", "recipe", "baz=bar"],
+    r#"
+foo = "foo"
+a = "a"
+baz = "baz"
+    
+recipe arg:
+ echo arg={{arg}}
+ echo {{foo + a + baz}}"#,
+    0,
+    "arg=baz=bar\nbarbbaz\n",
+    "echo arg=baz=bar\necho barbbaz\n",
+  );
+}

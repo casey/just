@@ -1,6 +1,8 @@
 extern crate clap;
+extern crate regex;
 
 use std::{io, fs, env, process};
+use std::collections::BTreeMap;
 use self::clap::{App, Arg};
 use super::Slurp;
 
@@ -37,6 +39,13 @@ pub fn app() {
          .takes_value(true)
          .value_name("recipe")
          .help("Show information about <recipe>"))
+    .arg(Arg::with_name("set")
+         .long("set")
+         .takes_value(true)
+         .number_of_values(2)
+         .value_names(&["variable", "value"])
+         .multiple(true)
+         .help("set <variable> to <value>"))
     .arg(Arg::with_name("working-directory")
          .long("working-directory")
          .takes_value(true)
@@ -123,15 +132,37 @@ pub fn app() {
     }
   }
 
+  let set_count = matches.occurrences_of("set");
+  let mut overrides = BTreeMap::new();
+  if set_count > 0 {
+    let mut values = matches.values_of("set").unwrap();
+    for _ in 0..set_count {
+      overrides.insert(values.next().unwrap(), values.next().unwrap());
+    }
+  }
+
+  let override_re = regex::Regex::new("^([^=]+)=(.*)$").unwrap();
+
   let arguments = if let Some(arguments) = matches.values_of("arguments") {
-    arguments.collect::<Vec<_>>()
+    let mut done = false;
+    let mut rest = vec![];
+    for argument in arguments {
+      if !done && override_re.is_match(argument) {
+        let captures = override_re.captures(argument).unwrap();
+        overrides.insert(captures.at(1).unwrap(), captures.at(2).unwrap());
+      } else {
+        rest.push(argument);
+        done = true;
+      }
+    }
+    rest
   } else if let Some(recipe) = justfile.first() {
     vec![recipe]
   } else {
     die!("Justfile contains no recipes");
   };
 
-  if let Err(run_error) = justfile.run(&arguments) {
+  if let Err(run_error) = justfile.run(&overrides, &arguments) {
     warn!("{}", run_error);
     match run_error {
       super::RunError::Code{code, ..        } => process::exit(code),
