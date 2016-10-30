@@ -1,11 +1,7 @@
 todo
 ----
 
-- allow setting and exporting environment variables
-  . export a as "HELLO_BAR"
-  . export a
-  . export HELLO_BAR = a
-  . export CC_FLAGS = "-g"
+clean up export parsing
 
 - raw strings with ''
 - multi line strings (not in recipe interpolations)

@@ -4,6 +4,7 @@ version = "0.2.8"
 dependencies = [
  "brev 0.1.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "clap 2.16.3 (registry+https://github.com/rust-lang/crates.io-index)",
+ "itertools 0.5.5 (registry+https://github.com/rust-lang/crates.io-index)",
  "lazy_static 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "regex 0.1.80 (registry+https://github.com/rust-lang/crates.io-index)",
  "tempdir 0.3.5 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -52,9 +53,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "either"
+version = "1.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[[package]]
 name = "glob"
 version = "0.2.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[[package]]
+name = "itertools"
+version = "0.5.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "either 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
+]
 
 [[package]]
 name = "kernel32-sys"
@@ -184,7 +198,9 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum bitflags 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)" = "aad18937a628ec6abcd26d1489012cc0e18c21798210f491af69ded9b881106d"
 "checksum brev 0.1.6 (registry+https://github.com/rust-lang/crates.io-index)" = "79571b60a8aa293f43b46370d8ba96fed28a5bee1303ea0e015d175ed0c63b40"
 "checksum clap 2.16.3 (registry+https://github.com/rust-lang/crates.io-index)" = "0ab91429d96eece6d6cf8a737105f0e255fea039fed86e2118ff8d3fd69601dd"
+"checksum either 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)" = "8aa2c82b7e1abd89a8a59fd89c4a51576ea76a894edf5d5b28944dd46edfed8d"
 "checksum glob 0.2.11 (registry+https://github.com/rust-lang/crates.io-index)" = "8be18de09a56b60ed0edf84bc9df007e30040691af7acd1c41874faac5895bfb"
+"checksum itertools 0.5.5 (registry+https://github.com/rust-lang/crates.io-index)" = "ef81b0a15a9e1808cfd3ebe6a87277d29ee88b34ac1197cc7547f1dd6d9f5424"
 "checksum kernel32-sys 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)" = "7507624b29483431c0ba2d82aece8ca6cdba9382bff4ddd0f7490560c056098d"
 "checksum lazy_static 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)" = "49247ec2a285bb3dcb23cbd9c35193c025e7251bfce77c1d5da97e6362dffe7f"
 "checksum libc 0.2.16 (registry+https://github.com/rust-lang/crates.io-index)" = "408014cace30ee0f767b1c4517980646a573ec61a57957aeeabcac8ac0a02e8d"

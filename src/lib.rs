@@ -12,6 +12,7 @@ pub use app::app;
 extern crate lazy_static;
 extern crate regex;
 extern crate tempdir;
+extern crate itertools;
 
 use std::io::prelude::*;
 
@@ -148,14 +149,39 @@ fn backtick_error_from_signal(exit_status: process::ExitStatus) -> RunError<'sta
   RunError::BacktickUnknownFailure
 }
 
-fn run_backtick<'a>(raw: &str, token: &Token<'a>) -> Result<String, RunError<'a>> {
-  let output = process::Command::new("sh")
-    .arg("-cu")
-    .arg(raw)
-    .stderr(process::Stdio::inherit())
-    .output();
+fn export_env<'a>(
+  command: &mut process::Command,
+  scope:   &Map<&'a str, String>,
+  exports: &Set<&'a str>,
+) -> Result<(), RunError<'a>> {
+  for name in exports {
+    if let Some(value) = scope.get(name) {
+      command.env(name, value);
+    } else {
+      return Err(RunError::InternalError {
+        message: format!("scope does not contain exported variable `{}`",  name),
+      });
+    }
+  }
+  Ok(())
+}
 
-  match output {
+
+fn run_backtick<'a>(
+  raw:     &str,
+  token:   &Token<'a>,
+  scope:   &Map<&'a str, String>,
+  exports: &Set<&'a str>,
+) -> Result<String, RunError<'a>> {
+  let mut cmd = process::Command::new("sh");
+
+  try!(export_env(&mut cmd, scope, exports));
+
+  cmd.arg("-cu")
+     .arg(raw)
+     .stderr(process::Stdio::inherit());
+
+  match cmd.output() {
     Ok(output) => {
       if let Some(code) = output.status.code() {
         if code != 0 {
@@ -189,6 +215,7 @@ impl<'a> Recipe<'a> {
     &self,
     arguments: &[&'a str],
     scope:     &Map<&'a str, String>,
+    exports:   &Set<&'a str>,
     dry_run:   bool,
   ) -> Result<(), RunError<'a>> {
     let argument_map = arguments .iter().enumerate()
@@ -197,6 +224,7 @@ impl<'a> Recipe<'a> {
     let mut evaluator = Evaluator {
       evaluated:   Map::new(),
       scope:       scope,
+      exports:     exports,
       assignments: &Map::new(),
       overrides:   &Map::new(),
     };
@@ -257,8 +285,11 @@ impl<'a> Recipe<'a> {
       try!(fs::set_permissions(&path, perms).map_err(|error| RunError::TmpdirIoError{recipe: self.name, io_error: error}));
 
       // run it!
-      let status = process::Command::new(path).status();
-      try!(match status {
+      let mut command = process::Command::new(path);
+
+      try!(export_env(&mut command, scope, exports));
+
+      try!(match command.status() {
         Ok(exit_status) => if let Some(code) = exit_status.code() {
           if code == 0 {
             Ok(())
@@ -284,11 +315,14 @@ impl<'a> Recipe<'a> {
         if dry_run {
           continue;
         }
-        let status = process::Command::new("sh")
-          .arg("-cu")
-          .arg(command)
-          .status();
-        try!(match status {
+
+        let mut cmd = process::Command::new("sh");
+
+        cmd.arg("-cu").arg(command);
+
+        try!(export_env(&mut cmd, scope, exports));
+
+        try!(match cmd.status() {
           Ok(exit_status) => if let Some(code) = exit_status.code() {
             if code == 0 {
               Ok(())
@@ -513,6 +547,7 @@ fn evaluate_assignments<'a>(
   let mut evaluator = Evaluator {
     evaluated:   Map::new(),
     scope:       &Map::new(),
+    exports:     &Set::new(),
     assignments: assignments,
     overrides:   overrides,
   };
@@ -527,6 +562,7 @@ fn evaluate_assignments<'a>(
 struct Evaluator<'a: 'b, 'b> {
   evaluated:   Map<&'a str, String>,
   scope:       &'b Map<&'a str, String>,
+  exports:     &'b Set<&'a str>,
   assignments: &'b Map<&'a str, Expression<'a>>,
   overrides:   &'b Map<&'b str, &'b str>,
 }
@@ -593,7 +629,9 @@ impl<'a, 'b> Evaluator<'a, 'b> {
         }
       }
       Expression::String{ref cooked, ..} => cooked.clone(),
-      Expression::Backtick{raw, ref token} => try!(run_backtick(raw, token)),
+      Expression::Backtick{raw, ref token} => {
+        try!(run_backtick(raw, token, &self.scope, &self.exports))
+      }
       Expression::Concatination{ref lhs, ref rhs} => {
         try!(self.evaluate_expression(lhs, arguments))
           +
@@ -790,6 +828,7 @@ impl<'a> Display for Error<'a> {
 struct Justfile<'a> {
   recipes:     Map<&'a str, Recipe<'a>>,
   assignments: Map<&'a str, Expression<'a>>,
+  exports:     Set<&'a str>,
 }
 
 impl<'a, 'b> Justfile<'a> where 'a: 'b {
@@ -890,7 +929,7 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
         try!(self.run_recipe(&self.recipes[dependency_name], &[], scope, ran, dry_run));
       }
     }
-    try!(recipe.run(arguments, &scope, dry_run));
+    try!(recipe.run(arguments, &scope, &self.exports, dry_run));
     ran.insert(recipe.name);
     Ok(())
   }
@@ -904,6 +943,9 @@ impl<'a> Display for Justfile<'a> {
   fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
     let mut items = self.recipes.len() + self.assignments.len();
     for (name, expression) in &self.assignments {
+      if self.exports.contains(name) {
+        try!(write!(f, "export "));
+      }
       try!(write!(f, "{} = {}", name, expression));
       items -= 1;
       if items != 0 {
@@ -1343,9 +1385,9 @@ fn tokenize(text: &str) -> Result<Vec<Token>, Error> {
 fn parse(text: &str) -> Result<Justfile, Error> {
   let tokens = try!(tokenize(text));
   let filtered: Vec<_> = tokens.into_iter().filter(|token| token.kind != Comment).collect();
-  let parser = Parser{
-    text: text,
-    tokens: filtered.into_iter().peekable()
+  let parser = Parser {
+    text:   text,
+    tokens: itertools::put_back(filtered),
   };
   let justfile = try!(parser.file());
   Ok(justfile)
@@ -1353,12 +1395,15 @@ fn parse(text: &str) -> Result<Justfile, Error> {
 
 struct Parser<'a> {
   text:   &'a str,
-  tokens: std::iter::Peekable<std::vec::IntoIter<Token<'a>>>
+  tokens: itertools::PutBack<std::vec::IntoIter<Token<'a>>>
 }
 
 impl<'a> Parser<'a> {
   fn peek(&mut self, kind: TokenKind) -> bool {
-    self.tokens.peek().unwrap().kind == kind
+    let next = self.tokens.next().unwrap();
+    let result = next.kind == kind;
+    self.tokens.put_back(next);
+    result
   }
 
   fn accept(&mut self, kind: TokenKind) -> Option<Token<'a>> {
@@ -1560,7 +1605,28 @@ impl<'a> Parser<'a> {
         Some(token) => match token.kind {
           Eof => break,
           Eol => continue,
-          Name => if self.accepted(Equals) {
+          Name => if token.lexeme == "export" {
+            let next = self.tokens.next().unwrap();
+            if next.kind == Name && self.accepted(Equals) {
+              if assignments.contains_key(next.lexeme) {
+                return Err(token.error(ErrorKind::DuplicateVariable {
+                  variable: next.lexeme,
+                }));
+              }
+              exports.insert(next.lexeme);
+              assignments.insert(next.lexeme, try!(self.expression(false)));
+              assignment_tokens.insert(next.lexeme, next);
+            } else {
+              self.tokens.put_back(next);
+              if let Some(recipe) = recipes.get(token.lexeme) {
+                return Err(token.error(ErrorKind::DuplicateRecipe {
+                  recipe: recipe.name,
+                  first:  recipe.line_number
+                }));
+              }
+              recipes.insert(token.lexeme, try!(self.recipe(token.lexeme, token.line)));
+            }
+          } else if self.accepted(Equals) {
             if assignments.contains_key(token.lexeme) {
               return Err(token.error(ErrorKind::DuplicateVariable {
                 variable: token.lexeme,
@@ -1569,7 +1635,7 @@ impl<'a> Parser<'a> {
             assignments.insert(token.lexeme, try!(self.expression(false)));
             assignment_tokens.insert(token.lexeme, token);
           } else {
-            if let Some(recipe) = recipes.remove(token.lexeme) {
+            if let Some(recipe) = recipes.get(token.lexeme) {
               return Err(token.error(ErrorKind::DuplicateRecipe {
                 recipe: recipe.name,
                 first:  recipe.line_number
@@ -1627,6 +1693,7 @@ impl<'a> Parser<'a> {
     Ok(Justfile {
       recipes:     recipes,
       assignments: assignments,
+      exports:     exports,
     })
   }
 }

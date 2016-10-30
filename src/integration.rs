@@ -5,14 +5,13 @@ use tempdir::TempDir;
 use super::std::process::Command;
 
 fn integration_test(
-  name:            &str,
   args:            &[&str],
   justfile:        &str,
   expected_status: i32,
   expected_stdout: &str,
   expected_stderr: &str,
 ) {
-  let tmp = TempDir::new(name)
+  let tmp = TempDir::new("just-integration")
     .unwrap_or_else(|err| panic!("tmpdir: failed to create temporary directory: {}", err));
   let mut path = tmp.path().to_path_buf();
   path.push("justfile");
@@ -53,7 +52,6 @@ fn integration_test(
 #[test]
 fn default() {
   integration_test(
-    "default",
     &[],
     "default:\n echo hello\nother: \n echo bar",
     0,
@@ -65,7 +63,6 @@ fn default() {
 #[test]
 fn quiet() {
   integration_test(
-    "quiet",
     &[],
     "default:\n @echo hello",
     0,
@@ -94,7 +91,6 @@ c: b
   echo c
   @mv b c";
   integration_test(
-    "order",
     &["a", "d"],
     text,
     0,
@@ -111,7 +107,6 @@ a:
 d: c
 c: b";
   integration_test(
-    "list",
     &["--list"],
     text,
     0,
@@ -132,7 +127,6 @@ d:
 c:
   @echo c";
   integration_test(
-    "select",
     &["d", "c"],
     text,
     0,
@@ -153,7 +147,6 @@ d:
 c:
   echo c";
   integration_test(
-    "select",
     &["d", "c"],
     text,
     0,
@@ -171,7 +164,6 @@ bar = hello + hello
 recipe:
  echo {{hello + "bar" + bar}}"#;
   integration_test(
-    "show",
     &["--show", "recipe"],
     text,
     0,
@@ -190,7 +182,6 @@ bar = hello + hello
 recipe:
  echo {{hello + "bar" + bar}}"#;
   integration_test(
-    "debug",
     &["--debug"],
     text,
     0,
@@ -213,7 +204,6 @@ fn status() {
 recipe:
  @function f { return 100; }; f";
   integration_test(
-    "status",
     &[],
     text,
     100,
@@ -225,7 +215,6 @@ recipe:
 #[test]
 fn error() {
   integration_test(
-    "error",
     &[],
     "bar:\nhello:\nfoo: bar baaaaaaaz hello",
     255,
@@ -241,7 +230,6 @@ fn error() {
 #[test]
 fn backtick_success() {
   integration_test(
-    "backtick_success",
     &[],
     "a = `printf Hello,`\nbar:\n printf '{{a + `printf ' world!'`}}'",
     0,
@@ -253,7 +241,6 @@ fn backtick_success() {
 #[test]
 fn backtick_trimming() {
   integration_test(
-    "backtick_trimming",
     &[],
     "a = `echo Hello,`\nbar:\n echo '{{a + `echo ' world!'`}}'",
     0,
@@ -265,7 +252,6 @@ fn backtick_trimming() {
 #[test]
 fn backtick_code_assignment() {
   integration_test(
-    "backtick_code_assignment",
     &[],
     "b = a\na = `function f { return 100; }; f`\nbar:\n echo '{{`function f { return 200; }; f`}}'",
     100,
@@ -281,7 +267,6 @@ fn backtick_code_assignment() {
 #[test]
 fn backtick_code_interpolation() {
   integration_test(
-    "backtick_code_interpolation",
     &[],
     "b = a\na = `echo hello`\nbar:\n echo '{{`function f { return 200; }; f`}}'",
     200,
@@ -297,7 +282,6 @@ fn backtick_code_interpolation() {
 #[test]
 fn shebang_backtick_failure() {
   integration_test(
-    "shebang_backtick_failure",
     &[],
     "foo:
  #!/bin/sh
@@ -316,7 +300,6 @@ fn shebang_backtick_failure() {
 #[test]
 fn command_backtick_failure() {
   integration_test(
-    "command_backtick_failure",
     &[],
     "foo:
  echo hello
@@ -334,7 +317,6 @@ fn command_backtick_failure() {
 #[test]
 fn assignment_backtick_failure() {
   integration_test(
-    "assignment_backtick_failure",
     &[],
     "foo:
  echo hello
@@ -353,7 +335,6 @@ a = `exit 222`",
 #[test]
 fn unknown_override_options() {
   integration_test(
-    "unknown_override_options",
     &["--set", "foo", "bar", "a", "b", "--set", "baz", "bob", "--set", "a", "b"],
     "foo:
  echo hello
@@ -368,7 +349,6 @@ a = `exit 222`",
 #[test]
 fn unknown_override_args() {
   integration_test(
-    "unknown_override_args",
     &["foo=bar", "baz=bob", "a=b", "a", "b"],
     "foo:
  echo hello
@@ -383,7 +363,6 @@ a = `exit 222`",
 #[test]
 fn overrides_first() {
   integration_test(
-    "unknown_override_args",
     &["foo=bar", "a=b", "recipe", "baz=bar"],
     r#"
 foo = "foo"
@@ -404,7 +383,6 @@ recipe arg:
 #[test]
 fn dry_run() {
   integration_test(
-    "dry_run",
     &["--dry-run", "shebang", "command"],
     r#"
 var = `echo stderr 1>&2; echo backtick`
@@ -436,7 +414,6 @@ echo command interpolation
 #[test]
 fn evaluate() {
   integration_test(
-    "evaluate",
     &["--evaluate"],
     r#"
 foo = "a\t"
@@ -457,3 +434,102 @@ foo = "a	"
   );
 }
 
+#[test]
+fn export_success() {
+  integration_test(
+    &[],
+    r#"
+export foo = "a"
+baz = "c"
+export bar = "b"
+export abc = foo + bar + baz
+
+wut:
+  echo $foo $bar $abc
+"#,
+    0,
+    "a b abc\n",
+    "echo $foo $bar $abc\n",
+  );
+}
+
+
+#[test]
+fn export_failure() {
+  integration_test(
+    &[],
+    r#"
+export foo = "a"
+baz = "c"
+export bar = "b"
+export abc = foo + bar + baz
+
+wut:
+  echo $foo $bar $baz
+"#,
+    127,
+    "",
+    r#"echo $foo $bar $baz
+sh: baz: unbound variable
+Recipe "wut" failed with exit code 127
+"#,
+  );
+}
+
+#[test]
+fn export_shebang() {
+  integration_test(
+    &[],
+    r#"
+export foo = "a"
+baz = "c"
+export bar = "b"
+export abc = foo + bar + baz
+
+wut:
+  #!/bin/sh
+  echo $foo $bar $abc
+"#,
+    0,
+    "a b abc\n",
+    "",
+  );
+}
+
+#[test]
+fn export_assignment_backtick() {
+  integration_test(
+    &[],
+    r#"
+export exported_variable = "A"
+b = `echo $exported_variable`
+
+recipe:
+  echo {{b}}
+"#,
+    127,
+    "",
+    "sh: exported_variable: unbound variable
+backtick failed with exit code 127
+  |
+3 | b = `echo $exported_variable`
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+",
+  );
+}
+
+#[test]
+fn export_recipe_backtick() {
+  integration_test(
+    &[],
+    r#"
+export exported_variable = "A-IS-A"
+
+recipe:
+  echo {{`echo recipe $exported_variable`}}
+"#,
+    0,
+    "recipe A-IS-A\n",
+    "echo recipe A-IS-A\n",
+  );
+}

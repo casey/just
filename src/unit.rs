@@ -247,6 +247,15 @@ fn parse_empty() {
 }
 
 #[test]
+fn parse_export() {
+  parse_summary(r#"
+export a = "hello"
+
+  "#, r#"export a = "hello""#);
+}
+
+
+#[test]
 fn parse_complex() {
   parse_summary("
 x:
