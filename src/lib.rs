@@ -136,10 +136,14 @@ fn error_from_signal(recipe: &str, exit_status: process::ExitStatus) -> RunError
 }
 
 impl<'a> Recipe<'a> {
-  fn run(&self, arguments: &[&'a str], scope: &BTreeMap<&'a str, String>) -> Result<(), RunError<'a>> {
+  fn run(
+    &self,
+    arguments: &[&'a str],
+    scope: &BTreeMap<&str, String>
+  ) -> Result<(), RunError<'a>> {
     let mut arg_map = BTreeMap::new();
     for (i, argument) in arguments.iter().enumerate() {
-      arg_map.insert(*self.arguments.get(i).unwrap(), Some(*argument));
+      arg_map.insert(*self.arguments.get(i).unwrap(), *argument);
     }
 
     let evaluated_lines;
@@ -263,17 +267,9 @@ impl<'a> Display for Recipe<'a> {
         if j == 0 {
           try!(write!(f, "    "));
         }
-        if f.alternate() {
-          match *piece {
-            Fragment::Text{ref text} => try!(write!(f, "{}", text.lexeme)),
-            Fragment::Expression{ref expression, value: None} => try!(write!(f, "{}{} # ? {}", "{{", expression, "}}")),
-            Fragment::Expression{ref expression, value: Some(ref string)} => try!(write!(f, "{}{} # \"{}\"{}", "{{", expression, string, "}}")),
-          }
-        } else {
-          match *piece {
-            Fragment::Text{ref text} => try!(write!(f, "{}", text.lexeme)),
-            Fragment::Expression{ref expression, ..} => try!(write!(f, "{}{}{}", "{{", expression, "}}")),
-          }
+        match *piece {
+          Fragment::Text{ref text} => try!(write!(f, "{}", text.lexeme)),
+          Fragment::Expression{ref expression, ..} => try!(write!(f, "{}{}{}", "{{", expression, "}}")),
         }
       }
       if i + 1 < self.lines.len() {
@@ -453,50 +449,31 @@ impl<'a: 'b, 'b> AssignmentResolver<'a, 'b> {
   }
 }
 
-fn evaluate<'a>(
-  assignments:       &BTreeMap<&'a str, Expression<'a>>,
-  assignment_tokens: &BTreeMap<&'a str, Token<'a>>,
-  recipes:           &mut BTreeMap<&'a str, Recipe<'a>>,
-) -> Result<BTreeMap<&'a str, String>, Error<'a>> {
-  let mut evaluated = BTreeMap::new();
+fn evaluate_assignments<'a>(
+  assignments: &BTreeMap<&'a str, Expression<'a>>,
+) -> Result<BTreeMap<&'a str, String>, RunError<'a>> {
+  let mut evaluator = Evaluator {
+    evaluated:         BTreeMap::new(),
+    scope:             &BTreeMap::new(),
+    assignments:       assignments,
+  };
 
-  {
-    let mut evaluator = Evaluator{
-      seen:              HashSet::new(),
-      stack:             vec![],
-      evaluated:         &mut evaluated,
-      scope:             &BTreeMap::new(),
-      assignments:       assignments,
-      assignment_tokens: assignment_tokens,
-    };
-    for name in assignments.keys() {
-      try!(evaluator.evaluate_assignment(name));
-    }
-
-    for recipe in recipes.values_mut() {
-      let mut arguments = BTreeMap::new();
-      for argument in &recipe.arguments {
-        arguments.insert(*argument, None);
-      }
-      try!(evaluator.evaluate_recipe(recipe, &arguments));
-    }
+  for name in assignments.keys() {
+    try!(evaluator.evaluate_assignment(name));
   }
 
-  Ok(evaluated)
+  Ok(evaluator.evaluated)
 }
 
 fn evaluate_lines<'a>(
   lines:     &Vec<Vec<Fragment<'a>>>,
   scope:     &BTreeMap<&'a str, String>,
-  arguments: &BTreeMap<&str, Option<&str>>
-) -> Result<Option<Vec<String>>, Error<'a>> {
-  let mut evaluator = Evaluator{
-    seen:              HashSet::new(),
-    stack:             vec![],
-    evaluated:         &mut BTreeMap::new(),
-    scope:             scope,
-    assignments:       &BTreeMap::new(),
-    assignment_tokens: &BTreeMap::new(),
+  arguments: &BTreeMap<&str, &str>
+) -> Result<Option<Vec<String>>, RunError<'a>> {
+  let mut evaluator = Evaluator {
+    evaluated:   BTreeMap::new(),
+    scope:       scope,
+    assignments: &BTreeMap::new(),
   };
 
   let mut evaluated_lines = vec![];
@@ -509,11 +486,7 @@ fn evaluate_lines<'a>(
           line += &value;
         }
         Fragment::Expression{ref expression, value: None} => {
-          if let Some(value) = try!(evaluator.evaluate_expression(expression, &arguments)) {
-            line += &value;
-          } else {
-            return Ok(None);
-          }
+          line += &try!(evaluator.evaluate_expression(expression, &arguments));
         }
       }
     }
@@ -524,94 +497,57 @@ fn evaluate_lines<'a>(
 }
 
 struct Evaluator<'a: 'b, 'b> {
-  stack:             Vec<&'a str>,
-  seen:              HashSet<&'a str>,
-  evaluated:         &'b mut BTreeMap<&'a str, String>,
-  scope:             &'b BTreeMap<&'a str, String>,
-  assignments:       &'b BTreeMap<&'a str, Expression<'a>>,
-  assignment_tokens: &'b BTreeMap<&'a str, Token<'a>>,
+  evaluated:   BTreeMap<&'a str, String>,
+  scope:       &'b BTreeMap<&'a str, String>,
+  assignments: &'b BTreeMap<&'a str, Expression<'a>>,
 }
 
 impl<'a, 'b> Evaluator<'a, 'b> {
-  fn evaluate_assignment(&mut self, name: &'a str) -> Result<(), Error<'a>> {
+  fn evaluate_assignment(&mut self, name: &'a str) -> Result<(), RunError<'a>> {
     if self.evaluated.contains_key(name) {
       return Ok(());
     }
 
-    self.stack.push(name);
-    self.seen.insert(name);
-
     if let Some(expression) = self.assignments.get(name) {
-      let value = try!(self.evaluate_expression(expression, &BTreeMap::new())).unwrap();
+      let value = try!(self.evaluate_expression(expression, &BTreeMap::new()));
       self.evaluated.insert(name, value);
     } else {
-      let token = self.assignment_tokens.get(name).unwrap();
-      return Err(token.error(ErrorKind::UnknownVariable {variable: name}));
+      panic!("internal error: unknown assigment");
     }
 
-    self.stack.pop();
-    Ok(())
-  }
-
-  fn evaluate_recipe(
-    &mut self,
-    recipe: &mut Recipe<'a>,
-    arguments: &BTreeMap<&str, Option<&str>>,
-  ) -> Result<(), Error<'a>> {
-    for fragments in &mut recipe.lines {
-      for mut fragment in fragments.iter_mut() {
-        match *fragment {
-          Fragment::Text{..} => {},
-          Fragment::Expression{ref expression, ref mut value} => {
-            *value = try!(self.evaluate_expression(&expression, arguments));
-          }
-        }
-      }
-    }
     Ok(())
   }
 
   fn evaluate_expression(
     &mut self,
     expression: &Expression<'a>,
-    arguments: &BTreeMap<&str, Option<&str>>
-  ) -> Result<Option<String>, Error<'a>> {
+    arguments: &BTreeMap<&str, &str>
+  ) -> Result<String, RunError<'a>> {
     Ok(match *expression {
-      Expression::Variable{name, ref token} => {
+      Expression::Variable{name, ..} => {
         if self.evaluated.contains_key(name) {
-          Some(self.evaluated.get(name).unwrap().clone())
+          self.evaluated.get(name).unwrap().clone()
         } else if self.scope.contains_key(name) {
-          Some(self.scope.get(name).unwrap().clone())
-        } else if self.seen.contains(name) {
-          let token = self.assignment_tokens.get(name).unwrap();
-          self.stack.push(name);
-          return Err(token.error(ErrorKind::CircularVariableDependency {
-            variable: name,
-            circle:   self.stack.clone(),
-          }));
+          self.scope.get(name).unwrap().clone()
         } else if self.assignments.contains_key(name) {
           try!(self.evaluate_assignment(name));
-          Some(self.evaluated.get(name).unwrap().clone())
+          self.evaluated.get(name).unwrap().clone()
         } else if arguments.contains_key(name) {
-          arguments.get(name).unwrap().map(|s| s.to_string())
+          arguments.get(name).unwrap().to_string()
         } else {
-          return Err(token.error(ErrorKind::UnknownVariable{variable: name}));
+          panic!("internal error: unknown error");
         }
       }
       Expression::String{ref cooked, ..} => {
-        Some(cooked.clone())
+        cooked.clone()
       }
       Expression::Backtick{raw, ..} => {
-        Some(raw.to_string())
+        raw.to_string()
       }
       Expression::Concatination{ref lhs, ref rhs} => {
-        let lhs = try!(self.evaluate_expression(lhs, arguments));
-        let rhs = try!(self.evaluate_expression(rhs, arguments));
-        if let (Some(lhs), Some(rhs)) = (lhs, rhs) {
-          Some(lhs + &rhs)
-        } else {
-          None
-        }
+        try!(self.evaluate_expression(lhs, arguments))
+          +
+        &try!(self.evaluate_expression(rhs, arguments))
       }
     })
   }
@@ -782,7 +718,6 @@ impl<'a> Display for Error<'a> {
 struct Justfile<'a> {
   recipes:     BTreeMap<&'a str, Recipe<'a>>,
   assignments: BTreeMap<&'a str, Expression<'a>>,
-  values:      BTreeMap<&'a str, String>,
 }
 
 impl<'a, 'b> Justfile<'a> where 'a: 'b {
@@ -808,18 +743,10 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
     self.recipes.keys().cloned().collect()
   }
 
-  fn run_recipe(&self, recipe: &Recipe<'a>, arguments: &[&'a str], ran: &mut HashSet<&'a str>) -> Result<(), RunError> {
-    for dependency_name in &recipe.dependencies {
-      if !ran.contains(dependency_name) {
-        try!(self.run_recipe(&self.recipes[dependency_name], &[], ran));
-      }
-    }
-    try!(recipe.run(arguments, &self.values));
-    ran.insert(recipe.name);
-    Ok(())
-  }
-
   fn run(&'a self, arguments: &[&'b str]) -> Result<(), RunError<'b>> {
+    let scope = try!(evaluate_assignments(&self.assignments));
+    let mut ran = HashSet::new();
+
     for (i, argument) in arguments.iter().enumerate() {
       if let Some(recipe) = self.recipes.get(argument) {
         if !recipe.arguments.is_empty() {
@@ -834,8 +761,7 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
               expected: recipe.arguments.len(),
             });
           }
-          let mut ran = HashSet::new();
-          try!(self.run_recipe(recipe, rest, &mut ran));
+          try!(self.run_recipe(recipe, rest, &scope, &mut ran));
           return Ok(());
         }
       } else {
@@ -852,11 +778,26 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
     if !missing.is_empty() {
       return Err(RunError::UnknownRecipes{recipes: missing});
     }
-    let recipes: Vec<_> = arguments.iter().map(|name| self.recipes.get(name).unwrap()).collect();
-    let mut ran = HashSet::new();
-    for recipe in recipes {
-      try!(self.run_recipe(recipe, &[], &mut ran));
+    for recipe in arguments.iter().map(|name| self.recipes.get(name).unwrap()) {
+      try!(self.run_recipe(recipe, &[], &scope, &mut ran));
     }
+    Ok(())
+  }
+
+  fn run_recipe(
+    &self,
+    recipe:    &Recipe<'a>,
+    arguments: &[&'a str],
+    scope:     &BTreeMap<&str, String>,
+    ran:       &mut HashSet<&'a str>
+  ) -> Result<(), RunError> {
+    for dependency_name in &recipe.dependencies {
+      if !ran.contains(dependency_name) {
+        try!(self.run_recipe(&self.recipes[dependency_name], &[], scope, ran));
+      }
+    }
+    try!(recipe.run(arguments, &scope));
+    ran.insert(recipe.name);
     Ok(())
   }
 
@@ -869,22 +810,14 @@ impl<'a> Display for Justfile<'a> {
   fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
     let mut items = self.recipes.len() + self.assignments.len();
     for (name, expression) in &self.assignments {
-      if f.alternate() {
-        try!(write!(f, "{} = {} # \"{}\"", name, expression, self.values.get(name).unwrap()));
-      } else {
-        try!(write!(f, "{} = {}", name, expression));
-      }
+      try!(write!(f, "{} = {}", name, expression));
       items -= 1;
       if items != 0 {
         try!(write!(f, "\n\n"));
       }
     }
     for recipe in self.recipes.values() {
-      if f.alternate() {
-        try!(write!(f, "{:#}", recipe));
-      } else {
-        try!(write!(f, "{}", recipe));
-      }
+      try!(write!(f, "{}", recipe));
       items -= 1;
       if items != 0 {
         try!(write!(f, "\n\n"));
@@ -1556,13 +1489,9 @@ impl<'a> Parser<'a> {
 
     try!(resolve_assignments(&assignments, &assignment_tokens));
 
-    let values = 
-      try!(evaluate(&assignments, &assignment_tokens, &mut recipes));
-
     Ok(Justfile {
       recipes:     recipes,
       assignments: assignments,
-      values:      values,
     })
   }
 }

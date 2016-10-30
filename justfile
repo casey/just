@@ -10,6 +10,9 @@ backtrace:
 build:
 	cargo build
 
+check:
+	cargo check
+
 publish: clippy build
 	# make sure version is up to date
 	git diff --no-ext-diff --quiet --exit-code

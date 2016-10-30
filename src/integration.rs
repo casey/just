@@ -159,7 +159,7 @@ recipe:
     "",
   );
 }
-
+/*
 #[test]
 fn debug() {
   let text = 
@@ -182,6 +182,7 @@ recipe:
     "",
   );
 }
+*/
 
 #[test]
 fn status() {

@@ -246,16 +246,16 @@ hello a b    c   : x y    z #hello
   1
   2
   3
-", "bar = foo # \"xx\"
+", "bar = foo
 
-foo = \"xx\" # \"xx\"
+foo = \"xx\"
 
-goodbye = \"y\" # \"y\"
+goodbye = \"y\"
 
 hello a b c: x y z
     #! blah
     #blarg
-    {{foo + bar # \"xxxx\"}}abc{{goodbye + \"x\" # \"yx\"}}xyz
+    {{foo + bar}}abc{{goodbye + \"x\"}}xyz
     1
     2
     3
@@ -275,11 +275,11 @@ c = a + b + a + b
 b = "1"
 "#, 
 
-r#"a = "0" # "0"
+r#"a = "0"
 
-b = "1" # "1"
+b = "1"
 
-c = a + b + a + b # "0101""#);
+c = a + b + a + b"#);
 }
 
 #[test]
@@ -447,15 +447,15 @@ fn unterminated_string_with_escapes() {
 fn string_quote_escape() {
   parse_summary(
     r#"a = "hello\"""#,
-    r#"a = "hello\"" # "hello"""#
+    r#"a = "hello\"""#
   );
 }
 
 #[test]
 fn string_escapes() {
   parse_summary(
-            r#"a = "\n\t\r\"\\""#,
-    concat!(r#"a = "\n\t\r\"\\" "#, "# \"\n\t\r\"\\\"")
+    r#"a = "\n\t\r\"\\""#,
+    r#"a = "\n\t\r\"\\""#
   );
 }
 
@@ -465,7 +465,7 @@ fn arguments() {
 "a b c:
   {{b}} {{c}}",
 "a b c:
-    {{b # ? }} {{c # ? }}",
+    {{b}} {{c}}",
   );
 }
 

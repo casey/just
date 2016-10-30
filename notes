@@ -1,6 +1,14 @@
 notes
 -----
 
+
+- all assignments are evaluated before running anything
+- for shebang recipes, all expressions are evaluated first
+- for non-shebang recipes, lines are evaluated one by one and executed
+
+- later we can decide to not evaluate assignments that aren't referenced
+  by any recipe
+
 - deferred evaluation, even though it's good for testing, is a bad idea
   i should have a resolve assignments phase which just checks,
   an evaluate assignments phase which runs before any recipe
@@ -11,6 +19,8 @@ notes
   - should consider renaming it to --evaluate if it actually evaluates stuff
   - test values of assignments
   - test values of interpolations
+  - test results of concatination
+  - test string escape parsing
 
 - remove evaluated_lines field from recipe
 
