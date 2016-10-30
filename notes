@@ -1,15 +1,8 @@
-notes
------
+todo
+----
 
-- --debug tests that:
-  - should consider renaming it to --evaluate if it actually evaluates stuff
-  - test values of assignments
-  - test values of interpolations
-  - test results of concatination
-  - test string escape parsing
-  - should it evaluate `` in recipes?
-
-- before release:
+before release
+--------------
 
 - where can users get help?
   - irc, email, github, mailing list
@@ -54,7 +47,8 @@ notes
   . irc
   . r/rust
 
-enhancements:
+enhancements
+------------
 
 - lazy assignment: don't evaluate unused assignments
 - use cow strings where we currently use String
@@ -66,6 +60,7 @@ enhancements:
   . just ../foo  # ../justfile:foo
   . just xyz/foo # xyz/justfile:foo
   . just xyz/    # xyz/justfile:DEFAULT
+  . path prefix is starting dir, so just ../foo can run ../../justfile:foo
 - allow setting and exporting environment variables
   . export a as "HELLO_BAR"
   . export a

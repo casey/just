@@ -188,7 +188,8 @@ impl<'a> Recipe<'a> {
   fn run(
     &self,
     arguments: &[&'a str],
-    scope:     &BTreeMap<&'a str, String>
+    scope:     &BTreeMap<&'a str, String>,
+    dry_run:   bool,
   ) -> Result<(), RunError<'a>> {
     let argument_map = arguments .iter().enumerate()
       .map(|(i, argument)| (self.arguments[i], *argument)).collect();
@@ -204,6 +205,13 @@ impl<'a> Recipe<'a> {
       let mut evaluated_lines = vec![];
       for line in &self.lines {
         evaluated_lines.push(try!(evaluator.evaluate_line(&line, &argument_map)));
+      }
+
+      if dry_run {
+        for line in evaluated_lines {
+          warn!("{}", line);
+        }
+        return Ok(());
       }
 
       let tmp = try!(
@@ -266,10 +274,15 @@ impl<'a> Recipe<'a> {
       for line in &self.lines {
         let evaluated = &try!(evaluator.evaluate_line(&line, &argument_map));
         let mut command = evaluated.as_str();
-        if !command.starts_with('@') {
+        let quiet = command.starts_with('@');
+        if quiet {
+          command = &command[1..];
+        }
+        if dry_run || !quiet {
           warn!("{}", command);
-        } else {
-          command = &command[1..]; 
+        }
+        if dry_run {
+          continue;
         }
         let status = process::Command::new("sh")
           .arg("-cu")
@@ -809,7 +822,9 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
   fn run(
     &'a self,
     overrides: &BTreeMap<&'a str, &'a str>,
-    arguments: &[&'a str]
+    arguments: &[&'a str],
+    dry_run:   bool,
+    evaluate:  bool,
   ) -> Result<(), RunError<'a>> {
     let unknown_overrides = overrides.keys().cloned()
       .filter(|name| !self.assignments.contains_key(name))
@@ -820,6 +835,13 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
     }
 
     let scope = try!(evaluate_assignments(&self.assignments, overrides));
+    if evaluate {
+      for (name, value) in scope {
+        println!("{} = \"{}\"", name, value);
+      }
+      return Ok(());
+    }
+
     let mut ran = HashSet::new();
 
     for (i, argument) in arguments.iter().enumerate() {
@@ -836,7 +858,7 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
               expected: recipe.arguments.len(),
             });
           }
-          try!(self.run_recipe(recipe, rest, &scope, &mut ran));
+          try!(self.run_recipe(recipe, rest, &scope, &mut ran, dry_run));
           return Ok(());
         }
       } else {
@@ -854,7 +876,7 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
       return Err(RunError::UnknownRecipes{recipes: missing});
     }
     for recipe in arguments.iter().map(|name| &self.recipes[name]) {
-      try!(self.run_recipe(recipe, &[], &scope, &mut ran));
+      try!(self.run_recipe(recipe, &[], &scope, &mut ran, dry_run));
     }
     Ok(())
   }
@@ -864,14 +886,15 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
     recipe:    &Recipe<'a>,
     arguments: &[&'a str],
     scope:     &BTreeMap<&'c str, String>,
-    ran:       &mut HashSet<&'a str>
+    ran:       &mut HashSet<&'a str>,
+    dry_run:   bool,
   ) -> Result<(), RunError> {
     for dependency_name in &recipe.dependencies {
       if !ran.contains(dependency_name) {
-        try!(self.run_recipe(&self.recipes[dependency_name], &[], scope, ran));
+        try!(self.run_recipe(&self.recipes[dependency_name], &[], scope, ran, dry_run));
       }
     }
-    try!(recipe.run(arguments, &scope));
+    try!(recipe.run(arguments, &scope, dry_run));
     ran.insert(recipe.name);
     Ok(())
   }

@@ -579,7 +579,7 @@ fn conjoin_and() {
 
 #[test]
 fn unknown_recipes() {
-  match parse_success("a:\nb:\nc:").run(&BTreeMap::new(), &["a", "x", "y", "z"]).unwrap_err() {
+  match parse_success("a:\nb:\nc:").run(&BTreeMap::new(), &["a", "x", "y", "z"], false, false).unwrap_err() {
     RunError::UnknownRecipes{recipes} => assert_eq!(recipes, &["x", "y", "z"]),
     other => panic!("expected an unknown recipe error, but got: {}", other),
   }
@@ -747,7 +747,7 @@ a:
  x
 ";
 
-  match parse_success(text).run(&BTreeMap::new(), &["a"]).unwrap_err() {
+  match parse_success(text).run(&BTreeMap::new(), &["a"], false, false).unwrap_err() {
     RunError::Code{recipe, code} => {
       assert_eq!(recipe, "a");
       assert_eq!(code, 200);
@@ -758,7 +758,7 @@ a:
 
 #[test]
 fn code_error() {
-  match parse_success("fail:\n @function x { return 100; }; x").run(&BTreeMap::new(), &["fail"]).unwrap_err() {
+  match parse_success("fail:\n @function x { return 100; }; x").run(&BTreeMap::new(), &["fail"], false, false).unwrap_err() {
     RunError::Code{recipe, code} => {
       assert_eq!(recipe, "fail");
       assert_eq!(code, 100);
@@ -773,7 +773,7 @@ fn run_args() {
 a return code:
  @function x { {{return}} {{code + "0"}}; }; x"#;
 
-  match parse_success(text).run(&BTreeMap::new(), &["a", "return", "15"]).unwrap_err() {
+  match parse_success(text).run(&BTreeMap::new(), &["a", "return", "15"], false, false).unwrap_err() {
     RunError::Code{recipe, code} => {
       assert_eq!(recipe, "a");
       assert_eq!(code, 150);
@@ -784,7 +784,7 @@ a return code:
 
 #[test]
 fn missing_args() {
-  match parse_success("a b c d:").run(&BTreeMap::new(), &["a", "b", "c"]).unwrap_err() {
+  match parse_success("a b c d:").run(&BTreeMap::new(), &["a", "b", "c"], false, false).unwrap_err() {
     RunError::ArgumentCountMismatch{recipe, found, expected} => {
       assert_eq!(recipe, "a");
       assert_eq!(found, 2);
@@ -796,7 +796,7 @@ fn missing_args() {
 
 #[test]
 fn missing_default() {
-  match parse_success("a b c d:\n echo {{b}}{{c}}{{d}}").run(&BTreeMap::new(), &["a"]).unwrap_err() {
+  match parse_success("a b c d:\n echo {{b}}{{c}}{{d}}").run(&BTreeMap::new(), &["a"], false, false).unwrap_err() {
     RunError::ArgumentCountMismatch{recipe, found, expected} => {
       assert_eq!(recipe, "a");
       assert_eq!(found, 0);
@@ -808,7 +808,7 @@ fn missing_default() {
 
 #[test]
 fn backtick_code() {
-  match parse_success("a:\n echo {{`function f { return 100; }; f`}}").run(&BTreeMap::new(), &["a"]).unwrap_err() {
+  match parse_success("a:\n echo {{`function f { return 100; }; f`}}").run(&BTreeMap::new(), &["a"], false, false).unwrap_err() {
     RunError::BacktickCode{code, token} => {
       assert_eq!(code, 100);
       assert_eq!(token.lexeme, "`function f { return 100; }; f`");
@@ -823,7 +823,7 @@ fn unknown_overrides() {
   overrides.insert("foo", "bar");
   overrides.insert("baz", "bob");
   match parse_success("a:\n echo {{`function f { return 100; }; f`}}")
-  .run(&overrides, &["a"]).unwrap_err() {
+  .run(&overrides, &["a"], false, false).unwrap_err() {
     RunError::UnknownOverrides{overrides} => {
       assert_eq!(overrides, &["baz", "foo"]);
     },

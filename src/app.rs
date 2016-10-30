@@ -23,16 +23,19 @@ macro_rules! die {
 
 pub fn app() {
   let matches = App::new("j")
-    .version("0.2.7")
-    .author("Casey R. <casey@rodarmor.com>")
+    .version("0.2.8")
+    .author("Casey Rodarmor <casey@rodarmor.com>")
     .about("Just a command runner - https://github.com/casey/j")
     .arg(Arg::with_name("list")
          .short("l")
          .long("list")
          .help("Lists available recipes"))
-    .arg(Arg::with_name("debug")
-         .long("debug")
-         .help("Prints the justfile with debugging information, such as evaluated expression and assignment"))
+    .arg(Arg::with_name("dry-run")
+         .long("dry-run")
+         .help("Print recipe text without executing"))
+    .arg(Arg::with_name("evaluate")
+         .long("evaluate")
+         .help("Print evaluated variables"))
     .arg(Arg::with_name("show")
          .short("s")
          .long("show")
@@ -108,11 +111,6 @@ pub fn app() {
 
   let justfile = super::parse(&text).unwrap_or_else(|error| die!("{}", error));
 
-  if matches.is_present("debug") {
-    println!("{:#}", justfile);
-    process::exit(0);
-  }
-
   if matches.is_present("list") {
     if justfile.count() == 0 {
       warn!("Justfile contains no recipes");
@@ -162,7 +160,10 @@ pub fn app() {
     die!("Justfile contains no recipes");
   };
 
-  if let Err(run_error) = justfile.run(&overrides, &arguments) {
+  let dry_run = matches.is_present("dry-run");
+  let evaluate = matches.is_present("evaluate");
+
+  if let Err(run_error) = justfile.run(&overrides, &arguments, dry_run, evaluate) {
     warn!("{}", run_error);
     match run_error {
       super::RunError::Code{code, ..        } => process::exit(code),

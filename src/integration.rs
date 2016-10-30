@@ -398,3 +398,62 @@ recipe arg:
     "echo arg=baz=bar\necho barbbaz\n",
   );
 }
+
+// shebangs are printed
+
+#[test]
+fn dry_run() {
+  integration_test(
+    "dry_run",
+    &["--dry-run", "shebang", "command"],
+    r#"
+var = `echo stderr 1>&2; echo backtick`
+
+command:
+  @touch /this/is/not/a/file
+  {{var}}
+  echo {{`echo command interpolation`}}
+
+shebang:
+  #!/bin/sh
+  touch /this/is/not/a/file
+  {{var}}
+  echo {{`echo shebang interpolation`}}"#,
+    0,
+    "",
+    "stderr
+#!/bin/sh
+touch /this/is/not/a/file
+backtick
+echo shebang interpolation
+touch /this/is/not/a/file
+backtick
+echo command interpolation
+",
+  );
+}
+
+#[test]
+fn evaluate() {
+  integration_test(
+    "evaluate",
+    &["--evaluate"],
+    r#"
+foo = "a\t"
+baz = "c"
+bar = "b\t"
+abc = foo + bar + baz
+
+wut:
+  touch /this/is/not/a/file
+"#,
+    0,
+    r#"abc = "a	b	c"
+bar = "b	"
+baz = "c"
+foo = "a	"
+"#,
+    "",
+  );
+}
+
