@@ -38,7 +38,7 @@ item          : recipe
               | export
               | EOL
 
-assignment    : NAME EQUALS expression EOL
+assignment    : NAME '=' expression EOL
 
 export        : 'export' assignment
 
