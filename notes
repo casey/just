@@ -4,6 +4,7 @@ todo
 - change name back to 'just', suggest j as alias
 
 - readme:
+  . link to docs, cargo badge, crates
   . start with an example justfile
   . make it clear it's beta, mention that, as a command runner
     there is probably a higher than normal chance of disaster
