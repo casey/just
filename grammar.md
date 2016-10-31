@@ -1,5 +1,5 @@
 justfile grammar
-----------------
+================
 
 The justfiles are processed with a mildly context-sensitive
 tokenizer and a recursive descent parser. The grammar is mostly LL(1),
@@ -7,7 +7,7 @@ altough an extra token of lookahead is used to distinguish between
 export assignments and recipes with arguments.
 
 tokens
-======
+------
 
 ```
 BACKTICK            = `[^`\n\r]*`
@@ -28,7 +28,7 @@ TEXT                = recipe text, only matches in a recipe body
 ```
 
 grammar
-=======
+-------
 
 ```
 justfile      : item* EOF
