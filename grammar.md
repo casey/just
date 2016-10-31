@@ -1,7 +1,7 @@
 justfile grammar
 ================
 
-Justfiles are processed with a mildly context-sensitive tokenizer
+Justfiles are processed by a mildly context-sensitive tokenizer
 and a recursive descent parser. The grammar is mostly LL(1),
 although an extra token of lookahead is used to distinguish between
 export assignments and recipes with arguments.
