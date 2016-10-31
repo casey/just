@@ -1,18 +1,6 @@
 todo
 ----
 
-- multi line strings (not in recipe interpolations)
-- indentation or slash for line continuation in plain recipes
-
-- allow calling recipes in a justfile in a different directory:
-  . just ../foo  # ../justfile:foo
-  . just xyz/foo # xyz/justfile:foo
-  . just xyz/    # xyz/justfile:DEFAULT
-  . path prefix is starting dir, so just ../foo can run ../../justfile:foo
-  . how does this interact with a=b/hello?
-  . can you use more than one path this way?
-  . do we just recursively invoke just for each?
-
 - change name back to 'just', suggest j as alias
 
 - readme:
@@ -34,7 +22,7 @@ todo
   . please open an issue for feature requests
 
 - big example justfile
-  . justfile.example
+  . justfile.example or example.justfile
   . lots of comments
   . parse them
   . update tarball dep
