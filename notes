@@ -16,7 +16,7 @@ todo
 . make it clear it's beta, mention that, as a command runner
   there is probably a higher than normal chance of disaster
 
-. installation instructions
+. installation instructions with cargo or rustup
 
 . vim and emacs syntax hilighting (use makefile syntax hilighting for now)
 

@@ -717,9 +717,9 @@ fn run_shebang() {
 a:
  #!/usr/bin/env sh
  code=200
- function x { return $code; }
- x
- x
+  function x { return $code; }
+    x
+      x
 ";
 
   match parse_success(text).run(&Map::new(), &["a"], false, false).unwrap_err() {
