@@ -1,43 +1,44 @@
 todo
 ----
 
-- change name back to 'just', suggest j as alias
+. link to docs, cargo badge, crates
 
-- redirect j to just in crates.io
+. start with an short example justfile
+  . recipes, dependencies, assignments, backticks
+  . make this justfile runnable as a test
 
-- include just.sh
+. suggest j as alias
 
-- readme:
-  . just a command runner or just do it just because
-  . link to docs, cargo badge, crates
-  . start with an example justfile
-  . make it clear it's beta, mention that, as a command runner
-    there is probably a higher than normal chance of disaster
-  . installation instructions
-  . long guide
-  . talk about all command line flags
-  . vim and emacs syntax hilighting (use makefile syntax hilighting for now)
-  . `` strips a single newline
-  . habit of using clever commands and writing little scripts
-  . alias .j='just --justfile ~/.justfile --working-directory ~'
+. users can email me or open an issue for help, bowing emoji
+  open issue for feature requests
+. ask users to contribute their justfiles as tests
+
+. make it clear it's beta, mention that, as a command runner
+  there is probably a higher than normal chance of disaster
+
+. installation instructions
+
+. vim and emacs syntax hilighting (use makefile syntax hilighting for now)
+
+- command line flags
+
+- advanced recipes
+  . long example justfile, make runnable as a script
   . very low friction to write a script (no new file, chmod, add to rcs)
+  . `` strips a single newline
+  . polyglot recipes + habit of using clever commands and writing little scripts
   . note that shell is invoked with -u
-  . users can email me for help
-  . make list of contributors, include travis
-  . ask users to contribute their justfiles as tests
-  . please open an issue for feature requests
-
-- big example justfile
-  . justfile.example or example.justfile
-  . lots of comments
-  . parse them
   . update tarball dep
-  . check version string
   . clean
   . update logs (repetitive git flow)
+  . check version string
   . quine
 
-- rewrite grammar.txt
+. link to grammar.md
+
+. mention extras/just.sh
+
+. alias .j='just --justfile ~/.justfile --working-directory ~'
 
 - try to get some users
   . travis
