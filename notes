@@ -1,7 +1,7 @@
 todo
 ----
 
-. link to docs, cargo badge, crates
+. link to docs, crates
 
 . start with an short example justfile
   . recipes, dependencies, assignments, backticks

@@ -1,6 +1,8 @@
 just
 ====
 
+![crates.io version](https://img.shields.io/crates/v/just.svg)
+
 `just` is a handy way to run project-specific commands.
 
 getting started
