@@ -3,7 +3,12 @@ todo
 
 - change name back to 'just', suggest j as alias
 
+- redirect j to just in crates.io
+
+- include just.sh
+
 - readme:
+  . just a command runner or just do it just because
   . link to docs, cargo badge, crates
   . start with an example justfile
   . make it clear it's beta, mention that, as a command runner

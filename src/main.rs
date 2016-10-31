@@ -1,5 +1,5 @@
-extern crate j;
+extern crate just;
 
 fn main() {
-  j::app();
+  just::app();
 }

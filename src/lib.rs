@@ -243,7 +243,7 @@ impl<'a> Recipe<'a> {
       }
 
       let tmp = try!(
-        tempdir::TempDir::new("j")
+        tempdir::TempDir::new("just")
         .map_err(|error| RunError::TmpdirIoError{recipe: self.name, io_error: error})
       );
       let mut path = tmp.path().to_path_buf();
@@ -804,7 +804,7 @@ impl<'a> Display for Error<'a> {
         try!(writeln!(f, "unterminated string"));
       }
       ErrorKind::InternalError{ref message} => {
-        try!(writeln!(f, "internal error, this may indicate a bug in j: {}\n consider filing an issue: https://github.com/casey/j/issues/new", message));
+        try!(writeln!(f, "internal error, this may indicate a bug in just: {}\n consider filing an issue: https://github.com/casey/just/issues/new", message));
       }
     }
 
@@ -1015,8 +1015,8 @@ impl<'a> Display for RunError<'a> {
       },
       RunError::IoError{recipe, ref io_error} => {
         try!(match io_error.kind() {
-          io::ErrorKind::NotFound => write!(f, "Recipe \"{}\" could not be run because j could not find `sh` the command:\n{}", recipe, io_error),
-          io::ErrorKind::PermissionDenied => write!(f, "Recipe \"{}\" could not be run because j could not run `sh`:\n{}", recipe, io_error),
+          io::ErrorKind::NotFound => write!(f, "Recipe \"{}\" could not be run because just could not find `sh` the command:\n{}", recipe, io_error),
+          io::ErrorKind::PermissionDenied => write!(f, "Recipe \"{}\" could not be run because just could not run `sh`:\n{}", recipe, io_error),
           _ => write!(f, "Recipe \"{}\" could not be run because of an IO error while launching `sh`:\n{}", recipe, io_error),
         });
       },
@@ -1046,8 +1046,8 @@ impl<'a> Display for RunError<'a> {
       }
       RunError::BacktickIoError{ref io_error} => {
         try!(match io_error.kind() {
-          io::ErrorKind::NotFound => write!(f, "backtick could not be run because j could not find `sh` the command:\n{}", io_error),
-          io::ErrorKind::PermissionDenied => write!(f, "backtick could not be run because j could not run `sh`:\n{}", io_error),
+          io::ErrorKind::NotFound => write!(f, "backtick could not be run because just could not find `sh` the command:\n{}", io_error),
+          io::ErrorKind::PermissionDenied => write!(f, "backtick could not be run because just could not run `sh`:\n{}", io_error),
           _ => write!(f, "backtick could not be run because of an IO error while launching `sh`:\n{}", io_error),
         });
       }
@@ -1055,7 +1055,7 @@ impl<'a> Display for RunError<'a> {
         try!(write!(f, "backtick succeeded but stdout was not utf8: {}", utf8_error));
       }
       RunError::InternalError{ref message} => {
-        try!(write!(f, "internal error, this may indicate a bug in j: {}\n consider filing an issue: https://github.com/casey/j/issues/new", message));
+        try!(write!(f, "internal error, this may indicate a bug in just: {}\n consider filing an issue: https://github.com/casey/just/issues/new", message));
       }
     }
 

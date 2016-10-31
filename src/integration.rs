@@ -17,12 +17,12 @@ fn integration_test(
   path.push("justfile");
   brev::dump(path, justfile);
   let mut binary = super::std::env::current_dir().unwrap();
-  binary.push("./target/debug/j");
+  binary.push("./target/debug/just");
   let output = Command::new(binary)
     .current_dir(tmp.path())
     .args(args)
     .output()
-    .expect("j invocation failed");
+    .expect("just invocation failed");
 
   let mut failure = false;
 
