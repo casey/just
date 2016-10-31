@@ -1,8 +1,6 @@
 todo
 ----
 
-- publish new version, check emoji
-
 . start with an short example justfile
   . recipes, dependencies, assignments, backticks
   . make this justfile runnable as a test

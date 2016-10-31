@@ -3,7 +3,7 @@ name = "just"
 version = "0.2.12"
 authors = ["Casey Rodarmor <casey@rodarmor.com>"]
 license = "WTFPL/MIT/Apache-2.0"
-description = "🤖 just a command runner"
+description = "🤖 Just a command runner"
 homepage = "https://github.com/casey/just"
 
 [dependencies]
