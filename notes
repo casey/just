@@ -1,7 +1,7 @@
 todo
 ----
 
-. link to docs, crates
+- publish new version, check emoji
 
 . start with an short example justfile
   . recipes, dependencies, assignments, backticks
