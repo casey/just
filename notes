@@ -26,6 +26,7 @@ todo
   . long example justfile, make runnable as a script
   . very low friction to write a script (no new file, chmod, add to rcs)
   . `` strips a single newline
+  . note that exports do not affect backticks in assignments
   . polyglot recipes + habit of using clever commands and writing little scripts
   . note that shell is invoked with -u
   . update tarball dep
