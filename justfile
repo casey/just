@@ -13,8 +13,6 @@ build:
 check:
 	cargo check
 
-nop:
-
 publish: clippy build
 	# make sure version is up to date
 	git diff --no-ext-diff --quiet --exit-code
