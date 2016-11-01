@@ -292,7 +292,7 @@ alias .j='just --justfile ~/.justfile --working-directory ~'
 
 Or, if you'd rather they run in the current directory:
 
-```
+```sh
 alias .j='just --justfile ~/.justfile --working-directory .'
 ```
 
@@ -302,7 +302,7 @@ further ramblings
 
 `just` is a trivial program, but I personally find it very useful to write a `justfile` for almost every project, big or small.
 
-On a big projects with multiple contributers, it's very useful to have a file with all the commands needed to work on the project close at hand.
+On a big project with multiple contributers, it's very useful to have a file with all the commands needed to work on the project close at hand.
 
 There are probably different commands to test, build, lint, deploy, and the like, and having them all in one place is useful and cuts down on the time you have to spend telling people which commands to run and how to type them.
 
@@ -318,8 +318,10 @@ Some ideas for recipes:
 * Running different sets of tests, for example fast tests vs slow tests, or running them with verbose output
 * Any complex set of commands that you really should write down somewhere, if only to be able to remember them
 
-Even for small, personal projects it's nice to be able to remember commands by name instead of `^R`everse searching my shell history, and it is a huge boon to be able to go into an old project written in a random language with a mysterious build system and know that all the commands you need to do whatever you need to do are in the `justfile`, and that if you type `just` something useful (or at least interesting!) will probably happen.
+Even for small, personal projects it's nice to be able to remember commands by name instead of ^Reverse searching your shell history, and it's a huge boon to be able to go into an old project written in a random language with a mysterious build system and know that all the commands you need to do whatever you need to do are in the `justfile`, and that if you type `just` something useful (or at least interesting!) will probably happen.
 
-I hope you enjoy using `just`, and find great success and satisfaction in all your computational endeavors!
+Anyways, I think that's about it for this incredibly long-winded README.
+
+I hope you enjoy using `just` and find great success and satisfaction in all your computational endeavors!
 
 😸
