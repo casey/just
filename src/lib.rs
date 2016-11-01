@@ -57,14 +57,14 @@ fn re(pattern: &str) -> Regex {
 
 #[derive(PartialEq, Debug)]
 struct Recipe<'a> {
-  line_number:        usize,
-  name:               &'a str,
-  lines:              Vec<Vec<Fragment<'a>>>,
-  dependencies:       Vec<&'a str>,
-  dependency_tokens:  Vec<Token<'a>>,
-  arguments:          Vec<&'a str>,
-  argument_tokens:    Vec<Token<'a>>,
-  shebang:            bool,
+  line_number:       usize,
+  name:              &'a str,
+  lines:             Vec<Vec<Fragment<'a>>>,
+  dependencies:      Vec<&'a str>,
+  dependency_tokens: Vec<Token<'a>>,
+  parameters:        Vec<&'a str>,
+  parameter_tokens:  Vec<Token<'a>>,
+  shebang:           bool,
 }
 
 #[derive(PartialEq, Debug)]
@@ -219,7 +219,7 @@ impl<'a> Recipe<'a> {
     dry_run:   bool,
   ) -> Result<(), RunError<'a>> {
     let argument_map = arguments .iter().enumerate()
-      .map(|(i, argument)| (self.arguments[i], *argument)).collect();
+      .map(|(i, argument)| (self.parameters[i], *argument)).collect();
 
     let mut evaluator = Evaluator {
       evaluated:   Map::new(),
@@ -343,8 +343,8 @@ impl<'a> Recipe<'a> {
 impl<'a> Display for Recipe<'a> {
   fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
     try!(write!(f, "{}", self.name));
-    for argument in &self.arguments {
-      try!(write!(f, " {}", argument));
+    for parameter in &self.parameters {
+      try!(write!(f, " {}", parameter));
     }
     try!(write!(f, ":"));
     for dependency in &self.dependencies {
@@ -394,7 +394,7 @@ fn resolve_recipes<'a>(
         if let Fragment::Expression{ref expression, ..} = *fragment {
           for variable in expression.variables() {
             let name = variable.lexeme;
-            if !(assignments.contains_key(name) || recipe.arguments.contains(&name)) {
+            if !(assignments.contains_key(name) || recipe.parameters.contains(&name)) {
               // There's a borrow issue here that seems too difficult to solve.
               // The error derived from the variable token has too short a lifetime,
               // so we create a new error from its contents, which do live long
@@ -653,12 +653,11 @@ struct Error<'a> {
 
 #[derive(Debug, PartialEq)]
 enum ErrorKind<'a> {
-  ArgumentShadowsVariable{argument: &'a str},
   CircularRecipeDependency{recipe: &'a str, circle: Vec<&'a str>},
   CircularVariableDependency{variable: &'a str, circle: Vec<&'a str>},
-  DependencyHasArguments{recipe: &'a str, dependency: &'a str},
-  DuplicateArgument{recipe: &'a str, argument: &'a str},
+  DependencyHasParameters{recipe: &'a str, dependency: &'a str},
   DuplicateDependency{recipe: &'a str, dependency: &'a str},
+  DuplicateParameter{recipe: &'a str, parameter: &'a str},
   DuplicateRecipe{recipe: &'a str, first: usize},
   DuplicateVariable{variable: &'a str},
   ExtraLeadingWhitespace,
@@ -667,10 +666,11 @@ enum ErrorKind<'a> {
   InvalidEscapeSequence{character: char},
   MixedLeadingWhitespace{whitespace: &'a str},
   OuterShebang,
+  ParameterShadowsVariable{parameter: &'a str},
+  UndefinedVariable{variable: &'a str},
   UnexpectedToken{expected: Vec<TokenKind>, found: TokenKind},
   UnknownDependency{recipe: &'a str, unknown: &'a str},
   UnknownStartOfToken,
-  UndefinedVariable{variable: &'a str},
   UnterminatedString,
 }
 
@@ -750,8 +750,8 @@ impl<'a> Display for Error<'a> {
       ErrorKind::InvalidEscapeSequence{character} => {
         try!(writeln!(f, "`\\{}` is not a valid escape sequence", character.escape_default().collect::<String>()));
       }
-      ErrorKind::DuplicateArgument{recipe, argument} => {
-        try!(writeln!(f, "recipe `{}` has duplicate argument `{}`", recipe, argument));
+      ErrorKind::DuplicateParameter{recipe, parameter} => {
+        try!(writeln!(f, "recipe `{}` has duplicate parameter `{}`", recipe, parameter));
       }
       ErrorKind::DuplicateVariable{variable} => {
         try!(writeln!(f, "variable `{}` is has multiple definitions", variable));
@@ -767,11 +767,11 @@ impl<'a> Display for Error<'a> {
                     recipe, first, self.line));
         return Ok(());
       }
-      ErrorKind::DependencyHasArguments{recipe, dependency} => {
-        try!(writeln!(f, "recipe `{}` depends on `{}` which takes arguments. dependencies may not take arguments", recipe, dependency));
+      ErrorKind::DependencyHasParameters{recipe, dependency} => {
+        try!(writeln!(f, "recipe `{}` depends on `{}` which requires arguments. dependencies may not require arguments", recipe, dependency));
       }
-      ErrorKind::ArgumentShadowsVariable{argument} => {
-        try!(writeln!(f, "argument `{}` shadows variable of the same name", argument));
+      ErrorKind::ParameterShadowsVariable{parameter} => {
+        try!(writeln!(f, "parameter `{}` shadows variable of the same name", parameter));
       }
       ErrorKind::MixedLeadingWhitespace{whitespace} => {
         try!(writeln!(f,
@@ -881,16 +881,16 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
 
     for (i, argument) in arguments.iter().enumerate() {
       if let Some(recipe) = self.recipes.get(argument) {
-        if !recipe.arguments.is_empty() {
+        if !recipe.parameters.is_empty() {
           if i != 0 {
-            return Err(RunError::NonLeadingRecipeWithArguments{recipe: recipe.name});
+            return Err(RunError::NonLeadingRecipeWithParameters{recipe: recipe.name});
           }
           let rest = &arguments[1..];
-          if recipe.arguments.len() != rest.len() {
+          if recipe.parameters.len() != rest.len() {
             return Err(RunError::ArgumentCountMismatch {
               recipe: recipe.name,
               found: rest.len(),
-              expected: recipe.arguments.len(),
+              expected: recipe.parameters.len(),
             });
           }
           try!(self.run_recipe(recipe, rest, &scope, &mut ran, dry_run));
@@ -969,7 +969,7 @@ enum RunError<'a> {
   Code{recipe: &'a str, code: i32},
   InternalError{message: String},
   IoError{recipe: &'a str, io_error: io::Error},
-  NonLeadingRecipeWithArguments{recipe: &'a str},
+  NonLeadingRecipeWithParameters{recipe: &'a str},
   Signal{recipe: &'a str, signal: i32},
   TmpdirIoError{recipe: &'a str, io_error: io::Error},
   UnknownFailure{recipe: &'a str},
@@ -996,7 +996,7 @@ impl<'a> Display for RunError<'a> {
         try!(write!(f, "{} set on the command line but not present in justfile",
                     And(overrides)))
       },
-      RunError::NonLeadingRecipeWithArguments{recipe} => {
+      RunError::NonLeadingRecipeWithParameters{recipe} => {
         try!(write!(f, "Recipe `{}` takes arguments and so must be the first and only recipe specified on the command line", recipe));
       },
       RunError::ArgumentCountMismatch{recipe, found, expected} => {
@@ -1466,22 +1466,22 @@ impl<'a> Parser<'a> {
       }));
     }
 
-    let mut arguments = vec![];
-    let mut argument_tokens = vec![];
-    while let Some(argument) = self.accept(Name) {
-      if arguments.contains(&argument.lexeme) {
-        return Err(argument.error(ErrorKind::DuplicateArgument{
-          recipe: name.lexeme, argument: argument.lexeme
+    let mut parameters = vec![];
+    let mut parameter_tokens = vec![];
+    while let Some(parameter) = self.accept(Name) {
+      if parameters.contains(&parameter.lexeme) {
+        return Err(parameter.error(ErrorKind::DuplicateParameter {
+          recipe: name.lexeme, parameter: parameter.lexeme
         }));
       }
-      arguments.push(argument.lexeme);
-      argument_tokens.push(argument);
+      parameters.push(parameter.lexeme);
+      parameter_tokens.push(parameter);
     }
 
     if let Some(token) = self.expect(Colon) {
-      // if we haven't accepted any arguments, an equals
+      // if we haven't accepted any parameters, an equals
       // would have been fine as part of an assignment
-      if arguments.is_empty() {
+      if parameters.is_empty() {
         return Err(self.unexpected_token(&token, &[Name, Colon, Equals]));
       } else {
         return Err(self.unexpected_token(&token, &[Name, Colon]));
@@ -1553,8 +1553,8 @@ impl<'a> Parser<'a> {
       name:              name.lexeme,
       dependencies:      dependencies,
       dependency_tokens: dependency_tokens,
-      arguments:         arguments,
-      argument_tokens:   argument_tokens,
+      parameters:        parameters,
+      parameter_tokens:  parameter_tokens,
       lines:             lines,
       shebang:           shebang,
     });
@@ -1680,17 +1680,17 @@ impl<'a> Parser<'a> {
     try!(resolve_recipes(&self.recipes, &self.assignments, self.text));
 
     for recipe in self.recipes.values() {
-      for argument in &recipe.argument_tokens {
-        if self.assignments.contains_key(argument.lexeme) {
-          return Err(argument.error(ErrorKind::ArgumentShadowsVariable {
-            argument: argument.lexeme
+      for parameter in &recipe.parameter_tokens {
+        if self.assignments.contains_key(parameter.lexeme) {
+          return Err(parameter.error(ErrorKind::ParameterShadowsVariable {
+            parameter: parameter.lexeme
           }));
         }
       }
 
       for dependency in &recipe.dependency_tokens {
-        if !self.recipes[dependency.lexeme].arguments.is_empty() {
-          return Err(dependency.error(ErrorKind::DependencyHasArguments {
+        if !self.recipes[dependency.lexeme].parameters.is_empty() {
+          return Err(dependency.error(ErrorKind::DependencyHasParameters {
             recipe: recipe.name,
             dependency: dependency.lexeme,
           }));

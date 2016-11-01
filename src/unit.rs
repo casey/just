@@ -372,7 +372,7 @@ fn eof_test() {
 }
 
 #[test]
-fn duplicate_argument() {
+fn duplicate_parameter() {
   let text = "a b b:";
   parse_error(text, Error {
     text:   text,
@@ -380,12 +380,12 @@ fn duplicate_argument() {
     line:   0,
     column: 4,
     width:  Some(1),
-    kind:   ErrorKind::DuplicateArgument{recipe: "a", argument: "b"}
+    kind:   ErrorKind::DuplicateParameter{recipe: "a", parameter: "b"}
   });
 }
 
 #[test]
-fn argument_shadows_varible() {
+fn parameter_shadows_varible() {
   let text = "foo = \"h\"\na foo:";
   parse_error(text, Error {
     text:   text,
@@ -393,12 +393,12 @@ fn argument_shadows_varible() {
     line:   1,
     column: 2,
     width:  Some(3),
-    kind:   ErrorKind::ArgumentShadowsVariable{argument: "foo"}
+    kind:   ErrorKind::ParameterShadowsVariable{parameter: "foo"}
   });
 }
 
 #[test]
-fn dependency_with_arguments() {
+fn dependency_has_parameters() {
   let text = "foo arg:\nb: foo";
   parse_error(text, Error {
     text:   text,
@@ -406,7 +406,7 @@ fn dependency_with_arguments() {
     line:   1,
     column: 3,
     width:  Some(3),
-    kind:   ErrorKind::DependencyHasArguments{recipe: "b", dependency: "foo"}
+    kind:   ErrorKind::DependencyHasParameters{recipe: "b", dependency: "foo"}
   });
 }
 
@@ -518,7 +518,7 @@ fn string_escapes() {
 }
 
 #[test]
-fn arguments() {
+fn parameters() {
   parse_summary(
 "a b c:
   {{b}} {{c}}",

@@ -1,11 +1,22 @@
 todo
 ----
 
+should justfile recipes have arguments or parameters?
+
+After that, the sky is the limit!
+
+Ideas for recipes include:
+
+* Deploying/publishing the project
+* Building in release mode vs debug mode
+* Running in debug mode/with logging enabled
+* Complex git workflows
+* Updating dependencies
+* Running different sets of tests, for example fast tests vs slow tests
+* Any complex set of commands that you really should write down somewhere, if only to be able to remember them
 . start with an short example justfile
   . recipes, dependencies, assignments, backticks
   . make this justfile runnable as a test
-
-. suggest j as alias
 
 . users can email me or open an issue for help, bowing emoji
   open issue for feature requests
@@ -46,3 +57,46 @@ todo
   . irc
   . r/rust
   . hacker news
+
+how it works
+------------
+
+`just` can then be invoked from any subdirectory of your project.
+
+The first recipe in the `justfile` will be run when `just` is invoked with no arguments, which makes it a good candidate for the command that you run most often, for example building and testing your project. Other recipes can be run by supplying their name as an argument, for example `just build` to run the `build` recipe.
+
+- recipes stop if a command fails
+- commands are printed before running unless prepended with @
+
+With no arguments `just` runs the default recipe:
+
+`just`
+
+Adding one argument specifies the recipe:
+
+`just compile`
+
+Multiple recipes can be run in order:
+
+`just lint compile test`
+
+Arguments after `--` are exported to environment variables`ARG0`, `ARG1`, ..., `ARGN`, which can be used in the justfile. To run recipe `compile` and export `ARG0=bar` and `ARG1=baz`:
+
+`just compile -- bar baz`
+
+further ramblings
+-----------------
+
+`just` is a trivial program, but I personally find it enormously useful and write a `justfile` for almost every project, big or small.
+
+For one, `just` is a full 5 characters shorter than `./main`, and 3 characters shorter than `make`.
+
+On a big project with multiple contributers, it's very useful to have a file with all the commands needed to work on the project. There are probably different commands to test, build, lint, deploy, and the like, and having them all in one place is useful and cuts down on the time you have to spend telling people which commands to run and how to type them. And, with an easy place to put commands, it's likely that you'll come up with other useful things which are part of the project's collective wisdom, but which aren't written down anywhere, like the arcane commands needed for your project's revision control workflow, for updating dependencies, or all the random flags you might need to pass to the build system.
+
+Even for small, personal projects, it's nice to be able to go into an old project written in some random language with some mysterious build system and know that all the commands you need to do whatever you need to do are in the justfile, and that if you type `just` something useful will probably happen.
+
+If you have a feature request, do open an issue and let me know.
+
+I hope you enjoy using `just`, and find great success and satisfaction in all your computational endeavors!
+
+😸
