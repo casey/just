@@ -280,7 +280,7 @@ A description of the grammar of justfiles can be found in [grammar.md](grammar.m
 
 ### just.sh
 
-Before `just` was a bloated rust program it was a tiny shell script. If you would rather not or can't install rust you can find the old shellscript in [extras/just.sh](extras/just.sh). This version uses `make`, so it may not be portable across systems.
+Before `just` was a bloated rust program it was a tiny shell script that called `make`. If you can't or would rather not rust you can find the old version in [extras/just.sh](extras/just.sh).
 
 ### non-project specific justfile
 
