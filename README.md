@@ -276,11 +276,11 @@ Feel free to send me the commands necessary to get syntax hilighting working in 
 
 ### justfile grammar
 
-A description of the grammar of justfiles can be found in [](grammar.md).
+A description of the grammar of justfiles can be found in [grammar.md](grammar.md).
 
 ### just.sh
 
-Before `just` was a bloated rust program it was a tiny shell script. If you would rather not or can't install rust you can find the old shellscript in [](extras/just.sh). This version uses `make`, so it may not be portable across systems.
+Before `just` was a bloated rust program it was a tiny shell script. If you would rather not or can't install rust you can find the old shellscript in [extras/just.sh](extras/just.sh). This version uses `make`, so it may not be portable across systems.
 
 ### non-project specific justfile
 
