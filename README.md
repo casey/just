@@ -166,7 +166,7 @@ test: build
     ./test --test {{os}}
 
 build:
-  ./build {{os}}
+    ./build {{os}}
 ```
 
 ```sh
@@ -272,7 +272,7 @@ augroup filetypedetect
 augroup END
 ```
 
-If you use another editor, feel free to send me the commands necessary to get syntax hilighting working and send them to me, so that I may include them here.
+Feel free to send me the commands necessary to get syntax hilighting working in your editor of choice so that I may include them here.
 
 ### justfile grammar
 
