@@ -5,7 +5,7 @@ just
 
 `just` is a handy way to save and run commands.
 
-Commands are stored in a file called `justfile` with a syntax inspired by `make`:
+Commands are stored in a file called `justfile` with syntax inspired by `make`:
 
 ```make
 test-all: build
@@ -20,19 +20,19 @@ build:
 
 `just` produces detailed error messages and avoids `make`'s idiosyncrasies, so debugging a justfile is easier and less suprising than debugging a makefile.
 
-If you need help with `just` please feel free to send me an email. Feature requests and bug reports are always welcome!
+If you need help with `just` please feel free to send me an email. Feature requests and bug reports are also always welcome!
 
 
 getting started
 ---------------
 
-`just` should run on any system with a reasonable `sh` and can be installed with `cargo`, the [rust language](https://www.rust-lang.org) package manager;
+`just` should run on any system with a reasonable `sh` and can be installed with `cargo`, the [rust language](https://www.rust-lang.org) package manager:
 
-1. Get rust and cargo from [rustup.rs](https://www.rustup.rs)
+1. Install rust and cargo by following the instructions at [rustup.rs](https://www.rustup.rs)
 2. Run `cargo install just`
 3. Add `~/.cargo/bin` to your PATH
 
-Optionally, you can `alias j=just` for lighting fast command running.
+Optionally, you can also `alias j=just` for lighting fast command running.
 
 
 How do I just?
@@ -155,6 +155,40 @@ export RUST_BACKTRACE = "1"
 test:
     # will print a stack trace if it crashes
     cargo test
+```
+
+Variables can also be overridden from the command line:
+
+```make
+os = "linux"
+
+test: build
+    ./test --test {{os}}
+
+build:
+  ./build {{os}}
+```
+
+```sh
+$ just
+./build linux
+./test --test linux
+```
+
+You can pass any number of arguments of the form `NAME=VALUE` before recipes:
+
+```sh
+$ just os=plan9
+./build plan9
+./test --test plan9
+```
+
+Or you can use the `--set` flag:
+
+```sh
+$ just --set os bsd
+./build bsd
+./test --test bsd
 ```
 
 Backticks can be used to store the result of commands:
