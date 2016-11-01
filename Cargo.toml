@@ -1,6 +1,6 @@
 [package]
 name = "just"
-version = "0.2.12"
+version = "0.2.13"
 authors = ["Casey Rodarmor <casey@rodarmor.com>"]
 license = "WTFPL/MIT/Apache-2.0"
 description = "🤖 Just a command runner"
