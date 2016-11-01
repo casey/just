@@ -1,5 +1,6 @@
 extern crate tempdir;
 extern crate brev;
+extern crate regex;
 
 use tempdir::TempDir;
 use super::std::process::Command;
@@ -547,5 +548,30 @@ recipe:
     0,
     "recipe \\\"\n",
     "echo recipe \\\\\\\"\n",
+  );
+}
+
+#[test]
+fn line_error_spacing() {
+  integration_test(
+    &[],
+    r#"
+
+
+
+
+
+
+
+
+???
+"#,
+    255,
+    "",
+    "error: unknown start of token:
+   |
+10 | ???
+   | ^
+",
   );
 }

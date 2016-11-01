@@ -1,4 +1,5 @@
 extern crate tempdir;
+extern crate brev;
 
 use super::{Token, Error, ErrorKind, Justfile, RunError};
 use super::TokenKind::*;
@@ -803,5 +804,30 @@ fn unknown_overrides() {
       assert_eq!(overrides, &["baz", "foo"]);
     },
     other => panic!("expected an code run error, but got: {}", other),
+  }
+}
+
+#[test]
+fn readme_test() {
+  let mut justfiles = vec![];
+  let mut current = None;
+ 
+  for line in brev::slurp("README.md").lines() {
+    if let Some(mut justfile) = current {
+      if line == "```" {
+        justfiles.push(justfile);
+        current = None;
+      } else {
+        justfile += line;
+        justfile += "\n";
+        current = Some(justfile);
+      }
+    } else if line == "```make" {
+      current = Some(String::new());
+    }
+  }
+
+  for justfile in justfiles {
+    parse_success(&justfile);
   }
 }

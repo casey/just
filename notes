@@ -1,10 +1,6 @@
 todo
 ----
 
-- extract anything between ``` in readme as a justfile and make sure it parses
-
-. alias .j='just --justfile ~/.justfile --working-directory ~'
-
 - try to get some users
   . travis
   . recurse center

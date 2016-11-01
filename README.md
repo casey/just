@@ -9,13 +9,13 @@ Commands are stored in a file called `justfile` with a syntax inspired by `make`
 
 ```make
 test-all: build
-  ./test --all
+    ./test --all
 
 test TEST: build
-  ./test --test {{TEST}}
+    ./test --test {{TEST}}
 
 build:
-  cc *.c -o main
+    cc *.c -o main
 ```
 
 `just` produces detailed error messages and avoids `make`'s idiosyncrasies, so debugging a justfile is easier and less suprising than debugging a makefile.
@@ -44,10 +44,10 @@ Recipes look like this:
 
 ```make
 recipe-name:
-  echo 'This is a recipe!'
+    echo 'This is a recipe!'
 
 another-recipe:
-  @echo 'Another recipe.'
+    @echo 'Another recipe.'
 ```
 
 Running `just` with no arguments runs the first recipe in the `justfile`:
@@ -73,22 +73,22 @@ Recipes stop running if a command fails. Here `cargo publish` will only run if `
 
 ```make
 publish:
-  cargo test
-  # tests passed, time to publish!
-  cargo publish
+    cargo test
+    # tests passed, time to publish!
+    cargo publish
 ```
 
 Recipes can depend on other recipes. Here the `test` recipe depends on the `build` recipe, so `build` will run before `test`:
 
 ```make
 build:
-  cc main.c foo.c bar.c -o main
+    cc main.c foo.c bar.c -o main
 
-test: build:
-  ./test
+test: build
+    ./test
 
 sloc:
-	@echo "`wc -l *.c` lines of code"
+    @echo "`wc -l *.c` lines of code"
 ```
 
 ```sh
@@ -123,20 +123,20 @@ tardir  = "awesomesauce-" + version
 tarball = tardir + ".tar.gz"
 
 publish:
-	rm -f {{tarball}}
-	mkdir {{tardir}}
-	cp README.md *.c {{tardir}}
-	tar zcvf {{tarball}} {{tardir}}
-  scp {{tarball}} me@server.com:release/
-	rm -rf {{tarball}} {{tardir}}
+    rm -f {{tarball}}
+    mkdir {{tardir}}
+    cp README.md *.c {{tardir}}
+    tar zcvf {{tarball}} {{tardir}}
+    scp {{tarball}} me@server.com:release/
+    rm -rf {{tarball}} {{tardir}}
 ```
 
 Recipes may take arguments. Here recipe `build` takes an argument called `target`:
 
 ```make
 build target:
-  @echo 'Building {{target}}...'
-  cd {{target}} && make
+    @echo 'Building {{target}}...'
+    cd {{target}} && make
 ```
 
 Only one recipe that takes arguments may given on the command line, and other recipes may not depend on it. To pass arguments put them after the recipe name:
@@ -153,17 +153,17 @@ Variables can be exported to recipes as environment variables:
 export RUST_BACKTRACE = "1"
 
 test:
-  # will print a stack trace if it crashes
-  cargo test
+    # will print a stack trace if it crashes
+    cargo test
 ```
 
 Backticks can be used to store the result of commands:
 
 ```make
-localhost = `dumpinterfaces | cut -d: -f2 | sed 's/\/.*//' | sed 's/ //g'
+localhost = `dumpinterfaces | cut -d: -f2 | sed 's/\/.*//' | sed 's/ //g'`
 
 serve:
-  ./serve {{localhost}} 8080
+    ./serve {{localhost}} 8080
 ```
 
 
@@ -173,25 +173,25 @@ Recipes that start with a `#!` are executed as scripts, so you can write recipes
 polyglot: python js perl sh ruby
 
 python:
-	#!/usr/bin/env python3
-	print('Hello from python!')
+    #!/usr/bin/env python3
+    print('Hello from python!')
 
 js:
-	#!/usr/bin/env node
-	console.log('Greetings from JavaScript!')
+    #!/usr/bin/env node
+    console.log('Greetings from JavaScript!')
 
 perl:
-	#!/usr/bin/env perl
-	print "Larry Wall says Hi!\n";
+    #!/usr/bin/env perl
+    print "Larry Wall says Hi!\n";
 
 sh:
-	#!/usr/bin/env sh
-	hello='Yo'
-	echo "$hello from a shell script!"
+    #!/usr/bin/env sh
+    hello='Yo'
+    echo "$hello from a shell script!"
 
 ruby:
-	#!/usr/bin/env ruby
-	puts "Hello from ruby!"
+    #!/usr/bin/env ruby
+    puts "Hello from ruby!"
 ```
 
 ```sh
@@ -248,12 +248,25 @@ A description of the grammar of justfiles can be found in [](grammar.md).
 
 Before `just` was a bloated rust program it was a tiny shell script. If you would rather not or can't install rust you can find the old shellscript in [](extras/just.sh). This version uses `make`, so it may not be portable across systems.
 
+### non-project specific justfile
+
+If you want some commands to be available everwhere, put them in `~/.justfile` and add the following to your shell's initialization file:
+
+```sh
+alias .j='just --justfile ~/.justfile --working-directory ~'
+```
+
+Or, if you'd rather they run in the current directory:
+
+```
+alias .j='just --justfile ~/.justfile --working-directory .'
+```
+
 
 further ramblings
 -----------------
 
 `just` is a trivial program, but I personally find it very useful to write a `justfile` for almost every project, big or small.
-
 
 On a big projects with multiple contributers, it's very useful to have a file with all the commands needed to work on the project close at hand.
 

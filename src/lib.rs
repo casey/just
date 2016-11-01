@@ -810,11 +810,12 @@ impl<'a> Display for Error<'a> {
 
     match self.text.lines().nth(self.line) {
       Some(line) => {
-        let line_number_width = self.line.to_string().len();
+        let displayed_line = self.line + 1;
+        let line_number_width = displayed_line.to_string().len();
         try!(write!(f, "{0:1$} |\n", "", line_number_width));
-        try!(write!(f, "{} | {}\n", self.line + 1, line));
+        try!(write!(f, "{} | {}\n", displayed_line, line));
         try!(write!(f, "{0:1$} |", "", line_number_width));
-        try!(write!(f, " {0:1$}{2:^<3$}", "", self.column, "", self.width.unwrap_or(0)));
+        try!(write!(f, " {0:1$}{2:^<3$}", "", self.column, "", self.width.unwrap_or(1)));
       },
       None => if self.index != self.text.len() {
         try!(write!(f, "internal error: Error has invalid line number: {}", self.line + 1))
