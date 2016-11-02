@@ -13,12 +13,18 @@ build:
 check:
 	cargo check
 
+version = `sed -En 's/version = "([^"]+)"/\1/p' Cargo.toml`
+
 publish: clippy build
-	# make sure version is up to date
+	git branch | grep '* master'
 	git diff --no-ext-diff --quiet --exit-code
-	grep 'version("'`sed -En 's/version = "([^"]+)"/\1/p' Cargo.toml`'")' src/app.rs
-	git push github master:master
+	grep 'version("{{version}}")' src/app.rs
 	cargo publish
+	git tag -a "v{{version}}" -m "v{{version}}"
+	git push github --tags
+	git push github master:master
+	git push origin --tags
+	git push origin master:master
 
 clippy:
 	rustup run nightly cargo clippy
