@@ -19,12 +19,12 @@ publish: clippy build
 	git branch | grep '* master'
 	git diff --no-ext-diff --quiet --exit-code
 	grep 'version("{{version}}")' src/app.rs
+	git push github master:master
+	git push origin master:master
 	cargo publish
 	git tag -a "v{{version}}" -m "v{{version}}"
 	git push github --tags
-	git push github master:master
 	git push origin --tags
-	git push origin master:master
 
 clippy:
 	rustup run nightly cargo clippy
