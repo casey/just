@@ -131,6 +131,37 @@ publish:
     rm -rf {{tarball}} {{tardir}}
 ```
 
+Double-quoted strings support escape sequences:
+
+```make
+string-with-tab             = "\t"
+string-with-newline         = "\n"
+string-with-carriage-return = "\r"
+string-with-double-quote    = "\""
+string-with-slash           = "\\"
+```
+
+```sh
+$ just --evaluate
+"tring-with-carriage-return = "
+string-with-double-quote = """
+string-with-newline = "
+"
+string-with-slash = "\"
+string-with-tab = "     "
+```
+
+Single-quoted strings do not support any escape sequences:
+
+```make
+raw-string = '\t\n\r\"\\'
+```
+
+```sh
+$ just --evaluate
+raw-string = "\t\n\r\"\\"
+```
+
 Recipes may take arguments. Here recipe `build` takes an argument called `target`:
 
 ```make
