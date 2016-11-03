@@ -303,6 +303,25 @@ z:");
 }
 
 #[test]
+fn parse_shebang() {
+  parse_summary("
+practicum = 'hello'
+install:
+\t#!/bin/sh
+\tif [[ -f {{practicum}} ]]; then
+\t\treturn
+\tfi
+", "practicum = \"hello\"
+
+install:
+    #!/bin/sh
+    if [[ -f {{practicum}} ]]; then
+    \treturn
+    fi"
+  );
+}
+
+#[test]
 fn parse_assignments() {
   parse_summary(
 r#"a = "0"

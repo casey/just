@@ -988,7 +988,7 @@ impl<'a> Display for RunError<'a> {
     match *self {
       RunError::UnknownRecipes{ref recipes} => {
         if recipes.len() == 1 { 
-          try!(write!(f, "Justfile does not contain recipe: {}", recipes[0]));
+          try!(write!(f, "Justfile does not contain recipe `{}`", recipes[0]));
         } else {
           try!(write!(f, "Justfile does not contain recipes: {}", recipes.join(" ")));
         };
@@ -1528,7 +1528,8 @@ impl<'a> Parser<'a> {
                 if token.lexeme.starts_with("#!") {
                   shebang = true;
                 }
-              } else if !shebang && token.lexeme.starts_with(' ') || token.lexeme.starts_with('\t') {
+              } else if !shebang && (token.lexeme.starts_with(' ') || 
+                                     token.lexeme.starts_with('\t')) {
                 return Err(token.error(ErrorKind::ExtraLeadingWhitespace));
               }
             }
