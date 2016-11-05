@@ -172,14 +172,20 @@ fn run_backtick<'a>(
   token:   &Token<'a>,
   scope:   &Map<&'a str, String>,
   exports: &Set<&'a str>,
+  quiet:   bool,
 ) -> Result<String, RunError<'a>> {
   let mut cmd = process::Command::new("sh");
 
   try!(export_env(&mut cmd, scope, exports));
 
   cmd.arg("-cu")
-     .arg(raw)
-     .stderr(process::Stdio::inherit());
+     .arg(raw);
+
+  cmd.stderr(if quiet {
+    process::Stdio::null()
+  } else {
+    process::Stdio::inherit()
+  });
 
   match cmd.output() {
     Ok(output) => {
@@ -216,7 +222,7 @@ impl<'a> Recipe<'a> {
     arguments: &[&'a str],
     scope:     &Map<&'a str, String>,
     exports:   &Set<&'a str>,
-    dry_run:   bool,
+    options:   &RunOptions,
   ) -> Result<(), RunError<'a>> {
     let argument_map = arguments .iter().enumerate()
       .map(|(i, argument)| (self.parameters[i], *argument)).collect();
@@ -227,6 +233,7 @@ impl<'a> Recipe<'a> {
       exports:     exports,
       assignments: &Map::new(),
       overrides:   &Map::new(),
+      quiet:       options.quiet,
     };
 
     if self.shebang {
@@ -235,7 +242,7 @@ impl<'a> Recipe<'a> {
         evaluated_lines.push(try!(evaluator.evaluate_line(&line, &argument_map)));
       }
 
-      if dry_run {
+      if options.dry_run {
         for line in evaluated_lines {
           warn!("{}", line);
         }
@@ -305,20 +312,25 @@ impl<'a> Recipe<'a> {
       for line in &self.lines {
         let evaluated = &try!(evaluator.evaluate_line(&line, &argument_map));
         let mut command = evaluated.as_str();
-        let quiet = command.starts_with('@');
-        if quiet {
+        let quiet_command = command.starts_with('@');
+        if quiet_command {
           command = &command[1..];
         }
-        if dry_run || !quiet {
+        if options.dry_run || !(quiet_command || options.quiet) {
           warn!("{}", command);
         }
-        if dry_run {
+        if options.dry_run {
           continue;
         }
 
         let mut cmd = process::Command::new("sh");
 
         cmd.arg("-cu").arg(command);
+
+        if options.quiet {
+          cmd.stderr(process::Stdio::null());
+          cmd.stdout(process::Stdio::null());
+        }
 
         try!(export_env(&mut cmd, scope, exports));
 
@@ -543,13 +555,15 @@ impl<'a: 'b, 'b> AssignmentResolver<'a, 'b> {
 fn evaluate_assignments<'a>(
   assignments: &Map<&'a str, Expression<'a>>,
   overrides:   &Map<&str, &str>,
+  quiet:       bool,
 ) -> Result<Map<&'a str, String>, RunError<'a>> {
   let mut evaluator = Evaluator {
-    evaluated:   Map::new(),
-    scope:       &Map::new(),
-    exports:     &Set::new(),
     assignments: assignments,
+    evaluated:   Map::new(),
+    exports:     &Set::new(),
     overrides:   overrides,
+    quiet:       quiet,
+    scope:       &Map::new(),
   };
 
   for name in assignments.keys() {
@@ -560,11 +574,12 @@ fn evaluate_assignments<'a>(
 }
 
 struct Evaluator<'a: 'b, 'b> {
-  evaluated:   Map<&'a str, String>,
-  scope:       &'b Map<&'a str, String>,
-  exports:     &'b Set<&'a str>,
   assignments: &'b Map<&'a str, Expression<'a>>,
+  evaluated:   Map<&'a str, String>,
+  exports:     &'b Set<&'a str>,
   overrides:   &'b Map<&'b str, &'b str>,
+  quiet:       bool,
+  scope:       &'b Map<&'a str, String>,
 }
 
 impl<'a, 'b> Evaluator<'a, 'b> {
@@ -630,7 +645,7 @@ impl<'a, 'b> Evaluator<'a, 'b> {
       }
       Expression::String{ref cooked, ..} => cooked.clone(),
       Expression::Backtick{raw, ref token} => {
-        try!(run_backtick(raw, token, &self.scope, &self.exports))
+        try!(run_backtick(raw, token, &self.scope, &self.exports, self.quiet))
       }
       Expression::Concatination{ref lhs, ref rhs} => {
         try!(self.evaluate_expression(lhs, arguments))
@@ -837,6 +852,7 @@ struct RunOptions<'a> {
   dry_run:   bool,
   evaluate:  bool,
   overrides: Map<&'a str, &'a str>,
+  quiet:     bool,
 }
 
 impl<'a, 'b> Justfile<'a> where 'a: 'b {
@@ -865,7 +881,7 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
   fn run(
     &'a self,
     arguments: &[&'a str],
-    options: &RunOptions<'a>,
+    options:   &RunOptions<'a>,
   ) -> Result<(), RunError<'a>> {
     let unknown_overrides = options.overrides.keys().cloned()
       .filter(|name| !self.assignments.contains_key(name))
@@ -875,7 +891,7 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
       return Err(RunError::UnknownOverrides{overrides: unknown_overrides});
     }
 
-    let scope = try!(evaluate_assignments(&self.assignments, &options.overrides));
+    let scope = try!(evaluate_assignments(&self.assignments, &options.overrides, options.quiet));
     if options.evaluate {
       for (name, value) in scope {
         println!("{} = \"{}\"", name, value);
@@ -899,7 +915,7 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
               expected: recipe.parameters.len(),
             });
           }
-          try!(self.run_recipe(recipe, rest, &scope, &mut ran, options.dry_run));
+          try!(self.run_recipe(recipe, rest, &scope, &mut ran, options));
           return Ok(());
         }
       } else {
@@ -917,7 +933,7 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
       return Err(RunError::UnknownRecipes{recipes: missing});
     }
     for recipe in arguments.iter().map(|name| &self.recipes[name]) {
-      try!(self.run_recipe(recipe, &[], &scope, &mut ran, options.dry_run));
+      try!(self.run_recipe(recipe, &[], &scope, &mut ran, options));
     }
     Ok(())
   }
@@ -928,14 +944,14 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
     arguments: &[&'a str],
     scope:     &Map<&'c str, String>,
     ran:       &mut Set<&'a str>,
-    dry_run:   bool,
+    options:   &RunOptions<'a>,
   ) -> Result<(), RunError> {
     for dependency_name in &recipe.dependencies {
       if !ran.contains(dependency_name) {
-        try!(self.run_recipe(&self.recipes[dependency_name], &[], scope, ran, dry_run));
+        try!(self.run_recipe(&self.recipes[dependency_name], &[], scope, ran, options));
       }
     }
-    try!(recipe.run(arguments, &scope, &self.exports, dry_run));
+    try!(recipe.run(arguments, &scope, &self.exports, options));
     ran.insert(recipe.name);
     Ok(())
   }
