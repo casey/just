@@ -22,12 +22,13 @@ publish: clippy build
 	git branch | grep '* master'
 	git diff --no-ext-diff --quiet --exit-code
 	grep 'version("{{version}}")' src/app.rs
-	git push github master:master
-	git push origin master:master
+	git co -b v{{version}}
+	git push github
 	cargo publish
 	git tag -a "v{{version}}" -m "v{{version}}"
 	git push github --tags
 	git push origin --tags
+	@echo 'Remember to merge v{{version}} branch on GitHub!'
 
 clippy:
 	rustup run nightly cargo clippy
