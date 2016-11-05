@@ -5,6 +5,7 @@ use std::{io, fs, env, process};
 use std::collections::BTreeMap;
 use self::clap::{App, Arg};
 use super::{Slurp, RunError};
+use std::path::Path;
 
 macro_rules! warn {
   ($($arg:tt)*) => {{
@@ -111,8 +112,12 @@ pub fn app() {
         die!("Error changing directory: {}", error);
       }
     }
-
-    text = fs::File::open("justfile")
+    let justfile_path = if Path::exists(Path::new("justfile")){ //Capitalized "J" similar to how make works
+        Path::new("justfile") //priority also works identically to make
+    } else {
+        Path::new("Justfile")
+    };
+    text = fs::File::open(justfile_path)
       .unwrap_or_else(|error| die!("Error opening justfile: {}", error))
       .slurp()
       .unwrap_or_else(|error| die!("Error reading justfile: {}", error));

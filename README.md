@@ -38,7 +38,7 @@ Optionally, you can also `alias j=just` for lighting fast command running.
 How do I just?
 --------------
 
-Once `just` is working, create a file called `justfile` in the root of your project and start adding recipes to it.
+Once `just` is working, create a file called `justfile` (or `Justfile`) in the root of your project and start adding recipes to it.
 
 Recipes look like this:
 
