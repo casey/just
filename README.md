@@ -38,7 +38,7 @@ Optionally, you can also `alias j=just` for lighting fast command running.
 How do I just?
 --------------
 
-Once `just` is working, create a file called `justfile` in the root of your project and start adding recipes to it.
+Once `just` is working, create a file called `justfile` (or `Justfile`) in the root of your project and start adding recipes to it.
 
 Recipes look like this:
 
@@ -67,7 +67,7 @@ $ just another-recipe
 Another recipe.
 ```
 
-`just` prints each command to standard error before running it, which is why `echo 'This is a recipe!'` was printed. Lines starting with `@` will not be printed which is whyc `echo 'Another recipe.'` was not. printed.
+`just` prints each command to standard error before running it, which is why `echo 'This is a recipe!'` was printed. Lines starting with `@` will not be printed which is why `echo 'Another recipe.'` was not. printed.
 
 Recipes stop running if a command fails. Here `cargo publish` will only run if `cargo test` succeeds:
 
