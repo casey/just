@@ -575,3 +575,100 @@ fn line_error_spacing() {
 ",
   );
 }
+
+#[test]
+fn quiet_flag_no_stdout() {
+  integration_test(
+    &["--quiet"],
+    r#"
+default:
+  @echo hello
+"#,
+    0,
+    "",
+    "",
+  );
+}
+
+#[test]
+fn quiet_flag_no_stderr() {
+  integration_test(
+    &["--quiet"],
+    r#"
+default:
+  @echo hello 1>&2
+"#,
+    0,
+    "",
+    "",
+  );
+}
+
+#[test]
+fn quiet_flag_no_command_echoing() {
+  integration_test(
+    &["--quiet"],
+    r#"
+default:
+  exit
+"#,
+    0,
+    "",
+    "",
+  );
+}
+
+#[test]
+fn quiet_flag_no_error_messages() {
+  integration_test(
+    &["--quiet"],
+    r#"
+default:
+  exit 100
+"#,
+    100,
+    "",
+    "",
+  );
+}
+
+#[test]
+fn quiet_flag_no_assignment_backtick_stderr() {
+  integration_test(
+    &["--quiet"],
+    r#"
+a = `echo hello 1>&2`
+default:
+  exit 100
+"#,
+    100,
+    "",
+    "",
+  );
+}
+
+#[test]
+fn quiet_flag_no_interpolation_backtick_stderr() {
+  integration_test(
+    &["--quiet"],
+    r#"
+default:
+  echo `echo hello 1>&2`
+  exit 100
+"#,
+    100,
+    "",
+    "",
+  );
+}
+
+#[test]
+fn quiet_flag_or_dry_run_flag() {
+  integration_test(
+    &["--quiet", "--dry-run"],
+    r#""#,
+    255,
+    "",
+    "--dry-run and --quiet may not be used together\n",
+  );
+}

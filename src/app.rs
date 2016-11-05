@@ -30,6 +30,10 @@ pub fn app() {
          .short("l")
          .long("list")
          .help("Lists available recipes"))
+    .arg(Arg::with_name("quiet")
+         .short("q")
+         .long("quiet")
+         .help("Suppress all output"))
     .arg(Arg::with_name("dry-run")
          .long("dry-run")
          .help("Print recipe text without executing"))
@@ -67,6 +71,11 @@ pub fn app() {
   // suprises.
   if matches.is_present("justfile") ^ matches.is_present("working-directory") {
     die!("--justfile and --working-directory may only be used together");
+  }
+
+  // --dry-run and --quiet don't make sense together
+  if matches.is_present("dry-run") && matches.is_present("quiet") {
+    die!("--dry-run and --quiet may not be used together");
   }
 
   let justfile_option = matches.value_of("justfile");
@@ -164,10 +173,13 @@ pub fn app() {
     dry_run:   matches.is_present("dry-run"),
     evaluate:  matches.is_present("evaluate"),
     overrides: overrides,
+    quiet:     matches.is_present("quiet"),
   };
 
   if let Err(run_error) = justfile.run(&arguments, &options) {
-    warn!("{}", run_error);
+    if !options.quiet {
+      warn!("{}", run_error);
+    }
     match run_error {
       RunError::Code{code, .. } | RunError::BacktickCode{code, ..} => process::exit(code),
       _ => process::exit(-1),
