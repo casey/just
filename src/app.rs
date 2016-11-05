@@ -160,10 +160,13 @@ pub fn app() {
     die!("Justfile contains no recipes");
   };
 
-  let dry_run = matches.is_present("dry-run");
-  let evaluate = matches.is_present("evaluate");
+  let options = super::RunOptions {
+    dry_run:   matches.is_present("dry-run"),
+    evaluate:  matches.is_present("evaluate"),
+    overrides: overrides,
+  };
 
-  if let Err(run_error) = justfile.run(&overrides, &arguments, dry_run, evaluate) {
+  if let Err(run_error) = justfile.run(&arguments, &options) {
     warn!("{}", run_error);
     match run_error {
       RunError::Code{code, .. } | RunError::BacktickCode{code, ..} => process::exit(code),
