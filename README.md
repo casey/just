@@ -18,7 +18,7 @@ build:
     cc *.c -o main
 ```
 
-`just` produces detailed error messages and avoids `make`'s idiosyncrasies, so debugging a justfile is easier and less suprising than debugging a makefile.
+`just` produces detailed error messages and avoids `make`'s idiosyncrasies, so debugging a justfile is easier and less surprising than debugging a makefile.
 
 If you need help with `just` please feel free to send me an email. Feature requests and bug reports are also always welcome!
 
