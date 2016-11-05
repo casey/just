@@ -92,12 +92,18 @@ pub fn app() {
       die!("Error changing directory to {}: {}", directory, error);
     }
   } else {
-    loop {
-      match fs::metadata("justfile") {
-        Ok(metadata) => if metadata.is_file() { break; },
-        Err(error) => {
-          if error.kind() != io::ErrorKind::NotFound {
-            die!("Error fetching justfile metadata: {}", error)
+    let name;
+    'outer: loop {
+      for candidate in &["justfile", "Justfile"] {
+        match fs::metadata(candidate) {
+          Ok(metadata) => if metadata.is_file() {
+            name = *candidate;
+            break 'outer;
+          },
+          Err(error) => {
+            if error.kind() != io::ErrorKind::NotFound {
+              die!("Error fetching justfile metadata: {}", error)
+            }
           }
         }
       }
@@ -112,7 +118,7 @@ pub fn app() {
       }
     }
 
-    text = fs::File::open("justfile")
+    text = fs::File::open(name)
       .unwrap_or_else(|error| die!("Error opening justfile: {}", error))
       .slurp()
       .unwrap_or_else(|error| die!("Error reading justfile: {}", error));

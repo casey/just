@@ -5,7 +5,7 @@ just
 
 `just` is a handy way to save and run commands.
 
-Commands are stored in a file called `justfile` with syntax inspired by `make`:
+Commands are stored in a file called `justfile` or `Justfile` with syntax inspired by `make`:
 
 ```make
 test-all: build
