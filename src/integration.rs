@@ -3,7 +3,7 @@ extern crate brev;
 extern crate regex;
 
 use tempdir::TempDir;
-use super::std::process::Command;
+use super::std::{fs, path, process};
 
 fn integration_test(
   args:            &[&str],
@@ -13,13 +13,13 @@ fn integration_test(
   expected_stderr: &str,
 ) {
   let tmp = TempDir::new("just-integration")
-    .unwrap_or_else(|err| panic!("tmpdir: failed to create temporary directory: {}", err));
+    .unwrap_or_else(|err| panic!("integration test: failed to create temporary directory: {}", err));
   let mut path = tmp.path().to_path_buf();
   path.push("justfile");
   brev::dump(path, justfile);
   let mut binary = super::std::env::current_dir().unwrap();
   binary.push("./target/debug/just");
-  let output = Command::new(binary)
+  let output = process::Command::new(binary)
     .current_dir(tmp.path())
     .args(args)
     .output()
@@ -48,6 +48,97 @@ fn integration_test(
   if failure {
     panic!("test failed");
   }
+}
+
+fn search_test<P: AsRef<path::Path>>(path: P) {
+  let mut binary = super::std::env::current_dir().unwrap();
+  binary.push("./target/debug/just");
+  let output = process::Command::new(binary)
+    .current_dir(path)
+    .output()
+    .expect("just invocation failed");
+
+  assert_eq!(output.status.code().unwrap(), 0);
+
+  let stdout = super::std::str::from_utf8(&output.stdout).unwrap();
+  assert_eq!(stdout, "ok\n");
+
+  let stderr = super::std::str::from_utf8(&output.stderr).unwrap();
+  assert_eq!(stderr, "echo ok\n");
+}
+
+#[test]
+fn test_justfile_search() {
+  let tmp = TempDir::new("just-test-justfile-search")
+    .expect("test justfile search: failed to create temporary directory");
+  let mut path = tmp.path().to_path_buf();
+  path.push("justfile");
+  brev::dump(&path, "default:\n\techo ok");
+  path.pop();
+
+  path.push("a");
+  fs::create_dir(&path).expect("test justfile search: failed to create intermediary directory");
+  path.push("b");
+  fs::create_dir(&path).expect("test justfile search: failed to create intermediary directory");
+  path.push("c");
+  fs::create_dir(&path).expect("test justfile search: failed to create intermediary directory");
+  path.push("d");
+  fs::create_dir(&path).expect("test justfile search: failed to create intermediary directory");
+
+  search_test(path);
+}
+
+#[test]
+fn test_capitalized_justfile_search() {
+  let tmp = TempDir::new("just-test-justfile-search")
+    .expect("test justfile search: failed to create temporary directory");
+  let mut path = tmp.path().to_path_buf();
+  path.push("Justfile");
+  brev::dump(&path, "default:\n\techo ok");
+  path.pop();
+
+  path.push("a");
+  fs::create_dir(&path).expect("test justfile search: failed to create intermediary directory");
+  path.push("b");
+  fs::create_dir(&path).expect("test justfile search: failed to create intermediary directory");
+  path.push("c");
+  fs::create_dir(&path).expect("test justfile search: failed to create intermediary directory");
+  path.push("d");
+  fs::create_dir(&path).expect("test justfile search: failed to create intermediary directory");
+
+  search_test(path);
+}
+
+#[test]
+fn test_capitalization_priority() {
+  let tmp = TempDir::new("just-test-justfile-search")
+    .expect("test justfile search: failed to create temporary directory");
+  let mut path = tmp.path().to_path_buf();
+  path.push("justfile");
+  brev::dump(&path, "default:\n\techo ok");
+  path.pop();
+  path.push("Justfile");
+  brev::dump(&path, "default:\n\techo fail");
+  path.pop();
+
+  // if we see "default\n\techo fail" in `justfile` then we're running
+  // in a case insensitive filesystem, so just bail
+  path.push("justfile");
+  if brev::slurp(&path) == "default:\n\techo fail" {
+    return;
+  }
+  path.pop();
+
+  path.push("a");
+  fs::create_dir(&path).expect("test justfile search: failed to create intermediary directory");
+  path.push("b");
+  fs::create_dir(&path).expect("test justfile search: failed to create intermediary directory");
+  path.push("c");
+  fs::create_dir(&path).expect("test justfile search: failed to create intermediary directory");
+  path.push("d");
+  fs::create_dir(&path).expect("test justfile search: failed to create intermediary directory");
+
+  search_test(path);
 }
 
 #[test]
