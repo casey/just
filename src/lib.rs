@@ -832,6 +832,13 @@ struct Justfile<'a> {
   exports:     Set<&'a str>,
 }
 
+#[derive(Default)]
+struct RunOptions<'a> {
+  dry_run:   bool,
+  evaluate:  bool,
+  overrides: Map<&'a str, &'a str>,
+}
+
 impl<'a, 'b> Justfile<'a> where 'a: 'b {
   fn first(&self) -> Option<&'a str> {
     let mut first: Option<&Recipe<'a>> = None;
@@ -857,12 +864,10 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
 
   fn run(
     &'a self,
-    overrides: &Map<&'a str, &'a str>,
     arguments: &[&'a str],
-    dry_run:   bool,
-    evaluate:  bool,
+    options: &RunOptions<'a>,
   ) -> Result<(), RunError<'a>> {
-    let unknown_overrides = overrides.keys().cloned()
+    let unknown_overrides = options.overrides.keys().cloned()
       .filter(|name| !self.assignments.contains_key(name))
       .collect::<Vec<_>>();
 
@@ -870,8 +875,8 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
       return Err(RunError::UnknownOverrides{overrides: unknown_overrides});
     }
 
-    let scope = try!(evaluate_assignments(&self.assignments, overrides));
-    if evaluate {
+    let scope = try!(evaluate_assignments(&self.assignments, &options.overrides));
+    if options.evaluate {
       for (name, value) in scope {
         println!("{} = \"{}\"", name, value);
       }
@@ -894,7 +899,7 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
               expected: recipe.parameters.len(),
             });
           }
-          try!(self.run_recipe(recipe, rest, &scope, &mut ran, dry_run));
+          try!(self.run_recipe(recipe, rest, &scope, &mut ran, options.dry_run));
           return Ok(());
         }
       } else {
@@ -912,7 +917,7 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
       return Err(RunError::UnknownRecipes{recipes: missing});
     }
     for recipe in arguments.iter().map(|name| &self.recipes[name]) {
-      try!(self.run_recipe(recipe, &[], &scope, &mut ran, dry_run));
+      try!(self.run_recipe(recipe, &[], &scope, &mut ran, options.dry_run));
     }
     Ok(())
   }
