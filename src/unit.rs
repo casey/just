@@ -727,7 +727,7 @@ c: b
 fn run_shebang() {
   // this test exists to make sure that shebang recipes
   // run correctly. although this script is still
-  // executed by sh its behavior depends on the value of a
+  // executed by a shell its behavior depends on the value of a
   // variable and continuing even though a command fails,
   // whereas in plain recipes variables are not available
   // in subsequent lines and execution stops when a line
@@ -736,7 +736,7 @@ fn run_shebang() {
 a:
  #!/usr/bin/env sh
  code=200
-  function x { return $code; }
+  x() { return $code; }
     x
       x
 ";
@@ -752,7 +752,7 @@ a:
 
 #[test]
 fn code_error() {
-  match parse_success("fail:\n @function x { return 100; }; x")
+  match parse_success("fail:\n @exit 100")
     .run(&["fail"], &Default::default()).unwrap_err() {
     RunError::Code{recipe, code} => {
       assert_eq!(recipe, "fail");
@@ -766,7 +766,7 @@ fn code_error() {
 fn run_args() {
   let text = r#"
 a return code:
- @function x { {{return}} {{code + "0"}}; }; x"#;
+ @x() { {{return}} {{code + "0"}}; }; x"#;
 
   match parse_success(text).run(&["a", "return", "15"], &Default::default()).unwrap_err() {
     RunError::Code{recipe, code} => {
@@ -804,11 +804,11 @@ fn missing_default() {
 
 #[test]
 fn backtick_code() {
-  match parse_success("a:\n echo {{`function f { return 100; }; f`}}")
+  match parse_success("a:\n echo {{`f() { return 100; }; f`}}")
         .run(&["a"], &Default::default()).unwrap_err() {
     RunError::BacktickCode{code, token} => {
       assert_eq!(code, 100);
-      assert_eq!(token.lexeme, "`function f { return 100; }; f`");
+      assert_eq!(token.lexeme, "`f() { return 100; }; f`");
     },
     other => panic!("expected an code run error, but got: {}", other),
   }
@@ -819,12 +819,60 @@ fn unknown_overrides() {
   let mut options: RunOptions = Default::default();
   options.overrides.insert("foo", "bar");
   options.overrides.insert("baz", "bob");
-  match parse_success("a:\n echo {{`function f { return 100; }; f`}}")
-  .run(&["a"], &options).unwrap_err() {
+  match parse_success("a:\n echo {{`f() { return 100; }; f`}}")
+        .run(&["a"], &options).unwrap_err() {
     RunError::UnknownOverrides{overrides} => {
       assert_eq!(overrides, &["baz", "foo"]);
     },
     other => panic!("expected an code run error, but got: {}", other),
+  }
+}
+
+#[test]
+fn export_assignment_backtick() {
+  let text = r#"
+export exported_variable = "A"
+b = `echo $exported_variable`
+
+recipe:
+  echo {{b}}
+"#;
+
+  let options = RunOptions {
+    quiet: true,
+    ..Default::default()
+  };
+
+  match parse_success(text).run(&["recipe"], &options).unwrap_err() {
+    RunError::BacktickCode{code: _, token} => {
+      assert_eq!(token.lexeme, "`echo $exported_variable`");
+    },
+    other => panic!("expected a backtick code errror, but got: {}", other),
+  }
+}
+
+#[test]
+fn export_failure() {
+  let text = r#"
+export foo = "a"
+baz = "c"
+export bar = "b"
+export abc = foo + bar + baz
+
+wut:
+  echo $foo $bar $baz
+"#;
+
+  let options = RunOptions {
+    quiet: true,
+    ..Default::default()
+  };
+
+  match parse_success(text).run(&["wut"], &options).unwrap_err() {
+    RunError::Code{code: _, recipe} => {
+      assert_eq!(recipe, "wut");
+    },
+    other => panic!("expected a recipe code errror, but got: {}", other),
   }
 }
 

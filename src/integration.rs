@@ -199,11 +199,11 @@ recipe:
 */
 
 #[test]
-fn status() {
+fn status_passthrough() {
   let text = 
 "
 recipe:
- @function f { return 100; }; f";
+ @exit 100";
   integration_test(
     &[],
     text,
@@ -254,13 +254,13 @@ fn backtick_trimming() {
 fn backtick_code_assignment() {
   integration_test(
     &[],
-    "b = a\na = `function f { return 100; }; f`\nbar:\n echo '{{`function f { return 200; }; f`}}'",
+    "b = a\na = `exit 100`\nbar:\n echo '{{`exit 200`}}'",
     100,
     "",
     "backtick failed with exit code 100
   |
-2 | a = `function f { return 100; }; f`
-  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2 | a = `exit 100`
+  |     ^^^^^^^^^^
 ",
   );
 }
@@ -269,13 +269,13 @@ fn backtick_code_assignment() {
 fn backtick_code_interpolation() {
   integration_test(
     &[],
-    "b = a\na = `echo hello`\nbar:\n echo '{{`function f { return 200; }; f`}}'",
+    "b = a\na = `echo hello`\nbar:\n echo '{{`exit 200`}}'",
     200,
     "",
     "backtick failed with exit code 200
   |
-4 |  echo '{{`function f { return 200; }; f`}}'
-  |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+4 |  echo '{{`exit 200`}}'
+  |          ^^^^^^^^^^
 ",
   );
 }
@@ -454,29 +454,6 @@ wut:
   );
 }
 
-
-#[test]
-fn export_failure() {
-  integration_test(
-    &[],
-    r#"
-export foo = "a"
-baz = "c"
-export bar = "b"
-export abc = foo + bar + baz
-
-wut:
-  echo $foo $bar $baz
-"#,
-    127,
-    "",
-    r#"echo $foo $bar $baz
-sh: baz: unbound variable
-Recipe "wut" failed with exit code 127
-"#,
-  );
-}
-
 #[test]
 fn export_shebang() {
   integration_test(
@@ -494,28 +471,6 @@ wut:
     0,
     "a b abc\n",
     "",
-  );
-}
-
-#[test]
-fn export_assignment_backtick() {
-  integration_test(
-    &[],
-    r#"
-export exported_variable = "A"
-b = `echo $exported_variable`
-
-recipe:
-  echo {{b}}
-"#,
-    127,
-    "",
-    "sh: exported_variable: unbound variable
-backtick failed with exit code 127
-  |
-3 | b = `echo $exported_variable`
-  |     ^^^^^^^^^^^^^^^^^^^^^^^^^
-",
   );
 }
 
