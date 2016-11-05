@@ -1,6 +1,9 @@
 test: build
 	cargo test --lib
 
+filter PATTERN:
+	cargo test --lib {{PATTERN}}
+
 test-quine:
 	cargo run -- quine clean
 
