@@ -2,6 +2,7 @@ just
 ====
 
 [![crates.io version](https://img.shields.io/crates/v/just.svg)](https://crates.io/crates/just)
+[![Build Status](https://travis-ci.org/casey/just.svg?branch=master)](https://travis-ci.org/casey/just)
 
 `just` is a handy way to save and run commands.
 
