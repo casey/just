@@ -3,6 +3,7 @@ name = "just"
 version = "0.2.16"
 dependencies = [
  "ansi_term 0.9.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "atty 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "brev 0.1.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "clap 2.17.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "itertools 0.5.5 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -23,6 +24,16 @@ dependencies = [
 name = "ansi_term"
 version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[[package]]
+name = "atty"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "kernel32-sys 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "libc 0.2.16 (registry+https://github.com/rust-lang/crates.io-index)",
+ "winapi 0.2.8 (registry+https://github.com/rust-lang/crates.io-index)",
+]
 
 [[package]]
 name = "bitflags"
@@ -196,6 +207,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 [metadata]
 "checksum aho-corasick 0.5.3 (registry+https://github.com/rust-lang/crates.io-index)" = "ca972c2ea5f742bfce5687b9aef75506a764f61d37f8f649047846a9686ddb66"
 "checksum ansi_term 0.9.0 (registry+https://github.com/rust-lang/crates.io-index)" = "23ac7c30002a5accbf7e8987d0632fa6de155b7c3d39d0067317a391e00a2ef6"
+"checksum atty 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)" = "d7b4cb091c727ebec026331c1b7092981c9cdde34d8df109fa36f29a37532026"
 "checksum bitflags 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)" = "aad18937a628ec6abcd26d1489012cc0e18c21798210f491af69ded9b881106d"
 "checksum brev 0.1.6 (registry+https://github.com/rust-lang/crates.io-index)" = "79571b60a8aa293f43b46370d8ba96fed28a5bee1303ea0e015d175ed0c63b40"
 "checksum clap 2.17.1 (registry+https://github.com/rust-lang/crates.io-index)" = "27dac76762fb56019b04aed3ccb43a770a18f80f9c2eb62ee1a18d9fb4ea2430"

@@ -1,5 +1,6 @@
 extern crate clap;
 extern crate regex;
+extern crate atty;
 
 use std::{io, fs, env, process};
 use std::collections::BTreeMap;
@@ -184,7 +185,11 @@ pub fn app() {
 
   if let Err(run_error) = justfile.run(&arguments, &options) {
     if !options.quiet {
-      warn!("{}", run_error);
+      if atty::is(atty::Stream::Stderr) {
+        warn!("{:#}", run_error);
+      } else {
+        warn!("{}", run_error);
+      }
     }
     match run_error {
       RunError::Code{code, .. } | RunError::BacktickCode{code, ..} => process::exit(code),
