@@ -754,13 +754,15 @@ impl<'a> Display for Error<'a> {
         if circle.len() == 2 {
           try!(write!(f, "recipe `{}` depends on itself", recipe));
         } else {
-          try!(write!(f, "recipe `{}` has circular dependency `{}`", recipe, circle.join(" -> ")));
+          try!(writeln!(f, "recipe `{}` has circular dependency `{}`", recipe, circle.join(" -> ")));
         }
-        return Ok(());
       }
       ErrorKind::CircularVariableDependency{variable, ref circle} => {
-        try!(write!(f, "assignment to `{}` has circular dependency: `{}`", variable, circle.join(" -> ")));
-        return Ok(());
+        if circle.len() == 2 {
+          try!(writeln!(f, "variable `{}` depends on its own value: `{}`", variable, circle.join(" -> ")));
+        } else {
+          try!(writeln!(f, "variable `{}` depends on its own value: `{}`", variable, circle.join(" -> ")));
+        }
       }
       ErrorKind::InvalidEscapeSequence{character} => {
         try!(writeln!(f, "`\\{}` is not a valid escape sequence", character.escape_default().collect::<String>()));
@@ -778,9 +780,8 @@ impl<'a> Display for Error<'a> {
         try!(writeln!(f, "recipe `{}` has duplicate dependency `{}`", recipe, dependency));
       }
       ErrorKind::DuplicateRecipe{recipe, first} => {
-        try!(write!(f, "recipe `{}` first defined on line {} is redefined on line {}", 
+        try!(writeln!(f, "recipe `{}` first defined on line {} is redefined on line {}",
                     recipe, first, self.line));
-        return Ok(());
       }
       ErrorKind::DependencyHasParameters{recipe, dependency} => {
         try!(writeln!(f, "recipe `{}` depends on `{}` which requires arguments. dependencies may not require arguments", recipe, dependency));
