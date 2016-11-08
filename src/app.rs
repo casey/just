@@ -3,7 +3,7 @@ extern crate regex;
 
 use std::{io, fs, env, process};
 use std::collections::BTreeMap;
-use self::clap::{App, Arg};
+use self::clap::{App, Arg, AppSettings};
 use super::{Slurp, RunError};
 
 macro_rules! warn {
@@ -26,6 +26,7 @@ pub fn app() {
     .version("0.2.16")
     .author("Casey Rodarmor <casey@rodarmor.com>")
     .about("Just a command runner - https://github.com/casey/just")
+    .setting(AppSettings::ColoredHelp)
     .arg(Arg::with_name("list")
          .short("l")
          .long("list")
