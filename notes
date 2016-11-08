@@ -6,4 +6,5 @@ colored output
 
 - token and ^^^^ should be red
 - error message should be bold
-- should executed commands also be a different color? Maybe bold white?
+- commands should be bold
+- add error context to all backtick errors
