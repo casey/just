@@ -137,17 +137,23 @@ fn error_from_signal(recipe: &str, exit_status: process::ExitStatus) -> RunError
 }
 
 #[cfg(unix)]
-fn backtick_error_from_signal(exit_status: process::ExitStatus) -> RunError<'static> {
+fn backtick_error_from_signal<'a>(
+  token:       &Token<'a>,
+  exit_status: process::ExitStatus
+) -> RunError<'a> {
   use std::os::unix::process::ExitStatusExt;
   match exit_status.signal() {
-    Some(signal) => RunError::BacktickSignal{signal: signal},
-    None => RunError::BacktickUnknownFailure,
+    Some(signal) => RunError::BacktickSignal{token: token.clone(), signal: signal},
+    None => RunError::BacktickUnknownFailure{token: token.clone()},
   }
 }
 
 #[cfg(windows)]
-fn backtick_error_from_signal(exit_status: process::ExitStatus) -> RunError<'static> {
-  RunError::BacktickUnknownFailure
+fn backtick_error_from_signal<'a>(
+  token:       &Token<'a>,
+  exit_status: process::ExitStatus
+) -> RunError<'a> {
+  RunError::BacktickUnknownFailure{token: token.clone()}
 }
 
 fn export_env<'a>(
@@ -198,10 +204,10 @@ fn run_backtick<'a>(
           });
         }
       } else {
-        return Err(backtick_error_from_signal(output.status));
+        return Err(backtick_error_from_signal(token, output.status));
       }
       match std::str::from_utf8(&output.stdout) {
-        Err(error) => Err(RunError::BacktickUtf8Error{utf8_error: error}),
+        Err(error) => Err(RunError::BacktickUtf8Error{token: token.clone(), utf8_error: error}),
         Ok(utf8) => {
           Ok(if utf8.ends_with('\n') {
             &utf8[0..utf8.len()-1]
@@ -213,7 +219,7 @@ fn run_backtick<'a>(
         }
       }
     }
-    Err(error) => Err(RunError::BacktickIoError{io_error: error}),
+    Err(error) => Err(RunError::BacktickIoError{token: token.clone(), io_error: error}),
   }
 }
 
@@ -772,6 +778,17 @@ fn write_error_context(
   Ok(())
 }
 
+fn write_token_error_context(f: &mut fmt::Formatter, token: &Token) -> Result<(), fmt::Error> {
+  write_error_context(
+    f,
+    token.text,
+    token.index,
+    token.line,
+    token.column + token.prefix.len(),
+    Some(token.lexeme.len())
+  )
+}
+
 fn maybe_red(colors: bool) -> ansi_term::Style {
   if colors {
     ansi_term::Style::new().fg(ansi_term::Color::Red)
@@ -1034,11 +1051,11 @@ enum RunError<'a> {
   UnknownFailure{recipe: &'a str},
   UnknownRecipes{recipes: Vec<&'a str>},
   UnknownOverrides{overrides: Vec<&'a str>},
-  BacktickCode{code: i32, token: Token<'a>},
-  BacktickIoError{io_error: io::Error},
-  BacktickSignal{signal: i32},
-  BacktickUtf8Error{utf8_error: std::str::Utf8Error},
-  BacktickUnknownFailure,
+  BacktickCode{token: Token<'a>, code: i32},
+  BacktickIoError{token: Token<'a>, io_error: io::Error},
+  BacktickSignal{token: Token<'a>, signal: i32},
+  BacktickUtf8Error{token: Token<'a>, utf8_error: std::str::Utf8Error},
+  BacktickUnknownFailure{token: Token<'a>},
 }
 
 impl<'a> Display for RunError<'a> {
@@ -1083,30 +1100,27 @@ impl<'a> Display for RunError<'a> {
         try!(write!(f, "Recipe \"{}\" could not be run because of an IO error while trying to create a temporary directory or write a file to that directory`:\n{}", recipe, io_error)),
       RunError::BacktickCode{code, ref token} => {
         try!(write!(f, "backtick failed with exit code {}\n", code));
-        write_error_context(
-          f,
-          token.text,
-          token.index,
-          token.line,
-          token.column + token.prefix.len(),
-          Some(token.lexeme.len())
-        );
+        try!(write_token_error_context(f, token));
       }
-      RunError::BacktickSignal{signal} => {
+      RunError::BacktickSignal{ref token, signal} => {
         try!(write!(f, "backtick was terminated by signal {}", signal));
+        try!(write_token_error_context(f, token));
       }
-      RunError::BacktickUnknownFailure => {
+      RunError::BacktickUnknownFailure{ref token} => {
         try!(write!(f, "backtick failed for an uknown reason"));
+        try!(write_token_error_context(f, token));
       }
-      RunError::BacktickIoError{ref io_error} => {
+      RunError::BacktickIoError{ref token, ref io_error} => {
         try!(match io_error.kind() {
           io::ErrorKind::NotFound => write!(f, "backtick could not be run because just could not find `sh` the command:\n{}", io_error),
           io::ErrorKind::PermissionDenied => write!(f, "backtick could not be run because just could not run `sh`:\n{}", io_error),
           _ => write!(f, "backtick could not be run because of an IO error while launching `sh`:\n{}", io_error),
         });
+        try!(write_token_error_context(f, token));
       }
-      RunError::BacktickUtf8Error{ref utf8_error} => {
+      RunError::BacktickUtf8Error{ref token, ref utf8_error} => {
         try!(write!(f, "backtick succeeded but stdout was not utf8: {}", utf8_error));
+        try!(write_token_error_context(f, token));
       }
       RunError::InternalError{ref message} => {
         try!(write!(f, "internal error, this may indicate a bug in just: {}\n consider filing an issue: https://github.com/casey/just/issues/new", message));
