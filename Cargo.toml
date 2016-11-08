@@ -1,16 +1,15 @@
 [package]
-name = "just"
-version = "0.2.16"
-authors = ["Casey Rodarmor <casey@rodarmor.com>"]
-license = "WTFPL/MIT/Apache-2.0"
+name        = "just"
+version     = "0.2.16"
 description = "🤖 Just a command runner"
-homepage = "https://github.com/casey/just"
+authors     = ["Casey Rodarmor <casey@rodarmor.com>"]
+license     = "WTFPL/MIT/Apache-2.0"
+homepage    = "https://github.com/casey/just"
 
 [dependencies]
-
-regex = "^0.1.77"
-clap = "^2.0.0"
-tempdir = "^0.3.5"
+brev        = "^0.1.6"
+clap        = "^2.0.0"
+itertools   = "^0.5.5"
 lazy_static = "^0.2.1"
-brev = "^0.1.6"
-itertools = "^0.5.5"
+regex       = "^0.1.77"
+tempdir     = "^0.3.5"
