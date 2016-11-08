@@ -42,6 +42,8 @@ install-nightly:
 sloc:
 	@cat src/*.rs | wc -l
 
+nop:
+
 # make a quine, compile it, and verify it
 quine: create
 	cc tmp/gen0.c -o tmp/gen0
