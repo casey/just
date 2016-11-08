@@ -372,6 +372,21 @@ fn backtick_code_interpolation() {
 }
 
 #[test]
+fn backtick_code_long() {
+  integration_test(
+    &[],
+    "\n\n\n\n\n\nb = a\na = `echo hello`\nbar:\n echo '{{`exit 200`}}'",
+    200,
+    "",
+    "backtick failed with exit code 200
+   |
+10 |  echo '{{`exit 200`}}'
+   |          ^^^^^^^^^^
+",
+  );
+}
+
+#[test]
 fn shebang_backtick_failure() {
   integration_test(
     &[],
