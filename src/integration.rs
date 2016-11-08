@@ -13,7 +13,8 @@ fn integration_test(
   expected_stderr: &str,
 ) {
   let tmp = TempDir::new("just-integration")
-    .unwrap_or_else(|err| panic!("integration test: failed to create temporary directory: {}", err));
+    .unwrap_or_else(
+      |err| panic!("integration test: failed to create temporary directory: {}", err));
   let mut path = tmp.path().to_path_buf();
   path.push("justfile");
   brev::dump(path, justfile);

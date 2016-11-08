@@ -296,7 +296,8 @@ impl<'a> Recipe<'a> {
       // make the script executable
       let current_mode = perms.mode();
       perms.set_mode(current_mode | 0o100);
-      try!(fs::set_permissions(&path, perms).map_err(|error| RunError::TmpdirIoError{recipe: self.name, io_error: error}));
+      try!(fs::set_permissions(&path, perms)
+           .map_err(|error| RunError::TmpdirIoError{recipe: self.name, io_error: error}));
 
       // run it!
       let mut command = process::Command::new(path);
@@ -380,7 +381,8 @@ impl<'a> Display for Recipe<'a> {
         }
         match *piece {
           Fragment::Text{ref text} => try!(write!(f, "{}", text.lexeme)),
-          Fragment::Expression{ref expression, ..} => try!(write!(f, "{}{}{}", "{{", expression, "}}")),
+          Fragment::Expression{ref expression, ..} => 
+            try!(write!(f, "{}{}{}", "{{", expression, "}}")),
         }
       }
       if i + 1 < self.lines.len() {
@@ -817,18 +819,22 @@ impl<'a> Display for Error<'a> {
         if circle.len() == 2 {
           try!(write!(f, "recipe `{}` depends on itself", recipe));
         } else {
-          try!(writeln!(f, "recipe `{}` has circular dependency `{}`", recipe, circle.join(" -> ")));
+          try!(writeln!(f, "recipe `{}` has circular dependency `{}`",
+                        recipe, circle.join(" -> ")));
         }
       }
       ErrorKind::CircularVariableDependency{variable, ref circle} => {
         if circle.len() == 2 {
-          try!(writeln!(f, "variable `{}` depends on its own value: `{}`", variable, circle.join(" -> ")));
+          try!(writeln!(f, "variable `{}` depends on its own value: `{}`",
+                        variable, circle.join(" -> ")));
         } else {
-          try!(writeln!(f, "variable `{}` depends on its own value: `{}`", variable, circle.join(" -> ")));
+          try!(writeln!(f, "variable `{}` depends on its own value: `{}`",
+                        variable, circle.join(" -> ")));
         }
       }
       ErrorKind::InvalidEscapeSequence{character} => {
-        try!(writeln!(f, "`\\{}` is not a valid escape sequence", character.escape_default().collect::<String>()));
+        try!(writeln!(f, "`\\{}` is not a valid escape sequence",
+                      character.escape_default().collect::<String>()));
       }
       ErrorKind::DuplicateParameter{recipe, parameter} => {
         try!(writeln!(f, "recipe `{}` has duplicate parameter `{}`", recipe, parameter));
@@ -847,14 +853,16 @@ impl<'a> Display for Error<'a> {
                     recipe, first, self.line));
       }
       ErrorKind::DependencyHasParameters{recipe, dependency} => {
-        try!(writeln!(f, "recipe `{}` depends on `{}` which requires arguments. dependencies may not require arguments", recipe, dependency));
+        try!(writeln!(f, "recipe `{}` depends on `{}` which requires arguments. \
+                      dependencies may not require arguments", recipe, dependency));
       }
       ErrorKind::ParameterShadowsVariable{parameter} => {
         try!(writeln!(f, "parameter `{}` shadows variable of the same name", parameter));
       }
       ErrorKind::MixedLeadingWhitespace{whitespace} => {
         try!(writeln!(f,
-          "found a mix of tabs and spaces in leading whitespace: `{}`\n leading whitespace may consist of tabs or spaces, but not both",
+          "found a mix of tabs and spaces in leading whitespace: `{}`\n\
+          leading whitespace may consist of tabs or spaces, but not both",
           show_whitespace(whitespace)
         ));
       }
@@ -883,7 +891,9 @@ impl<'a> Display for Error<'a> {
         try!(writeln!(f, "unterminated string"));
       }
       ErrorKind::InternalError{ref message} => {
-        try!(writeln!(f, "internal error, this may indicate a bug in just: {}\n consider filing an issue: https://github.com/casey/just/issues/new", message));
+        try!(writeln!(f, "internal error, this may indicate a bug in just: {}\n\
+                          consider filing an issue: https://github.com/casey/just/issues/new",
+                          message));
       }
     }
 
@@ -1073,7 +1083,8 @@ impl<'a> Display for RunError<'a> {
                     And(overrides)))
       },
       RunError::NonLeadingRecipeWithParameters{recipe} => {
-        try!(write!(f, "Recipe `{}` takes arguments and so must be the first and only recipe specified on the command line", recipe));
+        try!(write!(f, "Recipe `{}` takes arguments and so must be the first and only recipe \
+                        specified on the command line", recipe));
       },
       RunError::ArgumentCountMismatch{recipe, found, expected} => {
         try!(write!(f, "Recipe `{}` takes {} argument{}, but {}{} were found",
@@ -1091,13 +1102,20 @@ impl<'a> Display for RunError<'a> {
       },
       RunError::IoError{recipe, ref io_error} => {
         try!(match io_error.kind() {
-          io::ErrorKind::NotFound => write!(f, "Recipe \"{}\" could not be run because just could not find `sh` the command:\n{}", recipe, io_error),
-          io::ErrorKind::PermissionDenied => write!(f, "Recipe \"{}\" could not be run because just could not run `sh`:\n{}", recipe, io_error),
-          _ => write!(f, "Recipe \"{}\" could not be run because of an IO error while launching `sh`:\n{}", recipe, io_error),
+          io::ErrorKind::NotFound => write!(f,
+            "Recipe \"{}\" could not be run because just could not find `sh` the command:\n{}",
+            recipe, io_error),
+          io::ErrorKind::PermissionDenied => write!(
+            f, "Recipe \"{}\" could not be run because just could not run `sh`:\n{}",
+            recipe, io_error),
+          _ => write!(f, "Recipe \"{}\" could not be run because of an IO error while \
+                      launching `sh`:\n{}", recipe, io_error),
         });
       },
       RunError::TmpdirIoError{recipe, ref io_error} =>
-        try!(write!(f, "Recipe \"{}\" could not be run because of an IO error while trying to create a temporary directory or write a file to that directory`:\n{}", recipe, io_error)),
+        try!(write!(f, "Recipe \"{}\" could not be run because of an IO error while trying \
+                    to create a temporary directory or write a file to that directory`:\n{}",
+                    recipe, io_error)),
       RunError::BacktickCode{code, ref token} => {
         try!(write!(f, "backtick failed with exit code {}\n", code));
         try!(write_token_error_context(f, token));
@@ -1112,9 +1130,13 @@ impl<'a> Display for RunError<'a> {
       }
       RunError::BacktickIoError{ref token, ref io_error} => {
         try!(match io_error.kind() {
-          io::ErrorKind::NotFound => write!(f, "backtick could not be run because just could not find `sh` the command:\n{}", io_error),
-          io::ErrorKind::PermissionDenied => write!(f, "backtick could not be run because just could not run `sh`:\n{}", io_error),
-          _ => write!(f, "backtick could not be run because of an IO error while launching `sh`:\n{}", io_error),
+          io::ErrorKind::NotFound => write!(
+            f, "backtick could not be run because just could not find `sh` the command:\n{}",
+            io_error),
+          io::ErrorKind::PermissionDenied => write!(
+            f, "backtick could not be run because just could not run `sh`:\n{}", io_error),
+          _ => write!(f, "backtick could not be run because of an IO \
+                          error while launching `sh`:\n{}", io_error),
         });
         try!(write_token_error_context(f, token));
       }
@@ -1123,7 +1145,8 @@ impl<'a> Display for RunError<'a> {
         try!(write_token_error_context(f, token));
       }
       RunError::InternalError{ref message} => {
-        try!(write!(f, "internal error, this may indicate a bug in just: {}\n consider filing an issue: https://github.com/casey/just/issues/new", message));
+        try!(write!(f, "internal error, this may indicate a bug in just: {}
+consider filing an issue: https://github.com/casey/just/issues/new", message));
       }
     }
 
@@ -1328,7 +1351,8 @@ fn tokenize(text: &str) -> Result<Vec<Token>, Error> {
     }
 
     let (prefix, lexeme, kind) = 
-    if let (0, &State::Indent(indent), Some(captures)) = (column, state.last().unwrap(), LINE.captures(rest)) {
+    if let (0, &State::Indent(indent), Some(captures)) = 
+      (column, state.last().unwrap(), LINE.captures(rest)) {
       let line = captures.at(0).unwrap();
       if !line.starts_with(indent) {
         return error!(ErrorKind::InternalError{message: "unexpected indent".to_string()});

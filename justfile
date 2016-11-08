@@ -42,6 +42,9 @@ install-nightly:
 sloc:
 	@cat src/*.rs | wc -l
 
+long:
+	! grep --color -n '.\{100\}' src/*.rs
+
 nop:
 
 # make a quine, compile it, and verify it
