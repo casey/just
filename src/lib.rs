@@ -746,12 +746,54 @@ fn conjoin<T: Display>(
     Ok(())
 }
 
+fn write_error_context(
+  f:      &mut fmt::Formatter,
+  text:   &str,
+  index:  usize,
+  line:   usize,
+  column: usize,
+  width:  Option<usize>,
+) -> Result<(), fmt::Error> {
+  let line_number = line + 1;
+  let red = maybe_red(f.alternate());
+  match text.lines().nth(line) {
+    Some(line) => {
+      let line_number_width = line_number.to_string().len();
+      try!(write!(f, "{0:1$} |\n", "", line_number_width));
+      try!(write!(f, "{} | {}\n", line_number, line));
+      try!(write!(f, "{0:1$} |", "", line_number_width));
+      try!(write!(f, " {0:1$}{2}{3:^<4$}{5}", "", column,
+                  red.prefix(), "", width.unwrap_or(1), red.suffix()));
+    },
+    None => if index != text.len() {
+      try!(write!(f, "internal error: Error has invalid line number: {}", line_number))
+    },
+  }
+  Ok(())
+}
+
+fn maybe_red(colors: bool) -> ansi_term::Style {
+  if colors {
+    ansi_term::Style::new().fg(ansi_term::Color::Red)
+  } else {
+    ansi_term::Style::default()
+  }
+}
+
+fn maybe_bold(colors: bool) -> ansi_term::Style {
+  if colors {
+    ansi_term::Style::new().bold()
+  } else {
+    ansi_term::Style::default()
+  }
+}
+
 impl<'a> Display for Error<'a> {
   fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-    let red_style = ansi_term::Style::new().fg(ansi_term::Color::Red);
-    let prefix = red_style.prefix();
-    let suffix = red_style.suffix();
-    try!(write!(f, "{}{}{}", prefix, "error: ", suffix));
+    let red  = maybe_red(f.alternate());
+    let bold = maybe_bold(f.alternate());
+
+    try!(write!(f, "{} {}", red.paint("error:"), bold.prefix()));
     
     match self.kind {
       ErrorKind::CircularRecipeDependency{recipe, ref circle} => {
@@ -828,19 +870,9 @@ impl<'a> Display for Error<'a> {
       }
     }
 
-    match self.text.lines().nth(self.line) {
-      Some(line) => {
-        let displayed_line = self.line + 1;
-        let line_number_width = displayed_line.to_string().len();
-        try!(write!(f, "{0:1$} |\n", "", line_number_width));
-        try!(write!(f, "{} | {}\n", displayed_line, line));
-        try!(write!(f, "{0:1$} |", "", line_number_width));
-        try!(write!(f, " {0:1$}{2:^<3$}", "", self.column, "", self.width.unwrap_or(1)));
-      },
-      None => if self.index != self.text.len() {
-        try!(write!(f, "internal error: Error has invalid line number: {}", self.line + 1))
-      },
-    };
+    try!(write!(f, "{}", bold.suffix()));
+
+    try!(write_error_context(f, self.text, self.index, self.line, self.column, self.width));
 
     Ok(())
   }
@@ -1051,20 +1083,14 @@ impl<'a> Display for RunError<'a> {
         try!(write!(f, "Recipe \"{}\" could not be run because of an IO error while trying to create a temporary directory or write a file to that directory`:\n{}", recipe, io_error)),
       RunError::BacktickCode{code, ref token} => {
         try!(write!(f, "backtick failed with exit code {}\n", code));
-        match token.text.lines().nth(token.line) {
-          Some(line) => {
-            let displayed_line = token.line + 1;
-            let line_number_width = displayed_line.to_string().len();
-            try!(write!(f, "{0:1$} |\n", "", line_number_width));
-            try!(write!(f, "{} | {}\n", displayed_line, line));
-            try!(write!(f, "{0:1$} |", "", line_number_width));
-            try!(write!(f, " {0:1$}{2:^<3$}", "",
-                        token.column + token.prefix.len(), "", token.lexeme.len()));
-          },
-          None => if token.index != token.text.len() {
-            try!(write!(f, "internal error: Error has invalid line number: {}", token.line + 1))
-          },
-        }
+        write_error_context(
+          f,
+          token.text,
+          token.index,
+          token.line,
+          token.column + token.prefix.len(),
+          Some(token.lexeme.len())
+        );
       }
       RunError::BacktickSignal{signal} => {
         try!(write!(f, "backtick was terminated by signal {}", signal));
