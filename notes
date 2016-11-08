@@ -1,2 +1,9 @@
 todo
-----
+====
+
+colored output
+--------------
+
+- token and ^^^^ should be red
+- error message should be bold
+- should executed commands also be a different color? Maybe bold white?

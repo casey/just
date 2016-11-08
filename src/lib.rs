@@ -13,6 +13,7 @@ extern crate lazy_static;
 extern crate regex;
 extern crate tempdir;
 extern crate itertools;
+extern crate ansi_term;
 
 use std::io::prelude::*;
 
@@ -747,7 +748,10 @@ fn conjoin<T: Display>(
 
 impl<'a> Display for Error<'a> {
   fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-    try!(write!(f, "error: "));
+    let red_style = ansi_term::Style::new().fg(ansi_term::Color::Red);
+    let prefix = red_style.prefix();
+    let suffix = red_style.suffix();
+    try!(write!(f, "{}{}{}", prefix, "error: ", suffix));
     
     match self.kind {
       ErrorKind::CircularRecipeDependency{recipe, ref circle} => {
