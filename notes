@@ -4,7 +4,10 @@ todo
 colored output
 --------------
 
-- token and ^^^^ should be red
-- error message should be bold
-- commands should be bold
-- add error context to all backtick errors
+[x] token and ^^^^ are red
+[x] error message are bold
+[x] commands are bold
+[x] enforce some kind of line length, maybe 100
+[ ] should run error messages be bold or red?
+[ ] test colors (how to fake a tty?)
+[ ] add tests for all error messages
