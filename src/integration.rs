@@ -13,7 +13,8 @@ fn integration_test(
   expected_stderr: &str,
 ) {
   let tmp = TempDir::new("just-integration")
-    .unwrap_or_else(|err| panic!("integration test: failed to create temporary directory: {}", err));
+    .unwrap_or_else(
+      |err| panic!("integration test: failed to create temporary directory: {}", err));
   let mut path = tmp.path().to_path_buf();
   path.push("justfile");
   brev::dump(path, justfile);
@@ -300,7 +301,7 @@ recipe:
     text,
     100,
     "",
-    "Recipe \"recipe\" failed with exit code 100\n",
+    "error: Recipe `recipe` failed with exit code 100\n",
   );
 }
 
@@ -348,7 +349,7 @@ fn backtick_code_assignment() {
     "b = a\na = `exit 100`\nbar:\n echo '{{`exit 200`}}'",
     100,
     "",
-    "backtick failed with exit code 100
+    "error: backtick failed with exit code 100
   |
 2 | a = `exit 100`
   |     ^^^^^^^^^^
@@ -363,7 +364,7 @@ fn backtick_code_interpolation() {
     "b = a\na = `echo hello`\nbar:\n echo '{{`exit 200`}}'",
     200,
     "",
-    "backtick failed with exit code 200
+    "error: backtick failed with exit code 200
   |
 4 |  echo '{{`exit 200`}}'
   |          ^^^^^^^^^^
@@ -378,7 +379,7 @@ fn backtick_code_long() {
     "\n\n\n\n\n\nb = a\na = `echo hello`\nbar:\n echo '{{`exit 200`}}'",
     200,
     "",
-    "backtick failed with exit code 200
+    "error: backtick failed with exit code 200
    |
 10 |  echo '{{`exit 200`}}'
    |          ^^^^^^^^^^
@@ -396,7 +397,7 @@ fn shebang_backtick_failure() {
  echo {{`exit 123`}}",
     123,
     "",
-    "backtick failed with exit code 123
+    "error: backtick failed with exit code 123
   |
 4 |  echo {{`exit 123`}}
   |         ^^^^^^^^^^
@@ -413,7 +414,7 @@ fn command_backtick_failure() {
  echo {{`exit 123`}}",
     123,
     "hello\n",
-    "echo hello\nbacktick failed with exit code 123
+    "echo hello\nerror: backtick failed with exit code 123
   |
 3 |  echo {{`exit 123`}}
   |         ^^^^^^^^^^
@@ -431,7 +432,7 @@ fn assignment_backtick_failure() {
 a = `exit 222`",
     222,
     "",
-    "backtick failed with exit code 222
+    "error: backtick failed with exit code 222
   |
 4 | a = `exit 222`
   |     ^^^^^^^^^^
@@ -449,7 +450,7 @@ fn unknown_override_options() {
 a = `exit 222`",
     255,
     "",
-    "Variables `baz` and `foo` overridden on the command line but not present in justfile\n",
+    "error: Variables `baz` and `foo` overridden on the command line but not present in justfile\n",
   );
 }
 
@@ -463,7 +464,7 @@ fn unknown_override_args() {
 a = `exit 222`",
     255,
     "",
-    "Variables `baz` and `foo` overridden on the command line but not present in justfile\n",
+    "error: Variables `baz` and `foo` overridden on the command line but not present in justfile\n",
   );
 }
 
@@ -477,7 +478,7 @@ fn unknown_override_arg() {
 a = `exit 222`",
     255,
     "",
-    "Variable `foo` overridden on the command line but not present in justfile\n",
+    "error: Variable `foo` overridden on the command line but not present in justfile\n",
   );
 }
 
@@ -786,10 +787,9 @@ foo A B:
     ",
     255,
     "",
-    "Recipe `foo` got 3 arguments but only takes 2\n"
+    "error: Recipe `foo` got 3 arguments but only takes 2\n",
   );
 }
-
 #[test]
 fn argument_mismatch_fewer() {
   integration_test(
@@ -800,7 +800,7 @@ foo A B:
     ",
     255,
     "",
-    "Recipe `foo` got 1 argument but takes 2\n"
+    "error: Recipe `foo` got 1 argument but takes 2\n"
   );
 }
 
@@ -811,7 +811,7 @@ fn unknown_recipe() {
     "hello:",
     255,
     "",
-    "Justfile does not contain recipe `foo`\n",
+    "error: Justfile does not contain recipe `foo`\n",
   );
 }
 
@@ -822,6 +822,32 @@ fn unknown_recipes() {
     "hello:",
     255,
     "",
-    "Justfile does not contain recipes `foo` or `bar`\n",
+    "error: Justfile does not contain recipes `foo` or `bar`\n",
   );
 }
+
+#[test]
+fn colors_with_context() {
+  integration_test(
+    &["--color", "always"],
+    "b = a\na = `exit 100`\nbar:\n echo '{{`exit 200`}}'",
+    100,
+    "",
+    "\u{1b}[1;31merror:\u{1b}[0m \u{1b}[1mbacktick failed with exit code 100\n\u{1b}[0m  |\n2 | a = `exit 100`\n  |     \u{1b}[1;31m^^^^^^^^^^\u{1b}[0m\n",
+  );
+}
+
+#[test]
+fn colors_no_context() {
+  let text ="
+recipe:
+ @exit 100";
+  integration_test(
+    &["--color=always"],
+    text,
+    100,
+    "",
+    "\u{1b}[1;31merror:\u{1b}[0m \u{1b}[1mRecipe `recipe` failed with exit code 100\u{1b}[0m\n",
+  );
+}
+

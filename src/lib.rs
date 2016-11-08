@@ -13,6 +13,7 @@ extern crate lazy_static;
 extern crate regex;
 extern crate tempdir;
 extern crate itertools;
+extern crate ansi_term;
 
 use std::io::prelude::*;
 
@@ -136,17 +137,23 @@ fn error_from_signal(recipe: &str, exit_status: process::ExitStatus) -> RunError
 }
 
 #[cfg(unix)]
-fn backtick_error_from_signal(exit_status: process::ExitStatus) -> RunError<'static> {
+fn backtick_error_from_signal<'a>(
+  token:       &Token<'a>,
+  exit_status: process::ExitStatus
+) -> RunError<'a> {
   use std::os::unix::process::ExitStatusExt;
   match exit_status.signal() {
-    Some(signal) => RunError::BacktickSignal{signal: signal},
-    None => RunError::BacktickUnknownFailure,
+    Some(signal) => RunError::BacktickSignal{token: token.clone(), signal: signal},
+    None => RunError::BacktickUnknownFailure{token: token.clone()},
   }
 }
 
 #[cfg(windows)]
-fn backtick_error_from_signal(exit_status: process::ExitStatus) -> RunError<'static> {
-  RunError::BacktickUnknownFailure
+fn backtick_error_from_signal<'a>(
+  token:       &Token<'a>,
+  exit_status: process::ExitStatus
+) -> RunError<'a> {
+  RunError::BacktickUnknownFailure{token: token.clone()}
 }
 
 fn export_env<'a>(
@@ -197,10 +204,10 @@ fn run_backtick<'a>(
           });
         }
       } else {
-        return Err(backtick_error_from_signal(output.status));
+        return Err(backtick_error_from_signal(token, output.status));
       }
       match std::str::from_utf8(&output.stdout) {
-        Err(error) => Err(RunError::BacktickUtf8Error{utf8_error: error}),
+        Err(error) => Err(RunError::BacktickUtf8Error{token: token.clone(), utf8_error: error}),
         Ok(utf8) => {
           Ok(if utf8.ends_with('\n') {
             &utf8[0..utf8.len()-1]
@@ -212,7 +219,7 @@ fn run_backtick<'a>(
         }
       }
     }
-    Err(error) => Err(RunError::BacktickIoError{io_error: error}),
+    Err(error) => Err(RunError::BacktickIoError{token: token.clone(), io_error: error}),
   }
 }
 
@@ -289,7 +296,8 @@ impl<'a> Recipe<'a> {
       // make the script executable
       let current_mode = perms.mode();
       perms.set_mode(current_mode | 0o100);
-      try!(fs::set_permissions(&path, perms).map_err(|error| RunError::TmpdirIoError{recipe: self.name, io_error: error}));
+      try!(fs::set_permissions(&path, perms)
+           .map_err(|error| RunError::TmpdirIoError{recipe: self.name, io_error: error}));
 
       // run it!
       let mut command = process::Command::new(path);
@@ -373,7 +381,8 @@ impl<'a> Display for Recipe<'a> {
         }
         match *piece {
           Fragment::Text{ref text} => try!(write!(f, "{}", text.lexeme)),
-          Fragment::Expression{ref expression, ..} => try!(write!(f, "{}{}{}", "{{", expression, "}}")),
+          Fragment::Expression{ref expression, ..} => 
+            try!(write!(f, "{}{}{}", "{{", expression, "}}")),
         }
       }
       if i + 1 < self.lines.len() {
@@ -765,27 +774,87 @@ fn conjoin<T: Display>(
     Ok(())
 }
 
+fn write_error_context(
+  f:      &mut fmt::Formatter,
+  text:   &str,
+  index:  usize,
+  line:   usize,
+  column: usize,
+  width:  Option<usize>,
+) -> Result<(), fmt::Error> {
+  let line_number = line + 1;
+  let red = maybe_red(f.alternate());
+  match text.lines().nth(line) {
+    Some(line) => {
+      let line_number_width = line_number.to_string().len();
+      try!(write!(f, "{0:1$} |\n", "", line_number_width));
+      try!(write!(f, "{} | {}\n", line_number, line));
+      try!(write!(f, "{0:1$} |", "", line_number_width));
+      try!(write!(f, " {0:1$}{2}{3:^<4$}{5}", "", column,
+                  red.prefix(), "", width.unwrap_or(1), red.suffix()));
+    },
+    None => if index != text.len() {
+      try!(write!(f, "internal error: Error has invalid line number: {}", line_number))
+    },
+  }
+  Ok(())
+}
+
+fn write_token_error_context(f: &mut fmt::Formatter, token: &Token) -> Result<(), fmt::Error> {
+  write_error_context(
+    f,
+    token.text,
+    token.index,
+    token.line,
+    token.column + token.prefix.len(),
+    Some(token.lexeme.len())
+  )
+}
+
+fn maybe_red(colors: bool) -> ansi_term::Style {
+  if colors {
+    ansi_term::Style::new().fg(ansi_term::Color::Red).bold()
+  } else {
+    ansi_term::Style::default()
+  }
+}
+
+fn maybe_bold(colors: bool) -> ansi_term::Style {
+  if colors {
+    ansi_term::Style::new().bold()
+  } else {
+    ansi_term::Style::default()
+  }
+}
+
 impl<'a> Display for Error<'a> {
   fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-    try!(write!(f, "error: "));
+    let red  = maybe_red(f.alternate());
+    let bold = maybe_bold(f.alternate());
+
+    try!(write!(f, "{} {}", red.paint("error:"), bold.prefix()));
     
     match self.kind {
       ErrorKind::CircularRecipeDependency{recipe, ref circle} => {
         if circle.len() == 2 {
           try!(write!(f, "recipe `{}` depends on itself", recipe));
         } else {
-          try!(writeln!(f, "recipe `{}` has circular dependency `{}`", recipe, circle.join(" -> ")));
+          try!(writeln!(f, "recipe `{}` has circular dependency `{}`",
+                        recipe, circle.join(" -> ")));
         }
       }
       ErrorKind::CircularVariableDependency{variable, ref circle} => {
         if circle.len() == 2 {
-          try!(writeln!(f, "variable `{}` depends on its own value: `{}`", variable, circle.join(" -> ")));
+          try!(writeln!(f, "variable `{}` depends on its own value: `{}`",
+                        variable, circle.join(" -> ")));
         } else {
-          try!(writeln!(f, "variable `{}` depends on its own value: `{}`", variable, circle.join(" -> ")));
+          try!(writeln!(f, "variable `{}` depends on its own value: `{}`",
+                        variable, circle.join(" -> ")));
         }
       }
       ErrorKind::InvalidEscapeSequence{character} => {
-        try!(writeln!(f, "`\\{}` is not a valid escape sequence", character.escape_default().collect::<String>()));
+        try!(writeln!(f, "`\\{}` is not a valid escape sequence",
+                      character.escape_default().collect::<String>()));
       }
       ErrorKind::DuplicateParameter{recipe, parameter} => {
         try!(writeln!(f, "recipe `{}` has duplicate parameter `{}`", recipe, parameter));
@@ -804,14 +873,16 @@ impl<'a> Display for Error<'a> {
                     recipe, first, self.line));
       }
       ErrorKind::DependencyHasParameters{recipe, dependency} => {
-        try!(writeln!(f, "recipe `{}` depends on `{}` which requires arguments. dependencies may not require arguments", recipe, dependency));
+        try!(writeln!(f, "recipe `{}` depends on `{}` which requires arguments. \
+                      dependencies may not require arguments", recipe, dependency));
       }
       ErrorKind::ParameterShadowsVariable{parameter} => {
         try!(writeln!(f, "parameter `{}` shadows variable of the same name", parameter));
       }
       ErrorKind::MixedLeadingWhitespace{whitespace} => {
         try!(writeln!(f,
-          "found a mix of tabs and spaces in leading whitespace: `{}`\n leading whitespace may consist of tabs or spaces, but not both",
+          "found a mix of tabs and spaces in leading whitespace: `{}`\n\
+          leading whitespace may consist of tabs or spaces, but not both",
           show_whitespace(whitespace)
         ));
       }
@@ -840,23 +911,15 @@ impl<'a> Display for Error<'a> {
         try!(writeln!(f, "unterminated string"));
       }
       ErrorKind::InternalError{ref message} => {
-        try!(writeln!(f, "internal error, this may indicate a bug in just: {}\n consider filing an issue: https://github.com/casey/just/issues/new", message));
+        try!(writeln!(f, "internal error, this may indicate a bug in just: {}\n\
+                          consider filing an issue: https://github.com/casey/just/issues/new",
+                          message));
       }
     }
 
-    match self.text.lines().nth(self.line) {
-      Some(line) => {
-        let displayed_line = self.line + 1;
-        let line_number_width = displayed_line.to_string().len();
-        try!(write!(f, "{0:1$} |\n", "", line_number_width));
-        try!(write!(f, "{} | {}\n", displayed_line, line));
-        try!(write!(f, "{0:1$} |", "", line_number_width));
-        try!(write!(f, " {0:1$}{2:^<3$}", "", self.column, "", self.width.unwrap_or(1)));
-      },
-      None => if self.index != self.text.len() {
-        try!(write!(f, "internal error: Error has invalid line number: {}", self.line + 1))
-      },
-    };
+    try!(write!(f, "{}", bold.suffix()));
+
+    try!(write_error_context(f, self.text, self.index, self.line, self.column, self.width));
 
     Ok(())
   }
@@ -1018,15 +1081,18 @@ enum RunError<'a> {
   UnknownFailure{recipe: &'a str},
   UnknownRecipes{recipes: Vec<&'a str>},
   UnknownOverrides{overrides: Vec<&'a str>},
-  BacktickCode{code: i32, token: Token<'a>},
-  BacktickIoError{io_error: io::Error},
-  BacktickSignal{signal: i32},
-  BacktickUtf8Error{utf8_error: std::str::Utf8Error},
-  BacktickUnknownFailure,
+  BacktickCode{token: Token<'a>, code: i32},
+  BacktickIoError{token: Token<'a>, io_error: io::Error},
+  BacktickSignal{token: Token<'a>, signal: i32},
+  BacktickUtf8Error{token: Token<'a>, utf8_error: std::str::Utf8Error},
+  BacktickUnknownFailure{token: Token<'a>},
 }
 
 impl<'a> Display for RunError<'a> {
   fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+    let red = maybe_red(f.alternate());
+    try!(write!(f, "{} ", red.paint("error:")));
+
     match *self {
       RunError::UnknownRecipes{ref recipes} => {
         try!(write!(f, "Justfile does not contain recipe{} {}",
@@ -1039,7 +1105,8 @@ impl<'a> Display for RunError<'a> {
                     And(&overrides.iter().map(Tick).collect::<Vec<_>>())))
       },
       RunError::NonLeadingRecipeWithParameters{recipe} => {
-        try!(write!(f, "Recipe `{}` takes arguments and so must be the first and only recipe specified on the command line", recipe));
+        try!(write!(f, "Recipe `{}` takes arguments and so must be the first and only recipe \
+                        specified on the command line", recipe));
       },
       RunError::ArgumentCountMismatch{recipe, found, expected} => {
         try!(write!(f, "Recipe `{}` got {} argument{} but {}takes {}",
@@ -1047,58 +1114,61 @@ impl<'a> Display for RunError<'a> {
                     if expected < found { "only " } else { "" }, expected));
       },
       RunError::Code{recipe, code} => {
-        try!(write!(f, "Recipe \"{}\" failed with exit code {}", recipe, code));
+        try!(write!(f, "Recipe `{}` failed with exit code {}", recipe, code));
       },
       RunError::Signal{recipe, signal} => {
-        try!(write!(f, "Recipe \"{}\" wast terminated by signal {}", recipe, signal));
+        try!(write!(f, "Recipe `{}` wast terminated by signal {}", recipe, signal));
       }
       RunError::UnknownFailure{recipe} => {
-        try!(write!(f, "Recipe \"{}\" failed for an unknown reason", recipe));
+        try!(write!(f, "Recipe `{}` failed for an unknown reason", recipe));
       },
       RunError::IoError{recipe, ref io_error} => {
         try!(match io_error.kind() {
-          io::ErrorKind::NotFound => write!(f, "Recipe \"{}\" could not be run because just could not find `sh` the command:\n{}", recipe, io_error),
-          io::ErrorKind::PermissionDenied => write!(f, "Recipe \"{}\" could not be run because just could not run `sh`:\n{}", recipe, io_error),
-          _ => write!(f, "Recipe \"{}\" could not be run because of an IO error while launching `sh`:\n{}", recipe, io_error),
+          io::ErrorKind::NotFound => write!(f,
+            "Recipe `{}` could not be run because just could not find `sh` the command:\n{}",
+            recipe, io_error),
+          io::ErrorKind::PermissionDenied => write!(
+            f, "Recipe `{}` could not be run because just could not run `sh`:\n{}",
+            recipe, io_error),
+          _ => write!(f, "Recipe `{}` could not be run because of an IO error while \
+                      launching `sh`:\n{}", recipe, io_error),
         });
       },
       RunError::TmpdirIoError{recipe, ref io_error} =>
-        try!(write!(f, "Recipe \"{}\" could not be run because of an IO error while trying to create a temporary directory or write a file to that directory`:\n{}", recipe, io_error)),
+        try!(write!(f, "Recipe `{}` could not be run because of an IO error while trying \
+                    to create a temporary directory or write a file to that directory`:\n{}",
+                    recipe, io_error)),
       RunError::BacktickCode{code, ref token} => {
         try!(write!(f, "backtick failed with exit code {}\n", code));
-        match token.text.lines().nth(token.line) {
-          Some(line) => {
-            let displayed_line = token.line + 1;
-            let line_number_width = displayed_line.to_string().len();
-            try!(write!(f, "{0:1$} |\n", "", line_number_width));
-            try!(write!(f, "{} | {}\n", displayed_line, line));
-            try!(write!(f, "{0:1$} |", "", line_number_width));
-            try!(write!(f, " {0:1$}{2:^<3$}", "",
-                        token.column + token.prefix.len(), "", token.lexeme.len()));
-          },
-          None => if token.index != token.text.len() {
-            try!(write!(f, "internal error: Error has invalid line number: {}", token.line + 1))
-          },
-        }
+        try!(write_token_error_context(f, token));
       }
-      RunError::BacktickSignal{signal} => {
+      RunError::BacktickSignal{ref token, signal} => {
         try!(write!(f, "backtick was terminated by signal {}", signal));
+        try!(write_token_error_context(f, token));
       }
-      RunError::BacktickUnknownFailure => {
+      RunError::BacktickUnknownFailure{ref token} => {
         try!(write!(f, "backtick failed for an uknown reason"));
+        try!(write_token_error_context(f, token));
       }
-      RunError::BacktickIoError{ref io_error} => {
+      RunError::BacktickIoError{ref token, ref io_error} => {
         try!(match io_error.kind() {
-          io::ErrorKind::NotFound => write!(f, "backtick could not be run because just could not find `sh` the command:\n{}", io_error),
-          io::ErrorKind::PermissionDenied => write!(f, "backtick could not be run because just could not run `sh`:\n{}", io_error),
-          _ => write!(f, "backtick could not be run because of an IO error while launching `sh`:\n{}", io_error),
+          io::ErrorKind::NotFound => write!(
+            f, "backtick could not be run because just could not find `sh` the command:\n{}",
+            io_error),
+          io::ErrorKind::PermissionDenied => write!(
+            f, "backtick could not be run because just could not run `sh`:\n{}", io_error),
+          _ => write!(f, "backtick could not be run because of an IO \
+                          error while launching `sh`:\n{}", io_error),
         });
+        try!(write_token_error_context(f, token));
       }
-      RunError::BacktickUtf8Error{ref utf8_error} => {
+      RunError::BacktickUtf8Error{ref token, ref utf8_error} => {
         try!(write!(f, "backtick succeeded but stdout was not utf8: {}", utf8_error));
+        try!(write_token_error_context(f, token));
       }
       RunError::InternalError{ref message} => {
-        try!(write!(f, "internal error, this may indicate a bug in just: {}\n consider filing an issue: https://github.com/casey/just/issues/new", message));
+        try!(write!(f, "internal error, this may indicate a bug in just: {}
+consider filing an issue: https://github.com/casey/just/issues/new", message));
       }
     }
 
@@ -1303,7 +1373,8 @@ fn tokenize(text: &str) -> Result<Vec<Token>, Error> {
     }
 
     let (prefix, lexeme, kind) = 
-    if let (0, &State::Indent(indent), Some(captures)) = (column, state.last().unwrap(), LINE.captures(rest)) {
+    if let (0, &State::Indent(indent), Some(captures)) = 
+      (column, state.last().unwrap(), LINE.captures(rest)) {
       let line = captures.at(0).unwrap();
       if !line.starts_with(indent) {
         return error!(ErrorKind::InternalError{message: "unexpected indent".to_string()});

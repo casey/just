@@ -1,5 +1,6 @@
 extern crate clap;
 extern crate regex;
+extern crate atty;
 
 use std::{io, fs, env, process};
 use std::collections::BTreeMap;
@@ -19,6 +20,32 @@ macro_rules! die {
     warn!($($arg)*);
     process::exit(-1)
   }};
+}
+
+#[derive(Copy, Clone)]
+enum UseColor {
+  Auto,
+  Always,
+  Never,
+}
+
+impl UseColor {
+  fn from_argument(use_color: &str) -> UseColor {
+    match use_color {
+      "auto"   => UseColor::Auto,
+      "always" => UseColor::Always,
+      "never"  => UseColor::Never,
+      _        => panic!("Invalid argument to --color. This is a bug in just."),
+    }
+  }
+
+  fn should_color_stream(self, stream: atty::Stream) -> bool {
+    match self {
+      UseColor::Auto   => atty::is(stream),
+      UseColor::Always => true,
+      UseColor::Never  => true,
+    }
+  }
 }
 
 pub fn app() {
@@ -41,6 +68,12 @@ pub fn app() {
     .arg(Arg::with_name("evaluate")
          .long("evaluate")
          .help("Print evaluated variables"))
+    .arg(Arg::with_name("color")
+         .long("color")
+         .takes_value(true)
+         .possible_values(&["auto", "always", "never"])
+         .default_value("auto")
+         .help("Print colorful output"))
     .arg(Arg::with_name("show")
          .short("s")
          .long("show")
@@ -78,6 +111,9 @@ pub fn app() {
   if matches.is_present("dry-run") && matches.is_present("quiet") {
     die!("--dry-run and --quiet may not be used together");
   }
+
+  let use_color_argument = matches.value_of("color").expect("--color had no value");
+  let use_color = UseColor::from_argument(use_color_argument);
 
   let justfile_option = matches.value_of("justfile");
   let working_directory_option = matches.value_of("working-directory");
@@ -125,7 +161,13 @@ pub fn app() {
       .unwrap_or_else(|error| die!("Error reading justfile: {}", error));
   }
 
-  let justfile = super::parse(&text).unwrap_or_else(|error| die!("{}", error));
+  let justfile = super::parse(&text).unwrap_or_else(|error|
+    if use_color.should_color_stream(atty::Stream::Stderr) {
+      die!("{:#}", error);
+    } else {
+      die!("{}", error);
+    }
+  );
 
   if matches.is_present("list") {
     if justfile.count() == 0 {
@@ -185,7 +227,11 @@ pub fn app() {
 
   if let Err(run_error) = justfile.run(&arguments, &options) {
     if !options.quiet {
-      warn!("{}", run_error);
+      if use_color.should_color_stream(atty::Stream::Stderr) {
+        warn!("{:#}", run_error);
+      } else {
+        warn!("{}", run_error);
+      }
     }
     match run_error {
       RunError::Code{code, .. } | RunError::BacktickCode{code, ..} => process::exit(code),
