@@ -14,6 +14,7 @@ extern crate regex;
 extern crate tempdir;
 extern crate itertools;
 extern crate ansi_term;
+extern crate atty;
 
 use std::io::prelude::*;
 
@@ -325,7 +326,8 @@ impl<'a> Recipe<'a> {
           command = &command[1..];
         }
         if options.dry_run || !(quiet_command || options.quiet) {
-          warn!("{}", command);
+          let bold = maybe_bold(atty::is(atty::Stream::Stderr));
+          warn!("{}", bold.paint(command));
         }
         if options.dry_run {
           continue;
