@@ -1,3 +1,5 @@
+# this is a comment
+
 test: build
 	cargo test --lib
 
@@ -22,7 +24,10 @@ publish: clippy build
 	git branch | grep '* master'
 	git diff --no-ext-diff --quiet --exit-code
 	grep 'version("{{version}}")' src/app.rs
+	cargo build --release --target=x86_64-unknown-linux-musl
 	git co -b v{{version}}
+	git add target/x86_64-unknown-linux-musl/release/just
+	git commit -m "v{{version}} release"
 	git push github
 	cargo publish
 	git tag -a "v{{version}}" -m "v{{version}}"
