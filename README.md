@@ -29,9 +29,15 @@ getting started
 
 `just` should run on any system with a reasonable `sh` and can be installed with `cargo`, the [rust language](https://www.rust-lang.org) package manager:
 
+If running linux, download [this file](https://github.com/casey/just/raw/master/target/x86_64-unknown-linux-musl/release/just) and put it somewhere
+in your PATH
+
+Otherwise:
 1. Install rust and cargo by following the instructions at [rustup.rs](https://www.rustup.rs)
 2. Run `cargo install just`
 3. Add `~/.cargo/bin` to your PATH
+
+
 
 Optionally, you can also `alias j=just` for lighting fast command running.
 
