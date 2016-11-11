@@ -9,14 +9,16 @@ just
 Commands are stored in a file called `justfile` or `Justfile` with syntax inspired by `make`:
 
 ```make
+build:
+    cc *.c -o main
+
+# test everything
 test-all: build
     ./test --all
 
+# run a specific test
 test TEST: build
     ./test --test {{TEST}}
-
-build:
-    cc *.c -o main
 ```
 
 `just` produces detailed error messages and avoids `make`'s idiosyncrasies, so debugging a justfile is easier and less surprising than debugging a makefile.
@@ -47,6 +49,7 @@ Recipes look like this:
 recipe-name:
     echo 'This is a recipe!'
 
+# this is a comment
 another-recipe:
     @echo 'Another recipe.'
 ```
