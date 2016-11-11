@@ -373,6 +373,96 @@ fn backtick_code_interpolation() {
 }
 
 #[test]
+fn backtick_code_interpolation_tab() {
+  integration_test(
+    &[],
+    "
+backtick-fail:
+\techo {{`exit 1`}}
+",
+    1,
+    "",
+    "error: backtick failed with exit code 1
+  |
+3 |     echo {{`exit 1`}}
+  |            ^^^^^^^^
+",
+  );
+}
+
+#[test]
+fn backtick_code_interpolation_tabs() {
+  integration_test(
+    &[],
+    "
+backtick-fail:
+\techo {{\t`exit 1`}}
+",
+    1,
+    "",
+    "error: backtick failed with exit code 1
+  |
+3 |     echo {{    `exit 1`}}
+  |                ^^^^^^^^
+",
+  );
+}
+
+#[test]
+fn backtick_code_interpolation_inner_tab() {
+  integration_test(
+    &[],
+    "
+backtick-fail:
+\techo {{\t`exit\t\t1`}}
+",
+    1,
+    "",
+    "error: backtick failed with exit code 1
+  |
+3 |     echo {{    `exit        1`}}
+  |                ^^^^^^^^^^^^^^^
+",
+  );
+}
+
+#[test]
+fn backtick_code_interpolation_leading_emoji() {
+  integration_test(
+    &[],
+    "
+backtick-fail:
+\techo 😬{{`exit 1`}}
+",
+    1,
+    "",
+    "error: backtick failed with exit code 1
+  |
+3 |     echo 😬{{`exit 1`}}
+  |             ^^^^^^^^
+",
+  );
+}
+
+#[test]
+fn backtick_code_interpolation_unicode_hell() {
+  integration_test(
+    &[],
+    "
+backtick-fail:
+\techo \t\t\t😬鎌鼬{{\t\t`exit 1 # \t\t\t😬鎌鼬`}}\t\t\t😬鎌鼬
+",
+    1,
+    "",
+    "error: backtick failed with exit code 1
+  |
+3 |     echo             😬鎌鼬{{        `exit 1 #             😬鎌鼬`}}            😬鎌鼬
+  |                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+",
+  );
+}
+
+#[test]
 fn backtick_code_long() {
   integration_test(
     &[],

@@ -50,6 +50,9 @@ nop:
 fail:
 	exit 1
 
+backtick-fail:
+	echo {{`exit 1`}}
+
 # make a quine, compile it, and verify it
 quine: create
 	cc tmp/gen0.c -o tmp/gen0
