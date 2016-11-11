@@ -2,7 +2,7 @@ test: build
 	cargo test --lib
 
 # only run tests matching PATTERN
-filter PATTERN:
+filter PATTERN: build
 	cargo test --lib {{PATTERN}}
 
 test-quine:

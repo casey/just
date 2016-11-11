@@ -434,7 +434,7 @@ fn unknown_override_options() {
 a = `exit 222`",
     255,
     "",
-    "baz and foo set on the command line but not present in justfile\n",
+    "Variables `baz` and `foo` overridden on the command line but not present in justfile\n",
   );
 }
 
@@ -448,7 +448,21 @@ fn unknown_override_args() {
 a = `exit 222`",
     255,
     "",
-    "baz and foo set on the command line but not present in justfile\n",
+    "Variables `baz` and `foo` overridden on the command line but not present in justfile\n",
+  );
+}
+
+#[test]
+fn unknown_override_arg() {
+  integration_test(
+    &["foo=bar", "a=b", "a", "b"],
+    "foo:
+ echo hello
+ echo {{`exit 111`}}
+a = `exit 222`",
+    255,
+    "",
+    "Variable `foo` overridden on the command line but not present in justfile\n",
   );
 }
 
@@ -744,5 +758,55 @@ foo A B:
     0,
     "A:ONE B:TWO\n",
     "echo A:ONE B:TWO\n",
+  );
+}
+
+#[test]
+fn argument_mismatch_more() {
+  integration_test(
+    &["foo", "ONE", "TWO", "THREE"],
+    "
+foo A B:
+  echo A:{{A}} B:{{B}}
+    ",
+    255,
+    "",
+    "Recipe `foo` got 3 arguments but only takes 2\n"
+  );
+}
+
+#[test]
+fn argument_mismatch_fewer() {
+  integration_test(
+    &["foo", "ONE"],
+    "
+foo A B:
+  echo A:{{A}} B:{{B}}
+    ",
+    255,
+    "",
+    "Recipe `foo` got 1 argument but takes 2\n"
+  );
+}
+
+#[test]
+fn unknown_recipe() {
+  integration_test(
+    &["foo"],
+    "hello:",
+    255,
+    "",
+    "Justfile does not contain recipe `foo`\n",
+  );
+}
+
+#[test]
+fn unknown_recipes() {
+  integration_test(
+    &["foo", "bar"],
+    "hello:",
+    255,
+    "",
+    "Justfile does not contain recipes `foo` or `bar`\n",
   );
 }

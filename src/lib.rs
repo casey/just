@@ -708,6 +708,26 @@ fn mixed_whitespace(text: &str) -> bool {
   !(text.chars().all(|c| c == ' ') || text.chars().all(|c| c == '\t'))
 }
 
+fn maybe_s(n: usize) -> &'static str {
+  if n == 1 {
+    ""
+  } else {
+    "s"
+  }
+}
+
+struct Tick<'a, T: 'a + Display>(&'a T);
+
+impl<'a, T: Display> Display for Tick<'a, T> {
+  fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+    write!(f, "`{}`", self.0)
+  }
+}
+
+fn ticks<'a, T: 'a + Display>(ts: &'a [T]) -> Vec<Tick<'a, T>> {
+  ts.iter().map(Tick).collect()
+}
+
 struct And<'a, T: 'a + Display>(&'a [T]);
 struct Or <'a, T: 'a + Display>(&'a [T]);
 
@@ -1008,23 +1028,22 @@ impl<'a> Display for RunError<'a> {
   fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
     match *self {
       RunError::UnknownRecipes{ref recipes} => {
-        if recipes.len() == 1 { 
-          try!(write!(f, "Justfile does not contain recipe `{}`", recipes[0]));
-        } else {
-          try!(write!(f, "Justfile does not contain recipes: {}", recipes.join(" ")));
-        };
+        try!(write!(f, "Justfile does not contain recipe{} {}",
+                    maybe_s(recipes.len()), Or(&ticks(&recipes))));
       },
       RunError::UnknownOverrides{ref overrides} => {
-        try!(write!(f, "{} set on the command line but not present in justfile",
-                    And(overrides)))
+        try!(write!(f, 
+                    "Variable{} {} overridden on the command line but not present in justfile",
+                    maybe_s(overrides.len()),
+                    And(&overrides.iter().map(Tick).collect::<Vec<_>>())))
       },
       RunError::NonLeadingRecipeWithParameters{recipe} => {
         try!(write!(f, "Recipe `{}` takes arguments and so must be the first and only recipe specified on the command line", recipe));
       },
       RunError::ArgumentCountMismatch{recipe, found, expected} => {
-        try!(write!(f, "Recipe `{}` takes {} argument{}, but {}{} were found",
-                    recipe, expected, if expected == 1 { "" } else { "s" }, 
-                    if found < expected { "only " } else { "" }, found));
+        try!(write!(f, "Recipe `{}` got {} argument{} but {}takes {}",
+                    recipe, found, maybe_s(found),
+                    if expected < found { "only " } else { "" }, expected));
       },
       RunError::Code{recipe, code} => {
         try!(write!(f, "Recipe \"{}\" failed with exit code {}", recipe, code));
