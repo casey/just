@@ -718,3 +718,31 @@ fn quiet_flag_or_dry_run_flag() {
     "--dry-run and --quiet may not be used together\n",
   );
 }
+
+#[test]
+fn argument_single() {
+  integration_test(
+    &["foo", "ARGUMENT"],
+    "
+foo A:
+  echo {{A}}
+    ",
+    0,
+    "ARGUMENT\n",
+    "echo ARGUMENT\n",
+  );
+}
+
+#[test]
+fn argument_multiple() {
+  integration_test(
+    &["foo", "ONE", "TWO"],
+    "
+foo A B:
+  echo A:{{A}} B:{{B}}
+    ",
+    0,
+    "A:ONE B:TWO\n",
+    "echo A:ONE B:TWO\n",
+  );
+}
