@@ -166,7 +166,7 @@ $ just --evaluate
 raw-string = "\t\n\r\"\\"
 ```
 
-Recipes may take arguments. Here recipe `build` takes an argument called `target`:
+Recipes may have parameters. Here recipe `build` has a parameter called `target`:
 
 ```make
 build target:
@@ -174,7 +174,9 @@ build target:
     cd {{target}} && make
 ```
 
-Only one recipe that takes arguments may given on the command line, and other recipes may not depend on it. To pass arguments put them after the recipe name:
+Recipes with parameters have limitations. Other recipes may not depend on them, and only one recipe with parameters may be given on the command line.
+
+To pass arguments, put them after the recipe name:
 
 ```sh
 $ just build my-awesome-project
