@@ -1,6 +1,7 @@
 test: build
 	cargo test --lib
 
+# only run tests matching PATTERN
 filter PATTERN:
 	cargo test --lib {{PATTERN}}
 
