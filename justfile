@@ -21,14 +21,13 @@ version = `sed -En 's/version = "([^"]+)"/\1/p' Cargo.toml`
 publish: clippy build
 	git branch | grep '* master'
 	git diff --no-ext-diff --quiet --exit-code
-	grep 'version("{{version}}")' src/app.rs
 	git co -b v{{version}}
 	git push github
 	cargo publish
 	git tag -a "v{{version}}" -m "v{{version}}"
 	git push github --tags
 	git push origin --tags
-	@echo 'Remember to merge v{{version}} branch on GitHub!'
+	@echo 'Remember to merge the v{{version}} branch on GitHub!'
 
 clippy:
 	rustup run nightly cargo clippy

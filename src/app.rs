@@ -23,7 +23,7 @@ macro_rules! die {
 
 pub fn app() {
   let matches = App::new("just")
-    .version("0.2.16")
+    .version(concat!("v", env!("CARGO_PKG_VERSION")))
     .author("Casey Rodarmor <casey@rodarmor.com>")
     .about("Just a command runner - https://github.com/casey/just")
     .setting(AppSettings::ColoredHelp)
