@@ -14,6 +14,7 @@ extern crate regex;
 extern crate tempdir;
 extern crate itertools;
 extern crate ansi_term;
+extern crate unicode_width;
 
 use std::io::prelude::*;
 
@@ -786,12 +787,41 @@ fn write_error_context(
   let red = maybe_red(f.alternate());
   match text.lines().nth(line) {
     Some(line) => {
+      let mut i = 0;
+      let mut space_column = 0;
+      let mut space_line   = String::new();
+      let mut space_width  = 0;
+      for c in line.chars() {
+        if c == '\t' {
+          space_line.push_str("    ");
+          if i < column {
+            space_column += 4;
+          }
+          if i >= column && i < column + width.unwrap_or(1) {
+            space_width += 4;
+          }
+        } else {
+          if i < column {
+            space_column += unicode_width::UnicodeWidthChar::width(c).unwrap_or(0);
+
+          }
+          if i >= column && i < column + width.unwrap_or(1) {
+            space_width += unicode_width::UnicodeWidthChar::width(c).unwrap_or(0);
+          }
+          space_line.push(c);
+        }
+        i += c.len_utf8();
+      }
       let line_number_width = line_number.to_string().len();
       try!(write!(f, "{0:1$} |\n", "", line_number_width));
-      try!(write!(f, "{} | {}\n", line_number, line));
+      try!(write!(f, "{} | {}\n", line_number, space_line));
       try!(write!(f, "{0:1$} |", "", line_number_width));
-      try!(write!(f, " {0:1$}{2}{3:^<4$}{5}", "", column,
-                  red.prefix(), "", width.unwrap_or(1), red.suffix()));
+      if width == None {
+        try!(write!(f, " {0:1$}{2}^{3}", "", space_column, red.prefix(), red.suffix()));
+      } else {
+        try!(write!(f, " {0:1$}{2}{3:^<4$}{5}", "", space_column,
+                    red.prefix(), "", space_width, red.suffix()));
+      }
     },
     None => if index != text.len() {
       try!(write!(f, "internal error: Error has invalid line number: {}", line_number))
@@ -1091,7 +1121,10 @@ enum RunError<'a> {
 impl<'a> Display for RunError<'a> {
   fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
     let red = maybe_red(f.alternate());
-    try!(write!(f, "{} ", red.paint("error:")));
+    let bold = maybe_bold(f.alternate());
+    try!(write!(f, "{} {}", red.paint("error:"), bold.prefix()));
+
+    let mut error_token = None;
 
     match *self {
       RunError::UnknownRecipes{ref recipes} => {
@@ -1140,15 +1173,15 @@ impl<'a> Display for RunError<'a> {
                     recipe, io_error)),
       RunError::BacktickCode{code, ref token} => {
         try!(write!(f, "backtick failed with exit code {}\n", code));
-        try!(write_token_error_context(f, token));
+        error_token = Some(token);
       }
       RunError::BacktickSignal{ref token, signal} => {
         try!(write!(f, "backtick was terminated by signal {}", signal));
-        try!(write_token_error_context(f, token));
+        error_token = Some(token);
       }
       RunError::BacktickUnknownFailure{ref token} => {
         try!(write!(f, "backtick failed for an uknown reason"));
-        try!(write_token_error_context(f, token));
+        error_token = Some(token);
       }
       RunError::BacktickIoError{ref token, ref io_error} => {
         try!(match io_error.kind() {
@@ -1160,16 +1193,22 @@ impl<'a> Display for RunError<'a> {
           _ => write!(f, "backtick could not be run because of an IO \
                           error while launching `sh`:\n{}", io_error),
         });
-        try!(write_token_error_context(f, token));
+        error_token = Some(token);
       }
       RunError::BacktickUtf8Error{ref token, ref utf8_error} => {
         try!(write!(f, "backtick succeeded but stdout was not utf8: {}", utf8_error));
-        try!(write_token_error_context(f, token));
+        error_token = Some(token);
       }
       RunError::InternalError{ref message} => {
         try!(write!(f, "internal error, this may indicate a bug in just: {}
 consider filing an issue: https://github.com/casey/just/issues/new", message));
       }
+    }
+
+    try!(write!(f, "{}", bold.suffix()));
+
+    if let Some(token) = error_token {
+      try!(write_token_error_context(f, token));
     }
 
     Ok(())
