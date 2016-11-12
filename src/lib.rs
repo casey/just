@@ -280,7 +280,7 @@ impl<'a> Recipe<'a> {
     if self.shebang {
       let mut evaluated_lines = vec![];
       for line in &self.lines {
-        evaluated_lines.push(evaluator.evaluate_line(&line, &argument_map)?);
+        evaluated_lines.push(evaluator.evaluate_line(line, &argument_map)?);
       }
 
       if options.dry_run {
@@ -344,7 +344,7 @@ impl<'a> Recipe<'a> {
       };
     } else {
       for line in &self.lines {
-        let evaluated = &evaluator.evaluate_line(&line, &argument_map)?;
+        let evaluated = &evaluator.evaluate_line(line, &argument_map)?;
         let mut command = evaluated.as_str();
         let quiet_command = command.starts_with('@');
         if quiet_command {
@@ -431,7 +431,7 @@ fn resolve_recipes<'a>(
   };
   
   for recipe in recipes.values() {
-    resolver.resolve(&recipe)?;
+    resolver.resolve(recipe)?;
   }
 
   for recipe in recipes.values() {
@@ -681,7 +681,7 @@ impl<'a, 'b> Evaluator<'a, 'b> {
       }
       Expression::String{ref cooked_string} => cooked_string.cooked.clone(),
       Expression::Backtick{raw, ref token} => {
-        run_backtick(raw, token, &self.scope, &self.exports, self.quiet)?
+        run_backtick(raw, token, self.scope, self.exports, self.quiet)?
       }
       Expression::Concatination{ref lhs, ref rhs} => {
         self.evaluate_expression(lhs, arguments)?
@@ -1137,7 +1137,7 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
         self.run_recipe(&self.recipes[dependency_name], &[], scope, ran, options)?;
       }
     }
-    recipe.run(arguments, &scope, &self.exports, options)?;
+    recipe.run(arguments, scope, &self.exports, options)?;
     ran.insert(recipe.name);
     Ok(())
   }
