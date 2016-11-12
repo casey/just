@@ -127,7 +127,7 @@ pub fn app() {
          .multiple(true)
          .help("The recipe(s) to run, defaults to the first recipe in the justfile"))
     .group(ArgGroup::with_name("early-exit")
-         .args(&["dump", "edit", "list", "show", "summary"]))
+         .args(&["dump", "edit", "list", "show", "summary", "arguments", "evaluate"]))
     .get_matches();
 
   let use_color_argument = matches.value_of("color").expect("--color had no value");
