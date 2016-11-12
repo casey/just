@@ -721,8 +721,6 @@ fn unknown_recipes() {
 
 #[test]
 fn extra_whitespace() {
-  // we might want to make extra leading whitespace a line continuation in the future,
-  // so make it a error for now
   let text = "a:\n blah\n  blarg";
   parse_error(text, CompileError {
     text:   text,

@@ -98,6 +98,15 @@ enum Fragment<'a> {
   Expression{expression: Expression<'a>},
 }
 
+impl<'a> Fragment<'a> {
+  fn continuation(&self) -> bool {
+    match *self {
+      Fragment::Text{ref text} => text.lexeme.ends_with('\\'),
+      _ => false,
+    }
+  }
+}
+
 #[derive(PartialEq, Debug)]
 enum Expression<'a> {
   Variable{name: &'a str, token: Token<'a>},
@@ -345,8 +354,24 @@ impl<'a> Recipe<'a> {
           recipe: self.name, io_error: io_error})
       };
     } else {
-      for line in &self.lines {
-        let evaluated = &evaluator.evaluate_line(line, &argument_map)?;
+      let mut lines = self.lines.iter().peekable();
+      loop {
+        if lines.peek().is_none() {
+          break;
+        }
+        let mut evaluated = String::new();
+        loop {
+          if lines.peek().is_none() {
+            break;
+          }
+          let line = lines.next().unwrap();
+          evaluated += &evaluator.evaluate_line(line, &argument_map)?;
+          if line.last().map(Fragment::continuation).unwrap_or(false) {
+            evaluated.pop();
+          } else {
+            break;
+          }
+        }
         let mut command = evaluated.as_str();
         let quiet_command = command.starts_with('@');
         if quiet_command {
@@ -1792,7 +1817,7 @@ impl<'a> Parser<'a> {
       return Err(self.unexpected_token(&token, &[Name, Eol, Eof]));
     }
 
-    let mut lines = vec![];
+    let mut lines: Vec<Vec<Fragment>> = vec![];
     let mut shebang = false;
 
     if self.accepted(Indent) {
@@ -1805,25 +1830,27 @@ impl<'a> Parser<'a> {
             message: format!("Expected a line but got {}", token.kind)
           }))
         }
-        let mut pieces = vec![];
+        let mut fragments = vec![];
 
         while !(self.accepted(Eol) || self.peek(Dedent)) {
           if let Some(token) = self.accept(Text) {
-            if pieces.is_empty() {
+            if fragments.is_empty() {
               if lines.is_empty() {
                 if token.lexeme.starts_with("#!") {
                   shebang = true;
                 }
-              } else if !shebang && (token.lexeme.starts_with(' ') || 
-                                     token.lexeme.starts_with('\t')) {
+              } else if !shebang 
+                && !lines.last().and_then(|line| line.last())
+                  .map(Fragment::continuation).unwrap_or(false)
+                && (token.lexeme.starts_with(' ') || token.lexeme.starts_with('\t')) {
                 return Err(token.error(ErrorKind::ExtraLeadingWhitespace));
               }
             }
-            pieces.push(Fragment::Text{text: token});
+            fragments.push(Fragment::Text{text: token});
           } else if let Some(token) = self.expect(InterpolationStart) {
             return Err(self.unexpected_token(&token, &[Text, InterpolationStart, Eol]));
           } else {
-            pieces.push(Fragment::Expression{
+            fragments.push(Fragment::Expression{
               expression: self.expression(true)?
             });
             if let Some(token) = self.expect(InterpolationEnd) {
@@ -1832,7 +1859,7 @@ impl<'a> Parser<'a> {
           }
         }
 
-        lines.push(pieces);
+        lines.push(fragments);
       }
     }
 

@@ -1157,3 +1157,51 @@ a Z="\t z":
     "error: Justfile does not contain recipe `hell`.\nDid you mean `hello`?\n",
   );
 }
+
+#[test]
+fn line_continuation_with_space() {
+  integration_test(
+    &[],
+    r#"
+foo:
+  echo a\
+         b  \
+             c
+"#,
+    0,
+    "a b c\n",
+    "echo a       b             c\n",
+  );
+}
+
+#[test]
+fn line_continuation_with_quoted_space() {
+  integration_test(
+    &[],
+    r#"
+foo:
+  echo 'a\
+         b  \
+             c'
+"#,
+    0,
+    "a       b             c\n",
+    "echo 'a       b             c'\n",
+  );
+}
+
+#[test]
+fn line_continuation_no_space() {
+  integration_test(
+    &[],
+    r#"
+foo:
+  echo a\
+  b\
+  c
+"#,
+    0,
+    "abc\n",
+    "echo abc\n",
+  );
+}
