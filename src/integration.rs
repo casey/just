@@ -862,6 +862,7 @@ foo A B:
     "error: Recipe `foo` got 3 arguments but only takes 2\n",
   );
 }
+
 #[test]
 fn argument_mismatch_fewer() {
   integration_test(
@@ -873,6 +874,34 @@ foo A B:
     255,
     "",
     "error: Recipe `foo` got 1 argument but takes 2\n"
+  );
+}
+
+#[test]
+fn argument_mismatch_more_with_default() {
+  integration_test(
+    &["foo", "ONE", "TWO", "THREE"],
+    "
+foo A B='B':
+  echo A:{{A}} B:{{B}}
+    ",
+    255,
+    "",
+    "error: Recipe `foo` got 3 arguments but takes at most 2\n",
+  );
+}
+
+#[test]
+fn argument_mismatch_fewer_with_default() {
+  integration_test(
+    &["foo", "bar"],
+    "
+foo A B C='C':
+  echo A:{{A}} B:{{B}} C:{{C}}
+    ",
+    255,
+    "",
+    "error: Recipe `foo` got 1 argument but takes at least 2\n",
   );
 }
 
@@ -969,3 +998,76 @@ recipe:
   );
 }
 
+#[test]
+fn required_after_default() {
+  integration_test(
+    &[],
+    "bar:\nhello baz arg='foo' bar:",
+    255,
+    "",
+    "error: non-default parameter `bar` follows default parameter
+  |
+2 | hello baz arg='foo' bar:
+  |                     ^^^
+",
+  );
+}
+
+#[test]
+fn use_string_default() {
+  integration_test(
+    &["hello", "ABC"],
+    r#"
+bar:
+hello baz arg="XYZ\t\"	":
+  echo '{{baz}}...{{arg}}'
+"#,
+    0,
+    "ABC...XYZ\t\"\t\n",
+    "echo 'ABC...XYZ\t\"\t'\n",
+  );
+}
+
+
+#[test]
+fn use_raw_string_default() {
+  integration_test(
+    &["hello", "ABC"],
+    r#"
+bar:
+hello baz arg='XYZ\t\"	':
+  echo '{{baz}}...{{arg}}'
+"#,
+    0,
+    "ABC...XYZ\t\\\"\t\n",
+    "echo 'ABC...XYZ\\t\\\"\t'\n",
+  );
+}
+
+#[test]
+fn supply_use_default() {
+  integration_test(
+    &["hello", "0", "1"],
+    r#"
+hello a b='B' c='C':
+  echo {{a}} {{b}} {{c}}
+"#,
+    0,
+    "0 1 C\n",
+    "echo 0 1 C\n",
+  );
+}
+
+#[test]
+fn supply_defaults() {
+  integration_test(
+    &["hello", "0", "1", "2"],
+    r#"
+hello a b='B' c='C':
+  echo {{a}} {{b}} {{c}}
+"#,
+    0,
+    "0 1 2\n",
+    "echo 0 1 2\n",
+  );
+}

@@ -19,6 +19,7 @@ extern crate unicode_width;
 use std::io::prelude::*;
 
 use std::{fs, fmt, process, io};
+use std::ops::Range;
 use std::fmt::Display;
 use regex::Regex;
 use std::collections::{BTreeMap as Map, BTreeSet as Set};
@@ -57,6 +58,10 @@ fn re(pattern: &str) -> Regex {
   Regex::new(pattern).unwrap()
 }
 
+fn contains<T: PartialOrd>(range: &Range<T>,  i: T) -> bool {
+  i >= range.start && i < range.end
+}
+
 #[derive(PartialEq, Debug)]
 struct Recipe<'a> {
   line_number:       usize,
@@ -64,9 +69,25 @@ struct Recipe<'a> {
   lines:             Vec<Vec<Fragment<'a>>>,
   dependencies:      Vec<&'a str>,
   dependency_tokens: Vec<Token<'a>>,
-  parameters:        Vec<&'a str>,
-  parameter_tokens:  Vec<Token<'a>>,
+  parameters:        Vec<Parameter<'a>>,
   shebang:           bool,
+}
+
+#[derive(PartialEq, Debug)]
+struct Parameter<'a> {
+  name:    &'a str,
+  default: Option<String>,
+  token:   Token<'a>,
+}
+
+impl<'a> Display for Parameter<'a> {
+  fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+    write!(f, "{}", self.name)?;
+    if let Some(ref default) = self.default {
+      write!(f, r#"="{}""#, default)?;
+    }
+    Ok(())
+  }
 }
 
 #[derive(PartialEq, Debug)]
@@ -78,7 +99,7 @@ enum Fragment<'a> {
 #[derive(PartialEq, Debug)]
 enum Expression<'a> {
   Variable{name: &'a str, token: Token<'a>},
-  String{raw: &'a str, cooked: String},
+  String{cooked_string: CookedString<'a>},
   Backtick{raw: &'a str, token: Token<'a>},
   Concatination{lhs: Box<Expression<'a>>, rhs: Box<Expression<'a>>},
 }
@@ -114,10 +135,10 @@ impl<'a> Iterator for Variables<'a> {
 impl<'a> Display for Expression<'a> {
   fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
     match *self {
-      Expression::Backtick     {raw, ..         } => write!(f, "`{}`", raw)?,
-      Expression::Concatination{ref lhs, ref rhs} => write!(f, "{} + {}", lhs, rhs)?,
-      Expression::String       {raw, ..         } => write!(f, "\"{}\"", raw)?,
-      Expression::Variable     {name, ..        } => write!(f, "{}", name)?,
+      Expression::Backtick     {raw, ..          } => write!(f, "`{}`", raw)?,
+      Expression::Concatination{ref lhs, ref rhs } => write!(f, "{} + {}", lhs, rhs)?,
+      Expression::String       {ref cooked_string} => write!(f, "\"{}\"", cooked_string.raw)?,
+      Expression::Variable     {name, ..         } => write!(f, "{}", name)?,
     }
     Ok(())
   }
@@ -225,6 +246,12 @@ fn run_backtick<'a>(
 }
 
 impl<'a> Recipe<'a> {
+  fn argument_range(&self) -> Range<usize> {
+    self.parameters.iter().filter(|p| !p.default.is_some()).count()
+      ..
+    self.parameters.len() + 1
+  }
+
   fn run(
     &self,
     arguments: &[&'a str],
@@ -232,8 +259,14 @@ impl<'a> Recipe<'a> {
     exports:   &Set<&'a str>,
     options:   &RunOptions,
   ) -> Result<(), RunError<'a>> {
-    let argument_map = arguments .iter().enumerate()
-      .map(|(i, argument)| (self.parameters[i], *argument)).collect();
+    let argument_map = self.parameters.iter().enumerate()
+      .map(|(i, parameter)| if i < arguments.len() {
+        (parameter.name, arguments[i])
+      } else if let Some(ref default) = parameter.default {
+        (parameter.name, default.as_str())
+      } else {
+        panic!(); // FIXME internal error
+      }).collect();
 
     let mut evaluator = Evaluator {
       evaluated:   Map::new(),
@@ -407,7 +440,9 @@ fn resolve_recipes<'a>(
         if let Fragment::Expression{ref expression, ..} = *fragment {
           for variable in expression.variables() {
             let name = variable.lexeme;
-            if !(assignments.contains_key(name) || recipe.parameters.contains(&name)) {
+            let undefined = !assignments.contains_key(name) 
+              && !recipe.parameters.iter().any(|p| p.name == name);
+            if undefined {
               // There's a borrow issue here that seems too difficult to solve.
               // The error derived from the variable token has too short a lifetime,
               // so we create a new error from its contents, which do live long
@@ -644,7 +679,7 @@ impl<'a, 'b> Evaluator<'a, 'b> {
           });
         }
       }
-      Expression::String{ref cooked, ..} => cooked.clone(),
+      Expression::String{ref cooked_string} => cooked_string.cooked.clone(),
       Expression::Backtick{raw, ref token} => {
         run_backtick(raw, token, &self.scope, &self.exports, self.quiet)?
       }
@@ -683,6 +718,7 @@ enum ErrorKind<'a> {
   MixedLeadingWhitespace{whitespace: &'a str},
   OuterShebang,
   ParameterShadowsVariable{parameter: &'a str},
+  RequiredParameterFollowsDefaultParameter{parameter: &'a str},
   UndefinedVariable{variable: &'a str},
   UnexpectedToken{expected: Vec<TokenKind>, found: TokenKind},
   UnknownDependency{recipe: &'a str, unknown: &'a str},
@@ -727,6 +763,49 @@ impl<'a, T: Display> Display for Tick<'a, T> {
 
 fn ticks<T: Display>(ts: &[T]) -> Vec<Tick<T>> {
   ts.iter().map(Tick).collect()
+}
+
+#[derive(PartialEq, Debug)]
+struct CookedString<'a> {
+  raw:    &'a str,
+  cooked: String,
+}
+
+fn cook_string<'a>(token: &Token<'a>) -> Result<CookedString<'a>, Error<'a>> {
+  let raw = &token.lexeme[1..token.lexeme.len()-1];
+
+  if let RawString = token.kind {
+    Ok(CookedString{raw: raw, cooked: raw.to_string()})
+  } else if let StringToken = token.kind {
+    let mut cooked = String::new();
+    let mut escape = false;
+    for c in raw.chars() {
+      if escape {
+        match c {
+          'n'   => cooked.push('\n'),
+          'r'   => cooked.push('\r'),
+          't'   => cooked.push('\t'),
+          '\\'  => cooked.push('\\'),
+          '"'   => cooked.push('"'),
+          other => return Err(token.error(ErrorKind::InvalidEscapeSequence {
+            character: other,
+          })),
+        }
+        escape = false;
+        continue;
+      }
+      if c == '\\' {
+        escape = true;
+        continue;
+      }
+      cooked.push(c);
+    }
+    Ok(CookedString{raw: raw, cooked: cooked})
+  } else {
+    Err(token.error(ErrorKind::InternalError{
+      message: "cook_string() called on non-string token".to_string()
+    }))
+  }
 }
 
 struct And<'a, T: 'a + Display>(&'a [T]);
@@ -900,6 +979,9 @@ impl<'a> Display for Error<'a> {
       ErrorKind::ParameterShadowsVariable{parameter} => {
         writeln!(f, "parameter `{}` shadows variable of the same name", parameter)?;
       }
+      ErrorKind::RequiredParameterFollowsDefaultParameter{parameter} => {
+        writeln!(f, "non-default parameter `{}` follows default parameter", parameter)?;
+      }
       ErrorKind::MixedLeadingWhitespace{whitespace} => {
         writeln!(f,
           "found a mix of tabs and spaces in leading whitespace: `{}`\n\
@@ -1011,11 +1093,13 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
             return Err(RunError::NonLeadingRecipeWithParameters{recipe: recipe.name});
           }
           let rest = &arguments[1..];
-          if recipe.parameters.len() != rest.len() {
+          let argument_range = recipe.argument_range();
+          if !contains(&argument_range, rest.len()) {
             return Err(RunError::ArgumentCountMismatch {
               recipe: recipe.name,
-              found: rest.len(),
-              expected: recipe.parameters.len(),
+              found:  rest.len(),
+              min:    argument_range.start,
+              max:    argument_range.end - 1,
             });
           }
           return self.run_recipe(recipe, rest, &scope, &mut ran, options);
@@ -1089,7 +1173,7 @@ impl<'a> Display for Justfile<'a> {
 
 #[derive(Debug)]
 enum RunError<'a> {
-  ArgumentCountMismatch{recipe: &'a str, found: usize, expected: usize},
+  ArgumentCountMismatch{recipe: &'a str, found: usize, min: usize, max: usize},
   Code{recipe: &'a str, code: i32},
   InternalError{message: String},
   IoError{recipe: &'a str, io_error: io::Error},
@@ -1128,10 +1212,19 @@ impl<'a> Display for RunError<'a> {
         write!(f, "Recipe `{}` takes arguments and so must be the first and only recipe \
                    specified on the command line", recipe)?;
       },
-      RunError::ArgumentCountMismatch{recipe, found, expected} => {
-        write!(f, "Recipe `{}` got {} argument{} but {}takes {}",
-                  recipe, found, maybe_s(found),
-                  if expected < found { "only " } else { "" }, expected)?;
+      RunError::ArgumentCountMismatch{recipe, found, min, max} => {
+        if min == max {
+          let expected = min;
+          write!(f, "Recipe `{}` got {} argument{} but {}takes {}",
+                    recipe, found, maybe_s(found),
+                    if expected < found { "only " } else { "" }, expected)?;
+        } else if found < min {
+          write!(f, "Recipe `{}` got {} argument{} but takes at least {}",
+                    recipe, found, maybe_s(found), min)?;
+        } else if found > max {
+          write!(f, "Recipe `{}` got {} argument{} but takes at most {}",
+                    recipe, found, maybe_s(found), max)?;
+        }
       },
       RunError::Code{recipe, code} => {
         write!(f, "Recipe `{}` failed with exit code {}", recipe, code)?;
@@ -1566,6 +1659,15 @@ impl<'a> Parser<'a> {
     }
   }
 
+  fn accept_any(&mut self, kinds: &[TokenKind]) -> Option<Token<'a>> {
+    for kind in kinds {
+      if self.peek(*kind) {
+        return self.tokens.next();
+      }
+    }
+    None
+  }
+
   fn accepted(&mut self, kind: TokenKind) -> bool {
     self.accept(kind).is_some()
   }
@@ -1605,16 +1707,40 @@ impl<'a> Parser<'a> {
       }));
     }
 
-    let mut parameters = vec![];
-    let mut parameter_tokens = vec![];
+    let mut parsed_parameter_with_default = false;
+    let mut parameters: Vec<Parameter> = vec![];
     while let Some(parameter) = self.accept(Name) {
-      if parameters.contains(&parameter.lexeme) {
+      if parameters.iter().any(|p| p.name == parameter.lexeme) {
         return Err(parameter.error(ErrorKind::DuplicateParameter {
           recipe: name.lexeme, parameter: parameter.lexeme
         }));
       }
-      parameters.push(parameter.lexeme);
-      parameter_tokens.push(parameter);
+    
+      let default;
+      if self.accepted(Equals) {
+        if let Some(string) = self.accept_any(&[StringToken, RawString]) {
+          default = Some(cook_string(&string)?.cooked);
+        } else {
+          let unexpected = self.tokens.next().unwrap();
+          return Err(self.unexpected_token(&unexpected, &[StringToken, RawString]));
+        }
+      } else {
+        default = None
+      }
+
+      if parsed_parameter_with_default && default.is_none() {
+        return Err(parameter.error(ErrorKind::RequiredParameterFollowsDefaultParameter{
+          parameter: parameter.lexeme,
+        }));
+      }
+
+      parsed_parameter_with_default |= default.is_some();
+
+      parameters.push(Parameter {
+        name:    parameter.lexeme,
+        default: default,
+        token:   parameter,
+      });
     }
 
     if let Some(token) = self.expect(Colon) {
@@ -1694,14 +1820,12 @@ impl<'a> Parser<'a> {
       dependencies:      dependencies,
       dependency_tokens: dependency_tokens,
       parameters:        parameters,
-      parameter_tokens:  parameter_tokens,
       lines:             lines,
       shebang:           shebang,
     });
 
     Ok(())
   }
-
 
   fn expression(&mut self, interpolation: bool) -> Result<Expression<'a>, Error<'a>> {
     let first = self.tokens.next().unwrap();
@@ -1711,36 +1835,8 @@ impl<'a> Parser<'a> {
         raw:   &first.lexeme[1..first.lexeme.len()-1],
         token: first
       },
-      RawString => {
-        let raw = &first.lexeme[1..first.lexeme.len() - 1];
-        Expression::String{raw: raw, cooked: raw.to_string()}
-      }
-      StringToken => {
-        let raw = &first.lexeme[1..first.lexeme.len() - 1];
-        let mut cooked = String::new();
-        let mut escape = false;
-        for c in raw.chars() {
-          if escape {
-            match c {
-              'n'   => cooked.push('\n'),
-              'r'   => cooked.push('\r'),
-              't'   => cooked.push('\t'),
-              '\\'  => cooked.push('\\'),
-              '"'   => cooked.push('"'),
-              other => return Err(first.error(ErrorKind::InvalidEscapeSequence {
-                character: other,
-              })),
-            }
-            escape = false;
-            continue;
-          }
-          if c == '\\' {
-            escape = true;
-            continue;
-          }
-          cooked.push(c);
-        }
-        Expression::String{raw: raw, cooked: cooked}
+      RawString | StringToken => {
+        Expression::String{cooked_string: cook_string(&first)?}
       }
       _ => return Err(self.unexpected_token(&first, &[Name, StringToken])),
     };
@@ -1820,10 +1916,10 @@ impl<'a> Parser<'a> {
     resolve_recipes(&self.recipes, &self.assignments, self.text)?;
 
     for recipe in self.recipes.values() {
-      for parameter in &recipe.parameter_tokens {
-        if self.assignments.contains_key(parameter.lexeme) {
-          return Err(parameter.error(ErrorKind::ParameterShadowsVariable {
-            parameter: parameter.lexeme
+      for parameter in &recipe.parameters {
+        if self.assignments.contains_key(parameter.token.lexeme) {
+          return Err(parameter.token.error(ErrorKind::ParameterShadowsVariable {
+            parameter: parameter.token.lexeme
           }));
         }
       }

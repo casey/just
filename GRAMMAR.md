@@ -48,9 +48,11 @@ expression    : STRING
               | BACKTICK
               | expression '+' expression
 
-recipe        : NAME arguments? ':' dependencies? body?
+recipe        : NAME argument* ':' dependencies? body?
 
-arguments     : NAME+
+argument      : NAME
+              | NAME '=' STRING
+              | NAME '=' RAW_STRING
 
 dependencies  : NAME+
 
