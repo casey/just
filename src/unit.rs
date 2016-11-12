@@ -256,6 +256,26 @@ fn parse_empty() {
 }
 
 #[test]
+fn parse_string_default() {
+  parse_summary(r#"
+
+foo a="b\t":
+
+
+  "#, r#"foo a="b	":"#);
+}
+
+#[test]
+fn parse_raw_string_default() {
+  parse_summary(r#"
+
+foo a='b\t':
+
+
+  "#, r#"foo a="b\t":"#);
+}
+
+#[test]
 fn parse_export() {
   parse_summary(r#"
 export a = "hello"
@@ -369,6 +389,71 @@ fn missing_colon() {
     column: 5,
     width:  Some(1),
     kind:   ErrorKind::UnexpectedToken{expected: vec![Name, Colon], found: Eol},
+  });
+}
+
+#[test]
+fn missing_default_eol() {
+  let text = "hello arg=\n";
+  parse_error(text, Error {
+    text:   text,
+    index:  10,
+    line:   0,
+    column: 10,
+    width:  Some(1),
+    kind:   ErrorKind::UnexpectedToken{expected: vec![StringToken, RawString], found: Eol},
+  });
+}
+
+#[test]
+fn missing_default_eof() {
+  let text = "hello arg=";
+  parse_error(text, Error {
+    text:   text,
+    index:  10,
+    line:   0,
+    column: 10,
+    width:  Some(0),
+    kind:   ErrorKind::UnexpectedToken{expected: vec![StringToken, RawString], found: Eof},
+  });
+}
+
+#[test]
+fn missing_default_colon() {
+  let text = "hello arg=:";
+  parse_error(text, Error {
+    text:   text,
+    index:  10,
+    line:   0,
+    column: 10,
+    width:  Some(1),
+    kind:   ErrorKind::UnexpectedToken{expected: vec![StringToken, RawString], found: Colon},
+  });
+}
+
+#[test]
+fn missing_default_backtick() {
+  let text = "hello arg=`hello`";
+  parse_error(text, Error {
+    text:   text,
+    index:  10,
+    line:   0,
+    column: 10,
+    width:  Some(7),
+    kind:   ErrorKind::UnexpectedToken{expected: vec![StringToken, RawString], found: Backtick},
+  });
+}
+
+#[test]
+fn required_after_default() {
+  let text = "hello arg='foo' bar:";
+  parse_error(text, Error {
+    text:   text,
+    index:  16,
+    line:   0,
+    column: 16,
+    width:  Some(3),
+    kind:   ErrorKind::RequiredParameterFollowsDefaultParameter{parameter: "bar"},
   });
 }
 
@@ -615,6 +700,15 @@ fn conjoin_and() {
 }
 
 #[test]
+fn range() {
+  assert!(super::contains(&(0..1), 0));
+  assert!(super::contains(&(10..20), 15));
+  assert!(!super::contains(&(0..0), 0));
+  assert!(!super::contains(&(1..10), 0));
+  assert!(!super::contains(&(1..10), 10));
+}
+
+#[test]
 fn unknown_recipes() {
   match parse_success("a:\nb:\nc:").run(&["a", "x", "y", "z"], &Default::default()).unwrap_err() {
     RunError::UnknownRecipes{recipes} => assert_eq!(recipes, &["x", "y", "z"]),
@@ -778,25 +872,53 @@ a return code:
 }
 
 #[test]
-fn missing_args() {
+fn missing_some_arguments() {
   match parse_success("a b c d:").run(&["a", "b", "c"], &Default::default()).unwrap_err() {
-    RunError::ArgumentCountMismatch{recipe, found, expected} => {
+    RunError::ArgumentCountMismatch{recipe, found, min, max} => {
       assert_eq!(recipe, "a");
       assert_eq!(found, 2);
-      assert_eq!(expected, 3);
+      assert_eq!(min, 3);
+      assert_eq!(max, 3);
     },
     other => panic!("expected an code run error, but got: {}", other),
   }
 }
 
 #[test]
-fn missing_default() {
+fn missing_all_arguments() {
   match parse_success("a b c d:\n echo {{b}}{{c}}{{d}}")
         .run(&["a"], &Default::default()).unwrap_err() {
-    RunError::ArgumentCountMismatch{recipe, found, expected} => {
+    RunError::ArgumentCountMismatch{recipe, found, min, max} => {
       assert_eq!(recipe, "a");
       assert_eq!(found, 0);
-      assert_eq!(expected, 3);
+      assert_eq!(min, 3);
+      assert_eq!(max, 3);
+    },
+    other => panic!("expected an code run error, but got: {}", other),
+  }
+}
+
+#[test]
+fn missing_some_defaults() {
+  match parse_success("a b c d='hello':").run(&["a", "b"], &Default::default()).unwrap_err() {
+    RunError::ArgumentCountMismatch{recipe, found, min, max} => {
+      assert_eq!(recipe, "a");
+      assert_eq!(found, 1);
+      assert_eq!(min, 2);
+      assert_eq!(max, 3);
+    },
+    other => panic!("expected an code run error, but got: {}", other),
+  }
+}
+
+#[test]
+fn missing_all_defaults() {
+  match parse_success("a b c='r' d='h':").run(&["a"], &Default::default()).unwrap_err() {
+    RunError::ArgumentCountMismatch{recipe, found, min, max} => {
+      assert_eq!(recipe, "a");
+      assert_eq!(found, 0);
+      assert_eq!(min, 1);
+      assert_eq!(max, 3);
     },
     other => panic!("expected an code run error, but got: {}", other),
   }

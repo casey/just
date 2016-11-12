@@ -184,6 +184,30 @@ Building my-awesome-project...
 cd my-awesome-project && make
 ```
 
+Parameters may have default values:
+
+```make
+test target tests='all':
+    @echo 'Testing {{target}}:{{tests}}...'
+    ./test --tests {{tests}} {{target}}
+```
+
+Parameters with default values may be omitted:
+
+```sh
+$ just test server
+Testing server:all...
+./test --tests all server
+```
+
+Or supplied:
+
+```sh
+$ just test server unit
+Testing server:unit...
+./test --tests unit server
+```
+
 Variables can be exported to recipes as environment variables:
 
 ```make
