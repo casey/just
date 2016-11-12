@@ -48,7 +48,7 @@ trait Slurp {
 impl Slurp for fs::File {
   fn slurp(&mut self) -> Result<String, std::io::Error> {
     let mut destination = String::new();
-    try!(self.read_to_string(&mut destination));
+    self.read_to_string(&mut destination)?;
     Ok(destination)
   }
 }
@@ -114,10 +114,10 @@ impl<'a> Iterator for Variables<'a> {
 impl<'a> Display for Expression<'a> {
   fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
     match *self {
-      Expression::Backtick     {raw, ..         } => try!(write!(f, "`{}`", raw)),
-      Expression::Concatination{ref lhs, ref rhs} => try!(write!(f, "{} + {}", lhs, rhs)),
-      Expression::String       {raw, ..         } => try!(write!(f, "\"{}\"", raw)),
-      Expression::Variable     {name, ..        } => try!(write!(f, "{}", name)),
+      Expression::Backtick     {raw, ..         } => write!(f, "`{}`", raw)?,
+      Expression::Concatination{ref lhs, ref rhs} => write!(f, "{} + {}", lhs, rhs)?,
+      Expression::String       {raw, ..         } => write!(f, "\"{}\"", raw)?,
+      Expression::Variable     {name, ..        } => write!(f, "{}", name)?,
     }
     Ok(())
   }
@@ -184,7 +184,7 @@ fn run_backtick<'a>(
 ) -> Result<String, RunError<'a>> {
   let mut cmd = process::Command::new("sh");
 
-  try!(export_env(&mut cmd, scope, exports));
+  export_env(&mut cmd, scope, exports)?;
 
   cmd.arg("-cu")
      .arg(raw);
@@ -247,7 +247,7 @@ impl<'a> Recipe<'a> {
     if self.shebang {
       let mut evaluated_lines = vec![];
       for line in &self.lines {
-        evaluated_lines.push(try!(evaluator.evaluate_line(&line, &argument_map)));
+        evaluated_lines.push(evaluator.evaluate_line(&line, &argument_map)?);
       }
 
       if options.dry_run {
@@ -257,17 +257,13 @@ impl<'a> Recipe<'a> {
         return Ok(());
       }
 
-      let tmp = try!(
-        tempdir::TempDir::new("just")
-        .map_err(|error| RunError::TmpdirIoError{recipe: self.name, io_error: error})
-      );
+      let tmp = tempdir::TempDir::new("just")
+        .map_err(|error| RunError::TmpdirIoError{recipe: self.name, io_error: error})?;
       let mut path = tmp.path().to_path_buf();
       path.push(self.name);
       {
-        let mut f = try!(
-          fs::File::create(&path)
-          .map_err(|error| RunError::TmpdirIoError{recipe: self.name, io_error: error})
-        );
+        let mut f = fs::File::create(&path)
+          .map_err(|error| RunError::TmpdirIoError{recipe: self.name, io_error: error})?;
         let mut text = String::new();
         // add the shebang
         text += &evaluated_lines[0];
@@ -282,44 +278,40 @@ impl<'a> Recipe<'a> {
           text += line;
           text += "\n";
         }
-        try!(
-          f.write_all(text.as_bytes())
-          .map_err(|error| RunError::TmpdirIoError{recipe: self.name, io_error: error})
-        );
+        f.write_all(text.as_bytes())
+         .map_err(|error| RunError::TmpdirIoError{recipe: self.name, io_error: error})?;
       }
 
       // get current permissions
-      let mut perms = try!(
-        fs::metadata(&path)
-        .map_err(|error| RunError::TmpdirIoError{recipe: self.name, io_error: error})
-      ).permissions();
+      let mut perms = fs::metadata(&path)
+        .map_err(|error| RunError::TmpdirIoError{recipe: self.name, io_error: error})?
+        .permissions();
 
       // make the script executable
       let current_mode = perms.mode();
       perms.set_mode(current_mode | 0o100);
-      try!(fs::set_permissions(&path, perms)
-           .map_err(|error| RunError::TmpdirIoError{recipe: self.name, io_error: error}));
+      fs::set_permissions(&path, perms)
+        .map_err(|error| RunError::TmpdirIoError{recipe: self.name, io_error: error})?;
 
       // run it!
       let mut command = process::Command::new(path);
 
-      try!(export_env(&mut command, scope, exports));
+      export_env(&mut command, scope, exports)?;
 
-      try!(match command.status() {
+      match command.status() {
         Ok(exit_status) => if let Some(code) = exit_status.code() {
-          if code == 0 {
-            Ok(())
-          } else {
-            Err(RunError::Code{recipe: self.name, code: code})
+          if code != 0 {
+            return Err(RunError::Code{recipe: self.name, code: code})
           }
         } else {
-          Err(error_from_signal(self.name, exit_status))
+          return Err(error_from_signal(self.name, exit_status))
         },
-        Err(io_error) => Err(RunError::TmpdirIoError{recipe: self.name, io_error: io_error})
-      });
+        Err(io_error) => return Err(RunError::TmpdirIoError{
+          recipe: self.name, io_error: io_error})
+      };
     } else {
       for line in &self.lines {
-        let evaluated = &try!(evaluator.evaluate_line(&line, &argument_map));
+        let evaluated = &evaluator.evaluate_line(&line, &argument_map)?;
         let mut command = evaluated.as_str();
         let quiet_command = command.starts_with('@');
         if quiet_command {
@@ -341,20 +333,19 @@ impl<'a> Recipe<'a> {
           cmd.stdout(process::Stdio::null());
         }
 
-        try!(export_env(&mut cmd, scope, exports));
+        export_env(&mut cmd, scope, exports)?;
 
-        try!(match cmd.status() {
+        match cmd.status() {
           Ok(exit_status) => if let Some(code) = exit_status.code() {
-            if code == 0 {
-              Ok(())
-            } else {
-              Err(RunError::Code{recipe: self.name, code: code})
+            if code != 0 {
+              return Err(RunError::Code{recipe: self.name, code: code});
             }
           } else {
-            Err(error_from_signal(self.name, exit_status))
+            return Err(error_from_signal(self.name, exit_status));
           },
-          Err(io_error) => Err(RunError::IoError{recipe: self.name, io_error: io_error})
-        });
+          Err(io_error) => return Err(RunError::IoError{
+            recipe: self.name, io_error: io_error}),
+        };
       }
     }
     Ok(())
@@ -363,31 +354,31 @@ impl<'a> Recipe<'a> {
 
 impl<'a> Display for Recipe<'a> {
   fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-    try!(write!(f, "{}", self.name));
+    write!(f, "{}", self.name)?;
     for parameter in &self.parameters {
-      try!(write!(f, " {}", parameter));
+      write!(f, " {}", parameter)?;
     }
-    try!(write!(f, ":"));
+    write!(f, ":")?;
     for dependency in &self.dependencies {
-      try!(write!(f, " {}", dependency))
+      write!(f, " {}", dependency)?;
     }
 
     for (i, pieces) in self.lines.iter().enumerate() {
       if i == 0 {
-        try!(writeln!(f, ""));
+        writeln!(f, "")?;
       }
       for (j, piece) in pieces.iter().enumerate() {
         if j == 0 {
-          try!(write!(f, "    "));
+          write!(f, "    ")?;
         }
         match *piece {
-          Fragment::Text{ref text} => try!(write!(f, "{}", text.lexeme)),
+          Fragment::Text{ref text} => write!(f, "{}", text.lexeme)?,
           Fragment::Expression{ref expression, ..} => 
-            try!(write!(f, "{}{}{}", "{{", expression, "}}")),
+            write!(f, "{}{}{}", "{{", expression, "}}")?,
         }
       }
       if i + 1 < self.lines.len() {
-        try!(write!(f, "\n"));
+        write!(f, "\n")?;
       }
     }
     Ok(())
@@ -407,7 +398,7 @@ fn resolve_recipes<'a>(
   };
   
   for recipe in recipes.values() {
-    try!(resolver.resolve(&recipe));
+    resolver.resolve(&recipe)?;
   }
 
   for recipe in recipes.values() {
@@ -502,7 +493,7 @@ fn resolve_assignments<'a>(
   };
 
   for name in assignments.keys() {
-    try!(resolver.resolve_assignment(name));
+    resolver.resolve_assignment(name)?;
   }
 
   Ok(())
@@ -526,7 +517,7 @@ impl<'a: 'b, 'b> AssignmentResolver<'a, 'b> {
     self.stack.push(name);
 
     if let Some(expression) = self.assignments.get(name) {
-      try!(self.resolve_expression(expression));
+      self.resolve_expression(expression)?;
       self.evaluated.insert(name);
     } else {
       return Err(internal_error(format!("attempted to resolve unknown assignment `{}`", name)));
@@ -547,14 +538,14 @@ impl<'a: 'b, 'b> AssignmentResolver<'a, 'b> {
             circle:   self.stack.clone(),
           }));
         } else if self.assignments.contains_key(name) {
-          try!(self.resolve_assignment(name));
+          self.resolve_assignment(name)?;
         } else {
           return Err(token.error(ErrorKind::UndefinedVariable{variable: name}));
         }
       }
       Expression::Concatination{ref lhs, ref rhs} => {
-        try!(self.resolve_expression(lhs));
-        try!(self.resolve_expression(rhs));
+        self.resolve_expression(lhs)?;
+        self.resolve_expression(rhs)?;
       }
       Expression::String{..} | Expression::Backtick{..} => {}
     }
@@ -577,7 +568,7 @@ fn evaluate_assignments<'a>(
   };
 
   for name in assignments.keys() {
-    try!(evaluator.evaluate_assignment(name));
+    evaluator.evaluate_assignment(name)?;
   }
 
   Ok(evaluator.evaluated)
@@ -603,7 +594,7 @@ impl<'a, 'b> Evaluator<'a, 'b> {
       match *fragment {
         Fragment::Text{ref text} => evaluated += text.lexeme,
         Fragment::Expression{ref expression} => {
-          evaluated += &try!(self.evaluate_expression(expression, arguments));
+          evaluated += &self.evaluate_expression(expression, arguments)?;
         }
       }
     }
@@ -619,7 +610,7 @@ impl<'a, 'b> Evaluator<'a, 'b> {
       if let Some(value) = self.overrides.get(name) {
         self.evaluated.insert(name, value.to_string());
       } else {
-        let value = try!(self.evaluate_expression(expression, &Map::new()));
+        let value = self.evaluate_expression(expression, &Map::new())?;
         self.evaluated.insert(name, value);
       }
     } else {
@@ -643,7 +634,7 @@ impl<'a, 'b> Evaluator<'a, 'b> {
         } else if self.scope.contains_key(name) {
           self.scope[name].clone()
         } else if self.assignments.contains_key(name) {
-          try!(self.evaluate_assignment(name));
+          self.evaluate_assignment(name)?;
           self.evaluated[name].clone()
         } else if arguments.contains_key(name) {
           arguments[name].to_string()
@@ -655,12 +646,12 @@ impl<'a, 'b> Evaluator<'a, 'b> {
       }
       Expression::String{ref cooked, ..} => cooked.clone(),
       Expression::Backtick{raw, ref token} => {
-        try!(run_backtick(raw, token, &self.scope, &self.exports, self.quiet))
+        run_backtick(raw, token, &self.scope, &self.exports, self.quiet)?
       }
       Expression::Concatination{ref lhs, ref rhs} => {
-        try!(self.evaluate_expression(lhs, arguments))
+        self.evaluate_expression(lhs, arguments)?
           +
-        &try!(self.evaluate_expression(rhs, arguments))
+        &self.evaluate_expression(rhs, arguments)?
       }
     })
   }
@@ -760,15 +751,15 @@ fn conjoin<T: Display>(
 ) -> Result<(), fmt::Error> {
     match values.len() {
       0 => {},
-      1 => try!(write!(f, "{}", values[0])),
-      2 => try!(write!(f, "{} {} {}", values[0], conjunction, values[1])),
+      1 => write!(f, "{}", values[0])?,
+      2 => write!(f, "{} {} {}", values[0], conjunction, values[1])?,
       _ => for (i, item) in values.iter().enumerate() {
-        try!(write!(f, "{}", item));
+        write!(f, "{}", item)?;
         if i == values.len() - 1 {
         } else if i == values.len() - 2 {
-          try!(write!(f, ", {} ", conjunction));
+          write!(f, ", {} ", conjunction)?;
         } else {
-          try!(write!(f, ", "))
+          write!(f, ", ")?
         }
       },
     }
@@ -813,18 +804,18 @@ fn write_error_context(
         i += c.len_utf8();
       }
       let line_number_width = line_number.to_string().len();
-      try!(write!(f, "{0:1$} |\n", "", line_number_width));
-      try!(write!(f, "{} | {}\n", line_number, space_line));
-      try!(write!(f, "{0:1$} |", "", line_number_width));
+      write!(f, "{0:1$} |\n", "", line_number_width)?;
+      write!(f, "{} | {}\n", line_number, space_line)?;
+      write!(f, "{0:1$} |", "", line_number_width)?;
       if width == None {
-        try!(write!(f, " {0:1$}{2}^{3}", "", space_column, red.prefix(), red.suffix()));
+        write!(f, " {0:1$}{2}^{3}", "", space_column, red.prefix(), red.suffix())?;
       } else {
-        try!(write!(f, " {0:1$}{2}{3:^<4$}{5}", "", space_column,
-                    red.prefix(), "", space_width, red.suffix()));
+        write!(f, " {0:1$}{2}{3:^<4$}{5}", "", space_column,
+                  red.prefix(), "", space_width, red.suffix())?;
       }
     },
     None => if index != text.len() {
-      try!(write!(f, "internal error: Error has invalid line number: {}", line_number))
+      write!(f, "internal error: Error has invalid line number: {}", line_number)?
     },
   }
   Ok(())
@@ -862,96 +853,94 @@ impl<'a> Display for Error<'a> {
     let red  = maybe_red(f.alternate());
     let bold = maybe_bold(f.alternate());
 
-    try!(write!(f, "{} {}", red.paint("error:"), bold.prefix()));
+    write!(f, "{} {}", red.paint("error:"), bold.prefix())?;
     
     match self.kind {
       ErrorKind::CircularRecipeDependency{recipe, ref circle} => {
         if circle.len() == 2 {
-          try!(write!(f, "recipe `{}` depends on itself", recipe));
+          write!(f, "recipe `{}` depends on itself", recipe)?;
         } else {
-          try!(writeln!(f, "recipe `{}` has circular dependency `{}`",
-                        recipe, circle.join(" -> ")));
+          writeln!(f, "recipe `{}` has circular dependency `{}`",
+                      recipe, circle.join(" -> "))?;
         }
       }
       ErrorKind::CircularVariableDependency{variable, ref circle} => {
         if circle.len() == 2 {
-          try!(writeln!(f, "variable `{}` depends on its own value: `{}`",
-                        variable, circle.join(" -> ")));
+          writeln!(f, "variable `{}` depends on its own value: `{}`",
+                      variable, circle.join(" -> "))?;
         } else {
-          try!(writeln!(f, "variable `{}` depends on its own value: `{}`",
-                        variable, circle.join(" -> ")));
+          writeln!(f, "variable `{}` depends on its own value: `{}`",
+                      variable, circle.join(" -> "))?;
         }
       }
       ErrorKind::InvalidEscapeSequence{character} => {
-        try!(writeln!(f, "`\\{}` is not a valid escape sequence",
-                      character.escape_default().collect::<String>()));
+        writeln!(f, "`\\{}` is not a valid escape sequence",
+                    character.escape_default().collect::<String>())?;
       }
       ErrorKind::DuplicateParameter{recipe, parameter} => {
-        try!(writeln!(f, "recipe `{}` has duplicate parameter `{}`", recipe, parameter));
+        writeln!(f, "recipe `{}` has duplicate parameter `{}`", recipe, parameter)?;
       }
       ErrorKind::DuplicateVariable{variable} => {
-        try!(writeln!(f, "variable `{}` is has multiple definitions", variable));
+        writeln!(f, "variable `{}` is has multiple definitions", variable)?;
       }
       ErrorKind::UnexpectedToken{ref expected, found} => {
-        try!(writeln!(f, "expected {} but found {}", Or(expected), found));
+        writeln!(f, "expected {} but found {}", Or(expected), found)?;
       }
       ErrorKind::DuplicateDependency{recipe, dependency} => {
-        try!(writeln!(f, "recipe `{}` has duplicate dependency `{}`", recipe, dependency));
+        writeln!(f, "recipe `{}` has duplicate dependency `{}`", recipe, dependency)?;
       }
       ErrorKind::DuplicateRecipe{recipe, first} => {
-        try!(writeln!(f, "recipe `{}` first defined on line {} is redefined on line {}",
-                    recipe, first, self.line));
+        writeln!(f, "recipe `{}` first defined on line {} is redefined on line {}",
+                    recipe, first, self.line)?;
       }
       ErrorKind::DependencyHasParameters{recipe, dependency} => {
-        try!(writeln!(f, "recipe `{}` depends on `{}` which requires arguments. \
-                      dependencies may not require arguments", recipe, dependency));
+        writeln!(f, "recipe `{}` depends on `{}` which requires arguments. \
+                    dependencies may not require arguments", recipe, dependency)?;
       }
       ErrorKind::ParameterShadowsVariable{parameter} => {
-        try!(writeln!(f, "parameter `{}` shadows variable of the same name", parameter));
+        writeln!(f, "parameter `{}` shadows variable of the same name", parameter)?;
       }
       ErrorKind::MixedLeadingWhitespace{whitespace} => {
-        try!(writeln!(f,
+        writeln!(f,
           "found a mix of tabs and spaces in leading whitespace: `{}`\n\
           leading whitespace may consist of tabs or spaces, but not both",
           show_whitespace(whitespace)
-        ));
+        )?;
       }
       ErrorKind::ExtraLeadingWhitespace => {
-        try!(writeln!(f, "recipe line has extra leading whitespace"));
+        writeln!(f, "recipe line has extra leading whitespace")?;
       }
       ErrorKind::InconsistentLeadingWhitespace{expected, found} => {
-        try!(writeln!(f,
+        writeln!(f,
           "inconsistant leading whitespace: recipe started with `{}` but found line with `{}`:",
           show_whitespace(expected), show_whitespace(found)
-        ));
+        )?;
       }
       ErrorKind::OuterShebang => {
-        try!(writeln!(f, "a shebang `#!` is reserved syntax outside of recipes"))
+        writeln!(f, "a shebang `#!` is reserved syntax outside of recipes")?;
       }
       ErrorKind::UnknownDependency{recipe, unknown} => {
-        try!(writeln!(f, "recipe `{}` has unknown dependency `{}`", recipe, unknown));
+        writeln!(f, "recipe `{}` has unknown dependency `{}`", recipe, unknown)?;
       }
       ErrorKind::UndefinedVariable{variable} => {
-        try!(writeln!(f, "variable `{}` not defined", variable));
+        writeln!(f, "variable `{}` not defined", variable)?;
       }
       ErrorKind::UnknownStartOfToken => {
-        try!(writeln!(f, "unknown start of token:"));
+        writeln!(f, "unknown start of token:")?;
       }
       ErrorKind::UnterminatedString => {
-        try!(writeln!(f, "unterminated string"));
+        writeln!(f, "unterminated string")?;
       }
       ErrorKind::InternalError{ref message} => {
-        try!(writeln!(f, "internal error, this may indicate a bug in just: {}\n\
-                          consider filing an issue: https://github.com/casey/just/issues/new",
-                          message));
+        writeln!(f, "internal error, this may indicate a bug in just: {}\n\
+                     consider filing an issue: https://github.com/casey/just/issues/new",
+                     message)?;
       }
     }
 
-    try!(write!(f, "{}", bold.suffix()));
+    write!(f, "{}", bold.suffix())?;
 
-    try!(write_error_context(f, self.text, self.index, self.line, self.column, self.width));
-
-    Ok(())
+    write_error_context(f, self.text, self.index, self.line, self.column, self.width)
   }
 }
 
@@ -1005,7 +994,7 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
       return Err(RunError::UnknownOverrides{overrides: unknown_overrides});
     }
 
-    let scope = try!(evaluate_assignments(&self.assignments, &options.overrides, options.quiet));
+    let scope = evaluate_assignments(&self.assignments, &options.overrides, options.quiet)?;
     if options.evaluate {
       for (name, value) in scope {
         println!("{} = \"{}\"", name, value);
@@ -1029,8 +1018,7 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
               expected: recipe.parameters.len(),
             });
           }
-          try!(self.run_recipe(recipe, rest, &scope, &mut ran, options));
-          return Ok(());
+          return self.run_recipe(recipe, rest, &scope, &mut ran, options);
         }
       } else {
         break;
@@ -1047,7 +1035,7 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
       return Err(RunError::UnknownRecipes{recipes: missing});
     }
     for recipe in arguments.iter().map(|name| &self.recipes[name]) {
-      try!(self.run_recipe(recipe, &[], &scope, &mut ran, options));
+      self.run_recipe(recipe, &[], &scope, &mut ran, options)?;
     }
     Ok(())
   }
@@ -1062,10 +1050,10 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
   ) -> Result<(), RunError> {
     for dependency_name in &recipe.dependencies {
       if !ran.contains(dependency_name) {
-        try!(self.run_recipe(&self.recipes[dependency_name], &[], scope, ran, options));
+        self.run_recipe(&self.recipes[dependency_name], &[], scope, ran, options)?;
       }
     }
-    try!(recipe.run(arguments, &scope, &self.exports, options));
+    recipe.run(arguments, &scope, &self.exports, options)?;
     ran.insert(recipe.name);
     Ok(())
   }
@@ -1080,19 +1068,19 @@ impl<'a> Display for Justfile<'a> {
     let mut items = self.recipes.len() + self.assignments.len();
     for (name, expression) in &self.assignments {
       if self.exports.contains(name) {
-        try!(write!(f, "export "));
+        write!(f, "export ")?;
       }
-      try!(write!(f, "{} = {}", name, expression));
+      write!(f, "{} = {}", name, expression)?;
       items -= 1;
       if items != 0 {
-        try!(write!(f, "\n\n"));
+        write!(f, "\n\n")?;
       }
     }
     for recipe in self.recipes.values() {
-      try!(write!(f, "{}", recipe));
+      write!(f, "{}", recipe)?;
       items -= 1;
       if items != 0 {
-        try!(write!(f, "\n\n"));
+        write!(f, "\n\n")?;
       }
     }
     Ok(())
@@ -1122,41 +1110,40 @@ impl<'a> Display for RunError<'a> {
   fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
     let red = maybe_red(f.alternate());
     let bold = maybe_bold(f.alternate());
-    try!(write!(f, "{} {}", red.paint("error:"), bold.prefix()));
+    write!(f, "{} {}", red.paint("error:"), bold.prefix())?;
 
     let mut error_token = None;
 
     match *self {
       RunError::UnknownRecipes{ref recipes} => {
-        try!(write!(f, "Justfile does not contain recipe{} {}",
-                    maybe_s(recipes.len()), Or(&ticks(&recipes))));
+        write!(f, "Justfile does not contain recipe{} {}",
+                  maybe_s(recipes.len()), Or(&ticks(&recipes)))?;
       },
       RunError::UnknownOverrides{ref overrides} => {
-        try!(write!(f, 
-                    "Variable{} {} overridden on the command line but not present in justfile",
-                    maybe_s(overrides.len()),
-                    And(&overrides.iter().map(Tick).collect::<Vec<_>>())))
+        write!(f, "Variable{} {} overridden on the command line but not present in justfile",
+                  maybe_s(overrides.len()),
+                  And(&overrides.iter().map(Tick).collect::<Vec<_>>()))?;
       },
       RunError::NonLeadingRecipeWithParameters{recipe} => {
-        try!(write!(f, "Recipe `{}` takes arguments and so must be the first and only recipe \
-                        specified on the command line", recipe));
+        write!(f, "Recipe `{}` takes arguments and so must be the first and only recipe \
+                   specified on the command line", recipe)?;
       },
       RunError::ArgumentCountMismatch{recipe, found, expected} => {
-        try!(write!(f, "Recipe `{}` got {} argument{} but {}takes {}",
-                    recipe, found, maybe_s(found),
-                    if expected < found { "only " } else { "" }, expected));
+        write!(f, "Recipe `{}` got {} argument{} but {}takes {}",
+                  recipe, found, maybe_s(found),
+                  if expected < found { "only " } else { "" }, expected)?;
       },
       RunError::Code{recipe, code} => {
-        try!(write!(f, "Recipe `{}` failed with exit code {}", recipe, code));
+        write!(f, "Recipe `{}` failed with exit code {}", recipe, code)?;
       },
       RunError::Signal{recipe, signal} => {
-        try!(write!(f, "Recipe `{}` wast terminated by signal {}", recipe, signal));
+        write!(f, "Recipe `{}` wast terminated by signal {}", recipe, signal)?;
       }
       RunError::UnknownFailure{recipe} => {
-        try!(write!(f, "Recipe `{}` failed for an unknown reason", recipe));
+        write!(f, "Recipe `{}` failed for an unknown reason", recipe)?;
       },
       RunError::IoError{recipe, ref io_error} => {
-        try!(match io_error.kind() {
+        match io_error.kind() {
           io::ErrorKind::NotFound => write!(f,
             "Recipe `{}` could not be run because just could not find `sh` the command:\n{}",
             recipe, io_error),
@@ -1165,26 +1152,26 @@ impl<'a> Display for RunError<'a> {
             recipe, io_error),
           _ => write!(f, "Recipe `{}` could not be run because of an IO error while \
                       launching `sh`:\n{}", recipe, io_error),
-        });
+        }?;
       },
       RunError::TmpdirIoError{recipe, ref io_error} =>
-        try!(write!(f, "Recipe `{}` could not be run because of an IO error while trying \
-                    to create a temporary directory or write a file to that directory`:\n{}",
-                    recipe, io_error)),
+        write!(f, "Recipe `{}` could not be run because of an IO error while trying \
+                  to create a temporary directory or write a file to that directory`:\n{}",
+                  recipe, io_error)?,
       RunError::BacktickCode{code, ref token} => {
-        try!(write!(f, "backtick failed with exit code {}\n", code));
+        write!(f, "backtick failed with exit code {}\n", code)?;
         error_token = Some(token);
       }
       RunError::BacktickSignal{ref token, signal} => {
-        try!(write!(f, "backtick was terminated by signal {}", signal));
+        write!(f, "backtick was terminated by signal {}", signal)?;
         error_token = Some(token);
       }
       RunError::BacktickUnknownFailure{ref token} => {
-        try!(write!(f, "backtick failed for an uknown reason"));
+        write!(f, "backtick failed for an uknown reason")?;
         error_token = Some(token);
       }
       RunError::BacktickIoError{ref token, ref io_error} => {
-        try!(match io_error.kind() {
+        match io_error.kind() {
           io::ErrorKind::NotFound => write!(
             f, "backtick could not be run because just could not find `sh` the command:\n{}",
             io_error),
@@ -1192,23 +1179,24 @@ impl<'a> Display for RunError<'a> {
             f, "backtick could not be run because just could not run `sh`:\n{}", io_error),
           _ => write!(f, "backtick could not be run because of an IO \
                           error while launching `sh`:\n{}", io_error),
-        });
+        }?;
         error_token = Some(token);
       }
       RunError::BacktickUtf8Error{ref token, ref utf8_error} => {
-        try!(write!(f, "backtick succeeded but stdout was not utf8: {}", utf8_error));
+        write!(f, "backtick succeeded but stdout was not utf8: {}", utf8_error)?;
         error_token = Some(token);
       }
       RunError::InternalError{ref message} => {
-        try!(write!(f, "internal error, this may indicate a bug in just: {}
-consider filing an issue: https://github.com/casey/just/issues/new", message));
+        write!(f, "internal error, this may indicate a bug in just: {} \
+                   consider filing an issue: https://github.com/casey/just/issues/new",
+                   message)?;
       }
     }
 
-    try!(write!(f, "{}", bold.suffix()));
+    write!(f, "{}", bold.suffix())?;
 
     if let Some(token) = error_token {
-      try!(write_token_error_context(f, token));
+      write_token_error_context(f, token)?;
     }
 
     Ok(())
@@ -1261,7 +1249,7 @@ enum TokenKind {
 
 impl Display for TokenKind {
   fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-    try!(write!(f, "{}", match *self {
+    write!(f, "{}", match *self {
       Backtick           => "backtick",
       Colon              => "\":\"",
       Comment            => "comment",
@@ -1278,8 +1266,7 @@ impl Display for TokenKind {
       StringToken        => "string",
       RawString          => "raw string",
       Text               => "command text",
-    }));
-    Ok(())
+    })
   }
 }
 
@@ -1541,7 +1528,7 @@ fn tokenize(text: &str) -> Result<Vec<Token>, Error> {
 }
 
 fn parse(text: &str) -> Result<Justfile, Error> {
-  let tokens = try!(tokenize(text));
+  let tokens = tokenize(text)?;
   let filtered: Vec<_> = tokens.into_iter().filter(|token| token.kind != Comment).collect();
   let parser = Parser {
     text:              text,
@@ -1551,8 +1538,7 @@ fn parse(text: &str) -> Result<Justfile, Error> {
     assignment_tokens: Map::<&str, Token>::new(),
     exports:           Set::<&str>::new(),
   };
-  let justfile = try!(parser.file());
-  Ok(justfile)
+  parser.file()
 }
 
 struct Parser<'a> {
@@ -1690,7 +1676,7 @@ impl<'a> Parser<'a> {
             return Err(self.unexpected_token(&token, &[Text, InterpolationStart, Eol]));
           } else {
             pieces.push(Fragment::Expression{
-              expression: try!(self.expression(true))
+              expression: self.expression(true)?
             });
             if let Some(token) = self.expect(InterpolationEnd) {
               return Err(self.unexpected_token(&token, &[InterpolationEnd]));
@@ -1760,7 +1746,7 @@ impl<'a> Parser<'a> {
     };
 
     if self.accepted(Plus) {
-      let rhs = try!(self.expression(interpolation));
+      let rhs = self.expression(interpolation)?;
       Ok(Expression::Concatination{lhs: Box::new(lhs), rhs: Box::new(rhs)})
     } else if interpolation && self.peek(InterpolationEnd) {
       Ok(lhs)
@@ -1782,7 +1768,7 @@ impl<'a> Parser<'a> {
     if export {
       self.exports.insert(name.lexeme);
     }
-    let expression = try!(self.expression(false));
+    let expression = self.expression(false)?;
     self.assignments.insert(name.lexeme, expression);
     self.assignment_tokens.insert(name.lexeme, name);
     Ok(())
@@ -1797,15 +1783,15 @@ impl<'a> Parser<'a> {
           Name => if token.lexeme == "export" {
             let next = self.tokens.next().unwrap();
             if next.kind == Name && self.accepted(Equals) {
-              try!(self.assignment(next, true));
+              self.assignment(next, true)?;
             } else {
               self.tokens.put_back(next);
-              try!(self.recipe(token));
+              self.recipe(token)?;
             }
           } else if self.accepted(Equals) {
-            try!(self.assignment(token, false));
+            self.assignment(token, false)?;
           } else {
-            try!(self.recipe(token));
+            self.recipe(token)?;
           },
           Comment => return Err(token.error(ErrorKind::InternalError {
             message: "found comment in token stream".to_string()
@@ -1831,7 +1817,7 @@ impl<'a> Parser<'a> {
       }))
     }
 
-    try!(resolve_recipes(&self.recipes, &self.assignments, self.text));
+    resolve_recipes(&self.recipes, &self.assignments, self.text)?;
 
     for recipe in self.recipes.values() {
       for parameter in &recipe.parameter_tokens {
@@ -1852,7 +1838,7 @@ impl<'a> Parser<'a> {
       }
     }
 
-    try!(resolve_assignments(&self.assignments, &self.assignment_tokens));
+    resolve_assignments(&self.assignments, &self.assignment_tokens)?;
 
     Ok(Justfile {
       recipes:     self.recipes,
