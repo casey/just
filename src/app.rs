@@ -2,7 +2,7 @@ extern crate clap;
 extern crate regex;
 extern crate atty;
 
-use std::{io, fs, env, process};
+use std::{io, fs, env, process, convert, ffi};
 use std::collections::BTreeMap;
 use self::clap::{App, Arg, ArgGroup, AppSettings};
 use super::{Slurp, RunError};
@@ -48,6 +48,20 @@ impl UseColor {
   }
 }
 
+fn edit<P: convert::AsRef<ffi::OsStr>>(path: P) -> ! {
+  let editor = env::var_os("EDITOR")
+    .unwrap_or_else(|| die!("Error getting EDITOR environment variable"));
+
+  let error = process::Command::new(editor)
+    .arg(path)
+    .status();
+
+  match error {
+    Ok(status) => process::exit(status.code().unwrap_or(-1)),
+    Err(error) => die!("Failed to invoke editor: {}", error),
+  }
+}
+
 pub fn app() {
   let matches = App::new("just")
     .version(concat!("v", env!("CARGO_PKG_VERSION")))
@@ -70,6 +84,10 @@ pub fn app() {
     .arg(Arg::with_name("summary")
          .long("summary")
          .help("Lists names of available recipes"))
+    .arg(Arg::with_name("edit")
+         .short("e")
+         .long("edit")
+         .help("Opens justfile with $EDITOR"))
     .arg(Arg::with_name("quiet")
          .short("q")
          .long("quiet")
@@ -109,7 +127,7 @@ pub fn app() {
          .multiple(true)
          .help("The recipe(s) to run, defaults to the first recipe in the justfile"))
     .group(ArgGroup::with_name("early-exit")
-         .args(&["dump", "list", "show", "summary"]))
+         .args(&["dump", "edit", "list", "show", "summary"]))
     .get_matches();
 
   let use_color_argument = matches.value_of("color").expect("--color had no value");
@@ -120,6 +138,10 @@ pub fn app() {
 
   let text;
   if let (Some(file), Some(directory)) = (justfile_option, working_directory_option) {
+    if matches.is_present("edit") {
+      edit(file);
+    }
+
     text = fs::File::open(file)
       .unwrap_or_else(|error| die!("Error opening justfile: {}", error))
       .slurp()
@@ -153,6 +175,10 @@ pub fn app() {
       if let Err(error) = env::set_current_dir("..") {
         die!("Error changing directory: {}", error);
       }
+    }
+
+    if matches.is_present("edit") {
+      edit(name);
     }
 
     text = fs::File::open(name)
