@@ -17,18 +17,18 @@ build:
 check:
 	cargo check
 
-version = `sed -En 's/version = "([^"]+)"/\1/p' Cargo.toml`
+version = `sed -En 's/version[[:space:]]*=[[:space:]]*"([^"]+)"/v\1/p' Cargo.toml`
 
 publish: clippy build
 	git branch | grep '* master'
 	git diff --no-ext-diff --quiet --exit-code
-	git co -b v{{version}}
+	git co -b {{version}}
 	git push github
 	cargo publish
-	git tag -a "v{{version}}" -m "v{{version}}"
+	git tag -a {{version}} -m {{version}}
 	git push github --tags
 	git push origin --tags
-	@echo 'Remember to merge the v{{version}} branch on GitHub!'
+	@echo 'Remember to merge the {{version}} branch on GitHub!'
 
 done BRANCH:
 	git checkout {{BRANCH}}
