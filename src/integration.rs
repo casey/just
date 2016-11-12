@@ -917,13 +917,43 @@ fn unknown_recipes() {
 }
 
 #[test]
-fn colors_with_context() {
+fn color_always() {
   integration_test(
     &["--color", "always"],
     "b = a\na = `exit 100`\nbar:\n echo '{{`exit 200`}}'",
     100,
     "",
     "\u{1b}[1;31merror:\u{1b}[0m \u{1b}[1mbacktick failed with exit code 100\n\u{1b}[0m  |\n2 | a = `exit 100`\n  |     \u{1b}[1;31m^^^^^^^^^^\u{1b}[0m\n",
+  );
+}
+
+#[test]
+fn color_never() {
+  integration_test(
+    &["--color", "never"],
+    "b = a\na = `exit 100`\nbar:\n echo '{{`exit 200`}}'",
+    100,
+    "",
+    "error: backtick failed with exit code 100
+  |
+2 | a = `exit 100`
+  |     ^^^^^^^^^^
+",
+  );
+}
+
+#[test]
+fn color_auto() {
+  integration_test(
+    &["--color", "auto"],
+    "b = a\na = `exit 100`\nbar:\n echo '{{`exit 200`}}'",
+    100,
+    "",
+    "error: backtick failed with exit code 100
+  |
+2 | a = `exit 100`
+  |     ^^^^^^^^^^
+",
   );
 }
 

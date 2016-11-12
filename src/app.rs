@@ -43,7 +43,7 @@ impl UseColor {
     match self {
       UseColor::Auto   => atty::is(stream),
       UseColor::Always => true,
-      UseColor::Never  => true,
+      UseColor::Never  => false,
     }
   }
 }
