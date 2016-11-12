@@ -734,7 +734,7 @@ impl<'a, T: Display> Display for Tick<'a, T> {
   }
 }
 
-fn ticks<'a, T: 'a + Display>(ts: &'a [T]) -> Vec<Tick<'a, T>> {
+fn ticks<T: Display>(ts: &[T]) -> Vec<Tick<T>> {
   ts.iter().map(Tick).collect()
 }
 
