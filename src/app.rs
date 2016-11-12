@@ -4,7 +4,7 @@ extern crate atty;
 
 use std::{io, fs, env, process};
 use std::collections::BTreeMap;
-use self::clap::{App, Arg, AppSettings};
+use self::clap::{App, Arg, ArgGroup, AppSettings};
 use super::{Slurp, RunError};
 
 macro_rules! warn {
@@ -57,31 +57,19 @@ pub fn app() {
     .arg(Arg::with_name("list")
          .short("l")
          .long("list")
-         .help("Lists available recipes and their arguments")
-         .conflicts_with("dump")
-         .conflicts_with("show")
-         .conflicts_with("summary"))
+         .help("Lists available recipes and their arguments"))
     .arg(Arg::with_name("dump")
          .long("dump")
-         .help("Prints entire justfile")
-         .conflicts_with("show")
-         .conflicts_with("summary")
-         .conflicts_with("list"))
+         .help("Prints entire justfile"))
     .arg(Arg::with_name("show")
          .short("s")
          .long("show")
          .takes_value(true)
          .value_name("recipe")
-         .help("Shows information about <recipe>")
-         .conflicts_with("dump")
-         .conflicts_with("summary")
-         .conflicts_with("list"))
+         .help("Shows information about <recipe>"))
     .arg(Arg::with_name("summary")
          .long("summary")
-         .help("Lists names of available recipes")
-         .conflicts_with("dump")
-         .conflicts_with("show")
-         .conflicts_with("list"))
+         .help("Lists names of available recipes"))
     .arg(Arg::with_name("quiet")
          .short("q")
          .long("quiet")
@@ -120,6 +108,8 @@ pub fn app() {
     .arg(Arg::with_name("arguments")
          .multiple(true)
          .help("The recipe(s) to run, defaults to the first recipe in the justfile"))
+    .group(ArgGroup::with_name("early-exit")
+         .args(&["dump", "list", "show", "summary"]))
     .get_matches();
 
   let use_color_argument = matches.value_of("color").expect("--color had no value");
