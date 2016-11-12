@@ -17,6 +17,9 @@ build:
 check:
 	cargo check
 
+watch command='test':
+	cargo watch {{command}}
+
 version = `sed -En 's/version[[:space:]]*=[[:space:]]*"([^"]+)"/v\1/p' Cargo.toml`
 
 publish: lint clippy test
@@ -37,14 +40,15 @@ done BRANCH:
 	git pull --rebase github master
 	git branch -d {{BRANCH}}
 
+install-dev-deps:
+	rustup install nightly
+	rustup update nightly
+	rustup run nightly cargo install -f clippy
+	cargo install -f cargo-watch
+	cargo install -f cargo-check
+
 clippy:
 	rustup run nightly cargo clippy
-
-install-clippy:
-	rustup run nightly cargo install clippy
-
-install-nightly:
-	rustup install nightly
 
 sloc:
 	@cat src/*.rs | wc -l
