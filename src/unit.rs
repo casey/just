@@ -711,7 +711,10 @@ fn range() {
 #[test]
 fn unknown_recipes() {
   match parse_success("a:\nb:\nc:").run(&["a", "x", "y", "z"], &Default::default()).unwrap_err() {
-    RunError::UnknownRecipes{recipes} => assert_eq!(recipes, &["x", "y", "z"]),
+    RunError::UnknownRecipes{recipes, suggestion} => {
+      assert_eq!(recipes, &["x", "y", "z"]);
+      assert_eq!(suggestion, None);
+    }
     other => panic!("expected an unknown recipe error, but got: {}", other),
   }
 }

@@ -211,7 +211,13 @@ pub fn app() {
         println!("{}", recipe);
         process::exit(0);
       }
-      None => die!("justfile contains no recipe \"{}\"", name)
+      None => {
+        warn!("Justfile does not contain recipe `{}`.", name);
+        if let Some(suggestion) = justfile.suggest(name) {
+          warn!("Did you mean `{}`?", suggestion);
+        }
+        process::exit(-1)
+      }
     }
   }
 

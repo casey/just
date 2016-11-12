@@ -914,7 +914,7 @@ fn unknown_recipe() {
     "hello:",
     255,
     "",
-    "error: Justfile does not contain recipe `foo`\n",
+    "error: Justfile does not contain recipe `foo`.\n",
   );
 }
 
@@ -925,7 +925,7 @@ fn unknown_recipes() {
     "hello:",
     255,
     "",
-    "error: Justfile does not contain recipes `foo` or `bar`\n",
+    "error: Justfile does not contain recipes `foo` or `bar`.\n",
   );
 }
 
@@ -1091,5 +1091,53 @@ a Z="\t z":
     hello a b='B\t' c='C'
 ",
     "",
+  );
+}
+
+#[test]
+fn show_suggestion() {
+  integration_test(
+    &["--show", "hell"],
+    r#"
+hello a b='B	' c='C':
+  echo {{a}} {{b}} {{c}}
+
+a Z="\t z":
+"#,
+    255,
+    "",
+    "Justfile does not contain recipe `hell`.\nDid you mean `hello`?\n",
+  );
+}
+
+#[test]
+fn show_no_suggestion() {
+  integration_test(
+    &["--show", "hell"],
+    r#"
+helloooooo a b='B	' c='C':
+  echo {{a}} {{b}} {{c}}
+
+a Z="\t z":
+"#,
+    255,
+    "",
+    "Justfile does not contain recipe `hell`.\n",
+  );
+}
+
+#[test]
+fn run_suggestion() {
+  integration_test(
+    &["hell"],
+    r#"
+hello a b='B	' c='C':
+  echo {{a}} {{b}} {{c}}
+
+a Z="\t z":
+"#,
+    255,
+    "",
+    "error: Justfile does not contain recipe `hell`.\nDid you mean `hello`?\n",
   );
 }

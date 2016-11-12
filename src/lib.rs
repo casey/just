@@ -15,6 +15,7 @@ extern crate tempdir;
 extern crate itertools;
 extern crate ansi_term;
 extern crate unicode_width;
+extern crate edit_distance;
 
 use std::io::prelude::*;
 
@@ -1064,6 +1065,19 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
     self.recipes.keys().cloned().collect()
   }
 
+  fn suggest(&self, name: &str) -> Option<&'a str> {
+    let mut suggestions = self.recipes.keys()
+      .map(|suggestion| (edit_distance::edit_distance(suggestion, name), suggestion))
+      .collect::<Vec<_>>();
+    suggestions.sort();
+    if let Some(&(distance, suggestion)) = suggestions.first() {
+      if distance < 3 {
+        return Some(suggestion)
+      }
+    }
+    None
+  }
+
   fn run(
     &'a self,
     arguments: &[&'a str],
@@ -1117,7 +1131,12 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
       }
     }
     if !missing.is_empty() {
-      return Err(RunError::UnknownRecipes{recipes: missing});
+      let suggestion = if missing.len() == 1 {
+        self.suggest(missing.first().unwrap())
+      } else {
+        None
+      };
+      return Err(RunError::UnknownRecipes{recipes: missing, suggestion: suggestion});
     }
     for recipe in arguments.iter().map(|name| &self.recipes[name]) {
       self.run_recipe(recipe, &[], &scope, &mut ran, options)?;
@@ -1178,7 +1197,7 @@ enum RunError<'a> {
   Signal{recipe: &'a str, signal: i32},
   TmpdirIoError{recipe: &'a str, io_error: io::Error},
   UnknownFailure{recipe: &'a str},
-  UnknownRecipes{recipes: Vec<&'a str>},
+  UnknownRecipes{recipes: Vec<&'a str>, suggestion: Option<&'a str>},
   UnknownOverrides{overrides: Vec<&'a str>},
   BacktickCode{token: Token<'a>, code: i32},
   BacktickIoError{token: Token<'a>, io_error: io::Error},
@@ -1196,9 +1215,12 @@ impl<'a> Display for RunError<'a> {
     let mut error_token = None;
 
     match *self {
-      RunError::UnknownRecipes{ref recipes} => {
-        write!(f, "Justfile does not contain recipe{} {}",
+      RunError::UnknownRecipes{ref recipes, ref suggestion} => {
+        write!(f, "Justfile does not contain recipe{} {}.",
                   maybe_s(recipes.len()), Or(&ticks(&recipes)))?;
+        if let Some(suggestion) = *suggestion {
+          write!(f, "\nDid you mean `{}`?", suggestion)?;
+        }
       },
       RunError::UnknownOverrides{ref overrides} => {
         write!(f, "Variable{} {} overridden on the command line but not present in justfile",
