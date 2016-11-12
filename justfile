@@ -19,7 +19,7 @@ check:
 
 version = `sed -En 's/version[[:space:]]*=[[:space:]]*"([^"]+)"/v\1/p' Cargo.toml`
 
-publish: clippy build
+publish: clippy test
 	git branch | grep '* master'
 	git diff --no-ext-diff --quiet --exit-code
 	git co -b {{version}}
