@@ -49,8 +49,9 @@ install-nightly:
 sloc:
 	@cat src/*.rs | wc -l
 
-long:
-	! grep --color -n '.\{100\}' src/*.rs
+lint:
+	! grep --color -En 'FIXME|TODO' src/*.rs
+	! grep --color -En '.{100}' src/*.rs
 
 nop:
 
