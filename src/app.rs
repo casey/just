@@ -76,10 +76,12 @@ pub fn app() {
     .arg(Arg::with_name("quiet")
          .short("q")
          .long("quiet")
-         .help("Suppress all output"))
+         .help("Suppress all output")
+         .conflicts_with("dry-run"))
     .arg(Arg::with_name("dry-run")
          .long("dry-run")
-         .help("Print recipe text without executing"))
+         .help("Print recipe text without executing")
+         .conflicts_with("quiet"))
     .arg(Arg::with_name("evaluate")
          .long("evaluate")
          .help("Print evaluated variables"))
@@ -99,27 +101,17 @@ pub fn app() {
     .arg(Arg::with_name("working-directory")
          .long("working-directory")
          .takes_value(true)
-         .help("Use <working-directory> as working directory. --justfile must also be set"))
+         .help("Use <working-directory> as working directory. --justfile must also be set")
+         .requires("justfile"))
     .arg(Arg::with_name("justfile")
          .long("justfile")
          .takes_value(true)
-         .help("Use <justfile> as justfile. --working-directory must also be set"))
+         .help("Use <justfile> as justfile. --working-directory must also be set")
+         .requires("working-directory"))
     .arg(Arg::with_name("arguments")
          .multiple(true)
          .help("The recipe(s) to run, defaults to the first recipe in the justfile"))
     .get_matches();
-
-  // it is not obvious to me what we should do if only one of --justfile and
-  // --working-directory are passed. refuse to run in that case to avoid
-  // suprises.
-  if matches.is_present("justfile") ^ matches.is_present("working-directory") {
-    die!("--justfile and --working-directory may only be used together");
-  }
-
-  // --dry-run and --quiet don't make sense together
-  if matches.is_present("dry-run") && matches.is_present("quiet") {
-    die!("--dry-run and --quiet may not be used together");
-  }
 
   let use_color_argument = matches.value_of("color").expect("--color had no value");
   let use_color = UseColor::from_argument(use_color_argument);
