@@ -40,6 +40,9 @@ done BRANCH:
 	git pull --rebase github master
 	git branch -d {{BRANCH}}
 
+install:
+	cargo install -f just
+
 install-dev-deps:
 	rustup install nightly
 	rustup update nightly
