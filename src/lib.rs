@@ -265,7 +265,7 @@ impl<'a> Recipe<'a> {
       } else if let Some(ref default) = parameter.default {
         (parameter.name, default.as_str())
       } else {
-        panic!(); // FIXME internal error
+        panic!("Recipe.run: missing parameter without default. This is a bug in just.");
       }).collect();
 
     let mut evaluator = Evaluator {
