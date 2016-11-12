@@ -809,10 +809,15 @@ default:
 fn quiet_flag_or_dry_run_flag() {
   integration_test(
     &["--quiet", "--dry-run"],
-    r#""#,
-    255,
     "",
-    "--dry-run and --quiet may not be used together\n",
+    1,
+    "",
+    "error: The argument '--dry-run' cannot be used with '--quiet'
+
+USAGE:
+    just --quiet --color <color>
+
+For more information try --help\n",
   );
 }
 
