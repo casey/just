@@ -1,7 +1,7 @@
 extern crate tempdir;
 extern crate brev;
 
-use super::{Token, Error, ErrorKind, Justfile, RunError, RunOptions};
+use super::{Token, CompileError, ErrorKind, Justfile, RunError, RunOptions};
 use super::TokenKind::*;
 
 fn tokenize_success(text: &str, expected_summary: &str) {
@@ -19,7 +19,7 @@ fn tokenize_success(text: &str, expected_summary: &str) {
   assert_eq!(text, roundtrip);
 }
 
-fn tokenize_error(text: &str, expected: Error) {
+fn tokenize_error(text: &str, expected: CompileError) {
   if let Err(error) = super::tokenize(text) {
     assert_eq!(error.text,   expected.text);
     assert_eq!(error.index,  expected.index);
@@ -72,7 +72,7 @@ fn parse_summary(input: &str, output: &str) {
   }
 }
 
-fn parse_error(text: &str, expected: Error) {
+fn parse_error(text: &str, expected: CompileError) {
   if let Err(error) = super::parse(text) {
     assert_eq!(error.text,   expected.text);
     assert_eq!(error.index,  expected.index);
@@ -192,7 +192,7 @@ fn tokenize_space_then_tab() {
  1
 \t2
 ";
-  tokenize_error(text, Error {
+  tokenize_error(text, CompileError {
     text:   text,
     index:  9,
     line:   3,
@@ -209,7 +209,7 @@ fn tokenize_tabs_then_tab_space() {
 \t\t 1
 \t  2
 ";
-  tokenize_error(text, Error {
+  tokenize_error(text, CompileError {
     text:   text,
     index:  12,
     line:   3,
@@ -222,7 +222,7 @@ fn tokenize_tabs_then_tab_space() {
 #[test]
 fn tokenize_outer_shebang() {
   let text = "#!/usr/bin/env bash";
-  tokenize_error(text, Error {
+  tokenize_error(text, CompileError {
     text:   text,
     index:  0,
     line:   0,
@@ -235,7 +235,7 @@ fn tokenize_outer_shebang() {
 #[test]
 fn tokenize_unknown() {
   let text = "~";
-  tokenize_error(text, Error {
+  tokenize_error(text, CompileError {
     text:   text,
     index:  0,
     line:   0,
@@ -382,7 +382,7 @@ r#"a:
 #[test]
 fn missing_colon() {
   let text = "a b c\nd e f";
-  parse_error(text, Error {
+  parse_error(text, CompileError {
     text:   text,
     index:  5,
     line:   0,
@@ -395,7 +395,7 @@ fn missing_colon() {
 #[test]
 fn missing_default_eol() {
   let text = "hello arg=\n";
-  parse_error(text, Error {
+  parse_error(text, CompileError {
     text:   text,
     index:  10,
     line:   0,
@@ -408,7 +408,7 @@ fn missing_default_eol() {
 #[test]
 fn missing_default_eof() {
   let text = "hello arg=";
-  parse_error(text, Error {
+  parse_error(text, CompileError {
     text:   text,
     index:  10,
     line:   0,
@@ -421,7 +421,7 @@ fn missing_default_eof() {
 #[test]
 fn missing_default_colon() {
   let text = "hello arg=:";
-  parse_error(text, Error {
+  parse_error(text, CompileError {
     text:   text,
     index:  10,
     line:   0,
@@ -434,7 +434,7 @@ fn missing_default_colon() {
 #[test]
 fn missing_default_backtick() {
   let text = "hello arg=`hello`";
-  parse_error(text, Error {
+  parse_error(text, CompileError {
     text:   text,
     index:  10,
     line:   0,
@@ -447,7 +447,7 @@ fn missing_default_backtick() {
 #[test]
 fn required_after_default() {
   let text = "hello arg='foo' bar:";
-  parse_error(text, Error {
+  parse_error(text, CompileError {
     text:   text,
     index:  16,
     line:   0,
@@ -460,7 +460,7 @@ fn required_after_default() {
 #[test]
 fn missing_eol() {
   let text = "a b c: z =";
-  parse_error(text, Error {
+  parse_error(text, CompileError {
     text:   text,
     index:  9,
     line:   0,
@@ -478,7 +478,7 @@ fn eof_test() {
 #[test]
 fn duplicate_parameter() {
   let text = "a b b:";
-  parse_error(text, Error {
+  parse_error(text, CompileError {
     text:   text,
     index:  4,
     line:   0,
@@ -491,7 +491,7 @@ fn duplicate_parameter() {
 #[test]
 fn parameter_shadows_varible() {
   let text = "foo = \"h\"\na foo:";
-  parse_error(text, Error {
+  parse_error(text, CompileError {
     text:   text,
     index:  12,
     line:   1,
@@ -504,7 +504,7 @@ fn parameter_shadows_varible() {
 #[test]
 fn dependency_has_parameters() {
   let text = "foo arg:\nb: foo";
-  parse_error(text, Error {
+  parse_error(text, CompileError {
     text:   text,
     index:  12,
     line:   1,
@@ -517,7 +517,7 @@ fn dependency_has_parameters() {
 #[test]
 fn duplicate_dependency() {
   let text = "a b c: b c z z";
-  parse_error(text, Error {
+  parse_error(text, CompileError {
     text:   text,
     index:  13,
     line:   0,
@@ -530,7 +530,7 @@ fn duplicate_dependency() {
 #[test]
 fn duplicate_recipe() {
   let text = "a:\nb:\na:";
-  parse_error(text, Error {
+  parse_error(text, CompileError {
     text:   text,
     index:  6,
     line:   2,
@@ -543,7 +543,7 @@ fn duplicate_recipe() {
 #[test]
 fn circular_recipe_dependency() {
   let text = "a: b\nb: a";
-  parse_error(text, Error {
+  parse_error(text, CompileError {
     text:   text,
     index:  8,
     line:   1,
@@ -556,7 +556,7 @@ fn circular_recipe_dependency() {
 #[test]
 fn circular_variable_dependency() {
   let text = "a = b\nb = a";
-  parse_error(text, Error {
+  parse_error(text, CompileError {
     text:   text,
     index:  0,
     line:   0,
@@ -569,7 +569,7 @@ fn circular_variable_dependency() {
 #[test]
 fn duplicate_variable() {
   let text = "a = \"0\"\na = \"0\"";
-  parse_error(text, Error {
+  parse_error(text, CompileError {
     text:   text,
     index:  8,
     line:   1,
@@ -582,7 +582,7 @@ fn duplicate_variable() {
 #[test]
 fn unterminated_string() {
   let text = r#"a = ""#;
-  parse_error(text, Error {
+  parse_error(text, CompileError {
     text:   text,
     index:  3,
     line:   0,
@@ -595,7 +595,7 @@ fn unterminated_string() {
 #[test]
 fn unterminated_string_with_escapes() {
   let text = r#"a = "\n\t\r\"\\"#;
-  parse_error(text, Error {
+  parse_error(text, CompileError {
     text:   text,
     index:  3,
     line:   0,
@@ -634,7 +634,7 @@ fn parameters() {
 #[test]
 fn self_recipe_dependency() {
   let text = "a: a";
-  parse_error(text, Error {
+  parse_error(text, CompileError {
     text:   text,
     index:  3,
     line:   0,
@@ -647,7 +647,7 @@ fn self_recipe_dependency() {
 #[test]
 fn self_variable_dependency() {
   let text = "a = a";
-  parse_error(text, Error {
+  parse_error(text, CompileError {
     text:   text,
     index:  0,
     line:   0,
@@ -660,7 +660,7 @@ fn self_variable_dependency() {
 #[test]
 fn unknown_dependency() {
   let text = "a: b";
-  parse_error(text, Error {
+  parse_error(text, CompileError {
     text:   text,
     index:  3,
     line:   0,
@@ -673,7 +673,7 @@ fn unknown_dependency() {
 #[test]
 fn mixed_leading_whitespace() {
   let text = "a:\n\t echo hello";
-  parse_error(text, Error {
+  parse_error(text, CompileError {
     text:   text,
     index:  3,
     line:   1,
@@ -724,7 +724,7 @@ fn extra_whitespace() {
   // we might want to make extra leading whitespace a line continuation in the future,
   // so make it a error for now
   let text = "a:\n blah\n  blarg";
-  parse_error(text, Error {
+  parse_error(text, CompileError {
     text:   text,
     index:  10,
     line:   2,
@@ -740,7 +740,7 @@ fn extra_whitespace() {
 #[test]
 fn interpolation_outside_of_recipe() {
   let text = "{{";
-  parse_error(text, Error {
+  parse_error(text, CompileError {
     text:   text,
     index:  0,
     line:   0,
@@ -753,7 +753,7 @@ fn interpolation_outside_of_recipe() {
 #[test]
 fn unclosed_interpolation_delimiter() {
   let text = "a:\n echo {{ foo";
-  parse_error(text, Error {
+  parse_error(text, CompileError {
     text:   text,
     index:  15,
     line:   1,
@@ -766,7 +766,7 @@ fn unclosed_interpolation_delimiter() {
 #[test]
 fn unknown_expression_variable() {
   let text = "x = yy";
-  parse_error(text, Error {
+  parse_error(text, CompileError {
     text:   text,
     index:  4,
     line:   0,
@@ -779,7 +779,7 @@ fn unknown_expression_variable() {
 #[test]
 fn unknown_interpolation_variable() {
   let text = "x:\n {{   hello}}";
-  parse_error(text, Error {
+  parse_error(text, CompileError {
     text:   text,
     index:  9,
     line:   1,
@@ -792,7 +792,7 @@ fn unknown_interpolation_variable() {
 #[test]
 fn unknown_second_interpolation_variable() {
   let text = "wtf=\"x\"\nx:\n echo\n foo {{wtf}} {{ lol }}";
-  parse_error(text, Error {
+  parse_error(text, CompileError {
     text:   text,
     index:  33,
     line:   3,
