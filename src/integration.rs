@@ -559,7 +559,7 @@ fn overrides_first() {
 foo = "foo"
 a = "a"
 baz = "baz"
-    
+
 recipe arg:
  echo arg={{arg}}
  echo {{foo + a + baz}}"#,
@@ -569,7 +569,23 @@ recipe arg:
   );
 }
 
-// shebangs are printed
+#[test]
+fn overrides_not_evaluated() {
+  integration_test(
+    &["foo=bar", "a=b", "recipe", "baz=bar"],
+    r#"
+foo = `exit 1`
+a = "a"
+baz = "baz"
+
+recipe arg:
+ echo arg={{arg}}
+ echo {{foo + a + baz}}"#,
+    0,
+    "arg=baz=bar\nbarbbaz\n",
+    "echo arg=baz=bar\necho barbbaz\n",
+  );
+}
 
 #[test]
 fn dry_run() {
