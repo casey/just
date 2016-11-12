@@ -148,11 +148,11 @@ string-with-slash           = "\\"
 ```sh
 $ just --evaluate
 "tring-with-carriage-return = "
-string-with-double-quote = """
-string-with-newline = "
+string-with-double-quote    = """
+string-with-newline         = "
 "
-string-with-slash = "\"
-string-with-tab = "     "
+string-with-slash           = "\"
+string-with-tab             = "     "
 ```
 
 Single-quoted strings do not support any escape sequences:

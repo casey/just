@@ -19,7 +19,7 @@ extern crate edit_distance;
 
 use std::io::prelude::*;
 
-use std::{fs, fmt, process, io};
+use std::{fs, fmt, process, io, cmp};
 use std::ops::Range;
 use std::fmt::Display;
 use regex::Regex;
@@ -1093,8 +1093,13 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
 
     let scope = evaluate_assignments(&self.assignments, &options.overrides, options.quiet)?;
     if options.evaluate {
+      let mut width = 0;
+      for name in scope.keys() {
+        width = cmp::max(name.len(), width);
+      }
+
       for (name, value) in scope {
-        println!("{} = \"{}\"", name, value);
+        println!("{0:1$} = \"{2}\"", name, width, value);
       }
       return Ok(());
     }

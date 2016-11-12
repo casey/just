@@ -624,18 +624,18 @@ fn evaluate() {
     &["--evaluate"],
     r#"
 foo = "a\t"
-baz = "c"
+hello = "c"
 bar = "b\t"
-abc = foo + bar + baz
+ab = foo + bar + hello
 
 wut:
   touch /this/is/not/a/file
 "#,
     0,
-    r#"abc = "a	b	c"
-bar = "b	"
-baz = "c"
-foo = "a	"
+    r#"ab    = "a	b	c"
+bar   = "b	"
+foo   = "a	"
+hello = "c"
 "#,
     "",
   );
