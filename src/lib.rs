@@ -1068,9 +1068,10 @@ impl<'a> Display for RunError<'a> {
         try!(write!(f, "backtick failed with exit code {}\n", code));
         match token.text.lines().nth(token.line) {
           Some(line) => {
-            let line_number_width = token.line.to_string().len();
+            let displayed_line = token.line + 1;
+            let line_number_width = displayed_line.to_string().len();
             try!(write!(f, "{0:1$} |\n", "", line_number_width));
-            try!(write!(f, "{} | {}\n", token.line + 1, line));
+            try!(write!(f, "{} | {}\n", displayed_line, line));
             try!(write!(f, "{0:1$} |", "", line_number_width));
             try!(write!(f, " {0:1$}{2:^<3$}", "",
                         token.column + token.prefix.len(), "", token.lexeme.len()));
