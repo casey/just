@@ -262,7 +262,7 @@ fn parse_string_default() {
 foo a="b\t":
 
 
-  "#, r#"foo a="b	":"#);
+  "#, r#"foo a='b\t':"#);
 }
 
 #[test]
@@ -272,7 +272,7 @@ fn parse_raw_string_default() {
 foo a='b\t':
 
 
-  "#, r#"foo a="b\t":"#);
+  "#, r#"foo a='b\\t':"#);
 }
 
 #[test]

@@ -84,7 +84,8 @@ impl<'a> Display for Parameter<'a> {
   fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
     write!(f, "{}", self.name)?;
     if let Some(ref default) = self.default {
-      write!(f, r#"="{}""#, default)?;
+      let escaped = default.chars().flat_map(char::escape_default).collect::<String>();;
+      write!(f, r#"='{}'"#, escaped)?;
     }
     Ok(())
   }
@@ -1140,10 +1141,6 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
     recipe.run(arguments, scope, &self.exports, options)?;
     ran.insert(recipe.name);
     Ok(())
-  }
-
-  fn get(&self, name: &str) -> Option<&Recipe<'a>> {
-    self.recipes.get(name)
   }
 }
 

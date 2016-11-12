@@ -193,14 +193,14 @@ c: b
 }
 
 #[test]
-fn list() {
+fn summary() {
   let text = 
 "b: a
 a:
 d: c
 c: b";
   integration_test(
-    &["--list"],
+    &["--summary"],
     text,
     0,
     "a b c d\n",
@@ -1072,5 +1072,24 @@ hello a b='B' c='C':
     0,
     "0 1 2\n",
     "echo 0 1 2\n",
+  );
+}
+
+#[test]
+fn list() {
+  integration_test(
+    &["--list"],
+    r#"
+hello a b='B	' c='C':
+  echo {{a}} {{b}} {{c}}
+
+a Z="\t z":
+"#,
+    0,
+    r"Available recipes:
+    a Z='\t z'
+    hello a b='B\t' c='C'
+",
+    "",
   );
 }
