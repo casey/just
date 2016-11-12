@@ -1062,10 +1062,6 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
     self.recipes.len()
   }
 
-  fn recipes(&self) -> Vec<&'a str> {
-    self.recipes.keys().cloned().collect()
-  }
-
   fn suggest(&self, name: &str) -> Option<&'a str> {
     let mut suggestions = self.recipes.keys()
       .map(|suggestion| (edit_distance::edit_distance(suggestion, name), suggestion))
