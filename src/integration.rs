@@ -517,7 +517,8 @@ fn unknown_override_options() {
 a = `exit 222`",
     255,
     "",
-    "error: Variables `baz` and `foo` overridden on the command line but not present in justfile\n",
+    "error: Variables `baz` and `foo` overridden on the command line but not present \
+    in justfile\n",
   );
 }
 
@@ -531,7 +532,8 @@ fn unknown_override_args() {
 a = `exit 222`",
     255,
     "",
-    "error: Variables `baz` and `foo` overridden on the command line but not present in justfile\n",
+    "error: Variables `baz` and `foo` overridden on the command line but not present \
+    in justfile\n",
   );
 }
 
@@ -934,7 +936,8 @@ fn color_always() {
     "b = a\na = `exit 100`\nbar:\n echo '{{`exit 200`}}'",
     100,
     "",
-    "\u{1b}[1;31merror:\u{1b}[0m \u{1b}[1mbacktick failed with exit code 100\n\u{1b}[0m  |\n2 | a = `exit 100`\n  |     \u{1b}[1;31m^^^^^^^^^^\u{1b}[0m\n",
+    "\u{1b}[1;31merror:\u{1b}[0m \u{1b}[1mbacktick failed with exit code 100
+\u{1b}[0m  |\n2 | a = `exit 100`\n  |     \u{1b}[1;31m^^^^^^^^^^\u{1b}[0m\n",
   );
 }
 
