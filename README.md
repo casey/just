@@ -313,7 +313,7 @@ Feel free to send me the commands necessary to get syntax hilighting working in 
 
 ### justfile grammar
 
-A description of the grammar of justfiles can be found in [grammar.md](grammar.md).
+A description of the grammar of justfiles can be found in [GRAMMAR.md](GRAMMAR.md).
 
 ### just.sh
 
