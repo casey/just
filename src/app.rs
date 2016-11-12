@@ -57,7 +57,22 @@ pub fn app() {
     .arg(Arg::with_name("list")
          .short("l")
          .long("list")
-         .help("Lists available recipes"))
+         .help("List available recipes")
+         .conflicts_with("dump")
+         .conflicts_with("show"))
+    .arg(Arg::with_name("dump")
+         .long("dump")
+         .help("Print entire justfile")
+         .conflicts_with("show")
+         .conflicts_with("list"))
+    .arg(Arg::with_name("show")
+         .short("s")
+         .long("show")
+         .takes_value(true)
+         .value_name("recipe")
+         .help("Show information about <recipe>")
+         .conflicts_with("dump")
+         .conflicts_with("list"))
     .arg(Arg::with_name("quiet")
          .short("q")
          .long("quiet")
@@ -74,19 +89,13 @@ pub fn app() {
          .possible_values(&["auto", "always", "never"])
          .default_value("auto")
          .help("Print colorful output"))
-    .arg(Arg::with_name("show")
-         .short("s")
-         .long("show")
-         .takes_value(true)
-         .value_name("recipe")
-         .help("Show information about <recipe>"))
     .arg(Arg::with_name("set")
          .long("set")
          .takes_value(true)
          .number_of_values(2)
          .value_names(&["variable", "value"])
          .multiple(true)
-         .help("set <variable> to <value>"))
+         .help("Set <variable> to <value>"))
     .arg(Arg::with_name("working-directory")
          .long("working-directory")
          .takes_value(true)
@@ -97,7 +106,7 @@ pub fn app() {
          .help("Use <justfile> as justfile. --working-directory must also be set"))
     .arg(Arg::with_name("arguments")
          .multiple(true)
-         .help("recipe(s) to run, defaults to the first recipe in the justfile"))
+         .help("The recipe(s) to run, defaults to the first recipe in the justfile"))
     .get_matches();
 
   // it is not obvious to me what we should do if only one of --justfile and
@@ -175,6 +184,11 @@ pub fn app() {
     } else {
       println!("{}", justfile.recipes().join(" "));
     }
+    process::exit(0);
+  }
+
+  if matches.is_present("dump") {
+    println!("{}", justfile);
     process::exit(0);
   }
 

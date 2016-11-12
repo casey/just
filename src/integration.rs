@@ -266,29 +266,6 @@ recipe:
     "",
   );
 }
-/*
-#[test]
-fn debug() {
-  let text = 
-r#"hello = "foo"
-bar = hello + hello
-recipe:
- echo {{hello + "bar" + bar}}"#;
-  integration_test(
-    &["--debug"],
-    text,
-    0,
-    r#"bar = hello + hello # "foofoo"
-
-hello = "foo" # "foo"
-
-recipe:
-    echo {{hello + "bar" + bar # "foobarfoofoo"}}
-"#,
-    "",
-  );
-}
-*/
 
 #[test]
 fn status_passthrough() {
@@ -968,6 +945,22 @@ recipe:
     100,
     "",
     "\u{1b}[1;31merror:\u{1b}[0m \u{1b}[1mRecipe `recipe` failed with exit code 100\u{1b}[0m\n",
+  );
+}
+
+#[test]
+fn dump() {
+  let text ="
+recipe:
+ @exit 100";
+  integration_test(
+    &["--dump"],
+    text,
+    0,
+    "recipe:
+    @exit 100
+",
+    "",
   );
 }
 
