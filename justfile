@@ -30,6 +30,13 @@ publish: clippy build
 	git push origin --tags
 	@echo 'Remember to merge the v{{version}} branch on GitHub!'
 
+done BRANCH:
+	git checkout {{BRANCH}}
+	git pull --rebase github master
+	git checkout master
+	git pull --rebase github master
+	git branch -d {{BRANCH}}
+
 clippy:
 	rustup run nightly cargo clippy
 
