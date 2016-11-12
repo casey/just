@@ -199,7 +199,7 @@ pub fn app() {
     if justfile.count() == 0 {
       warn!("Justfile contains no recipes.");
     } else {
-      println!("{}", justfile.recipes().join(" "));
+      println!("{}", justfile.recipes.keys().cloned().collect::<Vec<_>>().join(" "));
     }
     process::exit(0);
   }
