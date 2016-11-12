@@ -45,6 +45,7 @@ export        : 'export' assignment
 expression    : STRING
               | RAW_STRING
               | NAME
+              | BACKTICK
               | expression '+' expression
 
 recipe        : NAME arguments? ':' dependencies? body?
