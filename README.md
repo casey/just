@@ -302,7 +302,12 @@ Hello from ruby!
 
 ```sh
 $ just --list
-js perl polyglot python ruby
+Available recipes:
+  js
+  perl
+  polyglot
+  python
+  ruby
 $ just --show perl
 perl:
     #!/usr/bin/env perl

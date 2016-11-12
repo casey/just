@@ -57,13 +57,15 @@ pub fn app() {
     .arg(Arg::with_name("list")
          .short("l")
          .long("list")
-         .help("Lists available recipes")
+         .help("Lists available recipes and their arguments")
          .conflicts_with("dump")
-         .conflicts_with("show"))
+         .conflicts_with("show")
+         .conflicts_with("summary"))
     .arg(Arg::with_name("dump")
          .long("dump")
          .help("Prints entire justfile")
          .conflicts_with("show")
+         .conflicts_with("summary")
          .conflicts_with("list"))
     .arg(Arg::with_name("show")
          .short("s")
@@ -72,6 +74,13 @@ pub fn app() {
          .value_name("recipe")
          .help("Shows information about <recipe>")
          .conflicts_with("dump")
+         .conflicts_with("summary")
+         .conflicts_with("list"))
+    .arg(Arg::with_name("summary")
+         .long("summary")
+         .help("Lists names of available recipes")
+         .conflicts_with("dump")
+         .conflicts_with("show")
          .conflicts_with("list"))
     .arg(Arg::with_name("quiet")
          .short("q")
@@ -170,9 +179,9 @@ pub fn app() {
     }
   );
 
-  if matches.is_present("list") {
+  if matches.is_present("summary") {
     if justfile.count() == 0 {
-      warn!("Justfile contains no recipes");
+      warn!("Justfile contains no recipes.");
     } else {
       println!("{}", justfile.recipes().join(" "));
     }
@@ -184,8 +193,20 @@ pub fn app() {
     process::exit(0);
   }
 
+  if matches.is_present("list") {
+    println!("Available recipes:");
+    for (name, recipe) in &justfile.recipes {
+      print!("    {}", name);
+      for parameter in &recipe.parameters {
+        print!(" {}", parameter);
+      }
+      println!("");
+    }
+    process::exit(0);
+  }
+
   if let Some(name) = matches.value_of("show") {
-    match justfile.get(name) {
+    match justfile.recipes.get(name) {
       Some(recipe) => {
         println!("{}", recipe);
         process::exit(0);
