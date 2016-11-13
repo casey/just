@@ -92,12 +92,26 @@ quine: create
 	diff tmp/gen1.c tmp/gen2.c
 	@echo 'It was a quine!'
 
-quine-text = 'int printf(const char*, ...); int main() { char *s = "int printf(const char*, ...); int main() { char *s = %c%s%c; printf(s, 34, s, 34); return 0; }"; printf(s, 34, s, 34); return 0; }'
+quine-text = '
+	int printf(const char*, ...);
+
+	int main() {
+		char *s =
+			"int printf(const char*, ...);"
+			"int main() {"
+			"	 char *s = %c%s%c;"
+			"  printf(s, 34, s, 34);"
+			"  return 0;"
+			"}"; 
+		printf(s, 34, s, 34);
+		return 0;
+	}
+'
 
 # create our quine
 create:
 	mkdir -p tmp
-	echo '{{quine-text}}' > tmp/gen0.c
+	@echo '{{quine-text}}' > tmp/gen0.c
 
 # clean up
 clean:
