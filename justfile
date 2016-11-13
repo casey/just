@@ -59,14 +59,14 @@ install-dev-deps:
 	cargo install -f cargo-check
 
 # everyone's favorite animate paper clip
-clippy:
+clippy: lint
 	rustup run nightly cargo clippy
 
 # count non-empty lines of code
 sloc:
 	@cat src/*.rs | sed '/^\s*$/d' | wc -l
 
-lint:
+@lint:
 	echo Checking for FIXME/TODO...
 	! grep --color -En 'FIXME|TODO' src/*.rs
 	echo Checking for long lines...
