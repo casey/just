@@ -364,7 +364,7 @@ A description of the grammar of justfiles can be found in [GRAMMAR.md](GRAMMAR.m
 
 ### just.sh
 
-Before `just` was a bloated rust program it was a tiny shell script that called `make`. If you can't or would rather not rust you can find the old version in [extras/just.sh](extras/just.sh).
+Before `just` was a bloated rust program it was a tiny shell script that called `make`. If you can't or would rather not install rust you can find the old version in [extras/just.sh](extras/just.sh).
 
 ### non-project specific justfile
 
