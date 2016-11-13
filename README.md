@@ -173,15 +173,31 @@ string-with-slash           = "\"
 string-with-tab             = "     "
 ```
 
-Single-quoted strings do not support any escape sequences:
+Single-quoted strings do not recognize escape sequences and may contain line breaks:
 
 ```make
-raw-string = '\t\n\r\"\\'
+escapes = '\t\n\r\"\\'
+
+line-breaks = 'hello
+this
+is
+  a
+     raw
+string!
+'
 ```
 
 ```sh
 $ just --evaluate
-raw-string = "\t\n\r\"\\"
+escapes = "\t\n\r\"\\"
+
+line-breaks = "hello
+this
+is
+  a
+     raw
+string!
+"
 ```
 
 Recipes may have parameters. Here recipe `build` has a parameter called `target`:
