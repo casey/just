@@ -48,7 +48,7 @@ expression    : STRING
               | BACKTICK
               | expression '+' expression
 
-recipe        : NAME argument* ':' dependencies? body?
+recipe        : '@'? NAME argument* ':' dependencies? body?
 
 argument      : NAME
               | NAME '=' STRING

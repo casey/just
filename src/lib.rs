@@ -72,6 +72,7 @@ struct Recipe<'a> {
   dependency_tokens: Vec<Token<'a>>,
   parameters:        Vec<Parameter<'a>>,
   shebang:           bool,
+  quiet:             bool,
 }
 
 #[derive(PartialEq, Debug)]
@@ -294,10 +295,13 @@ impl<'a> Recipe<'a> {
         evaluated_lines.push(evaluator.evaluate_line(line, &argument_map)?);
       }
 
-      if options.dry_run {
-        for line in evaluated_lines {
+      if options.dry_run || self.quiet {
+        for line in &evaluated_lines {
           warn!("{}", line);
         }
+      }
+
+      if options.dry_run {
         return Ok(());
       }
 
@@ -377,7 +381,7 @@ impl<'a> Recipe<'a> {
         if quiet_command {
           command = &command[1..];
         }
-        if options.dry_run || !(quiet_command || options.quiet) {
+        if options.dry_run || !((quiet_command ^ self.quiet) || options.quiet) {
           warn!("{}", command);
         }
         if options.dry_run {
@@ -1369,6 +1373,7 @@ impl<'a> Token<'a> {
 
 #[derive(Debug, PartialEq, Clone, Copy)]
 enum TokenKind {
+  At,
   Backtick,
   Colon,
   Comment,
@@ -1382,8 +1387,8 @@ enum TokenKind {
   Line,
   Name,
   Plus,
-  StringToken,
   RawString,
+  StringToken,
   Text,
 }
 
@@ -1403,6 +1408,7 @@ impl Display for TokenKind {
       Line               => "command",
       Name               => "name",
       Plus               => "\"+\"",
+      At                 => "\"@\"",
       StringToken        => "string",
       RawString          => "raw string",
       Text               => "command text",
@@ -1424,6 +1430,7 @@ fn tokenize(text: &str) -> Result<Vec<Token>, CompileError> {
   lazy_static! {
     static ref BACKTICK:                  Regex = token(r"`[^`\n\r]*`"               );
     static ref COLON:                     Regex = token(r":"                         );
+    static ref AT:                        Regex = token(r"@"                         );
     static ref COMMENT:                   Regex = token(r"#([^!].*)?$"               );
     static ref EOF:                       Regex = token(r"(?-m)$"                    );
     static ref EOL:                       Regex = token(r"\n|\r\n"                   );
@@ -1585,6 +1592,8 @@ fn tokenize(text: &str) -> Result<Vec<Token>, CompileError> {
       (captures.at(1).unwrap(), captures.at(2).unwrap(), Backtick)
     } else if let Some(captures) = COLON.captures(rest) {
       (captures.at(1).unwrap(), captures.at(2).unwrap(), Colon)
+    } else if let Some(captures) = AT.captures(rest) {
+      (captures.at(1).unwrap(), captures.at(2).unwrap(), At)
     } else if let Some(captures) = PLUS.captures(rest) {
       (captures.at(1).unwrap(), captures.at(2).unwrap(), Plus)
     } else if let Some(captures) = EQUALS.captures(rest) {
@@ -1746,7 +1755,7 @@ impl<'a> Parser<'a> {
     })
   }
 
-  fn recipe(&mut self, name: Token<'a>) -> Result<(), CompileError<'a>> {
+  fn recipe(&mut self, name: Token<'a>, quiet: bool) -> Result<(), CompileError<'a>> {
     if let Some(recipe) = self.recipes.get(name.lexeme) {
       return Err(name.error(ErrorKind::DuplicateRecipe {
         recipe: recipe.name,
@@ -1871,6 +1880,7 @@ impl<'a> Parser<'a> {
       parameters:        parameters,
       lines:             lines,
       shebang:           shebang,
+      quiet:             quiet,
     });
 
     Ok(())
@@ -1925,23 +1935,29 @@ impl<'a> Parser<'a> {
         Some(token) => match token.kind {
           Eof => break,
           Eol => continue,
+          At => if let Some(name) = self.accept(Name) {
+            self.recipe(name, true)?;
+          } else {
+            let unexpected = &self.tokens.next().unwrap();
+            return Err(self.unexpected_token(unexpected, &[Name]));
+          },
           Name => if token.lexeme == "export" {
             let next = self.tokens.next().unwrap();
             if next.kind == Name && self.accepted(Equals) {
               self.assignment(next, true)?;
             } else {
               self.tokens.put_back(next);
-              self.recipe(token)?;
+              self.recipe(token, false)?;
             }
           } else if self.accepted(Equals) {
             self.assignment(token, false)?;
           } else {
-            self.recipe(token)?;
+            self.recipe(token, false)?;
           },
           Comment => return Err(token.error(ErrorKind::InternalError {
             message: "found comment in token stream".to_string()
           })),
-          _ => return return Err(self.unexpected_token(&token, &[Name])),
+          _ => return return Err(self.unexpected_token(&token, &[Name, At])),
         },
         None => return Err(CompileError {
           text:   self.text,
