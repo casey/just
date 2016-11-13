@@ -1664,10 +1664,6 @@ fn tokenize(text: &str) -> Result<Vec<Token>, CompileError> {
       return error!(ErrorKind::UnknownStartOfToken)
     };
 
-    let len = prefix.len() + lexeme.len();
-    let lexeme_lines = lexeme.lines().count();
-    let last_lexeme_line = lexeme.lines().last();
-
     tokens.push(Token {
       index:  index,
       line:   line,
@@ -1677,6 +1673,8 @@ fn tokenize(text: &str) -> Result<Vec<Token>, CompileError> {
       lexeme: lexeme,
       kind:   kind,
     });
+
+    let len = prefix.len() + lexeme.len();
 
     if len == 0 {
       let last = tokens.last().unwrap();
@@ -1697,11 +1695,12 @@ fn tokenize(text: &str) -> Result<Vec<Token>, CompileError> {
         break;
       }
       RawString => {
+        let lexeme_lines = lexeme.lines().count();
         line += lexeme_lines - 1;
         if lexeme_lines == 1 {
           column += len;
         } else {
-          column = last_lexeme_line.unwrap().len();
+          column = lexeme.lines().last().unwrap().len();
         }
       }
       _ => {
