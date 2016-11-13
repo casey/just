@@ -1,6 +1,7 @@
 extern crate clap;
 extern crate regex;
 extern crate atty;
+extern crate ansi_term;
 
 use std::{io, fs, env, process, convert, ffi};
 use std::collections::BTreeMap;
@@ -44,6 +45,14 @@ impl UseColor {
       UseColor::Auto   => atty::is(stream),
       UseColor::Always => true,
       UseColor::Never  => false,
+    }
+  }
+
+  fn blue(self, stream: atty::Stream) -> ansi_term::Style {
+    if self.should_color_stream(stream) {
+      ansi_term::Style::new().fg(ansi_term::Color::Blue)
+    } else {
+      ansi_term::Style::default()
     }
   }
 }
@@ -210,11 +219,19 @@ pub fn app() {
   }
 
   if matches.is_present("list") {
+    let blue = use_color.blue(atty::Stream::Stdout);
     println!("Available recipes:");
     for (name, recipe) in &justfile.recipes {
       print!("    {}", name);
       for parameter in &recipe.parameters {
-        print!(" {}", parameter);
+        if use_color.should_color_stream(atty::Stream::Stdout) {
+          print!(" {:#}", parameter);
+        } else {
+          print!(" {}", parameter);
+        }
+      }
+      if let Some(doc) = recipe.doc {
+        print!(" {} {}", blue.paint("#"), blue.paint(doc));
       }
       println!("");
     }

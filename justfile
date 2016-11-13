@@ -5,9 +5,7 @@ test: build
 filter PATTERN: build
 	cargo test --lib {{PATTERN}}
 
-test-quine:
-	cargo run -- quine clean
-
+# test with backtrace
 backtrace:
 	RUST_BACKTRACE=1 cargo test --lib
 
@@ -22,6 +20,7 @@ watch COMMAND='test':
 
 version = `sed -En 's/version[[:space:]]*=[[:space:]]*"([^"]+)"/v\1/p' Cargo.toml`
 
+# publish to crates.io
 publish: lint clippy test
 	git branch | grep '* master'
 	git diff --no-ext-diff --quiet --exit-code
@@ -33,6 +32,7 @@ publish: lint clippy test
 	git push origin --tags
 	@echo 'Remember to merge the {{version}} branch on GitHub!'
 
+# clean up feature branch BRANCH
 done BRANCH:
 	git checkout {{BRANCH}}
 	git pull --rebase github master
@@ -40,9 +40,11 @@ done BRANCH:
 	git pull --rebase github master
 	git branch -d {{BRANCH}}
 
+# install just from crates.io
 install:
 	cargo install -f just
 
+# install development dependencies
 install-dev-deps:
 	rustup install nightly
 	rustup update nightly
@@ -50,14 +52,18 @@ install-dev-deps:
 	cargo install -f cargo-watch
 	cargo install -f cargo-check
 
+# everyone's favorite animate paper clip
 clippy:
 	rustup run nightly cargo clippy
 
+# count non-empty lines of code
 sloc:
-	@cat src/*.rs | wc -l
+	@cat src/*.rs | sed '/^\s*$/d' | wc -l
 
 lint:
+	echo Checking for FIXME/TODO...
 	! grep --color -En 'FIXME|TODO' src/*.rs
+	echo Checking for long lines...
 	! grep --color -En '.{100}' src/*.rs
 
 nop:
@@ -67,6 +73,9 @@ fail:
 
 backtick-fail:
 	echo {{`exit 1`}}
+
+test-quine:
+	cargo run -- quine clean
 
 # make a quine, compile it, and verify it
 quine: create

@@ -90,36 +90,38 @@ fn parse_error(text: &str, expected: CompileError) {
 #[test]
 fn tokanize_strings() {
   tokenize_success(
-    r#"a = "'a'" + '"b"' + "'c'" + '"d"'"#,
-    r#"N="+'+"+'."#
+    r#"a = "'a'" + '"b"' + "'c'" + '"d"'#echo hello"#,
+    r#"N="+'+"+'#."#
   );
 }
 
 #[test]
 fn tokenize_recipe_interpolation_eol() {
-  let text = "foo:
+  let text = "foo: # some comment
  {{hello}}
 ";
-  tokenize_success(text, "N:$>^{N}$<.");
+  tokenize_success(text, "N:#$>^{N}$<.");
 }
 
 #[test]
 fn tokenize_recipe_interpolation_eof() {
-  let text = "foo:
- {{hello}}";
-  tokenize_success(text, "N:$>^{N}<.");
+  let text = "foo: # more comments
+ {{hello}}
+# another comment
+";
+  tokenize_success(text, "N:#$>^{N}$<#$.");
 }
 
 #[test]
 fn tokenize_recipe_complex_interpolation_expression() {
-  let text = "foo:\n {{a + b + \"z\" + blarg}}";
-  tokenize_success(text, "N:$>^{N+N+\"+N}<.");
+  let text = "foo: #lol\n {{a + b + \"z\" + blarg}}";
+  tokenize_success(text, "N:#$>^{N+N+\"+N}<.");
 }
 
 #[test]
 fn tokenize_recipe_multiple_interpolations() {
-  let text = "foo:\n {{a}}0{{b}}1{{c}}";
-  tokenize_success(text, "N:$>^{N}_{N}_{N}<.");
+  let text = "foo:#ok\n {{a}}0{{b}}1{{c}}";
+  tokenize_success(text, "N:#$>^{N}_{N}_{N}<.");
 }
 
 #[test]
@@ -134,16 +136,19 @@ hello blah blah blah : a b c #whatever
 #[test]
 fn tokenize_empty_lines() {
   let text = "
+# this does something
 hello:
   asdf
   bsdf
 
   csdf
 
-  dsdf
+  dsdf # whatever
+
+# yolo
   ";
 
-  tokenize_success(text, "$N:$>^_$^_$$^_$$^_$<.");
+  tokenize_success(text, "$#$N:$>^_$^_$$^_$$^_$$<#$.");
 }
 
 #[test]
@@ -173,11 +178,12 @@ hello:
 
   d
 
+# hello
 bob:
   frank
   ";
 
-  tokenize_success(text, "$N:$>^_$^_$$^_$$^_$$<N:$>^_$<.");
+  tokenize_success(text, "$N:$>^_$^_$$^_$$^_$$<#$N:$>^_$<.");
 }
 
 

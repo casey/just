@@ -13,7 +13,7 @@ tokens
 BACKTICK            = `[^`\n\r]*`
 COLON               = :
 COMMENT             = #([^!].*)?$
-EOL                 = \n|\r\n
+NEWLINE             = \n|\r\n
 EQUALS              = =
 INTERPOLATION_START = {{
 INTERPOLATION_END   = }}
@@ -36,9 +36,12 @@ justfile      : item* EOF
 item          : recipe
               | assignment
               | export
-              | EOL
+              | eol
 
-assignment    : NAME '=' expression EOL
+eol           : NEWLINE
+              | COMMENT NEWLINE
+
+assignment    : NAME '=' expression eol
 
 export        : 'export' assignment
 
@@ -58,7 +61,7 @@ dependencies  : NAME+
 
 body          : INDENT line+ DEDENT
 
-line          : LINE (TEXT | interpolation)+ EOL
+line          : LINE (TEXT | interpolation)+ eol
 
 interpolation : '{{' expression '}}'
 ```
