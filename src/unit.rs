@@ -613,6 +613,19 @@ fn unterminated_string_with_escapes() {
 }
 
 #[test]
+fn unterminated_raw_string() {
+  let text = "r a='asdf";
+  parse_error(text, CompileError {
+    text:   text,
+    index:  4,
+    line:   0,
+    column: 4,
+    width:  None,
+    kind:   ErrorKind::UnterminatedString,
+  });
+}
+
+#[test]
 fn string_quote_escape() {
   parse_summary(
     r#"a = "hello\"""#,

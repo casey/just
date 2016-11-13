@@ -1467,7 +1467,8 @@ fn tokenize(text: &str) -> Result<Vec<Token>, CompileError> {
     static ref NAME:                      Regex = token(r"([a-zA-Z_-][a-zA-Z0-9_-]*)");
     static ref PLUS:                      Regex = token(r"[+]"                       );
     static ref STRING:                    Regex = token("\""                         );
-    static ref RAW_STRING:                Regex = token(r#"'[^'\r\n]*'"#             );
+    static ref RAW_STRING:                Regex = token(r#"'[^']*'"#                 );
+    static ref UNTERMINATED_RAW_STRING:   Regex = token(r#"'[^']*"#                  );
     static ref INDENT:                    Regex = re(r"^([ \t]*)[^ \t\n\r]"     );
     static ref INTERPOLATION_START:       Regex = re(r"^[{][{]"                 );
     static ref LEADING_TEXT:              Regex = re(r"^(?m)(.+?)[{][{]"        );
@@ -1629,6 +1630,8 @@ fn tokenize(text: &str) -> Result<Vec<Token>, CompileError> {
       (captures.at(1).unwrap(), captures.at(2).unwrap(), Comment)
     } else if let Some(captures) = RAW_STRING.captures(rest) {
       (captures.at(1).unwrap(), captures.at(2).unwrap(), RawString)
+    } else if UNTERMINATED_RAW_STRING.is_match(rest) {
+      return error!(ErrorKind::UnterminatedString);
     } else if let Some(captures) = STRING.captures(rest) {
       let prefix = captures.at(1).unwrap();
       let contents = &rest[prefix.len()+1..];
@@ -1661,8 +1664,6 @@ fn tokenize(text: &str) -> Result<Vec<Token>, CompileError> {
       return error!(ErrorKind::UnknownStartOfToken)
     };
 
-    let len = prefix.len() + lexeme.len();
-
     tokens.push(Token {
       index:  index,
       line:   line,
@@ -1672,6 +1673,8 @@ fn tokenize(text: &str) -> Result<Vec<Token>, CompileError> {
       lexeme: lexeme,
       kind:   kind,
     });
+
+    let len = prefix.len() + lexeme.len();
 
     if len == 0 {
       let last = tokens.last().unwrap();
@@ -1687,10 +1690,19 @@ fn tokenize(text: &str) -> Result<Vec<Token>, CompileError> {
       Eol => {
         line += 1;
         column = 0;
-      },
+      }
       Eof => {
         break;
-      },
+      }
+      RawString => {
+        let lexeme_lines = lexeme.lines().count();
+        line += lexeme_lines - 1;
+        if lexeme_lines == 1 {
+          column += len;
+        } else {
+          column = lexeme.lines().last().unwrap().len();
+        }
+      }
       _ => {
         column += len;
       }
@@ -1963,24 +1975,7 @@ impl<'a> Parser<'a> {
   }
 
   fn file(mut self) -> Result<Justfile<'a>, CompileError<'a>> {
-    // how do i associate comments with recipes?
-    // save the last doc
-    // clear it after every item
-
     let mut doc = None;
-
-    /*
-    trait Swap<T> {
-      fn swap(&mut self, T) -> T
-    }
-
-    impl<I> Swap<Option<I>> for Option<I> {
-      fn swap(&mut self, replacement: Option<I>) -> Option<I> {
-        std::mem::replace(self, replacement)
-      }
-    }
-    */
-
     loop {
       match self.tokens.next() {
         Some(token) => match token.kind {

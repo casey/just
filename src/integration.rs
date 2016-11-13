@@ -1272,3 +1272,142 @@ fn long_circular_recipe_dependency() {
 ",
   );
 }
+
+#[test]
+fn multiline_raw_string() {
+  integration_test(
+    &["a"],
+    "
+string = 'hello
+whatever'
+
+a:
+  echo '{{string}}'
+",
+    0,
+    "hello
+whatever
+",
+    "echo 'hello
+whatever'
+",
+  );
+}
+
+#[test]
+fn error_line_after_multiline_raw_string() {
+  integration_test(
+    &["a"],
+    "
+string = 'hello
+
+whatever' + 'yo'
+
+a:
+  echo '{{foo}}'
+",
+    255,
+    "",
+    "error: variable `foo` not defined
+  |
+7 |   echo '{{foo}}'
+  |           ^^^
+",
+  );
+}
+
+#[test]
+fn error_column_after_multiline_raw_string() {
+  integration_test(
+    &["a"],
+    "
+string = 'hello
+
+whatever' + bar
+
+a:
+  echo '{{string}}'
+",
+    255,
+    "",
+    "error: variable `bar` not defined
+  |
+4 | whatever' + bar
+  |             ^^^
+",
+  );
+}
+
+#[test]
+fn multiline_raw_string_in_interpolation() {
+  integration_test(
+    &["a"],
+    r#"
+a:
+  echo '{{"a" + '
+  ' + "b"}}'
+"#,
+    0,
+    "a
+  b
+",
+    "echo 'a
+  b'
+",
+  );
+}
+
+#[test]
+fn error_line_after_multiline_raw_string_in_interpolation() {
+  integration_test(
+    &["a"],
+    r#"
+a:
+  echo '{{"a" + '
+  ' + "b"}}'
+
+  echo {{b}}
+"#,
+    255,
+    "",
+    "error: variable `b` not defined
+  |
+6 |   echo {{b}}
+  |          ^
+",
+  );
+}
+
+#[test]
+fn unterminated_raw_string() {
+  integration_test(
+    &["a"],
+    "
+a b=':
+",
+    255,
+    "",
+    "error: unterminated string
+  |
+2 | a b=':
+  |     ^
+",
+  );
+}
+
+#[test]
+fn unterminated_string() {
+  integration_test(
+    &["a"],
+    r#"
+a b=":
+"#,
+    255,
+    "",
+    r#"error: unterminated string
+  |
+2 | a b=":
+  |     ^
+"#,
+  );
+}
