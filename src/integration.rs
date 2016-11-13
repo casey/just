@@ -1242,3 +1242,33 @@ fn quiet_shebang_recipe() {
     "#!/bin/sh\necho hello\n",
   );
 }
+
+#[test]
+fn complex_dependencies() {
+  integration_test(
+    &["b"],
+    r#"
+a: b
+b:
+c: b a
+"#,
+    0,
+    "",
+    ""
+  );
+}
+
+#[test]
+fn long_circular_recipe_dependency() {
+  integration_test(
+    &["a"],
+    "a: b\nb: c\nc: d\nd: a",
+    255,
+    "",
+    "error: recipe `d` has circular dependency `a -> b -> c -> d -> a`
+  |
+4 | d: a
+  |    ^
+",
+  );
+}

@@ -40,6 +40,12 @@ done BRANCH:
 	git pull --rebase github master
 	git branch -d {{BRANCH}}
 
+# push master to github as branch GITHUB-BRANCH
+push GITHUB-BRANCH:
+	git branch | grep '* master'
+	git diff --no-ext-diff --quiet --exit-code
+	git push github master:refs/heads/{{GITHUB-BRANCH}}
+
 # install just from crates.io
 install:
 	cargo install -f just

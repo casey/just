@@ -473,6 +473,7 @@ fn resolve_recipes<'a>(
   
   for recipe in recipes.values() {
     resolver.resolve(recipe)?;
+    resolver.seen = empty();
   }
 
   for recipe in recipes.values() {
