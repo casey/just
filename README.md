@@ -73,6 +73,24 @@ Another recipe.
 
 `just` prints each command to standard error before running it, which is why `echo 'This is a recipe!'` was printed. Lines starting with `@` will not be printed which is why `echo 'Another recipe.'` was not printed.
 
+A recipe name may be prefixed with '@' to invert the meaning of '@' before each line:
+
+```make
+@quiet:
+  echo hello
+  echo goodbye
+  @# all done!
+```
+
+Now only the lines starting with '@' will be echoed:
+
+```sh
+$ j quiet
+hello
+goodbye
+# all done!
+```
+
 Recipes stop running if a command fails. Here `cargo publish` will only run if `cargo test` succeeds:
 
 ```make

@@ -1205,3 +1205,34 @@ foo:
     "echo abc\n",
   );
 }
+
+#[test]
+fn quiet_recipe() {
+  integration_test(
+    &[],
+    r#"
+@quiet:
+  # a
+  # b
+  @echo c
+"#,
+    0,
+    "c\n",
+    "echo c\n",
+  );
+}
+
+#[test]
+fn quiet_shebang_recipe() {
+  integration_test(
+    &[],
+    r#"
+@quiet:
+  #!/bin/sh
+  echo hello
+"#,
+    0,
+    "hello\n",
+    "#!/bin/sh\necho hello\n",
+  );
+}

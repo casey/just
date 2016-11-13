@@ -35,22 +35,23 @@ fn tokenize_error(text: &str, expected: CompileError) {
 fn token_summary(tokens: &[Token]) -> String {
   tokens.iter().map(|t| {
     match t.kind {
-      super::TokenKind::Backtick           => "`",
-      super::TokenKind::Colon              => ":",
-      super::TokenKind::Comment{..}        => "#",
-      super::TokenKind::Dedent             => "<",
-      super::TokenKind::Eof                => ".",
-      super::TokenKind::Eol                => "$",
-      super::TokenKind::Equals             => "=",
-      super::TokenKind::Indent{..}         => ">",
-      super::TokenKind::InterpolationEnd   => "}",
-      super::TokenKind::InterpolationStart => "{",
-      super::TokenKind::Line{..}           => "^",
-      super::TokenKind::Name               => "N",
-      super::TokenKind::Plus               => "+",
-      super::TokenKind::StringToken        => "\"",
-      super::TokenKind::RawString          => "'",
-      super::TokenKind::Text               => "_",
+      At                 => "@",
+      Backtick           => "`",
+      Colon              => ":",
+      Comment{..}        => "#",
+      Dedent             => "<",
+      Eof                => ".",
+      Eol                => "$",
+      Equals             => "=",
+      Indent{..}         => ">",
+      InterpolationEnd   => "}",
+      InterpolationStart => "{",
+      Line{..}           => "^",
+      Name               => "N",
+      Plus               => "+",
+      RawString          => "'",
+      StringToken        => "\"",
+      Text               => "_",
     }
   }).collect::<Vec<_>>().join("")
 }
@@ -744,7 +745,7 @@ fn interpolation_outside_of_recipe() {
     line:   0,
     column: 0,
     width:  Some(2),
-    kind:   ErrorKind::UnexpectedToken{expected: vec![Name], found: InterpolationStart},
+    kind:   ErrorKind::UnexpectedToken{expected: vec![Name, At], found: InterpolationStart},
   });
 }
 
