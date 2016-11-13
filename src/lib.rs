@@ -19,7 +19,7 @@ extern crate edit_distance;
 
 use std::io::prelude::*;
 
-use std::{fs, fmt, process, io, cmp};
+use std::{fs, fmt, process, io, iter, cmp};
 use std::ops::Range;
 use std::fmt::Display;
 use regex::Regex;
@@ -59,6 +59,10 @@ fn re(pattern: &str) -> Regex {
   Regex::new(pattern).unwrap()
 }
 
+fn empty<T, C: iter::FromIterator<T>>() -> C {
+  iter::empty().collect()
+}
+
 fn contains<T: PartialOrd>(range: &Range<T>,  i: T) -> bool {
   i >= range.start && i < range.end
 }
@@ -67,6 +71,7 @@ fn contains<T: PartialOrd>(range: &Range<T>,  i: T) -> bool {
 struct Recipe<'a> {
   line_number:       usize,
   name:              &'a str,
+  doc:               Option<&'a str>,
   lines:             Vec<Vec<Fragment<'a>>>,
   dependencies:      Vec<&'a str>,
   dependency_tokens: Vec<Token<'a>>,
@@ -84,10 +89,12 @@ struct Parameter<'a> {
 
 impl<'a> Display for Parameter<'a> {
   fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-    write!(f, "{}", self.name)?;
+    let green = maybe_green(f.alternate());
+    let cyan = maybe_cyan(f.alternate());
+    write!(f, "{}", cyan.paint(self.name))?;
     if let Some(ref default) = self.default {
       let escaped = default.chars().flat_map(char::escape_default).collect::<String>();;
-      write!(f, r#"='{}'"#, escaped)?;
+      write!(f, r#"='{}'"#, green.paint(escaped))?;
     }
     Ok(())
   }
@@ -281,11 +288,11 @@ impl<'a> Recipe<'a> {
       }).collect();
 
     let mut evaluator = Evaluator {
-      evaluated:   Map::new(),
+      evaluated:   empty(),
       scope:       scope,
       exports:     exports,
-      assignments: &Map::new(),
-      overrides:   &Map::new(),
+      assignments: &empty(),
+      overrides:   &empty(),
       quiet:       options.quiet,
     };
 
@@ -418,6 +425,9 @@ impl<'a> Recipe<'a> {
 
 impl<'a> Display for Recipe<'a> {
   fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+    if let Some(doc) = self.doc {
+      writeln!(f, "# {}", doc)?;
+    }
     write!(f, "{}", self.name)?;
     for parameter in &self.parameters {
       write!(f, " {}", parameter)?;
@@ -455,9 +465,9 @@ fn resolve_recipes<'a>(
   text:        &'a str,
 ) -> Result<(), CompileError<'a>> {
   let mut resolver = Resolver {
-    seen:              Set::new(),
-    stack:             vec![],
-    resolved:          Set::new(),
+    seen:              empty(),
+    stack:             empty(),
+    resolved:          empty(),
     recipes:           recipes,
   };
   
@@ -553,9 +563,9 @@ fn resolve_assignments<'a>(
   let mut resolver = AssignmentResolver {
     assignments:       assignments,
     assignment_tokens: assignment_tokens,
-    stack:             vec![],
-    seen:              Set::new(),
-    evaluated:         Set::new(),
+    stack:             empty(),
+    seen:              empty(),
+    evaluated:         empty(),
   };
 
   for name in assignments.keys() {
@@ -626,11 +636,11 @@ fn evaluate_assignments<'a>(
 ) -> Result<Map<&'a str, String>, RunError<'a>> {
   let mut evaluator = Evaluator {
     assignments: assignments,
-    evaluated:   Map::new(),
-    exports:     &Set::new(),
+    evaluated:   empty(),
+    exports:     &empty(),
     overrides:   overrides,
     quiet:       quiet,
-    scope:       &Map::new(),
+    scope:       &empty(),
   };
 
   for name in assignments.keys() {
@@ -676,7 +686,7 @@ impl<'a, 'b> Evaluator<'a, 'b> {
       if let Some(value) = self.overrides.get(name) {
         self.evaluated.insert(name, value.to_string());
       } else {
-        let value = self.evaluate_expression(expression, &Map::new())?;
+        let value = self.evaluate_expression(expression, &empty())?;
         self.evaluated.insert(name, value);
       }
     } else {
@@ -950,6 +960,22 @@ fn maybe_red(colors: bool) -> ansi_term::Style {
   }
 }
 
+fn maybe_green(colors: bool) -> ansi_term::Style {
+  if colors {
+    ansi_term::Style::new().fg(ansi_term::Color::Green)
+  } else {
+    ansi_term::Style::default()
+  }
+}
+
+fn maybe_cyan(colors: bool) -> ansi_term::Style {
+  if colors {
+    ansi_term::Style::new().fg(ansi_term::Color::Cyan)
+  } else {
+    ansi_term::Style::default()
+  }
+}
+
 fn maybe_bold(colors: bool) -> ansi_term::Style {
   if colors {
     ansi_term::Style::new().bold()
@@ -1130,7 +1156,7 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
       return Ok(());
     }
 
-    let mut ran = Set::new();
+    let mut ran = empty();
 
     for (i, argument) in arguments.iter().enumerate() {
       if let Some(recipe) = self.recipes.get(argument) {
@@ -1678,14 +1704,13 @@ fn tokenize(text: &str) -> Result<Vec<Token>, CompileError> {
 
 fn parse(text: &str) -> Result<Justfile, CompileError> {
   let tokens = tokenize(text)?;
-  let filtered: Vec<_> = tokens.into_iter().filter(|token| token.kind != Comment).collect();
   let parser = Parser {
     text:              text,
-    tokens:            itertools::put_back(filtered),
-    recipes:           Map::<&str, Recipe>::new(),
-    assignments:       Map::<&str, Expression>::new(),
-    assignment_tokens: Map::<&str, Token>::new(),
-    exports:           Set::<&str>::new(),
+    tokens:            itertools::put_back(tokens),
+    recipes:           empty(),
+    assignments:       empty(),
+    assignment_tokens: empty(),
+    exports:           empty(),
   };
   parser.file()
 }
@@ -1738,6 +1763,7 @@ impl<'a> Parser<'a> {
   }
 
   fn expect_eol(&mut self) -> Option<Token<'a>> {
+    self.accepted(Comment);
     if self.peek(Eol) {
       self.accept(Eol);
       None
@@ -1755,7 +1781,12 @@ impl<'a> Parser<'a> {
     })
   }
 
-  fn recipe(&mut self, name: Token<'a>, quiet: bool) -> Result<(), CompileError<'a>> {
+  fn recipe(
+    &mut self,
+    name:  Token<'a>,
+    doc:   Option<Token<'a>>,
+    quiet: bool,
+  ) -> Result<(), CompileError<'a>> {
     if let Some(recipe) = self.recipes.get(name.lexeme) {
       return Err(name.error(ErrorKind::DuplicateRecipe {
         recipe: recipe.name,
@@ -1875,6 +1906,7 @@ impl<'a> Parser<'a> {
     self.recipes.insert(name.lexeme, Recipe {
       line_number:       name.line,
       name:              name.lexeme,
+      doc:               doc.map(|t| t.lexeme[1..].trim()),
       dependencies:      dependencies,
       dependency_tokens: dependency_tokens,
       parameters:        parameters,
@@ -1930,13 +1962,43 @@ impl<'a> Parser<'a> {
   }
 
   fn file(mut self) -> Result<Justfile<'a>, CompileError<'a>> {
+    // how do i associate comments with recipes?
+    // save the last doc
+    // clear it after every item
+
+    let mut doc = None;
+
+    /*
+    trait Swap<T> {
+      fn swap(&mut self, T) -> T
+    }
+
+    impl<I> Swap<Option<I>> for Option<I> {
+      fn swap(&mut self, replacement: Option<I>) -> Option<I> {
+        std::mem::replace(self, replacement)
+      }
+    }
+    */
+
     loop {
       match self.tokens.next() {
         Some(token) => match token.kind {
           Eof => break,
-          Eol => continue,
+          Eol => {
+            doc = None;
+            continue;
+          }
+          Comment => {
+            if let Some(token) = self.expect_eol() {
+              return Err(token.error(ErrorKind::InternalError {
+                message: format!("found comment followed by {}", token.kind),
+              }));
+            }
+            doc = Some(token);
+          }
           At => if let Some(name) = self.accept(Name) {
-            self.recipe(name, true)?;
+            self.recipe(name, doc, true)?;
+            doc = None;
           } else {
             let unexpected = &self.tokens.next().unwrap();
             return Err(self.unexpected_token(unexpected, &[Name]));
@@ -1945,18 +2007,19 @@ impl<'a> Parser<'a> {
             let next = self.tokens.next().unwrap();
             if next.kind == Name && self.accepted(Equals) {
               self.assignment(next, true)?;
+              doc = None;
             } else {
               self.tokens.put_back(next);
-              self.recipe(token, false)?;
+              self.recipe(token, doc, false)?;
+              doc = None;
             }
           } else if self.accepted(Equals) {
             self.assignment(token, false)?;
+            doc = None;
           } else {
-            self.recipe(token, false)?;
+            self.recipe(token, doc, false)?;
+            doc = None;
           },
-          Comment => return Err(token.error(ErrorKind::InternalError {
-            message: "found comment in token stream".to_string()
-          })),
           _ => return return Err(self.unexpected_token(&token, &[Name, At])),
         },
         None => return Err(CompileError {

@@ -1004,13 +1004,15 @@ recipe:
 #[test]
 fn dump() {
   let text ="
+# this recipe does something
 recipe:
  @exit 100";
   integration_test(
     &["--dump"],
     text,
     0,
-    "recipe:
+    "# this recipe does something
+recipe:
     @exit 100
 ",
     "",
@@ -1096,15 +1098,19 @@ fn list() {
   integration_test(
     &["--list"],
     r#"
+
+# this does a thing
 hello a b='B	' c='C':
   echo {{a}} {{b}} {{c}}
+
+# this comment will be ignored
 
 a Z="\t z":
 "#,
     0,
     r"Available recipes:
     a Z='\t z'
-    hello a b='B\t' c='C'
+    hello a b='B\t' c='C' # this does a thing
 ",
     "",
   );
