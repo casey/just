@@ -661,6 +661,25 @@ wut:
 }
 
 #[test]
+fn export_override() {
+  integration_test(
+    &["foo=hello", "--set", "bar", "bye"],
+    r#"
+export foo = "a"
+baz = "c"
+export bar = "b"
+export abc = foo + "-" + bar + "-" + baz
+
+wut:
+  echo $foo $bar $abc
+"#,
+    0,
+    "hello bye hello-bye-c\n",
+    "echo $foo $bar $abc\n",
+  );
+}
+
+#[test]
 fn export_shebang() {
   integration_test(
     &[],

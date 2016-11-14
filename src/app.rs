@@ -265,18 +265,18 @@ pub fn app() {
 
   let override_re = regex::Regex::new("^([^=]+)=(.*)$").unwrap();
 
-  let arguments = if let Some(arguments) = matches.values_of("arguments") {
-    let mut done = false;
-    let mut rest = vec![];
-    for argument in arguments {
-      if !done && override_re.is_match(argument) {
-        let captures = override_re.captures(argument).unwrap();
-        overrides.insert(captures.at(1).unwrap(), captures.at(2).unwrap());
-      } else {
-        rest.push(argument);
-        done = true;
-      }
-    }
+  let raw_arguments = matches.values_of("arguments").map(|values| values.collect::<Vec<_>>())
+    .unwrap_or_default();
+
+  for argument in raw_arguments.iter().take_while(|arg| override_re.is_match(arg)) {
+    let captures = override_re.captures(argument).unwrap();
+    overrides.insert(captures.at(1).unwrap(), captures.at(2).unwrap());
+  }
+
+  let rest = raw_arguments.iter().skip_while(|arg| override_re.is_match(arg))
+    .cloned().collect::<Vec<_>>();
+
+  let arguments = if !rest.is_empty() {
     rest
   } else if let Some(recipe) = justfile.first() {
     vec![recipe]
