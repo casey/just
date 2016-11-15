@@ -153,6 +153,28 @@ publish:
     rm -rf {{tarball}} {{tardir}}
 ```
 
+`{{...}}` substitutions may need to be quoted if they contains spaces. For example, if you have the following recipe:
+
+```make
+search QUERY:
+    lynx https://www.google.com/?q={{QUERY}}
+```
+
+And you type:
+
+```sh
+$ just search "cat toupee"
+```
+
+Just will run the command `lynx https://www.google.com/?q=cat toupee`, which will get parsed by `sh` as `lynx`, `https://www.google.com/?q=cat`, and `toupee`, and not the intended `lynx` and `https://www.google.com/?q=cat toupee`.
+
+You can fix this by adding quotes:
+
+```make
+search QUERY:
+    lynx 'https://www.google.com/?q={{QUERY}}'
+```
+
 Double-quoted strings support escape sequences:
 
 ```make
