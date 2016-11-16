@@ -31,12 +31,12 @@ enum UseColor {
 }
 
 impl UseColor {
-  fn from_argument(use_color: &str) -> UseColor {
+  fn from_argument(use_color: &str) -> Option<UseColor> {
     match use_color {
-      "auto"   => UseColor::Auto,
-      "always" => UseColor::Always,
-      "never"  => UseColor::Never,
-      _        => panic!("Invalid argument to --color. This is a bug in just."),
+      "auto"   => Some(UseColor::Auto),
+      "always" => Some(UseColor::Always),
+      "never"  => Some(UseColor::Never),
+      _        => None,
     }
   }
 
@@ -140,7 +140,10 @@ pub fn app() {
     .get_matches();
 
   let use_color_argument = matches.value_of("color").expect("--color had no value");
-  let use_color = UseColor::from_argument(use_color_argument);
+  let use_color = match UseColor::from_argument(use_color_argument) {
+    Some(use_color) => use_color,
+    None => die!("Invalid argument to --color. This is a bug in just."),
+  };
 
   let justfile_option = matches.value_of("justfile");
   let working_directory_option = matches.value_of("working-directory");
