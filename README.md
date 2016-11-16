@@ -422,7 +422,7 @@ alias .j='just --justfile ~/.justfile --working-directory .'
 further ramblings
 -----------------
 
-`just` is a trivial program, but I personally find it very useful to write a `justfile` for almost every project, big or small.
+I personally find it very useful to write a `justfile` for almost every project, big or small.
 
 On a big project with multiple contributers, it's very useful to have a file with all the commands needed to work on the project close at hand.
 
