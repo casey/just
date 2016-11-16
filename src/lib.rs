@@ -280,12 +280,14 @@ impl<'a> Recipe<'a> {
   ) -> Result<(), RunError<'a>> {
     let argument_map = self.parameters.iter().enumerate()
       .map(|(i, parameter)| if i < arguments.len() {
-        (parameter.name, arguments[i])
+        Ok((parameter.name, arguments[i]))
       } else if let Some(ref default) = parameter.default {
-        (parameter.name, default.as_str())
+        Ok((parameter.name, default.as_str()))
       } else {
-        panic!("Recipe.run: missing parameter without default. This is a bug in just.");
-      }).collect();
+        Err(RunError::InternalError{
+          message: "missing parameter without default".to_string()
+        })
+      }).collect::<Result<Vec<_>, _>>()?.into_iter().collect();
 
     let mut evaluator = Evaluator {
       evaluated:   empty(),
