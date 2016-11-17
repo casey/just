@@ -862,9 +862,10 @@ a:
 ";
 
   match parse_success(text).run(&["a"], &Default::default()).unwrap_err() {
-    RunError::Code{recipe, code} => {
+    RunError::Code{recipe, line_number, code} => {
       assert_eq!(recipe, "a");
       assert_eq!(code, 200);
+      assert_eq!(line_number, None);
     },
     other => panic!("expected an code run error, but got: {}", other),
   }
@@ -874,9 +875,10 @@ a:
 fn code_error() {
   match parse_success("fail:\n @exit 100")
     .run(&["fail"], &Default::default()).unwrap_err() {
-    RunError::Code{recipe, code} => {
+    RunError::Code{recipe, line_number, code} => {
       assert_eq!(recipe, "fail");
       assert_eq!(code, 100);
+      assert_eq!(line_number, Some(2));
     },
     other => panic!("expected a code run error, but got: {}", other),
   }
@@ -889,9 +891,10 @@ a return code:
  @x() { {{return}} {{code + "0"}}; }; x"#;
 
   match parse_success(text).run(&["a", "return", "15"], &Default::default()).unwrap_err() {
-    RunError::Code{recipe, code} => {
+    RunError::Code{recipe, line_number, code} => {
       assert_eq!(recipe, "a");
       assert_eq!(code, 150);
+      assert_eq!(line_number, Some(3));
     },
     other => panic!("expected an code run error, but got: {}", other),
   }
@@ -1017,8 +1020,9 @@ wut:
   };
 
   match parse_success(text).run(&["wut"], &options).unwrap_err() {
-    RunError::Code{code: _, recipe} => {
+    RunError::Code{code: _, line_number, recipe} => {
       assert_eq!(recipe, "wut");
+      assert_eq!(line_number, Some(8));
     },
     other => panic!("expected a recipe code errror, but got: {}", other),
   }

@@ -283,14 +283,17 @@ recipe:
 fn status_passthrough() {
   let text = 
 "
+
+hello:
+
 recipe:
- @exit 100";
+  @exit 100";
   integration_test(
-    &[],
+    &["recipe"],
     text,
     100,
     "",
-    "error: Recipe `recipe` failed with exit code 100\n",
+    "error: Recipe `recipe` failed on line 6 with exit code 100\n",
   );
 }
 
@@ -1022,13 +1025,14 @@ fn color_auto() {
 fn colors_no_context() {
   let text ="
 recipe:
- @exit 100";
+  @exit 100";
   integration_test(
     &["--color=always"],
     text,
     100,
     "",
-    "\u{1b}[1;31merror:\u{1b}[0m \u{1b}[1mRecipe `recipe` failed with exit code 100\u{1b}[0m\n",
+    "\u{1b}[1;31merror:\u{1b}[0m \u{1b}[1m\
+Recipe `recipe` failed on line 3 with exit code 100\u{1b}[0m\n",
   );
 }
 
