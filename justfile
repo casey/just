@@ -46,6 +46,11 @@ push GITHUB-BRANCH:
 	git diff --no-ext-diff --quiet --exit-code
 	git push github master:refs/heads/{{GITHUB-BRANCH}}
 
+push-f GITHUB-BRANCH:
+	git branch | grep '* master'
+	git diff --no-ext-diff --quiet --exit-code
+	git push github -f master:refs/heads/{{GITHUB-BRANCH}}
+
 # install just from crates.io
 install:
 	cargo install -f just

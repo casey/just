@@ -61,7 +61,8 @@ dependencies  : NAME+
 
 body          : INDENT line+ DEDENT
 
-line          : LINE (TEXT | interpolation)+ eol
+line          : LINE (TEXT | interpolation)+ NEWLINE
+              | NEWLINE
 
 interpolation : '{{' expression '}}'
 ```

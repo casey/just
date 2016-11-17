@@ -163,17 +163,25 @@ impl<'a> Display for Expression<'a> {
 }
 
 #[cfg(unix)]
-fn error_from_signal(recipe: &str, exit_status: process::ExitStatus) -> RunError {
+fn error_from_signal(
+  recipe:      &str,
+  line_number: Option<usize>,
+  exit_status: process::ExitStatus
+) -> RunError {
   use std::os::unix::process::ExitStatusExt;
   match exit_status.signal() {
-    Some(signal) => RunError::Signal{recipe: recipe, signal: signal},
-    None => RunError::UnknownFailure{recipe: recipe},
+    Some(signal) => RunError::Signal{recipe: recipe, line_number: line_number, signal: signal},
+    None => RunError::UnknownFailure{recipe: recipe, line_number: line_number},
   }
 }
 
 #[cfg(windows)]
-fn error_from_signal(recipe: &str, exit_status: process::ExitStatus) -> RunError {
-  RunError::UnknownFailure{recipe: recipe}
+fn error_from_signal(
+  recipe:      &str,
+  line_number: Option<usize>,
+  exit_status: process::ExitStatus
+) -> RunError {
+  RunError::UnknownFailure{recipe: recipe, line_number: line_number}
 }
 
 #[cfg(unix)]
@@ -362,16 +370,17 @@ impl<'a> Recipe<'a> {
       match command.status() {
         Ok(exit_status) => if let Some(code) = exit_status.code() {
           if code != 0 {
-            return Err(RunError::Code{recipe: self.name, code: code})
+            return Err(RunError::Code{recipe: self.name, line_number: None, code: code})
           }
         } else {
-          return Err(error_from_signal(self.name, exit_status))
+          return Err(error_from_signal(self.name, None, exit_status))
         },
         Err(io_error) => return Err(RunError::TmpdirIoError{
           recipe: self.name, io_error: io_error})
       };
     } else {
       let mut lines = self.lines.iter().peekable();
+      let mut line_number = self.line_number + 1;
       loop {
         if lines.peek().is_none() {
           break;
@@ -382,6 +391,7 @@ impl<'a> Recipe<'a> {
             break;
           }
           let line = lines.next().unwrap();
+          line_number += 1;
           evaluated += &evaluator.evaluate_line(line, &argument_map)?;
           if line.last().map(Fragment::continuation).unwrap_or(false) {
             evaluated.pop();
@@ -422,10 +432,12 @@ impl<'a> Recipe<'a> {
         match cmd.status() {
           Ok(exit_status) => if let Some(code) = exit_status.code() {
             if code != 0 {
-              return Err(RunError::Code{recipe: self.name, code: code});
+              return Err(RunError::Code{
+                recipe: self.name, line_number: Some(line_number), code: code
+              });
             }
           } else {
-            return Err(error_from_signal(self.name, exit_status));
+            return Err(error_from_signal(self.name, Some(line_number), exit_status));
           },
           Err(io_error) => return Err(RunError::IoError{
             recipe: self.name, io_error: io_error}),
@@ -1263,13 +1275,13 @@ impl<'a> Display for Justfile<'a> {
 #[derive(Debug)]
 enum RunError<'a> {
   ArgumentCountMismatch{recipe: &'a str, found: usize, min: usize, max: usize},
-  Code{recipe: &'a str, code: i32},
+  Code{recipe: &'a str, line_number: Option<usize>, code: i32},
   InternalError{message: String},
   IoError{recipe: &'a str, io_error: io::Error},
   NonLeadingRecipeWithParameters{recipe: &'a str},
-  Signal{recipe: &'a str, signal: i32},
+  Signal{recipe: &'a str, line_number: Option<usize>, signal: i32},
   TmpdirIoError{recipe: &'a str, io_error: io::Error},
-  UnknownFailure{recipe: &'a str},
+  UnknownFailure{recipe: &'a str, line_number: Option<usize>},
   UnknownRecipes{recipes: Vec<&'a str>, suggestion: Option<&'a str>},
   UnknownOverrides{overrides: Vec<&'a str>},
   BacktickCode{token: Token<'a>, code: i32},
@@ -1319,14 +1331,25 @@ impl<'a> Display for RunError<'a> {
                     recipe, found, maybe_s(found), max)?;
         }
       },
-      Code{recipe, code} => {
-        write!(f, "Recipe `{}` failed with exit code {}", recipe, code)?;
+      Code{recipe, line_number, code} => {
+        if let Some(n) = line_number {
+          write!(f, "Recipe `{}` failed on line {} with exit code {}", recipe, n, code)?;
+        } else {
+          write!(f, "Recipe `{}` failed with exit code {}", recipe, code)?;
+        }
       },
-      Signal{recipe, signal} => {
-        write!(f, "Recipe `{}` was terminated by signal {}", recipe, signal)?;
+      Signal{recipe, line_number, signal} => {
+        if let Some(n) = line_number {
+          write!(f, "Recipe `{}` was terminated on line {} by signal {}", recipe, n, signal)?;
+        } else {
+          write!(f, "Recipe `{}` was terminated by signal {}", recipe, signal)?;
+        }
       }
-      UnknownFailure{recipe} => {
-        write!(f, "Recipe `{}` failed for an unknown reason", recipe)?;
+      UnknownFailure{recipe, line_number} => {
+        if let Some(n) = line_number {
+          write!(f, "Recipe `{}` failed on line {} for an unknown reason", recipe, n)?;
+        } else {
+        }
       },
       IoError{recipe, ref io_error} => {
         match io_error.kind() {
