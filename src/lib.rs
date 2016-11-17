@@ -1,3 +1,12 @@
+#[macro_use]
+extern crate lazy_static;
+extern crate regex;
+extern crate tempdir;
+extern crate itertools;
+extern crate ansi_term;
+extern crate unicode_width;
+extern crate edit_distance;
+
 #[cfg(test)]
 mod unit;
 
@@ -8,24 +17,14 @@ mod app;
 
 pub use app::app;
 
-#[macro_use]
-extern crate lazy_static;
-extern crate regex;
-extern crate tempdir;
-extern crate itertools;
-extern crate ansi_term;
-extern crate unicode_width;
-extern crate edit_distance;
-
-use std::io::prelude::*;
-
-use std::{fs, fmt, process, io, iter, cmp};
-use std::ops::Range;
-use std::fmt::Display;
+use app::UseColor;
 use regex::Regex;
 use std::collections::{BTreeMap as Map, BTreeSet as Set};
-
+use std::fmt::Display;
+use std::io::prelude::*;
+use std::ops::Range;
 use std::os::unix::fs::PermissionsExt;
+use std::{fs, fmt, process, io, iter, cmp};
 
 macro_rules! warn {
   ($($arg:tt)*) => {{
@@ -278,6 +277,11 @@ impl<'a> Recipe<'a> {
     exports:   &Set<&'a str>,
     options:   &RunOptions,
   ) -> Result<(), RunError<'a>> {
+    if options.verbose {
+      let cyan = maybe_cyan(options.use_color.should_color_stderr());
+      warn!("{}===> Running recipe `{}`...{}", cyan.prefix(), self.name, cyan.suffix());
+    }
+
     let argument_map = self.parameters.iter().enumerate()
       .map(|(i, parameter)| if i < arguments.len() {
         Ok((parameter.name, arguments[i]))
@@ -390,7 +394,9 @@ impl<'a> Recipe<'a> {
         if quiet_command {
           command = &command[1..];
         }
-        if options.dry_run || !((quiet_command ^ self.quiet) || options.quiet) {
+        if options.dry_run
+          || options.verbose
+          || !((quiet_command ^ self.quiet) || options.quiet) {
           warn!("{}", command);
         }
         if options.dry_run {
@@ -1099,6 +1105,8 @@ struct RunOptions<'a> {
   evaluate:  bool,
   overrides: Map<&'a str, &'a str>,
   quiet:     bool,
+  use_color: UseColor,
+  verbose:   bool,
 }
 
 impl<'a, 'b> Justfile<'a> where 'a: 'b {

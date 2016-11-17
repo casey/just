@@ -165,6 +165,18 @@ fn quiet() {
 }
 
 #[test]
+fn verbose() {
+  integration_test(
+    &["--verbose"],
+    "default:\n @echo hello",
+    0,
+    "hello\n",
+    "===> Running recipe `default`...\necho hello\n",
+  )
+}
+
+
+#[test]
 fn order() {
   let text = "
 b: a
