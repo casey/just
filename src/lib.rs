@@ -1717,7 +1717,7 @@ fn tokenize(text: &str) -> Result<Vec<Token>, CompileError> {
   Ok(tokens)
 }
 
-fn parse(text: &str) -> Result<Justfile, CompileError> {
+fn compile(text: &str) -> Result<Justfile, CompileError> {
   let tokens = tokenize(text)?;
   let parser = Parser {
     text:              text,
@@ -1727,7 +1727,7 @@ fn parse(text: &str) -> Result<Justfile, CompileError> {
     assignment_tokens: empty(),
     exports:           empty(),
   };
-  parser.file()
+  parser.justfile()
 }
 
 struct Parser<'a> {
@@ -1976,7 +1976,7 @@ impl<'a> Parser<'a> {
     Ok(())
   }
 
-  fn file(mut self) -> Result<Justfile<'a>, CompileError<'a>> {
+  fn justfile(mut self) -> Result<Justfile<'a>, CompileError<'a>> {
     let mut doc = None;
     loop {
       match self.tokens.next() {

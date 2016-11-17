@@ -3,7 +3,7 @@ extern crate brev;
 extern crate regex;
 
 use tempdir::TempDir;
-use super::std::{fs, path, process};
+use std::{env, fs, path, process, str};
 
 fn integration_test(
   args:            &[&str],
@@ -18,7 +18,7 @@ fn integration_test(
   let mut path = tmp.path().to_path_buf();
   path.push("justfile");
   brev::dump(path, justfile);
-  let mut binary = super::std::env::current_dir().unwrap();
+  let mut binary = env::current_dir().unwrap();
   binary.push("./target/debug/just");
   let output = process::Command::new(binary)
     .current_dir(tmp.path())
@@ -34,13 +34,13 @@ fn integration_test(
     failure = true;
   }
 
-  let stdout = super::std::str::from_utf8(&output.stdout).unwrap();
+  let stdout = str::from_utf8(&output.stdout).unwrap();
   if stdout != expected_stdout {
     println!("bad stdout:\ngot:\n{}\n\nexpected:\n{}", stdout, expected_stdout);
     failure = true;
   }
 
-  let stderr = super::std::str::from_utf8(&output.stderr).unwrap();
+  let stderr = str::from_utf8(&output.stderr).unwrap();
   if stderr != expected_stderr {
     println!("bad stderr:\ngot:\n{}\n\nexpected:\n{}", stderr, expected_stderr);
     failure = true;
@@ -52,7 +52,7 @@ fn integration_test(
 }
 
 fn search_test<P: AsRef<path::Path>>(path: P) {
-  let mut binary = super::std::env::current_dir().unwrap();
+  let mut binary = env::current_dir().unwrap();
   binary.push("./target/debug/just");
   let output = process::Command::new(binary)
     .current_dir(path)
@@ -61,10 +61,10 @@ fn search_test<P: AsRef<path::Path>>(path: P) {
 
   assert_eq!(output.status.code().unwrap(), 0);
 
-  let stdout = super::std::str::from_utf8(&output.stdout).unwrap();
+  let stdout = str::from_utf8(&output.stdout).unwrap();
   assert_eq!(stdout, "ok\n");
 
-  let stderr = super::std::str::from_utf8(&output.stderr).unwrap();
+  let stderr = str::from_utf8(&output.stderr).unwrap();
   assert_eq!(stderr, "echo ok\n");
 }
 

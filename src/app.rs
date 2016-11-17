@@ -6,7 +6,7 @@ extern crate ansi_term;
 use std::{io, fs, env, process, convert, ffi};
 use std::collections::BTreeMap;
 use self::clap::{App, Arg, ArgGroup, AppSettings};
-use super::{Slurp, RunError};
+use super::{Slurp, RunError, RunOptions, compile};
 
 macro_rules! warn {
   ($($arg:tt)*) => {{
@@ -199,7 +199,7 @@ pub fn app() {
       .unwrap_or_else(|error| die!("Error reading justfile: {}", error));
   }
 
-  let justfile = super::parse(&text).unwrap_or_else(|error|
+  let justfile = compile(&text).unwrap_or_else(|error|
     if use_color.should_color_stream(atty::Stream::Stderr) {
       die!("{:#}", error);
     } else {
@@ -287,7 +287,7 @@ pub fn app() {
     die!("Justfile contains no recipes");
   };
 
-  let options = super::RunOptions {
+  let options = RunOptions {
     dry_run:   matches.is_present("dry-run"),
     evaluate:  matches.is_present("evaluate"),
     overrides: overrides,

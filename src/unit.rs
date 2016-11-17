@@ -1,11 +1,16 @@
 extern crate tempdir;
 extern crate brev;
 
-use super::{Token, CompileError, ErrorKind, Justfile, RunError, RunOptions};
+use super::{
+  And, CompileError, ErrorKind, Justfile, Or,
+  RunError, RunOptions, Token, compile, contains,
+  tokenize
+};
+
 use super::TokenKind::*;
 
 fn tokenize_success(text: &str, expected_summary: &str) {
-  let tokens = super::tokenize(text).unwrap();
+  let tokens = tokenize(text).unwrap();
   let roundtrip = tokens.iter().map(|t| {
     let mut s = String::new();
     s += t.prefix;
@@ -20,7 +25,7 @@ fn tokenize_success(text: &str, expected_summary: &str) {
 }
 
 fn tokenize_error(text: &str, expected: CompileError) {
-  if let Err(error) = super::tokenize(text) {
+  if let Err(error) = tokenize(text) {
     assert_eq!(error.text,   expected.text);
     assert_eq!(error.index,  expected.index);
     assert_eq!(error.line,   expected.line);
@@ -57,7 +62,7 @@ fn token_summary(tokens: &[Token]) -> String {
 }
 
 fn parse_success(text: &str) -> Justfile {
-  match super::parse(text) {
+  match compile(text) {
     Ok(justfile) => justfile,
     Err(error) => panic!("Expected successful parse but got error:\n{}", error),
   }
@@ -74,7 +79,7 @@ fn parse_summary(input: &str, output: &str) {
 }
 
 fn parse_error(text: &str, expected: CompileError) {
-  if let Err(error) = super::parse(text) {
+  if let Err(error) = compile(text) {
     assert_eq!(error.text,   expected.text);
     assert_eq!(error.index,  expected.index);
     assert_eq!(error.line,   expected.line);
@@ -705,27 +710,27 @@ fn mixed_leading_whitespace() {
 
 #[test]
 fn conjoin_or() {
-  assert_eq!("1",             super::Or(&[1      ]).to_string());
-  assert_eq!("1 or 2",        super::Or(&[1,2    ]).to_string());
-  assert_eq!("1, 2, or 3",    super::Or(&[1,2,3  ]).to_string());
-  assert_eq!("1, 2, 3, or 4", super::Or(&[1,2,3,4]).to_string());
+  assert_eq!("1",             Or(&[1      ]).to_string());
+  assert_eq!("1 or 2",        Or(&[1,2    ]).to_string());
+  assert_eq!("1, 2, or 3",    Or(&[1,2,3  ]).to_string());
+  assert_eq!("1, 2, 3, or 4", Or(&[1,2,3,4]).to_string());
 }
 
 #[test]
 fn conjoin_and() {
-  assert_eq!("1",             super::And(&[1      ]).to_string());
-  assert_eq!("1 and 2",        super::And(&[1,2    ]).to_string());
-  assert_eq!("1, 2, and 3",    super::And(&[1,2,3  ]).to_string());
-  assert_eq!("1, 2, 3, and 4", super::And(&[1,2,3,4]).to_string());
+  assert_eq!("1",              And(&[1      ]).to_string());
+  assert_eq!("1 and 2",        And(&[1,2    ]).to_string());
+  assert_eq!("1, 2, and 3",    And(&[1,2,3  ]).to_string());
+  assert_eq!("1, 2, 3, and 4", And(&[1,2,3,4]).to_string());
 }
 
 #[test]
 fn range() {
-  assert!(super::contains(&(0..1), 0));
-  assert!(super::contains(&(10..20), 15));
-  assert!(!super::contains(&(0..0), 0));
-  assert!(!super::contains(&(1..10), 0));
-  assert!(!super::contains(&(1..10), 10));
+  assert!(contains(&(0..1), 0));
+  assert!(contains(&(10..20), 15));
+  assert!(!contains(&(0..0), 0));
+  assert!(!contains(&(1..10), 0));
+  assert!(!contains(&(1..10), 10));
 }
 
 #[test]
