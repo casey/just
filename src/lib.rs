@@ -394,6 +394,11 @@ impl<'a> Recipe<'a> {
         if quiet_command {
           command = &command[1..];
         }
+
+        if command == "" {
+          continue;
+        }
+
         if options.dry_run
           || options.verbose
           || !((quiet_command ^ self.quiet) || options.quiet) {
@@ -1318,7 +1323,7 @@ impl<'a> Display for RunError<'a> {
         write!(f, "Recipe `{}` failed with exit code {}", recipe, code)?;
       },
       Signal{recipe, signal} => {
-        write!(f, "Recipe `{}` wast terminated by signal {}", recipe, signal)?;
+        write!(f, "Recipe `{}` was terminated by signal {}", recipe, signal)?;
       }
       UnknownFailure{recipe} => {
         write!(f, "Recipe `{}` failed for an unknown reason", recipe)?;
@@ -1886,6 +1891,7 @@ impl<'a> Parser<'a> {
     if self.accepted(Indent) {
       while !self.accepted(Dedent) {
         if self.accepted(Eol) {
+          lines.push(vec![]);
           continue;
         }
         if let Some(token) = self.expect(Line) {
