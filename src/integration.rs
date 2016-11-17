@@ -1275,6 +1275,41 @@ fn quiet_shebang_recipe() {
 }
 
 #[test]
+fn shebang_line_numbers() {
+  integration_test(
+    &[],
+    r#"
+quiet:
+  #!/usr/bin/env cat
+
+  a
+
+  b
+
+
+  c
+
+
+"#,
+    0,
+    "#!/usr/bin/env cat
+
+
+
+a
+
+b
+
+
+c
+
+
+",
+    "",
+  );
+}
+
+#[test]
 fn complex_dependencies() {
   integration_test(
     &["b"],
