@@ -68,22 +68,23 @@ fn contains<T: PartialOrd>(range: &Range<T>,  i: T) -> bool {
 
 #[derive(PartialEq, Debug)]
 struct Recipe<'a> {
-  line_number:       usize,
-  name:              &'a str,
-  doc:               Option<&'a str>,
-  lines:             Vec<Vec<Fragment<'a>>>,
   dependencies:      Vec<&'a str>,
   dependency_tokens: Vec<Token<'a>>,
+  doc:               Option<&'a str>,
+  line_number:       usize,
+  lines:             Vec<Vec<Fragment<'a>>>,
+  name:              &'a str,
   parameters:        Vec<Parameter<'a>>,
-  shebang:           bool,
   quiet:             bool,
+  shebang:           bool,
 }
 
 #[derive(PartialEq, Debug)]
 struct Parameter<'a> {
-  name:    &'a str,
-  default: Option<String>,
-  token:   Token<'a>,
+  default:  Option<String>,
+  name:     &'a str,
+  token:    Token<'a>,
+  variadic: bool,
 }
 
 impl<'a> Display for Parameter<'a> {
@@ -786,6 +787,7 @@ enum ErrorKind<'a> {
   OuterShebang,
   ParameterShadowsVariable{parameter: &'a str},
   RequiredParameterFollowsDefaultParameter{parameter: &'a str},
+  ParameterFollowsVariadicParameter{parameter: &'a str},
   UndefinedVariable{variable: &'a str},
   UnexpectedToken{expected: Vec<TokenKind>, found: TokenKind},
   UnknownDependency{recipe: &'a str, unknown: &'a str},
@@ -1065,6 +1067,9 @@ impl<'a> Display for CompileError<'a> {
       }
       RequiredParameterFollowsDefaultParameter{parameter} => {
         writeln!(f, "non-default parameter `{}` follows default parameter", parameter)?;
+      }
+      ParameterFollowsVariadicParameter{parameter} => {
+        writeln!(f, "parameter `{}` follows a varidic parameter", parameter)?;
       }
       MixedLeadingWhitespace{whitespace} => {
         writeln!(f,
@@ -1846,8 +1851,22 @@ impl<'a> Parser<'a> {
     }
 
     let mut parsed_parameter_with_default = false;
+    let mut parsed_variadic_parameter = false;
     let mut parameters: Vec<Parameter> = vec![];
-    while let Some(parameter) = self.accept(Name) {
+    loop {
+      let variadic = self.accepted(Plus);
+
+      let parameter = match self.accept(Name) {
+        Some(parameter) => parameter,
+        None            => break,
+      };
+
+      if parsed_variadic_parameter {
+        return Err(parameter.error(ErrorKind::ParameterFollowsVariadicParameter {
+          parameter: parameter.lexeme,
+        }));
+      }
+
       if parameters.iter().any(|p| p.name == parameter.lexeme) {
         return Err(parameter.error(ErrorKind::DuplicateParameter {
           recipe: name.lexeme, parameter: parameter.lexeme
@@ -1873,11 +1892,13 @@ impl<'a> Parser<'a> {
       }
 
       parsed_parameter_with_default |= default.is_some();
+      parsed_variadic_parameter = variadic;
 
       parameters.push(Parameter {
-        name:    parameter.lexeme,
-        default: default,
-        token:   parameter,
+        default:  default,
+        name:     parameter.lexeme,
+        token:    parameter,
+        variadic: variadic,
       });
     }
 
@@ -1885,9 +1906,9 @@ impl<'a> Parser<'a> {
       // if we haven't accepted any parameters, an equals
       // would have been fine as part of an assignment
       if parameters.is_empty() {
-        return Err(self.unexpected_token(&token, &[Name, Colon, Equals]));
+        return Err(self.unexpected_token(&token, &[Name, Plus, Colon, Equals]));
       } else {
-        return Err(self.unexpected_token(&token, &[Name, Colon]));
+        return Err(self.unexpected_token(&token, &[Name, Plus, Colon]));
       }
     }
 

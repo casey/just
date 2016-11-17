@@ -4,7 +4,7 @@ justfile grammar
 Justfiles are processed by a mildly context-sensitive tokenizer
 and a recursive descent parser. The grammar is mostly LL(1),
 although an extra token of lookahead is used to distinguish between
-export assignments and recipes with arguments.
+export assignments and recipes with parameters.
 
 tokens
 ------
@@ -51,9 +51,9 @@ expression    : STRING
               | BACKTICK
               | expression '+' expression
 
-recipe        : '@'? NAME argument* ':' dependencies? body?
+recipe        : '@'? NAME parameter* ('+' parameter)? ':' dependencies? body?
 
-argument      : NAME
+parameter     : NAME
               | NAME '=' STRING
               | NAME '=' RAW_STRING
 

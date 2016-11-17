@@ -1,2 +1,8 @@
 todo
 ====
+
+- variadic parameters work
+- variadic paramters are displayed in --dump correctly
+- they require one or more arguments
+- they expand to space separated string
+- an argument after a variadic one will complain

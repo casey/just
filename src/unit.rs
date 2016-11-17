@@ -400,7 +400,7 @@ fn missing_colon() {
     line:   0,
     column: 5,
     width:  Some(1),
-    kind:   ErrorKind::UnexpectedToken{expected: vec![Name, Colon], found: Eol},
+    kind:   ErrorKind::UnexpectedToken{expected: vec![Name, Plus, Colon], found: Eol},
   });
 }
 
