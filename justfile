@@ -46,6 +46,7 @@ push GITHUB-BRANCH:
 	git diff --no-ext-diff --quiet --exit-code
 	git push github master:refs/heads/{{GITHUB-BRANCH}}
 
+# force push master to github as branch GITHUB_BRANCH
 push-f GITHUB-BRANCH:
 	git branch | grep '* master'
 	git diff --no-ext-diff --quiet --exit-code
