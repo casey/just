@@ -24,10 +24,16 @@ macro_rules! die {
 }
 
 #[derive(Copy, Clone)]
-enum UseColor {
+pub enum UseColor {
   Auto,
   Always,
   Never,
+}
+
+impl Default for UseColor {
+  fn default() -> UseColor {
+    UseColor::Never
+  }
 }
 
 impl UseColor {
@@ -46,6 +52,14 @@ impl UseColor {
       UseColor::Always => true,
       UseColor::Never  => false,
     }
+  }
+
+  pub fn should_color_stdout(self) -> bool {
+    self.should_color_stream(atty::Stream::Stdout)
+  }
+
+  pub fn should_color_stderr(self) -> bool {
+    self.should_color_stream(atty::Stream::Stderr)
   }
 
   fn blue(self, stream: atty::Stream) -> ansi_term::Style {
@@ -102,6 +116,10 @@ pub fn app() {
          .long("quiet")
          .help("Suppresses all output")
          .conflicts_with("dry-run"))
+    .arg(Arg::with_name("verbose")
+         .short("v")
+         .long("verbose")
+         .help("Use verbose output"))
     .arg(Arg::with_name("dry-run")
          .long("dry-run")
          .help("Prints what just would do without doing it")
@@ -200,7 +218,7 @@ pub fn app() {
   }
 
   let justfile = compile(&text).unwrap_or_else(|error|
-    if use_color.should_color_stream(atty::Stream::Stderr) {
+    if use_color.should_color_stderr() {
       die!("{:#}", error);
     } else {
       die!("{}", error);
@@ -227,7 +245,7 @@ pub fn app() {
     for (name, recipe) in &justfile.recipes {
       print!("    {}", name);
       for parameter in &recipe.parameters {
-        if use_color.should_color_stream(atty::Stream::Stdout) {
+        if use_color.should_color_stdout() {
           print!(" {:#}", parameter);
         } else {
           print!(" {}", parameter);
@@ -292,11 +310,13 @@ pub fn app() {
     evaluate:  matches.is_present("evaluate"),
     overrides: overrides,
     quiet:     matches.is_present("quiet"),
+    use_color: use_color,
+    verbose:   matches.is_present("verbose"),
   };
 
   if let Err(run_error) = justfile.run(&arguments, &options) {
     if !options.quiet {
-      if use_color.should_color_stream(atty::Stream::Stderr) {
+      if use_color.should_color_stderr() {
         warn!("{:#}", run_error);
       } else {
         warn!("{}", run_error);

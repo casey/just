@@ -113,10 +113,6 @@ create:
 	mkdir -p tmp
 	@echo '{{quine-text}}' > tmp/gen0.c
 
-# clean up
-clean:
-	rm -r tmp
-
 # run all polyglot recipes
 polyglot: python js perl sh ruby
 
