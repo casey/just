@@ -19,6 +19,7 @@ pub use app::app;
 
 use app::UseColor;
 use regex::Regex;
+use std::borrow::Cow;
 use std::collections::{BTreeMap as Map, BTreeSet as Set};
 use std::fmt::Display;
 use std::io::prelude::*;
@@ -68,28 +69,33 @@ fn contains<T: PartialOrd>(range: &Range<T>,  i: T) -> bool {
 
 #[derive(PartialEq, Debug)]
 struct Recipe<'a> {
-  line_number:       usize,
-  name:              &'a str,
-  doc:               Option<&'a str>,
-  lines:             Vec<Vec<Fragment<'a>>>,
   dependencies:      Vec<&'a str>,
   dependency_tokens: Vec<Token<'a>>,
+  doc:               Option<&'a str>,
+  line_number:       usize,
+  lines:             Vec<Vec<Fragment<'a>>>,
+  name:              &'a str,
   parameters:        Vec<Parameter<'a>>,
-  shebang:           bool,
   quiet:             bool,
+  shebang:           bool,
 }
 
 #[derive(PartialEq, Debug)]
 struct Parameter<'a> {
-  name:    &'a str,
-  default: Option<String>,
-  token:   Token<'a>,
+  default:  Option<String>,
+  name:     &'a str,
+  token:    Token<'a>,
+  variadic: bool,
 }
 
 impl<'a> Display for Parameter<'a> {
   fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
     let green = maybe_green(f.alternate());
     let cyan = maybe_cyan(f.alternate());
+    let purple = maybe_purple(f.alternate());
+    if self.variadic {
+      write!(f, "{}", purple.paint("+"))?;
+    }
     write!(f, "{}", cyan.paint(self.name))?;
     if let Some(ref default) = self.default {
       let escaped = default.chars().flat_map(char::escape_default).collect::<String>();;
@@ -275,7 +281,11 @@ impl<'a> Recipe<'a> {
   fn argument_range(&self) -> Range<usize> {
     self.parameters.iter().filter(|p| !p.default.is_some()).count()
       ..
-    self.parameters.len() + 1
+    if self.parameters.iter().any(|p| p.variadic) {
+      std::usize::MAX
+    } else {
+      self.parameters.len() + 1
+    }
   }
 
   fn run(
@@ -290,16 +300,30 @@ impl<'a> Recipe<'a> {
       warn!("{}===> Running recipe `{}`...{}", cyan.prefix(), self.name, cyan.suffix());
     }
 
-    let argument_map = self.parameters.iter().enumerate()
-      .map(|(i, parameter)| if i < arguments.len() {
-        Ok((parameter.name, arguments[i]))
-      } else if let Some(ref default) = parameter.default {
-        Ok((parameter.name, default.as_str()))
+    let mut argument_map = Map::new();
+
+    let mut rest = arguments;
+    for parameter in &self.parameters {
+      let value = if rest.is_empty() {
+        match parameter.default {
+          Some(ref default) => Cow::Borrowed(default.as_str()),
+          None => return Err(RunError::InternalError{
+            message: "missing parameter without default".to_string()
+          }),
+        }
       } else {
-        Err(RunError::InternalError{
-          message: "missing parameter without default".to_string()
-        })
-      }).collect::<Result<Vec<_>, _>>()?.into_iter().collect();
+        if parameter.variadic {
+          let value = Cow::Owned(rest.to_vec().join(" "));
+          rest = &[];
+          value
+        } else {
+          let value = Cow::Borrowed(rest[0]);
+          rest = &rest[1..];
+          value
+        }
+      };
+      argument_map.insert(parameter.name, value);
+    }
 
     let mut evaluator = Evaluator {
       evaluated:   empty(),
@@ -689,7 +713,7 @@ impl<'a, 'b> Evaluator<'a, 'b> {
   fn evaluate_line(
     &mut self,
     line:      &[Fragment<'a>],
-    arguments: &Map<&str, &str>
+    arguments: &Map<&str, Cow<str>>
   ) -> Result<String, RunError<'a>> {
     let mut evaluated = String::new();
     for fragment in line {
@@ -727,7 +751,7 @@ impl<'a, 'b> Evaluator<'a, 'b> {
   fn evaluate_expression(
     &mut self,
     expression: &Expression<'a>,
-    arguments: &Map<&str, &str>
+    arguments: &Map<&str, Cow<str>>
   ) -> Result<String, RunError<'a>> {
     Ok(match *expression {
       Expression::Variable{name, ..} => {
@@ -786,6 +810,7 @@ enum ErrorKind<'a> {
   OuterShebang,
   ParameterShadowsVariable{parameter: &'a str},
   RequiredParameterFollowsDefaultParameter{parameter: &'a str},
+  ParameterFollowsVariadicParameter{parameter: &'a str},
   UndefinedVariable{variable: &'a str},
   UnexpectedToken{expected: Vec<TokenKind>, found: TokenKind},
   UnknownDependency{recipe: &'a str, unknown: &'a str},
@@ -1002,6 +1027,14 @@ fn maybe_cyan(colors: bool) -> ansi_term::Style {
   }
 }
 
+fn maybe_purple(colors: bool) -> ansi_term::Style {
+  if colors {
+    ansi_term::Style::new().fg(ansi_term::Color::Purple)
+  } else {
+    ansi_term::Style::default()
+  }
+}
+
 fn maybe_bold(colors: bool) -> ansi_term::Style {
   if colors {
     ansi_term::Style::new().bold()
@@ -1065,6 +1098,9 @@ impl<'a> Display for CompileError<'a> {
       }
       RequiredParameterFollowsDefaultParameter{parameter} => {
         writeln!(f, "non-default parameter `{}` follows default parameter", parameter)?;
+      }
+      ParameterFollowsVariadicParameter{parameter} => {
+        writeln!(f, "parameter `{}` follows a varidic parameter", parameter)?;
       }
       MixedLeadingWhitespace{whitespace} => {
         writeln!(f,
@@ -1846,8 +1882,28 @@ impl<'a> Parser<'a> {
     }
 
     let mut parsed_parameter_with_default = false;
+    let mut parsed_variadic_parameter = false;
     let mut parameters: Vec<Parameter> = vec![];
-    while let Some(parameter) = self.accept(Name) {
+    loop {
+      let plus = self.accept(Plus);
+
+      let parameter = match self.accept(Name) {
+        Some(parameter) => parameter,
+        None            => if let Some(plus) = plus {
+          return Err(self.unexpected_token(&plus, &[Name]));
+        } else {
+          break
+        },
+      };
+
+      let variadic = plus.is_some();
+
+      if parsed_variadic_parameter {
+        return Err(parameter.error(ErrorKind::ParameterFollowsVariadicParameter {
+          parameter: parameter.lexeme,
+        }));
+      }
+
       if parameters.iter().any(|p| p.name == parameter.lexeme) {
         return Err(parameter.error(ErrorKind::DuplicateParameter {
           recipe: name.lexeme, parameter: parameter.lexeme
@@ -1873,11 +1929,13 @@ impl<'a> Parser<'a> {
       }
 
       parsed_parameter_with_default |= default.is_some();
+      parsed_variadic_parameter = variadic;
 
       parameters.push(Parameter {
-        name:    parameter.lexeme,
-        default: default,
-        token:   parameter,
+        default:  default,
+        name:     parameter.lexeme,
+        token:    parameter,
+        variadic: variadic,
       });
     }
 
@@ -1885,9 +1943,9 @@ impl<'a> Parser<'a> {
       // if we haven't accepted any parameters, an equals
       // would have been fine as part of an assignment
       if parameters.is_empty() {
-        return Err(self.unexpected_token(&token, &[Name, Colon, Equals]));
+        return Err(self.unexpected_token(&token, &[Name, Plus, Colon, Equals]));
       } else {
-        return Err(self.unexpected_token(&token, &[Name, Colon]));
+        return Err(self.unexpected_token(&token, &[Name, Plus, Colon]));
       }
     }
 

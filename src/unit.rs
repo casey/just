@@ -278,6 +278,26 @@ foo a="b\t":
 }
 
 #[test]
+fn parse_variadic() {
+  parse_summary(r#"
+
+foo +a:
+
+
+  "#, r#"foo +a:"#);
+}
+
+#[test]
+fn parse_variadic_string_default() {
+  parse_summary(r#"
+
+foo +a="Hello":
+
+
+  "#, r#"foo +a='Hello':"#);
+}
+
+#[test]
 fn parse_raw_string_default() {
   parse_summary(r#"
 
@@ -400,7 +420,7 @@ fn missing_colon() {
     line:   0,
     column: 5,
     width:  Some(1),
-    kind:   ErrorKind::UnexpectedToken{expected: vec![Name, Colon], found: Eol},
+    kind:   ErrorKind::UnexpectedToken{expected: vec![Name, Plus, Colon], found: Eol},
   });
 }
 
@@ -453,6 +473,19 @@ fn missing_default_backtick() {
     column: 10,
     width:  Some(7),
     kind:   ErrorKind::UnexpectedToken{expected: vec![StringToken, RawString], found: Backtick},
+  });
+}
+
+#[test]
+fn parameter_after_variadic() {
+  let text = "foo +a bbb:";
+  parse_error(text, CompileError {
+    text:   text,
+    index:  7,
+    line:   0,
+    column: 7,
+    width:  Some(3),
+    kind:   ErrorKind::ParameterFollowsVariadicParameter{parameter: "bbb"}
   });
 }
 
@@ -826,6 +859,19 @@ fn unknown_second_interpolation_variable() {
 }
 
 #[test]
+fn plus_following_parameter() {
+  let text = "a b c+:";
+  parse_error(text, CompileError {
+    text:   text,
+    index:  5,
+    line:   0,
+    column: 5,
+    width:  Some(1),
+    kind:   ErrorKind::UnexpectedToken{expected: vec![Name], found: Plus},
+  });
+}
+
+#[test]
 fn tokenize_order() {
   let text = r"
 b: a
@@ -908,6 +954,19 @@ fn missing_some_arguments() {
       assert_eq!(found, 2);
       assert_eq!(min, 3);
       assert_eq!(max, 3);
+    },
+    other => panic!("expected an code run error, but got: {}", other),
+  }
+}
+
+#[test]
+fn missing_some_arguments_variadic() {
+  match parse_success("a b c +d:").run(&["a", "B", "C"], &Default::default()).unwrap_err() {
+    RunError::ArgumentCountMismatch{recipe, found, min, max} => {
+      assert_eq!(recipe, "a");
+      assert_eq!(found, 2);
+      assert_eq!(min, 3);
+      assert_eq!(max, super::std::usize::MAX - 1);
     },
     other => panic!("expected an code run error, but got: {}", other),
   }
