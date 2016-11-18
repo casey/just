@@ -1038,16 +1038,16 @@ Recipe `recipe` failed on line 3 with exit code 100\u{1b}[0m\n",
 
 #[test]
 fn dump() {
-  let text ="
+  let text = r#"
 # this recipe does something
-recipe:
- @exit 100";
+recipe a b +d:
+ @exit 100"#;
   integration_test(
     &["--dump"],
     text,
     0,
     "# this recipe does something
-recipe:
+recipe a b +d:
     @exit 100
 ",
     "",
@@ -1479,5 +1479,61 @@ a b=":
 2 | a b=":
   |     ^
 "#,
+  );
+}
+
+#[test]
+fn variadic_recipe() {
+  integration_test(
+    &["a", "0", "1", "2", "3", " 4 "],
+    "
+a x y +z:
+  echo {{x}} {{y}} {{z}}
+",
+    0,
+    "0 1 2 3 4\n",
+    "echo 0 1 2 3  4 \n",
+  );
+}
+
+#[test]
+fn variadic_ignore_default() {
+  integration_test(
+    &["a", "0", "1", "2", "3", " 4 "],
+    "
+a x y +z='HELLO':
+  echo {{x}} {{y}} {{z}}
+",
+    0,
+    "0 1 2 3 4\n",
+    "echo 0 1 2 3  4 \n",
+  );
+}
+
+#[test]
+fn variadic_use_default() {
+  integration_test(
+    &["a", "0", "1"],
+    "
+a x y +z='HELLO':
+  echo {{x}} {{y}} {{z}}
+",
+    0,
+    "0 1 HELLO\n",
+    "echo 0 1 HELLO\n",
+  );
+}
+
+#[test]
+fn variadic_too_few() {
+  integration_test(
+    &["a", "0", "1"],
+    "
+a x y +z:
+  echo {{x}} {{y}} {{z}}
+",
+    255,
+    "",
+    "error: Recipe `a` got 2 arguments but takes at least 3\n",
   );
 }

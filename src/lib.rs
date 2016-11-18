@@ -19,6 +19,7 @@ pub use app::app;
 
 use app::UseColor;
 use regex::Regex;
+use std::borrow::Cow;
 use std::collections::{BTreeMap as Map, BTreeSet as Set};
 use std::fmt::Display;
 use std::io::prelude::*;
@@ -91,6 +92,10 @@ impl<'a> Display for Parameter<'a> {
   fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
     let green = maybe_green(f.alternate());
     let cyan = maybe_cyan(f.alternate());
+    let purple = maybe_purple(f.alternate());
+    if self.variadic {
+      write!(f, "{}", purple.paint("+"))?;
+    }
     write!(f, "{}", cyan.paint(self.name))?;
     if let Some(ref default) = self.default {
       let escaped = default.chars().flat_map(char::escape_default).collect::<String>();;
@@ -276,7 +281,11 @@ impl<'a> Recipe<'a> {
   fn argument_range(&self) -> Range<usize> {
     self.parameters.iter().filter(|p| !p.default.is_some()).count()
       ..
-    self.parameters.len() + 1
+    if self.parameters.iter().any(|p| p.variadic) {
+      std::usize::MAX
+    } else {
+      self.parameters.len() + 1
+    }
   }
 
   fn run(
@@ -291,16 +300,30 @@ impl<'a> Recipe<'a> {
       warn!("{}===> Running recipe `{}`...{}", cyan.prefix(), self.name, cyan.suffix());
     }
 
-    let argument_map = self.parameters.iter().enumerate()
-      .map(|(i, parameter)| if i < arguments.len() {
-        Ok((parameter.name, arguments[i]))
-      } else if let Some(ref default) = parameter.default {
-        Ok((parameter.name, default.as_str()))
+    let mut argument_map = Map::new();
+
+    let mut rest = arguments;
+    for parameter in &self.parameters {
+      let value = if rest.is_empty() {
+        match parameter.default {
+          Some(ref default) => Cow::Borrowed(default.as_str()),
+          None => return Err(RunError::InternalError{
+            message: "missing parameter without default".to_string()
+          }),
+        }
       } else {
-        Err(RunError::InternalError{
-          message: "missing parameter without default".to_string()
-        })
-      }).collect::<Result<Vec<_>, _>>()?.into_iter().collect();
+        if parameter.variadic {
+          let value = Cow::Owned(rest.to_vec().join(" "));
+          rest = &[];
+          value
+        } else {
+          let value = Cow::Borrowed(rest[0]);
+          rest = &rest[1..];
+          value
+        }
+      };
+      argument_map.insert(parameter.name, value);
+    }
 
     let mut evaluator = Evaluator {
       evaluated:   empty(),
@@ -690,7 +713,7 @@ impl<'a, 'b> Evaluator<'a, 'b> {
   fn evaluate_line(
     &mut self,
     line:      &[Fragment<'a>],
-    arguments: &Map<&str, &str>
+    arguments: &Map<&str, Cow<str>>
   ) -> Result<String, RunError<'a>> {
     let mut evaluated = String::new();
     for fragment in line {
@@ -728,7 +751,7 @@ impl<'a, 'b> Evaluator<'a, 'b> {
   fn evaluate_expression(
     &mut self,
     expression: &Expression<'a>,
-    arguments: &Map<&str, &str>
+    arguments: &Map<&str, Cow<str>>
   ) -> Result<String, RunError<'a>> {
     Ok(match *expression {
       Expression::Variable{name, ..} => {
@@ -999,6 +1022,14 @@ fn maybe_green(colors: bool) -> ansi_term::Style {
 fn maybe_cyan(colors: bool) -> ansi_term::Style {
   if colors {
     ansi_term::Style::new().fg(ansi_term::Color::Cyan)
+  } else {
+    ansi_term::Style::default()
+  }
+}
+
+fn maybe_purple(colors: bool) -> ansi_term::Style {
+  if colors {
+    ansi_term::Style::new().fg(ansi_term::Color::Purple)
   } else {
     ansi_term::Style::default()
   }
@@ -1854,12 +1885,18 @@ impl<'a> Parser<'a> {
     let mut parsed_variadic_parameter = false;
     let mut parameters: Vec<Parameter> = vec![];
     loop {
-      let variadic = self.accepted(Plus);
+      let plus = self.accept(Plus);
 
       let parameter = match self.accept(Name) {
         Some(parameter) => parameter,
-        None            => break,
+        None            => if let Some(plus) = plus {
+          return Err(self.unexpected_token(&plus, &[Name]));
+        } else {
+          break
+        },
       };
+
+      let variadic = plus.is_some();
 
       if parsed_variadic_parameter {
         return Err(parameter.error(ErrorKind::ParameterFollowsVariadicParameter {
