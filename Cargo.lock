@@ -1,6 +1,6 @@
 [root]
 name = "just"
-version = "0.2.22"
+version = "0.2.23"
 dependencies = [
  "ansi_term 0.9.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "atty 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
