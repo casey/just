@@ -311,16 +311,14 @@ impl<'a> Recipe<'a> {
             message: "missing parameter without default".to_string()
           }),
         }
+      } else if parameter.variadic {
+        let value = Cow::Owned(rest.to_vec().join(" "));
+        rest = &[];
+        value
       } else {
-        if parameter.variadic {
-          let value = Cow::Owned(rest.to_vec().join(" "));
-          rest = &[];
-          value
-        } else {
-          let value = Cow::Borrowed(rest[0]);
-          rest = &rest[1..];
-          value
-        }
+        let value = Cow::Borrowed(rest[0]);
+        rest = &rest[1..];
+        value
       };
       argument_map.insert(parameter.name, value);
     }
