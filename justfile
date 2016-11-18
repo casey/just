@@ -41,16 +41,10 @@ done BRANCH:
 	git branch -d {{BRANCH}}
 
 # push master to github as branch GITHUB-BRANCH
-push GITHUB-BRANCH:
+push GITHUB-BRANCH +FLAGS='':
 	git branch | grep '* master'
 	git diff --no-ext-diff --quiet --exit-code
-	git push github master:refs/heads/{{GITHUB-BRANCH}}
-
-# force push master to github as branch GITHUB_BRANCH
-push-f GITHUB-BRANCH:
-	git branch | grep '* master'
-	git diff --no-ext-diff --quiet --exit-code
-	git push github -f master:refs/heads/{{GITHUB-BRANCH}}
+	git push {{FLAGS}} github master:refs/heads/{{GITHUB-BRANCH}}
 
 # install just from crates.io
 install:
