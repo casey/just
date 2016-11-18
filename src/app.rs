@@ -115,6 +115,9 @@ pub fn app() {
     .arg(Arg::with_name("EVALUATE")
          .long("evaluate")
          .help("Prints evaluated variables"))
+    .arg(Arg::with_name("HIGHLIGHT")
+         .long("highlight")
+         .help("Highlight echoed recipe lines in bold"))
     .arg(Arg::with_name("JUSTFILE")
          .long("justfile")
          .takes_value(true)
@@ -338,6 +341,7 @@ pub fn app() {
   let options = RunOptions {
     dry_run:   matches.is_present("DRY-RUN"),
     evaluate:  matches.is_present("EVALUATE"),
+    highlight: matches.is_present("HIGHLIGHT"),
     overrides: overrides,
     quiet:     matches.is_present("QUIET"),
     shell:     matches.value_of("SHELL"),
