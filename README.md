@@ -264,6 +264,22 @@ Testing server:unit...
 ./test --tests unit server
 ```
 
+The last parameter to a recipe may be variadic, indicated with a `+` before the argument name:
+
+```make
+backup +FILES:
+  scp {{FILES}} me@server.com:
+```
+
+Variadic parameters accept one or more arguments and expand to a string containing those arguments separated by spaces:
+
+```sh
+$ just backup FAQ.md GRAMMAR.md
+scp FAQ.md GRAMMAR.md me@server.com:
+FAQ.md                  100% 1831     1.8KB/s   00:00
+GRAMMAR.md              100% 1666     1.6KB/s   00:00
+```
+
 Variables can be exported to recipes as environment variables:
 
 ```make
