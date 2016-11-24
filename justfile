@@ -40,7 +40,7 @@ build-binary-linux VERSION:
 
 build-and-fetch-linux-binary VERSION:
 	vagrant up
-	vagrant ssh -- 'bash -lc "cd just && git checkout build-binaries && git pull && just build-binary-linux {{VERSION}}"'
+	vagrant ssh -- 'bash -lc "cd just && git checkout master && git pull && just build-binary-linux {{VERSION}}"'
 	rm -rf tmp/linux
 	mkdir tmp/linux
 	scp \
