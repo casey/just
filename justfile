@@ -42,7 +42,7 @@ build-and-fetch-linux-binary VERSION:
 	vagrant up
 	vagrant ssh -- 'bash -lc "cd just && git checkout master && git pull && just build-binary-linux {{VERSION}}"'
 	rm -rf tmp/linux
-	mkdir tmp/linux
+	mkdir -p tmp/linux
 	scp \
 	  -P 2222 \
 	  -i .vagrant/machines/default/virtualbox/private_key \
@@ -55,7 +55,7 @@ build-binary VERSION TARGET:
 	cargo build --release --target={{TARGET}}
 	rm -rf tmp/just-{{VERSION}}-{{TARGET}}
 	rm -rf tmp/just-{{VERSION}}-{{TARGET}}.tar.gz
-	mkdir tmp/just-{{VERSION}}-{{TARGET}}
+	mkdir -p tmp/just-{{VERSION}}-{{TARGET}}
 	cp \
 	  GRAMMAR.md \
 	  LICENSE.md \
