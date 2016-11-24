@@ -38,6 +38,17 @@ build-binary-mac VERSION:
 build-binary-linux VERSION:
 	just build-binary {{VERSION}} x86_64-unknown-linux-musl
 
+build-and-fetch-linux-binary VERSION:
+	vagrant up
+	vagrant ssh -- 'bash -lc "cd just && git checkout build-binaries && git pull && just build-binary-linux {{VERSION}}"'
+	rm -rf tmp/linux
+	mkdir tmp/linux
+	scp \
+	  -P 2222 \
+	  -i .vagrant/machines/default/virtualbox/private_key \
+	  'vagrant@127.0.0.1:just/tmp/*-x86_64-unknown-linux-musl.tar.gz' \
+	  tmp/linux
+
 build-binary VERSION TARGET:
 	git diff --no-ext-diff --quiet --exit-code
 	git checkout {{VERSION}}
@@ -49,12 +60,11 @@ build-binary VERSION TARGET:
 	  GRAMMAR.md \
 	  LICENSE.md \
 	  README.md \
-	  target/release/just \
+	  target/{{TARGET}}/release/just \
 	  tmp/just-{{VERSION}}-{{TARGET}}
 	cd tmp && tar cvfz \
 	  just-{{VERSION}}-{{TARGET}}.tar.gz \
 	  just-{{VERSION}}-{{TARGET}}
-	open tmp
 
 # clean up feature branch BRANCH
 done BRANCH:
@@ -105,10 +115,11 @@ backtick-fail:
 	echo {{`exit 1`}}
 
 test-quine:
-	cargo run -- quine clean
+	cargo run -- quine
 
 # make a quine, compile it, and verify it
-quine: create
+quine:
+	@echo '{{quine-text}}' > tmp/gen0.c
 	cc tmp/gen0.c -o tmp/gen0
 	./tmp/gen0 > tmp/gen1.c
 	cc tmp/gen1.c -o tmp/gen1
@@ -131,11 +142,6 @@ quine-text = '
 		return 0;
 	}
 '
-
-# create our quine
-create:
-	mkdir -p tmp
-	@echo '{{quine-text}}' > tmp/gen0.c
 
 # run all polyglot recipes
 polyglot: python js perl sh ruby
