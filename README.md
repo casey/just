@@ -26,17 +26,26 @@ test TEST: build
 If you need help with `just` please feel free to send me an email. Feature requests and bug reports are also always welcome!
 
 
-getting started
----------------
+installation
+------------
 
-`just` should run on any system with a reasonable `sh` and can be installed with `cargo`, the [rust language](https://www.rust-lang.org) package manager:
+`just` should run on any system with a reasonable `sh`.
+
+### prebuilts
+
+Prebuilt binaries for Linux and macOS can be found on [the releases page](https://github.com/casey/just/releases).
+
+### cargo
+
+Alternately, `just` can be installed with `cargo`, the [rust language](https://www.rust-lang.org) package manager:
 
 1. Install rust and cargo by following the instructions at [rustup.rs](https://www.rustup.rs)
 2. Run `cargo install just`
 3. Add `~/.cargo/bin` to your PATH
 
-Optionally, you can also `alias j=just` for lighting fast command running.
+### alias
 
+You can put `alias j=just` in your shell's config file for lighting fast command running.
 
 How do I just?
 --------------
