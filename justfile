@@ -24,13 +24,37 @@ version = `sed -En 's/version[[:space:]]*=[[:space:]]*"([^"]+)"/v\1/p' Cargo.tom
 publish: lint clippy test
 	git branch | grep '* master'
 	git diff --no-ext-diff --quiet --exit-code
-	git co -b {{version}}
+	git checkout -b {{version}}
 	git push github
 	cargo publish
 	git tag -a {{version}} -m {{version}}
 	git push github --tags
 	git push origin --tags
 	@echo 'Remember to merge the {{version}} branch on GitHub!'
+
+build-binary-mac VERSION:
+	just build-binary {{VERSION}} x86_64-apple-darwin
+
+build-binary-linux VERSION:
+	just build-binary {{VERSION}} x86_64-unknown-linux-musl
+
+build-binary VERSION TARGET:
+	git diff --no-ext-diff --quiet --exit-code
+	git checkout {{VERSION}}
+	cargo build --release --target={{TARGET}}
+	rm -rf tmp/just-{{VERSION}}-{{TARGET}}
+	rm -rf tmp/just-{{VERSION}}-{{TARGET}}.tar.gz
+	mkdir tmp/just-{{VERSION}}-{{TARGET}}
+	cp \
+	  GRAMMAR.md \
+	  LICENSE.md \
+	  README.md \
+	  target/release/just \
+	  tmp/just-{{VERSION}}-{{TARGET}}
+	cd tmp && tar cvfz \
+	  just-{{VERSION}}-{{TARGET}}.tar.gz \
+	  just-{{VERSION}}-{{TARGET}}
+	open tmp
 
 # clean up feature branch BRANCH
 done BRANCH:
