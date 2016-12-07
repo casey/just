@@ -2111,7 +2111,7 @@ impl<'a> Parser<'a> {
             self.recipe(token, doc, false)?;
             doc = None;
           },
-          _ => return return Err(self.unexpected_token(&token, &[Name, At])),
+          _ => return Err(self.unexpected_token(&token, &[Name, At])),
         },
         None => return Err(CompileError {
           text:   self.text,
