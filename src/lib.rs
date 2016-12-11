@@ -1218,37 +1218,34 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
       return Ok(());
     }
 
-    let mut ran = empty();
+    let mut missing = vec![];
+    let mut grouped = vec![];
+    let mut rest    = arguments;
 
-    for (i, argument) in arguments.iter().enumerate() {
+    while let Some((argument, mut tail)) = rest.split_first() {
       if let Some(recipe) = self.recipes.get(argument) {
-        if !recipe.parameters.is_empty() {
-          if i != 0 {
-            return Err(RunError::NonLeadingRecipeWithParameters{recipe: recipe.name});
-          }
-          let rest = &arguments[1..];
+        if recipe.parameters.is_empty() {
+          grouped.push((recipe, &tail[0..0]));
+        } else {
           let argument_range = recipe.argument_range();
-          if !contains(&argument_range, rest.len()) {
+          let argument_count = cmp::min(tail.len(), argument_range.end - 1);
+          if !contains(&argument_range, argument_count) {
             return Err(RunError::ArgumentCountMismatch {
               recipe: recipe.name,
-              found:  rest.len(),
+              found:  tail.len(),
               min:    argument_range.start,
               max:    argument_range.end - 1,
             });
           }
-          return self.run_recipe(recipe, rest, &scope, &mut ran, options);
+          grouped.push((recipe, &tail[0..argument_count]));
+          tail = &tail[argument_count..];
         }
       } else {
-        break;
+        missing.push(*argument);
       }
+      rest = tail;
     }
 
-    let mut missing = vec![];
-    for recipe in arguments {
-      if !self.recipes.contains_key(recipe) {
-        missing.push(*recipe);
-      }
-    }
     if !missing.is_empty() {
       let suggestion = if missing.len() == 1 {
         self.suggest(missing.first().unwrap())
@@ -1257,9 +1254,12 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
       };
       return Err(RunError::UnknownRecipes{recipes: missing, suggestion: suggestion});
     }
-    for recipe in arguments.iter().map(|name| &self.recipes[name]) {
-      self.run_recipe(recipe, &[], &scope, &mut ran, options)?;
+
+    let mut ran = empty();
+    for (recipe, arguments) in grouped {
+      self.run_recipe(recipe, arguments, &scope, &mut ran, options)?
     }
+
     Ok(())
   }
 
@@ -1312,7 +1312,6 @@ enum RunError<'a> {
   Code{recipe: &'a str, line_number: Option<usize>, code: i32},
   InternalError{message: String},
   IoError{recipe: &'a str, io_error: io::Error},
-  NonLeadingRecipeWithParameters{recipe: &'a str},
   Signal{recipe: &'a str, line_number: Option<usize>, signal: i32},
   TmpdirIoError{recipe: &'a str, io_error: io::Error},
   UnknownFailure{recipe: &'a str, line_number: Option<usize>},
@@ -1346,10 +1345,6 @@ impl<'a> Display for RunError<'a> {
         write!(f, "Variable{} {} overridden on the command line but not present in justfile",
                   maybe_s(overrides.len()),
                   And(&overrides.iter().map(Tick).collect::<Vec<_>>()))?;
-      },
-      NonLeadingRecipeWithParameters{recipe} => {
-        write!(f, "Recipe `{}` takes arguments and so must be the first and only recipe \
-                   specified on the command line", recipe)?;
       },
       ArgumentCountMismatch{recipe, found, min, max} => {
         if min == max {
