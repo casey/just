@@ -239,7 +239,7 @@ build target:
     cd {{target}} && make
 ```
 
-Recipes with parameters have limitations. Other recipes may not depend on them, and only one recipe with parameters may be given on the command line.
+Other recipes may not depend on a recipe with parameters.
 
 To pass arguments, put them after the recipe name:
 

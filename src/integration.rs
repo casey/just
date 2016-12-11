@@ -911,7 +911,7 @@ foo A B:
     ",
     255,
     "",
-    "error: Recipe `foo` got 3 arguments but only takes 2\n",
+    "error: Justfile does not contain recipe `THREE`.\n",
   );
 }
 
@@ -939,7 +939,7 @@ foo A B='B':
     ",
     255,
     "",
-    "error: Recipe `foo` got 3 arguments but takes at most 2\n",
+    "error: Justfile does not contain recipe `THREE`.\n",
   );
 }
 
@@ -1535,5 +1535,25 @@ a x y +z:
     255,
     "",
     "error: Recipe `a` got 2 arguments but takes at least 3\n",
+  );
+}
+
+#[test]
+fn argument_grouping() {
+  integration_test(
+    &["BAR", "0", "FOO", "1", "2", "BAZ", "3", "4", "5"],
+    "
+FOO A B='blarg':
+  echo foo: {{A}} {{B}}
+
+BAR X:
+  echo bar: {{X}}
+
+BAZ +Z:
+  echo baz: {{Z}}
+",
+    0,
+    "bar: 0\nfoo: 1 2\nbaz: 3 4 5\n",
+    "echo bar: 0\necho foo: 1 2\necho baz: 3 4 5\n",
   );
 }
