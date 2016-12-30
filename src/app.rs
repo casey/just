@@ -186,7 +186,7 @@ pub fn app() {
     .enumerate()
     .flat_map(|(i, argument)| {
       if i == 0 {
-        if let Some(i) = argument.rfind("/") {
+        if let Some(i) = argument.rfind('/') {
           if matches.is_present("working-directory") {
             die!("--working-directory and a path prefixed recipe may not be used together.");
           }
