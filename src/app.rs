@@ -163,6 +163,52 @@ pub fn app() {
     None => die!("Invalid argument to --color. This is a bug in just."),
   };
 
+  let set_count = matches.occurrences_of("set");
+  let mut overrides = BTreeMap::new();
+  if set_count > 0 {
+    let mut values = matches.values_of("set").unwrap();
+    for _ in 0..set_count {
+      overrides.insert(values.next().unwrap(), values.next().unwrap());
+    }
+  }
+
+  let override_re = regex::Regex::new("^([^=]+)=(.*)$").unwrap();
+
+  let raw_arguments = matches.values_of("arguments").map(|values| values.collect::<Vec<_>>())
+    .unwrap_or_default();
+
+  for argument in raw_arguments.iter().take_while(|arg| override_re.is_match(arg)) {
+    let captures = override_re.captures(argument).unwrap();
+    overrides.insert(captures.at(1).unwrap(), captures.at(2).unwrap());
+  }
+
+  let rest = raw_arguments.iter().skip_while(|arg| override_re.is_match(arg))
+    .enumerate()
+    .flat_map(|(i, argument)| {
+      if i == 0 {
+        if let Some(i) = argument.rfind("/") {
+          if matches.is_present("working-directory") {
+            die!("--working-directory and a path prefixed recipe may not be used together.");
+          }
+
+          let (dir, recipe) = argument.split_at(i + 1);
+
+          if let Err(error) = env::set_current_dir(dir) {
+            die!("Error changing directory: {}", error);
+          }
+
+          if recipe.is_empty() {
+            return None;
+          } else {
+            return Some(recipe);
+          }
+        }
+      }
+
+      Some(*argument)
+    })
+    .collect::<Vec<&str>>();
+
   let justfile_option = matches.value_of("justfile");
   let working_directory_option = matches.value_of("working-directory");
 
@@ -274,28 +320,6 @@ pub fn app() {
       }
     }
   }
-
-  let set_count = matches.occurrences_of("set");
-  let mut overrides = BTreeMap::new();
-  if set_count > 0 {
-    let mut values = matches.values_of("set").unwrap();
-    for _ in 0..set_count {
-      overrides.insert(values.next().unwrap(), values.next().unwrap());
-    }
-  }
-
-  let override_re = regex::Regex::new("^([^=]+)=(.*)$").unwrap();
-
-  let raw_arguments = matches.values_of("arguments").map(|values| values.collect::<Vec<_>>())
-    .unwrap_or_default();
-
-  for argument in raw_arguments.iter().take_while(|arg| override_re.is_match(arg)) {
-    let captures = override_re.captures(argument).unwrap();
-    overrides.insert(captures.at(1).unwrap(), captures.at(2).unwrap());
-  }
-
-  let rest = raw_arguments.iter().skip_while(|arg| override_re.is_match(arg))
-    .cloned().collect::<Vec<_>>();
 
   let arguments = if !rest.is_empty() {
     rest
