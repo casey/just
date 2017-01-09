@@ -344,7 +344,7 @@ recipe:
 }
 
 #[test]
-fn error() {
+fn unknown_dependency() {
   integration_test(
     &[],
     "bar:\nhello:\nfoo: bar baaaaaaaz hello",
@@ -741,6 +741,31 @@ wut:
 }
 
 #[test]
+fn outer_shebang() {
+  integration_test(
+    &[],
+    r#"#!/lol/wut
+export foo = "a"
+baz = "c"
+export bar = "b"
+export abc = foo + bar + baz
+
+wut:
+  #!/bin/sh
+  echo $foo $bar $abc
+"#,
+    255,
+    "",
+    "error: `#!` is reserved syntax outside of recipes
+  |
+1 | #!/lol/wut
+  | ^
+",
+  );
+}
+
+
+#[test]
 fn export_shebang() {
   integration_test(
     &[],
@@ -1101,6 +1126,53 @@ recipe a b +d:
 }
 
 #[test]
+fn mixed_whitespace() {
+  integration_test(
+    &[],
+    "bar:\n\t echo hello",
+    255,
+    "",
+    "error: Found a mix of tabs and spaces in leading whitespace: `␉␠`
+Leading whitespace may consist of tabs or spaces, but not both
+  |
+2 |      echo hello
+  | ^
+",
+  );
+}
+
+#[test]
+fn extra_leading_whitespace() {
+  integration_test(
+    &[],
+    "bar:\n\t\techo hello\n\t\t\techo goodbye",
+    255,
+    "",
+    "error: Recipe line has extra leading whitespace
+  |
+3 |             echo goodbye
+  |         ^^^^^^^^^^^^^^^^
+",
+  );
+}
+
+#[test]
+fn inconsistent_leading_whitespace() {
+  integration_test(
+    &[],
+    "bar:\n\t\techo hello\n\t echo goodbye",
+    255,
+    "",
+    "error: Recipe line has inconsistent leading whitespace. Recipe started with `␉␉` but found line with `␉␠`
+  |
+3 |      echo goodbye
+  | ^
+",
+  );
+}
+
+
+#[test]
 fn required_after_default() {
   integration_test(
     &[],
@@ -1111,6 +1183,21 @@ fn required_after_default() {
   |
 2 | hello baz arg='foo' bar:
   |                     ^^^
+",
+  );
+}
+
+#[test]
+fn required_after_variadic() {
+  integration_test(
+    &[],
+    "bar:\nhello baz +arg bar:",
+    255,
+    "",
+    "error: Parameter `bar` follows variadic parameter
+  |
+2 | hello baz +arg bar:
+  |                ^^^
 ",
   );
 }
@@ -1375,6 +1462,128 @@ c: b a
 }
 
 #[test]
+fn parameter_shadows_variable() {
+  integration_test(
+    &["a"],
+    "FOO = 'hello'\na FOO:",
+    255,
+    "",
+    "error: Parameter `FOO` shadows variable of the same name
+  |
+2 | a FOO:
+  |   ^^^
+",
+  );
+}
+
+
+#[test]
+fn dependency_takes_arguments() {
+  integration_test(
+    &["b"],
+    "b: a\na FOO:",
+    255,
+    "",
+    "error: Recipe `b` depends on `a` which requires arguments. Dependencies may not require arguments
+  |
+1 | b: a
+  |    ^
+",
+  );
+}
+
+#[test]
+fn duplicate_parameter() {
+  integration_test(
+    &["a"],
+    "a foo foo:",
+    255,
+    "",
+    "error: Recipe `a` has duplicate parameter `foo`
+  |
+1 | a foo foo:
+  |       ^^^
+",
+  );
+}
+
+#[test]
+fn duplicate_dependency() {
+  integration_test(
+    &["a"],
+    "b:\na: b b",
+    255,
+    "",
+    "error: Recipe `a` has duplicate dependency `b`
+  |
+2 | a: b b
+  |      ^
+",
+  );
+}
+
+#[test]
+fn duplicate_recipe() {
+  integration_test(
+    &["b"],
+    "b:\nb:",
+    255,
+    "",
+    "error: Recipe `b` first defined on line 1 is redefined on line 2
+  |
+2 | b:
+  | ^
+",
+  );
+}
+
+#[test]
+fn duplicate_variable() {
+  integration_test(
+    &["foo"],
+    "a = 'hello'\na = 'hello'\nfoo:",
+    255,
+    "",
+    "error: Variable `a` has multiple definitions
+  |
+2 | a = 'hello'
+  | ^
+",
+  );
+}
+
+#[test]
+fn unexpected_token() {
+  integration_test(
+    &["foo"],
+    "foo: 'bar'",
+    255,
+    "",
+    "error: Expected name, end of line, or end of file, but found raw string
+  |
+1 | foo: 'bar'
+  |      ^^^^^
+",
+  );
+}
+
+
+#[test]
+fn self_dependency() {
+  integration_test(
+    &["a"],
+    "a: a",
+    255,
+    "",
+    "error: Recipe `a` depends on itself
+  |
+1 | a: a
+  |    ^
+",
+  );
+}
+
+#[test]
 fn long_circular_recipe_dependency() {
   integration_test(
     &["a"],
@@ -1388,6 +1597,53 @@ fn long_circular_recipe_dependency() {
 ",
   );
 }
+
+#[test]
+fn variable_self_dependency() {
+  integration_test(
+    &["a"],
+    "z = z\na:",
+    255,
+    "",
+    "error: Variable `z` is defined in terms of itself
+  |
+1 | z = z
+  | ^
+",
+  );
+}
+
+#[test]
+fn variable_circular_dependency() {
+  integration_test(
+    &["a"],
+    "x = y\ny = z\nz = x\na:",
+    255,
+    "",
+    "error: Variable `x` depends on its own value: `x -> y -> z -> x`
+  |
+1 | x = y
+  | ^
+",
+  );
+}
+
+#[test]
+fn invalid_escape_sequence() {
+  integration_test(
+    &["a"],
+    r#"x = "\q"
+a:"#,
+    255,
+    "",
+    "error: `\\q` is not a valid escape sequence
+  |
+1 | x = \"\\q\"
+  |     ^^^^
+",
+  );
+}
+
 
 #[test]
 fn multiline_raw_string() {

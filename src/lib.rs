@@ -828,7 +828,7 @@ fn internal_error(message: String) -> CompileError<'static> {
 }
 
 fn show_whitespace(text: &str) -> String {
-  text.chars().map(|c| match c { '\t' => 't', ' ' => 's', _ => c }).collect()
+  text.chars().map(|c| match c { '\t' => '␉', ' ' => '␠', _ => c }).collect()
 }
 
 fn mixed_whitespace(text: &str) -> bool {
@@ -1052,7 +1052,7 @@ impl<'a> Display for CompileError<'a> {
     match self.kind {
       CircularRecipeDependency{recipe, ref circle} => {
         if circle.len() == 2 {
-          write!(f, "Recipe `{}` depends on itself", recipe)?;
+          writeln!(f, "Recipe `{}` depends on itself", recipe)?;
         } else {
           writeln!(f, "Recipe `{}` has circular dependency `{}`",
                       recipe, circle.join(" -> "))?;
@@ -1060,8 +1060,7 @@ impl<'a> Display for CompileError<'a> {
       }
       CircularVariableDependency{variable, ref circle} => {
         if circle.len() == 2 {
-          writeln!(f, "Variable `{}` depends on its own value: `{}`",
-                      variable, circle.join(" -> "))?;
+          writeln!(f, "Variable `{}` is defined in terms of itself", variable)?;
         } else {
           writeln!(f, "Variable `{}` depends on its own value: `{}`",
                       variable, circle.join(" -> "))?;
@@ -1075,21 +1074,21 @@ impl<'a> Display for CompileError<'a> {
         writeln!(f, "Recipe `{}` has duplicate parameter `{}`", recipe, parameter)?;
       }
       DuplicateVariable{variable} => {
-        writeln!(f, "Variable `{}` is has multiple definitions", variable)?;
+        writeln!(f, "Variable `{}` has multiple definitions", variable)?;
       }
       UnexpectedToken{ref expected, found} => {
-        writeln!(f, "Expected {} but found {}", Or(expected), found)?;
+        writeln!(f, "Expected {}, but found {}", Or(expected), found)?;
       }
       DuplicateDependency{recipe, dependency} => {
         writeln!(f, "Recipe `{}` has duplicate dependency `{}`", recipe, dependency)?;
       }
       DuplicateRecipe{recipe, first} => {
         writeln!(f, "Recipe `{}` first defined on line {} is redefined on line {}",
-                    recipe, first, self.line)?;
+                    recipe, first + 1, self.line + 1)?;
       }
       DependencyHasParameters{recipe, dependency} => {
         writeln!(f, "Recipe `{}` depends on `{}` which requires arguments. \
-                    dependencies may not require arguments", recipe, dependency)?;
+                    Dependencies may not require arguments", recipe, dependency)?;
       }
       ParameterShadowsVariable{parameter} => {
         writeln!(f, "Parameter `{}` shadows variable of the same name", parameter)?;
@@ -1098,12 +1097,12 @@ impl<'a> Display for CompileError<'a> {
         writeln!(f, "Non-default parameter `{}` follows default parameter", parameter)?;
       }
       ParameterFollowsVariadicParameter{parameter} => {
-        writeln!(f, "Parameter `{}` follows a varidic parameter", parameter)?;
+        writeln!(f, "Parameter `{}` follows variadic parameter", parameter)?;
       }
       MixedLeadingWhitespace{whitespace} => {
         writeln!(f,
           "Found a mix of tabs and spaces in leading whitespace: `{}`\n\
-          leading whitespace may consist of tabs or spaces, but not both",
+          Leading whitespace may consist of tabs or spaces, but not both",
           show_whitespace(whitespace)
         )?;
       }
@@ -1112,12 +1111,12 @@ impl<'a> Display for CompileError<'a> {
       }
       InconsistentLeadingWhitespace{expected, found} => {
         writeln!(f,
-          "Inconsistant leading whitespace: recipe started with `{}` but found line with `{}`:",
+          "Recipe line has inconsistent leading whitespace. Recipe started with `{}` but found line with `{}`",
           show_whitespace(expected), show_whitespace(found)
         )?;
       }
       OuterShebang => {
-        writeln!(f, "Shebang `#!` is reserved syntax outside of recipes")?;
+        writeln!(f, "`#!` is reserved syntax outside of recipes")?;
       }
       UnknownDependency{recipe, unknown} => {
         writeln!(f, "Recipe `{}` has unknown dependency `{}`", recipe, unknown)?;
@@ -1405,7 +1404,7 @@ impl<'a> Display for RunError<'a> {
         error_token = Some(token);
       }
       BacktickUnknownFailure{ref token} => {
-        write!(f, "Backtick failed for an uknown reason")?;
+        write!(f, "Backtick failed for an unknown reason")?;
         error_token = Some(token);
       }
       BacktickIoError{ref token, ref io_error} => {
