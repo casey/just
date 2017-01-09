@@ -1052,18 +1052,18 @@ impl<'a> Display for CompileError<'a> {
     match self.kind {
       CircularRecipeDependency{recipe, ref circle} => {
         if circle.len() == 2 {
-          write!(f, "recipe `{}` depends on itself", recipe)?;
+          write!(f, "Recipe `{}` depends on itself", recipe)?;
         } else {
-          writeln!(f, "recipe `{}` has circular dependency `{}`",
+          writeln!(f, "Recipe `{}` has circular dependency `{}`",
                       recipe, circle.join(" -> "))?;
         }
       }
       CircularVariableDependency{variable, ref circle} => {
         if circle.len() == 2 {
-          writeln!(f, "variable `{}` depends on its own value: `{}`",
+          writeln!(f, "Variable `{}` depends on its own value: `{}`",
                       variable, circle.join(" -> "))?;
         } else {
-          writeln!(f, "variable `{}` depends on its own value: `{}`",
+          writeln!(f, "Variable `{}` depends on its own value: `{}`",
                       variable, circle.join(" -> "))?;
         }
       }
@@ -1072,67 +1072,67 @@ impl<'a> Display for CompileError<'a> {
                     character.escape_default().collect::<String>())?;
       }
       DuplicateParameter{recipe, parameter} => {
-        writeln!(f, "recipe `{}` has duplicate parameter `{}`", recipe, parameter)?;
+        writeln!(f, "Recipe `{}` has duplicate parameter `{}`", recipe, parameter)?;
       }
       DuplicateVariable{variable} => {
-        writeln!(f, "variable `{}` is has multiple definitions", variable)?;
+        writeln!(f, "Variable `{}` is has multiple definitions", variable)?;
       }
       UnexpectedToken{ref expected, found} => {
-        writeln!(f, "expected {} but found {}", Or(expected), found)?;
+        writeln!(f, "Expected {} but found {}", Or(expected), found)?;
       }
       DuplicateDependency{recipe, dependency} => {
-        writeln!(f, "recipe `{}` has duplicate dependency `{}`", recipe, dependency)?;
+        writeln!(f, "Recipe `{}` has duplicate dependency `{}`", recipe, dependency)?;
       }
       DuplicateRecipe{recipe, first} => {
-        writeln!(f, "recipe `{}` first defined on line {} is redefined on line {}",
+        writeln!(f, "Recipe `{}` first defined on line {} is redefined on line {}",
                     recipe, first, self.line)?;
       }
       DependencyHasParameters{recipe, dependency} => {
-        writeln!(f, "recipe `{}` depends on `{}` which requires arguments. \
+        writeln!(f, "Recipe `{}` depends on `{}` which requires arguments. \
                     dependencies may not require arguments", recipe, dependency)?;
       }
       ParameterShadowsVariable{parameter} => {
-        writeln!(f, "parameter `{}` shadows variable of the same name", parameter)?;
+        writeln!(f, "Parameter `{}` shadows variable of the same name", parameter)?;
       }
       RequiredParameterFollowsDefaultParameter{parameter} => {
-        writeln!(f, "non-default parameter `{}` follows default parameter", parameter)?;
+        writeln!(f, "Non-default parameter `{}` follows default parameter", parameter)?;
       }
       ParameterFollowsVariadicParameter{parameter} => {
-        writeln!(f, "parameter `{}` follows a varidic parameter", parameter)?;
+        writeln!(f, "Parameter `{}` follows a varidic parameter", parameter)?;
       }
       MixedLeadingWhitespace{whitespace} => {
         writeln!(f,
-          "found a mix of tabs and spaces in leading whitespace: `{}`\n\
+          "Found a mix of tabs and spaces in leading whitespace: `{}`\n\
           leading whitespace may consist of tabs or spaces, but not both",
           show_whitespace(whitespace)
         )?;
       }
       ExtraLeadingWhitespace => {
-        writeln!(f, "recipe line has extra leading whitespace")?;
+        writeln!(f, "Recipe line has extra leading whitespace")?;
       }
       InconsistentLeadingWhitespace{expected, found} => {
         writeln!(f,
-          "inconsistant leading whitespace: recipe started with `{}` but found line with `{}`:",
+          "Inconsistant leading whitespace: recipe started with `{}` but found line with `{}`:",
           show_whitespace(expected), show_whitespace(found)
         )?;
       }
       OuterShebang => {
-        writeln!(f, "a shebang `#!` is reserved syntax outside of recipes")?;
+        writeln!(f, "Shebang `#!` is reserved syntax outside of recipes")?;
       }
       UnknownDependency{recipe, unknown} => {
-        writeln!(f, "recipe `{}` has unknown dependency `{}`", recipe, unknown)?;
+        writeln!(f, "Recipe `{}` has unknown dependency `{}`", recipe, unknown)?;
       }
       UndefinedVariable{variable} => {
-        writeln!(f, "variable `{}` not defined", variable)?;
+        writeln!(f, "Variable `{}` not defined", variable)?;
       }
       UnknownStartOfToken => {
-        writeln!(f, "unknown start of token:")?;
+        writeln!(f, "Unknown start of token:")?;
       }
       UnterminatedString => {
-        writeln!(f, "unterminated string")?;
+        writeln!(f, "Unterminated string")?;
       }
       InternalError{ref message} => {
-        writeln!(f, "internal error, this may indicate a bug in just: {}\n\
+        writeln!(f, "Internal error, this may indicate a bug in just: {}\n\
                      consider filing an issue: https://github.com/casey/just/issues/new",
                      message)?;
       }
@@ -1397,35 +1397,35 @@ impl<'a> Display for RunError<'a> {
                   to create a temporary directory or write a file to that directory`:\n{}",
                   recipe, io_error)?,
       BacktickCode{code, ref token} => {
-        write!(f, "backtick failed with exit code {}\n", code)?;
+        write!(f, "Backtick failed with exit code {}\n", code)?;
         error_token = Some(token);
       }
       BacktickSignal{ref token, signal} => {
-        write!(f, "backtick was terminated by signal {}", signal)?;
+        write!(f, "Backtick was terminated by signal {}", signal)?;
         error_token = Some(token);
       }
       BacktickUnknownFailure{ref token} => {
-        write!(f, "backtick failed for an uknown reason")?;
+        write!(f, "Backtick failed for an uknown reason")?;
         error_token = Some(token);
       }
       BacktickIoError{ref token, ref io_error} => {
         match io_error.kind() {
           io::ErrorKind::NotFound => write!(
-            f, "backtick could not be run because just could not find `sh` the command:\n{}",
+            f, "Backtick could not be run because just could not find `sh` the command:\n{}",
             io_error),
           io::ErrorKind::PermissionDenied => write!(
-            f, "backtick could not be run because just could not run `sh`:\n{}", io_error),
-          _ => write!(f, "backtick could not be run because of an IO \
+            f, "Backtick could not be run because just could not run `sh`:\n{}", io_error),
+          _ => write!(f, "Backtick could not be run because of an IO \
                           error while launching `sh`:\n{}", io_error),
         }?;
         error_token = Some(token);
       }
       BacktickUtf8Error{ref token, ref utf8_error} => {
-        write!(f, "backtick succeeded but stdout was not utf8: {}", utf8_error)?;
+        write!(f, "Backtick succeeded but stdout was not utf8: {}", utf8_error)?;
         error_token = Some(token);
       }
       InternalError{ref message} => {
-        write!(f, "internal error, this may indicate a bug in just: {} \
+        write!(f, "Internal error, this may indicate a bug in just: {} \
                    consider filing an issue: https://github.com/casey/just/issues/new",
                    message)?;
       }

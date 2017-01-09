@@ -350,7 +350,7 @@ fn error() {
     "bar:\nhello:\nfoo: bar baaaaaaaz hello",
     255,
     "",
-    "error: recipe `foo` has unknown dependency `baaaaaaaz`
+    "error: Recipe `foo` has unknown dependency `baaaaaaaz`
   |
 3 | foo: bar baaaaaaaz hello
   |          ^^^^^^^^^
@@ -387,7 +387,7 @@ fn backtick_code_assignment() {
     "b = a\na = `exit 100`\nbar:\n echo '{{`exit 200`}}'",
     100,
     "",
-    "error: backtick failed with exit code 100
+    "error: Backtick failed with exit code 100
   |
 2 | a = `exit 100`
   |     ^^^^^^^^^^
@@ -402,7 +402,7 @@ fn backtick_code_interpolation() {
     "b = a\na = `echo hello`\nbar:\n echo '{{`exit 200`}}'",
     200,
     "",
-    "error: backtick failed with exit code 200
+    "error: Backtick failed with exit code 200
   |
 4 |  echo '{{`exit 200`}}'
   |          ^^^^^^^^^^
@@ -420,7 +420,7 @@ backtick-fail:
 ",
     1,
     "",
-    "error: backtick failed with exit code 1
+    "error: Backtick failed with exit code 1
   |
 3 |     echo {{`exit 1`}}
   |            ^^^^^^^^
@@ -438,7 +438,7 @@ backtick-fail:
 ",
     1,
     "",
-    "error: backtick failed with exit code 1
+    "error: Backtick failed with exit code 1
   |
 3 |     echo {{    `exit 1`}}
   |                ^^^^^^^^
@@ -456,7 +456,7 @@ backtick-fail:
 ",
     1,
     "",
-    "error: backtick failed with exit code 1
+    "error: Backtick failed with exit code 1
   |
 3 |     echo {{    `exit        1`}}
   |                ^^^^^^^^^^^^^^^
@@ -474,7 +474,7 @@ backtick-fail:
 ",
     1,
     "",
-    "error: backtick failed with exit code 1
+    "error: Backtick failed with exit code 1
   |
 3 |     echo 😬{{`exit 1`}}
   |             ^^^^^^^^
@@ -492,7 +492,7 @@ backtick-fail:
 ",
     1,
     "",
-    "error: backtick failed with exit code 1
+    "error: Backtick failed with exit code 1
   |
 3 |     echo             😬鎌鼬{{        `exit 1 #             😬鎌鼬`}}            😬鎌鼬
   |                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -507,7 +507,7 @@ fn backtick_code_long() {
     "\n\n\n\n\n\nb = a\na = `echo hello`\nbar:\n echo '{{`exit 200`}}'",
     200,
     "",
-    "error: backtick failed with exit code 200
+    "error: Backtick failed with exit code 200
    |
 10 |  echo '{{`exit 200`}}'
    |          ^^^^^^^^^^
@@ -525,7 +525,7 @@ fn shebang_backtick_failure() {
  echo {{`exit 123`}}",
     123,
     "",
-    "error: backtick failed with exit code 123
+    "error: Backtick failed with exit code 123
   |
 4 |  echo {{`exit 123`}}
   |         ^^^^^^^^^^
@@ -542,7 +542,7 @@ fn command_backtick_failure() {
  echo {{`exit 123`}}",
     123,
     "hello\n",
-    "echo hello\nerror: backtick failed with exit code 123
+    "echo hello\nerror: Backtick failed with exit code 123
   |
 3 |  echo {{`exit 123`}}
   |         ^^^^^^^^^^
@@ -560,7 +560,7 @@ fn assignment_backtick_failure() {
 a = `exit 222`",
     222,
     "",
-    "error: backtick failed with exit code 222
+    "error: Backtick failed with exit code 222
   |
 4 | a = `exit 222`
   |     ^^^^^^^^^^
@@ -809,7 +809,7 @@ fn line_error_spacing() {
 "#,
     255,
     "",
-    "error: unknown start of token:
+    "error: Unknown start of token:
    |
 10 | ???
    | ^
@@ -1032,7 +1032,7 @@ fn color_always() {
     "b = a\na = `exit 100`\nbar:\n echo '{{`exit 200`}}'",
     100,
     "",
-    "\u{1b}[1;31merror:\u{1b}[0m \u{1b}[1mbacktick failed with exit code 100
+    "\u{1b}[1;31merror:\u{1b}[0m \u{1b}[1mBacktick failed with exit code 100
 \u{1b}[0m  |\n2 | a = `exit 100`\n  |     \u{1b}[1;31m^^^^^^^^^^\u{1b}[0m\n",
   );
 }
@@ -1044,7 +1044,7 @@ fn color_never() {
     "b = a\na = `exit 100`\nbar:\n echo '{{`exit 200`}}'",
     100,
     "",
-    "error: backtick failed with exit code 100
+    "error: Backtick failed with exit code 100
   |
 2 | a = `exit 100`
   |     ^^^^^^^^^^
@@ -1059,7 +1059,7 @@ fn color_auto() {
     "b = a\na = `exit 100`\nbar:\n echo '{{`exit 200`}}'",
     100,
     "",
-    "error: backtick failed with exit code 100
+    "error: Backtick failed with exit code 100
   |
 2 | a = `exit 100`
   |     ^^^^^^^^^^
@@ -1107,7 +1107,7 @@ fn required_after_default() {
     "bar:\nhello baz arg='foo' bar:",
     255,
     "",
-    "error: non-default parameter `bar` follows default parameter
+    "error: Non-default parameter `bar` follows default parameter
   |
 2 | hello baz arg='foo' bar:
   |                     ^^^
@@ -1381,7 +1381,7 @@ fn long_circular_recipe_dependency() {
     "a: b\nb: c\nc: d\nd: a",
     255,
     "",
-    "error: recipe `d` has circular dependency `a -> b -> c -> d -> a`
+    "error: Recipe `d` has circular dependency `a -> b -> c -> d -> a`
   |
 4 | d: a
   |    ^
@@ -1424,7 +1424,7 @@ a:
 ",
     255,
     "",
-    "error: variable `foo` not defined
+    "error: Variable `foo` not defined
   |
 7 |   echo '{{foo}}'
   |           ^^^
@@ -1446,7 +1446,7 @@ a:
 ",
     255,
     "",
-    "error: variable `bar` not defined
+    "error: Variable `bar` not defined
   |
 4 | whatever' + bar
   |             ^^^
@@ -1486,7 +1486,7 @@ a:
 "#,
     255,
     "",
-    "error: variable `b` not defined
+    "error: Variable `b` not defined
   |
 6 |   echo {{b}}
   |          ^
@@ -1503,7 +1503,7 @@ a b=':
 ",
     255,
     "",
-    "error: unterminated string
+    "error: Unterminated string
   |
 2 | a b=':
   |     ^
@@ -1520,7 +1520,7 @@ a b=":
 "#,
     255,
     "",
-    r#"error: unterminated string
+    r#"error: Unterminated string
   |
 2 | a b=":
   |     ^
