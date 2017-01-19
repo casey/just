@@ -589,7 +589,7 @@ impl<'a, 'b> Resolver<'a, 'b> {
                 .cloned().collect()
             }));
           }
-          return self.resolve(dependency);
+          self.resolve(dependency)?;
         },
         None => return Err(dependency_token.error(ErrorKind::UnknownDependency {
           recipe:  recipe.name,
