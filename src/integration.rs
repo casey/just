@@ -1859,3 +1859,22 @@ BAZ +Z:
     "echo bar: 0\necho foo: 1 2\necho baz: 3 4 5\n",
   );
 }
+
+#[test]
+fn missing_second_dependency() {
+  integration_test(
+    &[],
+    "
+x:
+
+a: x y
+",
+    255,
+    "",
+    "error: Recipe `a` has unknown dependency `y`
+  |
+4 | a: x y
+  |      ^
+",
+  );
+}
