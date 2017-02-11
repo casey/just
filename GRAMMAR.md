@@ -17,7 +17,7 @@ NEWLINE             = \n|\r\n
 EQUALS              = =
 INTERPOLATION_START = {{
 INTERPOLATION_END   = }}
-NAME                = [a-zA-Z_-][a-zA-Z0-9_-]*
+NAME                = [a-zA-Z_][a-zA-Z0-9_-]*
 PLUS                = +
 RAW_STRING          = '[^'\r\n]*'
 STRING              = "[^"]*" # also processes \n \r \t \" \\ escapes

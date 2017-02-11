@@ -1530,7 +1530,7 @@ fn tokenize(text: &str) -> Result<Vec<Token>, CompileError> {
     static ref EQUALS:                    Regex = token(r"="                         );
     static ref INTERPOLATION_END:         Regex = token(r"[}][}]"                    );
     static ref INTERPOLATION_START_TOKEN: Regex = token(r"[{][{]"                    );
-    static ref NAME:                      Regex = token(r"([a-zA-Z_-][a-zA-Z0-9_-]*)");
+    static ref NAME:                      Regex = token(r"([a-zA-Z_][a-zA-Z0-9_-]*)" );
     static ref PLUS:                      Regex = token(r"[+]"                       );
     static ref STRING:                    Regex = token("\""                         );
     static ref RAW_STRING:                Regex = token(r#"'[^']*'"#                 );
