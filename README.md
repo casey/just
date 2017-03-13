@@ -431,8 +431,17 @@ if exists("did_load_filetypes")
 endif
 
 augroup filetypedetect
-  au BufNewFile,BufRead justfile setf make
+  au BufNewFile,BufRead Justfile,justfile setf make
 augroup END
+```
+
+Include the following in a `justfile` to enable syntax highlighting in vim and emacs:
+
+```
+# Local Variables:
+# mode: makefile
+# End:
+# vim: set ft=make :
 ```
 
 Feel free to send me the commands necessary to get syntax hilighting working in your editor of choice so that I may include them here.
