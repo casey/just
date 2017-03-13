@@ -166,3 +166,8 @@ sh:
 ruby:
 	#!/usr/bin/env ruby
 	puts "Hello from ruby!"
+
+# Local Variables:
+# mode: makefile
+# End:
+# vim: set ft=make :
