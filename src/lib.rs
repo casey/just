@@ -14,12 +14,16 @@ mod unit;
 #[cfg(test)]
 mod integration;
 
+mod platform;
+
 mod app;
 
 mod prelude {
+  pub use std::io::prelude::*;
+  pub use libc::{EXIT_FAILURE, EXIT_SUCCESS};
+  pub use regex::Regex;
   pub use std::path::Path;
   pub use std::{cmp, env, fs, fmt, io, iter, process};
-  pub use libc::{EXIT_FAILURE, EXIT_SUCCESS};
 }
 
 use prelude::*;
@@ -27,13 +31,11 @@ use prelude::*;
 pub use app::app;
 
 use app::UseColor;
-use regex::Regex;
 use std::borrow::Cow;
 use std::collections::{BTreeMap as Map, BTreeSet as Set};
 use std::fmt::Display;
-use std::io::prelude::*;
 use std::ops::Range;
-use std::os::unix::fs::PermissionsExt;
+use platform::{Platform, PlatformInterface};
 
 macro_rules! warn {
   ($($arg:tt)*) => {{
@@ -47,7 +49,7 @@ macro_rules! die {
   ($($arg:tt)*) => {{
     extern crate std;
     warn!($($arg)*);
-    std::process::exit(EXIT_FAILURE)
+    process::exit(EXIT_FAILURE)
   }};
 }
 
@@ -62,6 +64,25 @@ impl Slurp for fs::File {
     let mut destination = String::new();
     self.read_to_string(&mut destination)?;
     Ok(destination)
+  }
+}
+
+/// Split a shebang line into a command and an optional argument
+fn split_shebang(shebang: &str) -> Option<(&str, Option<&str>)> {
+  lazy_static! {
+    static ref EMPTY:    Regex = re(r"^#!\s*$");
+    static ref SIMPLE:   Regex = re(r"^#!(\S+)\s*$");
+    static ref ARGUMENT: Regex = re(r"^#!(\S+)\s+(\S.*?)?\s*$");
+  }
+
+  if EMPTY.is_match(shebang) {
+    Some(("", None))
+  } else if let Some(captures) = SIMPLE.captures(shebang) {
+    Some((captures.at(1).unwrap(), None))
+  } else if let Some(captures) = ARGUMENT.captures(shebang) {
+    Some((captures.at(1).unwrap(), Some(captures.at(2).unwrap())))
+  } else {
+    None
   }
 }
 
@@ -178,46 +199,29 @@ impl<'a> Display for Expression<'a> {
   }
 }
 
-#[cfg(unix)]
+/// Return a RunError::Signal if the process was terminated by a signal,
+/// otherwise return an RunError::UnknownFailure
 fn error_from_signal(
   recipe:      &str,
   line_number: Option<usize>,
   exit_status: process::ExitStatus
 ) -> RunError {
-  use std::os::unix::process::ExitStatusExt;
-  match exit_status.signal() {
+  match Platform::signal_from_exit_status(exit_status) {
     Some(signal) => RunError::Signal{recipe: recipe, line_number: line_number, signal: signal},
     None => RunError::UnknownFailure{recipe: recipe, line_number: line_number},
   }
 }
 
-#[cfg(windows)]
-fn error_from_signal(
-  recipe:      &str,
-  line_number: Option<usize>,
-  exit_status: process::ExitStatus
-) -> RunError {
-  RunError::UnknownFailure{recipe: recipe, line_number: line_number}
-}
-
-#[cfg(unix)]
+/// Return a RunError::BacktickSignal if the process was terminated by signal,
+/// otherwise return a RunError::BacktickUnknownFailure
 fn backtick_error_from_signal<'a>(
   token:       &Token<'a>,
   exit_status: process::ExitStatus
 ) -> RunError<'a> {
-  use std::os::unix::process::ExitStatusExt;
-  match exit_status.signal() {
+  match Platform::signal_from_exit_status(exit_status) {
     Some(signal) => RunError::BacktickSignal{token: token.clone(), signal: signal},
     None => RunError::BacktickUnknownFailure{token: token.clone()},
   }
-}
-
-#[cfg(windows)]
-fn backtick_error_from_signal<'a>(
-  token:       &Token<'a>,
-  exit_status: process::ExitStatus
-) -> RunError<'a> {
-  RunError::BacktickUnknownFailure{token: token.clone()}
 }
 
 fn export_env<'a>(
@@ -236,7 +240,6 @@ fn export_env<'a>(
   }
   Ok(())
 }
-
 
 fn run_backtick<'a>(
   raw:     &str,
@@ -383,22 +386,27 @@ impl<'a> Recipe<'a> {
          .map_err(|error| RunError::TmpdirIoError{recipe: self.name, io_error: error})?;
       }
 
-      // get current permissions
-      let mut perms = fs::metadata(&path)
-        .map_err(|error| RunError::TmpdirIoError{recipe: self.name, io_error: error})?
-        .permissions();
-
       // make the script executable
-      let current_mode = perms.mode();
-      perms.set_mode(current_mode | 0o100);
-      fs::set_permissions(&path, perms)
+      Platform::set_execute_permission(&path)
         .map_err(|error| RunError::TmpdirIoError{recipe: self.name, io_error: error})?;
 
-      // run it!
-      let mut command = process::Command::new(path);
+      let shebang_line = evaluated_lines.first()
+        .ok_or_else(|| RunError::InternalError {
+          message: "evaluated_lines was empty".to_string()
+        })?;
 
+      let (shebang_command, shebang_argument) = split_shebang(shebang_line)
+        .ok_or_else(|| RunError::InternalError {
+          message: format!("bad shebang line: {}", shebang_line)
+        })?;
+
+      // create a command to run the script
+      let mut command = Platform::make_shebang_command(&path, shebang_command, shebang_argument);
+
+      // export environment variables
       export_env(&mut command, scope, exports)?;
 
+      // run it!
       match command.status() {
         Ok(exit_status) => if let Some(code) = exit_status.code() {
           if code != 0 {

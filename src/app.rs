@@ -2,7 +2,6 @@ extern crate ansi_term;
 extern crate atty;
 extern crate clap;
 extern crate libc;
-extern crate regex;
 
 use ::prelude::*;
 use std::{convert, ffi};
@@ -179,7 +178,7 @@ pub fn app() {
     }
   }
 
-  let override_re = regex::Regex::new("^([^=]+)=(.*)$").unwrap();
+  let override_re = Regex::new("^([^=]+)=(.*)$").unwrap();
 
   let raw_arguments = matches.values_of("ARGUMENTS").map(|values| values.collect::<Vec<_>>())
     .unwrap_or_default();
