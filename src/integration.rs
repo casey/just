@@ -252,7 +252,7 @@ c: b
 
 #[test]
 fn summary() {
-  let text = 
+  let text =
 "b: a
 a:
 d: c
@@ -268,7 +268,7 @@ c: b";
 
 #[test]
 fn select() {
-  let text = 
+  let text =
 "b:
   @echo b
 a:
@@ -288,7 +288,7 @@ c:
 
 #[test]
 fn print() {
-  let text = 
+  let text =
 "b:
   echo b
 a:
@@ -309,7 +309,7 @@ c:
 
 #[test]
 fn show() {
-  let text = 
+  let text =
 r#"hello = "foo"
 bar = hello + hello
 recipe:
@@ -327,7 +327,7 @@ recipe:
 
 #[test]
 fn status_passthrough() {
-  let text = 
+  let text =
 "
 
 hello:
