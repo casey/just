@@ -378,7 +378,7 @@ fn parse_assignments() {
 r#"a = "0"
 c = a + b + a + b
 b = "1"
-"#, 
+"#,
 
 r#"a = "0"
 
@@ -392,7 +392,7 @@ fn parse_assignment_backticks() {
   parse_summary(
 "a = `echo hello`
 c = a + b + a + b
-b = `echo goodbye`", 
+b = `echo goodbye`",
 
 "a = `echo hello`
 
@@ -405,9 +405,9 @@ c = a + b + a + b");
 fn parse_interpolation_backticks() {
   parse_summary(
 r#"a:
- echo {{  `echo hello` + "blarg"   }} {{   `echo bob`   }}"#, 
+ echo {{  `echo hello` + "blarg"   }} {{   `echo bob`   }}"#,
 r#"a:
-    echo {{`echo hello` + "blarg"}} {{`echo bob`}}"#, 
+    echo {{`echo hello` + "blarg"}} {{`echo bob`}}"#,
  );
 }
 
@@ -1091,7 +1091,7 @@ wut:
 fn readme_test() {
   let mut justfiles = vec![];
   let mut current = None;
- 
+
   for line in brev::slurp("README.md").lines() {
     if let Some(mut justfile) = current {
       if line == "```" {

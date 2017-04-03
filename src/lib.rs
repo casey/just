@@ -494,7 +494,7 @@ impl<'a> Display for Recipe<'a> {
         }
         match *piece {
           Fragment::Text{ref text} => write!(f, "{}", text.lexeme)?,
-          Fragment::Expression{ref expression, ..} => 
+          Fragment::Expression{ref expression, ..} =>
             write!(f, "{}{}{}", "{{", expression, "}}")?,
         }
       }
@@ -517,7 +517,7 @@ fn resolve_recipes<'a>(
     resolved:          empty(),
     recipes:           recipes,
   };
-  
+
   for recipe in recipes.values() {
     resolver.resolve(recipe)?;
     resolver.seen = empty();
@@ -529,7 +529,7 @@ fn resolve_recipes<'a>(
         if let Fragment::Expression{ref expression, ..} = *fragment {
           for variable in expression.variables() {
             let name = variable.lexeme;
-            let undefined = !assignments.contains_key(name) 
+            let undefined = !assignments.contains_key(name)
               && !recipe.parameters.iter().any(|p| p.name == name);
             if undefined {
               // There's a borrow issue here that seems too difficult to solve.
@@ -738,7 +738,7 @@ impl<'a, 'b> Evaluator<'a, 'b> {
         self.evaluated.insert(name, value);
       }
     } else {
-      return Err(RunError::InternalError { 
+      return Err(RunError::InternalError {
         message: format!("attempted to evaluated unknown assignment {}", name)
       });
     }
@@ -763,7 +763,7 @@ impl<'a, 'b> Evaluator<'a, 'b> {
         } else if arguments.contains_key(name) {
           arguments[name].to_string()
         } else {
-          return Err(RunError::InternalError { 
+          return Err(RunError::InternalError {
             message: format!("attempted to evaluate undefined variable `{}`", name)
           });
         }
@@ -1048,7 +1048,7 @@ impl<'a> Display for CompileError<'a> {
     let bold = maybe_bold(f.alternate());
 
     write!(f, "{} {}", red.paint("error:"), bold.prefix())?;
-    
+
     match self.kind {
       CircularRecipeDependency{recipe, ref circle} => {
         if circle.len() == 2 {
@@ -1639,8 +1639,8 @@ fn tokenize(text: &str) -> Result<Vec<Token>, CompileError> {
       });
     }
 
-    let (prefix, lexeme, kind) = 
-    if let (0, &State::Indent(indent), Some(captures)) = 
+    let (prefix, lexeme, kind) =
+    if let (0, &State::Indent(indent), Some(captures)) =
       (column, state.last().unwrap(), LINE.captures(rest)) {
       let line = captures.at(0).unwrap();
       if !line.starts_with(indent) {
@@ -1677,7 +1677,7 @@ fn tokenize(text: &str) -> Result<Vec<Token>, CompileError> {
       (captures.at(1).unwrap(), captures.at(2).unwrap(), Name)
     } else if let Some(captures) = EOL.captures(rest) {
       if state.last().unwrap() == &State::Interpolation {
-        return error!(ErrorKind::InternalError { 
+        return error!(ErrorKind::InternalError {
           message: "hit EOL while still in interpolation state".to_string()
         });
       }
@@ -1706,7 +1706,7 @@ fn tokenize(text: &str) -> Result<Vec<Token>, CompileError> {
       }
       let mut len = 0;
       let mut escape = false;
-      for c in contents.chars() { 
+      for c in contents.chars() {
         if c == '\n' || c == '\r' {
           return error!(ErrorKind::UnterminatedString);
         } else if !escape && c == '"' {
@@ -1901,7 +1901,7 @@ impl<'a> Parser<'a> {
           recipe: name.lexeme, parameter: parameter.lexeme
         }));
       }
-    
+
       let default;
       if self.accepted(Equals) {
         if let Some(string) = self.accept_any(&[StringToken, RawString]) {
@@ -1981,7 +1981,7 @@ impl<'a> Parser<'a> {
                 if token.lexeme.starts_with("#!") {
                   shebang = true;
                 }
-              } else if !shebang 
+              } else if !shebang
                 && !lines.last().and_then(|line| line.last())
                   .map(Fragment::continuation).unwrap_or(false)
                 && (token.lexeme.starts_with(' ') || token.lexeme.starts_with('\t')) {
