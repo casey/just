@@ -6,6 +6,7 @@ extern crate itertools;
 extern crate ansi_term;
 extern crate unicode_width;
 extern crate edit_distance;
+extern crate libc;
 
 #[cfg(test)]
 mod unit;
@@ -14,6 +15,14 @@ mod unit;
 mod integration;
 
 mod app;
+
+mod prelude {
+  pub use std::path::Path;
+  pub use std::{cmp, env, fs, fmt, io, iter, process};
+  pub use libc::{EXIT_FAILURE, EXIT_SUCCESS};
+}
+
+use prelude::*;
 
 pub use app::app;
 
@@ -25,7 +34,6 @@ use std::fmt::Display;
 use std::io::prelude::*;
 use std::ops::Range;
 use std::os::unix::fs::PermissionsExt;
-use std::{fs, fmt, process, io, iter, cmp};
 
 macro_rules! warn {
   ($($arg:tt)*) => {{
@@ -39,7 +47,7 @@ macro_rules! die {
   ($($arg:tt)*) => {{
     extern crate std;
     warn!($($arg)*);
-    std::process::exit(-1)
+    std::process::exit(EXIT_FAILURE)
   }};
 }
 
@@ -1338,7 +1346,7 @@ impl<'a> Display for RunError<'a> {
     match *self {
       UnknownRecipes{ref recipes, ref suggestion} => {
         write!(f, "Justfile does not contain recipe{} {}.",
-                  maybe_s(recipes.len()), Or(&ticks(&recipes)))?;
+                  maybe_s(recipes.len()), Or(&ticks(recipes)))?;
         if let Some(suggestion) = *suggestion {
           write!(f, "\nDid you mean `{}`?", suggestion)?;
         }
