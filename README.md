@@ -1,6 +1,8 @@
 just
 ====
 
+[![Join the chat at https://gitter.im/just-because/Lobby](https://badges.gitter.im/just-because/Lobby.svg)](https://gitter.im/just-because/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 [![crates.io version](https://img.shields.io/crates/v/just.svg)](https://crates.io/crates/just)
 [![Build Status](https://travis-ci.org/casey/just.svg?branch=master)](https://travis-ci.org/casey/just)
 
