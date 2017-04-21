@@ -938,7 +938,7 @@ fn quiet_flag_or_dry_run_flag() {
     "error: The argument '--dry-run' cannot be used with '--quiet'
 
 USAGE:
-    just --color <color> --quiet
+    just --color <color> --quiet --shell <shell>
 
 For more information try --help\n",
   );
