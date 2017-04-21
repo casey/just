@@ -477,7 +477,7 @@ backtick-fail:
     "error: Backtick failed with exit code 1
   |
 3 |     echo 😬{{`exit 1`}}
-  |             ^^^^^^^^
+  |              ^^^^^^^^
 ",
   );
 }
@@ -495,7 +495,7 @@ backtick-fail:
     "error: Backtick failed with exit code 1
   |
 3 |     echo             😬鎌鼬{{        `exit 1 #             😬鎌鼬`}}            😬鎌鼬
-  |                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ",
   );
 }
@@ -938,7 +938,7 @@ fn quiet_flag_or_dry_run_flag() {
     "error: The argument '--dry-run' cannot be used with '--quiet'
 
 USAGE:
-    just --quiet --color <color>
+    just --color <color> --quiet
 
 For more information try --help\n",
   );
