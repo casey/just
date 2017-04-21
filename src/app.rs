@@ -91,86 +91,87 @@ pub fn app() {
     .author("Casey Rodarmor <casey@rodarmor.com>")
     .about("Just a command runner - https://github.com/casey/just")
     .setting(AppSettings::ColoredHelp)
-    .arg(Arg::with_name("arguments")
+    .arg(Arg::with_name("ARGUMENTS")
          .multiple(true)
          .help("The recipe(s) to run, defaults to the first recipe in the justfile"))
-    .arg(Arg::with_name("color")
+    .arg(Arg::with_name("COLOR")
          .long("color")
          .takes_value(true)
          .possible_values(&["auto", "always", "never"])
          .default_value("auto")
          .help("Prints colorful output"))
-    .arg(Arg::with_name("dry-run")
+    .arg(Arg::with_name("DRY-RUN")
          .long("dry-run")
          .help("Prints what just would do without doing it")
          .conflicts_with("quiet"))
-    .arg(Arg::with_name("dump")
+    .arg(Arg::with_name("DUMP")
          .long("dump")
          .help("Prints entire justfile"))
-    .arg(Arg::with_name("edit")
+    .arg(Arg::with_name("EDIT")
          .short("e")
          .long("edit")
          .help("Opens justfile with $EDITOR"))
-    .arg(Arg::with_name("evaluate")
+    .arg(Arg::with_name("EVALUATE")
          .long("evaluate")
          .help("Prints evaluated variables"))
-    .arg(Arg::with_name("justfile")
+    .arg(Arg::with_name("JUSTFILE")
          .long("justfile")
          .takes_value(true)
-         .help("Uses <justfile> as justfile. --working-directory must also be set")
-         .requires("working-directory"))
-    .arg(Arg::with_name("list")
+         .help("Uses <JUSTFILE> as justfile. --working-directory must also be set")
+         .requires("WORKING-DIRECTORY"))
+    .arg(Arg::with_name("LIST")
          .short("l")
          .long("list")
          .help("Lists available recipes and their arguments"))
-    .arg(Arg::with_name("quiet")
+    .arg(Arg::with_name("QUIET")
          .short("q")
          .long("quiet")
          .help("Suppresses all output")
-         .conflicts_with("dry-run"))
-    .arg(Arg::with_name("set")
+         .conflicts_with("DRY-RUN"))
+    .arg(Arg::with_name("SET")
          .long("set")
          .takes_value(true)
          .number_of_values(2)
-         .value_names(&["variable", "value"])
+         .value_names(&["VARIABLE", "VALUE"])
          .multiple(true)
-         .help("Sets <variable> to <value>"))
-    .arg(Arg::with_name("shell")
+         .help("Sets <VARIABLE> to <VALUE>"))
+    .arg(Arg::with_name("SHELL")
          .long("shell")
          .takes_value(true)
          .default_value(DEFAULT_SHELL)
-         .help("Invoke <shell> to run recipes"))
-    .arg(Arg::with_name("show")
+         .help("Invoke <SHELL> to run recipes"))
+    .arg(Arg::with_name("SHOW")
          .short("s")
          .long("show")
          .takes_value(true)
-         .value_name("recipe")
-         .help("Shows information about <recipe>"))
-    .arg(Arg::with_name("summary")
+         .value_name("RECIPE")
+         .help("Shows information about <RECIPE>"))
+    .arg(Arg::with_name("SUMMARY")
          .long("summary")
          .help("Lists names of available recipes"))
-    .arg(Arg::with_name("verbose")
-         .short("v") .long("verbose")
+    .arg(Arg::with_name("VERBOSE")
+         .short("v")
+         .long("verbose")
          .help("Use verbose output"))
-    .arg(Arg::with_name("working-directory")
+    .arg(Arg::with_name("WORKING-DIRECTORY")
         .long("working-directory")
         .takes_value(true)
-        .help("Uses <working-directory> as working directory. --justfile must also be set")
-        .requires("justfile"))
-    .group(ArgGroup::with_name("early-exit")
-         .args(&["dump", "edit", "list", "show", "summary", "arguments", "evaluate"]))
+        .help("Uses <WORKING-DIRECTORY> as working directory. --justfile must also be set")
+        .requires("JUSTFILE"))
+    .group(ArgGroup::with_name("EARLY-EXIT")
+         .args(&["DUMP", "EDIT", "LIST", "SHOW", "SUMMARY", "ARGUMENTS", "EVALUATE"]))
     .get_matches();
 
-  let use_color_argument = matches.value_of("color").expect("--color had no value");
+  let use_color_argument = matches.value_of("COLOR").expect("--color had no value");
   let use_color = match UseColor::from_argument(use_color_argument) {
     Some(use_color) => use_color,
     None => die!("Invalid argument to --color. This is a bug in just."),
   };
 
-  let set_count = matches.occurrences_of("set");
+  let set_count = matches.occurrences_of("SET");
   let mut overrides = BTreeMap::new();
   if set_count > 0 {
-    let mut values = matches.values_of("set").unwrap();
+    let mut values = matches.values_of("SET").unwrap();
     for _ in 0..set_count {
       overrides.insert(values.next().unwrap(), values.next().unwrap());
     }
@@ -178,7 +179,7 @@ pub fn app() {
 
   let override_re = regex::Regex::new("^([^=]+)=(.*)$").unwrap();
 
-  let raw_arguments = matches.values_of("arguments").map(|values| values.collect::<Vec<_>>())
+  let raw_arguments = matches.values_of("ARGUMENTS").map(|values| values.collect::<Vec<_>>())
     .unwrap_or_default();
 
   for argument in raw_arguments.iter().take_while(|arg| override_re.is_match(arg)) {
@@ -191,7 +192,7 @@ pub fn app() {
     .flat_map(|(i, argument)| {
       if i == 0 {
         if let Some(i) = argument.rfind('/') {
-          if matches.is_present("working-directory") {
+          if matches.is_present("WORKING-DIRECTORY") {
             die!("--working-directory and a path prefixed recipe may not be used together.");
           }
 
@@ -213,12 +214,12 @@ pub fn app() {
     })
     .collect::<Vec<&str>>();
 
-  let justfile_option = matches.value_of("justfile");
-  let working_directory_option = matches.value_of("working-directory");
+  let justfile_option = matches.value_of("JUSTFILE");
+  let working_directory_option = matches.value_of("WORKING-DIRECTORY");
 
   let text;
   if let (Some(file), Some(directory)) = (justfile_option, working_directory_option) {
-    if matches.is_present("edit") {
+    if matches.is_present("EDIT") {
       edit(file);
     }
 
@@ -257,7 +258,7 @@ pub fn app() {
       }
     }
 
-    if matches.is_present("edit") {
+    if matches.is_present("EDIT") {
       edit(name);
     }
 
@@ -275,7 +276,7 @@ pub fn app() {
     }
   );
 
-  if matches.is_present("summary") {
+  if matches.is_present("SUMMARY") {
     if justfile.count() == 0 {
       warn!("Justfile contains no recipes.");
     } else {
@@ -284,12 +285,12 @@ pub fn app() {
     process::exit(0);
   }
 
-  if matches.is_present("dump") {
+  if matches.is_present("DUMP") {
     println!("{}", justfile);
     process::exit(0);
   }
 
-  if matches.is_present("list") {
+  if matches.is_present("LIST") {
     let blue = use_color.blue(atty::Stream::Stdout);
     println!("Available recipes:");
     for (name, recipe) in &justfile.recipes {
@@ -309,7 +310,7 @@ pub fn app() {
     process::exit(0);
   }
 
-  if let Some(name) = matches.value_of("show") {
+  if let Some(name) = matches.value_of("SHOW") {
     match justfile.recipes.get(name) {
       Some(recipe) => {
         println!("{}", recipe);
@@ -334,13 +335,13 @@ pub fn app() {
   };
 
   let options = RunOptions {
-    dry_run:   matches.is_present("dry-run"),
-    evaluate:  matches.is_present("evaluate"),
+    dry_run:   matches.is_present("DRY-RUN"),
+    evaluate:  matches.is_present("EVALUATE"),
     overrides: overrides,
-    quiet:     matches.is_present("quiet"),
-    shell:     matches.value_of("shell"),
+    quiet:     matches.is_present("QUIET"),
+    shell:     matches.value_of("SHELL"),
     use_color: use_color,
-    verbose:   matches.is_present("verbose"),
+    verbose:   matches.is_present("VERBOSE"),
   };
 
   if let Err(run_error) = justfile.run(&arguments, &options) {
