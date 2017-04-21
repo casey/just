@@ -809,12 +809,12 @@ fn raw_string() {
 export exported_variable = '\\\\\\"\n'
 
 recipe:
-  printf '{{`echo recipe $exported_variable`}}'
+  /bin/printf '{{`echo recipe $exported_variable`}}'
 "#,
     0,
     r#"recipe \\\"
 "#,
-    r#"printf 'recipe \\\\\\"\n'
+    r#"/bin/printf 'recipe \\\\\\"\n'
 "#,
   );
 }
@@ -1227,11 +1227,11 @@ fn use_raw_string_default() {
     r#"
 bar:
 hello baz arg='XYZ\t\"	':
-  printf '{{baz}}...{{arg}}'
+  /bin/printf '{{baz}}...{{arg}}'
 "#,
     0,
     "ABC...XYZ\t\"\t",
-    "printf 'ABC...XYZ\\t\\\"\t'\n",
+    "/bin/printf 'ABC...XYZ\\t\\\"\t'\n",
   );
 }
 
