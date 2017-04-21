@@ -806,14 +806,16 @@ fn raw_string() {
   integration_test(
     &[],
     r#"
-export exported_variable = '\\\\\\"'
+export exported_variable = '\\\\\\"\n'
 
 recipe:
-  echo {{`echo recipe $exported_variable`}}
+  /bin/printf '{{`echo recipe $exported_variable`}}'
 "#,
     0,
-    "recipe \\\"\n",
-    "echo recipe \\\\\\\"\n",
+    r#"recipe \\\"
+"#,
+    r#"/bin/printf 'recipe \\\\\\"\n'
+"#,
   );
 }
 
@@ -1225,11 +1227,11 @@ fn use_raw_string_default() {
     r#"
 bar:
 hello baz arg='XYZ\t\"	':
-  echo '{{baz}}...{{arg}}'
+  /bin/printf '{{baz}}...{{arg}}'
 "#,
     0,
-    "ABC...XYZ\t\\\"\t\n",
-    "echo 'ABC...XYZ\\t\\\"\t'\n",
+    "ABC...XYZ\t\"\t",
+    "/bin/printf 'ABC...XYZ\\t\\\"\t'\n",
   );
 }
 
