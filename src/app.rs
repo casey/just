@@ -6,7 +6,7 @@ extern crate ansi_term;
 use std::{io, fs, env, process, convert, ffi};
 use std::collections::BTreeMap;
 use self::clap::{App, Arg, ArgGroup, AppSettings};
-use super::{Slurp, RunError, RunOptions, compile};
+use super::{Slurp, RunError, RunOptions, compile, DEFAULT_SHELL};
 
 macro_rules! warn {
   ($($arg:tt)*) => {{
@@ -135,6 +135,11 @@ pub fn app() {
          .value_names(&["variable", "value"])
          .multiple(true)
          .help("Sets <variable> to <value>"))
+    .arg(Arg::with_name("shell")
+         .long("shell")
+         .takes_value(true)
+         .default_value(DEFAULT_SHELL)
+         .help("Invoke <shell> to run recipes"))
     .arg(Arg::with_name("show")
          .short("s")
          .long("show")
@@ -333,6 +338,7 @@ pub fn app() {
     evaluate:  matches.is_present("evaluate"),
     overrides: overrides,
     quiet:     matches.is_present("quiet"),
+    shell:     matches.value_of("shell"),
     use_color: use_color,
     verbose:   matches.is_present("verbose"),
   };

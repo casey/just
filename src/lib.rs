@@ -43,6 +43,8 @@ macro_rules! die {
   }};
 }
 
+const DEFAULT_SHELL: &'static str = "sh";
+
 trait Slurp {
   fn slurp(&mut self) -> Result<String, std::io::Error>;
 }
@@ -235,7 +237,7 @@ fn run_backtick<'a>(
   exports: &Set<&'a str>,
   quiet:   bool,
 ) -> Result<String, RunError<'a>> {
-  let mut cmd = process::Command::new("sh");
+  let mut cmd = process::Command::new(DEFAULT_SHELL);
 
   export_env(&mut cmd, scope, exports)?;
 
@@ -440,7 +442,7 @@ impl<'a> Recipe<'a> {
           continue;
         }
 
-        let mut cmd = process::Command::new("sh");
+        let mut cmd = process::Command::new(options.shell.unwrap_or(DEFAULT_SHELL));
 
         cmd.arg("-cu").arg(command);
 
@@ -1155,6 +1157,7 @@ struct RunOptions<'a> {
   evaluate:  bool,
   overrides: Map<&'a str, &'a str>,
   quiet:     bool,
+  shell:     Option<&'a str>,
   use_color: UseColor,
   verbose:   bool,
 }
