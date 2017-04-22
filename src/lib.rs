@@ -14,6 +14,9 @@ mod unit;
 #[cfg(test)]
 mod integration;
 
+#[cfg(test)]
+mod search;
+
 mod platform;
 
 mod app;
