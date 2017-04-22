@@ -506,8 +506,7 @@ echo command interpolation
 
 integration_test! {
   name:     evaluate,
-  justfile: 
-    r#"
+  justfile: r#"
 foo = "a\t"
 hello = "c"
 bar = "b\t"
