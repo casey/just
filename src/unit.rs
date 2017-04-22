@@ -913,7 +913,7 @@ a:
       assert_eq!(code, 200);
       assert_eq!(line_number, None);
     },
-    other => panic!("expected an code run error, but got: {}", other),
+    other => panic!("expected a code run error, but got: {}", other),
   }
 }
 
@@ -942,7 +942,7 @@ a return code:
       assert_eq!(code, 150);
       assert_eq!(line_number, Some(3));
     },
-    other => panic!("expected an code run error, but got: {}", other),
+    other => panic!("expected a code run error, but got: {}", other),
   }
 }
 
@@ -955,7 +955,7 @@ fn missing_some_arguments() {
       assert_eq!(min, 3);
       assert_eq!(max, 3);
     },
-    other => panic!("expected an code run error, but got: {}", other),
+    other => panic!("expected a code run error, but got: {}", other),
   }
 }
 
@@ -968,7 +968,7 @@ fn missing_some_arguments_variadic() {
       assert_eq!(min, 3);
       assert_eq!(max, super::std::usize::MAX - 1);
     },
-    other => panic!("expected an code run error, but got: {}", other),
+    other => panic!("expected a code run error, but got: {}", other),
   }
 }
 
@@ -982,7 +982,7 @@ fn missing_all_arguments() {
       assert_eq!(min, 3);
       assert_eq!(max, 3);
     },
-    other => panic!("expected an code run error, but got: {}", other),
+    other => panic!("expected a code run error, but got: {}", other),
   }
 }
 
@@ -995,7 +995,7 @@ fn missing_some_defaults() {
       assert_eq!(min, 2);
       assert_eq!(max, 3);
     },
-    other => panic!("expected an code run error, but got: {}", other),
+    other => panic!("expected a code run error, but got: {}", other),
   }
 }
 
@@ -1008,7 +1008,7 @@ fn missing_all_defaults() {
       assert_eq!(min, 1);
       assert_eq!(max, 3);
     },
-    other => panic!("expected an code run error, but got: {}", other),
+    other => panic!("expected a code run error, but got: {}", other),
   }
 }
 
@@ -1020,7 +1020,7 @@ fn backtick_code() {
       assert_eq!(code, 100);
       assert_eq!(token.lexeme, "`f() { return 100; }; f`");
     },
-    other => panic!("expected an code run error, but got: {}", other),
+    other => panic!("expected a code run error, but got: {}", other),
   }
 }
 
@@ -1034,7 +1034,7 @@ fn unknown_overrides() {
     RunError::UnknownOverrides{overrides} => {
       assert_eq!(overrides, &["baz", "foo"]);
     },
-    other => panic!("expected an code run error, but got: {}", other),
+    other => panic!("expected a code run error, but got: {}", other),
   }
 }
 
