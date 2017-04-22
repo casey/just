@@ -617,14 +617,14 @@ recipe:
 integration_test! {
   name:     raw_string,
   justfile: r#"
-export exported_variable = '\\\\\\"'
+export EXPORTED_VARIABLE = '\z'
 
 recipe:
-  printf '{{`echo recipe $exported_variable`}}'
+  printf "$EXPORTED_VARIABLE"
 "#,
   args:     (),
-  stdout:   "recipe \\\\\\\"",
-  stderr:   "printf 'recipe \\\\\\\\\\\\\"'\n",
+  stdout:   "\\z",
+  stderr:   "printf \"$EXPORTED_VARIABLE\"\n",
   status:   EXIT_SUCCESS,
 }
 
