@@ -1111,3 +1111,23 @@ fn readme_test() {
     parse_success(&justfile);
   }
 }
+
+#[test]
+fn split_shebang() {
+  use ::split_shebang;
+
+  fn check(shebang: &str, expected_split: Option<(&str, Option<&str>)>) {
+    assert_eq!(split_shebang(shebang), expected_split);
+  }
+
+  check("#!    ",                       Some(("",             None              )));
+  check("#!",                           Some(("",             None              )));
+  check("#!/bin/bash",                  Some(("/bin/bash",    None              )));
+  check("#!/bin/bash    ",              Some(("/bin/bash",    None              )));
+  check("#!/usr/bin/env python",        Some(("/usr/bin/env", Some("python"     ))));
+  check("#!/usr/bin/env python   ",     Some(("/usr/bin/env", Some("python"     ))));
+  check("#!/usr/bin/env python -x",     Some(("/usr/bin/env", Some("python -x"  ))));
+  check("#!/usr/bin/env python   -x",   Some(("/usr/bin/env", Some("python   -x"))));
+  check("#!/usr/bin/env python \t-x\t", Some(("/usr/bin/env", Some("python \t-x"))));
+  check("#/usr/bin/env python \t-x\t",  None                                       );
+}
