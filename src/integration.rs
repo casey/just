@@ -1,9 +1,9 @@
 extern crate tempdir;
 extern crate brev;
-extern crate regex;
 
+use ::prelude::*;
 use tempdir::TempDir;
-use std::{env, fs, path, process, str};
+use std::{path, str};
 
 fn integration_test(
   args:            &[&str],
@@ -193,7 +193,7 @@ fn default() {
   integration_test(
     &[],
     "default:\n echo hello\nother: \n echo bar",
-    0,
+    EXIT_SUCCESS,
     "hello\n",
     "echo hello\n",
   )
@@ -204,7 +204,7 @@ fn quiet() {
   integration_test(
     &[],
     "default:\n @echo hello",
-    0,
+    EXIT_SUCCESS,
     "hello\n",
     "",
   )
@@ -215,7 +215,7 @@ fn verbose() {
   integration_test(
     &["--verbose"],
     "default:\n @echo hello",
-    0,
+    EXIT_SUCCESS,
     "hello\n",
     "===> Running recipe `default`...\necho hello\n",
   )
@@ -244,7 +244,7 @@ c: b
   integration_test(
     &["a", "d"],
     text,
-    0,
+    EXIT_SUCCESS,
     "a\nb\nc\nd\n",
     "echo a\necho b\necho c\necho d\n",
   );
@@ -260,7 +260,7 @@ c: b";
   integration_test(
     &["--summary"],
     text,
-    0,
+    EXIT_SUCCESS,
     "a b c d\n",
     "",
   );
@@ -280,7 +280,7 @@ c:
   integration_test(
     &["d", "c"],
     text,
-    0,
+    EXIT_SUCCESS,
     "d\nc\n",
     "",
   );
@@ -300,7 +300,7 @@ c:
   integration_test(
     &["d", "c"],
     text,
-    0,
+    EXIT_SUCCESS,
     "d\nc\n",
     "echo d\necho c\n",
   );
@@ -317,7 +317,7 @@ recipe:
   integration_test(
     &["--show", "recipe"],
     text,
-    0,
+    EXIT_SUCCESS,
     r#"recipe:
     echo {{hello + "bar" + bar}}
 "#,
@@ -348,7 +348,7 @@ fn unknown_dependency() {
   integration_test(
     &[],
     "bar:\nhello:\nfoo: bar baaaaaaaz hello",
-    255,
+    EXIT_FAILURE,
     "",
     "error: Recipe `foo` has unknown dependency `baaaaaaaz`
   |
@@ -363,7 +363,7 @@ fn backtick_success() {
   integration_test(
     &[],
     "a = `printf Hello,`\nbar:\n printf '{{a + `printf ' world!'`}}'",
-    0,
+    EXIT_SUCCESS,
     "Hello, world!",
     "printf 'Hello, world!'\n",
   );
@@ -374,7 +374,7 @@ fn backtick_trimming() {
   integration_test(
     &[],
     "a = `echo Hello,`\nbar:\n echo '{{a + `echo ' world!'`}}'",
-    0,
+    EXIT_SUCCESS,
     "Hello, world!\n",
     "echo 'Hello, world!'\n",
   );
@@ -576,7 +576,7 @@ fn unknown_override_options() {
  echo hello
  echo {{`exit 111`}}
 a = `exit 222`",
-    255,
+    EXIT_FAILURE,
     "",
     "error: Variables `baz` and `foo` overridden on the command line but not present \
     in justfile\n",
@@ -591,7 +591,7 @@ fn unknown_override_args() {
  echo hello
  echo {{`exit 111`}}
 a = `exit 222`",
-    255,
+    EXIT_FAILURE,
     "",
     "error: Variables `baz` and `foo` overridden on the command line but not present \
     in justfile\n",
@@ -606,7 +606,7 @@ fn unknown_override_arg() {
  echo hello
  echo {{`exit 111`}}
 a = `exit 222`",
-    255,
+    EXIT_FAILURE,
     "",
     "error: Variable `foo` overridden on the command line but not present in justfile\n",
   );
@@ -624,7 +624,7 @@ baz = "baz"
 recipe arg:
  echo arg={{arg}}
  echo {{foo + a + baz}}"#,
-    0,
+    EXIT_SUCCESS,
     "arg=baz=bar\nbarbbaz\n",
     "echo arg=baz=bar\necho barbbaz\n",
   );
@@ -642,7 +642,7 @@ baz = "baz"
 recipe arg:
  echo arg={{arg}}
  echo {{foo + a + baz}}"#,
-    0,
+    EXIT_SUCCESS,
     "arg=baz=bar\nbarbbaz\n",
     "echo arg=baz=bar\necho barbbaz\n",
   );
@@ -665,7 +665,7 @@ shebang:
   touch /this/is/not/a/file
   {{var}}
   echo {{`echo shebang interpolation`}}"#,
-    0,
+    EXIT_SUCCESS,
     "",
     "stderr
 #!/bin/sh
@@ -692,7 +692,7 @@ ab = foo + bar + hello
 wut:
   touch /this/is/not/a/file
 "#,
-    0,
+    EXIT_SUCCESS,
     r#"ab    = "a	b	c"
 bar   = "b	"
 foo   = "a	"
@@ -715,7 +715,7 @@ export abc = foo + bar + baz
 wut:
   echo $foo $bar $abc
 "#,
-    0,
+    EXIT_SUCCESS,
     "a b abc\n",
     "echo $foo $bar $abc\n",
   );
@@ -734,7 +734,7 @@ export abc = foo + "-" + bar + "-" + baz
 wut:
   echo $foo $bar $abc
 "#,
-    0,
+    EXIT_SUCCESS,
     "hello bye hello-bye-c\n",
     "echo $foo $bar $abc\n",
   );
@@ -754,7 +754,7 @@ wut:
   #!/bin/sh
   echo $foo $bar $abc
 "#,
-    255,
+    EXIT_FAILURE,
     "",
     "error: `#!` is reserved syntax outside of recipes
   |
@@ -779,7 +779,7 @@ wut:
   #!/bin/sh
   echo $foo $bar $abc
 "#,
-    0,
+    EXIT_SUCCESS,
     "a b abc\n",
     "",
   );
@@ -795,7 +795,7 @@ export exported_variable = "A-IS-A"
 recipe:
   echo {{`echo recipe $exported_variable`}}
 "#,
-    0,
+    EXIT_SUCCESS,
     "recipe A-IS-A\n",
     "echo recipe A-IS-A\n",
   );
@@ -811,7 +811,7 @@ export exported_variable = '\\\\\\"'
 recipe:
   echo {{`echo recipe $exported_variable`}}
 "#,
-    0,
+    EXIT_SUCCESS,
     "recipe \\\"\n",
     "echo recipe \\\\\\\"\n",
   );
@@ -832,7 +832,7 @@ fn line_error_spacing() {
 
 ???
 "#,
-    255,
+    EXIT_FAILURE,
     "",
     "error: Unknown start of token:
    |
@@ -850,7 +850,7 @@ fn quiet_flag_no_stdout() {
 default:
   @echo hello
 "#,
-    0,
+    EXIT_SUCCESS,
     "",
     "",
   );
@@ -864,7 +864,7 @@ fn quiet_flag_no_stderr() {
 default:
   @echo hello 1>&2
 "#,
-    0,
+    EXIT_SUCCESS,
     "",
     "",
   );
@@ -878,7 +878,7 @@ fn quiet_flag_no_command_echoing() {
 default:
   exit
 "#,
-    0,
+    EXIT_SUCCESS,
     "",
     "",
   );
@@ -952,7 +952,7 @@ fn argument_single() {
 foo A:
   echo {{A}}
     ",
-    0,
+    EXIT_SUCCESS,
     "ARGUMENT\n",
     "echo ARGUMENT\n",
   );
@@ -966,7 +966,7 @@ fn argument_multiple() {
 foo A B:
   echo A:{{A}} B:{{B}}
     ",
-    0,
+    EXIT_SUCCESS,
     "A:ONE B:TWO\n",
     "echo A:ONE B:TWO\n",
   );
@@ -980,7 +980,7 @@ fn argument_mismatch_more() {
 foo A B:
   echo A:{{A}} B:{{B}}
     ",
-    255,
+    EXIT_FAILURE,
     "",
     "error: Justfile does not contain recipe `THREE`.\n",
   );
@@ -994,7 +994,7 @@ fn argument_mismatch_fewer() {
 foo A B:
   echo A:{{A}} B:{{B}}
     ",
-    255,
+    EXIT_FAILURE,
     "",
     "error: Recipe `foo` got 1 argument but takes 2\n"
   );
@@ -1008,7 +1008,7 @@ fn argument_mismatch_more_with_default() {
 foo A B='B':
   echo A:{{A}} B:{{B}}
     ",
-    255,
+    EXIT_FAILURE,
     "",
     "error: Justfile does not contain recipe `THREE`.\n",
   );
@@ -1022,7 +1022,7 @@ fn argument_mismatch_fewer_with_default() {
 foo A B C='C':
   echo A:{{A}} B:{{B}} C:{{C}}
     ",
-    255,
+    EXIT_FAILURE,
     "",
     "error: Recipe `foo` got 1 argument but takes at least 2\n",
   );
@@ -1033,7 +1033,7 @@ fn unknown_recipe() {
   integration_test(
     &["foo"],
     "hello:",
-    255,
+    EXIT_FAILURE,
     "",
     "error: Justfile does not contain recipe `foo`.\n",
   );
@@ -1044,7 +1044,7 @@ fn unknown_recipes() {
   integration_test(
     &["foo", "bar"],
     "hello:",
-    255,
+    EXIT_FAILURE,
     "",
     "error: Justfile does not contain recipes `foo` or `bar`.\n",
   );
@@ -1116,7 +1116,7 @@ recipe a b +d:
   integration_test(
     &["--dump"],
     text,
-    0,
+    EXIT_SUCCESS,
     "# this recipe does something
 recipe a b +d:
     @exit 100
@@ -1130,7 +1130,7 @@ fn mixed_whitespace() {
   integration_test(
     &[],
     "bar:\n\t echo hello",
-    255,
+    EXIT_FAILURE,
     "",
     "error: Found a mix of tabs and spaces in leading whitespace: `␉␠`
 Leading whitespace may consist of tabs or spaces, but not both
@@ -1146,7 +1146,7 @@ fn extra_leading_whitespace() {
   integration_test(
     &[],
     "bar:\n\t\techo hello\n\t\t\techo goodbye",
-    255,
+    EXIT_FAILURE,
     "",
     "error: Recipe line has extra leading whitespace
   |
@@ -1161,7 +1161,7 @@ fn inconsistent_leading_whitespace() {
   integration_test(
     &[],
     "bar:\n\t\techo hello\n\t echo goodbye",
-    255,
+    EXIT_FAILURE,
     "",
     "error: Recipe line has inconsistent leading whitespace. Recipe started with `␉␉` but found line with `␉␠`
   |
@@ -1177,7 +1177,7 @@ fn required_after_default() {
   integration_test(
     &[],
     "bar:\nhello baz arg='foo' bar:",
-    255,
+    EXIT_FAILURE,
     "",
     "error: Non-default parameter `bar` follows default parameter
   |
@@ -1192,7 +1192,7 @@ fn required_after_variadic() {
   integration_test(
     &[],
     "bar:\nhello baz +arg bar:",
-    255,
+    EXIT_FAILURE,
     "",
     "error: Parameter `bar` follows variadic parameter
   |
@@ -1211,7 +1211,7 @@ bar:
 hello baz arg="XYZ\t\"	":
   echo '{{baz}}...{{arg}}'
 "#,
-    0,
+    EXIT_SUCCESS,
     "ABC...XYZ\t\"\t\n",
     "echo 'ABC...XYZ\t\"\t'\n",
   );
@@ -1227,7 +1227,7 @@ bar:
 hello baz arg='XYZ\t\"	':
   echo '{{baz}}...{{arg}}'
 "#,
-    0,
+    EXIT_SUCCESS,
     "ABC...XYZ\t\\\"\t\n",
     "echo 'ABC...XYZ\\t\\\"\t'\n",
   );
@@ -1241,7 +1241,7 @@ fn supply_use_default() {
 hello a b='B' c='C':
   echo {{a}} {{b}} {{c}}
 "#,
-    0,
+    EXIT_SUCCESS,
     "0 1 C\n",
     "echo 0 1 C\n",
   );
@@ -1255,7 +1255,7 @@ fn supply_defaults() {
 hello a b='B' c='C':
   echo {{a}} {{b}} {{c}}
 "#,
-    0,
+    EXIT_SUCCESS,
     "0 1 2\n",
     "echo 0 1 2\n",
   );
@@ -1275,7 +1275,7 @@ hello a b='B	' c='C':
 
 a Z="\t z":
 "#,
-    0,
+    EXIT_SUCCESS,
     r"Available recipes:
     a Z='\t z'
     hello a b='B\t' c='C' # this does a thing
@@ -1294,7 +1294,7 @@ hello a b='B	' c='C':
 
 a Z="\t z":
 "#,
-    255,
+    EXIT_FAILURE,
     "",
     "Justfile does not contain recipe `hell`.\nDid you mean `hello`?\n",
   );
@@ -1310,7 +1310,7 @@ helloooooo a b='B	' c='C':
 
 a Z="\t z":
 "#,
-    255,
+    EXIT_FAILURE,
     "",
     "Justfile does not contain recipe `hell`.\n",
   );
@@ -1326,7 +1326,7 @@ hello a b='B	' c='C':
 
 a Z="\t z":
 "#,
-    255,
+    EXIT_FAILURE,
     "",
     "error: Justfile does not contain recipe `hell`.\nDid you mean `hello`?\n",
   );
@@ -1342,7 +1342,7 @@ foo:
          b  \
              c
 "#,
-    0,
+    EXIT_SUCCESS,
     "a b c\n",
     "echo a       b             c\n",
   );
@@ -1358,7 +1358,7 @@ foo:
          b  \
              c'
 "#,
-    0,
+    EXIT_SUCCESS,
     "a       b             c\n",
     "echo 'a       b             c'\n",
   );
@@ -1374,7 +1374,7 @@ foo:
   b\
   c
 "#,
-    0,
+    EXIT_SUCCESS,
     "abc\n",
     "echo abc\n",
   );
@@ -1390,7 +1390,7 @@ fn quiet_recipe() {
   # b
   @echo c
 "#,
-    0,
+    EXIT_SUCCESS,
     "c\n",
     "echo c\n",
   );
@@ -1405,7 +1405,7 @@ fn quiet_shebang_recipe() {
   #!/bin/sh
   echo hello
 "#,
-    0,
+    EXIT_SUCCESS,
     "hello\n",
     "#!/bin/sh\necho hello\n",
   );
@@ -1428,7 +1428,7 @@ quiet:
 
 
 "#,
-    0,
+    EXIT_SUCCESS,
     "#!/usr/bin/env cat
 
 
@@ -1455,7 +1455,7 @@ a: b
 b:
 c: b a
 "#,
-    0,
+    EXIT_SUCCESS,
     "",
     ""
   );
@@ -1466,7 +1466,7 @@ fn parameter_shadows_variable() {
   integration_test(
     &["a"],
     "FOO = 'hello'\na FOO:",
-    255,
+    EXIT_FAILURE,
     "",
     "error: Parameter `FOO` shadows variable of the same name
   |
@@ -1482,7 +1482,7 @@ fn dependency_takes_arguments() {
   integration_test(
     &["b"],
     "b: a\na FOO:",
-    255,
+    EXIT_FAILURE,
     "",
     "error: Recipe `b` depends on `a` which requires arguments. Dependencies may not require arguments
   |
@@ -1497,7 +1497,7 @@ fn duplicate_parameter() {
   integration_test(
     &["a"],
     "a foo foo:",
-    255,
+    EXIT_FAILURE,
     "",
     "error: Recipe `a` has duplicate parameter `foo`
   |
@@ -1512,7 +1512,7 @@ fn duplicate_dependency() {
   integration_test(
     &["a"],
     "b:\na: b b",
-    255,
+    EXIT_FAILURE,
     "",
     "error: Recipe `a` has duplicate dependency `b`
   |
@@ -1527,7 +1527,7 @@ fn duplicate_recipe() {
   integration_test(
     &["b"],
     "b:\nb:",
-    255,
+    EXIT_FAILURE,
     "",
     "error: Recipe `b` first defined on line 1 is redefined on line 2
   |
@@ -1542,7 +1542,7 @@ fn duplicate_variable() {
   integration_test(
     &["foo"],
     "a = 'hello'\na = 'hello'\nfoo:",
-    255,
+    EXIT_FAILURE,
     "",
     "error: Variable `a` has multiple definitions
   |
@@ -1557,7 +1557,7 @@ fn unexpected_token() {
   integration_test(
     &["foo"],
     "foo: 'bar'",
-    255,
+    EXIT_FAILURE,
     "",
     "error: Expected name, end of line, or end of file, but found raw string
   |
@@ -1573,7 +1573,7 @@ fn self_dependency() {
   integration_test(
     &["a"],
     "a: a",
-    255,
+    EXIT_FAILURE,
     "",
     "error: Recipe `a` depends on itself
   |
@@ -1588,7 +1588,7 @@ fn long_circular_recipe_dependency() {
   integration_test(
     &["a"],
     "a: b\nb: c\nc: d\nd: a",
-    255,
+    EXIT_FAILURE,
     "",
     "error: Recipe `d` has circular dependency `a -> b -> c -> d -> a`
   |
@@ -1603,7 +1603,7 @@ fn variable_self_dependency() {
   integration_test(
     &["a"],
     "z = z\na:",
-    255,
+    EXIT_FAILURE,
     "",
     "error: Variable `z` is defined in terms of itself
   |
@@ -1618,7 +1618,7 @@ fn variable_circular_dependency() {
   integration_test(
     &["a"],
     "x = y\ny = z\nz = x\na:",
-    255,
+    EXIT_FAILURE,
     "",
     "error: Variable `x` depends on its own value: `x -> y -> z -> x`
   |
@@ -1634,7 +1634,7 @@ fn invalid_escape_sequence() {
     &["a"],
     r#"x = "\q"
 a:"#,
-    255,
+    EXIT_FAILURE,
     "",
     "error: `\\q` is not a valid escape sequence
   |
@@ -1656,7 +1656,7 @@ whatever'
 a:
   echo '{{string}}'
 ",
-    0,
+    EXIT_SUCCESS,
     "hello
 whatever
 ",
@@ -1678,7 +1678,7 @@ whatever' + 'yo'
 a:
   echo '{{foo}}'
 ",
-    255,
+    EXIT_FAILURE,
     "",
     "error: Variable `foo` not defined
   |
@@ -1700,7 +1700,7 @@ whatever' + bar
 a:
   echo '{{string}}'
 ",
-    255,
+    EXIT_FAILURE,
     "",
     "error: Variable `bar` not defined
   |
@@ -1719,7 +1719,7 @@ a:
   echo '{{"a" + '
   ' + "b"}}'
 "#,
-    0,
+    EXIT_SUCCESS,
     "a
   b
 ",
@@ -1740,7 +1740,7 @@ a:
 
   echo {{b}}
 "#,
-    255,
+    EXIT_FAILURE,
     "",
     "error: Variable `b` not defined
   |
@@ -1757,7 +1757,7 @@ fn unterminated_raw_string() {
     "
 a b=':
 ",
-    255,
+    EXIT_FAILURE,
     "",
     "error: Unterminated string
   |
@@ -1774,7 +1774,7 @@ fn unterminated_string() {
     r#"
 a b=":
 "#,
-    255,
+    EXIT_FAILURE,
     "",
     r#"error: Unterminated string
   |
@@ -1792,7 +1792,7 @@ fn variadic_recipe() {
 a x y +z:
   echo {{x}} {{y}} {{z}}
 ",
-    0,
+    EXIT_SUCCESS,
     "0 1 2 3 4\n",
     "echo 0 1 2 3  4 \n",
   );
@@ -1806,7 +1806,7 @@ fn variadic_ignore_default() {
 a x y +z='HELLO':
   echo {{x}} {{y}} {{z}}
 ",
-    0,
+    EXIT_SUCCESS,
     "0 1 2 3 4\n",
     "echo 0 1 2 3  4 \n",
   );
@@ -1820,7 +1820,7 @@ fn variadic_use_default() {
 a x y +z='HELLO':
   echo {{x}} {{y}} {{z}}
 ",
-    0,
+    EXIT_SUCCESS,
     "0 1 HELLO\n",
     "echo 0 1 HELLO\n",
   );
@@ -1834,7 +1834,7 @@ fn variadic_too_few() {
 a x y +z:
   echo {{x}} {{y}} {{z}}
 ",
-    255,
+    EXIT_FAILURE,
     "",
     "error: Recipe `a` got 2 arguments but takes at least 3\n",
   );
@@ -1854,7 +1854,7 @@ BAR X:
 BAZ +Z:
   echo baz: {{Z}}
 ",
-    0,
+    EXIT_SUCCESS,
     "bar: 0\nfoo: 1 2\nbaz: 3 4 5\n",
     "echo bar: 0\necho foo: 1 2\necho baz: 3 4 5\n",
   );
@@ -1869,7 +1869,7 @@ x:
 
 a: x y
 ",
-    255,
+    EXIT_FAILURE,
     "",
     "error: Recipe `a` has unknown dependency `y`
   |
