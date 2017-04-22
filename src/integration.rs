@@ -528,48 +528,48 @@ hello = "c"
 integration_test! {
   name:     export_success,
   justfile: r#"
-export foo = "a"
+export FOO = "a"
 baz = "c"
-export bar = "b"
-export abc = foo + bar + baz
+export BAR = "b"
+export ABC = FOO + BAR + baz
 
 wut:
-  echo $foo $bar $abc
+  echo $FOO $BAR $ABC
 "#,
   args:     (),
   stdout:   "a b abc\n",
-  stderr:   "echo $foo $bar $abc\n",
+  stderr:   "echo $FOO $BAR $ABC\n",
   status:   EXIT_SUCCESS,
 }
 
 integration_test! {
   name:     export_override,
   justfile: r#"
-export foo = "a"
+export FOO = "a"
 baz = "c"
-export bar = "b"
-export abc = foo + "-" + bar + "-" + baz
+export BAR = "b"
+export ABC = FOO + "-" + BAR + "-" + baz
 
 wut:
-  echo $foo $bar $abc
+  echo $FOO $BAR $ABC
 "#,
-  args:     ("foo=hello", "--set", "bar", "bye"),
+  args:     ("FOO=hello", "--set", "BAR", "bye"),
   stdout:   "hello bye hello-bye-c\n",
-  stderr:   "echo $foo $bar $abc\n",
+  stderr:   "echo $FOO $BAR $ABC\n",
   status:   EXIT_SUCCESS,
 }
 
 integration_test! {
   name:     outer_shebang,
   justfile: r#"#!/lol/wut
-export foo = "a"
+export FOO = "a"
 baz = "c"
-export bar = "b"
-export abc = foo + bar + baz
+export BAR = "b"
+export ABC = FOO + BAR + baz
 
 wut:
   #!/bin/sh
-  echo $foo $bar $abc
+  echo $FOO $BAR $ABC
 "#,
   args:     (),
   stdout:   "",
@@ -585,14 +585,14 @@ wut:
 integration_test! {
   name:     export_shebang,
   justfile: r#"
-export foo = "a"
+export FOO = "a"
 baz = "c"
-export bar = "b"
-export abc = foo + bar + baz
+export BAR = "b"
+export ABC = FOO + BAR + baz
 
 wut:
   #!/bin/sh
-  echo $foo $bar $abc
+  echo $FOO $BAR $ABC
 "#,
   args:     (),
   stdout:   "a b abc\n",
@@ -603,10 +603,10 @@ wut:
 integration_test! {
   name:     export_recipe_backtick,
   justfile: r#"
-export exported_variable = "A-IS-A"
+export EXPORTED_VARIABLE = "A-IS-A"
 
 recipe:
-  echo {{`echo recipe $exported_variable`}}
+  echo {{`echo recipe $EXPORTED_VARIABLE`}}
 "#,
   args:     (),
   stdout:   "recipe A-IS-A\n",
