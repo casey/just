@@ -368,7 +368,8 @@ impl<'a> Recipe<'a> {
         })?;
 
       // create a command to run the script
-      let mut command = Platform::make_shebang_command(&path, shebang_command, shebang_argument);
+      let mut command = Platform::make_shebang_command(&path, shebang_command, shebang_argument)
+        .map_err(|output_error| RunError::Cygpath{recipe: self.name, output_error: output_error})?;
 
       // export environment variables
       export_env(&mut command, scope, exports)?;
@@ -1300,6 +1301,7 @@ enum RunError<'a> {
   ArgumentCountMismatch{recipe: &'a str, found: usize, min: usize, max: usize},
   Backtick{token: Token<'a>, output_error: OutputError},
   Code{recipe: &'a str, line_number: Option<usize>, code: i32},
+  Cygpath{recipe: &'a str, output_error: OutputError},
   InternalError{message: String},
   IoError{recipe: &'a str, io_error: io::Error},
   Shebang{recipe: &'a str, command: String, argument: Option<String>, io_error: io::Error},
@@ -1363,6 +1365,35 @@ impl<'a> Display for RunError<'a> {
           write!(f, "Recipe `{}` failed with exit code {}", recipe, code)?;
         }
       },
+      Cygpath{recipe, ref output_error} => match *output_error {
+        OutputError::Code(code) => {
+          write!(f, "Cygpath failed with exit code {} while translating recipe `{}` \
+                     shebang interpreter path", code, recipe)?;
+        }
+        OutputError::Signal(signal) => {
+          write!(f, "Cygpath terminated by signal {} while translating recipe `{}` \
+                     shebang interpreter path", signal, recipe)?;
+        }
+        OutputError::Unknown => {
+          write!(f, "Cygpath experienced an unknown failure while translating recipe `{}` \
+                     shebang interpreter path", recipe)?;
+        }
+        OutputError::Io(ref io_error) => {
+          match io_error.kind() {
+            io::ErrorKind::NotFound => write!(
+              f, "Could not find `cygpath` executable to translate recipe `{}` \
+                  shebang interpreter path:\n{}", recipe, io_error),
+            io::ErrorKind::PermissionDenied => write!(
+              f, "Could not run `cygpath` executable to translate recipe `{}` \
+                  shebang interpreter path:\n{}", recipe, io_error),
+            _ => write!(f, "Could not run `cygpath` executable:\n{}", io_error),
+          }?;
+        }
+        OutputError::Utf8(ref utf8_error) => {
+          write!(f, "Cygpath successfully translated recipe `{}` shebang interpreter path, \
+                     but output was not utf8: {}", recipe, utf8_error)?;
+        }
+      },
       Shebang{recipe, ref command, ref argument, ref io_error} => {
         if let Some(ref argument) = *argument {
           write!(f, "Recipe `{}` with shebang `#!{} {}` execution error: {}",
@@ -1388,7 +1419,7 @@ impl<'a> Display for RunError<'a> {
       IoError{recipe, ref io_error} => {
         match io_error.kind() {
           io::ErrorKind::NotFound => write!(f,
-            "Recipe `{}` could not be run because just could not find `sh` the command:\n{}",
+            "Recipe `{}` could not be run because just could not find `sh`:\n{}",
             recipe, io_error),
           io::ErrorKind::PermissionDenied => write!(
             f, "Recipe `{}` could not be run because just could not run `sh`:\n{}",
@@ -1417,7 +1448,7 @@ impl<'a> Display for RunError<'a> {
         OutputError::Io(ref io_error) => {
           match io_error.kind() {
             io::ErrorKind::NotFound => write!(
-              f, "Backtick could not be run because just could not find `sh` the command:\n{}",
+              f, "Backtick could not be run because just could not find `sh`:\n{}",
               io_error),
             io::ErrorKind::PermissionDenied => write!(
               f, "Backtick could not be run because just could not run `sh`:\n{}", io_error),

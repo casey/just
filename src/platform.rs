@@ -5,7 +5,8 @@ pub struct Platform;
 pub trait PlatformInterface {
   /// Construct a command equivelant to running the script at `path` with the
   /// shebang line `shebang`
-  fn make_shebang_command(path: &Path, command: &str, argument: Option<&str>) -> process::Command;
+  fn make_shebang_command(path: &Path, command: &str, argument: Option<&str>)
+    -> Result<process::Command, super::OutputError>;
 
   /// Set the execute permission on the file pointed to by `path`
   fn set_execute_permission(path: &Path) -> Result<(), io::Error>;
@@ -16,9 +17,11 @@ pub trait PlatformInterface {
 
 #[cfg(unix)]
 impl PlatformInterface for Platform {
-  fn make_shebang_command(path: &Path, _command: &str, _argument: Option<&str>) -> process::Command {
+  fn make_shebang_command(path: &Path, _command: &str, _argument: Option<&str>)
+    -> Result<process::Command, super::OutputError>
+  {
     // shebang scripts can be executed directly on unix
-    process::Command::new(path)
+    Ok(process::Command::new(path))
   }
 
   fn set_execute_permission(path: &Path) -> Result<(), io::Error> {
@@ -43,28 +46,20 @@ impl PlatformInterface for Platform {
 
 #[cfg(windows)]
 impl PlatformInterface for Platform {
-  fn make_shebang_command(path: &Path, command: &str, argument: Option<&str>) -> process::Command {
-    let mut cmd = match env::var_os("EXEPATH") {
-      Some(exepath) => {
-        // On MinGW, `EXEPATH` is the root of the installation. Use it to
-        // construct a full windows path to the binary in the shebang line.
-        let mut translated_command = PathBuf::from(exepath);
-        for part in command.split("/") {
-            translated_command.push(part);
-        }
-        process::Command::new(translated_command)
-      }
-      None => {
-        // We're not on MinGW >_< The path in the shebang might be a windows
-        // path, in which case it'll work, so just use it and hope for the best.
-        process::Command::new(command)
-      }
-    };
+  fn make_shebang_command(path: &Path, command: &str, argument: Option<&str>)
+    -> Result<process::Command, super::OutputError>
+  {
+    // Translate path to the interpreter from unix style to windows style
+    let mut cygpath = process::Command::new("cygpath");
+    cygpath.arg("--windows");
+    cygpath.arg(command);
+
+    let mut cmd = process::Command::new(super::output(cygpath)?);
     if let Some(argument) = argument {
       cmd.arg(argument);
     }
     cmd.arg(path);
-    cmd
+    Ok(cmd)
   }
 
   fn set_execute_permission(_path: &Path) -> Result<(), io::Error> {
