@@ -7,6 +7,7 @@ extern crate ansi_term;
 extern crate unicode_width;
 extern crate edit_distance;
 extern crate libc;
+extern crate brev;
 
 #[cfg(test)]
 mod unit;
@@ -34,11 +35,12 @@ use prelude::*;
 pub use app::app;
 
 use app::UseColor;
+use brev::{output, OutputError};
+use platform::{Platform, PlatformInterface};
 use std::borrow::Cow;
 use std::collections::{BTreeMap as Map, BTreeSet as Set};
 use std::fmt::Display;
 use std::ops::Range;
-use platform::{Platform, PlatformInterface};
 
 macro_rules! warn {
   ($($arg:tt)*) => {{
@@ -99,48 +101,6 @@ fn empty<T, C: iter::FromIterator<T>>() -> C {
 
 fn contains<T: PartialOrd>(range: &Range<T>,  i: T) -> bool {
   i >= range.start && i < range.end
-}
-
-#[derive(Debug)]
-enum OutputError {
-  /// Non-zero exit code
-  Code(i32),
-  /// IO error upon execution
-  Io(io::Error),
-  /// Terminated by signal
-  Signal(i32),
-  /// Unknown failure
-  Unknown,
-  /// Stdtout not UTF-8
-  Utf8(std::str::Utf8Error),
-}
-
-/// Run a command and return the data it wrote to stdout as a string
-fn output(mut command: process::Command) -> Result<String, OutputError> {
-  match command.output() {
-    Ok(output) => {
-      if let Some(code) = output.status.code() {
-        if code != 0 {
-          return Err(OutputError::Code(code));
-        }
-      } else {
-        return Err(output_error_from_signal(output.status));
-      }
-      match std::str::from_utf8(&output.stdout) {
-        Err(error) => Err(OutputError::Utf8(error)),
-        Ok(utf8) => {
-          Ok(if utf8.ends_with('\n') {
-            &utf8[0..utf8.len()-1]
-          } else if utf8.ends_with("\r\n") {
-            &utf8[0..utf8.len()-2]
-          } else {
-            utf8
-          }.to_string())
-        }
-      }
-    }
-    Err(io_error) => Err(OutputError::Io(io_error)),
-  }
 }
 
 #[derive(PartialEq, Debug)]
@@ -254,15 +214,6 @@ fn error_from_signal(
   match Platform::signal_from_exit_status(exit_status) {
     Some(signal) => RunError::Signal{recipe: recipe, line_number: line_number, signal: signal},
     None => RunError::UnknownFailure{recipe: recipe, line_number: line_number},
-  }
-}
-
-/// Return an OutputError::Signal if the process was terminated by signal,
-/// otherwise return an OutputError::UnknownFailure
-fn output_error_from_signal(exit_status: process::ExitStatus) -> OutputError {
-  match Platform::signal_from_exit_status(exit_status) {
-    Some(signal) => OutputError::Signal(signal),
-    None => OutputError::Unknown,
   }
 }
 
