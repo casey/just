@@ -333,14 +333,14 @@ integration_test! {
   name:     backtick_code_interpolation_unicode_hell,
   justfile: "
 backtick-fail:
-\techo \t\t\t😬鎌鼬{{\t\t`exit 1 # \t\t\t😬鎌鼬`}}\t\t\t😬鎌鼬
+\techo \t\t\t😬鎌鼬{{\t\t`exit 1 # \t\t\tabc`}}\t\t\t😬鎌鼬
 ",
   args:     (),
   stdout:   "",
   stderr:   "error: Backtick failed with exit code 1
   |
-3 |     echo             😬鎌鼬{{        `exit 1 #             😬鎌鼬`}}            😬鎌鼬
-  |                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+3 |     echo             😬鎌鼬{{        `exit 1 #             abc`}}            😬鎌鼬
+  |                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^
 ",
   status:   1,
 }
