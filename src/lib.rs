@@ -418,8 +418,12 @@ impl<'a> Recipe<'a> {
         } else {
           return Err(error_from_signal(self.name, None, exit_status))
         },
-        Err(io_error) => return Err(RunError::TmpdirIoError{
-          recipe: self.name, io_error: io_error})
+        Err(io_error) => return Err(RunError::Shebang {
+          recipe:   self.name,
+          command:  shebang_command.to_string(),
+          argument: shebang_argument.map(String::from),
+          io_error: io_error
+        })
       };
     } else {
       let mut lines = self.lines.iter().peekable();
@@ -1330,19 +1334,20 @@ impl<'a> Display for Justfile<'a> {
 #[derive(Debug)]
 enum RunError<'a> {
   ArgumentCountMismatch{recipe: &'a str, found: usize, min: usize, max: usize},
-  Code{recipe: &'a str, line_number: Option<usize>, code: i32},
-  InternalError{message: String},
-  IoError{recipe: &'a str, io_error: io::Error},
-  Signal{recipe: &'a str, line_number: Option<usize>, signal: i32},
-  TmpdirIoError{recipe: &'a str, io_error: io::Error},
-  UnknownFailure{recipe: &'a str, line_number: Option<usize>},
-  UnknownRecipes{recipes: Vec<&'a str>, suggestion: Option<&'a str>},
-  UnknownOverrides{overrides: Vec<&'a str>},
   BacktickCode{token: Token<'a>, code: i32},
   BacktickIoError{token: Token<'a>, io_error: io::Error},
   BacktickSignal{token: Token<'a>, signal: i32},
-  BacktickUtf8Error{token: Token<'a>, utf8_error: std::str::Utf8Error},
   BacktickUnknownFailure{token: Token<'a>},
+  BacktickUtf8Error{token: Token<'a>, utf8_error: std::str::Utf8Error},
+  Code{recipe: &'a str, line_number: Option<usize>, code: i32},
+  InternalError{message: String},
+  IoError{recipe: &'a str, io_error: io::Error},
+  Shebang{recipe: &'a str, command: String, argument: Option<String>, io_error: io::Error},
+  Signal{recipe: &'a str, line_number: Option<usize>, signal: i32},
+  TmpdirIoError{recipe: &'a str, io_error: io::Error},
+  UnknownFailure{recipe: &'a str, line_number: Option<usize>},
+  UnknownOverrides{overrides: Vec<&'a str>},
+  UnknownRecipes{recipes: Vec<&'a str>, suggestion: Option<&'a str>},
 }
 
 impl<'a> Display for RunError<'a> {
@@ -1388,6 +1393,15 @@ impl<'a> Display for RunError<'a> {
           write!(f, "Recipe `{}` failed with exit code {}", recipe, code)?;
         }
       },
+      Shebang{recipe, ref command, ref argument, ref io_error} => {
+        if let Some(ref argument) = *argument {
+          write!(f, "Recipe `{}` with shebang `#!{} {}` execution error: {}",
+                    recipe, command, argument, io_error)?;
+        } else {
+          write!(f, "Recipe `{}` with shebang `#!{}` execution error: {}",
+                    recipe, command, io_error)?;
+        }
+      }
       Signal{recipe, line_number, signal} => {
         if let Some(n) = line_number {
           write!(f, "Recipe `{}` was terminated on line {} by signal {}", recipe, n, signal)?;
