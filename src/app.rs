@@ -7,7 +7,7 @@ use ::prelude::*;
 use std::{convert, ffi};
 use std::collections::BTreeMap;
 use self::clap::{App, Arg, ArgGroup, AppSettings};
-use super::{Slurp, RunError, RunOptions, compile, DEFAULT_SHELL};
+use super::{Slurp, RunOptions, compile, DEFAULT_SHELL};
 
 macro_rules! warn {
   ($($arg:tt)*) => {{
@@ -353,9 +353,7 @@ pub fn app() {
         warn!("{}", run_error);
       }
     }
-    match run_error {
-      RunError::Code{code, .. } | RunError::BacktickCode{code, ..} => process::exit(code),
-      _ => process::exit(libc::EXIT_FAILURE),
-    }
+
+    process::exit(run_error.code().unwrap_or(libc::EXIT_FAILURE));
   }
 }
