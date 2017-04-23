@@ -44,7 +44,22 @@ impl PlatformInterface for Platform {
 #[cfg(windows)]
 impl PlatformInterface for Platform {
   fn make_shebang_command(path: &Path, command: &str, argument: Option<&str>) -> process::Command {
-    let mut cmd = process::Command::new(command);
+    let mut cmd = match env::var_os("EXEPATH") {
+      Some(exepath) => {
+        // On MinGW, `EXEPATH` is the root of the installation. Use it to
+        // construct a full windows path to the binary in the shebang line.
+        let mut translated_command = PathBuf::from(exepath);
+        for part in command.split("/") {
+            translated_command.push(part);
+        }
+        process::Command::new(translated_command)
+      }
+      None => {
+        // We're not on MinGW >_< The path in the shebang might be a windows
+        // path, in which case it'll work, so just use it and hope for the best.
+        process::Command::new(command)
+      }
+    };
     if let Some(argument) = argument {
       cmd.arg(argument);
     }

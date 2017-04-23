@@ -25,7 +25,7 @@ mod prelude {
   pub use std::io::prelude::*;
   pub use libc::{EXIT_FAILURE, EXIT_SUCCESS};
   pub use regex::Regex;
-  pub use std::path::Path;
+  pub use std::path::{Path, PathBuf};
   pub use std::{cmp, env, fs, fmt, io, iter, process};
 }
 
