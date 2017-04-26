@@ -3,14 +3,14 @@
 
 environment:
   global:
-  # TODO This is the Rust channel that build jobs will use by default but can be
+  # DONE This is the Rust channel that build jobs will use by default but can be
   # overridden on a case by case basis down below
     RUST_VERSION: stable
 
-    # TODO Update this to match the name of your project.
-    CRATE_NAME: trust
+    # DONE Update this to match the name of your project.
+    CRATE_NAME: just
 
-  # TODO These are all the build jobs. Adjust as necessary. Comment out what you
+  # DONE These are all the build jobs. Adjust as necessary. Comment out what you
   # don't need
   matrix:
     # MinGW
@@ -40,7 +40,7 @@ install:
   - rustc -Vv
   - cargo -V
 
-# TODO This is the "test phase", tweak it as you see fit
+# DONE This is the "test phase", tweak it as you see fit
 test_script:
   # we don't run the "test phase" when doing deploys
   - if [%APPVEYOR_REPO_TAG%]==[false] (
@@ -53,21 +53,21 @@ test_script:
     )
 
 before_deploy:
-  # TODO Update this to build the artifacts that matter to you
-  - cargo rustc --target %TARGET% --release --bin hello -- -C lto
+  # DONE Update this to build the artifacts that matter to you
+  - cargo rustc --target %TARGET% --release --bin just -- -C lto
   - ps: ci\before_deploy.ps1
 
 deploy:
   artifact: /.*\.zip/
-  # TODO update `auth_token.secure`
+  # DONE update `auth_token.secure`
   # - Create a `public_repo` GitHub token. Go to: https://github.com/settings/tokens/new
   # - Encrypt it. Go to https://ci.appveyor.com/tools/encrypt
   # - Paste the output down here
   auth_token:
-    secure: t3puM/2hOig26EHhAodcZBc61NywF7/PFEpimR6SwGaCiqS07KR5i7iAhSABmBp7
+    secure: vMKQ5Ta9vIXQzhrmIDfD++7d6yyu6K/myOPs1uo/6LIMFyMoB75ogMrLtEUDuyUJ
   description: ''
   on:
-    # TODO Here you can pick which targets will generate binary releases
+    # DONE Here you can pick which targets will generate binary releases
     # In this example, there are some targets that are tested using the stable
     # and nightly channels. This condition makes sure there is only one release
     # for such targets and that's generated using the stable channel

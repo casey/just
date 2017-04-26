@@ -6,16 +6,16 @@ language: rust
 services: docker
 sudo: required
 
-# TODO Rust builds on stable by default, this can be
+# DONE Rust builds on stable by default, this can be
 # overridden on a case by case basis down below.
 
 env:
   global:
-    # TODO Update this to match the name of your project.
-    - CRATE_NAME=trust
+    # DONE Update this to match the name of your project.
+    - CRATE_NAME=just
 
 matrix:
-  # TODO These are all the build jobs. Adjust as necessary. Comment out what you
+  # DONE These are all the build jobs. Adjust as necessary. Comment out what you
   # don't need
   include:
     # Linux
@@ -69,16 +69,16 @@ before_deploy:
   - sh ci/before_deploy.sh
 
 deploy:
-  # TODO update `api_key.secure`
+  # DONE update `api_key.secure`
   # - Create a `public_repo` GitHub token. Go to: https://github.com/settings/tokens/new
   # - Encrypt it: `travis encrypt 0123456789012345678901234567890123456789
   # - Paste the output down here
   api_key:
-    secure: A9v3PIzQQ4U08OHFmDPQzNXbNHEb7YHyLXCvMF+dXFuNSvhUNlmQYykxqUf3dvikhJL2/bsZ14umm7ni7fQh0tGwJ4+lPpNzYAcweGgNXnWvjTpY6ovuRbr3gs4/srkyxp/GBDmSW5L8wFN3hKCB+Lm0YnIPB9IA2afP8a30+8VTXT9nv7pNqGny4ilN41ycr4DZi3sQoXdbruy7ClN7gsWW/GUiudBccHVIjmTapOFKLwZHODaUl/1/RDWQzh+i+17e1ivXuJPktDSrqmHPTZ15OjklnHKd6t179ry6VkGRg4R/R/YukVIqGzeaXGWAwdAQ5gE8cjGZghJLVi2jkDBJ85z8MvT+zLZLyliiuhLc/X8y7mkE1n0FKFtXXzFVt0l7V1LaEKbIbiV6XX3jsir4qgkqWjPHBZqO5mkGNFS16Dmt30/ZtEPAzXiINFXbWuWrpQ/LZ4NSto8IMrRTcoyDbAga/KYxJiNIeVuCe1E9dbytDM7K0GLtxJTul/WnnSeI6r//EFyC4bxYjyHhCXaag4q14KM+ak4rB0QgxsYzyGuh2MqyCoVj8YJLjLdKnL/SV7W7LPD40xlxvI6VCYTVi2ILHwL6vCxpukXYteX0c5IAIWkISDKu6nNBEgmCHXXPSqYSrgE5g7/QoCQHI8++nR8iKe0s7TWxZRydby8=
+    secure: "YaOabSTnNtl0h6DwxtiKG+W6eE8swQSMXlE20oZvTBDpCPWa6daHSVNWBwthudlrcZLWvRuQmy+we62OELzc1f5AwNyyTZ0fgtiqcs7+MY3edSyBQHUIPbzZGeCsbvb1efQzJDZaU5u6TaeNvwqEcIEU2BTSl/3F7RrG+1CgwtnsIp4zrAeaJBHhY0RZCvpdfOica9+m5Dz37q0acl2xdVX9SGv9d+F1WZ2QsB35UCfFVJQ21/KE6QWYZIyEvjudZ7XbeafTnOZ9Xcmn0Mpo9OfhiG3/OP+wN8hOH26CjQR1ru5ftnmdXigE/YOAkUgeRfcFv1rptq6+Datrfu0sHvAM/zSAiqbakHnwn1zVLWe8WJHGjnvh428jAhMK85y1cStsnVsxnciqmWlnpr3bBL2Nopi9OuAOMJ1SG5jNmLCctQwCJubxzrFLaJRKeUefDye+L9u4/EyiQmx0p7b1IsBlEjYe1ammzgBdEA26fUmzM6gJKcOLKmH9CLpcBYiaGuAaiHIBW5Cbq05kB2fVay+947YQOFEnmMJm2sZMkITv1ZnofWqDoyj9BVttczrKUDho3oMBNu9jsrAO0ncqUnsao3aqiuKIVjmPgc2uV8c+UlEpqHu40PNAfF70KkWkefYeqqGMGKzuB1SnMr+4XmQg0GPnK2MuEHzQOmvASuo="
   file_glob: true
   file: $CRATE_NAME-$TRAVIS_TAG-$TARGET.*
   on:
-    # TODO Here you can pick which targets will generate binary releases
+    # DONE Here you can pick which targets will generate binary releases
     # In this example, there are some targets that are tested using the stable
     # and nightly channels. This condition makes sure there is only one release
     # for such targets and that's generated using the stable channel
