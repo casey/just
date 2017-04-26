@@ -424,8 +424,11 @@ impl<'a> Recipe<'a> {
         if options.dry_run
           || options.verbose
           || !((quiet_command ^ self.quiet) || options.quiet) {
-          warn!("{}", command);
+          let highlight = maybe_highlight(options.highlight
+                                          && options.use_color.should_color_stderr());
+          warn!("{}", highlight.paint(command));
         }
+
         if options.dry_run {
           continue;
         }
@@ -1031,6 +1034,14 @@ fn maybe_bold(colors: bool) -> ansi_term::Style {
   }
 }
 
+fn maybe_highlight(colors: bool) -> ansi_term::Style {
+  if colors {
+    ansi_term::Style::new().fg(ansi_term::Color::Cyan).bold()
+  } else {
+    ansi_term::Style::default()
+  }
+}
+
 impl<'a> Display for CompileError<'a> {
   fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
     use ErrorKind::*;
@@ -1143,6 +1154,7 @@ struct Justfile<'a> {
 struct RunOptions<'a> {
   dry_run:   bool,
   evaluate:  bool,
+  highlight: bool,
   overrides: Map<&'a str, &'a str>,
   quiet:     bool,
   shell:     Option<&'a str>,
