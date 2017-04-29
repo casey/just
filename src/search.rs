@@ -6,7 +6,9 @@ use std::{path, str};
 
 fn search_test<P: AsRef<path::Path>>(path: P, args: &[&str]) {
   let mut binary = env::current_dir().unwrap();
-  binary.push("./target/debug/just");
+  binary.push("target");
+  binary.push("debug");
+  binary.push("just");
   let output = process::Command::new(binary)
     .current_dir(path)
     .args(args)

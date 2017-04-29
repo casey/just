@@ -50,7 +50,9 @@ fn integration_test(
   path.push("justfile");
   brev::dump(path, justfile);
   let mut binary = env::current_dir().unwrap();
-  binary.push("./target/debug/just");
+  binary.push("target");
+  binary.push("debug");
+  binary.push("just");
 
   let output = process::Command::new(&binary)
     .current_dir(tmp.path())
