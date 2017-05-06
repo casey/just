@@ -16,6 +16,7 @@ macro_rules! warn {
     let _ = writeln!(&mut std::io::stderr(), $($arg)*);
   }};
 }
+
 macro_rules! die {
   ($($arg:tt)*) => {{
     extern crate std;
@@ -335,7 +336,7 @@ pub fn app() {
   } else if let Some(recipe) = justfile.first() {
     vec![recipe]
   } else {
-    die!("Justfile contains no recipes");
+    die!("Justfile contains no recipes.");
   };
 
   let options = RunOptions {
