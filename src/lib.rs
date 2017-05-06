@@ -1169,8 +1169,8 @@ struct RunOptions<'a> {
 }
 
 impl<'a, 'b> Justfile<'a> where 'a: 'b {
-  fn first(&self) -> Option<&'a str> {
-    let mut first: Option<&Recipe<'a>> = None;
+  fn first(&self) -> Option<&Recipe> {
+    let mut first: Option<&Recipe> = None;
     for recipe in self.recipes.values() {
       if let Some(first_recipe) = first {
         if recipe.line_number < first_recipe.line_number {
@@ -1180,7 +1180,7 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
         first = Some(recipe);
       }
     }
-    first.map(|recipe| recipe.name)
+    first
   }
 
   fn count(&self) -> usize {
