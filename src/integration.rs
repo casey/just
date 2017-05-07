@@ -54,9 +54,13 @@ fn integration_test(
   brev::dump(path, justfile);
   let mut binary = env::current_dir().unwrap();
   binary.push("target");
+  if let Ok(target_triple) = env::var("TARGET") {
+    binary.push(target_triple);
+  }
   binary.push("debug");
   binary.push("just");
 
+  /*
   unsafe {
     if !x {
       println!("tmpdir: {:?}", tmp.path());
@@ -71,7 +75,10 @@ fn integration_test(
         let y: &mut bool = &mut x;
         *y = true;
     }
+
+    panic!();
   }
+  */
 
   let output = process::Command::new(&binary)
     .current_dir(tmp.path())
