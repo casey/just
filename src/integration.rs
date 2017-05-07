@@ -1,5 +1,6 @@
 extern crate tempdir;
 extern crate brev;
+extern crate walkdir;
 
 use ::prelude::*;
 use tempdir::TempDir;
@@ -35,6 +36,8 @@ macro_rules! integration_test {
   }
 }
 
+static mut x: bool = false;
+
 fn integration_test(
   shell:           &str,
   justfile:        &str,
@@ -54,8 +57,21 @@ fn integration_test(
   binary.push("debug");
   binary.push("just");
 
-  println!("tmpdir: {:?}", tmp.path());
-  println!("cwd:    {:?}", env::current_dir().unwrap());
+  unsafe {
+    if !x {
+      println!("tmpdir: {:?}", tmp.path());
+      println!("cwd:    {:?}", env::current_dir().unwrap());
+      println!("binary: {:?}", binary);
+
+      for entry in self::walkdir::WalkDir::new("target") {
+        let entry = entry.unwrap();
+        println!("{}", entry.path().display());
+      }
+
+        let y: &mut bool = &mut x;
+        *y = true;
+    }
+  }
 
   let output = process::Command::new(&binary)
     .current_dir(tmp.path())
