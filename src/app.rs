@@ -7,7 +7,7 @@ use ::prelude::*;
 use std::{convert, ffi};
 use std::collections::BTreeMap;
 use self::clap::{App, Arg, ArgGroup, AppSettings};
-use super::{Slurp, RunOptions, compile, DEFAULT_SHELL};
+use super::{Slurp, RunOptions, compile, DEFAULT_SHELL, maybe_s};
 
 macro_rules! warn {
   ($($arg:tt)*) => {{
@@ -334,7 +334,12 @@ pub fn app() {
   let arguments = if !rest.is_empty() {
     rest
   } else if let Some(recipe) = justfile.first() {
-    vec![recipe]
+    let min_arguments = recipe.min_arguments();
+    if min_arguments > 0 {
+      die!("Recipe `{}` cannot be used as default recipe since it requires at least {} argument{}.",
+           recipe.name, min_arguments, maybe_s(min_arguments));
+    }
+    vec![recipe.name]
   } else {
     die!("Justfile contains no recipes.");
   };
