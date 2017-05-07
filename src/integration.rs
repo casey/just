@@ -54,6 +54,9 @@ fn integration_test(
   binary.push("debug");
   binary.push("just");
 
+  println!("tmpdir: {:?}", tmp.path());
+  println!("cwd:    {:?}", env::current_dir().unwrap());
+
   let output = process::Command::new(&binary)
     .current_dir(tmp.path())
     .args(args)
