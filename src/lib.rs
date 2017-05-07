@@ -259,12 +259,18 @@ fn run_backtick<'a>(
 
 impl<'a> Recipe<'a> {
   fn argument_range(&self) -> Range<usize> {
+    self.min_arguments()..self.max_arguments() + 1
+  }
+
+  fn min_arguments(&self) -> usize {
     self.parameters.iter().filter(|p| !p.default.is_some()).count()
-      ..
+  }
+
+  fn max_arguments(&self) -> usize {
     if self.parameters.iter().any(|p| p.variadic) {
-      std::usize::MAX
+      std::usize::MAX - 1
     } else {
-      self.parameters.len() + 1
+      self.parameters.len()
     }
   }
 
@@ -1230,13 +1236,13 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
           grouped.push((recipe, &tail[0..0]));
         } else {
           let argument_range = recipe.argument_range();
-          let argument_count = cmp::min(tail.len(), argument_range.end - 1);
+          let argument_count = cmp::min(tail.len(), recipe.max_arguments());
           if !contains(&argument_range, argument_count) {
             return Err(RunError::ArgumentCountMismatch {
               recipe: recipe.name,
               found:  tail.len(),
-              min:    argument_range.start,
-              max:    argument_range.end - 1,
+              min:    recipe.min_arguments(),
+              max:    recipe.max_arguments(),
             });
           }
           grouped.push((recipe, &tail[0..argument_count]));
