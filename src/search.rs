@@ -1,14 +1,11 @@
-extern crate brev;
-
 use ::prelude::*;
 use tempdir::TempDir;
 use std::{path, str};
+use super::brev;
 
 fn search_test<P: AsRef<path::Path>>(path: P, args: &[&str]) {
-  let mut binary = env::current_dir().unwrap();
-  binary.push("target");
-  binary.push("debug");
-  binary.push("just");
+  let binary = super::test_utils::just_binary_path();
+
   let output = process::Command::new(binary)
     .current_dir(path)
     .args(args)

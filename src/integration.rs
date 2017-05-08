@@ -1,7 +1,6 @@
 extern crate tempdir;
 extern crate brev;
 extern crate walkdir;
-extern crate glob;
 
 use ::prelude::*;
 use tempdir::TempDir;
@@ -54,22 +53,7 @@ fn integration_test(
   path.push("justfile");
   brev::dump(path, justfile);
 
-  let mut binary = env::current_dir().unwrap();
-  binary.push("target");
-  binary.push("debug");
-  binary.push("just");
-
-  if !binary.is_file() {
-    let mut pattern = env::current_dir().unwrap();
-    pattern.push("target");
-    pattern.push("*");
-    pattern.push("debug");
-    pattern.push("just");
-    for path in glob::glob(pattern.to_str().unwrap()).unwrap() {
-      binary = path.unwrap();
-      break;
-    }
-  }
+  let binary = super::test_utils::just_binary_path();
 
   unsafe {
     if !X {
