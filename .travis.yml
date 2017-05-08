@@ -28,10 +28,12 @@ matrix:
     - env: TARGET=i686-apple-darwin
       os: osx
       before_install:
+        - set -e
         - brew install dash
     - env: TARGET=x86_64-apple-darwin
       os: osx
       before_install:
+        - set -e
         - brew install dash
 
     # *BSD
@@ -58,6 +60,7 @@ matrix:
       os: osx
       rust: nightly
       before_install:
+        - set -e
         - brew install dash
 
 before_install: set -e
