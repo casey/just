@@ -27,8 +27,12 @@ matrix:
     # OSX
     - env: TARGET=i686-apple-darwin
       os: osx
+      after_install:
+        - brew install dash
     - env: TARGET=x86_64-apple-darwin
       os: osx
+      after_install:
+        - brew install dash
 
     # *BSD
     - env: TARGET=i686-unknown-freebsd DISABLE_TESTS=1
@@ -53,6 +57,8 @@ matrix:
     - env: TARGET=x86_64-apple-darwin
       os: osx
       rust: nightly
+      after_install:
+        - brew install dash
 
 before_install: set -e
 
