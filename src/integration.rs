@@ -1,9 +1,11 @@
 extern crate tempdir;
 extern crate brev;
+extern crate walkdir;
 
 use ::prelude::*;
 use tempdir::TempDir;
 use std::str;
+use std::sync::{Once, ONCE_INIT};
 
 /// Instantiate integration tests for a given test case using
 /// sh, dash, and bash.
@@ -35,6 +37,8 @@ macro_rules! integration_test {
   }
 }
 
+static ONCE: Once = ONCE_INIT;
+
 fn integration_test(
   shell:           &str,
   justfile:        &str,
@@ -51,6 +55,23 @@ fn integration_test(
   brev::dump(path, justfile);
 
   let binary = super::test_utils::just_binary_path();
+
+  ONCE.call_once(|| {
+    println!("tmpdir: {:?}", tmp.path());
+    println!("cwd:    {:?}", env::current_dir().unwrap());
+    println!("binary: {:?}", binary);
+
+    println!();
+
+    for (key, val) in env::vars() {
+      println!("{} = {}", key, val);
+    }
+
+    for entry in self::walkdir::WalkDir::new("target") {
+      let entry = entry.unwrap();
+      println!("{}", entry.path().display());
+    }
+  });
 
   let output = process::Command::new(&binary)
     .current_dir(tmp.path())
