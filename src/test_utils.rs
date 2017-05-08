@@ -3,22 +3,22 @@ extern crate glob;
 use ::prelude::*;
 
 pub fn just_binary_path() -> PathBuf {
-  let mut binary = env::current_dir().unwrap();
-  binary.push("target");
-  binary.push("debug");
-  binary.push("just");
+  let exe = String::from("just") + env::consts::EXE_EXTENSION;
 
-  if !binary.is_file() {
+  let mut path = env::current_dir().unwrap();
+  path.push("target");
+  path.push("debug");
+  path.push(&exe);
+
+  if !path.is_file() {
     let mut pattern = env::current_dir().unwrap();
     pattern.push("target");
     pattern.push("*");
     pattern.push("debug");
-    pattern.push("just");
-    for path in glob::glob(pattern.to_str().unwrap()).unwrap() {
-      binary = path.unwrap();
-      break;
-    }
+    pattern.push(&exe);
+    path = glob::glob(pattern.to_str().unwrap()).unwrap()
+      .take_while(Result::is_ok).nth(0).unwrap().unwrap();
   }
 
-  binary
+  path
 }
