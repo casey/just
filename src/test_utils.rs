@@ -3,7 +3,7 @@ extern crate glob;
 use ::prelude::*;
 
 pub fn just_binary_path() -> PathBuf {
-  let exe = String::from("just") + env::consts::EXE_EXTENSION;
+  let exe = String::from("just") + env::consts::EXE_SUFFIX;
 
   let mut path = env::current_dir().unwrap();
   path.push("target");
