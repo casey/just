@@ -54,13 +54,13 @@ fn integration_test(
   path.push("justfile");
   brev::dump(path, justfile);
 
-  let binary = super::test_utils::just_binary_path();
+  let mut once = false;
 
-  ONCE.call_once(|| {
+  ONCE.call_once(|| { once = true; });
+
+  if once {
     println!("tmpdir: {:?}", tmp.path());
     println!("cwd:    {:?}", env::current_dir().unwrap());
-    println!("binary: {:?}", binary);
-
     println!();
 
     for (key, val) in env::vars() {
@@ -71,7 +71,15 @@ fn integration_test(
       let entry = entry.unwrap();
       println!("{}", entry.path().display());
     }
-  });
+
+    println!();
+  }
+
+  let binary = super::test_utils::just_binary_path();
+
+  if once {
+    println!("binary: {:?}", binary);
+  }
 
   let output = process::Command::new(&binary)
     .current_dir(tmp.path())
