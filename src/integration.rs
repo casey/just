@@ -36,7 +36,7 @@ macro_rules! integration_test {
   }
 }
 
-static mut x: bool = false;
+static mut X: bool = false;
 
 fn integration_test(
   shell:           &str,
@@ -60,25 +60,26 @@ fn integration_test(
   binary.push("debug");
   binary.push("just");
 
-  /*
   unsafe {
-    if !x {
+    if !X {
       println!("tmpdir: {:?}", tmp.path());
       println!("cwd:    {:?}", env::current_dir().unwrap());
       println!("binary: {:?}", binary);
+
+      println!();
+
+      for (key, val) in env::vars() {
+        println!("{} = {}", key, val);
+      }
 
       for entry in self::walkdir::WalkDir::new("target") {
         let entry = entry.unwrap();
         println!("{}", entry.path().display());
       }
 
-        let y: &mut bool = &mut x;
-        *y = true;
+      X = true;
     }
-
-    panic!();
   }
-  */
 
   let output = process::Command::new(&binary)
     .current_dir(tmp.path())
