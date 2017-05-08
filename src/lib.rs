@@ -10,6 +10,9 @@ extern crate libc;
 extern crate brev;
 
 #[cfg(test)]
+mod test_utils;
+
+#[cfg(test)]
 mod unit;
 
 #[cfg(test)]
