@@ -90,8 +90,8 @@ fn edit<P: convert::AsRef<ffi::OsStr>>(path: P) -> ! {
 pub fn app() {
   let matches = App::new("just")
     .version(concat!("v", env!("CARGO_PKG_VERSION")))
-    .author("Casey Rodarmor <casey@rodarmor.com>")
-    .about("Just a command runner - https://github.com/casey/just")
+    .author(env!("CARGO_PKG_AUTHORS"))
+    .about(concat!(env!("CARGO_PKG_DESCRIPTION"), " - ", env!("CARGO_PKG_HOMEPAGE")))
     .setting(AppSettings::ColoredHelp)
     .arg(Arg::with_name("ARGUMENTS")
          .multiple(true)
