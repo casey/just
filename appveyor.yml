@@ -1,6 +1,9 @@
 # Based on the "trust" template v0.1.1
 # https://github.com/japaric/trust/tree/v0.1.1
 
+init:
+  - cmd: set PATH=%PATH%;C:\cygwin64\bin
+
 environment:
   global:
   # DONE This is the Rust channel that build jobs will use by default but can be
