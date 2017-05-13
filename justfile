@@ -24,12 +24,9 @@ version = `sed -En 's/version[[:space:]]*=[[:space:]]*"([^"]+)"/v\1/p' Cargo.tom
 publish: lint clippy test
 	git branch | grep '* master'
 	git diff --no-ext-diff --quiet --exit-code
-	git checkout -b {{version}}
-	git push github
 	cargo publish
-	git tag -a {{version}} -m {{version}}
-	git push github --tags
-	@echo 'Remember to merge the {{version}} branch on GitHub!'
+	git tag -a {{version}} -m 'Release {{version}}'
+	git push github {{version}}
 
 build-binary-mac VERSION:
 	just build-binary {{VERSION}} x86_64-apple-darwin
