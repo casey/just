@@ -19,17 +19,17 @@ matrix:
   # don't need
   include:
     # Linux
-    - env: TARGET=i686-unknown-linux-gnu
-    - env: TARGET=i686-unknown-linux-musl
-    - env: TARGET=x86_64-unknown-linux-gnu
+    #- env: TARGET=i686-unknown-linux-gnu
+    #- env: TARGET=i686-unknown-linux-musl
+    #- env: TARGET=x86_64-unknown-linux-gnu
     - env: TARGET=x86_64-unknown-linux-musl
 
     # OSX
-    - env: TARGET=i686-apple-darwin
-      os: osx
-      before_install:
-        - set -e
-        - brew install dash
+    #- env: TARGET=i686-apple-darwin
+    #  os: osx
+    #  before_install:
+    #    - set -e
+    #    - brew install dash
     - env: TARGET=x86_64-apple-darwin
       os: osx
       before_install:
@@ -37,34 +37,34 @@ matrix:
         - brew install dash
 
     # *BSD
-    - env: TARGET=i686-unknown-freebsd DISABLE_TESTS=1
+    #- env: TARGET=i686-unknown-freebsd DISABLE_TESTS=1
     - env: TARGET=x86_64-unknown-freebsd DISABLE_TESTS=1
-    - env: TARGET=x86_64-unknown-netbsd DISABLE_TESTS=1
+    #- env: TARGET=x86_64-unknown-netbsd DISABLE_TESTS=1
 
     # Other architectures
-    - env: TARGET=aarch64-unknown-linux-gnu
-    - env: TARGET=armv7-unknown-linux-gnueabihf
-    - env: TARGET=mips-unknown-linux-gnu
-    - env: TARGET=mips64-unknown-linux-gnuabi64
-    - env: TARGET=mips64el-unknown-linux-gnuabi64
-    - env: TARGET=mipsel-unknown-linux-gnu
-    - env: TARGET=powerpc64-unknown-linux-gnu
-    - env: TARGET=powerpc64le-unknown-linux-gnu
-    - env: TARGET=s390x-unknown-linux-gnu DISABLE_TESTS=1
+    #- env: TARGET=aarch64-unknown-linux-gnu
+    #- env: TARGET=armv7-unknown-linux-gnueabihf
+    #- env: TARGET=mips-unknown-linux-gnu
+    #- env: TARGET=mips64-unknown-linux-gnuabi64
+    #- env: TARGET=mips64el-unknown-linux-gnuabi64
+    #- env: TARGET=mipsel-unknown-linux-gnu
+    #- env: TARGET=powerpc64-unknown-linux-gnu
+    #- env: TARGET=powerpc64le-unknown-linux-gnu
+    #- env: TARGET=s390x-unknown-linux-gnu DISABLE_TESTS=1
 
     # powerpc-unknown-linux-gnu is currently failing some
     # tests with 'Unsupported syscall: 384'
-    - env: TARGET=powerpc-unknown-linux-gnu DISABLE_TESTS=1
+    #- env: TARGET=powerpc-unknown-linux-gnu DISABLE_TESTS=1
 
     # Testing other channels
-    - env: TARGET=x86_64-unknown-linux-gnu
-      rust: nightly
-    - env: TARGET=x86_64-apple-darwin
-      os: osx
-      rust: nightly
-      before_install:
-        - set -e
-        - brew install dash
+    #- env: TARGET=x86_64-unknown-linux-gnu
+    #  rust: nightly
+    #- env: TARGET=x86_64-apple-darwin
+    #  os: osx
+    #  rust: nightly
+    #  before_install:
+    #    - set -e
+    #    - brew install dash
 
 before_install: set -e
 
