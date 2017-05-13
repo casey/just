@@ -29,7 +29,6 @@ publish: lint clippy test
 	cargo publish
 	git tag -a {{version}} -m {{version}}
 	git push github --tags
-	git push origin --tags
 	@echo 'Remember to merge the {{version}} branch on GitHub!'
 
 build-binary-mac VERSION:
