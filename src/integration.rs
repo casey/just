@@ -19,9 +19,9 @@ macro_rules! integration_test {
     name:     $name:ident,
     justfile: $text:tt,
     args:     ($($arg:tt)*),
-    stdout:   $stdout:tt,
-    stderr:   $stderr:tt,
-    status:   $status:tt,
+    stdout:   $stdout:expr,
+    stderr:   $stderr:expr,
+    status:   $status:expr,
   ) => {
     mod $name {
       use ::prelude::*;
@@ -759,12 +759,12 @@ integration_test! {
   justfile: "",
   args:     ("--quiet", "--dry-run"),
   stdout:   "",
-  stderr:   "error: The argument '--dry-run' cannot be used with '--quiet'
+  stderr:   &format!("error: The argument '--dry-run' cannot be used with '--quiet'
 
 USAGE:
-    just --color <COLOR> --quiet --shell <SHELL>
+    just{} --color <COLOR> --quiet --shell <SHELL>
 
-For more information try --help\n",
+For more information try --help\n", env::consts::EXE_SUFFIX),
   status:   1,
 }
 
