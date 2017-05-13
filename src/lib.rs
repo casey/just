@@ -102,7 +102,7 @@ fn empty<T, C: iter::FromIterator<T>>() -> C {
   iter::empty().collect()
 }
 
-fn contains<T: PartialOrd>(range: &Range<T>,  i: T) -> bool {
+fn contains<T: PartialOrd + Copy>(range: &Range<T>,  i: T) -> bool {
   i >= range.start && i < range.end
 }
 
@@ -207,8 +207,8 @@ impl<'a> Display for Expression<'a> {
   }
 }
 
-/// Return a RunError::Signal if the process was terminated by a signal,
-/// otherwise return an RunError::UnknownFailure
+/// Return a `RunError::Signal` if the process was terminated by a signal,
+/// otherwise return an `RunError::UnknownFailure`
 fn error_from_signal(
   recipe:      &str,
   line_number: Option<usize>,
@@ -257,7 +257,7 @@ fn run_backtick<'a>(
     process::Stdio::inherit()
   });
 
-  output(cmd).map_err(|output_error| RunError::Backtick{token: token.clone(), output_error: output_error})
+  output(cmd).map_err(|output_error| RunError::Backtick{token: token.clone(), output_error})
 }
 
 impl<'a> Recipe<'a> {
@@ -1121,7 +1121,8 @@ impl<'a> Display for CompileError<'a> {
       }
       InconsistentLeadingWhitespace{expected, found} => {
         writeln!(f,
-          "Recipe line has inconsistent leading whitespace. Recipe started with `{}` but found line with `{}`",
+          "Recipe line has inconsistent leading whitespace. \
+           Recipe started with `{}` but found line with `{}`",
           show_whitespace(expected), show_whitespace(found)
         )?;
       }

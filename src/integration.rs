@@ -953,7 +953,8 @@ integration_test! {
   justfile: "bar:\n\t\techo hello\n\t echo goodbye",
   args:     (),
   stdout:   "",
-  stderr:   "error: Recipe line has inconsistent leading whitespace. Recipe started with `␉␉` but found line with `␉␠`
+  stderr:   "error: Recipe line has inconsistent leading whitespace. \
+            Recipe started with `␉␉` but found line with `␉␠`
   |
 3 |      echo goodbye
   | ^
@@ -1236,7 +1237,8 @@ integration_test! {
   justfile: "b: a\na FOO:",
   args:     ("b"),
   stdout:   "",
-  stderr:   "error: Recipe `b` depends on `a` which requires arguments. Dependencies may not require arguments
+  stderr:   "error: Recipe `b` depends on `a` which requires arguments. \
+             Dependencies may not require arguments
   |
 1 | b: a
   |    ^

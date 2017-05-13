@@ -104,7 +104,7 @@ sloc:
 	echo Checking for FIXME/TODO...
 	! grep --color -En 'FIXME|TODO' src/*.rs
 	echo Checking for long lines...
-	! grep --color -En '.{100}' src/*.rs
+	! grep --color -En '.{101}' src/*.rs
 
 nop:
 
