@@ -27,6 +27,7 @@ publish: lint clippy test
 	cargo publish
 	git tag -a {{version}} -m 'Release {{version}}'
 	git push github {{version}}
+	git push github
 
 build-binary-mac VERSION:
 	just build-binary {{VERSION}} x86_64-apple-darwin
