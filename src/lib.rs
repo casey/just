@@ -25,20 +25,26 @@ mod platform;
 
 mod app;
 
+mod color;
+
 mod prelude {
-  pub use std::io::prelude::*;
   pub use libc::{EXIT_FAILURE, EXIT_SUCCESS};
   pub use regex::Regex;
+  pub use std::io::prelude::*;
   pub use std::path::{Path, PathBuf};
   pub use std::{cmp, env, fs, fmt, io, iter, process};
+
+  pub fn default<T: Default>() -> T {
+    Default::default()
+  }
 }
 
 use prelude::*;
 
 pub use app::app;
 
-use app::UseColor;
 use brev::{output, OutputError};
+use color::Color;
 use platform::{Platform, PlatformInterface};
 use std::borrow::Cow;
 use std::collections::{BTreeMap as Map, BTreeSet as Set};
@@ -129,16 +135,14 @@ struct Parameter<'a> {
 
 impl<'a> Display for Parameter<'a> {
   fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-    let green = maybe_green(f.alternate());
-    let cyan = maybe_cyan(f.alternate());
-    let purple = maybe_purple(f.alternate());
+    let color = Color::fmt(f);
     if self.variadic {
-      write!(f, "{}", purple.paint("+"))?;
+      write!(f, "{}", color.annotation().paint("+"))?;
     }
-    write!(f, "{}", cyan.paint(self.name))?;
+    write!(f, "{}", color.parameter().paint(self.name))?;
     if let Some(ref default) = self.default {
       let escaped = default.chars().flat_map(char::escape_default).collect::<String>();;
-      write!(f, r#"='{}'"#, green.paint(escaped))?;
+      write!(f, r#"='{}'"#, color.string().paint(&escaped))?;
     }
     Ok(())
   }
@@ -285,8 +289,8 @@ impl<'a> Recipe<'a> {
     options:   &RunOptions,
   ) -> Result<(), RunError<'a>> {
     if options.verbose {
-      let cyan = maybe_cyan(options.use_color.should_color_stderr());
-      warn!("{}===> Running recipe `{}`...{}", cyan.prefix(), self.name, cyan.suffix());
+      let color = options.color.stderr().banner();
+      warn!("{}===> Running recipe `{}`...{}", color.prefix(), self.name, color.suffix());
     }
 
     let mut argument_map = Map::new();
@@ -430,12 +434,13 @@ impl<'a> Recipe<'a> {
           continue;
         }
 
-        if options.dry_run
-          || options.verbose
-          || !((quiet_command ^ self.quiet) || options.quiet) {
-          let highlight = maybe_highlight(options.highlight
-                                          && options.use_color.should_color_stderr());
-          warn!("{}", highlight.paint(command));
+        if options.dry_run || options.verbose || !((quiet_command ^ self.quiet) || options.quiet) {
+          let color = if options.highlight {
+            options.color.highlight()
+          } else {
+            options.color
+          };
+          warn!("{}", color.stderr().paint(command));
         }
 
         if options.dry_run {
@@ -946,7 +951,7 @@ fn write_error_context(
   width:  Option<usize>,
 ) -> Result<(), fmt::Error> {
   let line_number = line + 1;
-  let red = maybe_red(f.alternate());
+  let red = Color::fmt(f).error();
   match text.lines().nth(line) {
     Some(line) => {
       let mut i = 0;
@@ -1003,61 +1008,13 @@ fn write_token_error_context(f: &mut fmt::Formatter, token: &Token) -> Result<()
   )
 }
 
-fn maybe_red(colors: bool) -> ansi_term::Style {
-  if colors {
-    ansi_term::Style::new().fg(ansi_term::Color::Red).bold()
-  } else {
-    ansi_term::Style::default()
-  }
-}
-
-fn maybe_green(colors: bool) -> ansi_term::Style {
-  if colors {
-    ansi_term::Style::new().fg(ansi_term::Color::Green)
-  } else {
-    ansi_term::Style::default()
-  }
-}
-
-fn maybe_cyan(colors: bool) -> ansi_term::Style {
-  if colors {
-    ansi_term::Style::new().fg(ansi_term::Color::Cyan)
-  } else {
-    ansi_term::Style::default()
-  }
-}
-
-fn maybe_purple(colors: bool) -> ansi_term::Style {
-  if colors {
-    ansi_term::Style::new().fg(ansi_term::Color::Purple)
-  } else {
-    ansi_term::Style::default()
-  }
-}
-
-fn maybe_bold(colors: bool) -> ansi_term::Style {
-  if colors {
-    ansi_term::Style::new().bold()
-  } else {
-    ansi_term::Style::default()
-  }
-}
-
-fn maybe_highlight(colors: bool) -> ansi_term::Style {
-  if colors {
-    ansi_term::Style::new().fg(ansi_term::Color::Cyan).bold()
-  } else {
-    ansi_term::Style::default()
-  }
-}
-
 impl<'a> Display for CompileError<'a> {
   fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
     use ErrorKind::*;
-    let red  = maybe_red(f.alternate());
-    let bold = maybe_bold(f.alternate());
+    let error   = Color::fmt(f).error();
+    let message = Color::fmt(f).message();
 
-    write!(f, "{} {}", red.paint("error:"), bold.prefix())?;
+    write!(f, "{} {}", error.paint("error:"), message.prefix())?;
 
     match self.kind {
       CircularRecipeDependency{recipe, ref circle} => {
@@ -1148,7 +1105,7 @@ impl<'a> Display for CompileError<'a> {
       }
     }
 
-    write!(f, "{}", bold.suffix())?;
+    write!(f, "{}", message.suffix())?;
 
     write_error_context(f, self.text, self.index, self.line, self.column, self.width)
   }
@@ -1168,7 +1125,7 @@ struct RunOptions<'a> {
   overrides: Map<&'a str, &'a str>,
   quiet:     bool,
   shell:     Option<&'a str>,
-  use_color: UseColor,
+  color:     Color,
   verbose:   bool,
 }
 
@@ -1347,9 +1304,10 @@ impl<'a> RunError<'a> {
 impl<'a> Display for RunError<'a> {
   fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
     use RunError::*;
-    let red = maybe_red(f.alternate());
-    let bold = maybe_bold(f.alternate());
-    write!(f, "{} {}", red.paint("error:"), bold.prefix())?;
+    let color = if f.alternate() { Color::always() } else { Color::never() };
+    let error = color.error();
+    let message = color.message();
+    write!(f, "{} {}", error.paint("error:"), message.prefix())?;
 
     let mut error_token = None;
 
@@ -1491,7 +1449,7 @@ impl<'a> Display for RunError<'a> {
       }
     }
 
-    write!(f, "{}", bold.suffix())?;
+    write!(f, "{}", message.suffix())?;
 
     if let Some(token) = error_token {
       write_token_error_context(f, token)?;

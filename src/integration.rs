@@ -104,7 +104,7 @@ fn integration_test(
 
   let stderr = str::from_utf8(&output.stderr).unwrap();
   if stderr != expected_stderr {
-    println!("bad stderr:\ngot:\n{}\n\nexpected:\n{}", stderr, expected_stderr);
+    println!("bad stderr:\ngot:\n{:?}\n\nexpected:\n{}", stderr, expected_stderr);
     failure = true;
   }
 
@@ -1585,4 +1585,30 @@ a: x y
   |      ^
 ",
   status:   EXIT_FAILURE,
+}
+
+integration_test! {
+  name:     list_colors,
+  justfile: "
+# comment
+a B C +D='hello':
+  echo {{B}} {{C}} {{D}}
+",
+  args:     ("--color", "always", "--list"),
+  stdout:   "Available recipes:\n    a \u{1b}[36mB\u{1b}[0m \u{1b}[36mC\u{1b}[0m \u{1b}[35m+\u{1b}[0m\u{1b}[36mD\u{1b}[0m=\'\u{1b}[32mhello\u{1b}[0m\' \u{1b}[34m#\u{1b}[0m \u{1b}[34mcomment\u{1b}[0m\n",
+  stderr:   "",
+  status:   EXIT_SUCCESS,
+}
+
+integration_test! {
+  name:     run_colors,
+  justfile: "
+# comment
+a:
+  echo hi
+",
+  args:     ("--color", "always", "--highlight", "--verbose"),
+  stdout:   "hi\n",
+  stderr:   "\u{1b}[1;36m===> Running recipe `a`...\u{1b}[0m\n\u{1b}[1mecho hi\u{1b}[0m\n",
+  status:   EXIT_SUCCESS,
 }
