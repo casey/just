@@ -15,21 +15,6 @@ build:
 check:
 	cargo check
 
-@banner:
-	clear
-	echo
-	echo
-	echo
-	echo
-	echo
-	echo
-	echo
-	echo
-	echo
-	echo
-	echo
-	just test
-
 watch COMMAND='test':
 	cargo watch {{COMMAND}}
 

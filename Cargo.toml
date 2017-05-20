@@ -6,10 +6,6 @@ authors     = ["Casey Rodarmor <casey@rodarmor.com>"]
 license     = "WTFPL OR MIT OR Apache-2.0"
 homepage    = "https://github.com/casey/just"
 
-[[bin]]
-name = "just"
-doc = false
-
 [dev-dependencies]
 glob = "^0.2.11"
 
