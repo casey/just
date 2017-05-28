@@ -104,7 +104,7 @@ fn integration_test(
 
   let stderr = str::from_utf8(&output.stderr).unwrap();
   if stderr != expected_stderr {
-    println!("bad stderr:\ngot:\n{}\n\nexpected:\n{}", stderr, expected_stderr);
+    println!("bad stderr:\ngot:\n{:?}\n\nexpected:\n{:?}", stderr, expected_stderr);
     failure = true;
   }
 
