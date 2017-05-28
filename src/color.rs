@@ -103,7 +103,7 @@ impl Color {
     self.restyle(Style::new().fg(Cyan).bold())
   }
 
-  pub fn highlight(self) -> Color {
+  pub fn command(self) -> Color {
     self.restyle(Style::new().bold())
   }
 

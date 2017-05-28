@@ -436,7 +436,7 @@ impl<'a> Recipe<'a> {
 
         if options.dry_run || options.verbose || !((quiet_command ^ self.quiet) || options.quiet) {
           let color = if options.highlight {
-            options.color.highlight()
+            options.color.command()
           } else {
             options.color
           };
