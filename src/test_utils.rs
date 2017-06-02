@@ -8,6 +8,7 @@ pub fn just_binary_path() -> PathBuf {
   if path.ends_with("deps") {
     path.pop();
   }
-  path.push("just");
+  let exe = String::from("just") + env::consts::EXE_SUFFIX;
+  path.push(exe);
   path
 }
