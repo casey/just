@@ -78,9 +78,9 @@ deploy:
     appveyor_repo_tag: true
   provider: GitHub
 
-#cache:
-#  - C:\Users\appveyor\.cargo\registry
-#  - target
+cache:
+  - C:\Users\appveyor\.cargo\registry
+  - target
 
 branches:
   only:
