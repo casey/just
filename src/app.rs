@@ -1,9 +1,8 @@
-extern crate ansi_term;
-extern crate atty;
 extern crate clap;
 extern crate libc;
 
-use ::prelude::*;
+use color::Color;
+use prelude::*;
 use std::{convert, ffi};
 use std::collections::BTreeMap;
 use self::clap::{App, Arg, ArgGroup, AppSettings};
@@ -23,54 +22,6 @@ macro_rules! die {
     warn!($($arg)*);
     process::exit(EXIT_FAILURE)
   }};
-}
-
-#[derive(Copy, Clone)]
-pub enum UseColor {
-  Auto,
-  Always,
-  Never,
-}
-
-impl Default for UseColor {
-  fn default() -> UseColor {
-    UseColor::Never
-  }
-}
-
-impl UseColor {
-  fn from_argument(use_color: &str) -> Option<UseColor> {
-    match use_color {
-      "auto"   => Some(UseColor::Auto),
-      "always" => Some(UseColor::Always),
-      "never"  => Some(UseColor::Never),
-      _        => None,
-    }
-  }
-
-  fn should_color_stream(self, stream: atty::Stream) -> bool {
-    match self {
-      UseColor::Auto   => atty::is(stream),
-      UseColor::Always => true,
-      UseColor::Never  => false,
-    }
-  }
-
-  pub fn should_color_stdout(self) -> bool {
-    self.should_color_stream(atty::Stream::Stdout)
-  }
-
-  pub fn should_color_stderr(self) -> bool {
-    self.should_color_stream(atty::Stream::Stderr)
-  }
-
-  fn blue(self, stream: atty::Stream) -> ansi_term::Style {
-    if self.should_color_stream(stream) {
-      ansi_term::Style::new().fg(ansi_term::Color::Blue)
-    } else {
-      ansi_term::Style::default()
-    }
-  }
 }
 
 fn edit<P: convert::AsRef<ffi::OsStr>>(path: P) -> ! {
@@ -167,10 +118,11 @@ pub fn app() {
          .args(&["DUMP", "EDIT", "LIST", "SHOW", "SUMMARY", "ARGUMENTS", "EVALUATE"]))
     .get_matches();
 
-  let use_color_argument = matches.value_of("COLOR").expect("--color had no value");
-  let use_color = match UseColor::from_argument(use_color_argument) {
-    Some(use_color) => use_color,
-    None => die!("Invalid argument to --color. This is a bug in just."),
+  let color = match matches.value_of("COLOR").expect("`--color` had no value") {
+    "auto"   => Color::auto(),
+    "always" => Color::always(),
+    "never"  => Color::never(),
+    other    => die!("Invalid argument `{}` to --color. This is a bug in just.", other),
   };
 
   let set_count = matches.occurrences_of("SET");
@@ -274,7 +226,7 @@ pub fn app() {
   }
 
   let justfile = compile(&text).unwrap_or_else(|error|
-    if use_color.should_color_stderr() {
+    if color.stderr().active() {
       die!("{:#}", error);
     } else {
       die!("{}", error);
@@ -296,19 +248,19 @@ pub fn app() {
   }
 
   if matches.is_present("LIST") {
-    let blue = use_color.blue(atty::Stream::Stdout);
+    let doc_color = color.stdout().doc();
     println!("Available recipes:");
     for (name, recipe) in &justfile.recipes {
       print!("    {}", name);
       for parameter in &recipe.parameters {
-        if use_color.should_color_stdout() {
+        if color.stdout().active() {
           print!(" {:#}", parameter);
         } else {
           print!(" {}", parameter);
         }
       }
       if let Some(doc) = recipe.doc {
-        print!(" {} {}", blue.paint("#"), blue.paint(doc));
+        print!(" {} {}", doc_color.paint("#"), doc_color.paint(doc));
       }
       println!("");
     }
@@ -351,13 +303,13 @@ pub fn app() {
     overrides: overrides,
     quiet:     matches.is_present("QUIET"),
     shell:     matches.value_of("SHELL"),
-    use_color: use_color,
+    color:     color,
     verbose:   matches.is_present("VERBOSE"),
   };
 
   if let Err(run_error) = justfile.run(&arguments, &options) {
     if !options.quiet {
-      if use_color.should_color_stderr() {
+      if color.stderr().active() {
         warn!("{:#}", run_error);
       } else {
         warn!("{}", run_error);
