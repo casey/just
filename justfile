@@ -29,40 +29,6 @@ publish: lint clippy test
 	git push github {{version}}
 	git push github
 
-build-binary-mac VERSION:
-	just build-binary {{VERSION}} x86_64-apple-darwin
-
-build-binary-linux VERSION:
-	just build-binary {{VERSION}} x86_64-unknown-linux-musl
-
-build-and-fetch-linux-binary VERSION:
-	vagrant up
-	vagrant ssh -- 'bash -lc "cd just && git checkout master && git pull && just build-binary-linux {{VERSION}}"'
-	rm -rf tmp/linux
-	mkdir -p tmp/linux
-	scp \
-	  -P 2222 \
-	  -i .vagrant/machines/default/virtualbox/private_key \
-	  'vagrant@127.0.0.1:just/tmp/*-x86_64-unknown-linux-musl.tar.gz' \
-	  tmp/linux
-
-build-binary VERSION TARGET:
-	git diff --no-ext-diff --quiet --exit-code
-	git checkout {{VERSION}}
-	cargo build --release --target={{TARGET}}
-	rm -rf tmp/just-{{VERSION}}-{{TARGET}}
-	rm -rf tmp/just-{{VERSION}}-{{TARGET}}.tar.gz
-	mkdir -p tmp/just-{{VERSION}}-{{TARGET}}
-	cp \
-	  GRAMMAR.md \
-	  LICENSE.md \
-	  README.md \
-	  target/{{TARGET}}/release/just \
-	  tmp/just-{{VERSION}}-{{TARGET}}
-	cd tmp && tar cvfz \
-	  just-{{VERSION}}-{{TARGET}}.tar.gz \
-	  just-{{VERSION}}-{{TARGET}}
-
 # clean up feature branch BRANCH
 done BRANCH:
 	git checkout {{BRANCH}}
@@ -70,12 +36,6 @@ done BRANCH:
 	git checkout master
 	git pull --rebase github master
 	git branch -d {{BRANCH}}
-
-# push master to github as branch GITHUB-BRANCH
-push GITHUB-BRANCH +FLAGS='':
-	git branch | grep '* master'
-	git diff --no-ext-diff --quiet --exit-code
-	git push {{FLAGS}} github master:refs/heads/{{GITHUB-BRANCH}}
 
 # install just from crates.io
 install:
