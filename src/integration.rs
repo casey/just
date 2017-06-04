@@ -1,11 +1,9 @@
 extern crate tempdir;
 extern crate brev;
-extern crate walkdir;
 
 use ::prelude::*;
 use tempdir::TempDir;
 use std::str;
-use std::sync::{Once, ONCE_INIT};
 
 /// Instantiate integration tests for a given test case using
 /// sh, dash, and bash.
@@ -37,8 +35,6 @@ macro_rules! integration_test {
   }
 }
 
-static ONCE: Once = ONCE_INIT;
-
 fn integration_test(
   shell:           &str,
   justfile:        &str,
@@ -54,34 +50,7 @@ fn integration_test(
   path.push("justfile");
   brev::dump(path, justfile);
 
-  let mut once = false;
-
-  ONCE.call_once(|| { once = true; });
-
-  if once {
-    println!("tmpdir: {:?}", tmp.path());
-    println!("cwd:    {:?}", env::current_dir().unwrap());
-    println!();
-
-    for (key, val) in env::vars() {
-      println!("{} = {}", key, val);
-    }
-
-    for entry in self::walkdir::WalkDir::new("target") {
-      let entry = entry.unwrap();
-      println!("{}", entry.path().display());
-    }
-
-    println!();
-  }
-
-  let binary = super::test_utils::just_binary_path();
-
-  if once {
-    println!("binary: {:?}", binary);
-  }
-
-  let output = process::Command::new(&binary)
+  let output = process::Command::new(&super::test_utils::just_binary_path())
     .current_dir(tmp.path())
     .args(args)
     .args(&["--shell", shell])
@@ -1595,7 +1564,10 @@ a B C +D='hello':
   echo {{B}} {{C}} {{D}}
 ",
   args:     ("--color", "always", "--list"),
-  stdout:   "Available recipes:\n    a \u{1b}[36mB\u{1b}[0m \u{1b}[36mC\u{1b}[0m \u{1b}[35m+\u{1b}[0m\u{1b}[36mD\u{1b}[0m=\'\u{1b}[32mhello\u{1b}[0m\' \u{1b}[34m#\u{1b}[0m \u{1b}[34mcomment\u{1b}[0m\n",
+  stdout:   "Available recipes:\n    a \
+    \u{1b}[36mB\u{1b}[0m \u{1b}[36mC\u{1b}[0m \u{1b}[35m+\
+    \u{1b}[0m\u{1b}[36mD\u{1b}[0m=\'\u{1b}[32mhello\u{1b}[0m\
+    \' \u{1b}[34m#\u{1b}[0m \u{1b}[34mcomment\u{1b}[0m\n",
   stderr:   "",
   status:   EXIT_SUCCESS,
 }
