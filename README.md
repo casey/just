@@ -47,7 +47,7 @@ Alternately, `just` can be installed with `cargo`, the [rust language](https://w
 
 ### alias
 
-You can put `alias j=just` in your shell's config file for lighting fast command running.
+You can put `alias j=just` in your shell's config file for lightning fast command running.
 
 How do I just?
 --------------
@@ -164,7 +164,7 @@ $ just foo/build
 $ just foo/
 ```
 
-Assignment, strings, concatination, and substitution with `{{...}}` are supported:
+Assignment, strings, concatenation, and substitution with `{{...}}` are supported:
 
 ```make
 version = "0.2.7"
@@ -421,9 +421,9 @@ Run `just --help` to see all the options.
 miscellanea
 -----------
 
-### syntax hilighting
+### syntax highlighting
 
-`justfile` syntax is close enough to `make` that you may want to tell your editor to use make syntax hilighting for just.
+`justfile` syntax is close enough to `make` that you may want to tell your editor to use make syntax highlighting for just.
 
 For vim, you can put the following in `~/.vim/filetype.vim`:
 
@@ -446,7 +446,7 @@ Include the following in a `justfile` to enable syntax highlighting in vim and e
 # vim: set ft=make :
 ```
 
-Feel free to send me the commands necessary to get syntax hilighting working in your editor of choice so that I may include them here.
+Feel free to send me the commands necessary to get syntax highlighting working in your editor of choice so that I may include them here.
 
 ### justfile grammar
 
@@ -476,7 +476,7 @@ further ramblings
 
 I personally find it very useful to write a `justfile` for almost every project, big or small.
 
-On a big project with multiple contributers, it's very useful to have a file with all the commands needed to work on the project close at hand.
+On a big project with multiple contributors, it's very useful to have a file with all the commands needed to work on the project close at hand.
 
 There are probably different commands to test, build, lint, deploy, and the like, and having them all in one place is useful and cuts down on the time you have to spend telling people which commands to run and how to type them.
 
