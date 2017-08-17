@@ -5,6 +5,7 @@ just
 [![crates.io version](https://img.shields.io/crates/v/just.svg)](https://crates.io/crates/just)
 [![Build Status](https://travis-ci.org/casey/just.svg?branch=master)](https://travis-ci.org/casey/just)
 [![Chat](https://badges.gitter.im/just-because/Lobby.svg)](https://gitter.im/just-because/Lobby)
+[![Say Thanks!](https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg)](https://saythanks.io/to/casey)
 
 `just` is a handy way to save and run commands.
 
