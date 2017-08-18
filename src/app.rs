@@ -36,6 +36,7 @@ pub fn app() {
     .author(env!("CARGO_PKG_AUTHORS"))
     .about(concat!(env!("CARGO_PKG_DESCRIPTION"), " - ", env!("CARGO_PKG_HOMEPAGE")))
     .setting(AppSettings::ColoredHelp)
+    .setting(AppSettings::TrailingVarArg)
     .arg(Arg::with_name("ARGUMENTS")
          .multiple(true)
          .help("The recipe(s) to run, defaults to the first recipe in the justfile"))

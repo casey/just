@@ -52,8 +52,8 @@ fn integration_test(
 
   let output = process::Command::new(&super::test_utils::just_binary_path())
     .current_dir(tmp.path())
-    .args(args)
     .args(&["--shell", shell])
+    .args(args)
     .output()
     .expect("just invocation failed");
 
@@ -409,7 +409,7 @@ integration_test! {
  echo hello
  echo {{`exit 111`}}
 a = `exit 222`",
-  args:     ("--set", "foo", "bar", "a", "b", "--set", "baz", "bob", "--set", "a", "b"),
+  args:     ("--set", "foo", "bar", "--set", "baz", "bob", "--set", "a", "b", "a", "b"),
   stdout:   "",
   stderr:   "error: Variables `baz` and `foo` overridden on the command line but not present \
     in justfile\n",
@@ -551,7 +551,7 @@ export ABC = FOO + "-" + BAR + "-" + baz
 wut:
   echo $FOO $BAR $ABC
 "#,
-  args:     ("FOO=hello", "--set", "BAR", "bye"),
+  args:     ("--set", "BAR", "bye", "FOO=hello"),
   stdout:   "hello bye hello-bye-c\n",
   stderr:   "echo $FOO $BAR $ABC\n",
   status:   EXIT_SUCCESS,
@@ -1582,5 +1582,17 @@ a:
   args:     ("--color", "always", "--highlight", "--verbose"),
   stdout:   "hi\n",
   stderr:   "\u{1b}[1;36m===> Running recipe `a`...\u{1b}[0m\n\u{1b}[1mecho hi\u{1b}[0m\n",
+  status:   EXIT_SUCCESS,
+}
+
+integration_test! {
+  name:     trailing_flags,
+  justfile: "
+echo A B C:
+  echo {{A}} {{B}} {{C}}
+",
+  args:     ("echo", "--some", "--awesome", "--flags"),
+  stdout:   "--some --awesome --flags\n",
+  stderr:   "echo --some --awesome --flags\n",
   status:   EXIT_SUCCESS,
 }
