@@ -8,18 +8,10 @@ use std::collections::BTreeMap;
 use self::clap::{App, Arg, ArgGroup, AppSettings};
 use super::{Slurp, RunOptions, compile, DEFAULT_SHELL, maybe_s};
 
-macro_rules! warn {
-  ($($arg:tt)*) => {{
-    extern crate std;
-    use std::io::prelude::*;
-    let _ = writeln!(&mut std::io::stderr(), $($arg)*);
-  }};
-}
-
 macro_rules! die {
   ($($arg:tt)*) => {{
     extern crate std;
-    warn!($($arg)*);
+    eprintln!($($arg)*);
     process::exit(EXIT_FAILURE)
   }};
 }
@@ -235,7 +227,7 @@ pub fn app() {
 
   if matches.is_present("SUMMARY") {
     if justfile.count() == 0 {
-      warn!("Justfile contains no recipes.");
+      eprintln!("Justfile contains no recipes.");
     } else {
       println!("{}", justfile.recipes.keys().cloned().collect::<Vec<_>>().join(" "));
     }
@@ -274,9 +266,9 @@ pub fn app() {
         process::exit(EXIT_SUCCESS);
       }
       None => {
-        warn!("Justfile does not contain recipe `{}`.", name);
+        eprintln!("Justfile does not contain recipe `{}`.", name);
         if let Some(suggestion) = justfile.suggest(name) {
-          warn!("Did you mean `{}`?", suggestion);
+          eprintln!("Did you mean `{}`?", suggestion);
         }
         process::exit(EXIT_FAILURE)
       }
@@ -310,9 +302,9 @@ pub fn app() {
   if let Err(run_error) = justfile.run(&arguments, &options) {
     if !options.quiet {
       if color.stderr().active() {
-        warn!("{:#}", run_error);
+        eprintln!("{:#}", run_error);
       } else {
-        warn!("{}", run_error);
+        eprintln!("{}", run_error);
       }
     }
 

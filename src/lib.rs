@@ -51,22 +51,6 @@ use std::collections::{BTreeMap as Map, BTreeSet as Set};
 use std::fmt::Display;
 use std::ops::Range;
 
-macro_rules! warn {
-  ($($arg:tt)*) => {{
-    extern crate std;
-    use std::io::prelude::*;
-    let _ = writeln!(&mut std::io::stderr(), $($arg)*);
-  }};
-}
-
-macro_rules! die {
-  ($($arg:tt)*) => {{
-    extern crate std;
-    warn!($($arg)*);
-    process::exit(EXIT_FAILURE)
-  }};
-}
-
 const DEFAULT_SHELL: &'static str = "sh";
 
 trait Slurp {
@@ -290,7 +274,7 @@ impl<'a> Recipe<'a> {
   ) -> Result<(), RunError<'a>> {
     if options.verbose {
       let color = options.color.stderr().banner();
-      warn!("{}===> Running recipe `{}`...{}", color.prefix(), self.name, color.suffix());
+      eprintln!("{}===> Running recipe `{}`...{}", color.prefix(), self.name, color.suffix());
     }
 
     let mut argument_map = Map::new();
@@ -333,7 +317,7 @@ impl<'a> Recipe<'a> {
 
       if options.dry_run || self.quiet {
         for line in &evaluated_lines {
-          warn!("{}", line);
+          eprintln!("{}", line);
         }
       }
 
@@ -440,7 +424,7 @@ impl<'a> Recipe<'a> {
           } else {
             options.color
           };
-          warn!("{}", color.stderr().paint(command));
+          eprintln!("{}", color.stderr().paint(command));
         }
 
         if options.dry_run {
