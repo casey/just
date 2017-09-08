@@ -3,7 +3,7 @@ Vagrant.configure(2) do |config|
 
   config.vm.provision "shell", inline: <<-EOS
     apt-get -y update
-    apt-get install -y clang git vim
+    apt-get install -y clang git vim curl
   EOS
 
   config.vm.provision "shell", privileged: false, inline: <<-EOS
@@ -12,7 +12,7 @@ Vagrant.configure(2) do |config|
     ./install-rustup -y
     source ~/.cargo/env
     rustup target add x86_64-unknown-linux-musl
-    cargo install just
+    cargo install -f just
     git clone https://github.com/casey/just.git
   EOS
 end
