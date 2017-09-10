@@ -76,9 +76,9 @@ fn split_shebang(shebang: &str) -> Option<(&str, Option<&str>)> {
   if EMPTY.is_match(shebang) {
     Some(("", None))
   } else if let Some(captures) = SIMPLE.captures(shebang) {
-    Some((captures.at(1).unwrap(), None))
+    Some((captures.get(1).unwrap().as_str(), None))
   } else if let Some(captures) = ARGUMENT.captures(shebang) {
-    Some((captures.at(1).unwrap(), Some(captures.at(2).unwrap())))
+    Some((captures.get(1).unwrap().as_str(), Some(captures.get(2).unwrap().as_str())))
   } else {
     None
   }
@@ -1554,7 +1554,7 @@ fn tokenize(text: &str) -> Result<Vec<Token>, CompileError> {
   }
 
   fn indentation(text: &str) -> Option<&str> {
-    INDENT.captures(text).map(|captures| captures.at(1).unwrap())
+    INDENT.captures(text).map(|captures| captures.get(1).unwrap().as_str())
   }
 
   let mut tokens = vec![];
@@ -1645,64 +1645,64 @@ fn tokenize(text: &str) -> Result<Vec<Token>, CompileError> {
     let (prefix, lexeme, kind) =
     if let (0, &State::Indent(indent), Some(captures)) =
       (column, state.last().unwrap(), LINE.captures(rest)) {
-      let line = captures.at(0).unwrap();
+      let line = captures.get(0).unwrap().as_str();
       if !line.starts_with(indent) {
         return error!(ErrorKind::InternalError{message: "unexpected indent".to_string()});
       }
       state.push(State::Text);
       (&line[0..indent.len()], "", Line)
     } else if let Some(captures) = EOF.captures(rest) {
-      (captures.at(1).unwrap(), captures.at(2).unwrap(), Eof)
+      (captures.get(1).unwrap().as_str(), captures.get(2).unwrap().as_str(), Eof)
     } else if let State::Text = *state.last().unwrap() {
       if let Some(captures) = INTERPOLATION_START.captures(rest) {
         state.push(State::Interpolation);
-        ("", captures.at(0).unwrap(), InterpolationStart)
+        ("", captures.get(0).unwrap().as_str(), InterpolationStart)
       } else if let Some(captures) = LEADING_TEXT.captures(rest) {
-        ("", captures.at(1).unwrap(), Text)
+        ("", captures.get(1).unwrap().as_str(), Text)
       } else if let Some(captures) = TEXT.captures(rest) {
-        ("", captures.at(1).unwrap(), Text)
+        ("", captures.get(1).unwrap().as_str(), Text)
       } else if let Some(captures) = EOL.captures(rest) {
         state.pop();
-        (captures.at(1).unwrap(), captures.at(2).unwrap(), Eol)
+        (captures.get(1).unwrap().as_str(), captures.get(2).unwrap().as_str(), Eol)
       } else {
         return error!(ErrorKind::InternalError{
           message: format!("Could not match token in text state: \"{}\"", rest)
         });
       }
     } else if let Some(captures) = INTERPOLATION_START_TOKEN.captures(rest) {
-      (captures.at(1).unwrap(), captures.at(2).unwrap(), InterpolationStart)
+      (captures.get(1).unwrap().as_str(), captures.get(2).unwrap().as_str(), InterpolationStart)
     } else if let Some(captures) = INTERPOLATION_END.captures(rest) {
       if state.last().unwrap() == &State::Interpolation {
         state.pop();
       }
-      (captures.at(1).unwrap(), captures.at(2).unwrap(), InterpolationEnd)
+      (captures.get(1).unwrap().as_str(), captures.get(2).unwrap().as_str(), InterpolationEnd)
     } else if let Some(captures) = NAME.captures(rest) {
-      (captures.at(1).unwrap(), captures.at(2).unwrap(), Name)
+      (captures.get(1).unwrap().as_str(), captures.get(2).unwrap().as_str(), Name)
     } else if let Some(captures) = EOL.captures(rest) {
       if state.last().unwrap() == &State::Interpolation {
         return error!(ErrorKind::InternalError {
           message: "hit EOL while still in interpolation state".to_string()
         });
       }
-      (captures.at(1).unwrap(), captures.at(2).unwrap(), Eol)
+      (captures.get(1).unwrap().as_str(), captures.get(2).unwrap().as_str(), Eol)
     } else if let Some(captures) = BACKTICK.captures(rest) {
-      (captures.at(1).unwrap(), captures.at(2).unwrap(), Backtick)
+      (captures.get(1).unwrap().as_str(), captures.get(2).unwrap().as_str(), Backtick)
     } else if let Some(captures) = COLON.captures(rest) {
-      (captures.at(1).unwrap(), captures.at(2).unwrap(), Colon)
+      (captures.get(1).unwrap().as_str(), captures.get(2).unwrap().as_str(), Colon)
     } else if let Some(captures) = AT.captures(rest) {
-      (captures.at(1).unwrap(), captures.at(2).unwrap(), At)
+      (captures.get(1).unwrap().as_str(), captures.get(2).unwrap().as_str(), At)
     } else if let Some(captures) = PLUS.captures(rest) {
-      (captures.at(1).unwrap(), captures.at(2).unwrap(), Plus)
+      (captures.get(1).unwrap().as_str(), captures.get(2).unwrap().as_str(), Plus)
     } else if let Some(captures) = EQUALS.captures(rest) {
-      (captures.at(1).unwrap(), captures.at(2).unwrap(), Equals)
+      (captures.get(1).unwrap().as_str(), captures.get(2).unwrap().as_str(), Equals)
     } else if let Some(captures) = COMMENT.captures(rest) {
-      (captures.at(1).unwrap(), captures.at(2).unwrap(), Comment)
+      (captures.get(1).unwrap().as_str(), captures.get(2).unwrap().as_str(), Comment)
     } else if let Some(captures) = RAW_STRING.captures(rest) {
-      (captures.at(1).unwrap(), captures.at(2).unwrap(), RawString)
+      (captures.get(1).unwrap().as_str(), captures.get(2).unwrap().as_str(), RawString)
     } else if UNTERMINATED_RAW_STRING.is_match(rest) {
       return error!(ErrorKind::UnterminatedString);
     } else if let Some(captures) = STRING.captures(rest) {
-      let prefix = captures.at(1).unwrap();
+      let prefix = captures.get(1).unwrap().as_str();
       let contents = &rest[prefix.len()+1..];
       if contents.is_empty() {
         return error!(ErrorKind::UnterminatedString);
