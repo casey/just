@@ -104,7 +104,7 @@ pub fn app() {
          .long("verbose")
          .help("Use verbose output"))
     .arg(Arg::with_name("WORKING-DIRECTORY")
-        .short("C")
+        .short("d")
         .long("working-directory")
         .takes_value(true)
         .help("Uses <WORKING-DIRECTORY> as working directory. --justfile must also be set")
