@@ -136,7 +136,7 @@ pub fn app() {
 
   for argument in raw_arguments.iter().take_while(|arg| override_re.is_match(arg)) {
     let captures = override_re.captures(argument).unwrap();
-    overrides.insert(captures.at(1).unwrap(), captures.at(2).unwrap());
+    overrides.insert(captures.get(1).unwrap().as_str(), captures.get(2).unwrap().as_str());
   }
 
   let rest = raw_arguments.iter().skip_while(|arg| override_re.is_match(arg))

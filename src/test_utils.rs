@@ -1,5 +1,3 @@
-extern crate glob;
-
 use ::prelude::*;
 
 pub fn just_binary_path() -> PathBuf {
