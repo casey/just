@@ -105,6 +105,7 @@ struct Recipe<'a> {
   lines:             Vec<Vec<Fragment<'a>>>,
   name:              &'a str,
   parameters:        Vec<Parameter<'a>>,
+  private:           bool,
   quiet:             bool,
   shebang:           bool,
 }
@@ -2015,6 +2016,7 @@ impl<'a> Parser<'a> {
       dependencies:      dependencies,
       dependency_tokens: dependency_tokens,
       parameters:        parameters,
+      private:           &name.lexeme[0..1] == "_",
       lines:             lines,
       shebang:           shebang,
       quiet:             quiet,

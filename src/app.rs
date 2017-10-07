@@ -232,7 +232,13 @@ pub fn app() {
     if justfile.count() == 0 {
       eprintln!("Justfile contains no recipes.");
     } else {
-      println!("{}", justfile.recipes.keys().cloned().collect::<Vec<_>>().join(" "));
+      let summary = justfile.recipes.iter()
+        .filter(|&(_, recipe)| !recipe.private)
+        .map(|(name, _)| name)
+        .cloned()
+        .collect::<Vec<_>>()
+        .join(" ");
+      println!("{}", summary);
     }
     process::exit(EXIT_SUCCESS);
   }
@@ -246,6 +252,9 @@ pub fn app() {
     let doc_color = color.stdout().doc();
     println!("Available recipes:");
     for (name, recipe) in &justfile.recipes {
+      if recipe.private {
+        continue;
+      }
       print!("    {}", name);
       for parameter in &recipe.parameters {
         if color.stdout().active() {
