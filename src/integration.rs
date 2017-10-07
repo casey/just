@@ -139,7 +139,10 @@ integration_test! {
   justfile: "b: a
 a:
 d: c
-c: b",
+c: b
+_z: _y
+_y:
+",
   args:     ("--summary"),
   stdout:   "a b c d\n",
   stderr:   "",
@@ -1020,6 +1023,9 @@ hello a b='B	' c='C':
 # this comment will be ignored
 
 a Z="\t z":
+
+# this recipe will not appear
+_private-recipe:
 "#,
   args:     ("--list"),
   stdout:   r"Available recipes:
