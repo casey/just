@@ -34,6 +34,7 @@ matrix:
       os: osx
       before_install:
         - set -e
+        - brew update
         - brew install dash
 
     # *BSD
