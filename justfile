@@ -104,7 +104,7 @@ render-readme:
 	#!/usr/bin/env ruby
 	require 'github/markup'
 	$rendered = GitHub::Markup.render("README.asc", File.read("README.asc"))
-	File.write('README.html', $rendered)
+	File.write('tmp/README.html', $rendered)
 
 watch-readme:
 	just render-readme
