@@ -1092,7 +1092,7 @@ fn readme_test() {
   let mut justfiles = vec![];
   let mut current = None;
 
-  for line in brev::slurp("README.md").lines() {
+  for line in brev::slurp("README.asc").lines() {
     if let Some(mut justfile) = current {
       if line == "```" {
         justfiles.push(justfile);
