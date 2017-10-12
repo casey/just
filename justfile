@@ -100,6 +100,16 @@ quine-text = '
 	}
 '
 
+render-readme:
+	#!/usr/bin/env ruby
+	require 'github/markup'
+	$rendered = GitHub::Markup.render("README.asc", File.read("README.asc"))
+	File.write('tmp/README.html', $rendered)
+
+watch-readme:
+	just render-readme
+	fswatch -ro README.asc | xargs -n1 -I{} just render-readme
+
 # run all polyglot recipes
 polyglot: python js perl sh ruby
 
