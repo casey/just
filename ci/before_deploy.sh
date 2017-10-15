@@ -24,7 +24,7 @@ main() {
     cp target/$TARGET/release/just $stage/
     cp GRAMMAR.md $stage/
     cp LICENSE.md $stage/
-    cp README.md $stage/
+    cp README.asc $stage/
 
     cd $stage
     tar czf $src/$CRATE_NAME-$TRAVIS_TAG-$TARGET.tar.gz *
