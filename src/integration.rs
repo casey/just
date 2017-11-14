@@ -1274,7 +1274,7 @@ integration_test! {
 }
 
 integration_test! {
-  name:     unexpected_token,
+  name:     unexpected_token_in_dependency_position,
   justfile: "foo: 'bar'",
   args:     ("foo"),
   stdout:   "",
@@ -1286,6 +1286,18 @@ integration_test! {
   status:   EXIT_FAILURE,
 }
 
+integration_test! {
+  name:     unexpected_token_after_name,
+  justfile: "foo 'bar'",
+  args:     ("foo"),
+  stdout:   "",
+  stderr:   "error: Expected name, '+', ':', or '=', but found raw string
+  |
+1 | foo 'bar'
+  |     ^^^^^
+",
+  status:   EXIT_FAILURE,
+}
 
 integration_test! {
   name:     self_dependency,
