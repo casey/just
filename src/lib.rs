@@ -1528,7 +1528,7 @@ fn tokenize(text: &str) -> Result<Vec<Token>, CompileError> {
     static ref BACKTICK:                  Regex = token(r"`[^`\n\r]*`"               );
     static ref COLON:                     Regex = token(r":"                         );
     static ref AT:                        Regex = token(r"@"                         );
-    static ref COMMENT:                   Regex = token(r"#([^!].*)?$"               );
+    static ref COMMENT:                   Regex = token(r"#([^!\n\r].*)?$"           );
     static ref EOF:                       Regex = token(r"(?-m)$"                    );
     static ref EOL:                       Regex = token(r"\n|\r\n"                   );
     static ref EQUALS:                    Regex = token(r"="                         );

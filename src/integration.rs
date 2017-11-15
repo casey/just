@@ -1614,3 +1614,17 @@ echo A B C:
   stderr:   "echo --some --awesome --flags\n",
   status:   EXIT_SUCCESS,
 }
+
+integration_test! {
+   name:     comment_before_variable,
+   justfile: "
+#
+A='1'
+echo:
+  echo {{A}}
+ ",
+   args:     ("echo"),
+   stdout:   "1\n",
+   stderr:   "echo 1\n",
+   status:   EXIT_SUCCESS,
+}

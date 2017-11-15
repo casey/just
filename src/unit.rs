@@ -157,6 +157,17 @@ hello:
 }
 
 #[test]
+fn tokenize_comment_before_variable() {
+  let text = "
+#
+A='1'
+echo:
+  echo {{A}}
+  ";
+  tokenize_success(text, "$#$N='$N:$>^_{N}$<.");
+}
+
+#[test]
 fn tokenize_interpolation_backticks() {
   tokenize_success(
     "hello:\n echo {{`echo hello` + `echo goodbye`}}",
