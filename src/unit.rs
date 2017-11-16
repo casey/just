@@ -1,13 +1,17 @@
 extern crate tempdir;
 extern crate brev;
 
-use super::{
-  And, CompilationError, CompilationErrorKind, Justfile, Or,
-  OutputError, RuntimeError, RunOptions, Token,
-  compile, contains, tokenize
+use {
+  CompilationError, CompilationErrorKind, Justfile,
+  RuntimeError, RunOptions, Token,
+  compile, contains, tokenize,
 };
+ 
+use TokenKind::*;
 
-use super::TokenKind::*;
+use formatting::{And, Or};
+
+use brev::OutputError;
 
 fn tokenize_success(text: &str, expected_summary: &str) {
   let tokens = tokenize(text).unwrap();

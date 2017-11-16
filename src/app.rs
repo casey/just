@@ -6,7 +6,11 @@ use prelude::*;
 use std::{convert, ffi};
 use std::collections::BTreeMap;
 use self::clap::{App, Arg, ArgGroup, AppSettings};
-use super::{Slurp, RunOptions, compile, DEFAULT_SHELL, maybe_s};
+use Slurp;
+use RunOptions;
+use compile;
+use formatting::maybe_s;
+use DEFAULT_SHELL;
 
 macro_rules! die {
   ($($arg:tt)*) => {{

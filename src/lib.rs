@@ -22,10 +22,14 @@ mod integration;
 mod search;
 
 mod platform;
-
 mod app;
-
 mod color;
+mod compilation_error;
+mod runtime_error;
+mod formatting;
+
+use compilation_error::{CompilationError, CompilationErrorKind};
+use runtime_error::RuntimeError;
 
 mod prelude {
   pub use libc::{EXIT_FAILURE, EXIT_SUCCESS};
@@ -43,7 +47,7 @@ use prelude::*;
 
 pub use app::app;
 
-use brev::{output, OutputError};
+use brev::output;
 use color::Color;
 use platform::{Platform, PlatformInterface};
 use std::borrow::Cow;
@@ -773,41 +777,6 @@ impl<'a, 'b> Evaluator<'a, 'b> {
   }
 }
 
-#[derive(Debug, PartialEq)]
-struct CompilationError<'a> {
-  text:   &'a str,
-  index:  usize,
-  line:   usize,
-  column: usize,
-  width:  Option<usize>,
-  kind:   CompilationErrorKind<'a>,
-}
-
-#[derive(Debug, PartialEq)]
-enum CompilationErrorKind<'a> {
-  CircularRecipeDependency{recipe: &'a str, circle: Vec<&'a str>},
-  CircularVariableDependency{variable: &'a str, circle: Vec<&'a str>},
-  DependencyHasParameters{recipe: &'a str, dependency: &'a str},
-  DuplicateDependency{recipe: &'a str, dependency: &'a str},
-  DuplicateParameter{recipe: &'a str, parameter: &'a str},
-  DuplicateRecipe{recipe: &'a str, first: usize},
-  DuplicateVariable{variable: &'a str},
-  ExtraLeadingWhitespace,
-  InconsistentLeadingWhitespace{expected: &'a str, found: &'a str},
-  InternalError{message: String},
-  InvalidEscapeSequence{character: char},
-  MixedLeadingWhitespace{whitespace: &'a str},
-  OuterShebang,
-  ParameterShadowsVariable{parameter: &'a str},
-  RequiredParameterFollowsDefaultParameter{parameter: &'a str},
-  ParameterFollowsVariadicParameter{parameter: &'a str},
-  UndefinedVariable{variable: &'a str},
-  UnexpectedToken{expected: Vec<TokenKind>, found: TokenKind},
-  UnknownDependency{recipe: &'a str, unknown: &'a str},
-  UnknownStartOfToken,
-  UnterminatedString,
-}
-
 fn internal_error(message: String) -> CompilationError<'static> {
   CompilationError {
     text:   "",
@@ -819,32 +788,8 @@ fn internal_error(message: String) -> CompilationError<'static> {
   }
 }
 
-fn show_whitespace(text: &str) -> String {
-  text.chars().map(|c| match c { '\t' => '␉', ' ' => '␠', _ => c }).collect()
-}
-
 fn mixed_whitespace(text: &str) -> bool {
   !(text.chars().all(|c| c == ' ') || text.chars().all(|c| c == '\t'))
-}
-
-fn maybe_s(n: usize) -> &'static str {
-  if n == 1 {
-    ""
-  } else {
-    "s"
-  }
-}
-
-struct Tick<'a, T: 'a + Display>(&'a T);
-
-impl<'a, T: Display> Display for Tick<'a, T> {
-  fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-    write!(f, "`{}`", self.0)
-  }
-}
-
-fn ticks<T: Display>(ts: &[T]) -> Vec<Tick<T>> {
-  ts.iter().map(Tick).collect()
 }
 
 #[derive(PartialEq, Debug)]
@@ -887,212 +832,6 @@ fn cook_string<'a>(token: &Token<'a>) -> Result<CookedString<'a>, CompilationErr
     Err(token.error(CompilationErrorKind::InternalError{
       message: "cook_string() called on non-string token".to_string()
     }))
-  }
-}
-
-struct And<'a, T: 'a + Display>(&'a [T]);
-struct Or <'a, T: 'a + Display>(&'a [T]);
-
-impl<'a, T: Display> Display for And<'a, T> {
-  fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-    conjoin(f, self.0, "and")
-  }
-}
-
-impl<'a, T: Display> Display for Or<'a, T> {
-  fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-    conjoin(f, self.0, "or")
-  }
-}
-
-fn conjoin<T: Display>(
-  f:           &mut fmt::Formatter,
-  values:      &[T],
-  conjunction: &str,
-) -> Result<(), fmt::Error> {
-    match values.len() {
-      0 => {},
-      1 => write!(f, "{}", values[0])?,
-      2 => write!(f, "{} {} {}", values[0], conjunction, values[1])?,
-      _ => for (i, item) in values.iter().enumerate() {
-        write!(f, "{}", item)?;
-        if i == values.len() - 1 {
-        } else if i == values.len() - 2 {
-          write!(f, ", {} ", conjunction)?;
-        } else {
-          write!(f, ", ")?
-        }
-      },
-    }
-    Ok(())
-}
-
-fn write_error_context(
-  f:      &mut fmt::Formatter,
-  text:   &str,
-  index:  usize,
-  line:   usize,
-  column: usize,
-  width:  Option<usize>,
-) -> Result<(), fmt::Error> {
-  let line_number = line + 1;
-  let red = Color::fmt(f).error();
-  match text.lines().nth(line) {
-    Some(line) => {
-      let mut i = 0;
-      let mut space_column = 0;
-      let mut space_line   = String::new();
-      let mut space_width  = 0;
-      for c in line.chars() {
-        if c == '\t' {
-          space_line.push_str("    ");
-          if i < column {
-            space_column += 4;
-          }
-          if i >= column && i < column + width.unwrap_or(1) {
-            space_width += 4;
-          }
-        } else {
-          if i < column {
-            space_column += unicode_width::UnicodeWidthChar::width(c).unwrap_or(0);
-
-          }
-          if i >= column && i < column + width.unwrap_or(1) {
-            space_width += unicode_width::UnicodeWidthChar::width(c).unwrap_or(0);
-          }
-          space_line.push(c);
-        }
-        i += c.len_utf8();
-      }
-      let line_number_width = line_number.to_string().len();
-      write!(f, "{0:1$} |\n", "", line_number_width)?;
-      write!(f, "{} | {}\n", line_number, space_line)?;
-      write!(f, "{0:1$} |", "", line_number_width)?;
-      if width == None {
-        write!(f, " {0:1$}{2}^{3}", "", space_column, red.prefix(), red.suffix())?;
-      } else {
-        write!(f, " {0:1$}{2}{3:^<4$}{5}", "", space_column,
-                  red.prefix(), "", space_width, red.suffix())?;
-      }
-    },
-    None => if index != text.len() {
-      write!(f, "internal error: Error has invalid line number: {}", line_number)?
-    },
-  }
-  Ok(())
-}
-
-fn write_token_error_context(f: &mut fmt::Formatter, token: &Token) -> Result<(), fmt::Error> {
-  write_error_context(
-    f,
-    token.text,
-    token.index,
-    token.line,
-    token.column + token.prefix.len(),
-    Some(token.lexeme.len())
-  )
-}
-
-impl<'a> Display for CompilationError<'a> {
-  fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-    use CompilationErrorKind::*;
-    let error   = Color::fmt(f).error();
-    let message = Color::fmt(f).message();
-
-    write!(f, "{} {}", error.paint("error:"), message.prefix())?;
-
-    match self.kind {
-      CircularRecipeDependency{recipe, ref circle} => {
-        if circle.len() == 2 {
-          writeln!(f, "Recipe `{}` depends on itself", recipe)?;
-        } else {
-          writeln!(f, "Recipe `{}` has circular dependency `{}`",
-                      recipe, circle.join(" -> "))?;
-        }
-      }
-      CircularVariableDependency{variable, ref circle} => {
-        if circle.len() == 2 {
-          writeln!(f, "Variable `{}` is defined in terms of itself", variable)?;
-        } else {
-          writeln!(f, "Variable `{}` depends on its own value: `{}`",
-                      variable, circle.join(" -> "))?;
-        }
-      }
-      InvalidEscapeSequence{character} => {
-        writeln!(f, "`\\{}` is not a valid escape sequence",
-                    character.escape_default().collect::<String>())?;
-      }
-      DuplicateParameter{recipe, parameter} => {
-        writeln!(f, "Recipe `{}` has duplicate parameter `{}`", recipe, parameter)?;
-      }
-      DuplicateVariable{variable} => {
-        writeln!(f, "Variable `{}` has multiple definitions", variable)?;
-      }
-      UnexpectedToken{ref expected, found} => {
-        writeln!(f, "Expected {}, but found {}", Or(expected), found)?;
-      }
-      DuplicateDependency{recipe, dependency} => {
-        writeln!(f, "Recipe `{}` has duplicate dependency `{}`", recipe, dependency)?;
-      }
-      DuplicateRecipe{recipe, first} => {
-        writeln!(f, "Recipe `{}` first defined on line {} is redefined on line {}",
-                    recipe, first + 1, self.line + 1)?;
-      }
-      DependencyHasParameters{recipe, dependency} => {
-        writeln!(f, "Recipe `{}` depends on `{}` which requires arguments. \
-                    Dependencies may not require arguments", recipe, dependency)?;
-      }
-      ParameterShadowsVariable{parameter} => {
-        writeln!(f, "Parameter `{}` shadows variable of the same name", parameter)?;
-      }
-      RequiredParameterFollowsDefaultParameter{parameter} => {
-        writeln!(f, "Non-default parameter `{}` follows default parameter", parameter)?;
-      }
-      ParameterFollowsVariadicParameter{parameter} => {
-        writeln!(f, "Parameter `{}` follows variadic parameter", parameter)?;
-      }
-      MixedLeadingWhitespace{whitespace} => {
-        writeln!(f,
-          "Found a mix of tabs and spaces in leading whitespace: `{}`\n\
-          Leading whitespace may consist of tabs or spaces, but not both",
-          show_whitespace(whitespace)
-        )?;
-      }
-      ExtraLeadingWhitespace => {
-        writeln!(f, "Recipe line has extra leading whitespace")?;
-      }
-      InconsistentLeadingWhitespace{expected, found} => {
-        writeln!(f,
-          "Recipe line has inconsistent leading whitespace. \
-           Recipe started with `{}` but found line with `{}`",
-          show_whitespace(expected), show_whitespace(found)
-        )?;
-      }
-      OuterShebang => {
-        writeln!(f, "`#!` is reserved syntax outside of recipes")?;
-      }
-      UnknownDependency{recipe, unknown} => {
-        writeln!(f, "Recipe `{}` has unknown dependency `{}`", recipe, unknown)?;
-      }
-      UndefinedVariable{variable} => {
-        writeln!(f, "Variable `{}` not defined", variable)?;
-      }
-      UnknownStartOfToken => {
-        writeln!(f, "Unknown start of token:")?;
-      }
-      UnterminatedString => {
-        writeln!(f, "Unterminated string")?;
-      }
-      InternalError{ref message} => {
-        writeln!(f, "Internal error, this may indicate a bug in just: {}\n\
-                     consider filing an issue: https://github.com/casey/just/issues/new",
-                     message)?;
-      }
-    }
-
-    write!(f, "{}", message.suffix())?;
-
-    write_error_context(f, self.text, self.index, self.line, self.column, self.width)
   }
 }
 
@@ -1260,192 +999,8 @@ impl<'a> Display for Justfile<'a> {
   }
 }
 
-#[derive(Debug)]
-enum RuntimeError<'a> {
-  ArgumentCountMismatch{recipe: &'a str, found: usize, min: usize, max: usize},
-  Backtick{token: Token<'a>, output_error: OutputError},
-  Code{recipe: &'a str, line_number: Option<usize>, code: i32},
-  Cygpath{recipe: &'a str, output_error: OutputError},
-  InternalError{message: String},
-  IoError{recipe: &'a str, io_error: io::Error},
-  Shebang{recipe: &'a str, command: String, argument: Option<String>, io_error: io::Error},
-  Signal{recipe: &'a str, line_number: Option<usize>, signal: i32},
-  TmpdirIoError{recipe: &'a str, io_error: io::Error},
-  UnknownFailure{recipe: &'a str, line_number: Option<usize>},
-  UnknownOverrides{overrides: Vec<&'a str>},
-  UnknownRecipes{recipes: Vec<&'a str>, suggestion: Option<&'a str>},
-}
-
-impl<'a> RuntimeError<'a> {
-  fn code(&self) -> Option<i32> {
-    use RuntimeError::*;
-    match *self {
-      Code{code, ..} | Backtick{output_error: OutputError::Code(code), ..} => Some(code),
-      _ => None,
-    }
-  }
-}
-
-impl<'a> Display for RuntimeError<'a> {
-  fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-    use RuntimeError::*;
-    let color = if f.alternate() { Color::always() } else { Color::never() };
-    let error = color.error();
-    let message = color.message();
-    write!(f, "{} {}", error.paint("error:"), message.prefix())?;
-
-    let mut error_token = None;
-
-    match *self {
-      UnknownRecipes{ref recipes, ref suggestion} => {
-        write!(f, "Justfile does not contain recipe{} {}.",
-                  maybe_s(recipes.len()), Or(&ticks(recipes)))?;
-        if let Some(suggestion) = *suggestion {
-          write!(f, "\nDid you mean `{}`?", suggestion)?;
-        }
-      },
-      UnknownOverrides{ref overrides} => {
-        write!(f, "Variable{} {} overridden on the command line but not present in justfile",
-                  maybe_s(overrides.len()),
-                  And(&overrides.iter().map(Tick).collect::<Vec<_>>()))?;
-      },
-      ArgumentCountMismatch{recipe, found, min, max} => {
-        if min == max {
-          let expected = min;
-          write!(f, "Recipe `{}` got {} argument{} but {}takes {}",
-                    recipe, found, maybe_s(found),
-                    if expected < found { "only " } else { "" }, expected)?;
-        } else if found < min {
-          write!(f, "Recipe `{}` got {} argument{} but takes at least {}",
-                    recipe, found, maybe_s(found), min)?;
-        } else if found > max {
-          write!(f, "Recipe `{}` got {} argument{} but takes at most {}",
-                    recipe, found, maybe_s(found), max)?;
-        }
-      },
-      Code{recipe, line_number, code} => {
-        if let Some(n) = line_number {
-          write!(f, "Recipe `{}` failed on line {} with exit code {}", recipe, n, code)?;
-        } else {
-          write!(f, "Recipe `{}` failed with exit code {}", recipe, code)?;
-        }
-      },
-      Cygpath{recipe, ref output_error} => match *output_error {
-        OutputError::Code(code) => {
-          write!(f, "Cygpath failed with exit code {} while translating recipe `{}` \
-                     shebang interpreter path", code, recipe)?;
-        }
-        OutputError::Signal(signal) => {
-          write!(f, "Cygpath terminated by signal {} while translating recipe `{}` \
-                     shebang interpreter path", signal, recipe)?;
-        }
-        OutputError::Unknown => {
-          write!(f, "Cygpath experienced an unknown failure while translating recipe `{}` \
-                     shebang interpreter path", recipe)?;
-        }
-        OutputError::Io(ref io_error) => {
-          match io_error.kind() {
-            io::ErrorKind::NotFound => write!(
-              f, "Could not find `cygpath` executable to translate recipe `{}` \
-                  shebang interpreter path:\n{}", recipe, io_error),
-            io::ErrorKind::PermissionDenied => write!(
-              f, "Could not run `cygpath` executable to translate recipe `{}` \
-                  shebang interpreter path:\n{}", recipe, io_error),
-            _ => write!(f, "Could not run `cygpath` executable:\n{}", io_error),
-          }?;
-        }
-        OutputError::Utf8(ref utf8_error) => {
-          write!(f, "Cygpath successfully translated recipe `{}` shebang interpreter path, \
-                     but output was not utf8: {}", recipe, utf8_error)?;
-        }
-      },
-      Shebang{recipe, ref command, ref argument, ref io_error} => {
-        if let Some(ref argument) = *argument {
-          write!(f, "Recipe `{}` with shebang `#!{} {}` execution error: {}",
-                    recipe, command, argument, io_error)?;
-        } else {
-          write!(f, "Recipe `{}` with shebang `#!{}` execution error: {}",
-                    recipe, command, io_error)?;
-        }
-      }
-      Signal{recipe, line_number, signal} => {
-        if let Some(n) = line_number {
-          write!(f, "Recipe `{}` was terminated on line {} by signal {}", recipe, n, signal)?;
-        } else {
-          write!(f, "Recipe `{}` was terminated by signal {}", recipe, signal)?;
-        }
-      }
-      UnknownFailure{recipe, line_number} => {
-        if let Some(n) = line_number {
-          write!(f, "Recipe `{}` failed on line {} for an unknown reason", recipe, n)?;
-        } else {
-        }
-      },
-      IoError{recipe, ref io_error} => {
-        match io_error.kind() {
-          io::ErrorKind::NotFound => write!(f,
-            "Recipe `{}` could not be run because just could not find `sh`:\n{}",
-            recipe, io_error),
-          io::ErrorKind::PermissionDenied => write!(
-            f, "Recipe `{}` could not be run because just could not run `sh`:\n{}",
-            recipe, io_error),
-          _ => write!(f, "Recipe `{}` could not be run because of an IO error while \
-                      launching `sh`:\n{}", recipe, io_error),
-        }?;
-      },
-      TmpdirIoError{recipe, ref io_error} =>
-        write!(f, "Recipe `{}` could not be run because of an IO error while trying \
-                  to create a temporary directory or write a file to that directory`:\n{}",
-                  recipe, io_error)?,
-      Backtick{ref token, ref output_error} => match *output_error {
-        OutputError::Code(code) => {
-          write!(f, "Backtick failed with exit code {}\n", code)?;
-          error_token = Some(token);
-        }
-        OutputError::Signal(signal) => {
-          write!(f, "Backtick was terminated by signal {}", signal)?;
-          error_token = Some(token);
-        }
-        OutputError::Unknown => {
-          write!(f, "Backtick failed for an unknown reason")?;
-          error_token = Some(token);
-        }
-        OutputError::Io(ref io_error) => {
-          match io_error.kind() {
-            io::ErrorKind::NotFound => write!(
-              f, "Backtick could not be run because just could not find `sh`:\n{}",
-              io_error),
-            io::ErrorKind::PermissionDenied => write!(
-              f, "Backtick could not be run because just could not run `sh`:\n{}", io_error),
-            _ => write!(f, "Backtick could not be run because of an IO \
-                            error while launching `sh`:\n{}", io_error),
-          }?;
-          error_token = Some(token);
-        }
-        OutputError::Utf8(ref utf8_error) => {
-          write!(f, "Backtick succeeded but stdout was not utf8: {}", utf8_error)?;
-          error_token = Some(token);
-        }
-      },
-      InternalError{ref message} => {
-        write!(f, "Internal error, this may indicate a bug in just: {} \
-                   consider filing an issue: https://github.com/casey/just/issues/new",
-                   message)?;
-      }
-    }
-
-    write!(f, "{}", message.suffix())?;
-
-    if let Some(token) = error_token {
-      write_token_error_context(f, token)?;
-    }
-
-    Ok(())
-  }
-}
-
 #[derive(Debug, PartialEq, Clone)]
-struct Token<'a> {
+pub struct Token<'a> {
   index:  usize,
   line:   usize,
   column: usize,
@@ -1469,7 +1024,7 @@ impl<'a> Token<'a> {
 }
 
 #[derive(Debug, PartialEq, Clone, Copy)]
-enum TokenKind {
+pub enum TokenKind {
   At,
   Backtick,
   Colon,
