@@ -29,11 +29,13 @@ mod runtime_error;
 mod formatting;
 mod justfile;
 mod recipe;
+mod token;
 
 use compilation_error::{CompilationError, CompilationErrorKind};
 use runtime_error::RuntimeError;
 use justfile::Justfile;
 use recipe::Recipe;
+use token::{Token, TokenKind};
 
 mod prelude {
   pub use libc::{EXIT_FAILURE, EXIT_SUCCESS};
@@ -576,75 +578,6 @@ pub struct RunOptions<'a> {
   verbose:   bool,
 }
 
-
-#[derive(Debug, PartialEq, Clone)]
-pub struct Token<'a> {
-  index:  usize,
-  line:   usize,
-  column: usize,
-  text:   &'a str,
-  prefix: &'a str,
-  lexeme: &'a str,
-  kind:   TokenKind,
-}
-
-impl<'a> Token<'a> {
-  fn error(&self, kind: CompilationErrorKind<'a>) -> CompilationError<'a> {
-    CompilationError {
-      text:   self.text,
-      index:  self.index + self.prefix.len(),
-      line:   self.line,
-      column: self.column + self.prefix.len(),
-      width:  Some(self.lexeme.len()),
-      kind:   kind,
-    }
-  }
-}
-
-#[derive(Debug, PartialEq, Clone, Copy)]
-pub enum TokenKind {
-  At,
-  Backtick,
-  Colon,
-  Comment,
-  Dedent,
-  Eof,
-  Eol,
-  Equals,
-  Indent,
-  InterpolationEnd,
-  InterpolationStart,
-  Line,
-  Name,
-  Plus,
-  RawString,
-  StringToken,
-  Text,
-}
-
-impl Display for TokenKind {
-  fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-    write!(f, "{}", match *self {
-      Backtick           => "backtick",
-      Colon              => "':'",
-      Comment            => "comment",
-      Dedent             => "dedent",
-      Eof                => "end of file",
-      Eol                => "end of line",
-      Equals             => "'='",
-      Indent             => "indent",
-      InterpolationEnd   => "'}}'",
-      InterpolationStart => "'{{'",
-      Line               => "command",
-      Name               => "name",
-      Plus               => "'+'",
-      At                 => "'@'",
-      StringToken        => "string",
-      RawString          => "raw string",
-      Text               => "command text",
-    })
-  }
-}
 
 use TokenKind::*;
 
