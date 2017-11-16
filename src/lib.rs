@@ -27,9 +27,13 @@ mod color;
 mod compilation_error;
 mod runtime_error;
 mod formatting;
+mod justfile;
+mod recipe;
 
 use compilation_error::{CompilationError, CompilationErrorKind};
 use runtime_error::RuntimeError;
+use justfile::Justfile;
+use recipe::Recipe;
 
 mod prelude {
   pub use libc::{EXIT_FAILURE, EXIT_SUCCESS};
@@ -37,9 +41,22 @@ mod prelude {
   pub use std::io::prelude::*;
   pub use std::path::{Path, PathBuf};
   pub use std::{cmp, env, fs, fmt, io, iter, process};
+  pub use std::collections::{BTreeMap as Map, BTreeSet as Set};
+  pub use std::fmt::Display;
+  pub use std::borrow::Cow;
 
   pub fn default<T: Default>() -> T {
     Default::default()
+  }
+
+  pub fn empty<T, C: iter::FromIterator<T>>() -> C {
+    iter::empty().collect()
+  }
+
+  pub use std::ops::Range;
+
+  pub fn contains<T: PartialOrd + Copy>(range: &Range<T>,  i: T) -> bool {
+    i >= range.start && i < range.end
   }
 }
 
@@ -49,11 +66,7 @@ pub use app::app;
 
 use brev::output;
 use color::Color;
-use platform::{Platform, PlatformInterface};
-use std::borrow::Cow;
-use std::collections::{BTreeMap as Map, BTreeSet as Set};
 use std::fmt::Display;
-use std::ops::Range;
 
 const DEFAULT_SHELL: &'static str = "sh";
 
@@ -92,30 +105,8 @@ fn re(pattern: &str) -> Regex {
   Regex::new(pattern).unwrap()
 }
 
-fn empty<T, C: iter::FromIterator<T>>() -> C {
-  iter::empty().collect()
-}
-
-fn contains<T: PartialOrd + Copy>(range: &Range<T>,  i: T) -> bool {
-  i >= range.start && i < range.end
-}
-
 #[derive(PartialEq, Debug)]
-struct Recipe<'a> {
-  dependencies:      Vec<&'a str>,
-  dependency_tokens: Vec<Token<'a>>,
-  doc:               Option<&'a str>,
-  line_number:       usize,
-  lines:             Vec<Vec<Fragment<'a>>>,
-  name:              &'a str,
-  parameters:        Vec<Parameter<'a>>,
-  private:           bool,
-  quiet:             bool,
-  shebang:           bool,
-}
-
-#[derive(PartialEq, Debug)]
-struct Parameter<'a> {
+pub struct Parameter<'a> {
   default:  Option<String>,
   name:     &'a str,
   token:    Token<'a>,
@@ -138,7 +129,7 @@ impl<'a> Display for Parameter<'a> {
 }
 
 #[derive(PartialEq, Debug)]
-enum Fragment<'a> {
+pub enum Fragment<'a> {
   Text{text: Token<'a>},
   Expression{expression: Expression<'a>},
 }
@@ -153,7 +144,7 @@ impl<'a> Fragment<'a> {
 }
 
 #[derive(PartialEq, Debug)]
-enum Expression<'a> {
+pub enum Expression<'a> {
   Variable{name: &'a str, token: Token<'a>},
   String{cooked_string: CookedString<'a>},
   Backtick{raw: &'a str, token: Token<'a>},
@@ -200,19 +191,6 @@ impl<'a> Display for Expression<'a> {
   }
 }
 
-/// Return a `RuntimeError::Signal` if the process was terminated by a signal,
-/// otherwise return an `RuntimeError::UnknownFailure`
-fn error_from_signal(
-  recipe:      &str,
-  line_number: Option<usize>,
-  exit_status: process::ExitStatus
-) -> RuntimeError {
-  match Platform::signal_from_exit_status(exit_status) {
-    Some(signal) => RuntimeError::Signal{recipe: recipe, line_number: line_number, signal: signal},
-    None => RuntimeError::UnknownFailure{recipe: recipe, line_number: line_number},
-  }
-}
-
 fn export_env<'a>(
   command: &mut process::Command,
   scope:   &Map<&'a str, String>,
@@ -251,255 +229,6 @@ fn run_backtick<'a>(
   });
 
   output(cmd).map_err(|output_error| RuntimeError::Backtick{token: token.clone(), output_error})
-}
-
-impl<'a> Recipe<'a> {
-  fn argument_range(&self) -> Range<usize> {
-    self.min_arguments()..self.max_arguments() + 1
-  }
-
-  fn min_arguments(&self) -> usize {
-    self.parameters.iter().filter(|p| !p.default.is_some()).count()
-  }
-
-  fn max_arguments(&self) -> usize {
-    if self.parameters.iter().any(|p| p.variadic) {
-      std::usize::MAX - 1
-    } else {
-      self.parameters.len()
-    }
-  }
-
-  fn run(
-    &self,
-    arguments: &[&'a str],
-    scope:     &Map<&'a str, String>,
-    exports:   &Set<&'a str>,
-    options:   &RunOptions,
-  ) -> Result<(), RuntimeError<'a>> {
-    if options.verbose {
-      let color = options.color.stderr().banner();
-      eprintln!("{}===> Running recipe `{}`...{}", color.prefix(), self.name, color.suffix());
-    }
-
-    let mut argument_map = Map::new();
-
-    let mut rest = arguments;
-    for parameter in &self.parameters {
-      let value = if rest.is_empty() {
-        match parameter.default {
-          Some(ref default) => Cow::Borrowed(default.as_str()),
-          None => return Err(RuntimeError::InternalError{
-            message: "missing parameter without default".to_string()
-          }),
-        }
-      } else if parameter.variadic {
-        let value = Cow::Owned(rest.to_vec().join(" "));
-        rest = &[];
-        value
-      } else {
-        let value = Cow::Borrowed(rest[0]);
-        rest = &rest[1..];
-        value
-      };
-      argument_map.insert(parameter.name, value);
-    }
-
-    let mut evaluator = Evaluator {
-      evaluated:   empty(),
-      scope:       scope,
-      exports:     exports,
-      assignments: &empty(),
-      overrides:   &empty(),
-      quiet:       options.quiet,
-    };
-
-    if self.shebang {
-      let mut evaluated_lines = vec![];
-      for line in &self.lines {
-        evaluated_lines.push(evaluator.evaluate_line(line, &argument_map)?);
-      }
-
-      if options.dry_run || self.quiet {
-        for line in &evaluated_lines {
-          eprintln!("{}", line);
-        }
-      }
-
-      if options.dry_run {
-        return Ok(());
-      }
-
-      let tmp = tempdir::TempDir::new("just")
-        .map_err(|error| RuntimeError::TmpdirIoError{recipe: self.name, io_error: error})?;
-      let mut path = tmp.path().to_path_buf();
-      path.push(self.name);
-      {
-        let mut f = fs::File::create(&path)
-          .map_err(|error| RuntimeError::TmpdirIoError{recipe: self.name, io_error: error})?;
-        let mut text = String::new();
-        // add the shebang
-        text += &evaluated_lines[0];
-        text += "\n";
-        // add blank lines so that lines in the generated script
-        // have the same line number as the corresponding lines
-        // in the justfile
-        for _ in 1..(self.line_number + 2) {
-          text += "\n"
-        }
-        for line in &evaluated_lines[1..] {
-          text += line;
-          text += "\n";
-        }
-        f.write_all(text.as_bytes())
-         .map_err(|error| RuntimeError::TmpdirIoError{recipe: self.name, io_error: error})?;
-      }
-
-      // make the script executable
-      Platform::set_execute_permission(&path)
-        .map_err(|error| RuntimeError::TmpdirIoError{recipe: self.name, io_error: error})?;
-
-      let shebang_line = evaluated_lines.first()
-        .ok_or_else(|| RuntimeError::InternalError {
-          message: "evaluated_lines was empty".to_string()
-        })?;
-
-      let (shebang_command, shebang_argument) = split_shebang(shebang_line)
-        .ok_or_else(|| RuntimeError::InternalError {
-          message: format!("bad shebang line: {}", shebang_line)
-        })?;
-
-      // create a command to run the script
-      let mut command = Platform::make_shebang_command(&path, shebang_command, shebang_argument)
-        .map_err(|output_error| RuntimeError::Cygpath{recipe: self.name, output_error: output_error})?;
-
-      // export environment variables
-      export_env(&mut command, scope, exports)?;
-
-      // run it!
-      match command.status() {
-        Ok(exit_status) => if let Some(code) = exit_status.code() {
-          if code != 0 {
-            return Err(RuntimeError::Code{recipe: self.name, line_number: None, code: code})
-          }
-        } else {
-          return Err(error_from_signal(self.name, None, exit_status))
-        },
-        Err(io_error) => return Err(RuntimeError::Shebang {
-          recipe:   self.name,
-          command:  shebang_command.to_string(),
-          argument: shebang_argument.map(String::from),
-          io_error: io_error
-        })
-      };
-    } else {
-      let mut lines = self.lines.iter().peekable();
-      let mut line_number = self.line_number + 1;
-      loop {
-        if lines.peek().is_none() {
-          break;
-        }
-        let mut evaluated = String::new();
-        loop {
-          if lines.peek().is_none() {
-            break;
-          }
-          let line = lines.next().unwrap();
-          line_number += 1;
-          evaluated += &evaluator.evaluate_line(line, &argument_map)?;
-          if line.last().map(Fragment::continuation).unwrap_or(false) {
-            evaluated.pop();
-          } else {
-            break;
-          }
-        }
-        let mut command = evaluated.as_str();
-        let quiet_command = command.starts_with('@');
-        if quiet_command {
-          command = &command[1..];
-        }
-
-        if command == "" {
-          continue;
-        }
-
-        if options.dry_run || options.verbose || !((quiet_command ^ self.quiet) || options.quiet) {
-          let color = if options.highlight {
-            options.color.command()
-          } else {
-            options.color
-          };
-          eprintln!("{}", color.stderr().paint(command));
-        }
-
-        if options.dry_run {
-          continue;
-        }
-
-        let mut cmd = process::Command::new(options.shell.unwrap_or(DEFAULT_SHELL));
-
-        cmd.arg("-cu").arg(command);
-
-        if options.quiet {
-          cmd.stderr(process::Stdio::null());
-          cmd.stdout(process::Stdio::null());
-        }
-
-        export_env(&mut cmd, scope, exports)?;
-
-        match cmd.status() {
-          Ok(exit_status) => if let Some(code) = exit_status.code() {
-            if code != 0 {
-              return Err(RuntimeError::Code{
-                recipe: self.name, line_number: Some(line_number), code: code
-              });
-            }
-          } else {
-            return Err(error_from_signal(self.name, Some(line_number), exit_status));
-          },
-          Err(io_error) => return Err(RuntimeError::IoError{
-            recipe: self.name, io_error: io_error}),
-        };
-      }
-    }
-    Ok(())
-  }
-}
-
-impl<'a> Display for Recipe<'a> {
-  fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-    if let Some(doc) = self.doc {
-      writeln!(f, "# {}", doc)?;
-    }
-    write!(f, "{}", self.name)?;
-    for parameter in &self.parameters {
-      write!(f, " {}", parameter)?;
-    }
-    write!(f, ":")?;
-    for dependency in &self.dependencies {
-      write!(f, " {}", dependency)?;
-    }
-
-    for (i, pieces) in self.lines.iter().enumerate() {
-      if i == 0 {
-        writeln!(f, "")?;
-      }
-      for (j, piece) in pieces.iter().enumerate() {
-        if j == 0 {
-          write!(f, "    ")?;
-        }
-        match *piece {
-          Fragment::Text{ref text} => write!(f, "{}", text.lexeme)?,
-          Fragment::Expression{ref expression, ..} =>
-            write!(f, "{}{}{}", "{{", expression, "}}")?,
-        }
-      }
-      if i + 1 < self.lines.len() {
-        write!(f, "\n")?;
-      }
-    }
-    Ok(())
-  }
 }
 
 fn resolve_recipes<'a>(
@@ -793,7 +522,7 @@ fn mixed_whitespace(text: &str) -> bool {
 }
 
 #[derive(PartialEq, Debug)]
-struct CookedString<'a> {
+pub struct CookedString<'a> {
   raw:    &'a str,
   cooked: String,
 }
@@ -835,14 +564,8 @@ fn cook_string<'a>(token: &Token<'a>) -> Result<CookedString<'a>, CompilationErr
   }
 }
 
-struct Justfile<'a> {
-  recipes:     Map<&'a str, Recipe<'a>>,
-  assignments: Map<&'a str, Expression<'a>>,
-  exports:     Set<&'a str>,
-}
-
 #[derive(Default)]
-struct RunOptions<'a> {
+pub struct RunOptions<'a> {
   dry_run:   bool,
   evaluate:  bool,
   highlight: bool,
@@ -853,151 +576,6 @@ struct RunOptions<'a> {
   verbose:   bool,
 }
 
-impl<'a, 'b> Justfile<'a> where 'a: 'b {
-  fn first(&self) -> Option<&Recipe> {
-    let mut first: Option<&Recipe> = None;
-    for recipe in self.recipes.values() {
-      if let Some(first_recipe) = first {
-        if recipe.line_number < first_recipe.line_number {
-          first = Some(recipe)
-        }
-      } else {
-        first = Some(recipe);
-      }
-    }
-    first
-  }
-
-  fn count(&self) -> usize {
-    self.recipes.len()
-  }
-
-  fn suggest(&self, name: &str) -> Option<&'a str> {
-    let mut suggestions = self.recipes.keys()
-      .map(|suggestion| (edit_distance::edit_distance(suggestion, name), suggestion))
-      .collect::<Vec<_>>();
-    suggestions.sort();
-    if let Some(&(distance, suggestion)) = suggestions.first() {
-      if distance < 3 {
-        return Some(suggestion)
-      }
-    }
-    None
-  }
-
-  fn run(
-    &'a self,
-    arguments: &[&'a str],
-    options:   &RunOptions<'a>,
-  ) -> Result<(), RuntimeError<'a>> {
-    let unknown_overrides = options.overrides.keys().cloned()
-      .filter(|name| !self.assignments.contains_key(name))
-      .collect::<Vec<_>>();
-
-    if !unknown_overrides.is_empty() {
-      return Err(RuntimeError::UnknownOverrides{overrides: unknown_overrides});
-    }
-
-    let scope = evaluate_assignments(&self.assignments, &options.overrides, options.quiet)?;
-    if options.evaluate {
-      let mut width = 0;
-      for name in scope.keys() {
-        width = cmp::max(name.len(), width);
-      }
-
-      for (name, value) in scope {
-        println!("{0:1$} = \"{2}\"", name, width, value);
-      }
-      return Ok(());
-    }
-
-    let mut missing = vec![];
-    let mut grouped = vec![];
-    let mut rest    = arguments;
-
-    while let Some((argument, mut tail)) = rest.split_first() {
-      if let Some(recipe) = self.recipes.get(argument) {
-        if recipe.parameters.is_empty() {
-          grouped.push((recipe, &tail[0..0]));
-        } else {
-          let argument_range = recipe.argument_range();
-          let argument_count = cmp::min(tail.len(), recipe.max_arguments());
-          if !contains(&argument_range, argument_count) {
-            return Err(RuntimeError::ArgumentCountMismatch {
-              recipe: recipe.name,
-              found:  tail.len(),
-              min:    recipe.min_arguments(),
-              max:    recipe.max_arguments(),
-            });
-          }
-          grouped.push((recipe, &tail[0..argument_count]));
-          tail = &tail[argument_count..];
-        }
-      } else {
-        missing.push(*argument);
-      }
-      rest = tail;
-    }
-
-    if !missing.is_empty() {
-      let suggestion = if missing.len() == 1 {
-        self.suggest(missing.first().unwrap())
-      } else {
-        None
-      };
-      return Err(RuntimeError::UnknownRecipes{recipes: missing, suggestion: suggestion});
-    }
-
-    let mut ran = empty();
-    for (recipe, arguments) in grouped {
-      self.run_recipe(recipe, arguments, &scope, &mut ran, options)?
-    }
-
-    Ok(())
-  }
-
-  fn run_recipe<'c>(
-    &'c self,
-    recipe:    &Recipe<'a>,
-    arguments: &[&'a str],
-    scope:     &Map<&'c str, String>,
-    ran:       &mut Set<&'a str>,
-    options:   &RunOptions<'a>,
-  ) -> Result<(), RuntimeError> {
-    for dependency_name in &recipe.dependencies {
-      if !ran.contains(dependency_name) {
-        self.run_recipe(&self.recipes[dependency_name], &[], scope, ran, options)?;
-      }
-    }
-    recipe.run(arguments, scope, &self.exports, options)?;
-    ran.insert(recipe.name);
-    Ok(())
-  }
-}
-
-impl<'a> Display for Justfile<'a> {
-  fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-    let mut items = self.recipes.len() + self.assignments.len();
-    for (name, expression) in &self.assignments {
-      if self.exports.contains(name) {
-        write!(f, "export ")?;
-      }
-      write!(f, "{} = {}", name, expression)?;
-      items -= 1;
-      if items != 0 {
-        write!(f, "\n\n")?;
-      }
-    }
-    for recipe in self.recipes.values() {
-      write!(f, "{}", recipe)?;
-      items -= 1;
-      if items != 0 {
-        write!(f, "\n\n")?;
-      }
-    }
-    Ok(())
-  }
-}
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct Token<'a> {

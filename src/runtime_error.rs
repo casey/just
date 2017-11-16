@@ -7,6 +7,17 @@ use std::fmt::{self, Display};
 use color::Color;
 use brev::OutputError;
 
+fn write_token_error_context(f: &mut fmt::Formatter, token: &Token) -> Result<(), fmt::Error> {
+  write_error_context(
+    f,
+    token.text,
+    token.index,
+    token.line,
+    token.column + token.prefix.len(),
+    Some(token.lexeme.len())
+  )
+}
+
 #[derive(Debug)]
 pub enum RuntimeError<'a> {
   ArgumentCountMismatch{recipe: &'a str, found: usize, min: usize, max: usize},
@@ -21,17 +32,6 @@ pub enum RuntimeError<'a> {
   UnknownFailure{recipe: &'a str, line_number: Option<usize>},
   UnknownOverrides{overrides: Vec<&'a str>},
   UnknownRecipes{recipes: Vec<&'a str>, suggestion: Option<&'a str>},
-}
-
-fn write_token_error_context(f: &mut fmt::Formatter, token: &Token) -> Result<(), fmt::Error> {
-  write_error_context(
-    f,
-    token.text,
-    token.index,
-    token.line,
-    token.column + token.prefix.len(),
-    Some(token.lexeme.len())
-  )
 }
 
 impl<'a> RuntimeError<'a> {
