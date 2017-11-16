@@ -196,16 +196,16 @@ impl<'a> Display for Expression<'a> {
   }
 }
 
-/// Return a `RunError::Signal` if the process was terminated by a signal,
-/// otherwise return an `RunError::UnknownFailure`
+/// Return a `RuntimeError::Signal` if the process was terminated by a signal,
+/// otherwise return an `RuntimeError::UnknownFailure`
 fn error_from_signal(
   recipe:      &str,
   line_number: Option<usize>,
   exit_status: process::ExitStatus
-) -> RunError {
+) -> RuntimeError {
   match Platform::signal_from_exit_status(exit_status) {
-    Some(signal) => RunError::Signal{recipe: recipe, line_number: line_number, signal: signal},
-    None => RunError::UnknownFailure{recipe: recipe, line_number: line_number},
+    Some(signal) => RuntimeError::Signal{recipe: recipe, line_number: line_number, signal: signal},
+    None => RuntimeError::UnknownFailure{recipe: recipe, line_number: line_number},
   }
 }
 
@@ -213,12 +213,12 @@ fn export_env<'a>(
   command: &mut process::Command,
   scope:   &Map<&'a str, String>,
   exports: &Set<&'a str>,
-) -> Result<(), RunError<'a>> {
+) -> Result<(), RuntimeError<'a>> {
   for name in exports {
     if let Some(value) = scope.get(name) {
       command.env(name, value);
     } else {
-      return Err(RunError::InternalError {
+      return Err(RuntimeError::InternalError {
         message: format!("scope does not contain exported variable `{}`",  name),
       });
     }
@@ -232,7 +232,7 @@ fn run_backtick<'a>(
   scope:   &Map<&'a str, String>,
   exports: &Set<&'a str>,
   quiet:   bool,
-) -> Result<String, RunError<'a>> {
+) -> Result<String, RuntimeError<'a>> {
   let mut cmd = process::Command::new(DEFAULT_SHELL);
 
   export_env(&mut cmd, scope, exports)?;
@@ -246,7 +246,7 @@ fn run_backtick<'a>(
     process::Stdio::inherit()
   });
 
-  output(cmd).map_err(|output_error| RunError::Backtick{token: token.clone(), output_error})
+  output(cmd).map_err(|output_error| RuntimeError::Backtick{token: token.clone(), output_error})
 }
 
 impl<'a> Recipe<'a> {
@@ -272,7 +272,7 @@ impl<'a> Recipe<'a> {
     scope:     &Map<&'a str, String>,
     exports:   &Set<&'a str>,
     options:   &RunOptions,
-  ) -> Result<(), RunError<'a>> {
+  ) -> Result<(), RuntimeError<'a>> {
     if options.verbose {
       let color = options.color.stderr().banner();
       eprintln!("{}===> Running recipe `{}`...{}", color.prefix(), self.name, color.suffix());
@@ -285,7 +285,7 @@ impl<'a> Recipe<'a> {
       let value = if rest.is_empty() {
         match parameter.default {
           Some(ref default) => Cow::Borrowed(default.as_str()),
-          None => return Err(RunError::InternalError{
+          None => return Err(RuntimeError::InternalError{
             message: "missing parameter without default".to_string()
           }),
         }
@@ -327,12 +327,12 @@ impl<'a> Recipe<'a> {
       }
 
       let tmp = tempdir::TempDir::new("just")
-        .map_err(|error| RunError::TmpdirIoError{recipe: self.name, io_error: error})?;
+        .map_err(|error| RuntimeError::TmpdirIoError{recipe: self.name, io_error: error})?;
       let mut path = tmp.path().to_path_buf();
       path.push(self.name);
       {
         let mut f = fs::File::create(&path)
-          .map_err(|error| RunError::TmpdirIoError{recipe: self.name, io_error: error})?;
+          .map_err(|error| RuntimeError::TmpdirIoError{recipe: self.name, io_error: error})?;
         let mut text = String::new();
         // add the shebang
         text += &evaluated_lines[0];
@@ -348,26 +348,26 @@ impl<'a> Recipe<'a> {
           text += "\n";
         }
         f.write_all(text.as_bytes())
-         .map_err(|error| RunError::TmpdirIoError{recipe: self.name, io_error: error})?;
+         .map_err(|error| RuntimeError::TmpdirIoError{recipe: self.name, io_error: error})?;
       }
 
       // make the script executable
       Platform::set_execute_permission(&path)
-        .map_err(|error| RunError::TmpdirIoError{recipe: self.name, io_error: error})?;
+        .map_err(|error| RuntimeError::TmpdirIoError{recipe: self.name, io_error: error})?;
 
       let shebang_line = evaluated_lines.first()
-        .ok_or_else(|| RunError::InternalError {
+        .ok_or_else(|| RuntimeError::InternalError {
           message: "evaluated_lines was empty".to_string()
         })?;
 
       let (shebang_command, shebang_argument) = split_shebang(shebang_line)
-        .ok_or_else(|| RunError::InternalError {
+        .ok_or_else(|| RuntimeError::InternalError {
           message: format!("bad shebang line: {}", shebang_line)
         })?;
 
       // create a command to run the script
       let mut command = Platform::make_shebang_command(&path, shebang_command, shebang_argument)
-        .map_err(|output_error| RunError::Cygpath{recipe: self.name, output_error: output_error})?;
+        .map_err(|output_error| RuntimeError::Cygpath{recipe: self.name, output_error: output_error})?;
 
       // export environment variables
       export_env(&mut command, scope, exports)?;
@@ -376,12 +376,12 @@ impl<'a> Recipe<'a> {
       match command.status() {
         Ok(exit_status) => if let Some(code) = exit_status.code() {
           if code != 0 {
-            return Err(RunError::Code{recipe: self.name, line_number: None, code: code})
+            return Err(RuntimeError::Code{recipe: self.name, line_number: None, code: code})
           }
         } else {
           return Err(error_from_signal(self.name, None, exit_status))
         },
-        Err(io_error) => return Err(RunError::Shebang {
+        Err(io_error) => return Err(RuntimeError::Shebang {
           recipe:   self.name,
           command:  shebang_command.to_string(),
           argument: shebang_argument.map(String::from),
@@ -446,14 +446,14 @@ impl<'a> Recipe<'a> {
         match cmd.status() {
           Ok(exit_status) => if let Some(code) = exit_status.code() {
             if code != 0 {
-              return Err(RunError::Code{
+              return Err(RuntimeError::Code{
                 recipe: self.name, line_number: Some(line_number), code: code
               });
             }
           } else {
             return Err(error_from_signal(self.name, Some(line_number), exit_status));
           },
-          Err(io_error) => return Err(RunError::IoError{
+          Err(io_error) => return Err(RuntimeError::IoError{
             recipe: self.name, io_error: io_error}),
         };
       }
@@ -502,7 +502,7 @@ fn resolve_recipes<'a>(
   recipes:     &Map<&'a str, Recipe<'a>>,
   assignments: &Map<&'a str, Expression<'a>>,
   text:        &'a str,
-) -> Result<(), CompileError<'a>> {
+) -> Result<(), CompilationError<'a>> {
   let mut resolver = Resolver {
     seen:              empty(),
     stack:             empty(),
@@ -533,14 +533,14 @@ fn resolve_recipes<'a>(
               // two lifetime parameters instead of one, with one being the lifetime
               // of the struct, and the second being the lifetime of the tokens
               // that it contains
-              let error = variable.error(ErrorKind::UndefinedVariable{variable: name});
-              return Err(CompileError {
+              let error = variable.error(CompilationErrorKind::UndefinedVariable{variable: name});
+              return Err(CompilationError {
                 text:   text,
                 index:  error.index,
                 line:   error.line,
                 column: error.column,
                 width:  error.width,
-                kind:   ErrorKind::UndefinedVariable {
+                kind:   CompilationErrorKind::UndefinedVariable {
                   variable: &text[error.index..error.index + error.width.unwrap()],
                 }
               });
@@ -562,7 +562,7 @@ struct Resolver<'a: 'b, 'b> {
 }
 
 impl<'a, 'b> Resolver<'a, 'b> {
-  fn resolve(&mut self, recipe: &Recipe<'a>) -> Result<(), CompileError<'a>> {
+  fn resolve(&mut self, recipe: &Recipe<'a>) -> Result<(), CompilationError<'a>> {
     if self.resolved.contains(recipe.name) {
       return Ok(())
     }
@@ -574,7 +574,7 @@ impl<'a, 'b> Resolver<'a, 'b> {
           if self.seen.contains(dependency.name) {
             let first = self.stack[0];
             self.stack.push(first);
-            return Err(dependency_token.error(ErrorKind::CircularRecipeDependency {
+            return Err(dependency_token.error(CompilationErrorKind::CircularRecipeDependency {
               recipe: recipe.name,
               circle: self.stack.iter()
                 .skip_while(|name| **name != dependency.name)
@@ -583,7 +583,7 @@ impl<'a, 'b> Resolver<'a, 'b> {
           }
           self.resolve(dependency)?;
         },
-        None => return Err(dependency_token.error(ErrorKind::UnknownDependency {
+        None => return Err(dependency_token.error(CompilationErrorKind::UnknownDependency {
           recipe:  recipe.name,
           unknown: dependency_token.lexeme
         })),
@@ -598,7 +598,7 @@ impl<'a, 'b> Resolver<'a, 'b> {
 fn resolve_assignments<'a>(
   assignments:       &Map<&'a str, Expression<'a>>,
   assignment_tokens: &Map<&'a str, Token<'a>>,
-) -> Result<(), CompileError<'a>> {
+) -> Result<(), CompilationError<'a>> {
 
   let mut resolver = AssignmentResolver {
     assignments:       assignments,
@@ -624,7 +624,7 @@ struct AssignmentResolver<'a: 'b, 'b> {
 }
 
 impl<'a: 'b, 'b> AssignmentResolver<'a, 'b> {
-  fn resolve_assignment(&mut self, name: &'a str) -> Result<(), CompileError<'a>> {
+  fn resolve_assignment(&mut self, name: &'a str) -> Result<(), CompilationError<'a>> {
     if self.evaluated.contains(name) {
       return Ok(());
     }
@@ -641,7 +641,7 @@ impl<'a: 'b, 'b> AssignmentResolver<'a, 'b> {
     Ok(())
   }
 
-  fn resolve_expression(&mut self, expression: &Expression<'a>) -> Result<(), CompileError<'a>> {
+  fn resolve_expression(&mut self, expression: &Expression<'a>) -> Result<(), CompilationError<'a>> {
     match *expression {
       Expression::Variable{name, ref token} => {
         if self.evaluated.contains(name) {
@@ -649,14 +649,14 @@ impl<'a: 'b, 'b> AssignmentResolver<'a, 'b> {
         } else if self.seen.contains(name) {
           let token = &self.assignment_tokens[name];
           self.stack.push(name);
-          return Err(token.error(ErrorKind::CircularVariableDependency {
+          return Err(token.error(CompilationErrorKind::CircularVariableDependency {
             variable: name,
             circle:   self.stack.clone(),
           }));
         } else if self.assignments.contains_key(name) {
           self.resolve_assignment(name)?;
         } else {
-          return Err(token.error(ErrorKind::UndefinedVariable{variable: name}));
+          return Err(token.error(CompilationErrorKind::UndefinedVariable{variable: name}));
         }
       }
       Expression::Concatination{ref lhs, ref rhs} => {
@@ -673,7 +673,7 @@ fn evaluate_assignments<'a>(
   assignments: &Map<&'a str, Expression<'a>>,
   overrides:   &Map<&str, &str>,
   quiet:       bool,
-) -> Result<Map<&'a str, String>, RunError<'a>> {
+) -> Result<Map<&'a str, String>, RuntimeError<'a>> {
   let mut evaluator = Evaluator {
     assignments: assignments,
     evaluated:   empty(),
@@ -704,7 +704,7 @@ impl<'a, 'b> Evaluator<'a, 'b> {
     &mut self,
     line:      &[Fragment<'a>],
     arguments: &Map<&str, Cow<str>>
-  ) -> Result<String, RunError<'a>> {
+  ) -> Result<String, RuntimeError<'a>> {
     let mut evaluated = String::new();
     for fragment in line {
       match *fragment {
@@ -717,7 +717,7 @@ impl<'a, 'b> Evaluator<'a, 'b> {
     Ok(evaluated)
   }
 
-  fn evaluate_assignment(&mut self, name: &'a str) -> Result<(), RunError<'a>> {
+  fn evaluate_assignment(&mut self, name: &'a str) -> Result<(), RuntimeError<'a>> {
     if self.evaluated.contains_key(name) {
       return Ok(());
     }
@@ -730,7 +730,7 @@ impl<'a, 'b> Evaluator<'a, 'b> {
         self.evaluated.insert(name, value);
       }
     } else {
-      return Err(RunError::InternalError {
+      return Err(RuntimeError::InternalError {
         message: format!("attempted to evaluated unknown assignment {}", name)
       });
     }
@@ -742,7 +742,7 @@ impl<'a, 'b> Evaluator<'a, 'b> {
     &mut self,
     expression: &Expression<'a>,
     arguments: &Map<&str, Cow<str>>
-  ) -> Result<String, RunError<'a>> {
+  ) -> Result<String, RuntimeError<'a>> {
     Ok(match *expression {
       Expression::Variable{name, ..} => {
         if self.evaluated.contains_key(name) {
@@ -755,7 +755,7 @@ impl<'a, 'b> Evaluator<'a, 'b> {
         } else if arguments.contains_key(name) {
           arguments[name].to_string()
         } else {
-          return Err(RunError::InternalError {
+          return Err(RuntimeError::InternalError {
             message: format!("attempted to evaluate undefined variable `{}`", name)
           });
         }
@@ -774,17 +774,17 @@ impl<'a, 'b> Evaluator<'a, 'b> {
 }
 
 #[derive(Debug, PartialEq)]
-struct CompileError<'a> {
+struct CompilationError<'a> {
   text:   &'a str,
   index:  usize,
   line:   usize,
   column: usize,
   width:  Option<usize>,
-  kind:   ErrorKind<'a>,
+  kind:   CompilationErrorKind<'a>,
 }
 
 #[derive(Debug, PartialEq)]
-enum ErrorKind<'a> {
+enum CompilationErrorKind<'a> {
   CircularRecipeDependency{recipe: &'a str, circle: Vec<&'a str>},
   CircularVariableDependency{variable: &'a str, circle: Vec<&'a str>},
   DependencyHasParameters{recipe: &'a str, dependency: &'a str},
@@ -808,14 +808,14 @@ enum ErrorKind<'a> {
   UnterminatedString,
 }
 
-fn internal_error(message: String) -> CompileError<'static> {
-  CompileError {
+fn internal_error(message: String) -> CompilationError<'static> {
+  CompilationError {
     text:   "",
     index:  0,
     line:   0,
     column: 0,
     width:  None,
-    kind:   ErrorKind::InternalError { message: message }
+    kind:   CompilationErrorKind::InternalError { message: message }
   }
 }
 
@@ -853,7 +853,7 @@ struct CookedString<'a> {
   cooked: String,
 }
 
-fn cook_string<'a>(token: &Token<'a>) -> Result<CookedString<'a>, CompileError<'a>> {
+fn cook_string<'a>(token: &Token<'a>) -> Result<CookedString<'a>, CompilationError<'a>> {
   let raw = &token.lexeme[1..token.lexeme.len()-1];
 
   if let RawString = token.kind {
@@ -869,7 +869,7 @@ fn cook_string<'a>(token: &Token<'a>) -> Result<CookedString<'a>, CompileError<'
           't'   => cooked.push('\t'),
           '\\'  => cooked.push('\\'),
           '"'   => cooked.push('"'),
-          other => return Err(token.error(ErrorKind::InvalidEscapeSequence {
+          other => return Err(token.error(CompilationErrorKind::InvalidEscapeSequence {
             character: other,
           })),
         }
@@ -884,7 +884,7 @@ fn cook_string<'a>(token: &Token<'a>) -> Result<CookedString<'a>, CompileError<'
     }
     Ok(CookedString{raw: raw, cooked: cooked})
   } else {
-    Err(token.error(ErrorKind::InternalError{
+    Err(token.error(CompilationErrorKind::InternalError{
       message: "cook_string() called on non-string token".to_string()
     }))
   }
@@ -993,9 +993,9 @@ fn write_token_error_context(f: &mut fmt::Formatter, token: &Token) -> Result<()
   )
 }
 
-impl<'a> Display for CompileError<'a> {
+impl<'a> Display for CompilationError<'a> {
   fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-    use ErrorKind::*;
+    use CompilationErrorKind::*;
     let error   = Color::fmt(f).error();
     let message = Color::fmt(f).message();
 
@@ -1150,13 +1150,13 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
     &'a self,
     arguments: &[&'a str],
     options:   &RunOptions<'a>,
-  ) -> Result<(), RunError<'a>> {
+  ) -> Result<(), RuntimeError<'a>> {
     let unknown_overrides = options.overrides.keys().cloned()
       .filter(|name| !self.assignments.contains_key(name))
       .collect::<Vec<_>>();
 
     if !unknown_overrides.is_empty() {
-      return Err(RunError::UnknownOverrides{overrides: unknown_overrides});
+      return Err(RuntimeError::UnknownOverrides{overrides: unknown_overrides});
     }
 
     let scope = evaluate_assignments(&self.assignments, &options.overrides, options.quiet)?;
@@ -1184,7 +1184,7 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
           let argument_range = recipe.argument_range();
           let argument_count = cmp::min(tail.len(), recipe.max_arguments());
           if !contains(&argument_range, argument_count) {
-            return Err(RunError::ArgumentCountMismatch {
+            return Err(RuntimeError::ArgumentCountMismatch {
               recipe: recipe.name,
               found:  tail.len(),
               min:    recipe.min_arguments(),
@@ -1206,7 +1206,7 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
       } else {
         None
       };
-      return Err(RunError::UnknownRecipes{recipes: missing, suggestion: suggestion});
+      return Err(RuntimeError::UnknownRecipes{recipes: missing, suggestion: suggestion});
     }
 
     let mut ran = empty();
@@ -1224,7 +1224,7 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
     scope:     &Map<&'c str, String>,
     ran:       &mut Set<&'a str>,
     options:   &RunOptions<'a>,
-  ) -> Result<(), RunError> {
+  ) -> Result<(), RuntimeError> {
     for dependency_name in &recipe.dependencies {
       if !ran.contains(dependency_name) {
         self.run_recipe(&self.recipes[dependency_name], &[], scope, ran, options)?;
@@ -1261,7 +1261,7 @@ impl<'a> Display for Justfile<'a> {
 }
 
 #[derive(Debug)]
-enum RunError<'a> {
+enum RuntimeError<'a> {
   ArgumentCountMismatch{recipe: &'a str, found: usize, min: usize, max: usize},
   Backtick{token: Token<'a>, output_error: OutputError},
   Code{recipe: &'a str, line_number: Option<usize>, code: i32},
@@ -1276,9 +1276,9 @@ enum RunError<'a> {
   UnknownRecipes{recipes: Vec<&'a str>, suggestion: Option<&'a str>},
 }
 
-impl<'a> RunError<'a> {
+impl<'a> RuntimeError<'a> {
   fn code(&self) -> Option<i32> {
-    use RunError::*;
+    use RuntimeError::*;
     match *self {
       Code{code, ..} | Backtick{output_error: OutputError::Code(code), ..} => Some(code),
       _ => None,
@@ -1286,9 +1286,9 @@ impl<'a> RunError<'a> {
   }
 }
 
-impl<'a> Display for RunError<'a> {
+impl<'a> Display for RuntimeError<'a> {
   fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-    use RunError::*;
+    use RuntimeError::*;
     let color = if f.alternate() { Color::always() } else { Color::never() };
     let error = color.error();
     let message = color.message();
@@ -1456,8 +1456,8 @@ struct Token<'a> {
 }
 
 impl<'a> Token<'a> {
-  fn error(&self, kind: ErrorKind<'a>) -> CompileError<'a> {
-    CompileError {
+  fn error(&self, kind: CompilationErrorKind<'a>) -> CompilationError<'a> {
+    CompilationError {
       text:   self.text,
       index:  self.index + self.prefix.len(),
       line:   self.line,
@@ -1523,7 +1523,7 @@ fn token(pattern: &str) -> Regex {
   re(&s)
 }
 
-fn tokenize(text: &str) -> Result<Vec<Token>, CompileError> {
+fn tokenize(text: &str) -> Result<Vec<Token>, CompilationError> {
   lazy_static! {
     static ref BACKTICK:                  Regex = token(r"`[^`\n\r]*`"               );
     static ref COLON:                     Regex = token(r":"                         );
@@ -1567,7 +1567,7 @@ fn tokenize(text: &str) -> Result<Vec<Token>, CompileError> {
 
   macro_rules! error {
     ($kind:expr) => {{
-      Err(CompileError {
+      Err(CompilationError {
         text:   text,
         index:  index,
         line:   line,
@@ -1589,7 +1589,7 @@ fn tokenize(text: &str) -> Result<Vec<Token>, CompileError> {
         // indent: was no indentation, now there is
         (&State::Start, Some(current)) => {
           if mixed_whitespace(current) {
-            return error!(ErrorKind::MixedLeadingWhitespace{whitespace: current})
+            return error!(CompilationErrorKind::MixedLeadingWhitespace{whitespace: current})
           }
           //indent = Some(current);
           state.push(State::Indent(current));
@@ -1604,7 +1604,7 @@ fn tokenize(text: &str) -> Result<Vec<Token>, CompileError> {
         // was indentation and still is, check if the new indentation matches
         (&State::Indent(previous), Some(current)) => {
           if !current.starts_with(previous) {
-            return error!(ErrorKind::InconsistentLeadingWhitespace{
+            return error!(CompilationErrorKind::InconsistentLeadingWhitespace{
               expected: previous,
               found: current
             });
@@ -1613,7 +1613,7 @@ fn tokenize(text: &str) -> Result<Vec<Token>, CompileError> {
         }
         // at column 0 in some other state: this should never happen
         (&State::Text, _) | (&State::Interpolation, _) => {
-          return error!(ErrorKind::InternalError{
+          return error!(CompilationErrorKind::InternalError{
             message: "unexpected state at column 0".to_string()
           });
         }
@@ -1648,7 +1648,7 @@ fn tokenize(text: &str) -> Result<Vec<Token>, CompileError> {
       (column, state.last().unwrap(), LINE.captures(rest)) {
       let line = captures.get(0).unwrap().as_str();
       if !line.starts_with(indent) {
-        return error!(ErrorKind::InternalError{message: "unexpected indent".to_string()});
+        return error!(CompilationErrorKind::InternalError{message: "unexpected indent".to_string()});
       }
       state.push(State::Text);
       (&line[0..indent.len()], "", Line)
@@ -1666,7 +1666,7 @@ fn tokenize(text: &str) -> Result<Vec<Token>, CompileError> {
         state.pop();
         (captures.get(1).unwrap().as_str(), captures.get(2).unwrap().as_str(), Eol)
       } else {
-        return error!(ErrorKind::InternalError{
+        return error!(CompilationErrorKind::InternalError{
           message: format!("Could not match token in text state: \"{}\"", rest)
         });
       }
@@ -1681,7 +1681,7 @@ fn tokenize(text: &str) -> Result<Vec<Token>, CompileError> {
       (captures.get(1).unwrap().as_str(), captures.get(2).unwrap().as_str(), Name)
     } else if let Some(captures) = EOL.captures(rest) {
       if state.last().unwrap() == &State::Interpolation {
-        return error!(ErrorKind::InternalError {
+        return error!(CompilationErrorKind::InternalError {
           message: "hit EOL while still in interpolation state".to_string()
         });
       }
@@ -1701,18 +1701,18 @@ fn tokenize(text: &str) -> Result<Vec<Token>, CompileError> {
     } else if let Some(captures) = RAW_STRING.captures(rest) {
       (captures.get(1).unwrap().as_str(), captures.get(2).unwrap().as_str(), RawString)
     } else if UNTERMINATED_RAW_STRING.is_match(rest) {
-      return error!(ErrorKind::UnterminatedString);
+      return error!(CompilationErrorKind::UnterminatedString);
     } else if let Some(captures) = STRING.captures(rest) {
       let prefix = captures.get(1).unwrap().as_str();
       let contents = &rest[prefix.len()+1..];
       if contents.is_empty() {
-        return error!(ErrorKind::UnterminatedString);
+        return error!(CompilationErrorKind::UnterminatedString);
       }
       let mut len = 0;
       let mut escape = false;
       for c in contents.chars() {
         if c == '\n' || c == '\r' {
-          return error!(ErrorKind::UnterminatedString);
+          return error!(CompilationErrorKind::UnterminatedString);
         } else if !escape && c == '"' {
           break;
         } else if !escape && c == '\\' {
@@ -1725,13 +1725,13 @@ fn tokenize(text: &str) -> Result<Vec<Token>, CompileError> {
       let start = prefix.len();
       let content_end = start + len + 1;
       if escape || content_end >= rest.len() {
-        return error!(ErrorKind::UnterminatedString);
+        return error!(CompilationErrorKind::UnterminatedString);
       }
       (prefix, &rest[start..content_end + 1], StringToken)
     } else if rest.starts_with("#!") {
-      return error!(ErrorKind::OuterShebang)
+      return error!(CompilationErrorKind::OuterShebang)
     } else {
-      return error!(ErrorKind::UnknownStartOfToken)
+      return error!(CompilationErrorKind::UnknownStartOfToken)
     };
 
     tokens.push(Token {
@@ -1750,7 +1750,7 @@ fn tokenize(text: &str) -> Result<Vec<Token>, CompileError> {
       let last = tokens.last().unwrap();
       match last.kind {
         Eof => {},
-        _ => return Err(last.error(ErrorKind::InternalError{
+        _ => return Err(last.error(CompilationErrorKind::InternalError{
           message: format!("zero length token: {:?}", last)
         })),
       }
@@ -1785,7 +1785,7 @@ fn tokenize(text: &str) -> Result<Vec<Token>, CompileError> {
   Ok(tokens)
 }
 
-fn compile(text: &str) -> Result<Justfile, CompileError> {
+fn compile(text: &str) -> Result<Justfile, CompilationError> {
   let tokens = tokenize(text)?;
   let parser = Parser {
     text:              text,
@@ -1857,8 +1857,8 @@ impl<'a> Parser<'a> {
     }
   }
 
-  fn unexpected_token(&self, found: &Token<'a>, expected: &[TokenKind]) -> CompileError<'a> {
-    found.error(ErrorKind::UnexpectedToken {
+  fn unexpected_token(&self, found: &Token<'a>, expected: &[TokenKind]) -> CompilationError<'a> {
+    found.error(CompilationErrorKind::UnexpectedToken {
       expected: expected.to_vec(),
       found:    found.kind,
     })
@@ -1869,9 +1869,9 @@ impl<'a> Parser<'a> {
     name:  Token<'a>,
     doc:   Option<Token<'a>>,
     quiet: bool,
-  ) -> Result<(), CompileError<'a>> {
+  ) -> Result<(), CompilationError<'a>> {
     if let Some(recipe) = self.recipes.get(name.lexeme) {
-      return Err(name.error(ErrorKind::DuplicateRecipe {
+      return Err(name.error(CompilationErrorKind::DuplicateRecipe {
         recipe: recipe.name,
         first:  recipe.line_number
       }));
@@ -1895,13 +1895,13 @@ impl<'a> Parser<'a> {
       let variadic = plus.is_some();
 
       if parsed_variadic_parameter {
-        return Err(parameter.error(ErrorKind::ParameterFollowsVariadicParameter {
+        return Err(parameter.error(CompilationErrorKind::ParameterFollowsVariadicParameter {
           parameter: parameter.lexeme,
         }));
       }
 
       if parameters.iter().any(|p| p.name == parameter.lexeme) {
-        return Err(parameter.error(ErrorKind::DuplicateParameter {
+        return Err(parameter.error(CompilationErrorKind::DuplicateParameter {
           recipe: name.lexeme, parameter: parameter.lexeme
         }));
       }
@@ -1919,7 +1919,7 @@ impl<'a> Parser<'a> {
       }
 
       if parsed_parameter_with_default && default.is_none() {
-        return Err(parameter.error(ErrorKind::RequiredParameterFollowsDefaultParameter{
+        return Err(parameter.error(CompilationErrorKind::RequiredParameterFollowsDefaultParameter{
           parameter: parameter.lexeme,
         }));
       }
@@ -1949,7 +1949,7 @@ impl<'a> Parser<'a> {
     let mut dependency_tokens = vec![];
     while let Some(dependency) = self.accept(Name) {
       if dependencies.contains(&dependency.lexeme) {
-        return Err(dependency.error(ErrorKind::DuplicateDependency {
+        return Err(dependency.error(CompilationErrorKind::DuplicateDependency {
           recipe:     name.lexeme,
           dependency: dependency.lexeme
         }));
@@ -1972,7 +1972,7 @@ impl<'a> Parser<'a> {
           continue;
         }
         if let Some(token) = self.expect(Line) {
-          return Err(token.error(ErrorKind::InternalError{
+          return Err(token.error(CompilationErrorKind::InternalError{
             message: format!("Expected a line but got {}", token.kind)
           }))
         }
@@ -1989,7 +1989,7 @@ impl<'a> Parser<'a> {
                 && !lines.last().and_then(|line| line.last())
                   .map(Fragment::continuation).unwrap_or(false)
                 && (token.lexeme.starts_with(' ') || token.lexeme.starts_with('\t')) {
-                return Err(token.error(ErrorKind::ExtraLeadingWhitespace));
+                return Err(token.error(CompilationErrorKind::ExtraLeadingWhitespace));
               }
             }
             fragments.push(Fragment::Text{text: token});
@@ -2025,7 +2025,7 @@ impl<'a> Parser<'a> {
     Ok(())
   }
 
-  fn expression(&mut self, interpolation: bool) -> Result<Expression<'a>, CompileError<'a>> {
+  fn expression(&mut self, interpolation: bool) -> Result<Expression<'a>, CompilationError<'a>> {
     let first = self.tokens.next().unwrap();
     let lhs = match first.kind {
       Name        => Expression::Variable {name: first.lexeme, token: first},
@@ -2055,9 +2055,9 @@ impl<'a> Parser<'a> {
     }
   }
 
-  fn assignment(&mut self, name: Token<'a>, export: bool) -> Result<(), CompileError<'a>> {
+  fn assignment(&mut self, name: Token<'a>, export: bool) -> Result<(), CompilationError<'a>> {
     if self.assignments.contains_key(name.lexeme) {
-      return Err(name.error(ErrorKind::DuplicateVariable {variable: name.lexeme}));
+      return Err(name.error(CompilationErrorKind::DuplicateVariable {variable: name.lexeme}));
     }
     if export {
       self.exports.insert(name.lexeme);
@@ -2068,7 +2068,7 @@ impl<'a> Parser<'a> {
     Ok(())
   }
 
-  fn justfile(mut self) -> Result<Justfile<'a>, CompileError<'a>> {
+  fn justfile(mut self) -> Result<Justfile<'a>, CompilationError<'a>> {
     let mut doc = None;
     loop {
       match self.tokens.next() {
@@ -2080,7 +2080,7 @@ impl<'a> Parser<'a> {
           }
           Comment => {
             if let Some(token) = self.expect_eol() {
-              return Err(token.error(ErrorKind::InternalError {
+              return Err(token.error(CompilationErrorKind::InternalError {
                 message: format!("found comment followed by {}", token.kind),
               }));
             }
@@ -2112,13 +2112,13 @@ impl<'a> Parser<'a> {
           },
           _ => return Err(self.unexpected_token(&token, &[Name, At])),
         },
-        None => return Err(CompileError {
+        None => return Err(CompilationError {
           text:   self.text,
           index:  0,
           line:   0,
           column: 0,
           width:  None,
-          kind:   ErrorKind::InternalError {
+          kind:   CompilationErrorKind::InternalError {
             message: "unexpected end of token stream".to_string()
           }
         }),
@@ -2126,7 +2126,7 @@ impl<'a> Parser<'a> {
     }
 
     if let Some(token) = self.tokens.next() {
-      return Err(token.error(ErrorKind::InternalError{
+      return Err(token.error(CompilationErrorKind::InternalError{
         message: format!("unexpected token remaining after parsing completed: {:?}", token.kind)
       }))
     }
@@ -2136,7 +2136,7 @@ impl<'a> Parser<'a> {
     for recipe in self.recipes.values() {
       for parameter in &recipe.parameters {
         if self.assignments.contains_key(parameter.token.lexeme) {
-          return Err(parameter.token.error(ErrorKind::ParameterShadowsVariable {
+          return Err(parameter.token.error(CompilationErrorKind::ParameterShadowsVariable {
             parameter: parameter.token.lexeme
           }));
         }
@@ -2144,7 +2144,7 @@ impl<'a> Parser<'a> {
 
       for dependency in &recipe.dependency_tokens {
         if !self.recipes[dependency.lexeme].parameters.is_empty() {
-          return Err(dependency.error(ErrorKind::DependencyHasParameters {
+          return Err(dependency.error(CompilationErrorKind::DependencyHasParameters {
             recipe: recipe.name,
             dependency: dependency.lexeme,
           }));

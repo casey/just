@@ -2,8 +2,8 @@ extern crate tempdir;
 extern crate brev;
 
 use super::{
-  And, CompileError, ErrorKind, Justfile, Or,
-  OutputError, RunError, RunOptions, Token,
+  And, CompilationError, CompilationErrorKind, Justfile, Or,
+  OutputError, RuntimeError, RunOptions, Token,
   compile, contains, tokenize
 };
 
@@ -24,7 +24,7 @@ fn tokenize_success(text: &str, expected_summary: &str) {
   assert_eq!(text, roundtrip);
 }
 
-fn tokenize_error(text: &str, expected: CompileError) {
+fn tokenize_error(text: &str, expected: CompilationError) {
   if let Err(error) = tokenize(text) {
     assert_eq!(error.text,   expected.text);
     assert_eq!(error.index,  expected.index);
@@ -78,7 +78,7 @@ fn parse_summary(input: &str, output: &str) {
   }
 }
 
-fn parse_error(text: &str, expected: CompileError) {
+fn parse_error(text: &str, expected: CompilationError) {
   if let Err(error) = compile(text) {
     assert_eq!(error.text,   expected.text);
     assert_eq!(error.index,  expected.index);
@@ -215,13 +215,13 @@ fn tokenize_space_then_tab() {
  1
 \t2
 ";
-  tokenize_error(text, CompileError {
+  tokenize_error(text, CompilationError {
     text:   text,
     index:  9,
     line:   3,
     column: 0,
     width:  None,
-    kind:   ErrorKind::InconsistentLeadingWhitespace{expected: " ", found: "\t"},
+    kind:   CompilationErrorKind::InconsistentLeadingWhitespace{expected: " ", found: "\t"},
   });
 }
 
@@ -232,39 +232,39 @@ fn tokenize_tabs_then_tab_space() {
 \t\t 1
 \t  2
 ";
-  tokenize_error(text, CompileError {
+  tokenize_error(text, CompilationError {
     text:   text,
     index:  12,
     line:   3,
     column: 0,
     width:  None,
-    kind:   ErrorKind::InconsistentLeadingWhitespace{expected: "\t\t", found: "\t  "},
+    kind:   CompilationErrorKind::InconsistentLeadingWhitespace{expected: "\t\t", found: "\t  "},
   });
 }
 
 #[test]
 fn tokenize_outer_shebang() {
   let text = "#!/usr/bin/env bash";
-  tokenize_error(text, CompileError {
+  tokenize_error(text, CompilationError {
     text:   text,
     index:  0,
     line:   0,
     column: 0,
     width:  None,
-    kind:   ErrorKind::OuterShebang
+    kind:   CompilationErrorKind::OuterShebang
   });
 }
 
 #[test]
 fn tokenize_unknown() {
   let text = "~";
-  tokenize_error(text, CompileError {
+  tokenize_error(text, CompilationError {
     text:   text,
     index:  0,
     line:   0,
     column: 0,
     width:  None,
-    kind:   ErrorKind::UnknownStartOfToken
+    kind:   CompilationErrorKind::UnknownStartOfToken
   });
 }
 
@@ -425,104 +425,104 @@ r#"a:
 #[test]
 fn missing_colon() {
   let text = "a b c\nd e f";
-  parse_error(text, CompileError {
+  parse_error(text, CompilationError {
     text:   text,
     index:  5,
     line:   0,
     column: 5,
     width:  Some(1),
-    kind:   ErrorKind::UnexpectedToken{expected: vec![Name, Plus, Colon], found: Eol},
+    kind:   CompilationErrorKind::UnexpectedToken{expected: vec![Name, Plus, Colon], found: Eol},
   });
 }
 
 #[test]
 fn missing_default_eol() {
   let text = "hello arg=\n";
-  parse_error(text, CompileError {
+  parse_error(text, CompilationError {
     text:   text,
     index:  10,
     line:   0,
     column: 10,
     width:  Some(1),
-    kind:   ErrorKind::UnexpectedToken{expected: vec![StringToken, RawString], found: Eol},
+    kind:   CompilationErrorKind::UnexpectedToken{expected: vec![StringToken, RawString], found: Eol},
   });
 }
 
 #[test]
 fn missing_default_eof() {
   let text = "hello arg=";
-  parse_error(text, CompileError {
+  parse_error(text, CompilationError {
     text:   text,
     index:  10,
     line:   0,
     column: 10,
     width:  Some(0),
-    kind:   ErrorKind::UnexpectedToken{expected: vec![StringToken, RawString], found: Eof},
+    kind:   CompilationErrorKind::UnexpectedToken{expected: vec![StringToken, RawString], found: Eof},
   });
 }
 
 #[test]
 fn missing_default_colon() {
   let text = "hello arg=:";
-  parse_error(text, CompileError {
+  parse_error(text, CompilationError {
     text:   text,
     index:  10,
     line:   0,
     column: 10,
     width:  Some(1),
-    kind:   ErrorKind::UnexpectedToken{expected: vec![StringToken, RawString], found: Colon},
+    kind:   CompilationErrorKind::UnexpectedToken{expected: vec![StringToken, RawString], found: Colon},
   });
 }
 
 #[test]
 fn missing_default_backtick() {
   let text = "hello arg=`hello`";
-  parse_error(text, CompileError {
+  parse_error(text, CompilationError {
     text:   text,
     index:  10,
     line:   0,
     column: 10,
     width:  Some(7),
-    kind:   ErrorKind::UnexpectedToken{expected: vec![StringToken, RawString], found: Backtick},
+    kind:   CompilationErrorKind::UnexpectedToken{expected: vec![StringToken, RawString], found: Backtick},
   });
 }
 
 #[test]
 fn parameter_after_variadic() {
   let text = "foo +a bbb:";
-  parse_error(text, CompileError {
+  parse_error(text, CompilationError {
     text:   text,
     index:  7,
     line:   0,
     column: 7,
     width:  Some(3),
-    kind:   ErrorKind::ParameterFollowsVariadicParameter{parameter: "bbb"}
+    kind:   CompilationErrorKind::ParameterFollowsVariadicParameter{parameter: "bbb"}
   });
 }
 
 #[test]
 fn required_after_default() {
   let text = "hello arg='foo' bar:";
-  parse_error(text, CompileError {
+  parse_error(text, CompilationError {
     text:   text,
     index:  16,
     line:   0,
     column: 16,
     width:  Some(3),
-    kind:   ErrorKind::RequiredParameterFollowsDefaultParameter{parameter: "bar"},
+    kind:   CompilationErrorKind::RequiredParameterFollowsDefaultParameter{parameter: "bar"},
   });
 }
 
 #[test]
 fn missing_eol() {
   let text = "a b c: z =";
-  parse_error(text, CompileError {
+  parse_error(text, CompilationError {
     text:   text,
     index:  9,
     line:   0,
     column: 9,
     width:  Some(1),
-    kind:   ErrorKind::UnexpectedToken{expected: vec![Name, Eol, Eof], found: Equals},
+    kind:   CompilationErrorKind::UnexpectedToken{expected: vec![Name, Eol, Eof], found: Equals},
   });
 }
 
@@ -534,143 +534,143 @@ fn eof_test() {
 #[test]
 fn duplicate_parameter() {
   let text = "a b b:";
-  parse_error(text, CompileError {
+  parse_error(text, CompilationError {
     text:   text,
     index:  4,
     line:   0,
     column: 4,
     width:  Some(1),
-    kind:   ErrorKind::DuplicateParameter{recipe: "a", parameter: "b"}
+    kind:   CompilationErrorKind::DuplicateParameter{recipe: "a", parameter: "b"}
   });
 }
 
 #[test]
 fn parameter_shadows_varible() {
   let text = "foo = \"h\"\na foo:";
-  parse_error(text, CompileError {
+  parse_error(text, CompilationError {
     text:   text,
     index:  12,
     line:   1,
     column: 2,
     width:  Some(3),
-    kind:   ErrorKind::ParameterShadowsVariable{parameter: "foo"}
+    kind:   CompilationErrorKind::ParameterShadowsVariable{parameter: "foo"}
   });
 }
 
 #[test]
 fn dependency_has_parameters() {
   let text = "foo arg:\nb: foo";
-  parse_error(text, CompileError {
+  parse_error(text, CompilationError {
     text:   text,
     index:  12,
     line:   1,
     column: 3,
     width:  Some(3),
-    kind:   ErrorKind::DependencyHasParameters{recipe: "b", dependency: "foo"}
+    kind:   CompilationErrorKind::DependencyHasParameters{recipe: "b", dependency: "foo"}
   });
 }
 
 #[test]
 fn duplicate_dependency() {
   let text = "a b c: b c z z";
-  parse_error(text, CompileError {
+  parse_error(text, CompilationError {
     text:   text,
     index:  13,
     line:   0,
     column: 13,
     width:  Some(1),
-    kind:   ErrorKind::DuplicateDependency{recipe: "a", dependency: "z"}
+    kind:   CompilationErrorKind::DuplicateDependency{recipe: "a", dependency: "z"}
   });
 }
 
 #[test]
 fn duplicate_recipe() {
   let text = "a:\nb:\na:";
-  parse_error(text, CompileError {
+  parse_error(text, CompilationError {
     text:   text,
     index:  6,
     line:   2,
     column: 0,
     width:  Some(1),
-    kind:   ErrorKind::DuplicateRecipe{recipe: "a", first: 0}
+    kind:   CompilationErrorKind::DuplicateRecipe{recipe: "a", first: 0}
   });
 }
 
 #[test]
 fn circular_recipe_dependency() {
   let text = "a: b\nb: a";
-  parse_error(text, CompileError {
+  parse_error(text, CompilationError {
     text:   text,
     index:  8,
     line:   1,
     column: 3,
     width:  Some(1),
-    kind:   ErrorKind::CircularRecipeDependency{recipe: "b", circle: vec!["a", "b", "a"]}
+    kind:   CompilationErrorKind::CircularRecipeDependency{recipe: "b", circle: vec!["a", "b", "a"]}
   });
 }
 
 #[test]
 fn circular_variable_dependency() {
   let text = "a = b\nb = a";
-  parse_error(text, CompileError {
+  parse_error(text, CompilationError {
     text:   text,
     index:  0,
     line:   0,
     column: 0,
     width:  Some(1),
-    kind:   ErrorKind::CircularVariableDependency{variable: "a", circle: vec!["a", "b", "a"]}
+    kind:   CompilationErrorKind::CircularVariableDependency{variable: "a", circle: vec!["a", "b", "a"]}
   });
 }
 
 #[test]
 fn duplicate_variable() {
   let text = "a = \"0\"\na = \"0\"";
-  parse_error(text, CompileError {
+  parse_error(text, CompilationError {
     text:   text,
     index:  8,
     line:   1,
     column: 0,
     width:  Some(1),
-    kind:   ErrorKind::DuplicateVariable{variable: "a"}
+    kind:   CompilationErrorKind::DuplicateVariable{variable: "a"}
   });
 }
 
 #[test]
 fn unterminated_string() {
   let text = r#"a = ""#;
-  parse_error(text, CompileError {
+  parse_error(text, CompilationError {
     text:   text,
     index:  3,
     line:   0,
     column: 3,
     width:  None,
-    kind:   ErrorKind::UnterminatedString,
+    kind:   CompilationErrorKind::UnterminatedString,
   });
 }
 
 #[test]
 fn unterminated_string_with_escapes() {
   let text = r#"a = "\n\t\r\"\\"#;
-  parse_error(text, CompileError {
+  parse_error(text, CompilationError {
     text:   text,
     index:  3,
     line:   0,
     column: 3,
     width:  None,
-    kind:   ErrorKind::UnterminatedString,
+    kind:   CompilationErrorKind::UnterminatedString,
   });
 }
 
 #[test]
 fn unterminated_raw_string() {
   let text = "r a='asdf";
-  parse_error(text, CompileError {
+  parse_error(text, CompilationError {
     text:   text,
     index:  4,
     line:   0,
     column: 4,
     width:  None,
-    kind:   ErrorKind::UnterminatedString,
+    kind:   CompilationErrorKind::UnterminatedString,
   });
 }
 
@@ -703,52 +703,52 @@ fn parameters() {
 #[test]
 fn self_recipe_dependency() {
   let text = "a: a";
-  parse_error(text, CompileError {
+  parse_error(text, CompilationError {
     text:   text,
     index:  3,
     line:   0,
     column: 3,
     width:  Some(1),
-    kind:   ErrorKind::CircularRecipeDependency{recipe: "a", circle: vec!["a", "a"]}
+    kind:   CompilationErrorKind::CircularRecipeDependency{recipe: "a", circle: vec!["a", "a"]}
   });
 }
 
 #[test]
 fn self_variable_dependency() {
   let text = "a = a";
-  parse_error(text, CompileError {
+  parse_error(text, CompilationError {
     text:   text,
     index:  0,
     line:   0,
     column: 0,
     width:  Some(1),
-    kind:   ErrorKind::CircularVariableDependency{variable: "a", circle: vec!["a", "a"]}
+    kind:   CompilationErrorKind::CircularVariableDependency{variable: "a", circle: vec!["a", "a"]}
   });
 }
 
 #[test]
 fn unknown_dependency() {
   let text = "a: b";
-  parse_error(text, CompileError {
+  parse_error(text, CompilationError {
     text:   text,
     index:  3,
     line:   0,
     column: 3,
     width:  Some(1),
-    kind:   ErrorKind::UnknownDependency{recipe: "a", unknown: "b"}
+    kind:   CompilationErrorKind::UnknownDependency{recipe: "a", unknown: "b"}
   });
 }
 
 #[test]
 fn mixed_leading_whitespace() {
   let text = "a:\n\t echo hello";
-  parse_error(text, CompileError {
+  parse_error(text, CompilationError {
     text:   text,
     index:  3,
     line:   1,
     column: 0,
     width:  None,
-    kind:   ErrorKind::MixedLeadingWhitespace{whitespace: "\t "}
+    kind:   CompilationErrorKind::MixedLeadingWhitespace{whitespace: "\t "}
   });
 }
 
@@ -780,7 +780,7 @@ fn range() {
 #[test]
 fn unknown_recipes() {
   match parse_success("a:\nb:\nc:").run(&["a", "x", "y", "z"], &Default::default()).unwrap_err() {
-    RunError::UnknownRecipes{recipes, suggestion} => {
+    RuntimeError::UnknownRecipes{recipes, suggestion} => {
       assert_eq!(recipes, &["x", "y", "z"]);
       assert_eq!(suggestion, None);
     }
@@ -791,13 +791,13 @@ fn unknown_recipes() {
 #[test]
 fn extra_whitespace() {
   let text = "a:\n blah\n  blarg";
-  parse_error(text, CompileError {
+  parse_error(text, CompilationError {
     text:   text,
     index:  10,
     line:   2,
     column: 1,
     width:  Some(6),
-    kind:   ErrorKind::ExtraLeadingWhitespace
+    kind:   CompilationErrorKind::ExtraLeadingWhitespace
   });
 
   // extra leading whitespace is okay in a shebang recipe
@@ -807,78 +807,78 @@ fn extra_whitespace() {
 #[test]
 fn interpolation_outside_of_recipe() {
   let text = "{{";
-  parse_error(text, CompileError {
+  parse_error(text, CompilationError {
     text:   text,
     index:  0,
     line:   0,
     column: 0,
     width:  Some(2),
-    kind:   ErrorKind::UnexpectedToken{expected: vec![Name, At], found: InterpolationStart},
+    kind:   CompilationErrorKind::UnexpectedToken{expected: vec![Name, At], found: InterpolationStart},
   });
 }
 
 #[test]
 fn unclosed_interpolation_delimiter() {
   let text = "a:\n echo {{ foo";
-  parse_error(text, CompileError {
+  parse_error(text, CompilationError {
     text:   text,
     index:  15,
     line:   1,
     column: 12,
     width:  Some(0),
-    kind:   ErrorKind::UnexpectedToken{expected: vec![Plus, Eol, InterpolationEnd], found: Dedent},
+    kind:   CompilationErrorKind::UnexpectedToken{expected: vec![Plus, Eol, InterpolationEnd], found: Dedent},
   });
 }
 
 #[test]
 fn unknown_expression_variable() {
   let text = "x = yy";
-  parse_error(text, CompileError {
+  parse_error(text, CompilationError {
     text:   text,
     index:  4,
     line:   0,
     column: 4,
     width:  Some(2),
-    kind:   ErrorKind::UndefinedVariable{variable: "yy"},
+    kind:   CompilationErrorKind::UndefinedVariable{variable: "yy"},
   });
 }
 
 #[test]
 fn unknown_interpolation_variable() {
   let text = "x:\n {{   hello}}";
-  parse_error(text, CompileError {
+  parse_error(text, CompilationError {
     text:   text,
     index:  9,
     line:   1,
     column: 6,
     width:  Some(5),
-    kind:   ErrorKind::UndefinedVariable{variable: "hello"},
+    kind:   CompilationErrorKind::UndefinedVariable{variable: "hello"},
   });
 }
 
 #[test]
 fn unknown_second_interpolation_variable() {
   let text = "wtf=\"x\"\nx:\n echo\n foo {{wtf}} {{ lol }}";
-  parse_error(text, CompileError {
+  parse_error(text, CompilationError {
     text:   text,
     index:  33,
     line:   3,
     column: 16,
     width:  Some(3),
-    kind:   ErrorKind::UndefinedVariable{variable: "lol"},
+    kind:   CompilationErrorKind::UndefinedVariable{variable: "lol"},
   });
 }
 
 #[test]
 fn plus_following_parameter() {
   let text = "a b c+:";
-  parse_error(text, CompileError {
+  parse_error(text, CompilationError {
     text:   text,
     index:  5,
     line:   0,
     column: 5,
     width:  Some(1),
-    kind:   ErrorKind::UnexpectedToken{expected: vec![Name], found: Plus},
+    kind:   CompilationErrorKind::UnexpectedToken{expected: vec![Name], found: Plus},
   });
 }
 
@@ -919,7 +919,7 @@ a:
 ";
 
   match parse_success(text).run(&["a"], &Default::default()).unwrap_err() {
-    RunError::Code{recipe, line_number, code} => {
+    RuntimeError::Code{recipe, line_number, code} => {
       assert_eq!(recipe, "a");
       assert_eq!(code, 200);
       assert_eq!(line_number, None);
@@ -932,7 +932,7 @@ a:
 fn code_error() {
   match parse_success("fail:\n @exit 100")
     .run(&["fail"], &Default::default()).unwrap_err() {
-    RunError::Code{recipe, line_number, code} => {
+    RuntimeError::Code{recipe, line_number, code} => {
       assert_eq!(recipe, "fail");
       assert_eq!(code, 100);
       assert_eq!(line_number, Some(2));
@@ -948,7 +948,7 @@ a return code:
  @x() { {{return}} {{code + "0"}}; }; x"#;
 
   match parse_success(text).run(&["a", "return", "15"], &Default::default()).unwrap_err() {
-    RunError::Code{recipe, line_number, code} => {
+    RuntimeError::Code{recipe, line_number, code} => {
       assert_eq!(recipe, "a");
       assert_eq!(code, 150);
       assert_eq!(line_number, Some(3));
@@ -960,7 +960,7 @@ a return code:
 #[test]
 fn missing_some_arguments() {
   match parse_success("a b c d:").run(&["a", "b", "c"], &Default::default()).unwrap_err() {
-    RunError::ArgumentCountMismatch{recipe, found, min, max} => {
+    RuntimeError::ArgumentCountMismatch{recipe, found, min, max} => {
       assert_eq!(recipe, "a");
       assert_eq!(found, 2);
       assert_eq!(min, 3);
@@ -973,7 +973,7 @@ fn missing_some_arguments() {
 #[test]
 fn missing_some_arguments_variadic() {
   match parse_success("a b c +d:").run(&["a", "B", "C"], &Default::default()).unwrap_err() {
-    RunError::ArgumentCountMismatch{recipe, found, min, max} => {
+    RuntimeError::ArgumentCountMismatch{recipe, found, min, max} => {
       assert_eq!(recipe, "a");
       assert_eq!(found, 2);
       assert_eq!(min, 3);
@@ -987,7 +987,7 @@ fn missing_some_arguments_variadic() {
 fn missing_all_arguments() {
   match parse_success("a b c d:\n echo {{b}}{{c}}{{d}}")
         .run(&["a"], &Default::default()).unwrap_err() {
-    RunError::ArgumentCountMismatch{recipe, found, min, max} => {
+    RuntimeError::ArgumentCountMismatch{recipe, found, min, max} => {
       assert_eq!(recipe, "a");
       assert_eq!(found, 0);
       assert_eq!(min, 3);
@@ -1000,7 +1000,7 @@ fn missing_all_arguments() {
 #[test]
 fn missing_some_defaults() {
   match parse_success("a b c d='hello':").run(&["a", "b"], &Default::default()).unwrap_err() {
-    RunError::ArgumentCountMismatch{recipe, found, min, max} => {
+    RuntimeError::ArgumentCountMismatch{recipe, found, min, max} => {
       assert_eq!(recipe, "a");
       assert_eq!(found, 1);
       assert_eq!(min, 2);
@@ -1013,7 +1013,7 @@ fn missing_some_defaults() {
 #[test]
 fn missing_all_defaults() {
   match parse_success("a b c='r' d='h':").run(&["a"], &Default::default()).unwrap_err() {
-    RunError::ArgumentCountMismatch{recipe, found, min, max} => {
+    RuntimeError::ArgumentCountMismatch{recipe, found, min, max} => {
       assert_eq!(recipe, "a");
       assert_eq!(found, 0);
       assert_eq!(min, 1);
@@ -1027,7 +1027,7 @@ fn missing_all_defaults() {
 fn backtick_code() {
   match parse_success("a:\n echo {{`f() { return 100; }; f`}}")
         .run(&["a"], &Default::default()).unwrap_err() {
-    RunError::Backtick{token, output_error: OutputError::Code(code)} => {
+    RuntimeError::Backtick{token, output_error: OutputError::Code(code)} => {
       assert_eq!(code, 100);
       assert_eq!(token.lexeme, "`f() { return 100; }; f`");
     },
@@ -1042,7 +1042,7 @@ fn unknown_overrides() {
   options.overrides.insert("baz", "bob");
   match parse_success("a:\n echo {{`f() { return 100; }; f`}}")
         .run(&["a"], &options).unwrap_err() {
-    RunError::UnknownOverrides{overrides} => {
+    RuntimeError::UnknownOverrides{overrides} => {
       assert_eq!(overrides, &["baz", "foo"]);
     },
     other => panic!("expected a code run error, but got: {}", other),
@@ -1065,7 +1065,7 @@ recipe:
   };
 
   match parse_success(text).run(&["recipe"], &options).unwrap_err() {
-    RunError::Backtick{token, output_error: OutputError::Code(_)} => {
+    RuntimeError::Backtick{token, output_error: OutputError::Code(_)} => {
       assert_eq!(token.lexeme, "`echo $exported_variable`");
     },
     other => panic!("expected a backtick code errror, but got: {}", other),
@@ -1090,7 +1090,7 @@ wut:
   };
 
   match parse_success(text).run(&["wut"], &options).unwrap_err() {
-    RunError::Code{code: _, line_number, recipe} => {
+    RuntimeError::Code{code: _, line_number, recipe} => {
       assert_eq!(recipe, "wut");
       assert_eq!(line_number, Some(8));
     },
