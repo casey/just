@@ -9,11 +9,11 @@ use compilation_error::{CompilationError, CompilationErrorKind};
 use recipe::Recipe;
 use cooked_string::CookedString;
 use recipe_resolver::resolve_recipes;
+use assignment_resolver::resolve_assignments;
 
 use Fragment;
 use Parameter;
 use Expression;
-use resolve_assignments;
 
 pub struct Parser<'a> {
   text:              &'a str,

@@ -34,6 +34,7 @@ mod parser;
 mod tokenizer;
 mod cooked_string;
 mod recipe_resolver;
+mod assignment_resolver;
 
 use compilation_error::{CompilationError, CompilationErrorKind};
 use runtime_error::RuntimeError;
@@ -240,80 +241,6 @@ fn run_backtick<'a>(
   output(cmd).map_err(|output_error| RuntimeError::Backtick{token: token.clone(), output_error})
 }
 
-fn resolve_assignments<'a>(
-  assignments:       &Map<&'a str, Expression<'a>>,
-  assignment_tokens: &Map<&'a str, Token<'a>>,
-) -> Result<(), CompilationError<'a>> {
-
-  let mut resolver = AssignmentResolver {
-    assignments:       assignments,
-    assignment_tokens: assignment_tokens,
-    stack:             empty(),
-    seen:              empty(),
-    evaluated:         empty(),
-  };
-
-  for name in assignments.keys() {
-    resolver.resolve_assignment(name)?;
-  }
-
-  Ok(())
-}
-
-struct AssignmentResolver<'a: 'b, 'b> {
-  assignments:       &'b Map<&'a str, Expression<'a>>,
-  assignment_tokens: &'b Map<&'a str, Token<'a>>,
-  stack:             Vec<&'a str>,
-  seen:              Set<&'a str>,
-  evaluated:         Set<&'a str>,
-}
-
-impl<'a: 'b, 'b> AssignmentResolver<'a, 'b> {
-  fn resolve_assignment(&mut self, name: &'a str) -> Result<(), CompilationError<'a>> {
-    if self.evaluated.contains(name) {
-      return Ok(());
-    }
-
-    self.seen.insert(name);
-    self.stack.push(name);
-
-    if let Some(expression) = self.assignments.get(name) {
-      self.resolve_expression(expression)?;
-      self.evaluated.insert(name);
-    } else {
-      return Err(internal_error(format!("attempted to resolve unknown assignment `{}`", name)));
-    }
-    Ok(())
-  }
-
-  fn resolve_expression(&mut self, expression: &Expression<'a>) -> Result<(), CompilationError<'a>> {
-    match *expression {
-      Expression::Variable{name, ref token} => {
-        if self.evaluated.contains(name) {
-          return Ok(());
-        } else if self.seen.contains(name) {
-          let token = &self.assignment_tokens[name];
-          self.stack.push(name);
-          return Err(token.error(CompilationErrorKind::CircularVariableDependency {
-            variable: name,
-            circle:   self.stack.clone(),
-          }));
-        } else if self.assignments.contains_key(name) {
-          self.resolve_assignment(name)?;
-        } else {
-          return Err(token.error(CompilationErrorKind::UndefinedVariable{variable: name}));
-        }
-      }
-      Expression::Concatination{ref lhs, ref rhs} => {
-        self.resolve_expression(lhs)?;
-        self.resolve_expression(rhs)?;
-      }
-      Expression::String{..} | Expression::Backtick{..} => {}
-    }
-    Ok(())
-  }
-}
-
 fn evaluate_assignments<'a>(
   assignments: &Map<&'a str, Expression<'a>>,
   overrides:   &Map<&str, &str>,
@@ -415,17 +342,6 @@ impl<'a, 'b> Evaluator<'a, 'b> {
         &self.evaluate_expression(rhs, arguments)?
       }
     })
-  }
-}
-
-fn internal_error(message: String) -> CompilationError<'static> {
-  CompilationError {
-    text:   "",
-    index:  0,
-    line:   0,
-    column: 0,
-    width:  None,
-    kind:   CompilationErrorKind::InternalError { message: message }
   }
 }
 
