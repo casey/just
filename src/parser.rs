@@ -8,11 +8,11 @@ use token::{Token, TokenKind};
 use compilation_error::{CompilationError, CompilationErrorKind};
 use recipe::Recipe;
 use cooked_string::CookedString;
+use recipe_resolver::resolve_recipes;
 
 use Fragment;
 use Parameter;
 use Expression;
-use resolve_recipes;
 use resolve_assignments;
 
 pub struct Parser<'a> {
