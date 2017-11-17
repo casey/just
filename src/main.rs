@@ -50,6 +50,7 @@ mod common {
   pub use regex::Regex;
   pub use tempdir::TempDir;
 
+  pub use assignment_evaluator::AssignmentEvaluator;
   pub use command_ext::CommandExt;
   pub use compilation_error::{CompilationError, CompilationErrorKind};
   pub use configuration::Configuration;

@@ -4,7 +4,6 @@ use std::ops::Range;
 use std::process::{ExitStatus, Command, Stdio};
 use std::usize;
 
-use assignment_evaluator::Evaluator;
 use platform::{Platform, PlatformInterface};
 
 /// Return a `RuntimeError::Signal` if the process was terminated by a signal,
@@ -86,7 +85,7 @@ impl<'a> Recipe<'a> {
       argument_map.insert(parameter.name, value);
     }
 
-    let mut evaluator = Evaluator {
+    let mut evaluator = AssignmentEvaluator {
       evaluated:   empty(),
       scope:       scope,
       exports:     exports,

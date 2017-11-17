@@ -8,7 +8,7 @@ pub fn evaluate_assignments<'a>(
   overrides:   &Map<&str, &str>,
   quiet:       bool,
 ) -> Result<Map<&'a str, String>, RuntimeError<'a>> {
-  let mut evaluator = Evaluator {
+  let mut evaluator = AssignmentEvaluator {
     assignments: assignments,
     evaluated:   empty(),
     exports:     &empty(),
@@ -47,7 +47,7 @@ fn run_backtick<'a>(
   brev::output(cmd).map_err(|output_error| RuntimeError::Backtick{token: token.clone(), output_error})
 }
 
-pub struct Evaluator<'a: 'b, 'b> {
+pub struct AssignmentEvaluator<'a: 'b, 'b> {
   pub assignments: &'b Map<&'a str, Expression<'a>>,
   pub evaluated:   Map<&'a str, String>,
   pub exports:     &'b Set<&'a str>,
@@ -56,7 +56,7 @@ pub struct Evaluator<'a: 'b, 'b> {
   pub scope:       &'b Map<&'a str, String>,
 }
 
-impl<'a, 'b> Evaluator<'a, 'b> {
+impl<'a, 'b> AssignmentEvaluator<'a, 'b> {
   pub fn evaluate_line(
     &mut self,
     line:      &[Fragment<'a>],
