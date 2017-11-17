@@ -90,14 +90,16 @@ mod test {
 
 #[test]
 fn circular_variable_dependency() {
-  let text = "a = b\nb = a";
+  let text     = "a = b\nb = a";
+  let variable = "a";
+  let circle   = vec!["a", "b", "a"];
   parse_error(text, CompilationError {
     text:   text,
     index:  0,
     line:   0,
     column: 0,
     width:  Some(1),
-    kind:   CompilationErrorKind::CircularVariableDependency{variable: "a", circle: vec!["a", "b", "a"]}
+    kind:   CompilationErrorKind::CircularVariableDependency{variable, circle}
   });
 }
 

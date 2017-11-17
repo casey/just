@@ -566,53 +566,61 @@ fn missing_colon() {
 
 #[test]
 fn missing_default_eol() {
-  let text = "hello arg=\n";
+  let text     = "hello arg=\n";
+  let expected = vec![StringToken, RawString];
+  let found    = Eol;
   parse_error(text, CompilationError {
     text:   text,
     index:  10,
     line:   0,
     column: 10,
     width:  Some(1),
-    kind:   CompilationErrorKind::UnexpectedToken{expected: vec![StringToken, RawString], found: Eol},
+    kind:   CompilationErrorKind::UnexpectedToken{expected, found},
   });
 }
 
 #[test]
 fn missing_default_eof() {
-  let text = "hello arg=";
+  let text     = "hello arg=";
+  let expected = vec![StringToken, RawString];
+  let found    = Eof;
   parse_error(text, CompilationError {
     text:   text,
     index:  10,
     line:   0,
     column: 10,
     width:  Some(0),
-    kind:   CompilationErrorKind::UnexpectedToken{expected: vec![StringToken, RawString], found: Eof},
+    kind:   CompilationErrorKind::UnexpectedToken{expected, found},
   });
 }
 
 #[test]
 fn missing_default_colon() {
-  let text = "hello arg=:";
+  let text     = "hello arg=:";
+  let expected = vec![StringToken, RawString];
+  let found    = Colon;
   parse_error(text, CompilationError {
     text:   text,
     index:  10,
     line:   0,
     column: 10,
     width:  Some(1),
-    kind:   CompilationErrorKind::UnexpectedToken{expected: vec![StringToken, RawString], found: Colon},
+    kind:   CompilationErrorKind::UnexpectedToken{expected, found},
   });
 }
 
 #[test]
 fn missing_default_backtick() {
-  let text = "hello arg=`hello`";
+  let text     = "hello arg=`hello`";
+  let expected = vec![StringToken, RawString];
+  let found    = Backtick;
   parse_error(text, CompilationError {
     text:   text,
     index:  10,
     line:   0,
     column: 10,
     width:  Some(7),
-    kind:   CompilationErrorKind::UnexpectedToken{expected: vec![StringToken, RawString], found: Backtick},
+    kind:   CompilationErrorKind::UnexpectedToken{expected, found},
   });
 }
 
@@ -784,26 +792,31 @@ fn extra_whitespace() {
 }
 #[test]
 fn interpolation_outside_of_recipe() {
-  let text = "{{";
+  let text     = "{{";
+  let expected = vec![Name, At];
+  let found    = InterpolationStart;
   parse_error(text, CompilationError {
     text:   text,
     index:  0,
     line:   0,
     column: 0,
     width:  Some(2),
-    kind:   CompilationErrorKind::UnexpectedToken{expected: vec![Name, At], found: InterpolationStart},
+    kind:   CompilationErrorKind::UnexpectedToken{expected, found},
   });
 }
+
 #[test]
 fn unclosed_interpolation_delimiter() {
-  let text = "a:\n echo {{ foo";
+  let text     = "a:\n echo {{ foo";
+  let expected = vec![Plus, Eol, InterpolationEnd];
+  let found    = Dedent;
   parse_error(text, CompilationError {
     text:   text,
     index:  15,
     line:   1,
     column: 12,
     width:  Some(0),
-    kind:   CompilationErrorKind::UnexpectedToken{expected: vec![Plus, Eol, InterpolationEnd], found: Dedent},
+    kind:   CompilationErrorKind::UnexpectedToken{expected, found},
   });
 }
 
