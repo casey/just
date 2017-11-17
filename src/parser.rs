@@ -84,7 +84,7 @@ impl<'a> Parser<'a> {
 
   fn recipe(
     &mut self,
-    name:  Token<'a>,
+    name:  &Token<'a>,
     doc:   Option<Token<'a>>,
     quiet: bool,
   ) -> CompilationResult<'a, ()> {
@@ -305,7 +305,7 @@ impl<'a> Parser<'a> {
             doc = Some(token);
           }
           At => if let Some(name) = self.accept(Name) {
-            self.recipe(name, doc, true)?;
+            self.recipe(&name, doc, true)?;
             doc = None;
           } else {
             let unexpected = &self.tokens.next().unwrap();
@@ -318,14 +318,14 @@ impl<'a> Parser<'a> {
               doc = None;
             } else {
               self.tokens.put_back(next);
-              self.recipe(token, doc, false)?;
+              self.recipe(&token, doc, false)?;
               doc = None;
             }
           } else if self.accepted(Equals) {
             self.assignment(token, false)?;
             doc = None;
           } else {
-            self.recipe(token, doc, false)?;
+            self.recipe(&token, doc, false)?;
             doc = None;
           },
           _ => return Err(self.unexpected_token(&token, &[Name, At])),
