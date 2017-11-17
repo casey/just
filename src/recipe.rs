@@ -9,7 +9,7 @@ use Fragment;
 use Token;
 use Parameter;
 use RunOptions;
-use Evaluator;
+use assignment_evaluator::Evaluator;
 use split_shebang;
 use export_env;
 use DEFAULT_SHELL;

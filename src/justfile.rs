@@ -6,7 +6,7 @@ use edit_distance::edit_distance;
 use recipe::Recipe;
 use RunOptions;
 use Expression;
-use evaluate_assignments;
+use assignment_evaluator::evaluate_assignments;
 
 pub struct Justfile<'a> {
   pub recipes:     Map<&'a str, Recipe<'a>>,
