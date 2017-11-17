@@ -37,6 +37,7 @@ mod recipe_resolver;
 mod assignment_resolver;
 mod assignment_evaluator;
 mod configuration;
+mod parameter;
 
 use configuration::Configuration;
 use compilation_error::{CompilationError, CompilationErrorKind};
@@ -81,8 +82,6 @@ use prelude::*;
 
 pub use app::app;
 
-use brev::output;
-use color::Color;
 use std::fmt::Display;
 
 const DEFAULT_SHELL: &'static str = "sh";
@@ -115,29 +114,6 @@ fn split_shebang(shebang: &str) -> Option<(&str, Option<&str>)> {
     Some((captures.get(1).unwrap().as_str(), Some(captures.get(2).unwrap().as_str())))
   } else {
     None
-  }
-}
-
-#[derive(PartialEq, Debug)]
-pub struct Parameter<'a> {
-  default:  Option<String>,
-  name:     &'a str,
-  token:    Token<'a>,
-  variadic: bool,
-}
-
-impl<'a> Display for Parameter<'a> {
-  fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-    let color = Color::fmt(f);
-    if self.variadic {
-      write!(f, "{}", color.annotation().paint("+"))?;
-    }
-    write!(f, "{}", color.parameter().paint(self.name))?;
-    if let Some(ref default) = self.default {
-      let escaped = default.chars().flat_map(char::escape_default).collect::<String>();;
-      write!(f, r#"='{}'"#, color.string().paint(&escaped))?;
-    }
-    Ok(())
   }
 }
 
@@ -219,29 +195,6 @@ fn export_env<'a>(
     }
   }
   Ok(())
-}
-
-fn run_backtick<'a>(
-  raw:     &str,
-  token:   &Token<'a>,
-  scope:   &Map<&'a str, String>,
-  exports: &Set<&'a str>,
-  quiet:   bool,
-) -> Result<String, RuntimeError<'a>> {
-  let mut cmd = process::Command::new(DEFAULT_SHELL);
-
-  export_env(&mut cmd, scope, exports)?;
-
-  cmd.arg("-cu")
-     .arg(raw);
-
-  cmd.stderr(if quiet {
-    process::Stdio::null()
-  } else {
-    process::Stdio::inherit()
-  });
-
-  output(cmd).map_err(|output_error| RuntimeError::Backtick{token: token.clone(), output_error})
 }
 
 fn compile(text: &str) -> Result<Justfile, CompilationError> {

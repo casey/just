@@ -1,8 +1,11 @@
+use brev;
 use prelude::*;
 use Expression;
 use Fragment;
 use runtime_error::RuntimeError;
-use run_backtick;
+use DEFAULT_SHELL;
+use token::Token;
+use export_env;
 
 pub fn evaluate_assignments<'a>(
   assignments: &Map<&'a str, Expression<'a>>,
@@ -23,6 +26,29 @@ pub fn evaluate_assignments<'a>(
   }
 
   Ok(evaluator.evaluated)
+}
+
+fn run_backtick<'a>(
+  raw:     &str,
+  token:   &Token<'a>,
+  scope:   &Map<&'a str, String>,
+  exports: &Set<&'a str>,
+  quiet:   bool,
+) -> Result<String, RuntimeError<'a>> {
+  let mut cmd = process::Command::new(DEFAULT_SHELL);
+
+  export_env(&mut cmd, scope, exports)?;
+
+  cmd.arg("-cu")
+     .arg(raw);
+
+  cmd.stderr(if quiet {
+    process::Stdio::null()
+  } else {
+    process::Stdio::inherit()
+  });
+
+  brev::output(cmd).map_err(|output_error| RuntimeError::Backtick{token: token.clone(), output_error})
 }
 
 pub struct Evaluator<'a: 'b, 'b> {

@@ -10,9 +10,9 @@ use recipe::Recipe;
 use cooked_string::CookedString;
 use recipe_resolver::resolve_recipes;
 use assignment_resolver::resolve_assignments;
+use parameter::Parameter;
 
 use Fragment;
-use Parameter;
 use Expression;
 
 pub struct Parser<'a> {
