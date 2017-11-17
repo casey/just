@@ -1,5 +1,7 @@
 use common::*;
 
+use CompilationErrorKind::*;
+
 pub fn resolve_recipes<'a>(
   recipes:     &Map<&'a str, Recipe<'a>>,
   assignments: &Map<&'a str, Expression<'a>>,
@@ -35,14 +37,14 @@ pub fn resolve_recipes<'a>(
               // two lifetime parameters instead of one, with one being the lifetime
               // of the struct, and the second being the lifetime of the tokens
               // that it contains
-              let error = variable.error(CompilationErrorKind::UndefinedVariable{variable: name});
+              let error = variable.error(UndefinedVariable{variable: name});
               return Err(CompilationError {
                 text:   text,
                 index:  error.index,
                 line:   error.line,
                 column: error.column,
                 width:  error.width,
-                kind:   CompilationErrorKind::UndefinedVariable {
+                kind:   UndefinedVariable {
                   variable: &text[error.index..error.index + error.width.unwrap()],
                 }
               });
@@ -76,7 +78,7 @@ impl<'a, 'b> RecipeResolver<'a, 'b> {
           if self.seen.contains(dependency.name) {
             let first = self.stack[0];
             self.stack.push(first);
-            return Err(dependency_token.error(CompilationErrorKind::CircularRecipeDependency {
+            return Err(dependency_token.error(CircularRecipeDependency {
               recipe: recipe.name,
               circle: self.stack.iter()
                 .skip_while(|name| **name != dependency.name)
@@ -85,7 +87,7 @@ impl<'a, 'b> RecipeResolver<'a, 'b> {
           }
           self.resolve(dependency)?;
         },
-        None => return Err(dependency_token.error(CompilationErrorKind::UnknownDependency {
+        None => return Err(dependency_token.error(UnknownDependency {
           recipe:  recipe.name,
           unknown: dependency_token.lexeme
         })),
@@ -113,7 +115,7 @@ mod test {
       line:   1,
       column: 3,
       width:  Some(1),
-      kind:   CompilationErrorKind::CircularRecipeDependency{recipe, circle}
+      kind:   CircularRecipeDependency{recipe, circle}
     });
   }
 
@@ -126,7 +128,7 @@ mod test {
       line:   0,
       column: 3,
       width:  Some(1),
-      kind:   CompilationErrorKind::CircularRecipeDependency{recipe: "a", circle: vec!["a", "a"]}
+      kind:   CircularRecipeDependency{recipe: "a", circle: vec!["a", "a"]}
     });
   }
 
@@ -139,7 +141,7 @@ mod test {
       line:   0,
       column: 3,
       width:  Some(1),
-      kind:   CompilationErrorKind::UnknownDependency{recipe: "a", unknown: "b"}
+      kind:   UnknownDependency{recipe: "a", unknown: "b"}
     });
   }
 
@@ -152,7 +154,7 @@ mod test {
       line:   1,
       column: 6,
       width:  Some(5),
-      kind:   CompilationErrorKind::UndefinedVariable{variable: "hello"},
+      kind:   UndefinedVariable{variable: "hello"},
     });
   }
 
@@ -165,7 +167,7 @@ mod test {
       line:   3,
       column: 16,
       width:  Some(3),
-      kind:   CompilationErrorKind::UndefinedVariable{variable: "lol"},
+      kind:   UndefinedVariable{variable: "lol"},
     });
   }
 }

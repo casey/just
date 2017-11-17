@@ -1,7 +1,8 @@
 use common::*;
 
 use itertools;
-use token::TokenKind::*;
+use TokenKind::*;
+use CompilationErrorKind::*;
 use recipe_resolver::resolve_recipes;
 use assignment_resolver::resolve_assignments;
 
@@ -76,7 +77,7 @@ impl<'a> Parser<'a> {
   }
 
   fn unexpected_token(&self, found: &Token<'a>, expected: &[TokenKind]) -> CompilationError<'a> {
-    found.error(CompilationErrorKind::UnexpectedToken {
+    found.error(UnexpectedToken {
       expected: expected.to_vec(),
       found:    found.kind,
     })
@@ -89,7 +90,7 @@ impl<'a> Parser<'a> {
     quiet: bool,
   ) -> CompilationResult<'a, ()> {
     if let Some(recipe) = self.recipes.get(name.lexeme) {
-      return Err(name.error(CompilationErrorKind::DuplicateRecipe {
+      return Err(name.error(DuplicateRecipe {
         recipe: recipe.name,
         first:  recipe.line_number
       }));
@@ -113,13 +114,13 @@ impl<'a> Parser<'a> {
       let variadic = plus.is_some();
 
       if parsed_variadic_parameter {
-        return Err(parameter.error(CompilationErrorKind::ParameterFollowsVariadicParameter {
+        return Err(parameter.error(ParameterFollowsVariadicParameter {
           parameter: parameter.lexeme,
         }));
       }
 
       if parameters.iter().any(|p| p.name == parameter.lexeme) {
-        return Err(parameter.error(CompilationErrorKind::DuplicateParameter {
+        return Err(parameter.error(DuplicateParameter {
           recipe: name.lexeme, parameter: parameter.lexeme
         }));
       }
@@ -137,7 +138,7 @@ impl<'a> Parser<'a> {
       }
 
       if parsed_parameter_with_default && default.is_none() {
-        return Err(parameter.error(CompilationErrorKind::RequiredParameterFollowsDefaultParameter{
+        return Err(parameter.error(RequiredParameterFollowsDefaultParameter{
           parameter: parameter.lexeme,
         }));
       }
@@ -167,7 +168,7 @@ impl<'a> Parser<'a> {
     let mut dependency_tokens = vec![];
     while let Some(dependency) = self.accept(Name) {
       if dependencies.contains(&dependency.lexeme) {
-        return Err(dependency.error(CompilationErrorKind::DuplicateDependency {
+        return Err(dependency.error(DuplicateDependency {
           recipe:     name.lexeme,
           dependency: dependency.lexeme
         }));
@@ -190,7 +191,7 @@ impl<'a> Parser<'a> {
           continue;
         }
         if let Some(token) = self.expect(Line) {
-          return Err(token.error(CompilationErrorKind::Internal{
+          return Err(token.error(Internal{
             message: format!("Expected a line but got {}", token.kind)
           }))
         }
@@ -207,7 +208,7 @@ impl<'a> Parser<'a> {
                 && !lines.last().and_then(|line| line.last())
                   .map(Fragment::continuation).unwrap_or(false)
                 && (token.lexeme.starts_with(' ') || token.lexeme.starts_with('\t')) {
-                return Err(token.error(CompilationErrorKind::ExtraLeadingWhitespace));
+                return Err(token.error(ExtraLeadingWhitespace));
               }
             }
             fragments.push(Fragment::Text{text: token});
@@ -275,7 +276,7 @@ impl<'a> Parser<'a> {
 
   fn assignment(&mut self, name: Token<'a>, export: bool) -> CompilationResult<'a, ()> {
     if self.assignments.contains_key(name.lexeme) {
-      return Err(name.error(CompilationErrorKind::DuplicateVariable {variable: name.lexeme}));
+      return Err(name.error(DuplicateVariable {variable: name.lexeme}));
     }
     if export {
       self.exports.insert(name.lexeme);
@@ -298,7 +299,7 @@ impl<'a> Parser<'a> {
           }
           Comment => {
             if let Some(token) = self.expect_eol() {
-              return Err(token.error(CompilationErrorKind::Internal {
+              return Err(token.error(Internal {
                 message: format!("found comment followed by {}", token.kind),
               }));
             }
@@ -336,7 +337,7 @@ impl<'a> Parser<'a> {
           line:   0,
           column: 0,
           width:  None,
-          kind:   CompilationErrorKind::Internal {
+          kind:   Internal {
             message: "unexpected end of token stream".to_string()
           }
         }),
@@ -344,7 +345,7 @@ impl<'a> Parser<'a> {
     }
 
     if let Some(token) = self.tokens.next() {
-      return Err(token.error(CompilationErrorKind::Internal {
+      return Err(token.error(Internal {
         message: format!("unexpected token remaining after parsing completed: {:?}", token.kind)
       }))
     }
@@ -354,7 +355,7 @@ impl<'a> Parser<'a> {
     for recipe in self.recipes.values() {
       for parameter in &recipe.parameters {
         if self.assignments.contains_key(parameter.token.lexeme) {
-          return Err(parameter.token.error(CompilationErrorKind::ParameterShadowsVariable {
+          return Err(parameter.token.error(ParameterShadowsVariable {
             parameter: parameter.token.lexeme
           }));
         }
@@ -362,7 +363,7 @@ impl<'a> Parser<'a> {
 
       for dependency in &recipe.dependency_tokens {
         if !self.recipes[dependency.lexeme].parameters.is_empty() {
-          return Err(dependency.error(CompilationErrorKind::DependencyHasParameters {
+          return Err(dependency.error(DependencyHasParameters {
             recipe: recipe.name,
             dependency: dependency.lexeme,
           }));
@@ -578,7 +579,7 @@ c = a + b + a + b",
       line:   0,
       column: 5,
       width:  Some(1),
-      kind:   CompilationErrorKind::UnexpectedToken{expected: vec![Name, Plus, Colon], found: Eol},
+      kind:   UnexpectedToken{expected: vec![Name, Plus, Colon], found: Eol},
     });
   }
 
@@ -593,7 +594,7 @@ c = a + b + a + b",
       line:   0,
       column: 10,
       width:  Some(1),
-      kind:   CompilationErrorKind::UnexpectedToken{expected, found},
+      kind:   UnexpectedToken{expected, found},
     });
   }
 
@@ -608,7 +609,7 @@ c = a + b + a + b",
       line:   0,
       column: 10,
       width:  Some(0),
-      kind:   CompilationErrorKind::UnexpectedToken{expected, found},
+      kind:   UnexpectedToken{expected, found},
     });
   }
 
@@ -623,7 +624,7 @@ c = a + b + a + b",
       line:   0,
       column: 10,
       width:  Some(1),
-      kind:   CompilationErrorKind::UnexpectedToken{expected, found},
+      kind:   UnexpectedToken{expected, found},
     });
   }
 
@@ -638,7 +639,7 @@ c = a + b + a + b",
       line:   0,
       column: 10,
       width:  Some(7),
-      kind:   CompilationErrorKind::UnexpectedToken{expected, found},
+      kind:   UnexpectedToken{expected, found},
     });
   }
 
@@ -651,7 +652,7 @@ c = a + b + a + b",
       line:   0,
       column: 7,
       width:  Some(3),
-      kind:   CompilationErrorKind::ParameterFollowsVariadicParameter{parameter: "bbb"}
+      kind:   ParameterFollowsVariadicParameter{parameter: "bbb"}
     });
   }
 
@@ -664,7 +665,7 @@ c = a + b + a + b",
       line:   0,
       column: 16,
       width:  Some(3),
-      kind:   CompilationErrorKind::RequiredParameterFollowsDefaultParameter{parameter: "bar"},
+      kind:   RequiredParameterFollowsDefaultParameter{parameter: "bar"},
     });
   }
 
@@ -677,7 +678,7 @@ c = a + b + a + b",
       line:   0,
       column: 9,
       width:  Some(1),
-      kind:   CompilationErrorKind::UnexpectedToken{expected: vec![Name, Eol, Eof], found: Equals},
+      kind:   UnexpectedToken{expected: vec![Name, Eol, Eof], found: Equals},
     });
   }
 
@@ -690,7 +691,7 @@ c = a + b + a + b",
       line:   0,
       column: 4,
       width:  Some(1),
-      kind:   CompilationErrorKind::DuplicateParameter{recipe: "a", parameter: "b"}
+      kind:   DuplicateParameter{recipe: "a", parameter: "b"}
     });
   }
 
@@ -703,7 +704,7 @@ c = a + b + a + b",
       line:   1,
       column: 2,
       width:  Some(3),
-      kind:   CompilationErrorKind::ParameterShadowsVariable{parameter: "foo"}
+      kind:   ParameterShadowsVariable{parameter: "foo"}
     });
   }
 
@@ -716,7 +717,7 @@ c = a + b + a + b",
       line:   1,
       column: 3,
       width:  Some(3),
-      kind:   CompilationErrorKind::DependencyHasParameters{recipe: "b", dependency: "foo"}
+      kind:   DependencyHasParameters{recipe: "b", dependency: "foo"}
     });
   }
 
@@ -729,7 +730,7 @@ c = a + b + a + b",
       line:   0,
       column: 13,
       width:  Some(1),
-      kind:   CompilationErrorKind::DuplicateDependency{recipe: "a", dependency: "z"}
+      kind:   DuplicateDependency{recipe: "a", dependency: "z"}
     });
   }
 
@@ -742,7 +743,7 @@ c = a + b + a + b",
       line:   2,
       column: 0,
       width:  Some(1),
-      kind:   CompilationErrorKind::DuplicateRecipe{recipe: "a", first: 0}
+      kind:   DuplicateRecipe{recipe: "a", first: 0}
     });
   }
 
@@ -755,7 +756,7 @@ c = a + b + a + b",
       line:   1,
       column: 0,
       width:  Some(1),
-      kind:   CompilationErrorKind::DuplicateVariable{variable: "a"}
+      kind:   DuplicateVariable{variable: "a"}
     });
   }
 
@@ -768,7 +769,7 @@ c = a + b + a + b",
       line:   2,
       column: 1,
       width:  Some(6),
-      kind:   CompilationErrorKind::ExtraLeadingWhitespace
+      kind:   ExtraLeadingWhitespace
     });
     // extra whitespace is okay in a shebang recipe
     parse_success("a:\n #!\n  print(1)");
@@ -785,7 +786,7 @@ c = a + b + a + b",
       line:   0,
       column: 0,
       width:  Some(2),
-      kind:   CompilationErrorKind::UnexpectedToken{expected, found},
+      kind:   UnexpectedToken{expected, found},
     });
   }
 
@@ -800,7 +801,7 @@ c = a + b + a + b",
       line:   1,
       column: 12,
       width:  Some(0),
-      kind:   CompilationErrorKind::UnexpectedToken{expected, found},
+      kind:   UnexpectedToken{expected, found},
     });
   }
 
@@ -813,7 +814,7 @@ c = a + b + a + b",
       line:   0,
       column: 5,
       width:  Some(1),
-      kind:   CompilationErrorKind::UnexpectedToken{expected: vec![Name], found: Plus},
+      kind:   UnexpectedToken{expected: vec![Name], found: Plus},
     });
   }
 

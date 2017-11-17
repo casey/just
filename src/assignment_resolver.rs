@@ -1,5 +1,7 @@
 use common::*;
 
+use CompilationErrorKind::*;
+
 pub fn resolve_assignments<'a>(
   assignments:       &Map<&'a str, Expression<'a>>,
   assignment_tokens: &Map<&'a str, Token<'a>>,
@@ -48,7 +50,7 @@ impl<'a: 'b, 'b> AssignmentResolver<'a, 'b> {
         line:   0,
         column: 0,
         width:  None,
-        kind:   CompilationErrorKind::Internal{message}
+        kind:   Internal{message}
       });
     }
     Ok(())
@@ -63,14 +65,14 @@ impl<'a: 'b, 'b> AssignmentResolver<'a, 'b> {
         } else if self.seen.contains(name) {
           let token = &self.assignment_tokens[name];
           self.stack.push(name);
-          return Err(token.error(CompilationErrorKind::CircularVariableDependency {
+          return Err(token.error(CircularVariableDependency {
             variable: name,
             circle:   self.stack.clone(),
           }));
         } else if self.assignments.contains_key(name) {
           self.resolve_assignment(name)?;
         } else {
-          return Err(token.error(CompilationErrorKind::UndefinedVariable{variable: name}));
+          return Err(token.error(UndefinedVariable{variable: name}));
         }
       }
       Expression::Concatination{ref lhs, ref rhs} => {
@@ -99,7 +101,7 @@ mod test {
       line:   0,
       column: 0,
       width:  Some(1),
-      kind:   CompilationErrorKind::CircularVariableDependency{variable, circle}
+      kind:   CircularVariableDependency{variable, circle}
     });
   }
 
@@ -114,7 +116,7 @@ mod test {
       line:   0,
       column: 0,
       width:  Some(1),
-      kind:   CompilationErrorKind::CircularVariableDependency{variable, circle}
+      kind:   CircularVariableDependency{variable, circle}
     });
   }
 
@@ -127,7 +129,7 @@ mod test {
       line:   0,
       column: 4,
       width:  Some(2),
-      kind:   CompilationErrorKind::UndefinedVariable{variable: "yy"},
+      kind:   UndefinedVariable{variable: "yy"},
     });
   }
 }

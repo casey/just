@@ -1,6 +1,7 @@
 use common::*;
 
 use TokenKind::*;
+use CompilationErrorKind::*;
 
 fn re(pattern: &str) -> Regex {
   Regex::new(pattern).unwrap()
@@ -84,7 +85,7 @@ pub fn tokenize(text: &str) -> CompilationResult<Vec<Token>> {
         // indent: was no indentation, now there is
         (&State::Start, Some(current)) => {
           if mixed_whitespace(current) {
-            return error!(CompilationErrorKind::MixedLeadingWhitespace{whitespace: current})
+            return error!(MixedLeadingWhitespace{whitespace: current})
           }
           //indent = Some(current);
           state.push(State::Indent(current));
@@ -99,7 +100,7 @@ pub fn tokenize(text: &str) -> CompilationResult<Vec<Token>> {
         // was indentation and still is, check if the new indentation matches
         (&State::Indent(previous), Some(current)) => {
           if !current.starts_with(previous) {
-            return error!(CompilationErrorKind::InconsistentLeadingWhitespace{
+            return error!(InconsistentLeadingWhitespace{
               expected: previous,
               found: current
             });
@@ -108,7 +109,7 @@ pub fn tokenize(text: &str) -> CompilationResult<Vec<Token>> {
         }
         // at column 0 in some other state: this should never happen
         (&State::Text, _) | (&State::Interpolation, _) => {
-          return error!(CompilationErrorKind::Internal {
+          return error!(Internal {
             message: "unexpected state at column 0".to_string()
           });
         }
@@ -143,7 +144,7 @@ pub fn tokenize(text: &str) -> CompilationResult<Vec<Token>> {
       (column, state.last().unwrap(), LINE.captures(rest)) {
       let line = captures.get(0).unwrap().as_str();
       if !line.starts_with(indent) {
-        return error!(CompilationErrorKind::Internal{message: "unexpected indent".to_string()});
+        return error!(Internal{message: "unexpected indent".to_string()});
       }
       state.push(State::Text);
       (&line[0..indent.len()], "", Line)
@@ -161,7 +162,7 @@ pub fn tokenize(text: &str) -> CompilationResult<Vec<Token>> {
         state.pop();
         (captures.get(1).unwrap().as_str(), captures.get(2).unwrap().as_str(), Eol)
       } else {
-        return error!(CompilationErrorKind::Internal {
+        return error!(Internal {
           message: format!("Could not match token in text state: \"{}\"", rest)
         });
       }
@@ -176,7 +177,7 @@ pub fn tokenize(text: &str) -> CompilationResult<Vec<Token>> {
       (captures.get(1).unwrap().as_str(), captures.get(2).unwrap().as_str(), Name)
     } else if let Some(captures) = EOL.captures(rest) {
       if state.last().unwrap() == &State::Interpolation {
-        return error!(CompilationErrorKind::Internal {
+        return error!(Internal {
           message: "hit EOL while still in interpolation state".to_string()
         });
       }
@@ -196,18 +197,18 @@ pub fn tokenize(text: &str) -> CompilationResult<Vec<Token>> {
     } else if let Some(captures) = RAW_STRING.captures(rest) {
       (captures.get(1).unwrap().as_str(), captures.get(2).unwrap().as_str(), RawString)
     } else if UNTERMINATED_RAW_STRING.is_match(rest) {
-      return error!(CompilationErrorKind::UnterminatedString);
+      return error!(UnterminatedString);
     } else if let Some(captures) = STRING.captures(rest) {
       let prefix = captures.get(1).unwrap().as_str();
       let contents = &rest[prefix.len()+1..];
       if contents.is_empty() {
-        return error!(CompilationErrorKind::UnterminatedString);
+        return error!(UnterminatedString);
       }
       let mut len = 0;
       let mut escape = false;
       for c in contents.chars() {
         if c == '\n' || c == '\r' {
-          return error!(CompilationErrorKind::UnterminatedString);
+          return error!(UnterminatedString);
         } else if !escape && c == '"' {
           break;
         } else if !escape && c == '\\' {
@@ -220,13 +221,13 @@ pub fn tokenize(text: &str) -> CompilationResult<Vec<Token>> {
       let start = prefix.len();
       let content_end = start + len + 1;
       if escape || content_end >= rest.len() {
-        return error!(CompilationErrorKind::UnterminatedString);
+        return error!(UnterminatedString);
       }
       (prefix, &rest[start..content_end + 1], StringToken)
     } else if rest.starts_with("#!") {
-      return error!(CompilationErrorKind::OuterShebang)
+      return error!(OuterShebang)
     } else {
-      return error!(CompilationErrorKind::UnknownStartOfToken)
+      return error!(UnknownStartOfToken)
     };
 
     tokens.push(Token {
@@ -245,7 +246,7 @@ pub fn tokenize(text: &str) -> CompilationResult<Vec<Token>> {
       let last = tokens.last().unwrap();
       match last.kind {
         Eof => {},
-        _ => return Err(last.error(CompilationErrorKind::Internal {
+        _ => return Err(last.error(Internal {
           message: format!("zero length token: {:?}", last)
         })),
       }
@@ -489,7 +490,7 @@ c: b
     line:   3,
     column: 0,
     width:  None,
-    kind:   CompilationErrorKind::InconsistentLeadingWhitespace{expected: " ", found: "\t"},
+    kind:   InconsistentLeadingWhitespace{expected: " ", found: "\t"},
   }
 
   error_test! {
@@ -503,7 +504,7 @@ c: b
     line:   3,
     column: 0,
     width:  None,
-    kind:   CompilationErrorKind::InconsistentLeadingWhitespace{expected: "\t\t", found: "\t  "},
+    kind:   InconsistentLeadingWhitespace{expected: "\t\t", found: "\t  "},
   }
 
   error_test! {
@@ -513,7 +514,7 @@ c: b
     line:   0,
     column: 0,
     width:  None,
-    kind:   CompilationErrorKind::OuterShebang,
+    kind:   OuterShebang,
   }
 
   error_test! {
@@ -523,7 +524,7 @@ c: b
     line:   0,
     column: 0,
     width:  None,
-    kind:   CompilationErrorKind::UnknownStartOfToken,
+    kind:   UnknownStartOfToken,
   }
 
   error_test! {
@@ -533,7 +534,7 @@ c: b
     line:   0,
     column: 3,
     width:  None,
-    kind:   CompilationErrorKind::UnterminatedString,
+    kind:   UnterminatedString,
   }
 
   error_test! {
@@ -543,7 +544,7 @@ c: b
     line:   0,
     column: 3,
     width:  None,
-    kind:   CompilationErrorKind::UnterminatedString,
+    kind:   UnterminatedString,
   }
 
   error_test! {
@@ -553,7 +554,7 @@ c: b
     line:   0,
     column: 4,
     width:  None,
-    kind:   CompilationErrorKind::UnterminatedString,
+    kind:   UnterminatedString,
   }
 
   error_test! {
@@ -563,6 +564,6 @@ c: b
     line:   1,
     column: 0,
     width:  None,
-    kind:   CompilationErrorKind::MixedLeadingWhitespace{whitespace: "\t "},
+    kind:   MixedLeadingWhitespace{whitespace: "\t "},
   }
 }
