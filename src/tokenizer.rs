@@ -285,6 +285,7 @@ pub fn tokenize(text: &str) -> Result<Vec<Token>, CompilationError> {
 #[cfg(test)]
 mod test {  
   use super::*;
+  use testing::parse_error;
 
   fn tokenize_success(text: &str, expected_summary: &str) {
     let tokens = tokenize(text).unwrap();
@@ -531,5 +532,56 @@ c: b
   tokenize_success(text, "$N:N$>^_$$<N:$>^_$^_$$<N:N$>^_$$<N:N$>^_<.");
 }
 
+#[test]
+fn unterminated_string() {
+  let text = r#"a = ""#;
+  parse_error(text, CompilationError {
+    text:   text,
+    index:  3,
+    line:   0,
+    column: 3,
+    width:  None,
+    kind:   CompilationErrorKind::UnterminatedString,
+  });
+}
+
+#[test]
+fn unterminated_string_with_escapes() {
+  let text = r#"a = "\n\t\r\"\\"#;
+  parse_error(text, CompilationError {
+    text:   text,
+    index:  3,
+    line:   0,
+    column: 3,
+    width:  None,
+    kind:   CompilationErrorKind::UnterminatedString,
+  });
+}
+#[test]
+fn unterminated_raw_string() {
+  let text = "r a='asdf";
+  parse_error(text, CompilationError {
+    text:   text,
+    index:  4,
+    line:   0,
+    column: 4,
+    width:  None,
+    kind:   CompilationErrorKind::UnterminatedString,
+  });
+}
+
+
+#[test]
+fn mixed_leading_whitespace() {
+  let text = "a:\n\t echo hello";
+  parse_error(text, CompilationError {
+    text:   text,
+    index:  3,
+    line:   1,
+    column: 0,
+    width:  None,
+    kind:   CompilationErrorKind::MixedLeadingWhitespace{whitespace: "\t "}
+  });
+}
 
 }

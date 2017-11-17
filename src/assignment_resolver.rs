@@ -86,3 +86,49 @@ impl<'a: 'b, 'b> AssignmentResolver<'a, 'b> {
     Ok(())
   }
 }
+
+#[cfg(test)]
+mod test {
+  use testing::parse_error;
+  use super::*;
+
+#[test]
+fn circular_variable_dependency() {
+  let text = "a = b\nb = a";
+  parse_error(text, CompilationError {
+    text:   text,
+    index:  0,
+    line:   0,
+    column: 0,
+    width:  Some(1),
+    kind:   CompilationErrorKind::CircularVariableDependency{variable: "a", circle: vec!["a", "b", "a"]}
+  });
+}
+
+
+#[test]
+fn self_variable_dependency() {
+  let text = "a = a";
+  parse_error(text, CompilationError {
+    text:   text,
+    index:  0,
+    line:   0,
+    column: 0,
+    width:  Some(1),
+    kind:   CompilationErrorKind::CircularVariableDependency{variable: "a", circle: vec!["a", "a"]}
+  });
+}
+#[test]
+fn unknown_expression_variable() {
+  let text = "x = yy";
+  parse_error(text, CompilationError {
+    text:   text,
+    index:  4,
+    line:   0,
+    column: 4,
+    width:  Some(2),
+    kind:   CompilationErrorKind::UndefinedVariable{variable: "yy"},
+  });
+}
+
+}

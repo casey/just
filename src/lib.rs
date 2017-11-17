@@ -9,18 +9,6 @@ extern crate edit_distance;
 extern crate libc;
 extern crate brev;
 
-#[cfg(test)]
-mod test_utils;
-
-#[cfg(test)]
-mod unit;
-
-#[cfg(test)]
-mod integration;
-
-#[cfg(test)]
-mod search;
-
 mod platform;
 mod app;
 mod color;
@@ -42,6 +30,11 @@ mod expression;
 mod fragment;
 mod shebang;
 mod command_ext;
+mod range_ext;
+
+#[cfg(test)] mod testing;
+#[cfg(test)] mod integration;
+#[cfg(test)] mod search;
 
 use configuration::Configuration;
 use compilation_error::{CompilationError, CompilationErrorKind};
@@ -77,10 +70,6 @@ mod common {
   }
 
   pub use std::ops::Range;
-
-  pub fn contains<T: PartialOrd + Copy>(range: &Range<T>,  i: T) -> bool {
-    i >= range.start && i < range.end
-  }
 }
 
 fn compile(text: &str) -> Result<Justfile, CompilationError> {

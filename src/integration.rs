@@ -50,7 +50,7 @@ fn integration_test(
   path.push("justfile");
   brev::dump(path, justfile);
 
-  let output = process::Command::new(&super::test_utils::just_binary_path())
+  let output = process::Command::new(&super::testing::just_binary_path())
     .current_dir(tmp.path())
     .args(&["--shell", shell])
     .args(args)

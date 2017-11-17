@@ -5,6 +5,13 @@ export RUST_BACKTRACE=bt
 test: build
 	cargo test --lib
 
+@spam:
+	{ \
+		figlet test; \
+		cargo build --color always 2>&1; \
+		cargo test  --color always -- --color always 2>&1; \
+	} | less
+
 # only run tests matching PATTERN
 filter PATTERN: build
 	cargo test --lib {{PATTERN}}

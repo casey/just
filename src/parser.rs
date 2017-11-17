@@ -389,3 +389,470 @@ impl<'a> Parser<'a> {
     })
   }
 }
+
+#[cfg(test)]
+mod test {
+  use super::*;
+  use brev;
+  use testing::parse_success;
+  use testing::parse_error;
+
+fn parse_summary(input: &str, output: &str) {
+  let justfile = parse_success(input);
+  let s = format!("{:#}", justfile);
+  if s != output {
+    println!("got:\n\"{}\"\n", s);
+    println!("\texpected:\n\"{}\"", output);
+    assert_eq!(s, output);
+  }
+}
+
+#[test]
+fn parse_empty() {
+  parse_summary("
+
+# hello
+
+
+  ", "");
+}
+
+#[test]
+fn parse_string_default() {
+  parse_summary(r#"
+
+foo a="b\t":
+
+
+  "#, r#"foo a='b\t':"#);
+}
+
+#[test]
+fn parse_variadic() {
+  parse_summary(r#"
+
+foo +a:
+
+
+  "#, r#"foo +a:"#);
+}
+
+#[test]
+fn parse_variadic_string_default() {
+  parse_summary(r#"
+
+foo +a="Hello":
+
+
+  "#, r#"foo +a='Hello':"#);
+}
+
+#[test]
+fn parse_raw_string_default() {
+  parse_summary(r#"
+
+foo a='b\t':
+
+
+  "#, r#"foo a='b\\t':"#);
+}
+
+#[test]
+fn parse_export() {
+  parse_summary(r#"
+export a = "hello"
+
+  "#, r#"export a = "hello""#);
+}
+
+
+#[test]
+fn parse_complex() {
+  parse_summary("
+x:
+y:
+z:
+foo = \"xx\"
+bar = foo
+goodbye = \"y\"
+hello a b    c   : x y    z #hello
+  #! blah
+  #blarg
+  {{ foo + bar}}abc{{ goodbye\t  + \"x\" }}xyz
+  1
+  2
+  3
+", "bar = foo
+
+foo = \"xx\"
+
+goodbye = \"y\"
+
+hello a b c: x y z
+    #! blah
+    #blarg
+    {{foo + bar}}abc{{goodbye + \"x\"}}xyz
+    1
+    2
+    3
+
+x:
+
+y:
+
+z:");
+}
+
+#[test]
+fn parse_shebang() {
+  parse_summary("
+practicum = 'hello'
+install:
+\t#!/bin/sh
+\tif [[ -f {{practicum}} ]]; then
+\t\treturn
+\tfi
+", "practicum = \"hello\"
+
+install:
+    #!/bin/sh
+    if [[ -f {{practicum}} ]]; then
+    \treturn
+    fi"
+  );
+}
+
+#[test]
+fn parse_assignments() {
+  parse_summary(
+r#"a = "0"
+c = a + b + a + b
+b = "1"
+"#,
+
+r#"a = "0"
+
+b = "1"
+
+c = a + b + a + b"#);
+}
+
+#[test]
+fn parse_assignment_backticks() {
+  parse_summary(
+"a = `echo hello`
+c = a + b + a + b
+b = `echo goodbye`",
+
+"a = `echo hello`
+
+b = `echo goodbye`
+
+c = a + b + a + b");
+}
+
+#[test]
+fn parse_interpolation_backticks() {
+  parse_summary(
+r#"a:
+ echo {{  `echo hello` + "blarg"   }} {{   `echo bob`   }}"#,
+r#"a:
+    echo {{`echo hello` + "blarg"}} {{`echo bob`}}"#,
+ );
+}
+
+#[test]
+fn missing_colon() {
+  let text = "a b c\nd e f";
+  parse_error(text, CompilationError {
+    text:   text,
+    index:  5,
+    line:   0,
+    column: 5,
+    width:  Some(1),
+    kind:   CompilationErrorKind::UnexpectedToken{expected: vec![Name, Plus, Colon], found: Eol},
+  });
+}
+
+#[test]
+fn missing_default_eol() {
+  let text = "hello arg=\n";
+  parse_error(text, CompilationError {
+    text:   text,
+    index:  10,
+    line:   0,
+    column: 10,
+    width:  Some(1),
+    kind:   CompilationErrorKind::UnexpectedToken{expected: vec![StringToken, RawString], found: Eol},
+  });
+}
+
+#[test]
+fn missing_default_eof() {
+  let text = "hello arg=";
+  parse_error(text, CompilationError {
+    text:   text,
+    index:  10,
+    line:   0,
+    column: 10,
+    width:  Some(0),
+    kind:   CompilationErrorKind::UnexpectedToken{expected: vec![StringToken, RawString], found: Eof},
+  });
+}
+
+#[test]
+fn missing_default_colon() {
+  let text = "hello arg=:";
+  parse_error(text, CompilationError {
+    text:   text,
+    index:  10,
+    line:   0,
+    column: 10,
+    width:  Some(1),
+    kind:   CompilationErrorKind::UnexpectedToken{expected: vec![StringToken, RawString], found: Colon},
+  });
+}
+
+#[test]
+fn missing_default_backtick() {
+  let text = "hello arg=`hello`";
+  parse_error(text, CompilationError {
+    text:   text,
+    index:  10,
+    line:   0,
+    column: 10,
+    width:  Some(7),
+    kind:   CompilationErrorKind::UnexpectedToken{expected: vec![StringToken, RawString], found: Backtick},
+  });
+}
+
+#[test]
+fn parameter_after_variadic() {
+  let text = "foo +a bbb:";
+  parse_error(text, CompilationError {
+    text:   text,
+    index:  7,
+    line:   0,
+    column: 7,
+    width:  Some(3),
+    kind:   CompilationErrorKind::ParameterFollowsVariadicParameter{parameter: "bbb"}
+  });
+}
+
+#[test]
+fn required_after_default() {
+  let text = "hello arg='foo' bar:";
+  parse_error(text, CompilationError {
+    text:   text,
+    index:  16,
+    line:   0,
+    column: 16,
+    width:  Some(3),
+    kind:   CompilationErrorKind::RequiredParameterFollowsDefaultParameter{parameter: "bar"},
+  });
+}
+
+#[test]
+fn missing_eol() {
+  let text = "a b c: z =";
+  parse_error(text, CompilationError {
+    text:   text,
+    index:  9,
+    line:   0,
+    column: 9,
+    width:  Some(1),
+    kind:   CompilationErrorKind::UnexpectedToken{expected: vec![Name, Eol, Eof], found: Equals},
+  });
+}
+
+#[test]
+fn eof_test() {
+  parse_summary("x:\ny:\nz:\na b c: x y z", "a b c: x y z\n\nx:\n\ny:\n\nz:");
+}
+
+#[test]
+fn duplicate_parameter() {
+  let text = "a b b:";
+  parse_error(text, CompilationError {
+    text:   text,
+    index:  4,
+    line:   0,
+    column: 4,
+    width:  Some(1),
+    kind:   CompilationErrorKind::DuplicateParameter{recipe: "a", parameter: "b"}
+  });
+}
+
+#[test]
+fn parameter_shadows_varible() {
+  let text = "foo = \"h\"\na foo:";
+  parse_error(text, CompilationError {
+    text:   text,
+    index:  12,
+    line:   1,
+    column: 2,
+    width:  Some(3),
+    kind:   CompilationErrorKind::ParameterShadowsVariable{parameter: "foo"}
+  });
+}
+
+#[test]
+fn dependency_has_parameters() {
+  let text = "foo arg:\nb: foo";
+  parse_error(text, CompilationError {
+    text:   text,
+    index:  12,
+    line:   1,
+    column: 3,
+    width:  Some(3),
+    kind:   CompilationErrorKind::DependencyHasParameters{recipe: "b", dependency: "foo"}
+  });
+}
+
+
+#[test]
+fn duplicate_dependency() {
+  let text = "a b c: b c z z";
+  parse_error(text, CompilationError {
+    text:   text,
+    index:  13,
+    line:   0,
+    column: 13,
+    width:  Some(1),
+    kind:   CompilationErrorKind::DuplicateDependency{recipe: "a", dependency: "z"}
+  });
+}
+
+#[test]
+fn duplicate_recipe() {
+  let text = "a:\nb:\na:";
+  parse_error(text, CompilationError {
+    text:   text,
+    index:  6,
+    line:   2,
+    column: 0,
+    width:  Some(1),
+    kind:   CompilationErrorKind::DuplicateRecipe{recipe: "a", first: 0}
+  });
+}
+
+#[test]
+fn duplicate_variable() {
+  let text = "a = \"0\"\na = \"0\"";
+  parse_error(text, CompilationError {
+    text:   text,
+    index:  8,
+    line:   1,
+    column: 0,
+    width:  Some(1),
+    kind:   CompilationErrorKind::DuplicateVariable{variable: "a"}
+  });
+}
+
+#[test]
+fn string_quote_escape() {
+  parse_summary(
+    r#"a = "hello\"""#,
+    r#"a = "hello\"""#
+  );
+}
+
+#[test]
+fn string_escapes() {
+  parse_summary(
+    r#"a = "\n\t\r\"\\""#,
+    r#"a = "\n\t\r\"\\""#
+  );
+}
+
+#[test]
+fn parameters() {
+  parse_summary(
+"a b c:
+  {{b}} {{c}}",
+"a b c:
+    {{b}} {{c}}",
+  );
+}
+
+
+
+#[test]
+fn extra_whitespace() {
+  let text = "a:\n blah\n  blarg";
+  parse_error(text, CompilationError {
+    text:   text,
+    index:  10,
+    line:   2,
+    column: 1,
+    width:  Some(6),
+    kind:   CompilationErrorKind::ExtraLeadingWhitespace
+  });
+
+  // extra leading whitespace is okay in a shebang recipe
+  parse_success("a:\n #!\n  print(1)");
+}
+#[test]
+fn interpolation_outside_of_recipe() {
+  let text = "{{";
+  parse_error(text, CompilationError {
+    text:   text,
+    index:  0,
+    line:   0,
+    column: 0,
+    width:  Some(2),
+    kind:   CompilationErrorKind::UnexpectedToken{expected: vec![Name, At], found: InterpolationStart},
+  });
+}
+#[test]
+fn unclosed_interpolation_delimiter() {
+  let text = "a:\n echo {{ foo";
+  parse_error(text, CompilationError {
+    text:   text,
+    index:  15,
+    line:   1,
+    column: 12,
+    width:  Some(0),
+    kind:   CompilationErrorKind::UnexpectedToken{expected: vec![Plus, Eol, InterpolationEnd], found: Dedent},
+  });
+}
+
+#[test]
+fn plus_following_parameter() {
+  let text = "a b c+:";
+  parse_error(text, CompilationError {
+    text:   text,
+    index:  5,
+    line:   0,
+    column: 5,
+    width:  Some(1),
+    kind:   CompilationErrorKind::UnexpectedToken{expected: vec![Name], found: Plus},
+  });
+}
+
+#[test]
+fn readme_test() {
+  let mut justfiles = vec![];
+  let mut current = None;
+
+  for line in brev::slurp("README.asc").lines() {
+    if let Some(mut justfile) = current {
+      if line == "```" {
+        justfiles.push(justfile);
+        current = None;
+      } else {
+        justfile += line;
+        justfile += "\n";
+        current = Some(justfile);
+      }
+    } else if line == "```make" {
+      current = Some(String::new());
+    }
+  }
+
+  for justfile in justfiles {
+    parse_success(&justfile);
+  }
+}
+
+}

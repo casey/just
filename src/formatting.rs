@@ -117,3 +117,25 @@ pub fn write_error_context(
 pub fn show_whitespace(text: &str) -> String {
   text.chars().map(|c| match c { '\t' => '␉', ' ' => '␠', _ => c }).collect()
 }
+
+
+#[cfg(test)]
+mod test {
+  use super::*;
+
+  #[test]
+  fn conjoin_or() {
+    assert_eq!("1",             Or(&[1      ]).to_string());
+    assert_eq!("1 or 2",        Or(&[1,2    ]).to_string());
+    assert_eq!("1, 2, or 3",    Or(&[1,2,3  ]).to_string());
+    assert_eq!("1, 2, 3, or 4", Or(&[1,2,3,4]).to_string());
+  }
+
+  #[test]
+  fn conjoin_and() {
+    assert_eq!("1",              And(&[1      ]).to_string());
+    assert_eq!("1 and 2",        And(&[1,2    ]).to_string());
+    assert_eq!("1, 2, and 3",    And(&[1,2,3  ]).to_string());
+    assert_eq!("1, 2, 3, and 4", And(&[1,2,3,4]).to_string());
+  }
+}
