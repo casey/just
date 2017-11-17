@@ -6,13 +6,13 @@ use runtime_error::RuntimeError;
 use parameter::Parameter;
 use std::usize;
 use tempdir::TempDir;
-use Fragment;
 use Token;
 use Configuration;
 use assignment_evaluator::Evaluator;
 use split_shebang;
 use export_env;
 use DEFAULT_SHELL;
+use Fragment;
 
 /// Return a `RuntimeError::Signal` if the process was terminated by a signal,
 /// otherwise return an `RuntimeError::UnknownFailure`

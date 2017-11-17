@@ -38,6 +38,8 @@ mod assignment_resolver;
 mod assignment_evaluator;
 mod configuration;
 mod parameter;
+mod expression;
+mod fragment;
 
 use configuration::Configuration;
 use compilation_error::{CompilationError, CompilationErrorKind};
@@ -46,6 +48,8 @@ use justfile::Justfile;
 use token::{Token, TokenKind};
 use parser::Parser;
 use cooked_string::CookedString;
+use fragment::Fragment;
+use expression::Expression;
 
 use tokenizer::tokenize;
 
@@ -82,8 +86,6 @@ use prelude::*;
 
 pub use app::app;
 
-use std::fmt::Display;
-
 const DEFAULT_SHELL: &'static str = "sh";
 
 trait Slurp {
@@ -114,69 +116,6 @@ fn split_shebang(shebang: &str) -> Option<(&str, Option<&str>)> {
     Some((captures.get(1).unwrap().as_str(), Some(captures.get(2).unwrap().as_str())))
   } else {
     None
-  }
-}
-
-#[derive(PartialEq, Debug)]
-pub enum Fragment<'a> {
-  Text{text: Token<'a>},
-  Expression{expression: Expression<'a>},
-}
-
-impl<'a> Fragment<'a> {
-  fn continuation(&self) -> bool {
-    match *self {
-      Fragment::Text{ref text} => text.lexeme.ends_with('\\'),
-      _ => false,
-    }
-  }
-}
-
-#[derive(PartialEq, Debug)]
-pub enum Expression<'a> {
-  Variable{name: &'a str, token: Token<'a>},
-  String{cooked_string: CookedString<'a>},
-  Backtick{raw: &'a str, token: Token<'a>},
-  Concatination{lhs: Box<Expression<'a>>, rhs: Box<Expression<'a>>},
-}
-
-impl<'a> Expression<'a> {
-  fn variables(&'a self) -> Variables<'a> {
-    Variables {
-      stack: vec![self],
-    }
-  }
-}
-
-struct Variables<'a> {
-  stack: Vec<&'a Expression<'a>>,
-}
-
-impl<'a> Iterator for Variables<'a> {
-  type Item = &'a Token<'a>;
-
-  fn next(&mut self) -> Option<&'a Token<'a>> {
-    match self.stack.pop() {
-      None | Some(&Expression::String{..}) | Some(&Expression::Backtick{..}) => None,
-      Some(&Expression::Variable{ref token,..})          => Some(token),
-      Some(&Expression::Concatination{ref lhs, ref rhs}) => {
-        self.stack.push(lhs);
-        self.stack.push(rhs);
-        self.next()
-      }
-    }
-  }
-}
-
-impl<'a> Display for Expression<'a> {
-  fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-    match *self {
-      Expression::Backtick     {raw, ..          } => write!(f, "`{}`", raw)?,
-      Expression::Concatination{ref lhs, ref rhs } => write!(f, "{} + {}", lhs, rhs)?,
-      Expression::String       {ref cooked_string} => write!(f, "\"{}\"", cooked_string.raw)?,
-      Expression::Variable     {name, ..         } => write!(f, "{}", name)?,
-    }
-    Ok(())
   }
 }
 

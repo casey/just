@@ -5,7 +5,7 @@ use edit_distance::edit_distance;
 
 use recipe::Recipe;
 use Configuration;
-use Expression;
+use expression::Expression;
 use assignment_evaluator::evaluate_assignments;
 
 pub struct Justfile<'a> {
