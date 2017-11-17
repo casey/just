@@ -1,6 +1,6 @@
 use common::*;
 
-use formatting::{Or, write_error_context, show_whitespace};
+use misc::{Or, write_error_context, show_whitespace};
 
 #[derive(Debug, PartialEq)]
 pub struct CompilationError<'a> {

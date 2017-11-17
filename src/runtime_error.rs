@@ -2,7 +2,7 @@ use common::*;
 
 use brev::OutputError;
 
-use formatting::{And, Or, maybe_s, Tick, ticks, write_error_context};
+use misc::{And, Or, maybe_s, Tick, ticks, write_error_context};
 
 use self::RuntimeError::*;
 

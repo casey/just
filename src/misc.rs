@@ -2,6 +2,14 @@ use common::*;
 
 use unicode_width::UnicodeWidthChar;
 
+pub fn default<T: Default>() -> T {
+  Default::default()
+}
+
+pub fn empty<T, C: iter::FromIterator<T>>() -> C {
+  iter::empty().collect()
+}
+
 pub struct Tick<'a, T: 'a + Display>(pub &'a T);
 
 impl<'a, T: Display> Display for Tick<'a, T> {

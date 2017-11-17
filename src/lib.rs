@@ -15,7 +15,7 @@ mod app;
 mod color;
 mod compilation_error;
 mod runtime_error;
-mod formatting;
+mod misc;
 mod justfile;
 mod recipe;
 mod token;
@@ -59,20 +59,13 @@ mod common {
   pub use expression::Expression;
   pub use fragment::Fragment;
   pub use justfile::Justfile;
+  pub use misc::{default, empty};
   pub use parameter::Parameter;
   pub use parser::Parser;
   pub use recipe::Recipe;
   pub use runtime_error::RuntimeError;
   pub use shebang::Shebang;
   pub use token::{Token, TokenKind};
-
-  pub fn default<T: Default>() -> T {
-    Default::default()
-  }
-
-  pub fn empty<T, C: iter::FromIterator<T>>() -> C {
-    iter::empty().collect()
-  }
 }
 
 use common::*;

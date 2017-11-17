@@ -3,7 +3,7 @@ use common::*;
 use std::{convert, ffi};
 use clap::{App, Arg, ArgGroup, AppSettings};
 use compile;
-use formatting::maybe_s;
+use misc::maybe_s;
 use DEFAULT_SHELL;
 
 macro_rules! die {
