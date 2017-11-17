@@ -4,7 +4,7 @@ use runtime_error::RuntimeError;
 use edit_distance::edit_distance;
 
 use recipe::Recipe;
-use RunOptions;
+use Configuration;
 use Expression;
 use assignment_evaluator::evaluate_assignments;
 
@@ -49,7 +49,7 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
   pub fn run(
     &'a self,
     arguments: &[&'a str],
-    options:   &RunOptions<'a>,
+    options:   &Configuration<'a>,
   ) -> Result<(), RuntimeError<'a>> {
     let unknown_overrides = options.overrides.keys().cloned()
       .filter(|name| !self.assignments.contains_key(name))
@@ -123,7 +123,7 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
     arguments: &[&'a str],
     scope:     &Map<&'c str, String>,
     ran:       &mut Set<&'a str>,
-    options:   &RunOptions<'a>,
+    options:   &Configuration<'a>,
   ) -> Result<(), RuntimeError> {
     for dependency_name in &recipe.dependencies {
       if !ran.contains(dependency_name) {

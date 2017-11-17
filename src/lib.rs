@@ -36,9 +36,9 @@ mod cooked_string;
 mod recipe_resolver;
 mod assignment_resolver;
 mod assignment_evaluator;
-mod run_options;
+mod configuration;
 
-use run_options::RunOptions;
+use configuration::Configuration;
 use compilation_error::{CompilationError, CompilationErrorKind};
 use runtime_error::RuntimeError;
 use justfile::Justfile;

@@ -8,7 +8,7 @@ use tempdir::TempDir;
 use Fragment;
 use Token;
 use Parameter;
-use RunOptions;
+use Configuration;
 use assignment_evaluator::Evaluator;
 use split_shebang;
 use export_env;
@@ -63,7 +63,7 @@ impl<'a> Recipe<'a> {
     arguments: &[&'a str],
     scope:     &Map<&'a str, String>,
     exports:   &Set<&'a str>,
-    options:   &RunOptions,
+    options:   &Configuration,
   ) -> Result<(), RuntimeError<'a>> {
     if options.verbose {
       let color = options.color.stderr().banner();

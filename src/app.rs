@@ -7,7 +7,7 @@ use std::{convert, ffi};
 use std::collections::BTreeMap;
 use self::clap::{App, Arg, ArgGroup, AppSettings};
 use Slurp;
-use RunOptions;
+use Configuration;
 use compile;
 use formatting::maybe_s;
 use DEFAULT_SHELL;
@@ -304,7 +304,7 @@ pub fn app() {
     die!("Justfile contains no recipes.");
   };
 
-  let options = RunOptions {
+  let options = Configuration {
     dry_run:   matches.is_present("DRY-RUN"),
     evaluate:  matches.is_present("EVALUATE"),
     highlight: matches.is_present("HIGHLIGHT"),

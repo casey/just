@@ -3,7 +3,7 @@ extern crate brev;
 
 use {
   CompilationError, CompilationErrorKind, Justfile,
-  RuntimeError, RunOptions, Token,
+  RuntimeError, Configuration, Token,
   compile, contains, tokenize,
 };
  
@@ -1041,7 +1041,7 @@ fn backtick_code() {
 
 #[test]
 fn unknown_overrides() {
-  let mut options: RunOptions = Default::default();
+  let mut options: Configuration = Default::default();
   options.overrides.insert("foo", "bar");
   options.overrides.insert("baz", "bob");
   match parse_success("a:\n echo {{`f() { return 100; }; f`}}")
@@ -1063,7 +1063,7 @@ recipe:
   echo {{b}}
 "#;
 
-  let options = RunOptions {
+  let options = Configuration {
     quiet: true,
     ..Default::default()
   };
@@ -1088,7 +1088,7 @@ wut:
   echo $foo $bar $baz
 "#;
 
-  let options = RunOptions {
+  let options = Configuration {
     quiet: true,
     ..Default::default()
   };

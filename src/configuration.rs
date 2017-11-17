@@ -3,7 +3,7 @@ use prelude::*;
 use color::Color;
 
 #[derive(Default)]
-pub struct RunOptions<'a> {
+pub struct Configuration<'a> {
   pub dry_run:   bool,
   pub evaluate:  bool,
   pub highlight: bool,
