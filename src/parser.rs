@@ -87,7 +87,7 @@ impl<'a> Parser<'a> {
     name:  Token<'a>,
     doc:   Option<Token<'a>>,
     quiet: bool,
-  ) -> Result<(), CompilationError<'a>> {
+  ) -> CompilationResult<'a, ()> {
     if let Some(recipe) = self.recipes.get(name.lexeme) {
       return Err(name.error(CompilationErrorKind::DuplicateRecipe {
         recipe: recipe.name,
@@ -243,7 +243,7 @@ impl<'a> Parser<'a> {
     Ok(())
   }
 
-  fn expression(&mut self, interpolation: bool) -> Result<Expression<'a>, CompilationError<'a>> {
+  fn expression(&mut self, interpolation: bool) -> CompilationResult<'a, Expression<'a>> {
     let first = self.tokens.next().unwrap();
     let lhs = match first.kind {
       Name        => Expression::Variable {name: first.lexeme, token: first},
@@ -273,7 +273,7 @@ impl<'a> Parser<'a> {
     }
   }
 
-  fn assignment(&mut self, name: Token<'a>, export: bool) -> Result<(), CompilationError<'a>> {
+  fn assignment(&mut self, name: Token<'a>, export: bool) -> CompilationResult<'a, ()> {
     if self.assignments.contains_key(name.lexeme) {
       return Err(name.error(CompilationErrorKind::DuplicateVariable {variable: name.lexeme}));
     }
@@ -286,7 +286,7 @@ impl<'a> Parser<'a> {
     Ok(())
   }
 
-  pub fn justfile(mut self) -> Result<Justfile<'a>, CompilationError<'a>> {
+  pub fn justfile(mut self) -> CompilationResult<'a, Justfile<'a>> {
     let mut doc = None;
     loop {
       match self.tokens.next() {

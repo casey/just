@@ -7,7 +7,7 @@ pub fn evaluate_assignments<'a>(
   overrides:   &Map<&str, &str>,
   quiet:       bool,
   shell:       &'a str,
-) -> Result<Map<&'a str, String>, RuntimeError<'a>> {
+) -> RunResult<'a, Map<&'a str, String>> {
   let mut evaluator = AssignmentEvaluator {
     assignments: assignments,
     evaluated:   empty(),
@@ -32,7 +32,7 @@ fn run_backtick<'a, 'b>(
   exports: &Set<&'a str>,
   quiet:   bool,
   shell:   &'b str,
-) -> Result<String, RuntimeError<'a>> {
+) -> RunResult<'a, String> {
   let mut cmd = Command::new(shell);
 
   cmd.export_environment_variables(scope, exports)?;
@@ -46,7 +46,8 @@ fn run_backtick<'a, 'b>(
     process::Stdio::inherit()
   });
 
-  brev::output(cmd).map_err(|output_error| RuntimeError::Backtick{token: token.clone(), output_error})
+  brev::output(cmd)
+    .map_err(|output_error| RuntimeError::Backtick{token: token.clone(), output_error})
 }
 
 pub struct AssignmentEvaluator<'a: 'b, 'b> {
@@ -64,7 +65,7 @@ impl<'a, 'b> AssignmentEvaluator<'a, 'b> {
     &mut self,
     line:      &[Fragment<'a>],
     arguments: &Map<&str, Cow<str>>
-  ) -> Result<String, RuntimeError<'a>> {
+  ) -> RunResult<'a, String> {
     let mut evaluated = String::new();
     for fragment in line {
       match *fragment {
@@ -77,7 +78,7 @@ impl<'a, 'b> AssignmentEvaluator<'a, 'b> {
     Ok(evaluated)
   }
 
-  fn evaluate_assignment(&mut self, name: &'a str) -> Result<(), RuntimeError<'a>> {
+  fn evaluate_assignment(&mut self, name: &'a str) -> RunResult<'a, ()> {
     if self.evaluated.contains_key(name) {
       return Ok(());
     }
@@ -102,7 +103,7 @@ impl<'a, 'b> AssignmentEvaluator<'a, 'b> {
     &mut self,
     expression: &Expression<'a>,
     arguments: &Map<&str, Cow<str>>
-  ) -> Result<String, RuntimeError<'a>> {
+  ) -> RunResult<'a, String> {
     Ok(match *expression {
       Expression::Variable{name, ..} => {
         if self.evaluated.contains_key(name) {

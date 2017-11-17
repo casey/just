@@ -4,7 +4,7 @@ pub fn resolve_recipes<'a>(
   recipes:     &Map<&'a str, Recipe<'a>>,
   assignments: &Map<&'a str, Expression<'a>>,
   text:        &'a str,
-) -> Result<(), CompilationError<'a>> {
+) -> CompilationResult<'a, ()> {
   let mut resolver = RecipeResolver {
     seen:              empty(),
     stack:             empty(),
@@ -64,7 +64,7 @@ struct RecipeResolver<'a: 'b, 'b> {
 }
 
 impl<'a, 'b> RecipeResolver<'a, 'b> {
-  fn resolve(&mut self, recipe: &Recipe<'a>) -> Result<(), CompilationError<'a>> {
+  fn resolve(&mut self, recipe: &Recipe<'a>) -> CompilationResult<'a, ()> {
     if self.resolved.contains(recipe.name) {
       return Ok(())
     }

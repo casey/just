@@ -3,7 +3,7 @@ use common::*;
 pub fn resolve_assignments<'a>(
   assignments:       &Map<&'a str, Expression<'a>>,
   assignment_tokens: &Map<&'a str, Token<'a>>,
-) -> Result<(), CompilationError<'a>> {
+) -> CompilationResult<'a, ()> {
 
   let mut resolver = AssignmentResolver {
     assignments:       assignments,
@@ -29,7 +29,7 @@ struct AssignmentResolver<'a: 'b, 'b> {
 }
 
 impl<'a: 'b, 'b> AssignmentResolver<'a, 'b> {
-  fn resolve_assignment(&mut self, name: &'a str) -> Result<(), CompilationError<'a>> {
+  fn resolve_assignment(&mut self, name: &'a str) -> CompilationResult<'a, ()> {
     if self.evaluated.contains(name) {
       return Ok(());
     }
@@ -54,7 +54,8 @@ impl<'a: 'b, 'b> AssignmentResolver<'a, 'b> {
     Ok(())
   }
 
-  fn resolve_expression(&mut self, expression: &Expression<'a>) -> Result<(), CompilationError<'a>> {
+  fn resolve_expression(
+    &mut self, expression: &Expression<'a>) -> CompilationResult<'a, ()> {
     match *expression {
       Expression::Variable{name, ref token} => {
         if self.evaluated.contains(name) {

@@ -18,7 +18,7 @@ fn mixed_whitespace(text: &str) -> bool {
   !(text.chars().all(|c| c == ' ') || text.chars().all(|c| c == '\t'))
 }
 
-pub fn tokenize(text: &str) -> Result<Vec<Token>, CompilationError> {
+pub fn tokenize(text: &str) -> CompilationResult<Vec<Token>> {
   lazy_static! {
     static ref BACKTICK:                  Regex = token(r"`[^`\n\r]*`"               );
     static ref COLON:                     Regex = token(r":"                         );

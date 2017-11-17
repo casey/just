@@ -6,6 +6,8 @@ use misc::{And, Or, maybe_s, Tick, ticks, write_error_context};
 
 use self::RuntimeError::*;
 
+pub type RunResult<'a, T> = Result<T, RuntimeError<'a>>;
+
 fn write_token_error_context(f: &mut fmt::Formatter, token: &Token) -> Result<(), fmt::Error> {
   write_error_context(
     f,

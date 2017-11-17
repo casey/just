@@ -54,7 +54,7 @@ mod common {
 
   pub use assignment_evaluator::AssignmentEvaluator;
   pub use command_ext::CommandExt;
-  pub use compilation_error::{CompilationError, CompilationErrorKind};
+  pub use compilation_error::{CompilationError, CompilationErrorKind, CompilationResult};
   pub use configuration::Configuration;
   pub use cooked_string::CookedString;
   pub use expression::Expression;
@@ -64,14 +64,14 @@ mod common {
   pub use parameter::Parameter;
   pub use parser::Parser;
   pub use recipe::Recipe;
-  pub use runtime_error::RuntimeError;
+  pub use runtime_error::{RuntimeError, RunResult};
   pub use shebang::Shebang;
   pub use token::{Token, TokenKind};
 }
 
 use common::*;
 
-fn compile(text: &str) -> Result<Justfile, CompilationError> {
+fn compile(text: &str) -> CompilationResult<Justfile> {
   let tokens = tokenize(text)?;
   let parser = Parser::new(text, tokens);
   parser.justfile()

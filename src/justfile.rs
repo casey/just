@@ -46,7 +46,7 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
     &'a self,
     arguments: &[&'a str],
     options:   &Configuration<'a>,
-  ) -> Result<(), RuntimeError<'a>> {
+  ) -> RunResult<'a, ()> {
     let unknown_overrides = options.overrides.keys().cloned()
       .filter(|name| !self.assignments.contains_key(name))
       .collect::<Vec<_>>();
@@ -126,7 +126,7 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
     scope:     &Map<&'c str, String>,
     ran:       &mut Set<&'a str>,
     options:   &Configuration<'a>,
-  ) -> Result<(), RuntimeError> {
+  ) -> RunResult<()> {
     for dependency_name in &recipe.dependencies {
       if !ran.contains(dependency_name) {
         self.run_recipe(&self.recipes[dependency_name], &[], scope, ran, options)?;

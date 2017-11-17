@@ -54,7 +54,7 @@ impl<'a> Recipe<'a> {
     scope:     &Map<&'a str, String>,
     exports:   &Set<&'a str>,
     options:   &Configuration,
-  ) -> Result<(), RuntimeError<'a>> {
+  ) -> RunResult<'a, ()> {
     if options.verbose {
       let color = options.color.stderr().banner();
       eprintln!("{}===> Running recipe `{}`...{}", color.prefix(), self.name, color.suffix());

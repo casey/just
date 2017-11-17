@@ -2,6 +2,8 @@ use common::*;
 
 use misc::{Or, write_error_context, show_whitespace};
 
+pub type CompilationResult<'a, T> = Result<T, CompilationError<'a>>;
+
 #[derive(Debug, PartialEq)]
 pub struct CompilationError<'a> {
   pub text:   &'a str,
