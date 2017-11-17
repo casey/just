@@ -1,10 +1,13 @@
-use common::*;
+extern crate utilities;
+extern crate brev;
+extern crate tempdir;
+
+use utilities::just_binary_path;
 use tempdir::TempDir;
-use std::{path, str};
-use super::brev;
+use std::{path, str, fs, process};
 
 fn search_test<P: AsRef<path::Path>>(path: P, args: &[&str]) {
-  let binary = super::testing::just_binary_path();
+  let binary = just_binary_path();
 
   let output = process::Command::new(binary)
     .current_dir(path)

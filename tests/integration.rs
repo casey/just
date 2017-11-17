@@ -1,9 +1,14 @@
 extern crate tempdir;
 extern crate brev;
+extern crate libc;
+extern crate utilities;
 
-use common::*;
 use tempdir::TempDir;
 use std::str;
+use libc::{EXIT_FAILURE, EXIT_SUCCESS};
+use std::process;
+use std::env;
+use utilities::just_binary_path;
 
 /// Instantiate integration tests for a given test case using
 /// sh, dash, and bash.
@@ -22,8 +27,7 @@ macro_rules! integration_test {
     status:   $status:expr,
   ) => {
     mod $name {
-      use common::*;
-      use super::integration_test;
+      use super::*;
 
       // silence unused import warnings
       const __: i32 = EXIT_SUCCESS;
@@ -50,7 +54,7 @@ fn integration_test(
   path.push("justfile");
   brev::dump(path, justfile);
 
-  let output = process::Command::new(&super::testing::just_binary_path())
+  let output = process::Command::new(&just_binary_path())
     .current_dir(tmp.path())
     .args(&["--shell", shell])
     .args(args)

@@ -33,8 +33,6 @@ mod command_ext;
 mod range_ext;
 
 #[cfg(test)] mod testing;
-#[cfg(test)] mod integration;
-#[cfg(test)] mod search;
 
 use configuration::Configuration;
 use compilation_error::{CompilationError, CompilationErrorKind};

@@ -3,7 +3,7 @@ bt='0'
 export RUST_BACKTRACE=bt
 
 test: build
-	cargo test --lib
+	cargo test
 
 @spam:
 	{ \
@@ -14,11 +14,11 @@ test: build
 
 # only run tests matching PATTERN
 filter PATTERN: build
-	cargo test --lib {{PATTERN}}
+	cargo test {{PATTERN}}
 
 # test with backtrace
 backtrace:
-	RUST_BACKTRACE=1 cargo test --lib
+	RUST_BACKTRACE=1 cargo test
 
 build:
 	cargo build
