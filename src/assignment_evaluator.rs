@@ -1,12 +1,12 @@
 use common::*;
 
 use brev;
-use configuration::DEFAULT_SHELL;
 
 pub fn evaluate_assignments<'a>(
   assignments: &Map<&'a str, Expression<'a>>,
   overrides:   &Map<&str, &str>,
   quiet:       bool,
+  shell:       &'a str,
 ) -> Result<Map<&'a str, String>, RuntimeError<'a>> {
   let mut evaluator = AssignmentEvaluator {
     assignments: assignments,
@@ -15,6 +15,7 @@ pub fn evaluate_assignments<'a>(
     overrides:   overrides,
     quiet:       quiet,
     scope:       &empty(),
+    shell:       shell,
   };
 
   for name in assignments.keys() {
@@ -24,14 +25,15 @@ pub fn evaluate_assignments<'a>(
   Ok(evaluator.evaluated)
 }
 
-fn run_backtick<'a>(
+fn run_backtick<'a, 'b>(
   raw:     &str,
   token:   &Token<'a>,
   scope:   &Map<&'a str, String>,
   exports: &Set<&'a str>,
   quiet:   bool,
+  shell:   &'b str,
 ) -> Result<String, RuntimeError<'a>> {
-  let mut cmd = process::Command::new(DEFAULT_SHELL);
+  let mut cmd = process::Command::new(shell);
 
   cmd.export_environment_variables(scope, exports)?;
 
@@ -54,6 +56,7 @@ pub struct AssignmentEvaluator<'a: 'b, 'b> {
   pub overrides:   &'b Map<&'b str, &'b str>,
   pub quiet:       bool,
   pub scope:       &'b Map<&'a str, String>,
+  pub shell:       &'b str,
 }
 
 impl<'a, 'b> AssignmentEvaluator<'a, 'b> {
@@ -119,7 +122,7 @@ impl<'a, 'b> AssignmentEvaluator<'a, 'b> {
       }
       Expression::String{ref cooked_string} => cooked_string.cooked.clone(),
       Expression::Backtick{raw, ref token} => {
-        run_backtick(raw, token, self.scope, self.exports, self.quiet)?
+        run_backtick(raw, token, self.scope, self.exports, self.quiet, self.shell)?
       }
       Expression::Concatination{ref lhs, ref rhs} => {
         self.evaluate_expression(lhs, arguments)?

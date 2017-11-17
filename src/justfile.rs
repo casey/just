@@ -55,7 +55,13 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
       return Err(RuntimeError::UnknownOverrides{overrides: unknown_overrides});
     }
 
-    let scope = evaluate_assignments(&self.assignments, &options.overrides, options.quiet)?;
+    let scope = evaluate_assignments(
+      &self.assignments,
+      &options.overrides,
+      options.quiet,
+      options.shell,
+    )?;
+
     if options.evaluate {
       let mut width = 0;
       for name in scope.keys() {

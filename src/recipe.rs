@@ -92,6 +92,7 @@ impl<'a> Recipe<'a> {
       assignments: &empty(),
       overrides:   &empty(),
       quiet:       options.quiet,
+      shell:       options.shell,
     };
 
     if self.shebang {
