@@ -387,77 +387,83 @@ mod test {
   use testing::parse_success;
   use testing::parse_error;
 
-fn parse_summary(input: &str, output: &str) {
-    let justfile = parse_success(input);
-    let s = format!("{:#}", justfile);
-    if s != output {
-      println!("got:\n\"{}\"\n", s);
-      println!("\texpected:\n\"{}\"", output);
-      assert_eq!(s, output);
+  macro_rules! summary_test {
+    ($name:ident, $input:expr, $expected:expr $(,)*) => {
+      #[test]
+      fn $name() {
+        let input = $input;
+        let expected = $expected;
+        let justfile = parse_success(input);
+        let actual = format!("{:#}", justfile);
+        if actual != expected {
+          println!("got:\n\"{}\"\n", actual);
+          println!("\texpected:\n\"{}\"", expected);
+          assert_eq!(actual, expected);
+        }
+      }
     }
   }
 
-  #[test]
-  fn parse_empty() {
-    parse_summary("
+  summary_test!{parse_empty,
+    "
 
 # hello
 
 
-    ", "");
+    ", 
+    "",
   }
 
-  #[test]
-  fn parse_string_default() {
-    parse_summary(r#"
+  summary_test!{parse_string_default,
+    r#"
 
 foo a="b\t":
 
 
-  "#, r#"foo a='b\t':"#);
+  "#,
+    r#"foo a='b\t':"#,
   }
 
-  #[test]
-  fn parse_variadic() {
-    parse_summary(r#"
+  summary_test!{parse_variadic,
+    r#"
 
 foo +a:
 
 
-  "#, r#"foo +a:"#);
+  "#,
+    r#"foo +a:"#,
   }
 
-  #[test]
-  fn parse_variadic_string_default() {
-    parse_summary(r#"
+  summary_test!{parse_variadic_string_default,
+    r#"
 
 foo +a="Hello":
 
 
-  "#, r#"foo +a='Hello':"#);
+  "#, 
+    r#"foo +a='Hello':"#,
   }
 
-  #[test]
-  fn parse_raw_string_default() {
-    parse_summary(r#"
+  summary_test!{parse_raw_string_default,
+    r#"
 
 foo a='b\t':
 
 
-  "#, r#"foo a='b\\t':"#);
+  "#, 
+    r#"foo a='b\\t':"#,
   }
 
-  #[test]
-  fn parse_export() {
-    parse_summary(r#"
+  summary_test!{parse_export,
+    r#"
 export a = "hello"
 
-  "#, r#"export a = "hello""#);
+  "#, 
+    r#"export a = "hello""#,
   }
 
-  #[test]
-  fn parse_complex() {
-    parse_summary("
+  summary_test!{parse_complex,
+    "
 x:
 y:
 z:
@@ -471,7 +477,8 @@ hello a b    c   : x y    z #hello
   1
   2
   3
-", "bar = foo
+", 
+    "bar = foo
 
 foo = \"xx\"
 
@@ -489,65 +496,77 @@ x:
 
 y:
 
-z:");
+z:"
   }
 
-  #[test]
-  fn parse_shebang() {
-    parse_summary("
+  summary_test!{parse_shebang,
+    "
 practicum = 'hello'
 install:
 \t#!/bin/sh
 \tif [[ -f {{practicum}} ]]; then
 \t\treturn
 \tfi
-", "practicum = \"hello\"
+", 
+    "practicum = \"hello\"
 
 install:
     #!/bin/sh
     if [[ -f {{practicum}} ]]; then
     \treturn
-    fi"
-  );
+    fi",
   }
 
-  #[test]
-  fn parse_assignments() {
-    parse_summary(
-r#"a = "0"
+  summary_test!{parse_assignments,
+    r#"a = "0"
 c = a + b + a + b
 b = "1"
 "#,
-
-r#"a = "0"
+    r#"a = "0"
 
 b = "1"
 
-c = a + b + a + b"#);
+c = a + b + a + b"#,
   }
 
-  #[test]
-  fn parse_assignment_backticks() {
-    parse_summary(
-"a = `echo hello`
+  summary_test!{parse_assignment_backticks,
+    "a = `echo hello`
 c = a + b + a + b
 b = `echo goodbye`",
-
-"a = `echo hello`
+    "a = `echo hello`
 
 b = `echo goodbye`
 
-c = a + b + a + b");
+c = a + b + a + b",
   }
 
-  #[test]
-  fn parse_interpolation_backticks() {
-    parse_summary(
-r#"a:
+  summary_test!{parse_interpolation_backticks,
+    r#"a:
  echo {{  `echo hello` + "blarg"   }} {{   `echo bob`   }}"#,
-r#"a:
+    r#"a:
     echo {{`echo hello` + "blarg"}} {{`echo bob`}}"#,
- );
+  }
+
+  summary_test!{eof_test,
+    "x:\ny:\nz:\na b c: x y z",
+    "a b c: x y z\n\nx:\n\ny:\n\nz:",
+  }
+
+  summary_test!{string_quote_escape,
+    r#"a = "hello\"""#,
+    r#"a = "hello\"""#,
+  }
+
+  summary_test!{string_escapes,
+    r#"a = "\n\t\r\"\\""#,
+    r#"a = "\n\t\r\"\\""#,
+  }
+
+  summary_test!{parameters,
+    "a b c:
+  {{b}} {{c}}",
+    "a b c:
+    {{b}} {{c}}",
   }
 
   #[test]
@@ -663,11 +682,6 @@ r#"a:
   }
 
   #[test]
-  fn eof_test() {
-    parse_summary("x:\ny:\nz:\na b c: x y z", "a b c: x y z\n\nx:\n\ny:\n\nz:");
-  }
-
-  #[test]
   fn duplicate_parameter() {
     let text = "a b b:";
     parse_error(text, CompilationError {
@@ -746,32 +760,6 @@ r#"a:
   }
 
   #[test]
-  fn string_quote_escape() {
-    parse_summary(
-      r#"a = "hello\"""#,
-      r#"a = "hello\"""#
-    );
-  }
-
-  #[test]
-  fn string_escapes() {
-    parse_summary(
-      r#"a = "\n\t\r\"\\""#,
-      r#"a = "\n\t\r\"\\""#
-    );
-  }
-
-  #[test]
-  fn parameters() {
-    parse_summary(
-"a b c:
-  {{b}} {{c}}",
-"a b c:
-    {{b}} {{c}}",
-    );
-  }
-
-  #[test]
   fn extra_whitespace() {
     let text = "a:\n blah\n  blarg";
     parse_error(text, CompilationError {
@@ -782,8 +770,7 @@ r#"a:
       width:  Some(6),
       kind:   CompilationErrorKind::ExtraLeadingWhitespace
     });
-
-    // extra leading whitespace is okay in a shebang recipe
+    // extra whitespace is okay in a shebang recipe
     parse_success("a:\n #!\n  print(1)");
   }
 
