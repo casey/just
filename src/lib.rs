@@ -36,7 +36,9 @@ mod cooked_string;
 mod recipe_resolver;
 mod assignment_resolver;
 mod assignment_evaluator;
+mod run_options;
 
+use run_options::RunOptions;
 use compilation_error::{CompilationError, CompilationErrorKind};
 use runtime_error::RuntimeError;
 use justfile::Justfile;
@@ -240,18 +242,6 @@ fn run_backtick<'a>(
   });
 
   output(cmd).map_err(|output_error| RuntimeError::Backtick{token: token.clone(), output_error})
-}
-
-#[derive(Default)]
-pub struct RunOptions<'a> {
-  dry_run:   bool,
-  evaluate:  bool,
-  highlight: bool,
-  overrides: Map<&'a str, &'a str>,
-  quiet:     bool,
-  shell:     Option<&'a str>,
-  color:     Color,
-  verbose:   bool,
 }
 
 fn compile(text: &str) -> Result<Justfile, CompilationError> {
