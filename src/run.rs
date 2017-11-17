@@ -40,7 +40,7 @@ impl Slurp for fs::File {
   }
 }
 
-pub fn app() {
+pub fn run() {
   let matches = App::new("just")
     .version(concat!("v", env!("CARGO_PKG_VERSION")))
     .author(env!("CARGO_PKG_AUTHORS"))
