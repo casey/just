@@ -1,9 +1,4 @@
 use common::*;
-use recipe::Recipe;
-use compilation_error::{CompilationError, CompilationErrorKind};
-
-use Fragment;
-use Expression;
 
 pub fn resolve_recipes<'a>(
   recipes:     &Map<&'a str, Recipe<'a>>,

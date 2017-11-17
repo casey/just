@@ -1,6 +1,4 @@
-use std::fmt::{self, Display};
-use color::Color;
-use token::Token;
+use common::*;
 
 #[derive(PartialEq, Debug)]
 pub struct Parameter<'a> {

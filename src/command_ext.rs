@@ -2,8 +2,6 @@ use common::*;
 
 use std::process::Command;
 
-use RuntimeError;
-
 pub trait CommandExt {
   fn export_environment_variables<'a>(
     &mut self,

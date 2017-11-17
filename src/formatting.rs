@@ -1,5 +1,5 @@
-use std::fmt::{self, Display};
-use color::Color;
+use common::*;
+
 use unicode_width::UnicodeWidthChar;
 
 pub struct Tick<'a, T: 'a + Display>(pub &'a T);

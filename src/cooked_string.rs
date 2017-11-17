@@ -1,5 +1,4 @@
-use compilation_error::{CompilationError, CompilationErrorKind};
-use token::{Token, TokenKind};
+use common::*;
 
 #[derive(PartialEq, Debug)]
 pub struct CookedString<'a> {

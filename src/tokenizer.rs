@@ -1,8 +1,6 @@
-use regex::Regex;
+use common::*;
 
-use token::Token;
 use TokenKind::*;
-use compilation_error::{CompilationError, CompilationErrorKind};
 
 fn re(pattern: &str) -> Regex {
   Regex::new(pattern).unwrap()

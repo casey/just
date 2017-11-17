@@ -1,13 +1,14 @@
 #[macro_use]
 extern crate lazy_static;
+extern crate ansi_term;
+extern crate brev;
+extern crate clap;
+extern crate edit_distance;
+extern crate itertools;
+extern crate libc;
 extern crate regex;
 extern crate tempdir;
-extern crate itertools;
-extern crate ansi_term;
 extern crate unicode_width;
-extern crate edit_distance;
-extern crate libc;
-extern crate brev;
 
 mod platform;
 mod app;
@@ -34,30 +35,36 @@ mod range_ext;
 
 #[cfg(test)] mod testing;
 
-use configuration::Configuration;
-use compilation_error::{CompilationError, CompilationErrorKind};
-use runtime_error::RuntimeError;
-use justfile::Justfile;
-use token::{Token, TokenKind};
-use parser::Parser;
-use cooked_string::CookedString;
-use fragment::Fragment;
-use expression::Expression;
-use shebang::Shebang;
-use command_ext::CommandExt;
-
 use tokenizer::tokenize;
 
 pub use app::app;
 
 mod common {
-  pub use libc::{EXIT_FAILURE, EXIT_SUCCESS};
-  pub use std::io::prelude::*;
-  pub use std::path::{Path, PathBuf};
-  pub use std::{cmp, env, fs, fmt, io, iter, process};
+  pub use std::borrow::Cow;
   pub use std::collections::{BTreeMap as Map, BTreeSet as Set};
   pub use std::fmt::Display;
-  pub use std::borrow::Cow;
+  pub use std::io::prelude::*;
+  pub use std::path::{Path, PathBuf};
+  pub use std::{cmp, env, fs, fmt, io, iter, process, vec};
+
+  pub use color::Color;
+  pub use libc::{EXIT_FAILURE, EXIT_SUCCESS};
+  pub use regex::Regex;
+  pub use tempdir::TempDir;
+
+  pub use command_ext::CommandExt;
+  pub use compilation_error::{CompilationError, CompilationErrorKind};
+  pub use configuration::Configuration;
+  pub use cooked_string::CookedString;
+  pub use expression::Expression;
+  pub use fragment::Fragment;
+  pub use justfile::Justfile;
+  pub use parameter::Parameter;
+  pub use parser::Parser;
+  pub use recipe::Recipe;
+  pub use runtime_error::RuntimeError;
+  pub use shebang::Shebang;
+  pub use token::{Token, TokenKind};
 
   pub fn default<T: Default>() -> T {
     Default::default()
@@ -66,9 +73,9 @@ mod common {
   pub fn empty<T, C: iter::FromIterator<T>>() -> C {
     iter::empty().collect()
   }
-
-  pub use std::ops::Range;
 }
+
+use common::*;
 
 fn compile(text: &str) -> Result<Justfile, CompilationError> {
   let tokens = tokenize(text)?;

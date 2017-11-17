@@ -1,10 +1,5 @@
 use common::*;
 
-use token::Token;
-use compilation_error::{CompilationError, CompilationErrorKind};
-
-use Expression;
-
 pub fn resolve_assignments<'a>(
   assignments:       &Map<&'a str, Expression<'a>>,
   assignment_tokens: &Map<&'a str, Token<'a>>,

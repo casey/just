@@ -1,11 +1,10 @@
-use Token;
+use common::*;
 
-use std::io;
-use self::RuntimeError::*;
-use formatting::{And, Or, maybe_s, Tick, ticks, write_error_context};
-use std::fmt::{self, Display};
-use color::Color;
 use brev::OutputError;
+
+use formatting::{And, Or, maybe_s, Tick, ticks, write_error_context};
+
+use self::RuntimeError::*;
 
 fn write_token_error_context(f: &mut fmt::Formatter, token: &Token) -> Result<(), fmt::Error> {
   write_error_context(

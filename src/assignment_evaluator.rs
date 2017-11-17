@@ -1,11 +1,7 @@
-use brev;
 use common::*;
-use Expression;
-use Fragment;
-use CommandExt;
-use runtime_error::RuntimeError;
+
+use brev;
 use DEFAULT_SHELL;
-use token::Token;
 
 pub fn evaluate_assignments<'a>(
   assignments: &Map<&'a str, Expression<'a>>,

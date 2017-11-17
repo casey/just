@@ -1,5 +1,4 @@
-use token::Token;
-use expression::Expression;
+use common::*;
 
 #[derive(PartialEq, Debug)]
 pub enum Fragment<'a> {

@@ -1,16 +1,10 @@
-extern crate clap;
-extern crate libc;
-
-use color::Color;
 use common::*;
-use std::{convert, ffi, io};
-use std::collections::BTreeMap;
-use self::clap::{App, Arg, ArgGroup, AppSettings};
-use Configuration;
+
+use std::{convert, ffi};
+use clap::{App, Arg, ArgGroup, AppSettings};
 use compile;
 use formatting::maybe_s;
 use DEFAULT_SHELL;
-use regex::Regex;
 
 macro_rules! die {
   ($($arg:tt)*) => {{
@@ -137,7 +131,7 @@ pub fn app() {
   };
 
   let set_count = matches.occurrences_of("SET");
-  let mut overrides = BTreeMap::new();
+  let mut overrides = Map::new();
   if set_count > 0 {
     let mut values = matches.values_of("SET").unwrap();
     for _ in 0..set_count {
@@ -336,6 +330,6 @@ pub fn app() {
       }
     }
 
-    process::exit(run_error.code().unwrap_or(libc::EXIT_FAILURE));
+    process::exit(run_error.code().unwrap_or(EXIT_FAILURE));
   }
 }

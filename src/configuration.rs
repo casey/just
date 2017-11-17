@@ -1,7 +1,5 @@
 use common::*;
 
-use color::Color;
-
 #[derive(Default)]
 pub struct Configuration<'a> {
   pub dry_run:   bool,

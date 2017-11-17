@@ -1,18 +1,12 @@
 use common::*;
-use std::fmt::Display;
+
+use std::ops::Range;
 use std::process::{ExitStatus, Command, Stdio};
-use platform::{Platform, PlatformInterface};
-use runtime_error::RuntimeError;
-use parameter::Parameter;
 use std::usize;
-use tempdir::TempDir;
-use Token;
-use Configuration;
-use assignment_evaluator::Evaluator;
+
 use DEFAULT_SHELL;
-use Fragment;
-use CommandExt;
-use Shebang;
+use assignment_evaluator::Evaluator;
+use platform::{Platform, PlatformInterface};
 
 /// Return a `RuntimeError::Signal` if the process was terminated by a signal,
 /// otherwise return an `RuntimeError::UnknownFailure`

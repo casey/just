@@ -1,6 +1,6 @@
-use Justfile;
+use common::*;
+
 use compile;
-use CompilationError;
 
 pub fn parse_success(text: &str) -> Justfile {
   match compile(text) {

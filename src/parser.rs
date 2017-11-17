@@ -1,23 +1,13 @@
 use common::*;
 
-use std;
 use itertools;
-use justfile::Justfile;
 use token::TokenKind::*;
-use token::{Token, TokenKind};
-use compilation_error::{CompilationError, CompilationErrorKind};
-use recipe::Recipe;
-use cooked_string::CookedString;
 use recipe_resolver::resolve_recipes;
 use assignment_resolver::resolve_assignments;
-use parameter::Parameter;
-
-use Fragment;
-use Expression;
 
 pub struct Parser<'a> {
   text:              &'a str,
-  tokens:            itertools::PutBack<std::vec::IntoIter<Token<'a>>>,
+  tokens:            itertools::PutBack<vec::IntoIter<Token<'a>>>,
   recipes:           Map<&'a str, Recipe<'a>>,
   assignments:       Map<&'a str, Expression<'a>>,
   assignment_tokens: Map<&'a str, Token<'a>>,

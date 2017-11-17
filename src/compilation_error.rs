@@ -1,7 +1,6 @@
-use TokenKind;
+use common::*;
+
 use formatting::{Or, write_error_context, show_whitespace};
-use std::fmt::{self, Display};
-use color::Color;
 
 #[derive(Debug, PartialEq)]
 pub struct CompilationError<'a> {

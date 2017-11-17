@@ -1,6 +1,4 @@
-use Token;
-use std::fmt::{self, Display};
-use CookedString;
+use common::*;
 
 #[derive(PartialEq, Debug)]
 pub enum Expression<'a> {

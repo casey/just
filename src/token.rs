@@ -1,6 +1,4 @@
-use std::fmt::{self, Display};
-
-use compilation_error::{CompilationError, CompilationErrorKind};
+use common::*;
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct Token<'a> {
