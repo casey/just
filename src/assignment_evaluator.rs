@@ -33,7 +33,7 @@ fn run_backtick<'a, 'b>(
   quiet:   bool,
   shell:   &'b str,
 ) -> Result<String, RuntimeError<'a>> {
-  let mut cmd = process::Command::new(shell);
+  let mut cmd = Command::new(shell);
 
   cmd.export_environment_variables(scope, exports)?;
 

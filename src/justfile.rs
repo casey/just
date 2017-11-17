@@ -165,7 +165,6 @@ impl<'a> Display for Justfile<'a> {
 #[cfg(test)]
 mod test {
   use super::*;
-  use std::usize;
   use testing::parse_success;
 
   #[test]

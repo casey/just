@@ -42,8 +42,10 @@ mod common {
   pub use std::collections::{BTreeMap as Map, BTreeSet as Set};
   pub use std::fmt::Display;
   pub use std::io::prelude::*;
+  pub use std::ops::Range;
   pub use std::path::{Path, PathBuf};
-  pub use std::{cmp, env, fs, fmt, io, iter, process, vec};
+  pub use std::process::Command;
+  pub use std::{cmp, env, fs, fmt, io, iter, process, vec, usize};
 
   pub use color::Color;
   pub use libc::{EXIT_FAILURE, EXIT_SUCCESS};

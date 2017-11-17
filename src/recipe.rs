@@ -1,8 +1,6 @@
 use common::*;
 
-use std::ops::Range;
 use std::process::{ExitStatus, Command, Stdio};
-use std::usize;
 
 use platform::{Platform, PlatformInterface};
 

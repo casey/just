@@ -18,7 +18,7 @@ fn edit<P: convert::AsRef<ffi::OsStr>>(path: P) -> ! {
   let editor = env::var_os("EDITOR")
     .unwrap_or_else(|| die!("Error getting EDITOR environment variable"));
 
-  let error = process::Command::new(editor)
+  let error = Command::new(editor)
     .arg(path)
     .status();
 

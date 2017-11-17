@@ -1,7 +1,5 @@
 use common::*;
 
-use std::process::Command;
-
 pub trait CommandExt {
   fn export_environment_variables<'a>(
     &mut self,

@@ -1,4 +1,4 @@
-use std::ops::Range;
+use common::*;
 
 pub trait RangeExt<T> {
   fn range_contains(&self, i: T) -> bool;
