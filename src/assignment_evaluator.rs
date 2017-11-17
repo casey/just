@@ -1,7 +1,7 @@
 use common::*;
 
 use brev;
-use DEFAULT_SHELL;
+use configuration::DEFAULT_SHELL;
 
 pub fn evaluate_assignments<'a>(
   assignments: &Map<&'a str, Expression<'a>>,

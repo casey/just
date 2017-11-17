@@ -4,7 +4,6 @@ use std::ops::Range;
 use std::process::{ExitStatus, Command, Stdio};
 use std::usize;
 
-use DEFAULT_SHELL;
 use assignment_evaluator::Evaluator;
 use platform::{Platform, PlatformInterface};
 
@@ -217,7 +216,7 @@ impl<'a> Recipe<'a> {
           continue;
         }
 
-        let mut cmd = Command::new(options.shell.unwrap_or(DEFAULT_SHELL));
+        let mut cmd = Command::new(options.shell);
 
         cmd.arg("-cu").arg(command);
 

@@ -4,7 +4,7 @@ use std::{convert, ffi};
 use clap::{App, Arg, ArgGroup, AppSettings};
 use compile;
 use misc::maybe_s;
-use DEFAULT_SHELL;
+use configuration::DEFAULT_SHELL;
 
 macro_rules! die {
   ($($arg:tt)*) => {{
@@ -316,7 +316,7 @@ pub fn run() {
     highlight: matches.is_present("HIGHLIGHT"),
     overrides: overrides,
     quiet:     matches.is_present("QUIET"),
-    shell:     matches.value_of("SHELL"),
+    shell:     matches.value_of("SHELL").unwrap(),
     color:     color,
     verbose:   matches.is_present("VERBOSE"),
   };

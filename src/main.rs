@@ -74,8 +74,6 @@ fn compile(text: &str) -> Result<Justfile, CompilationError> {
   parser.justfile()
 }
 
-const DEFAULT_SHELL: &'static str = "sh";
-
 fn main() {
   run::run();
 }
