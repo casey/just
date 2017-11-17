@@ -1,10 +1,11 @@
 extern crate tempdir;
 extern crate brev;
 
+use common::*;
+
 use {
   CompilationError, CompilationErrorKind, Justfile,
-  RuntimeError, Configuration, Token,
-  compile, contains, tokenize, Shebang
+  RuntimeError, Configuration, compile,
 };
  
 use TokenKind::*;
@@ -12,58 +13,6 @@ use TokenKind::*;
 use formatting::{And, Or};
 
 use brev::OutputError;
-
-fn tokenize_success(text: &str, expected_summary: &str) {
-  let tokens = tokenize(text).unwrap();
-  let roundtrip = tokens.iter().map(|t| {
-    let mut s = String::new();
-    s += t.prefix;
-    s += t.lexeme;
-    s
-  }).collect::<Vec<_>>().join("");
-  let summary = token_summary(&tokens);
-  if summary != expected_summary {
-    panic!("token summary mismatch:\nexpected: {}\ngot:      {}\n", expected_summary, summary);
-  }
-  assert_eq!(text, roundtrip);
-}
-
-fn tokenize_error(text: &str, expected: CompilationError) {
-  if let Err(error) = tokenize(text) {
-    assert_eq!(error.text,   expected.text);
-    assert_eq!(error.index,  expected.index);
-    assert_eq!(error.line,   expected.line);
-    assert_eq!(error.column, expected.column);
-    assert_eq!(error.kind,   expected.kind);
-    assert_eq!(error,        expected);
-  } else {
-    panic!("tokenize() succeeded but expected: {}\n{}", expected, text);
-  }
-}
-
-fn token_summary(tokens: &[Token]) -> String {
-  tokens.iter().map(|t| {
-    match t.kind {
-      At                 => "@",
-      Backtick           => "`",
-      Colon              => ":",
-      Comment{..}        => "#",
-      Dedent             => "<",
-      Eof                => ".",
-      Eol                => "$",
-      Equals             => "=",
-      Indent{..}         => ">",
-      InterpolationEnd   => "}",
-      InterpolationStart => "{",
-      Line{..}           => "^",
-      Name               => "N",
-      Plus               => "+",
-      RawString          => "'",
-      StringToken        => "\"",
-      Text               => "_",
-    }
-  }).collect::<Vec<_>>().join("")
-}
 
 fn parse_success(text: &str) -> Justfile {
   match compile(text) {
@@ -95,183 +44,6 @@ fn parse_error(text: &str, expected: CompilationError) {
     panic!("Expected {:?} but parse succeeded", expected.kind);
   }
 }
-
-#[test]
-fn tokanize_strings() {
-  tokenize_success(
-    r#"a = "'a'" + '"b"' + "'c'" + '"d"'#echo hello"#,
-    r#"N="+'+"+'#."#
-  );
-}
-
-#[test]
-fn tokenize_recipe_interpolation_eol() {
-  let text = "foo: # some comment
- {{hello}}
-";
-  tokenize_success(text, "N:#$>^{N}$<.");
-}
-
-#[test]
-fn tokenize_recipe_interpolation_eof() {
-  let text = "foo: # more comments
- {{hello}}
-# another comment
-";
-  tokenize_success(text, "N:#$>^{N}$<#$.");
-}
-
-#[test]
-fn tokenize_recipe_complex_interpolation_expression() {
-  let text = "foo: #lol\n {{a + b + \"z\" + blarg}}";
-  tokenize_success(text, "N:#$>^{N+N+\"+N}<.");
-}
-
-#[test]
-fn tokenize_recipe_multiple_interpolations() {
-  let text = "foo:#ok\n {{a}}0{{b}}1{{c}}";
-  tokenize_success(text, "N:#$>^{N}_{N}_{N}<.");
-}
-
-#[test]
-fn tokenize_junk() {
-  let text = "bob
-
-hello blah blah blah : a b c #whatever
-";
-  tokenize_success(text, "N$$NNNN:NNN#$.");
-}
-
-#[test]
-fn tokenize_empty_lines() {
-  let text = "
-# this does something
-hello:
-  asdf
-  bsdf
-
-  csdf
-
-  dsdf # whatever
-
-# yolo
-  ";
-
-  tokenize_success(text, "$#$N:$>^_$^_$$^_$$^_$$<#$.");
-}
-
-#[test]
-fn tokenize_comment_before_variable() {
-  let text = "
-#
-A='1'
-echo:
-  echo {{A}}
-  ";
-  tokenize_success(text, "$#$N='$N:$>^_{N}$<.");
-}
-
-#[test]
-fn tokenize_interpolation_backticks() {
-  tokenize_success(
-    "hello:\n echo {{`echo hello` + `echo goodbye`}}",
-    "N:$>^_{`+`}<."
-  );
-}
-
-#[test]
-fn tokenize_assignment_backticks() {
-  tokenize_success(
-    "a = `echo hello` + `echo goodbye`",
-    "N=`+`."
-  );
-}
-
-#[test]
-fn tokenize_multiple() {
-  let text = "
-hello:
-  a
-  b
-
-  c
-
-  d
-
-# hello
-bob:
-  frank
-  ";
-
-  tokenize_success(text, "$N:$>^_$^_$$^_$$^_$$<#$N:$>^_$<.");
-}
-
-
-#[test]
-fn tokenize_comment() {
-  tokenize_success("a:=#", "N:=#.")
-}
-
-#[test]
-fn tokenize_space_then_tab() {
-  let text = "a:
- 0
- 1
-\t2
-";
-  tokenize_error(text, CompilationError {
-    text:   text,
-    index:  9,
-    line:   3,
-    column: 0,
-    width:  None,
-    kind:   CompilationErrorKind::InconsistentLeadingWhitespace{expected: " ", found: "\t"},
-  });
-}
-
-#[test]
-fn tokenize_tabs_then_tab_space() {
-  let text = "a:
-\t\t0
-\t\t 1
-\t  2
-";
-  tokenize_error(text, CompilationError {
-    text:   text,
-    index:  12,
-    line:   3,
-    column: 0,
-    width:  None,
-    kind:   CompilationErrorKind::InconsistentLeadingWhitespace{expected: "\t\t", found: "\t  "},
-  });
-}
-
-#[test]
-fn tokenize_outer_shebang() {
-  let text = "#!/usr/bin/env bash";
-  tokenize_error(text, CompilationError {
-    text:   text,
-    index:  0,
-    line:   0,
-    column: 0,
-    width:  None,
-    kind:   CompilationErrorKind::OuterShebang
-  });
-}
-
-#[test]
-fn tokenize_unknown() {
-  let text = "~";
-  tokenize_error(text, CompilationError {
-    text:   text,
-    index:  0,
-    line:   0,
-    column: 0,
-    width:  None,
-    kind:   CompilationErrorKind::UnknownStartOfToken
-  });
-}
-
 #[test]
 fn parse_empty() {
   parse_summary("
@@ -887,24 +659,6 @@ fn plus_following_parameter() {
 }
 
 #[test]
-fn tokenize_order() {
-  let text = r"
-b: a
-  @mv a b
-
-a:
-  @touch F
-  @touch a
-
-d: c
-  @rm c
-
-c: b
-  @mv b c";
-  tokenize_success(text, "$N:N$>^_$$<N:$>^_$^_$$<N:N$>^_$$<N:N$>^_<.");
-}
-
-#[test]
 fn run_shebang() {
   // this test exists to make sure that shebang recipes
   // run correctly. although this script is still
@@ -1125,31 +879,4 @@ fn readme_test() {
   for justfile in justfiles {
     parse_success(&justfile);
   }
-}
-
-#[test]
-fn split_shebang() {
-  fn check(text: &str, expected_split: Option<(&str, Option<&str>)>) {
-    let shebang = Shebang::new(text);
-    assert_eq!(shebang.map(|shebang| (shebang.interpreter, shebang.argument)), expected_split);
-  }
-
-  check("#!    ",                         None                                       );
-  check("#!",                             None                                       );
-  check("#!/bin/bash",                    Some(("/bin/bash",    None               )));
-  check("#!/bin/bash    ",                Some(("/bin/bash",    None               )));
-  check("#!/usr/bin/env python",          Some(("/usr/bin/env", Some("python"     ))));
-  check("#!/usr/bin/env python   ",       Some(("/usr/bin/env", Some("python"     ))));
-  check("#!/usr/bin/env python -x",       Some(("/usr/bin/env", Some("python -x"  ))));
-  check("#!/usr/bin/env python   -x",     Some(("/usr/bin/env", Some("python   -x"))));
-  check("#!/usr/bin/env python \t-x\t",   Some(("/usr/bin/env", Some("python \t-x"))));
-  check("#/usr/bin/env python \t-x\t",    None                                       );
-  check("#!  /bin/bash",                  Some(("/bin/bash",    None               )));
-  check("#!\t\t/bin/bash    ",            Some(("/bin/bash",    None               )));
-  check("#!  \t\t/usr/bin/env python",    Some(("/usr/bin/env", Some("python"     ))));
-  check("#!  /usr/bin/env python   ",     Some(("/usr/bin/env", Some("python"     ))));
-  check("#!  /usr/bin/env python -x",     Some(("/usr/bin/env", Some("python -x"  ))));
-  check("#!  /usr/bin/env python   -x",   Some(("/usr/bin/env", Some("python   -x"))));
-  check("#!  /usr/bin/env python \t-x\t", Some(("/usr/bin/env", Some("python \t-x"))));
-  check("#  /usr/bin/env python \t-x\t",  None                                       );
 }

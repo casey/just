@@ -3,14 +3,14 @@ extern crate libc;
 
 use color::Color;
 use common::*;
-use std::{convert, ffi};
+use std::{convert, ffi, io};
 use std::collections::BTreeMap;
 use self::clap::{App, Arg, ArgGroup, AppSettings};
-use Slurp;
 use Configuration;
 use compile;
 use formatting::maybe_s;
 use DEFAULT_SHELL;
+use regex::Regex;
 
 macro_rules! die {
   ($($arg:tt)*) => {{
@@ -31,6 +31,18 @@ fn edit<P: convert::AsRef<ffi::OsStr>>(path: P) -> ! {
   match error {
     Ok(status) => process::exit(status.code().unwrap_or(EXIT_FAILURE)),
     Err(error) => die!("Failed to invoke editor: {}", error),
+  }
+}
+
+trait Slurp {
+  fn slurp(&mut self) -> Result<String, io::Error>;
+}
+
+impl Slurp for fs::File {
+  fn slurp(&mut self) -> io::Result<String> {
+    let mut destination = String::new();
+    self.read_to_string(&mut destination)?;
+    Ok(destination)
   }
 }
 

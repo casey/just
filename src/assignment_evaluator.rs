@@ -2,10 +2,10 @@ use brev;
 use common::*;
 use Expression;
 use Fragment;
+use CommandExt;
 use runtime_error::RuntimeError;
 use DEFAULT_SHELL;
 use token::Token;
-use export_env;
 
 pub fn evaluate_assignments<'a>(
   assignments: &Map<&'a str, Expression<'a>>,
@@ -37,7 +37,7 @@ fn run_backtick<'a>(
 ) -> Result<String, RuntimeError<'a>> {
   let mut cmd = process::Command::new(DEFAULT_SHELL);
 
-  export_env(&mut cmd, scope, exports)?;
+  cmd.export_environment_variables(scope, exports)?;
 
   cmd.arg("-cu")
      .arg(raw);

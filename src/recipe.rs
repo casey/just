@@ -9,9 +9,9 @@ use tempdir::TempDir;
 use Token;
 use Configuration;
 use assignment_evaluator::Evaluator;
-use export_env;
 use DEFAULT_SHELL;
 use Fragment;
+use CommandExt;
 use Shebang;
 
 /// Return a `RuntimeError::Signal` if the process was terminated by a signal,
@@ -161,8 +161,7 @@ impl<'a> Recipe<'a> {
       let mut command = Platform::make_shebang_command(&path, interpreter, argument)
         .map_err(|output_error| RuntimeError::Cygpath{recipe: self.name, output_error: output_error})?;
 
-      // export environment variables
-      export_env(&mut command, scope, exports)?;
+      command.export_environment_variables(scope, exports)?;
 
       // run it!
       match command.status() {
@@ -233,7 +232,7 @@ impl<'a> Recipe<'a> {
           cmd.stdout(Stdio::null());
         }
 
-        export_env(&mut cmd, scope, exports)?;
+        cmd.export_environment_variables(scope, exports)?;
 
         match cmd.status() {
           Ok(exit_status) => if let Some(code) = exit_status.code() {
