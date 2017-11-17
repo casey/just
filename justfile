@@ -1,13 +1,24 @@
+bt='0'
+
+export RUST_BACKTRACE=bt
+
 test: build
-	cargo test --lib
+	cargo test
+
+@spam:
+	{ \
+		figlet test; \
+		cargo build --color always 2>&1; \
+		cargo test  --color always -- --color always 2>&1; \
+	} | less
 
 # only run tests matching PATTERN
 filter PATTERN: build
-	cargo test --lib {{PATTERN}}
+	cargo test {{PATTERN}}
 
 # test with backtrace
 backtrace:
-	RUST_BACKTRACE=1 cargo test --lib
+	RUST_BACKTRACE=1 cargo test
 
 build:
 	cargo build
@@ -63,7 +74,7 @@ sloc:
 	echo Checking for long lines...
 	! grep --color -En '.{101}' src/*.rs
 
-rename FROM TO:
+replace FROM TO:
 	find src -name '*.rs' | xargs sed -i '' -E 's/{{FROM}}/{{TO}}/g'
 
 nop:

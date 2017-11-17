@@ -19,3 +19,6 @@ libc          = "^0.2.21"
 regex         = "^0.2.2"
 tempdir       = "^0.3.5"
 unicode-width = "^0.1.3"
+
+[dev-dependencies.utilities]
+path = "utilities"

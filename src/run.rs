@@ -1,12 +1,10 @@
-extern crate clap;
-extern crate libc;
+use common::*;
 
-use color::Color;
-use prelude::*;
 use std::{convert, ffi};
-use std::collections::BTreeMap;
-use self::clap::{App, Arg, ArgGroup, AppSettings};
-use super::{Slurp, RunOptions, compile, DEFAULT_SHELL, maybe_s};
+use clap::{App, Arg, ArgGroup, AppSettings};
+use compile;
+use misc::maybe_s;
+use configuration::DEFAULT_SHELL;
 
 macro_rules! die {
   ($($arg:tt)*) => {{
@@ -20,7 +18,7 @@ fn edit<P: convert::AsRef<ffi::OsStr>>(path: P) -> ! {
   let editor = env::var_os("EDITOR")
     .unwrap_or_else(|| die!("Error getting EDITOR environment variable"));
 
-  let error = process::Command::new(editor)
+  let error = Command::new(editor)
     .arg(path)
     .status();
 
@@ -30,7 +28,19 @@ fn edit<P: convert::AsRef<ffi::OsStr>>(path: P) -> ! {
   }
 }
 
-pub fn app() {
+trait Slurp {
+  fn slurp(&mut self) -> Result<String, io::Error>;
+}
+
+impl Slurp for fs::File {
+  fn slurp(&mut self) -> io::Result<String> {
+    let mut destination = String::new();
+    self.read_to_string(&mut destination)?;
+    Ok(destination)
+  }
+}
+
+pub fn run() {
   let matches = App::new("just")
     .version(concat!("v", env!("CARGO_PKG_VERSION")))
     .author(env!("CARGO_PKG_AUTHORS"))
@@ -121,7 +131,7 @@ pub fn app() {
   };
 
   let set_count = matches.occurrences_of("SET");
-  let mut overrides = BTreeMap::new();
+  let mut overrides = Map::new();
   if set_count > 0 {
     let mut values = matches.values_of("SET").unwrap();
     for _ in 0..set_count {
@@ -300,13 +310,13 @@ pub fn app() {
     die!("Justfile contains no recipes.");
   };
 
-  let options = RunOptions {
+  let options = Configuration {
     dry_run:   matches.is_present("DRY-RUN"),
     evaluate:  matches.is_present("EVALUATE"),
     highlight: matches.is_present("HIGHLIGHT"),
     overrides: overrides,
     quiet:     matches.is_present("QUIET"),
-    shell:     matches.value_of("SHELL"),
+    shell:     matches.value_of("SHELL").unwrap(),
     color:     color,
     verbose:   matches.is_present("VERBOSE"),
   };
@@ -320,6 +330,6 @@ pub fn app() {
       }
     }
 
-    process::exit(run_error.code().unwrap_or(libc::EXIT_FAILURE));
+    process::exit(run_error.code().unwrap_or(EXIT_FAILURE));
   }
 }

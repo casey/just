@@ -1,7 +1,8 @@
 extern crate ansi_term;
 extern crate atty;
 
-use prelude::*;
+use common::*;
+
 use self::ansi_term::{Style, Prefix, Suffix, ANSIGenericString};
 use self::ansi_term::Color::*;
 use self::atty::is as is_atty;

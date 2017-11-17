@@ -1,4 +1,5 @@
-use ::prelude::*;
+use std::env;
+use std::path::PathBuf;
 
 pub fn just_binary_path() -> PathBuf {
   let mut path = env::current_exe().unwrap();
@@ -10,3 +11,4 @@ pub fn just_binary_path() -> PathBuf {
   path.push(exe);
   path
 }
+
