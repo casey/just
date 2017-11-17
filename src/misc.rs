@@ -2,20 +2,16 @@ use common::*;
 
 use unicode_width::UnicodeWidthChar;
 
+pub fn show_whitespace(text: &str) -> String {
+  text.chars().map(|c| match c { '\t' => '␉', ' ' => '␠', _ => c }).collect()
+}
+
 pub fn default<T: Default>() -> T {
   Default::default()
 }
 
 pub fn empty<T, C: iter::FromIterator<T>>() -> C {
   iter::empty().collect()
-}
-
-pub struct Tick<'a, T: 'a + Display>(pub &'a T);
-
-impl<'a, T: Display> Display for Tick<'a, T> {
-  fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-    write!(f, "`{}`", self.0)
-  }
 }
 
 pub fn ticks<T: Display>(ts: &[T]) -> Vec<Tick<T>> {
@@ -27,21 +23,6 @@ pub fn maybe_s(n: usize) -> &'static str {
     ""
   } else {
     "s"
-  }
-}
-
-pub struct And<'a, T: 'a + Display>(pub &'a [T]);
-pub struct Or <'a, T: 'a + Display>(pub &'a [T]);
-
-impl<'a, T: Display> Display for And<'a, T> {
-  fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-    conjoin(f, self.0, "and")
-  }
-}
-
-impl<'a, T: Display> Display for Or<'a, T> {
-  fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-    conjoin(f, self.0, "or")
   }
 }
 
@@ -122,10 +103,29 @@ pub fn write_error_context(
   Ok(())
 }
 
-pub fn show_whitespace(text: &str) -> String {
-  text.chars().map(|c| match c { '\t' => '␉', ' ' => '␠', _ => c }).collect()
+pub struct And<'a, T: 'a + Display>(pub &'a [T]);
+
+impl<'a, T: Display> Display for And<'a, T> {
+  fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+    conjoin(f, self.0, "and")
+  }
 }
 
+pub struct Or <'a, T: 'a + Display>(pub &'a [T]);
+
+impl<'a, T: Display> Display for Or<'a, T> {
+  fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+    conjoin(f, self.0, "or")
+  }
+}
+
+pub struct Tick<'a, T: 'a + Display>(pub &'a T);
+
+impl<'a, T: Display> Display for Tick<'a, T> {
+  fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+    write!(f, "`{}`", self.0)
+  }
+}
 
 #[cfg(test)]
 mod test {

@@ -3,11 +3,11 @@ extern crate brev;
 extern crate libc;
 extern crate utilities;
 
-use tempdir::TempDir;
-use std::str;
 use libc::{EXIT_FAILURE, EXIT_SUCCESS};
-use std::process;
 use std::env;
+use std::process;
+use std::str;
+use tempdir::TempDir;
 use utilities::just_binary_path;
 
 /// Instantiate integration tests for a given test case using
