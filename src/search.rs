@@ -1,4 +1,4 @@
-use ::prelude::*;
+use common::*;
 use tempdir::TempDir;
 use std::{path, str};
 use super::brev;

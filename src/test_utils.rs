@@ -1,4 +1,4 @@
-use ::prelude::*;
+use common::*;
 
 pub fn just_binary_path() -> PathBuf {
   let mut path = env::current_exe().unwrap();

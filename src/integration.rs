@@ -1,7 +1,7 @@
 extern crate tempdir;
 extern crate brev;
 
-use ::prelude::*;
+use common::*;
 use tempdir::TempDir;
 use std::str;
 
@@ -22,7 +22,7 @@ macro_rules! integration_test {
     status:   $status:expr,
   ) => {
     mod $name {
-      use ::prelude::*;
+      use common::*;
       use super::integration_test;
 
       // silence unused import warnings

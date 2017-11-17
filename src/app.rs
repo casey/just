@@ -2,7 +2,7 @@ extern crate clap;
 extern crate libc;
 
 use color::Color;
-use prelude::*;
+use common::*;
 use std::{convert, ffi};
 use std::collections::BTreeMap;
 use self::clap::{App, Arg, ArgGroup, AppSettings};

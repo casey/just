@@ -55,7 +55,7 @@ use shebang::Shebang;
 
 use tokenizer::tokenize;
 
-mod prelude {
+mod common {
   pub use libc::{EXIT_FAILURE, EXIT_SUCCESS};
   pub use regex::Regex;
   pub use std::io::prelude::*;
@@ -84,7 +84,7 @@ mod prelude {
   }
 }
 
-use prelude::*;
+use common::*;
 
 pub use app::app;
 

@@ -1,4 +1,4 @@
-use prelude::*;
+use common::*;
 
 use runtime_error::RuntimeError;
 use edit_distance::edit_distance;

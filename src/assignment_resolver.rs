@@ -1,4 +1,4 @@
-use prelude::*;
+use common::*;
 
 use token::Token;
 use compilation_error::{CompilationError, CompilationErrorKind};
