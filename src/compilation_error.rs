@@ -23,7 +23,7 @@ pub enum CompilationErrorKind<'a> {
   DuplicateVariable{variable: &'a str},
   ExtraLeadingWhitespace,
   InconsistentLeadingWhitespace{expected: &'a str, found: &'a str},
-  InternalError{message: String},
+  Internal{message: String},
   InvalidEscapeSequence{character: char},
   MixedLeadingWhitespace{whitespace: &'a str},
   OuterShebang,
@@ -127,7 +127,7 @@ impl<'a> Display for CompilationError<'a> {
       UnterminatedString => {
         writeln!(f, "Unterminated string")?;
       }
-      InternalError{ref message} => {
+      Internal{ref message} => {
         writeln!(f, "Internal error, this may indicate a bug in just: {}\n\
                      consider filing an issue: https://github.com/casey/just/issues/new",
                      message)?;

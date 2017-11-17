@@ -190,7 +190,7 @@ impl<'a> Parser<'a> {
           continue;
         }
         if let Some(token) = self.expect(Line) {
-          return Err(token.error(CompilationErrorKind::InternalError{
+          return Err(token.error(CompilationErrorKind::Internal{
             message: format!("Expected a line but got {}", token.kind)
           }))
         }
@@ -298,7 +298,7 @@ impl<'a> Parser<'a> {
           }
           Comment => {
             if let Some(token) = self.expect_eol() {
-              return Err(token.error(CompilationErrorKind::InternalError {
+              return Err(token.error(CompilationErrorKind::Internal {
                 message: format!("found comment followed by {}", token.kind),
               }));
             }
@@ -336,7 +336,7 @@ impl<'a> Parser<'a> {
           line:   0,
           column: 0,
           width:  None,
-          kind:   CompilationErrorKind::InternalError {
+          kind:   CompilationErrorKind::Internal {
             message: "unexpected end of token stream".to_string()
           }
         }),
@@ -344,7 +344,7 @@ impl<'a> Parser<'a> {
     }
 
     if let Some(token) = self.tokens.next() {
-      return Err(token.error(CompilationErrorKind::InternalError{
+      return Err(token.error(CompilationErrorKind::Internal {
         message: format!("unexpected token remaining after parsing completed: {:?}", token.kind)
       }))
     }

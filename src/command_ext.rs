@@ -20,7 +20,7 @@ impl CommandExt for Command {
       if let Some(value) = scope.get(name) {
         self.env(name, value);
       } else {
-        return Err(RuntimeError::InternalError {
+        return Err(RuntimeError::Internal {
           message: format!("scope does not contain exported variable `{}`",  name),
         });
       }

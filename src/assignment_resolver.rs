@@ -48,7 +48,7 @@ impl<'a: 'b, 'b> AssignmentResolver<'a, 'b> {
         line:   0,
         column: 0,
         width:  None,
-        kind:   CompilationErrorKind::InternalError{message}
+        kind:   CompilationErrorKind::Internal{message}
       });
     }
     Ok(())

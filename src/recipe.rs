@@ -17,7 +17,7 @@ fn error_from_signal(
 ) -> RuntimeError {
   match Platform::signal_from_exit_status(exit_status) {
     Some(signal) => RuntimeError::Signal{recipe: recipe, line_number: line_number, signal: signal},
-    None => RuntimeError::UnknownFailure{recipe: recipe, line_number: line_number},
+    None => RuntimeError::Unknown{recipe: recipe, line_number: line_number},
   }
 }
 
@@ -71,7 +71,7 @@ impl<'a> Recipe<'a> {
       let value = if rest.is_empty() {
         match parameter.default {
           Some(ref default) => Cow::Borrowed(default.as_str()),
-          None => return Err(RuntimeError::InternalError{
+          None => return Err(RuntimeError::Internal{
             message: "missing parameter without default".to_string()
           }),
         }
@@ -142,12 +142,12 @@ impl<'a> Recipe<'a> {
         .map_err(|error| RuntimeError::TmpdirIoError{recipe: self.name, io_error: error})?;
 
       let shebang_line = evaluated_lines.first()
-        .ok_or_else(|| RuntimeError::InternalError {
+        .ok_or_else(|| RuntimeError::Internal {
           message: "evaluated_lines was empty".to_string()
         })?;
 
       let Shebang{interpreter, argument} = Shebang::new(shebang_line)
-        .ok_or_else(|| RuntimeError::InternalError {
+        .ok_or_else(|| RuntimeError::Internal {
           message: format!("bad shebang line: {}", shebang_line)
         })?;
 

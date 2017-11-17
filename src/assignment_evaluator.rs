@@ -87,7 +87,7 @@ impl<'a, 'b> Evaluator<'a, 'b> {
         self.evaluated.insert(name, value);
       }
     } else {
-      return Err(RuntimeError::InternalError {
+      return Err(RuntimeError::Internal {
         message: format!("attempted to evaluated unknown assignment {}", name)
       });
     }
@@ -112,7 +112,7 @@ impl<'a, 'b> Evaluator<'a, 'b> {
         } else if arguments.contains_key(name) {
           arguments[name].to_string()
         } else {
-          return Err(RuntimeError::InternalError {
+          return Err(RuntimeError::Internal {
             message: format!("attempted to evaluate undefined variable `{}`", name)
           });
         }

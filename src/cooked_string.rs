@@ -38,7 +38,7 @@ impl<'a> CookedString<'a> {
       }
       Ok(CookedString{raw: raw, cooked: cooked})
     } else {
-      Err(token.error(CompilationErrorKind::InternalError{
+      Err(token.error(CompilationErrorKind::Internal {
         message: "cook_string() called on non-string token".to_string()
       }))
     }

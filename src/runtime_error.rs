@@ -23,12 +23,12 @@ pub enum RuntimeError<'a> {
   Backtick{token: Token<'a>, output_error: OutputError},
   Code{recipe: &'a str, line_number: Option<usize>, code: i32},
   Cygpath{recipe: &'a str, output_error: OutputError},
-  InternalError{message: String},
+  Internal{message: String},
   IoError{recipe: &'a str, io_error: io::Error},
   Shebang{recipe: &'a str, command: String, argument: Option<String>, io_error: io::Error},
   Signal{recipe: &'a str, line_number: Option<usize>, signal: i32},
   TmpdirIoError{recipe: &'a str, io_error: io::Error},
-  UnknownFailure{recipe: &'a str, line_number: Option<usize>},
+  Unknown{recipe: &'a str, line_number: Option<usize>},
   UnknownOverrides{overrides: Vec<&'a str>},
   UnknownRecipes{recipes: Vec<&'a str>, suggestion: Option<&'a str>},
 }
@@ -131,7 +131,7 @@ impl<'a> Display for RuntimeError<'a> {
           write!(f, "Recipe `{}` was terminated by signal {}", recipe, signal)?;
         }
       }
-      UnknownFailure{recipe, line_number} => {
+      Unknown{recipe, line_number} => {
         if let Some(n) = line_number {
           write!(f, "Recipe `{}` failed on line {} for an unknown reason", recipe, n)?;
         } else {
@@ -183,7 +183,7 @@ impl<'a> Display for RuntimeError<'a> {
           error_token = Some(token);
         }
       },
-      InternalError{ref message} => {
+      Internal{ref message} => {
         write!(f, "Internal error, this may indicate a bug in just: {} \
                    consider filing an issue: https://github.com/casey/just/issues/new",
                    message)?;

@@ -108,7 +108,7 @@ pub fn tokenize(text: &str) -> Result<Vec<Token>, CompilationError> {
         }
         // at column 0 in some other state: this should never happen
         (&State::Text, _) | (&State::Interpolation, _) => {
-          return error!(CompilationErrorKind::InternalError{
+          return error!(CompilationErrorKind::Internal {
             message: "unexpected state at column 0".to_string()
           });
         }
@@ -143,7 +143,7 @@ pub fn tokenize(text: &str) -> Result<Vec<Token>, CompilationError> {
       (column, state.last().unwrap(), LINE.captures(rest)) {
       let line = captures.get(0).unwrap().as_str();
       if !line.starts_with(indent) {
-        return error!(CompilationErrorKind::InternalError{message: "unexpected indent".to_string()});
+        return error!(CompilationErrorKind::Internal{message: "unexpected indent".to_string()});
       }
       state.push(State::Text);
       (&line[0..indent.len()], "", Line)
@@ -161,7 +161,7 @@ pub fn tokenize(text: &str) -> Result<Vec<Token>, CompilationError> {
         state.pop();
         (captures.get(1).unwrap().as_str(), captures.get(2).unwrap().as_str(), Eol)
       } else {
-        return error!(CompilationErrorKind::InternalError{
+        return error!(CompilationErrorKind::Internal {
           message: format!("Could not match token in text state: \"{}\"", rest)
         });
       }
@@ -176,7 +176,7 @@ pub fn tokenize(text: &str) -> Result<Vec<Token>, CompilationError> {
       (captures.get(1).unwrap().as_str(), captures.get(2).unwrap().as_str(), Name)
     } else if let Some(captures) = EOL.captures(rest) {
       if state.last().unwrap() == &State::Interpolation {
-        return error!(CompilationErrorKind::InternalError {
+        return error!(CompilationErrorKind::Internal {
           message: "hit EOL while still in interpolation state".to_string()
         });
       }
@@ -245,7 +245,7 @@ pub fn tokenize(text: &str) -> Result<Vec<Token>, CompilationError> {
       let last = tokens.last().unwrap();
       match last.kind {
         Eof => {},
-        _ => return Err(last.error(CompilationErrorKind::InternalError{
+        _ => return Err(last.error(CompilationErrorKind::Internal {
           message: format!("zero length token: {:?}", last)
         })),
       }
