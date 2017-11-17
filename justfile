@@ -1,3 +1,7 @@
+bt='0'
+
+export RUST_BACKTRACE=bt
+
 test: build
 	cargo test --lib
 

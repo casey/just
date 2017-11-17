@@ -40,6 +40,7 @@ mod configuration;
 mod parameter;
 mod expression;
 mod fragment;
+mod shebang;
 
 use configuration::Configuration;
 use compilation_error::{CompilationError, CompilationErrorKind};
@@ -50,6 +51,7 @@ use parser::Parser;
 use cooked_string::CookedString;
 use fragment::Fragment;
 use expression::Expression;
+use shebang::Shebang;
 
 use tokenizer::tokenize;
 
@@ -97,25 +99,6 @@ impl Slurp for fs::File {
     let mut destination = String::new();
     self.read_to_string(&mut destination)?;
     Ok(destination)
-  }
-}
-
-/// Split a shebang line into a command and an optional argument
-fn split_shebang(shebang: &str) -> Option<(&str, Option<&str>)> {
-  lazy_static! {
-    static ref EMPTY:    Regex = re(r"^#!\s*$");
-    static ref SIMPLE:   Regex = re(r"^#!(\S+)\s*$");
-    static ref ARGUMENT: Regex = re(r"^#!(\S+)\s+(\S.*?)?\s*$");
-  }
-
-  if EMPTY.is_match(shebang) {
-    Some(("", None))
-  } else if let Some(captures) = SIMPLE.captures(shebang) {
-    Some((captures.get(1).unwrap().as_str(), None))
-  } else if let Some(captures) = ARGUMENT.captures(shebang) {
-    Some((captures.get(1).unwrap().as_str(), Some(captures.get(2).unwrap().as_str())))
-  } else {
-    None
   }
 }
 

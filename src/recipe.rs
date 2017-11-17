@@ -9,10 +9,10 @@ use tempdir::TempDir;
 use Token;
 use Configuration;
 use assignment_evaluator::Evaluator;
-use split_shebang;
 use export_env;
 use DEFAULT_SHELL;
 use Fragment;
+use Shebang;
 
 /// Return a `RuntimeError::Signal` if the process was terminated by a signal,
 /// otherwise return an `RuntimeError::UnknownFailure`
@@ -152,13 +152,13 @@ impl<'a> Recipe<'a> {
           message: "evaluated_lines was empty".to_string()
         })?;
 
-      let (shebang_command, shebang_argument) = split_shebang(shebang_line)
+      let Shebang{interpreter, argument} = Shebang::new(shebang_line)
         .ok_or_else(|| RuntimeError::InternalError {
           message: format!("bad shebang line: {}", shebang_line)
         })?;
 
       // create a command to run the script
-      let mut command = Platform::make_shebang_command(&path, shebang_command, shebang_argument)
+      let mut command = Platform::make_shebang_command(&path, interpreter, argument)
         .map_err(|output_error| RuntimeError::Cygpath{recipe: self.name, output_error: output_error})?;
 
       // export environment variables
@@ -175,8 +175,8 @@ impl<'a> Recipe<'a> {
         },
         Err(io_error) => return Err(RuntimeError::Shebang {
           recipe:   self.name,
-          command:  shebang_command.to_string(),
-          argument: shebang_argument.map(String::from),
+          command:  interpreter.to_string(),
+          argument: argument.map(String::from),
           io_error: io_error
         })
       };
