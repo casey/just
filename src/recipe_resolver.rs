@@ -5,7 +5,7 @@ pub fn resolve_recipes<'a>(
   assignments: &Map<&'a str, Expression<'a>>,
   text:        &'a str,
 ) -> Result<(), CompilationError<'a>> {
-  let mut resolver = Resolver {
+  let mut resolver = RecipeResolver {
     seen:              empty(),
     stack:             empty(),
     resolved:          empty(),
@@ -56,14 +56,14 @@ pub fn resolve_recipes<'a>(
   Ok(())
 }
 
-struct Resolver<'a: 'b, 'b> {
+struct RecipeResolver<'a: 'b, 'b> {
   stack:    Vec<&'a str>,
   seen:     Set<&'a str>,
   resolved: Set<&'a str>,
   recipes:  &'b Map<&'a str, Recipe<'a>>,
 }
 
-impl<'a, 'b> Resolver<'a, 'b> {
+impl<'a, 'b> RecipeResolver<'a, 'b> {
   fn resolve(&mut self, recipe: &Recipe<'a>) -> Result<(), CompilationError<'a>> {
     if self.resolved.contains(recipe.name) {
       return Ok(())
