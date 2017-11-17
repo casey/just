@@ -337,55 +337,55 @@ mod test {
     }).collect::<Vec<_>>().join("")
   }
 
-#[test]
-fn tokanize_strings() {
-  tokenize_success(
-    r#"a = "'a'" + '"b"' + "'c'" + '"d"'#echo hello"#,
-    r#"N="+'+"+'#."#
-  );
-}
+  #[test]
+  fn tokanize_strings() {
+    tokenize_success(
+      r#"a = "'a'" + '"b"' + "'c'" + '"d"'#echo hello"#,
+      r#"N="+'+"+'#."#
+    );
+  }
 
-#[test]
-fn tokenize_recipe_interpolation_eol() {
-  let text = "foo: # some comment
+  #[test]
+  fn tokenize_recipe_interpolation_eol() {
+    let text = "foo: # some comment
  {{hello}}
 ";
-  tokenize_success(text, "N:#$>^{N}$<.");
-}
+    tokenize_success(text, "N:#$>^{N}$<.");
+  }
 
-#[test]
-fn tokenize_recipe_interpolation_eof() {
-  let text = "foo: # more comments
+  #[test]
+  fn tokenize_recipe_interpolation_eof() {
+    let text = "foo: # more comments
  {{hello}}
 # another comment
 ";
-  tokenize_success(text, "N:#$>^{N}$<#$.");
-}
+    tokenize_success(text, "N:#$>^{N}$<#$.");
+  }
 
-#[test]
-fn tokenize_recipe_complex_interpolation_expression() {
-  let text = "foo: #lol\n {{a + b + \"z\" + blarg}}";
-  tokenize_success(text, "N:#$>^{N+N+\"+N}<.");
-}
+  #[test]
+  fn tokenize_recipe_complex_interpolation_expression() {
+    let text = "foo: #lol\n {{a + b + \"z\" + blarg}}";
+    tokenize_success(text, "N:#$>^{N+N+\"+N}<.");
+  }
 
-#[test]
-fn tokenize_recipe_multiple_interpolations() {
-  let text = "foo:#ok\n {{a}}0{{b}}1{{c}}";
-  tokenize_success(text, "N:#$>^{N}_{N}_{N}<.");
-}
+  #[test]
+  fn tokenize_recipe_multiple_interpolations() {
+    let text = "foo:#ok\n {{a}}0{{b}}1{{c}}";
+    tokenize_success(text, "N:#$>^{N}_{N}_{N}<.");
+  }
 
-#[test]
-fn tokenize_junk() {
-  let text = "bob
+  #[test]
+  fn tokenize_junk() {
+    let text = "bob
 
 hello blah blah blah : a b c #whatever
 ";
-  tokenize_success(text, "N$$NNNN:NNN#$.");
-}
+    tokenize_success(text, "N$$NNNN:NNN#$.");
+  }
 
-#[test]
-fn tokenize_empty_lines() {
-  let text = "
+  #[test]
+  fn tokenize_empty_lines() {
+    let text = "
 # this does something
 hello:
   asdf
@@ -398,39 +398,39 @@ hello:
 # yolo
   ";
 
-  tokenize_success(text, "$#$N:$>^_$^_$$^_$$^_$$<#$.");
-}
+    tokenize_success(text, "$#$N:$>^_$^_$$^_$$^_$$<#$.");
+  }
 
-#[test]
-fn tokenize_comment_before_variable() {
-  let text = "
+  #[test]
+  fn tokenize_comment_before_variable() {
+    let text = "
 #
 A='1'
 echo:
   echo {{A}}
   ";
-  tokenize_success(text, "$#$N='$N:$>^_{N}$<.");
-}
+    tokenize_success(text, "$#$N='$N:$>^_{N}$<.");
+  }
 
-#[test]
-fn tokenize_interpolation_backticks() {
-  tokenize_success(
-    "hello:\n echo {{`echo hello` + `echo goodbye`}}",
-    "N:$>^_{`+`}<."
-  );
-}
+  #[test]
+  fn tokenize_interpolation_backticks() {
+    tokenize_success(
+      "hello:\n echo {{`echo hello` + `echo goodbye`}}",
+      "N:$>^_{`+`}<."
+    );
+  }
 
-#[test]
-fn tokenize_assignment_backticks() {
-  tokenize_success(
-    "a = `echo hello` + `echo goodbye`",
-    "N=`+`."
-  );
-}
+  #[test]
+  fn tokenize_assignment_backticks() {
+    tokenize_success(
+      "a = `echo hello` + `echo goodbye`",
+      "N=`+`."
+    );
+  }
 
-#[test]
-fn tokenize_multiple() {
-  let text = "
+  #[test]
+  fn tokenize_multiple() {
+    let text = "
 hello:
   a
   b
@@ -444,77 +444,77 @@ bob:
   frank
   ";
 
-  tokenize_success(text, "$N:$>^_$^_$$^_$$^_$$<#$N:$>^_$<.");
-}
+    tokenize_success(text, "$N:$>^_$^_$$^_$$^_$$<#$N:$>^_$<.");
+  }
 
+  #[test]
+  fn tokenize_comment() {
+    tokenize_success("a:=#", "N:=#.")
+  }
 
-#[test]
-fn tokenize_comment() {
-  tokenize_success("a:=#", "N:=#.")
-}
-
-#[test]
-fn tokenize_space_then_tab() {
-  let text = "a:
+  #[test]
+  fn tokenize_space_then_tab() {
+    let text = "a:
  0
  1
 \t2
 ";
-  tokenize_error(text, CompilationError {
-    text:   text,
-    index:  9,
-    line:   3,
-    column: 0,
-    width:  None,
-    kind:   CompilationErrorKind::InconsistentLeadingWhitespace{expected: " ", found: "\t"},
-  });
-}
+    tokenize_error(text, CompilationError {
+      text:   text,
+      index:  9,
+      line:   3,
+      column: 0,
+      width:  None,
+      kind:   CompilationErrorKind::InconsistentLeadingWhitespace{expected: " ", found: "\t"},
+    });
+  }
 
-#[test]
-fn tokenize_tabs_then_tab_space() {
-  let text = "a:
+  #[test]
+  fn tokenize_tabs_then_tab_space() {
+    let text = "a:
 \t\t0
 \t\t 1
 \t  2
 ";
-  tokenize_error(text, CompilationError {
-    text:   text,
-    index:  12,
-    line:   3,
-    column: 0,
-    width:  None,
-    kind:   CompilationErrorKind::InconsistentLeadingWhitespace{expected: "\t\t", found: "\t  "},
-  });
-}
+    tokenize_error(text, CompilationError {
+      text:   text,
+      index:  12,
+      line:   3,
+      column: 0,
+      width:  None,
+      kind:   CompilationErrorKind::InconsistentLeadingWhitespace{expected: "\t\t", found: "\t  "},
+    });
+  }
 
-#[test]
-fn tokenize_outer_shebang() {
-  let text = "#!/usr/bin/env bash";
-  tokenize_error(text, CompilationError {
-    text:   text,
-    index:  0,
-    line:   0,
-    column: 0,
-    width:  None,
-    kind:   CompilationErrorKind::OuterShebang
-  });
-}
+  #[test]
+  fn tokenize_outer_shebang() {
+    let text = "#!/usr/bin/env bash";
+    tokenize_error(text, CompilationError {
+      text:   text,
+      index:  0,
+      line:   0,
+      column: 0,
+      width:  None,
+      kind:   CompilationErrorKind::OuterShebang
+    });
+  }
 
-#[test]
-fn tokenize_unknown() {
-  let text = "~";
-  tokenize_error(text, CompilationError {
-    text:   text,
-    index:  0,
-    line:   0,
-    column: 0,
-    width:  None,
-    kind:   CompilationErrorKind::UnknownStartOfToken
-  });
-}
-#[test]
-fn tokenize_order() {
-  let text = r"
+  #[test]
+  fn tokenize_unknown() {
+    let text = "~";
+    tokenize_error(text, CompilationError {
+      text:   text,
+      index:  0,
+      line:   0,
+      column: 0,
+      width:  None,
+      kind:   CompilationErrorKind::UnknownStartOfToken
+    });
+  }
+
+  #[test]
+  fn tokenize_order() {
+    let text = r"
 b: a
   @mv a b
 
@@ -527,59 +527,58 @@ d: c
 
 c: b
   @mv b c";
-  tokenize_success(text, "$N:N$>^_$$<N:$>^_$^_$$<N:N$>^_$$<N:N$>^_<.");
-}
+    tokenize_success(text, "$N:N$>^_$$<N:$>^_$^_$$<N:N$>^_$$<N:N$>^_<.");
+  }
 
-#[test]
-fn unterminated_string() {
-  let text = r#"a = ""#;
-  parse_error(text, CompilationError {
-    text:   text,
-    index:  3,
-    line:   0,
-    column: 3,
-    width:  None,
-    kind:   CompilationErrorKind::UnterminatedString,
-  });
-}
+  #[test]
+  fn unterminated_string() {
+    let text = r#"a = ""#;
+    parse_error(text, CompilationError {
+      text:   text,
+      index:  3,
+      line:   0,
+      column: 3,
+      width:  None,
+      kind:   CompilationErrorKind::UnterminatedString,
+    });
+  }
 
-#[test]
-fn unterminated_string_with_escapes() {
-  let text = r#"a = "\n\t\r\"\\"#;
-  parse_error(text, CompilationError {
-    text:   text,
-    index:  3,
-    line:   0,
-    column: 3,
-    width:  None,
-    kind:   CompilationErrorKind::UnterminatedString,
-  });
-}
-#[test]
-fn unterminated_raw_string() {
-  let text = "r a='asdf";
-  parse_error(text, CompilationError {
-    text:   text,
-    index:  4,
-    line:   0,
-    column: 4,
-    width:  None,
-    kind:   CompilationErrorKind::UnterminatedString,
-  });
-}
+  #[test]
+  fn unterminated_string_with_escapes() {
+    let text = r#"a = "\n\t\r\"\\"#;
+    parse_error(text, CompilationError {
+      text:   text,
+      index:  3,
+      line:   0,
+      column: 3,
+      width:  None,
+      kind:   CompilationErrorKind::UnterminatedString,
+    });
+  }
 
+  #[test]
+  fn unterminated_raw_string() {
+    let text = "r a='asdf";
+    parse_error(text, CompilationError {
+      text:   text,
+      index:  4,
+      line:   0,
+      column: 4,
+      width:  None,
+      kind:   CompilationErrorKind::UnterminatedString,
+    });
+  }
 
-#[test]
-fn mixed_leading_whitespace() {
-  let text = "a:\n\t echo hello";
-  parse_error(text, CompilationError {
-    text:   text,
-    index:  3,
-    line:   1,
-    column: 0,
-    width:  None,
-    kind:   CompilationErrorKind::MixedLeadingWhitespace{whitespace: "\t "}
-  });
-}
-
+  #[test]
+  fn mixed_leading_whitespace() {
+    let text = "a:\n\t echo hello";
+    parse_error(text, CompilationError {
+      text:   text,
+      index:  3,
+      line:   1,
+      column: 0,
+      width:  None,
+      kind:   CompilationErrorKind::MixedLeadingWhitespace{whitespace: "\t "}
+    });
+  }
 }

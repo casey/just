@@ -142,39 +142,37 @@ mod test {
   use testing::parse_success;
   use Configuration;
 
-#[test]
-fn backtick_code() {
-  match parse_success("a:\n echo {{`f() { return 100; }; f`}}")
-        .run(&["a"], &Default::default()).unwrap_err() {
-    RuntimeError::Backtick{token, output_error: OutputError::Code(code)} => {
-      assert_eq!(code, 100);
-      assert_eq!(token.lexeme, "`f() { return 100; }; f`");
-    },
-    other => panic!("expected a code run error, but got: {}", other),
+  #[test]
+  fn backtick_code() {
+    match parse_success("a:\n echo {{`f() { return 100; }; f`}}")
+          .run(&["a"], &Default::default()).unwrap_err() {
+      RuntimeError::Backtick{token, output_error: OutputError::Code(code)} => {
+        assert_eq!(code, 100);
+        assert_eq!(token.lexeme, "`f() { return 100; }; f`");
+      },
+      other => panic!("expected a code run error, but got: {}", other),
+    }
   }
-}
 
-#[test]
-fn export_assignment_backtick() {
-  let text = r#"
+  #[test]
+  fn export_assignment_backtick() {
+    let text = r#"
 export exported_variable = "A"
 b = `echo $exported_variable`
 
 recipe:
   echo {{b}}
 "#;
+    let options = Configuration {
+      quiet: true,
+      ..Default::default()
+    };
 
-  let options = Configuration {
-    quiet: true,
-    ..Default::default()
-  };
-
-  match parse_success(text).run(&["recipe"], &options).unwrap_err() {
-    RuntimeError::Backtick{token, output_error: OutputError::Code(_)} => {
-      assert_eq!(token.lexeme, "`echo $exported_variable`");
-    },
-    other => panic!("expected a backtick code errror, but got: {}", other),
+    match parse_success(text).run(&["recipe"], &options).unwrap_err() {
+      RuntimeError::Backtick{token, output_error: OutputError::Code(_)} => {
+        assert_eq!(token.lexeme, "`echo $exported_variable`");
+      },
+      other => panic!("expected a backtick code errror, but got: {}", other),
+    }
   }
-}
-
 }
