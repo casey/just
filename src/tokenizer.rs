@@ -52,15 +52,15 @@ impl<'a> Tokenizer<'a> {
     tokenizer.inner()
   }
 
-  fn error(&self, kind: CompilationErrorKind<'a>) -> CompilationResult<'a, ()> {
-    Err(CompilationError {
+  fn error(&self, kind: CompilationErrorKind<'a>) -> CompilationError<'a> {
+    CompilationError {
       text:   self.text,
       index:  self.index,
       line:   self.line,
       column: self.column,
       width:  None,
       kind:   kind,
-    })
+    }
   }
 
   fn scan_indent(&mut self) -> CompilationResult<'a, ()> {
@@ -80,7 +80,7 @@ impl<'a> Tokenizer<'a> {
         // indent: was no indentation, now there is
         (&State::Start, Some(current)) => {
           if mixed_whitespace(current) {
-            return self.error(MixedLeadingWhitespace{whitespace: current})
+            return Err(self.error(MixedLeadingWhitespace{whitespace: current}));
           }
           //indent = Some(current);
           self.state.push(State::Indent(current));
@@ -95,18 +95,18 @@ impl<'a> Tokenizer<'a> {
         // was indentation and still is, check if the new indentation matches
         (&State::Indent(previous), Some(current)) => {
           if !current.starts_with(previous) {
-            return self.error(InconsistentLeadingWhitespace{
+            return Err(self.error(InconsistentLeadingWhitespace{
               expected: previous,
               found: current
-            });
+            }));
           }
           None
         }
         // at column 0 in some other state: this should never happen
         (&State::Text, _) | (&State::Interpolation, _) => {
-          return self.error(Internal {
+          return Err(self.error(Internal {
             message: "unexpected state at column 0".to_string()
-          });
+          }));
         }
       } {
         self.tokens.push(Token {
@@ -145,19 +145,6 @@ impl<'a> Tokenizer<'a> {
       static ref TEXT:                      Regex = re(r"^(?m)(.+)"               );
     }
 
-    macro_rules! error {
-      ($kind:expr) => {{
-        Err(CompilationError {
-          text:   self.text,
-          index:  self.index,
-          line:   self.line,
-          column: self.column,
-          width:  None,
-          kind:   $kind,
-        })
-      }};
-    }
-
     loop {
       self.scan_indent()?;
 
@@ -179,7 +166,7 @@ impl<'a> Tokenizer<'a> {
         (self.column, self.state.last().unwrap(), LINE.captures(self.rest)) {
         let line = captures.get(0).unwrap().as_str();
         if !line.starts_with(indent) {
-          return error!(Internal{message: "unexpected indent".to_string()});
+          return Err(self.error(Internal{message: "unexpected indent".to_string()}));
         }
         self.state.push(State::Text);
         (&line[0..indent.len()], "", Line)
@@ -197,9 +184,9 @@ impl<'a> Tokenizer<'a> {
           self.state.pop();
           (captures.get(1).unwrap().as_str(), captures.get(2).unwrap().as_str(), Eol)
         } else {
-          return error!(Internal {
+          return Err(self.error(Internal {
             message: format!("Could not match token in text state: \"{}\"", self.rest)
-          });
+          }));
         }
       } else if let Some(captures) = INTERPOLATION_START_TOKEN.captures(self.rest) {
         (captures.get(1).unwrap().as_str(), captures.get(2).unwrap().as_str(), InterpolationStart)
@@ -212,9 +199,9 @@ impl<'a> Tokenizer<'a> {
         (captures.get(1).unwrap().as_str(), captures.get(2).unwrap().as_str(), Name)
       } else if let Some(captures) = EOL.captures(self.rest) {
         if self.state.last().unwrap() == &State::Interpolation {
-          return error!(Internal {
+          return Err(self.error(Internal {
             message: "hit EOL while still in interpolation state".to_string()
-          });
+          }));
         }
         (captures.get(1).unwrap().as_str(), captures.get(2).unwrap().as_str(), Eol)
       } else if let Some(captures) = BACKTICK.captures(self.rest) {
@@ -232,18 +219,18 @@ impl<'a> Tokenizer<'a> {
       } else if let Some(captures) = RAW_STRING.captures(self.rest) {
         (captures.get(1).unwrap().as_str(), captures.get(2).unwrap().as_str(), RawString)
       } else if UNTERMINATED_RAW_STRING.is_match(self.rest) {
-        return error!(UnterminatedString);
+        return Err(self.error(UnterminatedString));
       } else if let Some(captures) = STRING.captures(self.rest) {
         let prefix = captures.get(1).unwrap().as_str();
         let contents = &self.rest[prefix.len()+1..];
         if contents.is_empty() {
-          return error!(UnterminatedString);
+          return Err(self.error(UnterminatedString));
         }
         let mut len = 0;
         let mut escape = false;
         for c in contents.chars() {
           if c == '\n' || c == '\r' {
-            return error!(UnterminatedString);
+            return Err(self.error(UnterminatedString));
           } else if !escape && c == '"' {
             break;
           } else if !escape && c == '\\' {
@@ -256,13 +243,13 @@ impl<'a> Tokenizer<'a> {
         let start = prefix.len();
         let content_end = start + len + 1;
         if escape || content_end >= self.rest.len() {
-          return error!(UnterminatedString);
+          return Err(self.error(UnterminatedString));
         }
         (prefix, &self.rest[start..content_end + 1], StringToken)
       } else if self.rest.starts_with("#!") {
-        return error!(OuterShebang)
+        return Err(self.error(OuterShebang));
       } else {
-        return error!(UnknownStartOfToken)
+        return Err(self.error(UnknownStartOfToken));
       };
 
       self.tokens.push(Token {
