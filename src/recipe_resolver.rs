@@ -2,63 +2,7 @@ use common::*;
 
 use CompilationErrorKind::*;
 
-pub fn resolve_recipes<'a>(
-  recipes:     &Map<&'a str, Recipe<'a>>,
-  assignments: &Map<&'a str, Expression<'a>>,
-  text:        &'a str,
-) -> CompilationResult<'a, ()> {
-  let mut resolver = RecipeResolver {
-    seen:              empty(),
-    stack:             empty(),
-    resolved:          empty(),
-    recipes:           recipes,
-  };
-
-  for recipe in recipes.values() {
-    resolver.resolve(recipe)?;
-    resolver.seen = empty();
-  }
-
-  for recipe in recipes.values() {
-    for line in &recipe.lines {
-      for fragment in line {
-        if let Fragment::Expression{ref expression, ..} = *fragment {
-          for variable in expression.variables() {
-            let name = variable.lexeme;
-            let undefined = !assignments.contains_key(name)
-              && !recipe.parameters.iter().any(|p| p.name == name);
-            if undefined {
-              // There's a borrow issue here that seems too difficult to solve.
-              // The error derived from the variable token has too short a lifetime,
-              // so we create a new error from its contents, which do live long
-              // enough.
-              //
-              // I suspect the solution here is to give recipes, pieces, and expressions
-              // two lifetime parameters instead of one, with one being the lifetime
-              // of the struct, and the second being the lifetime of the tokens
-              // that it contains
-              let error = variable.error(UndefinedVariable{variable: name});
-              return Err(CompilationError {
-                text:   text,
-                index:  error.index,
-                line:   error.line,
-                column: error.column,
-                width:  error.width,
-                kind:   UndefinedVariable {
-                  variable: &text[error.index..error.index + error.width.unwrap()],
-                }
-              });
-            }
-          }
-        }
-      }
-    }
-  }
-
-  Ok(())
-}
-
-struct RecipeResolver<'a: 'b, 'b> {
+pub struct RecipeResolver<'a: 'b, 'b> {
   stack:    Vec<&'a str>,
   seen:     Set<&'a str>,
   resolved: Set<&'a str>,
@@ -66,7 +10,63 @@ struct RecipeResolver<'a: 'b, 'b> {
 }
 
 impl<'a, 'b> RecipeResolver<'a, 'b> {
-  fn resolve(&mut self, recipe: &Recipe<'a>) -> CompilationResult<'a, ()> {
+  pub fn resolve_recipes(
+    recipes:     &Map<&'a str, Recipe<'a>>,
+    assignments: &Map<&'a str, Expression<'a>>,
+    text:        &'a str,
+  ) -> CompilationResult<'a, ()> {
+    let mut resolver = RecipeResolver {
+      seen:              empty(),
+      stack:             empty(),
+      resolved:          empty(),
+      recipes:           recipes,
+    };
+
+    for recipe in recipes.values() {
+      resolver.resolve_recipe(recipe)?;
+      resolver.seen = empty();
+    }
+
+    for recipe in recipes.values() {
+      for line in &recipe.lines {
+        for fragment in line {
+          if let Fragment::Expression{ref expression, ..} = *fragment {
+            for variable in expression.variables() {
+              let name = variable.lexeme;
+              let undefined = !assignments.contains_key(name)
+                && !recipe.parameters.iter().any(|p| p.name == name);
+              if undefined {
+                // There's a borrow issue here that seems too difficult to solve.
+                // The error derived from the variable token has too short a lifetime,
+                // so we create a new error from its contents, which do live long
+                // enough.
+                //
+                // I suspect the solution here is to give recipes, pieces, and expressions
+                // two lifetime parameters instead of one, with one being the lifetime
+                // of the struct, and the second being the lifetime of the tokens
+                // that it contains
+                let error = variable.error(UndefinedVariable{variable: name});
+                return Err(CompilationError {
+                  text:   text,
+                  index:  error.index,
+                  line:   error.line,
+                  column: error.column,
+                  width:  error.width,
+                  kind:   UndefinedVariable {
+                    variable: &text[error.index..error.index + error.width.unwrap()],
+                  }
+                });
+              }
+            }
+          }
+        }
+      }
+    }
+
+    Ok(())
+  }
+
+  fn resolve_recipe(&mut self, recipe: &Recipe<'a>) -> CompilationResult<'a, ()> {
     if self.resolved.contains(recipe.name) {
       return Ok(())
     }
@@ -85,7 +85,7 @@ impl<'a, 'b> RecipeResolver<'a, 'b> {
                 .cloned().collect()
             }));
           }
-          self.resolve(dependency)?;
+          self.resolve_recipe(dependency)?;
         },
         None => return Err(dependency_token.error(UnknownDependency {
           recipe:  recipe.name,

@@ -3,8 +3,6 @@ use common::*;
 use itertools;
 use TokenKind::*;
 use CompilationErrorKind::*;
-use recipe_resolver::resolve_recipes;
-use assignment_resolver::resolve_assignments;
 
 pub struct Parser<'a> {
   text:              &'a str,
@@ -350,7 +348,7 @@ impl<'a> Parser<'a> {
       }))
     }
 
-    resolve_recipes(&self.recipes, &self.assignments, self.text)?;
+    RecipeResolver::resolve_recipes(&self.recipes, &self.assignments, self.text)?;
 
     for recipe in self.recipes.values() {
       for parameter in &recipe.parameters {
@@ -371,7 +369,7 @@ impl<'a> Parser<'a> {
       }
     }
 
-    resolve_assignments(&self.assignments, &self.assignment_tokens)?;
+    AssignmentResolver::resolve_assignments(&self.assignments, &self.assignment_tokens)?;
 
     Ok(Justfile {
       recipes:     self.recipes,
