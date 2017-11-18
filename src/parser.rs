@@ -384,7 +384,6 @@ mod test {
   use super::*;
   use brev;
   use testing::parse_success;
-  use tokenize;
 
   macro_rules! summary_test {
     ($name:ident, $input:expr, $expected:expr $(,)*) => {
@@ -398,47 +397,6 @@ mod test {
           println!("got:\n\"{}\"\n", actual);
           println!("\texpected:\n\"{}\"", expected);
           assert_eq!(actual, expected);
-        }
-      }
-    }
-  }
-
-  macro_rules! error_test {
-    (
-      name:     $name:ident,
-      input:    $input:expr,
-      index:    $index:expr,
-      line:     $line:expr,
-      column:   $column:expr,
-      width:    $width:expr,
-      kind:     $kind:expr,
-    ) => {
-      #[test]
-      fn $name() {
-        let input = $input;
-
-        let expected = CompilationError {
-          text:   input,
-          index:  $index,
-          line:   $line,
-          column: $column,
-          width:  $width,
-          kind:   $kind,
-        };
-
-        let tokens = tokenize(input).unwrap();
-        let parser = Parser::new(input, tokens);
-
-        if let Err(error) = parser.justfile() {
-          assert_eq!(error.text,   expected.text);
-          assert_eq!(error.index,  expected.index);
-          assert_eq!(error.line,   expected.line);
-          assert_eq!(error.column, expected.column);
-          assert_eq!(error.width,  expected.width);
-          assert_eq!(error.kind,   expected.kind);
-          assert_eq!(error,        expected);
-        } else {
-          panic!("parse succeeded but expected: {}\n{}", expected, input);
         }
       }
     }
@@ -630,7 +588,7 @@ c = a + b + a + b",
     {{b}} {{c}}",
   }
 
-  error_test! {
+  compilation_error_test! {
     name:   missing_colon,
     input:  "a b c\nd e f",
     index:  5,
@@ -640,7 +598,7 @@ c = a + b + a + b",
     kind:   UnexpectedToken{expected: vec![Name, Plus, Colon], found: Eol},
   }
 
-  error_test! {
+  compilation_error_test! {
     name:   missing_default_eol,
     input:  "hello arg=\n",
     index:  10,
@@ -650,7 +608,7 @@ c = a + b + a + b",
     kind:   UnexpectedToken{expected: vec![StringToken, RawString], found: Eol},
   }
 
-  error_test! {
+  compilation_error_test! {
     name:   missing_default_eof,
     input:  "hello arg=",
     index:  10,
@@ -660,7 +618,7 @@ c = a + b + a + b",
     kind:   UnexpectedToken{expected: vec![StringToken, RawString], found: Eof},
   }
 
-  error_test! {
+  compilation_error_test! {
     name:   missing_default_colon,
     input:  "hello arg=:",
     index:  10,
@@ -670,7 +628,7 @@ c = a + b + a + b",
     kind:   UnexpectedToken{expected: vec![StringToken, RawString], found: Colon},
   }
 
-  error_test! {
+  compilation_error_test! {
     name:   missing_default_backtick,
     input:  "hello arg=`hello`",
     index:  10,
@@ -680,7 +638,7 @@ c = a + b + a + b",
     kind:   UnexpectedToken{expected: vec![StringToken, RawString], found: Backtick},
   }
 
-  error_test! {
+  compilation_error_test! {
     name:   parameter_after_variadic,
     input:  "foo +a bbb:",
     index:  7,
@@ -690,7 +648,7 @@ c = a + b + a + b",
     kind:   ParameterFollowsVariadicParameter{parameter: "bbb"},
   }
 
-  error_test! {
+  compilation_error_test! {
     name:   required_after_default,
     input:  "hello arg='foo' bar:",
     index:  16,
@@ -700,7 +658,7 @@ c = a + b + a + b",
     kind:   RequiredParameterFollowsDefaultParameter{parameter: "bar"},
   }
 
-  error_test! {
+  compilation_error_test! {
     name:   missing_eol,
     input:  "a b c: z =",
     index:  9,
@@ -710,7 +668,7 @@ c = a + b + a + b",
     kind:   UnexpectedToken{expected: vec![Name, Eol, Eof], found: Equals},
   }
 
-  error_test! {
+  compilation_error_test! {
     name:   duplicate_parameter,
     input:  "a b b:",
     index:  4,
@@ -720,7 +678,7 @@ c = a + b + a + b",
     kind:   DuplicateParameter{recipe: "a", parameter: "b"},
   }
 
-  error_test! {
+  compilation_error_test! {
     name:   parameter_shadows_varible,
     input:  "foo = \"h\"\na foo:",
     index:  12,
@@ -730,7 +688,7 @@ c = a + b + a + b",
     kind:   ParameterShadowsVariable{parameter: "foo"},
   }
 
-  error_test! {
+  compilation_error_test! {
     name:   dependency_has_parameters,
     input:  "foo arg:\nb: foo",
     index:  12,
@@ -740,7 +698,7 @@ c = a + b + a + b",
     kind:   DependencyHasParameters{recipe: "b", dependency: "foo"},
   }
 
-  error_test! {
+  compilation_error_test! {
     name:   duplicate_dependency,
     input:  "a b c: b c z z",
     index:  13,
@@ -750,7 +708,7 @@ c = a + b + a + b",
     kind:   DuplicateDependency{recipe: "a", dependency: "z"},
   }
 
-  error_test! {
+  compilation_error_test! {
     name:   duplicate_recipe,
     input:  "a:\nb:\na:",
     index:  6,
@@ -760,7 +718,7 @@ c = a + b + a + b",
     kind:   DuplicateRecipe{recipe: "a", first: 0},
   }
 
-  error_test! {
+  compilation_error_test! {
     name:   duplicate_variable,
     input:  "a = \"0\"\na = \"0\"",
     index:  8,
@@ -770,7 +728,7 @@ c = a + b + a + b",
     kind:   DuplicateVariable{variable: "a"},
   }
 
-  error_test! {
+  compilation_error_test! {
     name:   extra_whitespace,
     input:  "a:\n blah\n  blarg",
     index:  10,
@@ -780,7 +738,7 @@ c = a + b + a + b",
     kind:   ExtraLeadingWhitespace,
   }
 
-  error_test! {
+  compilation_error_test! {
     name:   interpolation_outside_of_recipe,
     input:  "{{",
     index:  0,
@@ -790,7 +748,7 @@ c = a + b + a + b",
     kind:   UnexpectedToken{expected: vec![Name, At], found: InterpolationStart},
   }
 
-  error_test! {
+  compilation_error_test! {
     name:   unclosed_interpolation_delimiter,
     input:  "a:\n echo {{ foo",
     index:  15,
@@ -800,7 +758,7 @@ c = a + b + a + b",
     kind:   UnexpectedToken{expected: vec![Plus, Eol, InterpolationEnd], found: Dedent},
   }
 
-  error_test! {
+  compilation_error_test! {
     name:   plus_following_parameter,
     input:  "a b c+:",
     index:  5,

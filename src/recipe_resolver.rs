@@ -102,72 +102,54 @@ impl<'a, 'b> RecipeResolver<'a, 'b> {
 #[cfg(test)]
 mod test {
   use super::*;
-  use testing::parse_error;
 
-  #[test]
-  fn circular_recipe_dependency() {
-    let text   = "a: b\nb: a";
-    let recipe = "b";
-    let circle = vec!["a", "b", "a"];
-    parse_error(text, CompilationError {
-      text:   text,
-      index:  8,
-      line:   1,
-      column: 3,
-      width:  Some(1),
-      kind:   CircularRecipeDependency{recipe, circle}
-    });
+  compilation_error_test! {
+    name:   circular_recipe_dependency,
+    input:  "a: b\nb: a",
+    index:  8,
+    line:   1,
+    column: 3,
+    width:  Some(1),
+    kind:   CircularRecipeDependency{recipe: "b", circle: vec!["a", "b", "a"]},
   }
 
-  #[test]
-  fn self_recipe_dependency() {
-    let text = "a: a";
-    parse_error(text, CompilationError {
-      text:   text,
-      index:  3,
-      line:   0,
-      column: 3,
-      width:  Some(1),
-      kind:   CircularRecipeDependency{recipe: "a", circle: vec!["a", "a"]}
-    });
+  compilation_error_test! {
+    name:   self_recipe_dependency,
+    input:  "a: a",
+    index:  3,
+    line:   0,
+    column: 3,
+    width:  Some(1),
+    kind:   CircularRecipeDependency{recipe: "a", circle: vec!["a", "a"]},
   }
 
-  #[test]
-  fn unknown_dependency() {
-    let text = "a: b";
-    parse_error(text, CompilationError {
-      text:   text,
-      index:  3,
-      line:   0,
-      column: 3,
-      width:  Some(1),
-      kind:   UnknownDependency{recipe: "a", unknown: "b"}
-    });
+  compilation_error_test! {
+    name:   unknown_dependency,
+    input:  "a: b",
+    index:  3,
+    line:   0,
+    column: 3,
+    width:  Some(1),
+    kind:   UnknownDependency{recipe: "a", unknown: "b"},
   }
 
-  #[test]
-  fn unknown_interpolation_variable() {
-    let text = "x:\n {{   hello}}";
-    parse_error(text, CompilationError {
-      text:   text,
-      index:  9,
-      line:   1,
-      column: 6,
-      width:  Some(5),
-      kind:   UndefinedVariable{variable: "hello"},
-    });
+  compilation_error_test! {
+    name:   unknown_interpolation_variable,
+    input:  "x:\n {{   hello}}",
+    index:  9,
+    line:   1,
+    column: 6,
+    width:  Some(5),
+    kind:   UndefinedVariable{variable: "hello"},
   }
 
-  #[test]
-  fn unknown_second_interpolation_variable() {
-    let text = "wtf=\"x\"\nx:\n echo\n foo {{wtf}} {{ lol }}";
-    parse_error(text, CompilationError {
-      text:   text,
-      index:  33,
-      line:   3,
-      column: 16,
-      width:  Some(3),
-      kind:   UndefinedVariable{variable: "lol"},
-    });
+  compilation_error_test! {
+    name:   unknown_second_interpolation_variable,
+    input:  "wtf=\"x\"\nx:\n echo\n foo {{wtf}} {{ lol }}",
+    index:  33,
+    line:   3,
+    column: 16,
+    width:  Some(3),
+    kind:   UndefinedVariable{variable: "lol"},
   }
 }

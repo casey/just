@@ -10,6 +10,10 @@ extern crate regex;
 extern crate tempdir;
 extern crate unicode_width;
 
+#[cfg(test)]
+#[macro_use]
+mod testing;
+
 mod assignment_evaluator;
 mod assignment_resolver;
 mod color;
@@ -32,8 +36,6 @@ mod runtime_error;
 mod shebang;
 mod token;
 mod tokenizer;
-
-#[cfg(test)] mod testing;
 
 use tokenizer::tokenize;
 

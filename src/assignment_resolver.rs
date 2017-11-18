@@ -87,49 +87,46 @@ impl<'a: 'b, 'b> AssignmentResolver<'a, 'b> {
 
 #[cfg(test)]
 mod test {
-  use testing::parse_error;
   use super::*;
+  use TokenKind::*;
 
-  #[test]
-  fn circular_variable_dependency() {
-    let text     = "a = b\nb = a";
-    let variable = "a";
-    let circle   = vec!["a", "b", "a"];
-    parse_error(text, CompilationError {
-      text:   text,
-      index:  0,
-      line:   0,
-      column: 0,
-      width:  Some(1),
-      kind:   CircularVariableDependency{variable, circle}
-    });
+  compilation_error_test! {
+    name:   unclosed_interpolation_delimiter,
+    input:  "a:\n echo {{ foo",
+    index:  15,
+    line:   1,
+    column: 12,
+    width:  Some(0),
+    kind:   UnexpectedToken{expected: vec![Plus, Eol, InterpolationEnd], found: Dedent},
   }
 
-  #[test]
-  fn self_variable_dependency() {
-    let text     = "a = a";
-    let variable = "a";
-    let circle   = vec!["a", "a"];
-    parse_error(text, CompilationError {
-      text:   text,
-      index:  0,
-      line:   0,
-      column: 0,
-      width:  Some(1),
-      kind:   CircularVariableDependency{variable, circle}
-    });
+  compilation_error_test! {
+    name:   circular_variable_dependency,
+    input:   "a = b\nb = a",
+    index:  0,
+    line:   0,
+    column: 0,
+    width:  Some(1),
+    kind:   CircularVariableDependency{variable: "a", circle: vec!["a", "b", "a"]},
   }
 
-  #[test]
-  fn unknown_expression_variable() {
-    let text = "x = yy";
-    parse_error(text, CompilationError {
-      text:   text,
-      index:  4,
-      line:   0,
-      column: 4,
-      width:  Some(2),
-      kind:   UndefinedVariable{variable: "yy"},
-    });
+  compilation_error_test! {
+    name:   self_variable_dependency,
+    input:  "a = a",
+    index:  0,
+    line:   0,
+    column: 0,
+    width:  Some(1),
+    kind:   CircularVariableDependency{variable: "a", circle: vec!["a", "a"]},
+  }
+
+  compilation_error_test! {
+    name:   unknown_expression_variable,
+    input:  "x = yy",
+    index:  4,
+    line:   0,
+    column: 4,
+    width:  Some(2),
+    kind:   UndefinedVariable{variable: "yy"},
   }
 }
