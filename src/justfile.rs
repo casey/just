@@ -165,11 +165,12 @@ impl<'a> Display for Justfile<'a> {
 mod test {
   use super::*;
   use testing::parse_success;
+  use RuntimeError::*;
 
   #[test]
   fn unknown_recipes() {
     match parse_success("a:\nb:\nc:").run(&["a", "x", "y", "z"], &Default::default()).unwrap_err() {
-      RuntimeError::UnknownRecipes{recipes, suggestion} => {
+      UnknownRecipes{recipes, suggestion} => {
         assert_eq!(recipes, &["x", "y", "z"]);
         assert_eq!(suggestion, None);
       }
@@ -197,7 +198,7 @@ a:
 ";
 
     match parse_success(text).run(&["a"], &Default::default()).unwrap_err() {
-      RuntimeError::Code{recipe, line_number, code} => {
+      Code{recipe, line_number, code} => {
         assert_eq!(recipe, "a");
         assert_eq!(code, 200);
         assert_eq!(line_number, None);
@@ -206,18 +207,18 @@ a:
     }
   }
 
-#[test]
-fn code_error() {
-  match parse_success("fail:\n @exit 100")
-    .run(&["fail"], &Default::default()).unwrap_err() {
-    RuntimeError::Code{recipe, line_number, code} => {
-      assert_eq!(recipe, "fail");
-      assert_eq!(code, 100);
-      assert_eq!(line_number, Some(2));
-    },
-    other => panic!("expected a code run error, but got: {}", other),
+  #[test]
+  fn code_error() {
+    match parse_success("fail:\n @exit 100")
+      .run(&["fail"], &Default::default()).unwrap_err() {
+      Code{recipe, line_number, code} => {
+        assert_eq!(recipe, "fail");
+        assert_eq!(code, 100);
+        assert_eq!(line_number, Some(2));
+      },
+      other => panic!("expected a code run error, but got: {}", other),
+    }
   }
-}
 
   #[test]
   fn run_args() {
@@ -226,7 +227,7 @@ a return code:
  @x() { {{return}} {{code + "0"}}; }; x"#;
 
     match parse_success(text).run(&["a", "return", "15"], &Default::default()).unwrap_err() {
-      RuntimeError::Code{recipe, line_number, code} => {
+      Code{recipe, line_number, code} => {
         assert_eq!(recipe, "a");
         assert_eq!(code, 150);
         assert_eq!(line_number, Some(3));
@@ -238,7 +239,7 @@ a return code:
   #[test]
   fn missing_some_arguments() {
     match parse_success("a b c d:").run(&["a", "b", "c"], &Default::default()).unwrap_err() {
-      RuntimeError::ArgumentCountMismatch{recipe, found, min, max} => {
+      ArgumentCountMismatch{recipe, found, min, max} => {
         assert_eq!(recipe, "a");
         assert_eq!(found, 2);
         assert_eq!(min, 3);
@@ -251,7 +252,7 @@ a return code:
   #[test]
   fn missing_some_arguments_variadic() {
     match parse_success("a b c +d:").run(&["a", "B", "C"], &Default::default()).unwrap_err() {
-      RuntimeError::ArgumentCountMismatch{recipe, found, min, max} => {
+      ArgumentCountMismatch{recipe, found, min, max} => {
         assert_eq!(recipe, "a");
         assert_eq!(found, 2);
         assert_eq!(min, 3);
@@ -265,7 +266,7 @@ a return code:
   fn missing_all_arguments() {
     match parse_success("a b c d:\n echo {{b}}{{c}}{{d}}")
           .run(&["a"], &Default::default()).unwrap_err() {
-      RuntimeError::ArgumentCountMismatch{recipe, found, min, max} => {
+      ArgumentCountMismatch{recipe, found, min, max} => {
         assert_eq!(recipe, "a");
         assert_eq!(found, 0);
         assert_eq!(min, 3);
@@ -278,7 +279,7 @@ a return code:
   #[test]
   fn missing_some_defaults() {
     match parse_success("a b c d='hello':").run(&["a", "b"], &Default::default()).unwrap_err() {
-      RuntimeError::ArgumentCountMismatch{recipe, found, min, max} => {
+      ArgumentCountMismatch{recipe, found, min, max} => {
         assert_eq!(recipe, "a");
         assert_eq!(found, 1);
         assert_eq!(min, 2);
@@ -291,7 +292,7 @@ a return code:
   #[test]
   fn missing_all_defaults() {
     match parse_success("a b c='r' d='h':").run(&["a"], &Default::default()).unwrap_err() {
-      RuntimeError::ArgumentCountMismatch{recipe, found, min, max} => {
+      ArgumentCountMismatch{recipe, found, min, max} => {
         assert_eq!(recipe, "a");
         assert_eq!(found, 0);
         assert_eq!(min, 1);
@@ -308,7 +309,7 @@ a return code:
     configuration.overrides.insert("baz", "bob");
     match parse_success("a:\n echo {{`f() { return 100; }; f`}}")
           .run(&["a"], &configuration).unwrap_err() {
-      RuntimeError::UnknownOverrides{overrides} => {
+      UnknownOverrides{overrides} => {
         assert_eq!(overrides, &["baz", "foo"]);
       },
       other => panic!("expected a code run error, but got: {}", other),
@@ -333,7 +334,7 @@ wut:
     };
 
     match parse_success(text).run(&["wut"], &configuration).unwrap_err() {
-      RuntimeError::Code{code: _, line_number, recipe} => {
+      Code{code: _, line_number, recipe} => {
         assert_eq!(recipe, "wut");
         assert_eq!(line_number, Some(8));
       },

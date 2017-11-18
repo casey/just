@@ -44,5 +44,3 @@ impl<'a> CookedString<'a> {
     }
   }
 }
-
-

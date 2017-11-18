@@ -22,4 +22,3 @@ impl<'a> Display for Parameter<'a> {
     Ok(())
   }
 }
-

@@ -1,7 +1,6 @@
 use common::*;
 
 use compile;
-use tokenizer::tokenize;
 
 pub fn parse_success(text: &str) -> Justfile {
   match compile(text) {
@@ -10,20 +9,43 @@ pub fn parse_success(text: &str) -> Justfile {
   }
 }
 
-pub fn parse_error(text: &str, expected: CompilationError) {
-  let tokens = tokenize(text).unwrap();
-  let parser = Parser::new(text, tokens);
+macro_rules! compilation_error_test {
+  (
+    name:     $name:ident,
+    input:    $input:expr,
+    index:    $index:expr,
+    line:     $line:expr,
+    column:   $column:expr,
+    width:    $width:expr,
+    kind:     $kind:expr,
+  ) => {
+    #[test]
+    fn $name() {
+      let input = $input;
 
-  if let Err(error) = parser.justfile() {
-    assert_eq!(error.text,   expected.text);
-    assert_eq!(error.index,  expected.index);
-    assert_eq!(error.line,   expected.line);
-    assert_eq!(error.column, expected.column);
-    assert_eq!(error.kind,   expected.kind);
-    assert_eq!(error.width,  expected.width);
-    assert_eq!(error,        expected);
-  } else {
-    panic!("Expected {:?} but parse succeeded", expected.kind);
+      let expected = ::CompilationError {
+        text:   input,
+        index:  $index,
+        line:   $line,
+        column: $column,
+        width:  $width,
+        kind:   $kind,
+      };
+
+      let tokens = ::tokenizer::tokenize(input).unwrap();
+      let parser = ::Parser::new(input, tokens);
+
+      if let Err(error) = parser.justfile() {
+        assert_eq!(error.text,   expected.text);
+        assert_eq!(error.index,  expected.index);
+        assert_eq!(error.line,   expected.line);
+        assert_eq!(error.column, expected.column);
+        assert_eq!(error.width,  expected.width);
+        assert_eq!(error.kind,   expected.kind);
+        assert_eq!(error,        expected);
+      } else {
+        panic!("parse succeeded but expected: {}\n{}", expected, input);
+      }
+    }
   }
 }
-

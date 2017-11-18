@@ -14,4 +14,3 @@ impl<'a> Fragment<'a> {
     }
   }
 }
-
