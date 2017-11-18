@@ -167,12 +167,12 @@ b = `echo $exported_variable`
 recipe:
   echo {{b}}
 "#;
-    let options = Configuration {
+    let configuration = Configuration {
       quiet: true,
       ..Default::default()
     };
 
-    match parse_success(text).run(&["recipe"], &options).unwrap_err() {
+    match parse_success(text).run(&["recipe"], &configuration).unwrap_err() {
       RuntimeError::Backtick{token, output_error: OutputError::Code(_)} => {
         assert_eq!(token.lexeme, "`echo $exported_variable`");
       },

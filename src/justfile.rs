@@ -44,10 +44,10 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
 
   pub fn run(
     &'a self,
-    arguments: &[&'a str],
-    options:   &Configuration<'a>,
+    arguments:     &[&'a str],
+    configuration: &Configuration<'a>,
   ) -> RunResult<'a, ()> {
-    let unknown_overrides = options.overrides.keys().cloned()
+    let unknown_overrides = configuration.overrides.keys().cloned()
       .filter(|name| !self.assignments.contains_key(name))
       .collect::<Vec<_>>();
 
@@ -57,13 +57,13 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
 
     let scope = evaluate_assignments(
       &self.assignments,
-      &options.overrides,
-      options.quiet,
-      options.shell,
-      options.dry_run,
+      &configuration.overrides,
+      configuration.quiet,
+      configuration.shell,
+      configuration.dry_run,
     )?;
 
-    if options.evaluate {
+    if configuration.evaluate {
       let mut width = 0;
       for name in scope.keys() {
         width = cmp::max(name.len(), width);
@@ -114,7 +114,7 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
 
     let mut ran = empty();
     for (recipe, arguments) in grouped {
-      self.run_recipe(recipe, arguments, &scope, &mut ran, options)?
+      self.run_recipe(recipe, arguments, &scope, &mut ran, configuration)?
     }
 
     Ok(())
@@ -122,18 +122,18 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
 
   fn run_recipe<'c>(
     &'c self,
-    recipe:    &Recipe<'a>,
-    arguments: &[&'a str],
-    scope:     &Map<&'c str, String>,
-    ran:       &mut Set<&'a str>,
-    options:   &Configuration<'a>,
+    recipe:        &Recipe<'a>,
+    arguments:     &[&'a str],
+    scope:         &Map<&'c str, String>,
+    ran:           &mut Set<&'a str>,
+    configuration: &Configuration<'a>,
   ) -> RunResult<()> {
     for dependency_name in &recipe.dependencies {
       if !ran.contains(dependency_name) {
-        self.run_recipe(&self.recipes[dependency_name], &[], scope, ran, options)?;
+        self.run_recipe(&self.recipes[dependency_name], &[], scope, ran, configuration)?;
       }
     }
-    recipe.run(arguments, scope, &self.exports, options)?;
+    recipe.run(arguments, scope, &self.exports, configuration)?;
     ran.insert(recipe.name);
     Ok(())
   }
@@ -305,11 +305,11 @@ a return code:
 
   #[test]
   fn unknown_overrides() {
-    let mut options: Configuration = Default::default();
-    options.overrides.insert("foo", "bar");
-    options.overrides.insert("baz", "bob");
+    let mut configuration: Configuration = Default::default();
+    configuration.overrides.insert("foo", "bar");
+    configuration.overrides.insert("baz", "bob");
     match parse_success("a:\n echo {{`f() { return 100; }; f`}}")
-          .run(&["a"], &options).unwrap_err() {
+          .run(&["a"], &configuration).unwrap_err() {
       RuntimeError::UnknownOverrides{overrides} => {
         assert_eq!(overrides, &["baz", "foo"]);
       },
@@ -329,12 +329,12 @@ wut:
   echo $foo $bar $baz
 "#;
 
-    let options = Configuration {
+    let configuration = Configuration {
       quiet: true,
       ..Default::default()
     };
 
-    match parse_success(text).run(&["wut"], &options).unwrap_err() {
+    match parse_success(text).run(&["wut"], &configuration).unwrap_err() {
       RuntimeError::Code{code: _, line_number, recipe} => {
         assert_eq!(recipe, "wut");
         assert_eq!(line_number, Some(8));
