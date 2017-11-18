@@ -19,266 +19,285 @@ fn mixed_whitespace(text: &str) -> bool {
   !(text.chars().all(|c| c == ' ') || text.chars().all(|c| c == '\t'))
 }
 
-pub fn tokenize(text: &str) -> CompilationResult<Vec<Token>> {
-  lazy_static! {
-    static ref BACKTICK:                  Regex = token(r"`[^`\n\r]*`"               );
-    static ref COLON:                     Regex = token(r":"                         );
-    static ref AT:                        Regex = token(r"@"                         );
-    static ref COMMENT:                   Regex = token(r"#([^!\n\r].*)?$"           );
-    static ref EOF:                       Regex = token(r"(?-m)$"                    );
-    static ref EOL:                       Regex = token(r"\n|\r\n"                   );
-    static ref EQUALS:                    Regex = token(r"="                         );
-    static ref INTERPOLATION_END:         Regex = token(r"[}][}]"                    );
-    static ref INTERPOLATION_START_TOKEN: Regex = token(r"[{][{]"                    );
-    static ref NAME:                      Regex = token(r"([a-zA-Z_][a-zA-Z0-9_-]*)" );
-    static ref PLUS:                      Regex = token(r"[+]"                       );
-    static ref STRING:                    Regex = token("\""                         );
-    static ref RAW_STRING:                Regex = token(r#"'[^']*'"#                 );
-    static ref UNTERMINATED_RAW_STRING:   Regex = token(r#"'[^']*"#                  );
-    static ref INDENT:                    Regex = re(r"^([ \t]*)[^ \t\n\r]"     );
-    static ref INTERPOLATION_START:       Regex = re(r"^[{][{]"                 );
-    static ref LEADING_TEXT:              Regex = re(r"^(?m)(.+?)[{][{]"        );
-    static ref LINE:                      Regex = re(r"^(?m)[ \t]+[^ \t\n\r].*$");
-    static ref TEXT:                      Regex = re(r"^(?m)(.+)"               );
-  }
+pub struct Tokenizer<'a> {
+  tokens: Vec<Token<'a>>,
+  text:   &'a str,
+  rest:   &'a str,
+  index:  usize,
+  column: usize,
+  line:   usize,
+  state:  Vec<State<'a>>,
+}
 
-  #[derive(PartialEq)]
-  enum State<'a> {
-    Start,
-    Indent(&'a str),
-    Text,
-    Interpolation,
-  }
+#[derive(PartialEq)]
+enum State<'a> {
+  Start,
+  Indent(&'a str),
+  Text,
+  Interpolation,
+}
 
-  fn indentation(text: &str) -> Option<&str> {
-    INDENT.captures(text).map(|captures| captures.get(1).unwrap().as_str())
-  }
-
-  let mut tokens = vec![];
-  let mut rest   = text;
-  let mut index  = 0;
-  let mut line   = 0;
-  let mut column = 0;
-  let mut state  = vec![State::Start];
-
-  macro_rules! error {
-    ($kind:expr) => {{
-      Err(CompilationError {
-        text:   text,
-        index:  index,
-        line:   line,
-        column: column,
-        width:  None,
-        kind:   $kind,
-      })
-    }};
-  }
-
-  loop {
-    if column == 0 {
-      if let Some(kind) = match (state.last().unwrap(), indentation(rest)) {
-        // ignore: was no indentation and there still isn't
-        //         or current line is blank
-        (&State::Start, Some("")) | (_, None) => {
-          None
-        }
-        // indent: was no indentation, now there is
-        (&State::Start, Some(current)) => {
-          if mixed_whitespace(current) {
-            return error!(MixedLeadingWhitespace{whitespace: current})
-          }
-          //indent = Some(current);
-          state.push(State::Indent(current));
-          Some(Indent)
-        }
-        // dedent: there was indentation and now there isn't
-        (&State::Indent(_), Some("")) => {
-          // indent = None;
-          state.pop();
-          Some(Dedent)
-        }
-        // was indentation and still is, check if the new indentation matches
-        (&State::Indent(previous), Some(current)) => {
-          if !current.starts_with(previous) {
-            return error!(InconsistentLeadingWhitespace{
-              expected: previous,
-              found: current
-            });
-          }
-          None
-        }
-        // at column 0 in some other state: this should never happen
-        (&State::Text, _) | (&State::Interpolation, _) => {
-          return error!(Internal {
-            message: "unexpected state at column 0".to_string()
-          });
-        }
-      } {
-        tokens.push(Token {
-          index:  index,
-          line:   line,
-          column: column,
-          text:   text,
-          prefix: "",
-          lexeme: "",
-          kind:   kind,
-        });
-      }
-    }
-
-    // insert a dedent if we're indented and we hit the end of the file
-    if &State::Start != state.last().unwrap() && EOF.is_match(rest) {
-      tokens.push(Token {
-        index:  index,
-        line:   line,
-        column: column,
-        text:   text,
-        prefix: "",
-        lexeme: "",
-        kind:   Dedent,
-      });
-    }
-
-    let (prefix, lexeme, kind) =
-    if let (0, &State::Indent(indent), Some(captures)) =
-      (column, state.last().unwrap(), LINE.captures(rest)) {
-      let line = captures.get(0).unwrap().as_str();
-      if !line.starts_with(indent) {
-        return error!(Internal{message: "unexpected indent".to_string()});
-      }
-      state.push(State::Text);
-      (&line[0..indent.len()], "", Line)
-    } else if let Some(captures) = EOF.captures(rest) {
-      (captures.get(1).unwrap().as_str(), captures.get(2).unwrap().as_str(), Eof)
-    } else if let State::Text = *state.last().unwrap() {
-      if let Some(captures) = INTERPOLATION_START.captures(rest) {
-        state.push(State::Interpolation);
-        ("", captures.get(0).unwrap().as_str(), InterpolationStart)
-      } else if let Some(captures) = LEADING_TEXT.captures(rest) {
-        ("", captures.get(1).unwrap().as_str(), Text)
-      } else if let Some(captures) = TEXT.captures(rest) {
-        ("", captures.get(1).unwrap().as_str(), Text)
-      } else if let Some(captures) = EOL.captures(rest) {
-        state.pop();
-        (captures.get(1).unwrap().as_str(), captures.get(2).unwrap().as_str(), Eol)
-      } else {
-        return error!(Internal {
-          message: format!("Could not match token in text state: \"{}\"", rest)
-        });
-      }
-    } else if let Some(captures) = INTERPOLATION_START_TOKEN.captures(rest) {
-      (captures.get(1).unwrap().as_str(), captures.get(2).unwrap().as_str(), InterpolationStart)
-    } else if let Some(captures) = INTERPOLATION_END.captures(rest) {
-      if state.last().unwrap() == &State::Interpolation {
-        state.pop();
-      }
-      (captures.get(1).unwrap().as_str(), captures.get(2).unwrap().as_str(), InterpolationEnd)
-    } else if let Some(captures) = NAME.captures(rest) {
-      (captures.get(1).unwrap().as_str(), captures.get(2).unwrap().as_str(), Name)
-    } else if let Some(captures) = EOL.captures(rest) {
-      if state.last().unwrap() == &State::Interpolation {
-        return error!(Internal {
-          message: "hit EOL while still in interpolation state".to_string()
-        });
-      }
-      (captures.get(1).unwrap().as_str(), captures.get(2).unwrap().as_str(), Eol)
-    } else if let Some(captures) = BACKTICK.captures(rest) {
-      (captures.get(1).unwrap().as_str(), captures.get(2).unwrap().as_str(), Backtick)
-    } else if let Some(captures) = COLON.captures(rest) {
-      (captures.get(1).unwrap().as_str(), captures.get(2).unwrap().as_str(), Colon)
-    } else if let Some(captures) = AT.captures(rest) {
-      (captures.get(1).unwrap().as_str(), captures.get(2).unwrap().as_str(), At)
-    } else if let Some(captures) = PLUS.captures(rest) {
-      (captures.get(1).unwrap().as_str(), captures.get(2).unwrap().as_str(), Plus)
-    } else if let Some(captures) = EQUALS.captures(rest) {
-      (captures.get(1).unwrap().as_str(), captures.get(2).unwrap().as_str(), Equals)
-    } else if let Some(captures) = COMMENT.captures(rest) {
-      (captures.get(1).unwrap().as_str(), captures.get(2).unwrap().as_str(), Comment)
-    } else if let Some(captures) = RAW_STRING.captures(rest) {
-      (captures.get(1).unwrap().as_str(), captures.get(2).unwrap().as_str(), RawString)
-    } else if UNTERMINATED_RAW_STRING.is_match(rest) {
-      return error!(UnterminatedString);
-    } else if let Some(captures) = STRING.captures(rest) {
-      let prefix = captures.get(1).unwrap().as_str();
-      let contents = &rest[prefix.len()+1..];
-      if contents.is_empty() {
-        return error!(UnterminatedString);
-      }
-      let mut len = 0;
-      let mut escape = false;
-      for c in contents.chars() {
-        if c == '\n' || c == '\r' {
-          return error!(UnterminatedString);
-        } else if !escape && c == '"' {
-          break;
-        } else if !escape && c == '\\' {
-          escape = true;
-        } else if escape {
-          escape = false;
-        }
-        len += c.len_utf8();
-      }
-      let start = prefix.len();
-      let content_end = start + len + 1;
-      if escape || content_end >= rest.len() {
-        return error!(UnterminatedString);
-      }
-      (prefix, &rest[start..content_end + 1], StringToken)
-    } else if rest.starts_with("#!") {
-      return error!(OuterShebang)
-    } else {
-      return error!(UnknownStartOfToken)
+impl<'a> Tokenizer<'a> {
+  pub fn tokenize(text: &'a str) -> CompilationResult<Vec<Token<'a>>> {
+    let tokenizer = Tokenizer{
+      tokens: vec![],
+      text:   text,
+      rest:   text,
+      index:  0,
+      line:   0,
+      column: 0,
+      state:  vec![State::Start],
     };
 
-    tokens.push(Token {
-      index:  index,
-      line:   line,
-      column: column,
-      prefix: prefix,
-      text:   text,
-      lexeme: lexeme,
-      kind:   kind,
-    });
-
-    let len = prefix.len() + lexeme.len();
-
-    if len == 0 {
-      let last = tokens.last().unwrap();
-      match last.kind {
-        Eof => {},
-        _ => return Err(last.error(Internal {
-          message: format!("zero length token: {:?}", last)
-        })),
-      }
-    }
-
-    match tokens.last().unwrap().kind {
-      Eol => {
-        line += 1;
-        column = 0;
-      }
-      Eof => {
-        break;
-      }
-      RawString => {
-        let lexeme_lines = lexeme.lines().count();
-        line += lexeme_lines - 1;
-        if lexeme_lines == 1 {
-          column += len;
-        } else {
-          column = lexeme.lines().last().unwrap().len();
-        }
-      }
-      _ => {
-        column += len;
-      }
-    }
-
-    rest = &rest[len..];
-    index += len;
+    tokenizer.inner()
   }
 
-  Ok(tokens)
+  pub fn inner(mut self) -> CompilationResult<'a, Vec<Token<'a>>> {
+    lazy_static! {
+      static ref BACKTICK:                  Regex = token(r"`[^`\n\r]*`"               );
+      static ref COLON:                     Regex = token(r":"                         );
+      static ref AT:                        Regex = token(r"@"                         );
+      static ref COMMENT:                   Regex = token(r"#([^!\n\r].*)?$"           );
+      static ref EOF:                       Regex = token(r"(?-m)$"                    );
+      static ref EOL:                       Regex = token(r"\n|\r\n"                   );
+      static ref EQUALS:                    Regex = token(r"="                         );
+      static ref INTERPOLATION_END:         Regex = token(r"[}][}]"                    );
+      static ref INTERPOLATION_START_TOKEN: Regex = token(r"[{][{]"                    );
+      static ref NAME:                      Regex = token(r"([a-zA-Z_][a-zA-Z0-9_-]*)" );
+      static ref PLUS:                      Regex = token(r"[+]"                       );
+      static ref STRING:                    Regex = token("\""                         );
+      static ref RAW_STRING:                Regex = token(r#"'[^']*'"#                 );
+      static ref UNTERMINATED_RAW_STRING:   Regex = token(r#"'[^']*"#                  );
+      static ref INDENT:                    Regex = re(r"^([ \t]*)[^ \t\n\r]"     );
+      static ref INTERPOLATION_START:       Regex = re(r"^[{][{]"                 );
+      static ref LEADING_TEXT:              Regex = re(r"^(?m)(.+?)[{][{]"        );
+      static ref LINE:                      Regex = re(r"^(?m)[ \t]+[^ \t\n\r].*$");
+      static ref TEXT:                      Regex = re(r"^(?m)(.+)"               );
+    }
+
+    fn indentation(text: &str) -> Option<&str> {
+      INDENT.captures(text).map(|captures| captures.get(1).unwrap().as_str())
+    }
+
+    macro_rules! error {
+      ($kind:expr) => {{
+        Err(CompilationError {
+          text:   self.text,
+          index:  self.index,
+          line:   self.line,
+          column: self.column,
+          width:  None,
+          kind:   $kind,
+        })
+      }};
+    }
+
+    loop {
+      if self.column == 0 {
+        if let Some(kind) = match (self.state.last().unwrap(), indentation(self.rest)) {
+          // ignore: was no indentation and there still isn't
+          //         or current line is blank
+          (&State::Start, Some("")) | (_, None) => {
+            None
+          }
+          // indent: was no indentation, now there is
+          (&State::Start, Some(current)) => {
+            if mixed_whitespace(current) {
+              return error!(MixedLeadingWhitespace{whitespace: current})
+            }
+            //indent = Some(current);
+            self.state.push(State::Indent(current));
+            Some(Indent)
+          }
+          // dedent: there was indentation and now there isn't
+          (&State::Indent(_), Some("")) => {
+            // indent = None;
+            self.state.pop();
+            Some(Dedent)
+          }
+          // was indentation and still is, check if the new indentation matches
+          (&State::Indent(previous), Some(current)) => {
+            if !current.starts_with(previous) {
+              return error!(InconsistentLeadingWhitespace{
+                expected: previous,
+                found: current
+              });
+            }
+            None
+          }
+          // at column 0 in some other state: this should never happen
+          (&State::Text, _) | (&State::Interpolation, _) => {
+            return error!(Internal {
+              message: "unexpected state at column 0".to_string()
+            });
+          }
+        } {
+          self.tokens.push(Token {
+            index:  self.index,
+            line:   self.line,
+            column: self.column,
+            text:   self.text,
+            prefix: "",
+            lexeme: "",
+            kind:   kind,
+          });
+        }
+      }
+
+      // insert a dedent if we're indented and we hit the end of the file
+      if &State::Start != self.state.last().unwrap() && EOF.is_match(self.rest) {
+        self.tokens.push(Token {
+          index:  self.index,
+          line:   self.line,
+          column: self.column,
+          text:   self.text,
+          prefix: "",
+          lexeme: "",
+          kind:   Dedent,
+        });
+      }
+
+      let (prefix, lexeme, kind) =
+      if let (0, &State::Indent(indent), Some(captures)) =
+        (self.column, self.state.last().unwrap(), LINE.captures(self.rest)) {
+        let line = captures.get(0).unwrap().as_str();
+        if !line.starts_with(indent) {
+          return error!(Internal{message: "unexpected indent".to_string()});
+        }
+        self.state.push(State::Text);
+        (&line[0..indent.len()], "", Line)
+      } else if let Some(captures) = EOF.captures(self.rest) {
+        (captures.get(1).unwrap().as_str(), captures.get(2).unwrap().as_str(), Eof)
+      } else if let State::Text = *self.state.last().unwrap() {
+        if let Some(captures) = INTERPOLATION_START.captures(self.rest) {
+          self.state.push(State::Interpolation);
+          ("", captures.get(0).unwrap().as_str(), InterpolationStart)
+        } else if let Some(captures) = LEADING_TEXT.captures(self.rest) {
+          ("", captures.get(1).unwrap().as_str(), Text)
+        } else if let Some(captures) = TEXT.captures(self.rest) {
+          ("", captures.get(1).unwrap().as_str(), Text)
+        } else if let Some(captures) = EOL.captures(self.rest) {
+          self.state.pop();
+          (captures.get(1).unwrap().as_str(), captures.get(2).unwrap().as_str(), Eol)
+        } else {
+          return error!(Internal {
+            message: format!("Could not match token in text state: \"{}\"", self.rest)
+          });
+        }
+      } else if let Some(captures) = INTERPOLATION_START_TOKEN.captures(self.rest) {
+        (captures.get(1).unwrap().as_str(), captures.get(2).unwrap().as_str(), InterpolationStart)
+      } else if let Some(captures) = INTERPOLATION_END.captures(self.rest) {
+        if self.state.last().unwrap() == &State::Interpolation {
+          self.state.pop();
+        }
+        (captures.get(1).unwrap().as_str(), captures.get(2).unwrap().as_str(), InterpolationEnd)
+      } else if let Some(captures) = NAME.captures(self.rest) {
+        (captures.get(1).unwrap().as_str(), captures.get(2).unwrap().as_str(), Name)
+      } else if let Some(captures) = EOL.captures(self.rest) {
+        if self.state.last().unwrap() == &State::Interpolation {
+          return error!(Internal {
+            message: "hit EOL while still in interpolation state".to_string()
+          });
+        }
+        (captures.get(1).unwrap().as_str(), captures.get(2).unwrap().as_str(), Eol)
+      } else if let Some(captures) = BACKTICK.captures(self.rest) {
+        (captures.get(1).unwrap().as_str(), captures.get(2).unwrap().as_str(), Backtick)
+      } else if let Some(captures) = COLON.captures(self.rest) {
+        (captures.get(1).unwrap().as_str(), captures.get(2).unwrap().as_str(), Colon)
+      } else if let Some(captures) = AT.captures(self.rest) {
+        (captures.get(1).unwrap().as_str(), captures.get(2).unwrap().as_str(), At)
+      } else if let Some(captures) = PLUS.captures(self.rest) {
+        (captures.get(1).unwrap().as_str(), captures.get(2).unwrap().as_str(), Plus)
+      } else if let Some(captures) = EQUALS.captures(self.rest) {
+        (captures.get(1).unwrap().as_str(), captures.get(2).unwrap().as_str(), Equals)
+      } else if let Some(captures) = COMMENT.captures(self.rest) {
+        (captures.get(1).unwrap().as_str(), captures.get(2).unwrap().as_str(), Comment)
+      } else if let Some(captures) = RAW_STRING.captures(self.rest) {
+        (captures.get(1).unwrap().as_str(), captures.get(2).unwrap().as_str(), RawString)
+      } else if UNTERMINATED_RAW_STRING.is_match(self.rest) {
+        return error!(UnterminatedString);
+      } else if let Some(captures) = STRING.captures(self.rest) {
+        let prefix = captures.get(1).unwrap().as_str();
+        let contents = &self.rest[prefix.len()+1..];
+        if contents.is_empty() {
+          return error!(UnterminatedString);
+        }
+        let mut len = 0;
+        let mut escape = false;
+        for c in contents.chars() {
+          if c == '\n' || c == '\r' {
+            return error!(UnterminatedString);
+          } else if !escape && c == '"' {
+            break;
+          } else if !escape && c == '\\' {
+            escape = true;
+          } else if escape {
+            escape = false;
+          }
+          len += c.len_utf8();
+        }
+        let start = prefix.len();
+        let content_end = start + len + 1;
+        if escape || content_end >= self.rest.len() {
+          return error!(UnterminatedString);
+        }
+        (prefix, &self.rest[start..content_end + 1], StringToken)
+      } else if self.rest.starts_with("#!") {
+        return error!(OuterShebang)
+      } else {
+        return error!(UnknownStartOfToken)
+      };
+
+      self.tokens.push(Token {
+        index:  self.index,
+        line:   self.line,
+        column: self.column,
+        prefix: prefix,
+        text:   self.text,
+        lexeme: lexeme,
+        kind:   kind,
+      });
+
+      let len = prefix.len() + lexeme.len();
+
+      if len == 0 {
+        let last = self.tokens.last().unwrap();
+        match last.kind {
+          Eof => {},
+          _ => return Err(last.error(Internal {
+            message: format!("zero length token: {:?}", last)
+          })),
+        }
+      }
+
+      match self.tokens.last().unwrap().kind {
+        Eol => {
+          self.line += 1;
+          self.column = 0;
+        }
+        Eof => {
+          break;
+        }
+        RawString => {
+          let lexeme_lines = lexeme.lines().count();
+          self.line += lexeme_lines - 1;
+          if lexeme_lines == 1 {
+            self.column += len;
+          } else {
+            self.column = lexeme.lines().last().unwrap().len();
+          }
+        }
+        _ => {
+          self.column += len;
+        }
+      }
+
+      self.rest = &self.rest[len..];
+      self.index += len;
+    }
+
+    Ok(self.tokens)
+  }
 }
 
 #[cfg(test)]
@@ -291,7 +310,7 @@ mod test {
       fn $name() {
         let input = $input;
         let expected = $expected;
-        let tokens = tokenize(input).unwrap();
+        let tokens = ::Tokenizer::tokenize(input).unwrap();
         let roundtrip = tokens.iter().map(|t| {
           let mut s = String::new();
           s += t.prefix;
@@ -354,7 +373,7 @@ mod test {
           kind:   $kind,
         };
 
-        if let Err(error) = tokenize(input) {
+        if let Err(error) = Tokenizer::tokenize(input) {
           assert_eq!(error.text,   expected.text);
           assert_eq!(error.index,  expected.index);
           assert_eq!(error.line,   expected.line);
@@ -362,7 +381,7 @@ mod test {
           assert_eq!(error.kind,   expected.kind);
           assert_eq!(error,        expected);
         } else {
-          panic!("tokenize() succeeded but expected: {}\n{}", expected, input);
+          panic!("tokenize succeeded but expected: {}\n{}", expected, input);
         }
       }
     }
@@ -378,7 +397,7 @@ mod test {
     tokenize_recipe_interpolation_eol,
     "foo: # some comment
  {{hello}}
-", 
+",
     "N:#$>^{N}$<.",
   }
 

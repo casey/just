@@ -37,8 +37,6 @@ mod shebang;
 mod token;
 mod tokenizer;
 
-use tokenizer::tokenize;
-
 mod common {
   pub use std::borrow::Cow;
   pub use std::collections::{BTreeMap as Map, BTreeSet as Set};
@@ -72,12 +70,13 @@ mod common {
   pub use runtime_error::{RuntimeError, RunResult};
   pub use shebang::Shebang;
   pub use token::{Token, TokenKind};
+  pub use tokenizer::Tokenizer;
 }
 
 use common::*;
 
 fn compile(text: &str) -> CompilationResult<Justfile> {
-  let tokens = tokenize(text)?;
+  let tokens = Tokenizer::tokenize(text)?;
   let parser = Parser::new(text, tokens);
   parser.justfile()
 }
