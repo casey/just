@@ -52,6 +52,77 @@ impl<'a> Tokenizer<'a> {
     tokenizer.inner()
   }
 
+  fn error(&self, kind: CompilationErrorKind<'a>) -> CompilationResult<'a, ()> {
+    Err(CompilationError {
+      text:   self.text,
+      index:  self.index,
+      line:   self.line,
+      column: self.column,
+      width:  None,
+      kind:   kind,
+    })
+  }
+
+  fn scan_indent(&mut self) -> CompilationResult<'a, ()> {
+    lazy_static! {
+      static ref INDENT: Regex = re(r"^([ \t]*)[^ \t\n\r]");
+    }
+
+    let indentation = INDENT.captures(self.rest).map(|captures| captures.get(1).unwrap().as_str());
+
+    if self.column == 0 {
+      if let Some(kind) = match (self.state.last().unwrap(), indentation) {
+        // ignore: was no indentation and there still isn't
+        //         or current line is blank
+        (&State::Start, Some("")) | (_, None) => {
+          None
+        }
+        // indent: was no indentation, now there is
+        (&State::Start, Some(current)) => {
+          if mixed_whitespace(current) {
+            return self.error(MixedLeadingWhitespace{whitespace: current})
+          }
+          //indent = Some(current);
+          self.state.push(State::Indent(current));
+          Some(Indent)
+        }
+        // dedent: there was indentation and now there isn't
+        (&State::Indent(_), Some("")) => {
+          // indent = None;
+          self.state.pop();
+          Some(Dedent)
+        }
+        // was indentation and still is, check if the new indentation matches
+        (&State::Indent(previous), Some(current)) => {
+          if !current.starts_with(previous) {
+            return self.error(InconsistentLeadingWhitespace{
+              expected: previous,
+              found: current
+            });
+          }
+          None
+        }
+        // at column 0 in some other state: this should never happen
+        (&State::Text, _) | (&State::Interpolation, _) => {
+          return self.error(Internal {
+            message: "unexpected state at column 0".to_string()
+          });
+        }
+      } {
+        self.tokens.push(Token {
+          index:  self.index,
+          line:   self.line,
+          column: self.column,
+          text:   self.text,
+          prefix: "",
+          lexeme: "",
+          kind:   kind,
+        });
+      }
+    }
+    Ok(())
+  }
+
   pub fn inner(mut self) -> CompilationResult<'a, Vec<Token<'a>>> {
     lazy_static! {
       static ref BACKTICK:                  Regex = token(r"`[^`\n\r]*`"               );
@@ -68,15 +139,10 @@ impl<'a> Tokenizer<'a> {
       static ref STRING:                    Regex = token("\""                         );
       static ref RAW_STRING:                Regex = token(r#"'[^']*'"#                 );
       static ref UNTERMINATED_RAW_STRING:   Regex = token(r#"'[^']*"#                  );
-      static ref INDENT:                    Regex = re(r"^([ \t]*)[^ \t\n\r]"     );
       static ref INTERPOLATION_START:       Regex = re(r"^[{][{]"                 );
       static ref LEADING_TEXT:              Regex = re(r"^(?m)(.+?)[{][{]"        );
       static ref LINE:                      Regex = re(r"^(?m)[ \t]+[^ \t\n\r].*$");
       static ref TEXT:                      Regex = re(r"^(?m)(.+)"               );
-    }
-
-    fn indentation(text: &str) -> Option<&str> {
-      INDENT.captures(text).map(|captures| captures.get(1).unwrap().as_str())
     }
 
     macro_rules! error {
@@ -93,56 +159,7 @@ impl<'a> Tokenizer<'a> {
     }
 
     loop {
-      if self.column == 0 {
-        if let Some(kind) = match (self.state.last().unwrap(), indentation(self.rest)) {
-          // ignore: was no indentation and there still isn't
-          //         or current line is blank
-          (&State::Start, Some("")) | (_, None) => {
-            None
-          }
-          // indent: was no indentation, now there is
-          (&State::Start, Some(current)) => {
-            if mixed_whitespace(current) {
-              return error!(MixedLeadingWhitespace{whitespace: current})
-            }
-            //indent = Some(current);
-            self.state.push(State::Indent(current));
-            Some(Indent)
-          }
-          // dedent: there was indentation and now there isn't
-          (&State::Indent(_), Some("")) => {
-            // indent = None;
-            self.state.pop();
-            Some(Dedent)
-          }
-          // was indentation and still is, check if the new indentation matches
-          (&State::Indent(previous), Some(current)) => {
-            if !current.starts_with(previous) {
-              return error!(InconsistentLeadingWhitespace{
-                expected: previous,
-                found: current
-              });
-            }
-            None
-          }
-          // at column 0 in some other state: this should never happen
-          (&State::Text, _) | (&State::Interpolation, _) => {
-            return error!(Internal {
-              message: "unexpected state at column 0".to_string()
-            });
-          }
-        } {
-          self.tokens.push(Token {
-            index:  self.index,
-            line:   self.line,
-            column: self.column,
-            text:   self.text,
-            prefix: "",
-            lexeme: "",
-            kind:   kind,
-          });
-        }
-      }
+      self.scan_indent()?;
 
       // insert a dedent if we're indented and we hit the end of the file
       if &State::Start != self.state.last().unwrap() && EOF.is_match(self.rest) {
