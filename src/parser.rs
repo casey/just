@@ -386,7 +386,7 @@ mod test {
   use super::*;
   use brev;
   use testing::parse_success;
-  use testing::parse_error;
+  use tokenize;
 
   macro_rules! summary_test {
     ($name:ident, $input:expr, $expected:expr $(,)*) => {
@@ -405,7 +405,49 @@ mod test {
     }
   }
 
-  summary_test!{parse_empty,
+  macro_rules! error_test {
+    (
+      name:     $name:ident,
+      input:    $input:expr,
+      index:    $index:expr,
+      line:     $line:expr,
+      column:   $column:expr,
+      width:    $width:expr,
+      kind:     $kind:expr,
+    ) => {
+      #[test]
+      fn $name() {
+        let input = $input;
+
+        let expected = CompilationError {
+          text:   input,
+          index:  $index,
+          line:   $line,
+          column: $column,
+          width:  $width,
+          kind:   $kind,
+        };
+
+        let tokens = tokenize(input).unwrap();
+        let parser = Parser::new(input, tokens);
+
+        if let Err(error) = parser.justfile() {
+          assert_eq!(error.text,   expected.text);
+          assert_eq!(error.index,  expected.index);
+          assert_eq!(error.line,   expected.line);
+          assert_eq!(error.column, expected.column);
+          assert_eq!(error.width,  expected.width);
+          assert_eq!(error.kind,   expected.kind);
+          assert_eq!(error,        expected);
+        } else {
+          panic!("parse succeeded but expected: {}\n{}", expected, input);
+        }
+      }
+    }
+  }
+
+  summary_test! {
+    parse_empty,
     "
 
 # hello
@@ -415,7 +457,8 @@ mod test {
     "",
   }
 
-  summary_test!{parse_string_default,
+  summary_test! {
+    parse_string_default,
     r#"
 
 foo a="b\t":
@@ -425,7 +468,8 @@ foo a="b\t":
     r#"foo a='b\t':"#,
   }
 
-  summary_test!{parse_variadic,
+  summary_test! {
+    parse_variadic,
     r#"
 
 foo +a:
@@ -435,7 +479,8 @@ foo +a:
     r#"foo +a:"#,
   }
 
-  summary_test!{parse_variadic_string_default,
+  summary_test! {
+    parse_variadic_string_default,
     r#"
 
 foo +a="Hello":
@@ -445,7 +490,8 @@ foo +a="Hello":
     r#"foo +a='Hello':"#,
   }
 
-  summary_test!{parse_raw_string_default,
+  summary_test! {
+    parse_raw_string_default,
     r#"
 
 foo a='b\t':
@@ -455,7 +501,8 @@ foo a='b\t':
     r#"foo a='b\\t':"#,
   }
 
-  summary_test!{parse_export,
+  summary_test! {
+    parse_export,
     r#"
 export a = "hello"
 
@@ -463,7 +510,8 @@ export a = "hello"
     r#"export a = "hello""#,
   }
 
-  summary_test!{parse_complex,
+  summary_test! {
+    parse_complex,
     "
 x:
 y:
@@ -500,7 +548,8 @@ y:
 z:"
   }
 
-  summary_test!{parse_shebang,
+  summary_test! {
+    parse_shebang,
     "
 practicum = 'hello'
 install:
@@ -518,7 +567,14 @@ install:
     fi",
   }
 
-  summary_test!{parse_assignments,
+  summary_test! {
+    parse_simple_shebang,
+    "a:\n #!\n  print(1)",
+    "a:\n    #!\n     print(1)",
+  }
+
+  summary_test! {
+    parse_assignments,
     r#"a = "0"
 c = a + b + a + b
 b = "1"
@@ -530,7 +586,8 @@ b = "1"
 c = a + b + a + b"#,
   }
 
-  summary_test!{parse_assignment_backticks,
+  summary_test! {
+    parse_assignment_backticks,
     "a = `echo hello`
 c = a + b + a + b
 b = `echo goodbye`",
@@ -541,281 +598,218 @@ b = `echo goodbye`
 c = a + b + a + b",
   }
 
-  summary_test!{parse_interpolation_backticks,
+  summary_test! {
+    parse_interpolation_backticks,
     r#"a:
  echo {{  `echo hello` + "blarg"   }} {{   `echo bob`   }}"#,
     r#"a:
     echo {{`echo hello` + "blarg"}} {{`echo bob`}}"#,
   }
 
-  summary_test!{eof_test,
+  summary_test! {
+    eof_test,
     "x:\ny:\nz:\na b c: x y z",
     "a b c: x y z\n\nx:\n\ny:\n\nz:",
   }
 
-  summary_test!{string_quote_escape,
+  summary_test! {
+    string_quote_escape,
     r#"a = "hello\"""#,
     r#"a = "hello\"""#,
   }
 
-  summary_test!{string_escapes,
+  summary_test! {
+    string_escapes,
     r#"a = "\n\t\r\"\\""#,
     r#"a = "\n\t\r\"\\""#,
   }
 
-  summary_test!{parameters,
+  summary_test! {
+    parameters,
     "a b c:
   {{b}} {{c}}",
     "a b c:
     {{b}} {{c}}",
   }
 
-  #[test]
-  fn missing_colon() {
-    let text = "a b c\nd e f";
-    parse_error(text, CompilationError {
-      text:   text,
-      index:  5,
-      line:   0,
-      column: 5,
-      width:  Some(1),
-      kind:   UnexpectedToken{expected: vec![Name, Plus, Colon], found: Eol},
-    });
+  error_test! {
+    name:   missing_colon,
+    input:  "a b c\nd e f",
+    index:  5,
+    line:   0,
+    column: 5,
+    width:  Some(1),
+    kind:   UnexpectedToken{expected: vec![Name, Plus, Colon], found: Eol},
   }
 
-  #[test]
-  fn missing_default_eol() {
-    let text     = "hello arg=\n";
-    let expected = vec![StringToken, RawString];
-    let found    = Eol;
-    parse_error(text, CompilationError {
-      text:   text,
-      index:  10,
-      line:   0,
-      column: 10,
-      width:  Some(1),
-      kind:   UnexpectedToken{expected, found},
-    });
+  error_test! {
+    name:   missing_default_eol,
+    input:  "hello arg=\n",
+    index:  10,
+    line:   0,
+    column: 10,
+    width:  Some(1),
+    kind:   UnexpectedToken{expected: vec![StringToken, RawString], found: Eol},
   }
 
-  #[test]
-  fn missing_default_eof() {
-    let text     = "hello arg=";
-    let expected = vec![StringToken, RawString];
-    let found    = Eof;
-    parse_error(text, CompilationError {
-      text:   text,
-      index:  10,
-      line:   0,
-      column: 10,
-      width:  Some(0),
-      kind:   UnexpectedToken{expected, found},
-    });
+  error_test! {
+    name:   missing_default_eof,
+    input:  "hello arg=",
+    index:  10,
+    line:   0,
+    column: 10,
+    width:  Some(0),
+    kind:   UnexpectedToken{expected: vec![StringToken, RawString], found: Eof},
   }
 
-  #[test]
-  fn missing_default_colon() {
-    let text     = "hello arg=:";
-    let expected = vec![StringToken, RawString];
-    let found    = Colon;
-    parse_error(text, CompilationError {
-      text:   text,
-      index:  10,
-      line:   0,
-      column: 10,
-      width:  Some(1),
-      kind:   UnexpectedToken{expected, found},
-    });
+  error_test! {
+    name:   missing_default_colon,
+    input:  "hello arg=:",
+    index:  10,
+    line:   0,
+    column: 10,
+    width:  Some(1),
+    kind:   UnexpectedToken{expected: vec![StringToken, RawString], found: Colon},
   }
 
-  #[test]
-  fn missing_default_backtick() {
-    let text     = "hello arg=`hello`";
-    let expected = vec![StringToken, RawString];
-    let found    = Backtick;
-    parse_error(text, CompilationError {
-      text:   text,
-      index:  10,
-      line:   0,
-      column: 10,
-      width:  Some(7),
-      kind:   UnexpectedToken{expected, found},
-    });
+  error_test! {
+    name:   missing_default_backtick,
+    input:  "hello arg=`hello`",
+    index:  10,
+    line:   0,
+    column: 10,
+    width:  Some(7),
+    kind:   UnexpectedToken{expected: vec![StringToken, RawString], found: Backtick},
   }
 
-  #[test]
-  fn parameter_after_variadic() {
-    let text = "foo +a bbb:";
-    parse_error(text, CompilationError {
-      text:   text,
-      index:  7,
-      line:   0,
-      column: 7,
-      width:  Some(3),
-      kind:   ParameterFollowsVariadicParameter{parameter: "bbb"}
-    });
+  error_test! {
+    name:   parameter_after_variadic,
+    input:  "foo +a bbb:",
+    index:  7,
+    line:   0,
+    column: 7,
+    width:  Some(3),
+    kind:   ParameterFollowsVariadicParameter{parameter: "bbb"},
   }
 
-  #[test]
-  fn required_after_default() {
-    let text = "hello arg='foo' bar:";
-    parse_error(text, CompilationError {
-      text:   text,
-      index:  16,
-      line:   0,
-      column: 16,
-      width:  Some(3),
-      kind:   RequiredParameterFollowsDefaultParameter{parameter: "bar"},
-    });
+  error_test! {
+    name:   required_after_default,
+    input:  "hello arg='foo' bar:",
+    index:  16,
+    line:   0,
+    column: 16,
+    width:  Some(3),
+    kind:   RequiredParameterFollowsDefaultParameter{parameter: "bar"},
   }
 
-  #[test]
-  fn missing_eol() {
-    let text = "a b c: z =";
-    parse_error(text, CompilationError {
-      text:   text,
-      index:  9,
-      line:   0,
-      column: 9,
-      width:  Some(1),
-      kind:   UnexpectedToken{expected: vec![Name, Eol, Eof], found: Equals},
-    });
+  error_test! {
+    name:   missing_eol,
+    input:  "a b c: z =",
+    index:  9,
+    line:   0,
+    column: 9,
+    width:  Some(1),
+    kind:   UnexpectedToken{expected: vec![Name, Eol, Eof], found: Equals},
   }
 
-  #[test]
-  fn duplicate_parameter() {
-    let text = "a b b:";
-    parse_error(text, CompilationError {
-      text:   text,
-      index:  4,
-      line:   0,
-      column: 4,
-      width:  Some(1),
-      kind:   DuplicateParameter{recipe: "a", parameter: "b"}
-    });
+  error_test! {
+    name:   duplicate_parameter,
+    input:  "a b b:",
+    index:  4,
+    line:   0,
+    column: 4,
+    width:  Some(1),
+    kind:   DuplicateParameter{recipe: "a", parameter: "b"},
   }
 
-  #[test]
-  fn parameter_shadows_varible() {
-    let text = "foo = \"h\"\na foo:";
-    parse_error(text, CompilationError {
-      text:   text,
-      index:  12,
-      line:   1,
-      column: 2,
-      width:  Some(3),
-      kind:   ParameterShadowsVariable{parameter: "foo"}
-    });
+  error_test! {
+    name:   parameter_shadows_varible,
+    input:  "foo = \"h\"\na foo:",
+    index:  12,
+    line:   1,
+    column: 2,
+    width:  Some(3),
+    kind:   ParameterShadowsVariable{parameter: "foo"},
   }
 
-  #[test]
-  fn dependency_has_parameters() {
-    let text = "foo arg:\nb: foo";
-    parse_error(text, CompilationError {
-      text:   text,
-      index:  12,
-      line:   1,
-      column: 3,
-      width:  Some(3),
-      kind:   DependencyHasParameters{recipe: "b", dependency: "foo"}
-    });
+  error_test! {
+    name:   dependency_has_parameters,
+    input:  "foo arg:\nb: foo",
+    index:  12,
+    line:   1,
+    column: 3,
+    width:  Some(3),
+    kind:   DependencyHasParameters{recipe: "b", dependency: "foo"},
   }
 
-  #[test]
-  fn duplicate_dependency() {
-    let text = "a b c: b c z z";
-    parse_error(text, CompilationError {
-      text:   text,
-      index:  13,
-      line:   0,
-      column: 13,
-      width:  Some(1),
-      kind:   DuplicateDependency{recipe: "a", dependency: "z"}
-    });
+  error_test! {
+    name:   duplicate_dependency,
+    input:  "a b c: b c z z",
+    index:  13,
+    line:   0,
+    column: 13,
+    width:  Some(1),
+    kind:   DuplicateDependency{recipe: "a", dependency: "z"},
   }
 
-  #[test]
-  fn duplicate_recipe() {
-    let text = "a:\nb:\na:";
-    parse_error(text, CompilationError {
-      text:   text,
-      index:  6,
-      line:   2,
-      column: 0,
-      width:  Some(1),
-      kind:   DuplicateRecipe{recipe: "a", first: 0}
-    });
+  error_test! {
+    name:   duplicate_recipe,
+    input:  "a:\nb:\na:",
+    index:  6,
+    line:   2,
+    column: 0,
+    width:  Some(1),
+    kind:   DuplicateRecipe{recipe: "a", first: 0},
   }
 
-  #[test]
-  fn duplicate_variable() {
-    let text = "a = \"0\"\na = \"0\"";
-    parse_error(text, CompilationError {
-      text:   text,
-      index:  8,
-      line:   1,
-      column: 0,
-      width:  Some(1),
-      kind:   DuplicateVariable{variable: "a"}
-    });
+  error_test! {
+    name:   duplicate_variable,
+    input:  "a = \"0\"\na = \"0\"",
+    index:  8,
+    line:   1,
+    column: 0,
+    width:  Some(1),
+    kind:   DuplicateVariable{variable: "a"},
   }
 
-  #[test]
-  fn extra_whitespace() {
-    let text = "a:\n blah\n  blarg";
-    parse_error(text, CompilationError {
-      text:   text,
-      index:  10,
-      line:   2,
-      column: 1,
-      width:  Some(6),
-      kind:   ExtraLeadingWhitespace
-    });
-    // extra whitespace is okay in a shebang recipe
-    parse_success("a:\n #!\n  print(1)");
+  error_test! {
+    name:   extra_whitespace,
+    input:  "a:\n blah\n  blarg",
+    index:  10,
+    line:   2,
+    column: 1,
+    width:  Some(6),
+    kind:   ExtraLeadingWhitespace,
   }
 
-  #[test]
-  fn interpolation_outside_of_recipe() {
-    let text     = "{{";
-    let expected = vec![Name, At];
-    let found    = InterpolationStart;
-    parse_error(text, CompilationError {
-      text:   text,
-      index:  0,
-      line:   0,
-      column: 0,
-      width:  Some(2),
-      kind:   UnexpectedToken{expected, found},
-    });
+  error_test! {
+    name:   interpolation_outside_of_recipe,
+    input:  "{{",
+    index:  0,
+    line:   0,
+    column: 0,
+    width:  Some(2),
+    kind:   UnexpectedToken{expected: vec![Name, At], found: InterpolationStart},
   }
 
-  #[test]
-  fn unclosed_interpolation_delimiter() {
-    let text     = "a:\n echo {{ foo";
-    let expected = vec![Plus, Eol, InterpolationEnd];
-    let found    = Dedent;
-    parse_error(text, CompilationError {
-      text:   text,
-      index:  15,
-      line:   1,
-      column: 12,
-      width:  Some(0),
-      kind:   UnexpectedToken{expected, found},
-    });
+  error_test! {
+    name:   unclosed_interpolation_delimiter,
+    input:  "a:\n echo {{ foo",
+    index:  15,
+    line:   1,
+    column: 12,
+    width:  Some(0),
+    kind:   UnexpectedToken{expected: vec![Plus, Eol, InterpolationEnd], found: Dedent},
   }
 
-  #[test]
-  fn plus_following_parameter() {
-    let text = "a b c+:";
-    parse_error(text, CompilationError {
-      text:   text,
-      index:  5,
-      line:   0,
-      column: 5,
-      width:  Some(1),
-      kind:   UnexpectedToken{expected: vec![Name], found: Plus},
-    });
+  error_test! {
+    name:   plus_following_parameter,
+    input:  "a b c+:",
+    index:  5,
+    line:   0,
+    column: 5,
+    width:  Some(1),
+    kind:   UnexpectedToken{expected: vec![Name], found: Plus},
   }
 
   #[test]
