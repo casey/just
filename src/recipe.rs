@@ -50,13 +50,13 @@ impl<'a> Recipe<'a> {
 
   pub fn run(
     &self,
-    arguments: &[&'a str],
-    scope:     &Map<&'a str, String>,
-    exports:   &Set<&'a str>,
-    options:   &Configuration,
+    arguments:     &[&'a str],
+    scope:         &Map<&'a str, String>,
+    exports:       &Set<&'a str>,
+    configuration: &Configuration,
   ) -> RunResult<'a, ()> {
-    if options.verbose {
-      let color = options.color.stderr().banner();
+    if configuration.verbose {
+      let color = configuration.color.stderr().banner();
       eprintln!("{}===> Running recipe `{}`...{}", color.prefix(), self.name, color.suffix());
     }
 
@@ -89,9 +89,9 @@ impl<'a> Recipe<'a> {
       exports:     exports,
       assignments: &empty(),
       overrides:   &empty(),
-      quiet:       options.quiet,
-      shell:       options.shell,
-      dry_run:     options.dry_run,
+      quiet:       configuration.quiet,
+      shell:       configuration.shell,
+      dry_run:     configuration.dry_run,
     };
 
     if self.shebang {
@@ -100,13 +100,13 @@ impl<'a> Recipe<'a> {
         evaluated_lines.push(evaluator.evaluate_line(line, &argument_map)?);
       }
 
-      if options.dry_run || self.quiet {
+      if configuration.dry_run || self.quiet {
         for line in &evaluated_lines {
           eprintln!("{}", line);
         }
       }
 
-      if options.dry_run {
+      if configuration.dry_run {
         return Ok(());
       }
 
@@ -202,24 +202,28 @@ impl<'a> Recipe<'a> {
           continue;
         }
 
-        if options.dry_run || options.verbose || !((quiet_command ^ self.quiet) || options.quiet) {
-          let color = if options.highlight {
-            options.color.command()
+        if configuration.dry_run          ||
+           configuration.verbose          ||
+           !((quiet_command ^ self.quiet) ||
+           configuration.quiet
+        ) {
+          let color = if configuration.highlight {
+            configuration.color.command()
           } else {
-            options.color
+            configuration.color
           };
           eprintln!("{}", color.stderr().paint(command));
         }
 
-        if options.dry_run {
+        if configuration.dry_run {
           continue;
         }
 
-        let mut cmd = Command::new(options.shell);
+        let mut cmd = Command::new(configuration.shell);
 
         cmd.arg("-cu").arg(command);
 
-        if options.quiet {
+        if configuration.quiet {
           cmd.stderr(Stdio::null());
           cmd.stdout(Stdio::null());
         }

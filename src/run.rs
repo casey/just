@@ -310,7 +310,7 @@ pub fn run() {
     die!("Justfile contains no recipes.");
   };
 
-  let options = Configuration {
+  let configuration = Configuration {
     dry_run:   matches.is_present("DRY-RUN"),
     evaluate:  matches.is_present("EVALUATE"),
     highlight: matches.is_present("HIGHLIGHT"),
@@ -321,8 +321,8 @@ pub fn run() {
     verbose:   matches.is_present("VERBOSE"),
   };
 
-  if let Err(run_error) = justfile.run(&arguments, &options) {
-    if !options.quiet {
+  if let Err(run_error) = justfile.run(&arguments, &configuration) {
+    if !configuration.quiet {
       if color.stderr().active() {
         eprintln!("{:#}", run_error);
       } else {
