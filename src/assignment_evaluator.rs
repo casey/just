@@ -25,31 +25,6 @@ pub fn evaluate_assignments<'a>(
   Ok(evaluator.evaluated)
 }
 
-fn run_backtick<'a, 'b>(
-  raw:     &str,
-  token:   &Token<'a>,
-  scope:   &Map<&'a str, String>,
-  exports: &Set<&'a str>,
-  quiet:   bool,
-  shell:   &'b str,
-) -> RunResult<'a, String> {
-  let mut cmd = Command::new(shell);
-
-  cmd.export_environment_variables(scope, exports)?;
-
-  cmd.arg("-cu")
-     .arg(raw);
-
-  cmd.stderr(if quiet {
-    process::Stdio::null()
-  } else {
-    process::Stdio::inherit()
-  });
-
-  brev::output(cmd)
-    .map_err(|output_error| RuntimeError::Backtick{token: token.clone(), output_error})
-}
-
 pub struct AssignmentEvaluator<'a: 'b, 'b> {
   pub assignments: &'b Map<&'a str, Expression<'a>>,
   pub evaluated:   Map<&'a str, String>,
@@ -123,7 +98,7 @@ impl<'a, 'b> AssignmentEvaluator<'a, 'b> {
       }
       Expression::String{ref cooked_string} => cooked_string.cooked.clone(),
       Expression::Backtick{raw, ref token} => {
-        run_backtick(raw, token, self.scope, self.exports, self.quiet, self.shell)?
+        self.run_backtick(raw, token)?
       }
       Expression::Concatination{ref lhs, ref rhs} => {
         self.evaluate_expression(lhs, arguments)?
@@ -131,6 +106,28 @@ impl<'a, 'b> AssignmentEvaluator<'a, 'b> {
         &self.evaluate_expression(rhs, arguments)?
       }
     })
+  }
+
+  fn run_backtick(
+    &self,
+    raw:     &str,
+    token:   &Token<'a>,
+  ) -> RunResult<'a, String> {
+    let mut cmd = Command::new(self.shell);
+
+    cmd.export_environment_variables(self.scope, self.exports)?;
+
+    cmd.arg("-cu")
+       .arg(raw);
+
+    cmd.stderr(if self.quiet {
+      process::Stdio::null()
+    } else {
+      process::Stdio::inherit()
+    });
+
+    brev::output(cmd)
+      .map_err(|output_error| RuntimeError::Backtick{token: token.clone(), output_error})
   }
 }
 
