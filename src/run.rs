@@ -59,7 +59,7 @@ pub fn run() {
     .arg(Arg::with_name("DRY-RUN")
          .long("dry-run")
          .help("Prints what just would do without doing it")
-         .conflicts_with("quiet"))
+         .conflicts_with("QUIET"))
     .arg(Arg::with_name("DUMP")
          .long("dump")
          .help("Prints entire justfile"))
