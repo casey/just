@@ -368,19 +368,22 @@ mod test {
     }
   }
 
-  summary_test!{tokenize_strings,
+  summary_test! {
+    tokenize_strings,
     r#"a = "'a'" + '"b"' + "'c'" + '"d"'#echo hello"#,
     r#"N="+'+"+'#."#,
   }
 
-  summary_test!{tokenize_recipe_interpolation_eol,
+  summary_test! {
+    tokenize_recipe_interpolation_eol,
     "foo: # some comment
  {{hello}}
 ", 
     "N:#$>^{N}$<.",
   }
 
-  summary_test!{tokenize_recipe_interpolation_eof,
+  summary_test! {
+    tokenize_recipe_interpolation_eof,
     "foo: # more comments
  {{hello}}
 # another comment
@@ -388,17 +391,20 @@ mod test {
     "N:#$>^{N}$<#$.",
   }
 
-  summary_test!{tokenize_recipe_complex_interpolation_expression,
+  summary_test! {
+    tokenize_recipe_complex_interpolation_expression,
     "foo: #lol\n {{a + b + \"z\" + blarg}}",
     "N:#$>^{N+N+\"+N}<.",
   }
 
-  summary_test!{tokenize_recipe_multiple_interpolations,
+  summary_test! {
+    tokenize_recipe_multiple_interpolations,
     "foo:#ok\n {{a}}0{{b}}1{{c}}",
     "N:#$>^{N}_{N}_{N}<.",
   }
 
-  summary_test!{tokenize_junk,
+  summary_test! {
+    tokenize_junk,
     "bob
 
 hello blah blah blah : a b c #whatever
@@ -406,7 +412,8 @@ hello blah blah blah : a b c #whatever
     "N$$NNNN:NNN#$.",
   }
 
-  summary_test!{tokenize_empty_lines,
+  summary_test! {
+    tokenize_empty_lines,
     "
 # this does something
 hello:
@@ -422,7 +429,8 @@ hello:
     "$#$N:$>^_$^_$$^_$$^_$$<#$.",
   }
 
-  summary_test!{tokenize_comment_before_variable,
+  summary_test! {
+    tokenize_comment_before_variable,
     "
 #
 A='1'
@@ -432,17 +440,20 @@ echo:
     "$#$N='$N:$>^_{N}$<.",
   }
 
-  summary_test!{tokenize_interpolation_backticks,
+  summary_test! {
+    tokenize_interpolation_backticks,
     "hello:\n echo {{`echo hello` + `echo goodbye`}}",
     "N:$>^_{`+`}<.",
   }
 
-  summary_test!{tokenize_assignment_backticks,
+  summary_test! {
+    tokenize_assignment_backticks,
     "a = `echo hello` + `echo goodbye`",
     "N=`+`.",
   }
 
-  summary_test!{tokenize_multiple,
+  summary_test! {
+    tokenize_multiple,
     "
 hello:
   a
@@ -460,9 +471,14 @@ bob:
     "$N:$>^_$^_$$^_$$^_$$<#$N:$>^_$<.",
   }
 
-  summary_test!{tokenize_comment, "a:=#", "N:=#."}
+  summary_test! {
+    tokenize_comment,
+    "a:=#",
+    "N:=#."
+  }
 
-  summary_test!{tokenize_order,
+  summary_test! {
+    tokenize_order,
     r"
 b: a
   @mv a b
