@@ -63,7 +63,19 @@ impl<'a> Tokenizer<'a> {
     }
   }
 
-  fn scan_indent(&mut self) -> CompilationResult<'a, ()> {
+  fn token(&self, prefix: &'a str, lexeme: &'a str, kind: TokenKind) -> Token<'a> {
+    Token {
+      index:  self.index,
+      line:   self.line,
+      column: self.column,
+      text:   self.text,
+      prefix: prefix,
+      lexeme: lexeme,
+      kind:   kind,
+    }
+  }
+
+  fn scan_indent(&mut self) -> CompilationResult<'a, Option<Token<'a>>> {
     lazy_static! {
       static ref INDENT: Regex = re(r"^([ \t]*)[^ \t\n\r]");
     }
@@ -109,18 +121,10 @@ impl<'a> Tokenizer<'a> {
           }));
         }
       } {
-        self.tokens.push(Token {
-          index:  self.index,
-          line:   self.line,
-          column: self.column,
-          text:   self.text,
-          prefix: "",
-          lexeme: "",
-          kind:   kind,
-        });
+        return Ok(Some(self.token("", "", kind)));
       }
     }
-    Ok(())
+    Ok(None)
   }
 
   pub fn inner(mut self) -> CompilationResult<'a, Vec<Token<'a>>> {
@@ -146,19 +150,14 @@ impl<'a> Tokenizer<'a> {
     }
 
     loop {
-      self.scan_indent()?;
+      if let Some(token) = self.scan_indent()? {
+        self.tokens.push(token);
+      }
 
       // insert a dedent if we're indented and we hit the end of the file
       if &State::Start != self.state.last().unwrap() && EOF.is_match(self.rest) {
-        self.tokens.push(Token {
-          index:  self.index,
-          line:   self.line,
-          column: self.column,
-          text:   self.text,
-          prefix: "",
-          lexeme: "",
-          kind:   Dedent,
-        });
+        let token = self.token("", "", Dedent);
+        self.tokens.push(token);
       }
 
       let (prefix, lexeme, kind) =
@@ -252,15 +251,8 @@ impl<'a> Tokenizer<'a> {
         return Err(self.error(UnknownStartOfToken));
       };
 
-      self.tokens.push(Token {
-        index:  self.index,
-        line:   self.line,
-        column: self.column,
-        prefix: prefix,
-        text:   self.text,
-        lexeme: lexeme,
-        kind:   kind,
-      });
+      let token = self.token(prefix, lexeme, kind);
+      self.tokens.push(token);
 
       let len = prefix.len() + lexeme.len();
 
