@@ -19,7 +19,7 @@ fn mixed_whitespace(text: &str) -> bool {
   !(text.chars().all(|c| c == ' ') || text.chars().all(|c| c == '\t'))
 }
 
-pub struct Tokenizer<'a> {
+pub struct Scanner<'a> {
   tokens: Vec<Token<'a>>,
   text:   &'a str,
   rest:   &'a str,
@@ -37,9 +37,9 @@ enum State<'a> {
   Interpolation,
 }
 
-impl<'a> Tokenizer<'a> {
-  pub fn tokenize(text: &'a str) -> CompilationResult<Vec<Token<'a>>> {
-    let tokenizer = Tokenizer{
+impl<'a> Scanner<'a> {
+  pub fn scan(text: &'a str) -> CompilationResult<Vec<Token<'a>>> {
+    let scanner = Scanner{
       tokens: vec![],
       text:   text,
       rest:   text,
@@ -49,7 +49,7 @@ impl<'a> Tokenizer<'a> {
       state:  vec![State::Start],
     };
 
-    tokenizer.inner()
+    scanner.inner()
   }
 
   fn error(&self, kind: CompilationErrorKind<'a>) -> CompilationError<'a> {
@@ -306,7 +306,7 @@ mod test {
       fn $name() {
         let input = $input;
         let expected = $expected;
-        let tokens = ::Tokenizer::tokenize(input).unwrap();
+        let tokens = ::Scanner::scan(input).unwrap();
         let roundtrip = tokens.iter().map(|t| {
           let mut s = String::new();
           s += t.prefix;
@@ -369,7 +369,7 @@ mod test {
           kind:   $kind,
         };
 
-        if let Err(error) = Tokenizer::tokenize(input) {
+        if let Err(error) = Scanner::scan(input) {
           assert_eq!(error.text,   expected.text);
           assert_eq!(error.index,  expected.index);
           assert_eq!(error.line,   expected.line);

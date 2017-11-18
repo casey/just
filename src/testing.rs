@@ -32,7 +32,7 @@ macro_rules! compilation_error_test {
         kind:   $kind,
       };
 
-      let tokens = ::Tokenizer::tokenize(input).unwrap();
+      let tokens = ::Scanner::scan(input).unwrap();
       let parser = ::Parser::new(input, tokens);
 
       if let Err(error) = parser.justfile() {

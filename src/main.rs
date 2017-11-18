@@ -33,9 +33,9 @@ mod recipe;
 mod recipe_resolver;
 mod run;
 mod runtime_error;
+mod scanner;
 mod shebang;
 mod token;
-mod tokenizer;
 
 mod common {
   pub use std::borrow::Cow;
@@ -68,15 +68,15 @@ mod common {
   pub use recipe::Recipe;
   pub use recipe_resolver::RecipeResolver;
   pub use runtime_error::{RuntimeError, RunResult};
+  pub use scanner::Scanner;
   pub use shebang::Shebang;
   pub use token::{Token, TokenKind};
-  pub use tokenizer::Tokenizer;
 }
 
 use common::*;
 
 fn compile(text: &str) -> CompilationResult<Justfile> {
-  let tokens = Tokenizer::tokenize(text)?;
+  let tokens = Scanner::scan(text)?;
   let parser = Parser::new(text, tokens);
   parser.justfile()
 }
