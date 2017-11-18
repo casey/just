@@ -1,9 +1,7 @@
 use common::*;
 
-use compile;
-
 pub fn parse_success(text: &str) -> Justfile {
-  match compile(text) {
+  match Parser::parse(text) {
     Ok(justfile) => justfile,
     Err(error) => panic!("Expected successful parse but got error:\n{}", error),
   }
@@ -32,7 +30,7 @@ macro_rules! compilation_error_test {
         kind:   $kind,
       };
 
-      let tokens = ::tokenizer::tokenize(input).unwrap();
+      let tokens = ::Scanner::scan(input).unwrap();
       let parser = ::Parser::new(input, tokens);
 
       if let Err(error) = parser.justfile() {

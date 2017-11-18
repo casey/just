@@ -14,6 +14,12 @@ pub struct Parser<'a> {
 }
 
 impl<'a> Parser<'a> {
+  pub fn parse(text: &'a str) -> CompilationResult<'a, Justfile> {
+    let tokens = Scanner::scan(text)?;
+    let parser = Parser::new(text, tokens);
+    parser.justfile()
+  }
+
   pub fn new(text: &'a str, tokens: Vec<Token<'a>>) -> Parser<'a> {
     Parser {
       text:              text,

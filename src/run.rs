@@ -2,7 +2,6 @@ use common::*;
 
 use std::{convert, ffi};
 use clap::{App, Arg, ArgGroup, AppSettings};
-use compile;
 use misc::maybe_s;
 use configuration::DEFAULT_SHELL;
 
@@ -232,7 +231,7 @@ pub fn run() {
       .unwrap_or_else(|error| die!("Error reading justfile: {}", error));
   }
 
-  let justfile = compile(&text).unwrap_or_else(|error|
+  let justfile = Parser::parse(&text).unwrap_or_else(|error|
     if color.stderr().active() {
       die!("{:#}", error);
     } else {
