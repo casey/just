@@ -75,12 +75,6 @@ mod common {
 
 use common::*;
 
-fn compile(text: &str) -> CompilationResult<Justfile> {
-  let tokens = Scanner::scan(text)?;
-  let parser = Parser::new(text, tokens);
-  parser.justfile()
-}
-
 fn main() {
   run::run();
 }

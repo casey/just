@@ -1,9 +1,7 @@
 use common::*;
 
-use compile;
-
 pub fn parse_success(text: &str) -> Justfile {
-  match compile(text) {
+  match Parser::parse(text) {
     Ok(justfile) => justfile,
     Err(error) => panic!("Expected successful parse but got error:\n{}", error),
   }
