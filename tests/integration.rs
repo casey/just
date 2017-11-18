@@ -497,14 +497,13 @@ shebang:
   echo {{`echo shebang interpolation`}}"#,
   args:     ("--dry-run", "shebang", "command"),
   stdout:   "",
-  stderr:   "stderr
-#!/bin/sh
+  stderr:   "#!/bin/sh
 touch /this/is/not/a/file
-backtick
-echo shebang interpolation
+`echo stderr 1>&2; echo backtick`
+echo `echo shebang interpolation`
 touch /this/is/not/a/file
-backtick
-echo command interpolation
+`echo stderr 1>&2; echo backtick`
+echo `echo command interpolation`
 ",
   status:   EXIT_SUCCESS,
 }

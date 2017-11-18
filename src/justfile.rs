@@ -60,6 +60,7 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
       &options.overrides,
       options.quiet,
       options.shell,
+      options.dry_run,
     )?;
 
     if options.evaluate {
