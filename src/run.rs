@@ -276,7 +276,7 @@ pub fn run() {
       if let Some(doc) = recipe.doc {
         print!(" {} {}", doc_color.paint("#"), doc_color.paint(doc));
       }
-      println!("");
+      println!();
     }
     process::exit(EXIT_SUCCESS);
   }

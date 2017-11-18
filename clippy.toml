@@ -1,1 +1,3 @@
 cyclomatic-complexity-threshold = 1337
+
+doc-valid-idents = ["FreeBSD"]

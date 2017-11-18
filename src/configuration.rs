@@ -1,6 +1,6 @@
 use common::*;
 
-pub const DEFAULT_SHELL: &'static str = "sh";
+pub const DEFAULT_SHELL: &str = "sh";
 
 pub struct Configuration<'a> {
   pub dry_run:   bool,

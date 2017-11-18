@@ -5,7 +5,7 @@ pub trait CommandExt {
     &mut self,
     scope: &Map<&'a str, String>,
     exports: &Set<&'a str>
-  ) -> Result<(), RuntimeError<'a>>;
+  ) -> RunResult<'a, ()>;
 }
 
 impl CommandExt for Command {
@@ -13,7 +13,7 @@ impl CommandExt for Command {
     &mut self,
     scope: &Map<&'a str, String>,
     exports: &Set<&'a str>
-  ) -> Result<(), RuntimeError<'a>> {
+  ) -> RunResult<'a, ()> {
     for name in exports {
       if let Some(value) = scope.get(name) {
         self.env(name, value);

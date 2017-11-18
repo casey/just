@@ -1,7 +1,8 @@
 use common::*;
 
 use itertools;
-use token::TokenKind::*;
+use TokenKind::*;
+use CompilationErrorKind::*;
 use recipe_resolver::resolve_recipes;
 use assignment_resolver::resolve_assignments;
 
@@ -76,7 +77,7 @@ impl<'a> Parser<'a> {
   }
 
   fn unexpected_token(&self, found: &Token<'a>, expected: &[TokenKind]) -> CompilationError<'a> {
-    found.error(CompilationErrorKind::UnexpectedToken {
+    found.error(UnexpectedToken {
       expected: expected.to_vec(),
       found:    found.kind,
     })
@@ -84,12 +85,12 @@ impl<'a> Parser<'a> {
 
   fn recipe(
     &mut self,
-    name:  Token<'a>,
+    name:  &Token<'a>,
     doc:   Option<Token<'a>>,
     quiet: bool,
-  ) -> Result<(), CompilationError<'a>> {
+  ) -> CompilationResult<'a, ()> {
     if let Some(recipe) = self.recipes.get(name.lexeme) {
-      return Err(name.error(CompilationErrorKind::DuplicateRecipe {
+      return Err(name.error(DuplicateRecipe {
         recipe: recipe.name,
         first:  recipe.line_number
       }));
@@ -113,13 +114,13 @@ impl<'a> Parser<'a> {
       let variadic = plus.is_some();
 
       if parsed_variadic_parameter {
-        return Err(parameter.error(CompilationErrorKind::ParameterFollowsVariadicParameter {
+        return Err(parameter.error(ParameterFollowsVariadicParameter {
           parameter: parameter.lexeme,
         }));
       }
 
       if parameters.iter().any(|p| p.name == parameter.lexeme) {
-        return Err(parameter.error(CompilationErrorKind::DuplicateParameter {
+        return Err(parameter.error(DuplicateParameter {
           recipe: name.lexeme, parameter: parameter.lexeme
         }));
       }
@@ -137,7 +138,7 @@ impl<'a> Parser<'a> {
       }
 
       if parsed_parameter_with_default && default.is_none() {
-        return Err(parameter.error(CompilationErrorKind::RequiredParameterFollowsDefaultParameter{
+        return Err(parameter.error(RequiredParameterFollowsDefaultParameter{
           parameter: parameter.lexeme,
         }));
       }
@@ -167,7 +168,7 @@ impl<'a> Parser<'a> {
     let mut dependency_tokens = vec![];
     while let Some(dependency) = self.accept(Name) {
       if dependencies.contains(&dependency.lexeme) {
-        return Err(dependency.error(CompilationErrorKind::DuplicateDependency {
+        return Err(dependency.error(DuplicateDependency {
           recipe:     name.lexeme,
           dependency: dependency.lexeme
         }));
@@ -190,7 +191,7 @@ impl<'a> Parser<'a> {
           continue;
         }
         if let Some(token) = self.expect(Line) {
-          return Err(token.error(CompilationErrorKind::Internal{
+          return Err(token.error(Internal{
             message: format!("Expected a line but got {}", token.kind)
           }))
         }
@@ -207,7 +208,7 @@ impl<'a> Parser<'a> {
                 && !lines.last().and_then(|line| line.last())
                   .map(Fragment::continuation).unwrap_or(false)
                 && (token.lexeme.starts_with(' ') || token.lexeme.starts_with('\t')) {
-                return Err(token.error(CompilationErrorKind::ExtraLeadingWhitespace));
+                return Err(token.error(ExtraLeadingWhitespace));
               }
             }
             fragments.push(Fragment::Text{text: token});
@@ -243,7 +244,7 @@ impl<'a> Parser<'a> {
     Ok(())
   }
 
-  fn expression(&mut self, interpolation: bool) -> Result<Expression<'a>, CompilationError<'a>> {
+  fn expression(&mut self, interpolation: bool) -> CompilationResult<'a, Expression<'a>> {
     let first = self.tokens.next().unwrap();
     let lhs = match first.kind {
       Name        => Expression::Variable {name: first.lexeme, token: first},
@@ -273,9 +274,9 @@ impl<'a> Parser<'a> {
     }
   }
 
-  fn assignment(&mut self, name: Token<'a>, export: bool) -> Result<(), CompilationError<'a>> {
+  fn assignment(&mut self, name: Token<'a>, export: bool) -> CompilationResult<'a, ()> {
     if self.assignments.contains_key(name.lexeme) {
-      return Err(name.error(CompilationErrorKind::DuplicateVariable {variable: name.lexeme}));
+      return Err(name.error(DuplicateVariable {variable: name.lexeme}));
     }
     if export {
       self.exports.insert(name.lexeme);
@@ -286,7 +287,7 @@ impl<'a> Parser<'a> {
     Ok(())
   }
 
-  pub fn justfile(mut self) -> Result<Justfile<'a>, CompilationError<'a>> {
+  pub fn justfile(mut self) -> CompilationResult<'a, Justfile<'a>> {
     let mut doc = None;
     loop {
       match self.tokens.next() {
@@ -298,14 +299,14 @@ impl<'a> Parser<'a> {
           }
           Comment => {
             if let Some(token) = self.expect_eol() {
-              return Err(token.error(CompilationErrorKind::Internal {
+              return Err(token.error(Internal {
                 message: format!("found comment followed by {}", token.kind),
               }));
             }
             doc = Some(token);
           }
           At => if let Some(name) = self.accept(Name) {
-            self.recipe(name, doc, true)?;
+            self.recipe(&name, doc, true)?;
             doc = None;
           } else {
             let unexpected = &self.tokens.next().unwrap();
@@ -318,14 +319,14 @@ impl<'a> Parser<'a> {
               doc = None;
             } else {
               self.tokens.put_back(next);
-              self.recipe(token, doc, false)?;
+              self.recipe(&token, doc, false)?;
               doc = None;
             }
           } else if self.accepted(Equals) {
             self.assignment(token, false)?;
             doc = None;
           } else {
-            self.recipe(token, doc, false)?;
+            self.recipe(&token, doc, false)?;
             doc = None;
           },
           _ => return Err(self.unexpected_token(&token, &[Name, At])),
@@ -336,7 +337,7 @@ impl<'a> Parser<'a> {
           line:   0,
           column: 0,
           width:  None,
-          kind:   CompilationErrorKind::Internal {
+          kind:   Internal {
             message: "unexpected end of token stream".to_string()
           }
         }),
@@ -344,7 +345,7 @@ impl<'a> Parser<'a> {
     }
 
     if let Some(token) = self.tokens.next() {
-      return Err(token.error(CompilationErrorKind::Internal {
+      return Err(token.error(Internal {
         message: format!("unexpected token remaining after parsing completed: {:?}", token.kind)
       }))
     }
@@ -354,7 +355,7 @@ impl<'a> Parser<'a> {
     for recipe in self.recipes.values() {
       for parameter in &recipe.parameters {
         if self.assignments.contains_key(parameter.token.lexeme) {
-          return Err(parameter.token.error(CompilationErrorKind::ParameterShadowsVariable {
+          return Err(parameter.token.error(ParameterShadowsVariable {
             parameter: parameter.token.lexeme
           }));
         }
@@ -362,7 +363,7 @@ impl<'a> Parser<'a> {
 
       for dependency in &recipe.dependency_tokens {
         if !self.recipes[dependency.lexeme].parameters.is_empty() {
-          return Err(dependency.error(CompilationErrorKind::DependencyHasParameters {
+          return Err(dependency.error(DependencyHasParameters {
             recipe: recipe.name,
             dependency: dependency.lexeme,
           }));
@@ -387,78 +388,83 @@ mod test {
   use testing::parse_success;
   use testing::parse_error;
 
-fn parse_summary(input: &str, output: &str) {
-  let justfile = parse_success(input);
-  let s = format!("{:#}", justfile);
-  if s != output {
-    println!("got:\n\"{}\"\n", s);
-    println!("\texpected:\n\"{}\"", output);
-    assert_eq!(s, output);
+  macro_rules! summary_test {
+    ($name:ident, $input:expr, $expected:expr $(,)*) => {
+      #[test]
+      fn $name() {
+        let input = $input;
+        let expected = $expected;
+        let justfile = parse_success(input);
+        let actual = format!("{:#}", justfile);
+        if actual != expected {
+          println!("got:\n\"{}\"\n", actual);
+          println!("\texpected:\n\"{}\"", expected);
+          assert_eq!(actual, expected);
+        }
+      }
+    }
   }
-}
 
-#[test]
-fn parse_empty() {
-  parse_summary("
+  summary_test!{parse_empty,
+    "
 
 # hello
 
 
-  ", "");
-}
+    ", 
+    "",
+  }
 
-#[test]
-fn parse_string_default() {
-  parse_summary(r#"
+  summary_test!{parse_string_default,
+    r#"
 
 foo a="b\t":
 
 
-  "#, r#"foo a='b\t':"#);
-}
+  "#,
+    r#"foo a='b\t':"#,
+  }
 
-#[test]
-fn parse_variadic() {
-  parse_summary(r#"
+  summary_test!{parse_variadic,
+    r#"
 
 foo +a:
 
 
-  "#, r#"foo +a:"#);
-}
+  "#,
+    r#"foo +a:"#,
+  }
 
-#[test]
-fn parse_variadic_string_default() {
-  parse_summary(r#"
+  summary_test!{parse_variadic_string_default,
+    r#"
 
 foo +a="Hello":
 
 
-  "#, r#"foo +a='Hello':"#);
-}
+  "#, 
+    r#"foo +a='Hello':"#,
+  }
 
-#[test]
-fn parse_raw_string_default() {
-  parse_summary(r#"
+  summary_test!{parse_raw_string_default,
+    r#"
 
 foo a='b\t':
 
 
-  "#, r#"foo a='b\\t':"#);
-}
+  "#, 
+    r#"foo a='b\\t':"#,
+  }
 
-#[test]
-fn parse_export() {
-  parse_summary(r#"
+  summary_test!{parse_export,
+    r#"
 export a = "hello"
 
-  "#, r#"export a = "hello""#);
-}
+  "#, 
+    r#"export a = "hello""#,
+  }
 
-
-#[test]
-fn parse_complex() {
-  parse_summary("
+  summary_test!{parse_complex,
+    "
 x:
 y:
 z:
@@ -472,7 +478,8 @@ hello a b    c   : x y    z #hello
   1
   2
   3
-", "bar = foo
+", 
+    "bar = foo
 
 foo = \"xx\"
 
@@ -490,359 +497,349 @@ x:
 
 y:
 
-z:");
-}
+z:"
+  }
 
-#[test]
-fn parse_shebang() {
-  parse_summary("
+  summary_test!{parse_shebang,
+    "
 practicum = 'hello'
 install:
 \t#!/bin/sh
 \tif [[ -f {{practicum}} ]]; then
 \t\treturn
 \tfi
-", "practicum = \"hello\"
+", 
+    "practicum = \"hello\"
 
 install:
     #!/bin/sh
     if [[ -f {{practicum}} ]]; then
     \treturn
-    fi"
-  );
-}
+    fi",
+  }
 
-#[test]
-fn parse_assignments() {
-  parse_summary(
-r#"a = "0"
+  summary_test!{parse_assignments,
+    r#"a = "0"
 c = a + b + a + b
 b = "1"
 "#,
-
-r#"a = "0"
+    r#"a = "0"
 
 b = "1"
 
-c = a + b + a + b"#);
-}
+c = a + b + a + b"#,
+  }
 
-#[test]
-fn parse_assignment_backticks() {
-  parse_summary(
-"a = `echo hello`
+  summary_test!{parse_assignment_backticks,
+    "a = `echo hello`
 c = a + b + a + b
 b = `echo goodbye`",
-
-"a = `echo hello`
+    "a = `echo hello`
 
 b = `echo goodbye`
 
-c = a + b + a + b");
-}
+c = a + b + a + b",
+  }
 
-#[test]
-fn parse_interpolation_backticks() {
-  parse_summary(
-r#"a:
+  summary_test!{parse_interpolation_backticks,
+    r#"a:
  echo {{  `echo hello` + "blarg"   }} {{   `echo bob`   }}"#,
-r#"a:
+    r#"a:
     echo {{`echo hello` + "blarg"}} {{`echo bob`}}"#,
- );
-}
+  }
 
-#[test]
-fn missing_colon() {
-  let text = "a b c\nd e f";
-  parse_error(text, CompilationError {
-    text:   text,
-    index:  5,
-    line:   0,
-    column: 5,
-    width:  Some(1),
-    kind:   CompilationErrorKind::UnexpectedToken{expected: vec![Name, Plus, Colon], found: Eol},
-  });
-}
+  summary_test!{eof_test,
+    "x:\ny:\nz:\na b c: x y z",
+    "a b c: x y z\n\nx:\n\ny:\n\nz:",
+  }
 
-#[test]
-fn missing_default_eol() {
-  let text = "hello arg=\n";
-  parse_error(text, CompilationError {
-    text:   text,
-    index:  10,
-    line:   0,
-    column: 10,
-    width:  Some(1),
-    kind:   CompilationErrorKind::UnexpectedToken{expected: vec![StringToken, RawString], found: Eol},
-  });
-}
-
-#[test]
-fn missing_default_eof() {
-  let text = "hello arg=";
-  parse_error(text, CompilationError {
-    text:   text,
-    index:  10,
-    line:   0,
-    column: 10,
-    width:  Some(0),
-    kind:   CompilationErrorKind::UnexpectedToken{expected: vec![StringToken, RawString], found: Eof},
-  });
-}
-
-#[test]
-fn missing_default_colon() {
-  let text = "hello arg=:";
-  parse_error(text, CompilationError {
-    text:   text,
-    index:  10,
-    line:   0,
-    column: 10,
-    width:  Some(1),
-    kind:   CompilationErrorKind::UnexpectedToken{expected: vec![StringToken, RawString], found: Colon},
-  });
-}
-
-#[test]
-fn missing_default_backtick() {
-  let text = "hello arg=`hello`";
-  parse_error(text, CompilationError {
-    text:   text,
-    index:  10,
-    line:   0,
-    column: 10,
-    width:  Some(7),
-    kind:   CompilationErrorKind::UnexpectedToken{expected: vec![StringToken, RawString], found: Backtick},
-  });
-}
-
-#[test]
-fn parameter_after_variadic() {
-  let text = "foo +a bbb:";
-  parse_error(text, CompilationError {
-    text:   text,
-    index:  7,
-    line:   0,
-    column: 7,
-    width:  Some(3),
-    kind:   CompilationErrorKind::ParameterFollowsVariadicParameter{parameter: "bbb"}
-  });
-}
-
-#[test]
-fn required_after_default() {
-  let text = "hello arg='foo' bar:";
-  parse_error(text, CompilationError {
-    text:   text,
-    index:  16,
-    line:   0,
-    column: 16,
-    width:  Some(3),
-    kind:   CompilationErrorKind::RequiredParameterFollowsDefaultParameter{parameter: "bar"},
-  });
-}
-
-#[test]
-fn missing_eol() {
-  let text = "a b c: z =";
-  parse_error(text, CompilationError {
-    text:   text,
-    index:  9,
-    line:   0,
-    column: 9,
-    width:  Some(1),
-    kind:   CompilationErrorKind::UnexpectedToken{expected: vec![Name, Eol, Eof], found: Equals},
-  });
-}
-
-#[test]
-fn eof_test() {
-  parse_summary("x:\ny:\nz:\na b c: x y z", "a b c: x y z\n\nx:\n\ny:\n\nz:");
-}
-
-#[test]
-fn duplicate_parameter() {
-  let text = "a b b:";
-  parse_error(text, CompilationError {
-    text:   text,
-    index:  4,
-    line:   0,
-    column: 4,
-    width:  Some(1),
-    kind:   CompilationErrorKind::DuplicateParameter{recipe: "a", parameter: "b"}
-  });
-}
-
-#[test]
-fn parameter_shadows_varible() {
-  let text = "foo = \"h\"\na foo:";
-  parse_error(text, CompilationError {
-    text:   text,
-    index:  12,
-    line:   1,
-    column: 2,
-    width:  Some(3),
-    kind:   CompilationErrorKind::ParameterShadowsVariable{parameter: "foo"}
-  });
-}
-
-#[test]
-fn dependency_has_parameters() {
-  let text = "foo arg:\nb: foo";
-  parse_error(text, CompilationError {
-    text:   text,
-    index:  12,
-    line:   1,
-    column: 3,
-    width:  Some(3),
-    kind:   CompilationErrorKind::DependencyHasParameters{recipe: "b", dependency: "foo"}
-  });
-}
-
-
-#[test]
-fn duplicate_dependency() {
-  let text = "a b c: b c z z";
-  parse_error(text, CompilationError {
-    text:   text,
-    index:  13,
-    line:   0,
-    column: 13,
-    width:  Some(1),
-    kind:   CompilationErrorKind::DuplicateDependency{recipe: "a", dependency: "z"}
-  });
-}
-
-#[test]
-fn duplicate_recipe() {
-  let text = "a:\nb:\na:";
-  parse_error(text, CompilationError {
-    text:   text,
-    index:  6,
-    line:   2,
-    column: 0,
-    width:  Some(1),
-    kind:   CompilationErrorKind::DuplicateRecipe{recipe: "a", first: 0}
-  });
-}
-
-#[test]
-fn duplicate_variable() {
-  let text = "a = \"0\"\na = \"0\"";
-  parse_error(text, CompilationError {
-    text:   text,
-    index:  8,
-    line:   1,
-    column: 0,
-    width:  Some(1),
-    kind:   CompilationErrorKind::DuplicateVariable{variable: "a"}
-  });
-}
-
-#[test]
-fn string_quote_escape() {
-  parse_summary(
+  summary_test!{string_quote_escape,
     r#"a = "hello\"""#,
-    r#"a = "hello\"""#
-  );
-}
+    r#"a = "hello\"""#,
+  }
 
-#[test]
-fn string_escapes() {
-  parse_summary(
+  summary_test!{string_escapes,
     r#"a = "\n\t\r\"\\""#,
-    r#"a = "\n\t\r\"\\""#
-  );
-}
+    r#"a = "\n\t\r\"\\""#,
+  }
 
-#[test]
-fn parameters() {
-  parse_summary(
-"a b c:
+  summary_test!{parameters,
+    "a b c:
   {{b}} {{c}}",
-"a b c:
+    "a b c:
     {{b}} {{c}}",
-  );
-}
+  }
 
+  #[test]
+  fn missing_colon() {
+    let text = "a b c\nd e f";
+    parse_error(text, CompilationError {
+      text:   text,
+      index:  5,
+      line:   0,
+      column: 5,
+      width:  Some(1),
+      kind:   UnexpectedToken{expected: vec![Name, Plus, Colon], found: Eol},
+    });
+  }
 
+  #[test]
+  fn missing_default_eol() {
+    let text     = "hello arg=\n";
+    let expected = vec![StringToken, RawString];
+    let found    = Eol;
+    parse_error(text, CompilationError {
+      text:   text,
+      index:  10,
+      line:   0,
+      column: 10,
+      width:  Some(1),
+      kind:   UnexpectedToken{expected, found},
+    });
+  }
 
-#[test]
-fn extra_whitespace() {
-  let text = "a:\n blah\n  blarg";
-  parse_error(text, CompilationError {
-    text:   text,
-    index:  10,
-    line:   2,
-    column: 1,
-    width:  Some(6),
-    kind:   CompilationErrorKind::ExtraLeadingWhitespace
-  });
+  #[test]
+  fn missing_default_eof() {
+    let text     = "hello arg=";
+    let expected = vec![StringToken, RawString];
+    let found    = Eof;
+    parse_error(text, CompilationError {
+      text:   text,
+      index:  10,
+      line:   0,
+      column: 10,
+      width:  Some(0),
+      kind:   UnexpectedToken{expected, found},
+    });
+  }
 
-  // extra leading whitespace is okay in a shebang recipe
-  parse_success("a:\n #!\n  print(1)");
-}
-#[test]
-fn interpolation_outside_of_recipe() {
-  let text = "{{";
-  parse_error(text, CompilationError {
-    text:   text,
-    index:  0,
-    line:   0,
-    column: 0,
-    width:  Some(2),
-    kind:   CompilationErrorKind::UnexpectedToken{expected: vec![Name, At], found: InterpolationStart},
-  });
-}
-#[test]
-fn unclosed_interpolation_delimiter() {
-  let text = "a:\n echo {{ foo";
-  parse_error(text, CompilationError {
-    text:   text,
-    index:  15,
-    line:   1,
-    column: 12,
-    width:  Some(0),
-    kind:   CompilationErrorKind::UnexpectedToken{expected: vec![Plus, Eol, InterpolationEnd], found: Dedent},
-  });
-}
+  #[test]
+  fn missing_default_colon() {
+    let text     = "hello arg=:";
+    let expected = vec![StringToken, RawString];
+    let found    = Colon;
+    parse_error(text, CompilationError {
+      text:   text,
+      index:  10,
+      line:   0,
+      column: 10,
+      width:  Some(1),
+      kind:   UnexpectedToken{expected, found},
+    });
+  }
 
-#[test]
-fn plus_following_parameter() {
-  let text = "a b c+:";
-  parse_error(text, CompilationError {
-    text:   text,
-    index:  5,
-    line:   0,
-    column: 5,
-    width:  Some(1),
-    kind:   CompilationErrorKind::UnexpectedToken{expected: vec![Name], found: Plus},
-  });
-}
+  #[test]
+  fn missing_default_backtick() {
+    let text     = "hello arg=`hello`";
+    let expected = vec![StringToken, RawString];
+    let found    = Backtick;
+    parse_error(text, CompilationError {
+      text:   text,
+      index:  10,
+      line:   0,
+      column: 10,
+      width:  Some(7),
+      kind:   UnexpectedToken{expected, found},
+    });
+  }
 
-#[test]
-fn readme_test() {
-  let mut justfiles = vec![];
-  let mut current = None;
+  #[test]
+  fn parameter_after_variadic() {
+    let text = "foo +a bbb:";
+    parse_error(text, CompilationError {
+      text:   text,
+      index:  7,
+      line:   0,
+      column: 7,
+      width:  Some(3),
+      kind:   ParameterFollowsVariadicParameter{parameter: "bbb"}
+    });
+  }
 
-  for line in brev::slurp("README.asc").lines() {
-    if let Some(mut justfile) = current {
-      if line == "```" {
-        justfiles.push(justfile);
-        current = None;
-      } else {
-        justfile += line;
-        justfile += "\n";
-        current = Some(justfile);
+  #[test]
+  fn required_after_default() {
+    let text = "hello arg='foo' bar:";
+    parse_error(text, CompilationError {
+      text:   text,
+      index:  16,
+      line:   0,
+      column: 16,
+      width:  Some(3),
+      kind:   RequiredParameterFollowsDefaultParameter{parameter: "bar"},
+    });
+  }
+
+  #[test]
+  fn missing_eol() {
+    let text = "a b c: z =";
+    parse_error(text, CompilationError {
+      text:   text,
+      index:  9,
+      line:   0,
+      column: 9,
+      width:  Some(1),
+      kind:   UnexpectedToken{expected: vec![Name, Eol, Eof], found: Equals},
+    });
+  }
+
+  #[test]
+  fn duplicate_parameter() {
+    let text = "a b b:";
+    parse_error(text, CompilationError {
+      text:   text,
+      index:  4,
+      line:   0,
+      column: 4,
+      width:  Some(1),
+      kind:   DuplicateParameter{recipe: "a", parameter: "b"}
+    });
+  }
+
+  #[test]
+  fn parameter_shadows_varible() {
+    let text = "foo = \"h\"\na foo:";
+    parse_error(text, CompilationError {
+      text:   text,
+      index:  12,
+      line:   1,
+      column: 2,
+      width:  Some(3),
+      kind:   ParameterShadowsVariable{parameter: "foo"}
+    });
+  }
+
+  #[test]
+  fn dependency_has_parameters() {
+    let text = "foo arg:\nb: foo";
+    parse_error(text, CompilationError {
+      text:   text,
+      index:  12,
+      line:   1,
+      column: 3,
+      width:  Some(3),
+      kind:   DependencyHasParameters{recipe: "b", dependency: "foo"}
+    });
+  }
+
+  #[test]
+  fn duplicate_dependency() {
+    let text = "a b c: b c z z";
+    parse_error(text, CompilationError {
+      text:   text,
+      index:  13,
+      line:   0,
+      column: 13,
+      width:  Some(1),
+      kind:   DuplicateDependency{recipe: "a", dependency: "z"}
+    });
+  }
+
+  #[test]
+  fn duplicate_recipe() {
+    let text = "a:\nb:\na:";
+    parse_error(text, CompilationError {
+      text:   text,
+      index:  6,
+      line:   2,
+      column: 0,
+      width:  Some(1),
+      kind:   DuplicateRecipe{recipe: "a", first: 0}
+    });
+  }
+
+  #[test]
+  fn duplicate_variable() {
+    let text = "a = \"0\"\na = \"0\"";
+    parse_error(text, CompilationError {
+      text:   text,
+      index:  8,
+      line:   1,
+      column: 0,
+      width:  Some(1),
+      kind:   DuplicateVariable{variable: "a"}
+    });
+  }
+
+  #[test]
+  fn extra_whitespace() {
+    let text = "a:\n blah\n  blarg";
+    parse_error(text, CompilationError {
+      text:   text,
+      index:  10,
+      line:   2,
+      column: 1,
+      width:  Some(6),
+      kind:   ExtraLeadingWhitespace
+    });
+    // extra whitespace is okay in a shebang recipe
+    parse_success("a:\n #!\n  print(1)");
+  }
+
+  #[test]
+  fn interpolation_outside_of_recipe() {
+    let text     = "{{";
+    let expected = vec![Name, At];
+    let found    = InterpolationStart;
+    parse_error(text, CompilationError {
+      text:   text,
+      index:  0,
+      line:   0,
+      column: 0,
+      width:  Some(2),
+      kind:   UnexpectedToken{expected, found},
+    });
+  }
+
+  #[test]
+  fn unclosed_interpolation_delimiter() {
+    let text     = "a:\n echo {{ foo";
+    let expected = vec![Plus, Eol, InterpolationEnd];
+    let found    = Dedent;
+    parse_error(text, CompilationError {
+      text:   text,
+      index:  15,
+      line:   1,
+      column: 12,
+      width:  Some(0),
+      kind:   UnexpectedToken{expected, found},
+    });
+  }
+
+  #[test]
+  fn plus_following_parameter() {
+    let text = "a b c+:";
+    parse_error(text, CompilationError {
+      text:   text,
+      index:  5,
+      line:   0,
+      column: 5,
+      width:  Some(1),
+      kind:   UnexpectedToken{expected: vec![Name], found: Plus},
+    });
+  }
+
+  #[test]
+  fn readme_test() {
+    let mut justfiles = vec![];
+    let mut current = None;
+
+    for line in brev::slurp("README.asc").lines() {
+      if let Some(mut justfile) = current {
+        if line == "```" {
+          justfiles.push(justfile);
+          current = None;
+        } else {
+          justfile += line;
+          justfile += "\n";
+          current = Some(justfile);
+        }
+      } else if line == "```make" {
+        current = Some(String::new());
       }
-    } else if line == "```make" {
-      current = Some(String::new());
+    }
+
+    for justfile in justfiles {
+      parse_success(&justfile);
     }
   }
-
-  for justfile in justfiles {
-    parse_success(&justfile);
-  }
-}
-
 }

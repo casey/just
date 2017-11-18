@@ -1,9 +1,11 @@
 use common::*;
 
+use CompilationErrorKind::*;
+
 pub fn resolve_assignments<'a>(
   assignments:       &Map<&'a str, Expression<'a>>,
   assignment_tokens: &Map<&'a str, Token<'a>>,
-) -> Result<(), CompilationError<'a>> {
+) -> CompilationResult<'a, ()> {
 
   let mut resolver = AssignmentResolver {
     assignments:       assignments,
@@ -29,7 +31,7 @@ struct AssignmentResolver<'a: 'b, 'b> {
 }
 
 impl<'a: 'b, 'b> AssignmentResolver<'a, 'b> {
-  fn resolve_assignment(&mut self, name: &'a str) -> Result<(), CompilationError<'a>> {
+  fn resolve_assignment(&mut self, name: &'a str) -> CompilationResult<'a, ()> {
     if self.evaluated.contains(name) {
       return Ok(());
     }
@@ -48,13 +50,14 @@ impl<'a: 'b, 'b> AssignmentResolver<'a, 'b> {
         line:   0,
         column: 0,
         width:  None,
-        kind:   CompilationErrorKind::Internal{message}
+        kind:   Internal{message}
       });
     }
     Ok(())
   }
 
-  fn resolve_expression(&mut self, expression: &Expression<'a>) -> Result<(), CompilationError<'a>> {
+  fn resolve_expression(
+    &mut self, expression: &Expression<'a>) -> CompilationResult<'a, ()> {
     match *expression {
       Expression::Variable{name, ref token} => {
         if self.evaluated.contains(name) {
@@ -62,14 +65,14 @@ impl<'a: 'b, 'b> AssignmentResolver<'a, 'b> {
         } else if self.seen.contains(name) {
           let token = &self.assignment_tokens[name];
           self.stack.push(name);
-          return Err(token.error(CompilationErrorKind::CircularVariableDependency {
+          return Err(token.error(CircularVariableDependency {
             variable: name,
             circle:   self.stack.clone(),
           }));
         } else if self.assignments.contains_key(name) {
           self.resolve_assignment(name)?;
         } else {
-          return Err(token.error(CompilationErrorKind::UndefinedVariable{variable: name}));
+          return Err(token.error(UndefinedVariable{variable: name}));
         }
       }
       Expression::Concatination{ref lhs, ref rhs} => {
@@ -87,43 +90,46 @@ mod test {
   use testing::parse_error;
   use super::*;
 
-#[test]
-fn circular_variable_dependency() {
-  let text = "a = b\nb = a";
-  parse_error(text, CompilationError {
-    text:   text,
-    index:  0,
-    line:   0,
-    column: 0,
-    width:  Some(1),
-    kind:   CompilationErrorKind::CircularVariableDependency{variable: "a", circle: vec!["a", "b", "a"]}
-  });
-}
+  #[test]
+  fn circular_variable_dependency() {
+    let text     = "a = b\nb = a";
+    let variable = "a";
+    let circle   = vec!["a", "b", "a"];
+    parse_error(text, CompilationError {
+      text:   text,
+      index:  0,
+      line:   0,
+      column: 0,
+      width:  Some(1),
+      kind:   CircularVariableDependency{variable, circle}
+    });
+  }
 
+  #[test]
+  fn self_variable_dependency() {
+    let text     = "a = a";
+    let variable = "a";
+    let circle   = vec!["a", "a"];
+    parse_error(text, CompilationError {
+      text:   text,
+      index:  0,
+      line:   0,
+      column: 0,
+      width:  Some(1),
+      kind:   CircularVariableDependency{variable, circle}
+    });
+  }
 
-#[test]
-fn self_variable_dependency() {
-  let text = "a = a";
-  parse_error(text, CompilationError {
-    text:   text,
-    index:  0,
-    line:   0,
-    column: 0,
-    width:  Some(1),
-    kind:   CompilationErrorKind::CircularVariableDependency{variable: "a", circle: vec!["a", "a"]}
-  });
-}
-#[test]
-fn unknown_expression_variable() {
-  let text = "x = yy";
-  parse_error(text, CompilationError {
-    text:   text,
-    index:  4,
-    line:   0,
-    column: 4,
-    width:  Some(2),
-    kind:   CompilationErrorKind::UndefinedVariable{variable: "yy"},
-  });
-}
-
+  #[test]
+  fn unknown_expression_variable() {
+    let text = "x = yy";
+    parse_error(text, CompilationError {
+      text:   text,
+      index:  4,
+      line:   0,
+      column: 4,
+      width:  Some(2),
+      kind:   UndefinedVariable{variable: "yy"},
+    });
+  }
 }

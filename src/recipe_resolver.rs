@@ -1,10 +1,12 @@
 use common::*;
 
+use CompilationErrorKind::*;
+
 pub fn resolve_recipes<'a>(
   recipes:     &Map<&'a str, Recipe<'a>>,
   assignments: &Map<&'a str, Expression<'a>>,
   text:        &'a str,
-) -> Result<(), CompilationError<'a>> {
+) -> CompilationResult<'a, ()> {
   let mut resolver = RecipeResolver {
     seen:              empty(),
     stack:             empty(),
@@ -35,14 +37,14 @@ pub fn resolve_recipes<'a>(
               // two lifetime parameters instead of one, with one being the lifetime
               // of the struct, and the second being the lifetime of the tokens
               // that it contains
-              let error = variable.error(CompilationErrorKind::UndefinedVariable{variable: name});
+              let error = variable.error(UndefinedVariable{variable: name});
               return Err(CompilationError {
                 text:   text,
                 index:  error.index,
                 line:   error.line,
                 column: error.column,
                 width:  error.width,
-                kind:   CompilationErrorKind::UndefinedVariable {
+                kind:   UndefinedVariable {
                   variable: &text[error.index..error.index + error.width.unwrap()],
                 }
               });
@@ -64,7 +66,7 @@ struct RecipeResolver<'a: 'b, 'b> {
 }
 
 impl<'a, 'b> RecipeResolver<'a, 'b> {
-  fn resolve(&mut self, recipe: &Recipe<'a>) -> Result<(), CompilationError<'a>> {
+  fn resolve(&mut self, recipe: &Recipe<'a>) -> CompilationResult<'a, ()> {
     if self.resolved.contains(recipe.name) {
       return Ok(())
     }
@@ -76,7 +78,7 @@ impl<'a, 'b> RecipeResolver<'a, 'b> {
           if self.seen.contains(dependency.name) {
             let first = self.stack[0];
             self.stack.push(first);
-            return Err(dependency_token.error(CompilationErrorKind::CircularRecipeDependency {
+            return Err(dependency_token.error(CircularRecipeDependency {
               recipe: recipe.name,
               circle: self.stack.iter()
                 .skip_while(|name| **name != dependency.name)
@@ -85,7 +87,7 @@ impl<'a, 'b> RecipeResolver<'a, 'b> {
           }
           self.resolve(dependency)?;
         },
-        None => return Err(dependency_token.error(CompilationErrorKind::UnknownDependency {
+        None => return Err(dependency_token.error(UnknownDependency {
           recipe:  recipe.name,
           unknown: dependency_token.lexeme
         })),
@@ -102,70 +104,70 @@ mod test {
   use super::*;
   use testing::parse_error;
 
-#[test]
-fn circular_recipe_dependency() {
-  let text = "a: b\nb: a";
-  parse_error(text, CompilationError {
-    text:   text,
-    index:  8,
-    line:   1,
-    column: 3,
-    width:  Some(1),
-    kind:   CompilationErrorKind::CircularRecipeDependency{recipe: "b", circle: vec!["a", "b", "a"]}
-  });
-}
+  #[test]
+  fn circular_recipe_dependency() {
+    let text   = "a: b\nb: a";
+    let recipe = "b";
+    let circle = vec!["a", "b", "a"];
+    parse_error(text, CompilationError {
+      text:   text,
+      index:  8,
+      line:   1,
+      column: 3,
+      width:  Some(1),
+      kind:   CircularRecipeDependency{recipe, circle}
+    });
+  }
 
-#[test]
-fn self_recipe_dependency() {
-  let text = "a: a";
-  parse_error(text, CompilationError {
-    text:   text,
-    index:  3,
-    line:   0,
-    column: 3,
-    width:  Some(1),
-    kind:   CompilationErrorKind::CircularRecipeDependency{recipe: "a", circle: vec!["a", "a"]}
-  });
-}
+  #[test]
+  fn self_recipe_dependency() {
+    let text = "a: a";
+    parse_error(text, CompilationError {
+      text:   text,
+      index:  3,
+      line:   0,
+      column: 3,
+      width:  Some(1),
+      kind:   CircularRecipeDependency{recipe: "a", circle: vec!["a", "a"]}
+    });
+  }
 
+  #[test]
+  fn unknown_dependency() {
+    let text = "a: b";
+    parse_error(text, CompilationError {
+      text:   text,
+      index:  3,
+      line:   0,
+      column: 3,
+      width:  Some(1),
+      kind:   UnknownDependency{recipe: "a", unknown: "b"}
+    });
+  }
 
-#[test]
-fn unknown_dependency() {
-  let text = "a: b";
-  parse_error(text, CompilationError {
-    text:   text,
-    index:  3,
-    line:   0,
-    column: 3,
-    width:  Some(1),
-    kind:   CompilationErrorKind::UnknownDependency{recipe: "a", unknown: "b"}
-  });
-}
+  #[test]
+  fn unknown_interpolation_variable() {
+    let text = "x:\n {{   hello}}";
+    parse_error(text, CompilationError {
+      text:   text,
+      index:  9,
+      line:   1,
+      column: 6,
+      width:  Some(5),
+      kind:   UndefinedVariable{variable: "hello"},
+    });
+  }
 
-#[test]
-fn unknown_interpolation_variable() {
-  let text = "x:\n {{   hello}}";
-  parse_error(text, CompilationError {
-    text:   text,
-    index:  9,
-    line:   1,
-    column: 6,
-    width:  Some(5),
-    kind:   CompilationErrorKind::UndefinedVariable{variable: "hello"},
-  });
-}
-
-#[test]
-fn unknown_second_interpolation_variable() {
-  let text = "wtf=\"x\"\nx:\n echo\n foo {{wtf}} {{ lol }}";
-  parse_error(text, CompilationError {
-    text:   text,
-    index:  33,
-    line:   3,
-    column: 16,
-    width:  Some(3),
-    kind:   CompilationErrorKind::UndefinedVariable{variable: "lol"},
-  });
-}
-
+  #[test]
+  fn unknown_second_interpolation_variable() {
+    let text = "wtf=\"x\"\nx:\n echo\n foo {{wtf}} {{ lol }}";
+    parse_error(text, CompilationError {
+      text:   text,
+      index:  33,
+      line:   3,
+      column: 16,
+      width:  Some(3),
+      kind:   UndefinedVariable{variable: "lol"},
+    });
+  }
 }

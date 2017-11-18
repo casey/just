@@ -62,7 +62,7 @@ install-dev-deps:
 
 # everyone's favorite animate paper clip
 clippy: lint
-	rustup run nightly cargo clippy -- -D clippy
+	cargo +nightly clippy -- -D clippy
 
 # count non-empty lines of code
 sloc:

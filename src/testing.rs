@@ -1,6 +1,7 @@
 use common::*;
 
 use compile;
+use tokenizer::tokenize;
 
 pub fn parse_success(text: &str) -> Justfile {
   match compile(text) {
@@ -10,7 +11,10 @@ pub fn parse_success(text: &str) -> Justfile {
 }
 
 pub fn parse_error(text: &str, expected: CompilationError) {
-  if let Err(error) = compile(text) {
+  let tokens = tokenize(text).unwrap();
+  let parser = Parser::new(text, tokens);
+
+  if let Err(error) = parser.justfile() {
     assert_eq!(error.text,   expected.text);
     assert_eq!(error.index,  expected.index);
     assert_eq!(error.line,   expected.line);

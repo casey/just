@@ -54,7 +54,7 @@ impl<'a> Recipe<'a> {
     scope:     &Map<&'a str, String>,
     exports:   &Set<&'a str>,
     options:   &Configuration,
-  ) -> Result<(), RuntimeError<'a>> {
+  ) -> RunResult<'a, ()> {
     if options.verbose {
       let color = options.color.stderr().banner();
       eprintln!("{}===> Running recipe `{}`...{}", color.prefix(), self.name, color.suffix());
@@ -150,7 +150,7 @@ impl<'a> Recipe<'a> {
 
       // create a command to run the script
       let mut command = Platform::make_shebang_command(&path, interpreter, argument)
-        .map_err(|output_error| RuntimeError::Cygpath{recipe: self.name, output_error: output_error})?;
+        .map_err(|output_error| RuntimeError::Cygpath{recipe: self.name, output_error})?;
 
       command.export_environment_variables(scope, exports)?;
 

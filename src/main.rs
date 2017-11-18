@@ -10,28 +10,28 @@ extern crate regex;
 extern crate tempdir;
 extern crate unicode_width;
 
-mod platform;
-mod run;
-mod color;
-mod compilation_error;
-mod runtime_error;
-mod misc;
-mod justfile;
-mod recipe;
-mod token;
-mod parser;
-mod tokenizer;
-mod cooked_string;
-mod recipe_resolver;
-mod assignment_resolver;
 mod assignment_evaluator;
+mod assignment_resolver;
+mod color;
+mod command_ext;
+mod compilation_error;
 mod configuration;
-mod parameter;
+mod cooked_string;
 mod expression;
 mod fragment;
-mod shebang;
-mod command_ext;
+mod justfile;
+mod misc;
+mod parameter;
+mod parser;
+mod platform;
 mod range_ext;
+mod recipe;
+mod recipe_resolver;
+mod run;
+mod runtime_error;
+mod shebang;
+mod token;
+mod tokenizer;
 
 #[cfg(test)] mod testing;
 
@@ -54,7 +54,7 @@ mod common {
 
   pub use assignment_evaluator::AssignmentEvaluator;
   pub use command_ext::CommandExt;
-  pub use compilation_error::{CompilationError, CompilationErrorKind};
+  pub use compilation_error::{CompilationError, CompilationErrorKind, CompilationResult};
   pub use configuration::Configuration;
   pub use cooked_string::CookedString;
   pub use expression::Expression;
@@ -64,14 +64,14 @@ mod common {
   pub use parameter::Parameter;
   pub use parser::Parser;
   pub use recipe::Recipe;
-  pub use runtime_error::RuntimeError;
+  pub use runtime_error::{RuntimeError, RunResult};
   pub use shebang::Shebang;
   pub use token::{Token, TokenKind};
 }
 
 use common::*;
 
-fn compile(text: &str) -> Result<Justfile, CompilationError> {
+fn compile(text: &str) -> CompilationResult<Justfile> {
   let tokens = tokenize(text)?;
   let parser = Parser::new(text, tokens);
   parser.justfile()
