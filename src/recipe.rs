@@ -91,6 +91,7 @@ impl<'a> Recipe<'a> {
       overrides:   &empty(),
       quiet:       options.quiet,
       shell:       options.shell,
+      dry_run:     options.dry_run,
     };
 
     if self.shebang {

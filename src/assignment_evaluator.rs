@@ -7,6 +7,7 @@ pub fn evaluate_assignments<'a>(
   overrides:   &Map<&str, &str>,
   quiet:       bool,
   shell:       &'a str,
+  dry_run:     bool,
 ) -> RunResult<'a, Map<&'a str, String>> {
   let mut evaluator = AssignmentEvaluator {
     assignments: assignments,
@@ -16,6 +17,7 @@ pub fn evaluate_assignments<'a>(
     quiet:       quiet,
     scope:       &empty(),
     shell:       shell,
+    dry_run:     dry_run,
   };
 
   for name in assignments.keys() {
@@ -33,6 +35,7 @@ pub struct AssignmentEvaluator<'a: 'b, 'b> {
   pub quiet:       bool,
   pub scope:       &'b Map<&'a str, String>,
   pub shell:       &'b str,
+  pub dry_run:     bool,
 }
 
 impl<'a, 'b> AssignmentEvaluator<'a, 'b> {
@@ -98,7 +101,11 @@ impl<'a, 'b> AssignmentEvaluator<'a, 'b> {
       }
       Expression::String{ref cooked_string} => cooked_string.cooked.clone(),
       Expression::Backtick{raw, ref token} => {
-        self.run_backtick(raw, token)?
+        if self.dry_run {
+          format!("`{}`", raw)
+        } else {
+          self.run_backtick(raw, token)?
+        }
       }
       Expression::Concatination{ref lhs, ref rhs} => {
         self.evaluate_expression(lhs, arguments)?
