@@ -1,8 +1,6 @@
 use common::*;
 
 use edit_distance::edit_distance;
-use assignment_evaluator::evaluate_assignments;
-use range_ext::RangeExt;
 
 pub struct Justfile<'a> {
   pub recipes:     Map<&'a str, Recipe<'a>>,
@@ -55,7 +53,7 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
       return Err(RuntimeError::UnknownOverrides{overrides: unknown_overrides});
     }
 
-    let scope = evaluate_assignments(
+    let scope = AssignmentEvaluator::evaluate_assignments(
       &self.assignments,
       &configuration.overrides,
       configuration.quiet,

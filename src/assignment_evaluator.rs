@@ -2,31 +2,6 @@ use common::*;
 
 use brev;
 
-pub fn evaluate_assignments<'a>(
-  assignments: &Map<&'a str, Expression<'a>>,
-  overrides:   &Map<&str, &str>,
-  quiet:       bool,
-  shell:       &'a str,
-  dry_run:     bool,
-) -> RunResult<'a, Map<&'a str, String>> {
-  let mut evaluator = AssignmentEvaluator {
-    assignments: assignments,
-    evaluated:   empty(),
-    exports:     &empty(),
-    overrides:   overrides,
-    quiet:       quiet,
-    scope:       &empty(),
-    shell:       shell,
-    dry_run:     dry_run,
-  };
-
-  for name in assignments.keys() {
-    evaluator.evaluate_assignment(name)?;
-  }
-
-  Ok(evaluator.evaluated)
-}
-
 pub struct AssignmentEvaluator<'a: 'b, 'b> {
   pub assignments: &'b Map<&'a str, Expression<'a>>,
   pub evaluated:   Map<&'a str, String>,
@@ -39,6 +14,31 @@ pub struct AssignmentEvaluator<'a: 'b, 'b> {
 }
 
 impl<'a, 'b> AssignmentEvaluator<'a, 'b> {
+  pub fn evaluate_assignments(
+    assignments: &Map<&'a str, Expression<'a>>,
+    overrides:   &Map<&str, &str>,
+    quiet:       bool,
+    shell:       &'a str,
+    dry_run:     bool,
+  ) -> RunResult<'a, Map<&'a str, String>> {
+    let mut evaluator = AssignmentEvaluator {
+      assignments: assignments,
+      evaluated:   empty(),
+      exports:     &empty(),
+      overrides:   overrides,
+      quiet:       quiet,
+      scope:       &empty(),
+      shell:       shell,
+      dry_run:     dry_run,
+    };
+
+    for name in assignments.keys() {
+      evaluator.evaluate_assignment(name)?;
+    }
+
+    Ok(evaluator.evaluated)
+  }
+
   pub fn evaluate_line(
     &mut self,
     line:      &[Fragment<'a>],

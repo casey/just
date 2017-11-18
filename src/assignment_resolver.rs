@@ -2,27 +2,7 @@ use common::*;
 
 use CompilationErrorKind::*;
 
-pub fn resolve_assignments<'a>(
-  assignments:       &Map<&'a str, Expression<'a>>,
-  assignment_tokens: &Map<&'a str, Token<'a>>,
-) -> CompilationResult<'a, ()> {
-
-  let mut resolver = AssignmentResolver {
-    assignments:       assignments,
-    assignment_tokens: assignment_tokens,
-    stack:             empty(),
-    seen:              empty(),
-    evaluated:         empty(),
-  };
-
-  for name in assignments.keys() {
-    resolver.resolve_assignment(name)?;
-  }
-
-  Ok(())
-}
-
-struct AssignmentResolver<'a: 'b, 'b> {
+pub struct AssignmentResolver<'a: 'b, 'b> {
   assignments:       &'b Map<&'a str, Expression<'a>>,
   assignment_tokens: &'b Map<&'a str, Token<'a>>,
   stack:             Vec<&'a str>,
@@ -31,6 +11,26 @@ struct AssignmentResolver<'a: 'b, 'b> {
 }
 
 impl<'a: 'b, 'b> AssignmentResolver<'a, 'b> {
+  pub fn resolve_assignments(
+    assignments:       &Map<&'a str, Expression<'a>>,
+    assignment_tokens: &Map<&'a str, Token<'a>>,
+  ) -> CompilationResult<'a, ()> {
+
+    let mut resolver = AssignmentResolver {
+      assignments:       assignments,
+      assignment_tokens: assignment_tokens,
+      stack:             empty(),
+      seen:              empty(),
+      evaluated:         empty(),
+    };
+
+    for name in assignments.keys() {
+      resolver.resolve_assignment(name)?;
+    }
+
+    Ok(())
+  }
+
   fn resolve_assignment(&mut self, name: &'a str) -> CompilationResult<'a, ()> {
     if self.evaluated.contains(name) {
       return Ok(());

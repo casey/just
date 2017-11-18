@@ -53,6 +53,7 @@ mod common {
   pub use tempdir::TempDir;
 
   pub use assignment_evaluator::AssignmentEvaluator;
+  pub use assignment_resolver::AssignmentResolver;
   pub use command_ext::CommandExt;
   pub use compilation_error::{CompilationError, CompilationErrorKind, CompilationResult};
   pub use configuration::Configuration;
@@ -63,7 +64,9 @@ mod common {
   pub use misc::{default, empty};
   pub use parameter::Parameter;
   pub use parser::Parser;
+  pub use range_ext::RangeExt;
   pub use recipe::Recipe;
+  pub use recipe_resolver::RecipeResolver;
   pub use runtime_error::{RuntimeError, RunResult};
   pub use shebang::Shebang;
   pub use token::{Token, TokenKind};
