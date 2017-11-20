@@ -7,7 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+- Do not evaluate backticks in assignments during dry runs (#253)
+
 ## [0.3.1] - 2017-10-06
 ### Added
-- Started keeping a changelog in CHANGELOG.md
-- Recipes whose names begin with an underscore will not appear in `--list` or `--summary`
+- Started keeping a changelog in CHANGELOG.md (#220)
+- Recipes whose names begin with an underscore will not appear in `--list` or `--summary` (#229)

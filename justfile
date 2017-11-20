@@ -90,12 +90,14 @@ test-quine:
 
 # make a quine, compile it, and verify it
 quine:
+	mkdir -p tmp
 	@echo '{{quine-text}}' > tmp/gen0.c
 	cc tmp/gen0.c -o tmp/gen0
 	./tmp/gen0 > tmp/gen1.c
 	cc tmp/gen1.c -o tmp/gen1
 	./tmp/gen1 > tmp/gen2.c
 	diff tmp/gen1.c tmp/gen2.c
+	rm -r tmp
 	@echo 'It was a quine!'
 
 quine-text = '
