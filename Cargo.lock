@@ -93,7 +93,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "itertools"
-version = "0.6.5"
+version = "0.7.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "either 1.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -109,7 +109,7 @@ dependencies = [
  "brev 0.1.12 (registry+https://github.com/rust-lang/crates.io-index)",
  "clap 2.28.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "edit-distance 2.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "itertools 0.6.5 (registry+https://github.com/rust-lang/crates.io-index)",
+ "itertools 0.7.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "lazy_static 0.2.10 (registry+https://github.com/rust-lang/crates.io-index)",
  "libc 0.2.33 (registry+https://github.com/rust-lang/crates.io-index)",
  "regex 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -280,7 +280,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum fuchsia-zircon 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)" = "f6c0581a4e363262e52b87f59ee2afe3415361c6ec35e665924eb08afe8ff159"
 "checksum fuchsia-zircon-sys 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "43f3795b4bae048dc6123a6b972cadde2e676f9ded08aef6bb77f5f157684a82"
 "checksum glob 0.2.11 (registry+https://github.com/rust-lang/crates.io-index)" = "8be18de09a56b60ed0edf84bc9df007e30040691af7acd1c41874faac5895bfb"
-"checksum itertools 0.6.5 (registry+https://github.com/rust-lang/crates.io-index)" = "d3f2be4da1690a039e9ae5fd575f706a63ad5a2120f161b1d653c9da3930dd21"
+"checksum itertools 0.7.3 (registry+https://github.com/rust-lang/crates.io-index)" = "99f3f75d7cf195a7eedb0611efe8684b55c6c7264afe3d8bc00b704f061c0fdf"
 "checksum kernel32-sys 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)" = "7507624b29483431c0ba2d82aece8ca6cdba9382bff4ddd0f7490560c056098d"
 "checksum lazy_static 0.2.10 (registry+https://github.com/rust-lang/crates.io-index)" = "236eb37a62591d4a41a89b7763d7de3e06ca02d5ab2815446a8bae5d2f8c2d57"
 "checksum libc 0.2.33 (registry+https://github.com/rust-lang/crates.io-index)" = "5ba3df4dcb460b9dfbd070d41c94c19209620c191b0340b929ce748a2bcd42d2"
