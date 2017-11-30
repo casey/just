@@ -22,7 +22,7 @@ environment:
 
     # MSVC
     #- TARGET: i686-pc-windows-msvc
-    - TARGET: x86_64-pc-windows-msvc
+    #- TARGET: x86_64-pc-windows-msvc
 
     # Testing other channels
     #- TARGET: x86_64-pc-windows-gnu
