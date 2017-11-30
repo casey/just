@@ -61,8 +61,8 @@ install-dev-deps:
 	cargo install -f cargo-check
 
 # everyone's favorite animate paper clip
-clippy: lint
-	cargo +nightly clippy -- -D clippy
+clippy:
+	cargo +nightly clippy
 
 # count non-empty lines of code
 sloc:
