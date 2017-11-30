@@ -29,18 +29,16 @@ grammar syntax
 ```
 |   alternation
 ()  grouping
-[]  option (0 or 1 times)
-{}  repetition (0 or more times)
-X?  option (0 or 1 times)
-X*  repetition (0 or more times)
-X+  repetition (1 or more times)
+_?  option (0 or 1 times)
+_*  repetition (0 or more times)
+_+  repetition (1 or more times)
 ```
 
 grammar
 -------
 
 ```
-justfile      : {item} EOF
+justfile      : item* EOF
 
 item          : recipe
               | assignment
@@ -62,7 +60,7 @@ value         : STRING
               | NAME
               | BACKTICK
 
-recipe        : '@'? NAME parameter* ['+' parameter] ':' dependencies? body?
+recipe        : '@'? NAME parameter* ('+' parameter)? ':' dependencies? body?
 
 parameter     : NAME
               | NAME '=' STRING
