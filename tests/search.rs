@@ -1,13 +1,13 @@
-extern crate utilities;
 extern crate brev;
+extern crate executable_path;
 extern crate tempdir;
 
-use utilities::just_binary_path;
 use tempdir::TempDir;
 use std::{path, str, fs, process};
+use executable_path::executable_path;
 
 fn search_test<P: AsRef<path::Path>>(path: P, args: &[&str]) {
-  let binary = just_binary_path();
+  let binary = executable_path("just");
 
   let output = process::Command::new(binary)
     .current_dir(path)

@@ -7,7 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.3.4] - 2017-10-06
+### Added
 - Do not evaluate backticks in assignments during dry runs (#253)
+
+### Changed
+- Change license to CC0 going forward (#270)
 
 ## [0.3.1] - 2017-10-06
 ### Added
