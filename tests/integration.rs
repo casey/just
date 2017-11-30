@@ -1,14 +1,14 @@
-extern crate tempdir;
 extern crate brev;
+extern crate executable_path;
 extern crate libc;
-extern crate utilities;
+extern crate tempdir;
 
+use executable_path::executable_path;
 use libc::{EXIT_FAILURE, EXIT_SUCCESS};
 use std::env;
 use std::process;
 use std::str;
 use tempdir::TempDir;
-use utilities::just_binary_path;
 
 /// Instantiate integration tests for a given test case using
 /// sh, dash, and bash.
@@ -54,7 +54,7 @@ fn integration_test(
   path.push("justfile");
   brev::dump(path, justfile);
 
-  let output = process::Command::new(&just_binary_path())
+  let output = process::Command::new(&executable_path("just"))
     .current_dir(tmp.path())
     .args(&["--shell", shell])
     .args(args)
