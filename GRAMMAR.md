@@ -23,17 +23,21 @@ STRING     = "[^"]*" # also processes \n \r \t \" \\ escapes
 TEXT       = recipe text, only matches in a recipe body
 ```
 
+grammar syntax
+--------------
+
+```
+|   alternation
+()  grouping
+[]  option (0 or 1 times)
+{}  repetition (0 to n times)
+X+  repetition (1 to n times)
+```
+
 grammar
 -------
 
 ```
-# key
-# |  alternation
-# () grouping
-# [] option (0 or 1 times)
-# {} repetition (0 to n times)
-# X+ repetition (1 to n times)
-
 justfile      : {item} EOF
 
 item          : recipe
