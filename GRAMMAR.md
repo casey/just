@@ -28,11 +28,11 @@ grammar
 
 ```
 # key
-# |   alternation
-# ()  grouping
-# []  option (0 or 1 times)
-# {}  repetition (0 to n times)
-# {}+ repetition (1 to n times)
+# |  alternation
+# () grouping
+# [] option (0 or 1 times)
+# {} repetition (0 to n times)
+# X+ repetition (1 to n times)
 
 justfile      : {item} EOF
 
@@ -62,11 +62,11 @@ parameter     : NAME
               | NAME '=' STRING
               | NAME '=' RAW_STRING
 
-dependencies  : {NAME}+
+dependencies  : NAME+
 
-body          : INDENT {line}+ DEDENT
+body          : INDENT line+ DEDENT
 
-line          : LINE {TEXT | interpolation}+ NEWLINE
+line          : LINE (TEXT | interpolation)+ NEWLINE
               | NEWLINE
 
 interpolation : '{{' expression '}}'
