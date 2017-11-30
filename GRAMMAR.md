@@ -10,28 +10,31 @@ tokens
 ------
 
 ```
-BACKTICK            = `[^`\n\r]*`
-COLON               = :
-COMMENT             = #([^!].*)?$
-NEWLINE             = \n|\r\n
-EQUALS              = =
-INTERPOLATION_START = {{
-INTERPOLATION_END   = }}
-NAME                = [a-zA-Z_][a-zA-Z0-9_-]*
-PLUS                = +
-RAW_STRING          = '[^'\r\n]*'
-STRING              = "[^"]*" # also processes \n \r \t \" \\ escapes
-INDENT              = emitted when indentation increases
-DEDENT              = emitted when indentation decreases
-LINE                = emitted before a recipe line
-TEXT                = recipe text, only matches in a recipe body
+BACKTICK   = `[^`\n\r]*`
+COMMENT    = #([^!].*)?$
+DEDENT     = emitted when indentation decreases
+EOF        = emitted at the end of the file
+INDENT     = emitted when indentation increases
+LINE       = emitted before a recipe line
+NAME       = [a-zA-Z_][a-zA-Z0-9_-]*
+NEWLINE    = \n|\r\n
+RAW_STRING = '[^'\r\n]*'
+STRING     = "[^"]*" # also processes \n \r \t \" \\ escapes
+TEXT       = recipe text, only matches in a recipe body
 ```
 
 grammar
 -------
 
 ```
-justfile      : item* EOF
+# key
+# |   alternation
+# ()  grouping
+# []  option (0 or 1 times)
+# {}  repetition (0 to n times)
+# {}+ repetition (1 to n times)
+
+justfile      : {item} EOF
 
 item          : recipe
               | assignment
@@ -45,23 +48,25 @@ assignment    : NAME '=' expression eol
 
 export        : 'export' assignment
 
-expression    : STRING
+expression    : value '+' expression
+              | value
+
+value         : STRING
               | RAW_STRING
               | NAME
               | BACKTICK
-              | expression '+' expression
 
-recipe        : '@'? NAME parameter* ('+' parameter)? ':' dependencies? body?
+recipe        : ['@'] NAME {parameter} ['+' parameter] ':' [dependencies] [body]
 
 parameter     : NAME
               | NAME '=' STRING
               | NAME '=' RAW_STRING
 
-dependencies  : NAME+
+dependencies  : {NAME}+
 
-body          : INDENT line+ DEDENT
+body          : INDENT {line}+ DEDENT
 
-line          : LINE (TEXT | interpolation)+ NEWLINE
+line          : LINE {TEXT | interpolation}+ NEWLINE
               | NEWLINE
 
 interpolation : '{{' expression '}}'
