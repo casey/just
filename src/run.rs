@@ -1,9 +1,10 @@
 use common::*;
 
-use std::{convert, ffi};
+use std::{convert, ffi, cmp};
 use clap::{App, Arg, ArgGroup, AppSettings};
 use misc::maybe_s;
 use configuration::DEFAULT_SHELL;
+use unicode_width::UnicodeWidthStr;
 
 macro_rules! die {
   ($($arg:tt)*) => {{
@@ -260,6 +261,26 @@ pub fn run() {
   }
 
   if matches.is_present("LIST") {
+    let mut line_widths: Map<&str, usize> = Map::new();
+
+    for (name, recipe) in &justfile.recipes {
+      if recipe.private {
+        continue;
+      }
+
+      let mut line_width = UnicodeWidthStr::width(*name);
+
+      for parameter in &recipe.parameters {
+        line_width += UnicodeWidthStr::width(format!(" {}", parameter).as_str());
+      }
+
+      if line_width <= 30 {
+        line_widths.insert(name, line_width);
+      }
+    }
+
+    let max_line_width = cmp::min(line_widths.values().cloned().max().unwrap_or(0), 30);
+
     let doc_color = color.stdout().doc();
     println!("Available recipes:");
     for (name, recipe) in &justfile.recipes {
@@ -275,7 +296,10 @@ pub fn run() {
         }
       }
       if let Some(doc) = recipe.doc {
-        print!(" {} {}", doc_color.paint("#"), doc_color.paint(doc));
+        print!(
+          " {:padding$}{} {}", "", doc_color.paint("#"), doc_color.paint(doc),
+          padding = max_line_width.saturating_sub(line_widths.get(name).cloned().unwrap_or(max_line_width))
+        );
       }
       println!();
     }

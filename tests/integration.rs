@@ -1040,6 +1040,57 @@ _private-recipe:
 }
 
 integration_test! {
+  name:     list_alignment,
+  justfile: r#"
+
+# this does a thing
+hello a b='B	' c='C':
+  echo {{a}} {{b}} {{c}}
+
+# something else
+a Z="\t z":
+
+# this recipe will not appear
+_private-recipe:
+"#,
+  args:     ("--list"),
+  stdout:   r"Available recipes:
+    a Z='\t z'            # something else
+    hello a b='B\t' c='C' # this does a thing
+",
+  stderr:   "",
+  status:   EXIT_SUCCESS,
+}
+
+integration_test! {
+  name:     list_alignment_long,
+  justfile: r#"
+
+# this does a thing
+hello a b='B	' c='C':
+  echo {{a}} {{b}} {{c}}
+
+# this does another thing
+x a b='B	' c='C':
+  echo {{a}} {{b}} {{c}}
+
+# something else
+this-recipe-is-very-very-very-important Z="\t z":
+
+# this recipe will not appear
+_private-recipe:
+"#,
+  args:     ("--list"),
+  stdout:   r"Available recipes:
+    hello a b='B\t' c='C' # this does a thing
+    this-recipe-is-very-very-very-important Z='\t z' # something else
+    x a b='B\t' c='C'     # this does another thing
+",
+  stderr:   "",
+  status:   EXIT_SUCCESS,
+}
+
+integration_test! {
   name:     show_suggestion,
   justfile: r#"
 hello a b='B	' c='C':
