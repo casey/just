@@ -55,10 +55,14 @@ export        : 'export' assignment
 expression    : value '+' expression
               | value
 
-value         : STRING
+value         : NAME '(' arguments? ')'
+              | STRING
               | RAW_STRING
-              | NAME
               | BACKTICK
+              | NAME
+
+arguments     : expression ',' arguments
+              | expression ','?
 
 recipe        : '@'? NAME parameter* ('+' parameter)? ':' dependencies? body?
 
