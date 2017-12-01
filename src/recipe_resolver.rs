@@ -31,6 +31,9 @@ impl<'a, 'b> RecipeResolver<'a, 'b> {
       for line in &recipe.lines {
         for fragment in line {
           if let Fragment::Expression{ref expression, ..} = *fragment {
+            for function in expression.functions() {
+              ::functions::resolve_function(function)?;
+            }
             for variable in expression.variables() {
               let name = variable.lexeme;
               let undefined = !assignments.contains_key(name)

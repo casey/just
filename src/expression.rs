@@ -15,6 +15,12 @@ impl<'a> Expression<'a> {
       stack: vec![self],
     }
   }
+
+  pub fn functions(&'a self) -> Functions<'a> {
+    Functions {
+      stack: vec![self],
+    }
+  }
 }
 
 impl<'a> Display for Expression<'a> {
@@ -44,6 +50,29 @@ impl<'a> Iterator for Variables<'a> {
       | Some(&Expression::Backtick{..})
       | Some(&Expression::Call{..}) => None,
       Some(&Expression::Variable{ref token,..}) => Some(token),
+      Some(&Expression::Concatination{ref lhs, ref rhs}) => {
+        self.stack.push(lhs);
+        self.stack.push(rhs);
+        self.next()
+      }
+    }
+  }
+}
+
+pub struct Functions<'a> {
+  stack: Vec<&'a Expression<'a>>,
+}
+
+impl<'a> Iterator for Functions<'a> {
+  type Item = &'a Token<'a>;
+
+  fn next(&mut self) -> Option<&'a Token<'a>> {
+    match self.stack.pop() {
+      None
+      | Some(&Expression::String{..})
+      | Some(&Expression::Backtick{..})
+      | Some(&Expression::Variable{..}) => None,
+      Some(&Expression::Call{ref token, ..}) => Some(token),
       Some(&Expression::Concatination{ref lhs, ref rhs}) => {
         self.stack.push(lhs);
         self.stack.push(rhs);

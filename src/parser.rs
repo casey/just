@@ -254,10 +254,10 @@ impl<'a> Parser<'a> {
       Name => {
         if self.peek(ParenL) {
           if let Some(token) = self.expect(ParenL) {
-            self.unexpected_token(&token, &[ParenL]);
+            return Err(self.unexpected_token(&token, &[ParenL]));
           }
           if let Some(token) = self.expect(ParenR) {
-            self.unexpected_token(&token, &[ParenR]);
+            return Err(self.unexpected_token(&token, &[ParenR]));
           }
           Expression::Call {name: first.lexeme, token: first}
         } else {
@@ -774,6 +774,46 @@ c = a + b + a + b",
     column: 12,
     width:  Some(0),
     kind:   UnexpectedToken{expected: vec![Plus, Eol, InterpolationEnd], found: Dedent},
+  }
+
+  compilation_error_test! {
+    name:   unclosed_parenthesis_in_expression,
+    input:  "x = foo(",
+    index:  8,
+    line:   0,
+    column: 8,
+    width:  Some(0),
+    kind:   UnexpectedToken{expected: vec![ParenR], found: Eof},
+  }
+
+  compilation_error_test! {
+    name:   unclosed_parenthesis_in_interpolation,
+    input:  "a:\n echo {{foo(}}",
+    index:  15,
+    line:   1,
+    column: 12,
+    width:  Some(2),
+    kind:   UnexpectedToken{expected: vec![ParenR], found: InterpolationEnd},
+  }
+
+  compilation_error_test! {
+    name:   unknown_function_in_interpolation,
+    input:  "a:\n echo {{bar()}}",
+    index:  15,
+    line:   1,
+    column: 12,
+    width:  Some(2),
+    kind:   UnknownFunction{function: "bar"},
+  }
+
+  compilation_error_test! {
+    name:   unknown_function,
+    input:  "a = foo()",
+    index:  4,
+    line:   0,
+    column: 4,
+    width:  Some(3),
+    kind:   UnknownFunction{function: "foo"},
   }
 
   compilation_error_test! {
