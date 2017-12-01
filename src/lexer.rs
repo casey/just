@@ -19,7 +19,7 @@ fn mixed_whitespace(text: &str) -> bool {
   !(text.chars().all(|c| c == ' ') || text.chars().all(|c| c == '\t'))
 }
 
-pub struct Scanner<'a> {
+pub struct Lexer<'a> {
   tokens: Vec<Token<'a>>,
   text:   &'a str,
   rest:   &'a str,
@@ -37,9 +37,9 @@ enum State<'a> {
   Interpolation,
 }
 
-impl<'a> Scanner<'a> {
-  pub fn scan(text: &'a str) -> CompilationResult<Vec<Token<'a>>> {
-    let scanner = Scanner{
+impl<'a> Lexer<'a> {
+  pub fn lex(text: &'a str) -> CompilationResult<Vec<Token<'a>>> {
+    let lexer = Lexer{
       tokens: vec![],
       text:   text,
       rest:   text,
@@ -49,7 +49,7 @@ impl<'a> Scanner<'a> {
       state:  vec![State::Start],
     };
 
-    scanner.inner()
+    lexer.inner()
   }
 
   fn error(&self, kind: CompilationErrorKind<'a>) -> CompilationError<'a> {
@@ -75,7 +75,7 @@ impl<'a> Scanner<'a> {
     }
   }
 
-  fn scan_indent(&mut self) -> CompilationResult<'a, Option<Token<'a>>> {
+  fn lex_indent(&mut self) -> CompilationResult<'a, Option<Token<'a>>> {
     lazy_static! {
       static ref INDENT: Regex = re(r"^([ \t]*)[^ \t\n\r]");
     }
@@ -150,7 +150,7 @@ impl<'a> Scanner<'a> {
     }
 
     loop {
-      if let Some(token) = self.scan_indent()? {
+      if let Some(token) = self.lex_indent()? {
         self.tokens.push(token);
       }
 
@@ -306,7 +306,7 @@ mod test {
       fn $name() {
         let input = $input;
         let expected = $expected;
-        let tokens = ::Scanner::scan(input).unwrap();
+        let tokens = ::Lexer::lex(input).unwrap();
         let roundtrip = tokens.iter().map(|t| {
           let mut s = String::new();
           s += t.prefix;
@@ -369,7 +369,7 @@ mod test {
           kind:   $kind,
         };
 
-        if let Err(error) = Scanner::scan(input) {
+        if let Err(error) = Lexer::lex(input) {
           assert_eq!(error.text,   expected.text);
           assert_eq!(error.index,  expected.index);
           assert_eq!(error.line,   expected.line);

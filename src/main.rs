@@ -24,6 +24,7 @@ mod cooked_string;
 mod expression;
 mod fragment;
 mod justfile;
+mod lexer;
 mod misc;
 mod parameter;
 mod parser;
@@ -33,7 +34,6 @@ mod recipe;
 mod recipe_resolver;
 mod run;
 mod runtime_error;
-mod scanner;
 mod shebang;
 mod token;
 
@@ -68,7 +68,7 @@ mod common {
   pub use recipe::Recipe;
   pub use recipe_resolver::RecipeResolver;
   pub use runtime_error::{RuntimeError, RunResult};
-  pub use scanner::Scanner;
+  pub use lexer::Lexer;
   pub use shebang::Shebang;
   pub use token::{Token, TokenKind};
 }
