@@ -23,6 +23,7 @@ mod configuration;
 mod cooked_string;
 mod expression;
 mod fragment;
+mod functions;
 mod justfile;
 mod lexer;
 mod misc;

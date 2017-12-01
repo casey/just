@@ -251,8 +251,20 @@ impl<'a> Parser<'a> {
   fn expression(&mut self, interpolation: bool) -> CompilationResult<'a, Expression<'a>> {
     let first = self.tokens.next().unwrap();
     let lhs = match first.kind {
-      Name        => Expression::Variable {name: first.lexeme, token: first},
-      Backtick    => Expression::Backtick {
+      Name => {
+        if self.peek(ParenL) {
+          if let Some(token) = self.expect(ParenL) {
+            self.unexpected_token(&token, &[ParenL]);
+          }
+          if let Some(token) = self.expect(ParenR) {
+            self.unexpected_token(&token, &[ParenR]);
+          }
+          Expression::Call {name: first.lexeme, token: first}
+        } else {
+          Expression::Variable {name: first.lexeme, token: first}
+        }
+      }
+      Backtick => Expression::Backtick {
         raw:   &first.lexeme[1..first.lexeme.len()-1],
         token: first
       },

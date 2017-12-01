@@ -75,6 +75,7 @@ impl<'a: 'b, 'b> AssignmentResolver<'a, 'b> {
           return Err(token.error(UndefinedVariable{variable: name}));
         }
       }
+      Expression::Call{name, ref token} => ::functions::resolve_function(name, token)?,
       Expression::Concatination{ref lhs, ref rhs} => {
         self.resolve_expression(lhs)?;
         self.resolve_expression(rhs)?;
