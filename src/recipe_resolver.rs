@@ -27,27 +27,39 @@ impl<'a, 'b> RecipeResolver<'a, 'b> {
       resolver.seen = empty();
     }
 
+    // There are borrow issues here that seems too difficult to solve.
+    // The errors derived from the variable token has too short a lifetime,
+    // so we create a new error from its contents, which do live long
+    // enough.
+    //
+    // I suspect the solution here is to give recipes, pieces, and expressions
+    // two lifetime parameters instead of one, with one being the lifetime
+    // of the struct, and the second being the lifetime of the tokens
+    // that it contains.
+
     for recipe in recipes.values() {
       for line in &recipe.lines {
         for fragment in line {
           if let Fragment::Expression{ref expression, ..} = *fragment {
             for function in expression.functions() {
-              ::functions::resolve_function(function)?;
+              if let Err(error) = ::functions::resolve_function(function) {
+                return Err(CompilationError {
+                  text:   text,
+                  index:  error.index,
+                  line:   error.line,
+                  column: error.column,
+                  width:  error.width,
+                  kind:   UnknownFunction {
+                    function: &text[error.index..error.index + error.width.unwrap()],
+                  }
+                });
+              }
             }
             for variable in expression.variables() {
               let name = variable.lexeme;
               let undefined = !assignments.contains_key(name)
                 && !recipe.parameters.iter().any(|p| p.name == name);
               if undefined {
-                // There's a borrow issue here that seems too difficult to solve.
-                // The error derived from the variable token has too short a lifetime,
-                // so we create a new error from its contents, which do live long
-                // enough.
-                //
-                // I suspect the solution here is to give recipes, pieces, and expressions
-                // two lifetime parameters instead of one, with one being the lifetime
-                // of the struct, and the second being the lifetime of the tokens
-                // that it contains
                 let error = variable.error(UndefinedVariable{variable: name});
                 return Err(CompilationError {
                   text:   text,
@@ -154,5 +166,15 @@ mod test {
     column: 16,
     width:  Some(3),
     kind:   UndefinedVariable{variable: "lol"},
+  }
+
+  compilation_error_test! {
+    name:   unknown_function_in_interpolation,
+    input:  "a:\n echo {{bar()}}",
+    index:  11,
+    line:   1,
+    column: 8,
+    width:  Some(3),
+    kind:   UnknownFunction{function: "bar"},
   }
 }

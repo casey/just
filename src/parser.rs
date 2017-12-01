@@ -797,26 +797,6 @@ c = a + b + a + b",
   }
 
   compilation_error_test! {
-    name:   unknown_function_in_interpolation,
-    input:  "a:\n echo {{bar()}}",
-    index:  15,
-    line:   1,
-    column: 12,
-    width:  Some(2),
-    kind:   UnknownFunction{function: "bar"},
-  }
-
-  compilation_error_test! {
-    name:   unknown_function,
-    input:  "a = foo()",
-    index:  4,
-    line:   0,
-    column: 4,
-    width:  Some(3),
-    kind:   UnknownFunction{function: "foo"},
-  }
-
-  compilation_error_test! {
     name:   plus_following_parameter,
     input:  "a b c+:",
     index:  5,
