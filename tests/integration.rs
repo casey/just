@@ -1203,6 +1203,34 @@ foo:
   status:   EXIT_SUCCESS,
 }
 
+integration_test! {
+  name:     env_var_functions,
+  justfile: r#"
+p = env_var('PATH')
+b = env_var_or_default('ZADDY', 'HTAP')
+x = env_var_or_default('XYZ', 'ABC')
+
+foo:
+  echo {{p}} {{b}} {{x}}
+"#,
+  args:     (),
+  stdout:   format!("{} HTAP ABC\n", env::var("PATH").unwrap()).as_str(),
+  stderr:   format!("echo {} HTAP ABC\n", env::var("PATH").unwrap()).as_str(),
+  status:   EXIT_SUCCESS,
+}
+
+integration_test! {
+  name:     env_var_failure,
+  justfile: "a:\n  echo {{env_var('ZADDY')}}",
+  args:     ("a"),
+  stdout:   "",
+  stderr:   "error: Call to function `env_var` failed: environment variable `ZADDY` not present
+  |
+2 |   echo {{env_var('ZADDY')}}
+  |          ^^^^^^^
+",
+  status:   EXIT_FAILURE,
+}
 
 integration_test! {
   name:     quiet_recipe,

@@ -75,7 +75,9 @@ impl<'a: 'b, 'b> AssignmentResolver<'a, 'b> {
           return Err(token.error(UndefinedVariable{variable: name}));
         }
       }
-      Expression::Call{ref token, ..} => ::functions::resolve_function(token)?,
+      Expression::Call{ref token, ref arguments, ..} => {
+        ::functions::resolve_function(token, arguments.len())?
+      }
       Expression::Concatination{ref lhs, ref rhs} => {
         self.resolve_expression(lhs)?;
         self.resolve_expression(rhs)?;
@@ -89,17 +91,6 @@ impl<'a: 'b, 'b> AssignmentResolver<'a, 'b> {
 #[cfg(test)]
 mod test {
   use super::*;
-  use TokenKind::*;
-
-  compilation_error_test! {
-    name:   unclosed_interpolation_delimiter,
-    input:  "a:\n echo {{ foo",
-    index:  15,
-    line:   1,
-    column: 12,
-    width:  Some(0),
-    kind:   UnexpectedToken{expected: vec![Plus, Eol, InterpolationEnd], found: Dedent},
-  }
 
   compilation_error_test! {
     name:   circular_variable_dependency,

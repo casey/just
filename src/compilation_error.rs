@@ -1,6 +1,6 @@
 use common::*;
 
-use misc::{Or, write_error_context, show_whitespace};
+use misc::{Or, write_error_context, show_whitespace, maybe_s};
 
 pub type CompilationResult<'a, T> = Result<T, CompilationError<'a>>;
 
@@ -24,6 +24,7 @@ pub enum CompilationErrorKind<'a> {
   DuplicateRecipe{recipe: &'a str, first: usize},
   DuplicateVariable{variable: &'a str},
   ExtraLeadingWhitespace,
+  FunctionArgumentCountMismatch{function: &'a str, found: usize, expected: usize},
   InconsistentLeadingWhitespace{expected: &'a str, found: &'a str},
   Internal{message: String},
   InvalidEscapeSequence{character: char},
@@ -108,6 +109,13 @@ impl<'a> Display for CompilationError<'a> {
       }
       ExtraLeadingWhitespace => {
         writeln!(f, "Recipe line has extra leading whitespace")?;
+      }
+      FunctionArgumentCountMismatch{function, found, expected} => {
+        writeln!(
+          f,
+          "Function `{}` called with {} argument{} but takes {}",
+          function, found, maybe_s(found), expected
+        )?;
       }
       InconsistentLeadingWhitespace{expected, found} => {
         writeln!(f,

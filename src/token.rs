@@ -29,6 +29,7 @@ pub enum TokenKind {
   At,
   Backtick,
   Colon,
+  Comma,
   Comment,
   Dedent,
   Eof,
@@ -53,6 +54,7 @@ impl Display for TokenKind {
     write!(f, "{}", match *self {
       Backtick           => "backtick",
       Colon              => "':'",
+      Comma              => "','",
       Comment            => "comment",
       Dedent             => "dedent",
       Eof                => "end of file",

@@ -41,8 +41,8 @@ impl<'a, 'b> RecipeResolver<'a, 'b> {
       for line in &recipe.lines {
         for fragment in line {
           if let Fragment::Expression{ref expression, ..} = *fragment {
-            for function in expression.functions() {
-              if let Err(error) = ::functions::resolve_function(function) {
+            for (function, argc) in expression.functions() {
+              if let Err(error) = ::functions::resolve_function(function, argc) {
                 return Err(CompilationError {
                   text:   text,
                   index:  error.index,

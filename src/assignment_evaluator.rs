@@ -99,7 +99,12 @@ impl<'a, 'b> AssignmentEvaluator<'a, 'b> {
           })
         }
       }
-      Expression::Call{name, ..} => ::functions::evaluate_function(name),
+      Expression::Call{name, arguments: ref call_arguments, ref token} => {
+        let call_arguments = call_arguments.iter().map(|argument| {
+          self.evaluate_expression(argument, &arguments)
+        }).collect::<Result<Vec<String>, RuntimeError>>()?;
+        ::functions::evaluate_function(&token, name, &call_arguments)
+      }
       Expression::String{ref cooked_string} => Ok(cooked_string.cooked.clone()),
       Expression::Backtick{raw, ref token} => {
         if self.dry_run {
