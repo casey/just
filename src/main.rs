@@ -7,6 +7,7 @@ extern crate edit_distance;
 extern crate itertools;
 extern crate libc;
 extern crate regex;
+extern crate target;
 extern crate tempdir;
 extern crate unicode_width;
 
