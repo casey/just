@@ -37,6 +37,7 @@ pub enum CompilationErrorKind<'a> {
   UnknownDependency{recipe: &'a str, unknown: &'a str},
   UnknownFunction{function: &'a str},
   UnknownStartOfToken,
+  UnterminatedInterpolation,
   UnterminatedString,
 }
 
@@ -129,6 +130,9 @@ impl<'a> Display for CompilationError<'a> {
       }
       UnknownStartOfToken => {
         writeln!(f, "Unknown start of token:")?;
+      }
+      UnterminatedInterpolation => {
+        writeln!(f, "Unterminated interpolation")?;
       }
       UnterminatedString => {
         writeln!(f, "Unterminated string")?;
