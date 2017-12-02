@@ -82,37 +82,40 @@ impl<'a, 'b> AssignmentEvaluator<'a, 'b> {
     expression: &Expression<'a>,
     arguments: &Map<&str, Cow<str>>
   ) -> RunResult<'a, String> {
-    Ok(match *expression {
+    match *expression {
       Expression::Variable{name, ..} => {
         if self.evaluated.contains_key(name) {
-          self.evaluated[name].clone()
+          Ok(self.evaluated[name].clone())
         } else if self.scope.contains_key(name) {
-          self.scope[name].clone()
+          Ok(self.scope[name].clone())
         } else if self.assignments.contains_key(name) {
           self.evaluate_assignment(name)?;
-          self.evaluated[name].clone()
+          Ok(self.evaluated[name].clone())
         } else if arguments.contains_key(name) {
-          arguments[name].to_string()
+          Ok(arguments[name].to_string())
         } else {
-          return Err(RuntimeError::Internal {
+          Err(RuntimeError::Internal {
             message: format!("attempted to evaluate undefined variable `{}`", name)
-          });
+          })
         }
       }
-      Expression::String{ref cooked_string} => cooked_string.cooked.clone(),
+      Expression::Call{name, ..} => ::functions::evaluate_function(name),
+      Expression::String{ref cooked_string} => Ok(cooked_string.cooked.clone()),
       Expression::Backtick{raw, ref token} => {
         if self.dry_run {
-          format!("`{}`", raw)
+          Ok(format!("`{}`", raw))
         } else {
-          self.run_backtick(raw, token)?
+          Ok(self.run_backtick(raw, token)?)
         }
       }
       Expression::Concatination{ref lhs, ref rhs} => {
-        self.evaluate_expression(lhs, arguments)?
-          +
-        &self.evaluate_expression(rhs, arguments)?
+        Ok(
+          self.evaluate_expression(lhs, arguments)?
+            +
+          &self.evaluate_expression(rhs, arguments)?
+        )
       }
-    })
+    }
   }
 
   fn run_backtick(

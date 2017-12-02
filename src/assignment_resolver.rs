@@ -75,6 +75,7 @@ impl<'a: 'b, 'b> AssignmentResolver<'a, 'b> {
           return Err(token.error(UndefinedVariable{variable: name}));
         }
       }
+      Expression::Call{ref token, ..} => ::functions::resolve_function(token)?,
       Expression::Concatination{ref lhs, ref rhs} => {
         self.resolve_expression(lhs)?;
         self.resolve_expression(rhs)?;
@@ -129,4 +130,15 @@ mod test {
     width:  Some(2),
     kind:   UndefinedVariable{variable: "yy"},
   }
+
+  compilation_error_test! {
+    name:   unknown_function,
+    input:  "a = foo()",
+    index:  4,
+    line:   0,
+    column: 4,
+    width:  Some(3),
+    kind:   UnknownFunction{function: "foo"},
+  }
+
 }

@@ -251,8 +251,20 @@ impl<'a> Parser<'a> {
   fn expression(&mut self, interpolation: bool) -> CompilationResult<'a, Expression<'a>> {
     let first = self.tokens.next().unwrap();
     let lhs = match first.kind {
-      Name        => Expression::Variable {name: first.lexeme, token: first},
-      Backtick    => Expression::Backtick {
+      Name => {
+        if self.peek(ParenL) {
+          if let Some(token) = self.expect(ParenL) {
+            return Err(self.unexpected_token(&token, &[ParenL]));
+          }
+          if let Some(token) = self.expect(ParenR) {
+            return Err(self.unexpected_token(&token, &[ParenR]));
+          }
+          Expression::Call {name: first.lexeme, token: first}
+        } else {
+          Expression::Variable {name: first.lexeme, token: first}
+        }
+      }
+      Backtick => Expression::Backtick {
         raw:   &first.lexeme[1..first.lexeme.len()-1],
         token: first
       },
@@ -762,6 +774,26 @@ c = a + b + a + b",
     column: 12,
     width:  Some(0),
     kind:   UnexpectedToken{expected: vec![Plus, Eol, InterpolationEnd], found: Dedent},
+  }
+
+  compilation_error_test! {
+    name:   unclosed_parenthesis_in_expression,
+    input:  "x = foo(",
+    index:  8,
+    line:   0,
+    column: 8,
+    width:  Some(0),
+    kind:   UnexpectedToken{expected: vec![ParenR], found: Eof},
+  }
+
+  compilation_error_test! {
+    name:   unclosed_parenthesis_in_interpolation,
+    input:  "a:\n echo {{foo(}}",
+    index:  15,
+    line:   1,
+    column: 12,
+    width:  Some(2),
+    kind:   UnexpectedToken{expected: vec![ParenR], found: InterpolationEnd},
   }
 
   compilation_error_test! {

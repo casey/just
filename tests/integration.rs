@@ -1,6 +1,7 @@
 extern crate brev;
 extern crate executable_path;
 extern crate libc;
+extern crate target;
 extern crate tempdir;
 
 use executable_path::executable_path;
@@ -1175,6 +1176,35 @@ foo:
 }
 
 integration_test! {
+  name:     test_os_arch_functions_in_interpolation,
+  justfile: r#"
+foo:
+  echo {{arch()}} {{os()}} {{os_family()}}
+"#,
+  args:     (),
+  stdout:   format!("{} {} {}\n", target::arch(), target::os(), target::os_family()).as_str(),
+  stderr:   format!("echo {} {} {}\n", target::arch(), target::os(), target::os_family()).as_str(),
+  status:   EXIT_SUCCESS,
+}
+
+integration_test! {
+  name:     test_os_arch_functions_in_expression,
+  justfile: r#"
+a = arch()
+o = os()
+f = os_family()
+
+foo:
+  echo {{a}} {{o}} {{f}}
+"#,
+  args:     (),
+  stdout:   format!("{} {} {}\n", target::arch(), target::os(), target::os_family()).as_str(),
+  stderr:   format!("echo {} {} {}\n", target::arch(), target::os(), target::os_family()).as_str(),
+  status:   EXIT_SUCCESS,
+}
+
+
+integration_test! {
   name:     quiet_recipe,
   justfile: r#"
 @quiet:
@@ -1260,6 +1290,19 @@ integration_test! {
   status:   EXIT_FAILURE,
 }
 
+integration_test! {
+  name:     unknown_function_in_assignment,
+  justfile: r#"foo = foo() + "hello"
+bar:"#,
+  args:     ("bar"),
+  stdout:   "",
+  stderr:   r#"error: Call to unknown function `foo`
+  |
+1 | foo = foo() + "hello"
+  |       ^^^
+"#,
+  status:   EXIT_FAILURE,
+}
 
 integration_test! {
   name:     dependency_takes_arguments,

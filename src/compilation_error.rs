@@ -29,12 +29,13 @@ pub enum CompilationErrorKind<'a> {
   InvalidEscapeSequence{character: char},
   MixedLeadingWhitespace{whitespace: &'a str},
   OuterShebang,
+  ParameterFollowsVariadicParameter{parameter: &'a str},
   ParameterShadowsVariable{parameter: &'a str},
   RequiredParameterFollowsDefaultParameter{parameter: &'a str},
-  ParameterFollowsVariadicParameter{parameter: &'a str},
   UndefinedVariable{variable: &'a str},
   UnexpectedToken{expected: Vec<TokenKind>, found: TokenKind},
   UnknownDependency{recipe: &'a str, unknown: &'a str},
+  UnknownFunction{function: &'a str},
   UnknownStartOfToken,
   UnterminatedString,
 }
@@ -122,6 +123,9 @@ impl<'a> Display for CompilationError<'a> {
       }
       UndefinedVariable{variable} => {
         writeln!(f, "Variable `{}` not defined", variable)?;
+      }
+      UnknownFunction{function} => {
+        writeln!(f, "Call to unknown function `{}`", function)?;
       }
       UnknownStartOfToken => {
         writeln!(f, "Unknown start of token:")?;

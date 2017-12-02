@@ -131,6 +131,8 @@ impl<'a> Lexer<'a> {
     lazy_static! {
       static ref BACKTICK:                  Regex = token(r"`[^`\n\r]*`"               );
       static ref COLON:                     Regex = token(r":"                         );
+      static ref PAREN_L:                   Regex = token(r"[(]"                       );
+      static ref PAREN_R:                   Regex = token(r"[)]"                       );
       static ref AT:                        Regex = token(r"@"                         );
       static ref COMMENT:                   Regex = token(r"#([^!\n\r].*)?$"           );
       static ref EOF:                       Regex = token(r"(?-m)$"                    );
@@ -140,7 +142,7 @@ impl<'a> Lexer<'a> {
       static ref INTERPOLATION_START_TOKEN: Regex = token(r"[{][{]"                    );
       static ref NAME:                      Regex = token(r"([a-zA-Z_][a-zA-Z0-9_-]*)" );
       static ref PLUS:                      Regex = token(r"[+]"                       );
-      static ref STRING:                    Regex = token("\""                         );
+      static ref STRING:                    Regex = token(r#"["]"#                     );
       static ref RAW_STRING:                Regex = token(r#"'[^']*'"#                 );
       static ref UNTERMINATED_RAW_STRING:   Regex = token(r#"'[^']*"#                  );
       static ref INTERPOLATION_START:       Regex = re(r"^[{][{]"                 );
@@ -209,6 +211,10 @@ impl<'a> Lexer<'a> {
         (captures.get(1).unwrap().as_str(), captures.get(2).unwrap().as_str(), Colon)
       } else if let Some(captures) = AT.captures(self.rest) {
         (captures.get(1).unwrap().as_str(), captures.get(2).unwrap().as_str(), At)
+      } else if let Some(captures) = PAREN_L.captures(self.rest) {
+        (captures.get(1).unwrap().as_str(), captures.get(2).unwrap().as_str(), ParenL)
+      } else if let Some(captures) = PAREN_R.captures(self.rest) {
+        (captures.get(1).unwrap().as_str(), captures.get(2).unwrap().as_str(), ParenR)
       } else if let Some(captures) = PLUS.captures(self.rest) {
         (captures.get(1).unwrap().as_str(), captures.get(2).unwrap().as_str(), Plus)
       } else if let Some(captures) = EQUALS.captures(self.rest) {
@@ -338,6 +344,8 @@ mod test {
         InterpolationStart => "{",
         Line{..}           => "^",
         Name               => "N",
+        ParenL             => "(",
+        ParenR             => ")",
         Plus               => "+",
         RawString          => "'",
         StringToken        => "\"",
@@ -508,6 +516,12 @@ d: c
 c: b
   @mv b c",
     "$N:N$>^_$$<N:$>^_$^_$$<N:N$>^_$$<N:N$>^_<.",
+  }
+
+  summary_test! {
+    tokenize_parens,
+    r"((())) )abc(+",
+    "((())))N(+.",
   }
 
   error_test! {

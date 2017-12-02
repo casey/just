@@ -7,6 +7,7 @@ extern crate edit_distance;
 extern crate itertools;
 extern crate libc;
 extern crate regex;
+extern crate target;
 extern crate tempdir;
 extern crate unicode_width;
 
@@ -23,6 +24,7 @@ mod configuration;
 mod cooked_string;
 mod expression;
 mod fragment;
+mod functions;
 mod justfile;
 mod lexer;
 mod misc;
