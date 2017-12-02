@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Align doc-comments in `--list` output (#273)
+- Add `arch()`, `os()`, and `os_family()` functions (#277)
 
 ## [0.3.4] - 2017-10-06
 ### Added
