@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Align doc-comments in `--list` output (#273)
 - Add `arch()`, `os()`, and `os_family()` functions (#277)
+- Add `env_var(key)` and `env_var_or_default(key, default)` functions (#280)
 
 ## [0.3.4] - 2017-10-06
 ### Added

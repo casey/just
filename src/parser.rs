@@ -220,10 +220,11 @@ impl<'a> Parser<'a> {
             return Err(self.unexpected_token(&token, &[Text, InterpolationStart, Eol]));
           } else {
             fragments.push(Fragment::Expression{
-              expression: self.expression(true)?
+              expression: self.expression()?
             });
+
             if let Some(token) = self.expect(InterpolationEnd) {
-              return Err(self.unexpected_token(&token, &[InterpolationEnd]));
+              return Err(self.unexpected_token(&token, &[Plus, InterpolationEnd]));
             }
           }
         }
@@ -248,7 +249,7 @@ impl<'a> Parser<'a> {
     Ok(())
   }
 
-  fn expression(&mut self, interpolation: bool) -> CompilationResult<'a, Expression<'a>> {
+  fn expression(&mut self) -> CompilationResult<'a, Expression<'a>> {
     let first = self.tokens.next().unwrap();
     let lhs = match first.kind {
       Name => {
@@ -256,10 +257,11 @@ impl<'a> Parser<'a> {
           if let Some(token) = self.expect(ParenL) {
             return Err(self.unexpected_token(&token, &[ParenL]));
           }
+          let arguments = self.arguments()?;
           if let Some(token) = self.expect(ParenR) {
-            return Err(self.unexpected_token(&token, &[ParenR]));
+            return Err(self.unexpected_token(&token, &[Name, StringToken, ParenR]));
           }
-          Expression::Call {name: first.lexeme, token: first}
+          Expression::Call {name: first.lexeme, token: first, arguments}
         } else {
           Expression::Variable {name: first.lexeme, token: first}
         }
@@ -275,19 +277,29 @@ impl<'a> Parser<'a> {
     };
 
     if self.accepted(Plus) {
-      let rhs = self.expression(interpolation)?;
+      let rhs = self.expression()?;
       Ok(Expression::Concatination{lhs: Box::new(lhs), rhs: Box::new(rhs)})
-    } else if interpolation && self.peek(InterpolationEnd) {
-      Ok(lhs)
-    } else if let Some(token) = self.expect_eol() {
-      if interpolation {
-        return Err(self.unexpected_token(&token, &[Plus, Eol, InterpolationEnd]))
-      } else {
-        Err(self.unexpected_token(&token, &[Plus, Eol]))
-      }
     } else {
       Ok(lhs)
     }
+  }
+
+  fn arguments(&mut self) -> CompilationResult<'a, Vec<Expression<'a>>> {
+    let mut arguments = Vec::new();
+
+    while !self.peek(ParenR) && !self.peek(Eof) && !self.peek(Eol) && !self.peek(InterpolationEnd) {
+      arguments.push(self.expression()?);
+      if !self.accepted(Comma) {
+        if self.peek(ParenR) {
+          break;
+        } else {
+          let next = self.tokens.next().unwrap();
+          return Err(self.unexpected_token(&next, &[Comma, ParenR]));
+        }
+      }
+    }
+
+    Ok(arguments)
   }
 
   fn assignment(&mut self, name: Token<'a>, export: bool) -> CompilationResult<'a, ()> {
@@ -297,7 +309,12 @@ impl<'a> Parser<'a> {
     if export {
       self.exports.insert(name.lexeme);
     }
-    let expression = self.expression(false)?;
+
+    let expression = self.expression()?;
+    if let Some(token) = self.expect_eol() {
+      return Err(self.unexpected_token(&token, &[Plus, Eol]));
+    }
+
     self.assignments.insert(name.lexeme, expression);
     self.assignment_tokens.insert(name.lexeme, name);
     Ok(())
@@ -606,6 +623,32 @@ c = a + b + a + b",
     {{b}} {{c}}",
   }
 
+  summary_test! {
+    unary_functions,
+    "
+x = arch()
+
+a:
+  {{os()}} {{os_family()}}",
+    "x = arch()
+
+a:
+    {{os()}} {{os_family()}}",
+  }
+
+  summary_test! {
+    env_functions,
+    r#"
+x = env_var('foo',)
+
+a:
+  {{env_var_or_default('foo' + 'bar', 'baz',)}} {{env_var(env_var("baz"))}}"#,
+    r#"x = env_var("foo")
+
+a:
+    {{env_var_or_default("foo" + "bar", "baz")}} {{env_var(env_var("baz"))}}"#,
+  }
+
   compilation_error_test! {
     name:   missing_colon,
     input:  "a b c\nd e f",
@@ -773,7 +816,7 @@ c = a + b + a + b",
     line:   1,
     column: 12,
     width:  Some(0),
-    kind:   UnexpectedToken{expected: vec![Plus, Eol, InterpolationEnd], found: Dedent},
+    kind:   UnexpectedToken{expected: vec![Plus, InterpolationEnd], found: Dedent},
   }
 
   compilation_error_test! {
@@ -783,7 +826,7 @@ c = a + b + a + b",
     line:   0,
     column: 8,
     width:  Some(0),
-    kind:   UnexpectedToken{expected: vec![ParenR], found: Eof},
+    kind:   UnexpectedToken{expected: vec![Name, StringToken, ParenR], found: Eof},
   }
 
   compilation_error_test! {
@@ -793,7 +836,7 @@ c = a + b + a + b",
     line:   1,
     column: 12,
     width:  Some(2),
-    kind:   UnexpectedToken{expected: vec![ParenR], found: InterpolationEnd},
+    kind:   UnexpectedToken{expected: vec![Name, StringToken, ParenR], found: InterpolationEnd},
   }
 
   compilation_error_test! {

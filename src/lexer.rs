@@ -134,6 +134,7 @@ impl<'a> Lexer<'a> {
       static ref PAREN_L:                   Regex = token(r"[(]"                       );
       static ref PAREN_R:                   Regex = token(r"[)]"                       );
       static ref AT:                        Regex = token(r"@"                         );
+      static ref COMMA:                     Regex = token(r","                         );
       static ref COMMENT:                   Regex = token(r"#([^!\n\r].*)?$"           );
       static ref EOF:                       Regex = token(r"(?-m)$"                    );
       static ref EOL:                       Regex = token(r"\n|\r\n"                   );
@@ -209,6 +210,8 @@ impl<'a> Lexer<'a> {
         (captures.get(1).unwrap().as_str(), captures.get(2).unwrap().as_str(), Colon)
       } else if let Some(captures) = AT.captures(self.rest) {
         (captures.get(1).unwrap().as_str(), captures.get(2).unwrap().as_str(), At)
+      } else if let Some(captures) = COMMA.captures(self.rest) {
+        (captures.get(1).unwrap().as_str(), captures.get(2).unwrap().as_str(), Comma)
       } else if let Some(captures) = PAREN_L.captures(self.rest) {
         (captures.get(1).unwrap().as_str(), captures.get(2).unwrap().as_str(), ParenL)
       } else if let Some(captures) = PAREN_R.captures(self.rest) {
@@ -332,6 +335,7 @@ mod test {
         At                 => "@",
         Backtick           => "`",
         Colon              => ":",
+        Comma              => ",",
         Comment{..}        => "#",
         Dedent             => "<",
         Eof                => ".",
@@ -420,8 +424,8 @@ mod test {
 
   summary_test! {
     tokenize_recipe_multiple_interpolations,
-    "foo:#ok\n {{a}}0{{b}}1{{c}}",
-    "N:#$>^{N}_{N}_{N}<.",
+    "foo:,#ok\n {{a}}0{{b}}1{{c}}",
+    "N:,#$>^{N}_{N}_{N}<.",
   }
 
   summary_test! {

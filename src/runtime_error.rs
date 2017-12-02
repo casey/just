@@ -25,14 +25,15 @@ pub enum RuntimeError<'a> {
   Backtick{token: Token<'a>, output_error: OutputError},
   Code{recipe: &'a str, line_number: Option<usize>, code: i32},
   Cygpath{recipe: &'a str, output_error: OutputError},
+  FunctionCall{token: Token<'a>, message: String},
   Internal{message: String},
   IoError{recipe: &'a str, io_error: io::Error},
   Shebang{recipe: &'a str, command: String, argument: Option<String>, io_error: io::Error},
   Signal{recipe: &'a str, line_number: Option<usize>, signal: i32},
   TmpdirIoError{recipe: &'a str, io_error: io::Error},
-  Unknown{recipe: &'a str, line_number: Option<usize>},
   UnknownOverrides{overrides: Vec<&'a str>},
   UnknownRecipes{recipes: Vec<&'a str>, suggestion: Option<&'a str>},
+  Unknown{recipe: &'a str, line_number: Option<usize>},
 }
 
 impl<'a> RuntimeError<'a> {
@@ -117,6 +118,10 @@ impl<'a> Display for RuntimeError<'a> {
                      but output was not utf8: {}", recipe, utf8_error)?;
         }
       },
+      FunctionCall{ref token, ref message} => {
+        write!(f, "Call to function `{}` failed: {}\n", token.lexeme, message)?;
+        error_token = Some(token);
+      }
       Shebang{recipe, ref command, ref argument, ref io_error} => {
         if let Some(ref argument) = *argument {
           write!(f, "Recipe `{}` with shebang `#!{} {}` execution error: {}",
@@ -161,11 +166,11 @@ impl<'a> Display for RuntimeError<'a> {
           error_token = Some(token);
         }
         OutputError::Signal(signal) => {
-          write!(f, "Backtick was terminated by signal {}", signal)?;
+          write!(f, "Backtick was terminated by signal {}\n", signal)?;
           error_token = Some(token);
         }
         OutputError::Unknown => {
-          write!(f, "Backtick failed for an unknown reason")?;
+          write!(f, "Backtick failed for an unknown reason\n")?;
           error_token = Some(token);
         }
         OutputError::Io(ref io_error) => {
@@ -181,7 +186,7 @@ impl<'a> Display for RuntimeError<'a> {
           error_token = Some(token);
         }
         OutputError::Utf8(ref utf8_error) => {
-          write!(f, "Backtick succeeded but stdout was not utf8: {}", utf8_error)?;
+          write!(f, "Backtick succeeded but stdout was not utf8: {}\n", utf8_error)?;
           error_token = Some(token);
         }
       },
