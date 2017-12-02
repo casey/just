@@ -200,9 +200,7 @@ impl<'a> Lexer<'a> {
         (captures.get(1).unwrap().as_str(), captures.get(2).unwrap().as_str(), Name)
       } else if let Some(captures) = EOL.captures(self.rest) {
         if self.state.last().unwrap() == &State::Interpolation {
-          return Err(self.error(Internal {
-            message: "hit EOL while still in interpolation state".to_string()
-          }));
+          return Err(self.error(UnterminatedInterpolation));
         }
         (captures.get(1).unwrap().as_str(), captures.get(2).unwrap().as_str(), Eol)
       } else if let Some(captures) = BACKTICK.captures(self.rest) {
@@ -600,6 +598,17 @@ c: b
     column: 4,
     width:  None,
     kind:   UnterminatedString,
+  }
+
+  error_test! {
+    name:  unterminated_interpolation,
+    input: "foo:\n echo {{
+",
+    index:  13,
+    line:   1,
+    column: 8,
+    width:  None,
+    kind:   UnterminatedInterpolation,
   }
 
   error_test! {
