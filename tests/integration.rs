@@ -1211,11 +1211,11 @@ b = env_var_or_default('ZADDY', 'HTAP')
 x = env_var_or_default('XYZ', 'ABC')
 
 foo:
-  echo '{{p}}' '{{b}}' '{{x}}'
+  /bin/echo '{{p}}' '{{b}}' '{{x}}'
 "#,
   args:     (),
   stdout:   format!("{} HTAP ABC\n", env::var("PATH").unwrap()).as_str(),
-  stderr:   format!("echo '{}' 'HTAP' 'ABC'\n", env::var("PATH").unwrap()).as_str(),
+  stderr:   format!("/bin/echo '{}' 'HTAP' 'ABC'\n", env::var("PATH").unwrap()).as_str(),
   status:   EXIT_SUCCESS,
 }
 
