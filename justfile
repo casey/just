@@ -38,7 +38,6 @@ publish: lint clippy test
 	cargo publish
 	git tag -a {{version}} -m 'Release {{version}}'
 	git push github {{version}}
-	git push github
 
 # clean up feature branch BRANCH
 done BRANCH:
