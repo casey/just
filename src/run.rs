@@ -298,7 +298,9 @@ pub fn run() {
       if let Some(doc) = recipe.doc {
         print!(
           " {:padding$}{} {}", "", doc_color.paint("#"), doc_color.paint(doc),
-          padding = max_line_width.saturating_sub(line_widths.get(name).cloned().unwrap_or(max_line_width))
+          padding = max_line_width.saturating_sub(
+            line_widths.get(name).cloned().unwrap_or(max_line_width)
+          )
         );
       }
       println!();

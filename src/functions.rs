@@ -33,8 +33,8 @@ pub fn resolve_function<'a>(token: &Token<'a>, argc: usize) -> CompilationResult
   if let Some(function) = FUNCTIONS.get(&name) {
     use self::Function::*;
     match (function, argc) {
-      (&Nullary(_), 0) => Ok(()),
-      (&Unary(_),   1) => Ok(()),
+      (&Nullary(_), 0) |
+      (&Unary(_),   1) |
       (&Binary(_),  2) => Ok(()),
       _               => {
         Err(token.error(CompilationErrorKind::FunctionArgumentCountMismatch{
@@ -47,7 +47,11 @@ pub fn resolve_function<'a>(token: &Token<'a>, argc: usize) -> CompilationResult
   }
 }
 
-pub fn evaluate_function<'a>(token: &Token<'a>, name: &'a str, arguments: &[String]) -> RunResult<'a, String> {
+pub fn evaluate_function<'a>(
+  token: &Token<'a>,
+  name: &'a str,
+  arguments: &[String]
+) -> RunResult<'a, String> {
   if let Some(function) = FUNCTIONS.get(name) {
     use self::Function::*;
     let argc = arguments.len();
@@ -83,7 +87,7 @@ pub fn os_family() -> Result<String, String> {
   Ok(target::os_family().to_string())
 }
 
-pub fn env_var<'a>(key: &str) -> Result<String, String> {
+pub fn env_var(key: &str) -> Result<String, String> {
   use std::env::VarError::*;
   match env::var(key) {
     Err(NotPresent) => Err(format!("environment variable `{}` not present", key)),
@@ -93,7 +97,7 @@ pub fn env_var<'a>(key: &str) -> Result<String, String> {
   }
 }
 
-pub fn env_var_or_default<'a>(key: &str, default: &str) -> Result<String, String> {
+pub fn env_var_or_default(key: &str, default: &str) -> Result<String, String> {
   use std::env::VarError::*;
   match env::var(key) {
     Err(NotPresent) => Ok(default.to_string()),
