@@ -10,6 +10,7 @@ extern crate regex;
 extern crate target;
 extern crate tempdir;
 extern crate unicode_width;
+extern crate dotenv;
 
 #[cfg(test)]
 #[macro_use]
@@ -76,7 +77,9 @@ mod common {
 }
 
 use common::*;
+use dotenv::dotenv;
 
 fn main() {
+  dotenv::dotenv().ok();
   run::run();
 }
