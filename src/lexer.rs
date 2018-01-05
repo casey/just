@@ -135,8 +135,8 @@ impl<'a> Lexer<'a> {
       static ref PAREN_R:                   Regex = token(r"[)]"                       );
       static ref AT:                        Regex = token(r"@"                         );
       static ref COMMA:                     Regex = token(r","                         );
-      static ref COMMENT:                   Regex = token(r"#([^!\n\r].*)?$"           );
-      static ref EOF:                       Regex = token(r"(?-m)$"                    );
+      static ref COMMENT:                   Regex = token(r"#([^!\n\r]*)?\r?$"         );
+      static ref EOF:                       Regex = token(r"\z"                        );
       static ref EOL:                       Regex = token(r"\n|\r\n"                   );
       static ref EQUALS:                    Regex = token(r"="                         );
       static ref INTERPOLATION_END:         Regex = token(r"[}][}]"                    );
@@ -526,6 +526,12 @@ c: b
     "((())))N(+.",
   }
 
+  summary_test! {
+    crlf_newline,
+    "#\r\n#asdf\r\n",
+    "#$#$.",
+  }
+
   error_test! {
     name:  tokenize_space_then_tab,
     input: "a:
@@ -616,8 +622,8 @@ c: b
   }
 
   error_test! {
-    name: mixed_leading_whitespace,
-    input: "a:\n\t echo hello",
+    name:   mixed_leading_whitespace,
+    input:  "a:\n\t echo hello",
     index:  3,
     line:   1,
     column: 0,
