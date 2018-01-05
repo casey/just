@@ -106,7 +106,7 @@ dependencies = [
 
 [[package]]
 name = "just"
-version = "0.3.5"
+version = "0.3.6"
 dependencies = [
  "ansi_term 0.10.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "assert_matches 1.1.0 (registry+https://github.com/rust-lang/crates.io-index)",

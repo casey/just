@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.3.6] - 2017-12-11
+### Fixed
+- Lex CRLF line endings properly (#292)
+
 ## [0.3.5] - 2017-12-11
 ### Added
 - Align doc-comments in `--list` output (#273)
