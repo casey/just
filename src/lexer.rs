@@ -129,22 +129,22 @@ impl<'a> Lexer<'a> {
 
   pub fn inner(mut self) -> CompilationResult<'a, Vec<Token<'a>>> {
     lazy_static! {
+      static ref AT:                        Regex = token(r"@"                         );
       static ref BACKTICK:                  Regex = token(r"`[^`\n\r]*`"               );
       static ref COLON:                     Regex = token(r":"                         );
-      static ref PAREN_L:                   Regex = token(r"[(]"                       );
-      static ref PAREN_R:                   Regex = token(r"[)]"                       );
-      static ref AT:                        Regex = token(r"@"                         );
       static ref COMMA:                     Regex = token(r","                         );
-      static ref COMMENT:                   Regex = token(r"#([^!\n\r]*)?\r?$"         );
+      static ref COMMENT:                   Regex = token(r"#([^!\n\r][^\n\r]*)?\r?$"  );
       static ref EOF:                       Regex = token(r"\z"                        );
       static ref EOL:                       Regex = token(r"\n|\r\n"                   );
       static ref EQUALS:                    Regex = token(r"="                         );
       static ref INTERPOLATION_END:         Regex = token(r"[}][}]"                    );
       static ref INTERPOLATION_START_TOKEN: Regex = token(r"[{][{]"                    );
       static ref NAME:                      Regex = token(r"([a-zA-Z_][a-zA-Z0-9_-]*)" );
+      static ref PAREN_L:                   Regex = token(r"[(]"                       );
+      static ref PAREN_R:                   Regex = token(r"[)]"                       );
       static ref PLUS:                      Regex = token(r"[+]"                       );
-      static ref STRING:                    Regex = token(r#"["]"#                     );
       static ref RAW_STRING:                Regex = token(r#"'[^']*'"#                 );
+      static ref STRING:                    Regex = token(r#"["]"#                     );
       static ref UNTERMINATED_RAW_STRING:   Regex = token(r#"'[^']*"#                  );
       static ref INTERPOLATION_START:       Regex = re(r"^[{][{]"                 );
       static ref LEADING_TEXT:              Regex = re(r"^(?m)(.+?)[{][{]"        );
@@ -499,6 +499,12 @@ bob:
   summary_test! {
     tokenize_comment,
     "a:=#",
+    "N:=#."
+  }
+
+  summary_test! {
+    tokenize_comment_with_bang,
+    "a:=#foo!",
     "N:=#."
   }
 
