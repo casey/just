@@ -854,7 +854,7 @@ a:
     let mut justfiles = vec![];
     let mut current = None;
 
-    for line in brev::slurp("README.asc").lines() {
+    for line in brev::slurp("README.adoc").lines() {
       if let Some(mut justfile) = current {
         if line == "```" {
           justfiles.push(justfile);
