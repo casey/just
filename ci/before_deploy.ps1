@@ -14,7 +14,7 @@ $ZIP = "$SRC_DIR\$($Env:CRATE_NAME)-$($Env:APPVEYOR_REPO_TAG_NAME)-$($Env:TARGET
 Copy-Item "$SRC_DIR\target\$($Env:TARGET)\release\just.exe" '.\'
 Copy-Item "$SRC_DIR\GRAMMAR.md" '.\'
 Copy-Item "$SRC_DIR\LICENSE" '.\'
-Copy-Item "$SRC_DIR\README.asc" '.\'
+Copy-Item "$SRC_DIR\README.adoc" '.\'
 
 7z a "$ZIP" *
 
