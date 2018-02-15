@@ -53,8 +53,11 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
       return Err(RuntimeError::UnknownOverrides{overrides: unknown_overrides});
     }
 
+    let dotenv = load_dotenv()?;
+
     let scope = AssignmentEvaluator::evaluate_assignments(
       &self.assignments,
+      &dotenv,
       &configuration.overrides,
       configuration.quiet,
       configuration.shell,
@@ -112,7 +115,7 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
 
     let mut ran = empty();
     for (recipe, arguments) in grouped {
-      self.run_recipe(recipe, arguments, &scope, &mut ran, configuration)?
+      self.run_recipe(recipe, arguments, &scope, &dotenv, configuration, &mut ran)?
     }
 
     Ok(())
@@ -123,15 +126,16 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
     recipe:        &Recipe<'a>,
     arguments:     &[&'a str],
     scope:         &Map<&'c str, String>,
-    ran:           &mut Set<&'a str>,
+    dotenv:        &Map<String, String>,
     configuration: &Configuration<'a>,
+    ran:           &mut Set<&'a str>,
   ) -> RunResult<()> {
     for dependency_name in &recipe.dependencies {
       if !ran.contains(dependency_name) {
-        self.run_recipe(&self.recipes[dependency_name], &[], scope, ran, configuration)?;
+        self.run_recipe(&self.recipes[dependency_name], &[], scope, dotenv, configuration, ran)?;
       }
     }
-    recipe.run(arguments, scope, &self.exports, configuration)?;
+    recipe.run(arguments, scope, dotenv, &self.exports, configuration)?;
     ran.insert(recipe.name);
     Ok(())
   }

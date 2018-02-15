@@ -52,6 +52,7 @@ impl<'a> Recipe<'a> {
     &self,
     arguments:     &[&'a str],
     scope:         &Map<&'a str, String>,
+    dotenv:        &Map<String, String>,
     exports:       &Set<&'a str>,
     configuration: &Configuration,
   ) -> RunResult<'a, ()> {
@@ -84,14 +85,15 @@ impl<'a> Recipe<'a> {
     }
 
     let mut evaluator = AssignmentEvaluator {
-      evaluated:   empty(),
-      scope:       scope,
-      exports:     exports,
       assignments: &empty(),
+      dotenv:      dotenv,
+      dry_run:     configuration.dry_run,
+      evaluated:   empty(),
+      exports:     exports,
       overrides:   &empty(),
       quiet:       configuration.quiet,
+      scope:       scope,
       shell:       configuration.shell,
-      dry_run:     configuration.dry_run,
     };
 
     if self.shebang {
@@ -153,7 +155,7 @@ impl<'a> Recipe<'a> {
       let mut command = Platform::make_shebang_command(&path, interpreter, argument)
         .map_err(|output_error| RuntimeError::Cygpath{recipe: self.name, output_error})?;
 
-      command.export_environment_variables(scope, exports)?;
+      command.export_environment_variables(scope, dotenv, exports)?;
 
       // run it!
       match command.status() {
@@ -228,7 +230,7 @@ impl<'a> Recipe<'a> {
           cmd.stdout(Stdio::null());
         }
 
-        cmd.export_environment_variables(scope, exports)?;
+        cmd.export_environment_variables(scope, dotenv, exports)?;
 
         match cmd.status() {
           Ok(exit_status) => if let Some(code) = exit_status.code() {
