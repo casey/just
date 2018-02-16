@@ -2,9 +2,12 @@ use common::*;
 
 use std::{convert, ffi, cmp};
 use clap::{App, Arg, ArgGroup, AppSettings};
-use misc::maybe_s;
 use configuration::DEFAULT_SHELL;
+use misc::maybe_s;
 use unicode_width::UnicodeWidthStr;
+
+#[cfg(windows)]
+use ansi_term::enable_ansi_support;
 
 macro_rules! die {
   ($($arg:tt)*) => {{
@@ -134,7 +137,7 @@ pub fn run() {
 
   if color.active() {
     #[cfg(windows)]
-    ansi_term::enable_ansi_support().ok();
+    enable_ansi_support().ok();
   }
 
   let set_count = matches.occurrences_of("SET");
