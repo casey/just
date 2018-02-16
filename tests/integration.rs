@@ -731,20 +731,6 @@ default:
 }
 
 integration_test! {
-  name:     quiet_flag_or_dry_run_flag,
-  justfile: "",
-  args:     ("--quiet", "--dry-run"),
-  stdout:   "",
-  stderr:   &format!("error: The argument '--dry-run' cannot be used with '--quiet'
-
-USAGE:
-    just{} --color <COLOR> --quiet --shell <SHELL>
-
-For more information try --help\n", env::consts::EXE_SUFFIX),
-  status:   1,
-}
-
-integration_test! {
   name:     argument_single,
   justfile: "
 foo A:
