@@ -125,16 +125,11 @@ impl Color {
   }
 
   pub fn active(&self) -> bool {
-    let activated = match self.use_color {
+    match self.use_color {
       UseColor::Always => true,
       UseColor::Never  => false,
       UseColor::Auto   => self.atty,
-    };
-    if activated {
-      #[cfg(windows)]
-      ansi_term::enable_ansi_support().is_ok();
     }
-    activated
   }
 
   pub fn paint<'a>(&self, text: &'a str) -> ANSIGenericString<'a, str> {

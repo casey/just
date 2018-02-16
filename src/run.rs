@@ -132,6 +132,11 @@ pub fn run() {
     other    => die!("Invalid argument `{}` to --color. This is a bug in just.", other),
   };
 
+  if color.active() {
+    #[cfg(windows)]
+    ansi_term::enable_ansi_support().ok();
+  }
+
   let set_count = matches.occurrences_of("SET");
   let mut overrides = Map::new();
   if set_count > 0 {
