@@ -589,6 +589,12 @@ Also, although `just` is written in rust, it can be used regardless of the langu
 
 == Miscellanea
 
+=== Companion Tools
+
+Tools that pair nicely with `just` include:
+
+- https://github.com/mattgreen/watchexec[`watchexec`] — a simple tool that watches a path and runs a command whenever it detects modifications.
+
 === Shell Alias
 
 For lightning-fast command running, put `alias j=just` in your shell's configuration file.
