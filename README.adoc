@@ -24,6 +24,15 @@ test TEST: build
     ./test --test {{TEST}}
 ```
 
+You can then run them with `just COMMAND`:
+
+```sh
+$ just test
+cc *.c -o main
+./test --all
+Yay, all your tests passed!
+```
+
 `just` produces detailed error messages and avoids `make`&#8217;s idiosyncrasies, so debugging a justfile is easier and less surprising than debugging a makefile.
 
 If you need help with `just` please feel free to open an issue or let me know on link:https://gitter.im/just-because/Lobby[gitter]. Feature requests and bug reports are always welcome!
