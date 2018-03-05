@@ -11,7 +11,7 @@ impl<'a> CookedString<'a> {
     let raw = &token.lexeme[1..token.lexeme.len()-1];
 
     if let TokenKind::RawString = token.kind {
-      Ok(CookedString{raw: raw, cooked: raw.to_string()})
+      Ok(CookedString{cooked: raw.to_string(), raw})
     } else if let TokenKind::StringToken = token.kind {
       let mut cooked = String::new();
       let mut escape = false;
@@ -36,7 +36,7 @@ impl<'a> CookedString<'a> {
         }
         cooked.push(c);
       }
-      Ok(CookedString{raw: raw, cooked: cooked})
+      Ok(CookedString{raw, cooked})
     } else {
       Err(token.error(CompilationErrorKind::Internal {
         message: "cook_string() called on non-string token".to_string()

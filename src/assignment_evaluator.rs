@@ -24,15 +24,15 @@ impl<'a, 'b> AssignmentEvaluator<'a, 'b> {
     dry_run:     bool,
   ) -> RunResult<'a, Map<&'a str, String>> {
     let mut evaluator = AssignmentEvaluator {
-      assignments: assignments,
-      dotenv:      dotenv,
-      dry_run:     dry_run,
-      evaluated:   empty(),
-      exports:     &empty(),
-      overrides:   overrides,
-      quiet:       quiet,
-      scope:       &empty(),
-      shell:       shell,
+      evaluated: empty(),
+      exports:   &empty(),
+      scope:     &empty(),
+      assignments,
+      dotenv,
+      dry_run,
+      overrides,
+      quiet,
+      shell,
     };
 
     for name in assignments.keys() {

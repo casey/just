@@ -110,7 +110,7 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
       } else {
         None
       };
-      return Err(RuntimeError::UnknownRecipes{recipes: missing, suggestion: suggestion});
+      return Err(RuntimeError::UnknownRecipes{recipes: missing, suggestion});
     }
 
     let mut ran = empty();

@@ -12,8 +12,8 @@ fn error_from_signal(
   exit_status: ExitStatus
 ) -> RuntimeError {
   match Platform::signal_from_exit_status(exit_status) {
-    Some(signal) => RuntimeError::Signal{recipe: recipe, line_number: line_number, signal: signal},
-    None => RuntimeError::Unknown{recipe: recipe, line_number: line_number},
+    Some(signal) => RuntimeError::Signal{recipe, line_number, signal},
+    None => RuntimeError::Unknown{recipe, line_number},
   }
 }
 
@@ -86,14 +86,14 @@ impl<'a> Recipe<'a> {
 
     let mut evaluator = AssignmentEvaluator {
       assignments: &empty(),
-      dotenv:      dotenv,
       dry_run:     configuration.dry_run,
       evaluated:   empty(),
-      exports:     exports,
       overrides:   &empty(),
       quiet:       configuration.quiet,
-      scope:       scope,
       shell:       configuration.shell,
+      dotenv,
+      exports,
+      scope,
     };
 
     if self.shebang {
@@ -161,7 +161,7 @@ impl<'a> Recipe<'a> {
       match command.status() {
         Ok(exit_status) => if let Some(code) = exit_status.code() {
           if code != 0 {
-            return Err(RuntimeError::Code{recipe: self.name, line_number: None, code: code})
+            return Err(RuntimeError::Code{recipe: self.name, line_number: None, code})
           }
         } else {
           return Err(error_from_signal(self.name, None, exit_status))
@@ -170,7 +170,7 @@ impl<'a> Recipe<'a> {
           recipe:   self.name,
           command:  interpreter.to_string(),
           argument: argument.map(String::from),
-          io_error: io_error
+          io_error,
         })
       };
     } else {
@@ -236,14 +236,16 @@ impl<'a> Recipe<'a> {
           Ok(exit_status) => if let Some(code) = exit_status.code() {
             if code != 0 {
               return Err(RuntimeError::Code{
-                recipe: self.name, line_number: Some(line_number), code: code
+                recipe: self.name, line_number: Some(line_number), code,
               });
             }
           } else {
             return Err(error_from_signal(self.name, Some(line_number), exit_status));
           },
           Err(io_error) => return Err(RuntimeError::IoError{
-            recipe: self.name, io_error: io_error}),
+            recipe: self.name,
+            io_error,
+          }),
         };
       }
     }

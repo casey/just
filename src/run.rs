@@ -349,11 +349,11 @@ pub fn run() {
     dry_run:   matches.is_present("DRY-RUN"),
     evaluate:  matches.is_present("EVALUATE"),
     highlight: matches.is_present("HIGHLIGHT"),
-    overrides: overrides,
     quiet:     matches.is_present("QUIET"),
     shell:     matches.value_of("SHELL").unwrap(),
-    color:     color,
     verbose:   matches.is_present("VERBOSE"),
+    color,
+    overrides,
   };
 
   if let Err(run_error) = justfile.run(&arguments, &configuration) {

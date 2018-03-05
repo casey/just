@@ -41,12 +41,12 @@ impl<'a> Lexer<'a> {
   pub fn lex(text: &'a str) -> CompilationResult<Vec<Token<'a>>> {
     let lexer = Lexer{
       tokens: vec![],
-      text:   text,
       rest:   text,
       index:  0,
       line:   0,
       column: 0,
       state:  vec![State::Start],
+      text,
     };
 
     lexer.inner()
@@ -59,7 +59,7 @@ impl<'a> Lexer<'a> {
       line:   self.line,
       column: self.column,
       width:  None,
-      kind:   kind,
+      kind,
     }
   }
 
@@ -69,9 +69,9 @@ impl<'a> Lexer<'a> {
       line:   self.line,
       column: self.column,
       text:   self.text,
-      prefix: prefix,
-      lexeme: lexeme,
-      kind:   kind,
+      prefix,
+      lexeme,
+      kind,
     }
   }
 
