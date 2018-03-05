@@ -14,12 +14,12 @@ pub struct Token<'a> {
 impl<'a> Token<'a> {
   pub fn error(&self, kind: CompilationErrorKind<'a>) -> CompilationError<'a> {
     CompilationError {
-      text:   self.text,
+      column: self.column + self.prefix.len(),
       index:  self.index + self.prefix.len(),
       line:   self.line,
-      column: self.column + self.prefix.len(),
+      text:   self.text,
       width:  Some(self.lexeme.len()),
-      kind:   kind,
+      kind,
     }
   }
 }

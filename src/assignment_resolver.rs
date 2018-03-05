@@ -17,11 +17,11 @@ impl<'a: 'b, 'b> AssignmentResolver<'a, 'b> {
   ) -> CompilationResult<'a, ()> {
 
     let mut resolver = AssignmentResolver {
-      assignments:       assignments,
-      assignment_tokens: assignment_tokens,
-      stack:             empty(),
-      seen:              empty(),
-      evaluated:         empty(),
+      stack:     empty(),
+      seen:      empty(),
+      evaluated: empty(),
+      assignments,
+      assignment_tokens,
     };
 
     for name in assignments.keys() {

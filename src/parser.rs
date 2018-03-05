@@ -22,12 +22,12 @@ impl<'a> Parser<'a> {
 
   pub fn new(text: &'a str, tokens: Vec<Token<'a>>) -> Parser<'a> {
     Parser {
-      text:              text,
       tokens:            itertools::put_back(tokens),
       recipes:           empty(),
       assignments:       empty(),
       assignment_tokens: empty(),
       exports:           empty(),
+      text,
     }
   }
 
@@ -151,10 +151,10 @@ impl<'a> Parser<'a> {
       parsed_variadic_parameter = variadic;
 
       parameters.push(Parameter {
-        default:  default,
         name:     parameter.lexeme,
         token:    parameter,
-        variadic: variadic,
+        default,
+        variadic,
       });
     }
 
@@ -237,13 +237,13 @@ impl<'a> Parser<'a> {
       line_number:       name.line,
       name:              name.lexeme,
       doc:               doc.map(|t| t.lexeme[1..].trim()),
-      dependencies:      dependencies,
-      dependency_tokens: dependency_tokens,
-      parameters:        parameters,
       private:           &name.lexeme[0..1] == "_",
-      lines:             lines,
-      shebang:           shebang,
-      quiet:             quiet,
+      dependencies,
+      dependency_tokens,
+      lines,
+      parameters,
+      quiet,
+      shebang,
     });
 
     Ok(())

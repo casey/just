@@ -16,10 +16,10 @@ impl<'a, 'b> RecipeResolver<'a, 'b> {
     text:        &'a str,
   ) -> CompilationResult<'a, ()> {
     let mut resolver = RecipeResolver {
-      seen:              empty(),
-      stack:             empty(),
-      resolved:          empty(),
-      recipes:           recipes,
+      seen:     empty(),
+      stack:    empty(),
+      resolved: empty(),
+      recipes,
     };
 
     for recipe in recipes.values() {
@@ -44,14 +44,14 @@ impl<'a, 'b> RecipeResolver<'a, 'b> {
             for (function, argc) in expression.functions() {
               if let Err(error) = ::functions::resolve_function(function, argc) {
                 return Err(CompilationError {
-                  text:   text,
                   index:  error.index,
                   line:   error.line,
                   column: error.column,
                   width:  error.width,
                   kind:   UnknownFunction {
                     function: &text[error.index..error.index + error.width.unwrap()],
-                  }
+                  },
+                  text,
                 });
               }
             }
@@ -62,14 +62,14 @@ impl<'a, 'b> RecipeResolver<'a, 'b> {
               if undefined {
                 let error = variable.error(UndefinedVariable{variable: name});
                 return Err(CompilationError {
-                  text:   text,
                   index:  error.index,
                   line:   error.line,
                   column: error.column,
                   width:  error.width,
                   kind:   UndefinedVariable {
                     variable: &text[error.index..error.index + error.width.unwrap()],
-                  }
+                  },
+                  text,
                 });
               }
             }

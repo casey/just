@@ -35,7 +35,7 @@ impl Default for Color {
 impl Color {
   fn restyle(self, style: Style) -> Color {
     Color {
-      style: style,
+      style,
       ..self
     }
   }

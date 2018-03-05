@@ -8,11 +8,12 @@ homepage    = "https://github.com/casey/just"
 readme      = "crates-io-readme.md"
 
 [dependencies]
-ansi_term      = "0.10"
+ansi_term      = "0.11"
 assert_matches = "1.1.0"
 atty           = "0.2.1"
 brev           = "0.1.6"
 clap           = "2.0.0"
+dotenv         = "0.11.0"
 edit-distance  = "2.0.0"
 itertools      = "0.7"
 lazy_static    = "1.0.0"

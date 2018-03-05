@@ -3,6 +3,7 @@ extern crate lazy_static;
 extern crate ansi_term;
 extern crate brev;
 extern crate clap;
+extern crate dotenv;
 extern crate edit_distance;
 extern crate itertools;
 extern crate libc;
@@ -22,6 +23,7 @@ mod command_ext;
 mod compilation_error;
 mod configuration;
 mod cooked_string;
+mod load_dotenv;
 mod expression;
 mod fragment;
 mod functions;
@@ -63,6 +65,8 @@ mod common {
   pub use expression::Expression;
   pub use fragment::Fragment;
   pub use justfile::Justfile;
+  pub use lexer::Lexer;
+  pub use load_dotenv::load_dotenv;
   pub use misc::{default, empty};
   pub use parameter::Parameter;
   pub use parser::Parser;
@@ -70,7 +74,6 @@ mod common {
   pub use recipe::Recipe;
   pub use recipe_resolver::RecipeResolver;
   pub use runtime_error::{RuntimeError, RunResult};
-  pub use lexer::Lexer;
   pub use shebang::Shebang;
   pub use token::{Token, TokenKind};
 }

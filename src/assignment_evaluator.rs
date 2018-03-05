@@ -4,32 +4,35 @@ use brev;
 
 pub struct AssignmentEvaluator<'a: 'b, 'b> {
   pub assignments: &'b Map<&'a str, Expression<'a>>,
+  pub dotenv:      &'b Map<String, String>,
+  pub dry_run:     bool,
   pub evaluated:   Map<&'a str, String>,
   pub exports:     &'b Set<&'a str>,
   pub overrides:   &'b Map<&'b str, &'b str>,
   pub quiet:       bool,
   pub scope:       &'b Map<&'a str, String>,
   pub shell:       &'b str,
-  pub dry_run:     bool,
 }
 
 impl<'a, 'b> AssignmentEvaluator<'a, 'b> {
   pub fn evaluate_assignments(
     assignments: &Map<&'a str, Expression<'a>>,
+    dotenv:      &'b Map<String, String>,
     overrides:   &Map<&str, &str>,
     quiet:       bool,
     shell:       &'a str,
     dry_run:     bool,
   ) -> RunResult<'a, Map<&'a str, String>> {
     let mut evaluator = AssignmentEvaluator {
-      assignments: assignments,
-      evaluated:   empty(),
-      exports:     &empty(),
-      overrides:   overrides,
-      quiet:       quiet,
-      scope:       &empty(),
-      shell:       shell,
-      dry_run:     dry_run,
+      evaluated: empty(),
+      exports:   &empty(),
+      scope:     &empty(),
+      assignments,
+      dotenv,
+      dry_run,
+      overrides,
+      quiet,
+      shell,
     };
 
     for name in assignments.keys() {
@@ -110,7 +113,7 @@ impl<'a, 'b> AssignmentEvaluator<'a, 'b> {
         if self.dry_run {
           Ok(format!("`{}`", raw))
         } else {
-          Ok(self.run_backtick(raw, token)?)
+          Ok(self.run_backtick(self.dotenv, raw, token)?)
         }
       }
       Expression::Concatination{ref lhs, ref rhs} => {
@@ -125,12 +128,13 @@ impl<'a, 'b> AssignmentEvaluator<'a, 'b> {
 
   fn run_backtick(
     &self,
+    dotenv:  &Map<String, String>,
     raw:     &str,
     token:   &Token<'a>,
   ) -> RunResult<'a, String> {
     let mut cmd = Command::new(self.shell);
 
-    cmd.export_environment_variables(self.scope, self.exports)?;
+    cmd.export_environment_variables(self.scope, dotenv, self.exports)?;
 
     cmd.arg("-cu")
        .arg(raw);

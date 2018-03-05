@@ -1,5 +1,7 @@
 use common::*;
 
+use dotenv;
+
 use brev::OutputError;
 
 use misc::{And, Or, maybe_s, Tick, ticks, write_error_context};
@@ -25,6 +27,7 @@ pub enum RuntimeError<'a> {
   Backtick{token: Token<'a>, output_error: OutputError},
   Code{recipe: &'a str, line_number: Option<usize>, code: i32},
   Cygpath{recipe: &'a str, output_error: OutputError},
+  Dotenv{dotenv_error: dotenv::Error},
   FunctionCall{token: Token<'a>, message: String},
   Internal{message: String},
   IoError{recipe: &'a str, io_error: io::Error},
@@ -118,6 +121,9 @@ impl<'a> Display for RuntimeError<'a> {
                      but output was not utf8: {}", recipe, utf8_error)?;
         }
       },
+      Dotenv{ref dotenv_error} => {
+        write!(f, "Failed to load .env: {}\n", dotenv_error)?;
+      }
       FunctionCall{ref token, ref message} => {
         write!(f, "Call to function `{}` failed: {}\n", token.lexeme, message)?;
         error_token = Some(token);
