@@ -51,9 +51,14 @@ fn integration_test(
   let tmp = TempDir::new("just-integration")
     .unwrap_or_else(
       |err| panic!("integration test: failed to create temporary directory: {}", err));
-  let mut path = tmp.path().to_path_buf();
-  path.push("justfile");
-  brev::dump(path, justfile);
+
+  let mut justfile_path = tmp.path().to_path_buf();
+  justfile_path.push("justfile");
+  brev::dump(justfile_path, justfile);
+
+  let mut dotenv_path = tmp.path().to_path_buf();
+  dotenv_path.push(".env");
+  brev::dump(dotenv_path, "DOTENV_KEY=dotenv-value");
 
   let output = process::Command::new(&executable_path("just"))
     .current_dir(tmp.path())
@@ -1737,5 +1742,32 @@ echo:
    args:     ("echo"),
    stdout:   "1\n",
    stderr:   "echo 1\n",
+   status:   EXIT_SUCCESS,
+}
+
+integration_test! {
+   name:     dotenv_variable_in_recipe,
+   justfile: "
+#
+echo:
+  echo $DOTENV_KEY
+ ",
+   args:     (),
+   stdout:   "dotenv-value\n",
+   stderr:   "echo $DOTENV_KEY\n",
+   status:   EXIT_SUCCESS,
+}
+
+integration_test! {
+   name:     dotenv_variable_in_backtick,
+   justfile: "
+#
+X=`echo $DOTENV_KEY`
+echo:
+  echo {{X}}
+ ",
+   args:     (),
+   stdout:   "dotenv-value\n",
+   stderr:   "echo dotenv-value\n",
    status:   EXIT_SUCCESS,
 }
