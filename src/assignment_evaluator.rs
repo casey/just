@@ -83,7 +83,7 @@ impl<'a, 'b> AssignmentEvaluator<'a, 'b> {
   fn evaluate_expression(
     &mut self,
     expression: &Expression<'a>,
-    arguments: &Map<&str, Cow<str>>
+    arguments:  &Map<&str, Cow<str>>
   ) -> RunResult<'a, String> {
     match *expression {
       Expression::Variable{name, ..} => {
@@ -106,7 +106,10 @@ impl<'a, 'b> AssignmentEvaluator<'a, 'b> {
         let call_arguments = call_arguments.iter().map(|argument| {
           self.evaluate_expression(argument, arguments)
         }).collect::<Result<Vec<String>, RuntimeError>>()?;
-        ::functions::evaluate_function(token, name, &call_arguments)
+        let context = FunctionContext {
+          dotenv: self.dotenv,
+        };
+        evaluate_function(token, name, &context, &call_arguments)
       }
       Expression::String{ref cooked_string} => Ok(cooked_string.cooked.clone()),
       Expression::Backtick{raw, ref token} => {
