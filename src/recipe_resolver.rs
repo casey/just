@@ -42,7 +42,7 @@ impl<'a, 'b> RecipeResolver<'a, 'b> {
         for fragment in line {
           if let Fragment::Expression{ref expression, ..} = *fragment {
             for (function, argc) in expression.functions() {
-              if let Err(error) = ::functions::resolve_function(function, argc) {
+              if let Err(error) = resolve_function(function, argc) {
                 return Err(CompilationError {
                   index:  error.index,
                   line:   error.line,

@@ -76,7 +76,7 @@ impl<'a: 'b, 'b> AssignmentResolver<'a, 'b> {
         }
       }
       Expression::Call{ref token, ref arguments, ..} => {
-        ::functions::resolve_function(token, arguments.len())?
+        resolve_function(token, arguments.len())?
       }
       Expression::Concatination{ref lhs, ref rhs} => {
         self.resolve_expression(lhs)?;

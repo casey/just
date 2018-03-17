@@ -1771,3 +1771,32 @@ echo:
    stderr:   "echo dotenv-value\n",
    status:   EXIT_SUCCESS,
 }
+integration_test! {
+   name:     dotenv_variable_in_function_in_recipe,
+   justfile: "
+#
+echo:
+  echo {{env_var_or_default('DOTENV_KEY', 'foo')}}
+  echo {{env_var('DOTENV_KEY')}}
+ ",
+   args:     (),
+   stdout:   "dotenv-value\ndotenv-value\n",
+   stderr:   "echo dotenv-value\necho dotenv-value\n",
+   status:   EXIT_SUCCESS,
+}
+
+integration_test! {
+   name:     dotenv_variable_in_function_in_backtick,
+   justfile: "
+#
+X=env_var_or_default('DOTENV_KEY', 'foo')
+Y=env_var('DOTENV_KEY')
+echo:
+  echo {{X}}
+  echo {{Y}}
+ ",
+   args:     (),
+   stdout:   "dotenv-value\ndotenv-value\n",
+   stderr:   "echo dotenv-value\necho dotenv-value\n",
+   status:   EXIT_SUCCESS,
+}

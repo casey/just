@@ -12,9 +12,9 @@ lazy_static! {
 }
 
 enum Function {
-  Nullary(fn(          ) -> Result<String, String>),
-  Unary  (fn(&str      ) -> Result<String, String>),
-  Binary (fn(&str, &str) -> Result<String, String>),
+  Nullary(fn(&FunctionContext,           ) -> Result<String, String>),
+  Unary  (fn(&FunctionContext, &str      ) -> Result<String, String>),
+  Binary (fn(&FunctionContext, &str, &str) -> Result<String, String>),
 }
 
 impl Function {
@@ -26,6 +26,10 @@ impl Function {
       Binary(_)  => 2,
     }
   }
+}
+
+pub struct FunctionContext<'a> {
+  pub dotenv: &'a Map<String, String>,
 }
 
 pub fn resolve_function<'a>(token: &Token<'a>, argc: usize) -> CompilationResult<'a, ()> {
@@ -48,19 +52,20 @@ pub fn resolve_function<'a>(token: &Token<'a>, argc: usize) -> CompilationResult
 }
 
 pub fn evaluate_function<'a>(
-  token: &Token<'a>,
-  name: &'a str,
+  token:     &Token<'a>,
+  name:      &'a str,
+  context:   &FunctionContext,
   arguments: &[String]
 ) -> RunResult<'a, String> {
   if let Some(function) = FUNCTIONS.get(name) {
     use self::Function::*;
     let argc = arguments.len();
     match (function, argc) {
-      (&Nullary(f), 0) => f()
+      (&Nullary(f), 0) => f(context)
         .map_err(|message| RuntimeError::FunctionCall{token: token.clone(), message}),
-      (&Unary(f), 1) => f(&arguments[0])
+      (&Unary(f), 1) => f(context, &arguments[0])
         .map_err(|message| RuntimeError::FunctionCall{token: token.clone(), message}),
-      (&Binary(f), 2) => f(&arguments[0], &arguments[1])
+      (&Binary(f), 2) => f(context, &arguments[0], &arguments[1])
         .map_err(|message| RuntimeError::FunctionCall{token: token.clone(), message}),
       _                => {
         Err(RuntimeError::Internal {
@@ -75,20 +80,25 @@ pub fn evaluate_function<'a>(
   }
 }
 
-pub fn arch() -> Result<String, String> {
+pub fn arch(_context: &FunctionContext) -> Result<String, String> {
   Ok(target::arch().to_string())
 }
 
-pub fn os() -> Result<String, String> {
+pub fn os(_context: &FunctionContext) -> Result<String, String> {
   Ok(target::os().to_string())
 }
 
-pub fn os_family() -> Result<String, String> {
+pub fn os_family(_context: &FunctionContext) -> Result<String, String> {
   Ok(target::os_family().to_string())
 }
 
-pub fn env_var(key: &str) -> Result<String, String> {
+pub fn env_var(context: &FunctionContext, key: &str) -> Result<String, String> {
   use std::env::VarError::*;
+  
+  if let Some(value) = context.dotenv.get(key) {
+    return Ok(value.clone());
+  }
+
   match env::var(key) {
     Err(NotPresent) => Err(format!("environment variable `{}` not present", key)),
     Err(NotUnicode(os_string)) => 
@@ -97,7 +107,15 @@ pub fn env_var(key: &str) -> Result<String, String> {
   }
 }
 
-pub fn env_var_or_default(key: &str, default: &str) -> Result<String, String> {
+pub fn env_var_or_default(
+  context: &FunctionContext,
+  key:      &str,
+  default:  &str,
+) -> Result<String, String> {
+  if let Some(value) = context.dotenv.get(key) {
+    return Ok(value.clone());
+  }
+
   use std::env::VarError::*;
   match env::var(key) {
     Err(NotPresent) => Ok(default.to_string()),
