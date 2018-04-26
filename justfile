@@ -76,14 +76,6 @@ sloc:
 replace FROM TO:
 	find src -name '*.rs' | xargs sed -i '' -E 's/{{FROM}}/{{TO}}/g'
 
-nop:
-
-fail:
-	exit 1
-
-backtick-fail:
-	echo {{`exit 1`}}
-
 test-quine:
 	cargo run -- quine
 
