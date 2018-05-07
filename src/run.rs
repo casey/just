@@ -44,6 +44,9 @@ impl Slurp for fs::File {
 }
 
 pub fn run() {
+  #[cfg(windows)]
+  enable_ansi_support().ok();
+
   let matches = App::new(env!("CARGO_PKG_NAME"))
     .version(concat!("v", env!("CARGO_PKG_VERSION")))
     .author(env!("CARGO_PKG_AUTHORS"))
@@ -134,11 +137,6 @@ pub fn run() {
     "never"  => Color::never(),
     other    => die!("Invalid argument `{}` to --color. This is a bug in just.", other),
   };
-
-  if color.active() {
-    #[cfg(windows)]
-    enable_ansi_support().ok();
-  }
 
   let set_count = matches.occurrences_of("SET");
   let mut overrides = Map::new();
