@@ -50,6 +50,7 @@ impl<'a> Recipe<'a> {
 
   pub fn run(
     &self,
+    invocation_directory: Option<&'a str>,
     arguments:     &[&'a str],
     scope:         &Map<&'a str, String>,
     dotenv:        &Map<String, String>,
@@ -86,6 +87,7 @@ impl<'a> Recipe<'a> {
 
     let mut evaluator = AssignmentEvaluator {
       assignments: &empty(),
+      invocation_directory,
       dry_run:     configuration.dry_run,
       evaluated:   empty(),
       overrides:   &empty(),

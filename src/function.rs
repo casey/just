@@ -8,6 +8,7 @@ lazy_static! {
     ("os_family",          Function::Nullary(os_family         )),
     ("env_var",            Function::Unary  (env_var           )),
     ("env_var_or_default", Function::Binary (env_var_or_default)),
+    ("invocation_directory", Function::Nullary(invocation_directory)),
   ].into_iter().collect();
 }
 
@@ -29,6 +30,7 @@ impl Function {
 }
 
 pub struct FunctionContext<'a> {
+  pub invocation_directory: Option<&'a str>,
   pub dotenv: &'a Map<String, String>,
 }
 
@@ -90,6 +92,14 @@ pub fn os(_context: &FunctionContext) -> Result<String, String> {
 
 pub fn os_family(_context: &FunctionContext) -> Result<String, String> {
   Ok(target::os_family().to_string())
+}
+
+pub fn invocation_directory(context: &FunctionContext) -> Result<String, String> {
+  if let Some(dir) = context.invocation_directory {
+    Ok(dir.to_string())
+  } else {
+    Err(String::from("error getting invocation directory"))
+  }
 }
 
 pub fn env_var(context: &FunctionContext, key: &str) -> Result<String, String> {
