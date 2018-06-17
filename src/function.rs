@@ -30,7 +30,7 @@ impl Function {
 }
 
 pub struct FunctionContext<'a> {
-  pub invocation_directory: Option<&'a str>,
+  pub invocation_directory: &'a Result<String, String>,
   pub dotenv: &'a Map<String, String>,
 }
 
@@ -95,11 +95,7 @@ pub fn os_family(_context: &FunctionContext) -> Result<String, String> {
 }
 
 pub fn invocation_directory(context: &FunctionContext) -> Result<String, String> {
-  if let Some(dir) = context.invocation_directory {
-    Ok(dir.to_string())
-  } else {
-    Err(String::from("error getting invocation directory"))
-  }
+  context.invocation_directory.clone()
 }
 
 pub fn env_var(context: &FunctionContext, key: &str) -> Result<String, String> {

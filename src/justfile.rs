@@ -42,7 +42,7 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
 
   pub fn run(
     &'a self,
-    invocation_directory: Option<&'a str>,
+    invocation_directory: Result<String, String>,
     arguments:     &[&'a str],
     configuration: &Configuration<'a>,
   ) -> RunResult<'a, ()> {
@@ -58,7 +58,7 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
 
     let scope = AssignmentEvaluator::evaluate_assignments(
       &self.assignments,
-      invocation_directory,
+      &invocation_directory,
       &dotenv,
       &configuration.overrides,
       configuration.quiet,
@@ -117,7 +117,7 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
 
     let mut ran = empty();
     for (recipe, arguments) in grouped {
-      self.run_recipe(invocation_directory, recipe, arguments, &scope, &dotenv, configuration, &mut ran)?
+      self.run_recipe(&invocation_directory, recipe, arguments, &scope, &dotenv, configuration, &mut ran)?
     }
 
     Ok(())
@@ -125,7 +125,7 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
 
   fn run_recipe<'c>(
     &'c self,
-    invocation_directory: Option<&'a str>,
+    invocation_directory: &Result<String, String>,
     recipe:        &Recipe<'a>,
     arguments:     &[&'a str],
     scope:         &Map<&'c str, String>,
@@ -174,9 +174,13 @@ mod test {
   use testing::parse_success;
   use RuntimeError::*;
 
+  fn no_cwd_err() -> Result<String, String> {
+    Err(String::from("no cwd in tests"))
+  }
+
   #[test]
   fn unknown_recipes() {
-    match parse_success("a:\nb:\nc:").run(None, &["a", "x", "y", "z"], &Default::default()).unwrap_err() {
+    match parse_success("a:\nb:\nc:").run(no_cwd_err(), &["a", "x", "y", "z"], &Default::default()).unwrap_err() {
       UnknownRecipes{recipes, suggestion} => {
         assert_eq!(recipes, &["x", "y", "z"]);
         assert_eq!(suggestion, None);
@@ -204,7 +208,7 @@ a:
       x
 ";
 
-    match parse_success(text).run(None, &["a"], &Default::default()).unwrap_err() {
+    match parse_success(text).run(no_cwd_err(), &["a"], &Default::default()).unwrap_err() {
       Code{recipe, line_number, code} => {
         assert_eq!(recipe, "a");
         assert_eq!(code, 200);
@@ -217,7 +221,7 @@ a:
   #[test]
   fn code_error() {
     match parse_success("fail:\n @exit 100")
-      .run(None, &["fail"], &Default::default()).unwrap_err() {
+      .run(no_cwd_err(), &["fail"], &Default::default()).unwrap_err() {
       Code{recipe, line_number, code} => {
         assert_eq!(recipe, "fail");
         assert_eq!(code, 100);
@@ -233,7 +237,7 @@ a:
 a return code:
  @x() { {{return}} {{code + "0"}}; }; x"#;
 
-    match parse_success(text).run(None, &["a", "return", "15"], &Default::default()).unwrap_err() {
+    match parse_success(text).run(no_cwd_err(), &["a", "return", "15"], &Default::default()).unwrap_err() {
       Code{recipe, line_number, code} => {
         assert_eq!(recipe, "a");
         assert_eq!(code, 150);
@@ -245,7 +249,7 @@ a return code:
 
   #[test]
   fn missing_some_arguments() {
-    match parse_success("a b c d:").run(None, &["a", "b", "c"], &Default::default()).unwrap_err() {
+    match parse_success("a b c d:").run(no_cwd_err(), &["a", "b", "c"], &Default::default()).unwrap_err() {
       ArgumentCountMismatch{recipe, found, min, max} => {
         assert_eq!(recipe, "a");
         assert_eq!(found, 2);
@@ -258,7 +262,7 @@ a return code:
 
   #[test]
   fn missing_some_arguments_variadic() {
-    match parse_success("a b c +d:").run(None, &["a", "B", "C"], &Default::default()).unwrap_err() {
+    match parse_success("a b c +d:").run(no_cwd_err(), &["a", "B", "C"], &Default::default()).unwrap_err() {
       ArgumentCountMismatch{recipe, found, min, max} => {
         assert_eq!(recipe, "a");
         assert_eq!(found, 2);
@@ -272,7 +276,7 @@ a return code:
   #[test]
   fn missing_all_arguments() {
     match parse_success("a b c d:\n echo {{b}}{{c}}{{d}}")
-          .run(None, &["a"], &Default::default()).unwrap_err() {
+          .run(no_cwd_err(), &["a"], &Default::default()).unwrap_err() {
       ArgumentCountMismatch{recipe, found, min, max} => {
         assert_eq!(recipe, "a");
         assert_eq!(found, 0);
@@ -285,7 +289,7 @@ a return code:
 
   #[test]
   fn missing_some_defaults() {
-    match parse_success("a b c d='hello':").run(None, &["a", "b"], &Default::default()).unwrap_err() {
+    match parse_success("a b c d='hello':").run(no_cwd_err(), &["a", "b"], &Default::default()).unwrap_err() {
       ArgumentCountMismatch{recipe, found, min, max} => {
         assert_eq!(recipe, "a");
         assert_eq!(found, 1);
@@ -298,7 +302,7 @@ a return code:
 
   #[test]
   fn missing_all_defaults() {
-    match parse_success("a b c='r' d='h':").run(None, &["a"], &Default::default()).unwrap_err() {
+    match parse_success("a b c='r' d='h':").run(no_cwd_err(), &["a"], &Default::default()).unwrap_err() {
       ArgumentCountMismatch{recipe, found, min, max} => {
         assert_eq!(recipe, "a");
         assert_eq!(found, 0);
@@ -315,7 +319,7 @@ a return code:
     configuration.overrides.insert("foo", "bar");
     configuration.overrides.insert("baz", "bob");
     match parse_success("a:\n echo {{`f() { return 100; }; f`}}")
-          .run(None, &["a"], &configuration).unwrap_err() {
+          .run(no_cwd_err(), &["a"], &configuration).unwrap_err() {
       UnknownOverrides{overrides} => {
         assert_eq!(overrides, &["baz", "foo"]);
       },
@@ -340,7 +344,7 @@ wut:
       ..Default::default()
     };
 
-    match parse_success(text).run(None, &["wut"], &configuration).unwrap_err() {
+    match parse_success(text).run(no_cwd_err(), &["wut"], &configuration).unwrap_err() {
       Code{code: _, line_number, recipe} => {
         assert_eq!(recipe, "wut");
         assert_eq!(line_number, Some(8));

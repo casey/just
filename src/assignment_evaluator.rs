@@ -4,7 +4,7 @@ use brev;
 
 pub struct AssignmentEvaluator<'a: 'b, 'b> {
   pub assignments: &'b Map<&'a str, Expression<'a>>,
-  pub invocation_directory: Option<&'a str>,
+  pub invocation_directory: &'b Result<String, String>,
   pub dotenv:      &'b Map<String, String>,
   pub dry_run:     bool,
   pub evaluated:   Map<&'a str, String>,
@@ -18,7 +18,7 @@ pub struct AssignmentEvaluator<'a: 'b, 'b> {
 impl<'a, 'b> AssignmentEvaluator<'a, 'b> {
   pub fn evaluate_assignments(
     assignments: &Map<&'a str, Expression<'a>>,
-    invocation_directory: Option<&'a str>,
+    invocation_directory: &Result<String, String>,
     dotenv:      &'b Map<String, String>,
     overrides:   &Map<&str, &str>,
     quiet:       bool,
@@ -110,7 +110,7 @@ impl<'a, 'b> AssignmentEvaluator<'a, 'b> {
           self.evaluate_expression(argument, arguments)
         }).collect::<Result<Vec<String>, RuntimeError>>()?;
         let context = FunctionContext {
-          invocation_directory: self.invocation_directory,
+          invocation_directory: &self.invocation_directory,
           dotenv: self.dotenv,
         };
         evaluate_function(token, name, &context, &call_arguments)
@@ -165,10 +165,14 @@ mod test {
   use testing::parse_success;
   use Configuration;
 
+  fn no_cwd_err() -> Result<String, String> {
+    Err(String::from("no cwd in tests"))
+  }
+
   #[test]
   fn backtick_code() {
     match parse_success("a:\n echo {{`f() { return 100; }; f`}}")
-          .run(None, &["a"], &Default::default()).unwrap_err() {
+          .run(no_cwd_err(), &["a"], &Default::default()).unwrap_err() {
       RuntimeError::Backtick{token, output_error: OutputError::Code(code)} => {
         assert_eq!(code, 100);
         assert_eq!(token.lexeme, "`f() { return 100; }; f`");
@@ -191,7 +195,7 @@ recipe:
       ..Default::default()
     };
 
-    match parse_success(text).run(None, &["recipe"], &configuration).unwrap_err() {
+    match parse_success(text).run(no_cwd_err(), &["recipe"], &configuration).unwrap_err() {
       RuntimeError::Backtick{token, output_error: OutputError::Code(_)} => {
         assert_eq!(token.lexeme, "`echo $exported_variable`");
       },

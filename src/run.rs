@@ -47,10 +47,12 @@ pub fn run() {
   #[cfg(windows)]
   enable_ansi_support().ok();
 
-  let invocation_directory = match env::current_dir() {
-    Ok(pathbuf) => pathbuf,
-    Err(error) => die!("Error getting current dir: {}", error),
-  };
+  let invocation_directory = env::current_dir()
+    .map_err(|e| format!("Error getting current directory: {}", e))
+    .and_then(|dir| 
+      dir.to_str()
+        .map(str::to_string)
+        .ok_or_else(|| String::from("Failed to decode utf8")));
 
   let matches = App::new(env!("CARGO_PKG_NAME"))
     .version(concat!("v", env!("CARGO_PKG_VERSION")))
@@ -360,7 +362,7 @@ pub fn run() {
   };
 
   if let Err(run_error) = justfile.run(
-    invocation_directory.to_str(),
+    invocation_directory,
     &arguments,
     &configuration)
   {
