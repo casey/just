@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use common::*;
 
 use edit_distance::edit_distance;
@@ -42,7 +44,7 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
 
   pub fn run(
     &'a self,
-    invocation_directory: Result<String, String>,
+    invocation_directory: Result<PathBuf, String>,
     arguments:     &[&'a str],
     configuration: &Configuration<'a>,
   ) -> RunResult<'a, ()> {
@@ -125,7 +127,7 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
 
   fn run_recipe<'c>(
     &'c self,
-    invocation_directory: &Result<String, String>,
+    invocation_directory: &Result<PathBuf, String>,
     recipe:        &Recipe<'a>,
     arguments:     &[&'a str],
     scope:         &Map<&'c str, String>,
@@ -174,7 +176,7 @@ mod test {
   use testing::parse_success;
   use RuntimeError::*;
 
-  fn no_cwd_err() -> Result<String, String> {
+  fn no_cwd_err() -> Result<PathBuf, String> {
     Err(String::from("no cwd in tests"))
   }
 

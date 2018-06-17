@@ -1,5 +1,6 @@
 use common::*;
 
+use std::path::PathBuf;
 use std::process::{ExitStatus, Command, Stdio};
 
 use platform::{Platform, PlatformInterface};
@@ -50,7 +51,7 @@ impl<'a> Recipe<'a> {
 
   pub fn run(
     &self,
-    invocation_directory: &Result<String, String>,
+    invocation_directory: &Result<PathBuf, String>,
     arguments:     &[&'a str],
     scope:         &Map<&'a str, String>,
     dotenv:        &Map<String, String>,

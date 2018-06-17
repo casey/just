@@ -48,11 +48,7 @@ pub fn run() {
   enable_ansi_support().ok();
 
   let invocation_directory = env::current_dir()
-    .map_err(|e| format!("Error getting current directory: {}", e))
-    .and_then(|dir| 
-      dir.to_str()
-        .map(str::to_string)
-        .ok_or_else(|| String::from("Failed to decode utf8")));
+    .map_err(|e| format!("Error getting current directory: {}", e));
 
   let matches = App::new(env!("CARGO_PKG_NAME"))
     .version(concat!("v", env!("CARGO_PKG_VERSION")))

@@ -7,7 +7,23 @@ extern crate tempdir;
 use executable_path::executable_path;
 use std::process;
 use std::{str, fs};
+use std::path::Path;
 use tempdir::TempDir;
+
+#[cfg(unix)]
+fn to_shell_path(path: &Path) -> String {
+  fs::canonicalize(path).expect("canonicalize failed")
+    .to_str().map(str::to_string).expect("unicode decode failed")
+}
+
+#[cfg(windows)]
+fn to_shell_path(path: &Path) -> String {
+  // Translate path from windows style to unix style
+  let mut cygpath = process::Command::new("cygpath");
+  cygpath.arg("--unix");
+  cygpath.arg(path);
+  brev::output(cygpath).expect("converting cygwin path failed")
+}
 
 #[test]
 fn test_invocation_directory() {
@@ -18,10 +34,6 @@ fn test_invocation_directory() {
   let mut justfile_path = tmp.path().to_path_buf();
   justfile_path.push("justfile");
   brev::dump(justfile_path, "default:\n @echo {{invocation_directory()}}");
-
-  let mut dotenv_path = tmp.path().to_path_buf();
-  dotenv_path.push(".env");
-  brev::dump(dotenv_path, "DOTENV_KEY=dotenv-value");
 
   let mut subdir = tmp.path().to_path_buf();
   subdir.push("subdir");
@@ -37,8 +49,7 @@ fn test_invocation_directory() {
 
   let expected_status = 0;
   let expected_stdout =
-    fs::canonicalize(subdir).expect("canonicalize failed")
-      .to_str().expect("converting path to unicode failed").to_owned() + "\n";
+    to_shell_path(&subdir) + "\n";
   let expected_stderr = "";
 
   let status = output.status.code().unwrap();

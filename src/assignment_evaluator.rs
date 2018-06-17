@@ -1,10 +1,12 @@
+use std::path::PathBuf;
+
 use common::*;
 
 use brev;
 
 pub struct AssignmentEvaluator<'a: 'b, 'b> {
   pub assignments: &'b Map<&'a str, Expression<'a>>,
-  pub invocation_directory: &'b Result<String, String>,
+  pub invocation_directory: &'b Result<PathBuf, String>,
   pub dotenv:      &'b Map<String, String>,
   pub dry_run:     bool,
   pub evaluated:   Map<&'a str, String>,
@@ -18,7 +20,7 @@ pub struct AssignmentEvaluator<'a: 'b, 'b> {
 impl<'a, 'b> AssignmentEvaluator<'a, 'b> {
   pub fn evaluate_assignments(
     assignments: &Map<&'a str, Expression<'a>>,
-    invocation_directory: &Result<String, String>,
+    invocation_directory: &Result<PathBuf, String>,
     dotenv:      &'b Map<String, String>,
     overrides:   &Map<&str, &str>,
     quiet:       bool,
@@ -165,7 +167,7 @@ mod test {
   use testing::parse_success;
   use Configuration;
 
-  fn no_cwd_err() -> Result<String, String> {
+  fn no_cwd_err() -> Result<PathBuf, String> {
     Err(String::from("no cwd in tests"))
   }
 
