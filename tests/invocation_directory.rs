@@ -6,12 +6,13 @@ extern crate tempdir;
 
 use executable_path::executable_path;
 use std::process;
-use std::{str, fs};
+use std::str;
 use std::path::Path;
 use tempdir::TempDir;
 
 #[cfg(unix)]
 fn to_shell_path(path: &Path) -> String {
+  use std::fs;
   fs::canonicalize(path).expect("canonicalize failed")
     .to_str().map(str::to_string).expect("unicode decode failed")
 }
@@ -33,7 +34,7 @@ fn test_invocation_directory() {
 
   let mut justfile_path = tmp.path().to_path_buf();
   justfile_path.push("justfile");
-  brev::dump(justfile_path, "default:\n @echo {{invocation_directory()}}");
+  brev::dump(justfile_path, "default:\n @cd {{invocation_directory()}}\n @echo {{invocation_directory()}}");
 
   let mut subdir = tmp.path().to_path_buf();
   subdir.push("subdir");

@@ -291,7 +291,7 @@ This is an x86_64 machine
 
 ==== Invocation Directory
 
-- `invocation_directory()` - Retrieves the value of the current working directory, before`just` changed it (chdir'd) prior to executing commands.
+- `invocation_directory()` - Retrieves the path of the current working directory, before `just` changed it (chdir'd) prior to executing commands.
 
 For example, to call `rustfmt` on files just under the "current directory" (from the user/invoker's perspective), use the following rule:
 
