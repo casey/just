@@ -1,6 +1,6 @@
 [package]
 name        = "just"
-version     = "0.3.11"
+version     = "0.3.12"
 description = "🤖 Just a command runner"
 authors     = ["Casey Rodarmor <casey@rodarmor.com>"]
 license     = "CC0-1.0"
@@ -13,7 +13,7 @@ assert_matches = "1.1.0"
 atty           = "0.2.1"
 brev           = "0.1.6"
 clap           = "2.0.0"
-dotenv         = "0.11.0"
+dotenv         = "0.13.0"
 edit-distance  = "2.0.0"
 itertools      = "0.7"
 lazy_static    = "1.0.0"
