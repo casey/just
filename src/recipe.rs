@@ -1,5 +1,6 @@
 use common::*;
 
+use std::path::PathBuf;
 use std::process::{ExitStatus, Command, Stdio};
 
 use platform::{Platform, PlatformInterface};
@@ -50,6 +51,7 @@ impl<'a> Recipe<'a> {
 
   pub fn run(
     &self,
+    invocation_directory: &Result<PathBuf, String>,
     arguments:     &[&'a str],
     scope:         &Map<&'a str, String>,
     dotenv:        &Map<String, String>,
@@ -86,6 +88,7 @@ impl<'a> Recipe<'a> {
 
     let mut evaluator = AssignmentEvaluator {
       assignments: &empty(),
+      invocation_directory,
       dry_run:     configuration.dry_run,
       evaluated:   empty(),
       overrides:   &empty(),

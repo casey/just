@@ -15,7 +15,11 @@ pub trait PlatformInterface {
 
   /// Extract the signal from a process exit status, if it was terminated by a signal
   fn signal_from_exit_status(exit_status: process::ExitStatus) -> Option<i32>;
+
+  /// Translate a path from a "native" path to a path the interpreter expects
+  fn to_shell_path(path: &Path) -> Result<String, String>;
 }
+
 
 #[cfg(unix)]
 impl PlatformInterface for Platform {
@@ -43,6 +47,12 @@ impl PlatformInterface for Platform {
   fn signal_from_exit_status(exit_status: process::ExitStatus) -> Option<i32> {
     use std::os::unix::process::ExitStatusExt;
     exit_status.signal()
+  }
+
+  fn to_shell_path(path: &Path) -> Result<String, String> {
+    path.to_str().map(str::to_string)
+      .ok_or_else(|| String::from(
+        "Error getting current directory: unicode decode error"))
   }
 }
 
@@ -74,5 +84,13 @@ impl PlatformInterface for Platform {
     // The rust standard library does not expose a way to extract a signal
     // from a windows process exit status, so just return None
     None
+  }
+
+  fn to_shell_path(path: &Path) -> Result<String, String> {
+    // Translate path from windows style to unix style
+    let mut cygpath = Command::new("cygpath");
+    cygpath.arg("--unix");
+    cygpath.arg(path);
+    brev::output(cygpath).map_err(|e| format!("Error converting shell path: {}", e))
   }
 }

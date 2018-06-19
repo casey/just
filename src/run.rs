@@ -47,6 +47,9 @@ pub fn run() {
   #[cfg(windows)]
   enable_ansi_support().ok();
 
+  let invocation_directory = env::current_dir()
+    .map_err(|e| format!("Error getting current directory: {}", e));
+
   let matches = App::new(env!("CARGO_PKG_NAME"))
     .version(concat!("v", env!("CARGO_PKG_VERSION")))
     .author(env!("CARGO_PKG_AUTHORS"))
@@ -354,7 +357,11 @@ pub fn run() {
     overrides,
   };
 
-  if let Err(run_error) = justfile.run(&arguments, &configuration) {
+  if let Err(run_error) = justfile.run(
+    invocation_directory,
+    &arguments,
+    &configuration)
+  {
     if !configuration.quiet {
       if color.stderr().active() {
         eprintln!("{:#}", run_error);

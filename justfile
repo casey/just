@@ -141,6 +141,10 @@ ruby:
 	#!/usr/bin/env ruby
 	puts "Hello from ruby!"
 
+# Print working directory, for demonstration purposes!
+pwd:
+	echo {{invocation_directory()}}
+
 # Local Variables:
 # mode: makefile
 # End:

@@ -1,5 +1,9 @@
+use std::path::PathBuf;
+
 use common::*;
 use target;
+
+use platform::{Platform, PlatformInterface};
 
 lazy_static! {
   static ref FUNCTIONS: Map<&'static str, Function> = vec![
@@ -8,6 +12,7 @@ lazy_static! {
     ("os_family",          Function::Nullary(os_family         )),
     ("env_var",            Function::Unary  (env_var           )),
     ("env_var_or_default", Function::Binary (env_var_or_default)),
+    ("invocation_directory", Function::Nullary(invocation_directory)),
   ].into_iter().collect();
 }
 
@@ -29,6 +34,7 @@ impl Function {
 }
 
 pub struct FunctionContext<'a> {
+  pub invocation_directory: &'a Result<PathBuf, String>,
   pub dotenv: &'a Map<String, String>,
 }
 
@@ -90,6 +96,12 @@ pub fn os(_context: &FunctionContext) -> Result<String, String> {
 
 pub fn os_family(_context: &FunctionContext) -> Result<String, String> {
   Ok(target::os_family().to_string())
+}
+
+pub fn invocation_directory(context: &FunctionContext) -> Result<String, String> {
+  context.invocation_directory.clone()
+    .and_then(|s| Platform::to_shell_path(&s)
+      .map_err(|e| format!("Error getting shell path: {}", e)))
 }
 
 pub fn env_var(context: &FunctionContext, key: &str) -> Result<String, String> {
