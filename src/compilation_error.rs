@@ -67,9 +67,16 @@ impl<'a> Display for CompilationError<'a> {
                       variable, circle.join(" -> "))?;
         }
       }
+
       InvalidEscapeSequence{character} => {
-        writeln!(f, "`\\{}` is not a valid escape sequence",
-                    character.escape_default().collect::<String>())?;
+        let representation = match character {
+          '`'  => r"\`".to_string(),
+          '\\' => r"\".to_string(),
+          '\'' => r"'".to_string(),
+          '"' => r#"""#.to_string(),
+          _ => character.escape_default().collect(),
+        };
+        writeln!(f, "`\\{}` is not a valid escape sequence", representation)?;
       }
       DuplicateParameter{recipe, parameter} => {
         writeln!(f, "Recipe `{}` has duplicate parameter `{}`", recipe, parameter)?;

@@ -1800,3 +1800,18 @@ echo:
    stderr:   "echo dotenv-value\necho dotenv-value\n",
    status:   EXIT_SUCCESS,
 }
+
+integration_test! {
+   name:     invalid_escape_sequence_message,
+   justfile: r#"
+X = "\'"
+"#,
+   args:     (),
+   stdout:   "",
+   stderr:   r#"error: `\'` is not a valid escape sequence
+  |
+2 | X = "\'"
+  |     ^^^^
+"#,
+   status:   EXIT_FAILURE,
+}
