@@ -11,6 +11,7 @@ extern crate regex;
 extern crate target;
 extern crate tempdir;
 extern crate unicode_width;
+extern crate ctrlc;
 
 #[cfg(test)]
 #[macro_use]
