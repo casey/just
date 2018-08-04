@@ -234,19 +234,19 @@ integration_test! {
 
 integration_test! {
   name:     backtick_success,
-  justfile: "a = `printf Hello,`\nbar:\n printf '{{a + `printf ' world!'`}}'",
+  justfile: "a = `printf Hello,`\nbar:\n printf '{{a + `printf ' world.'`}}'",
   args:     (),
-  stdout:   "Hello, world!",
-  stderr:   "printf 'Hello, world!'\n",
+  stdout:   "Hello, world.",
+  stderr:   "printf 'Hello, world.'\n",
   status:   EXIT_SUCCESS,
 }
 
 integration_test! {
   name:     backtick_trimming,
-  justfile: "a = `echo Hello,`\nbar:\n echo '{{a + `echo ' world!'`}}'",
+  justfile: "a = `echo Hello,`\nbar:\n echo '{{a + `echo ' world.'`}}'",
   args:     (),
-  stdout:   "Hello, world!\n",
-  stderr:   "echo 'Hello, world!'\n",
+  stdout:   "Hello, world.\n",
+  stderr:   "echo 'Hello, world.'\n",
   status:   EXIT_SUCCESS,
 }
 
@@ -974,12 +974,12 @@ integration_test! {
   name:     use_raw_string_default,
   justfile: r#"
 bar:
-hello baz arg='XYZ\t"	':
+hello baz arg='XYZ"	':
   printf '{{baz}}...{{arg}}'
 "#,
   args:     ("hello", "ABC"),
-  stdout:   "ABC...XYZ\t\"\t",
-  stderr:   "printf 'ABC...XYZ\\t\"\t'\n",
+  stdout:   "ABC...XYZ\"\t",
+  stderr:   "printf 'ABC...XYZ\"\t'\n",
   status:   EXIT_SUCCESS,
 }
 
@@ -1197,7 +1197,7 @@ foo:
 integration_test! {
   name:     env_var_functions,
   justfile: r#"
-p = env_var('PATH')
+p = env_var('USER')
 b = env_var_or_default('ZADDY', 'HTAP')
 x = env_var_or_default('XYZ', 'ABC')
 
@@ -1205,8 +1205,8 @@ foo:
   /bin/echo '{{p}}' '{{b}}' '{{x}}'
 "#,
   args:     (),
-  stdout:   format!("{} HTAP ABC\n", env::var("PATH").unwrap()).as_str(),
-  stderr:   format!("/bin/echo '{}' 'HTAP' 'ABC'\n", env::var("PATH").unwrap()).as_str(),
+  stdout:   format!("{} HTAP ABC\n", env::var("USER").unwrap()).as_str(),
+  stderr:   format!("/bin/echo '{}' 'HTAP' 'ABC'\n", env::var("USER").unwrap()).as_str(),
   status:   EXIT_SUCCESS,
 }
 
