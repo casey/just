@@ -1194,6 +1194,7 @@ foo:
   status:   EXIT_SUCCESS,
 }
 
+#[cfg(not(windows))]
 integration_test! {
   name:     env_var_functions,
   justfile: r#"
@@ -1209,6 +1210,24 @@ foo:
   stderr:   format!("/bin/echo '{}' 'HTAP' 'ABC'\n", env::var("USER").unwrap()).as_str(),
   status:   EXIT_SUCCESS,
 }
+
+#[cfg(windows)]
+integration_test! {
+  name:     env_var_functions,
+  justfile: r#"
+p = env_var('USERNAME')
+b = env_var_or_default('ZADDY', 'HTAP')
+x = env_var_or_default('XYZ', 'ABC')
+
+foo:
+  /bin/echo '{{p}}' '{{b}}' '{{x}}'
+"#,
+  args:     (),
+  stdout:   format!("{} HTAP ABC\n", env::var("USERNAME").unwrap()).as_str(),
+  stderr:   format!("/bin/echo '{}' 'HTAP' 'ABC'\n", env::var("USERNAME").unwrap()).as_str(),
+  status:   EXIT_SUCCESS,
+}
+
 
 integration_test! {
   name:     env_var_failure,
