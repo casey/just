@@ -1,13 +1,13 @@
 use common::*;
 
 use std::{convert, ffi, cmp};
-use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::Arc;
+use std::sync::atomic::Ordering;
 use clap::{App, Arg, ArgGroup, AppSettings};
 use configuration::DEFAULT_SHELL;
 use misc::maybe_s;
 use unicode_width::UnicodeWidthStr;
 use ctrlc;
+use recipe::INTERRUPTED;
 
 #[cfg(windows)]
 use ansi_term::enable_ansi_support;
@@ -360,17 +360,14 @@ pub fn run() {
     overrides,
   };
 
-  let interrupted = Arc::new(AtomicBool::new(false));
-  let interrupted_clone = interrupted.clone();
   ctrlc::set_handler(move || {
-    interrupted_clone.store(true, Ordering::SeqCst);
+    INTERRUPTED.store(true, Ordering::SeqCst);
   }).expect("Error setting Ctrl-C handler");
 
   if let Err(run_error) = justfile.run(
     invocation_directory,
     &arguments,
-    &configuration,
-    &interrupted)
+    &configuration)
   {
     if !configuration.quiet {
       if color.stderr().active() {

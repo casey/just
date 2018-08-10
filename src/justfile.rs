@@ -1,10 +1,11 @@
 use std::path::PathBuf;
-use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::Arc;
+use std::sync::atomic::Ordering;
 
 use common::*;
 
 use edit_distance::edit_distance;
+
+use recipe::INTERRUPTED;
 
 pub struct Justfile<'a> {
   pub recipes:     Map<&'a str, Recipe<'a>>,
@@ -49,7 +50,6 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
     invocation_directory: Result<PathBuf, String>,
     arguments:     &[&'a str],
     configuration: &Configuration<'a>,
-    interrupted:   &Arc<AtomicBool>,
   ) -> RunResult<'a, ()> {
     let unknown_overrides = configuration.overrides.keys().cloned()
       .filter(|name| !self.assignments.contains_key(name))
@@ -122,10 +122,10 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
 
     let mut ran = empty();
     for (recipe, arguments) in grouped {
-      self.run_recipe(&invocation_directory, recipe, arguments, &scope, &dotenv, configuration, &mut ran, &interrupted)?
+      self.run_recipe(&invocation_directory, recipe, arguments, &scope, &dotenv, configuration, &mut ran)?
     }
 
-    if interrupted.load(Ordering::SeqCst) {
+    if INTERRUPTED.load(Ordering::SeqCst) {
       eprintln!("Interrupted.");
     }
 
@@ -141,18 +141,17 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
     dotenv:        &Map<String, String>,
     configuration: &Configuration<'a>,
     ran:           &mut Set<&'a str>,
-    interrupted:   &Arc<AtomicBool>,
   ) -> RunResult<()> {
-    if interrupted.load(Ordering::SeqCst) {
+    if INTERRUPTED.load(Ordering::SeqCst) {
       return Ok(())
     }
 
     for dependency_name in &recipe.dependencies {
       if !ran.contains(dependency_name) {
-        self.run_recipe(invocation_directory, &self.recipes[dependency_name], &[], scope, dotenv, configuration, ran, interrupted)?;
+        self.run_recipe(invocation_directory, &self.recipes[dependency_name], &[], scope, dotenv, configuration, ran)?;
       }
     }
-    recipe.run(invocation_directory, arguments, scope, dotenv, &self.exports, configuration, interrupted)?;
+    recipe.run(invocation_directory, arguments, scope, dotenv, &self.exports, configuration)?;
     ran.insert(recipe.name);
     Ok(())
   }
@@ -194,7 +193,7 @@ mod test {
 
   #[test]
   fn unknown_recipes() {
-    match parse_success("a:\nb:\nc:").run(no_cwd_err(), &["a", "x", "y", "z"], &Default::default(), &Default::default()).unwrap_err() {
+    match parse_success("a:\nb:\nc:").run(no_cwd_err(), &["a", "x", "y", "z"], &Default::default()).unwrap_err() {
       UnknownRecipes{recipes, suggestion} => {
         assert_eq!(recipes, &["x", "y", "z"]);
         assert_eq!(suggestion, None);
@@ -222,7 +221,7 @@ a:
       x
 ";
 
-    match parse_success(text).run(no_cwd_err(), &["a"], &Default::default(), &Default::default()).unwrap_err() {
+    match parse_success(text).run(no_cwd_err(), &["a"], &Default::default()).unwrap_err() {
       Code{recipe, line_number, code} => {
         assert_eq!(recipe, "a");
         assert_eq!(code, 200);
@@ -235,7 +234,7 @@ a:
   #[test]
   fn code_error() {
     match parse_success("fail:\n @exit 100")
-      .run(no_cwd_err(), &["fail"], &Default::default(), &Default::default()).unwrap_err() {
+      .run(no_cwd_err(), &["fail"], &Default::default()).unwrap_err() {
       Code{recipe, line_number, code} => {
         assert_eq!(recipe, "fail");
         assert_eq!(code, 100);
@@ -251,7 +250,7 @@ a:
 a return code:
  @x() { {{return}} {{code + "0"}}; }; x"#;
 
-    match parse_success(text).run(no_cwd_err(), &["a", "return", "15"], &Default::default(), &Default::default()).unwrap_err() {
+    match parse_success(text).run(no_cwd_err(), &["a", "return", "15"], &Default::default()).unwrap_err() {
       Code{recipe, line_number, code} => {
         assert_eq!(recipe, "a");
         assert_eq!(code, 150);
@@ -263,7 +262,7 @@ a return code:
 
   #[test]
   fn missing_some_arguments() {
-    match parse_success("a b c d:").run(no_cwd_err(), &["a", "b", "c"], &Default::default(), &Default::default()).unwrap_err() {
+    match parse_success("a b c d:").run(no_cwd_err(), &["a", "b", "c"], &Default::default()).unwrap_err() {
       ArgumentCountMismatch{recipe, found, min, max} => {
         assert_eq!(recipe, "a");
         assert_eq!(found, 2);
@@ -276,7 +275,7 @@ a return code:
 
   #[test]
   fn missing_some_arguments_variadic() {
-    match parse_success("a b c +d:").run(no_cwd_err(), &["a", "B", "C"], &Default::default(), &Default::default()).unwrap_err() {
+    match parse_success("a b c +d:").run(no_cwd_err(), &["a", "B", "C"], &Default::default()).unwrap_err() {
       ArgumentCountMismatch{recipe, found, min, max} => {
         assert_eq!(recipe, "a");
         assert_eq!(found, 2);
@@ -290,7 +289,7 @@ a return code:
   #[test]
   fn missing_all_arguments() {
     match parse_success("a b c d:\n echo {{b}}{{c}}{{d}}")
-          .run(no_cwd_err(), &["a"], &Default::default(), &Default::default()).unwrap_err() {
+          .run(no_cwd_err(), &["a"], &Default::default()).unwrap_err() {
       ArgumentCountMismatch{recipe, found, min, max} => {
         assert_eq!(recipe, "a");
         assert_eq!(found, 0);
@@ -303,7 +302,7 @@ a return code:
 
   #[test]
   fn missing_some_defaults() {
-    match parse_success("a b c d='hello':").run(no_cwd_err(), &["a", "b"], &Default::default(), &Default::default()).unwrap_err() {
+    match parse_success("a b c d='hello':").run(no_cwd_err(), &["a", "b"], &Default::default()).unwrap_err() {
       ArgumentCountMismatch{recipe, found, min, max} => {
         assert_eq!(recipe, "a");
         assert_eq!(found, 1);
@@ -316,7 +315,7 @@ a return code:
 
   #[test]
   fn missing_all_defaults() {
-    match parse_success("a b c='r' d='h':").run(no_cwd_err(), &["a"], &Default::default(), &Default::default()).unwrap_err() {
+    match parse_success("a b c='r' d='h':").run(no_cwd_err(), &["a"], &Default::default()).unwrap_err() {
       ArgumentCountMismatch{recipe, found, min, max} => {
         assert_eq!(recipe, "a");
         assert_eq!(found, 0);
@@ -333,7 +332,7 @@ a return code:
     configuration.overrides.insert("foo", "bar");
     configuration.overrides.insert("baz", "bob");
     match parse_success("a:\n echo {{`f() { return 100; }; f`}}")
-          .run(no_cwd_err(), &["a"], &configuration, &Default::default()).unwrap_err() {
+          .run(no_cwd_err(), &["a"], &configuration).unwrap_err() {
       UnknownOverrides{overrides} => {
         assert_eq!(overrides, &["baz", "foo"]);
       },
@@ -358,7 +357,7 @@ wut:
       ..Default::default()
     };
 
-    match parse_success(text).run(no_cwd_err(), &["wut"], &configuration, &Default::default()).unwrap_err() {
+    match parse_success(text).run(no_cwd_err(), &["wut"], &configuration).unwrap_err() {
       Code{code: _, line_number, recipe} => {
         assert_eq!(recipe, "wut");
         assert_eq!(line_number, Some(8));
