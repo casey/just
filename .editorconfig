@@ -1,0 +1,22 @@
+# EditorConfig is awesome: https://EditorConfig.org
+
+# top-most EditorConfig file
+root = true
+
+[*]
+# Text is UTF-8
+charset = utf-8
+# Unix-style newlines
+end_of_line = lf
+# Newline ending every file
+insert_final_newline = true
+# Soft tabs
+indent_style = space
+# Two-space indentation
+indent_size = 2
+# Trim trailing whitespace
+trim_trailing_whitespace = true
+
+[justfile]
+# Use tabs in justfile
+indent_style = tab
