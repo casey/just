@@ -1,8 +1,11 @@
 use std::path::PathBuf;
+use std::sync::atomic::Ordering;
 
 use common::*;
 
 use edit_distance::edit_distance;
+
+use recipe::INTERRUPTED;
 
 pub struct Justfile<'a> {
   pub recipes:     Map<&'a str, Recipe<'a>>,
@@ -122,6 +125,10 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
       self.run_recipe(&invocation_directory, recipe, arguments, &scope, &dotenv, configuration, &mut ran)?
     }
 
+    if INTERRUPTED.load(Ordering::SeqCst) {
+      eprintln!("Interrupted.");
+    }
+
     Ok(())
   }
 
@@ -135,6 +142,10 @@ impl<'a, 'b> Justfile<'a> where 'a: 'b {
     configuration: &Configuration<'a>,
     ran:           &mut Set<&'a str>,
   ) -> RunResult<()> {
+    if INTERRUPTED.load(Ordering::SeqCst) {
+      return Ok(())
+    }
+
     for dependency_name in &recipe.dependencies {
       if !ran.contains(dependency_name) {
         self.run_recipe(invocation_directory, &self.recipes[dependency_name], &[], scope, dotenv, configuration, ran)?;

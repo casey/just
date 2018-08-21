@@ -2,6 +2,9 @@ use common::*;
 
 use std::path::PathBuf;
 use std::process::{ExitStatus, Command, Stdio};
+use std::sync::atomic::{AtomicBool, ATOMIC_BOOL_INIT, Ordering};
+
+pub static INTERRUPTED: AtomicBool = ATOMIC_BOOL_INIT;
 
 use platform::{Platform, PlatformInterface};
 
@@ -100,6 +103,10 @@ impl<'a> Recipe<'a> {
     };
 
     if self.shebang {
+      if INTERRUPTED.load(Ordering::SeqCst) {
+        return Ok(())
+      }
+
       let mut evaluated_lines = vec![];
       for line in &self.lines {
         evaluated_lines.push(evaluator.evaluate_line(line, &argument_map)?);
@@ -180,6 +187,10 @@ impl<'a> Recipe<'a> {
       let mut lines = self.lines.iter().peekable();
       let mut line_number = self.line_number + 1;
       loop {
+        if INTERRUPTED.load(Ordering::SeqCst) {
+          break;
+        }
+
         if lines.peek().is_none() {
           break;
         }

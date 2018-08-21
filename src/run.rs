@@ -1,10 +1,13 @@
 use common::*;
 
 use std::{convert, ffi, cmp};
+use std::sync::atomic::Ordering;
 use clap::{App, Arg, ArgGroup, AppSettings};
 use configuration::DEFAULT_SHELL;
 use misc::maybe_s;
 use unicode_width::UnicodeWidthStr;
+use ctrlc;
+use recipe::INTERRUPTED;
 
 #[cfg(windows)]
 use ansi_term::enable_ansi_support;
@@ -356,6 +359,10 @@ pub fn run() {
     color,
     overrides,
   };
+
+  ctrlc::set_handler(move || {
+    INTERRUPTED.store(true, Ordering::SeqCst);
+  }).expect("Error setting Ctrl-C handler");
 
   if let Err(run_error) = justfile.run(
     invocation_directory,
