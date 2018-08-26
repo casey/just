@@ -14,6 +14,7 @@ fn kill(process_id: u32) {
   }
 }
 
+#[cfg(unix)]
 fn interrupt_test(justfile: &str) {
   let tmp = TempDir::new("just-interrupts")
     .unwrap_or_else(
