@@ -58,7 +58,8 @@ impl InterruptHandler {
       die!(
         "{}",
         RuntimeError::Internal {
-          message: "attempted to unblock interrupt handler, but handler was not blocked".to_string(),
+          message: "attempted to unblock interrupt handler, but handler was not blocked"
+            .to_string(),
         }
       );
     }
