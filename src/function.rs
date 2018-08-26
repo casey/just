@@ -1,6 +1,5 @@
-use std::path::PathBuf;
-
 use common::*;
+
 use target;
 
 use platform::{Platform, PlatformInterface};
@@ -106,14 +105,14 @@ pub fn invocation_directory(context: &FunctionContext) -> Result<String, String>
 
 pub fn env_var(context: &FunctionContext, key: &str) -> Result<String, String> {
   use std::env::VarError::*;
-  
+
   if let Some(value) = context.dotenv.get(key) {
     return Ok(value.clone());
   }
 
   match env::var(key) {
     Err(NotPresent) => Err(format!("environment variable `{}` not present", key)),
-    Err(NotUnicode(os_string)) => 
+    Err(NotUnicode(os_string)) =>
       Err(format!("environment variable `{}` not unicode: {:?}", key, os_string)),
     Ok(value) => Ok(value),
   }
@@ -131,7 +130,7 @@ pub fn env_var_or_default(
   use std::env::VarError::*;
   match env::var(key) {
     Err(NotPresent) => Ok(default.to_string()),
-    Err(NotUnicode(os_string)) => 
+    Err(NotUnicode(os_string)) =>
       Err(format!("environment variable `{}` not unicode: {:?}", key, os_string)),
     Ok(value) => Ok(value),
   }

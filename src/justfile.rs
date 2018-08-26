@@ -1,5 +1,3 @@
-use std::path::PathBuf;
-
 use common::*;
 
 use edit_distance::edit_distance;

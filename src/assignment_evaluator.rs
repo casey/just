@@ -1,5 +1,3 @@
-use std::path::PathBuf;
-
 use common::*;
 
 use brev;
@@ -154,8 +152,9 @@ impl<'a, 'b> AssignmentEvaluator<'a, 'b> {
       process::Stdio::inherit()
     });
 
-    brev::output(cmd)
+    InterruptHandler::guard(|| brev::output(cmd)
       .map_err(|output_error| RuntimeError::Backtick{token: token.clone(), output_error})
+    )
   }
 }
 
