@@ -1,21 +1,15 @@
 use common::*;
 
-use std::{convert, ffi, cmp};
+use std::{convert, ffi};
 use clap::{App, Arg, ArgGroup, AppSettings};
 use configuration::DEFAULT_SHELL;
 use misc::maybe_s;
 use unicode_width::UnicodeWidthStr;
+use env_logger;
+use interrupt_handler::InterruptHandler;
 
 #[cfg(windows)]
 use ansi_term::enable_ansi_support;
-
-macro_rules! die {
-  ($($arg:tt)*) => {{
-    extern crate std;
-    eprintln!($($arg)*);
-    process::exit(EXIT_FAILURE)
-  }};
-}
 
 fn edit<P: convert::AsRef<ffi::OsStr>>(path: P) -> ! {
   let editor = env::var_os("EDITOR")
@@ -46,6 +40,10 @@ impl Slurp for fs::File {
 pub fn run() {
   #[cfg(windows)]
   enable_ansi_support().ok();
+
+  env_logger::Builder::from_env(
+    env_logger::Env::new().filter("JUST_LOG").write_style("JUST_LOG_STYLE")
+  ).init();
 
   let invocation_directory = env::current_dir()
     .map_err(|e| format!("Error getting current directory: {}", e));
@@ -356,6 +354,10 @@ pub fn run() {
     color,
     overrides,
   };
+
+  if let Err(error) = InterruptHandler::install() {
+    warn!("Failed to set CTRL-C handler: {}", error)
+  }
 
   if let Err(run_error) = justfile.run(
     invocation_directory,

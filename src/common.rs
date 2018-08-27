@@ -5,6 +5,7 @@ pub use std::io::prelude::*;
 pub use std::ops::Range;
 pub use std::path::{Path, PathBuf};
 pub use std::process::Command;
+pub use std::sync::{Mutex, MutexGuard};
 pub use std::{cmp, env, fs, fmt, io, iter, process, vec, usize};
 
 pub use color::Color;
@@ -21,6 +22,7 @@ pub use cooked_string::CookedString;
 pub use expression::Expression;
 pub use fragment::Fragment;
 pub use function::{evaluate_function, resolve_function, FunctionContext};
+pub use interrupt_handler::InterruptHandler;
 pub use justfile::Justfile;
 pub use lexer::Lexer;
 pub use load_dotenv::load_dotenv;

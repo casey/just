@@ -1,10 +1,13 @@
-#[macro_use]
-extern crate lazy_static;
+#[macro_use] extern crate lazy_static;
+#[macro_use] extern crate log;
+
 extern crate ansi_term;
 extern crate brev;
 extern crate clap;
+extern crate ctrlc;
 extern crate dotenv;
 extern crate edit_distance;
+extern crate env_logger;
 extern crate itertools;
 extern crate libc;
 extern crate regex;
@@ -15,6 +18,9 @@ extern crate unicode_width;
 #[cfg(test)]
 #[macro_use]
 mod testing;
+
+#[macro_use]
+mod die;
 
 mod assignment_evaluator;
 mod assignment_resolver;
@@ -41,6 +47,7 @@ mod run;
 mod runtime_error;
 mod shebang;
 mod token;
+mod interrupt_handler;
 
 use common::*;
 

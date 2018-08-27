@@ -1,6 +1,5 @@
 extern crate brev;
 extern crate executable_path;
-extern crate libc;
 extern crate target;
 extern crate tempdir;
 

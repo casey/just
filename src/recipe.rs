@@ -1,6 +1,5 @@
 use common::*;
 
-use std::path::PathBuf;
 use std::process::{ExitStatus, Command, Stdio};
 
 use platform::{Platform, PlatformInterface};
@@ -161,7 +160,7 @@ impl<'a> Recipe<'a> {
       command.export_environment_variables(scope, dotenv, exports)?;
 
       // run it!
-      match command.status() {
+      match InterruptHandler::guard(|| command.status()) {
         Ok(exit_status) => if let Some(code) = exit_status.code() {
           if code != 0 {
             return Err(RuntimeError::Code{recipe: self.name, line_number: None, code})
@@ -235,7 +234,7 @@ impl<'a> Recipe<'a> {
 
         cmd.export_environment_variables(scope, dotenv, exports)?;
 
-        match cmd.status() {
+        match InterruptHandler::guard(|| cmd.status()) {
           Ok(exit_status) => if let Some(code) = exit_status.code() {
             if code != 0 {
               return Err(RuntimeError::Code{
