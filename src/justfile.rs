@@ -47,7 +47,7 @@ where
 
   pub fn run(
     &'a self,
-    invocation_directory: Result<PathBuf, String>,
+    invocation_directory: &Result<PathBuf, String>,
     arguments: &[&'a str],
     configuration: &Configuration<'a>,
   ) -> RunResult<'a, ()> {
@@ -217,7 +217,7 @@ mod test {
   #[test]
   fn unknown_recipes() {
     match parse_success("a:\nb:\nc:")
-      .run(no_cwd_err(), &["a", "x", "y", "z"], &Default::default())
+      .run(&no_cwd_err(), &["a", "x", "y", "z"], &Default::default())
       .unwrap_err()
     {
       UnknownRecipes {
@@ -250,7 +250,7 @@ a:
 ";
 
     match parse_success(text)
-      .run(no_cwd_err(), &["a"], &Default::default())
+      .run(&no_cwd_err(), &["a"], &Default::default())
       .unwrap_err()
     {
       Code {
@@ -269,7 +269,7 @@ a:
   #[test]
   fn code_error() {
     match parse_success("fail:\n @exit 100")
-      .run(no_cwd_err(), &["fail"], &Default::default())
+      .run(&no_cwd_err(), &["fail"], &Default::default())
       .unwrap_err()
     {
       Code {
@@ -292,7 +292,7 @@ a return code:
  @x() { {{return}} {{code + "0"}}; }; x"#;
 
     match parse_success(text)
-      .run(no_cwd_err(), &["a", "return", "15"], &Default::default())
+      .run(&no_cwd_err(), &["a", "return", "15"], &Default::default())
       .unwrap_err()
     {
       Code {
@@ -311,7 +311,7 @@ a return code:
   #[test]
   fn missing_some_arguments() {
     match parse_success("a b c d:")
-      .run(no_cwd_err(), &["a", "b", "c"], &Default::default())
+      .run(&no_cwd_err(), &["a", "b", "c"], &Default::default())
       .unwrap_err()
     {
       ArgumentCountMismatch {
@@ -332,7 +332,7 @@ a return code:
   #[test]
   fn missing_some_arguments_variadic() {
     match parse_success("a b c +d:")
-      .run(no_cwd_err(), &["a", "B", "C"], &Default::default())
+      .run(&no_cwd_err(), &["a", "B", "C"], &Default::default())
       .unwrap_err()
     {
       ArgumentCountMismatch {
@@ -353,7 +353,7 @@ a return code:
   #[test]
   fn missing_all_arguments() {
     match parse_success("a b c d:\n echo {{b}}{{c}}{{d}}")
-      .run(no_cwd_err(), &["a"], &Default::default())
+      .run(&no_cwd_err(), &["a"], &Default::default())
       .unwrap_err()
     {
       ArgumentCountMismatch {
@@ -374,7 +374,7 @@ a return code:
   #[test]
   fn missing_some_defaults() {
     match parse_success("a b c d='hello':")
-      .run(no_cwd_err(), &["a", "b"], &Default::default())
+      .run(&no_cwd_err(), &["a", "b"], &Default::default())
       .unwrap_err()
     {
       ArgumentCountMismatch {
@@ -395,7 +395,7 @@ a return code:
   #[test]
   fn missing_all_defaults() {
     match parse_success("a b c='r' d='h':")
-      .run(no_cwd_err(), &["a"], &Default::default())
+      .run(&no_cwd_err(), &["a"], &Default::default())
       .unwrap_err()
     {
       ArgumentCountMismatch {
@@ -419,7 +419,7 @@ a return code:
     configuration.overrides.insert("foo", "bar");
     configuration.overrides.insert("baz", "bob");
     match parse_success("a:\n echo {{`f() { return 100; }; f`}}")
-      .run(no_cwd_err(), &["a"], &configuration)
+      .run(&no_cwd_err(), &["a"], &configuration)
       .unwrap_err()
     {
       UnknownOverrides { overrides } => {
@@ -447,7 +447,7 @@ wut:
     };
 
     match parse_success(text)
-      .run(no_cwd_err(), &["wut"], &configuration)
+      .run(&no_cwd_err(), &["wut"], &configuration)
       .unwrap_err()
     {
       Code {

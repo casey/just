@@ -122,10 +122,10 @@ impl<'a> Display for RuntimeError<'a> {
         }
       },
       Dotenv{ref dotenv_error} => {
-        write!(f, "Failed to load .env: {}\n", dotenv_error)?;
+        writeln!(f, "Failed to load .env: {}", dotenv_error)?;
       }
       FunctionCall{ref token, ref message} => {
-        write!(f, "Call to function `{}` failed: {}\n", token.lexeme, message)?;
+        writeln!(f, "Call to function `{}` failed: {}", token.lexeme, message)?;
         error_token = Some(token);
       }
       Shebang{recipe, ref command, ref argument, ref io_error} => {
@@ -152,31 +152,31 @@ impl<'a> Display for RuntimeError<'a> {
       },
       IoError{recipe, ref io_error} => {
         match io_error.kind() {
-          io::ErrorKind::NotFound => write!(f,
-            "Recipe `{}` could not be run because just could not find `sh`:\n{}",
+          io::ErrorKind::NotFound => writeln!(f,
+            "Recipe `{}` could not be run because just could not find `sh`:{}",
             recipe, io_error),
-          io::ErrorKind::PermissionDenied => write!(
-            f, "Recipe `{}` could not be run because just could not run `sh`:\n{}",
+          io::ErrorKind::PermissionDenied => writeln!(
+            f, "Recipe `{}` could not be run because just could not run `sh`:{}",
             recipe, io_error),
-          _ => write!(f, "Recipe `{}` could not be run because of an IO error while \
-                      launching `sh`:\n{}", recipe, io_error),
+          _ => writeln!(f, "Recipe `{}` could not be run because of an IO error while \
+                      launching `sh`:{}", recipe, io_error),
         }?;
       },
       TmpdirIoError{recipe, ref io_error} =>
-        write!(f, "Recipe `{}` could not be run because of an IO error while trying \
-                  to create a temporary directory or write a file to that directory`:\n{}",
+        writeln!(f, "Recipe `{}` could not be run because of an IO error while trying \
+                  to create a temporary directory or write a file to that directory`:{}",
                   recipe, io_error)?,
       Backtick{ref token, ref output_error} => match *output_error {
         OutputError::Code(code) => {
-          write!(f, "Backtick failed with exit code {}\n", code)?;
+          writeln!(f, "Backtick failed with exit code {}", code)?;
           error_token = Some(token);
         }
         OutputError::Signal(signal) => {
-          write!(f, "Backtick was terminated by signal {}\n", signal)?;
+          writeln!(f, "Backtick was terminated by signal {}", signal)?;
           error_token = Some(token);
         }
         OutputError::Unknown => {
-          write!(f, "Backtick failed for an unknown reason\n")?;
+          writeln!(f, "Backtick failed for an unknown reason")?;
           error_token = Some(token);
         }
         OutputError::Io(ref io_error) => {
@@ -192,7 +192,7 @@ impl<'a> Display for RuntimeError<'a> {
           error_token = Some(token);
         }
         OutputError::Utf8(ref utf8_error) => {
-          write!(f, "Backtick succeeded but stdout was not utf8: {}\n", utf8_error)?;
+          writeln!(f, "Backtick succeeded but stdout was not utf8: {}", utf8_error)?;
           error_token = Some(token);
         }
       },

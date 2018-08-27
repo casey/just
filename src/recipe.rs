@@ -37,7 +37,7 @@ impl<'a> Recipe<'a> {
   }
 
   pub fn min_arguments(&self) -> usize {
-    self.parameters.iter().filter(|p| !p.default.is_some()).count()
+    self.parameters.iter().filter(|p| p.default.is_none()).count()
   }
 
   pub fn max_arguments(&self) -> usize {
@@ -271,7 +271,7 @@ impl<'a> Display for Recipe<'a> {
 
     for (i, pieces) in self.lines.iter().enumerate() {
       if i == 0 {
-        writeln!(f, "")?;
+        writeln!(f)?;
       }
       for (j, piece) in pieces.iter().enumerate() {
         if j == 0 {
@@ -280,11 +280,11 @@ impl<'a> Display for Recipe<'a> {
         match *piece {
           Fragment::Text{ref text} => write!(f, "{}", text.lexeme)?,
           Fragment::Expression{ref expression, ..} =>
-            write!(f, "{}{}{}", "{{", expression, "}}")?,
+            write!(f, "{{{{{}}}}}", expression)?,
         }
       }
       if i + 1 < self.lines.len() {
-        write!(f, "\n")?;
+        writeln!(f)?;
       }
     }
     Ok(())

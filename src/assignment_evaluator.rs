@@ -173,7 +173,7 @@ mod test {
   #[test]
   fn backtick_code() {
     match parse_success("a:\n echo {{`f() { return 100; }; f`}}")
-          .run(no_cwd_err(), &["a"], &Default::default()).unwrap_err() {
+          .run(&no_cwd_err(), &["a"], &Default::default()).unwrap_err() {
       RuntimeError::Backtick{token, output_error: OutputError::Code(code)} => {
         assert_eq!(code, 100);
         assert_eq!(token.lexeme, "`f() { return 100; }; f`");
@@ -196,7 +196,7 @@ recipe:
       ..Default::default()
     };
 
-    match parse_success(text).run(no_cwd_err(), &["recipe"], &configuration).unwrap_err() {
+    match parse_success(text).run(&no_cwd_err(), &["recipe"], &configuration).unwrap_err() {
       RuntimeError::Backtick{token, output_error: OutputError::Code(_)} => {
         assert_eq!(token.lexeme, "`echo $exported_variable`");
       },
