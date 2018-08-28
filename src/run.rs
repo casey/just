@@ -360,7 +360,7 @@ pub fn run() {
   }
 
   if let Err(run_error) = justfile.run(
-    invocation_directory,
+    &invocation_directory,
     &arguments,
     &configuration)
   {

@@ -86,8 +86,8 @@ pub fn write_error_context(
         i += c.len_utf8();
       }
       let line_number_width = line_number.to_string().len();
-      write!(f, "{0:1$} |\n", "", line_number_width)?;
-      write!(f, "{} | {}\n", line_number, space_line)?;
+      writeln!(f, "{0:1$} |", "", line_number_width)?;
+      writeln!(f, "{} | {}", line_number, space_line)?;
       write!(f, "{0:1$} |", "", line_number_width)?;
       if width == None {
         write!(f, " {0:1$}{2}^{3}", "", space_column, red.prefix(), red.suffix())?;
