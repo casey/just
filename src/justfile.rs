@@ -8,10 +8,7 @@ pub struct Justfile<'a> {
   pub exports: Set<&'a str>,
 }
 
-impl<'a, 'b> Justfile<'a>
-where
-  'a: 'b,
-{
+impl<'a> Justfile<'a> where {
   pub fn first(&self) -> Option<&Recipe> {
     let mut first: Option<&Recipe> = None;
     for recipe in self.recipes.values() {
@@ -144,8 +141,8 @@ where
     Ok(())
   }
 
-  fn run_recipe<'c>(
-    &'c self,
+  fn run_recipe<'b>(
+    &self,
     context: &'b RecipeContext<'a>,
     recipe: &Recipe<'a>,
     arguments: &[&'a str],
