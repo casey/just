@@ -30,7 +30,7 @@ pub use misc::{default, empty};
 pub use parameter::Parameter;
 pub use parser::Parser;
 pub use range_ext::RangeExt;
-pub use recipe::Recipe;
+pub use recipe::{Recipe, RecipeContext};
 pub use recipe_resolver::RecipeResolver;
 pub use runtime_error::{RuntimeError, RunResult};
 pub use shebang::Shebang;

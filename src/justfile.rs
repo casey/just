@@ -47,9 +47,9 @@ where
 
   pub fn run(
     &'a self,
-    invocation_directory: &Result<PathBuf, String>,
+    invocation_directory: &'a Result<PathBuf, String>,
     arguments: &[&'a str],
-    configuration: &Configuration<'a>,
+    configuration: &'a Configuration<'a>,
   ) -> RunResult<'a, ()> {
     let unknown_overrides = configuration
       .overrides
@@ -68,7 +68,7 @@ where
 
     let scope = AssignmentEvaluator::evaluate_assignments(
       &self.assignments,
-      &invocation_directory,
+      invocation_directory,
       &dotenv,
       &configuration.overrides,
       configuration.quiet,
@@ -128,15 +128,15 @@ where
       });
     }
 
+    let context = RecipeContext{invocation_directory, configuration, scope};
+
     let mut ran = empty();
     for (recipe, arguments) in grouped {
       self.run_recipe(
-        &invocation_directory,
+        &context,
         recipe,
         arguments,
-        &scope,
         &dotenv,
-        configuration,
         &mut ran,
       )?
     }
@@ -146,34 +146,28 @@ where
 
   fn run_recipe<'c>(
     &'c self,
-    invocation_directory: &Result<PathBuf, String>,
+    context: &'b RecipeContext<'a>,
     recipe: &Recipe<'a>,
     arguments: &[&'a str],
-    scope: &Map<&'c str, String>,
     dotenv: &Map<String, String>,
-    configuration: &Configuration<'a>,
     ran: &mut Set<&'a str>,
   ) -> RunResult<()> {
     for dependency_name in &recipe.dependencies {
       if !ran.contains(dependency_name) {
         self.run_recipe(
-          invocation_directory,
+          context,
           &self.recipes[dependency_name],
           &[],
-          scope,
           dotenv,
-          configuration,
           ran,
         )?;
       }
     }
     recipe.run(
-      invocation_directory,
+      context,
       arguments,
-      scope,
       dotenv,
       &self.exports,
-      configuration,
     )?;
     ran.insert(recipe.name);
     Ok(())

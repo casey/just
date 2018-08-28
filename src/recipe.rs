@@ -31,6 +31,12 @@ pub struct Recipe<'a> {
   pub shebang:           bool,
 }
 
+pub struct RecipeContext<'a> {
+  pub invocation_directory: &'a Result<PathBuf, String>,
+  pub configuration:        &'a Configuration<'a>,
+  pub scope:                Map<&'a str, String>,
+}
+
 impl<'a> Recipe<'a> {
   pub fn argument_range(&self) -> Range<usize> {
     self.min_arguments()..self.max_arguments() + 1
@@ -50,13 +56,13 @@ impl<'a> Recipe<'a> {
 
   pub fn run(
     &self,
-    invocation_directory: &Result<PathBuf, String>,
-    arguments:     &[&'a str],
-    scope:         &Map<&'a str, String>,
-    dotenv:        &Map<String, String>,
-    exports:       &Set<&'a str>,
-    configuration: &Configuration,
+    context:              &RecipeContext<'a>,
+    arguments:            &[&'a str],
+    dotenv:               &Map<String, String>,
+    exports:              &Set<&'a str>,
   ) -> RunResult<'a, ()> {
+    let configuration = &context.configuration;
+
     if configuration.verbose {
       let color = configuration.color.stderr().banner();
       eprintln!("{}===> Running recipe `{}`...{}", color.prefix(), self.name, color.suffix());
@@ -86,16 +92,16 @@ impl<'a> Recipe<'a> {
     }
 
     let mut evaluator = AssignmentEvaluator {
-      assignments: &empty(),
-      invocation_directory,
-      dry_run:     configuration.dry_run,
-      evaluated:   empty(),
-      overrides:   &empty(),
-      quiet:       configuration.quiet,
-      shell:       configuration.shell,
+      assignments:          &empty(),
+      dry_run:              configuration.dry_run,
+      evaluated:            empty(),
+      invocation_directory: context.invocation_directory,
+      overrides:            &empty(),
+      quiet:                configuration.quiet,
+      scope:                &context.scope,
+      shell:                configuration.shell,
       dotenv,
       exports,
-      scope,
     };
 
     if self.shebang {
@@ -157,7 +163,7 @@ impl<'a> Recipe<'a> {
       let mut command = Platform::make_shebang_command(&path, interpreter, argument)
         .map_err(|output_error| RuntimeError::Cygpath{recipe: self.name, output_error})?;
 
-      command.export_environment_variables(scope, dotenv, exports)?;
+      command.export_environment_variables(&context.scope, dotenv, exports)?;
 
       // run it!
       match InterruptHandler::guard(|| command.status()) {
@@ -232,7 +238,7 @@ impl<'a> Recipe<'a> {
           cmd.stdout(Stdio::null());
         }
 
-        cmd.export_environment_variables(scope, dotenv, exports)?;
+        cmd.export_environment_variables(&context.scope, dotenv, exports)?;
 
         match InterruptHandler::guard(|| cmd.status()) {
           Ok(exit_status) => if let Some(code) = exit_status.code() {
