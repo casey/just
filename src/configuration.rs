@@ -10,7 +10,7 @@ pub struct Configuration<'a> {
   pub quiet:     bool,
   pub shell:     &'a str,
   pub color:     Color,
-  pub verbose:   bool,
+  pub verbosity: Verbosity,
 }
 
 impl<'a> Default for Configuration<'a> {
@@ -23,7 +23,7 @@ impl<'a> Default for Configuration<'a> {
       quiet:     false,
       shell:     DEFAULT_SHELL,
       color:     default(),
-      verbose:   false,
+      verbosity: Verbosity::from_flag_occurrences(0),
     }
   }
 }

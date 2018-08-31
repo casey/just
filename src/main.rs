@@ -33,6 +33,7 @@ mod cooked_string;
 mod expression;
 mod fragment;
 mod function;
+mod interrupt_handler;
 mod justfile;
 mod lexer;
 mod load_dotenv;
@@ -47,7 +48,7 @@ mod run;
 mod runtime_error;
 mod shebang;
 mod token;
-mod interrupt_handler;
+mod verbosity;
 
 use common::*;
 
