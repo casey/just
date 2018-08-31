@@ -121,6 +121,7 @@ pub fn run() {
     .arg(Arg::with_name("VERBOSE")
          .short("v")
          .long("verbose")
+         .multiple(true)
          .help("Use verbose output"))
     .arg(Arg::with_name("WORKING-DIRECTORY")
         .short("d")
@@ -344,13 +345,15 @@ pub fn run() {
     die!("Justfile contains no recipes.");
   };
 
+  let verbosity = Verbosity::from_flag_occurrences(matches.occurrences_of("VERBOSE"));
+
   let configuration = Configuration {
     dry_run:   matches.is_present("DRY-RUN"),
     evaluate:  matches.is_present("EVALUATE"),
     highlight: matches.is_present("HIGHLIGHT"),
     quiet:     matches.is_present("QUIET"),
     shell:     matches.value_of("SHELL").unwrap(),
-    verbose:   matches.is_present("VERBOSE"),
+    verbosity,
     color,
     overrides,
   };

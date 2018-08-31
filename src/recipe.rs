@@ -63,7 +63,7 @@ impl<'a> Recipe<'a> {
   ) -> RunResult<'a, ()> {
     let configuration = &context.configuration;
 
-    if configuration.verbose {
+    if configuration.verbosity.loquacious() {
       let color = configuration.color.stderr().banner();
       eprintln!("{}===> Running recipe `{}`...{}", color.prefix(), self.name, color.suffix());
     }
@@ -141,6 +141,11 @@ impl<'a> Recipe<'a> {
           text += line;
           text += "\n";
         }
+
+        if configuration.verbosity.grandiloquent() {
+          eprintln!("{}", configuration.color.doc().stderr().paint(&text));
+        }
+
         f.write_all(text.as_bytes())
          .map_err(|error| RuntimeError::TmpdirIoError{recipe: self.name, io_error: error})?;
       }
@@ -212,11 +217,11 @@ impl<'a> Recipe<'a> {
           continue;
         }
 
-        if configuration.dry_run          ||
-           configuration.verbose          ||
-           !((quiet_command ^ self.quiet) ||
-           configuration.quiet
-        ) {
+        if configuration.dry_run
+          || configuration.verbosity.loquacious()
+          || !((quiet_command ^ self.quiet)
+          || configuration.quiet)
+        {
           let color = if configuration.highlight {
             configuration.color.command()
           } else {
