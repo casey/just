@@ -444,7 +444,7 @@ mod test {
 # hello
 
 
-    ", 
+    ",
     "",
   }
 
@@ -477,7 +477,7 @@ foo +a:
 foo +a="Hello":
 
 
-  "#, 
+  "#,
     r#"foo +a='Hello':"#,
   }
 
@@ -488,7 +488,7 @@ foo +a="Hello":
 foo a='b\t':
 
 
-  "#, 
+  "#,
     r#"foo a='b\\t':"#,
   }
 
@@ -497,7 +497,7 @@ foo a='b\t':
     r#"
 export a = "hello"
 
-  "#, 
+  "#,
     r#"export a = "hello""#,
   }
 
@@ -517,7 +517,7 @@ hello a b    c   : x y    z #hello
   1
   2
   3
-", 
+",
     "bar = foo
 
 foo = \"xx\"
@@ -548,7 +548,7 @@ install:
 \tif [[ -f {{practicum}} ]]; then
 \t\treturn
 \tfi
-", 
+",
     "practicum = \"hello\"
 
 install:
