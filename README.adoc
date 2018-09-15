@@ -224,6 +224,13 @@ publish:
     rm -rf {{tarball}} {{tardir}}
 ```
 
+To write a recipe containing `{{` or `}}`, use a string literal inside of `{{...}}`:
+
+```make
+braces:
+	echo 'I {{ "{{" }}LOVE{{ "}}" }} curly braces!'
+```
+
 === Strings
 
 Double-quoted strings support escape sequences:
