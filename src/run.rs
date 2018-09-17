@@ -1,6 +1,6 @@
 use common::*;
 
-use std::{convert, ffi};
+use std::{convert, ffi };
 use clap::{App, Arg, ArgGroup, AppSettings};
 use configuration::DEFAULT_SHELL;
 use misc::maybe_s;
@@ -186,7 +186,12 @@ pub fn run() {
     .collect::<Vec<&str>>();
 
   let justfile_option = matches.value_of("JUSTFILE");
-  let working_directory_option = matches.value_of("WORKING-DIRECTORY");
+  let mut working_directory_option = matches.value_of("WORKING-DIRECTORY");
+
+  if justfile_option.is_some() && working_directory_option.is_none() {
+    let justfile_path = Path::new(justfile_option.unwrap()).parent();
+    working_directory_option = justfile_path.unwrap().to_str();  
+  }
 
   let text;
   if let (Some(file), Some(directory)) = (justfile_option, working_directory_option) {
