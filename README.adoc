@@ -224,6 +224,8 @@ publish:
     rm -rf {{tarball}} {{tardir}}
 ```
 
+==== Escaping `{{`
+
 To write a recipe containing `{{`, use `{{ "{{" }}`:
 
 ```make
@@ -231,7 +233,7 @@ braces:
 	echo 'I {{ "{{" }}LOVE}} curly braces!'
 ```
 
-(Unmatched `}}`s are ignored, so they don't need to be escaped.)
+(An unmatched `}}` is ignored, so it doesn't need to be escaped.)
 
 Another option is to put all the text you'd like to escape inside of an interpolation:
 
