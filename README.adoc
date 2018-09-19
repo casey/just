@@ -224,11 +224,22 @@ publish:
     rm -rf {{tarball}} {{tardir}}
 ```
 
-To write a recipe containing `{{` or `}}`, use a string literal inside of `{{...}}`:
+==== Escaping `{{`
+
+To write a recipe containing `{{`, use `{{ "{{" }}`:
 
 ```make
 braces:
-	echo 'I {{ "{{" }}LOVE{{ "}}" }} curly braces!'
+	echo 'I {{ "{{" }}LOVE}} curly braces!'
+```
+
+(An unmatched `}}` is ignored, so it doesn't need to be escaped.)
+
+Another option is to put all the text you'd like to escape inside of an interpolation:
+
+```make
+braces:
+	echo '{{'I {{LOVE}} curly braces!'}}'
 ```
 
 === Strings
