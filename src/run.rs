@@ -1,6 +1,6 @@
 use common::*;
 
-use std::{convert, ffi };
+use std::{convert, ffi};
 use clap::{App, Arg, ArgGroup, AppSettings};
 use configuration::DEFAULT_SHELL;
 use misc::maybe_s;
@@ -86,7 +86,7 @@ pub fn run() {
          .short("f")
          .long("justfile")
          .takes_value(true)
-         .help("Use <JUSTFILE> as justfile. --working-directory can be set [default: supplied justfile location]"))
+         .help("Use <JUSTFILE> as justfile"))
     .arg(Arg::with_name("LIST")
          .short("l")
          .long("list")
@@ -186,13 +186,17 @@ pub fn run() {
     .collect::<Vec<&str>>();
 
   let justfile_option = matches.value_of("JUSTFILE");
-  let mut working_directory_option = matches.value_of("WORKING-DIRECTORY");
-
-  if justfile_option.is_some() && working_directory_option.is_none() {
-    let justfile_path = Path::new(justfile_option.unwrap()).parent();
-    working_directory_option = justfile_path.unwrap().to_str();  
+  let mut working_directory_option = matches.value_of("WORKING-DIRECTORY").map(Path::new);
+  
+  if let (Some(justfile), None) = (justfile_option, working_directory_option) {
+    let justfile_parent_path = Path::new(justfile).parent();
+    if justfile_parent_path.is_none() {
+      die!("Could not find parent directory of justfile at {}", justfile);
+    } else {
+      working_directory_option = justfile_parent_path;
+    }
   }
-
+  
   let text;
   if let (Some(file), Some(directory)) = (justfile_option, working_directory_option) {
     if matches.is_present("EDIT") {
@@ -205,7 +209,7 @@ pub fn run() {
       .unwrap_or_else(|error| die!("Error reading justfile: {}", error));
 
     if let Err(error) = env::set_current_dir(directory) {
-      die!("Error changing directory to {}: {}", directory, error);
+      die!("Error changing directory to {}: {}", directory.display(), error);
     }
   } else {
     let name;
