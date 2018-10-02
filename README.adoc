@@ -59,6 +59,12 @@ curl -LSfs https://japaric.github.io/trust/install.sh | \
   sh -s -- --git casey/just --to DESTINATION_DIRECTORY
 ```
 
+Alternatively, you can install `just` via the https://scoop.sh[scoop package manager] with the following command:
+
+```powershell
+scoop install just
+```
+
 On Linux, use:
 
 ```sh
