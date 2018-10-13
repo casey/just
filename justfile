@@ -6,10 +6,7 @@ test: build
 	cargo test
 
 fuzz:
-	cargo +nightly fuzz run basic_parsing
-
-setup-fuzz:
-	cargo +nightly install cargo-fuzz
+	cargo +nightly fuzz run fuzz-compiler
 
 @spam:
 	{ \
@@ -64,6 +61,7 @@ install-dev-deps:
 	rustup run nightly cargo install -f clippy
 	cargo install -f cargo-watch
 	cargo install -f cargo-check
+	cargo +nightly install cargo-fuzz
 
 # everyone's favorite animate paper clip
 clippy:

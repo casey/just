@@ -2,3 +2,6 @@
 /.vagrant
 /README.html
 /tmp
+/fuzz/target
+/fuzz/corpus
+/fuzz/artifacts

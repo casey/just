@@ -1,5 +1,7 @@
-#[macro_use] extern crate lazy_static;
-#[macro_use] extern crate log;
+#[macro_use]
+extern crate lazy_static;
+#[macro_use]
+extern crate log;
 
 extern crate ansi_term;
 extern crate brev;
@@ -18,6 +20,9 @@ extern crate unicode_width;
 #[cfg(test)]
 #[macro_use]
 mod testing;
+
+#[cfg(fuzzing)]
+pub mod fuzzing;
 
 #[macro_use]
 mod die;
@@ -53,8 +58,3 @@ mod verbosity;
 use common::*;
 
 pub use run::run;
-pub use lexer::Lexer;
-pub use parser::Parser;
-pub use justfile::Justfile;
-pub use recipe::Recipe;
-pub use compilation_error::{CompilationError, CompilationErrorKind};

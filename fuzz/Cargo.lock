@@ -214,7 +214,7 @@ dependencies = [
 
 [[package]]
 name = "just-fuzz"
-version = "0.0.1"
+version = "0.0.0"
 dependencies = [
  "just 0.3.12",
  "libfuzzer-sys 0.1.0 (git+https://github.com/rust-fuzz/libfuzzer-sys.git)",

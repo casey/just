@@ -1,6 +1,6 @@
 [package]
-name = "just-fuzz"
-version = "0.0.1"
+name    = "just-fuzz"
+version = "0.0.0"
 authors = ["Automatically generated"]
 publish = false
 
@@ -12,11 +12,3 @@ path = ".."
 
 [dependencies.libfuzzer-sys]
 git = "https://github.com/rust-fuzz/libfuzzer-sys.git"
-
-# Prevent this from interfering with workspaces
-[workspace]
-members = ["."]
-
-[[bin]]
-name = "fuzz_target_1"
-path = "fuzz_targets/fuzz_target_1.rs"
