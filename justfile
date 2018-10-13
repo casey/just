@@ -5,6 +5,9 @@ export RUST_BACKTRACE=bt
 test: build
 	cargo test
 
+fuzz:
+	cargo +nightly fuzz run fuzz-compiler
+
 @spam:
 	{ \
 		figlet test; \
@@ -58,6 +61,7 @@ install-dev-deps:
 	rustup run nightly cargo install -f clippy
 	cargo install -f cargo-watch
 	cargo install -f cargo-check
+	cargo +nightly install cargo-fuzz
 
 # everyone's favorite animate paper clip
 clippy:

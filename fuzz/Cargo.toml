@@ -1,0 +1,14 @@
+[package]
+name    = "just-fuzz"
+version = "0.0.0"
+authors = ["Automatically generated"]
+publish = false
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies.just]
+path = ".."
+
+[dependencies.libfuzzer-sys]
+git = "https://github.com/rust-fuzz/libfuzzer-sys.git"
