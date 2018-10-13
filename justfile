@@ -5,6 +5,12 @@ export RUST_BACKTRACE=bt
 test: build
 	cargo test
 
+fuzz:
+	cargo +nightly fuzz run basic_parsing
+
+setup-fuzz:
+	cargo +nightly install cargo-fuzz
+
 @spam:
 	{ \
 		figlet test; \
