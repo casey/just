@@ -1,5 +1,9 @@
 use common::*;
 
 pub fn compile(text: &str) {
-  Parser::parse(text).ok();
+  if let Err(error) = Parser::parse(text) {
+    if let CompilationErrorKind::Internal{..} = error.kind {
+      panic!("{}", error)
+    }
+  }
 }
