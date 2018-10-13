@@ -6,7 +6,7 @@ use CompilationErrorKind::*;
 
 pub struct Parser<'a> {
   text:              &'a str,
-  tokens:            itertools::PutBack<vec::IntoIter<Token<'a>>>,
+  tokens:            itertools::PutBackN<vec::IntoIter<Token<'a>>>,
   recipes:           Map<&'a str, Recipe<'a>>,
   assignments:       Map<&'a str, Expression<'a>>,
   assignment_tokens: Map<&'a str, Token<'a>>,
@@ -22,7 +22,7 @@ impl<'a> Parser<'a> {
 
   pub fn new(text: &'a str, tokens: Vec<Token<'a>>) -> Parser<'a> {
     Parser {
-      tokens:            itertools::put_back(tokens),
+      tokens:            itertools::put_back_n(tokens),
       recipes:           empty(),
       assignments:       empty(),
       assignment_tokens: empty(),
@@ -847,6 +847,16 @@ a:
     column: 5,
     width:  Some(1),
     kind:   UnexpectedToken{expected: vec![Name], found: Plus},
+  }
+
+  compilation_error_test! {
+    name:   bad_export,
+    input:  "export a",
+    index:  8,
+    line:   0,
+    column: 8,
+    width:  Some(0),
+    kind:   UnexpectedToken{expected: vec![Name, Plus, Colon], found: Eof},
   }
 
   #[test]
