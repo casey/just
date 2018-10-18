@@ -186,14 +186,19 @@ pub fn run() {
     .collect::<Vec<&str>>();
 
   let justfile_option = matches.value_of("JUSTFILE");
-  let mut working_directory_option = matches.value_of("WORKING-DIRECTORY").map(Path::new);
+  let mut working_directory_option = matches.value_of("WORKING-DIRECTORY");
   
   if let (Some(justfile), None) = (justfile_option, working_directory_option) {
-    let justfile_parent_path = Path::new(justfile).parent();
-    if justfile_parent_path.is_none() {
-      die!("Could not find parent directory of justfile at {}", justfile);
+      let justfile_path = Path::new(justfile);
+    if Path::new(justfile).is_absolute() {
+        working_directory_option = Path::new(justfile).parent().unwrap().to_str();
     } else {
-      working_directory_option = justfile_parent_path;
+      let justfile_path_canonical = justfile_path.canonicalize();
+      if justfile_path.canonicalize().is_ok() {
+        working_directory_option = justfile_path_canonical.ok().unwrap().to_str();   
+      } else {
+        die!("Could not find parent directory of justfile at {}.", justfile);
+      }
     }
   }
   
@@ -209,7 +214,7 @@ pub fn run() {
       .unwrap_or_else(|error| die!("Error reading justfile: {}", error));
 
     if let Err(error) = env::set_current_dir(directory) {
-      die!("Error changing directory to {}: {}", directory.display(), error);
+      die!("Error changing directory to {}: {}", directory, error);
     }
   } else {
     let name;
