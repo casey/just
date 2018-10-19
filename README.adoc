@@ -68,19 +68,25 @@ curl -LSfs https://japaric.github.io/trust/install.sh | \
 
 === Homebrew
 
-On MacOS, `just` is a available through the https://brew.sh[Homebrew] package manager. Install Homebrew using the instructions at https://brew.sh, then run:
+On MacOS, `just` can be installed using the https://brew.sh[Homebrew package manager]. Install Homebrew using the instructions https://brew.sh[here], then run:
 
 `brew install just`
 
+=== Scoop
+
+On Windows, `just` can be installed using the https://scoop.sh[Scoop package manager]. Install Scoop using the instractions https://scoop.sh/[here], then run:
+
+```powershell
+scoop install just
+```
+
 === Cargo
 
-`just` can be installed using `cargo`, the https://www.rust-lang.org[rust language package manager]:
+On Windows, Linux, and macOS, `just` can be installed using Cargo, the https://www.rust-lang.org[rust language package manager]. Install Cargo using the instructions https://www.rustup.rs[here], then run:
 
-1. Install rust and cargo by following the instructions https://www.rustup.rs[here]
-2. Run `cargo install just`
-3. Add `~/.cargo/bin` to your shell's $PATH.
+`cargo install just`
 
-`rustup` may have done #3 for you. If this doesn't work, put `export PATH="$HOME/.cargo/bin:$PATH"` in your shell's configuration file
+(You might also need to add `~/.cargo/bin` to your shell's `$PATH`. If you can't run just after installing it, put `export PATH="$HOME/.cargo/bin:$PATH"` in your shell's configuration file.)
 
 
 == Quick Start
@@ -112,7 +118,7 @@ One or more arguments specify the recipe(s) to run:
 
 ```sh
 $ just another-recipe
-Another recipe.
+This is another recipe.
 ```
 
 `just` prints each command to standard error before running it, which is why `echo 'This is a recipe!'` was printed. This is suppressed for lines starting with `@`, which is why `echo 'Another recipe.'` was not printed.
