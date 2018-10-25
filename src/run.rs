@@ -185,23 +185,25 @@ pub fn run() {
     })
     .collect::<Vec<&str>>();
 
-  let justfile_option = matches.value_of("JUSTFILE");
-  let mut working_directory_option = matches.value_of("WORKING-DIRECTORY");
-  
-  if let (Some(justfile), None) = (justfile_option, working_directory_option) {
-      let justfile_path = Path::new(justfile);
-    if Path::new(justfile).is_absolute() {
-        working_directory_option = Path::new(justfile).parent().unwrap().to_str();
-    } else {
-      let justfile_path_canonical = justfile_path.canonicalize();
-      if justfile_path.canonicalize().is_ok() {
-        working_directory_option = justfile_path_canonical.ok().unwrap().to_str();   
-      } else {
-        die!("Could not find parent directory of justfile at {}.", justfile);
+  let justfile_option = matches.value_of("JUSTFILE").map(Path::new);
+  let mut working_directory_option = matches.value_of("WORKING-DIRECTORY").map(PathBuf::from);
+
+  if let (Some(justfile), None) = (justfile_option, working_directory_option.as_ref()) {
+    let mut justfile = justfile.to_path_buf();
+
+    if !justfile.is_absolute() {
+      match justfile.canonicalize() {
+        Ok(canonical) => justfile = canonical,
+        Err(err) => die!(
+          "Could not canonicalize justfile path `{}`: {}", justfile.display(), err),
       }
     }
+
+    justfile.pop();
+
+    working_directory_option = Some(justfile);
   }
-  
+
   let text;
   if let (Some(file), Some(directory)) = (justfile_option, working_directory_option) {
     if matches.is_present("EDIT") {
@@ -213,8 +215,8 @@ pub fn run() {
       .slurp()
       .unwrap_or_else(|error| die!("Error reading justfile: {}", error));
 
-    if let Err(error) = env::set_current_dir(directory) {
-      die!("Error changing directory to {}: {}", directory, error);
+    if let Err(error) = env::set_current_dir(&directory) {
+      die!("Error changing directory to {}: {}", directory.display(), error);
     }
   } else {
     let name;
