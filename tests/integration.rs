@@ -779,7 +779,7 @@ foo A B:
     ",
   args:     ("foo", "ONE"),
   stdout:   "",
-  stderr:   "error: Recipe `foo` got 1 argument but takes 2\n",
+  stderr:   "error: Recipe `foo` got 1 argument but takes 2\nUsage:\n just foo A B\n",
   status:   EXIT_FAILURE,
 }
 
