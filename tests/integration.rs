@@ -779,7 +779,7 @@ foo A B:
     ",
   args:     ("foo", "ONE"),
   stdout:   "",
-  stderr:   "error: Recipe `foo` got 1 argument but takes 2\nUsage:\n just foo A B\n",
+  stderr:   "error: Recipe `foo` got 1 argument but takes 2\nusage:\n    just foo \u{1b}[36mA\u{1b}[0m \u{1b}[36mB\u{1b}[0m\n",
   status:   EXIT_FAILURE,
 }
 

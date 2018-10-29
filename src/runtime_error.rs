@@ -23,7 +23,7 @@ fn write_token_error_context(f: &mut fmt::Formatter, token: &Token) -> Result<()
 
 #[derive(Debug)]
 pub enum RuntimeError<'a> {
-  ArgumentCountMismatch{recipe: &'a str, parameters: Vec<&'a str>, found: usize, min: usize, max: usize},
+  ArgumentCountMismatch{recipe: &'a str, parameters: Vec<&'a Parameter<'a>>, found: usize, min: usize, max: usize},
   Backtick{token: Token<'a>, output_error: OutputError},
   Code{recipe: &'a str, line_number: Option<usize>, code: i32},
   Cygpath{recipe: &'a str, output_error: OutputError},
@@ -77,7 +77,10 @@ impl<'a> Display for RuntimeError<'a> {
           write!(f, "Recipe `{}` got {} argument{} but {}takes {}\n",
                     recipe, found, maybe_s(found),
                     if expected < found { "only " } else { "" }, expected)?;
-          write!(f, "Usage:\n just {} {}", recipe, parameters.join(" "));
+          write!(f, "usage:\n    just {}", recipe)?;
+          for param in parameters {
+            write!(f, " {:#}", param)?;
+          }
         } else if found < min {
           write!(f, "Recipe `{}` got {} argument{} but takes at least {}",
                     recipe, found, maybe_s(found), min)?;
