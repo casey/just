@@ -79,7 +79,11 @@ impl<'a> Display for RuntimeError<'a> {
                     if expected < found { "only " } else { "" }, expected)?;
           write!(f, "usage:\n    just {}", recipe)?;
           for param in parameters {
-            write!(f, " {:#}", param)?;
+            if color.stdout().active() {
+              write!(f, " {:#}", param)?;
+            } else {
+              write!(f, " {}", param)?;
+            }
           }
         } else if found < min {
           write!(f, "Recipe `{}` got {} argument{} but takes at least {}",
