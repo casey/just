@@ -23,7 +23,7 @@ fn write_token_error_context(f: &mut fmt::Formatter, token: &Token) -> Result<()
 
 #[derive(Debug)]
 pub enum RuntimeError<'a> {
-  ArgumentCountMismatch{recipe: &'a str, found: usize, min: usize, max: usize},
+  ArgumentCountMismatch{recipe: &'a str, parameters: Vec<&'a Parameter<'a>>, found: usize, min: usize, max: usize},
   Backtick{token: Token<'a>, output_error: OutputError},
   Code{recipe: &'a str, line_number: Option<usize>, code: i32},
   Cygpath{recipe: &'a str, output_error: OutputError},
@@ -71,7 +71,7 @@ impl<'a> Display for RuntimeError<'a> {
                   maybe_s(overrides.len()),
                   And(&overrides.iter().map(Tick).collect::<Vec<_>>()))?;
       },
-      ArgumentCountMismatch{recipe, found, min, max} => {
+      ArgumentCountMismatch{recipe, ref parameters, found, min, max} => {
         if min == max {
           let expected = min;
           write!(f, "Recipe `{}` got {} argument{} but {}takes {}",
@@ -83,6 +83,14 @@ impl<'a> Display for RuntimeError<'a> {
         } else if found > max {
           write!(f, "Recipe `{}` got {} argument{} but takes at most {}",
                     recipe, found, maybe_s(found), max)?;
+        }
+        write!(f, "\nusage:\n    just {}", recipe)?;
+        for param in parameters {
+          if color.stderr().active() {
+            write!(f, " {:#}", param)?;
+          } else {
+            write!(f, " {}", param)?;
+          }
         }
       },
       Code{recipe, line_number, code} => {

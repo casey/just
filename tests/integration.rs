@@ -779,7 +779,7 @@ foo A B:
     ",
   args:     ("foo", "ONE"),
   stdout:   "",
-  stderr:   "error: Recipe `foo` got 1 argument but takes 2\n",
+  stderr:   "error: Recipe `foo` got 1 argument but takes 2\nusage:\n    just foo A B\n",
   status:   EXIT_FAILURE,
 }
 
@@ -803,7 +803,7 @@ foo A B C='C':
     ",
   args:     ("foo", "bar"),
   stdout:   "",
-  stderr:   "error: Recipe `foo` got 1 argument but takes at least 2\n",
+  stderr:   "error: Recipe `foo` got 1 argument but takes at least 2\nusage:\n    just foo A B C='C'\n",
   status:   EXIT_FAILURE,
 }
 
@@ -1670,7 +1670,7 @@ a x y +z:
 ",
   args:     ("a", "0", "1"),
   stdout:   "",
-  stderr:   "error: Recipe `a` got 2 arguments but takes at least 3\n",
+  stderr:   "error: Recipe `a` got 2 arguments but takes at least 3\nusage:\n    just a x y +z\n",
   status:   EXIT_FAILURE,
 }
 

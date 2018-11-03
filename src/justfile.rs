@@ -99,6 +99,7 @@ impl<'a> Justfile<'a> where {
           if !argument_range.range_contains(argument_count) {
             return Err(RuntimeError::ArgumentCountMismatch {
               recipe: recipe.name,
+              parameters: recipe.parameters.iter().collect(),
               found: tail.len(),
               min: recipe.min_arguments(),
               max: recipe.max_arguments(),
@@ -307,11 +308,17 @@ a return code:
     {
       ArgumentCountMismatch {
         recipe,
+        parameters,
         found,
         min,
         max,
       } => {
+        let param_names = parameters
+          .iter()
+          .map(|p| p.name)
+          .collect::<Vec<&str>>();
         assert_eq!(recipe, "a");
+        assert_eq!(param_names, ["b", "c", "d"]);
         assert_eq!(found, 2);
         assert_eq!(min, 3);
         assert_eq!(max, 3);
@@ -328,11 +335,17 @@ a return code:
     {
       ArgumentCountMismatch {
         recipe,
+        parameters,
         found,
         min,
         max,
       } => {
+        let param_names = parameters
+          .iter()
+          .map(|p| p.name)
+          .collect::<Vec<&str>>();
         assert_eq!(recipe, "a");
+        assert_eq!(param_names, ["b", "c", "d"]);
         assert_eq!(found, 2);
         assert_eq!(min, 3);
         assert_eq!(max, usize::MAX - 1);
@@ -349,11 +362,17 @@ a return code:
     {
       ArgumentCountMismatch {
         recipe,
+        parameters,
         found,
         min,
         max,
       } => {
+        let param_names = parameters
+          .iter()
+          .map(|p| p.name)
+          .collect::<Vec<&str>>();
         assert_eq!(recipe, "a");
+        assert_eq!(param_names, ["b", "c", "d"]);
         assert_eq!(found, 0);
         assert_eq!(min, 3);
         assert_eq!(max, 3);
@@ -370,11 +389,17 @@ a return code:
     {
       ArgumentCountMismatch {
         recipe,
+        parameters,
         found,
         min,
         max,
       } => {
+        let param_names = parameters
+          .iter()
+          .map(|p| p.name)
+          .collect::<Vec<&str>>();
         assert_eq!(recipe, "a");
+        assert_eq!(param_names, ["b", "c", "d"]);
         assert_eq!(found, 1);
         assert_eq!(min, 2);
         assert_eq!(max, 3);
@@ -391,11 +416,17 @@ a return code:
     {
       ArgumentCountMismatch {
         recipe,
+        parameters,
         found,
         min,
         max,
       } => {
+        let param_names = parameters
+          .iter()
+          .map(|p| p.name)
+          .collect::<Vec<&str>>();
         assert_eq!(recipe, "a");
+        assert_eq!(param_names, ["b", "c", "d"]);
         assert_eq!(found, 0);
         assert_eq!(min, 1);
         assert_eq!(max, 3);
