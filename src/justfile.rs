@@ -99,7 +99,7 @@ impl<'a> Justfile<'a> where {
           if !argument_range.range_contains(argument_count) {
             return Err(RuntimeError::ArgumentCountMismatch {
               recipe: recipe.name,
-              parameters: recipe.parameters.iter().collect::<Vec<_>>(),
+              parameters: recipe.parameters.iter().collect(),
               found: tail.len(),
               min: recipe.min_arguments(),
               max: recipe.max_arguments(),
