@@ -74,23 +74,23 @@ impl<'a> Display for RuntimeError<'a> {
       ArgumentCountMismatch{recipe, ref parameters, found, min, max} => {
         if min == max {
           let expected = min;
-          write!(f, "Recipe `{}` got {} argument{} but {}takes {}\n",
+          write!(f, "Recipe `{}` got {} argument{} but {}takes {}",
                     recipe, found, maybe_s(found),
                     if expected < found { "only " } else { "" }, expected)?;
-          write!(f, "usage:\n    just {}", recipe)?;
-          for param in parameters {
-            if color.stdout().active() {
-              write!(f, " {:#}", param)?;
-            } else {
-              write!(f, " {}", param)?;
-            }
-          }
         } else if found < min {
           write!(f, "Recipe `{}` got {} argument{} but takes at least {}",
                     recipe, found, maybe_s(found), min)?;
         } else if found > max {
           write!(f, "Recipe `{}` got {} argument{} but takes at most {}",
                     recipe, found, maybe_s(found), max)?;
+        }
+        write!(f, "\nusage:\n    just {}", recipe)?;
+        for param in parameters {
+          if color.stderr().active() {
+            write!(f, " {:#}", param)?;
+          } else {
+            write!(f, " {}", param)?;
+          }
         }
       },
       Code{recipe, line_number, code} => {
