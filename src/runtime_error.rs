@@ -23,7 +23,13 @@ fn write_token_error_context(f: &mut fmt::Formatter, token: &Token) -> Result<()
 
 #[derive(Debug)]
 pub enum RuntimeError<'a> {
-  ArgumentCountMismatch{recipe: &'a str, parameters: Vec<&'a Parameter<'a>>, found: usize, min: usize, max: usize},
+  ArgumentCountMismatch{
+    recipe: &'a str,
+    parameters: Vec<&'a Parameter<'a>>,
+    found: usize,
+    min: usize,
+    max: usize,
+  },
   Backtick{token: Token<'a>, output_error: OutputError},
   Code{recipe: &'a str, line_number: Option<usize>, code: i32},
   Cygpath{recipe: &'a str, output_error: OutputError},
