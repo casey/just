@@ -1834,3 +1834,12 @@ X = "\'"
 "#,
    status:   EXIT_FAILURE,
 }
+
+integration_test! {
+  name:     optional_working_directory,
+  justfile: "home:\n @echo works without --WORKING-DIRECTORY\n",
+  args:     ("--justfile", "./justfile"),
+  stdout:   "works without --WORKING-DIRECTORY\n",
+  stderr:   "",
+  status:   EXIT_SUCCESS,
+}
