@@ -7,9 +7,9 @@ image:https://travis-ci.org/casey/just.svg?branch=master[build status,link=https
 image:https://badges.gitter.im/just-because/Lobby.svg[chat on gitter,link=https://gitter.im/just-because/Lobby]
 image:https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg[say thanks,link=https://saythanks.io/to/casey]
 
-非官方中文文档,这里,快看过来!
-
 `just` is a handy way to save and run project-specific commands.
+
+(非官方中文文档,这里,快看过来!)
 
 Commands are stored in a file called `justfile` or `Justfile` with syntax inspired by `make`:
 
