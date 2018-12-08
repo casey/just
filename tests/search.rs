@@ -2,9 +2,9 @@ extern crate brev;
 extern crate executable_path;
 extern crate tempdir;
 
-use tempdir::TempDir;
-use std::{path, str, fs, process};
 use executable_path::executable_path;
+use std::{fs, path, process, str};
+use tempdir::TempDir;
 
 fn search_test<P: AsRef<path::Path>>(path: P, args: &[&str]) {
   let binary = executable_path("just");

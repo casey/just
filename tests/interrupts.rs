@@ -4,8 +4,12 @@ extern crate libc;
 extern crate tempdir;
 
 use executable_path::executable_path;
+use std::{
+  process::Command,
+  thread,
+  time::{Duration, Instant},
+};
 use tempdir::TempDir;
-use std::{process::Command, time::{Duration, Instant}, thread};
 
 #[cfg(unix)]
 fn kill(process_id: u32) {
@@ -16,9 +20,12 @@ fn kill(process_id: u32) {
 
 #[cfg(unix)]
 fn interrupt_test(justfile: &str) {
-  let tmp = TempDir::new("just-interrupts")
-    .unwrap_or_else(
-    |err| panic!("integration test: failed to create temporary directory: {}", err));
+  let tmp = TempDir::new("just-interrupts").unwrap_or_else(|err| {
+    panic!(
+      "integration test: failed to create temporary directory: {}",
+      err
+    )
+  });
 
   let mut justfile_path = tmp.path().to_path_buf();
   justfile_path.push("justfile");
@@ -53,29 +60,35 @@ fn interrupt_test(justfile: &str) {
 #[cfg(unix)]
 #[test]
 fn interrupt_shebang() {
-  interrupt_test("
+  interrupt_test(
+    "
 default:
   #!/usr/bin/env sh
   sleep 2
-");
+",
+  );
 }
 
 #[cfg(unix)]
 #[test]
 fn interrupt_line() {
-  interrupt_test("
+  interrupt_test(
+    "
 default:
   @sleep 2
-");
+",
+  );
 }
 
 #[cfg(unix)]
 #[test]
 fn interrupt_backtick() {
-  interrupt_test("
+  interrupt_test(
+    "
 foo = `sleep 2`
 
 default:
   @echo hello
-");
+",
+  );
 }

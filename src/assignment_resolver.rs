@@ -3,22 +3,21 @@ use common::*;
 use CompilationErrorKind::*;
 
 pub struct AssignmentResolver<'a: 'b, 'b> {
-  assignments:       &'b Map<&'a str, Expression<'a>>,
+  assignments: &'b Map<&'a str, Expression<'a>>,
   assignment_tokens: &'b Map<&'a str, Token<'a>>,
-  stack:             Vec<&'a str>,
-  seen:              Set<&'a str>,
-  evaluated:         Set<&'a str>,
+  stack: Vec<&'a str>,
+  seen: Set<&'a str>,
+  evaluated: Set<&'a str>,
 }
 
 impl<'a: 'b, 'b> AssignmentResolver<'a, 'b> {
   pub fn resolve_assignments(
-    assignments:       &Map<&'a str, Expression<'a>>,
+    assignments: &Map<&'a str, Expression<'a>>,
     assignment_tokens: &Map<&'a str, Token<'a>>,
   ) -> CompilationResult<'a, ()> {
-
     let mut resolver = AssignmentResolver {
-      stack:     empty(),
-      seen:      empty(),
+      stack: empty(),
+      seen: empty(),
       evaluated: empty(),
       assignments,
       assignment_tokens,
@@ -45,21 +44,20 @@ impl<'a: 'b, 'b> AssignmentResolver<'a, 'b> {
     } else {
       let message = format!("attempted to resolve unknown assignment `{}`", name);
       return Err(CompilationError {
-        text:   "",
-        index:  0,
-        line:   0,
+        text: "",
+        index: 0,
+        line: 0,
         column: 0,
-        width:  None,
-        kind:   Internal{message}
+        width: None,
+        kind: Internal { message },
       });
     }
     Ok(())
   }
 
-  fn resolve_expression(
-    &mut self, expression: &Expression<'a>) -> CompilationResult<'a, ()> {
+  fn resolve_expression(&mut self, expression: &Expression<'a>) -> CompilationResult<'a, ()> {
     match *expression {
-      Expression::Variable{name, ref token} => {
+      Expression::Variable { name, ref token } => {
         if self.evaluated.contains(name) {
           return Ok(());
         } else if self.seen.contains(name) {
@@ -67,22 +65,24 @@ impl<'a: 'b, 'b> AssignmentResolver<'a, 'b> {
           self.stack.push(name);
           return Err(token.error(CircularVariableDependency {
             variable: name,
-            circle:   self.stack.clone(),
+            circle: self.stack.clone(),
           }));
         } else if self.assignments.contains_key(name) {
           self.resolve_assignment(name)?;
         } else {
-          return Err(token.error(UndefinedVariable{variable: name}));
+          return Err(token.error(UndefinedVariable { variable: name }));
         }
       }
-      Expression::Call{ref token, ref arguments, ..} => {
-        resolve_function(token, arguments.len())?
-      }
-      Expression::Concatination{ref lhs, ref rhs} => {
+      Expression::Call {
+        ref token,
+        ref arguments,
+        ..
+      } => resolve_function(token, arguments.len())?,
+      Expression::Concatination { ref lhs, ref rhs } => {
         self.resolve_expression(lhs)?;
         self.resolve_expression(rhs)?;
       }
-      Expression::String{..} | Expression::Backtick{..} => {}
+      Expression::String { .. } | Expression::Backtick { .. } => {}
     }
     Ok(())
   }

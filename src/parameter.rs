@@ -2,9 +2,9 @@ use common::*;
 
 #[derive(PartialEq, Debug)]
 pub struct Parameter<'a> {
-  pub default:  Option<String>,
-  pub name:     &'a str,
-  pub token:    Token<'a>,
+  pub default: Option<String>,
+  pub name: &'a str,
+  pub token: Token<'a>,
   pub variadic: bool,
 }
 
@@ -16,7 +16,10 @@ impl<'a> Display for Parameter<'a> {
     }
     write!(f, "{}", color.parameter().paint(self.name))?;
     if let Some(ref default) = self.default {
-      let escaped = default.chars().flat_map(char::escape_default).collect::<String>();;
+      let escaped = default
+        .chars()
+        .flat_map(char::escape_default)
+        .collect::<String>();;
       write!(f, r#"='{}'"#, color.string().paint(&escaped))?;
     }
     Ok(())

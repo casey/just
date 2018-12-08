@@ -126,17 +126,15 @@ impl<'a> Justfile<'a> where {
       });
     }
 
-    let context = RecipeContext{invocation_directory, configuration, scope};
+    let context = RecipeContext {
+      invocation_directory,
+      configuration,
+      scope,
+    };
 
     let mut ran = empty();
     for (recipe, arguments) in grouped {
-      self.run_recipe(
-        &context,
-        recipe,
-        arguments,
-        &dotenv,
-        &mut ran,
-      )?
+      self.run_recipe(&context, recipe, arguments, &dotenv, &mut ran)?
     }
 
     Ok(())
@@ -152,21 +150,10 @@ impl<'a> Justfile<'a> where {
   ) -> RunResult<()> {
     for dependency_name in &recipe.dependencies {
       if !ran.contains(dependency_name) {
-        self.run_recipe(
-          context,
-          &self.recipes[dependency_name],
-          &[],
-          dotenv,
-          ran,
-        )?;
+        self.run_recipe(context, &self.recipes[dependency_name], &[], dotenv, ran)?;
       }
     }
-    recipe.run(
-      context,
-      arguments,
-      dotenv,
-      &self.exports,
-    )?;
+    recipe.run(context, arguments, dotenv, &self.exports)?;
     ran.insert(recipe.name);
     Ok(())
   }
@@ -313,10 +300,7 @@ a return code:
         min,
         max,
       } => {
-        let param_names = parameters
-          .iter()
-          .map(|p| p.name)
-          .collect::<Vec<&str>>();
+        let param_names = parameters.iter().map(|p| p.name).collect::<Vec<&str>>();
         assert_eq!(recipe, "a");
         assert_eq!(param_names, ["b", "c", "d"]);
         assert_eq!(found, 2);
@@ -340,10 +324,7 @@ a return code:
         min,
         max,
       } => {
-        let param_names = parameters
-          .iter()
-          .map(|p| p.name)
-          .collect::<Vec<&str>>();
+        let param_names = parameters.iter().map(|p| p.name).collect::<Vec<&str>>();
         assert_eq!(recipe, "a");
         assert_eq!(param_names, ["b", "c", "d"]);
         assert_eq!(found, 2);
@@ -367,10 +348,7 @@ a return code:
         min,
         max,
       } => {
-        let param_names = parameters
-          .iter()
-          .map(|p| p.name)
-          .collect::<Vec<&str>>();
+        let param_names = parameters.iter().map(|p| p.name).collect::<Vec<&str>>();
         assert_eq!(recipe, "a");
         assert_eq!(param_names, ["b", "c", "d"]);
         assert_eq!(found, 0);
@@ -394,10 +372,7 @@ a return code:
         min,
         max,
       } => {
-        let param_names = parameters
-          .iter()
-          .map(|p| p.name)
-          .collect::<Vec<&str>>();
+        let param_names = parameters.iter().map(|p| p.name).collect::<Vec<&str>>();
         assert_eq!(recipe, "a");
         assert_eq!(param_names, ["b", "c", "d"]);
         assert_eq!(found, 1);
@@ -421,10 +396,7 @@ a return code:
         min,
         max,
       } => {
-        let param_names = parameters
-          .iter()
-          .map(|p| p.name)
-          .collect::<Vec<&str>>();
+        let param_names = parameters.iter().map(|p| p.name).collect::<Vec<&str>>();
         assert_eq!(recipe, "a");
         assert_eq!(param_names, ["b", "c", "d"]);
         assert_eq!(found, 0);
