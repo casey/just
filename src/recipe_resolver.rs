@@ -3,21 +3,21 @@ use common::*;
 use CompilationErrorKind::*;
 
 pub struct RecipeResolver<'a: 'b, 'b> {
-  stack:    Vec<&'a str>,
-  seen:     Set<&'a str>,
+  stack: Vec<&'a str>,
+  seen: Set<&'a str>,
   resolved: Set<&'a str>,
-  recipes:  &'b Map<&'a str, Recipe<'a>>,
+  recipes: &'b Map<&'a str, Recipe<'a>>,
 }
 
 impl<'a, 'b> RecipeResolver<'a, 'b> {
   pub fn resolve_recipes(
-    recipes:     &Map<&'a str, Recipe<'a>>,
+    recipes: &Map<&'a str, Recipe<'a>>,
     assignments: &Map<&'a str, Expression<'a>>,
-    text:        &'a str,
+    text: &'a str,
   ) -> CompilationResult<'a, ()> {
     let mut resolver = RecipeResolver {
-      seen:     empty(),
-      stack:    empty(),
+      seen: empty(),
+      stack: empty(),
       resolved: empty(),
       recipes,
     };
@@ -40,15 +40,15 @@ impl<'a, 'b> RecipeResolver<'a, 'b> {
     for recipe in recipes.values() {
       for line in &recipe.lines {
         for fragment in line {
-          if let Fragment::Expression{ref expression, ..} = *fragment {
+          if let Fragment::Expression { ref expression, .. } = *fragment {
             for (function, argc) in expression.functions() {
               if let Err(error) = resolve_function(function, argc) {
                 return Err(CompilationError {
-                  index:  error.index,
-                  line:   error.line,
+                  index: error.index,
+                  line: error.line,
                   column: error.column,
-                  width:  error.width,
-                  kind:   UnknownFunction {
+                  width: error.width,
+                  kind: UnknownFunction {
                     function: &text[error.index..error.index + error.width.unwrap()],
                   },
                   text,
@@ -60,13 +60,13 @@ impl<'a, 'b> RecipeResolver<'a, 'b> {
               let undefined = !assignments.contains_key(name)
                 && !recipe.parameters.iter().any(|p| p.name == name);
               if undefined {
-                let error = variable.error(UndefinedVariable{variable: name});
+                let error = variable.error(UndefinedVariable { variable: name });
                 return Err(CompilationError {
-                  index:  error.index,
-                  line:   error.line,
+                  index: error.index,
+                  line: error.line,
                   column: error.column,
-                  width:  error.width,
-                  kind:   UndefinedVariable {
+                  width: error.width,
+                  kind: UndefinedVariable {
                     variable: &text[error.index..error.index + error.width.unwrap()],
                   },
                   text,
@@ -83,29 +83,38 @@ impl<'a, 'b> RecipeResolver<'a, 'b> {
 
   fn resolve_recipe(&mut self, recipe: &Recipe<'a>) -> CompilationResult<'a, ()> {
     if self.resolved.contains(recipe.name) {
-      return Ok(())
+      return Ok(());
     }
     self.stack.push(recipe.name);
     self.seen.insert(recipe.name);
     for dependency_token in &recipe.dependency_tokens {
       match self.recipes.get(dependency_token.lexeme) {
-        Some(dependency) => if !self.resolved.contains(dependency.name) {
-          if self.seen.contains(dependency.name) {
-            let first = self.stack[0];
-            self.stack.push(first);
-            return Err(dependency_token.error(CircularRecipeDependency {
-              recipe: recipe.name,
-              circle: self.stack.iter()
-                .skip_while(|name| **name != dependency.name)
-                .cloned().collect()
-            }));
+        Some(dependency) => {
+          if !self.resolved.contains(dependency.name) {
+            if self.seen.contains(dependency.name) {
+              let first = self.stack[0];
+              self.stack.push(first);
+              return Err(
+                dependency_token.error(CircularRecipeDependency {
+                  recipe: recipe.name,
+                  circle: self
+                    .stack
+                    .iter()
+                    .skip_while(|name| **name != dependency.name)
+                    .cloned()
+                    .collect(),
+                }),
+              );
+            }
+            self.resolve_recipe(dependency)?;
           }
-          self.resolve_recipe(dependency)?;
-        },
-        None => return Err(dependency_token.error(UnknownDependency {
-          recipe:  recipe.name,
-          unknown: dependency_token.lexeme
-        })),
+        }
+        None => {
+          return Err(dependency_token.error(UnknownDependency {
+            recipe: recipe.name,
+            unknown: dependency_token.lexeme,
+          }))
+        }
       }
     }
     self.resolved.insert(recipe.name);

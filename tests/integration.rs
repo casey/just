@@ -41,16 +41,19 @@ macro_rules! integration_test {
 }
 
 fn integration_test(
-  shell:           &str,
-  justfile:        &str,
-  args:            &[&str],
+  shell: &str,
+  justfile: &str,
+  args: &[&str],
   expected_stdout: &str,
   expected_stderr: &str,
   expected_status: i32,
 ) {
-  let tmp = TempDir::new("just-integration")
-    .unwrap_or_else(
-      |err| panic!("integration test: failed to create temporary directory: {}", err));
+  let tmp = TempDir::new("just-integration").unwrap_or_else(|err| {
+    panic!(
+      "integration test: failed to create temporary directory: {}",
+      err
+    )
+  });
 
   let mut justfile_path = tmp.path().to_path_buf();
   justfile_path.push("justfile");
@@ -77,13 +80,19 @@ fn integration_test(
 
   let stdout = str::from_utf8(&output.stdout).unwrap();
   if stdout != expected_stdout {
-    println!("bad stdout:\ngot:\n{}\n\nexpected:\n{}", stdout, expected_stdout);
+    println!(
+      "bad stdout:\ngot:\n{}\n\nexpected:\n{}",
+      stdout, expected_stdout
+    );
     failure = true;
   }
 
   let stderr = str::from_utf8(&output.stderr).unwrap();
   if stderr != expected_stderr {
-    println!("bad stderr:\ngot:\n{}\n\nexpected:\n{}", stderr, expected_stderr);
+    println!(
+      "bad stderr:\ngot:\n{}\n\nexpected:\n{}",
+      stderr, expected_stderr
+    );
     failure = true;
   }
 
@@ -591,7 +600,6 @@ wut:
   status:   EXIT_FAILURE,
 }
 
-
 integration_test! {
   name:     export_shebang,
   justfile: r#"
@@ -929,7 +937,6 @@ integration_test! {
   status:   EXIT_FAILURE,
 }
 
-
 integration_test! {
   name:     required_after_default,
   justfile: "bar:\nhello baz arg='foo' bar:",
@@ -968,7 +975,6 @@ hello baz arg="XYZ\t\"	":
   stderr:   "echo 'ABC...XYZ\t\"\t'\n",
   status:   EXIT_SUCCESS,
 }
-
 
 integration_test! {
   name:     use_raw_string_default,
@@ -1227,7 +1233,6 @@ foo:
   stderr:   format!("/bin/echo '{}' 'HTAP' 'ABC'\n", env::var("USERNAME").unwrap()).as_str(),
   status:   EXIT_SUCCESS,
 }
-
 
 integration_test! {
   name:     env_var_failure,
@@ -1499,7 +1504,6 @@ a:"#,
 ",
   status:   EXIT_FAILURE,
 }
-
 
 integration_test! {
   name:     multiline_raw_string,

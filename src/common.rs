@@ -6,7 +6,7 @@ pub use std::ops::Range;
 pub use std::path::{Path, PathBuf};
 pub use std::process::Command;
 pub use std::sync::{Mutex, MutexGuard};
-pub use std::{cmp, env, fs, fmt, io, iter, process, vec, usize};
+pub use std::{cmp, env, fmt, fs, io, iter, process, usize, vec};
 
 pub use color::Color;
 pub use libc::{EXIT_FAILURE, EXIT_SUCCESS};
@@ -32,7 +32,7 @@ pub use parser::Parser;
 pub use range_ext::RangeExt;
 pub use recipe::{Recipe, RecipeContext};
 pub use recipe_resolver::RecipeResolver;
-pub use runtime_error::{RuntimeError, RunResult};
+pub use runtime_error::{RunResult, RuntimeError};
 pub use shebang::Shebang;
 pub use token::{Token, TokenKind};
 pub use verbosity::Verbosity;

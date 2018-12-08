@@ -3,8 +3,8 @@ extern crate atty;
 
 use common::*;
 
-use self::ansi_term::{Style, Prefix, Suffix, ANSIGenericString};
 use self::ansi_term::Color::*;
+use self::ansi_term::{ANSIGenericString, Prefix, Style, Suffix};
 use self::atty::is as is_atty;
 use self::atty::Stream;
 
@@ -18,26 +18,23 @@ pub enum UseColor {
 #[derive(Copy, Clone)]
 pub struct Color {
   use_color: UseColor,
-  atty:      bool,
-  style:     Style,
+  atty: bool,
+  style: Style,
 }
 
 impl Default for Color {
   fn default() -> Color {
     Color {
       use_color: UseColor::Never,
-      atty:      false,
-      style:     Style::new(),
+      atty: false,
+      style: Style::new(),
     }
   }
 }
 
 impl Color {
   fn restyle(self, style: Style) -> Color {
-    Color {
-      style,
-      ..self
-    }
+    Color { style, ..self }
   }
 
   fn redirect(self, stream: Stream) -> Color {
@@ -127,8 +124,8 @@ impl Color {
   pub fn active(&self) -> bool {
     match self.use_color {
       UseColor::Always => true,
-      UseColor::Never  => false,
-      UseColor::Auto   => self.atty,
+      UseColor::Never => false,
+      UseColor::Auto => self.atty,
     }
   }
 

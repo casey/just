@@ -1,16 +1,16 @@
 use common::*;
 
 use itertools;
-use TokenKind::*;
 use CompilationErrorKind::*;
+use TokenKind::*;
 
 pub struct Parser<'a> {
-  text:              &'a str,
-  tokens:            itertools::PutBackN<vec::IntoIter<Token<'a>>>,
-  recipes:           Map<&'a str, Recipe<'a>>,
-  assignments:       Map<&'a str, Expression<'a>>,
+  text: &'a str,
+  tokens: itertools::PutBackN<vec::IntoIter<Token<'a>>>,
+  recipes: Map<&'a str, Recipe<'a>>,
+  assignments: Map<&'a str, Expression<'a>>,
   assignment_tokens: Map<&'a str, Token<'a>>,
-  exports:           Set<&'a str>,
+  exports: Set<&'a str>,
 }
 
 impl<'a> Parser<'a> {
@@ -22,11 +22,11 @@ impl<'a> Parser<'a> {
 
   pub fn new(text: &'a str, tokens: Vec<Token<'a>>) -> Parser<'a> {
     Parser {
-      tokens:            itertools::put_back_n(tokens),
-      recipes:           empty(),
-      assignments:       empty(),
+      tokens: itertools::put_back_n(tokens),
+      recipes: empty(),
+      assignments: empty(),
       assignment_tokens: empty(),
-      exports:           empty(),
+      exports: empty(),
       text,
     }
   }
@@ -83,20 +83,20 @@ impl<'a> Parser<'a> {
   fn unexpected_token(&self, found: &Token<'a>, expected: &[TokenKind]) -> CompilationError<'a> {
     found.error(UnexpectedToken {
       expected: expected.to_vec(),
-      found:    found.kind,
+      found: found.kind,
     })
   }
 
   fn recipe(
     &mut self,
-    name:  &Token<'a>,
-    doc:   Option<Token<'a>>,
+    name: &Token<'a>,
+    doc: Option<Token<'a>>,
     quiet: bool,
   ) -> CompilationResult<'a, ()> {
     if let Some(recipe) = self.recipes.get(name.lexeme) {
       return Err(name.error(DuplicateRecipe {
         recipe: recipe.name,
-        first:  recipe.line_number
+        first: recipe.line_number,
       }));
     }
 
@@ -108,11 +108,13 @@ impl<'a> Parser<'a> {
 
       let parameter = match self.accept(Name) {
         Some(parameter) => parameter,
-        None            => if let Some(plus) = plus {
-          return Err(self.unexpected_token(&plus, &[Name]));
-        } else {
-          break
-        },
+        None => {
+          if let Some(plus) = plus {
+            return Err(self.unexpected_token(&plus, &[Name]));
+          } else {
+            break;
+          }
+        }
       };
 
       let variadic = plus.is_some();
@@ -125,7 +127,8 @@ impl<'a> Parser<'a> {
 
       if parameters.iter().any(|p| p.name == parameter.lexeme) {
         return Err(parameter.error(DuplicateParameter {
-          recipe: name.lexeme, parameter: parameter.lexeme
+          recipe: name.lexeme,
+          parameter: parameter.lexeme,
         }));
       }
 
@@ -142,7 +145,7 @@ impl<'a> Parser<'a> {
       }
 
       if parsed_parameter_with_default && default.is_none() {
-        return Err(parameter.error(RequiredParameterFollowsDefaultParameter{
+        return Err(parameter.error(RequiredParameterFollowsDefaultParameter {
           parameter: parameter.lexeme,
         }));
       }
@@ -151,8 +154,8 @@ impl<'a> Parser<'a> {
       parsed_variadic_parameter = variadic;
 
       parameters.push(Parameter {
-        name:     parameter.lexeme,
-        token:    parameter,
+        name: parameter.lexeme,
+        token: parameter,
         default,
         variadic,
       });
@@ -173,8 +176,8 @@ impl<'a> Parser<'a> {
     while let Some(dependency) = self.accept(Name) {
       if dependencies.contains(&dependency.lexeme) {
         return Err(dependency.error(DuplicateDependency {
-          recipe:     name.lexeme,
-          dependency: dependency.lexeme
+          recipe: name.lexeme,
+          dependency: dependency.lexeme,
         }));
       }
       dependencies.push(dependency.lexeme);
@@ -195,9 +198,9 @@ impl<'a> Parser<'a> {
           continue;
         }
         if let Some(token) = self.expect(Line) {
-          return Err(token.error(Internal{
-            message: format!("Expected a line but got {}", token.kind)
-          }))
+          return Err(token.error(Internal {
+            message: format!("Expected a line but got {}", token.kind),
+          }));
         }
         let mut fragments = vec![];
 
@@ -209,18 +212,22 @@ impl<'a> Parser<'a> {
                   shebang = true;
                 }
               } else if !shebang
-                && !lines.last().and_then(|line| line.last())
-                  .map(Fragment::continuation).unwrap_or(false)
-                && (token.lexeme.starts_with(' ') || token.lexeme.starts_with('\t')) {
+                && !lines
+                  .last()
+                  .and_then(|line| line.last())
+                  .map(Fragment::continuation)
+                  .unwrap_or(false)
+                && (token.lexeme.starts_with(' ') || token.lexeme.starts_with('\t'))
+              {
                 return Err(token.error(ExtraLeadingWhitespace));
               }
             }
-            fragments.push(Fragment::Text{text: token});
+            fragments.push(Fragment::Text { text: token });
           } else if let Some(token) = self.expect(InterpolationStart) {
             return Err(self.unexpected_token(&token, &[Text, InterpolationStart, Eol]));
           } else {
-            fragments.push(Fragment::Expression{
-              expression: self.expression()?
+            fragments.push(Fragment::Expression {
+              expression: self.expression()?,
             });
 
             if let Some(token) = self.expect(InterpolationEnd) {
@@ -233,18 +240,21 @@ impl<'a> Parser<'a> {
       }
     }
 
-    self.recipes.insert(name.lexeme, Recipe {
-      line_number:       name.line,
-      name:              name.lexeme,
-      doc:               doc.map(|t| t.lexeme[1..].trim()),
-      private:           &name.lexeme[0..1] == "_",
-      dependencies,
-      dependency_tokens,
-      lines,
-      parameters,
-      quiet,
-      shebang,
-    });
+    self.recipes.insert(
+      name.lexeme,
+      Recipe {
+        line_number: name.line,
+        name: name.lexeme,
+        doc: doc.map(|t| t.lexeme[1..].trim()),
+        private: &name.lexeme[0..1] == "_",
+        dependencies,
+        dependency_tokens,
+        lines,
+        parameters,
+        quiet,
+        shebang,
+      },
+    );
 
     Ok(())
   }
@@ -261,24 +271,34 @@ impl<'a> Parser<'a> {
           if let Some(token) = self.expect(ParenR) {
             return Err(self.unexpected_token(&token, &[Name, StringToken, ParenR]));
           }
-          Expression::Call {name: first.lexeme, token: first, arguments}
+          Expression::Call {
+            name: first.lexeme,
+            token: first,
+            arguments,
+          }
         } else {
-          Expression::Variable {name: first.lexeme, token: first}
+          Expression::Variable {
+            name: first.lexeme,
+            token: first,
+          }
         }
       }
       Backtick => Expression::Backtick {
-        raw:   &first.lexeme[1..first.lexeme.len()-1],
-        token: first
+        raw: &first.lexeme[1..first.lexeme.len() - 1],
+        token: first,
       },
-      RawString | StringToken => {
-        Expression::String{cooked_string: CookedString::new(&first)?}
-      }
+      RawString | StringToken => Expression::String {
+        cooked_string: CookedString::new(&first)?,
+      },
       _ => return Err(self.unexpected_token(&first, &[Name, StringToken])),
     };
 
     if self.accepted(Plus) {
       let rhs = self.expression()?;
-      Ok(Expression::Concatination{lhs: Box::new(lhs), rhs: Box::new(rhs)})
+      Ok(Expression::Concatination {
+        lhs: Box::new(lhs),
+        rhs: Box::new(rhs),
+      })
     } else {
       Ok(lhs)
     }
@@ -304,7 +324,9 @@ impl<'a> Parser<'a> {
 
   fn assignment(&mut self, name: Token<'a>, export: bool) -> CompilationResult<'a, ()> {
     if self.assignments.contains_key(name.lexeme) {
-      return Err(name.error(DuplicateVariable {variable: name.lexeme}));
+      return Err(name.error(DuplicateVariable {
+        variable: name.lexeme,
+      }));
     }
     if export {
       self.exports.insert(name.lexeme);
@@ -338,49 +360,58 @@ impl<'a> Parser<'a> {
             }
             doc = Some(token);
           }
-          At => if let Some(name) = self.accept(Name) {
-            self.recipe(&name, doc, true)?;
-            doc = None;
-          } else {
-            let unexpected = &self.tokens.next().unwrap();
-            return Err(self.unexpected_token(unexpected, &[Name]));
-          },
-          Name => if token.lexeme == "export" {
-            let next = self.tokens.next().unwrap();
-            if next.kind == Name && self.accepted(Equals) {
-              self.assignment(next, true)?;
+          At => {
+            if let Some(name) = self.accept(Name) {
+              self.recipe(&name, doc, true)?;
               doc = None;
             } else {
-              self.tokens.put_back(next);
+              let unexpected = &self.tokens.next().unwrap();
+              return Err(self.unexpected_token(unexpected, &[Name]));
+            }
+          }
+          Name => {
+            if token.lexeme == "export" {
+              let next = self.tokens.next().unwrap();
+              if next.kind == Name && self.accepted(Equals) {
+                self.assignment(next, true)?;
+                doc = None;
+              } else {
+                self.tokens.put_back(next);
+                self.recipe(&token, doc, false)?;
+                doc = None;
+              }
+            } else if self.accepted(Equals) {
+              self.assignment(token, false)?;
+              doc = None;
+            } else {
               self.recipe(&token, doc, false)?;
               doc = None;
             }
-          } else if self.accepted(Equals) {
-            self.assignment(token, false)?;
-            doc = None;
-          } else {
-            self.recipe(&token, doc, false)?;
-            doc = None;
-          },
+          }
           _ => return Err(self.unexpected_token(&token, &[Name, At])),
         },
-        None => return Err(CompilationError {
-          text:   self.text,
-          index:  0,
-          line:   0,
-          column: 0,
-          width:  None,
-          kind:   Internal {
-            message: "unexpected end of token stream".to_string()
-          }
-        }),
+        None => {
+          return Err(CompilationError {
+            text: self.text,
+            index: 0,
+            line: 0,
+            column: 0,
+            width: None,
+            kind: Internal {
+              message: "unexpected end of token stream".to_string(),
+            },
+          })
+        }
       }
     }
 
     if let Some(token) = self.tokens.next() {
       return Err(token.error(Internal {
-        message: format!("unexpected token remaining after parsing completed: {:?}", token.kind)
-      }))
+        message: format!(
+          "unexpected token remaining after parsing completed: {:?}",
+          token.kind
+        ),
+      }));
     }
 
     RecipeResolver::resolve_recipes(&self.recipes, &self.assignments, self.text)?;
@@ -389,7 +420,7 @@ impl<'a> Parser<'a> {
       for parameter in &recipe.parameters {
         if self.assignments.contains_key(parameter.token.lexeme) {
           return Err(parameter.token.error(ParameterShadowsVariable {
-            parameter: parameter.token.lexeme
+            parameter: parameter.token.lexeme,
           }));
         }
       }
@@ -407,9 +438,9 @@ impl<'a> Parser<'a> {
     AssignmentResolver::resolve_assignments(&self.assignments, &self.assignment_tokens)?;
 
     Ok(Justfile {
-      recipes:     self.recipes,
+      recipes: self.recipes,
       assignments: self.assignments,
-      exports:     self.exports,
+      exports: self.exports,
     })
   }
 }
@@ -434,7 +465,7 @@ mod test {
           assert_eq!(actual, expected);
         }
       }
-    }
+    };
   }
 
   summary_test! {
@@ -502,7 +533,7 @@ export a = "hello"
   }
 
   summary_test! {
-    parse_complex,
+  parse_complex,
     "
 x:
 y:
@@ -540,7 +571,7 @@ z:"
   }
 
   summary_test! {
-    parse_shebang,
+  parse_shebang,
     "
 practicum = 'hello'
 install:
@@ -565,7 +596,7 @@ install:
   }
 
   summary_test! {
-    parse_assignments,
+  parse_assignments,
     r#"a = "0"
 c = a + b + a + b
 b = "1"
@@ -578,7 +609,7 @@ c = a + b + a + b"#,
   }
 
   summary_test! {
-    parse_assignment_backticks,
+  parse_assignment_backticks,
     "a = `echo hello`
 c = a + b + a + b
 b = `echo goodbye`",
@@ -590,7 +621,7 @@ c = a + b + a + b",
   }
 
   summary_test! {
-    parse_interpolation_backticks,
+  parse_interpolation_backticks,
     r#"a:
  echo {{  `echo hello` + "blarg"   }} {{   `echo bob`   }}"#,
     r#"a:
@@ -616,7 +647,7 @@ c = a + b + a + b",
   }
 
   summary_test! {
-    parameters,
+  parameters,
     "a b c:
   {{b}} {{c}}",
     "a b c:
@@ -624,7 +655,7 @@ c = a + b + a + b",
   }
 
   summary_test! {
-    unary_functions,
+  unary_functions,
     "
 x = arch()
 
@@ -637,7 +668,7 @@ a:
   }
 
   summary_test! {
-    env_functions,
+  env_functions,
     r#"
 x = env_var('foo',)
 

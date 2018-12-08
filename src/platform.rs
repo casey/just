@@ -7,8 +7,11 @@ pub struct Platform;
 pub trait PlatformInterface {
   /// Construct a command equivelant to running the script at `path` with the
   /// shebang line `shebang`
-  fn make_shebang_command(path: &Path, command: &str, argument: Option<&str>)
-    -> Result<Command, brev::OutputError>;
+  fn make_shebang_command(
+    path: &Path,
+    command: &str,
+    argument: Option<&str>,
+  ) -> Result<Command, brev::OutputError>;
 
   /// Set the execute permission on the file pointed to by `path`
   fn set_execute_permission(path: &Path) -> Result<(), io::Error>;
@@ -20,12 +23,13 @@ pub trait PlatformInterface {
   fn to_shell_path(path: &Path) -> Result<String, String>;
 }
 
-
 #[cfg(unix)]
 impl PlatformInterface for Platform {
-  fn make_shebang_command(path: &Path, _command: &str, _argument: Option<&str>)
-    -> Result<Command, brev::OutputError>
-  {
+  fn make_shebang_command(
+    path: &Path,
+    _command: &str,
+    _argument: Option<&str>,
+  ) -> Result<Command, brev::OutputError> {
     // shebang scripts can be executed directly on unix
     Ok(Command::new(path))
   }
@@ -50,17 +54,20 @@ impl PlatformInterface for Platform {
   }
 
   fn to_shell_path(path: &Path) -> Result<String, String> {
-    path.to_str().map(str::to_string)
-      .ok_or_else(|| String::from(
-        "Error getting current directory: unicode decode error"))
+    path
+      .to_str()
+      .map(str::to_string)
+      .ok_or_else(|| String::from("Error getting current directory: unicode decode error"))
   }
 }
 
 #[cfg(windows)]
 impl PlatformInterface for Platform {
-  fn make_shebang_command(path: &Path, command: &str, argument: Option<&str>)
-    -> Result<Command, brev::OutputError>
-  {
+  fn make_shebang_command(
+    path: &Path,
+    command: &str,
+    argument: Option<&str>,
+  ) -> Result<Command, brev::OutputError> {
     // Translate path to the interpreter from unix style to windows style
     let mut cygpath = Command::new("cygpath");
     cygpath.arg("--windows");
