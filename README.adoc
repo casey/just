@@ -82,6 +82,11 @@ On Windows, `just` can be installed using the https://scoop.sh[Scoop package man
 scoop install just
 ```
 
+=== Arch Linux
+
+On Arch Linux, `just` is packaged as https://aur.archlinux.org/packages/just/[just] in AUR, the https://aur.archlinux.org/packages/just/[Arch User Repository]. Several tools are available to install packages from AUR, including https://github.com/Jguer/yay[yay] and https://github.com/archlinuxfr/yaourt[yaourt].
+
+
 === Cargo
 
 On Windows, Linux, and macOS, `just` can be installed using Cargo, the https://www.rust-lang.org[rust language package manager]. Install Cargo using the instructions https://www.rustup.rs[here], then run:
