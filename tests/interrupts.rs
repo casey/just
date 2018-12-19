@@ -46,11 +46,11 @@ fn interrupt_test(justfile: &str) {
 
   let elapsed = start.elapsed();
 
-  if elapsed > Duration::new(2, 500_000_000) {
+  if elapsed > Duration::new(4, 0) {
     panic!("process returned too late: {:?}", elapsed);
   }
 
-  if elapsed < Duration::new(1, 500_000_000) {
+  if elapsed < Duration::new(1, 0) {
     panic!("process returned too early : {:?}", elapsed);
   }
 
