@@ -659,7 +659,7 @@ $ just foo/
 
 Make has some behaviors which are either confusing, complicated, or make it unsuitable for use as a general command runner.
 
-One example is that sometimes make won't run the commands in a recipe. For example, if you have a file called `test` and the the following makefile that runs it:
+One example is that sometimes make won't run the commands in a recipe. For example, if you have a file called `test` and the following makefile that runs it:
 
 ```make
 test:
