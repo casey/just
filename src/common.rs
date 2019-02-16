@@ -34,5 +34,6 @@ pub use recipe::{Recipe, RecipeContext};
 pub use recipe_resolver::RecipeResolver;
 pub use runtime_error::{RunResult, RuntimeError};
 pub use shebang::Shebang;
+pub use shell::Shell;
 pub use token::{Token, TokenKind};
 pub use verbosity::Verbosity;

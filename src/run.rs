@@ -135,7 +135,7 @@ pub fn run() {
       Arg::with_name("SHELL")
         .long("shell")
         .takes_value(true)
-        .default_value(DEFAULT_SHELL)
+        .default_value(DEFAULT_SHELL.name())
         .help("Invoke <SHELL> to run recipes"),
     )
     .arg(
@@ -423,7 +423,10 @@ pub fn run() {
     evaluate: matches.is_present("EVALUATE"),
     highlight: matches.is_present("HIGHLIGHT"),
     quiet: matches.is_present("QUIET"),
-    shell: matches.value_of("SHELL").unwrap(),
+    shell: matches
+      .value_of("SHELL")
+      .map(|s| Shell::new(s))
+      .unwrap_or(DEFAULT_SHELL),
     verbosity,
     color,
     overrides,

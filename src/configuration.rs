@@ -1,6 +1,6 @@
 use common::*;
 
-pub const DEFAULT_SHELL: &str = "sh";
+pub const DEFAULT_SHELL: Shell = Shell::ShLike("sh");
 
 pub struct Configuration<'a> {
   pub dry_run: bool,
@@ -8,7 +8,7 @@ pub struct Configuration<'a> {
   pub highlight: bool,
   pub overrides: Map<&'a str, &'a str>,
   pub quiet: bool,
-  pub shell: &'a str,
+  pub shell: Shell<'a>,
   pub color: Color,
   pub verbosity: Verbosity,
 }

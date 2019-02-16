@@ -12,7 +12,7 @@ pub struct AssignmentEvaluator<'a: 'b, 'b> {
   pub overrides: &'b Map<&'b str, &'b str>,
   pub quiet: bool,
   pub scope: &'b Map<&'a str, String>,
-  pub shell: &'b str,
+  pub shell: &'b Shell<'b>,
 }
 
 impl<'a, 'b> AssignmentEvaluator<'a, 'b> {
@@ -22,7 +22,7 @@ impl<'a, 'b> AssignmentEvaluator<'a, 'b> {
     dotenv: &'b Map<String, String>,
     overrides: &Map<&str, &str>,
     quiet: bool,
-    shell: &'a str,
+    shell: &'b Shell<'a>,
     dry_run: bool,
   ) -> RunResult<'a, Map<&'a str, String>> {
     let mut evaluator = AssignmentEvaluator {
@@ -140,7 +140,7 @@ impl<'a, 'b> AssignmentEvaluator<'a, 'b> {
     raw: &str,
     token: &Token<'a>,
   ) -> RunResult<'a, String> {
-    let mut cmd = Command::new(self.shell);
+    let mut cmd = self.shell.command();
 
     cmd.export_environment_variables(self.scope, dotenv, self.exports)?;
 
