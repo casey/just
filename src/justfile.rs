@@ -69,7 +69,7 @@ impl<'a> Justfile<'a> where {
       &dotenv,
       &configuration.overrides,
       configuration.quiet,
-      configuration.shell,
+      &configuration.shell,
       configuration.dry_run,
     )?;
 

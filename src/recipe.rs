@@ -1,6 +1,6 @@
 use common::*;
 
-use std::process::{Command, ExitStatus, Stdio};
+use std::process::{ExitStatus, Stdio};
 
 use platform::{Platform, PlatformInterface};
 
@@ -94,7 +94,7 @@ impl<'a> Recipe<'a> {
           None => {
             return Err(RuntimeError::Internal {
               message: "missing parameter without default".to_string(),
-            })
+            });
           }
         }
       } else if parameter.variadic {
@@ -117,7 +117,7 @@ impl<'a> Recipe<'a> {
       overrides: &empty(),
       quiet: configuration.quiet,
       scope: &context.scope,
-      shell: configuration.shell,
+      shell: &configuration.shell,
       dotenv,
       exports,
     };
@@ -226,7 +226,7 @@ impl<'a> Recipe<'a> {
             command: interpreter.to_string(),
             argument: argument.map(String::from),
             io_error,
-          })
+          });
         }
       };
     } else {
@@ -276,9 +276,9 @@ impl<'a> Recipe<'a> {
           continue;
         }
 
-        let mut cmd = Command::new(configuration.shell);
+        let mut cmd = configuration.shell.command();
 
-        cmd.arg("-cu").arg(command);
+        cmd.arg(command);
 
         if configuration.quiet {
           cmd.stderr(Stdio::null());
@@ -305,7 +305,7 @@ impl<'a> Recipe<'a> {
             return Err(RuntimeError::IoError {
               recipe: self.name,
               io_error,
-            })
+            });
           }
         };
       }

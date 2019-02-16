@@ -52,6 +52,7 @@ mod recipe_resolver;
 mod run;
 mod runtime_error;
 mod shebang;
+mod shell;
 mod token;
 mod verbosity;
 
