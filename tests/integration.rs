@@ -78,7 +78,16 @@ fn integration_test(
     failure = true;
   }
 
-  let stdout = str::from_utf8(&output.stdout).unwrap();
+  // Normalize line endings
+  let stdout = {
+    let raw = str::from_utf8(&output.stdout).unwrap();
+    let mut lines: Vec<_> = raw.lines().collect();
+    let mut normalized = lines.join("\n");
+    if let Some('\n') = raw.chars().last() {
+      normalized.push('\n');
+    };
+    normalized
+  };
   if stdout != expected_stdout {
     println!(
       "bad stdout:\ngot:\n{}\n\nexpected:\n{}",
@@ -1837,4 +1846,17 @@ X = "\'"
   |     ^^^^
 "#,
    status:   EXIT_FAILURE,
+}
+
+#[cfg(windows)]
+#[test]
+fn wincmd_integration_test() {
+  integration_test(
+    "cmd",
+    "default:\n\techo Test windows cmd.exe\n",
+    &[],
+    "Test windows cmd.exe\n",
+    "echo Test windows cmd.exe\n",
+    EXIT_SUCCESS,
+  )
 }
