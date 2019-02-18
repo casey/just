@@ -5,7 +5,7 @@ use brev;
 pub struct Platform;
 
 pub trait PlatformInterface {
-  /// Construct a command equivelant to running the script at `path` with the
+  /// Construct a command equivalent to running the script at `path` with the
   /// shebang line `shebang`
   fn make_shebang_command(
     path: &Path,
