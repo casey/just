@@ -33,9 +33,31 @@ macro_rules! integration_test {
       // silence unused import warnings
       const __: i32 = EXIT_SUCCESS;
 
-      #[test] fn sh()   { integration_test("sh",   $text, &[$($arg)*], $stdout, $stderr, $status); }
-      #[test] fn dash() { integration_test("dash", $text, &[$($arg)*], $stdout, $stderr, $status); }
-      #[test] fn bash() { integration_test("bash", $text, &[$($arg)*], $stdout, $stderr, $status); }
+      #[test] fn sh()   { integration_test("sh",   $text, &[$($arg)*], $stdout, $stderr, $status, false); }
+      #[test] fn dash() { integration_test("dash", $text, &[$($arg)*], $stdout, $stderr, $status, false); }
+      #[test] fn bash() { integration_test("bash", $text, &[$($arg)*], $stdout, $stderr, $status, false); }
+      #[test] fn cmd() {
+        //! Not all tests are compatible with cmd, for example:
+        //! - `printf` is missing
+        //! - `/bin/echo` is missing
+        //! - `$VARIABLE` are spelled as `%VARIABLE%`
+        //! - single quote has no special meaning in cmd
+        //! - line continuation preserves spaces
+        //! - `touch` is missing
+        //! - `#` is not a comment in cmd
+        //! - spaces in arguments are preserved
+        let justfile = $text;
+        let may_fail = justfile.find("printf").is_some()
+                    || justfile.find("/bin").is_some()
+                    || justfile.find("$").is_some()
+                    || justfile.find("'").is_some()
+                    || justfile.find("\\\n").is_some()
+                    || justfile.find("touch").is_some()
+                    || justfile.find("#").is_some()
+                    || module_path!().find("variadic_recipe").is_some()
+                    ;
+        integration_test("cmd.exe", justfile, &[$($arg)*], $stdout, $stderr, $status, may_fail);
+      }
     }
   }
 }
@@ -47,6 +69,7 @@ fn integration_test(
   expected_stdout: &str,
   expected_stderr: &str,
   expected_status: i32,
+  may_fail: bool,
 ) {
   let tmp = TempDir::new("just-integration").unwrap_or_else(|err| {
     panic!(
@@ -106,7 +129,11 @@ fn integration_test(
   }
 
   if failure {
-    panic!("test failed");
+    if may_fail {
+      eprintln!("test failed (non fatal)");
+    } else {
+      panic!("test failed");
+    }
   }
 }
 
@@ -1858,5 +1885,6 @@ fn wincmd_integration_test() {
     "Test windows cmd.exe\n",
     "echo Test windows cmd.exe\n",
     EXIT_SUCCESS,
+    false,
   )
 }
