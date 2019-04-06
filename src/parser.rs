@@ -11,6 +11,7 @@ pub struct Parser<'a> {
   assignments: Map<&'a str, Expression<'a>>,
   assignment_tokens: Map<&'a str, Token<'a>>,
   exports: Set<&'a str>,
+  aliases: Map<&'a str, &'a str>,
 }
 
 impl<'a> Parser<'a> {
@@ -27,6 +28,7 @@ impl<'a> Parser<'a> {
       assignments: empty(),
       assignment_tokens: empty(),
       exports: empty(),
+      aliases: empty(),
       text,
     }
   }
@@ -342,6 +344,40 @@ impl<'a> Parser<'a> {
     Ok(())
   }
 
+  fn alias(&mut self, alias_name: Token<'a>) -> CompilationResult<'a, ()> {
+    // Make sure alias doesn't already exist
+    if self.aliases.contains_key(alias_name.lexeme) {
+      return Err(alias_name.error(DuplicateAlias {
+        alias: alias_name.lexeme, 
+      }))
+    }
+
+    // Make sure the next token is of kind Name and keep it
+    let next = self.tokens.next().unwrap();
+    let recipe_name;
+    match next.kind {
+      Name => recipe_name = next,
+      _ => return Err(self.unexpected_token(&next, &[Name]))
+    }
+
+    // Make sure this recipe exists
+    if None == self.recipes.get(recipe_name.lexeme) {
+      return Err(alias_name.error(AliasingUnknownRecipe {
+        alias: alias_name.lexeme, recipe: recipe_name.lexeme
+      }))
+    }
+
+    // Make sure this is where the line of file ends without anymore tokens.
+    let next = self.tokens.next().unwrap();
+    match next.kind {
+      Eol | Eof => (),
+      _ => return Err(self.unexpected_token(&next, &[Eol, Eof]))
+    }
+
+    self.aliases.insert(alias_name.lexeme, recipe_name.lexeme);
+    Ok(())
+  }
+
   pub fn justfile(mut self) -> CompilationResult<'a, Justfile<'a>> {
     let mut doc = None;
     loop {
@@ -374,6 +410,16 @@ impl<'a> Parser<'a> {
               let next = self.tokens.next().unwrap();
               if next.kind == Name && self.accepted(Equals) {
                 self.assignment(next, true)?;
+                doc = None;
+              } else {
+                self.tokens.put_back(next);
+                self.recipe(&token, doc, false)?;
+                doc = None;
+              }
+            } else if token.lexeme == "alias" {
+              let next = self.tokens.next().unwrap();
+              if next.kind == Name && self.accepted(Equals) {
+                self.alias(next)?;
                 doc = None;
               } else {
                 self.tokens.put_back(next);
@@ -441,6 +487,7 @@ impl<'a> Parser<'a> {
       recipes: self.recipes,
       assignments: self.assignments,
       exports: self.exports,
+      aliases: self.aliases,
     })
   }
 }
@@ -530,6 +577,19 @@ export a = "hello"
 
   "#,
     r#"export a = "hello""#,
+  }
+
+  summary_test! {
+    parse_alias,
+    r#"
+foo: 
+  echo a
+alias f = foo
+"#,
+r#"foo:
+    echo a
+
+alias f = foo"#,
   }
 
   summary_test! {

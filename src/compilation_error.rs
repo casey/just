@@ -16,6 +16,10 @@ pub struct CompilationError<'a> {
 
 #[derive(Debug, PartialEq)]
 pub enum CompilationErrorKind<'a> {
+  AliasingUnknownRecipe {
+    alias: &'a str,
+    recipe: &'a str,
+  },
   CircularRecipeDependency {
     recipe: &'a str,
     circle: Vec<&'a str>,
@@ -27,6 +31,9 @@ pub enum CompilationErrorKind<'a> {
   DependencyHasParameters {
     recipe: &'a str,
     dependency: &'a str,
+  },
+  DuplicateAlias {
+    alias: &'a str,
   },
   DuplicateDependency {
     recipe: &'a str,
@@ -100,6 +107,14 @@ impl<'a> Display for CompilationError<'a> {
     write!(f, "{} {}", error.paint("error:"), message.prefix())?;
 
     match self.kind {
+      AliasingUnknownRecipe { alias, recipe } => {
+        writeln!(
+          f,
+          "Alias `{}` refers to an undefined recipe `{}`",
+          alias,
+          recipe
+        )?;
+      },
       CircularRecipeDependency { recipe, ref circle } => {
         if circle.len() == 2 {
           writeln!(f, "Recipe `{}` depends on itself", recipe)?;
@@ -153,6 +168,13 @@ impl<'a> Display for CompilationError<'a> {
         found,
       } => {
         writeln!(f, "Expected {}, but found {}", Or(expected), found)?;
+      }
+      DuplicateAlias { alias } => {
+        writeln!(
+          f,
+          "Alias `{}` already declared",
+          alias,
+        )?;
       }
       DuplicateDependency { recipe, dependency } => {
         writeln!(
