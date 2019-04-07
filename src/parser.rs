@@ -11,7 +11,7 @@ pub struct Parser<'a> {
   assignments: Map<&'a str, Expression<'a>>,
   assignment_tokens: Map<&'a str, Token<'a>>,
   exports: Set<&'a str>,
-  aliases: Map<&'a str, &'a str>,
+  aliases: Map<&'a str, Alias<'a>>,
 }
 
 impl<'a> Parser<'a> {
@@ -344,37 +344,37 @@ impl<'a> Parser<'a> {
     Ok(())
   }
 
-  fn alias(&mut self, alias_name: Token<'a>) -> CompilationResult<'a, ()> {
+  fn alias(&mut self, name: Token<'a>) -> CompilationResult<'a, ()> {
     // Make sure alias doesn't already exist
-    if self.aliases.contains_key(alias_name.lexeme) {
-      return Err(alias_name.error(DuplicateAlias {
-        alias: alias_name.lexeme, 
+    if let Some(alias) = self.aliases.get(name.lexeme) {
+      return Err(name.error(DuplicateAlias {
+        alias: alias.name, 
+        first: alias.line_number,
       }))
     }
 
     // Make sure the next token is of kind Name and keep it
-    let next = self.tokens.next().unwrap();
-    let recipe_name;
-    match next.kind {
-      Name => recipe_name = next,
-      _ => return Err(self.unexpected_token(&next, &[Name]))
+    let target = if let Some(next) = self.accept(Name) {
+      next.lexeme
+    } else {
+      let unexpected = self.tokens.next().unwrap();
+      return Err(self.unexpected_token(&unexpected, &[Name]));
+    };
+
+    // Make sure this is where the line or file ends without any unexpected tokens.
+    if let Some(token) = self.expect_eol() {
+      return Err(self.unexpected_token(&token, &[Eol, Eof, Comment]))
     }
 
-    // Make sure this recipe exists
-    if None == self.recipes.get(recipe_name.lexeme) {
-      return Err(alias_name.error(AliasingUnknownRecipe {
-        alias: alias_name.lexeme, recipe: recipe_name.lexeme
-      }))
-    }
+    self.aliases.insert(
+      name.lexeme, 
+      Alias {
+        name: name.lexeme,
+        line_number: name.line,
+        target: target,
+      }  
+    );
 
-    // Make sure this is where the line of file ends without anymore tokens.
-    let next = self.tokens.next().unwrap();
-    match next.kind {
-      Eol | Eof => (),
-      _ => return Err(self.unexpected_token(&next, &[Eol, Eof]))
-    }
-
-    self.aliases.insert(alias_name.lexeme, recipe_name.lexeme);
     Ok(())
   }
 
@@ -481,6 +481,8 @@ impl<'a> Parser<'a> {
       }
     }
 
+    AliasResolver::resolve_aliases(&self.aliases, &self.recipes)?;
+
     AssignmentResolver::resolve_assignments(&self.assignments, &self.assignment_tokens)?;
 
     Ok(Justfile {
@@ -580,16 +582,42 @@ export a = "hello"
   }
 
   summary_test! {
-    parse_alias,
+    parse_alias_after_target,
     r#"
 foo: 
   echo a
 alias f = foo
 "#,
-r#"foo:
-    echo a
+r#"alias f = foo
 
-alias f = foo"#,
+foo:
+    echo a"#  
+  }
+
+  summary_test! {
+    parse_alias_before_target,
+    r#"
+alias f = foo
+foo:
+  echo a
+"#,
+r#"alias f = foo
+
+foo:
+    echo a"#
+  }
+
+  summary_test! {
+    parse_alias_with_comment,
+    r#"
+alias f = foo #comment
+foo: 
+  echo a
+"#,
+r#"alias f = foo
+
+foo:
+    echo a"#
   }
 
   summary_test! {
@@ -739,6 +767,46 @@ a:
 a:
     {{env_var_or_default("foo" + "bar", "baz")}} {{env_var(env_var("baz"))}}"#,
   }
+
+  compilation_error_test! {
+    name: duplicate_alias,
+    input: "alias foo = bar\nalias foo = baz",
+    index: 22,
+    line: 1,
+    column: 6,
+    width: Some(3),
+    kind: DuplicateAlias { alias: "foo", first: 0 },
+  }
+
+  compilation_error_test! {
+    name: alias_syntax_multiple_rhs,
+    input: "alias foo = bar baz",
+    index: 16,
+    line: 0,
+    column: 16,
+    width: Some(3),
+    kind: UnexpectedToken { expected: vec![Eol, Eof, Comment], found: Name },
+  }
+
+  compilation_error_test! {
+    name: alias_syntax_no_rhs,
+    input: "alias foo = \n",
+    index: 12,
+    line: 0,
+    column: 12,
+    width: Some(1),
+    kind: UnexpectedToken {expected: vec![Name], found:Eol},
+  }
+
+  // compilation_error_test! {
+  //   name: unknown_alias_target,
+  //   input: "alias foo = bar\n",
+  //   index: 12,
+  //   line: 0,
+  //   column: 12,
+  //   width: Some(1),
+  //   kind: UnknownAliasTarget {alias: "foo", target: "bar"},
+  // }
 
   compilation_error_test! {
     name:   missing_colon,

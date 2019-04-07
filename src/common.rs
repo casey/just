@@ -13,6 +13,8 @@ pub use libc::{EXIT_FAILURE, EXIT_SUCCESS};
 pub use regex::Regex;
 pub use tempdir::TempDir;
 
+pub use alias::Alias;
+pub use alias_resolver::AliasResolver;
 pub use assignment_evaluator::AssignmentEvaluator;
 pub use assignment_resolver::AssignmentResolver;
 pub use command_ext::CommandExt;

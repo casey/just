@@ -16,9 +16,9 @@ pub struct CompilationError<'a> {
 
 #[derive(Debug, PartialEq)]
 pub enum CompilationErrorKind<'a> {
-  AliasingUnknownRecipe {
+  AliasShadowsRecipe {
     alias: &'a str,
-    recipe: &'a str,
+    recipe_line: usize,
   },
   CircularRecipeDependency {
     recipe: &'a str,
@@ -34,6 +34,7 @@ pub enum CompilationErrorKind<'a> {
   },
   DuplicateAlias {
     alias: &'a str,
+    first: usize,
   },
   DuplicateDependency {
     recipe: &'a str,
@@ -86,6 +87,10 @@ pub enum CompilationErrorKind<'a> {
     expected: Vec<TokenKind>,
     found: TokenKind,
   },
+  UnknownAliasTarget {
+    alias: &'a str,
+    target: &'a str,
+  },
   UnknownDependency {
     recipe: &'a str,
     unknown: &'a str,
@@ -107,12 +112,13 @@ impl<'a> Display for CompilationError<'a> {
     write!(f, "{} {}", error.paint("error:"), message.prefix())?;
 
     match self.kind {
-      AliasingUnknownRecipe { alias, recipe } => {
+      AliasShadowsRecipe { alias, recipe_line } => {
         writeln!(
-          f,
-          "Alias `{}` refers to an undefined recipe `{}`",
+          f, 
+          "Alias `{}` defined on `{}` shadows recipe defined on `{}`",
           alias,
-          recipe
+          self.line + 1,
+          recipe_line + 1,
         )?;
       },
       CircularRecipeDependency { recipe, ref circle } => {
@@ -169,11 +175,13 @@ impl<'a> Display for CompilationError<'a> {
       } => {
         writeln!(f, "Expected {}, but found {}", Or(expected), found)?;
       }
-      DuplicateAlias { alias } => {
+      DuplicateAlias { alias, first } => {
         writeln!(
           f,
-          "Alias `{}` already declared",
+          "Alias `{}` first defined on line `{}` is redefined on line `{}`",
           alias,
+          first + 1,
+          self.line + 1,
         )?;
       }
       DuplicateDependency { recipe, dependency } => {
@@ -254,6 +262,14 @@ impl<'a> Display for CompilationError<'a> {
       OuterShebang => {
         writeln!(f, "`#!` is reserved syntax outside of recipes")?;
       }
+      UnknownAliasTarget { alias, target } => {
+        writeln!(
+          f,
+          "Alias `{}` has an unknown target `{}`",
+          alias,
+          target
+        )?;
+      },
       UnknownDependency { recipe, unknown } => {
         writeln!(
           f,

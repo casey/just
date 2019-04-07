@@ -6,7 +6,7 @@ pub struct Justfile<'a> {
   pub recipes: Map<&'a str, Recipe<'a>>,
   pub assignments: Map<&'a str, Expression<'a>>,
   pub exports: Set<&'a str>,
-  pub aliases: Map<&'a str, &'a str>
+  pub aliases: Map<&'a str, Alias<'a>>
 }
 
 impl<'a> Justfile<'a> where {
@@ -92,10 +92,10 @@ impl<'a> Justfile<'a> where {
 
     while let Some((argument, mut tail)) = rest.split_first() {
       let get_recipe = |name| {
-        if self.recipes.get(&name).is_some() {
-          self.recipes.get(name)
-        } else if self.aliases.get(name).is_some() {
-          self.recipes.get(self.aliases.get(name).unwrap())
+        if let Some(recipe) = self.recipes.get(name) {
+          Some(recipe)
+        } else if let Some(alias) = self.aliases.get(name) {
+          self.recipes.get(alias.target)
         } else {
           None
         }
@@ -182,15 +182,15 @@ impl<'a> Display for Justfile<'a> {
         write!(f, "\n\n")?;
       }
     }
-    for recipe in self.recipes.values() {
-      write!(f, "{}", recipe)?;
+    for (_, alias) in &self.aliases {
+      write!(f, "alias {} = {}", alias.name, alias.target)?;
       items -= 1;
       if items != 0 {
         write!(f, "\n\n")?;
       }
     }
-    for (alias_name, recipe_name) in &self.aliases {
-      write!(f, "alias {} = {}", alias_name, recipe_name)?;
+    for recipe in self.recipes.values() {
+      write!(f, "{}", recipe)?;
       items -= 1;
       if items != 0 {
         write!(f, "\n\n")?;
