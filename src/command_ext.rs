@@ -1,4 +1,4 @@
-use common::*;
+use crate::common::*;
 
 pub trait CommandExt {
   fn export_environment_variables<'a>(

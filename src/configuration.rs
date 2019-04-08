@@ -1,4 +1,4 @@
-use common::*;
+use crate::common::*;
 
 pub const DEFAULT_SHELL: &str = "sh";
 

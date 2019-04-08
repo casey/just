@@ -1,4 +1,4 @@
-use common::*;
+use crate::common::*;
 
 #[derive(PartialEq, Debug)]
 pub enum Fragment<'a> {

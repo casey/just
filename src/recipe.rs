@@ -1,8 +1,8 @@
-use common::*;
+use crate::common::*;
 
 use std::process::{Command, ExitStatus, Stdio};
 
-use platform::{Platform, PlatformInterface};
+use crate::platform::{Platform, PlatformInterface};
 
 /// Return a `RuntimeError::Signal` if the process was terminated by a signal,
 /// otherwise return an `RuntimeError::UnknownFailure`
@@ -315,7 +315,7 @@ impl<'a> Recipe<'a> {
 }
 
 impl<'a> Display for Recipe<'a> {
-  fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+  fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
     if let Some(doc) = self.doc {
       writeln!(f, "# {}", doc)?;
     }

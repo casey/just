@@ -1,4 +1,4 @@
-use Verbosity::*;
+use crate::Verbosity::*;
 
 #[derive(Copy, Clone)]
 pub enum Verbosity {

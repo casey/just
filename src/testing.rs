@@ -1,4 +1,4 @@
-use common::*;
+use crate::common::*;
 
 pub fn parse_success(text: &str) -> Justfile {
   match Parser::parse(text) {
@@ -21,7 +21,7 @@ macro_rules! compilation_error_test {
     fn $name() {
       let input = $input;
 
-      let expected = ::CompilationError {
+      let expected = crate::CompilationError {
         text: input,
         index: $index,
         line: $line,
@@ -30,8 +30,8 @@ macro_rules! compilation_error_test {
         kind: $kind,
       };
 
-      let tokens = ::Lexer::lex(input).unwrap();
-      let parser = ::Parser::new(input, tokens);
+      let tokens = crate::Lexer::lex(input).unwrap();
+      let parser = crate::Parser::new(input, tokens);
 
       if let Err(error) = parser.justfile() {
         assert_eq!(error.text, expected.text);

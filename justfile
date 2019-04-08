@@ -70,7 +70,7 @@ install-dev-deps:
 
 # everyone's favorite animate paper clip
 clippy:
-	cargo +nightly clippy
+	cargo clippy
 
 # count non-empty lines of code
 sloc:

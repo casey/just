@@ -1,4 +1,4 @@
-use common::*;
+use crate::common::*;
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct Token<'a> {
@@ -49,8 +49,8 @@ pub enum TokenKind {
 }
 
 impl Display for TokenKind {
-  fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-    use TokenKind::*;
+  fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
+    use crate::TokenKind::*;
     write!(
       f,
       "{}",

@@ -1,4 +1,4 @@
-use common::*;
+use crate::common::*;
 
 use edit_distance::edit_distance;
 
@@ -170,7 +170,7 @@ impl<'a> Justfile<'a> where {
 }
 
 impl<'a> Display for Justfile<'a> {
-  fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+  fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
     let mut items = self.recipes.len() + self.assignments.len() + self.aliases.len();
     for (name, expression) in &self.assignments {
       if self.exports.contains(name) {
@@ -183,7 +183,7 @@ impl<'a> Display for Justfile<'a> {
       }
     }
     for alias in self.aliases.values() {
-      write!(f, "{}",alias)?;
+      write!(f, "{}", alias)?;
       items -= 1;
       if items != 0 {
         write!(f, "\n\n")?;
@@ -203,8 +203,8 @@ impl<'a> Display for Justfile<'a> {
 #[cfg(test)]
 mod test {
   use super::*;
-  use testing::parse_success;
-  use RuntimeError::*;
+  use crate::testing::parse_success;
+  use crate::RuntimeError::*;
 
   fn no_cwd_err() -> Result<PathBuf, String> {
     Err(String::from("no cwd in tests"))

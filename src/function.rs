@@ -1,8 +1,8 @@
-use common::*;
+use crate::common::*;
 
 use target;
 
-use platform::{Platform, PlatformInterface};
+use crate::platform::{Platform, PlatformInterface};
 
 lazy_static! {
   static ref FUNCTIONS: Map<&'static str, Function> = vec![

@@ -1,7 +1,7 @@
 extern crate ansi_term;
 extern crate atty;
 
-use common::*;
+use crate::common::*;
 
 use self::ansi_term::Color::*;
 use self::ansi_term::{ANSIGenericString, Prefix, Style, Suffix};
@@ -52,7 +52,7 @@ impl Color {
     }
   }
 
-  pub fn fmt(fmt: &fmt::Formatter) -> Color {
+  pub fn fmt(fmt: &Formatter) -> Color {
     if fmt.alternate() {
       Color::always()
     } else {

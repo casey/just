@@ -1,8 +1,8 @@
-use common::*;
+use crate::common::*;
 
+use crate::CompilationErrorKind::*;
+use crate::TokenKind::*;
 use itertools;
-use CompilationErrorKind::*;
-use TokenKind::*;
 
 pub struct Parser<'a> {
   text: &'a str,
@@ -500,8 +500,8 @@ impl<'a> Parser<'a> {
 #[cfg(test)]
 mod test {
   use super::*;
+  use crate::testing::parse_success;
   use brev;
-  use testing::parse_success;
 
   macro_rules! summary_test {
     ($name:ident, $input:expr, $expected:expr $(,)*) => {
@@ -714,7 +714,7 @@ c = a + b + a + b",
   summary_test! {
   parse_interpolation_backticks,
     r#"a:
- echo {{  `echo hello` + "blarg"   }} {{   `echo bob`   }}"#,
+  echo {{  `echo hello` + "blarg"   }} {{   `echo bob`   }}"#,
     r#"a:
     echo {{`echo hello` + "blarg"}} {{`echo bob`}}"#,
   }

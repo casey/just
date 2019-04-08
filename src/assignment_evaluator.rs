@@ -1,4 +1,4 @@
-use common::*;
+use crate::common::*;
 
 use brev;
 
@@ -164,9 +164,8 @@ impl<'a, 'b> AssignmentEvaluator<'a, 'b> {
 #[cfg(test)]
 mod test {
   use super::*;
+  use crate::testing::parse_success;
   use brev::OutputError;
-  use testing::parse_success;
-  use Configuration;
 
   fn no_cwd_err() -> Result<PathBuf, String> {
     Err(String::from("no cwd in tests"))

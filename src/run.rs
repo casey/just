@@ -1,10 +1,10 @@
-use common::*;
+use crate::common::*;
 
+use crate::configuration::DEFAULT_SHELL;
+use crate::interrupt_handler::InterruptHandler;
+use crate::misc::maybe_s;
 use clap::{App, AppSettings, Arg, ArgGroup};
-use configuration::DEFAULT_SHELL;
 use env_logger;
-use interrupt_handler::InterruptHandler;
-use misc::maybe_s;
 use std::{convert, ffi};
 use unicode_width::UnicodeWidthStr;
 
@@ -197,9 +197,9 @@ pub fn run() {
 
   let override_re = Regex::new("^([^=]+)=(.*)$").unwrap();
 
-  let raw_arguments = matches
+  let raw_arguments: Vec<_> = matches
     .values_of("ARGUMENTS")
-    .map(|values| values.collect::<Vec<_>>())
+    .map(Iterator::collect)
     .unwrap_or_default();
 
   for argument in raw_arguments
@@ -399,7 +399,10 @@ pub fn run() {
 
       let alias_doc = format!("alias for `{}`", recipe.name);
 
-      for (i, name) in iter::once(name).chain(recipe_aliases.get(name).unwrap_or(&Vec::new())).enumerate() {
+      for (i, name) in iter::once(name)
+        .chain(recipe_aliases.get(name).unwrap_or(&Vec::new()))
+        .enumerate()
+      {
         print!("    {}", name);
         for parameter in &recipe.parameters {
           if color.stdout().active() {
@@ -409,7 +412,7 @@ pub fn run() {
           }
         }
 
-        // Declaring this outside of the nested loops will probably be more efficient, but 
+        // Declaring this outside of the nested loops will probably be more efficient, but
         // it creates all sorts of lifetime issues with variables inside the loops.
         // If this is inlined like the docs say, it shouldn't make any difference.
         let print_doc = |doc| {
@@ -418,15 +421,15 @@ pub fn run() {
             "",
             doc_color.paint("#"),
             doc_color.paint(doc),
-            padding =
-            max_line_width.saturating_sub(line_widths.get(name).cloned().unwrap_or(max_line_width))
+            padding = max_line_width
+              .saturating_sub(line_widths.get(name).cloned().unwrap_or(max_line_width))
           );
         };
 
         match (i, recipe.doc) {
           (0, Some(doc)) => print_doc(doc),
-          (0, None)      => (),
-          _              => print_doc(&alias_doc),
+          (0, None) => (),
+          _ => print_doc(&alias_doc),
         }
         println!();
       }

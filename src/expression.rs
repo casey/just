@@ -1,4 +1,4 @@
-use common::*;
+use crate::common::*;
 
 #[derive(PartialEq, Debug)]
 pub enum Expression<'a> {
@@ -35,7 +35,7 @@ impl<'a> Expression<'a> {
 }
 
 impl<'a> Display for Expression<'a> {
-  fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+  fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
     match *self {
       Expression::Backtick { raw, .. } => write!(f, "`{}`", raw)?,
       Expression::Concatination { ref lhs, ref rhs } => write!(f, "{} + {}", lhs, rhs)?,

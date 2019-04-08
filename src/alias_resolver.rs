@@ -1,4 +1,4 @@
-use common::*;
+use crate::common::*;
 use CompilationErrorKind::*;
 
 pub struct AliasResolver<'a, 'b>

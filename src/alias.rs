@@ -1,4 +1,4 @@
-use common::*;
+use crate::common::*;
 
 pub struct Alias<'a> {
   pub name: &'a str,
@@ -7,7 +7,7 @@ pub struct Alias<'a> {
 }
 
 impl<'a> Display for Alias<'a> {
-  fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+  fn fmt(&self, f: &mut Formatter) -> fmt::Result {
     write!(f, "alias {} = {}", self.name, self.target)
   }
 }
