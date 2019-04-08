@@ -672,7 +672,7 @@ foo
 
 When a script with a shebang is run, the system supplies the path to the script as an argument to the command in the shebang. So, with a shebang of `#!/usr/bin/env just --justfile`, the command will be `/usr/bin/env just --justfile PATH_TO_SCRIPT`. This allows `just` to locate and execute `justfile`. The shebang line itself will be ignored as a comment during execution.
 
-Without `--working-directory`, `just` will change its working directory to the one containing the argument to `--justfile`. If you'd prefer to leave the working directory unchanged, use `#!/usr/bin/env just --working-directory . --justfile`.
+With the above shebang, `just` will change its working directory to the location of the script. If you'd rather leave the working directory unchanged, use `#!/usr/bin/env just --working-directory . --justfile`.
 
 == Frequently Asked Questions
 
