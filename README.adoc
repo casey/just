@@ -653,9 +653,9 @@ $ just foo/build
 $ just foo/
 ```
 
-=== Standalone Scripts
+=== Just Scripts
 
-By adding a shebang line to the top of a justfile and making it executable, `just` can be used as an interpreter for standalone scripts:
+By adding a shebang line to the top of a justfile and making it executable, `just` can be used as an interpreter for scripts:
 
 ```sh
 $ cat > script <<EOF
