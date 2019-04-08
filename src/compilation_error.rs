@@ -62,7 +62,6 @@ pub enum CompilationErrorKind<'a> {
   MixedLeadingWhitespace {
     whitespace: &'a str,
   },
-  OuterShebang,
   ParameterFollowsVariadicParameter {
     parameter: &'a str,
   },
@@ -228,9 +227,6 @@ impl<'a> Display for CompilationError<'a> {
           show_whitespace(expected),
           show_whitespace(found)
         )?;
-      }
-      OuterShebang => {
-        writeln!(f, "`#!` is reserved syntax outside of recipes")?;
       }
       UnknownDependency { recipe, unknown } => {
         writeln!(

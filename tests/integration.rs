@@ -579,28 +579,6 @@ wut:
 }
 
 integration_test! {
-  name:     outer_shebang,
-  justfile: r#"#!/lol/wut
-export FOO = "a"
-baz = "c"
-export BAR = "b"
-export ABC = FOO + BAR + baz
-
-wut:
-  #!/bin/sh
-  echo $FOO $BAR $ABC
-"#,
-  args:     (),
-  stdout:   "",
-  stderr:   "error: `#!` is reserved syntax outside of recipes
-  |
-1 | #!/lol/wut
-  | ^
-",
-  status:   EXIT_FAILURE,
-}
-
-integration_test! {
   name:     export_shebang,
   justfile: r#"
 export FOO = "a"
