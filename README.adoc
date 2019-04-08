@@ -655,27 +655,28 @@ $ just foo/
 
 === Just scripts
 
-Just can be used as an interpreter for standalone, executable scripts.
+Just can be used as an interpreter for standalone executable scripts.
 
-To do so, add a suitable shebang at the top of a justfile and make it executable:
+To do so, add a suitable shebang to the top of a justfile and make it executable:
 
 ```sh
 $ cat > script <<EOF
 #!/usr/bin/env just --justfile
+
 foo:
   echo foo
 EOF
 $ chmod +x script
-$ ./justfile
+$ ./script foo
 echo foo
 foo
 ```
 
-When a script with a shebang is run, the system supplies the path to the script as an argument to the command in the shebang. So, with a shebang of `#!/usr/bin/env just --justfile`, the command will be `/usr/bin/env just --justfile PATH_TO_SCRIPT`, which allows `just` to location the `justfile`. The shebang line itself starts with a `#`, so will be ignored as a comment.
+When a script with a shebang is run, the system supplies the path to the script as an argument to the command in the shebang. So, with a shebang of `#!/usr/bin/env just --justfile`, the command will be `/usr/bin/env just --justfile PATH_TO_SCRIPT`, which allows `just` to locate correct `justfile`. The shebang line itself starts will be ignored as a comment.
 
 Note that when `just` is invoked with `--justfile` and not `--working-directory`, the working directory will be the directory containing the justfile, not the directory in which the command was invoked.
 
-To use the current working directory as the working directory instead, use `#!/usr/bin/env just --working-directory . --justfile`.
+To use the current working directory instead, use `#!/usr/bin/env just --working-directory . --justfile`.
 
 
 == Frequently Asked Questions
