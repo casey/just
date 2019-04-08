@@ -653,7 +653,7 @@ $ just foo/build
 $ just foo/
 ```
 
-=== Just scripts
+=== Standalone Scripts
 
 Just can be used as an interpreter for standalone executable scripts.
 
