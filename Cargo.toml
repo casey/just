@@ -8,6 +8,10 @@ homepage    = "https://github.com/casey/just"
 readme      = "crates-io-readme.md"
 edition     = "2018"
 
+[features]
+default = []
+summary = ["serde", "serde_derive"]
+
 [dependencies]
 ansi_term      = "0.11"
 assert_matches = "1.1.0"
@@ -32,3 +36,11 @@ features = ["termination"]
 
 [dev-dependencies]
 executable-path = "1.0.0"
+
+[dependencies.serde_derive]
+version  = "1.0.90"
+optional = true
+
+[dependencies.serde]
+version  = "1.0.90"
+optional = true
