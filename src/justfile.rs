@@ -182,7 +182,7 @@ impl<'a> Display for Justfile<'a> {
         write!(f, "\n\n")?;
       }
     }
-    for (_, alias) in &self.aliases {
+    for alias in self.aliases.values() {
       write!(f, "alias {} = {}", alias.name, alias.target)?;
       items -= 1;
       if items != 0 {

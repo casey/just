@@ -352,7 +352,7 @@ pub fn run() {
       }
     }
 
-    for (_, alias) in &justfile.aliases {
+    for alias in justfile.aliases.values() {
       line_widths.insert(alias.name, UnicodeWidthStr::width(alias.name));
     }
 
@@ -360,7 +360,7 @@ pub fn run() {
 
     // Construct a target to alias map.
     let mut recipe_aliases: Map<&str, Vec<&str>> = Map::new();
-    for (_, alias) in &justfile.aliases {
+    for alias in justfile.aliases.values() {
       if !recipe_aliases.contains_key(alias.target) {
         recipe_aliases.insert(alias.target, vec![alias.name]);
       } else {

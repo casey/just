@@ -373,7 +373,7 @@ impl<'a> Parser<'a> {
       Alias {
         name: name.lexeme,
         line_number: name.line,
-        target: target,
+        target,
       },
     );
     self.alias_tokens.insert(name.lexeme, name);
