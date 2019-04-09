@@ -6,7 +6,7 @@ pub struct Justfile<'a> {
   pub recipes: Map<&'a str, Recipe<'a>>,
   pub assignments: Map<&'a str, Expression<'a>>,
   pub exports: Set<&'a str>,
-  pub aliases: Map<&'a str, Alias<'a>>
+  pub aliases: Map<&'a str, Alias<'a>>,
 }
 
 impl<'a> Justfile<'a> where {

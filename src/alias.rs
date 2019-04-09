@@ -11,4 +11,3 @@ impl<'a> Display for Alias<'a> {
     writeln!(f, "alias `{}` = `{}`", self.name, self.target)
   }
 }
-

@@ -1,19 +1,25 @@
 use common::*;
 use CompilationErrorKind::*;
 
-pub struct AliasResolver<'a, 'b> where 'a: 'b {
+pub struct AliasResolver<'a, 'b>
+where
+  'a: 'b,
+{
   aliases: &'b Map<&'a str, Alias<'a>>,
   recipes: &'b Map<&'a str, Recipe<'a>>,
+  alias_tokens: &'b Map<&'a str, Token<'a>>,
 }
 
 impl<'a: 'b, 'b> AliasResolver<'a, 'b> {
   pub fn resolve_aliases(
     aliases: &Map<&'a str, Alias<'a>>,
     recipes: &Map<&'a str, Recipe<'a>>,
+    alias_tokens: &Map<&'a str, Token<'a>>,
   ) -> CompilationResult<'a, ()> {
     let resolver = AliasResolver {
       aliases,
       recipes,
+      alias_tokens,
     };
 
     resolver.resolve()?;
@@ -30,30 +36,21 @@ impl<'a: 'b, 'b> AliasResolver<'a, 'b> {
   }
 
   fn resolve_alias(&self, alias: &Alias<'a>) -> CompilationResult<'a, ()> {
+    let token = self.alias_tokens.get(&alias.name).unwrap();
     // Make sure the alias doesn't conflict with any recipe
     if let Some(recipe) = self.recipes.get(alias.name) {
-      let error_kind = AliasShadowsRecipe { alias: alias.name, recipe_line: recipe.line_number };
-      return Err(CompilationError {
-        text: "", index: 0, line: alias.line_number, column: 0,
-        width: None, 
-        kind: error_kind,
-      });
+      return Err(token.error(AliasShadowsRecipe {
+        alias: alias.name,
+        recipe_line: recipe.line_number,
+      }));
     }
 
-    // Make sure the target recipe exists 
+    // Make sure the target recipe exists
     if None == self.recipes.get(alias.target) {
-      let error_kind = UnknownAliasTarget {
+      return Err(token.error(UnknownAliasTarget {
         alias: alias.name,
         target: alias.target,
-      };
-      return Err(CompilationError {
-        text: "",
-        index: 0,
-        line: alias.line_number,
-        column: 0,
-        width: None,
-        kind: error_kind,
-      })
+      }));
     }
 
     Ok(())

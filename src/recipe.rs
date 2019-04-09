@@ -94,7 +94,7 @@ impl<'a> Recipe<'a> {
           None => {
             return Err(RuntimeError::Internal {
               message: "missing parameter without default".to_string(),
-            })
+            });
           }
         }
       } else if parameter.variadic {
@@ -226,7 +226,7 @@ impl<'a> Recipe<'a> {
             command: interpreter.to_string(),
             argument: argument.map(String::from),
             io_error,
-          })
+          });
         }
       };
     } else {
@@ -305,7 +305,7 @@ impl<'a> Recipe<'a> {
             return Err(RuntimeError::IoError {
               recipe: self.name,
               io_error,
-            })
+            });
           }
         };
       }

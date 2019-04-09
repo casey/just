@@ -102,6 +102,72 @@ fn integration_test(
 }
 
 integration_test! {
+  name: alias,
+  justfile: "foo:\n  echo foo\nalias f = foo",
+  args: ("f"),
+  stdout: "foo\n",
+  stderr: "echo foo\n",
+  status: EXIT_SUCCESS,
+}
+
+integration_test! {
+  name: alias_with_parameters,
+  justfile: "foo value='foo':\n  echo {{value}}\nalias f = foo",
+  args: ("f", "bar"),
+  stdout: "bar\n",
+  stderr: "echo bar\n",
+  status: EXIT_SUCCESS,
+}
+
+integration_test! {
+  name: alias_with_dependencies,
+  justfile: "foo:\n  echo foo\nbar: foo\nalias b = bar",
+  args: ("b"),
+  stdout: "foo\n",
+  stderr: "echo foo\n",
+  status: EXIT_SUCCESS,
+}
+
+integration_test! {
+  name: duplicate_alias,
+  justfile: "alias foo = bar\nalias foo = baz\n",
+  args: (),
+  stdout: "" ,
+  stderr: "error: Alias `foo` first defined on line `1` is redefined on line `2`
+  |
+2 | alias foo = baz
+  |       ^^^
+",
+  status: EXIT_FAILURE,
+}
+
+integration_test! {
+  name: unknown_alias_target,
+  justfile: "alias foo = bar\n",
+  args: (),
+  stdout: "",
+  stderr: "error: Alias `foo` has an unknown target `bar`
+  |
+1 | alias foo = bar
+  |       ^^^
+",
+  status: EXIT_FAILURE,
+}
+
+integration_test! {
+  name: alias_shadows_recipe,
+  justfile: "bar:\n  echo bar\nalias foo = bar\nfoo:\n  echo foo",
+  args: (),
+  stdout: "",
+  stderr: "error: Alias `foo` defined on `3` shadows recipe defined on `4`
+  |
+3 | alias foo = bar
+  |       ^^^
+",
+  status: EXIT_FAILURE,
+}
+
+integration_test! {
   name:     default,
   justfile: "default:\n echo hello\nother: \n echo bar",
   args:     (),

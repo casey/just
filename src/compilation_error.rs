@@ -114,13 +114,13 @@ impl<'a> Display for CompilationError<'a> {
     match self.kind {
       AliasShadowsRecipe { alias, recipe_line } => {
         writeln!(
-          f, 
+          f,
           "Alias `{}` defined on `{}` shadows recipe defined on `{}`",
           alias,
           self.line + 1,
           recipe_line + 1,
         )?;
-      },
+      }
       CircularRecipeDependency { recipe, ref circle } => {
         if circle.len() == 2 {
           writeln!(f, "Recipe `{}` depends on itself", recipe)?;
@@ -263,13 +263,8 @@ impl<'a> Display for CompilationError<'a> {
         writeln!(f, "`#!` is reserved syntax outside of recipes")?;
       }
       UnknownAliasTarget { alias, target } => {
-        writeln!(
-          f,
-          "Alias `{}` has an unknown target `{}`",
-          alias,
-          target
-        )?;
-      },
+        writeln!(f, "Alias `{}` has an unknown target `{}`", alias, target)?;
+      }
       UnknownDependency { recipe, unknown } => {
         writeln!(
           f,

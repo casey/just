@@ -340,7 +340,7 @@ impl<'a> Lexer<'a> {
           _ => {
             return Err(last.error(Internal {
               message: format!("zero length token: {:?}", last),
-            }))
+            }));
           }
         }
       }

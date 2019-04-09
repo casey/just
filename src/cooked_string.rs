@@ -29,7 +29,7 @@ impl<'a> CookedString<'a> {
             other => {
               return Err(
                 token.error(CompilationErrorKind::InvalidEscapeSequence { character: other }),
-              )
+              );
             }
           }
           escape = false;

@@ -352,7 +352,22 @@ pub fn run() {
       }
     }
 
+    for (_, alias) in &justfile.aliases {
+      line_widths.insert(alias.name, UnicodeWidthStr::width(alias.name));
+    }
+
     let max_line_width = cmp::min(line_widths.values().cloned().max().unwrap_or(0), 30);
+
+    // Construct a target to alias map.
+    let mut recipe_aliases: Map<&str, Vec<&str>> = Map::new();
+    for (_, alias) in &justfile.aliases {
+      if !recipe_aliases.contains_key(alias.target) {
+        recipe_aliases.insert(alias.target, vec![alias.name]);
+      } else {
+        let aliases = recipe_aliases.get_mut(alias.target).unwrap();
+        aliases.push(alias.name);
+      }
+    }
 
     let doc_color = color.stdout().doc();
     println!("Available recipes:");
@@ -379,6 +394,22 @@ pub fn run() {
         );
       }
       println!();
+
+      // Print aliases if there are any
+      if let Some(aliases) = recipe_aliases.get(name) {
+        for alias in aliases {
+          print!("    {}", alias);
+          print!(
+            " {:padding$}{} {}",
+            "",
+            doc_color.paint("#"),
+            doc_color.paint(format!("alias for `{}`", name).as_str()),
+            padding = max_line_width
+              .saturating_sub(line_widths.get(alias).cloned().unwrap_or(max_line_width))
+          );
+          println!();
+        }
+      }
     }
     process::exit(EXIT_SUCCESS);
   }
