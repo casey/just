@@ -63,6 +63,7 @@ value         : NAME '(' arguments? ')'
               | RAW_STRING
               | BACKTICK
               | NAME
+              | '(' expression ')'
 
 arguments     : expression ',' arguments
               | expression ','?
@@ -70,8 +71,7 @@ arguments     : expression ',' arguments
 recipe        : '@'? NAME parameter* ('+' parameter)? ':' dependencies? body?
 
 parameter     : NAME
-              | NAME '=' STRING
-              | NAME '=' RAW_STRING
+              | NAME '=' value
 
 dependencies  : NAME+
 

@@ -3,7 +3,7 @@ use crate::common::*;
 #[derive(PartialEq, Debug)]
 pub struct CookedString<'a> {
   pub raw: &'a str,
-  pub cooked: String,
+  pub cooked: Cow<'a, str>,
 }
 
 impl<'a> CookedString<'a> {
@@ -12,7 +12,7 @@ impl<'a> CookedString<'a> {
 
     if let TokenKind::RawString = token.kind {
       Ok(CookedString {
-        cooked: raw.to_string(),
+        cooked: Cow::Borrowed(raw),
         raw,
       })
     } else if let TokenKind::StringToken = token.kind {
@@ -41,11 +41,23 @@ impl<'a> CookedString<'a> {
         }
         cooked.push(c);
       }
-      Ok(CookedString { raw, cooked })
+      Ok(CookedString {
+        raw,
+        cooked: Cow::Owned(cooked),
+      })
     } else {
       Err(token.error(CompilationErrorKind::Internal {
         message: "cook_string() called on non-string token".to_string(),
       }))
+    }
+  }
+}
+
+impl<'a> Display for CookedString<'a> {
+  fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+    match self.cooked {
+      Cow::Borrowed(raw) => write!(f, "'{}'", raw),
+      Cow::Owned(_) => write!(f, "\"{}\"", self.raw),
     }
   }
 }

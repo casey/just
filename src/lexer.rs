@@ -617,6 +617,12 @@ c: b
     "#$#$.",
   }
 
+  summary_test! {
+    multiple_recipes,
+    "a:\n  foo\nb:",
+    "N:$>^_$<N:.",
+  }
+
   error_test! {
     name:  tokenize_space_then_tab,
     input: "a:

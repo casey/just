@@ -56,7 +56,7 @@ impl<'a: 'b, 'b> AssignmentResolver<'a, 'b> {
   }
 
   fn resolve_expression(&mut self, expression: &Expression<'a>) -> CompilationResult<'a, ()> {
-    match *expression {
+    match expression {
       Expression::Variable { name, ref token } => {
         if self.evaluated.contains(name) {
           return Ok(());
@@ -83,6 +83,7 @@ impl<'a: 'b, 'b> AssignmentResolver<'a, 'b> {
         self.resolve_expression(rhs)?;
       }
       Expression::String { .. } | Expression::Backtick { .. } => {}
+      Expression::Group { expression } => self.resolve_expression(expression)?,
     }
     Ok(())
   }

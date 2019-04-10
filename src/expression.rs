@@ -22,6 +22,9 @@ pub enum Expression<'a> {
     name: &'a str,
     token: Token<'a>,
   },
+  Group {
+    expression: Box<Expression<'a>>,
+  },
 }
 
 impl<'a> Expression<'a> {
@@ -39,7 +42,7 @@ impl<'a> Display for Expression<'a> {
     match *self {
       Expression::Backtick { raw, .. } => write!(f, "`{}`", raw)?,
       Expression::Concatination { ref lhs, ref rhs } => write!(f, "{} + {}", lhs, rhs)?,
-      Expression::String { ref cooked_string } => write!(f, "\"{}\"", cooked_string.raw)?,
+      Expression::String { ref cooked_string } => write!(f, "{}", cooked_string)?,
       Expression::Variable { name, .. } => write!(f, "{}", name)?,
       Expression::Call {
         name,
@@ -56,6 +59,7 @@ impl<'a> Display for Expression<'a> {
         }
         write!(f, ")")?;
       }
+      Expression::Group { ref expression } => write!(f, "({})", expression)?,
     }
     Ok(())
   }
@@ -71,13 +75,17 @@ impl<'a> Iterator for Variables<'a> {
   fn next(&mut self) -> Option<&'a Token<'a>> {
     match self.stack.pop() {
       None
-      | Some(&Expression::String { .. })
-      | Some(&Expression::Backtick { .. })
-      | Some(&Expression::Call { .. }) => None,
-      Some(&Expression::Variable { ref token, .. }) => Some(token),
-      Some(&Expression::Concatination { ref lhs, ref rhs }) => {
+      | Some(Expression::String { .. })
+      | Some(Expression::Backtick { .. })
+      | Some(Expression::Call { .. }) => None,
+      Some(Expression::Variable { token, .. }) => Some(token),
+      Some(Expression::Concatination { lhs, rhs }) => {
         self.stack.push(lhs);
         self.stack.push(rhs);
+        self.next()
+      }
+      Some(Expression::Group { expression }) => {
+        self.stack.push(expression);
         self.next()
       }
     }
@@ -94,17 +102,19 @@ impl<'a> Iterator for Functions<'a> {
   fn next(&mut self) -> Option<Self::Item> {
     match self.stack.pop() {
       None
-      | Some(&Expression::String { .. })
-      | Some(&Expression::Backtick { .. })
-      | Some(&Expression::Variable { .. }) => None,
-      Some(&Expression::Call {
-        ref token,
-        ref arguments,
-        ..
+      | Some(Expression::String { .. })
+      | Some(Expression::Backtick { .. })
+      | Some(Expression::Variable { .. }) => None,
+      Some(Expression::Call {
+        token, arguments, ..
       }) => Some((token, arguments.len())),
-      Some(&Expression::Concatination { ref lhs, ref rhs }) => {
+      Some(Expression::Concatination { lhs, rhs }) => {
         self.stack.push(lhs);
         self.stack.push(rhs);
+        self.next()
+      }
+      Some(Expression::Group { expression }) => {
+        self.stack.push(expression);
         self.next()
       }
     }

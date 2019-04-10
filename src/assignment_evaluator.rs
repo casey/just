@@ -83,7 +83,7 @@ impl<'a, 'b> AssignmentEvaluator<'a, 'b> {
     Ok(())
   }
 
-  fn evaluate_expression(
+  pub fn evaluate_expression(
     &mut self,
     expression: &Expression<'a>,
     arguments: &BTreeMap<&str, Cow<str>>,
@@ -120,7 +120,7 @@ impl<'a, 'b> AssignmentEvaluator<'a, 'b> {
         };
         evaluate_function(token, name, &context, &call_arguments)
       }
-      Expression::String { ref cooked_string } => Ok(cooked_string.cooked.clone()),
+      Expression::String { ref cooked_string } => Ok(cooked_string.cooked.to_string()),
       Expression::Backtick { raw, ref token } => {
         if self.dry_run {
           Ok(format!("`{}`", raw))
@@ -131,6 +131,7 @@ impl<'a, 'b> AssignmentEvaluator<'a, 'b> {
       Expression::Concatination { ref lhs, ref rhs } => {
         Ok(self.evaluate_expression(lhs, arguments)? + &self.evaluate_expression(rhs, arguments)?)
       }
+      Expression::Group { ref expression } => self.evaluate_expression(&expression, arguments),
     }
   }
 

@@ -1,8 +1,6 @@
 use executable_path::executable_path;
 use libc::{EXIT_FAILURE, EXIT_SUCCESS};
-use std::env;
-use std::process;
-use std::str;
+use std::{env, fs, process, str};
 use tempdir::TempDir;
 
 /// Instantiate integration tests for a given test case using
@@ -92,6 +90,46 @@ fn integration_test(
 
   if failure {
     panic!("test failed");
+  }
+
+  if expected_status == EXIT_SUCCESS {
+    println!("Reparsing...");
+
+    let output = process::Command::new(&executable_path("just"))
+      .current_dir(tmp.path())
+      .arg("--dump")
+      .output()
+      .expect("just invocation failed");
+
+    if !output.status.success() {
+      panic!("dump failed: {}", output.status);
+    }
+
+    let dumped = String::from_utf8(output.stdout).unwrap();
+
+    let reparsed_path = tmp.path().join("reparsed.just");
+
+    fs::write(&reparsed_path, &dumped).unwrap();
+
+    let output = process::Command::new(&executable_path("just"))
+      .current_dir(tmp.path())
+      .arg("--justfile")
+      .arg(&reparsed_path)
+      .arg("--dump")
+      .output()
+      .expect("just invocation failed");
+
+    if !output.status.success() {
+      panic!("reparse failed: {}", output.status);
+    }
+
+    let reparsed = String::from_utf8(output.stdout).unwrap();
+
+    if reparsed != dumped {
+      print!("expected:\n{}", reparsed);
+      print!("got:\n{}", dumped);
+      assert_eq!(reparsed, dumped);
+    }
   }
 }
 
@@ -1115,10 +1153,10 @@ a Z="\t z":
 _private-recipe:
 "#,
   args:     ("--list"),
-  stdout:   r"Available recipes:
-    a Z='\t z'
-    hello a b='B\t' c='C' # this does a thing
-",
+  stdout:   r#"Available recipes:
+    a Z="\t z"
+    hello a b='B	' c='C' # this does a thing
+"#,
   stderr:   "",
   status:   EXIT_SUCCESS,
 }
@@ -1138,10 +1176,10 @@ a Z="\t z":
 _private-recipe:
 "#,
   args:     ("--list"),
-  stdout:   r"Available recipes:
-    a Z='\t z'            # something else
-    hello a b='B\t' c='C' # this does a thing
-",
+  stdout:   r#"Available recipes:
+    a Z="\t z"          # something else
+    hello a b='B	' c='C' # this does a thing
+"#,
   stderr:   "",
   status:   EXIT_SUCCESS,
 }
@@ -1165,11 +1203,11 @@ this-recipe-is-very-very-very-important Z="\t z":
 _private-recipe:
 "#,
   args:     ("--list"),
-  stdout:   r"Available recipes:
-    hello a b='B\t' c='C' # this does a thing
-    this-recipe-is-very-very-very-important Z='\t z' # something else
-    x a b='B\t' c='C'     # this does another thing
-",
+  stdout:   r#"Available recipes:
+    hello a b='B	' c='C' # this does a thing
+    this-recipe-is-very-very-very-important Z="\t z" # something else
+    x a b='B	' c='C'     # this does another thing
+"#,
   stderr:   "",
   status:   EXIT_SUCCESS,
 }
@@ -1386,8 +1424,6 @@ b
 
 
 c
-
-
 ",
   stderr:   "",
   status:   EXIT_SUCCESS,
@@ -1809,8 +1845,8 @@ a B C +D='hello':
   args:     ("--color", "always", "--list"),
   stdout:   "Available recipes:\n    a \
     \u{1b}[36mB\u{1b}[0m \u{1b}[36mC\u{1b}[0m \u{1b}[35m+\
-    \u{1b}[0m\u{1b}[36mD\u{1b}[0m=\'\u{1b}[32mhello\u{1b}[0m\
-    \' \u{1b}[34m#\u{1b}[0m \u{1b}[34mcomment\u{1b}[0m\n",
+    \u{1b}[0m\u{1b}[36mD\u{1b}[0m=\u{1b}[32m'hello'\u{1b}[0m \
+     \u{1b}[34m#\u{1b}[0m \u{1b}[34mcomment\u{1b}[0m\n",
   stderr:   "",
   status:   EXIT_SUCCESS,
 }
@@ -1923,4 +1959,95 @@ X = "\'"
   |     ^^^^
 "#,
    status:   EXIT_FAILURE,
+}
+
+integration_test! {
+   name:     unknown_variable_in_default,
+   justfile: "
+foo x=bar:
+",
+   args:     (),
+   stdout:   "",
+   stderr:   r#"error: Variable `bar` not defined
+  |
+2 | foo x=bar:
+  |       ^^^
+"#,
+   status:   EXIT_FAILURE,
+}
+
+integration_test! {
+   name:     unknown_function_in_default,
+   justfile: "
+foo x=bar():
+",
+   args:     (),
+   stdout:   "",
+   stderr:   r#"error: Call to unknown function `bar`
+  |
+2 | foo x=bar():
+  |       ^^^
+"#,
+   status:   EXIT_FAILURE,
+}
+
+integration_test! {
+   name:     default_string,
+   justfile: "
+foo x='bar':
+  echo {{x}}
+",
+   args:     (),
+   stdout:   "bar\n",
+   stderr:   "echo bar\n",
+   status:   EXIT_SUCCESS,
+}
+
+integration_test! {
+   name:     default_concatination,
+   justfile: "
+foo x=(`echo foo` + 'bar'):
+  echo {{x}}
+",
+   args:     (),
+   stdout:   "foobar\n",
+   stderr:   "echo foobar\n",
+   status:   EXIT_SUCCESS,
+}
+
+integration_test! {
+   name:     default_backtick,
+   justfile: "
+foo x=`echo foo`:
+  echo {{x}}
+",
+   args:     (),
+   stdout:   "foo\n",
+   stderr:   "echo foo\n",
+   status:   EXIT_SUCCESS,
+}
+
+integration_test! {
+   name:     default_variable,
+   justfile: "
+y = 'foo'
+foo x=y:
+  echo {{x}}
+",
+   args:     (),
+   stdout:   "foo\n",
+   stderr:   "echo foo\n",
+   status:   EXIT_SUCCESS,
+}
+
+integration_test! {
+  name:     test_os_arch_functions_in_default,
+  justfile: r#"
+foo a=arch() o=os() f=os_family():
+  echo {{a}} {{o}} {{f}}
+"#,
+  args:     (),
+  stdout:   format!("{} {} {}\n", target::arch(), target::os(), target::os_family()).as_str(),
+  stderr:   format!("echo {} {} {}\n", target::arch(), target::os(), target::os_family()).as_str(),
+  status:   EXIT_SUCCESS,
 }

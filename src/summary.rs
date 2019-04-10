@@ -46,7 +46,7 @@ impl Summary {
     for alias in justfile.aliases.values() {
       aliases
         .entry(alias.target)
-        .or_insert(Vec::new())
+        .or_insert_with(Vec::new)
         .push(alias.name.to_string());
     }
 
@@ -57,7 +57,7 @@ impl Summary {
         .map(|(name, recipe)| {
           (
             name.to_string(),
-            Recipe::new(recipe, aliases.remove(name).unwrap_or(Vec::new())),
+            Recipe::new(recipe, aliases.remove(name).unwrap_or_default()),
           )
         })
         .collect(),
@@ -184,11 +184,12 @@ impl Expression {
         rhs: Box::new(Expression::new(*rhs)),
       },
       String { cooked_string } => Expression::String {
-        text: cooked_string.cooked,
+        text: cooked_string.cooked.to_string(),
       },
       Variable { name, .. } => Expression::Variable {
         name: name.to_owned(),
       },
+      Group { expression } => Expression::new(*expression),
     }
   }
 }
