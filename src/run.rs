@@ -106,8 +106,7 @@ pub fn run() {
         .short("f")
         .long("justfile")
         .takes_value(true)
-        .help("Use <JUSTFILE> as justfile. --working-directory must also be set")
-        .requires("WORKING-DIRECTORY"),
+        .help("Use <JUSTFILE> as justfile."),
     )
     .arg(
       Arg::with_name("LIST")
@@ -243,22 +242,45 @@ pub fn run() {
     })
     .collect::<Vec<&str>>();
 
-  let justfile_option = matches.value_of("JUSTFILE");
-  let working_directory_option = matches.value_of("WORKING-DIRECTORY");
+  let justfile = matches.value_of("JUSTFILE").map(Path::new);
+  let mut working_directory = matches.value_of("WORKING-DIRECTORY").map(PathBuf::from);
 
-  let text;
-  if let (Some(file), Some(directory)) = (justfile_option, working_directory_option) {
-    if matches.is_present("EDIT") {
-      edit(file);
+  if let (Some(justfile), None) = (justfile, working_directory.as_ref()) {
+    let mut justfile = justfile.to_path_buf();
+
+    if !justfile.is_absolute() {
+      match justfile.canonicalize() {
+        Ok(canonical) => justfile = canonical,
+        Err(err) => die!(
+          "Could not canonicalize justfile path `{}`: {}",
+          justfile.display(),
+          err
+        ),
+      }
     }
 
-    text = fs::File::open(file)
+    justfile.pop();
+
+    working_directory = Some(justfile);
+  }
+
+  let text;
+  if let (Some(justfile), Some(directory)) = (justfile, working_directory) {
+    if matches.is_present("EDIT") {
+      edit(justfile);
+    }
+
+    text = fs::File::open(justfile)
       .unwrap_or_else(|error| die!("Error opening justfile: {}", error))
       .slurp()
       .unwrap_or_else(|error| die!("Error reading justfile: {}", error));
 
-    if let Err(error) = env::set_current_dir(directory) {
-      die!("Error changing directory to {}: {}", directory, error);
+    if let Err(error) = env::set_current_dir(&directory) {
+      die!(
+        "Error changing directory to {}: {}",
+        directory.display(),
+        error
+      );
     }
   } else {
     let name;

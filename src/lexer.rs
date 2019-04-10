@@ -135,7 +135,7 @@ impl<'a> Lexer<'a> {
       static ref BACKTICK: Regex = token(r"`[^`\n\r]*`");
       static ref COLON: Regex = token(r":");
       static ref COMMA: Regex = token(r",");
-      static ref COMMENT: Regex = token(r"#([^!\n\r][^\n\r]*)?\r?$");
+      static ref COMMENT: Regex = token(r"#([^\n\r][^\n\r]*)?\r?$");
       static ref EOF: Regex = token(r"\z");
       static ref EOL: Regex = token(r"\n|\r\n");
       static ref EQUALS: Regex = token(r"=");
@@ -322,8 +322,6 @@ impl<'a> Lexer<'a> {
           return Err(self.error(UnterminatedString));
         }
         (prefix, &self.rest[start..content_end + 1], StringToken)
-      } else if self.rest.starts_with("#!") {
-        return Err(self.error(OuterShebang));
       } else {
         return Err(self.error(UnknownStartOfToken));
       };
@@ -645,16 +643,6 @@ c: b
     column: 0,
     width:  None,
     kind:   InconsistentLeadingWhitespace{expected: "\t\t", found: "\t  "},
-  }
-
-  error_test! {
-    name: tokenize_outer_shebang,
-    input: "#!/usr/bin/env bash",
-    index:  0,
-    line:   0,
-    column: 0,
-    width:  None,
-    kind:   OuterShebang,
   }
 
   error_test! {

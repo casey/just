@@ -1,3 +1,7 @@
+#!/usr/bin/env just --justfile
+# ^ A shebang isn't required, but allows a justfile to be executed
+#   like a script, with `./justfile test`, for example.
+
 bt='0'
 
 export RUST_BACKTRACE=bt
