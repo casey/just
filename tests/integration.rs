@@ -133,6 +133,17 @@ integration_test! {
 }
 
 integration_test! {
+  name: alias_listing_private,
+  justfile: "foo PARAM='foo':\n  echo {{PARAM}}\nalias _f = foo",
+  args: ("--list"),
+  stdout: "Available recipes:
+    foo PARAM='foo'
+",
+  stderr: "",
+  status: EXIT_SUCCESS,
+}
+
+integration_test! {
   name: alias,
   justfile: "foo:\n  echo foo\nalias f = foo",
   args: ("f"),

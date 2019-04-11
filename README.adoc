@@ -608,7 +608,7 @@ Run `just --help` to see all the options.
 
 === Private Recipes
 
-Recipes whose name starts with a `_` are omitted from `just --list`:
+Recipes and aliases whose name starts with a `_` are omitted from `just --list`:
 
 ```make
 test: _test-helper

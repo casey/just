@@ -358,6 +358,10 @@ pub fn run() {
     // Construct a target to alias map.
     let mut recipe_aliases: BTreeMap<&str, Vec<&str>> = BTreeMap::new();
     for alias in justfile.aliases.values() {
+      if alias.private {
+        continue;
+      }
+
       if !recipe_aliases.contains_key(alias.target) {
         recipe_aliases.insert(alias.target, vec![alias.name]);
       } else {

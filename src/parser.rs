@@ -372,6 +372,7 @@ impl<'a> Parser<'a> {
       Alias {
         name: name.lexeme,
         line_number: name.line,
+        private: name.lexeme.starts_with('_'),
         target,
       },
     );
