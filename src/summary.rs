@@ -1,10 +1,20 @@
+//! The contents of this module are not bound by any stability guarantees.
+//! Breaking changes may be introduced at any time.
+//!
+//! The main entry point into this module is the `summary` function, which
+//! parses a justfile at a given path and produces a `Summary` object,
+//! which broadly captures the functionality of the parsed justfile, or
+//! an error message.
+//!
+//! This functionality is intended to be used with `janus`, a tool for
+//! ensuring that changes to just do not inadvertantly break or
+//! change the interpretation of existing justfiles.
+
 use std::{
   collections::{BTreeMap, BTreeSet},
   fs, io,
   path::Path,
 };
-
-use serde_derive::{Deserialize, Serialize};
 
 use crate::{expression, fragment, justfile::Justfile, parser::Parser, recipe};
 
@@ -19,21 +29,35 @@ pub fn summary(path: impl AsRef<Path>) -> Result<Result<Summary, String>, io::Er
   }
 }
 
-#[derive(Serialize, Deserialize, Eq, PartialEq, Hash, Ord, PartialOrd, Debug, Clone)]
+#[derive(Eq, PartialEq, Hash, Ord, PartialOrd, Debug, Clone)]
 pub struct Summary {
-  pub recipes: BTreeMap<String, Recipe>,
   pub assignments: BTreeMap<String, Assignment>,
+  pub recipes: BTreeMap<String, Recipe>,
 }
 
 impl Summary {
   fn new(justfile: Justfile) -> Summary {
     let exports = justfile.exports;
 
+    let mut aliases = BTreeMap::new();
+
+    for alias in justfile.aliases.values() {
+      aliases
+        .entry(alias.target)
+        .or_insert(Vec::new())
+        .push(alias.name.to_string());
+    }
+
     Summary {
       recipes: justfile
         .recipes
         .into_iter()
-        .map(|(name, recipe)| (name.to_string(), Recipe::new(recipe)))
+        .map(|(name, recipe)| {
+          (
+            name.to_string(),
+            Recipe::new(recipe, aliases.remove(name).unwrap_or(Vec::new())),
+          )
+        })
         .collect(),
       assignments: justfile
         .assignments
@@ -49,28 +73,30 @@ impl Summary {
   }
 }
 
-#[derive(Serialize, Deserialize, Eq, PartialEq, Hash, Ord, PartialOrd, Debug, Clone)]
+#[derive(Eq, PartialEq, Hash, Ord, PartialOrd, Debug, Clone)]
 pub struct Recipe {
+  pub aliases: Vec<String>,
+  pub dependencies: BTreeSet<String>,
+  pub lines: Vec<Line>,
   pub private: bool,
   pub quiet: bool,
   pub shebang: bool,
-  pub lines: Vec<Line>,
-  pub dependencies: BTreeSet<String>,
 }
 
 impl Recipe {
-  fn new(recipe: recipe::Recipe) -> Recipe {
+  fn new(recipe: recipe::Recipe, aliases: Vec<String>) -> Recipe {
     Recipe {
       private: recipe.private,
       shebang: recipe.shebang,
       quiet: recipe.quiet,
       dependencies: recipe.dependencies.into_iter().map(str::to_owned).collect(),
       lines: recipe.lines.into_iter().map(Line::new).collect(),
+      aliases,
     }
   }
 }
 
-#[derive(Serialize, Deserialize, Eq, PartialEq, Hash, Ord, PartialOrd, Debug, Clone)]
+#[derive(Eq, PartialEq, Hash, Ord, PartialOrd, Debug, Clone)]
 pub struct Line {
   pub fragments: Vec<Fragment>,
 }
@@ -83,7 +109,7 @@ impl Line {
   }
 }
 
-#[derive(Serialize, Deserialize, Eq, PartialEq, Hash, Ord, PartialOrd, Debug, Clone)]
+#[derive(Eq, PartialEq, Hash, Ord, PartialOrd, Debug, Clone)]
 pub enum Fragment {
   Text { text: String },
   Expression { expression: Expression },
@@ -102,7 +128,7 @@ impl Fragment {
   }
 }
 
-#[derive(Serialize, Deserialize, Eq, PartialEq, Hash, Ord, PartialOrd, Debug, Clone)]
+#[derive(Eq, PartialEq, Hash, Ord, PartialOrd, Debug, Clone)]
 pub struct Assignment {
   pub exported: bool,
   pub expression: Expression,
@@ -117,7 +143,7 @@ impl Assignment {
   }
 }
 
-#[derive(Serialize, Deserialize, Eq, PartialEq, Hash, Ord, PartialOrd, Debug, Clone)]
+#[derive(Eq, PartialEq, Hash, Ord, PartialOrd, Debug, Clone)]
 pub enum Expression {
   Backtick {
     command: String,
