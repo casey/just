@@ -321,7 +321,7 @@ impl<'a> Lexer<'a> {
         if escape || content_end >= self.rest.len() {
           return Err(self.error(UnterminatedString));
         }
-        (prefix, &self.rest[start..content_end + 1], StringToken)
+        (prefix, &self.rest[start..=content_end], StringToken)
       } else {
         return Err(self.error(UnknownStartOfToken));
       };

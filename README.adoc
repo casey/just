@@ -198,6 +198,24 @@ $ just --summary
 build test deploy lint
 ```
 
+=== Aliases
+
+Aliases allow recipes to be invoked with alternative names:
+
+```make
+alias b = build
+
+build:
+  echo 'Building!'
+```
+
+```sh
+$ just b
+build
+echo 'Building!'
+Building!
+```
+
 === Documentation Comments
 
 Comments immediately preceding a recipe will appear in `just --list`:

@@ -27,6 +27,8 @@ pub mod fuzzing;
 #[macro_use]
 mod die;
 
+mod alias;
+mod alias_resolver;
 mod assignment_evaluator;
 mod assignment_resolver;
 mod color;

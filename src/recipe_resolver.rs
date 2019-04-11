@@ -113,7 +113,7 @@ impl<'a, 'b> RecipeResolver<'a, 'b> {
           return Err(dependency_token.error(UnknownDependency {
             recipe: recipe.name,
             unknown: dependency_token.lexeme,
-          }))
+          }));
         }
       }
     }

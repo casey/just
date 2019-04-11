@@ -2,7 +2,7 @@ pub use std::borrow::Cow;
 pub use std::collections::{BTreeMap as Map, BTreeSet as Set};
 pub use std::fmt::Display;
 pub use std::io::prelude::*;
-pub use std::ops::Range;
+pub use std::ops::{Range, RangeInclusive};
 pub use std::path::{Path, PathBuf};
 pub use std::process::Command;
 pub use std::sync::{Mutex, MutexGuard};
@@ -13,6 +13,8 @@ pub use libc::{EXIT_FAILURE, EXIT_SUCCESS};
 pub use regex::Regex;
 pub use tempdir::TempDir;
 
+pub use alias::Alias;
+pub use alias_resolver::AliasResolver;
 pub use assignment_evaluator::AssignmentEvaluator;
 pub use assignment_resolver::AssignmentResolver;
 pub use command_ext::CommandExt;

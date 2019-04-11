@@ -45,8 +45,8 @@ pub struct RecipeContext<'a> {
 }
 
 impl<'a> Recipe<'a> {
-  pub fn argument_range(&self) -> Range<usize> {
-    self.min_arguments()..self.max_arguments() + 1
+  pub fn argument_range(&self) -> RangeInclusive<usize> {
+    self.min_arguments()..=self.max_arguments()
   }
 
   pub fn min_arguments(&self) -> usize {
@@ -94,7 +94,7 @@ impl<'a> Recipe<'a> {
           None => {
             return Err(RuntimeError::Internal {
               message: "missing parameter without default".to_string(),
-            })
+            });
           }
         }
       } else if parameter.variadic {
@@ -226,7 +226,7 @@ impl<'a> Recipe<'a> {
             command: interpreter.to_string(),
             argument: argument.map(String::from),
             io_error,
-          })
+          });
         }
       };
     } else {
@@ -305,7 +305,7 @@ impl<'a> Recipe<'a> {
             return Err(RuntimeError::IoError {
               recipe: self.name,
               io_error,
-            })
+            });
           }
         };
       }

@@ -356,6 +356,17 @@ pub fn run() {
   }
 
   if matches.is_present("LIST") {
+    // Construct a target to alias map.
+    let mut recipe_aliases: Map<&str, Vec<&str>> = Map::new();
+    for alias in justfile.aliases.values() {
+      if !recipe_aliases.contains_key(alias.target) {
+        recipe_aliases.insert(alias.target, vec![alias.name]);
+      } else {
+        let aliases = recipe_aliases.get_mut(alias.target).unwrap();
+        aliases.push(alias.name);
+      }
+    }
+
     let mut line_widths: Map<&str, usize> = Map::new();
 
     for (name, recipe) in &justfile.recipes {
@@ -363,14 +374,16 @@ pub fn run() {
         continue;
       }
 
-      let mut line_width = UnicodeWidthStr::width(*name);
+      for name in iter::once(name).chain(recipe_aliases.get(name).unwrap_or(&Vec::new())) {
+        let mut line_width = UnicodeWidthStr::width(*name);
 
-      for parameter in &recipe.parameters {
-        line_width += UnicodeWidthStr::width(format!(" {}", parameter).as_str());
-      }
+        for parameter in &recipe.parameters {
+          line_width += UnicodeWidthStr::width(format!(" {}", parameter).as_str());
+        }
 
-      if line_width <= 30 {
-        line_widths.insert(name, line_width);
+        if line_width <= 30 {
+          line_widths.insert(name, line_width);
+        }
       }
     }
 
@@ -378,30 +391,47 @@ pub fn run() {
 
     let doc_color = color.stdout().doc();
     println!("Available recipes:");
+
     for (name, recipe) in &justfile.recipes {
       if recipe.private {
         continue;
       }
-      print!("    {}", name);
-      for parameter in &recipe.parameters {
-        if color.stdout().active() {
-          print!(" {:#}", parameter);
-        } else {
-          print!(" {}", parameter);
+
+      let alias_doc = format!("alias for `{}`", recipe.name);
+
+      for (i, name) in iter::once(name).chain(recipe_aliases.get(name).unwrap_or(&Vec::new())).enumerate() {
+        print!("    {}", name);
+        for parameter in &recipe.parameters {
+          if color.stdout().active() {
+            print!(" {:#}", parameter);
+          } else {
+            print!(" {}", parameter);
+          }
         }
-      }
-      if let Some(doc) = recipe.doc {
-        print!(
-          " {:padding$}{} {}",
-          "",
-          doc_color.paint("#"),
-          doc_color.paint(doc),
-          padding =
+
+        // Declaring this outside of the nested loops will probably be more efficient, but 
+        // it creates all sorts of lifetime issues with variables inside the loops.
+        // If this is inlined like the docs say, it shouldn't make any difference.
+        let print_doc = |doc| {
+          print!(
+            " {:padding$}{} {}",
+            "",
+            doc_color.paint("#"),
+            doc_color.paint(doc),
+            padding =
             max_line_width.saturating_sub(line_widths.get(name).cloned().unwrap_or(max_line_width))
-        );
+          );
+        };
+
+        match (i, recipe.doc) {
+          (0, Some(doc)) => print_doc(doc),
+          (0, None)      => (),
+          _              => print_doc(&alias_doc),
+        }
+        println!();
       }
-      println!();
     }
+
     process::exit(EXIT_SUCCESS);
   }
 

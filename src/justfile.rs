@@ -6,6 +6,7 @@ pub struct Justfile<'a> {
   pub recipes: Map<&'a str, Recipe<'a>>,
   pub assignments: Map<&'a str, Expression<'a>>,
   pub exports: Set<&'a str>,
+  pub aliases: Map<&'a str, Alias<'a>>,
 }
 
 impl<'a> Justfile<'a> where {
@@ -90,13 +91,22 @@ impl<'a> Justfile<'a> where {
     let mut rest = arguments;
 
     while let Some((argument, mut tail)) = rest.split_first() {
-      if let Some(recipe) = self.recipes.get(argument) {
+      let get_recipe = |name| {
+        if let Some(recipe) = self.recipes.get(name) {
+          Some(recipe)
+        } else if let Some(alias) = self.aliases.get(name) {
+          self.recipes.get(alias.target)
+        } else {
+          None
+        }
+      };
+      if let Some(recipe) = get_recipe(argument) {
         if recipe.parameters.is_empty() {
           grouped.push((recipe, &tail[0..0]));
         } else {
           let argument_range = recipe.argument_range();
           let argument_count = cmp::min(tail.len(), recipe.max_arguments());
-          if !argument_range.range_contains(argument_count) {
+          if !argument_range.range_contains(&argument_count) {
             return Err(RuntimeError::ArgumentCountMismatch {
               recipe: recipe.name,
               parameters: recipe.parameters.iter().collect(),
@@ -161,12 +171,19 @@ impl<'a> Justfile<'a> where {
 
 impl<'a> Display for Justfile<'a> {
   fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-    let mut items = self.recipes.len() + self.assignments.len();
+    let mut items = self.recipes.len() + self.assignments.len() + self.aliases.len();
     for (name, expression) in &self.assignments {
       if self.exports.contains(name) {
         write!(f, "export ")?;
       }
       write!(f, "{} = {}", name, expression)?;
+      items -= 1;
+      if items != 0 {
+        write!(f, "\n\n")?;
+      }
+    }
+    for alias in self.aliases.values() {
+      write!(f, "{}",alias)?;
       items -= 1;
       if items != 0 {
         write!(f, "\n\n")?;
