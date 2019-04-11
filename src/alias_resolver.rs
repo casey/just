@@ -5,16 +5,16 @@ pub struct AliasResolver<'a, 'b>
 where
   'a: 'b,
 {
-  aliases: &'b Map<&'a str, Alias<'a>>,
-  recipes: &'b Map<&'a str, Recipe<'a>>,
-  alias_tokens: &'b Map<&'a str, Token<'a>>,
+  aliases: &'b BTreeMap<&'a str, Alias<'a>>,
+  recipes: &'b BTreeMap<&'a str, Recipe<'a>>,
+  alias_tokens: &'b BTreeMap<&'a str, Token<'a>>,
 }
 
 impl<'a: 'b, 'b> AliasResolver<'a, 'b> {
   pub fn resolve_aliases(
-    aliases: &Map<&'a str, Alias<'a>>,
-    recipes: &Map<&'a str, Recipe<'a>>,
-    alias_tokens: &Map<&'a str, Token<'a>>,
+    aliases: &BTreeMap<&'a str, Alias<'a>>,
+    recipes: &BTreeMap<&'a str, Recipe<'a>>,
+    alias_tokens: &BTreeMap<&'a str, Token<'a>>,
   ) -> CompilationResult<'a, ()> {
     let resolver = AliasResolver {
       aliases,

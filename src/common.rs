@@ -1,7 +1,7 @@
 pub(crate) use std::{
   borrow::Cow,
   cmp,
-  collections::{BTreeMap as Map, BTreeSet as Set},
+  collections::{BTreeMap, BTreeSet},
   env,
   fmt::{self, Display, Formatter},
   fs, io, iter,

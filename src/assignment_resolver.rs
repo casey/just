@@ -3,17 +3,17 @@ use crate::common::*;
 use CompilationErrorKind::*;
 
 pub struct AssignmentResolver<'a: 'b, 'b> {
-  assignments: &'b Map<&'a str, Expression<'a>>,
-  assignment_tokens: &'b Map<&'a str, Token<'a>>,
+  assignments: &'b BTreeMap<&'a str, Expression<'a>>,
+  assignment_tokens: &'b BTreeMap<&'a str, Token<'a>>,
   stack: Vec<&'a str>,
-  seen: Set<&'a str>,
-  evaluated: Set<&'a str>,
+  seen: BTreeSet<&'a str>,
+  evaluated: BTreeSet<&'a str>,
 }
 
 impl<'a: 'b, 'b> AssignmentResolver<'a, 'b> {
   pub fn resolve_assignments(
-    assignments: &Map<&'a str, Expression<'a>>,
-    assignment_tokens: &Map<&'a str, Token<'a>>,
+    assignments: &BTreeMap<&'a str, Expression<'a>>,
+    assignment_tokens: &BTreeMap<&'a str, Token<'a>>,
   ) -> CompilationResult<'a, ()> {
     let mut resolver = AssignmentResolver {
       stack: empty(),

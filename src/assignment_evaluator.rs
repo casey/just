@@ -3,28 +3,28 @@ use crate::common::*;
 use brev;
 
 pub struct AssignmentEvaluator<'a: 'b, 'b> {
-  pub assignments: &'b Map<&'a str, Expression<'a>>,
+  pub assignments: &'b BTreeMap<&'a str, Expression<'a>>,
   pub invocation_directory: &'b Result<PathBuf, String>,
-  pub dotenv: &'b Map<String, String>,
+  pub dotenv: &'b BTreeMap<String, String>,
   pub dry_run: bool,
-  pub evaluated: Map<&'a str, String>,
-  pub exports: &'b Set<&'a str>,
-  pub overrides: &'b Map<&'b str, &'b str>,
+  pub evaluated: BTreeMap<&'a str, String>,
+  pub exports: &'b BTreeSet<&'a str>,
+  pub overrides: &'b BTreeMap<&'b str, &'b str>,
   pub quiet: bool,
-  pub scope: &'b Map<&'a str, String>,
+  pub scope: &'b BTreeMap<&'a str, String>,
   pub shell: &'b str,
 }
 
 impl<'a, 'b> AssignmentEvaluator<'a, 'b> {
   pub fn evaluate_assignments(
-    assignments: &Map<&'a str, Expression<'a>>,
+    assignments: &BTreeMap<&'a str, Expression<'a>>,
     invocation_directory: &Result<PathBuf, String>,
-    dotenv: &'b Map<String, String>,
-    overrides: &Map<&str, &str>,
+    dotenv: &'b BTreeMap<String, String>,
+    overrides: &BTreeMap<&str, &str>,
     quiet: bool,
     shell: &'a str,
     dry_run: bool,
-  ) -> RunResult<'a, Map<&'a str, String>> {
+  ) -> RunResult<'a, BTreeMap<&'a str, String>> {
     let mut evaluator = AssignmentEvaluator {
       evaluated: empty(),
       exports: &empty(),
@@ -48,7 +48,7 @@ impl<'a, 'b> AssignmentEvaluator<'a, 'b> {
   pub fn evaluate_line(
     &mut self,
     line: &[Fragment<'a>],
-    arguments: &Map<&str, Cow<str>>,
+    arguments: &BTreeMap<&str, Cow<str>>,
   ) -> RunResult<'a, String> {
     let mut evaluated = String::new();
     for fragment in line {
@@ -86,7 +86,7 @@ impl<'a, 'b> AssignmentEvaluator<'a, 'b> {
   fn evaluate_expression(
     &mut self,
     expression: &Expression<'a>,
-    arguments: &Map<&str, Cow<str>>,
+    arguments: &BTreeMap<&str, Cow<str>>,
   ) -> RunResult<'a, String> {
     match *expression {
       Expression::Variable { name, .. } => {
@@ -136,7 +136,7 @@ impl<'a, 'b> AssignmentEvaluator<'a, 'b> {
 
   fn run_backtick(
     &self,
-    dotenv: &Map<String, String>,
+    dotenv: &BTreeMap<String, String>,
     raw: &str,
     token: &Token<'a>,
   ) -> RunResult<'a, String> {

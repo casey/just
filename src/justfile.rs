@@ -1,10 +1,10 @@
 use crate::common::*;
 
 pub struct Justfile<'a> {
-  pub recipes: Map<&'a str, Recipe<'a>>,
-  pub assignments: Map<&'a str, Expression<'a>>,
-  pub exports: Set<&'a str>,
-  pub aliases: Map<&'a str, Alias<'a>>,
+  pub recipes: BTreeMap<&'a str, Recipe<'a>>,
+  pub assignments: BTreeMap<&'a str, Expression<'a>>,
+  pub exports: BTreeSet<&'a str>,
+  pub aliases: BTreeMap<&'a str, Alias<'a>>,
 }
 
 impl<'a> Justfile<'a> where {
@@ -153,8 +153,8 @@ impl<'a> Justfile<'a> where {
     context: &'b RecipeContext<'a>,
     recipe: &Recipe<'a>,
     arguments: &[&'a str],
-    dotenv: &Map<String, String>,
-    ran: &mut Set<&'a str>,
+    dotenv: &BTreeMap<String, String>,
+    ran: &mut BTreeSet<&'a str>,
   ) -> RunResult<()> {
     for dependency_name in &recipe.dependencies {
       if !ran.contains(dependency_name) {

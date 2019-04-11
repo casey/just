@@ -4,15 +4,15 @@ use CompilationErrorKind::*;
 
 pub struct RecipeResolver<'a: 'b, 'b> {
   stack: Vec<&'a str>,
-  seen: Set<&'a str>,
-  resolved: Set<&'a str>,
-  recipes: &'b Map<&'a str, Recipe<'a>>,
+  seen: BTreeSet<&'a str>,
+  resolved: BTreeSet<&'a str>,
+  recipes: &'b BTreeMap<&'a str, Recipe<'a>>,
 }
 
 impl<'a, 'b> RecipeResolver<'a, 'b> {
   pub fn resolve_recipes(
-    recipes: &Map<&'a str, Recipe<'a>>,
-    assignments: &Map<&'a str, Expression<'a>>,
+    recipes: &BTreeMap<&'a str, Recipe<'a>>,
+    assignments: &BTreeMap<&'a str, Expression<'a>>,
     text: &'a str,
   ) -> CompilationResult<'a, ()> {
     let mut resolver = RecipeResolver {

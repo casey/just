@@ -186,7 +186,7 @@ pub fn run() {
   };
 
   let set_count = matches.occurrences_of("SET");
-  let mut overrides = Map::new();
+  let mut overrides = BTreeMap::new();
   if set_count > 0 {
     let mut values = matches.values_of("SET").unwrap();
     for _ in 0..set_count {
@@ -356,7 +356,7 @@ pub fn run() {
 
   if matches.is_present("LIST") {
     // Construct a target to alias map.
-    let mut recipe_aliases: Map<&str, Vec<&str>> = Map::new();
+    let mut recipe_aliases: BTreeMap<&str, Vec<&str>> = BTreeMap::new();
     for alias in justfile.aliases.values() {
       if !recipe_aliases.contains_key(alias.target) {
         recipe_aliases.insert(alias.target, vec![alias.name]);
@@ -366,7 +366,7 @@ pub fn run() {
       }
     }
 
-    let mut line_widths: Map<&str, usize> = Map::new();
+    let mut line_widths: BTreeMap<&str, usize> = BTreeMap::new();
 
     for (name, recipe) in &justfile.recipes {
       if recipe.private {

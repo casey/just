@@ -6,12 +6,12 @@ use TokenKind::*;
 pub struct Parser<'a> {
   text: &'a str,
   tokens: itertools::PutBackN<vec::IntoIter<Token<'a>>>,
-  recipes: Map<&'a str, Recipe<'a>>,
-  assignments: Map<&'a str, Expression<'a>>,
-  assignment_tokens: Map<&'a str, Token<'a>>,
-  exports: Set<&'a str>,
-  aliases: Map<&'a str, Alias<'a>>,
-  alias_tokens: Map<&'a str, Token<'a>>,
+  recipes: BTreeMap<&'a str, Recipe<'a>>,
+  assignments: BTreeMap<&'a str, Expression<'a>>,
+  assignment_tokens: BTreeMap<&'a str, Token<'a>>,
+  exports: BTreeSet<&'a str>,
+  aliases: BTreeMap<&'a str, Alias<'a>>,
+  alias_tokens: BTreeMap<&'a str, Token<'a>>,
 }
 
 impl<'a> Parser<'a> {

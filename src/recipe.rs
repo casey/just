@@ -41,7 +41,7 @@ pub struct Recipe<'a> {
 pub struct RecipeContext<'a> {
   pub invocation_directory: &'a Result<PathBuf, String>,
   pub configuration: &'a Configuration<'a>,
-  pub scope: Map<&'a str, String>,
+  pub scope: BTreeMap<&'a str, String>,
 }
 
 impl<'a> Recipe<'a> {
@@ -69,8 +69,8 @@ impl<'a> Recipe<'a> {
     &self,
     context: &RecipeContext<'a>,
     arguments: &[&'a str],
-    dotenv: &Map<String, String>,
-    exports: &Set<&'a str>,
+    dotenv: &BTreeMap<String, String>,
+    exports: &BTreeSet<&'a str>,
   ) -> RunResult<'a, ()> {
     let configuration = &context.configuration;
 
@@ -84,7 +84,7 @@ impl<'a> Recipe<'a> {
       );
     }
 
-    let mut argument_map = Map::new();
+    let mut argument_map = BTreeMap::new();
 
     let mut rest = arguments;
     for parameter in &self.parameters {
