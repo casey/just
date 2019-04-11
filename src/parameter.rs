@@ -1,4 +1,4 @@
-use common::*;
+use crate::common::*;
 
 #[derive(PartialEq, Debug)]
 pub struct Parameter<'a> {
@@ -9,7 +9,7 @@ pub struct Parameter<'a> {
 }
 
 impl<'a> Display for Parameter<'a> {
-  fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+  fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
     let color = Color::fmt(f);
     if self.variadic {
       write!(f, "{}", color.annotation().paint("+"))?;

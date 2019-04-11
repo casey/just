@@ -1,6 +1,4 @@
-use common::*;
-
-use unicode_width::UnicodeWidthChar;
+use crate::common::*;
 
 pub fn show_whitespace(text: &str) -> String {
   text
@@ -34,7 +32,7 @@ pub fn maybe_s(n: usize) -> &'static str {
 }
 
 pub fn conjoin<T: Display>(
-  f: &mut fmt::Formatter,
+  f: &mut Formatter,
   values: &[T],
   conjunction: &str,
 ) -> Result<(), fmt::Error> {
@@ -58,7 +56,7 @@ pub fn conjoin<T: Display>(
 }
 
 pub fn write_error_context(
-  f: &mut fmt::Formatter,
+  f: &mut Formatter,
   text: &str,
   index: usize,
   line: usize,
@@ -135,7 +133,7 @@ pub fn write_error_context(
 pub struct And<'a, T: 'a + Display>(pub &'a [T]);
 
 impl<'a, T: Display> Display for And<'a, T> {
-  fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+  fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
     conjoin(f, self.0, "and")
   }
 }
@@ -143,7 +141,7 @@ impl<'a, T: Display> Display for And<'a, T> {
 pub struct Or<'a, T: 'a + Display>(pub &'a [T]);
 
 impl<'a, T: Display> Display for Or<'a, T> {
-  fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+  fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
     conjoin(f, self.0, "or")
   }
 }
@@ -151,7 +149,7 @@ impl<'a, T: Display> Display for Or<'a, T> {
 pub struct Tick<'a, T: 'a + Display>(pub &'a T);
 
 impl<'a, T: Display> Display for Tick<'a, T> {
-  fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+  fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
     write!(f, "`{}`", self.0)
   }
 }

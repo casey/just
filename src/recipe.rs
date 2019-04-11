@@ -1,8 +1,8 @@
-use common::*;
+use crate::common::*;
 
 use std::process::{Command, ExitStatus, Stdio};
 
-use platform::{Platform, PlatformInterface};
+use crate::platform::{Platform, PlatformInterface};
 
 /// Return a `RuntimeError::Signal` if the process was terminated by a signal,
 /// otherwise return an `RuntimeError::UnknownFailure`
@@ -41,7 +41,7 @@ pub struct Recipe<'a> {
 pub struct RecipeContext<'a> {
   pub invocation_directory: &'a Result<PathBuf, String>,
   pub configuration: &'a Configuration<'a>,
-  pub scope: Map<&'a str, String>,
+  pub scope: BTreeMap<&'a str, String>,
 }
 
 impl<'a> Recipe<'a> {
@@ -69,8 +69,8 @@ impl<'a> Recipe<'a> {
     &self,
     context: &RecipeContext<'a>,
     arguments: &[&'a str],
-    dotenv: &Map<String, String>,
-    exports: &Set<&'a str>,
+    dotenv: &BTreeMap<String, String>,
+    exports: &BTreeSet<&'a str>,
   ) -> RunResult<'a, ()> {
     let configuration = &context.configuration;
 
@@ -84,7 +84,7 @@ impl<'a> Recipe<'a> {
       );
     }
 
-    let mut argument_map = Map::new();
+    let mut argument_map = BTreeMap::new();
 
     let mut rest = arguments;
     for parameter in &self.parameters {
@@ -315,7 +315,7 @@ impl<'a> Recipe<'a> {
 }
 
 impl<'a> Display for Recipe<'a> {
-  fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+  fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
     if let Some(doc) = self.doc {
       writeln!(f, "# {}", doc)?;
     }

@@ -1,21 +1,5 @@
 #[macro_use]
 extern crate lazy_static;
-#[macro_use]
-extern crate log;
-
-extern crate ansi_term;
-extern crate brev;
-extern crate clap;
-extern crate ctrlc;
-extern crate dotenv;
-extern crate edit_distance;
-extern crate env_logger;
-extern crate itertools;
-extern crate libc;
-extern crate regex;
-extern crate target;
-extern crate tempdir;
-extern crate unicode_width;
 
 #[cfg(test)]
 #[macro_use]
@@ -57,6 +41,4 @@ mod shebang;
 mod token;
 mod verbosity;
 
-use common::*;
-
-pub use run::run;
+pub use crate::run::run;

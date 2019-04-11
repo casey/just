@@ -1,11 +1,11 @@
-use common::*;
+use crate::common::*;
 
 use target;
 
-use platform::{Platform, PlatformInterface};
+use crate::platform::{Platform, PlatformInterface};
 
 lazy_static! {
-  static ref FUNCTIONS: Map<&'static str, Function> = vec![
+  static ref FUNCTIONS: BTreeMap<&'static str, Function> = vec![
     ("arch", Function::Nullary(arch)),
     ("os", Function::Nullary(os)),
     ("os_family", Function::Nullary(os_family)),
@@ -39,7 +39,7 @@ impl Function {
 
 pub struct FunctionContext<'a> {
   pub invocation_directory: &'a Result<PathBuf, String>,
-  pub dotenv: &'a Map<String, String>,
+  pub dotenv: &'a BTreeMap<String, String>,
 }
 
 pub fn resolve_function<'a>(token: &Token<'a>, argc: usize) -> CompilationResult<'a, ()> {

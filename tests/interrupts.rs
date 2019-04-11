@@ -1,8 +1,3 @@
-extern crate brev;
-extern crate executable_path;
-extern crate libc;
-extern crate tempdir;
-
 use executable_path::executable_path;
 use std::{
   process::Command,

@@ -6,7 +6,7 @@ bt='0'
 
 export RUST_BACKTRACE=bt
 
-test: build
+test:
 	cargo test
 
 fuzz:
@@ -20,7 +20,7 @@ fuzz:
 	} | less
 
 # only run tests matching PATTERN
-filter PATTERN: build
+filter PATTERN:
 	cargo test {{PATTERN}}
 
 # test with backtrace
@@ -70,7 +70,7 @@ install-dev-deps:
 
 # everyone's favorite animate paper clip
 clippy:
-	cargo +nightly clippy
+	cargo clippy
 
 # count non-empty lines of code
 sloc:

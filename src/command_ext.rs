@@ -1,20 +1,20 @@
-use common::*;
+use crate::common::*;
 
 pub trait CommandExt {
   fn export_environment_variables<'a>(
     &mut self,
-    scope: &Map<&'a str, String>,
-    dotenv: &Map<String, String>,
-    exports: &Set<&'a str>,
+    scope: &BTreeMap<&'a str, String>,
+    dotenv: &BTreeMap<String, String>,
+    exports: &BTreeSet<&'a str>,
   ) -> RunResult<'a, ()>;
 }
 
 impl CommandExt for Command {
   fn export_environment_variables<'a>(
     &mut self,
-    scope: &Map<&'a str, String>,
-    dotenv: &Map<String, String>,
-    exports: &Set<&'a str>,
+    scope: &BTreeMap<&'a str, String>,
+    dotenv: &BTreeMap<String, String>,
+    exports: &BTreeSet<&'a str>,
   ) -> RunResult<'a, ()> {
     for (name, value) in dotenv {
       self.env(name, value);

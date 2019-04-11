@@ -1,4 +1,4 @@
-use common::*;
+use crate::common::*;
 
 use CompilationErrorKind::*;
 use TokenKind::*;
@@ -383,7 +383,7 @@ mod test {
       fn $name() {
         let input = $input;
         let expected = $expected;
-        let tokens = ::Lexer::lex(input).unwrap();
+        let tokens = crate::lexer::Lexer::lex(input).unwrap();
         let roundtrip = tokens
           .iter()
           .map(|t| {
@@ -688,7 +688,7 @@ c: b
   error_test! {
     name:  unterminated_interpolation,
     input: "foo:\n echo {{
-",
+  ",
     index:  13,
     line:   1,
     column: 8,

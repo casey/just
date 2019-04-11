@@ -1,18 +1,17 @@
-use common::*;
+use crate::common::*;
 
-use itertools;
 use CompilationErrorKind::*;
 use TokenKind::*;
 
 pub struct Parser<'a> {
   text: &'a str,
   tokens: itertools::PutBackN<vec::IntoIter<Token<'a>>>,
-  recipes: Map<&'a str, Recipe<'a>>,
-  assignments: Map<&'a str, Expression<'a>>,
-  assignment_tokens: Map<&'a str, Token<'a>>,
-  exports: Set<&'a str>,
-  aliases: Map<&'a str, Alias<'a>>,
-  alias_tokens: Map<&'a str, Token<'a>>,
+  recipes: BTreeMap<&'a str, Recipe<'a>>,
+  assignments: BTreeMap<&'a str, Expression<'a>>,
+  assignment_tokens: BTreeMap<&'a str, Token<'a>>,
+  exports: BTreeSet<&'a str>,
+  aliases: BTreeMap<&'a str, Alias<'a>>,
+  alias_tokens: BTreeMap<&'a str, Token<'a>>,
 }
 
 impl<'a> Parser<'a> {
@@ -500,8 +499,8 @@ impl<'a> Parser<'a> {
 #[cfg(test)]
 mod test {
   use super::*;
+  use crate::testing::parse_success;
   use brev;
-  use testing::parse_success;
 
   macro_rules! summary_test {
     ($name:ident, $input:expr, $expected:expr $(,)*) => {
@@ -587,14 +586,14 @@ export a = "hello"
   summary_test! {
   parse_alias_after_target,
     r#"
-foo: 
+foo:
   echo a
 alias f = foo
 "#,
 r#"alias f = foo
 
 foo:
-    echo a"#  
+    echo a"#
   }
 
   summary_test! {
@@ -614,7 +613,7 @@ foo:
   parse_alias_with_comment,
     r#"
 alias f = foo #comment
-foo: 
+foo:
   echo a
 "#,
 r#"alias f = foo
@@ -714,7 +713,7 @@ c = a + b + a + b",
   summary_test! {
   parse_interpolation_backticks,
     r#"a:
- echo {{  `echo hello` + "blarg"   }} {{   `echo bob`   }}"#,
+  echo {{  `echo hello` + "blarg"   }} {{   `echo bob`   }}"#,
     r#"a:
     echo {{`echo hello` + "blarg"}} {{`echo bob`}}"#,
   }

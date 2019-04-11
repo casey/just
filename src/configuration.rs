@@ -1,4 +1,4 @@
-use common::*;
+use crate::common::*;
 
 pub const DEFAULT_SHELL: &str = "sh";
 
@@ -6,7 +6,7 @@ pub struct Configuration<'a> {
   pub dry_run: bool,
   pub evaluate: bool,
   pub highlight: bool,
-  pub overrides: Map<&'a str, &'a str>,
+  pub overrides: BTreeMap<&'a str, &'a str>,
   pub quiet: bool,
   pub shell: &'a str,
   pub color: Color,

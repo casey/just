@@ -1,6 +1,4 @@
-use common::*;
-
-use brev;
+use crate::common::*;
 
 pub struct Platform;
 

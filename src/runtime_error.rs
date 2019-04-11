@@ -1,16 +1,12 @@
-use common::*;
-
-use dotenv;
+use crate::common::*;
 
 use brev::OutputError;
 
-use misc::{maybe_s, ticks, write_error_context, And, Or, Tick};
-
-use self::RuntimeError::*;
+use crate::misc::{maybe_s, ticks, write_error_context, And, Or, Tick};
 
 pub type RunResult<'a, T> = Result<T, RuntimeError<'a>>;
 
-fn write_token_error_context(f: &mut fmt::Formatter, token: &Token) -> Result<(), fmt::Error> {
+fn write_token_error_context(f: &mut Formatter, token: &Token) -> Result<(), fmt::Error> {
   write_error_context(
     f,
     token.text,
@@ -87,6 +83,7 @@ pub enum RuntimeError<'a> {
 
 impl<'a> RuntimeError<'a> {
   pub fn code(&self) -> Option<i32> {
+    use RuntimeError::*;
     match *self {
       Code { code, .. }
       | Backtick {
@@ -99,8 +96,9 @@ impl<'a> RuntimeError<'a> {
 }
 
 impl<'a> Display for RuntimeError<'a> {
-  fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+  fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
     use RuntimeError::*;
+
     let color = if f.alternate() {
       Color::always()
     } else {

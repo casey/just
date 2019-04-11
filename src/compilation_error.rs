@@ -1,6 +1,6 @@
-use common::*;
+use crate::common::*;
 
-use misc::{maybe_s, show_whitespace, write_error_context, Or};
+use crate::misc::{maybe_s, show_whitespace, write_error_context, Or};
 
 pub type CompilationResult<'a, T> = Result<T, CompilationError<'a>>;
 
@@ -103,7 +103,7 @@ pub enum CompilationErrorKind<'a> {
 }
 
 impl<'a> Display for CompilationError<'a> {
-  fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+  fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
     use CompilationErrorKind::*;
     let error = Color::fmt(f).error();
     let message = Color::fmt(f).message();

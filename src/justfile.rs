@@ -1,12 +1,10 @@
-use common::*;
-
-use edit_distance::edit_distance;
+use crate::common::*;
 
 pub struct Justfile<'a> {
-  pub recipes: Map<&'a str, Recipe<'a>>,
-  pub assignments: Map<&'a str, Expression<'a>>,
-  pub exports: Set<&'a str>,
-  pub aliases: Map<&'a str, Alias<'a>>,
+  pub recipes: BTreeMap<&'a str, Recipe<'a>>,
+  pub assignments: BTreeMap<&'a str, Expression<'a>>,
+  pub exports: BTreeSet<&'a str>,
+  pub aliases: BTreeMap<&'a str, Alias<'a>>,
 }
 
 impl<'a> Justfile<'a> where {
@@ -155,8 +153,8 @@ impl<'a> Justfile<'a> where {
     context: &'b RecipeContext<'a>,
     recipe: &Recipe<'a>,
     arguments: &[&'a str],
-    dotenv: &Map<String, String>,
-    ran: &mut Set<&'a str>,
+    dotenv: &BTreeMap<String, String>,
+    ran: &mut BTreeSet<&'a str>,
   ) -> RunResult<()> {
     for dependency_name in &recipe.dependencies {
       if !ran.contains(dependency_name) {
@@ -170,7 +168,7 @@ impl<'a> Justfile<'a> where {
 }
 
 impl<'a> Display for Justfile<'a> {
-  fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+  fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
     let mut items = self.recipes.len() + self.assignments.len() + self.aliases.len();
     for (name, expression) in &self.assignments {
       if self.exports.contains(name) {
@@ -183,7 +181,7 @@ impl<'a> Display for Justfile<'a> {
       }
     }
     for alias in self.aliases.values() {
-      write!(f, "{}",alias)?;
+      write!(f, "{}", alias)?;
       items -= 1;
       if items != 0 {
         write!(f, "\n\n")?;
@@ -203,8 +201,9 @@ impl<'a> Display for Justfile<'a> {
 #[cfg(test)]
 mod test {
   use super::*;
-  use testing::parse_success;
-  use RuntimeError::*;
+
+  use crate::runtime_error::RuntimeError::*;
+  use crate::testing::parse_success;
 
   fn no_cwd_err() -> Result<PathBuf, String> {
     Err(String::from("no cwd in tests"))

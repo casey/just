@@ -1,9 +1,3 @@
-extern crate brev;
-extern crate executable_path;
-extern crate libc;
-extern crate target;
-extern crate tempdir;
-
 use executable_path::executable_path;
 use libc::{EXIT_FAILURE, EXIT_SUCCESS};
 use std::env;
