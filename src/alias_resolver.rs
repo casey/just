@@ -46,7 +46,7 @@ impl<'a: 'b, 'b> AliasResolver<'a, 'b> {
     }
 
     // Make sure the target recipe exists
-    if None == self.recipes.get(alias.target) {
+    if self.recipes.get(alias.target).is_none() {
       return Err(token.error(UnknownAliasTarget {
         alias: alias.name,
         target: alias.target,

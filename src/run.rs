@@ -356,30 +356,6 @@ pub fn run() {
   }
 
   if matches.is_present("LIST") {
-    let mut line_widths: Map<&str, usize> = Map::new();
-
-    for (name, recipe) in &justfile.recipes {
-      if recipe.private {
-        continue;
-      }
-
-      let mut line_width = UnicodeWidthStr::width(*name);
-
-      for parameter in &recipe.parameters {
-        line_width += UnicodeWidthStr::width(format!(" {}", parameter).as_str());
-      }
-
-      if line_width <= 30 {
-        line_widths.insert(name, line_width);
-      }
-    }
-
-    for alias in justfile.aliases.values() {
-      line_widths.insert(alias.name, UnicodeWidthStr::width(alias.name));
-    }
-
-    let max_line_width = cmp::min(line_widths.values().cloned().max().unwrap_or(0), 30);
-
     // Construct a target to alias map.
     let mut recipe_aliases: Map<&str, Vec<&str>> = Map::new();
     for alias in justfile.aliases.values() {
@@ -391,48 +367,71 @@ pub fn run() {
       }
     }
 
-    let doc_color = color.stdout().doc();
-    println!("Available recipes:");
+    let mut line_widths: Map<&str, usize> = Map::new();
+
     for (name, recipe) in &justfile.recipes {
       if recipe.private {
         continue;
       }
-      print!("    {}", name);
-      for parameter in &recipe.parameters {
-        if color.stdout().active() {
-          print!(" {:#}", parameter);
-        } else {
-          print!(" {}", parameter);
+
+      for name in iter::once(name).chain(recipe_aliases.get(name).unwrap_or(&Vec::new())) {
+        let mut line_width = UnicodeWidthStr::width(*name);
+
+        for parameter in &recipe.parameters {
+          line_width += UnicodeWidthStr::width(format!(" {}", parameter).as_str());
+        }
+
+        if line_width <= 30 {
+          line_widths.insert(name, line_width);
         }
       }
-      if let Some(doc) = recipe.doc {
-        print!(
-          " {:padding$}{} {}",
-          "",
-          doc_color.paint("#"),
-          doc_color.paint(doc),
-          padding =
-            max_line_width.saturating_sub(line_widths.get(name).cloned().unwrap_or(max_line_width))
-        );
-      }
-      println!();
+    }
 
-      // Print aliases if there are any
-      if let Some(aliases) = recipe_aliases.get(name) {
-        for alias in aliases {
-          print!("    {}", alias);
+    let max_line_width = cmp::min(line_widths.values().cloned().max().unwrap_or(0), 30);
+
+    let doc_color = color.stdout().doc();
+    println!("Available recipes:");
+
+    for (name, recipe) in &justfile.recipes {
+      if recipe.private {
+        continue;
+      }
+
+      let alias_doc = format!("alias for `{}`", recipe.name);
+
+      for (i, name) in iter::once(name).chain(recipe_aliases.get(name).unwrap_or(&Vec::new())).enumerate() {
+        print!("    {}", name);
+        for parameter in &recipe.parameters {
+          if color.stdout().active() {
+            print!(" {:#}", parameter);
+          } else {
+            print!(" {}", parameter);
+          }
+        }
+
+        // Declaring this outside of the nested loops will probably be more efficient, but 
+        // it creates all sorts of lifetime issues with variables inside the loops.
+        // If this is inlined like the docs say, it shouldn't make any difference.
+        let print_doc = |doc| {
           print!(
             " {:padding$}{} {}",
             "",
             doc_color.paint("#"),
-            doc_color.paint(format!("alias for `{}`", name).as_str()),
-            padding = max_line_width
-              .saturating_sub(line_widths.get(alias).cloned().unwrap_or(max_line_width))
+            doc_color.paint(doc),
+            padding =
+            max_line_width.saturating_sub(line_widths.get(name).cloned().unwrap_or(max_line_width))
           );
-          println!();
+        };
+
+        match (i, recipe.doc) {
+          (0, Some(doc)) => print_doc(doc),
+          (0, None)      => (),
+          _              => print_doc(&alias_doc),
         }
+        println!();
       }
     }
+
     process::exit(EXIT_SUCCESS);
   }
 

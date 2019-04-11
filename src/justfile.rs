@@ -106,7 +106,7 @@ impl<'a> Justfile<'a> where {
         } else {
           let argument_range = recipe.argument_range();
           let argument_count = cmp::min(tail.len(), recipe.max_arguments());
-          if !argument_range.range_contains(argument_count) {
+          if !argument_range.range_contains(&argument_count) {
             return Err(RuntimeError::ArgumentCountMismatch {
               recipe: recipe.name,
               parameters: recipe.parameters.iter().collect(),
@@ -183,7 +183,7 @@ impl<'a> Display for Justfile<'a> {
       }
     }
     for alias in self.aliases.values() {
-      write!(f, "alias {} = {}", alias.name, alias.target)?;
+      write!(f, "{}",alias)?;
       items -= 1;
       if items != 0 {
         write!(f, "\n\n")?;

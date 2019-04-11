@@ -45,8 +45,8 @@ pub struct RecipeContext<'a> {
 }
 
 impl<'a> Recipe<'a> {
-  pub fn argument_range(&self) -> Range<usize> {
-    self.min_arguments()..self.max_arguments() + 1
+  pub fn argument_range(&self) -> RangeInclusive<usize> {
+    self.min_arguments()..=self.max_arguments()
   }
 
   pub fn min_arguments(&self) -> usize {

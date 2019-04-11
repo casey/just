@@ -102,6 +102,43 @@ fn integration_test(
 }
 
 integration_test! {
+  name: alias_listing,
+  justfile: "foo:\n  echo foo\nalias f = foo",
+  args: ("--list"),
+  stdout: "Available recipes:
+    foo
+    f   # alias for `foo`
+",
+  stderr: "",
+  status: EXIT_SUCCESS,
+}
+
+integration_test! {
+  name: alias_listing_multiple_aliases,
+  justfile: "foo:\n  echo foo\nalias f = foo\nalias fo = foo",
+  args: ("--list"),
+  stdout: "Available recipes:
+    foo
+    f   # alias for `foo`
+    fo  # alias for `foo`
+",
+  stderr: "",
+  status: EXIT_SUCCESS,
+}
+
+integration_test! {
+  name: alias_listing_parameters,
+  justfile: "foo PARAM='foo':\n  echo {{PARAM}}\nalias f = foo",
+  args: ("--list"),
+  stdout: "Available recipes:
+    foo PARAM='foo'
+    f PARAM='foo'   # alias for `foo`
+",
+  stderr: "",
+  status: EXIT_SUCCESS,
+}
+
+integration_test! {
   name: alias,
   justfile: "foo:\n  echo foo\nalias f = foo",
   args: ("f"),
