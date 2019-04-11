@@ -1,7 +1,5 @@
 use crate::common::*;
 
-use brev;
-
 pub struct Platform;
 
 pub trait PlatformInterface {

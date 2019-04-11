@@ -1,7 +1,5 @@
 use crate::common::*;
 
-use dotenv;
-
 pub fn load_dotenv() -> RunResult<'static, Map<String, String>> {
   match dotenv::dotenv_iter() {
     Ok(iter) => {

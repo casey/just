@@ -1,6 +1,3 @@
-extern crate executable_path;
-extern crate tempdir;
-
 use executable_path::executable_path;
 use std::{error::Error, fs, process::Command};
 use tempdir::TempDir;

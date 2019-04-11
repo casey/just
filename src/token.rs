@@ -50,7 +50,7 @@ pub enum TokenKind {
 
 impl Display for TokenKind {
   fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
-    use crate::TokenKind::*;
+    use TokenKind::*;
     write!(
       f,
       "{}",

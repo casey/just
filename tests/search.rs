@@ -1,7 +1,3 @@
-extern crate brev;
-extern crate executable_path;
-extern crate tempdir;
-
 use executable_path::executable_path;
 use std::{fs, path, process, str};
 use tempdir::TempDir;

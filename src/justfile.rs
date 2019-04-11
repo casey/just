@@ -1,7 +1,5 @@
 use crate::common::*;
 
-use edit_distance::edit_distance;
-
 pub struct Justfile<'a> {
   pub recipes: Map<&'a str, Recipe<'a>>,
   pub assignments: Map<&'a str, Expression<'a>>,
@@ -203,8 +201,9 @@ impl<'a> Display for Justfile<'a> {
 #[cfg(test)]
 mod test {
   use super::*;
+
+  use crate::runtime_error::RuntimeError::*;
   use crate::testing::parse_success;
-  use crate::RuntimeError::*;
 
   fn no_cwd_err() -> Result<PathBuf, String> {
     Err(String::from("no cwd in tests"))

@@ -6,7 +6,7 @@ bt='0'
 
 export RUST_BACKTRACE=bt
 
-test: build
+test:
 	cargo test
 
 fuzz:
@@ -20,7 +20,7 @@ fuzz:
 	} | less
 
 # only run tests matching PATTERN
-filter PATTERN: build
+filter PATTERN:
 	cargo test {{PATTERN}}
 
 # test with backtrace

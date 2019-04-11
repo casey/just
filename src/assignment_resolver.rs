@@ -1,6 +1,6 @@
 use crate::common::*;
 
-use crate::CompilationErrorKind::*;
+use CompilationErrorKind::*;
 
 pub struct AssignmentResolver<'a: 'b, 'b> {
   assignments: &'b Map<&'a str, Expression<'a>>,

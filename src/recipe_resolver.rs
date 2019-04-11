@@ -1,6 +1,6 @@
 use crate::common::*;
 
-use crate::CompilationErrorKind::*;
+use CompilationErrorKind::*;
 
 pub struct RecipeResolver<'a: 'b, 'b> {
   stack: Vec<&'a str>,

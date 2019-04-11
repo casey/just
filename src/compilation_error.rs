@@ -104,7 +104,7 @@ pub enum CompilationErrorKind<'a> {
 
 impl<'a> Display for CompilationError<'a> {
   fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
-    use crate::CompilationErrorKind::*;
+    use CompilationErrorKind::*;
     let error = Color::fmt(f).error();
     let message = Color::fmt(f).message();
 

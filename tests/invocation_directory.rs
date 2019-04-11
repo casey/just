@@ -1,8 +1,3 @@
-extern crate brev;
-extern crate executable_path;
-extern crate target;
-extern crate tempdir;
-
 use executable_path::executable_path;
 use std::path::Path;
 use std::process;

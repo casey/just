@@ -1,7 +1,7 @@
 use crate::common::*;
 
-use crate::CompilationErrorKind::*;
-use crate::TokenKind::*;
+use CompilationErrorKind::*;
+use TokenKind::*;
 
 fn re(pattern: &str) -> Regex {
   Regex::new(pattern).unwrap()
@@ -383,7 +383,7 @@ mod test {
       fn $name() {
         let input = $input;
         let expected = $expected;
-        let tokens = crate::Lexer::lex(input).unwrap();
+        let tokens = crate::lexer::Lexer::lex(input).unwrap();
         let roundtrip = tokens
           .iter()
           .map(|t| {

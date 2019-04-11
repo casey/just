@@ -1,7 +1,5 @@
 use crate::common::*;
 
-use unicode_width::UnicodeWidthChar;
-
 pub fn show_whitespace(text: &str) -> String {
   text
     .chars()

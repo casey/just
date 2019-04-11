@@ -4,7 +4,6 @@ use crate::configuration::DEFAULT_SHELL;
 use crate::interrupt_handler::InterruptHandler;
 use crate::misc::maybe_s;
 use clap::{App, AppSettings, Arg, ArgGroup};
-use env_logger;
 use std::{convert, ffi};
 use unicode_width::UnicodeWidthStr;
 

@@ -1,12 +1,8 @@
 use crate::common::*;
 
-use dotenv;
-
 use brev::OutputError;
 
 use crate::misc::{maybe_s, ticks, write_error_context, And, Or, Tick};
-
-use self::RuntimeError::*;
 
 pub type RunResult<'a, T> = Result<T, RuntimeError<'a>>;
 
@@ -87,6 +83,7 @@ pub enum RuntimeError<'a> {
 
 impl<'a> RuntimeError<'a> {
   pub fn code(&self) -> Option<i32> {
+    use RuntimeError::*;
     match *self {
       Code { code, .. }
       | Backtick {
@@ -100,7 +97,8 @@ impl<'a> RuntimeError<'a> {
 
 impl<'a> Display for RuntimeError<'a> {
   fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
-    use crate::RuntimeError::*;
+    use RuntimeError::*;
+
     let color = if f.alternate() {
       Color::always()
     } else {

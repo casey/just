@@ -21,7 +21,7 @@ macro_rules! compilation_error_test {
     fn $name() {
       let input = $input;
 
-      let expected = crate::CompilationError {
+      let expected = crate::compilation_error::CompilationError {
         text: input,
         index: $index,
         line: $line,
@@ -30,8 +30,8 @@ macro_rules! compilation_error_test {
         kind: $kind,
       };
 
-      let tokens = crate::Lexer::lex(input).unwrap();
-      let parser = crate::Parser::new(input, tokens);
+      let tokens = crate::lexer::Lexer::lex(input).unwrap();
+      let parser = crate::parser::Parser::new(input, tokens);
 
       if let Err(error) = parser.justfile() {
         assert_eq!(error.text, expected.text);

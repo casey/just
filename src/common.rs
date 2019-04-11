@@ -13,9 +13,12 @@ pub(crate) use std::{
   usize, vec,
 };
 
+pub(crate) use edit_distance::edit_distance;
 pub(crate) use libc::{EXIT_FAILURE, EXIT_SUCCESS};
+pub(crate) use log::warn;
 pub(crate) use regex::Regex;
 pub(crate) use tempdir::TempDir;
+pub(crate) use unicode_width::UnicodeWidthChar;
 
 pub(crate) use crate::{
   alias::Alias,

@@ -1,12 +1,9 @@
-extern crate ansi_term;
-extern crate atty;
-
 use crate::common::*;
 
-use self::ansi_term::Color::*;
-use self::ansi_term::{ANSIGenericString, Prefix, Style, Suffix};
-use self::atty::is as is_atty;
-use self::atty::Stream;
+use ansi_term::Color::*;
+use ansi_term::{ANSIGenericString, Prefix, Style, Suffix};
+use atty::is as is_atty;
+use atty::Stream;
 
 #[derive(Copy, Clone)]
 pub enum UseColor {
