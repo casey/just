@@ -1,3 +1,5 @@
+//! Justfile summary creation, for testing purposes only.
+//!
 //! The contents of this module are not bound by any stability guarantees.
 //! Breaking changes may be introduced at any time.
 //!
@@ -7,7 +9,7 @@
 //! an error message.
 //!
 //! This functionality is intended to be used with `janus`, a tool for
-//! ensuring that changes to just do not inadvertantly break or
+//! ensuring that changes to just do not inadvertently break or
 //! change the interpretation of existing justfiles.
 
 use std::{

@@ -43,5 +43,4 @@ mod verbosity;
 
 pub use crate::run::run;
 
-#[cfg(feature = "summary")]
 pub mod summary;
