@@ -503,7 +503,7 @@ Testing server:unit...
 ./test --tests unit server
 ```
 
-Default values may be arbitrary expressions, but concatinations must be quoted, like so:
+Default values may be arbitrary expressions, but concatenations must be parenthesized:
 
 ```make
 arch = "wasm"
