@@ -1,7 +1,6 @@
 use executable_path::executable_path;
 use std::{
   process::Command,
-  thread,
   time::{Duration, Instant},
 };
 use tempdir::TempDir;
@@ -33,7 +32,7 @@ fn interrupt_test(justfile: &str) {
     .spawn()
     .expect("just invocation failed");
 
-  thread::sleep(Duration::new(1, 0));
+  while start.elapsed() < Duration::from_millis(500) {}
 
   kill(child.id());
 
@@ -41,11 +40,11 @@ fn interrupt_test(justfile: &str) {
 
   let elapsed = start.elapsed();
 
-  if elapsed > Duration::new(4, 0) {
+  if elapsed > Duration::from_secs(2) {
     panic!("process returned too late: {:?}", elapsed);
   }
 
-  if elapsed < Duration::new(1, 0) {
+  if elapsed < Duration::from_millis(100) {
     panic!("process returned too early : {:?}", elapsed);
   }
 
@@ -59,7 +58,7 @@ fn interrupt_shebang() {
     "
 default:
   #!/usr/bin/env sh
-  sleep 2
+  sleep 1
 ",
   );
 }
@@ -70,7 +69,7 @@ fn interrupt_line() {
   interrupt_test(
     "
 default:
-  @sleep 2
+  @sleep 1
 ",
   );
 }
@@ -80,7 +79,7 @@ default:
 fn interrupt_backtick() {
   interrupt_test(
     "
-foo = `sleep 2`
+foo = `sleep 1`
 
 default:
   @echo hello
