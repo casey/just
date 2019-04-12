@@ -112,9 +112,7 @@ impl Parameter {
     Parameter {
       variadic: parameter.variadic,
       name: parameter.name.to_owned(),
-      default: parameter
-        .default
-        .map(|expression| Expression::new(expression)),
+      default: parameter.default.map(Expression::new),
     }
   }
 }
