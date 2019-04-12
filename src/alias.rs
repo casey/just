@@ -1,5 +1,6 @@
 use crate::common::*;
 
+#[derive(Debug)]
 pub struct Alias<'a> {
   pub name: &'a str,
   pub target: &'a str,

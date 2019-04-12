@@ -86,11 +86,24 @@ impl<'a> Recipe<'a> {
 
     let mut argument_map = BTreeMap::new();
 
+    let mut evaluator = AssignmentEvaluator {
+      assignments: &empty(),
+      dry_run: configuration.dry_run,
+      evaluated: empty(),
+      invocation_directory: context.invocation_directory,
+      overrides: &empty(),
+      quiet: configuration.quiet,
+      scope: &context.scope,
+      shell: configuration.shell,
+      dotenv,
+      exports,
+    };
+
     let mut rest = arguments;
     for parameter in &self.parameters {
       let value = if rest.is_empty() {
         match parameter.default {
-          Some(ref default) => Cow::Borrowed(default.as_str()),
+          Some(ref default) => Cow::Owned(evaluator.evaluate_expression(default, &empty())?),
           None => {
             return Err(RuntimeError::Internal {
               message: "missing parameter without default".to_string(),
@@ -108,19 +121,6 @@ impl<'a> Recipe<'a> {
       };
       argument_map.insert(parameter.name, value);
     }
-
-    let mut evaluator = AssignmentEvaluator {
-      assignments: &empty(),
-      dry_run: configuration.dry_run,
-      evaluated: empty(),
-      invocation_directory: context.invocation_directory,
-      overrides: &empty(),
-      quiet: configuration.quiet,
-      scope: &context.scope,
-      shell: configuration.shell,
-      dotenv,
-      exports,
-    };
 
     if self.shebang {
       let mut evaluated_lines = vec![];

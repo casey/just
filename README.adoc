@@ -480,7 +480,9 @@ cd my-awesome-project && make
 Parameters may have default values:
 
 ```make
-test target tests='all':
+default = 'all'
+
+test target tests=default:
     @echo 'Testing {{target}}:{{tests}}...'
     ./test --tests {{tests}} {{target}}
 ```
@@ -499,6 +501,15 @@ Or supplied:
 $ just test server unit
 Testing server:unit...
 ./test --tests unit server
+```
+
+Default values may be arbitrary expressions, but concatenations must be parenthesized:
+
+```make
+arch = "wasm"
+
+test triple=(arch + "-unknown-unknown"):
+  ./test {{triple}}
 ```
 
 The last parameter of a recipe may be variadic, indicated with a `+` before the argument name:

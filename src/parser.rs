@@ -49,15 +49,6 @@ impl<'a> Parser<'a> {
     }
   }
 
-  fn accept_any(&mut self, kinds: &[TokenKind]) -> Option<Token<'a>> {
-    for kind in kinds {
-      if self.peek(*kind) {
-        return self.tokens.next();
-      }
-    }
-    None
-  }
-
   fn accepted(&mut self, kind: TokenKind) -> bool {
     self.accept(kind).is_some()
   }
@@ -137,12 +128,7 @@ impl<'a> Parser<'a> {
 
       let default;
       if self.accepted(Equals) {
-        if let Some(string) = self.accept_any(&[StringToken, RawString]) {
-          default = Some(CookedString::new(&string)?.cooked);
-        } else {
-          let unexpected = self.tokens.next().unwrap();
-          return Err(self.unexpected_token(&unexpected, &[StringToken, RawString]));
-        }
+        default = Some(self.value()?);
       } else {
         default = None
       }
@@ -243,6 +229,10 @@ impl<'a> Parser<'a> {
       }
     }
 
+    while lines.last().map(Vec::is_empty).unwrap_or(false) {
+      lines.pop();
+    }
+
     self.recipes.insert(
       name.lexeme,
       Recipe {
@@ -262,9 +252,10 @@ impl<'a> Parser<'a> {
     Ok(())
   }
 
-  fn expression(&mut self) -> CompilationResult<'a, Expression<'a>> {
+  fn value(&mut self) -> CompilationResult<'a, Expression<'a>> {
     let first = self.tokens.next().unwrap();
-    let lhs = match first.kind {
+
+    match first.kind {
       Name => {
         if self.peek(ParenL) {
           if let Some(token) = self.expect(ParenL) {
@@ -274,30 +265,46 @@ impl<'a> Parser<'a> {
           if let Some(token) = self.expect(ParenR) {
             return Err(self.unexpected_token(&token, &[Name, StringToken, ParenR]));
           }
-          Expression::Call {
+          Ok(Expression::Call {
             name: first.lexeme,
             token: first,
             arguments,
-          }
+          })
         } else {
-          Expression::Variable {
+          Ok(Expression::Variable {
             name: first.lexeme,
             token: first,
-          }
+          })
         }
       }
-      Backtick => Expression::Backtick {
+      Backtick => Ok(Expression::Backtick {
         raw: &first.lexeme[1..first.lexeme.len() - 1],
         token: first,
-      },
-      RawString | StringToken => Expression::String {
+      }),
+      RawString | StringToken => Ok(Expression::String {
         cooked_string: CookedString::new(&first)?,
-      },
-      _ => return Err(self.unexpected_token(&first, &[Name, StringToken])),
-    };
+      }),
+      ParenL => {
+        let expression = self.expression()?;
+
+        if let Some(token) = self.expect(ParenR) {
+          return Err(self.unexpected_token(&token, &[ParenR]));
+        }
+
+        Ok(Expression::Group {
+          expression: Box::new(expression),
+        })
+      }
+      _ => Err(self.unexpected_token(&first, &[Name, StringToken])),
+    }
+  }
+
+  fn expression(&mut self) -> CompilationResult<'a, Expression<'a>> {
+    let lhs = self.value()?;
 
     if self.accepted(Plus) {
       let rhs = self.expression()?;
+
       Ok(Expression::Concatination {
         lhs: Box::new(lhs),
         rhs: Box::new(rhs),
@@ -463,6 +470,8 @@ impl<'a> Parser<'a> {
       }));
     }
 
+    AssignmentResolver::resolve_assignments(&self.assignments, &self.assignment_tokens)?;
+
     RecipeResolver::resolve_recipes(&self.recipes, &self.assignments, self.text)?;
 
     for recipe in self.recipes.values() {
@@ -485,8 +494,6 @@ impl<'a> Parser<'a> {
     }
 
     AliasResolver::resolve_aliases(&self.aliases, &self.recipes, &self.alias_tokens)?;
-
-    AssignmentResolver::resolve_assignments(&self.assignments, &self.assignment_tokens)?;
 
     Ok(Justfile {
       recipes: self.recipes,
@@ -513,8 +520,16 @@ mod test {
         let actual = format!("{:#}", justfile);
         if actual != expected {
           println!("got:\n\"{}\"\n", actual);
-          println!("\texpected:\n\"{}\"", expected);
+          println!("expected:\n\"{}\"", expected);
           assert_eq!(actual, expected);
+        }
+        println!("Re-parsing...");
+        let reparsed = parse_success(&actual);
+        let redumped = format!("{:#}", reparsed);
+        if redumped != actual {
+          println!("reparsed:\n\"{}\"\n", redumped);
+          println!("expected:\n\"{}\"", actual);
+          assert_eq!(redumped, actual);
         }
       }
     };
@@ -539,7 +554,18 @@ foo a="b\t":
 
 
   "#,
-    r#"foo a='b\t':"#,
+    r#"foo a="b\t":"#,
+  }
+
+  summary_test! {
+  parse_multiple,
+    r#"
+a:
+b:
+"#,
+    r#"a:
+
+b:"#,
   }
 
   summary_test! {
@@ -561,7 +587,7 @@ foo +a="Hello":
 
 
   "#,
-    r#"foo +a='Hello':"#,
+    r#"foo +a="Hello":"#,
   }
 
   summary_test! {
@@ -572,7 +598,7 @@ foo a='b\t':
 
 
   "#,
-    r#"foo a='b\\t':"#,
+    r#"foo a='b\t':"#,
   }
 
   summary_test! {
@@ -671,7 +697,7 @@ install:
 \t\treturn
 \tfi
 ",
-    "practicum = \"hello\"
+    "practicum = 'hello'
 
 install:
     #!/bin/sh
@@ -765,10 +791,76 @@ x = env_var('foo',)
 
 a:
   {{env_var_or_default('foo' + 'bar', 'baz',)}} {{env_var(env_var("baz"))}}"#,
-    r#"x = env_var("foo")
+    r#"x = env_var('foo')
 
 a:
-    {{env_var_or_default("foo" + "bar", "baz")}} {{env_var(env_var("baz"))}}"#,
+    {{env_var_or_default('foo' + 'bar', 'baz')}} {{env_var(env_var("baz"))}}"#,
+  }
+
+  summary_test! {
+    parameter_default_string,
+    r#"
+f x="abc":
+"#,
+    r#"f x="abc":"#,
+  }
+
+  summary_test! {
+    parameter_default_raw_string,
+    r#"
+f x='abc':
+"#,
+    r#"f x='abc':"#,
+  }
+
+  summary_test! {
+    parameter_default_backtick,
+    r#"
+f x=`echo hello`:
+"#,
+    r#"f x=`echo hello`:"#,
+  }
+
+  summary_test! {
+    parameter_default_concatination_string,
+    r#"
+f x=(`echo hello` + "foo"):
+"#,
+    r#"f x=(`echo hello` + "foo"):"#,
+  }
+
+  summary_test! {
+    parameter_default_concatination_variable,
+    r#"
+x = "10"
+f y=(`echo hello` + x) +z="foo":
+"#,
+    r#"x = "10"
+
+f y=(`echo hello` + x) +z="foo":"#,
+  }
+
+  summary_test! {
+    parameter_default_multiple,
+    r#"
+x = "10"
+f y=(`echo hello` + x) +z=("foo" + "bar"):
+"#,
+    r#"x = "10"
+
+f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
+  }
+
+  summary_test! {
+    concatination_in_group,
+    "x = ('0' + '1')",
+    "x = ('0' + '1')",
+  }
+
+  summary_test! {
+    string_in_group,
+    "x = ('0'   )",
+    "x = ('0')",
   }
 
   compilation_error_test! {
@@ -848,7 +940,7 @@ a:
     line:   0,
     column: 10,
     width:  Some(1),
-    kind:   UnexpectedToken{expected: vec![StringToken, RawString], found: Eol},
+    kind:   UnexpectedToken{expected: vec![Name, StringToken], found: Eol},
   }
 
   compilation_error_test! {
@@ -858,27 +950,7 @@ a:
     line:   0,
     column: 10,
     width:  Some(0),
-    kind:   UnexpectedToken{expected: vec![StringToken, RawString], found: Eof},
-  }
-
-  compilation_error_test! {
-    name:   missing_default_colon,
-    input:  "hello arg=:",
-    index:  10,
-    line:   0,
-    column: 10,
-    width:  Some(1),
-    kind:   UnexpectedToken{expected: vec![StringToken, RawString], found: Colon},
-  }
-
-  compilation_error_test! {
-    name:   missing_default_backtick,
-    input:  "hello arg=`hello`",
-    index:  10,
-    line:   0,
-    column: 10,
-    width:  Some(7),
-    kind:   UnexpectedToken{expected: vec![StringToken, RawString], found: Backtick},
+    kind:   UnexpectedToken{expected: vec![Name, StringToken], found: Eof},
   }
 
   compilation_error_test! {
@@ -1064,5 +1136,34 @@ a:
     for justfile in justfiles {
       parse_success(&justfile);
     }
+  }
+
+  #[test]
+  fn empty_recipe_lines() {
+    let text = "a:";
+    let justfile = parse_success(&text);
+
+    assert_eq!(justfile.recipes["a"].lines.len(), 0);
+  }
+
+  #[test]
+  fn simple_recipe_lines() {
+    let text = "a:\n foo";
+    let justfile = parse_success(&text);
+
+    assert_eq!(justfile.recipes["a"].lines.len(), 1);
+  }
+
+  #[test]
+  fn complex_recipe_lines() {
+    let text = "a:
+  foo
+
+b:
+";
+
+    let justfile = parse_success(&text);
+
+    assert_eq!(justfile.recipes["a"].lines.len(), 1);
   }
 }

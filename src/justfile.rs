@@ -1,5 +1,6 @@
 use crate::common::*;
 
+#[derive(Debug)]
 pub struct Justfile<'a> {
   pub recipes: BTreeMap<&'a str, Recipe<'a>>,
   pub assignments: BTreeMap<&'a str, Expression<'a>>,

@@ -2,11 +2,23 @@ use crate::common::*;
 
 use CompilationErrorKind::*;
 
+// There are borrow issues here that seems too difficult to solve.
+// The errors derived from the variable token has too short a lifetime,
+// so we create a new error from its contents, which do live long
+// enough.
+//
+// I suspect the solution here is to give recipes, pieces, and expressions
+// two lifetime parameters instead of one, with one being the lifetime
+// of the struct, and the second being the lifetime of the tokens
+// that it contains.
+
 pub struct RecipeResolver<'a: 'b, 'b> {
   stack: Vec<&'a str>,
   seen: BTreeSet<&'a str>,
   resolved: BTreeSet<&'a str>,
   recipes: &'b BTreeMap<&'a str, Recipe<'a>>,
+  assignments: &'b BTreeMap<&'a str, Expression<'a>>,
+  text: &'a str,
 }
 
 impl<'a, 'b> RecipeResolver<'a, 'b> {
@@ -19,6 +31,8 @@ impl<'a, 'b> RecipeResolver<'a, 'b> {
       seen: empty(),
       stack: empty(),
       resolved: empty(),
+      assignments,
+      text,
       recipes,
     };
 
@@ -27,55 +41,68 @@ impl<'a, 'b> RecipeResolver<'a, 'b> {
       resolver.seen = empty();
     }
 
-    // There are borrow issues here that seems too difficult to solve.
-    // The errors derived from the variable token has too short a lifetime,
-    // so we create a new error from its contents, which do live long
-    // enough.
-    //
-    // I suspect the solution here is to give recipes, pieces, and expressions
-    // two lifetime parameters instead of one, with one being the lifetime
-    // of the struct, and the second being the lifetime of the tokens
-    // that it contains.
-
     for recipe in recipes.values() {
+      for parameter in &recipe.parameters {
+        if let Some(expression) = &parameter.default {
+          for (function, argc) in expression.functions() {
+            resolver.resolve_function(function, argc)?;
+          }
+          for variable in expression.variables() {
+            resolver.resolve_variable(variable, &[])?;
+          }
+        }
+      }
+
       for line in &recipe.lines {
         for fragment in line {
           if let Fragment::Expression { ref expression, .. } = *fragment {
             for (function, argc) in expression.functions() {
-              if let Err(error) = resolve_function(function, argc) {
-                return Err(CompilationError {
-                  index: error.index,
-                  line: error.line,
-                  column: error.column,
-                  width: error.width,
-                  kind: UnknownFunction {
-                    function: &text[error.index..error.index + error.width.unwrap()],
-                  },
-                  text,
-                });
-              }
+              resolver.resolve_function(function, argc)?;
             }
             for variable in expression.variables() {
-              let name = variable.lexeme;
-              let undefined = !assignments.contains_key(name)
-                && !recipe.parameters.iter().any(|p| p.name == name);
-              if undefined {
-                let error = variable.error(UndefinedVariable { variable: name });
-                return Err(CompilationError {
-                  index: error.index,
-                  line: error.line,
-                  column: error.column,
-                  width: error.width,
-                  kind: UndefinedVariable {
-                    variable: &text[error.index..error.index + error.width.unwrap()],
-                  },
-                  text,
-                });
-              }
+              resolver.resolve_variable(variable, &recipe.parameters)?;
             }
           }
         }
       }
+    }
+
+    Ok(())
+  }
+
+  fn resolve_function(&self, function: &Token, argc: usize) -> CompilationResult<'a, ()> {
+    resolve_function(function, argc).map_err(|error| CompilationError {
+      index: error.index,
+      line: error.line,
+      column: error.column,
+      width: error.width,
+      kind: UnknownFunction {
+        function: &self.text[error.index..error.index + error.width.unwrap()],
+      },
+      text: self.text,
+    })
+  }
+
+  fn resolve_variable(
+    &self,
+    variable: &Token,
+    parameters: &[Parameter],
+  ) -> CompilationResult<'a, ()> {
+    let name = variable.lexeme;
+    let undefined =
+      !self.assignments.contains_key(name) && !parameters.iter().any(|p| p.name == name);
+    if undefined {
+      let error = variable.error(UndefinedVariable { variable: name });
+      return Err(CompilationError {
+        index: error.index,
+        line: error.line,
+        column: error.column,
+        width: error.width,
+        kind: UndefinedVariable {
+          variable: &self.text[error.index..error.index + error.width.unwrap()],
+        },
+        text: self.text,
+      });
     }
 
     Ok(())
@@ -185,5 +212,25 @@ mod test {
     column: 8,
     width:  Some(3),
     kind:   UnknownFunction{function: "bar"},
+  }
+
+  compilation_error_test! {
+    name:   unknown_function_in_default,
+    input:  "a f=baz():",
+    index:  4,
+    line:   0,
+    column: 4,
+    width:  Some(3),
+    kind:   UnknownFunction{function: "baz"},
+  }
+
+  compilation_error_test! {
+    name:   unknown_variable_in_default,
+    input:  "a f=foo:",
+    index:  4,
+    line:   0,
+    column: 4,
+    width:  Some(3),
+    kind:   UndefinedVariable{variable: "foo"},
   }
 }
