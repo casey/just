@@ -18,7 +18,7 @@ use std::{
   path::Path,
 };
 
-use crate::{expression, fragment, justfile::Justfile, parser::Parser, recipe};
+use crate::{expression, fragment, justfile::Justfile, parameter, parser::Parser, recipe};
 
 pub fn summary(path: impl AsRef<Path>) -> Result<Result<Summary, String>, io::Error> {
   let path = path.as_ref();
@@ -83,6 +83,7 @@ pub struct Recipe {
   pub private: bool,
   pub quiet: bool,
   pub shebang: bool,
+  pub parameters: Vec<Parameter>,
 }
 
 impl Recipe {
@@ -93,7 +94,27 @@ impl Recipe {
       quiet: recipe.quiet,
       dependencies: recipe.dependencies.into_iter().map(str::to_owned).collect(),
       lines: recipe.lines.into_iter().map(Line::new).collect(),
+      parameters: recipe.parameters.into_iter().map(Parameter::new).collect(),
       aliases,
+    }
+  }
+}
+
+#[derive(Eq, PartialEq, Hash, Ord, PartialOrd, Debug, Clone)]
+pub struct Parameter {
+  pub variadic: bool,
+  pub name: String,
+  pub default: Option<Expression>,
+}
+
+impl Parameter {
+  fn new(parameter: parameter::Parameter) -> Parameter {
+    Parameter {
+      variadic: parameter.variadic,
+      name: parameter.name.to_owned(),
+      default: parameter
+        .default
+        .map(|expression| Expression::new(expression)),
     }
   }
 }
