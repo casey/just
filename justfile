@@ -6,6 +6,10 @@ bt='0'
 
 export RUST_BACKTRACE=bt
 
+alias t = test
+
+alias c = check
+
 test:
 	cargo test
 
@@ -23,10 +27,6 @@ fuzz:
 filter PATTERN:
 	cargo test {{PATTERN}}
 
-# test with backtrace
-backtrace:
-	RUST_BACKTRACE=1 cargo test
-
 build:
 	cargo build
 
@@ -36,7 +36,7 @@ check:
 watch COMMAND='test':
 	cargo watch --clear --exec {{COMMAND}}
 
-version = `sed -En 's/version[[:space:]]*=[[:space:]]*"([^"]+)"/v\1/p' Cargo.toml`
+version = `sed -En 's/version[[:space:]]*=[[:space:]]*"([^"]+)"/v\1/p' Cargo.toml | head -1`
 
 # publish to crates.io
 publish: lint clippy test
@@ -127,26 +127,27 @@ watch-readme:
 	fswatch -ro README.adoc | xargs -n1 -I{} just render-readme
 
 # run all polyglot recipes
-polyglot: python js perl sh ruby
+polyglot: _python _js _perl _sh _ruby
+# (recipes that start with `_` are hidden from --list)
 
-python:
+_python:
 	#!/usr/bin/env python3
 	print('Hello from python!')
 
-js:
+_js:
 	#!/usr/bin/env node
 	console.log('Greetings from JavaScript!')
 
-perl:
+_perl:
 	#!/usr/bin/env perl
 	print "Larry Wall says Hi!\n";
 
-sh:
+_sh:
 	#!/usr/bin/env sh
 	hello='Yo'
 	echo "$hello from a shell script!"
 
-ruby:
+_ruby:
 	#!/usr/bin/env ruby
 	puts "Hello from ruby!"
 
