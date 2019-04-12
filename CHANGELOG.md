@@ -10,7 +10,7 @@
 - Add link to Chinese translation of readme by @chinanf-boy (#377)
 
 ### Changed
-- Housekeeping cleanup (#394)
+- Upgrade to Rust 2018 (#394)
 - Format the codebase with rustfmt (#346)
 
 ## [v0.3.13] - 2018-11-06
