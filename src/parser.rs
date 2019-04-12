@@ -49,18 +49,6 @@ impl<'a> Parser<'a> {
     }
   }
 
-  /// I think this is used in an incoming PR:
-  ///   https://github.com/casey/just/issues/389
-  #[allow(dead_code)]
-  fn accept_any(&mut self, kinds: &[TokenKind]) -> Option<Token<'a>> {
-    for kind in kinds {
-      if self.peek(*kind) {
-        return self.tokens.next();
-      }
-    }
-    None
-  }
-
   fn accepted(&mut self, kind: TokenKind) -> bool {
     self.accept(kind).is_some()
   }
