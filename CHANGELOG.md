@@ -1,9 +1,17 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+## [v0.4.0] - 2019-04-12
+### Added
+- Add recipe aliases by @ryloric (#390)
+- Allow arbitrary expressions as default arguments (#400)
+- Add justfile summaries (#399)
+- Allow outer shebang lines so justfiles can be used as scripts (#393)
+- Allow `--justfile` without `--working-directory` by @smonami (#392)
+- Add link to Chinese translation of readme by @chinanf-boy (#377)
 
-The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
-and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
+### Changed
+- Housekeeping cleanup (#394)
+- Format the codebase with rustfmt (#346)
 
 ## [v0.3.13] - 2018-11-06
 ### Added
