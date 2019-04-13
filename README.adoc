@@ -86,6 +86,14 @@ scoop install just
 
 On Arch Linux, `just` is packaged as https://aur.archlinux.org/packages/just/[just] in AUR, the https://aur.archlinux.org[Arch User Repository]. Several tools are available to install packages from AUR, including https://github.com/Jguer/yay[yay] and https://github.com/archlinuxfr/yaourt[yaourt].
 
+=== Nix
+
+On NixOS, Linux, and MacOS, `just` can be installed using the https://nixos.org/nix/[Nix package manager]. Install https://nixos.org/nix/download.html[Nix] or https://nixos.org/nixos/download.html[NixOS], then run:
+
+```sh
+nix-env -i just
+```
+
 
 === Cargo
 
@@ -94,7 +102,6 @@ On Windows, Linux, and macOS, `just` can be installed using Cargo, the https://w
 `cargo install just`
 
 (You might also need to add `~/.cargo/bin` to your shell's `$PATH`. If you can't run just after installing it, put `export PATH="$HOME/.cargo/bin:$PATH"` in your shell's configuration file.)
-
 
 == Quick Start
 
