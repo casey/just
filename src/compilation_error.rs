@@ -7,7 +7,7 @@ pub type CompilationResult<'a, T> = Result<T, CompilationError<'a>>;
 #[derive(Debug, PartialEq)]
 pub struct CompilationError<'a> {
   pub text: &'a str,
-  pub index: usize,
+  pub offset: usize,
   pub line: usize,
   pub column: usize,
   pub width: Option<usize>,
@@ -295,6 +295,13 @@ impl<'a> Display for CompilationError<'a> {
 
     write!(f, "{}", message.suffix())?;
 
-    write_error_context(f, self.text, self.index, self.line, self.column, self.width)
+    write_error_context(
+      f,
+      self.text,
+      self.offset,
+      self.line,
+      self.column,
+      self.width,
+    )
   }
 }

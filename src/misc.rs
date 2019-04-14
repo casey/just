@@ -58,7 +58,7 @@ pub fn conjoin<T: Display>(
 pub fn write_error_context(
   f: &mut Formatter,
   text: &str,
-  index: usize,
+  offset: usize,
   line: usize,
   column: usize,
   width: Option<usize>,
@@ -118,7 +118,7 @@ pub fn write_error_context(
       }
     }
     None => {
-      if index != text.len() {
+      if offset != text.len() {
         write!(
           f,
           "internal error: Error has invalid line number: {}",

@@ -9,13 +9,13 @@ pub fn parse_success(text: &str) -> Justfile {
 
 macro_rules! compilation_error_test {
   (
-    name:     $name:ident,
-    input:    $input:expr,
-    index:    $index:expr,
-    line:     $line:expr,
-    column:   $column:expr,
-    width:    $width:expr,
-    kind:     $kind:expr,
+    name:   $name:ident,
+    input:  $input:expr,
+    offset: $offset:expr,
+    line:   $line:expr,
+    column: $column:expr,
+    width:  $width:expr,
+    kind:   $kind:expr,
   ) => {
     #[test]
     fn $name() {
@@ -23,7 +23,7 @@ macro_rules! compilation_error_test {
 
       let expected = crate::compilation_error::CompilationError {
         text: input,
-        index: $index,
+        offset: $offset,
         line: $line,
         column: $column,
         width: $width,
@@ -38,7 +38,7 @@ macro_rules! compilation_error_test {
 
       if let Err(error) = parser.justfile() {
         assert_eq!(error.text, expected.text);
-        assert_eq!(error.index, expected.index);
+        assert_eq!(error.offset, expected.offset);
         assert_eq!(error.line, expected.line);
         assert_eq!(error.column, expected.column);
         assert_eq!(error.width, expected.width);

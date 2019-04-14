@@ -8,11 +8,7 @@ fn re(pattern: &str) -> Regex {
 }
 
 fn token(pattern: &str) -> Regex {
-  let mut s = String::new();
-  s += r"^(?m)([ \t]*)(";
-  s += pattern;
-  s += ")";
-  re(&s)
+  re(&format!(r"^(?m)([ \t]*)({})", pattern))
 }
 
 fn mixed_whitespace(text: &str) -> bool {
@@ -23,18 +19,10 @@ pub struct Lexer<'a> {
   tokens: Vec<Token<'a>>,
   text: &'a str,
   rest: &'a str,
-  index: usize,
+  offset: usize,
   column: usize,
   line: usize,
   state: Vec<State<'a>>,
-}
-
-#[derive(PartialEq)]
-enum State<'a> {
-  Start,
-  Indent(&'a str),
-  Text,
-  Interpolation,
 }
 
 impl<'a> Lexer<'a> {
@@ -42,20 +30,26 @@ impl<'a> Lexer<'a> {
     let lexer = Lexer {
       tokens: vec![],
       rest: text,
-      index: 0,
+      offset: 0,
       line: 0,
       column: 0,
       state: vec![State::Start],
       text,
     };
 
-    lexer.inner()
+    let old = lexer.inner()?;
+
+    // let new = NewLexer::new(text).lex()?;
+
+    // assert_eq!(old, new);
+
+    Ok(old)
   }
 
   fn error(&self, kind: CompilationErrorKind<'a>) -> CompilationError<'a> {
     CompilationError {
       text: self.text,
-      index: self.index,
+      offset: self.offset,
       line: self.line,
       column: self.column,
       width: None,
@@ -65,7 +59,7 @@ impl<'a> Lexer<'a> {
 
   fn token(&self, length: usize, kind: TokenKind) -> Token<'a> {
     Token {
-      index: self.index,
+      offset: self.offset,
       line: self.line,
       column: self.column,
       text: self.text,
@@ -328,7 +322,7 @@ impl<'a> Lexer<'a> {
       if whitespace.len() > 0 {
         self.tokens.push(self.token(whitespace.len(), Whitespace));
         self.column += whitespace.len();
-        self.index += whitespace.len();
+        self.offset += whitespace.len();
       }
 
       let token = self.token(lexeme.len(), kind);
@@ -371,7 +365,7 @@ impl<'a> Lexer<'a> {
       }
 
       self.rest = &self.rest[len..];
-      self.index += lexeme.len();
+      self.offset += lexeme.len();
     }
 
     Ok(self.tokens)
@@ -440,7 +434,7 @@ mod test {
     (
       name:     $name:ident,
       input:    $input:expr,
-      index:    $index:expr,
+      offset:   $offset:expr,
       line:     $line:expr,
       column:   $column:expr,
       width:    $width:expr,
@@ -452,7 +446,7 @@ mod test {
 
         let expected = CompilationError {
           text: input,
-          index: $index,
+          offset: $offset,
           line: $line,
           column: $column,
           width: $width,
@@ -461,7 +455,7 @@ mod test {
 
         if let Err(error) = Lexer::lex(input) {
           assert_eq!(error.text, expected.text);
-          assert_eq!(error.index, expected.index);
+          assert_eq!(error.offset, expected.offset);
           assert_eq!(error.line, expected.line);
           assert_eq!(error.column, expected.column);
           assert_eq!(error.kind, expected.kind);
@@ -631,7 +625,7 @@ c: b
  1
 \t2
 ",
-    index:  9,
+    offset:  9,
     line:   3,
     column: 0,
     width:  None,
@@ -645,7 +639,7 @@ c: b
 \t\t 1
 \t  2
 ",
-    index:  12,
+    offset:  12,
     line:   3,
     column: 0,
     width:  None,
@@ -655,7 +649,7 @@ c: b
   error_test! {
     name: tokenize_unknown,
     input: "~",
-    index:  0,
+    offset:  0,
     line:   0,
     column: 0,
     width:  None,
@@ -665,7 +659,7 @@ c: b
   error_test! {
     name: unterminated_string,
     input: r#"a = ""#,
-    index:  3,
+    offset:  3,
     line:   0,
     column: 3,
     width:  None,
@@ -675,7 +669,7 @@ c: b
   error_test! {
     name: unterminated_string_with_escapes,
     input: r#"a = "\n\t\r\"\\"#,
-    index:  3,
+    offset:  3,
     line:   0,
     column: 3,
     width:  None,
@@ -685,7 +679,7 @@ c: b
   error_test! {
     name:  unterminated_raw_string,
     input: "r a='asdf",
-    index:  4,
+    offset:  4,
     line:   0,
     column: 4,
     width:  None,
@@ -696,7 +690,7 @@ c: b
     name:  unterminated_interpolation,
     input: "foo:\n echo {{
   ",
-    index:  13,
+    offset:  13,
     line:   1,
     column: 8,
     width:  None,
@@ -706,7 +700,7 @@ c: b
   error_test! {
     name:   mixed_leading_whitespace,
     input:  "a:\n\t echo hello",
-    index:  3,
+    offset:  3,
     line:   1,
     column: 0,
     width:  None,

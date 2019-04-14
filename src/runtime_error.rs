@@ -10,7 +10,7 @@ fn write_token_error_context(f: &mut Formatter, token: &Token) -> Result<(), fmt
   write_error_context(
     f,
     token.text,
-    token.index,
+    token.offset,
     token.line,
     token.column,
     Some(token.lexeme().len()),
