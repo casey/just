@@ -1,7 +1,7 @@
-#[derive(PartialEq)]
+#[derive(Copy, Clone, PartialEq, Debug)]
 pub enum State<'a> {
   Start,
-  Indent(&'a str),
+  Indent { indentation: &'a str },
   Text,
   Interpolation,
 }

@@ -9,6 +9,7 @@ pub(crate) use std::{
   path::{Path, PathBuf},
   process,
   process::Command,
+  str::Chars,
   sync::{Mutex, MutexGuard},
   usize, vec,
 };
@@ -43,6 +44,7 @@ pub(crate) use crate::{
   new_lexer::NewLexer,
   parameter::Parameter,
   parser::Parser,
+  position::Position,
   recipe::Recipe,
   recipe_context::RecipeContext,
   recipe_resolver::RecipeResolver,

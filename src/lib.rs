@@ -36,6 +36,7 @@ mod new_lexer;
 mod parameter;
 mod parser;
 mod platform;
+mod position;
 mod range_ext;
 mod recipe;
 mod recipe_context;

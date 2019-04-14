@@ -83,27 +83,26 @@ impl<'a> Lexer<'a> {
         //         or current line is blank
         (&State::Start, Some("")) | (_, None) => None,
         // indent: was no indentation, now there is
-        (&State::Start, Some(current)) => {
-          if mixed_whitespace(current) {
+        (&State::Start, Some(indentation)) => {
+          if mixed_whitespace(indentation) {
             return Err(self.error(MixedLeadingWhitespace {
-              whitespace: current,
+              whitespace: indentation,
             }));
           }
-          //indent = Some(current);
-          self.state.push(State::Indent(current));
+          self.state.push(State::Indent { indentation });
           Some(Indent)
         }
         // dedent: there was indentation and now there isn't
-        (&State::Indent(_), Some("")) => {
+        (&State::Indent { .. }, Some("")) => {
           // indent = None;
           self.state.pop();
           Some(Dedent)
         }
         // was indentation and still is, check if the new indentation matches
-        (&State::Indent(previous), Some(current)) => {
-          if !current.starts_with(previous) {
+        (&State::Indent { indentation }, Some(current)) => {
+          if !current.starts_with(indentation) {
             return Err(self.error(InconsistentLeadingWhitespace {
-              expected: previous,
+              expected: indentation,
               found: current,
             }));
           }
@@ -158,19 +157,19 @@ impl<'a> Lexer<'a> {
         self.tokens.push(token);
       }
 
-      let (whitespace, lexeme, kind) = if let (0, &State::Indent(indent), Some(captures)) = (
+      let (whitespace, lexeme, kind) = if let (0, &State::Indent { indentation }, Some(captures)) = (
         self.column,
         self.state.last().unwrap(),
         LINE.captures(self.rest),
       ) {
         let line = captures.get(0).unwrap().as_str();
-        if !line.starts_with(indent) {
+        if !line.starts_with(indentation) {
           return Err(self.error(Internal {
             message: "unexpected indent".to_string(),
           }));
         }
         self.state.push(State::Text);
-        (&line[0..indent.len()], "", Line)
+        (&line[0..indentation.len()], "", Line)
       } else if let Some(captures) = EOF.captures(self.rest) {
         (
           captures.get(1).unwrap().as_str(),
