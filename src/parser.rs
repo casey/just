@@ -16,7 +16,8 @@ pub struct Parser<'a> {
 
 impl<'a> Parser<'a> {
   pub fn parse(text: &'a str) -> CompilationResult<'a, Justfile> {
-    let tokens = Lexer::lex(text)?;
+    let mut tokens = Lexer::lex(text)?;
+    tokens.retain(|token| token.kind != Whitespace);
     let parser = Parser::new(text, tokens);
     parser.justfile()
   }
@@ -87,7 +88,7 @@ impl<'a> Parser<'a> {
     doc: Option<Token<'a>>,
     quiet: bool,
   ) -> CompilationResult<'a, ()> {
-    if let Some(recipe) = self.recipes.get(name.lexeme) {
+    if let Some(recipe) = self.recipes.get(name.lexeme()) {
       return Err(name.error(DuplicateRecipe {
         recipe: recipe.name,
         first: recipe.line_number,
@@ -115,14 +116,14 @@ impl<'a> Parser<'a> {
 
       if parsed_variadic_parameter {
         return Err(parameter.error(ParameterFollowsVariadicParameter {
-          parameter: parameter.lexeme,
+          parameter: parameter.lexeme(),
         }));
       }
 
-      if parameters.iter().any(|p| p.name == parameter.lexeme) {
+      if parameters.iter().any(|p| p.name == parameter.lexeme()) {
         return Err(parameter.error(DuplicateParameter {
-          recipe: name.lexeme,
-          parameter: parameter.lexeme,
+          recipe: name.lexeme(),
+          parameter: parameter.lexeme(),
         }));
       }
 
@@ -135,7 +136,7 @@ impl<'a> Parser<'a> {
 
       if parsed_parameter_with_default && default.is_none() {
         return Err(parameter.error(RequiredParameterFollowsDefaultParameter {
-          parameter: parameter.lexeme,
+          parameter: parameter.lexeme(),
         }));
       }
 
@@ -143,7 +144,7 @@ impl<'a> Parser<'a> {
       parsed_variadic_parameter = variadic;
 
       parameters.push(Parameter {
-        name: parameter.lexeme,
+        name: parameter.lexeme(),
         token: parameter,
         default,
         variadic,
@@ -163,13 +164,13 @@ impl<'a> Parser<'a> {
     let mut dependencies = vec![];
     let mut dependency_tokens = vec![];
     while let Some(dependency) = self.accept(Name) {
-      if dependencies.contains(&dependency.lexeme) {
+      if dependencies.contains(&dependency.lexeme()) {
         return Err(dependency.error(DuplicateDependency {
-          recipe: name.lexeme,
-          dependency: dependency.lexeme,
+          recipe: name.lexeme(),
+          dependency: dependency.lexeme(),
         }));
       }
-      dependencies.push(dependency.lexeme);
+      dependencies.push(dependency.lexeme());
       dependency_tokens.push(dependency);
     }
 
@@ -197,7 +198,7 @@ impl<'a> Parser<'a> {
           if let Some(token) = self.accept(Text) {
             if fragments.is_empty() {
               if lines.is_empty() {
-                if token.lexeme.starts_with("#!") {
+                if token.lexeme().starts_with("#!") {
                   shebang = true;
                 }
               } else if !shebang
@@ -206,7 +207,7 @@ impl<'a> Parser<'a> {
                   .and_then(|line| line.last())
                   .map(Fragment::continuation)
                   .unwrap_or(false)
-                && (token.lexeme.starts_with(' ') || token.lexeme.starts_with('\t'))
+                && (token.lexeme().starts_with(' ') || token.lexeme().starts_with('\t'))
               {
                 return Err(token.error(ExtraLeadingWhitespace));
               }
@@ -234,12 +235,12 @@ impl<'a> Parser<'a> {
     }
 
     self.recipes.insert(
-      name.lexeme,
+      name.lexeme(),
       Recipe {
         line_number: name.line,
-        name: name.lexeme,
-        doc: doc.map(|t| t.lexeme[1..].trim()),
-        private: &name.lexeme[0..1] == "_",
+        name: name.lexeme(),
+        doc: doc.map(|t| t.lexeme()[1..].trim()),
+        private: &name.lexeme()[0..1] == "_",
         dependencies,
         dependency_tokens,
         lines,
@@ -266,19 +267,19 @@ impl<'a> Parser<'a> {
             return Err(self.unexpected_token(&token, &[Name, StringToken, ParenR]));
           }
           Ok(Expression::Call {
-            name: first.lexeme,
+            name: first.lexeme(),
             token: first,
             arguments,
           })
         } else {
           Ok(Expression::Variable {
-            name: first.lexeme,
+            name: first.lexeme(),
             token: first,
           })
         }
       }
       Backtick => Ok(Expression::Backtick {
-        raw: &first.lexeme[1..first.lexeme.len() - 1],
+        raw: &first.lexeme()[1..first.lexeme().len() - 1],
         token: first,
       }),
       RawString | StringToken => Ok(Expression::String {
@@ -333,13 +334,13 @@ impl<'a> Parser<'a> {
   }
 
   fn assignment(&mut self, name: Token<'a>, export: bool) -> CompilationResult<'a, ()> {
-    if self.assignments.contains_key(name.lexeme) {
+    if self.assignments.contains_key(name.lexeme()) {
       return Err(name.error(DuplicateVariable {
-        variable: name.lexeme,
+        variable: name.lexeme(),
       }));
     }
     if export {
-      self.exports.insert(name.lexeme);
+      self.exports.insert(name.lexeme());
     }
 
     let expression = self.expression()?;
@@ -347,14 +348,14 @@ impl<'a> Parser<'a> {
       return Err(self.unexpected_token(&token, &[Plus, Eol]));
     }
 
-    self.assignments.insert(name.lexeme, expression);
-    self.assignment_tokens.insert(name.lexeme, name);
+    self.assignments.insert(name.lexeme(), expression);
+    self.assignment_tokens.insert(name.lexeme(), name);
     Ok(())
   }
 
   fn alias(&mut self, name: Token<'a>) -> CompilationResult<'a, ()> {
     // Make sure alias doesn't already exist
-    if let Some(alias) = self.aliases.get(name.lexeme) {
+    if let Some(alias) = self.aliases.get(name.lexeme()) {
       return Err(name.error(DuplicateAlias {
         alias: alias.name,
         first: alias.line_number,
@@ -363,7 +364,7 @@ impl<'a> Parser<'a> {
 
     // Make sure the next token is of kind Name and keep it
     let target = if let Some(next) = self.accept(Name) {
-      next.lexeme
+      next.lexeme()
     } else {
       let unexpected = self.tokens.next().unwrap();
       return Err(self.unexpected_token(&unexpected, &[Name]));
@@ -375,15 +376,15 @@ impl<'a> Parser<'a> {
     }
 
     self.aliases.insert(
-      name.lexeme,
+      name.lexeme(),
       Alias {
-        name: name.lexeme,
+        name: name.lexeme(),
         line_number: name.line,
-        private: name.lexeme.starts_with('_'),
+        private: name.lexeme().starts_with('_'),
         target,
       },
     );
-    self.alias_tokens.insert(name.lexeme, name);
+    self.alias_tokens.insert(name.lexeme(), name);
 
     Ok(())
   }
@@ -416,7 +417,7 @@ impl<'a> Parser<'a> {
             }
           }
           Name => {
-            if token.lexeme == "export" {
+            if token.lexeme() == "export" {
               let next = self.tokens.next().unwrap();
               if next.kind == Name && self.accepted(Equals) {
                 self.assignment(next, true)?;
@@ -426,7 +427,7 @@ impl<'a> Parser<'a> {
                 self.recipe(&token, doc, false)?;
                 doc = None;
               }
-            } else if token.lexeme == "alias" {
+            } else if token.lexeme() == "alias" {
               let next = self.tokens.next().unwrap();
               if next.kind == Name && self.accepted(Equals) {
                 self.alias(next)?;
@@ -476,18 +477,18 @@ impl<'a> Parser<'a> {
 
     for recipe in self.recipes.values() {
       for parameter in &recipe.parameters {
-        if self.assignments.contains_key(parameter.token.lexeme) {
+        if self.assignments.contains_key(parameter.token.lexeme()) {
           return Err(parameter.token.error(ParameterShadowsVariable {
-            parameter: parameter.token.lexeme,
+            parameter: parameter.token.lexeme(),
           }));
         }
       }
 
       for dependency in &recipe.dependency_tokens {
-        if !self.recipes[dependency.lexeme].parameters.is_empty() {
+        if !self.recipes[dependency.lexeme()].parameters.is_empty() {
           return Err(dependency.error(DependencyHasParameters {
             recipe: recipe.name,
-            dependency: dependency.lexeme,
+            dependency: dependency.lexeme(),
           }));
         }
       }

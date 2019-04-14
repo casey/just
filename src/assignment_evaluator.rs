@@ -1,7 +1,5 @@
 use crate::common::*;
 
-use brev;
-
 pub struct AssignmentEvaluator<'a: 'b, 'b> {
   pub assignments: &'b BTreeMap<&'a str, Expression<'a>>,
   pub invocation_directory: &'b Result<PathBuf, String>,
@@ -53,7 +51,7 @@ impl<'a, 'b> AssignmentEvaluator<'a, 'b> {
     let mut evaluated = String::new();
     for fragment in line {
       match *fragment {
-        Fragment::Text { ref text } => evaluated += text.lexeme,
+        Fragment::Text { ref text } => evaluated += text.lexeme(),
         Fragment::Expression { ref expression } => {
           evaluated += &self.evaluate_expression(expression, arguments)?;
         }
@@ -183,7 +181,7 @@ mod test {
         output_error: OutputError::Code(code),
       } => {
         assert_eq!(code, 100);
-        assert_eq!(token.lexeme, "`f() { return 100; }; f`");
+        assert_eq!(token.lexeme(), "`f() { return 100; }; f`");
       }
       other => panic!("expected a code run error, but got: {}", other),
     }
@@ -211,7 +209,7 @@ recipe:
         token,
         output_error: OutputError::Code(_),
       } => {
-        assert_eq!(token.lexeme, "`echo $exported_variable`");
+        assert_eq!(token.lexeme(), "`echo $exported_variable`");
       }
       other => panic!("expected a backtick code errror, but got: {}", other),
     }

@@ -30,7 +30,10 @@ macro_rules! compilation_error_test {
         kind: $kind,
       };
 
-      let tokens = crate::lexer::Lexer::lex(input).unwrap();
+      let mut tokens = crate::lexer::Lexer::lex(input).unwrap();
+
+      tokens.retain(|token| token.kind != TokenKind::Whitespace);
+
       let parser = crate::parser::Parser::new(input, tokens);
 
       if let Err(error) = parser.justfile() {

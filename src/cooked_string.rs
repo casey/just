@@ -8,7 +8,7 @@ pub struct CookedString<'a> {
 
 impl<'a> CookedString<'a> {
   pub fn new(token: &Token<'a>) -> CompilationResult<'a, CookedString<'a>> {
-    let raw = &token.lexeme[1..token.lexeme.len() - 1];
+    let raw = &token.lexeme()[1..token.lexeme().len() - 1];
 
     if let TokenKind::RawString = token.kind {
       Ok(CookedString {

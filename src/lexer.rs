@@ -63,14 +63,13 @@ impl<'a> Lexer<'a> {
     }
   }
 
-  fn token(&self, prefix: &'a str, lexeme: &'a str, kind: TokenKind) -> Token<'a> {
+  fn token(&self, length: usize, kind: TokenKind) -> Token<'a> {
     Token {
       index: self.index,
       line: self.line,
       column: self.column,
       text: self.text,
-      prefix,
-      lexeme,
+      length,
       kind,
     }
   }
@@ -123,7 +122,7 @@ impl<'a> Lexer<'a> {
           }));
         }
       } {
-        return Ok(Some(self.token("", "", kind)));
+        return Ok(Some(self.token(0, kind)));
       }
     }
     Ok(None)
@@ -161,11 +160,11 @@ impl<'a> Lexer<'a> {
 
       // insert a dedent if we're indented and we hit the end of the file
       if &State::Start != self.state.last().unwrap() && EOF.is_match(self.rest) {
-        let token = self.token("", "", Dedent);
+        let token = self.token(0, Dedent);
         self.tokens.push(token);
       }
 
-      let (prefix, lexeme, kind) = if let (0, &State::Indent(indent), Some(captures)) = (
+      let (whitespace, lexeme, kind) = if let (0, &State::Indent(indent), Some(captures)) = (
         self.column,
         self.state.last().unwrap(),
         LINE.captures(self.rest),
@@ -297,8 +296,8 @@ impl<'a> Lexer<'a> {
       } else if UNTERMINATED_RAW_STRING.is_match(self.rest) {
         return Err(self.error(UnterminatedString));
       } else if let Some(captures) = STRING.captures(self.rest) {
-        let prefix = captures.get(1).unwrap().as_str();
-        let contents = &self.rest[prefix.len() + 1..];
+        let whitespace = captures.get(1).unwrap().as_str();
+        let contents = &self.rest[whitespace.len() + 1..];
         if contents.is_empty() {
           return Err(self.error(UnterminatedString));
         }
@@ -316,20 +315,26 @@ impl<'a> Lexer<'a> {
           }
           len += c.len_utf8();
         }
-        let start = prefix.len();
+        let start = whitespace.len();
         let content_end = start + len + 1;
         if escape || content_end >= self.rest.len() {
           return Err(self.error(UnterminatedString));
         }
-        (prefix, &self.rest[start..=content_end], StringToken)
+        (whitespace, &self.rest[start..=content_end], StringToken)
       } else {
         return Err(self.error(UnknownStartOfToken));
       };
 
-      let token = self.token(prefix, lexeme, kind);
+      if whitespace.len() > 0 {
+        self.tokens.push(self.token(whitespace.len(), Whitespace));
+        self.column += whitespace.len();
+        self.index += whitespace.len();
+      }
+
+      let token = self.token(lexeme.len(), kind);
       self.tokens.push(token);
 
-      let len = prefix.len() + lexeme.len();
+      let len = whitespace.len() + lexeme.len();
 
       if len == 0 {
         let last = self.tokens.last().unwrap();
@@ -355,18 +360,18 @@ impl<'a> Lexer<'a> {
           let lexeme_lines = lexeme.lines().count();
           self.line += lexeme_lines - 1;
           if lexeme_lines == 1 {
-            self.column += len;
+            self.column += lexeme.len();
           } else {
             self.column = lexeme.lines().last().unwrap().len();
           }
         }
         _ => {
-          self.column += len;
+          self.column += lexeme.len();
         }
       }
 
       self.rest = &self.rest[len..];
-      self.index += len;
+      self.index += lexeme.len();
     }
 
     Ok(self.tokens)
@@ -386,13 +391,8 @@ mod test {
         let tokens = crate::lexer::Lexer::lex(input).unwrap();
         let roundtrip = tokens
           .iter()
-          .map(|t| {
-            let mut s = String::new();
-            s += t.prefix;
-            s += t.lexeme;
-            s
-          })
-          .collect::<Vec<_>>()
+          .map(Token::lexeme)
+          .collect::<Vec<&str>>()
           .join("");
         let actual = token_summary(&tokens);
         if actual != expected {
@@ -430,8 +430,9 @@ mod test {
         RawString => "'",
         StringToken => "\"",
         Text => "_",
+        Whitespace => "",
       })
-      .collect::<Vec<_>>()
+      .collect::<Vec<&str>>()
       .join("")
   }
 

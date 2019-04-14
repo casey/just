@@ -37,13 +37,8 @@ impl Function {
   }
 }
 
-pub struct FunctionContext<'a> {
-  pub invocation_directory: &'a Result<PathBuf, String>,
-  pub dotenv: &'a BTreeMap<String, String>,
-}
-
 pub fn resolve_function<'a>(token: &Token<'a>, argc: usize) -> CompilationResult<'a, ()> {
-  let name = token.lexeme;
+  let name = token.lexeme();
   if let Some(function) = FUNCTIONS.get(&name) {
     use self::Function::*;
     match (function, argc) {
@@ -58,7 +53,7 @@ pub fn resolve_function<'a>(token: &Token<'a>, argc: usize) -> CompilationResult
     }
   } else {
     Err(token.error(CompilationErrorKind::UnknownFunction {
-      function: token.lexeme,
+      function: token.lexeme(),
     }))
   }
 }

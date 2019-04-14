@@ -29,11 +29,11 @@ pub enum Expression<'a> {
 
 impl<'a> Expression<'a> {
   pub fn variables(&'a self) -> Variables<'a> {
-    Variables { stack: vec![self] }
+    Variables::new(self)
   }
 
   pub fn functions(&'a self) -> Functions<'a> {
-    Functions { stack: vec![self] }
+    Functions::new(self)
   }
 }
 
@@ -62,61 +62,5 @@ impl<'a> Display for Expression<'a> {
       Expression::Group { ref expression } => write!(f, "({})", expression)?,
     }
     Ok(())
-  }
-}
-
-pub struct Variables<'a> {
-  stack: Vec<&'a Expression<'a>>,
-}
-
-impl<'a> Iterator for Variables<'a> {
-  type Item = &'a Token<'a>;
-
-  fn next(&mut self) -> Option<&'a Token<'a>> {
-    match self.stack.pop() {
-      None
-      | Some(Expression::String { .. })
-      | Some(Expression::Backtick { .. })
-      | Some(Expression::Call { .. }) => None,
-      Some(Expression::Variable { token, .. }) => Some(token),
-      Some(Expression::Concatination { lhs, rhs }) => {
-        self.stack.push(lhs);
-        self.stack.push(rhs);
-        self.next()
-      }
-      Some(Expression::Group { expression }) => {
-        self.stack.push(expression);
-        self.next()
-      }
-    }
-  }
-}
-
-pub struct Functions<'a> {
-  stack: Vec<&'a Expression<'a>>,
-}
-
-impl<'a> Iterator for Functions<'a> {
-  type Item = (&'a Token<'a>, usize);
-
-  fn next(&mut self) -> Option<Self::Item> {
-    match self.stack.pop() {
-      None
-      | Some(Expression::String { .. })
-      | Some(Expression::Backtick { .. })
-      | Some(Expression::Variable { .. }) => None,
-      Some(Expression::Call {
-        token, arguments, ..
-      }) => Some((token, arguments.len())),
-      Some(Expression::Concatination { lhs, rhs }) => {
-        self.stack.push(lhs);
-        self.stack.push(rhs);
-        self.next()
-      }
-      Some(Expression::Group { expression }) => {
-        self.stack.push(expression);
-        self.next()
-      }
-    }
   }
 }

@@ -9,7 +9,7 @@ pub enum Fragment<'a> {
 impl<'a> Fragment<'a> {
   pub fn continuation(&self) -> bool {
     match *self {
-      Fragment::Text { ref text } => text.lexeme.ends_with('\\'),
+      Fragment::Text { ref text } => text.lexeme().ends_with('\\'),
       _ => false,
     }
   }

@@ -38,12 +38,6 @@ pub struct Recipe<'a> {
   pub shebang: bool,
 }
 
-pub struct RecipeContext<'a> {
-  pub invocation_directory: &'a Result<PathBuf, String>,
-  pub configuration: &'a Configuration<'a>,
-  pub scope: BTreeMap<&'a str, String>,
-}
-
 impl<'a> Recipe<'a> {
   pub fn argument_range(&self) -> RangeInclusive<usize> {
     self.min_arguments()..=self.max_arguments()
@@ -337,7 +331,7 @@ impl<'a> Display for Recipe<'a> {
           write!(f, "    ")?;
         }
         match *piece {
-          Fragment::Text { ref text } => write!(f, "{}", text.lexeme)?,
+          Fragment::Text { ref text } => write!(f, "{}", text.lexeme())?,
           Fragment::Expression { ref expression, .. } => write!(f, "{{{{{}}}}}", expression)?,
         }
       }

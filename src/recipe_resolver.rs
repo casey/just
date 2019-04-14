@@ -88,7 +88,7 @@ impl<'a, 'b> RecipeResolver<'a, 'b> {
     variable: &Token,
     parameters: &[Parameter],
   ) -> CompilationResult<'a, ()> {
-    let name = variable.lexeme;
+    let name = variable.lexeme();
     let undefined =
       !self.assignments.contains_key(name) && !parameters.iter().any(|p| p.name == name);
     if undefined {
@@ -115,7 +115,7 @@ impl<'a, 'b> RecipeResolver<'a, 'b> {
     self.stack.push(recipe.name);
     self.seen.insert(recipe.name);
     for dependency_token in &recipe.dependency_tokens {
-      match self.recipes.get(dependency_token.lexeme) {
+      match self.recipes.get(dependency_token.lexeme()) {
         Some(dependency) => {
           if !self.resolved.contains(dependency.name) {
             if self.seen.contains(dependency.name) {
@@ -139,7 +139,7 @@ impl<'a, 'b> RecipeResolver<'a, 'b> {
         None => {
           return Err(dependency_token.error(UnknownDependency {
             recipe: recipe.name,
-            unknown: dependency_token.lexeme,
+            unknown: dependency_token.lexeme(),
           }));
         }
       }
