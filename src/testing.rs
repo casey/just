@@ -62,7 +62,7 @@ macro_rules! compilation_error_test {
         kind: $kind,
       };
 
-      let mut tokens = crate::lexer::Lexer::lex(input).unwrap();
+      let mut tokens = Lexer::lex(input).unwrap();
 
       tokens.retain(|token| token.kind != TokenKind::Whitespace);
 

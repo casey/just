@@ -39,7 +39,6 @@ pub(crate) use crate::{
   lexer::Lexer,
   load_dotenv::load_dotenv,
   misc::{default, empty},
-  new_lexer::NewLexer,
   parameter::Parameter,
   parser::Parser,
   position::Position,

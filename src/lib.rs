@@ -31,7 +31,6 @@ mod justfile;
 mod lexer;
 mod load_dotenv;
 mod misc;
-mod new_lexer;
 mod parameter;
 mod parser;
 mod platform;
