@@ -453,7 +453,7 @@ impl<'a> Parser<'a> {
             offset: 0,
             line: 0,
             column: 0,
-            width: None,
+            width: 0,
             kind: Internal {
               message: "unexpected end of token stream".to_string(),
             },

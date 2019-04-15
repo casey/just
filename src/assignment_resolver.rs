@@ -48,7 +48,7 @@ impl<'a: 'b, 'b> AssignmentResolver<'a, 'b> {
         offset: 0,
         line: 0,
         column: 0,
-        width: None,
+        width: 0,
         kind: Internal { message },
       });
     }

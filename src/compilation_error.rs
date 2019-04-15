@@ -10,7 +10,7 @@ pub struct CompilationError<'a> {
   pub offset: usize,
   pub line: usize,
   pub column: usize,
-  pub width: Option<usize>,
+  pub width: usize,
   pub kind: CompilationErrorKind<'a>,
 }
 

@@ -142,7 +142,7 @@ impl<'a> Lexer<'a> {
       offset: self.token_end.offset,
       line: self.token_end.line,
       column: self.token_end.column,
-      width: None,
+      width: 0,
       kind: CompilationErrorKind::Internal {
         message: message.into(),
       },
