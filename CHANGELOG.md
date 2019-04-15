@@ -1,5 +1,9 @@
 # Changelog
 
+## [v0.4.1] - 2019-04-12
+### Changed
+- Make summary function non-generic (#404)
+
 ## [v0.4.0] - 2019-04-12
 ### Added
 - Add recipe aliases by @ryloric (#390)
