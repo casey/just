@@ -7,6 +7,38 @@ pub fn parse_success(text: &str) -> Justfile {
   }
 }
 
+pub fn token_summary(tokens: &[Token]) -> String {
+  use TokenKind::*;
+
+  tokens
+    .iter()
+    .map(|t| match t.kind {
+      At => "@",
+      Backtick => "`",
+      Colon => ":",
+      Comma => ",",
+      Comment => "#",
+      Dedent => "<",
+      Eof => ".",
+      Eol => "$",
+      Equals => "=",
+      Indent => ">",
+      InterpolationEnd => "}",
+      InterpolationStart => "{",
+      Line => "^",
+      Name => "N",
+      ParenL => "(",
+      ParenR => ")",
+      Plus => "+",
+      StringRaw => "'",
+      StringCooked => "\"",
+      Text => "_",
+      Whitespace => " ",
+    })
+    .collect::<Vec<&str>>()
+    .join("")
+}
+
 macro_rules! compilation_error_test {
   (
     name:   $name:ident,

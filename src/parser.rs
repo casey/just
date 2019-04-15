@@ -264,7 +264,7 @@ impl<'a> Parser<'a> {
           }
           let arguments = self.arguments()?;
           if let Some(token) = self.expect(ParenR) {
-            return Err(self.unexpected_token(&token, &[Name, StringToken, ParenR]));
+            return Err(self.unexpected_token(&token, &[Name, StringCooked, ParenR]));
           }
           Ok(Expression::Call {
             name: first.lexeme(),
@@ -282,8 +282,8 @@ impl<'a> Parser<'a> {
         raw: &first.lexeme()[1..first.lexeme().len() - 1],
         token: first,
       }),
-      RawString | StringToken => Ok(Expression::String {
-        cooked_string: CookedString::new(&first)?,
+      StringRaw | StringCooked => Ok(Expression::String {
+        cooked_string: StringLiteral::new(&first)?,
       }),
       ParenL => {
         let expression = self.expression()?;
@@ -296,7 +296,7 @@ impl<'a> Parser<'a> {
           expression: Box::new(expression),
         })
       }
-      _ => Err(self.unexpected_token(&first, &[Name, StringToken])),
+      _ => Err(self.unexpected_token(&first, &[Name, StringCooked])),
     }
   }
 
@@ -941,7 +941,7 @@ f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
     line:   0,
     column: 10,
     width:  Some(1),
-    kind:   UnexpectedToken{expected: vec![Name, StringToken], found: Eol},
+    kind:   UnexpectedToken{expected: vec![Name, StringCooked], found: Eol},
   }
 
   compilation_error_test! {
@@ -951,7 +951,7 @@ f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
     line:   0,
     column: 10,
     width:  Some(0),
-    kind:   UnexpectedToken{expected: vec![Name, StringToken], found: Eof},
+    kind:   UnexpectedToken{expected: vec![Name, StringCooked], found: Eof},
   }
 
   compilation_error_test! {
@@ -1081,7 +1081,7 @@ f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
     line:   0,
     column: 8,
     width:  Some(0),
-    kind:   UnexpectedToken{expected: vec![Name, StringToken, ParenR], found: Eof},
+    kind:   UnexpectedToken{expected: vec![Name, StringCooked, ParenR], found: Eof},
   }
 
   compilation_error_test! {
@@ -1091,7 +1091,7 @@ f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
     line:   1,
     column: 12,
     width:  Some(2),
-    kind:   UnexpectedToken{expected: vec![Name, StringToken, ParenR], found: InterpolationEnd},
+    kind:   UnexpectedToken{expected: vec![Name, StringCooked, ParenR], found: InterpolationEnd},
   }
 
   compilation_error_test! {

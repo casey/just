@@ -16,7 +16,7 @@ pub enum Expression<'a> {
     rhs: Box<Expression<'a>>,
   },
   String {
-    cooked_string: CookedString<'a>,
+    cooked_string: StringLiteral<'a>,
   },
   Variable {
     name: &'a str,

@@ -98,8 +98,10 @@ pub enum CompilationErrorKind<'a> {
     function: &'a str,
   },
   UnknownStartOfToken,
+  UnpairedCarriageReturn,
   UnterminatedInterpolation,
   UnterminatedString,
+  UnterminatedBacktick,
 }
 
 impl<'a> Display for CompilationError<'a> {
@@ -277,11 +279,17 @@ impl<'a> Display for CompilationError<'a> {
       UnknownStartOfToken => {
         writeln!(f, "Unknown start of token:")?;
       }
+      UnpairedCarriageReturn => {
+        writeln!(f, "Unpaired carriage return")?;
+      }
       UnterminatedInterpolation => {
         writeln!(f, "Unterminated interpolation")?;
       }
       UnterminatedString => {
         writeln!(f, "Unterminated string")?;
+      }
+      UnterminatedBacktick => {
+        writeln!(f, "Unterminated backtick")?;
       }
       Internal { ref message } => {
         writeln!(

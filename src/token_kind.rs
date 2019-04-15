@@ -19,8 +19,8 @@ pub enum TokenKind {
   ParenL,
   ParenR,
   Plus,
-  RawString,
-  StringToken,
+  StringRaw,
+  StringCooked,
   Text,
   Whitespace,
 }
@@ -49,8 +49,8 @@ impl Display for TokenKind {
         ParenL => "'('",
         ParenR => "')'",
         Plus => "'+'",
-        RawString => "raw string",
-        StringToken => "string",
+        StringRaw => "raw string",
+        StringCooked => "cooked string",
         Text => "command text",
         Whitespace => "whitespace",
       }

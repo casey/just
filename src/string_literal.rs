@@ -1,21 +1,21 @@
 use crate::common::*;
 
 #[derive(PartialEq, Debug)]
-pub struct CookedString<'a> {
+pub struct StringLiteral<'a> {
   pub raw: &'a str,
   pub cooked: Cow<'a, str>,
 }
 
-impl<'a> CookedString<'a> {
-  pub fn new(token: &Token<'a>) -> CompilationResult<'a, CookedString<'a>> {
+impl<'a> StringLiteral<'a> {
+  pub fn new(token: &Token<'a>) -> CompilationResult<'a, StringLiteral<'a>> {
     let raw = &token.lexeme()[1..token.lexeme().len() - 1];
 
-    if let TokenKind::RawString = token.kind {
-      Ok(CookedString {
+    if let TokenKind::StringRaw = token.kind {
+      Ok(StringLiteral {
         cooked: Cow::Borrowed(raw),
         raw,
       })
-    } else if let TokenKind::StringToken = token.kind {
+    } else if let TokenKind::StringCooked = token.kind {
       let mut cooked = String::new();
       let mut escape = false;
       for c in raw.chars() {
@@ -41,7 +41,7 @@ impl<'a> CookedString<'a> {
         }
         cooked.push(c);
       }
-      Ok(CookedString {
+      Ok(StringLiteral {
         raw,
         cooked: Cow::Owned(cooked),
       })
@@ -53,7 +53,7 @@ impl<'a> CookedString<'a> {
   }
 }
 
-impl<'a> Display for CookedString<'a> {
+impl<'a> Display for StringLiteral<'a> {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
     match self.cooked {
       Cow::Borrowed(raw) => write!(f, "'{}'", raw),

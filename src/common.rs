@@ -17,7 +17,6 @@ pub(crate) use std::{
 pub(crate) use edit_distance::edit_distance;
 pub(crate) use libc::{EXIT_FAILURE, EXIT_SUCCESS};
 pub(crate) use log::warn;
-pub(crate) use regex::Regex;
 pub(crate) use tempdir::TempDir;
 pub(crate) use unicode_width::UnicodeWidthChar;
 
@@ -29,7 +28,6 @@ pub(crate) use crate::{
   color::Color,
   compilation_error::{CompilationError, CompilationErrorKind, CompilationResult},
   configuration::Configuration,
-  cooked_string::CookedString,
   expression::Expression,
   fragment::Fragment,
   function::{evaluate_function, resolve_function},
@@ -51,6 +49,7 @@ pub(crate) use crate::{
   runtime_error::{RunResult, RuntimeError},
   shebang::Shebang,
   state::State,
+  string_literal::StringLiteral,
   token::Token,
   token_kind::TokenKind,
   use_color::UseColor,
