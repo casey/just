@@ -731,24 +731,23 @@ b:",
     "N:$>^_$<.",
   }
 
-  /*
-    summary_test! {
-      indented_blocks,
-      "b: a
-    @mv a b
+  summary_test! {
+    indented_blocks,
+    "
+b: a
+  @mv a b
 
-  a:
-    @touch F
-    @touch a
+a:
+  @touch F
+  @touch a
 
-  d: c
-    @rm c
+d: c
+  @rm c
 
-  c: b
-    @mv b c",
-      "$N:N$>^_$$<N:$>^_$^_$$<N:N$>^_$$<N:N$>^_<.",
-    }
-    */
+c: b
+  @mv b c",
+    "$N: N$>^_$^$<N:$>^_$ ^_$^$<N: N$>^_$^$<N: N$>^_<.",
+  }
 
   summary_test! {
     interpolation_empty,
