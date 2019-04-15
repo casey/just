@@ -453,7 +453,7 @@ test123",
   summary_test! {
     tokenize_indented_line,
     "foo:\n a",
-    "N:$> ^_<.",
+    "N:$>^_<.",
   }
 
   summary_test! {
@@ -463,7 +463,7 @@ test123",
   b
   c
 "##,
-    "N:$> ^_$ ^_$ ^_$<.",
+    "N:$>^_$ ^_$ ^_$<.",
   }
 
   summary_test! {
@@ -477,7 +477,7 @@ test123",
     "foo: # some comment
  {{hello}}
 ",
-    "N: #$> ^{N}$<.",
+    "N: #$>^{N}$<.",
   }
 
   summary_test! {
@@ -486,19 +486,19 @@ test123",
  {{hello}}
 # another comment
 ",
-    "N: #$> ^{N}$<#$.",
+    "N: #$>^{N}$<#$.",
   }
 
   summary_test! {
     tokenize_recipe_complex_interpolation_expression,
     "foo: #lol\n {{a + b + \"z\" + blarg}}",
-    "N: #$> ^{N + N + \" + N}<.",
+    "N: #$>^{N + N + \" + N}<.",
   }
 
   summary_test! {
     tokenize_recipe_multiple_interpolations,
     "foo:,#ok\n {{a}}0{{b}}1{{c}}",
-    "N:,#$> ^{N}_{N}_{N}<.",
+    "N:,#$>^{N}_{N}_{N}<.",
   }
 
   summary_test! {
@@ -524,7 +524,7 @@ hello:
 
 # yolo
   ",
-    "$#$N:$> ^_$ ^_$$ ^_$$ ^_$$<#$ .",
+    "$#$N:$>^_$ ^_$^$ ^_$^$ ^_$^$<#$ .",
   }
 
   summary_test! {
@@ -535,19 +535,19 @@ A='1'
 echo:
   echo {{A}}
   ",
-    "$#$N='$N:$> ^_{N}$< .",
+    "$#$N='$N:$>^_{N}$ <.",
   }
 
   summary_test! {
     tokenize_interpolation_backticks,
     "hello:\n echo {{`echo hello` + `echo goodbye`}}",
-    "N:$> ^_{` + `}<.",
+    "N:$>^_{` + `}<.",
   }
 
   summary_test! {
     tokenize_empty_interpolation,
     "hello:\n echo {{}}",
-    "N:$> ^_{}<.",
+    "N:$>^_{}<.",
   }
 
   summary_test! {
@@ -570,9 +570,9 @@ hello:
 # hello
 bob:
   frank
-  ",
+ \t",
 
-    "$N:$> ^_$ ^_$$ ^_$$ ^_$$<#$N:$> ^_$< .",
+    "$N:$>^_$ ^_$^$ ^_$^$ ^_$^$<#$N:$>^_$ <.",
   }
 
   summary_test! {
@@ -602,7 +602,7 @@ d: c
 
 c: b
   @mv b c",
-    "$N: N$> ^_$$<N:$> ^_$ ^_$$<N: N$> ^_$$<N: N$> ^_<.",
+    "$N: N$>^_$^$<N:$>^_$ ^_$^$<N: N$>^_$^$<N: N$>^_<.",
   }
 
   summary_test! {
@@ -633,7 +633,7 @@ c: b
     offset:  9,
     line:   3,
     column: 0,
-    width:  None,
+    width:  Some(1),
     kind:   InconsistentLeadingWhitespace{expected: " ", found: "\t"},
   }
 
@@ -647,58 +647,58 @@ c: b
     offset:  12,
     line:   3,
     column: 0,
-    width:  None,
-    kind:   InconsistentLeadingWhitespace{expected: "\t\t", found: "\t  "},
+    width:  Some(2),
+    kind:   InconsistentLeadingWhitespace{expected: "\t\t", found: "\t "},
   }
 
   error_test! {
-    name: tokenize_unknown,
-    input: "~",
-    offset:  0,
+    name:   tokenize_unknown,
+    input:  "~",
+    offset: 0,
     line:   0,
     column: 0,
-    width:  None,
+    width:  Some(1),
     kind:   UnknownStartOfToken,
   }
 
   error_test! {
-    name: unterminated_string,
-    input: r#"a = ""#,
-    offset:  3,
-    line:   0,
-    column: 3,
-    width:  None,
-    kind:   UnterminatedString,
-  }
-
-  error_test! {
-    name: unterminated_string_with_escapes,
-    input: r#"a = "\n\t\r\"\\"#,
-    offset:  3,
-    line:   0,
-    column: 3,
-    width:  None,
-    kind:   UnterminatedString,
-  }
-
-  error_test! {
-    name:  unterminated_raw_string,
-    input: "r a='asdf",
-    offset:  4,
+    name:   unterminated_string,
+    input:  r#"a = ""#,
+    offset: 4,
     line:   0,
     column: 4,
-    width:  None,
+    width:  Some(1),
     kind:   UnterminatedString,
   }
 
   error_test! {
-    name:  unterminated_interpolation,
-    input: "foo:\n echo {{
+    name:   unterminated_string_with_escapes,
+    input:  r#"a = "\n\t\r\"\\"#,
+    offset: 4,
+    line:   0,
+    column: 4,
+    width:  Some(1),
+    kind:   UnterminatedString,
+  }
+
+  error_test! {
+    name:   unterminated_raw_string,
+    input:  "r a='asdf",
+    offset: 4,
+    line:   0,
+    column: 4,
+    width:  Some(1),
+    kind:   UnterminatedString,
+  }
+
+  error_test! {
+    name:   unterminated_interpolation,
+    input:  "foo:\n echo {{
   ",
-    offset:  13,
+    offset: 13,
     line:   1,
     column: 8,
-    width:  None,
+    width:  Some(2),
     kind:   UnterminatedInterpolation,
   }
 

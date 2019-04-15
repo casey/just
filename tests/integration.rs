@@ -1029,7 +1029,7 @@ integration_test! {
 Leading whitespace may consist of tabs or spaces, but not both
   |
 2 |      echo hello
-  | ^
+  | ^^^^^
 ",
   status:   EXIT_FAILURE,
 }
@@ -1056,7 +1056,7 @@ integration_test! {
             Recipe started with `␉␉` but found line with `␉␠`
   |
 3 |      echo goodbye
-  | ^
+  | ^^^^^
 ",
   status:   EXIT_FAILURE,
 }

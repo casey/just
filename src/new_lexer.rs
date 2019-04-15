@@ -148,13 +148,26 @@ impl<'a> NewLexer<'a> {
 
   /// Create an compilation error with `kind`
   fn error(&self, kind: CompilationErrorKind<'a>) -> CompilationError<'a> {
-    // Use the in-progress token span as the location of the error
+    // Use the in-progress token span as the location of the error.
+
+    // The width of the error site to highlight depends on the kind of error:
+    let width = match kind {
+      // highlight ' or "
+      UnterminatedString => Some(1),
+      // highlight {{
+      UnterminatedInterpolation => Some(2),
+      // highlight `
+      UnterminatedBacktick => Some(1),
+      // highlight the full token
+      _ => Some(self.lexeme().len()),
+    };
+
     CompilationError {
       text: self.text,
       offset: self.token_start.offset,
       line: self.token_start.line,
       column: self.token_start.column,
-      width: Some(self.lexeme().len()),
+      width,
       kind,
     }
   }
@@ -753,7 +766,7 @@ b:",
     offset: 0,
     line:   0,
     column: 0,
-    width:  Some(5),
+    width:  Some(1),
     kind:   UnterminatedBacktick,
   }
 
