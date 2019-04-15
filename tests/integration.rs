@@ -431,6 +431,20 @@ integration_test! {
   status:   200,
 }
 
+// 😬鎌
+integration_test! {
+  name:     backtick_code_interpolation_mod,
+  justfile: "f:\n 無{{`exit 200`}}",
+  args:     (),
+  stdout:   "",
+  stderr:   "error: Backtick failed with exit code 200
+  |
+2 |  無{{`exit 200`}}
+  |      ^^^^^^^^^^
+",
+  status:   200,
+}
+
 integration_test! {
   name:     backtick_code_interpolation_tab,
   justfile: "

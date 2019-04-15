@@ -57,7 +57,9 @@ impl<'a> NewLexer<'a> {
   fn advance(&mut self) -> CompilationResult<'a, ()> {
     match self.next {
       Some(c) => {
-        self.token_end.offset += c.len_utf8();
+        let len_utf8 = c.len_utf8();
+
+        self.token_end.offset += len_utf8;
 
         match c {
           '\n' => {
@@ -65,7 +67,7 @@ impl<'a> NewLexer<'a> {
             self.token_end.line += 1;
           }
           _ => {
-            self.token_end.column += 1;
+            self.token_end.column += len_utf8;
           }
         }
 

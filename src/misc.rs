@@ -63,6 +63,8 @@ pub fn write_error_context(
   column: usize,
   width: Option<usize>,
 ) -> Result<(), fmt::Error> {
+  // panic!("{} {} {} {:?}", offset, line, column, width);
+
   let line_number = line + 1;
   let red = Color::fmt(f).error();
   match text.lines().nth(line) {
