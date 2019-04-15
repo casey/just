@@ -20,9 +20,7 @@ use std::{
 
 use crate::{expression, fragment, justfile::Justfile, parameter, parser::Parser, recipe};
 
-pub fn summary(path: impl AsRef<Path>) -> Result<Result<Summary, String>, io::Error> {
-  let path = path.as_ref();
-
+pub fn summary(path: &Path) -> Result<Result<Summary, String>, io::Error> {
   let text = fs::read_to_string(path)?;
 
   match Parser::parse(&text) {
