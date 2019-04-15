@@ -99,7 +99,7 @@ mod test {
     offset:  0,
     line:   0,
     column: 0,
-    width:  Some(1),
+    width:  1,
     kind:   CircularVariableDependency{variable: "a", circle: vec!["a", "b", "a"]},
   }
 
@@ -109,7 +109,7 @@ mod test {
     offset:  0,
     line:   0,
     column: 0,
-    width:  Some(1),
+    width:  1,
     kind:   CircularVariableDependency{variable: "a", circle: vec!["a", "a"]},
   }
 
@@ -119,7 +119,7 @@ mod test {
     offset:  4,
     line:   0,
     column: 4,
-    width:  Some(2),
+    width:  2,
     kind:   UndefinedVariable{variable: "yy"},
   }
 
@@ -129,7 +129,7 @@ mod test {
     offset:  4,
     line:   0,
     column: 4,
-    width:  Some(3),
+    width:  3,
     kind:   UnknownFunction{function: "foo"},
   }
 

@@ -21,7 +21,7 @@ impl<'a> Token<'a> {
       offset: self.offset,
       line: self.line,
       text: self.text,
-      width: Some(self.length),
+      width: self.length,
       kind,
     }
   }

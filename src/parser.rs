@@ -870,7 +870,7 @@ f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
     offset: 22,
     line: 1,
     column: 6,
-    width: Some(3),
+    width: 3,
     kind: DuplicateAlias { alias: "foo", first: 0 },
   }
 
@@ -880,7 +880,7 @@ f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
     offset: 16,
     line: 0,
     column: 16,
-    width: Some(3),
+    width: 3,
     kind: UnexpectedToken { expected: vec![Eol, Eof], found: Name },
   }
 
@@ -890,7 +890,7 @@ f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
     offset: 12,
     line: 0,
     column: 12,
-    width: Some(1),
+    width: 1,
     kind: UnexpectedToken {expected: vec![Name], found:Eol},
   }
 
@@ -900,7 +900,7 @@ f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
     offset: 6,
     line: 0,
     column: 6,
-    width: Some(3),
+    width: 3,
     kind: UnknownAliasTarget {alias: "foo", target: "bar"},
   }
 
@@ -910,7 +910,7 @@ f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
     offset: 23,
     line: 2,
     column: 6,
-    width: Some(3),
+    width: 3,
     kind: AliasShadowsRecipe {alias: "foo", recipe_line: 3},
   }
 
@@ -920,7 +920,7 @@ f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
     offset: 22,
     line: 2,
     column: 6,
-    width: Some(3),
+    width: 3,
     kind: AliasShadowsRecipe { alias: "foo", recipe_line: 0 },
   }
 
@@ -930,7 +930,7 @@ f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
     offset:  5,
     line:   0,
     column: 5,
-    width:  Some(1),
+    width:  1,
     kind:   UnexpectedToken{expected: vec![Name, Plus, Colon], found: Eol},
   }
 
@@ -940,7 +940,7 @@ f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
     offset:  10,
     line:   0,
     column: 10,
-    width:  Some(1),
+    width:  1,
     kind:   UnexpectedToken{expected: vec![Name, StringCooked], found: Eol},
   }
 
@@ -950,7 +950,7 @@ f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
     offset:  10,
     line:   0,
     column: 10,
-    width:  Some(0),
+    width:  0,
     kind:   UnexpectedToken{expected: vec![Name, StringCooked], found: Eof},
   }
 
@@ -960,7 +960,7 @@ f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
     offset:  7,
     line:   0,
     column: 7,
-    width:  Some(3),
+    width:  3,
     kind:   ParameterFollowsVariadicParameter{parameter: "bbb"},
   }
 
@@ -970,7 +970,7 @@ f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
     offset:  16,
     line:   0,
     column: 16,
-    width:  Some(3),
+    width:  3,
     kind:   RequiredParameterFollowsDefaultParameter{parameter: "bar"},
   }
 
@@ -980,7 +980,7 @@ f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
     offset:  9,
     line:   0,
     column: 9,
-    width:  Some(1),
+    width:  1,
     kind:   UnexpectedToken{expected: vec![Name, Eol, Eof], found: Equals},
   }
 
@@ -990,7 +990,7 @@ f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
     offset:  4,
     line:   0,
     column: 4,
-    width:  Some(1),
+    width:  1,
     kind:   DuplicateParameter{recipe: "a", parameter: "b"},
   }
 
@@ -1000,7 +1000,7 @@ f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
     offset:  12,
     line:   1,
     column: 2,
-    width:  Some(3),
+    width:  3,
     kind:   ParameterShadowsVariable{parameter: "foo"},
   }
 
@@ -1010,7 +1010,7 @@ f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
     offset:  12,
     line:   1,
     column: 3,
-    width:  Some(3),
+    width:  3,
     kind:   DependencyHasParameters{recipe: "b", dependency: "foo"},
   }
 
@@ -1020,7 +1020,7 @@ f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
     offset:  13,
     line:   0,
     column: 13,
-    width:  Some(1),
+    width:  1,
     kind:   DuplicateDependency{recipe: "a", dependency: "z"},
   }
 
@@ -1030,7 +1030,7 @@ f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
     offset:  6,
     line:   2,
     column: 0,
-    width:  Some(1),
+    width:  1,
     kind:   DuplicateRecipe{recipe: "a", first: 0},
   }
 
@@ -1040,7 +1040,7 @@ f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
     offset:  8,
     line:   1,
     column: 0,
-    width:  Some(1),
+    width:  1,
     kind:   DuplicateVariable{variable: "a"},
   }
 
@@ -1050,7 +1050,7 @@ f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
     offset:  10,
     line:   2,
     column: 1,
-    width:  Some(6),
+    width:  6,
     kind:   ExtraLeadingWhitespace,
   }
 
@@ -1060,7 +1060,7 @@ f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
     offset:  0,
     line:   0,
     column: 0,
-    width:  Some(2),
+    width:  2,
     kind:   UnexpectedToken{expected: vec![Name, At], found: InterpolationStart},
   }
 
@@ -1070,7 +1070,7 @@ f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
     offset:  15,
     line:   1,
     column: 12,
-    width:  Some(0),
+    width:  0,
     kind:   UnexpectedToken{expected: vec![Plus, InterpolationEnd], found: Dedent},
   }
 
@@ -1080,7 +1080,7 @@ f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
     offset:  8,
     line:   0,
     column: 8,
-    width:  Some(0),
+    width:  0,
     kind:   UnexpectedToken{expected: vec![Name, StringCooked, ParenR], found: Eof},
   }
 
@@ -1090,7 +1090,7 @@ f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
     offset:  15,
     line:   1,
     column: 12,
-    width:  Some(2),
+    width:  2,
     kind:   UnexpectedToken{expected: vec![Name, StringCooked, ParenR], found: InterpolationEnd},
   }
 
@@ -1100,7 +1100,7 @@ f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
     offset:  5,
     line:   0,
     column: 5,
-    width:  Some(1),
+    width:  1,
     kind:   UnexpectedToken{expected: vec![Name], found: Plus},
   }
 
@@ -1110,7 +1110,7 @@ f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
     offset:  8,
     line:   0,
     column: 8,
-    width:  Some(0),
+    width:  0,
     kind:   UnexpectedToken{expected: vec![Name, Plus, Colon], found: Eof},
   }
 

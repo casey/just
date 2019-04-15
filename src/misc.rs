@@ -61,9 +61,9 @@ pub fn write_error_context(
   offset: usize,
   line: usize,
   column: usize,
-  width: Option<usize>,
+  width: usize,
 ) -> Result<(), fmt::Error> {
-  // panic!("{} {} {} {:?}", offset, line, column, width);
+  let width = if width == 0 { 1 } else { width };
 
   let line_number = line + 1;
   let red = Color::fmt(f).error();
@@ -79,14 +79,14 @@ pub fn write_error_context(
           if i < column {
             space_column += 4;
           }
-          if i >= column && i < column + width.unwrap_or(1) {
+          if i >= column && i < column + width {
             space_width += 4;
           }
         } else {
           if i < column {
             space_column += UnicodeWidthChar::width(c).unwrap_or(0);
           }
-          if i >= column && i < column + width.unwrap_or(1) {
+          if i >= column && i < column + width {
             space_width += UnicodeWidthChar::width(c).unwrap_or(0);
           }
           space_line.push(c);
@@ -97,27 +97,16 @@ pub fn write_error_context(
       writeln!(f, "{0:1$} |", "", line_number_width)?;
       writeln!(f, "{} | {}", line_number, space_line)?;
       write!(f, "{0:1$} |", "", line_number_width)?;
-      if width == None {
-        write!(
-          f,
-          " {0:1$}{2}^{3}",
-          "",
-          space_column,
-          red.prefix(),
-          red.suffix()
-        )?;
-      } else {
-        write!(
-          f,
-          " {0:1$}{2}{3:^<4$}{5}",
-          "",
-          space_column,
-          red.prefix(),
-          "",
-          space_width,
-          red.suffix()
-        )?;
-      }
+      write!(
+        f,
+        " {0:1$}{2}{3:^<4$}{5}",
+        "",
+        space_column,
+        red.prefix(),
+        "",
+        space_width,
+        red.suffix()
+      )?;
     }
     None => {
       if offset != text.len() {

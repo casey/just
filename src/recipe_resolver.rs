@@ -77,7 +77,7 @@ impl<'a, 'b> RecipeResolver<'a, 'b> {
       column: error.column,
       width: error.width,
       kind: UnknownFunction {
-        function: &self.text[error.offset..error.offset + error.width.unwrap()],
+        function: &self.text[error.offset..error.offset + error.width],
       },
       text: self.text,
     })
@@ -99,7 +99,7 @@ impl<'a, 'b> RecipeResolver<'a, 'b> {
         column: error.column,
         width: error.width,
         kind: UndefinedVariable {
-          variable: &self.text[error.offset..error.offset + error.width.unwrap()],
+          variable: &self.text[error.offset..error.offset + error.width],
         },
         text: self.text,
       });
@@ -160,7 +160,7 @@ mod test {
     offset: 8,
     line:   1,
     column: 3,
-    width:  Some(1),
+    width:  1,
     kind:   CircularRecipeDependency{recipe: "b", circle: vec!["a", "b", "a"]},
   }
 
@@ -170,7 +170,7 @@ mod test {
     offset: 3,
     line:   0,
     column: 3,
-    width:  Some(1),
+    width:  1,
     kind:   CircularRecipeDependency{recipe: "a", circle: vec!["a", "a"]},
   }
 
@@ -180,7 +180,7 @@ mod test {
     offset: 3,
     line:   0,
     column: 3,
-    width:  Some(1),
+    width:  1,
     kind:   UnknownDependency{recipe: "a", unknown: "b"},
   }
 
@@ -190,7 +190,7 @@ mod test {
     offset: 9,
     line:   1,
     column: 6,
-    width:  Some(5),
+    width:  5,
     kind:   UndefinedVariable{variable: "hello"},
   }
 
@@ -200,7 +200,7 @@ mod test {
     offset: 33,
     line:   3,
     column: 16,
-    width:  Some(3),
+    width:  3,
     kind:   UndefinedVariable{variable: "lol"},
   }
 
@@ -210,7 +210,7 @@ mod test {
     offset: 11,
     line:   1,
     column: 8,
-    width:  Some(3),
+    width:  3,
     kind:   UnknownFunction{function: "bar"},
   }
 
@@ -220,7 +220,7 @@ mod test {
     offset: 4,
     line:   0,
     column: 4,
-    width:  Some(3),
+    width:  3,
     kind:   UnknownFunction{function: "baz"},
   }
 
@@ -230,7 +230,7 @@ mod test {
     offset: 4,
     line:   0,
     column: 4,
-    width:  Some(3),
+    width:  3,
     kind:   UndefinedVariable{variable: "foo"},
   }
 }

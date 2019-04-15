@@ -156,13 +156,13 @@ impl<'a> Lexer<'a> {
     // The width of the error site to highlight depends on the kind of error:
     let width = match kind {
       // highlight ' or "
-      UnterminatedString => Some(1),
+      UnterminatedString => 1,
       // highlight {{
-      UnterminatedInterpolation => Some(2),
+      UnterminatedInterpolation => 2,
       // highlight `
-      UnterminatedBacktick => Some(1),
+      UnterminatedBacktick => 1,
       // highlight the full token
-      _ => Some(self.lexeme().len()),
+      _ => self.lexeme().len(),
     };
 
     CompilationError {
@@ -946,7 +946,7 @@ c: b
     offset: 9,
     line:   3,
     column: 0,
-    width:  Some(1),
+    width:  1,
     kind:   InconsistentLeadingWhitespace{expected: " ", found: "\t"},
   }
 
@@ -960,7 +960,7 @@ c: b
     offset: 12,
     line:   3,
     column: 0,
-    width:  Some(2),
+    width:  2,
     kind:   InconsistentLeadingWhitespace{expected: "\t\t", found: "\t "},
   }
 
@@ -970,7 +970,7 @@ c: b
     offset: 0,
     line:   0,
     column: 0,
-    width:  Some(1),
+    width:  1,
     kind:   UnknownStartOfToken,
   }
 
@@ -980,7 +980,7 @@ c: b
     offset: 4,
     line:   0,
     column: 4,
-    width:  Some(1),
+    width:  1,
     kind:   UnterminatedString,
   }
 
@@ -990,7 +990,7 @@ c: b
     offset: 4,
     line:   0,
     column: 4,
-    width:  Some(1),
+    width:  1,
     kind:   UnterminatedString,
   }
 
@@ -1001,7 +1001,7 @@ c: b
     offset: 13,
     line:   1,
     column: 8,
-    width:  Some(2),
+    width:  2,
     kind:   UnterminatedInterpolation,
   }
 
@@ -1011,7 +1011,7 @@ c: b
     offset: 0,
     line:   0,
     column: 0,
-    width:  Some(1),
+    width:  1,
     kind:   UnterminatedBacktick,
   }
 
@@ -1021,7 +1021,7 @@ c: b
     offset: 3,
     line:   0,
     column: 3,
-    width:  Some(1),
+    width:  1,
     kind:   UnpairedCarriageReturn,
   }
 
@@ -1031,7 +1031,7 @@ c: b
     offset: 3,
     line:   1,
     column: 0,
-    width:  Some(1),
+    width:  1,
     kind:   UnknownStartOfToken,
   }
 
@@ -1041,7 +1041,7 @@ c: b
     offset: 0,
     line:   0,
     column: 0,
-    width:  Some(1),
+    width:  1,
     kind:   UnknownStartOfToken,
   }
 
@@ -1051,7 +1051,7 @@ c: b
     offset: 4,
     line:   0,
     column: 4,
-    width:  Some(1),
+    width:  1,
     kind:   UnterminatedString,
   }
 
@@ -1061,7 +1061,7 @@ c: b
     offset: 3,
     line:   1,
     column: 0,
-    width:  Some(2),
+    width:  2,
     kind:   MixedLeadingWhitespace{whitespace: "\t "},
   }
 }
