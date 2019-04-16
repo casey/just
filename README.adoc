@@ -710,40 +710,6 @@ When a script with a shebang is executed, the system supplies the path to the sc
 
 With the above shebang, `just` will change its working directory to the location of the script. If you'd rather leave the working directory unchanged, use `#!/usr/bin/env just --working-directory . --justfile`.
 
-== Frequently Asked Questions
-
-=== What are the idiosyncrasies of make that just avoids?
-
-Make has some behaviors which are either confusing, complicated, or make it unsuitable for use as a general command runner.
-
-One example is that sometimes make won't run the commands in a recipe. For example, if you have a file called `test` and the following makefile that runs it:
-
-```make
-test:
-  ./test
-```
-
-Make will actually refuse to run it:
-
-```sh
-$ make test
-make: `test' is up to date.
-```
-
-Make sees the recipe `test` and assumes that it produces a file called `test`. It then sees that this file exists and thus assumes that the recipe doesn't need to be run.
-
-To be fair, this behavior is desirable when using make as a build system, but not when using it as a command runner.
-
-Some other examples include having to understand the difference between `=` and `:=` assignment, the confusing error messages that can be produced if you mess up your makefile, having to use `$$` to write recipes that use environment variables, and incompatibilites between different flavors of make.
-
-=== What's the relationship between just and cargo build scripts?
-
-http://doc.crates.io/build-script.html[Cargo build scripts] have a pretty specific use, which is to control how cargo builds your rust project. This might include adding flags to `rustc` invocations, building an external dependency, or running some kind of codegen step.
-
-`just`, on the other hand, is for all the other miscellaneous commands you might run as part of development. Things like running tests in different configurations, linting your code, pushing build artifacts to a server, removing temporary files, and the like.
-
-Also, although `just` is written in rust, it can be used regardless of the language or build system your project uses.
-
 == Miscellanea
 
 === Companion Tools
@@ -813,7 +779,7 @@ Before `just` was a fancy rust program it was a tiny shell script that called `m
 
 === Non-Project Specific Justfile
 
-If you want some commands to be available everwhere, put them in `~/.justfile` and add the following to your shell's initialization file:
+If you want some commands to be available everywhere, put them in `~/.justfile` and add the following to your shell's initialization file:
 
 ```sh
 alias .j='just --justfile ~/.justfile --working-directory ~'
@@ -828,6 +794,50 @@ alias .j='just --justfile ~/.justfile --working-directory .'
 I'm pretty sure that nobody actually uses this feature, but it's there.
 
 ¯\\_(ツ)_/¯
+
+== Contributing
+
+`just` welcomes your contributions! `just` is released under the maximally permissive [CC0](https://creativecommons.org/publicdomain/zero/1.0/legalcode.txt) public domain dedication and fallback license, so your changes must also released under this license.
+
+=== Janus
+
+[Janus](https://github.com/casey/janus) is a tool that collects and analyzes justfiles, and can determine if a new version of `just` breaks or changes the interpretation of existing justfiles.
+
+Before merging a particularly large or gruesome change, Janus should be run to make sure that nothing breaks. Don't worry about running Janus yourself, Casey will happily run it for you on changes that need it.
+
+== Frequently Asked Questions
+
+=== What are the idiosyncrasies of make that just avoids?
+
+Make has some behaviors which are either confusing, complicated, or make it unsuitable for use as a general command runner.
+
+One example is that sometimes make won't run the commands in a recipe. For example, if you have a file called `test` and the following makefile that runs it:
+
+```make
+test:
+  ./test
+```
+
+Make will actually refuse to run it:
+
+```sh
+$ make test
+make: `test' is up to date.
+```
+
+Make sees the recipe `test` and assumes that it produces a file called `test`. It then sees that this file exists and thus assumes that the recipe doesn't need to be run.
+
+To be fair, this behavior is desirable when using make as a build system, but not when using it as a command runner.
+
+Some other examples include having to understand the difference between `=` and `:=` assignment, the confusing error messages that can be produced if you mess up your makefile, having to use `$$` to write recipes that use environment variables, and incompatibilites between different flavors of make.
+
+=== What's the relationship between just and cargo build scripts?
+
+http://doc.crates.io/build-script.html[Cargo build scripts] have a pretty specific use, which is to control how cargo builds your rust project. This might include adding flags to `rustc` invocations, building an external dependency, or running some kind of codegen step.
+
+`just`, on the other hand, is for all the other miscellaneous commands you might run as part of development. Things like running tests in different configurations, linting your code, pushing build artifacts to a server, removing temporary files, and the like.
+
+Also, although `just` is written in rust, it can be used regardless of the language or build system your project uses.
 
 == Further Ramblings
 
