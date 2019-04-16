@@ -49,23 +49,23 @@ item          : recipe
 eol           : NEWLINE
               | COMMENT NEWLINE
 
-assignment    : NAME '=' expression eol
+alias         : 'alias' NAME ':=' NAME
 
-alias         : 'alias' NAME '=' NAME
+assignment    : NAME ':=' expression eol
 
 export        : 'export' assignment
 
 expression    : value '+' expression
               | value
 
-value         : NAME '(' arguments? ')'
+value         : NAME '(' sequence? ')'
               | STRING
               | RAW_STRING
               | BACKTICK
               | NAME
               | '(' expression ')'
 
-arguments     : expression ',' arguments
+sequence      : expression ',' sequence
               | expression ','?
 
 recipe        : '@'? NAME parameter* ('+' parameter)? ':' dependencies? body?

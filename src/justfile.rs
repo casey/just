@@ -80,7 +80,7 @@ impl<'a> Justfile<'a> where {
       }
 
       for (name, value) in scope {
-        println!("{0:1$} = \"{2}\"", name, width, value);
+        println!("{0:1$} := \"{2}\"", name, width, value);
       }
       return Ok(());
     }
@@ -175,7 +175,7 @@ impl<'a> Display for Justfile<'a> {
       if self.exports.contains(name) {
         write!(f, "export ")?;
       }
-      write!(f, "{} = {}", name, expression)?;
+      write!(f, "{} := {}", name, expression)?;
       items -= 1;
       if items != 0 {
         write!(f, "\n\n")?;
