@@ -864,6 +864,24 @@ f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
     "x = ('0')",
   }
 
+  #[rustfmt::skip]
+  summary_test! {
+    escaped_dos_newlines,
+    "@spam:\r
+\t{ \\\r
+\t\tfiglet test; \\\r
+\t\tcargo build --color always 2>&1; \\\r
+\t\tcargo test  --color always -- --color always 2>&1; \\\r
+\t} | less\r
+",
+"@spam:
+    { \\
+    \tfiglet test; \\
+    \tcargo build --color always 2>&1; \\
+    \tcargo test  --color always -- --color always 2>&1; \\
+    } | less",
+  }
+
   compilation_error_test! {
     name: duplicate_alias,
     input: "alias foo = bar\nalias foo = baz",
@@ -1062,16 +1080,6 @@ f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
     column: 0,
     width:  2,
     kind:   UnexpectedToken{expected: vec![Name, At], found: InterpolationStart},
-  }
-
-  compilation_error_test! {
-    name:   unclosed_interpolation_delimiter,
-    input:  "a:\n echo {{ foo",
-    offset:  15,
-    line:   1,
-    column: 12,
-    width:  0,
-    kind:   UnexpectedToken{expected: vec![Plus, InterpolationEnd], found: Dedent},
   }
 
   compilation_error_test! {

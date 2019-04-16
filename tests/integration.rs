@@ -1739,14 +1739,14 @@ a:
 integration_test! {
   name:     unterminated_raw_string,
   justfile: "
-a b=':
+a b= ':
 ",
   args:     ("a"),
   stdout:   "",
   stderr:   "error: Unterminated string
   |
-2 | a b=':
-  |     ^
+2 | a b= ':
+  |      ^
 ",
   status:   EXIT_FAILURE,
 }
@@ -1754,14 +1754,14 @@ a b=':
 integration_test! {
   name:     unterminated_string,
   justfile: r#"
-a b=":
+a b= ":
 "#,
   args:     ("a"),
   stdout:   "",
   stderr:   r#"error: Unterminated string
   |
-2 | a b=":
-  |     ^
+2 | a b= ":
+  |      ^
 "#,
   status:   EXIT_FAILURE,
 }
@@ -2064,4 +2064,65 @@ foo a=arch() o=os() f=os_family():
   stdout:   format!("{} {} {}\n", target::arch(), target::os(), target::os_family()).as_str(),
   stderr:   format!("echo {} {} {}\n", target::arch(), target::os(), target::os_family()).as_str(),
   status:   EXIT_SUCCESS,
+}
+
+integration_test! {
+   name:     unterminated_interpolation_eol,
+   justfile: "
+foo:
+  echo {{
+",
+   args:     (),
+   stdout:   "",
+   stderr:   r#"error: Unterminated interpolation
+  |
+3 |   echo {{
+  |        ^^
+"#,
+   status:   EXIT_FAILURE,
+}
+
+integration_test! {
+   name:     unterminated_interpolation_eof,
+   justfile: "
+foo:
+  echo {{",
+   args:     (),
+   stdout:   "",
+   stderr:   r#"error: Unterminated interpolation
+  |
+3 |   echo {{
+  |        ^^
+"#,
+   status:   EXIT_FAILURE,
+}
+
+integration_test! {
+   name:     unterminated_backtick,
+   justfile: "
+foo a=\t`echo blaaaaaah:
+  echo {{a}}",
+   args:     (),
+   stdout:   "",
+   stderr:   r#"error: Unterminated backtick
+  |
+2 | foo a=    `echo blaaaaaah:
+  |           ^
+"#,
+   status:   EXIT_FAILURE,
+}
+
+integration_test! {
+   name:     unknown_start_of_token,
+   justfile: "
+assembly_source_files = $(wildcard src/arch/$(arch)/*.s)
+",
+   args:     (),
+   stdout:   "",
+   stderr:   r#"error: Unknown start of token:
+  |
+2 | assembly_source_files = $(wildcard src/arch/$(arch)/*.s)
+  |                         ^
+"#,
+   status:   EXIT_FAILURE,
 }

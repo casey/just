@@ -313,7 +313,13 @@ impl<'a> Display for Recipe<'a> {
     if let Some(doc) = self.doc {
       writeln!(f, "# {}", doc)?;
     }
-    write!(f, "{}", self.name)?;
+
+    if self.quiet {
+      write!(f, "@{}", self.name)?;
+    } else {
+      write!(f, "{}", self.name)?;
+    }
+
     for parameter in &self.parameters {
       write!(f, " {}", parameter)?;
     }

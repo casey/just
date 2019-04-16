@@ -149,7 +149,7 @@ impl<'a> Lexer<'a> {
     }
   }
 
-  /// Create an compilation error with `kind`
+  /// Create a compilation error with `kind`
   fn error(&self, kind: CompilationErrorKind<'a>) -> CompilationError<'a> {
     // Use the in-progress token span as the location of the error.
 
@@ -157,8 +157,6 @@ impl<'a> Lexer<'a> {
     let width = match kind {
       // highlight ' or "
       UnterminatedString => 1,
-      // highlight {{
-      UnterminatedInterpolation => 2,
       // highlight `
       UnterminatedBacktick => 1,
       // highlight the full token
@@ -175,6 +173,20 @@ impl<'a> Lexer<'a> {
     }
   }
 
+  fn unterminated_interpolation_error(
+    &self,
+    interpolation_start: Position,
+  ) -> CompilationError<'a> {
+    CompilationError {
+      text: self.text,
+      offset: interpolation_start.offset,
+      line: interpolation_start.line,
+      column: interpolation_start.column,
+      width: 2,
+      kind: UnterminatedInterpolation,
+    }
+  }
+
   /// Consume the text and produce a series of tokens
   fn tokenize(mut self) -> CompilationResult<'a, Vec<Token<'a>>> {
     loop {
@@ -185,7 +197,9 @@ impl<'a> Lexer<'a> {
       match self.next {
         Some(first) => match self.state()? {
           State::Normal => self.lex_normal(first)?,
-          State::Interpolation => self.lex_interpolation(first)?,
+          State::Interpolation {
+            interpolation_start,
+          } => self.lex_interpolation(interpolation_start, first)?,
           State::Text => self.lex_text()?,
           State::Indented { .. } => self.lex_indented()?,
         },
@@ -193,7 +207,14 @@ impl<'a> Lexer<'a> {
       }
     }
 
-    if let State::Indented { .. } | State::Text | State::Interpolation = self.state()? {
+    if let State::Interpolation {
+      interpolation_start,
+    } = self.state()?
+    {
+      return Err(self.unterminated_interpolation_error(interpolation_start));
+    }
+
+    if let State::Indented { .. } | State::Text = self.state()? {
       self.token(Dedent);
     }
 
@@ -324,7 +345,11 @@ impl<'a> Lexer<'a> {
   }
 
   /// Lex token beginning with `start` in interpolation state
-  fn lex_interpolation(&mut self, start: char) -> CompilationResult<'a, ()> {
+  fn lex_interpolation(
+    &mut self,
+    interpolation_start: Position,
+    start: char,
+  ) -> CompilationResult<'a, ()> {
     // Check for end of interpolation
     if self.rest_starts_with("}}") {
       // Pop interpolation state
@@ -332,7 +357,8 @@ impl<'a> Lexer<'a> {
       // Emit interpolation end token
       self.lex_double(InterpolationEnd)
     } else if self.rest_starts_with("\n") || self.rest_starts_with("\r\n") {
-      Err(self.error(UnterminatedInterpolation))
+      // Return unterminated interpolation error that highlights the opening {{
+      Err(self.unterminated_interpolation_error(interpolation_start))
     } else {
       // Otherwise lex as if we are in normal state
       self.lex_normal(start)
@@ -385,7 +411,9 @@ impl<'a> Lexer<'a> {
         self.lex_double(Eol)
       }
       Interpolation => {
-        self.state.push(State::Interpolation);
+        self.state.push(State::Interpolation {
+          interpolation_start: self.token_start,
+        });
         self.lex_double(InterpolationStart)
       }
       EndOfFile => self.pop_state(),
@@ -998,9 +1026,9 @@ c: b
     name:   unterminated_interpolation,
     input:  "foo:\n echo {{
   ",
-    offset: 13,
+    offset: 11,
     line:   1,
-    column: 8,
+    column: 6,
     width:  2,
     kind:   UnterminatedInterpolation,
   }
@@ -1063,5 +1091,15 @@ c: b
     column: 0,
     width:  2,
     kind:   MixedLeadingWhitespace{whitespace: "\t "},
+  }
+
+  error_test! {
+    name:   unclosed_interpolation_delimiter,
+    input:  "a:\n echo {{ foo",
+    offset: 9,
+    line:   1,
+    column: 6,
+    width:  2,
+    kind:   UnterminatedInterpolation,
   }
 }
