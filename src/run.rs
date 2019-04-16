@@ -207,8 +207,7 @@ pub fn run() {
     let i = argument
       .char_indices()
       .skip(1)
-      .filter(|&(_, c)| c == '=')
-      .next()
+      .find(|&(_, c)| c == '=')
       .unwrap()
       .0;
 

@@ -1,5 +1,9 @@
 # Changelog
 
+## [v0.4.2] - 2019-04-12
+### Changed
+- Regex-based lexer replaced with much nicer character-at-a-time lexer (#406)
+
 ## [v0.4.1] - 2019-04-12
 ### Changed
 - Make summary function non-generic (#404)
