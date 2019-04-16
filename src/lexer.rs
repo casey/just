@@ -3,379 +3,599 @@ use crate::common::*;
 use CompilationErrorKind::*;
 use TokenKind::*;
 
-fn re(pattern: &str) -> Regex {
-  Regex::new(pattern).unwrap()
-}
-
-fn token(pattern: &str) -> Regex {
-  let mut s = String::new();
-  s += r"^(?m)([ \t]*)(";
-  s += pattern;
-  s += ")";
-  re(&s)
-}
-
-fn mixed_whitespace(text: &str) -> bool {
-  !(text.chars().all(|c| c == ' ') || text.chars().all(|c| c == '\t'))
-}
-
+/// Just language lexer
+///
+/// `self.next` points to the next character to be lexed, and
+/// the text between `self.token_start` and `self.token_end` contains
+/// the current token being lexed.
 pub struct Lexer<'a> {
-  tokens: Vec<Token<'a>>,
+  /// Source text
   text: &'a str,
-  rest: &'a str,
-  index: usize,
-  column: usize,
-  line: usize,
+  /// Char iterator
+  chars: Chars<'a>,
+  /// Tokens
+  tokens: Vec<Token<'a>>,
+  /// State stack
   state: Vec<State<'a>>,
-}
-
-#[derive(PartialEq)]
-enum State<'a> {
-  Start,
-  Indent(&'a str),
-  Text,
-  Interpolation,
+  /// Current token start
+  token_start: Position,
+  /// Current token end
+  token_end: Position,
+  /// Next character
+  next: Option<char>,
 }
 
 impl<'a> Lexer<'a> {
-  pub fn lex(text: &'a str) -> CompilationResult<Vec<Token<'a>>> {
-    let lexer = Lexer {
-      tokens: vec![],
-      rest: text,
-      index: 0,
-      line: 0,
+  /// Lex `text`
+  pub fn lex(text: &str) -> CompilationResult<Vec<Token>> {
+    Lexer::new(text).tokenize()
+  }
+
+  /// Create a new Lexer to lex `text`
+  fn new(text: &'a str) -> Lexer<'a> {
+    let mut chars = text.chars();
+    let next = chars.next();
+
+    let start = Position {
+      offset: 0,
       column: 0,
-      state: vec![State::Start],
-      text,
+      line: 0,
     };
 
-    lexer.inner()
+    Lexer {
+      state: vec![State::Normal],
+      tokens: Vec::new(),
+      token_start: start,
+      token_end: start,
+      chars,
+      next,
+      text,
+    }
   }
 
-  fn error(&self, kind: CompilationErrorKind<'a>) -> CompilationError<'a> {
+  /// Advance over the chracter in `self.next`, updating
+  /// `self.token_end` accordingly.
+  fn advance(&mut self) -> CompilationResult<'a, ()> {
+    match self.next {
+      Some(c) => {
+        let len_utf8 = c.len_utf8();
+
+        self.token_end.offset += len_utf8;
+
+        match c {
+          '\n' => {
+            self.token_end.column = 0;
+            self.token_end.line += 1;
+          }
+          _ => {
+            self.token_end.column += len_utf8;
+          }
+        }
+
+        self.next = self.chars.next();
+
+        Ok(())
+      }
+      None => Err(self.internal_error("Lexer advanced past end of text")),
+    }
+  }
+
+  /// Lexeme of in-progress token
+  fn lexeme(&self) -> &'a str {
+    &self.text[self.token_start.offset..self.token_end.offset]
+  }
+
+  /// Un-lexed text
+  fn rest(&self) -> &'a str {
+    &self.text[self.token_end.offset..]
+  }
+
+  /// Check if unlexed text begins with prefix
+  fn rest_starts_with(&self, prefix: &str) -> bool {
+    self.rest().starts_with(prefix)
+  }
+
+  /// Length of current token
+  fn current_token_length(&self) -> usize {
+    self.token_end.offset - self.token_start.offset
+  }
+
+  /// Get current state
+  fn state(&self) -> CompilationResult<'a, State<'a>> {
+    if self.state.is_empty() {
+      Err(self.internal_error("Lexer state stack empty"))
+    } else {
+      Ok(self.state[self.state.len() - 1])
+    }
+  }
+
+  /// Pop current state from stack
+  fn pop_state(&mut self) -> CompilationResult<'a, ()> {
+    if self.state.pop().is_none() {
+      Err(self.internal_error("Lexer attempted to pop in start state"))
+    } else {
+      Ok(())
+    }
+  }
+
+  /// Create a new token with `kind` whose lexeme
+  /// is between `self.token_start` and `self.token_end`
+  fn token(&mut self, kind: TokenKind) {
+    self.tokens.push(Token {
+      offset: self.token_start.offset,
+      column: self.token_start.column,
+      line: self.token_start.line,
+      text: self.text,
+      length: self.token_end.offset - self.token_start.offset,
+      kind,
+    });
+
+    // Set `token_start` to point after the lexed token
+    self.token_start = self.token_end;
+  }
+
+  /// Create an internal error with `message`
+  fn internal_error(&self, message: impl Into<String>) -> CompilationError<'a> {
+    // Use `self.token_end` as the location of the error
     CompilationError {
       text: self.text,
-      index: self.index,
-      line: self.line,
-      column: self.column,
-      width: None,
-      kind,
+      offset: self.token_end.offset,
+      line: self.token_end.line,
+      column: self.token_end.column,
+      width: 0,
+      kind: CompilationErrorKind::Internal {
+        message: message.into(),
+      },
     }
   }
 
-  fn token(&self, prefix: &'a str, lexeme: &'a str, kind: TokenKind) -> Token<'a> {
-    Token {
-      index: self.index,
-      line: self.line,
-      column: self.column,
+  /// Create a compilation error with `kind`
+  fn error(&self, kind: CompilationErrorKind<'a>) -> CompilationError<'a> {
+    // Use the in-progress token span as the location of the error.
+
+    // The width of the error site to highlight depends on the kind of error:
+    let width = match kind {
+      // highlight ' or "
+      UnterminatedString => 1,
+      // highlight `
+      UnterminatedBacktick => 1,
+      // highlight the full token
+      _ => self.lexeme().len(),
+    };
+
+    CompilationError {
       text: self.text,
-      prefix,
-      lexeme,
+      offset: self.token_start.offset,
+      line: self.token_start.line,
+      column: self.token_start.column,
+      width,
       kind,
     }
   }
 
-  fn lex_indent(&mut self) -> CompilationResult<'a, Option<Token<'a>>> {
-    lazy_static! {
-      static ref INDENT: Regex = re(r"^([ \t]*)[^ \t\n\r]");
+  fn unterminated_interpolation_error(
+    &self,
+    interpolation_start: Position,
+  ) -> CompilationError<'a> {
+    CompilationError {
+      text: self.text,
+      offset: interpolation_start.offset,
+      line: interpolation_start.line,
+      column: interpolation_start.column,
+      width: 2,
+      kind: UnterminatedInterpolation,
     }
-
-    let indentation = INDENT
-      .captures(self.rest)
-      .map(|captures| captures.get(1).unwrap().as_str());
-
-    if self.column == 0 {
-      if let Some(kind) = match (self.state.last().unwrap(), indentation) {
-        // ignore: was no indentation and there still isn't
-        //         or current line is blank
-        (&State::Start, Some("")) | (_, None) => None,
-        // indent: was no indentation, now there is
-        (&State::Start, Some(current)) => {
-          if mixed_whitespace(current) {
-            return Err(self.error(MixedLeadingWhitespace {
-              whitespace: current,
-            }));
-          }
-          //indent = Some(current);
-          self.state.push(State::Indent(current));
-          Some(Indent)
-        }
-        // dedent: there was indentation and now there isn't
-        (&State::Indent(_), Some("")) => {
-          // indent = None;
-          self.state.pop();
-          Some(Dedent)
-        }
-        // was indentation and still is, check if the new indentation matches
-        (&State::Indent(previous), Some(current)) => {
-          if !current.starts_with(previous) {
-            return Err(self.error(InconsistentLeadingWhitespace {
-              expected: previous,
-              found: current,
-            }));
-          }
-          None
-        }
-        // at column 0 in some other state: this should never happen
-        (&State::Text, _) | (&State::Interpolation, _) => {
-          return Err(self.error(Internal {
-            message: "unexpected state at column 0".to_string(),
-          }));
-        }
-      } {
-        return Ok(Some(self.token("", "", kind)));
-      }
-    }
-    Ok(None)
   }
 
-  pub fn inner(mut self) -> CompilationResult<'a, Vec<Token<'a>>> {
-    lazy_static! {
-      static ref AT: Regex = token(r"@");
-      static ref BACKTICK: Regex = token(r"`[^`\n\r]*`");
-      static ref COLON: Regex = token(r":");
-      static ref COMMA: Regex = token(r",");
-      static ref COMMENT: Regex = token(r"#([^\n\r][^\n\r]*)?\r?$");
-      static ref EOF: Regex = token(r"\z");
-      static ref EOL: Regex = token(r"\n|\r\n");
-      static ref EQUALS: Regex = token(r"=");
-      static ref INTERPOLATION_END: Regex = token(r"[}][}]");
-      static ref INTERPOLATION_START_TOKEN: Regex = token(r"[{][{]");
-      static ref NAME: Regex = token(r"([a-zA-Z_][a-zA-Z0-9_-]*)");
-      static ref PAREN_L: Regex = token(r"[(]");
-      static ref PAREN_R: Regex = token(r"[)]");
-      static ref PLUS: Regex = token(r"[+]");
-      static ref RAW_STRING: Regex = token(r#"'[^']*'"#);
-      static ref STRING: Regex = token(r#"["]"#);
-      static ref UNTERMINATED_RAW_STRING: Regex = token(r#"'[^']*"#);
-      static ref INTERPOLATION_START: Regex = re(r"^[{][{]");
-      static ref LEADING_TEXT: Regex = re(r"^(?m)(.+?)[{][{]");
-      static ref LINE: Regex = re(r"^(?m)[ \t]+[^ \t\n\r].*$");
-      static ref TEXT: Regex = re(r"^(?m)(.+)");
-    }
-
+  /// Consume the text and produce a series of tokens
+  fn tokenize(mut self) -> CompilationResult<'a, Vec<Token<'a>>> {
     loop {
-      if let Some(token) = self.lex_indent()? {
-        self.tokens.push(token);
+      if self.token_start.column == 0 {
+        self.lex_line_start()?;
       }
 
-      // insert a dedent if we're indented and we hit the end of the file
-      if &State::Start != self.state.last().unwrap() && EOF.is_match(self.rest) {
-        let token = self.token("", "", Dedent);
-        self.tokens.push(token);
+      match self.next {
+        Some(first) => match self.state()? {
+          State::Normal => self.lex_normal(first)?,
+          State::Interpolation {
+            interpolation_start,
+          } => self.lex_interpolation(interpolation_start, first)?,
+          State::Text => self.lex_text()?,
+          State::Indented { .. } => self.lex_indented()?,
+        },
+        None => break,
       }
-
-      let (prefix, lexeme, kind) = if let (0, &State::Indent(indent), Some(captures)) = (
-        self.column,
-        self.state.last().unwrap(),
-        LINE.captures(self.rest),
-      ) {
-        let line = captures.get(0).unwrap().as_str();
-        if !line.starts_with(indent) {
-          return Err(self.error(Internal {
-            message: "unexpected indent".to_string(),
-          }));
-        }
-        self.state.push(State::Text);
-        (&line[0..indent.len()], "", Line)
-      } else if let Some(captures) = EOF.captures(self.rest) {
-        (
-          captures.get(1).unwrap().as_str(),
-          captures.get(2).unwrap().as_str(),
-          Eof,
-        )
-      } else if let State::Text = *self.state.last().unwrap() {
-        if let Some(captures) = INTERPOLATION_START.captures(self.rest) {
-          self.state.push(State::Interpolation);
-          ("", captures.get(0).unwrap().as_str(), InterpolationStart)
-        } else if let Some(captures) = LEADING_TEXT.captures(self.rest) {
-          ("", captures.get(1).unwrap().as_str(), Text)
-        } else if let Some(captures) = TEXT.captures(self.rest) {
-          ("", captures.get(1).unwrap().as_str(), Text)
-        } else if let Some(captures) = EOL.captures(self.rest) {
-          self.state.pop();
-          (
-            captures.get(1).unwrap().as_str(),
-            captures.get(2).unwrap().as_str(),
-            Eol,
-          )
-        } else {
-          return Err(self.error(Internal {
-            message: format!("Could not match token in text state: \"{}\"", self.rest),
-          }));
-        }
-      } else if let Some(captures) = INTERPOLATION_START_TOKEN.captures(self.rest) {
-        (
-          captures.get(1).unwrap().as_str(),
-          captures.get(2).unwrap().as_str(),
-          InterpolationStart,
-        )
-      } else if let Some(captures) = INTERPOLATION_END.captures(self.rest) {
-        if self.state.last().unwrap() == &State::Interpolation {
-          self.state.pop();
-        }
-        (
-          captures.get(1).unwrap().as_str(),
-          captures.get(2).unwrap().as_str(),
-          InterpolationEnd,
-        )
-      } else if let Some(captures) = NAME.captures(self.rest) {
-        (
-          captures.get(1).unwrap().as_str(),
-          captures.get(2).unwrap().as_str(),
-          Name,
-        )
-      } else if let Some(captures) = EOL.captures(self.rest) {
-        if self.state.last().unwrap() == &State::Interpolation {
-          return Err(self.error(UnterminatedInterpolation));
-        }
-        (
-          captures.get(1).unwrap().as_str(),
-          captures.get(2).unwrap().as_str(),
-          Eol,
-        )
-      } else if let Some(captures) = BACKTICK.captures(self.rest) {
-        (
-          captures.get(1).unwrap().as_str(),
-          captures.get(2).unwrap().as_str(),
-          Backtick,
-        )
-      } else if let Some(captures) = COLON.captures(self.rest) {
-        (
-          captures.get(1).unwrap().as_str(),
-          captures.get(2).unwrap().as_str(),
-          Colon,
-        )
-      } else if let Some(captures) = AT.captures(self.rest) {
-        (
-          captures.get(1).unwrap().as_str(),
-          captures.get(2).unwrap().as_str(),
-          At,
-        )
-      } else if let Some(captures) = COMMA.captures(self.rest) {
-        (
-          captures.get(1).unwrap().as_str(),
-          captures.get(2).unwrap().as_str(),
-          Comma,
-        )
-      } else if let Some(captures) = PAREN_L.captures(self.rest) {
-        (
-          captures.get(1).unwrap().as_str(),
-          captures.get(2).unwrap().as_str(),
-          ParenL,
-        )
-      } else if let Some(captures) = PAREN_R.captures(self.rest) {
-        (
-          captures.get(1).unwrap().as_str(),
-          captures.get(2).unwrap().as_str(),
-          ParenR,
-        )
-      } else if let Some(captures) = PLUS.captures(self.rest) {
-        (
-          captures.get(1).unwrap().as_str(),
-          captures.get(2).unwrap().as_str(),
-          Plus,
-        )
-      } else if let Some(captures) = EQUALS.captures(self.rest) {
-        (
-          captures.get(1).unwrap().as_str(),
-          captures.get(2).unwrap().as_str(),
-          Equals,
-        )
-      } else if let Some(captures) = COMMENT.captures(self.rest) {
-        (
-          captures.get(1).unwrap().as_str(),
-          captures.get(2).unwrap().as_str(),
-          Comment,
-        )
-      } else if let Some(captures) = RAW_STRING.captures(self.rest) {
-        (
-          captures.get(1).unwrap().as_str(),
-          captures.get(2).unwrap().as_str(),
-          RawString,
-        )
-      } else if UNTERMINATED_RAW_STRING.is_match(self.rest) {
-        return Err(self.error(UnterminatedString));
-      } else if let Some(captures) = STRING.captures(self.rest) {
-        let prefix = captures.get(1).unwrap().as_str();
-        let contents = &self.rest[prefix.len() + 1..];
-        if contents.is_empty() {
-          return Err(self.error(UnterminatedString));
-        }
-        let mut len = 0;
-        let mut escape = false;
-        for c in contents.chars() {
-          if c == '\n' || c == '\r' {
-            return Err(self.error(UnterminatedString));
-          } else if !escape && c == '"' {
-            break;
-          } else if !escape && c == '\\' {
-            escape = true;
-          } else if escape {
-            escape = false;
-          }
-          len += c.len_utf8();
-        }
-        let start = prefix.len();
-        let content_end = start + len + 1;
-        if escape || content_end >= self.rest.len() {
-          return Err(self.error(UnterminatedString));
-        }
-        (prefix, &self.rest[start..=content_end], StringToken)
-      } else {
-        return Err(self.error(UnknownStartOfToken));
-      };
-
-      let token = self.token(prefix, lexeme, kind);
-      self.tokens.push(token);
-
-      let len = prefix.len() + lexeme.len();
-
-      if len == 0 {
-        let last = self.tokens.last().unwrap();
-        match last.kind {
-          Eof => {}
-          _ => {
-            return Err(last.error(Internal {
-              message: format!("zero length token: {:?}", last),
-            }));
-          }
-        }
-      }
-
-      match self.tokens.last().unwrap().kind {
-        Eol => {
-          self.line += 1;
-          self.column = 0;
-        }
-        Eof => {
-          break;
-        }
-        RawString => {
-          let lexeme_lines = lexeme.lines().count();
-          self.line += lexeme_lines - 1;
-          if lexeme_lines == 1 {
-            self.column += len;
-          } else {
-            self.column = lexeme.lines().last().unwrap().len();
-          }
-        }
-        _ => {
-          self.column += len;
-        }
-      }
-
-      self.rest = &self.rest[len..];
-      self.index += len;
     }
+
+    if let State::Interpolation {
+      interpolation_start,
+    } = self.state()?
+    {
+      return Err(self.unterminated_interpolation_error(interpolation_start));
+    }
+
+    if let State::Indented { .. } | State::Text = self.state()? {
+      self.token(Dedent);
+    }
+
+    self.token(Eof);
 
     Ok(self.tokens)
+  }
+
+  /// Handle blank lines and indentation
+  fn lex_line_start(&mut self) -> CompilationResult<'a, ()> {
+    let nonblank_index = self
+      .rest()
+      .char_indices()
+      .skip_while(|&(_, c)| c == ' ' || c == '\t')
+      .map(|(i, _)| i)
+      .next()
+      .unwrap_or_else(|| self.rest().len());
+
+    let rest = &self.rest()[nonblank_index..];
+
+    // Handle blank line
+    if rest.starts_with('\n') || rest.starts_with("\r\n") || rest.is_empty() {
+      while let Some(' ') | Some('\t') = self.next {
+        self.advance()?;
+      }
+
+      // Lex a whitespace token if the blank line was nonempty
+      if self.current_token_length() > 0 {
+        self.token(Whitespace);
+      };
+
+      return Ok(());
+    }
+
+    // Handle nonblank lines with no leading whitespace
+    if self.next != Some(' ') && self.next != Some('\t') {
+      if let State::Indented { .. } = self.state()? {
+        self.token(Dedent);
+        self.pop_state()?;
+      }
+
+      return Ok(());
+    }
+
+    // Handle continued indentation
+    if let State::Indented { indentation } = self.state()? {
+      let mut remaining = indentation.len();
+
+      // Advance over whitespace up to length of current indentation
+      while let Some(' ') | Some('\t') = self.next {
+        self.advance()?;
+        remaining -= 1;
+        if remaining == 0 {
+          break;
+        }
+      }
+
+      let lexeme = self.lexeme();
+
+      if lexeme != indentation {
+        return Err(self.error(InconsistentLeadingWhitespace {
+          expected: indentation,
+          found: lexeme,
+        }));
+      }
+
+      // Indentation matches, lex as whitespace
+      self.token(Whitespace);
+
+      return Ok(());
+    }
+
+    if self.state()? != State::Normal {
+      return Err(self.internal_error(format!(
+        "Lexer::lex_line_start called in unexpected state: {:?}",
+        self.state()
+      )));
+    }
+
+    // Handle new indentation
+    while let Some(' ') | Some('\t') = self.next {
+      self.advance()?;
+    }
+
+    let indentation = self.lexeme();
+
+    let spaces = indentation.chars().any(|c| c == ' ');
+    let tabs = indentation.chars().any(|c| c == '\t');
+
+    if spaces && tabs {
+      return Err(self.error(MixedLeadingWhitespace {
+        whitespace: indentation,
+      }));
+    }
+
+    self.state.push(State::Indented { indentation });
+
+    self.token(Indent);
+
+    Ok(())
+  }
+
+  /// Lex token beginning with `start` in normal state
+  fn lex_normal(&mut self, start: char) -> CompilationResult<'a, ()> {
+    match start {
+      '@' => self.lex_single(At),
+      '=' => self.lex_single(Equals),
+      ',' => self.lex_single(Comma),
+      ':' => self.lex_single(Colon),
+      '(' => self.lex_single(ParenL),
+      ')' => self.lex_single(ParenR),
+      '{' => self.lex_brace_l(),
+      '}' => self.lex_brace_r(),
+      '+' => self.lex_single(Plus),
+      '\n' => self.lex_single(Eol),
+      '\r' => self.lex_cr_lf(),
+      '#' => self.lex_comment(),
+      '`' => self.lex_backtick(),
+      ' ' | '\t' => self.lex_whitespace(),
+      '\'' => self.lex_raw_string(),
+      '"' => self.lex_cooked_string(),
+      'a'...'z' | 'A'...'Z' | '_' => self.lex_name(),
+      _ => {
+        self.advance()?;
+        Err(self.error(UnknownStartOfToken))
+      }
+    }
+  }
+
+  /// Lex token beginning with `start` in interpolation state
+  fn lex_interpolation(
+    &mut self,
+    interpolation_start: Position,
+    start: char,
+  ) -> CompilationResult<'a, ()> {
+    // Check for end of interpolation
+    if self.rest_starts_with("}}") {
+      // Pop interpolation state
+      self.pop_state()?;
+      // Emit interpolation end token
+      self.lex_double(InterpolationEnd)
+    } else if self.rest_starts_with("\n") || self.rest_starts_with("\r\n") {
+      // Return unterminated interpolation error that highlights the opening {{
+      Err(self.unterminated_interpolation_error(interpolation_start))
+    } else {
+      // Otherwise lex as if we are in normal state
+      self.lex_normal(start)
+    }
+  }
+
+  /// Lex token beginning with `start` in text state
+  fn lex_text(&mut self) -> CompilationResult<'a, ()> {
+    enum Terminator {
+      Newline,
+      NewlineCarriageReturn,
+      Interpolation,
+      EndOfFile,
+    }
+
+    use Terminator::*;
+
+    let terminator = loop {
+      if let Some('\n') = self.next {
+        break Newline;
+      }
+
+      if self.rest_starts_with("\r\n") {
+        break NewlineCarriageReturn;
+      }
+
+      if self.rest_starts_with("{{") {
+        break Interpolation;
+      }
+
+      if self.next.is_none() {
+        break EndOfFile;
+      }
+
+      self.advance()?;
+    };
+
+    // emit text token containing text so far
+    if self.current_token_length() > 0 {
+      self.token(Text);
+    }
+
+    match terminator {
+      Newline => {
+        self.state.pop();
+        self.lex_single(Eol)
+      }
+      NewlineCarriageReturn => {
+        self.state.pop();
+        self.lex_double(Eol)
+      }
+      Interpolation => {
+        self.state.push(State::Interpolation {
+          interpolation_start: self.token_start,
+        });
+        self.lex_double(InterpolationStart)
+      }
+      EndOfFile => self.pop_state(),
+    }
+  }
+
+  /// Lex token beginning with `start` in indented state
+  fn lex_indented(&mut self) -> CompilationResult<'a, ()> {
+    self.state.push(State::Text);
+    self.token(Line);
+    Ok(())
+  }
+
+  /// Lex a single character token
+  fn lex_single(&mut self, kind: TokenKind) -> CompilationResult<'a, ()> {
+    self.advance()?;
+    self.token(kind);
+    Ok(())
+  }
+
+  /// Lex a double character token
+  fn lex_double(&mut self, kind: TokenKind) -> CompilationResult<'a, ()> {
+    self.advance()?;
+    self.advance()?;
+    self.token(kind);
+    Ok(())
+  }
+
+  /// Lex a token starting with '{'
+  fn lex_brace_l(&mut self) -> CompilationResult<'a, ()> {
+    if !self.rest_starts_with("{{") {
+      self.advance()?;
+
+      return Err(self.error(UnknownStartOfToken));
+    }
+
+    self.lex_double(InterpolationStart)
+  }
+
+  /// Lex a token starting with '}'
+  fn lex_brace_r(&mut self) -> CompilationResult<'a, ()> {
+    if !self.rest_starts_with("}}") {
+      self.advance()?;
+
+      return Err(self.error(UnknownStartOfToken));
+    }
+
+    self.lex_double(InterpolationEnd)
+  }
+
+  /// Lex a carriage return and line feed
+  fn lex_cr_lf(&mut self) -> CompilationResult<'a, ()> {
+    if !self.rest_starts_with("\r\n") {
+      // advance over \r
+      self.advance()?;
+
+      return Err(self.error(UnpairedCarriageReturn));
+    }
+
+    self.lex_double(Eol)
+  }
+
+  /// Lex name: [a-zA-Z_][a-zA-Z0-9_]*
+  fn lex_name(&mut self) -> CompilationResult<'a, ()> {
+    while let Some('a'...'z') | Some('A'...'Z') | Some('0'...'9') | Some('_') | Some('-') =
+      self.next
+    {
+      self.advance()?;
+    }
+
+    self.token(Name);
+
+    Ok(())
+  }
+
+  /// Lex comment: #[^\r\n]
+  fn lex_comment(&mut self) -> CompilationResult<'a, ()> {
+    // advance over #
+    self.advance()?;
+
+    loop {
+      if let Some('\r') | Some('\n') | None = self.next {
+        break;
+      }
+
+      self.advance()?;
+    }
+
+    self.token(Comment);
+
+    Ok(())
+  }
+
+  /// Lex backtick: `[^\r\n]*`
+  fn lex_backtick(&mut self) -> CompilationResult<'a, ()> {
+    // advance over `
+    self.advance()?;
+
+    loop {
+      if let Some('\r') | Some('\n') | None = self.next {
+        return Err(self.error(UnterminatedBacktick));
+      }
+
+      if let Some('`') = self.next {
+        self.advance()?;
+        break;
+      }
+
+      self.advance()?;
+    }
+
+    self.token(Backtick);
+
+    Ok(())
+  }
+
+  /// Lex whitespace: [ \t]+
+  fn lex_whitespace(&mut self) -> CompilationResult<'a, ()> {
+    while let Some(' ') | Some('\t') = self.next {
+      self.advance()?
+    }
+
+    self.token(Whitespace);
+
+    Ok(())
+  }
+
+  /// Lex raw string: '[^']*'
+  fn lex_raw_string(&mut self) -> CompilationResult<'a, ()> {
+    // advance over opening '
+    self.advance()?;
+
+    loop {
+      match self.next {
+        Some('\'') => break,
+        None => return Err(self.error(UnterminatedString)),
+        _ => {}
+      }
+
+      self.advance()?;
+    }
+
+    // advance over closing '
+    self.advance()?;
+
+    self.token(StringRaw);
+
+    Ok(())
+  }
+
+  /// Lex cooked string: "[^"\n\r]*" (also processes escape sequences)
+  fn lex_cooked_string(&mut self) -> CompilationResult<'a, ()> {
+    // advance over opening "
+    self.advance()?;
+
+    let mut escape = false;
+
+    loop {
+      match self.next {
+        Some('\r') | Some('\n') | None => return Err(self.error(UnterminatedString)),
+        Some('"') if !escape => break,
+        Some('\\') if !escape => escape = true,
+        _ => escape = false,
+      }
+
+      self.advance()?;
+    }
+
+    // advance over closing "
+    self.advance()?;
+
+    self.token(StringCooked);
+
+    Ok(())
   }
 }
 
 #[cfg(test)]
-mod test {
+mod tests {
   use super::*;
+
+  use crate::testing::token_summary;
 
   macro_rules! summary_test {
     ($name:ident, $input:expr, $expected:expr $(,)*) => {
@@ -383,16 +603,11 @@ mod test {
       fn $name() {
         let input = $input;
         let expected = $expected;
-        let tokens = crate::lexer::Lexer::lex(input).unwrap();
+        let tokens = Lexer::lex(input).unwrap();
         let roundtrip = tokens
           .iter()
-          .map(|t| {
-            let mut s = String::new();
-            s += t.prefix;
-            s += t.lexeme;
-            s
-          })
-          .collect::<Vec<_>>()
+          .map(Token::lexeme)
+          .collect::<Vec<&str>>()
           .join("");
         let actual = token_summary(&tokens);
         if actual != expected {
@@ -406,40 +621,11 @@ mod test {
     };
   }
 
-  fn token_summary(tokens: &[Token]) -> String {
-    tokens
-      .iter()
-      .map(|t| match t.kind {
-        At => "@",
-        Backtick => "`",
-        Colon => ":",
-        Comma => ",",
-        Comment { .. } => "#",
-        Dedent => "<",
-        Eof => ".",
-        Eol => "$",
-        Equals => "=",
-        Indent { .. } => ">",
-        InterpolationEnd => "}",
-        InterpolationStart => "{",
-        Line { .. } => "^",
-        Name => "N",
-        ParenL => "(",
-        ParenR => ")",
-        Plus => "+",
-        RawString => "'",
-        StringToken => "\"",
-        Text => "_",
-      })
-      .collect::<Vec<_>>()
-      .join("")
-  }
-
   macro_rules! error_test {
     (
       name:     $name:ident,
       input:    $input:expr,
-      index:    $index:expr,
+      offset:   $offset:expr,
       line:     $line:expr,
       column:   $column:expr,
       width:    $width:expr,
@@ -451,7 +637,7 @@ mod test {
 
         let expected = CompilationError {
           text: input,
-          index: $index,
+          offset: $offset,
           line: $line,
           column: $column,
           width: $width,
@@ -460,7 +646,7 @@ mod test {
 
         if let Err(error) = Lexer::lex(input) {
           assert_eq!(error.text, expected.text);
-          assert_eq!(error.index, expected.index);
+          assert_eq!(error.offset, expected.offset);
           assert_eq!(error.line, expected.line);
           assert_eq!(error.column, expected.column);
           assert_eq!(error.kind, expected.kind);
@@ -473,9 +659,158 @@ mod test {
   }
 
   summary_test! {
+    name,
+    "foo",
+    "N.",
+  }
+
+  summary_test! {
+    comment,
+    "# hello",
+    "#.",
+  }
+
+  summary_test! {
+    backtick,
+    "`echo`",
+    "`.",
+  }
+
+  summary_test! {
+    raw_string,
+    "'hello'",
+    "'.",
+  }
+
+  summary_test! {
+    cooked_string,
+    r#""hello""#,
+    r#""."#,
+  }
+
+  summary_test! {
+    export_concatination,
+    "export foo = 'foo' + 'bar'",
+    "N N = ' + '.",
+  }
+
+  summary_test! {
+    export_complex,
+    "export foo = ('foo' + 'bar') + `baz`",
+    "N N = (' + ') + `.",
+  }
+
+  summary_test! {
+    eol_linefeed,
+    "\n",
+    "$.",
+  }
+
+  summary_test! {
+    eol_carriage_return_linefeed,
+    "\r\n",
+    "$.",
+  }
+
+  summary_test! {
+    indented_line,
+    "foo:\n a",
+    "N:$>^_<.",
+  }
+
+  summary_test! {
+    indented_block,
+    r##"foo:
+  a
+  b
+  c
+"##,
+    "N:$>^_$ ^_$ ^_$<.",
+  }
+
+  summary_test! {
+    indented_block_followed_by_item,
+    "foo:
+  a
+b:",
+    "N:$>^_$<N:.",
+  }
+
+  summary_test! {
+    indented_block_followed_by_blank,
+    "foo:
+    a
+
+b:",
+      "N:$>^_$^$<N:.",
+  }
+
+  summary_test! {
+    indented_line_containing_unpaired_carriage_return,
+    "foo:\n \r \n",
+    "N:$>^_$<.",
+  }
+
+  summary_test! {
+    indented_blocks,
+    "
+b: a
+  @mv a b
+
+a:
+  @touch F
+  @touch a
+
+d: c
+  @rm c
+
+c: b
+  @mv b c",
+    "$N: N$>^_$^$<N:$>^_$ ^_$^$<N: N$>^_$^$<N: N$>^_<.",
+  }
+
+  summary_test! {
+    interpolation_empty,
+    "hello:\n echo {{}}",
+    "N:$>^_{}<.",
+  }
+
+  summary_test! {
+    interpolation_expression,
+    "hello:\n echo {{`echo hello` + `echo goodbye`}}",
+    "N:$>^_{` + `}<.",
+  }
+
+  summary_test! {
+    tokenize_names,
+    "\
+foo
+bar-bob
+b-bob_asdfAAAA
+test123",
+    "N$N$N$N.",
+  }
+
+  summary_test! {
+    tokenize_indented_line,
+    "foo:\n a",
+    "N:$>^_<.",
+  }
+
+  summary_test! {
+    tokenize_indented_block,
+    r##"foo:
+  a
+  b
+  c
+"##,
+    "N:$>^_$ ^_$ ^_$<.",
+  }
+
+  summary_test! {
     tokenize_strings,
     r#"a = "'a'" + '"b"' + "'c'" + '"d"'#echo hello"#,
-    r#"N="+'+"+'#."#,
+    r#"N = " + ' + " + '#."#,
   }
 
   summary_test! {
@@ -483,7 +818,7 @@ mod test {
     "foo: # some comment
  {{hello}}
 ",
-    "N:#$>^{N}$<.",
+    "N: #$>^{N}$<.",
   }
 
   summary_test! {
@@ -492,13 +827,13 @@ mod test {
  {{hello}}
 # another comment
 ",
-    "N:#$>^{N}$<#$.",
+    "N: #$>^{N}$<#$.",
   }
 
   summary_test! {
     tokenize_recipe_complex_interpolation_expression,
     "foo: #lol\n {{a + b + \"z\" + blarg}}",
-    "N:#$>^{N+N+\"+N}<.",
+    "N: #$>^{N + N + \" + N}<.",
   }
 
   summary_test! {
@@ -513,7 +848,7 @@ mod test {
 
 hello blah blah blah : a b c #whatever
     ",
-    "N$$NNNN:NNN#$.",
+    "N$$N N N N : N N N #$ .",
   }
 
   summary_test! {
@@ -530,7 +865,7 @@ hello:
 
 # yolo
   ",
-    "$#$N:$>^_$^_$$^_$$^_$$<#$.",
+    "$#$N:$>^_$ ^_$^$ ^_$^$ ^_$^$<#$ .",
   }
 
   summary_test! {
@@ -541,19 +876,25 @@ A='1'
 echo:
   echo {{A}}
   ",
-    "$#$N='$N:$>^_{N}$<.",
+    "$#$N='$N:$>^_{N}$ <.",
   }
 
   summary_test! {
     tokenize_interpolation_backticks,
     "hello:\n echo {{`echo hello` + `echo goodbye`}}",
-    "N:$>^_{`+`}<.",
+    "N:$>^_{` + `}<.",
+  }
+
+  summary_test! {
+    tokenize_empty_interpolation,
+    "hello:\n echo {{}}",
+    "N:$>^_{}<.",
   }
 
   summary_test! {
     tokenize_assignment_backticks,
     "a = `echo hello` + `echo goodbye`",
-    "N=`+`.",
+    "N = ` + `.",
   }
 
   summary_test! {
@@ -570,9 +911,9 @@ hello:
 # hello
 bob:
   frank
-  ",
+ \t",
 
-    "$N:$>^_$^_$$^_$$^_$$<#$N:$>^_$<.",
+    "$N:$>^_$ ^_$^$ ^_$^$ ^_$^$<#$N:$>^_$ <.",
   }
 
   summary_test! {
@@ -602,13 +943,13 @@ d: c
 
 c: b
   @mv b c",
-    "$N:N$>^_$$<N:$>^_$^_$$<N:N$>^_$$<N:N$>^_<.",
+    "$N: N$>^_$^$<N:$>^_$ ^_$^$<N: N$>^_$^$<N: N$>^_<.",
   }
 
   summary_test! {
     tokenize_parens,
     r"((())) )abc(+",
-    "((())))N(+.",
+    "((())) )N(+.",
   }
 
   summary_test! {
@@ -630,10 +971,10 @@ c: b
  1
 \t2
 ",
-    index:  9,
+    offset: 9,
     line:   3,
     column: 0,
-    width:  None,
+    width:  1,
     kind:   InconsistentLeadingWhitespace{expected: " ", found: "\t"},
   }
 
@@ -644,71 +985,121 @@ c: b
 \t\t 1
 \t  2
 ",
-    index:  12,
+    offset: 12,
     line:   3,
     column: 0,
-    width:  None,
-    kind:   InconsistentLeadingWhitespace{expected: "\t\t", found: "\t  "},
+    width:  2,
+    kind:   InconsistentLeadingWhitespace{expected: "\t\t", found: "\t "},
   }
 
   error_test! {
-    name: tokenize_unknown,
-    input: "~",
-    index:  0,
+    name:   tokenize_unknown,
+    input:  "~",
+    offset: 0,
     line:   0,
     column: 0,
-    width:  None,
+    width:  1,
     kind:   UnknownStartOfToken,
   }
 
   error_test! {
-    name: unterminated_string,
-    input: r#"a = ""#,
-    index:  3,
-    line:   0,
-    column: 3,
-    width:  None,
-    kind:   UnterminatedString,
-  }
-
-  error_test! {
-    name: unterminated_string_with_escapes,
-    input: r#"a = "\n\t\r\"\\"#,
-    index:  3,
-    line:   0,
-    column: 3,
-    width:  None,
-    kind:   UnterminatedString,
-  }
-
-  error_test! {
-    name:  unterminated_raw_string,
-    input: "r a='asdf",
-    index:  4,
+    name:   unterminated_string_with_escapes,
+    input:  r#"a = "\n\t\r\"\\"#,
+    offset: 4,
     line:   0,
     column: 4,
-    width:  None,
+    width:  1,
     kind:   UnterminatedString,
   }
 
   error_test! {
-    name:  unterminated_interpolation,
-    input: "foo:\n echo {{
+    name:   unterminated_raw_string,
+    input:  "r a='asdf",
+    offset: 4,
+    line:   0,
+    column: 4,
+    width:  1,
+    kind:   UnterminatedString,
+  }
+
+  error_test! {
+    name:   unterminated_interpolation,
+    input:  "foo:\n echo {{
   ",
-    index:  13,
+    offset: 11,
     line:   1,
-    column: 8,
-    width:  None,
+    column: 6,
+    width:  2,
     kind:   UnterminatedInterpolation,
+  }
+
+  error_test! {
+    name:   unterminated_backtick,
+    input:  "`echo",
+    offset: 0,
+    line:   0,
+    column: 0,
+    width:  1,
+    kind:   UnterminatedBacktick,
+  }
+
+  error_test! {
+    name:   unpaired_carriage_return,
+    input:  "foo\rbar",
+    offset: 3,
+    line:   0,
+    column: 3,
+    width:  1,
+    kind:   UnpairedCarriageReturn,
+  }
+
+  error_test! {
+    name:   unknown_start_of_token_ampersand,
+    input:  " \r\n&",
+    offset: 3,
+    line:   1,
+    column: 0,
+    width:  1,
+    kind:   UnknownStartOfToken,
+  }
+
+  error_test! {
+    name:   unknown_start_of_token_tilde,
+    input:  "~",
+    offset: 0,
+    line:   0,
+    column: 0,
+    width:  1,
+    kind:   UnknownStartOfToken,
+  }
+
+  error_test! {
+    name:   unterminated_string,
+    input:  r#"a = ""#,
+    offset: 4,
+    line:   0,
+    column: 4,
+    width:  1,
+    kind:   UnterminatedString,
   }
 
   error_test! {
     name:   mixed_leading_whitespace,
     input:  "a:\n\t echo hello",
-    index:  3,
+    offset: 3,
     line:   1,
     column: 0,
-    width:  None,
+    width:  2,
     kind:   MixedLeadingWhitespace{whitespace: "\t "},
+  }
+
+  error_test! {
+    name:   unclosed_interpolation_delimiter,
+    input:  "a:\n echo {{ foo",
+    offset: 9,
+    line:   1,
+    column: 6,
+    width:  2,
+    kind:   UnterminatedInterpolation,
   }
 }

@@ -2,80 +2,27 @@ use crate::common::*;
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct Token<'a> {
-  pub index: usize,
+  pub offset: usize,
+  pub length: usize,
   pub line: usize,
   pub column: usize,
   pub text: &'a str,
-  pub prefix: &'a str,
-  pub lexeme: &'a str,
   pub kind: TokenKind,
 }
 
 impl<'a> Token<'a> {
+  pub fn lexeme(&self) -> &'a str {
+    &self.text[self.offset..self.offset + self.length]
+  }
+
   pub fn error(&self, kind: CompilationErrorKind<'a>) -> CompilationError<'a> {
     CompilationError {
-      column: self.column + self.prefix.len(),
-      index: self.index + self.prefix.len(),
+      column: self.column,
+      offset: self.offset,
       line: self.line,
       text: self.text,
-      width: Some(self.lexeme.len()),
+      width: self.length,
       kind,
     }
-  }
-}
-
-#[derive(Debug, PartialEq, Clone, Copy)]
-pub enum TokenKind {
-  At,
-  Backtick,
-  Colon,
-  Comma,
-  Comment,
-  Dedent,
-  Eof,
-  Eol,
-  Equals,
-  Indent,
-  InterpolationEnd,
-  InterpolationStart,
-  Line,
-  Name,
-  ParenL,
-  ParenR,
-  Plus,
-  RawString,
-  StringToken,
-  Text,
-}
-
-impl Display for TokenKind {
-  fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
-    use TokenKind::*;
-    write!(
-      f,
-      "{}",
-      match *self {
-        Backtick => "backtick",
-        Colon => "':'",
-        Comma => "','",
-        Comment => "comment",
-        Dedent => "dedent",
-        Eof => "end of file",
-        Eol => "end of line",
-        Equals => "'='",
-        Indent => "indent",
-        InterpolationEnd => "'}}'",
-        InterpolationStart => "'{{'",
-        Line => "command",
-        Name => "name",
-        Plus => "'+'",
-        At => "'@'",
-        ParenL => "'('",
-        ParenR => "')'",
-        StringToken => "string",
-        RawString => "raw string",
-        Text => "command text",
-      }
-    )
   }
 }

@@ -45,10 +45,10 @@ impl<'a: 'b, 'b> AssignmentResolver<'a, 'b> {
       let message = format!("attempted to resolve unknown assignment `{}`", name);
       return Err(CompilationError {
         text: "",
-        index: 0,
+        offset: 0,
         line: 0,
         column: 0,
-        width: None,
+        width: 0,
         kind: Internal { message },
       });
     }
@@ -96,40 +96,40 @@ mod test {
   compilation_error_test! {
     name:   circular_variable_dependency,
     input:   "a = b\nb = a",
-    index:  0,
+    offset:  0,
     line:   0,
     column: 0,
-    width:  Some(1),
+    width:  1,
     kind:   CircularVariableDependency{variable: "a", circle: vec!["a", "b", "a"]},
   }
 
   compilation_error_test! {
     name:   self_variable_dependency,
     input:  "a = a",
-    index:  0,
+    offset:  0,
     line:   0,
     column: 0,
-    width:  Some(1),
+    width:  1,
     kind:   CircularVariableDependency{variable: "a", circle: vec!["a", "a"]},
   }
 
   compilation_error_test! {
     name:   unknown_expression_variable,
     input:  "x = yy",
-    index:  4,
+    offset:  4,
     line:   0,
     column: 4,
-    width:  Some(2),
+    width:  2,
     kind:   UndefinedVariable{variable: "yy"},
   }
 
   compilation_error_test! {
     name:   unknown_function,
     input:  "a = foo()",
-    index:  4,
+    offset:  4,
     line:   0,
     column: 4,
-    width:  Some(3),
+    width:  3,
     kind:   UnknownFunction{function: "foo"},
   }
 

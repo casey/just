@@ -7,10 +7,10 @@ pub type CompilationResult<'a, T> = Result<T, CompilationError<'a>>;
 #[derive(Debug, PartialEq)]
 pub struct CompilationError<'a> {
   pub text: &'a str,
-  pub index: usize,
+  pub offset: usize,
   pub line: usize,
   pub column: usize,
-  pub width: Option<usize>,
+  pub width: usize,
   pub kind: CompilationErrorKind<'a>,
 }
 
@@ -98,8 +98,10 @@ pub enum CompilationErrorKind<'a> {
     function: &'a str,
   },
   UnknownStartOfToken,
+  UnpairedCarriageReturn,
   UnterminatedInterpolation,
   UnterminatedString,
+  UnterminatedBacktick,
 }
 
 impl<'a> Display for CompilationError<'a> {
@@ -277,11 +279,17 @@ impl<'a> Display for CompilationError<'a> {
       UnknownStartOfToken => {
         writeln!(f, "Unknown start of token:")?;
       }
+      UnpairedCarriageReturn => {
+        writeln!(f, "Unpaired carriage return")?;
+      }
       UnterminatedInterpolation => {
         writeln!(f, "Unterminated interpolation")?;
       }
       UnterminatedString => {
         writeln!(f, "Unterminated string")?;
+      }
+      UnterminatedBacktick => {
+        writeln!(f, "Unterminated backtick")?;
       }
       Internal { ref message } => {
         writeln!(
@@ -295,6 +303,13 @@ impl<'a> Display for CompilationError<'a> {
 
     write!(f, "{}", message.suffix())?;
 
-    write_error_context(f, self.text, self.index, self.line, self.column, self.width)
+    write_error_context(
+      f,
+      self.text,
+      self.offset,
+      self.line,
+      self.column,
+      self.width,
+    )
   }
 }

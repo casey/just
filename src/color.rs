@@ -2,31 +2,13 @@ use crate::common::*;
 
 use ansi_term::Color::*;
 use ansi_term::{ANSIGenericString, Prefix, Style, Suffix};
-use atty::is as is_atty;
 use atty::Stream;
-
-#[derive(Copy, Clone)]
-pub enum UseColor {
-  Auto,
-  Always,
-  Never,
-}
 
 #[derive(Copy, Clone)]
 pub struct Color {
   use_color: UseColor,
   atty: bool,
   style: Style,
-}
-
-impl Default for Color {
-  fn default() -> Color {
-    Color {
-      use_color: UseColor::Never,
-      atty: false,
-      style: Style::new(),
-    }
-  }
 }
 
 impl Color {
@@ -36,7 +18,7 @@ impl Color {
 
   fn redirect(self, stream: Stream) -> Color {
     Color {
-      atty: is_atty(stream),
+      atty: atty::is(stream),
       ..self
     }
   }
@@ -136,5 +118,15 @@ impl Color {
 
   pub fn suffix(&self) -> Suffix {
     self.effective_style().suffix()
+  }
+}
+
+impl Default for Color {
+  fn default() -> Color {
+    Color {
+      use_color: UseColor::Never,
+      atty: false,
+      style: Style::new(),
+    }
   }
 }

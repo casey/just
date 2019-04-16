@@ -1,7 +1,5 @@
 use crate::common::*;
 
-use ctrlc;
-
 pub struct InterruptHandler {
   blocks: u32,
   interrupted: bool,
@@ -12,7 +10,7 @@ impl InterruptHandler {
     ctrlc::set_handler(|| InterruptHandler::instance().interrupt())
   }
 
-  fn instance() -> MutexGuard<'static, InterruptHandler> {
+  pub fn instance() -> MutexGuard<'static, InterruptHandler> {
     lazy_static! {
       static ref INSTANCE: Mutex<InterruptHandler> = Mutex::new(InterruptHandler::new());
     }
@@ -49,11 +47,11 @@ impl InterruptHandler {
     process::exit(130);
   }
 
-  fn block(&mut self) {
+  pub fn block(&mut self) {
     self.blocks += 1;
   }
 
-  fn unblock(&mut self) {
+  pub fn unblock(&mut self) {
     if self.blocks == 0 {
       die!(
         "{}",
@@ -74,20 +72,5 @@ impl InterruptHandler {
   pub fn guard<T, F: FnOnce() -> T>(function: F) -> T {
     let _guard = InterruptGuard::new();
     function()
-  }
-}
-
-pub struct InterruptGuard;
-
-impl InterruptGuard {
-  fn new() -> InterruptGuard {
-    InterruptHandler::instance().block();
-    InterruptGuard
-  }
-}
-
-impl Drop for InterruptGuard {
-  fn drop(&mut self) {
-    InterruptHandler::instance().unblock();
   }
 }

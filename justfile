@@ -83,7 +83,7 @@ sloc:
 	! grep --color -En '.{101}' src/*.rs
 
 replace FROM TO:
-	find src -name '*.rs' | xargs sed -i '' -E 's/{{FROM}}/{{TO}}/g'
+	sd -i '{{FROM}}' '{{TO}}' src/*.rs
 
 test-quine:
 	cargo run -- quine

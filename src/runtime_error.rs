@@ -10,10 +10,10 @@ fn write_token_error_context(f: &mut Formatter, token: &Token) -> Result<(), fmt
   write_error_context(
     f,
     token.text,
-    token.index,
+    token.offset,
     token.line,
-    token.column + token.prefix.len(),
-    Some(token.lexeme.len()),
+    token.column,
+    token.lexeme().len(),
   )
 }
 
@@ -255,7 +255,12 @@ impl<'a> Display for RuntimeError<'a> {
         ref token,
         ref message,
       } => {
-        writeln!(f, "Call to function `{}` failed: {}", token.lexeme, message)?;
+        writeln!(
+          f,
+          "Call to function `{}` failed: {}",
+          token.lexeme(),
+          message
+        )?;
         error_token = Some(token);
       }
       Shebang {

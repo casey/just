@@ -52,6 +52,7 @@ mod unix {
   }
 
   #[test]
+  #[ignore]
   fn interrupt_shebang() {
     interrupt_test(
       "
@@ -63,6 +64,7 @@ default:
   }
 
   #[test]
+  #[ignore]
   fn interrupt_line() {
     interrupt_test(
       "

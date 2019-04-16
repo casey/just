@@ -194,27 +194,33 @@ pub fn run() {
     }
   }
 
-  let override_re = Regex::new("^([^=]+)=(.*)$").unwrap();
+  fn is_override(arg: &&str) -> bool {
+    arg.chars().skip(1).any(|c| c == '=')
+  }
 
-  let raw_arguments: Vec<_> = matches
+  let raw_arguments: Vec<&str> = matches
     .values_of("ARGUMENTS")
     .map(Iterator::collect)
     .unwrap_or_default();
 
-  for argument in raw_arguments
-    .iter()
-    .take_while(|arg| override_re.is_match(arg))
-  {
-    let captures = override_re.captures(argument).unwrap();
-    overrides.insert(
-      captures.get(1).unwrap().as_str(),
-      captures.get(2).unwrap().as_str(),
-    );
+  for argument in raw_arguments.iter().cloned().take_while(is_override) {
+    let i = argument
+      .char_indices()
+      .skip(1)
+      .filter(|&(_, c)| c == '=')
+      .next()
+      .unwrap()
+      .0;
+
+    let name = &argument[..i];
+    let value = &argument[i + 1..];
+
+    overrides.insert(name, value);
   }
 
   let rest = raw_arguments
-    .iter()
-    .skip_while(|arg| override_re.is_match(arg))
+    .into_iter()
+    .skip_while(is_override)
     .enumerate()
     .flat_map(|(i, argument)| {
       if i == 0 {
@@ -237,7 +243,7 @@ pub fn run() {
         }
       }
 
-      Some(*argument)
+      Some(argument)
     })
     .collect::<Vec<&str>>();
 

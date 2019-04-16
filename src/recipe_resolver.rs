@@ -72,12 +72,12 @@ impl<'a, 'b> RecipeResolver<'a, 'b> {
 
   fn resolve_function(&self, function: &Token, argc: usize) -> CompilationResult<'a, ()> {
     resolve_function(function, argc).map_err(|error| CompilationError {
-      index: error.index,
+      offset: error.offset,
       line: error.line,
       column: error.column,
       width: error.width,
       kind: UnknownFunction {
-        function: &self.text[error.index..error.index + error.width.unwrap()],
+        function: &self.text[error.offset..error.offset + error.width],
       },
       text: self.text,
     })
@@ -88,18 +88,18 @@ impl<'a, 'b> RecipeResolver<'a, 'b> {
     variable: &Token,
     parameters: &[Parameter],
   ) -> CompilationResult<'a, ()> {
-    let name = variable.lexeme;
+    let name = variable.lexeme();
     let undefined =
       !self.assignments.contains_key(name) && !parameters.iter().any(|p| p.name == name);
     if undefined {
       let error = variable.error(UndefinedVariable { variable: name });
       return Err(CompilationError {
-        index: error.index,
+        offset: error.offset,
         line: error.line,
         column: error.column,
         width: error.width,
         kind: UndefinedVariable {
-          variable: &self.text[error.index..error.index + error.width.unwrap()],
+          variable: &self.text[error.offset..error.offset + error.width],
         },
         text: self.text,
       });
@@ -115,7 +115,7 @@ impl<'a, 'b> RecipeResolver<'a, 'b> {
     self.stack.push(recipe.name);
     self.seen.insert(recipe.name);
     for dependency_token in &recipe.dependency_tokens {
-      match self.recipes.get(dependency_token.lexeme) {
+      match self.recipes.get(dependency_token.lexeme()) {
         Some(dependency) => {
           if !self.resolved.contains(dependency.name) {
             if self.seen.contains(dependency.name) {
@@ -139,7 +139,7 @@ impl<'a, 'b> RecipeResolver<'a, 'b> {
         None => {
           return Err(dependency_token.error(UnknownDependency {
             recipe: recipe.name,
-            unknown: dependency_token.lexeme,
+            unknown: dependency_token.lexeme(),
           }));
         }
       }
@@ -157,80 +157,80 @@ mod test {
   compilation_error_test! {
     name:   circular_recipe_dependency,
     input:  "a: b\nb: a",
-    index:  8,
+    offset: 8,
     line:   1,
     column: 3,
-    width:  Some(1),
+    width:  1,
     kind:   CircularRecipeDependency{recipe: "b", circle: vec!["a", "b", "a"]},
   }
 
   compilation_error_test! {
     name:   self_recipe_dependency,
     input:  "a: a",
-    index:  3,
+    offset: 3,
     line:   0,
     column: 3,
-    width:  Some(1),
+    width:  1,
     kind:   CircularRecipeDependency{recipe: "a", circle: vec!["a", "a"]},
   }
 
   compilation_error_test! {
     name:   unknown_dependency,
     input:  "a: b",
-    index:  3,
+    offset: 3,
     line:   0,
     column: 3,
-    width:  Some(1),
+    width:  1,
     kind:   UnknownDependency{recipe: "a", unknown: "b"},
   }
 
   compilation_error_test! {
     name:   unknown_interpolation_variable,
     input:  "x:\n {{   hello}}",
-    index:  9,
+    offset: 9,
     line:   1,
     column: 6,
-    width:  Some(5),
+    width:  5,
     kind:   UndefinedVariable{variable: "hello"},
   }
 
   compilation_error_test! {
     name:   unknown_second_interpolation_variable,
     input:  "wtf=\"x\"\nx:\n echo\n foo {{wtf}} {{ lol }}",
-    index:  33,
+    offset: 33,
     line:   3,
     column: 16,
-    width:  Some(3),
+    width:  3,
     kind:   UndefinedVariable{variable: "lol"},
   }
 
   compilation_error_test! {
     name:   unknown_function_in_interpolation,
     input:  "a:\n echo {{bar()}}",
-    index:  11,
+    offset: 11,
     line:   1,
     column: 8,
-    width:  Some(3),
+    width:  3,
     kind:   UnknownFunction{function: "bar"},
   }
 
   compilation_error_test! {
     name:   unknown_function_in_default,
     input:  "a f=baz():",
-    index:  4,
+    offset: 4,
     line:   0,
     column: 4,
-    width:  Some(3),
+    width:  3,
     kind:   UnknownFunction{function: "baz"},
   }
 
   compilation_error_test! {
     name:   unknown_variable_in_default,
     input:  "a f=foo:",
-    index:  4,
+    offset: 4,
     line:   0,
     column: 4,
-    width:  Some(3),
+    width:  3,
     kind:   UndefinedVariable{variable: "foo"},
   }
 }

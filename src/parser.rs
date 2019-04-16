@@ -16,7 +16,8 @@ pub struct Parser<'a> {
 
 impl<'a> Parser<'a> {
   pub fn parse(text: &'a str) -> CompilationResult<'a, Justfile> {
-    let tokens = Lexer::lex(text)?;
+    let mut tokens = Lexer::lex(text)?;
+    tokens.retain(|token| token.kind != Whitespace);
     let parser = Parser::new(text, tokens);
     parser.justfile()
   }
@@ -87,7 +88,7 @@ impl<'a> Parser<'a> {
     doc: Option<Token<'a>>,
     quiet: bool,
   ) -> CompilationResult<'a, ()> {
-    if let Some(recipe) = self.recipes.get(name.lexeme) {
+    if let Some(recipe) = self.recipes.get(name.lexeme()) {
       return Err(name.error(DuplicateRecipe {
         recipe: recipe.name,
         first: recipe.line_number,
@@ -115,14 +116,14 @@ impl<'a> Parser<'a> {
 
       if parsed_variadic_parameter {
         return Err(parameter.error(ParameterFollowsVariadicParameter {
-          parameter: parameter.lexeme,
+          parameter: parameter.lexeme(),
         }));
       }
 
-      if parameters.iter().any(|p| p.name == parameter.lexeme) {
+      if parameters.iter().any(|p| p.name == parameter.lexeme()) {
         return Err(parameter.error(DuplicateParameter {
-          recipe: name.lexeme,
-          parameter: parameter.lexeme,
+          recipe: name.lexeme(),
+          parameter: parameter.lexeme(),
         }));
       }
 
@@ -135,7 +136,7 @@ impl<'a> Parser<'a> {
 
       if parsed_parameter_with_default && default.is_none() {
         return Err(parameter.error(RequiredParameterFollowsDefaultParameter {
-          parameter: parameter.lexeme,
+          parameter: parameter.lexeme(),
         }));
       }
 
@@ -143,7 +144,7 @@ impl<'a> Parser<'a> {
       parsed_variadic_parameter = variadic;
 
       parameters.push(Parameter {
-        name: parameter.lexeme,
+        name: parameter.lexeme(),
         token: parameter,
         default,
         variadic,
@@ -163,13 +164,13 @@ impl<'a> Parser<'a> {
     let mut dependencies = vec![];
     let mut dependency_tokens = vec![];
     while let Some(dependency) = self.accept(Name) {
-      if dependencies.contains(&dependency.lexeme) {
+      if dependencies.contains(&dependency.lexeme()) {
         return Err(dependency.error(DuplicateDependency {
-          recipe: name.lexeme,
-          dependency: dependency.lexeme,
+          recipe: name.lexeme(),
+          dependency: dependency.lexeme(),
         }));
       }
-      dependencies.push(dependency.lexeme);
+      dependencies.push(dependency.lexeme());
       dependency_tokens.push(dependency);
     }
 
@@ -197,7 +198,7 @@ impl<'a> Parser<'a> {
           if let Some(token) = self.accept(Text) {
             if fragments.is_empty() {
               if lines.is_empty() {
-                if token.lexeme.starts_with("#!") {
+                if token.lexeme().starts_with("#!") {
                   shebang = true;
                 }
               } else if !shebang
@@ -206,7 +207,7 @@ impl<'a> Parser<'a> {
                   .and_then(|line| line.last())
                   .map(Fragment::continuation)
                   .unwrap_or(false)
-                && (token.lexeme.starts_with(' ') || token.lexeme.starts_with('\t'))
+                && (token.lexeme().starts_with(' ') || token.lexeme().starts_with('\t'))
               {
                 return Err(token.error(ExtraLeadingWhitespace));
               }
@@ -234,12 +235,12 @@ impl<'a> Parser<'a> {
     }
 
     self.recipes.insert(
-      name.lexeme,
+      name.lexeme(),
       Recipe {
         line_number: name.line,
-        name: name.lexeme,
-        doc: doc.map(|t| t.lexeme[1..].trim()),
-        private: &name.lexeme[0..1] == "_",
+        name: name.lexeme(),
+        doc: doc.map(|t| t.lexeme()[1..].trim()),
+        private: &name.lexeme()[0..1] == "_",
         dependencies,
         dependency_tokens,
         lines,
@@ -263,26 +264,26 @@ impl<'a> Parser<'a> {
           }
           let arguments = self.arguments()?;
           if let Some(token) = self.expect(ParenR) {
-            return Err(self.unexpected_token(&token, &[Name, StringToken, ParenR]));
+            return Err(self.unexpected_token(&token, &[Name, StringCooked, ParenR]));
           }
           Ok(Expression::Call {
-            name: first.lexeme,
+            name: first.lexeme(),
             token: first,
             arguments,
           })
         } else {
           Ok(Expression::Variable {
-            name: first.lexeme,
+            name: first.lexeme(),
             token: first,
           })
         }
       }
       Backtick => Ok(Expression::Backtick {
-        raw: &first.lexeme[1..first.lexeme.len() - 1],
+        raw: &first.lexeme()[1..first.lexeme().len() - 1],
         token: first,
       }),
-      RawString | StringToken => Ok(Expression::String {
-        cooked_string: CookedString::new(&first)?,
+      StringRaw | StringCooked => Ok(Expression::String {
+        cooked_string: StringLiteral::new(&first)?,
       }),
       ParenL => {
         let expression = self.expression()?;
@@ -295,7 +296,7 @@ impl<'a> Parser<'a> {
           expression: Box::new(expression),
         })
       }
-      _ => Err(self.unexpected_token(&first, &[Name, StringToken])),
+      _ => Err(self.unexpected_token(&first, &[Name, StringCooked])),
     }
   }
 
@@ -333,13 +334,13 @@ impl<'a> Parser<'a> {
   }
 
   fn assignment(&mut self, name: Token<'a>, export: bool) -> CompilationResult<'a, ()> {
-    if self.assignments.contains_key(name.lexeme) {
+    if self.assignments.contains_key(name.lexeme()) {
       return Err(name.error(DuplicateVariable {
-        variable: name.lexeme,
+        variable: name.lexeme(),
       }));
     }
     if export {
-      self.exports.insert(name.lexeme);
+      self.exports.insert(name.lexeme());
     }
 
     let expression = self.expression()?;
@@ -347,14 +348,14 @@ impl<'a> Parser<'a> {
       return Err(self.unexpected_token(&token, &[Plus, Eol]));
     }
 
-    self.assignments.insert(name.lexeme, expression);
-    self.assignment_tokens.insert(name.lexeme, name);
+    self.assignments.insert(name.lexeme(), expression);
+    self.assignment_tokens.insert(name.lexeme(), name);
     Ok(())
   }
 
   fn alias(&mut self, name: Token<'a>) -> CompilationResult<'a, ()> {
     // Make sure alias doesn't already exist
-    if let Some(alias) = self.aliases.get(name.lexeme) {
+    if let Some(alias) = self.aliases.get(name.lexeme()) {
       return Err(name.error(DuplicateAlias {
         alias: alias.name,
         first: alias.line_number,
@@ -363,7 +364,7 @@ impl<'a> Parser<'a> {
 
     // Make sure the next token is of kind Name and keep it
     let target = if let Some(next) = self.accept(Name) {
-      next.lexeme
+      next.lexeme()
     } else {
       let unexpected = self.tokens.next().unwrap();
       return Err(self.unexpected_token(&unexpected, &[Name]));
@@ -375,15 +376,15 @@ impl<'a> Parser<'a> {
     }
 
     self.aliases.insert(
-      name.lexeme,
+      name.lexeme(),
       Alias {
-        name: name.lexeme,
+        name: name.lexeme(),
         line_number: name.line,
-        private: name.lexeme.starts_with('_'),
+        private: name.lexeme().starts_with('_'),
         target,
       },
     );
-    self.alias_tokens.insert(name.lexeme, name);
+    self.alias_tokens.insert(name.lexeme(), name);
 
     Ok(())
   }
@@ -416,7 +417,7 @@ impl<'a> Parser<'a> {
             }
           }
           Name => {
-            if token.lexeme == "export" {
+            if token.lexeme() == "export" {
               let next = self.tokens.next().unwrap();
               if next.kind == Name && self.accepted(Equals) {
                 self.assignment(next, true)?;
@@ -426,7 +427,7 @@ impl<'a> Parser<'a> {
                 self.recipe(&token, doc, false)?;
                 doc = None;
               }
-            } else if token.lexeme == "alias" {
+            } else if token.lexeme() == "alias" {
               let next = self.tokens.next().unwrap();
               if next.kind == Name && self.accepted(Equals) {
                 self.alias(next)?;
@@ -449,10 +450,10 @@ impl<'a> Parser<'a> {
         None => {
           return Err(CompilationError {
             text: self.text,
-            index: 0,
+            offset: 0,
             line: 0,
             column: 0,
-            width: None,
+            width: 0,
             kind: Internal {
               message: "unexpected end of token stream".to_string(),
             },
@@ -476,18 +477,18 @@ impl<'a> Parser<'a> {
 
     for recipe in self.recipes.values() {
       for parameter in &recipe.parameters {
-        if self.assignments.contains_key(parameter.token.lexeme) {
+        if self.assignments.contains_key(parameter.token.lexeme()) {
           return Err(parameter.token.error(ParameterShadowsVariable {
-            parameter: parameter.token.lexeme,
+            parameter: parameter.token.lexeme(),
           }));
         }
       }
 
       for dependency in &recipe.dependency_tokens {
-        if !self.recipes[dependency.lexeme].parameters.is_empty() {
+        if !self.recipes[dependency.lexeme()].parameters.is_empty() {
           return Err(dependency.error(DependencyHasParameters {
             recipe: recipe.name,
-            dependency: dependency.lexeme,
+            dependency: dependency.lexeme(),
           }));
         }
       }
@@ -863,253 +864,261 @@ f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
     "x = ('0')",
   }
 
+  #[rustfmt::skip]
+  summary_test! {
+    escaped_dos_newlines,
+    "@spam:\r
+\t{ \\\r
+\t\tfiglet test; \\\r
+\t\tcargo build --color always 2>&1; \\\r
+\t\tcargo test  --color always -- --color always 2>&1; \\\r
+\t} | less\r
+",
+"@spam:
+    { \\
+    \tfiglet test; \\
+    \tcargo build --color always 2>&1; \\
+    \tcargo test  --color always -- --color always 2>&1; \\
+    } | less",
+  }
+
   compilation_error_test! {
     name: duplicate_alias,
     input: "alias foo = bar\nalias foo = baz",
-    index: 22,
+    offset: 22,
     line: 1,
     column: 6,
-    width: Some(3),
+    width: 3,
     kind: DuplicateAlias { alias: "foo", first: 0 },
   }
 
   compilation_error_test! {
     name: alias_syntax_multiple_rhs,
     input: "alias foo = bar baz",
-    index: 16,
+    offset: 16,
     line: 0,
     column: 16,
-    width: Some(3),
+    width: 3,
     kind: UnexpectedToken { expected: vec![Eol, Eof], found: Name },
   }
 
   compilation_error_test! {
     name: alias_syntax_no_rhs,
     input: "alias foo = \n",
-    index: 12,
+    offset: 12,
     line: 0,
     column: 12,
-    width: Some(1),
+    width: 1,
     kind: UnexpectedToken {expected: vec![Name], found:Eol},
   }
 
   compilation_error_test! {
     name: unknown_alias_target,
     input: "alias foo = bar\n",
-    index: 6,
+    offset: 6,
     line: 0,
     column: 6,
-    width: Some(3),
+    width: 3,
     kind: UnknownAliasTarget {alias: "foo", target: "bar"},
   }
 
   compilation_error_test! {
     name: alias_shadows_recipe_before,
     input: "bar: \n  echo bar\nalias foo = bar\nfoo:\n  echo foo",
-    index: 23,
+    offset: 23,
     line: 2,
     column: 6,
-    width: Some(3),
+    width: 3,
     kind: AliasShadowsRecipe {alias: "foo", recipe_line: 3},
   }
 
   compilation_error_test! {
     name: alias_shadows_recipe_after,
     input: "foo:\n  echo foo\nalias foo = bar\nbar:\n  echo bar",
-    index: 22,
+    offset: 22,
     line: 2,
     column: 6,
-    width: Some(3),
+    width: 3,
     kind: AliasShadowsRecipe { alias: "foo", recipe_line: 0 },
   }
 
   compilation_error_test! {
     name:   missing_colon,
     input:  "a b c\nd e f",
-    index:  5,
+    offset:  5,
     line:   0,
     column: 5,
-    width:  Some(1),
+    width:  1,
     kind:   UnexpectedToken{expected: vec![Name, Plus, Colon], found: Eol},
   }
 
   compilation_error_test! {
     name:   missing_default_eol,
     input:  "hello arg=\n",
-    index:  10,
+    offset:  10,
     line:   0,
     column: 10,
-    width:  Some(1),
-    kind:   UnexpectedToken{expected: vec![Name, StringToken], found: Eol},
+    width:  1,
+    kind:   UnexpectedToken{expected: vec![Name, StringCooked], found: Eol},
   }
 
   compilation_error_test! {
     name:   missing_default_eof,
     input:  "hello arg=",
-    index:  10,
+    offset:  10,
     line:   0,
     column: 10,
-    width:  Some(0),
-    kind:   UnexpectedToken{expected: vec![Name, StringToken], found: Eof},
+    width:  0,
+    kind:   UnexpectedToken{expected: vec![Name, StringCooked], found: Eof},
   }
 
   compilation_error_test! {
     name:   parameter_after_variadic,
     input:  "foo +a bbb:",
-    index:  7,
+    offset:  7,
     line:   0,
     column: 7,
-    width:  Some(3),
+    width:  3,
     kind:   ParameterFollowsVariadicParameter{parameter: "bbb"},
   }
 
   compilation_error_test! {
     name:   required_after_default,
     input:  "hello arg='foo' bar:",
-    index:  16,
+    offset:  16,
     line:   0,
     column: 16,
-    width:  Some(3),
+    width:  3,
     kind:   RequiredParameterFollowsDefaultParameter{parameter: "bar"},
   }
 
   compilation_error_test! {
     name:   missing_eol,
     input:  "a b c: z =",
-    index:  9,
+    offset:  9,
     line:   0,
     column: 9,
-    width:  Some(1),
+    width:  1,
     kind:   UnexpectedToken{expected: vec![Name, Eol, Eof], found: Equals},
   }
 
   compilation_error_test! {
     name:   duplicate_parameter,
     input:  "a b b:",
-    index:  4,
+    offset:  4,
     line:   0,
     column: 4,
-    width:  Some(1),
+    width:  1,
     kind:   DuplicateParameter{recipe: "a", parameter: "b"},
   }
 
   compilation_error_test! {
     name:   parameter_shadows_varible,
     input:  "foo = \"h\"\na foo:",
-    index:  12,
+    offset:  12,
     line:   1,
     column: 2,
-    width:  Some(3),
+    width:  3,
     kind:   ParameterShadowsVariable{parameter: "foo"},
   }
 
   compilation_error_test! {
     name:   dependency_has_parameters,
     input:  "foo arg:\nb: foo",
-    index:  12,
+    offset:  12,
     line:   1,
     column: 3,
-    width:  Some(3),
+    width:  3,
     kind:   DependencyHasParameters{recipe: "b", dependency: "foo"},
   }
 
   compilation_error_test! {
     name:   duplicate_dependency,
     input:  "a b c: b c z z",
-    index:  13,
+    offset:  13,
     line:   0,
     column: 13,
-    width:  Some(1),
+    width:  1,
     kind:   DuplicateDependency{recipe: "a", dependency: "z"},
   }
 
   compilation_error_test! {
     name:   duplicate_recipe,
     input:  "a:\nb:\na:",
-    index:  6,
+    offset:  6,
     line:   2,
     column: 0,
-    width:  Some(1),
+    width:  1,
     kind:   DuplicateRecipe{recipe: "a", first: 0},
   }
 
   compilation_error_test! {
     name:   duplicate_variable,
     input:  "a = \"0\"\na = \"0\"",
-    index:  8,
+    offset:  8,
     line:   1,
     column: 0,
-    width:  Some(1),
+    width:  1,
     kind:   DuplicateVariable{variable: "a"},
   }
 
   compilation_error_test! {
     name:   extra_whitespace,
     input:  "a:\n blah\n  blarg",
-    index:  10,
+    offset:  10,
     line:   2,
     column: 1,
-    width:  Some(6),
+    width:  6,
     kind:   ExtraLeadingWhitespace,
   }
 
   compilation_error_test! {
     name:   interpolation_outside_of_recipe,
     input:  "{{",
-    index:  0,
+    offset:  0,
     line:   0,
     column: 0,
-    width:  Some(2),
+    width:  2,
     kind:   UnexpectedToken{expected: vec![Name, At], found: InterpolationStart},
-  }
-
-  compilation_error_test! {
-    name:   unclosed_interpolation_delimiter,
-    input:  "a:\n echo {{ foo",
-    index:  15,
-    line:   1,
-    column: 12,
-    width:  Some(0),
-    kind:   UnexpectedToken{expected: vec![Plus, InterpolationEnd], found: Dedent},
   }
 
   compilation_error_test! {
     name:   unclosed_parenthesis_in_expression,
     input:  "x = foo(",
-    index:  8,
+    offset:  8,
     line:   0,
     column: 8,
-    width:  Some(0),
-    kind:   UnexpectedToken{expected: vec![Name, StringToken, ParenR], found: Eof},
+    width:  0,
+    kind:   UnexpectedToken{expected: vec![Name, StringCooked, ParenR], found: Eof},
   }
 
   compilation_error_test! {
     name:   unclosed_parenthesis_in_interpolation,
     input:  "a:\n echo {{foo(}}",
-    index:  15,
+    offset:  15,
     line:   1,
     column: 12,
-    width:  Some(2),
-    kind:   UnexpectedToken{expected: vec![Name, StringToken, ParenR], found: InterpolationEnd},
+    width:  2,
+    kind:   UnexpectedToken{expected: vec![Name, StringCooked, ParenR], found: InterpolationEnd},
   }
 
   compilation_error_test! {
     name:   plus_following_parameter,
     input:  "a b c+:",
-    index:  5,
+    offset:  5,
     line:   0,
     column: 5,
-    width:  Some(1),
+    width:  1,
     kind:   UnexpectedToken{expected: vec![Name], found: Plus},
   }
 
   compilation_error_test! {
     name:   bad_export,
     input:  "export a",
-    index:  8,
+    offset:  8,
     line:   0,
     column: 8,
-    width:  Some(0),
+    width:  0,
     kind:   UnexpectedToken{expected: vec![Name, Plus, Colon], found: Eof},
   }
 

@@ -138,7 +138,7 @@ impl Fragment {
   fn new(fragment: fragment::Fragment) -> Fragment {
     match fragment {
       fragment::Fragment::Text { text } => Fragment::Text {
-        text: text.lexeme.to_owned(),
+        text: text.lexeme().to_owned(),
       },
       fragment::Fragment::Expression { expression } => Fragment::Expression {
         expression: Expression::new(expression),
