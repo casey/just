@@ -39,10 +39,12 @@ watch COMMAND='test':
 version = `sed -En 's/version[[:space:]]*=[[:space:]]*"([^"]+)"/v\1/p' Cargo.toml | head -1`
 
 # publish to crates.io
-publish: lint clippy test
+publish-check: lint clippy test
 	git branch | grep '* master'
 	git diff --no-ext-diff --quiet --exit-code
 	grep {{version}} CHANGELOG.md
+
+publish: publish-check
 	cargo publish
 	git tag -a {{version}} -m 'Release {{version}}'
 	git push github {{version}}
