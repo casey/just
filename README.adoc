@@ -29,7 +29,7 @@ test TEST: build
 You can then run them with `just COMMAND`:
 
 ```sh
-$ just test
+$ just test-all
 cc *.c -o main
 ./test --all
 Yay, all your tests passed!
