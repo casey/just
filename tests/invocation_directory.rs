@@ -1,7 +1,5 @@
 use executable_path::executable_path;
-use std::path::Path;
-use std::process;
-use std::str;
+use std::{fs, path::Path, process, str};
 use tempdir::TempDir;
 
 #[cfg(unix)]
@@ -34,14 +32,15 @@ fn test_invocation_directory() {
 
   let mut justfile_path = tmp.path().to_path_buf();
   justfile_path.push("justfile");
-  brev::dump(
+  fs::write(
     justfile_path,
     "default:\n @cd {{invocation_directory()}}\n @echo {{invocation_directory()}}",
-  );
+  )
+  .unwrap();
 
   let mut subdir = tmp.path().to_path_buf();
   subdir.push("subdir");
-  brev::mkdir(&subdir);
+  fs::create_dir(&subdir).unwrap();
 
   let output = process::Command::new(&executable_path("just"))
     .current_dir(&subdir)
