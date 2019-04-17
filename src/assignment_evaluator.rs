@@ -141,9 +141,11 @@ impl<'a, 'b> AssignmentEvaluator<'a, 'b> {
   ) -> RunResult<'a, String> {
     let mut cmd = Command::new(self.shell);
 
+    cmd.arg("-cu").arg(raw);
+
     cmd.export_environment_variables(self.scope, dotenv, self.exports)?;
 
-    cmd.arg("-cu").arg(raw);
+    cmd.stdin(process::Stdio::inherit());
 
     cmd.stderr(if self.quiet {
       process::Stdio::null()
