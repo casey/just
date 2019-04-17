@@ -2,6 +2,7 @@
 mod unix {
   use executable_path::executable_path;
   use std::{
+    fs,
     process::Command,
     time::{Duration, Instant},
   };
@@ -23,7 +24,7 @@ mod unix {
 
     let mut justfile_path = tmp.path().to_path_buf();
     justfile_path.push("justfile");
-    brev::dump(justfile_path, justfile);
+    fs::write(justfile_path, justfile).unwrap();
 
     let start = Instant::now();
 

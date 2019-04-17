@@ -22,18 +22,6 @@ fn edit<P: convert::AsRef<ffi::OsStr>>(path: P) -> ! {
   }
 }
 
-trait Slurp {
-  fn slurp(&mut self) -> Result<String, io::Error>;
-}
-
-impl Slurp for fs::File {
-  fn slurp(&mut self) -> io::Result<String> {
-    let mut destination = String::new();
-    self.read_to_string(&mut destination)?;
-    Ok(destination)
-  }
-}
-
 pub fn run() {
   #[cfg(windows)]
   enable_ansi_support().ok();
@@ -274,9 +262,7 @@ pub fn run() {
       edit(justfile);
     }
 
-    text = fs::File::open(justfile)
-      .unwrap_or_else(|error| die!("Error opening justfile: {}", error))
-      .slurp()
+    text = fs::read_to_string(justfile)
       .unwrap_or_else(|error| die!("Error reading justfile: {}", error));
 
     if let Err(error) = env::set_current_dir(&directory) {
@@ -323,10 +309,8 @@ pub fn run() {
       edit(name);
     }
 
-    text = fs::File::open(name)
-      .unwrap_or_else(|error| die!("Error opening justfile: {}", error))
-      .slurp()
-      .unwrap_or_else(|error| die!("Error reading justfile: {}", error));
+    text =
+      fs::read_to_string(name).unwrap_or_else(|error| die!("Error reading justfile: {}", error));
   }
 
   let justfile = Parser::parse(&text).unwrap_or_else(|error| {

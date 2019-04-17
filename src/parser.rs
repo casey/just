@@ -509,7 +509,6 @@ impl<'a> Parser<'a> {
 mod test {
   use super::*;
   use crate::testing::parse_success;
-  use brev;
 
   macro_rules! summary_test {
     ($name:ident, $input:expr, $expected:expr $(,)*) => {
@@ -1127,7 +1126,7 @@ f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
     let mut justfiles = vec![];
     let mut current = None;
 
-    for line in brev::slurp("README.adoc").lines() {
+    for line in fs::read_to_string("README.adoc").unwrap().lines() {
       if let Some(mut justfile) = current {
         if line == "```" {
           justfiles.push(justfile);

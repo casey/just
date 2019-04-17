@@ -56,11 +56,11 @@ fn integration_test(
 
   let mut justfile_path = tmp.path().to_path_buf();
   justfile_path.push("justfile");
-  brev::dump(justfile_path, justfile);
+  fs::write(justfile_path, justfile).unwrap();
 
   let mut dotenv_path = tmp.path().to_path_buf();
   dotenv_path.push(".env");
-  brev::dump(dotenv_path, "DOTENV_KEY=dotenv-value");
+  fs::write(dotenv_path, "DOTENV_KEY=dotenv-value").unwrap();
 
   let mut child = Command::new(&executable_path("just"))
     .current_dir(tmp.path())
