@@ -12,7 +12,7 @@ pub struct Parser<'a> {
   exports: BTreeSet<&'a str>,
   aliases: BTreeMap<&'a str, Alias<'a>>,
   alias_tokens: BTreeMap<&'a str, Token<'a>>,
-  printed_equals_warning: bool,
+  deprecated_equals: bool,
 }
 
 impl<'a> Parser<'a> {
@@ -32,7 +32,7 @@ impl<'a> Parser<'a> {
       exports: empty(),
       aliases: empty(),
       alias_tokens: empty(),
-      printed_equals_warning: false,
+      deprecated_equals: false,
       text,
     }
   }
@@ -82,31 +82,6 @@ impl<'a> Parser<'a> {
       expected: expected.to_vec(),
       found: found.kind,
     })
-  }
-
-  fn print_equals_phase_out_warning(&mut self) {
-    if !self.printed_equals_warning {
-      // respect color settings
-
-      let warning = Color::auto().warning().stderr();
-      let message = Color::auto().message().stderr();
-
-      eprintln!(
-        "{}",
-        warning.paint(
-          "warning: `=` in assignments, exports, and aliases is being phased out on favor of `:=`"
-        )
-      );
-
-      eprintln!(
-        "{}",
-        message.paint(
-          "Please see this issue for more details: https://github.com/casey/just/issues/379"
-        )
-      );
-
-      self.printed_equals_warning = true;
-    }
   }
 
   fn recipe(
@@ -447,7 +422,7 @@ impl<'a> Parser<'a> {
             if token.lexeme() == "export" {
               let next = self.tokens.next().unwrap();
               if next.kind == Name && self.accepted(Equals) {
-                self.print_equals_phase_out_warning();
+                self.deprecated_equals = true;
                 self.assignment(next, true)?;
                 doc = None;
               } else if next.kind == Name && self.accepted(ColonEquals) {
@@ -461,7 +436,7 @@ impl<'a> Parser<'a> {
             } else if token.lexeme() == "alias" {
               let next = self.tokens.next().unwrap();
               if next.kind == Name && self.accepted(Equals) {
-                self.print_equals_phase_out_warning();
+                self.deprecated_equals = true;
                 self.alias(next)?;
                 doc = None;
               } else if next.kind == Name && self.accepted(ColonEquals) {
@@ -473,7 +448,7 @@ impl<'a> Parser<'a> {
                 doc = None;
               }
             } else if self.accepted(Equals) {
-              self.print_equals_phase_out_warning();
+              self.deprecated_equals = true;
               self.assignment(token, false)?;
               doc = None;
             } else if self.accepted(ColonEquals) {
@@ -540,6 +515,7 @@ impl<'a> Parser<'a> {
       assignments: self.assignments,
       exports: self.exports,
       aliases: self.aliases,
+      deprecated_equals: self.deprecated_equals,
     })
   }
 }

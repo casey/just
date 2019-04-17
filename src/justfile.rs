@@ -6,6 +6,7 @@ pub struct Justfile<'a> {
   pub assignments: BTreeMap<&'a str, Expression<'a>>,
   pub exports: BTreeSet<&'a str>,
   pub aliases: BTreeMap<&'a str, Alias<'a>>,
+  pub deprecated_equals: bool,
 }
 
 impl<'a> Justfile<'a> where {
