@@ -2405,10 +2405,10 @@ integration_test! {
    name:     equals_deprecated_export,
    justfile: "
 
-export foo = 'bar'
+export FOO = 'bar'
 
 default:
-  echo $foo
+  echo $FOO
 
 ",
    args:     (),
@@ -2416,7 +2416,7 @@ default:
    stdout:   "bar\n",
    stderr:   "warning: `=` in assignments, exports, and aliases is being phased out on favor of `:=`
 Please see this issue for more details: https://github.com/casey/just/issues/379
-echo $foo
+echo $FOO
 ",
    status:   EXIT_SUCCESS,
 }
