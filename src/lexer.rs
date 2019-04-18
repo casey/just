@@ -85,6 +85,21 @@ impl<'a> Lexer<'a> {
     &self.text[self.token_start.offset..self.token_end.offset]
   }
 
+  /// Length of current token
+  fn current_token_length(&self) -> usize {
+    self.token_end.offset - self.token_start.offset
+  }
+
+  /// Is next character c?
+  fn next_is(&self, c: char) -> bool {
+    self.next == Some(c)
+  }
+
+  /// Is next character ' ' or '\t'?
+  fn next_is_whitespace(&self) -> bool {
+    self.next_is(' ') || self.next_is('\t')
+  }
+
   /// Un-lexed text
   fn rest(&self) -> &'a str {
     &self.text[self.token_end.offset..]
@@ -95,9 +110,14 @@ impl<'a> Lexer<'a> {
     self.rest().starts_with(prefix)
   }
 
-  /// Length of current token
-  fn current_token_length(&self) -> usize {
-    self.token_end.offset - self.token_start.offset
+  /// Does rest start with "\n" or "\r\n"?
+  fn at_eol(&self) -> bool {
+    self.next_is('\n') || self.rest_starts_with("\r\n")
+  }
+
+  /// Are we at end-of-line or end-of-file?
+  fn at_eol_or_eof(&self) -> bool {
+    self.at_eol() || self.rest().is_empty()
   }
 
   /// Get current state
@@ -237,7 +257,7 @@ impl<'a> Lexer<'a> {
 
     // Handle blank line
     if rest.starts_with('\n') || rest.starts_with("\r\n") || rest.is_empty() {
-      while let Some(' ') | Some('\t') = self.next {
+      while self.next_is_whitespace() {
         self.advance()?;
       }
 
@@ -250,7 +270,7 @@ impl<'a> Lexer<'a> {
     }
 
     // Handle nonblank lines with no leading whitespace
-    if self.next != Some(' ') && self.next != Some('\t') {
+    if !self.next_is_whitespace() {
       if let State::Indented { .. } = self.state()? {
         self.token(Dedent);
         self.pop_state()?;
@@ -261,30 +281,33 @@ impl<'a> Lexer<'a> {
 
     // Handle continued indentation
     if let State::Indented { indentation } = self.state()? {
-      let mut remaining = indentation.len();
+      if self.rest_starts_with(indentation) {
+        for _ in indentation.chars() {
+          self.advance()?;
+        }
 
-      // Advance over whitespace up to length of current indentation
-      while let Some(' ') | Some('\t') = self.next {
-        self.advance()?;
-        remaining -= 1;
-        if remaining == 0 {
+        // Indentation matches, lex as whitespace
+        self.token(Whitespace);
+
+        return Ok(());
+      }
+
+      // Consume whitespace characters, matching or not, up to the length
+      // of expected indentation
+      for _ in indentation.chars().zip(self.rest().chars()) {
+        if self.next_is_whitespace() {
+          self.advance()?;
+        } else {
           break;
         }
       }
 
-      let lexeme = self.lexeme();
-
-      if lexeme != indentation {
-        return Err(self.error(InconsistentLeadingWhitespace {
-          expected: indentation,
-          found: lexeme,
-        }));
-      }
-
-      // Indentation matches, lex as whitespace
-      self.token(Whitespace);
-
-      return Ok(());
+      // We've either advanced over not enough whitespace or mismatching
+      // whitespace, so return an error
+      return Err(self.error(InconsistentLeadingWhitespace {
+        expected: indentation,
+        found: self.lexeme(),
+      }));
     }
 
     if self.state()? != State::Normal {
@@ -295,7 +318,7 @@ impl<'a> Lexer<'a> {
     }
 
     // Handle new indentation
-    while let Some(' ') | Some('\t') = self.next {
+    while self.next_is_whitespace() {
       self.advance()?;
     }
 
@@ -356,7 +379,7 @@ impl<'a> Lexer<'a> {
       self.pop_state()?;
       // Emit interpolation end token
       self.lex_double(InterpolationEnd)
-    } else if self.rest_starts_with("\n") || self.rest_starts_with("\r\n") {
+    } else if self.at_eol_or_eof() {
       // Return unterminated interpolation error that highlights the opening {{
       Err(self.unterminated_interpolation_error(interpolation_start))
     } else {
@@ -446,7 +469,7 @@ impl<'a> Lexer<'a> {
   fn lex_colon(&mut self) -> CompilationResult<'a, ()> {
     self.advance()?;
 
-    if let Some('=') = self.next {
+    if self.next_is('=') {
       self.advance()?;
       self.token(ColonEquals);
     } else {
@@ -492,8 +515,10 @@ impl<'a> Lexer<'a> {
 
   /// Lex name: [a-zA-Z_][a-zA-Z0-9_]*
   fn lex_name(&mut self) -> CompilationResult<'a, ()> {
-    while let Some('a'...'z') | Some('A'...'Z') | Some('0'...'9') | Some('_') | Some('-') =
-      self.next
+    while self
+      .next
+      .map(|c| c.is_ascii_alphanumeric() || c == '-' || c == '_')
+      .unwrap_or(false)
     {
       self.advance()?;
     }
@@ -508,11 +533,7 @@ impl<'a> Lexer<'a> {
     // advance over #
     self.advance()?;
 
-    loop {
-      if let Some('\r') | Some('\n') | None = self.next {
-        break;
-      }
-
+    while !self.at_eol_or_eof() {
       self.advance()?;
     }
 
@@ -523,22 +544,18 @@ impl<'a> Lexer<'a> {
 
   /// Lex backtick: `[^\r\n]*`
   fn lex_backtick(&mut self) -> CompilationResult<'a, ()> {
-    // advance over `
+    // advance over initial `
     self.advance()?;
 
-    loop {
-      if let Some('\r') | Some('\n') | None = self.next {
+    while !self.next_is('`') {
+      if self.at_eol_or_eof() {
         return Err(self.error(UnterminatedBacktick));
-      }
-
-      if let Some('`') = self.next {
-        self.advance()?;
-        break;
       }
 
       self.advance()?;
     }
 
+    self.advance()?;
     self.token(Backtick);
 
     Ok(())
@@ -546,7 +563,7 @@ impl<'a> Lexer<'a> {
 
   /// Lex whitespace: [ \t]+
   fn lex_whitespace(&mut self) -> CompilationResult<'a, ()> {
-    while let Some(' ') | Some('\t') = self.next {
+    while self.next_is_whitespace() {
       self.advance()?
     }
 
