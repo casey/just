@@ -76,6 +76,10 @@ impl Color {
     self.restyle(Style::new().fg(Red).bold())
   }
 
+  pub fn warning(self) -> Color {
+    self.restyle(Style::new().fg(Yellow).bold())
+  }
+
   pub fn banner(self) -> Color {
     self.restyle(Style::new().fg(Cyan).bold())
   }

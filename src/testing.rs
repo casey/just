@@ -16,6 +16,7 @@ pub fn token_summary(tokens: &[Token]) -> String {
       At => "@",
       Backtick => "`",
       Colon => ":",
+      ColonEquals => ":=",
       Comma => ",",
       Comment => "#",
       Dedent => "<",

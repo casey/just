@@ -6,6 +6,7 @@ pub struct Justfile<'a> {
   pub assignments: BTreeMap<&'a str, Expression<'a>>,
   pub exports: BTreeSet<&'a str>,
   pub aliases: BTreeMap<&'a str, Alias<'a>>,
+  pub deprecated_equals: bool,
 }
 
 impl<'a> Justfile<'a> where {
@@ -80,7 +81,7 @@ impl<'a> Justfile<'a> where {
       }
 
       for (name, value) in scope {
-        println!("{0:1$} = \"{2}\"", name, width, value);
+        println!("{0:1$} := \"{2}\"", name, width, value);
       }
       return Ok(());
     }
@@ -175,7 +176,7 @@ impl<'a> Display for Justfile<'a> {
       if self.exports.contains(name) {
         write!(f, "export ")?;
       }
-      write!(f, "{} = {}", name, expression)?;
+      write!(f, "{} := {}", name, expression)?;
       items -= 1;
       if items != 0 {
         write!(f, "\n\n")?;

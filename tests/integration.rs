@@ -157,7 +157,7 @@ fn integration_test(
 
 integration_test! {
   name: alias_listing,
-  justfile: "foo:\n  echo foo\nalias f = foo",
+  justfile: "foo:\n  echo foo\nalias f := foo",
   args: ("--list"),
   stdin:  "",
   stdout: "Available recipes:
@@ -170,7 +170,7 @@ integration_test! {
 
 integration_test! {
   name: alias_listing_multiple_aliases,
-  justfile: "foo:\n  echo foo\nalias f = foo\nalias fo = foo",
+  justfile: "foo:\n  echo foo\nalias f := foo\nalias fo := foo",
   args: ("--list"),
   stdin:  "",
   stdout: "Available recipes:
@@ -184,7 +184,7 @@ integration_test! {
 
 integration_test! {
   name: alias_listing_parameters,
-  justfile: "foo PARAM='foo':\n  echo {{PARAM}}\nalias f = foo",
+  justfile: "foo PARAM='foo':\n  echo {{PARAM}}\nalias f := foo",
   args: ("--list"),
   stdin:  "",
   stdout: "Available recipes:
@@ -197,7 +197,7 @@ integration_test! {
 
 integration_test! {
   name: alias_listing_private,
-  justfile: "foo PARAM='foo':\n  echo {{PARAM}}\nalias _f = foo",
+  justfile: "foo PARAM='foo':\n  echo {{PARAM}}\nalias _f := foo",
   args: ("--list"),
   stdin:  "",
   stdout: "Available recipes:
@@ -209,7 +209,7 @@ integration_test! {
 
 integration_test! {
   name: alias,
-  justfile: "foo:\n  echo foo\nalias f = foo",
+  justfile: "foo:\n  echo foo\nalias f := foo",
   args: ("f"),
   stdin:  "",
   stdout: "foo\n",
@@ -219,7 +219,7 @@ integration_test! {
 
 integration_test! {
   name: alias_with_parameters,
-  justfile: "foo value='foo':\n  echo {{value}}\nalias f = foo",
+  justfile: "foo value='foo':\n  echo {{value}}\nalias f := foo",
   args: ("f", "bar"),
   stdin:  "",
   stdout: "bar\n",
@@ -229,7 +229,7 @@ integration_test! {
 
 integration_test! {
   name: alias_with_dependencies,
-  justfile: "foo:\n  echo foo\nbar: foo\nalias b = bar",
+  justfile: "foo:\n  echo foo\nbar: foo\nalias b := bar",
   args: ("b"),
   stdin:  "",
   stdout: "foo\n",
@@ -239,13 +239,13 @@ integration_test! {
 
 integration_test! {
   name: duplicate_alias,
-  justfile: "alias foo = bar\nalias foo = baz\n",
+  justfile: "alias foo := bar\nalias foo := baz\n",
   args: (),
   stdin:  "",
   stdout: "" ,
   stderr: "error: Alias `foo` first defined on line `1` is redefined on line `2`
   |
-2 | alias foo = baz
+2 | alias foo := baz
   |       ^^^
 ",
   status: EXIT_FAILURE,
@@ -253,13 +253,13 @@ integration_test! {
 
 integration_test! {
   name: unknown_alias_target,
-  justfile: "alias foo = bar\n",
+  justfile: "alias foo := bar\n",
   args: (),
   stdin:  "",
   stdout: "",
   stderr: "error: Alias `foo` has an unknown target `bar`
   |
-1 | alias foo = bar
+1 | alias foo := bar
   |       ^^^
 ",
   status: EXIT_FAILURE,
@@ -267,13 +267,13 @@ integration_test! {
 
 integration_test! {
   name: alias_shadows_recipe,
-  justfile: "bar:\n  echo bar\nalias foo = bar\nfoo:\n  echo foo",
+  justfile: "bar:\n  echo bar\nalias foo := bar\nfoo:\n  echo foo",
   args: (),
   stdin:  "",
   stdout: "",
   stderr: "error: Alias `foo` defined on `3` shadows recipe defined on `4`
   |
-3 | alias foo = bar
+3 | alias foo := bar
   |       ^^^
 ",
   status: EXIT_FAILURE,
@@ -387,8 +387,8 @@ c:
 
 integration_test! {
   name:     show,
-  justfile: r#"hello = "foo"
-bar = hello + hello
+  justfile: r#"hello := "foo"
+bar := hello + hello
 recipe:
  echo {{hello + "bar" + bar}}"#,
   args:     ("--show", "recipe"),
@@ -431,7 +431,7 @@ integration_test! {
 
 integration_test! {
   name:     backtick_success,
-  justfile: "a = `printf Hello,`\nbar:\n printf '{{a + `printf ' world.'`}}'",
+  justfile: "a := `printf Hello,`\nbar:\n printf '{{a + `printf ' world.'`}}'",
   args:     (),
   stdin:    "",
   stdout:   "Hello, world.",
@@ -441,7 +441,7 @@ integration_test! {
 
 integration_test! {
   name:     backtick_trimming,
-  justfile: "a = `echo Hello,`\nbar:\n echo '{{a + `echo ' world.'`}}'",
+  justfile: "a := `echo Hello,`\nbar:\n echo '{{a + `echo ' world.'`}}'",
   args:     (),
   stdin:    "",
   stdout:   "Hello, world.\n",
@@ -451,21 +451,21 @@ integration_test! {
 
 integration_test! {
   name:     backtick_code_assignment,
-  justfile: "b = a\na = `exit 100`\nbar:\n echo '{{`exit 200`}}'",
+  justfile: "b := a\na := `exit 100`\nbar:\n echo '{{`exit 200`}}'",
   args:     (),
   stdin:    "",
   stdout:   "",
   stderr:   "error: Backtick failed with exit code 100
   |
-2 | a = `exit 100`
-  |     ^^^^^^^^^^
+2 | a := `exit 100`
+  |      ^^^^^^^^^^
 ",
   status:   100,
 }
 
 integration_test! {
   name:     backtick_code_interpolation,
-  justfile: "b = a\na = `echo hello`\nbar:\n echo '{{`exit 200`}}'",
+  justfile: "b := a\na := `echo hello`\nbar:\n echo '{{`exit 200`}}'",
   args:     (),
   stdin:    "",
   stdout:   "",
@@ -477,7 +477,6 @@ integration_test! {
   status:   200,
 }
 
-// 😬鎌
 integration_test! {
   name:     backtick_code_interpolation_mod,
   justfile: "f:\n 無{{`exit 200`}}",
@@ -579,7 +578,7 @@ backtick-fail:
 
 integration_test! {
   name:     backtick_code_long,
-  justfile: "\n\n\n\n\n\nb = a\na = `echo hello`\nbar:\n echo '{{`exit 200`}}'",
+  justfile: "\n\n\n\n\n\nb := a\na := `echo hello`\nbar:\n echo '{{`exit 200`}}'",
   args:     (),
   stdin:    "",
   stdout:   "",
@@ -629,14 +628,14 @@ integration_test! {
   justfile: "foo:
  echo hello
  echo {{`exit 111`}}
-a = `exit 222`",
+a := `exit 222`",
   args:     (),
   stdin:    "",
   stdout:   "",
   stderr:   "error: Backtick failed with exit code 222
   |
-4 | a = `exit 222`
-  |     ^^^^^^^^^^
+4 | a := `exit 222`
+  |      ^^^^^^^^^^
 ",
   status:   222,
 }
@@ -646,7 +645,7 @@ integration_test! {
   justfile: "foo:
  echo hello
  echo {{`exit 111`}}
-a = `exit 222`",
+a := `exit 222`",
   args:     ("--set", "foo", "bar", "--set", "baz", "bob", "--set", "a", "b", "a", "b"),
   stdin:    "",
   stdout:   "",
@@ -660,7 +659,7 @@ integration_test! {
   justfile: "foo:
  echo hello
  echo {{`exit 111`}}
-a = `exit 222`",
+a := `exit 222`",
   args:     ("foo=bar", "baz=bob", "a=b", "a", "b"),
   stdin:    "",
   stdout:   "",
@@ -674,7 +673,7 @@ integration_test! {
   justfile: "foo:
  echo hello
  echo {{`exit 111`}}
-a = `exit 222`",
+a := `exit 222`",
   args:     ("foo=bar", "a=b", "a", "b"),
   stdin:    "",
   stdout:   "",
@@ -685,9 +684,9 @@ a = `exit 222`",
 integration_test! {
   name:     overrides_first,
   justfile: r#"
-foo = "foo"
-a = "a"
-baz = "baz"
+foo := "foo"
+a := "a"
+baz := "baz"
 
 recipe arg:
  echo arg={{arg}}
@@ -702,9 +701,9 @@ recipe arg:
 integration_test! {
   name:     overrides_not_evaluated,
   justfile: r#"
-foo = `exit 1`
-a = "a"
-baz = "baz"
+foo := `exit 1`
+a := "a"
+baz := "baz"
 
 recipe arg:
  echo arg={{arg}}
@@ -719,7 +718,7 @@ recipe arg:
 integration_test! {
   name:     dry_run,
   justfile: r#"
-var = `echo stderr 1>&2; echo backtick`
+var := `echo stderr 1>&2; echo backtick`
 
 command:
   @touch /this/is/not/a/file
@@ -748,20 +747,20 @@ echo `echo command interpolation`
 integration_test! {
   name:     evaluate,
   justfile: r#"
-foo = "a\t"
-hello = "c"
-bar = "b\t"
-ab = foo + bar + hello
+foo := "a\t"
+hello := "c"
+bar := "b\t"
+ab := foo + bar + hello
 
 wut:
   touch /this/is/not/a/file
 "#,
   args:     ("--evaluate"),
   stdin:    "",
-  stdout:   r#"ab    = "a	b	c"
-bar   = "b	"
-foo   = "a	"
-hello = "c"
+  stdout:   r#"ab    := "a	b	c"
+bar   := "b	"
+foo   := "a	"
+hello := "c"
 "#,
   stderr:   "",
   status:   EXIT_SUCCESS,
@@ -770,10 +769,10 @@ hello = "c"
 integration_test! {
   name:     export_success,
   justfile: r#"
-export FOO = "a"
-baz = "c"
-export BAR = "b"
-export ABC = FOO + BAR + baz
+export FOO := "a"
+baz := "c"
+export BAR := "b"
+export ABC := FOO + BAR + baz
 
 wut:
   echo $FOO $BAR $ABC
@@ -788,10 +787,10 @@ wut:
 integration_test! {
   name:     export_override,
   justfile: r#"
-export FOO = "a"
-baz = "c"
-export BAR = "b"
-export ABC = FOO + "-" + BAR + "-" + baz
+export FOO := "a"
+baz := "c"
+export BAR := "b"
+export ABC := FOO + "-" + BAR + "-" + baz
 
 wut:
   echo $FOO $BAR $ABC
@@ -806,10 +805,10 @@ wut:
 integration_test! {
   name:     export_shebang,
   justfile: r#"
-export FOO = "a"
-baz = "c"
-export BAR = "b"
-export ABC = FOO + BAR + baz
+export FOO := "a"
+baz := "c"
+export BAR := "b"
+export ABC := FOO + BAR + baz
 
 wut:
   #!/bin/sh
@@ -825,7 +824,7 @@ wut:
 integration_test! {
   name:     export_recipe_backtick,
   justfile: r#"
-export EXPORTED_VARIABLE = "A-IS-A"
+export EXPORTED_VARIABLE := "A-IS-A"
 
 recipe:
   echo {{`echo recipe $EXPORTED_VARIABLE`}}
@@ -840,7 +839,7 @@ recipe:
 integration_test! {
   name:     raw_string,
   justfile: r#"
-export EXPORTED_VARIABLE = '\z'
+export EXPORTED_VARIABLE := '\z'
 
 recipe:
   printf "$EXPORTED_VARIABLE"
@@ -931,7 +930,7 @@ default:
 integration_test! {
   name:     quiet_flag_no_assignment_backtick_stderr,
   justfile: r#"
-a = `echo hello 1>&2`
+a := `echo hello 1>&2`
 default:
   exit 100
 "#,
@@ -1056,39 +1055,39 @@ integration_test! {
 
 integration_test! {
   name:     color_always,
-  justfile: "b = a\na = `exit 100`\nbar:\n echo '{{`exit 200`}}'",
+  justfile: "b := a\na := `exit 100`\nbar:\n echo '{{`exit 200`}}'",
   args:     ("--color", "always"),
   stdin:    "",
   stdout:   "",
   stderr:   "\u{1b}[1;31merror:\u{1b}[0m \u{1b}[1mBacktick failed with exit code 100
-\u{1b}[0m  |\n2 | a = `exit 100`\n  |     \u{1b}[1;31m^^^^^^^^^^\u{1b}[0m\n",
+\u{1b}[0m  |\n2 | a := `exit 100`\n  |      \u{1b}[1;31m^^^^^^^^^^\u{1b}[0m\n",
   status:   100,
 }
 
 integration_test! {
   name:     color_never,
-  justfile: "b = a\na = `exit 100`\nbar:\n echo '{{`exit 200`}}'",
+  justfile: "b := a\na := `exit 100`\nbar:\n echo '{{`exit 200`}}'",
   args:     ("--color", "never"),
   stdin:    "",
   stdout:   "",
   stderr:   "error: Backtick failed with exit code 100
   |
-2 | a = `exit 100`
-  |     ^^^^^^^^^^
+2 | a := `exit 100`
+  |      ^^^^^^^^^^
 ",
   status:   100,
 }
 
 integration_test! {
   name:     color_auto,
-  justfile: "b = a\na = `exit 100`\nbar:\n echo '{{`exit 200`}}'",
+  justfile: "b := a\na := `exit 100`\nbar:\n echo '{{`exit 200`}}'",
   args:     ("--color", "auto"),
   stdin:    "",
   stdout:   "",
   stderr:   "error: Backtick failed with exit code 100
   |
-2 | a = `exit 100`
-  |     ^^^^^^^^^^
+2 | a := `exit 100`
+  |      ^^^^^^^^^^
 ",
   status:   100,
 }
@@ -1432,9 +1431,9 @@ foo:
 integration_test! {
   name:     test_os_arch_functions_in_expression,
   justfile: r#"
-a = arch()
-o = os()
-f = os_family()
+a := arch()
+o := os()
+f := os_family()
 
 foo:
   echo {{a}} {{o}} {{f}}
@@ -1450,9 +1449,9 @@ foo:
 integration_test! {
   name:     env_var_functions,
   justfile: r#"
-p = env_var('USER')
-b = env_var_or_default('ZADDY', 'HTAP')
-x = env_var_or_default('XYZ', 'ABC')
+p := env_var('USER')
+b := env_var_or_default('ZADDY', 'HTAP')
+x := env_var_or_default('XYZ', 'ABC')
 
 foo:
   /bin/echo '{{p}}' '{{b}}' '{{x}}'
@@ -1468,9 +1467,9 @@ foo:
 integration_test! {
   name:     env_var_functions,
   justfile: r#"
-p = env_var('USERNAME')
-b = env_var_or_default('ZADDY', 'HTAP')
-x = env_var_or_default('XYZ', 'ABC')
+p := env_var('USERNAME')
+b := env_var_or_default('ZADDY', 'HTAP')
+x := env_var_or_default('XYZ', 'ABC')
 
 foo:
   /bin/echo '{{p}}' '{{b}}' '{{x}}'
@@ -1573,7 +1572,7 @@ c: b a
 
 integration_test! {
   name:     parameter_shadows_variable,
-  justfile: "FOO = 'hello'\na FOO:",
+  justfile: "FOO := 'hello'\na FOO:",
   args:     ("a"),
   stdin:    "",
   stdout:   "",
@@ -1587,15 +1586,15 @@ integration_test! {
 
 integration_test! {
   name:     unknown_function_in_assignment,
-  justfile: r#"foo = foo() + "hello"
+  justfile: r#"foo := foo() + "hello"
 bar:"#,
   args:     ("bar"),
   stdin:    "",
   stdout:   "",
   stderr:   r#"error: Call to unknown function `foo`
   |
-1 | foo = foo() + "hello"
-  |       ^^^
+1 | foo := foo() + "hello"
+  |        ^^^
 "#,
   status:   EXIT_FAILURE,
 }
@@ -1659,13 +1658,13 @@ integration_test! {
 
 integration_test! {
   name:     duplicate_variable,
-  justfile: "a = 'hello'\na = 'hello'\nfoo:",
+  justfile: "a := 'hello'\na := 'hello'\nfoo:",
   args:     ("foo"),
   stdin:    "",
   stdout:   "",
   stderr:   "error: Variable `a` has multiple definitions
   |
-2 | a = 'hello'
+2 | a := 'hello'
   | ^
 ",
   status:   EXIT_FAILURE,
@@ -1691,7 +1690,7 @@ integration_test! {
   args:     ("foo"),
   stdin:    "",
   stdout:   "",
-  stderr:   "error: Expected name, '+', ':', or '=', but found raw string
+  stderr:   "error: Expected name, '+', ':', or ':=', but found raw string
   |
 1 | foo 'bar'
   |     ^^^^^
@@ -1729,13 +1728,13 @@ integration_test! {
 
 integration_test! {
   name:     variable_self_dependency,
-  justfile: "z = z\na:",
+  justfile: "z := z\na:",
   args:     ("a"),
   stdin:    "",
   stdout:   "",
   stderr:   "error: Variable `z` is defined in terms of itself
   |
-1 | z = z
+1 | z := z
   | ^
 ",
   status:   EXIT_FAILURE,
@@ -1743,13 +1742,13 @@ integration_test! {
 
 integration_test! {
   name:     variable_circular_dependency,
-  justfile: "x = y\ny = z\nz = x\na:",
+  justfile: "x := y\ny := z\nz := x\na:",
   args:     ("a"),
   stdin:    "",
   stdout:   "",
   stderr:   "error: Variable `x` depends on its own value: `x -> y -> z -> x`
   |
-1 | x = y
+1 | x := y
   | ^
 ",
   status:   EXIT_FAILURE,
@@ -1757,15 +1756,15 @@ integration_test! {
 
 integration_test! {
   name:     invalid_escape_sequence,
-  justfile: r#"x = "\q"
+  justfile: r#"x := "\q"
 a:"#,
   args:     ("a"),
   stdin:    "",
   stdout:   "",
   stderr:   "error: `\\q` is not a valid escape sequence
   |
-1 | x = \"\\q\"
-  |     ^^^^
+1 | x := \"\\q\"
+  |      ^^^^
 ",
   status:   EXIT_FAILURE,
 }
@@ -1773,7 +1772,7 @@ a:"#,
 integration_test! {
   name:     multiline_raw_string,
   justfile: "
-string = 'hello
+string := 'hello
 whatever'
 
 a:
@@ -1793,7 +1792,7 @@ whatever'
 integration_test! {
   name:     error_line_after_multiline_raw_string,
   justfile: "
-string = 'hello
+string := 'hello
 
 whatever' + 'yo'
 
@@ -1814,7 +1813,7 @@ a:
 integration_test! {
   name:     error_column_after_multiline_raw_string,
   justfile: "
-string = 'hello
+string := 'hello
 
 whatever' + bar
 
@@ -2039,7 +2038,7 @@ integration_test! {
    name:     comment_before_variable,
    justfile: "
 #
-A='1'
+A:='1'
 echo:
   echo {{A}}
  ",
@@ -2068,7 +2067,7 @@ integration_test! {
    name:     dotenv_variable_in_backtick,
    justfile: "
 #
-X=`echo $DOTENV_KEY`
+X:=`echo $DOTENV_KEY`
 echo:
   echo {{X}}
  ",
@@ -2097,8 +2096,8 @@ integration_test! {
    name:     dotenv_variable_in_function_in_backtick,
    justfile: "
 #
-X=env_var_or_default('DOTENV_KEY', 'foo')
-Y=env_var('DOTENV_KEY')
+X:=env_var_or_default('DOTENV_KEY', 'foo')
+Y:=env_var('DOTENV_KEY')
 echo:
   echo {{X}}
   echo {{Y}}
@@ -2113,15 +2112,15 @@ echo:
 integration_test! {
    name:     invalid_escape_sequence_message,
    justfile: r#"
-X = "\'"
+X := "\'"
 "#,
    args:     (),
    stdin:    "",
    stdout:   "",
    stderr:   r#"error: `\'` is not a valid escape sequence
   |
-2 | X = "\'"
-  |     ^^^^
+2 | X := "\'"
+  |      ^^^^
 "#,
    status:   EXIT_FAILURE,
 }
@@ -2200,7 +2199,7 @@ foo x=`echo foo`:
 integration_test! {
    name:     default_variable,
    justfile: "
-y = 'foo'
+y := 'foo'
 foo x=y:
   echo {{x}}
 ",
@@ -2292,7 +2291,7 @@ assembly_source_files = $(wildcard src/arch/$(arch)/*.s)
 integration_test! {
    name:     backtick_variable_cat,
    justfile: "
-stdin = `cat`
+stdin := `cat`
 
 default:
   echo {{stdin}}
@@ -2338,7 +2337,7 @@ default stdin = `cat justfile`:
 integration_test! {
    name:     backtick_variable_read_single,
    justfile: "
-password = `read PW && echo $PW`
+password := `read PW && echo $PW`
 
 default:
   echo {{password}}
@@ -2353,8 +2352,8 @@ default:
 integration_test! {
    name:     backtick_variable_read_multiple,
    justfile: "
-a = `read A && echo $A`
-b = `read B && echo $B`
+a := `read A && echo $A`
+b := `read B && echo $B`
 
 default:
   echo {{a}}
@@ -2379,5 +2378,65 @@ default a=`read A && echo $A` b=`read B && echo $B`:
    stdin:    "foo\nbar\n",
    stdout:   "foo\nbar\n",
    stderr:   "echo foo\necho bar\n",
+   status:   EXIT_SUCCESS,
+}
+
+integration_test! {
+   name:     equals_deprecated_assignment,
+   justfile: "
+
+foo = 'bar'
+
+default:
+  echo {{foo}}
+
+",
+   args:     (),
+   stdin:    "",
+   stdout:   "bar\n",
+   stderr:   "warning: `=` in assignments, exports, and aliases is being phased out on favor of `:=`
+Please see this issue for more details: https://github.com/casey/just/issues/379
+echo bar
+",
+   status:   EXIT_SUCCESS,
+}
+
+integration_test! {
+   name:     equals_deprecated_export,
+   justfile: "
+
+export FOO = 'bar'
+
+default:
+  echo $FOO
+
+",
+   args:     (),
+   stdin:    "",
+   stdout:   "bar\n",
+   stderr:   "warning: `=` in assignments, exports, and aliases is being phased out on favor of `:=`
+Please see this issue for more details: https://github.com/casey/just/issues/379
+echo $FOO
+",
+   status:   EXIT_SUCCESS,
+}
+
+integration_test! {
+   name:     equals_deprecated_alias,
+   justfile: "
+
+alias foo = default
+
+default:
+  echo default
+
+",
+   args:     ("foo"),
+   stdin:    "",
+   stdout:   "default\n",
+   stderr:   "warning: `=` in assignments, exports, and aliases is being phased out on favor of `:=`
+Please see this issue for more details: https://github.com/casey/just/issues/379
+echo default
+",
    status:   EXIT_SUCCESS,
 }

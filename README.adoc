@@ -210,7 +210,7 @@ build test deploy lint
 Aliases allow recipes to be invoked with alternative names:
 
 ```make
-alias b = build
+alias b := build
 
 build:
   echo 'Building!'
@@ -249,9 +249,9 @@ Available recipes:
 Variables, strings, concatenation, and substitution using `{{...}}` are supported:
 
 ```make
-version = "0.2.7"
-tardir  = "awesomesauce-" + version
-tarball = tardir + ".tar.gz"
+version := "0.2.7"
+tardir  := "awesomesauce-" + version
+tarball := tardir + ".tar.gz"
 
 publish:
     rm -f {{tarball}}
@@ -285,29 +285,29 @@ braces:
 Double-quoted strings support escape sequences:
 
 ```make
-string-with-tab             = "\t"
-string-with-newline         = "\n"
-string-with-carriage-return = "\r"
-string-with-double-quote    = "\""
-string-with-slash           = "\\"
+string-with-tab             := "\t"
+string-with-newline         := "\n"
+string-with-carriage-return := "\r"
+string-with-double-quote    := "\""
+string-with-slash           := "\\"
 ```
 
 ```sh
 $ just --evaluate
-"tring-with-carriage-return = "
-string-with-double-quote    = """
-string-with-newline         = "
+"tring-with-carriage-return := "
+string-with-double-quote    := """
+string-with-newline         := "
 "
-string-with-slash           = "\"
-string-with-tab             = "     "
+string-with-slash           := "\"
+string-with-tab             := "     "
 ```
 
 Single-quoted strings do not recognize escape sequences and may contain line breaks:
 
 ```make
-escapes = '\t\n\r\"\\'
+escapes := '\t\n\r\"\\'
 
-line-breaks = 'hello
+line-breaks := 'hello
 this
 is
   a
@@ -318,9 +318,9 @@ string!
 
 ```sh
 $ just --evaluate
-escapes = "\t\n\r\"\\"
+escapes := "\t\n\r\"\\"
 
-line-breaks = "hello
+line-breaks := "hello
 this
 is
   a
@@ -410,7 +410,7 @@ Starting server with database localhost:6379 on port 1337...
 Backticks can be used to store the result of commands:
 
 ```make
-localhost = `dumpinterfaces | cut -d: -f2 | sed 's/\/.*//' | sed 's/ //g'`
+localhost := `dumpinterfaces | cut -d: -f2 | sed 's/\/.*//' | sed 's/ //g'`
 
 serve:
     ./serve {{localhost}} 8080
@@ -421,7 +421,7 @@ serve:
 Variables can be overridden from the command line.
 
 ```make
-os = "linux"
+os := "linux"
 
 test: build
     ./test --test {{os}}
@@ -457,7 +457,7 @@ $ just --set os bsd
 Assignments prefixed with the `export` keyword will be exported to recipes as environment variables:
 
 ```make
-export RUST_BACKTRACE = "1"
+export RUST_BACKTRACE := "1"
 
 test:
     # will print a stack trace if it crashes
@@ -487,7 +487,7 @@ cd my-awesome-project && make
 Parameters may have default values:
 
 ```make
-default = 'all'
+default := 'all'
 
 test target tests=default:
     @echo 'Testing {{target}}:{{tests}}...'
@@ -513,7 +513,7 @@ Testing server:unit...
 Default values may be arbitrary expressions, but concatenations must be parenthesized:
 
 ```make
-arch = "wasm"
+arch := "wasm"
 
 test triple=(arch + "-unknown-unknown"):
   ./test {{triple}}

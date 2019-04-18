@@ -323,7 +323,7 @@ impl<'a> Lexer<'a> {
       '@' => self.lex_single(At),
       '=' => self.lex_single(Equals),
       ',' => self.lex_single(Comma),
-      ':' => self.lex_single(Colon),
+      ':' => self.lex_colon(),
       '(' => self.lex_single(ParenL),
       ')' => self.lex_single(ParenR),
       '{' => self.lex_brace_l(),
@@ -439,6 +439,20 @@ impl<'a> Lexer<'a> {
     self.advance()?;
     self.advance()?;
     self.token(kind);
+    Ok(())
+  }
+
+  /// Lex a token starting with ':'
+  fn lex_colon(&mut self) -> CompilationResult<'a, ()> {
+    self.advance()?;
+
+    if let Some('=') = self.next {
+      self.advance()?;
+      self.token(ColonEquals);
+    } else {
+      self.token(Colon);
+    }
+
     Ok(())
   }
 

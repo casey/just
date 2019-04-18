@@ -12,6 +12,7 @@ pub struct Parser<'a> {
   exports: BTreeSet<&'a str>,
   aliases: BTreeMap<&'a str, Alias<'a>>,
   alias_tokens: BTreeMap<&'a str, Token<'a>>,
+  deprecated_equals: bool,
 }
 
 impl<'a> Parser<'a> {
@@ -31,6 +32,7 @@ impl<'a> Parser<'a> {
       exports: empty(),
       aliases: empty(),
       alias_tokens: empty(),
+      deprecated_equals: false,
       text,
     }
   }
@@ -152,10 +154,10 @@ impl<'a> Parser<'a> {
     }
 
     if let Some(token) = self.expect(Colon) {
-      // if we haven't accepted any parameters, an equals
+      // if we haven't accepted any parameters, a :=
       // would have been fine as part of an assignment
       if parameters.is_empty() {
-        return Err(self.unexpected_token(&token, &[Name, Plus, Colon, Equals]));
+        return Err(self.unexpected_token(&token, &[Name, Plus, Colon, ColonEquals]));
       } else {
         return Err(self.unexpected_token(&token, &[Name, Plus, Colon]));
       }
@@ -420,6 +422,10 @@ impl<'a> Parser<'a> {
             if token.lexeme() == "export" {
               let next = self.tokens.next().unwrap();
               if next.kind == Name && self.accepted(Equals) {
+                self.deprecated_equals = true;
+                self.assignment(next, true)?;
+                doc = None;
+              } else if next.kind == Name && self.accepted(ColonEquals) {
                 self.assignment(next, true)?;
                 doc = None;
               } else {
@@ -430,6 +436,10 @@ impl<'a> Parser<'a> {
             } else if token.lexeme() == "alias" {
               let next = self.tokens.next().unwrap();
               if next.kind == Name && self.accepted(Equals) {
+                self.deprecated_equals = true;
+                self.alias(next)?;
+                doc = None;
+              } else if next.kind == Name && self.accepted(ColonEquals) {
                 self.alias(next)?;
                 doc = None;
               } else {
@@ -438,6 +448,10 @@ impl<'a> Parser<'a> {
                 doc = None;
               }
             } else if self.accepted(Equals) {
+              self.deprecated_equals = true;
+              self.assignment(token, false)?;
+              doc = None;
+            } else if self.accepted(ColonEquals) {
               self.assignment(token, false)?;
               doc = None;
             } else {
@@ -501,6 +515,7 @@ impl<'a> Parser<'a> {
       assignments: self.assignments,
       exports: self.exports,
       aliases: self.aliases,
+      deprecated_equals: self.deprecated_equals,
     })
   }
 }
@@ -604,10 +619,10 @@ foo a='b\t':
   summary_test! {
     parse_export,
     r#"
-export a = "hello"
+export a := "hello"
 
   "#,
-    r#"export a = "hello""#,
+    r#"export a := "hello""#,
   }
 
   summary_test! {
@@ -615,9 +630,9 @@ export a = "hello"
     r#"
 foo:
   echo a
-alias f = foo
+alias f := foo
 "#,
-r#"alias f = foo
+r#"alias f := foo
 
 foo:
     echo a"#
@@ -626,11 +641,11 @@ foo:
   summary_test! {
   parse_alias_before_target,
     r#"
-alias f = foo
+alias f := foo
 foo:
   echo a
 "#,
-r#"alias f = foo
+r#"alias f := foo
 
 foo:
     echo a"#
@@ -639,11 +654,11 @@ foo:
   summary_test! {
   parse_alias_with_comment,
     r#"
-alias f = foo #comment
+alias f := foo #comment
 foo:
   echo a
 "#,
-r#"alias f = foo
+r#"alias f := foo
 
 foo:
     echo a"#
@@ -655,9 +670,9 @@ foo:
 x:
 y:
 z:
-foo = \"xx\"
-bar = foo
-goodbye = \"y\"
+foo := \"xx\"
+bar := foo
+goodbye := \"y\"
 hello a b    c   : x y    z #hello
   #! blah
   #blarg
@@ -666,11 +681,11 @@ hello a b    c   : x y    z #hello
   2
   3
 ",
-    "bar = foo
+    "bar := foo
 
-foo = \"xx\"
+foo := \"xx\"
 
-goodbye = \"y\"
+goodbye := \"y\"
 
 hello a b c: x y z
     #! blah
@@ -690,14 +705,14 @@ z:"
   summary_test! {
   parse_shebang,
     "
-practicum = 'hello'
+practicum := 'hello'
 install:
 \t#!/bin/sh
 \tif [[ -f {{practicum}} ]]; then
 \t\treturn
 \tfi
 ",
-    "practicum = 'hello'
+    "practicum := 'hello'
 
 install:
     #!/bin/sh
@@ -714,27 +729,27 @@ install:
 
   summary_test! {
   parse_assignments,
-    r#"a = "0"
-c = a + b + a + b
-b = "1"
+    r#"a := "0"
+c := a + b + a + b
+b := "1"
 "#,
-    r#"a = "0"
+    r#"a := "0"
 
-b = "1"
+b := "1"
 
-c = a + b + a + b"#,
+c := a + b + a + b"#,
   }
 
   summary_test! {
   parse_assignment_backticks,
-    "a = `echo hello`
-c = a + b + a + b
-b = `echo goodbye`",
-    "a = `echo hello`
+    "a := `echo hello`
+c := a + b + a + b
+b := `echo goodbye`",
+    "a := `echo hello`
 
-b = `echo goodbye`
+b := `echo goodbye`
 
-c = a + b + a + b",
+c := a + b + a + b",
   }
 
   summary_test! {
@@ -753,14 +768,14 @@ c = a + b + a + b",
 
   summary_test! {
     string_quote_escape,
-    r#"a = "hello\"""#,
-    r#"a = "hello\"""#,
+    r#"a := "hello\"""#,
+    r#"a := "hello\"""#,
   }
 
   summary_test! {
     string_escapes,
-    r#"a = "\n\t\r\"\\""#,
-    r#"a = "\n\t\r\"\\""#,
+    r#"a := "\n\t\r\"\\""#,
+    r#"a := "\n\t\r\"\\""#,
   }
 
   summary_test! {
@@ -774,11 +789,11 @@ c = a + b + a + b",
   summary_test! {
   unary_functions,
     "
-x = arch()
+x := arch()
 
 a:
   {{os()}} {{os_family()}}",
-    "x = arch()
+    "x := arch()
 
 a:
     {{os()}} {{os_family()}}",
@@ -787,11 +802,11 @@ a:
   summary_test! {
   env_functions,
     r#"
-x = env_var('foo',)
+x := env_var('foo',)
 
 a:
   {{env_var_or_default('foo' + 'bar', 'baz',)}} {{env_var(env_var("baz"))}}"#,
-    r#"x = env_var('foo')
+    r#"x := env_var('foo')
 
 a:
     {{env_var_or_default('foo' + 'bar', 'baz')}} {{env_var(env_var("baz"))}}"#,
@@ -832,10 +847,10 @@ f x=(`echo hello` + "foo"):
   summary_test! {
     parameter_default_concatination_variable,
     r#"
-x = "10"
+x := "10"
 f y=(`echo hello` + x) +z="foo":
 "#,
-    r#"x = "10"
+    r#"x := "10"
 
 f y=(`echo hello` + x) +z="foo":"#,
   }
@@ -843,24 +858,24 @@ f y=(`echo hello` + x) +z="foo":"#,
   summary_test! {
     parameter_default_multiple,
     r#"
-x = "10"
+x := "10"
 f y=(`echo hello` + x) +z=("foo" + "bar"):
 "#,
-    r#"x = "10"
+    r#"x := "10"
 
 f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
   }
 
   summary_test! {
     concatination_in_group,
-    "x = ('0' + '1')",
-    "x = ('0' + '1')",
+    "x := ('0' + '1')",
+    "x := ('0' + '1')",
   }
 
   summary_test! {
     string_in_group,
-    "x = ('0'   )",
-    "x = ('0')",
+    "x := ('0'   )",
+    "x := ('0')",
   }
 
   #[rustfmt::skip]
