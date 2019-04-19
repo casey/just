@@ -1,46 +1,13 @@
 use crate::common::*;
 
-pub fn parse_success(text: &str) -> Justfile {
+pub fn parse(text: &str) -> Justfile {
   match Parser::parse(text) {
     Ok(justfile) => justfile,
-    Err(error) => panic!("Expected successful parse but got error:\n{}", error),
+    Err(error) => panic!("Expected successful parse but got error:\n {}", error),
   }
 }
 
-pub fn token_summary(tokens: &[Token]) -> String {
-  use TokenKind::*;
-
-  tokens
-    .iter()
-    .map(|t| match t.kind {
-      At => "@",
-      Backtick => "`",
-      Colon => ":",
-      ColonEquals => ":=",
-      Comma => ",",
-      Comment => "#",
-      Dedent => "<",
-      Eof => ".",
-      Eol => "$",
-      Equals => "=",
-      Indent => ">",
-      InterpolationEnd => "}",
-      InterpolationStart => "{",
-      Line => "^",
-      Name => "N",
-      ParenL => "(",
-      ParenR => ")",
-      Plus => "+",
-      StringRaw => "'",
-      StringCooked => "\"",
-      Text => "_",
-      Whitespace => " ",
-    })
-    .collect::<Vec<&str>>()
-    .join("")
-}
-
-macro_rules! compilation_error_test {
+macro_rules! error_test {
   (
     name:   $name:ident,
     input:  $input:expr,
@@ -52,33 +19,28 @@ macro_rules! compilation_error_test {
   ) => {
     #[test]
     fn $name() {
-      let input = $input;
+      let text: &str = $input;
+      let offset: usize = $offset;
+      let column: usize = $column;
+      let width: usize = $width;
+      let line: usize = $line;
+      let kind: CompilationErrorKind = $kind;
 
-      let expected = crate::compilation_error::CompilationError {
-        text: input,
-        offset: $offset,
-        line: $line,
-        column: $column,
-        width: $width,
-        kind: $kind,
+      let expected = CompilationError {
+        text,
+        offset,
+        line,
+        column,
+        width,
+        kind,
       };
 
-      let mut tokens = Lexer::lex(input).unwrap();
-
-      tokens.retain(|token| token.kind != TokenKind::Whitespace);
-
-      let parser = crate::parser::Parser::new(input, tokens);
-
-      if let Err(error) = parser.justfile() {
-        assert_eq!(error.text, expected.text);
-        assert_eq!(error.offset, expected.offset);
-        assert_eq!(error.line, expected.line);
-        assert_eq!(error.column, expected.column);
-        assert_eq!(error.width, expected.width);
-        assert_eq!(error.kind, expected.kind);
-        assert_eq!(error, expected);
-      } else {
-        panic!("parse succeeded but expected: {}\n{}", expected, input);
+      match Parser::parse(text) {
+        Ok(_) => panic!("Compilation succeeded but expected: {}\n{}", expected, text),
+        Err(actual) => {
+          use pretty_assertions::assert_eq;
+          assert_eq!(actual, expected);
+        }
       }
     }
   };

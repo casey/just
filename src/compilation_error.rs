@@ -118,8 +118,8 @@ impl<'a> Display for CompilationError<'a> {
           f,
           "Alias `{}` defined on `{}` shadows recipe defined on `{}`",
           alias,
-          self.line + 1,
-          recipe_line + 1,
+          self.line.ordinal(),
+          recipe_line.ordinal(),
         )?;
       }
       CircularRecipeDependency { recipe, ref circle } => {
@@ -181,8 +181,8 @@ impl<'a> Display for CompilationError<'a> {
           f,
           "Alias `{}` first defined on line `{}` is redefined on line `{}`",
           alias,
-          first + 1,
-          self.line + 1,
+          first.ordinal(),
+          self.line.ordinal(),
         )?;
       }
       DuplicateDependency { recipe, dependency } => {
@@ -197,8 +197,8 @@ impl<'a> Display for CompilationError<'a> {
           f,
           "Recipe `{}` first defined on line {} is redefined on line {}",
           recipe,
-          first + 1,
-          self.line + 1
+          first.ordinal(),
+          self.line.ordinal()
         )?;
       }
       DependencyHasParameters { recipe, dependency } => {

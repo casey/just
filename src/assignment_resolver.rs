@@ -93,7 +93,7 @@ impl<'a: 'b, 'b> AssignmentResolver<'a, 'b> {
 mod test {
   use super::*;
 
-  compilation_error_test! {
+  error_test! {
     name:   circular_variable_dependency,
     input:   "a = b\nb = a",
     offset:  0,
@@ -103,7 +103,7 @@ mod test {
     kind:   CircularVariableDependency{variable: "a", circle: vec!["a", "b", "a"]},
   }
 
-  compilation_error_test! {
+  error_test! {
     name:   self_variable_dependency,
     input:  "a = a",
     offset:  0,
@@ -113,7 +113,7 @@ mod test {
     kind:   CircularVariableDependency{variable: "a", circle: vec!["a", "a"]},
   }
 
-  compilation_error_test! {
+  error_test! {
     name:   unknown_expression_variable,
     input:  "x = yy",
     offset:  4,
@@ -123,7 +123,7 @@ mod test {
     kind:   UndefinedVariable{variable: "yy"},
   }
 
-  compilation_error_test! {
+  error_test! {
     name:   unknown_function,
     input:  "a = foo()",
     offset:  4,
