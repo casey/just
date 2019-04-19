@@ -205,7 +205,7 @@ mod test {
   use super::*;
 
   use crate::runtime_error::RuntimeError::*;
-  use crate::testing::parse_success;
+  use crate::testing::parse;
 
   fn no_cwd_err() -> Result<PathBuf, String> {
     Err(String::from("no cwd in tests"))
@@ -213,7 +213,7 @@ mod test {
 
   #[test]
   fn unknown_recipes() {
-    match parse_success("a:\nb:\nc:")
+    match parse("a:\nb:\nc:")
       .run(&no_cwd_err(), &["a", "x", "y", "z"], &Default::default())
       .unwrap_err()
     {
@@ -246,7 +246,7 @@ a:
       x
 ";
 
-    match parse_success(text)
+    match parse(text)
       .run(&no_cwd_err(), &["a"], &Default::default())
       .unwrap_err()
     {
@@ -265,7 +265,7 @@ a:
 
   #[test]
   fn code_error() {
-    match parse_success("fail:\n @exit 100")
+    match parse("fail:\n @exit 100")
       .run(&no_cwd_err(), &["fail"], &Default::default())
       .unwrap_err()
     {
@@ -288,7 +288,7 @@ a:
 a return code:
  @x() { {{return}} {{code + "0"}}; }; x"#;
 
-    match parse_success(text)
+    match parse(text)
       .run(&no_cwd_err(), &["a", "return", "15"], &Default::default())
       .unwrap_err()
     {
@@ -307,7 +307,7 @@ a return code:
 
   #[test]
   fn missing_some_arguments() {
-    match parse_success("a b c d:")
+    match parse("a b c d:")
       .run(&no_cwd_err(), &["a", "b", "c"], &Default::default())
       .unwrap_err()
     {
@@ -331,7 +331,7 @@ a return code:
 
   #[test]
   fn missing_some_arguments_variadic() {
-    match parse_success("a b c +d:")
+    match parse("a b c +d:")
       .run(&no_cwd_err(), &["a", "B", "C"], &Default::default())
       .unwrap_err()
     {
@@ -355,7 +355,7 @@ a return code:
 
   #[test]
   fn missing_all_arguments() {
-    match parse_success("a b c d:\n echo {{b}}{{c}}{{d}}")
+    match parse("a b c d:\n echo {{b}}{{c}}{{d}}")
       .run(&no_cwd_err(), &["a"], &Default::default())
       .unwrap_err()
     {
@@ -379,7 +379,7 @@ a return code:
 
   #[test]
   fn missing_some_defaults() {
-    match parse_success("a b c d='hello':")
+    match parse("a b c d='hello':")
       .run(&no_cwd_err(), &["a", "b"], &Default::default())
       .unwrap_err()
     {
@@ -403,7 +403,7 @@ a return code:
 
   #[test]
   fn missing_all_defaults() {
-    match parse_success("a b c='r' d='h':")
+    match parse("a b c='r' d='h':")
       .run(&no_cwd_err(), &["a"], &Default::default())
       .unwrap_err()
     {
@@ -430,7 +430,7 @@ a return code:
     let mut configuration: Configuration = Default::default();
     configuration.overrides.insert("foo", "bar");
     configuration.overrides.insert("baz", "bob");
-    match parse_success("a:\n echo {{`f() { return 100; }; f`}}")
+    match parse("a:\n echo {{`f() { return 100; }; f`}}")
       .run(&no_cwd_err(), &["a"], &configuration)
       .unwrap_err()
     {
@@ -458,7 +458,7 @@ wut:
       ..Default::default()
     };
 
-    match parse_success(text)
+    match parse(text)
       .run(&no_cwd_err(), &["wut"], &configuration)
       .unwrap_err()
     {

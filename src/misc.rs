@@ -65,7 +65,7 @@ pub fn write_error_context(
 ) -> Result<(), fmt::Error> {
   let width = if width == 0 { 1 } else { width };
 
-  let line_number = line + 1;
+  let line_number = line.ordinal();
   let red = Color::fmt(f).error();
   match text.lines().nth(line) {
     Some(line) => {

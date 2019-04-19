@@ -154,7 +154,7 @@ impl<'a, 'b> RecipeResolver<'a, 'b> {
 mod test {
   use super::*;
 
-  compilation_error_test! {
+  error_test! {
     name:   circular_recipe_dependency,
     input:  "a: b\nb: a",
     offset: 8,
@@ -164,7 +164,7 @@ mod test {
     kind:   CircularRecipeDependency{recipe: "b", circle: vec!["a", "b", "a"]},
   }
 
-  compilation_error_test! {
+  error_test! {
     name:   self_recipe_dependency,
     input:  "a: a",
     offset: 3,
@@ -174,7 +174,7 @@ mod test {
     kind:   CircularRecipeDependency{recipe: "a", circle: vec!["a", "a"]},
   }
 
-  compilation_error_test! {
+  error_test! {
     name:   unknown_dependency,
     input:  "a: b",
     offset: 3,
@@ -184,7 +184,7 @@ mod test {
     kind:   UnknownDependency{recipe: "a", unknown: "b"},
   }
 
-  compilation_error_test! {
+  error_test! {
     name:   unknown_interpolation_variable,
     input:  "x:\n {{   hello}}",
     offset: 9,
@@ -194,7 +194,7 @@ mod test {
     kind:   UndefinedVariable{variable: "hello"},
   }
 
-  compilation_error_test! {
+  error_test! {
     name:   unknown_second_interpolation_variable,
     input:  "wtf=\"x\"\nx:\n echo\n foo {{wtf}} {{ lol }}",
     offset: 33,
@@ -204,7 +204,7 @@ mod test {
     kind:   UndefinedVariable{variable: "lol"},
   }
 
-  compilation_error_test! {
+  error_test! {
     name:   unknown_function_in_interpolation,
     input:  "a:\n echo {{bar()}}",
     offset: 11,
@@ -214,7 +214,7 @@ mod test {
     kind:   UnknownFunction{function: "bar"},
   }
 
-  compilation_error_test! {
+  error_test! {
     name:   unknown_function_in_default,
     input:  "a f=baz():",
     offset: 4,
@@ -224,7 +224,7 @@ mod test {
     kind:   UnknownFunction{function: "baz"},
   }
 
-  compilation_error_test! {
+  error_test! {
     name:   unknown_variable_in_default,
     input:  "a f=foo:",
     offset: 4,

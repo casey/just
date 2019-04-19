@@ -64,3 +64,6 @@ pub(crate) use crate::command_ext::CommandExt;
 
 #[allow(unused_imports)]
 pub(crate) use crate::range_ext::RangeExt;
+
+#[allow(unused_imports)]
+pub(crate) use crate::ordinal::Ordinal;

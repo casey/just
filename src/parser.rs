@@ -523,34 +523,27 @@ impl<'a> Parser<'a> {
 #[cfg(test)]
 mod test {
   use super::*;
-  use crate::testing::parse_success;
+  use crate::testing::parse;
 
-  macro_rules! summary_test {
+  macro_rules! parse_test {
     ($name:ident, $input:expr, $expected:expr $(,)*) => {
       #[test]
       fn $name() {
         let input = $input;
         let expected = $expected;
-        let justfile = parse_success(input);
+        let justfile = parse(input);
         let actual = format!("{:#}", justfile);
-        if actual != expected {
-          println!("got:\n\"{}\"\n", actual);
-          println!("expected:\n\"{}\"", expected);
-          assert_eq!(actual, expected);
-        }
+        use pretty_assertions::assert_eq;
+        assert_eq!(actual, expected);
         println!("Re-parsing...");
-        let reparsed = parse_success(&actual);
+        let reparsed = parse(&actual);
         let redumped = format!("{:#}", reparsed);
-        if redumped != actual {
-          println!("reparsed:\n\"{}\"\n", redumped);
-          println!("expected:\n\"{}\"", actual);
-          assert_eq!(redumped, actual);
-        }
+        assert_eq!(redumped, actual);
       }
     };
   }
 
-  summary_test! {
+  parse_test! {
     parse_empty,
     "
 
@@ -561,7 +554,7 @@ mod test {
     "",
   }
 
-  summary_test! {
+  parse_test! {
     parse_string_default,
     r#"
 
@@ -572,7 +565,7 @@ foo a="b\t":
     r#"foo a="b\t":"#,
   }
 
-  summary_test! {
+  parse_test! {
   parse_multiple,
     r#"
 a:
@@ -583,7 +576,7 @@ b:
 b:"#,
   }
 
-  summary_test! {
+  parse_test! {
     parse_variadic,
     r#"
 
@@ -594,7 +587,7 @@ foo +a:
     r#"foo +a:"#,
   }
 
-  summary_test! {
+  parse_test! {
     parse_variadic_string_default,
     r#"
 
@@ -605,7 +598,7 @@ foo +a="Hello":
     r#"foo +a="Hello":"#,
   }
 
-  summary_test! {
+  parse_test! {
     parse_raw_string_default,
     r#"
 
@@ -616,7 +609,7 @@ foo a='b\t':
     r#"foo a='b\t':"#,
   }
 
-  summary_test! {
+  parse_test! {
     parse_export,
     r#"
 export a := "hello"
@@ -625,7 +618,7 @@ export a := "hello"
     r#"export a := "hello""#,
   }
 
-  summary_test! {
+  parse_test! {
   parse_alias_after_target,
     r#"
 foo:
@@ -638,7 +631,7 @@ foo:
     echo a"#
   }
 
-  summary_test! {
+  parse_test! {
   parse_alias_before_target,
     r#"
 alias f := foo
@@ -651,7 +644,7 @@ foo:
     echo a"#
   }
 
-  summary_test! {
+  parse_test! {
   parse_alias_with_comment,
     r#"
 alias f := foo #comment
@@ -664,7 +657,7 @@ foo:
     echo a"#
   }
 
-  summary_test! {
+  parse_test! {
   parse_complex,
     "
 x:
@@ -702,7 +695,7 @@ y:
 z:"
   }
 
-  summary_test! {
+  parse_test! {
   parse_shebang,
     "
 practicum := 'hello'
@@ -721,13 +714,13 @@ install:
     fi",
   }
 
-  summary_test! {
+  parse_test! {
     parse_simple_shebang,
     "a:\n #!\n  print(1)",
     "a:\n    #!\n     print(1)",
   }
 
-  summary_test! {
+  parse_test! {
   parse_assignments,
     r#"a := "0"
 c := a + b + a + b
@@ -740,7 +733,7 @@ b := "1"
 c := a + b + a + b"#,
   }
 
-  summary_test! {
+  parse_test! {
   parse_assignment_backticks,
     "a := `echo hello`
 c := a + b + a + b
@@ -752,7 +745,7 @@ b := `echo goodbye`
 c := a + b + a + b",
   }
 
-  summary_test! {
+  parse_test! {
   parse_interpolation_backticks,
     r#"a:
   echo {{  `echo hello` + "blarg"   }} {{   `echo bob`   }}"#,
@@ -760,25 +753,25 @@ c := a + b + a + b",
     echo {{`echo hello` + "blarg"}} {{`echo bob`}}"#,
   }
 
-  summary_test! {
+  parse_test! {
     eof_test,
     "x:\ny:\nz:\na b c: x y z",
     "a b c: x y z\n\nx:\n\ny:\n\nz:",
   }
 
-  summary_test! {
+  parse_test! {
     string_quote_escape,
     r#"a := "hello\"""#,
     r#"a := "hello\"""#,
   }
 
-  summary_test! {
+  parse_test! {
     string_escapes,
     r#"a := "\n\t\r\"\\""#,
     r#"a := "\n\t\r\"\\""#,
   }
 
-  summary_test! {
+  parse_test! {
   parameters,
     "a b c:
   {{b}} {{c}}",
@@ -786,7 +779,7 @@ c := a + b + a + b",
     {{b}} {{c}}",
   }
 
-  summary_test! {
+  parse_test! {
   unary_functions,
     "
 x := arch()
@@ -799,7 +792,7 @@ a:
     {{os()}} {{os_family()}}",
   }
 
-  summary_test! {
+  parse_test! {
   env_functions,
     r#"
 x := env_var('foo',)
@@ -812,7 +805,7 @@ a:
     {{env_var_or_default('foo' + 'bar', 'baz')}} {{env_var(env_var("baz"))}}"#,
   }
 
-  summary_test! {
+  parse_test! {
     parameter_default_string,
     r#"
 f x="abc":
@@ -820,7 +813,7 @@ f x="abc":
     r#"f x="abc":"#,
   }
 
-  summary_test! {
+  parse_test! {
     parameter_default_raw_string,
     r#"
 f x='abc':
@@ -828,7 +821,7 @@ f x='abc':
     r#"f x='abc':"#,
   }
 
-  summary_test! {
+  parse_test! {
     parameter_default_backtick,
     r#"
 f x=`echo hello`:
@@ -836,7 +829,7 @@ f x=`echo hello`:
     r#"f x=`echo hello`:"#,
   }
 
-  summary_test! {
+  parse_test! {
     parameter_default_concatination_string,
     r#"
 f x=(`echo hello` + "foo"):
@@ -844,7 +837,7 @@ f x=(`echo hello` + "foo"):
     r#"f x=(`echo hello` + "foo"):"#,
   }
 
-  summary_test! {
+  parse_test! {
     parameter_default_concatination_variable,
     r#"
 x := "10"
@@ -855,7 +848,7 @@ f y=(`echo hello` + x) +z="foo":
 f y=(`echo hello` + x) +z="foo":"#,
   }
 
-  summary_test! {
+  parse_test! {
     parameter_default_multiple,
     r#"
 x := "10"
@@ -866,20 +859,20 @@ f y=(`echo hello` + x) +z=("foo" + "bar"):
 f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
   }
 
-  summary_test! {
+  parse_test! {
     concatination_in_group,
     "x := ('0' + '1')",
     "x := ('0' + '1')",
   }
 
-  summary_test! {
+  parse_test! {
     string_in_group,
     "x := ('0'   )",
     "x := ('0')",
   }
 
   #[rustfmt::skip]
-  summary_test! {
+  parse_test! {
     escaped_dos_newlines,
     "@spam:\r
 \t{ \\\r
@@ -896,7 +889,7 @@ f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
     } | less",
   }
 
-  compilation_error_test! {
+  error_test! {
     name: duplicate_alias,
     input: "alias foo = bar\nalias foo = baz",
     offset: 22,
@@ -906,7 +899,7 @@ f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
     kind: DuplicateAlias { alias: "foo", first: 0 },
   }
 
-  compilation_error_test! {
+  error_test! {
     name: alias_syntax_multiple_rhs,
     input: "alias foo = bar baz",
     offset: 16,
@@ -916,7 +909,7 @@ f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
     kind: UnexpectedToken { expected: vec![Eol, Eof], found: Name },
   }
 
-  compilation_error_test! {
+  error_test! {
     name: alias_syntax_no_rhs,
     input: "alias foo = \n",
     offset: 12,
@@ -926,7 +919,7 @@ f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
     kind: UnexpectedToken {expected: vec![Name], found:Eol},
   }
 
-  compilation_error_test! {
+  error_test! {
     name: unknown_alias_target,
     input: "alias foo = bar\n",
     offset: 6,
@@ -936,7 +929,7 @@ f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
     kind: UnknownAliasTarget {alias: "foo", target: "bar"},
   }
 
-  compilation_error_test! {
+  error_test! {
     name: alias_shadows_recipe_before,
     input: "bar: \n  echo bar\nalias foo = bar\nfoo:\n  echo foo",
     offset: 23,
@@ -946,7 +939,7 @@ f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
     kind: AliasShadowsRecipe {alias: "foo", recipe_line: 3},
   }
 
-  compilation_error_test! {
+  error_test! {
     name: alias_shadows_recipe_after,
     input: "foo:\n  echo foo\nalias foo = bar\nbar:\n  echo bar",
     offset: 22,
@@ -956,7 +949,7 @@ f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
     kind: AliasShadowsRecipe { alias: "foo", recipe_line: 0 },
   }
 
-  compilation_error_test! {
+  error_test! {
     name:   missing_colon,
     input:  "a b c\nd e f",
     offset:  5,
@@ -966,7 +959,7 @@ f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
     kind:   UnexpectedToken{expected: vec![Name, Plus, Colon], found: Eol},
   }
 
-  compilation_error_test! {
+  error_test! {
     name:   missing_default_eol,
     input:  "hello arg=\n",
     offset:  10,
@@ -976,7 +969,7 @@ f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
     kind:   UnexpectedToken{expected: vec![Name, StringCooked], found: Eol},
   }
 
-  compilation_error_test! {
+  error_test! {
     name:   missing_default_eof,
     input:  "hello arg=",
     offset:  10,
@@ -986,7 +979,7 @@ f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
     kind:   UnexpectedToken{expected: vec![Name, StringCooked], found: Eof},
   }
 
-  compilation_error_test! {
+  error_test! {
     name:   parameter_after_variadic,
     input:  "foo +a bbb:",
     offset:  7,
@@ -996,7 +989,7 @@ f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
     kind:   ParameterFollowsVariadicParameter{parameter: "bbb"},
   }
 
-  compilation_error_test! {
+  error_test! {
     name:   required_after_default,
     input:  "hello arg='foo' bar:",
     offset:  16,
@@ -1006,7 +999,7 @@ f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
     kind:   RequiredParameterFollowsDefaultParameter{parameter: "bar"},
   }
 
-  compilation_error_test! {
+  error_test! {
     name:   missing_eol,
     input:  "a b c: z =",
     offset:  9,
@@ -1016,7 +1009,7 @@ f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
     kind:   UnexpectedToken{expected: vec![Name, Eol, Eof], found: Equals},
   }
 
-  compilation_error_test! {
+  error_test! {
     name:   duplicate_parameter,
     input:  "a b b:",
     offset:  4,
@@ -1026,7 +1019,7 @@ f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
     kind:   DuplicateParameter{recipe: "a", parameter: "b"},
   }
 
-  compilation_error_test! {
+  error_test! {
     name:   parameter_shadows_varible,
     input:  "foo = \"h\"\na foo:",
     offset:  12,
@@ -1036,7 +1029,7 @@ f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
     kind:   ParameterShadowsVariable{parameter: "foo"},
   }
 
-  compilation_error_test! {
+  error_test! {
     name:   dependency_has_parameters,
     input:  "foo arg:\nb: foo",
     offset:  12,
@@ -1046,7 +1039,7 @@ f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
     kind:   DependencyHasParameters{recipe: "b", dependency: "foo"},
   }
 
-  compilation_error_test! {
+  error_test! {
     name:   duplicate_dependency,
     input:  "a b c: b c z z",
     offset:  13,
@@ -1056,7 +1049,7 @@ f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
     kind:   DuplicateDependency{recipe: "a", dependency: "z"},
   }
 
-  compilation_error_test! {
+  error_test! {
     name:   duplicate_recipe,
     input:  "a:\nb:\na:",
     offset:  6,
@@ -1066,7 +1059,7 @@ f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
     kind:   DuplicateRecipe{recipe: "a", first: 0},
   }
 
-  compilation_error_test! {
+  error_test! {
     name:   duplicate_variable,
     input:  "a = \"0\"\na = \"0\"",
     offset:  8,
@@ -1076,7 +1069,7 @@ f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
     kind:   DuplicateVariable{variable: "a"},
   }
 
-  compilation_error_test! {
+  error_test! {
     name:   extra_whitespace,
     input:  "a:\n blah\n  blarg",
     offset:  10,
@@ -1086,7 +1079,7 @@ f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
     kind:   ExtraLeadingWhitespace,
   }
 
-  compilation_error_test! {
+  error_test! {
     name:   interpolation_outside_of_recipe,
     input:  "{{",
     offset:  0,
@@ -1096,7 +1089,7 @@ f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
     kind:   UnexpectedToken{expected: vec![Name, At], found: InterpolationStart},
   }
 
-  compilation_error_test! {
+  error_test! {
     name:   unclosed_parenthesis_in_expression,
     input:  "x = foo(",
     offset:  8,
@@ -1106,7 +1099,7 @@ f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
     kind:   UnexpectedToken{expected: vec![Name, StringCooked, ParenR], found: Eof},
   }
 
-  compilation_error_test! {
+  error_test! {
     name:   unclosed_parenthesis_in_interpolation,
     input:  "a:\n echo {{foo(}}",
     offset:  15,
@@ -1116,7 +1109,7 @@ f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
     kind:   UnexpectedToken{expected: vec![Name, StringCooked, ParenR], found: InterpolationEnd},
   }
 
-  compilation_error_test! {
+  error_test! {
     name:   plus_following_parameter,
     input:  "a b c+:",
     offset:  5,
@@ -1126,7 +1119,7 @@ f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
     kind:   UnexpectedToken{expected: vec![Name], found: Plus},
   }
 
-  compilation_error_test! {
+  error_test! {
     name:   bad_export,
     input:  "export a",
     offset:  8,
@@ -1157,14 +1150,14 @@ f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
     }
 
     for justfile in justfiles {
-      parse_success(&justfile);
+      parse(&justfile);
     }
   }
 
   #[test]
   fn empty_recipe_lines() {
     let text = "a:";
-    let justfile = parse_success(&text);
+    let justfile = parse(&text);
 
     assert_eq!(justfile.recipes["a"].lines.len(), 0);
   }
@@ -1172,7 +1165,7 @@ f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
   #[test]
   fn simple_recipe_lines() {
     let text = "a:\n foo";
-    let justfile = parse_success(&text);
+    let justfile = parse(&text);
 
     assert_eq!(justfile.recipes["a"].lines.len(), 1);
   }
@@ -1185,7 +1178,7 @@ f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
 b:
 ";
 
-    let justfile = parse_success(&text);
+    let justfile = parse(&text);
 
     assert_eq!(justfile.recipes["a"].lines.len(), 1);
   }

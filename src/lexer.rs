@@ -626,9 +626,40 @@ impl<'a> Lexer<'a> {
 mod tests {
   use super::*;
 
-  use crate::testing::token_summary;
+  fn summary(tokens: &[Token]) -> String {
+    use TokenKind::*;
 
-  macro_rules! summary_test {
+    tokens
+      .iter()
+      .map(|t| match t.kind {
+        At => "@",
+        Backtick => "`",
+        Colon => ":",
+        ColonEquals => ":=",
+        Comma => ",",
+        Comment => "#",
+        Dedent => "<",
+        Eof => ".",
+        Eol => "$",
+        Equals => "=",
+        Indent => ">",
+        InterpolationEnd => "}",
+        InterpolationStart => "{",
+        Line => "^",
+        Name => "N",
+        ParenL => "(",
+        ParenR => ")",
+        Plus => "+",
+        StringRaw => "'",
+        StringCooked => "\"",
+        Text => "_",
+        Whitespace => " ",
+      })
+      .collect::<Vec<&str>>()
+      .join("")
+  }
+
+  macro_rules! lex_test {
     ($name:ident, $input:expr, $expected:expr $(,)*) => {
       #[test]
       fn $name() {
@@ -640,116 +671,78 @@ mod tests {
           .map(Token::lexeme)
           .collect::<Vec<&str>>()
           .join("");
-        let actual = token_summary(&tokens);
-        if actual != expected {
-          panic!(
-            "token summary mismatch:\nexpected: {}\ngot:      {}\n",
-            expected, actual
-          );
-        }
-        assert_eq!(input, roundtrip);
+        let actual = summary(&tokens);
+
+        use pretty_assertions::assert_eq;
+
+        assert_eq!(actual, expected, "token summary mismatch");
+
+        assert_eq!(input, roundtrip, "token round-trip not equal");
       }
     };
   }
 
-  macro_rules! error_test {
-    (
-      name:     $name:ident,
-      input:    $input:expr,
-      offset:   $offset:expr,
-      line:     $line:expr,
-      column:   $column:expr,
-      width:    $width:expr,
-      kind:     $kind:expr,
-    ) => {
-      #[test]
-      fn $name() {
-        let input = $input;
-
-        let expected = CompilationError {
-          text: input,
-          offset: $offset,
-          line: $line,
-          column: $column,
-          width: $width,
-          kind: $kind,
-        };
-
-        if let Err(error) = Lexer::lex(input) {
-          assert_eq!(error.text, expected.text);
-          assert_eq!(error.offset, expected.offset);
-          assert_eq!(error.line, expected.line);
-          assert_eq!(error.column, expected.column);
-          assert_eq!(error.kind, expected.kind);
-          assert_eq!(error, expected);
-        } else {
-          panic!("tokenize succeeded but expected: {}\n{}", expected, input);
-        }
-      }
-    };
-  }
-
-  summary_test! {
+  lex_test! {
     name,
     "foo",
     "N.",
   }
 
-  summary_test! {
+  lex_test! {
     comment,
     "# hello",
     "#.",
   }
 
-  summary_test! {
+  lex_test! {
     backtick,
     "`echo`",
     "`.",
   }
 
-  summary_test! {
+  lex_test! {
     raw_string,
     "'hello'",
     "'.",
   }
 
-  summary_test! {
+  lex_test! {
     cooked_string,
     r#""hello""#,
     r#""."#,
   }
 
-  summary_test! {
+  lex_test! {
     export_concatination,
     "export foo = 'foo' + 'bar'",
     "N N = ' + '.",
   }
 
-  summary_test! {
+  lex_test! {
     export_complex,
     "export foo = ('foo' + 'bar') + `baz`",
     "N N = (' + ') + `.",
   }
 
-  summary_test! {
+  lex_test! {
     eol_linefeed,
     "\n",
     "$.",
   }
 
-  summary_test! {
+  lex_test! {
     eol_carriage_return_linefeed,
     "\r\n",
     "$.",
   }
 
-  summary_test! {
+  lex_test! {
     indented_line,
     "foo:\n a",
     "N:$>^_<.",
   }
 
-  summary_test! {
+  lex_test! {
     indented_block,
     r##"foo:
   a
@@ -759,7 +752,7 @@ mod tests {
     "N:$>^_$ ^_$ ^_$<.",
   }
 
-  summary_test! {
+  lex_test! {
     indented_block_followed_by_item,
     "foo:
   a
@@ -767,7 +760,7 @@ b:",
     "N:$>^_$<N:.",
   }
 
-  summary_test! {
+  lex_test! {
     indented_block_followed_by_blank,
     "foo:
     a
@@ -776,13 +769,13 @@ b:",
       "N:$>^_$^$<N:.",
   }
 
-  summary_test! {
+  lex_test! {
     indented_line_containing_unpaired_carriage_return,
     "foo:\n \r \n",
     "N:$>^_$<.",
   }
 
-  summary_test! {
+  lex_test! {
     indented_blocks,
     "
 b: a
@@ -800,19 +793,19 @@ c: b
     "$N: N$>^_$^$<N:$>^_$ ^_$^$<N: N$>^_$^$<N: N$>^_<.",
   }
 
-  summary_test! {
+  lex_test! {
     interpolation_empty,
     "hello:\n echo {{}}",
     "N:$>^_{}<.",
   }
 
-  summary_test! {
+  lex_test! {
     interpolation_expression,
     "hello:\n echo {{`echo hello` + `echo goodbye`}}",
     "N:$>^_{` + `}<.",
   }
 
-  summary_test! {
+  lex_test! {
     tokenize_names,
     "\
 foo
@@ -822,13 +815,13 @@ test123",
     "N$N$N$N.",
   }
 
-  summary_test! {
+  lex_test! {
     tokenize_indented_line,
     "foo:\n a",
     "N:$>^_<.",
   }
 
-  summary_test! {
+  lex_test! {
     tokenize_indented_block,
     r##"foo:
   a
@@ -838,13 +831,13 @@ test123",
     "N:$>^_$ ^_$ ^_$<.",
   }
 
-  summary_test! {
+  lex_test! {
     tokenize_strings,
     r#"a = "'a'" + '"b"' + "'c'" + '"d"'#echo hello"#,
     r#"N = " + ' + " + '#."#,
   }
 
-  summary_test! {
+  lex_test! {
     tokenize_recipe_interpolation_eol,
     "foo: # some comment
  {{hello}}
@@ -852,7 +845,7 @@ test123",
     "N: #$>^{N}$<.",
   }
 
-  summary_test! {
+  lex_test! {
     tokenize_recipe_interpolation_eof,
     "foo: # more comments
  {{hello}}
@@ -861,19 +854,19 @@ test123",
     "N: #$>^{N}$<#$.",
   }
 
-  summary_test! {
+  lex_test! {
     tokenize_recipe_complex_interpolation_expression,
     "foo: #lol\n {{a + b + \"z\" + blarg}}",
     "N: #$>^{N + N + \" + N}<.",
   }
 
-  summary_test! {
+  lex_test! {
     tokenize_recipe_multiple_interpolations,
     "foo:,#ok\n {{a}}0{{b}}1{{c}}",
     "N:,#$>^{N}_{N}_{N}<.",
   }
 
-  summary_test! {
+  lex_test! {
     tokenize_junk,
     "bob
 
@@ -882,7 +875,7 @@ hello blah blah blah : a b c #whatever
     "N$$N N N N : N N N #$ .",
   }
 
-  summary_test! {
+  lex_test! {
     tokenize_empty_lines,
     "
 # this does something
@@ -899,7 +892,7 @@ hello:
     "$#$N:$>^_$ ^_$^$ ^_$^$ ^_$^$<#$ .",
   }
 
-  summary_test! {
+  lex_test! {
     tokenize_comment_before_variable,
     "
 #
@@ -910,25 +903,25 @@ echo:
     "$#$N='$N:$>^_{N}$ <.",
   }
 
-  summary_test! {
+  lex_test! {
     tokenize_interpolation_backticks,
     "hello:\n echo {{`echo hello` + `echo goodbye`}}",
     "N:$>^_{` + `}<.",
   }
 
-  summary_test! {
+  lex_test! {
     tokenize_empty_interpolation,
     "hello:\n echo {{}}",
     "N:$>^_{}<.",
   }
 
-  summary_test! {
+  lex_test! {
     tokenize_assignment_backticks,
     "a = `echo hello` + `echo goodbye`",
     "N = ` + `.",
   }
 
-  summary_test! {
+  lex_test! {
     tokenize_multiple,
     "
 hello:
@@ -947,19 +940,19 @@ bob:
     "$N:$>^_$ ^_$^$ ^_$^$ ^_$^$<#$N:$>^_$ <.",
   }
 
-  summary_test! {
+  lex_test! {
     tokenize_comment,
     "a:=#",
     "N:=#."
   }
 
-  summary_test! {
+  lex_test! {
     tokenize_comment_with_bang,
     "a:=#foo!",
     "N:=#."
   }
 
-  summary_test! {
+  lex_test! {
     tokenize_order,
     r"
 b: a
@@ -977,19 +970,19 @@ c: b
     "$N: N$>^_$^$<N:$>^_$ ^_$^$<N: N$>^_$^$<N: N$>^_<.",
   }
 
-  summary_test! {
+  lex_test! {
     tokenize_parens,
     r"((())) )abc(+",
     "((())) )N(+.",
   }
 
-  summary_test! {
+  lex_test! {
     crlf_newline,
     "#\r\n#asdf\r\n",
     "#$#$.",
   }
 
-  summary_test! {
+  lex_test! {
     multiple_recipes,
     "a:\n  foo\nb:",
     "N:$>^_$<N:.",

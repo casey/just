@@ -165,7 +165,7 @@ impl<'a, 'b> AssignmentEvaluator<'a, 'b> {
 #[cfg(test)]
 mod test {
   use super::*;
-  use crate::testing::parse_success;
+  use crate::testing::parse;
   use brev::OutputError;
 
   fn no_cwd_err() -> Result<PathBuf, String> {
@@ -174,7 +174,7 @@ mod test {
 
   #[test]
   fn backtick_code() {
-    match parse_success("a:\n echo {{`f() { return 100; }; f`}}")
+    match parse("a:\n echo {{`f() { return 100; }; f`}}")
       .run(&no_cwd_err(), &["a"], &Default::default())
       .unwrap_err()
     {
@@ -203,7 +203,7 @@ recipe:
       ..Default::default()
     };
 
-    match parse_success(text)
+    match parse(text)
       .run(&no_cwd_err(), &["recipe"], &configuration)
       .unwrap_err()
     {

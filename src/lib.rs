@@ -31,6 +31,7 @@ mod justfile;
 mod lexer;
 mod load_dotenv;
 mod misc;
+mod ordinal;
 mod parameter;
 mod parser;
 mod platform;
