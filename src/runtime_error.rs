@@ -4,8 +4,6 @@ use brev::OutputError;
 
 use crate::misc::{maybe_s, ticks, write_error_context, And, Or, Tick};
 
-pub type RunResult<'a, T> = Result<T, RuntimeError<'a>>;
-
 fn write_token_error_context(f: &mut Formatter, token: &Token) -> Result<(), fmt::Error> {
   write_error_context(
     f,

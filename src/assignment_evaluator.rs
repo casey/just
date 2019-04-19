@@ -116,7 +116,7 @@ impl<'a, 'b> AssignmentEvaluator<'a, 'b> {
           invocation_directory: &self.invocation_directory,
           dotenv: self.dotenv,
         };
-        evaluate_function(token, name, &context, &call_arguments)
+        Function::evaluate(token, name, &context, &call_arguments)
       }
       Expression::String { ref cooked_string } => Ok(cooked_string.cooked.to_string()),
       Expression::Backtick { raw, ref token } => {

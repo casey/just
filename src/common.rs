@@ -26,11 +26,12 @@ pub(crate) use crate::{
   assignment_evaluator::AssignmentEvaluator,
   assignment_resolver::AssignmentResolver,
   color::Color,
-  compilation_error::{CompilationError, CompilationErrorKind, CompilationResult},
+  compilation_error::CompilationError,
+  compilation_error_kind::CompilationErrorKind,
   configuration::Configuration,
   expression::Expression,
   fragment::Fragment,
-  function::{evaluate_function, resolve_function},
+  function::Function,
   function_context::FunctionContext,
   functions::Functions,
   interrupt_guard::InterruptGuard,
@@ -45,7 +46,7 @@ pub(crate) use crate::{
   recipe::Recipe,
   recipe_context::RecipeContext,
   recipe_resolver::RecipeResolver,
-  runtime_error::{RunResult, RuntimeError},
+  runtime_error::RuntimeError,
   shebang::Shebang,
   state::State,
   string_literal::StringLiteral,
@@ -55,6 +56,10 @@ pub(crate) use crate::{
   variables::Variables,
   verbosity::Verbosity,
 };
+
+pub type CompilationResult<'a, T> = Result<T, CompilationError<'a>>;
+
+pub type RunResult<'a, T> = Result<T, RuntimeError<'a>>;
 
 #[allow(unused_imports)]
 pub(crate) use std::io::prelude::*;
