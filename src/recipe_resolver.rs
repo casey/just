@@ -71,7 +71,7 @@ impl<'a, 'b> RecipeResolver<'a, 'b> {
   }
 
   fn resolve_function(&self, function: &Token, argc: usize) -> CompilationResult<'a, ()> {
-    resolve_function(function, argc).map_err(|error| CompilationError {
+    Function::resolve(function, argc).map_err(|error| CompilationError {
       offset: error.offset,
       line: error.line,
       column: error.column,

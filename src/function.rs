@@ -20,7 +20,7 @@ lazy_static! {
   .collect();
 }
 
-enum Function {
+pub enum Function {
   Nullary(fn(&FunctionContext) -> Result<String, String>),
   Unary(fn(&FunctionContext, &str) -> Result<String, String>),
   Binary(fn(&FunctionContext, &str, &str) -> Result<String, String>),
@@ -35,64 +35,64 @@ impl Function {
       Binary(_) => 2,
     }
   }
-}
 
-pub fn resolve_function<'a>(token: &Token<'a>, argc: usize) -> CompilationResult<'a, ()> {
-  let name = token.lexeme();
-  if let Some(function) = FUNCTIONS.get(&name) {
-    use self::Function::*;
-    match (function, argc) {
-      (&Nullary(_), 0) | (&Unary(_), 1) | (&Binary(_), 2) => Ok(()),
-      _ => Err(
-        token.error(CompilationErrorKind::FunctionArgumentCountMismatch {
-          function: name,
-          found: argc,
-          expected: function.argc(),
-        }),
-      ),
+  pub fn resolve<'a>(token: &Token<'a>, argc: usize) -> CompilationResult<'a, ()> {
+    let name = token.lexeme();
+    if let Some(function) = FUNCTIONS.get(&name) {
+      use self::Function::*;
+      match (function, argc) {
+        (&Nullary(_), 0) | (&Unary(_), 1) | (&Binary(_), 2) => Ok(()),
+        _ => Err(
+          token.error(CompilationErrorKind::FunctionArgumentCountMismatch {
+            function: name,
+            found: argc,
+            expected: function.argc(),
+          }),
+        ),
+      }
+    } else {
+      Err(token.error(CompilationErrorKind::UnknownFunction {
+        function: token.lexeme(),
+      }))
     }
-  } else {
-    Err(token.error(CompilationErrorKind::UnknownFunction {
-      function: token.lexeme(),
-    }))
   }
-}
 
-pub fn evaluate_function<'a>(
-  token: &Token<'a>,
-  name: &'a str,
-  context: &FunctionContext,
-  arguments: &[String],
-) -> RunResult<'a, String> {
-  if let Some(function) = FUNCTIONS.get(name) {
-    use self::Function::*;
-    let argc = arguments.len();
-    match (function, argc) {
-      (&Nullary(f), 0) => f(context).map_err(|message| RuntimeError::FunctionCall {
-        token: token.clone(),
-        message,
-      }),
-      (&Unary(f), 1) => f(context, &arguments[0]).map_err(|message| RuntimeError::FunctionCall {
-        token: token.clone(),
-        message,
-      }),
-      (&Binary(f), 2) => {
-        f(context, &arguments[0], &arguments[1]).map_err(|message| RuntimeError::FunctionCall {
+  pub fn evaluate<'a>(
+    token: &Token<'a>,
+    name: &'a str,
+    context: &FunctionContext,
+    arguments: &[String],
+  ) -> RunResult<'a, String> {
+    if let Some(function) = FUNCTIONS.get(name) {
+      use self::Function::*;
+      let argc = arguments.len();
+      match (function, argc) {
+        (&Nullary(f), 0) => f(context).map_err(|message| RuntimeError::FunctionCall {
           token: token.clone(),
           message,
-        })
+        }),
+        (&Unary(f), 1) => f(context, &arguments[0]).map_err(|message| RuntimeError::FunctionCall {
+          token: token.clone(),
+          message,
+        }),
+        (&Binary(f), 2) => {
+          f(context, &arguments[0], &arguments[1]).map_err(|message| RuntimeError::FunctionCall {
+            token: token.clone(),
+            message,
+          })
+        }
+        _ => Err(RuntimeError::Internal {
+          message: format!(
+            "attempted to evaluate function `{}` with {} arguments",
+            name, argc
+          ),
+        }),
       }
-      _ => Err(RuntimeError::Internal {
-        message: format!(
-          "attempted to evaluate function `{}` with {} arguments",
-          name, argc
-        ),
-      }),
+    } else {
+      Err(RuntimeError::Internal {
+        message: format!("attempted to evaluate unknown function: `{}`", name),
+      })
     }
-  } else {
-    Err(RuntimeError::Internal {
-      message: format!("attempted to evaluate unknown function: `{}`", name),
-    })
   }
 }
 

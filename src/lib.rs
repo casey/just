@@ -19,6 +19,7 @@ mod color;
 mod command_ext;
 mod common;
 mod compilation_error;
+mod compilation_error_kind;
 mod configuration;
 mod expression;
 mod fragment;
