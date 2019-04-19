@@ -4,17 +4,6 @@ use brev::OutputError;
 
 use crate::misc::{maybe_s, ticks, write_error_context, And, Or, Tick};
 
-fn write_token_error_context(f: &mut Formatter, token: &Token) -> Result<(), fmt::Error> {
-  write_error_context(
-    f,
-    token.text,
-    token.offset,
-    token.line,
-    token.column,
-    token.lexeme().len(),
-  )
-}
-
 #[derive(Debug)]
 pub enum RuntimeError<'a> {
   ArgumentCountMismatch {
@@ -400,7 +389,14 @@ impl<'a> Display for RuntimeError<'a> {
     write!(f, "{}", message.suffix())?;
 
     if let Some(token) = error_token {
-      write_token_error_context(f, token)?;
+      write_error_context(
+        f,
+        token.text,
+        token.offset,
+        token.line,
+        token.column,
+        token.lexeme().len(),
+      )?;
     }
 
     Ok(())
