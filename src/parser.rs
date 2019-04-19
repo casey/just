@@ -533,19 +533,12 @@ mod test {
         let expected = $expected;
         let justfile = parse(input);
         let actual = format!("{:#}", justfile);
-        if actual != expected {
-          println!("got:\n\"{}\"\n", actual);
-          println!("expected:\n\"{}\"", expected);
-          assert_eq!(actual, expected);
-        }
+        use pretty_assertions::assert_eq;
+        assert_eq!(actual, expected);
         println!("Re-parsing...");
         let reparsed = parse(&actual);
         let redumped = format!("{:#}", reparsed);
-        if redumped != actual {
-          println!("reparsed:\n\"{}\"\n", redumped);
-          println!("expected:\n\"{}\"", actual);
-          assert_eq!(redumped, actual);
-        }
+        assert_eq!(redumped, actual);
       }
     };
   }

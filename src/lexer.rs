@@ -672,13 +672,12 @@ mod tests {
           .collect::<Vec<&str>>()
           .join("");
         let actual = summary(&tokens);
-        if actual != expected {
-          panic!(
-            "token summary mismatch:\nexpected: {}\ngot:      {}\n",
-            expected, actual
-          );
-        }
-        assert_eq!(input, roundtrip);
+
+        use pretty_assertions::assert_eq;
+
+        assert_eq!(actual, expected, "token summary mismatch");
+
+        assert_eq!(input, roundtrip, "token round-trip not equal");
       }
     };
   }

@@ -32,3 +32,4 @@ features = ["termination"]
 [dev-dependencies]
 executable-path   = "1.0.0"
 pretty_assertions = "0.6.1"
+colored-diff = "0.2.1"

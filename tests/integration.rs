@@ -1,3 +1,4 @@
+use colored_diff::PrettyDifference;
 use executable_path::executable_path;
 use libc::{EXIT_FAILURE, EXIT_SUCCESS};
 use std::{
@@ -93,10 +94,14 @@ fn integration_test(
   }
 
   let stdout = str::from_utf8(&output.stdout).unwrap();
+
   if stdout != expected_stdout {
     println!(
-      "bad stdout:\ngot:\n{}\n\nexpected:\n{}",
-      stdout, expected_stdout
+      "bad stdout:\n {}",
+      PrettyDifference {
+        expected: expected_stdout,
+        actual: stdout
+      },
     );
     failure = true;
   }
@@ -104,8 +109,11 @@ fn integration_test(
   let stderr = str::from_utf8(&output.stderr).unwrap();
   if stderr != expected_stderr {
     println!(
-      "bad stderr:\ngot:\n{}\n\nexpected:\n{}",
-      stderr, expected_stderr
+      "bad stderr: {}",
+      PrettyDifference {
+        expected: expected_stderr,
+        actual: stderr
+      },
     );
     failure = true;
   }
@@ -148,9 +156,13 @@ fn integration_test(
     let reparsed = String::from_utf8(output.stdout).unwrap();
 
     if reparsed != dumped {
-      print!("expected:\n{}", reparsed);
-      print!("got:\n{}", dumped);
-      assert_eq!(reparsed, dumped);
+      println!(
+        "reparse mismatch:\n {}",
+        PrettyDifference {
+          expected: &dumped,
+          actual: &reparsed
+        },
+      );
     }
   }
 }
