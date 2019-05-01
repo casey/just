@@ -86,6 +86,14 @@ scoop install just
 
 On Arch Linux, `just` is packaged as https://aur.archlinux.org/packages/just/[just] in AUR, the https://aur.archlinux.org[Arch User Repository]. Several tools are available to install packages from AUR, including https://github.com/Jguer/yay[yay] and https://github.com/archlinuxfr/yaourt[yaourt].
 
+=== Void Linux
+
+On Void Linux, `just` can be installed with:
+
+```sh
+sudo xbps-install -S just
+```
+
 === Nix
 
 On NixOS, Linux, and MacOS, `just` can be installed using the https://nixos.org/nix/[Nix package manager]. Install https://nixos.org/nix/download.html[Nix] or https://nixos.org/nixos/download.html[NixOS], then run:
