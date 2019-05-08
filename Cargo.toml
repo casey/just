@@ -1,6 +1,6 @@
 [package]
 name        = "just"
-version     = "0.4.2"
+version     = "0.4.3"
 description = "🤖 Just a command runner"
 authors     = ["Casey Rodarmor <casey@rodarmor.com>"]
 license     = "CC0-1.0"
@@ -26,10 +26,10 @@ tempdir        = "0.3.5"
 unicode-width  = "0.1.3"
 
 [dependencies.ctrlc]
-version  = "3.1"
+version  = "3.1.2"
 features = ["termination"]
 
 [dev-dependencies]
+colored-diff      = "0.2.1"
 executable-path   = "1.0.0"
 pretty_assertions = "0.6.1"
-colored-diff = "0.2.1"
