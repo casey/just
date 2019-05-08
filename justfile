@@ -2,13 +2,13 @@
 # ^ A shebang isn't required, but allows a justfile to be executed
 #   like a script, with `./justfile test`, for example.
 
-bt = '0'
+alias t := test
 
-export RUST_BACKTRACE = bt
+alias c := check
 
-alias t = test
+bt := '0'
 
-alias c = check
+export RUST_BACKTRACE := bt
 
 test:
 	cargo test
@@ -36,7 +36,7 @@ check:
 watch COMMAND='test':
 	cargo watch --clear --exec {{COMMAND}}
 
-version = `sed -En 's/version[[:space:]]*=[[:space:]]*"([^"]+)"/v\1/p' Cargo.toml | head -1`
+version := `sed -En 's/version[[:space:]]*=[[:space:]]*"([^"]+)"/v\1/p' Cargo.toml | head -1`
 
 # publish to crates.io
 publish-check: lint clippy test
@@ -102,7 +102,7 @@ quine:
 	rm -r tmp
 	@echo 'It was a quine!'
 
-quine-text = '
+quine-text := '
 	int printf(const char*, ...);
 
 	int main() {
