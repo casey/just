@@ -273,44 +273,37 @@ pub fn run() {
       );
     }
   } else {
-    let name;
-    'outer: loop {
-      for candidate in &["justfile", "Justfile"] {
-        match fs::metadata(candidate) {
-          Ok(metadata) => {
-            if metadata.is_file() {
-              name = *candidate;
-              break 'outer;
-            }
-          }
-          Err(error) => {
-            if error.kind() != io::ErrorKind::NotFound {
-              die!("Error fetching justfile metadata: {}", error)
-            }
-          }
+    match search(
+      env::current_dir()
+        .as_ref()
+        .expect("Error getting current directory"),
+    ) {
+      Ok(name) => {
+        if matches.is_present("EDIT") {
+          edit(name);
         }
+        text = fs::read_to_string(name)
+          .unwrap_or_else(|error| die!("Error reading justfile: {}", error));
       }
-
-      match env::current_dir() {
-        Ok(pathbuf) => {
-          if pathbuf.as_os_str() == "/" {
-            die!("No justfile found.");
-          }
+      Err(err) => match err {
+        SearchError::NotFound => {
+          die!("No justfile found");
         }
-        Err(error) => die!("Error getting current dir: {}", error),
-      }
-
-      if let Err(error) = env::set_current_dir("..") {
-        die!("Error changing directory: {}", error);
-      }
+        SearchError::MultipleCandidates { candidates } => {
+          die!("Multiple justfiles found: {:#?}", candidates);
+        }
+        SearchError::Io {
+          directory,
+          io_error,
+        } => {
+          die!(
+            "IO Error has occurred while operating on directory {:#?}: {}",
+            directory,
+            io_error
+          );
+        }
+      },
     }
-
-    if matches.is_present("EDIT") {
-      edit(name);
-    }
-
-    text =
-      fs::read_to_string(name).unwrap_or_else(|error| die!("Error reading justfile: {}", error));
   }
 
   let justfile = Parser::parse(&text).unwrap_or_else(|error| {
@@ -508,5 +501,45 @@ pub fn run() {
     }
 
     process::exit(run_error.code().unwrap_or(EXIT_FAILURE));
+  }
+}
+
+enum SearchError {
+  MultipleCandidates {
+    candidates: Vec<PathBuf>,
+  },
+  Io {
+    directory: PathBuf,
+    io_error: io::Error,
+  },
+  NotFound,
+}
+
+fn search(directory: &Path) -> Result<PathBuf, SearchError> {
+  let mut files = Vec::new();
+  let dir = fs::read_dir(directory).map_err(|io_error| SearchError::Io {
+    io_error,
+    directory: directory.to_owned(),
+  })?;
+  for entry in dir {
+    let entry = entry.map_err(|io_error| SearchError::Io {
+      io_error,
+      directory: directory.to_owned(),
+    })?;
+    if let Some(name) = entry.file_name().to_str() {
+      use caseless::default_caseless_match_str;
+      if default_caseless_match_str(name, "justfile") {
+        files.push(entry.path());
+      }
+    }
+  }
+  if files.len() == 1 {
+    Ok(files.pop().unwrap())
+  } else if files.len() > 1 {
+    Err(SearchError::MultipleCandidates { candidates: files })
+  } else if let Some(parent_dir) = directory.parent() {
+    search(parent_dir)
+  } else {
+    Err(SearchError::NotFound)
   }
 }
