@@ -273,7 +273,7 @@ pub fn run() {
       );
     }
   } else {
-    use crate::{search::search, search_error::SearchError};
+    use crate::search::search;
     match search(
       env::current_dir()
         .as_ref()
@@ -286,24 +286,7 @@ pub fn run() {
         text = fs::read_to_string(name)
           .unwrap_or_else(|error| die!("Error reading justfile: {}", error));
       }
-      Err(err) => match err {
-        SearchError::NotFound => {
-          die!("No justfile found");
-        }
-        SearchError::MultipleCandidates { candidates } => {
-          die!("Multiple justfiles found: {:#?}", candidates);
-        }
-        SearchError::Io {
-          directory,
-          io_error,
-        } => {
-          die!(
-            "IO Error has occurred while operating on directory {:#?}: {}",
-            directory,
-            io_error
-          );
-        }
-      },
+      Err(search_error) => die!("{}", search_error),
     }
   }
 
