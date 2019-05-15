@@ -273,6 +273,18 @@ integration_test! {
 }
 
 integration_test! {
+  name: alias_show,
+  justfile: "foo:\n  bar\nalias f := foo",
+  args: ("--show", "f"),
+  stdin:  "",
+  stdout: "foo:
+  bar
+",
+  stderr: "",
+  status: EXIT_SUCCESS,
+}
+
+integration_test! {
   name:     default,
   justfile: "default:\n echo hello\nother: \n echo bar",
   args:     (),
