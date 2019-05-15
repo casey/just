@@ -51,11 +51,11 @@ publish: publish-check
 
 # clean up feature branch BRANCH
 done BRANCH:
-	git checkout {{BRANCH}}
-	git pull --rebase github master
 	git checkout master
+	git diff --no-ext-diff --quiet --exit-code
 	git pull --rebase github master
-	git branch -d {{BRANCH}}
+	git diff --no-ext-diff --quiet --exit-code {{BRANCH}}
+	git branch -D {{BRANCH}}
 
 # install just from crates.io
 install:
