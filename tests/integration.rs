@@ -4,6 +4,7 @@ use pretty_assertions::assert_eq;
 use std::{
   env, fs,
   io::Write,
+  path::Path,
   process::{Command, Stdio},
   str,
 };
@@ -104,43 +105,47 @@ fn integration_test(
     stderr: expected_stderr,
   };
 
-  assert_eq!(have, want, "output mismatch");
+  assert_eq!(have, want, "bad output");
 
   if expected_status == EXIT_SUCCESS {
-    println!("Reparsing...");
-
-    let output = Command::new(&executable_path("just"))
-      .current_dir(tmp.path())
-      .arg("--dump")
-      .output()
-      .expect("just invocation failed");
-
-    if !output.status.success() {
-      panic!("dump failed: {}", output.status);
-    }
-
-    let dumped = String::from_utf8(output.stdout).unwrap();
-
-    let reparsed_path = tmp.path().join("reparsed.just");
-
-    fs::write(&reparsed_path, &dumped).unwrap();
-
-    let output = Command::new(&executable_path("just"))
-      .current_dir(tmp.path())
-      .arg("--justfile")
-      .arg(&reparsed_path)
-      .arg("--dump")
-      .output()
-      .expect("just invocation failed");
-
-    if !output.status.success() {
-      panic!("reparse failed: {}", output.status);
-    }
-
-    let reparsed = String::from_utf8(output.stdout).unwrap();
-
-    assert_eq!(reparsed, dumped, "reparse mismatch");
+    test_round_trip(tmp.path());
   }
+}
+
+fn test_round_trip(tmpdir: &Path) {
+  println!("Reparsing...");
+
+  let output = Command::new(&executable_path("just"))
+    .current_dir(tmpdir)
+    .arg("--dump")
+    .output()
+    .expect("just invocation failed");
+
+  if !output.status.success() {
+    panic!("dump failed: {}", output.status);
+  }
+
+  let dumped = String::from_utf8(output.stdout).unwrap();
+
+  let reparsed_path = tmpdir.join("reparsed.just");
+
+  fs::write(&reparsed_path, &dumped).unwrap();
+
+  let output = Command::new(&executable_path("just"))
+    .current_dir(tmpdir)
+    .arg("--justfile")
+    .arg(&reparsed_path)
+    .arg("--dump")
+    .output()
+    .expect("just invocation failed");
+
+  if !output.status.success() {
+    panic!("reparse failed: {}", output.status);
+  }
+
+  let reparsed = String::from_utf8(output.stdout).unwrap();
+
+  assert_eq!(reparsed, dumped, "reparse mismatch");
 }
 
 integration_test! {
