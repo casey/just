@@ -43,6 +43,8 @@ mod recipe_context;
 mod recipe_resolver;
 mod run;
 mod runtime_error;
+mod search;
+mod search_error;
 mod shebang;
 mod state;
 mod string_literal;
