@@ -1,6 +1,6 @@
 use executable_path::executable_path;
-use pretty_assertions::assert_eq;
 use libc::{EXIT_FAILURE, EXIT_SUCCESS};
+use pretty_assertions::assert_eq;
 use std::{
   env, fs,
   io::Write,
@@ -101,7 +101,7 @@ fn integration_test(
   let want = Output {
     status: expected_status,
     stdout: expected_stdout,
-    stderr: expected_stderr
+    stderr: expected_stderr,
   };
 
   assert_eq!(have, want, "output mismatch");
