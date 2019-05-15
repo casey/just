@@ -91,16 +91,7 @@ impl<'a> Justfile<'a> where {
     let mut rest = arguments;
 
     while let Some((argument, mut tail)) = rest.split_first() {
-      let get_recipe = |name| {
-        if let Some(recipe) = self.recipes.get(name) {
-          Some(recipe)
-        } else if let Some(alias) = self.aliases.get(name) {
-          self.recipes.get(alias.target)
-        } else {
-          None
-        }
-      };
-      if let Some(recipe) = get_recipe(argument) {
+      if let Some(recipe) = self.get_recipe(argument) {
         if recipe.parameters.is_empty() {
           grouped.push((recipe, &tail[0..0]));
         } else {
@@ -148,6 +139,16 @@ impl<'a> Justfile<'a> where {
     }
 
     Ok(())
+  }
+
+  pub fn get_recipe(&self, name: &str) -> Option<&Recipe<'a>> {
+    if let Some(recipe) = self.recipes.get(name) {
+      Some(recipe)
+    } else if let Some(alias) = self.aliases.get(name) {
+      self.recipes.get(alias.target)
+    } else {
+      None
+    }
   }
 
   fn run_recipe<'b>(
