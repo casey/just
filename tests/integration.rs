@@ -274,14 +274,28 @@ integration_test! {
 
 integration_test! {
   name: alias_show,
-  justfile: "foo:\n  bar\nalias f := foo",
+  justfile: "foo:\n    bar\nalias f := foo",
   args: ("--show", "f"),
   stdin:  "",
   stdout: "foo:
-  bar
+    bar
 ",
   stderr: "",
   status: EXIT_SUCCESS,
+}
+
+integration_test! {
+  name: alias_show_missing_target,
+  justfile: "alias f := foo",
+  args: ("--show", "f"),
+  stdin:  "",
+  stdout: "",
+  stderr: "error: Alias `f` has an unknown target `foo`
+  |
+1 | alias f := foo
+  |       ^
+",
+  status: EXIT_FAILURE,
 }
 
 integration_test! {
