@@ -33,8 +33,8 @@ build:
 check:
 	cargo check
 
-watch COMMAND='test':
-	cargo watch --clear --exec {{COMMAND}}
+watch +COMMAND='test':
+	cargo watch --clear --exec "{{COMMAND}}"
 
 version := `sed -En 's/version[[:space:]]*=[[:space:]]*"([^"]+)"/v\1/p' Cargo.toml | head -1`
 
