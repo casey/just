@@ -1,5 +1,5 @@
-use colored_diff::PrettyDifference;
 use executable_path::executable_path;
+use pretty_assertions::assert_eq;
 use libc::{EXIT_FAILURE, EXIT_SUCCESS};
 use std::{
   env, fs,
@@ -8,6 +8,13 @@ use std::{
   str,
 };
 use tempdir::TempDir;
+
+#[derive(PartialEq, Debug)]
+struct Output<'a> {
+  stdout: &'a str,
+  stderr: &'a str,
+  status: i32,
+}
 
 /// Instantiate integration tests for a given test case using
 /// sh, dash, and bash.
@@ -85,42 +92,19 @@ fn integration_test(
     .wait_with_output()
     .expect("failed to wait for just process");
 
-  let mut failure = false;
+  let have = Output {
+    status: output.status.code().unwrap(),
+    stdout: str::from_utf8(&output.stdout).unwrap(),
+    stderr: str::from_utf8(&output.stderr).unwrap(),
+  };
 
-  let status = output.status.code().unwrap();
-  if status != expected_status {
-    println!("bad status: {} != {}", status, expected_status);
-    failure = true;
-  }
+  let want = Output {
+    status: expected_status,
+    stdout: expected_stdout,
+    stderr: expected_stderr
+  };
 
-  let stdout = str::from_utf8(&output.stdout).unwrap();
-
-  if stdout != expected_stdout {
-    println!(
-      "bad stdout:\n {}",
-      PrettyDifference {
-        expected: expected_stdout,
-        actual: stdout
-      },
-    );
-    failure = true;
-  }
-
-  let stderr = str::from_utf8(&output.stderr).unwrap();
-  if stderr != expected_stderr {
-    println!(
-      "bad stderr: {}",
-      PrettyDifference {
-        expected: expected_stderr,
-        actual: stderr
-      },
-    );
-    failure = true;
-  }
-
-  if failure {
-    panic!("test failed");
-  }
+  assert_eq!(have, want, "output mismatch");
 
   if expected_status == EXIT_SUCCESS {
     println!("Reparsing...");
@@ -155,15 +139,7 @@ fn integration_test(
 
     let reparsed = String::from_utf8(output.stdout).unwrap();
 
-    if reparsed != dumped {
-      println!(
-        "reparse mismatch:\n {}",
-        PrettyDifference {
-          expected: &dumped,
-          actual: &reparsed
-        },
-      );
-    }
+    assert_eq!(reparsed, dumped, "reparse mismatch");
   }
 }
 
