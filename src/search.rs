@@ -30,3 +30,117 @@ pub fn search(directory: &Path) -> Result<PathBuf, SearchError> {
     Err(SearchError::NotFound)
   }
 }
+
+#[cfg(test)]
+mod test {
+  use crate::search::search;
+  use crate::search_error::SearchError;
+  use std::fs;
+  use tempdir::TempDir;
+
+  #[test]
+  fn not_found() {
+    let tmp = TempDir::new("just-test-justfile-search")
+      .expect("test justfile search: failed to create temporary directory");
+    let path = tmp.path().to_path_buf();
+    match search(path.as_path()) {
+      Err(SearchError::NotFound) => {
+        assert!(true);
+      }
+      _ => panic!("No justfile found error was expected"),
+    }
+  }
+
+  #[test]
+  #[cfg(unix)]
+  fn multiple_candidates() {
+    let tmp = TempDir::new("just-test-justfile-search")
+      .expect("test justfile search: failed to create temporary directory");
+    let mut path = tmp.path().to_path_buf();
+    path.push("justfile");
+    path.push("JUSTFILE");
+    match search(path.as_path()) {
+      Err(SearchError::MultipleCandidates { candidates }) => {
+        assert!(true);
+      }
+      _ => panic!("Multiple candidates error was expected"),
+    }
+  }
+
+  #[test]
+  fn found() {
+    let tmp = TempDir::new("just-test-justfile-search")
+      .expect("test justfile search: failed to create temporary directory");
+    let mut path = tmp.path().to_path_buf();
+    path.push("justfile");
+    fs::write(&path, "default:\n\techo ok").unwrap();
+    path.pop();
+    match search(path.as_path()) {
+      Ok(_path) => {
+        assert!(true);
+      }
+      _ => panic!("No errors were expected"),
+    }
+  }
+
+  #[test]
+  fn found_studly_caps() {
+    let tmp = TempDir::new("just-test-justfile-search")
+      .expect("test justfile search: failed to create temporary directory");
+    let mut path = tmp.path().to_path_buf();
+    path.push("JuStFiLE");
+    fs::write(&path, "default:\n\techo ok").unwrap();
+    path.pop();
+    match search(path.as_path()) {
+      Ok(_path) => {
+        assert!(true);
+      }
+      _ => panic!("No errors were expected"),
+    }
+  }
+
+  #[test]
+  fn found_from_inner_dir() {
+    let tmp = TempDir::new("just-test-justfile-search")
+      .expect("test justfile search: failed to create temporary directory");
+    let mut path = tmp.path().to_path_buf();
+    path.push("justfile");
+    fs::write(&path, "default:\n\techo ok").unwrap();
+    path.pop();
+    path.push("a");
+    fs::create_dir(&path).expect("test justfile search: failed to create intermediary directory");
+    path.push("b");
+    fs::create_dir(&path).expect("test justfile search: failed to create intermediary directory");
+    match search(path.as_path()) {
+      Ok(_path) => {
+        assert!(true);
+      }
+      _ => panic!("No errors were expected"),
+    }
+  }
+
+  #[test]
+  fn found_and_stopped_at_first_justfile() {
+    let tmp = TempDir::new("just-test-justfile-search")
+      .expect("test justfile search: failed to create temporary directory");
+    let mut path = tmp.path().to_path_buf();
+    path.push("justfile");
+    fs::write(&path, "default:\n\techo ok").unwrap();
+    path.pop();
+    path.push("a");
+    fs::create_dir(&path).expect("test justfile search: failed to create intermediary directory");
+    path.push("justfile");
+    fs::write(&path, "default:\n\techo ok").unwrap();
+    path.pop();
+    path.push("b");
+    fs::create_dir(&path).expect("test justfile search: failed to create intermediary directory");
+    match search(path.as_path()) {
+      Ok(found_path) => {
+        path.pop();
+        path.push("justfile");
+        assert_eq!(found_path, path);
+      }
+      _ => panic!("No errors were expected"),
+    }
+  }
+}
