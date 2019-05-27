@@ -47,6 +47,7 @@ pub(crate) use crate::{
   recipe_context::RecipeContext,
   recipe_resolver::RecipeResolver,
   runtime_error::RuntimeError,
+  search_error::SearchError,
   shebang::Shebang,
   state::State,
   string_literal::StringLiteral,

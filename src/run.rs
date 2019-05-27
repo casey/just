@@ -273,12 +273,12 @@ pub fn run() {
       );
     }
   } else {
-    use crate::search::search;
     let current_dir = match env::current_dir() {
       Ok(current_dir) => current_dir,
       Err(io_error) => die!("Error getting current dir: {}", io_error),
     };
-    match search(&current_dir) {
+    use crate::search;
+    match search::justfile(&current_dir) {
       Ok(name) => {
         if matches.is_present("EDIT") {
           edit(name);

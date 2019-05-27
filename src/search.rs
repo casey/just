@@ -1,9 +1,9 @@
-use crate::search_error::SearchError;
+use crate::common::*;
 use std::fs;
 use std::path::{Path, PathBuf};
 
-pub fn search(directory: &Path) -> Result<PathBuf, SearchError> {
-  let mut files = Vec::new();
+pub fn justfile(directory: &Path) -> Result<PathBuf, SearchError> {
+  let mut candidates = Vec::new();
   let dir = fs::read_dir(directory).map_err(|io_error| SearchError::Io {
     io_error,
     directory: directory.to_owned(),
@@ -16,24 +16,24 @@ pub fn search(directory: &Path) -> Result<PathBuf, SearchError> {
     if let Some(name) = entry.file_name().to_str() {
       use caseless::default_caseless_match_str;
       if default_caseless_match_str(name, "justfile") {
-        files.push(entry.path());
+        candidates.push(entry.path());
       }
     }
   }
-  if files.len() == 1 {
-    Ok(files.pop().unwrap())
-  } else if files.len() > 1 {
-    Err(SearchError::MultipleCandidates { candidates: files })
+  if candidates.len() == 1 {
+    Ok(candidates.pop().unwrap())
+  } else if candidates.len() > 1 {
+    Err(SearchError::MultipleCandidates { candidates })
   } else if let Some(parent_dir) = directory.parent() {
-    search(parent_dir)
+    justfile(parent_dir)
   } else {
     Err(SearchError::NotFound)
   }
 }
 
 #[cfg(test)]
-mod test {
-  use crate::search::search;
+mod tests {
+  use crate::search;
   use crate::search_error::SearchError;
   use std::fs;
   use tempdir::TempDir;
@@ -42,8 +42,7 @@ mod test {
   fn not_found() {
     let tmp = TempDir::new("just-test-justfile-search")
       .expect("test justfile search: failed to create temporary directory");
-    let path = tmp.path().to_path_buf();
-    match search(path.as_path()) {
+    match search::justfile(tmp.path()) {
       Err(SearchError::NotFound) => {
         assert!(true);
       }
@@ -52,15 +51,21 @@ mod test {
   }
 
   #[test]
-  #[cfg(unix)]
   fn multiple_candidates() {
     let tmp = TempDir::new("just-test-justfile-search")
       .expect("test justfile search: failed to create temporary directory");
     let mut path = tmp.path().to_path_buf();
     path.push("justfile");
+    fs::write(&path, "default:\n\techo ok").unwrap();
+    path.pop();
     path.push("JUSTFILE");
-    match search(path.as_path()) {
-      Err(SearchError::MultipleCandidates { candidates }) => {
+    if let Ok(_) = fs::File::open(path.as_path()) {
+      // We are in case-insensitive file system
+      return;
+    }
+    fs::write(&path, "default:\n\techo ok").unwrap();
+    match search::justfile(path.as_path()) {
+      Err(SearchError::MultipleCandidates { .. }) => {
         assert!(true);
       }
       _ => panic!("Multiple candidates error was expected"),
@@ -75,7 +80,7 @@ mod test {
     path.push("justfile");
     fs::write(&path, "default:\n\techo ok").unwrap();
     path.pop();
-    match search(path.as_path()) {
+    match search::justfile(path.as_path()) {
       Ok(_path) => {
         assert!(true);
       }
@@ -91,7 +96,7 @@ mod test {
     path.push("JuStFiLE");
     fs::write(&path, "default:\n\techo ok").unwrap();
     path.pop();
-    match search(path.as_path()) {
+    match search::justfile(path.as_path()) {
       Ok(_path) => {
         assert!(true);
       }
@@ -111,7 +116,7 @@ mod test {
     fs::create_dir(&path).expect("test justfile search: failed to create intermediary directory");
     path.push("b");
     fs::create_dir(&path).expect("test justfile search: failed to create intermediary directory");
-    match search(path.as_path()) {
+    match search::justfile(path.as_path()) {
       Ok(_path) => {
         assert!(true);
       }
@@ -134,7 +139,7 @@ mod test {
     path.pop();
     path.push("b");
     fs::create_dir(&path).expect("test justfile search: failed to create intermediary directory");
-    match search(path.as_path()) {
+    match search::justfile(path.as_path()) {
       Ok(found_path) => {
         path.pop();
         path.push("justfile");
