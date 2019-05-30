@@ -63,6 +63,7 @@ mod tests {
       return;
     }
     fs::write(&path, "default:\n\techo ok").unwrap();
+    path.pop();
     match search::justfile(path.as_path()) {
       Err(SearchError::MultipleCandidates { .. }) => {
         assert!(true);
