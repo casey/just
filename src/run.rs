@@ -277,7 +277,6 @@ pub fn run() {
       Ok(current_dir) => current_dir,
       Err(io_error) => die!("Error getting current dir: {}", io_error),
     };
-    use crate::search;
     match search::justfile(&current_dir) {
       Ok(name) => {
         if matches.is_present("EDIT") {

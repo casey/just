@@ -33,8 +33,7 @@ pub fn justfile(directory: &Path) -> Result<PathBuf, SearchError> {
 
 #[cfg(test)]
 mod tests {
-  use crate::search;
-  use crate::search_error::SearchError;
+  use super::*;
   use std::fs;
   use tempdir::TempDir;
 
