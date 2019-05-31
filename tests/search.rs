@@ -63,38 +63,6 @@ fn test_capitalized_justfile_search() {
 }
 
 #[test]
-fn test_capitalization_priority() {
-  let tmp = TempDir::new("just-test-justfile-search")
-    .expect("test justfile search: failed to create temporary directory");
-  let mut path = tmp.path().to_path_buf();
-  path.push("justfile");
-  fs::write(&path, "default:\n\techo ok").unwrap();
-  path.pop();
-  path.push("Justfile");
-  fs::write(&path, "default:\n\techo fail").unwrap();
-  path.pop();
-
-  // if we see "default\n\techo fail" in `justfile` then we're running
-  // in a case insensitive filesystem, so just bail
-  path.push("justfile");
-  if fs::read_to_string(&path).unwrap() == "default:\n\techo fail" {
-    return;
-  }
-  path.pop();
-
-  path.push("a");
-  fs::create_dir(&path).expect("test justfile search: failed to create intermediary directory");
-  path.push("b");
-  fs::create_dir(&path).expect("test justfile search: failed to create intermediary directory");
-  path.push("c");
-  fs::create_dir(&path).expect("test justfile search: failed to create intermediary directory");
-  path.push("d");
-  fs::create_dir(&path).expect("test justfile search: failed to create intermediary directory");
-
-  search_test(path, &[]);
-}
-
-#[test]
 fn test_upwards_path_argument() {
   let tmp = TempDir::new("just-test-justfile-search")
     .expect("test justfile search: failed to create temporary directory");
