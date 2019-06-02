@@ -273,44 +273,30 @@ pub fn run() {
       );
     }
   } else {
-    let name;
-    'outer: loop {
-      for candidate in &["justfile", "Justfile"] {
-        match fs::metadata(candidate) {
-          Ok(metadata) => {
-            if metadata.is_file() {
-              name = *candidate;
-              break 'outer;
-            }
-          }
-          Err(error) => {
-            if error.kind() != io::ErrorKind::NotFound {
-              die!("Error fetching justfile metadata: {}", error)
-            }
-          }
+    let current_dir = match env::current_dir() {
+      Ok(current_dir) => current_dir,
+      Err(io_error) => die!("Error getting current dir: {}", io_error),
+    };
+    match search::justfile(&current_dir) {
+      Ok(name) => {
+        if matches.is_present("EDIT") {
+          edit(name);
+        }
+        text = fs::read_to_string(&name)
+          .unwrap_or_else(|error| die!("Error reading justfile: {}", error));
+
+        let parent = name.parent().unwrap();
+
+        if let Err(error) = env::set_current_dir(&parent) {
+          die!(
+            "Error changing directory to {}: {}",
+            parent.display(),
+            error
+          );
         }
       }
-
-      match env::current_dir() {
-        Ok(pathbuf) => {
-          if pathbuf.as_os_str() == "/" {
-            die!("No justfile found.");
-          }
-        }
-        Err(error) => die!("Error getting current dir: {}", error),
-      }
-
-      if let Err(error) = env::set_current_dir("..") {
-        die!("Error changing directory: {}", error);
-      }
+      Err(search_error) => die!("{}", search_error),
     }
-
-    if matches.is_present("EDIT") {
-      edit(name);
-    }
-
-    text =
-      fs::read_to_string(name).unwrap_or_else(|error| die!("Error reading justfile: {}", error));
   }
 
   let justfile = Parser::parse(&text).unwrap_or_else(|error| {
