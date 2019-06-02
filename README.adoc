@@ -11,7 +11,7 @@ image:https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg[say thanks,link=htt
 
 (非官方中文文档,link:https://github.com/chinanf-boy/just-zh[这里],快看过来!)
 
-Commands are stored in a file called `justfile` or `Justfile` with syntax inspired by `make`:
+Commands are stored in a file called `justfile` with syntax inspired by `make`:
 
 ```make
 build:
@@ -126,7 +126,9 @@ another-recipe:
     @echo 'This is another recipe.'
 ```
 
-When you invoke `just` it looks for a `justfile` in the current directory and upwards, so you can invoke it from any subdirectory of your project.
+When you invoke `just` it looks for file `justfile` in the current directory and upwards, so you can invoke it from any subdirectory of your project.
+
+The search for a `justfile` is case insensitive, so any case, like `Justfile`, `JUSTFILE`, or `JuStFiLe`, will work.
 
 Running `just` with no arguments runs the first recipe in the `justfile`:
 
