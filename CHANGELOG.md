@@ -2,6 +2,16 @@ Changelog
 =========
 
 
+[v0.4.4] - 2019-06-02
+---------------------
+
+### Changed
+- Ignore file name case while searching for justfile (#436)
+
+### Added
+- Display alias target with `--show` (#443)
+
+
 [v0.4.3] - 2019-05-07
 ---------------------
 
