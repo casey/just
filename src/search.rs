@@ -2,6 +2,8 @@ use crate::common::*;
 use std::fs;
 use std::path::{Path, PathBuf};
 
+const FILENAME: &str = "justfile";
+
 pub fn justfile(directory: &Path) -> Result<PathBuf, SearchError> {
   let mut candidates = Vec::new();
   let dir = fs::read_dir(directory).map_err(|io_error| SearchError::Io {
@@ -14,7 +16,7 @@ pub fn justfile(directory: &Path) -> Result<PathBuf, SearchError> {
       directory: directory.to_owned(),
     })?;
     if let Some(name) = entry.file_name().to_str() {
-      if name.eq_ignore_ascii_case("JUSTFILE") {
+      if name.eq_ignore_ascii_case(FILENAME) {
         candidates.push(entry.path());
       }
     }
@@ -53,10 +55,10 @@ mod tests {
     let tmp = TempDir::new("just-test-justfile-search")
       .expect("test justfile search: failed to create temporary directory");
     let mut path = tmp.path().to_path_buf();
-    path.push("justfile");
+    path.push(FILENAME);
     fs::write(&path, "default:\n\techo ok").unwrap();
     path.pop();
-    path.push("JUSTFILE");
+    path.push(FILENAME.to_uppercase());
     if let Ok(_) = fs::File::open(path.as_path()) {
       // We are in case-insensitive file system
       return;
@@ -76,7 +78,7 @@ mod tests {
     let tmp = TempDir::new("just-test-justfile-search")
       .expect("test justfile search: failed to create temporary directory");
     let mut path = tmp.path().to_path_buf();
-    path.push("justfile");
+    path.push(FILENAME);
     fs::write(&path, "default:\n\techo ok").unwrap();
     path.pop();
     match search::justfile(path.as_path()) {
@@ -88,11 +90,22 @@ mod tests {
   }
 
   #[test]
-  fn found_studly_caps() {
+  fn found_spongebob_case() {
     let tmp = TempDir::new("just-test-justfile-search")
       .expect("test justfile search: failed to create temporary directory");
     let mut path = tmp.path().to_path_buf();
-    path.push("JuStFiLE");
+    let spongebob_case = FILENAME
+      .chars()
+      .enumerate()
+      .map(|(i, c)| {
+        if i % 2 == 0 {
+          c.to_ascii_uppercase()
+        } else {
+          c
+        }
+      })
+      .collect::<String>();
+    path.push(spongebob_case);
     fs::write(&path, "default:\n\techo ok").unwrap();
     path.pop();
     match search::justfile(path.as_path()) {
@@ -108,7 +121,7 @@ mod tests {
     let tmp = TempDir::new("just-test-justfile-search")
       .expect("test justfile search: failed to create temporary directory");
     let mut path = tmp.path().to_path_buf();
-    path.push("justfile");
+    path.push(FILENAME);
     fs::write(&path, "default:\n\techo ok").unwrap();
     path.pop();
     path.push("a");
@@ -128,12 +141,12 @@ mod tests {
     let tmp = TempDir::new("just-test-justfile-search")
       .expect("test justfile search: failed to create temporary directory");
     let mut path = tmp.path().to_path_buf();
-    path.push("justfile");
+    path.push(FILENAME);
     fs::write(&path, "default:\n\techo ok").unwrap();
     path.pop();
     path.push("a");
     fs::create_dir(&path).expect("test justfile search: failed to create intermediary directory");
-    path.push("justfile");
+    path.push(FILENAME);
     fs::write(&path, "default:\n\techo ok").unwrap();
     path.pop();
     path.push("b");
@@ -141,7 +154,7 @@ mod tests {
     match search::justfile(path.as_path()) {
       Ok(found_path) => {
         path.pop();
-        path.push("justfile");
+        path.push(FILENAME);
         assert_eq!(found_path, path);
       }
       _ => panic!("No errors were expected"),
