@@ -31,6 +31,5 @@ version  = "3.1.2"
 features = ["termination"]
 
 [dev-dependencies]
-colored-diff      = "0.2.1"
 executable-path   = "1.0.0"
 pretty_assertions = "0.6.1"

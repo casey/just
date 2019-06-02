@@ -425,7 +425,7 @@ pub fn run() {
   }
 
   if let Some(name) = matches.value_of("SHOW") {
-    match justfile.recipes.get(name) {
+    match justfile.get_recipe(name) {
       Some(recipe) => {
         println!("{}", recipe);
         process::exit(EXIT_SUCCESS);
