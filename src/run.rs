@@ -282,8 +282,18 @@ pub fn run() {
         if matches.is_present("EDIT") {
           edit(name);
         }
-        text = fs::read_to_string(name)
+        text = fs::read_to_string(&name)
           .unwrap_or_else(|error| die!("Error reading justfile: {}", error));
+
+        let parent = name.parent().unwrap();
+
+        if let Err(error) = env::set_current_dir(&parent) {
+          die!(
+            "Error changing directory to {}: {}",
+            parent.display(),
+            error
+          );
+        }
       }
       Err(search_error) => die!("{}", search_error),
     }
