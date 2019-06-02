@@ -14,8 +14,7 @@ pub fn justfile(directory: &Path) -> Result<PathBuf, SearchError> {
       directory: directory.to_owned(),
     })?;
     if let Some(name) = entry.file_name().to_str() {
-      use caseless::default_caseless_match_str;
-      if default_caseless_match_str(name, "justfile") {
+      if name.eq_ignore_ascii_case("JUSTFILE") {
         candidates.push(entry.path());
       }
     }
