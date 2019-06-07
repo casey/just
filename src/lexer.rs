@@ -359,7 +359,7 @@ impl<'a> Lexer<'a> {
       ' ' | '\t' => self.lex_whitespace(),
       '\'' => self.lex_raw_string(),
       '"' => self.lex_cooked_string(),
-      'a'...'z' | 'A'...'Z' | '_' => self.lex_name(),
+      'a'..='z' | 'A'..='Z' | '_' => self.lex_name(),
       _ => {
         self.advance()?;
         Err(self.error(UnknownStartOfToken))
