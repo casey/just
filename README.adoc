@@ -612,6 +612,98 @@ Yo from a shell script!
 Hello from ruby!
 ```
 
+=== Multi-line Constructs
+
+Recipes without an initial shebang are evaluated and run line-by-line, which means that multi-line constructs probably won't do what you want.
+
+For example, with the following justfile:
+
+```make
+conditional:
+	if true; then
+		echo 'True!'
+	fi
+```
+
+The extra leading whitespace before the second line of the `conditional` recipe will produce a parse error:
+
+```
+$ just conditional
+error: Recipe line has extra leading whitespace
+  |
+3 |         echo 'True!'
+  |     ^^^^^^^^^^^^^^^^
+```
+
+To work around this, you can write conditionals on one line, escape newlines with slashes, or add a shebang to your recipe. Some examples of multi-line constructs are provided for reference.
+
+==== `if` statements
+
+```make
+conditional:
+	if true; then echo 'True!'; fi
+```
+
+```make
+conditional:
+	if true; then \
+		echo 'True!'; \
+	fi
+```
+
+```make
+conditional:
+  #!/usr/bin/env sh
+	if true; then
+		echo 'True!'
+	fi
+```
+
+==== `for` loops
+
+```make
+for:
+	for file in `ls .`; do echo $file; done
+```
+
+```make
+for:
+	for file in `ls .`; do \
+    echo $file; \
+  done
+```
+
+```make
+for:
+  #!/usr/bin/env sh
+	for file in `ls .`; do
+    echo $file
+  done
+```
+
+==== `while` loops
+
+```make
+while:
+	while `server-is-dead`; do ping -c 1 server; done
+```
+
+```make
+while:
+	while `server-is-dead`; do \
+    ping -c 1 server; \
+  done
+```
+
+```make
+while:
+  #!/usr/bin/env sh
+	while `server-is-dead`; do
+    do ping -c 1 server
+  done
+```
+
+
 === Command Line Options
 
 `just` supports a number of useful command line options for listing, dumping, and debugging recipes and variable:
@@ -807,11 +899,11 @@ I'm pretty sure that nobody actually uses this feature, but it's there.
 
 == Contributing
 
-`just` welcomes your contributions! `just` is released under the maximally permissive [CC0](https://creativecommons.org/publicdomain/zero/1.0/legalcode.txt) public domain dedication and fallback license, so your changes must also released under this license.
+`just` welcomes your contributions! `just` is released under the maximally permissive https://creativecommons.org/publicdomain/zero/1.0/legalcode.txt[CC0] public domain dedication and fallback license, so your changes must also released under this license.
 
 === Janus
 
-[Janus](https://github.com/casey/janus) is a tool that collects and analyzes justfiles, and can determine if a new version of `just` breaks or changes the interpretation of existing justfiles.
+https://github.com/casey/janus[Janus] is a tool that collects and analyzes justfiles, and can determine if a new version of `just` breaks or changes the interpretation of existing justfiles.
 
 Before merging a particularly large or gruesome change, Janus should be run to make sure that nothing breaks. Don't worry about running Janus yourself, Casey will happily run it for you on changes that need it.
 
