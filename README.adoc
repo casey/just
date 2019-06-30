@@ -278,7 +278,7 @@ To write a recipe containing `{{`, use `{{ "{{" }}`:
 
 ```make
 braces:
-	echo 'I {{ "{{" }}LOVE}} curly braces!'
+    echo 'I {{ "{{" }}LOVE}} curly braces!'
 ```
 
 (An unmatched `}}` is ignored, so it doesn't need to be escaped.)
@@ -287,7 +287,7 @@ Another option is to put all the text you'd like to escape inside of an interpol
 
 ```make
 braces:
-	echo '{{'I {{LOVE}} curly braces!'}}'
+    echo '{{'I {{LOVE}} curly braces!'}}'
 ```
 
 === Strings
@@ -355,7 +355,7 @@ For example:
 
 ```make
 system-info:
-	@echo "This is an {{arch()}} machine".
+    @echo "This is an {{arch()}} machine".
 ```
 
 ```
@@ -620,9 +620,9 @@ For example, with the following justfile:
 
 ```make
 conditional:
-	if true; then
-		echo 'True!'
-	fi
+    if true; then
+        echo 'True!'
+    fi
 ```
 
 The extra leading whitespace before the second line of the `conditional` recipe will produce a parse error:
@@ -641,66 +641,66 @@ To work around this, you can write conditionals on one line, escape newlines wit
 
 ```make
 conditional:
-	if true; then echo 'True!'; fi
+    if true; then echo 'True!'; fi
 ```
 
 ```make
 conditional:
-	if true; then \
-		echo 'True!'; \
-	fi
+    if true; then \
+        echo 'True!'; \
+    fi
 ```
 
 ```make
 conditional:
-  #!/usr/bin/env sh
-	if true; then
-		echo 'True!'
-	fi
+    #!/usr/bin/env sh
+    if true; then
+        echo 'True!'
+    fi
 ```
 
 ==== `for` loops
 
 ```make
 for:
-	for file in `ls .`; do echo $file; done
+    for file in `ls .`; do echo $file; done
 ```
 
 ```make
 for:
-	for file in `ls .`; do \
-    echo $file; \
-  done
+    for file in `ls .`; do \
+        echo $file; \
+    done
 ```
 
 ```make
 for:
-  #!/usr/bin/env sh
-	for file in `ls .`; do
-    echo $file
-  done
+    #!/usr/bin/env sh
+    for file in `ls .`; do
+        echo $file
+    done
 ```
 
 ==== `while` loops
 
 ```make
 while:
-	while `server-is-dead`; do ping -c 1 server; done
+    while `server-is-dead`; do ping -c 1 server; done
 ```
 
 ```make
 while:
-	while `server-is-dead`; do \
-    ping -c 1 server; \
-  done
+    while `server-is-dead`; do \
+        ping -c 1 server; \
+    done
 ```
 
 ```make
 while:
-  #!/usr/bin/env sh
-	while `server-is-dead`; do
-    do ping -c 1 server
-  done
+    #!/usr/bin/env sh
+    while `server-is-dead`; do
+        do ping -c 1 server
+    done
 ```
 
 
