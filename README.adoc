@@ -618,7 +618,7 @@ Recipes without an initial shebang are evaluated and run line-by-line, which mea
 
 For example, with the following justfile:
 
-```make
+```
 conditional:
     if true; then
         echo 'True!'
