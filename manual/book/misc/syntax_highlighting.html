@@ -1,0 +1,236 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Syntax Highlighting - Just</title>
+        
+
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="`just` is a handy way to save and run project-specific commands.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+
+        
+    </head>
+    <body class="light">
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "../";
+            var default_theme = "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            document.body.className = theme;
+            document.querySelector('html').className = theme + ' js';
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li><a href="../install/index.html"><strong aria-hidden="true">1.</strong> Installation</a></li><li><ol class="section"><li><a href="../install/prebuilt.html"><strong aria-hidden="true">1.1.</strong> Prebuild Binaries</a></li><li><a href="../install/homebrew.html"><strong aria-hidden="true">1.2.</strong> Homebrew</a></li><li><a href="../install/scoop.html"><strong aria-hidden="true">1.3.</strong> Scoop</a></li><li><a href="../install/arch_linux.html"><strong aria-hidden="true">1.4.</strong> Arch Linux</a></li><li><a href="../install/void_linux.html"><strong aria-hidden="true">1.5.</strong> Void Linux</a></li><li><a href="../install/nix.html"><strong aria-hidden="true">1.6.</strong> Nix</a></li><li><a href="../install/cargo.html"><strong aria-hidden="true">1.7.</strong> Cargo</a></li></ol></li><li><a href="../quickstart.html"><strong aria-hidden="true">2.</strong> Quick Start</a></li><li><a href="../features/index.html"><strong aria-hidden="true">3.</strong> Features</a></li><li><ol class="section"><li><a href="../features/list_avail_recipes.html"><strong aria-hidden="true">3.1.</strong> Listing Available Recipes</a></li><li><a href="../features/aliases.html"><strong aria-hidden="true">3.2.</strong> Aliases</a></li><li><a href="../features/doc_comments.html"><strong aria-hidden="true">3.3.</strong> Documentation Comments</a></li><li><a href="../features/var_sub.html"><strong aria-hidden="true">3.4.</strong> Variable Substitution</a></li><li><a href="../features/strings.html"><strong aria-hidden="true">3.5.</strong> Strings</a></li><li><a href="../features/functions.html"><strong aria-hidden="true">3.6.</strong> Functions</a></li><li><a href="../features/command_eval.html"><strong aria-hidden="true">3.7.</strong> Command Evaluation Using Backticks</a></li><li><a href="../features/setting_vars.html"><strong aria-hidden="true">3.8.</strong> Setting Variables from the Command Line</a></li><li><a href="../features/env_vars.html"><strong aria-hidden="true">3.9.</strong> Environment Variables</a></li><li><a href="../features/recipe_params.html"><strong aria-hidden="true">3.10.</strong> Recipe Parameters</a></li><li><a href="../features/recipes_in_other_lang.html"><strong aria-hidden="true">3.11.</strong> Writing Recipes in Other Languages</a></li><li><a href="../features/multiline_constructs.html"><strong aria-hidden="true">3.12.</strong> Multi-line Constructs</a></li><li><a href="../features/command_line_options.html"><strong aria-hidden="true">3.13.</strong> Command Line Options</a></li><li><a href="../features/private_recipes.html"><strong aria-hidden="true">3.14.</strong> Private Recipes</a></li><li><a href="../features/quiet_recipes.html"><strong aria-hidden="true">3.15.</strong> Quiet Recipes</a></li><li><a href="../features/just_from_other_dir.html"><strong aria-hidden="true">3.16.</strong> Invoking Justfiles in Other Directories</a></li><li><a href="../features/just_scripts.html"><strong aria-hidden="true">3.17.</strong> Just Scripts</a></li></ol></li><li><a href="../misc/index.html"><strong aria-hidden="true">4.</strong> Miscellanea</a></li><li><ol class="section"><li><a href="../misc/companion_tools.html"><strong aria-hidden="true">4.1.</strong> Companion Tools</a></li><li><a href="../misc/shell_alias.html"><strong aria-hidden="true">4.2.</strong> Shell Alias</a></li><li><a href="../misc/syntax_highlighting.html" class="active"><strong aria-hidden="true">4.3.</strong> Syntax Highlighting</a></li><li><a href="../misc/grammar.html"><strong aria-hidden="true">4.4.</strong> Grammar</a></li><li><a href="../misc/just-sh.html"><strong aria-hidden="true">4.5.</strong> just.sh</a></li><li><a href="../misc/non-proj_specific_justfile.html"><strong aria-hidden="true">4.6.</strong> Non-Project Specific Justfile</a></li></ol></li><li><a href="../contrib/index.html"><strong aria-hidden="true">5.</strong> Contributing</a></li><li><ol class="section"><li><a href="../contrib/janus.html"><strong aria-hidden="true">5.1.</strong> Janus</a></li></ol></li><li><a href="../faq/index.html"><strong aria-hidden="true">6.</strong> Frequently Asked Questions</a></li><li><ol class="section"><li><a href="../faq/faq1.html"><strong aria-hidden="true">6.1.</strong> What are the idiosyncrasies of Make that Just avoids?</a></li><li><a href="../faq/faq2.html"><strong aria-hidden="true">6.2.</strong> What's the relationship between just ans cargo build scripts?</a></li></ol></li><li><a href="../further_ramblings.html"><strong aria-hidden="true">7.</strong> Further Ramblings</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar" class="menu-bar">
+                    <div id="menu-bar-sticky-container">
+                        <div class="left-buttons">
+                            <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                                <i class="fa fa-bars"></i>
+                            </button>
+                            <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                                <i class="fa fa-paint-brush"></i>
+                            </button>
+                            <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                                <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                            </ul>
+                            
+                            <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                                <i class="fa fa-search"></i>
+                            </button>
+                            
+                        </div>
+
+                        <h1 class="menu-title">Just</h1>
+
+                        <div class="right-buttons">
+                            <a href="../print.html" title="Print this book" aria-label="Print this book">
+                                <i id="print-button" class="fa fa-print"></i>
+                            </a>
+                            
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1><a class="header" href="#syntax-highlighting" id="syntax-highlighting">Syntax Highlighting</a></h1>
+<p><code>justfile</code> syntax is close enough to <code>make</code> that you may want to tell your editor to use make syntax highlighting for just.</p>
+<h3><a class="header" href="#vim" id="vim">Vim</a></h3>
+<p>For vim, you can put the following in <code>~/.vim/filetype.vim</code>:</p>
+<pre><code class="language-vimscript">if exists(&quot;did_load_filetypes&quot;)
+  finish
+endif
+
+augroup filetypedetect
+  au BufNewFile,BufRead justfile setf make
+augroup END
+</code></pre>
+<h3><a class="header" href="#vim-and-emacs" id="vim-and-emacs">Vim and Emacs</a></h3>
+<p>Include the following in a <code>justfile</code> to enable syntax highlighting in vim and emacs:</p>
+<pre><code># Local Variables:
+# mode: makefile
+# End:
+# vim: set ft=make :
+</code></pre>
+<h3><a class="header" href="#visual-studio-code" id="visual-studio-code">Visual Studio Code</a></h3>
+<p>An extension for VS Code by https://github.com/skellock[skellock] is https://marketplace.visualstudio.com/items?itemName=skellock.just[available here]. (https://github.com/skellock/vscode-just[repository])</p>
+<p>You can install it from the command line by running:</p>
+<pre><code>code --install-extension skellock.just
+</code></pre>
+<h3><a class="header" href="#kakoune" id="kakoune">Kakoune</a></h3>
+<p>Kakoune supports <code>justfile</code> syntax highlighting out of the box, thanks to TeddyDD.</p>
+<h3><a class="header" href="#other-editors" id="other-editors">Other Editors</a></h3>
+<p>Feel free to send me the commands necessary to get syntax highlighting working in your editor of choice so that I may include them here.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+                            <a rel="prev" href="../misc/shell_alias.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                        
+
+                        
+                            <a rel="next" href="../misc/grammar.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+                    <a href="../misc/shell_alias.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+
+                
+                    <a href="../misc/grammar.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                
+            </nav>
+
+        </div>
+
+        
+
+        
+
+        
+
+        
+        <script src="../elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        <script src="../clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+
+        
+
+    </body>
+</html>

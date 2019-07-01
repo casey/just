@@ -1,0 +1,879 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Just</title>
+        
+        <meta name="robots" content="noindex" />
+        
+
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="`just` is a handy way to save and run project-specific commands.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+
+        
+    </head>
+    <body class="light">
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            document.body.className = theme;
+            document.querySelector('html').className = theme + ' js';
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li><a href="install/index.html"><strong aria-hidden="true">1.</strong> Installation</a></li><li><ol class="section"><li><a href="install/prebuilt.html"><strong aria-hidden="true">1.1.</strong> Prebuild Binaries</a></li><li><a href="install/homebrew.html"><strong aria-hidden="true">1.2.</strong> Homebrew</a></li><li><a href="install/scoop.html"><strong aria-hidden="true">1.3.</strong> Scoop</a></li><li><a href="install/arch_linux.html"><strong aria-hidden="true">1.4.</strong> Arch Linux</a></li><li><a href="install/void_linux.html"><strong aria-hidden="true">1.5.</strong> Void Linux</a></li><li><a href="install/nix.html"><strong aria-hidden="true">1.6.</strong> Nix</a></li><li><a href="install/cargo.html"><strong aria-hidden="true">1.7.</strong> Cargo</a></li></ol></li><li><a href="quickstart.html"><strong aria-hidden="true">2.</strong> Quick Start</a></li><li><a href="features/index.html"><strong aria-hidden="true">3.</strong> Features</a></li><li><ol class="section"><li><a href="features/list_avail_recipes.html"><strong aria-hidden="true">3.1.</strong> Listing Available Recipes</a></li><li><a href="features/aliases.html"><strong aria-hidden="true">3.2.</strong> Aliases</a></li><li><a href="features/doc_comments.html"><strong aria-hidden="true">3.3.</strong> Documentation Comments</a></li><li><a href="features/var_sub.html"><strong aria-hidden="true">3.4.</strong> Variable Substitution</a></li><li><a href="features/strings.html"><strong aria-hidden="true">3.5.</strong> Strings</a></li><li><a href="features/functions.html"><strong aria-hidden="true">3.6.</strong> Functions</a></li><li><a href="features/command_eval.html"><strong aria-hidden="true">3.7.</strong> Command Evaluation Using Backticks</a></li><li><a href="features/setting_vars.html"><strong aria-hidden="true">3.8.</strong> Setting Variables from the Command Line</a></li><li><a href="features/env_vars.html"><strong aria-hidden="true">3.9.</strong> Environment Variables</a></li><li><a href="features/recipe_params.html"><strong aria-hidden="true">3.10.</strong> Recipe Parameters</a></li><li><a href="features/recipes_in_other_lang.html"><strong aria-hidden="true">3.11.</strong> Writing Recipes in Other Languages</a></li><li><a href="features/multiline_constructs.html"><strong aria-hidden="true">3.12.</strong> Multi-line Constructs</a></li><li><a href="features/command_line_options.html"><strong aria-hidden="true">3.13.</strong> Command Line Options</a></li><li><a href="features/private_recipes.html"><strong aria-hidden="true">3.14.</strong> Private Recipes</a></li><li><a href="features/quiet_recipes.html"><strong aria-hidden="true">3.15.</strong> Quiet Recipes</a></li><li><a href="features/just_from_other_dir.html"><strong aria-hidden="true">3.16.</strong> Invoking Justfiles in Other Directories</a></li><li><a href="features/just_scripts.html"><strong aria-hidden="true">3.17.</strong> Just Scripts</a></li></ol></li><li><a href="misc/index.html"><strong aria-hidden="true">4.</strong> Miscellanea</a></li><li><ol class="section"><li><a href="misc/companion_tools.html"><strong aria-hidden="true">4.1.</strong> Companion Tools</a></li><li><a href="misc/shell_alias.html"><strong aria-hidden="true">4.2.</strong> Shell Alias</a></li><li><a href="misc/syntax_highlighting.html"><strong aria-hidden="true">4.3.</strong> Syntax Highlighting</a></li><li><a href="misc/grammar.html"><strong aria-hidden="true">4.4.</strong> Grammar</a></li><li><a href="misc/just-sh.html"><strong aria-hidden="true">4.5.</strong> just.sh</a></li><li><a href="misc/non-proj_specific_justfile.html"><strong aria-hidden="true">4.6.</strong> Non-Project Specific Justfile</a></li></ol></li><li><a href="contrib/index.html"><strong aria-hidden="true">5.</strong> Contributing</a></li><li><ol class="section"><li><a href="contrib/janus.html"><strong aria-hidden="true">5.1.</strong> Janus</a></li></ol></li><li><a href="faq/index.html"><strong aria-hidden="true">6.</strong> Frequently Asked Questions</a></li><li><ol class="section"><li><a href="faq/faq1.html"><strong aria-hidden="true">6.1.</strong> What are the idiosyncrasies of Make that Just avoids?</a></li><li><a href="faq/faq2.html"><strong aria-hidden="true">6.2.</strong> What's the relationship between just ans cargo build scripts?</a></li></ol></li><li><a href="further_ramblings.html"><strong aria-hidden="true">7.</strong> Further Ramblings</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar" class="menu-bar">
+                    <div id="menu-bar-sticky-container">
+                        <div class="left-buttons">
+                            <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                                <i class="fa fa-bars"></i>
+                            </button>
+                            <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                                <i class="fa fa-paint-brush"></i>
+                            </button>
+                            <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                                <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                            </ul>
+                            
+                            <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                                <i class="fa fa-search"></i>
+                            </button>
+                            
+                        </div>
+
+                        <h1 class="menu-title">Just</h1>
+
+                        <div class="right-buttons">
+                            <a href="print.html" title="Print this book" aria-label="Print this book">
+                                <i id="print-button" class="fa fa-print"></i>
+                            </a>
+                            
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1><a class="header" href="#installation" id="installation">Installation</a></h1>
+<p><code>just</code> should run on any system with a reasonable <code>sh</code>, including Linux, MacOS, and the BSDs.</p>
+<p>On Windows, <code>just</code> works with the <code>sh</code> provided by <a href="https://git-scm.com/">Git for Windows</a>, <a href="https://desktop.github.com/">GitHub Desktop</a>, and <a href="http://www.cygwin.com/">Cygwin</a>.</p>
+<h1><a class="header" href="#pre-built-binaries" id="pre-built-binaries">Pre-built Binaries</a></h1>
+<p>Pre-built binaries for Linux, MacOS, and Windows can be found on the <a href="https://github.com/casey/just/releases">releases page</a>.</p>
+<p>You can use the following command to download the latest binary for MacOS or Windows, just replace <code>DESTINATION_DIRECTORY</code> with the directory where you’d like to put <code>just</code>:</p>
+<pre><code class="language-sh">curl -LSfs https://japaric.github.io/trust/install.sh | \
+  sh -s -- --git casey/just --to DESTINATION_DIRECTORY
+</code></pre>
+<p>On Linux, use:</p>
+<pre><code class="language-sh">curl -LSfs https://japaric.github.io/trust/install.sh | \
+  sh -s -- --git casey/just --target x86_64-unknown-linux-musl --to DESTINATION_DIRECTORY
+</code></pre>
+<h1><a class="header" href="#homebrew" id="homebrew">Homebrew</a></h1>
+<p>On MacOS, <code>just</code> can be installed using the <a href="https://brew.sh">Homebrew package manager</a>. Install Homebrew using the instructions <a href="https://brew.sh">here</a>, then run:</p>
+<p><code>brew install just</code></p>
+<h1><a class="header" href="#scoop" id="scoop">Scoop</a></h1>
+<p>On Windows, <code>just</code> can be installed using the <a href="https://scoop.sh">Scoop package manager</a>. Install Scoop using the instructions <a href="https://scoop.sh">here</a>, then run:</p>
+<pre><code class="language-powershell">scoop install just
+</code></pre>
+<h1><a class="header" href="#arch-linux" id="arch-linux">Arch Linux</a></h1>
+<p>On Arch Linux, <code>just</code> is packaged as <a href="https://aur.archlinux.org/packages/just/">just</a> in AUR, the <a href="https://aur.archlinux.org">Arch User Repository</a>. Several tools are available to install packages from AUR, including <a href="https://github.com/Jguer/yay">yay</a> and <a href="https://github.com/archlinuxfr/yaourt">yaourt</a>.</p>
+<h1><a class="header" href="#void-linux" id="void-linux">Void Linux</a></h1>
+<p>On Void Linux, <code>just</code> can be installed with:</p>
+<pre><code class="language-sh">sudo xbps-install -S just
+</code></pre>
+<h1><a class="header" href="#nix" id="nix">Nix</a></h1>
+<p>On NixOS, Linux, and MacOS, <code>just</code> can be installed using the <a href="https://nixos.org/nix/">Nix package manager</a>. Install <a href="https://nixos.org/nix/download.html">Nix</a> or <a href="https://nixos.org/nixos/download.html">NixOS</a>, then run:</p>
+<pre><code class="language-sh">nix-env -i just
+</code></pre>
+<h1><a class="header" href="#cargo" id="cargo">Cargo</a></h1>
+<p>On Windows, Linux, and macOS, <code>just</code> can be installed using Cargo, the <a href="https://www.rust-lang.org">rust language package manager</a>. Install Cargo using the instructions <a href="https://www.rustup.rs">here</a>, then run:</p>
+<p><code>cargo install just</code></p>
+<p>(You might also need to add <code>~/.cargo/bin</code> to your shell's <code>$PATH</code>. If you can't run just after installing it, put <code>export PATH=&quot;$HOME/.cargo/bin:$PATH&quot;</code> in your shell's configuration file.)</p>
+<h1><a class="header" href="#quick-start" id="quick-start">Quick Start</a></h1>
+<p>See <a href="install/index.html">Installation</a> for how to install <code>just</code> on your computer. Try running <code>just --version</code> to make sure that it's installed correctly.</p>
+<p>Once <code>just</code> is installed and working, create a file named <code>justfile</code> in the root of your project with the following contents:</p>
+<pre><code class="language-make">recipe-name:
+    echo 'This is a recipe!'
+
+# this is a comment
+another-recipe:
+    @echo 'This is another recipe.'
+</code></pre>
+<p>When you invoke <code>just</code> it looks for file <code>justfile</code> in the current directory and upwards, so you can invoke it from any subdirectory of your project.</p>
+<p>The search for a <code>justfile</code> is case insensitive, so any case, like <code>Justfile</code>, <code>JUSTFILE</code>, or <code>JuStFiLe</code>, will work.</p>
+<p>Running <code>just</code> with no arguments runs the first recipe in the <code>justfile</code>:</p>
+<pre><code class="language-sh">$ just
+echo 'This is a recipe!'
+This is a recipe!
+</code></pre>
+<p>One or more arguments specify the recipe(s) to run:</p>
+<pre><code class="language-sh">$ just another-recipe
+This is another recipe.
+</code></pre>
+<p><code>just</code> prints each command to standard error before running it, which is why <code>echo 'This is a recipe!'</code> was printed. This is suppressed for lines starting with <code>@</code>, which is why <code>echo 'Another recipe.'</code> was not printed.</p>
+<p>Recipes stop running if a command fails. Here <code>cargo publish</code> will only run if <code>cargo test</code> succeeds:</p>
+<pre><code class="language-make">publish:
+    cargo test
+    # tests passed, time to publish!
+    cargo publish
+</code></pre>
+<p>Recipes can depend on other recipes. Here the <code>test</code> recipe depends on the <code>build</code> recipe, so <code>build</code> will run before <code>test</code>:</p>
+<pre><code class="language-make">build:
+    cc main.c foo.c bar.c -o main
+
+test: build
+    ./test
+
+sloc:
+    @echo &quot;`wc -l *.c` lines of code&quot;
+</code></pre>
+<pre><code class="language-sh">$ just test
+cc main.c foo.c bar.c -o main
+./test
+testing... all tests passed!
+</code></pre>
+<p>Recipes without dependencies will run in the order they're given on the command line:</p>
+<pre><code class="language-sh">$ just build sloc
+cc main.c foo.c bar.c -o main
+1337 lines of code
+</code></pre>
+<p>Dependencies will always run first, even if they are passed after a recipe that depends on them:</p>
+<pre><code class="language-sh">$ just test build
+cc main.c foo.c bar.c -o main
+./test
+testing... all tests passed!
+</code></pre>
+<h1><a class="header" href="#features" id="features">Features</a></h1>
+<h1><a class="header" href="#listing-available-recipes" id="listing-available-recipes">Listing Available Recipes</a></h1>
+<p>Recipes can be listed with <code>just --list</code> :</p>
+<pre><code class="language-sh">$ just --list
+Available recipes:
+  build
+  test
+  deploy
+  lint
+</code></pre>
+<p><code>just --summary</code> is more concise:</p>
+<pre><code class="language-sh">$ just --summary
+build test deploy lint</code></pre>
+<h1><a class="header" href="#aliases" id="aliases">Aliases</a></h1>
+<p>Aliases allow recipes to be invoked with alternative names:</p>
+<pre><code class="language-make">alias b := build
+
+build:
+  echo 'Building!'
+</code></pre>
+<pre><code class="language-sh">$ just b
+build
+echo 'Building!'
+Building!
+</code></pre>
+<h1><a class="header" href="#documentation-comments" id="documentation-comments">Documentation Comments</a></h1>
+<p>Comments immediately preceding a recipe will appear in <code>just --list</code>:</p>
+<pre><code class="language-make"># build stuff
+build:
+  ./bin/build
+
+# test stuff
+test:
+  ./bin/test
+</code></pre>
+<pre><code class="language-sh">$ just --list
+Available recipes:
+    build # build stuff
+    test # test stuff
+</code></pre>
+<h1><a class="header" href="#variable-substitution" id="variable-substitution">Variable Substitution</a></h1>
+<p>Variables, strings, concatenation, and substitution using <code>{{...}}</code> are supported:</p>
+<pre><code class="language-make">version := &quot;0.2.7&quot;
+tardir  := &quot;awesomesauce-&quot; + version
+tarball := tardir + &quot;.tar.gz&quot;
+
+publish:
+    rm -f {{tarball}}
+    mkdir {{tardir}}
+    cp README.md *.c {{tardir}}
+    tar zcvf {{tarball}} {{tardir}}
+    scp {{tarball}} me@server.com:release/
+    rm -rf {{tarball}} {{tardir}}
+</code></pre>
+<p>==== Escaping <code>{{</code></p>
+<p>To write a recipe containing <code>{{</code>, use <code>{{ &quot;{{&quot; }}</code>:</p>
+<pre><code class="language-make">braces:
+    echo 'I {{ &quot;{{&quot; }}LOVE}} curly braces!'
+</code></pre>
+<p>(An unmatched <code>}}</code> is ignored, so it doesn't need to be escaped.)</p>
+<p>Another option is to put all the text you'd like to escape inside of an interpolation:</p>
+<pre><code class="language-make">braces:
+    echo '{{'I {{LOVE}} curly braces!'}}'
+</code></pre>
+<h1><a class="header" href="#strings" id="strings">Strings</a></h1>
+<p>Double-quoted strings support escape sequences:</p>
+<pre><code class="language-make">string-with-tab             := &quot;\t&quot;
+string-with-newline         := &quot;\n&quot;
+string-with-carriage-return := &quot;\r&quot;
+string-with-double-quote    := &quot;\&quot;&quot;
+string-with-slash           := &quot;\\&quot;
+</code></pre>
+<pre><code class="language-sh">$ just --evaluate
+&quot;tring-with-carriage-return := &quot;
+string-with-double-quote    := &quot;&quot;&quot;
+string-with-newline         := &quot;
+&quot;
+string-with-slash           := &quot;\&quot;
+string-with-tab             := &quot;     &quot;
+</code></pre>
+<p>Single-quoted strings do not recognize escape sequences and may contain line breaks:</p>
+<pre><code class="language-make">escapes := '\t\n\r\&quot;\\'
+
+line-breaks := 'hello
+this
+is
+  a
+     raw
+string!
+'
+</code></pre>
+<pre><code class="language-sh">$ just --evaluate
+escapes := &quot;\t\n\r\&quot;\\&quot;
+
+line-breaks := &quot;hello
+this
+is
+  a
+     raw
+string!
+&quot;
+</code></pre>
+<h1><a class="header" href="#functions" id="functions">Functions</a></h1>
+<p>Just provides a few built-in functions that might be useful when writing recipes.</p>
+<h3><a class="header" href="#system-information" id="system-information">System Information</a></h3>
+<ul>
+<li>
+<p><code>arch()</code> – Instruction set architecture. Possible values are: <code>&quot;aarch64&quot;</code>, <code>&quot;arm&quot;</code>, <code>&quot;asmjs&quot;</code>, <code>&quot;hexagon&quot;</code>, <code>&quot;mips&quot;</code>, <code>&quot;msp430&quot;</code>, <code>&quot;powerpc&quot;</code>, <code>&quot;powerpc64&quot;</code>, <code>&quot;s390x&quot;</code>, <code>&quot;sparc&quot;</code>, <code>&quot;wasm32&quot;</code>, <code>&quot;x86&quot;</code>, <code>&quot;x86_64&quot;</code>, and <code>&quot;xcore&quot;</code>.</p>
+</li>
+<li>
+<p><code>os()</code> – Operating system. Possible values are: <code>&quot;android&quot;</code>, <code>&quot;bitrig&quot;</code>, <code>&quot;dragonfly&quot;</code>, <code>&quot;emscripten&quot;</code>, <code>&quot;freebsd&quot;</code>, <code>&quot;haiku&quot;</code>, <code>&quot;ios&quot;</code>, <code>&quot;linux&quot;</code>, <code>&quot;macos&quot;</code>, <code>&quot;netbsd&quot;</code>, <code>&quot;openbsd&quot;</code>, <code>&quot;solaris&quot;</code>, and <code>&quot;windows&quot;</code>.</p>
+</li>
+<li>
+<p><code>os_family()</code> – Operating system family; possible values are: <code>&quot;unix&quot;</code> and <code>&quot;windows&quot;</code>.</p>
+</li>
+</ul>
+<p>For example:</p>
+<pre><code class="language-make">system-info:
+    @echo &quot;This is an {{arch()}} machine&quot;.
+</code></pre>
+<pre><code>$ just system-info
+This is an x86_64 machine
+</code></pre>
+<h3><a class="header" href="#environment-variables" id="environment-variables">Environment Variables</a></h3>
+<ul>
+<li>
+<p><code>env_var(key)</code> – Retrieves the environment variable with name <code>key</code>, aborting if it is not present.</p>
+</li>
+<li>
+<p><code>env_var_or_default(key, default)</code> – Retrieves the environment variable with name <code>key</code>, returning <code>default</code> if it is not present.</p>
+</li>
+</ul>
+<h3><a class="header" href="#invocation-directory" id="invocation-directory">Invocation Directory</a></h3>
+<ul>
+<li><code>invocation_directory()</code> - Retrieves the path of the current working directory, before <code>just</code> changed it (chdir'd) prior to executing commands.</li>
+</ul>
+<p>For example, to call <code>rustfmt</code> on files just under the &quot;current directory&quot; (from the user/invoker's perspective), use the following rule:</p>
+<pre><code>rustfmt:
+    find {{invocation_directory()}} -name \*.rs -exec rustfmt {} \;
+</code></pre>
+<p>Alternatively, if your command needs to be run from the current directory, you could use (e.g.):</p>
+<pre><code>build:
+    cd {{invocation_directory()}}; ./some_script_that_needs_to_be_run_from_here
+</code></pre>
+<h3><a class="header" href="#dotenv-integration" id="dotenv-integration">Dotenv Integration</a></h3>
+<p><code>just</code> will load environment variables from a file named <code>.env</code>. This file can be located in the same directory as your justfile or in a parent directory. These variables are environment variables, not <code>just</code> variables, and so must be accessed using <code>$VARIABLE_NAME</code> in recipes and backticks.</p>
+<p>For example, if your <code>.env</code> file contains:</p>
+<pre><code># a comment, will be ignored
+DATABASE_ADDRESS=localhost:6379
+SERVER_PORT=1337
+</code></pre>
+<p>And your justfile contains:</p>
+<pre><code class="language-make">serve:
+  @echo &quot;Starting server with database $DATABASE_ADDRESS on port $SERVER_PORT...&quot;
+  ./server --database $DATABASE_ADDRESS --port $SERVER_PORT
+</code></pre>
+<p><code>just serve</code> will output:</p>
+<pre><code class="language-sh">$ just serve
+Starting server with database localhost:6379 on port 1337...
+./server --database $DATABASE_ADDRESS --port $SERVER_PORT
+</code></pre>
+<h1><a class="header" href="#command-evaluation-using-backticks" id="command-evaluation-using-backticks">Command Evaluation Using Backticks</a></h1>
+<p>Backticks can be used to store the result of commands:</p>
+<pre><code class="language-make">localhost := `dumpinterfaces | cut -d: -f2 | sed 's/\/.*//' | sed 's/ //g'`
+
+serve:
+    ./serve {{localhost}} 8080
+</code></pre>
+<h1><a class="header" href="#setting-variables-from-the-command-line" id="setting-variables-from-the-command-line">Setting Variables from the Command Line</a></h1>
+<p>Variables can be overridden from the command line.</p>
+<pre><code class="language-make">os := &quot;linux&quot;
+
+test: build
+    ./test --test {{os}}
+
+build:
+    ./build {{os}}
+</code></pre>
+<pre><code class="language-sh">$ just
+./build linux
+./test --test linux
+</code></pre>
+<p>Any number of arguments of the form <code>NAME=VALUE</code> can be passed before recipes:</p>
+<pre><code class="language-sh">$ just os=plan9
+./build plan9
+./test --test plan9
+</code></pre>
+<p>Or you can use the <code>--set</code> flag:</p>
+<pre><code class="language-sh">$ just --set os bsd
+./build bsd
+./test --test bsd
+</code></pre>
+<h1><a class="header" href="#environment-variables-1" id="environment-variables-1">Environment Variables</a></h1>
+<p>Assignments prefixed with the <code>export</code> keyword will be exported to recipes as environment variables:</p>
+<pre><code class="language-make">export RUST_BACKTRACE := &quot;1&quot;
+
+test:
+    # will print a stack trace if it crashes
+    cargo test
+</code></pre>
+<h1><a class="header" href="#recipe-parameters" id="recipe-parameters">Recipe Parameters</a></h1>
+<p>Recipes may have parameters. Here recipe <code>build</code> has a parameter called <code>target</code>:</p>
+<pre><code class="language-make">build target:
+    @echo 'Building {{target}}...'
+    cd {{target}} &amp;&amp; make
+</code></pre>
+<p>Other recipes may not depend on a recipe with parameters.</p>
+<p>To pass arguments, put them after the recipe name:</p>
+<pre><code class="language-sh">$ just build my-awesome-project
+Building my-awesome-project...
+cd my-awesome-project &amp;&amp; make
+</code></pre>
+<p>Parameters may have default values:</p>
+<pre><code class="language-make">default := 'all'
+
+test target tests=default:
+    @echo 'Testing {{target}}:{{tests}}...'
+    ./test --tests {{tests}} {{target}}
+</code></pre>
+<p>Parameters with default values may be omitted:</p>
+<pre><code class="language-sh">$ just test server
+Testing server:all...
+./test --tests all server
+</code></pre>
+<p>Or supplied:</p>
+<pre><code class="language-sh">$ just test server unit
+Testing server:unit...
+./test --tests unit server
+</code></pre>
+<p>Default values may be arbitrary expressions, but concatenations must be parenthesized:</p>
+<pre><code class="language-make">arch := &quot;wasm&quot;
+
+test triple=(arch + &quot;-unknown-unknown&quot;):
+  ./test {{triple}}
+</code></pre>
+<p>The last parameter of a recipe may be variadic, indicated with a <code>+</code> before the argument name:</p>
+<pre><code class="language-make">backup +FILES:
+  scp {{FILES}} me@server.com:
+</code></pre>
+<p>Variadic parameters accept one or more arguments and expand to a string containing those arguments separated by spaces:</p>
+<pre><code class="language-sh">$ just backup FAQ.md GRAMMAR.md
+scp FAQ.md GRAMMAR.md me@server.com:
+FAQ.md                  100% 1831     1.8KB/s   00:00
+GRAMMAR.md              100% 1666     1.6KB/s   00:00
+</code></pre>
+<p>A variadic parameter with a default argument will accept zero or more arguments:</p>
+<pre><code class="language-make">commit MESSAGE +FLAGS='':
+  git commit {{FLAGS}} -m &quot;{{MESSAGE}}&quot;
+</code></pre>
+<p><code>{{...}}</code> substitutions may need to be quoted if they contains spaces. For example, if you have the following recipe:</p>
+<pre><code class="language-make">search QUERY:
+    lynx https://www.google.com/?q={{QUERY}}
+</code></pre>
+<p>And you type:</p>
+<pre><code class="language-sh">$ just search &quot;cat toupee&quot;
+</code></pre>
+<p>Just will run the command <code>lynx https://www.google.com/?q=cat toupee</code>, which will get parsed by <code>sh</code> as <code>lynx</code>, <code>https://www.google.com/?q=cat</code>, and <code>toupee</code>, and not the intended <code>lynx</code> and <code>https://www.google.com/?q=cat toupee</code>.</p>
+<p>You can fix this by adding quotes:</p>
+<pre><code class="language-make">search QUERY:
+    lynx 'https://www.google.com/?q={{QUERY}}'
+</code></pre>
+<h1><a class="header" href="#writing-recipes-in-other-languages" id="writing-recipes-in-other-languages">Writing Recipes in Other Languages</a></h1>
+<p>Recipes that start with a <code>#!</code> are executed as scripts, so you can write recipes in other languages:</p>
+<pre><code class="language-make">polyglot: python js perl sh ruby
+
+python:
+    #!/usr/bin/env python3
+    print('Hello from python!')
+
+js:
+    #!/usr/bin/env node
+    console.log('Greetings from JavaScript!')
+
+perl:
+    #!/usr/bin/env perl
+    print &quot;Larry Wall says Hi!\n&quot;;
+
+sh:
+    #!/usr/bin/env sh
+    hello='Yo'
+    echo &quot;$hello from a shell script!&quot;
+
+ruby:
+    #!/usr/bin/env ruby
+    puts &quot;Hello from ruby!&quot;
+</code></pre>
+<pre><code class="language-sh">$ just polyglot
+Hello from python!
+Greetings from JavaScript!
+Larry Wall says Hi!
+Yo from a shell script!
+Hello from ruby!
+</code></pre>
+<h1><a class="header" href="#multi-line-constructs" id="multi-line-constructs">Multi-line Constructs</a></h1>
+<p>Recipes without an initial shebang are evaluated and run line-by-line, which means that multi-line constructs probably won't do what you want.</p>
+<p>For example, with the following justfile:</p>
+<pre><code>conditional:
+    if true; then
+        echo 'True!'
+    fi
+</code></pre>
+<p>The extra leading whitespace before the second line of the <code>conditional</code> recipe will produce a parse error:</p>
+<pre><code>$ just conditional
+error: Recipe line has extra leading whitespace
+  |
+3 |         echo 'True!'
+  |     ^^^^^^^^^^^^^^^^
+</code></pre>
+<p>To work around this, you can write conditionals on one line, escape newlines with slashes, or add a shebang to your recipe. Some examples of multi-line constructs are provided for reference.</p>
+<h3><a class="header" href="#if-statements" id="if-statements"><code>if</code> statements</a></h3>
+<pre><code class="language-make">conditional:
+    if true; then echo 'True!'; fi
+</code></pre>
+<pre><code class="language-make">conditional:
+    if true; then \
+        echo 'True!'; \
+    fi
+</code></pre>
+<pre><code class="language-make">conditional:
+    #!/usr/bin/env sh
+    if true; then
+        echo 'True!'
+    fi
+</code></pre>
+<h3><a class="header" href="#for-loops" id="for-loops"><code>for</code> loops</a></h3>
+<pre><code class="language-make">for:
+    for file in `ls .`; do echo $file; done
+</code></pre>
+<pre><code class="language-make">for:
+    for file in `ls .`; do \
+        echo $file; \
+    done
+</code></pre>
+<pre><code class="language-make">for:
+    #!/usr/bin/env sh
+    for file in `ls .`; do
+        echo $file
+    done
+</code></pre>
+<h3><a class="header" href="#while-loops" id="while-loops"><code>while</code> loops</a></h3>
+<pre><code class="language-make">while:
+    while `server-is-dead`; do ping -c 1 server; done
+</code></pre>
+<pre><code class="language-make">while:
+    while `server-is-dead`; do \
+        ping -c 1 server; \
+    done
+</code></pre>
+<pre><code class="language-make">while:
+    #!/usr/bin/env sh
+    while `server-is-dead`; do
+        do ping -c 1 server
+    done
+</code></pre>
+<h1><a class="header" href="#command-line-options" id="command-line-options">Command Line Options</a></h1>
+<p><code>just</code> supports a number of useful command line options for listing, dumping, and debugging recipes and variable:</p>
+<pre><code class="language-sh">$ just --list
+Available recipes:
+  js
+  perl
+  polyglot
+  python
+  ruby
+$ just --show perl
+perl:
+    #!/usr/bin/env perl
+    print &quot;Larry Wall says Hi!\n&quot;;
+$ just --show polyglot
+polyglot: python js perl sh ruby
+</code></pre>
+<p>Run <code>just --help</code> to see all the options.</p>
+<h1><a class="header" href="#private-recipes" id="private-recipes">Private Recipes</a></h1>
+<p>Recipes and aliases whose name starts with a <code>_</code> are omitted from <code>just --list</code>:</p>
+<pre><code class="language-make">test: _test-helper
+  ./bin/test
+
+_test-helper:
+  ./bin/super-secret-test-helper-stuff
+</code></pre>
+<pre><code class="language-sh">$ just --list
+Available recipes:
+  test
+</code></pre>
+<p>And from <code>just --summary</code>:</p>
+<pre><code class="language-sh">$ just --summary
+test
+</code></pre>
+<p>This is useful for helper recipes which are only meant to be used as dependencies of other recipes.</p>
+<h1><a class="header" href="#quiet-recipes" id="quiet-recipes">Quiet Recipes</a></h1>
+<p>A recipe name may be prefixed with '@' to invert the meaning of '@' before each line:</p>
+<pre><code class="language-make">@quiet:
+  echo hello
+  echo goodbye
+  @# all done!
+</code></pre>
+<p>Now only the lines starting with '@' will be echoed:</p>
+<pre><code class="language-sh">$ j quiet
+hello
+goodbye
+# all done!
+</code></pre>
+<h1><a class="header" href="#invoking-justfiles-in-other-directories" id="invoking-justfiles-in-other-directories">Invoking Justfiles in Other Directories</a></h1>
+<p>If the first argument passed to <code>just</code> contains a <code>/</code>, then the following occurs:</p>
+<ol>
+<li>The argument is split at the last <code>/</code>.</li>
+<li>The part before the last <code>/</code> is treated as a directory. Just will start its search for the justfile there, instead of in the current directory.</li>
+<li>The part after the last slash is treated as a normal argument, or ignored if it is empty.</li>
+</ol>
+<p>This may seem a little strange, but it's useful if you wish to run a command in a justfile that is in a subdirectory.</p>
+<p>For example, if you are in a directory which contains a subdirectory named <code>foo</code>, which contains a justfile with the recipe <code>build</code>, which is also the default recipe, the following are all equivalent:</p>
+<pre><code class="language-sh">$ (cd foo &amp;&amp; just build)
+$ just foo/build
+$ just foo/
+</code></pre>
+<h1><a class="header" href="#just-scripts" id="just-scripts">Just Scripts</a></h1>
+<p>By adding a shebang line to the top of a justfile and making it executable, <code>just</code> can be used as an interpreter for scripts:</p>
+<pre><code class="language-sh">$ cat &gt; script &lt;&lt;EOF
+#!/usr/bin/env just --justfile
+
+foo:
+  echo foo
+EOF
+$ chmod +x script
+$ ./script foo
+echo foo
+foo
+</code></pre>
+<p>When a script with a shebang is executed, the system supplies the path to the script as an argument to the command in the shebang. So, with a shebang of <code>#!/usr/bin/env just --justfile</code>, the command will be <code>/usr/bin/env just --justfile PATH_TO_SCRIPT</code>.</p>
+<p>With the above shebang, <code>just</code> will change its working directory to the location of the script. If you'd rather leave the working directory unchanged, use <code>#!/usr/bin/env just --working-directory . --justfile</code>.</p>
+<h1><a class="header" href="#misc" id="misc">Misc</a></h1>
+<h1><a class="header" href="#companion-tools" id="companion-tools">Companion Tools</a></h1>
+<p>Tools that pair nicely with <code>just</code> include:</p>
+<ul>
+<li><a href="https://github.com/mattgreen/watchexec"><code>watchexec</code></a> — a simple tool that watches a path and runs a command whenever it detects modifications.</li>
+</ul>
+<h1><a class="header" href="#shell-alias" id="shell-alias">Shell Alias</a></h1>
+<p>For lightning-fast command running, put <code>alias j=just</code> in your shell's configuration file.</p>
+<h1><a class="header" href="#syntax-highlighting" id="syntax-highlighting">Syntax Highlighting</a></h1>
+<p><code>justfile</code> syntax is close enough to <code>make</code> that you may want to tell your editor to use make syntax highlighting for just.</p>
+<h3><a class="header" href="#vim" id="vim">Vim</a></h3>
+<p>For vim, you can put the following in <code>~/.vim/filetype.vim</code>:</p>
+<pre><code class="language-vimscript">if exists(&quot;did_load_filetypes&quot;)
+  finish
+endif
+
+augroup filetypedetect
+  au BufNewFile,BufRead justfile setf make
+augroup END
+</code></pre>
+<h3><a class="header" href="#vim-and-emacs" id="vim-and-emacs">Vim and Emacs</a></h3>
+<p>Include the following in a <code>justfile</code> to enable syntax highlighting in vim and emacs:</p>
+<pre><code># Local Variables:
+# mode: makefile
+# End:
+# vim: set ft=make :
+</code></pre>
+<h3><a class="header" href="#visual-studio-code" id="visual-studio-code">Visual Studio Code</a></h3>
+<p>An extension for VS Code by https://github.com/skellock[skellock] is https://marketplace.visualstudio.com/items?itemName=skellock.just[available here]. (https://github.com/skellock/vscode-just[repository])</p>
+<p>You can install it from the command line by running:</p>
+<pre><code>code --install-extension skellock.just
+</code></pre>
+<h3><a class="header" href="#kakoune" id="kakoune">Kakoune</a></h3>
+<p>Kakoune supports <code>justfile</code> syntax highlighting out of the box, thanks to TeddyDD.</p>
+<h3><a class="header" href="#other-editors" id="other-editors">Other Editors</a></h3>
+<p>Feel free to send me the commands necessary to get syntax highlighting working in your editor of choice so that I may include them here.</p>
+<h1><a class="header" href="#grammar" id="grammar">Grammar</a></h1>
+<h1><a class="header" href="#justfile-grammar" id="justfile-grammar">justfile grammar</a></h1>
+<p>Justfiles are processed by a mildly context-sensitive tokenizer
+and a recursive descent parser. The grammar is mostly LL(1),
+although an extra token of lookahead is used to distinguish between
+export assignments and recipes with parameters.</p>
+<h2><a class="header" href="#tokens" id="tokens">tokens</a></h2>
+<pre><code>BACKTICK   = `[^`\n\r]*`
+COMMENT    = #([^!].*)?$
+DEDENT     = emitted when indentation decreases
+EOF        = emitted at the end of the file
+INDENT     = emitted when indentation increases
+LINE       = emitted before a recipe line
+NAME       = [a-zA-Z_][a-zA-Z0-9_-]*
+NEWLINE    = \n|\r\n
+RAW_STRING = '[^'\r\n]*'
+STRING     = &quot;[^&quot;]*&quot; # also processes \n \r \t \&quot; \\ escapes
+TEXT       = recipe text, only matches in a recipe body
+</code></pre>
+<h2><a class="header" href="#grammar-syntax" id="grammar-syntax">grammar syntax</a></h2>
+<pre><code>|   alternation
+()  grouping
+_?  option (0 or 1 times)
+_*  repetition (0 or more times)
+_+  repetition (1 or more times)
+</code></pre>
+<h2><a class="header" href="#grammar-1" id="grammar-1">grammar</a></h2>
+<pre><code>justfile      : item* EOF
+
+item          : recipe
+              | alias
+              | assignment
+              | export
+              | eol
+
+eol           : NEWLINE
+              | COMMENT NEWLINE
+
+alias         : 'alias' NAME ':=' NAME
+
+assignment    : NAME ':=' expression eol
+
+export        : 'export' assignment
+
+expression    : value '+' expression
+              | value
+
+value         : NAME '(' sequence? ')'
+              | STRING
+              | RAW_STRING
+              | BACKTICK
+              | NAME
+              | '(' expression ')'
+
+sequence      : expression ',' sequence
+              | expression ','?
+
+recipe        : '@'? NAME parameter* ('+' parameter)? ':' dependencies? body?
+
+parameter     : NAME
+              | NAME '=' value
+
+dependencies  : NAME+
+
+body          : INDENT line+ DEDENT
+
+line          : LINE (TEXT | interpolation)+ NEWLINE
+              | NEWLINE
+
+interpolation : '{{' expression '}}'
+</code></pre>
+<h1><a class="header" href="#justsh" id="justsh">just.sh</a></h1>
+<p>Before <code>just</code> was a fancy rust program it was a tiny shell script that called <code>make</code>. You can find the old version in <a href="https://github.com/casey/just/blob/master/extras/just.sh">here</a></p>
+<h1><a class="header" href="#non-project-specific-justfile" id="non-project-specific-justfile">Non-Project Specific Justfile</a></h1>
+<p>If you want some commands to be available everywhere, put them in <code>~/.justfile</code> and add the following to your shell's initialization file:</p>
+<pre><code class="language-sh">alias .j='just --justfile ~/.justfile --working-directory ~'
+</code></pre>
+<p>Or, if you'd rather they run in the current directory:</p>
+<pre><code class="language-sh">alias .j='just --justfile ~/.justfile --working-directory .'
+</code></pre>
+<p>I'm pretty sure that nobody actually uses this feature, but it's there.</p>
+<p>¯\<em>(ツ)</em>/¯</p>
+<h1><a class="header" href="#contributing" id="contributing">Contributing</a></h1>
+<p><code>just</code> welcomes your contributions! <code>just</code> is released under the maximally permissive <a href="https://creativecommons.org/publicdomain/zero/1.0/legalcode.txt">CC0</a> public domain dedication and fallback license, so your changes must also released under this license.</p>
+<h1><a class="header" href="#janus" id="janus">Janus</a></h1>
+<p><a href="https://github.com/casey/janus">Janus</a> is a tool that collects and analyzes justfiles, and can determine if a new version of <code>just</code> breaks or changes the interpretation of existing justfiles.</p>
+<p>Before merging a particularly large or gruesome change, Janus should be run to make sure that nothing breaks. Don't worry about running Janus yourself, Casey will happily run it for you on changes that need it.</p>
+<h1><a class="header" href="#frequently-asked-questions" id="frequently-asked-questions">Frequently Asked Questions</a></h1>
+<h1><a class="header" href="#what-are-the-idiosyncrasies-of-make-that-just-avoids" id="what-are-the-idiosyncrasies-of-make-that-just-avoids">What are the idiosyncrasies of Make that Just avoids?</a></h1>
+<p>Make has some behaviors which are confusing, complicated, or make it unsuitable for use as a general command runner.</p>
+<p>One example is that under some circumstances, Make won't actually run the commands in a recipe. For example, if you have a file called <code>test</code> and the following makefile:</p>
+<pre><code class="language-make">test:
+  ./test
+</code></pre>
+<p>Make will refuse to run your tests:</p>
+<pre><code class="language-sh">$ make test
+make: `test' is up to date.
+</code></pre>
+<p>Make assumes that the <code>test</code> recipe produces a file called <code>test</code>. Since this file exists and the recipe has no other dependencies, Make thinks that it doesn't have anything to do and exits.</p>
+<p>To be fair, this behavior is desirable when using Make as a build system, but not when using it as a command runner. You can disable this behavior for specific targets using Make's built-in link:<a href="https://www.gnu.org/software/make/manual/html_node/Phony-Targets.html"><code>.PHONY</code> target name</a>, but the syntax is verbose and can be hard to remember. The explicit list of phony targets, written separately from the recipe definitions, also introduces the risk of accidentally defining a new non-phony target. In <code>just</code>, all recipes are treated as if they were phony.</p>
+<p>Other examples of Make’s idiosyncrasies include the difference between <code>=</code> and <code>:=</code> in assignments, the confusing error messages that are produced if you mess up your makefile, needing <code>$$</code> to use environment variables in recipes, and incompatibilities between different flavors of Make.</p>
+<h1><a class="header" href="#whats-the-relationship-between-just-ans-cargo-build-scripts" id="whats-the-relationship-between-just-ans-cargo-build-scripts">What's the relationship between just ans cargo build scripts?</a></h1>
+<p><a href="http://doc.crates.io/build-script.html">Cargo build scripts</a> have a pretty specific use, which is to control how cargo builds your rust project. This might include adding flags to <code>rustc</code> invocations, building an external dependency, or running some kind of codegen step.</p>
+<p><code>just</code>, on the other hand, is for all the other miscellaneous commands you might run as part of development. Things like running tests in different configurations, linting your code, pushing build artifacts to a server, removing temporary files, and the like.</p>
+<p>Also, although <code>just</code> is written in rust, it can be used regardless of the language or build system your project uses.</p>
+<h1><a class="header" href="#further-ramblings" id="further-ramblings">Further Ramblings</a></h1>
+<p>I personally find it very useful to write a <code>justfile</code> for almost every project, big or small.</p>
+<p>On a big project with multiple contributors, it's very useful to have a file with all the commands needed to work on the project close at hand.</p>
+<p>There are probably different commands to test, build, lint, deploy, and the like, and having them all in one place is useful and cuts down on the time you have to spend telling people which commands to run and how to type them.</p>
+<p>And, with an easy place to put commands, it's likely that you'll come up with other useful things which are part of the project's collective wisdom, but which aren't written down anywhere, like the arcane commands needed for some part of your revision control workflow, install all your project's dependencies, or all the random flags you might need to pass to the build system.</p>
+<p>Some ideas for recipes:</p>
+<ul>
+<li>Deploying/publishing the project</li>
+<li>Building in release mode vs debug mode</li>
+<li>Running in debug mode or with logging enabled</li>
+<li>Complex git workflows</li>
+<li>Updating dependencies</li>
+<li>Running different sets of tests, for example fast tests vs slow tests, or running them with verbose output</li>
+<li>Any complex set of commands that you really should write down somewhere, if only to be able to remember them</li>
+</ul>
+<p>Even for small, personal projects it's nice to be able to remember commands by name instead of ^Reverse searching your shell history, and it's a huge boon to be able to go into an old project written in a random language with a mysterious build system and know that all the commands you need to do whatever you need to do are in the <code>justfile</code>, and that if you type <code>just</code> something useful (or at least interesting!) will probably happen.</p>
+<p>For ideas for recipes, check out <a href="https://github.com/casey/just/blob/master/extras/justfile">this project's <code>justfile</code></a>, or some of the <code>justfile</code>s <a href="https://github.com/search?utf8=%E2%9C%93&amp;q=filename%3Ajustfile">out in the wild</a>.</p>
+<p>I hope you enjoy using <code>just</code> and find great success and satisfaction in all your computational endeavors!</p>
+<p>😸</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+
+                
+            </nav>
+
+        </div>
+
+        
+
+        
+
+        
+
+        
+        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+
+        
+        
+        <script type="text/javascript">
+        window.addEventListener('load', function() {
+            window.setTimeout(window.print, 100);
+        });
+        </script>
+        
+        
+
+    </body>
+</html>

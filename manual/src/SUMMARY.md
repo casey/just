@@ -1,0 +1,48 @@
+# Summary
+
+- [Installation](install/index.md)
+	- [Prebuild Binaries](install/prebuilt.md)
+	- [Homebrew](install/homebrew.md)
+	- [Scoop](install/scoop.md)
+	- [Arch Linux](install/arch_linux.md)
+	- [Void Linux](install/void_linux.md)
+	- [Nix](install/nix.md)
+	- [Cargo](install/cargo.md)
+
+- [Quick Start](./quickstart.md)
+
+- [Features](features/index.md)
+	- [Listing Available Recipes](features/list_avail_recipes.md)
+	- [Aliases](features/aliases.md)
+	- [Documentation Comments](features/doc_comments.md)
+	- [Variable Substitution](features/var_sub.md)
+	- [Strings](features/strings.md)
+	- [Functions](features/functions.md)
+	- [Command Evaluation Using Backticks](features/command_eval.md)
+	- [Setting Variables from the Command Line](features/setting_vars.md)
+	- [Environment Variables](features/env_vars.md)
+	- [Recipe Parameters](features/recipe_params.md)
+	- [Writing Recipes in Other Languages](features/recipes_in_other_lang.md)
+	- [Multi-line Constructs](features/multiline_constructs.md)
+	- [Command Line Options](features/command_line_options.md)
+	- [Private Recipes](features/private_recipes.md)
+	- [Quiet Recipes](features/quiet_recipes.md)
+	- [Invoking Justfiles in Other Directories](features/just_from_other_dir.md)
+	- [Just Scripts](features/just_scripts.md)
+
+- [Miscellanea](misc/index.md)
+	- [Companion Tools](misc/companion_tools.md)
+	- [Shell Alias](misc/shell_alias.md)
+	- [Syntax Highlighting](misc/syntax_highlighting.md)
+	- [Grammar](misc/grammar.md)
+	- [just.sh](misc/just-sh.md)
+	- [Non-Project Specific Justfile](misc/non-proj_specific_justfile.md)
+
+- [Contributing](contrib/index.md)
+	- [Janus](contrib/janus.md)
+
+- [Frequently Asked Questions](faq/index.md)
+	- [What are the idiosyncrasies of Make that Just avoids?](faq/faq1.md)
+	- [What's the relationship between just ans cargo build scripts?](faq/faq2.md)
+
+- [Further Ramblings](./further_ramblings.md)

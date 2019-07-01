@@ -1,0 +1,7 @@
+[book]
+title = "Just"
+authors = ["David Karrick"]
+description = "`just` is a handy way to save and run project-specific commands."
+multilingual = false
+src = "src"
+
