@@ -91,32 +91,31 @@ before_deploy:
   - sh ci/before_deploy.sh
 
 deploy:
-  # DONE update `api_key.secure`
-  # - Create a `public_repo` GitHub token. Go to: https://github.com/settings/tokens/new
-  # - Encrypt it: `travis encrypt 0123456789012345678901234567890123456789
-  # - Paste the output down here
-  api_key:
+  - provider: releases
+    skip_cleanup: true
+    # DONE update `api_key.secure`
+    # - Create a `public_repo` GitHub token. Go to: https://github.com/settings/tokens/new
+    # - Encrypt it: `travis encrypt 0123456789012345678901234567890123456789
+    # - Paste the output down here
+    api_key:
     secure: "YaOabSTnNtl0h6DwxtiKG+W6eE8swQSMXlE20oZvTBDpCPWa6daHSVNWBwthudlrcZLWvRuQmy+we62OELzc1f5AwNyyTZ0fgtiqcs7+MY3edSyBQHUIPbzZGeCsbvb1efQzJDZaU5u6TaeNvwqEcIEU2BTSl/3F7RrG+1CgwtnsIp4zrAeaJBHhY0RZCvpdfOica9+m5Dz37q0acl2xdVX9SGv9d+F1WZ2QsB35UCfFVJQ21/KE6QWYZIyEvjudZ7XbeafTnOZ9Xcmn0Mpo9OfhiG3/OP+wN8hOH26CjQR1ru5ftnmdXigE/YOAkUgeRfcFv1rptq6+Datrfu0sHvAM/zSAiqbakHnwn1zVLWe8WJHGjnvh428jAhMK85y1cStsnVsxnciqmWlnpr3bBL2Nopi9OuAOMJ1SG5jNmLCctQwCJubxzrFLaJRKeUefDye+L9u4/EyiQmx0p7b1IsBlEjYe1ammzgBdEA26fUmzM6gJKcOLKmH9CLpcBYiaGuAaiHIBW5Cbq05kB2fVay+947YQOFEnmMJm2sZMkITv1ZnofWqDoyj9BVttczrKUDho3oMBNu9jsrAO0ncqUnsao3aqiuKIVjmPgc2uV8c+UlEpqHu40PNAfF70KkWkefYeqqGMGKzuB1SnMr+4XmQg0GPnK2MuEHzQOmvASuo="
-  file_glob: true
-  file: $CRATE_NAME-$TRAVIS_TAG-$TARGET.*
-  on:
-    # DONE Here you can pick which targets will generate binary releases
-    # In this example, there are some targets that are tested using the stable
-    # and nightly channels. This condition makes sure there is only one release
-    # for such targets and that's generated using the stable channel
-    condition: $TRAVIS_RUST_VERSION = stable
-    tags: true
-  provider: releases
-  skip_cleanup: true
+    file_glob: true
+    file: $CRATE_NAME-$TRAVIS_TAG-$TARGET.*
+    on:
+      # DONE Here you can pick which targets will generate binary releases
+      # In this example, there are some targets that are tested using the stable
+      # and nightly channels. This condition makes sure there is only one release
+      # for such targets and that's generated using the stable channel
+      condition: $TRAVIS_RUST_VERSION = stable
+      tags: true
+  - provider: pages
+    skip-cleanup: true
+    github-token: $GITHUB_TOKEN
+    local-dir: manual
+    keep-history: false
+    on:
+      branch: master
 
-deploy:
-  provider: pages
-  skip-cleanup: true
-  github-token: $GITHUB_TOKEN
-  local-dir: manual
-  keep-history: false
-  on:
-    branch: master
 
 cache: 
   - cargo
