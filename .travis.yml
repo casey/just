@@ -80,7 +80,7 @@ before_script:
 
 script:
   - bash ci/script.sh
-  - mdbook build manual
+  - mdbook build manual && mdbook test manual
 
 after_script: set +e
 

@@ -4,7 +4,7 @@ Recipes without an initial shebang are evaluated and run line-by-line, which mea
 
 For example, with the following justfile:
 
-```
+```make
 conditional:
     if true; then
         echo 'True!'
@@ -13,7 +13,7 @@ conditional:
 
 The extra leading whitespace before the second line of the `conditional` recipe will produce a parse error:
 
-```
+```sh
 $ just conditional
 error: Recipe line has extra leading whitespace
   |

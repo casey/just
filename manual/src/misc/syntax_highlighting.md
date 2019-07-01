@@ -20,7 +20,7 @@ augroup END
 
 Include the following in a `justfile` to enable syntax highlighting in vim and emacs:
 
-```
+```vimscript
 # Local Variables:
 # mode: makefile
 # End:
@@ -33,7 +33,7 @@ An extension for VS Code by https://github.com/skellock[skellock] is https://mar
 
 You can install it from the command line by running:
 
-```
+```sh
 code --install-extension skellock.just
 ```
 

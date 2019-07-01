@@ -11,7 +11,7 @@ export assignments and recipes with parameters.
 tokens
 ------
 
-```
+```sh
 BACKTICK   = `[^`\n\r]*`
 COMMENT    = #([^!].*)?$
 DEDENT     = emitted when indentation decreases
@@ -28,7 +28,7 @@ TEXT       = recipe text, only matches in a recipe body
 grammar syntax
 --------------
 
-```
+```sh
 |   alternation
 ()  grouping
 _?  option (0 or 1 times)
@@ -39,7 +39,7 @@ _+  repetition (1 or more times)
 grammar
 -------
 
-```
+```sh
 justfile      : item* EOF
 
 item          : recipe

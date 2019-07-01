@@ -17,7 +17,7 @@ system-info:
     @echo "This is an {{arch()}} machine".
 ```
 
-```
+```sh
 $ just system-info
 This is an x86_64 machine
 ```
@@ -34,14 +34,14 @@ This is an x86_64 machine
 
 For example, to call `rustfmt` on files just under the "current directory" (from the user/invoker's perspective), use the following rule:
 
-```
+```sh
 rustfmt:
     find {{invocation_directory()}} -name \*.rs -exec rustfmt {} \;
 ```
 
 Alternatively, if your command needs to be run from the current directory, you could use (e.g.):
 
-```
+```sh
 build:
     cd {{invocation_directory()}}; ./some_script_that_needs_to_be_run_from_here
 ```
@@ -52,7 +52,7 @@ build:
 
 For example, if your `.env` file contains:
 
-```
+```sh
 # a comment, will be ignored
 DATABASE_ADDRESS=localhost:6379
 SERVER_PORT=1337
