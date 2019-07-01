@@ -6,9 +6,6 @@ language: rust
 services: docker
 sudo: required
 
-rust:
-  - stable
-
 # DONE Rust builds on stable by default, this can be
 # overridden on a case by case basis down below.
 
@@ -92,13 +89,12 @@ before_deploy:
 
 deploy:
   - provider: releases
-    skip_cleanup: true
     # DONE update `api_key.secure`
     # - Create a `public_repo` GitHub token. Go to: https://github.com/settings/tokens/new
     # - Encrypt it: `travis encrypt 0123456789012345678901234567890123456789
     # - Paste the output down here
     api_key:
-    secure: "YaOabSTnNtl0h6DwxtiKG+W6eE8swQSMXlE20oZvTBDpCPWa6daHSVNWBwthudlrcZLWvRuQmy+we62OELzc1f5AwNyyTZ0fgtiqcs7+MY3edSyBQHUIPbzZGeCsbvb1efQzJDZaU5u6TaeNvwqEcIEU2BTSl/3F7RrG+1CgwtnsIp4zrAeaJBHhY0RZCvpdfOica9+m5Dz37q0acl2xdVX9SGv9d+F1WZ2QsB35UCfFVJQ21/KE6QWYZIyEvjudZ7XbeafTnOZ9Xcmn0Mpo9OfhiG3/OP+wN8hOH26CjQR1ru5ftnmdXigE/YOAkUgeRfcFv1rptq6+Datrfu0sHvAM/zSAiqbakHnwn1zVLWe8WJHGjnvh428jAhMK85y1cStsnVsxnciqmWlnpr3bBL2Nopi9OuAOMJ1SG5jNmLCctQwCJubxzrFLaJRKeUefDye+L9u4/EyiQmx0p7b1IsBlEjYe1ammzgBdEA26fUmzM6gJKcOLKmH9CLpcBYiaGuAaiHIBW5Cbq05kB2fVay+947YQOFEnmMJm2sZMkITv1ZnofWqDoyj9BVttczrKUDho3oMBNu9jsrAO0ncqUnsao3aqiuKIVjmPgc2uV8c+UlEpqHu40PNAfF70KkWkefYeqqGMGKzuB1SnMr+4XmQg0GPnK2MuEHzQOmvASuo="
+      secure: "YaOabSTnNtl0h6DwxtiKG+W6eE8swQSMXlE20oZvTBDpCPWa6daHSVNWBwthudlrcZLWvRuQmy+we62OELzc1f5AwNyyTZ0fgtiqcs7+MY3edSyBQHUIPbzZGeCsbvb1efQzJDZaU5u6TaeNvwqEcIEU2BTSl/3F7RrG+1CgwtnsIp4zrAeaJBHhY0RZCvpdfOica9+m5Dz37q0acl2xdVX9SGv9d+F1WZ2QsB35UCfFVJQ21/KE6QWYZIyEvjudZ7XbeafTnOZ9Xcmn0Mpo9OfhiG3/OP+wN8hOH26CjQR1ru5ftnmdXigE/YOAkUgeRfcFv1rptq6+Datrfu0sHvAM/zSAiqbakHnwn1zVLWe8WJHGjnvh428jAhMK85y1cStsnVsxnciqmWlnpr3bBL2Nopi9OuAOMJ1SG5jNmLCctQwCJubxzrFLaJRKeUefDye+L9u4/EyiQmx0p7b1IsBlEjYe1ammzgBdEA26fUmzM6gJKcOLKmH9CLpcBYiaGuAaiHIBW5Cbq05kB2fVay+947YQOFEnmMJm2sZMkITv1ZnofWqDoyj9BVttczrKUDho3oMBNu9jsrAO0ncqUnsao3aqiuKIVjmPgc2uV8c+UlEpqHu40PNAfF70KkWkefYeqqGMGKzuB1SnMr+4XmQg0GPnK2MuEHzQOmvASuo="
     file_glob: true
     file: $CRATE_NAME-$TRAVIS_TAG-$TARGET.*
     on:
@@ -108,6 +104,7 @@ deploy:
       # for such targets and that's generated using the stable channel
       condition: $TRAVIS_RUST_VERSION = stable
       tags: true
+    skip_cleanup: true
   - provider: pages
     skip-cleanup: true
     github-token: $GITHUB_TOKEN
@@ -116,9 +113,9 @@ deploy:
     on:
       branch: master
 
-
 cache: 
   - cargo
+
 before_cache:
   # Travis can't cache files that are not readable by "others"
   - chmod -R a+r $HOME/.cargo
@@ -132,9 +129,3 @@ branches:
 notifications:
   email:
     on_success: never
-
-language: rust
-sudo: false
-
-cache:
-  - cargo
