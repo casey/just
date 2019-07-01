@@ -6,6 +6,9 @@ language: rust
 services: docker
 sudo: required
 
+rust:
+  - stable
+
 # DONE Rust builds on stable by default, this can be
 # overridden on a case by case basis down below.
 
@@ -73,8 +76,14 @@ install:
   - sh ci/install.sh
   - source ~/.cargo/env || true
 
+before_script:
+  - (test -x $HOME/.cargo/bin/cargo-install-update || cargo install cargo-update)
+  - (test -x $HOME/.cargo/bin/mdbook || cargo install --vers "^0.3" mdbook)
+  - cargo install-update -a
+
 script:
   - bash ci/script.sh
+  - mdbook build manual && mdbook test manual
 
 after_script: set +e
 
@@ -100,7 +109,17 @@ deploy:
   provider: releases
   skip_cleanup: true
 
-cache: cargo
+deploy:
+  provider: pages
+  skip-cleanup: true
+  github-token: $GITHUB_TOKEN
+  local-dir: manual
+  keep-history: false
+  on:
+    branch: master
+
+cache: 
+  - cargo
 before_cache:
   # Travis can't cache files that are not readable by "others"
   - chmod -R a+r $HOME/.cargo
@@ -114,3 +133,9 @@ branches:
 notifications:
   email:
     on_success: never
+
+language: rust
+sudo: false
+
+cache:
+  - cargo
