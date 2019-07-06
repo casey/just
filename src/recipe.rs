@@ -132,7 +132,7 @@ impl<'a> Recipe<'a> {
         return Ok(());
       }
 
-      let tmp = TempDir::new("just").map_err(|error| RuntimeError::TmpdirIoError {
+      let tmp = tempfile::Builder::new().prefix("just").tempdir().map_err(|error| RuntimeError::TmpdirIoError {
         recipe: self.name,
         io_error: error,
       })?;
