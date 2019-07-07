@@ -1,4 +1,5 @@
-pub fn tempdir() -> tempfile::TempDir {
+#[allow(dead_code)]
+pub(crate) fn tempdir() -> tempfile::TempDir {
   tempfile::Builder::new()
     .prefix("just-test-tempdir")
     .tempdir()
