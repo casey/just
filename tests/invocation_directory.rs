@@ -1,10 +1,13 @@
-use executable_path::executable_path;
+mod tempdir;
+
 use std::{fs, path::Path, process, str};
-use tempdir::TempDir;
+
+use executable_path::executable_path;
+
+use tempdir::tempdir;
 
 #[cfg(unix)]
 fn to_shell_path(path: &Path) -> String {
-  use std::fs;
   fs::canonicalize(path)
     .expect("canonicalize failed")
     .to_str()
@@ -23,12 +26,7 @@ fn to_shell_path(path: &Path) -> String {
 
 #[test]
 fn test_invocation_directory() {
-  let tmp = TempDir::new("just-integration").unwrap_or_else(|err| {
-    panic!(
-      "integration test: failed to create temporary directory: {}",
-      err
-    )
-  });
+  let tmp = tempdir();
 
   let mut justfile_path = tmp.path().to_path_buf();
   justfile_path.push("justfile");

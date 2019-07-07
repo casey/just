@@ -36,12 +36,10 @@ pub fn justfile(directory: &Path) -> Result<PathBuf, SearchError> {
 mod tests {
   use super::*;
   use std::fs;
-  use tempdir::TempDir;
 
   #[test]
   fn not_found() {
-    let tmp = TempDir::new("just-test-justfile-search")
-      .expect("test justfile search: failed to create temporary directory");
+    let tmp = testing::tempdir();
     match search::justfile(tmp.path()) {
       Err(SearchError::NotFound) => {
         assert!(true);
@@ -52,8 +50,7 @@ mod tests {
 
   #[test]
   fn multiple_candidates() {
-    let tmp = TempDir::new("just-test-justfile-search")
-      .expect("test justfile search: failed to create temporary directory");
+    let tmp = testing::tempdir();
     let mut path = tmp.path().to_path_buf();
     path.push(FILENAME);
     fs::write(&path, "default:\n\techo ok").unwrap();
@@ -75,8 +72,7 @@ mod tests {
 
   #[test]
   fn found() {
-    let tmp = TempDir::new("just-test-justfile-search")
-      .expect("test justfile search: failed to create temporary directory");
+    let tmp = testing::tempdir();
     let mut path = tmp.path().to_path_buf();
     path.push(FILENAME);
     fs::write(&path, "default:\n\techo ok").unwrap();
@@ -91,8 +87,7 @@ mod tests {
 
   #[test]
   fn found_spongebob_case() {
-    let tmp = TempDir::new("just-test-justfile-search")
-      .expect("test justfile search: failed to create temporary directory");
+    let tmp = testing::tempdir();
     let mut path = tmp.path().to_path_buf();
     let spongebob_case = FILENAME
       .chars()
@@ -118,8 +113,7 @@ mod tests {
 
   #[test]
   fn found_from_inner_dir() {
-    let tmp = TempDir::new("just-test-justfile-search")
-      .expect("test justfile search: failed to create temporary directory");
+    let tmp = testing::tempdir();
     let mut path = tmp.path().to_path_buf();
     path.push(FILENAME);
     fs::write(&path, "default:\n\techo ok").unwrap();
@@ -138,8 +132,7 @@ mod tests {
 
   #[test]
   fn found_and_stopped_at_first_justfile() {
-    let tmp = TempDir::new("just-test-justfile-search")
-      .expect("test justfile search: failed to create temporary directory");
+    let tmp = testing::tempdir();
     let mut path = tmp.path().to_path_buf();
     path.push(FILENAME);
     fs::write(&path, "default:\n\techo ok").unwrap();

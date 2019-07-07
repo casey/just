@@ -1,12 +1,16 @@
-use executable_path::executable_path;
+mod tempdir;
+
 use std::{error::Error, fs, process::Command};
-use tempdir::TempDir;
+
+use executable_path::executable_path;
+
+use tempdir::tempdir;
 
 /// Test that just runs with the correct working directory when invoked with
 /// `--justfile` but not `--working-directory`
 #[test]
 fn justfile_without_working_directory() -> Result<(), Box<dyn Error>> {
-  let tmp = TempDir::new("just-integration")?;
+  let tmp = tempdir();
   let justfile = tmp.path().join("justfile");
   let data = tmp.path().join("data");
   fs::write(
@@ -34,7 +38,7 @@ fn justfile_without_working_directory() -> Result<(), Box<dyn Error>> {
 /// Test that just invokes commands from the directory in which the justfile is found
 #[test]
 fn change_working_directory_to_justfile_parent() -> Result<(), Box<dyn Error>> {
-  let tmp = TempDir::new("just-integration")?;
+  let tmp = tempdir();
 
   let justfile = tmp.path().join("justfile");
   fs::write(

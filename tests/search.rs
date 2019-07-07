@@ -1,6 +1,12 @@
 use executable_path::executable_path;
 use std::{fs, path, process, str};
-use tempdir::TempDir;
+
+fn tempdir() -> tempfile::TempDir {
+  tempfile::Builder::new()
+    .prefix("just-test-tempdir")
+    .tempdir()
+    .expect("failed to create temporary directory")
+}
 
 fn search_test<P: AsRef<path::Path>>(path: P, args: &[&str]) {
   let binary = executable_path("just");
@@ -22,8 +28,7 @@ fn search_test<P: AsRef<path::Path>>(path: P, args: &[&str]) {
 
 #[test]
 fn test_justfile_search() {
-  let tmp = TempDir::new("just-test-justfile-search")
-    .expect("test justfile search: failed to create temporary directory");
+  let tmp = tempdir();
   let mut path = tmp.path().to_path_buf();
   path.push("justfile");
   fs::write(&path, "default:\n\techo ok").unwrap();
@@ -43,8 +48,7 @@ fn test_justfile_search() {
 
 #[test]
 fn test_capitalized_justfile_search() {
-  let tmp = TempDir::new("just-test-justfile-search")
-    .expect("test justfile search: failed to create temporary directory");
+  let tmp = tempdir();
   let mut path = tmp.path().to_path_buf();
   path.push("Justfile");
   fs::write(&path, "default:\n\techo ok").unwrap();
@@ -64,8 +68,7 @@ fn test_capitalized_justfile_search() {
 
 #[test]
 fn test_upwards_path_argument() {
-  let tmp = TempDir::new("just-test-justfile-search")
-    .expect("test justfile search: failed to create temporary directory");
+  let tmp = tempdir();
   let mut path = tmp.path().to_path_buf();
   path.push("justfile");
   fs::write(&path, "default:\n\techo ok").unwrap();
@@ -84,8 +87,7 @@ fn test_upwards_path_argument() {
 
 #[test]
 fn test_downwards_path_argument() {
-  let tmp = TempDir::new("just-test-justfile-search")
-    .expect("test justfile search: failed to create temporary directory");
+  let tmp = tempdir();
   let mut path = tmp.path().to_path_buf();
   path.push("justfile");
   fs::write(&path, "default:\n\techo bad").unwrap();
