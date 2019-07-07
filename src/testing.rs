@@ -7,6 +7,13 @@ pub fn parse(text: &str) -> Justfile {
   }
 }
 
+pub fn tempdir() -> tempfile::TempDir {
+  tempfile::Builder::new()
+    .prefix("just-test-tempdir")
+    .tempdir()
+    .expect("failed to create temporary directory")
+}
+
 macro_rules! error_test {
   (
     name:   $name:ident,

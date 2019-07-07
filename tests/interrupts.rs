@@ -1,12 +1,14 @@
+mod tempdir;
+
 #[cfg(unix)]
 mod unix {
+  use super::tempdir::tempdir;
   use executable_path::executable_path;
   use std::{
     fs,
     process::Command,
     time::{Duration, Instant},
   };
-  use tempdir::TempDir;
 
   fn kill(process_id: u32) {
     unsafe {
@@ -15,13 +17,7 @@ mod unix {
   }
 
   fn interrupt_test(justfile: &str) {
-    let tmp = TempDir::new("just-interrupts").unwrap_or_else(|err| {
-      panic!(
-        "integration test: failed to create temporary directory: {}",
-        err
-      )
-    });
-
+    let tmp = tempdir();
     let mut justfile_path = tmp.path().to_path_buf();
     justfile_path.push("justfile");
     fs::write(justfile_path, justfile).unwrap();

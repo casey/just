@@ -22,6 +22,10 @@ pub(crate) use unicode_width::UnicodeWidthChar;
 // Modules
 pub(crate) use crate::search;
 
+// Modules used in tests
+#[cfg(test)]
+pub(crate) use crate::testing;
+
 // Functions
 pub(crate) use crate::{
   load_dotenv::load_dotenv,

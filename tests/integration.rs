@@ -1,6 +1,5 @@
-use executable_path::executable_path;
-use libc::{EXIT_FAILURE, EXIT_SUCCESS};
-use pretty_assertions::assert_eq;
+mod tempdir;
+
 use std::{
   env, fs,
   io::Write,
@@ -8,7 +7,12 @@ use std::{
   process::{Command, Stdio},
   str,
 };
-use tempdir::TempDir;
+
+use executable_path::executable_path;
+use libc::{EXIT_FAILURE, EXIT_SUCCESS};
+use pretty_assertions::assert_eq;
+
+use tempdir::tempdir;
 
 #[derive(PartialEq, Debug)]
 struct Output<'a> {
@@ -56,12 +60,7 @@ fn integration_test(
   expected_stderr: &str,
   expected_status: i32,
 ) {
-  let tmp = TempDir::new("just-integration").unwrap_or_else(|err| {
-    panic!(
-      "integration test: failed to create temporary directory: {}",
-      err
-    )
-  });
+  let tmp = tempdir();
 
   let mut justfile_path = tmp.path().to_path_buf();
   justfile_path.push("justfile");
