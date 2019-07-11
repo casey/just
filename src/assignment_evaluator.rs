@@ -154,7 +154,7 @@ impl<'a, 'b> AssignmentEvaluator<'a, 'b> {
     });
 
     InterruptHandler::guard(|| {
-      brev::output(cmd).map_err(|output_error| RuntimeError::Backtick {
+      output(cmd).map_err(|output_error| RuntimeError::Backtick {
         token: token.clone(),
         output_error,
       })
@@ -166,7 +166,6 @@ impl<'a, 'b> AssignmentEvaluator<'a, 'b> {
 mod test {
   use super::*;
   use crate::testing::parse;
-  use brev::OutputError;
 
   fn no_cwd_err() -> Result<PathBuf, String> {
     Err(String::from("no cwd in tests"))

@@ -2,32 +2,13 @@ use crate::common::*;
 
 pub struct Platform;
 
-pub trait PlatformInterface {
-  /// Construct a command equivalent to running the script at `path` with the
-  /// shebang line `shebang`
-  fn make_shebang_command(
-    path: &Path,
-    command: &str,
-    argument: Option<&str>,
-  ) -> Result<Command, brev::OutputError>;
-
-  /// Set the execute permission on the file pointed to by `path`
-  fn set_execute_permission(path: &Path) -> Result<(), io::Error>;
-
-  /// Extract the signal from a process exit status, if it was terminated by a signal
-  fn signal_from_exit_status(exit_status: process::ExitStatus) -> Option<i32>;
-
-  /// Translate a path from a "native" path to a path the interpreter expects
-  fn to_shell_path(path: &Path) -> Result<String, String>;
-}
-
 #[cfg(unix)]
 impl PlatformInterface for Platform {
   fn make_shebang_command(
     path: &Path,
     _command: &str,
     _argument: Option<&str>,
-  ) -> Result<Command, brev::OutputError> {
+  ) -> Result<Command, OutputError> {
     // shebang scripts can be executed directly on unix
     Ok(Command::new(path))
   }
@@ -65,13 +46,13 @@ impl PlatformInterface for Platform {
     path: &Path,
     command: &str,
     argument: Option<&str>,
-  ) -> Result<Command, brev::OutputError> {
+  ) -> Result<Command, OutputError> {
     // Translate path to the interpreter from unix style to windows style
     let mut cygpath = Command::new("cygpath");
     cygpath.arg("--windows");
     cygpath.arg(command);
 
-    let mut cmd = Command::new(brev::output(cygpath)?);
+    let mut cmd = Command::new(output(cygpath)?);
     if let Some(argument) = argument {
       cmd.arg(argument);
     }
@@ -96,6 +77,6 @@ impl PlatformInterface for Platform {
     let mut cygpath = Command::new("cygpath");
     cygpath.arg("--unix");
     cygpath.arg(path);
-    brev::output(cygpath).map_err(|e| format!("Error converting shell path: {}", e))
+    output(cygpath).map_err(|e| format!("Error converting shell path: {}", e))
   }
 }

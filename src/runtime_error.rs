@@ -1,7 +1,5 @@
 use crate::common::*;
 
-use brev::OutputError;
-
 use crate::misc::{maybe_s, ticks, write_error_context, And, Or, Tick};
 
 #[derive(Debug)]
