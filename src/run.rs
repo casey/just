@@ -36,14 +36,7 @@ pub fn run() {
   let invocation_directory =
     env::current_dir().map_err(|e| format!("Error getting current directory: {}", e));
 
-  let matches = App::new(env!("CARGO_PKG_NAME"))
-    .version(concat!("v", env!("CARGO_PKG_VERSION")))
-    .author(env!("CARGO_PKG_AUTHORS"))
-    .about(concat!(
-      env!("CARGO_PKG_DESCRIPTION"),
-      " - ",
-      env!("CARGO_PKG_HOMEPAGE")
-    ))
+  let app = App::new(env!("CARGO_PKG_NAME"))
     .help_message("Print help information")
     .version_message("Print version information")
     .setting(AppSettings::ColoredHelp)
@@ -160,8 +153,26 @@ pub fn run() {
       "SUMMARY",
       "ARGUMENTS",
       "EVALUATE",
-    ]))
-    .get_matches();
+    ]));
+
+  let app = if cfg!(feature = "help4help2man") {
+    app.version(env!("CARGO_PKG_VERSION")).about(concat!(
+      "- Please see ",
+      env!("CARGO_PKG_HOMEPAGE"),
+      " for more information."
+    ))
+  } else {
+    app
+      .version(concat!("v", env!("CARGO_PKG_VERSION")))
+      .author(env!("CARGO_PKG_AUTHORS"))
+      .about(concat!(
+        env!("CARGO_PKG_DESCRIPTION"),
+        " - ",
+        env!("CARGO_PKG_HOMEPAGE")
+      ))
+  };
+
+  let matches = app.get_matches();
 
   let color = match matches.value_of("COLOR").expect("`--color` had no value") {
     "auto" => Color::auto(),
