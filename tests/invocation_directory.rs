@@ -26,11 +26,11 @@ fn to_shell_path(path: &Path) -> String {
 
   assert!(output.status.success());
 
-  let stdout = str::from_utf8(output.stdout).expect("cygpath output was not utf8");
+  let stdout = str::from_utf8(&output.stdout).expect("cygpath output was not utf8");
 
   if stdout.ends_with('\n') {
     &stdout[0..stdout.len() - 1]
-  } else if utf8.ends_with("\r\n") {
+  } else if stdout.ends_with("\r\n") {
     &stdout[0..stdout.len() - 2]
   } else {
     stdout
