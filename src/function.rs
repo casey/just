@@ -2,8 +2,6 @@ use crate::common::*;
 
 use target;
 
-use crate::platform::{Platform, PlatformInterface};
-
 lazy_static! {
   static ref FUNCTIONS: BTreeMap<&'static str, Function> = vec![
     ("arch", Function::Nullary(arch)),

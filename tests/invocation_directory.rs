@@ -21,7 +21,21 @@ fn to_shell_path(path: &Path) -> String {
   let mut cygpath = process::Command::new("cygpath");
   cygpath.arg("--unix");
   cygpath.arg(path);
-  brev::output(cygpath).expect("converting cygwin path failed")
+
+  let output = cygpath.output().expect("executing cygpath failed");
+
+  assert!(output.status.success());
+
+  let stdout = str::from_utf8(&output.stdout).expect("cygpath output was not utf8");
+
+  if stdout.ends_with('\n') {
+    &stdout[0..stdout.len() - 1]
+  } else if stdout.ends_with("\r\n") {
+    &stdout[0..stdout.len() - 2]
+  } else {
+    stdout
+  }
+  .to_owned()
 }
 
 #[test]

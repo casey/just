@@ -7,8 +7,7 @@ pub(crate) use std::{
   fs, io, iter,
   ops::{Range, RangeInclusive},
   path::{Path, PathBuf},
-  process,
-  process::Command,
+  process::{self, Command},
   str::Chars,
   sync::{Mutex, MutexGuard},
   usize, vec,
@@ -30,6 +29,7 @@ pub(crate) use crate::testing;
 pub(crate) use crate::{
   load_dotenv::load_dotenv,
   misc::{default, empty},
+  output::output,
 };
 
 // Structs and enums
@@ -39,11 +39,12 @@ pub(crate) use crate::{
   compilation_error_kind::CompilationErrorKind, configuration::Configuration,
   expression::Expression, fragment::Fragment, function::Function,
   function_context::FunctionContext, functions::Functions, interrupt_guard::InterruptGuard,
-  interrupt_handler::InterruptHandler, justfile::Justfile, lexer::Lexer, parameter::Parameter,
-  parser::Parser, position::Position, recipe::Recipe, recipe_context::RecipeContext,
-  recipe_resolver::RecipeResolver, runtime_error::RuntimeError, search_error::SearchError,
-  shebang::Shebang, state::State, string_literal::StringLiteral, token::Token,
-  token_kind::TokenKind, use_color::UseColor, variables::Variables, verbosity::Verbosity,
+  interrupt_handler::InterruptHandler, justfile::Justfile, lexer::Lexer, output_error::OutputError,
+  parameter::Parameter, parser::Parser, platform::Platform, position::Position, recipe::Recipe,
+  recipe_context::RecipeContext, recipe_resolver::RecipeResolver, runtime_error::RuntimeError,
+  search_error::SearchError, shebang::Shebang, state::State, string_literal::StringLiteral,
+  token::Token, token_kind::TokenKind, use_color::UseColor, variables::Variables,
+  verbosity::Verbosity,
 };
 
 pub type CompilationResult<'a, T> = Result<T, CompilationError<'a>>;
@@ -61,3 +62,6 @@ pub(crate) use crate::range_ext::RangeExt;
 
 #[allow(unused_imports)]
 pub(crate) use crate::ordinal::Ordinal;
+
+#[allow(unused_imports)]
+pub(crate) use crate::platform_interface::PlatformInterface;

@@ -2,8 +2,6 @@ use crate::common::*;
 
 use std::process::{Command, ExitStatus, Stdio};
 
-use crate::platform::{Platform, PlatformInterface};
-
 /// Return a `RuntimeError::Signal` if the process was terminated by a signal,
 /// otherwise return an `RuntimeError::UnknownFailure`
 fn error_from_signal(
@@ -132,10 +130,13 @@ impl<'a> Recipe<'a> {
         return Ok(());
       }
 
-      let tmp = tempfile::Builder::new().prefix("just").tempdir().map_err(|error| RuntimeError::TmpdirIoError {
-        recipe: self.name,
-        io_error: error,
-      })?;
+      let tmp = tempfile::Builder::new()
+        .prefix("just")
+        .tempdir()
+        .map_err(|error| RuntimeError::TmpdirIoError {
+          recipe: self.name,
+          io_error: error,
+        })?;
       let mut path = tmp.path().to_path_buf();
       path.push(self.name);
       {
