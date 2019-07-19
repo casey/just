@@ -8,6 +8,10 @@ homepage    = "https://github.com/casey/just"
 readme      = "crates-io-readme.md"
 edition     = "2018"
 
+[features]
+default = []
+help4help2man = []
+
 [dependencies]
 ansi_term      = "0.11"
 assert_matches = "1"

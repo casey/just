@@ -36,6 +36,16 @@ check:
 watch +COMMAND='test':
 	cargo watch --clear --exec "{{COMMAND}}"
 
+man:
+	cargo build --features help4help2man
+	help2man \
+		--name 'save and run commands' \
+		--manual 'JUST MANUAL' \
+		--no-info \
+		target/debug/just \
+		> man/just.1
+	man man/just.1
+
 version := `sed -En 's/version[[:space:]]*=[[:space:]]*"([^"]+)"/v\1/p' Cargo.toml | head -1`
 
 # publish to crates.io
@@ -69,6 +79,10 @@ install-dev-deps:
 	cargo install -f cargo-watch
 	cargo install -f cargo-check
 	cargo +nightly install cargo-fuzz
+
+# install system development dependencies with homebrew
+install-dev-deps-homebrew:
+	brew install help2man
 
 # everyone's favorite animate paper clip
 clippy:
