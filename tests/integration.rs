@@ -276,7 +276,7 @@ integration_test! {
   justfile: "foo:\n    bar\nalias f := foo",
   args: ("--show", "f"),
   stdin:  "",
-  stdout: "foo:
+  stdout: "alias f := foo\nfoo:
     bar
 ",
   stderr: "",

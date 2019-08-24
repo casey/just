@@ -446,18 +446,21 @@ pub fn run() {
   }
 
   if let Some(name) = matches.value_of("SHOW") {
-    match justfile.get_recipe(name) {
-      Some(recipe) => {
-        println!("{}", recipe);
-        process::exit(EXIT_SUCCESS);
+    if let Some(alias) = justfile.get_alias(name) {
+      let recipe = justfile.get_recipe(alias.target).unwrap();
+      println!("{}", alias);
+      println!("{}", recipe);
+      process::exit(EXIT_SUCCESS);
+    }
+    if let Some(recipe) = justfile.get_recipe(name) {
+      println!("{}", recipe);
+      process::exit(EXIT_SUCCESS);
+    } else {
+      eprintln!("Justfile does not contain recipe `{}`.", name);
+      if let Some(suggestion) = justfile.suggest(name) {
+        eprintln!("Did you mean `{}`?", suggestion);
       }
-      None => {
-        eprintln!("Justfile does not contain recipe `{}`.", name);
-        if let Some(suggestion) = justfile.suggest(name) {
-          eprintln!("Did you mean `{}`?", suggestion);
-        }
-        process::exit(EXIT_FAILURE)
-      }
+      process::exit(EXIT_FAILURE)
     }
   }
 
