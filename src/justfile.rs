@@ -141,6 +141,10 @@ impl<'a> Justfile<'a> where {
     Ok(())
   }
 
+  pub fn get_alias(&self, name: &str) -> Option<&Alias> {
+    self.aliases.get(name)
+  }
+
   pub fn get_recipe(&self, name: &str) -> Option<&Recipe<'a>> {
     if let Some(recipe) = self.recipes.get(name) {
       Some(recipe)
