@@ -1,3 +1,4 @@
+// stdlib
 pub(crate) use std::{
   borrow::Cow,
   cmp,
@@ -13,26 +14,27 @@ pub(crate) use std::{
   usize, vec,
 };
 
+// dependencies
 pub(crate) use edit_distance::edit_distance;
 pub(crate) use libc::{EXIT_FAILURE, EXIT_SUCCESS};
 pub(crate) use log::warn;
 pub(crate) use unicode_width::UnicodeWidthChar;
 
-// Modules
+// modules
 pub(crate) use crate::search;
 
-// Modules used in tests
+// modules used in tests
 #[cfg(test)]
 pub(crate) use crate::testing;
 
-// Functions
+// functions
 pub(crate) use crate::{
   load_dotenv::load_dotenv,
   misc::{default, empty},
   output::output,
 };
 
-// Structs and enums
+// structs and enums
 pub(crate) use crate::{
   alias::Alias, alias_resolver::AliasResolver, assignment_evaluator::AssignmentEvaluator,
   assignment_resolver::AssignmentResolver, color::Color, compilation_error::CompilationError,
