@@ -1,6 +1,6 @@
 use crate::common::*;
 
-pub trait RangeExt<T> {
+pub(crate) trait RangeExt<T> {
   fn range_contains(&self, i: &T) -> bool;
 }
 

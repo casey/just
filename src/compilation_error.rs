@@ -3,13 +3,13 @@ use crate::common::*;
 use crate::misc::{maybe_s, show_whitespace, write_error_context, Or};
 
 #[derive(Debug, PartialEq)]
-pub struct CompilationError<'a> {
-  pub text: &'a str,
-  pub offset: usize,
-  pub line: usize,
-  pub column: usize,
-  pub width: usize,
-  pub kind: CompilationErrorKind<'a>,
+pub(crate) struct CompilationError<'a> {
+  pub(crate) text: &'a str,
+  pub(crate) offset: usize,
+  pub(crate) line: usize,
+  pub(crate) column: usize,
+  pub(crate) width: usize,
+  pub(crate) kind: CompilationErrorKind<'a>,
 }
 
 impl<'a> Display for CompilationError<'a> {

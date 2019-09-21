@@ -1,16 +1,16 @@
 use crate::common::*;
 
-pub struct InterruptHandler {
+pub(crate) struct InterruptHandler {
   blocks: u32,
   interrupted: bool,
 }
 
 impl InterruptHandler {
-  pub fn install() -> Result<(), ctrlc::Error> {
+  pub(crate) fn install() -> Result<(), ctrlc::Error> {
     ctrlc::set_handler(|| InterruptHandler::instance().interrupt())
   }
 
-  pub fn instance() -> MutexGuard<'static, InterruptHandler> {
+  pub(crate) fn instance() -> MutexGuard<'static, InterruptHandler> {
     lazy_static! {
       static ref INSTANCE: Mutex<InterruptHandler> = Mutex::new(InterruptHandler::new());
     }
@@ -47,11 +47,11 @@ impl InterruptHandler {
     process::exit(130);
   }
 
-  pub fn block(&mut self) {
+  pub(crate) fn block(&mut self) {
     self.blocks += 1;
   }
 
-  pub fn unblock(&mut self) {
+  pub(crate) fn unblock(&mut self) {
     if self.blocks == 0 {
       die!(
         "{}",
@@ -69,7 +69,7 @@ impl InterruptHandler {
     }
   }
 
-  pub fn guard<T, F: FnOnce() -> T>(function: F) -> T {
+  pub(crate) fn guard<T, F: FnOnce() -> T>(function: F) -> T {
     let _guard = InterruptGuard::new();
     function()
   }

@@ -1,16 +1,16 @@
 use crate::common::*;
 
 #[derive(Debug)]
-pub struct Justfile<'a> {
-  pub recipes: BTreeMap<&'a str, Recipe<'a>>,
-  pub assignments: BTreeMap<&'a str, Expression<'a>>,
-  pub exports: BTreeSet<&'a str>,
-  pub aliases: BTreeMap<&'a str, Alias<'a>>,
-  pub deprecated_equals: bool,
+pub(crate) struct Justfile<'a> {
+  pub(crate) recipes: BTreeMap<&'a str, Recipe<'a>>,
+  pub(crate) assignments: BTreeMap<&'a str, Expression<'a>>,
+  pub(crate) exports: BTreeSet<&'a str>,
+  pub(crate) aliases: BTreeMap<&'a str, Alias<'a>>,
+  pub(crate) deprecated_equals: bool,
 }
 
 impl<'a> Justfile<'a> where {
-  pub fn first(&self) -> Option<&Recipe> {
+  pub(crate) fn first(&self) -> Option<&Recipe> {
     let mut first: Option<&Recipe> = None;
     for recipe in self.recipes.values() {
       if let Some(first_recipe) = first {
@@ -24,11 +24,11 @@ impl<'a> Justfile<'a> where {
     first
   }
 
-  pub fn count(&self) -> usize {
+  pub(crate) fn count(&self) -> usize {
     self.recipes.len()
   }
 
-  pub fn suggest(&self, name: &str) -> Option<&'a str> {
+  pub(crate) fn suggest(&self, name: &str) -> Option<&'a str> {
     let mut suggestions = self
       .recipes
       .keys()
@@ -43,7 +43,7 @@ impl<'a> Justfile<'a> where {
     None
   }
 
-  pub fn run(
+  pub(crate) fn run(
     &'a self,
     invocation_directory: &'a Result<PathBuf, String>,
     arguments: &[&'a str],
@@ -141,11 +141,11 @@ impl<'a> Justfile<'a> where {
     Ok(())
   }
 
-  pub fn get_alias(&self, name: &str) -> Option<&Alias> {
+  pub(crate) fn get_alias(&self, name: &str) -> Option<&Alias> {
     self.aliases.get(name)
   }
 
-  pub fn get_recipe(&self, name: &str) -> Option<&Recipe<'a>> {
+  pub(crate) fn get_recipe(&self, name: &str) -> Option<&Recipe<'a>> {
     if let Some(recipe) = self.recipes.get(name) {
       Some(recipe)
     } else if let Some(alias) = self.aliases.get(name) {

@@ -1,7 +1,7 @@
 use crate::common::*;
 
 #[derive(PartialEq, Debug)]
-pub enum Expression<'a> {
+pub(crate) enum Expression<'a> {
   Backtick {
     raw: &'a str,
     token: Token<'a>,
@@ -28,11 +28,11 @@ pub enum Expression<'a> {
 }
 
 impl<'a> Expression<'a> {
-  pub fn variables(&'a self) -> Variables<'a> {
+  pub(crate) fn variables(&'a self) -> Variables<'a> {
     Variables::new(self)
   }
 
-  pub fn functions(&'a self) -> Functions<'a> {
+  pub(crate) fn functions(&'a self) -> Functions<'a> {
     Functions::new(self)
   }
 }

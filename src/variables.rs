@@ -1,11 +1,11 @@
 use crate::common::*;
 
-pub struct Variables<'a> {
+pub(crate) struct Variables<'a> {
   stack: Vec<&'a Expression<'a>>,
 }
 
 impl<'a> Variables<'a> {
-  pub fn new(root: &'a Expression<'a>) -> Variables<'a> {
+  pub(crate) fn new(root: &'a Expression<'a>) -> Variables<'a> {
     Variables { stack: vec![root] }
   }
 }

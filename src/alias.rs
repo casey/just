@@ -1,11 +1,11 @@
 use crate::common::*;
 
 #[derive(Debug)]
-pub struct Alias<'a> {
-  pub name: &'a str,
-  pub target: &'a str,
-  pub line_number: usize,
-  pub private: bool,
+pub(crate) struct Alias<'a> {
+  pub(crate) name: &'a str,
+  pub(crate) target: &'a str,
+  pub(crate) line_number: usize,
+  pub(crate) private: bool,
 }
 
 impl<'a> Display for Alias<'a> {

@@ -49,9 +49,9 @@ pub(crate) use crate::{
   verbosity::Verbosity,
 };
 
-pub type CompilationResult<'a, T> = Result<T, CompilationError<'a>>;
+pub(crate) type CompilationResult<'a, T> = Result<T, CompilationError<'a>>;
 
-pub type RunResult<'a, T> = Result<T, RuntimeError<'a>>;
+pub(crate) type RunResult<'a, T> = Result<T, RuntimeError<'a>>;
 
 #[allow(unused_imports)]
 pub(crate) use std::io::prelude::*;

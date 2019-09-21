@@ -1,16 +1,16 @@
 use crate::common::*;
 
-pub const DEFAULT_SHELL: &str = "sh";
+pub(crate) const DEFAULT_SHELL: &str = "sh";
 
-pub struct Configuration<'a> {
-  pub dry_run: bool,
-  pub evaluate: bool,
-  pub highlight: bool,
-  pub overrides: BTreeMap<&'a str, &'a str>,
-  pub quiet: bool,
-  pub shell: &'a str,
-  pub color: Color,
-  pub verbosity: Verbosity,
+pub(crate) struct Configuration<'a> {
+  pub(crate) dry_run: bool,
+  pub(crate) evaluate: bool,
+  pub(crate) highlight: bool,
+  pub(crate) overrides: BTreeMap<&'a str, &'a str>,
+  pub(crate) quiet: bool,
+  pub(crate) shell: &'a str,
+  pub(crate) color: Color,
+  pub(crate) verbosity: Verbosity,
 }
 
 impl<'a> Default for Configuration<'a> {

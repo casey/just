@@ -1,7 +1,7 @@
 use crate::common::*;
 use CompilationErrorKind::*;
 
-pub struct AliasResolver<'a, 'b>
+pub(crate) struct AliasResolver<'a, 'b>
 where
   'a: 'b,
 {
@@ -11,7 +11,7 @@ where
 }
 
 impl<'a: 'b, 'b> AliasResolver<'a, 'b> {
-  pub fn resolve_aliases(
+  pub(crate) fn resolve_aliases(
     aliases: &BTreeMap<&'a str, Alias<'a>>,
     recipes: &BTreeMap<&'a str, Recipe<'a>>,
     alias_tokens: &BTreeMap<&'a str, Token<'a>>,

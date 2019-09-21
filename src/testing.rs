@@ -1,13 +1,13 @@
 use crate::common::*;
 
-pub fn parse(text: &str) -> Justfile {
+pub(crate) fn parse(text: &str) -> Justfile {
   match Parser::parse(text) {
     Ok(justfile) => justfile,
     Err(error) => panic!("Expected successful parse but got error:\n {}", error),
   }
 }
 
-pub fn tempdir() -> tempfile::TempDir {
+pub(crate) fn tempdir() -> tempfile::TempDir {
   tempfile::Builder::new()
     .prefix("just-test-tempdir")
     .tempdir()

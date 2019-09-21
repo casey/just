@@ -1,14 +1,14 @@
 use Verbosity::*;
 
 #[derive(Copy, Clone)]
-pub enum Verbosity {
+pub(crate) enum Verbosity {
   Taciturn,
   Loquacious,
   Grandiloquent,
 }
 
 impl Verbosity {
-  pub fn from_flag_occurrences(flag_occurences: u64) -> Verbosity {
+  pub(crate) fn from_flag_occurrences(flag_occurences: u64) -> Verbosity {
     match flag_occurences {
       0 => Taciturn,
       1 => Loquacious,
@@ -16,7 +16,7 @@ impl Verbosity {
     }
   }
 
-  pub fn loquacious(self) -> bool {
+  pub(crate) fn loquacious(self) -> bool {
     match self {
       Taciturn => false,
       Loquacious => true,
@@ -24,7 +24,7 @@ impl Verbosity {
     }
   }
 
-  pub fn grandiloquent(self) -> bool {
+  pub(crate) fn grandiloquent(self) -> bool {
     match self {
       Taciturn => false,
       Loquacious => false,

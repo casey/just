@@ -1,7 +1,7 @@
 use crate::common::*;
 
 #[derive(Debug, PartialEq, Clone, Copy)]
-pub enum TokenKind {
+pub(crate) enum TokenKind {
   At,
   Backtick,
   Colon,

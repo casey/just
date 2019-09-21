@@ -4,7 +4,7 @@ use std::path::{Path, PathBuf};
 
 const FILENAME: &str = "justfile";
 
-pub fn justfile(directory: &Path) -> Result<PathBuf, SearchError> {
+pub(crate) fn justfile(directory: &Path) -> Result<PathBuf, SearchError> {
   let mut candidates = Vec::new();
   let dir = fs::read_dir(directory).map_err(|io_error| SearchError::Io {
     io_error,

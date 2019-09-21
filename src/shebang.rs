@@ -1,10 +1,10 @@
-pub struct Shebang<'a> {
-  pub interpreter: &'a str,
-  pub argument: Option<&'a str>,
+pub(crate) struct Shebang<'a> {
+  pub(crate) interpreter: &'a str,
+  pub(crate) argument: Option<&'a str>,
 }
 
 impl<'a> Shebang<'a> {
-  pub fn new(text: &'a str) -> Option<Shebang<'a>> {
+  pub(crate) fn new(text: &'a str) -> Option<Shebang<'a>> {
     if !text.starts_with("#!") {
       return None;
     }

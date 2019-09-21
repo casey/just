@@ -6,7 +6,7 @@ extern crate lazy_static;
 mod testing;
 
 #[cfg(fuzzing)]
-pub mod fuzzing;
+pub(crate) mod fuzzing;
 
 #[macro_use]
 mod die;

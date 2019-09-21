@@ -1,13 +1,13 @@
 use crate::common::*;
 
 #[derive(PartialEq, Debug)]
-pub struct StringLiteral<'a> {
-  pub raw: &'a str,
-  pub cooked: Cow<'a, str>,
+pub(crate) struct StringLiteral<'a> {
+  pub(crate) raw: &'a str,
+  pub(crate) cooked: Cow<'a, str>,
 }
 
 impl<'a> StringLiteral<'a> {
-  pub fn new(token: &Token<'a>) -> CompilationResult<'a, StringLiteral<'a>> {
+  pub(crate) fn new(token: &Token<'a>) -> CompilationResult<'a, StringLiteral<'a>> {
     let raw = &token.lexeme()[1..token.lexeme().len() - 1];
 
     if let TokenKind::StringRaw = token.kind {

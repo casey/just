@@ -1,6 +1,6 @@
 use crate::common::*;
 
-pub fn show_whitespace(text: &str) -> String {
+pub(crate) fn show_whitespace(text: &str) -> String {
   text
     .chars()
     .map(|c| match c {
@@ -11,19 +11,19 @@ pub fn show_whitespace(text: &str) -> String {
     .collect()
 }
 
-pub fn default<T: Default>() -> T {
+pub(crate) fn default<T: Default>() -> T {
   Default::default()
 }
 
-pub fn empty<T, C: iter::FromIterator<T>>() -> C {
+pub(crate) fn empty<T, C: iter::FromIterator<T>>() -> C {
   iter::empty().collect()
 }
 
-pub fn ticks<T: Display>(ts: &[T]) -> Vec<Tick<T>> {
+pub(crate) fn ticks<T: Display>(ts: &[T]) -> Vec<Tick<T>> {
   ts.iter().map(Tick).collect()
 }
 
-pub fn maybe_s(n: usize) -> &'static str {
+pub(crate) fn maybe_s(n: usize) -> &'static str {
   if n == 1 {
     ""
   } else {
@@ -31,7 +31,7 @@ pub fn maybe_s(n: usize) -> &'static str {
   }
 }
 
-pub fn conjoin<T: Display>(
+pub(crate) fn conjoin<T: Display>(
   f: &mut Formatter,
   values: &[T],
   conjunction: &str,
@@ -55,7 +55,7 @@ pub fn conjoin<T: Display>(
   Ok(())
 }
 
-pub fn write_error_context(
+pub(crate) fn write_error_context(
   f: &mut Formatter,
   text: &str,
   offset: usize,
@@ -121,7 +121,7 @@ pub fn write_error_context(
   Ok(())
 }
 
-pub struct And<'a, T: 'a + Display>(pub &'a [T]);
+pub(crate) struct And<'a, T: 'a + Display>(pub(crate) &'a [T]);
 
 impl<'a, T: Display> Display for And<'a, T> {
   fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
@@ -129,7 +129,7 @@ impl<'a, T: Display> Display for And<'a, T> {
   }
 }
 
-pub struct Or<'a, T: 'a + Display>(pub &'a [T]);
+pub(crate) struct Or<'a, T: 'a + Display>(pub(crate) &'a [T]);
 
 impl<'a, T: Display> Display for Or<'a, T> {
   fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
@@ -137,7 +137,7 @@ impl<'a, T: Display> Display for Or<'a, T> {
   }
 }
 
-pub struct Tick<'a, T: 'a + Display>(pub &'a T);
+pub(crate) struct Tick<'a, T: 'a + Display>(pub(crate) &'a T);
 
 impl<'a, T: Display> Display for Tick<'a, T> {
   fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {

@@ -1,6 +1,6 @@
 use crate::common::*;
 
-pub fn load_dotenv() -> RunResult<'static, BTreeMap<String, String>> {
+pub(crate) fn load_dotenv() -> RunResult<'static, BTreeMap<String, String>> {
   match dotenv::dotenv_iter() {
     Ok(iter) => {
       let result: dotenv::Result<BTreeMap<String, String>> = iter.collect();
