@@ -39,7 +39,7 @@ matrix:
 
     # *BSD
     #- env: TARGET=i686-unknown-freebsd DISABLE_TESTS=1
-    - env: TARGET=x86_64-unknown-freebsd DISABLE_TESTS=1
+    #- env: TARGET=x86_64-unknown-freebsd DISABLE_TESTS=1
     #- env: TARGET=x86_64-unknown-netbsd DISABLE_TESTS=1
 
     # Other architectures
