@@ -1,7 +1,7 @@
 use crate::common::*;
 
 /// Run a command and return the data it wrote to stdout as a string
-pub fn output(mut command: Command) -> Result<String, OutputError> {
+pub(crate) fn output(mut command: Command) -> Result<String, OutputError> {
   match command.output() {
     Ok(output) => {
       if let Some(code) = output.status.code() {

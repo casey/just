@@ -1,11 +1,11 @@
 use crate::common::*;
 
 #[derive(PartialEq, Debug)]
-pub struct Parameter<'a> {
-  pub default: Option<Expression<'a>>,
-  pub name: &'a str,
-  pub token: Token<'a>,
-  pub variadic: bool,
+pub(crate) struct Parameter<'a> {
+  pub(crate) default: Option<Expression<'a>>,
+  pub(crate) name: &'a str,
+  pub(crate) token: Token<'a>,
+  pub(crate) variadic: bool,
 }
 
 impl<'a> Display for Parameter<'a> {

@@ -1,9 +1,9 @@
 use crate::common::*;
 
-pub struct InterruptGuard;
+pub(crate) struct InterruptGuard;
 
 impl InterruptGuard {
-  pub fn new() -> InterruptGuard {
+  pub(crate) fn new() -> InterruptGuard {
     InterruptHandler::instance().block();
     InterruptGuard
   }

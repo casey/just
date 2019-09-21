@@ -8,7 +8,7 @@ use TokenKind::*;
 /// `self.next` points to the next character to be lexed, and
 /// the text between `self.token_start` and `self.token_end` contains
 /// the current token being lexed.
-pub struct Lexer<'a> {
+pub(crate) struct Lexer<'a> {
   /// Source text
   text: &'a str,
   /// Char iterator
@@ -27,7 +27,7 @@ pub struct Lexer<'a> {
 
 impl<'a> Lexer<'a> {
   /// Lex `text`
-  pub fn lex(text: &str) -> CompilationResult<Vec<Token>> {
+  pub(crate) fn lex(text: &str) -> CompilationResult<Vec<Token>> {
     Lexer::new(text).tokenize()
   }
 

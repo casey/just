@@ -1,7 +1,7 @@
 use crate::common::*;
 
 #[derive(Debug)]
-pub enum OutputError {
+pub(crate) enum OutputError {
   /// Non-zero exit code
   Code(i32),
   /// IO error

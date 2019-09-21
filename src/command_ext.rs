@@ -1,6 +1,6 @@
 use crate::common::*;
 
-pub trait CommandExt {
+pub(crate) trait CommandExt {
   fn export_environment_variables<'a>(
     &mut self,
     scope: &BTreeMap<&'a str, String>,

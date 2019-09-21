@@ -2,7 +2,7 @@ use crate::common::*;
 
 use CompilationErrorKind::*;
 
-pub struct AssignmentResolver<'a: 'b, 'b> {
+pub(crate) struct AssignmentResolver<'a: 'b, 'b> {
   assignments: &'b BTreeMap<&'a str, Expression<'a>>,
   assignment_tokens: &'b BTreeMap<&'a str, Token<'a>>,
   stack: Vec<&'a str>,
@@ -11,7 +11,7 @@ pub struct AssignmentResolver<'a: 'b, 'b> {
 }
 
 impl<'a: 'b, 'b> AssignmentResolver<'a, 'b> {
-  pub fn resolve_assignments(
+  pub(crate) fn resolve_assignments(
     assignments: &BTreeMap<&'a str, Expression<'a>>,
     assignment_tokens: &BTreeMap<&'a str, Token<'a>>,
   ) -> CompilationResult<'a, ()> {

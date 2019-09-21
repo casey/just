@@ -12,7 +12,7 @@ use CompilationErrorKind::*;
 // of the struct, and the second being the lifetime of the tokens
 // that it contains.
 
-pub struct RecipeResolver<'a: 'b, 'b> {
+pub(crate) struct RecipeResolver<'a: 'b, 'b> {
   stack: Vec<&'a str>,
   seen: BTreeSet<&'a str>,
   resolved: BTreeSet<&'a str>,
@@ -22,7 +22,7 @@ pub struct RecipeResolver<'a: 'b, 'b> {
 }
 
 impl<'a, 'b> RecipeResolver<'a, 'b> {
-  pub fn resolve_recipes(
+  pub(crate) fn resolve_recipes(
     recipes: &BTreeMap<&'a str, Recipe<'a>>,
     assignments: &BTreeMap<&'a str, Expression<'a>>,
     text: &'a str,

@@ -2,7 +2,7 @@ use std::{fmt, io, path::PathBuf};
 
 use crate::misc::And;
 
-pub enum SearchError {
+pub(crate) enum SearchError {
   MultipleCandidates {
     candidates: Vec<PathBuf>,
   },

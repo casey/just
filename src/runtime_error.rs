@@ -3,7 +3,7 @@ use crate::common::*;
 use crate::misc::{maybe_s, ticks, write_error_context, And, Or, Tick};
 
 #[derive(Debug)]
-pub enum RuntimeError<'a> {
+pub(crate) enum RuntimeError<'a> {
   ArgumentCountMismatch {
     recipe: &'a str,
     parameters: Vec<&'a Parameter<'a>>,
@@ -67,7 +67,7 @@ pub enum RuntimeError<'a> {
 }
 
 impl<'a> RuntimeError<'a> {
-  pub fn code(&self) -> Option<i32> {
+  pub(crate) fn code(&self) -> Option<i32> {
     use RuntimeError::*;
     match *self {
       Code { code, .. }

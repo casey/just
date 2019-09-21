@@ -5,7 +5,7 @@ use ansi_term::{ANSIGenericString, Prefix, Style, Suffix};
 use atty::Stream;
 
 #[derive(Copy, Clone)]
-pub struct Color {
+pub(crate) struct Color {
   use_color: UseColor,
   atty: bool,
   style: Style,
@@ -31,7 +31,7 @@ impl Color {
     }
   }
 
-  pub fn fmt(fmt: &Formatter) -> Color {
+  pub(crate) fn fmt(fmt: &Formatter) -> Color {
     if fmt.alternate() {
       Color::always()
     } else {
@@ -39,72 +39,72 @@ impl Color {
     }
   }
 
-  pub fn auto() -> Color {
+  pub(crate) fn auto() -> Color {
     Color {
       use_color: UseColor::Auto,
       ..default()
     }
   }
 
-  pub fn always() -> Color {
+  pub(crate) fn always() -> Color {
     Color {
       use_color: UseColor::Always,
       ..default()
     }
   }
 
-  pub fn never() -> Color {
+  pub(crate) fn never() -> Color {
     Color {
       use_color: UseColor::Never,
       ..default()
     }
   }
 
-  pub fn stderr(self) -> Color {
+  pub(crate) fn stderr(self) -> Color {
     self.redirect(Stream::Stderr)
   }
 
-  pub fn stdout(self) -> Color {
+  pub(crate) fn stdout(self) -> Color {
     self.redirect(Stream::Stdout)
   }
 
-  pub fn doc(self) -> Color {
+  pub(crate) fn doc(self) -> Color {
     self.restyle(Style::new().fg(Blue))
   }
 
-  pub fn error(self) -> Color {
+  pub(crate) fn error(self) -> Color {
     self.restyle(Style::new().fg(Red).bold())
   }
 
-  pub fn warning(self) -> Color {
+  pub(crate) fn warning(self) -> Color {
     self.restyle(Style::new().fg(Yellow).bold())
   }
 
-  pub fn banner(self) -> Color {
+  pub(crate) fn banner(self) -> Color {
     self.restyle(Style::new().fg(Cyan).bold())
   }
 
-  pub fn command(self) -> Color {
+  pub(crate) fn command(self) -> Color {
     self.restyle(Style::new().bold())
   }
 
-  pub fn parameter(self) -> Color {
+  pub(crate) fn parameter(self) -> Color {
     self.restyle(Style::new().fg(Cyan))
   }
 
-  pub fn message(self) -> Color {
+  pub(crate) fn message(self) -> Color {
     self.restyle(Style::new().bold())
   }
 
-  pub fn annotation(self) -> Color {
+  pub(crate) fn annotation(self) -> Color {
     self.restyle(Style::new().fg(Purple))
   }
 
-  pub fn string(self) -> Color {
+  pub(crate) fn string(self) -> Color {
     self.restyle(Style::new().fg(Green))
   }
 
-  pub fn active(&self) -> bool {
+  pub(crate) fn active(&self) -> bool {
     match self.use_color {
       UseColor::Always => true,
       UseColor::Never => false,
@@ -112,15 +112,15 @@ impl Color {
     }
   }
 
-  pub fn paint<'a>(&self, text: &'a str) -> ANSIGenericString<'a, str> {
+  pub(crate) fn paint<'a>(&self, text: &'a str) -> ANSIGenericString<'a, str> {
     self.effective_style().paint(text)
   }
 
-  pub fn prefix(&self) -> Prefix {
+  pub(crate) fn prefix(&self) -> Prefix {
     self.effective_style().prefix()
   }
 
-  pub fn suffix(&self) -> Suffix {
+  pub(crate) fn suffix(&self) -> Suffix {
     self.effective_style().suffix()
   }
 }

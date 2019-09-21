@@ -3,7 +3,7 @@ use crate::common::*;
 use CompilationErrorKind::*;
 use TokenKind::*;
 
-pub struct Parser<'a> {
+pub(crate) struct Parser<'a> {
   text: &'a str,
   tokens: itertools::PutBackN<vec::IntoIter<Token<'a>>>,
   recipes: BTreeMap<&'a str, Recipe<'a>>,
@@ -16,14 +16,14 @@ pub struct Parser<'a> {
 }
 
 impl<'a> Parser<'a> {
-  pub fn parse(text: &'a str) -> CompilationResult<'a, Justfile> {
+  pub(crate) fn parse(text: &'a str) -> CompilationResult<'a, Justfile> {
     let mut tokens = Lexer::lex(text)?;
     tokens.retain(|token| token.kind != Whitespace);
     let parser = Parser::new(text, tokens);
     parser.justfile()
   }
 
-  pub fn new(text: &'a str, tokens: Vec<Token<'a>>) -> Parser<'a> {
+  pub(crate) fn new(text: &'a str, tokens: Vec<Token<'a>>) -> Parser<'a> {
     Parser {
       tokens: itertools::put_back_n(tokens),
       recipes: empty(),
@@ -391,7 +391,7 @@ impl<'a> Parser<'a> {
     Ok(())
   }
 
-  pub fn justfile(mut self) -> CompilationResult<'a, Justfile<'a>> {
+  pub(crate) fn justfile(mut self) -> CompilationResult<'a, Justfile<'a>> {
     let mut doc = None;
     loop {
       match self.tokens.next() {

@@ -18,7 +18,7 @@ lazy_static! {
   .collect();
 }
 
-pub enum Function {
+pub(crate) enum Function {
   Nullary(fn(&FunctionContext) -> Result<String, String>),
   Unary(fn(&FunctionContext, &str) -> Result<String, String>),
   Binary(fn(&FunctionContext, &str, &str) -> Result<String, String>),
@@ -34,7 +34,7 @@ impl Function {
     }
   }
 
-  pub fn resolve<'a>(token: &Token<'a>, argc: usize) -> CompilationResult<'a, ()> {
+  pub(crate) fn resolve<'a>(token: &Token<'a>, argc: usize) -> CompilationResult<'a, ()> {
     let name = token.lexeme();
     if let Some(function) = FUNCTIONS.get(&name) {
       use self::Function::*;
@@ -55,7 +55,7 @@ impl Function {
     }
   }
 
-  pub fn evaluate<'a>(
+  pub(crate) fn evaluate<'a>(
     token: &Token<'a>,
     name: &'a str,
     context: &FunctionContext,
@@ -94,25 +94,25 @@ impl Function {
   }
 }
 
-pub fn arch(_context: &FunctionContext) -> Result<String, String> {
+pub(crate) fn arch(_context: &FunctionContext) -> Result<String, String> {
   Ok(target::arch().to_string())
 }
 
-pub fn os(_context: &FunctionContext) -> Result<String, String> {
+pub(crate) fn os(_context: &FunctionContext) -> Result<String, String> {
   Ok(target::os().to_string())
 }
 
-pub fn os_family(_context: &FunctionContext) -> Result<String, String> {
+pub(crate) fn os_family(_context: &FunctionContext) -> Result<String, String> {
   Ok(target::os_family().to_string())
 }
 
-pub fn invocation_directory(context: &FunctionContext) -> Result<String, String> {
+pub(crate) fn invocation_directory(context: &FunctionContext) -> Result<String, String> {
   context.invocation_directory.clone().and_then(|s| {
     Platform::to_shell_path(&s).map_err(|e| format!("Error getting shell path: {}", e))
   })
 }
 
-pub fn env_var(context: &FunctionContext, key: &str) -> Result<String, String> {
+pub(crate) fn env_var(context: &FunctionContext, key: &str) -> Result<String, String> {
   use std::env::VarError::*;
 
   if let Some(value) = context.dotenv.get(key) {
@@ -129,7 +129,7 @@ pub fn env_var(context: &FunctionContext, key: &str) -> Result<String, String> {
   }
 }
 
-pub fn env_var_or_default(
+pub(crate) fn env_var_or_default(
   context: &FunctionContext,
   key: &str,
   default: &str,

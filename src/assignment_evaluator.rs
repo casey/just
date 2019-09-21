@@ -1,20 +1,20 @@
 use crate::common::*;
 
-pub struct AssignmentEvaluator<'a: 'b, 'b> {
-  pub assignments: &'b BTreeMap<&'a str, Expression<'a>>,
-  pub invocation_directory: &'b Result<PathBuf, String>,
-  pub dotenv: &'b BTreeMap<String, String>,
-  pub dry_run: bool,
-  pub evaluated: BTreeMap<&'a str, String>,
-  pub exports: &'b BTreeSet<&'a str>,
-  pub overrides: &'b BTreeMap<&'b str, &'b str>,
-  pub quiet: bool,
-  pub scope: &'b BTreeMap<&'a str, String>,
-  pub shell: &'b str,
+pub(crate) struct AssignmentEvaluator<'a: 'b, 'b> {
+  pub(crate) assignments: &'b BTreeMap<&'a str, Expression<'a>>,
+  pub(crate) invocation_directory: &'b Result<PathBuf, String>,
+  pub(crate) dotenv: &'b BTreeMap<String, String>,
+  pub(crate) dry_run: bool,
+  pub(crate) evaluated: BTreeMap<&'a str, String>,
+  pub(crate) exports: &'b BTreeSet<&'a str>,
+  pub(crate) overrides: &'b BTreeMap<&'b str, &'b str>,
+  pub(crate) quiet: bool,
+  pub(crate) scope: &'b BTreeMap<&'a str, String>,
+  pub(crate) shell: &'b str,
 }
 
 impl<'a, 'b> AssignmentEvaluator<'a, 'b> {
-  pub fn evaluate_assignments(
+  pub(crate) fn evaluate_assignments(
     assignments: &BTreeMap<&'a str, Expression<'a>>,
     invocation_directory: &Result<PathBuf, String>,
     dotenv: &'b BTreeMap<String, String>,
@@ -43,7 +43,7 @@ impl<'a, 'b> AssignmentEvaluator<'a, 'b> {
     Ok(evaluator.evaluated)
   }
 
-  pub fn evaluate_line(
+  pub(crate) fn evaluate_line(
     &mut self,
     line: &[Fragment<'a>],
     arguments: &BTreeMap<&str, Cow<str>>,
@@ -81,7 +81,7 @@ impl<'a, 'b> AssignmentEvaluator<'a, 'b> {
     Ok(())
   }
 
-  pub fn evaluate_expression(
+  pub(crate) fn evaluate_expression(
     &mut self,
     expression: &Expression<'a>,
     arguments: &BTreeMap<&str, Cow<str>>,

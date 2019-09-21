@@ -1,5 +1,5 @@
 #[derive(Copy, Clone)]
-pub enum UseColor {
+pub(crate) enum UseColor {
   Auto,
   Always,
   Never,

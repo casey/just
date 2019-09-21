@@ -23,25 +23,25 @@ fn error_from_signal(
 }
 
 #[derive(PartialEq, Debug)]
-pub struct Recipe<'a> {
-  pub dependencies: Vec<&'a str>,
-  pub dependency_tokens: Vec<Token<'a>>,
-  pub doc: Option<&'a str>,
-  pub line_number: usize,
-  pub lines: Vec<Vec<Fragment<'a>>>,
-  pub name: &'a str,
-  pub parameters: Vec<Parameter<'a>>,
-  pub private: bool,
-  pub quiet: bool,
-  pub shebang: bool,
+pub(crate) struct Recipe<'a> {
+  pub(crate) dependencies: Vec<&'a str>,
+  pub(crate) dependency_tokens: Vec<Token<'a>>,
+  pub(crate) doc: Option<&'a str>,
+  pub(crate) line_number: usize,
+  pub(crate) lines: Vec<Vec<Fragment<'a>>>,
+  pub(crate) name: &'a str,
+  pub(crate) parameters: Vec<Parameter<'a>>,
+  pub(crate) private: bool,
+  pub(crate) quiet: bool,
+  pub(crate) shebang: bool,
 }
 
 impl<'a> Recipe<'a> {
-  pub fn argument_range(&self) -> RangeInclusive<usize> {
+  pub(crate) fn argument_range(&self) -> RangeInclusive<usize> {
     self.min_arguments()..=self.max_arguments()
   }
 
-  pub fn min_arguments(&self) -> usize {
+  pub(crate) fn min_arguments(&self) -> usize {
     self
       .parameters
       .iter()
@@ -49,7 +49,7 @@ impl<'a> Recipe<'a> {
       .count()
   }
 
-  pub fn max_arguments(&self) -> usize {
+  pub(crate) fn max_arguments(&self) -> usize {
     if self.parameters.iter().any(|p| p.variadic) {
       usize::MAX - 1
     } else {
@@ -57,7 +57,7 @@ impl<'a> Recipe<'a> {
     }
   }
 
-  pub fn run(
+  pub(crate) fn run(
     &self,
     context: &RecipeContext<'a>,
     arguments: &[&'a str],

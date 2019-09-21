@@ -1,6 +1,6 @@
 use crate::common::*;
 
-pub struct FunctionContext<'a> {
-  pub invocation_directory: &'a Result<PathBuf, String>,
-  pub dotenv: &'a BTreeMap<String, String>,
+pub(crate) struct FunctionContext<'a> {
+  pub(crate) invocation_directory: &'a Result<PathBuf, String>,
+  pub(crate) dotenv: &'a BTreeMap<String, String>,
 }

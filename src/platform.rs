@@ -1,6 +1,6 @@
 use crate::common::*;
 
-pub struct Platform;
+pub(crate) struct Platform;
 
 #[cfg(unix)]
 impl PlatformInterface for Platform {

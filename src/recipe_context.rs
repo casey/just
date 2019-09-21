@@ -1,7 +1,7 @@
 use crate::common::*;
 
-pub struct RecipeContext<'a> {
-  pub invocation_directory: &'a Result<PathBuf, String>,
-  pub configuration: &'a Configuration<'a>,
-  pub scope: BTreeMap<&'a str, String>,
+pub(crate) struct RecipeContext<'a> {
+  pub(crate) invocation_directory: &'a Result<PathBuf, String>,
+  pub(crate) configuration: &'a Configuration<'a>,
+  pub(crate) scope: BTreeMap<&'a str, String>,
 }
