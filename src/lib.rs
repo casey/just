@@ -56,6 +56,7 @@ mod token_kind;
 mod use_color;
 mod variables;
 mod verbosity;
+mod warning;
 
 pub use crate::run::run;
 

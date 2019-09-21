@@ -46,7 +46,7 @@ pub(crate) use crate::{
   recipe_context::RecipeContext, recipe_resolver::RecipeResolver, runtime_error::RuntimeError,
   search_error::SearchError, shebang::Shebang, state::State, string_literal::StringLiteral,
   token::Token, token_kind::TokenKind, use_color::UseColor, variables::Variables,
-  verbosity::Verbosity,
+  verbosity::Verbosity, warning::Warning,
 };
 
 pub(crate) type CompilationResult<'a, T> = Result<T, CompilationError<'a>>;

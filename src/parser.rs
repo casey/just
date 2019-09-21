@@ -12,7 +12,7 @@ pub(crate) struct Parser<'a> {
   exports: BTreeSet<&'a str>,
   aliases: BTreeMap<&'a str, Alias<'a>>,
   alias_tokens: BTreeMap<&'a str, Token<'a>>,
-  deprecated_equals: bool,
+  warnings: Vec<Warning<'a>>,
 }
 
 impl<'a> Parser<'a> {
@@ -32,7 +32,7 @@ impl<'a> Parser<'a> {
       exports: empty(),
       aliases: empty(),
       alias_tokens: empty(),
-      deprecated_equals: false,
+      warnings: Vec::new(),
       text,
     }
   }
@@ -421,8 +421,10 @@ impl<'a> Parser<'a> {
           Name => {
             if token.lexeme() == "export" {
               let next = self.tokens.next().unwrap();
-              if next.kind == Name && self.accepted(Equals) {
-                self.deprecated_equals = true;
+              if next.kind == Name && self.peek(Equals) {
+                self.warnings.push(Warning::DeprecatedEquals {
+                  equals: self.tokens.next().unwrap(),
+                });
                 self.assignment(next, true)?;
                 doc = None;
               } else if next.kind == Name && self.accepted(ColonEquals) {
@@ -435,8 +437,10 @@ impl<'a> Parser<'a> {
               }
             } else if token.lexeme() == "alias" {
               let next = self.tokens.next().unwrap();
-              if next.kind == Name && self.accepted(Equals) {
-                self.deprecated_equals = true;
+              if next.kind == Name && self.peek(Equals) {
+                self.warnings.push(Warning::DeprecatedEquals {
+                  equals: self.tokens.next().unwrap(),
+                });
                 self.alias(next)?;
                 doc = None;
               } else if next.kind == Name && self.accepted(ColonEquals) {
@@ -447,8 +451,10 @@ impl<'a> Parser<'a> {
                 self.recipe(&token, doc, false)?;
                 doc = None;
               }
-            } else if self.accepted(Equals) {
-              self.deprecated_equals = true;
+            } else if self.peek(Equals) {
+              self.warnings.push(Warning::DeprecatedEquals {
+                equals: self.tokens.next().unwrap(),
+              });
               self.assignment(token, false)?;
               doc = None;
             } else if self.accepted(ColonEquals) {
@@ -515,7 +521,7 @@ impl<'a> Parser<'a> {
       assignments: self.assignments,
       exports: self.exports,
       aliases: self.aliases,
-      deprecated_equals: self.deprecated_equals,
+      warnings: self.warnings,
     })
   }
 }

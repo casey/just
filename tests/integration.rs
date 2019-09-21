@@ -2414,6 +2414,9 @@ default:
    stdout:   "bar\n",
    stderr:   "warning: `=` in assignments, exports, and aliases is being phased out on favor of `:=`
 Please see this issue for more details: https://github.com/casey/just/issues/379
+  |
+3 | foo = 'bar'
+  |     ^
 echo bar
 ",
    status:   EXIT_SUCCESS,
@@ -2434,6 +2437,9 @@ default:
    stdout:   "bar\n",
    stderr:   "warning: `=` in assignments, exports, and aliases is being phased out on favor of `:=`
 Please see this issue for more details: https://github.com/casey/just/issues/379
+  |
+3 | export FOO = 'bar'
+  |            ^
 echo $FOO
 ",
    status:   EXIT_SUCCESS,
@@ -2454,6 +2460,9 @@ default:
    stdout:   "default\n",
    stderr:   "warning: `=` in assignments, exports, and aliases is being phased out on favor of `:=`
 Please see this issue for more details: https://github.com/casey/just/issues/379
+  |
+3 | alias foo = default
+  |           ^
 echo default
 ",
    status:   EXIT_SUCCESS,

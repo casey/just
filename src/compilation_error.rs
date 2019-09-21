@@ -1,6 +1,6 @@
 use crate::common::*;
 
-use crate::misc::{maybe_s, show_whitespace, write_error_context, Or};
+use crate::misc::{maybe_s, show_whitespace, write_message_context, Or};
 
 #[derive(Debug, PartialEq)]
 pub(crate) struct CompilationError<'a> {
@@ -211,8 +211,9 @@ impl<'a> Display for CompilationError<'a> {
 
     write!(f, "{}", message.suffix())?;
 
-    write_error_context(
+    write_message_context(
       f,
+      Color::fmt(f).error(),
       self.text,
       self.offset,
       self.line,

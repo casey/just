@@ -1,6 +1,6 @@
 use crate::common::*;
 
-use crate::misc::{maybe_s, ticks, write_error_context, And, Or, Tick};
+use crate::misc::{maybe_s, ticks, write_message_context, And, Or, Tick};
 
 #[derive(Debug)]
 pub(crate) enum RuntimeError<'a> {
@@ -387,8 +387,9 @@ impl<'a> Display for RuntimeError<'a> {
     write!(f, "{}", message.suffix())?;
 
     if let Some(token) = error_token {
-      write_error_context(
+      write_message_context(
         f,
+        Color::fmt(f).error(),
         token.text,
         token.offset,
         token.line,

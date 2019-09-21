@@ -6,7 +6,7 @@ pub(crate) struct Justfile<'a> {
   pub(crate) assignments: BTreeMap<&'a str, Expression<'a>>,
   pub(crate) exports: BTreeSet<&'a str>,
   pub(crate) aliases: BTreeMap<&'a str, Alias<'a>>,
-  pub(crate) deprecated_equals: bool,
+  pub(crate) warnings: Vec<Warning<'a>>,
 }
 
 impl<'a> Justfile<'a> where {
