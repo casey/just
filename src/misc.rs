@@ -55,8 +55,9 @@ pub(crate) fn conjoin<T: Display>(
   Ok(())
 }
 
-pub(crate) fn write_error_context(
+pub(crate) fn write_message_context(
   f: &mut Formatter,
+  color: Color,
   text: &str,
   offset: usize,
   line: usize,
@@ -66,7 +67,6 @@ pub(crate) fn write_error_context(
   let width = if width == 0 { 1 } else { width };
 
   let line_number = line.ordinal();
-  let red = Color::fmt(f).error();
   match text.lines().nth(line) {
     Some(line) => {
       let mut i = 0;
@@ -102,10 +102,10 @@ pub(crate) fn write_error_context(
         " {0:1$}{2}{3:^<4$}{5}",
         "",
         space_column,
-        red.prefix(),
+        color.prefix(),
         "",
         space_width,
-        red.suffix()
+        color.suffix()
       )?;
     }
     None => {

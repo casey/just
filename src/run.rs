@@ -318,22 +318,12 @@ pub fn run() {
     }
   });
 
-  if justfile.deprecated_equals {
-    let warning = color.warning().stderr();
-    let message = color.message().stderr();
-
-    eprintln!(
-      "{}",
-      warning.paint(
-        "warning: `=` in assignments, exports, and aliases is being phased out on favor of `:=`"
-      )
-    );
-
-    eprintln!(
-      "{}",
-      message
-        .paint("Please see this issue for more details: https://github.com/casey/just/issues/379")
-    );
+  for warning in &justfile.warnings {
+    if color.stderr().active() {
+      eprintln!("{:#}", warning);
+    } else {
+      eprintln!("{}", warning);
+    }
   }
 
   if matches.is_present("SUMMARY") {
