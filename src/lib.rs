@@ -60,4 +60,5 @@ mod warning;
 
 pub use crate::run::run;
 
+#[cfg(summary)]
 pub mod summary;

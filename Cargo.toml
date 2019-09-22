@@ -11,6 +11,7 @@ edition     = "2018"
 [features]
 default = []
 help4help2man = []
+summary = []
 
 [dependencies]
 ansi_term      = "0.11"
