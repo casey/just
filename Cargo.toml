@@ -36,3 +36,4 @@ features = ["termination"]
 [dev-dependencies]
 executable-path   = "1"
 pretty_assertions = "0.6"
+unindent = "0.1"
