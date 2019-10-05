@@ -94,3 +94,64 @@ fn test_invocation_directory() {
     panic!("test failed");
   }
 }
+
+#[test]
+fn test_justfile_directory() {
+  let jt = tempdir();
+  let justfile_dir = jt.path().to_path_buf();
+  let mut justfile_path = justfile_dir.clone();
+  justfile_path.push("justfile");
+  fs::write(
+    justfile_path.clone(),
+    "default:\n @echo {{justfile_directory()}}",
+  )
+  .unwrap();
+
+  let et = tempdir();
+  let execdir = et.path().to_path_buf();
+
+  let output = process::Command::new(&executable_path("just"))
+    .current_dir(&execdir)
+    .args(&[
+      "--shell",
+      "sh",
+      "--justfile",
+      &justfile_path.display().to_string(),
+    ])
+    .output()
+    .expect("just invocation failed");
+
+  let mut failure = false;
+
+  let expected_status = 0;
+  let expected_stdout = to_shell_path(&justfile_dir) + "\n";
+  let expected_stderr = "";
+
+  let status = output.status.code().unwrap();
+  if status != expected_status {
+    println!("bad status: {} != {}", status, expected_status);
+    failure = true;
+  }
+
+  let stdout = str::from_utf8(&output.stdout).unwrap();
+  if stdout != expected_stdout {
+    println!(
+      "bad stdout:\ngot:\n{:?}\n\nexpected:\n{:?}",
+      stdout, expected_stdout
+    );
+    failure = true;
+  }
+
+  let stderr = str::from_utf8(&output.stderr).unwrap();
+  if stderr != expected_stderr {
+    println!(
+      "bad stderr:\ngot:\n{:?}\n\nexpected:\n{:?}",
+      stderr, expected_stderr
+    );
+    failure = true;
+  }
+
+  if failure {
+    panic!("test failed");
+  }
+}

@@ -13,10 +13,7 @@ lazy_static! {
       "invocation_directory",
       Function::Nullary(invocation_directory)
     ),
-    (
-      "justfile_directory",
-      Function::Nullary(justfile_directory)
-    ),
+    ("justfile_directory", Function::Nullary(justfile_directory)),
   ]
   .into_iter()
   .collect();
