@@ -3,6 +3,7 @@ use crate::common::*;
 pub(crate) struct AssignmentEvaluator<'a: 'b, 'b> {
   pub(crate) assignments: &'b BTreeMap<&'a str, Expression<'a>>,
   pub(crate) invocation_directory: &'b Result<PathBuf, String>,
+  pub(crate) justfile_directory: &'b Result<PathBuf, String>,
   pub(crate) dotenv: &'b BTreeMap<String, String>,
   pub(crate) dry_run: bool,
   pub(crate) evaluated: BTreeMap<&'a str, String>,
@@ -17,6 +18,7 @@ impl<'a, 'b> AssignmentEvaluator<'a, 'b> {
   pub(crate) fn evaluate_assignments(
     assignments: &BTreeMap<&'a str, Expression<'a>>,
     invocation_directory: &Result<PathBuf, String>,
+    justfile_directory: &Result<PathBuf, String>,
     dotenv: &'b BTreeMap<String, String>,
     overrides: &BTreeMap<&str, &str>,
     quiet: bool,
@@ -29,6 +31,7 @@ impl<'a, 'b> AssignmentEvaluator<'a, 'b> {
       scope: &empty(),
       assignments,
       invocation_directory,
+      justfile_directory,
       dotenv,
       dry_run,
       overrides,
@@ -114,6 +117,7 @@ impl<'a, 'b> AssignmentEvaluator<'a, 'b> {
           .collect::<Result<Vec<String>, RuntimeError>>()?;
         let context = FunctionContext {
           invocation_directory: &self.invocation_directory,
+          justfile_directory: &self.justfile_directory,
           dotenv: self.dotenv,
         };
         Function::evaluate(token, name, &context, &call_arguments)
@@ -171,10 +175,14 @@ mod test {
     Err(String::from("no cwd in tests"))
   }
 
+  fn no_jfd_err() -> Result<PathBuf, String> {
+    Err(String::from("no justfile_directory in tests"))
+  }
+
   #[test]
   fn backtick_code() {
     match parse("a:\n echo {{`f() { return 100; }; f`}}")
-      .run(&no_cwd_err(), &["a"], &Default::default())
+      .run(&no_cwd_err(), &no_jfd_err(), &["a"], &Default::default())
       .unwrap_err()
     {
       RuntimeError::Backtick {
@@ -203,7 +211,7 @@ recipe:
     };
 
     match parse(text)
-      .run(&no_cwd_err(), &["recipe"], &configuration)
+      .run(&no_cwd_err(), &no_jfd_err(), &["recipe"], &configuration)
       .unwrap_err()
     {
       RuntimeError::Backtick {

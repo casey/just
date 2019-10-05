@@ -246,25 +246,28 @@ pub fn run() {
     .collect::<Vec<&str>>();
 
   let justfile = matches.value_of("JUSTFILE").map(Path::new);
-  let mut working_directory = matches.value_of("WORKING-DIRECTORY").map(PathBuf::from);
-
-  if let (Some(justfile), None) = (justfile, working_directory.as_ref()) {
-    let mut justfile = justfile.to_path_buf();
-
-    if !justfile.is_absolute() {
-      match justfile.canonicalize() {
-        Ok(canonical) => justfile = canonical,
-        Err(err) => die!(
-          "Could not canonicalize justfile path `{}`: {}",
-          justfile.display(),
-          err
-        ),
+  let justfile_directory = match justfile {
+    Some(justfile_path) => {
+      let mut p = justfile_path.to_path_buf();
+      if !p.is_absolute() {
+        match p.canonicalize() {
+          Ok(canonical) => p = canonical,
+          Err(err) => die!(
+            "Could not canonicalize justfile path `{}`: {}",
+            p.display(),
+            err
+          ),
+        }
       }
+      p.pop();
+      Ok(p)
     }
+    None => invocation_directory.clone(),
+  };
 
-    justfile.pop();
-
-    working_directory = Some(justfile);
+  let mut working_directory = matches.value_of("WORKING-DIRECTORY").map(PathBuf::from);
+  if let (Ok(jd), None) = (justfile_directory.as_ref(), working_directory.as_ref()) {
+    working_directory = Some(jd.to_path_buf())
   }
 
   let text;
@@ -488,7 +491,12 @@ pub fn run() {
     warn!("Failed to set CTRL-C handler: {}", error)
   }
 
-  if let Err(run_error) = justfile.run(&invocation_directory, &arguments, &configuration) {
+  if let Err(run_error) = justfile.run(
+    &invocation_directory,
+    &justfile_directory,
+    &arguments,
+    &configuration,
+  ) {
     if !configuration.quiet {
       if color.stderr().active() {
         eprintln!("{:#}", run_error);

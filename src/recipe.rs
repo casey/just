@@ -83,6 +83,7 @@ impl<'a> Recipe<'a> {
       dry_run: configuration.dry_run,
       evaluated: empty(),
       invocation_directory: context.invocation_directory,
+      justfile_directory: context.justfile_directory,
       overrides: &empty(),
       quiet: configuration.quiet,
       scope: &context.scope,
