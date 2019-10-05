@@ -387,6 +387,25 @@ build:
     cd {{invocation_directory()}}; ./some_script_that_needs_to_be_run_from_here
 ```
 
+==== Justfile Directory
+
+- `justfile_directory()` - Retrieves the parent directory of the justfile being executed.
+
+For example, to call `rustfmt` on files under the same directory of the justfile, use the following rule:
+
+```
+rustfmt:
+    find {{justfile_directory()}} -name \*.rs -exec rustfmt {} \;
+```
+
+Alternatively, if your command needs to be run at the same location as the justfile, you could use (e.g.):
+
+```
+build:
+    cd {{justfile_directory()}}; ./some_script_that_needs_to_be_run_from_here
+```
+
+
 ==== Dotenv Integration
 
 `just` will load environment variables from a file named `.env`. This file can be located in the same directory as your justfile or in a parent directory. These variables are environment variables, not `just` variables, and so must be accessed using `$VARIABLE_NAME` in recipes and backticks.
