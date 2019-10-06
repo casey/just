@@ -38,21 +38,14 @@ macro_rules! integration_test {
     stderr:   $stderr:expr,
     status:   $status:expr,
   ) => {
-    mod $name {
-      use super::*;
-
-      // silence unused import warnings
-      const __: i32 = EXIT_SUCCESS;
-
-      #[test] fn sh()   { integration_test("sh",   $text, &[$($arg)*], $stdin, $stdout, $stderr, $status); }
-      #[test] fn dash() { integration_test("dash", $text, &[$($arg)*], $stdin, $stdout, $stderr, $status); }
-      #[test] fn bash() { integration_test("bash", $text, &[$($arg)*], $stdin, $stdout, $stderr, $status); }
+    #[test]
+    fn $name() {
+      integration_test($text, &[$($arg)*], $stdin, $stdout, $stderr, $status);
     }
   }
 }
 
 fn integration_test(
-  shell: &str,
   justfile: &str,
   args: &[&str],
   stdin: &str,
@@ -72,7 +65,7 @@ fn integration_test(
 
   let mut child = Command::new(&executable_path("just"))
     .current_dir(tmp.path())
-    .args(&["--shell", shell])
+    .args(&["--shell", "bash"])
     .args(args)
     .stdin(Stdio::piped())
     .stdout(Stdio::piped())
