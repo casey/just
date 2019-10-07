@@ -64,7 +64,7 @@ pub fn run() {
 
   let text;
   if let (Some(justfile), Some(directory)) = (justfile, working_directory) {
-    if matches.is_present("EDIT") {
+    if config.subcommand == Subcommand::Edit {
       edit(justfile);
     }
 
@@ -85,7 +85,7 @@ pub fn run() {
     };
     match search::justfile(&current_dir) {
       Ok(name) => {
-        if matches.is_present("EDIT") {
+        if config.subcommand == Subcommand::Edit {
           edit(name);
         }
         text = fs::read_to_string(&name)
@@ -121,7 +121,7 @@ pub fn run() {
     }
   }
 
-  if matches.is_present("SUMMARY") {
+  if config.subcommand == Subcommand::Summary {
     if justfile.count() == 0 {
       eprintln!("Justfile contains no recipes.");
     } else {
@@ -138,12 +138,12 @@ pub fn run() {
     process::exit(EXIT_SUCCESS);
   }
 
-  if matches.is_present("DUMP") {
+  if config.subcommand == Subcommand::Dump {
     println!("{}", justfile);
     process::exit(EXIT_SUCCESS);
   }
 
-  if matches.is_present("LIST") {
+  if config.subcommand == Subcommand::List {
     // Construct a target to alias map.
     let mut recipe_aliases: BTreeMap<&str, Vec<&str>> = BTreeMap::new();
     for alias in justfile.aliases.values() {
@@ -230,7 +230,7 @@ pub fn run() {
     process::exit(EXIT_SUCCESS);
   }
 
-  if let Some(name) = matches.value_of("SHOW") {
+  if let Subcommand::Show { name } = config.subcommand {
     if let Some(alias) = justfile.get_alias(name) {
       let recipe = justfile.get_recipe(alias.target).unwrap();
       println!("{}", alias);
