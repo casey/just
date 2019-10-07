@@ -64,10 +64,10 @@ impl<'a> Recipe<'a> {
     dotenv: &BTreeMap<String, String>,
     exports: &BTreeSet<&'a str>,
   ) -> RunResult<'a, ()> {
-    let configuration = &context.configuration;
+    let config = &context.config;
 
-    if configuration.verbosity.loquacious() {
-      let color = configuration.color.stderr().banner();
+    if config.verbosity.loquacious() {
+      let color = config.color.stderr().banner();
       eprintln!(
         "{}===> Running recipe `{}`...{}",
         color.prefix(),
@@ -80,13 +80,13 @@ impl<'a> Recipe<'a> {
 
     let mut evaluator = AssignmentEvaluator {
       assignments: &empty(),
-      dry_run: configuration.dry_run,
+      dry_run: config.dry_run,
       evaluated: empty(),
       invocation_directory: context.invocation_directory,
       overrides: &empty(),
-      quiet: configuration.quiet,
+      quiet: config.quiet,
       scope: &context.scope,
-      shell: configuration.shell,
+      shell: config.shell,
       dotenv,
       exports,
     };
@@ -120,13 +120,13 @@ impl<'a> Recipe<'a> {
         evaluated_lines.push(evaluator.evaluate_line(line, &argument_map)?);
       }
 
-      if configuration.dry_run || self.quiet {
+      if config.dry_run || self.quiet {
         for line in &evaluated_lines {
           eprintln!("{}", line);
         }
       }
 
-      if configuration.dry_run {
+      if config.dry_run {
         return Ok(());
       }
 
@@ -159,8 +159,8 @@ impl<'a> Recipe<'a> {
           text += "\n";
         }
 
-        if configuration.verbosity.grandiloquent() {
-          eprintln!("{}", configuration.color.doc().stderr().paint(&text));
+        if config.verbosity.grandiloquent() {
+          eprintln!("{}", config.color.doc().stderr().paint(&text));
         }
 
         f.write_all(text.as_bytes())
@@ -255,27 +255,27 @@ impl<'a> Recipe<'a> {
           continue;
         }
 
-        if configuration.dry_run
-          || configuration.verbosity.loquacious()
-          || !((quiet_command ^ self.quiet) || configuration.quiet)
+        if config.dry_run
+          || config.verbosity.loquacious()
+          || !((quiet_command ^ self.quiet) || config.quiet)
         {
-          let color = if configuration.highlight {
-            configuration.color.command()
+          let color = if config.highlight {
+            config.color.command()
           } else {
-            configuration.color
+            config.color
           };
           eprintln!("{}", color.stderr().paint(command));
         }
 
-        if configuration.dry_run {
+        if config.dry_run {
           continue;
         }
 
-        let mut cmd = Command::new(configuration.shell);
+        let mut cmd = Command::new(config.shell);
 
         cmd.arg("-cu").arg(command);
 
-        if configuration.quiet {
+        if config.quiet {
           cmd.stderr(Stdio::null());
           cmd.stdout(Stdio::null());
         }

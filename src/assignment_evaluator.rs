@@ -197,13 +197,13 @@ b = `echo $exported_variable`
 recipe:
   echo {{b}}
 "#;
-    let configuration = Configuration {
+    let config = Config {
       quiet: true,
       ..Default::default()
     };
 
     match parse(text)
-      .run(&no_cwd_err(), &["recipe"], &configuration)
+      .run(&no_cwd_err(), &["recipe"], &config)
       .unwrap_err()
     {
       RuntimeError::Backtick {

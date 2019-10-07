@@ -9,7 +9,7 @@ pub(crate) struct Justfile<'a> {
   pub(crate) warnings: Vec<Warning<'a>>,
 }
 
-impl<'a> Justfile<'a> where {
+impl<'a> Justfile<'a> {
   pub(crate) fn first(&self) -> Option<&Recipe> {
     let mut first: Option<&Recipe> = None;
     for recipe in self.recipes.values() {
@@ -47,9 +47,9 @@ impl<'a> Justfile<'a> where {
     &'a self,
     invocation_directory: &'a Result<PathBuf, String>,
     arguments: &[&'a str],
-    configuration: &'a Configuration<'a>,
+    config: &'a Config<'a>,
   ) -> RunResult<'a, ()> {
-    let unknown_overrides = configuration
+    let unknown_overrides = config
       .overrides
       .keys()
       .cloned()
@@ -68,13 +68,13 @@ impl<'a> Justfile<'a> where {
       &self.assignments,
       invocation_directory,
       &dotenv,
-      &configuration.overrides,
-      configuration.quiet,
-      configuration.shell,
-      configuration.dry_run,
+      &config.overrides,
+      config.quiet,
+      config.shell,
+      config.dry_run,
     )?;
 
-    if configuration.evaluate {
+    if config.evaluate {
       let mut width = 0;
       for name in scope.keys() {
         width = cmp::max(name.len(), width);
@@ -129,7 +129,7 @@ impl<'a> Justfile<'a> where {
 
     let context = RecipeContext {
       invocation_directory,
-      configuration,
+      config,
       scope,
     };
 
@@ -432,11 +432,11 @@ a return code:
 
   #[test]
   fn unknown_overrides() {
-    let mut configuration: Configuration = Default::default();
-    configuration.overrides.insert("foo", "bar");
-    configuration.overrides.insert("baz", "bob");
+    let mut config: Config = Default::default();
+    config.overrides.insert("foo", "bar");
+    config.overrides.insert("baz", "bob");
     match parse("a:\n echo {{`f() { return 100; }; f`}}")
-      .run(&no_cwd_err(), &["a"], &configuration)
+      .run(&no_cwd_err(), &["a"], &config)
       .unwrap_err()
     {
       UnknownOverrides { overrides } => {
@@ -458,13 +458,13 @@ wut:
   echo $foo $bar $baz
 "#;
 
-    let configuration = Configuration {
+    let config = Config {
       quiet: true,
       ..Default::default()
     };
 
     match parse(text)
-      .run(&no_cwd_err(), &["wut"], &configuration)
+      .run(&no_cwd_err(), &["wut"], &config)
       .unwrap_err()
     {
       Code {
