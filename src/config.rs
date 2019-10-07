@@ -5,6 +5,7 @@ use clap::{App, AppSettings, Arg, ArgGroup, ArgMatches};
 pub(crate) const DEFAULT_SHELL: &str = "sh";
 
 pub(crate) struct Config<'a> {
+  pub(crate) subcommand: Subcommand<'a>,
   pub(crate) dry_run: bool,
   pub(crate) evaluate: bool,
   pub(crate) highlight: bool,
@@ -14,6 +15,14 @@ pub(crate) struct Config<'a> {
   pub(crate) color: Color,
   pub(crate) verbosity: Verbosity,
   pub(crate) arguments: Vec<&'a str>,
+}
+
+mod arg {
+  pub(crate) const EDIT: &str = "EDIT";
+  pub(crate) const SUMMARY: &str = "SUMMARY";
+  pub(crate) const DUMP: &str = "DUMP";
+  pub(crate) const LIST: &str = "LIST";
+  pub(crate) const SHOW: &str = "SHOW";
 }
 
 impl<'a> Config<'a> {
@@ -43,12 +52,12 @@ impl<'a> Config<'a> {
           .conflicts_with("QUIET"),
       )
       .arg(
-        Arg::with_name("DUMP")
+        Arg::with_name(arg::DUMP)
           .long("dump")
           .help("Print entire justfile"),
       )
       .arg(
-        Arg::with_name("EDIT")
+        Arg::with_name(arg::EDIT)
           .short("e")
           .long("edit")
           .help("Open justfile with $EDITOR"),
@@ -71,7 +80,7 @@ impl<'a> Config<'a> {
           .help("Use <JUSTFILE> as justfile."),
       )
       .arg(
-        Arg::with_name("LIST")
+        Arg::with_name(arg::LIST)
           .short("l")
           .long("list")
           .help("List available recipes and their arguments"),
@@ -100,7 +109,7 @@ impl<'a> Config<'a> {
           .help("Invoke <SHELL> to run recipes"),
       )
       .arg(
-        Arg::with_name("SHOW")
+        Arg::with_name(arg::SHOW)
           .short("s")
           .long("show")
           .takes_value(true)
@@ -108,7 +117,7 @@ impl<'a> Config<'a> {
           .help("Show information about <RECIPE>"),
       )
       .arg(
-        Arg::with_name("SUMMARY")
+        Arg::with_name(arg::SUMMARY)
           .long("summary")
           .help("List names of available recipes"),
       )
@@ -128,11 +137,11 @@ impl<'a> Config<'a> {
           .requires("JUSTFILE"),
       )
       .group(ArgGroup::with_name("EARLY-EXIT").args(&[
-        "DUMP",
-        "EDIT",
-        "LIST",
-        "SHOW",
-        "SUMMARY",
+        arg::DUMP,
+        arg::EDIT,
+        arg::LIST,
+        arg::SHOW,
+        arg::SUMMARY,
         "ARGUMENTS",
         "EVALUATE",
       ]));
@@ -229,12 +238,27 @@ impl<'a> Config<'a> {
       })
       .collect::<Vec<&str>>();
 
+    let subcommand = if matches.is_present(arg::EDIT) {
+      Subcommand::Edit
+    } else if matches.is_present(arg::SUMMARY) {
+      Subcommand::Summary
+    } else if matches.is_present(arg::DUMP) {
+      Subcommand::Dump
+    } else if matches.is_present(arg::LIST) {
+      Subcommand::List
+    } else if let Some(name) = matches.value_of(arg::SHOW) {
+      Subcommand::Show { name }
+    } else {
+      Subcommand::Run
+    };
+
     Config {
       dry_run: matches.is_present("DRY-RUN"),
       evaluate: matches.is_present("EVALUATE"),
       highlight: matches.is_present("HIGHLIGHT"),
       quiet: matches.is_present("QUIET"),
       shell: matches.value_of("SHELL").unwrap(),
+      subcommand,
       verbosity,
       color,
       overrides,
@@ -246,6 +270,7 @@ impl<'a> Config<'a> {
 impl<'a> Default for Config<'a> {
   fn default() -> Config<'static> {
     Config {
+      subcommand: Subcommand::Run,
       dry_run: false,
       evaluate: false,
       highlight: false,

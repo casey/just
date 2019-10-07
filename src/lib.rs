@@ -51,6 +51,7 @@ mod search_error;
 mod shebang;
 mod state;
 mod string_literal;
+mod subcommand;
 mod token;
 mod token_kind;
 mod use_color;
