@@ -1,8 +1,8 @@
-mod tempdir;
+mod testing;
 
 #[cfg(unix)]
 mod unix {
-  use super::tempdir::tempdir;
+  use super::testing::tempdir;
   use executable_path::executable_path;
   use std::{
     fs,

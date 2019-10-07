@@ -1,4 +1,4 @@
-mod tempdir;
+mod testing;
 
 use std::{
   env, fs,
@@ -11,13 +11,13 @@ use std::{
 use executable_path::executable_path;
 use libc::{EXIT_FAILURE, EXIT_SUCCESS};
 use pretty_assertions::assert_eq;
-use tempdir::tempdir;
+use testing::{tempdir, unindent};
 
 /// Instantiate an integration test.
 macro_rules! integration_test {
   (
     name:     $name:ident,
-    justfile: $justfile:tt,
+    justfile: $justfile:expr,
     $(args:     ($($arg:tt)*),)?
     $(stdin:    $stdin:expr,)?
     $(stdout:   $stdout:expr,)?
@@ -52,8 +52,8 @@ impl<'a> Default for Test<'a> {
   fn default() -> Test<'a> {
     Test {
       justfile: "",
-      stdin: "",
       args: &[],
+      stdin: "",
       stdout: "",
       stderr: "",
       status: EXIT_SUCCESS,
@@ -65,9 +65,13 @@ impl<'a> Test<'a> {
   fn run(self) {
     let tmp = tempdir();
 
+    let justfile = unindent(self.justfile);
+    let stdout = unindent(self.stdout);
+    let stderr = unindent(self.stderr);
+
     let mut justfile_path = tmp.path().to_path_buf();
     justfile_path.push("justfile");
-    fs::write(justfile_path, self.justfile).unwrap();
+    fs::write(justfile_path, justfile).unwrap();
 
     let mut dotenv_path = tmp.path().to_path_buf();
     dotenv_path.push(".env");
@@ -103,8 +107,8 @@ impl<'a> Test<'a> {
 
     let want = Output {
       status: self.status,
-      stdout: self.stdout,
-      stderr: self.stderr,
+      stdout: &stdout,
+      stderr: &stderr,
     };
 
     assert_eq!(have, want, "bad output");
@@ -160,42 +164,51 @@ fn test_round_trip(tmpdir: &Path) {
 
 integration_test! {
   name: alias_listing,
-  justfile: "foo:\n  echo foo\nalias f := foo",
+  justfile: "
+    foo:
+      echo foo
+
+    alias f := foo
+  ",
   args: ("--list"),
-  stdout: "Available recipes:
-    foo
-    f   # alias for `foo`
-",
+  stdout: "
+    Available recipes:
+        foo
+        f   # alias for `foo`
+  ",
 }
 
 integration_test! {
   name: alias_listing_multiple_aliases,
   justfile: "foo:\n  echo foo\nalias f := foo\nalias fo := foo",
   args: ("--list"),
-  stdout: "Available recipes:
-    foo
-    f   # alias for `foo`
-    fo  # alias for `foo`
-",
+  stdout: "
+    Available recipes:
+        foo
+        f   # alias for `foo`
+        fo  # alias for `foo`
+  ",
 }
 
 integration_test! {
   name: alias_listing_parameters,
   justfile: "foo PARAM='foo':\n  echo {{PARAM}}\nalias f := foo",
   args: ("--list"),
-  stdout: "Available recipes:
-    foo PARAM='foo'
-    f PARAM='foo'   # alias for `foo`
-",
+  stdout: "
+    Available recipes:
+        foo PARAM='foo'
+        f PARAM='foo'   # alias for `foo`
+  ",
 }
 
 integration_test! {
   name: alias_listing_private,
   justfile: "foo PARAM='foo':\n  echo {{PARAM}}\nalias _f := foo",
   args: ("--list"),
-  stdout: "Available recipes:
-    foo PARAM='foo'
-",
+  stdout: "
+    Available recipes:
+        foo PARAM='foo'
+  ",
 }
 
 integration_test! {
@@ -462,10 +475,10 @@ backtick-fail:
 \techo {{`exit 1`}}
 ",
   stdout:   "",
-  stderr:   "error: Backtick failed with exit code 1
-  |
-3 |     echo {{`exit 1`}}
-  |            ^^^^^^^^
+  stderr:   "    error: Backtick failed with exit code 1
+      |
+    3 |     echo {{`exit 1`}}
+      |            ^^^^^^^^
 ",
   status:   1,
 }
@@ -2105,62 +2118,59 @@ default a=`read A && echo $A` b=`read B && echo $B`:
 }
 
 integration_test! {
-   name:     equals_deprecated_assignment,
-   justfile: "
+  name: equals_deprecated_assignment,
+  justfile: "
+    foo = 'bar'
 
-foo = 'bar'
-
-default:
-  echo {{foo}}
-
-",
-   stdout:   "bar\n",
-   stderr:   "warning: `=` in assignments, exports, and aliases is being phased out on favor of `:=`
-Please see this issue for more details: https://github.com/casey/just/issues/379
-  |
-3 | foo = 'bar'
-  |     ^
-echo bar
-",
+    default:
+      echo {{foo}}
+  ",
+  stdout: "bar\n",
+  stderr: "
+    warning: `=` in assignments, exports, and aliases is being phased out on favor of `:=`
+    Please see this issue for more details: https://github.com/casey/just/issues/379
+      |
+    1 | foo = 'bar'
+      |     ^
+    echo bar
+  ",
 }
 
 integration_test! {
-   name:     equals_deprecated_export,
-   justfile: "
+  name: equals_deprecated_export,
+  justfile: "
+    export FOO = 'bar'
 
-export FOO = 'bar'
-
-default:
-  echo $FOO
-
-",
-   stdout:   "bar\n",
-   stderr:   "warning: `=` in assignments, exports, and aliases is being phased out on favor of `:=`
-Please see this issue for more details: https://github.com/casey/just/issues/379
-  |
-3 | export FOO = 'bar'
-  |            ^
-echo $FOO
-",
+    default:
+      echo $FOO
+    ",
+  stdout: "bar\n",
+  stderr: "
+    warning: `=` in assignments, exports, and aliases is being phased out on favor of `:=`
+    Please see this issue for more details: https://github.com/casey/just/issues/379
+      |
+    1 | export FOO = 'bar'
+      |            ^
+    echo $FOO
+  ",
 }
 
 integration_test! {
-   name:     equals_deprecated_alias,
-   justfile: "
+  name: equals_deprecated_alias,
+  justfile: "
+    alias foo = default
 
-alias foo = default
-
-default:
-  echo default
-
-",
-   args:     ("foo"),
-   stdout:   "default\n",
-   stderr:   "warning: `=` in assignments, exports, and aliases is being phased out on favor of `:=`
-Please see this issue for more details: https://github.com/casey/just/issues/379
-  |
-3 | alias foo = default
-  |           ^
-echo default
-",
+    default:
+      echo default
+  ",
+  args: ("foo"),
+  stdout: "default\n",
+  stderr: "
+    warning: `=` in assignments, exports, and aliases is being phased out on favor of `:=`
+    Please see this issue for more details: https://github.com/casey/just/issues/379
+      |
+    1 | alias foo = default
+      |           ^
+    echo default
+  ",
 }
