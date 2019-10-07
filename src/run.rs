@@ -1,9 +1,6 @@
 use crate::common::*;
 
-use crate::configuration::DEFAULT_SHELL;
-use crate::interrupt_handler::InterruptHandler;
-use crate::misc::maybe_s;
-use clap::{App, AppSettings, Arg, ArgGroup};
+use crate::{interrupt_handler::InterruptHandler, misc::maybe_s};
 use std::{convert, ffi};
 use unicode_width::UnicodeWidthStr;
 
@@ -36,216 +33,14 @@ pub fn run() {
   let invocation_directory =
     env::current_dir().map_err(|e| format!("Error getting current directory: {}", e));
 
-  let app = App::new(env!("CARGO_PKG_NAME"))
-    .help_message("Print help information")
-    .version_message("Print version information")
-    .setting(AppSettings::ColoredHelp)
-    .setting(AppSettings::TrailingVarArg)
-    .arg(
-      Arg::with_name("ARGUMENTS")
-        .multiple(true)
-        .help("The recipe(s) to run, defaults to the first recipe in the justfile"),
-    )
-    .arg(
-      Arg::with_name("COLOR")
-        .long("color")
-        .takes_value(true)
-        .possible_values(&["auto", "always", "never"])
-        .default_value("auto")
-        .help("Print colorful output"),
-    )
-    .arg(
-      Arg::with_name("DRY-RUN")
-        .long("dry-run")
-        .help("Print what just would do without doing it")
-        .conflicts_with("QUIET"),
-    )
-    .arg(
-      Arg::with_name("DUMP")
-        .long("dump")
-        .help("Print entire justfile"),
-    )
-    .arg(
-      Arg::with_name("EDIT")
-        .short("e")
-        .long("edit")
-        .help("Open justfile with $EDITOR"),
-    )
-    .arg(
-      Arg::with_name("EVALUATE")
-        .long("evaluate")
-        .help("Print evaluated variables"),
-    )
-    .arg(
-      Arg::with_name("HIGHLIGHT")
-        .long("highlight")
-        .help("Highlight echoed recipe lines in bold"),
-    )
-    .arg(
-      Arg::with_name("JUSTFILE")
-        .short("f")
-        .long("justfile")
-        .takes_value(true)
-        .help("Use <JUSTFILE> as justfile."),
-    )
-    .arg(
-      Arg::with_name("LIST")
-        .short("l")
-        .long("list")
-        .help("List available recipes and their arguments"),
-    )
-    .arg(
-      Arg::with_name("QUIET")
-        .short("q")
-        .long("quiet")
-        .help("Suppress all output")
-        .conflicts_with("DRY-RUN"),
-    )
-    .arg(
-      Arg::with_name("SET")
-        .long("set")
-        .takes_value(true)
-        .number_of_values(2)
-        .value_names(&["VARIABLE", "VALUE"])
-        .multiple(true)
-        .help("Set <VARIABLE> to <VALUE>"),
-    )
-    .arg(
-      Arg::with_name("SHELL")
-        .long("shell")
-        .takes_value(true)
-        .default_value(DEFAULT_SHELL)
-        .help("Invoke <SHELL> to run recipes"),
-    )
-    .arg(
-      Arg::with_name("SHOW")
-        .short("s")
-        .long("show")
-        .takes_value(true)
-        .value_name("RECIPE")
-        .help("Show information about <RECIPE>"),
-    )
-    .arg(
-      Arg::with_name("SUMMARY")
-        .long("summary")
-        .help("List names of available recipes"),
-    )
-    .arg(
-      Arg::with_name("VERBOSE")
-        .short("v")
-        .long("verbose")
-        .multiple(true)
-        .help("Use verbose output"),
-    )
-    .arg(
-      Arg::with_name("WORKING-DIRECTORY")
-        .short("d")
-        .long("working-directory")
-        .takes_value(true)
-        .help("Use <WORKING-DIRECTORY> as working directory. --justfile must also be set")
-        .requires("JUSTFILE"),
-    )
-    .group(ArgGroup::with_name("EARLY-EXIT").args(&[
-      "DUMP",
-      "EDIT",
-      "LIST",
-      "SHOW",
-      "SUMMARY",
-      "ARGUMENTS",
-      "EVALUATE",
-    ]));
-
-  let app = if cfg!(feature = "help4help2man") {
-    app.version(env!("CARGO_PKG_VERSION")).about(concat!(
-      "- Please see ",
-      env!("CARGO_PKG_HOMEPAGE"),
-      " for more information."
-    ))
-  } else {
-    app
-      .version(concat!("v", env!("CARGO_PKG_VERSION")))
-      .author(env!("CARGO_PKG_AUTHORS"))
-      .about(concat!(
-        env!("CARGO_PKG_DESCRIPTION"),
-        " - ",
-        env!("CARGO_PKG_HOMEPAGE")
-      ))
-  };
+  let app = Config::app();
 
   let matches = app.get_matches();
 
-  let color = match matches.value_of("COLOR").expect("`--color` had no value") {
-    "auto" => Color::auto(),
-    "always" => Color::always(),
-    "never" => Color::never(),
-    other => die!(
-      "Invalid argument `{}` to --color. This is a bug in just.",
-      other
-    ),
-  };
-
-  let set_count = matches.occurrences_of("SET");
-  let mut overrides = BTreeMap::new();
-  if set_count > 0 {
-    let mut values = matches.values_of("SET").unwrap();
-    for _ in 0..set_count {
-      overrides.insert(values.next().unwrap(), values.next().unwrap());
-    }
-  }
-
-  fn is_override(arg: &&str) -> bool {
-    arg.chars().skip(1).any(|c| c == '=')
-  }
-
-  let raw_arguments: Vec<&str> = matches
-    .values_of("ARGUMENTS")
-    .map(Iterator::collect)
-    .unwrap_or_default();
-
-  for argument in raw_arguments.iter().cloned().take_while(is_override) {
-    let i = argument
-      .char_indices()
-      .skip(1)
-      .find(|&(_, c)| c == '=')
-      .unwrap()
-      .0;
-
-    let name = &argument[..i];
-    let value = &argument[i + 1..];
-
-    overrides.insert(name, value);
-  }
-
-  let rest = raw_arguments
-    .into_iter()
-    .skip_while(is_override)
-    .enumerate()
-    .flat_map(|(i, argument)| {
-      if i == 0 {
-        if let Some(i) = argument.rfind('/') {
-          if matches.is_present("WORKING-DIRECTORY") {
-            die!("--working-directory and a path prefixed recipe may not be used together.");
-          }
-
-          let (dir, recipe) = argument.split_at(i + 1);
-
-          if let Err(error) = env::set_current_dir(dir) {
-            die!("Error changing directory: {}", error);
-          }
-
-          if recipe.is_empty() {
-            return None;
-          } else {
-            return Some(recipe);
-          }
-        }
-      }
-
-      Some(argument)
-    })
-    .collect::<Vec<&str>>();
+  let config = Config::from_matches(&matches);
 
   let justfile = matches.value_of("JUSTFILE").map(Path::new);
+
   let mut working_directory = matches.value_of("WORKING-DIRECTORY").map(PathBuf::from);
 
   if let (Some(justfile), None) = (justfile, working_directory.as_ref()) {
@@ -311,7 +106,7 @@ pub fn run() {
   }
 
   let justfile = Parser::parse(&text).unwrap_or_else(|error| {
-    if color.stderr().active() {
+    if config.color.stderr().active() {
       die!("{:#}", error);
     } else {
       die!("{}", error);
@@ -319,7 +114,7 @@ pub fn run() {
   });
 
   for warning in &justfile.warnings {
-    if color.stderr().active() {
+    if config.color.stderr().active() {
       eprintln!("{:#}", warning);
     } else {
       eprintln!("{}", warning);
@@ -386,7 +181,7 @@ pub fn run() {
 
     let max_line_width = cmp::min(line_widths.values().cloned().max().unwrap_or(0), 30);
 
-    let doc_color = color.stdout().doc();
+    let doc_color = config.color.stdout().doc();
     println!("Available recipes:");
 
     for (name, recipe) in &justfile.recipes {
@@ -402,7 +197,7 @@ pub fn run() {
       {
         print!("    {}", name);
         for parameter in &recipe.parameters {
-          if color.stdout().active() {
+          if config.color.stdout().active() {
             print!(" {:#}", parameter);
           } else {
             print!(" {}", parameter);
@@ -454,8 +249,8 @@ pub fn run() {
     }
   }
 
-  let arguments = if !rest.is_empty() {
-    rest
+  let arguments = if !config.arguments.is_empty() {
+    config.arguments.clone()
   } else if let Some(recipe) = justfile.first() {
     let min_arguments = recipe.min_arguments();
     if min_arguments > 0 {
@@ -471,26 +266,13 @@ pub fn run() {
     die!("Justfile contains no recipes.");
   };
 
-  let verbosity = Verbosity::from_flag_occurrences(matches.occurrences_of("VERBOSE"));
-
-  let configuration = Configuration {
-    dry_run: matches.is_present("DRY-RUN"),
-    evaluate: matches.is_present("EVALUATE"),
-    highlight: matches.is_present("HIGHLIGHT"),
-    quiet: matches.is_present("QUIET"),
-    shell: matches.value_of("SHELL").unwrap(),
-    verbosity,
-    color,
-    overrides,
-  };
-
   if let Err(error) = InterruptHandler::install() {
     warn!("Failed to set CTRL-C handler: {}", error)
   }
 
-  if let Err(run_error) = justfile.run(&invocation_directory, &arguments, &configuration) {
-    if !configuration.quiet {
-      if color.stderr().active() {
+  if let Err(run_error) = justfile.run(&invocation_directory, &arguments, &config) {
+    if !config.quiet {
+      if config.color.stderr().active() {
         eprintln!("{:#}", run_error);
       } else {
         eprintln!("{}", run_error);

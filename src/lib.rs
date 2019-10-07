@@ -20,7 +20,7 @@ mod command_ext;
 mod common;
 mod compilation_error;
 mod compilation_error_kind;
-mod configuration;
+mod config;
 mod expression;
 mod fragment;
 mod function;
