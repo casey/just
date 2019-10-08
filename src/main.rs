@@ -1,3 +1,5 @@
 fn main() {
-  just::run();
+  if let Err(code) = just::run() {
+    std::process::exit(code);
+  }
 }

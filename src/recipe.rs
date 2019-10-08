@@ -82,7 +82,7 @@ impl<'a> Recipe<'a> {
       assignments: &empty(),
       dry_run: config.dry_run,
       evaluated: empty(),
-      invocation_directory: context.invocation_directory,
+      invocation_directory: &config.invocation_directory,
       overrides: &empty(),
       quiet: config.quiet,
       scope: &context.scope,

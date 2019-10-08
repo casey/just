@@ -167,14 +167,10 @@ mod test {
   use super::*;
   use crate::testing::parse;
 
-  fn no_cwd_err() -> Result<PathBuf, String> {
-    Err(String::from("no cwd in tests"))
-  }
-
   #[test]
   fn backtick_code() {
     match parse("a:\n echo {{`f() { return 100; }; f`}}")
-      .run(&no_cwd_err(), &["a"], &Default::default())
+      .run(&["a"], &Default::default())
       .unwrap_err()
     {
       RuntimeError::Backtick {
@@ -202,10 +198,7 @@ recipe:
       ..Default::default()
     };
 
-    match parse(text)
-      .run(&no_cwd_err(), &["recipe"], &config)
-      .unwrap_err()
-    {
+    match parse(text).run(&["recipe"], &config).unwrap_err() {
       RuntimeError::Backtick {
         token,
         output_error: OutputError::Code(_),

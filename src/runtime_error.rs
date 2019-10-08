@@ -377,7 +377,7 @@ impl<'a> Display for RuntimeError<'a> {
       Internal { ref message } => {
         write!(
           f,
-          "Internal error, this may indicate a bug in just: {} \
+          "Internal runtime error, this may indicate a bug in just: {} \
            consider filing an issue: https://github.com/casey/just/issues/new",
           message
         )?;
