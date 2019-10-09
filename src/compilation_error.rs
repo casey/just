@@ -1,7 +1,5 @@
 use crate::common::*;
 
-use crate::misc::{maybe_s, show_whitespace, write_message_context, Or};
-
 #[derive(Debug, PartialEq)]
 pub(crate) struct CompilationError<'a> {
   pub(crate) text: &'a str,
@@ -82,7 +80,7 @@ impl<'a> Display for CompilationError<'a> {
         ref expected,
         found,
       } => {
-        writeln!(f, "Expected {}, but found {}", Or(expected), found)?;
+        writeln!(f, "Expected {}, but found {}", List::or(expected), found)?;
       }
       DuplicateAlias { alias, first } => {
         writeln!(
@@ -139,7 +137,7 @@ impl<'a> Display for CompilationError<'a> {
           f,
           "Found a mix of tabs and spaces in leading whitespace: `{}`\n\
            Leading whitespace may consist of tabs or spaces, but not both",
-          show_whitespace(whitespace)
+          ShowWhitespace(whitespace)
         )?;
       }
       ExtraLeadingWhitespace => {
@@ -152,10 +150,10 @@ impl<'a> Display for CompilationError<'a> {
       } => {
         writeln!(
           f,
-          "Function `{}` called with {} argument{} but takes {}",
+          "Function `{}` called with {} {} but takes {}",
           function,
           found,
-          maybe_s(found),
+          Count("argument", found),
           expected
         )?;
       }
@@ -164,8 +162,8 @@ impl<'a> Display for CompilationError<'a> {
           f,
           "Recipe line has inconsistent leading whitespace. \
            Recipe started with `{}` but found line with `{}`",
-          show_whitespace(expected),
-          show_whitespace(found)
+          ShowWhitespace(expected),
+          ShowWhitespace(found)
         )?;
       }
       UnknownAliasTarget { alias, target } => {

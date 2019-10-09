@@ -1,6 +1,4 @@
-use std::{fmt, io, path::PathBuf};
-
-use crate::misc::And;
+use crate::common::*;
 
 pub(crate) enum SearchError {
   MultipleCandidates {
@@ -29,11 +27,10 @@ impl fmt::Display for SearchError {
         f,
         "Multiple candidate justfiles found in `{}`: {}",
         candidates[0].parent().unwrap().display(),
-        And(
-          &candidates
+        List::and(
+          candidates
             .iter()
             .map(|candidate| format!("`{}`", candidate.file_name().unwrap().to_string_lossy()))
-            .collect::<Vec<String>>()
         ),
       ),
       SearchError::NotFound => write!(f, "No justfile found"),

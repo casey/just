@@ -1,6 +1,6 @@
 use crate::common::*;
 
-use crate::{interrupt_handler::InterruptHandler, misc::maybe_s};
+use crate::interrupt_handler::InterruptHandler;
 use unicode_width::UnicodeWidthStr;
 
 fn edit<P: AsRef<OsStr>>(path: P) -> Result<(), i32> {
@@ -288,7 +288,7 @@ pub fn run() -> Result<(), i32> {
         "Recipe `{}` cannot be used as default recipe since it requires at least {} argument{}.",
         recipe.name,
         min_arguments,
-        maybe_s(min_arguments)
+        Count("argument", min_arguments),
       );
     }
     vec![recipe.name]
