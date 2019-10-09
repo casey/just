@@ -53,6 +53,9 @@ publish-check: lint clippy test
 	git branch | grep '* master'
 	git diff --no-ext-diff --quiet --exit-code
 	grep {{version}} CHANGELOG.md
+	cargo +nightly generate-lockfile -Z minimal-versions
+	cargo test
+	git checkout
 
 publish: publish-check
 	cargo publish
