@@ -27,10 +27,10 @@ impl fmt::Display for SearchError {
         f,
         "Multiple candidate justfiles found in `{}`: {}",
         candidates[0].parent().unwrap().display(),
-        List::and(
+        List::and_ticked(
           candidates
             .iter()
-            .map(|candidate| format!("`{}`", candidate.file_name().unwrap().to_string_lossy()))
+            .map(|candidate| candidate.file_name().unwrap().to_string_lossy())
         ),
       ),
       SearchError::NotFound => write!(f, "No justfile found"),

@@ -285,7 +285,7 @@ pub fn run() -> Result<(), i32> {
     let min_arguments = recipe.min_arguments();
     if min_arguments > 0 {
       die!(
-        "Recipe `{}` cannot be used as default recipe since it requires at least {} argument{}.",
+        "Recipe `{}` cannot be used as default recipe since it requires at least {} {}.",
         recipe.name,
         min_arguments,
         Count("argument", min_arguments),

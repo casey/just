@@ -23,19 +23,13 @@ impl<T: Display, I: Iterator<Item = T> + Clone> List<T, I> {
   pub fn or_ticked<II: IntoIterator<Item = T, IntoIter = I>>(
     values: II,
   ) -> List<Enclosure<T>, impl Iterator<Item = Enclosure<T>> + Clone> {
-    List {
-      conjunction: "or",
-      values: values.into_iter().map(Enclosure::tick),
-    }
+    List::or(values.into_iter().map(Enclosure::tick))
   }
 
   pub fn and_ticked<II: IntoIterator<Item = T, IntoIter = I>>(
     values: II,
   ) -> List<Enclosure<T>, impl Iterator<Item = Enclosure<T>> + Clone> {
-    List {
-      conjunction: "and",
-      values: values.into_iter().map(Enclosure::tick),
-    }
+    List::and(values.into_iter().map(Enclosure::tick))
   }
 }
 
