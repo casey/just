@@ -1,5 +1,4 @@
 use crate::common::*;
-use crate::misc::write_message_context;
 
 use Warning::*;
 

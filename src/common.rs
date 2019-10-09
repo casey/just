@@ -31,9 +31,8 @@ pub(crate) use crate::testing;
 
 // functions
 pub(crate) use crate::{
-  load_dotenv::load_dotenv,
-  misc::{default, empty},
-  output::output,
+  default::default, empty::empty, load_dotenv::load_dotenv, output::output,
+  write_message_context::write_message_context,
 };
 
 // structs and enums
@@ -41,12 +40,13 @@ pub(crate) use crate::{
   alias::Alias, alias_resolver::AliasResolver, assignment_evaluator::AssignmentEvaluator,
   assignment_resolver::AssignmentResolver, color::Color, compilation_error::CompilationError,
   compilation_error_kind::CompilationErrorKind, config::Config, config_error::ConfigError,
-  expression::Expression, fragment::Fragment, function::Function,
-  function_context::FunctionContext, functions::Functions, interrupt_guard::InterruptGuard,
-  interrupt_handler::InterruptHandler, justfile::Justfile, lexer::Lexer, output_error::OutputError,
-  parameter::Parameter, parser::Parser, platform::Platform, position::Position, recipe::Recipe,
-  recipe_context::RecipeContext, recipe_resolver::RecipeResolver, runtime_error::RuntimeError,
-  search_error::SearchError, shebang::Shebang, state::State, string_literal::StringLiteral,
+  count::Count, enclosure::Enclosure, expression::Expression, fragment::Fragment,
+  function::Function, function_context::FunctionContext, functions::Functions,
+  interrupt_guard::InterruptGuard, interrupt_handler::InterruptHandler, justfile::Justfile,
+  lexer::Lexer, list::List, output_error::OutputError, parameter::Parameter, parser::Parser,
+  platform::Platform, position::Position, recipe::Recipe, recipe_context::RecipeContext,
+  recipe_resolver::RecipeResolver, runtime_error::RuntimeError, search_error::SearchError,
+  shebang::Shebang, show_whitespace::ShowWhitespace, state::State, string_literal::StringLiteral,
   subcommand::Subcommand, token::Token, token_kind::TokenKind, use_color::UseColor,
   variables::Variables, verbosity::Verbosity, warning::Warning,
 };

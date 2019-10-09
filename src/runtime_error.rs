@@ -1,7 +1,5 @@
 use crate::common::*;
 
-use crate::misc::{maybe_s, ticks, write_message_context, And, Or, Tick};
-
 #[derive(Debug)]
 pub(crate) enum RuntimeError<'a> {
   ArgumentCountMismatch {
@@ -102,9 +100,9 @@ impl<'a> Display for RuntimeError<'a> {
       } => {
         write!(
           f,
-          "Justfile does not contain recipe{} {}.",
-          maybe_s(recipes.len()),
-          Or(&ticks(recipes))
+          "Justfile does not contain {} {}.",
+          Count("recipe", recipes.len()),
+          List::or_ticked(recipes),
         )?;
         if let Some(suggestion) = *suggestion {
           write!(f, "\nDid you mean `{}`?", suggestion)?;
@@ -113,9 +111,9 @@ impl<'a> Display for RuntimeError<'a> {
       UnknownOverrides { ref overrides } => {
         write!(
           f,
-          "Variable{} {} overridden on the command line but not present in justfile",
-          maybe_s(overrides.len()),
-          And(&overrides.iter().map(Tick).collect::<Vec<_>>())
+          "{} {} overridden on the command line but not present in justfile",
+          Count("Variable", overrides.len()),
+          List::and_ticked(overrides),
         )?;
       }
       ArgumentCountMismatch {
@@ -129,29 +127,29 @@ impl<'a> Display for RuntimeError<'a> {
           let expected = min;
           write!(
             f,
-            "Recipe `{}` got {} argument{} but {}takes {}",
+            "Recipe `{}` got {} {} but {}takes {}",
             recipe,
             found,
-            maybe_s(found),
+            Count("argument", found),
             if expected < found { "only " } else { "" },
             expected
           )?;
         } else if found < min {
           write!(
             f,
-            "Recipe `{}` got {} argument{} but takes at least {}",
+            "Recipe `{}` got {} {} but takes at least {}",
             recipe,
             found,
-            maybe_s(found),
+            Count("argument", found),
             min
           )?;
         } else if found > max {
           write!(
             f,
-            "Recipe `{}` got {} argument{} but takes at most {}",
+            "Recipe `{}` got {} {} but takes at most {}",
             recipe,
             found,
-            maybe_s(found),
+            Count("argument", found),
             max
           )?;
         }
