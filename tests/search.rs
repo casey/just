@@ -121,3 +121,27 @@ fn test_downwards_multiple_path_argument() {
   search_test(&path, &["./a/b/"]);
   search_test(&path, &["./a/b/default"]);
 }
+
+#[test]
+fn single_downards() {
+  let tmp = tmptree! {
+    justfile: "default:\n\techo ok",
+    child: {},
+  };
+
+  let path = tmp.path();
+
+  search_test(&path, &["child/"]);
+}
+
+#[test]
+fn single_upwards() {
+  let tmp = tmptree! {
+    justfile: "default:\n\techo ok",
+    child: {},
+  };
+
+  let path = tmp.path().join("child");
+
+  search_test(&path, &["../"]);
+}

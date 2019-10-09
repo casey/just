@@ -210,6 +210,46 @@ impl<'a> Lexer<'a> {
     }
   }
 
+  /// True if `text` could be an identifier
+  pub(crate) fn is_identifier(text: &str) -> bool {
+    if !text
+      .chars()
+      .next()
+      .map(|c| Self::is_identifier_start(c))
+      .unwrap_or(false)
+    {
+      return false;
+    }
+
+    for c in text.chars().skip(1) {
+      if !Self::is_identifier_continue(c) {
+        return false;
+      }
+    }
+
+    true
+  }
+
+  /// True if `c` can be the first character of an identifier
+  fn is_identifier_start(c: char) -> bool {
+    match c {
+      'a'..='z' | 'A'..='Z' | '_' => true,
+      _ => false,
+    }
+  }
+
+  /// True if `c` can be a continuation character of an idenitifier
+  fn is_identifier_continue(c: char) -> bool {
+    if Self::is_identifier_start(c) {
+      return true;
+    }
+
+    match c {
+      '0'..='9' | '-' => true,
+      _ => false,
+    }
+  }
+
   /// Consume the text and produce a series of tokens
   fn tokenize(mut self) -> CompilationResult<'a, Vec<Token<'a>>> {
     loop {
@@ -362,10 +402,13 @@ impl<'a> Lexer<'a> {
       ' ' | '\t' => self.lex_whitespace(),
       '\'' => self.lex_raw_string(),
       '"' => self.lex_cooked_string(),
-      'a'..='z' | 'A'..='Z' | '_' => self.lex_identifier(),
       _ => {
-        self.advance()?;
-        Err(self.error(UnknownStartOfToken))
+        if Self::is_identifier_start(start) {
+          self.lex_identifier()
+        } else {
+          self.advance()?;
+          Err(self.error(UnknownStartOfToken))
+        }
       }
     }
   }
@@ -515,13 +558,16 @@ impl<'a> Lexer<'a> {
     self.lex_double(Eol)
   }
 
-  /// Lex identifier: [a-zA-Z_][a-zA-Z0-9_]*
+  /// Lex name: [a-zA-Z_][a-zA-Z0-9_]*
   fn lex_identifier(&mut self) -> CompilationResult<'a, ()> {
-    while self
-      .next
-      .map(|c| c.is_ascii_alphanumeric() || c == '-' || c == '_')
-      .unwrap_or(false)
-    {
+    // advance over initial character
+    self.advance()?;
+
+    while let Some(c) = self.next {
+      if !Self::is_identifier_continue(c) {
+        break;
+      }
+
       self.advance()?;
     }
 
@@ -1660,6 +1706,26 @@ mod tests {
   error! {
     name:   unknown_start_of_token_tilde,
     input:  "~",
+    offset: 0,
+    line:   0,
+    column: 0,
+    width:  1,
+    kind:   UnknownStartOfToken,
+  }
+
+  error! {
+    name:   invalid_name_start_dash,
+    input:  "-foo",
+    offset: 0,
+    line:   0,
+    column: 0,
+    width:  1,
+    kind:   UnknownStartOfToken,
+  }
+
+  error! {
+    name:   invalid_name_start_digit,
+    input:  "0foo",
     offset: 0,
     line:   0,
     column: 0,
