@@ -472,75 +472,75 @@ integration_test! {
   name:     backtick_code_interpolation_tab,
   justfile: "
 backtick-fail:
-\techo {{`exit 1`}}
+\techo {{`exit 200`}}
 ",
   stdout:   "",
-  stderr:   "    error: Backtick failed with exit code 1
+  stderr:   "    error: Backtick failed with exit code 200
       |
-    3 |     echo {{`exit 1`}}
-      |            ^^^^^^^^
+    3 |     echo {{`exit 200`}}
+      |            ^^^^^^^^^^
 ",
-  status:   1,
+  status:   200,
 }
 
 integration_test! {
   name:     backtick_code_interpolation_tabs,
   justfile: "
 backtick-fail:
-\techo {{\t`exit 1`}}
+\techo {{\t`exit 200`}}
 ",
   stdout:   "",
-  stderr:   "error: Backtick failed with exit code 1
+  stderr:   "error: Backtick failed with exit code 200
   |
-3 |     echo {{    `exit 1`}}
-  |                ^^^^^^^^
+3 |     echo {{    `exit 200`}}
+  |                ^^^^^^^^^^
 ",
-  status:   1,
+  status:   200,
 }
 
 integration_test! {
   name:     backtick_code_interpolation_inner_tab,
   justfile: "
 backtick-fail:
-\techo {{\t`exit\t\t1`}}
+\techo {{\t`exit\t\t200`}}
 ",
   stdout:   "",
-  stderr:   "error: Backtick failed with exit code 1
+  stderr:   "error: Backtick failed with exit code 200
   |
-3 |     echo {{    `exit        1`}}
-  |                ^^^^^^^^^^^^^^^
+3 |     echo {{    `exit        200`}}
+  |                ^^^^^^^^^^^^^^^^^
 ",
-  status:   1,
+  status:   200,
 }
 
 integration_test! {
   name:     backtick_code_interpolation_leading_emoji,
   justfile: "
 backtick-fail:
-\techo 😬{{`exit 1`}}
+\techo 😬{{`exit 200`}}
 ",
   stdout:   "",
-  stderr:   "error: Backtick failed with exit code 1
+  stderr:   "error: Backtick failed with exit code 200
   |
-3 |     echo 😬{{`exit 1`}}
-  |              ^^^^^^^^
+3 |     echo 😬{{`exit 200`}}
+  |              ^^^^^^^^^^
 ",
-  status:   1,
+  status:   200,
 }
 
 integration_test! {
   name:     backtick_code_interpolation_unicode_hell,
   justfile: "
 backtick-fail:
-\techo \t\t\t😬鎌鼬{{\t\t`exit 1 # \t\t\tabc`}}\t\t\t😬鎌鼬
+\techo \t\t\t😬鎌鼬{{\t\t`exit 200 # \t\t\tabc`}}\t\t\t😬鎌鼬
 ",
   stdout:   "",
-  stderr:   "error: Backtick failed with exit code 1
+  stderr:   "error: Backtick failed with exit code 200
   |
-3 |     echo             😬鎌鼬{{        `exit 1 #             abc`}}            😬鎌鼬
-  |                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^
+3 |     echo             😬鎌鼬{{        `exit 200 #             abc`}}            😬鎌鼬
+  |                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ",
-  status:   1,
+  status:   200,
 }
 
 integration_test! {
