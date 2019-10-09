@@ -43,12 +43,7 @@ impl<'a> Justfile<'a> {
     None
   }
 
-  pub(crate) fn run(
-    &'a self,
-    invocation_directory: &'a Result<PathBuf, String>,
-    arguments: &[&'a str],
-    config: &'a Config<'a>,
-  ) -> RunResult<'a, ()> {
+  pub(crate) fn run(&'a self, arguments: &[&'a str], config: &'a Config<'a>) -> RunResult<'a, ()> {
     let unknown_overrides = config
       .overrides
       .keys()
@@ -66,7 +61,7 @@ impl<'a> Justfile<'a> {
 
     let scope = AssignmentEvaluator::evaluate_assignments(
       &self.assignments,
-      invocation_directory,
+      &config.invocation_directory,
       &dotenv,
       &config.overrides,
       config.quiet,
@@ -127,11 +122,7 @@ impl<'a> Justfile<'a> {
       });
     }
 
-    let context = RecipeContext {
-      invocation_directory,
-      config,
-      scope,
-    };
+    let context = RecipeContext { config, scope };
 
     let mut ran = empty();
     for (recipe, arguments) in grouped {
@@ -212,14 +203,10 @@ mod test {
   use crate::runtime_error::RuntimeError::*;
   use crate::testing::parse;
 
-  fn no_cwd_err() -> Result<PathBuf, String> {
-    Err(String::from("no cwd in tests"))
-  }
-
   #[test]
   fn unknown_recipes() {
     match parse("a:\nb:\nc:")
-      .run(&no_cwd_err(), &["a", "x", "y", "z"], &Default::default())
+      .run(&["a", "x", "y", "z"], &Default::default())
       .unwrap_err()
     {
       UnknownRecipes {
@@ -251,10 +238,7 @@ a:
       x
 ";
 
-    match parse(text)
-      .run(&no_cwd_err(), &["a"], &Default::default())
-      .unwrap_err()
-    {
+    match parse(text).run(&["a"], &Default::default()).unwrap_err() {
       Code {
         recipe,
         line_number,
@@ -271,7 +255,7 @@ a:
   #[test]
   fn code_error() {
     match parse("fail:\n @exit 100")
-      .run(&no_cwd_err(), &["fail"], &Default::default())
+      .run(&["fail"], &Default::default())
       .unwrap_err()
     {
       Code {
@@ -294,7 +278,7 @@ a return code:
  @x() { {{return}} {{code + "0"}}; }; x"#;
 
     match parse(text)
-      .run(&no_cwd_err(), &["a", "return", "15"], &Default::default())
+      .run(&["a", "return", "15"], &Default::default())
       .unwrap_err()
     {
       Code {
@@ -313,7 +297,7 @@ a return code:
   #[test]
   fn missing_some_arguments() {
     match parse("a b c d:")
-      .run(&no_cwd_err(), &["a", "b", "c"], &Default::default())
+      .run(&["a", "b", "c"], &Default::default())
       .unwrap_err()
     {
       ArgumentCountMismatch {
@@ -337,7 +321,7 @@ a return code:
   #[test]
   fn missing_some_arguments_variadic() {
     match parse("a b c +d:")
-      .run(&no_cwd_err(), &["a", "B", "C"], &Default::default())
+      .run(&["a", "B", "C"], &Default::default())
       .unwrap_err()
     {
       ArgumentCountMismatch {
@@ -361,7 +345,7 @@ a return code:
   #[test]
   fn missing_all_arguments() {
     match parse("a b c d:\n echo {{b}}{{c}}{{d}}")
-      .run(&no_cwd_err(), &["a"], &Default::default())
+      .run(&["a"], &Default::default())
       .unwrap_err()
     {
       ArgumentCountMismatch {
@@ -385,7 +369,7 @@ a return code:
   #[test]
   fn missing_some_defaults() {
     match parse("a b c d='hello':")
-      .run(&no_cwd_err(), &["a", "b"], &Default::default())
+      .run(&["a", "b"], &Default::default())
       .unwrap_err()
     {
       ArgumentCountMismatch {
@@ -409,7 +393,7 @@ a return code:
   #[test]
   fn missing_all_defaults() {
     match parse("a b c='r' d='h':")
-      .run(&no_cwd_err(), &["a"], &Default::default())
+      .run(&["a"], &Default::default())
       .unwrap_err()
     {
       ArgumentCountMismatch {
@@ -436,7 +420,7 @@ a return code:
     config.overrides.insert("foo", "bar");
     config.overrides.insert("baz", "bob");
     match parse("a:\n echo {{`f() { return 100; }; f`}}")
-      .run(&no_cwd_err(), &["a"], &config)
+      .run(&["a"], &config)
       .unwrap_err()
     {
       UnknownOverrides { overrides } => {
@@ -463,10 +447,7 @@ wut:
       ..Default::default()
     };
 
-    match parse(text)
-      .run(&no_cwd_err(), &["wut"], &config)
-      .unwrap_err()
-    {
+    match parse(text).run(&["wut"], &config).unwrap_err() {
       Code {
         code: _,
         line_number,

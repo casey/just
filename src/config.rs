@@ -15,14 +15,24 @@ pub(crate) struct Config<'a> {
   pub(crate) color: Color,
   pub(crate) verbosity: Verbosity,
   pub(crate) arguments: Vec<&'a str>,
+  pub(crate) justfile: Option<&'a Path>,
+  pub(crate) working_directory: Option<&'a Path>,
+  pub(crate) invocation_directory: Result<PathBuf, String>,
 }
 
 mod arg {
-  pub(crate) const EDIT: &str = "EDIT";
-  pub(crate) const SUMMARY: &str = "SUMMARY";
   pub(crate) const DUMP: &str = "DUMP";
+  pub(crate) const COLOR: &str = "COLOR";
+  pub(crate) const EDIT: &str = "EDIT";
   pub(crate) const LIST: &str = "LIST";
   pub(crate) const SHOW: &str = "SHOW";
+  pub(crate) const SUMMARY: &str = "SUMMARY";
+  pub(crate) const WORKING_DIRECTORY: &str = "WORKING-DIRECTORY";
+
+  pub(crate) const COLOR_AUTO: &str = "auto";
+  pub(crate) const COLOR_ALWAYS: &str = "always";
+  pub(crate) const COLOR_NEVER: &str = "never";
+  pub(crate) const COLOR_VALUES: &[&str] = &[COLOR_AUTO, COLOR_ALWAYS, COLOR_NEVER];
 }
 
 impl<'a> Config<'a> {
@@ -38,11 +48,11 @@ impl<'a> Config<'a> {
           .help("The recipe(s) to run, defaults to the first recipe in the justfile"),
       )
       .arg(
-        Arg::with_name("COLOR")
+        Arg::with_name(arg::COLOR)
           .long("color")
           .takes_value(true)
-          .possible_values(&["auto", "always", "never"])
-          .default_value("auto")
+          .possible_values(arg::COLOR_VALUES)
+          .default_value(arg::COLOR_AUTO)
           .help("Print colorful output"),
       )
       .arg(
@@ -129,7 +139,7 @@ impl<'a> Config<'a> {
           .help("Use verbose output"),
       )
       .arg(
-        Arg::with_name("WORKING-DIRECTORY")
+        Arg::with_name(arg::WORKING_DIRECTORY)
           .short("d")
           .long("working-directory")
           .takes_value(true)
@@ -164,18 +174,28 @@ impl<'a> Config<'a> {
     }
   }
 
-  pub(crate) fn from_matches(matches: &'a ArgMatches<'a>) -> Config<'a> {
+  fn color_from_value(value: &str) -> ConfigResult<Color> {
+    match value {
+      arg::COLOR_AUTO => Ok(Color::auto()),
+      arg::COLOR_ALWAYS => Ok(Color::always()),
+      arg::COLOR_NEVER => Ok(Color::never()),
+      _ => Err(ConfigError::Internal {
+        message: format!("Invalid argument `{}` to --color.", value),
+      }),
+    }
+  }
+
+  pub(crate) fn from_matches(matches: &'a ArgMatches<'a>) -> ConfigResult<Config<'a>> {
+    let invocation_directory =
+      env::current_dir().map_err(|e| format!("Error getting current directory: {}", e));
+
     let verbosity = Verbosity::from_flag_occurrences(matches.occurrences_of("VERBOSE"));
 
-    let color = match matches.value_of("COLOR").expect("`--color` had no value") {
-      "auto" => Color::auto(),
-      "always" => Color::always(),
-      "never" => Color::never(),
-      other => die!(
-        "Invalid argument `{}` to --color. This is a bug in just.",
-        other
-      ),
-    };
+    let color = Self::color_from_value(
+      matches
+        .value_of(arg::COLOR)
+        .expect("`--color` had no value"),
+    )?;
 
     let set_count = matches.occurrences_of("SET");
     let mut overrides = BTreeMap::new();
@@ -216,7 +236,7 @@ impl<'a> Config<'a> {
       .flat_map(|(i, argument)| {
         if i == 0 {
           if let Some(i) = argument.rfind('/') {
-            if matches.is_present("WORKING-DIRECTORY") {
+            if matches.is_present(arg::WORKING_DIRECTORY) {
               die!("--working-directory and a path prefixed recipe may not be used together.");
             }
 
@@ -252,18 +272,21 @@ impl<'a> Config<'a> {
       Subcommand::Run
     };
 
-    Config {
+    Ok(Config {
       dry_run: matches.is_present("DRY-RUN"),
       evaluate: matches.is_present("EVALUATE"),
       highlight: matches.is_present("HIGHLIGHT"),
       quiet: matches.is_present("QUIET"),
       shell: matches.value_of("SHELL").unwrap(),
+      justfile: matches.value_of("JUSTFILE").map(Path::new),
+      working_directory: matches.value_of("WORKING-DIRECTORY").map(Path::new),
+      invocation_directory,
       subcommand,
       verbosity,
       color,
       overrides,
       arguments,
-    }
+    })
   }
 }
 
@@ -280,6 +303,10 @@ impl<'a> Default for Config<'a> {
       shell: DEFAULT_SHELL,
       color: default(),
       verbosity: Verbosity::from_flag_occurrences(0),
+      justfile: None,
+      working_directory: None,
+      invocation_directory: env::current_dir()
+        .map_err(|e| format!("Error getting current directory: {}", e)),
     }
   }
 }

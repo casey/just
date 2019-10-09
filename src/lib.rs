@@ -21,6 +21,7 @@ mod common;
 mod compilation_error;
 mod compilation_error_kind;
 mod config;
+mod config_error;
 mod expression;
 mod fragment;
 mod function;

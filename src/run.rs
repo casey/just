@@ -1,27 +1,38 @@
 use crate::common::*;
 
 use crate::{interrupt_handler::InterruptHandler, misc::maybe_s};
-use std::{convert, ffi};
 use unicode_width::UnicodeWidthStr;
 
-#[cfg(windows)]
-use ansi_term::enable_ansi_support;
-
-fn edit<P: convert::AsRef<ffi::OsStr>>(path: P) -> ! {
-  let editor =
-    env::var_os("EDITOR").unwrap_or_else(|| die!("Error getting EDITOR environment variable"));
+fn edit<P: AsRef<OsStr>>(path: P) -> Result<(), i32> {
+  let editor = match env::var_os("EDITOR") {
+    None => {
+      eprintln!("Error getting EDITOR environment variable");
+      return Err(EXIT_FAILURE);
+    }
+    Some(editor) => editor,
+  };
 
   let error = Command::new(editor).arg(path).status();
 
   match error {
-    Ok(status) => process::exit(status.code().unwrap_or(EXIT_FAILURE)),
-    Err(error) => die!("Failed to invoke editor: {}", error),
+    Ok(status) => {
+      if status.success() {
+        Ok(())
+      } else {
+        eprintln!("Editor failed: {}", status);
+        Err(status.code().unwrap_or(EXIT_FAILURE))
+      }
+    }
+    Err(error) => {
+      eprintln!("Failed to invoke editor: {}", error);
+      Err(EXIT_FAILURE)
+    }
   }
 }
 
-pub fn run() {
+pub fn run() -> Result<(), i32> {
   #[cfg(windows)]
-  enable_ansi_support().ok();
+  ansi_term::enable_ansi_support().ok();
 
   env_logger::Builder::from_env(
     env_logger::Env::new()
@@ -30,18 +41,21 @@ pub fn run() {
   )
   .init();
 
-  let invocation_directory =
-    env::current_dir().map_err(|e| format!("Error getting current directory: {}", e));
-
   let app = Config::app();
 
   let matches = app.get_matches();
 
-  let config = Config::from_matches(&matches);
+  let config = match Config::from_matches(&matches) {
+    Ok(config) => config,
+    Err(error) => {
+      eprintln!("error: {}", error);
+      return Err(EXIT_FAILURE);
+    }
+  };
 
-  let justfile = matches.value_of("JUSTFILE").map(Path::new);
+  let justfile = config.justfile;
 
-  let mut working_directory = matches.value_of("WORKING-DIRECTORY").map(PathBuf::from);
+  let mut working_directory = config.working_directory.map(PathBuf::from);
 
   if let (Some(justfile), None) = (justfile, working_directory.as_ref()) {
     let mut justfile = justfile.to_path_buf();
@@ -49,11 +63,14 @@ pub fn run() {
     if !justfile.is_absolute() {
       match justfile.canonicalize() {
         Ok(canonical) => justfile = canonical,
-        Err(err) => die!(
-          "Could not canonicalize justfile path `{}`: {}",
-          justfile.display(),
-          err
-        ),
+        Err(err) => {
+          eprintln!(
+            "Could not canonicalize justfile path `{}`: {}",
+            justfile.display(),
+            err
+          );
+          return Err(EXIT_FAILURE);
+        }
       }
     }
 
@@ -65,7 +82,7 @@ pub fn run() {
   let text;
   if let (Some(justfile), Some(directory)) = (justfile, working_directory) {
     if config.subcommand == Subcommand::Edit {
-      edit(justfile);
+      return edit(justfile);
     }
 
     text = fs::read_to_string(justfile)
@@ -86,32 +103,45 @@ pub fn run() {
     match search::justfile(&current_dir) {
       Ok(name) => {
         if config.subcommand == Subcommand::Edit {
-          edit(name);
+          return edit(name);
         }
-        text = fs::read_to_string(&name)
-          .unwrap_or_else(|error| die!("Error reading justfile: {}", error));
+        text = match fs::read_to_string(&name) {
+          Err(error) => {
+            eprintln!("Error reading justfile: {}", error);
+            return Err(EXIT_FAILURE);
+          }
+          Ok(text) => text,
+        };
 
         let parent = name.parent().unwrap();
 
         if let Err(error) = env::set_current_dir(&parent) {
-          die!(
+          eprintln!(
             "Error changing directory to {}: {}",
             parent.display(),
             error
           );
+          return Err(EXIT_FAILURE);
         }
       }
-      Err(search_error) => die!("{}", search_error),
+      Err(search_error) => {
+        eprintln!("{}", search_error);
+        return Err(EXIT_FAILURE);
+      }
     }
   }
 
-  let justfile = Parser::parse(&text).unwrap_or_else(|error| {
-    if config.color.stderr().active() {
-      die!("{:#}", error);
-    } else {
-      die!("{}", error);
+  let justfile = match Parser::parse(&text) {
+    Err(error) => {
+      if config.color.stderr().active() {
+        eprintln!("{:#}", error);
+      } else {
+        eprintln!("{}", error);
+      }
+      return Err(EXIT_FAILURE);
     }
-  });
+    Ok(justfile) => justfile,
+  };
 
   for warning in &justfile.warnings {
     if config.color.stderr().active() {
@@ -135,12 +165,12 @@ pub fn run() {
         .join(" ");
       println!("{}", summary);
     }
-    process::exit(EXIT_SUCCESS);
+    return Ok(());
   }
 
   if config.subcommand == Subcommand::Dump {
     println!("{}", justfile);
-    process::exit(EXIT_SUCCESS);
+    return Ok(());
   }
 
   if config.subcommand == Subcommand::List {
@@ -227,7 +257,7 @@ pub fn run() {
       }
     }
 
-    process::exit(EXIT_SUCCESS);
+    return Ok(());
   }
 
   if let Subcommand::Show { name } = config.subcommand {
@@ -235,17 +265,17 @@ pub fn run() {
       let recipe = justfile.get_recipe(alias.target).unwrap();
       println!("{}", alias);
       println!("{}", recipe);
-      process::exit(EXIT_SUCCESS);
+      return Ok(());
     }
     if let Some(recipe) = justfile.get_recipe(name) {
       println!("{}", recipe);
-      process::exit(EXIT_SUCCESS);
+      return Ok(());
     } else {
       eprintln!("Justfile does not contain recipe `{}`.", name);
       if let Some(suggestion) = justfile.suggest(name) {
         eprintln!("Did you mean `{}`?", suggestion);
       }
-      process::exit(EXIT_FAILURE)
+      return Err(EXIT_FAILURE);
     }
   }
 
@@ -270,7 +300,7 @@ pub fn run() {
     warn!("Failed to set CTRL-C handler: {}", error)
   }
 
-  if let Err(run_error) = justfile.run(&invocation_directory, &arguments, &config) {
+  if let Err(run_error) = justfile.run(&arguments, &config) {
     if !config.quiet {
       if config.color.stderr().active() {
         eprintln!("{:#}", run_error);
@@ -279,6 +309,8 @@ pub fn run() {
       }
     }
 
-    process::exit(run_error.code().unwrap_or(EXIT_FAILURE));
+    return Err(run_error.code().unwrap_or(EXIT_FAILURE));
   }
+
+  Ok(())
 }
