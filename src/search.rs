@@ -30,6 +30,20 @@ pub(crate) fn justfile(directory: &Path) -> Result<PathBuf, SearchError> {
   }
 }
 
+pub(crate) fn search_parent<F>(directory: &Path, search_fn: F) -> Result<PathBuf, SearchError>
+  where F: Fn(&mut PathBuf) -> bool
+{
+  let mut path_buf = directory.to_path_buf();
+  let mut result = true;
+  while result {
+    if search_fn(&mut path_buf) {
+      return Ok(path_buf);
+    }
+    result = path_buf.pop();
+  }
+  Err(SearchError::NotFound)
+}
+
 #[cfg(test)]
 mod tests {
   use super::*;
@@ -148,6 +162,54 @@ mod tests {
         assert_eq!(found_path, path);
       }
       _ => panic!("No errors were expected"),
+    }
+  }
+
+  #[test]
+  fn search_for_parent_success() {
+    let path = Path::new("/tmp/test");
+    let result = search_parent(&path, |_| true);
+
+    assert!(result.is_ok());
+  }
+
+  #[test]
+  fn search_for_parent_failure() {
+    let path = Path::new("/tmp/test");
+    let result = search_parent(&path, |_| false);
+    assert!(result.is_err());
+    let e = result.unwrap_err();
+    match e {
+      SearchError::NotFound => assert!(true),
+      _ => panic!("unexpected error type")
+    }
+  }
+
+  #[test]
+  fn search_for_git_dir() {
+    let tmp = testing::tempdir();
+    let mut path = tmp.path().to_path_buf();
+
+    path.push(".git");
+    fs::create_dir(&path).expect("unable to create .git dir");
+    path.pop();
+
+    path.push("a");
+    path.push("b");
+    path.push("c");
+    fs::create_dir_all(&path).expect("unable to create intermediate directories");
+
+    let has_git = |p: &mut PathBuf| {
+      p.push(".git");
+      let result = p.exists() && p.is_dir();
+      p.pop();
+      result
+    };
+
+    if let Ok(result) = search_parent(&path, has_git) {
+      assert_eq!(result, tmp.path().to_path_buf());
+    } else {
+      panic!("unable to find .git directory");
     }
   }
 }
