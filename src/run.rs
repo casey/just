@@ -30,6 +30,29 @@ fn edit<P: AsRef<OsStr>>(path: P) -> Result<(), i32> {
   }
 }
 
+const EMPTY_JUSTFILE: &str = "# this is an empty justfile";
+
+pub fn init() -> Result<(), i32> {
+  let git_path = PathBuf::from(".git");
+  let mut root = if git_path.exists() && git_path.is_dir() {
+    fs::canonicalize(git_path).unwrap()
+  } else {
+    env::current_dir().unwrap()
+  };
+  root.push("Justfile");
+
+  if root.exists() {
+    return Err(-1);
+  }
+
+  if let Err(e) = fs::write(root, EMPTY_JUSTFILE) {
+    eprintln!("error writing justfile: {:?}", e);
+    return Err(-2);
+  };
+
+  Ok(())
+}
+
 pub fn run() -> Result<(), i32> {
   #[cfg(windows)]
   ansi_term::enable_ansi_support().ok();
@@ -52,6 +75,10 @@ pub fn run() -> Result<(), i32> {
       return Err(EXIT_FAILURE);
     }
   };
+
+  if config.init {
+    return init();
+  }
 
   let justfile = config.justfile;
 
