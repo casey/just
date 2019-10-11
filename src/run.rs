@@ -30,24 +30,52 @@ fn edit<P: AsRef<OsStr>>(path: P) -> Result<(), i32> {
   }
 }
 
-const EMPTY_JUSTFILE: &str = "# this is an empty justfile";
+const EMPTY_JUSTFILE: &str = "# this is an empty justfile\n";
 
 pub fn init() -> Result<(), i32> {
-  let git_path = PathBuf::from(".git");
-  let mut root = if git_path.exists() && git_path.is_dir() {
-    fs::canonicalize(git_path).unwrap()
-  } else {
-    env::current_dir().unwrap()
+  let mut root = env::current_dir().unwrap();
+  let has_git = |p: &mut PathBuf| {
+    p.push(".git");
+    let result = p.exists() && p.is_dir();
+    p.pop();
+    result
   };
+
+  let has_cargo = |p: &mut PathBuf| {
+    p.push("Cargo.toml");
+    let result = p.exists() && p.is_file();
+    p.pop();
+    result
+  };
+
+  let has_package_json = |p: &mut PathBuf| {
+    p.push("package.json");
+    let result = p.exists() && p.is_file();
+    p.pop();
+    result
+  };
+
+  if let Ok(path) = search::search_parent(&root, has_git) {
+    println!("found .git");
+    root = path;
+  } else if let Ok(path) = search::search_parent(&root, has_cargo) {
+    println!("found Cargo.toml");
+    root = path;
+  } else if let Ok(path) = search::search_parent(&root, has_package_json) {
+    println!("found package.json");
+    root = path;
+  }
+
   root.push("Justfile");
 
   if root.exists() {
-    return Err(-1);
+    eprintln!("{}", &format!("Justfile already exists at the project root {}", root.to_str().unwrap()));
+    return Err(EXIT_FAILURE);
   }
 
   if let Err(e) = fs::write(root, EMPTY_JUSTFILE) {
     eprintln!("error writing justfile: {:?}", e);
-    return Err(-2);
+    return Err(EXIT_FAILURE);
   };
 
   Ok(())
@@ -76,13 +104,13 @@ pub fn run() -> Result<(), i32> {
     }
   };
 
-  if config.init {
-    return init();
-  }
-
   let justfile = config.justfile;
 
   let mut working_directory = config.working_directory.map(PathBuf::from);
+
+  if config.init {
+    return init();
+  }
 
   if let (Some(justfile), None) = (justfile, working_directory.as_ref()) {
     let mut justfile = justfile.to_path_buf();
