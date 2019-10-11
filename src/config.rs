@@ -11,6 +11,7 @@ pub(crate) struct Config<'a> {
   pub(crate) highlight: bool,
   pub(crate) overrides: BTreeMap<&'a str, &'a str>,
   pub(crate) quiet: bool,
+  pub(crate) init: bool,
   pub(crate) shell: &'a str,
   pub(crate) color: Color,
   pub(crate) verbosity: Verbosity,
@@ -28,6 +29,7 @@ mod arg {
   pub(crate) const SHOW: &str = "SHOW";
   pub(crate) const SUMMARY: &str = "SUMMARY";
   pub(crate) const WORKING_DIRECTORY: &str = "WORKING-DIRECTORY";
+  pub(crate) const INIT: &str = "INIT";
 
   pub(crate) const COLOR_AUTO: &str = "auto";
   pub(crate) const COLOR_ALWAYS: &str = "always";
@@ -145,6 +147,11 @@ impl<'a> Config<'a> {
           .takes_value(true)
           .help("Use <WORKING-DIRECTORY> as working directory. --justfile must also be set")
           .requires("JUSTFILE"),
+      )
+      .arg(
+        Arg::with_name(arg::INIT)
+          .long("init")
+          .help("initialize the project root with an empty justfile")
       )
       .group(ArgGroup::with_name("EARLY-EXIT").args(&[
         arg::DUMP,
@@ -264,6 +271,8 @@ impl<'a> Config<'a> {
       Subcommand::Summary
     } else if matches.is_present(arg::DUMP) {
       Subcommand::Dump
+    } else if matches.is_present(arg::INIT) {
+      Subcommand::Init
     } else if matches.is_present(arg::LIST) {
       Subcommand::List
     } else if let Some(name) = matches.value_of(arg::SHOW) {
@@ -277,6 +286,7 @@ impl<'a> Config<'a> {
       evaluate: matches.is_present("EVALUATE"),
       highlight: matches.is_present("HIGHLIGHT"),
       quiet: matches.is_present("QUIET"),
+      init: matches.is_present("INIT"),
       shell: matches.value_of("SHELL").unwrap(),
       justfile: matches.value_of("JUSTFILE").map(Path::new),
       working_directory: matches.value_of("WORKING-DIRECTORY").map(Path::new),
@@ -300,6 +310,7 @@ impl<'a> Default for Config<'a> {
       overrides: empty(),
       arguments: empty(),
       quiet: false,
+      init: false,
       shell: DEFAULT_SHELL,
       color: default(),
       verbosity: Verbosity::from_flag_occurrences(0),

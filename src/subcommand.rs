@@ -6,4 +6,5 @@ pub(crate) enum Subcommand<'a> {
   List,
   Show { name: &'a str },
   Run,
+  Init,
 }
