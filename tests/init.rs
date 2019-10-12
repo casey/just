@@ -62,3 +62,27 @@ fn init_justfile_created_at_git_root() {
   let justfile = str::from_utf8(&bytes).expect("unable to convert bytes to str");
   assert_eq!(justfile, "# this is an empty justfile\n");
 }
+
+#[test]
+fn init_fails_if_justfile_exists() {
+  let tmp = testing::tempdir();
+  let binary = executable_path("just");
+  let args = &["--init"];
+
+  let mut path = tmp.path().to_path_buf();
+  path.push("Justfile");
+  fs::write(&path, "default:\necho ok\n").unwrap();
+  path.pop();
+
+  let output = process::Command::new(binary)
+    .current_dir(path)
+    .args(args)
+    .output()
+    .expect("just invocation failed");
+
+  let stdout = str::from_utf8(&output.stdout).unwrap();
+  assert_eq!(stdout, "");
+
+  let stderr = str::from_utf8(&output.stderr).unwrap();
+  assert_eq!(stderr, "Justfile already exists at the project root\n")
+}

@@ -2186,13 +2186,3 @@ integration_test! {
     echo default
   ",
 }
-
-integration_test! {
-    name: init_fails_on_existing_justfile,
-    justfile: "",
-    args: ("--init"),
-    stdout: "",
-    stderr: "Justfile already exists at the project root\n",
-    status: EXIT_FAILURE,
-}
-
