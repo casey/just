@@ -35,7 +35,6 @@ const EMPTY_JUSTFILE: &str = "# this is an empty justfile\n";
 pub fn init() -> Result<(), i32> {
   let mut root = search::project_root(&env::current_dir().unwrap());
 
-  eprintln!("root: {:?}", root);
   root.push("Justfile");
 
   if root.exists() {
