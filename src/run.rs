@@ -33,43 +33,13 @@ fn edit<P: AsRef<OsStr>>(path: P) -> Result<(), i32> {
 const EMPTY_JUSTFILE: &str = "# this is an empty justfile\n";
 
 pub fn init() -> Result<(), i32> {
-  let mut root = env::current_dir().unwrap();
-  let has_git = |p: &mut PathBuf| {
-    p.push(".git");
-    let result = p.exists() && p.is_dir();
-    p.pop();
-    result
-  };
+  let mut root = search::project_root(&env::current_dir().unwrap());
 
-  let has_cargo = |p: &mut PathBuf| {
-    p.push("Cargo.toml");
-    let result = p.exists() && p.is_file();
-    p.pop();
-    result
-  };
-
-  let has_package_json = |p: &mut PathBuf| {
-    p.push("package.json");
-    let result = p.exists() && p.is_file();
-    p.pop();
-    result
-  };
-
-  if let Ok(path) = search::search_parent(&root, has_git) {
-    println!("found .git");
-    root = path;
-  } else if let Ok(path) = search::search_parent(&root, has_cargo) {
-    println!("found Cargo.toml");
-    root = path;
-  } else if let Ok(path) = search::search_parent(&root, has_package_json) {
-    println!("found package.json");
-    root = path;
-  }
-
+  eprintln!("root: {:?}", root);
   root.push("Justfile");
 
   if root.exists() {
-    eprintln!("{}", &format!("Justfile already exists at the project root {}", root.to_str().unwrap()));
+    eprintln!("Justfile already exists at the project root");
     return Err(EXIT_FAILURE);
   }
 

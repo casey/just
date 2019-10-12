@@ -32,18 +32,21 @@ pub(crate) fn justfile(directory: &Path) -> Result<PathBuf, SearchError> {
   }
 }
 
-pub(crate) fn search_parent<F>(directory: &Path, search_fn: F) -> Result<PathBuf, SearchError>
-  where F: Fn(&mut PathBuf) -> bool
-{
-  let mut path_buf = directory.to_path_buf();
-  let mut result = true;
-  while result {
-    if search_fn(&mut path_buf) {
-      return Ok(path_buf);
+pub(crate) fn project_root(start: &Path) -> PathBuf {
+  for a in start.ancestors() {
+    let mut buf = a.to_path_buf();
+
+    for s in &[".git", "Cargo.toml"] {
+      buf.push(s);
+      if buf.exists() {
+        buf.pop();
+        return buf;
+      } else {
+        buf.pop();
+      }
     }
-    result = path_buf.pop();
   }
-  Err(SearchError::NotFound)
+  start.to_path_buf()
 }
 
 #[cfg(test)]
@@ -169,50 +172,57 @@ mod tests {
   }
 
   #[test]
-  fn search_for_parent_success() {
-    let path = Path::new("/tmp/test");
-    let result = search_parent(&path, |_| true);
-
-    assert!(result.is_ok());
+  fn get_project_root() {
+    let tmpdir = testing::tempdir();
+    let path = tmpdir.path();
+    assert_eq!(project_root(path), path);
   }
 
   #[test]
-  fn search_for_parent_failure() {
-    let path = Path::new("/tmp/test");
-    let result = search_parent(&path, |_| false);
-    assert!(result.is_err());
-    let e = result.unwrap_err();
-    match e {
-      SearchError::NotFound => assert!(true),
-      _ => panic!("unexpected error type")
-    }
-  }
-
-  #[test]
-  fn search_for_git_dir() {
-    let tmp = testing::tempdir();
-    let mut path = tmp.path().to_path_buf();
-
+  fn git_project_root() {
+    let tmpdir = testing::tempdir();
+    let mut path = tmpdir.path().to_path_buf();
     path.push(".git");
-    fs::create_dir(&path).expect("unable to create .git dir");
-    path.pop();
+    assert_eq!(project_root(&path), path);
+  }
 
+  #[test]
+  fn git_nested_project_root() {
+    let tmpdir = testing::tempdir();
+    let mut path = tmpdir.path().to_path_buf();
+    let expected = path.clone();
+    path.push(".git");
+    fs::create_dir(&path).expect("unable to create .git directory");
+
+    path.pop();
     path.push("a");
     path.push("b");
     path.push("c");
     fs::create_dir_all(&path).expect("unable to create intermediate directories");
+    assert_eq!(project_root(&path), expected);
+  }
 
-    let has_git = |p: &mut PathBuf| {
-      p.push(".git");
-      let result = p.exists() && p.is_dir();
-      p.pop();
-      result
-    };
+  #[test]
+  fn cargo_project_root() {
+    let tmpdir = testing::tempdir();
+    let mut path = tmpdir.path().to_path_buf();
+    path.push("Cargo.toml");
+    assert_eq!(project_root(&path), path);
+  }
 
-    if let Ok(result) = search_parent(&path, has_git) {
-      assert_eq!(result, tmp.path().to_path_buf());
-    } else {
-      panic!("unable to find .git directory");
-    }
+  #[test]
+  fn cargo_nested_project_root() {
+    let tmpdir = testing::tempdir();
+    let mut path = tmpdir.path().to_path_buf();
+    let expected = path.clone();
+    path.push("Cargo.toml");
+    fs::create_dir(&path).expect("unable to create .git directory");
+
+    path.pop();
+    path.push("a");
+    path.push("b");
+    path.push("c");
+    fs::create_dir_all(&path).expect("unable to create intermediate directories");
+    assert_eq!(project_root(&path), expected);
   }
 }
