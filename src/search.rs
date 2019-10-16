@@ -1,6 +1,4 @@
 use crate::common::*;
-use std::fs;
-use std::path::{Path, PathBuf};
 
 const FILENAME: &str = "justfile";
 
@@ -35,7 +33,6 @@ pub(crate) fn justfile(directory: &Path) -> Result<PathBuf, SearchError> {
 #[cfg(test)]
 mod tests {
   use super::*;
-  use std::fs;
 
   #[test]
   fn not_found() {
