@@ -1,49 +1,81 @@
 use crate::common::*;
 
-pub(crate) fn parse(text: &str) -> Justfile {
-  match Parser::parse(text) {
+pub(crate) fn compile(text: &str) -> Justfile {
+  match Compiler::compile(text) {
     Ok(justfile) => justfile,
-    Err(error) => panic!("Expected successful parse but got error:\n {}", error),
+    Err(error) => panic!("Expected successful compilation but got error:\n {}", error),
   }
 }
 
 pub(crate) use test_utilities::{tempdir, unindent};
 
-macro_rules! error_test {
+macro_rules! analysis_error {
   (
-    name:   $name:ident,
-    input:  $input:expr,
-    offset: $offset:expr,
-    line:   $line:expr,
-    column: $column:expr,
-    width:  $width:expr,
-    kind:   $kind:expr,
-  ) => {
+      name:   $name:ident,
+      input:  $input:expr,
+      offset: $offset:expr,
+      line:   $line:expr,
+      column: $column:expr,
+      width:  $width:expr,
+      kind:   $kind:expr,
+    ) => {
     #[test]
     fn $name() {
-      let text: &str = $input;
-      let offset: usize = $offset;
-      let column: usize = $column;
-      let width: usize = $width;
-      let line: usize = $line;
-      let kind: CompilationErrorKind = $kind;
-
-      let expected = CompilationError {
-        text,
-        offset,
-        line,
-        column,
-        width,
-        kind,
-      };
-
-      match Parser::parse(text) {
-        Ok(_) => panic!("Compilation succeeded but expected: {}\n{}", expected, text),
-        Err(actual) => {
-          use pretty_assertions::assert_eq;
-          assert_eq!(actual, expected);
-        }
-      }
+      $crate::testing::error($input, $offset, $line, $column, $width, $kind);
     }
   };
+}
+
+pub(crate) fn error(
+  src: &str,
+  offset: usize,
+  line: usize,
+  column: usize,
+  width: usize,
+  kind: CompilationErrorKind,
+) {
+  let expected = CompilationError {
+    src,
+    offset,
+    line,
+    column,
+    width,
+    kind,
+  };
+
+  let tokens = Lexer::lex(src).expect("Lexing failed in parse test...");
+
+  let module = Parser::parse(&tokens).expect("Parsing failed in analysis test...");
+
+  match Analyzer::analyze(module) {
+    Ok(_) => panic!("Analysis succeeded but expected: {}\n{}", expected, src),
+    Err(actual) => {
+      assert_eq!(actual, expected);
+    }
+  }
+}
+
+#[test]
+fn readme_test() {
+  let mut justfiles = vec![];
+  let mut current = None;
+
+  for line in fs::read_to_string("README.adoc").unwrap().lines() {
+    if let Some(mut justfile) = current {
+      if line == "```" {
+        justfiles.push(justfile);
+        current = None;
+      } else {
+        justfile += line;
+        justfile += "\n";
+        current = Some(justfile);
+      }
+    } else if line == "```make" {
+      current = Some(String::new());
+    }
+  }
+
+  for justfile in justfiles {
+    compile(&justfile);
+  }
 }

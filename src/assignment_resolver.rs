@@ -3,8 +3,7 @@ use crate::common::*;
 use CompilationErrorKind::*;
 
 pub(crate) struct AssignmentResolver<'a: 'b, 'b> {
-  assignments: &'b BTreeMap<&'a str, Expression<'a>>,
-  assignment_tokens: &'b BTreeMap<&'a str, Token<'a>>,
+  assignments: &'b BTreeMap<&'a str, Assignment<'a>>,
   stack: Vec<&'a str>,
   seen: BTreeSet<&'a str>,
   evaluated: BTreeSet<&'a str>,
@@ -12,15 +11,13 @@ pub(crate) struct AssignmentResolver<'a: 'b, 'b> {
 
 impl<'a: 'b, 'b> AssignmentResolver<'a, 'b> {
   pub(crate) fn resolve_assignments(
-    assignments: &BTreeMap<&'a str, Expression<'a>>,
-    assignment_tokens: &BTreeMap<&'a str, Token<'a>>,
+    assignments: &BTreeMap<&'a str, Assignment<'a>>,
   ) -> CompilationResult<'a, ()> {
     let mut resolver = AssignmentResolver {
       stack: empty(),
       seen: empty(),
       evaluated: empty(),
       assignments,
-      assignment_tokens,
     };
 
     for name in assignments.keys() {
@@ -38,13 +35,13 @@ impl<'a: 'b, 'b> AssignmentResolver<'a, 'b> {
     self.seen.insert(name);
     self.stack.push(name);
 
-    if let Some(expression) = self.assignments.get(name) {
-      self.resolve_expression(expression)?;
+    if let Some(assignment) = self.assignments.get(name) {
+      self.resolve_expression(&assignment.expression)?;
       self.evaluated.insert(name);
     } else {
       let message = format!("attempted to resolve unknown assignment `{}`", name);
       return Err(CompilationError {
-        text: "",
+        src: "",
         offset: 0,
         line: 0,
         column: 0,
@@ -57,43 +54,43 @@ impl<'a: 'b, 'b> AssignmentResolver<'a, 'b> {
 
   fn resolve_expression(&mut self, expression: &Expression<'a>) -> CompilationResult<'a, ()> {
     match expression {
-      Expression::Variable { name, ref token } => {
-        if self.evaluated.contains(name) {
+      Expression::Variable { name } => {
+        let variable = name.lexeme();
+        if self.evaluated.contains(variable) {
           return Ok(());
-        } else if self.seen.contains(name) {
-          let token = &self.assignment_tokens[name];
-          self.stack.push(name);
+        } else if self.seen.contains(variable) {
+          let token = self.assignments[variable].name.token();
+          self.stack.push(variable);
           return Err(token.error(CircularVariableDependency {
-            variable: name,
+            variable: variable,
             circle: self.stack.clone(),
           }));
-        } else if self.assignments.contains_key(name) {
-          self.resolve_assignment(name)?;
+        } else if self.assignments.contains_key(variable) {
+          self.resolve_assignment(variable)?;
         } else {
-          return Err(token.error(UndefinedVariable { variable: name }));
+          return Err(name.token().error(UndefinedVariable { variable }));
         }
       }
       Expression::Call {
-        ref token,
-        ref arguments,
-        ..
-      } => Function::resolve(token, arguments.len())?,
-      Expression::Concatination { ref lhs, ref rhs } => {
+        function,
+        arguments,
+      } => Function::resolve(&function.token(), arguments.len())?,
+      Expression::Concatination { lhs, rhs } => {
         self.resolve_expression(lhs)?;
         self.resolve_expression(rhs)?;
       }
-      Expression::String { .. } | Expression::Backtick { .. } => {}
-      Expression::Group { expression } => self.resolve_expression(expression)?,
+      Expression::StringLiteral { .. } | Expression::Backtick { .. } => {}
+      Expression::Group { contents } => self.resolve_expression(contents)?,
     }
     Ok(())
   }
 }
 
 #[cfg(test)]
-mod test {
+mod tests {
   use super::*;
 
-  error_test! {
+  analysis_error! {
     name:   circular_variable_dependency,
     input:   "a = b\nb = a",
     offset:  0,
@@ -103,7 +100,7 @@ mod test {
     kind:   CircularVariableDependency{variable: "a", circle: vec!["a", "b", "a"]},
   }
 
-  error_test! {
+  analysis_error! {
     name:   self_variable_dependency,
     input:  "a = a",
     offset:  0,
@@ -113,7 +110,7 @@ mod test {
     kind:   CircularVariableDependency{variable: "a", circle: vec!["a", "a"]},
   }
 
-  error_test! {
+  analysis_error! {
     name:   unknown_expression_variable,
     input:  "x = yy",
     offset:  4,
@@ -123,7 +120,7 @@ mod test {
     kind:   UndefinedVariable{variable: "yy"},
   }
 
-  error_test! {
+  analysis_error! {
     name:   unknown_function,
     input:  "a = foo()",
     offset:  4,
@@ -132,5 +129,4 @@ mod test {
     width:  3,
     kind:   UnknownFunction{function: "foo"},
   }
-
 }

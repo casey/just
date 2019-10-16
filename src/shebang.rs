@@ -31,7 +31,7 @@ impl<'a> Shebang<'a> {
 }
 
 #[cfg(test)]
-mod test {
+mod tests {
   use super::Shebang;
 
   #[test]

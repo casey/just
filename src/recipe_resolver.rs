@@ -17,22 +17,19 @@ pub(crate) struct RecipeResolver<'a: 'b, 'b> {
   seen: BTreeSet<&'a str>,
   resolved: BTreeSet<&'a str>,
   recipes: &'b BTreeMap<&'a str, Recipe<'a>>,
-  assignments: &'b BTreeMap<&'a str, Expression<'a>>,
-  text: &'a str,
+  assignments: &'b BTreeMap<&'a str, Assignment<'a>>,
 }
 
 impl<'a, 'b> RecipeResolver<'a, 'b> {
   pub(crate) fn resolve_recipes(
     recipes: &BTreeMap<&'a str, Recipe<'a>>,
-    assignments: &BTreeMap<&'a str, Expression<'a>>,
-    text: &'a str,
+    assignments: &BTreeMap<&'a str, Assignment<'a>>,
   ) -> CompilationResult<'a, ()> {
     let mut resolver = RecipeResolver {
       seen: empty(),
       stack: empty(),
       resolved: empty(),
       assignments,
-      text,
       recipes,
     };
 
@@ -48,19 +45,19 @@ impl<'a, 'b> RecipeResolver<'a, 'b> {
             resolver.resolve_function(function, argc)?;
           }
           for variable in expression.variables() {
-            resolver.resolve_variable(variable, &[])?;
+            resolver.resolve_variable(&variable, &[])?;
           }
         }
       }
 
-      for line in &recipe.lines {
-        for fragment in line {
-          if let Fragment::Expression { ref expression, .. } = *fragment {
+      for line in &recipe.body {
+        for fragment in &line.fragments {
+          if let Fragment::Interpolation { expression, .. } = fragment {
             for (function, argc) in expression.functions() {
               resolver.resolve_function(function, argc)?;
             }
             for variable in expression.variables() {
-              resolver.resolve_variable(variable, &recipe.parameters)?;
+              resolver.resolve_variable(&variable, &recipe.parameters)?;
             }
           }
         }
@@ -70,27 +67,27 @@ impl<'a, 'b> RecipeResolver<'a, 'b> {
     Ok(())
   }
 
-  fn resolve_function(&self, function: &Token, argc: usize) -> CompilationResult<'a, ()> {
-    Function::resolve(function, argc).map_err(|error| CompilationError {
+  fn resolve_function(&self, function: Token<'a>, argc: usize) -> CompilationResult<'a, ()> {
+    Function::resolve(&function, argc).map_err(|error| CompilationError {
       offset: error.offset,
       line: error.line,
       column: error.column,
       width: error.width,
       kind: UnknownFunction {
-        function: &self.text[error.offset..error.offset + error.width],
+        function: &function.src[error.offset..error.offset + error.width],
       },
-      text: self.text,
+      src: function.src,
     })
   }
 
   fn resolve_variable(
     &self,
-    variable: &Token,
+    variable: &Token<'a>,
     parameters: &[Parameter],
   ) -> CompilationResult<'a, ()> {
     let name = variable.lexeme();
     let undefined =
-      !self.assignments.contains_key(name) && !parameters.iter().any(|p| p.name == name);
+      !self.assignments.contains_key(name) && !parameters.iter().any(|p| p.name.lexeme() == name);
     if undefined {
       let error = variable.error(UndefinedVariable { variable: name });
       return Err(CompilationError {
@@ -99,9 +96,9 @@ impl<'a, 'b> RecipeResolver<'a, 'b> {
         column: error.column,
         width: error.width,
         kind: UndefinedVariable {
-          variable: &self.text[error.offset..error.offset + error.width],
+          variable: &variable.src[error.offset..error.offset + error.width],
         },
-        text: self.text,
+        src: variable.src,
       });
     }
 
@@ -109,25 +106,29 @@ impl<'a, 'b> RecipeResolver<'a, 'b> {
   }
 
   fn resolve_recipe(&mut self, recipe: &Recipe<'a>) -> CompilationResult<'a, ()> {
-    if self.resolved.contains(recipe.name) {
+    if self.resolved.contains(recipe.name()) {
       return Ok(());
     }
-    self.stack.push(recipe.name);
-    self.seen.insert(recipe.name);
-    for dependency_token in &recipe.dependency_tokens {
+    self.stack.push(recipe.name());
+    self.seen.insert(recipe.name());
+    for dependency_token in recipe
+      .dependencies
+      .iter()
+      .map(|dependency| dependency.token())
+    {
       match self.recipes.get(dependency_token.lexeme()) {
         Some(dependency) => {
-          if !self.resolved.contains(dependency.name) {
-            if self.seen.contains(dependency.name) {
+          if !self.resolved.contains(dependency.name()) {
+            if self.seen.contains(dependency.name()) {
               let first = self.stack[0];
               self.stack.push(first);
               return Err(
                 dependency_token.error(CircularRecipeDependency {
-                  recipe: recipe.name,
+                  recipe: recipe.name(),
                   circle: self
                     .stack
                     .iter()
-                    .skip_while(|name| **name != dependency.name)
+                    .skip_while(|name| **name != dependency.name())
                     .cloned()
                     .collect(),
                 }),
@@ -138,23 +139,23 @@ impl<'a, 'b> RecipeResolver<'a, 'b> {
         }
         None => {
           return Err(dependency_token.error(UnknownDependency {
-            recipe: recipe.name,
+            recipe: recipe.name(),
             unknown: dependency_token.lexeme(),
           }));
         }
       }
     }
-    self.resolved.insert(recipe.name);
+    self.resolved.insert(recipe.name());
     self.stack.pop();
     Ok(())
   }
 }
 
 #[cfg(test)]
-mod test {
+mod tests {
   use super::*;
 
-  error_test! {
+  analysis_error! {
     name:   circular_recipe_dependency,
     input:  "a: b\nb: a",
     offset: 8,
@@ -164,7 +165,7 @@ mod test {
     kind:   CircularRecipeDependency{recipe: "b", circle: vec!["a", "b", "a"]},
   }
 
-  error_test! {
+  analysis_error! {
     name:   self_recipe_dependency,
     input:  "a: a",
     offset: 3,
@@ -174,7 +175,7 @@ mod test {
     kind:   CircularRecipeDependency{recipe: "a", circle: vec!["a", "a"]},
   }
 
-  error_test! {
+  analysis_error! {
     name:   unknown_dependency,
     input:  "a: b",
     offset: 3,
@@ -184,7 +185,7 @@ mod test {
     kind:   UnknownDependency{recipe: "a", unknown: "b"},
   }
 
-  error_test! {
+  analysis_error! {
     name:   unknown_interpolation_variable,
     input:  "x:\n {{   hello}}",
     offset: 9,
@@ -194,7 +195,7 @@ mod test {
     kind:   UndefinedVariable{variable: "hello"},
   }
 
-  error_test! {
+  analysis_error! {
     name:   unknown_second_interpolation_variable,
     input:  "wtf=\"x\"\nx:\n echo\n foo {{wtf}} {{ lol }}",
     offset: 33,
@@ -204,7 +205,7 @@ mod test {
     kind:   UndefinedVariable{variable: "lol"},
   }
 
-  error_test! {
+  analysis_error! {
     name:   unknown_function_in_interpolation,
     input:  "a:\n echo {{bar()}}",
     offset: 11,
@@ -214,7 +215,7 @@ mod test {
     kind:   UnknownFunction{function: "bar"},
   }
 
-  error_test! {
+  analysis_error! {
     name:   unknown_function_in_default,
     input:  "a f=baz():",
     offset: 4,
@@ -224,7 +225,7 @@ mod test {
     kind:   UnknownFunction{function: "baz"},
   }
 
-  error_test! {
+  analysis_error! {
     name:   unknown_variable_in_default,
     input:  "a f=foo:",
     offset: 4,

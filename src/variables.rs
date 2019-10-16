@@ -1,32 +1,32 @@
 use crate::common::*;
 
-pub(crate) struct Variables<'a> {
-  stack: Vec<&'a Expression<'a>>,
+pub(crate) struct Variables<'expression, 'src> {
+  stack: Vec<&'expression Expression<'src>>,
 }
 
-impl<'a> Variables<'a> {
-  pub(crate) fn new(root: &'a Expression<'a>) -> Variables<'a> {
+impl<'expression, 'src> Variables<'expression, 'src> {
+  pub(crate) fn new(root: &'expression Expression<'src>) -> Variables<'expression, 'src> {
     Variables { stack: vec![root] }
   }
 }
 
-impl<'a> Iterator for Variables<'a> {
-  type Item = &'a Token<'a>;
+impl<'expression, 'src> Iterator for Variables<'expression, 'src> {
+  type Item = Token<'src>;
 
-  fn next(&mut self) -> Option<&'a Token<'a>> {
+  fn next(&mut self) -> Option<Token<'src>> {
     match self.stack.pop() {
       None
-      | Some(Expression::String { .. })
+      | Some(Expression::StringLiteral { .. })
       | Some(Expression::Backtick { .. })
       | Some(Expression::Call { .. }) => None,
-      Some(Expression::Variable { token, .. }) => Some(token),
+      Some(Expression::Variable { name, .. }) => Some(name.token()),
       Some(Expression::Concatination { lhs, rhs }) => {
         self.stack.push(lhs);
         self.stack.push(rhs);
         self.next()
       }
-      Some(Expression::Group { expression }) => {
-        self.stack.push(expression);
+      Some(Expression::Group { contents }) => {
+        self.stack.push(contents);
         self.next()
       }
     }

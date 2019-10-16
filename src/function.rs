@@ -56,26 +56,26 @@ impl Function {
   }
 
   pub(crate) fn evaluate<'a>(
-    token: &Token<'a>,
-    name: &'a str,
+    function_name: Name<'a>,
     context: &FunctionContext,
     arguments: &[String],
   ) -> RunResult<'a, String> {
+    let name = function_name.lexeme();
     if let Some(function) = FUNCTIONS.get(name) {
       use self::Function::*;
       let argc = arguments.len();
       match (function, argc) {
         (&Nullary(f), 0) => f(context).map_err(|message| RuntimeError::FunctionCall {
-          token: token.clone(),
+          function: function_name,
           message,
         }),
         (&Unary(f), 1) => f(context, &arguments[0]).map_err(|message| RuntimeError::FunctionCall {
-          token: token.clone(),
+          function: function_name,
           message,
         }),
         (&Binary(f), 2) => {
           f(context, &arguments[0], &arguments[1]).map_err(|message| RuntimeError::FunctionCall {
-            token: token.clone(),
+            function: function_name,
             message,
           })
         }

@@ -102,7 +102,7 @@ sloc:
 	! grep --color -En '.{101}' src/*.rs
 
 replace FROM TO:
-	sd -i '{{FROM}}' '{{TO}}' src/*.rs
+	sd '{{FROM}}' '{{TO}}' src/*.rs
 
 test-quine:
 	cargo run -- quine

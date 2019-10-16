@@ -1,18 +1,18 @@
 use crate::common::*;
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Copy)]
 pub(crate) struct Token<'a> {
   pub(crate) offset: usize,
   pub(crate) length: usize,
   pub(crate) line: usize,
   pub(crate) column: usize,
-  pub(crate) text: &'a str,
+  pub(crate) src: &'a str,
   pub(crate) kind: TokenKind,
 }
 
 impl<'a> Token<'a> {
   pub(crate) fn lexeme(&self) -> &'a str {
-    &self.text[self.offset..self.offset + self.length]
+    &self.src[self.offset..self.offset + self.length]
   }
 
   pub(crate) fn error(&self, kind: CompilationErrorKind<'a>) -> CompilationError<'a> {
@@ -20,7 +20,7 @@ impl<'a> Token<'a> {
       column: self.column,
       offset: self.offset,
       line: self.line,
-      text: self.text,
+      src: self.src,
       width: self.length,
       kind,
     }

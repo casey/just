@@ -1,6 +1,6 @@
 use crate::common::*;
 
-#[derive(Debug, PartialEq, Clone, Copy)]
+#[derive(Debug, PartialEq, Clone, Copy, Ord, PartialOrd, Eq)]
 pub(crate) enum TokenKind {
   At,
   Backtick,
@@ -12,16 +12,15 @@ pub(crate) enum TokenKind {
   Eof,
   Eol,
   Equals,
+  Identifier,
   Indent,
   InterpolationEnd,
   InterpolationStart,
-  Line,
-  Name,
   ParenL,
   ParenR,
   Plus,
-  StringRaw,
   StringCooked,
+  StringRaw,
   Text,
   Whitespace,
 }
@@ -43,16 +42,15 @@ impl Display for TokenKind {
         Eof => "end of file",
         Eol => "end of line",
         Equals => "'='",
+        Identifier => "identifier",
         Indent => "indent",
         InterpolationEnd => "'}}'",
         InterpolationStart => "'{{'",
-        Line => "command",
-        Name => "name",
         ParenL => "'('",
         ParenR => "')'",
         Plus => "'+'",
-        StringRaw => "raw string",
         StringCooked => "cooked string",
+        StringRaw => "raw string",
         Text => "command text",
         Whitespace => "whitespace",
       }

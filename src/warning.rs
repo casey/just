@@ -2,13 +2,13 @@ use crate::common::*;
 
 use Warning::*;
 
-#[derive(Debug)]
-pub(crate) enum Warning<'a> {
-  DeprecatedEquals { equals: Token<'a> },
+#[derive(Debug, PartialEq)]
+pub(crate) enum Warning<'src> {
+  DeprecatedEquals { equals: Token<'src> },
 }
 
-impl Warning<'_> {
-  fn context(&self) -> Option<&Token> {
+impl<'src> Warning<'src> {
+  fn context(&self) -> Option<&Token<'src>> {
     match self {
       DeprecatedEquals { equals } => Some(equals),
     }
@@ -42,7 +42,7 @@ impl Display for Warning<'_> {
       write_message_context(
         f,
         Color::fmt(f).warning(),
-        token.text,
+        token.src,
         token.offset,
         token.line,
         token.column,
