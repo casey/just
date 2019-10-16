@@ -3,7 +3,7 @@ use crate::common::*;
 use CompilationErrorKind::*;
 use TokenKind::*;
 
-pub(crate) struct Parser<'a> {
+pub(crate) struct Analyzer<'a> {
   text: &'a str,
   tokens: itertools::PutBackN<vec::IntoIter<Token<'a>>>,
   recipes: BTreeMap<&'a str, Recipe<'a>>,
@@ -15,16 +15,16 @@ pub(crate) struct Parser<'a> {
   warnings: Vec<Warning<'a>>,
 }
 
-impl<'a> Parser<'a> {
+impl<'a> Analyzer<'a> {
   pub(crate) fn parse(text: &'a str) -> CompilationResult<'a, Justfile> {
     let mut tokens = Lexer::lex(text)?;
     tokens.retain(|token| token.kind != Whitespace);
-    let parser = Parser::new(text, tokens);
-    parser.justfile()
+    let analyzer = Analyzer::new(text, tokens);
+    analyzer.justfile()
   }
 
-  pub(crate) fn new(text: &'a str, tokens: Vec<Token<'a>>) -> Parser<'a> {
-    Parser {
+  pub(crate) fn new(text: &'a str, tokens: Vec<Token<'a>>) -> Analyzer<'a> {
+    Analyzer {
       tokens: itertools::put_back_n(tokens),
       recipes: empty(),
       assignments: empty(),

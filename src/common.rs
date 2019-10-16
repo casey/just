@@ -37,16 +37,17 @@ pub(crate) use crate::{
 
 // structs and enums
 pub(crate) use crate::{
-  alias::Alias, alias_resolver::AliasResolver, assignment_evaluator::AssignmentEvaluator,
-  assignment_resolver::AssignmentResolver, color::Color, compilation_error::CompilationError,
-  compilation_error_kind::CompilationErrorKind, config::Config, config_error::ConfigError,
-  count::Count, enclosure::Enclosure, expression::Expression, fragment::Fragment,
-  function::Function, function_context::FunctionContext, functions::Functions,
-  interrupt_guard::InterruptGuard, interrupt_handler::InterruptHandler, justfile::Justfile,
-  lexer::Lexer, list::List, output_error::OutputError, parameter::Parameter, parser::Parser,
-  platform::Platform, position::Position, recipe::Recipe, recipe_context::RecipeContext,
-  recipe_resolver::RecipeResolver, runtime_error::RuntimeError, search_error::SearchError,
-  shebang::Shebang, show_whitespace::ShowWhitespace, state::State, string_literal::StringLiteral,
+  alias::Alias, alias_resolver::AliasResolver, analyzer::Analyzer,
+  assignment_evaluator::AssignmentEvaluator, assignment_resolver::AssignmentResolver, color::Color,
+  compilation_error::CompilationError, compilation_error_kind::CompilationErrorKind,
+  config::Config, config_error::ConfigError, count::Count, enclosure::Enclosure,
+  expression::Expression, fragment::Fragment, function::Function,
+  function_context::FunctionContext, functions::Functions, interrupt_guard::InterruptGuard,
+  interrupt_handler::InterruptHandler, justfile::Justfile, lexer::Lexer, list::List,
+  output_error::OutputError, parameter::Parameter, platform::Platform, position::Position,
+  recipe::Recipe, recipe_context::RecipeContext, recipe_resolver::RecipeResolver,
+  runtime_error::RuntimeError, search_error::SearchError, shebang::Shebang,
+  show_whitespace::ShowWhitespace, state::State, string_literal::StringLiteral,
   subcommand::Subcommand, token::Token, token_kind::TokenKind, use_color::UseColor,
   variables::Variables, verbosity::Verbosity, warning::Warning,
 };

@@ -13,6 +13,7 @@ mod die;
 
 mod alias;
 mod alias_resolver;
+mod analyzer;
 mod assignment_evaluator;
 mod assignment_resolver;
 mod color;
@@ -41,7 +42,6 @@ mod ordinal;
 mod output;
 mod output_error;
 mod parameter;
-mod parser;
 mod platform;
 mod platform_interface;
 mod position;

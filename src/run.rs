@@ -131,7 +131,7 @@ pub fn run() -> Result<(), i32> {
     }
   }
 
-  let justfile = match Parser::parse(&text) {
+  let justfile = match Analyzer::parse(&text) {
     Err(error) => {
       if config.color.stderr().active() {
         eprintln!("{:#}", error);

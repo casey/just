@@ -1,7 +1,7 @@
 use crate::common::*;
 
 pub(crate) fn parse(text: &str) -> Justfile {
-  match Parser::parse(text) {
+  match Analyzer::parse(text) {
     Ok(justfile) => justfile,
     Err(error) => panic!("Expected successful parse but got error:\n {}", error),
   }
@@ -42,7 +42,7 @@ macro_rules! error_test {
         kind,
       };
 
-      match Parser::parse(text) {
+      match Analyzer::parse(text) {
         Ok(_) => panic!("Compilation succeeded but expected: {}\n{}", expected, text),
         Err(actual) => {
           use pretty_assertions::assert_eq;
