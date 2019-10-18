@@ -1,14 +1,12 @@
-mod testing;
-
 #[cfg(unix)]
 mod unix {
-  use super::testing::tempdir;
   use executable_path::executable_path;
   use std::{
     fs,
     process::Command,
     time::{Duration, Instant},
   };
+  use test_utilities::tempdir;
 
   fn kill(process_id: u32) {
     unsafe {
