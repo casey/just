@@ -1,10 +1,7 @@
-mod testing;
-
 use std::{fs, path::Path, process, str};
 
 use executable_path::executable_path;
-
-use testing::tempdir;
+use test_utilities::tempdir;
 
 #[cfg(unix)]
 fn to_shell_path(path: &Path) -> String {
