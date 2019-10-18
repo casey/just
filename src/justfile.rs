@@ -69,7 +69,7 @@ impl<'a> Justfile<'a> {
       config.dry_run,
     )?;
 
-    if config.evaluate {
+    if config.subcommand == Subcommand::Evaluate {
       let mut width = 0;
       for name in scope.keys() {
         width = cmp::max(name.len(), width);

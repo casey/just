@@ -11,7 +11,7 @@ pub(crate) use std::{
   ops::{Range, RangeInclusive},
   path::{Path, PathBuf},
   process::{self, Command},
-  str::Chars,
+  str::{self, Chars},
   sync::{Mutex, MutexGuard},
   usize, vec,
 };
