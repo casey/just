@@ -628,69 +628,7 @@ mod tests {
 
   use pretty_assertions::assert_eq;
 
-  fn summary(tokens: &[Token]) -> String {
-    use TokenKind::*;
-
-    let mut summary = String::new();
-
-    for token in tokens {
-      let s = match token.kind {
-        At => "@",
-        Backtick => "`",
-        Colon => ":",
-        ColonEquals => ":=",
-        Comma => ",",
-        Comment => "#",
-        Dedent => "<",
-        Eof => ".",
-        Eol => "$",
-        Equals => "=",
-        Indent => ">",
-        InterpolationEnd => "}",
-        InterpolationStart => "{",
-        Line => "^",
-        Name => "N",
-        ParenL => "(",
-        ParenR => ")",
-        Plus => "+",
-        StringRaw => "'",
-        StringCooked => "\"",
-        Text => "_",
-        Whitespace => " ",
-      };
-
-      summary.push_str(s);
-    }
-
-    summary
-  }
-
   macro_rules! test {
-    ($name:ident, $text:expr, $expected:expr $(,)*) => {
-      #[test]
-      fn $name() {
-        test($text, $expected);
-      }
-    };
-  }
-
-  fn test(text: &str, want: &str) {
-    let tokens = Lexer::lex(text).unwrap();
-
-    let have = summary(&tokens);
-
-    let roundtrip = tokens
-      .iter()
-      .map(Token::lexeme)
-      .collect::<Vec<&str>>()
-      .join("");
-
-    assert_eq!(have, want, "token summary mismatch");
-
-    assert_eq!(roundtrip, text, "token round-trip not equal");
-  }
-
-  macro_rules! new_test {
     {
       name:   $name:ident,
       text:   $text:expr,
@@ -702,7 +640,7 @@ mod tests {
 
         let lexemes: &[&str] = &[$(lexeme!($kind $(, $lexeme)?),)* ""];
 
-        new_test($text, kinds, lexemes);
+        test($text, kinds, lexemes);
       }
     }
   }
@@ -720,8 +658,10 @@ mod tests {
     }
   }
 
-  fn new_test(text: &str, want_kinds: &[TokenKind], want_lexemes: &[&str]) {
-    let have = Lexer::lex(text).unwrap();
+  fn test(text: &str, want_kinds: &[TokenKind], want_lexemes: &[&str]) {
+    let text = testing::unindent(text);
+
+    let have = Lexer::lex(&text).unwrap();
 
     let have_kinds = have
       .iter()
@@ -794,39 +734,37 @@ mod tests {
     }
   }
 
-  new_test! {
+  test! {
     name:   name_new,
     text:   "foo",
     tokens: (Name:"foo"),
   }
 
-  // split into separate crate, publish to crates.io
-
-  new_test! {
+  test! {
     name:   comment,
     text:   "# hello",
     tokens: (Comment:"# hello"),
   }
 
-  new_test! {
+  test! {
     name:   backtick,
     text:   "`echo`",
     tokens: (Backtick:"`echo`"),
   }
 
-  new_test! {
+  test! {
     name:   raw_string,
     text:   "'hello'",
     tokens: (StringRaw:"'hello'"),
   }
 
-  new_test! {
+  test! {
     name:   cooked_string,
     text:   "\"hello\"",
     tokens: (StringCooked:"\"hello\""),
   }
 
-  new_test! {
+  test! {
     name:   export_concatination,
     text:   "export foo = 'foo' + 'bar'",
     tokens: (
@@ -844,7 +782,7 @@ mod tests {
     )
   }
 
-  new_test! {
+  test! {
     name: export_complex,
     text: "export foo = ('foo' + 'bar') + `baz`",
     tokens: (
@@ -868,268 +806,765 @@ mod tests {
     ),
   }
 
-  new_test! {
+  test! {
     name:   eol_linefeed,
     text:   "\n",
     tokens: (Eol),
   }
 
-  new_test! {
+  test! {
     name:   eol_carriage_return_linefeed,
     text:   "\r\n",
     tokens: (Eol:"\r\n"),
   }
 
-  new_test! {
+  test! {
     name:   indented_line,
     text:   "foo:\n a",
     tokens: (Name:"foo", Colon, Eol, Indent:" ", Line, Text:"a", Dedent),
   }
 
   test! {
-    indented_block,
-    r##"foo:
-  a
-  b
-  c
-"##,
-    "N:$>^_$ ^_$ ^_$<.",
+    name: indented_block,
+    text: "
+      foo:
+        a
+        b
+        c
+    ",
+    tokens: (
+      Name:"foo",
+      Colon,
+      Eol,
+      Indent,
+      Line,
+      Text:"a",
+      Eol,
+      Whitespace:"  ",
+      Line,
+      Text:"b",
+      Eol,
+      Whitespace:"  ",
+      Line,
+      Text:"c",
+      Eol,
+      Dedent,
+    )
   }
 
   test! {
-    indented_block_followed_by_item,
-    "foo:
-  a
-b:",
-    "N:$>^_$<N:.",
+    name: indented_block_followed_by_item,
+    text: "
+      foo:
+        a
+      b:
+    ",
+    tokens: (
+      Name:"foo",
+      Colon,
+      Eol,
+      Indent,
+      Line,
+      Text:"a",
+      Eol,
+      Dedent,
+      Name:"b",
+      Colon,
+      Eol,
+    )
   }
 
   test! {
-    indented_block_followed_by_blank,
-    "foo:
-    a
+    name: indented_block_followed_by_blank,
+    text: "
+      foo:
+          a
 
-b:",
-      "N:$>^_$^$<N:.",
+      b:
+    ",
+    tokens: (
+      Name:"foo",
+      Colon,
+      Eol,
+      Indent:"    ",
+      Line,
+      Text:"a",
+      Eol,
+      Line,
+      Eol,
+      Dedent,
+      Name:"b",
+      Colon,
+      Eol,
+    ),
   }
 
   test! {
-    indented_line_containing_unpaired_carriage_return,
-    "foo:\n \r \n",
-    "N:$>^_$<.",
+    name: indented_line_containing_unpaired_carriage_return,
+    text: "foo:\n \r \n",
+    tokens: (
+      Name:"foo",
+      Colon,
+      Eol,
+      Indent:" ",
+      Line,
+      Text:"\r ",
+      Eol,
+      Dedent,
+    ),
   }
 
   test! {
-    indented_blocks,
-    "
-b: a
-  @mv a b
+    name: indented_blocks,
+    text: "
+      b: a
+        @mv a b
 
-a:
-  @touch F
-  @touch a
+      a:
+        @touch F
+        @touch a
 
-d: c
-  @rm c
+      d: c
+        @rm c
 
-c: b
-  @mv b c",
-    "$N: N$>^_$^$<N:$>^_$ ^_$^$<N: N$>^_$^$<N: N$>^_<.",
+      c: b
+        @mv b c
+    ",
+    tokens: (
+      Name:"b",
+      Colon,
+      Whitespace,
+      Name:"a",
+      Eol,
+      Indent,
+      Line,
+      Text:"@mv a b",
+      Eol,
+      Line,
+      Eol,
+      Dedent,
+      Name:"a",
+      Colon,
+      Eol,
+      Indent,
+      Line,
+      Text:"@touch F",
+      Eol,
+      Whitespace:"  ",
+      Line,
+      Text:"@touch a",
+      Eol,
+      Line,
+      Eol,
+      Dedent,
+      Name:"d",
+      Colon,
+      Whitespace,
+      Name:"c",
+      Eol,
+      Indent,
+      Line,
+      Text:"@rm c",
+      Eol,
+      Line,
+      Eol,
+      Dedent,
+      Name:"c",
+      Colon,
+      Whitespace,
+      Name:"b",
+      Eol,
+      Indent,
+      Line,
+      Text:"@mv b c",
+      Eol,
+      Dedent
+    ),
   }
 
   test! {
-    interpolation_empty,
-    "hello:\n echo {{}}",
-    "N:$>^_{}<.",
+    name: interpolation_empty,
+    text: "hello:\n echo {{}}",
+    tokens: (
+      Name:"hello",
+      Colon,
+      Eol,
+      Indent:" ",
+      Line,
+      Text:"echo ",
+      InterpolationStart,
+      InterpolationEnd,
+      Dedent,
+    ),
   }
 
   test! {
-    interpolation_expression,
-    "hello:\n echo {{`echo hello` + `echo goodbye`}}",
-    "N:$>^_{` + `}<.",
+    name: interpolation_expression,
+    text: "hello:\n echo {{`echo hello` + `echo goodbye`}}",
+    tokens: (
+      Name:"hello",
+      Colon,
+      Eol,
+      Indent:" ",
+      Line,
+      Text:"echo ",
+      InterpolationStart,
+      Backtick:"`echo hello`",
+      Whitespace,
+      Plus,
+      Whitespace,
+      Backtick:"`echo goodbye`",
+      InterpolationEnd,
+      Dedent,
+    ),
   }
 
   test! {
-    tokenize_names,
-    "\
-foo
-bar-bob
-b-bob_asdfAAAA
-test123",
-    "N$N$N$N.",
+    name: tokenize_names,
+    text: "
+      foo
+      bar-bob
+      b-bob_asdfAAAA
+      test123
+    ",
+    tokens: (
+      Name:"foo",
+      Eol,
+      Name:"bar-bob",
+      Eol,
+      Name:"b-bob_asdfAAAA",
+      Eol,
+      Name:"test123",
+      Eol,
+    ),
   }
 
   test! {
-    tokenize_indented_line,
-    "foo:\n a",
-    "N:$>^_<.",
+    name: tokenize_indented_line,
+    text: "foo:\n a",
+    tokens: (
+      Name:"foo",
+      Colon,
+      Eol,
+      Indent:" ",
+      Line,
+      Text:"a",
+      Dedent,
+    ),
   }
 
   test! {
-    tokenize_indented_block,
-    r##"foo:
-  a
-  b
-  c
-"##,
-    "N:$>^_$ ^_$ ^_$<.",
+    name: tokenize_indented_block,
+    text: "
+      foo:
+        a
+        b
+        c
+    ",
+    tokens: (
+      Name:"foo",
+      Colon,
+      Eol,
+      Indent,
+      Line,
+      Text:"a",
+      Eol,
+      Whitespace:"  ",
+      Line,
+      Text:"b",
+      Eol,
+      Whitespace:"  ",
+      Line,
+      Text:"c",
+      Eol,
+      Dedent,
+    ),
   }
 
   test! {
-    tokenize_strings,
-    r#"a = "'a'" + '"b"' + "'c'" + '"d"'#echo hello"#,
-    r#"N = " + ' + " + '#."#,
+    name: tokenize_strings,
+    text: r#"a = "'a'" + '"b"' + "'c'" + '"d"'#echo hello"#,
+    tokens: (
+      Name:"a",
+      Whitespace,
+      Equals,
+      Whitespace,
+      StringCooked:"\"'a'\"",
+      Whitespace,
+      Plus,
+      Whitespace,
+      StringRaw:"'\"b\"'",
+      Whitespace,
+      Plus,
+      Whitespace,
+      StringCooked:"\"'c'\"",
+      Whitespace,
+      Plus,
+      Whitespace,
+      StringRaw:"'\"d\"'",
+      Comment:"#echo hello",
+    )
   }
 
   test! {
-    tokenize_recipe_interpolation_eol,
-    "foo: # some comment
- {{hello}}
-",
-    "N: #$>^{N}$<.",
+    name: tokenize_recipe_interpolation_eol,
+    text: "
+      foo: # some comment
+       {{hello}}
+    ",
+    tokens: (
+      Name:"foo",
+      Colon,
+      Whitespace,
+      Comment:"# some comment",
+      Eol,
+      Indent:" ",
+      Line,
+      InterpolationStart,
+      Name:"hello",
+      InterpolationEnd,
+      Eol,
+      Dedent
+    ),
   }
 
   test! {
-    tokenize_recipe_interpolation_eof,
-    "foo: # more comments
+    name: tokenize_recipe_interpolation_eof,
+    text: "foo: # more comments
  {{hello}}
 # another comment
 ",
-    "N: #$>^{N}$<#$.",
+    tokens: (
+      Name:"foo",
+      Colon,
+      Whitespace,
+      Comment:"# more comments",
+      Eol,
+      Indent:" ",
+      Line,
+      InterpolationStart,
+      Name:"hello",
+      InterpolationEnd,
+      Eol,
+      Dedent,
+      Comment:"# another comment",
+      Eol,
+    ),
   }
 
   test! {
-    tokenize_recipe_complex_interpolation_expression,
-    "foo: #lol\n {{a + b + \"z\" + blarg}}",
-    "N: #$>^{N + N + \" + N}<.",
+    name: tokenize_recipe_complex_interpolation_expression,
+    text: "foo: #lol\n {{a + b + \"z\" + blarg}}",
+    tokens: (
+      Name:"foo",
+      Colon,
+      Whitespace:" ",
+      Comment:"#lol",
+      Eol,
+      Indent:" ",
+      Line,
+      InterpolationStart,
+      Name:"a",
+      Whitespace,
+      Plus,
+      Whitespace,
+      Name:"b",
+      Whitespace,
+      Plus,
+      Whitespace,
+      StringCooked:"\"z\"",
+      Whitespace,
+      Plus,
+      Whitespace,
+      Name:"blarg",
+      InterpolationEnd,
+      Dedent,
+    ),
   }
 
   test! {
-    tokenize_recipe_multiple_interpolations,
-    "foo:,#ok\n {{a}}0{{b}}1{{c}}",
-    "N:,#$>^{N}_{N}_{N}<.",
+    name: tokenize_recipe_multiple_interpolations,
+    text: "foo:,#ok\n {{a}}0{{b}}1{{c}}",
+    tokens: (
+      Name:"foo",
+      Colon,
+      Comma,
+      Comment:"#ok",
+      Eol,
+      Indent:" ",
+      Line,
+      InterpolationStart,
+      Name:"a",
+      InterpolationEnd,
+      Text:"0",
+      InterpolationStart,
+      Name:"b",
+      InterpolationEnd,
+      Text:"1",
+      InterpolationStart,
+      Name:"c",
+      InterpolationEnd,
+      Dedent,
+
+    ),
   }
 
   test! {
-    tokenize_junk,
-    "bob
+    name: tokenize_junk,
+    text: "
+      bob
 
-hello blah blah blah : a b c #whatever
+      hello blah blah blah : a b c #whatever
     ",
-    "N$$N N N N : N N N #$ .",
+    tokens: (
+      Name:"bob",
+      Eol,
+      Eol,
+      Name:"hello",
+      Whitespace,
+      Name:"blah",
+      Whitespace,
+      Name:"blah",
+      Whitespace,
+      Name:"blah",
+      Whitespace,
+      Colon,
+      Whitespace,
+      Name:"a",
+      Whitespace,
+      Name:"b",
+      Whitespace,
+      Name:"c",
+      Whitespace,
+      Comment:"#whatever",
+      Eol,
+    )
   }
 
   test! {
-    tokenize_empty_lines,
-    "
-# this does something
-hello:
-  asdf
-  bsdf
+    name: tokenize_empty_lines,
+    text: "
 
-  csdf
+      # this does something
+      hello:
+        asdf
+        bsdf
 
-  dsdf # whatever
+        csdf
 
-# yolo
-  ",
-    "$#$N:$>^_$ ^_$^$ ^_$^$ ^_$^$<#$ .",
+        dsdf # whatever
+
+      # yolo
+    ",
+    tokens: (
+      Eol,
+      Comment:"# this does something",
+      Eol,
+      Name:"hello",
+      Colon,
+      Eol,
+      Indent,
+      Line,
+      Text:"asdf",
+      Eol,
+      Whitespace:"  ",
+      Line,
+      Text:"bsdf",
+      Eol,
+      Line,
+      Eol,
+      Whitespace:"  ",
+      Line,
+      Text:"csdf",
+      Eol,
+      Line,
+      Eol,
+      Whitespace:"  ",
+      Line,
+      Text:"dsdf # whatever",
+      Eol,
+      Line,
+      Eol,
+      Dedent,
+      Comment:"# yolo",
+      Eol,
+    ),
   }
 
   test! {
-    tokenize_comment_before_variable,
-    "
-#
-A='1'
-echo:
-  echo {{A}}
-  ",
-    "$#$N='$N:$>^_{N}$ <.",
+    name: tokenize_comment_before_variable,
+    text: "
+      #
+      A='1'
+      echo:
+        echo {{A}}
+    ",
+    tokens: (
+      Comment:"#",
+      Eol,
+      Name:"A",
+      Equals,
+      StringRaw:"'1'",
+      Eol,
+      Name:"echo",
+      Colon,
+      Eol,
+      Indent,
+      Line,
+      Text:"echo ",
+      InterpolationStart,
+      Name:"A",
+      InterpolationEnd,
+      Eol,
+      Dedent,
+    ),
   }
 
   test! {
-    tokenize_interpolation_backticks,
-    "hello:\n echo {{`echo hello` + `echo goodbye`}}",
-    "N:$>^_{` + `}<.",
+    name: tokenize_interpolation_backticks,
+    text: "hello:\n echo {{`echo hello` + `echo goodbye`}}",
+    tokens: (
+      Name:"hello",
+      Colon,
+      Eol,
+      Indent:" ",
+      Line,
+      Text:"echo ",
+      InterpolationStart,
+      Backtick:"`echo hello`",
+      Whitespace,
+      Plus,
+      Whitespace,
+      Backtick:"`echo goodbye`",
+      InterpolationEnd,
+      Dedent
+    ),
   }
 
   test! {
-    tokenize_empty_interpolation,
-    "hello:\n echo {{}}",
-    "N:$>^_{}<.",
+    name: tokenize_empty_interpolation,
+    text: "hello:\n echo {{}}",
+    tokens: (
+      Name:"hello",
+      Colon,
+      Eol,
+      Indent:" ",
+      Line,
+      Text:"echo ",
+      InterpolationStart,
+      InterpolationEnd,
+      Dedent,
+    ),
   }
 
   test! {
-    tokenize_assignment_backticks,
-    "a = `echo hello` + `echo goodbye`",
-    "N = ` + `.",
+    name: tokenize_assignment_backticks,
+    text: "a = `echo hello` + `echo goodbye`",
+    tokens: (
+      Name:"a",
+      Whitespace,
+      Equals,
+      Whitespace,
+      Backtick:"`echo hello`",
+      Whitespace,
+      Plus,
+      Whitespace,
+      Backtick:"`echo goodbye`",
+    ),
   }
 
   test! {
-    tokenize_multiple,
-    "
-hello:
-  a
-  b
+    name: tokenize_multiple,
+    text: "
 
-  c
+      hello:
+        a
+        b
 
-  d
+        c
 
-# hello
-bob:
-  frank
- \t",
+        d
 
-    "$N:$>^_$ ^_$^$ ^_$^$ ^_$^$<#$N:$>^_$ <.",
+      # hello
+      bob:
+        frank
+       \t
+    ",
+    tokens: (
+      Eol,
+      Name:"hello",
+      Colon,
+      Eol,
+      Indent,
+      Line,
+      Text:"a",
+      Eol,
+      Whitespace:"  ",
+      Line,
+      Text:"b",
+      Eol,
+      Line,
+      Eol,
+      Whitespace:"  ",
+      Line,
+      Text:"c",
+      Eol,
+      Line,
+      Eol,
+      Whitespace:"  ",
+      Line,
+      Text:"d",
+      Eol,
+      Line,
+      Eol,
+      Dedent,
+      Comment:"# hello",
+      Eol,
+      Name:"bob",
+      Colon,
+      Eol,
+      Indent:"  ",
+      Line,
+      Text:"frank",
+      Eol,
+      Line,
+      Eol,
+      Dedent,
+    ),
   }
 
   test! {
-    tokenize_comment,
-    "a:=#",
-    "N:=#."
+    name: tokenize_comment,
+    text: "a:=#",
+    tokens: (
+      Name:"a",
+      ColonEquals,
+      Comment:"#",
+    ),
   }
 
   test! {
-    tokenize_comment_with_bang,
-    "a:=#foo!",
-    "N:=#."
+    name: tokenize_comment_with_bang,
+    text: "a:=#foo!",
+    tokens: (
+      Name:"a",
+      ColonEquals,
+      Comment:"#foo!",
+    ),
   }
 
   test! {
-    tokenize_order,
-    r"
-b: a
-  @mv a b
+    name: tokenize_order,
+    text: "
+      b: a
+        @mv a b
 
-a:
-  @touch F
-  @touch a
+      a:
+        @touch F
+        @touch a
 
-d: c
-  @rm c
+      d: c
+        @rm c
 
-c: b
-  @mv b c",
-    "$N: N$>^_$^$<N:$>^_$ ^_$^$<N: N$>^_$^$<N: N$>^_<.",
+      c: b
+        @mv b c
+    ",
+    tokens: (
+      Name:"b",
+      Colon,
+      Whitespace,
+      Name:"a",
+      Eol,
+      Indent,
+      Line,
+      Text:"@mv a b",
+      Eol,
+      Line,
+      Eol,
+      Dedent,
+      Name:"a",
+      Colon,
+      Eol,
+      Indent,
+      Line,
+      Text:"@touch F",
+      Eol,
+      Whitespace:"  ",
+      Line,
+      Text:"@touch a",
+      Eol,
+      Line,
+      Eol,
+      Dedent,
+      Name:"d",
+      Colon,
+      Whitespace,
+      Name:"c",
+      Eol,
+      Indent,
+      Line,
+      Text:"@rm c",
+      Eol,
+      Line,
+      Eol,
+      Dedent,
+      Name:"c",
+      Colon,
+      Whitespace,
+      Name:"b",
+      Eol,
+      Indent,
+      Line,
+      Text:"@mv b c",
+      Eol,
+      Dedent,
+    ),
   }
 
   test! {
-    tokenize_parens,
-    r"((())) )abc(+",
-    "((())) )N(+.",
+    name: tokenize_parens,
+    text: "((())) )abc(+",
+    tokens: (
+      ParenL,
+      ParenL,
+      ParenL,
+      ParenR,
+      ParenR,
+      ParenR,
+      Whitespace,
+      ParenR,
+      Name:"abc",
+      ParenL,
+      Plus,
+    ),
   }
 
   test! {
-    crlf_newline,
-    "#\r\n#asdf\r\n",
-    "#$#$.",
+    name: crlf_newline,
+    text: "#\r\n#asdf\r\n",
+    tokens: (
+      Comment:"#",
+      Eol:"\r\n",
+      Comment:"#asdf",
+      Eol:"\r\n",
+    ),
   }
 
   test! {
-    multiple_recipes,
-    "a:\n  foo\nb:",
-    "N:$>^_$<N:.",
+    name: multiple_recipes,
+    text: "a:\n  foo\nb:",
+    tokens: (
+      Name:"a",
+      Colon,
+      Eol,
+      Indent:"  ",
+      Line,
+      Text:"foo",
+      Eol,
+      Dedent,
+      Name:"b",
+      Colon,
+    ),
   }
 
   error_test! {
