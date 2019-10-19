@@ -1,6 +1,4 @@
 use crate::common::*;
-use std::fs;
-use std::path::{Path, PathBuf};
 
 const FILENAME: &str = "justfile";
 
@@ -52,7 +50,6 @@ pub(crate) fn project_root(start: &Path) -> PathBuf {
 #[cfg(test)]
 mod tests {
   use super::*;
-  use std::fs;
 
   #[test]
   fn not_found() {

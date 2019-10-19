@@ -2,11 +2,11 @@ use std::{fs, process, str};
 
 use executable_path::executable_path;
 
-mod testing;
+use test_utilities::tempdir;
 
 #[test]
 fn init_justfile_created() {
-  let tmp = testing::tempdir();
+  let tmp = tempdir();
   let binary = executable_path("just");
   let args = &["--init"];
 
@@ -32,7 +32,7 @@ fn init_justfile_created() {
 
 #[test]
 fn init_justfile_created_at_git_root() {
-  let tmp = testing::tempdir();
+  let tmp = tempdir();
   let binary = executable_path("just");
   let args = &["--init"];
 
@@ -65,7 +65,7 @@ fn init_justfile_created_at_git_root() {
 
 #[test]
 fn init_fails_if_justfile_exists() {
-  let tmp = testing::tempdir();
+  let tmp = tempdir();
   let binary = executable_path("just");
   let args = &["--init"];
 

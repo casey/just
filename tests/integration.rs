@@ -1,5 +1,3 @@
-mod testing;
-
 use std::{
   env, fs,
   io::Write,
@@ -11,7 +9,7 @@ use std::{
 use executable_path::executable_path;
 use libc::{EXIT_FAILURE, EXIT_SUCCESS};
 use pretty_assertions::assert_eq;
-use testing::{tempdir, unindent};
+use test_utilities::{tempdir, unindent};
 
 /// Instantiate an integration test.
 macro_rules! integration_test {

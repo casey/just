@@ -5,6 +5,7 @@ description = "🤖 Just a command runner"
 authors     = ["Casey Rodarmor <casey@rodarmor.com>"]
 license     = "CC0-1.0"
 homepage    = "https://github.com/casey/just"
+repository  = "https://github.com/casey/just"
 readme      = "crates-io-readme.md"
 edition     = "2018"
 
@@ -36,3 +37,9 @@ features = ["termination"]
 [dev-dependencies]
 executable-path   = "1"
 pretty_assertions = "0.6"
+
+# Until github.com/rust-lang/cargo/pull/7333 makes it into stable,
+# this version-less dev-dependency will interfere with publishing
+# to crates.io.
+[dev-dependencies.test-utilities]
+path = "test-utilities"

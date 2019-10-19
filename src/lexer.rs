@@ -626,366 +626,945 @@ impl<'a> Lexer<'a> {
 mod tests {
   use super::*;
 
-  fn summary(tokens: &[Token]) -> String {
-    use TokenKind::*;
+  use pretty_assertions::assert_eq;
 
-    tokens
-      .iter()
-      .map(|t| match t.kind {
-        At => "@",
-        Backtick => "`",
-        Colon => ":",
-        ColonEquals => ":=",
-        Comma => ",",
-        Comment => "#",
-        Dedent => "<",
-        Eof => ".",
-        Eol => "$",
-        Equals => "=",
-        Indent => ">",
-        InterpolationEnd => "}",
-        InterpolationStart => "{",
-        Line => "^",
-        Name => "N",
-        ParenL => "(",
-        ParenR => ")",
-        Plus => "+",
-        StringRaw => "'",
-        StringCooked => "\"",
-        Text => "_",
-        Whitespace => " ",
-      })
-      .collect::<Vec<&str>>()
-      .join("")
-  }
-
-  macro_rules! lex_test {
-    ($name:ident, $input:expr, $expected:expr $(,)*) => {
+  macro_rules! test {
+    {
+      name:   $name:ident,
+      text:   $text:expr,
+      tokens: ($($kind:ident $(: $lexeme:literal)?),* $(,)?)$(,)?
+    } => {
       #[test]
       fn $name() {
-        let input = $input;
-        let expected = $expected;
-        let tokens = Lexer::lex(input).unwrap();
-        let roundtrip = tokens
-          .iter()
-          .map(Token::lexeme)
-          .collect::<Vec<&str>>()
-          .join("");
-        let actual = summary(&tokens);
+        let kinds: &[TokenKind] = &[$($kind,)* Eof];
 
-        use pretty_assertions::assert_eq;
+        let lexemes: &[&str] = &[$(lexeme!($kind $(, $lexeme)?),)* ""];
 
-        assert_eq!(actual, expected, "token summary mismatch");
-
-        assert_eq!(input, roundtrip, "token round-trip not equal");
+        test($text, kinds, lexemes);
       }
+    }
+  }
+
+  macro_rules! lexeme {
+    {
+      $kind:ident, $lexeme:literal
+    } => {
+      $lexeme
     };
+    {
+      $kind:ident
+    } => {
+      default_lexeme($kind)
+    }
   }
 
-  lex_test! {
-    name,
-    "foo",
-    "N.",
+  fn test(text: &str, want_kinds: &[TokenKind], want_lexemes: &[&str]) {
+    let text = testing::unindent(text);
+
+    let have = Lexer::lex(&text).unwrap();
+
+    let have_kinds = have
+      .iter()
+      .map(|token| token.kind)
+      .collect::<Vec<TokenKind>>();
+
+    let have_lexemes = have
+      .iter()
+      .map(|token| token.lexeme())
+      .collect::<Vec<&str>>();
+
+    assert_eq!(have_kinds, want_kinds, "Token kind mismatch");
+    assert_eq!(have_lexemes, want_lexemes, "Token lexeme mismatch");
+
+    let mut roundtrip = String::new();
+
+    for lexeme in have_lexemes {
+      roundtrip.push_str(lexeme);
+    }
+
+    assert_eq!(roundtrip, text, "Roundtrip mismatch");
+
+    let mut offset = 0;
+    let mut line = 0;
+    let mut column = 0;
+
+    for token in have {
+      assert_eq!(token.offset, offset);
+      assert_eq!(token.line, line);
+      assert_eq!(token.lexeme().len(), token.length);
+      assert_eq!(token.column, column);
+
+      for c in token.lexeme().chars() {
+        if c == '\n' {
+          line += 1;
+          column = 0;
+        } else {
+          column += c.len_utf8();
+        }
+      }
+
+      offset += token.length;
+    }
   }
 
-  lex_test! {
-    comment,
-    "# hello",
-    "#.",
+  fn default_lexeme(kind: TokenKind) -> &'static str {
+    match kind {
+      // Fixed lexemes
+      At => "@",
+      Colon => ":",
+      ColonEquals => ":=",
+      Comma => ",",
+      Eol => "\n",
+      Equals => "=",
+      Indent => "  ",
+      InterpolationEnd => "}}",
+      InterpolationStart => "{{",
+      ParenL => "(",
+      ParenR => ")",
+      Plus => "+",
+      Whitespace => " ",
+
+      // Empty lexemes
+      Line | Dedent | Eof => "",
+
+      // Variable lexemes
+      Text | StringCooked | StringRaw | Name | Comment | Backtick => {
+        panic!("Token {:?} has no default lexeme", kind)
+      }
+    }
   }
 
-  lex_test! {
-    backtick,
-    "`echo`",
-    "`.",
+  test! {
+    name:   name_new,
+    text:   "foo",
+    tokens: (Name:"foo"),
   }
 
-  lex_test! {
-    raw_string,
-    "'hello'",
-    "'.",
+  test! {
+    name:   comment,
+    text:   "# hello",
+    tokens: (Comment:"# hello"),
   }
 
-  lex_test! {
-    cooked_string,
-    r#""hello""#,
-    r#""."#,
+  test! {
+    name:   backtick,
+    text:   "`echo`",
+    tokens: (Backtick:"`echo`"),
   }
 
-  lex_test! {
-    export_concatination,
-    "export foo = 'foo' + 'bar'",
-    "N N = ' + '.",
+  test! {
+    name:   raw_string,
+    text:   "'hello'",
+    tokens: (StringRaw:"'hello'"),
   }
 
-  lex_test! {
-    export_complex,
-    "export foo = ('foo' + 'bar') + `baz`",
-    "N N = (' + ') + `.",
+  test! {
+    name:   cooked_string,
+    text:   "\"hello\"",
+    tokens: (StringCooked:"\"hello\""),
   }
 
-  lex_test! {
-    eol_linefeed,
-    "\n",
-    "$.",
+  test! {
+    name:   export_concatination,
+    text:   "export foo = 'foo' + 'bar'",
+    tokens: (
+      Name:"export",
+      Whitespace,
+      Name:"foo",
+      Whitespace,
+      Equals,
+      Whitespace,
+      StringRaw:"'foo'",
+      Whitespace,
+      Plus,
+      Whitespace,
+      StringRaw:"'bar'",
+    )
   }
 
-  lex_test! {
-    eol_carriage_return_linefeed,
-    "\r\n",
-    "$.",
+  test! {
+    name: export_complex,
+    text: "export foo = ('foo' + 'bar') + `baz`",
+    tokens: (
+      Name:"export",
+      Whitespace,
+      Name:"foo",
+      Whitespace,
+      Equals,
+      Whitespace,
+      ParenL,
+      StringRaw:"'foo'",
+      Whitespace,
+      Plus,
+      Whitespace,
+      StringRaw:"'bar'",
+      ParenR,
+      Whitespace,
+      Plus,
+      Whitespace,
+      Backtick:"`baz`",
+    ),
   }
 
-  lex_test! {
-    indented_line,
-    "foo:\n a",
-    "N:$>^_<.",
+  test! {
+    name:   eol_linefeed,
+    text:   "\n",
+    tokens: (Eol),
   }
 
-  lex_test! {
-    indented_block,
-    r##"foo:
-  a
-  b
-  c
-"##,
-    "N:$>^_$ ^_$ ^_$<.",
+  test! {
+    name:   eol_carriage_return_linefeed,
+    text:   "\r\n",
+    tokens: (Eol:"\r\n"),
   }
 
-  lex_test! {
-    indented_block_followed_by_item,
-    "foo:
-  a
-b:",
-    "N:$>^_$<N:.",
+  test! {
+    name:   indented_line,
+    text:   "foo:\n a",
+    tokens: (Name:"foo", Colon, Eol, Indent:" ", Line, Text:"a", Dedent),
   }
 
-  lex_test! {
-    indented_block_followed_by_blank,
-    "foo:
-    a
-
-b:",
-      "N:$>^_$^$<N:.",
+  test! {
+    name: indented_block,
+    text: "
+      foo:
+        a
+        b
+        c
+    ",
+    tokens: (
+      Name:"foo",
+      Colon,
+      Eol,
+      Indent,
+      Line,
+      Text:"a",
+      Eol,
+      Whitespace:"  ",
+      Line,
+      Text:"b",
+      Eol,
+      Whitespace:"  ",
+      Line,
+      Text:"c",
+      Eol,
+      Dedent,
+    )
   }
 
-  lex_test! {
-    indented_line_containing_unpaired_carriage_return,
-    "foo:\n \r \n",
-    "N:$>^_$<.",
+  test! {
+    name: indented_block_followed_by_item,
+    text: "
+      foo:
+        a
+      b:
+    ",
+    tokens: (
+      Name:"foo",
+      Colon,
+      Eol,
+      Indent,
+      Line,
+      Text:"a",
+      Eol,
+      Dedent,
+      Name:"b",
+      Colon,
+      Eol,
+    )
   }
 
-  lex_test! {
-    indented_blocks,
-    "
-b: a
-  @mv a b
+  test! {
+    name: indented_block_followed_by_blank,
+    text: "
+      foo:
+          a
 
-a:
-  @touch F
-  @touch a
-
-d: c
-  @rm c
-
-c: b
-  @mv b c",
-    "$N: N$>^_$^$<N:$>^_$ ^_$^$<N: N$>^_$^$<N: N$>^_<.",
+      b:
+    ",
+    tokens: (
+      Name:"foo",
+      Colon,
+      Eol,
+      Indent:"    ",
+      Line,
+      Text:"a",
+      Eol,
+      Line,
+      Eol,
+      Dedent,
+      Name:"b",
+      Colon,
+      Eol,
+    ),
   }
 
-  lex_test! {
-    interpolation_empty,
-    "hello:\n echo {{}}",
-    "N:$>^_{}<.",
+  test! {
+    name: indented_line_containing_unpaired_carriage_return,
+    text: "foo:\n \r \n",
+    tokens: (
+      Name:"foo",
+      Colon,
+      Eol,
+      Indent:" ",
+      Line,
+      Text:"\r ",
+      Eol,
+      Dedent,
+    ),
   }
 
-  lex_test! {
-    interpolation_expression,
-    "hello:\n echo {{`echo hello` + `echo goodbye`}}",
-    "N:$>^_{` + `}<.",
+  test! {
+    name: indented_blocks,
+    text: "
+      b: a
+        @mv a b
+
+      a:
+        @touch F
+        @touch a
+
+      d: c
+        @rm c
+
+      c: b
+        @mv b c
+    ",
+    tokens: (
+      Name:"b",
+      Colon,
+      Whitespace,
+      Name:"a",
+      Eol,
+      Indent,
+      Line,
+      Text:"@mv a b",
+      Eol,
+      Line,
+      Eol,
+      Dedent,
+      Name:"a",
+      Colon,
+      Eol,
+      Indent,
+      Line,
+      Text:"@touch F",
+      Eol,
+      Whitespace:"  ",
+      Line,
+      Text:"@touch a",
+      Eol,
+      Line,
+      Eol,
+      Dedent,
+      Name:"d",
+      Colon,
+      Whitespace,
+      Name:"c",
+      Eol,
+      Indent,
+      Line,
+      Text:"@rm c",
+      Eol,
+      Line,
+      Eol,
+      Dedent,
+      Name:"c",
+      Colon,
+      Whitespace,
+      Name:"b",
+      Eol,
+      Indent,
+      Line,
+      Text:"@mv b c",
+      Eol,
+      Dedent
+    ),
   }
 
-  lex_test! {
-    tokenize_names,
-    "\
-foo
-bar-bob
-b-bob_asdfAAAA
-test123",
-    "N$N$N$N.",
+  test! {
+    name: interpolation_empty,
+    text: "hello:\n echo {{}}",
+    tokens: (
+      Name:"hello",
+      Colon,
+      Eol,
+      Indent:" ",
+      Line,
+      Text:"echo ",
+      InterpolationStart,
+      InterpolationEnd,
+      Dedent,
+    ),
   }
 
-  lex_test! {
-    tokenize_indented_line,
-    "foo:\n a",
-    "N:$>^_<.",
+  test! {
+    name: interpolation_expression,
+    text: "hello:\n echo {{`echo hello` + `echo goodbye`}}",
+    tokens: (
+      Name:"hello",
+      Colon,
+      Eol,
+      Indent:" ",
+      Line,
+      Text:"echo ",
+      InterpolationStart,
+      Backtick:"`echo hello`",
+      Whitespace,
+      Plus,
+      Whitespace,
+      Backtick:"`echo goodbye`",
+      InterpolationEnd,
+      Dedent,
+    ),
   }
 
-  lex_test! {
-    tokenize_indented_block,
-    r##"foo:
-  a
-  b
-  c
-"##,
-    "N:$>^_$ ^_$ ^_$<.",
+  test! {
+    name: tokenize_names,
+    text: "
+      foo
+      bar-bob
+      b-bob_asdfAAAA
+      test123
+    ",
+    tokens: (
+      Name:"foo",
+      Eol,
+      Name:"bar-bob",
+      Eol,
+      Name:"b-bob_asdfAAAA",
+      Eol,
+      Name:"test123",
+      Eol,
+    ),
   }
 
-  lex_test! {
-    tokenize_strings,
-    r#"a = "'a'" + '"b"' + "'c'" + '"d"'#echo hello"#,
-    r#"N = " + ' + " + '#."#,
+  test! {
+    name: tokenize_indented_line,
+    text: "foo:\n a",
+    tokens: (
+      Name:"foo",
+      Colon,
+      Eol,
+      Indent:" ",
+      Line,
+      Text:"a",
+      Dedent,
+    ),
   }
 
-  lex_test! {
-    tokenize_recipe_interpolation_eol,
-    "foo: # some comment
- {{hello}}
-",
-    "N: #$>^{N}$<.",
+  test! {
+    name: tokenize_indented_block,
+    text: "
+      foo:
+        a
+        b
+        c
+    ",
+    tokens: (
+      Name:"foo",
+      Colon,
+      Eol,
+      Indent,
+      Line,
+      Text:"a",
+      Eol,
+      Whitespace:"  ",
+      Line,
+      Text:"b",
+      Eol,
+      Whitespace:"  ",
+      Line,
+      Text:"c",
+      Eol,
+      Dedent,
+    ),
   }
 
-  lex_test! {
-    tokenize_recipe_interpolation_eof,
-    "foo: # more comments
+  test! {
+    name: tokenize_strings,
+    text: r#"a = "'a'" + '"b"' + "'c'" + '"d"'#echo hello"#,
+    tokens: (
+      Name:"a",
+      Whitespace,
+      Equals,
+      Whitespace,
+      StringCooked:"\"'a'\"",
+      Whitespace,
+      Plus,
+      Whitespace,
+      StringRaw:"'\"b\"'",
+      Whitespace,
+      Plus,
+      Whitespace,
+      StringCooked:"\"'c'\"",
+      Whitespace,
+      Plus,
+      Whitespace,
+      StringRaw:"'\"d\"'",
+      Comment:"#echo hello",
+    )
+  }
+
+  test! {
+    name: tokenize_recipe_interpolation_eol,
+    text: "
+      foo: # some comment
+       {{hello}}
+    ",
+    tokens: (
+      Name:"foo",
+      Colon,
+      Whitespace,
+      Comment:"# some comment",
+      Eol,
+      Indent:" ",
+      Line,
+      InterpolationStart,
+      Name:"hello",
+      InterpolationEnd,
+      Eol,
+      Dedent
+    ),
+  }
+
+  test! {
+    name: tokenize_recipe_interpolation_eof,
+    text: "foo: # more comments
  {{hello}}
 # another comment
 ",
-    "N: #$>^{N}$<#$.",
+    tokens: (
+      Name:"foo",
+      Colon,
+      Whitespace,
+      Comment:"# more comments",
+      Eol,
+      Indent:" ",
+      Line,
+      InterpolationStart,
+      Name:"hello",
+      InterpolationEnd,
+      Eol,
+      Dedent,
+      Comment:"# another comment",
+      Eol,
+    ),
   }
 
-  lex_test! {
-    tokenize_recipe_complex_interpolation_expression,
-    "foo: #lol\n {{a + b + \"z\" + blarg}}",
-    "N: #$>^{N + N + \" + N}<.",
+  test! {
+    name: tokenize_recipe_complex_interpolation_expression,
+    text: "foo: #lol\n {{a + b + \"z\" + blarg}}",
+    tokens: (
+      Name:"foo",
+      Colon,
+      Whitespace:" ",
+      Comment:"#lol",
+      Eol,
+      Indent:" ",
+      Line,
+      InterpolationStart,
+      Name:"a",
+      Whitespace,
+      Plus,
+      Whitespace,
+      Name:"b",
+      Whitespace,
+      Plus,
+      Whitespace,
+      StringCooked:"\"z\"",
+      Whitespace,
+      Plus,
+      Whitespace,
+      Name:"blarg",
+      InterpolationEnd,
+      Dedent,
+    ),
   }
 
-  lex_test! {
-    tokenize_recipe_multiple_interpolations,
-    "foo:,#ok\n {{a}}0{{b}}1{{c}}",
-    "N:,#$>^{N}_{N}_{N}<.",
+  test! {
+    name: tokenize_recipe_multiple_interpolations,
+    text: "foo:,#ok\n {{a}}0{{b}}1{{c}}",
+    tokens: (
+      Name:"foo",
+      Colon,
+      Comma,
+      Comment:"#ok",
+      Eol,
+      Indent:" ",
+      Line,
+      InterpolationStart,
+      Name:"a",
+      InterpolationEnd,
+      Text:"0",
+      InterpolationStart,
+      Name:"b",
+      InterpolationEnd,
+      Text:"1",
+      InterpolationStart,
+      Name:"c",
+      InterpolationEnd,
+      Dedent,
+
+    ),
   }
 
-  lex_test! {
-    tokenize_junk,
-    "bob
+  test! {
+    name: tokenize_junk,
+    text: "
+      bob
 
-hello blah blah blah : a b c #whatever
+      hello blah blah blah : a b c #whatever
     ",
-    "N$$N N N N : N N N #$ .",
+    tokens: (
+      Name:"bob",
+      Eol,
+      Eol,
+      Name:"hello",
+      Whitespace,
+      Name:"blah",
+      Whitespace,
+      Name:"blah",
+      Whitespace,
+      Name:"blah",
+      Whitespace,
+      Colon,
+      Whitespace,
+      Name:"a",
+      Whitespace,
+      Name:"b",
+      Whitespace,
+      Name:"c",
+      Whitespace,
+      Comment:"#whatever",
+      Eol,
+    )
   }
 
-  lex_test! {
-    tokenize_empty_lines,
-    "
-# this does something
-hello:
-  asdf
-  bsdf
+  test! {
+    name: tokenize_empty_lines,
+    text: "
 
-  csdf
+      # this does something
+      hello:
+        asdf
+        bsdf
 
-  dsdf # whatever
+        csdf
 
-# yolo
-  ",
-    "$#$N:$>^_$ ^_$^$ ^_$^$ ^_$^$<#$ .",
+        dsdf # whatever
+
+      # yolo
+    ",
+    tokens: (
+      Eol,
+      Comment:"# this does something",
+      Eol,
+      Name:"hello",
+      Colon,
+      Eol,
+      Indent,
+      Line,
+      Text:"asdf",
+      Eol,
+      Whitespace:"  ",
+      Line,
+      Text:"bsdf",
+      Eol,
+      Line,
+      Eol,
+      Whitespace:"  ",
+      Line,
+      Text:"csdf",
+      Eol,
+      Line,
+      Eol,
+      Whitespace:"  ",
+      Line,
+      Text:"dsdf # whatever",
+      Eol,
+      Line,
+      Eol,
+      Dedent,
+      Comment:"# yolo",
+      Eol,
+    ),
   }
 
-  lex_test! {
-    tokenize_comment_before_variable,
-    "
-#
-A='1'
-echo:
-  echo {{A}}
-  ",
-    "$#$N='$N:$>^_{N}$ <.",
+  test! {
+    name: tokenize_comment_before_variable,
+    text: "
+      #
+      A='1'
+      echo:
+        echo {{A}}
+    ",
+    tokens: (
+      Comment:"#",
+      Eol,
+      Name:"A",
+      Equals,
+      StringRaw:"'1'",
+      Eol,
+      Name:"echo",
+      Colon,
+      Eol,
+      Indent,
+      Line,
+      Text:"echo ",
+      InterpolationStart,
+      Name:"A",
+      InterpolationEnd,
+      Eol,
+      Dedent,
+    ),
   }
 
-  lex_test! {
-    tokenize_interpolation_backticks,
-    "hello:\n echo {{`echo hello` + `echo goodbye`}}",
-    "N:$>^_{` + `}<.",
+  test! {
+    name: tokenize_interpolation_backticks,
+    text: "hello:\n echo {{`echo hello` + `echo goodbye`}}",
+    tokens: (
+      Name:"hello",
+      Colon,
+      Eol,
+      Indent:" ",
+      Line,
+      Text:"echo ",
+      InterpolationStart,
+      Backtick:"`echo hello`",
+      Whitespace,
+      Plus,
+      Whitespace,
+      Backtick:"`echo goodbye`",
+      InterpolationEnd,
+      Dedent
+    ),
   }
 
-  lex_test! {
-    tokenize_empty_interpolation,
-    "hello:\n echo {{}}",
-    "N:$>^_{}<.",
+  test! {
+    name: tokenize_empty_interpolation,
+    text: "hello:\n echo {{}}",
+    tokens: (
+      Name:"hello",
+      Colon,
+      Eol,
+      Indent:" ",
+      Line,
+      Text:"echo ",
+      InterpolationStart,
+      InterpolationEnd,
+      Dedent,
+    ),
   }
 
-  lex_test! {
-    tokenize_assignment_backticks,
-    "a = `echo hello` + `echo goodbye`",
-    "N = ` + `.",
+  test! {
+    name: tokenize_assignment_backticks,
+    text: "a = `echo hello` + `echo goodbye`",
+    tokens: (
+      Name:"a",
+      Whitespace,
+      Equals,
+      Whitespace,
+      Backtick:"`echo hello`",
+      Whitespace,
+      Plus,
+      Whitespace,
+      Backtick:"`echo goodbye`",
+    ),
   }
 
-  lex_test! {
-    tokenize_multiple,
-    "
-hello:
-  a
-  b
+  test! {
+    name: tokenize_multiple,
+    text: "
 
-  c
+      hello:
+        a
+        b
 
-  d
+        c
 
-# hello
-bob:
-  frank
- \t",
+        d
 
-    "$N:$>^_$ ^_$^$ ^_$^$ ^_$^$<#$N:$>^_$ <.",
+      # hello
+      bob:
+        frank
+       \t
+    ",
+    tokens: (
+      Eol,
+      Name:"hello",
+      Colon,
+      Eol,
+      Indent,
+      Line,
+      Text:"a",
+      Eol,
+      Whitespace:"  ",
+      Line,
+      Text:"b",
+      Eol,
+      Line,
+      Eol,
+      Whitespace:"  ",
+      Line,
+      Text:"c",
+      Eol,
+      Line,
+      Eol,
+      Whitespace:"  ",
+      Line,
+      Text:"d",
+      Eol,
+      Line,
+      Eol,
+      Dedent,
+      Comment:"# hello",
+      Eol,
+      Name:"bob",
+      Colon,
+      Eol,
+      Indent:"  ",
+      Line,
+      Text:"frank",
+      Eol,
+      Line,
+      Eol,
+      Dedent,
+    ),
   }
 
-  lex_test! {
-    tokenize_comment,
-    "a:=#",
-    "N:=#."
+  test! {
+    name: tokenize_comment,
+    text: "a:=#",
+    tokens: (
+      Name:"a",
+      ColonEquals,
+      Comment:"#",
+    ),
   }
 
-  lex_test! {
-    tokenize_comment_with_bang,
-    "a:=#foo!",
-    "N:=#."
+  test! {
+    name: tokenize_comment_with_bang,
+    text: "a:=#foo!",
+    tokens: (
+      Name:"a",
+      ColonEquals,
+      Comment:"#foo!",
+    ),
   }
 
-  lex_test! {
-    tokenize_order,
-    r"
-b: a
-  @mv a b
+  test! {
+    name: tokenize_order,
+    text: "
+      b: a
+        @mv a b
 
-a:
-  @touch F
-  @touch a
+      a:
+        @touch F
+        @touch a
 
-d: c
-  @rm c
+      d: c
+        @rm c
 
-c: b
-  @mv b c",
-    "$N: N$>^_$^$<N:$>^_$ ^_$^$<N: N$>^_$^$<N: N$>^_<.",
+      c: b
+        @mv b c
+    ",
+    tokens: (
+      Name:"b",
+      Colon,
+      Whitespace,
+      Name:"a",
+      Eol,
+      Indent,
+      Line,
+      Text:"@mv a b",
+      Eol,
+      Line,
+      Eol,
+      Dedent,
+      Name:"a",
+      Colon,
+      Eol,
+      Indent,
+      Line,
+      Text:"@touch F",
+      Eol,
+      Whitespace:"  ",
+      Line,
+      Text:"@touch a",
+      Eol,
+      Line,
+      Eol,
+      Dedent,
+      Name:"d",
+      Colon,
+      Whitespace,
+      Name:"c",
+      Eol,
+      Indent,
+      Line,
+      Text:"@rm c",
+      Eol,
+      Line,
+      Eol,
+      Dedent,
+      Name:"c",
+      Colon,
+      Whitespace,
+      Name:"b",
+      Eol,
+      Indent,
+      Line,
+      Text:"@mv b c",
+      Eol,
+      Dedent,
+    ),
   }
 
-  lex_test! {
-    tokenize_parens,
-    r"((())) )abc(+",
-    "((())) )N(+.",
+  test! {
+    name: tokenize_parens,
+    text: "((())) )abc(+",
+    tokens: (
+      ParenL,
+      ParenL,
+      ParenL,
+      ParenR,
+      ParenR,
+      ParenR,
+      Whitespace,
+      ParenR,
+      Name:"abc",
+      ParenL,
+      Plus,
+    ),
   }
 
-  lex_test! {
-    crlf_newline,
-    "#\r\n#asdf\r\n",
-    "#$#$.",
+  test! {
+    name: crlf_newline,
+    text: "#\r\n#asdf\r\n",
+    tokens: (
+      Comment:"#",
+      Eol:"\r\n",
+      Comment:"#asdf",
+      Eol:"\r\n",
+    ),
   }
 
-  lex_test! {
-    multiple_recipes,
-    "a:\n  foo\nb:",
-    "N:$>^_$<N:.",
+  test! {
+    name: multiple_recipes,
+    text: "a:\n  foo\nb:",
+    tokens: (
+      Name:"a",
+      Colon,
+      Eol,
+      Indent:"  ",
+      Line,
+      Text:"foo",
+      Eol,
+      Dedent,
+      Name:"b",
+      Colon,
+    ),
   }
 
   error_test! {

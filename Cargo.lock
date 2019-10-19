@@ -219,6 +219,7 @@ dependencies = [
  "pretty_assertions 0.6.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "target 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "tempfile 3.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "test-utilities 0.0.0",
  "unicode-width 0.1.5 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
@@ -460,6 +461,13 @@ dependencies = [
  "numtoa 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "redox_syscall 0.1.56 (registry+https://github.com/rust-lang/crates.io-index)",
  "redox_termios 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "test-utilities"
+version = "0.0.0"
+dependencies = [
+ "tempfile 3.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]

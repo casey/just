@@ -1,10 +1,7 @@
-mod testing;
-
 use std::{error::Error, fs, process::Command};
 
 use executable_path::executable_path;
-
-use testing::tempdir;
+use test_utilities::tempdir;
 
 /// Test that just runs with the correct working directory when invoked with
 /// `--justfile` but not `--working-directory`

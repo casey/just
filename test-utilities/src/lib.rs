@@ -1,12 +1,11 @@
-pub(crate) fn tempdir() -> tempfile::TempDir {
+pub fn tempdir() -> tempfile::TempDir {
   tempfile::Builder::new()
     .prefix("just-test-tempdir")
     .tempdir()
     .expect("failed to create temporary directory")
 }
 
-#[allow(dead_code)]
-pub(crate) fn unindent(text: &str) -> String {
+pub fn unindent(text: &str) -> String {
   // find line start and end indices
   let mut lines = Vec::new();
   let mut start = 0;
