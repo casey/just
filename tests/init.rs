@@ -27,7 +27,7 @@ fn init_justfile_created() {
 
   let bytes = fs::read(buf).expect("unable to read Justfile");
   let justfile = str::from_utf8(&bytes).expect("unable to convert bytes to str");
-  assert_eq!(justfile, "# this is an empty justfile\n");
+  assert_eq!(justfile, r"default:\n\techo 'Hello, world!'\n");
 }
 
 #[test]
@@ -60,7 +60,7 @@ fn init_justfile_created_at_git_root() {
 
   let bytes = fs::read(buf).expect("unable to read Justfile");
   let justfile = str::from_utf8(&bytes).expect("unable to convert bytes to str");
-  assert_eq!(justfile, "# this is an empty justfile\n");
+  assert_eq!(justfile, r"default:\n\techo 'Hello, world!'\n");
 }
 
 #[test]

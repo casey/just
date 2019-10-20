@@ -1,6 +1,6 @@
 use crate::common::*;
 
-const FILENAME: &str = "justfile";
+pub(crate) const FILENAME: &str = "justfile";
 
 pub(crate) fn justfile(directory: &Path) -> Result<PathBuf, SearchError> {
   let mut candidates = Vec::new();
@@ -30,21 +30,23 @@ pub(crate) fn justfile(directory: &Path) -> Result<PathBuf, SearchError> {
   }
 }
 
-pub(crate) fn project_root(start: &Path) -> PathBuf {
-  for a in start.ancestors() {
-    let mut buf = a.to_path_buf();
-
-    for s in &[".git", "Cargo.toml"] {
-      buf.push(s);
-      if buf.exists() {
-        buf.pop();
-        return buf;
-      } else {
-        buf.pop();
+pub(crate) fn project_root(start: &Path) -> io::Result<&Path> {
+  for directory in start.ancestors() {
+    for name in &[".git", "Cargo.toml"] {
+      match directory.join(name).metadata() {
+        Ok(_) => {
+          return Ok(directory);
+        },
+        Err(err) => {
+          if err.kind() != io::ErrorKind::NotFound {
+            return Err(err);
+          }
+        }
       }
     }
   }
-  start.to_path_buf()
+
+  Ok(start)
 }
 
 #[cfg(test)]
@@ -172,7 +174,7 @@ mod tests {
   fn get_project_root() {
     let tmpdir = testing::tempdir();
     let path = tmpdir.path();
-    assert_eq!(project_root(path), path);
+    assert_eq!(project_root(path).unwrap(), path);
   }
 
   #[test]
@@ -180,7 +182,7 @@ mod tests {
     let tmpdir = testing::tempdir();
     let mut path = tmpdir.path().to_path_buf();
     path.push(".git");
-    assert_eq!(project_root(&path), path);
+    assert_eq!(project_root(&path).unwrap(), path);
   }
 
   #[test]
@@ -196,7 +198,7 @@ mod tests {
     path.push("b");
     path.push("c");
     fs::create_dir_all(&path).expect("unable to create intermediate directories");
-    assert_eq!(project_root(&path), expected);
+    assert_eq!(project_root(&path).unwrap(), expected);
   }
 
   #[test]
@@ -204,7 +206,7 @@ mod tests {
     let tmpdir = testing::tempdir();
     let mut path = tmpdir.path().to_path_buf();
     path.push("Cargo.toml");
-    assert_eq!(project_root(&path), path);
+    assert_eq!(project_root(&path).unwrap(), path);
   }
 
   #[test]
@@ -213,13 +215,13 @@ mod tests {
     let mut path = tmpdir.path().to_path_buf();
     let expected = path.clone();
     path.push("Cargo.toml");
-    fs::create_dir(&path).expect("unable to create .git directory");
+    fs::create_dir(&path).expect("unable to create Cargo.toml");
 
     path.pop();
     path.push("a");
     path.push("b");
     path.push("c");
     fs::create_dir_all(&path).expect("unable to create intermediate directories");
-    assert_eq!(project_root(&path), expected);
+    assert_eq!(project_root(&path).unwrap(), expected);
   }
 }

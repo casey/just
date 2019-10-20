@@ -11,7 +11,6 @@ pub(crate) struct Config<'a> {
   pub(crate) highlight: bool,
   pub(crate) overrides: BTreeMap<&'a str, &'a str>,
   pub(crate) quiet: bool,
-  pub(crate) init: bool,
   pub(crate) shell: &'a str,
   pub(crate) color: Color,
   pub(crate) verbosity: Verbosity,
@@ -151,7 +150,7 @@ impl<'a> Config<'a> {
       .arg(
         Arg::with_name(arg::INIT)
           .long("init")
-          .help("initialize the project root with an empty justfile")
+          .help("Create a default justfile in the project root")
       )
       .group(ArgGroup::with_name("EARLY-EXIT").args(&[
         arg::DUMP,
@@ -286,7 +285,6 @@ impl<'a> Config<'a> {
       evaluate: matches.is_present("EVALUATE"),
       highlight: matches.is_present("HIGHLIGHT"),
       quiet: matches.is_present("QUIET"),
-      init: matches.is_present("INIT"),
       shell: matches.value_of("SHELL").unwrap(),
       justfile: matches.value_of("JUSTFILE").map(Path::new),
       working_directory: matches.value_of("WORKING-DIRECTORY").map(Path::new),
@@ -310,7 +308,6 @@ impl<'a> Default for Config<'a> {
       overrides: empty(),
       arguments: empty(),
       quiet: false,
-      init: false,
       shell: DEFAULT_SHELL,
       color: default(),
       verbosity: Verbosity::from_flag_occurrences(0),

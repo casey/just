@@ -30,19 +30,20 @@ fn edit<P: AsRef<OsStr>>(path: P) -> Result<(), i32> {
   }
 }
 
-const EMPTY_JUSTFILE: &str = "# this is an empty justfile\n";
+pub(crate) const INIT_JUSTFILE: &str = r"default:\n\techo 'Hello, world!'\n";
 
 pub fn init() -> Result<(), i32> {
-  let mut root = search::project_root(&env::current_dir().unwrap());
+  let current_dir = &env::current_dir().unwrap();
+  let root = search::project_root(current_dir)
+    .map_err(|_| EXIT_FAILURE)
+    .unwrap();
 
-  root.push("Justfile");
-
-  if root.exists() {
+  if search::justfile(root).is_ok() {
     eprintln!("Justfile already exists at the project root");
     return Err(EXIT_FAILURE);
   }
 
-  if let Err(e) = fs::write(root, EMPTY_JUSTFILE) {
+  if let Err(e) = fs::write(root.join(search::FILENAME), INIT_JUSTFILE) {
     eprintln!("error writing justfile: {:?}", e);
     return Err(EXIT_FAILURE);
   };
@@ -77,7 +78,7 @@ pub fn run() -> Result<(), i32> {
 
   let mut working_directory = config.working_directory.map(PathBuf::from);
 
-  if config.init {
+  if config.subcommand == Subcommand::Init {
     return init();
   }
 
