@@ -30,7 +30,7 @@ fn edit<P: AsRef<OsStr>>(path: P) -> Result<(), i32> {
   }
 }
 
-pub(crate) const INIT_JUSTFILE: &str = r"default:\n\techo 'Hello, world!'\n";
+pub(crate) const INIT_JUSTFILE: &str = "default:\n\techo 'Hello, world!'\n";
 
 pub fn init() -> Result<(), i32> {
   let current_dir = &env::current_dir().unwrap();
@@ -38,7 +38,7 @@ pub fn init() -> Result<(), i32> {
     .map_err(|_| EXIT_FAILURE)
     .unwrap();
 
-  if search::justfile(root).is_ok() {
+  if let Ok(_) = search::justfile(root) {
     eprintln!("Justfile already exists at the project root");
     return Err(EXIT_FAILURE);
   }
