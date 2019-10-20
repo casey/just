@@ -21,9 +21,9 @@ fn init_justfile_created() {
   let stdout = str::from_utf8(&output.stdout).unwrap();
   assert_eq!(stdout, "");
   let mut buf = tmp.path().to_path_buf();
-  buf.push("Justfile");
+  buf.push("justfile");
 
-  assert!(buf.exists());
+  assert!(buf.metadata().is_ok());
 
   let bytes = fs::read(buf).expect("unable to read Justfile");
   let justfile = str::from_utf8(&bytes).expect("unable to convert bytes to str");
@@ -54,9 +54,9 @@ fn init_justfile_created_at_git_root() {
   let stdout = str::from_utf8(&output.stdout).unwrap();
   assert_eq!(stdout, "");
   let mut buf = tmp.path().to_path_buf();
-  buf.push("Justfile");
+  buf.push("justfile");
 
-  assert!(buf.exists());
+  assert!(buf.metadata().is_ok());
 
   let bytes = fs::read(buf).expect("unable to read Justfile");
   let justfile = str::from_utf8(&bytes).expect("unable to convert bytes to str");
