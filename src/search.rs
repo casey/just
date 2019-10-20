@@ -2,8 +2,9 @@ use crate::common::*;
 
 pub(crate) const FILENAME: &str = "justfile";
 
-pub(crate) fn justfile(directory: &Path) -> Result<PathBuf, SearchError> {
-  let mut candidates = Vec::new();
+fn dir_traverse<F>(directory: &Path, mut pred: F) -> Result<(), SearchError>
+  where F: FnMut(fs::DirEntry) -> Result<(), SearchError>
+{
   let dir = fs::read_dir(directory).map_err(|io_error| SearchError::Io {
     io_error,
     directory: directory.to_owned(),
@@ -13,12 +14,33 @@ pub(crate) fn justfile(directory: &Path) -> Result<PathBuf, SearchError> {
       io_error,
       directory: directory.to_owned(),
     })?;
-    if let Some(name) = entry.file_name().to_str() {
-      if name.eq_ignore_ascii_case(FILENAME) {
-        candidates.push(entry.path());
-      }
+    if let Err(err) = pred(entry) {
+      return Err(err);
     }
   }
+
+  Ok(())
+}
+
+pub(crate) fn search_for_justfile<F>(directory: &Path, mut pred: F) -> Result<(), SearchError>
+  where F: FnMut(fs::DirEntry) -> Result<(), SearchError>
+{
+  dir_traverse(directory, |entry| {
+    if let Some(name) = entry.file_name().to_str() {
+      if name.eq_ignore_ascii_case(FILENAME) {
+        return pred(entry);
+      }
+    }
+    Ok(())
+  })
+}
+
+pub(crate) fn justfile(directory: &Path) -> Result<PathBuf, SearchError> {
+  let mut candidates = Vec::new();
+  search_for_justfile(directory, |entry| {
+    candidates.push(entry.path());
+    Ok(())
+  })?;
   if candidates.len() == 1 {
     Ok(candidates.pop().unwrap())
   } else if candidates.len() > 1 {

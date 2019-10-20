@@ -9,6 +9,7 @@ pub(crate) enum SearchError {
     io_error: io::Error,
   },
   NotFound,
+  JustfileAlreadyExists,
 }
 
 impl fmt::Display for SearchError {
@@ -34,6 +35,7 @@ impl fmt::Display for SearchError {
         ),
       ),
       SearchError::NotFound => write!(f, "No justfile found"),
+      SearchError::JustfileAlreadyExists => write!(f, "Justfile already exists at the project root"),
     }
   }
 }
