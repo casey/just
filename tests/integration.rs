@@ -237,7 +237,7 @@ integration_test! {
   name: duplicate_alias,
   justfile: "alias foo := bar\nalias foo := baz\n",
   stderr: "
-    error: Alias `foo` first defined on line `1` is redefined on line `2`
+    error: Alias `foo` first defined on line 1 is redefined on line 2
       |
     2 | alias foo := baz
       |       ^^^
@@ -261,7 +261,7 @@ integration_test! {
   name: alias_shadows_recipe,
   justfile: "bar:\n  echo bar\nalias foo := bar\nfoo:\n  echo foo",
   stderr: "
-    error: Alias `foo` defined on `3` shadows recipe defined on `4`
+    error: Alias `foo` defined on line 3 shadows recipe `foo` defined on line 4
       |
     3 | alias foo := bar
       |       ^^^
