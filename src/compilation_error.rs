@@ -22,9 +22,10 @@ impl<'a> Display for CompilationError<'a> {
       AliasShadowsRecipe { alias, recipe_line } => {
         writeln!(
           f,
-          "Alias `{}` defined on `{}` shadows recipe defined on `{}`",
+          "Alias `{}` defined on line {} shadows recipe `{}` defined on line {}",
           alias,
           self.line.ordinal(),
+          alias,
           recipe_line.ordinal(),
         )?;
       }
@@ -85,7 +86,7 @@ impl<'a> Display for CompilationError<'a> {
       DuplicateAlias { alias, first } => {
         writeln!(
           f,
-          "Alias `{}` first defined on line `{}` is redefined on line `{}`",
+          "Alias `{}` first defined on line {} is redefined on line {}",
           alias,
           first.ordinal(),
           self.line.ordinal(),
