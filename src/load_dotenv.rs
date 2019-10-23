@@ -1,6 +1,9 @@
 use crate::common::*;
 
 pub(crate) fn load_dotenv() -> RunResult<'static, BTreeMap<String, String>> {
+  // `dotenv::dotenv_iter` should eventually be un-deprecated, see:
+  // https://github.com/dotenv-rs/dotenv/issues/13
+  #![allow(deprecated)]
   match dotenv::dotenv_iter() {
     Ok(iter) => {
       let result: dotenv::Result<BTreeMap<String, String>> = iter.collect();
