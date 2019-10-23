@@ -15,13 +15,13 @@ help4help2man = []
 summary = []
 
 [dependencies]
-ansi_term      = "0.11"
+ansi_term      = "0.12"
 assert_matches = "1"
 atty           = "0.2"
 clap           = "2.33"
-dotenv         = "0.13"
+dotenv         = "0.15"
 edit-distance  = "2"
-env_logger     = "0.6"
+env_logger     = "0.7"
 itertools      = "0.8"
 lazy_static    = "1"
 libc           = "0.2"
