@@ -35,15 +35,13 @@ pub(crate) const INIT_JUSTFILE: &str = "default:\n\techo 'Hello, world!'\n";
 pub fn init() -> Result<(), i32> {
   let current_dir = &env::current_dir().unwrap();
   let root = search::project_root(current_dir)
-    .map_err(|err| {
-      eprintln!("error searching for project root {:?}", err);
-      EXIT_FAILURE
-    })?;
+    .map_err(|_| EXIT_FAILURE)
+    .unwrap();
 
-  search::search_for_justfile(root, |_| Err(SearchError::JustfileAlreadyExists)).map_err(|err| {
-    eprintln!("{}", err);
-    EXIT_FAILURE
-  })?;
+  if let Ok(_) = search::dir(root) {
+    eprintln!("Justfile already exists at the project root");
+    return Err(EXIT_FAILURE);
+  }
 
   if let Err(e) = fs::write(root.join(search::FILENAME), INIT_JUSTFILE) {
     eprintln!("error writing justfile: {:?}", e);

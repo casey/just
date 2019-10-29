@@ -158,6 +158,7 @@ impl<'a> Config<'a> {
         arg::LIST,
         arg::SHOW,
         arg::SUMMARY,
+        arg::INIT,
         "ARGUMENTS",
         "EVALUATE",
       ]));
