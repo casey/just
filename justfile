@@ -55,7 +55,7 @@ publish-check: lint clippy test
 	grep {{version}} CHANGELOG.md
 	cargo +nightly generate-lockfile -Z minimal-versions
 	cargo test
-	git checkout
+	git checkout Cargo.lock
 
 publish: publish-check
 	cargo publish
