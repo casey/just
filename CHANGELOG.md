@@ -2,6 +2,57 @@ Changelog
 =========
 
 
+[v0.4.5] - 2019-10-31
+---------------------
+
+## User-visible
+
+### Changed
+- Display alias with `--show NAME` if one exists
+
+### Documented
+- Document multi-line constructs (for/if/while) (#453)
+- Generate man page with help2man (#463)
+- Add context to deprecation warnings (#473)
+- Improve messages for alias error messages (#500)
+
+## Misc
+
+### Cleanup
+- Update deprecated rust range patterns and clippy config (#450)
+- Make comments in common.rs lowercase (#470)
+- Use `pub(crate)` instead of `pub` (#471)
+- Hide summary functionality behind feature flag (#472)
+- Fix `summary` feature conditional compilation (#475)
+- Allow integration test cases to omit common values (#480)
+- Add `unindent()` for nicer integration test strings (#481)
+- Start pulling argument parsing out of run::run() (#483)
+- Add explicit `Subcommand` enum (#484)
+- Avoid using error code `1` in integration tests (#486)
+- Use more indented strings in integration tests (#489)
+- Refactor `run::run` and Config (#490)
+- Remove `misc.rs` (#491)
+- Remove unused `use` statements (#497)
+- Refactor lexer tests (#498)
+- Use constants instead of literals in arg parser (#504)
+
+### Infrastructure
+- Add repository attribute to Cargo.toml (#493)
+- Check minimal version compatibility before publishing (#487)
+
+### Continuous Integration
+- Disable FreeBSD builds (#474)
+- Use `bash` as shell for all integration tests (#479)
+- Don't install `dash` on Travis (#482)
+
+### Dependencies
+- Use `tempfile` crate instead of `tempdir` (#455)
+- Bump clap dependency to 2.33.0 (#458)
+- Minimize dependency version requirements (#461)
+- Remove dependency on brev (#462)
+- Update dependencies (#501)
+
+
 [v0.4.4] - 2019-06-02
 ---------------------
 
