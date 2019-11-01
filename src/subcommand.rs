@@ -1,9 +1,10 @@
 #[derive(PartialEq)]
 pub(crate) enum Subcommand<'a> {
-  Edit,
-  Summary,
   Dump,
+  Edit,
+  Evaluate,
   List,
-  Show { name: &'a str },
   Run,
+  Show { name: &'a str },
+  Summary,
 }
