@@ -40,6 +40,6 @@ pretty_assertions = "0.6"
 
 # Until github.com/rust-lang/cargo/pull/7333 makes it into stable,
 # this version-less dev-dependency will interfere with publishing
-# to crates.io.
+# to crates.io. In the meantime, we can publish with nighlty cargo.
 [dev-dependencies.test-utilities]
 path = "test-utilities"

@@ -58,7 +58,7 @@ publish-check: lint clippy test
 	git checkout Cargo.lock
 
 publish: publish-check
-	cargo publish
+	cargo +nightly publish
 	git tag -a {{version}} -m 'Release {{version}}'
 	git push github {{version}}
 
