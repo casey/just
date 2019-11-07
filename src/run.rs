@@ -55,6 +55,16 @@ pub fn run() -> Result<(), i32> {
 
   let justfile = config.justfile;
 
+  if let Some(directory) = config.search_directory {
+    if let Err(error) = env::set_current_dir(&directory) {
+      die!(
+        "Error changing directory to {}: {}",
+        directory.display(),
+        error
+      );
+    }
+  }
+
   let mut working_directory = config.working_directory.map(PathBuf::from);
 
   if let (Some(justfile), None) = (justfile, working_directory.as_ref()) {

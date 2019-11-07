@@ -17,6 +17,7 @@ pub(crate) struct Config<'a> {
   pub(crate) justfile: Option<&'a Path>,
   pub(crate) working_directory: Option<&'a Path>,
   pub(crate) invocation_directory: Result<PathBuf, String>,
+  pub(crate) search_directory: Option<&'a Path>,
 }
 
 mod cmd {
@@ -248,6 +249,8 @@ impl<'a> Config<'a> {
       overrides.insert(name, value);
     }
 
+    let mut search_directory = None;
+
     let arguments = raw_arguments
       .into_iter()
       .skip_while(is_override)
@@ -261,9 +264,7 @@ impl<'a> Config<'a> {
 
             let (dir, recipe) = argument.split_at(i + 1);
 
-            if let Err(error) = env::set_current_dir(dir) {
-              die!("Error changing directory: {}", error);
-            }
+            search_directory = Some(Path::new(dir));
 
             if recipe.is_empty() {
               return None;
@@ -300,6 +301,7 @@ impl<'a> Config<'a> {
       shell: matches.value_of(arg::SHELL).unwrap(),
       justfile: matches.value_of(arg::JUSTFILE).map(Path::new),
       working_directory: matches.value_of(arg::WORKING_DIRECTORY).map(Path::new),
+      search_directory,
       invocation_directory,
       subcommand,
       verbosity,
@@ -326,6 +328,7 @@ impl<'a> Default for Config<'a> {
       working_directory: None,
       invocation_directory: env::current_dir()
         .map_err(|e| format!("Error getting current directory: {}", e)),
+      search_directory: None,
     }
   }
 }
