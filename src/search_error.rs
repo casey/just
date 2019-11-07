@@ -1,42 +1,41 @@
 use crate::common::*;
 
+#[derive(Debug, Snafu)]
+#[snafu(visibility(pub(crate)))]
 pub(crate) enum SearchError {
+  #[snafu(display(
+    "Multiple candidate justfiles found in `{}`: {}",
+    candidates[0].parent().unwrap().display(),
+    List::and_ticked(
+      candidates
+        .iter()
+        .map(|candidate| candidate.file_name().unwrap().to_string_lossy())
+    ),
+  ))]
   MultipleCandidates {
     candidates: Vec<PathBuf>,
   },
+  #[snafu(display(
+    "I/O error reading directory `{}`: {}",
+    directory.display(),
+    io_error
+  ))]
   Io {
     directory: PathBuf,
     io_error: io::Error,
   },
+  #[snafu(display("No justfile found"))]
   NotFound,
+  Canonicalize {
+    path: PathBuf,
+    source: io::Error,
+  },
+  JustfileHadNoParent {
+    path: PathBuf,
+  },
 }
 
-impl fmt::Display for SearchError {
-  fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-    match self {
-      SearchError::Io {
-        directory,
-        io_error,
-      } => write!(
-        f,
-        "I/O error reading directory `{}`: {}",
-        directory.display(),
-        io_error
-      ),
-      SearchError::MultipleCandidates { candidates } => write!(
-        f,
-        "Multiple candidate justfiles found in `{}`: {}",
-        candidates[0].parent().unwrap().display(),
-        List::and_ticked(
-          candidates
-            .iter()
-            .map(|candidate| candidate.file_name().unwrap().to_string_lossy())
-        ),
-      ),
-      SearchError::NotFound => write!(f, "No justfile found"),
-    }
-  }
-}
+impl Error for SearchError {}
 
 #[cfg(test)]
 mod tests {

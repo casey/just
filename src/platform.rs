@@ -6,11 +6,16 @@ pub(crate) struct Platform;
 impl PlatformInterface for Platform {
   fn make_shebang_command(
     path: &Path,
+    working_directory: &Path,
     _command: &str,
     _argument: Option<&str>,
   ) -> Result<Command, OutputError> {
     // shebang scripts can be executed directly on unix
-    Ok(Command::new(path))
+    let mut cmd = Command::new(path);
+
+    cmd.current_dir(working_directory);
+
+    Ok(cmd)
   }
 
   fn set_execute_permission(path: &Path) -> Result<(), io::Error> {
@@ -32,7 +37,7 @@ impl PlatformInterface for Platform {
     exit_status.signal()
   }
 
-  fn to_shell_path(path: &Path) -> Result<String, String> {
+  fn to_shell_path(_working_directory: &Path, path: &Path) -> Result<String, String> {
     path
       .to_str()
       .map(str::to_string)
@@ -44,15 +49,20 @@ impl PlatformInterface for Platform {
 impl PlatformInterface for Platform {
   fn make_shebang_command(
     path: &Path,
+    working_directory: &Path,
     command: &str,
     argument: Option<&str>,
   ) -> Result<Command, OutputError> {
     // Translate path to the interpreter from unix style to windows style
     let mut cygpath = Command::new("cygpath");
+    cygpath.current_dir(working_directory);
     cygpath.arg("--windows");
     cygpath.arg(command);
 
     let mut cmd = Command::new(output(cygpath)?);
+
+    cmd.current_dir(working_directory);
+
     if let Some(argument) = argument {
       cmd.arg(argument);
     }
@@ -72,9 +82,10 @@ impl PlatformInterface for Platform {
     None
   }
 
-  fn to_shell_path(path: &Path) -> Result<String, String> {
+  fn to_shell_path(working_directory: &Path, path: &Path) -> Result<String, String> {
     // Translate path from windows style to unix style
     let mut cygpath = Command::new("cygpath");
+    cygpath.current_dir(working_directory);
     cygpath.arg("--unix");
     cygpath.arg(path);
     output(cygpath).map_err(|e| format!("Error converting shell path: {}", e))

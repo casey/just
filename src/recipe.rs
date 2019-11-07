@@ -86,13 +86,10 @@ impl<'a> Recipe<'a> {
 
     let mut evaluator = AssignmentEvaluator {
       assignments: &empty(),
-      dry_run: config.dry_run,
       evaluated: empty(),
-      invocation_directory: &config.invocation_directory,
-      overrides: &empty(),
-      quiet: config.quiet,
+      working_directory: context.working_directory,
       scope: &context.scope,
-      shell: config.shell,
+      config,
       dotenv,
     };
 
@@ -196,12 +193,11 @@ impl<'a> Recipe<'a> {
 
       // create a command to run the script
       let mut command =
-        Platform::make_shebang_command(&path, interpreter, argument).map_err(|output_error| {
-          RuntimeError::Cygpath {
+        Platform::make_shebang_command(&path, context.working_directory, interpreter, argument)
+          .map_err(|output_error| RuntimeError::Cygpath {
             recipe: self.name(),
             output_error,
-          }
-        })?;
+          })?;
 
       command.export_environment_variables(&context.scope, dotenv)?;
 
@@ -276,7 +272,9 @@ impl<'a> Recipe<'a> {
           continue;
         }
 
-        let mut cmd = Command::new(config.shell);
+        let mut cmd = Command::new(&config.shell);
+
+        cmd.current_dir(context.working_directory);
 
         cmd.arg("-cu").arg(command);
 

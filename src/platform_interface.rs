@@ -5,6 +5,7 @@ pub(crate) trait PlatformInterface {
   /// shebang line `shebang`
   fn make_shebang_command(
     path: &Path,
+    working_directory: &Path,
     command: &str,
     argument: Option<&str>,
   ) -> Result<Command, OutputError>;
@@ -16,5 +17,5 @@ pub(crate) trait PlatformInterface {
   fn signal_from_exit_status(exit_status: process::ExitStatus) -> Option<i32>;
 
   /// Translate a path from a "native" path to a path the interpreter expects
-  fn to_shell_path(path: &Path) -> Result<String, String>;
+  fn to_shell_path(working_directory: &Path, path: &Path) -> Result<String, String>;
 }

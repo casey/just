@@ -1,12 +1,7 @@
 use executable_path::executable_path;
-use std::{fs, path, process, str};
+use std::{path, process, str};
 
-fn tempdir() -> tempfile::TempDir {
-  tempfile::Builder::new()
-    .prefix("just-test-tempdir")
-    .tempdir()
-    .expect("failed to create temporary directory")
-}
+use test_utilities::tmptree;
 
 fn search_test<P: AsRef<path::Path>>(path: P, args: &[&str]) {
   let binary = executable_path("just");
@@ -28,78 +23,59 @@ fn search_test<P: AsRef<path::Path>>(path: P, args: &[&str]) {
 
 #[test]
 fn test_justfile_search() {
-  let tmp = tempdir();
-  let mut path = tmp.path().to_path_buf();
-  path.push("justfile");
-  fs::write(&path, "default:\n\techo ok").unwrap();
-  path.pop();
+  let tmp = tmptree! {
+    justfile: "default:\n\techo ok",
+    a: {
+      b: {
+        c: {
+          d: {},
+        },
+      },
+    },
+  };
 
-  path.push("a");
-  fs::create_dir(&path).expect("test justfile search: failed to create intermediary directory");
-  path.push("b");
-  fs::create_dir(&path).expect("test justfile search: failed to create intermediary directory");
-  path.push("c");
-  fs::create_dir(&path).expect("test justfile search: failed to create intermediary directory");
-  path.push("d");
-  fs::create_dir(&path).expect("test justfile search: failed to create intermediary directory");
-
-  search_test(path, &[]);
+  search_test(tmp.path().join("a/b/c/d"), &[]);
 }
 
 #[test]
 fn test_capitalized_justfile_search() {
-  let tmp = tempdir();
-  let mut path = tmp.path().to_path_buf();
-  path.push("Justfile");
-  fs::write(&path, "default:\n\techo ok").unwrap();
-  path.pop();
+  let tmp = tmptree! {
+    Justfile: "default:\n\techo ok",
+    a: {
+      b: {
+        c: {
+          d: {},
+        },
+      },
+    },
+  };
 
-  path.push("a");
-  fs::create_dir(&path).expect("test justfile search: failed to create intermediary directory");
-  path.push("b");
-  fs::create_dir(&path).expect("test justfile search: failed to create intermediary directory");
-  path.push("c");
-  fs::create_dir(&path).expect("test justfile search: failed to create intermediary directory");
-  path.push("d");
-  fs::create_dir(&path).expect("test justfile search: failed to create intermediary directory");
-
-  search_test(path, &[]);
+  search_test(tmp.path().join("a/b/c/d"), &[]);
 }
 
 #[test]
 fn test_upwards_path_argument() {
-  let tmp = tempdir();
-  let mut path = tmp.path().to_path_buf();
-  path.push("justfile");
-  fs::write(&path, "default:\n\techo ok").unwrap();
-  path.pop();
+  let tmp = tmptree! {
+    justfile: "default:\n\techo ok",
+    a: {
+      justfile: "default:\n\techo bad",
+    },
+  };
 
-  path.push("a");
-  fs::create_dir(&path).expect("test justfile search: failed to create intermediary directory");
-
-  path.push("justfile");
-  fs::write(&path, "default:\n\techo bad").unwrap();
-  path.pop();
-
-  search_test(&path, &["../"]);
-  search_test(&path, &["../default"]);
+  search_test(&tmp.path().join("a"), &["../"]);
+  search_test(&tmp.path().join("a"), &["../default"]);
 }
 
 #[test]
 fn test_downwards_path_argument() {
-  let tmp = tempdir();
-  let mut path = tmp.path().to_path_buf();
-  path.push("justfile");
-  fs::write(&path, "default:\n\techo bad").unwrap();
-  path.pop();
+  let tmp = tmptree! {
+    justfile: "default:\n\techo bad",
+    a: {
+      justfile: "default:\n\techo ok",
+    },
+  };
 
-  path.push("a");
-  fs::create_dir(&path).expect("test justfile search: failed to create intermediary directory");
-
-  path.push("justfile");
-  fs::write(&path, "default:\n\techo ok").unwrap();
-  path.pop();
-  path.pop();
+  let path = tmp.path();
 
   search_test(&path, &["a/"]);
   search_test(&path, &["a/default"]);
@@ -107,4 +83,41 @@ fn test_downwards_path_argument() {
   search_test(&path, &["./a/default"]);
   search_test(&path, &["./a/"]);
   search_test(&path, &["./a/default"]);
+}
+
+#[test]
+fn test_upwards_multiple_path_argument() {
+  let tmp = tmptree! {
+    justfile: "default:\n\techo ok",
+    a: {
+      b: {
+        justfile: "default:\n\techo bad",
+      },
+    },
+  };
+
+  let path = tmp.path().join("a").join("b");
+  search_test(&path, &["../../"]);
+  search_test(&path, &["../../default"]);
+}
+
+#[test]
+fn test_downwards_multiple_path_argument() {
+  let tmp = tmptree! {
+    justfile: "default:\n\techo bad",
+    a: {
+      b: {
+        justfile: "default:\n\techo ok",
+      },
+    },
+  };
+
+  let path = tmp.path();
+
+  search_test(&path, &["a/b/"]);
+  search_test(&path, &["a/b/default"]);
+  search_test(&path, &["./a/b/"]);
+  search_test(&path, &["./a/b/default"]);
+  search_test(&path, &["./a/b/"]);
+  search_test(&path, &["./a/b/default"]);
 }

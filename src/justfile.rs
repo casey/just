@@ -42,13 +42,38 @@ impl<'a> Justfile<'a> {
     None
   }
 
-  pub(crate) fn run(&'a self, arguments: &[&'a str], config: &'a Config<'a>) -> RunResult<'a, ()> {
+  pub(crate) fn run(
+    &'a self,
+    config: &'a Config,
+    working_directory: &'a Path,
+  ) -> RunResult<'a, ()> {
+    let argvec: Vec<&str> = if !config.arguments.is_empty() {
+      config
+        .arguments
+        .iter()
+        .map(|argument| argument.as_str())
+        .collect()
+    } else if let Some(recipe) = self.first() {
+      let min_arguments = recipe.min_arguments();
+      if min_arguments > 0 {
+        return Err(RuntimeError::DefaultRecipeRequiresArguments {
+          recipe: recipe.name.lexeme(),
+          min_arguments,
+        });
+      }
+      vec![recipe.name()]
+    } else {
+      return Err(RuntimeError::NoRecipes);
+    };
+
+    let arguments = argvec.as_slice();
+
     let unknown_overrides = config
       .overrides
       .keys()
-      .cloned()
-      .filter(|name| !self.assignments.contains_key(name))
-      .collect::<Vec<_>>();
+      .filter(|name| !self.assignments.contains_key(name.as_str()))
+      .map(|name| name.as_str())
+      .collect::<Vec<&str>>();
 
     if !unknown_overrides.is_empty() {
       return Err(RuntimeError::UnknownOverrides {
@@ -59,13 +84,10 @@ impl<'a> Justfile<'a> {
     let dotenv = load_dotenv()?;
 
     let scope = AssignmentEvaluator::evaluate_assignments(
-      &self.assignments,
-      &config.invocation_directory,
+      config,
+      working_directory,
       &dotenv,
-      &config.overrides,
-      config.quiet,
-      config.shell,
-      config.dry_run,
+      &self.assignments,
     )?;
 
     if config.subcommand == Subcommand::Evaluate {
@@ -121,7 +143,11 @@ impl<'a> Justfile<'a> {
       });
     }
 
-    let context = RecipeContext { config, scope };
+    let context = RecipeContext {
+      config,
+      scope,
+      working_directory,
+    };
 
     let mut ran = empty();
     for (recipe, arguments) in grouped {
@@ -201,14 +227,15 @@ mod tests {
   use super::*;
 
   use crate::runtime_error::RuntimeError::*;
-  use crate::testing::compile;
+  use crate::testing::{compile, config};
 
   #[test]
   fn unknown_recipes() {
-    match compile("a:\nb:\nc:")
-      .run(&["a", "x", "y", "z"], &Default::default())
-      .unwrap_err()
-    {
+    let justfile = compile("a:\nb:\nc:");
+    let config = config(&["a", "x", "y", "z"]);
+    let dir = env::current_dir().unwrap();
+
+    match justfile.run(&config, &dir).unwrap_err() {
       UnknownRecipes {
         recipes,
         suggestion,
@@ -216,7 +243,7 @@ mod tests {
         assert_eq!(recipes, &["x", "y", "z"]);
         assert_eq!(suggestion, None);
       }
-      other => panic!("expected an unknown recipe error, but got: {}", other),
+      other => panic!("unexpected error: {}", other),
     }
   }
 
@@ -237,8 +264,10 @@ a:
     x
       x
 ";
-
-    match compile(text).run(&["a"], &Default::default()).unwrap_err() {
+    let justfile = compile(text);
+    let config = config(&["a"]);
+    let dir = env::current_dir().unwrap();
+    match justfile.run(&config, &dir).unwrap_err() {
       Code {
         recipe,
         line_number,
@@ -248,16 +277,16 @@ a:
         assert_eq!(code, 200);
         assert_eq!(line_number, None);
       }
-      other => panic!("expected a code run error, but got: {}", other),
+      other => panic!("unexpected error: {}", other),
     }
   }
 
   #[test]
   fn code_error() {
-    match compile("fail:\n @exit 100")
-      .run(&["fail"], &Default::default())
-      .unwrap_err()
-    {
+    let justfile = compile("fail:\n @exit 100");
+    let config = config(&["fail"]);
+    let dir = env::current_dir().unwrap();
+    match justfile.run(&config, &dir).unwrap_err() {
       Code {
         recipe,
         line_number,
@@ -267,7 +296,7 @@ a:
         assert_eq!(code, 100);
         assert_eq!(line_number, Some(2));
       }
-      other => panic!("expected a code run error, but got: {}", other),
+      other => panic!("unexpected error: {}", other),
     }
   }
 
@@ -276,11 +305,11 @@ a:
     let text = r#"
 a return code:
  @x() { {{return}} {{code + "0"}}; }; x"#;
+    let justfile = compile(text);
+    let config = config(&["a", "return", "15"]);
+    let dir = env::current_dir().unwrap();
 
-    match compile(text)
-      .run(&["a", "return", "15"], &Default::default())
-      .unwrap_err()
-    {
+    match justfile.run(&config, &dir).unwrap_err() {
       Code {
         recipe,
         line_number,
@@ -290,16 +319,16 @@ a return code:
         assert_eq!(code, 150);
         assert_eq!(line_number, Some(3));
       }
-      other => panic!("expected a code run error, but got: {}", other),
+      other => panic!("unexpected error: {}", other),
     }
   }
 
   #[test]
   fn missing_some_arguments() {
-    match compile("a b c d:")
-      .run(&["a", "b", "c"], &Default::default())
-      .unwrap_err()
-    {
+    let justfile = compile("a b c d:");
+    let config = config(&["a", "b", "c"]);
+    let dir = env::current_dir().unwrap();
+    match justfile.run(&config, &dir).unwrap_err() {
       ArgumentCountMismatch {
         recipe,
         parameters,
@@ -317,16 +346,16 @@ a return code:
         assert_eq!(min, 3);
         assert_eq!(max, 3);
       }
-      other => panic!("expected a code run error, but got: {}", other),
+      other => panic!("unexpected error: {}", other),
     }
   }
 
   #[test]
   fn missing_some_arguments_variadic() {
-    match compile("a b c +d:")
-      .run(&["a", "B", "C"], &Default::default())
-      .unwrap_err()
-    {
+    let justfile = compile("a b c +d:");
+    let config = config(&["a", "B", "C"]);
+    let dir = env::current_dir().unwrap();
+    match justfile.run(&config, &dir).unwrap_err() {
       ArgumentCountMismatch {
         recipe,
         parameters,
@@ -344,16 +373,17 @@ a return code:
         assert_eq!(min, 3);
         assert_eq!(max, usize::MAX - 1);
       }
-      other => panic!("expected a code run error, but got: {}", other),
+      other => panic!("unexpected error: {}", other),
     }
   }
 
   #[test]
   fn missing_all_arguments() {
-    match compile("a b c d:\n echo {{b}}{{c}}{{d}}")
-      .run(&["a"], &Default::default())
-      .unwrap_err()
-    {
+    let justfile = compile("a b c d:\n echo {{b}}{{c}}{{d}}");
+    let config = config(&["a"]);
+    let dir = env::current_dir().unwrap();
+
+    match justfile.run(&config, &dir).unwrap_err() {
       ArgumentCountMismatch {
         recipe,
         parameters,
@@ -371,16 +401,17 @@ a return code:
         assert_eq!(min, 3);
         assert_eq!(max, 3);
       }
-      other => panic!("expected a code run error, but got: {}", other),
+      other => panic!("unexpected error: {}", other),
     }
   }
 
   #[test]
   fn missing_some_defaults() {
-    match compile("a b c d='hello':")
-      .run(&["a", "b"], &Default::default())
-      .unwrap_err()
-    {
+    let justfile = compile("a b c d='hello':");
+    let config = config(&["a", "b"]);
+    let dir = env::current_dir().unwrap();
+
+    match justfile.run(&config, &dir).unwrap_err() {
       ArgumentCountMismatch {
         recipe,
         parameters,
@@ -398,16 +429,17 @@ a return code:
         assert_eq!(min, 2);
         assert_eq!(max, 3);
       }
-      other => panic!("expected a code run error, but got: {}", other),
+      other => panic!("unexpected error: {}", other),
     }
   }
 
   #[test]
   fn missing_all_defaults() {
-    match compile("a b c='r' d='h':")
-      .run(&["a"], &Default::default())
-      .unwrap_err()
-    {
+    let justfile = compile("a b c='r' d='h':");
+    let config = &config(&["a"]);
+    let dir = env::current_dir().unwrap();
+
+    match justfile.run(&config, &dir).unwrap_err() {
       ArgumentCountMismatch {
         recipe,
         parameters,
@@ -425,23 +457,21 @@ a return code:
         assert_eq!(min, 1);
         assert_eq!(max, 3);
       }
-      other => panic!("expected a code run error, but got: {}", other),
+      other => panic!("unexpected error: {}", other),
     }
   }
 
   #[test]
   fn unknown_overrides() {
-    let mut config: Config = Default::default();
-    config.overrides.insert("foo", "bar");
-    config.overrides.insert("baz", "bob");
-    match compile("a:\n echo {{`f() { return 100; }; f`}}")
-      .run(&["a"], &config)
-      .unwrap_err()
-    {
+    let config = config(&["foo=bar", "baz=bob", "a"]);
+    let justfile = compile("a:\n echo {{`f() { return 100; }; f`}}");
+    let dir = env::current_dir().unwrap();
+
+    match justfile.run(&config, &dir).unwrap_err() {
       UnknownOverrides { overrides } => {
         assert_eq!(overrides, &["baz", "foo"]);
       }
-      other => panic!("expected a code run error, but got: {}", other),
+      other => panic!("unexpected error: {}", other),
     }
   }
 
@@ -457,12 +487,12 @@ wut:
   echo $foo $bar $baz
 "#;
 
-    let config = Config {
-      quiet: true,
-      ..Default::default()
-    };
+    let config = config(&["--quiet", "wut"]);
 
-    match compile(text).run(&["wut"], &config).unwrap_err() {
+    let justfile = compile(text);
+    let dir = env::current_dir().unwrap();
+
+    match justfile.run(&config, &dir).unwrap_err() {
       Code {
         code: _,
         line_number,
@@ -471,7 +501,7 @@ wut:
         assert_eq!(recipe, "wut");
         assert_eq!(line_number, Some(8));
       }
-      other => panic!("expected a recipe code errror, but got: {}", other),
+      other => panic!("unexpected error: {}", other),
     }
   }
 

@@ -1,23 +1,23 @@
 use crate::common::*;
 
 use clap::{App, AppSettings, Arg, ArgGroup, ArgMatches};
+use unicode_width::UnicodeWidthStr;
 
 pub(crate) const DEFAULT_SHELL: &str = "sh";
 
-pub(crate) struct Config<'a> {
-  pub(crate) subcommand: Subcommand<'a>,
+#[derive(Debug, PartialEq)]
+pub(crate) struct Config {
+  pub(crate) arguments: Vec<String>,
+  pub(crate) color: Color,
   pub(crate) dry_run: bool,
   pub(crate) highlight: bool,
-  pub(crate) overrides: BTreeMap<&'a str, &'a str>,
+  pub(crate) invocation_directory: PathBuf,
+  pub(crate) overrides: BTreeMap<String, String>,
   pub(crate) quiet: bool,
-  pub(crate) shell: &'a str,
-  pub(crate) color: Color,
+  pub(crate) search_config: SearchConfig,
+  pub(crate) shell: String,
+  pub(crate) subcommand: Subcommand,
   pub(crate) verbosity: Verbosity,
-  pub(crate) arguments: Vec<&'a str>,
-  pub(crate) justfile: Option<&'a Path>,
-  pub(crate) working_directory: Option<&'a Path>,
-  pub(crate) invocation_directory: Result<PathBuf, String>,
-  pub(crate) search_directory: Option<&'a Path>,
 }
 
 mod cmd {
@@ -48,7 +48,7 @@ mod arg {
   pub(crate) const COLOR_VALUES: &[&str] = &[COLOR_AUTO, COLOR_ALWAYS, COLOR_NEVER];
 }
 
-impl<'a> Config<'a> {
+impl Config {
   pub(crate) fn app() -> App<'static, 'static> {
     let app = App::new(env!("CARGO_PKG_NAME"))
       .help_message("Print help information")
@@ -83,7 +83,7 @@ impl<'a> Config<'a> {
         Arg::with_name(cmd::EDIT)
           .short("e")
           .long("edit")
-          .help("Open justfile with $EDITOR"),
+          .help("Edit justfile with editor given by $VISUAL or $EDITOR, falling back to `vim`"),
       )
       .arg(
         Arg::with_name(cmd::EVALUATE)
@@ -205,9 +205,8 @@ impl<'a> Config<'a> {
     }
   }
 
-  pub(crate) fn from_matches(matches: &'a ArgMatches<'a>) -> ConfigResult<Config<'a>> {
-    let invocation_directory =
-      env::current_dir().map_err(|e| format!("Error getting current directory: {}", e));
+  pub(crate) fn from_matches(matches: &ArgMatches) -> ConfigResult<Config> {
+    let invocation_directory = env::current_dir().context(config_error::CurrentDir)?;
 
     let verbosity = Verbosity::from_flag_occurrences(matches.occurrences_of(arg::VERBOSE));
 
@@ -217,12 +216,33 @@ impl<'a> Config<'a> {
         .expect("`--color` had no value"),
     )?;
 
+    let subcommand = if matches.is_present(cmd::EDIT) {
+      Subcommand::Edit
+    } else if matches.is_present(cmd::SUMMARY) {
+      Subcommand::Summary
+    } else if matches.is_present(cmd::DUMP) {
+      Subcommand::Dump
+    } else if matches.is_present(cmd::LIST) {
+      Subcommand::List
+    } else if matches.is_present(cmd::EVALUATE) {
+      Subcommand::Evaluate
+    } else if let Some(name) = matches.value_of(cmd::SHOW) {
+      Subcommand::Show {
+        name: name.to_owned(),
+      }
+    } else {
+      Subcommand::Run
+    };
+
     let set_count = matches.occurrences_of(arg::SET);
     let mut overrides = BTreeMap::new();
     if set_count > 0 {
       let mut values = matches.values_of(arg::SET).unwrap();
       for _ in 0..set_count {
-        overrides.insert(values.next().unwrap(), values.next().unwrap());
+        overrides.insert(
+          values.next().unwrap().to_owned(),
+          values.next().unwrap().to_owned(),
+        );
       }
     }
 
@@ -243,8 +263,8 @@ impl<'a> Config<'a> {
         .unwrap()
         .0;
 
-      let name = &argument[..i];
-      let value = &argument[i + 1..];
+      let name = argument[..i].to_owned();
+      let value = argument[i + 1..].to_owned();
 
       overrides.insert(name, value);
     }
@@ -258,13 +278,9 @@ impl<'a> Config<'a> {
       .flat_map(|(i, argument)| {
         if i == 0 {
           if let Some(i) = argument.rfind('/') {
-            if matches.is_present(arg::WORKING_DIRECTORY) {
-              die!("--working-directory and a path prefixed recipe may not be used together.");
-            }
-
             let (dir, recipe) = argument.split_at(i + 1);
 
-            search_directory = Some(Path::new(dir));
+            search_directory = Some(PathBuf::from(dir));
 
             if recipe.is_empty() {
               return None;
@@ -276,32 +292,43 @@ impl<'a> Config<'a> {
 
         Some(argument)
       })
-      .collect::<Vec<&str>>();
+      .map(|argument| argument.to_owned())
+      .collect::<Vec<String>>();
 
-    let subcommand = if matches.is_present(cmd::EDIT) {
-      Subcommand::Edit
-    } else if matches.is_present(cmd::SUMMARY) {
-      Subcommand::Summary
-    } else if matches.is_present(cmd::DUMP) {
-      Subcommand::Dump
-    } else if matches.is_present(cmd::LIST) {
-      Subcommand::List
-    } else if matches.is_present(cmd::EVALUATE) {
-      Subcommand::Evaluate
-    } else if let Some(name) = matches.value_of(cmd::SHOW) {
-      Subcommand::Show { name }
-    } else {
-      Subcommand::Execute
+    let search_config = {
+      let justfile = matches.value_of(arg::JUSTFILE).map(PathBuf::from);
+      let working_directory = matches.value_of(arg::WORKING_DIRECTORY).map(PathBuf::from);
+
+      if let Some(search_directory) = search_directory {
+        if justfile.is_some() || working_directory.is_some() {
+          return Err(ConfigError::SearchDirConflict);
+        }
+        SearchConfig::FromSearchDirectory { search_directory }
+      } else {
+        match (justfile, working_directory) {
+          (None, None) => SearchConfig::FromInvocationDirectory,
+          (Some(justfile), None) => SearchConfig::WithJustfile { justfile },
+          (Some(justfile), Some(working_directory)) => {
+            SearchConfig::WithJustfileAndWorkingDirectory {
+              justfile,
+              working_directory,
+            }
+          }
+          (None, Some(_)) => {
+            return Err(ConfigError::internal(
+              "--working-directory set without --justfile",
+            ))
+          }
+        }
+      }
     };
 
     Ok(Config {
       dry_run: matches.is_present(arg::DRY_RUN),
       highlight: !matches.is_present(arg::NO_HIGHLIGHT),
       quiet: matches.is_present(arg::QUIET),
-      shell: matches.value_of(arg::SHELL).unwrap(),
-      justfile: matches.value_of(arg::JUSTFILE).map(Path::new),
-      working_directory: matches.value_of(arg::WORKING_DIRECTORY).map(Path::new),
-      search_directory,
+      shell: matches.value_of(arg::SHELL).unwrap().to_owned(),
+      search_config,
       invocation_directory,
       subcommand,
       verbosity,
@@ -310,26 +337,213 @@ impl<'a> Config<'a> {
       arguments,
     })
   }
-}
 
-impl<'a> Default for Config<'a> {
-  fn default() -> Config<'static> {
-    Config {
-      subcommand: Subcommand::Execute,
-      dry_run: false,
-      highlight: false,
-      overrides: empty(),
-      arguments: empty(),
-      quiet: false,
-      shell: DEFAULT_SHELL,
-      color: default(),
-      verbosity: Verbosity::from_flag_occurrences(0),
-      justfile: None,
-      working_directory: None,
-      invocation_directory: env::current_dir()
-        .map_err(|e| format!("Error getting current directory: {}", e)),
-      search_directory: None,
+  pub(crate) fn run_subcommand(self) -> Result<(), i32> {
+    use Subcommand::*;
+
+    let search =
+      Search::search(&self.search_config, &self.invocation_directory).eprint(self.color)?;
+
+    if self.subcommand == Edit {
+      return self.edit(&search);
     }
+
+    let src = fs::read_to_string(&search.justfile)
+      .map_err(|io_error| LoadError {
+        io_error,
+        path: &search.justfile,
+      })
+      .eprint(self.color)?;
+
+    let justfile = Compiler::compile(&src).eprint(self.color)?;
+
+    for warning in &justfile.warnings {
+      if self.color.stderr().active() {
+        eprintln!("{:#}", warning);
+      } else {
+        eprintln!("{}", warning);
+      }
+    }
+
+    match self.subcommand {
+      Dump => self.dump(justfile),
+      Run | Evaluate => self.run(justfile, &search.working_directory),
+      List => self.list(justfile),
+      Show { ref name } => self.show(&name, justfile),
+      Summary => self.summary(justfile),
+      Edit => unreachable!(),
+    }
+  }
+
+  fn dump(&self, justfile: Justfile) -> Result<(), i32> {
+    println!("{}", justfile);
+    Ok(())
+  }
+
+  pub(crate) fn edit(&self, search: &Search) -> Result<(), i32> {
+    let editor = env::var_os("VISUAL")
+      .or_else(|| env::var_os("EDITOR"))
+      .unwrap_or_else(|| "vim".into());
+
+    let error = Command::new(&editor)
+      .current_dir(&search.working_directory)
+      .arg(&search.justfile)
+      .status();
+
+    match error {
+      Ok(status) => {
+        if status.success() {
+          Ok(())
+        } else {
+          eprintln!("Editor `{}` failed: {}", editor.to_string_lossy(), status);
+          Err(status.code().unwrap_or(EXIT_FAILURE))
+        }
+      }
+      Err(error) => {
+        eprintln!(
+          "Editor `{}` invocation failed: {}",
+          editor.to_string_lossy(),
+          error
+        );
+        Err(EXIT_FAILURE)
+      }
+    }
+  }
+
+  fn list(&self, justfile: Justfile) -> Result<(), i32> {
+    // Construct a target to alias map.
+    let mut recipe_aliases: BTreeMap<&str, Vec<&str>> = BTreeMap::new();
+    for alias in justfile.aliases.values() {
+      if alias.is_private() {
+        continue;
+      }
+
+      if !recipe_aliases.contains_key(alias.target.lexeme()) {
+        recipe_aliases.insert(alias.target.lexeme(), vec![alias.name.lexeme()]);
+      } else {
+        let aliases = recipe_aliases.get_mut(alias.target.lexeme()).unwrap();
+        aliases.push(alias.name.lexeme());
+      }
+    }
+
+    let mut line_widths: BTreeMap<&str, usize> = BTreeMap::new();
+
+    for (name, recipe) in &justfile.recipes {
+      if recipe.private {
+        continue;
+      }
+
+      for name in iter::once(name).chain(recipe_aliases.get(name).unwrap_or(&Vec::new())) {
+        let mut line_width = UnicodeWidthStr::width(*name);
+
+        for parameter in &recipe.parameters {
+          line_width += UnicodeWidthStr::width(format!(" {}", parameter).as_str());
+        }
+
+        if line_width <= 30 {
+          line_widths.insert(name, line_width);
+        }
+      }
+    }
+
+    let max_line_width = cmp::min(line_widths.values().cloned().max().unwrap_or(0), 30);
+
+    let doc_color = self.color.stdout().doc();
+    println!("Available recipes:");
+
+    for (name, recipe) in &justfile.recipes {
+      if recipe.private {
+        continue;
+      }
+
+      let alias_doc = format!("alias for `{}`", recipe.name);
+
+      for (i, name) in iter::once(name)
+        .chain(recipe_aliases.get(name).unwrap_or(&Vec::new()))
+        .enumerate()
+      {
+        print!("    {}", name);
+        for parameter in &recipe.parameters {
+          if self.color.stdout().active() {
+            print!(" {:#}", parameter);
+          } else {
+            print!(" {}", parameter);
+          }
+        }
+
+        // Declaring this outside of the nested loops will probably be more efficient, but
+        // it creates all sorts of lifetime issues with variables inside the loops.
+        // If this is inlined like the docs say, it shouldn't make any difference.
+        let print_doc = |doc| {
+          print!(
+            " {:padding$}{} {}",
+            "",
+            doc_color.paint("#"),
+            doc_color.paint(doc),
+            padding = max_line_width
+              .saturating_sub(line_widths.get(name).cloned().unwrap_or(max_line_width))
+          );
+        };
+
+        match (i, recipe.doc) {
+          (0, Some(doc)) => print_doc(doc),
+          (0, None) => (),
+          _ => print_doc(&alias_doc),
+        }
+        println!();
+      }
+    }
+
+    Ok(())
+  }
+
+  fn run(&self, justfile: Justfile, working_directory: &Path) -> Result<(), i32> {
+    if let Err(error) = InterruptHandler::install() {
+      warn!("Failed to set CTRL-C handler: {}", error)
+    }
+
+    let result = justfile.run(&self, working_directory);
+
+    if !self.quiet {
+      result.eprint(self.color)
+    } else {
+      result.map_err(|err| err.code())
+    }
+  }
+
+  fn show(&self, name: &str, justfile: Justfile) -> Result<(), i32> {
+    if let Some(alias) = justfile.get_alias(name) {
+      let recipe = justfile.get_recipe(alias.target.lexeme()).unwrap();
+      println!("{}", alias);
+      println!("{}", recipe);
+      Ok(())
+    } else if let Some(recipe) = justfile.get_recipe(name) {
+      println!("{}", recipe);
+      Ok(())
+    } else {
+      eprintln!("Justfile does not contain recipe `{}`.", name);
+      if let Some(suggestion) = justfile.suggest(name) {
+        eprintln!("Did you mean `{}`?", suggestion);
+      }
+      Err(EXIT_FAILURE)
+    }
+  }
+
+  fn summary(&self, justfile: Justfile) -> Result<(), i32> {
+    if justfile.count() == 0 {
+      eprintln!("Justfile contains no recipes.");
+    } else {
+      let summary = justfile
+        .recipes
+        .iter()
+        .filter(|&(_, recipe)| !recipe.private)
+        .map(|(name, _)| name)
+        .cloned()
+        .collect::<Vec<_>>()
+        .join(" ");
+      println!("{}", summary);
+    }
+    Ok(())
   }
 }
 
@@ -353,7 +567,8 @@ USAGE:
 FLAGS:
         --dry-run         Print what just would do without doing it
         --dump            Print entire justfile
-    -e, --edit            Open justfile with $EDITOR
+    -e, --edit            \
+    Edit justfile with editor given by $VISUAL or $EDITOR, falling back to `vim`
         --evaluate        Print evaluated variables
         --highlight       Highlight echoed recipe lines in bold
     -l, --list            List available recipes and their arguments
@@ -383,5 +598,438 @@ ARGS:
     let help = str::from_utf8(&buffer).unwrap();
 
     assert_eq!(help, EXPECTED_HELP);
+  }
+
+  macro_rules! test {
+    {
+      name: $name:ident,
+      args: [$($arg:expr),*],
+      $(arguments: $arguments:expr,)?
+      $(color: $color:expr,)?
+      $(dry_run: $dry_run:expr,)?
+      $(highlight: $highlight:expr,)?
+      $(overrides: $overrides:expr,)?
+      $(quiet: $quiet:expr,)?
+      $(search_config: $search_config:expr,)?
+      $(shell: $shell:expr,)?
+      $(subcommand: $subcommand:expr,)?
+      $(verbosity: $verbosity:expr,)?
+    } => {
+      #[test]
+      fn $name() {
+        let arguments = &[
+          "just",
+          $($arg,)*
+        ];
+
+        let want = Config {
+          $(arguments: $arguments.iter().map(|argument| argument.to_string()).collect(),)?
+          $(color: $color,)?
+          $(dry_run: $dry_run,)?
+          $(highlight: $highlight,)?
+          $(
+            overrides: $overrides.iter().cloned()
+              .map(|(key, value): (&str, &str)| (key.to_owned(), value.to_owned())).collect(),
+          )?
+          $(quiet: $quiet,)?
+          $(search_config: $search_config,)?
+          $(shell: $shell.to_string(),)?
+          $(subcommand: $subcommand,)?
+          $(verbosity: $verbosity,)?
+          ..testing::config(&[])
+        };
+
+        test(arguments, want);
+      }
+    }
+  }
+
+  fn test(arguments: &[&str], want: Config) {
+    let app = Config::app();
+    let matches = app
+      .get_matches_from_safe(arguments)
+      .expect("agument parsing failed");
+    let have = Config::from_matches(&matches).expect("config parsing failed");
+    assert_eq!(have, want);
+  }
+
+  macro_rules! error {
+    {
+      name: $name:ident,
+      args: [$($arg:expr),*],
+    } => {
+      #[test]
+      fn $name() {
+        let arguments = &[
+          "just",
+          $($arg,)*
+        ];
+
+        error(arguments);
+      }
+    }
+  }
+
+  fn error(arguments: &[&str]) {
+    let app = Config::app();
+    if let Ok(matches) = app.get_matches_from_safe(arguments) {
+      Config::from_matches(&matches).expect_err("config parsing unexpectedly succeeded");
+    } else {
+      return;
+    }
+  }
+
+  test! {
+    name: default_config,
+    args: [],
+  }
+
+  test! {
+    name: color_default,
+    args: [],
+    color: Color::auto(),
+  }
+
+  test! {
+    name: color_never,
+    args: ["--color", "never"],
+    color: Color::never(),
+  }
+
+  test! {
+    name: color_always,
+    args: ["--color", "always"],
+    color: Color::always(),
+  }
+
+  test! {
+    name: color_auto,
+    args: ["--color", "auto"],
+    color: Color::auto(),
+  }
+
+  error! {
+    name: color_bad_value,
+    args: ["--color", "foo"],
+  }
+
+  test! {
+    name: dry_run_default,
+    args: [],
+    dry_run: false,
+  }
+
+  test! {
+    name: dry_run_true,
+    args: ["--dry-run"],
+    dry_run: true,
+  }
+
+  error! {
+    name: dry_run_quiet,
+    args: ["--dry-run", "--quiet"],
+  }
+
+  test! {
+    name: highlight_default,
+    args: [],
+    highlight: true,
+  }
+
+  test! {
+    name: highlight_yes,
+    args: ["--highlight"],
+    highlight: true,
+  }
+
+  test! {
+    name: highlight_no,
+    args: ["--no-highlight"],
+    highlight: false,
+  }
+
+  test! {
+    name: highlight_no_yes,
+    args: ["--no-highlight", "--highlight"],
+    highlight: true,
+  }
+
+  test! {
+    name: highlight_no_yes_no,
+    args: ["--no-highlight", "--highlight", "--no-highlight"],
+    highlight: false,
+  }
+
+  test! {
+    name: highlight_yes_no,
+    args: ["--highlight", "--no-highlight"],
+    highlight: false,
+  }
+
+  test! {
+    name: quiet_default,
+    args: [],
+    quiet: false,
+  }
+
+  test! {
+    name: quiet_long,
+    args: ["--quiet"],
+    quiet: true,
+  }
+
+  test! {
+    name: quiet_short,
+    args: ["-q"],
+    quiet: true,
+  }
+
+  test! {
+    name: set_default,
+    args: [],
+    overrides: [],
+  }
+
+  test! {
+    name: set_one,
+    args: ["--set", "foo", "bar"],
+    overrides: [("foo", "bar")],
+  }
+
+  test! {
+    name: set_empty,
+    args: ["--set", "foo", ""],
+    overrides: [("foo", "")],
+  }
+
+  test! {
+    name: set_two,
+    args: ["--set", "foo", "bar", "--set", "bar", "baz"],
+    overrides: [("foo", "bar"), ("bar", "baz")],
+  }
+
+  test! {
+    name: set_override,
+    args: ["--set", "foo", "bar", "--set", "foo", "baz"],
+    overrides: [("foo", "baz")],
+  }
+
+  error! {
+    name: set_bad,
+    args: ["--set", "foo"],
+  }
+
+  test! {
+    name: shell_default,
+    args: [],
+    shell: "sh",
+  }
+
+  test! {
+    name: shell_set,
+    args: ["--shell", "tclsh"],
+    shell: "tclsh",
+  }
+
+  test! {
+    name: verbosity_default,
+    args: [],
+    verbosity: Verbosity::Taciturn,
+  }
+
+  test! {
+    name: verbosity_long,
+    args: ["--verbose"],
+    verbosity: Verbosity::Loquacious,
+  }
+
+  test! {
+    name: verbosity_loquacious,
+    args: ["-v"],
+    verbosity: Verbosity::Loquacious,
+  }
+
+  test! {
+    name: verbosity_grandiloquent,
+    args: ["-v", "-v"],
+    verbosity: Verbosity::Grandiloquent,
+  }
+
+  test! {
+    name: verbosity_great_grandiloquent,
+    args: ["-v", "-v", "-v"],
+    verbosity: Verbosity::Grandiloquent,
+  }
+
+  test! {
+    name: subcommand_default,
+    args: [],
+    subcommand: Subcommand::Run,
+  }
+
+  test! {
+    name: subcommand_dump,
+    args: ["--dump"],
+    subcommand: Subcommand::Dump,
+  }
+
+  test! {
+    name: subcommand_edit,
+    args: ["--edit"],
+    subcommand: Subcommand::Edit,
+  }
+
+  test! {
+    name: subcommand_evaluate,
+    args: ["--evaluate"],
+    subcommand: Subcommand::Evaluate,
+  }
+
+  test! {
+    name: subcommand_list_long,
+    args: ["--list"],
+    subcommand: Subcommand::List,
+  }
+
+  test! {
+    name: subcommand_list_short,
+    args: ["-l"],
+    subcommand: Subcommand::List,
+  }
+
+  test! {
+    name: subcommand_show_long,
+    args: ["--show", "build"],
+    subcommand: Subcommand::Show { name: String::from("build") },
+  }
+
+  test! {
+    name: subcommand_show_short,
+    args: ["-s", "build"],
+    subcommand: Subcommand::Show { name: String::from("build") },
+  }
+
+  error! {
+    name: subcommand_show_no_arg,
+    args: ["--show"],
+  }
+
+  test! {
+    name: subcommand_summary,
+    args: ["--summary"],
+    subcommand: Subcommand::Summary,
+  }
+
+  test! {
+    name: arguments,
+    args: ["foo", "bar"],
+    arguments: ["foo", "bar"],
+  }
+
+  test! {
+    name: arguments_leading_equals,
+    args: ["=foo"],
+    arguments: ["=foo"],
+  }
+
+  test! {
+    name: overrides,
+    args: ["foo=bar", "bar=baz"],
+    overrides: [("foo", "bar"), ("bar", "baz")],
+  }
+
+  test! {
+    name: overrides_empty,
+    args: ["foo=", "bar="],
+    overrides: [("foo", ""), ("bar", "")],
+  }
+
+  test! {
+    name: overrides_override_sets,
+    args: ["--set", "foo", "0", "--set", "bar", "1", "foo=bar", "bar=baz"],
+    overrides: [("foo", "bar"), ("bar", "baz")],
+  }
+
+  test! {
+    name: search_config_default,
+    args: [],
+    search_config: SearchConfig::FromInvocationDirectory,
+  }
+
+  test! {
+    name: search_config_from_working_directory_and_justfile,
+    args: ["--working-directory", "foo", "--justfile", "bar"],
+    search_config: SearchConfig::WithJustfileAndWorkingDirectory {
+      justfile: PathBuf::from("bar"),
+      working_directory: PathBuf::from("foo"),
+    },
+  }
+
+  test! {
+    name: search_config_justfile_long,
+    args: ["--justfile", "foo"],
+    search_config: SearchConfig::WithJustfile {
+      justfile: PathBuf::from("foo"),
+    },
+  }
+
+  test! {
+    name: search_config_justfile_short,
+    args: ["-f", "foo"],
+    search_config: SearchConfig::WithJustfile {
+      justfile: PathBuf::from("foo"),
+    },
+  }
+
+  test! {
+    name: search_directory_parent,
+    args: ["../"],
+    search_config: SearchConfig::FromSearchDirectory {
+      search_directory: PathBuf::from(".."),
+    },
+  }
+
+  test! {
+    name: search_directory_parent_with_recipe,
+    args: ["../build"],
+    arguments: ["build"],
+    search_config: SearchConfig::FromSearchDirectory {
+      search_directory: PathBuf::from(".."),
+    },
+  }
+
+  test! {
+    name: search_directory_child,
+    args: ["foo/"],
+    search_config: SearchConfig::FromSearchDirectory {
+      search_directory: PathBuf::from("foo"),
+    },
+  }
+
+  test! {
+    name: search_directory_deep,
+    args: ["foo/bar/"],
+    search_config: SearchConfig::FromSearchDirectory {
+      search_directory: PathBuf::from("foo/bar"),
+    },
+  }
+
+  test! {
+    name: search_directory_child_with_recipe,
+    args: ["foo/build"],
+    arguments: ["build"],
+    search_config: SearchConfig::FromSearchDirectory {
+      search_directory: PathBuf::from("foo"),
+    },
+  }
+
+  error! {
+    name: search_directory_conflict_justfile,
+    args: ["--justfile", "bar", "foo/build"],
+  }
+
+  error! {
+    name: search_directory_conflict_working_directory,
+    args: ["--justfile", "bar", "--working-directory", "baz", "foo/build"],
   }
 }
