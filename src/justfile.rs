@@ -1,11 +1,10 @@
 use crate::common::*;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub(crate) struct Justfile<'a> {
-  pub(crate) recipes: BTreeMap<&'a str, Recipe<'a>>,
-  pub(crate) assignments: BTreeMap<&'a str, Expression<'a>>,
-  pub(crate) exports: BTreeSet<&'a str>,
-  pub(crate) aliases: BTreeMap<&'a str, Alias<'a>>,
+  pub(crate) recipes: Table<'a, Recipe<'a>>,
+  pub(crate) assignments: Table<'a, Assignment<'a>>,
+  pub(crate) aliases: Table<'a, Alias<'a>>,
   pub(crate) warnings: Vec<Warning<'a>>,
 }
 
@@ -14,7 +13,7 @@ impl<'a> Justfile<'a> {
     let mut first: Option<&Recipe> = None;
     for recipe in self.recipes.values() {
       if let Some(first_recipe) = first {
-        if recipe.line_number < first_recipe.line_number {
+        if recipe.line_number() < first_recipe.line_number() {
           first = Some(recipe)
         }
       } else {
@@ -75,7 +74,7 @@ impl<'a> Justfile<'a> {
         width = cmp::max(name.len(), width);
       }
 
-      for (name, value) in scope {
+      for (name, (_export, value)) in scope {
         println!("{0:1$} := \"{2}\"", name, width, value);
       }
       return Ok(());
@@ -94,7 +93,7 @@ impl<'a> Justfile<'a> {
           let argument_count = cmp::min(tail.len(), recipe.max_arguments());
           if !argument_range.range_contains(&argument_count) {
             return Err(RuntimeError::ArgumentCountMismatch {
-              recipe: recipe.name,
+              recipe: recipe.name(),
               parameters: recipe.parameters.iter().collect(),
               found: tail.len(),
               min: recipe.min_arguments(),
@@ -140,7 +139,7 @@ impl<'a> Justfile<'a> {
     if let Some(recipe) = self.recipes.get(name) {
       Some(recipe)
     } else if let Some(alias) = self.aliases.get(name) {
-      self.recipes.get(alias.target)
+      self.recipes.get(alias.target.lexeme())
     } else {
       None
     }
@@ -155,12 +154,13 @@ impl<'a> Justfile<'a> {
     ran: &mut BTreeSet<&'a str>,
   ) -> RunResult<()> {
     for dependency_name in &recipe.dependencies {
-      if !ran.contains(dependency_name) {
-        self.run_recipe(context, &self.recipes[dependency_name], &[], dotenv, ran)?;
+      let lexeme = dependency_name.lexeme();
+      if !ran.contains(lexeme) {
+        self.run_recipe(context, &self.recipes[lexeme], &[], dotenv, ran)?;
       }
     }
-    recipe.run(context, arguments, dotenv, &self.exports)?;
-    ran.insert(recipe.name);
+    recipe.run(context, arguments, dotenv)?;
+    ran.insert(recipe.name());
     Ok(())
   }
 }
@@ -168,11 +168,11 @@ impl<'a> Justfile<'a> {
 impl<'a> Display for Justfile<'a> {
   fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
     let mut items = self.recipes.len() + self.assignments.len() + self.aliases.len();
-    for (name, expression) in &self.assignments {
-      if self.exports.contains(name) {
+    for (name, assignment) in &self.assignments {
+      if assignment.export {
         write!(f, "export ")?;
       }
-      write!(f, "{} := {}", name, expression)?;
+      write!(f, "{} := {}", name, assignment.expression)?;
       items -= 1;
       if items != 0 {
         write!(f, "\n\n")?;
@@ -197,15 +197,15 @@ impl<'a> Display for Justfile<'a> {
 }
 
 #[cfg(test)]
-mod test {
+mod tests {
   use super::*;
 
   use crate::runtime_error::RuntimeError::*;
-  use crate::testing::parse;
+  use crate::testing::compile;
 
   #[test]
   fn unknown_recipes() {
-    match parse("a:\nb:\nc:")
+    match compile("a:\nb:\nc:")
       .run(&["a", "x", "y", "z"], &Default::default())
       .unwrap_err()
     {
@@ -238,7 +238,7 @@ a:
       x
 ";
 
-    match parse(text).run(&["a"], &Default::default()).unwrap_err() {
+    match compile(text).run(&["a"], &Default::default()).unwrap_err() {
       Code {
         recipe,
         line_number,
@@ -254,7 +254,7 @@ a:
 
   #[test]
   fn code_error() {
-    match parse("fail:\n @exit 100")
+    match compile("fail:\n @exit 100")
       .run(&["fail"], &Default::default())
       .unwrap_err()
     {
@@ -277,7 +277,7 @@ a:
 a return code:
  @x() { {{return}} {{code + "0"}}; }; x"#;
 
-    match parse(text)
+    match compile(text)
       .run(&["a", "return", "15"], &Default::default())
       .unwrap_err()
     {
@@ -296,7 +296,7 @@ a return code:
 
   #[test]
   fn missing_some_arguments() {
-    match parse("a b c d:")
+    match compile("a b c d:")
       .run(&["a", "b", "c"], &Default::default())
       .unwrap_err()
     {
@@ -307,7 +307,10 @@ a return code:
         min,
         max,
       } => {
-        let param_names = parameters.iter().map(|p| p.name).collect::<Vec<&str>>();
+        let param_names = parameters
+          .iter()
+          .map(|p| p.name.lexeme())
+          .collect::<Vec<&str>>();
         assert_eq!(recipe, "a");
         assert_eq!(param_names, ["b", "c", "d"]);
         assert_eq!(found, 2);
@@ -320,7 +323,7 @@ a return code:
 
   #[test]
   fn missing_some_arguments_variadic() {
-    match parse("a b c +d:")
+    match compile("a b c +d:")
       .run(&["a", "B", "C"], &Default::default())
       .unwrap_err()
     {
@@ -331,7 +334,10 @@ a return code:
         min,
         max,
       } => {
-        let param_names = parameters.iter().map(|p| p.name).collect::<Vec<&str>>();
+        let param_names = parameters
+          .iter()
+          .map(|p| p.name.lexeme())
+          .collect::<Vec<&str>>();
         assert_eq!(recipe, "a");
         assert_eq!(param_names, ["b", "c", "d"]);
         assert_eq!(found, 2);
@@ -344,7 +350,7 @@ a return code:
 
   #[test]
   fn missing_all_arguments() {
-    match parse("a b c d:\n echo {{b}}{{c}}{{d}}")
+    match compile("a b c d:\n echo {{b}}{{c}}{{d}}")
       .run(&["a"], &Default::default())
       .unwrap_err()
     {
@@ -355,7 +361,10 @@ a return code:
         min,
         max,
       } => {
-        let param_names = parameters.iter().map(|p| p.name).collect::<Vec<&str>>();
+        let param_names = parameters
+          .iter()
+          .map(|p| p.name.lexeme())
+          .collect::<Vec<&str>>();
         assert_eq!(recipe, "a");
         assert_eq!(param_names, ["b", "c", "d"]);
         assert_eq!(found, 0);
@@ -368,7 +377,7 @@ a return code:
 
   #[test]
   fn missing_some_defaults() {
-    match parse("a b c d='hello':")
+    match compile("a b c d='hello':")
       .run(&["a", "b"], &Default::default())
       .unwrap_err()
     {
@@ -379,7 +388,10 @@ a return code:
         min,
         max,
       } => {
-        let param_names = parameters.iter().map(|p| p.name).collect::<Vec<&str>>();
+        let param_names = parameters
+          .iter()
+          .map(|p| p.name.lexeme())
+          .collect::<Vec<&str>>();
         assert_eq!(recipe, "a");
         assert_eq!(param_names, ["b", "c", "d"]);
         assert_eq!(found, 1);
@@ -392,7 +404,7 @@ a return code:
 
   #[test]
   fn missing_all_defaults() {
-    match parse("a b c='r' d='h':")
+    match compile("a b c='r' d='h':")
       .run(&["a"], &Default::default())
       .unwrap_err()
     {
@@ -403,7 +415,10 @@ a return code:
         min,
         max,
       } => {
-        let param_names = parameters.iter().map(|p| p.name).collect::<Vec<&str>>();
+        let param_names = parameters
+          .iter()
+          .map(|p| p.name.lexeme())
+          .collect::<Vec<&str>>();
         assert_eq!(recipe, "a");
         assert_eq!(param_names, ["b", "c", "d"]);
         assert_eq!(found, 0);
@@ -419,7 +434,7 @@ a return code:
     let mut config: Config = Default::default();
     config.overrides.insert("foo", "bar");
     config.overrides.insert("baz", "bob");
-    match parse("a:\n echo {{`f() { return 100; }; f`}}")
+    match compile("a:\n echo {{`f() { return 100; }; f`}}")
       .run(&["a"], &config)
       .unwrap_err()
     {
@@ -447,7 +462,7 @@ wut:
       ..Default::default()
     };
 
-    match parse(text).run(&["wut"], &config).unwrap_err() {
+    match compile(text).run(&["wut"], &config).unwrap_err() {
       Code {
         code: _,
         line_number,
@@ -458,5 +473,370 @@ wut:
       }
       other => panic!("expected a recipe code errror, but got: {}", other),
     }
+  }
+
+  macro_rules! test {
+    ($name:ident, $input:expr, $expected:expr $(,)*) => {
+      #[test]
+      fn $name() {
+        test($input, $expected);
+      }
+    };
+  }
+
+  fn test(input: &str, expected: &str) {
+    let justfile = compile(input);
+    let actual = format!("{:#}", justfile);
+    assert_eq!(actual, expected);
+    println!("Re-parsing...");
+    let reparsed = compile(&actual);
+    let redumped = format!("{:#}", reparsed);
+    assert_eq!(redumped, actual);
+  }
+
+  test! {
+    parse_empty,
+    "
+
+# hello
+
+
+    ",
+    "",
+  }
+
+  test! {
+    parse_string_default,
+    r#"
+
+foo a="b\t":
+
+
+  "#,
+    r#"foo a="b\t":"#,
+  }
+
+  test! {
+  parse_multiple,
+    r#"
+a:
+b:
+"#,
+    r#"a:
+
+b:"#,
+  }
+
+  test! {
+    parse_variadic,
+    r#"
+
+foo +a:
+
+
+  "#,
+    r#"foo +a:"#,
+  }
+
+  test! {
+    parse_variadic_string_default,
+    r#"
+
+foo +a="Hello":
+
+
+  "#,
+    r#"foo +a="Hello":"#,
+  }
+
+  test! {
+    parse_raw_string_default,
+    r#"
+
+foo a='b\t':
+
+
+  "#,
+    r#"foo a='b\t':"#,
+  }
+
+  test! {
+    parse_export,
+    r#"
+export a := "hello"
+
+  "#,
+    r#"export a := "hello""#,
+  }
+
+  test! {
+  parse_alias_after_target,
+    r#"
+foo:
+  echo a
+alias f := foo
+"#,
+r#"alias f := foo
+
+foo:
+    echo a"#
+  }
+
+  test! {
+  parse_alias_before_target,
+    r#"
+alias f := foo
+foo:
+  echo a
+"#,
+r#"alias f := foo
+
+foo:
+    echo a"#
+  }
+
+  test! {
+  parse_alias_with_comment,
+    r#"
+alias f := foo #comment
+foo:
+  echo a
+"#,
+r#"alias f := foo
+
+foo:
+    echo a"#
+  }
+
+  test! {
+  parse_complex,
+    "
+x:
+y:
+z:
+foo := \"xx\"
+bar := foo
+goodbye := \"y\"
+hello a b    c   : x y    z #hello
+  #! blah
+  #blarg
+  {{ foo + bar}}abc{{ goodbye\t  + \"x\" }}xyz
+  1
+  2
+  3
+",
+    "bar := foo
+
+foo := \"xx\"
+
+goodbye := \"y\"
+
+hello a b c: x y z
+    #! blah
+    #blarg
+    {{foo + bar}}abc{{goodbye + \"x\"}}xyz
+    1
+    2
+    3
+
+x:
+
+y:
+
+z:"
+  }
+
+  test! {
+  parse_shebang,
+    "
+practicum := 'hello'
+install:
+\t#!/bin/sh
+\tif [[ -f {{practicum}} ]]; then
+\t\treturn
+\tfi
+",
+    "practicum := 'hello'
+
+install:
+    #!/bin/sh
+    if [[ -f {{practicum}} ]]; then
+    \treturn
+    fi",
+  }
+
+  test! {
+    parse_simple_shebang,
+    "a:\n #!\n  print(1)",
+    "a:\n    #!\n     print(1)",
+  }
+
+  test! {
+  parse_assignments,
+    r#"a := "0"
+c := a + b + a + b
+b := "1"
+"#,
+    r#"a := "0"
+
+b := "1"
+
+c := a + b + a + b"#,
+  }
+
+  test! {
+  parse_assignment_backticks,
+    "a := `echo hello`
+c := a + b + a + b
+b := `echo goodbye`",
+    "a := `echo hello`
+
+b := `echo goodbye`
+
+c := a + b + a + b",
+  }
+
+  test! {
+  parse_interpolation_backticks,
+    r#"a:
+  echo {{  `echo hello` + "blarg"   }} {{   `echo bob`   }}"#,
+    r#"a:
+    echo {{`echo hello` + "blarg"}} {{`echo bob`}}"#,
+  }
+
+  test! {
+    eof_test,
+    "x:\ny:\nz:\na b c: x y z",
+    "a b c: x y z\n\nx:\n\ny:\n\nz:",
+  }
+
+  test! {
+    string_quote_escape,
+    r#"a := "hello\"""#,
+    r#"a := "hello\"""#,
+  }
+
+  test! {
+    string_escapes,
+    r#"a := "\n\t\r\"\\""#,
+    r#"a := "\n\t\r\"\\""#,
+  }
+
+  test! {
+  parameters,
+    "a b c:
+  {{b}} {{c}}",
+    "a b c:
+    {{b}} {{c}}",
+  }
+
+  test! {
+  unary_functions,
+    "
+x := arch()
+
+a:
+  {{os()}} {{os_family()}}",
+    "x := arch()
+
+a:
+    {{os()}} {{os_family()}}",
+  }
+
+  test! {
+  env_functions,
+    r#"
+x := env_var('foo',)
+
+a:
+  {{env_var_or_default('foo' + 'bar', 'baz',)}} {{env_var(env_var("baz"))}}"#,
+    r#"x := env_var('foo')
+
+a:
+    {{env_var_or_default('foo' + 'bar', 'baz')}} {{env_var(env_var("baz"))}}"#,
+  }
+
+  test! {
+    parameter_default_string,
+    r#"
+f x="abc":
+"#,
+    r#"f x="abc":"#,
+  }
+
+  test! {
+    parameter_default_raw_string,
+    r#"
+f x='abc':
+"#,
+    r#"f x='abc':"#,
+  }
+
+  test! {
+    parameter_default_backtick,
+    r#"
+f x=`echo hello`:
+"#,
+    r#"f x=`echo hello`:"#,
+  }
+
+  test! {
+    parameter_default_concatination_string,
+    r#"
+f x=(`echo hello` + "foo"):
+"#,
+    r#"f x=(`echo hello` + "foo"):"#,
+  }
+
+  test! {
+    parameter_default_concatination_variable,
+    r#"
+x := "10"
+f y=(`echo hello` + x) +z="foo":
+"#,
+    r#"x := "10"
+
+f y=(`echo hello` + x) +z="foo":"#,
+  }
+
+  test! {
+    parameter_default_multiple,
+    r#"
+x := "10"
+f y=(`echo hello` + x) +z=("foo" + "bar"):
+"#,
+    r#"x := "10"
+
+f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
+  }
+
+  test! {
+    concatination_in_group,
+    "x := ('0' + '1')",
+    "x := ('0' + '1')",
+  }
+
+  test! {
+    string_in_group,
+    "x := ('0'   )",
+    "x := ('0')",
+  }
+
+  #[rustfmt::skip]
+  test! {
+    escaped_dos_newlines,
+    "@spam:\r
+\t{ \\\r
+\t\tfiglet test; \\\r
+\t\tcargo build --color always 2>&1; \\\r
+\t\tcargo test  --color always -- --color always 2>&1; \\\r
+\t} | less\r
+",
+"@spam:
+    { \\
+    \tfiglet test; \\
+    \tcargo build --color always 2>&1; \\
+    \tcargo test  --color always -- --color always 2>&1; \\
+    } | less",
   }
 }

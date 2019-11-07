@@ -131,7 +131,7 @@ pub fn run() -> Result<(), i32> {
     }
   }
 
-  let justfile = match Parser::parse(&text) {
+  let justfile = match Compiler::compile(&text) {
     Err(error) => {
       if config.color.stderr().active() {
         eprintln!("{:#}", error);
@@ -177,15 +177,15 @@ pub fn run() -> Result<(), i32> {
     // Construct a target to alias map.
     let mut recipe_aliases: BTreeMap<&str, Vec<&str>> = BTreeMap::new();
     for alias in justfile.aliases.values() {
-      if alias.private {
+      if alias.is_private() {
         continue;
       }
 
-      if !recipe_aliases.contains_key(alias.target) {
-        recipe_aliases.insert(alias.target, vec![alias.name]);
+      if !recipe_aliases.contains_key(alias.target.lexeme()) {
+        recipe_aliases.insert(alias.target.lexeme(), vec![alias.name.lexeme()]);
       } else {
-        let aliases = recipe_aliases.get_mut(alias.target).unwrap();
-        aliases.push(alias.name);
+        let aliases = recipe_aliases.get_mut(alias.target.lexeme()).unwrap();
+        aliases.push(alias.name.lexeme());
       }
     }
 
@@ -262,7 +262,7 @@ pub fn run() -> Result<(), i32> {
 
   if let Subcommand::Show { name } = config.subcommand {
     if let Some(alias) = justfile.get_alias(name) {
-      let recipe = justfile.get_recipe(alias.target).unwrap();
+      let recipe = justfile.get_recipe(alias.target.lexeme()).unwrap();
       println!("{}", alias);
       println!("{}", recipe);
       return Ok(());
@@ -291,7 +291,7 @@ pub fn run() -> Result<(), i32> {
         Count("argument", min_arguments),
       );
     }
-    vec![recipe.name]
+    vec![recipe.name()]
   } else {
     die!("Justfile contains no recipes.");
   };

@@ -22,14 +22,13 @@ fn error_from_signal(
   }
 }
 
+/// A recipe, e.g. `foo: bar baz`
 #[derive(PartialEq, Debug)]
 pub(crate) struct Recipe<'a> {
-  pub(crate) dependencies: Vec<&'a str>,
-  pub(crate) dependency_tokens: Vec<Token<'a>>,
+  pub(crate) dependencies: Vec<Name<'a>>,
   pub(crate) doc: Option<&'a str>,
-  pub(crate) line_number: usize,
-  pub(crate) lines: Vec<Vec<Fragment<'a>>>,
-  pub(crate) name: &'a str,
+  pub(crate) body: Vec<Line<'a>>,
+  pub(crate) name: Name<'a>,
   pub(crate) parameters: Vec<Parameter<'a>>,
   pub(crate) private: bool,
   pub(crate) quiet: bool,
@@ -57,12 +56,19 @@ impl<'a> Recipe<'a> {
     }
   }
 
+  pub(crate) fn name(&self) -> &'a str {
+    self.name.lexeme()
+  }
+
+  pub(crate) fn line_number(&self) -> usize {
+    self.name.line
+  }
+
   pub(crate) fn run(
     &self,
     context: &RecipeContext<'a>,
     arguments: &[&'a str],
     dotenv: &BTreeMap<String, String>,
-    exports: &BTreeSet<&'a str>,
   ) -> RunResult<'a, ()> {
     let config = &context.config;
 
@@ -88,7 +94,6 @@ impl<'a> Recipe<'a> {
       scope: &context.scope,
       shell: config.shell,
       dotenv,
-      exports,
     };
 
     let mut rest = arguments;
@@ -111,13 +116,13 @@ impl<'a> Recipe<'a> {
         rest = &rest[1..];
         value
       };
-      argument_map.insert(parameter.name, value);
+      argument_map.insert(parameter.name.lexeme(), value);
     }
 
     if self.shebang {
       let mut evaluated_lines = vec![];
-      for line in &self.lines {
-        evaluated_lines.push(evaluator.evaluate_line(line, &argument_map)?);
+      for line in &self.body {
+        evaluated_lines.push(evaluator.evaluate_line(&line.fragments, &argument_map)?);
       }
 
       if config.dry_run || self.quiet {
@@ -134,14 +139,14 @@ impl<'a> Recipe<'a> {
         .prefix("just")
         .tempdir()
         .map_err(|error| RuntimeError::TmpdirIoError {
-          recipe: self.name,
+          recipe: self.name(),
           io_error: error,
         })?;
       let mut path = tmp.path().to_path_buf();
-      path.push(self.name);
+      path.push(self.name());
       {
         let mut f = fs::File::create(&path).map_err(|error| RuntimeError::TmpdirIoError {
-          recipe: self.name,
+          recipe: self.name(),
           io_error: error,
         })?;
         let mut text = String::new();
@@ -151,7 +156,7 @@ impl<'a> Recipe<'a> {
         // add blank lines so that lines in the generated script
         // have the same line number as the corresponding lines
         // in the justfile
-        for _ in 1..(self.line_number + 2) {
+        for _ in 1..(self.line_number() + 2) {
           text += "\n"
         }
         for line in &evaluated_lines[1..] {
@@ -165,14 +170,14 @@ impl<'a> Recipe<'a> {
 
         f.write_all(text.as_bytes())
           .map_err(|error| RuntimeError::TmpdirIoError {
-            recipe: self.name,
+            recipe: self.name(),
             io_error: error,
           })?;
       }
 
       // make the script executable
       Platform::set_execute_permission(&path).map_err(|error| RuntimeError::TmpdirIoError {
-        recipe: self.name,
+        recipe: self.name(),
         io_error: error,
       })?;
 
@@ -193,12 +198,12 @@ impl<'a> Recipe<'a> {
       let mut command =
         Platform::make_shebang_command(&path, interpreter, argument).map_err(|output_error| {
           RuntimeError::Cygpath {
-            recipe: self.name,
+            recipe: self.name(),
             output_error,
           }
         })?;
 
-      command.export_environment_variables(&context.scope, dotenv, exports)?;
+      command.export_environment_variables(&context.scope, dotenv)?;
 
       // run it!
       match InterruptHandler::guard(|| command.status()) {
@@ -206,18 +211,18 @@ impl<'a> Recipe<'a> {
           if let Some(code) = exit_status.code() {
             if code != 0 {
               return Err(RuntimeError::Code {
-                recipe: self.name,
+                recipe: self.name(),
                 line_number: None,
                 code,
               });
             }
           } else {
-            return Err(error_from_signal(self.name, None, exit_status));
+            return Err(error_from_signal(self.name(), None, exit_status));
           }
         }
         Err(io_error) => {
           return Err(RuntimeError::Shebang {
-            recipe: self.name,
+            recipe: self.name(),
             command: interpreter.to_string(),
             argument: argument.map(String::from),
             io_error,
@@ -225,8 +230,8 @@ impl<'a> Recipe<'a> {
         }
       };
     } else {
-      let mut lines = self.lines.iter().peekable();
-      let mut line_number = self.line_number + 1;
+      let mut lines = self.body.iter().peekable();
+      let mut line_number = self.line_number() + 1;
       loop {
         if lines.peek().is_none() {
           break;
@@ -238,8 +243,8 @@ impl<'a> Recipe<'a> {
           }
           let line = lines.next().unwrap();
           line_number += 1;
-          evaluated += &evaluator.evaluate_line(line, &argument_map)?;
-          if line.last().map(Fragment::continuation).unwrap_or(false) {
+          evaluated += &evaluator.evaluate_line(&line.fragments, &argument_map)?;
+          if line.is_continuation() {
             evaluated.pop();
           } else {
             break;
@@ -280,25 +285,29 @@ impl<'a> Recipe<'a> {
           cmd.stdout(Stdio::null());
         }
 
-        cmd.export_environment_variables(&context.scope, dotenv, exports)?;
+        cmd.export_environment_variables(&context.scope, dotenv)?;
 
         match InterruptHandler::guard(|| cmd.status()) {
           Ok(exit_status) => {
             if let Some(code) = exit_status.code() {
               if code != 0 {
                 return Err(RuntimeError::Code {
-                  recipe: self.name,
+                  recipe: self.name(),
                   line_number: Some(line_number),
                   code,
                 });
               }
             } else {
-              return Err(error_from_signal(self.name, Some(line_number), exit_status));
+              return Err(error_from_signal(
+                self.name(),
+                Some(line_number),
+                exit_status,
+              ));
             }
           }
           Err(io_error) => {
             return Err(RuntimeError::IoError {
-              recipe: self.name,
+              recipe: self.name(),
               io_error,
             });
           }
@@ -306,6 +315,12 @@ impl<'a> Recipe<'a> {
       }
     }
     Ok(())
+  }
+}
+
+impl<'src> Keyed<'src> for Recipe<'src> {
+  fn key(&self) -> &'src str {
+    self.name.lexeme()
   }
 }
 
@@ -329,20 +344,20 @@ impl<'a> Display for Recipe<'a> {
       write!(f, " {}", dependency)?;
     }
 
-    for (i, pieces) in self.lines.iter().enumerate() {
+    for (i, line) in self.body.iter().enumerate() {
       if i == 0 {
         writeln!(f)?;
       }
-      for (j, piece) in pieces.iter().enumerate() {
+      for (j, fragment) in line.fragments.iter().enumerate() {
         if j == 0 {
           write!(f, "    ")?;
         }
-        match *piece {
-          Fragment::Text { ref text } => write!(f, "{}", text.lexeme())?,
-          Fragment::Expression { ref expression, .. } => write!(f, "{{{{{}}}}}", expression)?,
+        match fragment {
+          Fragment::Text { token } => write!(f, "{}", token.lexeme())?,
+          Fragment::Interpolation { expression, .. } => write!(f, "{{{{{}}}}}", expression)?,
         }
       }
-      if i + 1 < self.lines.len() {
+      if i + 1 < self.body.len() {
         writeln!(f)?;
       }
     }

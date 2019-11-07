@@ -1503,7 +1503,7 @@ integration_test! {
   justfile: "foo: 'bar'",
   args:     ("foo"),
   stdout:   "",
-  stderr:   "error: Expected name, end of line, or end of file, but found raw string
+  stderr:   "error: Expected end of file, end of line, or identifier, but found raw string
   |
 1 | foo: 'bar'
   |      ^^^^^
@@ -1516,7 +1516,7 @@ integration_test! {
   justfile: "foo 'bar'",
   args:     ("foo"),
   stdout:   "",
-  stderr:   "error: Expected name, '+', ':', or ':=', but found raw string
+  stderr:   "error: Expected ':', ':=', identifier, or '+', but found raw string
   |
 1 | foo 'bar'
   |     ^^^^^

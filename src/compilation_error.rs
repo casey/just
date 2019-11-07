@@ -2,7 +2,7 @@ use crate::common::*;
 
 #[derive(Debug, PartialEq)]
 pub(crate) struct CompilationError<'a> {
-  pub(crate) text: &'a str,
+  pub(crate) src: &'a str,
   pub(crate) offset: usize,
   pub(crate) line: usize,
   pub(crate) column: usize,
@@ -213,7 +213,7 @@ impl<'a> Display for CompilationError<'a> {
     write_message_context(
       f,
       Color::fmt(f).error(),
-      self.text,
+      self.src,
       self.offset,
       self.line,
       self.column,

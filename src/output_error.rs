@@ -25,4 +25,3 @@ impl Display for OutputError {
     }
   }
 }
-

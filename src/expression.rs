@@ -1,55 +1,60 @@
 use crate::common::*;
 
+/// An expression. Note that the Just language grammar has both an
+/// `expression` production of additions (`a + b`) and values, and a
+/// `value` production of all other value types (for example strings,
+/// function calls, and parenthetical groups).
+///
+/// The parser parses both values and expressions into `Expression`s.
 #[derive(PartialEq, Debug)]
-pub(crate) enum Expression<'a> {
+pub(crate) enum Expression<'src> {
+  /// `contents`
   Backtick {
-    raw: &'a str,
-    token: Token<'a>,
+    contents: &'src str,
+    token: Token<'src>,
   },
+  /// `name(arguments)`
   Call {
-    name: &'a str,
-    token: Token<'a>,
-    arguments: Vec<Expression<'a>>,
+    function: Name<'src>,
+    arguments: Vec<Expression<'src>>,
   },
+  /// `lhs + rhs`
   Concatination {
-    lhs: Box<Expression<'a>>,
-    rhs: Box<Expression<'a>>,
+    lhs: Box<Expression<'src>>,
+    rhs: Box<Expression<'src>>,
   },
-  String {
-    cooked_string: StringLiteral<'a>,
+  /// `(contents)`
+  Group { contents: Box<Expression<'src>> },
+  /// `"string_literal"` or `'string_literal'`
+  StringLiteral {
+    string_literal: StringLiteral<'src>,
   },
-  Variable {
-    name: &'a str,
-    token: Token<'a>,
-  },
-  Group {
-    expression: Box<Expression<'a>>,
-  },
+  /// `variable`
+  Variable { name: Name<'src> },
 }
 
-impl<'a> Expression<'a> {
-  pub(crate) fn variables(&'a self) -> Variables<'a> {
+impl<'src> Expression<'src> {
+  pub(crate) fn variables<'expression>(&'expression self) -> Variables<'expression, 'src> {
     Variables::new(self)
   }
 
-  pub(crate) fn functions(&'a self) -> Functions<'a> {
+  pub(crate) fn functions<'expression>(&'expression self) -> Functions<'expression, 'src> {
     Functions::new(self)
   }
 }
 
-impl<'a> Display for Expression<'a> {
+impl<'src> Display for Expression<'src> {
   fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
-    match *self {
-      Expression::Backtick { raw, .. } => write!(f, "`{}`", raw)?,
-      Expression::Concatination { ref lhs, ref rhs } => write!(f, "{} + {}", lhs, rhs)?,
-      Expression::String { ref cooked_string } => write!(f, "{}", cooked_string)?,
-      Expression::Variable { name, .. } => write!(f, "{}", name)?,
+    match self {
+      Expression::Backtick { contents, .. } => write!(f, "`{}`", contents)?,
+      Expression::Concatination { lhs, rhs } => write!(f, "{} + {}", lhs, rhs)?,
+      Expression::StringLiteral { string_literal } => write!(f, "{}", string_literal)?,
+      Expression::Variable { name } => write!(f, "{}", name.lexeme())?,
       Expression::Call {
-        name,
-        ref arguments,
-        ..
+        function,
+        arguments,
       } => {
-        write!(f, "{}(", name)?;
+        write!(f, "{}(", function.lexeme())?;
         for (i, argument) in arguments.iter().enumerate() {
           if i > 0 {
             write!(f, ", {}", argument)?;
@@ -59,7 +64,7 @@ impl<'a> Display for Expression<'a> {
         }
         write!(f, ")")?;
       }
-      Expression::Group { ref expression } => write!(f, "({})", expression)?,
+      Expression::Group { contents } => write!(f, "({})", contents)?,
     }
     Ok(())
   }

@@ -18,12 +18,19 @@ use std::{
   path::Path,
 };
 
-use crate::{expression, fragment, justfile::Justfile, parameter, parser::Parser, recipe};
+use crate::compiler::Compiler;
+
+mod full {
+  pub(crate) use crate::{
+    assignment::Assignment, expression::Expression, fragment::Fragment, justfile::Justfile,
+    line::Line, parameter::Parameter, recipe::Recipe,
+  };
+}
 
 pub fn summary(path: &Path) -> Result<Result<Summary, String>, io::Error> {
   let text = fs::read_to_string(path)?;
 
-  match Parser::parse(&text) {
+  match Compiler::compile(&text) {
     Ok(justfile) => Ok(Ok(Summary::new(justfile))),
     Err(compilation_error) => Ok(Err(compilation_error.to_string())),
   }
@@ -36,14 +43,12 @@ pub struct Summary {
 }
 
 impl Summary {
-  fn new(justfile: Justfile) -> Summary {
-    let exports = justfile.exports;
-
+  fn new(justfile: full::Justfile) -> Summary {
     let mut aliases = BTreeMap::new();
 
     for alias in justfile.aliases.values() {
       aliases
-        .entry(alias.target)
+        .entry(alias.target.lexeme())
         .or_insert_with(Vec::new)
         .push(alias.name.to_string());
     }
@@ -62,12 +67,7 @@ impl Summary {
       assignments: justfile
         .assignments
         .into_iter()
-        .map(|(name, expression)| {
-          (
-            name.to_string(),
-            Assignment::new(name, expression, &exports),
-          )
-        })
+        .map(|(name, assignment)| (name.to_string(), Assignment::new(assignment)))
         .collect(),
     }
   }
@@ -85,13 +85,17 @@ pub struct Recipe {
 }
 
 impl Recipe {
-  fn new(recipe: recipe::Recipe, aliases: Vec<String>) -> Recipe {
+  fn new(recipe: full::Recipe, aliases: Vec<String>) -> Recipe {
     Recipe {
       private: recipe.private,
       shebang: recipe.shebang,
       quiet: recipe.quiet,
-      dependencies: recipe.dependencies.into_iter().map(str::to_owned).collect(),
-      lines: recipe.lines.into_iter().map(Line::new).collect(),
+      dependencies: recipe
+        .dependencies
+        .into_iter()
+        .map(|name| name.lexeme().to_string())
+        .collect(),
+      lines: recipe.body.into_iter().map(Line::new).collect(),
       parameters: recipe.parameters.into_iter().map(Parameter::new).collect(),
       aliases,
     }
@@ -106,10 +110,10 @@ pub struct Parameter {
 }
 
 impl Parameter {
-  fn new(parameter: parameter::Parameter) -> Parameter {
+  fn new(parameter: full::Parameter) -> Parameter {
     Parameter {
       variadic: parameter.variadic,
-      name: parameter.name.to_owned(),
+      name: parameter.name.lexeme().to_owned(),
       default: parameter.default.map(Expression::new),
     }
   }
@@ -121,9 +125,9 @@ pub struct Line {
 }
 
 impl Line {
-  fn new(fragments: Vec<fragment::Fragment>) -> Line {
+  fn new(line: full::Line) -> Line {
     Line {
-      fragments: fragments.into_iter().map(Fragment::new).collect(),
+      fragments: line.fragments.into_iter().map(Fragment::new).collect(),
     }
   }
 }
@@ -135,12 +139,12 @@ pub enum Fragment {
 }
 
 impl Fragment {
-  fn new(fragment: fragment::Fragment) -> Fragment {
+  fn new(fragment: full::Fragment) -> Fragment {
     match fragment {
-      fragment::Fragment::Text { text } => Fragment::Text {
-        text: text.lexeme().to_owned(),
+      full::Fragment::Text { token } => Fragment::Text {
+        text: token.lexeme().to_owned(),
       },
-      fragment::Fragment::Expression { expression } => Fragment::Expression {
+      full::Fragment::Interpolation { expression } => Fragment::Expression {
         expression: Expression::new(expression),
       },
     }
@@ -154,10 +158,10 @@ pub struct Assignment {
 }
 
 impl Assignment {
-  fn new(name: &str, expression: expression::Expression, exports: &BTreeSet<&str>) -> Assignment {
+  fn new(assignment: full::Assignment) -> Assignment {
     Assignment {
-      exported: exports.contains(name),
-      expression: Expression::new(expression),
+      exported: assignment.export,
+      expression: Expression::new(assignment.expression),
     }
   }
 }
@@ -184,29 +188,30 @@ pub enum Expression {
 }
 
 impl Expression {
-  fn new(expression: expression::Expression) -> Expression {
-    use expression::Expression::*;
+  fn new(expression: full::Expression) -> Expression {
+    use full::Expression::*;
     match expression {
-      Backtick { raw, .. } => Expression::Backtick {
-        command: raw.to_owned(),
+      Backtick { contents, .. } => Expression::Backtick {
+        command: contents.to_owned(),
       },
       Call {
-        name, arguments, ..
+        function,
+        arguments,
       } => Expression::Call {
-        name: name.to_owned(),
+        name: function.lexeme().to_owned(),
         arguments: arguments.into_iter().map(Expression::new).collect(),
       },
       Concatination { lhs, rhs } => Expression::Concatination {
         lhs: Box::new(Expression::new(*lhs)),
         rhs: Box::new(Expression::new(*rhs)),
       },
-      String { cooked_string } => Expression::String {
-        text: cooked_string.cooked.to_string(),
+      StringLiteral { string_literal } => Expression::String {
+        text: string_literal.cooked.to_string(),
       },
       Variable { name, .. } => Expression::Variable {
-        name: name.to_owned(),
+        name: name.lexeme().to_owned(),
       },
-      Group { expression } => Expression::new(*expression),
+      Group { contents } => Expression::new(*contents),
     }
   }
 }

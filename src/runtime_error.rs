@@ -26,7 +26,7 @@ pub(crate) enum RuntimeError<'a> {
     dotenv_error: dotenv::Error,
   },
   FunctionCall {
-    token: Token<'a>,
+    function: Name<'a>,
     message: String,
   },
   Internal {
@@ -91,7 +91,7 @@ impl<'a> Display for RuntimeError<'a> {
     let message = color.message();
     write!(f, "{} {}", error.paint("error:"), message.prefix())?;
 
-    let mut error_token = None;
+    let mut error_token: Option<Token> = None;
 
     match *self {
       UnknownRecipes {
@@ -235,16 +235,16 @@ impl<'a> Display for RuntimeError<'a> {
         writeln!(f, "Failed to load .env: {}", dotenv_error)?;
       }
       FunctionCall {
-        ref token,
+        ref function,
         ref message,
       } => {
         writeln!(
           f,
           "Call to function `{}` failed: {}",
-          token.lexeme(),
+          function.lexeme(),
           message
         )?;
-        error_token = Some(token);
+        error_token = Some(function.token());
       }
       Shebang {
         recipe,
@@ -332,15 +332,15 @@ impl<'a> Display for RuntimeError<'a> {
       } => match *output_error {
         OutputError::Code(code) => {
           writeln!(f, "Backtick failed with exit code {}", code)?;
-          error_token = Some(token);
+          error_token = Some(*token);
         }
         OutputError::Signal(signal) => {
           writeln!(f, "Backtick was terminated by signal {}", signal)?;
-          error_token = Some(token);
+          error_token = Some(*token);
         }
         OutputError::Unknown => {
           writeln!(f, "Backtick failed for an unknown reason")?;
-          error_token = Some(token);
+          error_token = Some(*token);
         }
         OutputError::Io(ref io_error) => {
           match io_error.kind() {
@@ -361,7 +361,7 @@ impl<'a> Display for RuntimeError<'a> {
               io_error
             ),
           }?;
-          error_token = Some(token);
+          error_token = Some(*token);
         }
         OutputError::Utf8(ref utf8_error) => {
           writeln!(
@@ -369,7 +369,7 @@ impl<'a> Display for RuntimeError<'a> {
             "Backtick succeeded but stdout was not utf8: {}",
             utf8_error
           )?;
-          error_token = Some(token);
+          error_token = Some(*token);
         }
       },
       Internal { ref message } => {
@@ -388,7 +388,7 @@ impl<'a> Display for RuntimeError<'a> {
       write_message_context(
         f,
         Color::fmt(f).error(),
-        token.text,
+        token.src,
         token.offset,
         token.line,
         token.column,

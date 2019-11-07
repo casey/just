@@ -5,12 +5,15 @@ use TokenKind::*;
 
 /// Just language lexer
 ///
-/// `self.next` points to the next character to be lexed, and
-/// the text between `self.token_start` and `self.token_end` contains
-/// the current token being lexed.
+/// The lexer proceeds character-by-character, as opposed to using
+/// regular expressions to lex tokens or semi-tokens at a time. As a
+/// result, it is verbose and straightforward. Just used to have a
+/// regex-based lexer, which was slower and generally godawful. However,
+/// this should not be taken as a slight against regular expressions,
+/// the lexer was just idiosyncratically bad.
 pub(crate) struct Lexer<'a> {
   /// Source text
-  text: &'a str,
+  src: &'a str,
   /// Char iterator
   chars: Chars<'a>,
   /// Tokens
@@ -21,19 +24,19 @@ pub(crate) struct Lexer<'a> {
   token_start: Position,
   /// Current token end
   token_end: Position,
-  /// Next character
+  /// Next character to be lexed
   next: Option<char>,
 }
 
 impl<'a> Lexer<'a> {
   /// Lex `text`
-  pub(crate) fn lex(text: &str) -> CompilationResult<Vec<Token>> {
-    Lexer::new(text).tokenize()
+  pub(crate) fn lex(src: &str) -> CompilationResult<Vec<Token>> {
+    Lexer::new(src).tokenize()
   }
 
   /// Create a new Lexer to lex `text`
-  fn new(text: &'a str) -> Lexer<'a> {
-    let mut chars = text.chars();
+  fn new(src: &'a str) -> Lexer<'a> {
+    let mut chars = src.chars();
     let next = chars.next();
 
     let start = Position {
@@ -49,7 +52,7 @@ impl<'a> Lexer<'a> {
       token_end: start,
       chars,
       next,
-      text,
+      src,
     }
   }
 
@@ -82,7 +85,7 @@ impl<'a> Lexer<'a> {
 
   /// Lexeme of in-progress token
   fn lexeme(&self) -> &'a str {
-    &self.text[self.token_start.offset..self.token_end.offset]
+    &self.src[self.token_start.offset..self.token_end.offset]
   }
 
   /// Length of current token
@@ -102,7 +105,7 @@ impl<'a> Lexer<'a> {
 
   /// Un-lexed text
   fn rest(&self) -> &'a str {
-    &self.text[self.token_end.offset..]
+    &self.src[self.token_end.offset..]
   }
 
   /// Check if unlexed text begins with prefix
@@ -145,7 +148,7 @@ impl<'a> Lexer<'a> {
       offset: self.token_start.offset,
       column: self.token_start.column,
       line: self.token_start.line,
-      text: self.text,
+      src: self.src,
       length: self.token_end.offset - self.token_start.offset,
       kind,
     });
@@ -158,7 +161,7 @@ impl<'a> Lexer<'a> {
   fn internal_error(&self, message: impl Into<String>) -> CompilationError<'a> {
     // Use `self.token_end` as the location of the error
     CompilationError {
-      text: self.text,
+      src: self.src,
       offset: self.token_end.offset,
       line: self.token_end.line,
       column: self.token_end.column,
@@ -184,7 +187,7 @@ impl<'a> Lexer<'a> {
     };
 
     CompilationError {
-      text: self.text,
+      src: self.src,
       offset: self.token_start.offset,
       line: self.token_start.line,
       column: self.token_start.column,
@@ -198,7 +201,7 @@ impl<'a> Lexer<'a> {
     interpolation_start: Position,
   ) -> CompilationError<'a> {
     CompilationError {
-      text: self.text,
+      src: self.src,
       offset: interpolation_start.offset,
       line: interpolation_start.line,
       column: interpolation_start.column,
@@ -359,7 +362,7 @@ impl<'a> Lexer<'a> {
       ' ' | '\t' => self.lex_whitespace(),
       '\'' => self.lex_raw_string(),
       '"' => self.lex_cooked_string(),
-      'a'..='z' | 'A'..='Z' | '_' => self.lex_name(),
+      'a'..='z' | 'A'..='Z' | '_' => self.lex_identifier(),
       _ => {
         self.advance()?;
         Err(self.error(UnknownStartOfToken))
@@ -446,7 +449,6 @@ impl<'a> Lexer<'a> {
   /// Lex token beginning with `start` in indented state
   fn lex_indented(&mut self) -> CompilationResult<'a, ()> {
     self.state.push(State::Text);
-    self.token(Line);
     Ok(())
   }
 
@@ -513,8 +515,8 @@ impl<'a> Lexer<'a> {
     self.lex_double(Eol)
   }
 
-  /// Lex name: [a-zA-Z_][a-zA-Z0-9_]*
-  fn lex_name(&mut self) -> CompilationResult<'a, ()> {
+  /// Lex identifier: [a-zA-Z_][a-zA-Z0-9_]*
+  fn lex_identifier(&mut self) -> CompilationResult<'a, ()> {
     while self
       .next
       .map(|c| c.is_ascii_alphanumeric() || c == '-' || c == '_')
@@ -523,7 +525,7 @@ impl<'a> Lexer<'a> {
       self.advance()?;
     }
 
-    self.token(Name);
+    self.token(Identifier);
 
     Ok(())
   }
@@ -725,11 +727,53 @@ mod tests {
       Whitespace => " ",
 
       // Empty lexemes
-      Line | Dedent | Eof => "",
+      Dedent | Eof => "",
 
       // Variable lexemes
-      Text | StringCooked | StringRaw | Name | Comment | Backtick => {
+      Text | StringCooked | StringRaw | Identifier | Comment | Backtick => {
         panic!("Token {:?} has no default lexeme", kind)
+      }
+    }
+  }
+
+  macro_rules! error {
+    (
+      name:   $name:ident,
+      input:  $input:expr,
+      offset: $offset:expr,
+      line:   $line:expr,
+      column: $column:expr,
+      width:  $width:expr,
+      kind:   $kind:expr,
+    ) => {
+      #[test]
+      fn $name() {
+        error($input, $offset, $line, $column, $width, $kind);
+      }
+    };
+  }
+
+  fn error(
+    src: &str,
+    offset: usize,
+    line: usize,
+    column: usize,
+    width: usize,
+    kind: CompilationErrorKind,
+  ) {
+    let expected = CompilationError {
+      src,
+      offset,
+      line,
+      column,
+      width,
+      kind,
+    };
+
+    match Lexer::lex(src) {
+      Ok(_) => panic!("Lexing succeeded but expected: {}\n{}", expected, src),
+      Err(actual) => {
+        assert_eq!(actual, expected);
       }
     }
   }
@@ -737,7 +781,7 @@ mod tests {
   test! {
     name:   name_new,
     text:   "foo",
-    tokens: (Name:"foo"),
+    tokens: (Identifier:"foo"),
   }
 
   test! {
@@ -768,9 +812,9 @@ mod tests {
     name:   export_concatination,
     text:   "export foo = 'foo' + 'bar'",
     tokens: (
-      Name:"export",
+      Identifier:"export",
       Whitespace,
-      Name:"foo",
+      Identifier:"foo",
       Whitespace,
       Equals,
       Whitespace,
@@ -786,9 +830,9 @@ mod tests {
     name: export_complex,
     text: "export foo = ('foo' + 'bar') + `baz`",
     tokens: (
-      Name:"export",
+      Identifier:"export",
       Whitespace,
-      Name:"foo",
+      Identifier:"foo",
       Whitespace,
       Equals,
       Whitespace,
@@ -821,7 +865,7 @@ mod tests {
   test! {
     name:   indented_line,
     text:   "foo:\n a",
-    tokens: (Name:"foo", Colon, Eol, Indent:" ", Line, Text:"a", Dedent),
+    tokens: (Identifier:"foo", Colon, Eol, Indent:" ", Text:"a", Dedent),
   }
 
   test! {
@@ -833,19 +877,16 @@ mod tests {
         c
     ",
     tokens: (
-      Name:"foo",
+      Identifier:"foo",
       Colon,
       Eol,
       Indent,
-      Line,
       Text:"a",
       Eol,
       Whitespace:"  ",
-      Line,
       Text:"b",
       Eol,
       Whitespace:"  ",
-      Line,
       Text:"c",
       Eol,
       Dedent,
@@ -860,15 +901,14 @@ mod tests {
       b:
     ",
     tokens: (
-      Name:"foo",
+      Identifier:"foo",
       Colon,
       Eol,
       Indent,
-      Line,
       Text:"a",
       Eol,
       Dedent,
-      Name:"b",
+      Identifier:"b",
       Colon,
       Eol,
     )
@@ -883,17 +923,15 @@ mod tests {
       b:
     ",
     tokens: (
-      Name:"foo",
+      Identifier:"foo",
       Colon,
       Eol,
       Indent:"    ",
-      Line,
       Text:"a",
       Eol,
-      Line,
       Eol,
       Dedent,
-      Name:"b",
+      Identifier:"b",
       Colon,
       Eol,
     ),
@@ -903,11 +941,10 @@ mod tests {
     name: indented_line_containing_unpaired_carriage_return,
     text: "foo:\n \r \n",
     tokens: (
-      Name:"foo",
+      Identifier:"foo",
       Colon,
       Eol,
       Indent:" ",
-      Line,
       Text:"\r ",
       Eol,
       Dedent,
@@ -931,51 +968,43 @@ mod tests {
         @mv b c
     ",
     tokens: (
-      Name:"b",
+      Identifier:"b",
       Colon,
       Whitespace,
-      Name:"a",
+      Identifier:"a",
       Eol,
       Indent,
-      Line,
       Text:"@mv a b",
       Eol,
-      Line,
       Eol,
       Dedent,
-      Name:"a",
+      Identifier:"a",
       Colon,
       Eol,
       Indent,
-      Line,
       Text:"@touch F",
       Eol,
       Whitespace:"  ",
-      Line,
       Text:"@touch a",
       Eol,
-      Line,
       Eol,
       Dedent,
-      Name:"d",
+      Identifier:"d",
       Colon,
       Whitespace,
-      Name:"c",
+      Identifier:"c",
       Eol,
       Indent,
-      Line,
       Text:"@rm c",
       Eol,
-      Line,
       Eol,
       Dedent,
-      Name:"c",
+      Identifier:"c",
       Colon,
       Whitespace,
-      Name:"b",
+      Identifier:"b",
       Eol,
       Indent,
-      Line,
       Text:"@mv b c",
       Eol,
       Dedent
@@ -986,11 +1015,10 @@ mod tests {
     name: interpolation_empty,
     text: "hello:\n echo {{}}",
     tokens: (
-      Name:"hello",
+      Identifier:"hello",
       Colon,
       Eol,
       Indent:" ",
-      Line,
       Text:"echo ",
       InterpolationStart,
       InterpolationEnd,
@@ -1002,11 +1030,10 @@ mod tests {
     name: interpolation_expression,
     text: "hello:\n echo {{`echo hello` + `echo goodbye`}}",
     tokens: (
-      Name:"hello",
+      Identifier:"hello",
       Colon,
       Eol,
       Indent:" ",
-      Line,
       Text:"echo ",
       InterpolationStart,
       Backtick:"`echo hello`",
@@ -1028,13 +1055,13 @@ mod tests {
       test123
     ",
     tokens: (
-      Name:"foo",
+      Identifier:"foo",
       Eol,
-      Name:"bar-bob",
+      Identifier:"bar-bob",
       Eol,
-      Name:"b-bob_asdfAAAA",
+      Identifier:"b-bob_asdfAAAA",
       Eol,
-      Name:"test123",
+      Identifier:"test123",
       Eol,
     ),
   }
@@ -1043,11 +1070,10 @@ mod tests {
     name: tokenize_indented_line,
     text: "foo:\n a",
     tokens: (
-      Name:"foo",
+      Identifier:"foo",
       Colon,
       Eol,
       Indent:" ",
-      Line,
       Text:"a",
       Dedent,
     ),
@@ -1062,19 +1088,16 @@ mod tests {
         c
     ",
     tokens: (
-      Name:"foo",
+      Identifier:"foo",
       Colon,
       Eol,
       Indent,
-      Line,
       Text:"a",
       Eol,
       Whitespace:"  ",
-      Line,
       Text:"b",
       Eol,
       Whitespace:"  ",
-      Line,
       Text:"c",
       Eol,
       Dedent,
@@ -1085,7 +1108,7 @@ mod tests {
     name: tokenize_strings,
     text: r#"a = "'a'" + '"b"' + "'c'" + '"d"'#echo hello"#,
     tokens: (
-      Name:"a",
+      Identifier:"a",
       Whitespace,
       Equals,
       Whitespace,
@@ -1113,15 +1136,14 @@ mod tests {
        {{hello}}
     ",
     tokens: (
-      Name:"foo",
+      Identifier:"foo",
       Colon,
       Whitespace,
       Comment:"# some comment",
       Eol,
       Indent:" ",
-      Line,
       InterpolationStart,
-      Name:"hello",
+      Identifier:"hello",
       InterpolationEnd,
       Eol,
       Dedent
@@ -1135,15 +1157,14 @@ mod tests {
 # another comment
 ",
     tokens: (
-      Name:"foo",
+      Identifier:"foo",
       Colon,
       Whitespace,
       Comment:"# more comments",
       Eol,
       Indent:" ",
-      Line,
       InterpolationStart,
-      Name:"hello",
+      Identifier:"hello",
       InterpolationEnd,
       Eol,
       Dedent,
@@ -1156,19 +1177,18 @@ mod tests {
     name: tokenize_recipe_complex_interpolation_expression,
     text: "foo: #lol\n {{a + b + \"z\" + blarg}}",
     tokens: (
-      Name:"foo",
+      Identifier:"foo",
       Colon,
       Whitespace:" ",
       Comment:"#lol",
       Eol,
       Indent:" ",
-      Line,
       InterpolationStart,
-      Name:"a",
+      Identifier:"a",
       Whitespace,
       Plus,
       Whitespace,
-      Name:"b",
+      Identifier:"b",
       Whitespace,
       Plus,
       Whitespace,
@@ -1176,7 +1196,7 @@ mod tests {
       Whitespace,
       Plus,
       Whitespace,
-      Name:"blarg",
+      Identifier:"blarg",
       InterpolationEnd,
       Dedent,
     ),
@@ -1186,23 +1206,22 @@ mod tests {
     name: tokenize_recipe_multiple_interpolations,
     text: "foo:,#ok\n {{a}}0{{b}}1{{c}}",
     tokens: (
-      Name:"foo",
+      Identifier:"foo",
       Colon,
       Comma,
       Comment:"#ok",
       Eol,
       Indent:" ",
-      Line,
       InterpolationStart,
-      Name:"a",
+      Identifier:"a",
       InterpolationEnd,
       Text:"0",
       InterpolationStart,
-      Name:"b",
+      Identifier:"b",
       InterpolationEnd,
       Text:"1",
       InterpolationStart,
-      Name:"c",
+      Identifier:"c",
       InterpolationEnd,
       Dedent,
 
@@ -1217,24 +1236,24 @@ mod tests {
       hello blah blah blah : a b c #whatever
     ",
     tokens: (
-      Name:"bob",
+      Identifier:"bob",
       Eol,
       Eol,
-      Name:"hello",
+      Identifier:"hello",
       Whitespace,
-      Name:"blah",
+      Identifier:"blah",
       Whitespace,
-      Name:"blah",
+      Identifier:"blah",
       Whitespace,
-      Name:"blah",
+      Identifier:"blah",
       Whitespace,
       Colon,
       Whitespace,
-      Name:"a",
+      Identifier:"a",
       Whitespace,
-      Name:"b",
+      Identifier:"b",
       Whitespace,
-      Name:"c",
+      Identifier:"c",
       Whitespace,
       Comment:"#whatever",
       Eol,
@@ -1260,30 +1279,23 @@ mod tests {
       Eol,
       Comment:"# this does something",
       Eol,
-      Name:"hello",
+      Identifier:"hello",
       Colon,
       Eol,
       Indent,
-      Line,
       Text:"asdf",
       Eol,
       Whitespace:"  ",
-      Line,
       Text:"bsdf",
       Eol,
-      Line,
       Eol,
       Whitespace:"  ",
-      Line,
       Text:"csdf",
       Eol,
-      Line,
       Eol,
       Whitespace:"  ",
-      Line,
       Text:"dsdf # whatever",
       Eol,
-      Line,
       Eol,
       Dedent,
       Comment:"# yolo",
@@ -1302,18 +1314,17 @@ mod tests {
     tokens: (
       Comment:"#",
       Eol,
-      Name:"A",
+      Identifier:"A",
       Equals,
       StringRaw:"'1'",
       Eol,
-      Name:"echo",
+      Identifier:"echo",
       Colon,
       Eol,
       Indent,
-      Line,
       Text:"echo ",
       InterpolationStart,
-      Name:"A",
+      Identifier:"A",
       InterpolationEnd,
       Eol,
       Dedent,
@@ -1324,11 +1335,10 @@ mod tests {
     name: tokenize_interpolation_backticks,
     text: "hello:\n echo {{`echo hello` + `echo goodbye`}}",
     tokens: (
-      Name:"hello",
+      Identifier:"hello",
       Colon,
       Eol,
       Indent:" ",
-      Line,
       Text:"echo ",
       InterpolationStart,
       Backtick:"`echo hello`",
@@ -1345,11 +1355,10 @@ mod tests {
     name: tokenize_empty_interpolation,
     text: "hello:\n echo {{}}",
     tokens: (
-      Name:"hello",
+      Identifier:"hello",
       Colon,
       Eol,
       Indent:" ",
-      Line,
       Text:"echo ",
       InterpolationStart,
       InterpolationEnd,
@@ -1361,7 +1370,7 @@ mod tests {
     name: tokenize_assignment_backticks,
     text: "a = `echo hello` + `echo goodbye`",
     tokens: (
-      Name:"a",
+      Identifier:"a",
       Whitespace,
       Equals,
       Whitespace,
@@ -1392,42 +1401,33 @@ mod tests {
     ",
     tokens: (
       Eol,
-      Name:"hello",
+      Identifier:"hello",
       Colon,
       Eol,
       Indent,
-      Line,
       Text:"a",
       Eol,
       Whitespace:"  ",
-      Line,
       Text:"b",
       Eol,
-      Line,
       Eol,
       Whitespace:"  ",
-      Line,
       Text:"c",
       Eol,
-      Line,
       Eol,
       Whitespace:"  ",
-      Line,
       Text:"d",
       Eol,
-      Line,
       Eol,
       Dedent,
       Comment:"# hello",
       Eol,
-      Name:"bob",
+      Identifier:"bob",
       Colon,
       Eol,
       Indent:"  ",
-      Line,
       Text:"frank",
       Eol,
-      Line,
       Eol,
       Dedent,
     ),
@@ -1437,7 +1437,7 @@ mod tests {
     name: tokenize_comment,
     text: "a:=#",
     tokens: (
-      Name:"a",
+      Identifier:"a",
       ColonEquals,
       Comment:"#",
     ),
@@ -1447,7 +1447,7 @@ mod tests {
     name: tokenize_comment_with_bang,
     text: "a:=#foo!",
     tokens: (
-      Name:"a",
+      Identifier:"a",
       ColonEquals,
       Comment:"#foo!",
     ),
@@ -1470,51 +1470,43 @@ mod tests {
         @mv b c
     ",
     tokens: (
-      Name:"b",
+      Identifier:"b",
       Colon,
       Whitespace,
-      Name:"a",
+      Identifier:"a",
       Eol,
       Indent,
-      Line,
       Text:"@mv a b",
       Eol,
-      Line,
       Eol,
       Dedent,
-      Name:"a",
+      Identifier:"a",
       Colon,
       Eol,
       Indent,
-      Line,
       Text:"@touch F",
       Eol,
       Whitespace:"  ",
-      Line,
       Text:"@touch a",
       Eol,
-      Line,
       Eol,
       Dedent,
-      Name:"d",
+      Identifier:"d",
       Colon,
       Whitespace,
-      Name:"c",
+      Identifier:"c",
       Eol,
       Indent,
-      Line,
       Text:"@rm c",
       Eol,
-      Line,
       Eol,
       Dedent,
-      Name:"c",
+      Identifier:"c",
       Colon,
       Whitespace,
-      Name:"b",
+      Identifier:"b",
       Eol,
       Indent,
-      Line,
       Text:"@mv b c",
       Eol,
       Dedent,
@@ -1533,7 +1525,7 @@ mod tests {
       ParenR,
       Whitespace,
       ParenR,
-      Name:"abc",
+      Identifier:"abc",
       ParenL,
       Plus,
     ),
@@ -1554,20 +1546,19 @@ mod tests {
     name: multiple_recipes,
     text: "a:\n  foo\nb:",
     tokens: (
-      Name:"a",
+      Identifier:"a",
       Colon,
       Eol,
       Indent:"  ",
-      Line,
       Text:"foo",
       Eol,
       Dedent,
-      Name:"b",
+      Identifier:"b",
       Colon,
     ),
   }
 
-  error_test! {
+  error! {
     name:  tokenize_space_then_tab,
     input: "a:
  0
@@ -1581,7 +1572,7 @@ mod tests {
     kind:   InconsistentLeadingWhitespace{expected: " ", found: "\t"},
   }
 
-  error_test! {
+  error! {
     name:  tokenize_tabs_then_tab_space,
     input: "a:
 \t\t0
@@ -1595,7 +1586,7 @@ mod tests {
     kind:   InconsistentLeadingWhitespace{expected: "\t\t", found: "\t "},
   }
 
-  error_test! {
+  error! {
     name:   tokenize_unknown,
     input:  "~",
     offset: 0,
@@ -1605,7 +1596,7 @@ mod tests {
     kind:   UnknownStartOfToken,
   }
 
-  error_test! {
+  error! {
     name:   unterminated_string_with_escapes,
     input:  r#"a = "\n\t\r\"\\"#,
     offset: 4,
@@ -1615,7 +1606,7 @@ mod tests {
     kind:   UnterminatedString,
   }
 
-  error_test! {
+  error! {
     name:   unterminated_raw_string,
     input:  "r a='asdf",
     offset: 4,
@@ -1625,7 +1616,7 @@ mod tests {
     kind:   UnterminatedString,
   }
 
-  error_test! {
+  error! {
     name:   unterminated_interpolation,
     input:  "foo:\n echo {{
   ",
@@ -1636,7 +1627,7 @@ mod tests {
     kind:   UnterminatedInterpolation,
   }
 
-  error_test! {
+  error! {
     name:   unterminated_backtick,
     input:  "`echo",
     offset: 0,
@@ -1646,7 +1637,7 @@ mod tests {
     kind:   UnterminatedBacktick,
   }
 
-  error_test! {
+  error! {
     name:   unpaired_carriage_return,
     input:  "foo\rbar",
     offset: 3,
@@ -1656,7 +1647,7 @@ mod tests {
     kind:   UnpairedCarriageReturn,
   }
 
-  error_test! {
+  error! {
     name:   unknown_start_of_token_ampersand,
     input:  " \r\n&",
     offset: 3,
@@ -1666,7 +1657,7 @@ mod tests {
     kind:   UnknownStartOfToken,
   }
 
-  error_test! {
+  error! {
     name:   unknown_start_of_token_tilde,
     input:  "~",
     offset: 0,
@@ -1676,7 +1667,7 @@ mod tests {
     kind:   UnknownStartOfToken,
   }
 
-  error_test! {
+  error! {
     name:   unterminated_string,
     input:  r#"a = ""#,
     offset: 4,
@@ -1686,7 +1677,7 @@ mod tests {
     kind:   UnterminatedString,
   }
 
-  error_test! {
+  error! {
     name:   mixed_leading_whitespace,
     input:  "a:\n\t echo hello",
     offset: 3,
@@ -1696,7 +1687,7 @@ mod tests {
     kind:   MixedLeadingWhitespace{whitespace: "\t "},
   }
 
-  error_test! {
+  error! {
     name:   unclosed_interpolation_delimiter,
     input:  "a:\n echo {{ foo",
     offset: 9,
