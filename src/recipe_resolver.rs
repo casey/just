@@ -2,16 +2,6 @@ use crate::common::*;
 
 use CompilationErrorKind::*;
 
-// There are borrow issues here that seems too difficult to solve.
-// The errors derived from the variable token has too short a lifetime,
-// so we create a new error from its contents, which do live long
-// enough.
-//
-// I suspect the solution here is to give recipes, pieces, and expressions
-// two lifetime parameters instead of one, with one being the lifetime
-// of the struct, and the second being the lifetime of the tokens
-// that it contains.
-
 pub(crate) struct RecipeResolver<'a: 'b, 'b> {
   stack: Vec<&'a str>,
   seen: BTreeSet<&'a str>,
@@ -68,16 +58,7 @@ impl<'a, 'b> RecipeResolver<'a, 'b> {
   }
 
   fn resolve_function(&self, function: Token<'a>, argc: usize) -> CompilationResult<'a, ()> {
-    Function::resolve(&function, argc).map_err(|error| CompilationError {
-      offset: error.offset,
-      line: error.line,
-      column: error.column,
-      width: error.width,
-      kind: UnknownFunction {
-        function: &function.src[error.offset..error.offset + error.width],
-      },
-      src: function.src,
-    })
+    Function::resolve(&function, argc)
   }
 
   fn resolve_variable(
@@ -88,18 +69,9 @@ impl<'a, 'b> RecipeResolver<'a, 'b> {
     let name = variable.lexeme();
     let undefined =
       !self.assignments.contains_key(name) && !parameters.iter().any(|p| p.name.lexeme() == name);
+
     if undefined {
-      let error = variable.error(UndefinedVariable { variable: name });
-      return Err(CompilationError {
-        offset: error.offset,
-        line: error.line,
-        column: error.column,
-        width: error.width,
-        kind: UndefinedVariable {
-          variable: &variable.src[error.offset..error.offset + error.width],
-        },
-        src: variable.src,
-      });
+      return Err(variable.error(UndefinedVariable { variable: name }));
     }
 
     Ok(())
