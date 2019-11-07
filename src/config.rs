@@ -33,6 +33,7 @@ mod arg {
   pub(crate) const COLOR: &str = "COLOR";
   pub(crate) const DRY_RUN: &str = "DRY-RUN";
   pub(crate) const HIGHLIGHT: &str = "HIGHLIGHT";
+  pub(crate) const NO_HIGHLIGHT: &str = "NO-HIGHLIGHT";
   pub(crate) const JUSTFILE: &str = "JUSTFILE";
   pub(crate) const QUIET: &str = "QUIET";
   pub(crate) const SET: &str = "SET";
@@ -91,7 +92,14 @@ impl<'a> Config<'a> {
       .arg(
         Arg::with_name(arg::HIGHLIGHT)
           .long("highlight")
-          .help("Highlight echoed recipe lines in bold"),
+          .help("Highlight echoed recipe lines in bold")
+          .overrides_with(arg::NO_HIGHLIGHT),
+      )
+      .arg(
+        Arg::with_name(arg::NO_HIGHLIGHT)
+          .long("no-highlight")
+          .help("Don't highlight echoed recipe lines in bold")
+          .overrides_with(arg::HIGHLIGHT),
       )
       .arg(
         Arg::with_name(arg::JUSTFILE)
@@ -287,7 +295,7 @@ impl<'a> Config<'a> {
 
     Ok(Config {
       dry_run: matches.is_present(arg::DRY_RUN),
-      highlight: matches.is_present(arg::HIGHLIGHT),
+      highlight: !matches.is_present(arg::NO_HIGHLIGHT),
       quiet: matches.is_present(arg::QUIET),
       shell: matches.value_of(arg::SHELL).unwrap(),
       justfile: matches.value_of(arg::JUSTFILE).map(Path::new),
@@ -340,15 +348,16 @@ USAGE:
     just [FLAGS] [OPTIONS] [--] [ARGUMENTS]...
 
 FLAGS:
-        --dry-run      Print what just would do without doing it
-        --dump         Print entire justfile
-    -e, --edit         Open justfile with $EDITOR
-        --evaluate     Print evaluated variables
-        --highlight    Highlight echoed recipe lines in bold
-    -l, --list         List available recipes and their arguments
-    -q, --quiet        Suppress all output
-        --summary      List names of available recipes
-    -v, --verbose      Use verbose output
+        --dry-run         Print what just would do without doing it
+        --dump            Print entire justfile
+    -e, --edit            Open justfile with $EDITOR
+        --evaluate        Print evaluated variables
+        --highlight       Highlight echoed recipe lines in bold
+    -l, --list            List available recipes and their arguments
+        --no-highlight    Don't highlight echoed recipe lines in bold
+    -q, --quiet           Suppress all output
+        --summary         List names of available recipes
+    -v, --verbose         Use verbose output
 
 OPTIONS:
         --color <COLOR>
