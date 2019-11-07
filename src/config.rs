@@ -291,7 +291,7 @@ impl<'a> Config<'a> {
     } else if let Some(name) = matches.value_of(cmd::SHOW) {
       Subcommand::Show { name }
     } else {
-      Subcommand::Run
+      Subcommand::Execute
     };
 
     Ok(Config {
@@ -315,7 +315,7 @@ impl<'a> Config<'a> {
 impl<'a> Default for Config<'a> {
   fn default() -> Config<'static> {
     Config {
-      subcommand: Subcommand::Run,
+      subcommand: Subcommand::Execute,
       dry_run: false,
       highlight: false,
       overrides: empty(),
