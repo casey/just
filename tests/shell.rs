@@ -14,6 +14,7 @@ recipe default=`DEFAULT`:
 ";
 
 /// Test that --shell correctly sets the shell
+#[cfg(unix)]
 #[test]
 fn shell() {
   let tmp = tmptree! {
@@ -23,11 +24,8 @@ fn shell() {
 
   let shell = tmp.path().join("shell");
 
-  #[cfg(unix)]
-  {
-    let permissions = std::os::unix::fs::PermissionsExt::from_mode(0o700);
-    std::fs::set_permissions(&shell, permissions).unwrap();
-  }
+  let permissions = std::os::unix::fs::PermissionsExt::from_mode(0o700);
+  std::fs::set_permissions(&shell, permissions).unwrap();
 
   let output = Command::new(executable_path("just"))
     .current_dir(tmp.path())
