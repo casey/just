@@ -62,18 +62,22 @@ pub(crate) enum RuntimeError<'a> {
     recipe: &'a str,
     line_number: Option<usize>,
   },
+  NoRecipes,
+  DefaultRecipeRequiresArguments {
+    recipe: &'a str,
+    min_arguments: usize,
+  },
 }
 
-impl<'a> RuntimeError<'a> {
-  pub(crate) fn code(&self) -> Option<i32> {
-    use RuntimeError::*;
+impl Error for RuntimeError<'_> {
+  fn code(&self) -> i32 {
     match *self {
-      Code { code, .. }
-      | Backtick {
+      Self::Code { code, .. } => code,
+      Self::Backtick {
         output_error: OutputError::Code(code),
         ..
-      } => Some(code),
-      _ => None,
+      } => code,
+      _ => EXIT_FAILURE,
     }
   }
 }
@@ -87,9 +91,8 @@ impl<'a> Display for RuntimeError<'a> {
     } else {
       Color::never()
     };
-    let error = color.error();
     let message = color.message();
-    write!(f, "{} {}", error.paint("error:"), message.prefix())?;
+    write!(f, "{}", message.prefix())?;
 
     let mut error_token: Option<Token> = None;
 
@@ -372,6 +375,21 @@ impl<'a> Display for RuntimeError<'a> {
           error_token = Some(*token);
         }
       },
+      NoRecipes => {
+        writeln!(f, "Justfile contains no recipes.",)?;
+      }
+      DefaultRecipeRequiresArguments {
+        recipe,
+        min_arguments,
+      } => {
+        writeln!(
+          f,
+          "Recipe `{}` cannot be used as default recipe since it requires at least {} {}.",
+          recipe,
+          min_arguments,
+          Count("argument", min_arguments),
+        )?;
+      }
       Internal { ref message } => {
         write!(
           f,

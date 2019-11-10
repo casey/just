@@ -107,9 +107,8 @@ pub(crate) fn os_family(_context: &FunctionContext) -> Result<String, String> {
 }
 
 pub(crate) fn invocation_directory(context: &FunctionContext) -> Result<String, String> {
-  context.invocation_directory.clone().and_then(|s| {
-    Platform::to_shell_path(&s).map_err(|e| format!("Error getting shell path: {}", e))
-  })
+  Platform::to_shell_path(context.working_directory, context.invocation_directory)
+    .map_err(|e| format!("Error getting shell path: {}", e))
 }
 
 pub(crate) fn env_var(context: &FunctionContext, key: &str) -> Result<String, String> {

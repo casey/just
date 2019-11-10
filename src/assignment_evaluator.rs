@@ -2,36 +2,27 @@ use crate::common::*;
 
 pub(crate) struct AssignmentEvaluator<'a: 'b, 'b> {
   pub(crate) assignments: &'b BTreeMap<&'a str, Assignment<'a>>,
-  pub(crate) invocation_directory: &'b Result<PathBuf, String>,
+  pub(crate) config: &'a Config,
   pub(crate) dotenv: &'b BTreeMap<String, String>,
-  pub(crate) dry_run: bool,
   pub(crate) evaluated: BTreeMap<&'a str, (bool, String)>,
-  pub(crate) overrides: &'b BTreeMap<&'b str, &'b str>,
-  pub(crate) quiet: bool,
   pub(crate) scope: &'b BTreeMap<&'a str, (bool, String)>,
-  pub(crate) shell: &'b str,
+  pub(crate) working_directory: &'b Path,
 }
 
 impl<'a, 'b> AssignmentEvaluator<'a, 'b> {
   pub(crate) fn evaluate_assignments(
-    assignments: &BTreeMap<&'a str, Assignment<'a>>,
-    invocation_directory: &Result<PathBuf, String>,
+    config: &'a Config,
+    working_directory: &'b Path,
     dotenv: &'b BTreeMap<String, String>,
-    overrides: &BTreeMap<&str, &str>,
-    quiet: bool,
-    shell: &'a str,
-    dry_run: bool,
+    assignments: &BTreeMap<&'a str, Assignment<'a>>,
   ) -> RunResult<'a, BTreeMap<&'a str, (bool, String)>> {
     let mut evaluator = AssignmentEvaluator {
       evaluated: empty(),
       scope: &empty(),
+      config,
       assignments,
-      invocation_directory,
+      working_directory,
       dotenv,
-      dry_run,
-      overrides,
-      quiet,
-      shell,
     };
 
     for name in assignments.keys() {
@@ -64,7 +55,7 @@ impl<'a, 'b> AssignmentEvaluator<'a, 'b> {
     }
 
     if let Some(assignment) = self.assignments.get(name) {
-      if let Some(value) = self.overrides.get(name) {
+      if let Some(value) = self.config.overrides.get(name) {
         self
           .evaluated
           .insert(name, (assignment.export, value.to_string()));
@@ -113,14 +104,15 @@ impl<'a, 'b> AssignmentEvaluator<'a, 'b> {
           .map(|argument| self.evaluate_expression(argument, arguments))
           .collect::<Result<Vec<String>, RuntimeError>>()?;
         let context = FunctionContext {
-          invocation_directory: &self.invocation_directory,
+          invocation_directory: &self.config.invocation_directory,
+          working_directory: &self.working_directory,
           dotenv: self.dotenv,
         };
         Function::evaluate(*function, &context, &call_arguments)
       }
       Expression::StringLiteral { string_literal } => Ok(string_literal.cooked.to_string()),
       Expression::Backtick { contents, token } => {
-        if self.dry_run {
+        if self.config.dry_run {
           Ok(format!("`{}`", contents))
         } else {
           Ok(self.run_backtick(self.dotenv, contents, token)?)
@@ -139,7 +131,9 @@ impl<'a, 'b> AssignmentEvaluator<'a, 'b> {
     raw: &str,
     token: &Token<'a>,
   ) -> RunResult<'a, String> {
-    let mut cmd = Command::new(self.shell);
+    let mut cmd = Command::new(&self.config.shell);
+
+    cmd.current_dir(self.working_directory);
 
     cmd.arg("-cu").arg(raw);
 
@@ -147,7 +141,7 @@ impl<'a, 'b> AssignmentEvaluator<'a, 'b> {
 
     cmd.stdin(process::Stdio::inherit());
 
-    cmd.stderr(if self.quiet {
+    cmd.stderr(if self.config.quiet {
       process::Stdio::null()
     } else {
       process::Stdio::inherit()
@@ -155,7 +149,7 @@ impl<'a, 'b> AssignmentEvaluator<'a, 'b> {
 
     InterruptHandler::guard(|| {
       output(cmd).map_err(|output_error| RuntimeError::Backtick {
-        token: token.clone(),
+        token: *token,
         output_error,
       })
     })
@@ -165,14 +159,14 @@ impl<'a, 'b> AssignmentEvaluator<'a, 'b> {
 #[cfg(test)]
 mod tests {
   use super::*;
-  use crate::testing::compile;
+  use crate::testing::{compile, config};
 
   #[test]
   fn backtick_code() {
-    match compile("a:\n echo {{`f() { return 100; }; f`}}")
-      .run(&["a"], &Default::default())
-      .unwrap_err()
-    {
+    let justfile = compile("a:\n echo {{`f() { return 100; }; f`}}");
+    let config = config(&["a"]);
+    let dir = env::current_dir().unwrap();
+    match justfile.run(&config, &dir).unwrap_err() {
       RuntimeError::Backtick {
         token,
         output_error: OutputError::Code(code),
@@ -193,12 +187,12 @@ b = `echo $exported_variable`
 recipe:
   echo {{b}}
 "#;
-    let config = Config {
-      quiet: true,
-      ..Default::default()
-    };
 
-    match compile(text).run(&["recipe"], &config).unwrap_err() {
+    let justfile = compile(text);
+    let config = config(&["--quiet", "recipe"]);
+    let dir = env::current_dir().unwrap();
+
+    match justfile.run(&config, &dir).unwrap_err() {
       RuntimeError::Backtick {
         token,
         output_error: OutputError::Code(_),

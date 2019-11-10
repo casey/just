@@ -4,7 +4,7 @@ use ansi_term::Color::*;
 use ansi_term::{ANSIGenericString, Prefix, Style, Suffix};
 use atty::Stream;
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub(crate) struct Color {
   use_color: UseColor,
   atty: bool,
@@ -128,7 +128,7 @@ impl Color {
 impl Default for Color {
   fn default() -> Color {
     Color {
-      use_color: UseColor::Never,
+      use_color: UseColor::Auto,
       atty: false,
       style: Style::new(),
     }

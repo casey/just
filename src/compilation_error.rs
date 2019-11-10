@@ -10,13 +10,14 @@ pub(crate) struct CompilationError<'a> {
   pub(crate) kind: CompilationErrorKind<'a>,
 }
 
-impl<'a> Display for CompilationError<'a> {
+impl Error for CompilationError<'_> {}
+
+impl Display for CompilationError<'_> {
   fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
     use CompilationErrorKind::*;
-    let error = Color::fmt(f).error();
     let message = Color::fmt(f).message();
 
-    write!(f, "{} {}", error.paint("error:"), message.prefix())?;
+    write!(f, "{}", message.prefix())?;
 
     match self.kind {
       AliasShadowsRecipe { alias, recipe_line } => {

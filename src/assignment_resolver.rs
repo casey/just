@@ -62,7 +62,7 @@ impl<'a: 'b, 'b> AssignmentResolver<'a, 'b> {
           let token = self.assignments[variable].name.token();
           self.stack.push(variable);
           return Err(token.error(CircularVariableDependency {
-            variable: variable,
+            variable,
             circle: self.stack.clone(),
           }));
         } else if self.assignments.contains_key(variable) {

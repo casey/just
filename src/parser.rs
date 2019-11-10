@@ -48,7 +48,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     &self,
     expected: &[TokenKind],
   ) -> CompilationResult<'src, CompilationError<'src>> {
-    let mut expected = expected.iter().cloned().collect::<Vec<TokenKind>>();
+    let mut expected = expected.to_vec();
     expected.sort();
 
     self.error(CompilationErrorKind::UnexpectedToken {
@@ -69,7 +69,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   /// An iterator over the remaining significant tokens
   fn rest(&self) -> impl Iterator<Item = Token<'src>> + 'tokens {
     self.tokens[self.next..]
-      .into_iter()
+      .iter()
       .cloned()
       .filter(|token| token.kind != Whitespace)
   }
@@ -106,7 +106,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
 
   /// Get the `n`th next significant token
   fn get(&self, n: usize) -> CompilationResult<'src, Token<'src>> {
-    match self.rest().skip(n).next() {
+    match self.rest().nth(n) {
       Some(token) => Ok(token),
       None => Err(self.internal_error("`Parser::get()` advanced past end of token stream")?),
     }
@@ -374,15 +374,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
         self.expect(ParenR)?;
         Ok(Expression::Group { contents })
       }
-      _ => {
-        return Err(self.unexpected_token(&[
-          StringCooked,
-          StringRaw,
-          Backtick,
-          Identifier,
-          ParenL,
-        ])?)
-      }
+      _ => Err(self.unexpected_token(&[StringCooked, StringRaw, Backtick, Identifier, ParenL])?),
     }
   }
 
@@ -434,9 +426,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
 
   /// Parse a name from an identifier token
   fn parse_name(&mut self) -> CompilationResult<'src, Name<'src>> {
-    self
-      .expect(Identifier)
-      .map(|token| Name::from_identifier(token))
+    self.expect(Identifier).map(Name::from_identifier)
   }
 
   /// Parse sequence of comma-separated expressions
@@ -1415,7 +1405,10 @@ mod tests {
     line:   0,
     column: 10,
     width:  1,
-    kind:   UnexpectedToken{expected: vec![Backtick, Identifier, ParenL, StringCooked, StringRaw], found: Eol},
+    kind:   UnexpectedToken {
+      expected: vec![Backtick, Identifier, ParenL, StringCooked, StringRaw],
+      found: Eol
+    },
   }
 
   error! {
@@ -1425,7 +1418,10 @@ mod tests {
     line:   0,
     column: 10,
     width:  0,
-    kind:   UnexpectedToken{expected: vec![Backtick, Identifier, ParenL, StringCooked, StringRaw], found: Eof},
+    kind:   UnexpectedToken {
+      expected: vec![Backtick, Identifier, ParenL, StringCooked, StringRaw],
+      found: Eof,
+    },
   }
 
   error! {

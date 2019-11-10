@@ -74,7 +74,7 @@ default:
   fn interrupt_backtick() {
     interrupt_test(
       "
-foo = `sleep 1`
+foo := `sleep 1`
 
 default:
   @echo {{foo}}

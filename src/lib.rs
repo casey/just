@@ -15,9 +15,6 @@ pub mod node;
 #[cfg(fuzzing)]
 pub(crate) mod fuzzing;
 
-#[macro_use]
-mod die;
-
 mod alias;
 mod alias_resolver;
 mod analyzer;
@@ -37,6 +34,8 @@ mod count;
 mod default;
 mod empty;
 mod enclosure;
+mod error;
+mod error_result_ext;
 mod expression;
 mod fragment;
 mod function;
@@ -52,6 +51,7 @@ mod lexer;
 mod line;
 mod list;
 mod load_dotenv;
+mod load_error;
 mod module;
 mod name;
 mod ordinal;
@@ -69,6 +69,7 @@ mod recipe_resolver;
 mod run;
 mod runtime_error;
 mod search;
+mod search_config;
 mod search_error;
 mod shebang;
 mod show_whitespace;

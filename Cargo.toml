@@ -26,6 +26,7 @@ itertools      = "0.8"
 lazy_static    = "1"
 libc           = "0.2"
 log            = "0.4.4"
+snafu          = "0.6"
 target         = "1"
 tempfile       = "3"
 unicode-width  = "0.1"
@@ -37,6 +38,7 @@ features = ["termination"]
 [dev-dependencies]
 executable-path   = "1"
 pretty_assertions = "0.6"
+which             = "3"
 
 # Until github.com/rust-lang/cargo/pull/7333 makes it into stable,
 # this version-less dev-dependency will interfere with publishing

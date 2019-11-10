@@ -11,8 +11,7 @@ use libc::{EXIT_FAILURE, EXIT_SUCCESS};
 use pretty_assertions::assert_eq;
 use test_utilities::{tempdir, unindent};
 
-/// Instantiate an integration test.
-macro_rules! integration_test {
+macro_rules! test {
   (
     name:     $name:ident,
     justfile: $justfile:expr,
@@ -160,7 +159,7 @@ fn test_round_trip(tmpdir: &Path) {
   assert_eq!(reparsed, dumped, "reparse mismatch");
 }
 
-integration_test! {
+test! {
   name: alias_listing,
   justfile: "
     foo:
@@ -176,7 +175,7 @@ integration_test! {
   ",
 }
 
-integration_test! {
+test! {
   name: alias_listing_multiple_aliases,
   justfile: "foo:\n  echo foo\nalias f := foo\nalias fo := foo",
   args: ("--list"),
@@ -188,7 +187,7 @@ integration_test! {
   ",
 }
 
-integration_test! {
+test! {
   name: alias_listing_parameters,
   justfile: "foo PARAM='foo':\n  echo {{PARAM}}\nalias f := foo",
   args: ("--list"),
@@ -199,7 +198,7 @@ integration_test! {
   ",
 }
 
-integration_test! {
+test! {
   name: alias_listing_private,
   justfile: "foo PARAM='foo':\n  echo {{PARAM}}\nalias _f := foo",
   args: ("--list"),
@@ -209,7 +208,7 @@ integration_test! {
   ",
 }
 
-integration_test! {
+test! {
   name: alias,
   justfile: "foo:\n  echo foo\nalias f := foo",
   args: ("f"),
@@ -217,7 +216,7 @@ integration_test! {
   stderr: "echo foo\n",
 }
 
-integration_test! {
+test! {
   name: alias_with_parameters,
   justfile: "foo value='foo':\n  echo {{value}}\nalias f := foo",
   args: ("f", "bar"),
@@ -225,7 +224,7 @@ integration_test! {
   stderr: "echo bar\n",
 }
 
-integration_test! {
+test! {
   name: alias_with_dependencies,
   justfile: "foo:\n  echo foo\nbar: foo\nalias b := bar",
   args: ("b"),
@@ -233,7 +232,7 @@ integration_test! {
   stderr: "echo foo\n",
 }
 
-integration_test! {
+test! {
   name: duplicate_alias,
   justfile: "alias foo := bar\nalias foo := baz\n",
   stderr: "
@@ -245,7 +244,7 @@ integration_test! {
   status: EXIT_FAILURE,
 }
 
-integration_test! {
+test! {
   name: unknown_alias_target,
   justfile: "alias foo := bar\n",
   stderr: "
@@ -257,7 +256,7 @@ integration_test! {
   status: EXIT_FAILURE,
 }
 
-integration_test! {
+test! {
   name: alias_shadows_recipe,
   justfile: "bar:\n  echo bar\nalias foo := bar\nfoo:\n  echo foo",
   stderr: "
@@ -269,7 +268,7 @@ integration_test! {
   status: EXIT_FAILURE,
 }
 
-integration_test! {
+test! {
   name: alias_show,
   justfile: "foo:\n    bar\nalias f := foo",
   args: ("--show", "f"),
@@ -280,7 +279,7 @@ integration_test! {
   ",
 }
 
-integration_test! {
+test! {
   name: alias_show_missing_target,
   justfile: "alias f := foo",
   args: ("--show", "f"),
@@ -293,20 +292,20 @@ integration_test! {
   status: EXIT_FAILURE,
 }
 
-integration_test! {
+test! {
   name:     default,
   justfile: "default:\n echo hello\nother: \n echo bar",
   stdout:   "hello\n",
   stderr:   "echo hello\n",
 }
 
-integration_test! {
+test! {
   name:     quiet,
   justfile: "default:\n @echo hello",
   stdout:   "hello\n",
 }
 
-integration_test! {
+test! {
   name:     verbose,
   justfile: "default:\n @echo hello",
   args:     ("--verbose"),
@@ -314,7 +313,7 @@ integration_test! {
   stderr:   "===> Running recipe `default`...\necho hello\n",
 }
 
-integration_test! {
+test! {
   name:     order,
   justfile: "
 b: a
@@ -338,7 +337,7 @@ c: b
   stderr:   "echo a\necho b\necho c\necho d\n",
 }
 
-integration_test! {
+test! {
   name:     summary,
   justfile: "b: a
 a:
@@ -351,7 +350,7 @@ _y:
   stdout:   "a b c d\n",
 }
 
-integration_test! {
+test! {
   name:     select,
   justfile: "b:
   @echo b
@@ -365,7 +364,7 @@ c:
   stdout:   "d\nc\n",
 }
 
-integration_test! {
+test! {
   name:     print,
   justfile: "b:
   echo b
@@ -380,7 +379,7 @@ c:
   stderr:   "echo d\necho c\n",
 }
 
-integration_test! {
+test! {
   name:     show,
   justfile: r#"hello := "foo"
 bar := hello + hello
@@ -393,7 +392,7 @@ recipe:
   "#,
 }
 
-integration_test! {
+test! {
   name:     status_passthrough,
   justfile: "
 
@@ -406,7 +405,7 @@ recipe:
   status:   100,
 }
 
-integration_test! {
+test! {
   name:     unknown_dependency,
   justfile: "bar:\nhello:\nfoo: bar baaaaaaaz hello",
   stderr:   "
@@ -418,21 +417,21 @@ integration_test! {
   status:   EXIT_FAILURE,
 }
 
-integration_test! {
+test! {
   name:     backtick_success,
   justfile: "a := `printf Hello,`\nbar:\n printf '{{a + `printf ' world.'`}}'",
   stdout:   "Hello, world.",
   stderr:   "printf 'Hello, world.'\n",
 }
 
-integration_test! {
+test! {
   name:     backtick_trimming,
   justfile: "a := `echo Hello,`\nbar:\n echo '{{a + `echo ' world.'`}}'",
   stdout:   "Hello, world.\n",
   stderr:   "echo 'Hello, world.'\n",
 }
 
-integration_test! {
+test! {
   name:     backtick_code_assignment,
   justfile: "b := a\na := `exit 100`\nbar:\n echo '{{`exit 200`}}'",
   stderr:   "
@@ -444,7 +443,7 @@ integration_test! {
   status:   100,
 }
 
-integration_test! {
+test! {
   name:     backtick_code_interpolation,
   justfile: "b := a\na := `echo hello`\nbar:\n echo '{{`exit 200`}}'",
   stderr:   "
@@ -456,7 +455,7 @@ integration_test! {
   status:   200,
 }
 
-integration_test! {
+test! {
   name:     backtick_code_interpolation_mod,
   justfile: "f:\n 無{{`exit 200`}}",
   stderr:   "
@@ -468,7 +467,7 @@ integration_test! {
   status:   200,
 }
 
-integration_test! {
+test! {
   name:     backtick_code_interpolation_tab,
   justfile: "
 backtick-fail:
@@ -482,7 +481,7 @@ backtick-fail:
   status:   200,
 }
 
-integration_test! {
+test! {
   name:     backtick_code_interpolation_tabs,
   justfile: "
 backtick-fail:
@@ -496,7 +495,7 @@ backtick-fail:
   status:   200,
 }
 
-integration_test! {
+test! {
   name:     backtick_code_interpolation_inner_tab,
   justfile: "
 backtick-fail:
@@ -511,7 +510,7 @@ backtick-fail:
   status:   200,
 }
 
-integration_test! {
+test! {
   name:     backtick_code_interpolation_leading_emoji,
   justfile: "
 backtick-fail:
@@ -526,7 +525,7 @@ backtick-fail:
   status:   200,
 }
 
-integration_test! {
+test! {
   name:     backtick_code_interpolation_unicode_hell,
   justfile: "
 backtick-fail:
@@ -541,7 +540,7 @@ backtick-fail:
   status:   200,
 }
 
-integration_test! {
+test! {
   name:     backtick_code_long,
   justfile: "\n\n\n\n\n\nb := a\na := `echo hello`\nbar:\n echo '{{`exit 200`}}'",
   stderr:   "
@@ -553,7 +552,7 @@ integration_test! {
   status:   200,
 }
 
-integration_test! {
+test! {
   name:     shebang_backtick_failure,
   justfile: "foo:
  #!/bin/sh
@@ -569,7 +568,7 @@ integration_test! {
   status:   123,
 }
 
-integration_test! {
+test! {
   name:     command_backtick_failure,
   justfile: "foo:
  echo hello
@@ -585,7 +584,7 @@ integration_test! {
   status:   123,
 }
 
-integration_test! {
+test! {
   name:     assignment_backtick_failure,
   justfile: "foo:
  echo hello
@@ -601,7 +600,7 @@ a := `exit 222`",
   status:   222,
 }
 
-integration_test! {
+test! {
   name:     unknown_override_options,
   justfile: "foo:
  echo hello
@@ -613,7 +612,7 @@ a := `exit 222`",
   status:   EXIT_FAILURE,
 }
 
-integration_test! {
+test! {
   name:     unknown_override_args,
   justfile: "foo:
  echo hello
@@ -625,7 +624,7 @@ a := `exit 222`",
   status:   EXIT_FAILURE,
 }
 
-integration_test! {
+test! {
   name:     unknown_override_arg,
   justfile: "foo:
  echo hello
@@ -636,7 +635,7 @@ a := `exit 222`",
   status:   EXIT_FAILURE,
 }
 
-integration_test! {
+test! {
   name:     overrides_first,
   justfile: r#"
 foo := "foo"
@@ -651,7 +650,7 @@ recipe arg:
   stderr:   "echo arg=baz=bar\necho barbbaz\n",
 }
 
-integration_test! {
+test! {
   name:     overrides_not_evaluated,
   justfile: r#"
 foo := `exit 1`
@@ -666,7 +665,7 @@ recipe arg:
   stderr:   "echo arg=baz=bar\necho barbbaz\n",
 }
 
-integration_test! {
+test! {
   name:     dry_run,
   justfile: r#"
 var := `echo stderr 1>&2; echo backtick`
@@ -693,7 +692,7 @@ echo `echo command interpolation`
 ",
 }
 
-integration_test! {
+test! {
   name:     evaluate,
   justfile: r#"
 foo := "a\t"
@@ -712,7 +711,7 @@ hello := "c"
 "#,
 }
 
-integration_test! {
+test! {
   name:     export_success,
   justfile: r#"
 export FOO := "a"
@@ -727,7 +726,7 @@ wut:
   stderr:   "echo $FOO $BAR $ABC\n",
 }
 
-integration_test! {
+test! {
   name:     export_override,
   justfile: r#"
 export FOO := "a"
@@ -743,7 +742,7 @@ wut:
   stderr:   "echo $FOO $BAR $ABC\n",
 }
 
-integration_test! {
+test! {
   name:     export_shebang,
   justfile: r#"
 export FOO := "a"
@@ -758,7 +757,7 @@ wut:
   stdout:   "a b abc\n",
 }
 
-integration_test! {
+test! {
   name:     export_recipe_backtick,
   justfile: r#"
 export EXPORTED_VARIABLE := "A-IS-A"
@@ -770,7 +769,7 @@ recipe:
   stderr:   "echo recipe A-IS-A\n",
 }
 
-integration_test! {
+test! {
   name:     raw_string,
   justfile: r#"
 export EXPORTED_VARIABLE := '\z'
@@ -782,7 +781,7 @@ recipe:
   stderr:   "printf \"$EXPORTED_VARIABLE\"\n",
 }
 
-integration_test! {
+test! {
   name:     line_error_spacing,
   justfile: r#"
 
@@ -804,7 +803,7 @@ integration_test! {
   status:   EXIT_FAILURE,
 }
 
-integration_test! {
+test! {
   name:     quiet_flag_no_stdout,
   justfile: r#"
 default:
@@ -814,7 +813,7 @@ default:
   stdout:   "",
 }
 
-integration_test! {
+test! {
   name:     quiet_flag_no_stderr,
   justfile: r#"
 default:
@@ -824,7 +823,7 @@ default:
   stdout:   "",
 }
 
-integration_test! {
+test! {
   name:     quiet_flag_no_command_echoing,
   justfile: r#"
 default:
@@ -834,7 +833,7 @@ default:
   stdout:   "",
 }
 
-integration_test! {
+test! {
   name:     quiet_flag_no_error_messages,
   justfile: r#"
 default:
@@ -845,7 +844,7 @@ default:
   status:   100,
 }
 
-integration_test! {
+test! {
   name:     quiet_flag_no_assignment_backtick_stderr,
   justfile: r#"
 a := `echo hello 1>&2`
@@ -857,7 +856,7 @@ default:
   status:   100,
 }
 
-integration_test! {
+test! {
   name:     quiet_flag_no_interpolation_backtick_stderr,
   justfile: r#"
 default:
@@ -869,7 +868,7 @@ default:
   status:   100,
 }
 
-integration_test! {
+test! {
   name:     argument_single,
   justfile: "
 foo A:
@@ -880,7 +879,7 @@ foo A:
   stderr:   "echo ARGUMENT\n",
 }
 
-integration_test! {
+test! {
   name:     argument_multiple,
   justfile: "
 foo A B:
@@ -891,7 +890,7 @@ foo A B:
   stderr:   "echo A:ONE B:TWO\n",
 }
 
-integration_test! {
+test! {
   name:     argument_mismatch_more,
   justfile: "
 foo A B:
@@ -903,7 +902,7 @@ foo A B:
   status:   EXIT_FAILURE,
 }
 
-integration_test! {
+test! {
   name:     argument_mismatch_fewer,
   justfile: "
 foo A B:
@@ -915,7 +914,7 @@ foo A B:
   status:   EXIT_FAILURE,
 }
 
-integration_test! {
+test! {
   name:     argument_mismatch_more_with_default,
   justfile: "
 foo A B='B':
@@ -927,7 +926,7 @@ foo A B='B':
   status:   EXIT_FAILURE,
 }
 
-integration_test! {
+test! {
   name:     argument_mismatch_fewer_with_default,
   justfile: "
 foo A B C='C':
@@ -939,7 +938,7 @@ foo A B C='C':
   status:   EXIT_FAILURE,
 }
 
-integration_test! {
+test! {
   name:     unknown_recipe,
   justfile: "hello:",
   args:     ("foo"),
@@ -948,7 +947,7 @@ integration_test! {
   status:   EXIT_FAILURE,
 }
 
-integration_test! {
+test! {
   name:     unknown_recipes,
   justfile: "hello:",
   args:     ("foo", "bar"),
@@ -957,7 +956,7 @@ integration_test! {
   status:   EXIT_FAILURE,
 }
 
-integration_test! {
+test! {
   name:     color_always,
   justfile: "b := a\na := `exit 100`\nbar:\n echo '{{`exit 200`}}'",
   args:     ("--color", "always"),
@@ -967,7 +966,7 @@ integration_test! {
   status:   100,
 }
 
-integration_test! {
+test! {
   name:     color_never,
   justfile: "b := a\na := `exit 100`\nbar:\n echo '{{`exit 200`}}'",
   args:     ("--color", "never"),
@@ -980,7 +979,7 @@ integration_test! {
   status:   100,
 }
 
-integration_test! {
+test! {
   name:     color_auto,
   justfile: "b := a\na := `exit 100`\nbar:\n echo '{{`exit 200`}}'",
   args:     ("--color", "auto"),
@@ -993,7 +992,7 @@ integration_test! {
   status:   100,
 }
 
-integration_test! {
+test! {
   name:     colors_no_context,
   justfile: "
 recipe:
@@ -1005,7 +1004,7 @@ Recipe `recipe` failed on line 3 with exit code 100\u{1b}[0m\n",
   status:   100,
 }
 
-integration_test! {
+test! {
   name:     dump,
   justfile: r#"
 # this recipe does something
@@ -1018,7 +1017,7 @@ recipe a b +d:
 ",
 }
 
-integration_test! {
+test! {
   name:     mixed_whitespace,
   justfile: "bar:\n\t echo hello",
   stdout:   "",
@@ -1031,7 +1030,7 @@ Leading whitespace may consist of tabs or spaces, but not both
   status:   EXIT_FAILURE,
 }
 
-integration_test! {
+test! {
   name:     extra_leading_whitespace,
   justfile: "bar:\n\t\techo hello\n\t\t\techo goodbye",
   stdout:   "",
@@ -1043,7 +1042,7 @@ integration_test! {
   status:   EXIT_FAILURE,
 }
 
-integration_test! {
+test! {
   name:     inconsistent_leading_whitespace,
   justfile: "bar:\n\t\techo hello\n\t echo goodbye",
   stdout:   "",
@@ -1056,7 +1055,7 @@ integration_test! {
   status:   EXIT_FAILURE,
 }
 
-integration_test! {
+test! {
   name:     required_after_default,
   justfile: "bar:\nhello baz arg='foo' bar:",
   stdout:   "",
@@ -1068,7 +1067,7 @@ integration_test! {
   status:   EXIT_FAILURE,
 }
 
-integration_test! {
+test! {
   name:     required_after_variadic,
   justfile: "bar:\nhello baz +arg bar:",
   stdout:   "",
@@ -1080,7 +1079,7 @@ integration_test! {
   status:   EXIT_FAILURE,
 }
 
-integration_test! {
+test! {
   name:     use_string_default,
   justfile: r#"
 bar:
@@ -1092,7 +1091,7 @@ hello baz arg="XYZ\t\"	":
   stderr:   "echo 'ABC...XYZ\t\"\t'\n",
 }
 
-integration_test! {
+test! {
   name:     use_raw_string_default,
   justfile: r#"
 bar:
@@ -1104,7 +1103,7 @@ hello baz arg='XYZ"	':
   stderr:   "printf 'ABC...XYZ\"\t'\n",
 }
 
-integration_test! {
+test! {
   name:     supply_use_default,
   justfile: r#"
 hello a b='B' c='C':
@@ -1115,7 +1114,7 @@ hello a b='B' c='C':
   stderr:   "echo 0 1 C\n",
 }
 
-integration_test! {
+test! {
   name:     supply_defaults,
   justfile: r#"
 hello a b='B' c='C':
@@ -1126,7 +1125,7 @@ hello a b='B' c='C':
   stderr:   "echo 0 1 2\n",
 }
 
-integration_test! {
+test! {
   name:     list,
   justfile: r#"
 
@@ -1149,7 +1148,7 @@ _private-recipe:
   "#,
 }
 
-integration_test! {
+test! {
   name:     list_alignment,
   justfile: r#"
 
@@ -1171,7 +1170,7 @@ _private-recipe:
   "#,
 }
 
-integration_test! {
+test! {
   name:     list_alignment_long,
   justfile: r#"
 
@@ -1198,7 +1197,7 @@ _private-recipe:
   "#,
 }
 
-integration_test! {
+test! {
   name:     show_suggestion,
   justfile: r#"
 hello a b='B	' c='C':
@@ -1212,7 +1211,7 @@ a Z="\t z":
   status:   EXIT_FAILURE,
 }
 
-integration_test! {
+test! {
   name:     show_no_suggestion,
   justfile: r#"
 helloooooo a b='B	' c='C':
@@ -1226,7 +1225,7 @@ a Z="\t z":
   status:   EXIT_FAILURE,
 }
 
-integration_test! {
+test! {
   name:     run_suggestion,
   justfile: r#"
 hello a b='B	' c='C':
@@ -1240,7 +1239,7 @@ a Z="\t z":
   status:   EXIT_FAILURE,
 }
 
-integration_test! {
+test! {
   name:     line_continuation_with_space,
   justfile: r#"
 foo:
@@ -1252,7 +1251,7 @@ foo:
   stderr:   "echo a       b             c\n",
 }
 
-integration_test! {
+test! {
   name:     line_continuation_with_quoted_space,
   justfile: r#"
 foo:
@@ -1264,7 +1263,7 @@ foo:
   stderr:   "echo 'a       b             c'\n",
 }
 
-integration_test! {
+test! {
   name:     line_continuation_no_space,
   justfile: r#"
 foo:
@@ -1276,7 +1275,7 @@ foo:
   stderr:   "echo abc\n",
 }
 
-integration_test! {
+test! {
   name:     test_os_arch_functions_in_interpolation,
   justfile: r#"
 foo:
@@ -1286,7 +1285,7 @@ foo:
   stderr:   format!("echo {} {} {}\n", target::arch(), target::os(), target::os_family()).as_str(),
 }
 
-integration_test! {
+test! {
   name:     test_os_arch_functions_in_expression,
   justfile: r#"
 a := arch()
@@ -1301,7 +1300,7 @@ foo:
 }
 
 #[cfg(not(windows))]
-integration_test! {
+test! {
   name:     env_var_functions,
   justfile: r#"
 p := env_var('USER')
@@ -1316,7 +1315,7 @@ foo:
 }
 
 #[cfg(windows)]
-integration_test! {
+test! {
   name:     env_var_functions,
   justfile: r#"
 p := env_var('USERNAME')
@@ -1330,7 +1329,7 @@ foo:
   stderr:   format!("/bin/echo '{}' 'HTAP' 'ABC'\n", env::var("USERNAME").unwrap()).as_str(),
 }
 
-integration_test! {
+test! {
   name:     env_var_failure,
   justfile: "a:\n  echo {{env_var('ZADDY')}}",
   args:     ("a"),
@@ -1343,7 +1342,7 @@ integration_test! {
   status:   EXIT_FAILURE,
 }
 
-integration_test! {
+test! {
   name:     quiet_recipe,
   justfile: r#"
 @quiet:
@@ -1355,7 +1354,7 @@ integration_test! {
   stderr:   "echo c\n",
 }
 
-integration_test! {
+test! {
   name:     quiet_shebang_recipe,
   justfile: r#"
 @quiet:
@@ -1366,7 +1365,7 @@ integration_test! {
   stderr:   "#!/bin/sh\necho hello\n",
 }
 
-integration_test! {
+test! {
   name:     shebang_line_numbers,
   justfile: r#"
 quiet:
@@ -1394,7 +1393,7 @@ c
 ",
 }
 
-integration_test! {
+test! {
   name:     complex_dependencies,
   justfile: r#"
 a: b
@@ -1405,7 +1404,7 @@ c: b a
   stdout:   "",
 }
 
-integration_test! {
+test! {
   name:     parameter_shadows_variable,
   justfile: "FOO := 'hello'\na FOO:",
   args:     ("a"),
@@ -1418,7 +1417,7 @@ integration_test! {
   status:   EXIT_FAILURE,
 }
 
-integration_test! {
+test! {
   name:     unknown_function_in_assignment,
   justfile: r#"foo := foo() + "hello"
 bar:"#,
@@ -1432,7 +1431,7 @@ bar:"#,
   status:   EXIT_FAILURE,
 }
 
-integration_test! {
+test! {
   name:     dependency_takes_arguments,
   justfile: "b: a\na FOO:",
   args:     ("b"),
@@ -1446,7 +1445,7 @@ integration_test! {
   status:   EXIT_FAILURE,
 }
 
-integration_test! {
+test! {
   name:     duplicate_parameter,
   justfile: "a foo foo:",
   args:     ("a"),
@@ -1459,7 +1458,7 @@ integration_test! {
   status:   EXIT_FAILURE,
 }
 
-integration_test! {
+test! {
   name:     duplicate_dependency,
   justfile: "b:\na: b b",
   args:     ("a"),
@@ -1472,7 +1471,7 @@ integration_test! {
   status:   EXIT_FAILURE,
 }
 
-integration_test! {
+test! {
   name:     duplicate_recipe,
   justfile: "b:\nb:",
   args:     ("b"),
@@ -1485,7 +1484,7 @@ integration_test! {
   status:   EXIT_FAILURE,
 }
 
-integration_test! {
+test! {
   name:     duplicate_variable,
   justfile: "a := 'hello'\na := 'hello'\nfoo:",
   args:     ("foo"),
@@ -1498,7 +1497,7 @@ integration_test! {
   status:   EXIT_FAILURE,
 }
 
-integration_test! {
+test! {
   name:     unexpected_token_in_dependency_position,
   justfile: "foo: 'bar'",
   args:     ("foo"),
@@ -1511,7 +1510,7 @@ integration_test! {
   status:   EXIT_FAILURE,
 }
 
-integration_test! {
+test! {
   name:     unexpected_token_after_name,
   justfile: "foo 'bar'",
   args:     ("foo"),
@@ -1524,7 +1523,7 @@ integration_test! {
   status:   EXIT_FAILURE,
 }
 
-integration_test! {
+test! {
   name:     self_dependency,
   justfile: "a: a",
   args:     ("a"),
@@ -1537,7 +1536,7 @@ integration_test! {
   status:   EXIT_FAILURE,
 }
 
-integration_test! {
+test! {
   name:     long_circular_recipe_dependency,
   justfile: "a: b\nb: c\nc: d\nd: a",
   args:     ("a"),
@@ -1550,7 +1549,7 @@ integration_test! {
   status:   EXIT_FAILURE,
 }
 
-integration_test! {
+test! {
   name:     variable_self_dependency,
   justfile: "z := z\na:",
   args:     ("a"),
@@ -1563,7 +1562,7 @@ integration_test! {
   status:   EXIT_FAILURE,
 }
 
-integration_test! {
+test! {
   name:     variable_circular_dependency,
   justfile: "x := y\ny := z\nz := x\na:",
   args:     ("a"),
@@ -1576,7 +1575,7 @@ integration_test! {
   status:   EXIT_FAILURE,
 }
 
-integration_test! {
+test! {
   name:     invalid_escape_sequence,
   justfile: r#"x := "\q"
 a:"#,
@@ -1590,7 +1589,7 @@ a:"#,
   status:   EXIT_FAILURE,
 }
 
-integration_test! {
+test! {
   name:     multiline_raw_string,
   justfile: "
 string := 'hello
@@ -1608,7 +1607,7 @@ whatever'
 ",
 }
 
-integration_test! {
+test! {
   name:     error_line_after_multiline_raw_string,
   justfile: "
 string := 'hello
@@ -1628,7 +1627,7 @@ a:
   status:   EXIT_FAILURE,
 }
 
-integration_test! {
+test! {
   name:     error_column_after_multiline_raw_string,
   justfile: "
 string := 'hello
@@ -1648,7 +1647,7 @@ a:
   status:   EXIT_FAILURE,
 }
 
-integration_test! {
+test! {
   name:     multiline_raw_string_in_interpolation,
   justfile: r#"
 a:
@@ -1666,7 +1665,7 @@ a:
   ",
 }
 
-integration_test! {
+test! {
   name:     error_line_after_multiline_raw_string_in_interpolation,
   justfile: r#"
 a:
@@ -1685,7 +1684,7 @@ a:
   status:   EXIT_FAILURE,
 }
 
-integration_test! {
+test! {
   name:     unterminated_raw_string,
   justfile: "
 a b= ':
@@ -1700,7 +1699,7 @@ a b= ':
   status:   EXIT_FAILURE,
 }
 
-integration_test! {
+test! {
   name:     unterminated_string,
   justfile: r#"
 a b= ":
@@ -1715,7 +1714,7 @@ a b= ":
   status:   EXIT_FAILURE,
 }
 
-integration_test! {
+test! {
   name:     variadic_recipe,
   justfile: "
 a x y +z:
@@ -1726,7 +1725,7 @@ a x y +z:
   stderr:   "echo 0 1 2 3  4 \n",
 }
 
-integration_test! {
+test! {
   name:     variadic_ignore_default,
   justfile: "
 a x y +z='HELLO':
@@ -1737,7 +1736,7 @@ a x y +z='HELLO':
   stderr:   "echo 0 1 2 3  4 \n",
 }
 
-integration_test! {
+test! {
   name:     variadic_use_default,
   justfile: "
 a x y +z='HELLO':
@@ -1748,7 +1747,7 @@ a x y +z='HELLO':
   stderr:   "echo 0 1 HELLO\n",
 }
 
-integration_test! {
+test! {
   name:     variadic_too_few,
   justfile: "
 a x y +z:
@@ -1760,7 +1759,7 @@ a x y +z:
   status:   EXIT_FAILURE,
 }
 
-integration_test! {
+test! {
   name:     argument_grouping,
   justfile: "
 FOO A B='blarg':
@@ -1777,7 +1776,7 @@ BAZ +Z:
   stderr:   "echo bar: 0\necho foo: 1 2\necho baz: 3 4 5\n",
 }
 
-integration_test! {
+test! {
   name:     missing_second_dependency,
   justfile: "
 x:
@@ -1793,7 +1792,7 @@ a: x y
   status:   EXIT_FAILURE,
 }
 
-integration_test! {
+test! {
   name:     list_colors,
   justfile: "
 # comment
@@ -1810,7 +1809,7 @@ a B C +D='hello':
   ",
 }
 
-integration_test! {
+test! {
   name:     run_colors,
   justfile: "
 # comment
@@ -1822,7 +1821,19 @@ a:
   stderr:   "\u{1b}[1;36m===> Running recipe `a`...\u{1b}[0m\n\u{1b}[1mecho hi\u{1b}[0m\n",
 }
 
-integration_test! {
+test! {
+  name:     no_highlight,
+  justfile: "
+# comment
+a:
+  echo hi
+",
+  args:     ("--color", "always", "--highlight", "--no-highlight", "--verbose"),
+  stdout:   "hi\n",
+  stderr:   "\u{1b}[1;36m===> Running recipe `a`...\u{1b}[0m\necho hi\n",
+}
+
+test! {
   name:     trailing_flags,
   justfile: "
 echo A B C:
@@ -1833,7 +1844,7 @@ echo A B C:
   stderr:   "echo --some --awesome --flags\n",
 }
 
-integration_test! {
+test! {
    name:     comment_before_variable,
    justfile: "
 #
@@ -1846,7 +1857,7 @@ echo:
    stderr:   "echo 1\n",
 }
 
-integration_test! {
+test! {
    name:     dotenv_variable_in_recipe,
    justfile: "
 #
@@ -1857,7 +1868,7 @@ echo:
    stderr:   "echo $DOTENV_KEY\n",
 }
 
-integration_test! {
+test! {
    name:     dotenv_variable_in_backtick,
    justfile: "
 #
@@ -1868,7 +1879,7 @@ echo:
    stdout:   "dotenv-value\n",
    stderr:   "echo dotenv-value\n",
 }
-integration_test! {
+test! {
    name:     dotenv_variable_in_function_in_recipe,
    justfile: "
 #
@@ -1880,7 +1891,7 @@ echo:
    stderr:   "echo dotenv-value\necho dotenv-value\n",
 }
 
-integration_test! {
+test! {
    name:     dotenv_variable_in_function_in_backtick,
    justfile: "
 #
@@ -1894,7 +1905,7 @@ echo:
    stderr:   "echo dotenv-value\necho dotenv-value\n",
 }
 
-integration_test! {
+test! {
    name:     invalid_escape_sequence_message,
    justfile: r#"
 X := "\'"
@@ -1908,7 +1919,7 @@ X := "\'"
    status:   EXIT_FAILURE,
 }
 
-integration_test! {
+test! {
    name:     unknown_variable_in_default,
    justfile: "
 foo x=bar:
@@ -1922,7 +1933,7 @@ foo x=bar:
    status:   EXIT_FAILURE,
 }
 
-integration_test! {
+test! {
    name:     unknown_function_in_default,
    justfile: "
 foo x=bar():
@@ -1936,7 +1947,7 @@ foo x=bar():
    status:   EXIT_FAILURE,
 }
 
-integration_test! {
+test! {
    name:     default_string,
    justfile: "
 foo x='bar':
@@ -1946,7 +1957,7 @@ foo x='bar':
    stderr:   "echo bar\n",
 }
 
-integration_test! {
+test! {
    name:     default_concatination,
    justfile: "
 foo x=(`echo foo` + 'bar'):
@@ -1956,7 +1967,7 @@ foo x=(`echo foo` + 'bar'):
    stderr:   "echo foobar\n",
 }
 
-integration_test! {
+test! {
    name:     default_backtick,
    justfile: "
 foo x=`echo foo`:
@@ -1966,7 +1977,7 @@ foo x=`echo foo`:
    stderr:   "echo foo\n",
 }
 
-integration_test! {
+test! {
    name:     default_variable,
    justfile: "
 y := 'foo'
@@ -1977,7 +1988,7 @@ foo x=y:
    stderr:   "echo foo\n",
 }
 
-integration_test! {
+test! {
   name:     test_os_arch_functions_in_default,
   justfile: r#"
 foo a=arch() o=os() f=os_family():
@@ -1987,7 +1998,7 @@ foo a=arch() o=os() f=os_family():
   stderr:   format!("echo {} {} {}\n", target::arch(), target::os(), target::os_family()).as_str(),
 }
 
-integration_test! {
+test! {
   name:     unterminated_interpolation_eol,
   justfile: "
 foo:
@@ -2002,7 +2013,7 @@ foo:
   status:   EXIT_FAILURE,
 }
 
-integration_test! {
+test! {
   name:     unterminated_interpolation_eof,
   justfile: "
 foo:
@@ -2016,7 +2027,7 @@ foo:
   status:   EXIT_FAILURE,
 }
 
-integration_test! {
+test! {
   name:     unterminated_backtick,
   justfile: "
 foo a=\t`echo blaaaaaah:
@@ -2030,7 +2041,7 @@ foo a=\t`echo blaaaaaah:
   status:   EXIT_FAILURE,
 }
 
-integration_test! {
+test! {
   name:     unknown_start_of_token,
   justfile: "
 assembly_source_files = $(wildcard src/arch/$(arch)/*.s)
@@ -2044,7 +2055,7 @@ assembly_source_files = $(wildcard src/arch/$(arch)/*.s)
    status:   EXIT_FAILURE,
 }
 
-integration_test! {
+test! {
   name:     backtick_variable_cat,
   justfile: "
 stdin := `cat`
@@ -2057,7 +2068,7 @@ default:
   stderr:   "echo STDIN\n",
 }
 
-integration_test! {
+test! {
    name:     backtick_default_cat_stdin,
    justfile: "
 default stdin = `cat`:
@@ -2068,7 +2079,7 @@ default stdin = `cat`:
    stderr:   "echo STDIN\n",
 }
 
-integration_test! {
+test! {
   name:     backtick_default_cat_justfile,
   justfile: "
 default stdin = `cat justfile`:
@@ -2086,7 +2097,7 @@ default stdin = `cat justfile`:
   ",
 }
 
-integration_test! {
+test! {
    name:     backtick_variable_read_single,
    justfile: "
 password := `read PW && echo $PW`
@@ -2099,7 +2110,7 @@ default:
    stderr:   "echo foobar\n",
 }
 
-integration_test! {
+test! {
    name:     backtick_variable_read_multiple,
    justfile: "
 a := `read A && echo $A`
@@ -2114,7 +2125,7 @@ default:
    stderr:   "echo foo\necho bar\n",
 }
 
-integration_test! {
+test! {
    name:     backtick_default_read_multiple,
    justfile: "
 
@@ -2127,7 +2138,7 @@ default a=`read A && echo $A` b=`read B && echo $B`:
    stderr:   "echo foo\necho bar\n",
 }
 
-integration_test! {
+test! {
   name: equals_deprecated_assignment,
   justfile: "
     foo = 'bar'
@@ -2146,7 +2157,7 @@ integration_test! {
   ",
 }
 
-integration_test! {
+test! {
   name: equals_deprecated_export,
   justfile: "
     export FOO = 'bar'
@@ -2165,7 +2176,7 @@ integration_test! {
   ",
 }
 
-integration_test! {
+test! {
   name: equals_deprecated_alias,
   justfile: "
     alias foo = default

@@ -17,12 +17,15 @@ impl InterruptHandler {
 
     match INSTANCE.lock() {
       Ok(guard) => guard,
-      Err(poison_error) => die!(
-        "{}",
-        RuntimeError::Internal {
-          message: format!("interrupt handler mutex poisoned: {}", poison_error),
-        }
-      ),
+      Err(poison_error) => {
+        eprintln!(
+          "{}",
+          RuntimeError::Internal {
+            message: format!("interrupt handler mutex poisoned: {}", poison_error),
+          }
+        );
+        std::process::exit(EXIT_FAILURE);
+      }
     }
   }
 
@@ -53,13 +56,14 @@ impl InterruptHandler {
 
   pub(crate) fn unblock(&mut self) {
     if self.blocks == 0 {
-      die!(
+      eprintln!(
         "{}",
         RuntimeError::Internal {
           message: "attempted to unblock interrupt handler, but handler was not blocked"
             .to_string(),
         }
       );
+      std::process::exit(EXIT_FAILURE);
     }
 
     self.blocks -= 1;

@@ -1,6 +1,6 @@
 use Verbosity::*;
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub(crate) enum Verbosity {
   Taciturn,
   Loquacious,

@@ -2,9 +2,8 @@ justfile grammar
 ================
 
 Justfiles are processed by a mildly context-sensitive tokenizer
-and a recursive descent parser. The grammar is mostly LL(1),
-although an extra token of lookahead is used to distinguish between
-export assignments and recipes with parameters.
+and a recursive descent parser. The grammar is LL(k), for an
+unknown but hopefully reasonable value of k.
 
 tokens
 ------

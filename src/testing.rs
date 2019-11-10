@@ -7,6 +7,17 @@ pub(crate) fn compile(text: &str) -> Justfile {
   }
 }
 
+pub(crate) fn config(args: &[&str]) -> Config {
+  let mut args = Vec::from(args);
+  args.insert(0, "just");
+
+  let app = Config::app();
+
+  let matches = app.get_matches_from_safe(args).unwrap();
+
+  Config::from_matches(&matches).unwrap()
+}
+
 pub(crate) use test_utilities::{tempdir, unindent};
 
 macro_rules! analysis_error {
