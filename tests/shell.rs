@@ -45,10 +45,10 @@ const JUSTFILE_CMD: &str = r#"
 
 set shell := ["cmd.exe", "/C"]
 
-x := `REM This is a comment!`
+x := `Echo "Hello" & Echo "World!"`
 
 recipe:
-  FOR %%WORD IN ("A", "B", "C") DO Echo %%WORD
+  REM Comment!
   Echo "{{x}}"
 "#;
 
@@ -65,7 +65,7 @@ fn cmd() {
     .output()
     .unwrap();
 
-  let stdout = "A\nB\nC\nHello, world!\n";
+  let stdout = "Hello, world!\n";
 
   assert_stdout(&output, stdout);
 }
@@ -94,7 +94,7 @@ fn powershell() {
     .output()
     .unwrap();
 
-  let stdout = "0\n1\n2\n3\n4\n5\n6\n7\n8\n9\nHello, world!\n";
+  let stdout = "0\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\nHello, world!\n";
 
   assert_stdout(&output, stdout);
 }
