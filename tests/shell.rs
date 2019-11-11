@@ -45,10 +45,10 @@ const JUSTFILE_CMD: &str = r#"
 
 set shell := ["cmd.exe", "/C"]
 
-x := `Echo "Hello" & Echo "World!"`
+x := `Echo`
 
 recipe:
-  REM Comment!
+  REM foo
   Echo "{{x}}"
 "#;
 
@@ -65,7 +65,7 @@ fn cmd() {
     .output()
     .unwrap();
 
-  let stdout = "Hello, world!\n";
+  let stdout = "A\nB\nC\nEcho is ON\n";
 
   assert_stdout(&output, stdout);
 }
