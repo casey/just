@@ -135,6 +135,17 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     }
   }
 
+  /// Return an error if the next token is not one of kinds `kinds`.
+  fn expect_any(&mut self, expected: &[TokenKind]) -> CompilationResult<'src, Token<'src>> {
+    for expected in expected.iter().cloned() {
+      if let Some(token) = self.accept(expected)? {
+        return Ok(token);
+      }
+    }
+
+    Err(self.unexpected_token(expected)?)
+  }
+
   /// Return an unexpected token error if the next token is not an EOL
   fn expect_eol(&mut self) -> CompilationResult<'src, ()> {
     self.accept(Comment)?;
@@ -269,6 +280,13 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
               items.push(Item::Recipe(self.parse_recipe(doc, false)?));
             }
           }
+          keyword::SET => {
+            if self.next_are(&[Identifier, Identifier, ColonEquals]) {
+              items.push(Item::Set(self.parse_set()?));
+            } else {
+              items.push(Item::Recipe(self.parse_recipe(doc, false)?));
+            }
+          }
           _ => {
             if self.next_are(&[Identifier, Equals]) {
               warnings.push(Warning::DeprecatedEquals {
@@ -380,7 +398,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
 
   /// Parse a string literal, e.g. `"FOO"`
   fn parse_string_literal(&mut self) -> CompilationResult<'src, StringLiteral<'src>> {
-    let token = self.presume_any(&[StringRaw, StringCooked])?;
+    let token = self.expect_any(&[StringRaw, StringCooked])?;
 
     let raw = &token.lexeme()[1..token.lexeme().len() - 1];
 
@@ -580,12 +598,56 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
 
     Ok(lines)
   }
+
+  /// Parse a setting
+  fn parse_set(&mut self) -> CompilationResult<'src, Set<'src>> {
+    self.presume_name(keyword::SET)?;
+    let name = Name::from_identifier(self.presume(Identifier)?);
+    self.presume(ColonEquals)?;
+    match name.lexeme() {
+      keyword::SHELL => {
+        self.expect(BracketL)?;
+
+        let command = self.parse_string_literal()?;
+
+        let mut arguments = Vec::new();
+
+        let mut comma = false;
+
+        if self.accepted(Comma)? {
+          comma = true;
+          while !self.next_is(BracketR) {
+            arguments.push(self.parse_string_literal().expected(&[BracketR])?);
+
+            if !self.accepted(Comma)? {
+              comma = false;
+              break;
+            }
+            comma = true;
+          }
+        }
+
+        self
+          .expect(BracketR)
+          .expected(if comma { &[] } else { &[Comma] })?;
+
+        Ok(Set {
+          value: Setting::Shell(setting::Shell { command, arguments }),
+          name,
+        })
+      }
+      _ => Err(name.error(CompilationErrorKind::UnknownSetting {
+        setting: name.lexeme(),
+      })),
+    }
+  }
 }
 
 #[cfg(test)]
 mod tests {
   use super::*;
 
+  use pretty_assertions::assert_eq;
   use testing::unindent;
   use CompilationErrorKind::*;
 
@@ -1368,6 +1430,42 @@ mod tests {
     tree: (justfile (recipe a (body ("foo"))) (recipe b)),
   }
 
+  test! {
+    name: set_shell_no_arguments,
+    text: "set shell := ['tclsh']",
+    tree: (justfile (set shell "tclsh")),
+  }
+
+  test! {
+    name: set_shell_no_arguments_cooked,
+    text: "set shell := [\"tclsh\"]",
+    tree: (justfile (set shell "tclsh")),
+  }
+
+  test! {
+    name: set_shell_no_arguments_trailing_comma,
+    text: "set shell := ['tclsh',]",
+    tree: (justfile (set shell "tclsh")),
+  }
+
+  test! {
+    name: set_shell_with_one_argument,
+    text: "set shell := ['bash', '-cu']",
+    tree: (justfile (set shell "bash" "-cu")),
+  }
+
+  test! {
+    name: set_shell_with_one_argument_trailing_comma,
+    text: "set shell := ['bash', '-cu',]",
+    tree: (justfile (set shell "bash" "-cu")),
+  }
+
+  test! {
+    name: set_shell_with_two_arguments,
+    text: "set shell := ['bash', '-cu', '-l']",
+    tree: (justfile (set shell "bash" "-cu" "-l")),
+  }
+
   error! {
     name: alias_syntax_multiple_rhs,
     input: "alias foo = bar baz",
@@ -1528,5 +1626,94 @@ mod tests {
     column: 10,
     width:  1,
     kind:   ParameterFollowsVariadicParameter{parameter: "e"},
+  }
+
+  error! {
+    name:   set_shell_empty,
+    input:  "set shell := []",
+    offset: 14,
+    line:   0,
+    column: 14,
+    width:  1,
+    kind:   UnexpectedToken {
+      expected: vec![StringCooked, StringRaw],
+      found: BracketR,
+    },
+  }
+
+  error! {
+    name:   set_shell_non_literal_first,
+    input:  "set shell := ['bar' + 'baz']",
+    offset: 20,
+    line:   0,
+    column: 20,
+    width:  1,
+    kind:   UnexpectedToken {
+      expected: vec![BracketR, Comma],
+      found: Plus,
+    },
+  }
+
+  error! {
+    name:   set_shell_non_literal_second,
+    input:  "set shell := ['biz', 'bar' + 'baz']",
+    offset: 27,
+    line:   0,
+    column: 27,
+    width:  1,
+    kind:   UnexpectedToken {
+      expected: vec![BracketR, Comma],
+      found: Plus,
+    },
+  }
+
+  error! {
+    name:   set_shell_bad_comma,
+    input:  "set shell := ['bash',",
+    offset: 21,
+    line:   0,
+    column: 21,
+    width:  0,
+    kind:   UnexpectedToken {
+      expected: vec![BracketR, StringCooked, StringRaw],
+      found: Eof,
+    },
+  }
+
+  error! {
+    name:   set_shell_bad,
+    input:  "set shell := ['bash'",
+    offset: 20,
+    line:   0,
+    column: 20,
+    width:  0,
+    kind:   UnexpectedToken {
+      expected: vec![BracketR, Comma],
+      found: Eof,
+    },
+  }
+
+  error! {
+    name:   set_unknown,
+    input:  "set shall := []",
+    offset: 4,
+    line:   0,
+    column: 4,
+    width:  5,
+    kind:   UnknownSetting {
+      setting: "shall",
+    },
+  }
+
+  error! {
+    name:   set_shell_non_string,
+    input:  "set shall := []",
+    offset: 4,
+    line:   0,
+    column: 4,
+    width:  5,
+    kind:   UnknownSetting {
+      setting: "shall",
+    },
   }
 }

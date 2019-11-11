@@ -1,6 +1,6 @@
 use crate::common::*;
 
-use std::process::{Command, ExitStatus, Stdio};
+use std::process::{ExitStatus, Stdio};
 
 /// Return a `RuntimeError::Signal` if the process was terminated by a signal,
 /// otherwise return an `RuntimeError::UnknownFailure`
@@ -90,6 +90,7 @@ impl<'a> Recipe<'a> {
       evaluated: empty(),
       working_directory: context.working_directory,
       scope: &context.scope,
+      settings: &context.settings,
       overrides,
       config,
       dotenv,
@@ -274,11 +275,11 @@ impl<'a> Recipe<'a> {
           continue;
         }
 
-        let mut cmd = Command::new(&config.shell);
+        let mut cmd = context.settings.shell_command(&config.shell);
 
         cmd.current_dir(context.working_directory);
 
-        cmd.arg("-cu").arg(command);
+        cmd.arg(command);
 
         if config.quiet {
           cmd.stderr(Stdio::null());

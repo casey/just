@@ -6,4 +6,5 @@ pub(crate) enum Item<'src> {
   Alias(Alias<'src>),
   Assignment(Assignment<'src>),
   Recipe(Recipe<'src>),
+  Set(Set<'src>),
 }

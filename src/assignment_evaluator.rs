@@ -8,6 +8,7 @@ pub(crate) struct AssignmentEvaluator<'a: 'b, 'b> {
   pub(crate) scope: &'b BTreeMap<&'a str, (bool, String)>,
   pub(crate) working_directory: &'b Path,
   pub(crate) overrides: &'b BTreeMap<String, String>,
+  pub(crate) settings: &'b Settings<'b>,
 }
 
 impl<'a, 'b> AssignmentEvaluator<'a, 'b> {
@@ -17,10 +18,12 @@ impl<'a, 'b> AssignmentEvaluator<'a, 'b> {
     dotenv: &'b BTreeMap<String, String>,
     assignments: &BTreeMap<&'a str, Assignment<'a>>,
     overrides: &BTreeMap<String, String>,
+    settings: &'b Settings<'b>,
   ) -> RunResult<'a, BTreeMap<&'a str, (bool, String)>> {
     let mut evaluator = AssignmentEvaluator {
       evaluated: empty(),
       scope: &empty(),
+      settings,
       overrides,
       config,
       assignments,
@@ -134,11 +137,11 @@ impl<'a, 'b> AssignmentEvaluator<'a, 'b> {
     raw: &str,
     token: &Token<'a>,
   ) -> RunResult<'a, String> {
-    let mut cmd = Command::new(&self.config.shell);
+    let mut cmd = self.settings.shell_command(&self.config.shell);
+
+    cmd.arg(raw);
 
     cmd.current_dir(self.working_directory);
-
-    cmd.arg("-cu").arg(raw);
 
     cmd.export_environment_variables(self.scope, dotenv)?;
 

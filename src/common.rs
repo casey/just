@@ -32,7 +32,7 @@ pub(crate) use snafu::{ResultExt, Snafu};
 pub(crate) use unicode_width::UnicodeWidthChar;
 
 // modules
-pub(crate) use crate::{config_error, keyword, search_error};
+pub(crate) use crate::{config_error, keyword, search_error, setting};
 
 // functions
 pub(crate) use crate::{
@@ -60,10 +60,11 @@ pub(crate) use crate::{
   parameter::Parameter, parser::Parser, platform::Platform, position::Position,
   positional::Positional, recipe::Recipe, recipe_context::RecipeContext,
   recipe_resolver::RecipeResolver, runtime_error::RuntimeError, search::Search,
-  search_config::SearchConfig, search_error::SearchError, shebang::Shebang,
-  show_whitespace::ShowWhitespace, state::State, string_literal::StringLiteral,
-  subcommand::Subcommand, table::Table, token::Token, token_kind::TokenKind, use_color::UseColor,
-  variables::Variables, verbosity::Verbosity, warning::Warning,
+  search_config::SearchConfig, search_error::SearchError, set::Set, setting::Setting,
+  settings::Settings, shebang::Shebang, show_whitespace::ShowWhitespace, state::State,
+  string_literal::StringLiteral, subcommand::Subcommand, table::Table, token::Token,
+  token_kind::TokenKind, use_color::UseColor, variables::Variables, verbosity::Verbosity,
+  warning::Warning,
 };
 
 // type aliases

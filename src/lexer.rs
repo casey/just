@@ -387,6 +387,8 @@ impl<'a> Lexer<'a> {
   fn lex_normal(&mut self, start: char) -> CompilationResult<'a, ()> {
     match start {
       '@' => self.lex_single(At),
+      '[' => self.lex_single(BracketL),
+      ']' => self.lex_single(BracketR),
       '=' => self.lex_single(Equals),
       ',' => self.lex_single(Comma),
       ':' => self.lex_colon(),
@@ -759,6 +761,8 @@ mod tests {
     match kind {
       // Fixed lexemes
       At => "@",
+      BracketL => "[",
+      BracketR => "]",
       Colon => ":",
       ColonEquals => ":=",
       Comma => ",",
@@ -1602,6 +1606,12 @@ mod tests {
       Identifier:"b",
       Colon,
     ),
+  }
+
+  test! {
+    name:   brackets,
+    text:   "][",
+    tokens: (BracketR, BracketL),
   }
 
   error! {
