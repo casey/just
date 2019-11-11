@@ -14,9 +14,9 @@ recipe default=`DEFAULT`:
 ";
 
 /// Test that --shell correctly sets the shell
-#[cfg(unix)]
 #[test]
-fn shell() {
+#[cfg_attr(windows, ignore)]
+fn flag() {
   let tmp = tmptree! {
     justfile: JUSTFILE,
     shell: "#!/usr/bin/env bash\necho \"$@\"",
@@ -35,12 +35,10 @@ fn shell() {
     .unwrap();
 
   let stdout = "-cu -cu EXPRESSION\n-cu -cu DEFAULT\n-cu RECIPE\n";
-
   assert_stdout(&output, stdout);
 }
 
-#[cfg(windows)]
-const JUSTFILE_CMD_EXE: &str = r#"
+const JUSTFILE_CMD: &str = r#"
 
 set shell := ["cmd.exe", "/C"]
 
@@ -52,11 +50,11 @@ recipe:
 "#;
 
 /// Test that we can use `set shell` to use cmd.exe on windows
-#[cfg(windows)]
 #[test]
-fn cmd_exe() {
+#[cfg_attr(unix, ignore)]
+fn cmd() {
   let tmp = tmptree! {
-    justfile: JUSTFILE_CMD_EXE,
+    justfile: JUSTFILE_CMD,
   };
 
   let output = Command::new(executable_path("just"))
@@ -69,7 +67,6 @@ fn cmd_exe() {
   assert_stdout(&output, stdout);
 }
 
-#[cfg(windows)]
 const JUSTFILE_POWERSHELL: &str = r#"
 
 set shell := ["powershell.exe", "-c"]
@@ -84,9 +81,9 @@ recipe:
 "#;
 
 /// Test that we can use `set shell` to use cmd.exe on windows
-#[cfg(windows)]
 #[test]
-fn cmd_exe() {
+#[cfg_attr(unix, ignore)]
+fn powershell() {
   let tmp = tmptree! {
     justfile: JUSTFILE_POWERSHELL,
   };
