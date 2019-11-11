@@ -45,7 +45,7 @@ const JUSTFILE_CMD: &str = r#"
 
 set shell := ["cmd.exe", "/C"]
 
-x := `FOR %%WORD IN ("Hello, world!") DO Echo %%WORD`
+x := `REM This is a comment!`
 
 recipe:
   FOR %%WORD IN ("A", "B", "C") DO Echo %%WORD
@@ -77,9 +77,7 @@ set shell := ["powershell.exe", "-c"]
 x := `Write-Host "Hello, world!"`
 
 recipe:
-  For ($i=0; $i -le 10; $i++) {
-    Write-Host $i
-  }
+  For ($i=0; $i -le 10; $i++) { Write-Host $i }
   Write-Host "{{x}}"
 "#;
 
