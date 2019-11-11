@@ -24,8 +24,11 @@ fn flag() {
 
   let shell = tmp.path().join("shell");
 
-  let permissions = std::os::unix::fs::PermissionsExt::from_mode(0o700);
-  std::fs::set_permissions(&shell, permissions).unwrap();
+  #[cfg(not(windows))]
+  {
+    let permissions = std::os::unix::fs::PermissionsExt::from_mode(0o700);
+    std::fs::set_permissions(&shell, permissions).unwrap();
+  }
 
   let output = Command::new(executable_path("just"))
     .current_dir(tmp.path())
