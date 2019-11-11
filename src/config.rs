@@ -7,12 +7,10 @@ pub(crate) const DEFAULT_SHELL: &str = "sh";
 
 #[derive(Debug, PartialEq)]
 pub(crate) struct Config {
-  pub(crate) arguments: Vec<String>,
   pub(crate) color: Color,
   pub(crate) dry_run: bool,
   pub(crate) highlight: bool,
   pub(crate) invocation_directory: PathBuf,
-  pub(crate) overrides: BTreeMap<String, String>,
   pub(crate) quiet: bool,
   pub(crate) search_config: SearchConfig,
   pub(crate) shell: String,
@@ -27,6 +25,9 @@ mod cmd {
   pub(crate) const LIST: &str = "LIST";
   pub(crate) const SHOW: &str = "SHOW";
   pub(crate) const SUMMARY: &str = "SUMMARY";
+
+  pub(crate) const ALL: &[&str] = &[DUMP, EDIT, LIST, SHOW, SUMMARY, EVALUATE];
+  pub(crate) const ARGLESS: &[&str] = &[DUMP, EDIT, LIST, SHOW, SUMMARY];
 }
 
 mod arg {
@@ -55,11 +56,6 @@ impl Config {
       .version_message("Print version information")
       .setting(AppSettings::ColoredHelp)
       .setting(AppSettings::TrailingVarArg)
-      .arg(
-        Arg::with_name(arg::ARGUMENTS)
-          .multiple(true)
-          .help("The recipe(s) to run, defaults to the first recipe in the justfile"),
-      )
       .arg(
         Arg::with_name(arg::COLOR)
           .long("color")
@@ -129,7 +125,7 @@ impl Config {
           .number_of_values(2)
           .value_names(&["VARIABLE", "VALUE"])
           .multiple(true)
-          .help("Set <VARIABLE> to <VALUE>"),
+          .help("Override <VARIABLE> with <VALUE>"),
       )
       .arg(
         Arg::with_name(arg::SHELL)
@@ -166,15 +162,12 @@ impl Config {
           .help("Use <WORKING-DIRECTORY> as working directory. --justfile must also be set")
           .requires(arg::JUSTFILE),
       )
-      .group(ArgGroup::with_name("EARLY-EXIT").args(&[
-        arg::ARGUMENTS,
-        cmd::DUMP,
-        cmd::EDIT,
-        cmd::EVALUATE,
-        cmd::LIST,
-        cmd::SHOW,
-        cmd::SUMMARY,
-      ]));
+      .arg(
+        Arg::with_name(arg::ARGUMENTS)
+          .multiple(true)
+          .help("Overrides and recipe(s) to run, defaulting to the first recipe in the justfile"),
+      )
+      .group(ArgGroup::with_name("SUBCOMMAND").args(cmd::ALL));
 
     if cfg!(feature = "help4help2man") {
       app.version(env!("CARGO_PKG_VERSION")).about(concat!(
@@ -216,24 +209,6 @@ impl Config {
         .expect("`--color` had no value"),
     )?;
 
-    let subcommand = if matches.is_present(cmd::EDIT) {
-      Subcommand::Edit
-    } else if matches.is_present(cmd::SUMMARY) {
-      Subcommand::Summary
-    } else if matches.is_present(cmd::DUMP) {
-      Subcommand::Dump
-    } else if matches.is_present(cmd::LIST) {
-      Subcommand::List
-    } else if matches.is_present(cmd::EVALUATE) {
-      Subcommand::Evaluate
-    } else if let Some(name) = matches.value_of(cmd::SHOW) {
-      Subcommand::Show {
-        name: name.to_owned(),
-      }
-    } else {
-      Subcommand::Run
-    };
-
     let set_count = matches.occurrences_of(arg::SET);
     let mut overrides = BTreeMap::new();
     if set_count > 0 {
@@ -246,60 +221,17 @@ impl Config {
       }
     }
 
-    fn is_override(arg: &&str) -> bool {
-      arg.chars().skip(1).any(|c| c == '=')
+    let positional = Positional::from_values(matches.values_of(arg::ARGUMENTS));
+
+    for (name, value) in positional.overrides {
+      overrides.insert(name.to_owned(), value.to_owned());
     }
-
-    let raw_arguments: Vec<&str> = matches
-      .values_of(arg::ARGUMENTS)
-      .map(Iterator::collect)
-      .unwrap_or_default();
-
-    for argument in raw_arguments.iter().cloned().take_while(is_override) {
-      let i = argument
-        .char_indices()
-        .skip(1)
-        .find(|&(_, c)| c == '=')
-        .unwrap()
-        .0;
-
-      let name = argument[..i].to_owned();
-      let value = argument[i + 1..].to_owned();
-
-      overrides.insert(name, value);
-    }
-
-    let mut search_directory = None;
-
-    let arguments = raw_arguments
-      .into_iter()
-      .skip_while(is_override)
-      .enumerate()
-      .flat_map(|(i, argument)| {
-        if i == 0 {
-          if let Some(i) = argument.rfind('/') {
-            let (dir, recipe) = argument.split_at(i + 1);
-
-            search_directory = Some(PathBuf::from(dir));
-
-            if recipe.is_empty() {
-              return None;
-            } else {
-              return Some(recipe);
-            }
-          }
-        }
-
-        Some(argument)
-      })
-      .map(|argument| argument.to_owned())
-      .collect::<Vec<String>>();
 
     let search_config = {
       let justfile = matches.value_of(arg::JUSTFILE).map(PathBuf::from);
       let working_directory = matches.value_of(arg::WORKING_DIRECTORY).map(PathBuf::from);
 
-      if let Some(search_directory) = search_directory {
+      if let Some(search_directory) = positional.search_directory.map(PathBuf::from) {
         if justfile.is_some() || working_directory.is_some() {
           return Err(ConfigError::SearchDirConflict);
         }
@@ -323,6 +255,54 @@ impl Config {
       }
     };
 
+    for subcommand in cmd::ARGLESS {
+      if matches.is_present(subcommand) {
+        match (!overrides.is_empty(), !positional.arguments.is_empty()) {
+          (false, false) => {}
+          (true, false) => {
+            return Err(ConfigError::SubcommandOverrides {
+              subcommand: format!("--{}", subcommand.to_lowercase()),
+              overrides,
+            });
+          }
+          (false, true) => {
+            return Err(ConfigError::SubcommandArguments {
+              subcommand: format!("--{}", subcommand.to_lowercase()),
+              arguments: positional.arguments,
+            });
+          }
+          (true, true) => {
+            return Err(ConfigError::SubcommandOverridesAndArguments {
+              subcommand: format!("--{}", subcommand.to_lowercase()),
+              arguments: positional.arguments,
+              overrides,
+            });
+          }
+        }
+      }
+    }
+
+    let subcommand = if matches.is_present(cmd::EDIT) {
+      Subcommand::Edit
+    } else if matches.is_present(cmd::SUMMARY) {
+      Subcommand::Summary
+    } else if matches.is_present(cmd::DUMP) {
+      Subcommand::Dump
+    } else if matches.is_present(cmd::LIST) {
+      Subcommand::List
+    } else if let Some(name) = matches.value_of(cmd::SHOW) {
+      Subcommand::Show {
+        name: name.to_owned(),
+      }
+    } else if matches.is_present(cmd::EVALUATE) {
+      Subcommand::Evaluate { overrides }
+    } else {
+      Subcommand::Run {
+        arguments: positional.arguments,
+        overrides,
+      }
+    };
+
     Ok(Config {
       dry_run: matches.is_present(arg::DRY_RUN),
       highlight: !matches.is_present(arg::NO_HIGHLIGHT),
@@ -333,8 +313,6 @@ impl Config {
       subcommand,
       verbosity,
       color,
-      overrides,
-      arguments,
     })
   }
 
@@ -365,9 +343,15 @@ impl Config {
       }
     }
 
-    match self.subcommand {
+    match &self.subcommand {
       Dump => self.dump(justfile),
-      Run | Evaluate => self.run(justfile, &search.working_directory),
+      Evaluate { overrides } => {
+        self.run(justfile, &search.working_directory, overrides, &Vec::new())
+      }
+      Run {
+        arguments,
+        overrides,
+      } => self.run(justfile, &search.working_directory, overrides, arguments),
       List => self.list(justfile),
       Show { ref name } => self.show(&name, justfile),
       Summary => self.summary(justfile),
@@ -497,12 +481,18 @@ impl Config {
     Ok(())
   }
 
-  fn run(&self, justfile: Justfile, working_directory: &Path) -> Result<(), i32> {
+  fn run(
+    &self,
+    justfile: Justfile,
+    working_directory: &Path,
+    overrides: &BTreeMap<String, String>,
+    arguments: &Vec<String>,
+  ) -> Result<(), i32> {
     if let Err(error) = InterruptHandler::install() {
       warn!("Failed to set CTRL-C handler: {}", error)
     }
 
-    let result = justfile.run(&self, working_directory);
+    let result = justfile.run(&self, working_directory, overrides, arguments);
 
     if !self.quiet {
       result.eprint(self.color)
@@ -582,7 +572,7 @@ OPTIONS:
             Print colorful output [default: auto]  [possible values: auto, always, never]
 
     -f, --justfile <JUSTFILE>                      Use <JUSTFILE> as justfile.
-        --set <VARIABLE> <VALUE>                   Set <VARIABLE> to <VALUE>
+        --set <VARIABLE> <VALUE>                   Override <VARIABLE> with <VALUE>
         --shell <SHELL>                            Invoke <SHELL> to run recipes [default: sh]
     -s, --show <RECIPE>                            Show information about <RECIPE>
     -d, --working-directory <WORKING-DIRECTORY>
@@ -590,7 +580,7 @@ OPTIONS:
 
 
 ARGS:
-    <ARGUMENTS>...    The recipe(s) to run, defaults to the first recipe in the justfile";
+    <ARGUMENTS>...    Overrides and recipe(s) to run, defaulting to the first recipe in the justfile";
 
     let app = Config::app().setting(AppSettings::ColorNever);
     let mut buffer = Vec::new();
@@ -604,11 +594,9 @@ ARGS:
     {
       name: $name:ident,
       args: [$($arg:expr),*],
-      $(arguments: $arguments:expr,)?
       $(color: $color:expr,)?
       $(dry_run: $dry_run:expr,)?
       $(highlight: $highlight:expr,)?
-      $(overrides: $overrides:expr,)?
       $(quiet: $quiet:expr,)?
       $(search_config: $search_config:expr,)?
       $(shell: $shell:expr,)?
@@ -623,14 +611,9 @@ ARGS:
         ];
 
         let want = Config {
-          $(arguments: $arguments.iter().map(|argument| argument.to_string()).collect(),)?
           $(color: $color,)?
           $(dry_run: $dry_run,)?
           $(highlight: $highlight,)?
-          $(
-            overrides: $overrides.iter().cloned()
-              .map(|(key, value): (&str, &str)| (key.to_owned(), value.to_owned())).collect(),
-          )?
           $(quiet: $quiet,)?
           $(search_config: $search_config,)?
           $(shell: $shell.to_string(),)?
@@ -665,17 +648,50 @@ ARGS:
           $($arg,)*
         ];
 
-        error(arguments);
+        let app = Config::app();
+
+        app.get_matches_from_safe(arguments).expect_err("Expected clap error");
+      }
+    };
+    {
+      name: $name:ident,
+      args: [$($arg:expr),*],
+      error: $error:pat,
+      $(check: $check:block,)?
+    } => {
+      #[test]
+      fn $name() {
+        let arguments = &[
+          "just",
+          $($arg,)*
+        ];
+
+        let app = Config::app();
+
+        let matches = app.get_matches_from_safe(arguments).expect("Matching failes");
+
+        match Config::from_matches(&matches).expect_err("config parsing succeeded") {
+          $error => { $($check)? }
+          other => panic!("Unexpected config error: {}", other),
+        }
       }
     }
   }
 
-  fn error(arguments: &[&str]) {
-    let app = Config::app();
-    if let Ok(matches) = app.get_matches_from_safe(arguments) {
-      Config::from_matches(&matches).expect_err("config parsing unexpectedly succeeded");
-    } else {
-      return;
+  macro_rules! map {
+    {} => {
+      BTreeMap::new()
+    };
+    {
+      $($key:literal : $value:literal),* $(,)?
+    } => {
+      {
+        let mut map: BTreeMap<String, String> = BTreeMap::new();
+        $(
+          map.insert($key.to_owned(), $value.to_owned());
+        )*
+        map
+      }
     }
   }
 
@@ -787,31 +803,46 @@ ARGS:
   test! {
     name: set_default,
     args: [],
-    overrides: [],
+    subcommand: Subcommand::Run {
+      arguments: Vec::new(),
+      overrides: map!(),
+    },
   }
 
   test! {
     name: set_one,
     args: ["--set", "foo", "bar"],
-    overrides: [("foo", "bar")],
+    subcommand: Subcommand::Run {
+      arguments: Vec::new(),
+      overrides: map!{"foo": "bar"},
+    },
   }
 
   test! {
     name: set_empty,
     args: ["--set", "foo", ""],
-    overrides: [("foo", "")],
+    subcommand: Subcommand::Run {
+      arguments: Vec::new(),
+      overrides: map!{"foo": ""},
+    },
   }
 
   test! {
     name: set_two,
     args: ["--set", "foo", "bar", "--set", "bar", "baz"],
-    overrides: [("foo", "bar"), ("bar", "baz")],
+    subcommand: Subcommand::Run {
+      arguments: Vec::new(),
+      overrides: map!{"foo": "bar", "bar": "baz"},
+    },
   }
 
   test! {
     name: set_override,
     args: ["--set", "foo", "bar", "--set", "foo", "baz"],
-    overrides: [("foo", "baz")],
+    subcommand: Subcommand::Run {
+      arguments: Vec::new(),
+      overrides: map!{"foo": "baz"},
+    },
   }
 
   error! {
@@ -864,7 +895,10 @@ ARGS:
   test! {
     name: subcommand_default,
     args: [],
-    subcommand: Subcommand::Run,
+    subcommand: Subcommand::Run {
+      arguments: Vec::new(),
+      overrides: map!{},
+    },
   }
 
   test! {
@@ -882,7 +916,9 @@ ARGS:
   test! {
     name: subcommand_evaluate,
     args: ["--evaluate"],
-    subcommand: Subcommand::Evaluate,
+    subcommand: Subcommand::Evaluate {
+      overrides: map!{},
+    },
   }
 
   test! {
@@ -923,31 +959,46 @@ ARGS:
   test! {
     name: arguments,
     args: ["foo", "bar"],
-    arguments: ["foo", "bar"],
+    subcommand: Subcommand::Run {
+      arguments: vec![String::from("foo"), String::from("bar")],
+      overrides: map!{},
+    },
   }
 
   test! {
     name: arguments_leading_equals,
     args: ["=foo"],
-    arguments: ["=foo"],
+    subcommand: Subcommand::Run {
+      arguments: vec!["=foo".to_string()],
+      overrides: map!{},
+    },
   }
 
   test! {
     name: overrides,
     args: ["foo=bar", "bar=baz"],
-    overrides: [("foo", "bar"), ("bar", "baz")],
+    subcommand: Subcommand::Run {
+      arguments: Vec::new(),
+      overrides: map!{"foo": "bar", "bar": "baz"},
+    },
   }
 
   test! {
     name: overrides_empty,
     args: ["foo=", "bar="],
-    overrides: [("foo", ""), ("bar", "")],
+    subcommand: Subcommand::Run {
+      arguments: Vec::new(),
+      overrides: map!{"foo": "", "bar": ""},
+    },
   }
 
   test! {
     name: overrides_override_sets,
     args: ["--set", "foo", "0", "--set", "bar", "1", "foo=bar", "bar=baz"],
-    overrides: [("foo", "bar"), ("bar", "baz")],
+    subcommand: Subcommand::Run {
+      arguments: Vec::new(),
+      overrides: map!{"foo": "bar", "bar": "baz"},
+    },
   }
 
   test! {
@@ -992,10 +1043,10 @@ ARGS:
   test! {
     name: search_directory_parent_with_recipe,
     args: ["../build"],
-    arguments: ["build"],
     search_config: SearchConfig::FromSearchDirectory {
       search_directory: PathBuf::from(".."),
     },
+    subcommand: Subcommand::Run { arguments: vec!["build".to_owned()], overrides: BTreeMap::new() },
   }
 
   test! {
@@ -1017,19 +1068,92 @@ ARGS:
   test! {
     name: search_directory_child_with_recipe,
     args: ["foo/build"],
-    arguments: ["build"],
     search_config: SearchConfig::FromSearchDirectory {
       search_directory: PathBuf::from("foo"),
     },
+    subcommand: Subcommand::Run { arguments: vec!["build".to_owned()], overrides: BTreeMap::new() },
   }
 
   error! {
     name: search_directory_conflict_justfile,
     args: ["--justfile", "bar", "foo/build"],
+    error: ConfigError::SearchDirConflict,
   }
 
   error! {
     name: search_directory_conflict_working_directory,
     args: ["--justfile", "bar", "--working-directory", "baz", "foo/build"],
+    error: ConfigError::SearchDirConflict,
+  }
+
+  error! {
+    name: list_arguments,
+    args: ["--list", "bar"],
+    error: ConfigError::SubcommandArguments { subcommand, arguments },
+    check: {
+      assert_eq!(subcommand, "--list");
+      assert_eq!(arguments, &["bar"]);
+    },
+  }
+
+  error! {
+    name: dump_arguments,
+    args: ["--dump", "bar"],
+    error: ConfigError::SubcommandArguments { subcommand, arguments },
+    check: {
+      assert_eq!(subcommand, "--dump");
+      assert_eq!(arguments, &["bar"]);
+    },
+  }
+
+  error! {
+    name: edit_arguments,
+    args: ["--edit", "bar"],
+    error: ConfigError::SubcommandArguments { subcommand, arguments },
+    check: {
+      assert_eq!(subcommand, "--edit");
+      assert_eq!(arguments, &["bar"]);
+    },
+  }
+
+  error! {
+    name: show_arguments,
+    args: ["--show", "foo", "bar"],
+    error: ConfigError::SubcommandArguments { subcommand, arguments },
+    check: {
+      assert_eq!(subcommand, "--show");
+      assert_eq!(arguments, &["bar"]);
+    },
+  }
+
+  error! {
+    name: summary_arguments,
+    args: ["--summary", "bar"],
+    error: ConfigError::SubcommandArguments { subcommand, arguments },
+    check: {
+      assert_eq!(subcommand, "--summary");
+      assert_eq!(arguments, &["bar"]);
+    },
+  }
+
+  error! {
+    name: subcommand_overrides_and_arguments,
+    args: ["--summary", "bar=baz", "bar"],
+    error: ConfigError::SubcommandOverridesAndArguments { subcommand, arguments, overrides },
+    check: {
+      assert_eq!(subcommand, "--summary");
+      assert_eq!(overrides, map!{"bar": "baz"});
+      assert_eq!(arguments, &["bar"]);
+    },
+  }
+
+  error! {
+    name: summary_overrides,
+    args: ["--summary", "bar=baz"],
+    error: ConfigError::SubcommandOverrides { subcommand, overrides },
+    check: {
+      assert_eq!(subcommand, "--summary");
+      assert_eq!(overrides, map!{"bar": "baz"});
+    },
   }
 }

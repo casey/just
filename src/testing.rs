@@ -32,12 +32,12 @@ macro_rules! analysis_error {
     ) => {
     #[test]
     fn $name() {
-      $crate::testing::error($input, $offset, $line, $column, $width, $kind);
+      $crate::testing::analysis_error($input, $offset, $line, $column, $width, $kind);
     }
   };
 }
 
-pub(crate) fn error(
+pub(crate) fn analysis_error(
   src: &str,
   offset: usize,
   line: usize,
@@ -66,27 +66,36 @@ pub(crate) fn error(
   }
 }
 
-#[test]
-fn readme_test() {
-  let mut justfiles = vec![];
-  let mut current = None;
+macro_rules! run_error {
+  {
+    name: $name:ident,
+    src:  $src:expr,
+    args: $args:expr,
+    error: $error:pat,
+    check: $check:block $(,)?
+  } => {
+    #[test]
+    fn $name() {
+      let config = &$crate::testing::config(&$args);
+      let current_dir = std::env::current_dir().unwrap();
 
-  for line in fs::read_to_string("README.adoc").unwrap().lines() {
-    if let Some(mut justfile) = current {
-      if line == "```" {
-        justfiles.push(justfile);
-        current = None;
+      if let Subcommand::Run{ overrides, arguments } = &config.subcommand {
+        match $crate::compiler::Compiler::compile(&$crate::testing::unindent($src))
+          .expect("Expected successful compilation")
+          .run(
+            config,
+            &current_dir,
+            &overrides,
+            &arguments,
+          ).expect_err("Expected runtime error") {
+            $error => $check
+            other => {
+              panic!("Unexpected run error: {:?}", other);
+            }
+          }
       } else {
-        justfile += line;
-        justfile += "\n";
-        current = Some(justfile);
+          panic!("Unexpected subcommand: {:?}", config.subcommand);
       }
-    } else if line == "```make" {
-      current = Some(String::new());
     }
-  }
-
-  for justfile in justfiles {
-    compile(&justfile);
-  }
+  };
 }

@@ -46,13 +46,11 @@ impl<'a> Justfile<'a> {
     &'a self,
     config: &'a Config,
     working_directory: &'a Path,
+    overrides: &'a BTreeMap<String, String>,
+    arguments: &'a Vec<String>,
   ) -> RunResult<'a, ()> {
-    let argvec: Vec<&str> = if !config.arguments.is_empty() {
-      config
-        .arguments
-        .iter()
-        .map(|argument| argument.as_str())
-        .collect()
+    let argvec: Vec<&str> = if !arguments.is_empty() {
+      arguments.iter().map(|argument| argument.as_str()).collect()
     } else if let Some(recipe) = self.first() {
       let min_arguments = recipe.min_arguments();
       if min_arguments > 0 {
@@ -68,8 +66,7 @@ impl<'a> Justfile<'a> {
 
     let arguments = argvec.as_slice();
 
-    let unknown_overrides = config
-      .overrides
+    let unknown_overrides = overrides
       .keys()
       .filter(|name| !self.assignments.contains_key(name.as_str()))
       .map(|name| name.as_str())
@@ -88,9 +85,10 @@ impl<'a> Justfile<'a> {
       working_directory,
       &dotenv,
       &self.assignments,
+      overrides,
     )?;
 
-    if config.subcommand == Subcommand::Evaluate {
+    if let Subcommand::Evaluate { .. } = config.subcommand {
       let mut width = 0;
       for name in scope.keys() {
         width = cmp::max(name.len(), width);
@@ -151,7 +149,7 @@ impl<'a> Justfile<'a> {
 
     let mut ran = empty();
     for (recipe, arguments) in grouped {
-      self.run_recipe(&context, recipe, arguments, &dotenv, &mut ran)?
+      self.run_recipe(&context, recipe, arguments, &dotenv, &mut ran, overrides)?
     }
 
     Ok(())
@@ -178,14 +176,15 @@ impl<'a> Justfile<'a> {
     arguments: &[&'a str],
     dotenv: &BTreeMap<String, String>,
     ran: &mut BTreeSet<&'a str>,
+    overrides: &BTreeMap<String, String>,
   ) -> RunResult<()> {
     for dependency_name in &recipe.dependencies {
       let lexeme = dependency_name.lexeme();
       if !ran.contains(lexeme) {
-        self.run_recipe(context, &self.recipes[lexeme], &[], dotenv, ran)?;
+        self.run_recipe(context, &self.recipes[lexeme], &[], dotenv, ran, overrides)?;
       }
     }
-    recipe.run(context, arguments, dotenv)?;
+    recipe.run(context, arguments, dotenv, overrides)?;
     ran.insert(recipe.name());
     Ok(())
   }
@@ -226,282 +225,244 @@ impl<'a> Display for Justfile<'a> {
 mod tests {
   use super::*;
 
-  use crate::runtime_error::RuntimeError::*;
-  use crate::testing::{compile, config};
+  use testing::compile;
+  use RuntimeError::*;
 
-  #[test]
-  fn unknown_recipes() {
-    let justfile = compile("a:\nb:\nc:");
-    let config = config(&["a", "x", "y", "z"]);
-    let dir = env::current_dir().unwrap();
-
-    match justfile.run(&config, &dir).unwrap_err() {
-      UnknownRecipes {
-        recipes,
-        suggestion,
-      } => {
-        assert_eq!(recipes, &["x", "y", "z"]);
-        assert_eq!(suggestion, None);
-      }
-      other => panic!("unexpected error: {}", other),
+  run_error! {
+    name: unknown_recipes,
+    src: "a:\nb:\nc:",
+    args: ["a", "x", "y", "z"],
+    error: UnknownRecipes {
+      recipes,
+      suggestion,
+    },
+    check: {
+      assert_eq!(recipes, &["x", "y", "z"]);
+      assert_eq!(suggestion, None);
     }
   }
 
-  #[test]
-  fn run_shebang() {
-    // this test exists to make sure that shebang recipes
-    // run correctly. although this script is still
-    // executed by a shell its behavior depends on the value of a
-    // variable and continuing even though a command fails,
-    // whereas in plain recipes variables are not available
-    // in subsequent lines and execution stops when a line
-    // fails
-    let text = "
-a:
- #!/usr/bin/env sh
- code=200
-  x() { return $code; }
-    x
-      x
-";
-    let justfile = compile(text);
-    let config = config(&["a"]);
-    let dir = env::current_dir().unwrap();
-    match justfile.run(&config, &dir).unwrap_err() {
-      Code {
-        recipe,
-        line_number,
-        code,
-      } => {
-        assert_eq!(recipe, "a");
-        assert_eq!(code, 200);
-        assert_eq!(line_number, None);
-      }
-      other => panic!("unexpected error: {}", other),
+  // this test exists to make sure that shebang recipes
+  // run correctly. although this script is still
+  // executed by a shell its behavior depends on the value of a
+  // variable and continuing even though a command fails,
+  // whereas in plain recipes variables are not available
+  // in subsequent lines and execution stops when a line
+  // fails
+  run_error! {
+    name: run_shebang,
+    src: "
+      a:
+        #!/usr/bin/env sh
+        code=200
+          x() { return $code; }
+            x
+              x
+    ",
+    args: ["a"],
+    error: Code {
+      recipe,
+      line_number,
+      code,
+    },
+    check: {
+      assert_eq!(recipe, "a");
+      assert_eq!(code, 200);
+      assert_eq!(line_number, None);
     }
   }
 
-  #[test]
-  fn code_error() {
-    let justfile = compile("fail:\n @exit 100");
-    let config = config(&["fail"]);
-    let dir = env::current_dir().unwrap();
-    match justfile.run(&config, &dir).unwrap_err() {
-      Code {
-        recipe,
-        line_number,
-        code,
-      } => {
-        assert_eq!(recipe, "fail");
-        assert_eq!(code, 100);
-        assert_eq!(line_number, Some(2));
-      }
-      other => panic!("unexpected error: {}", other),
+  run_error! {
+    name: code_error,
+    src: "
+      fail:
+        @exit 100
+    ",
+    args: ["fail"],
+    error: Code {
+      recipe,
+      line_number,
+      code,
+    },
+    check: {
+      assert_eq!(recipe, "fail");
+      assert_eq!(code, 100);
+      assert_eq!(line_number, Some(2));
     }
   }
 
-  #[test]
-  fn run_args() {
-    let text = r#"
-a return code:
- @x() { {{return}} {{code + "0"}}; }; x"#;
-    let justfile = compile(text);
-    let config = config(&["a", "return", "15"]);
-    let dir = env::current_dir().unwrap();
-
-    match justfile.run(&config, &dir).unwrap_err() {
-      Code {
-        recipe,
-        line_number,
-        code,
-      } => {
-        assert_eq!(recipe, "a");
-        assert_eq!(code, 150);
-        assert_eq!(line_number, Some(3));
-      }
-      other => panic!("unexpected error: {}", other),
+  run_error! {
+    name: run_args,
+    src: r#"
+      a return code:
+        @x() { {{return}} {{code + "0"}}; }; x
+    "#,
+    args: ["a", "return", "15"],
+    error: Code {
+      recipe,
+      line_number,
+      code,
+    },
+    check: {
+      assert_eq!(recipe, "a");
+      assert_eq!(code, 150);
+      assert_eq!(line_number, Some(2));
     }
   }
 
-  #[test]
-  fn missing_some_arguments() {
-    let justfile = compile("a b c d:");
-    let config = config(&["a", "b", "c"]);
-    let dir = env::current_dir().unwrap();
-    match justfile.run(&config, &dir).unwrap_err() {
-      ArgumentCountMismatch {
-        recipe,
-        parameters,
-        found,
-        min,
-        max,
-      } => {
-        let param_names = parameters
-          .iter()
-          .map(|p| p.name.lexeme())
-          .collect::<Vec<&str>>();
-        assert_eq!(recipe, "a");
-        assert_eq!(param_names, ["b", "c", "d"]);
-        assert_eq!(found, 2);
-        assert_eq!(min, 3);
-        assert_eq!(max, 3);
-      }
-      other => panic!("unexpected error: {}", other),
+  run_error! {
+    name: missing_some_arguments,
+    src: "a b c d:",
+    args: ["a", "b", "c"],
+    error: ArgumentCountMismatch {
+      recipe,
+      parameters,
+      found,
+      min,
+      max,
+    },
+    check: {
+      let param_names = parameters
+        .iter()
+        .map(|p| p.name.lexeme())
+        .collect::<Vec<&str>>();
+      assert_eq!(recipe, "a");
+      assert_eq!(param_names, ["b", "c", "d"]);
+      assert_eq!(found, 2);
+      assert_eq!(min, 3);
+      assert_eq!(max, 3);
     }
   }
 
-  #[test]
-  fn missing_some_arguments_variadic() {
-    let justfile = compile("a b c +d:");
-    let config = config(&["a", "B", "C"]);
-    let dir = env::current_dir().unwrap();
-    match justfile.run(&config, &dir).unwrap_err() {
-      ArgumentCountMismatch {
-        recipe,
-        parameters,
-        found,
-        min,
-        max,
-      } => {
-        let param_names = parameters
-          .iter()
-          .map(|p| p.name.lexeme())
-          .collect::<Vec<&str>>();
-        assert_eq!(recipe, "a");
-        assert_eq!(param_names, ["b", "c", "d"]);
-        assert_eq!(found, 2);
-        assert_eq!(min, 3);
-        assert_eq!(max, usize::MAX - 1);
-      }
-      other => panic!("unexpected error: {}", other),
+  run_error! {
+    name: missing_some_arguments_variadic,
+    src: "a b c +d:",
+    args: ["a", "B", "C"],
+    error: ArgumentCountMismatch {
+      recipe,
+      parameters,
+      found,
+      min,
+      max,
+    },
+    check: {
+      let param_names = parameters
+        .iter()
+        .map(|p| p.name.lexeme())
+        .collect::<Vec<&str>>();
+      assert_eq!(recipe, "a");
+      assert_eq!(param_names, ["b", "c", "d"]);
+      assert_eq!(found, 2);
+      assert_eq!(min, 3);
+      assert_eq!(max, usize::MAX - 1);
     }
   }
 
-  #[test]
-  fn missing_all_arguments() {
-    let justfile = compile("a b c d:\n echo {{b}}{{c}}{{d}}");
-    let config = config(&["a"]);
-    let dir = env::current_dir().unwrap();
-
-    match justfile.run(&config, &dir).unwrap_err() {
-      ArgumentCountMismatch {
-        recipe,
-        parameters,
-        found,
-        min,
-        max,
-      } => {
-        let param_names = parameters
-          .iter()
-          .map(|p| p.name.lexeme())
-          .collect::<Vec<&str>>();
-        assert_eq!(recipe, "a");
-        assert_eq!(param_names, ["b", "c", "d"]);
-        assert_eq!(found, 0);
-        assert_eq!(min, 3);
-        assert_eq!(max, 3);
-      }
-      other => panic!("unexpected error: {}", other),
+  run_error! {
+    name: missing_all_arguments,
+    src: "a b c d:\n echo {{b}}{{c}}{{d}}",
+    args: ["a"],
+    error: ArgumentCountMismatch {
+      recipe,
+      parameters,
+      found,
+      min,
+      max,
+    },
+    check: {
+      let param_names = parameters
+        .iter()
+        .map(|p| p.name.lexeme())
+        .collect::<Vec<&str>>();
+      assert_eq!(recipe, "a");
+      assert_eq!(param_names, ["b", "c", "d"]);
+      assert_eq!(found, 0);
+      assert_eq!(min, 3);
+      assert_eq!(max, 3);
     }
   }
 
-  #[test]
-  fn missing_some_defaults() {
-    let justfile = compile("a b c d='hello':");
-    let config = config(&["a", "b"]);
-    let dir = env::current_dir().unwrap();
-
-    match justfile.run(&config, &dir).unwrap_err() {
-      ArgumentCountMismatch {
-        recipe,
-        parameters,
-        found,
-        min,
-        max,
-      } => {
-        let param_names = parameters
-          .iter()
-          .map(|p| p.name.lexeme())
-          .collect::<Vec<&str>>();
-        assert_eq!(recipe, "a");
-        assert_eq!(param_names, ["b", "c", "d"]);
-        assert_eq!(found, 1);
-        assert_eq!(min, 2);
-        assert_eq!(max, 3);
-      }
-      other => panic!("unexpected error: {}", other),
+  run_error! {
+    name: missing_some_defaults,
+    src: "a b c d='hello':",
+    args: ["a", "b"],
+    error: ArgumentCountMismatch {
+      recipe,
+      parameters,
+      found,
+      min,
+      max,
+    },
+    check: {
+      let param_names = parameters
+        .iter()
+        .map(|p| p.name.lexeme())
+        .collect::<Vec<&str>>();
+      assert_eq!(recipe, "a");
+      assert_eq!(param_names, ["b", "c", "d"]);
+      assert_eq!(found, 1);
+      assert_eq!(min, 2);
+      assert_eq!(max, 3);
     }
   }
 
-  #[test]
-  fn missing_all_defaults() {
-    let justfile = compile("a b c='r' d='h':");
-    let config = &config(&["a"]);
-    let dir = env::current_dir().unwrap();
-
-    match justfile.run(&config, &dir).unwrap_err() {
-      ArgumentCountMismatch {
-        recipe,
-        parameters,
-        found,
-        min,
-        max,
-      } => {
-        let param_names = parameters
-          .iter()
-          .map(|p| p.name.lexeme())
-          .collect::<Vec<&str>>();
-        assert_eq!(recipe, "a");
-        assert_eq!(param_names, ["b", "c", "d"]);
-        assert_eq!(found, 0);
-        assert_eq!(min, 1);
-        assert_eq!(max, 3);
-      }
-      other => panic!("unexpected error: {}", other),
+  run_error! {
+    name: missing_all_defaults,
+    src: "a b c='r' d='h':",
+    args: ["a"],
+    error: ArgumentCountMismatch {
+      recipe,
+      parameters,
+      found,
+      min,
+      max,
+    },
+    check: {
+      let param_names = parameters
+        .iter()
+        .map(|p| p.name.lexeme())
+        .collect::<Vec<&str>>();
+      assert_eq!(recipe, "a");
+      assert_eq!(param_names, ["b", "c", "d"]);
+      assert_eq!(found, 0);
+      assert_eq!(min, 1);
+      assert_eq!(max, 3);
     }
   }
 
-  #[test]
-  fn unknown_overrides() {
-    let config = config(&["foo=bar", "baz=bob", "a"]);
-    let justfile = compile("a:\n echo {{`f() { return 100; }; f`}}");
-    let dir = env::current_dir().unwrap();
-
-    match justfile.run(&config, &dir).unwrap_err() {
-      UnknownOverrides { overrides } => {
-        assert_eq!(overrides, &["baz", "foo"]);
-      }
-      other => panic!("unexpected error: {}", other),
+  run_error! {
+    name: unknown_overrides,
+    src: "
+      a:
+       echo {{`f() { return 100; }; f`}}
+    ",
+    args: ["foo=bar", "baz=bob", "a"],
+    error: UnknownOverrides { overrides },
+    check: {
+      assert_eq!(overrides, &["baz", "foo"]);
     }
   }
 
-  #[test]
-  fn export_failure() {
-    let text = r#"
-export foo = "a"
-baz = "c"
-export bar = "b"
-export abc = foo + bar + baz
+  run_error! {
+    name: export_failure,
+    src: r#"
+      export foo = "a"
+      baz = "c"
+      export bar = "b"
+      export abc = foo + bar + baz
 
-wut:
-  echo $foo $bar $baz
-"#;
-
-    let config = config(&["--quiet", "wut"]);
-
-    let justfile = compile(text);
-    let dir = env::current_dir().unwrap();
-
-    match justfile.run(&config, &dir).unwrap_err() {
-      Code {
-        code: _,
-        line_number,
-        recipe,
-      } => {
-        assert_eq!(recipe, "wut");
-        assert_eq!(line_number, Some(8));
-      }
-      other => panic!("unexpected error: {}", other),
+      wut:
+        echo $foo $bar $baz
+    "#,
+    args: ["--quiet", "wut"],
+    error: Code {
+      code: _,
+      line_number,
+      recipe,
+    },
+    check: {
+      assert_eq!(recipe, "wut");
+      assert_eq!(line_number, Some(7));
     }
   }
 

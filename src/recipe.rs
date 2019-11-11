@@ -69,6 +69,7 @@ impl<'a> Recipe<'a> {
     context: &RecipeContext<'a>,
     arguments: &[&'a str],
     dotenv: &BTreeMap<String, String>,
+    overrides: &BTreeMap<String, String>,
   ) -> RunResult<'a, ()> {
     let config = &context.config;
 
@@ -89,6 +90,7 @@ impl<'a> Recipe<'a> {
       evaluated: empty(),
       working_directory: context.working_directory,
       scope: &context.scope,
+      overrides,
       config,
       dotenv,
     };

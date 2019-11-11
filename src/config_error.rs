@@ -17,6 +17,35 @@ pub(crate) enum ConfigError {
     "Path-prefixed recipes may not be used with `--working-directory` or `--justfile`."
   ))]
   SearchDirConflict,
+  #[snafu(display(
+    "`{}` used with unexpected arguments: {}",
+    subcommand,
+    List::and_ticked(arguments)
+  ))]
+  SubcommandArguments {
+    subcommand: String,
+    arguments: Vec<String>,
+  },
+  #[snafu(display(
+      "`{}` used with unexpected overrides: {}; and arguments: {}",
+      subcommand,
+      List::and_ticked(overrides.iter().map(|(key, value)| format!("{}={}", key, value))),
+      List::and_ticked(arguments)))
+  ]
+  SubcommandOverridesAndArguments {
+    subcommand: String,
+    overrides: BTreeMap<String, String>,
+    arguments: Vec<String>,
+  },
+  #[snafu(display(
+      "`{}` used with unexpected overrides: {}",
+      subcommand,
+      List::and_ticked(overrides.iter().map(|(key, value)| format!("{}={}", key, value))),
+  ))]
+  SubcommandOverrides {
+    subcommand: String,
+    overrides: BTreeMap<String, String>,
+  },
 }
 
 impl ConfigError {

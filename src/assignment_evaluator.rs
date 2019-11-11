@@ -7,6 +7,7 @@ pub(crate) struct AssignmentEvaluator<'a: 'b, 'b> {
   pub(crate) evaluated: BTreeMap<&'a str, (bool, String)>,
   pub(crate) scope: &'b BTreeMap<&'a str, (bool, String)>,
   pub(crate) working_directory: &'b Path,
+  pub(crate) overrides: &'b BTreeMap<String, String>,
 }
 
 impl<'a, 'b> AssignmentEvaluator<'a, 'b> {
@@ -15,10 +16,12 @@ impl<'a, 'b> AssignmentEvaluator<'a, 'b> {
     working_directory: &'b Path,
     dotenv: &'b BTreeMap<String, String>,
     assignments: &BTreeMap<&'a str, Assignment<'a>>,
+    overrides: &BTreeMap<String, String>,
   ) -> RunResult<'a, BTreeMap<&'a str, (bool, String)>> {
     let mut evaluator = AssignmentEvaluator {
       evaluated: empty(),
       scope: &empty(),
+      overrides,
       config,
       assignments,
       working_directory,
@@ -55,7 +58,7 @@ impl<'a, 'b> AssignmentEvaluator<'a, 'b> {
     }
 
     if let Some(assignment) = self.assignments.get(name) {
-      if let Some(value) = self.config.overrides.get(name) {
+      if let Some(value) = self.overrides.get(name) {
         self
           .evaluated
           .insert(name, (assignment.export, value.to_string()));
@@ -159,47 +162,40 @@ impl<'a, 'b> AssignmentEvaluator<'a, 'b> {
 #[cfg(test)]
 mod tests {
   use super::*;
-  use crate::testing::{compile, config};
 
-  #[test]
-  fn backtick_code() {
-    let justfile = compile("a:\n echo {{`f() { return 100; }; f`}}");
-    let config = config(&["a"]);
-    let dir = env::current_dir().unwrap();
-    match justfile.run(&config, &dir).unwrap_err() {
-      RuntimeError::Backtick {
-        token,
-        output_error: OutputError::Code(code),
-      } => {
-        assert_eq!(code, 100);
-        assert_eq!(token.lexeme(), "`f() { return 100; }; f`");
-      }
-      other => panic!("expected a code run error, but got: {}", other),
+  run_error! {
+    name: backtick_code,
+    src: "
+      a:
+       echo {{`f() { return 100; }; f`}}
+    ",
+    args: ["a"],
+    error: RuntimeError::Backtick {
+      token,
+      output_error: OutputError::Code(code),
+    },
+    check: {
+      assert_eq!(code, 100);
+      assert_eq!(token.lexeme(), "`f() { return 100; }; f`");
     }
   }
 
-  #[test]
-  fn export_assignment_backtick() {
-    let text = r#"
-export exported_variable = "A"
-b = `echo $exported_variable`
+  run_error! {
+    name: export_assignment_backtick,
+    src: r#"
+      export exported_variable = "A"
+      b = `echo $exported_variable`
 
-recipe:
-  echo {{b}}
-"#;
-
-    let justfile = compile(text);
-    let config = config(&["--quiet", "recipe"]);
-    let dir = env::current_dir().unwrap();
-
-    match justfile.run(&config, &dir).unwrap_err() {
-      RuntimeError::Backtick {
+      recipe:
+        echo {{b}}
+    "#,
+    args: ["--quiet", "recipe"],
+    error: RuntimeError::Backtick {
         token,
         output_error: OutputError::Code(_),
-      } => {
-        assert_eq!(token.lexeme(), "`echo $exported_variable`");
-      }
-      other => panic!("expected a backtick code errror, but got: {}", other),
+    },
+    check: {
+      assert_eq!(token.lexeme(), "`echo $exported_variable`");
     }
   }
 }

@@ -25,7 +25,14 @@ impl Search {
       }
 
       SearchConfig::FromSearchDirectory { search_directory } => {
-        let justfile = Self::justfile(search_directory)?;
+        let search_directory =
+          search_directory
+            .canonicalize()
+            .context(search_error::Canonicalize {
+              path: search_directory,
+            })?;
+
+        let justfile = Self::justfile(&search_directory)?;
 
         let working_directory = Self::working_directory_from_justfile(&justfile)?;
 
@@ -58,6 +65,7 @@ impl Search {
 
   fn justfile(directory: &Path) -> SearchResult<PathBuf> {
     let mut candidates = Vec::new();
+
     let entries = fs::read_dir(directory).map_err(|io_error| SearchError::Io {
       io_error,
       directory: directory.to_owned(),
