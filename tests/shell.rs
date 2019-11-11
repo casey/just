@@ -65,7 +65,7 @@ fn cmd() {
     .output()
     .unwrap();
 
-  let stdout = "A\nB\nC\nEcho is ON\n";
+  let stdout = "Echo is ON\n";
 
   assert_stdout(&output, stdout);
 }
