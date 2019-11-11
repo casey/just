@@ -21,6 +21,7 @@ impl<'src> Node<'src> for Item<'src> {
       Item::Alias(alias) => alias.tree(),
       Item::Assignment(assignment) => assignment.tree(),
       Item::Recipe(recipe) => recipe.tree(),
+      Item::Set(set) => set.tree(),
     }
   }
 }
@@ -138,6 +139,26 @@ impl<'src> Node<'src> for Fragment<'src> {
       Fragment::Text { token } => Tree::string(token.lexeme()),
       Fragment::Interpolation { expression } => Tree::List(vec![expression.tree()]),
     }
+  }
+}
+
+impl<'src> Node<'src> for Set<'src> {
+  fn tree(&self) -> Tree<'src> {
+    let mut set = Tree::atom(keyword::SET);
+
+    set.push_mut(self.name.lexeme());
+
+    use Setting::*;
+    match &self.value {
+      Shell(setting::Shell { command, arguments }) => {
+        set.push_mut(Tree::string(&command.cooked));
+        for argument in arguments {
+          set.push_mut(Tree::string(&argument.cooked));
+        }
+      }
+    }
+
+    set
   }
 }
 

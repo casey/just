@@ -1,14 +1,15 @@
 use crate::common::*;
 
 #[derive(Debug, PartialEq)]
-pub(crate) struct Justfile<'a> {
-  pub(crate) recipes: Table<'a, Recipe<'a>>,
-  pub(crate) assignments: Table<'a, Assignment<'a>>,
-  pub(crate) aliases: Table<'a, Alias<'a>>,
-  pub(crate) warnings: Vec<Warning<'a>>,
+pub(crate) struct Justfile<'src> {
+  pub(crate) recipes: Table<'src, Recipe<'src>>,
+  pub(crate) assignments: Table<'src, Assignment<'src>>,
+  pub(crate) aliases: Table<'src, Alias<'src>>,
+  pub(crate) settings: Settings<'src>,
+  pub(crate) warnings: Vec<Warning<'src>>,
 }
 
-impl<'a> Justfile<'a> {
+impl<'src> Justfile<'src> {
   pub(crate) fn first(&self) -> Option<&Recipe> {
     let mut first: Option<&Recipe> = None;
     for recipe in self.recipes.values() {
@@ -27,7 +28,7 @@ impl<'a> Justfile<'a> {
     self.recipes.len()
   }
 
-  pub(crate) fn suggest(&self, name: &str) -> Option<&'a str> {
+  pub(crate) fn suggest(&self, name: &str) -> Option<&'src str> {
     let mut suggestions = self
       .recipes
       .keys()
@@ -43,12 +44,12 @@ impl<'a> Justfile<'a> {
   }
 
   pub(crate) fn run(
-    &'a self,
-    config: &'a Config,
-    working_directory: &'a Path,
-    overrides: &'a BTreeMap<String, String>,
-    arguments: &'a Vec<String>,
-  ) -> RunResult<'a, ()> {
+    &'src self,
+    config: &'src Config,
+    working_directory: &'src Path,
+    overrides: &'src BTreeMap<String, String>,
+    arguments: &'src Vec<String>,
+  ) -> RunResult<'src, ()> {
     let argvec: Vec<&str> = if !arguments.is_empty() {
       arguments.iter().map(|argument| argument.as_str()).collect()
     } else if let Some(recipe) = self.first() {
@@ -86,6 +87,7 @@ impl<'a> Justfile<'a> {
       &dotenv,
       &self.assignments,
       overrides,
+      &self.settings,
     )?;
 
     if let Subcommand::Evaluate { .. } = config.subcommand {
@@ -142,6 +144,7 @@ impl<'a> Justfile<'a> {
     }
 
     let context = RecipeContext {
+      settings: &self.settings,
       config,
       scope,
       working_directory,
@@ -159,7 +162,7 @@ impl<'a> Justfile<'a> {
     self.aliases.get(name)
   }
 
-  pub(crate) fn get_recipe(&self, name: &str) -> Option<&Recipe<'a>> {
+  pub(crate) fn get_recipe(&self, name: &str) -> Option<&Recipe<'src>> {
     if let Some(recipe) = self.recipes.get(name) {
       Some(recipe)
     } else if let Some(alias) = self.aliases.get(name) {
@@ -171,11 +174,11 @@ impl<'a> Justfile<'a> {
 
   fn run_recipe<'b>(
     &self,
-    context: &'b RecipeContext<'a>,
-    recipe: &Recipe<'a>,
-    arguments: &[&'a str],
+    context: &'b RecipeContext<'src>,
+    recipe: &Recipe<'src>,
+    arguments: &[&'src str],
     dotenv: &BTreeMap<String, String>,
-    ran: &mut BTreeSet<&'a str>,
+    ran: &mut BTreeSet<&'src str>,
     overrides: &BTreeMap<String, String>,
   ) -> RunResult<()> {
     for dependency_name in &recipe.dependencies {
@@ -190,7 +193,7 @@ impl<'a> Justfile<'a> {
   }
 }
 
-impl<'a> Display for Justfile<'a> {
+impl<'src> Display for Justfile<'src> {
   fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
     let mut items = self.recipes.len() + self.assignments.len() + self.aliases.len();
     for (name, assignment) in &self.assignments {

@@ -109,6 +109,15 @@ impl Display for CompilationError<'_> {
           self.line.ordinal()
         )?;
       }
+      DuplicateSet { setting, first } => {
+        writeln!(
+          f,
+          "Setting `{}` first set on line {} is redefined on line {}",
+          setting,
+          first.ordinal(),
+          self.line.ordinal(),
+        )?;
+      }
       DependencyHasParameters { recipe, dependency } => {
         writeln!(
           f,
@@ -183,6 +192,9 @@ impl Display for CompilationError<'_> {
       }
       UnknownFunction { function } => {
         writeln!(f, "Call to unknown function `{}`", function)?;
+      }
+      UnknownSetting { setting } => {
+        writeln!(f, "Unknown setting `{}`", setting)?;
       }
       UnknownStartOfToken => {
         writeln!(f, "Unknown start of token:")?;

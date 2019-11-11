@@ -37,6 +37,10 @@ pub(crate) enum CompilationErrorKind<'a> {
   DuplicateVariable {
     variable: &'a str,
   },
+  DuplicateSet {
+    setting: &'a str,
+    first: usize,
+  },
   ExtraLeadingWhitespace,
   FunctionArgumentCountMismatch {
     function: &'a str,
@@ -84,6 +88,9 @@ pub(crate) enum CompilationErrorKind<'a> {
     function: &'a str,
   },
   UnknownStartOfToken,
+  UnknownSetting {
+    setting: &'a str,
+  },
   UnpairedCarriageReturn,
   UnterminatedInterpolation,
   UnterminatedString,

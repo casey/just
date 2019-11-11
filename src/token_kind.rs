@@ -4,6 +4,8 @@ use crate::common::*;
 pub(crate) enum TokenKind {
   At,
   Backtick,
+  BracketL,
+  BracketR,
   Colon,
   ColonEquals,
   Comma,
@@ -34,6 +36,8 @@ impl Display for TokenKind {
       match *self {
         At => "'@'",
         Backtick => "backtick",
+        BracketL => "'['",
+        BracketR => "']'",
         Colon => "':'",
         ColonEquals => "':='",
         Comma => "','",

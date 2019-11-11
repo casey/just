@@ -38,3 +38,65 @@ fn shell() {
 
   assert_stdout(&output, stdout);
 }
+
+#[cfg(windows)]
+const JUSTFILE_CMD_EXE: &str = r#"
+
+set shell := ["cmd.exe", "/C"]
+
+x := `FOR %%WORD IN ("Hello, world!") DO Echo %%WORD`
+
+recipe:
+  FOR %%WORD IN ("A", "B", "C") DO Echo %%WORD
+  Echo "{{x}}"
+"#;
+
+/// Test that we can use `set shell` to use cmd.exe on windows
+#[cfg(windows)]
+#[test]
+fn cmd_exe() {
+  let tmp = tmptree! {
+    justfile: JUSTFILE_CMD_EXE,
+  };
+
+  let output = Command::new(executable_path("just"))
+    .current_dir(tmp.path())
+    .output()
+    .unwrap();
+
+  let stdout = "A\nB\nC\nHello, world!\n";
+
+  assert_stdout(&output, stdout);
+}
+
+#[cfg(windows)]
+const JUSTFILE_POWERSHELL: &str = r#"
+
+set shell := ["powershell.exe", "-c"]
+
+x := `Write-Host "Hello, world!"`
+
+recipe:
+  For ($i=0; $i -le 10; $i++) {
+    Write-Host $i
+  }
+  Write-Host "{{x}}"
+"#;
+
+/// Test that we can use `set shell` to use cmd.exe on windows
+#[cfg(windows)]
+#[test]
+fn cmd_exe() {
+  let tmp = tmptree! {
+    justfile: JUSTFILE_POWERSHELL,
+  };
+
+  let output = Command::new(executable_path("just"))
+    .current_dir(tmp.path())
+    .output()
+    .unwrap();
+
+  let stdout = "0\n1\n2\n3\n4\n5\n6\n7\n8\n9\nHello, world!\n";
+
+  assert_stdout(&output, stdout);
+}

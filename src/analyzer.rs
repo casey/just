@@ -2,28 +2,33 @@ use crate::common::*;
 
 use CompilationErrorKind::*;
 
-pub(crate) struct Analyzer<'a> {
-  recipes: Table<'a, Recipe<'a>>,
-  assignments: Table<'a, Assignment<'a>>,
-  aliases: Table<'a, Alias<'a>>,
+pub(crate) struct Analyzer<'src> {
+  recipes: Table<'src, Recipe<'src>>,
+  assignments: Table<'src, Assignment<'src>>,
+  aliases: Table<'src, Alias<'src>>,
+  sets: Table<'src, Set<'src>>,
 }
 
-impl<'a> Analyzer<'a> {
-  pub(crate) fn analyze(module: Module<'a>) -> CompilationResult<'a, Justfile> {
+impl<'src> Analyzer<'src> {
+  pub(crate) fn analyze(module: Module<'src>) -> CompilationResult<'src, Justfile> {
     let analyzer = Analyzer::new();
 
     analyzer.justfile(module)
   }
 
-  pub(crate) fn new() -> Analyzer<'a> {
+  pub(crate) fn new() -> Analyzer<'src> {
     Analyzer {
       recipes: empty(),
       assignments: empty(),
       aliases: empty(),
+      sets: empty(),
     }
   }
 
-  pub(crate) fn justfile(mut self, module: Module<'a>) -> CompilationResult<'a, Justfile<'a>> {
+  pub(crate) fn justfile(
+    mut self,
+    module: Module<'src>,
+  ) -> CompilationResult<'src, Justfile<'src>> {
     for item in module.items {
       match item {
         Item::Alias(alias) => {
@@ -37,6 +42,10 @@ impl<'a> Analyzer<'a> {
         Item::Recipe(recipe) => {
           self.analyze_recipe(&recipe)?;
           self.recipes.insert(recipe);
+        }
+        Item::Set(set) => {
+          self.analyze_set(&set)?;
+          self.sets.insert(set);
         }
       }
     }
@@ -70,15 +79,27 @@ impl<'a> Analyzer<'a> {
 
     AliasResolver::resolve_aliases(&aliases, &recipes)?;
 
+    let mut settings = Settings::new();
+
+    for (_, set) in self.sets.into_iter() {
+      match set.value {
+        Setting::Shell(shell) => {
+          assert!(settings.shell.is_none());
+          settings.shell = Some(shell);
+        }
+      }
+    }
+
     Ok(Justfile {
       warnings: module.warnings,
-      recipes,
-      assignments,
       aliases,
+      assignments,
+      recipes,
+      settings,
     })
   }
 
-  fn analyze_recipe(&self, recipe: &Recipe<'a>) -> CompilationResult<'a, ()> {
+  fn analyze_recipe(&self, recipe: &Recipe<'src>) -> CompilationResult<'src, ()> {
     if let Some(original) = self.recipes.get(recipe.name.lexeme()) {
       return Err(recipe.name.token().error(DuplicateRecipe {
         recipe: original.name(),
@@ -141,7 +162,7 @@ impl<'a> Analyzer<'a> {
     Ok(())
   }
 
-  fn analyze_assignment(&self, assignment: &Assignment<'a>) -> CompilationResult<'a, ()> {
+  fn analyze_assignment(&self, assignment: &Assignment<'src>) -> CompilationResult<'src, ()> {
     if self.assignments.contains_key(assignment.name.lexeme()) {
       return Err(assignment.name.token().error(DuplicateVariable {
         variable: assignment.name.lexeme(),
@@ -150,13 +171,24 @@ impl<'a> Analyzer<'a> {
     Ok(())
   }
 
-  fn analyze_alias(&self, alias: &Alias<'a>) -> CompilationResult<'a, ()> {
+  fn analyze_alias(&self, alias: &Alias<'src>) -> CompilationResult<'src, ()> {
     let name = alias.name.lexeme();
 
     if let Some(original) = self.aliases.get(name) {
       return Err(alias.name.token().error(DuplicateAlias {
         alias: name,
         first: original.line_number(),
+      }));
+    }
+
+    Ok(())
+  }
+
+  fn analyze_set(&self, set: &Set<'src>) -> CompilationResult<'src, ()> {
+    if let Some(original) = self.sets.get(set.name.lexeme()) {
+      return Err(set.name.error(DuplicateSet {
+        setting: original.name.lexeme(),
+        first: original.name.line,
       }));
     }
 

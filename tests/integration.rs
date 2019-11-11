@@ -351,6 +351,22 @@ _y:
 }
 
 test! {
+  name: set_shell,
+  justfile: "
+    set shell := ['echo', '-n']
+
+    x := `bar`
+
+    foo:
+      echo {{x}}
+      echo foo
+  ",
+  args: (),
+  stdout: "echo barecho foo",
+  stderr: "echo bar\necho foo\n",
+}
+
+test! {
   name:     select,
   justfile: "b:
   @echo b
