@@ -255,12 +255,12 @@ Each setting can be given at most once, anywhere in a justfile.
 [options="header"]
 |=================
 | Name | Value | Description
-|`shell` | `[COMMAND, ARGS...]` | set command used to invoke recipes and evaluate backticks.
+|`shell` | `[COMMAND, ARGS...]` | Set the command used to invoke recipes and evaluate backticks.
 |=================
 
 ==== Shell
 
-The `shell` setting controls the command used to interpret recipe lines and backticks. Shebang recipes are unaffected.
+The `shell` setting controls the command used to invoke recipe lines and backticks. Shebang recipes are unaffected.
 
 ```make
 # use python3 to execute recipe lines and backticks
