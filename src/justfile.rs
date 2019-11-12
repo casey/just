@@ -48,7 +48,7 @@ impl<'src> Justfile<'src> {
     config: &'src Config,
     working_directory: &'src Path,
     overrides: &'src BTreeMap<String, String>,
-    arguments: &'src Vec<String>,
+    arguments: &'src [String],
   ) -> RunResult<'src, ()> {
     let argvec: Vec<&str> = if !arguments.is_empty() {
       arguments.iter().map(|argument| argument.as_str()).collect()
