@@ -233,6 +233,47 @@ echo 'Building!'
 Building!
 ```
 
+=== Settings
+
+Settings can be used to control various aspects of interpetation and execution. (This is aspirational. There is only one setting at the moment.)
+
+For example:
+
+```make
+
+set shell := ["zsh", "-cu"]
+
+foo:
+  # this line will be executed as `zsh -cu 'ls **/*.txt'`
+  ls **/*.txt
+```
+
+Each setting can be given at most once, anywhere in a justfile. Setting the same setting multiple times is an error.
+
+==== Table of Settings
+
+[options="header"]
+|=================
+| Name | Value | Description
+|`shell` | `[COMMAND, ARGS...]` | set command used to invoke recipes and evaluate backticks.
+|=======
+
+==== Shell
+
+The `shell` setting controls the command used to interpret recipe lines and backticks. Shebang recipes are unaffected.
+
+```make
+# use python3 to execute recipe lines and backticks
+set shell := ["python3", "-c"]
+
+# use print to capture result of evaluation
+foos := `print("foo" * 4)`
+
+foo:
+  print("Snake snake snake snake.")
+  print("{{foos}}")
+```
+
 === Documentation Comments
 
 Comments immediately preceding a recipe will appear in `just --list`:
