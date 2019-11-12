@@ -256,7 +256,7 @@ Each setting can be given at most once, anywhere in a justfile. Setting the same
 |=================
 | Name | Value | Description
 |`shell` | `[COMMAND, ARGS...]` | set command used to invoke recipes and evaluate backticks.
-|=======
+|=================
 
 ==== Shell
 
