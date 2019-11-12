@@ -235,7 +235,7 @@ Building!
 
 === Settings
 
-Settings can be used to control various aspects of interpetation and execution. (This is aspirational. There is only one setting at the moment.)
+Settings control interpetation and execution.
 
 For example:
 
@@ -244,11 +244,11 @@ For example:
 set shell := ["zsh", "-cu"]
 
 foo:
-  # this line will be executed as `zsh -cu 'ls **/*.txt'`
+  # this line will be run as `zsh -cu 'ls **/*.txt'`
   ls **/*.txt
 ```
 
-Each setting can be given at most once, anywhere in a justfile. Setting the same setting multiple times is an error.
+Each setting can be given at most once, anywhere in a justfile.
 
 ==== Table of Settings
 
