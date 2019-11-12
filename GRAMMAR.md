@@ -43,6 +43,7 @@ item          : recipe
               | alias
               | assignment
               | export
+              | setting
               | eol
 
 eol           : NEWLINE
@@ -54,6 +55,8 @@ assignment    : NAME ':=' expression eol
 
 export        : 'export' assignment
 
+setting       : 'set' 'shell' ':=' '[' string (',' string)* ','? ']'
+
 expression    : value '+' expression
               | value
 
@@ -63,6 +66,9 @@ value         : NAME '(' sequence? ')'
               | BACKTICK
               | NAME
               | '(' expression ')'
+
+string        : STRING
+              | RAW_STRING
 
 sequence      : expression ',' sequence
               | expression ','?
