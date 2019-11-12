@@ -116,7 +116,11 @@ mod tests {
         assert_eq! (
           Positional::from_values(Some($vals.iter().cloned())),
           Positional {
-            overrides: $overrides.iter().cloned().map(|(key, value): (&str, &str)| (key.to_owned(), value.to_owned())).collect(),
+            overrides: $overrides
+              .iter()
+              .cloned()
+              .map(|(key, value): (&str, &str)| (key.to_owned(), value.to_owned()))
+              .collect(),
             search_directory: $search_directory.map(|dir: &str| dir.to_owned()),
             arguments: $arguments.iter().cloned().map(|arg: &str| arg.to_owned()).collect(),
           },

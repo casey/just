@@ -215,7 +215,7 @@ impl<'a> Lexer<'a> {
     if !text
       .chars()
       .next()
-      .map(|c| Self::is_identifier_start(c))
+      .map(Self::is_identifier_start)
       .unwrap_or(false)
     {
       return false;

@@ -2,6 +2,29 @@ Changelog
 =========
 
 
+[v0.5.0] - 2019-11-12
+---------------------
+
+## Added
+
+- Add `set shell := [...]` to grammar (#526)
+- Add `shell` setting (#525)
+- Document settings in readme (#527)
+
+## Changed
+- Reform positional argument parsing (#523)
+- Highlight echoed recipe lines in bold by default (#512)
+
+## Misc
+
+- Gargantuan refactor (#522)
+- Move subcommand execution into Subcommand (#514)
+- Move `cd` out of Config::from_matches (#513)
+- Remove now-unnecessary borrow checker appeasement (#511)
+- Reform Parser (#509)
+- Note need to publish with nightly cargo (#506)
+
+
 [v0.4.5] - 2019-10-31
 ---------------------
 

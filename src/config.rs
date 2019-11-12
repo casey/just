@@ -486,7 +486,7 @@ impl Config {
     justfile: Justfile,
     working_directory: &Path,
     overrides: &BTreeMap<String, String>,
-    arguments: &Vec<String>,
+    arguments: &[String],
   ) -> Result<(), i32> {
     if let Err(error) = InterruptHandler::install() {
       warn!("Failed to set CTRL-C handler: {}", error)
@@ -547,7 +547,7 @@ mod tests {
   // proper tests for all the flags, but this will do for now.
   #[test]
   fn help() {
-    const EXPECTED_HELP: &str = "just v0.4.5
+    const EXPECTED_HELP: &str = "just v0.5.0
 Casey Rodarmor <casey@rodarmor.com>
 🤖 Just a command runner - https://github.com/casey/just
 
@@ -558,7 +558,7 @@ FLAGS:
         --dry-run         Print what just would do without doing it
         --dump            Print entire justfile
     -e, --edit            \
-    Edit justfile with editor given by $VISUAL or $EDITOR, falling back to `vim`
+      Edit justfile with editor given by $VISUAL or $EDITOR, falling back to `vim`
         --evaluate        Print evaluated variables
         --highlight       Highlight echoed recipe lines in bold
     -l, --list            List available recipes and their arguments
@@ -580,7 +580,8 @@ OPTIONS:
 
 
 ARGS:
-    <ARGUMENTS>...    Overrides and recipe(s) to run, defaulting to the first recipe in the justfile";
+    <ARGUMENTS>...    \
+      Overrides and recipe(s) to run, defaulting to the first recipe in the justfile";
 
     let app = Config::app().setting(AppSettings::ColorNever);
     let mut buffer = Vec::new();
