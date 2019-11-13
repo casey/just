@@ -50,6 +50,30 @@ toc::[]
 
 On Windows, `just` works with the `sh` provided by https://git-scm.com[Git for Windows], https://desktop.github.com[GitHub Desktop], and http://www.cygwin.com[Cygwin].
 
+If you'd rather not install `sh`, you can use the `shell` setting to use the shell of your choice.
+
+Like `cmd.exe`:
+
+```make
+
+# use cmd.exe instead of sh:
+set shell := ["cmd.exe", "/c"]
+
+list:
+  dir
+```
+
+…or Powershell:
+
+```make
+
+# use Powershell instead of sh:
+set shell := ["powershell.exe", "-c"]
+
+hello:
+  Write-Host "Hello, world!"
+```
+
 === Pre-built Binaries
 
 Pre-built binaries for Linux, MacOS, and Windows can be found on https://github.com/casey/just/releases[the releases page].
