@@ -34,7 +34,7 @@ check:
 	cargo check
 
 watch +COMMAND='test':
-	cargo watch --clear --exec build --exec "{{COMMAND}}"
+	cargo watch --clear --exec "{{COMMAND}}"
 
 man:
 	cargo build --features help4help2man

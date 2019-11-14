@@ -39,15 +39,7 @@ impl Display for Warning<'_> {
 
     if let Some(token) = self.context() {
       writeln!(f)?;
-      write_message_context(
-        f,
-        Color::fmt(f).warning(),
-        token.src,
-        token.offset,
-        token.line,
-        token.column,
-        token.lexeme().len(),
-      )?;
+      token.write_context(f, Color::fmt(f).warning())?;
     }
 
     Ok(())

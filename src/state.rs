@@ -1,9 +1,9 @@
 use crate::common::*;
 
 #[derive(Copy, Clone, PartialEq, Debug)]
-pub(crate) enum State<'a> {
+pub(crate) enum State<'src> {
   Normal,
-  Indented { indentation: &'a str },
+  Indented { indentation: &'src str },
   Text,
-  Interpolation { interpolation_start: Position },
+  Interpolation { interpolation_start: Token<'src> },
 }

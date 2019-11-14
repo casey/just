@@ -35,10 +35,7 @@ pub(crate) use unicode_width::UnicodeWidthChar;
 pub(crate) use crate::{config_error, keyword, search_error, setting};
 
 // functions
-pub(crate) use crate::{
-  default::default, empty::empty, load_dotenv::load_dotenv, output::output,
-  write_message_context::write_message_context,
-};
+pub(crate) use crate::{default::default, empty::empty, load_dotenv::load_dotenv, output::output};
 
 // traits
 pub(crate) use crate::{
