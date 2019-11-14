@@ -1,13 +1,9 @@
 use crate::common::*;
 
 #[derive(Debug, PartialEq)]
-pub(crate) struct CompilationError<'a> {
-  pub(crate) src: &'a str,
-  pub(crate) offset: usize,
-  pub(crate) line: usize,
-  pub(crate) column: usize,
-  pub(crate) width: usize,
-  pub(crate) kind: CompilationErrorKind<'a>,
+pub(crate) struct CompilationError<'src> {
+  pub(crate) token: Token<'src>,
+  pub(crate) kind: CompilationErrorKind<'src>,
 }
 
 impl Error for CompilationError<'_> {}
@@ -25,7 +21,7 @@ impl Display for CompilationError<'_> {
           f,
           "Alias `{}` defined on line {} shadows recipe `{}` defined on line {}",
           alias,
-          self.line.ordinal(),
+          self.token.line.ordinal(),
           alias,
           recipe_line.ordinal(),
         )?;
@@ -90,7 +86,7 @@ impl Display for CompilationError<'_> {
           "Alias `{}` first defined on line {} is redefined on line {}",
           alias,
           first.ordinal(),
-          self.line.ordinal(),
+          self.token.line.ordinal(),
         )?;
       }
       DuplicateDependency { recipe, dependency } => {
@@ -106,7 +102,7 @@ impl Display for CompilationError<'_> {
           "Recipe `{}` first defined on line {} is redefined on line {}",
           recipe,
           first.ordinal(),
-          self.line.ordinal()
+          self.token.line.ordinal()
         )?;
       }
       DuplicateSet { setting, first } => {
@@ -115,7 +111,7 @@ impl Display for CompilationError<'_> {
           "Setting `{}` first set on line {} is redefined on line {}",
           setting,
           first.ordinal(),
-          self.line.ordinal(),
+          self.token.line.ordinal(),
         )?;
       }
       DependencyHasParameters { recipe, dependency } => {
@@ -223,14 +219,6 @@ impl Display for CompilationError<'_> {
 
     write!(f, "{}", message.suffix())?;
 
-    write_message_context(
-      f,
-      Color::fmt(f).error(),
-      self.src,
-      self.offset,
-      self.line,
-      self.column,
-      self.width,
-    )
+    self.token.write_context(f, Color::fmt(f).error())
   }
 }

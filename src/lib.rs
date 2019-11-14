@@ -87,7 +87,6 @@ mod use_color;
 mod variables;
 mod verbosity;
 mod warning;
-mod write_message_context;
 
 pub use crate::run::run;
 

@@ -82,6 +82,17 @@ impl Error for RuntimeError<'_> {
   }
 }
 
+impl<'a> RuntimeError<'a> {
+  fn context(&self) -> Option<Token> {
+    use RuntimeError::*;
+    match self {
+      FunctionCall { function, .. } => Some(function.token()),
+      Backtick { token, .. } => Some(*token),
+      _ => None,
+    }
+  }
+}
+
 impl<'a> Display for RuntimeError<'a> {
   fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
     use RuntimeError::*;
@@ -94,12 +105,10 @@ impl<'a> Display for RuntimeError<'a> {
     let message = color.message();
     write!(f, "{}", message.prefix())?;
 
-    let mut error_token: Option<Token> = None;
-
-    match *self {
+    match self {
       UnknownRecipes {
-        ref recipes,
-        ref suggestion,
+        recipes,
+        suggestion,
       } => {
         write!(
           f,
@@ -111,7 +120,7 @@ impl<'a> Display for RuntimeError<'a> {
           write!(f, "\nDid you mean `{}`?", suggestion)?;
         }
       }
-      UnknownOverrides { ref overrides } => {
+      UnknownOverrides { overrides } => {
         write!(
           f,
           "{} {} overridden on the command line but not present in justfile",
@@ -121,7 +130,7 @@ impl<'a> Display for RuntimeError<'a> {
       }
       ArgumentCountMismatch {
         recipe,
-        ref parameters,
+        parameters,
         found,
         min,
         max,
@@ -133,7 +142,7 @@ impl<'a> Display for RuntimeError<'a> {
             "Recipe `{}` got {} {} but {}takes {}",
             recipe,
             found,
-            Count("argument", found),
+            Count("argument", *found),
             if expected < found { "only " } else { "" },
             expected
           )?;
@@ -143,7 +152,7 @@ impl<'a> Display for RuntimeError<'a> {
             "Recipe `{}` got {} {} but takes at least {}",
             recipe,
             found,
-            Count("argument", found),
+            Count("argument", *found),
             min
           )?;
         } else if found > max {
@@ -152,7 +161,7 @@ impl<'a> Display for RuntimeError<'a> {
             "Recipe `{}` got {} {} but takes at most {}",
             recipe,
             found,
-            Count("argument", found),
+            Count("argument", *found),
             max
           )?;
         }
@@ -182,8 +191,8 @@ impl<'a> Display for RuntimeError<'a> {
       }
       Cygpath {
         recipe,
-        ref output_error,
-      } => match *output_error {
+        output_error,
+      } => match output_error {
         OutputError::Code(code) => {
           write!(
             f,
@@ -208,7 +217,7 @@ impl<'a> Display for RuntimeError<'a> {
             recipe
           )?;
         }
-        OutputError::Io(ref io_error) => {
+        OutputError::Io(io_error) => {
           match io_error.kind() {
             io::ErrorKind::NotFound => write!(
               f,
@@ -225,7 +234,7 @@ impl<'a> Display for RuntimeError<'a> {
             _ => write!(f, "Could not run `cygpath` executable:\n{}", io_error),
           }?;
         }
-        OutputError::Utf8(ref utf8_error) => {
+        OutputError::Utf8(utf8_error) => {
           write!(
             f,
             "Cygpath successfully translated recipe `{}` shebang interpreter path, \
@@ -234,28 +243,24 @@ impl<'a> Display for RuntimeError<'a> {
           )?;
         }
       },
-      Dotenv { ref dotenv_error } => {
+      Dotenv { dotenv_error } => {
         writeln!(f, "Failed to load .env: {}", dotenv_error)?;
       }
-      FunctionCall {
-        ref function,
-        ref message,
-      } => {
+      FunctionCall { function, message } => {
         writeln!(
           f,
           "Call to function `{}` failed: {}",
           function.lexeme(),
           message
         )?;
-        error_token = Some(function.token());
       }
       Shebang {
         recipe,
-        ref command,
-        ref argument,
-        ref io_error,
+        command,
+        argument,
+        io_error,
       } => {
-        if let Some(ref argument) = *argument {
+        if let Some(argument) = argument {
           write!(
             f,
             "Recipe `{}` with shebang `#!{} {}` execution error: {}",
@@ -295,12 +300,10 @@ impl<'a> Display for RuntimeError<'a> {
             recipe, n
           )?;
         } else {
+          write!(f, "Recipe `{}` failed for an unknown reason", recipe)?;
         }
       }
-      IoError {
-        recipe,
-        ref io_error,
-      } => {
+      IoError { recipe, io_error } => {
         match io_error.kind() {
           io::ErrorKind::NotFound => writeln!(
             f,
@@ -320,32 +323,23 @@ impl<'a> Display for RuntimeError<'a> {
           ),
         }?;
       }
-      TmpdirIoError {
-        recipe,
-        ref io_error,
-      } => writeln!(
+      TmpdirIoError { recipe, io_error } => writeln!(
         f,
         "Recipe `{}` could not be run because of an IO error while trying \
          to create a temporary directory or write a file to that directory`:{}",
         recipe, io_error
       )?,
-      Backtick {
-        ref token,
-        ref output_error,
-      } => match *output_error {
+      Backtick { output_error, .. } => match output_error {
         OutputError::Code(code) => {
           writeln!(f, "Backtick failed with exit code {}", code)?;
-          error_token = Some(*token);
         }
         OutputError::Signal(signal) => {
           writeln!(f, "Backtick was terminated by signal {}", signal)?;
-          error_token = Some(*token);
         }
         OutputError::Unknown => {
           writeln!(f, "Backtick failed for an unknown reason")?;
-          error_token = Some(*token);
         }
-        OutputError::Io(ref io_error) => {
+        OutputError::Io(io_error) => {
           match io_error.kind() {
             io::ErrorKind::NotFound => write!(
               f,
@@ -364,15 +358,13 @@ impl<'a> Display for RuntimeError<'a> {
               io_error
             ),
           }?;
-          error_token = Some(*token);
         }
-        OutputError::Utf8(ref utf8_error) => {
+        OutputError::Utf8(utf8_error) => {
           writeln!(
             f,
             "Backtick succeeded but stdout was not utf8: {}",
             utf8_error
           )?;
-          error_token = Some(*token);
         }
       },
       NoRecipes => {
@@ -387,10 +379,10 @@ impl<'a> Display for RuntimeError<'a> {
           "Recipe `{}` cannot be used as default recipe since it requires at least {} {}.",
           recipe,
           min_arguments,
-          Count("argument", min_arguments),
+          Count("argument", *min_arguments),
         )?;
       }
-      Internal { ref message } => {
+      Internal { message } => {
         write!(
           f,
           "Internal runtime error, this may indicate a bug in just: {} \
@@ -402,16 +394,8 @@ impl<'a> Display for RuntimeError<'a> {
 
     write!(f, "{}", message.suffix())?;
 
-    if let Some(token) = error_token {
-      write_message_context(
-        f,
-        Color::fmt(f).error(),
-        token.src,
-        token.offset,
-        token.line,
-        token.column,
-        token.lexeme().len(),
-      )?;
+    if let Some(token) = self.context() {
+      token.write_context(f, Color::fmt(f).error())?;
     }
 
     Ok(())

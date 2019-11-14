@@ -11,15 +11,15 @@ use TokenKind::*;
 /// regex-based lexer, which was slower and generally godawful. However,
 /// this should not be taken as a slight against regular expressions,
 /// the lexer was just idiosyncratically bad.
-pub(crate) struct Lexer<'a> {
+pub(crate) struct Lexer<'src> {
   /// Source text
-  src: &'a str,
+  src: &'src str,
   /// Char iterator
-  chars: Chars<'a>,
+  chars: Chars<'src>,
   /// Tokens
-  tokens: Vec<Token<'a>>,
+  tokens: Vec<Token<'src>>,
   /// State stack
-  state: Vec<State<'a>>,
+  state: Vec<State<'src>>,
   /// Current token start
   token_start: Position,
   /// Current token end
@@ -28,14 +28,14 @@ pub(crate) struct Lexer<'a> {
   next: Option<char>,
 }
 
-impl<'a> Lexer<'a> {
+impl<'src> Lexer<'src> {
   /// Lex `text`
   pub(crate) fn lex(src: &str) -> CompilationResult<Vec<Token>> {
     Lexer::new(src).tokenize()
   }
 
   /// Create a new Lexer to lex `text`
-  fn new(src: &'a str) -> Lexer<'a> {
+  fn new(src: &'src str) -> Lexer<'src> {
     let mut chars = src.chars();
     let next = chars.next();
 
@@ -58,7 +58,7 @@ impl<'a> Lexer<'a> {
 
   /// Advance over the chracter in `self.next`, updating
   /// `self.token_end` accordingly.
-  fn advance(&mut self) -> CompilationResult<'a, ()> {
+  fn advance(&mut self) -> CompilationResult<'src, ()> {
     match self.next {
       Some(c) => {
         let len_utf8 = c.len_utf8();
@@ -84,7 +84,7 @@ impl<'a> Lexer<'a> {
   }
 
   /// Lexeme of in-progress token
-  fn lexeme(&self) -> &'a str {
+  fn lexeme(&self) -> &'src str {
     &self.src[self.token_start.offset..self.token_end.offset]
   }
 
@@ -104,7 +104,7 @@ impl<'a> Lexer<'a> {
   }
 
   /// Un-lexed text
-  fn rest(&self) -> &'a str {
+  fn rest(&self) -> &'src str {
     &self.src[self.token_end.offset..]
   }
 
@@ -124,7 +124,7 @@ impl<'a> Lexer<'a> {
   }
 
   /// Get current state
-  fn state(&self) -> CompilationResult<'a, State<'a>> {
+  fn state(&self) -> CompilationResult<'src, State<'src>> {
     if self.state.is_empty() {
       Err(self.internal_error("Lexer state stack empty"))
     } else {
@@ -133,7 +133,7 @@ impl<'a> Lexer<'a> {
   }
 
   /// Pop current state from stack
-  fn pop_state(&mut self) -> CompilationResult<'a, ()> {
+  fn pop_state(&mut self) -> CompilationResult<'src, ()> {
     if self.state.pop().is_none() {
       Err(self.internal_error("Lexer attempted to pop in start state"))
     } else {
@@ -158,26 +158,31 @@ impl<'a> Lexer<'a> {
   }
 
   /// Create an internal error with `message`
-  fn internal_error(&self, message: impl Into<String>) -> CompilationError<'a> {
-    // Use `self.token_end` as the location of the error
-    CompilationError {
+  fn internal_error(&self, message: impl Into<String>) -> CompilationError<'src> {
+    let token = Token {
       src: self.src,
       offset: self.token_end.offset,
       line: self.token_end.line,
       column: self.token_end.column,
-      width: 0,
+      length: 0,
+      kind: Unspecified,
+    };
+
+    // Use `self.token_end` as the location of the error
+    CompilationError {
       kind: CompilationErrorKind::Internal {
         message: message.into(),
       },
+      token,
     }
   }
 
   /// Create a compilation error with `kind`
-  fn error(&self, kind: CompilationErrorKind<'a>) -> CompilationError<'a> {
+  fn error(&self, kind: CompilationErrorKind<'src>) -> CompilationError<'src> {
     // Use the in-progress token span as the location of the error.
 
     // The width of the error site to highlight depends on the kind of error:
-    let width = match kind {
+    let length = match kind {
       // highlight ' or "
       UnterminatedString => 1,
       // highlight `
@@ -186,26 +191,24 @@ impl<'a> Lexer<'a> {
       _ => self.lexeme().len(),
     };
 
-    CompilationError {
+    let token = Token {
+      kind: Unspecified,
       src: self.src,
       offset: self.token_start.offset,
       line: self.token_start.line,
       column: self.token_start.column,
-      width,
-      kind,
-    }
+      length,
+    };
+
+    CompilationError { token, kind }
   }
 
   fn unterminated_interpolation_error(
     &self,
-    interpolation_start: Position,
-  ) -> CompilationError<'a> {
+    interpolation_start: Token<'src>,
+  ) -> CompilationError<'src> {
     CompilationError {
-      src: self.src,
-      offset: interpolation_start.offset,
-      line: interpolation_start.line,
-      column: interpolation_start.column,
-      width: 2,
+      token: interpolation_start,
       kind: UnterminatedInterpolation,
     }
   }
@@ -251,7 +254,7 @@ impl<'a> Lexer<'a> {
   }
 
   /// Consume the text and produce a series of tokens
-  fn tokenize(mut self) -> CompilationResult<'a, Vec<Token<'a>>> {
+  fn tokenize(mut self) -> CompilationResult<'src, Vec<Token<'src>>> {
     loop {
       if self.token_start.column == 0 {
         self.lex_line_start()?;
@@ -287,7 +290,7 @@ impl<'a> Lexer<'a> {
   }
 
   /// Handle blank lines and indentation
-  fn lex_line_start(&mut self) -> CompilationResult<'a, ()> {
+  fn lex_line_start(&mut self) -> CompilationResult<'src, ()> {
     let nonblank_index = self
       .rest()
       .char_indices()
@@ -384,7 +387,7 @@ impl<'a> Lexer<'a> {
   }
 
   /// Lex token beginning with `start` in normal state
-  fn lex_normal(&mut self, start: char) -> CompilationResult<'a, ()> {
+  fn lex_normal(&mut self, start: char) -> CompilationResult<'src, ()> {
     match start {
       '@' => self.lex_single(At),
       '[' => self.lex_single(BracketL),
@@ -418,9 +421,9 @@ impl<'a> Lexer<'a> {
   /// Lex token beginning with `start` in interpolation state
   fn lex_interpolation(
     &mut self,
-    interpolation_start: Position,
+    interpolation_start: Token<'src>,
     start: char,
-  ) -> CompilationResult<'a, ()> {
+  ) -> CompilationResult<'src, ()> {
     // Check for end of interpolation
     if self.rest_starts_with("}}") {
       // Pop interpolation state
@@ -437,7 +440,7 @@ impl<'a> Lexer<'a> {
   }
 
   /// Lex token beginning with `start` in text state
-  fn lex_text(&mut self) -> CompilationResult<'a, ()> {
+  fn lex_text(&mut self) -> CompilationResult<'src, ()> {
     enum Terminator {
       Newline,
       NewlineCarriageReturn,
@@ -482,30 +485,31 @@ impl<'a> Lexer<'a> {
         self.lex_double(Eol)
       }
       Interpolation => {
+        self.lex_double(InterpolationStart)?;
         self.state.push(State::Interpolation {
-          interpolation_start: self.token_start,
+          interpolation_start: self.tokens[self.tokens.len() - 1],
         });
-        self.lex_double(InterpolationStart)
+        Ok(())
       }
       EndOfFile => self.pop_state(),
     }
   }
 
   /// Lex token beginning with `start` in indented state
-  fn lex_indented(&mut self) -> CompilationResult<'a, ()> {
+  fn lex_indented(&mut self) -> CompilationResult<'src, ()> {
     self.state.push(State::Text);
     Ok(())
   }
 
   /// Lex a single character token
-  fn lex_single(&mut self, kind: TokenKind) -> CompilationResult<'a, ()> {
+  fn lex_single(&mut self, kind: TokenKind) -> CompilationResult<'src, ()> {
     self.advance()?;
     self.token(kind);
     Ok(())
   }
 
   /// Lex a double character token
-  fn lex_double(&mut self, kind: TokenKind) -> CompilationResult<'a, ()> {
+  fn lex_double(&mut self, kind: TokenKind) -> CompilationResult<'src, ()> {
     self.advance()?;
     self.advance()?;
     self.token(kind);
@@ -513,7 +517,7 @@ impl<'a> Lexer<'a> {
   }
 
   /// Lex a token starting with ':'
-  fn lex_colon(&mut self) -> CompilationResult<'a, ()> {
+  fn lex_colon(&mut self) -> CompilationResult<'src, ()> {
     self.advance()?;
 
     if self.next_is('=') {
@@ -527,7 +531,7 @@ impl<'a> Lexer<'a> {
   }
 
   /// Lex a token starting with '{'
-  fn lex_brace_l(&mut self) -> CompilationResult<'a, ()> {
+  fn lex_brace_l(&mut self) -> CompilationResult<'src, ()> {
     if !self.rest_starts_with("{{") {
       self.advance()?;
 
@@ -538,7 +542,7 @@ impl<'a> Lexer<'a> {
   }
 
   /// Lex a token starting with '}'
-  fn lex_brace_r(&mut self) -> CompilationResult<'a, ()> {
+  fn lex_brace_r(&mut self) -> CompilationResult<'src, ()> {
     if !self.rest_starts_with("}}") {
       self.advance()?;
 
@@ -549,7 +553,7 @@ impl<'a> Lexer<'a> {
   }
 
   /// Lex a carriage return and line feed
-  fn lex_cr_lf(&mut self) -> CompilationResult<'a, ()> {
+  fn lex_cr_lf(&mut self) -> CompilationResult<'src, ()> {
     if !self.rest_starts_with("\r\n") {
       // advance over \r
       self.advance()?;
@@ -561,7 +565,7 @@ impl<'a> Lexer<'a> {
   }
 
   /// Lex name: [a-zA-Z_][a-zA-Z0-9_]*
-  fn lex_identifier(&mut self) -> CompilationResult<'a, ()> {
+  fn lex_identifier(&mut self) -> CompilationResult<'src, ()> {
     // advance over initial character
     self.advance()?;
 
@@ -579,7 +583,7 @@ impl<'a> Lexer<'a> {
   }
 
   /// Lex comment: #[^\r\n]
-  fn lex_comment(&mut self) -> CompilationResult<'a, ()> {
+  fn lex_comment(&mut self) -> CompilationResult<'src, ()> {
     // advance over #
     self.advance()?;
 
@@ -593,7 +597,7 @@ impl<'a> Lexer<'a> {
   }
 
   /// Lex backtick: `[^\r\n]*`
-  fn lex_backtick(&mut self) -> CompilationResult<'a, ()> {
+  fn lex_backtick(&mut self) -> CompilationResult<'src, ()> {
     // advance over initial `
     self.advance()?;
 
@@ -612,7 +616,7 @@ impl<'a> Lexer<'a> {
   }
 
   /// Lex whitespace: [ \t]+
-  fn lex_whitespace(&mut self) -> CompilationResult<'a, ()> {
+  fn lex_whitespace(&mut self) -> CompilationResult<'src, ()> {
     while self.next_is_whitespace() {
       self.advance()?
     }
@@ -623,7 +627,7 @@ impl<'a> Lexer<'a> {
   }
 
   /// Lex raw string: '[^']*'
-  fn lex_raw_string(&mut self) -> CompilationResult<'a, ()> {
+  fn lex_raw_string(&mut self) -> CompilationResult<'src, ()> {
     // advance over opening '
     self.advance()?;
 
@@ -646,7 +650,7 @@ impl<'a> Lexer<'a> {
   }
 
   /// Lex cooked string: "[^"\n\r]*" (also processes escape sequences)
-  fn lex_cooked_string(&mut self) -> CompilationResult<'a, ()> {
+  fn lex_cooked_string(&mut self) -> CompilationResult<'src, ()> {
     // advance over opening "
     self.advance()?;
 
@@ -780,7 +784,7 @@ mod tests {
       Dedent | Eof => "",
 
       // Variable lexemes
-      Text | StringCooked | StringRaw | Identifier | Comment | Backtick => {
+      Text | StringCooked | StringRaw | Identifier | Comment | Backtick | Unspecified => {
         panic!("Token {:?} has no default lexeme", kind)
       }
     }
@@ -808,22 +812,24 @@ mod tests {
     offset: usize,
     line: usize,
     column: usize,
-    width: usize,
+    length: usize,
     kind: CompilationErrorKind,
   ) {
-    let expected = CompilationError {
-      src,
-      offset,
-      line,
-      column,
-      width,
-      kind,
-    };
-
     match Lexer::lex(src) {
-      Ok(_) => panic!("Lexing succeeded but expected: {}\n{}", expected, src),
-      Err(actual) => {
-        assert_eq!(actual, expected);
+      Ok(_) => panic!("Lexing succeeded but expected"),
+      Err(have) => {
+        let want = CompilationError {
+          token: Token {
+            kind: have.token.kind,
+            src,
+            offset,
+            line,
+            column,
+            length,
+          },
+          kind,
+        };
+        assert_eq!(have, want);
       }
     }
   }

@@ -40,13 +40,17 @@ impl<'a: 'b, 'b> AssignmentResolver<'a, 'b> {
       self.evaluated.insert(name);
     } else {
       let message = format!("attempted to resolve unknown assignment `{}`", name);
-      return Err(CompilationError {
+      let token = Token {
         src: "",
         offset: 0,
         line: 0,
         column: 0,
-        width: 0,
+        length: 0,
+        kind: TokenKind::Unspecified,
+      };
+      return Err(CompilationError {
         kind: Internal { message },
+        token,
       });
     }
     Ok(())

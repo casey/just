@@ -42,26 +42,28 @@ pub(crate) fn analysis_error(
   offset: usize,
   line: usize,
   column: usize,
-  width: usize,
+  length: usize,
   kind: CompilationErrorKind,
 ) {
-  let expected = CompilationError {
-    src,
-    offset,
-    line,
-    column,
-    width,
-    kind,
-  };
-
   let tokens = Lexer::lex(src).expect("Lexing failed in parse test...");
 
   let module = Parser::parse(&tokens).expect("Parsing failed in analysis test...");
 
   match Analyzer::analyze(module) {
-    Ok(_) => panic!("Analysis succeeded but expected: {}\n{}", expected, src),
-    Err(actual) => {
-      assert_eq!(actual, expected);
+    Ok(_) => panic!("Analysis unexpectedly succeeded"),
+    Err(have) => {
+      let want = CompilationError {
+        token: Token {
+          kind: have.token.kind,
+          src,
+          offset,
+          line,
+          column,
+          length,
+        },
+        kind,
+      };
+      assert_eq!(have, want);
     }
   }
 }

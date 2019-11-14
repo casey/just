@@ -24,6 +24,7 @@ pub(crate) enum TokenKind {
   StringCooked,
   StringRaw,
   Text,
+  Unspecified,
   Whitespace,
 }
 
@@ -57,6 +58,7 @@ impl Display for TokenKind {
         StringRaw => "raw string",
         Text => "command text",
         Whitespace => "whitespace",
+        Unspecified => "unspecified",
       }
     )
   }
