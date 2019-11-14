@@ -159,6 +159,7 @@ impl<'src> Lexer<'src> {
 
   /// Create an internal error with `message`
   fn internal_error(&self, message: impl Into<String>) -> CompilationError<'src> {
+    // Use `self.token_end` as the location of the error
     let token = Token {
       src: self.src,
       offset: self.token_end.offset,
@@ -167,8 +168,6 @@ impl<'src> Lexer<'src> {
       length: 0,
       kind: Unspecified,
     };
-
-    // Use `self.token_end` as the location of the error
     CompilationError {
       kind: CompilationErrorKind::Internal {
         message: message.into(),
