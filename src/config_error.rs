@@ -16,8 +16,9 @@ pub(crate) enum ConfigError {
   ))]
   SearchDirConflict,
   #[snafu(display(
-    "`{}` used with unexpected arguments: {}",
+    "`{}` used with unexpected {}: {}",
     subcommand,
+    Count("argument", arguments.len()),
     List::and_ticked(arguments)
   ))]
   SubcommandArguments {
