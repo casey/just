@@ -1,6 +1,16 @@
 Changelog
 =========
 
+[v0.5.1] - 2019-11-19
+---------------------
+
+## Changed
+- Avoid fs::canonicalize (#539)
+
+## Misc
+- Mention `set shell` as altenative to installing `sh` (#533)
+- Refactor Compilation error to contain a Token (#535)
+- Move lexer comment (#536)
 
 [v0.5.0] - 2019-11-12
 ---------------------
