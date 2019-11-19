@@ -1,5 +1,7 @@
 use crate::common::*;
 
+use std::path::Component;
+
 const FILENAME: &str = "justfile";
 
 pub(crate) struct Search {
@@ -25,12 +27,7 @@ impl Search {
       }
 
       SearchConfig::FromSearchDirectory { search_directory } => {
-        let search_directory =
-          search_directory
-            .canonicalize()
-            .context(search_error::Canonicalize {
-              path: search_directory,
-            })?;
+        let search_directory = Self::clean(invocation_directory, search_directory);
 
         let justfile = Self::justfile(&search_directory)?;
 
@@ -43,7 +40,7 @@ impl Search {
       }
 
       SearchConfig::WithJustfile { justfile } => {
-        let justfile: PathBuf = justfile.to_path_buf();
+        let justfile = Self::clean(invocation_directory, justfile);
 
         let working_directory = Self::working_directory_from_justfile(&justfile)?;
 
@@ -57,8 +54,8 @@ impl Search {
         justfile,
         working_directory,
       } => Ok(Search {
-        justfile: justfile.to_path_buf(),
-        working_directory: working_directory.to_path_buf(),
+        justfile: Self::clean(invocation_directory, justfile),
+        working_directory: Self::clean(invocation_directory, working_directory),
       }),
     }
   }
@@ -92,16 +89,30 @@ impl Search {
     }
   }
 
-  fn working_directory_from_justfile(justfile: &Path) -> SearchResult<PathBuf> {
-    let justfile_canonical = justfile
-      .canonicalize()
-      .context(search_error::Canonicalize { path: justfile })?;
+  fn clean(invocation_directory: &Path, path: &Path) -> PathBuf {
+    let path = invocation_directory.join(path);
 
+    let mut clean = Vec::new();
+
+    for component in path.components() {
+      if component == Component::ParentDir {
+        if let Some(Component::Normal(_)) = clean.last() {
+          clean.pop();
+        }
+      } else {
+        clean.push(component);
+      }
+    }
+
+    clean.into_iter().collect()
+  }
+
+  fn working_directory_from_justfile(justfile: &Path) -> SearchResult<PathBuf> {
     Ok(
-      justfile_canonical
+      justfile
         .parent()
         .ok_or_else(|| SearchError::JustfileHadNoParent {
-          path: justfile_canonical.clone(),
+          path: justfile.to_path_buf(),
         })?
         .to_owned(),
     )
@@ -111,6 +122,7 @@ impl Search {
 #[cfg(test)]
 mod tests {
   use super::*;
+  use test_utilities::tmptree;
 
   #[test]
   fn not_found() {
@@ -226,6 +238,53 @@ mod tests {
         assert_eq!(found_path, path);
       }
       _ => panic!("No errors were expected"),
+    }
+  }
+
+  #[test]
+  fn justfile_symlink_parent() {
+    let tmp = tmptree! {
+      src: "",
+      sub: {},
+    };
+
+    let src = tmp.path().join("src");
+    let sub = tmp.path().join("sub");
+    let justfile = sub.join("justfile");
+
+    #[cfg(unix)]
+    std::os::unix::fs::symlink(&src, &justfile).unwrap();
+
+    #[cfg(windows)]
+    std::os::windows::fs::symlink_file(&src, &justfile).unwrap();
+
+    let search_config = SearchConfig::FromInvocationDirectory;
+
+    let search = Search::search(&search_config, &sub).unwrap();
+
+    assert_eq!(search.justfile, justfile);
+    assert_eq!(search.working_directory, sub);
+  }
+
+  #[test]
+  fn clean() {
+    let cases = &[
+      ("/", "foo", "/foo"),
+      ("/bar", "/foo", "/foo"),
+      ("//foo", "bar//baz", "/foo/bar/baz"),
+      ("/", "..", "/"),
+      ("/", "/..", "/"),
+      ("/..", "", "/"),
+      ("/../../../..", "../../../", "/"),
+      ("/.", "./", "/"),
+      ("/foo/../", "bar", "/bar"),
+      ("/foo/bar", "..", "/foo"),
+      ("/foo/bar/", "..", "/foo"),
+    ];
+
+    for (prefix, suffix, want) in cases {
+      let have = Search::clean(Path::new(prefix), Path::new(suffix));
+      assert_eq!(have, Path::new(want));
     }
   }
 }

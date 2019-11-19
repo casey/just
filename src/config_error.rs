@@ -9,8 +9,6 @@ pub(crate) enum ConfigError {
     message
   ))]
   Internal { message: String },
-  #[snafu(display("Could not canonicalize justfile path `{}`: {}", path.display(), source))]
-  JustfilePathCanonicalize { path: PathBuf, source: io::Error },
   #[snafu(display("Failed to get current directory: {}", source))]
   CurrentDir { source: io::Error },
   #[snafu(display(

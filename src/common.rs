@@ -32,7 +32,7 @@ pub(crate) use snafu::{ResultExt, Snafu};
 pub(crate) use unicode_width::UnicodeWidthChar;
 
 // modules
-pub(crate) use crate::{config_error, keyword, search_error, setting};
+pub(crate) use crate::{config_error, keyword, setting};
 
 // functions
 pub(crate) use crate::{default::default, empty::empty, load_dotenv::load_dotenv, output::output};

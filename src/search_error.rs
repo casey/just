@@ -12,9 +12,7 @@ pub(crate) enum SearchError {
         .map(|candidate| candidate.file_name().unwrap().to_string_lossy())
     ),
   ))]
-  MultipleCandidates {
-    candidates: Vec<PathBuf>,
-  },
+  MultipleCandidates { candidates: Vec<PathBuf> },
   #[snafu(display(
     "I/O error reading directory `{}`: {}",
     directory.display(),
@@ -26,13 +24,8 @@ pub(crate) enum SearchError {
   },
   #[snafu(display("No justfile found"))]
   NotFound,
-  Canonicalize {
-    path: PathBuf,
-    source: io::Error,
-  },
-  JustfileHadNoParent {
-    path: PathBuf,
-  },
+  #[snafu(display("Justfile path had no parent: {}", path.display()))]
+  JustfileHadNoParent { path: PathBuf },
 }
 
 impl Error for SearchError {}
