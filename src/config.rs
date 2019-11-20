@@ -4,6 +4,7 @@ use clap::{App, AppSettings, Arg, ArgGroup, ArgMatches};
 use unicode_width::UnicodeWidthStr;
 
 pub(crate) const DEFAULT_SHELL: &str = "sh";
+pub(crate) const INIT_JUSTFILE: &str = "default:\n\techo 'Hello, world!'\n";
 
 #[derive(Debug, PartialEq)]
 pub(crate) struct Config {
@@ -22,12 +23,13 @@ mod cmd {
   pub(crate) const DUMP: &str = "DUMP";
   pub(crate) const EDIT: &str = "EDIT";
   pub(crate) const EVALUATE: &str = "EVALUATE";
+  pub(crate) const INIT: &str = "INIT";
   pub(crate) const LIST: &str = "LIST";
   pub(crate) const SHOW: &str = "SHOW";
   pub(crate) const SUMMARY: &str = "SUMMARY";
 
-  pub(crate) const ALL: &[&str] = &[DUMP, EDIT, LIST, SHOW, SUMMARY, EVALUATE];
-  pub(crate) const ARGLESS: &[&str] = &[DUMP, EDIT, LIST, SHOW, SUMMARY];
+  pub(crate) const ALL: &[&str] = &[DUMP, EDIT, INIT, EVALUATE, LIST, SHOW, SUMMARY];
+  pub(crate) const ARGLESS: &[&str] = &[DUMP, EDIT, INIT, LIST, SHOW, SUMMARY];
 }
 
 mod arg {
@@ -71,22 +73,6 @@ impl Config {
           .conflicts_with(arg::QUIET),
       )
       .arg(
-        Arg::with_name(cmd::DUMP)
-          .long("dump")
-          .help("Print entire justfile"),
-      )
-      .arg(
-        Arg::with_name(cmd::EDIT)
-          .short("e")
-          .long("edit")
-          .help("Edit justfile with editor given by $VISUAL or $EDITOR, falling back to `vim`"),
-      )
-      .arg(
-        Arg::with_name(cmd::EVALUATE)
-          .long("evaluate")
-          .help("Print evaluated variables"),
-      )
-      .arg(
         Arg::with_name(arg::HIGHLIGHT)
           .long("highlight")
           .help("Highlight echoed recipe lines in bold")
@@ -104,12 +90,6 @@ impl Config {
           .long("justfile")
           .takes_value(true)
           .help("Use <JUSTFILE> as justfile."),
-      )
-      .arg(
-        Arg::with_name(cmd::LIST)
-          .short("l")
-          .long("list")
-          .help("List available recipes and their arguments"),
       )
       .arg(
         Arg::with_name(arg::QUIET)
@@ -135,19 +115,6 @@ impl Config {
           .help("Invoke <SHELL> to run recipes"),
       )
       .arg(
-        Arg::with_name(cmd::SHOW)
-          .short("s")
-          .long("show")
-          .takes_value(true)
-          .value_name("RECIPE")
-          .help("Show information about <RECIPE>"),
-      )
-      .arg(
-        Arg::with_name(cmd::SUMMARY)
-          .long("summary")
-          .help("List names of available recipes"),
-      )
-      .arg(
         Arg::with_name(arg::VERBOSE)
           .short("v")
           .long("verbose")
@@ -166,6 +133,46 @@ impl Config {
         Arg::with_name(arg::ARGUMENTS)
           .multiple(true)
           .help("Overrides and recipe(s) to run, defaulting to the first recipe in the justfile"),
+      )
+      .arg(
+        Arg::with_name(cmd::DUMP)
+          .long("dump")
+          .help("Print entire justfile"),
+      )
+      .arg(
+        Arg::with_name(cmd::EDIT)
+          .short("e")
+          .long("edit")
+          .help("Edit justfile with editor given by $VISUAL or $EDITOR, falling back to `vim`"),
+      )
+      .arg(
+        Arg::with_name(cmd::EVALUATE)
+          .long("evaluate")
+          .help("Print evaluated variables"),
+      )
+      .arg(
+        Arg::with_name(cmd::INIT)
+          .long("init")
+          .help("Initialize new justfile in project root"),
+      )
+      .arg(
+        Arg::with_name(cmd::LIST)
+          .short("l")
+          .long("list")
+          .help("List available recipes and their arguments"),
+      )
+      .arg(
+        Arg::with_name(cmd::SHOW)
+          .short("s")
+          .long("show")
+          .takes_value(true)
+          .value_name("RECIPE")
+          .help("Show information about <RECIPE>"),
+      )
+      .arg(
+        Arg::with_name(cmd::SUMMARY)
+          .long("summary")
+          .help("List names of available recipes"),
       )
       .group(ArgGroup::with_name("SUBCOMMAND").args(cmd::ALL));
 
@@ -288,6 +295,8 @@ impl Config {
       Subcommand::Summary
     } else if matches.is_present(cmd::DUMP) {
       Subcommand::Dump
+    } else if matches.is_present(cmd::INIT) {
+      Subcommand::Init
     } else if matches.is_present(cmd::LIST) {
       Subcommand::List
     } else if let Some(name) = matches.value_of(cmd::SHOW) {
@@ -295,6 +304,12 @@ impl Config {
         name: name.to_owned(),
       }
     } else if matches.is_present(cmd::EVALUATE) {
+      if !positional.arguments.is_empty() {
+        return Err(ConfigError::SubcommandArguments {
+          subcommand: format!("--{}", cmd::EVALUATE.to_lowercase()),
+          arguments: positional.arguments,
+        });
+      }
       Subcommand::Evaluate { overrides }
     } else {
       Subcommand::Run {
@@ -319,8 +334,12 @@ impl Config {
   pub(crate) fn run_subcommand(self) -> Result<(), i32> {
     use Subcommand::*;
 
+    if self.subcommand == Init {
+      return self.init();
+    }
+
     let search =
-      Search::search(&self.search_config, &self.invocation_directory).eprint(self.color)?;
+      Search::find(&self.search_config, &self.invocation_directory).eprint(self.color)?;
 
     if self.subcommand == Edit {
       return self.edit(&search);
@@ -355,7 +374,7 @@ impl Config {
       List => self.list(justfile),
       Show { ref name } => self.show(&name, justfile),
       Summary => self.summary(justfile),
-      Edit => unreachable!(),
+      Edit | Init => unreachable!(),
     }
   }
 
@@ -391,6 +410,26 @@ impl Config {
         );
         Err(EXIT_FAILURE)
       }
+    }
+  }
+
+  pub(crate) fn init(&self) -> Result<(), i32> {
+    let search =
+      Search::init(&self.search_config, &self.invocation_directory).eprint(self.color)?;
+
+    if search.justfile.exists() {
+      eprintln!("Justfile `{}` already exists", search.justfile.display());
+      Err(EXIT_FAILURE)
+    } else if let Err(err) = fs::write(&search.justfile, INIT_JUSTFILE) {
+      eprintln!(
+        "Failed to write justfile to `{}`: {}",
+        search.justfile.display(),
+        err
+      );
+      Err(EXIT_FAILURE)
+    } else {
+      eprintln!("Wrote justfile to `{}`", search.justfile.display());
+      Ok(())
     }
   }
 
@@ -561,6 +600,7 @@ FLAGS:
       Edit justfile with editor given by $VISUAL or $EDITOR, falling back to `vim`
         --evaluate        Print evaluated variables
         --highlight       Highlight echoed recipe lines in bold
+        --init            Initialize new justfile in project root
     -l, --list            List available recipes and their arguments
         --no-highlight    Don't highlight echoed recipe lines in bold
     -q, --quiet           Suppress all output
@@ -923,6 +963,14 @@ ARGS:
   }
 
   test! {
+    name: subcommand_evaluate_overrides,
+    args: ["--evaluate", "x=y"],
+    subcommand: Subcommand::Evaluate {
+      overrides: map!{"x": "y"},
+    },
+  }
+
+  test! {
     name: subcommand_list_long,
     args: ["--list"],
     subcommand: Subcommand::List,
@@ -1098,6 +1146,16 @@ ARGS:
   }
 
   error! {
+    name: evaluate_arguments,
+    args: ["--evaluate", "bar"],
+    error: ConfigError::SubcommandArguments { subcommand, arguments },
+    check: {
+      assert_eq!(subcommand, "--evaluate");
+      assert_eq!(arguments, &["bar"]);
+    },
+  }
+
+  error! {
     name: dump_arguments,
     args: ["--dump", "bar"],
     error: ConfigError::SubcommandArguments { subcommand, arguments },
@@ -1113,6 +1171,16 @@ ARGS:
     error: ConfigError::SubcommandArguments { subcommand, arguments },
     check: {
       assert_eq!(subcommand, "--edit");
+      assert_eq!(arguments, &["bar"]);
+    },
+  }
+
+  error! {
+    name: init_arguments,
+    args: ["--init", "bar"],
+    error: ConfigError::SubcommandArguments { subcommand, arguments },
+    check: {
+      assert_eq!(subcommand, "--init");
       assert_eq!(arguments, &["bar"]);
     },
   }
@@ -1156,5 +1224,10 @@ ARGS:
       assert_eq!(subcommand, "--summary");
       assert_eq!(overrides, map!{"bar": "baz"});
     },
+  }
+
+  #[test]
+  fn init_justfile() {
+    testing::compile(INIT_JUSTFILE);
   }
 }

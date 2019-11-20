@@ -3,6 +3,7 @@ use crate::common::*;
 use std::path::Component;
 
 const FILENAME: &str = "justfile";
+const PROJECT_ROOT_CHILDREN: &[&str] = &[".bzr", ".git", ".hg", ".svn", "_darcs"];
 
 pub(crate) struct Search {
   pub(crate) justfile: PathBuf,
@@ -10,7 +11,7 @@ pub(crate) struct Search {
 }
 
 impl Search {
-  pub(crate) fn search(
+  pub(crate) fn find(
     search_config: &SearchConfig,
     invocation_directory: &Path,
   ) -> SearchResult<Search> {
@@ -60,33 +61,83 @@ impl Search {
     }
   }
 
-  fn justfile(directory: &Path) -> SearchResult<PathBuf> {
-    let mut candidates = Vec::new();
+  pub(crate) fn init(
+    search_config: &SearchConfig,
+    invocation_directory: &Path,
+  ) -> SearchResult<Search> {
+    match search_config {
+      SearchConfig::FromInvocationDirectory => {
+        let working_directory = Self::project_root(&invocation_directory)?;
 
-    let entries = fs::read_dir(directory).map_err(|io_error| SearchError::Io {
-      io_error,
-      directory: directory.to_owned(),
-    })?;
-    for entry in entries {
-      let entry = entry.map_err(|io_error| SearchError::Io {
+        let justfile = working_directory.join(FILENAME);
+
+        Ok(Search {
+          justfile,
+          working_directory,
+        })
+      }
+
+      SearchConfig::FromSearchDirectory { search_directory } => {
+        let search_directory = Self::clean(invocation_directory, search_directory);
+
+        let working_directory = Self::project_root(&search_directory)?;
+
+        let justfile = working_directory.join(FILENAME);
+
+        Ok(Search {
+          justfile,
+          working_directory,
+        })
+      }
+
+      SearchConfig::WithJustfile { justfile } => {
+        let justfile = Self::clean(invocation_directory, justfile);
+
+        let working_directory = Self::working_directory_from_justfile(&justfile)?;
+
+        Ok(Search {
+          justfile,
+          working_directory,
+        })
+      }
+
+      SearchConfig::WithJustfileAndWorkingDirectory {
+        justfile,
+        working_directory,
+      } => Ok(Search {
+        justfile: Self::clean(invocation_directory, justfile),
+        working_directory: Self::clean(invocation_directory, working_directory),
+      }),
+    }
+  }
+
+  fn justfile(directory: &Path) -> SearchResult<PathBuf> {
+    for directory in directory.ancestors() {
+      let mut candidates = Vec::new();
+
+      let entries = fs::read_dir(directory).map_err(|io_error| SearchError::Io {
         io_error,
         directory: directory.to_owned(),
       })?;
-      if let Some(name) = entry.file_name().to_str() {
-        if name.eq_ignore_ascii_case(FILENAME) {
-          candidates.push(entry.path());
+      for entry in entries {
+        let entry = entry.map_err(|io_error| SearchError::Io {
+          io_error,
+          directory: directory.to_owned(),
+        })?;
+        if let Some(name) = entry.file_name().to_str() {
+          if name.eq_ignore_ascii_case(FILENAME) {
+            candidates.push(entry.path());
+          }
         }
       }
+      if candidates.len() == 1 {
+        return Ok(candidates.pop().unwrap());
+      } else if candidates.len() > 1 {
+        return Err(SearchError::MultipleCandidates { candidates });
+      }
     }
-    if candidates.len() == 1 {
-      Ok(candidates.pop().unwrap())
-    } else if candidates.len() > 1 {
-      Err(SearchError::MultipleCandidates { candidates })
-    } else if let Some(parent) = directory.parent() {
-      Self::justfile(parent)
-    } else {
-      Err(SearchError::NotFound)
-    }
+
+    Err(SearchError::NotFound)
   }
 
   fn clean(invocation_directory: &Path, path: &Path) -> PathBuf {
@@ -105,6 +156,29 @@ impl Search {
     }
 
     clean.into_iter().collect()
+  }
+
+  fn project_root(directory: &Path) -> SearchResult<PathBuf> {
+    for directory in directory.ancestors() {
+      let entries = fs::read_dir(directory).map_err(|io_error| SearchError::Io {
+        io_error,
+        directory: directory.to_owned(),
+      })?;
+
+      for entry in entries {
+        let entry = entry.map_err(|io_error| SearchError::Io {
+          io_error,
+          directory: directory.to_owned(),
+        })?;
+        for project_root_child in PROJECT_ROOT_CHILDREN.iter().cloned() {
+          if entry.file_name() == project_root_child {
+            return Ok(directory.to_owned());
+          }
+        }
+      }
+    }
+
+    Ok(directory.to_owned())
   }
 
   fn working_directory_from_justfile(justfile: &Path) -> SearchResult<PathBuf> {
@@ -260,7 +334,7 @@ mod tests {
 
     let search_config = SearchConfig::FromInvocationDirectory;
 
-    let search = Search::search(&search_config, &sub).unwrap();
+    let search = Search::find(&search_config, &sub).unwrap();
 
     assert_eq!(search.justfile, justfile);
     assert_eq!(search.working_directory, sub);

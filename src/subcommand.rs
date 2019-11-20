@@ -7,11 +7,12 @@ pub(crate) enum Subcommand {
   Evaluate {
     overrides: BTreeMap<String, String>,
   },
+  Init,
+  List,
   Run {
     overrides: BTreeMap<String, String>,
     arguments: Vec<String>,
   },
-  List,
   Show {
     name: String,
   },

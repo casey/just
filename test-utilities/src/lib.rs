@@ -134,18 +134,32 @@ macro_rules! entries {
     std::collections::HashMap::new()
   };
   {
-    $($name:ident : $contents:tt,)*
+    $($name:tt : $contents:tt,)*
   } => {
     {
       let mut entries: std::collections::HashMap<&'static str, $crate::Entry> = std::collections::HashMap::new();
 
       $(
-        entries.insert(stringify!($name), $crate::entry!($contents));
+        entries.insert($crate::name!($name), $crate::entry!($contents));
       )*
 
       entries
     }
   }
+}
+
+#[macro_export]
+macro_rules! name {
+  {
+    $name:ident
+  } => {
+    stringify!($name)
+  };
+  {
+    $name:literal
+  } => {
+    $name
+  };
 }
 
 #[macro_export]
