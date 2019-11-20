@@ -6,6 +6,11 @@ language: rust
 services: docker
 sudo: required
 
+addons:
+  apt:
+    packages:
+      - libssl-dev
+
 # DONE Rust builds on stable by default, this can be
 # overridden on a case by case basis down below.
 
@@ -68,6 +73,13 @@ script:
 
 after_script: set +e
 
+after_success: |
+  if [[ "$TARGET" == x86_64-unknown-linux-musl ]]; then
+    export CODECOV_TOKEN=da2e59cd-1c1d-4e10-9f22-1886ca1c004d
+    cargo tarpaulin --out Xml
+    bash <(curl -s https://codecov.io/bash)
+  fi
+
 before_deploy:
   - sh ci/before_deploy.sh
 
@@ -93,6 +105,7 @@ deploy:
 cache: cargo
 before_cache:
   # Travis can't cache files that are not readable by "others"
+  - if [[ "$TARGET" == x86_64-unknown-linux-musl ]]; then cargo install cargo-tarpaulin -f; fi
   - chmod -R a+r $HOME/.cargo
 
 branches:
