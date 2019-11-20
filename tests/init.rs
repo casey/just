@@ -66,6 +66,27 @@ fn invocation_directory() {
 }
 
 #[test]
+fn parent_dir() {
+  let tmp = tmptree! {
+    ".git": {},
+    sub: {},
+  };
+
+  let output = Command::new(executable_path("just"))
+    .current_dir(tmp.path().join("sub"))
+    .arg("--init")
+    .output()
+    .unwrap();
+
+  assert!(output.status.success());
+
+  assert_eq!(
+    fs::read_to_string(tmp.path().join("justfile")).unwrap(),
+    EXPECTED
+  );
+}
+
+#[test]
 fn alternate_marker() {
   let tmp = tmptree! {
     "_darcs": {},
