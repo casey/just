@@ -1,7 +1,7 @@
 use crate::common::*;
 
 pub(crate) struct AssignmentEvaluator<'a: 'b, 'b> {
-  pub(crate) assignments: &'b BTreeMap<&'a str, Assignment<'a>>,
+  pub(crate) assignments: &'b Table<'a, Assignment<'a>>,
   pub(crate) config: &'a Config,
   pub(crate) dotenv: &'b BTreeMap<String, String>,
   pub(crate) evaluated: BTreeMap<&'a str, (bool, String)>,
@@ -16,7 +16,7 @@ impl<'a, 'b> AssignmentEvaluator<'a, 'b> {
     config: &'a Config,
     working_directory: &'b Path,
     dotenv: &'b BTreeMap<String, String>,
-    assignments: &BTreeMap<&'a str, Assignment<'a>>,
+    assignments: &Table<'a, Assignment<'a>>,
     overrides: &BTreeMap<String, String>,
     settings: &'b Settings<'b>,
   ) -> RunResult<'a, BTreeMap<&'a str, (bool, String)>> {

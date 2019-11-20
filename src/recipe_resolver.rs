@@ -6,14 +6,14 @@ pub(crate) struct RecipeResolver<'a: 'b, 'b> {
   stack: Vec<&'a str>,
   seen: BTreeSet<&'a str>,
   resolved: BTreeSet<&'a str>,
-  recipes: &'b BTreeMap<&'a str, Recipe<'a>>,
-  assignments: &'b BTreeMap<&'a str, Assignment<'a>>,
+  recipes: &'b Table<'a, Recipe<'a>>,
+  assignments: &'b Table<'a, Assignment<'a>>,
 }
 
 impl<'a, 'b> RecipeResolver<'a, 'b> {
   pub(crate) fn resolve_recipes(
-    recipes: &BTreeMap<&'a str, Recipe<'a>>,
-    assignments: &BTreeMap<&'a str, Assignment<'a>>,
+    recipes: &Table<'a, Recipe<'a>>,
+    assignments: &Table<'a, Assignment<'a>>,
   ) -> CompilationResult<'a, ()> {
     let mut resolver = RecipeResolver {
       seen: empty(),
