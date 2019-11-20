@@ -5,14 +5,14 @@ pub(crate) struct AliasResolver<'a, 'b>
 where
   'a: 'b,
 {
-  aliases: &'b BTreeMap<&'a str, Alias<'a>>,
-  recipes: &'b BTreeMap<&'a str, Recipe<'a>>,
+  aliases: &'b Table<'a, Alias<'a>>,
+  recipes: &'b Table<'a, Recipe<'a>>,
 }
 
 impl<'a: 'b, 'b> AliasResolver<'a, 'b> {
   pub(crate) fn resolve_aliases(
-    aliases: &BTreeMap<&'a str, Alias<'a>>,
-    recipes: &BTreeMap<&'a str, Recipe<'a>>,
+    aliases: &Table<'a, Alias<'a>>,
+    recipes: &Table<'a, Recipe<'a>>,
   ) -> CompilationResult<'a, ()> {
     let resolver = AliasResolver { aliases, recipes };
 

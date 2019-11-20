@@ -8,7 +8,7 @@ pub(crate) use std::{
   fs,
   io::{self, Write},
   iter::{self, FromIterator},
-  ops::{Deref, Range, RangeInclusive},
+  ops::{Index, Range, RangeInclusive},
   path::{Path, PathBuf},
   process::{self, Command},
   str::{self, Chars},
