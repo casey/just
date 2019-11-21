@@ -471,7 +471,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     &mut self,
     doc: Option<&'src str>,
     quiet: bool,
-  ) -> CompilationResult<'src, Recipe<'src>> {
+  ) -> CompilationResult<'src, Recipe<'src, Name<'src>>> {
     let name = self.parse_name()?;
 
     let mut positional = Vec::new();

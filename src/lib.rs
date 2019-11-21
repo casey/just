@@ -32,6 +32,7 @@ mod config;
 mod config_error;
 mod count;
 mod default;
+mod dependency;
 mod empty;
 mod enclosure;
 mod error;

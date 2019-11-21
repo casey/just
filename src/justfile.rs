@@ -2,7 +2,7 @@ use crate::common::*;
 
 #[derive(Debug, PartialEq)]
 pub(crate) struct Justfile<'src> {
-  pub(crate) recipes: Table<'src, Recipe<'src>>,
+  pub(crate) recipes: Table<'src, Rc<Recipe<'src>>>,
   pub(crate) assignments: Table<'src, Assignment<'src>>,
   pub(crate) aliases: Table<'src, Alias<'src>>,
   pub(crate) settings: Settings<'src>,
@@ -11,7 +11,7 @@ pub(crate) struct Justfile<'src> {
 
 impl<'src> Justfile<'src> {
   pub(crate) fn first(&self) -> Option<&Recipe> {
-    let mut first: Option<&Recipe> = None;
+    let mut first: Option<&Recipe<Dependency>> = None;
     for recipe in self.recipes.values() {
       if let Some(first_recipe) = first {
         if recipe.line_number() < first_recipe.line_number() {
@@ -166,7 +166,7 @@ impl<'src> Justfile<'src> {
     if let Some(recipe) = self.recipes.get(name) {
       Some(recipe)
     } else if let Some(alias) = self.aliases.get(name) {
-      self.recipes.get(alias.target.lexeme())
+      self.recipes.get(alias.target.lexeme()).map(Rc::as_ref)
     } else {
       None
     }
@@ -181,10 +181,9 @@ impl<'src> Justfile<'src> {
     ran: &mut BTreeSet<&'src str>,
     overrides: &BTreeMap<String, String>,
   ) -> RunResult<()> {
-    for dependency_name in &recipe.dependencies {
-      let lexeme = dependency_name.lexeme();
-      if !ran.contains(lexeme) {
-        self.run_recipe(context, &self.recipes[lexeme], &[], dotenv, ran, overrides)?;
+    for Dependency(dependency) in &recipe.dependencies {
+      if !ran.contains(dependency.name()) {
+        self.run_recipe(context, dependency, &[], dotenv, ran, overrides)?;
       }
     }
     recipe.run(context, arguments, dotenv, overrides)?;

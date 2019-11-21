@@ -3,36 +3,31 @@ use crate::common::*;
 use CompilationErrorKind::*;
 
 pub(crate) struct RecipeResolver<'a: 'b, 'b> {
-  stack: Vec<&'a str>,
-  seen: BTreeSet<&'a str>,
-  resolved: BTreeSet<&'a str>,
-  recipes: &'b Table<'a, Recipe<'a>>,
+  unresolved_recipes: Table<'a, Recipe<'a, Name<'a>>>,
+  resolved_recipes: Table<'a, Rc<Recipe<'a>>>,
   assignments: &'b Table<'a, Assignment<'a>>,
 }
 
 impl<'a, 'b> RecipeResolver<'a, 'b> {
   pub(crate) fn resolve_recipes(
-    recipes: &Table<'a, Recipe<'a>>,
+    unresolved_recipes: Table<'a, Recipe<'a, Name<'a>>>,
     assignments: &Table<'a, Assignment<'a>>,
-  ) -> CompilationResult<'a, ()> {
+  ) -> CompilationResult<'a, Table<'a, Rc<Recipe<'a>>>> {
     let mut resolver = RecipeResolver {
-      seen: empty(),
-      stack: empty(),
-      resolved: empty(),
+      resolved_recipes: empty(),
+      unresolved_recipes,
       assignments,
-      recipes,
     };
 
-    for recipe in recipes.values() {
-      resolver.resolve_recipe(recipe)?;
-      resolver.seen = empty();
+    while let Some(unresolved) = resolver.unresolved_recipes.pop() {
+      resolver.resolve_recipe(&mut Vec::new(), unresolved)?;
     }
 
-    for recipe in recipes.values() {
+    for recipe in resolver.resolved_recipes.values() {
       for parameter in &recipe.parameters {
         if let Some(expression) = &parameter.default {
           for (function, argc) in expression.functions() {
-            resolver.resolve_function(function, argc)?;
+            Function::resolve(&function, argc)?;
           }
           for variable in expression.variables() {
             resolver.resolve_variable(&variable, &[])?;
@@ -44,7 +39,7 @@ impl<'a, 'b> RecipeResolver<'a, 'b> {
         for fragment in &line.fragments {
           if let Fragment::Interpolation { expression, .. } = fragment {
             for (function, argc) in expression.functions() {
-              resolver.resolve_function(function, argc)?;
+              Function::resolve(&function, argc)?;
             }
             for variable in expression.variables() {
               resolver.resolve_variable(&variable, &recipe.parameters)?;
@@ -54,11 +49,7 @@ impl<'a, 'b> RecipeResolver<'a, 'b> {
       }
     }
 
-    Ok(())
-  }
-
-  fn resolve_function(&self, function: Token<'a>, argc: usize) -> CompilationResult<'a, ()> {
-    Function::resolve(&function, argc)
+    Ok(resolver.resolved_recipes)
   }
 
   fn resolve_variable(
@@ -77,49 +68,67 @@ impl<'a, 'b> RecipeResolver<'a, 'b> {
     Ok(())
   }
 
-  fn resolve_recipe(&mut self, recipe: &Recipe<'a>) -> CompilationResult<'a, ()> {
-    if self.resolved.contains(recipe.name()) {
-      return Ok(());
+  fn resolve_recipe(
+    &mut self,
+    stack: &mut Vec<&'a str>,
+    recipe: Recipe<'a, Name<'a>>,
+  ) -> CompilationResult<'a, Rc<Recipe<'a>>> {
+    if let Some(resolved) = self.resolved_recipes.get(recipe.name()) {
+      return Ok(resolved.clone());
     }
-    self.stack.push(recipe.name());
-    self.seen.insert(recipe.name());
-    for dependency_token in recipe
-      .dependencies
-      .iter()
-      .map(|dependency| dependency.token())
-    {
-      match self.recipes.get(dependency_token.lexeme()) {
-        Some(dependency) => {
-          if !self.resolved.contains(dependency.name()) {
-            if self.seen.contains(dependency.name()) {
-              let first = self.stack[0];
-              self.stack.push(first);
-              return Err(
-                dependency_token.error(CircularRecipeDependency {
-                  recipe: recipe.name(),
-                  circle: self
-                    .stack
-                    .iter()
-                    .skip_while(|name| **name != dependency.name())
-                    .cloned()
-                    .collect(),
-                }),
-              );
-            }
-            self.resolve_recipe(dependency)?;
-          }
-        }
-        None => {
-          return Err(dependency_token.error(UnknownDependency {
+
+    stack.push(recipe.name());
+
+    let mut dependencies: Vec<Dependency> = Vec::new();
+    for dependency in &recipe.dependencies {
+      let name = dependency.lexeme();
+
+      if let Some(resolved) = self.resolved_recipes.get(name) {
+        // dependency already resolved
+        if !resolved.parameters.is_empty() {
+          return Err(dependency.error(DependencyHasParameters {
             recipe: recipe.name(),
-            unknown: dependency_token.lexeme(),
+            dependency: name,
           }));
         }
+
+        dependencies.push(Dependency(resolved.clone()));
+      } else if stack.contains(&name) {
+        let first = stack[0];
+        stack.push(first);
+        return Err(
+          dependency.error(CircularRecipeDependency {
+            recipe: recipe.name(),
+            circle: stack
+              .iter()
+              .skip_while(|name| **name != dependency.lexeme())
+              .cloned()
+              .collect(),
+          }),
+        );
+      } else if let Some(unresolved) = self.unresolved_recipes.remove(name) {
+        // resolve unresolved dependency
+        if !unresolved.parameters.is_empty() {
+          return Err(dependency.error(DependencyHasParameters {
+            recipe: recipe.name(),
+            dependency: name,
+          }));
+        }
+
+        dependencies.push(Dependency(self.resolve_recipe(stack, unresolved)?));
+      } else {
+        // dependency is unknown
+        return Err(dependency.error(UnknownDependency {
+          recipe: recipe.name(),
+          unknown: name,
+        }));
       }
     }
-    self.resolved.insert(recipe.name());
-    self.stack.pop();
-    Ok(())
+
+    let resolved = Rc::new(recipe.resolve(dependencies));
+    self.resolved_recipes.insert(resolved.clone());
+    stack.pop();
+    Ok(resolved)
   }
 }
 

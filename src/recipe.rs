@@ -24,8 +24,8 @@ fn error_from_signal(
 
 /// A recipe, e.g. `foo: bar baz`
 #[derive(PartialEq, Debug)]
-pub(crate) struct Recipe<'a> {
-  pub(crate) dependencies: Vec<Name<'a>>,
+pub(crate) struct Recipe<'a, D = Dependency<'a>> {
+  pub(crate) dependencies: Vec<D>,
   pub(crate) doc: Option<&'a str>,
   pub(crate) body: Vec<Line<'a>>,
   pub(crate) name: Name<'a>,
@@ -35,7 +35,7 @@ pub(crate) struct Recipe<'a> {
   pub(crate) shebang: bool,
 }
 
-impl<'a> Recipe<'a> {
+impl<'a, D> Recipe<'a, D> {
   pub(crate) fn argument_range(&self) -> RangeInclusive<usize> {
     self.min_arguments()..=self.max_arguments()
   }
@@ -319,7 +319,26 @@ impl<'a> Recipe<'a> {
   }
 }
 
-impl<'src> Keyed<'src> for Recipe<'src> {
+impl<'src> Recipe<'src, Name<'src>> {
+  pub(crate) fn resolve(self, resolved: Vec<Dependency<'src>>) -> Recipe<'src> {
+    assert_eq!(self.dependencies.len(), resolved.len());
+    for (name, resolved) in self.dependencies.iter().zip(&resolved) {
+      assert_eq!(name.lexeme(), resolved.0.name.lexeme());
+    }
+    Recipe {
+      dependencies: resolved,
+      doc: self.doc,
+      body: self.body,
+      name: self.name,
+      parameters: self.parameters,
+      private: self.private,
+      quiet: self.quiet,
+      shebang: self.shebang,
+    }
+  }
+}
+
+impl<'src, D> Keyed<'src> for Recipe<'src, D> {
   fn key(&self) -> &'src str {
     self.name.lexeme()
   }
@@ -342,7 +361,7 @@ impl<'a> Display for Recipe<'a> {
     }
     write!(f, ":")?;
     for dependency in &self.dependencies {
-      write!(f, " {}", dependency)?;
+      write!(f, " {}", dependency.0.name())?;
     }
 
     for (i, line) in self.body.iter().enumerate() {

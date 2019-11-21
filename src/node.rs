@@ -66,7 +66,7 @@ impl<'src> Node<'src> for Expression<'src> {
   }
 }
 
-impl<'src> Node<'src> for Recipe<'src> {
+impl<'src> Node<'src> for Recipe<'src, Name<'src>> {
   fn tree(&self) -> Tree<'src> {
     let mut t = Tree::atom("recipe");
 
