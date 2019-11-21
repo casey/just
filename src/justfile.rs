@@ -4,7 +4,7 @@ use crate::common::*;
 pub(crate) struct Justfile<'src> {
   pub(crate) recipes: Table<'src, Rc<Recipe<'src>>>,
   pub(crate) assignments: Table<'src, Assignment<'src>>,
-  pub(crate) aliases: Table<'src, Alias<'src>>,
+  pub(crate) aliases: Table<'src, Alias<'src, Rc<Recipe<'src>>>>,
   pub(crate) settings: Settings<'src>,
   pub(crate) warnings: Vec<Warning<'src>>,
 }
@@ -166,7 +166,7 @@ impl<'src> Justfile<'src> {
     if let Some(recipe) = self.recipes.get(name) {
       Some(recipe)
     } else if let Some(alias) = self.aliases.get(name) {
-      self.recipes.get(alias.target.lexeme()).map(Rc::as_ref)
+      Some(alias.target.as_ref())
     } else {
       None
     }

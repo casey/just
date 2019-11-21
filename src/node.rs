@@ -26,7 +26,7 @@ impl<'src> Node<'src> for Item<'src> {
   }
 }
 
-impl<'src> Node<'src> for Alias<'src> {
+impl<'src> Node<'src> for Alias<'src, Name<'src>> {
   fn tree(&self) -> Tree<'src> {
     Tree::atom(keyword::ALIAS)
       .push(self.name.lexeme())

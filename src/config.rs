@@ -441,10 +441,10 @@ impl Config {
         continue;
       }
 
-      if !recipe_aliases.contains_key(alias.target.lexeme()) {
-        recipe_aliases.insert(alias.target.lexeme(), vec![alias.name.lexeme()]);
+      if !recipe_aliases.contains_key(alias.target.name.lexeme()) {
+        recipe_aliases.insert(alias.target.name.lexeme(), vec![alias.name.lexeme()]);
       } else {
-        let aliases = recipe_aliases.get_mut(alias.target.lexeme()).unwrap();
+        let aliases = recipe_aliases.get_mut(alias.target.name.lexeme()).unwrap();
         aliases.push(alias.name.lexeme());
       }
     }
@@ -542,7 +542,7 @@ impl Config {
 
   fn show(&self, name: &str, justfile: Justfile) -> Result<(), i32> {
     if let Some(alias) = justfile.get_alias(name) {
-      let recipe = justfile.get_recipe(alias.target.lexeme()).unwrap();
+      let recipe = justfile.get_recipe(alias.target.name.lexeme()).unwrap();
       println!("{}", alias);
       println!("{}", recipe);
       Ok(())
