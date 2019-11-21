@@ -379,8 +379,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
         if self.next_is(ParenL) {
           let arguments = self.parse_sequence()?;
           Ok(Expression::Call {
-            function: name,
-            arguments,
+            thunk: Thunk::resolve(name, arguments)?,
           })
         } else {
           Ok(Expression::Variable { name })
@@ -837,20 +836,20 @@ mod tests {
 
   test! {
     name: call_one_arg,
-    text: "x := foo(y)",
-    tree: (justfile (assignment x (call foo y))),
+    text: "x := env_var(y)",
+    tree: (justfile (assignment x (call env_var y))),
   }
 
   test! {
     name: call_multiple_args,
-    text: "x := foo(y, z)",
-    tree: (justfile (assignment x (call foo y z))),
+    text: "x := env_var_or_default(y, z)",
+    tree: (justfile (assignment x (call env_var_or_default y z))),
   }
 
   test! {
     name: call_trailing_comma,
-    text: "x := foo(y,)",
-    tree: (justfile (assignment x (call foo y))),
+    text: "x := env_var(y,)",
+    tree: (justfile (assignment x (call env_var y))),
   }
 
   test! {
@@ -1716,6 +1715,78 @@ mod tests {
     width:  5,
     kind:   UnknownSetting {
       setting: "shall",
+    },
+  }
+
+  error! {
+    name:   unknown_function,
+    input:  "a = foo()",
+    offset: 4,
+    line:   0,
+    column: 4,
+    width:  3,
+    kind:   UnknownFunction{function: "foo"},
+  }
+
+  error! {
+    name:   unknown_function_in_interpolation,
+    input:  "a:\n echo {{bar()}}",
+    offset: 11,
+    line:   1,
+    column: 8,
+    width:  3,
+    kind:   UnknownFunction{function: "bar"},
+  }
+
+  error! {
+    name:   unknown_function_in_default,
+    input:  "a f=baz():",
+    offset: 4,
+    line:   0,
+    column: 4,
+    width:  3,
+    kind:   UnknownFunction{function: "baz"},
+  }
+
+  error! {
+    name: function_argument_count_nullary,
+    input: "x := arch('foo')",
+    offset: 5,
+    line: 0,
+    column: 5,
+    width: 4,
+    kind: FunctionArgumentCountMismatch {
+      function: "arch",
+      found: 1,
+      expected: 0,
+    },
+  }
+
+  error! {
+    name: function_argument_count_unary,
+    input: "x := env_var()",
+    offset: 5,
+    line: 0,
+    column: 5,
+    width: 7,
+    kind: FunctionArgumentCountMismatch {
+      function: "env_var",
+      found: 0,
+      expected: 1,
+    },
+  }
+
+  error! {
+    name: function_argument_count_binary,
+    input: "x := env_var_or_default('foo')",
+    offset: 5,
+    line: 0,
+    column: 5,
+    width: 18,
+    kind: FunctionArgumentCountMismatch {
+      function: "env_var_or_default",
+      found: 1,
+      expected: 2,
     },
   }
 }

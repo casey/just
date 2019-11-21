@@ -50,12 +50,27 @@ impl<'src> Node<'src> for Expression<'src> {
   fn tree(&self) -> Tree<'src> {
     match self {
       Expression::Concatination { lhs, rhs } => Tree::atom("+").push(lhs.tree()).push(rhs.tree()),
-      Expression::Call {
-        function,
-        arguments,
-      } => Tree::atom("call")
-        .push(function.lexeme())
-        .extend(arguments.iter().map(|argument| argument.tree())),
+      Expression::Call { thunk } => {
+        let mut tree = Tree::atom("call");
+
+        use Thunk::*;
+        match thunk {
+          Nullary { name, .. } => tree.push_mut(name.lexeme()),
+          Unary { name, arg, .. } => {
+            tree.push_mut(name.lexeme());
+            tree.push_mut(arg.tree());
+          }
+          Binary {
+            name, args: [a, b], ..
+          } => {
+            tree.push_mut(name.lexeme());
+            tree.push_mut(a.tree());
+            tree.push_mut(b.tree());
+          }
+        }
+
+        tree
+      }
       Expression::Variable { name } => Tree::atom(name.lexeme()),
       Expression::StringLiteral {
         string_literal: StringLiteral { cooked, .. },
