@@ -4,7 +4,7 @@ use crate::common::*;
 pub(crate) struct Justfile<'src> {
   pub(crate) recipes: Table<'src, Rc<Recipe<'src>>>,
   pub(crate) assignments: Table<'src, Assignment<'src>>,
-  pub(crate) aliases: Table<'src, Alias<'src, Rc<Recipe<'src>>>>,
+  pub(crate) aliases: Table<'src, Alias<'src>>,
   pub(crate) settings: Settings<'src>,
   pub(crate) warnings: Vec<Warning<'src>>,
 }
