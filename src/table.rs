@@ -8,6 +8,12 @@ pub(crate) struct Table<'key, V: Keyed<'key>> {
 }
 
 impl<'key, V: Keyed<'key>> Table<'key, V> {
+  pub(crate) fn new() -> Table<'key, V> {
+    Table {
+      map: BTreeMap::new(),
+    }
+  }
+
   pub(crate) fn insert(&mut self, value: V) {
     self.map.insert(value.key(), value);
   }

@@ -325,7 +325,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   }
 
   /// Parse an alias, e.g `alias name := target`
-  fn parse_alias(&mut self) -> CompilationResult<'src, Alias<'src>> {
+  fn parse_alias(&mut self) -> CompilationResult<'src, Alias<'src, Name<'src>>> {
     self.presume_name(keyword::ALIAS)?;
     let name = self.parse_name()?;
     self.presume_any(&[Equals, ColonEquals])?;

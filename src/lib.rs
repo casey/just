@@ -16,7 +16,6 @@ pub mod node;
 pub(crate) mod fuzzing;
 
 mod alias;
-mod alias_resolver;
 mod analyzer;
 mod assignment;
 mod assignment_evaluator;

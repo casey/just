@@ -5,7 +5,7 @@ use CompilationErrorKind::*;
 pub(crate) struct Analyzer<'src> {
   recipes: Table<'src, Recipe<'src, Name<'src>>>,
   assignments: Table<'src, Assignment<'src>>,
-  aliases: Table<'src, Alias<'src>>,
+  aliases: Table<'src, Alias<'src, Name<'src>>>,
   sets: Table<'src, Set<'src>>,
 }
 
@@ -51,7 +51,6 @@ impl<'src> Analyzer<'src> {
     }
 
     let assignments = self.assignments;
-    let aliases = self.aliases;
 
     AssignmentResolver::resolve_assignments(&assignments)?;
 
@@ -67,7 +66,10 @@ impl<'src> Analyzer<'src> {
       }
     }
 
-    AliasResolver::resolve_aliases(&aliases, &recipes)?;
+    let mut aliases = Table::new();
+    while let Some(alias) = self.aliases.pop() {
+      aliases.insert(Self::resolve_alias(&recipes, alias)?);
+    }
 
     let mut settings = Settings::new();
 
@@ -161,7 +163,7 @@ impl<'src> Analyzer<'src> {
     Ok(())
   }
 
-  fn analyze_alias(&self, alias: &Alias<'src>) -> CompilationResult<'src, ()> {
+  fn analyze_alias(&self, alias: &Alias<'src, Name<'src>>) -> CompilationResult<'src, ()> {
     let name = alias.name.lexeme();
 
     if let Some(original) = self.aliases.get(name) {
@@ -183,6 +185,29 @@ impl<'src> Analyzer<'src> {
     }
 
     Ok(())
+  }
+
+  fn resolve_alias(
+    recipes: &Table<'src, Rc<Recipe<'src>>>,
+    alias: Alias<'src, Name<'src>>,
+  ) -> CompilationResult<'src, Alias<'src>> {
+    let token = alias.name.token();
+    // Make sure the alias doesn't conflict with any recipe
+    if let Some(recipe) = recipes.get(alias.name.lexeme()) {
+      return Err(token.error(AliasShadowsRecipe {
+        alias: alias.name.lexeme(),
+        recipe_line: recipe.line_number(),
+      }));
+    }
+
+    // Make sure the target recipe exists
+    match recipes.get(alias.target.lexeme()) {
+      Some(target) => Ok(alias.resolve(target.clone())),
+      None => Err(token.error(UnknownAliasTarget {
+        alias: alias.name.lexeme(),
+        target: alias.target.lexeme(),
+      })),
+    }
   }
 }
 
