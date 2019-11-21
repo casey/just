@@ -61,32 +61,35 @@ impl<'a: 'b, 'b> AssignmentResolver<'a, 'b> {
       Expression::Variable { name } => {
         let variable = name.lexeme();
         if self.evaluated.contains(variable) {
-          return Ok(());
+          Ok(())
         } else if self.seen.contains(variable) {
           let token = self.assignments[variable].name.token();
           self.stack.push(variable);
-          return Err(token.error(CircularVariableDependency {
+          Err(token.error(CircularVariableDependency {
             variable,
             circle: self.stack.clone(),
-          }));
+          }))
         } else if self.assignments.contains_key(variable) {
-          self.resolve_assignment(variable)?;
+          self.resolve_assignment(variable)
         } else {
-          return Err(name.token().error(UndefinedVariable { variable }));
+          Err(name.token().error(UndefinedVariable { variable }))
         }
       }
-      Expression::Call {
-        function,
-        arguments,
-      } => Function::resolve(&function.token(), arguments.len())?,
+      Expression::Call { thunk } => match thunk {
+        Thunk::Nullary { .. } => Ok(()),
+        Thunk::Unary { arg, .. } => self.resolve_expression(arg),
+        Thunk::Binary { args: [a, b], .. } => {
+          self.resolve_expression(a)?;
+          self.resolve_expression(b)
+        }
+      },
       Expression::Concatination { lhs, rhs } => {
         self.resolve_expression(lhs)?;
-        self.resolve_expression(rhs)?;
+        self.resolve_expression(rhs)
       }
-      Expression::StringLiteral { .. } | Expression::Backtick { .. } => {}
-      Expression::Group { contents } => self.resolve_expression(contents)?,
+      Expression::StringLiteral { .. } | Expression::Backtick { .. } => Ok(()),
+      Expression::Group { contents } => self.resolve_expression(contents),
     }
-    Ok(())
   }
 }
 
@@ -125,12 +128,32 @@ mod tests {
   }
 
   analysis_error! {
-    name:   unknown_function,
-    input:  "a = foo()",
-    offset:  4,
+    name:   unknown_function_parameter,
+    input:  "x := env_var(yy)",
+    offset:  13,
     line:   0,
-    column: 4,
-    width:  3,
-    kind:   UnknownFunction{function: "foo"},
+    column: 13,
+    width:  2,
+    kind:   UndefinedVariable{variable: "yy"},
+  }
+
+  analysis_error! {
+    name:   unknown_function_parameter_binary_first,
+    input:  "x := env_var_or_default(yy, 'foo')",
+    offset:  24,
+    line:   0,
+    column: 24,
+    width:  2,
+    kind:   UndefinedVariable{variable: "yy"},
+  }
+
+  analysis_error! {
+    name:   unknown_function_parameter_binary_second,
+    input:  "x := env_var_or_default('foo', yy)",
+    offset:  31,
+    line:   0,
+    column: 31,
+    width:  2,
+    kind:   UndefinedVariable{variable: "yy"},
   }
 }

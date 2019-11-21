@@ -26,9 +26,6 @@ impl<'a, 'b> RecipeResolver<'a, 'b> {
     for recipe in resolver.resolved_recipes.values() {
       for parameter in &recipe.parameters {
         if let Some(expression) = &parameter.default {
-          for (function, argc) in expression.functions() {
-            Function::resolve(&function, argc)?;
-          }
           for variable in expression.variables() {
             resolver.resolve_variable(&variable, &[])?;
           }
@@ -38,9 +35,6 @@ impl<'a, 'b> RecipeResolver<'a, 'b> {
       for line in &recipe.body {
         for fragment in &line.fragments {
           if let Fragment::Interpolation { expression, .. } = fragment {
-            for (function, argc) in expression.functions() {
-              Function::resolve(&function, argc)?;
-            }
             for variable in expression.variables() {
               resolver.resolve_variable(&variable, &recipe.parameters)?;
             }
@@ -184,26 +178,6 @@ mod tests {
     column: 16,
     width:  3,
     kind:   UndefinedVariable{variable: "lol"},
-  }
-
-  analysis_error! {
-    name:   unknown_function_in_interpolation,
-    input:  "a:\n echo {{bar()}}",
-    offset: 11,
-    line:   1,
-    column: 8,
-    width:  3,
-    kind:   UnknownFunction{function: "bar"},
-  }
-
-  analysis_error! {
-    name:   unknown_function_in_default,
-    input:  "a f=baz():",
-    offset: 4,
-    line:   0,
-    column: 4,
-    width:  3,
-    kind:   UnknownFunction{function: "baz"},
   }
 
   analysis_error! {

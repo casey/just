@@ -101,20 +101,47 @@ impl<'a, 'b> AssignmentEvaluator<'a, 'b> {
           })
         }
       }
-      Expression::Call {
-        function,
-        arguments: call_arguments,
-      } => {
-        let call_arguments = call_arguments
-          .iter()
-          .map(|argument| self.evaluate_expression(argument, arguments))
-          .collect::<Result<Vec<String>, RuntimeError>>()?;
+      Expression::Call { thunk } => {
         let context = FunctionContext {
           invocation_directory: &self.config.invocation_directory,
           working_directory: &self.working_directory,
           dotenv: self.dotenv,
         };
-        Function::evaluate(*function, &context, &call_arguments)
+
+        use Thunk::*;
+        match thunk {
+          Nullary { name, function, .. } => {
+            function(&context).map_err(|message| RuntimeError::FunctionCall {
+              function: *name,
+              message,
+            })
+          }
+          Unary {
+            name,
+            function,
+            arg,
+            ..
+          } => function(&context, &self.evaluate_expression(arg, arguments)?).map_err(|message| {
+            RuntimeError::FunctionCall {
+              function: *name,
+              message,
+            }
+          }),
+          Binary {
+            name,
+            function,
+            args: [a, b],
+            ..
+          } => function(
+            &context,
+            &self.evaluate_expression(a, arguments)?,
+            &self.evaluate_expression(b, arguments)?,
+          )
+          .map_err(|message| RuntimeError::FunctionCall {
+            function: *name,
+            message,
+          }),
+        }
       }
       Expression::StringLiteral { string_literal } => Ok(string_literal.cooked.to_string()),
       Expression::Backtick { contents, token } => {

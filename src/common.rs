@@ -4,7 +4,7 @@ pub(crate) use std::{
   cmp,
   collections::{BTreeMap, BTreeSet},
   env,
-  fmt::{self, Display, Formatter},
+  fmt::{self, Debug, Display, Formatter},
   fs,
   io::{self, Write},
   iter::{self, FromIterator},
@@ -26,6 +26,7 @@ pub(crate) use crate::testing;
 pub(crate) use crate::{node::Node, tree::Tree};
 
 // dependencies
+pub(crate) use derivative::Derivative;
 pub(crate) use edit_distance::edit_distance;
 pub(crate) use libc::EXIT_FAILURE;
 pub(crate) use log::warn;
@@ -52,15 +53,15 @@ pub(crate) use crate::{
   compilation_error::CompilationError, compilation_error_kind::CompilationErrorKind,
   compiler::Compiler, config::Config, config_error::ConfigError, count::Count,
   dependency::Dependency, enclosure::Enclosure, expression::Expression, fragment::Fragment,
-  function::Function, function_context::FunctionContext, functions::Functions,
-  interrupt_guard::InterruptGuard, interrupt_handler::InterruptHandler, item::Item,
-  justfile::Justfile, lexer::Lexer, line::Line, list::List, load_error::LoadError, module::Module,
-  name::Name, output_error::OutputError, parameter::Parameter, parser::Parser, platform::Platform,
-  position::Position, positional::Positional, recipe::Recipe, recipe_context::RecipeContext,
+  function::Function, function_context::FunctionContext, interrupt_guard::InterruptGuard,
+  interrupt_handler::InterruptHandler, item::Item, justfile::Justfile, lexer::Lexer, line::Line,
+  list::List, load_error::LoadError, module::Module, name::Name, output_error::OutputError,
+  parameter::Parameter, parser::Parser, platform::Platform, position::Position,
+  positional::Positional, recipe::Recipe, recipe_context::RecipeContext,
   recipe_resolver::RecipeResolver, runtime_error::RuntimeError, search::Search,
   search_config::SearchConfig, search_error::SearchError, set::Set, setting::Setting,
   settings::Settings, shebang::Shebang, show_whitespace::ShowWhitespace, state::State,
-  string_literal::StringLiteral, subcommand::Subcommand, table::Table, token::Token,
+  string_literal::StringLiteral, subcommand::Subcommand, table::Table, thunk::Thunk, token::Token,
   token_kind::TokenKind, use_color::UseColor, variables::Variables, verbosity::Verbosity,
   warning::Warning,
 };
