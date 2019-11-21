@@ -26,9 +26,7 @@ pub(crate) enum Expression<'src> {
   /// `(contents)`
   Group { contents: Box<Expression<'src>> },
   /// `"string_literal"` or `'string_literal'`
-  StringLiteral {
-    string_literal: StringLiteral<'src>,
-  },
+  StringLiteral { string_literal: StringLiteral<'src> },
   /// `variable`
   Variable { name: Name<'src> },
 }

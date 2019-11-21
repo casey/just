@@ -6,13 +6,13 @@ where
   'a: 'b,
 {
   aliases: &'b Table<'a, Alias<'a>>,
-  recipes: &'b Table<'a, Recipe<'a>>,
+  recipes: &'b Table<'a, Rc<Recipe<'a>>>,
 }
 
 impl<'a: 'b, 'b> AliasResolver<'a, 'b> {
   pub(crate) fn resolve_aliases(
     aliases: &Table<'a, Alias<'a>>,
-    recipes: &Table<'a, Recipe<'a>>,
+    recipes: &Table<'a, Rc<Recipe<'a>>>,
   ) -> CompilationResult<'a, ()> {
     let resolver = AliasResolver { aliases, recipes };
 

@@ -3,7 +3,7 @@ use crate::common::*;
 use CompilationErrorKind::*;
 
 pub(crate) struct Analyzer<'src> {
-  recipes: Table<'src, Recipe<'src>>,
+  recipes: Table<'src, Recipe<'src, Name<'src>>>,
   assignments: Table<'src, Assignment<'src>>,
   aliases: Table<'src, Alias<'src>>,
   sets: Table<'src, Set<'src>>,
@@ -50,28 +50,18 @@ impl<'src> Analyzer<'src> {
       }
     }
 
-    let recipes = self.recipes;
     let assignments = self.assignments;
     let aliases = self.aliases;
 
     AssignmentResolver::resolve_assignments(&assignments)?;
 
-    RecipeResolver::resolve_recipes(&recipes, &assignments)?;
+    let recipes = RecipeResolver::resolve_recipes(self.recipes, &assignments)?;
 
     for recipe in recipes.values() {
       for parameter in &recipe.parameters {
         if assignments.contains_key(parameter.name.lexeme()) {
           return Err(parameter.name.token().error(ParameterShadowsVariable {
             parameter: parameter.name.lexeme(),
-          }));
-        }
-      }
-
-      for dependency in &recipe.dependencies {
-        if !recipes[dependency.lexeme()].parameters.is_empty() {
-          return Err(dependency.error(DependencyHasParameters {
-            recipe: recipe.name(),
-            dependency: dependency.lexeme(),
           }));
         }
       }
@@ -99,7 +89,7 @@ impl<'src> Analyzer<'src> {
     })
   }
 
-  fn analyze_recipe(&self, recipe: &Recipe<'src>) -> CompilationResult<'src, ()> {
+  fn analyze_recipe(&self, recipe: &Recipe<'src, Name<'src>>) -> CompilationResult<'src, ()> {
     if let Some(original) = self.recipes.get(recipe.name.lexeme()) {
       return Err(recipe.name.token().error(DuplicateRecipe {
         recipe: original.name(),

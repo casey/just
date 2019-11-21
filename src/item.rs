@@ -5,6 +5,6 @@ use crate::common::*;
 pub(crate) enum Item<'src> {
   Alias(Alias<'src>),
   Assignment(Assignment<'src>),
-  Recipe(Recipe<'src>),
+  Recipe(Recipe<'src, Name<'src>>),
   Set(Set<'src>),
 }

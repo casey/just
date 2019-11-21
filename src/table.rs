@@ -35,6 +35,18 @@ impl<'key, V: Keyed<'key>> Table<'key, V> {
   pub(crate) fn iter(&self) -> btree_map::Iter<&'key str, V> {
     self.map.iter()
   }
+
+  pub(crate) fn pop(&mut self) -> Option<V> {
+    if let Some(key) = self.map.keys().next().map(|key| *key) {
+      self.map.remove(key)
+    } else {
+      None
+    }
+  }
+
+  pub(crate) fn remove(&mut self, key: &str) -> Option<V> {
+    self.map.remove(key)
+  }
 }
 
 impl<'key, V: Keyed<'key>> FromIterator<V> for Table<'key, V> {
