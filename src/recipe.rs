@@ -275,7 +275,7 @@ impl<'a, D> Recipe<'a, D> {
           continue;
         }
 
-        let mut cmd = context.settings.shell_command(&config.shell);
+        let mut cmd = context.settings.shell_command(config);
 
         cmd.current_dir(context.working_directory);
 
