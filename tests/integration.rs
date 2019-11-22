@@ -20,6 +20,7 @@ macro_rules! test {
     $(stdout:   $stdout:expr,)?
     $(stderr:   $stderr:expr,)?
     $(status:   $status:expr,)?
+    $(shell:    $shell:expr,)?
   ) => {
     #[test]
     fn $name() {
@@ -30,6 +31,7 @@ macro_rules! test {
         $(stdout: $stdout,)?
         $(stderr: $stderr,)?
         $(status: $status,)?
+        $(shell: $shell,)?
         ..Test::default()
       }.run();
     }
@@ -43,6 +45,7 @@ struct Test<'a> {
   stdout: &'a str,
   stderr: &'a str,
   status: i32,
+  shell: bool,
 }
 
 impl<'a> Default for Test<'a> {
@@ -54,6 +57,7 @@ impl<'a> Default for Test<'a> {
       stdout: "",
       stderr: "",
       status: EXIT_SUCCESS,
+      shell: true,
     }
   }
 }
@@ -74,9 +78,15 @@ impl<'a> Test<'a> {
     dotenv_path.push(".env");
     fs::write(dotenv_path, "DOTENV_KEY=dotenv-value").unwrap();
 
-    let mut child = Command::new(&executable_path("just"))
-      .current_dir(tmp.path())
+    let mut command = Command::new(&executable_path("just"));
+
+    if self.shell {
+      command.args(&["--shell", "bash"]);
+    }
+
+    let mut child = command
       .args(self.args)
+      .current_dir(tmp.path())
       .stdin(Stdio::piped())
       .stdout(Stdio::piped())
       .stderr(Stdio::piped())
@@ -347,22 +357,6 @@ _y:
 ",
   args:     ("--summary"),
   stdout:   "a b c d\n",
-}
-
-test! {
-  name: set_shell,
-  justfile: "
-    set shell := ['echo', '-n']
-
-    x := `bar`
-
-    foo:
-      echo {{x}}
-      echo foo
-  ",
-  args: (),
-  stdout: "echo barecho foo",
-  stderr: "echo bar\necho foo\n",
 }
 
 test! {
@@ -2220,6 +2214,7 @@ test! {
   args: ("--shell-arg", "-c"),
   stdout: "AA\n",
   stderr: "echo A${foo}A\n",
+  shell: false,
 }
 
 test! {
@@ -2233,6 +2228,7 @@ test! {
   args: ("--shell", "bash"),
   stdout: "hello\n",
   stderr: "echo hello\n",
+  shell: false,
 }
 
 test! {
@@ -2246,4 +2242,22 @@ test! {
   args: ("--shell-arg", "-cu"),
   stdout: "hello\n",
   stderr: "echo hello\n",
+  shell: false,
+}
+
+test! {
+  name: set_shell,
+  justfile: "
+    set shell := ['echo', '-n']
+
+    x := `bar`
+
+    foo:
+      echo {{x}}
+      echo foo
+  ",
+  args: (),
+  stdout: "echo barecho foo",
+  stderr: "echo bar\necho foo\n",
+  shell: false,
 }
