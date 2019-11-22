@@ -4,6 +4,7 @@ use clap::{App, AppSettings, Arg, ArgGroup, ArgMatches};
 use unicode_width::UnicodeWidthStr;
 
 pub(crate) const DEFAULT_SHELL: &str = "sh";
+pub(crate) const DEFAULT_SHELL_ARG: &str = "-cu";
 pub(crate) const INIT_JUSTFILE: &str = "default:\n\techo 'Hello, world!'\n";
 
 #[derive(Debug, PartialEq)]
@@ -15,6 +16,8 @@ pub(crate) struct Config {
   pub(crate) quiet: bool,
   pub(crate) search_config: SearchConfig,
   pub(crate) shell: String,
+  pub(crate) shell_args: Vec<String>,
+  pub(crate) shell_present: bool,
   pub(crate) subcommand: Subcommand,
   pub(crate) verbosity: Verbosity,
 }
@@ -34,14 +37,16 @@ mod cmd {
 
 mod arg {
   pub(crate) const ARGUMENTS: &str = "ARGUMENTS";
+  pub(crate) const CLEAR_SHELL_ARGS: &str = "CLEAR-SHELL-ARGS";
   pub(crate) const COLOR: &str = "COLOR";
   pub(crate) const DRY_RUN: &str = "DRY-RUN";
   pub(crate) const HIGHLIGHT: &str = "HIGHLIGHT";
-  pub(crate) const NO_HIGHLIGHT: &str = "NO-HIGHLIGHT";
   pub(crate) const JUSTFILE: &str = "JUSTFILE";
+  pub(crate) const NO_HIGHLIGHT: &str = "NO-HIGHLIGHT";
   pub(crate) const QUIET: &str = "QUIET";
   pub(crate) const SET: &str = "SET";
   pub(crate) const SHELL: &str = "SHELL";
+  pub(crate) const SHELL_ARG: &str = "SHELL-ARG";
   pub(crate) const VERBOSE: &str = "VERBOSE";
   pub(crate) const WORKING_DIRECTORY: &str = "WORKING-DIRECTORY";
 
@@ -113,6 +118,23 @@ impl Config {
           .takes_value(true)
           .default_value(DEFAULT_SHELL)
           .help("Invoke <SHELL> to run recipes"),
+      )
+      .arg(
+        Arg::with_name(arg::SHELL_ARG)
+          .long("shell-arg")
+          .takes_value(true)
+          .multiple(true)
+          .number_of_values(1)
+          .default_value(DEFAULT_SHELL_ARG)
+          .allow_hyphen_values(true)
+          .overrides_with(arg::CLEAR_SHELL_ARGS)
+          .help("Invoke shell with <SHELL-ARG> as an argument"),
+      )
+      .arg(
+        Arg::with_name(arg::CLEAR_SHELL_ARGS)
+          .long("clear-shell-args")
+          .overrides_with(arg::SHELL_ARG)
+          .help("Clear shell arguments"),
       )
       .arg(
         Arg::with_name(arg::VERBOSE)
@@ -318,16 +340,33 @@ impl Config {
       }
     };
 
+    let shell_args = if matches.is_present(arg::CLEAR_SHELL_ARGS) {
+      Vec::new()
+    } else {
+      matches
+        .values_of(arg::SHELL_ARG)
+        .unwrap()
+        .into_iter()
+        .map(str::to_owned)
+        .collect()
+    };
+
+    let shell_present = matches.occurrences_of(arg::CLEAR_SHELL_ARGS) > 0
+      || matches.occurrences_of(arg::SHELL) > 0
+      || matches.occurrences_of(arg::SHELL_ARG) > 0;
+
     Ok(Config {
       dry_run: matches.is_present(arg::DRY_RUN),
       highlight: !matches.is_present(arg::NO_HIGHLIGHT),
       quiet: matches.is_present(arg::QUIET),
       shell: matches.value_of(arg::SHELL).unwrap().to_owned(),
-      search_config,
+      color,
       invocation_directory,
+      search_config,
+      shell_args,
+      shell_present,
       subcommand,
       verbosity,
-      color,
     })
   }
 
@@ -594,18 +633,19 @@ USAGE:
     just [FLAGS] [OPTIONS] [--] [ARGUMENTS]...
 
 FLAGS:
-        --dry-run         Print what just would do without doing it
-        --dump            Print entire justfile
-    -e, --edit            \
+        --clear-shell-args    Clear shell arguments
+        --dry-run             Print what just would do without doing it
+        --dump                Print entire justfile
+    -e, --edit                \
       Edit justfile with editor given by $VISUAL or $EDITOR, falling back to `vim`
-        --evaluate        Print evaluated variables
-        --highlight       Highlight echoed recipe lines in bold
-        --init            Initialize new justfile in project root
-    -l, --list            List available recipes and their arguments
-        --no-highlight    Don't highlight echoed recipe lines in bold
-    -q, --quiet           Suppress all output
-        --summary         List names of available recipes
-    -v, --verbose         Use verbose output
+        --evaluate            Print evaluated variables
+        --highlight           Highlight echoed recipe lines in bold
+        --init                Initialize new justfile in project root
+    -l, --list                List available recipes and their arguments
+        --no-highlight        Don't highlight echoed recipe lines in bold
+    -q, --quiet               Suppress all output
+        --summary             List names of available recipes
+    -v, --verbose             Use verbose output
 
 OPTIONS:
         --color <COLOR>
@@ -614,6 +654,8 @@ OPTIONS:
     -f, --justfile <JUSTFILE>                      Use <JUSTFILE> as justfile.
         --set <VARIABLE> <VALUE>                   Override <VARIABLE> with <VALUE>
         --shell <SHELL>                            Invoke <SHELL> to run recipes [default: sh]
+        --shell-arg <SHELL-ARG>...                 \
+        Invoke shell with <SHELL-ARG> as an argument [default: -cu]
     -s, --show <RECIPE>                            Show information about <RECIPE>
     -d, --working-directory <WORKING-DIRECTORY>
             Use <WORKING-DIRECTORY> as working directory. --justfile must also be set
@@ -641,6 +683,8 @@ ARGS:
       $(quiet: $quiet:expr,)?
       $(search_config: $search_config:expr,)?
       $(shell: $shell:expr,)?
+      $(shell_args: $shell_args:expr,)?
+      $(shell_present: $shell_present:expr,)?
       $(subcommand: $subcommand:expr,)?
       $(verbosity: $verbosity:expr,)?
     } => {
@@ -658,6 +702,8 @@ ARGS:
           $(quiet: $quiet,)?
           $(search_config: $search_config,)?
           $(shell: $shell.to_string(),)?
+          $(shell_args: $shell_args,)?
+          $(shell_present: $shell_present,)?
           $(subcommand: $subcommand,)?
           $(verbosity: $verbosity,)?
           ..testing::config(&[])
@@ -895,12 +941,15 @@ ARGS:
     name: shell_default,
     args: [],
     shell: "sh",
+    shell_args: vec!["-cu".to_owned()],
+    shell_present: false,
   }
 
   test! {
     name: shell_set,
     args: ["--shell", "tclsh"],
     shell: "tclsh",
+    shell_present: true,
   }
 
   test! {
@@ -1048,6 +1097,61 @@ ARGS:
       arguments: Vec::new(),
       overrides: map!{"foo": "bar", "bar": "baz"},
     },
+  }
+
+  test! {
+    name: shell_args_default,
+    args: [],
+    shell_args: vec!["-cu".to_owned()],
+  }
+
+  test! {
+    name: shell_args_set_hyphen,
+    args: ["--shell-arg", "--foo"],
+    shell_args: vec!["--foo".to_owned()],
+    shell_present: true,
+  }
+
+  test! {
+    name: shell_args_set_word,
+    args: ["--shell-arg", "foo"],
+    shell_args: vec!["foo".to_owned()],
+    shell_present: true,
+  }
+
+  test! {
+    name: shell_args_set_multiple,
+    args: ["--shell-arg", "foo", "--shell-arg", "bar"],
+    shell_args: vec!["foo".to_owned(), "bar".to_owned()],
+    shell_present: true,
+  }
+
+  test! {
+    name: shell_args_clear,
+    args: ["--clear-shell-args"],
+    shell_args: vec![],
+    shell_present: true,
+  }
+
+  test! {
+    name: shell_args_clear_and_set,
+    args: ["--clear-shell-args", "--shell-arg", "bar"],
+    shell_args: vec!["bar".to_owned()],
+    shell_present: true,
+  }
+
+  test! {
+    name: shell_args_set_and_clear,
+    args: ["--shell-arg", "bar", "--clear-shell-args"],
+    shell_args: vec![],
+    shell_present: true,
+  }
+
+  test! {
+    name: shell_args_set_multiple_and_clear,
+    args: ["--shell-arg", "bar", "--shell-arg", "baz", "--clear-shell-args"],
+    shell_args: vec![],
+    shell_present: true,
   }
 
   test! {

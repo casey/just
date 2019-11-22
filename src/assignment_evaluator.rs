@@ -164,7 +164,7 @@ impl<'a, 'b> AssignmentEvaluator<'a, 'b> {
     raw: &str,
     token: &Token<'a>,
   ) -> RunResult<'a, String> {
-    let mut cmd = self.settings.shell_command(&self.config.shell);
+    let mut cmd = self.settings.shell_command(self.config);
 
     cmd.arg(raw);
 

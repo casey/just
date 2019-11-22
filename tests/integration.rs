@@ -76,7 +76,6 @@ impl<'a> Test<'a> {
 
     let mut child = Command::new(&executable_path("just"))
       .current_dir(tmp.path())
-      .args(&["--shell", "bash"])
       .args(self.args)
       .stdin(Stdio::piped())
       .stdout(Stdio::piped())
@@ -2210,4 +2209,41 @@ test! {
       |           ^
     echo default
   ",
+}
+
+test! {
+  name: shell_args,
+  justfile: "
+    default:
+      echo A${foo}A
+  ",
+  args: ("--shell-arg", "-c"),
+  stdout: "AA\n",
+  stderr: "echo A${foo}A\n",
+}
+
+test! {
+  name: shell_override,
+  justfile: "
+    set shell := ['foo-bar-baz']
+
+    default:
+      echo hello
+  ",
+  args: ("--shell", "bash"),
+  stdout: "hello\n",
+  stderr: "echo hello\n",
+}
+
+test! {
+  name: shell_arg_override,
+  justfile: "
+    set shell := ['foo-bar-baz']
+
+    default:
+      echo hello
+  ",
+  args: ("--shell-arg", "-cu"),
+  stdout: "hello\n",
+  stderr: "echo hello\n",
 }
