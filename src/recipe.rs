@@ -300,25 +300,6 @@ impl<'src, D> Recipe<'src, D> {
   }
 }
 
-impl<'src> Recipe<'src, Name<'src>> {
-  pub(crate) fn resolve(self, resolved: Vec<Dependency<'src>>) -> Recipe<'src> {
-    assert_eq!(self.dependencies.len(), resolved.len());
-    for (name, resolved) in self.dependencies.iter().zip(&resolved) {
-      assert_eq!(name.lexeme(), resolved.recipe.name.lexeme());
-    }
-    Recipe {
-      dependencies: resolved,
-      doc: self.doc,
-      body: self.body,
-      name: self.name,
-      parameters: self.parameters,
-      private: self.private,
-      quiet: self.quiet,
-      shebang: self.shebang,
-    }
-  }
-}
-
 impl<'src, D> Keyed<'src> for Recipe<'src, D> {
   fn key(&self) -> &'src str {
     self.name.lexeme()

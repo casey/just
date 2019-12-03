@@ -226,6 +226,15 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     }
   }
 
+  /// Accept a dependency
+  fn accept_dependency(&mut self) -> CompilationResult<'src, Option<RawDependency<'src>>> {
+    if let Some(recipe) = self.accept_name()? {
+      Ok(Some(RawDependency { recipe }))
+    } else {
+      Ok(None)
+    }
+  }
+
   /// Accept and return `true` if next token is of kind `kind`
   fn accepted(&mut self, kind: TokenKind) -> CompilationResult<'src, bool> {
     Ok(self.accept(kind)?.is_some())
@@ -470,7 +479,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     &mut self,
     doc: Option<&'src str>,
     quiet: bool,
-  ) -> CompilationResult<'src, Recipe<'src, Name<'src>>> {
+  ) -> CompilationResult<'src, RawRecipe<'src>> {
     let name = self.parse_name()?;
 
     let mut positional = Vec::new();
@@ -521,7 +530,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
 
     let mut dependencies = Vec::new();
 
-    while let Some(dependency) = self.accept_name()? {
+    while let Some(dependency) = self.accept_dependency()? {
       dependencies.push(dependency);
     }
 

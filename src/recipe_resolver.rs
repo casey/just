@@ -3,15 +3,15 @@ use crate::common::*;
 use CompilationErrorKind::*;
 
 pub(crate) struct RecipeResolver<'src: 'run, 'run> {
-  unresolved_recipes: Table<'src, Recipe<'src, Name<'src>>>,
+  unresolved_recipes: Table<'src, RawRecipe<'src>>,
   resolved_recipes: Table<'src, Rc<Recipe<'src>>>,
   assignments: &'run Table<'src, Assignment<'src>>,
 }
 
 impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
   pub(crate) fn resolve_recipes(
-    unresolved_recipes: Table<'src, Recipe<'src, Name<'src>>>,
-    assignments: &'run Table<'src, Assignment<'src>>,
+    unresolved_recipes: Table<'src, RawRecipe<'src>>,
+    assignments: &Table<'src, Assignment<'src>>,
   ) -> CompilationResult<'src, Table<'src, Rc<Recipe<'src>>>> {
     let mut resolver = RecipeResolver {
       resolved_recipes: empty(),
@@ -65,7 +65,7 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
   fn resolve_recipe(
     &mut self,
     stack: &mut Vec<&'src str>,
-    recipe: Recipe<'src, Name<'src>>,
+    recipe: RawRecipe<'src>,
   ) -> CompilationResult<'src, Rc<Recipe<'src>>> {
     if let Some(resolved) = self.resolved_recipes.get(recipe.name()) {
       return Ok(resolved.clone());
@@ -75,12 +75,12 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
 
     let mut dependencies: Vec<Dependency> = Vec::new();
     for dependency in &recipe.dependencies {
-      let name = dependency.lexeme();
+      let name = dependency.recipe.lexeme();
 
       if let Some(resolved) = self.resolved_recipes.get(name) {
         // dependency already resolved
         if !resolved.parameters.is_empty() {
-          return Err(dependency.error(DependencyHasParameters {
+          return Err(dependency.recipe.error(DependencyHasParameters {
             recipe: recipe.name(),
             dependency: name,
           }));
@@ -93,11 +93,11 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
         let first = stack[0];
         stack.push(first);
         return Err(
-          dependency.error(CircularRecipeDependency {
+          dependency.recipe.error(CircularRecipeDependency {
             recipe: recipe.name(),
             circle: stack
               .iter()
-              .skip_while(|name| **name != dependency.lexeme())
+              .skip_while(|name| **name != dependency.recipe.lexeme())
               .cloned()
               .collect(),
           }),
@@ -105,7 +105,7 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
       } else if let Some(unresolved) = self.unresolved_recipes.remove(name) {
         // resolve unresolved dependency
         if !unresolved.parameters.is_empty() {
-          return Err(dependency.error(DependencyHasParameters {
+          return Err(dependency.recipe.error(DependencyHasParameters {
             recipe: recipe.name(),
             dependency: name,
           }));
@@ -116,7 +116,7 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
         });
       } else {
         // dependency is unknown
-        return Err(dependency.error(UnknownDependency {
+        return Err(dependency.recipe.error(UnknownDependency {
           recipe: recipe.name(),
           unknown: name,
         }));

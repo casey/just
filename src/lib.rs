@@ -64,6 +64,8 @@ mod platform_interface;
 mod position;
 mod positional;
 mod range_ext;
+mod raw_dependency;
+mod raw_recipe;
 mod recipe;
 mod recipe_context;
 mod recipe_resolver;

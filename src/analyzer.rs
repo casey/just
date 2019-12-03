@@ -3,7 +3,7 @@ use crate::common::*;
 use CompilationErrorKind::*;
 
 pub(crate) struct Analyzer<'src> {
-  recipes: Table<'src, Recipe<'src, Name<'src>>>,
+  recipes: Table<'src, RawRecipe<'src>>,
   assignments: Table<'src, Assignment<'src>>,
   aliases: Table<'src, Alias<'src, Name<'src>>>,
   sets: Table<'src, Set<'src>>,
@@ -91,7 +91,7 @@ impl<'src> Analyzer<'src> {
     })
   }
 
-  fn analyze_recipe(&self, recipe: &Recipe<'src, Name<'src>>) -> CompilationResult<'src, ()> {
+  fn analyze_recipe(&self, recipe: &RawRecipe<'src>) -> CompilationResult<'src, ()> {
     if let Some(original) = self.recipes.get(recipe.name.lexeme()) {
       return Err(recipe.name.token().error(DuplicateRecipe {
         recipe: original.name(),
@@ -127,13 +127,13 @@ impl<'src> Analyzer<'src> {
 
     let mut dependencies = BTreeSet::new();
     for dependency in &recipe.dependencies {
-      if dependencies.contains(dependency.lexeme()) {
-        return Err(dependency.token().error(DuplicateDependency {
+      if dependencies.contains(dependency.recipe.lexeme()) {
+        return Err(dependency.recipe.token().error(DuplicateDependency {
           recipe: recipe.name.lexeme(),
-          dependency: dependency.lexeme(),
+          dependency: dependency.recipe.lexeme(),
         }));
       }
-      dependencies.insert(dependency.lexeme());
+      dependencies.insert(dependency.recipe.lexeme());
     }
 
     let mut continued = false;

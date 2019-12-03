@@ -81,7 +81,7 @@ impl<'src> Node<'src> for Expression<'src> {
   }
 }
 
-impl<'src> Node<'src> for Recipe<'src, Name<'src>> {
+impl<'src> Node<'src> for RawRecipe<'src> {
   fn tree(&self) -> Tree<'src> {
     let mut t = Tree::atom("recipe");
 
@@ -116,7 +116,7 @@ impl<'src> Node<'src> for Recipe<'src, Name<'src>> {
           self
             .dependencies
             .iter()
-            .map(|dependency| dependency.lexeme()),
+            .map(|dependency| dependency.recipe.lexeme()),
         ),
       );
     }

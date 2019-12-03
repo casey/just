@@ -57,13 +57,13 @@ pub(crate) use crate::{
   interrupt_guard::InterruptGuard, interrupt_handler::InterruptHandler, item::Item,
   justfile::Justfile, lexer::Lexer, line::Line, list::List, load_error::LoadError, module::Module,
   name::Name, output_error::OutputError, parameter::Parameter, parser::Parser, platform::Platform,
-  position::Position, positional::Positional, recipe::Recipe, recipe_context::RecipeContext,
-  recipe_resolver::RecipeResolver, runtime_error::RuntimeError, scope::Scope, search::Search,
-  search_config::SearchConfig, search_error::SearchError, set::Set, setting::Setting,
-  settings::Settings, shebang::Shebang, show_whitespace::ShowWhitespace, state::State,
-  string_literal::StringLiteral, subcommand::Subcommand, table::Table, thunk::Thunk, token::Token,
-  token_kind::TokenKind, use_color::UseColor, variables::Variables, verbosity::Verbosity,
-  warning::Warning,
+  position::Position, positional::Positional, raw_dependency::RawDependency, raw_recipe::RawRecipe,
+  recipe::Recipe, recipe_context::RecipeContext, recipe_resolver::RecipeResolver,
+  runtime_error::RuntimeError, scope::Scope, search::Search, search_config::SearchConfig,
+  search_error::SearchError, set::Set, setting::Setting, settings::Settings, shebang::Shebang,
+  show_whitespace::ShowWhitespace, state::State, string_literal::StringLiteral,
+  subcommand::Subcommand, table::Table, thunk::Thunk, token::Token, token_kind::TokenKind,
+  use_color::UseColor, variables::Variables, verbosity::Verbosity, warning::Warning,
 };
 
 // type aliases
