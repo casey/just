@@ -304,7 +304,7 @@ impl<'src> Recipe<'src, Name<'src>> {
   pub(crate) fn resolve(self, resolved: Vec<Dependency<'src>>) -> Recipe<'src> {
     assert_eq!(self.dependencies.len(), resolved.len());
     for (name, resolved) in self.dependencies.iter().zip(&resolved) {
-      assert_eq!(name.lexeme(), resolved.0.name.lexeme());
+      assert_eq!(name.lexeme(), resolved.recipe.name.lexeme());
     }
     Recipe {
       dependencies: resolved,
@@ -342,7 +342,7 @@ impl<'src> Display for Recipe<'src> {
     }
     write!(f, ":")?;
     for dependency in &self.dependencies {
-      write!(f, " {}", dependency.0.name())?;
+      write!(f, " {}", dependency.recipe.name())?;
     }
 
     for (i, line) in self.body.iter().enumerate() {

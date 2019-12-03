@@ -205,9 +205,9 @@ impl<'src> Justfile<'src> {
     dotenv: &BTreeMap<String, String>,
     ran: &mut BTreeSet<&'src str>,
   ) -> RunResult<'src, ()> {
-    for Dependency(dependency) in &recipe.dependencies {
-      if !ran.contains(dependency.name()) {
-        self.run_recipe(context, dependency, &[], dotenv, ran)?;
+    for Dependency { recipe } in &recipe.dependencies {
+      if !ran.contains(recipe.name()) {
+        self.run_recipe(context, recipe, &[], dotenv, ran)?;
       }
     }
     recipe.run(context, arguments, dotenv)?;

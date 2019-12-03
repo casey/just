@@ -86,7 +86,9 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
           }));
         }
 
-        dependencies.push(Dependency(resolved.clone()));
+        dependencies.push(Dependency {
+          recipe: resolved.clone(),
+        });
       } else if stack.contains(&name) {
         let first = stack[0];
         stack.push(first);
@@ -109,7 +111,9 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
           }));
         }
 
-        dependencies.push(Dependency(self.resolve_recipe(stack, unresolved)?));
+        dependencies.push(Dependency {
+          recipe: self.resolve_recipe(stack, unresolved)?,
+        });
       } else {
         // dependency is unknown
         return Err(dependency.error(UnknownDependency {
