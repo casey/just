@@ -229,7 +229,10 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   /// Accept a dependency
   fn accept_dependency(&mut self) -> CompilationResult<'src, Option<UnresolvedDependency<'src>>> {
     if let Some(recipe) = self.accept_name()? {
-      Ok(Some(UnresolvedDependency { recipe }))
+      Ok(Some(UnresolvedDependency {
+        arguments: Vec::new(),
+        recipe,
+      }))
     } else {
       Ok(None)
     }

@@ -88,6 +88,7 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
 
         dependencies.push(Dependency {
           recipe: resolved.clone(),
+          arguments: Vec::new(),
         });
       } else if stack.contains(&name) {
         let first = stack[0];
@@ -113,6 +114,7 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
 
         dependencies.push(Dependency {
           recipe: self.resolve_recipe(stack, unresolved)?,
+          arguments: Vec::new(),
         });
       } else {
         // dependency is unknown
