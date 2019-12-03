@@ -1,8 +1,8 @@
 use crate::common::*;
 
-pub(crate) type RawRecipe<'src> = Recipe<'src, RawDependency<'src>>;
+pub(crate) type UnresolvedRecipe<'src> = Recipe<'src, UnresolvedDependency<'src>>;
 
-impl<'src> RawRecipe<'src> {
+impl<'src> UnresolvedRecipe<'src> {
   pub(crate) fn resolve(self, resolved: Vec<Dependency<'src>>) -> Recipe<'src> {
     assert_eq!(self.dependencies.len(), resolved.len());
     for (unresolved, resolved) in self.dependencies.iter().zip(&resolved) {

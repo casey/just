@@ -3,7 +3,7 @@ use crate::common::*;
 use CompilationErrorKind::*;
 
 pub(crate) struct Analyzer<'src> {
-  recipes: Table<'src, RawRecipe<'src>>,
+  recipes: Table<'src, UnresolvedRecipe<'src>>,
   assignments: Table<'src, Assignment<'src>>,
   aliases: Table<'src, Alias<'src, Name<'src>>>,
   sets: Table<'src, Set<'src>>,
@@ -91,7 +91,7 @@ impl<'src> Analyzer<'src> {
     })
   }
 
-  fn analyze_recipe(&self, recipe: &RawRecipe<'src>) -> CompilationResult<'src, ()> {
+  fn analyze_recipe(&self, recipe: &UnresolvedRecipe<'src>) -> CompilationResult<'src, ()> {
     if let Some(original) = self.recipes.get(recipe.name.lexeme()) {
       return Err(recipe.name.token().error(DuplicateRecipe {
         recipe: original.name(),

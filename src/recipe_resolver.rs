@@ -3,14 +3,14 @@ use crate::common::*;
 use CompilationErrorKind::*;
 
 pub(crate) struct RecipeResolver<'src: 'run, 'run> {
-  unresolved_recipes: Table<'src, RawRecipe<'src>>,
+  unresolved_recipes: Table<'src, UnresolvedRecipe<'src>>,
   resolved_recipes: Table<'src, Rc<Recipe<'src>>>,
   assignments: &'run Table<'src, Assignment<'src>>,
 }
 
 impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
   pub(crate) fn resolve_recipes(
-    unresolved_recipes: Table<'src, RawRecipe<'src>>,
+    unresolved_recipes: Table<'src, UnresolvedRecipe<'src>>,
     assignments: &Table<'src, Assignment<'src>>,
   ) -> CompilationResult<'src, Table<'src, Rc<Recipe<'src>>>> {
     let mut resolver = RecipeResolver {
@@ -65,7 +65,7 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
   fn resolve_recipe(
     &mut self,
     stack: &mut Vec<&'src str>,
-    recipe: RawRecipe<'src>,
+    recipe: UnresolvedRecipe<'src>,
   ) -> CompilationResult<'src, Rc<Recipe<'src>>> {
     if let Some(resolved) = self.resolved_recipes.get(recipe.name()) {
       return Ok(resolved.clone());

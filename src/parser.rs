@@ -227,9 +227,9 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   }
 
   /// Accept a dependency
-  fn accept_dependency(&mut self) -> CompilationResult<'src, Option<RawDependency<'src>>> {
+  fn accept_dependency(&mut self) -> CompilationResult<'src, Option<UnresolvedDependency<'src>>> {
     if let Some(recipe) = self.accept_name()? {
-      Ok(Some(RawDependency { recipe }))
+      Ok(Some(UnresolvedDependency { recipe }))
     } else {
       Ok(None)
     }
@@ -479,7 +479,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     &mut self,
     doc: Option<&'src str>,
     quiet: bool,
-  ) -> CompilationResult<'src, RawRecipe<'src>> {
+  ) -> CompilationResult<'src, UnresolvedRecipe<'src>> {
     let name = self.parse_name()?;
 
     let mut positional = Vec::new();
