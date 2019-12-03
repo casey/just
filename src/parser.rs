@@ -217,7 +217,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     }
   }
 
-  /// Accept a token of kind `Identifier` and parse into an `Name`
+  /// Accept a token of kind `Identifier` and parse into a `Name`
   fn accept_name(&mut self) -> CompilationResult<'src, Option<Name<'src>>> {
     if self.next_is(Identifier) {
       Ok(Some(self.parse_name()?))
@@ -233,6 +233,16 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
         arguments: Vec::new(),
         recipe,
       }))
+    } else if self.accepted(ParenL)? {
+      let recipe = self.parse_name()?;
+
+      let mut arguments = Vec::new();
+
+      while !self.accepted(ParenR)? {
+        arguments.push(self.parse_expression()?);
+      }
+
+      Ok(Some(UnresolvedDependency { recipe, arguments }))
     } else {
       Ok(None)
     }
@@ -944,6 +954,30 @@ mod tests {
     name: recipe_dependency_multiple,
     text: "foo: bar baz",
     tree: (justfile (recipe foo (deps bar baz))),
+  }
+
+  test! {
+    name: recipe_dependency_parenthesis,
+    text: "foo: (bar)",
+    tree: (justfile (recipe foo (deps bar))),
+  }
+
+  test! {
+    name: recipe_dependency_argument_string,
+    text: "foo: (bar 'baz')",
+    tree: (justfile (recipe foo (deps (bar "baz")))),
+  }
+
+  test! {
+    name: recipe_dependency_argument_identifier,
+    text: "foo: (bar baz)",
+    tree: (justfile (recipe foo (deps (bar baz)))),
+  }
+
+  test! {
+    name: recipe_dependency_argument_concatination,
+    text: "foo: (bar 'a' + 'b' 'c' + 'd')",
+    tree: (justfile (recipe foo (deps (bar (+ 'a' 'b') (+ 'c' 'd'))))),
   }
 
   test! {
