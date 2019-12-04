@@ -32,6 +32,14 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
         }
       }
 
+      for dependency in &recipe.dependencies {
+        for argument in &dependency.arguments {
+          for variable in argument.variables() {
+            resolver.resolve_variable(&variable, &recipe.parameters)?;
+          }
+        }
+      }
+
       for line in &recipe.body {
         for fragment in &line.fragments {
           if let Fragment::Interpolation { expression, .. } = fragment {
@@ -73,23 +81,13 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
 
     stack.push(recipe.name());
 
-    let mut dependencies: Vec<Dependency> = Vec::new();
+    let mut dependencies: Vec<Rc<Recipe>> = Vec::new();
     for dependency in &recipe.dependencies {
       let name = dependency.recipe.lexeme();
 
       if let Some(resolved) = self.resolved_recipes.get(name) {
         // dependency already resolved
-        if !resolved.parameters.is_empty() {
-          return Err(dependency.recipe.error(DependencyHasParameters {
-            recipe: recipe.name(),
-            dependency: name,
-          }));
-        }
-
-        dependencies.push(Dependency {
-          recipe: resolved.clone(),
-          arguments: Vec::new(),
-        });
+        dependencies.push(resolved.clone());
       } else if stack.contains(&name) {
         let first = stack[0];
         stack.push(first);
@@ -105,17 +103,7 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
         );
       } else if let Some(unresolved) = self.unresolved_recipes.remove(name) {
         // resolve unresolved dependency
-        if !unresolved.parameters.is_empty() {
-          return Err(dependency.recipe.error(DependencyHasParameters {
-            recipe: recipe.name(),
-            dependency: name,
-          }));
-        }
-
-        dependencies.push(Dependency {
-          recipe: self.resolve_recipe(stack, unresolved)?,
-          arguments: Vec::new(),
-        });
+        dependencies.push(self.resolve_recipe(stack, unresolved)?);
       } else {
         // dependency is unknown
         return Err(dependency.recipe.error(UnknownDependency {
@@ -125,7 +113,7 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
       }
     }
 
-    let resolved = Rc::new(recipe.resolve(dependencies));
+    let resolved = Rc::new(recipe.resolve(dependencies)?);
     self.resolved_recipes.insert(resolved.clone());
     stack.pop();
     Ok(resolved)
@@ -194,5 +182,15 @@ mod tests {
     column: 4,
     width:  3,
     kind:   UndefinedVariable{variable: "foo"},
+  }
+
+  analysis_error! {
+    name:   unknown_variable_in_dependency_argument,
+    input:  "bar x:\nfoo: (bar baz)",
+    offset: 17,
+    line:   1,
+    column: 10,
+    width:  3,
+    kind:   UndefinedVariable{variable: "baz"},
   }
 }

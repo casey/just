@@ -1441,15 +1441,49 @@ bar:"#,
 }
 
 test! {
-  name:     dependency_takes_arguments,
-  justfile: "b: a\na FOO:",
+  name:     dependency_takes_arguments_exact,
+  justfile: "
+    a FOO:
+    b: a
+  ",
   args:     ("b"),
   stdout:   "",
-  stderr:   "error: Recipe `b` depends on `a` which requires arguments. \
-             Dependencies may not require arguments
+  stderr:   "error: Dependency `a` got 0 arguments but takes 1 argument
   |
-1 | b: a
+2 | b: a
   |    ^
+",
+  status:   EXIT_FAILURE,
+}
+
+test! {
+  name:     dependency_takes_arguments_at_least,
+  justfile: "
+    a FOO LUZ='hello':
+    b: a
+  ",
+  args:     ("b"),
+  stdout:   "",
+  stderr:   "error: Dependency `a` got 0 arguments but takes at least 1 argument
+  |
+2 | b: a
+  |    ^
+",
+  status:   EXIT_FAILURE,
+}
+
+test! {
+  name:     dependency_takes_arguments_at_most,
+  justfile: "
+    a FOO LUZ='hello':
+    b: (a '0' '1' '2')
+  ",
+  args:     ("b"),
+  stdout:   "",
+  stderr:   "error: Dependency `a` got 3 arguments but takes at most 2 arguments
+  |
+2 | b: (a '0' '1' '2')
+  |     ^
 ",
   status:   EXIT_FAILURE,
 }

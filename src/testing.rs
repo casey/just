@@ -1,5 +1,7 @@
 use crate::common::*;
 
+use pretty_assertions::assert_eq;
+
 pub(crate) fn compile(text: &str) -> Justfile {
   match Compiler::compile(text) {
     Ok(justfile) => justfile,

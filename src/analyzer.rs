@@ -296,16 +296,6 @@ mod tests {
   }
 
   analysis_error! {
-    name:   dependency_has_parameters,
-    input:  "foo arg:\nb: foo",
-    offset:  12,
-    line:   1,
-    column: 3,
-    width:  3,
-    kind:   DependencyHasParameters{recipe: "b", dependency: "foo"},
-  }
-
-  analysis_error! {
     name:   duplicate_dependency,
     input:  "a b c: b c z z",
     offset:  13,

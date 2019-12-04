@@ -14,9 +14,11 @@ pub(crate) enum CompilationErrorKind<'src> {
     variable: &'src str,
     circle: Vec<&'src str>,
   },
-  DependencyHasParameters {
-    recipe: &'src str,
+  DependencyArgumentCountMismatch {
     dependency: &'src str,
+    found: usize,
+    min: usize,
+    max: usize,
   },
   DuplicateAlias {
     alias: &'src str,
