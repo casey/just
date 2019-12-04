@@ -1,21 +1,21 @@
 use crate::common::*;
 
 #[derive(Debug, PartialEq, Clone, Copy)]
-pub(crate) struct Token<'a> {
+pub(crate) struct Token<'src> {
   pub(crate) offset: usize,
   pub(crate) length: usize,
   pub(crate) line: usize,
   pub(crate) column: usize,
-  pub(crate) src: &'a str,
+  pub(crate) src: &'src str,
   pub(crate) kind: TokenKind,
 }
 
-impl<'a> Token<'a> {
-  pub(crate) fn lexeme(&self) -> &'a str {
+impl<'src> Token<'src> {
+  pub(crate) fn lexeme(&self) -> &'src str {
     &self.src[self.offset..self.offset + self.length]
   }
 
-  pub(crate) fn error(&self, kind: CompilationErrorKind<'a>) -> CompilationError<'a> {
+  pub(crate) fn error(&self, kind: CompilationErrorKind<'src>) -> CompilationError<'src> {
     CompilationError { token: *self, kind }
   }
 

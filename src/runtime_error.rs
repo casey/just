@@ -1,75 +1,75 @@
 use crate::common::*;
 
 #[derive(Debug)]
-pub(crate) enum RuntimeError<'a> {
+pub(crate) enum RuntimeError<'src> {
   ArgumentCountMismatch {
-    recipe: &'a str,
-    parameters: Vec<&'a Parameter<'a>>,
+    recipe: &'src str,
+    parameters: Vec<&'src Parameter<'src>>,
     found: usize,
     min: usize,
     max: usize,
   },
   Backtick {
-    token: Token<'a>,
+    token: Token<'src>,
     output_error: OutputError,
   },
   Code {
-    recipe: &'a str,
+    recipe: &'src str,
     line_number: Option<usize>,
     code: i32,
   },
   Cygpath {
-    recipe: &'a str,
+    recipe: &'src str,
     output_error: OutputError,
   },
   Dotenv {
     dotenv_error: dotenv::Error,
   },
   FunctionCall {
-    function: Name<'a>,
+    function: Name<'src>,
     message: String,
   },
   Internal {
     message: String,
   },
   IoError {
-    recipe: &'a str,
+    recipe: &'src str,
     io_error: io::Error,
   },
   Shebang {
-    recipe: &'a str,
+    recipe: &'src str,
     command: String,
     argument: Option<String>,
     io_error: io::Error,
   },
   Signal {
-    recipe: &'a str,
+    recipe: &'src str,
     line_number: Option<usize>,
     signal: i32,
   },
   TmpdirIoError {
-    recipe: &'a str,
+    recipe: &'src str,
     io_error: io::Error,
   },
   UnknownOverrides {
-    overrides: Vec<&'a str>,
+    overrides: Vec<&'src str>,
   },
   UnknownRecipes {
-    recipes: Vec<&'a str>,
-    suggestion: Option<&'a str>,
+    recipes: Vec<&'src str>,
+    suggestion: Option<&'src str>,
   },
   Unknown {
-    recipe: &'a str,
+    recipe: &'src str,
     line_number: Option<usize>,
   },
   NoRecipes,
   DefaultRecipeRequiresArguments {
-    recipe: &'a str,
+    recipe: &'src str,
     min_arguments: usize,
   },
 }
 
-impl Error for RuntimeError<'_> {
+impl<'src> Error for RuntimeError<'src> {
   fn code(&self) -> i32 {
     match *self {
       Self::Code { code, .. } => code,
@@ -82,7 +82,7 @@ impl Error for RuntimeError<'_> {
   }
 }
 
-impl<'a> RuntimeError<'a> {
+impl<'src> RuntimeError<'src> {
   fn context(&self) -> Option<Token> {
     use RuntimeError::*;
     match self {
@@ -93,7 +93,7 @@ impl<'a> RuntimeError<'a> {
   }
 }
 
-impl<'a> Display for RuntimeError<'a> {
+impl<'src> Display for RuntimeError<'src> {
   fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
     use RuntimeError::*;
 

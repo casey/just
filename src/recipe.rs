@@ -24,18 +24,18 @@ fn error_from_signal(
 
 /// A recipe, e.g. `foo: bar baz`
 #[derive(PartialEq, Debug)]
-pub(crate) struct Recipe<'a, D = Dependency<'a>> {
+pub(crate) struct Recipe<'src, D = Dependency<'src>> {
   pub(crate) dependencies: Vec<D>,
-  pub(crate) doc: Option<&'a str>,
-  pub(crate) body: Vec<Line<'a>>,
-  pub(crate) name: Name<'a>,
-  pub(crate) parameters: Vec<Parameter<'a>>,
+  pub(crate) doc: Option<&'src str>,
+  pub(crate) body: Vec<Line<'src>>,
+  pub(crate) name: Name<'src>,
+  pub(crate) parameters: Vec<Parameter<'src>>,
   pub(crate) private: bool,
   pub(crate) quiet: bool,
   pub(crate) shebang: bool,
 }
 
-impl<'a, D> Recipe<'a, D> {
+impl<'src, D> Recipe<'src, D> {
   pub(crate) fn argument_range(&self) -> RangeInclusive<usize> {
     self.min_arguments()..=self.max_arguments()
   }
@@ -56,7 +56,7 @@ impl<'a, D> Recipe<'a, D> {
     }
   }
 
-  pub(crate) fn name(&self) -> &'a str {
+  pub(crate) fn name(&self) -> &'src str {
     self.name.lexeme()
   }
 
@@ -64,13 +64,12 @@ impl<'a, D> Recipe<'a, D> {
     self.name.line
   }
 
-  pub(crate) fn run(
+  pub(crate) fn run<'run>(
     &self,
-    context: &RecipeContext<'a>,
-    arguments: &[&'a str],
+    context: &RecipeContext<'src, 'run>,
+    arguments: &[&'src str],
     dotenv: &BTreeMap<String, String>,
-    overrides: &BTreeMap<String, String>,
-  ) -> RunResult<'a, ()> {
+  ) -> RunResult<'src, ()> {
     let config = &context.config;
 
     if config.verbosity.loquacious() {
@@ -83,46 +82,28 @@ impl<'a, D> Recipe<'a, D> {
       );
     }
 
-    let mut argument_map = BTreeMap::new();
-
-    let mut evaluator = AssignmentEvaluator {
-      assignments: &empty(),
-      evaluated: empty(),
-      working_directory: context.working_directory,
-      scope: &context.scope,
-      settings: &context.settings,
-      overrides,
-      config,
+    let scope = Evaluator::evaluate_parameters(
+      context.config,
       dotenv,
-    };
+      &self.parameters,
+      arguments,
+      &context.scope,
+      context.settings,
+      context.working_directory,
+    )?;
 
-    let mut rest = arguments;
-    for parameter in &self.parameters {
-      let value = if rest.is_empty() {
-        match parameter.default {
-          Some(ref default) => Cow::Owned(evaluator.evaluate_expression(default, &empty())?),
-          None => {
-            return Err(RuntimeError::Internal {
-              message: "missing parameter without default".to_string(),
-            });
-          }
-        }
-      } else if parameter.variadic {
-        let value = Cow::Owned(rest.to_vec().join(" "));
-        rest = &[];
-        value
-      } else {
-        let value = Cow::Borrowed(rest[0]);
-        rest = &rest[1..];
-        value
-      };
-      argument_map.insert(parameter.name.lexeme(), value);
-    }
+    let mut evaluator = Evaluator::line_evaluator(
+      context.config,
+      dotenv,
+      &scope,
+      context.settings,
+      context.working_directory,
+    );
 
     if self.shebang {
       let mut evaluated_lines = vec![];
       for line in &self.body {
-        evaluated_lines.push(evaluator.evaluate_line(&line.fragments, &argument_map)?);
+        evaluated_lines.push(evaluator.evaluate_line(line)?);
       }
 
       if config.dry_run || self.quiet {
@@ -202,7 +183,7 @@ impl<'a, D> Recipe<'a, D> {
             output_error,
           })?;
 
-      command.export_environment_variables(&context.scope, dotenv)?;
+      command.export(dotenv, &scope);
 
       // run it!
       match InterruptHandler::guard(|| command.status()) {
@@ -242,7 +223,7 @@ impl<'a, D> Recipe<'a, D> {
           }
           let line = lines.next().unwrap();
           line_number += 1;
-          evaluated += &evaluator.evaluate_line(&line.fragments, &argument_map)?;
+          evaluated += &evaluator.evaluate_line(line)?;
           if line.is_continuation() {
             evaluated.pop();
           } else {
@@ -286,7 +267,7 @@ impl<'a, D> Recipe<'a, D> {
           cmd.stdout(Stdio::null());
         }
 
-        cmd.export_environment_variables(&context.scope, dotenv)?;
+        cmd.export(dotenv, &scope);
 
         match InterruptHandler::guard(|| cmd.status()) {
           Ok(exit_status) => {
@@ -344,7 +325,7 @@ impl<'src, D> Keyed<'src> for Recipe<'src, D> {
   }
 }
 
-impl<'a> Display for Recipe<'a> {
+impl<'src> Display for Recipe<'src> {
   fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
     if let Some(doc) = self.doc {
       writeln!(f, "# {}", doc)?;

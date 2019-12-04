@@ -1,15 +1,15 @@
-pub(crate) struct Shebang<'a> {
-  pub(crate) interpreter: &'a str,
-  pub(crate) argument: Option<&'a str>,
+pub(crate) struct Shebang<'line> {
+  pub(crate) interpreter: &'line str,
+  pub(crate) argument: Option<&'line str>,
 }
 
-impl<'a> Shebang<'a> {
-  pub(crate) fn new(text: &'a str) -> Option<Shebang<'a>> {
-    if !text.starts_with("#!") {
+impl<'line> Shebang<'line> {
+  pub(crate) fn new(line: &'line str) -> Option<Shebang<'line>> {
+    if !line.starts_with("#!") {
       return None;
     }
 
-    let mut pieces = text[2..]
+    let mut pieces = line[2..]
       .lines()
       .nth(0)
       .unwrap_or("")

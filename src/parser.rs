@@ -338,12 +338,12 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   fn parse_assignment(&mut self, export: bool) -> CompilationResult<'src, Assignment<'src>> {
     let name = self.parse_name()?;
     self.presume_any(&[Equals, ColonEquals])?;
-    let expression = self.parse_expression()?;
+    let value = self.parse_expression()?;
     self.expect_eol()?;
     Ok(Assignment {
       name,
       export,
-      expression,
+      value,
     })
   }
 

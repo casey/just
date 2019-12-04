@@ -1,8 +1,8 @@
 use crate::common::*;
 
-pub(crate) struct RecipeContext<'a> {
-  pub(crate) config: &'a Config,
-  pub(crate) scope: BTreeMap<&'a str, (bool, String)>,
-  pub(crate) working_directory: &'a Path,
-  pub(crate) settings: &'a Settings<'a>,
+pub(crate) struct RecipeContext<'src: 'run, 'run> {
+  pub(crate) config: &'run Config,
+  pub(crate) scope: Scope<'src, 'run>,
+  pub(crate) working_directory: &'run Path,
+  pub(crate) settings: &'run Settings<'src>,
 }

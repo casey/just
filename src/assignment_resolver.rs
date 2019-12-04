@@ -2,17 +2,17 @@ use crate::common::*;
 
 use CompilationErrorKind::*;
 
-pub(crate) struct AssignmentResolver<'a: 'b, 'b> {
-  assignments: &'b Table<'a, Assignment<'a>>,
-  stack: Vec<&'a str>,
-  seen: BTreeSet<&'a str>,
-  evaluated: BTreeSet<&'a str>,
+pub(crate) struct AssignmentResolver<'src: 'run, 'run> {
+  assignments: &'run Table<'src, Assignment<'src>>,
+  stack: Vec<&'src str>,
+  seen: BTreeSet<&'src str>,
+  evaluated: BTreeSet<&'src str>,
 }
 
-impl<'a: 'b, 'b> AssignmentResolver<'a, 'b> {
+impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
   pub(crate) fn resolve_assignments(
-    assignments: &Table<'a, Assignment<'a>>,
-  ) -> CompilationResult<'a, ()> {
+    assignments: &Table<'src, Assignment<'src>>,
+  ) -> CompilationResult<'src, ()> {
     let mut resolver = AssignmentResolver {
       stack: empty(),
       seen: empty(),
@@ -27,7 +27,7 @@ impl<'a: 'b, 'b> AssignmentResolver<'a, 'b> {
     Ok(())
   }
 
-  fn resolve_assignment(&mut self, name: &'a str) -> CompilationResult<'a, ()> {
+  fn resolve_assignment(&mut self, name: &'src str) -> CompilationResult<'src, ()> {
     if self.evaluated.contains(name) {
       return Ok(());
     }
@@ -36,7 +36,7 @@ impl<'a: 'b, 'b> AssignmentResolver<'a, 'b> {
     self.stack.push(name);
 
     if let Some(assignment) = self.assignments.get(name) {
-      self.resolve_expression(&assignment.expression)?;
+      self.resolve_expression(&assignment.value)?;
       self.evaluated.insert(name);
     } else {
       let message = format!("attempted to resolve unknown assignment `{}`", name);
@@ -56,7 +56,7 @@ impl<'a: 'b, 'b> AssignmentResolver<'a, 'b> {
     Ok(())
   }
 
-  fn resolve_expression(&mut self, expression: &Expression<'a>) -> CompilationResult<'a, ()> {
+  fn resolve_expression(&mut self, expression: &Expression<'src>) -> CompilationResult<'src, ()> {
     match expression {
       Expression::Variable { name } => {
         let variable = name.lexeme();
