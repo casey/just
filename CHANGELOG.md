@@ -2,6 +2,22 @@ Changelog
 =========
 
 
+[v0.5.2] - 2019-12-7
+---------------------
+
+## Added
+- Add flags to set and clear shell arguments (#551)
+- Allow passing arguments to dependencies (#555)
+
+## Misc
+- Un-implement Deref for Table (#546)
+- Resolve recipe dependencies (#547)
+- Resolve alias targets (#548)
+- Remove unnecessary type argument to Alias (#549)
+- Resolve functions (#550)
+- Reform scope and binding (#556)
+
+
 [v0.5.1] - 2019-11-20
 ---------------------
 
@@ -16,6 +32,7 @@ Changelog
 - Refactor Compilation error to contain a Token (#535)
 - Move lexer comment (#536)
 - Add missing `--init` test (#543)
+
 
 [v0.5.0] - 2019-11-12
 ---------------------

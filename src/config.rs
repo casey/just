@@ -346,7 +346,6 @@ impl Config {
       matches
         .values_of(arg::SHELL_ARG)
         .unwrap()
-        .into_iter()
         .map(str::to_owned)
         .collect()
     };
@@ -625,7 +624,7 @@ mod tests {
   // proper tests for all the flags, but this will do for now.
   #[test]
   fn help() {
-    const EXPECTED_HELP: &str = "just v0.5.1
+    const EXPECTED_HELP: &str = "just v0.5.2
 Casey Rodarmor <casey@rodarmor.com>
 🤖 Just a command runner - https://github.com/casey/just
 
