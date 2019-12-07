@@ -43,7 +43,7 @@ impl<'key, V: Keyed<'key>> Table<'key, V> {
   }
 
   pub(crate) fn pop(&mut self) -> Option<V> {
-    if let Some(key) = self.map.keys().next().map(|key| *key) {
+    if let Some(key) = self.map.keys().next().copied() {
       self.map.remove(key)
     } else {
       None
