@@ -42,7 +42,7 @@ impl<'src> Node<'src> for Assignment<'src> {
       Tree::atom("assignment")
     }
     .push(self.name.lexeme())
-    .push(self.expression.tree())
+    .push(self.value.tree())
   }
 }
 

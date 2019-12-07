@@ -81,23 +81,48 @@ impl<'src> Justfile<'src> {
 
     let dotenv = load_dotenv()?;
 
-    let scope = AssignmentEvaluator::evaluate_assignments(
-      config,
-      working_directory,
-      &dotenv,
-      &self.assignments,
-      overrides,
-      &self.settings,
-    )?;
+    let scope = {
+      let mut scope = Scope::new();
+      let mut unknown_overrides = Vec::new();
+
+      for (name, value) in overrides {
+        if let Some(assignment) = self.assignments.get(name) {
+          scope.bind(assignment.export, assignment.name, value.clone());
+        } else {
+          unknown_overrides.push(name.as_ref());
+        }
+      }
+
+      if !unknown_overrides.is_empty() {
+        return Err(RuntimeError::UnknownOverrides {
+          overrides: unknown_overrides,
+        });
+      }
+
+      Evaluator::evaluate_assignments(
+        &self.assignments,
+        config,
+        &dotenv,
+        scope,
+        &self.settings,
+        working_directory,
+      )?
+    };
 
     if let Subcommand::Evaluate { .. } = config.subcommand {
       let mut width = 0;
-      for name in scope.keys() {
+
+      for name in scope.names() {
         width = cmp::max(name.len(), width);
       }
 
-      for (name, (_export, value)) in scope {
-        println!("{0:1$} := \"{2}\"", name, width, value);
+      for binding in scope.bindings() {
+        println!(
+          "{0:1$} := \"{2}\"",
+          binding.name.lexeme(),
+          width,
+          binding.value
+        );
       }
       return Ok(());
     }
@@ -152,7 +177,7 @@ impl<'src> Justfile<'src> {
 
     let mut ran = empty();
     for (recipe, arguments) in grouped {
-      self.run_recipe(&context, recipe, arguments, &dotenv, &mut ran, overrides)?
+      self.run_recipe(&context, recipe, arguments, &dotenv, &mut ran)?
     }
 
     Ok(())
@@ -172,21 +197,20 @@ impl<'src> Justfile<'src> {
     }
   }
 
-  fn run_recipe<'b>(
+  fn run_recipe<'run>(
     &self,
-    context: &'b RecipeContext<'src>,
+    context: &'run RecipeContext<'src, 'run>,
     recipe: &Recipe<'src>,
     arguments: &[&'src str],
     dotenv: &BTreeMap<String, String>,
     ran: &mut BTreeSet<&'src str>,
-    overrides: &BTreeMap<String, String>,
-  ) -> RunResult<()> {
+  ) -> RunResult<'src, ()> {
     for Dependency(dependency) in &recipe.dependencies {
       if !ran.contains(dependency.name()) {
-        self.run_recipe(context, dependency, &[], dotenv, ran, overrides)?;
+        self.run_recipe(context, dependency, &[], dotenv, ran)?;
       }
     }
-    recipe.run(context, arguments, dotenv, overrides)?;
+    recipe.run(context, arguments, dotenv)?;
     ran.insert(recipe.name());
     Ok(())
   }
@@ -199,7 +223,7 @@ impl<'src> Display for Justfile<'src> {
       if assignment.export {
         write!(f, "export ")?;
       }
-      write!(f, "{} := {}", name, assignment.expression)?;
+      write!(f, "{} := {}", name, assignment.value)?;
       items -= 1;
       if items != 0 {
         write!(f, "\n\n")?;

@@ -1,55 +1,55 @@
 use crate::common::*;
 
 #[derive(Debug, PartialEq)]
-pub(crate) enum CompilationErrorKind<'a> {
+pub(crate) enum CompilationErrorKind<'src> {
   AliasShadowsRecipe {
-    alias: &'a str,
+    alias: &'src str,
     recipe_line: usize,
   },
   CircularRecipeDependency {
-    recipe: &'a str,
-    circle: Vec<&'a str>,
+    recipe: &'src str,
+    circle: Vec<&'src str>,
   },
   CircularVariableDependency {
-    variable: &'a str,
-    circle: Vec<&'a str>,
+    variable: &'src str,
+    circle: Vec<&'src str>,
   },
   DependencyHasParameters {
-    recipe: &'a str,
-    dependency: &'a str,
+    recipe: &'src str,
+    dependency: &'src str,
   },
   DuplicateAlias {
-    alias: &'a str,
+    alias: &'src str,
     first: usize,
   },
   DuplicateDependency {
-    recipe: &'a str,
-    dependency: &'a str,
+    recipe: &'src str,
+    dependency: &'src str,
   },
   DuplicateParameter {
-    recipe: &'a str,
-    parameter: &'a str,
+    recipe: &'src str,
+    parameter: &'src str,
   },
   DuplicateRecipe {
-    recipe: &'a str,
+    recipe: &'src str,
     first: usize,
   },
   DuplicateVariable {
-    variable: &'a str,
+    variable: &'src str,
   },
   DuplicateSet {
-    setting: &'a str,
+    setting: &'src str,
     first: usize,
   },
   ExtraLeadingWhitespace,
   FunctionArgumentCountMismatch {
-    function: &'a str,
+    function: &'src str,
     found: usize,
     expected: usize,
   },
   InconsistentLeadingWhitespace {
-    expected: &'a str,
-    found: &'a str,
+    expected: &'src str,
+    found: &'src str,
   },
   Internal {
     message: String,
@@ -58,38 +58,38 @@ pub(crate) enum CompilationErrorKind<'a> {
     character: char,
   },
   MixedLeadingWhitespace {
-    whitespace: &'a str,
+    whitespace: &'src str,
   },
   ParameterFollowsVariadicParameter {
-    parameter: &'a str,
+    parameter: &'src str,
   },
   ParameterShadowsVariable {
-    parameter: &'a str,
+    parameter: &'src str,
   },
   RequiredParameterFollowsDefaultParameter {
-    parameter: &'a str,
+    parameter: &'src str,
   },
   UndefinedVariable {
-    variable: &'a str,
+    variable: &'src str,
   },
   UnexpectedToken {
     expected: Vec<TokenKind>,
     found: TokenKind,
   },
   UnknownAliasTarget {
-    alias: &'a str,
-    target: &'a str,
+    alias: &'src str,
+    target: &'src str,
   },
   UnknownDependency {
-    recipe: &'a str,
-    unknown: &'a str,
+    recipe: &'src str,
+    unknown: &'src str,
   },
   UnknownFunction {
-    function: &'a str,
+    function: &'src str,
   },
   UnknownStartOfToken,
   UnknownSetting {
-    setting: &'a str,
+    setting: &'src str,
   },
   UnpairedCarriageReturn,
   UnterminatedInterpolation,

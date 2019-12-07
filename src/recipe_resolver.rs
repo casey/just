@@ -2,17 +2,17 @@ use crate::common::*;
 
 use CompilationErrorKind::*;
 
-pub(crate) struct RecipeResolver<'a: 'b, 'b> {
-  unresolved_recipes: Table<'a, Recipe<'a, Name<'a>>>,
-  resolved_recipes: Table<'a, Rc<Recipe<'a>>>,
-  assignments: &'b Table<'a, Assignment<'a>>,
+pub(crate) struct RecipeResolver<'src: 'run, 'run> {
+  unresolved_recipes: Table<'src, Recipe<'src, Name<'src>>>,
+  resolved_recipes: Table<'src, Rc<Recipe<'src>>>,
+  assignments: &'run Table<'src, Assignment<'src>>,
 }
 
-impl<'a, 'b> RecipeResolver<'a, 'b> {
+impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
   pub(crate) fn resolve_recipes(
-    unresolved_recipes: Table<'a, Recipe<'a, Name<'a>>>,
-    assignments: &Table<'a, Assignment<'a>>,
-  ) -> CompilationResult<'a, Table<'a, Rc<Recipe<'a>>>> {
+    unresolved_recipes: Table<'src, Recipe<'src, Name<'src>>>,
+    assignments: &'run Table<'src, Assignment<'src>>,
+  ) -> CompilationResult<'src, Table<'src, Rc<Recipe<'src>>>> {
     let mut resolver = RecipeResolver {
       resolved_recipes: empty(),
       unresolved_recipes,
@@ -48,9 +48,9 @@ impl<'a, 'b> RecipeResolver<'a, 'b> {
 
   fn resolve_variable(
     &self,
-    variable: &Token<'a>,
+    variable: &Token<'src>,
     parameters: &[Parameter],
-  ) -> CompilationResult<'a, ()> {
+  ) -> CompilationResult<'src, ()> {
     let name = variable.lexeme();
     let undefined =
       !self.assignments.contains_key(name) && !parameters.iter().any(|p| p.name.lexeme() == name);
@@ -64,9 +64,9 @@ impl<'a, 'b> RecipeResolver<'a, 'b> {
 
   fn resolve_recipe(
     &mut self,
-    stack: &mut Vec<&'a str>,
-    recipe: Recipe<'a, Name<'a>>,
-  ) -> CompilationResult<'a, Rc<Recipe<'a>>> {
+    stack: &mut Vec<&'src str>,
+    recipe: Recipe<'src, Name<'src>>,
+  ) -> CompilationResult<'src, Rc<Recipe<'src>>> {
     if let Some(resolved) = self.resolved_recipes.get(recipe.name()) {
       return Ok(resolved.clone());
     }
