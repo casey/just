@@ -125,17 +125,6 @@ impl<'src> Analyzer<'src> {
       }
     }
 
-    let mut dependencies = BTreeSet::new();
-    for dependency in &recipe.dependencies {
-      if dependencies.contains(dependency.recipe.lexeme()) {
-        return Err(dependency.recipe.token().error(DuplicateDependency {
-          recipe: recipe.name.lexeme(),
-          dependency: dependency.recipe.lexeme(),
-        }));
-      }
-      dependencies.insert(dependency.recipe.lexeme());
-    }
-
     let mut continued = false;
     for line in &recipe.body {
       if !recipe.shebang && !continued {
@@ -293,16 +282,6 @@ mod tests {
     column: 2,
     width:  3,
     kind:   ParameterShadowsVariable{parameter: "foo"},
-  }
-
-  analysis_error! {
-    name:   duplicate_dependency,
-    input:  "a b c: b c z z",
-    offset:  13,
-    line:   0,
-    column: 13,
-    width:  1,
-    kind:   DuplicateDependency{recipe: "a", dependency: "z"},
   }
 
   analysis_error! {

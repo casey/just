@@ -89,13 +89,6 @@ impl Display for CompilationError<'_> {
           self.token.line.ordinal(),
         )?;
       }
-      DuplicateDependency { recipe, dependency } => {
-        writeln!(
-          f,
-          "Recipe `{}` has duplicate dependency `{}`",
-          recipe, dependency
-        )?;
-      }
       DuplicateRecipe { recipe, first } => {
         writeln!(
           f,

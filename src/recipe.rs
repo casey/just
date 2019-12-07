@@ -67,8 +67,8 @@ impl<'src, D> Recipe<'src, D> {
   pub(crate) fn run<'run>(
     &self,
     context: &RecipeContext<'src, 'run>,
-    arguments: &[&'src str],
     dotenv: &BTreeMap<String, String>,
+    scope: Scope<'src, 'run>,
   ) -> RunResult<'src, ()> {
     let config = &context.config;
 
@@ -82,17 +82,7 @@ impl<'src, D> Recipe<'src, D> {
       );
     }
 
-    let scope = Evaluator::evaluate_parameters(
-      context.config,
-      dotenv,
-      &self.parameters,
-      arguments,
-      &context.scope,
-      context.settings,
-      context.working_directory,
-    )?;
-
-    let mut evaluator = Evaluator::line_evaluator(
+    let mut evaluator = Evaluator::recipe_evaluator(
       context.config,
       dotenv,
       &scope,
@@ -323,7 +313,7 @@ impl<'src> Display for Recipe<'src> {
     }
     write!(f, ":")?;
     for dependency in &self.dependencies {
-      write!(f, " {}", dependency.recipe.name())?;
+      write!(f, " {}", dependency)?;
     }
 
     for (i, line) in self.body.iter().enumerate() {

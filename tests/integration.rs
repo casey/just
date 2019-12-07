@@ -1502,19 +1502,6 @@ test! {
 }
 
 test! {
-  name:     duplicate_dependency,
-  justfile: "b:\na: b b",
-  args:     ("a"),
-  stdout:   "",
-  stderr:   "error: Recipe `a` has duplicate dependency `b`
-  |
-2 | a: b b
-  |      ^
-",
-  status:   EXIT_FAILURE,
-}
-
-test! {
   name:     duplicate_recipe,
   justfile: "b:\nb:",
   args:     ("b"),
@@ -2293,5 +2280,110 @@ test! {
   args: (),
   stdout: "echo barecho foo",
   stderr: "echo bar\necho foo\n",
+  shell: false,
+}
+
+test! {
+  name: dependency_argument_string,
+  justfile: "
+    release: (build 'foo') (build 'bar')
+
+    build target:
+      echo 'Building {{target}}...'
+  ",
+  args: (),
+  stdout: "Building foo...\nBuilding bar...\n",
+  stderr: "echo 'Building foo...'\necho 'Building bar...'\n",
+  shell: false,
+}
+
+test! {
+  name: dependency_argument_parameter,
+  justfile: "
+    default: (release '1.0')
+
+    release version: (build 'foo' version) (build 'bar' version)
+
+    build target version:
+      echo 'Building {{target}}@{{version}}...'
+  ",
+  args: (),
+  stdout: "Building foo@1.0...\nBuilding bar@1.0...\n",
+  stderr: "echo 'Building foo@1.0...'\necho 'Building bar@1.0...'\n",
+  shell: false,
+}
+
+test! {
+  name: dependency_argument_function,
+  justfile: "
+    foo: (bar env_var_or_default('x', 'y'))
+
+    bar arg:
+      echo {{arg}}
+  ",
+  args: (),
+  stdout: "y\n",
+  stderr: "echo y\n",
+  shell: false,
+}
+
+test! {
+  name: dependency_argument_backtick,
+  justfile: "
+    export x := 'X'
+
+    foo: (bar `echo $x`)
+
+    bar arg:
+      echo {{arg}}
+      echo $x
+  ",
+  args: (),
+  stdout: "X\nX\n",
+  stderr: "echo X\necho $x\n",
+  shell: false,
+}
+
+test! {
+  name: dependency_argument_assignment,
+  justfile: "
+    v := '1.0'
+
+    default: (release v)
+
+    release version:
+      echo Release {{version}}...
+  ",
+  args: (),
+  stdout: "Release 1.0...\n",
+  stderr: "echo Release 1.0...\n",
+  shell: false,
+}
+
+test! {
+  name: duplicate_dependency_no_args,
+  justfile: "
+    foo: bar bar bar bar
+
+    bar:
+      echo BAR
+  ",
+  args: (),
+  stdout: "BAR\n",
+  stderr: "echo BAR\n",
+  shell: false,
+}
+
+test! {
+  name: duplicate_dependency_argument,
+  justfile: "
+    foo: (bar 'BAR') (bar `echo BAR`)
+
+    bar bar:
+      echo {{bar}}
+  ",
+  args: (),
+  stdout: "BAR\n",
+  stderr: "echo BAR\n",
   shell: false,
 }
