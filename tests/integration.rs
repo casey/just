@@ -2332,15 +2332,15 @@ test! {
   justfile: "
     export x := 'X'
 
-    foo: (bar `echo $x`)
+    foo: (bar `echo $X`)
 
     bar arg:
       echo {{arg}}
-      echo $x
+      echo $X
   ",
   args: (),
   stdout: "X\nX\n",
-  stderr: "echo X\necho $x\n",
+  stderr: "echo X\necho $X\n",
   shell: false,
 }
 
