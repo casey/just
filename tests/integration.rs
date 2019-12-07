@@ -2330,7 +2330,7 @@ test! {
 test! {
   name: dependency_argument_backtick,
   justfile: "
-    export x := 'X'
+    export X := 'X'
 
     foo: (bar `echo $X`)
 
