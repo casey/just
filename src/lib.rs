@@ -85,6 +85,8 @@ mod table;
 mod thunk;
 mod token;
 mod token_kind;
+mod unresolved_dependency;
+mod unresolved_recipe;
 mod use_color;
 mod variables;
 mod verbosity;

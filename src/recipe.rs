@@ -67,8 +67,8 @@ impl<'src, D> Recipe<'src, D> {
   pub(crate) fn run<'run>(
     &self,
     context: &RecipeContext<'src, 'run>,
-    arguments: &[&'src str],
     dotenv: &BTreeMap<String, String>,
+    scope: Scope<'src, 'run>,
   ) -> RunResult<'src, ()> {
     let config = &context.config;
 
@@ -82,17 +82,7 @@ impl<'src, D> Recipe<'src, D> {
       );
     }
 
-    let scope = Evaluator::evaluate_parameters(
-      context.config,
-      dotenv,
-      &self.parameters,
-      arguments,
-      &context.scope,
-      context.settings,
-      context.working_directory,
-    )?;
-
-    let mut evaluator = Evaluator::line_evaluator(
+    let mut evaluator = Evaluator::recipe_evaluator(
       context.config,
       dotenv,
       &scope,
@@ -300,25 +290,6 @@ impl<'src, D> Recipe<'src, D> {
   }
 }
 
-impl<'src> Recipe<'src, Name<'src>> {
-  pub(crate) fn resolve(self, resolved: Vec<Dependency<'src>>) -> Recipe<'src> {
-    assert_eq!(self.dependencies.len(), resolved.len());
-    for (name, resolved) in self.dependencies.iter().zip(&resolved) {
-      assert_eq!(name.lexeme(), resolved.0.name.lexeme());
-    }
-    Recipe {
-      dependencies: resolved,
-      doc: self.doc,
-      body: self.body,
-      name: self.name,
-      parameters: self.parameters,
-      private: self.private,
-      quiet: self.quiet,
-      shebang: self.shebang,
-    }
-  }
-}
-
 impl<'src, D> Keyed<'src> for Recipe<'src, D> {
   fn key(&self) -> &'src str {
     self.name.lexeme()
@@ -342,7 +313,7 @@ impl<'src> Display for Recipe<'src> {
     }
     write!(f, ":")?;
     for dependency in &self.dependencies {
-      write!(f, " {}", dependency.0.name())?;
+      write!(f, " {}", dependency)?;
     }
 
     for (i, line) in self.body.iter().enumerate() {

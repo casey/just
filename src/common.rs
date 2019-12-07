@@ -62,8 +62,9 @@ pub(crate) use crate::{
   search_config::SearchConfig, search_error::SearchError, set::Set, setting::Setting,
   settings::Settings, shebang::Shebang, show_whitespace::ShowWhitespace, state::State,
   string_literal::StringLiteral, subcommand::Subcommand, table::Table, thunk::Thunk, token::Token,
-  token_kind::TokenKind, use_color::UseColor, variables::Variables, verbosity::Verbosity,
-  warning::Warning,
+  token_kind::TokenKind, unresolved_dependency::UnresolvedDependency,
+  unresolved_recipe::UnresolvedRecipe, use_color::UseColor, variables::Variables,
+  verbosity::Verbosity, warning::Warning,
 };
 
 // type aliases

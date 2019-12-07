@@ -89,13 +89,6 @@ impl Display for CompilationError<'_> {
           self.token.line.ordinal(),
         )?;
       }
-      DuplicateDependency { recipe, dependency } => {
-        writeln!(
-          f,
-          "Recipe `{}` has duplicate dependency `{}`",
-          recipe, dependency
-        )?;
-      }
       DuplicateRecipe { recipe, first } => {
         writeln!(
           f,
@@ -114,13 +107,28 @@ impl Display for CompilationError<'_> {
           self.token.line.ordinal(),
         )?;
       }
-      DependencyHasParameters { recipe, dependency } => {
-        writeln!(
+      DependencyArgumentCountMismatch {
+        dependency,
+        found,
+        min,
+        max,
+      } => {
+        write!(
           f,
-          "Recipe `{}` depends on `{}` which requires arguments. \
-           Dependencies may not require arguments",
-          recipe, dependency
+          "Dependency `{}` got {} {} but takes ",
+          dependency,
+          found,
+          Count("argument", found),
         )?;
+
+        if min == max {
+          let expected = min;
+          writeln!(f, "{} {}", expected, Count("argument", expected))?;
+        } else if found < min {
+          writeln!(f, "at least {} {}", min, Count("argument", min))?;
+        } else {
+          writeln!(f, "at most {} {}", max, Count("argument", max))?;
+        }
       }
       ParameterShadowsVariable { parameter } => {
         writeln!(

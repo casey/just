@@ -206,7 +206,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     Ok(scope)
   }
 
-  pub(crate) fn line_evaluator(
+  pub(crate) fn recipe_evaluator(
     config: &'run Config,
     dotenv: &'run BTreeMap<String, String>,
     scope: &'run Scope<'src, 'run>,

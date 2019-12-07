@@ -3,7 +3,7 @@ use crate::common::*;
 use CompilationErrorKind::*;
 
 pub(crate) struct Analyzer<'src> {
-  recipes: Table<'src, Recipe<'src, Name<'src>>>,
+  recipes: Table<'src, UnresolvedRecipe<'src>>,
   assignments: Table<'src, Assignment<'src>>,
   aliases: Table<'src, Alias<'src, Name<'src>>>,
   sets: Table<'src, Set<'src>>,
@@ -91,7 +91,7 @@ impl<'src> Analyzer<'src> {
     })
   }
 
-  fn analyze_recipe(&self, recipe: &Recipe<'src, Name<'src>>) -> CompilationResult<'src, ()> {
+  fn analyze_recipe(&self, recipe: &UnresolvedRecipe<'src>) -> CompilationResult<'src, ()> {
     if let Some(original) = self.recipes.get(recipe.name.lexeme()) {
       return Err(recipe.name.token().error(DuplicateRecipe {
         recipe: original.name(),
@@ -123,17 +123,6 @@ impl<'src> Analyzer<'src> {
             }),
         );
       }
-    }
-
-    let mut dependencies = BTreeSet::new();
-    for dependency in &recipe.dependencies {
-      if dependencies.contains(dependency.lexeme()) {
-        return Err(dependency.token().error(DuplicateDependency {
-          recipe: recipe.name.lexeme(),
-          dependency: dependency.lexeme(),
-        }));
-      }
-      dependencies.insert(dependency.lexeme());
     }
 
     let mut continued = false;
@@ -293,26 +282,6 @@ mod tests {
     column: 2,
     width:  3,
     kind:   ParameterShadowsVariable{parameter: "foo"},
-  }
-
-  analysis_error! {
-    name:   dependency_has_parameters,
-    input:  "foo arg:\nb: foo",
-    offset:  12,
-    line:   1,
-    column: 3,
-    width:  3,
-    kind:   DependencyHasParameters{recipe: "b", dependency: "foo"},
-  }
-
-  analysis_error! {
-    name:   duplicate_dependency,
-    input:  "a b c: b c z z",
-    offset:  13,
-    line:   0,
-    column: 13,
-    width:  1,
-    kind:   DuplicateDependency{recipe: "a", dependency: "z"},
   }
 
   analysis_error! {

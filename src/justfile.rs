@@ -175,7 +175,7 @@ impl<'src> Justfile<'src> {
       working_directory,
     };
 
-    let mut ran = empty();
+    let mut ran = BTreeSet::new();
     for (recipe, arguments) in grouped {
       self.run_recipe(&context, recipe, arguments, &dotenv, &mut ran)?
     }
@@ -201,17 +201,54 @@ impl<'src> Justfile<'src> {
     &self,
     context: &'run RecipeContext<'src, 'run>,
     recipe: &Recipe<'src>,
-    arguments: &[&'src str],
+    arguments: &[&'run str],
     dotenv: &BTreeMap<String, String>,
-    ran: &mut BTreeSet<&'src str>,
+    ran: &mut BTreeSet<Vec<String>>,
   ) -> RunResult<'src, ()> {
-    for Dependency(dependency) in &recipe.dependencies {
-      if !ran.contains(dependency.name()) {
-        self.run_recipe(context, dependency, &[], dotenv, ran)?;
+    let scope = Evaluator::evaluate_parameters(
+      context.config,
+      dotenv,
+      &recipe.parameters,
+      arguments,
+      &context.scope,
+      context.settings,
+      context.working_directory,
+    )?;
+
+    let mut evaluator = Evaluator::recipe_evaluator(
+      context.config,
+      dotenv,
+      &scope,
+      context.settings,
+      context.working_directory,
+    );
+
+    for Dependency { recipe, arguments } in &recipe.dependencies {
+      let mut invocation = vec![recipe.name().to_owned()];
+
+      for argument in arguments {
+        invocation.push(evaluator.evaluate_expression(argument)?);
+      }
+
+      if !ran.contains(&invocation) {
+        let arguments = invocation
+          .iter()
+          .skip(1)
+          .map(String::as_ref)
+          .collect::<Vec<&str>>();
+        self.run_recipe(context, recipe, &arguments, dotenv, ran)?;
       }
     }
-    recipe.run(context, arguments, dotenv)?;
-    ran.insert(recipe.name());
+
+    recipe.run(context, dotenv, scope)?;
+
+    let mut invocation = Vec::new();
+    invocation.push(recipe.name().to_owned());
+    for argument in arguments.iter().cloned() {
+      invocation.push(argument.to_owned());
+    }
+
+    ran.insert(invocation);
     Ok(())
   }
 }

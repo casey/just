@@ -1441,15 +1441,49 @@ bar:"#,
 }
 
 test! {
-  name:     dependency_takes_arguments,
-  justfile: "b: a\na FOO:",
+  name:     dependency_takes_arguments_exact,
+  justfile: "
+    a FOO:
+    b: a
+  ",
   args:     ("b"),
   stdout:   "",
-  stderr:   "error: Recipe `b` depends on `a` which requires arguments. \
-             Dependencies may not require arguments
+  stderr:   "error: Dependency `a` got 0 arguments but takes 1 argument
   |
-1 | b: a
+2 | b: a
   |    ^
+",
+  status:   EXIT_FAILURE,
+}
+
+test! {
+  name:     dependency_takes_arguments_at_least,
+  justfile: "
+    a FOO LUZ='hello':
+    b: a
+  ",
+  args:     ("b"),
+  stdout:   "",
+  stderr:   "error: Dependency `a` got 0 arguments but takes at least 1 argument
+  |
+2 | b: a
+  |    ^
+",
+  status:   EXIT_FAILURE,
+}
+
+test! {
+  name:     dependency_takes_arguments_at_most,
+  justfile: "
+    a FOO LUZ='hello':
+    b: (a '0' '1' '2')
+  ",
+  args:     ("b"),
+  stdout:   "",
+  stderr:   "error: Dependency `a` got 3 arguments but takes at most 2 arguments
+  |
+2 | b: (a '0' '1' '2')
+  |     ^
 ",
   status:   EXIT_FAILURE,
 }
@@ -1463,19 +1497,6 @@ test! {
   |
 1 | a foo foo:
   |       ^^^
-",
-  status:   EXIT_FAILURE,
-}
-
-test! {
-  name:     duplicate_dependency,
-  justfile: "b:\na: b b",
-  args:     ("a"),
-  stdout:   "",
-  stderr:   "error: Recipe `a` has duplicate dependency `b`
-  |
-2 | a: b b
-  |      ^
 ",
   status:   EXIT_FAILURE,
 }
@@ -2259,5 +2280,143 @@ test! {
   args: (),
   stdout: "echo barecho foo",
   stderr: "echo bar\necho foo\n",
+  shell: false,
+}
+
+test! {
+  name: dependency_argument_string,
+  justfile: "
+    release: (build 'foo') (build 'bar')
+
+    build target:
+      echo 'Building {{target}}...'
+  ",
+  args: (),
+  stdout: "Building foo...\nBuilding bar...\n",
+  stderr: "echo 'Building foo...'\necho 'Building bar...'\n",
+  shell: false,
+}
+
+test! {
+  name: dependency_argument_parameter,
+  justfile: "
+    default: (release '1.0')
+
+    release version: (build 'foo' version) (build 'bar' version)
+
+    build target version:
+      echo 'Building {{target}}@{{version}}...'
+  ",
+  args: (),
+  stdout: "Building foo@1.0...\nBuilding bar@1.0...\n",
+  stderr: "echo 'Building foo@1.0...'\necho 'Building bar@1.0...'\n",
+  shell: false,
+}
+
+test! {
+  name: dependency_argument_function,
+  justfile: "
+    foo: (bar env_var_or_default('x', 'y'))
+
+    bar arg:
+      echo {{arg}}
+  ",
+  args: (),
+  stdout: "y\n",
+  stderr: "echo y\n",
+  shell: false,
+}
+
+test! {
+  name: dependency_argument_backtick,
+  justfile: "
+    export X := 'X'
+
+    foo: (bar `echo $X`)
+
+    bar arg:
+      echo {{arg}}
+      echo $X
+  ",
+  args: (),
+  stdout: "X\nX\n",
+  stderr: "echo X\necho $X\n",
+  shell: false,
+}
+
+test! {
+  name: dependency_argument_assignment,
+  justfile: "
+    v := '1.0'
+
+    default: (release v)
+
+    release version:
+      echo Release {{version}}...
+  ",
+  args: (),
+  stdout: "Release 1.0...\n",
+  stderr: "echo Release 1.0...\n",
+  shell: false,
+}
+
+test! {
+  name: dependency_argument_variadic,
+  justfile: "
+    foo: (bar 'A' 'B' 'C')
+
+    bar +args:
+      echo {{args}}
+  ",
+  args: (),
+  stdout: "A B C\n",
+  stderr: "echo A B C\n",
+  shell: false,
+}
+
+test! {
+  name: duplicate_dependency_no_args,
+  justfile: "
+    foo: bar bar bar bar
+
+    bar:
+      echo BAR
+  ",
+  args: (),
+  stdout: "BAR\n",
+  stderr: "echo BAR\n",
+  shell: false,
+}
+
+test! {
+  name: duplicate_dependency_argument,
+  justfile: "
+    foo: (bar 'BAR') (bar `echo BAR`)
+
+    bar bar:
+      echo {{bar}}
+  ",
+  args: (),
+  stdout: "BAR\n",
+  stderr: "echo BAR\n",
+  shell: false,
+}
+
+test! {
+  name: parameter_cross_reference_error,
+  justfile: "
+    foo:
+
+    bar a b=a:
+  ",
+  args: (),
+  stdout: "",
+  stderr: "
+    error: Variable `a` not defined
+      |
+    3 | bar a b=a:
+      |         ^
+  ",
+  status: EXIT_FAILURE,
   shell: false,
 }

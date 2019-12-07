@@ -547,14 +547,22 @@ build target:
     cd {{target}} && make
 ```
 
-Other recipes may not depend on a recipe with parameters.
-
-To pass arguments, put them after the recipe name:
+To pass arguments on the command line, put them after the recipe name:
 
 ```sh
 $ just build my-awesome-project
 Building my-awesome-project...
 cd my-awesome-project && make
+```
+
+To pass arguments to a dependency, put the dependency in parentheses along with the arguments:
+
+```make
+default: (build "main")
+
+build target:
+  @echo 'Building {{target}}...'
+  cd {{target}} && make
 ```
 
 Parameters may have default values:

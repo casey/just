@@ -81,7 +81,7 @@ impl<'src> Node<'src> for Expression<'src> {
   }
 }
 
-impl<'src> Node<'src> for Recipe<'src, Name<'src>> {
+impl<'src> Node<'src> for UnresolvedRecipe<'src> {
   fn tree(&self) -> Tree<'src> {
     let mut t = Tree::atom("recipe");
 
@@ -111,14 +111,19 @@ impl<'src> Node<'src> for Recipe<'src, Name<'src>> {
     }
 
     if !self.dependencies.is_empty() {
-      t = t.push(
-        Tree::atom("deps").extend(
-          self
-            .dependencies
-            .iter()
-            .map(|dependency| dependency.lexeme()),
-        ),
-      );
+      let mut dependencies = Tree::atom("deps");
+
+      for dependency in &self.dependencies {
+        let mut d = Tree::atom(dependency.recipe.lexeme());
+
+        for argument in &dependency.arguments {
+          d.push_mut(argument.tree());
+        }
+
+        dependencies.push_mut(d);
+      }
+
+      t.push_mut(dependencies);
     }
 
     if !self.body.is_empty() {
