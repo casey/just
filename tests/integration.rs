@@ -2401,3 +2401,22 @@ test! {
   stderr: "echo BAR\n",
   shell: false,
 }
+
+test! {
+  name: parameter_cross_reference_error,
+  justfile: "
+    foo:
+
+    bar a b=a:
+  ",
+  args: (),
+  stdout: "",
+  stderr: "
+    error: Variable `a` not defined
+      |
+    3 | bar a b=a:
+      |         ^
+  ",
+  status: EXIT_FAILURE,
+  shell: false,
+}
