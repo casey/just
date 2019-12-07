@@ -2361,6 +2361,20 @@ test! {
 }
 
 test! {
+  name: dependency_argument_variadic,
+  justfile: "
+    foo: (bar 'A' 'B' 'C')
+
+    bar +args:
+      echo {{args}}
+  ",
+  args: (),
+  stdout: "A B C\n",
+  stderr: "echo A B C\n",
+  shell: false,
+}
+
+test! {
   name: duplicate_dependency_no_args,
   justfile: "
     foo: bar bar bar bar
