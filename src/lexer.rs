@@ -285,6 +285,9 @@ impl<'src> Lexer<'src> {
 
     self.token(Eof);
 
+    assert_eq!(self.token_start.offset, self.token_end.offset);
+    assert_eq!(self.token_start.offset, self.src.len());
+
     Ok(self.tokens)
   }
 
