@@ -56,7 +56,7 @@ impl<'src> Lexer<'src> {
     }
   }
 
-  /// Advance over the chracter in `self.next`, updating
+  /// Advance over the character in `self.next`, updating
   /// `self.token_end` accordingly.
   fn advance(&mut self) -> CompilationResult<'src, ()> {
     match self.next {
