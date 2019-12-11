@@ -18,14 +18,20 @@ pub(crate) struct Lexer<'src> {
   chars: Chars<'src>,
   /// Tokens
   tokens: Vec<Token<'src>>,
-  /// State stack
-  state: Vec<State<'src>>,
   /// Current token start
   token_start: Position,
   /// Current token end
   token_end: Position,
   /// Next character to be lexed
   next: Option<char>,
+  /// Next indent will start a recipe body
+  recipe_body_pending: bool,
+  /// Inside recipe body
+  recipe_body: bool,
+  /// Indentation stack
+  indentation: Vec<&'src str>,
+  /// Current interpolation start token
+  interpolation_start: Option<Token<'src>>,
 }
 
 impl<'src> Lexer<'src> {
@@ -46,10 +52,13 @@ impl<'src> Lexer<'src> {
     };
 
     Lexer {
-      state: vec![State::Normal],
+      indentation: vec![""],
       tokens: Vec::new(),
       token_start: start,
       token_end: start,
+      recipe_body_pending: false,
+      recipe_body: false,
+      interpolation_start: None,
       chars,
       next,
       src,
@@ -123,22 +132,14 @@ impl<'src> Lexer<'src> {
     self.at_eol() || self.rest().is_empty()
   }
 
-  /// Get current state
-  fn state(&self) -> CompilationResult<'src, State<'src>> {
-    if self.state.is_empty() {
-      Err(self.internal_error("Lexer state stack empty"))
-    } else {
-      Ok(self.state[self.state.len() - 1])
-    }
+  /// Get current indentation
+  fn indentation(&self) -> &'src str {
+    self.indentation.last().cloned().unwrap()
   }
 
-  /// Pop current state from stack
-  fn pop_state(&mut self) -> CompilationResult<'src, ()> {
-    if self.state.pop().is_none() {
-      Err(self.internal_error("Lexer attempted to pop in start state"))
-    } else {
-      Ok(())
-    }
+  /// Are we currently indented
+  fn indented(&self) -> bool {
+    !self.indentation().is_empty()
   }
 
   /// Create a new token with `kind` whose lexeme
@@ -260,39 +261,55 @@ impl<'src> Lexer<'src> {
       }
 
       match self.next {
-        Some(first) => match self.state()? {
-          State::Normal => self.lex_normal(first)?,
-          State::Interpolation {
-            interpolation_start,
-          } => self.lex_interpolation(interpolation_start, first)?,
-          State::Text => self.lex_text()?,
-          State::Indented { .. } => self.lex_indented()?,
-        },
+        Some(first) => {
+          if let Some(interpolation_start) = self.interpolation_start {
+            self.lex_interpolation(interpolation_start, first)?
+          } else if self.recipe_body {
+            self.lex_body()?
+          } else {
+            self.lex_normal(first)?
+          };
+        }
         None => break,
       }
     }
 
-    if let State::Interpolation {
-      interpolation_start,
-    } = self.state()?
-    {
+    if let Some(interpolation_start) = self.interpolation_start {
       return Err(self.unterminated_interpolation_error(interpolation_start));
     }
 
-    if let State::Indented { .. } | State::Text = self.state()? {
-      self.token(Dedent);
+    while self.indented() {
+      self.lex_dedent();
     }
 
     self.token(Eof);
 
     assert_eq!(self.token_start.offset, self.token_end.offset);
     assert_eq!(self.token_start.offset, self.src.len());
+    assert_eq!(self.indentation.len(), 1);
 
     Ok(self.tokens)
   }
 
   /// Handle blank lines and indentation
   fn lex_line_start(&mut self) -> CompilationResult<'src, ()> {
+    enum Indentation<'src> {
+      // Line only contains whitespace
+      Blank,
+      // Indentation continues
+      Continue,
+      // Indentation decreases
+      Decrease,
+      // Indentation isn't consistent
+      Inconsistent,
+      // Indentation increases
+      Increase,
+      // Indentation mixes spaces and tabs
+      Mixed { whitespace: &'src str },
+    }
+
+    use Indentation::*;
+
     let nonblank_index = self
       .rest()
       .char_indices()
@@ -303,92 +320,127 @@ impl<'src> Lexer<'src> {
 
     let rest = &self.rest()[nonblank_index..];
 
-    // Handle blank line
-    if rest.starts_with('\n') || rest.starts_with("\r\n") || rest.is_empty() {
-      while self.next_is_whitespace() {
-        self.advance()?;
+    let whitespace = &self.rest()[..nonblank_index];
+
+    let body_whitespace = &whitespace[..whitespace
+      .char_indices()
+      .take(self.indentation().chars().count())
+      .map(|(i, _c)| i)
+      .next()
+      .unwrap_or(0)];
+
+    let spaces = whitespace.chars().any(|c| c == ' ');
+    let tabs = whitespace.chars().any(|c| c == '\t');
+
+    let body_spaces = body_whitespace.chars().any(|c| c == ' ');
+    let body_tabs = body_whitespace.chars().any(|c| c == '\t');
+
+    #[allow(clippy::if_same_then_else)]
+    let indentation = if rest.starts_with('\n') || rest.starts_with("\r\n") || rest.is_empty() {
+      Blank
+    } else if whitespace == self.indentation() {
+      Continue
+    } else if self.indentation.contains(&whitespace) {
+      Decrease
+    } else if self.recipe_body && whitespace.starts_with(self.indentation()) {
+      Continue
+    } else if self.recipe_body && body_spaces && body_tabs {
+      Mixed {
+        whitespace: body_whitespace,
       }
+    } else if !self.recipe_body && spaces && tabs {
+      Mixed { whitespace }
+    } else if whitespace.len() < self.indentation().len() {
+      Inconsistent
+    } else if self.recipe_body
+      && body_whitespace.len() >= self.indentation().len()
+      && !body_whitespace.starts_with(self.indentation())
+    {
+      Inconsistent
+    } else if whitespace.len() >= self.indentation().len()
+      && !whitespace.starts_with(self.indentation())
+    {
+      Inconsistent
+    } else {
+      Increase
+    };
 
-      // Lex a whitespace token if the blank line was nonempty
-      if self.current_token_length() > 0 {
-        self.token(Whitespace);
-      };
+    match indentation {
+      Blank => {
+        if !whitespace.is_empty() {
+          while self.next_is_whitespace() {
+            self.advance()?;
+          }
 
-      return Ok(());
-    }
+          self.token(Whitespace);
+        };
 
-    // Handle nonblank lines with no leading whitespace
-    if !self.next_is_whitespace() {
-      if let State::Indented { .. } = self.state()? {
-        self.token(Dedent);
-        self.pop_state()?;
+        Ok(())
       }
+      Continue => {
+        if !self.indentation().is_empty() {
+          for _ in self.indentation().chars() {
+            self.advance()?;
+          }
 
-      return Ok(());
-    }
+          self.token(Whitespace);
+        }
 
-    // Handle continued indentation
-    if let State::Indented { indentation } = self.state()? {
-      if self.rest_starts_with(indentation) {
-        for _ in indentation.chars() {
+        Ok(())
+      }
+      Decrease => {
+        while self.indentation() != whitespace {
+          self.lex_dedent();
+        }
+
+        if !whitespace.is_empty() {
+          while self.next_is_whitespace() {
+            self.advance()?;
+          }
+
+          self.token(Whitespace);
+        }
+
+        Ok(())
+      }
+      Mixed { whitespace } => {
+        for _ in whitespace.chars() {
           self.advance()?;
         }
 
-        // Indentation matches, lex as whitespace
-        self.token(Whitespace);
-
-        return Ok(());
+        Err(self.error(MixedLeadingWhitespace { whitespace }))
       }
-
-      // Consume whitespace characters, matching or not, up to the length
-      // of expected indentation
-      for _ in indentation.chars().zip(self.rest().chars()) {
-        if self.next_is_whitespace() {
+      Inconsistent => {
+        for _ in whitespace.chars() {
           self.advance()?;
-        } else {
-          break;
         }
+
+        Err(self.error(InconsistentLeadingWhitespace {
+          expected: self.indentation(),
+          found: whitespace,
+        }))
       }
+      Increase => {
+        while self.next_is_whitespace() {
+          self.advance()?;
+        }
 
-      // We've either advanced over not enough whitespace or mismatching
-      // whitespace, so return an error
-      return Err(self.error(InconsistentLeadingWhitespace {
-        expected: indentation,
-        found: self.lexeme(),
-      }));
+        let indentation = self.lexeme();
+
+        self.indentation.push(indentation);
+
+        self.token(Indent);
+
+        if self.recipe_body_pending {
+          self.recipe_body = true;
+        }
+
+        Ok(())
+      }
     }
-
-    if self.state()? != State::Normal {
-      return Err(self.internal_error(format!(
-        "Lexer::lex_line_start called in unexpected state: {:?}",
-        self.state()
-      )));
-    }
-
-    // Handle new indentation
-    while self.next_is_whitespace() {
-      self.advance()?;
-    }
-
-    let indentation = self.lexeme();
-
-    let spaces = indentation.chars().any(|c| c == ' ');
-    let tabs = indentation.chars().any(|c| c == '\t');
-
-    if spaces && tabs {
-      return Err(self.error(MixedLeadingWhitespace {
-        whitespace: indentation,
-      }));
-    }
-
-    self.state.push(State::Indented { indentation });
-
-    self.token(Indent);
-
-    Ok(())
   }
 
-  /// Lex token beginning with `start` in normal state
+  /// Lex token beginning with `start` outside of a recipe body
   fn lex_normal(&mut self, start: char) -> CompilationResult<'src, ()> {
     match start {
       '@' => self.lex_single(At),
@@ -420,7 +472,7 @@ impl<'src> Lexer<'src> {
     }
   }
 
-  /// Lex token beginning with `start` in interpolation state
+  /// Lex token beginning with `start` inside an interpolation
   fn lex_interpolation(
     &mut self,
     interpolation_start: Token<'src>,
@@ -428,21 +480,21 @@ impl<'src> Lexer<'src> {
   ) -> CompilationResult<'src, ()> {
     // Check for end of interpolation
     if self.rest_starts_with("}}") {
-      // Pop interpolation state
-      self.pop_state()?;
+      // end current interpolation
+      self.interpolation_start = None;
       // Emit interpolation end token
       self.lex_double(InterpolationEnd)
     } else if self.at_eol_or_eof() {
       // Return unterminated interpolation error that highlights the opening {{
       Err(self.unterminated_interpolation_error(interpolation_start))
     } else {
-      // Otherwise lex as if we are in normal state
+      // Otherwise lex as per normal
       self.lex_normal(start)
     }
   }
 
-  /// Lex token beginning with `start` in text state
-  fn lex_text(&mut self) -> CompilationResult<'src, ()> {
+  /// Lex token while in recipe body
+  fn lex_body(&mut self) -> CompilationResult<'src, ()> {
     enum Terminator {
       Newline,
       NewlineCarriageReturn,
@@ -478,29 +530,23 @@ impl<'src> Lexer<'src> {
     }
 
     match terminator {
-      Newline => {
-        self.state.pop();
-        self.lex_single(Eol)
-      }
-      NewlineCarriageReturn => {
-        self.state.pop();
-        self.lex_double(Eol)
-      }
+      Newline => self.lex_single(Eol),
+      NewlineCarriageReturn => self.lex_double(Eol),
       Interpolation => {
         self.lex_double(InterpolationStart)?;
-        self.state.push(State::Interpolation {
-          interpolation_start: self.tokens[self.tokens.len() - 1],
-        });
+        self.interpolation_start = Some(self.tokens[self.tokens.len() - 1]);
         Ok(())
       }
-      EndOfFile => self.pop_state(),
+      EndOfFile => Ok(()),
     }
   }
 
-  /// Lex token beginning with `start` in indented state
-  fn lex_indented(&mut self) -> CompilationResult<'src, ()> {
-    self.state.push(State::Text);
-    Ok(())
+  fn lex_dedent(&mut self) {
+    assert_eq!(self.current_token_length(), 0);
+    self.token(Dedent);
+    self.indentation.pop();
+    self.recipe_body_pending = false;
+    self.recipe_body = false;
   }
 
   /// Lex a single character token
@@ -527,6 +573,7 @@ impl<'src> Lexer<'src> {
       self.token(ColonEquals);
     } else {
       self.token(Colon);
+      self.recipe_body_pending = true;
     }
 
     Ok(())
@@ -924,6 +971,126 @@ mod tests {
     name:   indented_line,
     text:   "foo:\n a",
     tokens: (Identifier:"foo", Colon, Eol, Indent:" ", Text:"a", Dedent),
+  }
+
+  test! {
+    name:   indented_normal,
+    text:   "
+      a
+        b
+        c
+    ",
+    tokens: (
+      Identifier:"a",
+      Eol,
+      Indent:"  ",
+      Identifier:"b",
+      Eol,
+      Whitespace:"  ",
+      Identifier:"c",
+      Eol,
+      Dedent,
+    ),
+  }
+
+  test! {
+    name:   indented_normal_nonempty_blank,
+    text:   "a\n  b\n\t\t\n  c\n",
+    tokens: (
+      Identifier:"a",
+      Eol,
+      Indent:"  ",
+      Identifier:"b",
+      Eol,
+      Whitespace:"\t\t",
+      Eol,
+      Whitespace:"  ",
+      Identifier:"c",
+      Eol,
+      Dedent,
+    ),
+  }
+
+  test! {
+    name:   indented_normal_multiple,
+    text:   "
+      a
+        b
+          c
+    ",
+    tokens: (
+      Identifier:"a",
+      Eol,
+      Indent:"  ",
+      Identifier:"b",
+      Eol,
+      Indent:"    ",
+      Identifier:"c",
+      Eol,
+      Dedent,
+      Dedent,
+    ),
+  }
+
+  test! {
+    name:   indent_indent_dedent_indent,
+    text:   "
+      a
+        b
+          c
+        d
+          e
+    ",
+    tokens: (
+      Identifier:"a",
+      Eol,
+      Indent:"  ",
+        Identifier:"b",
+        Eol,
+        Indent:"    ",
+          Identifier:"c",
+          Eol,
+        Dedent,
+        Whitespace:"  ",
+        Identifier:"d",
+        Eol,
+        Indent:"    ",
+          Identifier:"e",
+          Eol,
+        Dedent,
+      Dedent,
+    ),
+  }
+
+  test! {
+    name:   indent_recipe_dedent_indent,
+    text:   "
+      a
+        b:
+          c
+        d
+          e
+    ",
+    tokens: (
+      Identifier:"a",
+      Eol,
+      Indent:"  ",
+        Identifier:"b",
+        Colon,
+        Eol,
+        Indent:"    ",
+          Text:"c",
+          Eol,
+        Dedent,
+        Whitespace:"  ",
+        Identifier:"d",
+        Eol,
+        Indent:"    ",
+          Identifier:"e",
+          Eol,
+        Dedent,
+      Dedent,
+    ),
   }
 
   test! {
@@ -1646,8 +1813,8 @@ mod tests {
     offset: 12,
     line:   3,
     column: 0,
-    width:  2,
-    kind:   InconsistentLeadingWhitespace{expected: "\t\t", found: "\t "},
+    width:  3,
+    kind:   InconsistentLeadingWhitespace{expected: "\t\t", found: "\t  "},
   }
 
   error! {
@@ -1762,13 +1929,43 @@ mod tests {
   }
 
   error! {
-    name:   mixed_leading_whitespace,
+    name:   mixed_leading_whitespace_recipe,
     input:  "a:\n\t echo hello",
     offset: 3,
     line:   1,
     column: 0,
     width:  2,
     kind:   MixedLeadingWhitespace{whitespace: "\t "},
+  }
+
+  error! {
+    name:   mixed_leading_whitespace_normal,
+    input:  "a\n\t echo hello",
+    offset: 2,
+    line:   1,
+    column: 0,
+    width:  2,
+    kind:   MixedLeadingWhitespace{whitespace: "\t "},
+  }
+
+  error! {
+    name:   mixed_leading_whitespace_indent,
+    input:  "a\n foo\n \tbar",
+    offset: 7,
+    line:   2,
+    column: 0,
+    width:  2,
+    kind:   MixedLeadingWhitespace{whitespace: " \t"},
+  }
+
+  error! {
+    name:   bad_dedent,
+    input:  "a\n foo\n   bar\n  baz",
+    offset: 14,
+    line:   3,
+    column: 0,
+    width:  2,
+    kind:   InconsistentLeadingWhitespace{expected: "   ", found: "  "},
   }
 
   error! {
