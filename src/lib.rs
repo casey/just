@@ -78,7 +78,6 @@ mod setting;
 mod settings;
 mod shebang;
 mod show_whitespace;
-mod state;
 mod string_literal;
 mod subcommand;
 mod table;
