@@ -2,8 +2,17 @@ Changelog
 =========
 
 
-[v0.5.2] - 2019-12-7
+[v0.5.3] - 2019-12-11
 ---------------------
+
+## Misc
+- Assert that lexer advances over entire input (#560)
+- Fix typo: `chracter` -> `character` (#561)
+- Improve pre-publish check (#562)
+
+
+[v0.5.2] - 2019-12-7
+--------------------
 
 ## Added
 - Add flags to set and clear shell arguments (#551)
