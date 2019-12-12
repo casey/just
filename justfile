@@ -44,15 +44,18 @@ man:
 		--no-info \
 		target/debug/just \
 		> man/just.1
+
+view-man: man
 	man man/just.1
 
 version := `sed -En 's/version[[:space:]]*=[[:space:]]*"([^"]+)"/v\1/p' Cargo.toml | head -1`
 
 # publish to crates.io
-publish-check: lint clippy test
+publish-check: lint clippy test man
 	git branch | grep '* master'
 	git diff --no-ext-diff --quiet --exit-code
 	grep {{version}} CHANGELOG.md
+	cargo build --features summary
 	cargo +nightly generate-lockfile -Z minimal-versions
 	cargo test
 	git checkout Cargo.lock
