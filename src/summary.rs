@@ -12,18 +12,14 @@
 //! ensuring that changes to just do not inadvertently break or
 //! change the interpretation of existing justfiles.
 
-use std::{
-  collections::{BTreeMap, BTreeSet},
-  fs, io,
-  path::Path,
-};
+use std::{collections::BTreeMap, fs, io, path::Path};
 
 use crate::compiler::Compiler;
 
 mod full {
   pub(crate) use crate::{
-    assignment::Assignment, expression::Expression, fragment::Fragment, justfile::Justfile,
-    line::Line, parameter::Parameter, recipe::Recipe,
+    assignment::Assignment, dependency::Dependency, expression::Expression, fragment::Fragment,
+    justfile::Justfile, line::Line, parameter::Parameter, recipe::Recipe, thunk::Thunk,
   };
 }
 
@@ -48,7 +44,7 @@ impl Summary {
 
     for alias in justfile.aliases.values() {
       aliases
-        .entry(alias.target.lexeme())
+        .entry(alias.target.name())
         .or_insert_with(Vec::new)
         .push(alias.name.to_string());
     }
@@ -60,13 +56,13 @@ impl Summary {
         .map(|(name, recipe)| {
           (
             name.to_string(),
-            Recipe::new(recipe, aliases.remove(name).unwrap_or_default()),
+            Recipe::new(&recipe, aliases.remove(name).unwrap_or_default()),
           )
         })
         .collect(),
       assignments: justfile
         .assignments
-        .into_iter()
+        .iter()
         .map(|(name, assignment)| (name.to_string(), Assignment::new(assignment)))
         .collect(),
     }
@@ -76,7 +72,7 @@ impl Summary {
 #[derive(Eq, PartialEq, Hash, Ord, PartialOrd, Debug, Clone)]
 pub struct Recipe {
   pub aliases: Vec<String>,
-  pub dependencies: BTreeSet<String>,
+  pub dependencies: Vec<Dependency>,
   pub lines: Vec<Line>,
   pub private: bool,
   pub quiet: bool,
@@ -85,18 +81,18 @@ pub struct Recipe {
 }
 
 impl Recipe {
-  fn new(recipe: full::Recipe, aliases: Vec<String>) -> Recipe {
+  fn new(recipe: &full::Recipe, aliases: Vec<String>) -> Recipe {
     Recipe {
       private: recipe.private,
       shebang: recipe.shebang,
       quiet: recipe.quiet,
       dependencies: recipe
         .dependencies
-        .into_iter()
-        .map(|name| name.lexeme().to_string())
+        .iter()
+        .map(|dependency| Dependency::new(dependency))
         .collect(),
-      lines: recipe.body.into_iter().map(Line::new).collect(),
-      parameters: recipe.parameters.into_iter().map(Parameter::new).collect(),
+      lines: recipe.body.iter().map(Line::new).collect(),
+      parameters: recipe.parameters.iter().map(Parameter::new).collect(),
       aliases,
     }
   }
@@ -110,11 +106,11 @@ pub struct Parameter {
 }
 
 impl Parameter {
-  fn new(parameter: full::Parameter) -> Parameter {
+  fn new(parameter: &full::Parameter) -> Parameter {
     Parameter {
       variadic: parameter.variadic,
       name: parameter.name.lexeme().to_owned(),
-      default: parameter.default.map(Expression::new),
+      default: parameter.default.as_ref().map(Expression::new),
     }
   }
 }
@@ -125,9 +121,9 @@ pub struct Line {
 }
 
 impl Line {
-  fn new(line: full::Line) -> Line {
+  fn new(line: &full::Line) -> Line {
     Line {
-      fragments: line.fragments.into_iter().map(Fragment::new).collect(),
+      fragments: line.fragments.iter().map(Fragment::new).collect(),
     }
   }
 }
@@ -139,7 +135,7 @@ pub enum Fragment {
 }
 
 impl Fragment {
-  fn new(fragment: full::Fragment) -> Fragment {
+  fn new(fragment: &full::Fragment) -> Fragment {
     match fragment {
       full::Fragment::Text { token } => Fragment::Text {
         text: token.lexeme().to_owned(),
@@ -158,10 +154,10 @@ pub struct Assignment {
 }
 
 impl Assignment {
-  fn new(assignment: full::Assignment) -> Assignment {
+  fn new(assignment: &full::Assignment) -> Assignment {
     Assignment {
       exported: assignment.export,
-      expression: Expression::new(assignment.expression),
+      expression: Expression::new(&assignment.value),
     }
   }
 }
@@ -188,22 +184,31 @@ pub enum Expression {
 }
 
 impl Expression {
-  fn new(expression: full::Expression) -> Expression {
+  fn new(expression: &full::Expression) -> Expression {
     use full::Expression::*;
     match expression {
       Backtick { contents, .. } => Expression::Backtick {
-        command: contents.to_owned(),
+        command: (*contents).to_owned(),
       },
-      Call {
-        function,
-        arguments,
-      } => Expression::Call {
-        name: function.lexeme().to_owned(),
-        arguments: arguments.into_iter().map(Expression::new).collect(),
+      Call { thunk } => match thunk {
+        full::Thunk::Nullary { name, .. } => Expression::Call {
+          name: name.lexeme().to_owned(),
+          arguments: Vec::new(),
+        },
+        full::Thunk::Unary { name, arg, .. } => Expression::Call {
+          name: name.lexeme().to_owned(),
+          arguments: vec![Expression::new(arg)],
+        },
+        full::Thunk::Binary {
+          name, args: [a, b], ..
+        } => Expression::Call {
+          name: name.lexeme().to_owned(),
+          arguments: vec![Expression::new(a), Expression::new(b)],
+        },
       },
       Concatination { lhs, rhs } => Expression::Concatination {
-        lhs: Box::new(Expression::new(*lhs)),
-        rhs: Box::new(Expression::new(*rhs)),
+        lhs: Box::new(Expression::new(lhs)),
+        rhs: Box::new(Expression::new(rhs)),
       },
       StringLiteral { string_literal } => Expression::String {
         text: string_literal.cooked.to_string(),
@@ -211,7 +216,22 @@ impl Expression {
       Variable { name, .. } => Expression::Variable {
         name: name.lexeme().to_owned(),
       },
-      Group { contents } => Expression::new(*contents),
+      Group { contents } => Expression::new(contents),
+    }
+  }
+}
+
+#[derive(Eq, PartialEq, Hash, Ord, PartialOrd, Debug, Clone)]
+pub struct Dependency {
+  pub recipe: String,
+  pub arguments: Vec<Expression>,
+}
+
+impl Dependency {
+  fn new(dependency: &full::Dependency) -> Dependency {
+    Dependency {
+      recipe: dependency.recipe.name().to_owned(),
+      arguments: dependency.arguments.iter().map(Expression::new).collect(),
     }
   }
 }
