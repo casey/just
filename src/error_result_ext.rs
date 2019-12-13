@@ -10,7 +10,7 @@ impl<T, E: Error> ErrorResultExt<T> for Result<T, E> {
       Ok(ok) => Ok(ok),
       Err(error) => {
         if color.stderr().active() {
-          eprintln!("{} {:#}", color.error().paint("error:"), error);
+          eprintln!("{}: {:#}", color.stderr().error().paint("error"), error);
         } else {
           eprintln!("error: {}", error);
         }
