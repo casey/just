@@ -98,15 +98,21 @@ curl -LSfs https://japaric.github.io/trust/install.sh | \
 
 [options="header"]
 |===============================================================================================================================================================
+| Operating System | Package Manager | Package | Command
 
-| Operating System | Package Manager                       | Package                                                                                    | Command
-| All              | https://www.rust-lang.org[Cargo]      | https://crates.io/crates/just[just]                                                        | `cargo install just`
-| MacOS            | https://brew.sh[Homebrew]             | https://formulae.brew.sh/formula/just[just]                                                | `brew install just`
-| MacOS            | https://www.macports.org[MacPorts]    | https://ports.macports.org/port/just/summary[just]                                         | `port install just`
-| Windows          | https://scoop.sh[Scoop]               | https://github.com/ScoopInstaller/Main/blob/master/bucket/just.json[just]                  | `scoop install just`
-| Arch Linux       | https://github.com/Jguer/yay[Yay]     | https://aur.archlinux.org/packages/just/[just] ^AUR^                                       | `yay -S just`
-| Void Linux       | https://wiki.voidlinux.org/XBPS[XBPS] | https://github.com/void-linux/void-packages/blob/master/srcpkgs/just/template[just]        | `xbps-install -S just`
-| NixOS et al.     | https://nixos.org/nix/[Nix]           | https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/tools/just/default.nix[just] | `nix-env -iA nixos.just`
+| https://forge.rust-lang.org/release/platform-support.html[Various] | https://www.rust-lang.org[Cargo] | https://crates.io/crates/just[just] | `cargo install just`
+
+| https://en.wikipedia.org/wiki/MacOS[macOS] | https://brew.sh[Homebrew] | https://formulae.brew.sh/formula/just[just] | `brew install just`
+
+| https://en.wikipedia.org/wiki/MacOS[macOS] | https://www.macports.org[MacPorts] | https://ports.macports.org/port/just/summary[just] | `port install just`
+
+| https://en.wikipedia.org/wiki/Microsoft_Windows[Microsoft Windows] | https://scoop.sh[Scoop] | https://github.com/ScoopInstaller/Main/blob/master/bucket/just.json[just] | `scoop install just`
+
+| https://www.archlinux.org[Arch Linux] | https://github.com/Jguer/yay[Yay] | https://aur.archlinux.org/packages/just/[just] ^AUR^ | `yay -S just`
+
+| https://voidlinux.org[Void Linux] | https://wiki.voidlinux.org/XBPS[XBPS] | https://github.com/void-linux/void-packages/blob/master/srcpkgs/just/template[just] | `xbps-install -S just`
+
+| https://nixos.org/nixos/[NixOS], Linux, macOS | https://nixos.org/nix/[Nix] | https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/tools/just/default.nix[just] | `nix-env -iA nixos.just`
 
 |===============================================================================================================================================================
 
