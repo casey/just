@@ -46,6 +46,8 @@ toc::[]
 
 == Installation
 
+=== Prerequisites
+
 `just` should run on any system with a reasonable `sh`, including Linux, MacOS, and the BSDs.
 
 On Windows, `just` works with the `sh` provided by https://git-scm.com[Git for Windows], https://desktop.github.com[GitHub Desktop], and http://www.cygwin.com[Cygwin].
@@ -92,9 +94,18 @@ curl -LSfs https://japaric.github.io/trust/install.sh | \
   sh -s -- --git casey/just --target x86_64-unknown-linux-musl --to DESTINATION_DIRECTORY
 ```
 
+=== Package Managers
+
+| Operating System     | Package Manager                    | Package                                                                   | Command              |
+| -------------------- | ---------------------------------- | ------------------------------------------------------------------------- | -------------------- |
+| MacOS                | https://brew.sh[Homebrew]          | https://formulae.brew.sh/formula/just[just]                               | `brew install just`  |
+| MacOS                | https://www.macports.org[MacPorts] | https://ports.macports.org/port/just/summary[just]                        | `port install just`  |
+| Windows              | https://scoop.sh[Scoop]            | https://github.com/ScoopInstaller/Main/blob/master/bucket/just.json[just] | `scoop install just` |
+| Arch Linux           | https://github.com/Jguer/yay[Yay]  | https://aur.archlinux.org/packages/just/[just]^AUR^                       | `yay -S just`        |
+
 === Homebrew
 
-On MacOS, `just` can be installed using the https://brew.sh[Homebrew package manager]. Install Homebrew using the instructions https://brew.sh[here], then run:
+On MacOS, `just` can be installed using the [Homebrew package manager]. Install Homebrew using the instructions https://brew.sh[here], then run:
 
 `brew install just`
 
