@@ -76,24 +76,6 @@ hello:
   Write-Host "Hello, world!"
 ```
 
-=== Pre-built Binaries
-
-Pre-built binaries for Linux, MacOS, and Windows can be found on https://github.com/casey/just/releases[the releases page].
-
-You can use the following command to download the latest binary for MacOS or Windows, just replace `DESTINATION_DIRECTORY` with the directory where you'd like to put `just`:
-
-```sh
-curl -LSfs https://japaric.github.io/trust/install.sh | \
-  sh -s -- --git casey/just --to DESTINATION_DIRECTORY
-```
-
-On Linux, use:
-
-```sh
-curl -LSfs https://japaric.github.io/trust/install.sh | \
-  sh -s -- --git casey/just --target x86_64-unknown-linux-musl --to DESTINATION_DIRECTORY
-```
-
 === Packages
 
 [options="header"]
@@ -115,6 +97,25 @@ curl -LSfs https://japaric.github.io/trust/install.sh | \
 | https://voidlinux.org[Void Linux] | https://wiki.voidlinux.org/XBPS[XBPS] | https://github.com/void-linux/void-packages/blob/master/srcpkgs/just/template[just] | `xbps-install -S just`
 
 |===============================================================================================================================================================
+
+
+=== Pre-built Binaries
+
+Pre-built binaries for Linux, MacOS, and Windows can be found on https://github.com/casey/just/releases[the releases page].
+
+You can use the following command to download the latest binary for MacOS or Windows, just replace `DESTINATION_DIRECTORY` with the directory where you'd like to put `just`:
+
+```sh
+curl -LSfs https://japaric.github.io/trust/install.sh | \
+  sh -s -- --git casey/just --to DESTINATION_DIRECTORY
+```
+
+On Linux, use:
+
+```sh
+curl -LSfs https://japaric.github.io/trust/install.sh | \
+  sh -s -- --git casey/just --target x86_64-unknown-linux-musl --to DESTINATION_DIRECTORY
+```
 
 
 == Quick Start
