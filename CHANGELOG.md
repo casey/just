@@ -2,6 +2,20 @@ Changelog
 =========
 
 
+[v0.5.4] - 2019-12-25
+---------------------
+
+# Added
+- Add `justfile_directory()` and `justfile()` (#569)
+
+## Misc
+- Add table of package managers that include just to readme (#568)
+- Remove yaourt AUR helper from readme (#567)
+- Fix regression in error message color printing (#566)
+- Reform indentation handling (#565)
+- Update Cargo.lock with new version (#564)
+
+
 [v0.5.3] - 2019-12-11
 ---------------------
 
