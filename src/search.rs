@@ -2,7 +2,7 @@ use crate::common::*;
 
 use std::path::Component;
 
-const FILENAME: &str = "justfile";
+pub(crate) const FILENAME: &str = "justfile";
 const PROJECT_ROOT_CHILDREN: &[&str] = &[".bzr", ".git", ".hg", ".svn", "_darcs"];
 
 pub(crate) struct Search {

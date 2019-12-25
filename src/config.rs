@@ -402,13 +402,11 @@ impl Config {
 
     match &self.subcommand {
       Dump => self.dump(justfile),
-      Evaluate { overrides } => {
-        self.run(justfile, &search.working_directory, overrides, &Vec::new())
-      }
+      Evaluate { overrides } => self.run(justfile, &search, overrides, &Vec::new()),
       Run {
         arguments,
         overrides,
-      } => self.run(justfile, &search.working_directory, overrides, arguments),
+      } => self.run(justfile, &search, overrides, arguments),
       List => self.list(justfile),
       Show { ref name } => self.show(&name, justfile),
       Summary => self.summary(justfile),
@@ -561,7 +559,7 @@ impl Config {
   fn run(
     &self,
     justfile: Justfile,
-    working_directory: &Path,
+    search: &Search,
     overrides: &BTreeMap<String, String>,
     arguments: &[String],
   ) -> Result<(), i32> {
@@ -569,7 +567,7 @@ impl Config {
       warn!("Failed to set CTRL-C handler: {}", error)
     }
 
-    let result = justfile.run(&self, working_directory, overrides, arguments);
+    let result = justfile.run(&self, search, overrides, arguments);
 
     if !self.quiet {
       result.eprint(self.color)

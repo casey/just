@@ -20,6 +20,16 @@ pub(crate) fn config(args: &[&str]) -> Config {
   Config::from_matches(&matches).unwrap()
 }
 
+pub(crate) fn search(config: &Config) -> Search {
+  let working_directory = config.invocation_directory.clone();
+  let justfile = working_directory.join(crate::search::FILENAME);
+
+  Search {
+    working_directory,
+    justfile,
+  }
+}
+
 pub(crate) use test_utilities::{tempdir, unindent};
 
 macro_rules! analysis_error {
@@ -80,15 +90,15 @@ macro_rules! run_error {
   } => {
     #[test]
     fn $name() {
-      let config = &$crate::testing::config(&$args);
-      let current_dir = std::env::current_dir().unwrap();
+      let config = $crate::testing::config(&$args);
+      let search = $crate::testing::search(&config);
 
       if let Subcommand::Run{ overrides, arguments } = &config.subcommand {
         match $crate::compiler::Compiler::compile(&$crate::testing::unindent($src))
           .expect("Expected successful compilation")
           .run(
-            config,
-            &current_dir,
+            &config,
+            &search,
             &overrides,
             &arguments,
           ).expect_err("Expected runtime error") {

@@ -69,6 +69,7 @@ impl<'src, D> Recipe<'src, D> {
     context: &RecipeContext<'src, 'run>,
     dotenv: &BTreeMap<String, String>,
     scope: Scope<'src, 'run>,
+    search: &'run Search,
   ) -> RunResult<'src, ()> {
     let config = &context.config;
 
@@ -82,13 +83,8 @@ impl<'src, D> Recipe<'src, D> {
       );
     }
 
-    let mut evaluator = Evaluator::recipe_evaluator(
-      context.config,
-      dotenv,
-      &scope,
-      context.settings,
-      context.working_directory,
-    );
+    let mut evaluator =
+      Evaluator::recipe_evaluator(context.config, dotenv, &scope, context.settings, search);
 
     if self.shebang {
       let mut evaluated_lines = vec![];
@@ -166,12 +162,16 @@ impl<'src, D> Recipe<'src, D> {
       })?;
 
       // create a command to run the script
-      let mut command =
-        Platform::make_shebang_command(&path, context.working_directory, interpreter, argument)
-          .map_err(|output_error| RuntimeError::Cygpath {
-            recipe: self.name(),
-            output_error,
-          })?;
+      let mut command = Platform::make_shebang_command(
+        &path,
+        &context.search.working_directory,
+        interpreter,
+        argument,
+      )
+      .map_err(|output_error| RuntimeError::Cygpath {
+        recipe: self.name(),
+        output_error,
+      })?;
 
       command.export(dotenv, &scope);
 
@@ -248,7 +248,7 @@ impl<'src, D> Recipe<'src, D> {
 
         let mut cmd = context.settings.shell_command(config);
 
-        cmd.current_dir(context.working_directory);
+        cmd.current_dir(&context.search.working_directory);
 
         cmd.arg(command);
 

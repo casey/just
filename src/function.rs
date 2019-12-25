@@ -1,6 +1,7 @@
 use crate::common::*;
 
 use target;
+use Function::*;
 
 pub(crate) enum Function {
   Nullary(fn(&FunctionContext) -> Result<String, String>),
@@ -10,15 +11,14 @@ pub(crate) enum Function {
 
 lazy_static! {
   pub(crate) static ref TABLE: BTreeMap<&'static str, Function> = vec![
-    ("arch", Function::Nullary(arch)),
-    ("os", Function::Nullary(os)),
-    ("os_family", Function::Nullary(os_family)),
-    ("env_var", Function::Unary(env_var)),
-    ("env_var_or_default", Function::Binary(env_var_or_default)),
-    (
-      "invocation_directory",
-      Function::Nullary(invocation_directory)
-    ),
+    ("arch", Nullary(arch)),
+    ("os", Nullary(os)),
+    ("os_family", Nullary(os_family)),
+    ("justfile_directory", Nullary(justfile_directory)),
+    ("justfile", Nullary(justfile)),
+    ("invocation_directory", Nullary(invocation_directory)),
+    ("env_var", Unary(env_var)),
+    ("env_var_or_default", Binary(env_var_or_default)),
   ]
   .into_iter()
   .collect();
@@ -26,7 +26,6 @@ lazy_static! {
 
 impl Function {
   pub(crate) fn argc(&self) -> usize {
-    use self::Function::*;
     match *self {
       Nullary(_) => 0,
       Unary(_) => 1,
@@ -48,8 +47,44 @@ fn os_family(_context: &FunctionContext) -> Result<String, String> {
 }
 
 fn invocation_directory(context: &FunctionContext) -> Result<String, String> {
-  Platform::to_shell_path(context.working_directory, context.invocation_directory)
-    .map_err(|e| format!("Error getting shell path: {}", e))
+  Platform::to_shell_path(
+    &context.search.working_directory,
+    context.invocation_directory,
+  )
+  .map_err(|e| format!("Error getting shell path: {}", e))
+}
+
+fn justfile(context: &FunctionContext) -> Result<String, String> {
+  context
+    .search
+    .justfile
+    .to_str()
+    .map(str::to_owned)
+    .ok_or_else(|| {
+      format!(
+        "Justfile path is not valid unicode: {}",
+        context.search.justfile.to_string_lossy()
+      )
+    })
+}
+
+fn justfile_directory(context: &FunctionContext) -> Result<String, String> {
+  let justfile_directory = context.search.justfile.parent().ok_or_else(|| {
+    format!(
+      "Could not resolve justfile directory. Justfile `{}` had no parent.",
+      context.search.justfile.display()
+    )
+  })?;
+
+  justfile_directory
+    .to_str()
+    .map(str::to_owned)
+    .ok_or_else(|| {
+      format!(
+        "Justfile directory is not valid unicode: {}",
+        justfile_directory.to_string_lossy()
+      )
+    })
 }
 
 fn env_var(context: &FunctionContext, key: &str) -> Result<String, String> {
