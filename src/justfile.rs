@@ -44,12 +44,12 @@ impl<'src> Justfile<'src> {
   }
 
   pub(crate) fn run<'run>(
-    &'src self,
-    config: &'src Config,
+    &'run self,
+    config: &'run Config,
     search: &'run Search,
-    overrides: &'src BTreeMap<String, String>,
-    arguments: &'src [String],
-  ) -> RunResult<'src, ()> {
+    overrides: &'run BTreeMap<String, String>,
+    arguments: &'run [String],
+  ) -> RunResult<'run, ()> {
     let argvec: Vec<&str> = if !arguments.is_empty() {
       arguments.iter().map(|argument| argument.as_str()).collect()
     } else if let Some(recipe) = self.first() {
