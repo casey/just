@@ -43,10 +43,10 @@ impl<'src> Justfile<'src> {
     None
   }
 
-  pub(crate) fn run(
+  pub(crate) fn run<'run>(
     &'src self,
     config: &'src Config,
-    working_directory: &'src Path,
+    search: &'run Search,
     overrides: &'src BTreeMap<String, String>,
     arguments: &'src [String],
   ) -> RunResult<'src, ()> {
@@ -105,7 +105,7 @@ impl<'src> Justfile<'src> {
         &dotenv,
         scope,
         &self.settings,
-        working_directory,
+        search,
       )?
     };
 
@@ -172,12 +172,12 @@ impl<'src> Justfile<'src> {
       settings: &self.settings,
       config,
       scope,
-      working_directory,
+      search,
     };
 
     let mut ran = BTreeSet::new();
     for (recipe, arguments) in grouped {
-      self.run_recipe(&context, recipe, arguments, &dotenv, &mut ran)?
+      self.run_recipe(&context, recipe, arguments, &dotenv, &search, &mut ran)?
     }
 
     Ok(())
@@ -203,6 +203,7 @@ impl<'src> Justfile<'src> {
     recipe: &Recipe<'src>,
     arguments: &[&'run str],
     dotenv: &BTreeMap<String, String>,
+    search: &'run Search,
     ran: &mut BTreeSet<Vec<String>>,
   ) -> RunResult<'src, ()> {
     let scope = Evaluator::evaluate_parameters(
@@ -212,16 +213,11 @@ impl<'src> Justfile<'src> {
       arguments,
       &context.scope,
       context.settings,
-      context.working_directory,
+      search,
     )?;
 
-    let mut evaluator = Evaluator::recipe_evaluator(
-      context.config,
-      dotenv,
-      &scope,
-      context.settings,
-      context.working_directory,
-    );
+    let mut evaluator =
+      Evaluator::recipe_evaluator(context.config, dotenv, &scope, context.settings, search);
 
     for Dependency { recipe, arguments } in &recipe.dependencies {
       let mut invocation = vec![recipe.name().to_owned()];
@@ -236,11 +232,11 @@ impl<'src> Justfile<'src> {
           .skip(1)
           .map(String::as_ref)
           .collect::<Vec<&str>>();
-        self.run_recipe(context, recipe, &arguments, dotenv, ran)?;
+        self.run_recipe(context, recipe, &arguments, dotenv, search, ran)?;
       }
     }
 
-    recipe.run(context, dotenv, scope)?;
+    recipe.run(context, dotenv, scope, search)?;
 
     let mut invocation = Vec::new();
     invocation.push(recipe.name().to_owned());

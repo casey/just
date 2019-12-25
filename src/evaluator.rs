@@ -6,7 +6,7 @@ pub(crate) struct Evaluator<'src: 'run, 'run> {
   dotenv: &'run BTreeMap<String, String>,
   scope: Scope<'src, 'run>,
   settings: &'run Settings<'run>,
-  working_directory: &'run Path,
+  search: &'run Search,
 }
 
 impl<'src, 'run> Evaluator<'src, 'run> {
@@ -16,7 +16,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     dotenv: &'run BTreeMap<String, String>,
     overrides: Scope<'src, 'run>,
     settings: &'run Settings<'run>,
-    working_directory: &'run Path,
+    search: &'run Search,
   ) -> RunResult<'src, Scope<'src, 'run>> {
     let mut evaluator = Evaluator {
       scope: overrides,
@@ -24,7 +24,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       config,
       dotenv,
       settings,
-      working_directory,
+      search,
     };
 
     for assignment in assignments.values() {
@@ -67,9 +67,9 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       }
       Expression::Call { thunk } => {
         let context = FunctionContext {
-          invocation_directory: &self.config.invocation_directory,
-          working_directory: &self.working_directory,
           dotenv: self.dotenv,
+          invocation_directory: &self.config.invocation_directory,
+          search: self.search,
         };
 
         use Thunk::*;
@@ -127,7 +127,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
 
     cmd.arg(raw);
 
-    cmd.current_dir(self.working_directory);
+    cmd.current_dir(&self.search.working_directory);
 
     cmd.export(self.dotenv, &self.scope);
 
@@ -167,15 +167,15 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     arguments: &[&str],
     scope: &'run Scope<'src, 'run>,
     settings: &'run Settings,
-    working_directory: &'run Path,
+    search: &'run Search,
   ) -> RunResult<'src, Scope<'src, 'run>> {
     let mut evaluator = Evaluator {
       assignments: None,
       scope: Scope::child(scope),
+      search,
       settings,
       dotenv,
       config,
-      working_directory,
     };
 
     let mut scope = Scope::child(scope);
@@ -211,15 +211,15 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     dotenv: &'run BTreeMap<String, String>,
     scope: &'run Scope<'src, 'run>,
     settings: &'run Settings,
-    working_directory: &'run Path,
+    search: &'run Search,
   ) -> Evaluator<'src, 'run> {
     Evaluator {
       assignments: None,
       scope: Scope::child(scope),
+      search,
       settings,
       dotenv,
       config,
-      working_directory,
     }
   }
 }
