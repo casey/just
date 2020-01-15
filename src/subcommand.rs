@@ -2,6 +2,9 @@ use crate::common::*;
 
 #[derive(PartialEq, Clone, Debug)]
 pub(crate) enum Subcommand {
+  Completions {
+    shell: String,
+  },
   Dump,
   Edit,
   Evaluate {

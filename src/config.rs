@@ -1,6 +1,6 @@
 use crate::common::*;
 
-use clap::{App, AppSettings, Arg, ArgGroup, ArgMatches};
+use clap::{App, AppSettings, Arg, ArgGroup, ArgMatches, ArgSettings};
 use unicode_width::UnicodeWidthStr;
 
 pub(crate) const DEFAULT_SHELL: &str = "sh";
@@ -30,9 +30,10 @@ mod cmd {
   pub(crate) const LIST: &str = "LIST";
   pub(crate) const SHOW: &str = "SHOW";
   pub(crate) const SUMMARY: &str = "SUMMARY";
+  pub(crate) const COMPLETIONS: &str = "COMPLETIONS";
 
-  pub(crate) const ALL: &[&str] = &[DUMP, EDIT, INIT, EVALUATE, LIST, SHOW, SUMMARY];
-  pub(crate) const ARGLESS: &[&str] = &[DUMP, EDIT, INIT, LIST, SHOW, SUMMARY];
+  pub(crate) const ALL: &[&str] = &[COMPLETIONS, DUMP, EDIT, INIT, EVALUATE, LIST, SHOW, SUMMARY];
+  pub(crate) const ARGLESS: &[&str] = &[COMPLETIONS, DUMP, EDIT, INIT, LIST, SHOW, SUMMARY];
 }
 
 mod arg {
@@ -155,6 +156,15 @@ impl Config {
         Arg::with_name(arg::ARGUMENTS)
           .multiple(true)
           .help("Overrides and recipe(s) to run, defaulting to the first recipe in the justfile"),
+      )
+      .arg(
+        Arg::with_name(cmd::COMPLETIONS)
+          .long("completions")
+          .takes_value(true)
+          .value_name("SHELL")
+          .possible_values(&clap::Shell::variants())
+          .set(ArgSettings::CaseInsensitive)
+          .help("Print shell completion script for <SHELL>"),
       )
       .arg(
         Arg::with_name(cmd::DUMP)
@@ -311,7 +321,11 @@ impl Config {
       }
     }
 
-    let subcommand = if matches.is_present(cmd::EDIT) {
+    let subcommand = if let Some(shell) = matches.value_of(cmd::COMPLETIONS) {
+      Subcommand::Completions {
+        shell: shell.to_owned(),
+      }
+    } else if matches.is_present(cmd::EDIT) {
       Subcommand::Edit
     } else if matches.is_present(cmd::SUMMARY) {
       Subcommand::Summary
@@ -402,6 +416,7 @@ impl Config {
 
     match &self.subcommand {
       Dump => self.dump(justfile),
+      Completions { shell } => Self::completions(&shell),
       Evaluate { overrides } => self.run(justfile, &search, overrides, &Vec::new()),
       Run {
         arguments,
@@ -412,6 +427,16 @@ impl Config {
       Summary => self.summary(justfile),
       Edit | Init => unreachable!(),
     }
+  }
+
+  fn completions(shell: &str) -> Result<(), i32> {
+    let shell = shell
+      .parse::<clap::Shell>()
+      .expect("Invalid value for clap::Shell");
+
+    Self::app().gen_completions_to(env!("CARGO_PKG_NAME"), shell, &mut io::stdout());
+
+    Ok(())
   }
 
   fn dump(&self, justfile: Justfile) -> Result<(), i32> {
@@ -647,6 +672,9 @@ FLAGS:
 OPTIONS:
         --color <COLOR>
             Print colorful output [default: auto]  [possible values: auto, always, never]
+
+        --completions <SHELL>
+            Print shell completion script for <SHELL> [possible values: zsh, bash, fish, powershell, elvish]
 
     -f, --justfile <JUSTFILE>                      Use <JUSTFILE> as justfile.
         --set <VARIABLE> <VALUE>                   Override <VARIABLE> with <VALUE>
