@@ -51,7 +51,7 @@ impl<'src> Justfile<'src> {
     arguments: &'run [String],
   ) -> RunResult<'run, ()> {
     let argvec: Vec<&str> = if !arguments.is_empty() {
-      arguments.iter().map(|argument| argument.as_str()).collect()
+      arguments.iter().map(String::as_str).collect()
     } else if let Some(recipe) = self.first() {
       let min_arguments = recipe.min_arguments();
       if min_arguments > 0 {
@@ -70,7 +70,7 @@ impl<'src> Justfile<'src> {
     let unknown_overrides = overrides
       .keys()
       .filter(|name| !self.assignments.contains_key(name.as_str()))
-      .map(|name| name.as_str())
+      .map(String::as_str)
       .collect::<Vec<&str>>();
 
     if !unknown_overrides.is_empty() {

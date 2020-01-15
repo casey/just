@@ -73,15 +73,11 @@ impl<'src> Lexer<'src> {
         let len_utf8 = c.len_utf8();
 
         self.token_end.offset += len_utf8;
+        self.token_end.column += len_utf8;
 
-        match c {
-          '\n' => {
-            self.token_end.column = 0;
-            self.token_end.line += 1;
-          }
-          _ => {
-            self.token_end.column += len_utf8;
-          }
+        if c == '\n' {
+          self.token_end.column = 0;
+          self.token_end.line += 1;
         }
 
         self.next = self.chars.next();
@@ -203,10 +199,7 @@ impl<'src> Lexer<'src> {
     CompilationError { token, kind }
   }
 
-  fn unterminated_interpolation_error(
-    &self,
-    interpolation_start: Token<'src>,
-  ) -> CompilationError<'src> {
+  fn unterminated_interpolation_error(interpolation_start: Token<'src>) -> CompilationError<'src> {
     CompilationError {
       token: interpolation_start,
       kind: UnterminatedInterpolation,
@@ -275,7 +268,7 @@ impl<'src> Lexer<'src> {
     }
 
     if let Some(interpolation_start) = self.interpolation_start {
-      return Err(self.unterminated_interpolation_error(interpolation_start));
+      return Err(Self::unterminated_interpolation_error(interpolation_start));
     }
 
     while self.indented() {
@@ -486,7 +479,7 @@ impl<'src> Lexer<'src> {
       self.lex_double(InterpolationEnd)
     } else if self.at_eol_or_eof() {
       // Return unterminated interpolation error that highlights the opening {{
-      Err(self.unterminated_interpolation_error(interpolation_start))
+      Err(Self::unterminated_interpolation_error(interpolation_start))
     } else {
       // Otherwise lex as per normal
       self.lex_normal(start)

@@ -48,8 +48,8 @@ pub(crate) enum ConfigError {
 }
 
 impl ConfigError {
-  pub(crate) fn internal(message: impl Into<String>) -> ConfigError {
-    ConfigError::Internal {
+  pub(crate) fn internal(message: impl Into<String>) -> Self {
+    Self::Internal {
       message: message.into(),
     }
   }

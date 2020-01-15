@@ -14,14 +14,14 @@ impl Search {
   pub(crate) fn find(
     search_config: &SearchConfig,
     invocation_directory: &Path,
-  ) -> SearchResult<Search> {
+  ) -> SearchResult<Self> {
     match search_config {
       SearchConfig::FromInvocationDirectory => {
         let justfile = Self::justfile(&invocation_directory)?;
 
         let working_directory = Self::working_directory_from_justfile(&justfile)?;
 
-        Ok(Search {
+        Ok(Self {
           justfile,
           working_directory,
         })
@@ -34,7 +34,7 @@ impl Search {
 
         let working_directory = Self::working_directory_from_justfile(&justfile)?;
 
-        Ok(Search {
+        Ok(Self {
           justfile,
           working_directory,
         })
@@ -45,7 +45,7 @@ impl Search {
 
         let working_directory = Self::working_directory_from_justfile(&justfile)?;
 
-        Ok(Search {
+        Ok(Self {
           justfile,
           working_directory,
         })
@@ -54,7 +54,7 @@ impl Search {
       SearchConfig::WithJustfileAndWorkingDirectory {
         justfile,
         working_directory,
-      } => Ok(Search {
+      } => Ok(Self {
         justfile: Self::clean(invocation_directory, justfile),
         working_directory: Self::clean(invocation_directory, working_directory),
       }),
@@ -64,14 +64,14 @@ impl Search {
   pub(crate) fn init(
     search_config: &SearchConfig,
     invocation_directory: &Path,
-  ) -> SearchResult<Search> {
+  ) -> SearchResult<Self> {
     match search_config {
       SearchConfig::FromInvocationDirectory => {
         let working_directory = Self::project_root(&invocation_directory)?;
 
         let justfile = working_directory.join(FILENAME);
 
-        Ok(Search {
+        Ok(Self {
           justfile,
           working_directory,
         })
@@ -84,7 +84,7 @@ impl Search {
 
         let justfile = working_directory.join(FILENAME);
 
-        Ok(Search {
+        Ok(Self {
           justfile,
           working_directory,
         })
@@ -95,7 +95,7 @@ impl Search {
 
         let working_directory = Self::working_directory_from_justfile(&justfile)?;
 
-        Ok(Search {
+        Ok(Self {
           justfile,
           working_directory,
         })
@@ -104,7 +104,7 @@ impl Search {
       SearchConfig::WithJustfileAndWorkingDirectory {
         justfile,
         working_directory,
-      } => Ok(Search {
+      } => Ok(Self {
         justfile: Self::clean(invocation_directory, justfile),
         working_directory: Self::clean(invocation_directory, working_directory),
       }),

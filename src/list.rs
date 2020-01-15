@@ -1,3 +1,6 @@
+// `Self` cannot be used where type takes generic arguments
+#![allow(clippy::use_self)]
+
 use crate::common::*;
 
 pub struct List<T: Display, I: Iterator<Item = T> + Clone> {
@@ -70,7 +73,7 @@ impl<T: Display, I: Iterator<Item = T> + Clone> Display for List<T, I> {
           write!(f, ", {} {}", self.conjunction, c)?;
           return Ok(());
         }
-        _ => panic!("Iterator was fused, but returned Some after None"),
+        _ => unreachable!("Iterator was fused, but returned Some after None"),
       }
     }
   }

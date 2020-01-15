@@ -7,10 +7,10 @@ pub(crate) struct InterruptHandler {
 
 impl InterruptHandler {
   pub(crate) fn install() -> Result<(), ctrlc::Error> {
-    ctrlc::set_handler(|| InterruptHandler::instance().interrupt())
+    ctrlc::set_handler(|| Self::instance().interrupt())
   }
 
-  pub(crate) fn instance() -> MutexGuard<'static, InterruptHandler> {
+  pub(crate) fn instance() -> MutexGuard<'static, Self> {
     lazy_static! {
       static ref INSTANCE: Mutex<InterruptHandler> = Mutex::new(InterruptHandler::new());
     }
@@ -29,8 +29,8 @@ impl InterruptHandler {
     }
   }
 
-  fn new() -> InterruptHandler {
-    InterruptHandler {
+  fn new() -> Self {
+    Self {
       blocks: 0,
       interrupted: false,
     }

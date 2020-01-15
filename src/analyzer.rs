@@ -73,7 +73,7 @@ impl<'src> Analyzer<'src> {
 
     let mut settings = Settings::new();
 
-    for (_, set) in self.sets.into_iter() {
+    for (_, set) in self.sets {
       match set.value {
         Setting::Shell(shell) => {
           assert!(settings.shell.is_none());
@@ -191,7 +191,7 @@ impl<'src> Analyzer<'src> {
 
     // Make sure the target recipe exists
     match recipes.get(alias.target.lexeme()) {
-      Some(target) => Ok(alias.resolve(target.clone())),
+      Some(target) => Ok(alias.resolve(Rc::clone(target))),
       None => Err(token.error(UnknownAliasTarget {
         alias: alias.name.lexeme(),
         target: alias.target.lexeme(),

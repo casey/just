@@ -237,7 +237,7 @@ impl Config {
     }
   }
 
-  pub(crate) fn from_matches(matches: &ArgMatches) -> ConfigResult<Config> {
+  pub(crate) fn from_matches(matches: &ArgMatches) -> ConfigResult<Self> {
     let invocation_directory = env::current_dir().context(config_error::CurrentDir)?;
 
     let verbosity = Verbosity::from_flag_occurrences(matches.occurrences_of(arg::VERBOSE));
@@ -368,7 +368,7 @@ impl Config {
       || matches.occurrences_of(arg::SHELL) > 0
       || matches.occurrences_of(arg::SHELL_ARG) > 0;
 
-    Ok(Config {
+    Ok(Self {
       dry_run: matches.is_present(arg::DRY_RUN),
       highlight: !matches.is_present(arg::NO_HIGHLIGHT),
       quiet: matches.is_present(arg::QUIET),
@@ -394,7 +394,7 @@ impl Config {
       Search::find(&self.search_config, &self.invocation_directory).eprint(self.color)?;
 
     if self.subcommand == Edit {
-      return self.edit(&search);
+      return Self::edit(&search);
     }
 
     let src = fs::read_to_string(&search.justfile)
@@ -415,7 +415,7 @@ impl Config {
     }
 
     match &self.subcommand {
-      Dump => self.dump(justfile),
+      Dump => Self::dump(justfile),
       Completions { shell } => Self::completions(&shell),
       Evaluate { overrides } => self.run(justfile, &search, overrides, &Vec::new()),
       Run {
@@ -423,8 +423,8 @@ impl Config {
         overrides,
       } => self.run(justfile, &search, overrides, arguments),
       List => self.list(justfile),
-      Show { ref name } => self.show(&name, justfile),
-      Summary => self.summary(justfile),
+      Show { ref name } => Self::show(&name, justfile),
+      Summary => Self::summary(justfile),
       Edit | Init => unreachable!(),
     }
   }
@@ -439,12 +439,12 @@ impl Config {
     Ok(())
   }
 
-  fn dump(&self, justfile: Justfile) -> Result<(), i32> {
+  fn dump(justfile: Justfile) -> Result<(), i32> {
     println!("{}", justfile);
     Ok(())
   }
 
-  pub(crate) fn edit(&self, search: &Search) -> Result<(), i32> {
+  pub(crate) fn edit(search: &Search) -> Result<(), i32> {
     let editor = env::var_os("VISUAL")
       .or_else(|| env::var_os("EDITOR"))
       .unwrap_or_else(|| "vim".into());
@@ -601,7 +601,7 @@ impl Config {
     }
   }
 
-  fn show(&self, name: &str, justfile: Justfile) -> Result<(), i32> {
+  fn show(name: &str, justfile: Justfile) -> Result<(), i32> {
     if let Some(alias) = justfile.get_alias(name) {
       let recipe = justfile.get_recipe(alias.target.name.lexeme()).unwrap();
       println!("{}", alias);
@@ -619,7 +619,7 @@ impl Config {
     }
   }
 
-  fn summary(&self, justfile: Justfile) -> Result<(), i32> {
+  fn summary(justfile: Justfile) -> Result<(), i32> {
     if justfile.count() == 0 {
       eprintln!("Justfile contains no recipes.");
     } else {

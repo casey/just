@@ -1,3 +1,6 @@
+// `Self` cannot be used where type takes generic arguments
+#![allow(clippy::use_self)]
+
 use crate::common::*;
 
 pub struct Enclosure<T: Display> {
@@ -7,7 +10,7 @@ pub struct Enclosure<T: Display> {
 
 impl<T: Display> Enclosure<T> {
   pub fn tick(value: T) -> Enclosure<T> {
-    Enclosure {
+    Self {
       enclosure: "`",
       value,
     }

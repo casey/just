@@ -12,12 +12,12 @@ pub(crate) struct Color {
 }
 
 impl Color {
-  fn restyle(self, style: Style) -> Color {
-    Color { style, ..self }
+  fn restyle(self, style: Style) -> Self {
+    Self { style, ..self }
   }
 
-  fn redirect(self, stream: Stream) -> Color {
-    Color {
+  fn redirect(self, stream: Stream) -> Self {
+    Self {
       atty: atty::is(stream),
       ..self
     }
@@ -31,76 +31,76 @@ impl Color {
     }
   }
 
-  pub(crate) fn fmt(fmt: &Formatter) -> Color {
+  pub(crate) fn fmt(fmt: &Formatter) -> Self {
     if fmt.alternate() {
-      Color::always()
+      Self::always()
     } else {
-      Color::never()
+      Self::never()
     }
   }
 
-  pub(crate) fn auto() -> Color {
-    Color {
+  pub(crate) fn auto() -> Self {
+    Self {
       use_color: UseColor::Auto,
       ..default()
     }
   }
 
-  pub(crate) fn always() -> Color {
-    Color {
+  pub(crate) fn always() -> Self {
+    Self {
       use_color: UseColor::Always,
       ..default()
     }
   }
 
-  pub(crate) fn never() -> Color {
-    Color {
+  pub(crate) fn never() -> Self {
+    Self {
       use_color: UseColor::Never,
       ..default()
     }
   }
 
-  pub(crate) fn stderr(self) -> Color {
+  pub(crate) fn stderr(self) -> Self {
     self.redirect(Stream::Stderr)
   }
 
-  pub(crate) fn stdout(self) -> Color {
+  pub(crate) fn stdout(self) -> Self {
     self.redirect(Stream::Stdout)
   }
 
-  pub(crate) fn doc(self) -> Color {
+  pub(crate) fn doc(self) -> Self {
     self.restyle(Style::new().fg(Blue))
   }
 
-  pub(crate) fn error(self) -> Color {
+  pub(crate) fn error(self) -> Self {
     self.restyle(Style::new().fg(Red).bold())
   }
 
-  pub(crate) fn warning(self) -> Color {
+  pub(crate) fn warning(self) -> Self {
     self.restyle(Style::new().fg(Yellow).bold())
   }
 
-  pub(crate) fn banner(self) -> Color {
+  pub(crate) fn banner(self) -> Self {
     self.restyle(Style::new().fg(Cyan).bold())
   }
 
-  pub(crate) fn command(self) -> Color {
+  pub(crate) fn command(self) -> Self {
     self.restyle(Style::new().bold())
   }
 
-  pub(crate) fn parameter(self) -> Color {
+  pub(crate) fn parameter(self) -> Self {
     self.restyle(Style::new().fg(Cyan))
   }
 
-  pub(crate) fn message(self) -> Color {
+  pub(crate) fn message(self) -> Self {
     self.restyle(Style::new().bold())
   }
 
-  pub(crate) fn annotation(self) -> Color {
+  pub(crate) fn annotation(self) -> Self {
     self.restyle(Style::new().fg(Purple))
   }
 
-  pub(crate) fn string(self) -> Color {
+  pub(crate) fn string(self) -> Self {
     self.restyle(Style::new().fg(Green))
   }
 
@@ -126,8 +126,8 @@ impl Color {
 }
 
 impl Default for Color {
-  fn default() -> Color {
-    Color {
+  fn default() -> Self {
+    Self {
       use_color: UseColor::Auto,
       atty: false,
       style: Style::new(),

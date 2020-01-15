@@ -72,8 +72,8 @@ pub(crate) enum RuntimeError<'src> {
 impl<'src> Error for RuntimeError<'src> {
   fn code(&self) -> i32 {
     match *self {
-      Self::Code { code, .. } => code,
-      Self::Backtick {
+      Self::Code { code, .. }
+      | Self::Backtick {
         output_error: OutputError::Code(code),
         ..
       } => code,
