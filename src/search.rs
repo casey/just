@@ -130,6 +130,7 @@ impl Search {
           }
         }
       }
+
       if candidates.len() == 1 {
         return Ok(candidates.pop().unwrap());
       } else if candidates.len() > 1 {

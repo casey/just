@@ -1,0 +1,52 @@
+
+edit:completion:arg-completer[just] = [@words]{
+    fn spaces [n]{
+        repeat $n ' ' | joins ''
+    }
+    fn cand [text desc]{
+        edit:complex-candidate $text &display-suffix=' '(spaces (- 14 (wcswidth $text)))$desc
+    }
+    command = 'just'
+    for word $words[1:-1] {
+        if (has-prefix $word '-') {
+            break
+        }
+        command = $command';'$word
+    }
+    completions = [
+        &'just'= {
+            cand --color 'Print colorful output'
+            cand -f 'Use <JUSTFILE> as justfile.'
+            cand --justfile 'Use <JUSTFILE> as justfile.'
+            cand --set 'Override <VARIABLE> with <VALUE>'
+            cand --shell 'Invoke <SHELL> to run recipes'
+            cand --shell-arg 'Invoke shell with <SHELL-ARG> as an argument'
+            cand -d 'Use <WORKING-DIRECTORY> as working directory. --justfile must also be set'
+            cand --working-directory 'Use <WORKING-DIRECTORY> as working directory. --justfile must also be set'
+            cand --completions 'Print shell completion script for <SHELL>'
+            cand -s 'Show information about <RECIPE>'
+            cand --show 'Show information about <RECIPE>'
+            cand --dry-run 'Print what just would do without doing it'
+            cand --highlight 'Highlight echoed recipe lines in bold'
+            cand --no-highlight 'Don''t highlight echoed recipe lines in bold'
+            cand -q 'Suppress all output'
+            cand --quiet 'Suppress all output'
+            cand --clear-shell-args 'Clear shell arguments'
+            cand -v 'Use verbose output'
+            cand --verbose 'Use verbose output'
+            cand --dump 'Print entire justfile'
+            cand -e 'Edit justfile with editor given by $VISUAL or $EDITOR, falling back to `vim`'
+            cand --edit 'Edit justfile with editor given by $VISUAL or $EDITOR, falling back to `vim`'
+            cand --evaluate 'Print evaluated variables'
+            cand --init 'Initialize new justfile in project root'
+            cand -l 'List available recipes and their arguments'
+            cand --list 'List available recipes and their arguments'
+            cand --summary 'List names of available recipes'
+            cand -h 'Print help information'
+            cand --help 'Print help information'
+            cand -V 'Print version information'
+            cand --version 'Print version information'
+        }
+    ]
+    $completions[$command]
+}

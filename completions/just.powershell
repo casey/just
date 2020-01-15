@@ -1,0 +1,60 @@
+
+using namespace System.Management.Automation
+using namespace System.Management.Automation.Language
+
+Register-ArgumentCompleter -Native -CommandName 'just' -ScriptBlock {
+    param($wordToComplete, $commandAst, $cursorPosition)
+
+    $commandElements = $commandAst.CommandElements
+    $command = @(
+        'just'
+        for ($i = 1; $i -lt $commandElements.Count; $i++) {
+            $element = $commandElements[$i]
+            if ($element -isnot [StringConstantExpressionAst] -or
+                $element.StringConstantType -ne [StringConstantType]::BareWord -or
+                $element.Value.StartsWith('-')) {
+                break
+        }
+        $element.Value
+    }) -join ';'
+
+    $completions = @(switch ($command) {
+        'just' {
+            [CompletionResult]::new('--color', 'color', [CompletionResultType]::ParameterName, 'Print colorful output')
+            [CompletionResult]::new('-f', 'f', [CompletionResultType]::ParameterName, 'Use <JUSTFILE> as justfile.')
+            [CompletionResult]::new('--justfile', 'justfile', [CompletionResultType]::ParameterName, 'Use <JUSTFILE> as justfile.')
+            [CompletionResult]::new('--set', 'set', [CompletionResultType]::ParameterName, 'Override <VARIABLE> with <VALUE>')
+            [CompletionResult]::new('--shell', 'shell', [CompletionResultType]::ParameterName, 'Invoke <SHELL> to run recipes')
+            [CompletionResult]::new('--shell-arg', 'shell-arg', [CompletionResultType]::ParameterName, 'Invoke shell with <SHELL-ARG> as an argument')
+            [CompletionResult]::new('-d', 'd', [CompletionResultType]::ParameterName, 'Use <WORKING-DIRECTORY> as working directory. --justfile must also be set')
+            [CompletionResult]::new('--working-directory', 'working-directory', [CompletionResultType]::ParameterName, 'Use <WORKING-DIRECTORY> as working directory. --justfile must also be set')
+            [CompletionResult]::new('--completions', 'completions', [CompletionResultType]::ParameterName, 'Print shell completion script for <SHELL>')
+            [CompletionResult]::new('-s', 's', [CompletionResultType]::ParameterName, 'Show information about <RECIPE>')
+            [CompletionResult]::new('--show', 'show', [CompletionResultType]::ParameterName, 'Show information about <RECIPE>')
+            [CompletionResult]::new('--dry-run', 'dry-run', [CompletionResultType]::ParameterName, 'Print what just would do without doing it')
+            [CompletionResult]::new('--highlight', 'highlight', [CompletionResultType]::ParameterName, 'Highlight echoed recipe lines in bold')
+            [CompletionResult]::new('--no-highlight', 'no-highlight', [CompletionResultType]::ParameterName, 'Don''t highlight echoed recipe lines in bold')
+            [CompletionResult]::new('-q', 'q', [CompletionResultType]::ParameterName, 'Suppress all output')
+            [CompletionResult]::new('--quiet', 'quiet', [CompletionResultType]::ParameterName, 'Suppress all output')
+            [CompletionResult]::new('--clear-shell-args', 'clear-shell-args', [CompletionResultType]::ParameterName, 'Clear shell arguments')
+            [CompletionResult]::new('-v', 'v', [CompletionResultType]::ParameterName, 'Use verbose output')
+            [CompletionResult]::new('--verbose', 'verbose', [CompletionResultType]::ParameterName, 'Use verbose output')
+            [CompletionResult]::new('--dump', 'dump', [CompletionResultType]::ParameterName, 'Print entire justfile')
+            [CompletionResult]::new('-e', 'e', [CompletionResultType]::ParameterName, 'Edit justfile with editor given by $VISUAL or $EDITOR, falling back to `vim`')
+            [CompletionResult]::new('--edit', 'edit', [CompletionResultType]::ParameterName, 'Edit justfile with editor given by $VISUAL or $EDITOR, falling back to `vim`')
+            [CompletionResult]::new('--evaluate', 'evaluate', [CompletionResultType]::ParameterName, 'Print evaluated variables')
+            [CompletionResult]::new('--init', 'init', [CompletionResultType]::ParameterName, 'Initialize new justfile in project root')
+            [CompletionResult]::new('-l', 'l', [CompletionResultType]::ParameterName, 'List available recipes and their arguments')
+            [CompletionResult]::new('--list', 'list', [CompletionResultType]::ParameterName, 'List available recipes and their arguments')
+            [CompletionResult]::new('--summary', 'summary', [CompletionResultType]::ParameterName, 'List names of available recipes')
+            [CompletionResult]::new('-h', 'h', [CompletionResultType]::ParameterName, 'Print help information')
+            [CompletionResult]::new('--help', 'help', [CompletionResultType]::ParameterName, 'Print help information')
+            [CompletionResult]::new('-V', 'V', [CompletionResultType]::ParameterName, 'Print version information')
+            [CompletionResult]::new('--version', 'version', [CompletionResultType]::ParameterName, 'Print version information')
+            break
+        }
+    })
+
+    $completions.Where{ $_.CompletionText -like "$wordToComplete*" } |
+        Sort-Object -Property ListItemText
+}
