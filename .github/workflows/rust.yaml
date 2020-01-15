@@ -1,0 +1,39 @@
+name: Rust
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Dependencies
+      run: |
+        apt install help2man
+    - name: Install
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        profile: minimal
+        components: clippy, rustfmt
+        override: true
+    - name: Version
+      run: |
+        rustup --version
+        cargo --version
+        cargo clippy --version
+    - name: Lint
+      run: cargo clippy
+    - name: Format
+      run: cargo fmt -- --check
+    - name: Man Page
+      run: |
+        cargo run man
+        git diff --no-ext-diff --quiet --exit-code
+    - name: Completion Scripts
+      run: |
+        for script in completions/*; do
+          shell=${script##*.}
+          cargo run -- --completions $shell > $script
+        done
+        git diff --no-ext-diff --quiet --exit-code
