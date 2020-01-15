@@ -2,6 +2,17 @@ Changelog
 =========
 
 
+[v0.5.5] - 2020-1-15
+--------------------
+
+## Added
+- Generate shell completion scripts with `--completions` (#572)
+
+## Misc
+- Check long lines and FIXME/TODO on CI (#575)
+- Add additional continuous integration checks (#574)
+
+
 [v0.5.4] - 2019-12-25
 ---------------------
 
