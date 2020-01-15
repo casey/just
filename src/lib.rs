@@ -1,36 +1,31 @@
 #![deny(clippy::all, clippy::pedantic, clippy::restriction)]
 #![allow(
-  clippy::print_stdout,
-  clippy::else_if_without_else,
-  clippy::use_debug,
-  clippy::implicit_return,
-  clippy::if_not_else,
-  clippy::missing_docs_in_private_items,
-  clippy::enum_glob_use,
-  clippy::integer_arithmetic,
-  clippy::option_unwrap_used,
-  clippy::indexing_slicing,
-  clippy::non_ascii_literal,
-  clippy::missing_inline_in_public_items,
-  clippy::option_expect_used,
   clippy::comparison_chain,
-  clippy::wildcard_enum_match_arm,
-  clippy::too_many_lines,
-  clippy::shadow_unrelated,
-  clippy::needless_pass_by_value,
-  clippy::option_map_unwrap_or,
+  clippy::else_if_without_else,
+  clippy::enum_glob_use,
   clippy::filter_map,
-  clippy::result_expect_used,
-  clippy::unreachable,
-  clippy::string_add,
+  clippy::if_not_else,
+  clippy::implicit_return,
+  clippy::indexing_slicing,
+  clippy::integer_arithmetic,
+  clippy::match_same_arms,
+  clippy::missing_docs_in_private_items,
+  clippy::missing_inline_in_public_items,
+  clippy::needless_pass_by_value,
+  clippy::non_ascii_literal,
+  clippy::option_expect_used,
+  clippy::option_map_unwrap_or,
+  clippy::option_unwrap_used,
   clippy::panic,
-  clippy::match_same_arms
+  clippy::print_stdout,
+  clippy::result_expect_used,
+  clippy::shadow_unrelated,
+  clippy::string_add,
+  clippy::too_many_lines,
+  clippy::unreachable,
+  clippy::use_debug,
+  clippy::wildcard_enum_match_arm
 )]
-//   clippy::option_map_unwrap_or_else,
-//   clippy::result_expect_used,
-//   clippy::result_unwrap_used,
-//   clippy::unreachable
-// )]
 
 #[macro_use]
 extern crate lazy_static;

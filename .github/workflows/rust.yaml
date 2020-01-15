@@ -19,8 +19,10 @@ jobs:
         rustup --version
         cargo --version
         cargo clippy --version
-    - name: Lint
+    - name: Clippy
       run: cargo clippy
+    - name: Lint
+      run: cargo run lint
     - name: Format
       run: cargo fmt -- --check
     - name: Completion Scripts

@@ -674,7 +674,8 @@ OPTIONS:
             Print colorful output [default: auto]  [possible values: auto, always, never]
 
         --completions <SHELL>
-            Print shell completion script for <SHELL> [possible values: zsh, bash, fish, powershell, elvish]
+            Print shell completion script for <SHELL> \
+            [possible values: zsh, bash, fish, powershell, elvish]
 
     -f, --justfile <JUSTFILE>                      Use <JUSTFILE> as justfile.
         --set <VARIABLE> <VALUE>                   Override <VARIABLE> with <VALUE>
