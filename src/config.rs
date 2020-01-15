@@ -1017,6 +1017,23 @@ ARGS:
   }
 
   test! {
+    name: subcommand_completions,
+    args: ["--completions", "bash"],
+    subcommand: Subcommand::Completions{shell: "bash".to_owned()},
+  }
+
+  test! {
+    name: subcommand_completions_uppercase,
+    args: ["--completions", "BASH"],
+    subcommand: Subcommand::Completions{shell: "BASH".to_owned()},
+  }
+
+  error! {
+    name: subcommand_completions_invalid,
+    args: ["--completions", "monstersh"],
+  }
+
+  test! {
     name: subcommand_dump,
     args: ["--dump"],
     subcommand: Subcommand::Dump,
@@ -1262,6 +1279,16 @@ ARGS:
     name: search_directory_conflict_working_directory,
     args: ["--justfile", "bar", "--working-directory", "baz", "foo/build"],
     error: ConfigError::SearchDirConflict,
+  }
+
+  error! {
+    name: completions_arguments,
+    args: ["--completions", "zsh", "foo"],
+    error: ConfigError::SubcommandArguments { subcommand, arguments },
+    check: {
+      assert_eq!(subcommand, "--completions");
+      assert_eq!(arguments, &["foo"]);
+    },
   }
 
   error! {
