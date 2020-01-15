@@ -878,6 +878,16 @@ Tools that pair nicely with `just` include:
 
 For lightning-fast command running, put `alias j=just` in your shell's configuration file.
 
+=== Shell Completion Scripts
+
+Shell completion scripts for Bash, Zsh, Fish, PowerShell, and Elvish are available in the link:completions[] directory. Please refer to your shell's documentation for how to install them.
+
+The `just` binary can also generate the same completion scripts at runtime, using the `--completions` command:
+
+```sh
+$ just --completions zsh > just.zsh
+```
+
 === Syntax Highlighting
 
 `justfile` syntax is close enough to `make` that you may want to tell your editor to use make syntax highlighting for just.
