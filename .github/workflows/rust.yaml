@@ -7,9 +7,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-    - name: Dependencies
-      run: |
-        sudo apt install help2man
     - name: Install
       uses: actions-rs/toolchain@v1
       with:
@@ -26,10 +23,6 @@ jobs:
       run: cargo clippy
     - name: Format
       run: cargo fmt -- --check
-    - name: Man Page
-      run: |
-        cargo run man
-        git diff --no-ext-diff --quiet --exit-code
     - name: Completion Scripts
       run: |
         for script in completions/*; do
