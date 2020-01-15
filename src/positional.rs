@@ -10,7 +10,7 @@ use crate::common::*;
 ///
 /// - Overrides are of the form `NAME=.*`
 ///
-/// - After overrides comes a single optional search_directory argument.
+/// - After overrides comes a single optional search directory argument.
 ///   This is either '.', '..', or an argument that contains a `/`.
 ///
 ///   If the argument contains a `/`, everything before and including
@@ -40,9 +40,7 @@ pub struct Positional {
 }
 
 impl Positional {
-  pub fn from_values<'values>(
-    values: Option<impl IntoIterator<Item = &'values str>>,
-  ) -> Positional {
+  pub fn from_values<'values>(values: Option<impl IntoIterator<Item = &'values str>>) -> Self {
     let mut overrides = Vec::new();
     let mut search_directory = None;
     let mut arguments = Vec::new();
@@ -71,7 +69,7 @@ impl Positional {
       }
     }
 
-    Positional {
+    Self {
       overrides,
       search_directory,
       arguments,

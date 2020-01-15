@@ -66,13 +66,14 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         }
       }
       Expression::Call { thunk } => {
+        use Thunk::*;
+
         let context = FunctionContext {
           dotenv: self.dotenv,
           invocation_directory: &self.config.invocation_directory,
           search: self.search,
         };
 
-        use Thunk::*;
         match thunk {
           Nullary { name, function, .. } => {
             function(&context).map_err(|message| RuntimeError::FunctionCall {
@@ -183,13 +184,12 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     let mut rest = arguments;
     for parameter in parameters {
       let value = if rest.is_empty() {
-        match parameter.default {
-          Some(ref default) => evaluator.evaluate_expression(default)?,
-          None => {
-            return Err(RuntimeError::Internal {
-              message: "missing parameter without default".to_string(),
-            });
-          }
+        if let Some(ref default) = parameter.default {
+          evaluator.evaluate_expression(default)?
+        } else {
+          return Err(RuntimeError::Internal {
+            message: "missing parameter without default".to_string(),
+          });
         }
       } else if parameter.variadic {
         let value = rest.to_vec().join(" ");

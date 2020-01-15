@@ -76,7 +76,7 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
     recipe: UnresolvedRecipe<'src>,
   ) -> CompilationResult<'src, Rc<Recipe<'src>>> {
     if let Some(resolved) = self.resolved_recipes.get(recipe.name()) {
-      return Ok(resolved.clone());
+      return Ok(Rc::clone(resolved));
     }
 
     stack.push(recipe.name());
@@ -87,7 +87,7 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
 
       if let Some(resolved) = self.resolved_recipes.get(name) {
         // dependency already resolved
-        dependencies.push(resolved.clone());
+        dependencies.push(Rc::clone(&resolved));
       } else if stack.contains(&name) {
         let first = stack[0];
         stack.push(first);
@@ -114,7 +114,7 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
     }
 
     let resolved = Rc::new(recipe.resolve(dependencies)?);
-    self.resolved_recipes.insert(resolved.clone());
+    self.resolved_recipes.insert(Rc::clone(&resolved));
     stack.pop();
     Ok(resolved)
   }

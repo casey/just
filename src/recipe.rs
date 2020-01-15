@@ -50,7 +50,7 @@ impl<'src, D> Recipe<'src, D> {
 
   pub(crate) fn max_arguments(&self) -> usize {
     if self.parameters.iter().any(|p| p.variadic) {
-      usize::MAX - 1
+      usize::max_value() - 1
     } else {
       self.parameters.len()
     }

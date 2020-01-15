@@ -85,6 +85,7 @@ impl<'table, V: Keyed<'table> + 'table> IntoIterator for &'table Table<'table, V
   type Item = (&'table &'table str, &'table V);
   type IntoIter = btree_map::Iter<'table, &'table str, V>;
 
+  #[must_use]
   fn into_iter(self) -> btree_map::Iter<'table, &'table str, V> {
     self.map.iter()
   }

@@ -109,11 +109,12 @@ fn env_var_or_default(
   key: &str,
   default: &str,
 ) -> Result<String, String> {
+  use std::env::VarError::*;
+
   if let Some(value) = context.dotenv.get(key) {
     return Ok(value.clone());
   }
 
-  use std::env::VarError::*;
   match env::var(key) {
     Err(NotPresent) => Ok(default.to_string()),
     Err(NotUnicode(os_string)) => Err(format!(

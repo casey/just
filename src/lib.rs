@@ -1,3 +1,37 @@
+#![deny(clippy::all, clippy::pedantic, clippy::restriction)]
+#![allow(
+  clippy::print_stdout,
+  clippy::else_if_without_else,
+  clippy::use_debug,
+  clippy::implicit_return,
+  clippy::if_not_else,
+  clippy::missing_docs_in_private_items,
+  clippy::enum_glob_use,
+  clippy::integer_arithmetic,
+  clippy::option_unwrap_used,
+  clippy::indexing_slicing,
+  clippy::non_ascii_literal,
+  clippy::missing_inline_in_public_items,
+  clippy::option_expect_used,
+  clippy::comparison_chain,
+  clippy::wildcard_enum_match_arm,
+  clippy::too_many_lines,
+  clippy::shadow_unrelated,
+  clippy::needless_pass_by_value,
+  clippy::option_map_unwrap_or,
+  clippy::filter_map,
+  clippy::result_expect_used,
+  clippy::unreachable,
+  clippy::string_add,
+  clippy::panic,
+  clippy::match_same_arms
+)]
+//   clippy::option_map_unwrap_or_else,
+//   clippy::result_expect_used,
+//   clippy::result_unwrap_used,
+//   clippy::unreachable
+// )]
+
 #[macro_use]
 extern crate lazy_static;
 
