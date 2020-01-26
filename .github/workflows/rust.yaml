@@ -1,10 +1,16 @@
-name: Rust
+name: Main
 
 on: [push]
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os:
+        - macos-latest
+        - ubuntu-latest
+        - windows-latest
+    runs-on: ${{matrix.os}}
     steps:
     - uses: actions/checkout@v1
     - name: Install
@@ -19,13 +25,19 @@ jobs:
         rustup --version
         cargo --version
         cargo clippy --version
+    - name: Build
+      run: cargo build --all --verbose
+    - name: Test
+      run: cargo test --all --verbose
     - name: Clippy
-      run: cargo clippy
+      run: cargo clippy --all
     - name: Lint
+      if: matrix.os != 'windows-latest'
       run: cargo run lint
     - name: Format
-      run: cargo fmt -- --check
+      run: cargo fmt --all -- --check
     - name: Completion Scripts
+      if: matrix.os != 'windows-latest'
       run: |
         for script in completions/*; do
           shell=${script##*.}

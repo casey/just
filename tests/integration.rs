@@ -2266,6 +2266,7 @@ test! {
   shell: false,
 }
 
+#[cfg(unix)]
 test! {
   name: set_shell,
   justfile: "
@@ -2280,6 +2281,24 @@ test! {
   args: (),
   stdout: "echo barecho foo",
   stderr: "echo bar\necho foo\n",
+  shell: false,
+}
+
+#[cfg(windows)]
+test! {
+  name: set_shell,
+  justfile: "
+    set shell := ['echo', '-n']
+
+    x := `bar`
+
+    foo:
+      echo {{x}}
+      echo foo
+  ",
+  args: (),
+  stdout: "-n echo -n bar\r\r\n-n echo foo\r\n",
+  stderr: "echo -n bar\r\necho foo\n",
   shell: false,
 }
 
