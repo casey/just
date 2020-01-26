@@ -242,7 +242,7 @@ Building!
 
 === Settings
 
-Settings control interpetation and execution. Each setting may be specified at most once, anywhere in the justfile.
+Settings control interpretation and execution. Each setting may be specified at most once, anywhere in the justfile.
 
 For example:
 
