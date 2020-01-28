@@ -2,6 +2,16 @@ Changelog
 =========
 
 
+[v0.5.6] - 2020-1-28
+--------------------
+
+## Misc
+- Build and upload release artifacts from GitHub Actions (#581)
+- List solus package in readme (#579)
+- Expand use of Github Actions (#580)
+- Fix readme typo: interpetation -> interpretation (#578)
+
+
 [v0.5.5] - 2020-1-15
 --------------------
 
