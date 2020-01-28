@@ -28,14 +28,14 @@ esac
 
 echo "Copying release files..."
 mkdir dist
-cp -r \
+cp \
   $executable \
   Cargo.lock \
   Cargo.toml \
   GRAMMAR.md \
   LICENSE \
   README.adoc \
-  man \
+  man/just.1 \
   $dist
 
 cd $dist
