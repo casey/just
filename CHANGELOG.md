@@ -2,6 +2,13 @@ Changelog
 =========
 
 
+[v0.5.7] - 2020-1-28
+--------------------
+
+## Misc
+- Don't include directories in release archive (#583)
+
+
 [v0.5.6] - 2020-1-28
 --------------------
 
