@@ -10,6 +10,13 @@ jobs:
         - macos-latest
         - ubuntu-latest
         - windows-latest
+        include:
+        - os: ubuntu-latest
+          target: x86_64-unknown-linux-musl
+        - os: macos-latest
+          target: x86_64-apple-darwin
+        - os: windows-latest
+          target: x86_64-pc-windows-msvc
     runs-on: ${{matrix.os}}
     steps:
     - uses: actions/checkout@v1
@@ -17,6 +24,7 @@ jobs:
       uses: actions-rs/toolchain@v1
       with:
         toolchain: stable
+        target: ${{ matrix.target }}
         profile: minimal
         components: clippy, rustfmt
         override: true
@@ -44,3 +52,17 @@ jobs:
           cargo run -- --completions $shell > $script
         done
         git diff --no-ext-diff --quiet --exit-code
+    - name: Package
+      id: package
+      if: startsWith(github.ref, 'refs/tags/v')
+      run: ./bin/package ${{github.ref}} ${{matrix.os}} ${{ matrix.target }}
+      shell: bash
+    - name: Publish
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/v')
+      with:
+        draft: false
+        files: ${{ steps.package.outputs.archive }}
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
