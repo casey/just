@@ -88,6 +88,13 @@ impl PlatformInterface for Platform {
     cygpath.current_dir(working_directory);
     cygpath.arg("--unix");
     cygpath.arg(path);
-    output(cygpath).map_err(|e| format!("Error converting shell path: {}", e))
+
+    match output(cygpath) {
+      Ok(shell_path) => Ok(shell_path),
+      Err(_) => path
+        .to_str()
+        .map(str::to_string)
+        .ok_or_else(|| String::from("Error getting current directory: unicode decode error")),
+    }
   }
 }
