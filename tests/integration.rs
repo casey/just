@@ -2439,3 +2439,19 @@ test! {
   status: EXIT_FAILURE,
   shell: false,
 }
+
+#[cfg(windows)]
+test! {
+  name: pwsh_invocation_directory,
+  justfile: r#"
+    set shell := ["pwsh", "-NoProfile", "-c"]
+
+    pwd:
+      @Write-Host {{invocation_directory()}}
+  "#,
+  args: (),
+  stdout: "",
+  stderr: "",
+  status: EXIT_SUCCESS,
+  shell: false,
+}
