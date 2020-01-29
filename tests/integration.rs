@@ -2447,7 +2447,7 @@ test! {
     set shell := ["pwsh", "-NoProfile", "-c"]
 
     pwd:
-      @Write-Host {{invocation_directory()}}
+      @Write-Host {{invocation_directory()}} | Out-File -FilePath > path.txt
   "#,
   args: (),
   stdout: "",
