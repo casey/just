@@ -24,7 +24,8 @@
   clippy::too_many_lines,
   clippy::unreachable,
   clippy::use_debug,
-  clippy::wildcard_enum_match_arm
+  clippy::wildcard_enum_match_arm,
+  clippy::missing_errors_doc
 )]
 
 #[macro_use]
