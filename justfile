@@ -50,7 +50,7 @@ view-man: man
 
 version := `sed -En 's/version[[:space:]]*=[[:space:]]*"([^"]+)"/v\1/p' Cargo.toml | head -1`
 
-# publish to crates.io
+# check run before publishing
 publish-check: lint clippy test man
 	git branch | grep '* master'
 	git diff --no-ext-diff --quiet --exit-code
@@ -60,6 +60,7 @@ publish-check: lint clippy test man
 	cargo test
 	git checkout Cargo.lock
 
+# publish to crates.io and push release tag to github
 publish: publish-check
 	cargo +nightly publish
 	git tag -a {{version}} -m 'Release {{version}}'
