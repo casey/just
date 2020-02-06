@@ -10,9 +10,9 @@ readme      = "crates-io-readme.md"
 edition     = "2018"
 
 [features]
-default = []
+default       = []
 help4help2man = []
-summary = []
+summary       = []
 
 [dependencies]
 ansi_term      = "0.12"
