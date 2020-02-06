@@ -2,6 +2,17 @@ Changelog
 =========
 
 
+[v0.5.8] - 2020-1-28
+--------------------
+
+## Changed
+- Only use `cygpath` on windows if present (#586)
+
+## Misc
+- Improve comments in justfile (#588)
+- Remove unused dependencies (#587)
+
+
 [v0.5.7] - 2020-1-28
 --------------------
 
