@@ -50,8 +50,13 @@ view-man: man
 
 version := `sed -En 's/version[[:space:]]*=[[:space:]]*"([^"]+)"/v\1/p' Cargo.toml | head -1`
 
+# add git log messages to changelog
+changes:
+	git log --pretty=format:%s >> CHANGELOG.md
+
 # check run before publishing
 publish-check: lint clippy test man
+	cargo outdated --exit-code 1
 	git branch | grep '* master'
 	git diff --no-ext-diff --quiet --exit-code
 	grep {{version}} CHANGELOG.md
