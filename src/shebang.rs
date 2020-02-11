@@ -1,6 +1,6 @@
 pub(crate) struct Shebang<'line> {
   pub(crate) interpreter: &'line str,
-  pub(crate) argument: Option<&'line str>,
+  pub(crate) argument:    Option<&'line str>,
 }
 
 impl<'line> Shebang<'line> {

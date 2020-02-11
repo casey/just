@@ -71,8 +71,8 @@ impl PlatformInterface for Platform {
   }
 
   fn set_execute_permission(_path: &Path) -> Result<(), io::Error> {
-    // it is not necessary to set an execute permission on a script on windows,
-    // so this is a nop
+    // it is not necessary to set an execute permission on a script on
+    // windows, so this is a nop
     Ok(())
   }
 

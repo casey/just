@@ -2,11 +2,11 @@ use crate::common::*;
 
 #[derive(Debug, PartialEq)]
 pub(crate) struct Justfile<'src> {
-  pub(crate) recipes: Table<'src, Rc<Recipe<'src>>>,
+  pub(crate) recipes:     Table<'src, Rc<Recipe<'src>>>,
   pub(crate) assignments: Table<'src, Assignment<'src>>,
-  pub(crate) aliases: Table<'src, Alias<'src>>,
-  pub(crate) settings: Settings<'src>,
-  pub(crate) warnings: Vec<Warning<'src>>,
+  pub(crate) aliases:     Table<'src, Alias<'src>>,
+  pub(crate) settings:    Settings<'src>,
+  pub(crate) warnings:    Vec<Warning<'src>>,
 }
 
 impl<'src> Justfile<'src> {
@@ -140,11 +140,11 @@ impl<'src> Justfile<'src> {
           let argument_count = cmp::min(tail.len(), recipe.max_arguments());
           if !argument_range.range_contains(&argument_count) {
             return Err(RuntimeError::ArgumentCountMismatch {
-              recipe: recipe.name(),
+              recipe:     recipe.name(),
               parameters: recipe.parameters.iter().collect(),
-              found: tail.len(),
-              min: recipe.min_arguments(),
-              max: recipe.max_arguments(),
+              found:      tail.len(),
+              min:        recipe.min_arguments(),
+              max:        recipe.max_arguments(),
             });
           }
           grouped.push((recipe, &tail[0..argument_count]));

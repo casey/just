@@ -24,11 +24,11 @@ impl<'expression, 'src> Iterator for Variables<'expression, 'src> {
         self.stack.push(lhs);
         self.stack.push(rhs);
         self.next()
-      }
+      },
       Some(Expression::Group { contents }) => {
         self.stack.push(contents);
         self.next()
-      }
+      },
     }
   }
 }

@@ -2,11 +2,11 @@ use crate::common::*;
 
 pub(crate) struct Evaluator<'src: 'run, 'run> {
   assignments: Option<&'run Table<'src, Assignment<'src>>>,
-  config: &'run Config,
-  dotenv: &'run BTreeMap<String, String>,
-  scope: Scope<'src, 'run>,
-  settings: &'run Settings<'run>,
-  search: &'run Search,
+  config:      &'run Config,
+  dotenv:      &'run BTreeMap<String, String>,
+  scope:       Scope<'src, 'run>,
+  settings:    &'run Settings<'run>,
+  search:      &'run Search,
 }
 
 impl<'src, 'run> Evaluator<'src, 'run> {
@@ -64,23 +64,22 @@ impl<'src, 'run> Evaluator<'src, 'run> {
             message: format!("attempted to evaluate undefined variable `{}`", variable),
           })
         }
-      }
+      },
       Expression::Call { thunk } => {
         use Thunk::*;
 
         let context = FunctionContext {
-          dotenv: self.dotenv,
+          dotenv:               self.dotenv,
           invocation_directory: &self.config.invocation_directory,
-          search: self.search,
+          search:               self.search,
         };
 
         match thunk {
-          Nullary { name, function, .. } => {
+          Nullary { name, function, .. } =>
             function(&context).map_err(|message| RuntimeError::FunctionCall {
               function: *name,
               message,
-            })
-          }
+            }),
           Unary {
             name,
             function,
@@ -107,18 +106,16 @@ impl<'src, 'run> Evaluator<'src, 'run> {
             message,
           }),
         }
-      }
+      },
       Expression::StringLiteral { string_literal } => Ok(string_literal.cooked.to_string()),
-      Expression::Backtick { contents, token } => {
+      Expression::Backtick { contents, token } =>
         if self.config.dry_run {
           Ok(format!("`{}`", contents))
         } else {
           Ok(self.run_backtick(contents, token)?)
-        }
-      }
-      Expression::Concatination { lhs, rhs } => {
-        Ok(self.evaluate_expression(lhs)? + &self.evaluate_expression(rhs)?)
-      }
+        },
+      Expression::Concatination { lhs, rhs } =>
+        Ok(self.evaluate_expression(lhs)? + &self.evaluate_expression(rhs)?),
       Expression::Group { contents } => self.evaluate_expression(contents),
     }
   }
@@ -155,7 +152,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         Fragment::Text { token } => evaluated += token.lexeme(),
         Fragment::Interpolation { expression } => {
           evaluated += &self.evaluate_expression(expression)?;
-        }
+        },
       }
     }
     Ok(evaluated)

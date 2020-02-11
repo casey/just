@@ -1,7 +1,7 @@
 use crate::common::*;
 
 pub(crate) struct InterruptHandler {
-  blocks: u32,
+  blocks:      u32,
   interrupted: bool,
 }
 
@@ -18,20 +18,17 @@ impl InterruptHandler {
     match INSTANCE.lock() {
       Ok(guard) => guard,
       Err(poison_error) => {
-        eprintln!(
-          "{}",
-          RuntimeError::Internal {
-            message: format!("interrupt handler mutex poisoned: {}", poison_error),
-          }
-        );
+        eprintln!("{}", RuntimeError::Internal {
+          message: format!("interrupt handler mutex poisoned: {}", poison_error),
+        });
         std::process::exit(EXIT_FAILURE);
-      }
+      },
     }
   }
 
   fn new() -> Self {
     Self {
-      blocks: 0,
+      blocks:      0,
       interrupted: false,
     }
   }
@@ -56,13 +53,9 @@ impl InterruptHandler {
 
   pub(crate) fn unblock(&mut self) {
     if self.blocks == 0 {
-      eprintln!(
-        "{}",
-        RuntimeError::Internal {
-          message: "attempted to unblock interrupt handler, but handler was not blocked"
-            .to_string(),
-        }
-      );
+      eprintln!("{}", RuntimeError::Internal {
+        message: "attempted to unblock interrupt handler, but handler was not blocked".to_string(),
+      });
       std::process::exit(EXIT_FAILURE);
     }
 

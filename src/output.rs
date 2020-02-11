@@ -28,7 +28,7 @@ pub(crate) fn output(mut command: Command) -> Result<String, OutputError> {
           .to_string(),
         ),
       }
-    }
+    },
     Err(io_error) => Err(OutputError::Io(io_error)),
   }
 }

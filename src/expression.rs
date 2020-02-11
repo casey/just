@@ -11,7 +11,7 @@ pub(crate) enum Expression<'src> {
   /// `contents`
   Backtick {
     contents: &'src str,
-    token: Token<'src>,
+    token:    Token<'src>,
   },
   /// `name(arguments)`
   Call { thunk: Thunk<'src> },

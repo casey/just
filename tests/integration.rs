@@ -40,24 +40,24 @@ macro_rules! test {
 
 struct Test<'a> {
   justfile: &'a str,
-  args: &'a [&'a str],
-  stdin: &'a str,
-  stdout: &'a str,
-  stderr: &'a str,
-  status: i32,
-  shell: bool,
+  args:     &'a [&'a str],
+  stdin:    &'a str,
+  stdout:   &'a str,
+  stderr:   &'a str,
+  status:   i32,
+  shell:    bool,
 }
 
 impl<'a> Default for Test<'a> {
   fn default() -> Test<'a> {
     Test {
       justfile: "",
-      args: &[],
-      stdin: "",
-      stdout: "",
-      stderr: "",
-      status: EXIT_SUCCESS,
-      shell: true,
+      args:     &[],
+      stdin:    "",
+      stdout:   "",
+      stderr:   "",
+      status:   EXIT_SUCCESS,
+      shell:    true,
     }
   }
 }
@@ -943,7 +943,11 @@ foo A B C='C':
     ",
   args:     ("foo", "bar"),
   stdout:   "",
-  stderr:   "error: Recipe `foo` got 1 argument but takes at least 2\nusage:\n    just foo A B C='C'\n",
+  stderr:   "
+    error: Recipe `foo` got 1 argument but takes at least 2
+    usage:
+        just foo A B C='C'
+  ",
   status:   EXIT_FAILURE,
 }
 

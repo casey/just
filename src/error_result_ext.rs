@@ -16,7 +16,7 @@ impl<T, E: Error> ErrorResultExt<T> for Result<T, E> {
         }
 
         Err(error.code())
-      }
+      },
     }
   }
 }

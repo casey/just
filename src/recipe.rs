@@ -2,8 +2,8 @@ use crate::common::*;
 
 use std::process::{ExitStatus, Stdio};
 
-/// Return a `RuntimeError::Signal` if the process was terminated by a signal,
-/// otherwise return an `RuntimeError::UnknownFailure`
+/// Return a `RuntimeError::Signal` if the process was terminated by a
+/// signal, otherwise return an `RuntimeError::UnknownFailure`
 fn error_from_signal(
   recipe: &str,
   line_number: Option<usize>,
@@ -26,13 +26,13 @@ fn error_from_signal(
 #[derive(PartialEq, Debug)]
 pub(crate) struct Recipe<'src, D = Dependency<'src>> {
   pub(crate) dependencies: Vec<D>,
-  pub(crate) doc: Option<&'src str>,
-  pub(crate) body: Vec<Line<'src>>,
-  pub(crate) name: Name<'src>,
-  pub(crate) parameters: Vec<Parameter<'src>>,
-  pub(crate) private: bool,
-  pub(crate) quiet: bool,
-  pub(crate) shebang: bool,
+  pub(crate) doc:          Option<&'src str>,
+  pub(crate) body:         Vec<Line<'src>>,
+  pub(crate) name:         Name<'src>,
+  pub(crate) parameters:   Vec<Parameter<'src>>,
+  pub(crate) private:      bool,
+  pub(crate) quiet:        bool,
+  pub(crate) shebang:      bool,
 }
 
 impl<'src, D> Recipe<'src, D> {
@@ -106,14 +106,14 @@ impl<'src, D> Recipe<'src, D> {
         .prefix("just")
         .tempdir()
         .map_err(|error| RuntimeError::TmpdirIoError {
-          recipe: self.name(),
+          recipe:   self.name(),
           io_error: error,
         })?;
       let mut path = tmp.path().to_path_buf();
       path.push(self.name());
       {
         let mut f = fs::File::create(&path).map_err(|error| RuntimeError::TmpdirIoError {
-          recipe: self.name(),
+          recipe:   self.name(),
           io_error: error,
         })?;
         let mut text = String::new();
@@ -137,14 +137,14 @@ impl<'src, D> Recipe<'src, D> {
 
         f.write_all(text.as_bytes())
           .map_err(|error| RuntimeError::TmpdirIoError {
-            recipe: self.name(),
+            recipe:   self.name(),
             io_error: error,
           })?;
       }
 
       // make the script executable
       Platform::set_execute_permission(&path).map_err(|error| RuntimeError::TmpdirIoError {
-        recipe: self.name(),
+        recipe:   self.name(),
         io_error: error,
       })?;
 
@@ -177,7 +177,7 @@ impl<'src, D> Recipe<'src, D> {
 
       // run it!
       match InterruptHandler::guard(|| command.status()) {
-        Ok(exit_status) => {
+        Ok(exit_status) =>
           if let Some(code) = exit_status.code() {
             if code != 0 {
               return Err(RuntimeError::Code {
@@ -188,8 +188,7 @@ impl<'src, D> Recipe<'src, D> {
             }
           } else {
             return Err(error_from_signal(self.name(), None, exit_status));
-          }
-        }
+          },
         Err(io_error) => {
           return Err(RuntimeError::Shebang {
             recipe: self.name(),
@@ -197,7 +196,7 @@ impl<'src, D> Recipe<'src, D> {
             argument: argument.map(String::from),
             io_error,
           });
-        }
+        },
       };
     } else {
       let mut lines = self.body.iter().peekable();
@@ -260,7 +259,7 @@ impl<'src, D> Recipe<'src, D> {
         cmd.export(dotenv, &scope);
 
         match InterruptHandler::guard(|| cmd.status()) {
-          Ok(exit_status) => {
+          Ok(exit_status) =>
             if let Some(code) = exit_status.code() {
               if code != 0 {
                 return Err(RuntimeError::Code {
@@ -275,14 +274,13 @@ impl<'src, D> Recipe<'src, D> {
                 Some(line_number),
                 exit_status,
               ));
-            }
-          }
+            },
           Err(io_error) => {
             return Err(RuntimeError::IoError {
               recipe: self.name(),
               io_error,
             });
-          }
+          },
         };
       }
     }

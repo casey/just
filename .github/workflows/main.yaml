@@ -20,7 +20,7 @@ jobs:
     runs-on: ${{matrix.os}}
     steps:
     - uses: actions/checkout@v1
-    - name: Install
+    - name: Install Main Toolchain
       uses: actions-rs/toolchain@v1
       with:
         toolchain: stable
@@ -42,8 +42,15 @@ jobs:
     - name: Lint
       if: matrix.os != 'windows-latest'
       run: cargo run lint
+    - name: Install Rustfmt Toolchain
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: nightly
+        target: ${{ matrix.target }}
+        profile: minimal
+        components: rustfmt
     - name: Format
-      run: cargo fmt --all -- --check
+      run: cargo +nightly fmt --all -- --check
     - name: Completion Scripts
       if: matrix.os != 'windows-latest'
       run: |

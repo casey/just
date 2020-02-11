@@ -3,23 +3,23 @@ use crate::common::*;
 #[derive(Debug)]
 pub(crate) enum RuntimeError<'src> {
   ArgumentCountMismatch {
-    recipe: &'src str,
+    recipe:     &'src str,
     parameters: Vec<&'src Parameter<'src>>,
-    found: usize,
-    min: usize,
-    max: usize,
+    found:      usize,
+    min:        usize,
+    max:        usize,
   },
   Backtick {
-    token: Token<'src>,
+    token:        Token<'src>,
     output_error: OutputError,
   },
   Code {
-    recipe: &'src str,
+    recipe:      &'src str,
     line_number: Option<usize>,
-    code: i32,
+    code:        i32,
   },
   Cygpath {
-    recipe: &'src str,
+    recipe:       &'src str,
     output_error: OutputError,
   },
   Dotenv {
@@ -27,44 +27,44 @@ pub(crate) enum RuntimeError<'src> {
   },
   FunctionCall {
     function: Name<'src>,
-    message: String,
+    message:  String,
   },
   Internal {
     message: String,
   },
   IoError {
-    recipe: &'src str,
+    recipe:   &'src str,
     io_error: io::Error,
   },
   Shebang {
-    recipe: &'src str,
-    command: String,
+    recipe:   &'src str,
+    command:  String,
     argument: Option<String>,
     io_error: io::Error,
   },
   Signal {
-    recipe: &'src str,
+    recipe:      &'src str,
     line_number: Option<usize>,
-    signal: i32,
+    signal:      i32,
   },
   TmpdirIoError {
-    recipe: &'src str,
+    recipe:   &'src str,
     io_error: io::Error,
   },
   UnknownOverrides {
     overrides: Vec<&'src str>,
   },
   UnknownRecipes {
-    recipes: Vec<&'src str>,
+    recipes:    Vec<&'src str>,
     suggestion: Option<&'src str>,
   },
   Unknown {
-    recipe: &'src str,
+    recipe:      &'src str,
     line_number: Option<usize>,
   },
   NoRecipes,
   DefaultRecipeRequiresArguments {
-    recipe: &'src str,
+    recipe:        &'src str,
     min_arguments: usize,
   },
 }
@@ -119,7 +119,7 @@ impl<'src> Display for RuntimeError<'src> {
         if let Some(suggestion) = *suggestion {
           write!(f, "\nDid you mean `{}`?", suggestion)?;
         }
-      }
+      },
       UnknownOverrides { overrides } => {
         write!(
           f,
@@ -127,7 +127,7 @@ impl<'src> Display for RuntimeError<'src> {
           Count("Variable", overrides.len()),
           List::and_ticked(overrides),
         )?;
-      }
+      },
       ArgumentCountMismatch {
         recipe,
         parameters,
@@ -173,12 +173,12 @@ impl<'src> Display for RuntimeError<'src> {
             write!(f, " {}", param)?;
           }
         }
-      }
+      },
       Code {
         recipe,
         line_number,
         code,
-      } => {
+      } =>
         if let Some(n) = line_number {
           write!(
             f,
@@ -187,8 +187,7 @@ impl<'src> Display for RuntimeError<'src> {
           )?;
         } else {
           write!(f, "Recipe `{}` failed with exit code {}", recipe, code)?;
-        }
-      }
+        },
       Cygpath {
         recipe,
         output_error,
@@ -196,56 +195,56 @@ impl<'src> Display for RuntimeError<'src> {
         OutputError::Code(code) => {
           write!(
             f,
-            "Cygpath failed with exit code {} while translating recipe `{}` \
-             shebang interpreter path",
+            "Cygpath failed with exit code {} while translating recipe `{}` shebang interpreter \
+             path",
             code, recipe
           )?;
-        }
+        },
         OutputError::Signal(signal) => {
           write!(
             f,
-            "Cygpath terminated by signal {} while translating recipe `{}` \
-             shebang interpreter path",
+            "Cygpath terminated by signal {} while translating recipe `{}` shebang interpreter \
+             path",
             signal, recipe
           )?;
-        }
+        },
         OutputError::Unknown => {
           write!(
             f,
-            "Cygpath experienced an unknown failure while translating recipe `{}` \
-             shebang interpreter path",
+            "Cygpath experienced an unknown failure while translating recipe `{}` shebang \
+             interpreter path",
             recipe
           )?;
-        }
+        },
         OutputError::Io(io_error) => {
           match io_error.kind() {
             io::ErrorKind::NotFound => write!(
               f,
-              "Could not find `cygpath` executable to translate recipe `{}` \
-               shebang interpreter path:\n{}",
+              "Could not find `cygpath` executable to translate recipe `{}` shebang interpreter \
+               path:\n{}",
               recipe, io_error
             ),
             io::ErrorKind::PermissionDenied => write!(
               f,
-              "Could not run `cygpath` executable to translate recipe `{}` \
-               shebang interpreter path:\n{}",
+              "Could not run `cygpath` executable to translate recipe `{}` shebang interpreter \
+               path:\n{}",
               recipe, io_error
             ),
             _ => write!(f, "Could not run `cygpath` executable:\n{}", io_error),
           }?;
-        }
+        },
         OutputError::Utf8(utf8_error) => {
           write!(
             f,
-            "Cygpath successfully translated recipe `{}` shebang interpreter path, \
-             but output was not utf8: {}",
+            "Cygpath successfully translated recipe `{}` shebang interpreter path, but output was \
+             not utf8: {}",
             recipe, utf8_error
           )?;
-        }
+        },
       },
       Dotenv { dotenv_error } => {
         writeln!(f, "Failed to load .env: {}", dotenv_error)?;
-      }
+      },
       FunctionCall { function, message } => {
         writeln!(
           f,
@@ -253,13 +252,13 @@ impl<'src> Display for RuntimeError<'src> {
           function.lexeme(),
           message
         )?;
-      }
+      },
       Shebang {
         recipe,
         command,
         argument,
         io_error,
-      } => {
+      } =>
         if let Some(argument) = argument {
           write!(
             f,
@@ -272,13 +271,12 @@ impl<'src> Display for RuntimeError<'src> {
             "Recipe `{}` with shebang `#!{}` execution error: {}",
             recipe, command, io_error
           )?;
-        }
-      }
+        },
       Signal {
         recipe,
         line_number,
         signal,
-      } => {
+      } =>
         if let Some(n) = line_number {
           write!(
             f,
@@ -287,12 +285,11 @@ impl<'src> Display for RuntimeError<'src> {
           )?;
         } else {
           write!(f, "Recipe `{}` was terminated by signal {}", recipe, signal)?;
-        }
-      }
+        },
       Unknown {
         recipe,
         line_number,
-      } => {
+      } =>
         if let Some(n) = line_number {
           write!(
             f,
@@ -301,8 +298,7 @@ impl<'src> Display for RuntimeError<'src> {
           )?;
         } else {
           write!(f, "Recipe `{}` failed for an unknown reason", recipe)?;
-        }
-      }
+        },
       IoError { recipe, io_error } => {
         match io_error.kind() {
           io::ErrorKind::NotFound => writeln!(
@@ -317,28 +313,27 @@ impl<'src> Display for RuntimeError<'src> {
           ),
           _ => writeln!(
             f,
-            "Recipe `{}` could not be run because of an IO error while \
-             launching `sh`:{}",
+            "Recipe `{}` could not be run because of an IO error while launching `sh`:{}",
             recipe, io_error
           ),
         }?;
-      }
+      },
       TmpdirIoError { recipe, io_error } => writeln!(
         f,
-        "Recipe `{}` could not be run because of an IO error while trying \
-         to create a temporary directory or write a file to that directory`:{}",
+        "Recipe `{}` could not be run because of an IO error while trying to create a temporary \
+         directory or write a file to that directory`:{}",
         recipe, io_error
       )?,
       Backtick { output_error, .. } => match output_error {
         OutputError::Code(code) => {
           writeln!(f, "Backtick failed with exit code {}", code)?;
-        }
+        },
         OutputError::Signal(signal) => {
           writeln!(f, "Backtick was terminated by signal {}", signal)?;
-        }
+        },
         OutputError::Unknown => {
           writeln!(f, "Backtick failed for an unknown reason")?;
-        }
+        },
         OutputError::Io(io_error) => {
           match io_error.kind() {
             io::ErrorKind::NotFound => write!(
@@ -353,23 +348,22 @@ impl<'src> Display for RuntimeError<'src> {
             ),
             _ => write!(
               f,
-              "Backtick could not be run because of an IO \
-               error while launching `sh`:\n{}",
+              "Backtick could not be run because of an IO error while launching `sh`:\n{}",
               io_error
             ),
           }?;
-        }
+        },
         OutputError::Utf8(utf8_error) => {
           writeln!(
             f,
             "Backtick succeeded but stdout was not utf8: {}",
             utf8_error
           )?;
-        }
+        },
       },
       NoRecipes => {
         writeln!(f, "Justfile contains no recipes.",)?;
-      }
+      },
       DefaultRecipeRequiresArguments {
         recipe,
         min_arguments,
@@ -381,7 +375,7 @@ impl<'src> Display for RuntimeError<'src> {
           min_arguments,
           Count("argument", *min_arguments),
         )?;
-      }
+      },
       Internal { message } => {
         write!(
           f,
@@ -389,7 +383,7 @@ impl<'src> Display for RuntimeError<'src> {
            consider filing an issue: https://github.com/casey/just/issues/new",
           message
         )?;
-      }
+      },
     }
 
     write!(f, "{}", message.suffix())?;

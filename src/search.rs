@@ -6,7 +6,7 @@ pub(crate) const FILENAME: &str = "justfile";
 const PROJECT_ROOT_CHILDREN: &[&str] = &[".bzr", ".git", ".hg", ".svn", "_darcs"];
 
 pub(crate) struct Search {
-  pub(crate) justfile: PathBuf,
+  pub(crate) justfile:          PathBuf,
   pub(crate) working_directory: PathBuf,
 }
 
@@ -25,7 +25,7 @@ impl Search {
           justfile,
           working_directory,
         })
-      }
+      },
 
       SearchConfig::FromSearchDirectory { search_directory } => {
         let search_directory = Self::clean(invocation_directory, search_directory);
@@ -38,7 +38,7 @@ impl Search {
           justfile,
           working_directory,
         })
-      }
+      },
 
       SearchConfig::WithJustfile { justfile } => {
         let justfile = Self::clean(invocation_directory, justfile);
@@ -49,13 +49,13 @@ impl Search {
           justfile,
           working_directory,
         })
-      }
+      },
 
       SearchConfig::WithJustfileAndWorkingDirectory {
         justfile,
         working_directory,
       } => Ok(Self {
-        justfile: Self::clean(invocation_directory, justfile),
+        justfile:          Self::clean(invocation_directory, justfile),
         working_directory: Self::clean(invocation_directory, working_directory),
       }),
     }
@@ -75,7 +75,7 @@ impl Search {
           justfile,
           working_directory,
         })
-      }
+      },
 
       SearchConfig::FromSearchDirectory { search_directory } => {
         let search_directory = Self::clean(invocation_directory, search_directory);
@@ -88,7 +88,7 @@ impl Search {
           justfile,
           working_directory,
         })
-      }
+      },
 
       SearchConfig::WithJustfile { justfile } => {
         let justfile = Self::clean(invocation_directory, justfile);
@@ -99,13 +99,13 @@ impl Search {
           justfile,
           working_directory,
         })
-      }
+      },
 
       SearchConfig::WithJustfileAndWorkingDirectory {
         justfile,
         working_directory,
       } => Ok(Self {
-        justfile: Self::clean(invocation_directory, justfile),
+        justfile:          Self::clean(invocation_directory, justfile),
         working_directory: Self::clean(invocation_directory, working_directory),
       }),
     }
@@ -205,7 +205,7 @@ mod tests {
     match Search::justfile(tmp.path()) {
       Err(SearchError::NotFound) => {
         assert!(true);
-      }
+      },
       _ => panic!("No justfile found error was expected"),
     }
   }
@@ -227,7 +227,7 @@ mod tests {
     match Search::justfile(path.as_path()) {
       Err(SearchError::MultipleCandidates { .. }) => {
         assert!(true);
-      }
+      },
       _ => panic!("Multiple candidates error was expected"),
     }
   }
@@ -242,7 +242,7 @@ mod tests {
     match Search::justfile(path.as_path()) {
       Ok(_path) => {
         assert!(true);
-      }
+      },
       _ => panic!("No errors were expected"),
     }
   }
@@ -268,7 +268,7 @@ mod tests {
     match Search::justfile(path.as_path()) {
       Ok(_path) => {
         assert!(true);
-      }
+      },
       _ => panic!("No errors were expected"),
     }
   }
@@ -287,7 +287,7 @@ mod tests {
     match Search::justfile(path.as_path()) {
       Ok(_path) => {
         assert!(true);
-      }
+      },
       _ => panic!("No errors were expected"),
     }
   }
@@ -311,7 +311,7 @@ mod tests {
         path.pop();
         path.push(FILENAME);
         assert_eq!(found_path, path);
-      }
+      },
       _ => panic!("No errors were expected"),
     }
   }

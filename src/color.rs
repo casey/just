@@ -1,14 +1,13 @@
 use crate::common::*;
 
-use ansi_term::Color::*;
-use ansi_term::{ANSIGenericString, Prefix, Style, Suffix};
+use ansi_term::{ANSIGenericString, Color::*, Prefix, Style, Suffix};
 use atty::Stream;
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub(crate) struct Color {
   use_color: UseColor,
-  atty: bool,
-  style: Style,
+  atty:      bool,
+  style:     Style,
 }
 
 impl Color {
@@ -129,8 +128,8 @@ impl Default for Color {
   fn default() -> Self {
     Self {
       use_color: UseColor::Auto,
-      atty: false,
-      style: Style::new(),
+      atty:      false,
+      style:     Style::new(),
     }
   }
 }

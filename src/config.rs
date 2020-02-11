@@ -9,17 +9,17 @@ pub(crate) const INIT_JUSTFILE: &str = "default:\n\techo 'Hello, world!'\n";
 
 #[derive(Debug, PartialEq)]
 pub(crate) struct Config {
-  pub(crate) color: Color,
-  pub(crate) dry_run: bool,
-  pub(crate) highlight: bool,
+  pub(crate) color:                Color,
+  pub(crate) dry_run:              bool,
+  pub(crate) highlight:            bool,
   pub(crate) invocation_directory: PathBuf,
-  pub(crate) quiet: bool,
-  pub(crate) search_config: SearchConfig,
-  pub(crate) shell: String,
-  pub(crate) shell_args: Vec<String>,
-  pub(crate) shell_present: bool,
-  pub(crate) subcommand: Subcommand,
-  pub(crate) verbosity: Verbosity,
+  pub(crate) quiet:                bool,
+  pub(crate) search_config:        SearchConfig,
+  pub(crate) shell:                String,
+  pub(crate) shell_args:           Vec<String>,
+  pub(crate) shell_present:        bool,
+  pub(crate) subcommand:           Subcommand,
+  pub(crate) verbosity:            Verbosity,
 }
 
 mod cmd {
@@ -279,17 +279,15 @@ impl Config {
         match (justfile, working_directory) {
           (None, None) => SearchConfig::FromInvocationDirectory,
           (Some(justfile), None) => SearchConfig::WithJustfile { justfile },
-          (Some(justfile), Some(working_directory)) => {
+          (Some(justfile), Some(working_directory)) =>
             SearchConfig::WithJustfileAndWorkingDirectory {
               justfile,
               working_directory,
-            }
-          }
-          (None, Some(_)) => {
+            },
+          (None, Some(_)) =>
             return Err(ConfigError::internal(
               "--working-directory set without --justfile",
-            ))
-          }
+            )),
         }
       }
     };
@@ -297,26 +295,26 @@ impl Config {
     for subcommand in cmd::ARGLESS {
       if matches.is_present(subcommand) {
         match (!overrides.is_empty(), !positional.arguments.is_empty()) {
-          (false, false) => {}
+          (false, false) => {},
           (true, false) => {
             return Err(ConfigError::SubcommandOverrides {
               subcommand: format!("--{}", subcommand.to_lowercase()),
               overrides,
             });
-          }
+          },
           (false, true) => {
             return Err(ConfigError::SubcommandArguments {
               subcommand: format!("--{}", subcommand.to_lowercase()),
-              arguments: positional.arguments,
+              arguments:  positional.arguments,
             });
-          }
+          },
           (true, true) => {
             return Err(ConfigError::SubcommandOverridesAndArguments {
               subcommand: format!("--{}", subcommand.to_lowercase()),
               arguments: positional.arguments,
               overrides,
             });
-          }
+          },
         }
       }
     }
@@ -343,7 +341,7 @@ impl Config {
       if !positional.arguments.is_empty() {
         return Err(ConfigError::SubcommandArguments {
           subcommand: format!("--{}", cmd::EVALUATE.to_lowercase()),
-          arguments: positional.arguments,
+          arguments:  positional.arguments,
         });
       }
       Subcommand::Evaluate { overrides }
@@ -455,14 +453,13 @@ impl Config {
       .status();
 
     match error {
-      Ok(status) => {
+      Ok(status) =>
         if status.success() {
           Ok(())
         } else {
           eprintln!("Editor `{}` failed: {}", editor.to_string_lossy(), status);
           Err(status.code().unwrap_or(EXIT_FAILURE))
-        }
-      }
+        },
       Err(error) => {
         eprintln!(
           "Editor `{}` invocation failed: {}",
@@ -470,7 +467,7 @@ impl Config {
           error
         );
         Err(EXIT_FAILURE)
-      }
+      },
     }
   }
 
@@ -555,9 +552,10 @@ impl Config {
           }
         }
 
-        // Declaring this outside of the nested loops will probably be more efficient, but
-        // it creates all sorts of lifetime issues with variables inside the loops.
-        // If this is inlined like the docs say, it shouldn't make any difference.
+        // Declaring this outside of the nested loops will probably be more
+        // efficient, but it creates all sorts of lifetime issues with
+        // variables inside the loops. If this is inlined like the
+        // docs say, it shouldn't make any difference.
         let print_doc = |doc| {
           print!(
             " {:padding$}{} {}",
@@ -643,13 +641,15 @@ mod tests {
 
   use pretty_assertions::assert_eq;
 
-  // This test guards against unintended changes to the argument parser. We should have
-  // proper tests for all the flags, but this will do for now.
+  // This test guards against unintended changes to the argument parser.
+  // We should have proper tests for all the flags, but this will do
+  // for now.
   #[test]
   fn help() {
     const EXPECTED_HELP: &str = "just v0.5.8
 Casey Rodarmor <casey@rodarmor.com>
-🤖 Just a command runner - https://github.com/casey/just
+🤖 Just a command runner \
+                                 - https://github.com/casey/just
 
 USAGE:
     just [FLAGS] [OPTIONS] [--] [ARGUMENTS]...
@@ -658,8 +658,8 @@ FLAGS:
         --clear-shell-args    Clear shell arguments
         --dry-run             Print what just would do without doing it
         --dump                Print entire justfile
-    -e, --edit                \
-      Edit justfile with editor given by $VISUAL or $EDITOR, falling back to `vim`
+    -e, --edit                Edit justfile with editor given by $VISUAL or $EDITOR, falling back \
+                                 to `vim`
         --evaluate            Print evaluated variables
         --highlight           Highlight echoed recipe lines in bold
         --init                Initialize new justfile in project root
@@ -674,22 +674,22 @@ OPTIONS:
             Print colorful output [default: auto]  [possible values: auto, always, never]
 
         --completions <SHELL>
-            Print shell completion script for <SHELL> \
-            [possible values: zsh, bash, fish, powershell, elvish]
+            Print shell completion script for <SHELL> [possible values: zsh, bash, fish, \
+                                 powershell, elvish]
 
     -f, --justfile <JUSTFILE>                      Use <JUSTFILE> as justfile.
         --set <VARIABLE> <VALUE>                   Override <VARIABLE> with <VALUE>
         --shell <SHELL>                            Invoke <SHELL> to run recipes [default: sh]
-        --shell-arg <SHELL-ARG>...                 \
-        Invoke shell with <SHELL-ARG> as an argument [default: -cu]
+        --shell-arg <SHELL-ARG>...                 Invoke shell with <SHELL-ARG> as an argument \
+                                 [default: -cu]
     -s, --show <RECIPE>                            Show information about <RECIPE>
     -d, --working-directory <WORKING-DIRECTORY>
             Use <WORKING-DIRECTORY> as working directory. --justfile must also be set
 
 
 ARGS:
-    <ARGUMENTS>...    \
-      Overrides and recipe(s) to run, defaulting to the first recipe in the justfile";
+    <ARGUMENTS>...    Overrides and recipe(s) to run, defaulting to the first recipe in the \
+                                 justfile";
 
     let app = Config::app().setting(AppSettings::ColorNever);
     let mut buffer = Vec::new();

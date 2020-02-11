@@ -1,7 +1,7 @@
 use crate::common::*;
 
 pub(crate) struct LoadError<'path> {
-  pub(crate) path: &'path Path,
+  pub(crate) path:     &'path Path,
   pub(crate) io_error: io::Error,
 }
 

@@ -4,9 +4,9 @@ use CompilationErrorKind::*;
 
 pub(crate) struct AssignmentResolver<'src: 'run, 'run> {
   assignments: &'run Table<'src, Assignment<'src>>,
-  stack: Vec<&'src str>,
-  seen: BTreeSet<&'src str>,
-  evaluated: BTreeSet<&'src str>,
+  stack:       Vec<&'src str>,
+  seen:        BTreeSet<&'src str>,
+  evaluated:   BTreeSet<&'src str>,
 }
 
 impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
@@ -41,12 +41,12 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
     } else {
       let message = format!("attempted to resolve unknown assignment `{}`", name);
       let token = Token {
-        src: "",
+        src:    "",
         offset: 0,
-        line: 0,
+        line:   0,
         column: 0,
         length: 0,
-        kind: TokenKind::Unspecified,
+        kind:   TokenKind::Unspecified,
       };
       return Err(CompilationError {
         kind: Internal { message },
@@ -74,19 +74,19 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
         } else {
           Err(name.token().error(UndefinedVariable { variable }))
         }
-      }
+      },
       Expression::Call { thunk } => match thunk {
         Thunk::Nullary { .. } => Ok(()),
         Thunk::Unary { arg, .. } => self.resolve_expression(arg),
         Thunk::Binary { args: [a, b], .. } => {
           self.resolve_expression(a)?;
           self.resolve_expression(b)
-        }
+        },
       },
       Expression::Concatination { lhs, rhs } => {
         self.resolve_expression(lhs)?;
         self.resolve_expression(rhs)
-      }
+      },
       Expression::StringLiteral { .. } | Expression::Backtick { .. } => Ok(()),
       Expression::Group { contents } => self.resolve_expression(contents),
     }

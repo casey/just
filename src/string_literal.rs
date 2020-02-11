@@ -2,7 +2,7 @@ use crate::common::*;
 
 #[derive(PartialEq, Debug)]
 pub(crate) struct StringLiteral<'src> {
-  pub(crate) raw: &'src str,
+  pub(crate) raw:    &'src str,
   pub(crate) cooked: Cow<'src, str>,
 }
 

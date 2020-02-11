@@ -1,12 +1,12 @@
 //! Justfile summary creation, for testing purposes only.
 //!
-//! The contents of this module are not bound by any stability guarantees.
-//! Breaking changes may be introduced at any time.
+//! The contents of this module are not bound by any stability
+//! guarantees. Breaking changes may be introduced at any time.
 //!
-//! The main entry point into this module is the `summary` function, which
-//! parses a justfile at a given path and produces a `Summary` object,
-//! which broadly captures the functionality of the parsed justfile, or
-//! an error message.
+//! The main entry point into this module is the `summary` function,
+//! which parses a justfile at a given path and produces a `Summary`
+//! object, which broadly captures the functionality of the parsed
+//! justfile, or an error message.
 //!
 //! This functionality is intended to be used with `janus`, a tool for
 //! ensuring that changes to just do not inadvertently break or
@@ -35,7 +35,7 @@ pub fn summary(path: &Path) -> Result<Result<Summary, String>, io::Error> {
 #[derive(Eq, PartialEq, Hash, Ord, PartialOrd, Debug, Clone)]
 pub struct Summary {
   pub assignments: BTreeMap<String, Assignment>,
-  pub recipes: BTreeMap<String, Recipe>,
+  pub recipes:     BTreeMap<String, Recipe>,
 }
 
 impl Summary {
@@ -50,7 +50,7 @@ impl Summary {
     }
 
     Summary {
-      recipes: justfile
+      recipes:     justfile
         .recipes
         .into_iter()
         .map(|(name, recipe)| {
@@ -71,13 +71,13 @@ impl Summary {
 
 #[derive(Eq, PartialEq, Hash, Ord, PartialOrd, Debug, Clone)]
 pub struct Recipe {
-  pub aliases: Vec<String>,
+  pub aliases:      Vec<String>,
   pub dependencies: Vec<Dependency>,
-  pub lines: Vec<Line>,
-  pub private: bool,
-  pub quiet: bool,
-  pub shebang: bool,
-  pub parameters: Vec<Parameter>,
+  pub lines:        Vec<Line>,
+  pub private:      bool,
+  pub quiet:        bool,
+  pub shebang:      bool,
+  pub parameters:   Vec<Parameter>,
 }
 
 impl Recipe {
@@ -101,16 +101,16 @@ impl Recipe {
 #[derive(Eq, PartialEq, Hash, Ord, PartialOrd, Debug, Clone)]
 pub struct Parameter {
   pub variadic: bool,
-  pub name: String,
-  pub default: Option<Expression>,
+  pub name:     String,
+  pub default:  Option<Expression>,
 }
 
 impl Parameter {
   fn new(parameter: &full::Parameter) -> Parameter {
     Parameter {
       variadic: parameter.variadic,
-      name: parameter.name.lexeme().to_owned(),
-      default: parameter.default.as_ref().map(Expression::new),
+      name:     parameter.name.lexeme().to_owned(),
+      default:  parameter.default.as_ref().map(Expression::new),
     }
   }
 }
@@ -149,14 +149,14 @@ impl Fragment {
 
 #[derive(Eq, PartialEq, Hash, Ord, PartialOrd, Debug, Clone)]
 pub struct Assignment {
-  pub exported: bool,
+  pub exported:   bool,
   pub expression: Expression,
 }
 
 impl Assignment {
   fn new(assignment: &full::Assignment) -> Assignment {
     Assignment {
-      exported: assignment.export,
+      exported:   assignment.export,
       expression: Expression::new(&assignment.value),
     }
   }
@@ -168,7 +168,7 @@ pub enum Expression {
     command: String,
   },
   Call {
-    name: String,
+    name:      String,
     arguments: Vec<Expression>,
   },
   Concatination {
@@ -192,17 +192,17 @@ impl Expression {
       },
       Call { thunk } => match thunk {
         full::Thunk::Nullary { name, .. } => Expression::Call {
-          name: name.lexeme().to_owned(),
+          name:      name.lexeme().to_owned(),
           arguments: Vec::new(),
         },
         full::Thunk::Unary { name, arg, .. } => Expression::Call {
-          name: name.lexeme().to_owned(),
+          name:      name.lexeme().to_owned(),
           arguments: vec![Expression::new(arg)],
         },
         full::Thunk::Binary {
           name, args: [a, b], ..
         } => Expression::Call {
-          name: name.lexeme().to_owned(),
+          name:      name.lexeme().to_owned(),
           arguments: vec![Expression::new(a), Expression::new(b)],
         },
       },
@@ -223,14 +223,14 @@ impl Expression {
 
 #[derive(Eq, PartialEq, Hash, Ord, PartialOrd, Debug, Clone)]
 pub struct Dependency {
-  pub recipe: String,
+  pub recipe:    String,
   pub arguments: Vec<Expression>,
 }
 
 impl Dependency {
   fn new(dependency: &full::Dependency) -> Dependency {
     Dependency {
-      recipe: dependency.recipe.name().to_owned(),
+      recipe:    dependency.recipe.name().to_owned(),
       arguments: dependency.arguments.iter().map(Expression::new).collect(),
     }
   }
