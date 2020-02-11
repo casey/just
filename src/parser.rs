@@ -4,25 +4,29 @@ use TokenKind::*;
 
 /// Just language parser
 ///
-/// The parser is a (hopefully) straightforward recursive descent parser.
+/// The parser is a (hopefully) straightforward recursive descent
+/// parser.
 ///
-/// It uses a few tokens of lookahead to disambiguate different constructs.
+/// It uses a few tokens of lookahead to disambiguate different
+/// constructs.
 ///
-/// The `expect_*` and `presume_`* methods are similar in that they assert
-/// the type of unparsed tokens and consume them. However, upon encountering
-/// an unexpected token, the `expect_*` methods return an unexpected token
-/// error, whereas the `presume_*` tokens return an internal error.
+/// The `expect_*` and `presume_`* methods are similar in that they
+/// assert the type of unparsed tokens and consume them. However, upon
+/// encountering an unexpected token, the `expect_*` methods return an
+/// unexpected token error, whereas the `presume_*` tokens return an
+/// internal error.
 ///
-/// The `presume_*` methods are used when the token stream has been inspected
-/// in some other way, and thus encountering an unexpected token is a bug in
-/// Just, and not a syntax error.
+/// The `presume_*` methods are used when the token stream has been
+/// inspected in some other way, and thus encountering an unexpected
+/// token is a bug in Just, and not a syntax error.
 ///
-/// All methods starting with `parse_*` parse and return a language construct.
+/// All methods starting with `parse_*` parse and return a language
+/// construct.
 pub(crate) struct Parser<'tokens, 'src> {
   /// Source tokens
   tokens: &'tokens [Token<'src>],
   /// Index of the next un-parsed token
-  next: usize,
+  next:   usize,
 }
 
 impl<'tokens, 'src> Parser<'tokens, 'src> {
@@ -43,7 +47,8 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     Ok(self.next()?.error(kind))
   }
 
-  /// Construct an unexpected token error with the token returned by `Parser::next`
+  /// Construct an unexpected token error with the token returned by
+  /// `Parser::next`
   fn unexpected_token(
     &self,
     expected: &[TokenKind],
@@ -93,11 +98,10 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     let mut rest = self.rest();
     for kind in kinds {
       match rest.next() {
-        Some(token) => {
+        Some(token) =>
           if token.kind != *kind {
             return false;
-          }
-        }
+          },
         None => return false,
       }
     }
@@ -125,8 +129,8 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     Err(self.internal_error("`Parser::advance()` advanced past end of token stream")?)
   }
 
-  /// Return the next token if it is of kind `expected`, otherwise, return an
-  /// unexpected token error
+  /// Return the next token if it is of kind `expected`, otherwise,
+  /// return an unexpected token error
   fn expect(&mut self, expected: TokenKind) -> CompilationResult<'src, Token<'src>> {
     if let Some(token) = self.accept(expected)? {
       Ok(token)
@@ -157,8 +161,8 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     self.expect(Eol).map(|_| ()).expected(&[Eof])
   }
 
-  /// Return an internal error if the next token is not of kind `Identifier` with
-  /// lexeme `lexeme`.
+  /// Return an internal error if the next token is not of kind
+  /// `Identifier` with lexeme `lexeme`.
   fn presume_name(&mut self, lexeme: &str) -> CompilationResult<'src, ()> {
     let next = self.advance()?;
 
@@ -178,7 +182,8 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     }
   }
 
-  /// Return an internal error if the next token is not of kind `kind`.
+  /// Return an internal error if the next token is not of kind
+  /// `kind`.
   fn presume(&mut self, kind: TokenKind) -> CompilationResult<'src, Token<'src>> {
     let next = self.advance()?;
 
@@ -192,7 +197,8 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     }
   }
 
-  /// Return an internal error if the next token is not one of kinds `kinds`.
+  /// Return an internal error if the next token is not one of kinds
+  /// `kinds`.
   fn presume_any(&mut self, kinds: &[TokenKind]) -> CompilationResult<'src, Token<'src>> {
     let next = self.advance()?;
     if !kinds.contains(&next.kind) {
@@ -267,16 +273,16 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
         Comment => {
           doc = Some(next.lexeme()[1..].trim());
           self.expect_eol()?;
-        }
+        },
         Eol => {
           self.advance()?;
-        }
+        },
         Eof => {
           self.advance()?;
           break;
-        }
+        },
         Identifier => match next.lexeme() {
-          keyword::ALIAS => {
+          keyword::ALIAS =>
             if self.next_are(&[Identifier, Identifier, Equals]) {
               warnings.push(Warning::DeprecatedEquals {
                 equals: self.get(2)?,
@@ -286,9 +292,8 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
               items.push(Item::Alias(self.parse_alias()?));
             } else {
               items.push(Item::Recipe(self.parse_recipe(doc, false)?));
-            }
-          }
-          keyword::EXPORT => {
+            },
+          keyword::EXPORT =>
             if self.next_are(&[Identifier, Identifier, Equals]) {
               warnings.push(Warning::DeprecatedEquals {
                 equals: self.get(2)?,
@@ -300,16 +305,14 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
               items.push(Item::Assignment(self.parse_assignment(true)?));
             } else {
               items.push(Item::Recipe(self.parse_recipe(doc, false)?));
-            }
-          }
-          keyword::SET => {
+            },
+          keyword::SET =>
             if self.next_are(&[Identifier, Identifier, ColonEquals]) {
               items.push(Item::Set(self.parse_set()?));
             } else {
               items.push(Item::Recipe(self.parse_recipe(doc, false)?));
-            }
-          }
-          _ => {
+            },
+          _ =>
             if self.next_are(&[Identifier, Equals]) {
               warnings.push(Warning::DeprecatedEquals {
                 equals: self.get(1)?,
@@ -319,16 +322,15 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
               items.push(Item::Assignment(self.parse_assignment(false)?));
             } else {
               items.push(Item::Recipe(self.parse_recipe(doc, false)?));
-            }
-          }
+            },
         },
         At => {
           self.presume(At)?;
           items.push(Item::Recipe(self.parse_recipe(doc, true)?));
-        }
+        },
         _ => {
           return Err(self.unexpected_token(&[Identifier, At])?);
-        }
+        },
       }
 
       if next.kind != Comment {
@@ -394,7 +396,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
         let contents = &next.lexeme()[1..next.lexeme().len() - 1];
         let token = self.advance()?;
         Ok(Expression::Backtick { contents, token })
-      }
+      },
       Identifier => {
         let name = self.parse_name()?;
 
@@ -406,13 +408,13 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
         } else {
           Ok(Expression::Variable { name })
         }
-      }
+      },
       ParenL => {
         self.presume(ParenL)?;
         let contents = Box::new(self.parse_expression()?);
         self.expect(ParenR)?;
         Ok(Expression::Group { contents })
-      }
+      },
       _ => Err(self.unexpected_token(&[StringCooked, StringRaw, Backtick, Identifier, ParenL])?),
     }
   }
@@ -443,7 +445,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
                 return Err(
                   token.error(CompilationErrorKind::InvalidEscapeSequence { character: other }),
                 );
-              }
+              },
             }
             escape = false;
           } else if c == '\\' {
@@ -456,7 +458,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
           raw,
           cooked: Cow::Owned(cooked),
         })
-      }
+      },
       _ => Err(token.error(CompilationErrorKind::Internal {
         message: "`Parser::parse_string_literal` called on non-string token".to_string(),
       })),
@@ -656,7 +658,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
           value: Setting::Shell(setting::Shell { command, arguments }),
           name,
         })
-      }
+      },
       _ => Err(name.error(CompilationErrorKind::UnknownSetting {
         setting: name.lexeme(),
       })),
@@ -743,7 +745,7 @@ mod tests {
           kind,
         };
         assert_eq!(have, want);
-      }
+      },
     }
   }
 

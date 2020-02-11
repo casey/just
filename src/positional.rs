@@ -10,8 +10,9 @@ use crate::common::*;
 ///
 /// - Overrides are of the form `NAME=.*`
 ///
-/// - After overrides comes a single optional search directory argument.
-///   This is either '.', '..', or an argument that contains a `/`.
+/// - After overrides comes a single optional search directory
+///   argument. This is either '.', '..', or an argument that contains
+///   a `/`.
 ///
 ///   If the argument contains a `/`, everything before and including
 ///   the slash is the search directory, and everything after is added
@@ -23,20 +24,20 @@ use crate::common::*;
 /// being invoked and are a convenient way to override settings.
 ///
 /// For modes that do not take other arguments, the search directory
-/// argument determines where to begin searching for the justfile. This
-/// allows command lines like `just -l ..` and `just ../build` to find
-/// the same justfile.
+/// argument determines where to begin searching for the justfile.
+/// This allows command lines like `just -l ..` and `just ../build` to
+/// find the same justfile.
 ///
-/// For modes that do take other arguments, the search argument is simply
-/// prepended to rest.
+/// For modes that do take other arguments, the search argument is
+/// simply prepended to rest.
 #[cfg_attr(test, derive(PartialEq, Debug))]
 pub struct Positional {
   /// Overrides from values of the form `[a-zA-Z_][a-zA-Z0-9_-]*=.*`
-  pub overrides: Vec<(String, String)>,
+  pub overrides:        Vec<(String, String)>,
   /// An argument equal to '.', '..', or ending with `/`
   pub search_directory: Option<String>,
   /// Everything else
-  pub arguments: Vec<String>,
+  pub arguments:        Vec<String>,
 }
 
 impl Positional {

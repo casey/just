@@ -8,28 +8,28 @@ use TokenKind::*;
 /// The lexer proceeds character-by-character, as opposed to using
 /// regular expressions to lex tokens or semi-tokens at a time. As a
 /// result, it is verbose and straightforward. Just used to have a
-/// regex-based lexer, which was slower and generally godawful. However,
-/// this should not be taken as a slight against regular expressions,
-/// the lexer was just idiosyncratically bad.
+/// regex-based lexer, which was slower and generally godawful.
+/// However, this should not be taken as a slight against regular
+/// expressions, the lexer was just idiosyncratically bad.
 pub(crate) struct Lexer<'src> {
   /// Source text
-  src: &'src str,
+  src:                 &'src str,
   /// Char iterator
-  chars: Chars<'src>,
+  chars:               Chars<'src>,
   /// Tokens
-  tokens: Vec<Token<'src>>,
+  tokens:              Vec<Token<'src>>,
   /// Current token start
-  token_start: Position,
+  token_start:         Position,
   /// Current token end
-  token_end: Position,
+  token_end:           Position,
   /// Next character to be lexed
-  next: Option<char>,
+  next:                Option<char>,
   /// Next indent will start a recipe body
   recipe_body_pending: bool,
   /// Inside recipe body
-  recipe_body: bool,
+  recipe_body:         bool,
   /// Indentation stack
-  indentation: Vec<&'src str>,
+  indentation:         Vec<&'src str>,
   /// Current interpolation start token
   interpolation_start: Option<Token<'src>>,
 }
@@ -48,7 +48,7 @@ impl<'src> Lexer<'src> {
     let start = Position {
       offset: 0,
       column: 0,
-      line: 0,
+      line:   0,
     };
 
     Lexer {
@@ -83,7 +83,7 @@ impl<'src> Lexer<'src> {
         self.next = self.chars.next();
 
         Ok(())
-      }
+      },
       None => Err(self.internal_error("Lexer advanced past end of text")),
     }
   }
@@ -158,12 +158,12 @@ impl<'src> Lexer<'src> {
   fn internal_error(&self, message: impl Into<String>) -> CompilationError<'src> {
     // Use `self.token_end` as the location of the error
     let token = Token {
-      src: self.src,
+      src:    self.src,
       offset: self.token_end.offset,
-      line: self.token_end.line,
+      line:   self.token_end.line,
       column: self.token_end.column,
       length: 0,
-      kind: Unspecified,
+      kind:   Unspecified,
     };
     CompilationError {
       kind: CompilationErrorKind::Internal {
@@ -177,7 +177,8 @@ impl<'src> Lexer<'src> {
   fn error(&self, kind: CompilationErrorKind<'src>) -> CompilationError<'src> {
     // Use the in-progress token span as the location of the error.
 
-    // The width of the error site to highlight depends on the kind of error:
+    // The width of the error site to highlight depends on the kind of
+    // error:
     let length = match kind {
       // highlight ' or "
       UnterminatedString => 1,
@@ -202,7 +203,7 @@ impl<'src> Lexer<'src> {
   fn unterminated_interpolation_error(interpolation_start: Token<'src>) -> CompilationError<'src> {
     CompilationError {
       token: interpolation_start,
-      kind: UnterminatedInterpolation,
+      kind:  UnterminatedInterpolation,
     }
   }
 
@@ -262,7 +263,7 @@ impl<'src> Lexer<'src> {
           } else {
             self.lex_normal(first)?
           };
-        }
+        },
         None => break,
       }
     }
@@ -369,7 +370,7 @@ impl<'src> Lexer<'src> {
         };
 
         Ok(())
-      }
+      },
       Continue => {
         if !self.indentation().is_empty() {
           for _ in self.indentation().chars() {
@@ -380,7 +381,7 @@ impl<'src> Lexer<'src> {
         }
 
         Ok(())
-      }
+      },
       Decrease => {
         while self.indentation() != whitespace {
           self.lex_dedent();
@@ -395,14 +396,14 @@ impl<'src> Lexer<'src> {
         }
 
         Ok(())
-      }
+      },
       Mixed { whitespace } => {
         for _ in whitespace.chars() {
           self.advance()?;
         }
 
         Err(self.error(MixedLeadingWhitespace { whitespace }))
-      }
+      },
       Inconsistent => {
         for _ in whitespace.chars() {
           self.advance()?;
@@ -410,9 +411,9 @@ impl<'src> Lexer<'src> {
 
         Err(self.error(InconsistentLeadingWhitespace {
           expected: self.indentation(),
-          found: whitespace,
+          found:    whitespace,
         }))
-      }
+      },
       Increase => {
         while self.next_is_whitespace() {
           self.advance()?;
@@ -429,7 +430,7 @@ impl<'src> Lexer<'src> {
         }
 
         Ok(())
-      }
+      },
     }
   }
 
@@ -454,14 +455,13 @@ impl<'src> Lexer<'src> {
       ' ' | '\t' => self.lex_whitespace(),
       '\'' => self.lex_raw_string(),
       '"' => self.lex_cooked_string(),
-      _ => {
+      _ =>
         if Self::is_identifier_start(start) {
           self.lex_identifier()
         } else {
           self.advance()?;
           Err(self.error(UnknownStartOfToken))
-        }
-      }
+        },
     }
   }
 
@@ -478,7 +478,8 @@ impl<'src> Lexer<'src> {
       // Emit interpolation end token
       self.lex_double(InterpolationEnd)
     } else if self.at_eol_or_eof() {
-      // Return unterminated interpolation error that highlights the opening {{
+      // Return unterminated interpolation error that highlights the opening
+      // {{
       Err(Self::unterminated_interpolation_error(interpolation_start))
     } else {
       // Otherwise lex as per normal
@@ -529,7 +530,7 @@ impl<'src> Lexer<'src> {
         self.lex_double(InterpolationStart)?;
         self.interpolation_start = Some(self.tokens[self.tokens.len() - 1]);
         Ok(())
-      }
+      },
       EndOfFile => Ok(()),
     }
   }
@@ -677,7 +678,7 @@ impl<'src> Lexer<'src> {
       match self.next {
         Some('\'') => break,
         None => return Err(self.error(UnterminatedString)),
-        _ => {}
+        _ => {},
       }
 
       self.advance()?;
@@ -826,9 +827,8 @@ mod tests {
       Dedent | Eof => "",
 
       // Variable lexemes
-      Text | StringCooked | StringRaw | Identifier | Comment | Backtick | Unspecified => {
-        panic!("Token {:?} has no default lexeme", kind)
-      }
+      Text | StringCooked | StringRaw | Identifier | Comment | Backtick | Unspecified =>
+        panic!("Token {:?} has no default lexeme", kind),
     }
   }
 
@@ -872,7 +872,7 @@ mod tests {
           kind,
         };
         assert_eq!(have, want);
-      }
+      },
     }
   }
 

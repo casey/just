@@ -33,6 +33,9 @@ build:
 check:
 	cargo check
 
+fmt:
+	cargo +nightly fmt
+
 watch +COMMAND='test':
 	cargo watch --clear --exec "{{COMMAND}}"
 

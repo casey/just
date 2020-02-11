@@ -3,7 +3,7 @@ use crate::common::*;
 #[derive(Debug, PartialEq)]
 pub(crate) enum CompilationErrorKind<'src> {
   AliasShadowsRecipe {
-    alias: &'src str,
+    alias:       &'src str,
     recipe_line: usize,
   },
   CircularRecipeDependency {
@@ -12,42 +12,42 @@ pub(crate) enum CompilationErrorKind<'src> {
   },
   CircularVariableDependency {
     variable: &'src str,
-    circle: Vec<&'src str>,
+    circle:   Vec<&'src str>,
   },
   DependencyArgumentCountMismatch {
     dependency: &'src str,
-    found: usize,
-    min: usize,
-    max: usize,
+    found:      usize,
+    min:        usize,
+    max:        usize,
   },
   DuplicateAlias {
     alias: &'src str,
     first: usize,
   },
   DuplicateParameter {
-    recipe: &'src str,
+    recipe:    &'src str,
     parameter: &'src str,
   },
   DuplicateRecipe {
     recipe: &'src str,
-    first: usize,
+    first:  usize,
   },
   DuplicateVariable {
     variable: &'src str,
   },
   DuplicateSet {
     setting: &'src str,
-    first: usize,
+    first:   usize,
   },
   ExtraLeadingWhitespace,
   FunctionArgumentCountMismatch {
     function: &'src str,
-    found: usize,
+    found:    usize,
     expected: usize,
   },
   InconsistentLeadingWhitespace {
     expected: &'src str,
-    found: &'src str,
+    found:    &'src str,
   },
   Internal {
     message: String,
@@ -72,14 +72,14 @@ pub(crate) enum CompilationErrorKind<'src> {
   },
   UnexpectedToken {
     expected: Vec<TokenKind>,
-    found: TokenKind,
+    found:    TokenKind,
   },
   UnknownAliasTarget {
-    alias: &'src str,
+    alias:  &'src str,
     target: &'src str,
   },
   UnknownDependency {
-    recipe: &'src str,
+    recipe:  &'src str,
     unknown: &'src str,
   },
   UnknownFunction {

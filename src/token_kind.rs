@@ -31,35 +31,31 @@ pub(crate) enum TokenKind {
 impl Display for TokenKind {
   fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
     use TokenKind::*;
-    write!(
-      f,
-      "{}",
-      match *self {
-        At => "'@'",
-        Backtick => "backtick",
-        BracketL => "'['",
-        BracketR => "']'",
-        Colon => "':'",
-        ColonEquals => "':='",
-        Comma => "','",
-        Comment => "comment",
-        Dedent => "dedent",
-        Eof => "end of file",
-        Eol => "end of line",
-        Equals => "'='",
-        Identifier => "identifier",
-        Indent => "indent",
-        InterpolationEnd => "'}}'",
-        InterpolationStart => "'{{'",
-        ParenL => "'('",
-        ParenR => "')'",
-        Plus => "'+'",
-        StringCooked => "cooked string",
-        StringRaw => "raw string",
-        Text => "command text",
-        Whitespace => "whitespace",
-        Unspecified => "unspecified",
-      }
-    )
+    write!(f, "{}", match *self {
+      At => "'@'",
+      Backtick => "backtick",
+      BracketL => "'['",
+      BracketR => "']'",
+      Colon => "':'",
+      ColonEquals => "':='",
+      Comma => "','",
+      Comment => "comment",
+      Dedent => "dedent",
+      Eof => "end of file",
+      Eol => "end of line",
+      Equals => "'='",
+      Identifier => "identifier",
+      Indent => "indent",
+      InterpolationEnd => "'}}'",
+      InterpolationStart => "'{{'",
+      ParenL => "'('",
+      ParenR => "')'",
+      Plus => "'+'",
+      StringCooked => "cooked string",
+      StringRaw => "raw string",
+      Text => "command text",
+      Whitespace => "whitespace",
+      Unspecified => "unspecified",
+    })
   }
 }

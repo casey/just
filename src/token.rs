@@ -4,10 +4,10 @@ use crate::common::*;
 pub(crate) struct Token<'src> {
   pub(crate) offset: usize,
   pub(crate) length: usize,
-  pub(crate) line: usize,
+  pub(crate) line:   usize,
   pub(crate) column: usize,
-  pub(crate) src: &'src str,
-  pub(crate) kind: TokenKind,
+  pub(crate) src:    &'src str,
+  pub(crate) kind:   TokenKind,
 }
 
 impl<'src> Token<'src> {
@@ -63,16 +63,15 @@ impl<'src> Token<'src> {
           space_width,
           color.suffix()
         )?;
-      }
-      None => {
+      },
+      None =>
         if self.offset != self.src.len() {
           write!(
             f,
             "internal error: Error has invalid line number: {}",
             line_number
           )?
-        }
-      }
+        },
     }
     Ok(())
   }

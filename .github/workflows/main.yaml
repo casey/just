@@ -43,7 +43,7 @@ jobs:
       if: matrix.os != 'windows-latest'
       run: cargo run lint
     - name: Format
-      run: cargo fmt --all -- --check
+      run: cargo +nightly fmt --all -- --check
     - name: Completion Scripts
       if: matrix.os != 'windows-latest'
       run: |

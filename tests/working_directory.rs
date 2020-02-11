@@ -20,8 +20,8 @@ const DATA: &str = "OK";
 
 const WANT: &str = "shebang: OK\nexpression: OK\ndefault: OK\nlinewise: OK\n";
 
-/// Test that just runs with the correct working directory when invoked with
-/// `--justfile` but not `--working-directory`
+/// Test that just runs with the correct working directory when
+/// invoked with `--justfile` but not `--working-directory`
 #[test]
 fn justfile_without_working_directory() -> Result<(), Box<dyn Error>> {
   let tmp = tmptree! {
@@ -46,9 +46,9 @@ fn justfile_without_working_directory() -> Result<(), Box<dyn Error>> {
   Ok(())
 }
 
-/// Test that just runs with the correct working directory when invoked with
-/// `--justfile` but not `--working-directory`, and justfile path has no
-/// parent
+/// Test that just runs with the correct working directory when
+/// invoked with `--justfile` but not `--working-directory`, and
+/// justfile path has no parent
 #[test]
 fn justfile_without_working_directory_relative() -> Result<(), Box<dyn Error>> {
   let tmp = tmptree! {
@@ -74,7 +74,8 @@ fn justfile_without_working_directory_relative() -> Result<(), Box<dyn Error>> {
   Ok(())
 }
 
-/// Test that just invokes commands from the directory in which the justfile is found
+/// Test that just invokes commands from the directory in which the
+/// justfile is found
 #[test]
 fn change_working_directory_to_search_justfile_parent() -> Result<(), Box<dyn Error>> {
   let tmp = tmptree! {
@@ -99,8 +100,8 @@ fn change_working_directory_to_search_justfile_parent() -> Result<(), Box<dyn Er
   Ok(())
 }
 
-/// Test that just runs with the correct working directory when invoked with
-/// `--justfile` but not `--working-directory`
+/// Test that just runs with the correct working directory when
+/// invoked with `--justfile` but not `--working-directory`
 #[test]
 fn justfile_and_working_directory() -> Result<(), Box<dyn Error>> {
   let tmp = tmptree! {
@@ -129,8 +130,8 @@ fn justfile_and_working_directory() -> Result<(), Box<dyn Error>> {
   Ok(())
 }
 
-/// Test that just runs with the correct working directory when invoked with
-/// `--justfile` but not `--working-directory`
+/// Test that just runs with the correct working directory when
+/// invoked with `--justfile` but not `--working-directory`
 #[test]
 fn search_dir_child() -> Result<(), Box<dyn Error>> {
   let tmp = tmptree! {
@@ -157,8 +158,8 @@ fn search_dir_child() -> Result<(), Box<dyn Error>> {
   Ok(())
 }
 
-/// Test that just runs with the correct working directory when invoked with
-/// `--justfile` but not `--working-directory`
+/// Test that just runs with the correct working directory when
+/// invoked with `--justfile` but not `--working-directory`
 #[test]
 fn search_dir_parent() -> Result<(), Box<dyn Error>> {
   let tmp = tmptree! {

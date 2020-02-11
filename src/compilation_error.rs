@@ -3,7 +3,7 @@ use crate::common::*;
 #[derive(Debug, PartialEq)]
 pub(crate) struct CompilationError<'src> {
   pub(crate) token: Token<'src>,
-  pub(crate) kind: CompilationErrorKind<'src>,
+  pub(crate) kind:  CompilationErrorKind<'src>,
 }
 
 impl Error for CompilationError<'_> {}
@@ -25,8 +25,8 @@ impl Display for CompilationError<'_> {
           alias,
           recipe_line.ordinal(),
         )?;
-      }
-      CircularRecipeDependency { recipe, ref circle } => {
+      },
+      CircularRecipeDependency { recipe, ref circle } =>
         if circle.len() == 2 {
           writeln!(f, "Recipe `{}` depends on itself", recipe)?;
         } else {
@@ -36,12 +36,11 @@ impl Display for CompilationError<'_> {
             recipe,
             circle.join(" -> ")
           )?;
-        }
-      }
+        },
       CircularVariableDependency {
         variable,
         ref circle,
-      } => {
+      } =>
         if circle.len() == 2 {
           writeln!(f, "Variable `{}` is defined in terms of itself", variable)?;
         } else {
@@ -51,8 +50,7 @@ impl Display for CompilationError<'_> {
             variable,
             circle.join(" -> ")
           )?;
-        }
-      }
+        },
 
       InvalidEscapeSequence { character } => {
         let representation = match character {
@@ -63,23 +61,23 @@ impl Display for CompilationError<'_> {
           _ => character.escape_default().collect(),
         };
         writeln!(f, "`\\{}` is not a valid escape sequence", representation)?;
-      }
+      },
       DuplicateParameter { recipe, parameter } => {
         writeln!(
           f,
           "Recipe `{}` has duplicate parameter `{}`",
           recipe, parameter
         )?;
-      }
+      },
       DuplicateVariable { variable } => {
         writeln!(f, "Variable `{}` has multiple definitions", variable)?;
-      }
+      },
       UnexpectedToken {
         ref expected,
         found,
       } => {
         writeln!(f, "Expected {}, but found {}", List::or(expected), found)?;
-      }
+      },
       DuplicateAlias { alias, first } => {
         writeln!(
           f,
@@ -88,7 +86,7 @@ impl Display for CompilationError<'_> {
           first.ordinal(),
           self.token.line.ordinal(),
         )?;
-      }
+      },
       DuplicateRecipe { recipe, first } => {
         writeln!(
           f,
@@ -97,7 +95,7 @@ impl Display for CompilationError<'_> {
           first.ordinal(),
           self.token.line.ordinal()
         )?;
-      }
+      },
       DuplicateSet { setting, first } => {
         writeln!(
           f,
@@ -106,7 +104,7 @@ impl Display for CompilationError<'_> {
           first.ordinal(),
           self.token.line.ordinal(),
         )?;
-      }
+      },
       DependencyArgumentCountMismatch {
         dependency,
         found,
@@ -129,35 +127,35 @@ impl Display for CompilationError<'_> {
         } else {
           writeln!(f, "at most {} {}", max, Count("argument", max))?;
         }
-      }
+      },
       ParameterShadowsVariable { parameter } => {
         writeln!(
           f,
           "Parameter `{}` shadows variable of the same name",
           parameter
         )?;
-      }
+      },
       RequiredParameterFollowsDefaultParameter { parameter } => {
         writeln!(
           f,
           "Non-default parameter `{}` follows default parameter",
           parameter
         )?;
-      }
+      },
       ParameterFollowsVariadicParameter { parameter } => {
         writeln!(f, "Parameter `{}` follows variadic parameter", parameter)?;
-      }
+      },
       MixedLeadingWhitespace { whitespace } => {
         writeln!(
           f,
-          "Found a mix of tabs and spaces in leading whitespace: `{}`\n\
-           Leading whitespace may consist of tabs or spaces, but not both",
+          "Found a mix of tabs and spaces in leading whitespace: `{}`\nLeading whitespace may \
+           consist of tabs or spaces, but not both",
           ShowWhitespace(whitespace)
         )?;
-      }
+      },
       ExtraLeadingWhitespace => {
         writeln!(f, "Recipe line has extra leading whitespace")?;
-      }
+      },
       FunctionArgumentCountMismatch {
         function,
         found,
@@ -171,50 +169,50 @@ impl Display for CompilationError<'_> {
           Count("argument", found),
           expected
         )?;
-      }
+      },
       InconsistentLeadingWhitespace { expected, found } => {
         writeln!(
           f,
-          "Recipe line has inconsistent leading whitespace. \
-           Recipe started with `{}` but found line with `{}`",
+          "Recipe line has inconsistent leading whitespace. Recipe started with `{}` but found \
+           line with `{}`",
           ShowWhitespace(expected),
           ShowWhitespace(found)
         )?;
-      }
+      },
       UnknownAliasTarget { alias, target } => {
         writeln!(f, "Alias `{}` has an unknown target `{}`", alias, target)?;
-      }
+      },
       UnknownDependency { recipe, unknown } => {
         writeln!(
           f,
           "Recipe `{}` has unknown dependency `{}`",
           recipe, unknown
         )?;
-      }
+      },
       UndefinedVariable { variable } => {
         writeln!(f, "Variable `{}` not defined", variable)?;
-      }
+      },
       UnknownFunction { function } => {
         writeln!(f, "Call to unknown function `{}`", function)?;
-      }
+      },
       UnknownSetting { setting } => {
         writeln!(f, "Unknown setting `{}`", setting)?;
-      }
+      },
       UnknownStartOfToken => {
         writeln!(f, "Unknown start of token:")?;
-      }
+      },
       UnpairedCarriageReturn => {
         writeln!(f, "Unpaired carriage return")?;
-      }
+      },
       UnterminatedInterpolation => {
         writeln!(f, "Unterminated interpolation")?;
-      }
+      },
       UnterminatedString => {
         writeln!(f, "Unterminated string")?;
-      }
+      },
       UnterminatedBacktick => {
         writeln!(f, "Unterminated backtick")?;
-      }
+      },
       Internal { ref message } => {
         writeln!(
           f,
@@ -222,7 +220,7 @@ impl Display for CompilationError<'_> {
            consider filing an issue: https://github.com/casey/just/issues/new",
           message
         )?;
-      }
+      },
     }
 
     write!(f, "{}", message.suffix())?;

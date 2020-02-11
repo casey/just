@@ -1,9 +1,10 @@
 use crate::common::*;
 
-/// Methods commmon to all AST nodes. Currently only used in parser unit tests.
+/// Methods commmon to all AST nodes. Currently only used in parser
+/// unit tests.
 pub(crate) trait Node<'src> {
-  /// Construct an untyped tree of atoms representing this Node. This function,
-  /// and `Tree` type, are only used in parser unit tests.
+  /// Construct an untyped tree of atoms representing this Node. This
+  /// function, and `Tree` type, are only used in parser unit tests.
   fn tree(&self) -> Tree<'src>;
 }
 
@@ -59,18 +60,18 @@ impl<'src> Node<'src> for Expression<'src> {
           Unary { name, arg, .. } => {
             tree.push_mut(name.lexeme());
             tree.push_mut(arg.tree());
-          }
+          },
           Binary {
             name, args: [a, b], ..
           } => {
             tree.push_mut(name.lexeme());
             tree.push_mut(a.tree());
             tree.push_mut(b.tree());
-          }
+          },
         }
 
         tree
-      }
+      },
       Expression::Variable { name } => Tree::atom(name.lexeme()),
       Expression::StringLiteral {
         string_literal: StringLiteral { cooked, .. },
@@ -175,7 +176,7 @@ impl<'src> Node<'src> for Set<'src> {
         for argument in arguments {
           set.push_mut(Tree::string(&argument.cooked));
         }
-      }
+      },
     }
 
     set

@@ -20,7 +20,7 @@ pub(crate) enum SearchError {
   ))]
   Io {
     directory: PathBuf,
-    io_error: io::Error,
+    io_error:  io::Error,
   },
   #[snafu(display("No justfile found"))]
   NotFound,

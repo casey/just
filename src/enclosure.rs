@@ -5,7 +5,7 @@ use crate::common::*;
 
 pub struct Enclosure<T: Display> {
   enclosure: &'static str,
-  value: T,
+  value:     T,
 }
 
 impl<T: Display> Enclosure<T> {

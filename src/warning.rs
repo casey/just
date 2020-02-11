@@ -32,7 +32,7 @@ impl Display for Warning<'_> {
           f,
           "Please see this issue for more details: https://github.com/casey/just/issues/379"
         )?;
-      }
+      },
     }
 
     write!(f, "{}", message.suffix())?;

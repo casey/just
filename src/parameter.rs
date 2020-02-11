@@ -4,11 +4,11 @@ use crate::common::*;
 #[derive(PartialEq, Debug)]
 pub(crate) struct Parameter<'src> {
   /// The parameter name
-  pub(crate) name: Name<'src>,
+  pub(crate) name:     Name<'src>,
   /// Parameter is variadic
   pub(crate) variadic: bool,
   /// An optional default expression
-  pub(crate) default: Option<Expression<'src>>,
+  pub(crate) default:  Option<Expression<'src>>,
 }
 
 impl<'src> Display for Parameter<'src> {
