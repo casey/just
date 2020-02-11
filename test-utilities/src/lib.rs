@@ -100,7 +100,7 @@ impl Entry {
         for (name, entry) in entries {
           entry.instantiate(&path.join(name));
         }
-      }
+      },
     }
   }
 
@@ -137,7 +137,8 @@ macro_rules! entries {
     $($name:tt : $contents:tt,)*
   } => {
     {
-      let mut entries: std::collections::HashMap<&'static str, $crate::Entry> = std::collections::HashMap::new();
+      use std::collections::HashMap;
+      let mut entries: HashMap<&'static str, $crate::Entry> = HashMap::new();
 
       $(
         entries.insert($crate::name!($name), $crate::entry!($contents));

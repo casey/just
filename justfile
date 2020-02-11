@@ -34,7 +34,7 @@ check:
 	cargo check
 
 fmt:
-	cargo +nightly fmt
+	cargo +nightly fmt --all
 
 watch +COMMAND='test':
 	cargo watch --clear --exec "{{COMMAND}}"
