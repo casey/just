@@ -1,7 +1,6 @@
 use crate::common::*;
 
-/// String wrapper that uses nonblank characters to display spaces and
-/// tabs
+/// String wrapper that uses nonblank characters to display spaces and tabs
 pub struct ShowWhitespace<'str>(pub &'str str);
 
 impl<'str> Display for ShowWhitespace<'str> {

@@ -1,4 +1,4 @@
-comment_width                = 70
+comment_width                = 80
 edition                      = "2018"
 error_on_line_overflow       = true
 error_on_unformatted         = true

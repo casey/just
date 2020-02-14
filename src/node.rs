@@ -1,10 +1,9 @@
 use crate::common::*;
 
-/// Methods commmon to all AST nodes. Currently only used in parser
-/// unit tests.
+/// Methods commmon to all AST nodes. Currently only used in parser unit tests.
 pub(crate) trait Node<'src> {
-  /// Construct an untyped tree of atoms representing this Node. This
-  /// function, and `Tree` type, are only used in parser unit tests.
+  /// Construct an untyped tree of atoms representing this Node. This function,
+  /// and `Tree` type, are only used in parser unit tests.
   fn tree(&self) -> Tree<'src>;
 }
 

@@ -1,7 +1,7 @@
 use crate::common::*;
 
-/// A name. This is effectively just a `Token` of kind `Identifier`,
-/// but we give it its own type for clarity.
+/// A name. This is effectively just a `Token` of kind `Identifier`, but we give
+/// it its own type for clarity.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Ord, PartialOrd)]
 pub(crate) struct Name<'src> {
   pub(crate) offset: usize,

@@ -1,9 +1,9 @@
 use crate::common::*;
 
-/// An expression. Note that the Just language grammar has both an
-/// `expression` production of additions (`a + b`) and values, and a
-/// `value` production of all other value types (for example strings,
-/// function calls, and parenthetical groups).
+/// An expression. Note that the Just language grammar has both an `expression`
+/// production of additions (`a + b`) and values, and a `value` production of
+/// all other value types (for example strings, function calls, and
+/// parenthetical groups).
 ///
 /// The parser parses both values and expressions into `Expression`s.
 #[derive(PartialEq, Debug)]

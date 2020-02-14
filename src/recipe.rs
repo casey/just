@@ -2,8 +2,8 @@ use crate::common::*;
 
 use std::process::{ExitStatus, Stdio};
 
-/// Return a `RuntimeError::Signal` if the process was terminated by a
-/// signal, otherwise return an `RuntimeError::UnknownFailure`
+/// Return a `RuntimeError::Signal` if the process was terminated by a signal,
+/// otherwise return an `RuntimeError::UnknownFailure`
 fn error_from_signal(
   recipe: &str,
   line_number: Option<usize>,
@@ -120,9 +120,8 @@ impl<'src, D> Recipe<'src, D> {
         // add the shebang
         text += &evaluated_lines[0];
         text += "\n";
-        // add blank lines so that lines in the generated script
-        // have the same line number as the corresponding lines
-        // in the justfile
+        // add blank lines so that lines in the generated script have the same line
+        // number as the corresponding lines in the justfile
         for _ in 1..(self.line_number() + 2) {
           text += "\n"
         }

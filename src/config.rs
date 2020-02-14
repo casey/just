@@ -552,10 +552,9 @@ impl Config {
           }
         }
 
-        // Declaring this outside of the nested loops will probably be more
-        // efficient, but it creates all sorts of lifetime issues with
-        // variables inside the loops. If this is inlined like the
-        // docs say, it shouldn't make any difference.
+        // Declaring this outside of the nested loops will probably be more efficient,
+        // but it creates all sorts of lifetime issues with variables inside the loops.
+        // If this is inlined like the docs say, it shouldn't make any difference.
         let print_doc = |doc| {
           print!(
             " {:padding$}{} {}",
@@ -641,9 +640,8 @@ mod tests {
 
   use pretty_assertions::assert_eq;
 
-  // This test guards against unintended changes to the argument parser.
-  // We should have proper tests for all the flags, but this will do
-  // for now.
+  // This test guards against unintended changes to the argument parser. We should
+  // have proper tests for all the flags, but this will do for now.
   #[test]
   fn help() {
     const EXPECTED_HELP: &str = "just v0.5.8
