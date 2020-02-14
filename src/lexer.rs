@@ -5,12 +5,12 @@ use TokenKind::*;
 
 /// Just language lexer
 ///
-/// The lexer proceeds character-by-character, as opposed to using
-/// regular expressions to lex tokens or semi-tokens at a time. As a
-/// result, it is verbose and straightforward. Just used to have a
-/// regex-based lexer, which was slower and generally godawful.
-/// However, this should not be taken as a slight against regular
-/// expressions, the lexer was just idiosyncratically bad.
+/// The lexer proceeds character-by-character, as opposed to using regular
+/// expressions to lex tokens or semi-tokens at a time. As a result, it is
+/// verbose and straightforward. Just used to have a regex-based lexer, which
+/// was slower and generally godawful.  However, this should not be taken as a
+/// slight against regular expressions, the lexer was just idiosyncratically
+/// bad.
 pub(crate) struct Lexer<'src> {
   /// Source text
   src:                 &'src str,
@@ -65,8 +65,8 @@ impl<'src> Lexer<'src> {
     }
   }
 
-  /// Advance over the character in `self.next`, updating
-  /// `self.token_end` accordingly.
+  /// Advance over the character in `self.next`, updating `self.token_end`
+  /// accordingly.
   fn advance(&mut self) -> CompilationResult<'src, ()> {
     match self.next {
       Some(c) => {
@@ -138,8 +138,8 @@ impl<'src> Lexer<'src> {
     !self.indentation().is_empty()
   }
 
-  /// Create a new token with `kind` whose lexeme
-  /// is between `self.token_start` and `self.token_end`
+  /// Create a new token with `kind` whose lexeme is between `self.token_start`
+  /// and `self.token_end`
   fn token(&mut self, kind: TokenKind) {
     self.tokens.push(Token {
       offset: self.token_start.offset,
@@ -177,8 +177,7 @@ impl<'src> Lexer<'src> {
   fn error(&self, kind: CompilationErrorKind<'src>) -> CompilationError<'src> {
     // Use the in-progress token span as the location of the error.
 
-    // The width of the error site to highlight depends on the kind of
-    // error:
+    // The width of the error site to highlight depends on the kind of error:
     let length = match kind {
       // highlight ' or "
       UnterminatedString => 1,

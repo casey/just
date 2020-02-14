@@ -1,7 +1,6 @@
 use crate::common::*;
 
-/// A single line in a recipe body, consisting of any number of
-/// `Fragment`s.
+/// A single line in a recipe body, consisting of any number of `Fragment`s.
 #[derive(Debug, PartialEq)]
 pub(crate) struct Line<'src> {
   pub(crate) fragments: Vec<Fragment<'src>>,

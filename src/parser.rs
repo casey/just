@@ -4,24 +4,20 @@ use TokenKind::*;
 
 /// Just language parser
 ///
-/// The parser is a (hopefully) straightforward recursive descent
-/// parser.
+/// The parser is a (hopefully) straightforward recursive descent parser.
 ///
-/// It uses a few tokens of lookahead to disambiguate different
-/// constructs.
+/// It uses a few tokens of lookahead to disambiguate different constructs.
 ///
-/// The `expect_*` and `presume_`* methods are similar in that they
-/// assert the type of unparsed tokens and consume them. However, upon
-/// encountering an unexpected token, the `expect_*` methods return an
-/// unexpected token error, whereas the `presume_*` tokens return an
-/// internal error.
+/// The `expect_*` and `presume_`* methods are similar in that they assert the
+/// type of unparsed tokens and consume them. However, upon encountering an
+/// unexpected token, the `expect_*` methods return an unexpected token error,
+/// whereas the `presume_*` tokens return an internal error.
 ///
-/// The `presume_*` methods are used when the token stream has been
-/// inspected in some other way, and thus encountering an unexpected
-/// token is a bug in Just, and not a syntax error.
+/// The `presume_*` methods are used when the token stream has been inspected in
+/// some other way, and thus encountering an unexpected token is a bug in Just,
+/// and not a syntax error.
 ///
-/// All methods starting with `parse_*` parse and return a language
-/// construct.
+/// All methods starting with `parse_*` parse and return a language construct.
 pub(crate) struct Parser<'tokens, 'src> {
   /// Source tokens
   tokens: &'tokens [Token<'src>],
@@ -129,8 +125,8 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     Err(self.internal_error("`Parser::advance()` advanced past end of token stream")?)
   }
 
-  /// Return the next token if it is of kind `expected`, otherwise,
-  /// return an unexpected token error
+  /// Return the next token if it is of kind `expected`, otherwise, return an
+  /// unexpected token error
   fn expect(&mut self, expected: TokenKind) -> CompilationResult<'src, Token<'src>> {
     if let Some(token) = self.accept(expected)? {
       Ok(token)
@@ -161,8 +157,8 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     self.expect(Eol).map(|_| ()).expected(&[Eof])
   }
 
-  /// Return an internal error if the next token is not of kind
-  /// `Identifier` with lexeme `lexeme`.
+  /// Return an internal error if the next token is not of kind `Identifier`
+  /// with lexeme `lexeme`.
   fn presume_name(&mut self, lexeme: &str) -> CompilationResult<'src, ()> {
     let next = self.advance()?;
 
@@ -182,8 +178,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     }
   }
 
-  /// Return an internal error if the next token is not of kind
-  /// `kind`.
+  /// Return an internal error if the next token is not of kind `kind`.
   fn presume(&mut self, kind: TokenKind) -> CompilationResult<'src, Token<'src>> {
     let next = self.advance()?;
 
@@ -197,8 +192,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     }
   }
 
-  /// Return an internal error if the next token is not one of kinds
-  /// `kinds`.
+  /// Return an internal error if the next token is not one of kinds `kinds`.
   fn presume_any(&mut self, kinds: &[TokenKind]) -> CompilationResult<'src, Token<'src>> {
     let next = self.advance()?;
     if !kinds.contains(&next.kind) {

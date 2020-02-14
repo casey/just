@@ -2,10 +2,9 @@ use crate::common::*;
 
 use std::mem;
 
-/// Construct a `Tree` from a symbolic expression literal. This macro,
-/// and the Tree type, are only used in the Parser unit tests, as a
-/// concise notation representing the expected results of parsing a
-/// given string.
+/// Construct a `Tree` from a symbolic expression literal. This macro, and the
+/// Tree type, are only used in the Parser unit tests, as a concise notation
+/// representing the expected results of parsing a given string.
 macro_rules! tree {
   {
     ($($child:tt)*)
@@ -63,8 +62,7 @@ impl<'text> Tree<'text> {
     Tree::atom(format!("\"{}\"", contents.as_ref()))
   }
 
-  /// Push a child node into self, turning it into a List if it was an
-  /// Atom
+  /// Push a child node into self, turning it into a List if it was an Atom
   pub(crate) fn push(self, tree: impl Into<Tree<'text>>) -> Tree<'text> {
     match self {
       Tree::List(mut children) => {
@@ -75,8 +73,8 @@ impl<'text> Tree<'text> {
     }
   }
 
-  /// Extend a self with a tail of Trees, turning self into a List if
-  /// it was an Atom
+  /// Extend a self with a tail of Trees, turning self into a List if it was an
+  /// Atom
   pub(crate) fn extend<I, T>(self, tail: I) -> Tree<'text>
   where
     I: IntoIterator<Item = T>,
