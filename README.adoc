@@ -3,7 +3,7 @@
 :toc-title:
 
 image:https://img.shields.io/crates/v/just.svg[crates.io version,link=https://crates.io/crates/just]
-image:https://travis-ci.org/casey/just.svg?branch=master[build status,link=https://travis-ci.org/casey/just]
+image:https://github.com/casey/just/workflows/Build/badge.svg=[build status,link=https://github.com/casey/just/actions]
 image:https://img.shields.io/github/downloads/casey/just/total.svg[downloads,link=https://github.com/casey/just/releases]
 image:https://badges.gitter.im/just-because/Lobby.svg[chat on gitter,link=https://gitter.im/just-because/Lobby]
 image:https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg[say thanks,link=https://saythanks.io/to/casey]
