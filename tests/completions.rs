@@ -1,12 +1,16 @@
 use std::process::Command;
 
 use executable_path::executable_path;
+use tempfile::tempdir;
 
 #[test]
 fn output() {
+  let tempdir = tempdir().unwrap();
+
   let output = Command::new(executable_path("just"))
     .arg("--completions")
     .arg("bash")
+    .current_dir(tempdir.path())
     .output()
     .unwrap();
 

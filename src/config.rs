@@ -388,6 +388,10 @@ impl Config {
       return self.init();
     }
 
+    if let Completions { shell } = self.subcommand {
+      return Self::completions(&shell);
+    }
+
     let search =
       Search::find(&self.search_config, &self.invocation_directory).eprint(self.color)?;
 
@@ -414,7 +418,6 @@ impl Config {
 
     match &self.subcommand {
       Dump => Self::dump(justfile),
-      Completions { shell } => Self::completions(&shell),
       Evaluate { overrides } => self.run(justfile, &search, overrides, &Vec::new()),
       Run {
         arguments,
@@ -423,7 +426,7 @@ impl Config {
       List => self.list(justfile),
       Show { ref name } => Self::show(&name, justfile),
       Summary => Self::summary(justfile),
-      Edit | Init => unreachable!(),
+      Completions { .. } | Edit | Init => unreachable!(),
     }
   }
 
