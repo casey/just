@@ -825,7 +825,7 @@ $ just foo
 Foo!
 ```
 
-Adding `@` to a shebang recipe name makes just print the recipe before executing it:
+Adding `@` to a shebang recipe name makes `just` print the recipe before executing it:
 
 
 ```make
