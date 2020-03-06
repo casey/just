@@ -812,6 +812,35 @@ goodbye
 # all done!
 ```
 
+Shebang recipes are quiet by default:
+
+```make
+foo:
+  #!/usr/bin/env bash
+  echo 'Foo!'
+```
+
+```sh
+$ just foo
+Foo!
+```
+
+Adding `@` to a shebang recipe name makes just print the recipe before executing it:
+
+
+```make
+@bar:
+  #!/usr/bin/env bash
+  echo 'Bar!'
+```
+
+```sh
+$ just bar                                                                                    ~/src/just
+#!/usr/bin/env bash
+echo 'Bar!'
+Bar!
+```
+
 === Invoking Justfiles in Other Directories
 
 If the first argument passed to `just` contains a `/`, then the following occurs:
