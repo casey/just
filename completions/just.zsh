@@ -60,11 +60,10 @@ _just() {
                 _arguments -s -S $common '*:: :_files'
             else
                 # Show usage message
-                _message "%BUsage%b $args_str"
+                _message $args_str
                 # Or complete with other commands
                 #_arguments -s -S $common '*:: :_just_commands'
             fi
-
         ;;
     esac
 
