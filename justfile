@@ -157,6 +157,9 @@ watch-readme:
 	just render-readme
 	fswatch -ro README.adoc | xargs -n1 -I{} just render-readme
 
+generate-completions:
+	./bin/generate-completions
+
 # run all polyglot recipes
 polyglot: _python _js _perl _sh _ruby
 # (recipes that start with `_` are hidden from --list)

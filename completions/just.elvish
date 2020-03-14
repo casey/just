@@ -42,6 +42,7 @@ edit:completion:arg-completer[just] = [@words]{
             cand -l 'List available recipes and their arguments'
             cand --list 'List available recipes and their arguments'
             cand --summary 'List names of available recipes'
+            cand --variables 'List names of variables'
             cand -h 'Print help information'
             cand --help 'Print help information'
             cand -V 'Print version information'

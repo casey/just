@@ -61,10 +61,7 @@ jobs:
     - name: Completion Scripts
       if: matrix.os != 'windows-latest'
       run: |
-        for script in completions/*; do
-          shell=${script##*.}
-          cargo run -- --completions $shell > $script
-        done
+        ./bin/generate-completions
         git diff --no-ext-diff --quiet --exit-code
     - name: Package
       id: package
