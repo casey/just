@@ -18,5 +18,6 @@ complete -c just -n "__fish_use_subcommand" -l evaluate -d 'Print evaluated vari
 complete -c just -n "__fish_use_subcommand" -l init -d 'Initialize new justfile in project root'
 complete -c just -n "__fish_use_subcommand" -s l -l list -d 'List available recipes and their arguments'
 complete -c just -n "__fish_use_subcommand" -l summary -d 'List names of available recipes'
+complete -c just -n "__fish_use_subcommand" -l variables -d 'List names of variables'
 complete -c just -n "__fish_use_subcommand" -s h -l help -d 'Print help information'
 complete -c just -n "__fish_use_subcommand" -s V -l version -d 'Print version information'

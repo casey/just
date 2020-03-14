@@ -47,6 +47,7 @@ Register-ArgumentCompleter -Native -CommandName 'just' -ScriptBlock {
             [CompletionResult]::new('-l', 'l', [CompletionResultType]::ParameterName, 'List available recipes and their arguments')
             [CompletionResult]::new('--list', 'list', [CompletionResultType]::ParameterName, 'List available recipes and their arguments')
             [CompletionResult]::new('--summary', 'summary', [CompletionResultType]::ParameterName, 'List names of available recipes')
+            [CompletionResult]::new('--variables', 'variables', [CompletionResultType]::ParameterName, 'List names of variables')
             [CompletionResult]::new('-h', 'h', [CompletionResultType]::ParameterName, 'Print help information')
             [CompletionResult]::new('--help', 'help', [CompletionResultType]::ParameterName, 'Print help information')
             [CompletionResult]::new('-V', 'V', [CompletionResultType]::ParameterName, 'Print version information')

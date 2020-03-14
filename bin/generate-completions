@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+set -euxo pipefail
+
+for script in completions/*; do
+  shell=${script##*.}
+  cargo run -- --completions $shell > $script
+done

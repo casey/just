@@ -2459,3 +2459,15 @@ test! {
   status: EXIT_SUCCESS,
   shell: false,
 }
+
+test! {
+  name: variables,
+  justfile: "
+    z := 'a'
+    a := 'z'
+  ",
+  args: ("--variables"),
+  stdout: "a z\n",
+  stderr: "",
+  shell: false,
+}

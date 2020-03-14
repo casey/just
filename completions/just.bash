@@ -20,7 +20,7 @@ _just() {
 
     case "${cmd}" in
         just)
-            opts=" -q -v -e -l -h -V -f -d -s  --dry-run --highlight --no-highlight --quiet --clear-shell-args --verbose --dump --edit --evaluate --init --list --summary --help --version --color --justfile --set --shell --shell-arg --working-directory --completions --show  <ARGUMENTS>... "
+            opts=" -q -v -e -l -h -V -f -d -s  --dry-run --highlight --no-highlight --quiet --clear-shell-args --verbose --dump --edit --evaluate --init --list --summary --variables --help --version --color --justfile --set --shell --shell-arg --working-directory --completions --show  <ARGUMENTS>... "
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
