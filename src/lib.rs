@@ -8,8 +8,10 @@
   clippy::implicit_return,
   clippy::indexing_slicing,
   clippy::integer_arithmetic,
+  clippy::let_underscore_must_use,
   clippy::match_same_arms,
   clippy::missing_docs_in_private_items,
+  clippy::missing_errors_doc,
   clippy::missing_inline_in_public_items,
   clippy::needless_pass_by_value,
   clippy::non_ascii_literal,
@@ -24,8 +26,7 @@
   clippy::too_many_lines,
   clippy::unreachable,
   clippy::use_debug,
-  clippy::wildcard_enum_match_arm,
-  clippy::missing_errors_doc
+  clippy::wildcard_enum_match_arm
 )]
 
 #[macro_use]
