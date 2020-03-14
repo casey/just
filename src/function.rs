@@ -1,6 +1,5 @@
 use crate::common::*;
 
-use target;
 use Function::*;
 
 pub(crate) enum Function {
