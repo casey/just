@@ -11,7 +11,7 @@ impl<'line> Shebang<'line> {
 
     let mut pieces = line[2..]
       .lines()
-      .nth(0)
+      .next()
       .unwrap_or("")
       .trim()
       .splitn(2, |c| c == ' ' || c == '\t');
