@@ -13,7 +13,6 @@ _just() {
         _arguments_options=(-s -C)
     fi
 
-<<<<<<< HEAD
     local common=(
         '--color=[Print colorful output]: :(auto always never)' 
         '(-f --justfile)'{-f+,--justfile=}'[Use <JUSTFILE> as justfile.]' 
@@ -58,7 +57,7 @@ _just() {
 
             if [[ ${lastarg} = */* ]]; then
                 # Arguments contain slash would be recognised as a file
-                _arguments -s -S $common '::ARGUMENTS -- Overrides and recipe(s) to run, defaulting to the first recipe in the justfile:_files' 
+                _arguments -s -S $common '*:: :_files'
             else
                 # Show usage message
                 _message $args_str
