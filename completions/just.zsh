@@ -42,6 +42,7 @@ _just() {
 '-l[List available recipes and their arguments]' \
 '--list[List available recipes and their arguments]' \
 '--summary[List names of available recipes]' \
+'--variables[List names of variables]' \
 '-h[Print help information]' \
 '--help[Print help information]' \
 '-V[Print version information]' \

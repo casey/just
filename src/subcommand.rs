@@ -20,4 +20,5 @@ pub(crate) enum Subcommand {
     name: String,
   },
   Summary,
+  Variables,
 }

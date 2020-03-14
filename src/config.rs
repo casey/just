@@ -23,6 +23,7 @@ pub(crate) struct Config {
 }
 
 mod cmd {
+  pub(crate) const COMPLETIONS: &str = "COMPLETIONS";
   pub(crate) const DUMP: &str = "DUMP";
   pub(crate) const EDIT: &str = "EDIT";
   pub(crate) const EVALUATE: &str = "EVALUATE";
@@ -30,10 +31,30 @@ mod cmd {
   pub(crate) const LIST: &str = "LIST";
   pub(crate) const SHOW: &str = "SHOW";
   pub(crate) const SUMMARY: &str = "SUMMARY";
-  pub(crate) const COMPLETIONS: &str = "COMPLETIONS";
+  pub(crate) const VARIABLES: &str = "VARIABLES";
 
-  pub(crate) const ALL: &[&str] = &[COMPLETIONS, DUMP, EDIT, INIT, EVALUATE, LIST, SHOW, SUMMARY];
-  pub(crate) const ARGLESS: &[&str] = &[COMPLETIONS, DUMP, EDIT, INIT, LIST, SHOW, SUMMARY];
+  pub(crate) const ALL: &[&str] = &[
+    COMPLETIONS,
+    DUMP,
+    EDIT,
+    INIT,
+    EVALUATE,
+    LIST,
+    SHOW,
+    SUMMARY,
+    VARIABLES,
+  ];
+
+  pub(crate) const ARGLESS: &[&str] = &[
+    COMPLETIONS,
+    DUMP,
+    EDIT,
+    INIT,
+    LIST,
+    SHOW,
+    SUMMARY,
+    VARIABLES,
+  ];
 }
 
 mod arg {
@@ -206,6 +227,11 @@ impl Config {
           .long("summary")
           .help("List names of available recipes"),
       )
+      .arg(
+        Arg::with_name(cmd::VARIABLES)
+          .long("variables")
+          .help("List names of variables"),
+      )
       .group(ArgGroup::with_name("SUBCOMMAND").args(cmd::ALL));
 
     if cfg!(feature = "help4help2man") {
@@ -345,6 +371,8 @@ impl Config {
         });
       }
       Subcommand::Evaluate { overrides }
+    } else if matches.is_present(cmd::VARIABLES) {
+      Subcommand::Variables
     } else {
       Subcommand::Run {
         arguments: positional.arguments,
@@ -419,13 +447,14 @@ impl Config {
     match &self.subcommand {
       Dump => Self::dump(justfile),
       Evaluate { overrides } => self.run(justfile, &search, overrides, &Vec::new()),
+      List => self.list(justfile),
       Run {
         arguments,
         overrides,
       } => self.run(justfile, &search, overrides, arguments),
-      List => self.list(justfile),
       Show { ref name } => Self::show(&name, justfile),
       Summary => Self::summary(justfile),
+      Variables => Self::variables(justfile),
       Completions { .. } | Edit | Init => unreachable!(),
     }
   }
@@ -635,6 +664,17 @@ impl Config {
     }
     Ok(())
   }
+
+  fn variables(justfile: Justfile) -> Result<(), i32> {
+    for (i, (_, assignment)) in justfile.assignments.iter().enumerate() {
+      if i > 0 {
+        print!(" ");
+      }
+      print!("{}", assignment.name)
+    }
+    println!();
+    Ok(())
+  }
 }
 
 #[cfg(test)]
@@ -668,6 +708,7 @@ FLAGS:
         --no-highlight        Don't highlight echoed recipe lines in bold
     -q, --quiet               Suppress all output
         --summary             List names of available recipes
+        --variables           List names of variables
     -v, --verbose             Use verbose output
 
 OPTIONS:
