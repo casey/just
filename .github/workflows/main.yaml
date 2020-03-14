@@ -1,9 +1,16 @@
 name: Build
 
-on: [push]
+on:
+  push:
+    branches:
+    - master
+  pull_request:
+    branches:
+    - master
 
 jobs:
   all:
+    name: All
     strategy:
       matrix:
         os:
