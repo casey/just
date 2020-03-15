@@ -464,7 +464,12 @@ impl Config {
       .parse::<clap::Shell>()
       .expect("Invalid value for clap::Shell");
 
-    Self::app().gen_completions_to(env!("CARGO_PKG_NAME"), shell, &mut io::stdout());
+    let buffer = Vec::new();
+    let mut cursor = Cursor::new(buffer);
+    Self::app().gen_completions_to(env!("CARGO_PKG_NAME"), shell, &mut cursor);
+    let buffer = cursor.into_inner();
+    let text = String::from_utf8(buffer).expect("Clap completion not UTF-8");
+    println!("{}", text.trim());
 
     Ok(())
   }

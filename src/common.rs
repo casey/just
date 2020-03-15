@@ -6,7 +6,7 @@ pub(crate) use std::{
   env,
   fmt::{self, Debug, Display, Formatter},
   fs,
-  io::{self, Write},
+  io::{self, Cursor, Write},
   iter::{self, FromIterator},
   ops::{Index, Range, RangeInclusive},
   path::{Path, PathBuf},
