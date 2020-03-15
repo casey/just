@@ -1,4 +1,3 @@
-
 edit:completion:arg-completer[just] = [@words]{
     fn spaces [n]{
         repeat $n ' ' | joins ''
