@@ -75,15 +75,6 @@ _just() {
     return ret
 }
 
-(( $+functions[_just_variables] )) ||
-_just_variables() {
-    local variables; variables=(
-        ${(s: :)$(_call_program commands just --variables)}
-    )
-
-    _describe -t variables 'variables' variables
-}
-
 (( $+functions[_just_commands] )) ||
 _just_commands() {
     local commands; commands=(
@@ -91,6 +82,15 @@ _just_commands() {
     )
 
     _describe -t commands 'just commands' commands "$@"
+}
+
+(( $+functions[_just_variables] )) ||
+_just_variables() {
+    local variables; variables=(
+        ${(s: :)$(_call_program commands just --variables)}
+    )
+
+    _describe -t variables 'variables' variables
 }
 
 _just "$@"
