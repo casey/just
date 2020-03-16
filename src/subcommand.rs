@@ -23,8 +23,7 @@ pub(crate) enum Subcommand {
   Variables,
 }
 
-// TODO: make this a lookup table
-const COMPLETION_REPLACEMENTS: &[(&str, &str)] = &[
+const ZSH_COMPLETION_REPLACEMENTS: &[(&str, &str)] = &[
   (
     r#"    _arguments "${_arguments_options[@]}" \"#,
     r#"    local common=("#,
@@ -123,7 +122,7 @@ impl Subcommand {
     let mut script = String::from_utf8(buffer).expect("Clap completion not UTF-8");
 
     if let clap::Shell::Zsh = shell {
-      for (needle, replacement) in COMPLETION_REPLACEMENTS {
+      for (needle, replacement) in ZSH_COMPLETION_REPLACEMENTS {
         replace(&mut script, needle, replacement)?;
       }
     }
