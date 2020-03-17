@@ -417,7 +417,7 @@ impl Config {
     }
 
     if let Completions { shell } = self.subcommand {
-      return Self::completions(&shell);
+      return Subcommand::completions(&shell);
     }
 
     let search =
@@ -457,21 +457,6 @@ impl Config {
       Variables => Self::variables(justfile),
       Completions { .. } | Edit | Init => unreachable!(),
     }
-  }
-
-  fn completions(shell: &str) -> Result<(), i32> {
-    let shell = shell
-      .parse::<clap::Shell>()
-      .expect("Invalid value for clap::Shell");
-
-    let buffer = Vec::new();
-    let mut cursor = Cursor::new(buffer);
-    Self::app().gen_completions_to(env!("CARGO_PKG_NAME"), shell, &mut cursor);
-    let buffer = cursor.into_inner();
-    let text = String::from_utf8(buffer).expect("Clap completion not UTF-8");
-    println!("{}", text.trim());
-
-    Ok(())
   }
 
   fn dump(justfile: Justfile) -> Result<(), i32> {
