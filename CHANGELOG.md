@@ -2,6 +2,30 @@ Changelog
 =========
 
 
+[v0.5.9] - 2020-3-18
+--------------------
+
+### Added
+- Update zsh completion file (#606)
+- Add `--variables` subcommand that prints variable names (#608)
+- Add github pages site with improved install script (#597)
+
+### Fixed
+- Don't require justfile to print completions (#596)
+
+### Misc
+- Only build for linux on docs.rs (#611)
+- Trim completions and ensure final newline (#609)
+- Trigger build on pushes and pull requests (#607)
+- Document behavior of `@` on shebang recipes (#602)
+- Add `.nojekyll` file to github pages site (#599)
+- Add `:` favicon (#598)
+- Delete old CI configuration and update build badge (#595)
+- Add download count badge to readme (#594)
+- Wrap comments at 80 characters (#593)
+- Use unstable rustfmt configuration options (#592)
+
+
 [v0.5.8] - 2020-1-28
 --------------------
 
