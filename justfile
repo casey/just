@@ -30,9 +30,6 @@ filter PATTERN:
 build:
 	cargo build
 
-check:
-	cargo check
-
 fmt:
 	cargo +nightly fmt --all
 
@@ -57,10 +54,7 @@ version := `sed -En 's/version[[:space:]]*=[[:space:]]*"([^"]+)"/v\1/p' Cargo.to
 changes:
 	git log --pretty=format:%s >> CHANGELOG.md
 
-# check run before publishing
-publish-check: lint clippy test man
-	cargo outdated --exit-code 1
-	git branch | grep '* master'
+check: lint clippy test
 	git diff --no-ext-diff --quiet --exit-code
 	grep {{version}} CHANGELOG.md
 	cargo build --features summary
@@ -68,13 +62,17 @@ publish-check: lint clippy test man
 	cargo test
 	git checkout Cargo.lock
 
+publish-check: check man
+	cargo outdated --exit-code 1
+
 # publish to crates.io and push release tag to github
 publish: publish-check
+	git branch | grep '* master'
 	cargo +nightly publish
 	git tag -a {{version}} -m 'Release {{version}}'
 	git push github {{version}}
 
-push: test
+push: check
 	! git branch | grep '* master'
 	git push github
 
@@ -82,7 +80,7 @@ pr: push
 	hub pull-request -o
 
 # clean up feature branch BRANCH
-done BRANCH:
+done BRANCH=`git rev-parse --abbrev-ref HEAD`:
 	git checkout master
 	git diff --no-ext-diff --quiet --exit-code
 	git pull --rebase github master
