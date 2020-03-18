@@ -1,6 +1,6 @@
 [package]
 name        = "just"
-version     = "0.5.9"
+version     = "0.5.10"
 description = "🤖 Just a command runner"
 authors     = ["Casey Rodarmor <casey@rodarmor.com>"]
 license     = "CC0-1.0"
@@ -15,20 +15,20 @@ help4help2man = []
 summary       = []
 
 [dependencies]
-ansi_term      = "0.12"
-atty           = "0.2"
-clap           = "2.33"
-derivative     = "1.0.1"
-dotenv         = "0.15"
-edit-distance  = "2"
-env_logger     = "0.7"
-lazy_static    = "1"
-libc           = "0.2"
+ansi_term      = "0.12.0"
+atty           = "0.2.0"
+clap           = "2.33.0"
+derivative     = "2.0.0"
+dotenv         = "0.15.0"
+edit-distance  = "2.0.0"
+env_logger     = "0.7.0"
+lazy_static    = "1.0.0"
+libc           = "0.2.0"
 log            = "0.4.4"
-snafu          = "0.6"
-target         = "1"
-tempfile       = "3"
-unicode-width  = "0.1"
+snafu          = "0.6.0"
+target         = "1.0.0"
+tempfile       = "3.0.0"
+unicode-width  = "0.1.0"
 
 [dependencies.ctrlc]
 version  = "3.1.1"
