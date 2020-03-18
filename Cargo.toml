@@ -44,3 +44,9 @@ which             = "3"
 # to crates.io. In the meantime, we can publish with nighlty cargo.
 [dev-dependencies.test-utilities]
 path = "test-utilities"
+
+# The public documentation is minimal and doesn't change between
+# platforms, so we only build them for linux on docs.rs to save
+# their build machines some cycles.
+[package.metadata.docs.rs]
+targets = ["x86_64-unknown-linux-gnu"]
