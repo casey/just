@@ -74,6 +74,13 @@ publish: publish-check
 	git tag -a {{version}} -m 'Release {{version}}'
 	git push github {{version}}
 
+push: test
+	! git branch | grep '* master'
+	git push github
+
+pr: push
+	hub pull-request -o
+
 # clean up feature branch BRANCH
 done BRANCH:
 	git checkout master
