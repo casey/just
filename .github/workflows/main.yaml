@@ -13,6 +13,7 @@ on:
 jobs:
   all:
     name: All
+
     strategy:
       matrix:
         os:
@@ -26,9 +27,31 @@ jobs:
           target: x86_64-apple-darwin
         - os: windows-latest
           target: x86_64-pc-windows-msvc
+
     runs-on: ${{matrix.os}}
+
     steps:
+
     - uses: actions/checkout@v1
+
+    - name: Cache cargo registry
+      uses: actions/cache@v1
+      with:
+        path: ~/.cargo/registry
+        key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+
+    - name: Cache cargo index
+      uses: actions/cache@v1
+      with:
+        path: ~/.cargo/git
+        key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
+
+    - name: Cache cargo build
+      uses: actions/cache@v1
+      with:
+        path: target
+        key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
+
     - name: Install Main Toolchain
       uses: actions-rs/toolchain@v1
       with:
@@ -37,20 +60,26 @@ jobs:
         profile: minimal
         components: clippy, rustfmt
         override: true
+
     - name: Version
       run: |
         rustup --version
         cargo --version
         cargo clippy --version
+
     - name: Build
       run: cargo build --all --verbose
+
     - name: Test
       run: cargo test --all --verbose
+
     - name: Clippy
       run: cargo clippy --all
+
     - name: Lint
       if: matrix.os != 'windows-latest'
       run: cargo run lint
+
     - name: Install Rustfmt Toolchain
       uses: actions-rs/toolchain@v1
       with:
@@ -58,18 +87,22 @@ jobs:
         target: ${{ matrix.target }}
         profile: minimal
         components: rustfmt
+
     - name: Format
       run: cargo +nightly fmt --all -- --check
+
     - name: Completion Scripts
       if: matrix.os != 'windows-latest'
       run: |
         ./bin/generate-completions
         git diff --no-ext-diff --quiet --exit-code
+
     - name: Package
       id: package
       if: startsWith(github.ref, 'refs/tags/v')
       run: ./bin/package ${{github.ref}} ${{matrix.os}} ${{ matrix.target }}
       shell: bash
+
     - name: Publish
       uses: softprops/action-gh-release@v1
       if: startsWith(github.ref, 'refs/tags/v')
