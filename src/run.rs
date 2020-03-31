@@ -13,6 +13,7 @@ pub fn run() -> Result<(), i32> {
 
   let app = Config::app();
 
+  info!("Parsing command line arguments…");
   let matches = app.get_matches();
 
   let config = Config::from_matches(&matches).eprint(Color::auto())?;

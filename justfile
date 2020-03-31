@@ -10,11 +10,18 @@ bt := '0'
 
 export RUST_BACKTRACE := bt
 
+log := "warn"
+
+export JUST_LOG := log
+
 test:
 	cargo test
 
 fuzz:
 	cargo +nightly fuzz run fuzz-compiler
+
+run:
+	cargo run
 
 @spam:
 	{ \
