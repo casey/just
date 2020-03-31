@@ -29,7 +29,7 @@ pub(crate) use crate::{node::Node, tree::Tree};
 pub(crate) use derivative::Derivative;
 pub(crate) use edit_distance::edit_distance;
 pub(crate) use libc::EXIT_FAILURE;
-pub(crate) use log::warn;
+pub(crate) use log::{info, warn};
 pub(crate) use snafu::{ResultExt, Snafu};
 pub(crate) use unicode_width::UnicodeWidthChar;
 
