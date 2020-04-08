@@ -47,7 +47,7 @@ man:
 	cargo build --features help4help2man
 	help2man \
 		--name 'save and run commands' \
-		--manual 'JUST MANUAL' \
+		--manual 'Just Manual' \
 		--no-info \
 		target/debug/just \
 		> man/just.1
