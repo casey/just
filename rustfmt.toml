@@ -13,7 +13,6 @@ newline_style                = "Unix"
 normalize_comments           = true
 overflow_delimited_expr      = true
 reorder_impl_items           = true
-required_version             = "1.4.12"
 struct_field_align_threshold = 20
 tab_spaces                   = 2
 unstable_features            = true
