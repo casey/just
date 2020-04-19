@@ -28,19 +28,31 @@ impl<'src> Justfile<'src> {
     self.recipes.len()
   }
 
-  pub(crate) fn suggest(&self, name: &str) -> Option<&'src str> {
+  pub(crate) fn suggest(&self, name: &str) -> Option<Suggestion> {
     let mut suggestions = self
       .recipes
       .keys()
-      .map(|suggestion| (edit_distance(suggestion, name), suggestion))
-      .collect::<Vec<_>>();
-    suggestions.sort();
-    if let Some(&(distance, suggestion)) = suggestions.first() {
-      if distance < 3 {
-        return Some(suggestion);
-      }
+      .map(|recipe_name| {
+        (edit_distance(recipe_name, name), Suggestion {
+          name:   recipe_name,
+          target: None,
+        })
+      })
+      .chain(self.aliases.iter().map(|(alias_name, alias)| {
+        (edit_distance(alias_name, name), Suggestion {
+          name:   alias_name,
+          target: Some(alias.target.name.lexeme()),
+        })
+      }))
+      .filter(|(distance, _suggestion)| distance < &3)
+      .collect::<Vec<(usize, Suggestion)>>();
+    suggestions.sort_by_key(|(distance, _suggestion)| *distance);
+
+    if let Some((_distance, suggestion)) = suggestions.first() {
+      Some(*suggestion)
+    } else {
+      None
     }
-    None
   }
 
   pub(crate) fn run<'run>(
@@ -280,6 +292,22 @@ impl<'src> Display for Justfile<'src> {
   }
 }
 
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub(crate) struct Suggestion<'src> {
+  pub(crate) name:   &'src str,
+  pub(crate) target: Option<&'src str>,
+}
+
+impl<'src> Display for Suggestion<'src> {
+  fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+    write!(f, "Did you mean `{}`", self.name)?;
+    if let Some(target) = self.target {
+      write!(f, ", an alias for `{}`", target)?;
+    }
+    write!(f, "?")
+  }
+}
+
 #[cfg(test)]
 mod tests {
   use super::*;
@@ -298,6 +326,29 @@ mod tests {
     check: {
       assert_eq!(recipes, &["x", "y", "z"]);
       assert_eq!(suggestion, None);
+    }
+  }
+
+  run_error! {
+    name: unknown_recipes_show_alias_suggestion,
+    src: "
+      foo:
+        echo foo
+
+      alias z := foo
+    ",
+    args: ["zz"],
+    error: UnknownRecipes {
+      recipes,
+      suggestion,
+    },
+    check: {
+      assert_eq!(recipes, &["zz"]);
+      assert_eq!(suggestion, Some(Suggestion {
+        name: "z",
+        target: Some("foo"),
+      }
+    ));
     }
   }
 

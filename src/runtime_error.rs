@@ -56,7 +56,7 @@ pub(crate) enum RuntimeError<'src> {
   },
   UnknownRecipes {
     recipes:    Vec<&'src str>,
-    suggestion: Option<&'src str>,
+    suggestion: Option<Suggestion<'src>>,
   },
   Unknown {
     recipe:      &'src str,
@@ -117,7 +117,7 @@ impl<'src> Display for RuntimeError<'src> {
           List::or_ticked(recipes),
         )?;
         if let Some(suggestion) = *suggestion {
-          write!(f, "\nDid you mean `{}`?", suggestion)?;
+          write!(f, "\n{}", suggestion)?;
         }
       },
       UnknownOverrides { overrides } => {
