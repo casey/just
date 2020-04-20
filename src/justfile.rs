@@ -28,19 +28,19 @@ impl<'src> Justfile<'src> {
     self.recipes.len()
   }
 
-  pub(crate) fn suggest(&self, name: &str) -> Option<Suggestion> {
+  pub(crate) fn suggest(&self, input: &str) -> Option<Suggestion> {
     let mut suggestions = self
       .recipes
       .keys()
-      .map(|recipe_name| {
-        (edit_distance(recipe_name, name), Suggestion {
-          name:   recipe_name,
+      .map(|name| {
+        (edit_distance(name, input), Suggestion {
+          name,
           target: None,
         })
       })
-      .chain(self.aliases.iter().map(|(alias_name, alias)| {
-        (edit_distance(alias_name, name), Suggestion {
-          name:   alias_name,
+      .chain(self.aliases.iter().map(|(name, alias)| {
+        (edit_distance(name, input), Suggestion {
+          name,
           target: Some(alias.target.name.lexeme()),
         })
       }))
@@ -48,11 +48,10 @@ impl<'src> Justfile<'src> {
       .collect::<Vec<(usize, Suggestion)>>();
     suggestions.sort_by_key(|(distance, _suggestion)| *distance);
 
-    if let Some((_distance, suggestion)) = suggestions.first() {
-      Some(*suggestion)
-    } else {
-      None
-    }
+    suggestions
+      .into_iter()
+      .map(|(_distance, suggestion)| suggestion)
+      .next()
   }
 
   pub(crate) fn run<'run>(
@@ -289,22 +288,6 @@ impl<'src> Display for Justfile<'src> {
       }
     }
     Ok(())
-  }
-}
-
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub(crate) struct Suggestion<'src> {
-  pub(crate) name:   &'src str,
-  pub(crate) target: Option<&'src str>,
-}
-
-impl<'src> Display for Suggestion<'src> {
-  fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-    write!(f, "Did you mean `{}`", self.name)?;
-    if let Some(target) = self.target {
-      write!(f, ", an alias for `{}`", target)?;
-    }
-    write!(f, "?")
   }
 }
 

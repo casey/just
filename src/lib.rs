@@ -111,6 +111,7 @@ mod shebang;
 mod show_whitespace;
 mod string_literal;
 mod subcommand;
+mod suggestion;
 mod table;
 mod thunk;
 mod token;
