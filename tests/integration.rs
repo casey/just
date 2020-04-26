@@ -1225,6 +1225,22 @@ a Z="\t z":
 }
 
 test! {
+  name:     show_alias_suggestion,
+  justfile: r#"
+hello a b='B	' c='C':
+  echo {{a}} {{b}} {{c}}
+
+alias foo := hello
+
+a Z="\t z":
+"#,
+  args:     ("--show", "fo"),
+  stdout:   "",
+  stderr:   "Justfile does not contain recipe `fo`.\nDid you mean `foo`, an alias for `hello`?\n",
+  status:   EXIT_FAILURE,
+}
+
+test! {
   name:     show_no_suggestion,
   justfile: r#"
 helloooooo a b='B	' c='C':
@@ -1235,6 +1251,22 @@ a Z="\t z":
   args:     ("--show", "hell"),
   stdout:   "",
   stderr:   "Justfile does not contain recipe `hell`.\n",
+  status:   EXIT_FAILURE,
+}
+
+test! {
+  name:     show_no_alias_suggestion,
+  justfile: r#"
+hello a b='B	' c='C':
+  echo {{a}} {{b}} {{c}}
+
+alias foo := hello
+
+a Z="\t z":
+"#,
+  args:     ("--show", "fooooooo"),
+  stdout:   "",
+  stderr:   "Justfile does not contain recipe `fooooooo`.\n",
   status:   EXIT_FAILURE,
 }
 
