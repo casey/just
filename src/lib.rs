@@ -23,10 +23,12 @@
   clippy::result_expect_used,
   clippy::shadow_unrelated,
   clippy::string_add,
+  clippy::struct_excessive_bools,
   clippy::too_many_lines,
   clippy::unreachable,
   clippy::use_debug,
-  clippy::wildcard_enum_match_arm
+  clippy::wildcard_enum_match_arm,
+  clippy::wildcard_imports
 )]
 
 #[macro_use]
