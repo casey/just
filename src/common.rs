@@ -61,8 +61,8 @@ pub(crate) use crate::{
   recipe_resolver::RecipeResolver, runtime_error::RuntimeError, scope::Scope, search::Search,
   search_config::SearchConfig, search_error::SearchError, set::Set, setting::Setting,
   settings::Settings, shebang::Shebang, show_whitespace::ShowWhitespace,
-  string_literal::StringLiteral, subcommand::Subcommand, table::Table, thunk::Thunk, token::Token,
-  token_kind::TokenKind, unresolved_dependency::UnresolvedDependency,
+  string_literal::StringLiteral, subcommand::Subcommand, suggestion::Suggestion, table::Table,
+  thunk::Thunk, token::Token, token_kind::TokenKind, unresolved_dependency::UnresolvedDependency,
   unresolved_recipe::UnresolvedRecipe, use_color::UseColor, variables::Variables,
   verbosity::Verbosity, warning::Warning,
 };

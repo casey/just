@@ -632,7 +632,7 @@ impl Config {
     } else {
       eprintln!("Justfile does not contain recipe `{}`.", name);
       if let Some(suggestion) = justfile.suggest(name) {
-        eprintln!("Did you mean `{}`?", suggestion);
+        eprintln!("{}", suggestion);
       }
       Err(EXIT_FAILURE)
     }

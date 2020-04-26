@@ -28,19 +28,30 @@ impl<'src> Justfile<'src> {
     self.recipes.len()
   }
 
-  pub(crate) fn suggest(&self, name: &str) -> Option<&'src str> {
+  pub(crate) fn suggest(&self, input: &str) -> Option<Suggestion> {
     let mut suggestions = self
       .recipes
       .keys()
-      .map(|suggestion| (edit_distance(suggestion, name), suggestion))
-      .collect::<Vec<_>>();
-    suggestions.sort();
-    if let Some(&(distance, suggestion)) = suggestions.first() {
-      if distance < 3 {
-        return Some(suggestion);
-      }
-    }
-    None
+      .map(|name| {
+        (edit_distance(name, input), Suggestion {
+          name,
+          target: None,
+        })
+      })
+      .chain(self.aliases.iter().map(|(name, alias)| {
+        (edit_distance(name, input), Suggestion {
+          name,
+          target: Some(alias.target.name.lexeme()),
+        })
+      }))
+      .filter(|(distance, _suggestion)| distance < &3)
+      .collect::<Vec<(usize, Suggestion)>>();
+    suggestions.sort_by_key(|(distance, _suggestion)| *distance);
+
+    suggestions
+      .into_iter()
+      .map(|(_distance, suggestion)| suggestion)
+      .next()
   }
 
   pub(crate) fn run<'run>(
@@ -298,6 +309,29 @@ mod tests {
     check: {
       assert_eq!(recipes, &["x", "y", "z"]);
       assert_eq!(suggestion, None);
+    }
+  }
+
+  run_error! {
+    name: unknown_recipes_show_alias_suggestion,
+    src: "
+      foo:
+        echo foo
+
+      alias z := foo
+    ",
+    args: ["zz"],
+    error: UnknownRecipes {
+      recipes,
+      suggestion,
+    },
+    check: {
+      assert_eq!(recipes, &["zz"]);
+      assert_eq!(suggestion, Some(Suggestion {
+        name: "z",
+        target: Some("foo"),
+      }
+    ));
     }
   }
 
