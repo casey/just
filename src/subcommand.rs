@@ -28,7 +28,7 @@ const FISH_RECIPE_COMPLETIONS: &str = r#"function __fish_just_complete_recipes
 end
 
 # disable file completions
-complete -c just -f
+complete -c just  -n "__fish_use_subcommand" -f
 
 # complete recipes
 complete -c just -n "__fish_use_subcommand" -a '(__fish_just_complete_recipes)'
