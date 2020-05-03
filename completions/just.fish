@@ -2,9 +2,6 @@ function __fish_just_complete_recipes
     just --summary 2> /dev/null | tr " " "\n" || echo ""
 end
 
-# disable file completions
-complete -c just -f
-
 # complete recipes
 complete -c just -n "__fish_use_subcommand" -a '(__fish_just_complete_recipes)'
 
