@@ -75,9 +75,9 @@ publish-check: check man
 # publish to crates.io and push release tag to github
 publish: publish-check
 	git branch | grep '* master'
-	cargo +nightly publish
 	git tag -a {{version}} -m 'Release {{version}}'
 	git push github {{version}}
+	cargo +nightly publish
 
 push: check
 	! git branch | grep '* master'
