@@ -32,6 +32,7 @@ Register-ArgumentCompleter -Native -CommandName 'just' -ScriptBlock {
             [CompletionResult]::new('--show', 'show', [CompletionResultType]::ParameterName, 'Show information about <RECIPE>')
             [CompletionResult]::new('--dry-run', 'dry-run', [CompletionResultType]::ParameterName, 'Print what just would do without doing it')
             [CompletionResult]::new('--highlight', 'highlight', [CompletionResultType]::ParameterName, 'Highlight echoed recipe lines in bold')
+            [CompletionResult]::new('--no-dotenv', 'no-dotenv', [CompletionResultType]::ParameterName, 'Don''t load `.env` file')
             [CompletionResult]::new('--no-highlight', 'no-highlight', [CompletionResultType]::ParameterName, 'Don''t highlight echoed recipe lines in bold')
             [CompletionResult]::new('-q', 'q', [CompletionResultType]::ParameterName, 'Suppress all output')
             [CompletionResult]::new('--quiet', 'quiet', [CompletionResultType]::ParameterName, 'Suppress all output')

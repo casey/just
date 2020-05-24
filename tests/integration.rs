@@ -1972,6 +1972,19 @@ echo:
 }
 
 test! {
+   name:     no_dotenv,
+   justfile: "
+#
+X:=env_var_or_default('DOTENV_KEY', 'DEFAULT')
+echo:
+  echo {{X}}
+ ",
+   args:     ("--no-dotenv"),
+   stdout:   "DEFAULT\n",
+   stderr:   "echo DEFAULT\n",
+}
+
+test! {
    name:     invalid_escape_sequence_message,
    justfile: r#"
 X := "\'"
