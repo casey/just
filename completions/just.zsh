@@ -28,6 +28,7 @@ _just() {
 '--show=[Show information about <RECIPE>]: :_just_commands' \
 '(-q --quiet)--dry-run[Print what just would do without doing it]' \
 '--highlight[Highlight echoed recipe lines in bold]' \
+'--no-dotenv[Don'\''t load `.env` file]' \
 '--no-highlight[Don'\''t highlight echoed recipe lines in bold]' \
 '(--dry-run)-q[Suppress all output]' \
 '(--dry-run)--quiet[Suppress all output]' \

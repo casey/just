@@ -19,6 +19,7 @@ complete -c just -n "__fish_use_subcommand" -l completions -d 'Print shell compl
 complete -c just -n "__fish_use_subcommand" -s s -l show -d 'Show information about <RECIPE>'
 complete -c just -n "__fish_use_subcommand" -l dry-run -d 'Print what just would do without doing it'
 complete -c just -n "__fish_use_subcommand" -l highlight -d 'Highlight echoed recipe lines in bold'
+complete -c just -n "__fish_use_subcommand" -l no-dotenv -d 'Don\'t load `.env` file'
 complete -c just -n "__fish_use_subcommand" -l no-highlight -d 'Don\'t highlight echoed recipe lines in bold'
 complete -c just -n "__fish_use_subcommand" -s q -l quiet -d 'Suppress all output'
 complete -c just -n "__fish_use_subcommand" -l clear-shell-args -d 'Clear shell arguments'
