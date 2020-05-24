@@ -13,6 +13,7 @@ pub(crate) struct Config {
   pub(crate) dry_run:              bool,
   pub(crate) highlight:            bool,
   pub(crate) invocation_directory: PathBuf,
+  pub(crate) load_dotenv:          bool,
   pub(crate) quiet:                bool,
   pub(crate) search_config:        SearchConfig,
   pub(crate) shell:                String,
@@ -64,6 +65,7 @@ mod arg {
   pub(crate) const DRY_RUN: &str = "DRY-RUN";
   pub(crate) const HIGHLIGHT: &str = "HIGHLIGHT";
   pub(crate) const JUSTFILE: &str = "JUSTFILE";
+  pub(crate) const NO_DOTENV: &str = "NO-DOTENV";
   pub(crate) const NO_HIGHLIGHT: &str = "NO-HIGHLIGHT";
   pub(crate) const QUIET: &str = "QUIET";
   pub(crate) const SET: &str = "SET";
@@ -104,6 +106,11 @@ impl Config {
           .long("highlight")
           .help("Highlight echoed recipe lines in bold")
           .overrides_with(arg::NO_HIGHLIGHT),
+      )
+      .arg(
+        Arg::with_name(arg::NO_DOTENV)
+          .long("no-dotenv")
+          .help("Don't load `.env` file"),
       )
       .arg(
         Arg::with_name(arg::NO_HIGHLIGHT)
@@ -399,6 +406,7 @@ impl Config {
       highlight: !matches.is_present(arg::NO_HIGHLIGHT),
       quiet: matches.is_present(arg::QUIET),
       shell: matches.value_of(arg::SHELL).unwrap().to_owned(),
+      load_dotenv: !matches.is_present(arg::NO_DOTENV),
       color,
       invocation_directory,
       search_config,
@@ -695,6 +703,7 @@ FLAGS:
         --highlight           Highlight echoed recipe lines in bold
         --init                Initialize new justfile in project root
     -l, --list                List available recipes and their arguments
+        --no-dotenv           Don't load `.env` file
         --no-highlight        Don't highlight echoed recipe lines in bold
     -q, --quiet               Suppress all output
         --summary             List names of available recipes

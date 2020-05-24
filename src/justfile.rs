@@ -90,7 +90,11 @@ impl<'src> Justfile<'src> {
       });
     }
 
-    let dotenv = load_dotenv()?;
+    let dotenv = if config.load_dotenv {
+      load_dotenv()?
+    } else {
+      BTreeMap::new()
+    };
 
     let scope = {
       let mut scope = Scope::new();
