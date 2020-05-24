@@ -1,8 +1,20 @@
 Changelog
 =========
 
+[v0.5.11] - 2020-5-23
+---------------------
+
+## Added
+- Don't load `.env` file when `--no-dotenv` is passed (#627)
+
+### Changed
+- Complete recipe names in fish completion script (#625)
+- Suggest aliases for unknown recipes (#624)
+
+
 [v0.5.10] - 2020-3-18
 ---------------------
+
 
 [v0.5.9] - 2020-3-18
 --------------------
