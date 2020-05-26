@@ -613,6 +613,38 @@ search QUERY:
     lynx 'https://www.google.com/?q={{QUERY}}'
 ```
 
+=== Running recipes at the end of a recipe
+
+Dependencies of a recipes always run before a recipe starts. That is to say, the dependee always runs before the depender.
+
+You can call Just recursively to run a recipe after a recipe ends. Given the following justfile:
+
+```make
+a:
+  echo 'A!'
+
+b: a
+  echo 'B!'
+  just c
+
+c:
+  echo 'C!'
+```
+
+…running 'b' prints:
+
+```sh
+$ just b
+echo 'A!'
+A!
+echo 'B!'
+B!
+echo 'C!'
+C!
+```
+
+This has some limitations, since recipe `c` is run with an entirely new invocation of Just: Assignments will be recalculated, dependencies might run twice, and command line arguments will not be propagated to the child Just process.
+
 === Writing Recipes in Other Languages
 
 Recipes that start with a `#!` are executed as scripts, so you can write recipes in other languages:
