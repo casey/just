@@ -7,13 +7,15 @@ pub(crate) struct Line<'src> {
 }
 
 impl<'src> Line<'src> {
+  pub(crate) const CONTINUATION: &'static str = r"\";
+
   pub(crate) fn is_empty(&self) -> bool {
     self.fragments.is_empty()
   }
 
   pub(crate) fn is_continuation(&self) -> bool {
     match self.fragments.last() {
-      Some(Fragment::Text { token }) => token.lexeme().ends_with('\\'),
+      Some(Fragment::Text { token }) => token.lexeme().ends_with(Self::CONTINUATION),
       _ => false,
     }
   }

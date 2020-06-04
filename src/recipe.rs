@@ -204,40 +204,29 @@ impl<'src, D> Recipe<'src, D> {
         if lines.peek().is_none() {
           break;
         }
-        let mut evaluated = String::new();
-        loop {
-          if lines.peek().is_none() {
-            break;
-          }
-          let line = lines.next().unwrap();
-          line_number += 1;
-          evaluated += &evaluator.evaluate_line(line)?;
-          if line.is_continuation() {
-            evaluated.pop();
-          } else {
-            break;
-          }
-        }
-        let mut command = evaluated.as_str();
-        let quiet_command = command.starts_with('@');
-        if quiet_command {
-          command = &command[1..];
-        }
 
-        if command == "" {
+        let directive = {
+          let mut parser = Directive::parser(evaluator);
+          let d = parser.parse(&mut lines)?;
+          line_number += parser.lines_consumed();
+          evaluator = parser.into_inner();
+          d
+        };
+
+        if directive.as_evaluated_str().is_empty() {
           continue;
         }
 
         if config.dry_run
           || config.verbosity.loquacious()
-          || !((quiet_command ^ self.quiet) || config.quiet)
+          || !((directive.is_quiet() ^ self.quiet) || config.quiet)
         {
           let color = if config.highlight {
             config.color.command()
           } else {
             config.color
           };
-          eprintln!("{}", color.stderr().paint(command));
+          eprintln!("{}", color.stderr().paint(&format!("{}", directive)));
         }
 
         if config.dry_run {
@@ -248,7 +237,7 @@ impl<'src, D> Recipe<'src, D> {
 
         cmd.current_dir(&context.search.working_directory);
 
-        cmd.arg(command);
+        cmd.arg(directive.as_evaluated_str());
 
         if config.quiet {
           cmd.stderr(Stdio::null());

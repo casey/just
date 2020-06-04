@@ -65,6 +65,7 @@ mod config_error;
 mod count;
 mod default;
 mod dependency;
+mod directive;
 mod empty;
 mod enclosure;
 mod error;
