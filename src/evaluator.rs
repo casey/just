@@ -145,11 +145,20 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     })
   }
 
-  pub(crate) fn evaluate_line(&mut self, line: &Line<'src>) -> RunResult<'src, String> {
+  pub(crate) fn evaluate_line(
+    &mut self,
+    line: &Line<'src>,
+    continued: bool,
+  ) -> RunResult<'src, String> {
     let mut evaluated = String::new();
-    for fragment in &line.fragments {
+    for (i, fragment) in line.fragments.iter().enumerate() {
       match fragment {
-        Fragment::Text { token } => evaluated += token.lexeme(),
+        Fragment::Text { token } =>
+          if i == 0 && continued {
+            evaluated += token.lexeme().trim_start();
+          } else {
+            evaluated += token.lexeme();
+          },
         Fragment::Interpolation { expression } => {
           evaluated += &self.evaluate_expression(expression)?;
         },
