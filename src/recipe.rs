@@ -206,6 +206,7 @@ impl<'src, D> Recipe<'src, D> {
         }
         let mut evaluated = String::new();
         let mut continued = false;
+        let quiet_command = lines.peek().map(|line| line.is_quiet()).unwrap_or(false);
         loop {
           if lines.peek().is_none() {
             break;
@@ -221,7 +222,6 @@ impl<'src, D> Recipe<'src, D> {
           }
         }
         let mut command = evaluated.as_str();
-        let quiet_command = command.starts_with('@');
         if quiet_command {
           command = &command[1..];
         }
