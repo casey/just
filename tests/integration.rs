@@ -2516,3 +2516,36 @@ test! {
   stderr: "",
   shell: false,
 }
+
+test! {
+  name: interpolation_evaluation_ignore_quiet,
+  justfile: r#"
+    foo:
+      {{"@echo foo 2>/dev/null"}}
+  "#,
+  args: (),
+  stdout: "",
+  stderr: "
+    @echo foo 2>/dev/null
+    error: Recipe `foo` failed on line 2 with exit code 127
+  ",
+  status: 127,
+  shell: false,
+}
+
+test! {
+  name: interpolation_evaluation_ignore_quiet_continuation,
+  justfile: r#"
+    foo:
+      {{""}}\
+      @echo foo 2>/dev/null
+  "#,
+  args: (),
+  stdout: "",
+  stderr: "
+    @echo foo 2>/dev/null
+    error: Recipe `foo` failed on line 3 with exit code 127
+  ",
+  status: 127,
+  shell: false,
+}

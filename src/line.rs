@@ -24,4 +24,11 @@ impl<'src> Line<'src> {
       _ => false,
     }
   }
+
+  pub(crate) fn is_quiet(&self) -> bool {
+    match self.fragments.first() {
+      Some(Fragment::Text { token }) => token.lexeme().starts_with('@'),
+      _ => false,
+    }
+  }
 }
