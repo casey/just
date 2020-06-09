@@ -1292,8 +1292,8 @@ foo:
          b  \
              c
 "#,
-  stdout:   "a b c\n",
-  stderr:   "echo a       b             c\n",
+  stdout:   "ab c\n",
+  stderr:   "echo ab  c\n",
 }
 
 test! {
@@ -1304,8 +1304,8 @@ foo:
          b  \
              c'
 "#,
-  stdout:   "a       b             c\n",
-  stderr:   "echo 'a       b             c'\n",
+  stdout:   "ab  c\n",
+  stderr:   "echo 'ab  c'\n",
 }
 
 test! {

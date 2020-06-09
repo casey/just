@@ -89,7 +89,7 @@ impl<'src, D> Recipe<'src, D> {
     if self.shebang {
       let mut evaluated_lines = vec![];
       for line in &self.body {
-        evaluated_lines.push(evaluator.evaluate_line(line)?);
+        evaluated_lines.push(evaluator.evaluate_line(line, false)?);
       }
 
       if config.dry_run || self.quiet {
@@ -205,14 +205,16 @@ impl<'src, D> Recipe<'src, D> {
           break;
         }
         let mut evaluated = String::new();
+        let mut continued = false;
         loop {
           if lines.peek().is_none() {
             break;
           }
           let line = lines.next().unwrap();
           line_number += 1;
-          evaluated += &evaluator.evaluate_line(line)?;
+          evaluated += &evaluator.evaluate_line(line, continued)?;
           if line.is_continuation() {
+            continued = true;
             evaluated.pop();
           } else {
             break;
