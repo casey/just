@@ -185,6 +185,10 @@ cc main.c foo.c bar.c -o main
 testing... all tests passed!
 ```
 
+== Examples
+
+A variety of example justfiles can be found in the link:examples[examples directory].
+
 == Features
 
 === Listing Available Recipes

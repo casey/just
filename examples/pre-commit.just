@@ -12,9 +12,9 @@
 # for git commit and amend to keep pre-commit out of
 # the way when in flow on a feature branch.
 
-# uses: https://github.com/tekwizely/pre-commit-golang 
+# uses: https://github.com/tekwizely/pre-commit-golang
 # uses: https://github.com/prettier/prettier (pre-commit hook)
-# configures: https://www.git-town.com/ (setup receipt) 
+# configures: https://www.git-town.com/ (setup receipt)
 
 # fix auto-fixable lint issues in staged files
 fix:
