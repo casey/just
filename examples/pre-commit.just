@@ -8,7 +8,7 @@
 # pre-commit brings about encapsulation of your
 # most common repo scripting tasks. It is perfectly
 # usable without actually setting up precommit hooks.
-# If you chose to, this justfiles include shorthands
+# If you chose to, this justfiles includes shorthands
 # for git commit and amend to keep pre-commit out of
 # the way when in flow on a feature branch.
 
