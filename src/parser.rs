@@ -499,7 +499,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
 
     let kind = if self.accepted(Plus)? {
       ParameterKind::Plus
-    } else if self.accepted(Asterix)? {
+    } else if self.accepted(Asterisk)? {
       ParameterKind::Star
     } else {
       ParameterKind::Singular
