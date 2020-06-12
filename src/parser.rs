@@ -931,9 +931,15 @@ mod tests {
   }
 
   test! {
-    name: recipe_variadic,
+    name: recipe_plus_variadic,
     text: r#"foo +bar:"#,
     tree: (justfile (recipe foo (params +(bar)))),
+  }
+
+  test! {
+    name: recipe_star_variadic,
+    text: r#"foo *bar:"#,
+    tree: (justfile (recipe foo (params *(bar)))),
   }
 
   test! {
