@@ -572,14 +572,14 @@ test triple=(arch + "-unknown-unknown"):
   ./test {{triple}}
 ```
 
-The last parameter of a recipe may be variadic, indicated with a `+` before the argument name:
+The last parameter of a recipe may be variadic, indicated with either a `+` or a `*` before the argument name:
 
 ```make
 backup +FILES:
   scp {{FILES}} me@server.com:
 ```
 
-Variadic parameters accept one or more arguments and expand to a string containing those arguments separated by spaces:
+Variadic parameters prefixed with `+` accept _one or more_ arguments and expand to a string containing those arguments separated by spaces:
 
 ```sh
 $ just backup FAQ.md GRAMMAR.md
@@ -588,11 +588,18 @@ FAQ.md                  100% 1831     1.8KB/s   00:00
 GRAMMAR.md              100% 1666     1.6KB/s   00:00
 ```
 
-A variadic parameter with a default argument will accept zero or more arguments:
+Variadic parameters prefixed with `*` accept _zero or more_ arguments. They expand to a string containing those arguments separated by spaces, or an empty string if no arguments are present:
 
 ```make
-commit MESSAGE +FLAGS='':
+commit MESSAGE *FLAGS:
   git commit {{FLAGS}} -m "{{MESSAGE}}"
+```
+
+Variadic parameters prefixed by `+` can be assigned default values. These are overridden by arguments passed on the command line:
+
+```make
+test +FLAGS='-q':
+  cargo test {{FLAGS}}
 ```
 
 `{{...}}` substitutions may need to be quoted if they contains spaces. For example, if you have the following recipe:

@@ -100,8 +100,8 @@ impl<'src> Node<'src> for UnresolvedRecipe<'src> {
       let mut params = Tree::atom("params");
 
       for parameter in &self.parameters {
-        if parameter.variadic {
-          params.push_mut("+");
+        if parameter.kind.is_variadic() {
+          params.push_mut(parameter.kind.as_str());
         }
 
         params.push_mut(parameter.tree());

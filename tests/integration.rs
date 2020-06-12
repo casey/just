@@ -1081,12 +1081,24 @@ test! {
 }
 
 test! {
-  name:     required_after_variadic,
+  name:     required_after_variadic_one_or_more,
   justfile: "bar:\nhello baz +arg bar:",
   stdout:   "",
   stderr:   "error: Parameter `bar` follows variadic parameter
   |
 2 | hello baz +arg bar:
+  |                ^^^
+",
+  status:   EXIT_FAILURE,
+}
+
+test! {
+  name:     required_after_variadic_zero_or_more,
+  justfile: "bar:\nhello baz *arg bar:",
+  stdout:   "",
+  stderr:   "error: Parameter `bar` follows variadic parameter
+  |
+2 | hello baz *arg bar:
   |                ^^^
 ",
   status:   EXIT_FAILURE,
@@ -1781,7 +1793,7 @@ a b= ":
 }
 
 test! {
-  name:     variadic_recipe,
+  name:     variadic_one_or_more_recipe,
   justfile: "
 a x y +z:
   echo {{x}} {{y}} {{z}}
@@ -1792,7 +1804,7 @@ a x y +z:
 }
 
 test! {
-  name:     variadic_ignore_default,
+  name:     variadic_one_or_more_ignore_default,
   justfile: "
 a x y +z='HELLO':
   echo {{x}} {{y}} {{z}}
@@ -1803,7 +1815,7 @@ a x y +z='HELLO':
 }
 
 test! {
-  name:     variadic_use_default,
+  name:     variadic_one_or_more_use_default,
   justfile: "
 a x y +z='HELLO':
   echo {{x}} {{y}} {{z}}
@@ -1814,7 +1826,7 @@ a x y +z='HELLO':
 }
 
 test! {
-  name:     variadic_too_few,
+  name:     variadic_one_or_more_too_few,
   justfile: "
 a x y +z:
   echo {{x}} {{y}} {{z}}
@@ -1822,6 +1834,44 @@ a x y +z:
   args:     ("a", "0", "1"),
   stdout:   "",
   stderr:   "error: Recipe `a` got 2 arguments but takes at least 3\nusage:\n    just a x y +z\n",
+  status:   EXIT_FAILURE,
+}
+
+test! {
+  name:     variadic_zero_or_more_recipe,
+  justfile: "
+a x y *z:
+  echo {{x}} {{y}} {{z}}
+",
+  args:     ("a", "0", "1", "2", "3", " 4 "),
+  stdout:   "0 1 2 3 4\n",
+  stderr:   "echo 0 1 2 3  4 \n",
+}
+
+test! {
+  name:     variadic_zero_or_more_none,
+  justfile: "
+a x y *z:
+  echo {{x}} {{y}} {{z}}
+",
+  args:     ("a", "0", "1"),
+  stdout:   "0 1\n",
+  stderr:   "echo 0 1 \n",
+}
+
+test! {
+  name:     variadic_zero_or_more_disallows_default,
+  justfile: "
+a x y *z='':
+  echo {{x}} {{y}} {{z}}
+",
+  args:     ("a", "0", "1"),
+  stdout:   "",
+  stderr:   "error: Variadic parameter `z` accepting zero or more arguments has a default value
+  |
+2 | a x y *z='':
+  |          ^^
+",
   status:   EXIT_FAILURE,
 }
 
@@ -2429,7 +2479,7 @@ test! {
 }
 
 test! {
-  name: dependency_argument_variadic,
+  name: dependency_argument_variadic_one_or_more,
   justfile: "
     foo: (bar 'A' 'B' 'C')
 

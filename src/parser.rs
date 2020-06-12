@@ -494,11 +494,19 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     let mut positional = Vec::new();
 
     while self.next_is(Identifier) {
-      positional.push(self.parse_parameter(false)?);
+      positional.push(self.parse_parameter(ParameterKind::Singular)?);
     }
 
-    let variadic = if self.accepted(Plus)? {
-      let variadic = self.parse_parameter(true)?;
+    let kind = if self.accepted(Plus)? {
+      ParameterKind::VariadicOneOrMore
+    } else if self.accepted(Asterix)? {
+      ParameterKind::VariadicZeroOrMore
+    } else {
+      ParameterKind::Singular
+    };
+
+    let variadic = if kind.is_variadic() {
+      let variadic = self.parse_parameter(kind)?;
 
       if let Some(identifier) = self.accept(Identifier)? {
         return Err(
@@ -560,19 +568,25 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   }
 
   /// Parse a recipe parameter
-  fn parse_parameter(&mut self, variadic: bool) -> CompilationResult<'src, Parameter<'src>> {
+  fn parse_parameter(&mut self, kind: ParameterKind) -> CompilationResult<'src, Parameter<'src>> {
     let name = self.parse_name()?;
 
-    let default = if self.accepted(Equals)? {
-      Some(self.parse_value()?)
-    } else {
-      None
+    let default = match (self.accepted(Equals)?, kind) {
+      (true, ParameterKind::VariadicZeroOrMore) => {
+        return Err(self.next()?.error(
+          CompilationErrorKind::ZeroOrMoreVariadicParameterHasDefault {
+            parameter: name.lexeme(),
+          },
+        ));
+      },
+      (true, _) => Some(self.parse_value()?),
+      _ => None,
     };
 
     Ok(Parameter {
       name,
+      kind,
       default,
-      variadic,
     })
   }
 

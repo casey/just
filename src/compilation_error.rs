@@ -213,6 +213,13 @@ impl Display for CompilationError<'_> {
       UnterminatedBacktick => {
         writeln!(f, "Unterminated backtick")?;
       },
+      ZeroOrMoreVariadicParameterHasDefault { parameter } => {
+        writeln!(
+          f,
+          "Variadic parameter `{}` accepting zero or more arguments has a default value",
+          parameter
+        )?;
+      },
       Internal { ref message } => {
         writeln!(
           f,

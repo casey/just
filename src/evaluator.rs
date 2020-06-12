@@ -192,12 +192,14 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       let value = if rest.is_empty() {
         if let Some(ref default) = parameter.default {
           evaluator.evaluate_expression(default)?
+        } else if parameter.kind == ParameterKind::VariadicZeroOrMore {
+          String::new()
         } else {
           return Err(RuntimeError::Internal {
             message: "missing parameter without default".to_string(),
           });
         }
-      } else if parameter.variadic {
+      } else if parameter.kind.is_variadic() {
         let value = rest.to_vec().join(" ");
         rest = &[];
         value

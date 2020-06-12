@@ -93,4 +93,7 @@ pub(crate) enum CompilationErrorKind<'src> {
   UnterminatedInterpolation,
   UnterminatedString,
   UnterminatedBacktick,
+  ZeroOrMoreVariadicParameterHasDefault {
+    parameter: &'src str,
+  },
 }
