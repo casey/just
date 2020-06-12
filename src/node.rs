@@ -101,7 +101,7 @@ impl<'src> Node<'src> for UnresolvedRecipe<'src> {
 
       for parameter in &self.parameters {
         if parameter.kind.is_variadic() {
-          params.push_mut(parameter.kind.as_str());
+          params.push_mut(parameter.kind.prefix());
         }
 
         params.push_mut(parameter.tree());

@@ -192,7 +192,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       let value = if rest.is_empty() {
         if let Some(ref default) = parameter.default {
           evaluator.evaluate_expression(default)?
-        } else if parameter.kind == ParameterKind::VariadicZeroOrMore {
+        } else if parameter.kind == ParameterKind::Star {
           String::new()
         } else {
           return Err(RuntimeError::Internal {

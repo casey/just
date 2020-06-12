@@ -6,17 +6,17 @@ pub(crate) enum ParameterKind {
   /// …singular, accepting a single argument
   Singular,
   /// …variadic, accepting one or more arguments
-  VariadicOneOrMore,
+  Plus,
   /// …variadic, accepting zero or more arguments
-  VariadicZeroOrMore,
+  Star,
 }
 
 impl ParameterKind {
-  pub(crate) fn as_str(self) -> &'static str {
+  pub(crate) fn prefix(self) -> &'static str {
     match self {
       Self::Singular => "",
-      Self::VariadicOneOrMore => "+",
-      Self::VariadicZeroOrMore => "*",
+      Self::Plus => "+",
+      Self::Star => "*",
     }
   }
 

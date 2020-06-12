@@ -498,9 +498,9 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     }
 
     let kind = if self.accepted(Plus)? {
-      ParameterKind::VariadicOneOrMore
+      ParameterKind::Plus
     } else if self.accepted(Asterix)? {
-      ParameterKind::VariadicZeroOrMore
+      ParameterKind::Star
     } else {
       ParameterKind::Singular
     };
@@ -572,7 +572,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     let name = self.parse_name()?;
 
     let default = match (self.accepted(Equals)?, kind) {
-      (true, ParameterKind::VariadicZeroOrMore) => {
+      (true, ParameterKind::Star) => {
         return Err(self.next()?.error(
           CompilationErrorKind::ZeroOrMoreVariadicParameterHasDefault {
             parameter: name.lexeme(),

@@ -44,7 +44,7 @@ impl<'src, D> Recipe<'src, D> {
     self
       .parameters
       .iter()
-      .filter(|p| p.default.is_none() && p.kind != ParameterKind::VariadicZeroOrMore)
+      .filter(|p| p.default.is_none() && p.kind != ParameterKind::Star)
       .count()
   }
 
