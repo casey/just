@@ -1876,6 +1876,36 @@ a x y *z='':
 }
 
 test! {
+  name:     star_then_plus_variadic,
+  justfile: "
+foo *a +b:
+  echo {{a}} {{b}}
+",
+  stdout:   "",
+  stderr:   "error: Expected \':\' or \'=\', but found \'+\'
+  |
+2 | foo *a +b:
+  |        ^
+",
+  status:   EXIT_FAILURE,
+}
+
+test! {
+  name:     plus_then_star_variadic,
+  justfile: "
+foo +a *b:
+  echo {{a}} {{b}}
+",
+  stdout:   "",
+  stderr:   "error: Expected \':\' or \'=\', but found \'*\'
+  |
+2 | foo +a *b:
+  |        ^
+",
+  status:   EXIT_FAILURE,
+}
+
+test! {
   name:     argument_grouping,
   justfile: "
 FOO A B='blarg':
