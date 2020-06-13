@@ -1081,12 +1081,24 @@ test! {
 }
 
 test! {
-  name:     required_after_variadic,
+  name:     required_after_plus_variadic,
   justfile: "bar:\nhello baz +arg bar:",
   stdout:   "",
   stderr:   "error: Parameter `bar` follows variadic parameter
   |
 2 | hello baz +arg bar:
+  |                ^^^
+",
+  status:   EXIT_FAILURE,
+}
+
+test! {
+  name:     required_after_star_variadic,
+  justfile: "bar:\nhello baz *arg bar:",
+  stdout:   "",
+  stderr:   "error: Parameter `bar` follows variadic parameter
+  |
+2 | hello baz *arg bar:
   |                ^^^
 ",
   status:   EXIT_FAILURE,
@@ -1781,7 +1793,7 @@ a b= ":
 }
 
 test! {
-  name:     variadic_recipe,
+  name:     plus_variadic_recipe,
   justfile: "
 a x y +z:
   echo {{x}} {{y}} {{z}}
@@ -1792,7 +1804,7 @@ a x y +z:
 }
 
 test! {
-  name:     variadic_ignore_default,
+  name:     plus_variadic_ignore_default,
   justfile: "
 a x y +z='HELLO':
   echo {{x}} {{y}} {{z}}
@@ -1803,7 +1815,7 @@ a x y +z='HELLO':
 }
 
 test! {
-  name:     variadic_use_default,
+  name:     plus_variadic_use_default,
   justfile: "
 a x y +z='HELLO':
   echo {{x}} {{y}} {{z}}
@@ -1814,7 +1826,7 @@ a x y +z='HELLO':
 }
 
 test! {
-  name:     variadic_too_few,
+  name:     plus_variadic_too_few,
   justfile: "
 a x y +z:
   echo {{x}} {{y}} {{z}}
@@ -1822,6 +1834,80 @@ a x y +z:
   args:     ("a", "0", "1"),
   stdout:   "",
   stderr:   "error: Recipe `a` got 2 arguments but takes at least 3\nusage:\n    just a x y +z\n",
+  status:   EXIT_FAILURE,
+}
+
+test! {
+  name:     star_variadic_recipe,
+  justfile: "
+a x y *z:
+  echo {{x}} {{y}} {{z}}
+",
+  args:     ("a", "0", "1", "2", "3", " 4 "),
+  stdout:   "0 1 2 3 4\n",
+  stderr:   "echo 0 1 2 3  4 \n",
+}
+
+test! {
+  name:     star_variadic_none,
+  justfile: "
+a x y *z:
+  echo {{x}} {{y}} {{z}}
+",
+  args:     ("a", "0", "1"),
+  stdout:   "0 1\n",
+  stderr:   "echo 0 1 \n",
+}
+
+test! {
+  name:     star_variadic_ignore_default,
+  justfile: "
+a x y *z='HELLO':
+  echo {{x}} {{y}} {{z}}
+",
+  args:     ("a", "0", "1", "2", "3", " 4 "),
+  stdout:   "0 1 2 3 4\n",
+  stderr:   "echo 0 1 2 3  4 \n",
+}
+
+test! {
+  name:     star_variadic_use_default,
+  justfile: "
+a x y *z='HELLO':
+  echo {{x}} {{y}} {{z}}
+",
+  args:     ("a", "0", "1"),
+  stdout:   "0 1 HELLO\n",
+  stderr:   "echo 0 1 HELLO\n",
+}
+
+test! {
+  name:     star_then_plus_variadic,
+  justfile: "
+foo *a +b:
+  echo {{a}} {{b}}
+",
+  stdout:   "",
+  stderr:   "error: Expected \':\' or \'=\', but found \'+\'
+  |
+2 | foo *a +b:
+  |        ^
+",
+  status:   EXIT_FAILURE,
+}
+
+test! {
+  name:     plus_then_star_variadic,
+  justfile: "
+foo +a *b:
+  echo {{a}} {{b}}
+",
+  stdout:   "",
+  stderr:   "error: Expected \':\' or \'=\', but found \'*\'
+  |
+2 | foo +a *b:
+  |        ^
+",
   status:   EXIT_FAILURE,
 }
 
@@ -2429,7 +2515,7 @@ test! {
 }
 
 test! {
-  name: dependency_argument_variadic,
+  name: dependency_argument_plus_variadic,
   justfile: "
     foo: (bar 'A' 'B' 'C')
 

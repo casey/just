@@ -44,12 +44,12 @@ impl<'src, D> Recipe<'src, D> {
     self
       .parameters
       .iter()
-      .filter(|p| p.default.is_none())
+      .filter(|p| p.default.is_none() && p.kind != ParameterKind::Star)
       .count()
   }
 
   pub(crate) fn max_arguments(&self) -> usize {
-    if self.parameters.iter().any(|p| p.variadic) {
+    if self.parameters.iter().any(|p| p.kind.is_variadic()) {
       usize::max_value() - 1
     } else {
       self.parameters.len()

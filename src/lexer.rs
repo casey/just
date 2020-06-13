@@ -436,6 +436,7 @@ impl<'src> Lexer<'src> {
   /// Lex token beginning with `start` outside of a recipe body
   fn lex_normal(&mut self, start: char) -> CompilationResult<'src, ()> {
     match start {
+      '*' => self.lex_single(Asterisk),
       '@' => self.lex_single(At),
       '[' => self.lex_single(BracketL),
       ']' => self.lex_single(BracketR),
@@ -806,6 +807,7 @@ mod tests {
   fn default_lexeme(kind: TokenKind) -> &'static str {
     match kind {
       // Fixed lexemes
+      Asterisk => "*",
       At => "@",
       BracketL => "[",
       BracketR => "]",

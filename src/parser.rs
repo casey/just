@@ -494,11 +494,19 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     let mut positional = Vec::new();
 
     while self.next_is(Identifier) {
-      positional.push(self.parse_parameter(false)?);
+      positional.push(self.parse_parameter(ParameterKind::Singular)?);
     }
 
-    let variadic = if self.accepted(Plus)? {
-      let variadic = self.parse_parameter(true)?;
+    let kind = if self.accepted(Plus)? {
+      ParameterKind::Plus
+    } else if self.accepted(Asterisk)? {
+      ParameterKind::Star
+    } else {
+      ParameterKind::Singular
+    };
+
+    let variadic = if kind.is_variadic() {
+      let variadic = self.parse_parameter(kind)?;
 
       if let Some(identifier) = self.accept(Identifier)? {
         return Err(
@@ -560,7 +568,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   }
 
   /// Parse a recipe parameter
-  fn parse_parameter(&mut self, variadic: bool) -> CompilationResult<'src, Parameter<'src>> {
+  fn parse_parameter(&mut self, kind: ParameterKind) -> CompilationResult<'src, Parameter<'src>> {
     let name = self.parse_name()?;
 
     let default = if self.accepted(Equals)? {
@@ -571,8 +579,8 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
 
     Ok(Parameter {
       name,
+      kind,
       default,
-      variadic,
     })
   }
 
@@ -917,9 +925,15 @@ mod tests {
   }
 
   test! {
-    name: recipe_variadic,
+    name: recipe_plus_variadic,
     text: r#"foo +bar:"#,
     tree: (justfile (recipe foo (params +(bar)))),
+  }
+
+  test! {
+    name: recipe_star_variadic,
+    text: r#"foo *bar:"#,
+    tree: (justfile (recipe foo (params *(bar)))),
   }
 
   test! {

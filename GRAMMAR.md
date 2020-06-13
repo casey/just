@@ -73,10 +73,13 @@ string        : STRING
 sequence      : expression ',' sequence
               | expression ','?
 
-recipe        : '@'? NAME parameter* ('+' parameter)? ':' dependency* body?
+recipe        : '@'? NAME parameter* variadic? ':' dependency* body?
 
 parameter     : NAME
               | NAME '=' value
+
+variadic      : '*' parameter
+              | '+' parameter
 
 dependency    : NAME
               | '(' NAME expression* ')
