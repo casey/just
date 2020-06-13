@@ -595,7 +595,7 @@ commit MESSAGE *FLAGS:
   git commit {{FLAGS}} -m "{{MESSAGE}}"
 ```
 
-Variadic parameters prefixed by `+` can be assigned default values. These are overridden by arguments passed on the command line:
+Variadic parameters can be assigned default values. These are overridden by arguments passed on the command line:
 
 ```make
 test +FLAGS='-q':
