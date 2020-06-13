@@ -12,11 +12,11 @@ pub(crate) enum ParameterKind {
 }
 
 impl ParameterKind {
-  pub(crate) fn prefix(self) -> &'static str {
+  pub(crate) fn prefix(self) -> Option<&'static str> {
     match self {
-      Self::Singular => "",
-      Self::Plus => "+",
-      Self::Star => "*",
+      Self::Singular => None,
+      Self::Plus => Some("+"),
+      Self::Star => Some("*"),
     }
   }
 
