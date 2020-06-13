@@ -588,7 +588,7 @@ FAQ.md                  100% 1831     1.8KB/s   00:00
 GRAMMAR.md              100% 1666     1.6KB/s   00:00
 ```
 
-Variadic parameters prefixed with `*` accept _zero or more_ arguments. They expand to a string containing those arguments separated by spaces, or an empty string if no arguments are present:
+Variadic parameters prefixed with `*` accept _zero or more_ arguments and expand to a string containing those arguments separated by spaces, or an empty string if no arguments are present:
 
 ```make
 commit MESSAGE *FLAGS:
