@@ -571,16 +571,10 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   fn parse_parameter(&mut self, kind: ParameterKind) -> CompilationResult<'src, Parameter<'src>> {
     let name = self.parse_name()?;
 
-    let default = match (self.accepted(Equals)?, kind) {
-      (true, ParameterKind::Star) => {
-        return Err(self.next()?.error(
-          CompilationErrorKind::ZeroOrMoreVariadicParameterHasDefault {
-            parameter: name.lexeme(),
-          },
-        ));
-      },
-      (true, _) => Some(self.parse_value()?),
-      _ => None,
+    let default = if self.accepted(Equals)? {
+      Some(self.parse_value()?)
+    } else {
+      None
     };
 
     Ok(Parameter {

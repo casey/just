@@ -1860,19 +1860,25 @@ a x y *z:
 }
 
 test! {
-  name:     star_variadic_disallows_default,
+  name:     star_variadic_ignore_default,
   justfile: "
-a x y *z='':
+a x y *z='HELLO':
+  echo {{x}} {{y}} {{z}}
+",
+  args:     ("a", "0", "1", "2", "3", " 4 "),
+  stdout:   "0 1 2 3 4\n",
+  stderr:   "echo 0 1 2 3  4 \n",
+}
+
+test! {
+  name:     star_variadic_use_default,
+  justfile: "
+a x y *z='HELLO':
   echo {{x}} {{y}} {{z}}
 ",
   args:     ("a", "0", "1"),
-  stdout:   "",
-  stderr:   "error: Variadic parameter `z` accepting zero or more arguments has a default value
-  |
-2 | a x y *z='':
-  |          ^^
-",
-  status:   EXIT_FAILURE,
+  stdout:   "0 1 HELLO\n",
+  stderr:   "echo 0 1 HELLO\n",
 }
 
 test! {
