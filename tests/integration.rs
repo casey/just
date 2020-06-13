@@ -1081,7 +1081,7 @@ test! {
 }
 
 test! {
-  name:     required_after_variadic_one_or_more,
+  name:     required_after_plus_variadic,
   justfile: "bar:\nhello baz +arg bar:",
   stdout:   "",
   stderr:   "error: Parameter `bar` follows variadic parameter
@@ -1093,7 +1093,7 @@ test! {
 }
 
 test! {
-  name:     required_after_variadic_zero_or_more,
+  name:     required_after_star_variadic,
   justfile: "bar:\nhello baz *arg bar:",
   stdout:   "",
   stderr:   "error: Parameter `bar` follows variadic parameter
@@ -1793,7 +1793,7 @@ a b= ":
 }
 
 test! {
-  name:     variadic_one_or_more_recipe,
+  name:     plus_variadic_recipe,
   justfile: "
 a x y +z:
   echo {{x}} {{y}} {{z}}
@@ -1804,7 +1804,7 @@ a x y +z:
 }
 
 test! {
-  name:     variadic_one_or_more_ignore_default,
+  name:     plus_variadic_ignore_default,
   justfile: "
 a x y +z='HELLO':
   echo {{x}} {{y}} {{z}}
@@ -1815,7 +1815,7 @@ a x y +z='HELLO':
 }
 
 test! {
-  name:     variadic_one_or_more_use_default,
+  name:     plus_variadic_use_default,
   justfile: "
 a x y +z='HELLO':
   echo {{x}} {{y}} {{z}}
@@ -1826,7 +1826,7 @@ a x y +z='HELLO':
 }
 
 test! {
-  name:     variadic_one_or_more_too_few,
+  name:     plus_variadic_too_few,
   justfile: "
 a x y +z:
   echo {{x}} {{y}} {{z}}
@@ -1838,7 +1838,7 @@ a x y +z:
 }
 
 test! {
-  name:     variadic_zero_or_more_recipe,
+  name:     star_variadic_recipe,
   justfile: "
 a x y *z:
   echo {{x}} {{y}} {{z}}
@@ -1849,7 +1849,7 @@ a x y *z:
 }
 
 test! {
-  name:     variadic_zero_or_more_none,
+  name:     star_variadic_none,
   justfile: "
 a x y *z:
   echo {{x}} {{y}} {{z}}
@@ -1860,7 +1860,7 @@ a x y *z:
 }
 
 test! {
-  name:     variadic_zero_or_more_disallows_default,
+  name:     star_variadic_disallows_default,
   justfile: "
 a x y *z='':
   echo {{x}} {{y}} {{z}}
@@ -2509,7 +2509,7 @@ test! {
 }
 
 test! {
-  name: dependency_argument_variadic_one_or_more,
+  name: dependency_argument_plus_variadic,
   justfile: "
     foo: (bar 'A' 'B' 'C')
 
