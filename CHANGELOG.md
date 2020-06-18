@@ -1,10 +1,30 @@
 Changelog
 =========
 
+[v0.6.0] - 2020-6-18
+--------------------
+
+### Changed
+- Ignore '@' returned from interpolation evaluation (#636)
+- Strip leading spaces after line continuation (#635)
+
+### Added
+- Add variadic parameters that accept zero or more arguments (#645)
+
+### Misc
+- Clarify variadic parameter default values (#646)
+- Add keybase example justfile  (#640)
+- Strip trailing whitespace in `examples/pre-commit.just` (#644)
+- Test that example justfiles successfully parse (#643)
+- Link example justfiles in readme (#641)
+- Add example justfile (#639)
+- Document how to run recipes after another recipe (#630)
+
+
 [v0.5.11] - 2020-5-23
 ---------------------
 
-## Added
+### Added
 - Don't load `.env` file when `--no-dotenv` is passed (#627)
 
 ### Changed

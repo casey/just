@@ -19,7 +19,8 @@ use crate::compiler::Compiler;
 mod full {
   pub(crate) use crate::{
     assignment::Assignment, dependency::Dependency, expression::Expression, fragment::Fragment,
-    justfile::Justfile, line::Line, parameter::Parameter, recipe::Recipe, thunk::Thunk,
+    justfile::Justfile, line::Line, parameter::Parameter, parameter_kind::ParameterKind,
+    recipe::Recipe, thunk::Thunk,
   };
 }
 
@@ -100,17 +101,34 @@ impl Recipe {
 
 #[derive(Eq, PartialEq, Hash, Ord, PartialOrd, Debug, Clone)]
 pub struct Parameter {
-  pub variadic: bool,
-  pub name:     String,
-  pub default:  Option<Expression>,
+  pub kind:    ParameterKind,
+  pub name:    String,
+  pub default: Option<Expression>,
 }
 
 impl Parameter {
   fn new(parameter: &full::Parameter) -> Parameter {
     Parameter {
-      variadic: parameter.variadic,
-      name:     parameter.name.lexeme().to_owned(),
-      default:  parameter.default.as_ref().map(Expression::new),
+      kind:    ParameterKind::new(parameter.kind),
+      name:    parameter.name.lexeme().to_owned(),
+      default: parameter.default.as_ref().map(Expression::new),
+    }
+  }
+}
+
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash, Ord, PartialOrd)]
+pub enum ParameterKind {
+  Singular,
+  Plus,
+  Star,
+}
+
+impl ParameterKind {
+  fn new(parameter_kind: full::ParameterKind) -> Self {
+    match parameter_kind {
+      full::ParameterKind::Singular => Self::Singular,
+      full::ParameterKind::Plus => Self::Plus,
+      full::ParameterKind::Star => Self::Star,
     }
   }
 }
