@@ -2635,3 +2635,15 @@ test! {
   status: 127,
   shell: false,
 }
+
+#[cfg(windows)]
+test! {
+  name: windows_interpreter_path_no_base,
+  justfile: r#"
+    foo:
+      #!powershell
+
+      exit 0
+  "#,
+  args: (),
+}

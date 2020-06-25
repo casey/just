@@ -694,6 +694,25 @@ Yo from a shell script!
 Hello from ruby!
 ```
 
+==== Shebang Recipe Execution on Windows
+
+On Windows, shebang interpreter paths containing a `/` are translated from Unix-style
+paths to Windows-style paths using `cygpath`, a utility that ships with http://www.cygwin.com[Cygwin].
+
+For example, to execute this recipe on Windows:
+
+```make
+echo:
+  #!/bin/sh
+
+  echo "Hello!"
+```
+
+The interpreter path `/bin/sh` will be translated to a Windows-style path using
+`cygpath` before being executed.
+
+If the interpreter path does not contain a `/` it will be executed without being translated. This is useful if `cygpath` is not available, or you wish to use a Windows style path to the interpreter.
+
 === Multi-line Constructs
 
 Recipes without an initial shebang are evaluated and run line-by-line, which means that multi-line constructs probably won't do what you want.
