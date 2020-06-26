@@ -5,7 +5,7 @@ on:
     branches:
     - master
     tags:
-    - v*.*.*
+    - '*'
   pull_request:
     branches:
     - master
@@ -30,9 +30,12 @@ jobs:
 
     runs-on: ${{matrix.os}}
 
+    env:
+      RUSTFLAGS: "-D warnings"
+
     steps:
 
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
 
     - name: Cache cargo registry
       uses: actions/cache@v1
@@ -99,16 +102,16 @@ jobs:
 
     - name: Package
       id: package
-      if: startsWith(github.ref, 'refs/tags/v')
+      if: startsWith(github.ref, 'refs/tags/')
       run: ./bin/package ${{github.ref}} ${{matrix.os}} ${{ matrix.target }}
       shell: bash
 
     - name: Publish
       uses: softprops/action-gh-release@v1
-      if: startsWith(github.ref, 'refs/tags/v')
+      if: startsWith(github.ref, 'refs/tags/')
       with:
         draft: false
         files: ${{ steps.package.outputs.archive }}
-        prerelease: false
+        prerelease: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
