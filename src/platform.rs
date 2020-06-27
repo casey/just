@@ -53,19 +53,28 @@ impl PlatformInterface for Platform {
     command: &str,
     argument: Option<&str>,
   ) -> Result<Command, OutputError> {
-    // Translate path to the interpreter from unix style to windows style
-    let mut cygpath = Command::new("cygpath");
-    cygpath.current_dir(working_directory);
-    cygpath.arg("--windows");
-    cygpath.arg(command);
+    // If the path contains forward slashes…
+    let command = if command.contains('/') {
+      // …translate path to the interpreter from unix style to windows style.
+      let mut cygpath = Command::new("cygpath");
+      cygpath.current_dir(working_directory);
+      cygpath.arg("--windows");
+      cygpath.arg(command);
 
-    let mut cmd = Command::new(output(cygpath)?);
+      Cow::Owned(output(cygpath)?)
+    } else {
+      // …otherwise use it as-is.
+      Cow::Borrowed(command)
+    };
+
+    let mut cmd = Command::new(command.as_ref());
 
     cmd.current_dir(working_directory);
 
     if let Some(argument) = argument {
       cmd.arg(argument);
     }
+
     cmd.arg(path);
     Ok(cmd)
   }
