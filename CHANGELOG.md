@@ -1,6 +1,13 @@
 Changelog
 =========
 
+[v0.6.1] - 2020-6-28
+--------------------
+
+### Changed
+- Only use `cygpath` on shebang if it contains `/` (#652)
+
+
 [v0.6.0] - 2020-6-18
 --------------------
 
