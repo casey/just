@@ -1,6 +1,16 @@
 Changelog
 =========
 
+[v0.7.0] - 20207-16]
+--------------------
+
+### Breaking
+- Skip `.env` items which are set in environment (#656)
+
+### Misc
+- Mark tags that start with `v` as releases (#654)
+
+
 [v0.6.1] - 2020-6-28
 --------------------
 
