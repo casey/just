@@ -50,3 +50,6 @@ path = "test-utilities"
 # their build machines some cycles.
 [package.metadata.docs.rs]
 targets = ["x86_64-unknown-linux-gnu"]
+
+[profile.release]
+lto = true

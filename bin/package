@@ -17,11 +17,11 @@ echo "Building $bin..."
 
 case $os in
   ubuntu-latest | macos-latest)
-    cargo rustc --bin $bin --target $target --release -- -C lto
+    cargo rustc --bin $bin --target $target --release
     executable=target/$target/release/$bin
     ;;
   windows-latest)
-    cargo rustc --bin $bin --target $target --release -- -C lto -C target-feature="+crt-static"
+    cargo rustc --bin $bin --target $target --release -- -C target-feature="+crt-static"
     executable=target/$target/release/$bin.exe
     ;;
 esac
