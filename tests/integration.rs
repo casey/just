@@ -1,4 +1,5 @@
 use std::{
+  collections::BTreeMap,
   env, fs,
   io::Write,
   path::Path,
@@ -16,6 +17,9 @@ macro_rules! test {
     name:     $name:ident,
     justfile: $justfile:expr,
     $(args:     ($($arg:tt)*),)?
+    $(env:      {
+      $($env_key:literal : $env_value:literal,)*
+    },)?
     $(stdin:    $stdin:expr,)?
     $(stdout:   $stdout:expr,)?
     $(stderr:   $stderr:expr,)?
@@ -24,6 +28,11 @@ macro_rules! test {
   ) => {
     #[test]
     fn $name() {
+      #[allow(unused_mut)]
+      let mut env = BTreeMap::new();
+
+      $($(env.insert($env_key.to_string(), $env_value.to_string());)*)?
+
       Test {
         justfile: $justfile,
         $(args: &[$($arg)*],)?
@@ -32,6 +41,7 @@ macro_rules! test {
         $(stderr: $stderr,)?
         $(status: $status,)?
         $(shell: $shell,)?
+        env,
         ..Test::default()
       }.run();
     }
@@ -41,6 +51,7 @@ macro_rules! test {
 struct Test<'a> {
   justfile: &'a str,
   args:     &'a [&'a str],
+  env:      BTreeMap<String, String>,
   stdin:    &'a str,
   stdout:   &'a str,
   stderr:   &'a str,
@@ -53,6 +64,7 @@ impl<'a> Default for Test<'a> {
     Test {
       justfile: "",
       args:     &[],
+      env:      BTreeMap::new(),
       stdin:    "",
       stdout:   "",
       stderr:   "",
@@ -86,6 +98,7 @@ impl<'a> Test<'a> {
 
     let mut child = command
       .args(self.args)
+      .envs(self.env)
       .current_dir(tmp.path())
       .stdin(Stdio::piped())
       .stdout(Stdio::piped())
@@ -2068,6 +2081,18 @@ echo:
    args:     ("--no-dotenv"),
    stdout:   "DEFAULT\n",
    stderr:   "echo DEFAULT\n",
+}
+
+test! {
+   name:     dotenv_env_var_override,
+   justfile: "
+#
+echo:
+  echo $DOTENV_KEY
+ ",
+   env:      {"DOTENV_KEY": "not-the-dotenv-value",},
+   stdout:   "not-the-dotenv-value\n",
+   stderr:   "echo $DOTENV_KEY\n",
 }
 
 test! {
