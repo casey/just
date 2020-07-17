@@ -149,7 +149,7 @@ impl<'src> Justfile<'src> {
     while let Some((argument, mut tail)) = rest.split_first() {
       if let Some(recipe) = self.get_recipe(argument) {
         if recipe.parameters.is_empty() {
-          grouped.push((recipe, &tail[0..0]));
+          grouped.push((recipe, &[][..]));
         } else {
           let argument_range = recipe.argument_range();
           let argument_count = cmp::min(tail.len(), recipe.max_arguments());

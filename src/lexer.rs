@@ -678,7 +678,7 @@ impl<'src> Lexer<'src> {
       match self.next {
         Some('\'') => break,
         None => return Err(self.error(UnterminatedString)),
-        _ => {},
+        Some(_) => {},
       }
 
       self.advance()?;
