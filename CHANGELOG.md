@@ -1,7 +1,17 @@
 Changelog
 =========
 
-[v0.7.0] - 20207-16]
+[v0.7.1] - 2020-7-19
+--------------------
+
+### Fixed
+- Search for `.env` file from working directory (#661)
+
+### Misc
+- Move link-time optimization config into `Cargo.toml` (#658)
+
+
+[v0.7.0] - 2020-7-16
 --------------------
 
 ### Breaking
