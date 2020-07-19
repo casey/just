@@ -91,7 +91,7 @@ impl<'src> Justfile<'src> {
     }
 
     let dotenv = if config.load_dotenv {
-      load_dotenv()?
+      load_dotenv(&search.working_directory)?
     } else {
       BTreeMap::new()
     };

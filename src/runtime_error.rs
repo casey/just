@@ -395,3 +395,9 @@ impl<'src> Display for RuntimeError<'src> {
     Ok(())
   }
 }
+
+impl<'src> From<dotenv::Error> for RuntimeError<'src> {
+  fn from(dotenv_error: dotenv::Error) -> RuntimeError<'src> {
+    RuntimeError::Dotenv { dotenv_error }
+  }
+}
