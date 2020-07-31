@@ -16,7 +16,12 @@ test -f Cargo.lock || cargo generate-lockfile
 echo "Building $bin..."
 
 case $os in
-  ubuntu-latest | macos-latest)
+  ubuntu-latest)
+    cargo rustc --bin $bin --target $target --release
+    executable=target/$target/release/$bin
+    strip $executable
+    ;;
+  macos-latest)
     cargo rustc --bin $bin --target $target --release
     executable=target/$target/release/$bin
     ;;
