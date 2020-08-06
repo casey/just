@@ -12,7 +12,7 @@ image:https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg[say thanks,link=htt
 
 (非官方中文文档,link:https://github.com/chinanf-boy/just-zh[这里],快看过来!)
 
-Commands are stored in a file called `justfile` with syntax inspired by `make`:
+Commands, called recipes, are stored in a file called `justfile` with syntax inspired by `make`:
 
 ```make
 build:
@@ -27,7 +27,7 @@ test TEST: build
     ./test --test {{TEST}}
 ```
 
-You can then run them with `just COMMAND`:
+You can then run them with `just RECIPE`:
 
 ```sh
 $ just test-all
@@ -36,9 +36,40 @@ cc *.c -o main
 Yay, all your tests passed!
 ```
 
-`just` produces detailed error messages and avoids `make`&#8217;s idiosyncrasies, so debugging a justfile is easier and less surprising than debugging a makefile.
+Just has a ton of useful features, and many improvements over Make:
 
-If you need help with `just` please feel free to open an issue or let me know on link:https://gitter.im/just-because/Lobby[gitter]. Feature requests and bug reports are always welcome!
+- Just is a command runner, not a build system, so it avoids much of
+  link:https://github.com/casey/just#what-are-the-idiosyncrasies-of-make-that-just-avoids[Make's
+  complexity and idiosyncrasies]. No need for `.PHONY` recipes!
+
+- Errors are specific and informative, and syntax errors are reported along with their source context.
+
+- Recipes can accept
+  link:https://github.com/casey/just#recipe-parameters[command line arguments].
+
+- Wherever possible, errors are resolved statically. Unknown recipes and
+  circular dependencies are reported before anything runs.
+
+- Just link:https://github.com/casey/just#dotenv-integration[loads `.env`
+  files], making it easy to populate environment variables.
+
+- Recipes can be
+  link:https://github.com/casey/just#listing-available-recipes[listed from the
+  command line].
+
+- Command line completion scripts are
+  link:https://github.com/casey/just#shell-completion-scripts[available for
+  most popular shells].
+
+- Recipes can be written in
+  link:https://github.com/casey/just#writing-recipes-in-other-languages[arbitrary
+  languages], like Python or NodeJS.
+
+- `just` can be invoked from any subdirectory, not just the directory that contains the `Justfile`.
+
+- And link:https://github.com/casey/just#manual[much more]!
+
+If you need help with `just` please feel free to open an issue or ping me on link:https://discord.gg/ezYScXR[discord]. Feature requests and bug reports are always welcome!
 
 [discrete]
 == Manual
