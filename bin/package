@@ -20,7 +20,7 @@ case $os in
     cargo rustc --bin $bin --target $target --release
     executable=target/$target/release/$bin
     ;;
-  windows-latest)
+  windows-2016)
     cargo rustc --bin $bin --target $target --release -- -C target-feature="+crt-static"
     executable=target/$target/release/$bin.exe
     ;;
@@ -46,7 +46,7 @@ case $os in
     tar czf $archive *
     echo "::set-output name=archive::$archive"
     ;;
-  windows-latest)
+  windows-2016)
     archive=$dist/$bin-$version-$target.zip
     7z a $archive *
     echo "::set-output name=archive::`pwd -W`/$bin-$version-$target.zip"

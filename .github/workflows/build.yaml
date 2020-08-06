@@ -19,13 +19,13 @@ jobs:
         os:
         - macos-latest
         - ubuntu-latest
-        - windows-latest
+        - windows-2016
         include:
         - os: ubuntu-latest
           target: x86_64-unknown-linux-musl
         - os: macos-latest
           target: x86_64-apple-darwin
-        - os: windows-latest
+        - os: windows-2016
           target: x86_64-pc-windows-msvc
 
     runs-on: ${{matrix.os}}
@@ -80,7 +80,7 @@ jobs:
       run: cargo clippy --all
 
     - name: Lint
-      if: matrix.os != 'windows-latest'
+      if: matrix.os != 'windows-2016'
       run: cargo run lint
 
     - name: Install Rustfmt Toolchain
@@ -95,7 +95,7 @@ jobs:
       run: cargo +nightly fmt --all -- --check
 
     - name: Completion Scripts
-      if: matrix.os != 'windows-latest'
+      if: matrix.os != 'windows-2016'
       run: |
         ./bin/generate-completions
         git diff --no-ext-diff --quiet --exit-code
