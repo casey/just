@@ -65,7 +65,9 @@ Just has a ton of useful features, and many improvements over Make:
   link:https://github.com/casey/just#writing-recipes-in-other-languages[arbitrary
   languages], like Python or NodeJS.
 
-- And, possibly most importantly, `just` can be invoked from any subdirectory, not just the directory that contains the `Justfile`.
+- `just` can be invoked from any subdirectory, not just the directory that contains the `Justfile`.
+
+- And link:https://github.com/casey/just#manual[much more]!
 
 If you need help with `just` please feel free to open an issue or ping me on link:https://discord.gg/ezYScXR[discord]. Feature requests and bug reports are always welcome!
 
