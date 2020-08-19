@@ -42,6 +42,8 @@ Just has a ton of useful features, and many improvements over Make:
   link:https://github.com/casey/just#what-are-the-idiosyncrasies-of-make-that-just-avoids[Make's
   complexity and idiosyncrasies]. No need for `.PHONY` recipes!
 
+- Linux, MacOS, and Windows are supported with no additional dependencies. (Although if your system doesn't have an `sh`, you'll need to link:https://github.com/casey/just#shell[choose a different shell].)
+
 - Errors are specific and informative, and syntax errors are reported along with their source context.
 
 - Recipes can accept
