@@ -169,7 +169,7 @@ impl Config {
       .arg(
         Arg::with_name(arg::UNSORTED)
           .long("unsorted")
-          .short("U")
+          .short("u")
           .help("Return list and summary entries in source order"),
       )
       .arg(
@@ -717,7 +717,7 @@ FLAGS:
         --no-highlight        Don't highlight echoed recipe lines in bold
     -q, --quiet               Suppress all output
         --summary             List names of available recipes
-    -U, --unsorted            Return list and summary entries in source order
+    -u, --unsorted            Return list and summary entries in source order
         --variables           List names of variables
     -v, --verbose             Use verbose output
 
@@ -963,7 +963,7 @@ ARGS:
 
   test! {
     name: unsorted_short,
-    args: ["-U"],
+    args: ["-u"],
     unsorted: true,
   }
 
