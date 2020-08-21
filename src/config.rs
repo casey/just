@@ -1,7 +1,6 @@
 use crate::common::*;
 
 use clap::{App, AppSettings, Arg, ArgGroup, ArgMatches, ArgSettings};
-use unicode_width::UnicodeWidthStr;
 
 pub(crate) const DEFAULT_SHELL: &str = "sh";
 pub(crate) const DEFAULT_SHELL_ARG: &str = "-cu";
@@ -20,6 +19,7 @@ pub(crate) struct Config {
   pub(crate) shell_args:           Vec<String>,
   pub(crate) shell_present:        bool,
   pub(crate) subcommand:           Subcommand,
+  pub(crate) unsorted:             bool,
   pub(crate) verbosity:            Verbosity,
 }
 
@@ -71,6 +71,7 @@ mod arg {
   pub(crate) const SET: &str = "SET";
   pub(crate) const SHELL: &str = "SHELL";
   pub(crate) const SHELL_ARG: &str = "SHELL-ARG";
+  pub(crate) const UNSORTED: &str = "UNSORTED";
   pub(crate) const VERBOSE: &str = "VERBOSE";
   pub(crate) const WORKING_DIRECTORY: &str = "WORKING-DIRECTORY";
 
@@ -164,6 +165,12 @@ impl Config {
           .long("clear-shell-args")
           .overrides_with(arg::SHELL_ARG)
           .help("Clear shell arguments"),
+      )
+      .arg(
+        Arg::with_name(arg::UNSORTED)
+          .long("unsorted")
+          .short("u")
+          .help("Return list and summary entries in source order"),
       )
       .arg(
         Arg::with_name(arg::VERBOSE)
@@ -407,6 +414,7 @@ impl Config {
       quiet: matches.is_present(arg::QUIET),
       shell: matches.value_of(arg::SHELL).unwrap().to_owned(),
       load_dotenv: !matches.is_present(arg::NO_DOTENV),
+      unsorted: matches.is_present(arg::UNSORTED),
       color,
       invocation_directory,
       search_config,
@@ -461,7 +469,7 @@ impl Config {
         overrides,
       } => self.run(justfile, &search, overrides, arguments),
       Show { ref name } => Self::show(&name, justfile),
-      Summary => Self::summary(justfile),
+      Summary => self.summary(justfile),
       Variables => Self::variables(justfile),
       Completions { .. } | Edit | Init => unreachable!(),
     }
@@ -562,14 +570,14 @@ impl Config {
     let doc_color = self.color.stdout().doc();
     println!("Available recipes:");
 
-    for (name, recipe) in &justfile.recipes {
+    for recipe in justfile.recipes(self.unsorted) {
+      let name = recipe.name();
+
       if recipe.private {
         continue;
       }
 
-      let alias_doc = format!("alias for `{}`", recipe.name);
-
-      for (i, name) in iter::once(name)
+      for (i, name) in iter::once(&name)
         .chain(recipe_aliases.get(name).unwrap_or(&Vec::new()))
         .enumerate()
       {
@@ -599,7 +607,10 @@ impl Config {
         match (i, recipe.doc) {
           (0, Some(doc)) => print_doc(doc),
           (0, None) => (),
-          _ => print_doc(&alias_doc),
+          _ => {
+            let alias_doc = format!("alias for `{}`", recipe.name);
+            print_doc(&alias_doc);
+          },
         }
         println!();
       }
@@ -646,17 +657,16 @@ impl Config {
     }
   }
 
-  fn summary(justfile: Justfile) -> Result<(), i32> {
+  fn summary(&self, justfile: Justfile) -> Result<(), i32> {
     if justfile.count() == 0 {
       eprintln!("Justfile contains no recipes.");
     } else {
       let summary = justfile
-        .recipes
+        .recipes(self.unsorted)
         .iter()
-        .filter(|&(_, recipe)| !recipe.private)
-        .map(|(name, _)| name)
-        .cloned()
-        .collect::<Vec<_>>()
+        .filter(|recipe| recipe.public())
+        .map(|recipe| recipe.name())
+        .collect::<Vec<&str>>()
         .join(" ");
       println!("{}", summary);
     }
@@ -707,6 +717,7 @@ FLAGS:
         --no-highlight        Don't highlight echoed recipe lines in bold
     -q, --quiet               Suppress all output
         --summary             List names of available recipes
+    -u, --unsorted            Return list and summary entries in source order
         --variables           List names of variables
     -v, --verbose             Use verbose output
 
@@ -753,6 +764,7 @@ ARGS:
       $(shell_args: $shell_args:expr,)?
       $(shell_present: $shell_present:expr,)?
       $(subcommand: $subcommand:expr,)?
+      $(unsorted: $unsorted:expr,)?
       $(verbosity: $verbosity:expr,)?
     } => {
       #[test]
@@ -772,6 +784,7 @@ ARGS:
           $(shell_args: $shell_args,)?
           $(shell_present: $shell_present,)?
           $(subcommand: $subcommand,)?
+          $(unsorted: $unsorted,)?
           $(verbosity: $verbosity,)?
           ..testing::config(&[])
         };
@@ -934,6 +947,24 @@ ARGS:
     name: highlight_yes_no,
     args: ["--highlight", "--no-highlight"],
     highlight: false,
+  }
+
+  test! {
+    name: unsorted_default,
+    args: [],
+    unsorted: false,
+  }
+
+  test! {
+    name: unsorted_long,
+    args: ["--unsorted"],
+    unsorted: true,
+  }
+
+  test! {
+    name: unsorted_short,
+    args: ["-u"],
+    unsorted: true,
   }
 
   test! {

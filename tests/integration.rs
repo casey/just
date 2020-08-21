@@ -373,6 +373,28 @@ _y:
 }
 
 test! {
+  name:     summary_sorted,
+  justfile: "
+b:
+c:
+a:
+",
+  args:     ("--summary"),
+  stdout:   "a b c\n",
+}
+
+test! {
+  name:     summary_unsorted,
+  justfile: "
+b:
+c:
+a:
+",
+  args:     ("--summary", "--unsorted"),
+  stdout:   "b c a\n",
+}
+
+test! {
   name:     select,
   justfile: "b:
   @echo b
@@ -1232,6 +1254,38 @@ _private-recipe:
         hello a b='B	' c='C' # this does a thing
         this-recipe-is-very-very-very-important Z="\t z" # something else
         x a b='B	' c='C'     # this does another thing
+  "#,
+}
+
+test! {
+  name:     list_sorted,
+  justfile: r#"
+alias c := b
+b:
+a:
+"#,
+  args:     ("--list"),
+  stdout:   r#"
+    Available recipes:
+        a
+        b
+        c # alias for `b`
+  "#,
+}
+
+test! {
+  name:     list_unsorted,
+  justfile: r#"
+alias c := b
+b:
+a:
+"#,
+  args:     ("--list", "--unsorted"),
+  stdout:   r#"
+    Available recipes:
+        b
+        c # alias for `b`
+        a
   "#,
 }
 
