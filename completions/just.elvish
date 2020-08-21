@@ -32,7 +32,7 @@ edit:completion:arg-completer[just] = [@words]{
             cand -q 'Suppress all output'
             cand --quiet 'Suppress all output'
             cand --clear-shell-args 'Clear shell arguments'
-            cand -U 'Return list and summary entries in source order'
+            cand -u 'Return list and summary entries in source order'
             cand --unsorted 'Return list and summary entries in source order'
             cand -v 'Use verbose output'
             cand --verbose 'Use verbose output'

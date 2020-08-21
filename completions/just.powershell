@@ -37,7 +37,7 @@ Register-ArgumentCompleter -Native -CommandName 'just' -ScriptBlock {
             [CompletionResult]::new('-q', 'q', [CompletionResultType]::ParameterName, 'Suppress all output')
             [CompletionResult]::new('--quiet', 'quiet', [CompletionResultType]::ParameterName, 'Suppress all output')
             [CompletionResult]::new('--clear-shell-args', 'clear-shell-args', [CompletionResultType]::ParameterName, 'Clear shell arguments')
-            [CompletionResult]::new('-U', 'U', [CompletionResultType]::ParameterName, 'Return list and summary entries in source order')
+            [CompletionResult]::new('-u', 'u', [CompletionResultType]::ParameterName, 'Return list and summary entries in source order')
             [CompletionResult]::new('--unsorted', 'unsorted', [CompletionResultType]::ParameterName, 'Return list and summary entries in source order')
             [CompletionResult]::new('-v', 'v', [CompletionResultType]::ParameterName, 'Use verbose output')
             [CompletionResult]::new('--verbose', 'verbose', [CompletionResultType]::ParameterName, 'Use verbose output')

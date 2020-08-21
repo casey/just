@@ -33,7 +33,7 @@ _just() {
 '(--dry-run)-q[Suppress all output]' \
 '(--dry-run)--quiet[Suppress all output]' \
 '--clear-shell-args[Clear shell arguments]' \
-'-U[Return list and summary entries in source order]' \
+'-u[Return list and summary entries in source order]' \
 '--unsorted[Return list and summary entries in source order]' \
 '*-v[Use verbose output]' \
 '*--verbose[Use verbose output]' \
