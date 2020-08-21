@@ -31,7 +31,7 @@ pub(crate) use edit_distance::edit_distance;
 pub(crate) use libc::EXIT_FAILURE;
 pub(crate) use log::{info, warn};
 pub(crate) use snafu::{ResultExt, Snafu};
-pub(crate) use unicode_width::UnicodeWidthChar;
+pub(crate) use unicode_width::{UnicodeWidthChar, UnicodeWidthStr};
 
 // modules
 pub(crate) use crate::{config_error, keyword, setting};

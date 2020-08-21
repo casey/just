@@ -64,6 +64,10 @@ impl<'src, D> Recipe<'src, D> {
     self.name.line
   }
 
+  pub(crate) fn public(&self) -> bool {
+    !self.private
+  }
+
   pub(crate) fn run<'run>(
     &self,
     context: &RecipeContext<'src, 'run>,

@@ -262,6 +262,19 @@ impl<'src> Justfile<'src> {
     ran.insert(invocation);
     Ok(())
   }
+
+  pub(crate) fn recipes(&self, source_order: bool) -> Vec<&Rc<Recipe<Dependency>>> {
+    let mut recipes = self
+      .recipes
+      .values()
+      .collect::<Vec<&Rc<Recipe<Dependency>>>>();
+
+    if source_order {
+      recipes.sort_by_key(|recipe| recipe.name.offset);
+    }
+
+    recipes
+  }
 }
 
 impl<'src> Display for Justfile<'src> {
