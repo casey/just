@@ -263,11 +263,12 @@ impl<'src> Justfile<'src> {
     Ok(())
   }
 
-  pub(crate) fn recipes(&self, source_order: bool) -> Vec<&Rc<Recipe<Dependency>>> {
+  pub(crate) fn recipes(&self, source_order: bool) -> Vec<&Recipe<Dependency>> {
     let mut recipes = self
       .recipes
       .values()
-      .collect::<Vec<&Rc<Recipe<Dependency>>>>();
+      .map(|recipe| recipe.as_ref())
+      .collect::<Vec<&Recipe<Dependency>>>();
 
     if source_order {
       recipes.sort_by_key(|recipe| recipe.name.offset);
