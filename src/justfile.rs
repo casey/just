@@ -267,7 +267,7 @@ impl<'src> Justfile<'src> {
     let mut recipes = self
       .recipes
       .values()
-      .map(|recipe| recipe.as_ref())
+      .map(AsRef::as_ref)
       .collect::<Vec<&Recipe<Dependency>>>();
 
     if source_order {
