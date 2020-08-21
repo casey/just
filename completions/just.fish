@@ -23,6 +23,7 @@ complete -c just -n "__fish_use_subcommand" -l no-dotenv -d 'Don\'t load `.env` 
 complete -c just -n "__fish_use_subcommand" -l no-highlight -d 'Don\'t highlight echoed recipe lines in bold'
 complete -c just -n "__fish_use_subcommand" -s q -l quiet -d 'Suppress all output'
 complete -c just -n "__fish_use_subcommand" -l clear-shell-args -d 'Clear shell arguments'
+complete -c just -n "__fish_use_subcommand" -s U -l unsorted -d 'Return list and summary entries in source order'
 complete -c just -n "__fish_use_subcommand" -s v -l verbose -d 'Use verbose output'
 complete -c just -n "__fish_use_subcommand" -l dump -d 'Print entire justfile'
 complete -c just -n "__fish_use_subcommand" -s e -l edit -d 'Edit justfile with editor given by $VISUAL or $EDITOR, falling back to `vim`'
