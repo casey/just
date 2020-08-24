@@ -1,6 +1,17 @@
 Changelog
 =========
 
+[v0.7.2] - 2020-8-23
+--------------------
+
+### Added
+- Add option to print recipes in source order (#669)
+
+### Misc
+- Mention Linux, MacOS and Windows support in readme (#666)
+- Add list highlighting nice features to readme (#664)
+
+
 [v0.7.1] - 2020-7-19
 --------------------
 
