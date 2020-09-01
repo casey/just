@@ -226,7 +226,7 @@ A variety of example justfiles can be found in the link:examples[examples direct
 
 === Listing Available Recipes
 
-Recipes can be listed with `just --list` :
+Recipes can be listed in alphabetical order with `just --list`:
 
 ```sh
 $ just --list
@@ -242,6 +242,28 @@ Available recipes:
 ```sh
 $ just --summary
 build test deploy lint
+```
+
+Pass `--unsorted` to print recipes in the order they appear in the justfile:
+
+```make
+test:
+  echo 'Testing!'
+
+build:
+  echo 'Building!'
+```
+
+```sh
+$ just --list --unsorted
+Available recipes:
+  test
+  build
+```
+
+```sh
+$ just --summary --unsorted
+test build
 ```
 
 === Aliases
