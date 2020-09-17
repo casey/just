@@ -8,6 +8,7 @@ homepage    = "https://github.com/casey/just"
 repository  = "https://github.com/casey/just"
 readme      = "crates-io-readme.md"
 edition     = "2018"
+autotests   = false
 
 [features]
 default       = []
@@ -53,3 +54,7 @@ targets = ["x86_64-unknown-linux-gnu"]
 
 [profile.release]
 lto = true
+
+[[test]]
+name = "integration"
+path = "tests/lib.rs"
