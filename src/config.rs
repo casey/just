@@ -2,6 +2,13 @@ use crate::common::*;
 
 use clap::{App, AppSettings, Arg, ArgGroup, ArgMatches, ArgSettings};
 
+// These three strings should be kept in sync:
+pub(crate) const CHOOSER_DEFAULT: &str = "fzf";
+pub(crate) const CHOOSER_ENVIRONMENT_KEY: &str = "JUST_CHOOSER";
+pub(crate) const CHOOSE_HELP: &str = "Select a recipe to run using a binary. If `--chooser` is \
+                                      not passed the chooser defaults to the value of \
+                                      $JUST_CHOOSER, falling back to `fzf`";
+
 pub(crate) const DEFAULT_SHELL: &str = "sh";
 pub(crate) const DEFAULT_SHELL_ARG: &str = "-cu";
 pub(crate) const INIT_JUSTFILE: &str = "default:\n\techo 'Hello, world!'\n";
@@ -24,6 +31,7 @@ pub(crate) struct Config {
 }
 
 mod cmd {
+  pub(crate) const CHOOSE: &str = "CHOOSE";
   pub(crate) const COMPLETIONS: &str = "COMPLETIONS";
   pub(crate) const DUMP: &str = "DUMP";
   pub(crate) const EDIT: &str = "EDIT";
@@ -35,6 +43,7 @@ mod cmd {
   pub(crate) const VARIABLES: &str = "VARIABLES";
 
   pub(crate) const ALL: &[&str] = &[
+    CHOOSE,
     COMPLETIONS,
     DUMP,
     EDIT,
@@ -60,6 +69,7 @@ mod cmd {
 
 mod arg {
   pub(crate) const ARGUMENTS: &str = "ARGUMENTS";
+  pub(crate) const CHOOSER: &str = "CHOOSER";
   pub(crate) const CLEAR_SHELL_ARGS: &str = "CLEAR-SHELL-ARGS";
   pub(crate) const COLOR: &str = "COLOR";
   pub(crate) const DRY_RUN: &str = "DRY-RUN";
@@ -88,6 +98,12 @@ impl Config {
       .version_message("Print version information")
       .setting(AppSettings::ColoredHelp)
       .setting(AppSettings::TrailingVarArg)
+      .arg(
+        Arg::with_name(arg::CHOOSER)
+          .long("chooser")
+          .takes_value(true)
+          .help("Override binary invoked by `--choose`"),
+      )
       .arg(
         Arg::with_name(arg::COLOR)
           .long("color")
@@ -192,6 +208,7 @@ impl Config {
           .multiple(true)
           .help("Overrides and recipe(s) to run, defaulting to the first recipe in the justfile"),
       )
+      .arg(Arg::with_name(cmd::CHOOSE).long("choose").help(CHOOSE_HELP))
       .arg(
         Arg::with_name(cmd::COMPLETIONS)
           .long("completions")
@@ -359,7 +376,12 @@ impl Config {
       }
     }
 
-    let subcommand = if let Some(shell) = matches.value_of(cmd::COMPLETIONS) {
+    let subcommand = if matches.is_present(cmd::CHOOSE) {
+      Subcommand::Choose {
+        chooser: matches.value_of(arg::CHOOSER).map(str::to_owned),
+        overrides,
+      }
+    } else if let Some(shell) = matches.value_of(cmd::COMPLETIONS) {
       Subcommand::Completions {
         shell: shell.to_owned(),
       }
@@ -461,8 +483,10 @@ impl Config {
     }
 
     match &self.subcommand {
+      Choose { overrides, chooser } =>
+        self.choose(justfile, &search, overrides, chooser.as_deref()),
       Dump => Self::dump(justfile),
-      Evaluate { overrides } => self.run(justfile, &search, overrides, &Vec::new()),
+      Evaluate { overrides } => self.run(justfile, &search, overrides, &[]),
       List => self.list(justfile),
       Run {
         arguments,
@@ -473,6 +497,88 @@ impl Config {
       Variables => Self::variables(justfile),
       Completions { .. } | Edit | Init => unreachable!(),
     }
+  }
+
+  fn choose(
+    &self,
+    justfile: Justfile,
+    search: &Search,
+    overrides: &BTreeMap<String, String>,
+    chooser: Option<&str>,
+  ) -> Result<(), i32> {
+    let recipes = justfile
+      .public_recipes(self.unsorted)
+      .iter()
+      .filter(|recipe| recipe.min_arguments() == 0)
+      .cloned()
+      .collect::<Vec<&Recipe<Dependency>>>();
+
+    let chooser = chooser
+      .map(OsString::from)
+      .or_else(|| env::var_os(CHOOSER_ENVIRONMENT_KEY))
+      .unwrap_or_else(|| OsString::from(CHOOSER_DEFAULT));
+
+    let result = justfile
+      .settings
+      .shell_command(self)
+      .arg(&chooser)
+      .current_dir(&search.working_directory)
+      .stdin(Stdio::piped())
+      .stdout(Stdio::piped())
+      .spawn();
+
+    let mut child = match result {
+      Ok(child) => child,
+      Err(error) => {
+        eprintln!(
+          "Chooser `{}` invocation failed: {}",
+          chooser.to_string_lossy(),
+          error
+        );
+        return Err(EXIT_FAILURE);
+      },
+    };
+
+    for recipe in recipes {
+      if let Err(error) = child
+        .stdin
+        .as_mut()
+        .expect("Child was created with piped stdio")
+        .write_all(format!("{}\n", recipe.name).as_bytes())
+      {
+        eprintln!(
+          "Failed to write to chooser `{}`: {}",
+          chooser.to_string_lossy(),
+          error
+        );
+        return Err(EXIT_FAILURE);
+      }
+    }
+
+    let output = match child.wait_with_output() {
+      Ok(output) => output,
+      Err(error) => {
+        eprintln!(
+          "Failed to read output from chooser `{}`: {}",
+          chooser.to_string_lossy(),
+          error
+        );
+        return Err(EXIT_FAILURE);
+      },
+    };
+
+    if !output.status.success() {
+      eprintln!(
+        "Chooser `{}` returned error: {}",
+        chooser.to_string_lossy(),
+        output.status
+      );
+      return Err(output.status.code().unwrap_or(EXIT_FAILURE));
+    }
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+
+    self.run(justfile, search, overrides, &[stdout.trim().to_string()])
   }
 
   fn dump(justfile: Justfile) -> Result<(), i32> {
@@ -570,12 +676,8 @@ impl Config {
     let doc_color = self.color.stdout().doc();
     println!("Available recipes:");
 
-    for recipe in justfile.recipes(self.unsorted) {
+    for recipe in justfile.public_recipes(self.unsorted) {
       let name = recipe.name();
-
-      if recipe.private {
-        continue;
-      }
 
       for (i, name) in iter::once(&name)
         .chain(recipe_aliases.get(name).unwrap_or(&Vec::new()))
@@ -662,9 +764,8 @@ impl Config {
       eprintln!("Justfile contains no recipes.");
     } else {
       let summary = justfile
-        .recipes(self.unsorted)
+        .public_recipes(self.unsorted)
         .iter()
-        .filter(|recipe| recipe.public())
         .map(|recipe| recipe.name())
         .collect::<Vec<&str>>()
         .join(" ");
@@ -704,6 +805,9 @@ USAGE:
     just [FLAGS] [OPTIONS] [--] [ARGUMENTS]...
 
 FLAGS:
+        --choose              Select a recipe to run using a binary. If `--chooser` is not passed \
+                                 the chooser defaults
+                              to the value of $JUST_CHOOSER, falling back to `fzf`
         --clear-shell-args    Clear shell arguments
         --dry-run             Print what just would do without doing it
         --dump                Print entire justfile
@@ -722,6 +826,7 @@ FLAGS:
     -v, --verbose             Use verbose output
 
 OPTIONS:
+        --chooser <CHOOSER>                        Override binary invoked by `--choose`
         --color <COLOR>
             Print colorful output [default: auto]  [possible values: auto, always, never]
 
@@ -1087,6 +1192,46 @@ ARGS:
       arguments: Vec::new(),
       overrides: map!{},
     },
+  }
+
+  error! {
+    name: subcommand_conflict_summary,
+    args: ["--list", "--summary"],
+  }
+
+  error! {
+    name: subcommand_conflict_dump,
+    args: ["--list", "--dump"],
+  }
+
+  error! {
+    name: subcommand_conflict_init,
+    args: ["--list", "--init"],
+  }
+
+  error! {
+    name: subcommand_conflict_evaluate,
+    args: ["--list", "--evaluate"],
+  }
+
+  error! {
+    name: subcommand_conflict_show,
+    args: ["--list", "--show"],
+  }
+
+  error! {
+    name: subcommand_conflict_completions,
+    args: ["--list", "--completions"],
+  }
+
+  error! {
+    name: subcommand_conflict_variables,
+    args: ["--list", "--variables"],
+  }
+
+  error! {
+    name: subcommand_conflict_choose,
+    args: ["--list", "--choose"],
   }
 
   test! {

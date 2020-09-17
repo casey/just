@@ -1,3 +1,9 @@
+#[macro_use]
+mod test;
+
+mod common;
+
+mod choose;
 mod completions;
 mod dotenv;
 mod edit;

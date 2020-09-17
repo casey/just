@@ -266,6 +266,14 @@ $ just --summary --unsorted
 test build
 ```
 
+If you'd like `just` to default to listing the recipes in the justfile, you can
+use this as your default recipe:
+
+```make
+default:
+  @just --list
+```
+
 === Aliases
 
 Aliases allow recipes to be invoked with alternative names:
@@ -956,6 +964,35 @@ $ just bar                                                                      
 #!/usr/bin/env bash
 echo 'Bar!'
 Bar!
+```
+
+=== Selecting a Recipe to Run With an Interactive Chooser
+
+The `--choose` subcommand makes just invoke a chooser to select which recipe to
+run. Choosers should read lines containing recipe names from standard input and
+print one of those names to standard output.
+
+Because there is currenly no way to run a recipe that requires arguments with
+`--choose`, such recipes will not be given to the chooser. Private recipes and
+aliases are also skipped.
+
+The chooser can be overridden with the `--chooser` flag. If `--chooser` is not
+given, then `just` first checks if `$JUST_CHOOSER` is set. If it isn't, then
+the chooser defaults to `fzf`, a popular fuzzy finder.
+
+Arguments can be included in the chooser, i.e. `fzf --exact`.
+
+The chooser is invoked in the same way as recipe lines. For example, if the
+chooser is `fzf`, it will be invoked with `sh -cu 'fzf'`, and if the shell, or
+the shell arguments are overridden, the chooser invocation will respect those
+overrides.
+
+If you'd like `just` to default to selecting a recipe with a chooser, you can
+use this as your default recipe:
+
+```make
+default:
+  @just --choose
 ```
 
 === Invoking Justfiles in Other Directories

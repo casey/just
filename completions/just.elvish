@@ -14,6 +14,7 @@ edit:completion:arg-completer[just] = [@words]{
     }
     completions = [
         &'just'= {
+            cand --chooser 'Override binary invoked by `--choose`'
             cand --color 'Print colorful output'
             cand -f 'Use <JUSTFILE> as justfile.'
             cand --justfile 'Use <JUSTFILE> as justfile.'
@@ -36,6 +37,7 @@ edit:completion:arg-completer[just] = [@words]{
             cand --unsorted 'Return list and summary entries in source order'
             cand -v 'Use verbose output'
             cand --verbose 'Use verbose output'
+            cand --choose 'Select a recipe to run using a binary. If `--chooser` is not passed the chooser defaults to the value of $JUST_CHOOSER, falling back to `fzf`'
             cand --dump 'Print entire justfile'
             cand -e 'Edit justfile with editor given by $VISUAL or $EDITOR, falling back to `vim`'
             cand --edit 'Edit justfile with editor given by $VISUAL or $EDITOR, falling back to `vim`'

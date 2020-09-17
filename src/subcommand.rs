@@ -2,6 +2,10 @@ use crate::common::*;
 
 #[derive(PartialEq, Clone, Debug)]
 pub(crate) enum Subcommand {
+  Choose {
+    overrides: BTreeMap<String, String>,
+    chooser:   Option<String>,
+  },
   Completions {
     shell: String,
   },
