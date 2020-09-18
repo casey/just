@@ -51,18 +51,6 @@ test! {
 }
 
 test! {
-  name: default,
-  justfile: "
-    fzf:
-      @Ran `fzf` recipe.
-  ",
-  args: ("--choose", "--shell", "echo", "--clear-shell-args", "--chooser", "echo"),
-  stdout: "Ran `fzf` recipe.\n",
-  stderr: "",
-  shell: false,
-}
-
-test! {
   name: skip_private_recipes,
   justfile: "
     foo:
@@ -109,4 +97,34 @@ test! {
   stdout: "",
   stderr: "Justfile contains no choosable recipes.\n",
   status: EXIT_FAILURE,
+}
+
+#[test]
+fn default() {
+  let tmp = tmptree! {
+    justfile: "foo:\n echo foo\n",
+  };
+
+  let cat = which("cat").unwrap();
+  let fzf = tmp.path().join(format!("fzf{}", env::consts::EXE_SUFFIX));
+
+  #[cfg(unix)]
+  std::os::unix::fs::symlink(cat, fzf).unwrap();
+
+  #[cfg(windows)]
+  std::os::windows::fs::symlink_file(cat, fzf).unwrap();
+
+  let path = env::join_paths(
+    iter::once(tmp.path().to_owned()).chain(env::split_paths(&env::var_os("PATH").unwrap())),
+  )
+  .unwrap();
+
+  let output = Command::new(executable_path("just"))
+    .arg("--choose")
+    .current_dir(tmp.path())
+    .env("PATH", path)
+    .output()
+    .unwrap();
+
+  assert_stdout(&output, "foo\n");
 }
