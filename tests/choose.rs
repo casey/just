@@ -56,7 +56,7 @@ test! {
     fzf:
       @Ran `fzf` recipe.
   ",
-  args: ("--choose", "--shell", "echo", "--clear-shell-args"),
+  args: ("--choose", "--shell", "echo", "--clear-shell-args", "--chooser", "echo"),
   stdout: "Ran `fzf` recipe.\n",
   stderr: "",
   shell: false,
