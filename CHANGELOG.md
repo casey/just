@@ -1,6 +1,17 @@
 Changelog
 =========
 
+[v0.7.3] - 2020-9-17
+--------------------
+
+### Added
+- Add the `--choose` subcommand (#680)
+
+### Misc
+- Combine integration tests into single binary (#679)
+- Document `--unsorted` flag in readme (#672)
+
+
 [v0.7.2] - 2020-8-23
 --------------------
 
