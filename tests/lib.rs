@@ -1,0 +1,12 @@
+mod completions;
+mod dotenv;
+mod edit;
+mod examples;
+mod init;
+mod interrupts;
+mod invocation_directory;
+mod misc;
+mod readme;
+mod search;
+mod shell;
+mod working_directory;

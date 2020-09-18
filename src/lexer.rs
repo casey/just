@@ -228,10 +228,7 @@ impl<'src> Lexer<'src> {
 
   /// True if `c` can be the first character of an identifier
   fn is_identifier_start(c: char) -> bool {
-    match c {
-      'a'..='z' | 'A'..='Z' | '_' => true,
-      _ => false,
-    }
+    matches!(c, 'a'..='z' | 'A'..='Z' | '_')
   }
 
   /// True if `c` can be a continuation character of an idenitifier
@@ -240,10 +237,7 @@ impl<'src> Lexer<'src> {
       return true;
     }
 
-    match c {
-      '0'..='9' | '-' => true,
-      _ => false,
-    }
+    matches!(c, '0'..='9' | '-')
   }
 
   /// Consume the text and produce a series of tokens
