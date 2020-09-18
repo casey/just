@@ -53,16 +53,12 @@ test! {
 test! {
   name: default,
   justfile: "
-    foo:
-      echo foo
-
-    bar:
-      echo bar
+    fzf:
+      @Ran `fzf` recipe.
   ",
-  args: ("--choose", "--shell", "echo"),
-  stdout: "",
-  stderr: "error: Justfile does not contain recipe `-cu fzf`.\n",
-  status: EXIT_FAILURE,
+  args: ("--choose", "--shell", "echo", "--clear-shell-args"),
+  stdout: "Ran `fzf` recipe.\n",
+  stderr: "",
   shell: false,
 }
 
