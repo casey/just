@@ -1,9 +1,4 @@
-use std::{env, iter, process::Command, str};
-
-use executable_path::executable_path;
-use which::which;
-
-use test_utilities::{assert_stdout, tmptree};
+use crate::common::*;
 
 const JUSTFILE: &str = "Yooooooo, hopefully this never becomes valid syntax.";
 

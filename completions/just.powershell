@@ -19,6 +19,7 @@ Register-ArgumentCompleter -Native -CommandName 'just' -ScriptBlock {
 
     $completions = @(switch ($command) {
         'just' {
+            [CompletionResult]::new('--chooser', 'chooser', [CompletionResultType]::ParameterName, 'Override binary invoked by `--choose`')
             [CompletionResult]::new('--color', 'color', [CompletionResultType]::ParameterName, 'Print colorful output')
             [CompletionResult]::new('-f', 'f', [CompletionResultType]::ParameterName, 'Use <JUSTFILE> as justfile.')
             [CompletionResult]::new('--justfile', 'justfile', [CompletionResultType]::ParameterName, 'Use <JUSTFILE> as justfile.')
@@ -41,6 +42,7 @@ Register-ArgumentCompleter -Native -CommandName 'just' -ScriptBlock {
             [CompletionResult]::new('--unsorted', 'unsorted', [CompletionResultType]::ParameterName, 'Return list and summary entries in source order')
             [CompletionResult]::new('-v', 'v', [CompletionResultType]::ParameterName, 'Use verbose output')
             [CompletionResult]::new('--verbose', 'verbose', [CompletionResultType]::ParameterName, 'Use verbose output')
+            [CompletionResult]::new('--choose', 'choose', [CompletionResultType]::ParameterName, 'Select a recipe to run using a binary. If `--chooser` is not passed the chooser defaults to the value of $JUST_CHOOSER, falling back to `fzf`')
             [CompletionResult]::new('--dump', 'dump', [CompletionResultType]::ParameterName, 'Print entire justfile')
             [CompletionResult]::new('-e', 'e', [CompletionResultType]::ParameterName, 'Edit justfile with editor given by $VISUAL or $EDITOR, falling back to `vim`')
             [CompletionResult]::new('--edit', 'edit', [CompletionResultType]::ParameterName, 'Edit justfile with editor given by $VISUAL or $EDITOR, falling back to `vim`')
