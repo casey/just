@@ -513,6 +513,11 @@ impl Config {
       .cloned()
       .collect::<Vec<&Recipe<Dependency>>>();
 
+    if recipes.is_empty() {
+      eprintln!("Justfile contains no choosable recipes.");
+      return Err(EXIT_FAILURE);
+    }
+
     let chooser = chooser
       .map(OsString::from)
       .or_else(|| env::var_os(CHOOSER_ENVIRONMENT_KEY))

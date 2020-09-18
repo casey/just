@@ -99,3 +99,18 @@ test! {
   stdout: "foo\n",
   stderr: "echo foo\n",
 }
+
+test! {
+  name: no_choosable_recipes,
+  justfile: "
+    _foo:
+      echo foo
+
+    bar BAR:
+      echo {{BAR}}
+  ",
+  args: ("--choose"),
+  stdout: "",
+  stderr: "Justfile contains no choosable recipes.\n",
+  status: EXIT_FAILURE,
+}
