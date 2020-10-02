@@ -20,7 +20,6 @@ pub(crate) struct Config {
   pub(crate) highlight:            bool,
   pub(crate) invocation_directory: PathBuf,
   pub(crate) load_dotenv:          bool,
-  pub(crate) quiet:                bool,
   pub(crate) search_config:        SearchConfig,
   pub(crate) shell:                String,
   pub(crate) shell_args:           Vec<String>,
@@ -297,7 +296,11 @@ impl Config {
   pub(crate) fn from_matches(matches: &ArgMatches) -> ConfigResult<Self> {
     let invocation_directory = env::current_dir().context(config_error::CurrentDir)?;
 
-    let verbosity = Verbosity::from_flag_occurrences(matches.occurrences_of(arg::VERBOSE));
+    let verbosity = if matches.is_present(arg::QUIET) {
+      Verbosity::Quiet
+    } else {
+      Verbosity::from_flag_occurrences(matches.occurrences_of(arg::VERBOSE))
+    };
 
     let color = Self::color_from_value(
       matches
@@ -433,7 +436,6 @@ impl Config {
     Ok(Self {
       dry_run: matches.is_present(arg::DRY_RUN),
       highlight: !matches.is_present(arg::NO_HIGHLIGHT),
-      quiet: matches.is_present(arg::QUIET),
       shell: matches.value_of(arg::SHELL).unwrap().to_owned(),
       load_dotenv: !matches.is_present(arg::NO_DOTENV),
       unsorted: matches.is_present(arg::UNSORTED),
@@ -739,7 +741,7 @@ impl Config {
 
     let result = justfile.run(&self, search, overrides, arguments);
 
-    if !self.quiet {
+    if !self.verbosity.quiet() {
       result.eprint(self.color)
     } else {
       result.map_err(|err| err.code())
@@ -868,7 +870,6 @@ ARGS:
       $(color: $color:expr,)?
       $(dry_run: $dry_run:expr,)?
       $(highlight: $highlight:expr,)?
-      $(quiet: $quiet:expr,)?
       $(search_config: $search_config:expr,)?
       $(shell: $shell:expr,)?
       $(shell_args: $shell_args:expr,)?
@@ -888,7 +889,6 @@ ARGS:
           $(color: $color,)?
           $(dry_run: $dry_run,)?
           $(highlight: $highlight,)?
-          $(quiet: $quiet,)?
           $(search_config: $search_config,)?
           $(shell: $shell.to_string(),)?
           $(shell_args: $shell_args,)?
@@ -1080,19 +1080,19 @@ ARGS:
   test! {
     name: quiet_default,
     args: [],
-    quiet: false,
+    verbosity: Verbosity::Taciturn,
   }
 
   test! {
     name: quiet_long,
     args: ["--quiet"],
-    quiet: true,
+    verbosity: Verbosity::Quiet,
   }
 
   test! {
     name: quiet_short,
     args: ["-q"],
-    quiet: true,
+    verbosity: Verbosity::Quiet,
   }
 
   test! {

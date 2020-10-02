@@ -236,7 +236,7 @@ impl<'src, D> Recipe<'src, D> {
 
         if config.dry_run
           || config.verbosity.loquacious()
-          || !((quiet_command ^ self.quiet) || config.quiet)
+          || !((quiet_command ^ self.quiet) || config.verbosity.quiet())
         {
           let color = if config.highlight {
             config.color.command()
@@ -256,7 +256,7 @@ impl<'src, D> Recipe<'src, D> {
 
         cmd.arg(command);
 
-        if config.quiet {
+        if config.verbosity.quiet() {
           cmd.stderr(Stdio::null());
           cmd.stdout(Stdio::null());
         }
