@@ -1,10 +1,11 @@
 _just() {
-    local i cur prev opts cmds
+    local i cur prev opts cmds args
     COMPREPLY=()
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
     cmd=""
     opts=""
+    args="--summary --color never"
 
     for i in ${COMP_WORDS[@]}
     do
@@ -12,7 +13,6 @@ _just() {
             just)
                 cmd="just"
                 ;;
-            
             *)
                 ;;
         esac
@@ -24,11 +24,9 @@ _just() {
             if [[ ${cur} == -* ]]; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             elif [[ ${COMP_CWORD} -eq 1 ]]; then
-                readarray -t recipes < <(just --list 2> /dev/null)
+                local recipes=$(just $args 2> /dev/null)
                 if [[ $? -eq 0 ]] ; then
-                    unset recipes[0]
-                    local recipes_str="${recipes[@]}"
-                    COMPREPLY=( $(compgen -W "$recipes_str" "${cur}") )
+                    COMPREPLY=( $(compgen -W "${recipes}" -- "${cur}") )
                     return 0
                 fi
             fi
