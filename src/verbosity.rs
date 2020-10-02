@@ -2,6 +2,7 @@ use Verbosity::*;
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub(crate) enum Verbosity {
+  Quiet,
   Taciturn,
   Loquacious,
   Grandiloquent,
@@ -16,16 +17,23 @@ impl Verbosity {
     }
   }
 
+  pub(crate) fn quiet(self) -> bool {
+    match self {
+      Quiet => true,
+      _ => false,
+    }
+  }
+
   pub(crate) fn loquacious(self) -> bool {
     match self {
-      Taciturn => false,
+      Quiet | Taciturn => false,
       Loquacious | Grandiloquent => true,
     }
   }
 
   pub(crate) fn grandiloquent(self) -> bool {
     match self {
-      Taciturn | Loquacious => false,
+      Quiet | Taciturn | Loquacious => false,
       Grandiloquent => true,
     }
   }
