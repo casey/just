@@ -1,6 +1,18 @@
 Changelog
 =========
 
+[v0.8.0] - 2020-10-3
+--------------------
+
+### Breaking
+- Allow suppressing failures with `-` prefix (#687)
+
+### Misc
+- Document how to ignore errors with `-` in readme (#690)
+- Install BSD Tar on GitHub Actions to fix CI errors (#689)
+- Move separate quiet config value to verbosity (#686)
+
+
 [v0.7.3] - 2020-9-17
 --------------------
 
