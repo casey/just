@@ -14,7 +14,7 @@ env:
   # Increment to invalidate github actions caches if they become corrupt.
   # Errors of the form "can't find crate for `snafu_derive` which `snafu` depends on"
   # can usually be fixed by incrementing this value.
-  CACHE_KEY_PREFIX: 2
+  CACHE_KEY_PREFIX: 3
 
 jobs:
   all:
