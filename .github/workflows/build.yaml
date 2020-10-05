@@ -14,7 +14,7 @@ env:
   # Increment to invalidate github actions caches if they become corrupt.
   # Errors of the form "can't find crate for `snafu_derive` which `snafu` depends on"
   # can usually be fixed by incrementing this value.
-  CACHE_KEY_PREFIX: 3
+  CACHE_KEY_PREFIX: 4
 
 jobs:
   all:
@@ -45,7 +45,7 @@ jobs:
     # An issue with BSD Tar causes sporadic failures on macOS.
     # c.f https://github.com/actions/cache/issues/403
     - name: Install GNU Tar
-      if: matrix.build == 'macos'
+      if: matrix.os == 'macos-latest'
       run: |
         brew install gnu-tar
         echo "::add-path::/usr/local/opt/gnu-tar/libexec/gnubin"

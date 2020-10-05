@@ -445,7 +445,7 @@ continue execution after a command, even if it fails, prefix the command with
 
 ```make
 foo:
-    cat foo
+    -cat foo
     echo 'Done!'
 ```
 
