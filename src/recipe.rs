@@ -211,6 +211,10 @@ impl<'src, D> Recipe<'src, D> {
         let mut evaluated = String::new();
         let mut continued = false;
         let quiet_command = lines.peek().map(|line| line.is_quiet()).unwrap_or(false);
+        let infallable_command = lines
+          .peek()
+          .map(|line| line.is_infallable())
+          .unwrap_or(false);
         loop {
           if lines.peek().is_none() {
             break;
@@ -226,7 +230,7 @@ impl<'src, D> Recipe<'src, D> {
           }
         }
         let mut command = evaluated.as_str();
-        if quiet_command {
+        if quiet_command || infallable_command {
           command = &command[1..];
         }
 
@@ -236,7 +240,7 @@ impl<'src, D> Recipe<'src, D> {
 
         if config.dry_run
           || config.verbosity.loquacious()
-          || !((quiet_command ^ self.quiet) || config.quiet)
+          || !((quiet_command ^ self.quiet) || config.verbosity.quiet())
         {
           let color = if config.highlight {
             config.color.command()
@@ -256,7 +260,7 @@ impl<'src, D> Recipe<'src, D> {
 
         cmd.arg(command);
 
-        if config.quiet {
+        if config.verbosity.quiet() {
           cmd.stderr(Stdio::null());
           cmd.stdout(Stdio::null());
         }
@@ -266,7 +270,7 @@ impl<'src, D> Recipe<'src, D> {
         match InterruptHandler::guard(|| cmd.status()) {
           Ok(exit_status) =>
             if let Some(code) = exit_status.code() {
-              if code != 0 {
+              if code != 0 && !infallable_command {
                 return Err(RuntimeError::Code {
                   recipe: self.name(),
                   line_number: Some(line_number),

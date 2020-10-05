@@ -131,7 +131,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
 
     cmd.stdin(process::Stdio::inherit());
 
-    cmd.stderr(if self.config.quiet {
+    cmd.stderr(if self.config.verbosity.quiet() {
       process::Stdio::null()
     } else {
       process::Stdio::inherit()

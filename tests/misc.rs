@@ -1286,6 +1286,30 @@ test! {
 }
 
 test! {
+  name: infallable_command,
+  justfile: r#"
+infallable:
+  -exit 101
+"#,
+  stderr: "exit 101\n",
+  status: EXIT_SUCCESS,
+}
+
+test! {
+  name: infallable_with_failing,
+  justfile: r#"
+infallable:
+  -exit 101
+  exit 202
+"#,
+  stderr: r#"exit 101
+exit 202
+error: Recipe `infallable` failed on line 4 with exit code 202
+"#,
+  status: 202,
+}
+
+test! {
   name:     quiet_recipe,
   justfile: r#"
 @quiet:

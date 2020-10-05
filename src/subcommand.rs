@@ -113,8 +113,23 @@ _just "$@""#,
   ),
 ];
 
+const BASH_COMPLETION_REPLACEMENTS: &[(&str, &str)] = &[(
+  r#"COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )"#,
+  r#"if [[ ${COMP_CWORD} -eq 1 ]]; then
+                    local recipes=$(just --summary --color never 2> /dev/null)
+                    if [[ $? -eq 0 ]]; then
+                      COMPREPLY=( $(compgen -W "${recipes}" -- "${cur}") )
+                      return 0
+                    fi
+                else
+                    COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+                fi"#,
+)];
+
 impl Subcommand {
   pub(crate) fn completions(shell: &str) -> Result<(), i32> {
+    use clap::Shell;
+
     fn replace(haystack: &mut String, needle: &str, replacement: &str) -> Result<(), i32> {
       if let Some(index) = haystack.find(needle) {
         haystack.replace_range(index..index + needle.len(), replacement);
@@ -129,7 +144,7 @@ impl Subcommand {
     }
 
     let shell = shell
-      .parse::<clap::Shell>()
+      .parse::<Shell>()
       .expect("Invalid value for clap::Shell");
 
     let buffer = Vec::new();
@@ -138,14 +153,19 @@ impl Subcommand {
     let buffer = cursor.into_inner();
     let mut script = String::from_utf8(buffer).expect("Clap completion not UTF-8");
 
-    if let clap::Shell::Zsh = shell {
-      for (needle, replacement) in ZSH_COMPLETION_REPLACEMENTS {
-        replace(&mut script, needle, replacement)?;
-      }
-    }
-
-    if let clap::Shell::Fish = shell {
-      script.insert_str(0, FISH_RECIPE_COMPLETIONS);
+    match shell {
+      Shell::Bash =>
+        for (needle, replacement) in BASH_COMPLETION_REPLACEMENTS {
+          replace(&mut script, needle, replacement)?;
+        },
+      Shell::Fish => {
+        script.insert_str(0, FISH_RECIPE_COMPLETIONS);
+      },
+      Shell::Zsh =>
+        for (needle, replacement) in ZSH_COMPLETION_REPLACEMENTS {
+          replace(&mut script, needle, replacement)?;
+        },
+      _ => {},
     }
 
     println!("{}", script.trim());
