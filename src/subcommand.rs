@@ -114,15 +114,19 @@ _just "$@""#,
 ];
 
 const BASH_COMPLETION_REPLACEMENTS: &[(&str, &str)] = &[(
-  r#"COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )"#,
-  r#"if [[ ${COMP_CWORD} -eq 1 ]]; then
+  r#"            if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
+                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+                return 0
+            fi"#,
+  r#"                if [[ ${cur} == -* ]] ; then
+                    COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+                    return 0
+                elif [[ ${COMP_CWORD} -eq 1 ]]; then
                     local recipes=$(just --summary --color never 2> /dev/null)
                     if [[ $? -eq 0 ]]; then
-                      COMPREPLY=( $(compgen -W "${recipes}" -- "${cur}") )
-                      return 0
+                        COMPREPLY=( $(compgen -W "${recipes}" -- "${cur}") )
+                        return 0
                     fi
-                else
-                    COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 fi"#,
 )];
 

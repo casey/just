@@ -21,18 +21,16 @@ _just() {
     case "${cmd}" in
         just)
             opts=" -q -u -v -e -l -h -V -f -d -s  --dry-run --highlight --no-dotenv --no-highlight --quiet --clear-shell-args --unsorted --verbose --choose --dump --edit --evaluate --init --list --summary --variables --help --version --chooser --color --justfile --set --shell --shell-arg --working-directory --completions --show  <ARGUMENTS>... "
-            if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
-                if [[ ${COMP_CWORD} -eq 1 ]]; then
+                if [[ ${cur} == -* ]] ; then
+                    COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+                    return 0
+                elif [[ ${COMP_CWORD} -eq 1 ]]; then
                     local recipes=$(just --summary --color never 2> /dev/null)
                     if [[ $? -eq 0 ]]; then
-                      COMPREPLY=( $(compgen -W "${recipes}" -- "${cur}") )
-                      return 0
+                        COMPREPLY=( $(compgen -W "${recipes}" -- "${cur}") )
+                        return 0
                     fi
-                else
-                    COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 fi
-                return 0
-            fi
             case "${prev}" in
                 
                 --chooser)
