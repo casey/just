@@ -67,7 +67,7 @@ Register-ArgumentCompleter -Native -CommandName 'just' -ScriptBlock {
             $justFileLocation = $commandElements[$justFileIndex + 1]
         }
 
-        $justArgs = @("--list")
+        $justArgs = @("--summary")
 
         if (Test-Path $justFileLocation) {
             $justArgs += @("--justfile", $justFileLocation)

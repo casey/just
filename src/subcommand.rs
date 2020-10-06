@@ -123,7 +123,7 @@ const POWERSHELL_COMPLETION_REPLACEMENTS: &[(&str, &str)] = &[(
             $justFileLocation = $commandElements[$justFileIndex + 1]
         }
 
-        $justArgs = @("--list")
+        $justArgs = @("--summary")
 
         if (Test-Path $justFileLocation) {
             $justArgs += @("--justfile", $justFileLocation)
