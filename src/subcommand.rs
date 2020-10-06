@@ -113,6 +113,34 @@ _just "$@""#,
   ),
 ];
 
+const POWERSHELL_COMPLETION_REPLACEMENTS: &[(&str, &str)] = &[(
+  r#"$completions.Where{ $_.CompletionText -like "$wordToComplete*" } |
+        Sort-Object -Property ListItemText"#,
+  r#"function Get-JustFileRecipes([string[]]$CommandElements) {
+        $justFileIndex = $commandElements.IndexOf("--justfile");
+
+        if ($justFileIndex -ne -1 && $justFileIndex + 1 -le $commandElements.Length) {
+            $justFileLocation = $commandElements[$justFileIndex + 1]
+        }
+
+        $justArgs = @("--list")
+
+        if (Test-Path $justFileLocation) {
+            $justArgs += @("--justfile", $justFileLocation)
+        }
+
+        $recipesRaw = $(just @justArgs) | Select-Object -Skip 1
+        $recipes = $recipesRaw | ForEach-Object { (($_.Trim()) -split ' ')[0] }
+        return  $recipes | ForEach-Object { [CompletionResult]::new($_) }
+    }
+
+    $elementValues = $commandElements | Select-Object -ExpandProperty Value
+    $recipes = Get-JustFileRecipes -CommandElements $elementValues
+    $completions += $recipes
+    $completions.Where{ $_.CompletionText -like "$wordToComplete*" } |
+        Sort-Object -Property ListItemText"#,
+)];
+
 const BASH_COMPLETION_REPLACEMENTS: &[(&str, &str)] = &[(
   r#"            if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
@@ -165,6 +193,11 @@ impl Subcommand {
       Shell::Fish => {
         script.insert_str(0, FISH_RECIPE_COMPLETIONS);
       },
+      Shell::PowerShell =>
+        for (needle, replacement) in POWERSHELL_COMPLETION_REPLACEMENTS {
+          replace(&mut script, needle, replacement)?;
+        },
+
       Shell::Zsh =>
         for (needle, replacement) in ZSH_COMPLETION_REPLACEMENTS {
           replace(&mut script, needle, replacement)?;
