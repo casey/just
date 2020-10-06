@@ -129,9 +129,8 @@ const POWERSHELL_COMPLETION_REPLACEMENTS: &[(&str, &str)] = &[(
             $justArgs += @("--justfile", $justFileLocation)
         }
 
-        $recipesRaw = $(just @justArgs) | Select-Object -Skip 1
-        $recipes = $recipesRaw | ForEach-Object { (($_.Trim()) -split ' ')[0] }
-        return  $recipes | ForEach-Object { [CompletionResult]::new($_) }
+        $recipes = $(just @justArgs) -split ' '
+        return $recipes | ForEach-Object { [CompletionResult]::new($_) }
     }
 
     $elementValues = $commandElements | Select-Object -ExpandProperty Value
