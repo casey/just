@@ -202,7 +202,7 @@ impl Subcommand {
         for (needle, replacement) in ZSH_COMPLETION_REPLACEMENTS {
           replace(&mut script, needle, replacement)?;
         },
-      _ => {},
+      Shell::Elvish => {},
     }
 
     println!("{}", script.trim());
