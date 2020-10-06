@@ -60,6 +60,26 @@ Register-ArgumentCompleter -Native -CommandName 'just' -ScriptBlock {
         }
     })
 
+    function Get-JustFileRecipes([string[]]$CommandElements) {
+        $justFileIndex = $commandElements.IndexOf("--justfile");
+
+        if ($justFileIndex -ne -1 && $justFileIndex + 1 -le $commandElements.Length) {
+            $justFileLocation = $commandElements[$justFileIndex + 1]
+        }
+
+        $justArgs = @("--summary")
+
+        if (Test-Path $justFileLocation) {
+            $justArgs += @("--justfile", $justFileLocation)
+        }
+
+        $recipes = $(just @justArgs) -split ' '
+        return $recipes | ForEach-Object { [CompletionResult]::new($_) }
+    }
+
+    $elementValues = $commandElements | Select-Object -ExpandProperty Value
+    $recipes = Get-JustFileRecipes -CommandElements $elementValues
+    $completions += $recipes
     $completions.Where{ $_.CompletionText -like "$wordToComplete*" } |
         Sort-Object -Property ListItemText
 }
