@@ -18,14 +18,6 @@ pub(crate) use std::{
   usize, vec,
 };
 
-// modules used in tests
-#[cfg(test)]
-pub(crate) use crate::testing;
-
-// structs and enums used in tests
-#[cfg(test)]
-pub(crate) use crate::{node::Node, tree::Tree};
-
 // dependencies
 pub(crate) use derivative::Derivative;
 pub(crate) use edit_distance::edit_distance;
@@ -73,3 +65,11 @@ pub(crate) type CompilationResult<'a, T> = Result<T, CompilationError<'a>>;
 pub(crate) type ConfigResult<T> = Result<T, ConfigError>;
 pub(crate) type RunResult<'a, T> = Result<T, RuntimeError<'a>>;
 pub(crate) type SearchResult<T> = Result<T, SearchError>;
+
+// modules used in tests
+#[cfg(test)]
+pub(crate) use crate::testing;
+
+// structs and enums used in tests
+#[cfg(test)]
+pub(crate) use crate::{node::Node, tree::Tree};
