@@ -1,5 +1,7 @@
 #![deny(clippy::all, clippy::pedantic, clippy::restriction)]
 #![allow(
+  clippy::blanket_clippy_restriction_lints,
+  clippy::option_if_let_else,
   clippy::comparison_chain,
   clippy::else_if_without_else,
   clippy::enum_glob_use,
@@ -18,6 +20,7 @@
   clippy::needless_pass_by_value,
   clippy::non_ascii_literal,
   clippy::panic,
+  clippy::pattern_type_mismatch,
   clippy::print_stdout,
   clippy::shadow_unrelated,
   clippy::string_add,
