@@ -75,7 +75,7 @@ const ZSH_COMPLETION_REPLACEMENTS: &[(&str, &str)] = &[
 
             local lastarg=${words[${#words}]}
 
-            # Find recipe name
+            # Find first recipe name
             for ((i = 2; i < $#words; i++ )) do
                 if [[ ! ${words[i]} = *=* ]]; then
                     recipe=${words[i]}
@@ -83,17 +83,17 @@ const ZSH_COMPLETION_REPLACEMENTS: &[(&str, &str)] = &[
                 fi
             done
 
-            if [[ $recipe = */* ]]; then
+            if [[ $lastarg = */* ]]; then
                 # Arguments contain slash would be recognised as a file
                 _arguments -s -S $common '*:: :_files'
+            elif [[ $lastarg = *=* ]]; then
+                # Arguments contain equal would be recognised as a variable
+                _message "value"
             elif [[ $recipe ]]; then
                 # Show usage message
                 _message "`just --show $recipe`"
                 # Or complete with other commands
                 #_arguments -s -S $common '*:: :_just_commands'
-            elif [[ $lastarg = *=* ]]; then
-                # Arguments contain equal would be recognised as a variable
-                _message "value"
             else
                 _arguments -s -S $common '*:: :_just_commands'
             fi
