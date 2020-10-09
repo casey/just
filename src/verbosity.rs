@@ -18,10 +18,7 @@ impl Verbosity {
   }
 
   pub(crate) fn quiet(self) -> bool {
-    match self {
-      Quiet => true,
-      _ => false,
-    }
+    matches!(self, Quiet)
   }
 
   pub(crate) fn loquacious(self) -> bool {
