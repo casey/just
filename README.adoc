@@ -986,11 +986,11 @@ echo 'Bar!'
 Bar!
 ```
 
-=== Selecting a Recipe to Run With an Interactive Chooser
+=== Selecting Recipes to Run With an Interactive Chooser
 
-The `--choose` subcommand makes just invoke a chooser to select which recipe to
-run. Choosers should read lines containing recipe names from standard input and
-print one of those names to standard output.
+The `--choose` subcommand makes just invoke a chooser to select which recipes
+to run. Choosers should read lines containing recipe names from standard input
+and print one or more of those names separated by spaces to standard output.
 
 Because there is currenly no way to run a recipe that requires arguments with
 `--choose`, such recipes will not be given to the chooser. Private recipes and
@@ -1007,7 +1007,7 @@ chooser is `fzf`, it will be invoked with `sh -cu 'fzf'`, and if the shell, or
 the shell arguments are overridden, the chooser invocation will respect those
 overrides.
 
-If you'd like `just` to default to selecting a recipe with a chooser, you can
+If you'd like `just` to default to selecting recipes with a chooser, you can
 use this as your default recipe:
 
 ```make
