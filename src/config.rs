@@ -5,9 +5,9 @@ use clap::{App, AppSettings, Arg, ArgGroup, ArgMatches, ArgSettings};
 // These three strings should be kept in sync:
 pub(crate) const CHOOSER_DEFAULT: &str = "fzf";
 pub(crate) const CHOOSER_ENVIRONMENT_KEY: &str = "JUST_CHOOSER";
-pub(crate) const CHOOSE_HELP: &str = "Select a recipe to run using a binary. If `--chooser` is \
-                                      not passed the chooser defaults to the value of \
-                                      $JUST_CHOOSER, falling back to `fzf`";
+pub(crate) const CHOOSE_HELP: &str = "Select one or more recipes to run using a binary. If \
+                                      `--chooser` is not passed the chooser defaults to the value \
+                                      of $JUST_CHOOSER, falling back to `fzf`";
 
 pub(crate) const DEFAULT_SHELL: &str = "sh";
 pub(crate) const DEFAULT_SHELL_ARG: &str = "-cu";
@@ -585,7 +585,13 @@ impl Config {
 
     let stdout = String::from_utf8_lossy(&output.stdout);
 
-    self.run(justfile, search, overrides, &[stdout.trim().to_string()])
+    let recipes = stdout
+      .trim()
+      .split_whitespace()
+      .map(str::to_owned)
+      .collect::<Vec<String>>();
+
+    self.run(justfile, search, overrides, &recipes)
   }
 
   fn dump(justfile: Justfile) -> Result<(), i32> {
@@ -812,9 +818,9 @@ USAGE:
     just [FLAGS] [OPTIONS] [--] [ARGUMENTS]...
 
 FLAGS:
-        --choose              Select a recipe to run using a binary. If `--chooser` is not passed \
-                                 the chooser defaults
-                              to the value of $JUST_CHOOSER, falling back to `fzf`
+        --choose              Select one or more recipes to run using a binary. If `--chooser` is \
+                                 not passed the chooser
+                              defaults to the value of $JUST_CHOOSER, falling back to `fzf`
         --clear-shell-args    Clear shell arguments
         --dry-run             Print what just would do without doing it
         --dump                Print entire justfile
