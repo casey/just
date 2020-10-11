@@ -99,6 +99,20 @@ test! {
   status: EXIT_FAILURE,
 }
 
+test! {
+  name: multiple_recipes,
+  justfile: "
+    foo:
+      echo foo
+
+    bar:
+      echo bar
+  ",
+  args: ("--choose", "--chooser", "echo foo bar"),
+  stdout: "foo\nbar\n",
+  stderr: "echo foo\necho bar\n",
+}
+
 #[test]
 fn default() {
   let tmp = tmptree! {
