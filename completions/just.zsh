@@ -38,7 +38,7 @@ _just() {
 '--unsorted[Return list and summary entries in source order]' \
 '*-v[Use verbose output]' \
 '*--verbose[Use verbose output]' \
-'--choose[Select a recipe to run using a binary. If `--chooser` is not passed the chooser defaults to the value of $JUST_CHOOSER, falling back to `fzf`]' \
+'--choose[Select one or more recipes to run using a binary. If `--chooser` is not passed the chooser defaults to the value of $JUST_CHOOSER, falling back to `fzf`]' \
 '--dump[Print entire justfile]' \
 '-e[Edit justfile with editor given by $VISUAL or $EDITOR, falling back to `vim`]' \
 '--edit[Edit justfile with editor given by $VISUAL or $EDITOR, falling back to `vim`]' \
