@@ -72,7 +72,7 @@ const ZSH_COMPLETION_REPLACEMENTS: &[(&str, &str)] = &[
         args)
             declare recipe
             curcontext="${curcontext%:*}-${words[2]}:"
-    
+
             typeset -A numargs
             numargs[--chooser]=1
             numargs[--color]=1
