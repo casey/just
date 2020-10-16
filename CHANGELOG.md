@@ -1,6 +1,20 @@
 Changelog
 =========
 
+[v0.8.1] - 2020-10-15
+---------------------
+
+### Changed
+- Allow choosing multiple recipes to run (#700)
+- Complete recipes in bash completion script (#685)
+- Complete recipes names in PowerShell completion script (#651)
+
+### Misc
+- Add FreeBSD port to readme (#705)
+- Placate clippy (#698)
+- Fix build fix (#693)
+- Fix readme documentation for ignoring errors (#692)
+
 [v0.8.0] - 2020-10-3
 --------------------
 
