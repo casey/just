@@ -15,7 +15,6 @@ _just() {
 
     local context curcontext="$curcontext" state line
     local common=(
-'--chooser=[Override binary invoked by `--choose`]' \
 '--color=[Print colorful output]: :(auto always never)' \
 '-f+[Use <JUSTFILE> as justfile.]' \
 '--justfile=[Use <JUSTFILE> as justfile.]' \
@@ -29,16 +28,12 @@ _just() {
 '--show=[Show information about <RECIPE>]: :_just_commands' \
 '(-q --quiet)--dry-run[Print what just would do without doing it]' \
 '--highlight[Highlight echoed recipe lines in bold]' \
-'--no-dotenv[Don'\''t load `.env` file]' \
 '--no-highlight[Don'\''t highlight echoed recipe lines in bold]' \
 '(--dry-run)-q[Suppress all output]' \
 '(--dry-run)--quiet[Suppress all output]' \
 '--clear-shell-args[Clear shell arguments]' \
-'-u[Return list and summary entries in source order]' \
-'--unsorted[Return list and summary entries in source order]' \
 '*-v[Use verbose output]' \
 '*--verbose[Use verbose output]' \
-'--choose[Select one or more recipes to run using a binary. If `--chooser` is not passed the chooser defaults to the value of $JUST_CHOOSER, falling back to `fzf`]' \
 '--dump[Print entire justfile]' \
 '-e[Edit justfile with editor given by $VISUAL or $EDITOR, falling back to `vim`]' \
 '--edit[Edit justfile with editor given by $VISUAL or $EDITOR, falling back to `vim`]' \
@@ -61,44 +56,24 @@ _just() {
 
     case $state in
         args)
-            declare recipe
             curcontext="${curcontext%:*}-${words[2]}:"
 
-            typeset -A numargs
-            numargs[--chooser]=1
-            numargs[--color]=1
-            numargs[--completions]=1
-            numargs[-f]=1
-            numargs[--justfile]=1
-            numargs[--set]=2
-            numargs[--shell]=1
-            numargs[--shell-arg]=1
-            numargs[-s]=1
-            numargs[--show]=1
-            numargs[-d]=1
-            numargs[--working-directory]=1
             local lastarg=${words[${#words}]}
+
+            local cmds; cmds=(
+                ${(s: :)$(_call_program commands just --summary)}
+            )
 
             # Find first recipe name
             integer skip=0
             for ((i = 2; i < $#words; i++ )) do
-                # Skip positional arguments
-                if [[ $skip -gt 0 ]]; then
-                    skip=$skip-1
-                    continue
-                fi
-                # Skip flags
-                skip=${numargs[${words[i]}]:-0}
-                if [[ $skip -gt 0 ]]; then
-                    continue
-                fi
-                if [[ ! ${words[i]} = *=* ]]; then
+                if [[ ${cmds[(I)${words[i]}]} -gt 0 ]]; then
                     recipe=${words[i]}
                     break
                 fi
             done
 
-            if [[ $lastarg = */* ]]; then
+            if [[ ${lastarg} = */* ]]; then
                 # Arguments contain slash would be recognised as a file
                 _arguments -s -S $common '*:: :_files'
             elif [[ $lastarg = *=* ]]; then
@@ -153,7 +128,7 @@ _just_variables() {
             *) _message 'value' && ret=0 ;;
         esac
     else
-        _describe -t variables 'variables' variables -qS "=" && ret=0
+        _describe -t variables 'variables' variables && ret=0
     fi
 
     return ret
