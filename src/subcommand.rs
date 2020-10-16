@@ -70,38 +70,15 @@ const ZSH_COMPLETION_REPLACEMENTS: &[(&str, &str)] = &[
 
     case $state in
         args)
-            declare recipe
             curcontext="${curcontext%:*}-${words[2]}:"
 
-            typeset -A numargs
-            numargs[--chooser]=1
-            numargs[--color]=1
-            numargs[--completions]=1
-            numargs[-f]=1
-            numargs[--justfile]=1
-            numargs[--set]=2
-            numargs[--shell]=1
-            numargs[--shell-arg]=1
-            numargs[-s]=1
-            numargs[--show]=1
-            numargs[-d]=1
-            numargs[--working-directory]=1
-            local lastarg=${words[${#words}]}
+            local cmds; cmds=(
+                ${(s: :)$(_call_program commands just --summary)}
+            )
 
             # Find first recipe name
-            integer skip=0
             for ((i = 2; i < $#words; i++ )) do
-                # Skip positional arguments
-                if [[ $skip -gt 0 ]]; then
-                    skip=$skip-1
-                    continue
-                fi
-                # Skip flags
-                skip=${numargs[${words[i]}]:-0}
-                if [[ $skip -gt 0 ]]; then
-                    continue
-                fi
-                if [[ ! ${words[i]} = *=* ]]; then
+                if [[ ${cmds[(I)${words[i]}]} -gt 0 ]]; then
                     recipe=${words[i]}
                     break
                 fi
@@ -168,7 +145,7 @@ _just_variables() {
             *) _message 'value' && ret=0 ;;
         esac
     else
-        _describe -t variables 'variables' variables -qS "=" && ret=0
+        _describe -t variables 'variables' variables && ret=0
     fi
 
     return ret
