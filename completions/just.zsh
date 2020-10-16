@@ -15,6 +15,7 @@ _just() {
 
     local context curcontext="$curcontext" state line
     local common=(
+'--chooser=[Override binary invoked by `--choose`]' \
 '--color=[Print colorful output]: :(auto always never)' \
 '-f+[Use <JUSTFILE> as justfile.]' \
 '--justfile=[Use <JUSTFILE> as justfile.]' \
@@ -28,12 +29,16 @@ _just() {
 '--show=[Show information about <RECIPE>]: :_just_commands' \
 '(-q --quiet)--dry-run[Print what just would do without doing it]' \
 '--highlight[Highlight echoed recipe lines in bold]' \
+'--no-dotenv[Don'\''t load `.env` file]' \
 '--no-highlight[Don'\''t highlight echoed recipe lines in bold]' \
 '(--dry-run)-q[Suppress all output]' \
 '(--dry-run)--quiet[Suppress all output]' \
 '--clear-shell-args[Clear shell arguments]' \
+'-u[Return list and summary entries in source order]' \
+'--unsorted[Return list and summary entries in source order]' \
 '*-v[Use verbose output]' \
 '*--verbose[Use verbose output]' \
+'--choose[Select one or more recipes to run using a binary. If `--chooser` is not passed the chooser defaults to the value of $JUST_CHOOSER, falling back to `fzf`]' \
 '--dump[Print entire justfile]' \
 '-e[Edit justfile with editor given by $VISUAL or $EDITOR, falling back to `vim`]' \
 '--edit[Edit justfile with editor given by $VISUAL or $EDITOR, falling back to `vim`]' \
