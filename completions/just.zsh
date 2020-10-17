@@ -63,14 +63,11 @@ _just() {
         args)
             curcontext="${curcontext%:*}-${words[2]}:"
 
-            local lastarg=${words[${#words}]}
-
             local cmds; cmds=(
                 ${(s: :)$(_call_program commands just --summary)}
             )
 
             # Find first recipe name
-            integer skip=0
             for ((i = 2; i < $#words; i++ )) do
                 if [[ ${cmds[(I)${words[i]}]} -gt 0 ]]; then
                     recipe=${words[i]}
@@ -78,7 +75,7 @@ _just() {
                 fi
             done
 
-            if [[ ${lastarg} = */* ]]; then
+            if [[ $lastarg = */* ]]; then
                 # Arguments contain slash would be recognised as a file
                 _arguments -s -S $common '*:: :_files'
             elif [[ $lastarg = *=* ]]; then
