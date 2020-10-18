@@ -73,6 +73,7 @@ const ZSH_COMPLETION_REPLACEMENTS: &[(&str, &str)] = &[
             curcontext="${curcontext%:*}-${words[2]}:"
 
             local lastarg=${words[${#words}]}
+            local recipe
 
             local cmds; cmds=(
                 ${(s: :)$(_call_program commands just --summary)}

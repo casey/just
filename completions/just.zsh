@@ -64,6 +64,7 @@ _just() {
             curcontext="${curcontext%:*}-${words[2]}:"
 
             local lastarg=${words[${#words}]}
+            local recipe
 
             local cmds; cmds=(
                 ${(s: :)$(_call_program commands just --summary)}
