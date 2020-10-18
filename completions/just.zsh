@@ -63,6 +63,8 @@ _just() {
         args)
             curcontext="${curcontext%:*}-${words[2]}:"
 
+            local lastarg=${words[${#words}]}
+
             local cmds; cmds=(
                 ${(s: :)$(_call_program commands just --summary)}
             )
