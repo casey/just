@@ -10,11 +10,6 @@ readme      = "crates-io-readme.md"
 edition     = "2018"
 autotests   = false
 
-[features]
-default       = []
-help4help2man = []
-summary       = []
-
 [dependencies]
 ansi_term     = "0.12.0"
 atty          = "0.2.0"
@@ -45,6 +40,17 @@ which             = "4.0.0"
 # to crates.io. In the meantime, we can publish with nighlty cargo.
 [dev-dependencies.test-utilities]
 path = "test-utilities"
+
+[features]
+# No features are active by default.
+default = []
+# The `help4help2man` feature modifies the message produced by `--help`
+# so that `help2man` produces a reasonable man page.
+help4help2man = []
+# The `summary` feature includes the `summary` module, which is used
+# by Janus, https://github.com/casey/janus, a tool that analyses all
+# public justfiles on GitHub to avoid breaking changes.
+summary = []
 
 # The public documentation is minimal and doesn't change between
 # platforms, so we only build them for linux on docs.rs to save
