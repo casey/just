@@ -18,11 +18,20 @@ use TokenKind::*;
 /// and not a syntax error.
 ///
 /// All methods starting with `parse_*` parse and return a language construct.
+///
+/// The parser tracks an expected set of tokens as it parses. This set contains
+/// all tokens which would have been accepted at the current point in the parse.
+/// Whenever the parser tests for a token that would be accepted, but does not
+/// find it, it adds that token to the set. When the parser accepts a token, the
+/// set is cleared. If the parser finds a token which is unexpected, the
+/// contents of the set is printed in the resultant error message.
 pub(crate) struct Parser<'tokens, 'src> {
   /// Source tokens
-  tokens: &'tokens [Token<'src>],
+  tokens:   &'tokens [Token<'src>],
   /// Index of the next un-parsed token
-  next:   usize,
+  next:     usize,
+  /// Current expected tokens
+  expected: BTreeSet<TokenKind>,
 }
 
 impl<'tokens, 'src> Parser<'tokens, 'src> {
@@ -33,7 +42,11 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
 
   /// Construct a new Paser from a token stream
   fn new(tokens: &'tokens [Token<'src>]) -> Parser<'tokens, 'src> {
-    Parser { next: 0, tokens }
+    Parser {
+      next: 0,
+      expected: BTreeSet::new(),
+      tokens,
+    }
   }
 
   fn error(
@@ -45,16 +58,10 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
 
   /// Construct an unexpected token error with the token returned by
   /// `Parser::next`
-  fn unexpected_token(
-    &self,
-    expected: &[TokenKind],
-  ) -> CompilationResult<'src, CompilationError<'src>> {
-    let mut expected = expected.to_vec();
-    expected.sort();
-
+  fn unexpected_token(&self) -> CompilationResult<'src, CompilationError<'src>> {
     self.error(CompilationErrorKind::UnexpectedToken {
-      expected,
-      found: self.next()?.kind,
+      expected: self.expected.iter().cloned().collect::<Vec<TokenKind>>(),
+      found:    self.next()?.kind,
     })
   }
 
@@ -85,12 +92,18 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   }
 
   /// Check if the next significant token is of kind `kind`
-  fn next_is(&self, kind: TokenKind) -> bool {
+  fn next_is(&mut self, kind: TokenKind) -> bool {
     self.next_are(&[kind])
   }
 
   /// Check if the next significant tokens are of kinds `kinds`
-  fn next_are(&self, kinds: &[TokenKind]) -> bool {
+  ///
+  /// The first token in `kinds` will be added to the expected token set.
+  fn next_are(&mut self, kinds: &[TokenKind]) -> bool {
+    if let Some(kind) = kinds.first() {
+      self.expected.insert(*kind);
+    }
+
     let mut rest = self.rest();
     for kind in kinds {
       match rest.next() {
@@ -112,8 +125,10 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     }
   }
 
-  /// Advance past one significant token
+  /// Advance past one significant token, clearing the expected token set.
   fn advance(&mut self) -> CompilationResult<'src, Token<'src>> {
+    self.expected.clear();
+
     for skipped in &self.tokens[self.next..] {
       self.next += 1;
 
@@ -131,7 +146,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     if let Some(token) = self.accept(expected)? {
       Ok(token)
     } else {
-      Err(self.unexpected_token(&[expected])?)
+      Err(self.unexpected_token()?)
     }
   }
 
@@ -143,7 +158,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
       }
     }
 
-    Err(self.unexpected_token(expected)?)
+    Err(self.unexpected_token()?)
   }
 
   /// Return an unexpected token error if the next token is not an EOL
@@ -154,7 +169,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
       return Ok(());
     }
 
-    self.expect(Eol).map(|_| ()).expected(&[Eof])
+    self.expect(Eol).map(|_| ())
   }
 
   /// Return an internal error if the next token is not of kind `Identifier`
@@ -208,10 +223,8 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
 
   /// Accept and return a token of kind `kind`
   fn accept(&mut self, kind: TokenKind) -> CompilationResult<'src, Option<Token<'src>>> {
-    let next = self.next()?;
-    if next.kind == kind {
-      self.advance()?;
-      Ok(Some(next))
+    if self.next_is(kind) {
+      Ok(Some(self.advance()?))
     } else {
       Ok(None)
     }
@@ -263,19 +276,14 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     loop {
       let next = self.next()?;
 
-      match next.kind {
-        Comment => {
-          doc = Some(next.lexeme()[1..].trim());
-          self.expect_eol()?;
-        },
-        Eol => {
-          self.advance()?;
-        },
-        Eof => {
-          self.advance()?;
-          break;
-        },
-        Identifier => match next.lexeme() {
+      if let Some(comment) = self.accept(Comment)? {
+        doc = Some(comment.lexeme()[1..].trim());
+        self.expect_eol()?;
+      } else if self.accepted(Eol)? {
+      } else if self.accepted(Eof)? {
+        break;
+      } else if self.next_is(Identifier) {
+        match next.lexeme() {
           keyword::ALIAS =>
             if self.next_are(&[Identifier, Identifier, Equals]) {
               warnings.push(Warning::DeprecatedEquals {
@@ -317,14 +325,11 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
             } else {
               items.push(Item::Recipe(self.parse_recipe(doc, false)?));
             },
-        },
-        At => {
-          self.presume(At)?;
-          items.push(Item::Recipe(self.parse_recipe(doc, true)?));
-        },
-        _ => {
-          return Err(self.unexpected_token(&[Identifier, At])?);
-        },
+        }
+      } else if self.accepted(At)? {
+        items.push(Item::Recipe(self.parse_recipe(doc, true)?));
+      } else {
+        return Err(self.unexpected_token()?);
       }
 
       if next.kind != Comment {
@@ -380,36 +385,34 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
 
   /// Parse a value, e.g. `(bar)`
   fn parse_value(&mut self) -> CompilationResult<'src, Expression<'src>> {
-    let next = self.next()?;
-
-    match next.kind {
-      StringCooked | StringRaw => Ok(Expression::StringLiteral {
+    if self.next_is(StringCooked) || self.next_is(StringRaw) {
+      Ok(Expression::StringLiteral {
         string_literal: self.parse_string_literal()?,
-      }),
-      Backtick => {
-        let contents = &next.lexeme()[1..next.lexeme().len() - 1];
-        let token = self.advance()?;
-        Ok(Expression::Backtick { contents, token })
-      },
-      Identifier => {
-        let name = self.parse_name()?;
+      })
+    } else if self.next_is(Backtick) {
+      let next = self.next()?;
 
-        if self.next_is(ParenL) {
-          let arguments = self.parse_sequence()?;
-          Ok(Expression::Call {
-            thunk: Thunk::resolve(name, arguments)?,
-          })
-        } else {
-          Ok(Expression::Variable { name })
-        }
-      },
-      ParenL => {
-        self.presume(ParenL)?;
-        let contents = Box::new(self.parse_expression()?);
-        self.expect(ParenR)?;
-        Ok(Expression::Group { contents })
-      },
-      _ => Err(self.unexpected_token(&[StringCooked, StringRaw, Backtick, Identifier, ParenL])?),
+      let contents = &next.lexeme()[1..next.lexeme().len() - 1];
+      let token = self.advance()?;
+      Ok(Expression::Backtick { contents, token })
+    } else if self.next_is(Identifier) {
+      let name = self.parse_name()?;
+
+      if self.next_is(ParenL) {
+        let arguments = self.parse_sequence()?;
+        Ok(Expression::Call {
+          thunk: Thunk::resolve(name, arguments)?,
+        })
+      } else {
+        Ok(Expression::Variable { name })
+      }
+    } else if self.next_is(ParenL) {
+      self.presume(ParenL)?;
+      let contents = Box::new(self.parse_expression()?);
+      self.expect(ParenR)?;
+      Ok(Expression::Group { contents })
+    } else {
+      Err(self.unexpected_token()?)
     }
   }
 
@@ -471,7 +474,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     let mut elements = Vec::new();
 
     while !self.next_is(ParenR) {
-      elements.push(self.parse_expression().expected(&[ParenR])?);
+      elements.push(self.parse_expression()?);
 
       if !self.accepted(Comma)? {
         break;
@@ -508,10 +511,12 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     let variadic = if kind.is_variadic() {
       let variadic = self.parse_parameter(kind)?;
 
-      if let Some(identifier) = self.accept(Identifier)? {
+      let next = self.next()?;
+
+      if next.kind == Identifier {
         return Err(
-          identifier.error(CompilationErrorKind::ParameterFollowsVariadicParameter {
-            parameter: identifier.lexeme(),
+          next.error(CompilationErrorKind::ParameterFollowsVariadicParameter {
+            parameter: next.lexeme(),
           }),
         );
       }
@@ -521,29 +526,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
       None
     };
 
-    let result = self.expect(Colon);
-
-    if result.is_err() {
-      let mut alternatives = Vec::new();
-
-      if variadic.is_none() {
-        alternatives.push(Identifier);
-      }
-
-      if !quiet && variadic.is_none() && positional.is_empty() {
-        alternatives.push(ColonEquals);
-      }
-
-      if variadic.is_some() || !positional.is_empty() {
-        alternatives.push(Equals);
-      }
-
-      if variadic.is_none() {
-        alternatives.push(Plus);
-      }
-
-      result.expected(&alternatives)?;
-    }
+    self.expect(Colon)?;
 
     let mut dependencies = Vec::new();
 
@@ -551,7 +534,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
       dependencies.push(dependency);
     }
 
-    self.expect_eol().expected(&[Identifier])?;
+    self.expect_eol()?;
 
     let body = self.parse_body()?;
 
@@ -606,7 +589,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
               });
               self.expect(InterpolationEnd)?;
             } else {
-              return Err(self.unexpected_token(&[Text, InterpolationStart])?);
+              return Err(self.unexpected_token()?);
             }
           }
 
@@ -637,24 +620,17 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
 
         let mut arguments = Vec::new();
 
-        let mut comma = false;
-
         if self.accepted(Comma)? {
-          comma = true;
           while !self.next_is(BracketR) {
-            arguments.push(self.parse_string_literal().expected(&[BracketR])?);
+            arguments.push(self.parse_string_literal()?);
 
             if !self.accepted(Comma)? {
-              comma = false;
               break;
             }
-            comma = true;
           }
         }
 
-        self
-          .expect(BracketR)
-          .expected(if comma { &[] } else { &[Comma] })?;
+        self.expect(BracketR)?;
 
         Ok(Set {
           value: Setting::Shell(setting::Shell { command, arguments }),
@@ -1530,7 +1506,7 @@ mod tests {
     line: 0,
     column: 16,
     width: 3,
-    kind: UnexpectedToken { expected: vec![Eof, Eol], found: Identifier },
+    kind: UnexpectedToken { expected: vec![Comment, Eof, Eol], found: Identifier },
   }
 
   error! {
@@ -1550,7 +1526,7 @@ mod tests {
     line:   0,
     column: 5,
     width:  1,
-    kind:   UnexpectedToken{expected: vec![Colon, Equals, Identifier, Plus], found: Eol},
+    kind:   UnexpectedToken{expected: vec![Asterisk, Colon, Equals, Identifier, Plus], found: Eol},
   }
 
   error! {
@@ -1586,7 +1562,7 @@ mod tests {
     line:   0,
     column: 9,
     width:  1,
-    kind:   UnexpectedToken{expected: vec![Eof, Eol, Identifier], found: Equals},
+    kind:   UnexpectedToken{expected: vec![Comment, Eof, Eol, Identifier, ParenL], found: Equals},
   }
 
   error! {
@@ -1596,7 +1572,10 @@ mod tests {
     line:   0,
     column: 0,
     width:  2,
-    kind:   UnexpectedToken{expected: vec![At, Identifier], found: InterpolationStart},
+    kind: UnexpectedToken {
+      expected: vec![At, Comment, Eof, Eol, Identifier],
+      found: InterpolationStart,
+    },
   }
 
   error! {
@@ -1652,7 +1631,7 @@ mod tests {
     line:   0,
     column: 8,
     width:  0,
-    kind:   UnexpectedToken{expected: vec![Colon, Equals, Identifier, Plus], found: Eof},
+    kind:   UnexpectedToken{expected: vec![Asterisk, Colon, Equals, Identifier, Plus], found: Eof},
   }
 
   error! {

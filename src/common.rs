@@ -34,9 +34,8 @@ pub(crate) use crate::{default::default, empty::empty, load_dotenv::load_dotenv,
 
 // traits
 pub(crate) use crate::{
-  command_ext::CommandExt, compilation_result_ext::CompilationResultExt, error::Error,
-  error_result_ext::ErrorResultExt, keyed::Keyed, ordinal::Ordinal,
-  platform_interface::PlatformInterface, range_ext::RangeExt,
+  command_ext::CommandExt, error::Error, error_result_ext::ErrorResultExt, keyed::Keyed,
+  ordinal::Ordinal, platform_interface::PlatformInterface, range_ext::RangeExt,
 };
 
 // structs and enums
