@@ -20,12 +20,6 @@ pub(crate) enum Expression<'src> {
     lhs: Box<Expression<'src>>,
     rhs: Box<Expression<'src>>,
   },
-  /// TODO:
-  /// - Document:
-  ///   - short circuits
-  ///   - can use `==` or `!=`
-  /// - test all error messages
-  ///
   /// `if lhs == rhs { then } else { otherwise }`
   Conditional {
     lhs:       Box<Expression<'src>>,
