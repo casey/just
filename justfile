@@ -121,7 +121,7 @@ sloc:
 
 @lint:
 	echo Checking for FIXME/TODO...
-	! grep --color -En 'FIXME|TODO' src/*.rs
+	! grep --color -Ein 'fixme|todo|xxx|#\[ignore\]' src/*.rs
 	echo Checking for long lines...
 	! grep --color -En '.{101}' src/*.rs
 

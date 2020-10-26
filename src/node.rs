@@ -52,7 +52,6 @@ impl<'src> Node<'src> for Expression<'src> {
   fn tree(&self) -> Tree<'src> {
     match self {
       Expression::Concatination { lhs, rhs } => Tree::atom("+").push(lhs.tree()).push(rhs.tree()),
-      // TODO: Test this
       Expression::Conditional {
         lhs,
         rhs,

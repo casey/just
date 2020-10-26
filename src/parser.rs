@@ -1564,6 +1564,48 @@ mod tests {
     tree: (justfile (set shell "bash" "-cu" "-l")),
   }
 
+  test! {
+    name: conditional,
+    text: "a := if b == c { d } else { e }",
+    tree: (justfile (assignment a (if b == c d e))),
+  }
+
+  test! {
+    name: conditional_inverted,
+    text: "a := if b != c { d } else { e }",
+    tree: (justfile (assignment a (if b != c d e))),
+  }
+
+  test! {
+    name: conditional_concatinations,
+    text: "a := if b0 + b1 == c0 + c1 { d0 + d1 } else { e0 + e1 }",
+    tree: (justfile (assignment a (if (+ b0 b1) == (+ c0 c1) (+ d0 d1) (+ e0 e1)))),
+  }
+
+  test! {
+    name: conditional_nested_lhs,
+    text: "a := if if b == c { d } else { e } == c { d } else { e }",
+    tree: (justfile (assignment a (if (if b == c d e) == c d e))),
+  }
+
+  test! {
+    name: conditional_nested_rhs,
+    text: "a := if c == if b == c { d } else { e } { d } else { e }",
+    tree: (justfile (assignment a (if c == (if b == c d e) d e))),
+  }
+
+  test! {
+    name: conditional_nested_then,
+    text: "a := if b == c { if b == c { d } else { e } } else { e }",
+    tree: (justfile (assignment a (if b == c (if b == c d e) e))),
+  }
+
+  test! {
+    name: conditional_nested_otherwise,
+    text: "a := if b == c { d } else { if b == c { d } else { e } }",
+    tree: (justfile (assignment a (if b == c d (if b == c d e)))),
+  }
+
   error! {
     name: alias_syntax_multiple_rhs,
     input: "alias foo = bar baz",
