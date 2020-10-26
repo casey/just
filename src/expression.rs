@@ -28,14 +28,9 @@ pub(crate) enum Expression<'src> {
   /// - Test:
   ///   - new token lexing
   ///   - parsing
-  ///   - test that expressions are resolved in all components of `if`
   ///   - test all new error messages
-  ///   - test that backticks are evaluated in lhs and rhs
-  /// - Add `!=`
   /// - Consider how to do line continuation
   /// - can i do line continuation if there's an open {? what about a `\`?
-  /// - test inside of recipe interpolation
-  /// - test if inside of lhs, rhs, then, otherwise
   /// - test that unexpected token for Op expects == and !=
   /// - test printing of all errors
   Conditional {

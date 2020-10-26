@@ -111,3 +111,13 @@ test! {
   ",
   status: EXIT_FAILURE,
 }
+
+test! {
+  name: complex_expressions,
+  justfile: "
+    foo:
+      echo {{ if 'a' + 'b' == `echo ab` { 'c' + 'd' } else { 'e' + 'f' } }}
+  ",
+  stdout: "cd\n",
+  stderr: "echo cd\n",
+}
