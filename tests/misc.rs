@@ -1490,7 +1490,8 @@ test! {
   justfile: "foo: 'bar'",
   args:     ("foo"),
   stdout:   "",
-  stderr:   "error: Expected end of file, end of line, or identifier, but found raw string
+  stderr:   "error: Expected comment, end of file, end of line, \
+    identifier, or '(', but found raw string
   |
 1 | foo: 'bar'
   |      ^^^^^
@@ -1503,7 +1504,7 @@ test! {
   justfile: "foo 'bar'",
   args:     ("foo"),
   stdout:   "",
-  stderr:   "error: Expected ':', ':=', identifier, or '+', but found raw string
+  stderr:   "error: Expected '*', ':', identifier, or '+', but found raw string
   |
 1 | foo 'bar'
   |     ^^^^^

@@ -60,7 +60,6 @@ mod command_ext;
 mod common;
 mod compilation_error;
 mod compilation_error_kind;
-mod compilation_result_ext;
 mod compiler;
 mod config;
 mod config_error;
