@@ -242,11 +242,11 @@ impl Expression {
         then,
         otherwise,
       } => Expression::Conditional {
-        lhs: Box::new(Expression::new(lhs)),
-        rhs: Box::new(Expression::new(rhs)),
-        then: Box::new(Expression::new(lhs)),
+        lhs:       Box::new(Expression::new(lhs)),
+        rhs:       Box::new(Expression::new(rhs)),
+        then:      Box::new(Expression::new(lhs)),
         otherwise: Box::new(Expression::new(rhs)),
-        inverted,
+        inverted:  *inverted,
       },
       StringLiteral { string_literal } => Expression::String {
         text: string_literal.cooked.to_string(),
