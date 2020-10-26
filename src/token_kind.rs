@@ -40,7 +40,7 @@ impl Display for TokenKind {
       Asterisk => "'*'",
       At => "'@'",
       Backtick => "backtick",
-      BangEquals => "!=",
+      BangEquals => "'!='",
       BraceL => "'{'",
       BraceR => "'}'",
       BracketL => "'['",

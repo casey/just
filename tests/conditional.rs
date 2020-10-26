@@ -41,6 +41,16 @@ test! {
 }
 
 test! {
+  name: complex_expressions,
+  justfile: "
+    foo:
+      echo {{ if 'a' + 'b' == `echo ab` { 'c' + 'd' } else { 'e' + 'f' } }}
+  ",
+  stdout: "cd\n",
+  stderr: "echo cd\n",
+}
+
+test! {
   name: undefined_lhs,
   justfile: "
     a := if b == '' { '' } else { '' }
@@ -113,11 +123,36 @@ test! {
 }
 
 test! {
-  name: complex_expressions,
+  name: unexpected_op,
   justfile: "
+    a := if '' a '' { '' } else { b }
+
     foo:
-      echo {{ if 'a' + 'b' == `echo ab` { 'c' + 'd' } else { 'e' + 'f' } }}
+      echo {{ a }}
   ",
-  stdout: "cd\n",
-  stderr: "echo cd\n",
+  stdout: "",
+  stderr: "
+    error: Expected '!=', '==', or '+', but found identifier
+      |
+    1 | a := if '' a '' { '' } else { b }
+      |            ^
+  ",
+  status: EXIT_FAILURE,
+}
+
+test! {
+  name: dump,
+  justfile: "
+    a := if '' == '' { '' } else { '' }
+
+    foo:
+      echo {{ a }}
+  ",
+  args: ("--dump"),
+  stdout: format!("
+    a := if '' == '' {{ '' }} else {{ '' }}{}
+
+    foo:
+        echo {{{{a}}}}
+  ", " ").as_str(),
 }

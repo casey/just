@@ -20,19 +20,12 @@ pub(crate) enum Expression<'src> {
     lhs: Box<Expression<'src>>,
     rhs: Box<Expression<'src>>,
   },
-  /// `if lhs == rhs { then } else { otherwise }`
   /// TODO:
   /// - Document:
   ///   - short circuits
   ///   - can use `==` or `!=`
-  /// - Test:
-  ///   - new token lexing
-  ///   - parsing
-  ///   - test all new error messages
-  /// - Consider how to do line continuation
-  /// - can i do line continuation if there's an open {? what about a `\`?
-  /// - test that unexpected token for Op expects == and !=
-  /// - test printing of all errors
+  /// - test all error messages
+  /// `if lhs == rhs { then } else { otherwise }`
   Conditional {
     lhs:       Box<Expression<'src>>,
     rhs:       Box<Expression<'src>>,
@@ -59,7 +52,6 @@ impl<'src> Display for Expression<'src> {
     match self {
       Expression::Backtick { contents, .. } => write!(f, "`{}`", contents),
       Expression::Concatination { lhs, rhs } => write!(f, "{} + {}", lhs, rhs),
-      // TODO: This needs to be tested
       Expression::Conditional {
         lhs,
         rhs,
@@ -68,6 +60,8 @@ impl<'src> Display for Expression<'src> {
         inverted,
       } => write!(
         f,
+        // The trailing space prevents the final `}` from being merged with
+        // a following interpolation close when dumping and re-parsing.
         "if {} {} {} {{ {} }} else {{ {} }} ",
         lhs,
         if *inverted { "!=" } else { "==" },

@@ -952,15 +952,27 @@ mod tests {
   }
 
   test! {
-    name:   paren_l,
+    name:   brace_l,
     text:   "{",
     tokens: (BraceL),
   }
 
   test! {
-    name:   paren_r,
+    name:   brace_r,
     text:   "}",
     tokens: (BraceR),
+  }
+
+  test! {
+    name:   interpolation_start_brace_l,
+    text:   "{{{",
+    tokens: (InterpolationStart, BraceL),
+  }
+
+  test! {
+    name:   interpolation_end_brace_r,
+    text:   "}}}",
+    tokens: (InterpolationEnd, BraceR),
   }
 
   test! {
