@@ -39,6 +39,10 @@ pub(crate) enum CompilationErrorKind<'src> {
     setting: &'src str,
     first:   usize,
   },
+  ExpectedKeyword {
+    expected: Keyword,
+    found:    &'src str,
+  },
   ExtraLeadingWhitespace,
   FunctionArgumentCountMismatch {
     function: &'src str,
@@ -86,6 +90,9 @@ pub(crate) enum CompilationErrorKind<'src> {
     function: &'src str,
   },
   UnknownStartOfToken,
+  UnexpectedCharacter {
+    expected: char,
+  },
   UnknownSetting {
     setting: &'src str,
   },

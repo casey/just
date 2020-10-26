@@ -87,6 +87,18 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
         self.resolve_expression(lhs)?;
         self.resolve_expression(rhs)
       },
+      Expression::Conditional {
+        lhs,
+        rhs,
+        then,
+        otherwise,
+        ..
+      } => {
+        self.resolve_expression(lhs)?;
+        self.resolve_expression(rhs)?;
+        self.resolve_expression(then)?;
+        self.resolve_expression(otherwise)
+      },
       Expression::StringLiteral { .. } | Expression::Backtick { .. } => Ok(()),
       Expression::Group { contents } => self.resolve_expression(contents),
     }

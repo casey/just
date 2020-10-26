@@ -57,8 +57,12 @@ export        : 'export' assignment
 
 setting       : 'set' 'shell' ':=' '[' string (',' string)* ','? ']'
 
-expression    : value '+' expression
+expression    : 'if' condition '{' expression '}' else '{' expression '}'
+              | value '+' expression
               | value
+
+condition     : expression '==' expression
+              | expression '!=' expression
 
 value         : NAME '(' sequence? ')'
               | STRING

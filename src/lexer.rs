@@ -430,17 +430,18 @@ impl<'src> Lexer<'src> {
   /// Lex token beginning with `start` outside of a recipe body
   fn lex_normal(&mut self, start: char) -> CompilationResult<'src, ()> {
     match start {
+      '!' => self.lex_bang(),
       '*' => self.lex_single(Asterisk),
       '@' => self.lex_single(At),
       '[' => self.lex_single(BracketL),
       ']' => self.lex_single(BracketR),
-      '=' => self.lex_single(Equals),
+      '=' => self.lex_choice('=', EqualsEquals, Equals),
       ',' => self.lex_single(Comma),
       ':' => self.lex_colon(),
       '(' => self.lex_single(ParenL),
       ')' => self.lex_single(ParenR),
-      '{' => self.lex_brace_l(),
-      '}' => self.lex_brace_r(),
+      '{' => self.lex_choice('{', InterpolationStart, BraceL),
+      '}' => self.lex_choice('}', InterpolationEnd, BraceR),
       '+' => self.lex_single(Plus),
       '\n' => self.lex_single(Eol),
       '\r' => self.lex_cr_lf(),
@@ -449,13 +450,11 @@ impl<'src> Lexer<'src> {
       ' ' | '\t' => self.lex_whitespace(),
       '\'' => self.lex_raw_string(),
       '"' => self.lex_cooked_string(),
-      _ =>
-        if Self::is_identifier_start(start) {
-          self.lex_identifier()
-        } else {
-          self.advance()?;
-          Err(self.error(UnknownStartOfToken))
-        },
+      _ if Self::is_identifier_start(start) => self.lex_identifier(),
+      _ => {
+        self.advance()?;
+        Err(self.error(UnknownStartOfToken))
+      },
     }
   }
 
@@ -537,19 +536,54 @@ impl<'src> Lexer<'src> {
     self.recipe_body = false;
   }
 
-  /// Lex a single character token
+  /// Lex a single-character token
   fn lex_single(&mut self, kind: TokenKind) -> CompilationResult<'src, ()> {
     self.advance()?;
     self.token(kind);
     Ok(())
   }
 
-  /// Lex a double character token
+  /// Lex a double-character token
   fn lex_double(&mut self, kind: TokenKind) -> CompilationResult<'src, ()> {
     self.advance()?;
     self.advance()?;
     self.token(kind);
     Ok(())
+  }
+
+  /// Lex a double-character token of kind `then` if the second character of
+  /// that token would be `second`, otherwise lex a single-character token of
+  /// kind `otherwise`
+  fn lex_choice(
+    &mut self,
+    second: char,
+    then: TokenKind,
+    otherwise: TokenKind,
+  ) -> CompilationResult<'src, ()> {
+    self.advance()?;
+
+    if self.next_is(second) {
+      self.advance()?;
+      self.token(then);
+    } else {
+      self.token(otherwise);
+    }
+
+    Ok(())
+  }
+
+  /// Lex a token starting with '!'
+  fn lex_bang(&mut self) -> CompilationResult<'src, ()> {
+    self.advance()?;
+
+    if self.next_is('=') {
+      self.advance()?;
+      self.token(BangEquals);
+      Ok(())
+    } else {
+      // TODO: see if error message for this makes sense
+      Err(self.error(UnexpectedCharacter { expected: '=' }))
+    }
   }
 
   /// Lex a token starting with ':'
@@ -565,28 +599,6 @@ impl<'src> Lexer<'src> {
     }
 
     Ok(())
-  }
-
-  /// Lex a token starting with '{'
-  fn lex_brace_l(&mut self) -> CompilationResult<'src, ()> {
-    if !self.rest_starts_with("{{") {
-      self.advance()?;
-
-      return Err(self.error(UnknownStartOfToken));
-    }
-
-    self.lex_double(InterpolationStart)
-  }
-
-  /// Lex a token starting with '}'
-  fn lex_brace_r(&mut self) -> CompilationResult<'src, ()> {
-    if !self.rest_starts_with("}}") {
-      self.advance()?;
-
-      return Err(self.error(UnknownStartOfToken));
-    }
-
-    self.lex_double(InterpolationEnd)
   }
 
   /// Lex a carriage return and line feed
@@ -803,6 +815,9 @@ mod tests {
       // Fixed lexemes
       Asterisk => "*",
       At => "@",
+      BangEquals => "!=",
+      BraceL => "{",
+      BraceR => "}",
       BracketL => "[",
       BracketR => "]",
       Colon => ":",
@@ -810,6 +825,7 @@ mod tests {
       Comma => ",",
       Eol => "\n",
       Equals => "=",
+      EqualsEquals => "==",
       Indent => "  ",
       InterpolationEnd => "}}",
       InterpolationStart => "{{",

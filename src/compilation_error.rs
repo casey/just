@@ -128,6 +128,8 @@ impl Display for CompilationError<'_> {
           writeln!(f, "at most {} {}", max, Count("argument", max))?;
         }
       },
+      ExpectedKeyword { expected, found } =>
+        writeln!(f, "Expected keyword `{}` but found {}", expected, found)?,
       ParameterShadowsVariable { parameter } => {
         writeln!(
           f,
@@ -197,6 +199,9 @@ impl Display for CompilationError<'_> {
       },
       UnknownSetting { setting } => {
         writeln!(f, "Unknown setting `{}`", setting)?;
+      },
+      UnexpectedCharacter { expected } => {
+        writeln!(f, "Expected character `{}`", expected)?;
       },
       UnknownStartOfToken => {
         writeln!(f, "Unknown start of token:")?;
