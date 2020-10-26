@@ -123,8 +123,6 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         otherwise,
         inverted,
       } => {
-        // TODO: test that branch not taken isn't evaluated
-        // i.e. back ticks aren't run
         let lhs = self.evaluate_expression(lhs)?;
         let rhs = self.evaluate_expression(rhs)?;
         let condition = if *inverted { lhs != rhs } else { lhs == rhs };
