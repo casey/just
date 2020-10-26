@@ -37,6 +37,7 @@ pub(crate) enum Expression<'src> {
   /// - test inside of recipe interpolation
   /// - test if inside of lhs, rhs, then, otherwise
   /// - test that unexpected token for Op expects == and !=
+  /// - test printing of all errors
   Conditional {
     lhs:       Box<Expression<'src>>,
     rhs:       Box<Expression<'src>>,

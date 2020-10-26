@@ -581,7 +581,11 @@ impl<'src> Lexer<'src> {
       self.token(BangEquals);
       Ok(())
     } else {
-      // TODO: see if error message for this makes sense
+      // Emit an unspecified token to consume the current character,
+      self.token(Unspecified);
+      // …and advance past another character,
+      self.advance()?;
+      // …so that the error we produce highlights the unexpected character.
       Err(self.error(UnexpectedCharacter { expected: '=' }))
     }
   }
@@ -915,6 +919,48 @@ mod tests {
     name:   cooked_string,
     text:   "\"hello\"",
     tokens: (StringCooked:"\"hello\""),
+  }
+
+  test! {
+    name:   equals,
+    text:   "=",
+    tokens: (Equals),
+  }
+
+  test! {
+    name:   equals_equals,
+    text:   "==",
+    tokens: (EqualsEquals),
+  }
+
+  test! {
+    name:   bang_equals,
+    text:   "!=",
+    tokens: (BangEquals),
+  }
+
+  test! {
+    name:   interpolation_start,
+    text:   "{{",
+    tokens: (InterpolationStart),
+  }
+
+  test! {
+    name:   interpolation_end,
+    text:   "}}",
+    tokens: (InterpolationEnd),
+  }
+
+  test! {
+    name:   paren_l,
+    text:   "{",
+    tokens: (BraceL),
+  }
+
+  test! {
+    name:   paren_r,
+    text:   "}",
+    tokens: (BraceR),
   }
 
   test! {
@@ -1980,5 +2026,15 @@ mod tests {
     column: 6,
     width:  2,
     kind:   UnterminatedInterpolation,
+  }
+
+  error! {
+    name:   unexpected_character_after_bang,
+    input:  "!{",
+    offset: 1,
+    line:   0,
+    column: 1,
+    width:  1,
+    kind:   UnexpectedCharacter { expected: '=' },
   }
 }
