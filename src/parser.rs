@@ -230,6 +230,20 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     }
   }
 
+  /// Return an error if the next token is of kind `forbidden`
+  fn forbid<F>(&self, forbidden: TokenKind, error: F) -> CompilationResult<'src, ()>
+  where
+    F: FnOnce(Token) -> CompilationError,
+  {
+    let next = self.next()?;
+
+    if next.kind == forbidden {
+      Err(error(next))
+    } else {
+      Ok(())
+    }
+  }
+
   /// Accept a token of kind `Identifier` and parse into a `Name`
   fn accept_name(&mut self) -> CompilationResult<'src, Option<Name<'src>>> {
     if self.next_is(Identifier) {
@@ -511,15 +525,11 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     let variadic = if kind.is_variadic() {
       let variadic = self.parse_parameter(kind)?;
 
-      let next = self.next()?;
-
-      if next.kind == Identifier {
-        return Err(
-          next.error(CompilationErrorKind::ParameterFollowsVariadicParameter {
-            parameter: next.lexeme(),
-          }),
-        );
-      }
+      self.forbid(Identifier, |token| {
+        token.error(CompilationErrorKind::ParameterFollowsVariadicParameter {
+          parameter: token.lexeme(),
+        })
+      })?;
 
       Some(variadic)
     } else {
