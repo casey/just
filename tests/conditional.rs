@@ -149,10 +149,10 @@ test! {
       echo {{ a }}
   ",
   args: ("--dump"),
-  stdout: "
-    a := if '' == '' { '' } else { '' }
+  stdout: format!("
+    a := if '' == '' {{ '' }} else {{ '' }}{}
 
     foo:
-        echo {{a}}
-  ",
+        echo {{{{a}}}}
+  ", " ").as_str(),
 }

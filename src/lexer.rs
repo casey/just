@@ -483,10 +483,7 @@ impl<'src> Lexer<'src> {
     interpolation_start: Token<'src>,
     start: char,
   ) -> CompilationResult<'src, ()> {
-    if self.rest_starts_with("}}}") {
-      // Will lex a closing brace instead of an interpolation
-      self.lex_normal(start)
-    } else if self.rest_starts_with("}}") {
+    if self.rest_starts_with("}}") {
       // end current interpolation
       self.interpolation_start = None;
       // Emit interpolation end token

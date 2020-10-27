@@ -55,7 +55,7 @@ impl<'src> Display for Expression<'src> {
         inverted,
       } => write!(
         f,
-        "if {} {} {} {{ {} }} else {{ {} }}",
+        "if {} {} {} {{ {} }} else {{ {} }} ",
         lhs,
         if *inverted { "!=" } else { "==" },
         rhs,
