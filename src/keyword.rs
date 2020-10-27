@@ -1,7 +1,7 @@
 use crate::common::*;
 
 #[derive(Debug, Eq, PartialEq, IntoStaticStr, Display, Copy, Clone, EnumString)]
-#[strum(serialize_all = "snake_case")]
+#[strum(serialize_all = "kebab_case")]
 pub(crate) enum Keyword {
   Alias,
   Else,
