@@ -553,7 +553,7 @@ serve:
 foo := if "2" == "2" { "Good!" } else { "1984" }
 
 bar:
-  @echo {{foo}}
+  @echo "{{foo}}"
 ```
 
 ```sh
