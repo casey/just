@@ -963,13 +963,13 @@ mod tests {
   }
 
   test! {
-    name:   interpolation_start_brace_l,
+    name:   brace_lll,
     text:   "{{{",
     tokens: (BraceL, BraceL, BraceL),
   }
 
   test! {
-    name:   interpolation_end_brace_r,
+    name:   brace_rrr,
     text:   "}}}",
     tokens: (BraceR, BraceR, BraceR),
   }
