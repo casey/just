@@ -108,10 +108,8 @@ impl<'src> Lexer<'src> {
   }
 
   fn presume(&mut self, c: char) -> CompilationResult<'src, ()> {
-    // TODO: use and check error message underlines bad token
     if !self.next_is(c) {
-      self.advance()?;
-      return Err(self.internal_error("Lexer presumed character `{}`"));
+      return Err(self.internal_error(format!("Lexer presumed character `{}`", c)));
     }
 
     self.advance()?;
@@ -485,10 +483,10 @@ impl<'src> Lexer<'src> {
     interpolation_start: Token<'src>,
     start: char,
   ) -> CompilationResult<'src, ()> {
-    // TODO: Do it here?
-
-    // Check for end of interpolation
-    if self.rest_starts_with("}}") {
+    if self.rest_starts_with("}}}") {
+      // Will lex a closing brace instead of an interpolation
+      self.lex_normal(start)
+    } else if self.rest_starts_with("}}") {
       // end current interpolation
       self.interpolation_start = None;
       // Emit interpolation end token
@@ -2050,5 +2048,38 @@ mod tests {
     column: 1,
     width:  1,
     kind:   UnexpectedCharacter { expected: '=' },
+  }
+
+  #[test]
+  fn presume_error() {
+    assert_matches!(
+      Lexer::new("!").presume('-').unwrap_err(),
+      CompilationError {
+        token: Token {
+          offset: 0,
+          line:   0,
+          column: 0,
+          length: 0,
+          src:    "!",
+          kind:   Unspecified,
+        },
+        kind:  Internal {
+          message,
+        },
+      } if message == "Lexer presumed character `-`"
+    );
+
+    assert_eq!(
+      Lexer::new("!").presume('-').unwrap_err().to_string(),
+      testing::unindent(
+        "
+        Internal error, this may indicate a bug in just: Lexer presumed character `-`
+        \
+         consider filing an issue: https://github.com/casey/just/issues/new
+          |
+        1 | !
+          | ^"
+      ),
+    );
   }
 }
