@@ -1673,15 +1673,15 @@ mod tests {
   }
 
   error! {
-    name:   interpolation_outside_of_recipe,
+    name:   unexpected_brace,
     input:  "{{",
     offset:  0,
     line:   0,
     column: 0,
-    width:  2,
+    width:  1,
     kind: UnexpectedToken {
       expected: vec![At, Comment, Eof, Eol, Identifier],
-      found: InterpolationStart,
+      found: BraceL,
     },
   }
 

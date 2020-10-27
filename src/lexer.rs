@@ -98,6 +98,27 @@ impl<'src> Lexer<'src> {
     self.token_end.offset - self.token_start.offset
   }
 
+  fn accepted(&mut self, c: char) -> CompilationResult<'src, bool> {
+    if self.next_is(c) {
+      self.advance()?;
+      Ok(true)
+    } else {
+      Ok(false)
+    }
+  }
+
+  fn presume(&mut self, c: char) -> CompilationResult<'src, ()> {
+    // TODO: use and check error message underlines bad token
+    if !self.next_is(c) {
+      self.advance()?;
+      return Err(self.internal_error("Lexer presumed character `{}`"));
+    }
+
+    self.advance()?;
+
+    Ok(())
+  }
+
   /// Is next character c?
   fn next_is(&self, c: char) -> bool {
     self.next == Some(c)
@@ -440,8 +461,8 @@ impl<'src> Lexer<'src> {
       ':' => self.lex_colon(),
       '(' => self.lex_single(ParenL),
       ')' => self.lex_single(ParenR),
-      '{' => self.lex_choice('{', InterpolationStart, BraceL),
-      '}' => self.lex_choice('}', InterpolationEnd, BraceR),
+      '{' => self.lex_single(BraceL),
+      '}' => self.lex_single(BraceR),
       '+' => self.lex_single(Plus),
       '\n' => self.lex_single(Eol),
       '\r' => self.lex_cr_lf(),
@@ -464,6 +485,8 @@ impl<'src> Lexer<'src> {
     interpolation_start: Token<'src>,
     start: char,
   ) -> CompilationResult<'src, ()> {
+    // TODO: Do it here?
+
     // Check for end of interpolation
     if self.rest_starts_with("}}") {
       // end current interpolation
@@ -562,8 +585,7 @@ impl<'src> Lexer<'src> {
   ) -> CompilationResult<'src, ()> {
     self.advance()?;
 
-    if self.next_is(second) {
-      self.advance()?;
+    if self.accepted(second)? {
       self.token(then);
     } else {
       self.token(otherwise);
@@ -574,10 +596,9 @@ impl<'src> Lexer<'src> {
 
   /// Lex a token starting with '!'
   fn lex_bang(&mut self) -> CompilationResult<'src, ()> {
-    self.advance()?;
+    self.presume('!')?;
 
-    if self.next_is('=') {
-      self.advance()?;
+    if self.accepted('=')? {
       self.token(BangEquals);
       Ok(())
     } else {
@@ -592,10 +613,9 @@ impl<'src> Lexer<'src> {
 
   /// Lex a token starting with ':'
   fn lex_colon(&mut self) -> CompilationResult<'src, ()> {
-    self.advance()?;
+    self.presume(':')?;
 
-    if self.next_is('=') {
-      self.advance()?;
+    if self.accepted('=')? {
       self.token(ColonEquals);
     } else {
       self.token(Colon);
@@ -608,8 +628,7 @@ impl<'src> Lexer<'src> {
   /// Lex a carriage return and line feed
   fn lex_cr_lf(&mut self) -> CompilationResult<'src, ()> {
     if !self.rest_starts_with("\r\n") {
-      // advance over \r
-      self.advance()?;
+      self.presume('\r')?;
 
       return Err(self.error(UnpairedCarriageReturn));
     }
@@ -619,7 +638,6 @@ impl<'src> Lexer<'src> {
 
   /// Lex name: [a-zA-Z_][a-zA-Z0-9_]*
   fn lex_identifier(&mut self) -> CompilationResult<'src, ()> {
-    // advance over initial character
     self.advance()?;
 
     while let Some(c) = self.next {
@@ -637,8 +655,7 @@ impl<'src> Lexer<'src> {
 
   /// Lex comment: #[^\r\n]
   fn lex_comment(&mut self) -> CompilationResult<'src, ()> {
-    // advance over #
-    self.advance()?;
+    self.presume('#')?;
 
     while !self.at_eol_or_eof() {
       self.advance()?;
@@ -681,8 +698,7 @@ impl<'src> Lexer<'src> {
 
   /// Lex raw string: '[^']*'
   fn lex_raw_string(&mut self) -> CompilationResult<'src, ()> {
-    // advance over opening '
-    self.advance()?;
+    self.presume('\'')?;
 
     loop {
       match self.next {
@@ -694,8 +710,7 @@ impl<'src> Lexer<'src> {
       self.advance()?;
     }
 
-    // advance over closing '
-    self.advance()?;
+    self.presume('\'')?;
 
     self.token(StringRaw);
 
@@ -704,8 +719,7 @@ impl<'src> Lexer<'src> {
 
   /// Lex cooked string: "[^"\n\r]*" (also processes escape sequences)
   fn lex_cooked_string(&mut self) -> CompilationResult<'src, ()> {
-    // advance over opening "
-    self.advance()?;
+    self.presume('"')?;
 
     let mut escape = false;
 
@@ -940,18 +954,6 @@ mod tests {
   }
 
   test! {
-    name:   interpolation_start,
-    text:   "{{",
-    tokens: (InterpolationStart),
-  }
-
-  test! {
-    name:   interpolation_end,
-    text:   "}}",
-    tokens: (InterpolationEnd),
-  }
-
-  test! {
     name:   brace_l,
     text:   "{",
     tokens: (BraceL),
@@ -966,13 +968,13 @@ mod tests {
   test! {
     name:   interpolation_start_brace_l,
     text:   "{{{",
-    tokens: (InterpolationStart, BraceL),
+    tokens: (BraceL, BraceL, BraceL),
   }
 
   test! {
     name:   interpolation_end_brace_r,
     text:   "}}}",
-    tokens: (InterpolationEnd, BraceR),
+    tokens: (BraceR, BraceR, BraceR),
   }
 
   test! {

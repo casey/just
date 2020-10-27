@@ -55,8 +55,6 @@ impl<'src> Display for Expression<'src> {
         inverted,
       } => write!(
         f,
-        // The trailing space prevents the final `}` from being merged with
-        // a following interpolation close when dumping and re-parsing.
         "if {} {} {} {{ {} }} else {{ {} }} ",
         lhs,
         if *inverted { "!=" } else { "==" },
