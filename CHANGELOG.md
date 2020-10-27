@@ -1,6 +1,21 @@
 Changelog
 =========
 
+[v0.8.2] - 2020-10-26
+---------------------
+
+### Added
+- Add conditional expressions (#714)
+
+### Fixed
+- Allow completing variables and recipes after `--set` in zsh completion script (#697)
+
+### Misc
+- Add Parser::forbid (#712)
+- Automatically track expected tokens while parsing (#711)
+- Document feature flags in Cargo.toml (#709)
+
+
 [v0.8.1] - 2020-10-15
 ---------------------
 
@@ -14,6 +29,7 @@ Changelog
 - Placate clippy (#698)
 - Fix build fix (#693)
 - Fix readme documentation for ignoring errors (#692)
+
 
 [v0.8.0] - 2020-10-3
 --------------------
