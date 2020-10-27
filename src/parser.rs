@@ -172,9 +172,20 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     self.expect(Eol).map(|_| ())
   }
 
+  fn expect_keyword(&mut self, expected: Keyword) -> CompilationResult<'src, ()> {
+    let identifier = self.expect(Identifier)?;
+    let found = identifier.lexeme();
+
+    if expected == found {
+      Ok(())
+    } else {
+      Err(identifier.error(CompilationErrorKind::ExpectedKeyword { expected, found }))
+    }
+  }
+
   /// Return an internal error if the next token is not of kind `Identifier`
   /// with lexeme `lexeme`.
-  fn presume_name(&mut self, lexeme: &str) -> CompilationResult<'src, ()> {
+  fn presume_keyword(&mut self, keyword: Keyword) -> CompilationResult<'src, ()> {
     let next = self.advance()?;
 
     if next.kind != Identifier {
@@ -182,10 +193,10 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
         "Presumed next token would have kind {}, but found {}",
         Identifier, next.kind
       ))?)
-    } else if next.lexeme() != lexeme {
+    } else if keyword != next.lexeme() {
       Err(self.internal_error(format!(
         "Presumed next token would have lexeme \"{}\", but found \"{}\"",
-        lexeme,
+        keyword,
         next.lexeme(),
       ))?)
     } else {
@@ -253,6 +264,17 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     }
   }
 
+  fn accepted_keyword(&mut self, keyword: Keyword) -> CompilationResult<'src, bool> {
+    let next = self.next()?;
+
+    if next.kind == Identifier && next.lexeme() == keyword.lexeme() {
+      self.advance()?;
+      Ok(true)
+    } else {
+      Ok(false)
+    }
+  }
+
   /// Accept a dependency
   fn accept_dependency(&mut self) -> CompilationResult<'src, Option<UnresolvedDependency<'src>>> {
     if let Some(recipe) = self.accept_name()? {
@@ -297,8 +319,8 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
       } else if self.accepted(Eof)? {
         break;
       } else if self.next_is(Identifier) {
-        match next.lexeme() {
-          keyword::ALIAS =>
+        match Keyword::from_lexeme(next.lexeme()) {
+          Some(Keyword::Alias) =>
             if self.next_are(&[Identifier, Identifier, Equals]) {
               warnings.push(Warning::DeprecatedEquals {
                 equals: self.get(2)?,
@@ -309,20 +331,20 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
             } else {
               items.push(Item::Recipe(self.parse_recipe(doc, false)?));
             },
-          keyword::EXPORT =>
+          Some(Keyword::Export) =>
             if self.next_are(&[Identifier, Identifier, Equals]) {
               warnings.push(Warning::DeprecatedEquals {
                 equals: self.get(2)?,
               });
-              self.presume_name(keyword::EXPORT)?;
+              self.presume_keyword(Keyword::Export)?;
               items.push(Item::Assignment(self.parse_assignment(true)?));
             } else if self.next_are(&[Identifier, Identifier, ColonEquals]) {
-              self.presume_name(keyword::EXPORT)?;
+              self.presume_keyword(Keyword::Export)?;
               items.push(Item::Assignment(self.parse_assignment(true)?));
             } else {
               items.push(Item::Recipe(self.parse_recipe(doc, false)?));
             },
-          keyword::SET =>
+          Some(Keyword::Set) =>
             if self.next_are(&[Identifier, Identifier, ColonEquals]) {
               items.push(Item::Set(self.parse_set()?));
             } else {
@@ -363,7 +385,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
 
   /// Parse an alias, e.g `alias name := target`
   fn parse_alias(&mut self) -> CompilationResult<'src, Alias<'src, Name<'src>>> {
-    self.presume_name(keyword::ALIAS)?;
+    self.presume_keyword(Keyword::Alias)?;
     let name = self.parse_name()?;
     self.presume_any(&[Equals, ColonEquals])?;
     let target = self.parse_name()?;
@@ -386,6 +408,40 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
 
   /// Parse an expression, e.g. `1 + 2`
   fn parse_expression(&mut self) -> CompilationResult<'src, Expression<'src>> {
+    if self.accepted_keyword(Keyword::If)? {
+      let lhs = self.parse_expression()?;
+
+      let inverted = self.accepted(BangEquals)?;
+
+      if !inverted {
+        self.expect(EqualsEquals)?;
+      }
+
+      let rhs = self.parse_expression()?;
+
+      self.expect(BraceL)?;
+
+      let then = self.parse_expression()?;
+
+      self.expect(BraceR)?;
+
+      self.expect_keyword(Keyword::Else)?;
+
+      self.expect(BraceL)?;
+
+      let otherwise = self.parse_expression()?;
+
+      self.expect(BraceR)?;
+
+      return Ok(Expression::Conditional {
+        lhs: Box::new(lhs),
+        rhs: Box::new(rhs),
+        then: Box::new(then),
+        otherwise: Box::new(otherwise),
+        inverted,
+      });
+    }
+
     let value = self.parse_value()?;
 
     if self.accepted(Plus)? {
@@ -619,37 +675,36 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
 
   /// Parse a setting
   fn parse_set(&mut self) -> CompilationResult<'src, Set<'src>> {
-    self.presume_name(keyword::SET)?;
+    self.presume_keyword(Keyword::Set)?;
     let name = Name::from_identifier(self.presume(Identifier)?);
     self.presume(ColonEquals)?;
-    match name.lexeme() {
-      keyword::SHELL => {
-        self.expect(BracketL)?;
+    if name.lexeme() == Keyword::Shell.lexeme() {
+      self.expect(BracketL)?;
 
-        let command = self.parse_string_literal()?;
+      let command = self.parse_string_literal()?;
 
-        let mut arguments = Vec::new();
+      let mut arguments = Vec::new();
 
-        if self.accepted(Comma)? {
-          while !self.next_is(BracketR) {
-            arguments.push(self.parse_string_literal()?);
+      if self.accepted(Comma)? {
+        while !self.next_is(BracketR) {
+          arguments.push(self.parse_string_literal()?);
 
-            if !self.accepted(Comma)? {
-              break;
-            }
+          if !self.accepted(Comma)? {
+            break;
           }
         }
+      }
 
-        self.expect(BracketR)?;
+      self.expect(BracketR)?;
 
-        Ok(Set {
-          value: Setting::Shell(setting::Shell { command, arguments }),
-          name,
-        })
-      },
-      _ => Err(name.error(CompilationErrorKind::UnknownSetting {
+      Ok(Set {
+        value: Setting::Shell(setting::Shell { command, arguments }),
+        name,
+      })
+    } else {
+      Err(name.error(CompilationErrorKind::UnknownSetting {
         setting: name.lexeme(),
-      })),
+      }))
     }
   }
 }
@@ -1509,6 +1564,48 @@ mod tests {
     tree: (justfile (set shell "bash" "-cu" "-l")),
   }
 
+  test! {
+    name: conditional,
+    text: "a := if b == c { d } else { e }",
+    tree: (justfile (assignment a (if b == c d e))),
+  }
+
+  test! {
+    name: conditional_inverted,
+    text: "a := if b != c { d } else { e }",
+    tree: (justfile (assignment a (if b != c d e))),
+  }
+
+  test! {
+    name: conditional_concatinations,
+    text: "a := if b0 + b1 == c0 + c1 { d0 + d1 } else { e0 + e1 }",
+    tree: (justfile (assignment a (if (+ b0 b1) == (+ c0 c1) (+ d0 d1) (+ e0 e1)))),
+  }
+
+  test! {
+    name: conditional_nested_lhs,
+    text: "a := if if b == c { d } else { e } == c { d } else { e }",
+    tree: (justfile (assignment a (if (if b == c d e) == c d e))),
+  }
+
+  test! {
+    name: conditional_nested_rhs,
+    text: "a := if c == if b == c { d } else { e } { d } else { e }",
+    tree: (justfile (assignment a (if c == (if b == c d e) d e))),
+  }
+
+  test! {
+    name: conditional_nested_then,
+    text: "a := if b == c { if b == c { d } else { e } } else { e }",
+    tree: (justfile (assignment a (if b == c (if b == c d e) e))),
+  }
+
+  test! {
+    name: conditional_nested_otherwise,
+    text: "a := if b == c { d } else { if b == c { d } else { e } }",
+    tree: (justfile (assignment a (if b == c d (if b == c d e)))),
+  }
+
   error! {
     name: alias_syntax_multiple_rhs,
     input: "alias foo = bar baz",
@@ -1576,15 +1673,15 @@ mod tests {
   }
 
   error! {
-    name:   interpolation_outside_of_recipe,
+    name:   unexpected_brace,
     input:  "{{",
     offset:  0,
     line:   0,
     column: 0,
-    width:  2,
+    width:  1,
     kind: UnexpectedToken {
       expected: vec![At, Comment, Eof, Eol, Identifier],
-      found: InterpolationStart,
+      found: BraceL,
     },
   }
 

@@ -193,6 +193,13 @@ pub enum Expression {
     lhs: Box<Expression>,
     rhs: Box<Expression>,
   },
+  Conditional {
+    lhs:       Box<Expression>,
+    rhs:       Box<Expression>,
+    then:      Box<Expression>,
+    otherwise: Box<Expression>,
+    inverted:  bool,
+  },
   String {
     text: String,
   },
@@ -227,6 +234,19 @@ impl Expression {
       Concatination { lhs, rhs } => Expression::Concatination {
         lhs: Box::new(Expression::new(lhs)),
         rhs: Box::new(Expression::new(rhs)),
+      },
+      Conditional {
+        lhs,
+        rhs,
+        inverted,
+        then,
+        otherwise,
+      } => Expression::Conditional {
+        lhs:       Box::new(Expression::new(lhs)),
+        rhs:       Box::new(Expression::new(rhs)),
+        then:      Box::new(Expression::new(lhs)),
+        otherwise: Box::new(Expression::new(rhs)),
+        inverted:  *inverted,
       },
       StringLiteral { string_literal } => Expression::String {
         text: string_literal.cooked.to_string(),

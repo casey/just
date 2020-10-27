@@ -24,10 +24,11 @@ pub(crate) use edit_distance::edit_distance;
 pub(crate) use libc::EXIT_FAILURE;
 pub(crate) use log::{info, warn};
 pub(crate) use snafu::{ResultExt, Snafu};
+pub(crate) use strum::{Display, EnumString, IntoStaticStr};
 pub(crate) use unicode_width::{UnicodeWidthChar, UnicodeWidthStr};
 
 // modules
-pub(crate) use crate::{config_error, keyword, setting};
+pub(crate) use crate::{config_error, setting};
 
 // functions
 pub(crate) use crate::{default::default, empty::empty, load_dotenv::load_dotenv, output::output};
@@ -47,12 +48,13 @@ pub(crate) use crate::{
   dependency::Dependency, enclosure::Enclosure, evaluator::Evaluator, expression::Expression,
   fragment::Fragment, function::Function, function_context::FunctionContext,
   interrupt_guard::InterruptGuard, interrupt_handler::InterruptHandler, item::Item,
-  justfile::Justfile, lexer::Lexer, line::Line, list::List, load_error::LoadError, module::Module,
-  name::Name, output_error::OutputError, parameter::Parameter, parameter_kind::ParameterKind,
-  parser::Parser, platform::Platform, position::Position, positional::Positional, recipe::Recipe,
-  recipe_context::RecipeContext, recipe_resolver::RecipeResolver, runtime_error::RuntimeError,
-  scope::Scope, search::Search, search_config::SearchConfig, search_error::SearchError, set::Set,
-  setting::Setting, settings::Settings, shebang::Shebang, show_whitespace::ShowWhitespace,
+  justfile::Justfile, keyword::Keyword, lexer::Lexer, line::Line, list::List,
+  load_error::LoadError, module::Module, name::Name, output_error::OutputError,
+  parameter::Parameter, parameter_kind::ParameterKind, parser::Parser, platform::Platform,
+  position::Position, positional::Positional, recipe::Recipe, recipe_context::RecipeContext,
+  recipe_resolver::RecipeResolver, runtime_error::RuntimeError, scope::Scope, search::Search,
+  search_config::SearchConfig, search_error::SearchError, set::Set, setting::Setting,
+  settings::Settings, shebang::Shebang, show_whitespace::ShowWhitespace,
   string_literal::StringLiteral, subcommand::Subcommand, suggestion::Suggestion, table::Table,
   thunk::Thunk, token::Token, token_kind::TokenKind, unresolved_dependency::UnresolvedDependency,
   unresolved_recipe::UnresolvedRecipe, use_color::UseColor, variables::Variables,

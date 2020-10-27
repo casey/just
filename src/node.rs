@@ -28,7 +28,7 @@ impl<'src> Node<'src> for Item<'src> {
 
 impl<'src> Node<'src> for Alias<'src, Name<'src>> {
   fn tree(&self) -> Tree<'src> {
-    Tree::atom(keyword::ALIAS)
+    Tree::atom(Keyword::Alias.lexeme())
       .push(self.name.lexeme())
       .push(self.target.lexeme())
   }
@@ -37,7 +37,9 @@ impl<'src> Node<'src> for Alias<'src, Name<'src>> {
 impl<'src> Node<'src> for Assignment<'src> {
   fn tree(&self) -> Tree<'src> {
     if self.export {
-      Tree::atom("assignment").push("#").push(keyword::EXPORT)
+      Tree::atom("assignment")
+        .push("#")
+        .push(Keyword::Export.lexeme())
     } else {
       Tree::atom("assignment")
     }
@@ -50,6 +52,25 @@ impl<'src> Node<'src> for Expression<'src> {
   fn tree(&self) -> Tree<'src> {
     match self {
       Expression::Concatination { lhs, rhs } => Tree::atom("+").push(lhs.tree()).push(rhs.tree()),
+      Expression::Conditional {
+        lhs,
+        rhs,
+        then,
+        otherwise,
+        inverted,
+      } => {
+        let mut tree = Tree::atom(Keyword::If.lexeme());
+        tree.push_mut(lhs.tree());
+        if *inverted {
+          tree.push_mut("!=")
+        } else {
+          tree.push_mut("==")
+        }
+        tree.push_mut(rhs.tree());
+        tree.push_mut(then.tree());
+        tree.push_mut(otherwise.tree());
+        tree
+      },
       Expression::Call { thunk } => {
         let mut tree = Tree::atom("call");
 
@@ -164,7 +185,7 @@ impl<'src> Node<'src> for Fragment<'src> {
 
 impl<'src> Node<'src> for Set<'src> {
   fn tree(&self) -> Tree<'src> {
-    let mut set = Tree::atom(keyword::SET);
+    let mut set = Tree::atom(Keyword::Set.lexeme());
 
     set.push_mut(self.name.lexeme());
 
