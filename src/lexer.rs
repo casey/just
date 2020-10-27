@@ -622,13 +622,15 @@ impl<'src> Lexer<'src> {
 
   /// Lex a carriage return and line feed
   fn lex_cr_lf(&mut self) -> CompilationResult<'src, ()> {
-    if !self.rest_starts_with("\r\n") {
-      self.presume('\r')?;
+    self.presume('\r')?;
 
+    if !self.accepted('\n')? {
       return Err(self.error(UnpairedCarriageReturn));
     }
 
-    self.lex_double(Eol)
+    self.token(Eol);
+
+    Ok(())
   }
 
   /// Lex name: [a-zA-Z_][a-zA-Z0-9_]*
