@@ -8,6 +8,7 @@ mod completions;
 mod conditional;
 mod dotenv;
 mod edit;
+mod error_messages;
 mod examples;
 mod init;
 mod interrupts;
