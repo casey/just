@@ -434,14 +434,15 @@ impl<'src> Lexer<'src> {
           self.advance()?;
         }
 
-        let indentation = self.lexeme();
-
-        self.indentation.push(indentation);
-
-        self.token(Indent);
-
-        if self.recipe_body_pending {
-          self.recipe_body = true;
+        if self.open_delimiters() {
+          self.token(Whitespace);
+        } else {
+          let indentation = self.lexeme();
+          self.indentation.push(indentation);
+          self.token(Indent);
+          if self.recipe_body_pending {
+            self.recipe_body = true;
+          }
         }
 
         Ok(())
@@ -465,13 +466,14 @@ impl<'src> Lexer<'src> {
       '{' => self.lex_delimiter(BraceL),
       '}' => self.lex_delimiter(BraceR),
       '+' => self.lex_single(Plus),
-      '\n' => self.lex_single(Eol),
-      '\r' => self.lex_cr_lf(),
       '#' => self.lex_comment(),
       '`' => self.lex_backtick(),
-      ' ' | '\t' => self.lex_whitespace(),
-      '\'' => self.lex_raw_string(),
+      ' ' => self.lex_whitespace(),
       '"' => self.lex_cooked_string(),
+      '\'' => self.lex_raw_string(),
+      '\n' => self.lex_eol(),
+      '\r' => self.lex_eol(),
+      '\t' => self.lex_whitespace(),
       _ if Self::is_identifier_start(start) => self.lex_identifier(),
       _ => {
         self.advance()?;
@@ -603,7 +605,11 @@ impl<'src> Lexer<'src> {
       BracketR => self.close_delimiter(Bracket)?,
       ParenL => self.open_delimiter(Paren),
       ParenR => self.close_delimiter(Paren)?,
-      _ => todo!(),
+      _ =>
+        return Err(self.internal_error(format!(
+          "Lexer::lex_delimiter called with non-delimiter token: `{}`",
+          kind,
+        ))),
     }
 
     // Emit the delimiter token
@@ -628,6 +634,11 @@ impl<'src> Lexer<'src> {
       })),
       None => Err(self.error(UnexpectedClosingDelimiter { close })),
     }
+  }
+
+  /// Return true if there are any unclosed delimiters
+  fn open_delimiters(&self) -> bool {
+    !self.open_delimiters.is_empty()
   }
 
   /// Lex a token starting with '!'
@@ -662,14 +673,22 @@ impl<'src> Lexer<'src> {
   }
 
   /// Lex a carriage return and line feed
-  fn lex_cr_lf(&mut self) -> CompilationResult<'src, ()> {
-    self.presume('\r')?;
-
-    if !self.accepted('\n')? {
-      return Err(self.error(UnpairedCarriageReturn));
+  fn lex_eol(&mut self) -> CompilationResult<'src, ()> {
+    if self.accepted('\r')? {
+      if !self.accepted('\n')? {
+        return Err(self.error(UnpairedCarriageReturn));
+      }
+    } else {
+      self.presume('\n')?;
     }
 
-    self.token(Eol);
+    // Emit an eol if there are no open delimiters, otherwise emit a whitespace
+    // token.
+    if self.open_delimiters() {
+      self.token(Whitespace);
+    } else {
+      self.token(Eol);
+    }
 
     Ok(())
   }
@@ -1892,6 +1911,16 @@ mod tests {
     tokens: (BracketL, BracketR, BracketL, BracketR),
   }
 
+  test! {
+    name:   open_delimiter_eol,
+    text:   "[\n](\n){\n}",
+    tokens: (
+      BracketL, Whitespace:"\n", BracketR,
+      ParenL, Whitespace:"\n", ParenR,
+      BraceL, Whitespace:"\n", BraceR
+    ),
+  }
+
   error! {
     name:  tokenize_space_then_tab,
     input: "a:
@@ -2098,7 +2127,11 @@ mod tests {
     line:   0,
     column: 1,
     width:  0,
-    kind:   MismatchedClosingDelimiter { open: Delimiter::Paren, close: Delimiter::Bracket, open_line: 0},
+    kind:   MismatchedClosingDelimiter {
+      open:      Delimiter::Paren,
+      close:     Delimiter::Bracket,
+      open_line: 0,
+    },
   }
 
   #[test]

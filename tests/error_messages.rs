@@ -23,27 +23,3 @@ test! {
   ",
   status: EXIT_FAILURE,
 }
-
-test! {
-  name: mismatched_delimiter,
-  justfile: "(]",
-  stderr: "
-    error: Mismatched closing delimiter `]`. (Did you mean to close the `(` on line 1?)
-      |
-    1 | (]
-      |  ^
-  ",
-  status: EXIT_FAILURE,
-}
-
-test! {
-  name: unexpected_delimiter,
-  justfile: "]",
-  stderr: "
-    error: Unexpected closing delimiter `]`
-      |
-    1 | ]
-      | ^
-  ",
-  status: EXIT_FAILURE,
-}

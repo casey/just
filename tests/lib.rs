@@ -6,6 +6,7 @@ mod common;
 mod choose;
 mod completions;
 mod conditional;
+mod delimiters;
 mod dotenv;
 mod edit;
 mod error_messages;
