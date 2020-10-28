@@ -97,6 +97,14 @@ pub(crate) enum CompilationErrorKind<'src> {
     setting: &'src str,
   },
   UnpairedCarriageReturn,
+  UnexpectedClosingDelimiter {
+    close: Delimiter,
+  },
+  MismatchedClosingDelimiter {
+    close:     Delimiter,
+    open:      Delimiter,
+    open_line: usize,
+  },
   UnterminatedInterpolation,
   UnterminatedString,
   UnterminatedBacktick,
