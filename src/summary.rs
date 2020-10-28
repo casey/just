@@ -244,8 +244,8 @@ impl Expression {
       } => Expression::Conditional {
         lhs:       Box::new(Expression::new(lhs)),
         rhs:       Box::new(Expression::new(rhs)),
-        then:      Box::new(Expression::new(lhs)),
-        otherwise: Box::new(Expression::new(rhs)),
+        then:      Box::new(Expression::new(then)),
+        otherwise: Box::new(Expression::new(otherwise)),
         inverted:  *inverted,
       },
       StringLiteral { string_literal } => Expression::String {
