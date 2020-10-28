@@ -209,6 +209,22 @@ impl Display for CompilationError<'_> {
       UnknownStartOfToken => {
         writeln!(f, "Unknown start of token:")?;
       },
+      MismatchedClosingDelimiter {
+        open,
+        open_line,
+        close,
+      } => {
+        writeln!(
+          f,
+          "Mismatched closing delimiter `{}`. (Did you mean to close the `{}` on line {}?)",
+          close.close(),
+          open.open(),
+          open_line.ordinal(),
+        )?;
+      },
+      UnexpectedClosingDelimiter { close } => {
+        writeln!(f, "Unexpected closing delimiter `{}`", close.close())?;
+      },
       UnpairedCarriageReturn => {
         writeln!(f, "Unpaired carriage return")?;
       },

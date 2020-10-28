@@ -32,6 +32,8 @@ pub(crate) struct Lexer<'src> {
   indentation:         Vec<&'src str>,
   /// Current interpolation start token
   interpolation_start: Option<Token<'src>>,
+  /// Current open delimiters
+  open_delimiters:     Vec<(Delimiter, usize)>,
 }
 
 impl<'src> Lexer<'src> {
@@ -59,6 +61,7 @@ impl<'src> Lexer<'src> {
       recipe_body_pending: false,
       recipe_body: false,
       interpolation_start: None,
+      open_delimiters: Vec::new(),
       chars,
       next,
       src,
@@ -452,15 +455,15 @@ impl<'src> Lexer<'src> {
       '!' => self.lex_bang(),
       '*' => self.lex_single(Asterisk),
       '@' => self.lex_single(At),
-      '[' => self.lex_single(BracketL),
-      ']' => self.lex_single(BracketR),
+      '[' => self.lex_delimiter(BracketL),
+      ']' => self.lex_delimiter(BracketR),
       '=' => self.lex_choice('=', EqualsEquals, Equals),
       ',' => self.lex_single(Comma),
       ':' => self.lex_colon(),
-      '(' => self.lex_single(ParenL),
-      ')' => self.lex_single(ParenR),
-      '{' => self.lex_single(BraceL),
-      '}' => self.lex_single(BraceR),
+      '(' => self.lex_delimiter(ParenL),
+      ')' => self.lex_delimiter(ParenR),
+      '{' => self.lex_delimiter(BraceL),
+      '}' => self.lex_delimiter(BraceR),
       '+' => self.lex_single(Plus),
       '\n' => self.lex_single(Eol),
       '\r' => self.lex_cr_lf(),
@@ -587,6 +590,44 @@ impl<'src> Lexer<'src> {
     }
 
     Ok(())
+  }
+
+  /// Lex an opening or closing delimiter
+  fn lex_delimiter(&mut self, kind: TokenKind) -> CompilationResult<'src, ()> {
+    use Delimiter::*;
+
+    match kind {
+      BraceL => self.open_delimiter(Brace),
+      BraceR => self.close_delimiter(Brace)?,
+      BracketL => self.open_delimiter(Bracket),
+      BracketR => self.close_delimiter(Bracket)?,
+      ParenL => self.open_delimiter(Paren),
+      ParenR => self.close_delimiter(Paren)?,
+      _ => todo!(),
+    }
+
+    // Emit the delimiter token
+    self.lex_single(kind)
+  }
+
+  /// Push a delimiter onto the open delimiter stack
+  fn open_delimiter(&mut self, delimiter: Delimiter) {
+    self
+      .open_delimiters
+      .push((delimiter, self.token_start.line));
+  }
+
+  /// Pop a delimiter from the open delimiter stack and error if incorrect type
+  fn close_delimiter(&mut self, close: Delimiter) -> CompilationResult<'src, ()> {
+    match self.open_delimiters.pop() {
+      Some((open, _)) if open == close => Ok(()),
+      Some((open, open_line)) => Err(self.error(MismatchedClosingDelimiter {
+        open,
+        close,
+        open_line,
+      })),
+      None => Err(self.error(UnexpectedClosingDelimiter { close })),
+    }
   }
 
   /// Lex a token starting with '!'
@@ -958,8 +999,8 @@ mod tests {
 
   test! {
     name:   brace_r,
-    text:   "}",
-    tokens: (BraceR),
+    text:   "{}",
+    tokens: (BraceL, BraceR),
   }
 
   test! {
@@ -970,8 +1011,8 @@ mod tests {
 
   test! {
     name:   brace_rrr,
-    text:   "}}}",
-    tokens: (BraceR, BraceR, BraceR),
+    text:   "{{{}}}",
+    tokens: (BraceL, BraceL, BraceL, BraceR, BraceR, BraceR),
   }
 
   test! {
@@ -1801,7 +1842,7 @@ mod tests {
 
   test! {
     name: tokenize_parens,
-    text: "((())) )abc(+",
+    text: "((())) ()abc(+",
     tokens: (
       ParenL,
       ParenL,
@@ -1810,6 +1851,7 @@ mod tests {
       ParenR,
       ParenR,
       Whitespace,
+      ParenL,
       ParenR,
       Identifier:"abc",
       ParenL,
@@ -1846,8 +1888,8 @@ mod tests {
 
   test! {
     name:   brackets,
-    text:   "][",
-    tokens: (BracketR, BracketL),
+    text:   "[][]",
+    tokens: (BracketL, BracketR, BracketL, BracketR),
   }
 
   error! {
@@ -2047,6 +2089,16 @@ mod tests {
     column: 1,
     width:  1,
     kind:   UnexpectedCharacter { expected: '=' },
+  }
+
+  error! {
+    name:   mismatched_closing_brace,
+    input:  "(]",
+    offset: 1,
+    line:   0,
+    column: 1,
+    width:  0,
+    kind:   MismatchedClosingDelimiter { open: Delimiter::Paren, close: Delimiter::Bracket, open_line: 0},
   }
 
   #[test]
