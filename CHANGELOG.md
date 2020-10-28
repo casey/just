@@ -1,6 +1,13 @@
 Changelog
 =========
 
+[v0.8.3] - 2020-10-27
+---------------------
+
+### Added
+- Allow ignoring line endings inside delimiters (#717)
+
+
 [v0.8.2] - 2020-10-26
 ---------------------
 
