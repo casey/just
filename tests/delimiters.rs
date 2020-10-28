@@ -28,8 +28,8 @@ test! {
   name: paren_continuation,
   justfile: "
     x := (
-      'a'
-      +
+          'a'
+              +
       'b'
     )
 
@@ -69,6 +69,21 @@ test! {
   ",
   stdout: "foo\n",
   stderr: "echo foo\n",
+}
+
+test! {
+  name: dependency_continuation,
+  justfile: "
+    foo: (
+    bar 'bar'
+    )
+      echo foo
+
+    bar x:
+      echo {{x}}
+  ",
+  stdout: "bar\nfoo\n",
+  stderr: "echo bar\necho foo\n",
 }
 
 test! {
