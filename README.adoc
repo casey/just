@@ -6,7 +6,7 @@ image:https://img.shields.io/crates/v/just.svg[crates.io version,link=https://cr
 image:https://github.com/casey/just/workflows/Build/badge.svg[build status,link=https://github.com/casey/just/actions]
 image:https://img.shields.io/github/downloads/casey/just/total.svg[downloads,link=https://github.com/casey/just/releases]
 image:https://img.shields.io/discord/695580069837406228?logo=discord[chat on discord,link=https://discord.gg/ezYScXR]
-image:https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg[say thanks,link=https://saythanks.io/to/casey]
+image:https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg[say thanks,link=mailto:casey@rodarmor.com?subject=Thanks for Just!]
 
 `just` is a handy way to save and run project-specific commands.
 
