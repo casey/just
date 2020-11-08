@@ -826,6 +826,29 @@ Yo from a shell script!
 Hello from ruby!
 ```
 
+=== Safer Bash Shebang Recipes
+
+If you're writing a Bash shebang recipe, consider adding `set -euxo pipefail`:
+
+```make
+foo:
+    #!/usr/bin/env bash
+    set -euxo pipefail
+    hello='Yo'
+    echo "$hello from Bash!"
+```
+
+It isn't strictly necessary, but `set -euxo pipefail` turns on a few useful
+features that make Bash shebang recipes behave more like normal, linewise Just
+recipe:
+
+- `set -e` makes bash exit if a command fails.
+- `set -u` makes bash exit if a variable is undefined.
+- `set -x` makes bash print each script line before it's run.
+- `set -o pipefail` makes bash exit if a command in a pipeline fails.
+
+Together, these avoid a lot of shell scripting gotchas.
+
 ==== Shebang Recipe Execution on Windows
 
 On Windows, shebang interpreter paths containing a `/` are translated from Unix-style
@@ -844,6 +867,40 @@ The interpreter path `/bin/sh` will be translated to a Windows-style path using
 `cygpath` before being executed.
 
 If the interpreter path does not contain a `/` it will be executed without being translated. This is useful if `cygpath` is not available, or you wish to use a Windows style path to the interpreter.
+
+=== Setting Variables in a Recipe
+
+Recipe lines are interpreted by the shell, not Just, so it's not possible to set
+Just variables in the middle of a recipe:
+
+```
+foo:
+  x := "hello" # This doesn't work!
+  echo {{x}}
+```
+
+It is possible to use shell variables, but there's another problem. Every
+recipe line is run by a new shell instance, so variables set in one line won't
+be set in the next:
+
+```make
+foo:
+  x=hello && echo $x # This works!
+  y=bye
+  echo $y            # This doesn't, `y` is undefined here!
+```
+
+The best way to work around this is to use a shebang recipe. Shebang recipe
+bodies are extracted and run as scripts, so a single shell instance will run
+the whole thing:
+
+```make
+foo:
+  #!/usr/bin/env bash
+  set -euxo pipefail
+  x=hello
+  echo $x
+```
 
 === Multi-line Constructs
 
