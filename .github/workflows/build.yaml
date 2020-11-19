@@ -10,12 +10,6 @@ on:
     branches:
     - master
 
-env:
-  # Increment to invalidate github actions caches if they become corrupt.
-  # Errors of the form "can't find crate for `snafu_derive` which `snafu` depends on"
-  # can usually be fixed by incrementing this value.
-  CACHE_KEY_PREFIX: 4
-
 jobs:
   all:
     name: All
@@ -50,23 +44,14 @@ jobs:
         brew install gnu-tar
         echo "::add-path::/usr/local/opt/gnu-tar/libexec/gnubin"
 
-    - name: Cache cargo registry
+    - name: Cache Cargo
       uses: actions/cache@v1
       with:
-        path: ~/.cargo/registry
-        key: ${{ env.CACHE_KEY_PREFIX }}-${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
-
-    - name: Cache cargo index
-      uses: actions/cache@v1
-      with:
-        path: ~/.cargo/git
-        key: ${{ env.CACHE_KEY_PREFIX }}-${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
-
-    - name: Cache cargo build
-      uses: actions/cache@v1
-      with:
-        path: target
-        key: ${{ env.CACHE_KEY_PREFIX }}-${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
+        path: |
+          ~/.cargo/registry
+          ~/.cargo/git
+          target
+        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
     - name: Install Main Toolchain
       uses: actions-rs/toolchain@v1
