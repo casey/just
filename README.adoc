@@ -508,11 +508,11 @@ build:
 
 ==== Justfile and Justfile Directory
 
-- `justfile()` - Retrieves the path to the current justfile
+- `justfile()` - Retrieves the path of the current justfile.
 
-- `justfile_directory()` - Retrieves the path to the parent directory of the current justfile
+- `justfile_directory()` - Retrieves the path of the parent directory of the current justfile.
 
-For example, if you need to run a command relative to the current justfile, you could do the following:
+For example, to run a command relative to the location of the current justfile:
 
 ```
 script:
