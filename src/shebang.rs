@@ -19,7 +19,7 @@ impl<'line> Shebang<'line> {
     let interpreter = pieces.next().unwrap_or("");
     let argument = pieces.next();
 
-    if interpreter == "" {
+    if interpreter.is_empty() {
       return None;
     }
 

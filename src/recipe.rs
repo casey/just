@@ -234,7 +234,7 @@ impl<'src, D> Recipe<'src, D> {
           command = &command[1..];
         }
 
-        if command == "" {
+        if command.is_empty() {
           continue;
         }
 
