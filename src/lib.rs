@@ -1,7 +1,6 @@
 #![deny(clippy::all, clippy::pedantic, clippy::restriction)]
 #![allow(
   clippy::blanket_clippy_restriction_lints,
-  clippy::option_if_let_else,
   clippy::comparison_chain,
   clippy::else_if_without_else,
   clippy::enum_glob_use,
@@ -19,7 +18,9 @@
   clippy::missing_inline_in_public_items,
   clippy::needless_pass_by_value,
   clippy::non_ascii_literal,
+  clippy::option_if_let_else,
   clippy::panic,
+  clippy::panic_in_result_fn,
   clippy::pattern_type_mismatch,
   clippy::print_stdout,
   clippy::shadow_unrelated,
@@ -27,6 +28,7 @@
   clippy::struct_excessive_bools,
   clippy::too_many_lines,
   clippy::unreachable,
+  clippy::unwrap_in_result,
   clippy::unwrap_used,
   clippy::use_debug,
   clippy::wildcard_enum_match_arm,
