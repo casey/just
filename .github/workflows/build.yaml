@@ -45,7 +45,7 @@ jobs:
         echo /usr/local/opt/gnu-tar/libexec/gnubin > $GITHUB_PATH
 
     - name: Cache Cargo
-      uses: actions/cache@v1
+      uses: actions/cache@v2
       with:
         path: |
           ~/.cargo/registry
