@@ -55,6 +55,12 @@ impl<'key, V: Keyed<'key>> Table<'key, V> {
   }
 }
 
+impl<'key, V: Keyed<'key>> Default for Table<'key, V> {
+  fn default() -> Self {
+    Self::new()
+  }
+}
+
 impl<'key, V: Keyed<'key>> FromIterator<V> for Table<'key, V> {
   fn from_iter<I: IntoIterator<Item = V>>(iter: I) -> Self {
     Table {

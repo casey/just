@@ -2,6 +2,7 @@ use crate::common::*;
 
 use CompilationErrorKind::*;
 
+#[derive(Default)]
 pub(crate) struct Analyzer<'src> {
   recipes:     Table<'src, UnresolvedRecipe<'src>>,
   assignments: Table<'src, Assignment<'src>>,
@@ -11,18 +12,7 @@ pub(crate) struct Analyzer<'src> {
 
 impl<'src> Analyzer<'src> {
   pub(crate) fn analyze(module: Module<'src>) -> CompilationResult<'src, Justfile> {
-    let analyzer = Analyzer::new();
-
-    analyzer.justfile(module)
-  }
-
-  pub(crate) fn new() -> Analyzer<'src> {
-    Analyzer {
-      recipes:     empty(),
-      assignments: empty(),
-      aliases:     empty(),
-      sets:        empty(),
-    }
+    Analyzer::default().justfile(module)
   }
 
   pub(crate) fn justfile(
