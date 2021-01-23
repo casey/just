@@ -66,6 +66,20 @@ test! {
 }
 
 test! {
+  name: bad_setting,
+  justfile: "
+    set foo
+  ",
+  stderr: "
+  error: Expected ':=', but found end of line
+    |
+  1 | set foo
+    |        ^
+  ",
+  status: EXIT_FAILURE,
+}
+
+test! {
   name: alias_with_dependencies,
   justfile: "foo:\n  echo foo\nbar: foo\nalias b := bar",
   args: ("b"),
@@ -2212,82 +2226,6 @@ test! {
       |           ^
     echo default
   ",
-}
-
-test! {
-  name: shell_args,
-  justfile: "
-    default:
-      echo A${foo}A
-  ",
-  args: ("--shell-arg", "-c"),
-  stdout: "AA\n",
-  stderr: "echo A${foo}A\n",
-  shell: false,
-}
-
-test! {
-  name: shell_override,
-  justfile: "
-    set shell := ['foo-bar-baz']
-
-    default:
-      echo hello
-  ",
-  args: ("--shell", "bash"),
-  stdout: "hello\n",
-  stderr: "echo hello\n",
-  shell: false,
-}
-
-test! {
-  name: shell_arg_override,
-  justfile: "
-    set shell := ['foo-bar-baz']
-
-    default:
-      echo hello
-  ",
-  args: ("--shell-arg", "-cu"),
-  stdout: "hello\n",
-  stderr: "echo hello\n",
-  shell: false,
-}
-
-#[cfg(unix)]
-test! {
-  name: set_shell,
-  justfile: "
-    set shell := ['echo', '-n']
-
-    x := `bar`
-
-    foo:
-      echo {{x}}
-      echo foo
-  ",
-  args: (),
-  stdout: "echo barecho foo",
-  stderr: "echo bar\necho foo\n",
-  shell: false,
-}
-
-#[cfg(windows)]
-test! {
-  name: set_shell,
-  justfile: "
-    set shell := ['echo', '-n']
-
-    x := `bar`
-
-    foo:
-      echo {{x}}
-      echo foo
-  ",
-  args: (),
-  stdout: "-n echo -n bar\r\r\n-n echo foo\r\n",
-  stderr: "echo -n bar\r\necho foo\n",
-  shell: false,
 }
 
 test! {

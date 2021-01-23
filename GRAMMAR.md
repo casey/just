@@ -55,8 +55,11 @@ assignment    : NAME ':=' expression eol
 
 export        : 'export' assignment
 
-setting       : 'set' 'export'
+setting       : 'set' 'dotenv-load' boolean?
+              | 'set' 'export' boolean?
               | 'set' 'shell' ':=' '[' string (',' string)* ','? ']'
+
+boolean       : ':=' ('true' | 'false')
 
 expression    : 'if' condition '{' expression '}' else '{' expression '}'
               | value '+' expression

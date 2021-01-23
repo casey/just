@@ -2,10 +2,16 @@ use crate::common::*;
 
 pub(crate) fn load_dotenv(
   working_directory: &Path,
+  settings: &Settings,
 ) -> RunResult<'static, BTreeMap<String, String>> {
   // `dotenv::from_path_iter` should eventually be un-deprecated, see:
   // https://github.com/dotenv-rs/dotenv/issues/13
   #![allow(deprecated)]
+
+  if !settings.dotenv_load {
+    return Ok(BTreeMap::new());
+  }
+
   for directory in working_directory.ancestors() {
     let path = directory.join(".env");
 

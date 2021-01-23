@@ -3,8 +3,8 @@ use crate::common::*;
 use std::mem;
 
 /// Construct a `Tree` from a symbolic expression literal. This macro, and the
-/// Tree type, are only used in the Parser unit tests, as a concise notation
-/// representing the expected results of parsing a given string.
+/// Tree type, are only used in the Parser unit tests, providing a concise
+/// notation for representing the expected results of parsing a given string.
 macro_rules! tree {
   {
     ($($child:tt)*)

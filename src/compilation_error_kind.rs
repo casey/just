@@ -40,7 +40,7 @@ pub(crate) enum CompilationErrorKind<'src> {
     first:   usize,
   },
   ExpectedKeyword {
-    expected: Keyword,
+    expected: Vec<Keyword>,
     found:    &'src str,
   },
   ExtraLeadingWhitespace,

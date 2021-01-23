@@ -3,7 +3,8 @@ use crate::common::*;
 #[derive(Debug)]
 pub(crate) enum Setting<'src> {
   Shell(Shell<'src>),
-  Export,
+  Export(bool),
+  DotenvLoad(bool),
 }
 
 #[derive(Debug, PartialEq)]
