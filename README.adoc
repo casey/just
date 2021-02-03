@@ -933,7 +933,7 @@ the command you want to run:
 
 ```make
 foo:
-  cd foo && pwd
+  cd bar && pwd
 ```
 
 The other is to use a shebang recipe. Shebang recipe bodies are extracted and
@@ -944,7 +944,7 @@ run as scripts, so a single shell instance will run the whole thing, and thus a
 foo:
   #!/usr/bin/env bash
   set -euxo pipefail
-  cd foo
+  cd bar
   pwd
 ```
 
