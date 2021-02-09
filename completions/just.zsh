@@ -17,8 +17,10 @@ _just() {
     local common=(
 '--chooser=[Override binary invoked by `--choose`]' \
 '--color=[Print colorful output]: :(auto always never)' \
-'-f+[Use <JUSTFILE> as justfile.]' \
-'--justfile=[Use <JUSTFILE> as justfile.]' \
+'--list-heading=[Print <TEXT> before list]' \
+'--list-prefix=[Print <TEXT> before each list item]' \
+'-f+[Use <JUSTFILE> as justfile]' \
+'--justfile=[Use <JUSTFILE> as justfile]' \
 '*--set[Override <VARIABLE> with <VALUE>]: :_just_variables' \
 '--shell=[Invoke <SHELL> to run recipes]' \
 '*--shell-arg=[Invoke shell with <SHELL-ARG> as an argument]' \

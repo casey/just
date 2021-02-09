@@ -233,10 +233,10 @@ Recipes can be listed in alphabetical order with `just --list`:
 ```sh
 $ just --list
 Available recipes:
-  build
-  test
-  deploy
-  lint
+    build
+    test
+    deploy
+    lint
 ```
 
 `just --summary` is more concise:
@@ -259,8 +259,8 @@ build:
 ```sh
 $ just --list --unsorted
 Available recipes:
-  test
-  build
+    test
+    build
 ```
 
 ```sh
@@ -274,6 +274,24 @@ use this as your default recipe:
 ```make
 default:
   @just --list
+```
+
+The heading text can be customized with `--list-heading`:
+
+```
+$ just --list --list-heading 'Cool stuff…\n'
+Cool stuff…
+    test
+    build
+```
+
+And the indentation can be customized with `--list-prefix`:
+
+```
+$ just --list --list-prefix ····
+Available recipes:
+····test
+····build
 ```
 
 === Aliases
@@ -1077,7 +1095,7 @@ _test-helper:
 ```sh
 $ just --list
 Available recipes:
-  test
+    test
 ```
 
 And from `just --summary`:

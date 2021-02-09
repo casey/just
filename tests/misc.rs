@@ -1109,6 +1109,47 @@ a:
 }
 
 test! {
+  name:     list_heading,
+  justfile: r#"
+a:
+b:
+"#,
+  args:     ("--list", "--list-heading", "Cool stuff…\n"),
+  stdout:   r#"
+    Cool stuff…
+        a
+        b
+  "#,
+}
+
+test! {
+  name:     list_prefix,
+  justfile: r#"
+a:
+b:
+"#,
+  args:     ("--list", "--list-prefix", "····"),
+  stdout:   r#"
+    Available recipes:
+    ····a
+    ····b
+  "#,
+}
+
+test! {
+  name:     list_empty_prefix_and_heading,
+  justfile: r#"
+a:
+b:
+"#,
+  args:     ("--list", "--list-heading", "", "--list-prefix", ""),
+  stdout:   r#"
+    a
+    b
+  "#,
+}
+
+test! {
   name:     show_suggestion,
   justfile: r#"
 hello a b='B	' c='C':

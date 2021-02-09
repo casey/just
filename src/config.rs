@@ -19,6 +19,8 @@ pub(crate) struct Config {
   pub(crate) dry_run:              bool,
   pub(crate) highlight:            bool,
   pub(crate) invocation_directory: PathBuf,
+  pub(crate) list_heading:         String,
+  pub(crate) list_prefix:          String,
   pub(crate) load_dotenv:          bool,
   pub(crate) search_config:        SearchConfig,
   pub(crate) shell:                String,
@@ -73,6 +75,8 @@ mod arg {
   pub(crate) const COLOR: &str = "COLOR";
   pub(crate) const DRY_RUN: &str = "DRY-RUN";
   pub(crate) const HIGHLIGHT: &str = "HIGHLIGHT";
+  pub(crate) const LIST_HEADING: &str = "LIST-HEADING";
+  pub(crate) const LIST_PREFIX: &str = "LIST-PREFIX";
   pub(crate) const JUSTFILE: &str = "JUSTFILE";
   pub(crate) const NO_DOTENV: &str = "NO-DOTENV";
   pub(crate) const NO_HIGHLIGHT: &str = "NO-HIGHLIGHT";
@@ -124,6 +128,20 @@ impl Config {
           .overrides_with(arg::NO_HIGHLIGHT),
       )
       .arg(
+        Arg::with_name(arg::LIST_HEADING)
+          .long("list-heading")
+          .help("Print <TEXT> before list")
+          .value_name("TEXT")
+          .takes_value(true),
+      )
+      .arg(
+        Arg::with_name(arg::LIST_PREFIX)
+          .long("list-prefix")
+          .help("Print <TEXT> before each list item")
+          .value_name("TEXT")
+          .takes_value(true),
+      )
+      .arg(
         Arg::with_name(arg::NO_DOTENV)
           .long("no-dotenv")
           .help("Don't load `.env` file"),
@@ -139,7 +157,7 @@ impl Config {
           .short("f")
           .long("justfile")
           .takes_value(true)
-          .help("Use <JUSTFILE> as justfile."),
+          .help("Use <JUSTFILE> as justfile"),
       )
       .arg(
         Arg::with_name(arg::QUIET)
@@ -439,6 +457,14 @@ impl Config {
       shell: matches.value_of(arg::SHELL).unwrap().to_owned(),
       load_dotenv: !matches.is_present(arg::NO_DOTENV),
       unsorted: matches.is_present(arg::UNSORTED),
+      list_heading: matches
+        .value_of(arg::LIST_HEADING)
+        .unwrap_or("Available recipes:\n")
+        .to_owned(),
+      list_prefix: matches
+        .value_of(arg::LIST_PREFIX)
+        .unwrap_or("    ")
+        .to_owned(),
       color,
       invocation_directory,
       search_config,
@@ -687,7 +713,7 @@ impl Config {
     let max_line_width = cmp::min(line_widths.values().cloned().max().unwrap_or(0), 30);
 
     let doc_color = self.color.stdout().doc();
-    println!("Available recipes:");
+    print!("{}", self.list_heading);
 
     for recipe in justfile.public_recipes(self.unsorted) {
       let name = recipe.name();
@@ -696,7 +722,7 @@ impl Config {
         .chain(recipe_aliases.get(name).unwrap_or(&Vec::new()))
         .enumerate()
       {
-        print!("    {}", name);
+        print!("{}{}", self.list_prefix, name);
         for parameter in &recipe.parameters {
           if self.color.stdout().active() {
             print!(" {:#}", parameter);
@@ -847,7 +873,9 @@ OPTIONS:
             Print shell completion script for <SHELL> [possible values: zsh, bash, fish, \
                                  powershell, elvish]
 
-    -f, --justfile <JUSTFILE>                      Use <JUSTFILE> as justfile.
+    -f, --justfile <JUSTFILE>                      Use <JUSTFILE> as justfile
+        --list-heading <TEXT>                      Print <TEXT> before list
+        --list-prefix <TEXT>                       Print <TEXT> before each list item
         --set <VARIABLE> <VALUE>                   Override <VARIABLE> with <VALUE>
         --shell <SHELL>                            Invoke <SHELL> to run recipes [default: sh]
         --shell-arg <SHELL-ARG>...                 Invoke shell with <SHELL-ARG> as an argument \
