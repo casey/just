@@ -1,6 +1,25 @@
 Changelog
 =========
 
+[v0.8.4] - 2020-2-9
+-------------------
+
+### Added
+- Add options to control list formatting (#753)
+
+### Misc
+- Document how to change the working directory in a recipe (#752)
+- Implement `Default` for `Table` (#748)
+- Add Alpine Linux package to readme (#736)
+- Update to actions/cache@v2 (#742)
+- Add link in readme to GitHub Action (#729)
+- Add docs for justfile() and justfile_directory() (#726)
+- Fix CI (#727)
+- Improve readme (#725)
+- Replace saythanks.io link with malto: link (#723)
+- Update man page to v0.8.3 (#720)
+
+
 [v0.8.3] - 2020-10-27
 ---------------------
 
