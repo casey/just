@@ -1,6 +1,6 @@
 [package]
 name        = "just"
-version     = "0.8.3"
+version     = "0.8.4"
 description = "🤖 Just a command runner"
 authors     = ["Casey Rodarmor <casey@rodarmor.com>"]
 license     = "CC0-1.0"
@@ -31,7 +31,7 @@ version  = "3.1.1"
 features = ["termination"]
 
 [dependencies.strum]
-version  = "0.19.0"
+version  = "0.20.0"
 features = ["derive"]
 
 [dev-dependencies]
