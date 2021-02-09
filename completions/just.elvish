@@ -16,8 +16,10 @@ edit:completion:arg-completer[just] = [@words]{
         &'just'= {
             cand --chooser 'Override binary invoked by `--choose`'
             cand --color 'Print colorful output'
-            cand -f 'Use <JUSTFILE> as justfile.'
-            cand --justfile 'Use <JUSTFILE> as justfile.'
+            cand --list-heading 'Print <TEXT> before list'
+            cand --list-prefix 'Print <TEXT> before each list item'
+            cand -f 'Use <JUSTFILE> as justfile'
+            cand --justfile 'Use <JUSTFILE> as justfile'
             cand --set 'Override <VARIABLE> with <VALUE>'
             cand --shell 'Invoke <SHELL> to run recipes'
             cand --shell-arg 'Invoke shell with <SHELL-ARG> as an argument'
