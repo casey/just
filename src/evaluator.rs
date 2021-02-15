@@ -212,7 +212,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
           String::new()
         } else {
           return Err(RuntimeError::Internal {
-            message: "missing parameter without default".to_string(),
+            message: "missing parameter without default".to_owned(),
           });
         }
       } else if parameter.kind.is_variadic() {

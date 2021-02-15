@@ -25,7 +25,7 @@ pub(crate) fn output(mut command: Command) -> Result<String, OutputError> {
           } else {
             utf8
           }
-          .to_string(),
+          .to_owned(),
         ),
       }
     },

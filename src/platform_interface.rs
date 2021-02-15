@@ -18,5 +18,5 @@ pub(crate) trait PlatformInterface {
   fn signal_from_exit_status(exit_status: process::ExitStatus) -> Option<i32>;
 
   /// Translate a path from a "native" path to a path the interpreter expects
-  fn to_shell_path(working_directory: &Path, path: &Path) -> Result<String, String>;
+  fn convert_native_path(working_directory: &Path, path: &Path) -> Result<String, String>;
 }

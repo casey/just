@@ -527,7 +527,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
         })
       },
       _ => Err(token.error(CompilationErrorKind::Internal {
-        message: "`Parser::parse_string_literal` called on non-string token".to_string(),
+        message: "`Parser::parse_string_literal` called on non-string token".to_owned(),
       })),
     }
   }

@@ -4,7 +4,7 @@ use executable_path::executable_path;
 use test_utilities::tempdir;
 
 #[cfg(unix)]
-fn to_shell_path(path: &Path) -> String {
+fn convert_native_path(path: &Path) -> String {
   fs::canonicalize(path)
     .expect("canonicalize failed")
     .to_str()
@@ -13,7 +13,7 @@ fn to_shell_path(path: &Path) -> String {
 }
 
 #[cfg(windows)]
-fn to_shell_path(path: &Path) -> String {
+fn convert_native_path(path: &Path) -> String {
   // Translate path from windows style to unix style
   let mut cygpath = process::Command::new("cygpath");
   cygpath.arg("--unix");
@@ -60,7 +60,7 @@ fn test_invocation_directory() {
   let mut failure = false;
 
   let expected_status = 0;
-  let expected_stdout = to_shell_path(&subdir) + "\n";
+  let expected_stdout = convert_native_path(&subdir) + "\n";
   let expected_stderr = "";
 
   let status = output.status.code().unwrap();

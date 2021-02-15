@@ -37,7 +37,7 @@ impl PlatformInterface for Platform {
     exit_status.signal()
   }
 
-  fn to_shell_path(_working_directory: &Path, path: &Path) -> Result<String, String> {
+  fn convert_native_path(_working_directory: &Path, path: &Path) -> Result<String, String> {
     path
       .to_str()
       .map(str::to_string)
@@ -91,7 +91,7 @@ impl PlatformInterface for Platform {
     None
   }
 
-  fn to_shell_path(working_directory: &Path, path: &Path) -> Result<String, String> {
+  fn convert_native_path(working_directory: &Path, path: &Path) -> Result<String, String> {
     // Translate path from windows style to unix style
     let mut cygpath = Command::new("cygpath");
     cygpath.current_dir(working_directory);
