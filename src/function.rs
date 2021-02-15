@@ -34,19 +34,19 @@ impl Function {
 }
 
 fn arch(_context: &FunctionContext) -> Result<String, String> {
-  Ok(target::arch().to_string())
+  Ok(target::arch().to_owned())
 }
 
 fn os(_context: &FunctionContext) -> Result<String, String> {
-  Ok(target::os().to_string())
+  Ok(target::os().to_owned())
 }
 
 fn os_family(_context: &FunctionContext) -> Result<String, String> {
-  Ok(target::os_family().to_string())
+  Ok(target::os_family().to_owned())
 }
 
 fn invocation_directory(context: &FunctionContext) -> Result<String, String> {
-  Platform::to_shell_path(
+  Platform::convert_native_path(
     &context.search.working_directory,
     context.invocation_directory,
   )
@@ -115,7 +115,7 @@ fn env_var_or_default(
   }
 
   match env::var(key) {
-    Err(NotPresent) => Ok(default.to_string()),
+    Err(NotPresent) => Ok(default.to_owned()),
     Err(NotUnicode(os_string)) => Err(format!(
       "environment variable `{}` not unicode: {:?}",
       key, os_string

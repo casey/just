@@ -27,6 +27,7 @@
   clippy::string_add,
   clippy::struct_excessive_bools,
   clippy::too_many_lines,
+  clippy::unnecessary_wraps,
   clippy::unreachable,
   clippy::unwrap_in_result,
   clippy::unwrap_used,

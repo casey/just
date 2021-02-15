@@ -54,10 +54,10 @@ impl Display for CompilationError<'_> {
 
       InvalidEscapeSequence { character } => {
         let representation = match character {
-          '`' => r"\`".to_string(),
-          '\\' => r"\".to_string(),
-          '\'' => r"'".to_string(),
-          '"' => r#"""#.to_string(),
+          '`' => r"\`".to_owned(),
+          '\\' => r"\".to_owned(),
+          '\'' => r"'".to_owned(),
+          '"' => r#"""#.to_owned(),
           _ => character.escape_default().collect(),
         };
         writeln!(f, "`\\{}` is not a valid escape sequence", representation)?;

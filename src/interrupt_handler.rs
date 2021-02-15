@@ -54,7 +54,7 @@ impl InterruptHandler {
   pub(crate) fn unblock(&mut self) {
     if self.blocks == 0 {
       eprintln!("{}", RuntimeError::Internal {
-        message: "attempted to unblock interrupt handler, but handler was not blocked".to_string(),
+        message: "attempted to unblock interrupt handler, but handler was not blocked".to_owned(),
       });
       std::process::exit(EXIT_FAILURE);
     }

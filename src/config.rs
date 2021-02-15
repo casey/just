@@ -512,19 +512,21 @@ impl Config {
 
     match &self.subcommand {
       Choose { overrides, chooser } =>
-        self.choose(justfile, &search, overrides, chooser.as_deref()),
+        self.choose(justfile, &search, overrides, chooser.as_deref())?,
       Dump => Self::dump(justfile),
-      Evaluate { overrides } => self.run(justfile, &search, overrides, &[]),
+      Evaluate { overrides } => self.run(justfile, &search, overrides, &[])?,
       List => self.list(justfile),
       Run {
         arguments,
         overrides,
-      } => self.run(justfile, &search, overrides, arguments),
-      Show { ref name } => Self::show(&name, justfile),
+      } => self.run(justfile, &search, overrides, arguments)?,
+      Show { ref name } => Self::show(&name, justfile)?,
       Summary => self.summary(justfile),
       Variables => Self::variables(justfile),
       Completions { .. } | Edit | Init => unreachable!(),
     }
+
+    Ok(())
   }
 
   fn choose(
@@ -620,9 +622,8 @@ impl Config {
     self.run(justfile, search, overrides, &recipes)
   }
 
-  fn dump(justfile: Justfile) -> Result<(), i32> {
+  fn dump(justfile: Justfile) {
     println!("{}", justfile);
-    Ok(())
   }
 
   pub(crate) fn edit(search: &Search) -> Result<(), i32> {
@@ -674,7 +675,7 @@ impl Config {
     }
   }
 
-  fn list(&self, justfile: Justfile) -> Result<(), i32> {
+  fn list(&self, justfile: Justfile) {
     // Construct a target to alias map.
     let mut recipe_aliases: BTreeMap<&str, Vec<&str>> = BTreeMap::new();
     for alias in justfile.aliases.values() {
@@ -756,8 +757,6 @@ impl Config {
         println!();
       }
     }
-
-    Ok(())
   }
 
   fn run(
@@ -798,7 +797,7 @@ impl Config {
     }
   }
 
-  fn summary(&self, justfile: Justfile) -> Result<(), i32> {
+  fn summary(&self, justfile: Justfile) {
     if justfile.count() == 0 {
       eprintln!("Justfile contains no recipes.");
     } else {
@@ -810,10 +809,9 @@ impl Config {
         .join(" ");
       println!("{}", summary);
     }
-    Ok(())
   }
 
-  fn variables(justfile: Justfile) -> Result<(), i32> {
+  fn variables(justfile: Justfile) {
     for (i, (_, assignment)) in justfile.assignments.iter().enumerate() {
       if i > 0 {
         print!(" ");
@@ -821,7 +819,6 @@ impl Config {
       print!("{}", assignment.name)
     }
     println!();
-    Ok(())
   }
 }
 

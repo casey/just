@@ -154,7 +154,7 @@ impl<'src, D> Recipe<'src, D> {
       let shebang_line = evaluated_lines
         .first()
         .ok_or_else(|| RuntimeError::Internal {
-          message: "evaluated_lines was empty".to_string(),
+          message: "evaluated_lines was empty".to_owned(),
         })?;
 
       let Shebang {
@@ -195,7 +195,7 @@ impl<'src, D> Recipe<'src, D> {
         Err(io_error) => {
           return Err(RuntimeError::Shebang {
             recipe: self.name(),
-            command: interpreter.to_string(),
+            command: interpreter.to_owned(),
             argument: argument.map(String::from),
             io_error,
           });

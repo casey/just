@@ -1224,6 +1224,15 @@ When a script with a shebang is executed, the system supplies the path to the sc
 
 With the above shebang, `just` will change its working directory to the location of the script. If you'd rather leave the working directory unchanged, use `#!/usr/bin/env just --working-directory . --justfile`.
 
+Note: Shebang line splitting is not consistent across operating systems. The previous examples have only been tested on macOS. On Linux, you may need to pass the `-S` flag to `env`:
+
+```
+#!/usr/bin/env -S just --justfile
+
+default:
+  echo foo
+```
+
 == Miscellanea
 
 === Companion Tools
