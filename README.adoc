@@ -1285,9 +1285,13 @@ augroup filetypedetect
 augroup END
 ```
 
-==== Vim and Emacs
+==== Emacs
 
-Include the following in a `justfile` to enable syntax highlighting in vim and emacs:
+There is a MELPA package, https://melpa.org/#/just-mode[just-mode], for automatic Emacs syntax highlighting and automatic indentation in justfiles.
+
+==== Vim and Emacs using Makefile mode
+
+Include the following in a `justfile` to use Makefile syntax highlighting in vim and emacs:
 
 ```
 # Local Variables:
