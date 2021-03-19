@@ -604,7 +604,7 @@ bar:
 
 ```sh
 $ just bar
-abc
+xyz
 ```
 
 Conditional expressions short-circuit, which means they only evaluate one of
