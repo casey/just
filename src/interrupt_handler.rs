@@ -3,10 +3,13 @@ use crate::common::*;
 pub(crate) struct InterruptHandler {
   blocks:      u32,
   interrupted: bool,
+  verbosity:   Verbosity,
 }
 
 impl InterruptHandler {
-  pub(crate) fn install() -> Result<(), ctrlc::Error> {
+  pub(crate) fn install(verbosity: Verbosity) -> Result<(), ctrlc::Error> {
+    let mut instance = Self::instance();
+    instance.verbosity = verbosity;
     ctrlc::set_handler(|| Self::instance().interrupt())
   }
 
@@ -30,6 +33,7 @@ impl InterruptHandler {
     Self {
       blocks:      0,
       interrupted: false,
+      verbosity:   Verbosity::default(),
     }
   }
 
@@ -53,9 +57,11 @@ impl InterruptHandler {
 
   pub(crate) fn unblock(&mut self) {
     if self.blocks == 0 {
-      eprintln!("{}", RuntimeError::Internal {
-        message: "attempted to unblock interrupt handler, but handler was not blocked".to_owned(),
-      });
+      if self.verbosity.loud() {
+        eprintln!("{}", RuntimeError::Internal {
+          message: "attempted to unblock interrupt handler, but handler was not blocked".to_owned(),
+        });
+      }
       std::process::exit(EXIT_FAILURE);
     }
 

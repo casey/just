@@ -21,6 +21,10 @@ impl Verbosity {
     matches!(self, Quiet)
   }
 
+  pub(crate) fn loud(self) -> bool {
+    !self.quiet()
+  }
+
   pub(crate) fn loquacious(self) -> bool {
     match self {
       Quiet | Taciturn => false,
@@ -33,5 +37,11 @@ impl Verbosity {
       Quiet | Taciturn | Loquacious => false,
       Grandiloquent => true,
     }
+  }
+}
+
+impl Default for Verbosity {
+  fn default() -> Self {
+    Self::Taciturn
   }
 }
