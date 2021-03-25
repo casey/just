@@ -63,13 +63,14 @@ test! {
 
     A := 'hello'
 
-    foo B:
+    foo B C=`echo $A`:
       echo $A
       echo $B
+      echo $C
   ",
   args: ("foo", "goodbye"),
-  stdout: "hello\ngoodbye\n",
-  stderr: "echo $A\necho $B\n",
+  stdout: "hello\ngoodbye\nhello\n",
+  stderr: "echo $A\necho $B\necho $C\n",
 }
 
 test! {
