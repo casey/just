@@ -1,5 +1,63 @@
 test! {
-  name: export_setting,
+  name:     success,
+  justfile: r#"
+export FOO := "a"
+baz := "c"
+export BAR := "b"
+export ABC := FOO + BAR + baz
+
+wut:
+  echo $FOO $BAR $ABC
+"#,
+  stdout:   "a b abc\n",
+  stderr:   "echo $FOO $BAR $ABC\n",
+}
+
+test! {
+  name:     override_variable,
+  justfile: r#"
+export FOO := "a"
+baz := "c"
+export BAR := "b"
+export ABC := FOO + "-" + BAR + "-" + baz
+
+wut:
+  echo $FOO $BAR $ABC
+"#,
+  args:     ("--set", "BAR", "bye", "FOO=hello"),
+  stdout:   "hello bye hello-bye-c\n",
+  stderr:   "echo $FOO $BAR $ABC\n",
+}
+
+test! {
+  name:     shebang,
+  justfile: r#"
+export FOO := "a"
+baz := "c"
+export BAR := "b"
+export ABC := FOO + BAR + baz
+
+wut:
+  #!/bin/sh
+  echo $FOO $BAR $ABC
+"#,
+  stdout:   "a b abc\n",
+}
+
+test! {
+  name:     recipe_backtick,
+  justfile: r#"
+export EXPORTED_VARIABLE := "A-IS-A"
+
+recipe:
+  echo {{`echo recipe $EXPORTED_VARIABLE`}}
+"#,
+  stdout:   "recipe A-IS-A\n",
+  stderr:   "echo recipe A-IS-A\n",
+}
+
+test! {
+  name: setting,
   justfile: "
     set export
 
@@ -15,7 +73,7 @@ test! {
 }
 
 test! {
-  name: export_shebang,
+  name: setting_shebang,
   justfile: "
     set export
 
@@ -32,7 +90,7 @@ test! {
 }
 
 test! {
-  name: export_override_undefined,
+  name: setting_override_undefined,
   justfile: r#"
     set export
 
@@ -49,7 +107,7 @@ test! {
 }
 
 test! {
-  name: export_variable_not_visible,
+  name: setting_variable_not_visible,
   justfile: r#"
     export A := 'hello'
     export B := `if [ -n "${A+1}" ]; then echo defined; else echo undefined; fi`
