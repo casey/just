@@ -110,7 +110,7 @@ list:
   dir
 ```
 
-(Powershell is installed by default on Windows 7 SP1 and Windows Sever 2008 R2 S1 and later, and `cmd.exe` is quite fiddly, so Powershell is recommended for most Windows users.)
+(Powershell is installed by default on Windows 7 SP1 and Windows Server 2008 R2 S1 and later, and `cmd.exe` is quite fiddly, so Powershell is recommended for most Windows users.)
 
 === Packages
 
