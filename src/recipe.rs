@@ -96,7 +96,7 @@ impl<'src, D> Recipe<'src, D> {
         evaluated_lines.push(evaluator.evaluate_line(line, false)?);
       }
 
-      if config.dry_run || self.quiet {
+      if config.verbosity.loud() && (config.dry_run || self.quiet) {
         for line in &evaluated_lines {
           eprintln!("{}", line);
         }
