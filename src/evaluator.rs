@@ -169,12 +169,15 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     let mut evaluated = String::new();
     for (i, fragment) in line.fragments.iter().enumerate() {
       match fragment {
-        Fragment::Text { token } =>
+        Fragment::Text { token } => {
+          let lexeme = token.lexeme().replace("{{{{", "{{");
+
           if i == 0 && continued {
-            evaluated += token.lexeme().trim_start();
+            evaluated += lexeme.trim_start();
           } else {
-            evaluated += token.lexeme();
-          },
+            evaluated += &lexeme;
+          }
+        },
         Fragment::Interpolation { expression } => {
           evaluated += &self.evaluate_expression(expression)?;
         },

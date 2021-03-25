@@ -2600,6 +2600,30 @@ test! {
   shell: false,
 }
 
+test! {
+  name: brace_escape,
+  justfile: "
+    foo:
+      echo '{{{{'
+  ",
+  stdout: "{{\n",
+  stderr: "
+    echo '{{'
+  ",
+}
+
+test! {
+  name: brace_escape_extra,
+  justfile: "
+    foo:
+      echo '{{{{{'
+  ",
+  stdout: "{{{\n",
+  stderr: "
+    echo '{{{'
+  ",
+}
+
 #[cfg(windows)]
 test! {
   name: windows_interpreter_path_no_base,

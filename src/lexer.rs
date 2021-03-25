@@ -91,6 +91,15 @@ impl<'src> Lexer<'src> {
     }
   }
 
+  /// Advance over N characters.
+  fn skip(&mut self, n: usize) -> CompilationResult<'src, ()> {
+    for _ in 0..n {
+      self.advance()?;
+    }
+
+    Ok(())
+  }
+
   /// Lexeme of in-progress token
   fn lexeme(&self) -> &'src str {
     &self.src[self.token_start.offset..self.token_end.offset]
@@ -515,6 +524,11 @@ impl<'src> Lexer<'src> {
     use Terminator::*;
 
     let terminator = loop {
+      if self.rest_starts_with("{{{{") {
+        self.skip(4)?;
+        continue;
+      }
+
       if let Some('\n') = self.next {
         break Newline;
       }
@@ -1234,6 +1248,23 @@ mod tests {
       Eol,
       Whitespace:"  ",
       Text:"c",
+      Eol,
+      Dedent,
+    )
+  }
+
+  test! {
+    name: brace_escape,
+    text: "
+      foo:
+        {{{{
+    ",
+    tokens: (
+      Identifier:"foo",
+      Colon,
+      Eol,
+      Indent,
+      Text:"{{{{",
       Eol,
       Dedent,
     )
