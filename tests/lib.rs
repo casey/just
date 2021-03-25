@@ -15,6 +15,7 @@ mod init;
 mod interrupts;
 mod invocation_directory;
 mod misc;
+mod quiet;
 mod readme;
 mod search;
 mod shell;

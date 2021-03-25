@@ -203,18 +203,25 @@ const BASH_COMPLETION_REPLACEMENTS: &[(&str, &str)] = &[(
 )];
 
 impl Subcommand {
-  pub(crate) fn completions(shell: &str) -> Result<(), i32> {
+  pub(crate) fn completions(verbosity: Verbosity, shell: &str) -> Result<(), i32> {
     use clap::Shell;
 
-    fn replace(haystack: &mut String, needle: &str, replacement: &str) -> Result<(), i32> {
+    fn replace(
+      verbosity: Verbosity,
+      haystack: &mut String,
+      needle: &str,
+      replacement: &str,
+    ) -> Result<(), i32> {
       if let Some(index) = haystack.find(needle) {
         haystack.replace_range(index..index + needle.len(), replacement);
         Ok(())
       } else {
-        eprintln!("Failed to find text:");
-        eprintln!("{}", needle);
-        eprintln!("…in completion script:");
-        eprintln!("{}", haystack);
+        if verbosity.loud() {
+          eprintln!("Failed to find text:");
+          eprintln!("{}", needle);
+          eprintln!("…in completion script:");
+          eprintln!("{}", haystack);
+        }
         Err(EXIT_FAILURE)
       }
     }
@@ -232,19 +239,19 @@ impl Subcommand {
     match shell {
       Shell::Bash =>
         for (needle, replacement) in BASH_COMPLETION_REPLACEMENTS {
-          replace(&mut script, needle, replacement)?;
+          replace(verbosity, &mut script, needle, replacement)?;
         },
       Shell::Fish => {
         script.insert_str(0, FISH_RECIPE_COMPLETIONS);
       },
       Shell::PowerShell =>
         for (needle, replacement) in POWERSHELL_COMPLETION_REPLACEMENTS {
-          replace(&mut script, needle, replacement)?;
+          replace(verbosity, &mut script, needle, replacement)?;
         },
 
       Shell::Zsh =>
         for (needle, replacement) in ZSH_COMPLETION_REPLACEMENTS {
-          replace(&mut script, needle, replacement)?;
+          replace(verbosity, &mut script, needle, replacement)?;
         },
       Shell::Elvish => {},
     }

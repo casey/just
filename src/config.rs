@@ -483,14 +483,14 @@ impl Config {
     }
 
     if let Completions { shell } = self.subcommand {
-      return Subcommand::completions(&shell);
+      return Subcommand::completions(self.verbosity, &shell);
     }
 
     let search =
       Search::find(&self.search_config, &self.invocation_directory).eprint(self.color)?;
 
     if self.subcommand == Edit {
-      return Self::edit(&search);
+      return self.edit(&search);
     }
 
     let src = fs::read_to_string(&search.justfile)
@@ -502,11 +502,13 @@ impl Config {
 
     let justfile = Compiler::compile(&src).eprint(self.color)?;
 
-    for warning in &justfile.warnings {
-      if self.color.stderr().active() {
-        eprintln!("{:#}", warning);
-      } else {
-        eprintln!("{}", warning);
+    if self.verbosity.loud() {
+      for warning in &justfile.warnings {
+        if self.color.stderr().active() {
+          eprintln!("{:#}", warning);
+        } else {
+          eprintln!("{}", warning);
+        }
       }
     }
 
@@ -520,7 +522,7 @@ impl Config {
         arguments,
         overrides,
       } => self.run(justfile, &search, overrides, arguments)?,
-      Show { ref name } => Self::show(&name, justfile)?,
+      Show { ref name } => self.show(&name, justfile)?,
       Summary => self.summary(justfile),
       Variables => Self::variables(justfile),
       Completions { .. } | Edit | Init => unreachable!(),
@@ -544,7 +546,9 @@ impl Config {
       .collect::<Vec<&Recipe<Dependency>>>();
 
     if recipes.is_empty() {
-      eprintln!("Justfile contains no choosable recipes.");
+      if self.verbosity.loud() {
+        eprintln!("Justfile contains no choosable recipes.");
+      }
       return Err(EXIT_FAILURE);
     }
 
@@ -565,11 +569,13 @@ impl Config {
     let mut child = match result {
       Ok(child) => child,
       Err(error) => {
-        eprintln!(
-          "Chooser `{}` invocation failed: {}",
-          chooser.to_string_lossy(),
-          error
-        );
+        if self.verbosity.loud() {
+          eprintln!(
+            "Chooser `{}` invocation failed: {}",
+            chooser.to_string_lossy(),
+            error
+          );
+        }
         return Err(EXIT_FAILURE);
       },
     };
@@ -581,11 +587,13 @@ impl Config {
         .expect("Child was created with piped stdio")
         .write_all(format!("{}\n", recipe.name).as_bytes())
       {
-        eprintln!(
-          "Failed to write to chooser `{}`: {}",
-          chooser.to_string_lossy(),
-          error
-        );
+        if self.verbosity.loud() {
+          eprintln!(
+            "Failed to write to chooser `{}`: {}",
+            chooser.to_string_lossy(),
+            error
+          );
+        }
         return Err(EXIT_FAILURE);
       }
     }
@@ -593,21 +601,25 @@ impl Config {
     let output = match child.wait_with_output() {
       Ok(output) => output,
       Err(error) => {
-        eprintln!(
-          "Failed to read output from chooser `{}`: {}",
-          chooser.to_string_lossy(),
-          error
-        );
+        if self.verbosity.loud() {
+          eprintln!(
+            "Failed to read output from chooser `{}`: {}",
+            chooser.to_string_lossy(),
+            error
+          );
+        }
         return Err(EXIT_FAILURE);
       },
     };
 
     if !output.status.success() {
-      eprintln!(
-        "Chooser `{}` returned error: {}",
-        chooser.to_string_lossy(),
-        output.status
-      );
+      if self.verbosity.loud() {
+        eprintln!(
+          "Chooser `{}` returned error: {}",
+          chooser.to_string_lossy(),
+          output.status
+        );
+      }
       return Err(output.status.code().unwrap_or(EXIT_FAILURE));
     }
 
@@ -626,7 +638,7 @@ impl Config {
     println!("{}", justfile);
   }
 
-  pub(crate) fn edit(search: &Search) -> Result<(), i32> {
+  pub(crate) fn edit(&self, search: &Search) -> Result<(), i32> {
     let editor = env::var_os("VISUAL")
       .or_else(|| env::var_os("EDITOR"))
       .unwrap_or_else(|| "vim".into());
@@ -641,15 +653,19 @@ impl Config {
         if status.success() {
           Ok(())
         } else {
-          eprintln!("Editor `{}` failed: {}", editor.to_string_lossy(), status);
+          if self.verbosity.loud() {
+            eprintln!("Editor `{}` failed: {}", editor.to_string_lossy(), status);
+          }
           Err(status.code().unwrap_or(EXIT_FAILURE))
         },
       Err(error) => {
-        eprintln!(
-          "Editor `{}` invocation failed: {}",
-          editor.to_string_lossy(),
-          error
-        );
+        if self.verbosity.loud() {
+          eprintln!(
+            "Editor `{}` invocation failed: {}",
+            editor.to_string_lossy(),
+            error
+          );
+        }
         Err(EXIT_FAILURE)
       },
     }
@@ -660,17 +676,23 @@ impl Config {
       Search::init(&self.search_config, &self.invocation_directory).eprint(self.color)?;
 
     if search.justfile.exists() {
-      eprintln!("Justfile `{}` already exists", search.justfile.display());
+      if self.verbosity.loud() {
+        eprintln!("Justfile `{}` already exists", search.justfile.display());
+      }
       Err(EXIT_FAILURE)
     } else if let Err(err) = fs::write(&search.justfile, INIT_JUSTFILE) {
-      eprintln!(
-        "Failed to write justfile to `{}`: {}",
-        search.justfile.display(),
-        err
-      );
+      if self.verbosity.loud() {
+        eprintln!(
+          "Failed to write justfile to `{}`: {}",
+          search.justfile.display(),
+          err
+        );
+      }
       Err(EXIT_FAILURE)
     } else {
-      eprintln!("Wrote justfile to `{}`", search.justfile.display());
+      if self.verbosity.loud() {
+        eprintln!("Wrote justfile to `{}`", search.justfile.display());
+      }
       Ok(())
     }
   }
@@ -766,7 +788,7 @@ impl Config {
     overrides: &BTreeMap<String, String>,
     arguments: &[String],
   ) -> Result<(), i32> {
-    if let Err(error) = InterruptHandler::install() {
+    if let Err(error) = InterruptHandler::install(self.verbosity) {
       warn!("Failed to set CTRL-C handler: {}", error)
     }
 
@@ -779,7 +801,7 @@ impl Config {
     }
   }
 
-  fn show(name: &str, justfile: Justfile) -> Result<(), i32> {
+  fn show(&self, name: &str, justfile: Justfile) -> Result<(), i32> {
     if let Some(alias) = justfile.get_alias(name) {
       let recipe = justfile.get_recipe(alias.target.name.lexeme()).unwrap();
       println!("{}", alias);
@@ -789,9 +811,11 @@ impl Config {
       println!("{}", recipe);
       Ok(())
     } else {
-      eprintln!("Justfile does not contain recipe `{}`.", name);
-      if let Some(suggestion) = justfile.suggest(name) {
-        eprintln!("{}", suggestion);
+      if self.verbosity.loud() {
+        eprintln!("Justfile does not contain recipe `{}`.", name);
+        if let Some(suggestion) = justfile.suggest(name) {
+          eprintln!("{}", suggestion);
+        }
       }
       Err(EXIT_FAILURE)
     }
@@ -799,7 +823,9 @@ impl Config {
 
   fn summary(&self, justfile: Justfile) {
     if justfile.count() == 0 {
-      eprintln!("Justfile contains no recipes.");
+      if self.verbosity.loud() {
+        eprintln!("Justfile contains no recipes.");
+      }
     } else {
       let summary = justfile
         .public_recipes(self.unsorted)
