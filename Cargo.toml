@@ -9,6 +9,8 @@ repository  = "https://github.com/casey/just"
 readme      = "crates-io-readme.md"
 edition     = "2018"
 autotests   = false
+categories  = ["command-line-utilities", "development-tools"]
+keywords    = ["command line", "task", "runner", "development", "utility"]
 
 [dependencies]
 ansi_term     = "0.12.0"
