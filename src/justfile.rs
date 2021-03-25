@@ -253,8 +253,7 @@ impl<'src> Justfile<'src> {
 
     recipe.run(context, dotenv, scope, search)?;
 
-    let mut invocation = Vec::new();
-    invocation.push(recipe.name().to_owned());
+    let mut invocation = vec![recipe.name().to_owned()];
     for argument in arguments.iter().cloned() {
       invocation.push(argument.to_owned());
     }
