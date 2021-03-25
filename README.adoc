@@ -138,6 +138,60 @@ You can use the following command on Linux, MacOS, or Windows to download the la
 curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to DEST
 ```
 
+== Editor Support
+
+`justfile` syntax is close enough to `make` that you may want to tell your editor to use make syntax highlighting for just.
+
+=== Vim
+
+For vim, you can put the following in `~/.vim/filetype.vim`:
+
+```vimscript
+if exists("did_load_filetypes")
+  finish
+endif
+
+augroup filetypedetect
+  au BufNewFile,BufRead justfile setf make
+augroup END
+```
+
+You can add the following to a individual justfile to enable make mode on a per-file basis:
+
+```
+# vim: set ft=make :
+```
+
+=== Emacs
+
+There is a MELPA package, https://melpa.org/#/just-mode[just-mode], for automatic Emacs syntax highlighting and automatic indentation in justfiles.
+
+You can add the following to a individual justfile to enable make mode on a per-file basis:
+
+```
+# Local Variables:
+# mode: makefile
+# End:
+```
+
+=== Visual Studio Code
+
+An extension for VS Code by https://github.com/skellock[skellock] is https://marketplace.visualstudio.com/items?itemName=skellock.just[available here]. (https://github.com/skellock/vscode-just[repository])
+
+You can install it from the command line by running:
+
+```
+code --install-extension skellock.just
+```
+
+=== Kakoune
+
+Kakoune supports `justfile` syntax highlighting out of the box, thanks to TeddyDD.
+
+=== Other Editors
+
+Feel free to send me the commands necessary to get syntax highlighting working in your editor of choice so that I may include them here.
+
 == Quick Start
 
 See xref:Installation[] for how to install `just` on your computer. Try running `just --version` to make sure that it's installed correctly.
@@ -1266,57 +1320,6 @@ The `just` binary can also generate the same completion scripts at runtime, usin
 ```sh
 $ just --completions zsh > just.zsh
 ```
-
-=== Syntax Highlighting
-
-`justfile` syntax is close enough to `make` that you may want to tell your editor to use make syntax highlighting for just.
-
-==== Vim
-
-For vim, you can put the following in `~/.vim/filetype.vim`:
-
-```vimscript
-if exists("did_load_filetypes")
-  finish
-endif
-
-augroup filetypedetect
-  au BufNewFile,BufRead justfile setf make
-augroup END
-```
-
-==== Emacs
-
-There is a MELPA package, https://melpa.org/#/just-mode[just-mode], for automatic Emacs syntax highlighting and automatic indentation in justfiles.
-
-==== Vim and Emacs using Makefile mode
-
-Include the following in a `justfile` to use Makefile syntax highlighting in vim and emacs:
-
-```
-# Local Variables:
-# mode: makefile
-# End:
-# vim: set ft=make :
-```
-
-==== Visual Studio Code
-
-An extension for VS Code by https://github.com/skellock[skellock] is https://marketplace.visualstudio.com/items?itemName=skellock.just[available here]. (https://github.com/skellock/vscode-just[repository])
-
-You can install it from the command line by running:
-
-```
-code --install-extension skellock.just
-```
-
-==== Kakoune
-
-Kakoune supports `justfile` syntax highlighting out of the box, thanks to TeddyDD.
-
-==== Other Editors
-
-Feel free to send me the commands necessary to get syntax highlighting working in your editor of choice so that I may include them here.
 
 === Grammar
 
