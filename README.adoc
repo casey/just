@@ -88,7 +88,18 @@ On Windows, `just` works with the `sh` provided by https://git-scm.com[Git for W
 
 If you'd rather not install `sh`, you can use the `shell` setting to use the shell of your choice.
 
-Like `cmd.exe`:
+Like Powershell:
+
+```make
+
+# use Powershell instead of sh:
+set shell := ["powershell.exe", "-c"]
+
+hello:
+  Write-Host "Hello, world!"
+```
+
+…or `cmd.exe`:
 
 ```make
 
@@ -99,16 +110,7 @@ list:
   dir
 ```
 
-…or Powershell:
-
-```make
-
-# use Powershell instead of sh:
-set shell := ["powershell.exe", "-c"]
-
-hello:
-  Write-Host "Hello, world!"
-```
+(Powershell is installed by default on Windows 7 SP1 and Windows Server 2008 R2 S1 and later, and `cmd.exe` is quite fiddly, so Powershell is recommended for most Windows users.)
 
 === Packages
 
