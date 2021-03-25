@@ -2,12 +2,16 @@ use crate::common::*;
 
 #[derive(Debug, PartialEq)]
 pub(crate) struct Settings<'src> {
-  pub(crate) shell: Option<setting::Shell<'src>>,
+  pub(crate) shell:  Option<setting::Shell<'src>>,
+  pub(crate) export: bool,
 }
 
 impl<'src> Settings<'src> {
   pub(crate) fn new() -> Settings<'src> {
-    Settings { shell: None }
+    Settings {
+      shell:  None,
+      export: false,
+    }
   }
 
   pub(crate) fn shell_command(&self, config: &Config) -> Command {

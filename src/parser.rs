@@ -345,7 +345,9 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
               items.push(Item::Recipe(self.parse_recipe(doc, false)?));
             },
           Some(Keyword::Set) =>
-            if self.next_are(&[Identifier, Identifier, ColonEquals]) {
+            if self.next_are(&[Identifier, Identifier, ColonEquals])
+              || self.next_are(&[Identifier, Identifier, Eol])
+            {
               items.push(Item::Set(self.parse_set()?));
             } else {
               items.push(Item::Recipe(self.parse_recipe(doc, false)?));
@@ -677,6 +679,14 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   fn parse_set(&mut self) -> CompilationResult<'src, Set<'src>> {
     self.presume_keyword(Keyword::Set)?;
     let name = Name::from_identifier(self.presume(Identifier)?);
+
+    if name.lexeme() == Keyword::Export.lexeme() {
+      return Ok(Set {
+        value: Setting::Export,
+        name,
+      });
+    }
+
     self.presume(ColonEquals)?;
     if name.lexeme() == Keyword::Shell.lexeme() {
       self.expect(BracketL)?;

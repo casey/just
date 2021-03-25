@@ -55,7 +55,8 @@ assignment    : NAME ':=' expression eol
 
 export        : 'export' assignment
 
-setting       : 'set' 'shell' ':=' '[' string (',' string)* ','? ']'
+setting       : 'set' 'export'
+              | 'set' 'shell' ':=' '[' string (',' string)* ','? ']'
 
 expression    : 'if' condition '{' expression '}' else '{' expression '}'
               | value '+' expression

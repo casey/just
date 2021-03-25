@@ -388,6 +388,7 @@ foo:
 [options="header"]
 |=================
 | Name | Value | Description
+| `export` | | Export all variables as environment variables
 |`shell` | `[COMMAND, ARGS...]` | Set the command used to invoke recipes and evaluate backticks.
 |=================
 
@@ -405,6 +406,26 @@ foos := `print("foo" * 4)`
 foo:
   print("Snake snake snake snake.")
   print("{{foos}}")
+```
+
+==== Export
+
+The `export` setting causes all Just variables to be exported as environment variables.
+
+```make
+set export
+
+a := "hello"
+
+@foo b:
+  echo $a
+  echo $b
+```
+
+```
+$ just foo goodbye
+hello
+goodbye
 ```
 
 === Documentation Comments

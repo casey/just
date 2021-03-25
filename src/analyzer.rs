@@ -69,6 +69,9 @@ impl<'src> Analyzer<'src> {
           assert!(settings.shell.is_none());
           settings.shell = Some(shell);
         },
+        Setting::Export => {
+          settings.export = true;
+        },
       }
     }
 

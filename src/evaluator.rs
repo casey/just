@@ -143,7 +143,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
 
     cmd.current_dir(&self.search.working_directory);
 
-    cmd.export(self.dotenv, &self.scope);
+    cmd.export(self.settings, self.dotenv, &self.scope);
 
     cmd.stdin(process::Stdio::inherit());
 
@@ -197,14 +197,14 @@ impl<'src, 'run> Evaluator<'src, 'run> {
   ) -> RunResult<'src, Scope<'src, 'run>> {
     let mut evaluator = Evaluator {
       assignments: None,
-      scope: Scope::child(scope),
+      scope: scope.child(),
       search,
       settings,
       dotenv,
       config,
     };
 
-    let mut scope = Scope::child(scope);
+    let mut scope = scope.child();
 
     let mut rest = arguments;
     for parameter in parameters {

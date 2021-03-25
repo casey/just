@@ -176,7 +176,7 @@ impl<'src, D> Recipe<'src, D> {
         output_error,
       })?;
 
-      command.export(dotenv, &scope);
+      command.export(context.settings, dotenv, &scope);
 
       // run it!
       match InterruptHandler::guard(|| command.status()) {
@@ -265,7 +265,7 @@ impl<'src, D> Recipe<'src, D> {
           cmd.stdout(Stdio::null());
         }
 
-        cmd.export(dotenv, &scope);
+        cmd.export(context.settings, dotenv, &scope);
 
         match InterruptHandler::guard(|| cmd.status()) {
           Ok(exit_status) =>

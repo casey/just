@@ -221,7 +221,7 @@ impl<'src> Justfile<'src> {
     search: &'run Search,
     ran: &mut BTreeSet<Vec<String>>,
   ) -> RunResult<'src, ()> {
-    let scope = Evaluator::evaluate_parameters(
+    let outer = Evaluator::evaluate_parameters(
       context.config,
       dotenv,
       &recipe.parameters,
@@ -230,6 +230,8 @@ impl<'src> Justfile<'src> {
       context.settings,
       search,
     )?;
+
+    let scope = outer.child();
 
     let mut evaluator =
       Evaluator::recipe_evaluator(context.config, dotenv, &scope, context.settings, search);
@@ -251,7 +253,7 @@ impl<'src> Justfile<'src> {
       }
     }
 
-    recipe.run(context, dotenv, scope, search)?;
+    recipe.run(context, dotenv, scope.child(), search)?;
 
     let mut invocation = vec![recipe.name().to_owned()];
     for argument in arguments.iter().cloned() {
