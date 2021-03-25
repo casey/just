@@ -1,6 +1,20 @@
 Changelog
 =========
 
+[v0.8.5] - 2020-3-24
+--------------------
+
+### Added
+- Allow escaping double braces with `{{{{` (#765)
+
+### Misc
+- Reorganize readme to highlight editor support (#764)
+- Add categories and keywords to Cargo manifest (#763)
+- Fix command output in readme (#760)
+- Note Emacs package `just-mode` in readme (#759)
+- Note shebang line splitting inconsistency in readme (#757)
+
+
 [v0.8.4] - 2020-2-9
 -------------------
 

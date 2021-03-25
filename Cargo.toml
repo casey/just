@@ -1,6 +1,6 @@
 [package]
 name        = "just"
-version     = "0.8.4"
+version     = "0.8.5"
 description = "🤖 Just a command runner"
 authors     = ["Casey Rodarmor <casey@rodarmor.com>"]
 license     = "CC0-1.0"
@@ -10,7 +10,7 @@ readme      = "crates-io-readme.md"
 edition     = "2018"
 autotests   = false
 categories  = ["command-line-utilities", "development-tools"]
-keywords    = ["command line", "task", "runner", "development", "utility"]
+keywords    = ["command-line", "task", "runner", "development", "utility"]
 
 [dependencies]
 ansi_term     = "0.12.0"
@@ -38,7 +38,7 @@ features = ["derive"]
 
 [dev-dependencies]
 executable-path   = "1.0.0"
-pretty_assertions = "0.6.0"
+pretty_assertions = "0.7.0"
 which             = "4.0.0"
 
 # Until github.com/rust-lang/cargo/pull/7333 makes it into stable,
