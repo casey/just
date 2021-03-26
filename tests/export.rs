@@ -14,6 +14,17 @@ wut:
 }
 
 test! {
+  name:     parameter,
+  justfile: "
+    wut $FOO:
+      echo $FOO
+  ",
+  args:   ("wut", "bar"),
+  stdout: "bar\n",
+  stderr: "echo $FOO\n",
+}
+
+test! {
   name:     override_variable,
   justfile: r#"
 export FOO := "a"

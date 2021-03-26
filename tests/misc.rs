@@ -1422,7 +1422,7 @@ test! {
   justfile: "foo 'bar'",
   args:     ("foo"),
   stdout:   "",
-  stderr:   "error: Expected '*', ':', identifier, or '+', but found raw string
+  stderr:   "error: Expected '*', ':', '$', identifier, or '+', but found raw string
   |
 1 | foo 'bar'
   |     ^^^^^
@@ -2050,12 +2050,12 @@ foo a=\t`echo blaaaaaah:
 test! {
   name:     unknown_start_of_token,
   justfile: "
-assembly_source_files = $(wildcard src/arch/$(arch)/*.s)
+assembly_source_files = %(wildcard src/arch/$(arch)/*.s)
 ",
   stderr:   r#"
     error: Unknown start of token:
       |
-    2 | assembly_source_files = $(wildcard src/arch/$(arch)/*.s)
+    2 | assembly_source_files = %(wildcard src/arch/$(arch)/*.s)
       |                         ^
   "#,
    status:   EXIT_FAILURE,

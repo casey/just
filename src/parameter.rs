@@ -9,6 +9,8 @@ pub(crate) struct Parameter<'src> {
   pub(crate) kind:    ParameterKind,
   /// An optional default expression
   pub(crate) default: Option<Expression<'src>>,
+  /// Export parameter as environment variable
+  pub(crate) export:  bool,
 }
 
 impl<'src> Display for Parameter<'src> {
