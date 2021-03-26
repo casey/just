@@ -571,7 +571,9 @@ impl Config {
       Err(error) => {
         if self.verbosity.loud() {
           eprintln!(
-            "Chooser `{}` invocation failed: {}",
+            "Chooser `{} {} {}` invocation failed: {}",
+            justfile.settings.shell_binary(self),
+            justfile.settings.shell_arguments(self).join(" "),
             chooser.to_string_lossy(),
             error
           );

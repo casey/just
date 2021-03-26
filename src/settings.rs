@@ -15,20 +15,30 @@ impl<'src> Settings<'src> {
   }
 
   pub(crate) fn shell_command(&self, config: &Config) -> Command {
+    let mut cmd = Command::new(self.shell_binary(config));
+
+    cmd.args(self.shell_arguments(config));
+
+    cmd
+  }
+
+  pub(crate) fn shell_binary<'a>(&'a self, config: &'a Config) -> &'a str {
     if let (Some(shell), false) = (&self.shell, config.shell_present) {
-      let mut cmd = Command::new(shell.command.cooked.as_ref());
-
-      for argument in &shell.arguments {
-        cmd.arg(argument.cooked.as_ref());
-      }
-
-      cmd
+      shell.command.cooked.as_ref()
     } else {
-      let mut cmd = Command::new(&config.shell);
+      &config.shell
+    }
+  }
 
-      cmd.args(&config.shell_args);
-
-      cmd
+  pub(crate) fn shell_arguments<'a>(&'a self, config: &'a Config) -> Vec<&'a str> {
+    if let (Some(shell), false) = (&self.shell, config.shell_present) {
+      shell
+        .arguments
+        .iter()
+        .map(|argument| argument.cooked.as_ref())
+        .collect()
+    } else {
+      config.shell_args.iter().map(String::as_ref).collect()
     }
   }
 }
