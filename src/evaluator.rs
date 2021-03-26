@@ -227,7 +227,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         rest = &rest[1..];
         value
       };
-      scope.bind(false, parameter.name, value);
+      scope.bind(parameter.export, parameter.name, value);
     }
 
     Ok(scope)

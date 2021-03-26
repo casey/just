@@ -464,6 +464,7 @@ impl<'src> Lexer<'src> {
     match start {
       '!' => self.lex_bang(),
       '*' => self.lex_single(Asterisk),
+      '$' => self.lex_single(Dollar),
       '@' => self.lex_single(At),
       '[' => self.lex_delimiter(BracketL),
       ']' => self.lex_delimiter(BracketR),
@@ -912,6 +913,7 @@ mod tests {
       Colon => ":",
       ColonEquals => ":=",
       Comma => ",",
+      Dollar => "$",
       Eol => "\n",
       Equals => "=",
       EqualsEquals => "==",
@@ -1046,6 +1048,12 @@ mod tests {
     name:   brace_rrr,
     text:   "{{{}}}",
     tokens: (BraceL, BraceL, BraceL, BraceR, BraceR, BraceR),
+  }
+
+  test! {
+    name:   dollar,
+    text:   "$",
+    tokens: (Dollar),
   }
 
   test! {

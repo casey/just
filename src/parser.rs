@@ -568,7 +568,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
 
     let mut positional = Vec::new();
 
-    while self.next_is(Identifier) {
+    while self.next_is(Identifier) || self.next_is(Dollar) {
       positional.push(self.parse_parameter(ParameterKind::Singular)?);
     }
 
@@ -620,6 +620,8 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
 
   /// Parse a recipe parameter
   fn parse_parameter(&mut self, kind: ParameterKind) -> CompilationResult<'src, Parameter<'src>> {
+    let export = self.accepted(Dollar)?;
+
     let name = self.parse_name()?;
 
     let default = if self.accepted(Equals)? {
@@ -632,6 +634,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
       name,
       kind,
       default,
+      export,
     })
   }
 
@@ -1643,7 +1646,10 @@ mod tests {
     line:   0,
     column: 5,
     width:  1,
-    kind:   UnexpectedToken{expected: vec![Asterisk, Colon, Equals, Identifier, Plus], found: Eol},
+    kind:   UnexpectedToken{
+      expected: vec![Asterisk, Colon, Dollar, Equals, Identifier, Plus],
+      found:    Eol
+    },
   }
 
   error! {
@@ -1728,7 +1734,7 @@ mod tests {
     line:   0,
     column: 6,
     width:  1,
-    kind:   UnexpectedToken{expected: vec![Identifier], found: Colon},
+    kind:   UnexpectedToken{expected: vec![Dollar, Identifier], found: Colon},
   }
 
   error! {
@@ -1748,7 +1754,10 @@ mod tests {
     line:   0,
     column: 8,
     width:  0,
-    kind:   UnexpectedToken{expected: vec![Asterisk, Colon, Equals, Identifier, Plus], found: Eof},
+    kind:   UnexpectedToken {
+      expected: vec![Asterisk, Colon, Dollar, Equals, Identifier, Plus],
+      found:    Eof
+    },
   }
 
   error! {

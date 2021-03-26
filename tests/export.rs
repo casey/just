@@ -14,6 +14,30 @@ wut:
 }
 
 test! {
+  name:     parameter,
+  justfile: r#"
+    wut $FOO='a' BAR='b':
+      echo $FOO
+      echo {{BAR}}
+      if [ -n "${BAR+1}" ]; then echo defined; else echo undefined; fi
+  "#,
+  stdout: "a\nb\nundefined\n",
+  stderr: "echo $FOO\necho b\nif [ -n \"${BAR+1}\" ]; then echo defined; else echo undefined; fi\n",
+}
+
+test! {
+  name:     parameter_not_visible_to_backtick,
+  justfile: r#"
+    wut $FOO BAR=`if [ -n "${FOO+1}" ]; then echo defined; else echo undefined; fi`:
+      echo $FOO
+      echo {{BAR}}
+  "#,
+  args:   ("wut", "bar"),
+  stdout: "bar\nundefined\n",
+  stderr: "echo $FOO\necho undefined\n",
+}
+
+test! {
   name:     override_variable,
   justfile: r#"
 export FOO := "a"
