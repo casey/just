@@ -757,6 +757,14 @@ test:
     cargo test
 ```
 
+Parameters prefixed with a `$` will be exported as environment variables:
+
+```make
+test $RUST_BACKTRACE="1":
+    # will print a stack trace if it crashes
+    cargo test
+```
+
 === Recipe Parameters
 
 Recipes may have parameters. Here recipe `build` has a parameter called `target`:
@@ -870,6 +878,13 @@ You can fix this by adding quotes:
 ```make
 search QUERY:
     lynx 'https://www.google.com/?q={{QUERY}}'
+```
+
+Parameters prefixed with a `$` will be exported as environment variables:
+
+```make
+foo $bar:
+  echo $bar
 ```
 
 === Running recipes at the end of a recipe
