@@ -1646,7 +1646,10 @@ mod tests {
     line:   0,
     column: 5,
     width:  1,
-    kind:   UnexpectedToken{expected: vec![Asterisk, Colon, Dollar, Equals, Identifier, Plus], found: Eol},
+    kind:   UnexpectedToken{
+      expected: vec![Asterisk, Colon, Dollar, Equals, Identifier, Plus],
+      found:    Eol
+    },
   }
 
   error! {
@@ -1751,7 +1754,10 @@ mod tests {
     line:   0,
     column: 8,
     width:  0,
-    kind:   UnexpectedToken{expected: vec![Asterisk, Colon, Dollar, Equals, Identifier, Plus], found: Eof},
+    kind:   UnexpectedToken {
+      expected: vec![Asterisk, Colon, Dollar, Equals, Identifier, Plus],
+      found:    Eof
+    },
   }
 
   error! {
