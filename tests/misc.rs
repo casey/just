@@ -575,64 +575,6 @@ hello := "c"
 }
 
 test! {
-  name:     export_success,
-  justfile: r#"
-export FOO := "a"
-baz := "c"
-export BAR := "b"
-export ABC := FOO + BAR + baz
-
-wut:
-  echo $FOO $BAR $ABC
-"#,
-  stdout:   "a b abc\n",
-  stderr:   "echo $FOO $BAR $ABC\n",
-}
-
-test! {
-  name:     export_override,
-  justfile: r#"
-export FOO := "a"
-baz := "c"
-export BAR := "b"
-export ABC := FOO + "-" + BAR + "-" + baz
-
-wut:
-  echo $FOO $BAR $ABC
-"#,
-  args:     ("--set", "BAR", "bye", "FOO=hello"),
-  stdout:   "hello bye hello-bye-c\n",
-  stderr:   "echo $FOO $BAR $ABC\n",
-}
-
-test! {
-  name:     export_shebang,
-  justfile: r#"
-export FOO := "a"
-baz := "c"
-export BAR := "b"
-export ABC := FOO + BAR + baz
-
-wut:
-  #!/bin/sh
-  echo $FOO $BAR $ABC
-"#,
-  stdout:   "a b abc\n",
-}
-
-test! {
-  name:     export_recipe_backtick,
-  justfile: r#"
-export EXPORTED_VARIABLE := "A-IS-A"
-
-recipe:
-  echo {{`echo recipe $EXPORTED_VARIABLE`}}
-"#,
-  stdout:   "recipe A-IS-A\n",
-  stderr:   "echo recipe A-IS-A\n",
-}
-
-test! {
   name:     raw_string,
   justfile: r#"
 export EXPORTED_VARIABLE := '\z'

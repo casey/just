@@ -7,9 +7,9 @@ pub(crate) struct Scope<'src: 'run, 'run> {
 }
 
 impl<'src, 'run> Scope<'src, 'run> {
-  pub(crate) fn child(parent: &'run Scope<'src, 'run>) -> Scope<'src, 'run> {
+  pub(crate) fn child(&'run self) -> Scope<'src, 'run> {
     Scope {
-      parent:   Some(parent),
+      parent:   Some(self),
       bindings: Table::new(),
     }
   }

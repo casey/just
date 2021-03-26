@@ -197,6 +197,7 @@ impl<'src> Node<'src> for Set<'src> {
           set.push_mut(Tree::string(&argument.cooked));
         }
       },
+      Export => {},
     }
 
     set
