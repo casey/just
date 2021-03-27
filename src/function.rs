@@ -18,6 +18,7 @@ lazy_static! {
     ("invocation_directory", Nullary(invocation_directory)),
     ("env_var", Unary(env_var)),
     ("env_var_or_default", Binary(env_var_or_default)),
+    ("just_executable", Nullary(just_executable)),
   ]
   .into_iter()
   .collect();
@@ -122,4 +123,19 @@ fn env_var_or_default(
     )),
     Ok(value) => Ok(value),
   }
+}
+
+fn just_executable(_context: &FunctionContext) -> Result<String, String> {
+  let exe_path = std::env::current_exe()
+    .map_err(|e| format!("Error getting just executable: {}", e))?;
+
+  exe_path
+    .to_str()
+    .map(str::to_owned)
+    .ok_or_else(|| {
+      format!(
+        "Just executable path is not valid unicode: {}",
+        exe_path.to_string_lossy()
+      )
+    })
 }

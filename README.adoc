@@ -585,6 +585,20 @@ $ just system-info
 This is an x86_64 machine
 ```
 
+- `just_executable()` - Path to the running just executable.
+
+For example:
+
+```make
+itself:
+    @echo The executable is at: {{just_executable()}}
+```
+
+```
+$ just itself
+The executable is at: /bin/just
+```
+
 ==== Environment Variables
 
 - `env_var(key)` – Retrieves the environment variable with name `key`, aborting if it is not present.
