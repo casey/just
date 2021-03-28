@@ -127,11 +127,11 @@ fn env_var_or_default(
 
 fn just_executable(_context: &FunctionContext) -> Result<String, String> {
   let exe_path =
-    std::env::current_exe().map_err(|e| format!("Error getting just executable: {}", e))?;
+    std::env::current_exe().map_err(|e| format!("Error getting current executable: {}", e))?;
 
   exe_path.to_str().map(str::to_owned).ok_or_else(|| {
     format!(
-      "Just executable path is not valid unicode: {}",
+      "Executable path is not valid unicode: {}",
       exe_path.to_string_lossy()
     )
   })

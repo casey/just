@@ -1205,7 +1205,10 @@ test! {
 
 test! {
   name:     test_just_executable_function,
-  justfile: "a:\n  @echo Executable path is: {{just_executable()}}",
+  justfile: "
+    a:
+      @echo Executable path is: {{just_executable()}}
+  ",
   args:     ("a"),
   stdout:   format!("Executable path is: {}\n", executable_path("just").to_str().unwrap()).as_str(),
   stderr:   "",
