@@ -1,6 +1,23 @@
 Changelog
 =========
 
+[v0.8.6] - 2020-3-28
+--------------------
+
+### Added
+- Add just_executable() function (#775)
+- Prefix parameters with `$` to export to environment (#773)
+- Add `set export` to export all variables as environment variables (#767)
+
+### Changed
+- Suppress all output to stderr when `--quiet` (#771)
+
+### Misc
+- Improve chooser invocation error message (#772)
+- De-emphasize cmd.exe in readme (#768)
+- Fix warnings (#770)
+
+
 [v0.8.5] - 2020-3-24
 --------------------
 
