@@ -77,7 +77,7 @@ publish: publish-check
 	git branch | grep '* master'
 	git tag -a {{version}} -m 'Release {{version}}'
 	git push github {{version}}
-	cargo +nightly publish
+	cargo publish
 
 push: check
 	! git branch | grep '* master'
