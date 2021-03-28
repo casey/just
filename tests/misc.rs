@@ -1204,6 +1204,18 @@ test! {
 }
 
 test! {
+  name:     test_just_executable_function,
+  justfile: "
+    a:
+      @printf 'Executable path is: %s\\n' '{{ just_executable() }}'
+  ",
+  args:     ("a"),
+  stdout:   format!("Executable path is: {}\n", executable_path("just").to_str().unwrap()).as_str(),
+  stderr:   "",
+  status:   EXIT_SUCCESS,
+}
+
+test! {
   name: infallable_command,
   justfile: r#"
 infallable:
