@@ -6,7 +6,7 @@ pub(crate) struct Justfile<'src> {
   pub(crate) assignments: Table<'src, Assignment<'src>>,
   pub(crate) aliases:     Table<'src, Alias<'src>>,
   pub(crate) settings:    Settings<'src>,
-  pub(crate) warnings:    Vec<Warning<'src>>,
+  pub(crate) warnings:    Vec<Warning>,
 }
 
 impl<'src> Justfile<'src> {
@@ -557,10 +557,10 @@ mod tests {
   run_error! {
     name: export_failure,
     src: r#"
-      export foo = "a"
-      baz = "c"
-      export bar = "b"
-      export abc = foo + bar + baz
+      export foo := "a"
+      baz := "c"
+      export bar := "b"
+      export abc := foo + bar + baz
 
       wut:
         echo $foo $bar $baz

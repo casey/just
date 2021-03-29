@@ -62,6 +62,16 @@ impl Display for CompilationError<'_> {
         };
         writeln!(f, "`\\{}` is not a valid escape sequence", representation)?;
       },
+      DeprecatedEquals => {
+        writeln!(
+          f,
+          "`=` in assignments, exports, and aliases has been phased out on favor of `:=`"
+        )?;
+        writeln!(
+          f,
+          "Please see this issue for more details: https://github.com/casey/just/issues/379"
+        )?;
+      },
       DuplicateParameter { recipe, parameter } => {
         writeln!(
           f,

@@ -2178,15 +2178,14 @@ test! {
     default:
       echo {{foo}}
   ",
-  stdout: "bar\n",
   stderr: "
-    warning: `=` in assignments, exports, and aliases is being phased out on favor of `:=`
+    error: `=` in assignments, exports, and aliases has been phased out on favor of `:=`
     Please see this issue for more details: https://github.com/casey/just/issues/379
       |
     1 | foo = 'bar'
       |     ^
-    echo bar
   ",
+  status: EXIT_FAILURE,
 }
 
 test! {
@@ -2197,15 +2196,14 @@ test! {
     default:
       echo $FOO
     ",
-  stdout: "bar\n",
   stderr: "
-    warning: `=` in assignments, exports, and aliases is being phased out on favor of `:=`
+    error: `=` in assignments, exports, and aliases has been phased out on favor of `:=`
     Please see this issue for more details: https://github.com/casey/just/issues/379
       |
     1 | export FOO = 'bar'
       |            ^
-    echo $FOO
   ",
+  status: EXIT_FAILURE,
 }
 
 test! {
@@ -2217,15 +2215,14 @@ test! {
       echo default
   ",
   args: ("foo"),
-  stdout: "default\n",
   stderr: "
-    warning: `=` in assignments, exports, and aliases is being phased out on favor of `:=`
+    error: `=` in assignments, exports, and aliases has been phased out on favor of `:=`
     Please see this issue for more details: https://github.com/casey/just/issues/379
       |
     1 | alias foo = default
       |           ^
-    echo default
   ",
+  status: EXIT_FAILURE,
 }
 
 test! {

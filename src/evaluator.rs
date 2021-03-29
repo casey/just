@@ -275,8 +275,8 @@ mod tests {
   run_error! {
     name: export_assignment_backtick,
     src: r#"
-      export exported_variable = "A"
-      b = `echo $exported_variable`
+      export exported_variable := "A"
+      b := `echo $exported_variable`
 
       recipe:
         echo {{b}}

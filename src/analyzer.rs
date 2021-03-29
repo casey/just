@@ -202,8 +202,8 @@ mod tests {
 
   analysis_error! {
     name: duplicate_alias,
-    input: "alias foo = bar\nalias foo = baz",
-    offset: 22,
+    input: "alias foo := bar\nalias foo := baz",
+    offset: 23,
     line: 1,
     column: 6,
     width: 3,
@@ -212,7 +212,7 @@ mod tests {
 
   analysis_error! {
     name: unknown_alias_target,
-    input: "alias foo = bar\n",
+    input: "alias foo := bar\n",
     offset: 6,
     line: 0,
     column: 6,
@@ -222,7 +222,7 @@ mod tests {
 
   analysis_error! {
     name: alias_shadows_recipe_before,
-    input: "bar: \n  echo bar\nalias foo = bar\nfoo:\n  echo foo",
+    input: "bar: \n  echo bar\nalias foo := bar\nfoo:\n  echo foo",
     offset: 23,
     line: 2,
     column: 6,
@@ -232,7 +232,7 @@ mod tests {
 
   analysis_error! {
     name: alias_shadows_recipe_after,
-    input: "foo:\n  echo foo\nalias foo = bar\nbar:\n  echo bar",
+    input: "foo:\n  echo foo\nalias foo := bar\nbar:\n  echo bar",
     offset: 22,
     line: 2,
     column: 6,
@@ -272,8 +272,8 @@ mod tests {
 
   analysis_error! {
     name:   parameter_shadows_varible,
-    input:  "foo = \"h\"\na foo:",
-    offset:  12,
+    input:  "foo := \"h\"\na foo:",
+    offset:  13,
     line:   1,
     column: 2,
     width:  3,
@@ -292,8 +292,8 @@ mod tests {
 
   analysis_error! {
     name:   duplicate_variable,
-    input:  "a = \"0\"\na = \"0\"",
-    offset:  8,
+    input:  "a := \"0\"\na := \"0\"",
+    offset: 9,
     line:   1,
     column: 0,
     width:  1,

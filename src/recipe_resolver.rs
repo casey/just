@@ -166,8 +166,8 @@ mod tests {
 
   analysis_error! {
     name:   unknown_second_interpolation_variable,
-    input:  "wtf=\"x\"\nx:\n echo\n foo {{wtf}} {{ lol }}",
-    offset: 33,
+    input:  "wtf:=\"x\"\nx:\n echo\n foo {{wtf}} {{ lol }}",
+    offset: 34,
     line:   3,
     column: 16,
     width:  3,

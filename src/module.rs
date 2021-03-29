@@ -12,5 +12,5 @@ pub(crate) struct Module<'src> {
   /// Items in the justfile
   pub(crate) items:    Vec<Item<'src>>,
   /// Non-fatal warnings encountered during parsing
-  pub(crate) warnings: Vec<Warning<'src>>,
+  pub(crate) warnings: Vec<Warning>,
 }
