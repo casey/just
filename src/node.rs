@@ -204,10 +204,8 @@ impl<'src> Node<'src> for Set<'src> {
   }
 }
 
-impl<'src> Node<'src> for Warning<'src> {
+impl<'src> Node<'src> for Warning {
   fn tree(&self) -> Tree<'src> {
-    match self {
-      Warning::DeprecatedEquals { .. } => Tree::atom("warning").push("deprecated_equals"),
-    }
+    unreachable!()
   }
 }

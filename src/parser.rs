@@ -308,7 +308,6 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   /// Parse a justfile, consumes self
   fn parse_justfile(mut self) -> CompilationResult<'src, Module<'src>> {
     let mut items = Vec::new();
-    let mut warnings = Vec::new();
 
     let mut doc = None;
 
@@ -325,10 +324,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
         match Keyword::from_lexeme(next.lexeme()) {
           Some(Keyword::Alias) =>
             if self.next_are(&[Identifier, Identifier, Equals]) {
-              warnings.push(Warning::DeprecatedEquals {
-                equals: self.get(2)?,
-              });
-              items.push(Item::Alias(self.parse_alias()?));
+              return Err(self.get(2)?.error(CompilationErrorKind::DeprecatedEquals));
             } else if self.next_are(&[Identifier, Identifier, ColonEquals]) {
               items.push(Item::Alias(self.parse_alias()?));
             } else {
@@ -336,11 +332,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
             },
           Some(Keyword::Export) =>
             if self.next_are(&[Identifier, Identifier, Equals]) {
-              warnings.push(Warning::DeprecatedEquals {
-                equals: self.get(2)?,
-              });
-              self.presume_keyword(Keyword::Export)?;
-              items.push(Item::Assignment(self.parse_assignment(true)?));
+              return Err(self.get(2)?.error(CompilationErrorKind::DeprecatedEquals));
             } else if self.next_are(&[Identifier, Identifier, ColonEquals]) {
               self.presume_keyword(Keyword::Export)?;
               items.push(Item::Assignment(self.parse_assignment(true)?));
@@ -358,10 +350,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
             },
           _ =>
             if self.next_are(&[Identifier, Equals]) {
-              warnings.push(Warning::DeprecatedEquals {
-                equals: self.get(1)?,
-              });
-              items.push(Item::Assignment(self.parse_assignment(false)?));
+              return Err(self.get(1)?.error(CompilationErrorKind::DeprecatedEquals));
             } else if self.next_are(&[Identifier, ColonEquals]) {
               items.push(Item::Assignment(self.parse_assignment(false)?));
             } else {
@@ -385,7 +374,10 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
         self.tokens.len() - self.next,
       ))?)
     } else {
-      Ok(Module { items, warnings })
+      Ok(Module {
+        warnings: Vec::new(),
+        items,
+      })
     }
   }
 
@@ -882,10 +874,9 @@ mod tests {
 
   test! {
     name: alias_equals,
-    text: "alias t = test",
+    text: "alias t := test",
     tree: (justfile
       (alias t test)
-      (warning deprecated_equals)
     ),
   }
 
@@ -897,10 +888,9 @@ mod tests {
 
   test! {
     name: export_equals,
-    text: r#"export x = "hello""#,
+    text: r#"export x := "hello""#,
     tree: (justfile
       (assignment #export x "hello")
-      (warning deprecated_equals)
     ),
   }
 
@@ -912,10 +902,9 @@ mod tests {
 
   test! {
     name: assignment_equals,
-    text: r#"x = "hello""#,
+    text: r#"x := "hello""#,
     tree: (justfile
       (assignment x "hello")
-      (warning deprecated_equals)
     ),
   }
 
@@ -1691,23 +1680,23 @@ mod tests {
   }
 
   error! {
-    name: alias_syntax_multiple_rhs,
-    input: "alias foo = bar baz",
-    offset: 16,
-    line: 0,
-    column: 16,
-    width: 3,
-    kind: UnexpectedToken { expected: vec![Comment, Eof, Eol], found: Identifier },
+    name:   alias_syntax_multiple_rhs,
+    input:  "alias foo := bar baz",
+    offset: 17,
+    line:   0,
+    column: 17,
+    width:  3,
+    kind:   UnexpectedToken { expected: vec![Comment, Eof, Eol], found: Identifier },
   }
 
   error! {
-    name: alias_syntax_no_rhs,
-    input: "alias foo = \n",
-    offset: 12,
-    line: 0,
-    column: 12,
-    width: 1,
-    kind: UnexpectedToken {expected: vec![Identifier], found:Eol},
+    name:   alias_syntax_no_rhs,
+    input:  "alias foo := \n",
+    offset: 13,
+    line:   0,
+    column: 13,
+    width:  1,
+    kind:   UnexpectedToken {expected: vec![Identifier], found:Eol},
   }
 
   error! {
@@ -1774,10 +1763,10 @@ mod tests {
 
   error! {
     name:   unclosed_parenthesis_in_expression,
-    input:  "x = foo(",
-    offset: 8,
+    input:  "x := foo(",
+    offset: 9,
     line:   0,
-    column: 8,
+    column: 9,
     width:  0,
     kind: UnexpectedToken{
       expected: vec![Backtick, Identifier, ParenL, ParenR, StringCooked, StringRaw],
@@ -1952,10 +1941,10 @@ mod tests {
 
   error! {
     name:   unknown_function,
-    input:  "a = foo()",
-    offset: 4,
+    input:  "a := foo()",
+    offset: 5,
     line:   0,
-    column: 4,
+    column: 5,
     width:  3,
     kind:   UnknownFunction{function: "foo"},
   }

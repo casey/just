@@ -66,16 +66,6 @@ default:
 }
 
 test! {
-  name: warning,
-  justfile: "
-    foo = 'bar'
-
-    baz:
-  ",
-  args: ("--quiet"),
-}
-
-test! {
   name: choose_none,
   justfile: "",
   args: ("--choose", "--quiet"),

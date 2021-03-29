@@ -111,7 +111,7 @@ mod tests {
 
   analysis_error! {
     name:   circular_variable_dependency,
-    input:   "a = b\nb = a",
+    input:   "a := b\nb := a",
     offset:  0,
     line:   0,
     column: 0,
@@ -121,8 +121,8 @@ mod tests {
 
   analysis_error! {
     name:   self_variable_dependency,
-    input:  "a = a",
-    offset:  0,
+    input:  "a := a",
+    offset: 0,
     line:   0,
     column: 0,
     width:  1,
@@ -131,10 +131,10 @@ mod tests {
 
   analysis_error! {
     name:   unknown_expression_variable,
-    input:  "x = yy",
-    offset:  4,
+    input:  "x := yy",
+    offset: 5,
     line:   0,
-    column: 4,
+    column: 5,
     width:  2,
     kind:   UndefinedVariable{variable: "yy"},
   }
