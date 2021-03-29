@@ -60,7 +60,7 @@ impl<'src> Token<'src> {
           space_column,
           color.prefix(),
           "",
-          space_width,
+          space_width.max(1),
           color.suffix()
         )?;
       },

@@ -81,7 +81,7 @@ recipe:
 }
 
 test! {
-  name: setting,
+  name: setting_implicit,
   justfile: "
     set export
 
@@ -95,6 +95,37 @@ test! {
   args: ("foo", "goodbye"),
   stdout: "hello\ngoodbye\nhello\n",
   stderr: "echo $A\necho $B\necho $C\n",
+}
+
+test! {
+  name: setting_true,
+  justfile: "
+    set export := true
+
+    A := 'hello'
+
+    foo B C=`echo $A`:
+      echo $A
+      echo $B
+      echo $C
+  ",
+  args: ("foo", "goodbye"),
+  stdout: "hello\ngoodbye\nhello\n",
+  stderr: "echo $A\necho $B\necho $C\n",
+}
+
+test! {
+  name: setting_false,
+  justfile: r#"
+    set export := false
+
+    A := 'hello'
+
+    foo:
+      if [ -n "${A+1}" ]; then echo defined; else echo undefined; fi
+  "#,
+  stdout: "undefined\n",
+  stderr: "if [ -n \"${A+1}\" ]; then echo defined; else echo undefined; fi\n",
 }
 
 test! {

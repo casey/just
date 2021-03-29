@@ -65,12 +65,15 @@ impl<'src> Analyzer<'src> {
 
     for (_, set) in self.sets {
       match set.value {
+        Setting::DotenvLoad(dotenv_load) => {
+          settings.dotenv_load = dotenv_load;
+        },
+        Setting::Export(export) => {
+          settings.export = export;
+        },
         Setting::Shell(shell) => {
           assert!(settings.shell.is_none());
           settings.shell = Some(shell);
-        },
-        Setting::Export => {
-          settings.export = true;
         },
       }
     }

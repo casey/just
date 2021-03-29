@@ -388,29 +388,30 @@ foo:
 [options="header"]
 |=================
 | Name | Value | Description
-| `export` | | Export all variables as environment variables
+| `dotenv-load` | `true` or `false` | Load a `.env` file, if present.
+| `export` | `true` or `false` | Export all variables as environment variables.
 |`shell` | `[COMMAND, ARGS...]` | Set the command used to invoke recipes and evaluate backticks.
 |=================
 
-==== Shell
+Boolean settings can be written as:
 
-The `shell` setting controls the command used to invoke recipe lines and backticks. Shebang recipes are unaffected.
-
-```make
-# use python3 to execute recipe lines and backticks
-set shell := ["python3", "-c"]
-
-# use print to capture result of evaluation
-foos := `print("foo" * 4)`
-
-foo:
-  print("Snake snake snake snake.")
-  print("{{foos}}")
 ```
+set NAME
+```
+
+Which is equivalent to:
+
+```
+set NAME := true
+```
+
+==== Dotenv Load
+
+If `dotenv-load` is `true`, a `.env` file will be loaded if present. Defaults to `true`.
 
 ==== Export
 
-The `export` setting causes all Just variables to be exported as environment variables.
+The `export` setting causes all Just variables to be exported as environment variables. Defaults to `false`.
 
 ```make
 set export
@@ -426,6 +427,22 @@ a := "hello"
 $ just foo goodbye
 hello
 goodbye
+```
+
+==== Shell
+
+The `shell` setting controls the command used to invoke recipe lines and backticks. Shebang recipes are unaffected.
+
+```make
+# use python3 to execute recipe lines and backticks
+set shell := ["python3", "-c"]
+
+# use print to capture result of evaluation
+foos := `print("foo" * 4)`
+
+foo:
+  print("Snake snake snake snake.")
+  print("{{foos}}")
 ```
 
 === Documentation Comments

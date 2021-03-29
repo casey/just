@@ -15,7 +15,7 @@ impl Display for CompilationError<'_> {
 
     write!(f, "{}", message.prefix())?;
 
-    match self.kind {
+    match &self.kind {
       AliasShadowsRecipe { alias, recipe_line } => {
         writeln!(
           f,
@@ -116,22 +116,23 @@ impl Display for CompilationError<'_> {
           "Dependency `{}` got {} {} but takes ",
           dependency,
           found,
-          Count("argument", found),
+          Count("argument", *found),
         )?;
 
         if min == max {
           let expected = min;
-          writeln!(f, "{} {}", expected, Count("argument", expected))?;
+          writeln!(f, "{} {}", expected, Count("argument", *expected))?;
         } else if found < min {
-          writeln!(f, "at least {} {}", min, Count("argument", min))?;
+          writeln!(f, "at least {} {}", min, Count("argument", *min))?;
         } else {
-          writeln!(f, "at most {} {}", max, Count("argument", max))?;
+          writeln!(f, "at most {} {}", max, Count("argument", *max))?;
         }
       },
       ExpectedKeyword { expected, found } => writeln!(
         f,
-        "Expected keyword `{}` but found identifier `{}`",
-        expected, found
+        "Expected keyword {} but found identifier `{}`",
+        List::or_ticked(expected),
+        found
       )?,
       ParameterShadowsVariable { parameter } => {
         writeln!(
@@ -171,7 +172,7 @@ impl Display for CompilationError<'_> {
           "Function `{}` called with {} {} but takes {}",
           function,
           found,
-          Count("argument", found),
+          Count("argument", *found),
           expected
         )?;
       },

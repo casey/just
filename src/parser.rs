@@ -179,7 +179,10 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     if expected == found {
       Ok(())
     } else {
-      Err(identifier.error(CompilationErrorKind::ExpectedKeyword { expected, found }))
+      Err(identifier.error(CompilationErrorKind::ExpectedKeyword {
+        expected: vec![expected],
+        found,
+      }))
     }
   }
 
@@ -347,6 +350,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
           Some(Keyword::Set) =>
             if self.next_are(&[Identifier, Identifier, ColonEquals])
               || self.next_are(&[Identifier, Identifier, Eol])
+              || self.next_are(&[Identifier, Identifier, Eof])
             {
               items.push(Item::Set(self.parse_set()?));
             } else {
@@ -678,19 +682,50 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     Ok(lines)
   }
 
+  /// Parse a boolean setting value
+  fn parse_set_bool(&mut self) -> CompilationResult<'src, bool> {
+    if !self.accepted(ColonEquals)? {
+      return Ok(true);
+    }
+
+    let identifier = self.expect(Identifier)?;
+
+    let value = if Keyword::True == identifier.lexeme() {
+      true
+    } else if Keyword::False == identifier.lexeme() {
+      false
+    } else {
+      return Err(identifier.error(CompilationErrorKind::ExpectedKeyword {
+        expected: vec![Keyword::True, Keyword::False],
+        found:    identifier.lexeme(),
+      }));
+    };
+
+    Ok(value)
+  }
+
   /// Parse a setting
   fn parse_set(&mut self) -> CompilationResult<'src, Set<'src>> {
     self.presume_keyword(Keyword::Set)?;
     let name = Name::from_identifier(self.presume(Identifier)?);
+    let lexeme = name.lexeme();
 
-    if name.lexeme() == Keyword::Export.lexeme() {
+    if Keyword::DotenvLoad == lexeme {
+      let value = self.parse_set_bool()?;
       return Ok(Set {
-        value: Setting::Export,
+        value: Setting::DotenvLoad(value),
+        name,
+      });
+    } else if Keyword::Export == lexeme {
+      let value = self.parse_set_bool()?;
+      return Ok(Set {
+        value: Setting::Export(value),
         name,
       });
     }
 
-    self.presume(ColonEquals)?;
+    self.expect(ColonEquals)?;
+
     if name.lexeme() == Keyword::Shell.lexeme() {
       self.expect(BracketL)?;
 
@@ -1539,6 +1574,42 @@ mod tests {
     name: trimmed_body,
     text: "a:\n foo\n \n \n \nb:\n  ",
     tree: (justfile (recipe a (body ("foo"))) (recipe b)),
+  }
+
+  test! {
+    name: set_export_implicit,
+    text: "set export",
+    tree: (justfile (set export true)),
+  }
+
+  test! {
+    name: set_export_true,
+    text: "set export := true",
+    tree: (justfile (set export true)),
+  }
+
+  test! {
+    name: set_export_false,
+    text: "set export := false",
+    tree: (justfile (set export false)),
+  }
+
+  test! {
+    name: set_dotenv_load_implicit,
+    text: "set dotenv-load",
+    tree: (justfile (set dotenv_load true)),
+  }
+
+  test! {
+    name: set_dotenv_load_true,
+    text: "set dotenv-load := true",
+    tree: (justfile (set dotenv_load true)),
+  }
+
+  test! {
+    name: set_dotenv_load_false,
+    text: "set dotenv-load := false",
+    tree: (justfile (set dotenv_load false)),
   }
 
   test! {
