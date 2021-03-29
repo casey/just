@@ -1,6 +1,13 @@
 Changelog
 =========
 
+[v0.9.0] - 2020-3-28
+--------------------
+
+### Changed
+- Turn `=` deprecation warning into a hard error (#780)
+
+
 [v0.8.7] - 2020-3-28
 --------------------
 
