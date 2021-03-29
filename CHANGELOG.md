@@ -1,6 +1,16 @@
 Changelog
 =========
 
+[v0.8.7] - 2020-3-28
+--------------------
+
+### Added
+- Add `dotenv-load` setting (#778)
+
+### Misc
+- Change publish recipe to use stable rust (#777)
+
+
 [v0.8.6] - 2020-3-28
 --------------------
 
