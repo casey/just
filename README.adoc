@@ -393,7 +393,7 @@ foo:
 |`shell` | `[COMMAND, ARGS...]` | Set the command used to invoke recipes and evaluate backticks.
 |=================
 
-Boolena settings can be written as:
+Boolean settings can be written as:
 
 ```
 set NAME
