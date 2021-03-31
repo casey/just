@@ -2,7 +2,7 @@ use crate::common::*;
 
 #[derive(Debug, PartialEq)]
 pub(crate) struct Settings<'src> {
-  pub(crate) dotenv_load: bool,
+  pub(crate) dotenv_load: Option<bool>,
   pub(crate) export:      bool,
   pub(crate) shell:       Option<setting::Shell<'src>>,
 }
@@ -10,7 +10,7 @@ pub(crate) struct Settings<'src> {
 impl<'src> Settings<'src> {
   pub(crate) fn new() -> Settings<'src> {
     Settings {
-      dotenv_load: true,
+      dotenv_load: None,
       export:      false,
       shell:       None,
     }

@@ -2121,11 +2121,15 @@ default stdin = `cat justfile`:
 
     default stdin = `cat justfile`:
       echo {{stdin}}
+
+    set dotenv-load := true
   ",
   stderr:   "
     echo '
     default stdin = `cat justfile`:
-      echo '{{stdin}}''
+      echo '{{stdin}}'
+
+    set dotenv-load := true'
   ",
 }
 

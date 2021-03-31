@@ -1,12 +1,15 @@
 use crate::common::*;
 
 #[derive(Debug, PartialEq)]
-pub(crate) enum Warning {}
+pub(crate) enum Warning {
+  DotenvLoad,
+}
 
 impl Warning {
   fn context(&self) -> Option<&Token> {
-    #![allow(clippy::unused_self)]
-    unreachable!()
+    match self {
+      Self::DotenvLoad => None,
+    }
   }
 }
 
@@ -16,6 +19,23 @@ impl Display for Warning {
     let message = Color::fmt(f).message();
 
     write!(f, "{} {}", warning.paint("warning:"), message.prefix())?;
+
+    match self {
+      Self::DotenvLoad => {
+        #[rustfmt::skip]
+        write!(f, "\
+A `.env` file was found and loaded, but this behavior will change in the future.
+To silence this warning and continue loading `.env` files, add:
+
+    set dotenv-load := true
+
+To silence this warning and stop loading `.env` files, add:
+
+    set dotenv-load := false
+
+See https://github.com/casey/just/issues/469 for more details.")?;
+      },
+    }
 
     write!(f, "{}", message.suffix())?;
 
