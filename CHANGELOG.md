@@ -1,6 +1,13 @@
 Changelog
 =========
 
+[v0.9.1] - 2020-3-30
+--------------------
+
+### Changed
+- Warn if `.env` file loaded and `dotenv-load` unset (#784)
+
+
 [v0.9.0] - 2020-3-28
 --------------------
 
