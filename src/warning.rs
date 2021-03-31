@@ -2,6 +2,8 @@ use crate::common::*;
 
 #[derive(Debug, PartialEq)]
 pub(crate) enum Warning {
+  // Remove this on 2021-07-01.
+  #[allow(dead_code)]
   DotenvLoad,
 }
 
