@@ -445,7 +445,7 @@ foo:
   print("{{foos}}")
 ```
 
-Just passes the command to be executed as an argument. Many shells will need to be passed a flag, often `-c`, to make them evaluate the first argument.
+Just passes the command to be executed as an argument. Many shells will need an additional flag, often `-c`, to make them evaluate the first argument.
 
 ===== Python 3
 
