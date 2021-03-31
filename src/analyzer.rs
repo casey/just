@@ -66,7 +66,7 @@ impl<'src> Analyzer<'src> {
     for (_, set) in self.sets {
       match set.value {
         Setting::DotenvLoad(dotenv_load) => {
-          settings.dotenv_load = dotenv_load;
+          settings.dotenv_load = Some(dotenv_load);
         },
         Setting::Export(export) => {
           settings.export = export;

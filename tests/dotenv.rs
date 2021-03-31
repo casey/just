@@ -37,6 +37,7 @@ test! {
   "#,
   stdout:   "undefined\n",
   stderr:   "if [ -n \"${DOTENV_KEY+1}\" ]; then echo defined; else echo undefined; fi\n",
+  dotenv_load: false,
 }
 
 test! {
@@ -49,6 +50,7 @@ test! {
   "#,
   stdout:   "dotenv-value\n",
   stderr:   "echo $DOTENV_KEY\n",
+  dotenv_load: false,
 }
 
 test! {
@@ -61,4 +63,28 @@ test! {
   "#,
   stdout:   "dotenv-value\n",
   stderr:   "echo $DOTENV_KEY\n",
+  dotenv_load: false,
+}
+
+test! {
+  name:     warning,
+  justfile: r#"
+    foo:
+      echo $DOTENV_KEY
+  "#,
+  stdout:   "dotenv-value\n",
+  stderr:   "
+    warning: A `.env` file was found and loaded, but this behavior will change in the future.
+    To silence this warning and continue loading `.env` files, add:
+
+        set dotenv-load := true
+
+    To silence this warning and stop loading `.env` files, add:
+
+        set dotenv-load := false
+
+    See https://github.com/casey/just/issues/469 for more details.
+    echo $DOTENV_KEY
+  ",
+  dotenv_load: false,
 }
