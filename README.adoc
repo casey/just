@@ -445,6 +445,32 @@ foo:
   print("{{foos}}")
 ```
 
+Just passes the command to be executed as an argument. Many shells will need to be passed a flag, often `-c`, to make them evaluate the first argument.
+
+===== Python 3
+
+```make
+set shell := ["python3", "-c"]
+```
+
+===== Bash
+
+```make
+set shell := ["bash", "-uc"]
+```
+
+===== Z Shell
+
+```make
+set shell := ["zsh", "-uc"]
+```
+
+===== Fish
+
+```make
+set shell := ["fish", "-c"]
+```
+
 === Documentation Comments
 
 Comments immediately preceding a recipe will appear in `just --list`:
