@@ -1,5 +1,6 @@
 use crate::common::*;
 
+// Remove this on 2021-07-01.
 #[allow(unused)]
 pub(crate) fn load_dotenv(
   config: &Config,
