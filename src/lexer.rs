@@ -479,8 +479,8 @@ impl<'src> Lexer<'src> {
       '#' => self.lex_comment(),
       '`' => self.lex_backtick(),
       ' ' => self.lex_whitespace(),
-      '"' => self.lex_cooked_string(),
-      '\'' => self.lex_raw_string(),
+      '"' => self.lex_string_cooked(),
+      '\'' => self.lex_string_raw(),
       '\n' => self.lex_eol(),
       '\r' => self.lex_eol(),
       '\t' => self.lex_whitespace(),
@@ -530,7 +530,7 @@ impl<'src> Lexer<'src> {
         continue;
       }
 
-      if let Some('\n') = self.next {
+      if self.rest_starts_with("\n") {
         break Newline;
       }
 
@@ -542,7 +542,7 @@ impl<'src> Lexer<'src> {
         break Interpolation;
       }
 
-      if self.next.is_none() {
+      if self.rest().is_empty() {
         break EndOfFile;
       }
 
@@ -769,7 +769,7 @@ impl<'src> Lexer<'src> {
   }
 
   /// Lex raw string: '[^']*'
-  fn lex_raw_string(&mut self) -> CompilationResult<'src, ()> {
+  fn lex_string_raw(&mut self) -> CompilationResult<'src, ()> {
     self.presume('\'')?;
 
     loop {
@@ -790,7 +790,7 @@ impl<'src> Lexer<'src> {
   }
 
   /// Lex cooked string: "[^"\n\r]*" (also processes escape sequences)
-  fn lex_cooked_string(&mut self) -> CompilationResult<'src, ()> {
+  fn lex_string_cooked(&mut self) -> CompilationResult<'src, ()> {
     self.presume('"')?;
 
     let mut escape = false;
