@@ -1,6 +1,6 @@
 use crate::common::*;
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone, Copy, Ord, PartialOrd, Eq)]
 pub(crate) enum StringKind {
   Backtick,
   Cooked,
@@ -17,11 +17,7 @@ impl StringKind {
   }
 
   pub(crate) fn token_kind(self) -> TokenKind {
-    match self {
-      Self::Backtick => TokenKind::Backtick,
-      Self::Cooked => TokenKind::StringCooked,
-      Self::Raw => TokenKind::StringRaw,
-    }
+    TokenKind::StringToken(self)
   }
 
   pub(crate) fn unterminated_error_kind(self) -> CompilationErrorKind<'static> {

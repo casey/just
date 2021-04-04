@@ -789,6 +789,10 @@ mod tests {
 
   use pretty_assertions::assert_eq;
 
+  const STRING_BACKTICK: TokenKind = StringToken(StringKind::Backtick);
+  const STRING_RAW: TokenKind = StringToken(StringKind::Raw);
+  const STRING_COOKED: TokenKind = StringToken(StringKind::Cooked);
+
   macro_rules! test {
     {
       name:   $name:ident,
@@ -897,7 +901,7 @@ mod tests {
       Dedent | Eof => "",
 
       // Variable lexemes
-      Text | StringCooked | StringRaw | Identifier | Comment | Backtick | Unspecified =>
+      Text | StringToken(_) | Identifier | Comment | Unspecified =>
         panic!("Token {:?} has no default lexeme", kind),
     }
   }
@@ -961,37 +965,37 @@ mod tests {
   test! {
     name:   backtick,
     text:   "`echo`",
-    tokens: (Backtick:"`echo`"),
+    tokens: (STRING_BACKTICK:"`echo`"),
   }
 
   test! {
     name:   backtick_multi_line,
     text:   "`echo\necho`",
-    tokens: (Backtick:"`echo\necho`"),
+    tokens: (STRING_BACKTICK:"`echo\necho`"),
   }
 
   test! {
     name:   raw_string,
     text:   "'hello'",
-    tokens: (StringRaw:"'hello'"),
+    tokens: (STRING_RAW:"'hello'"),
   }
 
   test! {
     name:   raw_string_multi_line,
     text:   "'hello\ngoodbye'",
-    tokens: (StringRaw:"'hello\ngoodbye'"),
+    tokens: (STRING_RAW:"'hello\ngoodbye'"),
   }
 
   test! {
     name:   cooked_string,
     text:   "\"hello\"",
-    tokens: (StringCooked:"\"hello\""),
+    tokens: (STRING_COOKED:"\"hello\""),
   }
 
   test! {
     name:   cooked_string_multi_line,
     text:   "\"hello\ngoodbye\"",
-    tokens: (StringCooked:"\"hello\ngoodbye\""),
+    tokens: (STRING_COOKED:"\"hello\ngoodbye\""),
   }
 
   test! {
@@ -1052,11 +1056,11 @@ mod tests {
       Whitespace,
       Equals,
       Whitespace,
-      StringRaw:"'foo'",
+      STRING_RAW:"'foo'",
       Whitespace,
       Plus,
       Whitespace,
-      StringRaw:"'bar'",
+      STRING_RAW:"'bar'",
     )
   }
 
@@ -1071,16 +1075,16 @@ mod tests {
       Equals,
       Whitespace,
       ParenL,
-      StringRaw:"'foo'",
+      STRING_RAW:"'foo'",
       Whitespace,
       Plus,
       Whitespace,
-      StringRaw:"'bar'",
+      STRING_RAW:"'bar'",
       ParenR,
       Whitespace,
       Plus,
       Whitespace,
-      Backtick:"`baz`",
+      STRING_BACKTICK:"`baz`",
     ),
   }
 
@@ -1407,11 +1411,11 @@ mod tests {
       Indent:" ",
       Text:"echo ",
       InterpolationStart,
-      Backtick:"`echo hello`",
+      STRING_BACKTICK:"`echo hello`",
       Whitespace,
       Plus,
       Whitespace,
-      Backtick:"`echo goodbye`",
+      STRING_BACKTICK:"`echo goodbye`",
       InterpolationEnd,
       Dedent,
     ),
@@ -1427,7 +1431,7 @@ mod tests {
       Indent:" ",
       Text:"echo ",
       InterpolationStart,
-      StringRaw:"'\n'",
+      STRING_RAW:"'\n'",
       InterpolationEnd,
       Dedent,
     ),
@@ -1499,19 +1503,19 @@ mod tests {
       Whitespace,
       Equals,
       Whitespace,
-      StringCooked:"\"'a'\"",
+      STRING_COOKED:"\"'a'\"",
       Whitespace,
       Plus,
       Whitespace,
-      StringRaw:"'\"b\"'",
+      STRING_RAW:"'\"b\"'",
       Whitespace,
       Plus,
       Whitespace,
-      StringCooked:"\"'c'\"",
+      STRING_COOKED:"\"'c'\"",
       Whitespace,
       Plus,
       Whitespace,
-      StringRaw:"'\"d\"'",
+      STRING_RAW:"'\"d\"'",
       Comment:"#echo hello",
     )
   }
@@ -1579,7 +1583,7 @@ mod tests {
       Whitespace,
       Plus,
       Whitespace,
-      StringCooked:"\"z\"",
+      STRING_COOKED:"\"z\"",
       Whitespace,
       Plus,
       Whitespace,
@@ -1703,7 +1707,7 @@ mod tests {
       Eol,
       Identifier:"A",
       Equals,
-      StringRaw:"'1'",
+      STRING_RAW:"'1'",
       Eol,
       Identifier:"echo",
       Colon,
@@ -1728,11 +1732,11 @@ mod tests {
       Indent:" ",
       Text:"echo ",
       InterpolationStart,
-      Backtick:"`echo hello`",
+      STRING_BACKTICK:"`echo hello`",
       Whitespace,
       Plus,
       Whitespace,
-      Backtick:"`echo goodbye`",
+      STRING_BACKTICK:"`echo goodbye`",
       InterpolationEnd,
       Dedent
     ),
@@ -1761,11 +1765,11 @@ mod tests {
       Whitespace,
       Equals,
       Whitespace,
-      Backtick:"`echo hello`",
+      STRING_BACKTICK:"`echo hello`",
       Whitespace,
       Plus,
       Whitespace,
-      Backtick:"`echo goodbye`",
+      STRING_BACKTICK:"`echo goodbye`",
     ),
   }
 
