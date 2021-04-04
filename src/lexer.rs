@@ -761,10 +761,15 @@ impl<'src> Lexer<'src> {
     self.presume(kind.delimiter())?;
 
     match kind {
-      StringKind::Backtick => self.lex_string_backtick(),
-      StringKind::Cooked => self.lex_string_cooked(),
-      StringKind::Raw => self.lex_string_raw(),
-    }
+      StringKind::Backtick => self.lex_string_backtick()?,
+      StringKind::Cooked => self.lex_string_cooked()?,
+      StringKind::Raw => self.lex_string_raw()?,
+    };
+
+    self.presume(kind.delimiter())?;
+    self.token(kind.token_kind());
+
+    Ok(())
   }
 
   /// Lex backtick: `[^\r\n]*`
@@ -776,9 +781,6 @@ impl<'src> Lexer<'src> {
 
       self.advance()?;
     }
-
-    self.advance()?;
-    self.token(Backtick);
 
     Ok(())
   }
@@ -798,11 +800,6 @@ impl<'src> Lexer<'src> {
       self.advance()?;
     }
 
-    // advance over closing "
-    self.advance()?;
-
-    self.token(StringCooked);
-
     Ok(())
   }
 
@@ -817,10 +814,6 @@ impl<'src> Lexer<'src> {
 
       self.advance()?;
     }
-
-    self.presume('\'')?;
-
-    self.token(StringRaw);
 
     Ok(())
   }
