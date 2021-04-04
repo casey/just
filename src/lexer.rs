@@ -746,25 +746,6 @@ impl<'src> Lexer<'src> {
     Ok(())
   }
 
-  /// Lex backtick: `[^\r\n]*`
-  fn lex_backtick(&mut self) -> CompilationResult<'src, ()> {
-    // advance over initial `
-    self.presume('`')?;
-
-    while !self.next_is('`') {
-      if self.at_eol_or_eof() {
-        return Err(self.error(UnterminatedBacktick));
-      }
-
-      self.advance()?;
-    }
-
-    self.advance()?;
-    self.token(Backtick);
-
-    Ok(())
-  }
-
   /// Lex whitespace: [ \t]+
   fn lex_whitespace(&mut self) -> CompilationResult<'src, ()> {
     while self.next_is_whitespace() {
@@ -818,6 +799,25 @@ impl<'src> Lexer<'src> {
     self.advance()?;
 
     self.token(StringCooked);
+
+    Ok(())
+  }
+
+  /// Lex backtick: `[^\r\n]*`
+  fn lex_backtick(&mut self) -> CompilationResult<'src, ()> {
+    // advance over initial `
+    self.presume('`')?;
+
+    while !self.next_is('`') {
+      if self.at_eol_or_eof() {
+        return Err(self.error(UnterminatedBacktick));
+      }
+
+      self.advance()?;
+    }
+
+    self.advance()?;
+    self.token(Backtick);
 
     Ok(())
   }
