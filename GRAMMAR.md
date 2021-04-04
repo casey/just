@@ -17,7 +17,7 @@ INDENT     = emitted when indentation increases
 LINE       = emitted before a recipe line
 NAME       = [a-zA-Z_][a-zA-Z0-9_-]*
 NEWLINE    = \n|\r\n
-RAW_STRING = '[^'\r\n]*'
+RAW_STRING = '[^']*'
 STRING     = "[^"]*" # also processes \n \r \t \" \\ escapes
 TEXT       = recipe text, only matches in a recipe body
 ```
