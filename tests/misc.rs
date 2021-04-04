@@ -2452,6 +2452,19 @@ test! {
   ",
 }
 
+test! {
+  name: multi_line_string_in_interpolation,
+  justfile: "
+    foo:
+      echo {{'a
+      echo b
+      echo c'}}z
+      echo baz
+  ",
+  stdout: "a\nb\ncz\nbaz\n",
+  stderr: "echo a\n  echo b\n  echo cz\necho baz\n",
+}
+
 #[cfg(windows)]
 test! {
   name: windows_interpreter_path_no_base,
