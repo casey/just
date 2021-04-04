@@ -766,28 +766,20 @@ impl<'src> Lexer<'src> {
     self.presume(kind.delimiter())?;
 
     match kind {
-      StringKind::Backtick => self.lex_string_backtick()?,
+      StringKind::Backtick | StringKind::Raw => loop {
+        match self.next {
+          Some(c) if c == kind.delimiter() => break,
+          None => return Err(self.error(kind.unterminated_error_kind())),
+          Some(_) => {},
+        }
+
+        self.advance()?;
+      },
       StringKind::Cooked => self.lex_string_cooked()?,
-      StringKind::Raw => self.lex_string_raw()?,
     };
 
     self.presume(kind.delimiter())?;
     self.token(kind.token_kind());
-
-    Ok(())
-  }
-
-  /// Lex backtick: `[^`]*`
-  fn lex_string_backtick(&mut self) -> CompilationResult<'src, ()> {
-    loop {
-      match self.next {
-        Some('`') => break,
-        None => return Err(self.error(UnterminatedBacktick)),
-        Some(_) => {},
-      }
-
-      self.advance()?;
-    }
 
     Ok(())
   }
@@ -802,21 +794,6 @@ impl<'src> Lexer<'src> {
         Some('\\') if !escape => escape = true,
         Some(_) => escape = false,
         None => return Err(self.error(UnterminatedString)),
-      }
-
-      self.advance()?;
-    }
-
-    Ok(())
-  }
-
-  /// Lex raw string: '[^']*'
-  fn lex_string_raw(&mut self) -> CompilationResult<'src, ()> {
-    loop {
-      match self.next {
-        Some('\'') => break,
-        None => return Err(self.error(UnterminatedString)),
-        Some(_) => {},
       }
 
       self.advance()?;

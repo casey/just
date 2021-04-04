@@ -23,4 +23,12 @@ impl StringKind {
       Self::Raw => TokenKind::StringRaw,
     }
   }
+
+  pub(crate) fn unterminated_error_kind(self) -> CompilationErrorKind<'static> {
+    match self {
+      Self::Backtick => CompilationErrorKind::UnterminatedBacktick,
+      Self::Cooked => CompilationErrorKind::UnterminatedString,
+      Self::Raw => CompilationErrorKind::UnterminatedString,
+    }
+  }
 }
