@@ -477,10 +477,10 @@ impl<'src> Lexer<'src> {
       '}' => self.lex_delimiter(BraceR),
       '+' => self.lex_single(Plus),
       '#' => self.lex_comment(),
-      '`' => self.lex_backtick(),
       ' ' => self.lex_whitespace(),
-      '"' => self.lex_string_cooked(),
-      '\'' => self.lex_string_raw(),
+      '`' => self.lex_string(StringKind::Backtick),
+      '"' => self.lex_string(StringKind::Cooked),
+      '\'' => self.lex_string(StringKind::Raw),
       '\n' => self.lex_eol(),
       '\r' => self.lex_eol(),
       '\t' => self.lex_whitespace(),
@@ -757,31 +757,34 @@ impl<'src> Lexer<'src> {
     Ok(())
   }
 
-  /// Lex raw string: '[^']*'
-  fn lex_string_raw(&mut self) -> CompilationResult<'src, ()> {
-    self.presume('\'')?;
+  fn lex_string(&mut self, kind: StringKind) -> CompilationResult<'src, ()> {
+    self.presume(kind.delimiter())?;
 
-    loop {
-      match self.next {
-        Some('\'') => break,
-        None => return Err(self.error(UnterminatedString)),
-        Some(_) => {},
+    match kind {
+      StringKind::Backtick => self.lex_string_backtick(),
+      StringKind::Cooked => self.lex_string_cooked(),
+      StringKind::Raw => self.lex_string_raw(),
+    }
+  }
+
+  /// Lex backtick: `[^\r\n]*`
+  fn lex_string_backtick(&mut self) -> CompilationResult<'src, ()> {
+    while !self.next_is('`') {
+      if self.at_eol_or_eof() {
+        return Err(self.error(UnterminatedBacktick));
       }
 
       self.advance()?;
     }
 
-    self.presume('\'')?;
-
-    self.token(StringRaw);
+    self.advance()?;
+    self.token(Backtick);
 
     Ok(())
   }
 
   /// Lex cooked string: "[^"\n\r]*" (also processes escape sequences)
   fn lex_string_cooked(&mut self) -> CompilationResult<'src, ()> {
-    self.presume('"')?;
-
     let mut escape = false;
 
     loop {
@@ -803,21 +806,21 @@ impl<'src> Lexer<'src> {
     Ok(())
   }
 
-  /// Lex backtick: `[^\r\n]*`
-  fn lex_backtick(&mut self) -> CompilationResult<'src, ()> {
-    // advance over initial `
-    self.presume('`')?;
-
-    while !self.next_is('`') {
-      if self.at_eol_or_eof() {
-        return Err(self.error(UnterminatedBacktick));
+  /// Lex raw string: '[^']*'
+  fn lex_string_raw(&mut self) -> CompilationResult<'src, ()> {
+    loop {
+      match self.next {
+        Some('\'') => break,
+        None => return Err(self.error(UnterminatedString)),
+        Some(_) => {},
       }
 
       self.advance()?;
     }
 
-    self.advance()?;
-    self.token(Backtick);
+    self.presume('\'')?;
+
+    self.token(StringRaw);
 
     Ok(())
   }
