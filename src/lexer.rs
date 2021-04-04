@@ -749,7 +749,7 @@ impl<'src> Lexer<'src> {
   /// Lex backtick: `[^\r\n]*`
   fn lex_backtick(&mut self) -> CompilationResult<'src, ()> {
     // advance over initial `
-    self.advance()?;
+    self.presume('`')?;
 
     while !self.next_is('`') {
       if self.at_eol_or_eof() {
