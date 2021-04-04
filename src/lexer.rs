@@ -210,10 +210,8 @@ impl<'src> Lexer<'src> {
 
     // The width of the error site to highlight depends on the kind of error:
     let length = match kind {
-      // highlight ' or "
-      UnterminatedString => 1,
-      // highlight `
-      UnterminatedBacktick => 1,
+      // highlight ', ", or `
+      UnterminatedString(_) => 1,
       // highlight the full token
       _ => self.lexeme().len(),
     };
@@ -2009,7 +2007,7 @@ mod tests {
     line:   0,
     column: 4,
     width:  1,
-    kind:   UnterminatedString,
+    kind:   UnterminatedString(StringKind::Cooked),
   }
 
   error! {
@@ -2019,7 +2017,7 @@ mod tests {
     line:   0,
     column: 4,
     width:  1,
-    kind:   UnterminatedString,
+    kind:   UnterminatedString(StringKind::Raw),
   }
 
   error! {
@@ -2040,7 +2038,7 @@ mod tests {
     line:   0,
     column: 0,
     width:  1,
-    kind:   UnterminatedBacktick,
+    kind:   UnterminatedString(StringKind::Backtick),
   }
 
   error! {
@@ -2100,7 +2098,7 @@ mod tests {
     line:   0,
     column: 4,
     width:  1,
-    kind:   UnterminatedString,
+    kind:   UnterminatedString(StringKind::Cooked),
   }
 
   error! {

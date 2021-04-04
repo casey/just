@@ -1,6 +1,6 @@
 use crate::common::*;
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub(crate) enum StringKind {
   Backtick,
   Cooked,
@@ -25,11 +25,7 @@ impl StringKind {
   }
 
   pub(crate) fn unterminated_error_kind(self) -> CompilationErrorKind<'static> {
-    match self {
-      Self::Backtick => CompilationErrorKind::UnterminatedBacktick,
-      Self::Cooked => CompilationErrorKind::UnterminatedString,
-      Self::Raw => CompilationErrorKind::UnterminatedString,
-    }
+    CompilationErrorKind::UnterminatedString(self)
   }
 
   pub(crate) fn processes_escape_sequences(self) -> bool {

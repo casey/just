@@ -107,6 +107,5 @@ pub(crate) enum CompilationErrorKind<'src> {
     open_line: usize,
   },
   UnterminatedInterpolation,
-  UnterminatedString,
-  UnterminatedBacktick,
+  UnterminatedString(StringKind),
 }
