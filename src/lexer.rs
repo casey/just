@@ -30,8 +30,8 @@ pub(crate) struct Lexer<'src> {
   recipe_body:         bool,
   /// Indentation stack
   indentation:         Vec<&'src str>,
-  /// Current interpolation start token
-  interpolation_start: Option<Token<'src>>,
+  /// Interpolation token start stack
+  interpolation_stack: Vec<Token<'src>>,
   /// Current open delimiters
   open_delimiters:     Vec<(Delimiter, usize)>,
 }
@@ -60,7 +60,7 @@ impl<'src> Lexer<'src> {
       token_end: start,
       recipe_body_pending: false,
       recipe_body: false,
-      interpolation_start: None,
+      interpolation_stack: Vec::new(),
       open_delimiters: Vec::new(),
       chars,
       next,
@@ -210,10 +210,8 @@ impl<'src> Lexer<'src> {
 
     // The width of the error site to highlight depends on the kind of error:
     let length = match kind {
-      // highlight ' or "
-      UnterminatedString => 1,
-      // highlight `
-      UnterminatedBacktick => 1,
+      // highlight ', ", or `
+      UnterminatedString(_) => 1,
       // highlight the full token
       _ => self.lexeme().len(),
     };
@@ -280,7 +278,7 @@ impl<'src> Lexer<'src> {
 
       match self.next {
         Some(first) => {
-          if let Some(interpolation_start) = self.interpolation_start {
+          if let Some(&interpolation_start) = self.interpolation_stack.last() {
             self.lex_interpolation(interpolation_start, first)?
           } else if self.recipe_body {
             self.lex_body()?
@@ -292,7 +290,7 @@ impl<'src> Lexer<'src> {
       }
     }
 
-    if let Some(interpolation_start) = self.interpolation_start {
+    if let Some(&interpolation_start) = self.interpolation_stack.last() {
       return Err(Self::unterminated_interpolation_error(interpolation_start));
     }
 
@@ -477,10 +475,10 @@ impl<'src> Lexer<'src> {
       '}' => self.lex_delimiter(BraceR),
       '+' => self.lex_single(Plus),
       '#' => self.lex_comment(),
-      '`' => self.lex_backtick(),
       ' ' => self.lex_whitespace(),
-      '"' => self.lex_cooked_string(),
-      '\'' => self.lex_raw_string(),
+      '`' => self.lex_string(StringKind::Backtick),
+      '"' => self.lex_string(StringKind::Cooked),
+      '\'' => self.lex_string(StringKind::Raw),
       '\n' => self.lex_eol(),
       '\r' => self.lex_eol(),
       '\t' => self.lex_whitespace(),
@@ -500,7 +498,13 @@ impl<'src> Lexer<'src> {
   ) -> CompilationResult<'src, ()> {
     if self.rest_starts_with("}}") {
       // end current interpolation
-      self.interpolation_start = None;
+      if self.interpolation_stack.pop().is_none() {
+        self.advance()?;
+        self.advance()?;
+        return Err(self.internal_error(
+          "Lexer::lex_interpolation found `}}` but was called with empty interpolation stack.",
+        ));
+      }
       // Emit interpolation end token
       self.lex_double(InterpolationEnd)
     } else if self.at_eol_or_eof() {
@@ -530,7 +534,7 @@ impl<'src> Lexer<'src> {
         continue;
       }
 
-      if let Some('\n') = self.next {
+      if self.rest_starts_with("\n") {
         break Newline;
       }
 
@@ -542,7 +546,7 @@ impl<'src> Lexer<'src> {
         break Interpolation;
       }
 
-      if self.next.is_none() {
+      if self.rest().is_empty() {
         break EndOfFile;
       }
 
@@ -559,7 +563,9 @@ impl<'src> Lexer<'src> {
       NewlineCarriageReturn => self.lex_double(Eol),
       Interpolation => {
         self.lex_double(InterpolationStart)?;
-        self.interpolation_start = Some(self.tokens[self.tokens.len() - 1]);
+        self
+          .interpolation_stack
+          .push(self.tokens[self.tokens.len() - 1]);
         Ok(())
       },
       EndOfFile => Ok(()),
@@ -738,25 +744,6 @@ impl<'src> Lexer<'src> {
     Ok(())
   }
 
-  /// Lex backtick: `[^\r\n]*`
-  fn lex_backtick(&mut self) -> CompilationResult<'src, ()> {
-    // advance over initial `
-    self.advance()?;
-
-    while !self.next_is('`') {
-      if self.at_eol_or_eof() {
-        return Err(self.error(UnterminatedBacktick));
-      }
-
-      self.advance()?;
-    }
-
-    self.advance()?;
-    self.token(Backtick);
-
-    Ok(())
-  }
-
   /// Lex whitespace: [ \t]+
   fn lex_whitespace(&mut self) -> CompilationResult<'src, ()> {
     while self.next_is_whitespace() {
@@ -768,48 +755,29 @@ impl<'src> Lexer<'src> {
     Ok(())
   }
 
-  /// Lex raw string: '[^']*'
-  fn lex_raw_string(&mut self) -> CompilationResult<'src, ()> {
-    self.presume('\'')?;
-
-    loop {
-      match self.next {
-        Some('\'') => break,
-        None => return Err(self.error(UnterminatedString)),
-        Some(_) => {},
-      }
-
-      self.advance()?;
-    }
-
-    self.presume('\'')?;
-
-    self.token(StringRaw);
-
-    Ok(())
-  }
-
-  /// Lex cooked string: "[^"\n\r]*" (also processes escape sequences)
-  fn lex_cooked_string(&mut self) -> CompilationResult<'src, ()> {
-    self.presume('"')?;
+  /// Lex a backtick, cooked string, or raw string.
+  ///
+  /// Backtick:      `[^`]*`
+  /// Cooked string: "[^"]*" # also processes escape sequences
+  /// Raw string:    '[^']*'
+  fn lex_string(&mut self, kind: StringKind) -> CompilationResult<'src, ()> {
+    self.presume(kind.delimiter())?;
 
     let mut escape = false;
 
     loop {
       match self.next {
-        Some('\r') | Some('\n') | None => return Err(self.error(UnterminatedString)),
-        Some('"') if !escape => break,
-        Some('\\') if !escape => escape = true,
-        _ => escape = false,
+        Some(c) if c == kind.delimiter() && !escape => break,
+        Some('\\') if kind.processes_escape_sequences() && !escape => escape = true,
+        Some(_) => escape = false,
+        None => return Err(self.error(kind.unterminated_error_kind())),
       }
 
       self.advance()?;
     }
 
-    // advance over closing "
-    self.advance()?;
-
-    self.token(StringCooked);
+    self.presume(kind.delimiter())?;
+    self.token(kind.token_kind());
 
     Ok(())
   }
@@ -820,6 +788,10 @@ mod tests {
   use super::*;
 
   use pretty_assertions::assert_eq;
+
+  const STRING_BACKTICK: TokenKind = StringToken(StringKind::Backtick);
+  const STRING_RAW: TokenKind = StringToken(StringKind::Raw);
+  const STRING_COOKED: TokenKind = StringToken(StringKind::Cooked);
 
   macro_rules! test {
     {
@@ -929,7 +901,7 @@ mod tests {
       Dedent | Eof => "",
 
       // Variable lexemes
-      Text | StringCooked | StringRaw | Identifier | Comment | Backtick | Unspecified =>
+      Text | StringToken(_) | Identifier | Comment | Unspecified =>
         panic!("Token {:?} has no default lexeme", kind),
     }
   }
@@ -993,19 +965,37 @@ mod tests {
   test! {
     name:   backtick,
     text:   "`echo`",
-    tokens: (Backtick:"`echo`"),
+    tokens: (STRING_BACKTICK:"`echo`"),
+  }
+
+  test! {
+    name:   backtick_multi_line,
+    text:   "`echo\necho`",
+    tokens: (STRING_BACKTICK:"`echo\necho`"),
   }
 
   test! {
     name:   raw_string,
     text:   "'hello'",
-    tokens: (StringRaw:"'hello'"),
+    tokens: (STRING_RAW:"'hello'"),
+  }
+
+  test! {
+    name:   raw_string_multi_line,
+    text:   "'hello\ngoodbye'",
+    tokens: (STRING_RAW:"'hello\ngoodbye'"),
   }
 
   test! {
     name:   cooked_string,
     text:   "\"hello\"",
-    tokens: (StringCooked:"\"hello\""),
+    tokens: (STRING_COOKED:"\"hello\""),
+  }
+
+  test! {
+    name:   cooked_string_multi_line,
+    text:   "\"hello\ngoodbye\"",
+    tokens: (STRING_COOKED:"\"hello\ngoodbye\""),
   }
 
   test! {
@@ -1066,11 +1056,11 @@ mod tests {
       Whitespace,
       Equals,
       Whitespace,
-      StringRaw:"'foo'",
+      STRING_RAW:"'foo'",
       Whitespace,
       Plus,
       Whitespace,
-      StringRaw:"'bar'",
+      STRING_RAW:"'bar'",
     )
   }
 
@@ -1085,16 +1075,16 @@ mod tests {
       Equals,
       Whitespace,
       ParenL,
-      StringRaw:"'foo'",
+      STRING_RAW:"'foo'",
       Whitespace,
       Plus,
       Whitespace,
-      StringRaw:"'bar'",
+      STRING_RAW:"'bar'",
       ParenR,
       Whitespace,
       Plus,
       Whitespace,
-      Backtick:"`baz`",
+      STRING_BACKTICK:"`baz`",
     ),
   }
 
@@ -1421,11 +1411,11 @@ mod tests {
       Indent:" ",
       Text:"echo ",
       InterpolationStart,
-      Backtick:"`echo hello`",
+      STRING_BACKTICK:"`echo hello`",
       Whitespace,
       Plus,
       Whitespace,
-      Backtick:"`echo goodbye`",
+      STRING_BACKTICK:"`echo goodbye`",
       InterpolationEnd,
       Dedent,
     ),
@@ -1441,7 +1431,7 @@ mod tests {
       Indent:" ",
       Text:"echo ",
       InterpolationStart,
-      StringRaw:"'\n'",
+      STRING_RAW:"'\n'",
       InterpolationEnd,
       Dedent,
     ),
@@ -1513,19 +1503,19 @@ mod tests {
       Whitespace,
       Equals,
       Whitespace,
-      StringCooked:"\"'a'\"",
+      STRING_COOKED:"\"'a'\"",
       Whitespace,
       Plus,
       Whitespace,
-      StringRaw:"'\"b\"'",
+      STRING_RAW:"'\"b\"'",
       Whitespace,
       Plus,
       Whitespace,
-      StringCooked:"\"'c'\"",
+      STRING_COOKED:"\"'c'\"",
       Whitespace,
       Plus,
       Whitespace,
-      StringRaw:"'\"d\"'",
+      STRING_RAW:"'\"d\"'",
       Comment:"#echo hello",
     )
   }
@@ -1593,7 +1583,7 @@ mod tests {
       Whitespace,
       Plus,
       Whitespace,
-      StringCooked:"\"z\"",
+      STRING_COOKED:"\"z\"",
       Whitespace,
       Plus,
       Whitespace,
@@ -1717,7 +1707,7 @@ mod tests {
       Eol,
       Identifier:"A",
       Equals,
-      StringRaw:"'1'",
+      STRING_RAW:"'1'",
       Eol,
       Identifier:"echo",
       Colon,
@@ -1742,11 +1732,11 @@ mod tests {
       Indent:" ",
       Text:"echo ",
       InterpolationStart,
-      Backtick:"`echo hello`",
+      STRING_BACKTICK:"`echo hello`",
       Whitespace,
       Plus,
       Whitespace,
-      Backtick:"`echo goodbye`",
+      STRING_BACKTICK:"`echo goodbye`",
       InterpolationEnd,
       Dedent
     ),
@@ -1775,11 +1765,11 @@ mod tests {
       Whitespace,
       Equals,
       Whitespace,
-      Backtick:"`echo hello`",
+      STRING_BACKTICK:"`echo hello`",
       Whitespace,
       Plus,
       Whitespace,
-      Backtick:"`echo goodbye`",
+      STRING_BACKTICK:"`echo goodbye`",
     ),
   }
 
@@ -2021,7 +2011,7 @@ mod tests {
     line:   0,
     column: 4,
     width:  1,
-    kind:   UnterminatedString,
+    kind:   UnterminatedString(StringKind::Cooked),
   }
 
   error! {
@@ -2031,7 +2021,7 @@ mod tests {
     line:   0,
     column: 4,
     width:  1,
-    kind:   UnterminatedString,
+    kind:   UnterminatedString(StringKind::Raw),
   }
 
   error! {
@@ -2052,7 +2042,7 @@ mod tests {
     line:   0,
     column: 0,
     width:  1,
-    kind:   UnterminatedBacktick,
+    kind:   UnterminatedString(StringKind::Backtick),
   }
 
   error! {
@@ -2112,7 +2102,7 @@ mod tests {
     line:   0,
     column: 4,
     width:  1,
-    kind:   UnterminatedString,
+    kind:   UnterminatedString(StringKind::Cooked),
   }
 
   error! {

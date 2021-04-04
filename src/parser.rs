@@ -453,11 +453,11 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
 
   /// Parse a value, e.g. `(bar)`
   fn parse_value(&mut self) -> CompilationResult<'src, Expression<'src>> {
-    if self.next_is(StringCooked) || self.next_is(StringRaw) {
+    if self.next_is(StringToken(StringKind::Cooked)) || self.next_is(StringToken(StringKind::Raw)) {
       Ok(Expression::StringLiteral {
         string_literal: self.parse_string_literal()?,
       })
-    } else if self.next_is(Backtick) {
+    } else if self.next_is(StringToken(StringKind::Backtick)) {
       let next = self.next()?;
 
       let contents = &next.lexeme()[1..next.lexeme().len() - 1];
@@ -486,16 +486,19 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
 
   /// Parse a string literal, e.g. `"FOO"`
   fn parse_string_literal(&mut self) -> CompilationResult<'src, StringLiteral<'src>> {
-    let token = self.expect_any(&[StringRaw, StringCooked])?;
+    let token = self.expect_any(&[
+      StringToken(StringKind::Raw),
+      StringToken(StringKind::Cooked),
+    ])?;
 
     let raw = &token.lexeme()[1..token.lexeme().len() - 1];
 
     match token.kind {
-      StringRaw => Ok(StringLiteral {
+      StringToken(StringKind::Raw) => Ok(StringLiteral {
         raw,
         cooked: Cow::Borrowed(raw),
       }),
-      StringCooked => {
+      StringToken(StringKind::Cooked) => {
         let mut cooked = String::new();
         let mut escape = false;
         for c in raw.chars() {
@@ -1720,7 +1723,13 @@ mod tests {
     column: 10,
     width:  1,
     kind:   UnexpectedToken {
-      expected: vec![Backtick, Identifier, ParenL, StringCooked, StringRaw],
+      expected: vec![
+        Identifier,
+        ParenL,
+        StringToken(StringKind::Backtick),
+        StringToken(StringKind::Cooked),
+        StringToken(StringKind::Raw)
+      ],
       found: Eol
     },
   }
@@ -1733,7 +1742,13 @@ mod tests {
     column: 10,
     width:  0,
     kind:   UnexpectedToken {
-      expected: vec![Backtick, Identifier, ParenL, StringCooked, StringRaw],
+      expected: vec![
+        Identifier,
+        ParenL,
+        StringToken(StringKind::Backtick),
+        StringToken(StringKind::Cooked),
+        StringToken(StringKind::Raw)
+      ],
       found: Eof,
     },
   }
@@ -1769,7 +1784,14 @@ mod tests {
     column: 9,
     width:  0,
     kind: UnexpectedToken{
-      expected: vec![Backtick, Identifier, ParenL, ParenR, StringCooked, StringRaw],
+      expected: vec![
+        Identifier,
+        ParenL,
+        ParenR,
+        StringToken(StringKind::Backtick),
+        StringToken(StringKind::Cooked),
+        StringToken(StringKind::Raw)
+      ],
       found: Eof,
     },
   }
@@ -1782,7 +1804,14 @@ mod tests {
     column: 12,
     width:  2,
     kind:   UnexpectedToken{
-      expected: vec![Backtick, Identifier, ParenL, ParenR, StringCooked, StringRaw],
+      expected: vec![
+        Identifier,
+        ParenL,
+        ParenR,
+        StringToken(StringKind::Backtick),
+        StringToken(StringKind::Cooked),
+        StringToken(StringKind::Raw)
+      ],
       found: InterpolationEnd,
     },
   }
@@ -1858,7 +1887,7 @@ mod tests {
     column: 14,
     width:  1,
     kind:   UnexpectedToken {
-      expected: vec![StringCooked, StringRaw],
+      expected: vec![StringToken(StringKind::Cooked), StringToken(StringKind::Raw)],
       found: BracketR,
     },
   }
@@ -1897,7 +1926,7 @@ mod tests {
     column: 21,
     width:  0,
     kind:   UnexpectedToken {
-      expected: vec![BracketR, StringCooked, StringRaw],
+      expected: vec![BracketR, StringToken(StringKind::Cooked), StringToken(StringKind::Raw)],
       found: Eof,
     },
   }

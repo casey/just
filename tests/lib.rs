@@ -20,4 +20,5 @@ mod quiet;
 mod readme;
 mod search;
 mod shell;
+mod string;
 mod working_directory;

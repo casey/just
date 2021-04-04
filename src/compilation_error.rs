@@ -242,10 +242,10 @@ impl Display for CompilationError<'_> {
       UnterminatedInterpolation => {
         writeln!(f, "Unterminated interpolation")?;
       },
-      UnterminatedString => {
+      UnterminatedString(StringKind::Cooked) | UnterminatedString(StringKind::Raw) => {
         writeln!(f, "Unterminated string")?;
       },
-      UnterminatedBacktick => {
+      UnterminatedString(StringKind::Backtick) => {
         writeln!(f, "Unterminated backtick")?;
       },
       Internal { ref message } => {

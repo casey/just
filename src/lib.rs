@@ -117,6 +117,7 @@ mod setting;
 mod settings;
 mod shebang;
 mod show_whitespace;
+mod string_kind;
 mod string_literal;
 mod subcommand;
 mod suggestion;
