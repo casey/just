@@ -2458,10 +2458,11 @@ test! {
     foo:
       echo {{'a
       echo b
-      echo c'}}
+      echo c'}}z
+      echo baz
   ",
-  stdout: "a\nb\nc\n",
-  stderr: "echo a\n  echo b\n  echo c\n",
+  stdout: "a\nb\ncz\nbaz\n",
+  stderr: "echo a\n  echo b\n  echo cz\necho baz\n",
 }
 
 #[cfg(windows)]
