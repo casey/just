@@ -30,8 +30,8 @@ pub(crate) struct Lexer<'src> {
   recipe_body:         bool,
   /// Indentation stack
   indentation:         Vec<&'src str>,
-  /// Current interpolation start token
-  interpolation_start: Option<Token<'src>>,
+  /// Interpolation token start stack
+  interpolation_stack: Vec<Token<'src>>,
   /// Current open delimiters
   open_delimiters:     Vec<(Delimiter, usize)>,
 }
@@ -60,7 +60,7 @@ impl<'src> Lexer<'src> {
       token_end: start,
       recipe_body_pending: false,
       recipe_body: false,
-      interpolation_start: None,
+      interpolation_stack: Vec::new(),
       open_delimiters: Vec::new(),
       chars,
       next,
@@ -280,7 +280,7 @@ impl<'src> Lexer<'src> {
 
       match self.next {
         Some(first) => {
-          if let Some(interpolation_start) = self.interpolation_start {
+          if let Some(&interpolation_start) = self.interpolation_stack.last() {
             self.lex_interpolation(interpolation_start, first)?
           } else if self.recipe_body {
             self.lex_body()?
@@ -292,7 +292,7 @@ impl<'src> Lexer<'src> {
       }
     }
 
-    if let Some(interpolation_start) = self.interpolation_start {
+    if let Some(&interpolation_start) = self.interpolation_stack.last() {
       return Err(Self::unterminated_interpolation_error(interpolation_start));
     }
 
@@ -500,7 +500,13 @@ impl<'src> Lexer<'src> {
   ) -> CompilationResult<'src, ()> {
     if self.rest_starts_with("}}") {
       // end current interpolation
-      self.interpolation_start = None;
+      if self.interpolation_stack.pop().is_none() {
+        self.advance()?;
+        self.advance()?;
+        return Err(self.internal_error(
+          "Lexer::lex_interpolation found `}}` but was called with empty interpolation stack.",
+        ));
+      }
       // Emit interpolation end token
       self.lex_double(InterpolationEnd)
     } else if self.at_eol_or_eof() {
@@ -559,7 +565,9 @@ impl<'src> Lexer<'src> {
       NewlineCarriageReturn => self.lex_double(Eol),
       Interpolation => {
         self.lex_double(InterpolationStart)?;
-        self.interpolation_start = Some(self.tokens[self.tokens.len() - 1]);
+        self
+          .interpolation_stack
+          .push(self.tokens[self.tokens.len() - 1]);
         Ok(())
       },
       EndOfFile => Ok(()),
