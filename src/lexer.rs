@@ -765,39 +765,21 @@ impl<'src> Lexer<'src> {
   fn lex_string(&mut self, kind: StringKind) -> CompilationResult<'src, ()> {
     self.presume(kind.delimiter())?;
 
-    match kind {
-      StringKind::Backtick | StringKind::Raw => loop {
-        match self.next {
-          Some(c) if c == kind.delimiter() => break,
-          None => return Err(self.error(kind.unterminated_error_kind())),
-          Some(_) => {},
-        }
-
-        self.advance()?;
-      },
-      StringKind::Cooked => self.lex_string_cooked()?,
-    };
-
-    self.presume(kind.delimiter())?;
-    self.token(kind.token_kind());
-
-    Ok(())
-  }
-
-  /// Lex cooked string: "[^"\n\r]*" (also processes escape sequences)
-  fn lex_string_cooked(&mut self) -> CompilationResult<'src, ()> {
     let mut escape = false;
 
     loop {
       match self.next {
-        Some('"') if !escape => break,
-        Some('\\') if !escape => escape = true,
+        Some(c) if c == kind.delimiter() && !escape => break,
+        Some('\\') if kind.processes_escape_sequences() && !escape => escape = true,
         Some(_) => escape = false,
-        None => return Err(self.error(UnterminatedString)),
+        None => return Err(self.error(kind.unterminated_error_kind())),
       }
 
       self.advance()?;
     }
+
+    self.presume(kind.delimiter())?;
+    self.token(kind.token_kind());
 
     Ok(())
   }

@@ -31,4 +31,11 @@ impl StringKind {
       Self::Raw => CompilationErrorKind::UnterminatedString,
     }
   }
+
+  pub(crate) fn processes_escape_sequences(self) -> bool {
+    match self {
+      Self::Backtick | Self::Raw => false,
+      Self::Cooked => true,
+    }
+  }
 }
