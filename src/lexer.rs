@@ -759,7 +759,7 @@ impl<'src> Lexer<'src> {
 
   /// Lex a backtick, cooked string, or raw string.
   ///
-  /// Backtick:      `[^\r\n]*`
+  /// Backtick:      `[^`]*`
   /// Cooked string: "[^"]*" # also processes escape sequences
   /// Raw string:    '[^']*'
   fn lex_string(&mut self, kind: StringKind) -> CompilationResult<'src, ()> {
@@ -777,11 +777,13 @@ impl<'src> Lexer<'src> {
     Ok(())
   }
 
-  /// Lex backtick: `[^\r\n]*`
+  /// Lex backtick: `[^`]*`
   fn lex_string_backtick(&mut self) -> CompilationResult<'src, ()> {
-    while !self.next_is('`') {
-      if self.at_eol_or_eof() {
-        return Err(self.error(UnterminatedBacktick));
+    loop {
+      match self.next {
+        Some('`') => break,
+        None => return Err(self.error(UnterminatedBacktick)),
+        Some(_) => {},
       }
 
       self.advance()?;
@@ -1003,6 +1005,12 @@ mod tests {
     name:   backtick,
     text:   "`echo`",
     tokens: (Backtick:"`echo`"),
+  }
+
+  test! {
+    name:   backtick_multi_line,
+    text:   "`echo\necho`",
+    tokens: (Backtick:"`echo\necho`"),
   }
 
   test! {

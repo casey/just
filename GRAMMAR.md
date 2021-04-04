@@ -9,7 +9,7 @@ tokens
 ------
 
 ```
-BACKTICK   = `[^`\n\r]*`
+BACKTICK   = `[^`]*`
 COMMENT    = #([^!].*)?$
 DEDENT     = emitted when indentation decreases
 EOF        = emitted at the end of the file
