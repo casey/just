@@ -1432,6 +1432,22 @@ mod tests {
   }
 
   test! {
+    name: interpolation_raw_multiline_string,
+    text: "hello:\n echo {{'\n'}}",
+    tokens: (
+      Identifier:"hello",
+      Colon,
+      Eol,
+      Indent:" ",
+      Text:"echo ",
+      InterpolationStart,
+      StringRaw:"'\n'",
+      InterpolationEnd,
+      Dedent,
+    ),
+  }
+
+  test! {
     name: tokenize_names,
     text: "
       foo
