@@ -1541,6 +1541,24 @@ whatever'
 }
 
 test! {
+  name:     multiline_cooked_string,
+  justfile: r#"
+string := "hello
+whatever"
+
+a:
+  echo '{{string}}'
+"#,
+  args:     ("a"),
+  stdout:   "hello
+whatever
+",
+  stderr:   "echo 'hello
+whatever'
+",
+}
+
+test! {
   name:     error_line_after_multiline_raw_string,
   justfile: "
 string := 'hello

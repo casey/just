@@ -557,31 +557,27 @@ string-with-slash           := "\"
 string-with-tab             := "     "
 ```
 
-Single-quoted strings do not recognize escape sequences and may contain line breaks:
+Strings may contain line breaks:
+
+```make
+single := '
+hello
+'
+
+double := "
+goodbye
+"
+```
+
+Single-quoted strings do not recognize escape sequences:
 
 ```make
 escapes := '\t\n\r\"\\'
-
-line-breaks := 'hello
-this
-is
-  a
-     raw
-string!
-'
 ```
 
 ```sh
 $ just --evaluate
 escapes := "\t\n\r\"\\"
-
-line-breaks := "hello
-this
-is
-  a
-     raw
-string!
-"
 ```
 
 === Ignoring Errors

@@ -757,6 +757,11 @@ impl<'src> Lexer<'src> {
     Ok(())
   }
 
+  /// Lex a backtick, cooked string, or raw string.
+  ///
+  /// Backtick:      `[^\r\n]*`
+  /// Cooked string: "[^"]*" # also processes escape sequences
+  /// Raw string:    '[^']*'
   fn lex_string(&mut self, kind: StringKind) -> CompilationResult<'src, ()> {
     self.presume(kind.delimiter())?;
 
@@ -791,10 +796,10 @@ impl<'src> Lexer<'src> {
 
     loop {
       match self.next {
-        Some('\r') | Some('\n') | None => return Err(self.error(UnterminatedString)),
         Some('"') if !escape => break,
         Some('\\') if !escape => escape = true,
-        _ => escape = false,
+        Some(_) => escape = false,
+        None => return Err(self.error(UnterminatedString)),
       }
 
       self.advance()?;
@@ -1007,9 +1012,21 @@ mod tests {
   }
 
   test! {
+    name:   raw_string_multi_line,
+    text:   "'hello\ngoodbye'",
+    tokens: (StringRaw:"'hello\ngoodbye'"),
+  }
+
+  test! {
     name:   cooked_string,
     text:   "\"hello\"",
     tokens: (StringCooked:"\"hello\""),
+  }
+
+  test! {
+    name:   cooked_string_multi_line,
+    text:   "\"hello\ngoodbye\"",
+    tokens: (StringCooked:"\"hello\ngoodbye\""),
   }
 
   test! {
