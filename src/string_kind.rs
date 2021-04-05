@@ -36,7 +36,11 @@ impl StringKind {
   }
 
   pub(crate) fn token_kind(self) -> TokenKind {
-    TokenKind::StringToken(self)
+    match self {
+      Self::Backtick | Self::BacktickMultiline => TokenKind::Backtick,
+      Self::Cooked | Self::CookedMultiline | Self::Raw | Self::RawMultiline =>
+        TokenKind::StringToken,
+    }
   }
 
   pub(crate) fn unterminated_error_kind(self) -> CompilationErrorKind<'static> {
@@ -50,11 +54,19 @@ impl StringKind {
     }
   }
 
-  pub(crate) fn multiline(self) -> bool {
+  pub(crate) fn indented(self) -> bool {
     match self {
       Self::BacktickMultiline | Self::CookedMultiline | Self::RawMultiline => true,
       Self::Backtick | Self::Cooked | Self::Raw => false,
     }
+  }
+
+  pub(crate) fn from_string_or_backtick<'src>(token: Token<'src>) -> CompilationResult<'src, Self> {
+    Self::from_token_start(token.lexeme()).ok_or_else(|| {
+      token.error(CompilationErrorKind::Internal {
+        message: "StringKind::from_token: Expected String or Backtick".to_owned(),
+      })
+    })
   }
 
   pub(crate) fn from_token_start(token_start: &str) -> Option<Self> {
