@@ -150,17 +150,6 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     }
   }
 
-  /// Return an error if the next token is not one of kinds `kinds`.
-  fn expect_any(&mut self, expected: &[TokenKind]) -> CompilationResult<'src, Token<'src>> {
-    for expected in expected.iter().cloned() {
-      if let Some(token) = self.accept(expected)? {
-        return Ok(token);
-      }
-    }
-
-    Err(self.unexpected_token()?)
-  }
-
   /// Return an unexpected token error if the next token is not an EOL
   fn expect_eol(&mut self) -> CompilationResult<'src, ()> {
     self.accept(Comment)?;
@@ -495,44 +484,39 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
 
     let raw = &token.lexeme()[delimiter_len..token.lexeme().len() - delimiter_len];
 
-    match string_kind {
-      StringKind::Raw | StringKind::RawMultiline => Ok(StringLiteral {
+    if string_kind.processes_escape_sequences() {
+      let mut cooked = String::new();
+      let mut escape = false;
+      for c in raw.chars() {
+        if escape {
+          match c {
+            'n' => cooked.push('\n'),
+            'r' => cooked.push('\r'),
+            't' => cooked.push('\t'),
+            '\\' => cooked.push('\\'),
+            '"' => cooked.push('"'),
+            other => {
+              return Err(
+                token.error(CompilationErrorKind::InvalidEscapeSequence { character: other }),
+              );
+            },
+          }
+          escape = false;
+        } else if c == '\\' {
+          escape = true;
+        } else {
+          cooked.push(c);
+        }
+      }
+      Ok(StringLiteral {
+        raw,
+        cooked: Cow::Owned(cooked),
+      })
+    } else {
+      Ok(StringLiteral {
         raw,
         cooked: Cow::Borrowed(raw),
-      }),
-      StringKind::Cooked | StringKind::CookedMultiline => {
-        let mut cooked = String::new();
-        let mut escape = false;
-        for c in raw.chars() {
-          if escape {
-            match c {
-              'n' => cooked.push('\n'),
-              'r' => cooked.push('\r'),
-              't' => cooked.push('\t'),
-              '\\' => cooked.push('\\'),
-              '"' => cooked.push('"'),
-              other => {
-                return Err(
-                  token.error(CompilationErrorKind::InvalidEscapeSequence { character: other }),
-                );
-              },
-            }
-            escape = false;
-          } else if c == '\\' {
-            escape = true;
-          } else {
-            cooked.push(c);
-          }
-        }
-        Ok(StringLiteral {
-          raw,
-          cooked: Cow::Owned(cooked),
-        })
-      },
-      StringKind::Backtick | StringKind::BacktickMultiline =>
-        Err(token.error(CompilationErrorKind::Internal {
-          message: "`Parser::parse_string_literal` called on backtick token".to_owned(),
-        })),
+      })
     }
   }
 

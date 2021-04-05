@@ -218,7 +218,14 @@ impl<'src> Lexer<'src> {
 
     // The width of the error site to highlight depends on the kind of error:
     let length = match kind {
-      UnterminatedString(kind) => kind.delimiter_len(),
+      UnterminatedString | UnterminatedBacktick => {
+        let kind = match StringKind::from_token_start(self.lexeme()) {
+          Some(kind) => kind,
+          None =>
+            return self.internal_error("Lexer::error: expected string or backtick token start"),
+        };
+        kind.delimiter().len()
+      },
       // highlight the full token
       _ => self.lexeme().len(),
     };
@@ -2029,7 +2036,7 @@ mod tests {
     line:   0,
     column: 4,
     width:  1,
-    kind:   UnterminatedString(StringKind::Cooked),
+    kind:   UnterminatedString,
   }
 
   error! {
@@ -2039,7 +2046,7 @@ mod tests {
     line:   0,
     column: 4,
     width:  1,
-    kind:   UnterminatedString(StringKind::Raw),
+    kind:   UnterminatedString,
   }
 
   error! {
@@ -2060,7 +2067,7 @@ mod tests {
     line:   0,
     column: 0,
     width:  1,
-    kind:   UnterminatedString(StringKind::Backtick),
+    kind:   UnterminatedBacktick,
   }
 
   error! {
@@ -2120,7 +2127,7 @@ mod tests {
     line:   0,
     column: 4,
     width:  1,
-    kind:   UnterminatedString(StringKind::Cooked),
+    kind:   UnterminatedString,
   }
 
   error! {
