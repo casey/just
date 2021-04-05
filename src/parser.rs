@@ -452,6 +452,11 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
       let contents =
         &next.lexeme()[kind.delimiter_len()..next.lexeme().len() - kind.delimiter_len()];
       let token = self.advance()?;
+      let contents = if kind.indented() {
+        unindent(contents)
+      } else {
+        contents.to_owned()
+      };
       Ok(Expression::Backtick { contents, token })
     } else if self.next_is(Identifier) {
       let name = self.parse_name()?;
@@ -478,16 +483,22 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   fn parse_string_literal(&mut self) -> CompilationResult<'src, StringLiteral<'src>> {
     let token = self.expect(StringToken)?;
 
-    let string_kind = StringKind::from_string_or_backtick(token)?;
+    let kind = StringKind::from_string_or_backtick(token)?;
 
-    let delimiter_len = string_kind.delimiter_len();
+    let delimiter_len = kind.delimiter_len();
 
     let raw = &token.lexeme()[delimiter_len..token.lexeme().len() - delimiter_len];
 
-    if string_kind.processes_escape_sequences() {
+    let unindented = if kind.indented() {
+      unindent(raw)
+    } else {
+      raw.to_owned()
+    };
+
+    let cooked = if kind.processes_escape_sequences() {
       let mut cooked = String::new();
       let mut escape = false;
-      for c in raw.chars() {
+      for c in unindented.chars() {
         if escape {
           match c {
             'n' => cooked.push('\n'),
@@ -508,16 +519,12 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
           cooked.push(c);
         }
       }
-      Ok(StringLiteral {
-        raw,
-        cooked: Cow::Owned(cooked),
-      })
+      cooked
     } else {
-      Ok(StringLiteral {
-        raw,
-        cooked: Cow::Borrowed(raw),
-      })
-    }
+      unindented.to_owned()
+    };
+
+    Ok(StringLiteral { cooked, raw, kind })
   }
 
   /// Parse a name from an identifier token
@@ -1189,6 +1196,72 @@ mod tests {
     name: string_escape_quote,
     text: r#"x := "foo\"bar""#,
     tree: (justfile (assignment x "foo\"bar")),
+  }
+
+  test! {
+    name: indented_string_raw_with_dedent,
+    text: "
+      x := '''
+        foo\\t
+        bar\\n
+      '''
+    ",
+    tree: (justfile (assignment x "foo\\t\nbar\\n\n")),
+  }
+
+  test! {
+    name: indented_string_raw_no_dedent,
+    text: "
+      x := '''
+      foo\\t
+        bar\\n
+      '''
+    ",
+    tree: (justfile (assignment x "foo\\t\n  bar\\n\n")),
+  }
+
+  test! {
+    name: indented_string_cooked,
+    text: r#"
+      x := """
+        \tfoo\t
+        \tbar\n
+      """
+    "#,
+    tree: (justfile (assignment x "\tfoo\t\n\tbar\n\n")),
+  }
+
+  test! {
+    name: indented_string_cooked_no_dedent,
+    text: r#"
+      x := """
+      \tfoo\t
+        \tbar\n
+      """
+    "#,
+    tree: (justfile (assignment x "\tfoo\t\n  \tbar\n\n")),
+  }
+
+  test! {
+    name: indented_backtick,
+    text: r#"
+      x := ```
+        \tfoo\t
+        \tbar\n
+      ```
+    "#,
+    tree: (justfile (assignment x (backtick "\\tfoo\\t\n\\tbar\\n\n"))),
+  }
+
+  test! {
+    name: indented_backtick_no_dedent,
+    text: r#"
+      x := ```
+      \tfoo\t
+        \tbar\n
+      ```
+    "#,
+    tree: (justfile (assignment x (backtick "\\tfoo\\t\n  \\tbar\\n\n"))),
   }
 
   test! {

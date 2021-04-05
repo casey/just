@@ -25,60 +25,44 @@ pub fn unindent(text: &str) -> String {
   let mut lines = Vec::new();
   let mut start = 0;
   for (i, c) in text.char_indices() {
-    if c == '\n' {
+    if c == '\n' || i == text.len() - c.len_utf8() {
       let end = i + 1;
-      lines.push((start, end));
+      lines.push(&text[start..end]);
       start = end;
     }
   }
 
-  // if the text isn't newline-terminated, add the final line
-  if text.chars().last() != Some('\n') {
-    lines.push((start, text.len()));
-  }
+  let common_indentation = lines
+    .iter()
+    .filter(|line| !blank(line))
+    .cloned()
+    .map(indentation)
+    .fold(
+      None,
+      |common_indentation, line_indentation| match common_indentation {
+        Some(common_indentation) => Some(common(common_indentation, line_indentation)),
+        None => Some(line_indentation),
+      },
+    )
+    .unwrap_or("");
 
-  // find the longest common indentation
-  let mut common_indentation = None;
-  for (start, end) in lines.iter().cloned() {
-    let line = &text[start..end];
+  let mut unindented = String::new();
 
-    // skip blank lines
-    if blank(line) {
-      continue;
-    }
+  for (i, line) in lines.iter().enumerate() {
+    let blank = blank(line);
+    let first = i == 0;
+    let last = i == lines.len() - 1;
 
-    // calculate new common indentation
-    common_indentation = match common_indentation {
-      Some(common_indentation) => Some(common(common_indentation, indentation(line))),
-      None => Some(indentation(line)),
+    let replacement = match (blank, first, last) {
+      (true, false, false) => "\n",
+      (true, _, _) => "",
+      (false, _, _) => &line[common_indentation.len()..],
     };
+
+    unindented.push_str(replacement);
   }
 
-  // if common indentation is present, process the text
-  if let Some(common_indentation) = common_indentation {
-    if common_indentation != "" {
-      let mut output = String::new();
-
-      for (i, (start, end)) in lines.iter().cloned().enumerate() {
-        let line = &text[start..end];
-
-        if blank(line) {
-          // skip intial and final blank line
-          if i != 0 && i != lines.len() - 1 {
-            output.push('\n');
-          }
-        } else {
-          // otherwise push the line without the common indentation
-          output.push_str(&line[common_indentation.len()..]);
-        }
-      }
-
-      return output;
-    }
-  }
-
-  // otherwise just return the input string
-  text.to_owned()
+  unindented
 }
 
 pub enum Entry {

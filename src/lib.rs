@@ -125,6 +125,7 @@ mod table;
 mod thunk;
 mod token;
 mod token_kind;
+mod unindent;
 mod unresolved_dependency;
 mod unresolved_recipe;
 mod use_color;

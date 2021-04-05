@@ -1,6 +1,5 @@
 // stdlib
 pub(crate) use std::{
-  borrow::Cow,
   cmp,
   collections::{BTreeMap, BTreeSet},
   env,
@@ -31,7 +30,9 @@ pub(crate) use unicode_width::{UnicodeWidthChar, UnicodeWidthStr};
 pub(crate) use crate::{config_error, setting};
 
 // functions
-pub(crate) use crate::{default::default, empty::empty, load_dotenv::load_dotenv, output::output};
+pub(crate) use crate::{
+  default::default, empty::empty, load_dotenv::load_dotenv, output::output, unindent::unindent,
+};
 
 // traits
 pub(crate) use crate::{
