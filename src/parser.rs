@@ -101,7 +101,16 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   /// The first token in `kinds` will be added to the expected token set.
   fn next_are(&mut self, kinds: &[TokenKind]) -> bool {
     if let Some(kind) = kinds.first() {
-      self.expected.insert(*kind);
+      let kind = match *kind {
+        StringToken(StringKind::Backtick) | StringToken(StringKind::BacktickMultiline) =>
+          StringToken(StringKind::Backtick),
+        StringToken(StringKind::Cooked)
+        | StringToken(StringKind::CookedMultiline)
+        | StringToken(StringKind::Raw)
+        | StringToken(StringKind::RawMultiline) => StringToken(StringKind::Cooked),
+        other => other,
+      };
+      self.expected.insert(kind);
     }
 
     let mut rest = self.rest();
@@ -453,16 +462,34 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
 
   /// Parse a value, e.g. `(bar)`
   fn parse_value(&mut self) -> CompilationResult<'src, Expression<'src>> {
-    if self.next_is(StringToken(StringKind::Cooked)) || self.next_is(StringToken(StringKind::Raw)) {
-      Ok(Expression::StringLiteral {
-        string_literal: self.parse_string_literal()?,
-      })
-    } else if self.next_is(StringToken(StringKind::Backtick)) {
-      let next = self.next()?;
+    if self.next_is(StringToken(StringKind::Cooked))
+      || self.next_is(StringToken(StringKind::CookedMultiline))
+      || self.next_is(StringToken(StringKind::Backtick))
+      || self.next_is(StringToken(StringKind::BacktickMultiline))
+      || self.next_is(StringToken(StringKind::Raw))
+      || self.next_is(StringToken(StringKind::RawMultiline))
+    {
+      let kind = if let StringToken(kind) = self.next()?.kind {
+        kind
+      } else {
+        return Err(self.internal_error("Expected string token")?);
+      };
 
-      let contents = &next.lexeme()[1..next.lexeme().len() - 1];
-      let token = self.advance()?;
-      Ok(Expression::Backtick { contents, token })
+      match kind {
+        StringKind::Cooked
+        | StringKind::CookedMultiline
+        | StringKind::Raw
+        | StringKind::RawMultiline => Ok(Expression::StringLiteral {
+          string_literal: self.parse_string_literal()?,
+        }),
+        StringKind::Backtick | StringKind::BacktickMultiline => {
+          let next = self.next()?;
+          let contents =
+            &next.lexeme()[kind.delimiter_len()..next.lexeme().len() - kind.delimiter_len()];
+          let token = self.advance()?;
+          Ok(Expression::Backtick { contents, token })
+        },
+      }
     } else if self.next_is(Identifier) {
       let name = self.parse_name()?;
 
@@ -487,18 +514,30 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   /// Parse a string literal, e.g. `"FOO"`
   fn parse_string_literal(&mut self) -> CompilationResult<'src, StringLiteral<'src>> {
     let token = self.expect_any(&[
-      StringToken(StringKind::Raw),
       StringToken(StringKind::Cooked),
+      StringToken(StringKind::CookedMultiline),
+      StringToken(StringKind::Raw),
+      StringToken(StringKind::RawMultiline),
     ])?;
 
-    let raw = &token.lexeme()[1..token.lexeme().len() - 1];
+    let string_kind = match token.kind {
+      StringToken(kind) => kind,
+      _ =>
+        return Err(token.error(CompilationErrorKind::Internal {
+          message: "`Parser::parse_string_literal` called on non-string token".to_owned(),
+        })),
+    };
 
-    match token.kind {
-      StringToken(StringKind::Raw) => Ok(StringLiteral {
+    let delimiter_len = string_kind.delimiter_len();
+
+    let raw = &token.lexeme()[delimiter_len..token.lexeme().len() - delimiter_len];
+
+    match string_kind {
+      StringKind::Raw | StringKind::RawMultiline => Ok(StringLiteral {
         raw,
         cooked: Cow::Borrowed(raw),
       }),
-      StringToken(StringKind::Cooked) => {
+      StringKind::Cooked | StringKind::CookedMultiline => {
         let mut cooked = String::new();
         let mut escape = false;
         for c in raw.chars() {
@@ -527,9 +566,10 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
           cooked: Cow::Owned(cooked),
         })
       },
-      _ => Err(token.error(CompilationErrorKind::Internal {
-        message: "`Parser::parse_string_literal` called on non-string token".to_owned(),
-      })),
+      StringKind::Backtick | StringKind::BacktickMultiline =>
+        Err(token.error(CompilationErrorKind::Internal {
+          message: "`Parser::parse_string_literal` called on backtick token".to_owned(),
+        })),
     }
   }
 
@@ -1728,7 +1768,6 @@ mod tests {
         ParenL,
         StringToken(StringKind::Backtick),
         StringToken(StringKind::Cooked),
-        StringToken(StringKind::Raw)
       ],
       found: Eol
     },
@@ -1747,7 +1786,6 @@ mod tests {
         ParenL,
         StringToken(StringKind::Backtick),
         StringToken(StringKind::Cooked),
-        StringToken(StringKind::Raw)
       ],
       found: Eof,
     },
@@ -1790,7 +1828,6 @@ mod tests {
         ParenR,
         StringToken(StringKind::Backtick),
         StringToken(StringKind::Cooked),
-        StringToken(StringKind::Raw)
       ],
       found: Eof,
     },
@@ -1810,7 +1847,6 @@ mod tests {
         ParenR,
         StringToken(StringKind::Backtick),
         StringToken(StringKind::Cooked),
-        StringToken(StringKind::Raw)
       ],
       found: InterpolationEnd,
     },
@@ -1887,7 +1923,9 @@ mod tests {
     column: 14,
     width:  1,
     kind:   UnexpectedToken {
-      expected: vec![StringToken(StringKind::Cooked), StringToken(StringKind::Raw)],
+      expected: vec![
+        StringToken(StringKind::Cooked),
+      ],
       found: BracketR,
     },
   }
@@ -1926,7 +1964,10 @@ mod tests {
     column: 21,
     width:  0,
     kind:   UnexpectedToken {
-      expected: vec![BracketR, StringToken(StringKind::Cooked), StringToken(StringKind::Raw)],
+      expected: vec![
+        BracketR,
+        StringToken(StringKind::Cooked),
+      ],
       found: Eof,
     },
   }

@@ -129,6 +129,14 @@ impl<'src> Lexer<'src> {
     Ok(())
   }
 
+  fn presume_str(&mut self, s: &str) -> CompilationResult<'src, ()> {
+    for c in s.chars() {
+      self.presume(c)?;
+    }
+
+    Ok(())
+  }
+
   /// Is next character c?
   fn next_is(&self, c: char) -> bool {
     self.next == Some(c)
@@ -210,8 +218,7 @@ impl<'src> Lexer<'src> {
 
     // The width of the error site to highlight depends on the kind of error:
     let length = match kind {
-      // highlight ', ", or `
-      UnterminatedString(_) => 1,
+      UnterminatedString(kind) => kind.delimiter_len(),
       // highlight the full token
       _ => self.lexeme().len(),
     };
@@ -476,9 +483,7 @@ impl<'src> Lexer<'src> {
       '+' => self.lex_single(Plus),
       '#' => self.lex_comment(),
       ' ' => self.lex_whitespace(),
-      '`' => self.lex_string(StringKind::Backtick),
-      '"' => self.lex_string(StringKind::Cooked),
-      '\'' => self.lex_string(StringKind::Raw),
+      '`' | '"' | '\'' => self.lex_string(),
       '\n' => self.lex_eol(),
       '\r' => self.lex_eol(),
       '\t' => self.lex_whitespace(),
@@ -760,23 +765,34 @@ impl<'src> Lexer<'src> {
   /// Backtick:      `[^`]*`
   /// Cooked string: "[^"]*" # also processes escape sequences
   /// Raw string:    '[^']*'
-  fn lex_string(&mut self, kind: StringKind) -> CompilationResult<'src, ()> {
-    self.presume(kind.delimiter())?;
+  fn lex_string(&mut self) -> CompilationResult<'src, ()> {
+    let kind = match StringKind::from_token_start(self.rest()) {
+      Some(kind) => kind,
+      None => {
+        self.advance()?;
+        return Err(self.internal_error("Lexer::lex_string: invalid string start"));
+      },
+    };
+
+    self.presume_str(kind.delimiter())?;
 
     let mut escape = false;
 
     loop {
-      match self.next {
-        Some(c) if c == kind.delimiter() && !escape => break,
-        Some('\\') if kind.processes_escape_sequences() && !escape => escape = true,
-        Some(_) => escape = false,
-        None => return Err(self.error(kind.unterminated_error_kind())),
+      if self.next == None {
+        return Err(self.error(kind.unterminated_error_kind()));
+      } else if kind.processes_escape_sequences() && self.next_is('\\') && !escape {
+        escape = true;
+      } else if self.rest_starts_with(kind.delimiter()) && !escape {
+        break;
+      } else {
+        escape = false;
       }
 
       self.advance()?;
     }
 
-    self.presume(kind.delimiter())?;
+    self.presume_str(kind.delimiter())?;
     self.token(kind.token_kind());
 
     Ok(())
@@ -790,8 +806,11 @@ mod tests {
   use pretty_assertions::assert_eq;
 
   const STRING_BACKTICK: TokenKind = StringToken(StringKind::Backtick);
+  const STRING_BACKTICK_MULTILINE: TokenKind = StringToken(StringKind::BacktickMultiline);
   const STRING_RAW: TokenKind = StringToken(StringKind::Raw);
+  const STRING_RAW_MUTILINE: TokenKind = StringToken(StringKind::RawMultiline);
   const STRING_COOKED: TokenKind = StringToken(StringKind::Cooked);
+  const STRING_COOKED_MULTILINE: TokenKind = StringToken(StringKind::CookedMultiline);
 
   macro_rules! test {
     {
@@ -996,6 +1015,12 @@ mod tests {
     name:   cooked_string_multi_line,
     text:   "\"hello\ngoodbye\"",
     tokens: (STRING_COOKED:"\"hello\ngoodbye\""),
+  }
+
+  test! {
+    name:   cooked_multiline_string,
+    text:   "\"\"\"hello\ngoodbye\"\"\"",
+    tokens: (STRING_COOKED_MULTILINE:"\"\"\"hello\ngoodbye\"\"\""),
   }
 
   test! {
