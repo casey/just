@@ -747,7 +747,7 @@ echo:
     echo {{stuff}}
 ````
 
-See the <<Strings>> section for details on the unindenting algorithm.
+See the <<Strings>> section for details on unindenting.
 
 === Conditional Expressions
 
