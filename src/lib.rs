@@ -135,5 +135,9 @@ mod warning;
 
 pub use crate::run::run;
 
+// Used in integration tests.
+#[doc(hidden)]
+pub use unindent::unindent;
+
 #[cfg(feature = "summary")]
 pub mod summary;

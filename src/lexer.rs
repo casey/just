@@ -814,9 +814,9 @@ mod tests {
 
   macro_rules! test {
     {
-      name:   $name:ident,
-      text:   $text:expr,
-      tokens: ($($kind:ident $(: $lexeme:literal)?),* $(,)?)$(,)?
+      name:     $name:ident,
+      text:     $text:expr,
+      tokens:   ($($kind:ident $(: $lexeme:literal)?),* $(,)?)$(,)?
     } => {
       #[test]
       fn $name() {
@@ -824,7 +824,22 @@ mod tests {
 
         let lexemes: &[&str] = &[$(lexeme!($kind $(, $lexeme)?),)* ""];
 
-        test($text, kinds, lexemes);
+        test($text, true, kinds, lexemes);
+      }
+    };
+    {
+      name:     $name:ident,
+      text:     $text:expr,
+      tokens:   ($($kind:ident $(: $lexeme:literal)?),* $(,)?)$(,)?
+      unindent: $unindent:expr,
+    } => {
+      #[test]
+      fn $name() {
+        let kinds: &[TokenKind] = &[$($kind,)* Eof];
+
+        let lexemes: &[&str] = &[$(lexeme!($kind $(, $lexeme)?),)* ""];
+
+        test($text, $unindent, kinds, lexemes);
       }
     }
   }
@@ -842,8 +857,12 @@ mod tests {
     }
   }
 
-  fn test(text: &str, want_kinds: &[TokenKind], want_lexemes: &[&str]) {
-    let text = testing::unindent(text);
+  fn test(text: &str, unindent_text: bool, want_kinds: &[TokenKind], want_lexemes: &[&str]) {
+    let text = if unindent_text {
+      unindent(text)
+    } else {
+      text.to_owned()
+    };
 
     let have = Lexer::lex(&text).unwrap();
 
@@ -1114,15 +1133,17 @@ mod tests {
   }
 
   test! {
-    name:   eol_linefeed,
-    text:   "\n",
-    tokens: (Eol),
+    name:     eol_linefeed,
+    text:     "\n",
+    tokens:   (Eol),
+    unindent: false,
   }
 
   test! {
-    name:   eol_carriage_return_linefeed,
-    text:   "\r\n",
-    tokens: (Eol:"\r\n"),
+    name:     eol_carriage_return_linefeed,
+    text:     "\r\n",
+    tokens:   (Eol:"\r\n"),
+    unindent: false,
   }
 
   test! {
@@ -1167,6 +1188,7 @@ mod tests {
       Eol,
       Dedent,
     ),
+    unindent: false,
   }
 
   test! {
@@ -1349,6 +1371,7 @@ mod tests {
       Eol,
       Dedent,
     ),
+    unindent: false,
   }
 
   test! {
@@ -2225,7 +2248,7 @@ mod tests {
 
     assert_eq!(
       Lexer::new("!").presume('-').unwrap_err().to_string(),
-      testing::unindent(
+      unindent(
         "
         Internal error, this may indicate a bug in just: Lexer presumed character `-`
         \

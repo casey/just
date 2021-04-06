@@ -751,7 +751,6 @@ mod tests {
   use super::*;
 
   use pretty_assertions::assert_eq;
-  use testing::unindent;
   use CompilationErrorKind::*;
 
   macro_rules! test {

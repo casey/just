@@ -20,51 +20,6 @@ pub fn assert_stdout(output: &Output, stdout: &str) {
   assert_eq!(String::from_utf8_lossy(&output.stdout), stdout);
 }
 
-pub fn unindent(text: &str) -> String {
-  // find line start and end indices
-  let mut lines = Vec::new();
-  let mut start = 0;
-  for (i, c) in text.char_indices() {
-    if c == '\n' || i == text.len() - c.len_utf8() {
-      let end = i + 1;
-      lines.push(&text[start..end]);
-      start = end;
-    }
-  }
-
-  let common_indentation = lines
-    .iter()
-    .filter(|line| !blank(line))
-    .cloned()
-    .map(indentation)
-    .fold(
-      None,
-      |common_indentation, line_indentation| match common_indentation {
-        Some(common_indentation) => Some(common(common_indentation, line_indentation)),
-        None => Some(line_indentation),
-      },
-    )
-    .unwrap_or("");
-
-  let mut unindented = String::new();
-
-  for (i, line) in lines.iter().enumerate() {
-    let blank = blank(line);
-    let first = i == 0;
-    let last = i == lines.len() - 1;
-
-    let replacement = match (blank, first, last) {
-      (true, false, false) => "\n",
-      (true, _, _) => "",
-      (false, _, _) => &line[common_indentation.len()..],
-    };
-
-    unindented.push_str(replacement);
-  }
-
-  unindented
-}
-
 pub enum Entry {
   File {
     contents: &'static str,
@@ -162,42 +117,6 @@ macro_rules! tmptree {
       tempdir
     }
   }
-}
-
-fn indentation(line: &str) -> &str {
-  for (i, c) in line.char_indices() {
-    if c != ' ' && c != '\t' {
-      return &line[0..i];
-    }
-  }
-
-  line
-}
-
-fn blank(line: &str) -> bool {
-  for (i, c) in line.char_indices() {
-    if c == ' ' || c == '\t' {
-      continue;
-    }
-
-    if c == '\n' && i == line.len() - 1 {
-      continue;
-    }
-
-    return false;
-  }
-
-  true
-}
-
-fn common<'s>(a: &'s str, b: &'s str) -> &'s str {
-  for ((i, ac), bc) in a.char_indices().zip(b.chars()) {
-    if ac != bc {
-      return &a[0..i];
-    }
-  }
-
-  a
 }
 
 #[cfg(test)]

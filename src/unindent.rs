@@ -1,4 +1,4 @@
-pub(crate) fn unindent(text: &str) -> String {
+pub fn unindent(text: &str) -> String {
   // find line start and end indices
   let mut lines = Vec::new();
   let mut start = 0;
@@ -79,6 +79,18 @@ mod tests {
     assert_eq!(unindent(""), "");
     assert_eq!(unindent("  foo\n  bar"), "foo\nbar");
     assert_eq!(unindent("  foo\n  bar\n\n"), "foo\nbar\n");
+
+    assert_eq!(
+      unindent(
+        "
+          hello
+          bar
+        "
+      ),
+      "hello\nbar\n"
+    );
+
+    assert_eq!(unindent("hello\n  bar\n  foo"), "hello\n  bar\n  foo");
   }
 
   #[test]

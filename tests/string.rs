@@ -93,7 +93,7 @@ a:
   stdout:   "",
   stderr:   "error: Variable `foo` not defined
   |
-7 |   echo '{{foo}}'
+6 |   echo '{{foo}}'
   |           ^^^
 ",
   status:   EXIT_FAILURE,
@@ -113,7 +113,7 @@ a:
   stdout:   "",
   stderr:   "error: Variable `bar` not defined
   |
-4 | whatever' + bar
+3 | whatever' + bar
   |             ^^^
 ",
   status:   EXIT_FAILURE,
@@ -150,7 +150,7 @@ a:
   stdout:   "",
   stderr:   "error: Variable `b` not defined
   |
-6 |   echo {{b}}
+5 |   echo {{b}}
   |          ^
 ",
   status:   EXIT_FAILURE,
@@ -165,7 +165,7 @@ a b= ':
   stdout:   "",
   stderr:   "error: Unterminated string
   |
-2 | a b= ':
+1 | a b= ':
   |      ^
 ",
   status:   EXIT_FAILURE,
@@ -180,7 +180,7 @@ a b= ":
   stdout:   "",
   stderr:   r#"error: Unterminated string
   |
-2 | a b= ":
+1 | a b= ":
   |      ^
 "#,
   status:   EXIT_FAILURE,
@@ -194,7 +194,7 @@ foo a=\t`echo blaaaaaah:
   stderr:   r#"
     error: Unterminated backtick
       |
-    2 | foo a=    `echo blaaaaaah:
+    1 | foo a=    `echo blaaaaaah:
       |           ^
   "#,
   status:   EXIT_FAILURE,
