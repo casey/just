@@ -6,6 +6,7 @@ pub(crate) enum CompilationErrorKind<'src> {
     alias:       &'src str,
     recipe_line: usize,
   },
+  BacktickShebang,
   CircularRecipeDependency {
     recipe: &'src str,
     circle: Vec<&'src str>,

@@ -59,13 +59,15 @@ fn blank(line: &str) -> bool {
 }
 
 fn common<'s>(a: &'s str, b: &'s str) -> &'s str {
-  for ((i, ac), bc) in a.char_indices().zip(b.chars()) {
-    if ac != bc {
-      return &a[0..i];
-    }
-  }
+  let i = a
+    .char_indices()
+    .zip(b.chars())
+    .take_while(|((_, ac), bc)| ac == bc)
+    .map(|((i, c), _)| i + c.len_utf8())
+    .last()
+    .unwrap_or(0);
 
-  a
+  &a[0..i]
 }
 
 #[cfg(test)]
@@ -91,6 +93,18 @@ mod tests {
     );
 
     assert_eq!(unindent("hello\n  bar\n  foo"), "hello\n  bar\n  foo");
+
+    assert_eq!(
+      unindent(
+        "
+
+          hello
+          bar
+
+        "
+      ),
+      "\nhello\nbar\n\n"
+    );
   }
 
   #[test]

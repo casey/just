@@ -457,6 +457,11 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
       } else {
         contents.to_owned()
       };
+
+      if contents.starts_with("#!") {
+        return Err(next.error(CompilationErrorKind::BacktickShebang));
+      }
+
       Ok(Expression::Backtick { contents, token })
     } else if self.next_is(Identifier) {
       let name = self.parse_name()?;
