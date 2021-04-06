@@ -747,7 +747,7 @@ Indented backticks, delimited by three backticks, are de-indented in the same ma
         echo {{stuff}}
 ```
 
-See the <<<Strings>>> section for details on the unindenting algorithm.
+See the <<Strings>> section for details on the unindenting algorithm.
 
 === Conditional Expressions
 
