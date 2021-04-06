@@ -9,17 +9,20 @@ tokens
 ------
 
 ```
-BACKTICK   = `[^`]*`
-COMMENT    = #([^!].*)?$
-DEDENT     = emitted when indentation decreases
-EOF        = emitted at the end of the file
-INDENT     = emitted when indentation increases
-LINE       = emitted before a recipe line
-NAME       = [a-zA-Z_][a-zA-Z0-9_-]*
-NEWLINE    = \n|\r\n
-RAW_STRING = '[^']*'
-STRING     = "[^"]*" # also processes \n \r \t \" \\ escapes
-TEXT       = recipe text, only matches in a recipe body
+BACKTICK            = `[^`]*`
+INDENTED_BACKTICK   = ```[^(```)]*```
+COMMENT             = #([^!].*)?$
+DEDENT              = emitted when indentation decreases
+EOF                 = emitted at the end of the file
+INDENT              = emitted when indentation increases
+LINE                = emitted before a recipe line
+NAME                = [a-zA-Z_][a-zA-Z0-9_-]*
+NEWLINE             = \n|\r\n
+RAW_STRING          = '[^']*'
+INDENTED_RAW_STRING = '''[^(''')]*'''
+STRING              = "[^"]*" # also processes \n \r \t \" \\ escapes
+INDENTED_STRING     = """[^("""]*""" # also processes \n \r \t \" \\ escapes
+TEXT                = recipe text, only matches in a recipe body
 ```
 
 grammar syntax
@@ -69,14 +72,16 @@ condition     : expression '==' expression
               | expression '!=' expression
 
 value         : NAME '(' sequence? ')'
-              | STRING
-              | RAW_STRING
               | BACKTICK
+              | INDENTED_BACKTICK
               | NAME
+              | string
               | '(' expression ')'
 
 string        : STRING
+              | INDENTED_STRING
               | RAW_STRING
+              | INDENTED_RAW_STRING
 
 sequence      : expression ',' sequence
               | expression ','?
