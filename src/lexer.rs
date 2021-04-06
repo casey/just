@@ -508,8 +508,12 @@ impl<'src> Lexer<'src> {
         return Err(Self::unterminated_interpolation_error(interpolation_start));
       }
 
+      let start = self
+        .next
+        .ok_or_else(|| self.internal_error("Lexer::lex_interpolation: end of character stream"))?;
+
       // Otherwise lex as per normal
-      self.lex_normal(self.next.unwrap())?;
+      self.lex_normal(start)?;
     }
   }
 
