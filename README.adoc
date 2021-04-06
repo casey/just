@@ -737,15 +737,15 @@ serve:
 
 Indented backticks, delimited by three backticks, are de-indented in the same manner as indented strings:
 
-```make
-    stuff := ```
-      echo foo
-      echo bar
-    ```
-
-    echo:
-        echo {{stuff}}
+````make
+stuff := ```
+  echo foo
+  echo bar
 ```
+
+echo:
+    echo {{stuff}}
+````
 
 See the <<Strings>> section for details on the unindenting algorithm.
 
