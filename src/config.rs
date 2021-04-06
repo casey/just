@@ -246,11 +246,10 @@ impl Config {
           .long("edit")
           .help("Edit justfile with editor given by $VISUAL or $EDITOR, falling back to `vim`"),
       )
-      .arg(
-        Arg::with_name(cmd::EVALUATE)
-          .long("evaluate")
-          .help("Print evaluated variables"),
-      )
+      .arg(Arg::with_name(cmd::EVALUATE).long("evaluate").help(
+        "Evaluate and print all variables. If positional arguments are present, only print the \
+         variables whose names are given as arguments.",
+      ))
       .arg(
         Arg::with_name(cmd::INIT)
           .long("init")
@@ -421,13 +420,10 @@ impl Config {
         name: name.to_owned(),
       }
     } else if matches.is_present(cmd::EVALUATE) {
-      if !positional.arguments.is_empty() {
-        return Err(ConfigError::SubcommandArguments {
-          subcommand: format!("--{}", cmd::EVALUATE.to_lowercase()),
-          arguments:  positional.arguments,
-        });
+      Subcommand::Evaluate {
+        variables: positional.arguments,
+        overrides,
       }
-      Subcommand::Evaluate { overrides }
     } else if matches.is_present(cmd::VARIABLES) {
       Subcommand::Variables
     } else {
@@ -516,7 +512,7 @@ impl Config {
       Choose { overrides, chooser } =>
         self.choose(justfile, &search, overrides, chooser.as_deref())?,
       Dump => Self::dump(justfile),
-      Evaluate { overrides } => self.run(justfile, &search, overrides, &[])?,
+      Evaluate { overrides, .. } => self.run(justfile, &search, overrides, &[])?,
       List => self.list(justfile),
       Run {
         arguments,
@@ -877,7 +873,9 @@ FLAGS:
         --dump                Print entire justfile
     -e, --edit                Edit justfile with editor given by $VISUAL or $EDITOR, falling back \
                                  to `vim`
-        --evaluate            Print evaluated variables
+        --evaluate            Evaluate and print all variables. If positional arguments are \
+                                 present, only print the
+                              variables whose names are given as arguments.
         --highlight           Highlight echoed recipe lines in bold
         --init                Initialize new justfile in project root
     -l, --list                List available recipes and their arguments
@@ -1332,6 +1330,7 @@ ARGS:
     args: ["--evaluate"],
     subcommand: Subcommand::Evaluate {
       overrides: map!{},
+      variables: vec![],
     },
   }
 
@@ -1340,6 +1339,16 @@ ARGS:
     args: ["--evaluate", "x=y"],
     subcommand: Subcommand::Evaluate {
       overrides: map!{"x": "y"},
+      variables: vec![],
+    },
+  }
+
+  test! {
+    name: subcommand_evaluate_overrides_with_argument,
+    args: ["--evaluate", "x=y", "foo"],
+    subcommand: Subcommand::Evaluate {
+      overrides: map!{"x": "y"},
+      variables: vec!["foo".to_owned()],
     },
   }
 
@@ -1579,16 +1588,6 @@ ARGS:
     error: ConfigError::SubcommandArguments { subcommand, arguments },
     check: {
       assert_eq!(subcommand, "--list");
-      assert_eq!(arguments, &["bar"]);
-    },
-  }
-
-  error! {
-    name: evaluate_arguments,
-    args: ["--evaluate", "bar"],
-    error: ConfigError::SubcommandArguments { subcommand, arguments },
-    check: {
-      assert_eq!(subcommand, "--evaluate");
       assert_eq!(arguments, &["bar"]);
     },
   }

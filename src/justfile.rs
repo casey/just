@@ -107,14 +107,26 @@ impl<'src> Justfile<'src> {
       )?
     };
 
-    if let Subcommand::Evaluate { .. } = config.subcommand {
+    if let Subcommand::Evaluate { variables, .. } = &config.subcommand {
       let mut width = 0;
 
       for name in scope.names() {
+        if !variables.is_empty() && !variables.iter().any(|variable| variable == name) {
+          continue;
+        }
+
         width = cmp::max(name.len(), width);
       }
 
       for binding in scope.bindings() {
+        if !variables.is_empty()
+          && !variables
+            .iter()
+            .any(|variable| variable == binding.name.lexeme())
+        {
+          continue;
+        }
+
         println!(
           "{0:1$} := \"{2}\"",
           binding.name.lexeme(),
@@ -122,6 +134,7 @@ impl<'src> Justfile<'src> {
           binding.value
         );
       }
+
       return Ok(());
     }
 

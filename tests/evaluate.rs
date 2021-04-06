@@ -27,3 +27,17 @@ test! {
     a := "foo"
   "#,
 }
+
+test! {
+  name:     evaluate_arguments,
+  justfile: "
+    a := 'x'
+    b := 'y'
+    c := 'z'
+  ",
+  args:     ("--evaluate", "a", "c"),
+  stdout:   r#"
+    a := "x"
+    c := "z"
+  "#,
+}
