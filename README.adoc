@@ -750,6 +750,8 @@ stuff := ```
 
 See the <<Strings>> section for details on unindenting.
 
+Backticks may not start with `#!`. This syntax is reserved for a future upgrade.
+
 === Conditional Expressions
 
 `if`/`else` expressions evaluate different branches depending on if two expressions evaluate to the same value:
