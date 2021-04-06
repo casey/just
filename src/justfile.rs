@@ -61,23 +61,6 @@ impl<'src> Justfile<'src> {
     overrides: &'run BTreeMap<String, String>,
     arguments: &'run [String],
   ) -> RunResult<'run, ()> {
-    let argvec: Vec<&str> = if !arguments.is_empty() {
-      arguments.iter().map(String::as_str).collect()
-    } else if let Some(recipe) = self.first() {
-      let min_arguments = recipe.min_arguments();
-      if min_arguments > 0 {
-        return Err(RuntimeError::DefaultRecipeRequiresArguments {
-          recipe: recipe.name.lexeme(),
-          min_arguments,
-        });
-      }
-      vec![recipe.name()]
-    } else {
-      return Err(RuntimeError::NoRecipes);
-    };
-
-    let arguments = argvec.as_slice();
-
     let unknown_overrides = overrides
       .keys()
       .filter(|name| !self.assignments.contains_key(name.as_str()))
@@ -141,6 +124,23 @@ impl<'src> Justfile<'src> {
       }
       return Ok(());
     }
+
+    let argvec: Vec<&str> = if !arguments.is_empty() {
+      arguments.iter().map(String::as_str).collect()
+    } else if let Some(recipe) = self.first() {
+      let min_arguments = recipe.min_arguments();
+      if min_arguments > 0 {
+        return Err(RuntimeError::DefaultRecipeRequiresArguments {
+          recipe: recipe.name.lexeme(),
+          min_arguments,
+        });
+      }
+      vec![recipe.name()]
+    } else {
+      return Err(RuntimeError::NoRecipes);
+    };
+
+    let arguments = argvec.as_slice();
 
     let mut missing = vec![];
     let mut grouped = vec![];

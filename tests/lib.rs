@@ -10,6 +10,7 @@ mod delimiters;
 mod dotenv;
 mod edit;
 mod error_messages;
+mod evaluate;
 mod examples;
 mod export;
 mod init;
