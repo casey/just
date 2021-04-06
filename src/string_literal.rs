@@ -2,15 +2,19 @@ use crate::common::*;
 
 #[derive(PartialEq, Debug)]
 pub(crate) struct StringLiteral<'src> {
+  pub(crate) kind:   StringKind,
   pub(crate) raw:    &'src str,
-  pub(crate) cooked: Cow<'src, str>,
+  pub(crate) cooked: String,
 }
 
 impl Display for StringLiteral<'_> {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-    match self.cooked {
-      Cow::Borrowed(raw) => write!(f, "'{}'", raw),
-      Cow::Owned(_) => write!(f, "\"{}\"", self.raw),
-    }
+    write!(
+      f,
+      "{}{}{}",
+      self.kind.delimiter(),
+      self.raw,
+      self.kind.delimiter()
+    )
   }
 }

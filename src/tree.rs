@@ -1,6 +1,6 @@
 use crate::common::*;
 
-use std::mem;
+use std::{borrow::Cow, mem};
 
 /// Construct a `Tree` from a symbolic expression literal. This macro, and the
 /// Tree type, are only used in the Parser unit tests, providing a concise

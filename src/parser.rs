@@ -100,8 +100,8 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   ///
   /// The first token in `kinds` will be added to the expected token set.
   fn next_are(&mut self, kinds: &[TokenKind]) -> bool {
-    if let Some(kind) = kinds.first() {
-      self.expected.insert(*kind);
+    if let Some(&kind) = kinds.first() {
+      self.expected.insert(kind);
     }
 
     let mut rest = self.rest();
@@ -148,17 +148,6 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     } else {
       Err(self.unexpected_token()?)
     }
-  }
-
-  /// Return an error if the next token is not one of kinds `kinds`.
-  fn expect_any(&mut self, expected: &[TokenKind]) -> CompilationResult<'src, Token<'src>> {
-    for expected in expected.iter().cloned() {
-      if let Some(token) = self.accept(expected)? {
-        return Ok(token);
-      }
-    }
-
-    Err(self.unexpected_token()?)
   }
 
   /// Return an unexpected token error if the next token is not an EOL
@@ -453,15 +442,26 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
 
   /// Parse a value, e.g. `(bar)`
   fn parse_value(&mut self) -> CompilationResult<'src, Expression<'src>> {
-    if self.next_is(StringToken(StringKind::Cooked)) || self.next_is(StringToken(StringKind::Raw)) {
+    if self.next_is(StringToken) {
       Ok(Expression::StringLiteral {
         string_literal: self.parse_string_literal()?,
       })
-    } else if self.next_is(StringToken(StringKind::Backtick)) {
+    } else if self.next_is(Backtick) {
       let next = self.next()?;
-
-      let contents = &next.lexeme()[1..next.lexeme().len() - 1];
+      let kind = StringKind::from_string_or_backtick(next)?;
+      let contents =
+        &next.lexeme()[kind.delimiter_len()..next.lexeme().len() - kind.delimiter_len()];
       let token = self.advance()?;
+      let contents = if kind.indented() {
+        unindent(contents)
+      } else {
+        contents.to_owned()
+      };
+
+      if contents.starts_with("#!") {
+        return Err(next.error(CompilationErrorKind::BacktickShebang));
+      }
+
       Ok(Expression::Backtick { contents, token })
     } else if self.next_is(Identifier) {
       let name = self.parse_name()?;
@@ -486,51 +486,51 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
 
   /// Parse a string literal, e.g. `"FOO"`
   fn parse_string_literal(&mut self) -> CompilationResult<'src, StringLiteral<'src>> {
-    let token = self.expect_any(&[
-      StringToken(StringKind::Raw),
-      StringToken(StringKind::Cooked),
-    ])?;
+    let token = self.expect(StringToken)?;
 
-    let raw = &token.lexeme()[1..token.lexeme().len() - 1];
+    let kind = StringKind::from_string_or_backtick(token)?;
 
-    match token.kind {
-      StringToken(StringKind::Raw) => Ok(StringLiteral {
-        raw,
-        cooked: Cow::Borrowed(raw),
-      }),
-      StringToken(StringKind::Cooked) => {
-        let mut cooked = String::new();
-        let mut escape = false;
-        for c in raw.chars() {
-          if escape {
-            match c {
-              'n' => cooked.push('\n'),
-              'r' => cooked.push('\r'),
-              't' => cooked.push('\t'),
-              '\\' => cooked.push('\\'),
-              '"' => cooked.push('"'),
-              other => {
-                return Err(
-                  token.error(CompilationErrorKind::InvalidEscapeSequence { character: other }),
-                );
-              },
-            }
-            escape = false;
-          } else if c == '\\' {
-            escape = true;
-          } else {
-            cooked.push(c);
+    let delimiter_len = kind.delimiter_len();
+
+    let raw = &token.lexeme()[delimiter_len..token.lexeme().len() - delimiter_len];
+
+    let unindented = if kind.indented() {
+      unindent(raw)
+    } else {
+      raw.to_owned()
+    };
+
+    let cooked = if kind.processes_escape_sequences() {
+      let mut cooked = String::new();
+      let mut escape = false;
+      for c in unindented.chars() {
+        if escape {
+          match c {
+            'n' => cooked.push('\n'),
+            'r' => cooked.push('\r'),
+            't' => cooked.push('\t'),
+            '\\' => cooked.push('\\'),
+            '\n' => {},
+            '"' => cooked.push('"'),
+            other => {
+              return Err(
+                token.error(CompilationErrorKind::InvalidEscapeSequence { character: other }),
+              );
+            },
           }
+          escape = false;
+        } else if c == '\\' {
+          escape = true;
+        } else {
+          cooked.push(c);
         }
-        Ok(StringLiteral {
-          raw,
-          cooked: Cow::Owned(cooked),
-        })
-      },
-      _ => Err(token.error(CompilationErrorKind::Internal {
-        message: "`Parser::parse_string_literal` called on non-string token".to_owned(),
-      })),
-    }
+      }
+      cooked
+    } else {
+      unindented
+    };
+
+    Ok(StringLiteral { cooked, raw, kind })
   }
 
   /// Parse a name from an identifier token
@@ -757,7 +757,6 @@ mod tests {
   use super::*;
 
   use pretty_assertions::assert_eq;
-  use testing::unindent;
   use CompilationErrorKind::*;
 
   macro_rules! test {
@@ -1187,6 +1186,15 @@ mod tests {
   }
 
   test! {
+    name: string_escape_suppress_newline,
+    text: r#"
+      x := "foo\
+      bar"
+    "#,
+    tree: (justfile (assignment x "foobar")),
+  }
+
+  test! {
     name: string_escape_carriage_return,
     text: r#"x := "foo\rbar""#,
     tree: (justfile (assignment x "foo\rbar")),
@@ -1202,6 +1210,72 @@ mod tests {
     name: string_escape_quote,
     text: r#"x := "foo\"bar""#,
     tree: (justfile (assignment x "foo\"bar")),
+  }
+
+  test! {
+    name: indented_string_raw_with_dedent,
+    text: "
+      x := '''
+        foo\\t
+        bar\\n
+      '''
+    ",
+    tree: (justfile (assignment x "foo\\t\nbar\\n\n")),
+  }
+
+  test! {
+    name: indented_string_raw_no_dedent,
+    text: "
+      x := '''
+      foo\\t
+        bar\\n
+      '''
+    ",
+    tree: (justfile (assignment x "foo\\t\n  bar\\n\n")),
+  }
+
+  test! {
+    name: indented_string_cooked,
+    text: r#"
+      x := """
+        \tfoo\t
+        \tbar\n
+      """
+    "#,
+    tree: (justfile (assignment x "\tfoo\t\n\tbar\n\n")),
+  }
+
+  test! {
+    name: indented_string_cooked_no_dedent,
+    text: r#"
+      x := """
+      \tfoo\t
+        \tbar\n
+      """
+    "#,
+    tree: (justfile (assignment x "\tfoo\t\n  \tbar\n\n")),
+  }
+
+  test! {
+    name: indented_backtick,
+    text: r#"
+      x := ```
+        \tfoo\t
+        \tbar\n
+      ```
+    "#,
+    tree: (justfile (assignment x (backtick "\\tfoo\\t\n\\tbar\\n\n"))),
+  }
+
+  test! {
+    name: indented_backtick_no_dedent,
+    text: r#"
+      x := ```
+      \tfoo\t
+        \tbar\n
+      ```
+    "#,
+    tree: (justfile (assignment x (backtick "\\tfoo\\t\n  \\tbar\\n\n"))),
   }
 
   test! {
@@ -1724,11 +1798,10 @@ mod tests {
     width:  1,
     kind:   UnexpectedToken {
       expected: vec![
+        Backtick,
         Identifier,
         ParenL,
-        StringToken(StringKind::Backtick),
-        StringToken(StringKind::Cooked),
-        StringToken(StringKind::Raw)
+        StringToken,
       ],
       found: Eol
     },
@@ -1743,11 +1816,10 @@ mod tests {
     width:  0,
     kind:   UnexpectedToken {
       expected: vec![
+        Backtick,
         Identifier,
         ParenL,
-        StringToken(StringKind::Backtick),
-        StringToken(StringKind::Cooked),
-        StringToken(StringKind::Raw)
+        StringToken,
       ],
       found: Eof,
     },
@@ -1785,12 +1857,11 @@ mod tests {
     width:  0,
     kind: UnexpectedToken{
       expected: vec![
+        Backtick,
         Identifier,
         ParenL,
         ParenR,
-        StringToken(StringKind::Backtick),
-        StringToken(StringKind::Cooked),
-        StringToken(StringKind::Raw)
+        StringToken,
       ],
       found: Eof,
     },
@@ -1805,12 +1876,11 @@ mod tests {
     width:  2,
     kind:   UnexpectedToken{
       expected: vec![
+        Backtick,
         Identifier,
         ParenL,
         ParenR,
-        StringToken(StringKind::Backtick),
-        StringToken(StringKind::Cooked),
-        StringToken(StringKind::Raw)
+        StringToken,
       ],
       found: InterpolationEnd,
     },
@@ -1887,7 +1957,9 @@ mod tests {
     column: 14,
     width:  1,
     kind:   UnexpectedToken {
-      expected: vec![StringToken(StringKind::Cooked), StringToken(StringKind::Raw)],
+      expected: vec![
+        StringToken,
+      ],
       found: BracketR,
     },
   }
@@ -1926,7 +1998,10 @@ mod tests {
     column: 21,
     width:  0,
     kind:   UnexpectedToken {
-      expected: vec![BracketR, StringToken(StringKind::Cooked), StringToken(StringKind::Raw)],
+      expected: vec![
+        BracketR,
+        StringToken,
+      ],
       found: Eof,
     },
   }

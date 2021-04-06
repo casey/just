@@ -26,6 +26,9 @@ impl Display for CompilationError<'_> {
           recipe_line.ordinal(),
         )?;
       },
+      BacktickShebang => {
+        writeln!(f, "Backticks may not start with `#!`")?;
+      },
       CircularRecipeDependency { recipe, ref circle } =>
         if circle.len() == 2 {
           writeln!(f, "Recipe `{}` depends on itself", recipe)?;
@@ -242,10 +245,10 @@ impl Display for CompilationError<'_> {
       UnterminatedInterpolation => {
         writeln!(f, "Unterminated interpolation")?;
       },
-      UnterminatedString(StringKind::Cooked) | UnterminatedString(StringKind::Raw) => {
+      UnterminatedString => {
         writeln!(f, "Unterminated string")?;
       },
-      UnterminatedString(StringKind::Backtick) => {
+      UnterminatedBacktick => {
         writeln!(f, "Unterminated backtick")?;
       },
       Internal { ref message } => {

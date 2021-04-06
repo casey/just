@@ -107,7 +107,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
           }),
         }
       },
-      Expression::StringLiteral { string_literal } => Ok(string_literal.cooked.to_string()),
+      Expression::StringLiteral { string_literal } => Ok(string_literal.cooked.clone()),
       Expression::Backtick { contents, token } =>
         if self.config.dry_run {
           Ok(format!("`{}`", contents))

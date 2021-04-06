@@ -278,7 +278,7 @@ hello:
 recipe:
   @exit 100",
   args:     ("recipe"),
-  stderr:   "error: Recipe `recipe` failed on line 6 with exit code 100\n",
+  stderr:   "error: Recipe `recipe` failed on line 5 with exit code 100\n",
   status:   100,
 }
 
@@ -347,12 +347,12 @@ test! {
 test! {
   name:     backtick_code_interpolation_tab,
   justfile: "
-backtick-fail:
-\techo {{`exit 200`}}
-",
+    backtick-fail:
+    \techo {{`exit 200`}}
+  ",
   stderr:   "    error: Backtick failed with exit code 200
       |
-    3 |     echo {{`exit 200`}}
+    2 |     echo {{`exit 200`}}
       |            ^^^^^^^^^^
   ",
   status:   200,
@@ -361,12 +361,12 @@ backtick-fail:
 test! {
   name:     backtick_code_interpolation_tabs,
   justfile: "
-backtick-fail:
-\techo {{\t`exit 200`}}
-",
+    backtick-fail:
+    \techo {{\t`exit 200`}}
+  ",
   stderr:   "error: Backtick failed with exit code 200
   |
-3 |     echo {{    `exit 200`}}
+2 |     echo {{    `exit 200`}}
   |                ^^^^^^^^^^
 ",
   status:   200,
@@ -375,13 +375,13 @@ backtick-fail:
 test! {
   name:     backtick_code_interpolation_inner_tab,
   justfile: "
-backtick-fail:
-\techo {{\t`exit\t\t200`}}
-",
+    backtick-fail:
+    \techo {{\t`exit\t\t200`}}
+  ",
   stderr:   "
     error: Backtick failed with exit code 200
       |
-    3 |     echo {{    `exit        200`}}
+    2 |     echo {{    `exit        200`}}
       |                ^^^^^^^^^^^^^^^^^
   ",
   status:   200,
@@ -390,13 +390,13 @@ backtick-fail:
 test! {
   name:     backtick_code_interpolation_leading_emoji,
   justfile: "
-backtick-fail:
-\techo 😬{{`exit 200`}}
-",
+    backtick-fail:
+    \techo 😬{{`exit 200`}}
+  ",
   stderr: "
     error: Backtick failed with exit code 200
       |
-    3 |     echo 😬{{`exit 200`}}
+    2 |     echo 😬{{`exit 200`}}
       |              ^^^^^^^^^^
   ",
   status:   200,
@@ -405,13 +405,13 @@ backtick-fail:
 test! {
   name:     backtick_code_interpolation_unicode_hell,
   justfile: "
-backtick-fail:
-\techo \t\t\t😬鎌鼬{{\t\t`exit 200 # \t\t\tabc`}}\t\t\t😬鎌鼬
-",
+    backtick-fail:
+    \techo \t\t\t😬鎌鼬{{\t\t`exit 200 # \t\t\tabc`}}\t\t\t😬鎌鼬
+  ",
   stderr: "
     error: Backtick failed with exit code 200
       |
-    3 |     echo             😬鎌鼬{{        `exit 200 #             abc`}}            😬鎌鼬
+    2 |     echo             😬鎌鼬{{        `exit 200 #             abc`}}            😬鎌鼬
       |                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   ",
   status:   200,
@@ -419,7 +419,18 @@ backtick-fail:
 
 test! {
   name:     backtick_code_long,
-  justfile: "\n\n\n\n\n\nb := a\na := `echo hello`\nbar:\n echo '{{`exit 200`}}'",
+  justfile: "
+
+
+
+
+
+
+    b := a
+    a := `echo hello`
+    bar:
+     echo '{{`exit 200`}}'
+  ",
   stderr:   "
     error: Backtick failed with exit code 200
        |
@@ -580,6 +591,7 @@ test! {
 
 
 
+
 ???
 "#,
   stdout:   "",
@@ -727,7 +739,7 @@ recipe:
   args:     ("--color=always"),
   stdout:   "",
   stderr:   "\u{1b}[1;31merror\u{1b}[0m: \u{1b}[1m\
-Recipe `recipe` failed on line 3 with exit code 100\u{1b}[0m\n",
+Recipe `recipe` failed on line 2 with exit code 100\u{1b}[0m\n",
   status:   100,
 }
 
@@ -1217,7 +1229,7 @@ infallable:
 "#,
   stderr: r#"exit 101
 exit 202
-error: Recipe `infallable` failed on line 4 with exit code 202
+error: Recipe `infallable` failed on line 3 with exit code 202
 "#,
   status: 202,
 }
@@ -1248,29 +1260,29 @@ test! {
 test! {
   name:     shebang_line_numbers,
   justfile: r#"
-quiet:
-  #!/usr/bin/env cat
+    quiet:
+      #!/usr/bin/env cat
 
-  a
+      a
 
-  b
-
-
-  c
+      b
 
 
-"#,
-  stdout:   "#!/usr/bin/env cat
+      c
 
 
+  "#,
+  stdout:   "
+    #!/usr/bin/env cat
 
-a
 
-b
+    a
+
+    b
 
 
-c
-",
+    c
+  ",
 }
 
 test! {
@@ -1404,7 +1416,7 @@ test! {
   args:     ("foo"),
   stdout:   "",
   stderr:   "error: Expected comment, end of file, end of line, \
-    identifier, or '(', but found raw string
+    identifier, or '(', but found string
   |
 1 | foo: 'bar'
   |      ^^^^^
@@ -1417,7 +1429,7 @@ test! {
   justfile: "foo 'bar'",
   args:     ("foo"),
   stdout:   "",
-  stderr:   "error: Expected '*', ':', '$', identifier, or '+', but found raw string
+  stderr:   "error: Expected '*', ':', '$', identifier, or '+', but found string
   |
 1 | foo 'bar'
   |     ^^^^^
@@ -1575,7 +1587,7 @@ foo *a +b:
   stdout:   "",
   stderr:   "error: Expected \':\' or \'=\', but found \'+\'
   |
-2 | foo *a +b:
+1 | foo *a +b:
   |        ^
 ",
   status:   EXIT_FAILURE,
@@ -1590,7 +1602,7 @@ foo +a *b:
   stdout:   "",
   stderr:   "error: Expected \':\' or \'=\', but found \'*\'
   |
-2 | foo +a *b:
+1 | foo +a *b:
   |        ^
 ",
   status:   EXIT_FAILURE,
@@ -1623,7 +1635,7 @@ a: x y
   stdout:   "",
   stderr:   "error: Recipe `a` has unknown dependency `y`
   |
-4 | a: x y
+3 | a: x y
   |      ^
 ",
   status:   EXIT_FAILURE,
@@ -1775,7 +1787,7 @@ X := "\'"
    stdout:   "",
    stderr:   r#"error: `\'` is not a valid escape sequence
   |
-2 | X := "\'"
+1 | X := "\'"
   |      ^^^^
 "#,
    status:   EXIT_FAILURE,
@@ -1784,12 +1796,12 @@ X := "\'"
 test! {
    name:     unknown_variable_in_default,
    justfile: "
-foo x=bar:
-",
+     foo x=bar:
+   ",
    stdout:   "",
    stderr:   r#"error: Variable `bar` not defined
   |
-2 | foo x=bar:
+1 | foo x=bar:
   |       ^^^
 "#,
    status:   EXIT_FAILURE,
@@ -1803,7 +1815,7 @@ foo x=bar():
    stdout:   "",
    stderr:   r#"error: Call to unknown function `bar`
   |
-2 | foo x=bar():
+1 | foo x=bar():
   |       ^^^
 "#,
    status:   EXIT_FAILURE,
@@ -1863,13 +1875,13 @@ foo a=arch() o=os() f=os_family():
 test! {
   name:     unterminated_interpolation_eol,
   justfile: "
-foo:
-  echo {{
-",
+    foo:
+      echo {{
+  ",
   stderr:   r#"
     error: Unterminated interpolation
       |
-    3 |   echo {{
+    2 |   echo {{
       |        ^^
   "#,
   status:   EXIT_FAILURE,
@@ -1878,12 +1890,13 @@ foo:
 test! {
   name:     unterminated_interpolation_eof,
   justfile: "
-foo:
-  echo {{",
+    foo:
+      echo {{
+  ",
   stderr:   r#"
     error: Unterminated interpolation
       |
-    3 |   echo {{
+    2 |   echo {{
       |        ^^
   "#,
   status:   EXIT_FAILURE,
@@ -1897,7 +1910,7 @@ assembly_source_files = %(wildcard src/arch/$(arch)/*.s)
   stderr:   r#"
     error: Unknown start of token:
       |
-    2 | assembly_source_files = %(wildcard src/arch/$(arch)/*.s)
+    1 | assembly_source_files = %(wildcard src/arch/$(arch)/*.s)
       |                         ^
   "#,
    status:   EXIT_FAILURE,
@@ -1930,19 +1943,17 @@ default stdin = `cat`:
 test! {
   name:     backtick_default_cat_justfile,
   justfile: "
-default stdin = `cat justfile`:
-  echo '{{stdin}}'
-",
+    default stdin = `cat justfile`:
+      echo '{{stdin}}'
+  ",
   stdout:   "
-
     default stdin = `cat justfile`:
       echo {{stdin}}
 
     set dotenv-load := true
   ",
   stderr:   "
-    echo '
-    default stdin = `cat justfile`:
+    echo 'default stdin = `cat justfile`:
       echo '{{stdin}}'
 
     set dotenv-load := true'

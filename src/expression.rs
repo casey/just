@@ -10,7 +10,7 @@ use crate::common::*;
 pub(crate) enum Expression<'src> {
   /// `contents`
   Backtick {
-    contents: &'src str,
+    contents: String,
     token:    Token<'src>,
   },
   /// `name(arguments)`

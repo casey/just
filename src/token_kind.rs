@@ -4,6 +4,7 @@ use crate::common::*;
 pub(crate) enum TokenKind {
   Asterisk,
   At,
+  Backtick,
   BangEquals,
   BraceL,
   BraceR,
@@ -26,7 +27,7 @@ pub(crate) enum TokenKind {
   ParenL,
   ParenR,
   Plus,
-  StringToken(StringKind),
+  StringToken,
   Text,
   Unspecified,
   Whitespace,
@@ -38,6 +39,7 @@ impl Display for TokenKind {
     write!(f, "{}", match *self {
       Asterisk => "'*'",
       At => "'@'",
+      Backtick => "backtick",
       BangEquals => "'!='",
       BraceL => "'{'",
       BraceR => "'}'",
@@ -60,12 +62,10 @@ impl Display for TokenKind {
       ParenL => "'('",
       ParenR => "')'",
       Plus => "'+'",
-      StringToken(StringKind::Backtick) => "backtick",
-      StringToken(StringKind::Cooked) => "cooked string",
-      StringToken(StringKind::Raw) => "raw string",
+      StringToken => "string",
       Text => "command text",
-      Whitespace => "whitespace",
       Unspecified => "unspecified",
+      Whitespace => "whitespace",
     })
   }
 }

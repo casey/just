@@ -53,6 +53,8 @@ impl PlatformInterface for Platform {
     command: &str,
     argument: Option<&str>,
   ) -> Result<Command, OutputError> {
+    use std::borrow::Cow;
+
     // If the path contains forward slashes…
     let command = if command.contains('/') {
       // …translate path to the interpreter from unix style to windows style.

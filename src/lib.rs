@@ -125,6 +125,7 @@ mod table;
 mod thunk;
 mod token;
 mod token_kind;
+mod unindent;
 mod unresolved_dependency;
 mod unresolved_recipe;
 mod use_color;
@@ -133,6 +134,10 @@ mod verbosity;
 mod warning;
 
 pub use crate::run::run;
+
+// Used in integration tests.
+#[doc(hidden)]
+pub use unindent::unindent;
 
 #[cfg(feature = "summary")]
 pub mod summary;

@@ -129,6 +129,14 @@ impl<'src> Lexer<'src> {
     Ok(())
   }
 
+  fn presume_str(&mut self, s: &str) -> CompilationResult<'src, ()> {
+    for c in s.chars() {
+      self.presume(c)?;
+    }
+
+    Ok(())
+  }
+
   /// Is next character c?
   fn next_is(&self, c: char) -> bool {
     self.next == Some(c)
@@ -210,8 +218,14 @@ impl<'src> Lexer<'src> {
 
     // The width of the error site to highlight depends on the kind of error:
     let length = match kind {
-      // highlight ', ", or `
-      UnterminatedString(_) => 1,
+      UnterminatedString | UnterminatedBacktick => {
+        let kind = match StringKind::from_token_start(self.lexeme()) {
+          Some(kind) => kind,
+          None =>
+            return self.internal_error("Lexer::error: expected string or backtick token start"),
+        };
+        kind.delimiter().len()
+      },
       // highlight the full token
       _ => self.lexeme().len(),
     };
@@ -476,9 +490,7 @@ impl<'src> Lexer<'src> {
       '+' => self.lex_single(Plus),
       '#' => self.lex_comment(),
       ' ' => self.lex_whitespace(),
-      '`' => self.lex_string(StringKind::Backtick),
-      '"' => self.lex_string(StringKind::Cooked),
-      '\'' => self.lex_string(StringKind::Raw),
+      '`' | '"' | '\'' => self.lex_string(),
       '\n' => self.lex_eol(),
       '\r' => self.lex_eol(),
       '\t' => self.lex_whitespace(),
@@ -760,23 +772,33 @@ impl<'src> Lexer<'src> {
   /// Backtick:      `[^`]*`
   /// Cooked string: "[^"]*" # also processes escape sequences
   /// Raw string:    '[^']*'
-  fn lex_string(&mut self, kind: StringKind) -> CompilationResult<'src, ()> {
-    self.presume(kind.delimiter())?;
+  fn lex_string(&mut self) -> CompilationResult<'src, ()> {
+    let kind = if let Some(kind) = StringKind::from_token_start(self.rest()) {
+      kind
+    } else {
+      self.advance()?;
+      return Err(self.internal_error("Lexer::lex_string: invalid string start"));
+    };
+
+    self.presume_str(kind.delimiter())?;
 
     let mut escape = false;
 
     loop {
-      match self.next {
-        Some(c) if c == kind.delimiter() && !escape => break,
-        Some('\\') if kind.processes_escape_sequences() && !escape => escape = true,
-        Some(_) => escape = false,
-        None => return Err(self.error(kind.unterminated_error_kind())),
+      if self.next == None {
+        return Err(self.error(kind.unterminated_error_kind()));
+      } else if kind.processes_escape_sequences() && self.next_is('\\') && !escape {
+        escape = true;
+      } else if self.rest_starts_with(kind.delimiter()) && !escape {
+        break;
+      } else {
+        escape = false;
       }
 
       self.advance()?;
     }
 
-    self.presume(kind.delimiter())?;
+    self.presume_str(kind.delimiter())?;
     self.token(kind.token_kind());
 
     Ok(())
@@ -789,15 +811,11 @@ mod tests {
 
   use pretty_assertions::assert_eq;
 
-  const STRING_BACKTICK: TokenKind = StringToken(StringKind::Backtick);
-  const STRING_RAW: TokenKind = StringToken(StringKind::Raw);
-  const STRING_COOKED: TokenKind = StringToken(StringKind::Cooked);
-
   macro_rules! test {
     {
-      name:   $name:ident,
-      text:   $text:expr,
-      tokens: ($($kind:ident $(: $lexeme:literal)?),* $(,)?)$(,)?
+      name:     $name:ident,
+      text:     $text:expr,
+      tokens:   ($($kind:ident $(: $lexeme:literal)?),* $(,)?)$(,)?
     } => {
       #[test]
       fn $name() {
@@ -805,7 +823,22 @@ mod tests {
 
         let lexemes: &[&str] = &[$(lexeme!($kind $(, $lexeme)?),)* ""];
 
-        test($text, kinds, lexemes);
+        test($text, true, kinds, lexemes);
+      }
+    };
+    {
+      name:     $name:ident,
+      text:     $text:expr,
+      tokens:   ($($kind:ident $(: $lexeme:literal)?),* $(,)?)$(,)?
+      unindent: $unindent:expr,
+    } => {
+      #[test]
+      fn $name() {
+        let kinds: &[TokenKind] = &[$($kind,)* Eof];
+
+        let lexemes: &[&str] = &[$(lexeme!($kind $(, $lexeme)?),)* ""];
+
+        test($text, $unindent, kinds, lexemes);
       }
     }
   }
@@ -823,8 +856,12 @@ mod tests {
     }
   }
 
-  fn test(text: &str, want_kinds: &[TokenKind], want_lexemes: &[&str]) {
-    let text = testing::unindent(text);
+  fn test(text: &str, unindent_text: bool, want_kinds: &[TokenKind], want_lexemes: &[&str]) {
+    let text = if unindent_text {
+      unindent(text)
+    } else {
+      text.to_owned()
+    };
 
     let have = Lexer::lex(&text).unwrap();
 
@@ -901,7 +938,7 @@ mod tests {
       Dedent | Eof => "",
 
       // Variable lexemes
-      Text | StringToken(_) | Identifier | Comment | Unspecified =>
+      Text | StringToken | Backtick | Identifier | Comment | Unspecified =>
         panic!("Token {:?} has no default lexeme", kind),
     }
   }
@@ -965,37 +1002,43 @@ mod tests {
   test! {
     name:   backtick,
     text:   "`echo`",
-    tokens: (STRING_BACKTICK:"`echo`"),
+    tokens: (Backtick:"`echo`"),
   }
 
   test! {
     name:   backtick_multi_line,
     text:   "`echo\necho`",
-    tokens: (STRING_BACKTICK:"`echo\necho`"),
+    tokens: (Backtick:"`echo\necho`"),
   }
 
   test! {
     name:   raw_string,
     text:   "'hello'",
-    tokens: (STRING_RAW:"'hello'"),
+    tokens: (StringToken:"'hello'"),
   }
 
   test! {
     name:   raw_string_multi_line,
     text:   "'hello\ngoodbye'",
-    tokens: (STRING_RAW:"'hello\ngoodbye'"),
+    tokens: (StringToken:"'hello\ngoodbye'"),
   }
 
   test! {
     name:   cooked_string,
     text:   "\"hello\"",
-    tokens: (STRING_COOKED:"\"hello\""),
+    tokens: (StringToken:"\"hello\""),
   }
 
   test! {
     name:   cooked_string_multi_line,
     text:   "\"hello\ngoodbye\"",
-    tokens: (STRING_COOKED:"\"hello\ngoodbye\""),
+    tokens: (StringToken:"\"hello\ngoodbye\""),
+  }
+
+  test! {
+    name:   cooked_multiline_string,
+    text:   "\"\"\"hello\ngoodbye\"\"\"",
+    tokens: (StringToken:"\"\"\"hello\ngoodbye\"\"\""),
   }
 
   test! {
@@ -1056,11 +1099,11 @@ mod tests {
       Whitespace,
       Equals,
       Whitespace,
-      STRING_RAW:"'foo'",
+      StringToken:"'foo'",
       Whitespace,
       Plus,
       Whitespace,
-      STRING_RAW:"'bar'",
+      StringToken:"'bar'",
     )
   }
 
@@ -1075,29 +1118,31 @@ mod tests {
       Equals,
       Whitespace,
       ParenL,
-      STRING_RAW:"'foo'",
+      StringToken:"'foo'",
       Whitespace,
       Plus,
       Whitespace,
-      STRING_RAW:"'bar'",
+      StringToken:"'bar'",
       ParenR,
       Whitespace,
       Plus,
       Whitespace,
-      STRING_BACKTICK:"`baz`",
+      Backtick:"`baz`",
     ),
   }
 
   test! {
-    name:   eol_linefeed,
-    text:   "\n",
-    tokens: (Eol),
+    name:     eol_linefeed,
+    text:     "\n",
+    tokens:   (Eol),
+    unindent: false,
   }
 
   test! {
-    name:   eol_carriage_return_linefeed,
-    text:   "\r\n",
-    tokens: (Eol:"\r\n"),
+    name:     eol_carriage_return_linefeed,
+    text:     "\r\n",
+    tokens:   (Eol:"\r\n"),
+    unindent: false,
   }
 
   test! {
@@ -1142,6 +1187,7 @@ mod tests {
       Eol,
       Dedent,
     ),
+    unindent: false,
   }
 
   test! {
@@ -1324,6 +1370,7 @@ mod tests {
       Eol,
       Dedent,
     ),
+    unindent: false,
   }
 
   test! {
@@ -1411,11 +1458,11 @@ mod tests {
       Indent:" ",
       Text:"echo ",
       InterpolationStart,
-      STRING_BACKTICK:"`echo hello`",
+      Backtick:"`echo hello`",
       Whitespace,
       Plus,
       Whitespace,
-      STRING_BACKTICK:"`echo goodbye`",
+      Backtick:"`echo goodbye`",
       InterpolationEnd,
       Dedent,
     ),
@@ -1431,7 +1478,7 @@ mod tests {
       Indent:" ",
       Text:"echo ",
       InterpolationStart,
-      STRING_RAW:"'\n'",
+      StringToken:"'\n'",
       InterpolationEnd,
       Dedent,
     ),
@@ -1503,19 +1550,19 @@ mod tests {
       Whitespace,
       Equals,
       Whitespace,
-      STRING_COOKED:"\"'a'\"",
+      StringToken:"\"'a'\"",
       Whitespace,
       Plus,
       Whitespace,
-      STRING_RAW:"'\"b\"'",
+      StringToken:"'\"b\"'",
       Whitespace,
       Plus,
       Whitespace,
-      STRING_COOKED:"\"'c'\"",
+      StringToken:"\"'c'\"",
       Whitespace,
       Plus,
       Whitespace,
-      STRING_RAW:"'\"d\"'",
+      StringToken:"'\"d\"'",
       Comment:"#echo hello",
     )
   }
@@ -1583,7 +1630,7 @@ mod tests {
       Whitespace,
       Plus,
       Whitespace,
-      STRING_COOKED:"\"z\"",
+      StringToken:"\"z\"",
       Whitespace,
       Plus,
       Whitespace,
@@ -1707,7 +1754,7 @@ mod tests {
       Eol,
       Identifier:"A",
       Equals,
-      STRING_RAW:"'1'",
+      StringToken:"'1'",
       Eol,
       Identifier:"echo",
       Colon,
@@ -1732,11 +1779,11 @@ mod tests {
       Indent:" ",
       Text:"echo ",
       InterpolationStart,
-      STRING_BACKTICK:"`echo hello`",
+      Backtick:"`echo hello`",
       Whitespace,
       Plus,
       Whitespace,
-      STRING_BACKTICK:"`echo goodbye`",
+      Backtick:"`echo goodbye`",
       InterpolationEnd,
       Dedent
     ),
@@ -1765,11 +1812,11 @@ mod tests {
       Whitespace,
       Equals,
       Whitespace,
-      STRING_BACKTICK:"`echo hello`",
+      Backtick:"`echo hello`",
       Whitespace,
       Plus,
       Whitespace,
-      STRING_BACKTICK:"`echo goodbye`",
+      Backtick:"`echo goodbye`",
     ),
   }
 
@@ -2011,7 +2058,7 @@ mod tests {
     line:   0,
     column: 4,
     width:  1,
-    kind:   UnterminatedString(StringKind::Cooked),
+    kind:   UnterminatedString,
   }
 
   error! {
@@ -2021,7 +2068,7 @@ mod tests {
     line:   0,
     column: 4,
     width:  1,
-    kind:   UnterminatedString(StringKind::Raw),
+    kind:   UnterminatedString,
   }
 
   error! {
@@ -2042,7 +2089,7 @@ mod tests {
     line:   0,
     column: 0,
     width:  1,
-    kind:   UnterminatedString(StringKind::Backtick),
+    kind:   UnterminatedBacktick,
   }
 
   error! {
@@ -2102,7 +2149,7 @@ mod tests {
     line:   0,
     column: 4,
     width:  1,
-    kind:   UnterminatedString(StringKind::Cooked),
+    kind:   UnterminatedString,
   }
 
   error! {
@@ -2200,7 +2247,7 @@ mod tests {
 
     assert_eq!(
       Lexer::new("!").presume('-').unwrap_err().to_string(),
-      testing::unindent(
+      unindent(
         "
         Internal error, this may indicate a bug in just: Lexer presumed character `-`
         \

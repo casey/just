@@ -30,7 +30,7 @@ pub(crate) fn search(config: &Config) -> Search {
   }
 }
 
-pub(crate) use test_utilities::{tempdir, unindent};
+pub(crate) use test_utilities::tempdir;
 
 macro_rules! analysis_error {
   (
@@ -94,7 +94,7 @@ macro_rules! run_error {
       let search = $crate::testing::search(&config);
 
       if let Subcommand::Run{ overrides, arguments } = &config.subcommand {
-        match $crate::compiler::Compiler::compile(&$crate::testing::unindent($src))
+        match $crate::compiler::Compiler::compile(&$crate::unindent::unindent($src))
           .expect("Expected successful compilation")
           .run(
             &config,
