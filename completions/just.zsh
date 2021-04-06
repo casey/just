@@ -44,7 +44,7 @@ _just() {
 '--dump[Print entire justfile]' \
 '-e[Edit justfile with editor given by $VISUAL or $EDITOR, falling back to `vim`]' \
 '--edit[Edit justfile with editor given by $VISUAL or $EDITOR, falling back to `vim`]' \
-'--evaluate[Print evaluated variables]' \
+'--evaluate[Evaluate and print all variables. If positional arguments are present, only print the variables whose names are given as arguments.]' \
 '--init[Initialize new justfile in project root]' \
 '-l[List available recipes and their arguments]' \
 '--list[List available recipes and their arguments]' \

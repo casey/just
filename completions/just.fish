@@ -31,7 +31,7 @@ complete -c just -n "__fish_use_subcommand" -s v -l verbose -d 'Use verbose outp
 complete -c just -n "__fish_use_subcommand" -l choose -d 'Select one or more recipes to run using a binary. If `--chooser` is not passed the chooser defaults to the value of $JUST_CHOOSER, falling back to `fzf`'
 complete -c just -n "__fish_use_subcommand" -l dump -d 'Print entire justfile'
 complete -c just -n "__fish_use_subcommand" -s e -l edit -d 'Edit justfile with editor given by $VISUAL or $EDITOR, falling back to `vim`'
-complete -c just -n "__fish_use_subcommand" -l evaluate -d 'Print evaluated variables'
+complete -c just -n "__fish_use_subcommand" -l evaluate -d 'Evaluate and print all variables. If positional arguments are present, only print the variables whose names are given as arguments.'
 complete -c just -n "__fish_use_subcommand" -l init -d 'Initialize new justfile in project root'
 complete -c just -n "__fish_use_subcommand" -s l -l list -d 'List available recipes and their arguments'
 complete -c just -n "__fish_use_subcommand" -l summary -d 'List names of available recipes'
