@@ -545,6 +545,8 @@ string-with-newline         := "\n"
 string-with-carriage-return := "\r"
 string-with-double-quote    := "\""
 string-with-slash           := "\\"
+string-with-no-newline      := "\
+"
 ```
 
 ```sh
@@ -553,6 +555,7 @@ $ just --evaluate
 string-with-double-quote    := """
 string-with-newline         := "
 "
+string-with-no-newline      := ""
 string-with-slash           := "\"
 string-with-tab             := "     "
 ```

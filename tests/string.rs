@@ -66,6 +66,22 @@ whatever'
 }
 
 test! {
+  name:     cooked_string_suppress_newline,
+  justfile: r#"
+    a := """
+      foo\
+      bar
+    """
+
+    @default:
+      printf %s '{{a}}'
+  "#,
+  stdout: "
+    foobar
+  ",
+}
+
+test! {
   name:     invalid_escape_sequence,
   justfile: r#"x := "\q"
 a:"#,

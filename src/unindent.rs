@@ -1,3 +1,4 @@
+#[must_use]
 pub fn unindent(text: &str) -> String {
   // find line start and end indices
   let mut lines = Vec::new();

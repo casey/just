@@ -510,6 +510,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
             'r' => cooked.push('\r'),
             't' => cooked.push('\t'),
             '\\' => cooked.push('\\'),
+            '\n' => {},
             '"' => cooked.push('"'),
             other => {
               return Err(
@@ -526,7 +527,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
       }
       cooked
     } else {
-      unindented.to_owned()
+      unindented
     };
 
     Ok(StringLiteral { cooked, raw, kind })
@@ -1182,6 +1183,15 @@ mod tests {
     name: string_escape_newline,
     text: r#"x := "foo\nbar""#,
     tree: (justfile (assignment x "foo\nbar")),
+  }
+
+  test! {
+    name: string_escape_suppress_newline,
+    text: r#"
+      x := "foo\
+      bar"
+    "#,
+    tree: (justfile (assignment x "foobar")),
   }
 
   test! {

@@ -773,12 +773,11 @@ impl<'src> Lexer<'src> {
   /// Cooked string: "[^"]*" # also processes escape sequences
   /// Raw string:    '[^']*'
   fn lex_string(&mut self) -> CompilationResult<'src, ()> {
-    let kind = match StringKind::from_token_start(self.rest()) {
-      Some(kind) => kind,
-      None => {
-        self.advance()?;
-        return Err(self.internal_error("Lexer::lex_string: invalid string start"));
-      },
+    let kind = if let Some(kind) = StringKind::from_token_start(self.rest()) {
+      kind
+    } else {
+      self.advance()?;
+      return Err(self.internal_error("Lexer::lex_string: invalid string start"));
     };
 
     self.presume_str(kind.delimiter())?;
