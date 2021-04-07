@@ -228,6 +228,15 @@ impl<'src> Lexer<'src> {
         };
         kind.delimiter().len()
       },
+      UnterminatedFormatString => {
+        for &token in self.tokens.iter().rev() {
+          if token.kind == FormatStringStart {
+            return CompilationError { token, kind };
+          }
+        }
+
+        return self.internal_error("Lexer::error: unable to find format string start");
+      },
       // highlight the full token
       _ => self.lexeme().len(),
     };
@@ -773,14 +782,17 @@ impl<'src> Lexer<'src> {
   fn lex_string(&mut self, format_string: bool) -> CompilationResult<'src, ()> {
     // TODO:
     // - what token should format backticks be?
+    // - how are format strings dedented?
     // - brag about recursive format strings
-    // - test empty format string error
+    // - test empty format string interpolation error
+    // - handle backticks
     // - test format string evaluation
     // - format strings with text immediatle before and after inteprolation
     //   start/end
     // - test format strings inside of recipe bodies
     // - test multi-line format strings inside of recipe bodies
     // - test open delimiters with multiple lines inside of recipe bodies
+    // - test multi-line strings inside of recipe bodies
 
     let kind = if let Some(kind) = StringKind::from_token_start(self.rest()) {
       kind
@@ -799,7 +811,11 @@ impl<'src> Lexer<'src> {
 
     loop {
       if self.next == None {
-        return Err(self.error(kind.unterminated_error_kind()));
+        if format_string {
+          return Err(self.error(UnterminatedFormatString));
+        } else {
+          return Err(self.error(kind.unterminated_error_kind()));
+        }
       } else if kind.processes_escape_sequences() && self.next_is('\\') && !escape {
         escape = true;
       } else if self.rest_starts_with(kind.delimiter()) && !escape {
@@ -2234,6 +2250,26 @@ mod tests {
     column: 4,
     width:  1,
     kind:   UnterminatedString,
+  }
+
+  error! {
+    name:   unterminated_format_string,
+    input:  "a f'",
+    offset: 2,
+    line:   0,
+    column: 2,
+    width:  2,
+    kind:   UnterminatedFormatString,
+  }
+
+  error! {
+    name:   unterminated_format_string_indented,
+    input:  "a f'''",
+    offset: 2,
+    line:   0,
+    column: 2,
+    width:  4,
+    kind:   UnterminatedFormatString,
   }
 
   error! {

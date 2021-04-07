@@ -242,14 +242,17 @@ impl Display for CompilationError<'_> {
       UnpairedCarriageReturn => {
         writeln!(f, "Unpaired carriage return")?;
       },
+      UnterminatedBacktick => {
+        writeln!(f, "Unterminated backtick")?;
+      },
+      UnterminatedFormatString => {
+        writeln!(f, "Unterminated format string")?;
+      },
       UnterminatedInterpolation => {
         writeln!(f, "Unterminated interpolation")?;
       },
       UnterminatedString => {
         writeln!(f, "Unterminated string")?;
-      },
-      UnterminatedBacktick => {
-        writeln!(f, "Unterminated backtick")?;
       },
       Internal { ref message } => {
         writeln!(
