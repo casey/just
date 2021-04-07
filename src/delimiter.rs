@@ -2,23 +2,26 @@
 pub(crate) enum Delimiter {
   Brace,
   Bracket,
+  Interpolation,
   Paren,
 }
 
 impl Delimiter {
-  pub(crate) fn open(self) -> char {
+  pub(crate) fn open(self) -> &'static str {
     match self {
-      Self::Brace => '{',
-      Self::Bracket => '[',
-      Self::Paren => '(',
+      Self::Brace => "{",
+      Self::Bracket => "[",
+      Self::Interpolation => "{{",
+      Self::Paren => "(",
     }
   }
 
-  pub(crate) fn close(self) -> char {
+  pub(crate) fn close(self) -> &'static str {
     match self {
-      Self::Brace => '}',
-      Self::Bracket => ']',
-      Self::Paren => ')',
+      Self::Brace => "}",
+      Self::Bracket => "]",
+      Self::Interpolation => "}}",
+      Self::Paren => ")",
     }
   }
 }
