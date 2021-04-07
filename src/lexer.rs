@@ -30,8 +30,6 @@ pub(crate) struct Lexer<'src> {
   recipe_body:         bool,
   /// Indentation stack
   indentation:         Vec<&'src str>,
-  /// Interpolation token start stack
-  interpolation_stack: Vec<Token<'src>>,
   /// Current open delimiters
   open_delimiters:     Vec<(Delimiter, usize)>,
 }
@@ -60,7 +58,6 @@ impl<'src> Lexer<'src> {
       token_end: start,
       recipe_body_pending: false,
       recipe_body: false,
-      interpolation_stack: Vec::new(),
       open_delimiters: Vec::new(),
       chars,
       next,
@@ -179,7 +176,7 @@ impl<'src> Lexer<'src> {
 
   /// Create a new token with `kind` whose lexeme is between `self.token_start`
   /// and `self.token_end`
-  fn token(&mut self, kind: TokenKind) {
+  fn token(&mut self, kind: TokenKind) -> Token<'src> {
     self.tokens.push(Token {
       offset: self.token_start.offset,
       column: self.token_start.column,
@@ -292,9 +289,7 @@ impl<'src> Lexer<'src> {
 
       match self.next {
         Some(first) => {
-          if let Some(&interpolation_start) = self.interpolation_stack.last() {
-            self.lex_interpolation(interpolation_start, first)?
-          } else if self.recipe_body {
+          if self.recipe_body {
             self.lex_body()?
           } else {
             self.lex_normal(first)?
@@ -302,10 +297,6 @@ impl<'src> Lexer<'src> {
         },
         None => break,
       }
-    }
-
-    if let Some(&interpolation_start) = self.interpolation_stack.last() {
-      return Err(Self::unterminated_interpolation_error(interpolation_start));
     }
 
     while self.indented() {
@@ -503,29 +494,20 @@ impl<'src> Lexer<'src> {
   }
 
   /// Lex token beginning with `start` inside an interpolation
-  fn lex_interpolation(
-    &mut self,
-    interpolation_start: Token<'src>,
-    start: char,
-  ) -> CompilationResult<'src, ()> {
-    if self.rest_starts_with("}}") {
-      // end current interpolation
-      if self.interpolation_stack.pop().is_none() {
-        self.advance()?;
-        self.advance()?;
-        return Err(self.internal_error(
-          "Lexer::lex_interpolation found `}}` but was called with empty interpolation stack.",
-        ));
+  fn lex_interpolation(&mut self, interpolation_start: Token<'src>) -> CompilationResult<'src, ()> {
+    loop {
+      if self.rest_starts_with("}}") {
+        // Emit interpolation end token
+        self.lex_double(InterpolationEnd)?;
+        return Ok(());
+      } else if self.at_eol_or_eof() {
+        // Return unterminated interpolation error that highlights the opening
+        // {{
+        return Err(Self::unterminated_interpolation_error(interpolation_start));
+      } else {
+        // Otherwise lex as per normal
+        self.lex_normal(self.next.unwrap())?;
       }
-      // Emit interpolation end token
-      self.lex_double(InterpolationEnd)
-    } else if self.at_eol_or_eof() {
-      // Return unterminated interpolation error that highlights the opening
-      // {{
-      Err(Self::unterminated_interpolation_error(interpolation_start))
-    } else {
-      // Otherwise lex as per normal
-      self.lex_normal(start)
     }
   }
 
@@ -575,9 +557,7 @@ impl<'src> Lexer<'src> {
       NewlineCarriageReturn => self.lex_double(Eol),
       Interpolation => {
         self.lex_double(InterpolationStart)?;
-        self
-          .interpolation_stack
-          .push(self.tokens[self.tokens.len() - 1]);
+        self.lex_interpolation(*self.tokens.last().unwrap())?;
         Ok(())
       },
       EndOfFile => Ok(()),
