@@ -793,6 +793,7 @@ impl<'src> Lexer<'src> {
     // - test multi-line format strings inside of recipe bodies
     // - test open delimiters with multiple lines inside of recipe bodies
     // - test multi-line strings inside of recipe bodies
+    // - combine backticks and string literals
 
     let kind = if let Some(kind) = StringKind::from_token_start(self.rest()) {
       kind

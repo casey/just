@@ -443,9 +443,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   /// Parse a value, e.g. `(bar)`
   fn parse_value(&mut self) -> CompilationResult<'src, Expression<'src>> {
     if self.next_is(FormatStringStart) {
-      Ok(Expression::FormatString {
-        fragments: self.parse_format_string()?,
-      })
+      Ok(self.parse_format_string()?)
     } else if self.next_is(StringToken) {
       Ok(Expression::StringLiteral {
         string_literal: self.parse_string_literal()?,
@@ -538,8 +536,16 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   }
 
   /// Parse a format string
-  fn parse_format_string(&mut self) -> CompilationResult<'src, Vec<Fragment<'src>>> {
-    self.presume(FormatStringStart)?;
+  fn parse_format_string(&mut self) -> CompilationResult<'src, Expression<'src>> {
+    let start = self.presume(FormatStringStart)?;
+
+    let kind = if let Some(kind) = StringKind::from_token_start(&start.lexeme()[1..]) {
+      kind
+    } else {
+      return Err(start.error(CompilationErrorKind::Internal {
+        message: "Parser::parse_format_string: Unexpected delimiter".to_owned(),
+      }));
+    };
 
     let mut fragments = Vec::new();
 
@@ -557,7 +563,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
 
     self.presume(FormatStringEnd)?;
 
-    Ok(fragments)
+    Ok(Expression::FormatString { kind, fragments })
   }
 
   /// Parse a name from an identifier token
