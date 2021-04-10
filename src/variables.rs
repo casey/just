@@ -32,7 +32,14 @@ impl<'expression, 'src> Iterator for Variables<'expression, 'src> {
         self.stack.push(otherwise);
         self.next()
       },
-      Some(Expression::Variable { name, .. }) => Some(name.token()),
+      Some(Expression::FormatString { fragments }) => {
+        for fragment in fragments {
+          if let Fragment::Interpolation { expression } = fragment {
+            self.stack.push(expression);
+          }
+        }
+        self.next()
+      },
       Some(Expression::Concatination { lhs, rhs }) => {
         self.stack.push(lhs);
         self.stack.push(rhs);
@@ -42,6 +49,7 @@ impl<'expression, 'src> Iterator for Variables<'expression, 'src> {
         self.stack.push(contents);
         self.next()
       },
+      Some(Expression::Variable { name, .. }) => Some(name.token()),
     }
   }
 }

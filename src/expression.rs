@@ -28,6 +28,8 @@ pub(crate) enum Expression<'src> {
     otherwise: Box<Expression<'src>>,
     inverted:  bool,
   },
+  /// f'…', f"…", f'''…''', or f"""…"""
+  FormatString { fragments: Vec<Fragment<'src>> },
   /// `(contents)`
   Group { contents: Box<Expression<'src>> },
   /// `"string_literal"` or `'string_literal'`

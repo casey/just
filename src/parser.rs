@@ -442,7 +442,11 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
 
   /// Parse a value, e.g. `(bar)`
   fn parse_value(&mut self) -> CompilationResult<'src, Expression<'src>> {
-    if self.next_is(StringToken) {
+    if self.next_is(FormatStringStart) {
+      Ok(Expression::FormatString {
+        fragments: self.parse_format_string()?,
+      })
+    } else if self.next_is(StringToken) {
       Ok(Expression::StringLiteral {
         string_literal: self.parse_string_literal()?,
       })
@@ -531,6 +535,29 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     };
 
     Ok(StringLiteral { cooked, raw, kind })
+  }
+
+  /// Parse a format string
+  fn parse_format_string(&mut self) -> CompilationResult<'src, Vec<Fragment<'src>>> {
+    self.presume(FormatStringStart)?;
+
+    let mut fragments = Vec::new();
+
+    while !self.next_is(FormatStringEnd) {
+      let fragment = if let Some(token) = self.accept(Text)? {
+        Fragment::Text { token }
+      } else {
+        Fragment::Interpolation {
+          expression: self.parse_expression()?,
+        }
+      };
+
+      fragments.push(fragment);
+    }
+
+    self.presume(FormatStringEnd)?;
+
+    Ok(fragments)
   }
 
   /// Parse a name from an identifier token
@@ -1216,6 +1243,14 @@ mod tests {
     name: string_escape_quote,
     text: r#"x := "foo\"bar""#,
     tree: (justfile (assignment x "foo\"bar")),
+  }
+
+  test! {
+    name: format_string,
+    text: "
+      x := f'hello'
+    ",
+    tree: (justfile (assignment x (f "hello"))),
   }
 
   test! {
