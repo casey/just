@@ -74,6 +74,7 @@ impl<'src, D> Recipe<'src, D> {
     dotenv: &BTreeMap<String, String>,
     scope: Scope<'src, 'run>,
     search: &'run Search,
+    arguments: &[&'run str],
   ) -> RunResult<'src, ()> {
     let config = &context.config;
 
@@ -176,6 +177,10 @@ impl<'src, D> Recipe<'src, D> {
         output_error,
       })?;
 
+      if context.settings.positional_arguments {
+        command.args(arguments);
+      }
+
       command.export(context.settings, dotenv, &scope);
 
       // run it!
@@ -259,6 +264,11 @@ impl<'src, D> Recipe<'src, D> {
         cmd.current_dir(&context.search.working_directory);
 
         cmd.arg(command);
+
+        if context.settings.positional_arguments {
+          cmd.arg(self.name.lexeme());
+          cmd.args(arguments);
+        }
 
         if config.verbosity.quiet() {
           cmd.stderr(Stdio::null());

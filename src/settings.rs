@@ -2,17 +2,19 @@ use crate::common::*;
 
 #[derive(Debug, PartialEq)]
 pub(crate) struct Settings<'src> {
-  pub(crate) dotenv_load: Option<bool>,
-  pub(crate) export:      bool,
-  pub(crate) shell:       Option<setting::Shell<'src>>,
+  pub(crate) dotenv_load:          Option<bool>,
+  pub(crate) export:               bool,
+  pub(crate) positional_arguments: bool,
+  pub(crate) shell:                Option<setting::Shell<'src>>,
 }
 
 impl<'src> Settings<'src> {
   pub(crate) fn new() -> Settings<'src> {
     Settings {
-      dotenv_load: None,
-      export:      false,
-      shell:       None,
+      dotenv_load:          None,
+      export:               false,
+      positional_arguments: false,
+      shell:                None,
     }
   }
 

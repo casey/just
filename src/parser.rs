@@ -717,6 +717,12 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
         value: Setting::Export(value),
         name,
       });
+    } else if Keyword::PositionalArguments == lexeme {
+      let value = self.parse_set_bool()?;
+      return Ok(Set {
+        value: Setting::PositionalArguments(value),
+        name,
+      });
     }
 
     self.expect(ColonEquals)?;
@@ -1676,6 +1682,24 @@ mod tests {
     name: set_dotenv_load_false,
     text: "set dotenv-load := false",
     tree: (justfile (set dotenv_load false)),
+  }
+
+  test! {
+    name: set_positional_arguments_implicit,
+    text: "set positional-arguments",
+    tree: (justfile (set positional_arguments true)),
+  }
+
+  test! {
+    name: set_positional_arguments_true,
+    text: "set positional-arguments := true",
+    tree: (justfile (set positional_arguments true)),
+  }
+
+  test! {
+    name: set_positional_arguments_false,
+    text: "set positional-arguments := false",
+    tree: (justfile (set positional_arguments false)),
   }
 
   test! {
