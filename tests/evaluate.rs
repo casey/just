@@ -1,3 +1,5 @@
+use crate::common::*;
+
 test! {
   name:     evaluate,
   justfile: r#"
@@ -29,15 +31,49 @@ test! {
 }
 
 test! {
-  name:     evaluate_arguments,
+  name:     evaluate_multiple,
   justfile: "
     a := 'x'
     b := 'y'
     c := 'z'
   ",
-  args:     ("--evaluate", "a", "c"),
-  stdout:   r#"
-    a := "x"
-    c := "z"
-  "#,
+  args:   ("--evaluate", "a", "c"),
+  stderr: "error: `--evaluate` used with unexpected argument: `c`\n",
+  status: EXIT_FAILURE,
+}
+
+test! {
+  name:     evaluate_single,
+  justfile: "
+    a := 'x'
+    b := 'y'
+    c := 'z'
+  ",
+  args:   ("--evaluate", "b"),
+  stdout: "y",
+}
+
+test! {
+  name:     evaluate_no_suggestion,
+  justfile: "
+    abc := 'x'
+  ",
+  args:   ("--evaluate", "aby"),
+  stderr: "
+    error: Justfile does not contain variable `aby`.
+    Did you mean `abc`?
+  ",
+  status: EXIT_FAILURE,
+}
+
+test! {
+  name:     evaluate_suggestion,
+  justfile: "
+    hello := 'x'
+  ",
+  args:   ("--evaluate", "goodbye"),
+  stderr: "
+    error: Justfile does not contain variable `goodbye`.
+  ",
+  status: EXIT_FAILURE,
 }

@@ -25,6 +25,10 @@ pub(crate) enum RuntimeError<'src> {
   Dotenv {
     dotenv_error: dotenv::Error,
   },
+  EvalUnknownVariable {
+    variable:   String,
+    suggestion: Option<Suggestion<'src>>,
+  },
   FunctionCall {
     function: Name<'src>,
     message:  String,
@@ -106,6 +110,15 @@ impl<'src> Display for RuntimeError<'src> {
     write!(f, "{}", message.prefix())?;
 
     match self {
+      EvalUnknownVariable {
+        variable,
+        suggestion,
+      } => {
+        write!(f, "Justfile does not contain variable `{}`.", variable,)?;
+        if let Some(suggestion) = *suggestion {
+          write!(f, "\n{}", suggestion)?;
+        }
+      },
       UnknownRecipes {
         recipes,
         suggestion,

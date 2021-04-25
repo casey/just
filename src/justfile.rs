@@ -28,7 +28,7 @@ impl<'src> Justfile<'src> {
     self.recipes.len()
   }
 
-  pub(crate) fn suggest(&self, input: &str) -> Option<Suggestion> {
+  pub(crate) fn suggest_recipe(&self, input: &str) -> Option<Suggestion> {
     let mut suggestions = self
       .recipes
       .keys()
@@ -44,6 +44,26 @@ impl<'src> Justfile<'src> {
           target: Some(alias.target.name.lexeme()),
         })
       }))
+      .filter(|(distance, _suggestion)| distance < &3)
+      .collect::<Vec<(usize, Suggestion)>>();
+    suggestions.sort_by_key(|(distance, _suggestion)| *distance);
+
+    suggestions
+      .into_iter()
+      .map(|(_distance, suggestion)| suggestion)
+      .next()
+  }
+
+  pub(crate) fn suggest_variable(&self, input: &str) -> Option<Suggestion> {
+    let mut suggestions = self
+      .assignments
+      .keys()
+      .map(|name| {
+        (edit_distance(name, input), Suggestion {
+          name,
+          target: None,
+        })
+      })
       .filter(|(distance, _suggestion)| distance < &3)
       .collect::<Vec<(usize, Suggestion)>>();
     suggestions.sort_by_key(|(distance, _suggestion)| *distance);
@@ -107,32 +127,31 @@ impl<'src> Justfile<'src> {
       )?
     };
 
-    if let Subcommand::Evaluate { variables, .. } = &config.subcommand {
-      let mut width = 0;
+    if let Subcommand::Evaluate { variable, .. } = &config.subcommand {
+      if let Some(variable) = variable {
+        if let Some(value) = scope.value(variable) {
+          print!("{}", value);
+        } else {
+          return Err(RuntimeError::EvalUnknownVariable {
+            suggestion: self.suggest_variable(&variable),
+            variable:   variable.to_owned(),
+          });
+        }
+      } else {
+        let mut width = 0;
 
-      for name in scope.names() {
-        if !variables.is_empty() && !variables.iter().any(|variable| variable == name) {
-          continue;
+        for name in scope.names() {
+          width = cmp::max(name.len(), width);
         }
 
-        width = cmp::max(name.len(), width);
-      }
-
-      for binding in scope.bindings() {
-        if !variables.is_empty()
-          && !variables
-            .iter()
-            .any(|variable| variable == binding.name.lexeme())
-        {
-          continue;
+        for binding in scope.bindings() {
+          println!(
+            "{0:1$} := \"{2}\"",
+            binding.name.lexeme(),
+            width,
+            binding.value
+          );
         }
-
-        println!(
-          "{0:1$} := \"{2}\"",
-          binding.name.lexeme(),
-          width,
-          binding.value
-        );
       }
 
       return Ok(());
@@ -186,7 +205,7 @@ impl<'src> Justfile<'src> {
 
     if !missing.is_empty() {
       let suggestion = if missing.len() == 1 {
-        self.suggest(missing.first().unwrap())
+        self.suggest_recipe(missing.first().unwrap())
       } else {
         None
       };
