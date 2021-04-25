@@ -2,9 +2,10 @@ use crate::common::*;
 
 #[derive(Debug)]
 pub(crate) enum Setting<'src> {
-  Shell(Shell<'src>),
-  Export(bool),
   DotenvLoad(bool),
+  Export(bool),
+  PositionalArguments(bool),
+  Shell(Shell<'src>),
 }
 
 #[derive(Debug, PartialEq)]

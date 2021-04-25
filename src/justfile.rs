@@ -266,7 +266,7 @@ impl<'src> Justfile<'src> {
       }
     }
 
-    recipe.run(context, dotenv, scope.child(), search)?;
+    recipe.run(context, dotenv, scope.child(), search, arguments)?;
 
     let mut invocation = vec![recipe.name().to_owned()];
     for argument in arguments.iter().cloned() {

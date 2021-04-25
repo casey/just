@@ -388,9 +388,10 @@ foo:
 [options="header"]
 |=================
 | Name | Value | Description
-| `dotenv-load` | `true` or `false` | Load a `.env` file, if present.
-| `export` | `true` or `false` | Export all variables as environment variables.
-|`shell` | `[COMMAND, ARGS...]` | Set the command used to invoke recipes and evaluate backticks.
+| `dotenv-load` | boolean | Load a `.env` file, if present.
+| `export` | boolean | Export all variables as environment variables.
+| `positional-arguments` | boolean | Pass positional arguments.
+| `shell` | `[COMMAND, ARGS...]` | Set the command used to invoke recipes and evaluate backticks.
 |=================
 
 Boolean settings can be written as:
@@ -427,6 +428,28 @@ a := "hello"
 $ just foo goodbye
 hello
 goodbye
+```
+
+==== Positional Arguments
+
+If `positional-arguments` is `true`, recipe arguments will be passed as positional arguments to commands. For linewise recipes, argument `$0` will be the name of the Recipe.
+
+For example, running this recipe:
+
+```make
+set positional-arguments
+
+@foo bar:
+  echo $0
+  echo $1
+```
+
+Will produce the following output:
+
+```
+$ just foo hello
+foo
+hello
 ```
 
 ==== Shell

@@ -4,14 +4,15 @@ use crate::common::*;
 #[strum(serialize_all = "kebab_case")]
 pub(crate) enum Keyword {
   Alias,
+  DotenvLoad,
   Else,
   Export,
-  DotenvLoad,
-  True,
   False,
   If,
+  PositionalArguments,
   Set,
   Shell,
+  True,
 }
 
 impl Keyword {

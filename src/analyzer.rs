@@ -71,6 +71,9 @@ impl<'src> Analyzer<'src> {
         Setting::Export(export) => {
           settings.export = export;
         },
+        Setting::PositionalArguments(positional_arguments) => {
+          settings.positional_arguments = positional_arguments;
+        },
         Setting::Shell(shell) => {
           assert!(settings.shell.is_none());
           settings.shell = Some(shell);
