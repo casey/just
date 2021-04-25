@@ -390,7 +390,7 @@ foo:
 | Name | Value | Description
 | `dotenv-load` | boolean | Load a `.env` file, if present.
 | `export` | boolean | Export all variables as environment variables.
-| `positional-arguments` | boolean | Pass positional arguments
+| `positional-arguments` | boolean | Pass positional arguments.
 | `shell` | `[COMMAND, ARGS...]` | Set the command used to invoke recipes and evaluate backticks.
 |=================
 
