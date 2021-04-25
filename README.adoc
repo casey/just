@@ -432,7 +432,7 @@ goodbye
 
 ==== Positional Arguments
 
-If `positional-arguments` is `true`, recipe arguments will be passed as positional arguments to commands. For linewise recipes, argument `$0` will be the name of the Recipe.
+If `positional-arguments` is `true`, recipe arguments will be passed as positional arguments to commands. For linewise recipes, argument `$0` will be the name of the recipe.
 
 For example, running this recipe:
 
