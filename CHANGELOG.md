@@ -1,6 +1,26 @@
 Changelog
 =========
 
+[v0.9.1] - 2020-4-24
+--------------------
+
+### Added
+- Change `--eval` to print variable value only (#806)
+- Add `positional-arguments` setting (#804)
+- Allow filtering variables to evaluate (#795)
+
+### Changed
+- Reform and improve string literals (#793)
+- Allow evaluating justfiles with no recipes (#794)
+- Unify string lexing (#790)
+
+### Misc
+- Test multi-line strings in interpolation (#789)
+- Add shell setting examples to README (#787)
+- Disable .env warning for now
+- Warn if `.env` file loaded and `dotenv-load` unset (#784)
+
+
 [v0.9.0] - 2020-3-28
 --------------------
 

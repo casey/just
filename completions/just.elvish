@@ -43,7 +43,7 @@ edit:completion:arg-completer[just] = [@words]{
             cand --dump 'Print entire justfile'
             cand -e 'Edit justfile with editor given by $VISUAL or $EDITOR, falling back to `vim`'
             cand --edit 'Edit justfile with editor given by $VISUAL or $EDITOR, falling back to `vim`'
-            cand --evaluate 'Evaluate and print all variables. If positional arguments are present, only print the variables whose names are given as arguments.'
+            cand --evaluate 'Evaluate and print all variables. If a variable name is given as an argument, only print that variable''s value.'
             cand --init 'Initialize new justfile in project root'
             cand -l 'List available recipes and their arguments'
             cand --list 'List available recipes and their arguments'
