@@ -375,20 +375,20 @@ impl Config {
           (false, false) => {},
           (true, false) => {
             return Err(ConfigError::SubcommandOverrides {
-              subcommand: format!("--{}", subcommand.to_lowercase()),
+              subcommand,
               overrides,
             });
           },
           (false, true) => {
             return Err(ConfigError::SubcommandArguments {
-              subcommand: format!("--{}", subcommand.to_lowercase()),
-              arguments:  positional.arguments,
+              arguments: positional.arguments,
+              subcommand,
             });
           },
           (true, true) => {
             return Err(ConfigError::SubcommandOverridesAndArguments {
-              subcommand: format!("--{}", subcommand.to_lowercase()),
               arguments: positional.arguments,
+              subcommand,
               overrides,
             });
           },
@@ -420,8 +420,19 @@ impl Config {
         name: name.to_owned(),
       }
     } else if matches.is_present(cmd::EVALUATE) {
+      if positional.arguments.len() > 1 {
+        return Err(ConfigError::SubcommandArguments {
+          subcommand: cmd::EVALUATE,
+          arguments:  positional
+            .arguments
+            .into_iter()
+            .skip(1)
+            .collect::<Vec<String>>(),
+        });
+      }
+
       Subcommand::Evaluate {
-        variables: positional.arguments,
+        variable: positional.arguments.into_iter().next(),
         overrides,
       }
     } else if matches.is_present(cmd::VARIABLES) {
@@ -811,7 +822,7 @@ impl Config {
     } else {
       if self.verbosity.loud() {
         eprintln!("Justfile does not contain recipe `{}`.", name);
-        if let Some(suggestion) = justfile.suggest(name) {
+        if let Some(suggestion) = justfile.suggest_recipe(name) {
           eprintln!("{}", suggestion);
         }
       }
@@ -1330,7 +1341,7 @@ ARGS:
     args: ["--evaluate"],
     subcommand: Subcommand::Evaluate {
       overrides: map!{},
-      variables: vec![],
+      variable: None,
     },
   }
 
@@ -1339,7 +1350,7 @@ ARGS:
     args: ["--evaluate", "x=y"],
     subcommand: Subcommand::Evaluate {
       overrides: map!{"x": "y"},
-      variables: vec![],
+      variable: None,
     },
   }
 
@@ -1348,7 +1359,7 @@ ARGS:
     args: ["--evaluate", "x=y", "foo"],
     subcommand: Subcommand::Evaluate {
       overrides: map!{"x": "y"},
-      variables: vec!["foo".to_owned()],
+      variable: Some("foo".to_owned()),
     },
   }
 
@@ -1577,7 +1588,7 @@ ARGS:
     args: ["--completions", "zsh", "foo"],
     error: ConfigError::SubcommandArguments { subcommand, arguments },
     check: {
-      assert_eq!(subcommand, "--completions");
+      assert_eq!(subcommand, cmd::COMPLETIONS);
       assert_eq!(arguments, &["foo"]);
     },
   }
@@ -1587,7 +1598,7 @@ ARGS:
     args: ["--list", "bar"],
     error: ConfigError::SubcommandArguments { subcommand, arguments },
     check: {
-      assert_eq!(subcommand, "--list");
+      assert_eq!(subcommand, cmd::LIST);
       assert_eq!(arguments, &["bar"]);
     },
   }
@@ -1597,7 +1608,7 @@ ARGS:
     args: ["--dump", "bar"],
     error: ConfigError::SubcommandArguments { subcommand, arguments },
     check: {
-      assert_eq!(subcommand, "--dump");
+      assert_eq!(subcommand, cmd::DUMP);
       assert_eq!(arguments, &["bar"]);
     },
   }
@@ -1607,7 +1618,7 @@ ARGS:
     args: ["--edit", "bar"],
     error: ConfigError::SubcommandArguments { subcommand, arguments },
     check: {
-      assert_eq!(subcommand, "--edit");
+      assert_eq!(subcommand, cmd::EDIT);
       assert_eq!(arguments, &["bar"]);
     },
   }
@@ -1617,7 +1628,7 @@ ARGS:
     args: ["--init", "bar"],
     error: ConfigError::SubcommandArguments { subcommand, arguments },
     check: {
-      assert_eq!(subcommand, "--init");
+      assert_eq!(subcommand, cmd::INIT);
       assert_eq!(arguments, &["bar"]);
     },
   }
@@ -1627,7 +1638,7 @@ ARGS:
     args: ["--show", "foo", "bar"],
     error: ConfigError::SubcommandArguments { subcommand, arguments },
     check: {
-      assert_eq!(subcommand, "--show");
+      assert_eq!(subcommand, cmd::SHOW);
       assert_eq!(arguments, &["bar"]);
     },
   }
@@ -1637,7 +1648,7 @@ ARGS:
     args: ["--summary", "bar"],
     error: ConfigError::SubcommandArguments { subcommand, arguments },
     check: {
-      assert_eq!(subcommand, "--summary");
+      assert_eq!(subcommand, cmd::SUMMARY);
       assert_eq!(arguments, &["bar"]);
     },
   }
@@ -1647,7 +1658,7 @@ ARGS:
     args: ["--summary", "bar=baz", "bar"],
     error: ConfigError::SubcommandOverridesAndArguments { subcommand, arguments, overrides },
     check: {
-      assert_eq!(subcommand, "--summary");
+      assert_eq!(subcommand, cmd::SUMMARY);
       assert_eq!(overrides, map!{"bar": "baz"});
       assert_eq!(arguments, &["bar"]);
     },
@@ -1658,7 +1669,7 @@ ARGS:
     args: ["--summary", "bar=baz"],
     error: ConfigError::SubcommandOverrides { subcommand, overrides },
     check: {
-      assert_eq!(subcommand, "--summary");
+      assert_eq!(subcommand, cmd::SUMMARY);
       assert_eq!(overrides, map!{"bar": "baz"});
     },
   }

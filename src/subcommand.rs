@@ -13,7 +13,7 @@ pub(crate) enum Subcommand {
   Edit,
   Evaluate {
     overrides: BTreeMap<String, String>,
-    variables: Vec<String>,
+    variable:  Option<String>,
   },
   Init,
   List,

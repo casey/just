@@ -16,33 +16,33 @@ pub(crate) enum ConfigError {
   ))]
   SearchDirConflict,
   #[snafu(display(
-    "`{}` used with unexpected {}: {}",
-    subcommand,
+    "`--{}` used with unexpected {}: {}",
+    subcommand.to_lowercase(),
     Count("argument", arguments.len()),
     List::and_ticked(arguments)
   ))]
   SubcommandArguments {
-    subcommand: String,
+    subcommand: &'static str,
     arguments:  Vec<String>,
   },
   #[snafu(display(
-      "`{}` used with unexpected overrides: {}; and arguments: {}",
-      subcommand,
+      "`--{}` used with unexpected overrides: {}; and arguments: {}",
+      subcommand.to_lowercase(),
       List::and_ticked(overrides.iter().map(|(key, value)| format!("{}={}", key, value))),
       List::and_ticked(arguments)))
   ]
   SubcommandOverridesAndArguments {
-    subcommand: String,
+    subcommand: &'static str,
     overrides:  BTreeMap<String, String>,
     arguments:  Vec<String>,
   },
   #[snafu(display(
-      "`{}` used with unexpected overrides: {}",
-      subcommand,
+      "`--{}` used with unexpected overrides: {}",
+      subcommand.to_lowercase(),
       List::and_ticked(overrides.iter().map(|(key, value)| format!("{}={}", key, value))),
   ))]
   SubcommandOverrides {
-    subcommand: String,
+    subcommand: &'static str,
     overrides:  BTreeMap<String, String>,
   },
 }
