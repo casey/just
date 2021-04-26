@@ -247,8 +247,8 @@ impl Config {
           .help("Edit justfile with editor given by $VISUAL or $EDITOR, falling back to `vim`"),
       )
       .arg(Arg::with_name(cmd::EVALUATE).long("evaluate").help(
-        "Evaluate and print all variables. If positional arguments are present, only print the \
-         variables whose names are given as arguments.",
+        "Evaluate and print all variables. If a variable name is given as an argument, only print \
+         that variable's value.",
       ))
       .arg(
         Arg::with_name(cmd::INIT)
