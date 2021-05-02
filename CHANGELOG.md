@@ -1,6 +1,13 @@
 Changelog
 =========
 
+[v0.9.2] - 2020-5-02
+--------------------
+
+### Fixed
+- Pass evaluated arguments as positional arguments (#810)
+
+
 [v0.9.1] - 2020-4-24
 --------------------
 
