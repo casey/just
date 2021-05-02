@@ -1,14 +1,14 @@
 Changelog
 =========
 
-[v0.9.2] - 2020-5-02
+[v0.9.2] - 2021-5-02
 --------------------
 
 ### Fixed
 - Pass evaluated arguments as positional arguments (#810)
 
 
-[v0.9.1] - 2020-4-24
+[v0.9.1] - 2021-4-24
 --------------------
 
 ### Added
@@ -28,14 +28,14 @@ Changelog
 - Warn if `.env` file loaded and `dotenv-load` unset (#784)
 
 
-[v0.9.0] - 2020-3-28
+[v0.9.0] - 2021-3-28
 --------------------
 
 ### Changed
 - Turn `=` deprecation warning into a hard error (#780)
 
 
-[v0.8.7] - 2020-3-28
+[v0.8.7] - 2021-3-28
 --------------------
 
 ### Added
@@ -45,7 +45,7 @@ Changelog
 - Change publish recipe to use stable rust (#777)
 
 
-[v0.8.6] - 2020-3-28
+[v0.8.6] - 2021-3-28
 --------------------
 
 ### Added
@@ -62,7 +62,7 @@ Changelog
 - Fix warnings (#770)
 
 
-[v0.8.5] - 2020-3-24
+[v0.8.5] - 2021-3-24
 --------------------
 
 ### Added
@@ -76,7 +76,7 @@ Changelog
 - Note shebang line splitting inconsistency in readme (#757)
 
 
-[v0.8.4] - 2020-2-9
+[v0.8.4] - 2021-2-9
 -------------------
 
 ### Added
