@@ -133,6 +133,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         }
       },
       Expression::Group { contents } => self.evaluate_expression(contents),
+      Expression::FormatString { .. } => todo!(),
     }
   }
 
