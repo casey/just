@@ -46,6 +46,6 @@ mod tests {
     assert_eq!(
       error.to_string(),
       "Multiple candidate justfiles found in `/foo`: `justfile` and `JUSTFILE`"
-    )
+    );
   }
 }

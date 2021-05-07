@@ -113,7 +113,7 @@ install-dev-deps-homebrew:
 
 # everyone's favorite animate paper clip
 clippy:
-	cargo clippy
+	cargo clippy --all --all-targets --all-features
 
 # count non-empty lines of code
 sloc:

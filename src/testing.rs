@@ -25,8 +25,8 @@ pub(crate) fn search(config: &Config) -> Search {
   let justfile = working_directory.join(crate::search::FILENAME);
 
   Search {
-    working_directory,
     justfile,
+    working_directory,
   }
 }
 

@@ -56,7 +56,7 @@ impl Summary {
         .into_iter()
         .map(|(name, recipe)| {
           (
-            name.to_string(),
+            name.to_owned(),
             Recipe::new(&recipe, aliases.remove(name).unwrap_or_default()),
           )
         })
@@ -64,7 +64,7 @@ impl Summary {
       assignments: justfile
         .assignments
         .iter()
-        .map(|(name, assignment)| (name.to_string(), Assignment::new(assignment)))
+        .map(|(name, assignment)| ((*name).to_owned(), Assignment::new(assignment)))
         .collect(),
     }
   }
@@ -213,7 +213,7 @@ impl Expression {
     use full::Expression::*;
     match expression {
       Backtick { contents, .. } => Expression::Backtick {
-        command: (*contents).to_owned(),
+        command: (*contents).clone(),
       },
       Call { thunk } => match thunk {
         full::Thunk::Nullary { name, .. } => Expression::Call {
@@ -249,7 +249,7 @@ impl Expression {
         inverted:  *inverted,
       },
       StringLiteral { string_literal } => Expression::String {
-        text: string_literal.cooked.to_string(),
+        text: string_literal.cooked.clone(),
       },
       Variable { name, .. } => Expression::Variable {
         name: name.lexeme().to_owned(),

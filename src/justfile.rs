@@ -15,7 +15,7 @@ impl<'src> Justfile<'src> {
     for recipe in self.recipes.values() {
       if let Some(first_recipe) = first {
         if recipe.line_number() < first_recipe.line_number() {
-          first = Some(recipe)
+          first = Some(recipe);
         }
       } else {
         first = Some(recipe);
@@ -134,7 +134,7 @@ impl<'src> Justfile<'src> {
         } else {
           return Err(RuntimeError::EvalUnknownVariable {
             suggestion: self.suggest_variable(&variable),
-            variable:   variable.to_owned(),
+            variable:   variable.clone(),
           });
         }
       } else {
@@ -224,7 +224,7 @@ impl<'src> Justfile<'src> {
 
     let mut ran = BTreeSet::new();
     for (recipe, arguments) in grouped {
-      self.run_recipe(&context, recipe, arguments, &dotenv, &search, &mut ran)?
+      self.run_recipe(&context, recipe, arguments, &dotenv, &search, &mut ran)?;
     }
 
     Ok(())
@@ -235,12 +235,11 @@ impl<'src> Justfile<'src> {
   }
 
   pub(crate) fn get_recipe(&self, name: &str) -> Option<&Recipe<'src>> {
+    // TODO: refactor?
     if let Some(recipe) = self.recipes.get(name) {
       Some(recipe)
-    } else if let Some(alias) = self.aliases.get(name) {
-      Some(alias.target.as_ref())
     } else {
-      None
+      self.aliases.get(name).map(|alias| alias.target.as_ref())
     }
   }
 
@@ -599,9 +598,9 @@ mod tests {
     "#,
     args: ["--quiet", "wut"],
     error: Code {
-      code: _,
       line_number,
       recipe,
+      ..
     },
     check: {
       assert_eq!(recipe, "wut");
