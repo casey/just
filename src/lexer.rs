@@ -474,6 +474,7 @@ impl<'src> Lexer<'src> {
   /// Lex token beginning with `start` outside of a recipe body
   fn lex_normal(&mut self, start: char) -> CompilationResult<'src, ()> {
     match start {
+      '&' => self.lex_ampersand(),
       '!' => self.lex_bang(),
       '*' => self.lex_single(Asterisk),
       '$' => self.lex_single(Dollar),
@@ -672,6 +673,20 @@ impl<'src> Lexer<'src> {
   /// Return true if there are any unclosed delimiters
   fn open_delimiters(&self) -> bool {
     !self.open_delimiters.is_empty()
+  }
+
+  /// Lex a token starting with '&'
+  fn lex_ampersand(&mut self) -> CompilationResult<'src, ()> {
+    self.presume('&')?;
+
+    if self.next_is('&') {
+      self.presume('&')?;
+      self.token(AmpersandAmpersand);
+      Ok(())
+    } else {
+      self.advance()?;
+      Err(self.error(UnexpectedCharacter { expected: '&' }))
+    }
   }
 
   /// Lex a token starting with '!'
@@ -912,6 +927,7 @@ mod tests {
   fn default_lexeme(kind: TokenKind) -> &'static str {
     match kind {
       // Fixed lexemes
+      AmpersandAmpersand => "&&",
       Asterisk => "*",
       At => "@",
       BangEquals => "!=",
@@ -1039,6 +1055,12 @@ mod tests {
     name:   cooked_multiline_string,
     text:   "\"\"\"hello\ngoodbye\"\"\"",
     tokens: (StringToken:"\"\"\"hello\ngoodbye\"\"\""),
+  }
+
+  test! {
+    name:   ampersand_ampersand,
+    text:   "&&",
+    tokens: (AmpersandAmpersand),
   }
 
   test! {

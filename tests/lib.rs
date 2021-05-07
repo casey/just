@@ -23,4 +23,5 @@ mod readme;
 mod search;
 mod shell;
 mod string;
+mod subsequents;
 mod working_directory;

@@ -26,6 +26,7 @@ fn error_from_signal(
 #[derive(PartialEq, Debug)]
 pub(crate) struct Recipe<'src, D = Dependency<'src>> {
   pub(crate) dependencies: Vec<D>,
+  // pub(crate) subsequent:   Option<D>,
   pub(crate) doc:          Option<&'src str>,
   pub(crate) body:         Vec<Line<'src>>,
   pub(crate) name:         Name<'src>,
