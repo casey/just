@@ -392,8 +392,8 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     let value = self.parse_expression()?;
     self.expect_eol()?;
     Ok(Assignment {
-      name,
       export,
+      name,
       value,
     })
   }
@@ -515,7 +515,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
       unindented
     };
 
-    Ok(StringLiteral { cooked, raw, kind })
+    Ok(StringLiteral { kind, raw, cooked })
   }
 
   /// Parse a format string

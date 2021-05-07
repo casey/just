@@ -95,6 +95,9 @@ pub(crate) enum CompilationErrorKind<'src> {
   UnexpectedCharacter {
     expected: char,
   },
+  UnexpectedEndOfToken {
+    expected: char,
+  },
   UnknownSetting {
     setting: &'src str,
   },

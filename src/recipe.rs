@@ -128,7 +128,7 @@ impl<'src, D> Recipe<'src, D> {
         // add blank lines so that lines in the generated script have the same line
         // number as the corresponding lines in the justfile
         for _ in 1..(self.line_number() + 2) {
-          text += "\n"
+          text += "\n";
         }
         for line in &evaluated_lines[1..] {
           text += line;

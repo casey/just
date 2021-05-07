@@ -13,25 +13,25 @@ use TokenKind::*;
 /// bad.
 pub(crate) struct Lexer<'src> {
   /// Source text
-  src:                 &'src str,
+  src: &'src str,
   /// Char iterator
-  chars:               Chars<'src>,
+  chars: Chars<'src>,
   /// Tokens
-  tokens:              Vec<Token<'src>>,
+  tokens: Vec<Token<'src>>,
   /// Current token start
-  token_start:         Position,
+  token_start: Position,
   /// Current token end
-  token_end:           Position,
+  token_end: Position,
   /// Next character to be lexed
-  next:                Option<char>,
+  next: Option<char>,
   /// Next indent will start a recipe body
   recipe_body_pending: bool,
   /// Inside recipe body
-  recipe_body:         bool,
+  recipe_body: bool,
   /// Indentation stack
-  indentation:         Vec<&'src str>,
+  indentation: Vec<&'src str>,
   /// Current open delimiters
-  open_delimiters:     Vec<(Delimiter, usize)>,
+  open_delimiters: Vec<(Delimiter, usize)>,
 }
 
 impl<'src> Lexer<'src> {
@@ -48,7 +48,7 @@ impl<'src> Lexer<'src> {
     let start = Position {
       offset: 0,
       column: 0,
-      line:   0,
+      line: 0,
     };
 
     Lexer {
@@ -83,7 +83,7 @@ impl<'src> Lexer<'src> {
         self.next = self.chars.next();
 
         Ok(())
-      },
+      }
       None => Err(self.internal_error("Lexer advanced past end of text")),
     }
   }
@@ -199,12 +199,12 @@ impl<'src> Lexer<'src> {
   fn internal_error(&self, message: impl Into<String>) -> CompilationError<'src> {
     // Use `self.token_end` as the location of the error
     let token = Token {
-      src:    self.src,
+      src: self.src,
       offset: self.token_end.offset,
-      line:   self.token_end.line,
+      line: self.token_end.line,
       column: self.token_end.column,
       length: 0,
-      kind:   Unspecified,
+      kind: Unspecified,
     };
     CompilationError {
       kind: CompilationErrorKind::Internal {
@@ -223,11 +223,12 @@ impl<'src> Lexer<'src> {
       UnterminatedString | UnterminatedBacktick => {
         let kind = match StringKind::from_token_start(self.lexeme()) {
           Some(kind) => kind,
-          None =>
-            return self.internal_error("Lexer::error: expected string or backtick token start"),
+          None => {
+            return self.internal_error("Lexer::error: expected string or backtick token start")
+          }
         };
         kind.delimiter().len()
-      },
+      }
       UnterminatedFormatString => {
         for &token in self.tokens.iter().rev() {
           if token.kind == FormatStringStart {
@@ -236,7 +237,7 @@ impl<'src> Lexer<'src> {
         }
 
         return self.internal_error("Lexer::error: unable to find format string start");
-      },
+      }
       // highlight the full token
       _ => self.lexeme().len(),
     };
@@ -256,7 +257,7 @@ impl<'src> Lexer<'src> {
   fn unterminated_interpolation_error(interpolation_start: Token<'src>) -> CompilationError<'src> {
     CompilationError {
       token: interpolation_start,
-      kind:  UnterminatedInterpolation,
+      kind: UnterminatedInterpolation,
     }
   }
 
@@ -306,9 +307,9 @@ impl<'src> Lexer<'src> {
           if self.recipe_body {
             self.lex_body()?
           } else {
-            self.lex_normal(first)?
+            self.lex_normal(first)?;
           };
-        },
+        }
         None => break,
       }
     }
@@ -411,7 +412,7 @@ impl<'src> Lexer<'src> {
         };
 
         Ok(())
-      },
+      }
       Continue => {
         if !self.indentation().is_empty() {
           for _ in self.indentation().chars() {
@@ -422,7 +423,7 @@ impl<'src> Lexer<'src> {
         }
 
         Ok(())
-      },
+      }
       Decrease => {
         while self.indentation() != whitespace {
           self.lex_dedent();
@@ -437,14 +438,14 @@ impl<'src> Lexer<'src> {
         }
 
         Ok(())
-      },
+      }
       Mixed { whitespace } => {
         for _ in whitespace.chars() {
           self.advance()?;
         }
 
         Err(self.error(MixedLeadingWhitespace { whitespace }))
-      },
+      }
       Inconsistent => {
         for _ in whitespace.chars() {
           self.advance()?;
@@ -452,9 +453,9 @@ impl<'src> Lexer<'src> {
 
         Err(self.error(InconsistentLeadingWhitespace {
           expected: self.indentation(),
-          found:    whitespace,
+          found: whitespace,
         }))
-      },
+      }
       Increase => {
         while self.next_is_whitespace() {
           self.advance()?;
@@ -472,7 +473,7 @@ impl<'src> Lexer<'src> {
         }
 
         Ok(())
-      },
+      }
     }
   }
 
@@ -504,7 +505,7 @@ impl<'src> Lexer<'src> {
       _ => {
         self.advance()?;
         Err(self.error(UnknownStartOfToken))
-      },
+      }
     }
   }
 
@@ -564,7 +565,7 @@ impl<'src> Lexer<'src> {
         break Interpolation;
       }
 
-      if self.rest().is_empty() {
+      if self.at_eof() {
         break EndOfFile;
       }
 
@@ -583,7 +584,7 @@ impl<'src> Lexer<'src> {
         self.lex_double(InterpolationStart)?;
         self.lex_interpolation(*self.tokens.last().unwrap(), false)?;
         Ok(())
-      },
+      }
       EndOfFile => Ok(()),
     }
   }
@@ -666,7 +667,7 @@ impl<'src> Lexer<'src> {
         self.presume_multiple(close.close())?;
         self.token(kind);
         Ok(())
-      },
+      }
       Some((open, open_line)) => Err(self.error(MismatchedClosingDelimiter {
         open,
         close,
@@ -691,6 +692,11 @@ impl<'src> Lexer<'src> {
     } else {
       // Emit an unspecified token to consume the current character,
       self.token(Unspecified);
+
+      if self.at_eof() {
+        return Err(self.error(UnexpectedEndOfToken { expected: '=' }));
+      }
+
       // …and advance past another character,
       self.advance()?;
       // …so that the error we produce highlights the unexpected character.
@@ -766,7 +772,7 @@ impl<'src> Lexer<'src> {
   /// Lex whitespace: [ \t]+
   fn lex_whitespace(&mut self) -> CompilationResult<'src, ()> {
     while self.next_is_whitespace() {
-      self.advance()?
+      self.advance()?;
     }
 
     self.token(Whitespace);
@@ -931,10 +937,7 @@ mod tests {
       .map(|token| token.kind)
       .collect::<Vec<TokenKind>>();
 
-    let have_lexemes = have
-      .iter()
-      .map(|token| token.lexeme())
-      .collect::<Vec<&str>>();
+    let have_lexemes = have.iter().map(Token::lexeme).collect::<Vec<&str>>();
 
     assert_eq!(have_kinds, want_kinds, "Token kind mismatch");
     assert_eq!(have_lexemes, want_lexemes, "Token lexeme mismatch");
@@ -1044,7 +1047,7 @@ mod tests {
           kind,
         };
         assert_eq!(have, want);
-      },
+      }
     }
   }
 
@@ -2426,6 +2429,30 @@ mod tests {
       open:      Delimiter::Paren,
       close:     Delimiter::Bracket,
       open_line: 0,
+    },
+  }
+
+  error! {
+    name:   bang_eof,
+    input:  "!",
+    offset: 1,
+    line:   0,
+    column: 1,
+    width:  0,
+    kind:   UnexpectedEndOfToken {
+      expected: '=',
+    },
+  }
+
+  error! {
+    name:   bang_unexpected,
+    input:  "!%",
+    offset: 1,
+    line:   0,
+    column: 1,
+    width:  1,
+    kind:   UnexpectedCharacter {
+      expected: '=',
     },
   }
 

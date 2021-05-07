@@ -340,7 +340,7 @@ impl Config {
     let positional = Positional::from_values(matches.values_of(arg::ARGUMENTS));
 
     for (name, value) in positional.overrides {
-      overrides.insert(name.to_owned(), value.to_owned());
+      overrides.insert(name.clone(), value.clone());
     }
 
     let search_config = {
@@ -798,7 +798,7 @@ impl Config {
     arguments: &[String],
   ) -> Result<(), i32> {
     if let Err(error) = InterruptHandler::install(self.verbosity) {
-      warn!("Failed to set CTRL-C handler: {}", error)
+      warn!("Failed to set CTRL-C handler: {}", error);
     }
 
     let result = justfile.run(&self, search, overrides, arguments);
@@ -851,7 +851,7 @@ impl Config {
       if i > 0 {
         print!(" ");
       }
-      print!("{}", assignment.name)
+      print!("{}", assignment.name);
     }
     println!();
   }
@@ -958,7 +958,7 @@ ARGS:
           $(dry_run: $dry_run,)?
           $(highlight: $highlight,)?
           $(search_config: $search_config,)?
-          $(shell: $shell.to_string(),)?
+          $(shell: $shell.to_owned(),)?
           $(shell_args: $shell_args,)?
           $(shell_present: $shell_present,)?
           $(subcommand: $subcommand,)?
@@ -1411,7 +1411,7 @@ ARGS:
     name: arguments_leading_equals,
     args: ["=foo"],
     subcommand: Subcommand::Run {
-      arguments: vec!["=foo".to_string()],
+      arguments: vec!["=foo".to_owned()],
       overrides: map!{},
     },
   }

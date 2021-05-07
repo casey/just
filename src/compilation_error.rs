@@ -223,6 +223,9 @@ impl Display for CompilationError<'_> {
       UnknownStartOfToken => {
         writeln!(f, "Unknown start of token:")?;
       },
+      UnexpectedEndOfToken { expected } => {
+        writeln!(f, "Expected character `{}` but found end-of-file", expected)?;
+      },
       MismatchedClosingDelimiter {
         open,
         open_line,
