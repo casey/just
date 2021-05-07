@@ -944,3 +944,18 @@ test! {
         echo foo
   ",
 }
+
+test! {
+  name: subsequent,
+  justfile: "
+    bar:
+    foo: && bar
+        echo foo",
+  args: ("--dump"),
+  stdout: "
+    bar:
+
+    foo: && bar
+        echo foo
+  ",
+}

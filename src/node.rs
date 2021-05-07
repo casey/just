@@ -145,18 +145,29 @@ impl<'src> Node<'src> for UnresolvedRecipe<'src> {
 
     if !self.dependencies.is_empty() {
       let mut dependencies = Tree::atom("deps");
+      let mut subsequents = Tree::atom("sups");
 
-      for dependency in &self.dependencies {
+      for (i, dependency) in self.dependencies.iter().enumerate() {
         let mut d = Tree::atom(dependency.recipe.lexeme());
 
         for argument in &dependency.arguments {
           d.push_mut(argument.tree());
         }
 
-        dependencies.push_mut(d);
+        if i < self.priors {
+          dependencies.push_mut(d);
+        } else {
+          subsequents.push_mut(d);
+        }
       }
 
-      t.push_mut(dependencies);
+      if let Tree::List(_) = dependencies {
+        t.push_mut(dependencies);
+      }
+
+      if let Tree::List(_) = subsequents {
+        t.push_mut(subsequents);
+      }
     }
 
     if !self.body.is_empty() {

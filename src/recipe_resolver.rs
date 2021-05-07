@@ -113,9 +113,10 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
       }
     }
 
+    stack.pop();
+
     let resolved = Rc::new(recipe.resolve(dependencies)?);
     self.resolved_recipes.insert(Rc::clone(&resolved));
-    stack.pop();
     Ok(resolved)
   }
 }

@@ -2,6 +2,7 @@ use crate::common::*;
 
 #[derive(Debug, PartialEq, Clone, Copy, Ord, PartialOrd, Eq)]
 pub(crate) enum TokenKind {
+  AmpersandAmpersand,
   Asterisk,
   At,
   Backtick,
@@ -37,6 +38,7 @@ impl Display for TokenKind {
   fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
     use TokenKind::*;
     write!(f, "{}", match *self {
+      AmpersandAmpersand => "'&&'",
       Asterisk => "'*'",
       At => "'@'",
       Backtick => "backtick",

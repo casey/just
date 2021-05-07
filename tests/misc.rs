@@ -1336,7 +1336,7 @@ test! {
   justfile: "foo: 'bar'",
   args:     ("foo"),
   stdout:   "",
-  stderr:   "error: Expected comment, end of file, end of line, \
+  stderr:   "error: Expected '&&', comment, end of file, end of line, \
     identifier, or '(', but found string
   |
 1 | foo: 'bar'
