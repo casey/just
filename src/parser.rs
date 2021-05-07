@@ -27,9 +27,9 @@ use TokenKind::*;
 /// contents of the set is printed in the resultant error message.
 pub(crate) struct Parser<'tokens, 'src> {
   /// Source tokens
-  tokens:   &'tokens [Token<'src>],
+  tokens: &'tokens [Token<'src>],
   /// Index of the next un-parsed token
-  next:     usize,
+  next: usize,
   /// Current expected tokens
   expected: BTreeSet<TokenKind>,
 }
@@ -61,7 +61,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   fn unexpected_token(&self) -> CompilationResult<'src, CompilationError<'src>> {
     self.error(CompilationErrorKind::UnexpectedToken {
       expected: self.expected.iter().cloned().collect::<Vec<TokenKind>>(),
-      found:    self.next()?.kind,
+      found: self.next()?.kind,
     })
   }
 
@@ -107,10 +107,11 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     let mut rest = self.rest();
     for kind in kinds {
       match rest.next() {
-        Some(token) =>
+        Some(token) => {
           if token.kind != *kind {
             return false;
-          },
+          }
+        }
         None => return false,
       }
     }
@@ -311,15 +312,16 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
         break;
       } else if self.next_is(Identifier) {
         match Keyword::from_lexeme(next.lexeme()) {
-          Some(Keyword::Alias) =>
+          Some(Keyword::Alias) => {
             if self.next_are(&[Identifier, Identifier, Equals]) {
               return Err(self.get(2)?.error(CompilationErrorKind::DeprecatedEquals));
             } else if self.next_are(&[Identifier, Identifier, ColonEquals]) {
               items.push(Item::Alias(self.parse_alias()?));
             } else {
               items.push(Item::Recipe(self.parse_recipe(doc, false)?));
-            },
-          Some(Keyword::Export) =>
+            }
+          }
+          Some(Keyword::Export) => {
             if self.next_are(&[Identifier, Identifier, Equals]) {
               return Err(self.get(2)?.error(CompilationErrorKind::DeprecatedEquals));
             } else if self.next_are(&[Identifier, Identifier, ColonEquals]) {
@@ -327,8 +329,9 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
               items.push(Item::Assignment(self.parse_assignment(true)?));
             } else {
               items.push(Item::Recipe(self.parse_recipe(doc, false)?));
-            },
-          Some(Keyword::Set) =>
+            }
+          }
+          Some(Keyword::Set) => {
             if self.next_are(&[Identifier, Identifier, ColonEquals])
               || self.next_are(&[Identifier, Identifier, Eol])
               || self.next_are(&[Identifier, Identifier, Eof])
@@ -336,15 +339,17 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
               items.push(Item::Set(self.parse_set()?));
             } else {
               items.push(Item::Recipe(self.parse_recipe(doc, false)?));
-            },
-          _ =>
+            }
+          }
+          _ => {
             if self.next_are(&[Identifier, Equals]) {
               return Err(self.get(1)?.error(CompilationErrorKind::DeprecatedEquals));
             } else if self.next_are(&[Identifier, ColonEquals]) {
               items.push(Item::Assignment(self.parse_assignment(false)?));
             } else {
               items.push(Item::Recipe(self.parse_recipe(doc, false)?));
-            },
+            }
+          }
         }
       } else if self.accepted(At)? {
         items.push(Item::Recipe(self.parse_recipe(doc, true)?));
@@ -503,31 +508,9 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     };
 
     let cooked = if kind.processes_escape_sequences() {
-      let mut cooked = String::new();
-      let mut escape = false;
-      for c in unindented.chars() {
-        if escape {
-          match c {
-            'n' => cooked.push('\n'),
-            'r' => cooked.push('\r'),
-            't' => cooked.push('\t'),
-            '\\' => cooked.push('\\'),
-            '\n' => {},
-            '"' => cooked.push('"'),
-            other => {
-              return Err(
-                token.error(CompilationErrorKind::InvalidEscapeSequence { character: other }),
-              );
-            },
-          }
-          escape = false;
-        } else if c == '\\' {
-          escape = true;
-        } else {
-          cooked.push(c);
-        }
-      }
-      cooked
+      crate::unescape::unescape(&unindented).map_err(|character| {
+        token.error(CompilationErrorKind::InvalidEscapeSequence { character })
+      })?
     } else {
       unindented
     };
@@ -537,6 +520,13 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
 
   /// Parse a format string
   fn parse_format_string(&mut self) -> CompilationResult<'src, Expression<'src>> {
+    // TODO: the unindenting logic here is quite flaky & relies on some pretty heavy, probably
+    // flaky, casework.  I think a cleaner, though more involved (requires more rearchitecting)
+    // solution is to modify the `StringFragment`'s `Text` variant to hold a `char` instead of
+    // `&str`, so that the existing character-based iteration logic of `unindent` (for plain
+    // string literals) can be applied here directly, treating interpolation fragments as a
+    // "special" non-whitespace character.
+
     let start = self.presume(FormatStringStart)?;
 
     let kind = if let Some(kind) = StringKind::from_token_start(&start.lexeme()[1..]) {
@@ -553,17 +543,102 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
       let fragment = if let Some(token) = self.accept(Text)? {
         Fragment::Text { token }
       } else {
-        Fragment::Interpolation {
-          expression: self.parse_expression()?,
-        }
+        self.presume(InterpolationStart)?;
+        let expression = self.parse_expression()?;
+        self.presume(InterpolationEnd)?;
+        Fragment::Interpolation { expression }
       };
-
       fragments.push(fragment);
     }
 
     self.presume(FormatStringEnd)?;
 
-    Ok(Expression::FormatString { kind, fragments })
+    // convenient "trick" to calculate common indentation: replace interpolation fragments with a
+    // literal `x` (or really anything that's not whitespace) and calculate common indentation as
+    // usual
+    let fake_content = fragments
+      .iter()
+      .map(|fragment| match fragment {
+        Fragment::Text { token } => token.lexeme(),
+        Fragment::Interpolation { .. } => "x",
+      })
+      .collect::<String>();
+    let proxy_lines = crate::unindent::split_lines(&fake_content);
+    let common_indentation = crate::unindent::get_common_indentation(proxy_lines.iter().cloned());
+
+    let len = fragments.len();
+    let cooked_fragments = fragments
+      .into_iter()
+      .enumerate()
+      .map(|(i, fragment)| match fragment {
+        Fragment::Text { token } => {
+          let lines = crate::unindent::split_lines(token.lexeme());
+          let unindented = lines
+            .iter()
+            .enumerate()
+            .map(|(j, line)| {
+              let blank = crate::unindent::blank(line);
+              let first_in_fragment = j == 0;
+              let first_in_string = i == 0;
+              let last_in_fragment = j == lines.len() - 1;
+              let last_in_string = i == len - 1;
+
+              if first_in_fragment {
+                if blank && first_in_string {
+                  ""
+                } else {
+                  line
+                }
+              } else {
+                if blank {
+                  if last_in_fragment {
+                    if last_in_string {
+                      if line.ends_with('\n') {
+                        "\n"
+                      } else {
+                        ""
+                      }
+                    } else {
+                      &line[common_indentation.len()..]
+                    }
+                  } else {
+                    "\n"
+                  }
+                } else {
+                  &line[common_indentation.len()..]
+                }
+              }
+            })
+            .collect::<String>();
+          let cooked = if kind.processes_escape_sequences() {
+            crate::unescape::unescape(&unindented).map_err(|character| {
+              token.error(CompilationErrorKind::InvalidEscapeSequence { character })
+            })?
+          } else {
+            unindented
+          };
+
+          Ok(StringFragment::Text {
+            raw: token.lexeme(),
+            cooked,
+          })
+        }
+        Fragment::Interpolation { expression } => Ok(StringFragment::Interpolation { expression }),
+      })
+      .collect::<CompilationResult<Vec<StringFragment>>>()?;
+
+    if kind.token_kind() == TokenKind::Backtick {
+      Ok(Expression::FormatBacktick {
+        kind,
+        fragments: cooked_fragments,
+        start,
+      })
+    } else {
+      Ok(Expression::FormatString {
+        kind,
+        fragments: cooked_fragments,
+      })
+    }
   }
 
   /// Parse a name from an identifier token
@@ -725,7 +800,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     } else {
       return Err(identifier.error(CompilationErrorKind::ExpectedKeyword {
         expected: vec![Keyword::True, Keyword::False],
-        found:    identifier.lexeme(),
+        found: identifier.lexeme(),
       }));
     };
 
@@ -869,7 +944,7 @@ mod tests {
           kind,
         };
         assert_eq!(have, want);
-      },
+      }
     }
   }
 
@@ -1257,6 +1332,107 @@ mod tests {
       x := f'hello'
     ",
     tree: (justfile (assignment x (f "hello"))),
+  }
+
+  test! {
+      name: format_string_simple,
+      text: "x := f'hello {{ 'world' }}'",
+      tree: (justfile (assignment x (f "hello " ("world")))),
+  }
+
+  test! {
+    name: format_string_multi,
+    text: r#"x := f'hello {{ os() }}{{ "bar" }} {{baz}}'"#,
+    tree: (justfile (assignment x (f "hello " ((call os)) ("bar") " " (baz)))),
+  }
+
+  test! {
+      name: format_string_nested,
+      text: r#"x := f'h{{ f"e{{ `l` }}l" }}o'"#,
+      tree: (justfile (assignment x (f "h" ((f "e" ((backtick "l")) "l")) "o"))),
+  }
+
+  test! {
+      name: format_string_nested_add,
+      text: r#"x := f'hello world = {{ f'hello' + " " + f"world" }}'"#,
+      tree: (justfile (assignment x (f "hello world = " ((+ (f "hello") (+ " " (f "world"))))))),
+  }
+
+  test! {
+      name: format_string_raw,
+      text: r#"x := f'a\nb'"#,
+      tree: (justfile (assignment x (f "a\\nb"))),
+  }
+
+  test! {
+      name: format_string_cooked,
+      text: r#"x := f"a\nb""#,
+      tree: (justfile (assignment x (f "a\nb"))),
+  }
+
+  test! {
+      name: format_string_backtick,
+      text: r#"x := f`echo {{'hello'}}`"#,
+      tree: (justfile (assignment x (fbacktick "echo " ("hello")))),
+  }
+
+  test! {
+      name: format_string_raw_indented,
+      text: r#"
+        x := f'''
+          hello\nworld
+          {{ y }}
+          foo bar
+        '''
+      "#,
+      tree: (justfile (assignment x (f "hello\\nworld\n" (y) "\nfoo bar\n"))),
+  }
+
+  test! {
+      name: format_string_cooked_indented,
+      text: r#"
+        x := f"""
+          \thello\t{{name}}\n
+          \tfoo bar
+        """
+      "#,
+      tree: (justfile (assignment x (f "\thello\t" (name) "\n\n\tfoo bar\n"))),
+
+  }
+
+  test! {
+      name: format_string_indent_before_interpolation,
+      text: r#"
+        x := f'''
+           hello
+             {{name}}
+        '''
+      "#,
+      tree: (justfile (assignment x (f "hello\n  " (name) "\n"))),
+
+  }
+
+  test! {
+      name: format_string_indent_trailing,
+      text: r#"
+        x := f'''
+          hello
+         '''
+      "#,
+      tree: (justfile (assignment x (f "hello\n"))),
+  }
+
+  test! {
+      name: format_string_no_extra_dedents,
+      text: r#"
+        x := f'''
+           hello
+          {{x}}  {{y}}
+
+           {{z}}
+        '''
+      "#,
+      tree: (justfile (assignment x (f " hello\n" (x) "  " (y) "\n\n " (z) "\n"))),
   }
 
   test! {
@@ -1867,6 +2043,7 @@ mod tests {
         Identifier,
         ParenL,
         StringToken,
+        FormatStringStart,
       ],
       found: Eol
     },
@@ -1885,6 +2062,7 @@ mod tests {
         Identifier,
         ParenL,
         StringToken,
+        FormatStringStart,
       ],
       found: Eof,
     },
@@ -1927,6 +2105,7 @@ mod tests {
         ParenL,
         ParenR,
         StringToken,
+        FormatStringStart,
       ],
       found: Eof,
     },
@@ -1946,6 +2125,7 @@ mod tests {
         ParenL,
         ParenR,
         StringToken,
+        FormatStringStart,
       ],
       found: InterpolationEnd,
     },

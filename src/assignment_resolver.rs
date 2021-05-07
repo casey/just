@@ -101,10 +101,10 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
       },
       Expression::StringLiteral { .. } | Expression::Backtick { .. } => Ok(()),
       Expression::Group { contents } => self.resolve_expression(contents),
-      Expression::FormatString { fragments, .. } => {
+      Expression::FormatString { fragments, .. } | Expression::FormatBacktick { fragments, .. } => {
         // TODO: Test this
         for fragment in fragments {
-          if let Fragment::Interpolation { expression } = fragment {
+          if let StringFragment::Interpolation { expression } = fragment {
             self.resolve_expression(expression)?;
           }
         }

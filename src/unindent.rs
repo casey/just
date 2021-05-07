@@ -1,29 +1,7 @@
 #[must_use]
 pub fn unindent(text: &str) -> String {
-  // find line start and end indices
-  let mut lines = Vec::new();
-  let mut start = 0;
-  for (i, c) in text.char_indices() {
-    if c == '\n' || i == text.len() - c.len_utf8() {
-      let end = i + 1;
-      lines.push(&text[start..end]);
-      start = end;
-    }
-  }
-
-  let common_indentation = lines
-    .iter()
-    .filter(|line| !blank(line))
-    .cloned()
-    .map(indentation)
-    .fold(
-      None,
-      |common_indentation, line_indentation| match common_indentation {
-        Some(common_indentation) => Some(common(common_indentation, line_indentation)),
-        None => Some(line_indentation),
-      },
-    )
-    .unwrap_or("");
+  let lines = split_lines(text);
+  let common_indentation = get_common_indentation(lines.iter().cloned());
 
   let mut replacements = Vec::with_capacity(lines.len());
 
@@ -44,7 +22,51 @@ pub fn unindent(text: &str) -> String {
   replacements.into_iter().collect()
 }
 
-fn indentation(line: &str) -> &str {
+pub fn split_lines(text: &str) -> Vec<&str> {
+  // find line start and end indices
+  let mut lines = Vec::new();
+  let mut start = 0;
+  for (i, c) in text.char_indices() {
+    if c == '\n' || i == text.len() - c.len_utf8() {
+      let end = i + 1;
+      lines.push(&text[start..end]);
+      start = end;
+    }
+  }
+  lines
+}
+
+pub fn get_common_indentation<'src, I>(lines: I) -> &'src str
+where
+  I: Iterator<Item = &'src str>,
+{
+  lines
+    .filter(|line| !blank(line))
+    .map(indentation)
+    .fold(None, |acc, current| match acc {
+      None => Some(current),
+      Some(acc) => Some(common(acc, current)),
+    })
+    .unwrap_or("")
+}
+
+//pub fn get_common_indentation<'src>(texts: &[&'src str]) -> &'src str {
+//  texts
+//    .iter()
+//    .flat_map(|line| lines(line))
+//    .filter(|line| !blank(line))
+//    .map(indentation)
+//    .fold(
+//      None,
+//      |common_indentation, line_indentation| match common_indentation {
+//        Some(common_indentation) => Some(common(common_indentation, line_indentation)),
+//        None => Some(line_indentation),
+//      },
+//    )
+//    .unwrap_or("")
+//}
+
+pub fn indentation(line: &str) -> &str {
   let i = line
     .char_indices()
     .take_while(|(_, c)| matches!(c, ' ' | '\t'))
@@ -55,11 +77,11 @@ fn indentation(line: &str) -> &str {
   &line[..i]
 }
 
-fn blank(line: &str) -> bool {
+pub fn blank(line: &str) -> bool {
   line.chars().all(|c| matches!(c, ' ' | '\t' | '\r' | '\n'))
 }
 
-fn common<'s>(a: &'s str, b: &'s str) -> &'s str {
+pub fn common<'s>(a: &'s str, b: &'s str) -> &'s str {
   let i = a
     .char_indices()
     .zip(b.chars())

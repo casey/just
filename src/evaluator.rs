@@ -133,7 +133,32 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         }
       },
       Expression::Group { contents } => self.evaluate_expression(contents),
-      Expression::FormatString { .. } => todo!(),
+      Expression::FormatString { kind: _, fragments } => {
+        let mut buf = String::new();
+        for fragment in fragments {
+          match fragment {
+            StringFragment::Text { cooked, .. } => buf.push_str(cooked),
+            StringFragment::Interpolation { expression } => {
+              buf.push_str(&self.evaluate_expression(&expression)?)
+            }
+          };
+        }
+        Ok(buf)
+      }
+      Expression::FormatBacktick {
+        start, fragments, ..
+      } => {
+        let mut buf = String::new();
+        for fragment in fragments {
+          match fragment {
+            StringFragment::Text { cooked, .. } => buf.push_str(cooked),
+            StringFragment::Interpolation { expression } => {
+              buf.push_str(&self.evaluate_expression(&expression)?)
+            }
+          };
+        }
+        self.run_backtick(&buf, start)
+      }
     }
   }
 

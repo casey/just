@@ -12,7 +12,7 @@ pub(crate) enum Fragment<'src> {
 impl<'src> Display for Fragment<'src> {
   fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
     match self {
-      Self::Text { token } => write!(f, "{}", token.lexeme()),
+      Self::Text { token, .. } => write!(f, "{}", token.lexeme()),
       Self::Interpolation { expression } => write!(f, "{{{{ {} }}}}", expression),
     }
   }
