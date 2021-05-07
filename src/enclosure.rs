@@ -29,6 +29,6 @@ mod tests {
 
   #[test]
   fn tick() {
-    assert_eq!(Enclosure::tick("foo").to_string(), "`foo`")
+    assert_eq!(Enclosure::tick("foo").to_string(), "`foo`");
   }
 }

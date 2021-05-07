@@ -2,8 +2,12 @@
 #![allow(
   clippy::blanket_clippy_restriction_lints,
   clippy::comparison_chain,
+  clippy::create_dir,
+  clippy::default_numeric_fallback,
   clippy::else_if_without_else,
   clippy::enum_glob_use,
+  clippy::exhaustive_enums,
+  clippy::exhaustive_structs,
   clippy::expect_used,
   clippy::filter_map,
   clippy::if_not_else,

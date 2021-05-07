@@ -70,7 +70,7 @@ impl<'src> Token<'src> {
             f,
             "internal error: Error has invalid line number: {}",
             line_number
-          )?
+          )?;
         },
     }
     Ok(())

@@ -203,9 +203,7 @@ mod tests {
   fn not_found() {
     let tmp = testing::tempdir();
     match Search::justfile(tmp.path()) {
-      Err(SearchError::NotFound) => {
-        assert!(true);
-      },
+      Err(SearchError::NotFound) => {},
       _ => panic!("No justfile found error was expected"),
     }
   }
@@ -218,16 +216,14 @@ mod tests {
     fs::write(&path, "default:\n\techo ok").unwrap();
     path.pop();
     path.push(FILENAME.to_uppercase());
-    if let Ok(_) = fs::File::open(path.as_path()) {
+    if fs::File::open(path.as_path()).is_ok() {
       // We are in case-insensitive file system
       return;
     }
     fs::write(&path, "default:\n\techo ok").unwrap();
     path.pop();
     match Search::justfile(path.as_path()) {
-      Err(SearchError::MultipleCandidates { .. }) => {
-        assert!(true);
-      },
+      Err(SearchError::MultipleCandidates { .. }) => {},
       _ => panic!("Multiple candidates error was expected"),
     }
   }
@@ -239,11 +235,8 @@ mod tests {
     path.push(FILENAME);
     fs::write(&path, "default:\n\techo ok").unwrap();
     path.pop();
-    match Search::justfile(path.as_path()) {
-      Ok(_path) => {
-        assert!(true);
-      },
-      _ => panic!("No errors were expected"),
+    if let Err(err) = Search::justfile(path.as_path()) {
+      panic!("No errors were expected: {}", err);
     }
   }
 
@@ -265,11 +258,8 @@ mod tests {
     path.push(spongebob_case);
     fs::write(&path, "default:\n\techo ok").unwrap();
     path.pop();
-    match Search::justfile(path.as_path()) {
-      Ok(_path) => {
-        assert!(true);
-      },
-      _ => panic!("No errors were expected"),
+    if let Err(err) = Search::justfile(path.as_path()) {
+      panic!("No errors were expected: {}", err);
     }
   }
 
@@ -284,11 +274,8 @@ mod tests {
     fs::create_dir(&path).expect("test justfile search: failed to create intermediary directory");
     path.push("b");
     fs::create_dir(&path).expect("test justfile search: failed to create intermediary directory");
-    match Search::justfile(path.as_path()) {
-      Ok(_path) => {
-        assert!(true);
-      },
-      _ => panic!("No errors were expected"),
+    if let Err(err) = Search::justfile(path.as_path()) {
+      panic!("No errors were expected: {}", err);
     }
   }
 
@@ -312,7 +299,7 @@ mod tests {
         path.push(FILENAME);
         assert_eq!(found_path, path);
       },
-      _ => panic!("No errors were expected"),
+      Err(err) => panic!("No errors were expected: {}", err),
     }
   }
 

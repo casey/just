@@ -162,9 +162,14 @@ impl<'src> Lexer<'src> {
     self.next_is('\n') || self.rest_starts_with("\r\n")
   }
 
+  /// Are we at end-of-file?
+  fn at_eof(&self) -> bool {
+    self.rest().is_empty()
+  }
+
   /// Are we at end-of-line or end-of-file?
   fn at_eol_or_eof(&self) -> bool {
-    self.at_eol() || self.rest().is_empty()
+    self.at_eol() || self.at_eof()
   }
 
   /// Get current indentation
@@ -293,11 +298,11 @@ impl<'src> Lexer<'src> {
       match self.next {
         Some(first) => {
           if let Some(&interpolation_start) = self.interpolation_stack.last() {
-            self.lex_interpolation(interpolation_start, first)?
+            self.lex_interpolation(interpolation_start, first)?;
           } else if self.recipe_body {
-            self.lex_body()?
+            self.lex_body()?;
           } else {
-            self.lex_normal(first)?
+            self.lex_normal(first)?;
           };
         },
         None => break,
@@ -558,7 +563,7 @@ impl<'src> Lexer<'src> {
         break Interpolation;
       }
 
-      if self.rest().is_empty() {
+      if self.at_eof() {
         break EndOfFile;
       }
 
@@ -684,6 +689,11 @@ impl<'src> Lexer<'src> {
     } else {
       // Emit an unspecified token to consume the current character,
       self.token(Unspecified);
+
+      if self.at_eof() {
+        return Err(self.error(UnexpectedEndOfToken { expected: '=' }));
+      }
+
       // …and advance past another character,
       self.advance()?;
       // …so that the error we produce highlights the unexpected character.
@@ -759,7 +769,7 @@ impl<'src> Lexer<'src> {
   /// Lex whitespace: [ \t]+
   fn lex_whitespace(&mut self) -> CompilationResult<'src, ()> {
     while self.next_is_whitespace() {
-      self.advance()?
+      self.advance()?;
     }
 
     self.token(Whitespace);
@@ -870,10 +880,7 @@ mod tests {
       .map(|token| token.kind)
       .collect::<Vec<TokenKind>>();
 
-    let have_lexemes = have
-      .iter()
-      .map(|token| token.lexeme())
-      .collect::<Vec<&str>>();
+    let have_lexemes = have.iter().map(Token::lexeme).collect::<Vec<&str>>();
 
     assert_eq!(have_kinds, want_kinds, "Token kind mismatch");
     assert_eq!(have_lexemes, want_lexemes, "Token lexeme mismatch");
@@ -2223,6 +2230,30 @@ mod tests {
       open:      Delimiter::Paren,
       close:     Delimiter::Bracket,
       open_line: 0,
+    },
+  }
+
+  error! {
+    name:   bang_eof,
+    input:  "!",
+    offset: 1,
+    line:   0,
+    column: 1,
+    width:  0,
+    kind:   UnexpectedEndOfToken {
+      expected: '=',
+    },
+  }
+
+  error! {
+    name:   bang_unexpected,
+    input:  "!%",
+    offset: 1,
+    line:   0,
+    column: 1,
+    width:  1,
+    kind:   UnexpectedCharacter {
+      expected: '=',
     },
   }
 

@@ -116,8 +116,8 @@ mod tests {
               .cloned()
               .map(|(key, value): (&str, &str)| (key.to_owned(), value.to_owned()))
               .collect(),
-            search_directory: $search_directory.map(|dir: &str| dir.to_owned()),
-            arguments: $arguments.iter().cloned().map(|arg: &str| arg.to_owned()).collect(),
+            search_directory: $search_directory.map(str::to_owned),
+            arguments: $arguments.iter().cloned().map(str::to_owned).collect(),
           },
         )
       }
