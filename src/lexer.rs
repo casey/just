@@ -162,9 +162,14 @@ impl<'src> Lexer<'src> {
     self.next_is('\n') || self.rest_starts_with("\r\n")
   }
 
+  /// Are we at end-of-file?
+  fn at_eof(&self) -> bool {
+    self.rest().is_empty()
+  }
+
   /// Are we at end-of-line or end-of-file?
   fn at_eol_or_eof(&self) -> bool {
-    self.at_eol() || self.rest().is_empty()
+    self.at_eol() || self.at_eof()
   }
 
   /// Get current indentation
@@ -558,7 +563,7 @@ impl<'src> Lexer<'src> {
         break Interpolation;
       }
 
-      if self.rest().is_empty() {
+      if self.at_eof() {
         break EndOfFile;
       }
 
@@ -684,6 +689,11 @@ impl<'src> Lexer<'src> {
     } else {
       // Emit an unspecified token to consume the current character,
       self.token(Unspecified);
+
+      if self.at_eof() {
+        return Err(self.error(UnexpectedEndOfToken { expected: '=' }));
+      }
+
       // …and advance past another character,
       self.advance()?;
       // …so that the error we produce highlights the unexpected character.
@@ -2223,6 +2233,30 @@ mod tests {
       open:      Delimiter::Paren,
       close:     Delimiter::Bracket,
       open_line: 0,
+    },
+  }
+
+  error! {
+    name:   bang_eof,
+    input:  "!",
+    offset: 1,
+    line:   0,
+    column: 1,
+    width:  0,
+    kind:   UnexpectedEndOfToken {
+      expected: '=',
+    },
+  }
+
+  error! {
+    name:   bang_unexpected,
+    input:  "!%",
+    offset: 1,
+    line:   0,
+    column: 1,
+    width:  1,
+    kind:   UnexpectedCharacter {
+      expected: '=',
     },
   }
 
