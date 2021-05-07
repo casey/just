@@ -293,12 +293,13 @@ mod tests {
     path.pop();
     path.push("b");
     fs::create_dir(&path).expect("test justfile search: failed to create intermediary directory");
-    if let Ok(found_path) = Search::justfile(path.as_path()) {
-      path.pop();
-      path.push(FILENAME);
-      assert_eq!(found_path, path);
-    } else {
-      panic!("No errors were expected");
+    match Search::justfile(path.as_path()) {
+      Ok(found_path) => {
+        path.pop();
+        path.push(FILENAME);
+        assert_eq!(found_path, path);
+      },
+      Err(err) => panic!("No errors were expected: {}", err),
     }
   }
 

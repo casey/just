@@ -235,12 +235,11 @@ impl<'src> Justfile<'src> {
   }
 
   pub(crate) fn get_recipe(&self, name: &str) -> Option<&Recipe<'src>> {
-    // TODO: refactor?
-    if let Some(recipe) = self.recipes.get(name) {
-      Some(recipe)
-    } else {
-      self.aliases.get(name).map(|alias| alias.target.as_ref())
-    }
+    self
+      .recipes
+      .get(name)
+      .map(Rc::as_ref)
+      .or_else(|| self.aliases.get(name).map(|alias| alias.target.as_ref()))
   }
 
   fn run_recipe<'run>(
