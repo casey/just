@@ -50,22 +50,6 @@ where
     .unwrap_or("")
 }
 
-//pub fn get_common_indentation<'src>(texts: &[&'src str]) -> &'src str {
-//  texts
-//    .iter()
-//    .flat_map(|line| lines(line))
-//    .filter(|line| !blank(line))
-//    .map(indentation)
-//    .fold(
-//      None,
-//      |common_indentation, line_indentation| match common_indentation {
-//        Some(common_indentation) => Some(common(common_indentation, line_indentation)),
-//        None => Some(line_indentation),
-//      },
-//    )
-//    .unwrap_or("")
-//}
-
 pub fn indentation(line: &str) -> &str {
   let i = line
     .char_indices()
