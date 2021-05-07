@@ -11,7 +11,6 @@
   clippy::expect_used,
   clippy::filter_map,
   clippy::if_not_else,
-  clippy::if_not_else,
   clippy::implicit_return,
   clippy::indexing_slicing,
   clippy::integer_arithmetic,
