@@ -94,7 +94,7 @@ macro_rules! run_error {
       let search = $crate::testing::search(&config);
 
       if let Subcommand::Run{ overrides, arguments } = &config.subcommand {
-        match $crate::compiler::Compiler::compile(&$crate::unindent::unindent($src))
+        match $crate::compiler::Compiler::compile(&$crate::unindent::Unindent::unindent($src))
           .expect("Expected successful compilation")
           .run(
             &config,

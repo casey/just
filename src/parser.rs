@@ -456,7 +456,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
         &next.lexeme()[kind.delimiter_len()..next.lexeme().len() - kind.delimiter_len()];
       let token = self.advance()?;
       let contents = if kind.indented() {
-        unindent(contents)
+        contents.unindent()
       } else {
         contents.to_owned()
       };
@@ -498,7 +498,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     let raw = &token.lexeme()[delimiter_len..token.lexeme().len() - delimiter_len];
 
     let unindented = if kind.indented() {
-      unindent(raw)
+      raw.unindent()
     } else {
       raw.to_owned()
     };
@@ -884,7 +884,7 @@ mod tests {
   }
 
   fn test(text: &str, want: Tree) {
-    let unindented = unindent(text);
+    let unindented = text.unindent();
     let tokens = Lexer::lex(&unindented).expect("lexing failed");
     let justfile = Parser::parse(&tokens).expect("parsing failed");
     let have = justfile.tree();

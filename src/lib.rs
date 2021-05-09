@@ -143,7 +143,7 @@ pub use crate::run::run;
 
 // Used in integration tests.
 #[doc(hidden)]
-pub use unindent::unindent;
+pub use unindent::Unindent;
 
 // Used by Janus, https://github.com/casey/janus, a tool
 // that analyses all public justfiles on GitHub to avoid

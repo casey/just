@@ -1,6 +1,6 @@
 use std::str::CharIndices;
 
-trait Unindent<'a> {
+pub trait Unindent<'a> {
   type ItemIndices: Iterator<Item = (usize, Option<char>, bool)>;
   type Output;
 
@@ -94,7 +94,7 @@ trait Unindent<'a> {
   }
 }
 
-struct StrItemIndices<'a> {
+pub struct StrItemIndices<'a> {
   inner: CharIndices<'a>,
 }
 
@@ -133,30 +133,6 @@ impl<'a> Unindent<'a> for str {
   fn join(items: Vec<&Self>) -> Self::Output {
     items.into_iter().collect()
   }
-}
-
-#[must_use]
-pub fn unindent(text: &str) -> String {
-  let lines = split_lines(text);
-  let common_indentation = get_common_indentation(lines.iter().cloned());
-
-  let mut replacements = Vec::with_capacity(lines.len());
-
-  for (i, line) in lines.iter().enumerate() {
-    let blank = blank(line);
-    let first = i == 0;
-    let last = i == lines.len() - 1;
-
-    let replacement = match (blank, first, last) {
-      (true, false, false) => "\n",
-      (true, _, _) => "",
-      (false, _, _) => &line[common_indentation.len()..],
-    };
-
-    replacements.push(replacement);
-  }
-
-  replacements.into_iter().collect()
 }
 
 pub fn split_lines(text: &str) -> Vec<&str> {
@@ -251,25 +227,25 @@ mod tests {
 
   #[test]
   fn indentations() {
-    assert_eq!(indentation(""), "");
-    assert_eq!(indentation("foo"), "");
-    assert_eq!(indentation("   foo"), "   ");
-    assert_eq!(indentation("\t\tfoo"), "\t\t");
-    assert_eq!(indentation("\t \t foo"), "\t \t ");
+    assert_eq!("".indentation(), "");
+    assert_eq!("foo".indentation(), "");
+    assert_eq!("   foo".indentation(), "   ");
+    assert_eq!("\t\tfoo".indentation(), "\t\t");
+    assert_eq!("\t \t foo".indentation(), "\t \t ");
   }
 
   #[test]
   fn blanks() {
-    assert!(blank("       \n"));
-    assert!(!blank("       foo\n"));
-    assert!(blank("\t\t\n"));
+    assert!("       \n".blank());
+    assert!(!"       foo\n".blank());
+    assert!("\t\t\n".blank());
   }
 
   #[test]
   fn commons() {
-    assert_eq!(common("foo", "foobar"), "foo");
-    assert_eq!(common("foo", "bar"), "");
-    assert_eq!(common("", ""), "");
-    assert_eq!(common("", "bar"), "");
+    assert_eq!(Unindent::common("foo", "foobar"), "foo");
+    assert_eq!(Unindent::common("foo", "bar"), "");
+    assert_eq!(Unindent::common("", ""), "");
+    assert_eq!(Unindent::common("", "bar"), "");
   }
 }

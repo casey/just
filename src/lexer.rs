@@ -925,7 +925,7 @@ mod tests {
 
   fn test(text: &str, unindent_text: bool, want_kinds: &[TokenKind], want_lexemes: &[&str]) {
     let text = if unindent_text {
-      unindent(text)
+      text.unindent()
     } else {
       text.to_owned()
     };
@@ -2477,15 +2477,14 @@ mod tests {
 
     assert_eq!(
       Lexer::new("!").presume('-').unwrap_err().to_string(),
-      unindent(
-        "
+      "
         Internal error, this may indicate a bug in just: Lexer presumed character `-`
         \
-         consider filing an issue: https://github.com/casey/just/issues/new
+       consider filing an issue: https://github.com/casey/just/issues/new
           |
         1 | !
           | ^"
-      ),
+        .unindent(),
     );
   }
 }

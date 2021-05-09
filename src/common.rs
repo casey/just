@@ -30,14 +30,12 @@ pub(crate) use unicode_width::{UnicodeWidthChar, UnicodeWidthStr};
 pub(crate) use crate::{config_error, setting};
 
 // functions
-pub(crate) use crate::{
-  default::default, empty::empty, load_dotenv::load_dotenv, output::output, unindent::unindent,
-};
+pub(crate) use crate::{default::default, empty::empty, load_dotenv::load_dotenv, output::output};
 
 // traits
 pub(crate) use crate::{
   command_ext::CommandExt, error::Error, error_result_ext::ErrorResultExt, keyed::Keyed,
-  ordinal::Ordinal, platform_interface::PlatformInterface, range_ext::RangeExt,
+  ordinal::Ordinal, platform_interface::PlatformInterface, range_ext::RangeExt, unindent::Unindent,
 };
 
 // structs and enums
