@@ -31,7 +31,7 @@ impl<'expression, 'src> Iterator for Variables<'expression, 'src> {
         self.stack.push(then);
         self.stack.push(otherwise);
         self.next()
-      }
+      },
       Some(Expression::FormatString { fragments, .. })
       | Some(Expression::FormatBacktick { fragments, .. }) => {
         for fragment in fragments {

@@ -8,11 +8,11 @@ pub fn unescape(s: &str) -> Result<String, char> {
         'r' => cooked.push('\r'),
         't' => cooked.push('\t'),
         '\\' => cooked.push('\\'),
-        '\n' => {}
+        '\n' => {},
         '"' => cooked.push('"'),
         other => {
           return Err(other);
-        }
+        },
       }
       escape = false;
     } else if c == '\\' {

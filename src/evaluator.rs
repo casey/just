@@ -138,13 +138,12 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         for fragment in fragments {
           match fragment {
             StringFragment::Text { cooked, .. } => buf.push_str(cooked),
-            StringFragment::Interpolation { expression } => {
-              buf.push_str(&self.evaluate_expression(&expression)?)
-            }
+            StringFragment::Interpolation { expression } =>
+              buf.push_str(&self.evaluate_expression(&expression)?),
           };
         }
         Ok(buf)
-      }
+      },
       Expression::FormatBacktick {
         start, fragments, ..
       } => {
@@ -152,13 +151,12 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         for fragment in fragments {
           match fragment {
             StringFragment::Text { cooked, .. } => buf.push_str(cooked),
-            StringFragment::Interpolation { expression } => {
-              buf.push_str(&self.evaluate_expression(&expression)?)
-            }
+            StringFragment::Interpolation { expression } =>
+              buf.push_str(&self.evaluate_expression(&expression)?),
           };
         }
         self.run_backtick(&buf, start)
-      }
+      },
     }
   }
 

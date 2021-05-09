@@ -81,30 +81,28 @@ impl<'src> Node<'src> for Expression<'src> {
           Unary { name, arg, .. } => {
             tree.push_mut(name.lexeme());
             tree.push_mut(arg.tree());
-          }
+          },
           Binary {
             name, args: [a, b], ..
           } => {
             tree.push_mut(name.lexeme());
             tree.push_mut(a.tree());
             tree.push_mut(b.tree());
-          }
+          },
         }
 
         tree
-      }
+      },
       Expression::Variable { name } => Tree::atom(name.lexeme()),
       Expression::StringLiteral {
         string_literal: StringLiteral { cooked, .. },
       } => Tree::string(cooked),
       Expression::Backtick { contents, .. } => Tree::atom("backtick").push(Tree::string(contents)),
       Expression::Group { contents } => Tree::List(vec![contents.tree()]),
-      Expression::FormatString { fragments, .. } => {
-        Tree::atom("f").extend(fragments.iter().map(|f| f.tree()))
-      }
-      Expression::FormatBacktick { fragments, .. } => {
-        Tree::atom("fbacktick").extend(fragments.iter().map(|f| f.tree()))
-      }
+      Expression::FormatString { fragments, .. } =>
+        Tree::atom("f").extend(fragments.iter().map(|f| f.tree())),
+      Expression::FormatBacktick { fragments, .. } =>
+        Tree::atom("fbacktick").extend(fragments.iter().map(|f| f.tree())),
     }
   }
 }
