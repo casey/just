@@ -1,9 +1,10 @@
 use std::str::CharIndices;
 
-trait Unindent<'a>: ToOwned {
+trait Unindent<'a> {
   type ItemIndices: Iterator<Item = (usize, Option<char>, bool)>;
+  type Output;
 
-  fn unindent(&'a self) -> Self::Owned {
+  fn unindent(&'a self) -> Self::Output {
     let lines = self.split_lines();
 
     let common_indentation = Self::common_indentation(&lines);
@@ -60,7 +61,7 @@ trait Unindent<'a>: ToOwned {
 
   fn len(&self) -> usize;
 
-  fn join(items: Vec<&Self>) -> Self::Owned;
+  fn join(items: Vec<&Self>) -> Self::Output;
 
   fn blank(&'a self) -> bool {
     self.item_indices().all(|(_, o, _)| {
@@ -109,6 +110,7 @@ impl<'a> Iterator for StrItemIndices<'a> {
 
 impl<'a> Unindent<'a> for str {
   type ItemIndices = StrItemIndices<'a>;
+  type Output = String;
 
   fn slice(&self, start: usize, end: usize) -> &Self {
     &self[start..end]
@@ -128,7 +130,7 @@ impl<'a> Unindent<'a> for str {
     self.len()
   }
 
-  fn join(items: Vec<&Self>) -> Self::Owned {
+  fn join(items: Vec<&Self>) -> Self::Output {
     items.into_iter().collect()
   }
 }
