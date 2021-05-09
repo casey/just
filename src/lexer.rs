@@ -524,14 +524,15 @@ impl<'src> Lexer<'src> {
         }
         return Ok(());
       }
+
       if (!format_string && self.at_eol()) || self.at_eof() {
         // Return unterminated interpolation error that highlights the opening
         // {{
         return Err(Self::unterminated_interpolation_error(interpolation_start));
-      } else {
-        // Otherwise lex as per normal
-        self.lex_normal(self.next.unwrap())?;
       }
+
+      // Otherwise lex as per normal
+      self.lex_normal(self.next.unwrap())?;
     }
   }
 
@@ -818,11 +819,11 @@ impl<'src> Lexer<'src> {
 
     loop {
       if self.next == None {
-        if format_string {
-          return Err(self.error(UnterminatedFormatString));
+        return if format_string {
+          Err(self.error(UnterminatedFormatString))
         } else {
-          return Err(self.error(kind.unterminated_error_kind()));
-        }
+          Err(self.error(kind.unterminated_error_kind()))
+        };
       } else if kind.processes_escape_sequences() && self.next_is('\\') && !escape {
         escape = true;
       } else if self.rest_starts_with(kind.delimiter()) && !escape {

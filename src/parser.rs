@@ -586,24 +586,22 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
                 } else {
                   line
                 }
-              } else {
-                if blank {
-                  if last_in_fragment {
-                    if last_in_string {
-                      if line.ends_with('\n') {
-                        "\n"
-                      } else {
-                        ""
-                      }
+              } else if blank {
+                if last_in_fragment {
+                  if last_in_string {
+                    if line.ends_with('\n') {
+                      "\n"
                     } else {
-                      &line[common_indentation.len()..]
+                      ""
                     }
                   } else {
-                    "\n"
+                    &line[common_indentation.len()..]
                   }
                 } else {
-                  &line[common_indentation.len()..]
+                  "\n"
                 }
+              } else {
+                &line[common_indentation.len()..]
               }
             })
             .collect::<String>();

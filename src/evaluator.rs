@@ -133,7 +133,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         }
       },
       Expression::Group { contents } => self.evaluate_expression(contents),
-      Expression::FormatString { kind: _, fragments } => {
+      Expression::FormatString { fragments, .. } => {
         let mut buf = String::new();
         for fragment in fragments {
           match fragment {
