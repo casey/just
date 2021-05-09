@@ -13,6 +13,7 @@ mod error_messages;
 mod evaluate;
 mod examples;
 mod export;
+mod format_strings;
 mod init;
 mod interrupts;
 mod invocation_directory;
