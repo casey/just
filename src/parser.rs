@@ -560,8 +560,8 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
         Fragment::Interpolation { .. } => "x",
       })
       .collect::<String>();
-    let proxy_lines = crate::unindent::split_lines(&fake_content);
-    let common_indentation = crate::unindent::get_common_indentation(proxy_lines.iter().cloned());
+    let proxy_lines = fake_content.split_lines();
+    let common_indentation = Unindent::common_indentation(&proxy_lines);
 
     let len = fragments.len();
     let cooked_fragments = fragments
@@ -569,12 +569,12 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
       .enumerate()
       .map(|(i, fragment)| match fragment {
         Fragment::Text { token } => {
-          let lines = crate::unindent::split_lines(token.lexeme());
+          let lines = token.lexeme().split_lines();
           let unindented = lines
             .iter()
             .enumerate()
             .map(|(j, line)| {
-              let blank = crate::unindent::blank(line);
+              let blank = line.blank();
               let first_in_fragment = j == 0;
               let first_in_string = i == 0;
               let last_in_fragment = j == lines.len() - 1;

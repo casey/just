@@ -135,61 +135,6 @@ impl<'a> Unindent<'a> for str {
   }
 }
 
-pub fn split_lines(text: &str) -> Vec<&str> {
-  // find line start and end indices
-  let mut lines = Vec::new();
-  let mut start = 0;
-  for (i, c) in text.char_indices() {
-    if c == '\n' || i == text.len() - c.len_utf8() {
-      let end = i + 1;
-      lines.push(&text[start..end]);
-      start = end;
-    }
-  }
-  lines
-}
-
-pub fn get_common_indentation<'src, I>(lines: I) -> &'src str
-where
-  I: Iterator<Item = &'src str>,
-{
-  lines
-    .filter(|line| !blank(line))
-    .map(indentation)
-    .fold(None, |acc, current| match acc {
-      None => Some(current),
-      Some(acc) => Some(common(acc, current)),
-    })
-    .unwrap_or("")
-}
-
-pub fn indentation(line: &str) -> &str {
-  let i = line
-    .char_indices()
-    .take_while(|(_, c)| matches!(c, ' ' | '\t'))
-    .map(|(i, _)| i + 1)
-    .last()
-    .unwrap_or(0);
-
-  &line[..i]
-}
-
-pub fn blank(line: &str) -> bool {
-  line.chars().all(|c| matches!(c, ' ' | '\t' | '\r' | '\n'))
-}
-
-pub fn common<'s>(a: &'s str, b: &'s str) -> &'s str {
-  let i = a
-    .char_indices()
-    .zip(b.chars())
-    .take_while(|((_, ac), bc)| ac == bc)
-    .map(|((i, c), _)| i + c.len_utf8())
-    .last()
-    .unwrap_or(0);
-
-  &a[0..i]
-}
-
 #[cfg(test)]
 mod tests {
   use super::*;
