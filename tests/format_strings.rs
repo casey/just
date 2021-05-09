@@ -5,7 +5,6 @@ test! {
   justfile: "
     foo := f'{{unknown_variable}}'
   ",
-  args: ("--evaluate"),
   stderr: "
     error: Variable `unknown_variable` not defined
       |
