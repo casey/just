@@ -143,5 +143,8 @@ pub use crate::run::run;
 #[doc(hidden)]
 pub use unindent::unindent;
 
-#[cfg(feature = "summary")]
+// Used by Janus, https://github.com/casey/janus, a tool
+// that analyses all public justfiles on GitHub to avoid
+// breaking changes.
+#[doc(hidden)]
 pub mod summary;
