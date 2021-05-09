@@ -304,7 +304,7 @@ impl<'src> Lexer<'src> {
       match self.next {
         Some(first) => {
           if self.recipe_body {
-            self.lex_body()?
+            self.lex_body()?;
           } else {
             self.lex_normal(first)?;
           };
