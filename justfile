@@ -64,7 +64,6 @@ changes:
 check: lint clippy test
 	git diff --no-ext-diff --quiet --exit-code
 	grep {{version}} CHANGELOG.md
-	cargo build --features summary
 	cargo +nightly generate-lockfile -Z minimal-versions
 	cargo test
 	git checkout Cargo.lock
