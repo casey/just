@@ -18,6 +18,7 @@ complete -c just -n "__fish_use_subcommand" -l set -d 'Override <VARIABLE> with 
 complete -c just -n "__fish_use_subcommand" -l shell -d 'Invoke <SHELL> to run recipes'
 complete -c just -n "__fish_use_subcommand" -l shell-arg -d 'Invoke shell with <SHELL-ARG> as an argument'
 complete -c just -n "__fish_use_subcommand" -s d -l working-directory -d 'Use <WORKING-DIRECTORY> as working directory. --justfile must also be set'
+complete -c just -n "__fish_use_subcommand" -s c -l command -d 'Run an arbitrary command with the working directory, `.env`, overrides, and exports set'
 complete -c just -n "__fish_use_subcommand" -l completions -d 'Print shell completion script for <SHELL>' -r -f -a "zsh bash fish powershell elvish"
 complete -c just -n "__fish_use_subcommand" -s s -l show -d 'Show information about <RECIPE>'
 complete -c just -n "__fish_use_subcommand" -l dry-run -d 'Print what just would do without doing it'
@@ -25,6 +26,7 @@ complete -c just -n "__fish_use_subcommand" -l highlight -d 'Highlight echoed re
 complete -c just -n "__fish_use_subcommand" -l no-dotenv -d 'Don\'t load `.env` file'
 complete -c just -n "__fish_use_subcommand" -l no-highlight -d 'Don\'t highlight echoed recipe lines in bold'
 complete -c just -n "__fish_use_subcommand" -s q -l quiet -d 'Suppress all output'
+complete -c just -n "__fish_use_subcommand" -l shell-command -d 'Invoke <COMMAND> with the shell used to run recipe lines and backticks'
 complete -c just -n "__fish_use_subcommand" -l clear-shell-args -d 'Clear shell arguments'
 complete -c just -n "__fish_use_subcommand" -s u -l unsorted -d 'Return list and summary entries in source order'
 complete -c just -n "__fish_use_subcommand" -s v -l verbose -d 'Use verbose output'
