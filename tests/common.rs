@@ -1,6 +1,7 @@
 pub(crate) use std::{
   collections::BTreeMap,
-  env, fs,
+  env::{self, consts::EXE_SUFFIX},
+  fs,
   io::Write,
   iter,
   path::Path,

@@ -6,8 +6,8 @@ test! {
     x:
       echo XYZ
   ",
-  args: ("--command", "echo", "foo"),
-  stdout: "foo\n",
+  args: ("--command", "printf", "foo"),
+  stdout: "foo",
 }
 
 test! {
@@ -16,8 +16,8 @@ test! {
     x:
       echo XYZ
   ",
-  args: ("-c", "echo", "foo"),
-  stdout: "foo\n",
+  args: ("-c", "printf", "foo"),
+  stdout: "foo",
 }
 
 test! {
@@ -27,16 +27,16 @@ test! {
       echo XYZ
   ",
   args: ("--command"),
-  stderr: "
+  stderr: &format!("
     error: The argument '--command <COMMAND>' requires a value but none was supplied
 
     USAGE:
-        just --color <COLOR> --shell <SHELL> --shell-arg <SHELL-ARG>... \
+        just{} --color <COLOR> --shell <SHELL> --shell-arg <SHELL-ARG>... \
         <--choose|--command <COMMAND>|--completions <SHELL>|--dump|--edit|\
         --evaluate|--init|--list|--show <RECIPE>|--summary|--variables>
 
     For more information try --help
-  ",
+  ", EXE_SUFFIX),
   status: EXIT_FAILURE,
 }
 
@@ -46,8 +46,8 @@ test! {
     x:
       echo XYZ
   ",
-  args: ("--command", "sh", "-c", "echo $DOTENV_KEY"),
-  stdout: "dotenv-value\n",
+  args: ("--command", "sh", "-c", "printf $DOTENV_KEY"),
+  stdout: "dotenv-value",
 }
 
 test! {
@@ -58,8 +58,8 @@ test! {
     x:
       echo XYZ
   ",
-  args: ("--command", "sh", "-c", "echo $FOO"),
-  stdout: "bar\n",
+  args: ("--command", "sh", "-c", "printf $FOO"),
+  stdout: "bar",
 }
 
 test! {
@@ -84,17 +84,17 @@ test! {
     x:
       echo XYZ
   ",
-  args: ("--set", "FOO", "baz", "--command", "sh", "-c", "echo $FOO"),
-  stdout: "baz\n",
+  args: ("--set", "FOO", "baz", "--command", "sh", "-c", "printf $FOO"),
+  stdout: "baz",
 }
 
 test! {
   name: run_in_shell,
   justfile: "
-    set shell := ['echo']
+    set shell := ['printf']
   ",
   args: ("--shell-command", "--command", "bar baz"),
-  stdout: "bar baz\n",
+  stdout: "bar baz",
   shell: false,
 }
 
