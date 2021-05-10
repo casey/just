@@ -31,7 +31,9 @@ test! {
     error: The argument '--command <COMMAND>' requires a value but none was supplied
 
     USAGE:
-        just --color <COLOR> --shell <SHELL> --shell-arg <SHELL-ARG>... <--choose|--command <COMMAND>|--completions <SHELL>|--dump|--edit|--evaluate|--init|--list|--show <RECIPE>|--summary|--variables>
+        just --color <COLOR> --shell <SHELL> --shell-arg <SHELL-ARG>... \
+        <--choose|--command <COMMAND>|--completions <SHELL>|--dump|--edit|\
+        --evaluate|--init|--list|--show <RECIPE>|--summary|--variables>
 
     For more information try --help
   ",
@@ -68,7 +70,8 @@ test! {
   ",
   args: ("--command", "asdflkasdfjkasldkfjasldkfjasldkfjasdfkjasdf", "abc"),
   stderr: "
-    error: Failed to invoke `asdflkasdfjkasldkfjasldkfjasldkfjasdfkjasdf` `abc`: No such file or directory (os error 2)
+    error: Failed to invoke `asdflkasdfjkasldkfjasldkfjasldkfjasdfkjasdf` `abc`: \
+    No such file or directory (os error 2)
   ",
   status: EXIT_FAILURE,
 }
