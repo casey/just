@@ -6,6 +6,11 @@ pub(crate) enum Subcommand {
     overrides: BTreeMap<String, String>,
     chooser:   Option<String>,
   },
+  Command {
+    arguments: Vec<OsString>,
+    binary:    OsString,
+    overrides: BTreeMap<String, String>,
+  },
   Completions {
     shell: String,
   },

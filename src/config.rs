@@ -42,14 +42,16 @@ mod cmd {
   pub(crate) const SHOW: &str = "SHOW";
   pub(crate) const SUMMARY: &str = "SUMMARY";
   pub(crate) const VARIABLES: &str = "VARIABLES";
+  pub(crate) const COMMAND: &str = "COMMAND";
 
   pub(crate) const ALL: &[&str] = &[
     CHOOSE,
+    COMMAND,
     COMPLETIONS,
     DUMP,
     EDIT,
-    INIT,
     EVALUATE,
+    INIT,
     LIST,
     SHOW,
     SUMMARY,
@@ -220,12 +222,18 @@ impl Config {
           .help("Use <WORKING-DIRECTORY> as working directory. --justfile must also be set")
           .requires(arg::JUSTFILE),
       )
-      .arg(
-        Arg::with_name(arg::ARGUMENTS)
-          .multiple(true)
-          .help("Overrides and recipe(s) to run, defaulting to the first recipe in the justfile"),
-      )
       .arg(Arg::with_name(cmd::CHOOSE).long("choose").help(CHOOSE_HELP))
+      .arg(
+        Arg::with_name(cmd::COMMAND)
+          .long("command")
+          .short("c")
+          .min_values(1)
+          .allow_hyphen_values(true)
+          .help(
+            "Run an arbitrary command with the working directory, `.env`, overrides, and exports \
+             set",
+          ),
+      )
       .arg(
         Arg::with_name(cmd::COMPLETIONS)
           .long("completions")
@@ -279,7 +287,12 @@ impl Config {
           .long("variables")
           .help("List names of variables"),
       )
-      .group(ArgGroup::with_name("SUBCOMMAND").args(cmd::ALL));
+      .group(ArgGroup::with_name("SUBCOMMAND").args(cmd::ALL))
+      .arg(
+        Arg::with_name(arg::ARGUMENTS)
+          .multiple(true)
+          .help("Overrides and recipe(s) to run, defaulting to the first recipe in the justfile"),
+      );
 
     if cfg!(feature = "help4help2man") {
       app.version(env!("CARGO_PKG_VERSION")).about(concat!(
@@ -399,6 +412,16 @@ impl Config {
     let subcommand = if matches.is_present(cmd::CHOOSE) {
       Subcommand::Choose {
         chooser: matches.value_of(arg::CHOOSER).map(str::to_owned),
+        overrides,
+      }
+    } else if let Some(values) = matches.values_of_os(cmd::COMMAND) {
+      let mut arguments = values
+        .into_iter()
+        .map(OsStr::to_owned)
+        .collect::<Vec<OsString>>();
+      Subcommand::Command {
+        binary: arguments.remove(0),
+        arguments,
         overrides,
       }
     } else if let Some(shell) = matches.value_of(cmd::COMPLETIONS) {
@@ -522,6 +545,7 @@ impl Config {
     match &self.subcommand {
       Choose { overrides, chooser } =>
         self.choose(justfile, &search, overrides, chooser.as_deref())?,
+      Command { overrides, .. } => self.run(justfile, &search, overrides, &[])?,
       Dump => Self::dump(justfile),
       Evaluate { overrides, .. } => self.run(justfile, &search, overrides, &[])?,
       List => self.list(justfile),
@@ -902,6 +926,9 @@ OPTIONS:
         --chooser <CHOOSER>                        Override binary invoked by `--choose`
         --color <COLOR>
             Print colorful output [default: auto]  [possible values: auto, always, never]
+
+    -c, --command <COMMAND>
+            Run an arbitrary command with the working directory, `.env`, overrides, and exports set
 
         --completions <SHELL>
             Print shell completion script for <SHELL> [possible values: zsh, bash, fish, \

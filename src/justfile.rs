@@ -127,34 +127,56 @@ impl<'src> Justfile<'src> {
       )?
     };
 
-    if let Subcommand::Evaluate { variable, .. } = &config.subcommand {
-      if let Some(variable) = variable {
-        if let Some(value) = scope.value(variable) {
-          print!("{}", value);
+    match &config.subcommand {
+      Subcommand::Command {
+        binary, arguments, ..
+      } => {
+        let mut command = Command::new(binary);
+
+        command.args(arguments);
+
+        let scope = scope.child();
+
+        command.export(&self.settings, &dotenv, &scope);
+
+        let status = InterruptHandler::guard(|| command.status()).unwrap();
+
+        if !status.success() {
+          panic!()
+        }
+
+        return Ok(());
+      },
+      Subcommand::Evaluate { variable, .. } => {
+        if let Some(variable) = variable {
+          if let Some(value) = scope.value(variable) {
+            print!("{}", value);
+          } else {
+            return Err(RuntimeError::EvalUnknownVariable {
+              suggestion: self.suggest_variable(&variable),
+              variable:   variable.clone(),
+            });
+          }
         } else {
-          return Err(RuntimeError::EvalUnknownVariable {
-            suggestion: self.suggest_variable(&variable),
-            variable:   variable.clone(),
-          });
-        }
-      } else {
-        let mut width = 0;
+          let mut width = 0;
 
-        for name in scope.names() {
-          width = cmp::max(name.len(), width);
+          for name in scope.names() {
+            width = cmp::max(name.len(), width);
+          }
+
+          for binding in scope.bindings() {
+            println!(
+              "{0:1$} := \"{2}\"",
+              binding.name.lexeme(),
+              width,
+              binding.value
+            );
+          }
         }
 
-        for binding in scope.bindings() {
-          println!(
-            "{0:1$} := \"{2}\"",
-            binding.name.lexeme(),
-            width,
-            binding.value
-          );
-        }
-      }
-
-      return Ok(());
+        return Ok(());
+      },
+      _ => {},
     }
 
     let argvec: Vec<&str> = if !arguments.is_empty() {
