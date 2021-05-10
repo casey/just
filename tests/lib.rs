@@ -4,6 +4,7 @@ mod test;
 mod common;
 
 mod choose;
+mod command;
 mod completions;
 mod conditional;
 mod delimiters;

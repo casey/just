@@ -3,7 +3,7 @@ pub(crate) use std::{
   cmp,
   collections::{BTreeMap, BTreeSet},
   env,
-  ffi::OsString,
+  ffi::{OsStr, OsString},
   fmt::{self, Debug, Display, Formatter},
   fs,
   io::{self, Cursor, Write},

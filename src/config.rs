@@ -26,6 +26,7 @@ pub(crate) struct Config {
   pub(crate) shell:                String,
   pub(crate) shell_args:           Vec<String>,
   pub(crate) shell_present:        bool,
+  pub(crate) shell_command:        bool,
   pub(crate) subcommand:           Subcommand,
   pub(crate) unsorted:             bool,
   pub(crate) verbosity:            Verbosity,
@@ -42,14 +43,16 @@ mod cmd {
   pub(crate) const SHOW: &str = "SHOW";
   pub(crate) const SUMMARY: &str = "SUMMARY";
   pub(crate) const VARIABLES: &str = "VARIABLES";
+  pub(crate) const COMMAND: &str = "COMMAND";
 
   pub(crate) const ALL: &[&str] = &[
     CHOOSE,
+    COMMAND,
     COMPLETIONS,
     DUMP,
     EDIT,
-    INIT,
     EVALUATE,
+    INIT,
     LIST,
     SHOW,
     SUMMARY,
@@ -75,15 +78,16 @@ mod arg {
   pub(crate) const COLOR: &str = "COLOR";
   pub(crate) const DRY_RUN: &str = "DRY-RUN";
   pub(crate) const HIGHLIGHT: &str = "HIGHLIGHT";
+  pub(crate) const JUSTFILE: &str = "JUSTFILE";
   pub(crate) const LIST_HEADING: &str = "LIST-HEADING";
   pub(crate) const LIST_PREFIX: &str = "LIST-PREFIX";
-  pub(crate) const JUSTFILE: &str = "JUSTFILE";
   pub(crate) const NO_DOTENV: &str = "NO-DOTENV";
   pub(crate) const NO_HIGHLIGHT: &str = "NO-HIGHLIGHT";
   pub(crate) const QUIET: &str = "QUIET";
   pub(crate) const SET: &str = "SET";
   pub(crate) const SHELL: &str = "SHELL";
   pub(crate) const SHELL_ARG: &str = "SHELL-ARG";
+  pub(crate) const SHELL_COMMAND: &str = "SHELL-COMMAND";
   pub(crate) const UNSORTED: &str = "UNSORTED";
   pub(crate) const VERBOSE: &str = "VERBOSE";
   pub(crate) const WORKING_DIRECTORY: &str = "WORKING-DIRECTORY";
@@ -194,6 +198,12 @@ impl Config {
           .help("Invoke shell with <SHELL-ARG> as an argument"),
       )
       .arg(
+        Arg::with_name(arg::SHELL_COMMAND)
+          .long("shell-command")
+          .requires(cmd::COMMAND)
+          .help("Invoke <COMMAND> with the shell used to run recipe lines and backticks"),
+      )
+      .arg(
         Arg::with_name(arg::CLEAR_SHELL_ARGS)
           .long("clear-shell-args")
           .overrides_with(arg::SHELL_ARG)
@@ -220,12 +230,18 @@ impl Config {
           .help("Use <WORKING-DIRECTORY> as working directory. --justfile must also be set")
           .requires(arg::JUSTFILE),
       )
-      .arg(
-        Arg::with_name(arg::ARGUMENTS)
-          .multiple(true)
-          .help("Overrides and recipe(s) to run, defaulting to the first recipe in the justfile"),
-      )
       .arg(Arg::with_name(cmd::CHOOSE).long("choose").help(CHOOSE_HELP))
+      .arg(
+        Arg::with_name(cmd::COMMAND)
+          .long("command")
+          .short("c")
+          .min_values(1)
+          .allow_hyphen_values(true)
+          .help(
+            "Run an arbitrary command with the working directory, `.env`, overrides, and exports \
+             set",
+          ),
+      )
       .arg(
         Arg::with_name(cmd::COMPLETIONS)
           .long("completions")
@@ -279,7 +295,12 @@ impl Config {
           .long("variables")
           .help("List names of variables"),
       )
-      .group(ArgGroup::with_name("SUBCOMMAND").args(cmd::ALL));
+      .group(ArgGroup::with_name("SUBCOMMAND").args(cmd::ALL))
+      .arg(
+        Arg::with_name(arg::ARGUMENTS)
+          .multiple(true)
+          .help("Overrides and recipe(s) to run, defaulting to the first recipe in the justfile"),
+      );
 
     if cfg!(feature = "help4help2man") {
       app.version(env!("CARGO_PKG_VERSION")).about(concat!(
@@ -401,6 +422,16 @@ impl Config {
         chooser: matches.value_of(arg::CHOOSER).map(str::to_owned),
         overrides,
       }
+    } else if let Some(values) = matches.values_of_os(cmd::COMMAND) {
+      let mut arguments = values
+        .into_iter()
+        .map(OsStr::to_owned)
+        .collect::<Vec<OsString>>();
+      Subcommand::Command {
+        binary: arguments.remove(0),
+        arguments,
+        overrides,
+      }
     } else if let Some(shell) = matches.value_of(cmd::COMPLETIONS) {
       Subcommand::Completions {
         shell: shell.to_owned(),
@@ -463,6 +494,7 @@ impl Config {
       highlight: !matches.is_present(arg::NO_HIGHLIGHT),
       shell: matches.value_of(arg::SHELL).unwrap().to_owned(),
       load_dotenv: !matches.is_present(arg::NO_DOTENV),
+      shell_command: matches.is_present(arg::SHELL_COMMAND),
       unsorted: matches.is_present(arg::UNSORTED),
       list_heading: matches
         .value_of(arg::LIST_HEADING)
@@ -522,6 +554,7 @@ impl Config {
     match &self.subcommand {
       Choose { overrides, chooser } =>
         self.choose(justfile, &search, overrides, chooser.as_deref())?,
+      Command { overrides, .. } => self.run(justfile, &search, overrides, &[])?,
       Dump => Self::dump(justfile),
       Evaluate { overrides, .. } => self.run(justfile, &search, overrides, &[])?,
       List => self.list(justfile),
@@ -893,6 +926,8 @@ FLAGS:
         --no-dotenv           Don't load `.env` file
         --no-highlight        Don't highlight echoed recipe lines in bold
     -q, --quiet               Suppress all output
+        --shell-command       Invoke <COMMAND> with the shell used to run recipe lines and \
+                                 backticks
         --summary             List names of available recipes
     -u, --unsorted            Return list and summary entries in source order
         --variables           List names of variables
@@ -902,6 +937,9 @@ OPTIONS:
         --chooser <CHOOSER>                        Override binary invoked by `--choose`
         --color <COLOR>
             Print colorful output [default: auto]  [possible values: auto, always, never]
+
+    -c, --command <COMMAND>
+            Run an arbitrary command with the working directory, `.env`, overrides, and exports set
 
         --completions <SHELL>
             Print shell completion script for <SHELL> [possible values: zsh, bash, fish, \

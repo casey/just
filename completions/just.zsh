@@ -26,6 +26,8 @@ _just() {
 '*--shell-arg=[Invoke shell with <SHELL-ARG> as an argument]' \
 '-d+[Use <WORKING-DIRECTORY> as working directory. --justfile must also be set]' \
 '--working-directory=[Use <WORKING-DIRECTORY> as working directory. --justfile must also be set]' \
+'-c+[Run an arbitrary command with the working directory, `.env`, overrides, and exports set]' \
+'--command=[Run an arbitrary command with the working directory, `.env`, overrides, and exports set]' \
 '--completions=[Print shell completion script for <SHELL>]: :(zsh bash fish powershell elvish)' \
 '-s+[Show information about <RECIPE>]: :_just_commands' \
 '--show=[Show information about <RECIPE>]: :_just_commands' \
@@ -35,6 +37,7 @@ _just() {
 '--no-highlight[Don'\''t highlight echoed recipe lines in bold]' \
 '(--dry-run)-q[Suppress all output]' \
 '(--dry-run)--quiet[Suppress all output]' \
+'--shell-command[Invoke <COMMAND> with the shell used to run recipe lines and backticks]' \
 '--clear-shell-args[Clear shell arguments]' \
 '-u[Return list and summary entries in source order]' \
 '--unsorted[Return list and summary entries in source order]' \
