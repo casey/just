@@ -18,6 +18,11 @@ pub(crate) enum RuntimeError<'src> {
     line_number: Option<usize>,
     code:        i32,
   },
+  CommandInvocation {
+    binary:    OsString,
+    arguments: Vec<OsString>,
+    io_error:  io::Error,
+  },
   Cygpath {
     recipe:       &'src str,
     output_error: OutputError,
@@ -201,6 +206,22 @@ impl<'src> Display for RuntimeError<'src> {
         } else {
           write!(f, "Recipe `{}` failed with exit code {}", recipe, code)?;
         },
+      CommandInvocation {
+        binary,
+        arguments,
+        io_error,
+      } => {
+        write!(
+          f,
+          "Failed to invoke {}: {}",
+          iter::once(binary)
+            .chain(arguments)
+            .map(|value| Enclosure::tick(value.to_string_lossy()).to_string())
+            .collect::<Vec<String>>()
+            .join(" "),
+          io_error,
+        )?;
+      },
       Cygpath {
         recipe,
         output_error,

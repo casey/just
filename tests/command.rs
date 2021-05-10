@@ -66,9 +66,9 @@ test! {
     x:
       echo XYZ
   ",
-  args: ("--command", "asdflkasdfjkasldkfjasldkfjasldkfjasdfkjasdf"),
+  args: ("--command", "asdflkasdfjkasldkfjasldkfjasldkfjasdfkjasdf", "abc"),
   stderr: "
-    SOME REASONABLE ERROR MESSAGE
+    error: Failed to invoke `asdflkasdfjkasldkfjasldkfjasldkfjasdfkjasdf` `abc`: No such file or directory (os error 2)
   ",
   status: EXIT_FAILURE,
 }
@@ -85,13 +85,43 @@ test! {
   stdout: "baz\n",
 }
 
-#[test]
-fn working_directory_is_correct() {
-  todo!()
+test! {
+  name: run_in_shell,
+  justfile: "
+    set shell := ['echo']
+  ",
+  args: ("--shell-command", "--command", "bar baz"),
+  stdout: "bar baz\n",
+  shell: false,
+}
+
+test! {
+  name: exit_status,
+  justfile: "
+    x:
+      echo XYZ
+  ",
+  args: ("--command", "false"),
+  status: EXIT_FAILURE,
 }
 
 #[test]
-fn search_dir_allowed() {
-  todo!()
-  // `--command foo/ echo bar` runs inside foo
+fn working_directory_is_correct() {
+  let tmp = tempdir();
+
+  fs::write(tmp.path().join("justfile"), "").unwrap();
+  fs::write(tmp.path().join("bar"), "baz").unwrap();
+  fs::create_dir(tmp.path().join("foo")).unwrap();
+
+  let output = Command::new(&executable_path("just"))
+    .args(&["--command", "cat", "bar"])
+    .current_dir(tmp.path().join("foo"))
+    .output()
+    .unwrap();
+
+  assert_eq!(str::from_utf8(&output.stderr).unwrap(), "");
+
+  assert!(output.status.success());
+
+  assert_eq!(str::from_utf8(&output.stdout).unwrap(), "baz");
 }

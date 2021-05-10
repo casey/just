@@ -26,6 +26,7 @@ pub(crate) struct Config {
   pub(crate) shell:                String,
   pub(crate) shell_args:           Vec<String>,
   pub(crate) shell_present:        bool,
+  pub(crate) shell_command:        bool,
   pub(crate) subcommand:           Subcommand,
   pub(crate) unsorted:             bool,
   pub(crate) verbosity:            Verbosity,
@@ -77,15 +78,16 @@ mod arg {
   pub(crate) const COLOR: &str = "COLOR";
   pub(crate) const DRY_RUN: &str = "DRY-RUN";
   pub(crate) const HIGHLIGHT: &str = "HIGHLIGHT";
+  pub(crate) const JUSTFILE: &str = "JUSTFILE";
   pub(crate) const LIST_HEADING: &str = "LIST-HEADING";
   pub(crate) const LIST_PREFIX: &str = "LIST-PREFIX";
-  pub(crate) const JUSTFILE: &str = "JUSTFILE";
   pub(crate) const NO_DOTENV: &str = "NO-DOTENV";
   pub(crate) const NO_HIGHLIGHT: &str = "NO-HIGHLIGHT";
   pub(crate) const QUIET: &str = "QUIET";
   pub(crate) const SET: &str = "SET";
   pub(crate) const SHELL: &str = "SHELL";
   pub(crate) const SHELL_ARG: &str = "SHELL-ARG";
+  pub(crate) const SHELL_COMMAND: &str = "SHELL-COMMAND";
   pub(crate) const UNSORTED: &str = "UNSORTED";
   pub(crate) const VERBOSE: &str = "VERBOSE";
   pub(crate) const WORKING_DIRECTORY: &str = "WORKING-DIRECTORY";
@@ -194,6 +196,12 @@ impl Config {
           .allow_hyphen_values(true)
           .overrides_with(arg::CLEAR_SHELL_ARGS)
           .help("Invoke shell with <SHELL-ARG> as an argument"),
+      )
+      .arg(
+        Arg::with_name(arg::SHELL_COMMAND)
+          .long("shell-command")
+          .requires(cmd::COMMAND)
+          .help("Invoke <COMMAND> with the shell used to run recipe lines and backticks"),
       )
       .arg(
         Arg::with_name(arg::CLEAR_SHELL_ARGS)
@@ -486,6 +494,7 @@ impl Config {
       highlight: !matches.is_present(arg::NO_HIGHLIGHT),
       shell: matches.value_of(arg::SHELL).unwrap().to_owned(),
       load_dotenv: !matches.is_present(arg::NO_DOTENV),
+      shell_command: matches.is_present(arg::SHELL_COMMAND),
       unsorted: matches.is_present(arg::UNSORTED),
       list_heading: matches
         .value_of(arg::LIST_HEADING)
@@ -917,6 +926,8 @@ FLAGS:
         --no-dotenv           Don't load `.env` file
         --no-highlight        Don't highlight echoed recipe lines in bold
     -q, --quiet               Suppress all output
+        --shell-command       Invoke <COMMAND> with the shell used to run recipe lines and \
+                                 backticks
         --summary             List names of available recipes
     -u, --unsorted            Return list and summary entries in source order
         --variables           List names of variables

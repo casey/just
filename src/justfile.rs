@@ -131,19 +131,33 @@ impl<'src> Justfile<'src> {
       Subcommand::Command {
         binary, arguments, ..
       } => {
-        let mut command = Command::new(binary);
+        let mut command = if config.shell_command {
+          let mut command = self.settings.shell_command(&config);
+          command.arg(binary);
+          command
+        } else {
+          Command::new(binary)
+        };
 
         command.args(arguments);
+
+        command.current_dir(&search.working_directory);
 
         let scope = scope.child();
 
         command.export(&self.settings, &dotenv, &scope);
 
-        let status = InterruptHandler::guard(|| command.status()).unwrap();
+        let status = InterruptHandler::guard(|| command.status()).map_err(|io_error| {
+          RuntimeError::CommandInvocation {
+            binary: binary.clone(),
+            arguments: arguments.clone(),
+            io_error,
+          }
+        })?;
 
         if !status.success() {
-          panic!()
-        }
+          process::exit(status.code().unwrap_or(EXIT_FAILURE));
+        };
 
         return Ok(());
       },
