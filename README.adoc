@@ -1111,7 +1111,7 @@ echo:
 The interpreter path `/bin/sh` will be translated to a Windows-style path using
 `cygpath` before being executed.
 
-If the interpreter path does not contain a `/` it will be executed without being translated. This is useful if `cygpath` is not available, or you wish to use a Windows style path to the interpreter.
+If the interpreter path does not contain a `/` it will be executed without being translated. This is useful if `cygpath` is not available, or you wish to pass a Windows style path to the interpreter.
 
 === Setting Variables in a Recipe
 
