@@ -63,20 +63,6 @@ test! {
 }
 
 test! {
-  name: command_not_found_error,
-  justfile: "
-    x:
-      echo XYZ
-  ",
-  args: ("--command", "asdflkasdfjkasldkfjasldkfjasldkfjasdfkjasdf", "abc"),
-  stderr: "
-    error: Failed to invoke `asdflkasdfjkasldkfjasldkfjasldkfjasdfkjasdf` `abc`: \
-    No such file or directory (os error 2)
-  ",
-  status: EXIT_FAILURE,
-}
-
-test! {
   name: set_overrides_work,
   justfile: "
     export FOO := 'bar'
@@ -127,4 +113,22 @@ fn working_directory_is_correct() {
   assert!(output.status.success());
 
   assert_eq!(str::from_utf8(&output.stdout).unwrap(), "baz");
+}
+
+#[test]
+fn command_not_found() {
+  let tmp = tempdir();
+
+  fs::write(tmp.path().join("justfile"), "").unwrap();
+
+  let output = Command::new(&executable_path("just"))
+    .args(&["--command", "asdfasdfasdfasdfadfsadsfadsf", "bar"])
+    .output()
+    .unwrap();
+
+  assert!(str::from_utf8(&output.stderr)
+    .unwrap()
+    .starts_with("error: Failed to invoke `asdfasdfasdfasdfadfsadsfadsf` `bar`:"));
+
+  assert!(!output.status.success());
 }
