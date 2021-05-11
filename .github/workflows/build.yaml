@@ -77,10 +77,6 @@ jobs:
     - name: Clippy
       run: cargo clippy --all --all-targets --all-features
 
-    - name: Lint
-      if: matrix.os != 'windows-2016'
-      run: cargo run lint
-
     - name: Install Rustfmt Toolchain
       uses: actions-rs/toolchain@v1
       with:
