@@ -120,7 +120,6 @@ impl<'src, D> Recipe<'src, D> {
         message: format!("bad shebang line: {}", shebang_line),
       })?;
 
-
       let tmp = tempfile::Builder::new()
         .prefix("just")
         .tempdir()
@@ -129,7 +128,12 @@ impl<'src, D> Recipe<'src, D> {
           io_error: error,
         })?;
       let mut path = tmp.path().to_path_buf();
-      let suffix = Platform::get_script_file_suffix(interpreter);
+      let suffix = if interpreter.ends_with("powershell") || interpreter.ends_with("powershell.exe")
+      {
+        ".ps1"
+      } else {
+        ""
+      };
       path.push(format!("{}{}", self.name(), suffix));
       {
         let mut f = fs::File::create(&path).map_err(|error| RuntimeError::TmpdirIoError {

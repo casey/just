@@ -8,7 +8,7 @@ default:
 "#,
   stdout: "Hello-World\n",
 }
-	
+
 #[cfg(windows)]
 test! {
   name:     powershell_exe,

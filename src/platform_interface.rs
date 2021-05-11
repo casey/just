@@ -9,15 +9,6 @@ pub(crate) trait PlatformInterface {
     command: &str,
     argument: Option<&str>,
   ) -> Result<Command, OutputError>;
-  
-  /// Get suffix of generated script file
-  fn get_script_file_suffix(command: &str) -> &str {
-    if command.ends_with("powershell") || command.ends_with("powershell.exe") {
-      ".ps1"
-    } else {
-      ""
-    }
-  }
 
   /// Set the execute permission on the file pointed to by `path`
   fn set_execute_permission(path: &Path) -> Result<(), io::Error>;
