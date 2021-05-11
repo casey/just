@@ -98,8 +98,12 @@ jobs:
         ./bin/generate-completions
         git diff --no-ext-diff --quiet --exit-code
 
-    - name: Forbid
-      run: ./bin/forbid
+    - name: Check for Forbidden Words
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        sudo apt-get update
+        sudo apt-get install ripgrep
+        ./bin/forbid
 
     - name: Package
       id: package
