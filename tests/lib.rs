@@ -22,6 +22,7 @@ mod positional_arguments;
 mod quiet;
 mod readme;
 mod search;
+mod shebang;
 mod shell;
 mod string;
 mod working_directory;
