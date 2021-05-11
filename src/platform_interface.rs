@@ -11,7 +11,13 @@ pub(crate) trait PlatformInterface {
   ) -> Result<Command, OutputError>;
   
   /// Get generate file ext
-  fn get_recipe_file_ext(command: &str) -> String;
+  fn get_script_file_ext(command: &str) -> &str {
+      if command.ends_with("powershell") {
+          ".ps1"
+      } else {
+          ""
+      }
+  }
 
   /// Set the execute permission on the file pointed to by `path`
   fn set_execute_permission(path: &Path) -> Result<(), io::Error>;

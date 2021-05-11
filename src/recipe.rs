@@ -129,8 +129,8 @@ impl<'src, D> Recipe<'src, D> {
           io_error: error,
         })?;
       let mut path = tmp.path().to_path_buf();
-      let ext = Platform::get_recipe_file_ext(interpreter);
-      path.push(format!("{}{}", self.name(), ext));
+      let ext_name = Platform::get_script_file_ext(interpreter);
+      path.push(format!("{}{}", self.name(), ext_name));
       {
         let mut f = fs::File::create(&path).map_err(|error| RuntimeError::TmpdirIoError {
           recipe:   self.name(),
