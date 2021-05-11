@@ -86,7 +86,7 @@ impl PlatformInterface for Platform {
   }
 
   fn get_recipe_file_ext(command: &str) -> String {
-      if command == "powershell.exe" {
+      if command.ends_with("powershell.exe") {
           format!("{}", ".ps1")
       } else {
         String::new()
