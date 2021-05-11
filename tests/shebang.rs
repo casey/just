@@ -1,31 +1,21 @@
-use std::{process::Command, str};
-
-use executable_path::executable_path;
-
-use test_utilities::{assert_stdout, tmptree};
-
-const JUSTFILE_POWERSHELL: &str = r#"
-set shell := ["powershell.exe", "-c"]
-
+#[cfg(windows)]
+test! {
+  name:     powershell,
+  justfile: r#"
 default:
-    #!powershell
-    Write-Host Hello-World
-"#;
-
-/// Test powershell shebang
-#[test]
-#[cfg_attr(unix, ignore)]
-fn powershell() {
-  let tmp = tmptree! {
-    justfile: JUSTFILE_POWERSHELL,
-  };
-
-  let output = Command::new(executable_path("just"))
-    .current_dir(tmp.path())
-    .output()
-    .unwrap();
-
-  let stdout = "Hello-World\n";
-
-  assert_stdout(&output, stdout);
+  #!powershell
+  Write-Host Hello-World
+"#,
+  stdout: "Hello-World\n",
+}
+	
+#[cfg(windows)]
+test! {
+  name:     powershell_exe,
+  justfile: r#"
+default:
+  #!powershell.exe
+   Write-Host Hello-World
+"#,
+  stdout: "Hello-World\n",
 }
