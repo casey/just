@@ -119,7 +119,6 @@ impl<'src, D> Recipe<'src, D> {
       } = Shebang::new(shebang_line).ok_or_else(|| RuntimeError::Internal {
         message: format!("bad shebang line: {}", shebang_line),
       })?;
-
       let tmp = tempfile::Builder::new()
         .prefix("just")
         .tempdir()

@@ -61,7 +61,7 @@ version := `sed -En 's/version[[:space:]]*=[[:space:]]*"([^"]+)"/v\1/p' Cargo.to
 changes:
 	git log --pretty=format:%s >> CHANGELOG.md
 
-check: lint clippy test
+check: clippy test forbid
 	git diff --no-ext-diff --quiet --exit-code
 	grep {{version}} CHANGELOG.md
 	cargo +nightly generate-lockfile -Z minimal-versions
@@ -114,15 +114,12 @@ install-dev-deps-homebrew:
 clippy:
 	cargo clippy --all --all-targets --all-features
 
+forbid:
+	./bin/forbid
+
 # count non-empty lines of code
 sloc:
 	@cat src/*.rs | sed '/^\s*$/d' | wc -l
-
-@lint:
-	echo Checking for FIXME/TODO...
-	! grep --color -Ein 'fixme|todo|xxx|#\[ignore\]' src/*.rs
-	echo Checking for long lines...
-	! grep --color -En '.{101}' src/*.rs
 
 replace FROM TO:
 	sd '{{FROM}}' '{{TO}}' src/*.rs
