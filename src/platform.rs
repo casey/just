@@ -18,6 +18,10 @@ impl PlatformInterface for Platform {
     Ok(cmd)
   }
 
+  fn get_recipe_file_ext(command: &str) -> String {
+      return String::new();
+  }
+
   fn set_execute_permission(path: &Path) -> Result<(), io::Error> {
     use std::os::unix::fs::PermissionsExt;
 
@@ -79,6 +83,14 @@ impl PlatformInterface for Platform {
 
     cmd.arg(path);
     Ok(cmd)
+  }
+
+  fn get_recipe_file_ext(command: &str) -> String {
+      if command == "powershell.exe" {
+          format!("{}", ".ps1")
+      } else {
+        String::new()
+      }
   }
 
   fn set_execute_permission(_path: &Path) -> Result<(), io::Error> {

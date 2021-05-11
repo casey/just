@@ -9,6 +9,9 @@ pub(crate) trait PlatformInterface {
     command: &str,
     argument: Option<&str>,
   ) -> Result<Command, OutputError>;
+  
+  /// Get generate file ext
+  fn get_recipe_file_ext(command: &str) -> String;
 
   /// Set the execute permission on the file pointed to by `path`
   fn set_execute_permission(path: &Path) -> Result<(), io::Error>;

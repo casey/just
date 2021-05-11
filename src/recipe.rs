@@ -107,6 +107,20 @@ impl<'src, D> Recipe<'src, D> {
         return Ok(());
       }
 
+      let shebang_line = evaluated_lines
+        .first()
+        .ok_or_else(|| RuntimeError::Internal {
+          message: "evaluated_lines was empty".to_owned(),
+        })?;
+
+      let Shebang {
+        interpreter,
+        argument,
+      } = Shebang::new(shebang_line).ok_or_else(|| RuntimeError::Internal {
+        message: format!("bad shebang line: {}", shebang_line),
+      })?;
+
+
       let tmp = tempfile::Builder::new()
         .prefix("just")
         .tempdir()
@@ -115,7 +129,8 @@ impl<'src, D> Recipe<'src, D> {
           io_error: error,
         })?;
       let mut path = tmp.path().to_path_buf();
-      path.push(self.name());
+      let ext = Platform::get_recipe_file_ext(interpreter);
+      path.push(format!("{}{}", self.name(), ext));
       {
         let mut f = fs::File::create(&path).map_err(|error| RuntimeError::TmpdirIoError {
           recipe:   self.name(),
@@ -150,19 +165,6 @@ impl<'src, D> Recipe<'src, D> {
       Platform::set_execute_permission(&path).map_err(|error| RuntimeError::TmpdirIoError {
         recipe:   self.name(),
         io_error: error,
-      })?;
-
-      let shebang_line = evaluated_lines
-        .first()
-        .ok_or_else(|| RuntimeError::Internal {
-          message: "evaluated_lines was empty".to_owned(),
-        })?;
-
-      let Shebang {
-        interpreter,
-        argument,
-      } = Shebang::new(shebang_line).ok_or_else(|| RuntimeError::Internal {
-        message: format!("bad shebang line: {}", shebang_line),
       })?;
 
       // create a command to run the script
