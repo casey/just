@@ -96,7 +96,7 @@ variadic      : '*' parameter
               | '+' parameter
 
 dependency    : NAME
-              | '(' NAME expression* ')
+              | '(' NAME expression* ')'
 
 body          : INDENT line+ DEDENT
 
