@@ -127,12 +127,9 @@ impl<'src, D> Recipe<'src, D> {
           io_error: error,
         })?;
       let mut path = tmp.path().to_path_buf();
-      let suffix = if interpreter.ends_with("cmd") || interpreter.ends_with("cmd.exe")
-      {
+      let suffix = if interpreter.ends_with("cmd") || interpreter.ends_with("cmd.exe") {
         ".bat"
-      }
-      else if interpreter.ends_with("powershell") || interpreter.ends_with("powershell.exe")
-      {
+      } else if interpreter.ends_with("powershell") || interpreter.ends_with("powershell.exe") {
         ".ps1"
       } else {
         ""
@@ -145,8 +142,7 @@ impl<'src, D> Recipe<'src, D> {
         })?;
         let mut text = String::new();
         // add the shebang
-        if interpreter.ends_with("cmd") || interpreter.ends_with("cmd.exe")
-        {
+        if interpreter.ends_with("cmd") || interpreter.ends_with("cmd.exe") {
           text += "\n";
         } else {
           text += &evaluated_lines[0];
