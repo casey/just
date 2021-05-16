@@ -1,6 +1,26 @@
 Changelog
 =========
 
+[v0.9.3] - 2021-5-16
+--------------------
+
+### Added
+- Add shebang support for 'cmd.exe' (#828)
+- Add `.exe` to powershell scripts (#826)
+- Add the `--command` subcommand (#824)
+
+### Fixed
+- Fix bang lexing and placate clippy (#821)
+
+### Misc
+- Fixed missing close apostrophe in GRAMMAR.md (#830)
+- Make 'else' keyword in grammar (#829)
+- Add forbid script (#827)
+- Remove `summary` feature (#823)
+- Document that just is now in Arch official repo (#814)
+- Fix changelog years (#813)
+
+
 [v0.9.2] - 2021-5-02
 --------------------
 
