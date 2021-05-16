@@ -65,7 +65,7 @@ setting       : 'set' 'dotenv-load' boolean?
 
 boolean       : ':=' ('true' | 'false')
 
-expression    : 'if' condition '{' expression '}' else '{' expression '}'
+expression    : 'if' condition '{' expression '}' 'else' '{' expression '}'
               | value '+' expression
               | value
 
@@ -96,7 +96,7 @@ variadic      : '*' parameter
               | '+' parameter
 
 dependency    : NAME
-              | '(' NAME expression* ')
+              | '(' NAME expression* ')'
 
 body          : INDENT line+ DEDENT
 
