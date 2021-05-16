@@ -148,9 +148,7 @@ impl<'src, D> Recipe<'src, D> {
         if interpreter.ends_with("cmd") || interpreter.ends_with("cmd.exe")
         {
           text += "\n";
-        }
-        else
-        {
+        } else {
           text += &evaluated_lines[0];
         }
         text += "\n";
