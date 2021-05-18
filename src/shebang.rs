@@ -122,7 +122,7 @@ mod tests {
         .unwrap()
         .interpreter_filename(),
       "baz"
-    )
+    );
   }
 
   #[test]
@@ -132,7 +132,7 @@ mod tests {
         .unwrap()
         .interpreter_filename(),
       "baz"
-    )
+    );
   }
 
   #[test]
@@ -140,7 +140,7 @@ mod tests {
     assert_eq!(
       Shebang::new("#!powershell").unwrap().script_filename("foo"),
       "foo.ps1"
-    )
+    );
   }
 
   #[test]
@@ -150,7 +150,7 @@ mod tests {
         .unwrap()
         .script_filename("foo"),
       "foo.ps1"
-    )
+    );
   }
 
   #[test]
@@ -158,7 +158,7 @@ mod tests {
     assert_eq!(
       Shebang::new("#!cmd").unwrap().script_filename("foo"),
       "foo.bat"
-    )
+    );
   }
 
   #[test]
@@ -166,26 +166,26 @@ mod tests {
     assert_eq!(
       Shebang::new("#!cmd.exe").unwrap().script_filename("foo"),
       "foo.bat"
-    )
+    );
   }
 
   #[test]
   fn plain_script_filename() {
-    assert_eq!(Shebang::new("#!bar").unwrap().script_filename("foo"), "foo")
+    assert_eq!(Shebang::new("#!bar").unwrap().script_filename("foo"), "foo");
   }
 
   #[test]
   fn dont_include_shebang_line_cmd() {
-    assert!(!Shebang::new("#!cmd").unwrap().include_shebang_line())
+    assert!(!Shebang::new("#!cmd").unwrap().include_shebang_line());
   }
 
   #[test]
   fn dont_include_shebang_line_cmd_exe() {
-    assert!(!Shebang::new("#!cmd.exe /C").unwrap().include_shebang_line())
+    assert!(!Shebang::new("#!cmd.exe /C").unwrap().include_shebang_line());
   }
 
   #[test]
   fn include_shebang_line_other() {
-    assert!(Shebang::new("#!foo -c").unwrap().include_shebang_line())
+    assert!(Shebang::new("#!foo -c").unwrap().include_shebang_line());
   }
 }
