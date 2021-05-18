@@ -7,8 +7,7 @@ impl PlatformInterface for Platform {
   fn make_shebang_command(
     path: &Path,
     working_directory: &Path,
-    _command: &str,
-    _argument: Option<&str>,
+    _shebang: Shebang,
   ) -> Result<Command, OutputError> {
     // shebang scripts can be executed directly on unix
     let mut cmd = Command::new(path);
@@ -50,30 +49,29 @@ impl PlatformInterface for Platform {
   fn make_shebang_command(
     path: &Path,
     working_directory: &Path,
-    command: &str,
-    argument: Option<&str>,
+    shebang: Shebang,
   ) -> Result<Command, OutputError> {
     use std::borrow::Cow;
 
     // If the path contains forward slashes…
-    let command = if command.contains('/') {
+    let command = if shebang.command.contains('/') {
       // …translate path to the interpreter from unix style to windows style.
       let mut cygpath = Command::new("cygpath");
       cygpath.current_dir(working_directory);
       cygpath.arg("--windows");
-      cygpath.arg(command);
+      cygpath.arg(shebang.command);
 
       Cow::Owned(output(cygpath)?)
     } else {
       // …otherwise use it as-is.
-      Cow::Borrowed(command)
+      Cow::Borrowed(shebang.command)
     };
 
     let mut cmd = Command::new(command.as_ref());
 
     cmd.current_dir(working_directory);
 
-    if let Some(argument) = argument {
+    if let Some(argument) = shebang.argument {
       cmd.arg(argument);
     }
 

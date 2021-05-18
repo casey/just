@@ -113,12 +113,10 @@ impl<'src, D> Recipe<'src, D> {
           message: "evaluated_lines was empty".to_owned(),
         })?;
 
-      let Shebang {
-        interpreter,
-        argument,
-      } = Shebang::new(shebang_line).ok_or_else(|| RuntimeError::Internal {
+      let shebang = Shebang::new(shebang_line).ok_or_else(|| RuntimeError::Internal {
         message: format!("bad shebang line: {}", shebang_line),
       })?;
+
       let tmp = tempfile::Builder::new()
         .prefix("just")
         .tempdir()
@@ -127,26 +125,22 @@ impl<'src, D> Recipe<'src, D> {
           io_error: error,
         })?;
       let mut path = tmp.path().to_path_buf();
-      let suffix = if interpreter.ends_with("cmd") || interpreter.ends_with("cmd.exe") {
-        ".bat"
-      } else if interpreter.ends_with("powershell") || interpreter.ends_with("powershell.exe") {
-        ".ps1"
-      } else {
-        ""
-      };
-      path.push(format!("{}{}", self.name(), suffix));
+
+      path.push(shebang.script_filename(self.name()));
+
       {
         let mut f = fs::File::create(&path).map_err(|error| RuntimeError::TmpdirIoError {
           recipe:   self.name(),
           io_error: error,
         })?;
         let mut text = String::new();
-        // add the shebang
-        if interpreter.ends_with("cmd") || interpreter.ends_with("cmd.exe") {
-          text += "\n";
-        } else {
+
+        if shebang.include_shebang_line() {
           text += &evaluated_lines[0];
+        } else {
+          text += "\n";
         }
+
         text += "\n";
         // add blank lines so that lines in the generated script have the same line
         // number as the corresponding lines in the justfile
@@ -176,16 +170,13 @@ impl<'src, D> Recipe<'src, D> {
       })?;
 
       // create a command to run the script
-      let mut command = Platform::make_shebang_command(
-        &path,
-        &context.search.working_directory,
-        interpreter,
-        argument,
-      )
-      .map_err(|output_error| RuntimeError::Cygpath {
-        recipe: self.name(),
-        output_error,
-      })?;
+      let mut command =
+        Platform::make_shebang_command(&path, &context.search.working_directory, shebang).map_err(
+          |output_error| RuntimeError::Cygpath {
+            recipe: self.name(),
+            output_error,
+          },
+        )?;
 
       if context.settings.positional_arguments {
         command.args(positional);
@@ -210,8 +201,8 @@ impl<'src, D> Recipe<'src, D> {
         Err(io_error) => {
           return Err(RuntimeError::Shebang {
             recipe: self.name(),
-            command: interpreter.to_owned(),
-            argument: argument.map(String::from),
+            command: shebang.interpreter.to_owned(),
+            argument: shebang.argument.map(String::from),
             io_error,
           });
         },
