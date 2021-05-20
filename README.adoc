@@ -146,7 +146,27 @@ curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -
 
 === Vim
 
-For vim, you can put the following in `~/.vim/filetype.vim`:
+==== `vim-just`
+
+The [vim-just](https://github.com/NoahTheDuke/vim-just) plugin provides syntax highlighting for justfiles.
+
+Install it with your favorite package manager, like [Plug](https://github.com/junegunn/vim-plug):
+
+```vim
+Plug 'NoahTheDuke/vim-just'
+```
+
+Or with Vim's built-in package support:
+
+```
+mkdir -p ~/.vim/pack/vendor/start
+cd ~/.vim/pack/vendor/start
+git clone https://github.com/NoahTheDuke/vim-just.git
+```
+
+==== Makefile Syntax Highlighting
+
+Vim's built-in Makefile syntax highlighting isn't perfect for justfiles, but it's better than nothing. You can put the following in `~/.vim/filetype.vim`:
 
 ```vimscript
 if exists("did_load_filetypes")
@@ -158,7 +178,7 @@ augroup filetypedetect
 augroup END
 ```
 
-You can add the following to a individual justfile to enable make mode on a per-file basis:
+Or add the following to a individual justfile to enable make mode on a per-file basis:
 
 ```
 # vim: set ft=make :
