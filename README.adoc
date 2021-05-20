@@ -148,9 +148,9 @@ curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -
 
 ==== `vim-just`
 
-The [vim-just](https://github.com/NoahTheDuke/vim-just) plugin provides syntax highlighting for justfiles.
+The https://github.com/NoahTheDuke/vim-just[vim-just] plugin provides syntax highlighting for justfiles.
 
-Install it with your favorite package manager, like [Plug](https://github.com/junegunn/vim-plug):
+Install it with your favorite package manager, like https://github.com/junegunn/vim-plug[Plug]:
 
 ```vim
 Plug 'NoahTheDuke/vim-just'
