@@ -166,7 +166,7 @@ git clone https://github.com/NoahTheDuke/vim-just.git
 
 ==== Makefile Syntax Highlighting
 
-For vim, you can put the following in `~/.vim/filetype.vim`:
+Vim's built-in Makefile syntax highlighting isn't great, but it's better than nothing. You can put the following in `~/.vim/filetype.vim`:
 
 ```vimscript
 if exists("did_load_filetypes")
@@ -178,7 +178,7 @@ augroup filetypedetect
 augroup END
 ```
 
-You can add the following to a individual justfile to enable make mode on a per-file basis:
+Or add the following to a individual justfile to enable make mode on a per-file basis:
 
 ```
 # vim: set ft=make :
