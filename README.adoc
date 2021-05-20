@@ -146,6 +146,26 @@ curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -
 
 === Vim
 
+==== `vim-just`
+
+The [vim-just](https://github.com/NoahTheDuke/vim-just) plugin provides syntax highlighting for justfiles.
+
+Install it with your favorite package manager, like [Plug](https://github.com/junegunn/vim-plug):
+
+```vim
+Plug 'NoahTheDuke/vim-just'
+```
+
+Or with Vim's built-in package support:
+
+```
+mkdir -p ~/.vim/pack/vendor/start
+cd ~/.vim/pack/vendor/start
+git clone https://github.com/NoahTheDuke/vim-just.git
+```
+
+==== Makefile Syntax Highlighting
+
 For vim, you can put the following in `~/.vim/filetype.vim`:
 
 ```vimscript
