@@ -299,17 +299,31 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     let mut items = Vec::new();
 
     let mut doc = None;
+    let mut comments: Vec<&'src str> = vec![];
 
     loop {
       let next = self.next()?;
 
       if let Some(comment) = self.accept(Comment)? {
         doc = Some(comment.lexeme()[1..].trim());
+        comments.push(comment.lexeme());
         self.expect_eol()?;
       } else if self.accepted(Eol)? {
       } else if self.accepted(Eof)? {
+        if !comments.is_empty() {
+          items.push(Item::Comment(comments.clone()));
+          comments.clear();
+        }
         break;
       } else if self.next_is(Identifier) {
+        if doc.is_some() {
+          comments.pop();
+        }
+        if !comments.is_empty() {
+          items.push(Item::Comment(comments.clone()));
+          comments.clear();
+        }
+
         match Keyword::from_lexeme(next.lexeme()) {
           Some(Keyword::Alias) =>
             if self.next_are(&[Identifier, Identifier, Equals]) {
@@ -1097,7 +1111,7 @@ mod tests {
   test! {
     name: comment,
     text: "# foo",
-    tree: (justfile),
+    tree: (justfile ()),
   }
 
   test! {
@@ -1176,7 +1190,7 @@ mod tests {
 
       bar:
     ",
-    tree: (justfile (recipe bar)),
+    tree: (justfile () (recipe bar)),
   }
 
   test! {

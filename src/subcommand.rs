@@ -20,6 +20,7 @@ pub(crate) enum Subcommand {
     overrides: BTreeMap<String, String>,
     variable:  Option<String>,
   },
+  Format,
   Init,
   List,
   Run {

@@ -45,7 +45,7 @@ impl<'src> Expression<'src> {
 impl<'src> Display for Expression<'src> {
   fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
     match self {
-      Expression::Backtick { contents, .. } => write!(f, "`{}`", contents),
+      Expression::Backtick { token, .. } => write!(f, "{}", token.lexeme()),
       Expression::Concatination { lhs, rhs } => write!(f, "{} + {}", lhs, rhs),
       Expression::Conditional {
         lhs,

@@ -20,6 +20,7 @@ impl<'src> Node<'src> for Item<'src> {
     match self {
       Item::Alias(alias) => alias.tree(),
       Item::Assignment(assignment) => assignment.tree(),
+      Item::Comment(_) => Tree::List(vec![]),
       Item::Recipe(recipe) => recipe.tree(),
       Item::Set(set) => set.tree(),
     }

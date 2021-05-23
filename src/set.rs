@@ -11,3 +11,14 @@ impl<'src> Keyed<'src> for Set<'src> {
     self.name.lexeme()
   }
 }
+
+impl<'src> Display for Set<'src> {
+  fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
+    write!(
+      f,
+      "set {} := {}",
+      self.name,
+      self.value
+    )
+  }
+}

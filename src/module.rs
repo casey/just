@@ -14,3 +14,23 @@ pub(crate) struct Module<'src> {
   /// Non-fatal warnings encountered during parsing
   pub(crate) warnings: Vec<Warning>,
 }
+
+impl<'src> Display for Module<'src> {
+  fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
+    let mut iter = self.items.iter().peekable();
+
+    while let Some(item) = iter.next() {
+      writeln!(f, "{}", item)?;
+
+      if let Some(next_item) = iter.peek() {
+        if matches!(item, Item::Recipe(_))
+          || std::mem::discriminant(item) != std::mem::discriminant(next_item)
+        {
+          writeln!(f, "")?;
+        }
+      }
+    }
+
+    Ok(())
+  }
+}

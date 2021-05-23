@@ -38,6 +38,7 @@ mod cmd {
   pub(crate) const DUMP: &str = "DUMP";
   pub(crate) const EDIT: &str = "EDIT";
   pub(crate) const EVALUATE: &str = "EVALUATE";
+  pub(crate) const FORMAT: &str = "FORMAT";
   pub(crate) const INIT: &str = "INIT";
   pub(crate) const LIST: &str = "LIST";
   pub(crate) const SHOW: &str = "SHOW";
@@ -52,6 +53,7 @@ mod cmd {
     DUMP,
     EDIT,
     EVALUATE,
+    FORMAT,
     INIT,
     LIST,
     SHOW,
@@ -63,6 +65,7 @@ mod cmd {
     COMPLETIONS,
     DUMP,
     EDIT,
+    FORMAT,
     INIT,
     LIST,
     SHOW,
@@ -267,6 +270,11 @@ impl Config {
          that variable's value.",
       ))
       .arg(
+        Arg::with_name(cmd::FORMAT)
+          .long("fmt")
+          .help("Autoformat justfile and override it in-place"),
+      )
+      .arg(
         Arg::with_name(cmd::INIT)
           .long("init")
           .help("Initialize new justfile in project root"),
@@ -442,6 +450,8 @@ impl Config {
       Subcommand::Summary
     } else if matches.is_present(cmd::DUMP) {
       Subcommand::Dump
+    } else if matches.is_present(cmd::FORMAT) {
+      Subcommand::Format
     } else if matches.is_present(cmd::INIT) {
       Subcommand::Init
     } else if matches.is_present(cmd::LIST) {
@@ -557,6 +567,7 @@ impl Config {
       Command { overrides, .. } => self.run(justfile, &search, overrides, &[])?,
       Dump => Self::dump(justfile),
       Evaluate { overrides, .. } => self.run(justfile, &search, overrides, &[])?,
+      Format => self.format(&src, &search)?,
       List => self.list(justfile),
       Run {
         arguments,
@@ -711,6 +722,14 @@ impl Config {
         Err(EXIT_FAILURE)
       },
     }
+  }
+
+  fn format(&self, src: &str, search: &Search) -> Result<(), i32> {
+    let tokens = Lexer::lex(src).eprint(self.color)?;
+    let ast = Parser::parse(&tokens).eprint(self.color)?;
+
+    fs::write(&search.justfile, ast.to_string()).unwrap();
+    Ok(())
   }
 
   pub(crate) fn init(&self) -> Result<(), i32> {
@@ -920,6 +939,7 @@ FLAGS:
         --evaluate            Evaluate and print all variables. If a variable name is given as an \
                                  argument, only print
                               that variable's value.
+        --fmt                 Autoformat justfile and override it in-place
         --highlight           Highlight echoed recipe lines in bold
         --init                Initialize new justfile in project root
     -l, --list                List available recipes and their arguments
@@ -1657,6 +1677,16 @@ ARGS:
     error: ConfigError::SubcommandArguments { subcommand, arguments },
     check: {
       assert_eq!(subcommand, cmd::EDIT);
+      assert_eq!(arguments, &["bar"]);
+    },
+  }
+
+  error! {
+    name: fmt_arguments,
+    args: ["--fmt", "bar"],
+    error: ConfigError::SubcommandArguments { subcommand, arguments },
+    check: {
+      assert_eq!(subcommand, cmd::FORMAT);
       assert_eq!(arguments, &["bar"]);
     },
   }

@@ -47,3 +47,44 @@ impl<'src> UnresolvedRecipe<'src> {
     })
   }
 }
+
+impl<'src> Display for UnresolvedRecipe<'src> {
+  fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+    if let Some(doc) = self.doc {
+      writeln!(f, "# {}", doc)?;
+    }
+
+    if self.quiet {
+      write!(f, "@{}", self.name)?;
+    } else {
+      write!(f, "{}", self.name)?;
+    }
+
+    for parameter in &self.parameters {
+      write!(f, " {}", parameter)?;
+    }
+    write!(f, ":")?;
+    for dependency in &self.dependencies {
+      write!(f, " {}", dependency)?;
+    }
+
+    for (i, line) in self.body.iter().enumerate() {
+      if i == 0 {
+        writeln!(f)?;
+      }
+      for (j, fragment) in line.fragments.iter().enumerate() {
+        if j == 0 {
+          write!(f, "    ")?;
+        }
+        match fragment {
+          Fragment::Text { token } => write!(f, "{}", token.lexeme())?,
+          Fragment::Interpolation { expression, .. } => write!(f, "{{{{{}}}}}", expression)?,
+        }
+      }
+      if i + 1 < self.body.len() {
+        writeln!(f)?;
+      }
+    }
+    Ok(())
+  }
+}
