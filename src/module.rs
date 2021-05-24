@@ -1,5 +1,7 @@
 use crate::common::*;
 
+use std::mem;
+
 /// A module, the top-level type produced by the parser. So-named because
 /// although at present, all justfiles consist of a single module, in the future
 /// we will likely have multi-module and multi-file justfiles.
@@ -24,7 +26,7 @@ impl<'src> Display for Module<'src> {
 
       if let Some(next_item) = iter.peek() {
         if matches!(item, Item::Recipe(_))
-          || std::mem::discriminant(item) != std::mem::discriminant(next_item)
+          || mem::discriminant(item) != mem::discriminant(next_item)
         {
           writeln!(f)?;
         }

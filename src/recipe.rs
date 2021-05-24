@@ -314,7 +314,7 @@ impl<'src, D> Keyed<'src> for Recipe<'src, D> {
   }
 }
 
-impl<'src> Display for Recipe<'src> {
+impl<'src, D: Display> Display for Recipe<'src, D> {
   fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
     if let Some(doc) = self.doc {
       writeln!(f, "# {}", doc)?;
