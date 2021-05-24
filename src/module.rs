@@ -26,7 +26,7 @@ impl<'src> Display for Module<'src> {
         if matches!(item, Item::Recipe(_))
           || std::mem::discriminant(item) != std::mem::discriminant(next_item)
         {
-          writeln!(f, "")?;
+          writeln!(f)?;
         }
       }
     }
