@@ -90,7 +90,7 @@ sequence      : expression ',' sequence
 recipe        : '@'? NAME parameter* variadic? ':' dependency* body?
 
 parameter     : NAME
-              | NAME '=' value
+              | '$'? NAME '=' value
 
 variadic      : '*' parameter
               | '+' parameter
