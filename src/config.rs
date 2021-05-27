@@ -1336,6 +1336,11 @@ ARGS:
   }
 
   error! {
+    name: subcommand_conflict_fmt,
+    args: ["--list", "--fmt"],
+  }
+
+  error! {
     name: subcommand_conflict_init,
     args: ["--list", "--init"],
   }
