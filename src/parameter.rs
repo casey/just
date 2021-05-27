@@ -16,6 +16,9 @@ pub(crate) struct Parameter<'src> {
 impl<'src> Display for Parameter<'src> {
   fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
     let color = Color::fmt(f);
+    if self.export {
+      write!(f, "$")?;
+    }
     if let Some(prefix) = self.kind.prefix() {
       write!(f, "{}", color.annotation().paint(prefix))?;
     }

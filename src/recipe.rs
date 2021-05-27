@@ -344,7 +344,12 @@ impl<'src, D: Display> Display for Recipe<'src, D> {
         }
         match fragment {
           Fragment::Text { token } => write!(f, "{}", token.lexeme())?,
-          Fragment::Interpolation { expression, .. } => write!(f, "{{{{{}}}}}", expression)?,
+          Fragment::Interpolation { expression, .. } => {
+            match expression {
+              Expression::Conditional { .. } => write!(f, "{{{{ {} }}}}", expression)?,
+              _ => write!(f, "{{{{{}}}}}", expression)?,
+            }
+          },
         }
       }
       if i + 1 < self.body.len() {

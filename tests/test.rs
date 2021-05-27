@@ -83,7 +83,7 @@ impl<'a> Test<'a> {
 
     let mut justfile_path = tmp.path().to_path_buf();
     justfile_path.push("justfile");
-    fs::write(justfile_path, justfile).unwrap();
+    fs::write(&justfile_path, justfile).unwrap();
 
     let mut dotenv_path = tmp.path().to_path_buf();
     dotenv_path.push(".env");
@@ -117,17 +117,27 @@ impl<'a> Test<'a> {
       .wait_with_output()
       .expect("failed to wait for just process");
 
-    let have = Output {
+    let mut have = Output {
       status: output.status.code().unwrap(),
       stdout: str::from_utf8(&output.stdout).unwrap(),
       stderr: str::from_utf8(&output.stderr).unwrap(),
     };
 
-    let want = Output {
+    let mut want = Output {
       status: self.status,
       stdout: &stdout,
       stderr: &stderr,
     };
+
+    let file = fs::read_to_string(justfile_path).unwrap();
+    if let Some(first) = self.args.first() {
+      if *first == "--fmt" {
+        have.stdout = file
+          .trim_end_matches("set dotenv-load := true\n")
+          .trim_end();
+        want.stdout = want.stdout.trim_end();
+      }
+    }
 
     assert_eq!(have, want, "bad output");
 
