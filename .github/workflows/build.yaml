@@ -16,19 +16,21 @@ jobs:
 
     strategy:
       matrix:
-        os:
-        - macos-latest
-        - ubuntu-latest
-        - windows-2016
-        include:
-        - os: ubuntu-latest
+        configuration:
+        - os:     ubuntu-latest
           target: x86_64-unknown-linux-musl
-        - os: macos-latest
+          native: true
+        - os:     macos-latest
           target: x86_64-apple-darwin
-        - os: windows-2016
+          native: true
+        - os:     windows-2016
           target: x86_64-pc-windows-msvc
+          native: true
+        - os:     ubuntu-latest
+          target: aarch64-unknown-linux-gnu
+          native: false
 
-    runs-on: ${{matrix.os}}
+    runs-on: ${{matrix.configuration.os}}
 
     env:
       RUSTFLAGS: "-D warnings"
@@ -39,7 +41,7 @@ jobs:
     # An issue with BSD Tar causes sporadic failures on macOS.
     # c.f https://github.com/actions/cache/issues/403
     - name: Install GNU Tar
-      if: matrix.os == 'macos-latest'
+      if: matrix.configuration.os == 'macos-latest'
       run: |
         brew install gnu-tar
         echo /usr/local/opt/gnu-tar/libexec/gnubin > $GITHUB_PATH
@@ -51,16 +53,25 @@ jobs:
           ~/.cargo/registry
           ~/.cargo/git
           target
-        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+        key: ${{ matrix.configration.os }}-${{ matrix.configuration.target }} cargo-${{ hashFiles('**/Cargo.lock') }}
+
+    - name: Update Ubuntu Packages
+      if: matrix.configuration.os == 'ubuntu-latest'
+      run: |
+        sudo apt-get update
 
     - name: Install Main Toolchain
       uses: actions-rs/toolchain@v1
       with:
         toolchain: stable
-        target: ${{ matrix.target }}
+        target: ${{ matrix.configuration.target }}
         profile: minimal
-        components: clippy, rustfmt
+        components: clippy
         override: true
+
+    - name: Install AArch64 Toolchain
+      if: matrix.configuration.target == 'aarch64-unknown-linux-gnu'
+      run: sudo apt-get install gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu
 
     - name: Version
       run: |
@@ -69,10 +80,11 @@ jobs:
         cargo clippy --version
 
     - name: Build
-      run: cargo build --all --verbose
+      run: cargo build --all --target ${{ matrix.configuration.target }}
 
     - name: Test
-      run: cargo test --all --verbose
+      if: matrix.configuration.native
+      run: cargo test --all --target ${{ matrix.configuration.target }}
 
     - name: Clippy
       run: cargo clippy --all --all-targets --all-features
@@ -81,7 +93,7 @@ jobs:
       uses: actions-rs/toolchain@v1
       with:
         toolchain: nightly
-        target: ${{ matrix.target }}
+        target: ${{ matrix.configuration.target }}
         profile: minimal
         components: rustfmt
 
@@ -89,13 +101,13 @@ jobs:
       run: cargo +nightly fmt --all -- --check
 
     - name: Completion Scripts
-      if: matrix.os != 'windows-2016'
+      if: matrix.configuration.os != 'windows-2016'
       run: |
         ./bin/generate-completions
         git diff --no-ext-diff --quiet --exit-code
 
     - name: Check for Forbidden Words
-      if: matrix.os == 'ubuntu-latest'
+      if: matrix.configuration.os == 'ubuntu-latest'
       run: |
         sudo apt-get update
         sudo apt-get install ripgrep
@@ -104,7 +116,7 @@ jobs:
     - name: Package
       id: package
       if: startsWith(github.ref, 'refs/tags/')
-      run: ./bin/package ${{github.ref}} ${{matrix.os}} ${{ matrix.target }}
+      run: ./bin/package ${{github.ref}} ${{matrix.configuration.os}} ${{ matrix.configuration.target }}
       shell: bash
 
     - name: Publish
