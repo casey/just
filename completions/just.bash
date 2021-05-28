@@ -12,7 +12,7 @@ _just() {
             just)
                 cmd="just"
                 ;;
-
+            
             *)
                 ;;
         esac
@@ -32,7 +32,7 @@ _just() {
                     fi
                 fi
             case "${prev}" in
-
+                
                 --chooser)
                     COMPREPLY=($(compgen -f "${cur}"))
                     return 0
@@ -104,7 +104,7 @@ _just() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
-
+        
     esac
 }
 
