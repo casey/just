@@ -123,6 +123,7 @@ jobs:
         ./bin/forbid
 
     - name: Test Install Script With Explicit Target
+      if: matrix.os != 'windows-2016'
       run: |
         cd `mktemp -d`
         cat $GITHUB_WORKSPACE/docs/install.sh | bash -s -- --target ${{ matrix.target }} --to .
@@ -131,6 +132,7 @@ jobs:
         fi
 
     - name: Test Install Script Without Explicit Target
+      if: matrix.os != 'windows-2016'
       run: |
         cd `mktemp -d`
         cat $GITHUB_WORKSPACE/docs/install.sh | bash -s -- --to .
