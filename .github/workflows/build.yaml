@@ -16,21 +16,26 @@ jobs:
 
     strategy:
       matrix:
-        configuration:
-        - os:     ubuntu-latest
-          target: x86_64-unknown-linux-musl
+        target:
+        - x86_64-unknown-linux-musl
+        - x86_64-apple-darwin
+        - x86_64-pc-windows-msvc
+        - aarch64-unknown-linux-gnu
+        include:
+        - target: x86_64-unknown-linux-musl
+          os:     ubuntu-latest
           native: true
-        - os:     macos-latest
-          target: x86_64-apple-darwin
+        - target: x86_64-apple-darwin
+          os:     macos-latest
           native: true
-        - os:     windows-2016
-          target: x86_64-pc-windows-msvc
+        - target: x86_64-pc-windows-msvc
+          os:     windows-2016
           native: true
-        - os:     ubuntu-latest
-          target: aarch64-unknown-linux-gnu
+        - target: aarch64-unknown-linux-gnu
+          os:     ubuntu-latest
           native: false
 
-    runs-on: ${{matrix.configuration.os}}
+    runs-on: ${{matrix.os}}
 
     env:
       RUSTFLAGS: "-D warnings"
@@ -41,7 +46,7 @@ jobs:
     # An issue with BSD Tar causes sporadic failures on macOS.
     # c.f https://github.com/actions/cache/issues/403
     - name: Install GNU Tar
-      if: matrix.configuration.os == 'macos-latest'
+      if: matrix.os == 'macos-latest'
       run: |
         brew install gnu-tar
         echo /usr/local/opt/gnu-tar/libexec/gnubin > $GITHUB_PATH
@@ -53,10 +58,10 @@ jobs:
           ~/.cargo/registry
           ~/.cargo/git
           target
-        key: ${{ matrix.configration.os }}-${{ matrix.configuration.target }} cargo-${{ hashFiles('**/Cargo.lock') }}
+        key: ${{ matrix.configration.os }}-${{ matrix.target }} cargo-${{ hashFiles('**/Cargo.lock') }}
 
     - name: Update Ubuntu Packages
-      if: matrix.configuration.os == 'ubuntu-latest'
+      if: matrix.os == 'ubuntu-latest'
       run: |
         sudo apt-get update
 
@@ -64,13 +69,13 @@ jobs:
       uses: actions-rs/toolchain@v1
       with:
         toolchain: stable
-        target: ${{ matrix.configuration.target }}
+        target: ${{ matrix.target }}
         profile: minimal
         components: clippy
         override: true
 
     - name: Install AArch64 Toolchain
-      if: matrix.configuration.target == 'aarch64-unknown-linux-gnu'
+      if: matrix.target == 'aarch64-unknown-linux-gnu'
       run: sudo apt-get install gcc-aarch64-linux-gnu
 
     - name: Version
@@ -80,11 +85,11 @@ jobs:
         cargo clippy --version
 
     - name: Build
-      run: cargo build --all --target ${{ matrix.configuration.target }}
+      run: cargo build --all --target ${{ matrix.target }}
 
     - name: Test
-      if: matrix.configuration.native
-      run: cargo test --all --target ${{ matrix.configuration.target }}
+      # if: matrix.native
+      run: cargo test --all --target ${{ matrix.target }}
 
     - name: Clippy
       run: cargo clippy --all --all-targets --all-features
@@ -93,7 +98,7 @@ jobs:
       uses: actions-rs/toolchain@v1
       with:
         toolchain: nightly
-        target: ${{ matrix.configuration.target }}
+        target: ${{ matrix.target }}
         profile: minimal
         components: rustfmt
 
@@ -101,13 +106,13 @@ jobs:
       run: cargo +nightly fmt --all -- --check
 
     - name: Completion Scripts
-      if: matrix.configuration.os != 'windows-2016'
+      if: matrix.os != 'windows-2016'
       run: |
         ./bin/generate-completions
         git diff --no-ext-diff --quiet --exit-code
 
     - name: Check for Forbidden Words
-      if: matrix.configuration.os == 'ubuntu-latest'
+      if: matrix.os == 'ubuntu-latest'
       run: |
         sudo apt-get update
         sudo apt-get install ripgrep
@@ -116,7 +121,7 @@ jobs:
     - name: Package
       id: package
       if: startsWith(github.ref, 'refs/tags/')
-      run: ./bin/package ${{github.ref}} ${{matrix.configuration.os}} ${{ matrix.configuration.target }}
+      run: ./bin/package ${{github.ref}} ${{matrix.os}} ${{ matrix.target }}
       shell: bash
 
     - name: Publish
