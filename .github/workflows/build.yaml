@@ -10,23 +10,34 @@ on:
     branches:
     - master
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
   all:
     name: All
 
     strategy:
       matrix:
-        os:
-        - macos-latest
-        - ubuntu-latest
-        - windows-2016
+        target:
+        - aarch64-unknown-linux-gnu
+        - x86_64-apple-darwin
+        - x86_64-pc-windows-msvc
+        - x86_64-unknown-linux-musl
         include:
-        - os: ubuntu-latest
-          target: x86_64-unknown-linux-musl
-        - os: macos-latest
-          target: x86_64-apple-darwin
-        - os: windows-2016
-          target: x86_64-pc-windows-msvc
+        - target: x86_64-unknown-linux-musl
+          os:     ubuntu-latest
+          native: true
+        - target: x86_64-apple-darwin
+          os:     macos-latest
+          native: true
+        - target: x86_64-pc-windows-msvc
+          os:     windows-2016
+          native: true
+        - target: aarch64-unknown-linux-gnu
+          os:     ubuntu-latest
+          native: false
 
     runs-on: ${{matrix.os}}
 
@@ -51,7 +62,12 @@ jobs:
           ~/.cargo/registry
           ~/.cargo/git
           target
-        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+        key: ${{ matrix.configration.os }}-${{ matrix.target }} cargo-${{ hashFiles('**/Cargo.lock') }}
+
+    - name: Update Ubuntu Packages
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        sudo apt-get update
 
     - name: Install Main Toolchain
       uses: actions-rs/toolchain@v1
@@ -59,8 +75,12 @@ jobs:
         toolchain: stable
         target: ${{ matrix.target }}
         profile: minimal
-        components: clippy, rustfmt
+        components: clippy
         override: true
+
+    - name: Install AArch64 Toolchain
+      if: matrix.target == 'aarch64-unknown-linux-gnu'
+      run: sudo apt-get install gcc-aarch64-linux-gnu
 
     - name: Version
       run: |
@@ -69,10 +89,11 @@ jobs:
         cargo clippy --version
 
     - name: Build
-      run: cargo build --all --verbose
+      run: cargo build --all --target ${{ matrix.target }}
 
     - name: Test
-      run: cargo test --all --verbose
+      if: matrix.native
+      run: cargo test --all --target ${{ matrix.target }}
 
     - name: Clippy
       run: cargo clippy --all --all-targets --all-features
@@ -100,6 +121,22 @@ jobs:
         sudo apt-get update
         sudo apt-get install ripgrep
         ./bin/forbid
+
+    - name: Test Install Script With Explicit Target
+      if: matrix.os != 'windows-2016'
+      run: |
+        cd `mktemp -d`
+        cat $GITHUB_WORKSPACE/docs/install.sh | bash -s -- --target ${{ matrix.target }} --to .
+        if [[ ${{ matrix.native }} == true ]]; then
+          ./just --version
+        fi
+
+    - name: Test Install Script Without Explicit Target
+      if: matrix.os != 'windows-2016'
+      run: |
+        cd `mktemp -d`
+        cat $GITHUB_WORKSPACE/docs/install.sh | bash -s -- --to .
+        ./just --version
 
     - name: Package
       id: package
