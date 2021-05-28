@@ -10,6 +10,10 @@ on:
     branches:
     - master
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
   all:
     name: All
@@ -122,7 +126,9 @@ jobs:
       run: |
         cd `mktemp -d`
         cat $GITHUB_WORKSPACE/docs/install.sh | bash -s -- --target ${{ matrix.target }} --to .
-        if [[ ${{ matrix.native }} == true ]]; then; ./just --version; fi
+        if [[ ${{ matrix.native }} == true ]]; then
+          ./just --version
+        fi
 
     - name: Test Install Script Without Explicit Target
       run: |
