@@ -10,6 +10,10 @@ on:
     branches:
     - master
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
   all:
     name: All
@@ -117,6 +121,22 @@ jobs:
         sudo apt-get update
         sudo apt-get install ripgrep
         ./bin/forbid
+
+    - name: Test Install Script With Explicit Target
+      if: matrix.os != 'windows-2016'
+      run: |
+        cd `mktemp -d`
+        cat $GITHUB_WORKSPACE/docs/install.sh | bash -s -- --target ${{ matrix.target }} --to .
+        if [[ ${{ matrix.native }} == true ]]; then
+          ./just --version
+        fi
+
+    - name: Test Install Script Without Explicit Target
+      if: matrix.os != 'windows-2016'
+      run: |
+        cd `mktemp -d`
+        cat $GITHUB_WORKSPACE/docs/install.sh | bash -s -- --to .
+        ./just --version
 
     - name: Package
       id: package

@@ -1,19 +1,26 @@
 #!/usr/bin/env bash
 
-set -eu
+set -euo pipefail
+
+if [ ! -z ${GITHUB_ACTIONS-} ]; then
+  set -x
+fi
 
 help() {
   cat <<'EOF'
 Install a binary release of a just hosted on GitHub
 
-Usage:
+USAGE:
     install [options]
 
-Options:
+FLAGS:
     -h, --help      Display this message
     -f, --force     Force overwriting an existing binary
-    --tag TAG       Tag (version) of the crate to install (default <latest release>)
-    --to LOCATION   Where to install the binary (default ~/.cargo/bin)
+
+OPTIONS:
+    --tag TAG       Tag (version) of the crate to install, defaults to latest release
+    --to LOCATION   Where to install the binary [default: ~/.cargo/bin]
+    --target TARGET
 EOF
 }
 
@@ -22,18 +29,12 @@ crate=just
 url=https://github.com/casey/just
 releases=$url/releases
 
-case `uname -s` in
-  Darwin) target=x86_64-apple-darwin;;
-  Linux)  target=x86_64-unknown-linux-musl;;
-  *)      target=x86_64-pc-windows-msvc;;
-esac
-
 say() {
-  echo "install: $1"
+  echo "install: $@"
 }
 
 say_err() {
-  say "$1" >&2
+  say "$@" >&2
 }
 
 err() {
@@ -41,7 +42,7 @@ err() {
     rm -rf $td
   fi
 
-  say_err "ERROR $1"
+  say_err "error: $@"
   exit 1
 }
 
@@ -63,6 +64,10 @@ while test $# -gt 0; do
       ;;
     --tag)
       tag=$2
+      shift
+      ;;
+    --target)
+      target=$2
       shift
       ;;
     --to)
@@ -95,6 +100,20 @@ fi
 
 if [ -z ${tag-} ]; then
   tag=$(curl -s "$releases/latest" | cut -d'"' -f2 | rev | cut -d'/' -f1 | rev)
+fi
+
+if [ -z ${target-} ]; then
+  uname_target=`uname -m`-`uname -s`
+
+  case $uname_target in
+    aarch64-Linux)     target=aarch64-unknown-linux-gnu;;
+    x86_64-Darwin)     target=x86_64-apple-darwin;;
+    x86_64-Linux)      target=x86_64-unknown-linux-musl;;
+    x86_64-Windows_NT) target=x86_64-pc-windows-msvc;;
+    *)
+      err 'Could not determine target from output of `uname -m`-`uname -s`, please use `--target`:' $uname_target
+    ;;
+  esac
 fi
 
 archive="$releases/download/$tag/$crate-$tag-$target.tar.gz"
