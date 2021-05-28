@@ -118,6 +118,12 @@ jobs:
         sudo apt-get install ripgrep
         ./bin/forbid
 
+    - name: Test Install Script
+      run: |
+        mkdir tmp
+        cat ./docs/install.sh | bash -s -- --to tmp
+        if [[ ${{ matrix.native }} == true ]]; then; ./tmp/just --version; fi
+
     - name: Package
       id: package
       if: startsWith(github.ref, 'refs/tags/')
