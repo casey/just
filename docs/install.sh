@@ -2,6 +2,10 @@
 
 set -euo pipefail
 
+if [ $GITHUB_ACTIONS == true ]; then
+  set -x
+fi
+
 help() {
   cat <<'EOF'
 Install a binary release of a just hosted on GitHub
@@ -103,9 +107,7 @@ if [ -z ${target-} ]; then
     Darwin)     target=x86_64-apple-darwin;;
     Linux)      target=x86_64-unknown-linux-musl;;
     Windows_NT) target=x86_64-pc-windows-msvc;;
-    *)
-      err 'Could not determine target output of `uname -s`'
-      ;;
+    *)          err 'Could not determine target output of `uname -s`';;
   esac
 fi
 
