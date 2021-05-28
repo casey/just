@@ -120,14 +120,12 @@ jobs:
 
     - name: Test Install Script With Explicit Target
       run: |
-        cat asdfasdfd
         cd `mktemp -d`
         cat ./docs/install.sh | bash -s -- --target ${{ matrix.target }} --to .
         if [[ ${{ matrix.native }} == true ]]; then; ./just --version; fi
 
     - name: Test Install Script Without Explicit Target
       run: |
-        cat asdfasdfd
         cd `mktemp -d`
         cat ./docs/install.sh | bash -s -- --to .
         ./just --version
