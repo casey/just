@@ -133,7 +133,7 @@ jobs:
     - name: Test Install Script Without Explicit Target
       run: |
         cd `mktemp -d`
-        cat .$GITHUB_WORKSPACE/docs/install.sh | bash -s -- --to .
+        cat $GITHUB_WORKSPACE/docs/install.sh | bash -s -- --to .
         ./just --version
 
     - name: Package
