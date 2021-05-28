@@ -71,7 +71,7 @@ jobs:
 
     - name: Install AArch64 Toolchain
       if: matrix.configuration.target == 'aarch64-unknown-linux-gnu'
-      run: sudo apt-get install gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu
+      run: sudo apt-get install gcc-aarch64-linux-gnu
 
     - name: Version
       run: |
