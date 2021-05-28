@@ -1,6 +1,18 @@
 Changelog
 =========
 
+[v0.9.4] - 2021-5-27
+--------------------
+
+### Misc
+- Release `aarch64-unknown-linux-gnu` binaries (#843)
+- Add `$` to non-default parameter grammar (#839)
+- Add `$` to parameter grammar (#838)
+- Fix readme links (#836)
+- Add `vim-just` installation instructions to readme (#835)
+- Refactor shebang handling (#833)
+
+
 [v0.9.3] - 2021-5-16
 --------------------
 
