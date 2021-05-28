@@ -6,14 +6,17 @@ help() {
   cat <<'EOF'
 Install a binary release of a just hosted on GitHub
 
-Usage:
+USAGE:
     install [options]
 
-Options:
+FLAGS:
     -h, --help      Display this message
     -f, --force     Force overwriting an existing binary
-    --tag TAG       Tag (version) of the crate to install (default <latest release>)
-    --to LOCATION   Where to install the binary (default ~/.cargo/bin)
+
+OPTIONS:
+    --tag TAG       Tag (version) of the crate to install, defaults to latest release
+    --to LOCATION   Where to install the binary [default: ~/.cargo/bin]
+    --target TARGET
 EOF
 }
 
@@ -95,7 +98,7 @@ if [ -z ${tag-} ]; then
   tag=$(curl -s "$releases/latest" | cut -d'"' -f2 | rev | cut -d'/' -f1 | rev)
 fi
 
-if [ -z ${target} ]; then
+if [ -z ${target-} ]; then
   case `uname -s` in
     Darwin) target=x86_64-apple-darwin;;
     Linux)  target=x86_64-unknown-linux-musl;;
