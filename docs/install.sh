@@ -104,10 +104,9 @@ fi
 
 if [ -z ${target-} ]; then
   case `uname -s` in
-    Darwin)     target=x86_64-apple-darwin;;
-    Linux)      target=x86_64-unknown-linux-musl;;
-    Windows_NT) target=x86_64-pc-windows-msvc;;
-    *)          err 'Could not determine target output of `uname -s`';;
+    Darwin) target=x86_64-apple-darwin;;
+    Linux)  target=x86_64-unknown-linux-musl;;
+    *)      target=x86_64-pc-windows-msvc;;
   esac
 fi
 
