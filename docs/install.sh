@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-if [ $GITHUB_ACTIONS == true ]; then
+if [ ! -z ${GITHUB_ACTIONS-} ]; then
   set -x
 fi
 
