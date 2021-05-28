@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -eu
+set -euo pipefail
 
 help() {
   cat <<'EOF'
@@ -21,12 +21,6 @@ git=casey/just
 crate=just
 url=https://github.com/casey/just
 releases=$url/releases
-
-case `uname -s` in
-  Darwin) target=x86_64-apple-darwin;;
-  Linux)  target=x86_64-unknown-linux-musl;;
-  *)      target=x86_64-pc-windows-msvc;;
-esac
 
 say() {
   echo "install: $1"
@@ -65,6 +59,10 @@ while test $# -gt 0; do
       tag=$2
       shift
       ;;
+    --target)
+      target=$2
+      shift
+      ;;
     --to)
       dest=$2
       shift
@@ -95,6 +93,14 @@ fi
 
 if [ -z ${tag-} ]; then
   tag=$(curl -s "$releases/latest" | cut -d'"' -f2 | rev | cut -d'/' -f1 | rev)
+fi
+
+if [ -z ${target} ]; then
+  case `uname -s` in
+    Darwin) target=x86_64-apple-darwin;;
+    Linux)  target=x86_64-unknown-linux-musl;;
+    *)      target=x86_64-pc-windows-msvc;;
+  esac
 fi
 
 archive="$releases/download/$tag/$crate-$tag-$target.tar.gz"

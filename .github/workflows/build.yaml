@@ -120,9 +120,10 @@ jobs:
 
     - name: Test Install Script
       run: |
-        mkdir tmp
-        cat ./docs/install.sh | bash -s -- --to tmp
-        if [[ ${{ matrix.native }} == true ]]; then; ./tmp/just --version; fi
+        cat asdfasdfd
+        cd `mktemp -d`
+        cat ./docs/install.sh | bash -s -- --target ${{ matrix.target }} --to .
+        if [[ ${{ matrix.native }} == true ]]; then; ./just --version; fi
 
     - name: Package
       id: package
