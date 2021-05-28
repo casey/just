@@ -30,11 +30,11 @@ url=https://github.com/casey/just
 releases=$url/releases
 
 say() {
-  echo "install: $1"
+  echo "install: $@"
 }
 
 say_err() {
-  say "$1" >&2
+  say "$@" >&2
 }
 
 err() {
@@ -42,7 +42,7 @@ err() {
     rm -rf $td
   fi
 
-  say_err "error: $1"
+  say_err "error: $@"
   exit 1
 }
 
@@ -103,10 +103,16 @@ if [ -z ${tag-} ]; then
 fi
 
 if [ -z ${target-} ]; then
-  case `uname -s` in
-    Darwin) target=x86_64-apple-darwin;;
-    Linux)  target=x86_64-unknown-linux-musl;;
-    *)      target=x86_64-pc-windows-msvc;;
+  uname_target=`uname -m`-`uname -s`
+
+  case $uname_target in
+    aarch64-Linux)     target=aarch64-unknown-linux-gnu;;
+    x86_64-Darwin)     target=x86_64-apple-darwin;;
+    x86_64-Linux)      target=x86_64-unknown-linux-musl;;
+    x86_64-Windows_NT) target=x86_64-pc-windows-msvc;;
+    *)
+      err 'Could not determine target from output of `uname -m`-`uname -s`, please use `--target`:' $uname_target
+    ;;
   esac
 fi
 
