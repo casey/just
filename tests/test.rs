@@ -131,7 +131,8 @@ impl<'a> Test<'a> {
 
     if let Some(first) = self.args.first() {
       if *first == "--dump" {
-        have.stdout = have.stdout
+        have.stdout = have
+          .stdout
           .trim_end_matches("set dotenv-load := true\n\n")
           .trim_end();
         want.stdout = want.stdout.trim_end();
