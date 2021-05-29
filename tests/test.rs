@@ -129,11 +129,10 @@ impl<'a> Test<'a> {
       stderr: &stderr,
     };
 
-    let file = fs::read_to_string(justfile_path).unwrap();
     if let Some(first) = self.args.first() {
-      if *first == "--fmt" {
-        have.stdout = file
-          .trim_end_matches("set dotenv-load := true\n")
+      if *first == "--dump" {
+        have.stdout = have.stdout
+          .trim_end_matches("set dotenv-load := true\n\n")
           .trim_end();
         want.stdout = want.stdout.trim_end();
       }

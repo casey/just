@@ -565,7 +565,7 @@ impl Config {
       Choose { overrides, chooser } =>
         self.choose(justfile, &search, overrides, chooser.as_deref())?,
       Command { overrides, .. } => self.run(justfile, &search, overrides, &[])?,
-      Dump => Self::dump(justfile),
+      Dump => self.dump(&src)?,
       Evaluate { overrides, .. } => self.run(justfile, &search, overrides, &[])?,
       Format => self.format(&src, &search)?,
       List => self.list(justfile),
@@ -687,8 +687,12 @@ impl Config {
     self.run(justfile, search, overrides, &recipes)
   }
 
-  fn dump(justfile: Justfile) {
-    println!("{}", justfile);
+  fn dump(&self, src: &str) -> Result<(), i32> {
+    let tokens = Lexer::lex(src).eprint(self.color)?;
+    let ast = Parser::parse(&tokens).eprint(self.color)?;
+
+    println!("{}", ast);
+    Ok(())
   }
 
   pub(crate) fn edit(&self, search: &Search) -> Result<(), i32> {

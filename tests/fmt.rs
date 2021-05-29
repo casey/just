@@ -114,13 +114,11 @@ test! {
   name: assignment_name,
   justfile: "
     bar := 'bar'
-
     foo := bar
   ",
   args: ("--dump"),
   stdout: "
     bar := 'bar'
-
     foo := bar
   ",
 }
@@ -651,7 +649,7 @@ test! {
   justfile: "
     set export := true
   ",
-  args: ("--fmt"),
+  args: ("--dump"),
   stdout: "
     set export := true
   ",
@@ -662,7 +660,7 @@ test! {
   justfile: "
     set export
   ",
-  args: ("--fmt"),
+  args: ("--dump"),
   stdout: "
     set export := true
   ",
@@ -673,7 +671,7 @@ test! {
   justfile: "
     set export := false
   ",
-  args: ("--fmt"),
+  args: ("--dump"),
   stdout: "
     set export := false
   ",
@@ -684,7 +682,7 @@ test! {
   justfile: r#"
     set shell := ['sh', "-c"]
   "#,
-  args: ("--fmt"),
+  args: ("--dump"),
   stdout: r#"
     set shell := ['sh', "-c"]
   "#,
@@ -695,7 +693,7 @@ test! {
   justfile: "
     # foo
   ",
-  args: ("--fmt"),
+  args: ("--dump"),
   stdout: "
     # foo
   ",
@@ -707,7 +705,7 @@ test! {
     # foo
     # bar
   ",
-  args: ("--fmt"),
+  args: ("--dump"),
   stdout: "
     # foo
     # bar
@@ -721,7 +719,7 @@ test! {
 
     foo := 'bar'
   ",
-  args: ("--fmt"),
+  args: ("--dump"),
   stdout: "
     # foo
 
@@ -736,7 +734,7 @@ test! {
 
     # foo
   ",
-  args: ("--fmt"),
+  args: ("--dump"),
   stdout: "
     foo := 'bar'
 
@@ -752,7 +750,7 @@ test! {
     foo:
         echo foo
   ",
-  args: ("--fmt"),
+  args: ("--dump"),
   stdout: "
     # foo
 
@@ -770,7 +768,7 @@ test! {
     foo:
         echo foo
   ",
-  args: ("--fmt"),
+  args: ("--dump"),
   stdout: "
     # bar
 
@@ -788,7 +786,7 @@ test! {
     bar:
         echo bar
   ",
-  args: ("--fmt"),
+  args: ("--dump"),
   stdout: "
     foo:
         echo foo
@@ -811,7 +809,7 @@ test! {
     bar:
         echo bar
   ",
-  args: ("--fmt"),
+  args: ("--dump"),
   stdout: "
     alias f := foo
     alias b := bar
@@ -830,7 +828,7 @@ test! {
     foo := 'foo'
     bar := 'bar'
   ",
-  args: ("--fmt"),
+  args: ("--dump"),
   stdout: "
     foo := 'foo'
     bar := 'bar'
@@ -843,7 +841,7 @@ test! {
     set export := true
     set positional-arguments := true
   ",
-  args: ("--fmt"),
+  args: ("--dump"),
   stdout: "
     set export := true
     set positional-arguments := true
@@ -857,7 +855,7 @@ test! {
 
     # bar
   ",
-  args: ("--fmt"),
+  args: ("--dump"),
   stdout: "
     # foo
     # bar
@@ -871,7 +869,7 @@ test! {
     foo:
         echo foo
   ",
-  args: ("--fmt"),
+  args: ("--dump"),
   stdout: "
     alias f := foo
 
