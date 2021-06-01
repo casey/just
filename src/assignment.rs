@@ -8,11 +8,6 @@ impl<'src> Display for Assignment<'src> {
     if self.export {
       write!(f, "export ")?;
     }
-    write!(
-      f,
-      "{} := {}",
-      self.name,
-      self.value
-    )
+    write!(f, "{} := {}", self.name, self.value)
   }
 }

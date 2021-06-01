@@ -214,7 +214,6 @@ impl<'src> Node<'src> for Warning {
 
 impl<'src> Node<'src> for str {
   fn tree(&self) -> Tree<'src> {
-    Tree::atom("comment")
-      .push(["\"", self, "\""].concat())
+    Tree::atom("comment").push(["\"", self, "\""].concat())
   }
 }
