@@ -70,7 +70,7 @@ jobs:
         sudo apt-get update
 
     - name: Install Rust Toolchain
-      with:  |
+      run: |
         rustup component add clippy
         rustup target add ${{ matrix.target }}
         rustup default `cat rust-toolchain`-${{ matrix.target }}
