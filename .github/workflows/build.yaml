@@ -69,14 +69,11 @@ jobs:
       run: |
         sudo apt-get update
 
-    - name: Install Main Toolchain
-      uses: actions-rs/toolchain@v1
-      with:
-        toolchain: stable
-        target: ${{ matrix.target }}
-        profile: minimal
-        components: clippy
-        override: true
+    - name: Install Rust Toolchain
+      with:  |
+        rustup component add clippy
+        rustup target add ${{ matrix.target }}
+        rustup default `cat rust-toolchain`-${{ matrix.target }}
 
     - name: Install AArch64 Toolchain
       if: matrix.target == 'aarch64-unknown-linux-gnu'
