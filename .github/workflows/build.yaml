@@ -69,24 +69,25 @@ jobs:
       run: |
         sudo apt-get update
 
-    - name: Install Main Toolchain
-      uses: actions-rs/toolchain@v1
-      with:
-        toolchain: stable
-        target: ${{ matrix.target }}
-        profile: minimal
-        components: clippy
-        override: true
+    - name: Install Rust Toolchain
+      run: |
+        rustup component add clippy
+        rustup target add ${{ matrix.target }}
+        rustup default `cat rust-toolchain`-${{ matrix.target }}
 
     - name: Install AArch64 Toolchain
       if: matrix.target == 'aarch64-unknown-linux-gnu'
       run: sudo apt-get install gcc-aarch64-linux-gnu
 
-    - name: Version
+    - name: Info
       run: |
         rustup --version
         cargo --version
         cargo clippy --version
+
+    - name: Check Lockfile
+      run: |
+        cargo update --locked --package just
 
     - name: Build
       run: cargo build --all --target ${{ matrix.target }}
@@ -144,12 +145,16 @@ jobs:
       run: ./bin/package ${{github.ref}} ${{matrix.os}} ${{ matrix.target }}
       shell: bash
 
+    - name: Prerelease Check
+      id: is_prerelease
+      run: cargo run --package prerelease -- --reference ${{ github.ref }}
+
     - name: Publish
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v0.1.5
       if: startsWith(github.ref, 'refs/tags/')
       with:
         draft: false
         files: ${{ steps.package.outputs.archive }}
-        prerelease: ${{ ! startsWith(github.ref, 'refs/tags/v') }}
+        prerelease: ${{ steps.is_prerelease.outputs.value }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

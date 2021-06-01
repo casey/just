@@ -55,7 +55,7 @@ man:
 view-man: man
 	man man/just.1
 
-version := `sed -En 's/version[[:space:]]*=[[:space:]]*"([^"]+)"/v\1/p' Cargo.toml | head -1`
+version := `sed -En 's/version[[:space:]]*=[[:space:]]*"([^"]+)"/\1/p' Cargo.toml | head -1`
 
 # add git log messages to changelog
 changes:

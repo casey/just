@@ -124,39 +124,6 @@ mod tests {
   use super::*;
 
   #[test]
-  fn unindents() {
-    assert_eq!(unindent("foo"), "foo");
-    assert_eq!(unindent("foo\nbar\nbaz\n"), "foo\nbar\nbaz\n");
-    assert_eq!(unindent(""), "");
-    assert_eq!(unindent("  foo\n  bar"), "foo\nbar");
-    assert_eq!(unindent("  foo\n  bar\n\n"), "foo\nbar\n");
-  }
-
-  #[test]
-  fn indentations() {
-    assert_eq!(indentation(""), "");
-    assert_eq!(indentation("foo"), "");
-    assert_eq!(indentation("   foo"), "   ");
-    assert_eq!(indentation("\t\tfoo"), "\t\t");
-    assert_eq!(indentation("\t \t foo"), "\t \t ");
-  }
-
-  #[test]
-  fn blanks() {
-    assert!(blank("       \n"));
-    assert!(!blank("       foo\n"));
-    assert!(blank("\t\t\n"));
-  }
-
-  #[test]
-  fn commons() {
-    assert_eq!(common("foo", "foobar"), "foo");
-    assert_eq!(common("foo", "bar"), "");
-    assert_eq!(common("", ""), "");
-    assert_eq!(common("", "bar"), "");
-  }
-
-  #[test]
   fn tmptree_file() {
     let tmpdir = tmptree! {
       foo: "bar",
