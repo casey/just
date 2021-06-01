@@ -1,7 +1,7 @@
 use crate::common::*;
 
 /// A binding of `name` to `value`
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub(crate) struct Binding<'src, V = String> {
   /// Export binding as an environment variable to child processes
   pub(crate) export: bool,

@@ -1,7 +1,7 @@
 use crate::common::*;
 
 /// A single function parameter
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Clone)]
 pub(crate) struct Parameter<'src> {
   /// The parameter name
   pub(crate) name:    Name<'src>,

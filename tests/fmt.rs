@@ -485,12 +485,12 @@ test! {
   name: recipe_parameter_in_body,
   justfile: "
     foo BAR:
-        echo {{BAR}}
+        echo {{ BAR }}
   ",
   args: ("--dump"),
   stdout: "
     foo BAR:
-        echo {{BAR}}
+        echo {{ BAR }}
   ",
 }
 

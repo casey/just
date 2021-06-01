@@ -20,7 +20,7 @@ impl<'src> Node<'src> for Item<'src> {
     match self {
       Item::Alias(alias) => alias.tree(),
       Item::Assignment(assignment) => assignment.tree(),
-      Item::Comment(_) => Tree::List(vec![]),
+      Item::Comment(comment) => comment.tree(),
       Item::Recipe(recipe) => recipe.tree(),
       Item::Set(set) => set.tree(),
     }
@@ -209,5 +209,12 @@ impl<'src> Node<'src> for Set<'src> {
 impl<'src> Node<'src> for Warning {
   fn tree(&self) -> Tree<'src> {
     unreachable!()
+  }
+}
+
+impl<'src> Node<'src> for str {
+  fn tree(&self) -> Tree<'src> {
+    Tree::atom("comment")
+      .push(["\"", self, "\""].concat())
   }
 }

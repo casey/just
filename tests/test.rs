@@ -133,7 +133,7 @@ impl<'a> Test<'a> {
       if *first == "--dump" {
         have.stdout = have
           .stdout
-          .trim_end_matches("set dotenv-load := true\n\n")
+          .trim_end_matches("set dotenv-load := true\n")
           .trim_end();
         want.stdout = want.stdout.trim_end();
       }

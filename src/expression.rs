@@ -6,7 +6,7 @@ use crate::common::*;
 /// parenthetical groups).
 ///
 /// The parser parses both values and expressions into `Expression`s.
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Clone)]
 pub(crate) enum Expression<'src> {
   /// `contents`
   Backtick {

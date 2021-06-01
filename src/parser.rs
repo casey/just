@@ -299,31 +299,22 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     let mut items = Vec::new();
 
     let mut doc = None;
-    let mut comments: Vec<&'src str> = vec![];
 
     loop {
       let next = self.next()?;
 
       if let Some(comment) = self.accept(Comment)? {
-        doc = Some(comment.lexeme()[1..].trim());
-        comments.push(comment.lexeme());
+        doc = Some(comment.lexeme().trim_end());
         self.expect_eol()?;
+
+        if !self.next_is(Identifier) {
+          items.push(Item::Comment(doc.unwrap()));
+          doc = None;
+        }
       } else if self.accepted(Eol)? {
       } else if self.accepted(Eof)? {
-        if !comments.is_empty() {
-          items.push(Item::Comment(comments.clone()));
-          comments.clear();
-        }
         break;
       } else if self.next_is(Identifier) {
-        if doc.is_some() {
-          comments.pop();
-        }
-        if !comments.is_empty() {
-          items.push(Item::Comment(comments.clone()));
-          comments.clear();
-        }
-
         match Keyword::from_lexeme(next.lexeme()) {
           Some(Keyword::Alias) =>
             if self.next_are(&[Identifier, Identifier, Equals]) {
@@ -331,7 +322,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
             } else if self.next_are(&[Identifier, Identifier, ColonEquals]) {
               items.push(Item::Alias(self.parse_alias()?));
             } else {
-              items.push(Item::Recipe(self.parse_recipe(doc, false)?));
+              items.push(Item::Recipe(self.parse_recipe(&mut doc, false)?));
             },
           Some(Keyword::Export) =>
             if self.next_are(&[Identifier, Identifier, Equals]) {
@@ -340,7 +331,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
               self.presume_keyword(Keyword::Export)?;
               items.push(Item::Assignment(self.parse_assignment(true)?));
             } else {
-              items.push(Item::Recipe(self.parse_recipe(doc, false)?));
+              items.push(Item::Recipe(self.parse_recipe(&mut doc, false)?));
             },
           Some(Keyword::Set) =>
             if self.next_are(&[Identifier, Identifier, ColonEquals])
@@ -349,7 +340,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
             {
               items.push(Item::Set(self.parse_set()?));
             } else {
-              items.push(Item::Recipe(self.parse_recipe(doc, false)?));
+              items.push(Item::Recipe(self.parse_recipe(&mut doc, false)?));
             },
           _ =>
             if self.next_are(&[Identifier, Equals]) {
@@ -357,16 +348,17 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
             } else if self.next_are(&[Identifier, ColonEquals]) {
               items.push(Item::Assignment(self.parse_assignment(false)?));
             } else {
-              items.push(Item::Recipe(self.parse_recipe(doc, false)?));
+              items.push(Item::Recipe(self.parse_recipe(&mut doc, false)?));
             },
         }
       } else if self.accepted(At)? {
-        items.push(Item::Recipe(self.parse_recipe(doc, true)?));
+        items.push(Item::Recipe(self.parse_recipe(&mut doc, true)?));
       } else {
         return Err(self.unexpected_token()?);
       }
 
-      if next.kind != Comment {
+      if next.kind == Identifier && doc.is_some() {
+        items.insert(items.len() - 1, Item::Comment(doc.unwrap()));
         doc = None;
       }
     }
@@ -574,7 +566,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   /// Parse a recipe
   fn parse_recipe(
     &mut self,
-    doc: Option<&'src str>,
+    doc: &mut Option<&'src str>,
     quiet: bool,
   ) -> CompilationResult<'src, UnresolvedRecipe<'src>> {
     let name = self.parse_name()?;
@@ -619,16 +611,20 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
 
     let body = self.parse_body()?;
 
-    Ok(Recipe {
+    let recipe = Recipe {
       private: name.lexeme().starts_with('_'),
       shebang: body.first().map(Line::is_shebang).unwrap_or(false),
       parameters: positional.into_iter().chain(variadic).collect(),
-      doc,
+      doc: doc.map(|x| x[1..].trim_start()),
       name,
       quiet,
       dependencies,
       body,
-    })
+    };
+
+    *doc = None;
+
+    Ok(recipe)
   }
 
   /// Parse a recipe parameter
@@ -1111,7 +1107,7 @@ mod tests {
   test! {
     name: comment,
     text: "# foo",
-    tree: (justfile ()),
+    tree: (justfile (comment "# foo")),
   }
 
   test! {
@@ -1180,7 +1176,7 @@ mod tests {
       x := y
       bar:
     ",
-    tree: (justfile (assignment x y) (recipe bar)),
+    tree: (justfile (comment "# foo") (assignment x y) (recipe bar)),
   }
 
   test! {
@@ -1190,7 +1186,7 @@ mod tests {
 
       bar:
     ",
-    tree: (justfile () (recipe bar)),
+    tree: (justfile (comment "# foo") (recipe bar)),
   }
 
   test! {

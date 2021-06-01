@@ -153,6 +153,6 @@ test! {
     a := if '' == '' { '' } else { '' }
 
     foo:
-        echo {{a}}
+        echo {{ a }}
   ",
 }

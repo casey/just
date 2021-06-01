@@ -272,7 +272,7 @@ impl Config {
       .arg(
         Arg::with_name(cmd::FORMAT)
           .long("fmt")
-          .help("Autoformat justfile and override it in-place"),
+          .help("Format justfile and overwrite it in-place"),
       )
       .arg(
         Arg::with_name(cmd::INIT)
@@ -549,7 +549,9 @@ impl Config {
       })
       .eprint(self.color)?;
 
-    let justfile = Compiler::compile(&src).eprint(self.color)?;
+    let tokens = Lexer::lex(&src).eprint(self.color)?;
+    let ast = Parser::parse(&tokens).eprint(self.color)?;
+    let justfile = Analyzer::analyze(ast.clone()).eprint(self.color)?;
 
     if self.verbosity.loud() {
       for warning in &justfile.warnings {
@@ -565,9 +567,9 @@ impl Config {
       Choose { overrides, chooser } =>
         self.choose(justfile, &search, overrides, chooser.as_deref())?,
       Command { overrides, .. } => self.run(justfile, &search, overrides, &[])?,
-      Dump => self.dump(&src)?,
+      Dump => Self::dump(ast)?,
       Evaluate { overrides, .. } => self.run(justfile, &search, overrides, &[])?,
-      Format => self.format(&src, &search)?,
+      Format => Self::format(ast, &search)?,
       List => self.list(justfile),
       Run {
         arguments,
@@ -687,11 +689,8 @@ impl Config {
     self.run(justfile, search, overrides, &recipes)
   }
 
-  fn dump(&self, src: &str) -> Result<(), i32> {
-    let tokens = Lexer::lex(src).eprint(self.color)?;
-    let ast = Parser::parse(&tokens).eprint(self.color)?;
-
-    println!("{}", ast);
+  fn dump(ast: Module) -> Result<(), i32> {
+    print!("{}", ast);
     Ok(())
   }
 
@@ -728,10 +727,7 @@ impl Config {
     }
   }
 
-  fn format(&self, src: &str, search: &Search) -> Result<(), i32> {
-    let tokens = Lexer::lex(src).eprint(self.color)?;
-    let ast = Parser::parse(&tokens).eprint(self.color)?;
-
+  fn format(ast: Module, search: &Search) -> Result<(), i32> {
     fs::write(&search.justfile, ast.to_string()).unwrap();
     Ok(())
   }
@@ -943,7 +939,7 @@ FLAGS:
         --evaluate            Evaluate and print all variables. If a variable name is given as an \
                                  argument, only print
                               that variable's value.
-        --fmt                 Autoformat justfile and override it in-place
+        --fmt                 Format justfile and overwrite it in-place
         --highlight           Highlight echoed recipe lines in bold
         --init                Initialize new justfile in project root
     -l, --list                List available recipes and their arguments

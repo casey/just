@@ -1,6 +1,6 @@
 use crate::common::*;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub(crate) enum Setting<'src> {
   DotenvLoad(bool),
   Export(bool),
@@ -8,7 +8,7 @@ pub(crate) enum Setting<'src> {
   Shell(Shell<'src>),
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub(crate) struct Shell<'src> {
   pub(crate) command:   StringLiteral<'src>,
   pub(crate) arguments: Vec<StringLiteral<'src>>,

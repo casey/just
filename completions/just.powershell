@@ -52,7 +52,7 @@ Register-ArgumentCompleter -Native -CommandName 'just' -ScriptBlock {
             [CompletionResult]::new('-e', 'e', [CompletionResultType]::ParameterName, 'Edit justfile with editor given by $VISUAL or $EDITOR, falling back to `vim`')
             [CompletionResult]::new('--edit', 'edit', [CompletionResultType]::ParameterName, 'Edit justfile with editor given by $VISUAL or $EDITOR, falling back to `vim`')
             [CompletionResult]::new('--evaluate', 'evaluate', [CompletionResultType]::ParameterName, 'Evaluate and print all variables. If a variable name is given as an argument, only print that variable''s value.')
-            [CompletionResult]::new('--fmt', 'fmt', [CompletionResultType]::ParameterName, 'Autoformat justfile and override it in-place')
+            [CompletionResult]::new('--fmt', 'fmt', [CompletionResultType]::ParameterName, 'Format justfile and overwrite it in-place')
             [CompletionResult]::new('--init', 'init', [CompletionResultType]::ParameterName, 'Initialize new justfile in project root')
             [CompletionResult]::new('-l', 'l', [CompletionResultType]::ParameterName, 'List available recipes and their arguments')
             [CompletionResult]::new('--list', 'list', [CompletionResultType]::ParameterName, 'List available recipes and their arguments')

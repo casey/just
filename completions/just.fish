@@ -34,7 +34,7 @@ complete -c just -n "__fish_use_subcommand" -l choose -d 'Select one or more rec
 complete -c just -n "__fish_use_subcommand" -l dump -d 'Print entire justfile'
 complete -c just -n "__fish_use_subcommand" -s e -l edit -d 'Edit justfile with editor given by $VISUAL or $EDITOR, falling back to `vim`'
 complete -c just -n "__fish_use_subcommand" -l evaluate -d 'Evaluate and print all variables. If a variable name is given as an argument, only print that variable\'s value.'
-complete -c just -n "__fish_use_subcommand" -l fmt -d 'Autoformat justfile and override it in-place'
+complete -c just -n "__fish_use_subcommand" -l fmt -d 'Format justfile and overwrite it in-place'
 complete -c just -n "__fish_use_subcommand" -l init -d 'Initialize new justfile in project root'
 complete -c just -n "__fish_use_subcommand" -s l -l list -d 'List available recipes and their arguments'
 complete -c just -n "__fish_use_subcommand" -l summary -d 'List names of available recipes'

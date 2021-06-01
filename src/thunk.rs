@@ -1,7 +1,7 @@
 use crate::common::*;
 
 #[derive(Derivative)]
-#[derivative(Debug, PartialEq = "feature_allow_slow_enum")]
+#[derivative(Debug, Clone, PartialEq = "feature_allow_slow_enum")]
 pub(crate) enum Thunk<'src> {
   Nullary {
     name:     Name<'src>,

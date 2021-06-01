@@ -265,7 +265,7 @@ recipe:
   args:     ("--show", "recipe"),
   stdout:   r#"
     recipe:
-        echo {{hello + "bar" + bar}}
+        echo {{ hello + "bar" + bar }}
   "#,
 }
 

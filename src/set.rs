@@ -1,6 +1,6 @@
 use crate::common::*;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub(crate) struct Set<'src> {
   pub(crate) name:  Name<'src>,
   pub(crate) value: Setting<'src>,
