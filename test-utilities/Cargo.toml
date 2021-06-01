@@ -7,3 +7,4 @@ publish = false
 
 [dependencies]
 tempfile = "3"
+just = { path = ".." }

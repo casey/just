@@ -520,6 +520,7 @@ dependencies = [
 name = "test-utilities"
 version = "0.0.0"
 dependencies = [
+ "just",
  "tempfile",
 ]
 
