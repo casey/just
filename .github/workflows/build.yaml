@@ -90,7 +90,7 @@ jobs:
 
     - name: Check Lockfile
       run: |
-        cargo update --locked --package agora
+        cargo update --locked --package just
 
     - name: Build
       run: cargo build --all --target ${{ matrix.target }}
