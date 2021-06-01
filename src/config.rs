@@ -310,7 +310,7 @@ impl Config {
       ))
     } else {
       app
-        .version(concat!("v", env!("CARGO_PKG_VERSION")))
+        .version(env!("CARGO_PKG_VERSION"))
         .author(env!("CARGO_PKG_AUTHORS"))
         .about(concat!(
           env!("CARGO_PKG_DESCRIPTION"),

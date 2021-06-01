@@ -1,0 +1,13 @@
+[package]
+name = "prerelease"
+version = "0.0.0"
+authors = ["Casey Rodarmor <casey@rodarmor.com>"]
+edition = "2018"
+publish = false
+
+[dependencies]
+regex = "1.5.4"
+structopt = "0.3.21"
+
+[dev-dependencies]
+executable-path = "1.0.0"
