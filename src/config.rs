@@ -318,7 +318,7 @@ impl Config {
       ))
     } else {
       app
-        .version(concat!("v", env!("CARGO_PKG_VERSION")))
+        .version(env!("CARGO_PKG_VERSION"))
         .author(env!("CARGO_PKG_AUTHORS"))
         .about(concat!(
           env!("CARGO_PKG_DESCRIPTION"),
@@ -919,7 +919,7 @@ mod tests {
   // have proper tests for all the flags, but this will do for now.
   #[test]
   fn help() {
-    const EXPECTED_HELP: &str = "just v0.9.4
+    const EXPECTED_HELP: &str = "just 0.9.4
 Casey Rodarmor <casey@rodarmor.com>
 🤖 Just a command runner \
                                  - https://github.com/casey/just

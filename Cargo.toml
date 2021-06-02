@@ -12,6 +12,9 @@ autotests   = false
 categories  = ["command-line-utilities", "development-tools"]
 keywords    = ["command-line", "task", "runner", "development", "utility"]
 
+[workspace]
+members = [".", "bin/prerelease"]
+
 [dependencies]
 ansi_term     = "0.12.0"
 atty          = "0.2.0"
