@@ -99,6 +99,10 @@ impl<'src> Node<'src> for Expression<'src> {
       } => Tree::string(cooked),
       Expression::Backtick { contents, .. } => Tree::atom("backtick").push(Tree::string(contents)),
       Expression::Group { contents } => Tree::List(vec![contents.tree()]),
+      Expression::FormatString { fragments, .. } =>
+        Tree::atom("f").extend(fragments.iter().map(|f| f.tree())),
+      Expression::FormatBacktick { fragments, .. } =>
+        Tree::atom("fbacktick").extend(fragments.iter().map(|f| f.tree())),
     }
   }
 }
@@ -179,6 +183,15 @@ impl<'src> Node<'src> for Fragment<'src> {
     match self {
       Fragment::Text { token } => Tree::string(token.lexeme()),
       Fragment::Interpolation { expression } => Tree::List(vec![expression.tree()]),
+    }
+  }
+}
+
+impl<'src> Node<'src> for StringFragment<'src> {
+  fn tree(&self) -> Tree<'src> {
+    match self {
+      StringFragment::Text { cooked, .. } => Tree::string(cooked),
+      StringFragment::Interpolation { expression } => Tree::List(vec![expression.tree()]),
     }
   }
 }

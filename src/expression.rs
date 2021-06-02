@@ -28,6 +28,17 @@ pub(crate) enum Expression<'src> {
     otherwise: Box<Expression<'src>>,
     inverted:  bool,
   },
+  /// f'…', f"…", f'''…''', or f"""…"""
+  FormatString {
+    kind:      StringKind,
+    fragments: Vec<StringFragment<'src>>,
+  },
+  /// f`...` or f```...```
+  FormatBacktick {
+    start:     Token<'src>,
+    kind:      StringKind,
+    fragments: Vec<StringFragment<'src>>,
+  },
   /// `(contents)`
   Group { contents: Box<Expression<'src>> },
   /// `"string_literal"` or `'string_literal'`
@@ -62,6 +73,16 @@ impl<'src> Display for Expression<'src> {
         then,
         otherwise
       ),
+      Expression::FormatString { kind, fragments }
+      | Expression::FormatBacktick {
+        kind, fragments, ..
+      } => {
+        write!(f, "f{}", kind.delimiter())?;
+        for fragment in fragments {
+          write!(f, "{}", fragment)?;
+        }
+        write!(f, "{}", kind.delimiter())
+      },
       Expression::StringLiteral { string_literal } => write!(f, "{}", string_literal),
       Expression::Variable { name } => write!(f, "{}", name.lexeme()),
       Expression::Call { thunk } => write!(f, "{}", thunk),

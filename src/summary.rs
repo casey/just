@@ -20,7 +20,7 @@ mod full {
   pub(crate) use crate::{
     assignment::Assignment, dependency::Dependency, expression::Expression, fragment::Fragment,
     justfile::Justfile, line::Line, parameter::Parameter, parameter_kind::ParameterKind,
-    recipe::Recipe, thunk::Thunk,
+    recipe::Recipe, string_fragment::StringFragment, thunk::Thunk,
   };
 }
 
@@ -163,6 +163,17 @@ impl Fragment {
       },
     }
   }
+
+  fn from_string_fragment(fragment: &full::StringFragment) -> Fragment {
+    match fragment {
+      full::StringFragment::Text { cooked, .. } => Fragment::Text {
+        text: cooked.clone(),
+      },
+      full::StringFragment::Interpolation { expression } => Fragment::Expression {
+        expression: Expression::new(expression),
+      },
+    }
+  }
 }
 
 #[derive(Eq, PartialEq, Hash, Ord, PartialOrd, Debug, Clone)]
@@ -199,6 +210,14 @@ pub enum Expression {
     then:      Box<Expression>,
     otherwise: Box<Expression>,
     inverted:  bool,
+  },
+  FormatString {
+    delimiter: &'static str,
+    fragments: Vec<Fragment>,
+  },
+  FormatBacktick {
+    delimiter: &'static str,
+    fragments: Vec<Fragment>,
   },
   String {
     text: String,
@@ -247,6 +266,22 @@ impl Expression {
         then:      Box::new(Expression::new(then)),
         otherwise: Box::new(Expression::new(otherwise)),
         inverted:  *inverted,
+      },
+      FormatString { kind, fragments } => Expression::FormatString {
+        delimiter: kind.delimiter(),
+        fragments: fragments
+          .iter()
+          .map(Fragment::from_string_fragment)
+          .collect(),
+      },
+      FormatBacktick {
+        kind, fragments, ..
+      } => Expression::FormatBacktick {
+        delimiter: kind.delimiter(),
+        fragments: fragments
+          .iter()
+          .map(Fragment::from_string_fragment)
+          .collect(),
       },
       StringLiteral { string_literal } => Expression::String {
         text: string_literal.cooked.clone(),

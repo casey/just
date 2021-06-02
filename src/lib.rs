@@ -121,6 +121,7 @@ mod setting;
 mod settings;
 mod shebang;
 mod show_whitespace;
+mod string_fragment;
 mod string_kind;
 mod string_literal;
 mod subcommand;
@@ -129,6 +130,7 @@ mod table;
 mod thunk;
 mod token;
 mod token_kind;
+mod unescape;
 mod unindent;
 mod unresolved_dependency;
 mod unresolved_recipe;
@@ -141,7 +143,7 @@ pub use crate::run::run;
 
 // Used in integration tests.
 #[doc(hidden)]
-pub use unindent::unindent;
+pub use unindent::Unindent;
 
 // Used by Janus, https://github.com/casey/janus, a tool
 // that analyses all public justfiles on GitHub to avoid

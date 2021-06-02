@@ -72,14 +72,14 @@ impl<'a> Test<'a> {
   pub(crate) fn run(self) {
     let tmp = tempdir();
 
-    let mut justfile = unindent(self.justfile);
+    let mut justfile = self.justfile.unindent();
 
     if self.dotenv_load {
       justfile.push_str("\nset dotenv-load := true\n");
     }
 
-    let stdout = unindent(self.stdout);
-    let stderr = unindent(self.stderr);
+    let stdout = self.stdout.unindent();
+    let stderr = self.stderr.unindent();
 
     let mut justfile_path = tmp.path().to_path_buf();
     justfile_path.push("justfile");
