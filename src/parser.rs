@@ -357,8 +357,10 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
         return Err(self.unexpected_token()?);
       }
 
-      if next.kind == Identifier && doc.is_some() {
-        items.insert(items.len() - 1, Item::Comment(doc.unwrap()));
+      if next.kind == Identifier {
+        if let Some(doc) = doc {
+          items.insert(items.len() - 1, Item::Comment(doc));
+        }
         doc = None;
       }
     }

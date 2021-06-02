@@ -569,7 +569,7 @@ impl Config {
       Command { overrides, .. } => self.run(justfile, &search, overrides, &[])?,
       Dump => Self::dump(ast)?,
       Evaluate { overrides, .. } => self.run(justfile, &search, overrides, &[])?,
-      Format => Self::format(ast, &search)?,
+      Format => self.format(ast, &search)?,
       List => self.list(justfile),
       Run {
         arguments,
@@ -727,9 +727,22 @@ impl Config {
     }
   }
 
-  fn format(ast: Module, search: &Search) -> Result<(), i32> {
-    fs::write(&search.justfile, ast.to_string()).unwrap();
-    Ok(())
+  fn format(&self, ast: Module, search: &Search) -> Result<(), i32> {
+    if let Err(error) = fs::write(&search.justfile, ast.to_string()) {
+      if self.verbosity.loud() {
+        eprintln!(
+          "Failed to write justfile to `{}`: {}",
+          search.justfile.display(),
+          error
+        );
+      }
+      Err(EXIT_FAILURE)
+    } else {
+      if self.verbosity.loud() {
+        eprintln!("Wrote justfile to `{}`", search.justfile.display());
+      }
+      Ok(())
+    }
   }
 
   pub(crate) fn init(&self) -> Result<(), i32> {

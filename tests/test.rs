@@ -117,27 +117,17 @@ impl<'a> Test<'a> {
       .wait_with_output()
       .expect("failed to wait for just process");
 
-    let mut have = Output {
+    let have = Output {
       status: output.status.code().unwrap(),
       stdout: str::from_utf8(&output.stdout).unwrap(),
       stderr: str::from_utf8(&output.stderr).unwrap(),
     };
 
-    let mut want = Output {
+    let want = Output {
       status: self.status,
       stdout: &stdout,
       stderr: &stderr,
     };
-
-    if let Some(first) = self.args.first() {
-      if *first == "--dump" {
-        have.stdout = have
-          .stdout
-          .trim_end_matches("set dotenv-load := true\n")
-          .trim_end();
-        want.stdout = want.stdout.trim_end();
-      }
-    }
 
     assert_eq!(have, want, "bad output");
 
