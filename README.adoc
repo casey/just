@@ -899,7 +899,7 @@ test $RUST_BACKTRACE="1":
     cargo test
 ```
 
-Exported varaibles and parameters are not exported to backticks in the same scope.
+Exported variables and parameters are not exported to backticks in the same scope.
 
 ```make
 export FOO := "world"
