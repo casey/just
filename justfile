@@ -83,7 +83,7 @@ push: check
 	git push github
 
 pr: push
-	hub pull-request -o
+	gh pr create --web
 
 # clean up feature branch BRANCH
 done BRANCH=`git rev-parse --abbrev-ref HEAD`:

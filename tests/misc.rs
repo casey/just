@@ -1950,14 +1950,10 @@ test! {
   stdout:   "
     default stdin = `cat justfile`:
       echo {{stdin}}
-
-    set dotenv-load := true
   ",
   stderr:   "
     echo 'default stdin = `cat justfile`:
-      echo '{{stdin}}'
-
-    set dotenv-load := true'
+      echo '{{stdin}}''
   ",
 }
 
