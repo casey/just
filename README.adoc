@@ -899,6 +899,20 @@ test $RUST_BACKTRACE="1":
     cargo test
 ```
 
+Exported variables and parameters are not exported to backticks in the same scope.
+
+```make
+export FOO := "world"
+# This backtick will fail with "WORLD: unbound variable"
+BAR := `echo hello $WORLD`
+```
+
+```make
+# Running `just a foo` will fail with "A: unbound varaible"
+a $A $B=`echo $A`:
+  echo $A $B
+```
+
 === Recipe Parameters
 
 Recipes may have parameters. Here recipe `build` has a parameter called `target`:
