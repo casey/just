@@ -155,5 +155,4 @@ test! {
     foo:
         echo {{ a }}
   ",
-  dotenv_load: false,
 }

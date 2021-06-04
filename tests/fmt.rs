@@ -13,7 +13,6 @@ test! {
     foo:
         echo foo
   ",
-  dotenv_load: false,
 }
 
 test! {
@@ -31,7 +30,6 @@ test! {
     foo:
         echo foo
   ",
-  dotenv_load: false,
 }
 
 test! {
@@ -43,7 +41,6 @@ test! {
   stdout: "
     foo := 'foo'
   ",
-  dotenv_load: false,
 }
 
 test! {
@@ -55,7 +52,6 @@ test! {
   stdout: r#"
     foo := "foo"
   "#,
-  dotenv_load: false,
 }
 
 test! {
@@ -71,7 +67,6 @@ test! {
       foo
     '''
   ",
-  dotenv_load: false,
 }
 
 test! {
@@ -87,7 +82,6 @@ test! {
       foo
     """
   "#,
-  dotenv_load: false,
 }
 
 test! {
@@ -99,7 +93,6 @@ test! {
   stdout: "
     foo := `foo`
   ",
-  dotenv_load: false,
 }
 
 test! {
@@ -115,7 +108,6 @@ test! {
       foo
     ```
   ",
-  dotenv_load: false,
 }
 
 test! {
@@ -129,7 +121,6 @@ test! {
     bar := 'bar'
     foo := bar
   ",
-  dotenv_load: false,
 }
 
 test! {
@@ -141,7 +132,6 @@ test! {
   stdout: "
     foo := ('foo')
   ",
-  dotenv_load: false,
 }
 
 test! {
@@ -153,7 +143,6 @@ test! {
   stdout: "
     export foo := 'foo'
   ",
-  dotenv_load: false,
 }
 
 test! {
@@ -165,7 +154,6 @@ test! {
   stdout: "
     foo := 'foo' + 'bar'
   ",
-  dotenv_load: false,
 }
 
 test! {
@@ -177,7 +165,6 @@ test! {
   stdout: "
     foo := if 'foo' == 'foo' { 'foo' } else { 'bar' }
   ",
-  dotenv_load: false,
 }
 
 test! {
@@ -193,7 +180,6 @@ test! {
   stdout: "
     foo := if 'foo' != 'foo' { 'foo' } else { 'bar' }
   ",
-  dotenv_load: false,
 }
 
 test! {
@@ -205,7 +191,6 @@ test! {
   stdout: "
     foo := arch()
   ",
-  dotenv_load: false,
 }
 
 test! {
@@ -217,7 +202,6 @@ test! {
   stdout: "
     foo := env_var('foo')
   ",
-  dotenv_load: false,
 }
 
 test! {
@@ -229,7 +213,6 @@ test! {
   stdout: "
     foo := env_var_or_default('foo', 'bar')
   ",
-  dotenv_load: false,
 }
 
 test! {
@@ -243,7 +226,6 @@ test! {
     foo:
         echo bar
   ",
-  dotenv_load: false,
 }
 
 test! {
@@ -259,7 +241,6 @@ test! {
     foo:
         echo bar
   ",
-  dotenv_load: false,
 }
 
 test! {
@@ -275,7 +256,6 @@ test! {
         # bar
         echo bar
   ",
-  dotenv_load: false,
 }
 
 test! {
@@ -289,7 +269,6 @@ test! {
     foo:
         # bar
   ",
-  dotenv_load: false,
 }
 
 test! {
@@ -305,7 +284,6 @@ test! {
         echo bar
         echo baz
   ",
-  dotenv_load: false,
 }
 
 test! {
@@ -319,7 +297,6 @@ test! {
     @foo:
         echo bar
   ",
-  dotenv_load: false,
 }
 
 test! {
@@ -333,7 +310,6 @@ test! {
     foo:
         @echo bar
   ",
-  dotenv_load: false,
 }
 
 test! {
@@ -347,7 +323,6 @@ test! {
     foo:
         @# bar
   ",
-  dotenv_load: false,
 }
 
 test! {
@@ -361,7 +336,6 @@ test! {
     foo:
         -echo foo
   ",
-  dotenv_load: false,
 }
 
 test! {
@@ -375,7 +349,6 @@ test! {
     foo BAR:
         echo foo
   ",
-  dotenv_load: false,
 }
 
 test! {
@@ -389,7 +362,6 @@ test! {
     foo BAR='bar':
         echo foo
   ",
-  dotenv_load: false,
 }
 
 test! {
@@ -403,7 +375,6 @@ test! {
     foo $BAR:
         echo foo
   ",
-  dotenv_load: false,
 }
 
 test! {
@@ -417,7 +388,6 @@ test! {
     foo $BAR='foo':
         echo foo
   ",
-  dotenv_load: false,
 }
 
 test! {
@@ -431,7 +401,6 @@ test! {
     foo BAR=('bar' + 'baz'):
         echo foo
   ",
-  dotenv_load: false,
 }
 
 test! {
@@ -445,7 +414,6 @@ test! {
     foo BAR BAZ:
         echo foo
   ",
-  dotenv_load: false,
 }
 
 test! {
@@ -459,7 +427,6 @@ test! {
     foo $BAR $BAZ:
         echo foo
   ",
-  dotenv_load: false,
 }
 
 test! {
@@ -473,7 +440,6 @@ test! {
     foo +BAR:
         echo foo
   ",
-  dotenv_load: false,
 }
 
 test! {
@@ -487,7 +453,6 @@ test! {
     foo *BAR:
         echo foo
   ",
-  dotenv_load: false,
 }
 
 test! {
@@ -501,7 +466,6 @@ test! {
     foo BAR *BAZ:
         echo foo
   ",
-  dotenv_load: false,
 }
 
 test! {
@@ -515,7 +479,6 @@ test! {
     foo +BAR='bar':
         echo foo
   ",
-  dotenv_load: false,
 }
 
 test! {
@@ -529,7 +492,6 @@ test! {
     foo BAR:
         echo {{ BAR }}
   ",
-  dotenv_load: false,
 }
 
 test! {
@@ -543,7 +505,6 @@ test! {
     foo BAR:
         echo {{ if 'foo' == 'foo' { 'foo' } else { 'bar' } }}
   ",
-  dotenv_load: false,
 }
 
 test! {
@@ -557,7 +518,6 @@ test! {
     foo BAR:
         echo '{{{{BAR}}}}'
   ",
-  dotenv_load: false,
 }
 
 test! {
@@ -575,7 +535,6 @@ test! {
     foo:
         echo $bar
   ",
-  dotenv_load: false,
 }
 
 test! {
@@ -595,7 +554,6 @@ test! {
     foo: bar
         echo foo
   ",
-  dotenv_load: false,
 }
 
 test! {
@@ -615,7 +573,6 @@ test! {
     foo: (bar 'bar')
         echo foo
   ",
-  dotenv_load: false,
 }
 
 test! {
@@ -635,7 +592,6 @@ test! {
     foo: (bar 'bar' 'baz')
         echo foo
   ",
-  dotenv_load: false,
 }
 
 test! {
@@ -661,7 +617,6 @@ test! {
     foo: baz bar
         echo foo
   ",
-  dotenv_load: false,
 }
 
 test! {
@@ -687,7 +642,6 @@ test! {
     foo: (baz 'baz') (bar 'bar')
         echo foo
   ",
-  dotenv_load: false,
 }
 
 test! {
@@ -699,7 +653,6 @@ test! {
   stdout: "
     set export := true
   ",
-  dotenv_load: false,
 }
 
 test! {
@@ -711,7 +664,6 @@ test! {
   stdout: "
     set export := true
   ",
-  dotenv_load: false,
 }
 
 test! {
@@ -723,7 +675,6 @@ test! {
   stdout: "
     set export := false
   ",
-  dotenv_load: false,
 }
 
 test! {
@@ -735,7 +686,6 @@ test! {
   stdout: r#"
     set shell := ['sh', "-c"]
   "#,
-  dotenv_load: false,
 }
 
 test! {
@@ -747,7 +697,6 @@ test! {
   stdout: "
     # foo
   ",
-  dotenv_load: false,
 }
 
 test! {
@@ -761,7 +710,6 @@ test! {
     # foo
     # bar
   ",
-  dotenv_load: false,
 }
 
 test! {
@@ -777,7 +725,6 @@ test! {
 
     foo := 'bar'
   ",
-  dotenv_load: false,
 }
 
 test! {
@@ -793,7 +740,6 @@ test! {
 
     # foo
   ",
-  dotenv_load: false,
 }
 
 test! {
@@ -811,7 +757,6 @@ test! {
     foo:
         echo foo
   ",
-  dotenv_load: false,
 }
 
 test! {
@@ -831,7 +776,6 @@ test! {
     foo:
         echo foo
   ",
-  dotenv_load: false,
 }
 
 test! {
@@ -850,7 +794,6 @@ test! {
     bar:
         echo bar
   ",
-  dotenv_load: false,
 }
 
 test! {
@@ -877,7 +820,6 @@ test! {
     bar:
         echo bar
   ",
-  dotenv_load: false,
 }
 
 test! {
@@ -891,7 +833,6 @@ test! {
     foo := 'foo'
     bar := 'bar'
   ",
-  dotenv_load: false,
 }
 
 test! {
@@ -905,7 +846,6 @@ test! {
     set export := true
     set positional-arguments := true
   ",
-  dotenv_load: false,
 }
 
 test! {
@@ -920,7 +860,6 @@ test! {
     # foo
     # bar
   ",
-  dotenv_load: false,
 }
 
 test! {
@@ -937,7 +876,6 @@ test! {
     foo:
         echo foo
   ",
-  dotenv_load: false,
 }
 
 test! {
@@ -950,5 +888,4 @@ test! {
     foo:
         echo foo
   ",
-  dotenv_load: false,
 }

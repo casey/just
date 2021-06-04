@@ -754,7 +754,6 @@ recipe a b +d:
 recipe a b +d:
     @exit 100
 ",
-  dotenv_load: false,
 }
 
 test! {

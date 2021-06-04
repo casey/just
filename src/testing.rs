@@ -1,9 +1,9 @@
 use crate::common::*;
 
+use crate::compiler::Compiler;
 use pretty_assertions::assert_eq;
 
 pub(crate) fn compile(text: &str) -> Justfile {
-  use super::compiler::Compiler;
   match Compiler::compile(text) {
     Ok(justfile) => justfile,
     Err(error) => panic!("Expected successful compilation but got error:\n {}", error),
