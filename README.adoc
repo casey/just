@@ -904,7 +904,7 @@ Exported varaibles and parameters are not exported to backticks in the same scop
 ```make
 export FOO := "world"
 # This backtick will fail with "WORLD: unbound variable"
-BAR = `echo hello $WORLD`
+BAR := `echo hello $WORLD`
 ```
 
 ```make
