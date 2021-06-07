@@ -355,7 +355,7 @@ default:
 The heading text can be customized with `--list-heading`:
 
 ```
-$ just --list --list-heading 'Cool stuff…\n'
+$ just --list --list-heading $'Cool stuff…\n'
 Cool stuff…
     test
     build
@@ -368,6 +368,16 @@ $ just --list --list-prefix ····
 Available recipes:
 ····test
 ····build
+```
+
+The argument to `--list-heading` replaces both the heading and the newline
+following it, so it should contain a newline if non-empty. It works this way so
+you can suppress the heading line entirely by passing the empty string:
+
+```
+$ just --list --list-heading ''
+    test
+    build
 ```
 
 === Aliases
