@@ -952,7 +952,7 @@ FLAGS:
         --evaluate            Evaluate and print all variables. If a variable name is given as an \
                                  argument, only print
                               that variable's value.
-        --fmt                 Format justfile and overwrite it in-place
+        --fmt                 Format and overwrite justfile
         --highlight           Highlight echoed recipe lines in bold
         --init                Initialize new justfile in project root
     -l, --list                List available recipes and their arguments
