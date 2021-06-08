@@ -300,7 +300,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
       items: &mut Vec<Item<'src>>,
       eol_since_last_comment: bool,
     ) -> Option<&'src str> {
-      if eol_since_last_comment == false {
+      if !eol_since_last_comment {
         if let Some(Item::Comment(contents)) = items.last() {
           let doc = Some(contents[1..].trim_start());
           items.pop();
