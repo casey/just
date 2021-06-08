@@ -298,7 +298,22 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   fn parse_justfile(mut self) -> CompilationResult<'src, Module<'src>> {
     let mut items = Vec::new();
 
-    let mut eol = false;
+    let mut eol_since_last_comment = false;
+
+    fn pop_doc_comment<'src>(
+      items: &mut Vec<Item<'src>>,
+      eol_since_last_comment: bool,
+    ) -> Option<&'src str> {
+      if eol_since_last_comment == false {
+        if let Some(Item::Comment(contents)) = items.last() {
+          let doc = Some(contents[1..].trim_start());
+          items.pop();
+          return doc;
+        }
+      }
+
+      None
+    }
 
     loop {
       let next = self.next()?;
@@ -306,9 +321,9 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
       if let Some(comment) = self.accept(Comment)? {
         items.push(Item::Comment(comment.lexeme().trim_end()));
         self.expect_eol()?;
-        eol = false;
+        eol_since_last_comment = false;
       } else if self.accepted(Eol)? {
-        eol = true;
+        eol_since_last_comment = true;
       } else if self.accepted(Eof)? {
         break;
       } else if self.next_is(Identifier) {
@@ -319,8 +334,8 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
             } else if self.next_are(&[Identifier, Identifier, ColonEquals]) {
               items.push(Item::Alias(self.parse_alias()?));
             } else {
-              let recipe = Item::Recipe(self.parse_recipe(&mut items, eol, false)?);
-              items.push(recipe);
+              let doc = pop_doc_comment(&mut items, eol_since_last_comment);
+              items.push(Item::Recipe(self.parse_recipe(doc, false)?));
             },
           Some(Keyword::Export) =>
             if self.next_are(&[Identifier, Identifier, Equals]) {
@@ -329,8 +344,8 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
               self.presume_keyword(Keyword::Export)?;
               items.push(Item::Assignment(self.parse_assignment(true)?));
             } else {
-              let recipe = Item::Recipe(self.parse_recipe(&mut items, eol, false)?);
-              items.push(recipe);
+              let doc = pop_doc_comment(&mut items, eol_since_last_comment);
+              items.push(Item::Recipe(self.parse_recipe(doc, false)?));
             },
           Some(Keyword::Set) =>
             if self.next_are(&[Identifier, Identifier, ColonEquals])
@@ -339,8 +354,8 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
             {
               items.push(Item::Set(self.parse_set()?));
             } else {
-              let recipe = Item::Recipe(self.parse_recipe(&mut items, eol, false)?);
-              items.push(recipe);
+              let doc = pop_doc_comment(&mut items, eol_since_last_comment);
+              items.push(Item::Recipe(self.parse_recipe(doc, false)?));
             },
           _ =>
             if self.next_are(&[Identifier, Equals]) {
@@ -348,13 +363,13 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
             } else if self.next_are(&[Identifier, ColonEquals]) {
               items.push(Item::Assignment(self.parse_assignment(false)?));
             } else {
-              let recipe = Item::Recipe(self.parse_recipe(&mut items, eol, false)?);
-              items.push(recipe);
+              let doc = pop_doc_comment(&mut items, eol_since_last_comment);
+              items.push(Item::Recipe(self.parse_recipe(doc, false)?));
             },
         }
       } else if self.accepted(At)? {
-        let recipe = Item::Recipe(self.parse_recipe(&mut items, eol, true)?);
-        items.push(recipe);
+        let doc = pop_doc_comment(&mut items, eol_since_last_comment);
+        items.push(Item::Recipe(self.parse_recipe(doc, true)?));
       } else {
         return Err(self.unexpected_token()?);
       }
@@ -563,19 +578,9 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   /// Parse a recipe
   fn parse_recipe(
     &mut self,
-    items: &mut Vec<Item<'src>>,
-    eol: bool,
+    doc: Option<&'src str>,
     quiet: bool,
   ) -> CompilationResult<'src, UnresolvedRecipe<'src>> {
-    let mut doc = None;
-
-    if eol == false {
-      if let Some(Item::Comment(contents)) = items.last() {
-        doc = Some(contents[1..].trim_start());
-        items.pop();
-      }
-    }
-
     let name = self.parse_name()?;
 
     let mut positional = Vec::new();
