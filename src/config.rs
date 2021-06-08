@@ -272,7 +272,7 @@ impl Config {
       .arg(
         Arg::with_name(cmd::FORMAT)
           .long("fmt")
-          .help("Format justfile and overwrite it in-place"),
+          .help("Format and overwrite justfile"),
       )
       .arg(
         Arg::with_name(cmd::INIT)
