@@ -296,10 +296,6 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
 
   /// Parse a justfile, consumes self
   fn parse_justfile(mut self) -> CompilationResult<'src, Module<'src>> {
-    let mut items = Vec::new();
-
-    let mut eol_since_last_comment = false;
-
     fn pop_doc_comment<'src>(
       items: &mut Vec<Item<'src>>,
       eol_since_last_comment: bool,
@@ -314,6 +310,10 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
 
       None
     }
+
+    let mut items = Vec::new();
+
+    let mut eol_since_last_comment = false;
 
     loop {
       let next = self.next()?;
