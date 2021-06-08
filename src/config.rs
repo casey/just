@@ -728,7 +728,7 @@ impl Config {
   }
 
   fn format(&self, ast: Module, search: &Search) -> Result<(), i32> {
-    if let Err(error) = fs::write(&search.justfile, ast.to_string()) {
+    if let Err(error) = File::open(&search.justfile).and_then(|mut file| write!(file, "{}", ast)) {
       if self.verbosity.loud() {
         eprintln!(
           "Failed to write justfile to `{}`: {}",
