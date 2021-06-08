@@ -2,6 +2,8 @@
 
 set -euxo pipefail
 
+which rg
+
 ! rg \
   --glob !bin/forbid \
   --glob !CHANGELOG.md \

@@ -355,7 +355,7 @@ default:
 The heading text can be customized with `--list-heading`:
 
 ```
-$ just --list --list-heading 'Cool stuff…\n'
+$ just --list --list-heading $'Cool stuff…\n'
 Cool stuff…
     test
     build
@@ -368,6 +368,16 @@ $ just --list --list-prefix ····
 Available recipes:
 ····test
 ····build
+```
+
+The argument to `--list-heading` replaces both the heading and the newline
+following it, so it should contain a newline if non-empty. It works this way so
+you can suppress the heading line entirely by passing the empty string:
+
+```
+$ just --list --list-heading ''
+    test
+    build
 ```
 
 === Aliases
@@ -897,6 +907,20 @@ Parameters prefixed with a `$` will be exported as environment variables:
 test $RUST_BACKTRACE="1":
     # will print a stack trace if it crashes
     cargo test
+```
+
+Exported variables and parameters are not exported to backticks in the same scope.
+
+```make
+export FOO := "world"
+# This backtick will fail with "WORLD: unbound variable"
+BAR := `echo hello $WORLD`
+```
+
+```make
+# Running `just a foo` will fail with "A: unbound varaible"
+a $A $B=`echo $A`:
+  echo $A $B
 ```
 
 === Recipe Parameters
