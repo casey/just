@@ -623,7 +623,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
 
     let body = self.parse_body()?;
 
-    let recipe = Recipe {
+    Ok(Recipe {
       private: name.lexeme().starts_with('_'),
       shebang: body.first().map(Line::is_shebang).unwrap_or(false),
       parameters: positional.into_iter().chain(variadic).collect(),
@@ -632,9 +632,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
       quiet,
       dependencies,
       body,
-    };
-
-    Ok(recipe)
+    })
   }
 
   /// Parse a recipe parameter
