@@ -75,7 +75,7 @@ impl<'a> Test<'a> {
 
     let mut justfile_path = tmp.path().to_path_buf();
     justfile_path.push("justfile");
-    fs::write(justfile_path, justfile).unwrap();
+    fs::write(&justfile_path, justfile).unwrap();
 
     let mut dotenv_path = tmp.path().to_path_buf();
     dotenv_path.push(".env");

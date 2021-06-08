@@ -1,5 +1,6 @@
 use crate::common::*;
 
+use crate::compiler::Compiler;
 use pretty_assertions::assert_eq;
 
 pub(crate) fn compile(text: &str) -> Justfile {

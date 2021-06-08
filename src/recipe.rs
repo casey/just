@@ -23,7 +23,7 @@ fn error_from_signal(
 }
 
 /// A recipe, e.g. `foo: bar baz`
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Clone)]
 pub(crate) struct Recipe<'src, D = Dependency<'src>> {
   pub(crate) dependencies: Vec<D>,
   pub(crate) doc:          Option<&'src str>,
@@ -314,7 +314,7 @@ impl<'src, D> Keyed<'src> for Recipe<'src, D> {
   }
 }
 
-impl<'src> Display for Recipe<'src> {
+impl<'src, D: Display> Display for Recipe<'src, D> {
   fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
     if let Some(doc) = self.doc {
       writeln!(f, "# {}", doc)?;
@@ -344,7 +344,7 @@ impl<'src> Display for Recipe<'src> {
         }
         match fragment {
           Fragment::Text { token } => write!(f, "{}", token.lexeme())?,
-          Fragment::Interpolation { expression, .. } => write!(f, "{{{{{}}}}}", expression)?,
+          Fragment::Interpolation { expression, .. } => write!(f, "{{{{ {} }}}}", expression)?,
         }
       }
       if i + 1 < self.body.len() {

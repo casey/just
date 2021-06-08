@@ -6,7 +6,7 @@ use crate::common::*;
 /// parenthetical groups).
 ///
 /// The parser parses both values and expressions into `Expression`s.
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Clone)]
 pub(crate) enum Expression<'src> {
   /// `contents`
   Backtick {
@@ -45,7 +45,7 @@ impl<'src> Expression<'src> {
 impl<'src> Display for Expression<'src> {
   fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
     match self {
-      Expression::Backtick { contents, .. } => write!(f, "`{}`", contents),
+      Expression::Backtick { token, .. } => write!(f, "{}", token.lexeme()),
       Expression::Concatination { lhs, rhs } => write!(f, "{} + {}", lhs, rhs),
       Expression::Conditional {
         lhs,
@@ -55,7 +55,7 @@ impl<'src> Display for Expression<'src> {
         inverted,
       } => write!(
         f,
-        "if {} {} {} {{ {} }} else {{ {} }} ",
+        "if {} {} {} {{ {} }} else {{ {} }}",
         lhs,
         if *inverted { "!=" } else { "==" },
         rhs,

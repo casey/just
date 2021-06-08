@@ -38,6 +38,7 @@ mod cmd {
   pub(crate) const DUMP: &str = "DUMP";
   pub(crate) const EDIT: &str = "EDIT";
   pub(crate) const EVALUATE: &str = "EVALUATE";
+  pub(crate) const FORMAT: &str = "FORMAT";
   pub(crate) const INIT: &str = "INIT";
   pub(crate) const LIST: &str = "LIST";
   pub(crate) const SHOW: &str = "SHOW";
@@ -52,6 +53,7 @@ mod cmd {
     DUMP,
     EDIT,
     EVALUATE,
+    FORMAT,
     INIT,
     LIST,
     SHOW,
@@ -63,6 +65,7 @@ mod cmd {
     COMPLETIONS,
     DUMP,
     EDIT,
+    FORMAT,
     INIT,
     LIST,
     SHOW,
@@ -267,6 +270,11 @@ impl Config {
          that variable's value.",
       ))
       .arg(
+        Arg::with_name(cmd::FORMAT)
+          .long("fmt")
+          .help("Format and overwrite justfile"),
+      )
+      .arg(
         Arg::with_name(cmd::INIT)
           .long("init")
           .help("Initialize new justfile in project root"),
@@ -442,6 +450,8 @@ impl Config {
       Subcommand::Summary
     } else if matches.is_present(cmd::DUMP) {
       Subcommand::Dump
+    } else if matches.is_present(cmd::FORMAT) {
+      Subcommand::Format
     } else if matches.is_present(cmd::INIT) {
       Subcommand::Init
     } else if matches.is_present(cmd::LIST) {
@@ -539,7 +549,9 @@ impl Config {
       })
       .eprint(self.color)?;
 
-    let justfile = Compiler::compile(&src).eprint(self.color)?;
+    let tokens = Lexer::lex(&src).eprint(self.color)?;
+    let ast = Parser::parse(&tokens).eprint(self.color)?;
+    let justfile = Analyzer::analyze(ast.clone()).eprint(self.color)?;
 
     if self.verbosity.loud() {
       for warning in &justfile.warnings {
@@ -555,8 +567,9 @@ impl Config {
       Choose { overrides, chooser } =>
         self.choose(justfile, &search, overrides, chooser.as_deref())?,
       Command { overrides, .. } => self.run(justfile, &search, overrides, &[])?,
-      Dump => Self::dump(justfile),
+      Dump => Self::dump(ast)?,
       Evaluate { overrides, .. } => self.run(justfile, &search, overrides, &[])?,
+      Format => self.format(ast, &search)?,
       List => self.list(justfile),
       Run {
         arguments,
@@ -676,8 +689,9 @@ impl Config {
     self.run(justfile, search, overrides, &recipes)
   }
 
-  fn dump(justfile: Justfile) {
-    println!("{}", justfile);
+  fn dump(ast: Module) -> Result<(), i32> {
+    print!("{}", ast);
+    Ok(())
   }
 
   pub(crate) fn edit(&self, search: &Search) -> Result<(), i32> {
@@ -710,6 +724,24 @@ impl Config {
         }
         Err(EXIT_FAILURE)
       },
+    }
+  }
+
+  fn format(&self, ast: Module, search: &Search) -> Result<(), i32> {
+    if let Err(error) = File::open(&search.justfile).and_then(|mut file| write!(file, "{}", ast)) {
+      if self.verbosity.loud() {
+        eprintln!(
+          "Failed to write justfile to `{}`: {}",
+          search.justfile.display(),
+          error
+        );
+      }
+      Err(EXIT_FAILURE)
+    } else {
+      if self.verbosity.loud() {
+        eprintln!("Wrote justfile to `{}`", search.justfile.display());
+      }
+      Ok(())
     }
   }
 
@@ -920,6 +952,7 @@ FLAGS:
         --evaluate            Evaluate and print all variables. If a variable name is given as an \
                                  argument, only print
                               that variable's value.
+        --fmt                 Format and overwrite justfile
         --highlight           Highlight echoed recipe lines in bold
         --init                Initialize new justfile in project root
     -l, --list                List available recipes and their arguments
@@ -1316,6 +1349,11 @@ ARGS:
   }
 
   error! {
+    name: subcommand_conflict_fmt,
+    args: ["--list", "--fmt"],
+  }
+
+  error! {
     name: subcommand_conflict_init,
     args: ["--list", "--init"],
   }
@@ -1657,6 +1695,16 @@ ARGS:
     error: ConfigError::SubcommandArguments { subcommand, arguments },
     check: {
       assert_eq!(subcommand, cmd::EDIT);
+      assert_eq!(arguments, &["bar"]);
+    },
+  }
+
+  error! {
+    name: fmt_arguments,
+    args: ["--fmt", "bar"],
+    error: ConfigError::SubcommandArguments { subcommand, arguments },
+    check: {
+      assert_eq!(subcommand, cmd::FORMAT);
       assert_eq!(arguments, &["bar"]);
     },
   }

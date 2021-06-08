@@ -14,6 +14,7 @@ mod error_messages;
 mod evaluate;
 mod examples;
 mod export;
+mod fmt;
 mod init;
 mod interrupts;
 mod invocation_directory;

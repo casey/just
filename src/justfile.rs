@@ -802,7 +802,7 @@ goodbye := \"y\"
 hello a b c: x y z
     #! blah
     #blarg
-    {{foo + bar}}abc{{goodbye + \"x\"}}xyz
+    {{ foo + bar }}abc{{ goodbye + \"x\" }}xyz
     1
     2
     3
@@ -828,7 +828,7 @@ install:
 
 install:
     #!/bin/sh
-    if [[ -f {{practicum}} ]]; then
+    if [[ -f {{ practicum }} ]]; then
     \treturn
     fi",
   }
@@ -869,7 +869,7 @@ c := a + b + a + b",
     r#"a:
   echo {{  `echo hello` + "blarg"   }} {{   `echo bob`   }}"#,
     r#"a:
-    echo {{`echo hello` + "blarg"}} {{`echo bob`}}"#,
+    echo {{ `echo hello` + "blarg" }} {{ `echo bob` }}"#,
   }
 
   test! {
@@ -895,7 +895,7 @@ c := a + b + a + b",
     "a b c:
   {{b}} {{c}}",
     "a b c:
-    {{b}} {{c}}",
+    {{ b }} {{ c }}",
   }
 
   test! {
@@ -908,7 +908,7 @@ a:
     "x := arch()
 
 a:
-    {{os()}} {{os_family()}}",
+    {{ os() }} {{ os_family() }}",
   }
 
   test! {
@@ -921,7 +921,7 @@ a:
     r#"x := env_var('foo')
 
 a:
-    {{env_var_or_default('foo' + 'bar', 'baz')}} {{env_var(env_var("baz"))}}"#,
+    {{ env_var_or_default('foo' + 'bar', 'baz') }} {{ env_var(env_var("baz")) }}"#,
   }
 
   test! {
