@@ -1,0 +1,60 @@
+%YAML 1.2
+---
+# http://www.sublimetext.com/docs/syntax.html
+name: Just
+scope: source.just
+contexts:
+  main:
+    - include: interpolate
+    - include: comments
+    - include: scripts
+    - include: strings
+    - include: assignments
+    - include: recipeDefinition
+    - include: keywords
+  assignments:
+    - match: '^(export[\s]?)?([a-zA-Z_][a-zA-Z0-9_-]*)='
+      captures:
+        1: storage.type.just
+        2: variable.name.just
+  comments:
+    - match: '^#[^!].*'
+      scope: comment.line.just
+  interpolate:
+    - match: '\{\{'
+      push:
+        - meta_scope: string.interpolated.just
+        - match: '\}\}'
+          pop: true
+  keywords:
+    - match: \b(arch|os|os_family|env_var|env_var_or_default)\b
+      scope: keyword.control.just
+  recipeDefinition:
+    - match: '^(@)?([a-zA-Z_][a-zA-Z0-9_-]*)([a-zA-Z0-9=\s_-`''"]*):([\sa-zA-Z0-9_-]*).*$'
+      captures:
+        1: entity.name.function.just
+        2: entity.name.function.just
+        4: support.type.property-name.just
+  scripts:
+    - match: \s#\!
+      comment: The #! lines within a recipe.
+      push:
+        - meta_scope: support.type.property-name.just
+        - match: $
+          pop: true
+  strings:
+    - match: '`'
+      push:
+        - meta_scope: string.quoted.triple.just
+        - match: '`'
+          pop: true
+    - match: '"'
+      push:
+        - meta_scope: string.quoted.double.just
+        - match: '"'
+          pop: true
+    - match: "'"
+      push:
+        - meta_scope: string.quoted.single.just
+        - match: "'"
+          pop: true

@@ -210,6 +210,10 @@ code --install-extension skellock.just
 
 Kakoune supports `justfile` syntax highlighting out of the box, thanks to TeddyDD.
 
+=== Sublime Text
+
+A syntax file for Sublime Text written by TonioGela is available in link:extras/just.sublime-syntax[extras/just.sublime-syntax].
+
 === Other Editors
 
 Feel free to send me the commands necessary to get syntax highlighting working in your editor of choice so that I may include them here.
