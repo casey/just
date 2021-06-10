@@ -310,6 +310,8 @@ testing... all tests passed!
 
 A variety of example justfiles can be found in the link:examples[examples directory].
 
+This https://toniogela.dev/just/[blog post] discusses using `just` to improve management of shared machines, and includes a number of example justfiles.
+
 == Features
 
 === Listing Available Recipes
