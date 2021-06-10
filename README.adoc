@@ -153,7 +153,11 @@ The https://github.com/NoahTheDuke/vim-just[vim-just] plugin provides syntax hig
 Install it with your favorite package manager, like https://github.com/junegunn/vim-plug[Plug]:
 
 ```vim
+call plug#begin()
+
 Plug 'NoahTheDuke/vim-just'
+
+call plug#end()
 ```
 
 Or with Vim's built-in package support:
@@ -163,6 +167,8 @@ mkdir -p ~/.vim/pack/vendor/start
 cd ~/.vim/pack/vendor/start
 git clone https://github.com/NoahTheDuke/vim-just.git
 ```
+
+`vim-just` is also available from https://github.com/sheerun/vim-polyglot[vim-polyglot], a multi-language Vim plugin.
 
 ==== Makefile Syntax Highlighting
 
