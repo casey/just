@@ -1,6 +1,6 @@
 [package]
 name        = "just"
-version     = "0.9.4"
+version     = "0.9.5"
 description = "🤖 Just a command runner"
 authors     = ["Casey Rodarmor <casey@rodarmor.com>"]
 license     = "CC0-1.0"
@@ -11,6 +11,7 @@ edition     = "2018"
 autotests   = false
 categories  = ["command-line-utilities", "development-tools"]
 keywords    = ["command-line", "task", "runner", "development", "utility"]
+resolver    = "2"
 
 [workspace]
 members = [".", "bin/prerelease"]
@@ -27,6 +28,7 @@ lazy_static   = "1.0.0"
 libc          = "0.2.0"
 log           = "0.4.4"
 snafu         = "0.6.0"
+strum_macros  = "0.21.1"
 target        = "1.0.0"
 tempfile      = "3.0.0"
 unicode-width = "0.1.0"
@@ -36,7 +38,7 @@ version  = "3.1.1"
 features = ["termination"]
 
 [dependencies.strum]
-version  = "0.20.0"
+version  = "0.21.0"
 features = ["derive"]
 
 [dev-dependencies]

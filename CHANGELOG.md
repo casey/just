@@ -1,6 +1,27 @@
 Changelog
 =========
 
+[v0.9.5] - 2021-6-12
+--------------------
+
+### Added
+- Add `--unstable` flag (#869)
+- Add Sublime Text syntax file (#864)
+- Add `--fmt` subcommand (#837)
+
+### Misc
+- Mention doniogela.dev/just/ in readme (#866)
+- Mention that vim-just is now available from vim-polyglot (#865)
+- Mention `--list-heading` newline behavior (#860)
+- Check for `rg` in `bin/forbid` (#859)
+- Document that variables are not exported to backticks in the same scope (#856)
+- Remove `dotenv_load` from tests (#853)
+- Remove `v` prefix from version (#850)
+- Improve install script (#847)
+- Move pages assets back to `docs` (#846)
+- Move pages assets to `www` (#845)
+
+
 [v0.9.4] - 2021-5-27
 --------------------
 
