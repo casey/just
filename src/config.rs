@@ -25,10 +25,11 @@ pub(crate) struct Config {
   pub(crate) search_config:        SearchConfig,
   pub(crate) shell:                String,
   pub(crate) shell_args:           Vec<String>,
-  pub(crate) shell_present:        bool,
   pub(crate) shell_command:        bool,
+  pub(crate) shell_present:        bool,
   pub(crate) subcommand:           Subcommand,
   pub(crate) unsorted:             bool,
+  pub(crate) unstable:             bool,
   pub(crate) verbosity:            Verbosity,
 }
 
@@ -92,6 +93,7 @@ mod arg {
   pub(crate) const SHELL_ARG: &str = "SHELL-ARG";
   pub(crate) const SHELL_COMMAND: &str = "SHELL-COMMAND";
   pub(crate) const UNSORTED: &str = "UNSORTED";
+  pub(crate) const UNSTABLE: &str = "UNSTABLE";
   pub(crate) const VERBOSE: &str = "VERBOSE";
   pub(crate) const WORKING_DIRECTORY: &str = "WORKING-DIRECTORY";
 
@@ -217,6 +219,11 @@ impl Config {
           .long("unsorted")
           .short("u")
           .help("Return list and summary entries in source order"),
+      )
+      .arg(
+        Arg::with_name(arg::UNSTABLE)
+          .long("unstable")
+          .help("Enable unstable features"),
       )
       .arg(
         Arg::with_name(arg::VERBOSE)
@@ -506,6 +513,7 @@ impl Config {
       load_dotenv: !matches.is_present(arg::NO_DOTENV),
       shell_command: matches.is_present(arg::SHELL_COMMAND),
       unsorted: matches.is_present(arg::UNSORTED),
+      unstable: matches.is_present(arg::UNSTABLE),
       list_heading: matches
         .value_of(arg::LIST_HEADING)
         .unwrap_or("Available recipes:\n")
@@ -728,7 +736,15 @@ impl Config {
   }
 
   fn format(&self, ast: Module, search: &Search) -> Result<(), i32> {
-    if let Err(error) = File::open(&search.justfile).and_then(|mut file| write!(file, "{}", ast)) {
+    if !self.unstable {
+      eprintln!(
+        "The `--fmt` command is currently unstable. Pass the `--unstable` flag to enable it."
+      );
+      return Err(EXIT_FAILURE);
+    }
+
+    if let Err(error) = File::create(&search.justfile).and_then(|mut file| write!(file, "{}", ast))
+    {
       if self.verbosity.loud() {
         eprintln!(
           "Failed to write justfile to `{}`: {}",
@@ -963,6 +979,7 @@ FLAGS:
                                  backticks
         --summary             List names of available recipes
     -u, --unsorted            Return list and summary entries in source order
+        --unstable            Enable unstable features
         --variables           List names of variables
     -v, --verbose             Use verbose output
 
