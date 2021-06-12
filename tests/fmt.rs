@@ -1,3 +1,39 @@
+use crate::common::*;
+
+test! {
+  name: unstable_not_passed,
+  justfile: "",
+  args: ("--fmt"),
+  stderr: "
+    The `--fmt` command is currently unstable. Pass the `--unstable` flag to enable it.
+  ",
+  status: EXIT_FAILURE,
+}
+
+#[test]
+fn unstable_passed() {
+  let tmp = tempdir();
+
+  let justfile = tmp.path().join("justfile");
+
+  fs::write(&justfile, "x    :=    'hello'   ").unwrap();
+
+  let output = Command::new(executable_path("just"))
+    .current_dir(tmp.path())
+    .arg("--fmt")
+    .arg("--unstable")
+    .output()
+    .unwrap();
+
+  if !output.status.success() {
+    eprintln!("{}", String::from_utf8_lossy(&output.stderr));
+    eprintln!("{}", String::from_utf8_lossy(&output.stdout));
+    panic!("justfile failed with status: {}", output.status);
+  }
+
+  assert_eq!(fs::read_to_string(&justfile).unwrap(), "x := 'hello'\n",);
+}
+
 test! {
   name: alias_good,
   justfile: "

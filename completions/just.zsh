@@ -41,6 +41,7 @@ _just() {
 '--clear-shell-args[Clear shell arguments]' \
 '-u[Return list and summary entries in source order]' \
 '--unsorted[Return list and summary entries in source order]' \
+'--unstable[Enable unstable features]' \
 '*-v[Use verbose output]' \
 '*--verbose[Use verbose output]' \
 '--choose[Select one or more recipes to run using a binary. If `--chooser` is not passed the chooser defaults to the value of $JUST_CHOOSER, falling back to `fzf`]' \
