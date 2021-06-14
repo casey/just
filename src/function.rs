@@ -19,6 +19,11 @@ lazy_static! {
     ("env_var", Unary(env_var)),
     ("env_var_or_default", Binary(env_var_or_default)),
     ("just_executable", Nullary(just_executable)),
+    ("file_name", Unary(file_name)),
+    ("parent_directory", Unary(parent_directory)),
+    ("file_stem", Unary(file_stem)),
+    ("without_extension", Unary(without_extension)),
+    ("extension", Unary(extension))
   ]
   .into_iter()
   .collect();
@@ -135,4 +140,92 @@ fn just_executable(_context: &FunctionContext) -> Result<String, String> {
       exe_path.to_string_lossy()
     )
   })
+}
+
+fn file_name(_context: &FunctionContext, file_path: &str) -> Result<String, String> {
+  Path::new(file_path)
+    .file_name()
+    .and_then(|f| f.to_str())
+    .map(|s| s.to_owned())
+    .ok_or_else(|| {
+      format!(
+        "Cannot get file name from {}",
+        if file_path.is_empty() {
+          "an empty string"
+        } else {
+          file_path
+        }
+      )
+    })
+}
+
+fn parent_directory(_context: &FunctionContext, file_path: &str) -> Result<String, String> {
+  Path::new(file_path)
+    .parent()
+    .and_then(|f| f.to_str())
+    .map(|s| s.to_owned())
+    .ok_or_else(|| {
+      format!(
+        "Cannot get parent directory from {}",
+        if file_path.is_empty() {
+          "an empty string"
+        } else {
+          file_path
+        }
+      )
+    })
+}
+
+fn file_stem(_context: &FunctionContext, file_path: &str) -> Result<String, String> {
+  Path::new(file_path)
+    .file_stem()
+    .and_then(|f| f.to_str())
+    .map(|s| s.to_owned())
+    .ok_or_else(|| {
+      format!(
+        "Cannot get file stem from {}",
+        if file_path.is_empty() {
+          "an empty string"
+        } else {
+          file_path
+        }
+      )
+    })
+}
+
+fn without_extension(_context: &FunctionContext, file_path: &str) -> Result<String, String> {
+  let path = Path::new(file_path);
+  path
+    .parent()
+    .zip(path.file_stem())
+    .and_then(|(p, n)| p.to_str().zip(n.to_str()))
+    .map(|(p, n)| format!("{}/{}", p, n))
+    .map(|s| s.to_owned())
+    .ok_or_else(|| {
+      format!(
+        "Cannot remove extension from {}",
+        if file_path.is_empty() {
+          "an empty string"
+        } else {
+          file_path
+        }
+      )
+    })
+}
+
+fn extension(_context: &FunctionContext, file_path: &str) -> Result<String, String> {
+  Path::new(file_path)
+    .extension()
+    .and_then(|f| f.to_str())
+    .map(|s| s.to_owned())
+    .ok_or_else(|| {
+      format!(
+        "Cannot get extension from {}",
+        if file_path.is_empty() {
+          "an empty string"
+        } else {
+          file_path
+        }
+      )
+    })
 }
