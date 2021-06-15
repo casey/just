@@ -1216,7 +1216,7 @@ foo:
   stdout:   "",
   stderr:   format!("{} {}\n{}\n{}\n{}\n",
     "error: Call to function `without_extension` failed:",
-    "Cannot remove extension from ``",
+    "Cannot extract parent from ``",
     "  |",
     "1 | we  := without_extension(\'\')",
     "  |        ^^^^^^^^^^^^^^^^^").as_str(),
