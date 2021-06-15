@@ -163,13 +163,11 @@ fn file_stem(_context: &FunctionContext, path: &str) -> Result<String, String> {
 }
 
 fn without_extension(_context: &FunctionContext, path: &str) -> Result<String, String> {
-  let path = Utf8Path::new(path);
-
-  let parent = path
+  let parent = Utf8Path::new(path)
     .parent()
     .ok_or_else(|| format!("Cannot extract parent from `{}`", path))?;
 
-  let file_stem = path
+  let file_stem = Utf8Path::new(path)
     .file_stem()
     .ok_or_else(|| format!("Cannot extract file_stem from `{}`", path))?;
 
