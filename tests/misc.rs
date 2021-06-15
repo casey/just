@@ -1214,8 +1214,9 @@ foo:
   /bin/echo '{{we}}'
 "#,
   stdout:   "",
-  stderr:   format!("{}\n{}\n{}\n{}\n",
-    "error: Call to function `without_extension` failed: Cannot remove extension from an empty string",
+  stderr:   format!("{} {}\n{}\n{}\n{}\n",
+    "error: Call to function `without_extension` failed:",
+    "Cannot remove extension from an empty string",
     "  |",
     "1 | we  := without_extension(\'\')",
     "  |        ^^^^^^^^^^^^^^^^^").as_str(),
@@ -1304,8 +1305,9 @@ foo:
   /bin/echo '{{we}}'
 "#,
   stdout:   "",
-  stderr:   format!("{}\n{}\n{}\n{}\n",
-    "error: Call to function `parent_directory` failed: Cannot get parent directory from an empty string",
+  stderr:   format!("{} {}\n{}\n{}\n{}\n",
+    "error: Call to function `parent_directory` failed:",
+    "Cannot get parent directory from an empty string",
     "  |",
     "1 | we  := parent_directory(\'\')",
     "  |        ^^^^^^^^^^^^^^^^").as_str(),
