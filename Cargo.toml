@@ -32,6 +32,7 @@ strum_macros  = "0.21.1"
 target        = "1.0.0"
 tempfile      = "3.0.0"
 unicode-width = "0.1.0"
+camino        = "1.0.4"
 
 [dependencies.ctrlc]
 version  = "3.1.1"

@@ -1,7 +1,7 @@
 use crate::common::*;
 
+use camino::Utf8Path;
 use Function::*;
-
 pub(crate) enum Function {
   Nullary(fn(&FunctionContext) -> Result<String, String>),
   Unary(fn(&FunctionContext, &str) -> Result<String, String>),
@@ -143,88 +143,40 @@ fn just_executable(_context: &FunctionContext) -> Result<String, String> {
 }
 
 fn file_name(_context: &FunctionContext, file_path: &str) -> Result<String, String> {
-  Path::new(file_path)
+  Utf8Path::new(file_path)
     .file_name()
-    .and_then(std::ffi::OsStr::to_str)
     .map(std::borrow::ToOwned::to_owned)
-    .ok_or_else(|| {
-      format!(
-        "Cannot get file name from {}",
-        if file_path.is_empty() {
-          "an empty string"
-        } else {
-          file_path
-        }
-      )
-    })
+    .ok_or_else(|| format!("Cannot get file name from `{}`", file_path))
 }
 
 fn parent_directory(_context: &FunctionContext, file_path: &str) -> Result<String, String> {
-  Path::new(file_path)
+  Utf8Path::new(file_path)
     .parent()
-    .and_then(std::path::Path::to_str)
+    .map(Utf8Path::as_str)
     .map(std::borrow::ToOwned::to_owned)
-    .ok_or_else(|| {
-      format!(
-        "Cannot get parent directory from {}",
-        if file_path.is_empty() {
-          "an empty string"
-        } else {
-          file_path
-        }
-      )
-    })
+    .ok_or_else(|| format!("Cannot get parent directory from `{}`", file_path))
 }
 
 fn file_stem(_context: &FunctionContext, file_path: &str) -> Result<String, String> {
-  Path::new(file_path)
+  Utf8Path::new(file_path)
     .file_stem()
-    .and_then(std::ffi::OsStr::to_str)
     .map(std::borrow::ToOwned::to_owned)
-    .ok_or_else(|| {
-      format!(
-        "Cannot get file stem from {}",
-        if file_path.is_empty() {
-          "an empty string"
-        } else {
-          file_path
-        }
-      )
-    })
+    .ok_or_else(|| format!("Cannot get file stem from `{}`", file_path))
 }
 
 fn without_extension(_context: &FunctionContext, file_path: &str) -> Result<String, String> {
-  let path = Path::new(file_path);
+  let path = Utf8Path::new(file_path);
   path
     .parent()
+    .map(Utf8Path::as_str)
     .zip(path.file_stem())
-    .and_then(|(p, n)| p.to_str().zip(n.to_str()))
     .map(|(p, n)| format!("{}/{}", p, n))
-    .ok_or_else(|| {
-      format!(
-        "Cannot remove extension from {}",
-        if file_path.is_empty() {
-          "an empty string"
-        } else {
-          file_path
-        }
-      )
-    })
+    .ok_or_else(|| format!("Cannot remove extension from `{}`", file_path))
 }
 
 fn extension(_context: &FunctionContext, file_path: &str) -> Result<String, String> {
-  Path::new(file_path)
+  Utf8Path::new(file_path)
     .extension()
-    .and_then(std::ffi::OsStr::to_str)
     .map(std::borrow::ToOwned::to_owned)
-    .ok_or_else(|| {
-      format!(
-        "Cannot get extension from {}",
-        if file_path.is_empty() {
-          "an empty string"
-        } else {
-          file_path
-        }
-      )
-    })
+    .ok_or_else(|| format!("Cannot get extension from `{}`", file_path))
 }
