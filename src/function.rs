@@ -145,8 +145,8 @@ fn just_executable(_context: &FunctionContext) -> Result<String, String> {
 fn file_name(_context: &FunctionContext, file_path: &str) -> Result<String, String> {
   Path::new(file_path)
     .file_name()
-    .and_then(|f| f.to_str())
-    .map(|s| s.to_owned())
+    .and_then(std::ffi::OsStr::to_str)
+    .map(std::borrow::ToOwned::to_owned)
     .ok_or_else(|| {
       format!(
         "Cannot get file name from {}",
@@ -162,8 +162,8 @@ fn file_name(_context: &FunctionContext, file_path: &str) -> Result<String, Stri
 fn parent_directory(_context: &FunctionContext, file_path: &str) -> Result<String, String> {
   Path::new(file_path)
     .parent()
-    .and_then(|f| f.to_str())
-    .map(|s| s.to_owned())
+    .and_then(std::path::Path::to_str)
+    .map(std::borrow::ToOwned::to_owned)
     .ok_or_else(|| {
       format!(
         "Cannot get parent directory from {}",
@@ -179,8 +179,8 @@ fn parent_directory(_context: &FunctionContext, file_path: &str) -> Result<Strin
 fn file_stem(_context: &FunctionContext, file_path: &str) -> Result<String, String> {
   Path::new(file_path)
     .file_stem()
-    .and_then(|f| f.to_str())
-    .map(|s| s.to_owned())
+    .and_then(std::ffi::OsStr::to_str)
+    .map(std::borrow::ToOwned::to_owned)
     .ok_or_else(|| {
       format!(
         "Cannot get file stem from {}",
@@ -200,7 +200,6 @@ fn without_extension(_context: &FunctionContext, file_path: &str) -> Result<Stri
     .zip(path.file_stem())
     .and_then(|(p, n)| p.to_str().zip(n.to_str()))
     .map(|(p, n)| format!("{}/{}", p, n))
-    .map(|s| s.to_owned())
     .ok_or_else(|| {
       format!(
         "Cannot remove extension from {}",
@@ -216,8 +215,8 @@ fn without_extension(_context: &FunctionContext, file_path: &str) -> Result<Stri
 fn extension(_context: &FunctionContext, file_path: &str) -> Result<String, String> {
   Path::new(file_path)
     .extension()
-    .and_then(|f| f.to_str())
-    .map(|s| s.to_owned())
+    .and_then(std::ffi::OsStr::to_str)
+    .map(std::borrow::ToOwned::to_owned)
     .ok_or_else(|| {
       format!(
         "Cannot get extension from {}",
