@@ -169,7 +169,7 @@ fn without_extension(_context: &FunctionContext, path: &str) -> Result<String, S
 
   let file_stem = Utf8Path::new(path)
     .file_stem()
-    .ok_or_else(|| format!("Cannot extract file_stem from `{}`", path))?;
+    .ok_or_else(|| format!("Cannot extract file stem from `{}`", path))?;
 
   Ok(parent.join(file_stem).to_string())
 }
