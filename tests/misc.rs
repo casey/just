@@ -1324,8 +1324,9 @@ foo:
   /bin/echo '{{we}}'
 "#,
   stdout:   "",
-  stderr:   format!("{}\n{}\n{}\n{}\n",
-    "error: Call to function `parent_directory` failed: Could not extract parent directory from `/`",
+  stderr:   format!("{} {}\n{}\n{}\n{}\n",
+    "error: Call to function `parent_directory` failed:",
+    "Could not extract parent directory from `/`",
     "  |",
     "1 | we  := parent_directory(\'/\')",
     "  |        ^^^^^^^^^^^^^^^^").as_str(),
