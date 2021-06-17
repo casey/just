@@ -792,6 +792,16 @@ Starting server with database localhost:6379 on port 1337...
 ./server --database $DATABASE_ADDRESS --port $SERVER_PORT
 ```
 
+==== Path Manipulation
+
+- `file_name(path)` - File name of `path` with any leading directory components removed. `file_name("/foo/bar.txt")` is `bar.txt`.
+- `parent_directory(path)` - Parent directory of `path`. `parent_directory("/foo/bar.txt")` is `/foo`.
+- `file_stem(path)` - File name of `path` without extension. `file_stem("/foo/bar.txt")` is `bar`.
+- `without_extension(path)` - `path` without extension. `without_extension("/foo/bar.txt")` is `/foo/bar`.
+- `extension(path)` - Extension of `path`. `extension("/foo/bar.txt")` is `txt`.
+
+These functions can fail, for example if a path does not have an extension, which will halt execution.
+
 === Command Evaluation Using Backticks
 
 Backticks can be used to store the result of commands:
