@@ -252,6 +252,25 @@ test! {
 }
 
 test! {
+  name: assignment_path_functions,
+  justfile: "
+    foo  := without_extension('foo/bar.baz')
+    foo2 := file_stem('foo/bar.baz')
+    foo3 := parent_directory('foo/bar.baz')
+    foo4 := file_name('foo/bar.baz')
+    foo5 := extension('foo/bar.baz')
+  ",
+  args: ("--dump"),
+  stdout: "
+  foo := without_extension('foo/bar.baz')
+  foo2 := file_stem('foo/bar.baz')
+  foo3 := parent_directory('foo/bar.baz')
+  foo4 := file_name('foo/bar.baz')
+  foo5 := extension('foo/bar.baz')
+  ",
+}
+
+test! {
   name: recipe_ordinary,
   justfile: "
     foo:

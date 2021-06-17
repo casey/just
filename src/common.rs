@@ -19,6 +19,7 @@ pub(crate) use std::{
 };
 
 // dependencies
+pub(crate) use camino::Utf8Path;
 pub(crate) use derivative::Derivative;
 pub(crate) use edit_distance::edit_distance;
 pub(crate) use libc::EXIT_FAILURE;

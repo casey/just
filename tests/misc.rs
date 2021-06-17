@@ -1170,6 +1170,169 @@ foo:
   stderr:   format!("/bin/echo '{}' 'HTAP' 'ABC'\n", env::var("USER").unwrap()).as_str(),
 }
 
+#[cfg(not(windows))]
+test! {
+  name: path_functions,
+  justfile: r#"
+we  := without_extension('/foo/bar/baz.hello')
+fs  := file_stem('/foo/bar/baz.hello')
+fn  := file_name('/foo/bar/baz.hello')
+dir := parent_directory('/foo/bar/baz.hello')
+ext := extension('/foo/bar/baz.hello')
+
+foo:
+  /bin/echo '{{we}}' '{{fs}}' '{{fn}}' '{{dir}}' '{{ext}}'
+"#,
+  stdout:   "/foo/bar/baz baz baz.hello /foo/bar hello\n",
+  stderr:   "/bin/echo '/foo/bar/baz' 'baz' 'baz.hello' '/foo/bar' 'hello'\n",
+}
+
+#[cfg(not(windows))]
+test! {
+  name: path_functions2,
+  justfile: r#"
+we  := without_extension('/foo/bar/baz')
+fs  := file_stem('/foo/bar/baz.hello.ciao')
+fn  := file_name('/bar/baz.hello.ciao')
+dir := parent_directory('/foo/')
+ext := extension('/foo/bar/baz.hello.ciao')
+
+foo:
+  /bin/echo '{{we}}' '{{fs}}' '{{fn}}' '{{dir}}' '{{ext}}'
+"#,
+  stdout:   "/foo/bar/baz baz.hello baz.hello.ciao / ciao\n",
+  stderr:   "/bin/echo '/foo/bar/baz' 'baz.hello' 'baz.hello.ciao' '/' 'ciao'\n",
+}
+
+#[cfg(not(windows))]
+test! {
+  name: broken_without_extension_function,
+  justfile: r#"
+we  := without_extension('')
+
+foo:
+  /bin/echo '{{we}}'
+"#,
+  stdout:   "",
+  stderr:   format!("{} {}\n{}\n{}\n{}\n",
+    "error: Call to function `without_extension` failed:",
+    "Could not extract parent from ``",
+    "  |",
+    "1 | we  := without_extension(\'\')",
+    "  |        ^^^^^^^^^^^^^^^^^").as_str(),
+  status:   EXIT_FAILURE,
+}
+
+#[cfg(not(windows))]
+test! {
+  name: broken_extension_function,
+  justfile: r#"
+we  := extension('')
+
+foo:
+  /bin/echo '{{we}}'
+"#,
+  stdout:   "",
+  stderr:   format!("{}\n{}\n{}\n{}\n",
+    "error: Call to function `extension` failed: Could not extract extension from ``",
+    "  |",
+    "1 | we  := extension(\'\')",
+    "  |        ^^^^^^^^^").as_str(),
+  status:   EXIT_FAILURE,
+}
+
+#[cfg(not(windows))]
+test! {
+  name: broken_extension_function2,
+  justfile: r#"
+we  := extension('foo')
+
+foo:
+  /bin/echo '{{we}}'
+"#,
+  stdout:   "",
+  stderr:   format!("{}\n{}\n{}\n{}\n",
+    "error: Call to function `extension` failed: Could not extract extension from `foo`",
+    "  |",
+    "1 | we  := extension(\'foo\')",
+    "  |        ^^^^^^^^^").as_str(),
+  status:   EXIT_FAILURE,
+}
+
+#[cfg(not(windows))]
+test! {
+  name: broken_file_stem_function,
+  justfile: r#"
+we  := file_stem('')
+
+foo:
+  /bin/echo '{{we}}'
+"#,
+  stdout:   "",
+  stderr:   format!("{}\n{}\n{}\n{}\n",
+    "error: Call to function `file_stem` failed: Could not extract file stem from ``",
+    "  |",
+    "1 | we  := file_stem(\'\')",
+    "  |        ^^^^^^^^^").as_str(),
+  status:   EXIT_FAILURE,
+}
+
+#[cfg(not(windows))]
+test! {
+  name: broken_file_name_function,
+  justfile: r#"
+we  := file_name('')
+
+foo:
+  /bin/echo '{{we}}'
+"#,
+  stdout:   "",
+  stderr:   format!("{}\n{}\n{}\n{}\n",
+    "error: Call to function `file_name` failed: Could not extract file name from ``",
+    "  |",
+    "1 | we  := file_name(\'\')",
+    "  |        ^^^^^^^^^").as_str(),
+  status:   EXIT_FAILURE,
+}
+
+#[cfg(not(windows))]
+test! {
+  name: broken_directory_function,
+  justfile: r#"
+we  := parent_directory('')
+
+foo:
+  /bin/echo '{{we}}'
+"#,
+  stdout:   "",
+  stderr:   format!("{} {}\n{}\n{}\n{}\n",
+    "error: Call to function `parent_directory` failed:",
+    "Could not extract parent directory from ``",
+    "  |",
+    "1 | we  := parent_directory(\'\')",
+    "  |        ^^^^^^^^^^^^^^^^").as_str(),
+  status:   EXIT_FAILURE,
+}
+
+#[cfg(not(windows))]
+test! {
+  name: broken_directory_function2,
+  justfile: r#"
+we  := parent_directory('/')
+
+foo:
+  /bin/echo '{{we}}'
+"#,
+  stdout:   "",
+  stderr:   format!("{} {}\n{}\n{}\n{}\n",
+    "error: Call to function `parent_directory` failed:",
+    "Could not extract parent directory from `/`",
+    "  |",
+    "1 | we  := parent_directory(\'/\')",
+    "  |        ^^^^^^^^^^^^^^^^").as_str(),
+  status:   EXIT_FAILURE,
+}
+
 #[cfg(windows)]
 test! {
   name:     env_var_functions,

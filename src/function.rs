@@ -1,7 +1,6 @@
 use crate::common::*;
 
 use Function::*;
-
 pub(crate) enum Function {
   Nullary(fn(&FunctionContext) -> Result<String, String>),
   Unary(fn(&FunctionContext, &str) -> Result<String, String>),
@@ -19,6 +18,11 @@ lazy_static! {
     ("env_var", Unary(env_var)),
     ("env_var_or_default", Binary(env_var_or_default)),
     ("just_executable", Nullary(just_executable)),
+    ("file_name", Unary(file_name)),
+    ("parent_directory", Unary(parent_directory)),
+    ("file_stem", Unary(file_stem)),
+    ("without_extension", Unary(without_extension)),
+    ("extension", Unary(extension))
   ]
   .into_iter()
   .collect();
@@ -135,4 +139,44 @@ fn just_executable(_context: &FunctionContext) -> Result<String, String> {
       exe_path.to_string_lossy()
     )
   })
+}
+
+fn file_name(_context: &FunctionContext, path: &str) -> Result<String, String> {
+  Utf8Path::new(path)
+    .file_name()
+    .map(str::to_owned)
+    .ok_or_else(|| format!("Could not extract file name from `{}`", path))
+}
+
+fn parent_directory(_context: &FunctionContext, path: &str) -> Result<String, String> {
+  Utf8Path::new(path)
+    .parent()
+    .map(Utf8Path::to_string)
+    .ok_or_else(|| format!("Could not extract parent directory from `{}`", path))
+}
+
+fn file_stem(_context: &FunctionContext, path: &str) -> Result<String, String> {
+  Utf8Path::new(path)
+    .file_stem()
+    .map(str::to_owned)
+    .ok_or_else(|| format!("Could not extract file stem from `{}`", path))
+}
+
+fn without_extension(_context: &FunctionContext, path: &str) -> Result<String, String> {
+  let parent = Utf8Path::new(path)
+    .parent()
+    .ok_or_else(|| format!("Could not extract parent from `{}`", path))?;
+
+  let file_stem = Utf8Path::new(path)
+    .file_stem()
+    .ok_or_else(|| format!("Could not extract file stem from `{}`", path))?;
+
+  Ok(parent.join(file_stem).to_string())
+}
+
+fn extension(_context: &FunctionContext, path: &str) -> Result<String, String> {
+  Utf8Path::new(path)
+    .extension()
+    .map(str::to_owned)
+    .ok_or_else(|| format!("Could not extract extension from `{}`", path))
 }
