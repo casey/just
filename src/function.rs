@@ -42,55 +42,6 @@ fn arch(_context: &FunctionContext) -> Result<String, String> {
   Ok(target::arch().to_owned())
 }
 
-fn os(_context: &FunctionContext) -> Result<String, String> {
-  Ok(target::os().to_owned())
-}
-
-fn os_family(_context: &FunctionContext) -> Result<String, String> {
-  Ok(target::os_family().to_owned())
-}
-
-fn invocation_directory(context: &FunctionContext) -> Result<String, String> {
-  Platform::convert_native_path(
-    &context.search.working_directory,
-    context.invocation_directory,
-  )
-  .map_err(|e| format!("Error getting shell path: {}", e))
-}
-
-fn justfile(context: &FunctionContext) -> Result<String, String> {
-  context
-    .search
-    .justfile
-    .to_str()
-    .map(str::to_owned)
-    .ok_or_else(|| {
-      format!(
-        "Justfile path is not valid unicode: {}",
-        context.search.justfile.to_string_lossy()
-      )
-    })
-}
-
-fn justfile_directory(context: &FunctionContext) -> Result<String, String> {
-  let justfile_directory = context.search.justfile.parent().ok_or_else(|| {
-    format!(
-      "Could not resolve justfile directory. Justfile `{}` had no parent.",
-      context.search.justfile.display()
-    )
-  })?;
-
-  justfile_directory
-    .to_str()
-    .map(str::to_owned)
-    .ok_or_else(|| {
-      format!(
-        "Justfile directory is not valid unicode: {}",
-        justfile_directory.to_string_lossy()
-      )
-    })
-}
-
 fn env_var(context: &FunctionContext, key: &str) -> Result<String, String> {
   use std::env::VarError::*;
 
@@ -129,6 +80,35 @@ fn env_var_or_default(
   }
 }
 
+fn extension(_context: &FunctionContext, path: &str) -> Result<String, String> {
+  Utf8Path::new(path)
+    .extension()
+    .map(str::to_owned)
+    .ok_or_else(|| format!("Could not extract extension from `{}`", path))
+}
+
+fn file_name(_context: &FunctionContext, path: &str) -> Result<String, String> {
+  Utf8Path::new(path)
+    .file_name()
+    .map(str::to_owned)
+    .ok_or_else(|| format!("Could not extract file name from `{}`", path))
+}
+
+fn file_stem(_context: &FunctionContext, path: &str) -> Result<String, String> {
+  Utf8Path::new(path)
+    .file_stem()
+    .map(str::to_owned)
+    .ok_or_else(|| format!("Could not extract file stem from `{}`", path))
+}
+
+fn invocation_directory(context: &FunctionContext) -> Result<String, String> {
+  Platform::convert_native_path(
+    &context.search.working_directory,
+    context.invocation_directory,
+  )
+  .map_err(|e| format!("Error getting shell path: {}", e))
+}
+
 fn just_executable(_context: &FunctionContext) -> Result<String, String> {
   let exe_path =
     std::env::current_exe().map_err(|e| format!("Error getting current executable: {}", e))?;
@@ -141,11 +121,45 @@ fn just_executable(_context: &FunctionContext) -> Result<String, String> {
   })
 }
 
-fn file_name(_context: &FunctionContext, path: &str) -> Result<String, String> {
-  Utf8Path::new(path)
-    .file_name()
+fn justfile(context: &FunctionContext) -> Result<String, String> {
+  context
+    .search
+    .justfile
+    .to_str()
     .map(str::to_owned)
-    .ok_or_else(|| format!("Could not extract file name from `{}`", path))
+    .ok_or_else(|| {
+      format!(
+        "Justfile path is not valid unicode: {}",
+        context.search.justfile.to_string_lossy()
+      )
+    })
+}
+
+fn justfile_directory(context: &FunctionContext) -> Result<String, String> {
+  let justfile_directory = context.search.justfile.parent().ok_or_else(|| {
+    format!(
+      "Could not resolve justfile directory. Justfile `{}` had no parent.",
+      context.search.justfile.display()
+    )
+  })?;
+
+  justfile_directory
+    .to_str()
+    .map(str::to_owned)
+    .ok_or_else(|| {
+      format!(
+        "Justfile directory is not valid unicode: {}",
+        justfile_directory.to_string_lossy()
+      )
+    })
+}
+
+fn os(_context: &FunctionContext) -> Result<String, String> {
+  Ok(target::os().to_owned())
+}
+
+fn os_family(_context: &FunctionContext) -> Result<String, String> {
+  Ok(target::os_family().to_owned())
 }
 
 fn parent_directory(_context: &FunctionContext, path: &str) -> Result<String, String> {
@@ -153,13 +167,6 @@ fn parent_directory(_context: &FunctionContext, path: &str) -> Result<String, St
     .parent()
     .map(Utf8Path::to_string)
     .ok_or_else(|| format!("Could not extract parent directory from `{}`", path))
-}
-
-fn file_stem(_context: &FunctionContext, path: &str) -> Result<String, String> {
-  Utf8Path::new(path)
-    .file_stem()
-    .map(str::to_owned)
-    .ok_or_else(|| format!("Could not extract file stem from `{}`", path))
 }
 
 fn without_extension(_context: &FunctionContext, path: &str) -> Result<String, String> {
@@ -172,11 +179,4 @@ fn without_extension(_context: &FunctionContext, path: &str) -> Result<String, S
     .ok_or_else(|| format!("Could not extract file stem from `{}`", path))?;
 
   Ok(parent.join(file_stem).to_string())
-}
-
-fn extension(_context: &FunctionContext, path: &str) -> Result<String, String> {
-  Utf8Path::new(path)
-    .extension()
-    .map(str::to_owned)
-    .ok_or_else(|| format!("Could not extract extension from `{}`", path))
 }
