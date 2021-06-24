@@ -26,4 +26,5 @@ mod search;
 mod shebang;
 mod shell;
 mod string;
+mod sublime_syntax;
 mod working_directory;

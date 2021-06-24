@@ -14,3 +14,4 @@ pub(crate) use just::unindent;
 pub(crate) use libc::{EXIT_FAILURE, EXIT_SUCCESS};
 pub(crate) use test_utilities::{assert_stdout, tempdir, tmptree};
 pub(crate) use which::which;
+pub(crate) use yaml_rust::YamlLoader;

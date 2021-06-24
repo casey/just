@@ -46,6 +46,7 @@ features = ["derive"]
 executable-path   = "1.0.0"
 pretty_assertions = "0.7.0"
 which             = "4.0.0"
+yaml-rust         = "0.4.5"
 
 # Until github.com/rust-lang/cargo/pull/7333 makes it into stable,
 # this version-less dev-dependency will interfere with publishing
