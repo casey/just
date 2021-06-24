@@ -10,19 +10,19 @@ pub(crate) enum Function {
 lazy_static! {
   pub(crate) static ref TABLE: BTreeMap<&'static str, Function> = vec![
     ("arch", Nullary(arch)),
-    ("os", Nullary(os)),
-    ("os_family", Nullary(os_family)),
-    ("justfile_directory", Nullary(justfile_directory)),
-    ("justfile", Nullary(justfile)),
-    ("invocation_directory", Nullary(invocation_directory)),
     ("env_var", Unary(env_var)),
     ("env_var_or_default", Binary(env_var_or_default)),
-    ("just_executable", Nullary(just_executable)),
+    ("extension", Unary(extension)),
     ("file_name", Unary(file_name)),
-    ("parent_directory", Unary(parent_directory)),
     ("file_stem", Unary(file_stem)),
+    ("invocation_directory", Nullary(invocation_directory)),
+    ("just_executable", Nullary(just_executable)),
+    ("justfile", Nullary(justfile)),
+    ("justfile_directory", Nullary(justfile_directory)),
+    ("os", Nullary(os)),
+    ("os_family", Nullary(os_family)),
+    ("parent_directory", Unary(parent_directory)),
     ("without_extension", Unary(without_extension)),
-    ("extension", Unary(extension))
   ]
   .into_iter()
   .collect();
