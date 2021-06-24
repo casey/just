@@ -16,6 +16,7 @@ lazy_static! {
     ("file_name", Unary(file_name)),
     ("file_stem", Unary(file_stem)),
     ("invocation_directory", Nullary(invocation_directory)),
+    ("join", Binary(join)),
     ("just_executable", Nullary(just_executable)),
     ("justfile", Nullary(justfile)),
     ("justfile_directory", Nullary(justfile_directory)),
@@ -107,6 +108,10 @@ fn invocation_directory(context: &FunctionContext) -> Result<String, String> {
     context.invocation_directory,
   )
   .map_err(|e| format!("Error getting shell path: {}", e))
+}
+
+fn join(_context: &FunctionContext, base: &str, with: &str) -> Result<String, String> {
+  Ok(Utf8Path::new(base).join(with).to_string())
 }
 
 fn just_executable(_context: &FunctionContext) -> Result<String, String> {

@@ -1179,12 +1179,13 @@ fs  := file_stem('/foo/bar/baz.hello')
 fn  := file_name('/foo/bar/baz.hello')
 dir := parent_directory('/foo/bar/baz.hello')
 ext := extension('/foo/bar/baz.hello')
+jn  := join('a', 'b')
 
 foo:
-  /bin/echo '{{we}}' '{{fs}}' '{{fn}}' '{{dir}}' '{{ext}}'
+  /bin/echo '{{we}}' '{{fs}}' '{{fn}}' '{{dir}}' '{{ext}}' '{{jn}}'
 "#,
-  stdout:   "/foo/bar/baz baz baz.hello /foo/bar hello\n",
-  stderr:   "/bin/echo '/foo/bar/baz' 'baz' 'baz.hello' '/foo/bar' 'hello'\n",
+  stdout:   "/foo/bar/baz baz baz.hello /foo/bar hello a/b\n",
+  stderr:   "/bin/echo '/foo/bar/baz' 'baz' 'baz.hello' '/foo/bar' 'hello' 'a/b'\n",
 }
 
 #[cfg(not(windows))]
