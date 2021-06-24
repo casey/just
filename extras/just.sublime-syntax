@@ -2,6 +2,7 @@
 ---
 # http://www.sublimetext.com/docs/syntax.html
 name: Just
+file_extensions: [Justfile, just]
 scope: source.just
 contexts:
   main:
