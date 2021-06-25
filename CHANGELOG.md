@@ -1,6 +1,19 @@
 Changelog
 =========
 
+[v0.9.6] - 2021-6-24
+--------------------
+
+### Added
+- Add `clean` function for simplifying paths (#883)
+- Add `join` function for joining paths (#882)
+- Add path manipulation functions (#872)
+
+### Misc
+- Add `file_extensions` to Sublime syntax file (#878)
+- Document path manipulation functions in readme (#877)
+
+
 [v0.9.5] - 2021-6-12
 --------------------
 

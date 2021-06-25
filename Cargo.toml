@@ -1,6 +1,6 @@
 [package]
 name        = "just"
-version     = "0.9.5"
+version     = "0.9.6"
 description = "🤖 Just a command runner"
 authors     = ["Casey Rodarmor <casey@rodarmor.com>"]
 license     = "CC0-1.0"
