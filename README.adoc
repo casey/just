@@ -807,8 +807,7 @@ These functions can fail, for example if a path does not have an extension, whic
 ===== Infallible
 
 - `join(a, b)` - Join path `a` with path `b`. `join("foo/bar", "baz")` is `foo/bar/baz`.
-
-These functions always succeed.
+- `clean(path)` - Simplify `path` by removing extra path separators, intermediate `.` components, and `..` where possible. `clean("foo//bar")` is `foo/bar`, `clean("foo/..")` is `.`, `clean("foo/./bar")` is `foo/bar`.
 
 === Command Evaluation Using Backticks
 

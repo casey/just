@@ -22,6 +22,7 @@ pub(crate) use std::{
 pub(crate) use camino::Utf8Path;
 pub(crate) use derivative::Derivative;
 pub(crate) use edit_distance::edit_distance;
+pub(crate) use lexiclean::Lexiclean;
 pub(crate) use libc::EXIT_FAILURE;
 pub(crate) use log::{info, warn};
 pub(crate) use snafu::{ResultExt, Snafu};
