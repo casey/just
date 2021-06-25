@@ -15,6 +15,7 @@ mod evaluate;
 mod examples;
 mod export;
 mod fmt;
+mod functions;
 mod init;
 mod interrupts;
 mod invocation_directory;

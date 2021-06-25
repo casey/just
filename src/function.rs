@@ -10,6 +10,7 @@ pub(crate) enum Function {
 lazy_static! {
   pub(crate) static ref TABLE: BTreeMap<&'static str, Function> = vec![
     ("arch", Nullary(arch)),
+    ("clean", Unary(clean)),
     ("env_var", Unary(env_var)),
     ("env_var_or_default", Binary(env_var_or_default)),
     ("extension", Unary(extension)),
@@ -41,6 +42,10 @@ impl Function {
 
 fn arch(_context: &FunctionContext) -> Result<String, String> {
   Ok(target::arch().to_owned())
+}
+
+fn clean(_context: &FunctionContext, path: &str) -> Result<String, String> {
+  Ok(Path::new(path).lexiclean().to_str().unwrap().to_owned())
 }
 
 fn env_var(context: &FunctionContext, key: &str) -> Result<String, String> {
