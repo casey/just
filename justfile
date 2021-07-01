@@ -197,6 +197,11 @@ _ruby:
 pwd:
 	echo {{invocation_directory()}}
 
+
+pwd:
+  echo "My PWD: `pwd`"
+
+
 # Local Variables:
 # mode: makefile
 # End:
