@@ -1,11 +1,8 @@
-use std::process::Command;
-
-use executable_path::executable_path;
-use tempfile::tempdir;
+use crate::common::*;
 
 #[test]
 fn output() {
-  let tempdir = tempdir().unwrap();
+  let tempdir = tempdir();
 
   let output = Command::new(executable_path("just"))
     .arg("--completions")

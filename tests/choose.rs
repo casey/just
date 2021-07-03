@@ -115,7 +115,7 @@ test! {
 
 #[test]
 fn default() {
-  let tmp = tmptree! {
+  let tmp = temptree! {
     justfile: "foo:\n echo foo\n",
   };
 

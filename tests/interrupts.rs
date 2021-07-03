@@ -1,13 +1,8 @@
 #[cfg(unix)]
 mod unix {
-  use executable_path::executable_path;
-  use just::unindent;
-  use std::{
-    fs,
-    process::Command,
-    time::{Duration, Instant},
-  };
-  use test_utilities::tempdir;
+  use crate::common::*;
+
+  use std::time::{Duration, Instant};
 
   fn kill(process_id: u32) {
     unsafe {

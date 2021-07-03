@@ -1,12 +1,9 @@
-use executable_path::executable_path;
-use std::{path, process, str};
+use crate::common::*;
 
-use test_utilities::tmptree;
-
-fn search_test<P: AsRef<path::Path>>(path: P, args: &[&str]) {
+fn search_test<P: AsRef<Path>>(path: P, args: &[&str]) {
   let binary = executable_path("just");
 
-  let output = process::Command::new(binary)
+  let output = Command::new(binary)
     .current_dir(path)
     .args(args)
     .output()
@@ -23,7 +20,7 @@ fn search_test<P: AsRef<path::Path>>(path: P, args: &[&str]) {
 
 #[test]
 fn test_justfile_search() {
-  let tmp = tmptree! {
+  let tmp = temptree! {
     justfile: "default:\n\techo ok",
     a: {
       b: {
@@ -39,7 +36,7 @@ fn test_justfile_search() {
 
 #[test]
 fn test_capitalized_justfile_search() {
-  let tmp = tmptree! {
+  let tmp = temptree! {
     Justfile: "default:\n\techo ok",
     a: {
       b: {
@@ -55,7 +52,7 @@ fn test_capitalized_justfile_search() {
 
 #[test]
 fn test_upwards_path_argument() {
-  let tmp = tmptree! {
+  let tmp = temptree! {
     justfile: "default:\n\techo ok",
     a: {
       justfile: "default:\n\techo bad",
@@ -68,7 +65,7 @@ fn test_upwards_path_argument() {
 
 #[test]
 fn test_downwards_path_argument() {
-  let tmp = tmptree! {
+  let tmp = temptree! {
     justfile: "default:\n\techo bad",
     a: {
       justfile: "default:\n\techo ok",
@@ -87,7 +84,7 @@ fn test_downwards_path_argument() {
 
 #[test]
 fn test_upwards_multiple_path_argument() {
-  let tmp = tmptree! {
+  let tmp = temptree! {
     justfile: "default:\n\techo ok",
     a: {
       b: {
@@ -103,7 +100,7 @@ fn test_upwards_multiple_path_argument() {
 
 #[test]
 fn test_downwards_multiple_path_argument() {
-  let tmp = tmptree! {
+  let tmp = temptree! {
     justfile: "default:\n\techo bad",
     a: {
       b: {
@@ -124,7 +121,7 @@ fn test_downwards_multiple_path_argument() {
 
 #[test]
 fn single_downards() {
-  let tmp = tmptree! {
+  let tmp = temptree! {
     justfile: "default:\n\techo ok",
     child: {},
   };
@@ -136,7 +133,7 @@ fn single_downards() {
 
 #[test]
 fn single_upwards() {
-  let tmp = tmptree! {
+  let tmp = temptree! {
     justfile: "default:\n\techo ok",
     child: {},
   };

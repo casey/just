@@ -1,8 +1,4 @@
-use std::{process::Command, str};
-
-use executable_path::executable_path;
-
-use test_utilities::{assert_stdout, tmptree};
+use crate::common::*;
 
 const JUSTFILE: &str = "
 expression := `EXPRESSION`
@@ -17,7 +13,7 @@ recipe default=`DEFAULT`:
 #[test]
 #[cfg_attr(windows, ignore)]
 fn flag() {
-  let tmp = tmptree! {
+  let tmp = temptree! {
     justfile: JUSTFILE,
     shell: "#!/usr/bin/env bash\necho \"$@\"",
   };
@@ -56,7 +52,7 @@ recipe:
 #[test]
 #[cfg_attr(unix, ignore)]
 fn cmd() {
-  let tmp = tmptree! {
+  let tmp = temptree! {
     justfile: JUSTFILE_CMD,
   };
 
@@ -85,7 +81,7 @@ recipe:
 #[test]
 #[cfg_attr(unix, ignore)]
 fn powershell() {
-  let tmp = tmptree! {
+  let tmp = temptree! {
     justfile: JUSTFILE_POWERSHELL,
   };
 

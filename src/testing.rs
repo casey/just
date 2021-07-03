@@ -31,7 +31,12 @@ pub(crate) fn search(config: &Config) -> Search {
   }
 }
 
-pub(crate) use test_utilities::tempdir;
+pub(crate) fn tempdir() -> tempfile::TempDir {
+  tempfile::Builder::new()
+    .prefix("just-test-tempdir")
+    .tempdir()
+    .expect("failed to create temporary directory")
+}
 
 macro_rules! analysis_error {
   (

@@ -5,7 +5,7 @@ const JUSTFILE: &str = "Yooooooo, hopefully this never becomes valid syntax.";
 /// Test that --edit doesn't require a valid justfile
 #[test]
 fn invalid_justfile() {
-  let tmp = tmptree! {
+  let tmp = temptree! {
     justfile: JUSTFILE,
   };
 
@@ -29,7 +29,7 @@ fn invalid_justfile() {
 /// Test that editor is $VISUAL, $EDITOR, or "vim" in that order
 #[test]
 fn editor_precedence() {
-  let tmp = tmptree! {
+  let tmp = temptree! {
     justfile: JUSTFILE,
   };
 
@@ -83,7 +83,7 @@ fn editor_precedence() {
 #[cfg(unix)]
 #[test]
 fn editor_working_directory() {
-  let tmp = tmptree! {
+  let tmp = temptree! {
     justfile: JUSTFILE,
     child: {},
     editor: "#!/usr/bin/env sh\ncat $1\npwd",

@@ -1,7 +1,4 @@
-use std::{error::Error, process::Command};
-
-use executable_path::executable_path;
-use test_utilities::tmptree;
+use crate::common::*;
 
 const JUSTFILE: &str = r#"
 foo := `cat data`
@@ -24,7 +21,7 @@ const WANT: &str = "shebang: OK\nexpression: OK\ndefault: OK\nlinewise: OK\n";
 /// `--justfile` but not `--working-directory`
 #[test]
 fn justfile_without_working_directory() -> Result<(), Box<dyn Error>> {
-  let tmp = tmptree! {
+  let tmp = temptree! {
     justfile: JUSTFILE,
     data: DATA,
   };
@@ -50,7 +47,7 @@ fn justfile_without_working_directory() -> Result<(), Box<dyn Error>> {
 /// `--justfile` but not `--working-directory`, and justfile path has no parent
 #[test]
 fn justfile_without_working_directory_relative() -> Result<(), Box<dyn Error>> {
-  let tmp = tmptree! {
+  let tmp = temptree! {
     justfile: JUSTFILE,
     data: DATA,
   };
@@ -77,7 +74,7 @@ fn justfile_without_working_directory_relative() -> Result<(), Box<dyn Error>> {
 /// found
 #[test]
 fn change_working_directory_to_search_justfile_parent() -> Result<(), Box<dyn Error>> {
-  let tmp = tmptree! {
+  let tmp = temptree! {
     justfile: JUSTFILE,
     data: DATA,
     subdir: {},
@@ -103,7 +100,7 @@ fn change_working_directory_to_search_justfile_parent() -> Result<(), Box<dyn Er
 /// `--justfile` but not `--working-directory`
 #[test]
 fn justfile_and_working_directory() -> Result<(), Box<dyn Error>> {
-  let tmp = tmptree! {
+  let tmp = temptree! {
     justfile: JUSTFILE,
     sub: {
       data: DATA,
@@ -133,7 +130,7 @@ fn justfile_and_working_directory() -> Result<(), Box<dyn Error>> {
 /// `--justfile` but not `--working-directory`
 #[test]
 fn search_dir_child() -> Result<(), Box<dyn Error>> {
-  let tmp = tmptree! {
+  let tmp = temptree! {
     child: {
       justfile: JUSTFILE,
       data: DATA,
@@ -161,7 +158,7 @@ fn search_dir_child() -> Result<(), Box<dyn Error>> {
 /// `--justfile` but not `--working-directory`
 #[test]
 fn search_dir_parent() -> Result<(), Box<dyn Error>> {
-  let tmp = tmptree! {
+  let tmp = temptree! {
     child: {
     },
     justfile: JUSTFILE,
