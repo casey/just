@@ -1,8 +1,10 @@
+use crate::common::*;
+
 use std::{fs, process::Command};
 
 use executable_path::executable_path;
 
-use test_utilities::{tempdir, tmptree};
+use test_utilities::tempdir;
 
 const EXPECTED: &str = "default:\n\techo 'Hello, world!'\n";
 
@@ -47,7 +49,7 @@ fn exists() {
 
 #[test]
 fn invocation_directory() {
-  let tmp = tmptree! {
+  let tmp = temptree! {
     ".git": {},
   };
 
@@ -67,7 +69,7 @@ fn invocation_directory() {
 
 #[test]
 fn parent_dir() {
-  let tmp = tmptree! {
+  let tmp = temptree! {
     ".git": {},
     sub: {},
   };
@@ -88,7 +90,7 @@ fn parent_dir() {
 
 #[test]
 fn alternate_marker() {
-  let tmp = tmptree! {
+  let tmp = temptree! {
     "_darcs": {},
   };
 
@@ -108,7 +110,7 @@ fn alternate_marker() {
 
 #[test]
 fn search_directory() {
-  let tmp = tmptree! {
+  let tmp = temptree! {
     sub: {
       ".git": {},
     },
@@ -131,7 +133,7 @@ fn search_directory() {
 
 #[test]
 fn justfile() {
-  let tmp = tmptree! {
+  let tmp = temptree! {
     sub: {
       ".git": {},
     },
@@ -155,7 +157,7 @@ fn justfile() {
 
 #[test]
 fn justfile_and_working_directory() {
-  let tmp = tmptree! {
+  let tmp = temptree! {
     sub: {
       ".git": {},
     },

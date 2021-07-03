@@ -197,7 +197,7 @@ impl Search {
 #[cfg(test)]
 mod tests {
   use super::*;
-  use test_utilities::tmptree;
+  use temptree::temptree;
 
   #[test]
   fn not_found() {
@@ -305,7 +305,7 @@ mod tests {
 
   #[test]
   fn justfile_symlink_parent() {
-    let tmp = tmptree! {
+    let tmp = temptree! {
       src: "",
       sub: {},
     };

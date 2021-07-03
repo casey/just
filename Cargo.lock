@@ -216,6 +216,7 @@ dependencies = [
  "strum_macros",
  "target",
  "tempfile",
+ "temptree",
  "test-utilities",
  "unicode-width",
  "which",
@@ -527,6 +528,15 @@ dependencies = [
  "redox_syscall",
  "remove_dir_all",
  "winapi",
+]
+
+[[package]]
+name = "temptree"
+version = "0.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f2b41283c421539cd57fda2bdae139a0e08992dba973cd4ba859765c867ad591"
+dependencies = [
+ "tempfile",
 ]
 
 [[package]]

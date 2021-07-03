@@ -1,11 +1,11 @@
+use crate::common::*;
+
 use executable_path::executable_path;
 use std::{process, str};
 
-use test_utilities::tmptree;
-
 #[test]
 fn dotenv() {
-  let tmp = tmptree! {
+  let tmp = temptree! {
     ".env": "KEY=ROOT",
     sub: {
       ".env": "KEY=SUB",
