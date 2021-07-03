@@ -1,6 +1,13 @@
 Changelog
 =========
 
+[0.9.8](https://github.com/casey/just/releases/tag/0.9.8) - 2021-7-3
+--------------------------------------------------------------------
+
+### Misc
+- Fix changelog formatting (#894)
+- Only run install script on CI for non-releases (#895)
+
 [0.9.7](https://github.com/casey/just/releases/tag/0.9.7) - 2021-7-3
 --------------------------------------------------------------------
 
@@ -11,7 +18,6 @@ Changelog
 - Remove test-utilities crate (#892)
 - Remove outdated note in `Cargo.toml` (#891)
 - Link to GitHub release pages in changelog (#886)
-
 
 [0.9.6](https://github.com/casey/just/releases/tag/0.9.6) - 2021-6-24
 ---------------------------------------------------------------------
@@ -24,7 +30,6 @@ Changelog
 ### Misc
 - Add `file_extensions` to Sublime syntax file (#878)
 - Document path manipulation functions in readme (#877)
-
 
 [0.9.5](https://github.com/casey/just/releases/tag/0.9.5) - 2021-6-12
 ---------------------------------------------------------------------
@@ -46,7 +51,6 @@ Changelog
 - Move pages assets back to `docs` (#846)
 - Move pages assets to `www` (#845)
 
-
 [0.9.4](https://github.com/casey/just/releases/tag/v0.9.4) - 2021-5-27
 ----------------------------------------------------------------------
 
@@ -57,7 +61,6 @@ Changelog
 - Fix readme links (#836)
 - Add `vim-just` installation instructions to readme (#835)
 - Refactor shebang handling (#833)
-
 
 [0.9.3](https://github.com/casey/just/releases/tag/v0.9.3) - 2021-5-16
 ----------------------------------------------------------------------
@@ -78,13 +81,11 @@ Changelog
 - Document that just is now in Arch official repo (#814)
 - Fix changelog years (#813)
 
-
 [0.9.2](https://github.com/casey/just/releases/tag/v0.9.2) - 2021-5-02
 ----------------------------------------------------------------------
 
 ### Fixed
 - Pass evaluated arguments as positional arguments (#810)
-
 
 [0.9.1](https://github.com/casey/just/releases/tag/v0.9.1) - 2021-4-24
 ----------------------------------------------------------------------
@@ -105,13 +106,11 @@ Changelog
 - Disable .env warning for now
 - Warn if `.env` file loaded and `dotenv-load` unset (#784)
 
-
 [0.9.0](https://github.com/casey/just/releases/tag/v0.9.0) - 2021-3-28
 ----------------------------------------------------------------------
 
 ### Changed
 - Turn `=` deprecation warning into a hard error (#780)
-
 
 [0.8.7](https://github.com/casey/just/releases/tag/v0.8.7) - 2021-3-28
 ----------------------------------------------------------------------
@@ -121,7 +120,6 @@ Changelog
 
 ### Misc
 - Change publish recipe to use stable rust (#777)
-
 
 [0.8.6](https://github.com/casey/just/releases/tag/v0.8.6) - 2021-3-28
 ----------------------------------------------------------------------
@@ -139,7 +137,6 @@ Changelog
 - De-emphasize cmd.exe in readme (#768)
 - Fix warnings (#770)
 
-
 [0.8.5](https://github.com/casey/just/releases/tag/v0.8.5) - 2021-3-24
 ----------------------------------------------------------------------
 
@@ -152,7 +149,6 @@ Changelog
 - Fix command output in readme (#760)
 - Note Emacs package `just-mode` in readme (#759)
 - Note shebang line splitting inconsistency in readme (#757)
-
 
 [0.8.4](https://github.com/casey/just/releases/tag/v0.8.4) - 2021-2-9
 ---------------------------------------------------------------------
@@ -172,13 +168,11 @@ Changelog
 - Replace saythanks.io link with malto: link (#723)
 - Update man page to v0.8.3 (#720)
 
-
 [0.8.3](https://github.com/casey/just/releases/tag/v0.8.3) - 2020-10-27
 -----------------------------------------------------------------------
 
 ### Added
 - Allow ignoring line endings inside delimiters (#717)
-
 
 [0.8.2](https://github.com/casey/just/releases/tag/v0.8.2) - 2020-10-26
 -----------------------------------------------------------------------
@@ -194,7 +188,6 @@ Changelog
 - Automatically track expected tokens while parsing (#711)
 - Document feature flags in Cargo.toml (#709)
 
-
 [0.8.1](https://github.com/casey/just/releases/tag/v0.8.1) - 2020-10-15
 -----------------------------------------------------------------------
 
@@ -209,7 +202,6 @@ Changelog
 - Fix build fix (#693)
 - Fix readme documentation for ignoring errors (#692)
 
-
 [0.8.0](https://github.com/casey/just/releases/tag/v0.8.0) - 2020-10-3
 ----------------------------------------------------------------------
 
@@ -221,7 +213,6 @@ Changelog
 - Install BSD Tar on GitHub Actions to fix CI errors (#689)
 - Move separate quiet config value to verbosity (#686)
 
-
 [0.7.3](https://github.com/casey/just/releases/tag/v0.7.3) - 2020-9-17
 ----------------------------------------------------------------------
 
@@ -231,7 +222,6 @@ Changelog
 ### Misc
 - Combine integration tests into single binary (#679)
 - Document `--unsorted` flag in readme (#672)
-
 
 [0.7.2](https://github.com/casey/just/releases/tag/v0.7.2) - 2020-8-23
 ----------------------------------------------------------------------
@@ -243,7 +233,6 @@ Changelog
 - Mention Linux, MacOS and Windows support in readme (#666)
 - Add list highlighting nice features to readme (#664)
 
-
 [0.7.1](https://github.com/casey/just/releases/tag/v0.7.1) - 2020-7-19
 ----------------------------------------------------------------------
 
@@ -252,7 +241,6 @@ Changelog
 
 ### Misc
 - Move link-time optimization config into `Cargo.toml` (#658)
-
 
 [0.7.0](https://github.com/casey/just/releases/tag/v0.7.0) - 2020-7-16
 ----------------------------------------------------------------------
@@ -263,13 +251,11 @@ Changelog
 ### Misc
 - Mark tags that start with `v` as releases (#654)
 
-
 [0.6.1](https://github.com/casey/just/releases/tag/v0.6.1) - 2020-6-28
 ----------------------------------------------------------------------
 
 ### Changed
 - Only use `cygpath` on shebang if it contains `/` (#652)
-
 
 [0.6.0](https://github.com/casey/just/releases/tag/v0.6.0) - 2020-6-18
 ----------------------------------------------------------------------
@@ -290,7 +276,6 @@ Changelog
 - Add example justfile (#639)
 - Document how to run recipes after another recipe (#630)
 
-
 [0.5.11](https://github.com/casey/just/releases/tag/v0.5.11) - 2020-5-23
 ------------------------------------------------------------------------
 
@@ -301,10 +286,8 @@ Changelog
 - Complete recipe names in fish completion script (#625)
 - Suggest aliases for unknown recipes (#624)
 
-
 [0.5.10](https://github.com/casey/just/releases/tag/v0.5.10) - 2020-3-18
 ------------------------------------------------------------------------
-
 
 [0.5.9](https://github.com/casey/just/releases/tag/v0.5.9) - 2020-3-18
 ----------------------------------------------------------------------
@@ -329,7 +312,6 @@ Changelog
 - Wrap comments at 80 characters (#593)
 - Use unstable rustfmt configuration options (#592)
 
-
 [0.5.8](https://github.com/casey/just/releases/tag/v0.5.8) - 2020-1-28
 ----------------------------------------------------------------------
 
@@ -340,13 +322,11 @@ Changelog
 - Improve comments in justfile (#588)
 - Remove unused dependencies (#587)
 
-
 [0.5.7](https://github.com/casey/just/releases/tag/v0.5.7) - 2020-1-28
 ----------------------------------------------------------------------
 
 ### Misc
 - Don't include directories in release archive (#583)
-
 
 [0.5.6](https://github.com/casey/just/releases/tag/v0.5.6) - 2020-1-28
 ----------------------------------------------------------------------
@@ -357,7 +337,6 @@ Changelog
 - Expand use of Github Actions (#580)
 - Fix readme typo: interpetation -> interpretation (#578)
 
-
 [0.5.5](https://github.com/casey/just/releases/tag/v0.5.5) - 2020-1-15
 ----------------------------------------------------------------------
 
@@ -367,7 +346,6 @@ Changelog
 ### Misc
 - Check long lines and FIXME/TODO on CI (#575)
 - Add additional continuous integration checks (#574)
-
 
 [0.5.4](https://github.com/casey/just/releases/tag/v0.5.4) - 2019-12-25
 -----------------------------------------------------------------------
@@ -382,7 +360,6 @@ Changelog
 - Reform indentation handling (#565)
 - Update Cargo.lock with new version (#564)
 
-
 [0.5.3](https://github.com/casey/just/releases/tag/v0.5.3) - 2019-12-11
 -----------------------------------------------------------------------
 
@@ -390,7 +367,6 @@ Changelog
 - Assert that lexer advances over entire input (#560)
 - Fix typo: `chracter` -> `character` (#561)
 - Improve pre-publish check (#562)
-
 
 [0.5.2](https://github.com/casey/just/releases/tag/v0.5.2) - 2019-12-7
 ----------------------------------------------------------------------
@@ -407,7 +383,6 @@ Changelog
 - Resolve functions (#550)
 - Reform scope and binding (#556)
 
-
 [0.5.1](https://github.com/casey/just/releases/tag/v0.5.1) - 2019-11-20
 -----------------------------------------------------------------------
 
@@ -422,7 +397,6 @@ Changelog
 - Refactor Compilation error to contain a Token (#535)
 - Move lexer comment (#536)
 - Add missing `--init` test (#543)
-
 
 [0.5.0](https://github.com/casey/just/releases/tag/v0.5.0) - 2019-11-12
 -----------------------------------------------------------------------
@@ -445,7 +419,6 @@ Changelog
 - Remove now-unnecessary borrow checker appeasement (#511)
 - Reform Parser (#509)
 - Note need to publish with nightly cargo (#506)
-
 
 [0.4.5](https://github.com/casey/just/releases/tag/v0.4.5) - 2019-10-31
 -----------------------------------------------------------------------
@@ -497,7 +470,6 @@ Changelog
 - Remove dependency on brev (#462)
 - Update dependencies (#501)
 
-
 [0.4.4](https://github.com/casey/just/releases/tag/v0.4.4) - 2019-06-02
 -----------------------------------------------------------------------
 
@@ -506,7 +478,6 @@ Changelog
 
 ### Added
 - Display alias target with `--show` (#443)
-
 
 [0.4.3](https://github.com/casey/just/releases/tag/v0.4.3) - 2019-05-07
 -----------------------------------------------------------------------
@@ -531,20 +502,17 @@ Changelog
 - Move CompilationErrorKind into separate module (#416)
 - Remove `write_token_error_context` (#417)
 
-
 [0.4.2](https://github.com/casey/just/releases/tag/v0.4.2) - 2019-04-12
 -----------------------------------------------------------------------
 
 ### Changed
 - Regex-based lexer replaced with much nicer character-at-a-time lexer (#406)
 
-
 [0.4.1](https://github.com/casey/just/releases/tag/v0.4.1) - 2019-04-12
 -----------------------------------------------------------------------
 
 ### Changed
 - Make summary function non-generic (#404)
-
 
 [0.4.0](https://github.com/casey/just/releases/tag/v0.4.0) - 2019-04-12
 -----------------------------------------------------------------------
@@ -561,7 +529,6 @@ Changelog
 - Upgrade to Rust 2018 (#394)
 - Format the codebase with rustfmt (#346)
 
-
 [0.3.13](https://github.com/casey/just/releases/tag/v0.3.13) - 2018-11-06
 -------------------------------------------------------------------------
 
@@ -574,13 +541,11 @@ Changelog
 ### Fixed
 - Use PutBackN instead of PutBack in parser (#364)
 
-
 [0.3.12](https://github.com/casey/just/releases/tag/v0.3.12) - 2018-06-19
 -------------------------------------------------------------------------
 
 ### Added
 - Implemented invocation_directory function
-
 
 [0.3.11](https://github.com/casey/just/releases/tag/v0.3.11) - 2018-05-6
 ------------------------------------------------------------------------
@@ -588,13 +553,11 @@ Changelog
 ### Fixed
 - Fixed colors on windows (#317)
 
-
 [0.3.10](https://github.com/casey/just/releases/tag/v0.3.10) - 2018-3-19
 ------------------------------------------------------------------------
 
 ### Added
 - Make .env vars available in env_var functions (#310)
-
 
 [0.3.8](https://github.com/casey/just/releases/tag/v0.3.8) - 2018-3-5
 ---------------------------------------------------------------------
@@ -602,20 +565,17 @@ Changelog
 ### Added
 - Add dotenv integration (#306)
 
-
 [0.3.7](https://github.com/casey/just/releases/tag/v0.3.7) - 2017-12-11
 -----------------------------------------------------------------------
 
 ### Fixed
 - Fix error if ! appears in comment (#296)
 
-
 [0.3.6](https://github.com/casey/just/releases/tag/v0.3.6) - 2017-12-11
 -----------------------------------------------------------------------
 
 ### Fixed
 - Lex CRLF line endings properly (#292)
-
 
 [0.3.5](https://github.com/casey/just/releases/tag/v0.3.5) - 2017-12-11
 -----------------------------------------------------------------------
@@ -625,7 +585,6 @@ Changelog
 - Add `arch()`, `os()`, and `os_family()` functions (#277)
 - Add `env_var(key)` and `env_var_or_default(key, default)` functions (#280)
 
-
 [0.3.4](https://github.com/casey/just/releases/tag/v0.3.4) - 2017-10-06
 -----------------------------------------------------------------------
 
@@ -634,7 +593,6 @@ Changelog
 
 ### Changed
 - Change license to CC0 going forward (#270)
-
 
 [0.3.1](https://github.com/casey/just/releases/tag/v0.3.1) - 2017-10-06
 -----------------------------------------------------------------------
