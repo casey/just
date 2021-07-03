@@ -2,6 +2,8 @@
 mod unix {
   use crate::common::*;
 
+  use std::time::{Duration, Instant};
+
   fn kill(process_id: u32) {
     unsafe {
       libc::kill(process_id as i32, libc::SIGINT);

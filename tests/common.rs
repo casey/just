@@ -8,7 +8,6 @@ pub(crate) use std::{
   path::Path,
   process::{Command, Output, Stdio},
   str,
-  time::{Duration, Instant},
 };
 
 pub(crate) use executable_path::executable_path;
