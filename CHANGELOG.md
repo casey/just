@@ -4,10 +4,10 @@ Changelog
 [0.9.7](https://github.com/casey/just/releases/tag/0.9.7) - 2021-7-3
 --------------------------------------------------------------------
 
-## Added
+### Added
 - Add string manipulation functions (#888)
 
-## Misc
+### Misc
 - Remove test-utilities crate (#892)
 - Remove outdated note in `Cargo.toml` (#891)
 - Link to GitHub release pages in changelog (#886)
@@ -333,10 +333,10 @@ Changelog
 [0.5.8](https://github.com/casey/just/releases/tag/v0.5.8) - 2020-1-28
 ----------------------------------------------------------------------
 
-## Changed
+### Changed
 - Only use `cygpath` on windows if present (#586)
 
-## Misc
+### Misc
 - Improve comments in justfile (#588)
 - Remove unused dependencies (#587)
 
@@ -344,14 +344,14 @@ Changelog
 [0.5.7](https://github.com/casey/just/releases/tag/v0.5.7) - 2020-1-28
 ----------------------------------------------------------------------
 
-## Misc
+### Misc
 - Don't include directories in release archive (#583)
 
 
 [0.5.6](https://github.com/casey/just/releases/tag/v0.5.6) - 2020-1-28
 ----------------------------------------------------------------------
 
-## Misc
+### Misc
 - Build and upload release artifacts from GitHub Actions (#581)
 - List solus package in readme (#579)
 - Expand use of Github Actions (#580)
@@ -361,10 +361,10 @@ Changelog
 [0.5.5](https://github.com/casey/just/releases/tag/v0.5.5) - 2020-1-15
 ----------------------------------------------------------------------
 
-## Added
+### Added
 - Generate shell completion scripts with `--completions` (#572)
 
-## Misc
+### Misc
 - Check long lines and FIXME/TODO on CI (#575)
 - Add additional continuous integration checks (#574)
 
@@ -372,10 +372,10 @@ Changelog
 [0.5.4](https://github.com/casey/just/releases/tag/v0.5.4) - 2019-12-25
 -----------------------------------------------------------------------
 
-# Added
+### Added
 - Add `justfile_directory()` and `justfile()` (#569)
 
-## Misc
+### Misc
 - Add table of package managers that include just to readme (#568)
 - Remove yaourt AUR helper from readme (#567)
 - Fix regression in error message color printing (#566)
@@ -386,7 +386,7 @@ Changelog
 [0.5.3](https://github.com/casey/just/releases/tag/v0.5.3) - 2019-12-11
 -----------------------------------------------------------------------
 
-## Misc
+### Misc
 - Assert that lexer advances over entire input (#560)
 - Fix typo: `chracter` -> `character` (#561)
 - Improve pre-publish check (#562)
@@ -395,11 +395,11 @@ Changelog
 [0.5.2](https://github.com/casey/just/releases/tag/v0.5.2) - 2019-12-7
 ----------------------------------------------------------------------
 
-## Added
+### Added
 - Add flags to set and clear shell arguments (#551)
 - Allow passing arguments to dependencies (#555)
 
-## Misc
+### Misc
 - Un-implement Deref for Table (#546)
 - Resolve recipe dependencies (#547)
 - Resolve alias targets (#548)
@@ -411,13 +411,13 @@ Changelog
 [0.5.1](https://github.com/casey/just/releases/tag/v0.5.1) - 2019-11-20
 -----------------------------------------------------------------------
 
-## Added
+### Added
 - Add `--init` subcommand (#541)
 
-## Changed
+### Changed
 - Avoid fs::canonicalize (#539)
 
-## Misc
+### Misc
 - Mention `set shell` as altenative to installing `sh` (#533)
 - Refactor Compilation error to contain a Token (#535)
 - Move lexer comment (#536)
@@ -427,17 +427,17 @@ Changelog
 [0.5.0](https://github.com/casey/just/releases/tag/v0.5.0) - 2019-11-12
 -----------------------------------------------------------------------
 
-## Added
+### Added
 
 - Add `set shell := [...]` to grammar (#526)
 - Add `shell` setting (#525)
 - Document settings in readme (#527)
 
-## Changed
+### Changed
 - Reform positional argument parsing (#523)
 - Highlight echoed recipe lines in bold by default (#512)
 
-## Misc
+### Misc
 
 - Gargantuan refactor (#522)
 - Move subcommand execution into Subcommand (#514)
@@ -450,7 +450,7 @@ Changelog
 [0.4.5](https://github.com/casey/just/releases/tag/v0.4.5) - 2019-10-31
 -----------------------------------------------------------------------
 
-## User-visible
+### User-visible
 
 ### Changed
 - Display alias with `--show NAME` if one exists
@@ -461,7 +461,7 @@ Changelog
 - Add context to deprecation warnings (#473)
 - Improve messages for alias error messages (#500)
 
-## Misc
+### Misc
 
 ### Cleanup
 - Update deprecated rust range patterns and clippy config (#450)
@@ -599,7 +599,7 @@ Changelog
 [0.3.8](https://github.com/casey/just/releases/tag/v0.3.8) - 2018-3-5
 ---------------------------------------------------------------------
 
-## Added
+### Added
 - Add dotenv integration (#306)
 
 
