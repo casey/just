@@ -82,6 +82,13 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
           self.resolve_expression(a)?;
           self.resolve_expression(b)
         },
+        Thunk::Ternary {
+          args: [a, b, c], ..
+        } => {
+          self.resolve_expression(a)?;
+          self.resolve_expression(b)?;
+          self.resolve_expression(c)
+        },
       },
       Expression::Concatination { lhs, rhs } => {
         self.resolve_expression(lhs)?;

@@ -5,6 +5,7 @@ pub(crate) enum Function {
   Nullary(fn(&FunctionContext) -> Result<String, String>),
   Unary(fn(&FunctionContext, &str) -> Result<String, String>),
   Binary(fn(&FunctionContext, &str, &str) -> Result<String, String>),
+  Ternary(fn(&FunctionContext, &str, &str, &str) -> Result<String, String>),
 }
 
 lazy_static! {
@@ -25,6 +26,10 @@ lazy_static! {
     ("os_family", Nullary(os_family)),
     ("parent_directory", Unary(parent_directory)),
     ("without_extension", Unary(without_extension)),
+    ("uppercase", Unary(uppercase)),
+    ("lowercase", Unary(lowercase)),
+    ("trim", Unary(trim)),
+    ("replace", Ternary(replace)),
   ]
   .into_iter()
   .collect();
@@ -36,6 +41,7 @@ impl Function {
       Nullary(_) => 0,
       Unary(_) => 1,
       Binary(_) => 2,
+      Ternary(_) => 3,
     }
   }
 }
@@ -189,4 +195,20 @@ fn without_extension(_context: &FunctionContext, path: &str) -> Result<String, S
     .ok_or_else(|| format!("Could not extract file stem from `{}`", path))?;
 
   Ok(parent.join(file_stem).to_string())
+}
+
+fn uppercase(_context: &FunctionContext, s: &str) -> Result<String, String> {
+  Ok(s.to_uppercase())
+}
+
+fn lowercase(_context: &FunctionContext, s: &str) -> Result<String, String> {
+  Ok(s.to_lowercase())
+}
+
+fn trim(_context: &FunctionContext, s: &str) -> Result<String, String> {
+  Ok(s.trim().to_owned())
+}
+
+fn replace(_context: &FunctionContext, s: &str, from: &str, to: &str) -> Result<String, String> {
+  Ok(s.replace(from, to))
 }

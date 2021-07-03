@@ -230,6 +230,14 @@ impl Expression {
           name:      name.lexeme().to_owned(),
           arguments: vec![Expression::new(a), Expression::new(b)],
         },
+        full::Thunk::Ternary {
+          name,
+          args: [a, b, c],
+          ..
+        } => Expression::Call {
+          name:      name.lexeme().to_owned(),
+          arguments: vec![Expression::new(a), Expression::new(b), Expression::new(c)],
+        },
       },
       Concatination { lhs, rhs } => Expression::Concatination {
         lhs: Box::new(Expression::new(lhs)),
