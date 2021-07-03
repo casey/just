@@ -1,7 +1,9 @@
+use crate::common::*;
+
 use std::{fs, process::Command};
 
 use executable_path::executable_path;
-use test_utilities::{assert_success, tempdir};
+use test_utilities::assert_success;
 
 #[test]
 fn readme() {

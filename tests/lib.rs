@@ -3,6 +3,8 @@ mod test;
 
 mod common;
 
+mod tempdir;
+
 mod choose;
 mod command;
 mod completions;

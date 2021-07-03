@@ -1,12 +1,5 @@
 use std::process::Output;
 
-pub fn tempdir() -> tempfile::TempDir {
-  tempfile::Builder::new()
-    .prefix("just-test-tempdir")
-    .tempdir()
-    .expect("failed to create temporary directory")
-}
-
 pub fn assert_success(output: &Output) {
   if !output.status.success() {
     eprintln!("stderr: {}", String::from_utf8_lossy(&output.stderr));

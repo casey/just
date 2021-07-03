@@ -4,8 +4,6 @@ use std::{fs, process::Command};
 
 use executable_path::executable_path;
 
-use test_utilities::tempdir;
-
 const EXPECTED: &str = "default:\n\techo 'Hello, world!'\n";
 
 #[test]
