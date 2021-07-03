@@ -49,9 +49,6 @@ pretty_assertions = "0.7.0"
 which             = "4.0.0"
 yaml-rust         = "0.4.5"
 
-# Until github.com/rust-lang/cargo/pull/7333 makes it into stable,
-# this version-less dev-dependency will interfere with publishing
-# to crates.io. In the meantime, we can publish with nighlty cargo.
 [dev-dependencies.test-utilities]
 path = "test-utilities"
 
