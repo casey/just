@@ -1,6 +1,18 @@
 Changelog
 =========
 
+[0.9.7](https://github.com/casey/just/releases/tag/0.9.7) - 2021-7-3
+--------------------------------------------------------------------
+
+## Added
+- Add string manipulation functions (#888)
+
+## Misc
+- Remove test-utilities crate (#892)
+- Remove outdated note in `Cargo.toml` (#891)
+- Link to GitHub release pages in changelog (#886)
+
+
 [0.9.6](https://github.com/casey/just/releases/tag/0.9.6) - 2021-6-24
 ---------------------------------------------------------------------
 
