@@ -194,7 +194,7 @@ checksum = "9a3a5bfb195931eeb336b2a7b4d761daec841b97f947d34394601737a7bba5e4"
 
 [[package]]
 name = "just"
-version = "0.9.7"
+version = "0.9.8"
 dependencies = [
  "ansi_term 0.12.1",
  "atty",
@@ -531,9 +531,9 @@ dependencies = [
 
 [[package]]
 name = "temptree"
-version = "0.0.0"
+version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f2b41283c421539cd57fda2bdae139a0e08992dba973cd4ba859765c867ad591"
+checksum = "13f60523942b252a93f18dd6c8ba53488929d59f7b106be23a29bc9cbc466461"
 dependencies = [
  "tempfile",
 ]
