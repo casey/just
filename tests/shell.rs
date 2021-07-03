@@ -1,11 +1,5 @@
 use crate::common::*;
 
-use std::{process::Command, str};
-
-use executable_path::executable_path;
-
-use test_utilities::assert_stdout;
-
 const JUSTFILE: &str = "
 expression := `EXPRESSION`
 

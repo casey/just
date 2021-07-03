@@ -1,9 +1,5 @@
 use crate::common::*;
 
-use std::{error::Error, process::Command};
-
-use executable_path::executable_path;
-
 const JUSTFILE: &str = r#"
 foo := `cat data`
 

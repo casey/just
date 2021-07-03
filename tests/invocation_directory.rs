@@ -1,9 +1,5 @@
 use crate::common::*;
 
-use std::{fs, path::Path, process, str};
-
-use executable_path::executable_path;
-
 #[cfg(unix)]
 fn convert_native_path(path: &Path) -> String {
   fs::canonicalize(path)
@@ -16,7 +12,7 @@ fn convert_native_path(path: &Path) -> String {
 #[cfg(windows)]
 fn convert_native_path(path: &Path) -> String {
   // Translate path from windows style to unix style
-  let mut cygpath = process::Command::new("cygpath");
+  let mut cygpath = Command::new("cygpath");
   cygpath.arg("--unix");
   cygpath.arg(path);
 
@@ -52,7 +48,7 @@ fn test_invocation_directory() {
   subdir.push("subdir");
   fs::create_dir(&subdir).unwrap();
 
-  let output = process::Command::new(&executable_path("just"))
+  let output = Command::new(&executable_path("just"))
     .current_dir(&subdir)
     .args(&["--shell", "sh"])
     .output()

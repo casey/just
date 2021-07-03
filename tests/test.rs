@@ -1,7 +1,5 @@
 use crate::common::*;
 
-pub(crate) use pretty_assertions::assert_eq;
-
 macro_rules! test {
   (
     name:     $name:ident,

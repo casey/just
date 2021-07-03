@@ -1,9 +1,5 @@
 use crate::common::*;
 
-use std::{fs, process::Command};
-
-use executable_path::executable_path;
-
 const EXPECTED: &str = "default:\n\techo 'Hello, world!'\n";
 
 #[test]

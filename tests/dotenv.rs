@@ -1,8 +1,5 @@
 use crate::common::*;
 
-use executable_path::executable_path;
-use std::{process, str};
-
 #[test]
 fn dotenv() {
   let tmp = temptree! {
@@ -15,7 +12,7 @@ fn dotenv() {
 
   let binary = executable_path("just");
 
-  let output = process::Command::new(binary)
+  let output = Command::new(binary)
     .current_dir(tmp.path())
     .arg("sub/default")
     .output()

@@ -1,8 +1,9 @@
 #[macro_use]
 mod test;
 
+mod assert_stdout;
+mod assert_success;
 mod common;
-
 mod tempdir;
 
 mod choose;

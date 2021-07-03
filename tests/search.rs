@@ -1,12 +1,9 @@
 use crate::common::*;
 
-use executable_path::executable_path;
-use std::{path, process, str};
-
-fn search_test<P: AsRef<path::Path>>(path: P, args: &[&str]) {
+fn search_test<P: AsRef<Path>>(path: P, args: &[&str]) {
   let binary = executable_path("just");
 
-  let output = process::Command::new(binary)
+  let output = Command::new(binary)
     .current_dir(path)
     .args(args)
     .output()

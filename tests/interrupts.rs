@@ -2,14 +2,6 @@
 mod unix {
   use crate::common::*;
 
-  use executable_path::executable_path;
-  use just::unindent;
-  use std::{
-    fs,
-    process::Command,
-    time::{Duration, Instant},
-  };
-
   fn kill(process_id: u32) {
     unsafe {
       libc::kill(process_id as i32, libc::SIGINT);
