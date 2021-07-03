@@ -50,9 +50,6 @@ temptree          = "0.0.0"
 which             = "4.0.0"
 yaml-rust         = "0.4.5"
 
-[dev-dependencies.test-utilities]
-path = "test-utilities"
-
 [features]
 # No features are active by default.
 default = []
