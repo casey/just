@@ -22,14 +22,14 @@ lazy_static! {
     ("just_executable", Nullary(just_executable)),
     ("justfile", Nullary(justfile)),
     ("justfile_directory", Nullary(justfile_directory)),
+    ("lowercase", Unary(lowercase)),
     ("os", Nullary(os)),
     ("os_family", Nullary(os_family)),
     ("parent_directory", Unary(parent_directory)),
-    ("without_extension", Unary(without_extension)),
-    ("uppercase", Unary(uppercase)),
-    ("lowercase", Unary(lowercase)),
-    ("trim", Unary(trim)),
     ("replace", Ternary(replace)),
+    ("trim", Unary(trim)),
+    ("uppercase", Unary(uppercase)),
+    ("without_extension", Unary(without_extension)),
   ]
   .into_iter()
   .collect();
@@ -170,6 +170,10 @@ fn justfile_directory(context: &FunctionContext) -> Result<String, String> {
     })
 }
 
+fn lowercase(_context: &FunctionContext, s: &str) -> Result<String, String> {
+  Ok(s.to_lowercase())
+}
+
 fn os(_context: &FunctionContext) -> Result<String, String> {
   Ok(target::os().to_owned())
 }
@@ -185,6 +189,18 @@ fn parent_directory(_context: &FunctionContext, path: &str) -> Result<String, St
     .ok_or_else(|| format!("Could not extract parent directory from `{}`", path))
 }
 
+fn replace(_context: &FunctionContext, s: &str, from: &str, to: &str) -> Result<String, String> {
+  Ok(s.replace(from, to))
+}
+
+fn trim(_context: &FunctionContext, s: &str) -> Result<String, String> {
+  Ok(s.trim().to_owned())
+}
+
+fn uppercase(_context: &FunctionContext, s: &str) -> Result<String, String> {
+  Ok(s.to_uppercase())
+}
+
 fn without_extension(_context: &FunctionContext, path: &str) -> Result<String, String> {
   let parent = Utf8Path::new(path)
     .parent()
@@ -195,20 +211,4 @@ fn without_extension(_context: &FunctionContext, path: &str) -> Result<String, S
     .ok_or_else(|| format!("Could not extract file stem from `{}`", path))?;
 
   Ok(parent.join(file_stem).to_string())
-}
-
-fn uppercase(_context: &FunctionContext, s: &str) -> Result<String, String> {
-  Ok(s.to_uppercase())
-}
-
-fn lowercase(_context: &FunctionContext, s: &str) -> Result<String, String> {
-  Ok(s.to_lowercase())
-}
-
-fn trim(_context: &FunctionContext, s: &str) -> Result<String, String> {
-  Ok(s.trim().to_owned())
-}
-
-fn replace(_context: &FunctionContext, s: &str, from: &str, to: &str) -> Result<String, String> {
-  Ok(s.replace(from, to))
 }
