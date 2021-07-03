@@ -262,3 +262,43 @@ test! {
   stdout: "b\n",
   stderr: "echo b\n",
 }
+
+test! {
+  name: uppercase,
+  justfile: "
+    foo:
+      echo {{ uppercase('bar') }}
+  ",
+  stdout: "BAR\n",
+  stderr: "echo BAR\n",
+}
+
+test! {
+  name: lowercase,
+  justfile: "
+    foo:
+      echo {{ lowercase('BAR') }}
+  ",
+  stdout: "bar\n",
+  stderr: "echo bar\n",
+}
+
+test! {
+  name: trim,
+  justfile: "
+    foo:
+      echo {{ trim('   bar   ') }}
+  ",
+  stdout: "bar\n",
+  stderr: "echo bar\n",
+}
+
+test! {
+  name: replace,
+  justfile: "
+    foo:
+      echo {{ replace('barbarbar', 'bar', 'foo') }}
+  ",
+  stdout: "foofoofoo\n",
+  stderr: "echo foofoofoo\n",
+}

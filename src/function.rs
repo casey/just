@@ -5,6 +5,7 @@ pub(crate) enum Function {
   Nullary(fn(&FunctionContext) -> Result<String, String>),
   Unary(fn(&FunctionContext, &str) -> Result<String, String>),
   Binary(fn(&FunctionContext, &str, &str) -> Result<String, String>),
+  Ternary(fn(&FunctionContext, &str, &str, &str) -> Result<String, String>),
 }
 
 lazy_static! {
@@ -21,9 +22,13 @@ lazy_static! {
     ("just_executable", Nullary(just_executable)),
     ("justfile", Nullary(justfile)),
     ("justfile_directory", Nullary(justfile_directory)),
+    ("lowercase", Unary(lowercase)),
     ("os", Nullary(os)),
     ("os_family", Nullary(os_family)),
     ("parent_directory", Unary(parent_directory)),
+    ("replace", Ternary(replace)),
+    ("trim", Unary(trim)),
+    ("uppercase", Unary(uppercase)),
     ("without_extension", Unary(without_extension)),
   ]
   .into_iter()
@@ -36,6 +41,7 @@ impl Function {
       Nullary(_) => 0,
       Unary(_) => 1,
       Binary(_) => 2,
+      Ternary(_) => 3,
     }
   }
 }
@@ -164,6 +170,10 @@ fn justfile_directory(context: &FunctionContext) -> Result<String, String> {
     })
 }
 
+fn lowercase(_context: &FunctionContext, s: &str) -> Result<String, String> {
+  Ok(s.to_lowercase())
+}
+
 fn os(_context: &FunctionContext) -> Result<String, String> {
   Ok(target::os().to_owned())
 }
@@ -177,6 +187,18 @@ fn parent_directory(_context: &FunctionContext, path: &str) -> Result<String, St
     .parent()
     .map(Utf8Path::to_string)
     .ok_or_else(|| format!("Could not extract parent directory from `{}`", path))
+}
+
+fn replace(_context: &FunctionContext, s: &str, from: &str, to: &str) -> Result<String, String> {
+  Ok(s.replace(from, to))
+}
+
+fn trim(_context: &FunctionContext, s: &str) -> Result<String, String> {
+  Ok(s.trim().to_owned())
+}
+
+fn uppercase(_context: &FunctionContext, s: &str) -> Result<String, String> {
+  Ok(s.to_uppercase())
 }
 
 fn without_extension(_context: &FunctionContext, path: &str) -> Result<String, String> {

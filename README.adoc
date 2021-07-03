@@ -764,6 +764,13 @@ $ just
 The executable is at: /bin/just
 ```
 
+==== String Manipulation
+
+- `uppercase(s)` - Convert `s` to uppercase.
+- `lowercase(s)` - Convert `s` to lowercase.
+- `trim(s)` - Remove leading and trailing whitespace from `s`.
+- `replace(s, from, to)` - Replace all occurrences of `from` in `s` to `to`.
+
 ==== Dotenv Integration
 
 `just` will load environment variables from a file named `.env`. This file can be located in the same directory as your justfile or in a parent directory. These variables are environment variables, not `just` variables, and so must be accessed using `$VARIABLE_NAME` in recipes and backticks.

@@ -105,6 +105,21 @@ impl<'src, 'run> Evaluator<'src, 'run> {
             function: *name,
             message,
           }),
+          Ternary {
+            name,
+            function,
+            args: [a, b, c],
+            ..
+          } => function(
+            &context,
+            &self.evaluate_expression(a)?,
+            &self.evaluate_expression(b)?,
+            &self.evaluate_expression(c)?,
+          )
+          .map_err(|message| RuntimeError::FunctionCall {
+            function: *name,
+            message,
+          }),
         }
       },
       Expression::StringLiteral { string_literal } => Ok(string_literal.cooked.clone()),
