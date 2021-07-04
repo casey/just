@@ -289,15 +289,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ac74c624d6b2d21f425f752262f42188365d7b8ff1aff74c82e45136510a4857"
 
 [[package]]
-name = "prerelease"
-version = "0.0.0"
-dependencies = [
- "executable-path",
- "regex",
- "structopt",
-]
-
-[[package]]
 name = "pretty_assertions"
 version = "0.7.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -398,6 +389,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5ab49abadf3f9e1c4bc499e8845e152ad87d2ad2d30371841171169e9d75feee"
 dependencies = [
  "bitflags",
+]
+
+[[package]]
+name = "ref-type"
+version = "0.0.0"
+dependencies = [
+ "executable-path",
+ "regex",
+ "structopt",
 ]
 
 [[package]]

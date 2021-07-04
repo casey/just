@@ -123,12 +123,12 @@ jobs:
         sudo apt-get install ripgrep
         ./bin/forbid
 
-    - name: Prerelease Check
-      id: is_prerelease
-      run: cargo run --package prerelease -- --reference ${{ github.ref }}
+    - name: Ref Type
+      id: ref-type
+      run: cargo run --package ref-type -- --reference ${{ github.ref }}
 
     - name: Test Install Script With Explicit Target
-      if: matrix.os != 'windows-2016' && steps.is_prerelease.outputs.value
+      if: matrix.os != 'windows-2016' && steps.ref-type.outputs.value != 'release'
       run: |
         cd `mktemp -d`
         cat $GITHUB_WORKSPACE/docs/install.sh | bash -s -- --target ${{ matrix.target }} --to .
@@ -137,7 +137,7 @@ jobs:
         fi
 
     - name: Test Install Script Without Explicit Target
-      if: matrix.os != 'windows-2016' && steps.is_prerelease.outputs.value
+      if: matrix.os != 'windows-2016' && steps.ref-type.outputs.value != 'release'
       run: |
         cd `mktemp -d`
         cat $GITHUB_WORKSPACE/docs/install.sh | bash -s -- --to .
