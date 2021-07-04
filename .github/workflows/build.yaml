@@ -128,7 +128,7 @@ jobs:
       run: cargo run --package prerelease -- --reference ${{ github.ref }}
 
     - name: Test Install Script With Explicit Target
-      if: matrix.os != 'windows-2016' && steps.is_prerelease.outputs.value
+      if: matrix.os != 'windows-2016' && steps.is_prerelease.outputs.value == 'true'
       run: |
         cd `mktemp -d`
         cat $GITHUB_WORKSPACE/docs/install.sh | bash -s -- --target ${{ matrix.target }} --to .
@@ -137,7 +137,7 @@ jobs:
         fi
 
     - name: Test Install Script Without Explicit Target
-      if: matrix.os != 'windows-2016' && steps.is_prerelease.outputs.value
+      if: matrix.os != 'windows-2016' && steps.is_prerelease.outputs.value == 'true'
       run: |
         cd `mktemp -d`
         cat $GITHUB_WORKSPACE/docs/install.sh | bash -s -- --to .
