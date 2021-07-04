@@ -13,8 +13,11 @@ fn main() {
   let regex = Regex::new("^refs/tags/[[:digit:]]+[.][[:digit:]]+[.][[:digit:]]+$")
     .expect("Failed to compile release regex");
 
-  println!(
+  let output = format!(
     "::set-output name=value::{}",
     !regex.is_match(&arguments.reference)
   );
+
+  eprintln!("{}", output);
+  println!("{}", output);
 }
