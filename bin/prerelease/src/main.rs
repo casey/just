@@ -18,6 +18,6 @@ fn main() {
     !regex.is_match(&arguments.reference)
   );
 
-  eprintln!("{}", output);
+  eprintln!("`{}`", output);
   println!("{}", output);
 }
