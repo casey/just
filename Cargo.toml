@@ -14,7 +14,7 @@ keywords    = ["command-line", "task", "runner", "development", "utility"]
 resolver    = "2"
 
 [workspace]
-members = [".", "bin/prerelease"]
+members = [".", "bin/ref-type"]
 
 [dependencies]
 ansi_term     = "0.12.0"
