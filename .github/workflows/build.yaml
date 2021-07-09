@@ -149,14 +149,22 @@ jobs:
       run: ./bin/package ${{github.ref}} ${{matrix.os}} ${{ matrix.target }}
       shell: bash
 
-    - name: Publish
+    - name: Publish Archive
       uses: softprops/action-gh-release@v0.1.5
       if: startsWith(github.ref, 'refs/tags/')
       with:
         draft: false
-        files: |
-          CHANGELOG.md
-          ${{ steps.package.outputs.archive }}
+        files: ${{ steps.package.outputs.archive }}
+        prerelease: ${{ steps.ref-type.outputs.value != 'release' }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Publish Changelog
+      uses: softprops/action-gh-release@v0.1.5
+      if: startsWith(github.ref, 'refs/tags/') && matrix.os == 'ubuntu-latest'
+      with:
+        draft: false
+        files: CHANGELOG.md
         prerelease: ${{ steps.ref-type.outputs.value != 'release' }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
