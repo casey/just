@@ -155,6 +155,6 @@ jobs:
       with:
         draft: false
         files: ${{ steps.package.outputs.archive }}
-        prerelease: ${{ steps.is_prerelease.outputs.value }}
+        prerelease: ${{ steps.is_prerelease.outputs.value }} != 'release'
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
