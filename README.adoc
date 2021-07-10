@@ -954,7 +954,7 @@ BAR := `echo hello $WORLD`
 ```
 
 ```make
-# Running `just a foo` will fail with "A: unbound varaible"
+# Running `just a foo` will fail with "A: unbound variable"
 a $A $B=`echo $A`:
   echo $A $B
 ```
@@ -1052,7 +1052,7 @@ test +FLAGS='-q':
   cargo test {{FLAGS}}
 ```
 
-`{{...}}` substitutions may need to be quoted if they contains spaces. For example, if you have the following recipe:
+`{{...}}` substitutions may need to be quoted if they contain spaces. For example, if you have the following recipe:
 
 ```make
 search QUERY:
