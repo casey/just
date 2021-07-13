@@ -67,11 +67,11 @@ Just has a ton of useful features, and many improvements over Make:
   link:https://github.com/casey/just#writing-recipes-in-other-languages[arbitrary
   languages], like Python or NodeJS.
 
-- `just` can be invoked from any subdirectory, not just the directory that contains the `Justfile`.
+- `just` can be invoked from any subdirectory, not just the directory that contains the `justfile`.
 
 - And link:https://github.com/casey/just#manual[much more]!
 
-If you need help with `just` please feel free to open an issue or ping me on link:https://discord.gg/ezYScXR[discord]. Feature requests and bug reports are always welcome!
+If you need help with Just please feel free to open an issue or ping me on link:https://discord.gg/ezYScXR[Discord]. Feature requests and bug reports are always welcome!
 
 [discrete]
 == Manual
@@ -82,17 +82,17 @@ toc::[]
 
 === Prerequisites
 
-`just` should run on any system with a reasonable `sh`, including Linux, MacOS, and the BSDs.
+Just should run on any system with a reasonable `sh`, including Linux, MacOS, and the BSDs.
 
-On Windows, `just` works with the `sh` provided by https://git-scm.com[Git for Windows], https://desktop.github.com[GitHub Desktop], and http://www.cygwin.com[Cygwin].
+On Windows, Just works with the `sh` provided by https://git-scm.com[Git for Windows], https://desktop.github.com[GitHub Desktop], or http://www.cygwin.com[Cygwin].
 
 If you'd rather not install `sh`, you can use the `shell` setting to use the shell of your choice.
 
-Like Powershell:
+Like PowerShell:
 
 ```make
 
-# use Powershell instead of sh:
+# use PowerShell instead of sh:
 set shell := ["powershell.exe", "-c"]
 
 hello:
@@ -110,7 +110,7 @@ list:
   dir
 ```
 
-(Powershell is installed by default on Windows 7 SP1 and Windows Server 2008 R2 S1 and later, and `cmd.exe` is quite fiddly, so Powershell is recommended for most Windows users.)
+(PowerShell is installed by default on Windows 7 SP1 and Windows Server 2008 R2 S1 and later, and `cmd.exe` is quite fiddly, so PowerShell is recommended for most Windows users.)
 
 === Packages
 
@@ -130,7 +130,7 @@ list:
 |=================================================================================================================================================================================================================================================================================================================================================================
 
 
-=== Pre-built Binaries
+=== Pre-Built Binaries
 
 Pre-built binaries for Linux, MacOS, and Windows can be found on https://github.com/casey/just/releases[the releases page].
 
@@ -142,7 +142,7 @@ curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -
 
 == Editor Support
 
-`justfile` syntax is close enough to `make` that you may want to tell your editor to use make syntax highlighting for just.
+`justfile` syntax is close enough to `make` that you may want to tell your editor to use Make syntax highlighting for Just.
 
 === Vim
 
@@ -184,7 +184,7 @@ augroup filetypedetect
 augroup END
 ```
 
-Or add the following to a individual justfile to enable make mode on a per-file basis:
+Or add the following to an individual justfile to enable Make mode on a per-file basis:
 
 ```
 # vim: set ft=make :
@@ -194,7 +194,7 @@ Or add the following to a individual justfile to enable make mode on a per-file 
 
 There is a MELPA package, https://melpa.org/#/just-mode[just-mode], for automatic Emacs syntax highlighting and automatic indentation in justfiles.
 
-You can add the following to a individual justfile to enable make mode on a per-file basis:
+You can add the following to an individual justfile to enable Make mode on a per-file basis:
 
 ```
 # Local Variables:
@@ -226,9 +226,9 @@ Feel free to send me the commands necessary to get syntax highlighting working i
 
 == Quick Start
 
-See xref:Installation[] for how to install `just` on your computer. Try running `just --version` to make sure that it's installed correctly.
+See xref:Installation[] for how to install Just on your computer. Try running `just --version` to make sure that it's installed correctly.
 
-Once `just` is installed and working, create a file named `justfile` in the root of your project with the following contents:
+Once Just is installed and working, create a file named `justfile` in the root of your project with the following contents:
 
 ```make
 recipe-name:
@@ -258,7 +258,7 @@ $ just another-recipe
 This is another recipe.
 ```
 
-`just` prints each command to standard error before running it, which is why `echo 'This is a recipe!'` was printed. This is suppressed for lines starting with `@`, which is why `echo 'Another recipe.'` was not printed.
+Just prints each command to standard error before running it, which is why `echo 'This is a recipe!'` was printed. This is suppressed for lines starting with `@`, which is why `echo 'Another recipe.'` was not printed.
 
 Recipes stop running if a command fails. Here `cargo publish` will only run if `cargo test` succeeds:
 
@@ -310,7 +310,7 @@ testing... all tests passed!
 
 A variety of example justfiles can be found in the link:examples[examples directory].
 
-This https://toniogela.dev/just/[blog post] discusses using `just` to improve management of shared machines, and includes a number of example justfiles.
+This https://toniogela.dev/just/[blog post] discusses using Just to improve management of shared machines, and includes a number of example justfiles.
 
 == Features
 
@@ -384,7 +384,7 @@ Available recipes:
 
 The argument to `--list-heading` replaces both the heading and the newline
 following it, so it should contain a newline if non-empty. It works this way so
-you can suppress the heading line entirely by passing the empty string:
+you can suppress the heading line entirely by passing an empty string:
 
 ```
 $ just --list --list-heading ''
@@ -669,7 +669,7 @@ Similar to unindented strings, indented double-quoted strings process escape seq
 
 === Ignoring Errors
 
-Normally, if a command returns a nonzero exit status, execution will stop. To
+Normally, if a command returns a non-zero exit status, execution will stop. To
 continue execution after a command, even if it fails, prefix the command with
 `-`:
 
@@ -719,7 +719,7 @@ This is an x86_64 machine
 
 ==== Invocation Directory
 
-- `invocation_directory()` - Retrieves the path of the current working directory, before `just` changed it (chdir'd) prior to executing commands.
+- `invocation_directory()` - Retrieves the path of the current working directory, before Just changed it (chdir'd) prior to executing commands.
 
 For example, to call `rustfmt` on files just under the "current directory" (from the user/invoker's perspective), use the following rule:
 
@@ -750,7 +750,7 @@ script:
 
 ==== Just Executable
 
-- `just_executable()` - Absolute path to the just executable.
+- `just_executable()` - Absolute path to the Just executable.
 
 For example:
 
@@ -773,7 +773,7 @@ The executable is at: /bin/just
 
 ==== Dotenv Integration
 
-`just` will load environment variables from a file named `.env`. This file can be located in the same directory as your justfile or in a parent directory. These variables are environment variables, not `just` variables, and so must be accessed using `$VARIABLE_NAME` in recipes and backticks.
+Just will load environment variables from a file named `.env`. This file can be located in the same directory as your justfile or in a parent directory. These variables are environment variables, not Just variables, and so must be accessed using `$VARIABLE_NAME` in recipes and backticks.
 
 For example, if your `.env` file contains:
 
@@ -1081,7 +1081,7 @@ foo $bar:
   echo $bar
 ```
 
-=== Running recipes at the end of a recipe
+=== Running Recipes at the End of a Recipe
 
 Dependencies of a recipes always run before a recipe starts. That is to say, the dependee always runs before the depender.
 
@@ -1167,10 +1167,10 @@ It isn't strictly necessary, but `set -euxo pipefail` turns on a few useful
 features that make Bash shebang recipes behave more like normal, linewise Just
 recipe:
 
-- `set -e` makes bash exit if a command fails.
-- `set -u` makes bash exit if a variable is undefined.
-- `set -x` makes bash print each script line before it's run.
-- `set -o pipefail` makes bash exit if a command in a pipeline fails.
+- `set -e` makes Bash exit if a command fails.
+- `set -u` makes Bash exit if a variable is undefined.
+- `set -x` makes Bash print each script line before it's run.
+- `set -o pipefail` makes Bash exit if a command in a pipeline fails.
 
 Together, these avoid a lot of shell scripting gotchas.
 
@@ -1191,7 +1191,7 @@ echo:
 The interpreter path `/bin/sh` will be translated to a Windows-style path using
 `cygpath` before being executed.
 
-If the interpreter path does not contain a `/` it will be executed without being translated. This is useful if `cygpath` is not available, or you wish to pass a Windows style path to the interpreter.
+If the interpreter path does not contain a `/` it will be executed without being translated. This is useful if `cygpath` is not available, or you wish to pass a Windows-style path to the interpreter.
 
 === Setting Variables in a Recipe
 
@@ -1259,7 +1259,7 @@ foo:
   pwd
 ```
 
-=== Multi-line Constructs
+=== Multi-Line Constructs
 
 Recipes without an initial shebang are evaluated and run line-by-line, which means that multi-line constructs probably won't do what you want.
 
@@ -1353,7 +1353,7 @@ while:
 
 === Command Line Options
 
-`just` supports a number of useful command line options for listing, dumping, and debugging recipes and variable:
+Just supports a number of useful command line options for listing, dumping, and debugging recipes and variable:
 
 ```sh
 $ just --list
@@ -1433,7 +1433,7 @@ $ just foo
 Foo!
 ```
 
-Adding `@` to a shebang recipe name makes `just` print the recipe before executing it:
+Adding `@` to a shebang recipe name makes Just print the recipe before executing it:
 
 
 ```make
@@ -1451,16 +1451,16 @@ Bar!
 
 === Selecting Recipes to Run With an Interactive Chooser
 
-The `--choose` subcommand makes just invoke a chooser to select which recipes
+The `--choose` subcommand makes Just invoke a chooser to select which recipes
 to run. Choosers should read lines containing recipe names from standard input
 and print one or more of those names separated by spaces to standard output.
 
-Because there is currenly no way to run a recipe that requires arguments with
+Because there is currently no way to run a recipe that requires arguments with
 `--choose`, such recipes will not be given to the chooser. Private recipes and
 aliases are also skipped.
 
 The chooser can be overridden with the `--chooser` flag. If `--chooser` is not
-given, then `just` first checks if `$JUST_CHOOSER` is set. If it isn't, then
+given, then Just first checks if `$JUST_CHOOSER` is set. If it isn't, then
 the chooser defaults to `fzf`, a popular fuzzy finder.
 
 Arguments can be included in the chooser, i.e. `fzf --exact`.
@@ -1515,7 +1515,7 @@ foo
 
 When a script with a shebang is executed, the system supplies the path to the script as an argument to the command in the shebang. So, with a shebang of `#!/usr/bin/env just --justfile`, the command will be `/usr/bin/env just --justfile PATH_TO_SCRIPT`.
 
-With the above shebang, `just` will change its working directory to the location of the script. If you'd rather leave the working directory unchanged, use `#!/usr/bin/env just --working-directory . --justfile`.
+With the above shebang, Just will change its working directory to the location of the script. If you'd rather leave the working directory unchanged, use `#!/usr/bin/env just --working-directory . --justfile`.
 
 Note: Shebang line splitting is not consistent across operating systems. The previous examples have only been tested on macOS. On Linux, you may need to pass the `-S` flag to `env`:
 
@@ -1530,13 +1530,13 @@ default:
 
 === Companion Tools
 
-Tools that pair nicely with `just` include:
+Tools that pair nicely with Just include:
 
 - https://github.com/mattgreen/watchexec[`watchexec`] — a simple tool that watches a path and runs a command whenever it detects modifications.
 
 === GitHub Actions
 
-link:https://github.com/extractions/setup-just[extractions/setup-just] can be used to install `just` in a GitHub Actions workflow.
+link:https://github.com/extractions/setup-just[extractions/setup-just] can be used to install Just in a GitHub Actions workflow.
 
 Example usage:
 
@@ -1566,7 +1566,7 @@ A non-normative grammar of justfiles can be found in link:GRAMMAR.md[].
 
 === just.sh
 
-Before `just` was a fancy rust program it was a tiny shell script that called `make`. You can find the old version in link:extras/just.sh[].
+Before Just was a fancy Rust program it was a tiny shell script that called `make`. You can find the old version in link:extras/just.sh[].
 
 === Non-Project Specific Justfile
 
@@ -1588,11 +1588,11 @@ I'm pretty sure that nobody actually uses this feature, but it's there.
 
 == Contributing
 
-`just` welcomes your contributions! `just` is released under the maximally permissive https://creativecommons.org/publicdomain/zero/1.0/legalcode.txt[CC0] public domain dedication and fallback license, so your changes must also released under this license.
+Just welcomes your contributions! Just is released under the maximally permissive https://creativecommons.org/publicdomain/zero/1.0/legalcode.txt[CC0] public domain dedication and fallback license, so your changes must also be released under this license.
 
 === Janus
 
-https://github.com/casey/janus[Janus] is a tool that collects and analyzes justfiles, and can determine if a new version of `just` breaks or changes the interpretation of existing justfiles.
+https://github.com/casey/janus[Janus] is a tool that collects and analyzes justfiles, and can determine if a new version of Just breaks or changes the interpretation of existing justfiles.
 
 Before merging a particularly large or gruesome change, Janus should be run to make sure that nothing breaks. Don't worry about running Janus yourself, Casey will happily run it for you on changes that need it.
 
@@ -1618,17 +1618,17 @@ make: `test' is up to date.
 
 Make assumes that the `test` recipe produces a file called `test`. Since this file exists and the recipe has no other dependencies, Make thinks that it doesn't have anything to do and exits.
 
-To be fair, this behavior is desirable when using Make as a build system, but not when using it as a command runner. You can disable this behavior for specific targets using Make's built-in link:https://www.gnu.org/software/make/manual/html_node/Phony-Targets.html[`.PHONY` target name], but the syntax is verbose and can be hard to remember. The explicit list of phony targets, written separately from the recipe definitions, also introduces the risk of accidentally defining a new non-phony target. In `just`, all recipes are treated as if they were phony.
+To be fair, this behavior is desirable when using Make as a build system, but not when using it as a command runner. You can disable this behavior for specific targets using Make's built-in link:https://www.gnu.org/software/make/manual/html_node/Phony-Targets.html[`.PHONY` target name], but the syntax is verbose and can be hard to remember. The explicit list of phony targets, written separately from the recipe definitions, also introduces the risk of accidentally defining a new non-phony target. In Just, all recipes are treated as if they were phony.
 
-Other examples of Make’s idiosyncrasies include the difference between `=` and `:=` in assignments, the confusing error messages that are produced if you mess up your makefile, needing `$$` to use environment variables in recipes, and incompatibilities between different flavors of Make.
+Other examples of Make's idiosyncrasies include the difference between `=` and `:=` in assignments, the confusing error messages that are produced if you mess up your makefile, needing `$$` to use environment variables in recipes, and incompatibilities between different flavors of Make.
 
-=== What's the relationship between just and cargo build scripts?
+=== What's the relationship between Just and Cargo build scripts?
 
-http://doc.crates.io/build-script.html[Cargo build scripts] have a pretty specific use, which is to control how cargo builds your rust project. This might include adding flags to `rustc` invocations, building an external dependency, or running some kind of codegen step.
+http://doc.crates.io/build-script.html[Cargo build scripts] have a pretty specific use, which is to control how Cargo builds your Rust project. This might include adding flags to `rustc` invocations, building an external dependency, or running some kind of codegen step.
 
-`just`, on the other hand, is for all the other miscellaneous commands you might run as part of development. Things like running tests in different configurations, linting your code, pushing build artifacts to a server, removing temporary files, and the like.
+Just, on the other hand, is for all the other miscellaneous commands you might run as part of development. Things like running tests in different configurations, linting your code, pushing build artifacts to a server, removing temporary files, and the like.
 
-Also, although `just` is written in rust, it can be used regardless of the language or build system your project uses.
+Also, although Just is written in Rust, it can be used regardless of the language or build system your project uses.
 
 == Further Ramblings
 
@@ -1656,6 +1656,6 @@ For ideas for recipes, check out link:justfile[this project's `justfile`], or so
 
 Anyways, I think that's about it for this incredibly long-winded README.
 
-I hope you enjoy using `just` and find great success and satisfaction in all your computational endeavors!
+I hope you enjoy using Just and find great success and satisfaction in all your computational endeavors!
 
 😸
