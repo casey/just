@@ -17,6 +17,7 @@ pub(crate) const INIT_JUSTFILE: &str = "default:\n\techo 'Hello, world!'\n";
 pub(crate) struct Config {
   pub(crate) color:                Color,
   pub(crate) dry_run:              bool,
+  pub(crate) allow_duplicates:     bool,
   pub(crate) highlight:            bool,
   pub(crate) invocation_directory: PathBuf,
   pub(crate) list_heading:         String,
@@ -81,6 +82,7 @@ mod arg {
   pub(crate) const CLEAR_SHELL_ARGS: &str = "CLEAR-SHELL-ARGS";
   pub(crate) const COLOR: &str = "COLOR";
   pub(crate) const DRY_RUN: &str = "DRY-RUN";
+  pub(crate) const ALLOW_DUPLICATES: &str = "ALLOW-DUPLICATES";
   pub(crate) const HIGHLIGHT: &str = "HIGHLIGHT";
   pub(crate) const JUSTFILE: &str = "JUSTFILE";
   pub(crate) const LIST_HEADING: &str = "LIST-HEADING";
@@ -129,6 +131,11 @@ impl Config {
           .long("dry-run")
           .help("Print what just would do without doing it")
           .conflicts_with(arg::QUIET),
+      )
+      .arg(
+        Arg::with_name(arg::ALLOW_DUPLICATES)
+          .long("allow-duplicates")
+          .help("Allow the last definition of a recipe to over-ride previous definitions")
       )
       .arg(
         Arg::with_name(arg::HIGHLIGHT)
@@ -508,6 +515,7 @@ impl Config {
 
     Ok(Self {
       dry_run: matches.is_present(arg::DRY_RUN),
+      allow_duplicates: matches.is_present(arg::ALLOW_DUPLICATES),
       highlight: !matches.is_present(arg::NO_HIGHLIGHT),
       shell: matches.value_of(arg::SHELL).unwrap().to_owned(),
       load_dotenv: !matches.is_present(arg::NO_DOTENV),
@@ -957,6 +965,7 @@ USAGE:
     just [FLAGS] [OPTIONS] [--] [ARGUMENTS]...
 
 FLAGS:
+        --allow-duplicates    Allow the last definition of a recipe to over-ride previous definitions
         --choose              Select one or more recipes to run using a binary. If `--chooser` is \
                                  not passed the chooser
                               defaults to the value of $JUST_CHOOSER, falling back to `fzf`
@@ -1025,6 +1034,7 @@ ARGS:
       args: [$($arg:expr),*],
       $(color: $color:expr,)?
       $(dry_run: $dry_run:expr,)?
+      $(allow_duplicates: $allow_duplicates:expr,)?
       $(highlight: $highlight:expr,)?
       $(search_config: $search_config:expr,)?
       $(shell: $shell:expr,)?
@@ -1044,6 +1054,7 @@ ARGS:
         let want = Config {
           $(color: $color,)?
           $(dry_run: $dry_run,)?
+          $(allow_duplicates: $allow_duplicates,)?
           $(highlight: $highlight,)?
           $(search_config: $search_config,)?
           $(shell: $shell.to_owned(),)?
@@ -1177,6 +1188,18 @@ ARGS:
   error! {
     name: dry_run_quiet,
     args: ["--dry-run", "--quiet"],
+  }
+
+  test! {
+    name: allow_duplicates_default,
+    args: [],
+    allow_duplicates: false,
+  }
+
+  test! {
+    name: allow_duplicates_true,
+    args: ["--allow-duplicates"],
+    allow_duplicates: true,
   }
 
   test! {
