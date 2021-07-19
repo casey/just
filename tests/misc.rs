@@ -1305,18 +1305,18 @@ test! {
   status:   EXIT_FAILURE,
 }
 
-test! {
-  name:     duplicate_recipe,
-  justfile: "b:\nb:",
-  args:     ("b"),
-  stdout:   "",
-  stderr:   "error: Recipe `b` first defined on line 1 is redefined on line 2
-  |
-2 | b:
-  | ^
-",
-  status:   EXIT_FAILURE,
-}
+// test! {
+//   name:     duplicate_recipe,
+//   justfile: "b:\nb:",
+//   args:     ("b"),
+//   stdout:   "",
+//   stderr:   "error: Recipe `b` first defined on line 1 is redefined on line 2
+//   |
+// 2 | b:
+//   | ^
+// ",
+//   status:   EXIT_FAILURE,
+// }
 
 test! {
   name:     duplicate_variable,

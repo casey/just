@@ -103,7 +103,7 @@ impl Display for CompilationError<'_> {
       DuplicateRecipe { recipe, first } => {
         writeln!(
           f,
-          "Recipe `{}` first defined on line {} is redefined on line {}",
+          "TDV: Recipe `{}` first defined on line {} is redefined on line {}",
           recipe,
           first.ordinal(),
           self.token.line.ordinal()
