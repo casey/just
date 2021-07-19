@@ -100,15 +100,15 @@ impl Display for CompilationError<'_> {
           self.token.line.ordinal(),
         )?;
       },
-      // DuplicateRecipe { recipe, first } => {
-      //   writeln!(
-      //     f,
-      //     "TDV: Recipe `{}` first defined on line {} is redefined on line {}",
-      //     recipe,
-      //     first.ordinal(),
-      //     self.token.line.ordinal()
-      //   )?;
-      // },
+      DuplicateRecipe { recipe, first } => {
+        writeln!(
+          f,
+          "TDV: Recipe `{}` first defined on line {} is redefined on line {}",
+          recipe,
+          first.ordinal(),
+          self.token.line.ordinal()
+        )?;
+      },
       DuplicateSet { setting, first } => {
         writeln!(
           f,

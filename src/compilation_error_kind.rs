@@ -30,10 +30,10 @@ pub(crate) enum CompilationErrorKind<'src> {
     recipe:    &'src str,
     parameter: &'src str,
   },
-  // DuplicateRecipe {
-  //   recipe: &'src str,
-  //   first:  usize,
-  // },
+  DuplicateRecipe {
+    recipe: &'src str,
+    first:  usize,
+  },
   DuplicateVariable {
     variable: &'src str,
   },

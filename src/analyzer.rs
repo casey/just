@@ -91,13 +91,20 @@ impl<'src> Analyzer<'src> {
     })
   }
 
-  fn analyze_recipe(&self, recipe: &UnresolvedRecipe<'src>) -> CompilationResult<'src, ()> {
-    // if let Some(original) = self.recipes.get(recipe.name.lexeme()) {
-    //   return Err(recipe.name.token().error(DuplicateRecipe {
-    //     recipe: original.name(),
-    //     first:  original.line_number(),
-    //   }));
-    // }
+  fn analyze_recipe(
+                    &self,
+                    recipe: &UnresolvedRecipe<'src>
+                  ) -> CompilationResult<'src, ()> {
+
+    if let Some(original) = self.recipes.get(recipe.name.lexeme()) {
+      // TODO if !config.allow_duplicates {
+      //      The problem is that "config" is not defined - I thought it was global
+        return Err(recipe.name.token().error(DuplicateRecipe {
+            recipe: original.name(),
+            first:  original.line_number(),
+          }));
+      // TODO }
+    }
 
     let mut parameters = BTreeSet::new();
     let mut passed_default = false;
@@ -284,15 +291,15 @@ mod tests {
     kind:   ParameterShadowsVariable{parameter: "foo"},
   }
 
-  // analysis_error! {
-  //   name:   duplicate_recipe,
-  //   input:  "a:\nb:\na:",
-  //   offset:  6,
-  //   line:   2,
-  //   column: 0,
-  //   width:  1,
-  //   kind:   DuplicateRecipe{recipe: "a", first: 0},
-  // }
+  analysis_error! {
+    name:   duplicate_recipe,
+    input:  "a:\nb:\na:",
+    offset:  6,
+    line:   2,
+    column: 0,
+    width:  1,
+    kind:   DuplicateRecipe{recipe: "a", first: 0},
+  }
 
   analysis_error! {
     name:   duplicate_variable,
