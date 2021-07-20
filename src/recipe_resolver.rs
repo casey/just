@@ -14,7 +14,7 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
     assignments: &Table<'src, Assignment<'src>>,
   ) -> CompilationResult<'src, Table<'src, Rc<Recipe<'src>>>> {
     let mut resolver = RecipeResolver {
-      resolved_recipes: empty(),
+      resolved_recipes: Table::new(),
       unresolved_recipes,
       assignments,
     };

@@ -5,7 +5,6 @@ use CompilationErrorKind::*;
 pub(crate) struct AssignmentResolver<'src: 'run, 'run> {
   assignments: &'run Table<'src, Assignment<'src>>,
   stack:       Vec<&'src str>,
-  seen:        BTreeSet<&'src str>,
   evaluated:   BTreeSet<&'src str>,
 }
 
@@ -14,9 +13,8 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
     assignments: &Table<'src, Assignment<'src>>,
   ) -> CompilationResult<'src, ()> {
     let mut resolver = AssignmentResolver {
-      stack: empty(),
-      seen: empty(),
-      evaluated: empty(),
+      stack: Vec::new(),
+      evaluated: BTreeSet::new(),
       assignments,
     };
 
@@ -32,7 +30,6 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
       return Ok(());
     }
 
-    self.seen.insert(name);
     self.stack.push(name);
 
     if let Some(assignment) = self.assignments.get(name) {
@@ -53,6 +50,9 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
         token,
       });
     }
+
+    self.stack.pop();
+
     Ok(())
   }
 
@@ -62,7 +62,7 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
         let variable = name.lexeme();
         if self.evaluated.contains(variable) {
           Ok(())
-        } else if self.seen.contains(variable) {
+        } else if self.stack.contains(&variable) {
           let token = self.assignments[variable].name.token();
           self.stack.push(variable);
           Err(token.error(CircularVariableDependency {
