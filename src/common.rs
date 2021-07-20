@@ -33,9 +33,7 @@ pub(crate) use unicode_width::{UnicodeWidthChar, UnicodeWidthStr};
 pub(crate) use crate::{config_error, setting};
 
 // functions
-pub(crate) use crate::{
-  default::default, empty::empty, load_dotenv::load_dotenv, output::output, unindent::unindent,
-};
+pub(crate) use crate::{load_dotenv::load_dotenv, output::output, unindent::unindent};
 
 // traits
 pub(crate) use crate::{

@@ -13,8 +13,8 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
     assignments: &Table<'src, Assignment<'src>>,
   ) -> CompilationResult<'src, ()> {
     let mut resolver = AssignmentResolver {
-      stack: empty(),
-      evaluated: empty(),
+      stack: Vec::new(),
+      evaluated: BTreeSet::new(),
       assignments,
     };
 
