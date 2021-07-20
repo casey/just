@@ -414,48 +414,56 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   /// Parse an expression, e.g. `1 + 2`
   fn parse_expression(&mut self) -> CompilationResult<'src, Expression<'src>> {
     if self.accepted_keyword(Keyword::If)? {
-      let lhs = self.parse_expression()?;
-
-      let inverted = self.accepted(BangEquals)?;
-
-      if !inverted {
-        self.expect(EqualsEquals)?;
-      }
-
-      let rhs = self.parse_expression()?;
-
-      self.expect(BraceL)?;
-
-      let then = self.parse_expression()?;
-
-      self.expect(BraceR)?;
-
-      self.expect_keyword(Keyword::Else)?;
-
-      self.expect(BraceL)?;
-
-      let otherwise = self.parse_expression()?;
-
-      self.expect(BraceR)?;
-
-      return Ok(Expression::Conditional {
-        lhs: Box::new(lhs),
-        rhs: Box::new(rhs),
-        then: Box::new(then),
-        otherwise: Box::new(otherwise),
-        inverted,
-      });
-    }
-
-    let value = self.parse_value()?;
-
-    if self.accepted(Plus)? {
-      let lhs = Box::new(value);
-      let rhs = Box::new(self.parse_expression()?);
-      Ok(Expression::Concatination { lhs, rhs })
+      self.parse_conditional()
     } else {
-      Ok(value)
+      let value = self.parse_value()?;
+
+      if self.accepted(Plus)? {
+        let lhs = Box::new(value);
+        let rhs = Box::new(self.parse_expression()?);
+        Ok(Expression::Concatination { lhs, rhs })
+      } else {
+        Ok(value)
+      }
     }
+  }
+
+  /// Parse a conditional, e.g. `if a == b { "foo" } else { "bar" }`
+  fn parse_conditional(&mut self) -> CompilationResult<'src, Expression<'src>> {
+    let lhs = self.parse_expression()?;
+
+    let inverted = self.accepted(BangEquals)?;
+
+    if !inverted {
+      self.expect(EqualsEquals)?;
+    }
+
+    let rhs = self.parse_expression()?;
+
+    self.expect(BraceL)?;
+
+    let then = self.parse_expression()?;
+
+    self.expect(BraceR)?;
+
+    self.expect_keyword(Keyword::Else)?;
+
+    let otherwise = if self.accepted_keyword(Keyword::If)? {
+      self.parse_conditional()?
+    } else {
+      self.expect(BraceL)?;
+      let otherwise = self.parse_expression()?;
+      self.expect(BraceR)?;
+      otherwise
+    };
+
+    Ok(Expression::Conditional {
+      lhs: Box::new(lhs),
+      rhs: Box::new(rhs),
+      then: Box::new(then),
+      otherwise: Box::new(otherwise),
+      inverted,
+    })
   }
 
   /// Parse a value, e.g. `(bar)`
