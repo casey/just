@@ -162,7 +162,7 @@ git clone https://github.com/NoahTheDuke/vim-just.git
 
 ==== Makefile Syntax Highlighting
 
-Vim's built-in Makefile syntax highlighting isn't perfect for justfiles, but it's better than nothing. You can put the following in `~/.vim/filetype.vim`:
+Vim's built-in makefile syntax highlighting isn't perfect for justfiles, but it's better than nothing. You can put the following in `~/.vim/filetype.vim`:
 
 ```vimscript
 if exists("did_load_filetypes")
