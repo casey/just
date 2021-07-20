@@ -41,21 +41,21 @@ impl Color {
   pub(crate) fn auto() -> Self {
     Self {
       use_color: UseColor::Auto,
-      ..Default::default()
+      ..Color::default()
     }
   }
 
   pub(crate) fn always() -> Self {
     Self {
       use_color: UseColor::Always,
-      ..Default::default()
+      ..Color::default()
     }
   }
 
   pub(crate) fn never() -> Self {
     Self {
       use_color: UseColor::Never,
-      ..Default::default()
+      ..Color::default()
     }
   }
 
