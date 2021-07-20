@@ -1411,6 +1411,25 @@ test! {
 }
 
 test! {
+  name:     variable_circular_dependency_with_additional_variable,
+  justfile: "
+    a := ''
+    x := y
+    y := x
+
+    a:
+  ",
+  args:     ("a"),
+  stdout:   "",
+  stderr:   "error: Variable `x` depends on its own value: `x -> y -> x`
+  |
+2 | x := y
+  | ^
+",
+  status:   EXIT_FAILURE,
+}
+
+test! {
   name:     plus_variadic_recipe,
   justfile: "
 a x y +z:
