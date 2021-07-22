@@ -1,6 +1,6 @@
 [package]
 name        = "just"
-version     = "0.9.8"
+version     = "0.9.9"
 description = "🤖 Just a command runner"
 authors     = ["Casey Rodarmor <casey@rodarmor.com>"]
 license     = "CC0-1.0"
@@ -24,7 +24,7 @@ clap          = "2.33.0"
 derivative    = "2.0.0"
 dotenv        = "0.15.0"
 edit-distance = "2.0.0"
-env_logger    = "0.8.0"
+env_logger    = "0.9.0"
 lazy_static   = "1.0.0"
 lexiclean     = "0.0.1"
 libc          = "0.2.0"
