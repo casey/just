@@ -1,6 +1,25 @@
 Changelog
 =========
 
+[0.9.9](https://github.com/casey/just/releases/tag/0.9.9) - 2021-7-22
+---------------------------------------------------------------------
+
+### Added
+- Add subsequent dependencies (#820)
+- Implement `else if` chaining (#910)
+
+### Fixed
+- Fix circular variable dependency error message (#909)
+
+### Misc
+- Improve readme (#904)
+- Add screenshot to readme (#911)
+- Add install instructions for Fedora Linux (#898)
+- Fix readme typos (#903)
+- Actually fix release tagging and publish changelog with releases (#901)
+- Fix broken prerelease tagging (#900)
+- Use string value for ref-type check (#897)
+
 [0.9.8](https://github.com/casey/just/releases/tag/0.9.8) - 2021-7-3
 --------------------------------------------------------------------
 
