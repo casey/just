@@ -3,11 +3,9 @@ mod test;
 
 mod assert_stdout;
 mod assert_success;
-mod common;
-mod tempdir;
-
 mod choose;
 mod command;
+mod common;
 mod completions;
 mod conditional;
 mod delimiters;
@@ -31,4 +29,6 @@ mod shebang;
 mod shell;
 mod string;
 mod sublime_syntax;
+mod subsequents;
+mod tempdir;
 mod working_directory;

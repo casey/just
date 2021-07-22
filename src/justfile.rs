@@ -302,7 +302,7 @@ impl<'src> Justfile<'src> {
     let mut evaluator =
       Evaluator::recipe_evaluator(context.config, dotenv, &scope, context.settings, search);
 
-    for Dependency { recipe, arguments } in &recipe.dependencies {
+    for Dependency { recipe, arguments } in recipe.dependencies.iter().take(recipe.priors) {
       let mut invocation = vec![recipe.name().to_owned()];
 
       for argument in arguments {
@@ -320,6 +320,27 @@ impl<'src> Justfile<'src> {
     }
 
     recipe.run(context, dotenv, scope.child(), search, &positional)?;
+
+    {
+      let mut ran = BTreeSet::new();
+
+      for Dependency { recipe, arguments } in recipe.dependencies.iter().skip(recipe.priors) {
+        let mut evaluated = Vec::new();
+
+        for argument in arguments {
+          evaluated.push(evaluator.evaluate_expression(argument)?);
+        }
+
+        self.run_recipe(
+          context,
+          recipe,
+          &evaluated.iter().map(String::as_ref).collect::<Vec<&str>>(),
+          dotenv,
+          search,
+          &mut ran,
+        )?;
+      }
+    }
 
     let mut invocation = vec![recipe.name().to_owned()];
     for argument in arguments.iter().cloned() {

@@ -627,19 +627,36 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
       dependencies.push(dependency);
     }
 
+    let priors = dependencies.len();
+
+    if self.accepted(AmpersandAmpersand)? {
+      let mut subsequents = Vec::new();
+
+      while let Some(subsequent) = self.accept_dependency()? {
+        subsequents.push(subsequent);
+      }
+
+      if subsequents.is_empty() {
+        return Err(self.unexpected_token()?);
+      }
+
+      dependencies.append(&mut subsequents);
+    }
+
     self.expect_eol()?;
 
     let body = self.parse_body()?;
 
     Ok(Recipe {
+      parameters: positional.into_iter().chain(variadic).collect(),
       private: name.lexeme().starts_with('_'),
       shebang: body.first().map(Line::is_shebang).unwrap_or(false),
-      parameters: positional.into_iter().chain(variadic).collect(),
+      priors,
+      body,
+      dependencies,
       doc,
       name,
       quiet,
-      dependencies,
-      body,
     })
   }
 
@@ -1100,6 +1117,12 @@ mod tests {
     name: recipe_dependency_argument_concatination,
     text: "foo: (bar 'a' + 'b' 'c' + 'd')",
     tree: (justfile (recipe foo (deps (bar (+ 'a' 'b') (+ 'c' 'd'))))),
+  }
+
+  test! {
+    name: recipe_subsequent,
+    text: "foo: && bar",
+    tree: (justfile (recipe foo (sups bar))),
   }
 
   test! {
@@ -1885,10 +1908,13 @@ mod tests {
     name:   missing_eol,
     input:  "a b c: z =",
     offset:  9,
-    line:   0,
-    column: 9,
-    width:  1,
-    kind:   UnexpectedToken{expected: vec![Comment, Eof, Eol, Identifier, ParenL], found: Equals},
+    line:    0,
+    column:  9,
+    width:   1,
+    kind:    UnexpectedToken{
+      expected: vec![AmpersandAmpersand, Comment, Eof, Eol, Identifier, ParenL],
+      found: Equals
+    },
   }
 
   error! {

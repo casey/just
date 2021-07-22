@@ -43,6 +43,12 @@ macro_rules! tree {
   };
 
   {
+    &&
+  } => {
+    $crate::tree::Tree::atom("&&")
+  };
+
+  {
     ==
   } => {
     $crate::tree::Tree::atom("==")
