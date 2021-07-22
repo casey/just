@@ -879,6 +879,26 @@ bar foo:
 Note the space after the final `}`! Without the space, the interpolation will
 be prematurely closed.
 
+Multiple conditionals can be chained:
+
+```make
+foo := if "hello" == "goodbye" {
+  "xyz"
+} else if "a" == "a" {
+  "abc"
+} else {
+  "123"
+}
+
+bar:
+  @echo {{foo}}
+```
+
+```sh
+$ just bar
+abc
+```
+
 === Setting Variables from the Command Line
 
 Variables can be overridden from the command line.
@@ -1073,20 +1093,23 @@ foo $bar:
 
 === Running Recipes at the End of a Recipe
 
-Dependencies of a recipes always run before a recipe starts. That is to say, the dependee always runs before the depender.
+Normal dependencies of a recipes always run before a recipe starts. That is to say, the dependee always runs before the depender. These dependencies are called "prior dependencies".
 
-You can call `just` recursively to run a recipe after a recipe ends. Given the following justfile:
+A recipe can also have subsequent dependencies, which run after the recipe, and are introduces with a `&&`:
+
 
 ```make
 a:
   echo 'A!'
 
-b: a
+b: a && c d
   echo 'B!'
-  just c
 
 c:
   echo 'C!'
+
+d:
+  echo 'D!'
 ```
 
 …running 'b' prints:
@@ -1099,9 +1122,42 @@ echo 'B!'
 B!
 echo 'C!'
 C!
+echo 'D!'
+D!
 ```
 
-This has some limitations, since recipe `c` is run with an entirely new invocation of `just`: Assignments will be recalculated, dependencies might run twice, and command line arguments will not be propagated to the child `just` process.
+=== Running Recipes in the Middle of a Recipe
+
+`just` doesn't support running recipes in the middle of another recipe, but you can call `just` recursively in the middle of a recipe. Given the following justfile:
+
+```make
+a:
+  echo 'A!'
+
+b: a
+  echo 'B start!'
+  just c
+  echo 'B end!'
+
+c:
+  echo 'C!'
+```
+
+…running 'b' prints:
+
+```sh
+$ just b
+echo 'A!'
+A!
+echo 'B start!'
+B start!
+echo 'C!'
+C!
+echo 'B end!'
+B end!
+```
+
+This has limitations, since recipe `c` is run with an entirely new invocation of `just`: Assignments will be recalculated, dependencies might run twice, and command line arguments will not be propagated to the child `just` process.
 
 === Writing Recipes in Other Languages
 
