@@ -889,12 +889,12 @@ impl Config {
       println!("{}", recipe);
       Ok(())
     } else {
-      if self.verbosity.loud() {
-        eprintln!("Justfile does not contain recipe `{}`.", name);
-        if let Some(suggestion) = justfile.suggest_recipe(name) {
-          eprintln!("{}", suggestion);
-        }
-      }
+      // if self.verbosity.loud() {
+      //   eprintln!("Justfile does not contain recipe `{}`.", name);
+      //   if let Some(suggestion) = justfile.suggest_recipe(name) {
+      //     eprintln!("{}", suggestion);
+      //   }
+      // }
       Err(Error::Code(EXIT_FAILURE))
     }
   }

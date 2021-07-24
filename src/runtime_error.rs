@@ -114,13 +114,6 @@ impl<'src> Display for RuntimeError<'src> {
   fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
     use RuntimeError::*;
 
-    let color = if f.alternate() {
-      Color::always()
-    } else {
-      Color::never()
-    };
-    let message = color.message();
-
     match self {
       EvalUnknownVariable {
         variable,
@@ -190,13 +183,12 @@ impl<'src> Display for RuntimeError<'src> {
             max
           )?;
         }
+        // TODO:
+        // - This usage string shouldn't be bolded
+        // - parameters should be colored
         write!(f, "\nusage:\n    just {}", recipe)?;
         for param in parameters {
-          if color.stderr().active() {
-            write!(f, " {:#}", param)?;
-          } else {
-            write!(f, " {}", param)?;
-          }
+          write!(f, " {}", param)?;
         }
       },
       Code {

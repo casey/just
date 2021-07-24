@@ -50,14 +50,7 @@ impl<'src> Error<'src> {
         color.message().suffix()
       )?;
     } else {
-      writeln!(
-        w,
-        "{}: {}{}{}",
-        color.error().paint("error"),
-        color.message().prefix(),
-        self,
-        color.message().suffix()
-      )?;
+      writeln!(w, "error: {}", self)?;
     }
 
     if let Some(token) = self.context() {

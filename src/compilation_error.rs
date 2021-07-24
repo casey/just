@@ -15,7 +15,6 @@ impl<'src> CompilationError<'src> {
 impl Display for CompilationError<'_> {
   fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
     use CompilationErrorKind::*;
-    let message = Color::fmt(f).message();
 
     match &self.kind {
       AliasShadowsRecipe { alias, recipe_line } => {
