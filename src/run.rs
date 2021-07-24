@@ -30,7 +30,7 @@ pub fn run() -> Result<(), i32> {
     })
     .map_err(|error| {
       if !verbosity.quiet() {
-        error.eprint(color);
+        error.write(&mut io::stderr(), color).ok();
       }
       error.code()
     })

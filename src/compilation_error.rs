@@ -6,6 +6,12 @@ pub(crate) struct CompilationError<'src> {
   pub(crate) kind:  CompilationErrorKind<'src>,
 }
 
+impl<'src> CompilationError<'src> {
+  pub(crate) fn context(&self) -> Token<'src> {
+    self.token
+  }
+}
+
 impl Display for CompilationError<'_> {
   fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
     use CompilationErrorKind::*;
@@ -15,7 +21,7 @@ impl Display for CompilationError<'_> {
 
     match &self.kind {
       AliasShadowsRecipe { alias, recipe_line } => {
-        writeln!(
+        write!(
           f,
           "Alias `{}` defined on line {} shadows recipe `{}` defined on line {}",
           alias,
@@ -25,13 +31,13 @@ impl Display for CompilationError<'_> {
         )?;
       },
       BacktickShebang => {
-        writeln!(f, "Backticks may not start with `#!`")?;
+        write!(f, "Backticks may not start with `#!`")?;
       },
       CircularRecipeDependency { recipe, ref circle } =>
         if circle.len() == 2 {
-          writeln!(f, "Recipe `{}` depends on itself", recipe)?;
+          write!(f, "Recipe `{}` depends on itself", recipe)?;
         } else {
-          writeln!(
+          write!(
             f,
             "Recipe `{}` has circular dependency `{}`",
             recipe,
@@ -43,9 +49,9 @@ impl Display for CompilationError<'_> {
         ref circle,
       } =>
         if circle.len() == 2 {
-          writeln!(f, "Variable `{}` is defined in terms of itself", variable)?;
+          write!(f, "Variable `{}` is defined in terms of itself", variable)?;
         } else {
-          writeln!(
+          write!(
             f,
             "Variable `{}` depends on its own value: `{}`",
             variable,
@@ -61,36 +67,36 @@ impl Display for CompilationError<'_> {
           '"' => r#"""#.to_owned(),
           _ => character.escape_default().collect(),
         };
-        writeln!(f, "`\\{}` is not a valid escape sequence", representation)?;
+        write!(f, "`\\{}` is not a valid escape sequence", representation)?;
       },
       DeprecatedEquals => {
         writeln!(
           f,
           "`=` in assignments, exports, and aliases has been phased out on favor of `:=`"
         )?;
-        writeln!(
+        write!(
           f,
           "Please see this issue for more details: https://github.com/casey/just/issues/379"
         )?;
       },
       DuplicateParameter { recipe, parameter } => {
-        writeln!(
+        write!(
           f,
           "Recipe `{}` has duplicate parameter `{}`",
           recipe, parameter
         )?;
       },
       DuplicateVariable { variable } => {
-        writeln!(f, "Variable `{}` has multiple definitions", variable)?;
+        write!(f, "Variable `{}` has multiple definitions", variable)?;
       },
       UnexpectedToken {
         ref expected,
         found,
       } => {
-        writeln!(f, "Expected {}, but found {}", List::or(expected), found)?;
+        write!(f, "Expected {}, but found {}", List::or(expected), found)?;
       },
       DuplicateAlias { alias, first } => {
-        writeln!(
+        write!(
           f,
           "Alias `{}` first defined on line {} is redefined on line {}",
           alias,
@@ -99,7 +105,7 @@ impl Display for CompilationError<'_> {
         )?;
       },
       DuplicateRecipe { recipe, first } => {
-        writeln!(
+        write!(
           f,
           "Recipe `{}` first defined on line {} is redefined on line {}",
           recipe,
@@ -108,7 +114,7 @@ impl Display for CompilationError<'_> {
         )?;
       },
       DuplicateSet { setting, first } => {
-        writeln!(
+        write!(
           f,
           "Setting `{}` first set on line {} is redefined on line {}",
           setting,
@@ -132,38 +138,38 @@ impl Display for CompilationError<'_> {
 
         if min == max {
           let expected = min;
-          writeln!(f, "{} {}", expected, Count("argument", *expected))?;
+          write!(f, "{} {}", expected, Count("argument", *expected))?;
         } else if found < min {
-          writeln!(f, "at least {} {}", min, Count("argument", *min))?;
+          write!(f, "at least {} {}", min, Count("argument", *min))?;
         } else {
-          writeln!(f, "at most {} {}", max, Count("argument", *max))?;
+          write!(f, "at most {} {}", max, Count("argument", *max))?;
         }
       },
-      ExpectedKeyword { expected, found } => writeln!(
+      ExpectedKeyword { expected, found } => write!(
         f,
         "Expected keyword {} but found identifier `{}`",
         List::or_ticked(expected),
         found
       )?,
       ParameterShadowsVariable { parameter } => {
-        writeln!(
+        write!(
           f,
           "Parameter `{}` shadows variable of the same name",
           parameter
         )?;
       },
       RequiredParameterFollowsDefaultParameter { parameter } => {
-        writeln!(
+        write!(
           f,
           "Non-default parameter `{}` follows default parameter",
           parameter
         )?;
       },
       ParameterFollowsVariadicParameter { parameter } => {
-        writeln!(f, "Parameter `{}` follows variadic parameter", parameter)?;
+        write!(f, "Parameter `{}` follows variadic parameter", parameter)?;
       },
       MixedLeadingWhitespace { whitespace } => {
-        writeln!(
+        write!(
           f,
           "Found a mix of tabs and spaces in leading whitespace: `{}`\nLeading whitespace may \
            consist of tabs or spaces, but not both",
@@ -171,14 +177,14 @@ impl Display for CompilationError<'_> {
         )?;
       },
       ExtraLeadingWhitespace => {
-        writeln!(f, "Recipe line has extra leading whitespace")?;
+        write!(f, "Recipe line has extra leading whitespace")?;
       },
       FunctionArgumentCountMismatch {
         function,
         found,
         expected,
       } => {
-        writeln!(
+        write!(
           f,
           "Function `{}` called with {} {} but takes {}",
           function,
@@ -188,7 +194,7 @@ impl Display for CompilationError<'_> {
         )?;
       },
       InconsistentLeadingWhitespace { expected, found } => {
-        writeln!(
+        write!(
           f,
           "Recipe line has inconsistent leading whitespace. Recipe started with `{}` but found \
            line with `{}`",
@@ -197,39 +203,39 @@ impl Display for CompilationError<'_> {
         )?;
       },
       UnknownAliasTarget { alias, target } => {
-        writeln!(f, "Alias `{}` has an unknown target `{}`", alias, target)?;
+        write!(f, "Alias `{}` has an unknown target `{}`", alias, target)?;
       },
       UnknownDependency { recipe, unknown } => {
-        writeln!(
+        write!(
           f,
           "Recipe `{}` has unknown dependency `{}`",
           recipe, unknown
         )?;
       },
       UndefinedVariable { variable } => {
-        writeln!(f, "Variable `{}` not defined", variable)?;
+        write!(f, "Variable `{}` not defined", variable)?;
       },
       UnknownFunction { function } => {
-        writeln!(f, "Call to unknown function `{}`", function)?;
+        write!(f, "Call to unknown function `{}`", function)?;
       },
       UnknownSetting { setting } => {
-        writeln!(f, "Unknown setting `{}`", setting)?;
+        write!(f, "Unknown setting `{}`", setting)?;
       },
       UnexpectedCharacter { expected } => {
-        writeln!(f, "Expected character `{}`", expected)?;
+        write!(f, "Expected character `{}`", expected)?;
       },
       UnknownStartOfToken => {
-        writeln!(f, "Unknown start of token:")?;
+        write!(f, "Unknown start of token:")?;
       },
       UnexpectedEndOfToken { expected } => {
-        writeln!(f, "Expected character `{}` but found end-of-file", expected)?;
+        write!(f, "Expected character `{}` but found end-of-file", expected)?;
       },
       MismatchedClosingDelimiter {
         open,
         open_line,
         close,
       } => {
-        writeln!(
+        write!(
           f,
           "Mismatched closing delimiter `{}`. (Did you mean to close the `{}` on line {}?)",
           close.close(),
@@ -238,22 +244,22 @@ impl Display for CompilationError<'_> {
         )?;
       },
       UnexpectedClosingDelimiter { close } => {
-        writeln!(f, "Unexpected closing delimiter `{}`", close.close())?;
+        write!(f, "Unexpected closing delimiter `{}`", close.close())?;
       },
       UnpairedCarriageReturn => {
-        writeln!(f, "Unpaired carriage return")?;
+        write!(f, "Unpaired carriage return")?;
       },
       UnterminatedInterpolation => {
-        writeln!(f, "Unterminated interpolation")?;
+        write!(f, "Unterminated interpolation")?;
       },
       UnterminatedString => {
-        writeln!(f, "Unterminated string")?;
+        write!(f, "Unterminated string")?;
       },
       UnterminatedBacktick => {
-        writeln!(f, "Unterminated backtick")?;
+        write!(f, "Unterminated backtick")?;
       },
       Internal { ref message } => {
-        writeln!(
+        write!(
           f,
           "Internal error, this may indicate a bug in just: {}\n\
            consider filing an issue: https://github.com/casey/just/issues/new",
@@ -264,6 +270,6 @@ impl Display for CompilationError<'_> {
 
     write!(f, "{}", message.suffix())?;
 
-    self.token.write_context(f, Color::fmt(f).error())
+    Ok(())
   }
 }

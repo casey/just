@@ -95,11 +95,10 @@ impl<'src> RuntimeError<'src> {
     }
   }
 
-  fn context(&self) -> Option<Token> {
-    use RuntimeError::*;
+  pub(crate) fn context(&self) -> Option<Token<'src>> {
     match self {
-      FunctionCall { function, .. } => Some(function.token()),
-      Backtick { token, .. } => Some(*token),
+      Self::FunctionCall { function, .. } => Some(function.token()),
+      Self::Backtick { token, .. } => Some(*token),
       _ => None,
     }
   }
@@ -289,7 +288,7 @@ impl<'src> Display for RuntimeError<'src> {
         write!(f, "Failed to load .env: {}", dotenv_error)?;
       },
       FunctionCall { function, message } => {
-        writeln!(
+        write!(
           f,
           "Call to function `{}` failed: {}",
           function.lexeme(),
@@ -343,18 +342,19 @@ impl<'src> Display for RuntimeError<'src> {
           write!(f, "Recipe `{}` failed for an unknown reason", recipe)?;
         },
       Io { recipe, io_error } => {
+        // TODO: tests io error spacing
         match io_error.kind() {
-          io::ErrorKind::NotFound => writeln!(
+          io::ErrorKind::NotFound => write!(
             f,
             "Recipe `{}` could not be run because just could not find `sh`:{}",
             recipe, io_error
           ),
-          io::ErrorKind::PermissionDenied => writeln!(
+          io::ErrorKind::PermissionDenied => write!(
             f,
             "Recipe `{}` could not be run because just could not run `sh`:{}",
             recipe, io_error
           ),
-          _ => writeln!(
+          _ => write!(
             f,
             "Recipe `{}` could not be run because of an IO error while launching `sh`:{}",
             recipe, io_error
@@ -363,14 +363,14 @@ impl<'src> Display for RuntimeError<'src> {
       },
       Load { io_error, path } => {
         // TODO: test this error message
-        writeln!(
+        write!(
           f,
           "Failed to read justffile at `{}`: {}",
           path.display(),
           io_error
         )?;
       },
-      TmpdirIo { recipe, io_error } => writeln!(
+      TmpdirIo { recipe, io_error } => write!(
         f,
         "Recipe `{}` could not be run because of an IO error while trying to create a temporary \
          directory or write a file to that directory`:{}",
@@ -378,13 +378,13 @@ impl<'src> Display for RuntimeError<'src> {
       )?,
       Backtick { output_error, .. } => match output_error {
         OutputError::Code(code) => {
-          writeln!(f, "Backtick failed with exit code {}", code)?;
+          write!(f, "Backtick failed with exit code {}", code)?;
         },
         OutputError::Signal(signal) => {
-          writeln!(f, "Backtick was terminated by signal {}", signal)?;
+          write!(f, "Backtick was terminated by signal {}", signal)?;
         },
         OutputError::Unknown => {
-          writeln!(f, "Backtick failed for an unknown reason")?;
+          write!(f, "Backtick failed for an unknown reason")?;
         },
         OutputError::Io(io_error) => {
           match io_error.kind() {
@@ -406,7 +406,7 @@ impl<'src> Display for RuntimeError<'src> {
           }?;
         },
         OutputError::Utf8(utf8_error) => {
-          writeln!(
+          write!(
             f,
             "Backtick succeeded but stdout was not utf8: {}",
             utf8_error
@@ -414,16 +414,16 @@ impl<'src> Display for RuntimeError<'src> {
         },
       },
       NoChoosableRecipes => {
-        writeln!(f, "Justfile contains no choosable recipes.")?;
+        write!(f, "Justfile contains no choosable recipes.")?;
       },
       NoRecipes => {
-        writeln!(f, "Justfile contains no recipes.")?;
+        write!(f, "Justfile contains no recipes.")?;
       },
       DefaultRecipeRequiresArguments {
         recipe,
         min_arguments,
       } => {
-        writeln!(
+        write!(
           f,
           "Recipe `{}` cannot be used as default recipe since it requires at least {} {}.",
           recipe,
@@ -442,10 +442,6 @@ impl<'src> Display for RuntimeError<'src> {
     }
 
     write!(f, "{}", message.suffix())?;
-
-    if let Some(token) = self.context() {
-      token.write_context(f, Color::fmt(f).error())?;
-    }
 
     Ok(())
   }

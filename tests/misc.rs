@@ -663,8 +663,8 @@ test! {
   justfile: "b := a\na := `exit 100`\nbar:\n echo '{{`exit 200`}}'",
   args:     ("--color", "always"),
   stdout:   "",
-  stderr:   "\u{1b}[1;31merror\u{1b}[0m: \u{1b}[1mBacktick failed with exit code 100
-\u{1b}[0m  |\n2 | a := `exit 100`\n  |      \u{1b}[1;31m^^^^^^^^^^\u{1b}[0m\n",
+  stderr:   "\u{1b}[1;31merror\u{1b}[0m: \u{1b}[1mBacktick failed with exit code 100\u{1b}[0m
+  |\n2 | a := `exit 100`\n  |      \u{1b}[1;31m^^^^^^^^^^\u{1b}[0m\n",
   status:   100,
 }
 

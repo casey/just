@@ -9,6 +9,12 @@ pub(crate) enum Error<'src> {
   Run(RuntimeError<'src>),
 }
 
+// TODO:
+// - errors should have a `Display` method that prints the error message with no
+//   newline and no color
+// - Error may bold the message outside of the Display impl
+// - errors should have a `Context` method
+
 impl<'src> Error<'src> {
   pub(crate) fn code(&self) -> i32 {
     match self {
@@ -18,18 +24,35 @@ impl<'src> Error<'src> {
     }
   }
 
-  pub(crate) fn eprint(&self, color: Color) {
+  fn context(&self) -> Option<Token<'src>> {
+    match self {
+      Self::Search(_) | Self::Config(_) | Self::Code(_) => None,
+      Self::Compile(error) => Some(error.context()),
+      Self::Run(error) => error.context(),
+    }
+  }
+
+  pub(crate) fn write(&self, w: &mut dyn Write, color: Color) -> io::Result<()> {
     if let Error::Code(_) = self {
-      return;
+      return Ok(());
     }
 
-    eprint!("{}: ", color.stderr().error().paint("error"));
+    let color = color.stderr();
 
-    if color.stderr().active() {
-      eprintln!("{:#}", self);
+    write!(w, "{}: ", color.error().paint("error"))?;
+
+    if color.active() {
+      writeln!(w, "{:#}", self)?;
     } else {
-      eprintln!("{}", self);
+      writeln!(w, "{}", self)?;
     }
+
+    if let Some(token) = self.context() {
+      token.write_context_2(w, color.error())?;
+      writeln!(w)?;
+    }
+
+    Ok(())
   }
 }
 

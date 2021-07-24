@@ -2285,8 +2285,9 @@ mod tests {
 
   #[test]
   fn presume_error() {
+    let error = Lexer::new("!").presume('-').unwrap_err();
     assert_matches!(
-      Lexer::new("!").presume('-').unwrap_err(),
+      error,
       CompilationError {
         token: Token {
           offset: 0,
@@ -2297,22 +2298,21 @@ mod tests {
           kind:   Unspecified,
         },
         kind:  Internal {
-          message,
+          ref message,
         },
       } if message == "Lexer presumed character `-`"
     );
 
+    let mut cursor = Cursor::new(Vec::new());
+
+    Error::Compile(error)
+      .write(&mut cursor, Color::never())
+      .unwrap();
+
+    // TODO: Fix double newline
     assert_eq!(
-      Lexer::new("!").presume('-').unwrap_err().to_string(),
-      unindent(
-        "
-        Internal error, this may indicate a bug in just: Lexer presumed character `-`
-        \
-         consider filing an issue: https://github.com/casey/just/issues/new
-          |
-        1 | !
-          | ^"
-      ),
+      str::from_utf8(&cursor.into_inner()).unwrap(),
+        "error: Internal error, this may indicate a bug in just: Lexer presumed character `-`\nconsider filing an issue: https://github.com/casey/just/issues/new\n  |\n1 | !\n  | ^\n"
     );
   }
 }
