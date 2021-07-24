@@ -23,10 +23,12 @@ impl<'src> Error<'src> {
       return;
     }
 
+    eprint!("{}: ", color.stderr().error().paint("error"));
+
     if color.stderr().active() {
-      eprintln!("{}: {:#}", color.stderr().error().paint("error"), self);
+      eprintln!("{:#}", self);
     } else {
-      eprintln!("error: {}", self);
+      eprintln!("{}", self);
     }
   }
 }
