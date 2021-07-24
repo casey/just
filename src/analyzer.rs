@@ -11,15 +11,12 @@ pub(crate) struct Analyzer<'src> {
 }
 
 impl<'src> Analyzer<'src> {
-  pub(crate) fn analyze(module: Module<'src>) -> CompilationResult<'src, Justfile> {
-    Analyzer::default().justfile(module)
+  pub(crate) fn analyze(ast: Ast<'src>) -> CompilationResult<'src, Justfile> {
+    Analyzer::default().justfile(ast)
   }
 
-  pub(crate) fn justfile(
-    mut self,
-    module: Module<'src>,
-  ) -> CompilationResult<'src, Justfile<'src>> {
-    for item in module.items {
+  pub(crate) fn justfile(mut self, ast: Ast<'src>) -> CompilationResult<'src, Justfile<'src>> {
+    for item in ast.items {
       match item {
         Item::Alias(alias) => {
           self.analyze_alias(&alias)?;
@@ -83,7 +80,7 @@ impl<'src> Analyzer<'src> {
     }
 
     Ok(Justfile {
-      warnings: module.warnings,
+      warnings: ast.warnings,
       aliases,
       assignments,
       recipes,

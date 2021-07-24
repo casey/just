@@ -7,7 +7,7 @@ pub(crate) trait Node<'src> {
   fn tree(&self) -> Tree<'src>;
 }
 
-impl<'src> Node<'src> for Module<'src> {
+impl<'src> Node<'src> for Ast<'src> {
   fn tree(&self) -> Tree<'src> {
     Tree::atom("justfile")
       .extend(self.items.iter().map(|item| item.tree()))

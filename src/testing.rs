@@ -65,9 +65,9 @@ pub(crate) fn analysis_error(
 ) {
   let tokens = Lexer::lex(src).expect("Lexing failed in parse test...");
 
-  let module = Parser::parse(&tokens).expect("Parsing failed in analysis test...");
+  let ast = Parser::parse(&tokens).expect("Parsing failed in analysis test...");
 
-  match Analyzer::analyze(module) {
+  match Analyzer::analyze(ast) {
     Ok(_) => panic!("Analysis unexpectedly succeeded"),
     Err(have) => {
       let want = CompilationError {
