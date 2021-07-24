@@ -286,7 +286,7 @@ impl<'src> Display for RuntimeError<'src> {
         },
       },
       Dotenv { dotenv_error } => {
-        writeln!(f, "Failed to load .env: {}", dotenv_error)?;
+        write!(f, "Failed to load .env: {}", dotenv_error)?;
       },
       FunctionCall { function, message } => {
         writeln!(

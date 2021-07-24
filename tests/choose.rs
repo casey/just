@@ -95,7 +95,7 @@ test! {
   ",
   args: ("--choose"),
   stdout: "",
-  stderr: "error: Justfile contains no choosable recipes.\n",
+  stderr: "Justfile contains no choosable recipes.\n",
   status: EXIT_FAILURE,
 }
 
