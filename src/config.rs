@@ -601,10 +601,7 @@ impl Config {
       .collect::<Vec<&Recipe<Dependency>>>();
 
     if recipes.is_empty() {
-      if self.verbosity.loud() {
-        // eprintln!("Justfile contains no choosable recipes.");
-      }
-      return Err(Error::Code(EXIT_FAILURE));
+      return Err(RuntimeError::NoChoosableRecipes.into());
     }
 
     let chooser = chooser

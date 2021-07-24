@@ -54,6 +54,7 @@ pub(crate) enum RuntimeError<'src> {
     io_error: io::Error,
   },
   NoRecipes,
+  NoChoosableRecipes,
   Shebang {
     recipe:   &'src str,
     command:  String,
@@ -411,6 +412,9 @@ impl<'src> Display for RuntimeError<'src> {
             utf8_error
           )?;
         },
+      },
+      NoChoosableRecipes => {
+        writeln!(f, "Justfile contains no choosable recipes.");
       },
       NoRecipes => {
         writeln!(f, "Justfile contains no recipes.",)?;
