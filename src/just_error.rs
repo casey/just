@@ -4,15 +4,9 @@ pub(crate) enum JustError<'src> {
   Search(SearchError),
   Compile(CompilationError<'src>),
   Load(LoadError),
+  // TODO: remove this variant
   Code(i32),
   Run(RuntimeError<'src>),
-}
-
-// TODO: remove this impl
-impl<'src> From<i32> for JustError<'src> {
-  fn from(code: i32) -> Self {
-    Self::Code(code)
-  }
 }
 
 impl<'src> From<SearchError> for JustError<'src> {

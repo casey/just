@@ -693,7 +693,7 @@ impl Config {
     self.run(justfile, search, overrides, &recipes)
   }
 
-  fn dump(ast: Ast) -> Result<(), i32> {
+  fn dump(ast: Ast) -> Result<(), JustError<'static>> {
     print!("{}", ast);
     Ok(())
   }
@@ -731,12 +731,12 @@ impl Config {
     }
   }
 
-  fn format(&self, ast: Ast, search: &Search) -> Result<(), i32> {
+  fn format(&self, ast: Ast, search: &Search) -> Result<(), JustError<'static>> {
     if !self.unstable {
       eprintln!(
         "The `--fmt` command is currently unstable. Pass the `--unstable` flag to enable it."
       );
-      return Err(EXIT_FAILURE);
+      return Err(JustError::Code(EXIT_FAILURE));
     }
 
     if let Err(error) = File::create(&search.justfile).and_then(|mut file| write!(file, "{}", ast))
@@ -748,7 +748,7 @@ impl Config {
           error
         );
       }
-      Err(EXIT_FAILURE)
+      Err(JustError::Code(EXIT_FAILURE))
     } else {
       if self.verbosity.loud() {
         eprintln!("Wrote justfile to `{}`", search.justfile.display());
@@ -880,7 +880,7 @@ impl Config {
     Ok(justfile.run(&self, search, overrides, arguments)?)
   }
 
-  fn show(&self, name: &str, justfile: Justfile) -> Result<(), i32> {
+  fn show(&self, name: &str, justfile: Justfile) -> Result<(), JustError<'static>> {
     if let Some(alias) = justfile.get_alias(name) {
       let recipe = justfile.get_recipe(alias.target.name.lexeme()).unwrap();
       println!("{}", alias);
@@ -896,7 +896,7 @@ impl Config {
           eprintln!("{}", suggestion);
         }
       }
-      Err(EXIT_FAILURE)
+      Err(JustError::Code(EXIT_FAILURE))
     }
   }
 
