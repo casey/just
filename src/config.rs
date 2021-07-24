@@ -879,7 +879,7 @@ impl Config {
     Ok(justfile.run(&self, search, overrides, arguments)?)
   }
 
-  fn show(&self, name: &str, justfile: Justfile) -> Result<(), Error<'static>> {
+  fn show<'src>(&self, name: &str, justfile: Justfile<'src>) -> Result<(), Error<'src>> {
     if let Some(alias) = justfile.get_alias(name) {
       let recipe = justfile.get_recipe(alias.target.name.lexeme()).unwrap();
       println!("{}", alias);
@@ -889,13 +889,10 @@ impl Config {
       println!("{}", recipe);
       Ok(())
     } else {
-      // if self.verbosity.loud() {
-      //   eprintln!("Justfile does not contain recipe `{}`.", name);
-      //   if let Some(suggestion) = justfile.suggest_recipe(name) {
-      //     eprintln!("{}", suggestion);
-      //   }
-      // }
-      Err(Error::Code(EXIT_FAILURE))
+      Err(Error::Run(RuntimeError::UnknownRecipes {
+        recipes:    vec![name.to_owned()],
+        suggestion: justfile.suggest_recipe(name),
+      }))
     }
   }
 

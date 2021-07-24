@@ -47,7 +47,7 @@ a Z="\t z":
 "#,
   args:     ("--show", "hell"),
   stdout:   "",
-  stderr:   "Justfile does not contain recipe `hell`.\nDid you mean `hello`?\n",
+  stderr:   "error: Justfile does not contain recipe `hell`.\nDid you mean `hello`?\n",
   status:   EXIT_FAILURE,
 }
 
@@ -63,7 +63,7 @@ a Z="\t z":
 "#,
   args:     ("--show", "fo"),
   stdout:   "",
-  stderr:   "Justfile does not contain recipe `fo`.\nDid you mean `foo`, an alias for `hello`?\n",
+  stderr:   "error: Justfile does not contain recipe `fo`.\nDid you mean `foo`, an alias for `hello`?\n",
   status:   EXIT_FAILURE,
 }
 
@@ -77,7 +77,7 @@ a Z="\t z":
 "#,
   args:     ("--show", "hell"),
   stdout:   "",
-  stderr:   "Justfile does not contain recipe `hell`.\n",
+  stderr:   "error: Justfile does not contain recipe `hell`.\n",
   status:   EXIT_FAILURE,
 }
 
@@ -93,6 +93,6 @@ a Z="\t z":
 "#,
   args:     ("--show", "fooooooo"),
   stdout:   "",
-  stderr:   "Justfile does not contain recipe `fooooooo`.\n",
+  stderr:   "error: Justfile does not contain recipe `fooooooo`.\n",
   status:   EXIT_FAILURE,
 }
