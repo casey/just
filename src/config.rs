@@ -886,7 +886,7 @@ impl Config {
       Ok(())
     } else {
       if self.verbosity.loud() {
-        eprintln!("Justfile does not contain recipe `{}`.", name);
+        eprintln!("Justfilee does not contain recipe `{}`.", name);
         if let Some(suggestion) = justfile.suggest_recipe(name) {
           eprintln!("{}", suggestion);
         }

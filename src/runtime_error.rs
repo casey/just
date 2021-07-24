@@ -414,10 +414,10 @@ impl<'src> Display for RuntimeError<'src> {
         },
       },
       NoChoosableRecipes => {
-        writeln!(f, "Justfile contains no choosable recipes.");
+        writeln!(f, "Justfile contains no choosable recipes.")?;
       },
       NoRecipes => {
-        writeln!(f, "Justfile contains no recipes.",)?;
+        writeln!(f, "Justfile contains no recipes.")?;
       },
       DefaultRecipeRequiresArguments {
         recipe,

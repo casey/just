@@ -119,7 +119,7 @@ impl<'a> Test<'a> {
       stderr: &stderr,
     };
 
-    assert_eq!(have, want, "bad output");
+    pretty_assertions::assert_eq!(have, want, "bad output");
 
     if self.status == EXIT_SUCCESS {
       test_round_trip(tmp.path());
