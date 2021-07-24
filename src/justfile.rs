@@ -224,7 +224,7 @@ impl<'src> Justfile<'src> {
           if !argument_range.range_contains(&argument_count) {
             return Err(RuntimeError::ArgumentCountMismatch {
               recipe:     recipe.name(),
-              parameters: recipe.parameters.iter().collect(),
+              parameters: recipe.parameters.clone(),
               found:      tail.len(),
               min:        recipe.min_arguments(),
               max:        recipe.max_arguments(),
@@ -234,7 +234,7 @@ impl<'src> Justfile<'src> {
           tail = &tail[argument_count..];
         }
       } else {
-        missing.push(*argument);
+        missing.push(argument.to_string());
       }
       rest = tail;
     }
@@ -278,9 +278,9 @@ impl<'src> Justfile<'src> {
       .or_else(|| self.aliases.get(name).map(|alias| alias.target.as_ref()))
   }
 
-  fn run_recipe<'run>(
+  fn run_recipe(
     &self,
-    context: &RecipeContext<'src, 'run>,
+    context: &RecipeContext<'src, '_>,
     recipe: &Recipe<'src>,
     arguments: &[&str],
     dotenv: &BTreeMap<String, String>,

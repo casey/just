@@ -19,6 +19,7 @@ pub fn run() -> Result<(), i32> {
   let config = Config::from_matches(&matches).eprint(Color::auto())?;
 
   let color = config.color;
+  let verbosity = config.verbosity;
 
   let loader = Loader::new();
 
@@ -28,14 +29,13 @@ pub fn run() -> Result<(), i32> {
       JustError::Search(error) => Err(error).eprint(color),
       JustError::Load(error) => Err(error).eprint(color),
       JustError::Compile(error) => Err(error).eprint(color),
+      JustError::Run(error) =>
+        if !verbosity.quiet() {
+          Err(error).eprint(color)
+        } else {
+          Err(error.code())
+        },
     },
     Ok(()) => Ok(()),
   }
 }
-
-// if !self.verbosity.quiet() {
-//   result.eprint(self.color)
-// } else {
-//   result.map_err(|err| err.code())
-// }
-//

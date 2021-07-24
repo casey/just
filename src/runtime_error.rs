@@ -4,7 +4,7 @@ use crate::common::*;
 pub(crate) enum RuntimeError<'src> {
   ArgumentCountMismatch {
     recipe:     &'src str,
-    parameters: Vec<&'src Parameter<'src>>,
+    parameters: Vec<Parameter<'src>>,
     found:      usize,
     min:        usize,
     max:        usize,
@@ -64,7 +64,7 @@ pub(crate) enum RuntimeError<'src> {
     overrides: Vec<String>,
   },
   UnknownRecipes {
-    recipes:    Vec<&'src str>,
+    recipes:    Vec<String>,
     suggestion: Option<Suggestion<'src>>,
   },
   Unknown {
