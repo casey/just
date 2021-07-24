@@ -27,6 +27,10 @@ pub(crate) enum RuntimeError<'src> {
     recipe:       &'src str,
     output_error: OutputError,
   },
+  DefaultRecipeRequiresArguments {
+    recipe:        &'src str,
+    min_arguments: usize,
+  },
   Dotenv {
     dotenv_error: dotenv::Error,
   },
@@ -49,6 +53,7 @@ pub(crate) enum RuntimeError<'src> {
     path:     PathBuf,
     io_error: io::Error,
   },
+  NoRecipes,
   Shebang {
     recipe:   &'src str,
     command:  String,
@@ -64,21 +69,16 @@ pub(crate) enum RuntimeError<'src> {
     recipe:   &'src str,
     io_error: io::Error,
   },
+  Unknown {
+    recipe:      &'src str,
+    line_number: Option<usize>,
+  },
   UnknownOverrides {
     overrides: Vec<String>,
   },
   UnknownRecipes {
     recipes:    Vec<String>,
     suggestion: Option<Suggestion<'src>>,
-  },
-  Unknown {
-    recipe:      &'src str,
-    line_number: Option<usize>,
-  },
-  NoRecipes,
-  DefaultRecipeRequiresArguments {
-    recipe:        &'src str,
-    min_arguments: usize,
   },
 }
 

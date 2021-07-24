@@ -602,7 +602,7 @@ impl Config {
 
     if recipes.is_empty() {
       if self.verbosity.loud() {
-        eprintln!("Justfile contains no choosable recipes.");
+        // eprintln!("Justfile contains no choosable recipes.");
       }
       return Err(Error::Code(EXIT_FAILURE));
     }
