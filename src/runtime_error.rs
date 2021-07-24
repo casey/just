@@ -61,7 +61,7 @@ pub(crate) enum RuntimeError<'src> {
     io_error: io::Error,
   },
   UnknownOverrides {
-    overrides: Vec<&'src str>,
+    overrides: Vec<String>,
   },
   UnknownRecipes {
     recipes:    Vec<&'src str>,

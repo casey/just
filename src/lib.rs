@@ -94,6 +94,7 @@ mod line;
 mod list;
 mod load_dotenv;
 mod load_error;
+mod loader;
 mod name;
 mod ordinal;
 mod output;

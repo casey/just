@@ -10,7 +10,7 @@ pub(crate) struct Justfile<'src> {
 }
 
 impl<'src> Justfile<'src> {
-  pub(crate) fn first(&self) -> Option<&Recipe> {
+  pub(crate) fn first(&self) -> Option<&Recipe<'src>> {
     let mut first: Option<&Recipe<Dependency>> = None;
     for recipe in self.recipes.values() {
       if let Some(first_recipe) = first {
@@ -28,7 +28,7 @@ impl<'src> Justfile<'src> {
     self.recipes.len()
   }
 
-  pub(crate) fn suggest_recipe(&self, input: &str) -> Option<Suggestion> {
+  pub(crate) fn suggest_recipe(&self, input: &str) -> Option<Suggestion<'src>> {
     let mut suggestions = self
       .recipes
       .keys()
@@ -54,7 +54,7 @@ impl<'src> Justfile<'src> {
       .next()
   }
 
-  pub(crate) fn suggest_variable(&self, input: &str) -> Option<Suggestion> {
+  pub(crate) fn suggest_variable(&self, input: &str) -> Option<Suggestion<'src>> {
     let mut suggestions = self
       .assignments
       .keys()
@@ -74,18 +74,18 @@ impl<'src> Justfile<'src> {
       .next()
   }
 
-  pub(crate) fn run<'run>(
-    &'run self,
-    config: &'run Config,
-    search: &'run Search,
-    overrides: &'run BTreeMap<String, String>,
-    arguments: &'run [String],
-  ) -> RunResult<'run, ()> {
+  pub(crate) fn run(
+    &self,
+    config: &Config,
+    search: &Search,
+    overrides: &BTreeMap<String, String>,
+    arguments: &[String],
+  ) -> RunResult<'src, ()> {
     let unknown_overrides = overrides
       .keys()
       .filter(|name| !self.assignments.contains_key(name.as_str()))
-      .map(String::as_str)
-      .collect::<Vec<&str>>();
+      .cloned()
+      .collect::<Vec<String>>();
 
     if !unknown_overrides.is_empty() {
       return Err(RuntimeError::UnknownOverrides {
@@ -107,7 +107,7 @@ impl<'src> Justfile<'src> {
         if let Some(assignment) = self.assignments.get(name) {
           scope.bind(assignment.export, assignment.name, value.clone());
         } else {
-          unknown_overrides.push(name.as_ref());
+          unknown_overrides.push(name.clone());
         }
       }
 
@@ -266,7 +266,7 @@ impl<'src> Justfile<'src> {
     Ok(())
   }
 
-  pub(crate) fn get_alias(&self, name: &str) -> Option<&Alias> {
+  pub(crate) fn get_alias(&self, name: &str) -> Option<&Alias<'src>> {
     self.aliases.get(name)
   }
 
@@ -280,11 +280,11 @@ impl<'src> Justfile<'src> {
 
   fn run_recipe<'run>(
     &self,
-    context: &'run RecipeContext<'src, 'run>,
+    context: &RecipeContext<'src, 'run>,
     recipe: &Recipe<'src>,
-    arguments: &[&'run str],
+    arguments: &[&str],
     dotenv: &BTreeMap<String, String>,
-    search: &'run Search,
+    search: &Search,
     ran: &mut BTreeSet<Vec<String>>,
   ) -> RunResult<'src, ()> {
     let (outer, positional) = Evaluator::evaluate_parameters(
@@ -351,7 +351,7 @@ impl<'src> Justfile<'src> {
     Ok(())
   }
 
-  pub(crate) fn public_recipes(&self, source_order: bool) -> Vec<&Recipe<Dependency>> {
+  pub(crate) fn public_recipes(&self, source_order: bool) -> Vec<&Recipe<'src, Dependency>> {
     let mut recipes = self
       .recipes
       .values()

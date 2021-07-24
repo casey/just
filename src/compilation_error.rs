@@ -6,7 +6,9 @@ pub(crate) struct CompilationError<'src> {
   pub(crate) kind:  CompilationErrorKind<'src>,
 }
 
-impl Error for CompilationError<'_> {}
+impl<'src> Error for CompilationError<'src> {}
+
+impl<'src> std::error::Error for CompilationError<'src> {}
 
 impl Display for CompilationError<'_> {
   fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {

@@ -1,13 +1,16 @@
 use crate::common::*;
 
-pub(crate) struct LoadError<'path> {
-  pub(crate) path:     &'path Path,
+#[derive(Debug)]
+pub(crate) struct LoadError {
+  pub(crate) path:     PathBuf,
   pub(crate) io_error: io::Error,
 }
 
-impl Error for LoadError<'_> {}
+impl Error for LoadError {}
 
-impl Display for LoadError<'_> {
+impl std::error::Error for LoadError {}
+
+impl Display for LoadError {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
     write!(
       f,

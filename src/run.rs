@@ -20,11 +20,22 @@ pub fn run() -> Result<(), i32> {
 
   let color = config.color;
 
-  match config.run_subcommand() {
+  let loader = Loader::new();
+
+  match config.run_subcommand(&loader) {
     Err(error) => match error {
       JustError::Code(code) => Err(code),
       JustError::Search(error) => Err(error).eprint(color),
+      JustError::Load(error) => Err(error).eprint(color),
+      JustError::Compile(error) => Err(error).eprint(color),
     },
     Ok(()) => Ok(()),
   }
 }
+
+// if !self.verbosity.quiet() {
+//   result.eprint(self.color)
+// } else {
+//   result.map_err(|err| err.code())
+// }
+//

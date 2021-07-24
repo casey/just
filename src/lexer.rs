@@ -38,7 +38,7 @@ pub(crate) struct Lexer<'src> {
 
 impl<'src> Lexer<'src> {
   /// Lex `text`
-  pub(crate) fn lex(src: &str) -> CompilationResult<Vec<Token>> {
+  pub(crate) fn lex(src: &'src str) -> CompilationResult<Vec<Token<'src>>> {
     Lexer::new(src).tokenize()
   }
 

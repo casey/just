@@ -27,6 +27,7 @@ pub(crate) use libc::EXIT_FAILURE;
 pub(crate) use log::{info, warn};
 pub(crate) use snafu::{ResultExt, Snafu};
 pub(crate) use strum::{Display, EnumString, IntoStaticStr};
+pub(crate) use typed_arena::Arena;
 pub(crate) use unicode_width::{UnicodeWidthChar, UnicodeWidthStr};
 
 // modules
@@ -51,9 +52,9 @@ pub(crate) use crate::{
   fragment::Fragment, function::Function, function_context::FunctionContext,
   interrupt_guard::InterruptGuard, interrupt_handler::InterruptHandler, item::Item,
   just_error::JustError, justfile::Justfile, keyword::Keyword, lexer::Lexer, line::Line,
-  list::List, load_error::LoadError, name::Name, output_error::OutputError, parameter::Parameter,
-  parameter_kind::ParameterKind, parser::Parser, platform::Platform, position::Position,
-  positional::Positional, recipe::Recipe, recipe_context::RecipeContext,
+  list::List, load_error::LoadError, loader::Loader, name::Name, output_error::OutputError,
+  parameter::Parameter, parameter_kind::ParameterKind, parser::Parser, platform::Platform,
+  position::Position, positional::Positional, recipe::Recipe, recipe_context::RecipeContext,
   recipe_resolver::RecipeResolver, runtime_error::RuntimeError, scope::Scope, search::Search,
   search_config::SearchConfig, search_error::SearchError, set::Set, setting::Setting,
   settings::Settings, shebang::Shebang, show_whitespace::ShowWhitespace, string_kind::StringKind,
@@ -66,6 +67,7 @@ pub(crate) use crate::{
 // type aliases
 pub(crate) type CompilationResult<'a, T> = Result<T, CompilationError<'a>>;
 pub(crate) type ConfigResult<T> = Result<T, ConfigError>;
+pub(crate) type LoadResult<T> = Result<T, LoadError>;
 pub(crate) type RunResult<'a, T> = Result<T, RuntimeError<'a>>;
 pub(crate) type SearchResult<T> = Result<T, SearchError>;
 
