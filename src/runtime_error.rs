@@ -102,6 +102,12 @@ impl<'src> RuntimeError<'src> {
       _ => None,
     }
   }
+
+  pub(crate) fn internal(message: impl Into<String>) -> Self {
+    Self::Internal {
+      message: message.into(),
+    }
+  }
 }
 
 impl<'src> Display for RuntimeError<'src> {

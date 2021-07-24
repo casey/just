@@ -40,7 +40,7 @@ build:
 fmt:
   cargo +nightly fmt --all
 
-watch +COMMAND='test':
+watch +COMMAND='ltest':
   cargo watch --clear --exec "{{COMMAND}}"
 
 man:
