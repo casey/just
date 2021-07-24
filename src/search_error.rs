@@ -28,8 +28,6 @@ pub(crate) enum SearchError {
   JustfileHadNoParent { path: PathBuf },
 }
 
-impl Error for SearchError {}
-
 #[cfg(test)]
 mod tests {
   use super::*;

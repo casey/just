@@ -22,14 +22,14 @@ pub fn run() -> Result<(), i32> {
   let mut verbosity = Verbosity::default();
 
   Config::from_matches(&matches)
-    .map_err(JustError::Config)
+    .map_err(Error::Config)
     .and_then(|config| {
       color = config.color;
       verbosity = config.verbosity;
       config.run_subcommand(&loader)
     })
     .map_err(|error| {
-      if let JustError::Code(_) = error {
+      if let Error::Code(_) = error {
       } else {
         if !verbosity.quiet() {
           if color.stderr().active() {

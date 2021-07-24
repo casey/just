@@ -41,8 +41,13 @@ pub(crate) enum RuntimeError<'src> {
   Internal {
     message: String,
   },
+  // TODO: Rename to Io
   IoError {
     recipe:   &'src str,
+    io_error: io::Error,
+  },
+  Load {
+    path:     PathBuf,
     io_error: io::Error,
   },
   Shebang {
@@ -78,8 +83,8 @@ pub(crate) enum RuntimeError<'src> {
   },
 }
 
-impl<'src> Error for RuntimeError<'src> {
-  fn code(&self) -> i32 {
+impl<'src> RuntimeError<'src> {
+  pub(crate) fn code(&self) -> i32 {
     match *self {
       Self::Code { code, .. }
       | Self::Backtick {
@@ -89,9 +94,7 @@ impl<'src> Error for RuntimeError<'src> {
       _ => EXIT_FAILURE,
     }
   }
-}
 
-impl<'src> RuntimeError<'src> {
   fn context(&self) -> Option<Token> {
     use RuntimeError::*;
     match self {
@@ -351,6 +354,15 @@ impl<'src> Display for RuntimeError<'src> {
             recipe, io_error
           ),
         }?;
+      },
+      Load { io_error, path } => {
+        // TODO: test this error message
+        writeln!(
+          f,
+          "Failed to read justffile at `{}`: {}",
+          path.display(),
+          io_error
+        )?;
       },
       TmpdirIoError { recipe, io_error } => writeln!(
         f,

@@ -532,7 +532,7 @@ impl Config {
     })
   }
 
-  pub(crate) fn run_subcommand<'src>(self, loader: &'src Loader) -> Result<(), JustError<'src>> {
+  pub(crate) fn run_subcommand<'src>(self, loader: &'src Loader) -> Result<(), Error<'src>> {
     use Subcommand::*;
 
     if self.subcommand == Init {
@@ -592,7 +592,7 @@ impl Config {
     search: &Search,
     overrides: &BTreeMap<String, String>,
     chooser: Option<&str>,
-  ) -> Result<(), JustError<'src>> {
+  ) -> Result<(), Error<'src>> {
     let recipes = justfile
       .public_recipes(self.unsorted)
       .iter()
@@ -604,7 +604,7 @@ impl Config {
       if self.verbosity.loud() {
         eprintln!("Justfile contains no choosable recipes.");
       }
-      return Err(JustError::Code(EXIT_FAILURE));
+      return Err(Error::Code(EXIT_FAILURE));
     }
 
     let chooser = chooser
@@ -633,7 +633,7 @@ impl Config {
             error
           );
         }
-        return Err(JustError::Code(EXIT_FAILURE));
+        return Err(Error::Code(EXIT_FAILURE));
       },
     };
 
@@ -651,7 +651,7 @@ impl Config {
             error
           );
         }
-        return Err(JustError::Code(EXIT_FAILURE));
+        return Err(Error::Code(EXIT_FAILURE));
       }
     }
 
@@ -665,7 +665,7 @@ impl Config {
             error
           );
         }
-        return Err(JustError::Code(EXIT_FAILURE));
+        return Err(Error::Code(EXIT_FAILURE));
       },
     };
 
@@ -677,9 +677,7 @@ impl Config {
           output.status
         );
       }
-      return Err(JustError::Code(
-        output.status.code().unwrap_or(EXIT_FAILURE),
-      ));
+      return Err(Error::Code(output.status.code().unwrap_or(EXIT_FAILURE)));
     }
 
     let stdout = String::from_utf8_lossy(&output.stdout);
@@ -693,12 +691,12 @@ impl Config {
     self.run(justfile, search, overrides, &recipes)
   }
 
-  fn dump(ast: Ast) -> Result<(), JustError<'static>> {
+  fn dump(ast: Ast) -> Result<(), Error<'static>> {
     print!("{}", ast);
     Ok(())
   }
 
-  pub(crate) fn edit(&self, search: &Search) -> Result<(), JustError<'static>> {
+  pub(crate) fn edit(&self, search: &Search) -> Result<(), Error<'static>> {
     let editor = env::var_os("VISUAL")
       .or_else(|| env::var_os("EDITOR"))
       .unwrap_or_else(|| "vim".into());
@@ -716,7 +714,7 @@ impl Config {
           if self.verbosity.loud() {
             eprintln!("Editor `{}` failed: {}", editor.to_string_lossy(), status);
           }
-          Err(JustError::Code(status.code().unwrap_or(EXIT_FAILURE)))
+          Err(Error::Code(status.code().unwrap_or(EXIT_FAILURE)))
         },
       Err(error) => {
         if self.verbosity.loud() {
@@ -726,17 +724,17 @@ impl Config {
             error
           );
         }
-        Err(JustError::Code(EXIT_FAILURE))
+        Err(Error::Code(EXIT_FAILURE))
       },
     }
   }
 
-  fn format(&self, ast: Ast, search: &Search) -> Result<(), JustError<'static>> {
+  fn format(&self, ast: Ast, search: &Search) -> Result<(), Error<'static>> {
     if !self.unstable {
       eprintln!(
         "The `--fmt` command is currently unstable. Pass the `--unstable` flag to enable it."
       );
-      return Err(JustError::Code(EXIT_FAILURE));
+      return Err(Error::Code(EXIT_FAILURE));
     }
 
     if let Err(error) = File::create(&search.justfile).and_then(|mut file| write!(file, "{}", ast))
@@ -748,7 +746,7 @@ impl Config {
           error
         );
       }
-      Err(JustError::Code(EXIT_FAILURE))
+      Err(Error::Code(EXIT_FAILURE))
     } else {
       if self.verbosity.loud() {
         eprintln!("Wrote justfile to `{}`", search.justfile.display());
@@ -757,14 +755,14 @@ impl Config {
     }
   }
 
-  pub(crate) fn init(&self) -> Result<(), JustError<'static>> {
+  pub(crate) fn init(&self) -> Result<(), Error<'static>> {
     let search = Search::init(&self.search_config, &self.invocation_directory)?;
 
     if search.justfile.exists() {
       if self.verbosity.loud() {
         eprintln!("Justfile `{}` already exists", search.justfile.display());
       }
-      Err(JustError::Code(EXIT_FAILURE))
+      Err(Error::Code(EXIT_FAILURE))
     } else if let Err(err) = fs::write(&search.justfile, INIT_JUSTFILE) {
       if self.verbosity.loud() {
         eprintln!(
@@ -773,7 +771,7 @@ impl Config {
           err
         );
       }
-      Err(JustError::Code(EXIT_FAILURE))
+      Err(Error::Code(EXIT_FAILURE))
     } else {
       if self.verbosity.loud() {
         eprintln!("Wrote justfile to `{}`", search.justfile.display());
@@ -872,7 +870,7 @@ impl Config {
     search: &Search,
     overrides: &BTreeMap<String, String>,
     arguments: &[String],
-  ) -> Result<(), JustError<'src>> {
+  ) -> Result<(), Error<'src>> {
     if let Err(error) = InterruptHandler::install(self.verbosity) {
       warn!("Failed to set CTRL-C handler: {}", error);
     }
@@ -880,7 +878,7 @@ impl Config {
     Ok(justfile.run(&self, search, overrides, arguments)?)
   }
 
-  fn show(&self, name: &str, justfile: Justfile) -> Result<(), JustError<'static>> {
+  fn show(&self, name: &str, justfile: Justfile) -> Result<(), Error<'static>> {
     if let Some(alias) = justfile.get_alias(name) {
       let recipe = justfile.get_recipe(alias.target.name.lexeme()).unwrap();
       println!("{}", alias);
@@ -896,7 +894,7 @@ impl Config {
           eprintln!("{}", suggestion);
         }
       }
-      Err(JustError::Code(EXIT_FAILURE))
+      Err(Error::Code(EXIT_FAILURE))
     }
   }
 

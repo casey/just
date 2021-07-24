@@ -54,5 +54,3 @@ impl ConfigError {
     }
   }
 }
-
-impl Error for ConfigError {}

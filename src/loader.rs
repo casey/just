@@ -9,8 +9,8 @@ impl Loader {
     Loader { src: Arena::new() }
   }
 
-  pub(crate) fn load<'src>(&'src self, path: &Path) -> LoadResult<&'src str> {
-    let src = fs::read_to_string(path).map_err(|io_error| LoadError {
+  pub(crate) fn load<'src>(&'src self, path: &Path) -> RunResult<&'src str> {
+    let src = fs::read_to_string(path).map_err(|io_error| RuntimeError::Load {
       path: path.to_owned(),
       io_error,
     })?;
