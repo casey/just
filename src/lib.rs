@@ -76,7 +76,6 @@ mod delimiter;
 mod dependency;
 mod enclosure;
 mod error;
-mod error_result_ext;
 mod evaluator;
 mod expression;
 mod fragment;

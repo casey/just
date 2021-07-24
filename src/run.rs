@@ -16,26 +16,30 @@ pub fn run() -> Result<(), i32> {
   info!("Parsing command line arguments…");
   let matches = app.get_matches();
 
-  let config = Config::from_matches(&matches).eprint(Color::auto())?;
-
-  let color = config.color;
-  let verbosity = config.verbosity;
-
   let loader = Loader::new();
 
-  match config.run_subcommand(&loader) {
-    Err(error) => match error {
-      JustError::Code(code) => Err(code),
-      JustError::Search(error) => Err(error).eprint(color),
-      JustError::Load(error) => Err(error).eprint(color),
-      JustError::Compile(error) => Err(error).eprint(color),
-      JustError::Run(error) =>
+  let mut color = Color::auto();
+  let mut verbosity = Verbosity::default();
+
+  Config::from_matches(&matches)
+    .map_err(JustError::Config)
+    .and_then(|config| {
+      color = config.color;
+      verbosity = config.verbosity;
+      config.run_subcommand(&loader)
+    })
+    .map_err(|error| {
+      if let JustError::Code(_) = error {
+      } else {
         if !verbosity.quiet() {
-          Err(error).eprint(color)
-        } else {
-          Err(error.code())
-        },
-    },
-    Ok(()) => Ok(()),
-  }
+          if color.stderr().active() {
+            eprintln!("{}: {:#}", color.stderr().error().paint("error"), error);
+          } else {
+            eprintln!("error: {}", error);
+          }
+        }
+      }
+
+      error.code()
+    })
 }
