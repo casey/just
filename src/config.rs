@@ -697,7 +697,7 @@ impl Config {
     self.run(justfile, search, overrides, &recipes)
   }
 
-  fn dump(ast: Module) -> Result<(), i32> {
+  fn dump(ast: Ast) -> Result<(), i32> {
     print!("{}", ast);
     Ok(())
   }
@@ -735,7 +735,7 @@ impl Config {
     }
   }
 
-  fn format(&self, ast: Module, search: &Search) -> Result<(), i32> {
+  fn format(&self, ast: Ast, search: &Search) -> Result<(), i32> {
     if !self.unstable {
       eprintln!(
         "The `--fmt` command is currently unstable. Pass the `--unstable` flag to enable it."

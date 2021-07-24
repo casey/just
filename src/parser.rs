@@ -35,9 +35,9 @@ pub(crate) struct Parser<'tokens, 'src> {
 }
 
 impl<'tokens, 'src> Parser<'tokens, 'src> {
-  /// Parse `tokens` into an `Module`
-  pub(crate) fn parse(tokens: &'tokens [Token<'src>]) -> CompilationResult<'src, Module<'src>> {
-    Self::new(tokens).parse_justfile()
+  /// Parse `tokens` into an `Ast`
+  pub(crate) fn parse(tokens: &'tokens [Token<'src>]) -> CompilationResult<'src, Ast<'src>> {
+    Self::new(tokens).parse_ast()
   }
 
   /// Construct a new Paser from a token stream
@@ -295,7 +295,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   }
 
   /// Parse a justfile, consumes self
-  fn parse_justfile(mut self) -> CompilationResult<'src, Module<'src>> {
+  fn parse_ast(mut self) -> CompilationResult<'src, Ast<'src>> {
     fn pop_doc_comment<'src>(
       items: &mut Vec<Item<'src>>,
       eol_since_last_comment: bool,
@@ -381,7 +381,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
         self.tokens.len() - self.next,
       ))?)
     } else {
-      Ok(Module {
+      Ok(Ast {
         warnings: Vec::new(),
         items,
       })

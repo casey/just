@@ -1,21 +1,18 @@
 use crate::common::*;
 
-/// A module, the top-level type produced by the parser. So-named because
-/// although at present, all justfiles consist of a single module, in the future
-/// we will likely have multi-module and multi-file justfiles.
-///
-/// Not all successful parses result in valid justfiles, so additional
-/// consistency checks and name resolution are performed by the `Analyzer`,
-/// which produces a `Justfile` from a `Module`.
+/// The top-level type produced by the parser.Not all successful parses result
+/// in valid justfiles, so additional consistency checks and name resolution
+/// are performed by the `Analyzer`, which produces a `Justfile` from an
+/// `Ast`.
 #[derive(Debug, Clone)]
-pub(crate) struct Module<'src> {
+pub(crate) struct Ast<'src> {
   /// Items in the justfile
   pub(crate) items:    Vec<Item<'src>>,
   /// Non-fatal warnings encountered during parsing
   pub(crate) warnings: Vec<Warning>,
 }
 
-impl<'src> Display for Module<'src> {
+impl<'src> Display for Ast<'src> {
   fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
     let mut iter = self.items.iter().peekable();
 
