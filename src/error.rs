@@ -14,6 +14,7 @@ pub(crate) enum Error<'src> {
 //   newline and no color
 // - Error may bold the message outside of the Display impl
 // - errors should have a `Context` method
+// - Remove Color::fmt(f)
 
 impl<'src> Error<'src> {
   pub(crate) fn code(&self) -> i32 {
@@ -39,12 +40,24 @@ impl<'src> Error<'src> {
 
     let color = color.stderr();
 
-    write!(w, "{}: ", color.error().paint("error"))?;
-
     if color.active() {
-      writeln!(w, "{:#}", self)?;
+      writeln!(
+        w,
+        "{}: {}{:#}{}",
+        color.error().paint("error"),
+        color.message().prefix(),
+        self,
+        color.message().suffix()
+      )?;
     } else {
-      writeln!(w, "{}", self)?;
+      writeln!(
+        w,
+        "{}: {}{}{}",
+        color.error().paint("error"),
+        color.message().prefix(),
+        self,
+        color.message().suffix()
+      )?;
     }
 
     if let Some(token) = self.context() {

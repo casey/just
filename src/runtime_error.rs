@@ -120,7 +120,6 @@ impl<'src> Display for RuntimeError<'src> {
       Color::never()
     };
     let message = color.message();
-    write!(f, "{}", message.prefix())?;
 
     match self {
       EvalUnknownVariable {
@@ -440,8 +439,6 @@ impl<'src> Display for RuntimeError<'src> {
         )?;
       },
     }
-
-    write!(f, "{}", message.suffix())?;
 
     Ok(())
   }

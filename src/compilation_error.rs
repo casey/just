@@ -17,8 +17,6 @@ impl Display for CompilationError<'_> {
     use CompilationErrorKind::*;
     let message = Color::fmt(f).message();
 
-    write!(f, "{}", message.prefix())?;
-
     match &self.kind {
       AliasShadowsRecipe { alias, recipe_line } => {
         write!(
@@ -267,8 +265,6 @@ impl Display for CompilationError<'_> {
         )?;
       },
     }
-
-    write!(f, "{}", message.suffix())?;
 
     Ok(())
   }
