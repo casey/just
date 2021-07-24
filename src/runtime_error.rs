@@ -34,6 +34,10 @@ pub(crate) enum RuntimeError<'src> {
   Dotenv {
     dotenv_error: dotenv::Error,
   },
+  EditorInvoke {
+    editor:   OsString,
+    io_error: io::Error,
+  },
   EvalUnknownVariable {
     variable:   String,
     suggestion: Option<Suggestion<'src>>,
@@ -125,6 +129,14 @@ impl<'src> Display for RuntimeError<'src> {
     use RuntimeError::*;
 
     match self {
+      EditorInvoke { editor, io_error } => {
+        write!(
+          f,
+          "Editor `{}` invocation failed: {}",
+          editor.to_string_lossy(),
+          io_error
+        )?;
+      },
       EvalUnknownVariable {
         variable,
         suggestion,

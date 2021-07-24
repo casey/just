@@ -601,11 +601,7 @@ impl Config {
       .collect::<Vec<&Recipe<Dependency>>>();
 
     if recipes.is_empty() {
-      if self.verbosity.loud() {
-        eprintln!("Justfile contains no choosable recipes.");
-      }
-      return Err(Error::Code(EXIT_FAILURE));
-      // return Err(RuntimeError::NoChoosableRecipes.into());
+      return Err(RuntimeError::NoChoosableRecipes.into());
     }
 
     let chooser = chooser
@@ -717,16 +713,10 @@ impl Config {
           }
           Err(Error::Code(status.code().unwrap_or(EXIT_FAILURE)))
         },
-      Err(error) => {
-        if self.verbosity.loud() {
-          eprintln!(
-            "Editor `{}` invocation failed: {}",
-            editor.to_string_lossy(),
-            error
-          );
-        }
-        Err(Error::Code(EXIT_FAILURE))
-      },
+      Err(io_error) => Err(Error::Run(RuntimeError::EditorInvoke {
+        editor: editor.clone(),
+        io_error,
+      })),
     }
   }
 

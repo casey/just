@@ -26,6 +26,60 @@ fn invalid_justfile() {
   assert_stdout(&output, JUSTFILE);
 }
 
+#[test]
+fn invoke_error() {
+  let tmp = temptree! {
+    justfile: JUSTFILE,
+  };
+
+  let output = Command::new(executable_path("just"))
+    .current_dir(tmp.path())
+    .output()
+    .unwrap();
+
+  assert!(!output.status.success());
+
+  let output = Command::new(executable_path("just"))
+    .current_dir(tmp.path())
+    .arg("--edit")
+    .env("VISUAL", "/")
+    .output()
+    .unwrap();
+
+  assert_eq!(
+    String::from_utf8_lossy(&output.stderr),
+    "error: Editor `/` invocation failed: Permission denied (os error 13)\n"
+  );
+}
+
+#[test]
+fn status_error() {
+  let tmp = temptree! {
+    justfile: JUSTFILE,
+  };
+
+  let output = Command::new(executable_path("just"))
+    .current_dir(tmp.path())
+    .output()
+    .unwrap();
+
+  assert!(!output.status.success());
+
+  let output = Command::new(executable_path("just"))
+    .current_dir(tmp.path())
+    .arg("--edit")
+    .env("VISUAL", "false")
+    .output()
+    .unwrap();
+
+  assert_eq!(
+    String::from_utf8_lossy(&output.stderr),
+    "error: Editor `false` failed: exit code 2\n"
+  );
+
+  assert_eq!(output.status.code().unwrap(), 2);
+}
+
 /// Test that editor is $VISUAL, $EDITOR, or "vim" in that order
 #[test]
 fn editor_precedence() {
