@@ -15,6 +15,8 @@ pub(crate) enum Error<'src> {
 // - Error may bold the message outside of the Display impl
 // - errors should have a `Context` method
 // - Remove Color::fmt(f)
+// - fold runtimeerror into Error?
+// - sort error enum variants and match statments
 
 impl<'src> Error<'src> {
   pub(crate) fn code(&self) -> i32 {

@@ -78,6 +78,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "cradle"
+version = "0.0.13"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2352f0ca05779da0791a0ea204cc7bfddf83ee6e6277c919d8c0a5801d27f0e4"
+dependencies = [
+ "rustversion",
+]
+
+[[package]]
 name = "ctor"
 version = "0.1.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -200,6 +209,7 @@ dependencies = [
  "atty",
  "camino",
  "clap",
+ "cradle",
  "ctrlc",
  "derivative",
  "dotenv",
@@ -426,6 +436,12 @@ checksum = "3acd125665422973a33ac9d3dd2df85edad0f4ae9b00dafb1a05e43a9f5ef8e7"
 dependencies = [
  "winapi",
 ]
+
+[[package]]
+name = "rustversion"
+version = "1.0.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "61b3909d758bb75c79f23d4736fac9433868679d3ad2ea7a61e3c25cfda9a088"
 
 [[package]]
 name = "snafu"

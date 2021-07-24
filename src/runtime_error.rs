@@ -42,6 +42,16 @@ pub(crate) enum RuntimeError<'src> {
     function: Name<'src>,
     message:  String,
   },
+  InitExists {
+    justfile: PathBuf,
+  },
+  WriteJustfile {
+    justfile: PathBuf,
+    io_error: io::Error,
+  },
+  Unstable {
+    message: String,
+  },
   Internal {
     message: String,
   },
@@ -286,6 +296,17 @@ impl<'src> Display for RuntimeError<'src> {
           message
         )?;
       },
+      InitExists { justfile } => {
+        write!(f, "Justfile `{}` already exists", justfile.display())?;
+      },
+      WriteJustfile { justfile, io_error } => {
+        write!(
+          f,
+          "Failed to write justfile to `{}`: {}",
+          justfile.display(),
+          io_error
+        )?;
+      },
       Shebang {
         recipe,
         command,
@@ -332,8 +353,17 @@ impl<'src> Display for RuntimeError<'src> {
         } else {
           write!(f, "Recipe `{}` failed for an unknown reason", recipe)?;
         },
+      Unstable { message } => {
+        write!(
+          f,
+          "{} Invoke `just` with the `--unstable` flag to enable unstable features.",
+          message
+        )?;
+      },
       Io { recipe, io_error } => {
-        // TODO: tests io error spacing
+        // TODO:
+        // - tests io error spacing
+        // - what is the error even? better name?
         match io_error.kind() {
           io::ErrorKind::NotFound => write!(
             f,

@@ -39,6 +39,47 @@ fn exists() {
     .unwrap();
 
   assert!(!output.status.success());
+
+  assert_eq!(
+    str::from_utf8(&output.stderr).unwrap(),
+    format!(
+      "error: Justfile `{}` already exists\n",
+      tmp
+        .path()
+        .join("justfile")
+        .canonicalize()
+        .unwrap()
+        .display()
+    ),
+  );
+}
+
+#[test]
+fn write_error() {
+  let tmp = tempdir();
+
+  fs::create_dir(tmp.path().join("justfile")).unwrap();
+
+  let output = Command::new(executable_path("just"))
+    .current_dir(tmp.path())
+    .arg("--init")
+    .output()
+    .unwrap();
+
+  assert!(!output.status.success());
+
+  assert_eq!(
+    str::from_utf8(&output.stderr).unwrap(),
+    format!(
+      "error: Failed to write justfile to `{}`: Is a directory (os error 21)\n",
+      tmp
+        .path()
+        .join("justfile")
+        .canonicalize()
+        .unwrap()
+        .display()
+    ),
+  );
 }
 
 #[test]

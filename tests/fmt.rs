@@ -5,7 +5,7 @@ test! {
   justfile: "",
   args: ("--fmt"),
   stderr: "
-    The `--fmt` command is currently unstable. Pass the `--unstable` flag to enable it.
+    error: The `--fmt` command is currently unstable. Invoke `just` with the `--unstable` flag to enable unstable features.
   ",
   status: EXIT_FAILURE,
 }
@@ -32,6 +32,41 @@ fn unstable_passed() {
   }
 
   assert_eq!(fs::read_to_string(&justfile).unwrap(), "x := 'hello'\n",);
+}
+
+#[test]
+fn write_error() {
+  let tmp = tempdir();
+
+  let justfile = tmp.path().join("justfile");
+
+  fs::write(&justfile, "x    :=    'hello'   ").unwrap();
+
+  cmd_unit!(%"chmod 400", &justfile);
+
+  let output = Command::new(executable_path("just"))
+    .current_dir(tmp.path())
+    .arg("--fmt")
+    .arg("--unstable")
+    .output()
+    .unwrap();
+
+  assert!(!output.status.success());
+
+  assert_eq!(
+    str::from_utf8(&output.stderr).unwrap(),
+    format!(
+      "error: Failed to write justfile to `{}`: Permission denied (os error 13)\n",
+      justfile.canonicalize().unwrap().display(),
+    )
+  );
+
+  assert_eq!(str::from_utf8(&output.stdout).unwrap(), "");
+
+  assert_eq!(
+    fs::read_to_string(&justfile).unwrap(),
+    "x    :=    'hello'   "
+  );
 }
 
 test! {

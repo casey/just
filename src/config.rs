@@ -730,24 +730,26 @@ impl Config {
     }
   }
 
-  fn format(&self, ast: Ast, search: &Search) -> Result<(), Error<'static>> {
-    if !self.unstable {
-      eprintln!(
-        "The `--fmt` command is currently unstable. Pass the `--unstable` flag to enable it."
-      );
-      return Err(Error::Code(EXIT_FAILURE));
+  fn require_unstable(&self, message: &str) -> Result<(), Error<'static>> {
+    if self.unstable {
+      Ok(())
+    } else {
+      Err(Error::Run(RuntimeError::Unstable {
+        message: message.to_owned(),
+      }))
     }
+  }
 
-    if let Err(error) = File::create(&search.justfile).and_then(|mut file| write!(file, "{}", ast))
+  fn format(&self, ast: Ast, search: &Search) -> Result<(), Error<'static>> {
+    self.require_unstable("The `--fmt` command is currently unstable.")?;
+
+    if let Err(io_error) =
+      File::create(&search.justfile).and_then(|mut file| write!(file, "{}", ast))
     {
-      if self.verbosity.loud() {
-        eprintln!(
-          "Failed to write justfile to `{}`: {}",
-          search.justfile.display(),
-          error
-        );
-      }
-      Err(Error::Code(EXIT_FAILURE))
+      Err(Error::Run(RuntimeError::WriteJustfile {
+        justfile: search.justfile.clone(),
+        io_error,
+      }))
     } else {
       if self.verbosity.loud() {
         eprintln!("Wrote justfile to `{}`", search.justfile.display());
@@ -759,20 +761,21 @@ impl Config {
   pub(crate) fn init(&self) -> Result<(), Error<'static>> {
     let search = Search::init(&self.search_config, &self.invocation_directory)?;
 
-    if search.justfile.exists() {
-      if self.verbosity.loud() {
-        eprintln!("Justfile `{}` already exists", search.justfile.display());
-      }
-      Err(Error::Code(EXIT_FAILURE))
-    } else if let Err(err) = fs::write(&search.justfile, INIT_JUSTFILE) {
-      if self.verbosity.loud() {
-        eprintln!(
-          "Failed to write justfile to `{}`: {}",
-          search.justfile.display(),
-          err
-        );
-      }
-      Err(Error::Code(EXIT_FAILURE))
+    if search.justfile.is_file() {
+      Err(
+        RuntimeError::InitExists {
+          justfile: search.justfile,
+        }
+        .into(),
+      )
+    } else if let Err(io_error) = fs::write(&search.justfile, INIT_JUSTFILE) {
+      Err(
+        RuntimeError::WriteJustfile {
+          justfile: search.justfile,
+          io_error,
+        }
+        .into(),
+      )
     } else {
       if self.verbosity.loud() {
         eprintln!("Wrote justfile to `{}`", search.justfile.display());
