@@ -29,17 +29,9 @@ pub fn run() -> Result<(), i32> {
       config.run_subcommand(&loader)
     })
     .map_err(|error| {
-      if let Error::Code(_) = error {
-      } else {
-        if !verbosity.quiet() {
-          if color.stderr().active() {
-            eprintln!("{}: {:#}", color.stderr().error().paint("error"), error);
-          } else {
-            eprintln!("error: {}", error);
-          }
-        }
+      if !verbosity.quiet() {
+        error.eprint(color);
       }
-
       error.code()
     })
 }

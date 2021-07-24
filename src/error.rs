@@ -17,6 +17,18 @@ impl<'src> Error<'src> {
       Self::Run(error) => error.code(),
     }
   }
+
+  pub(crate) fn eprint(&self, color: Color) {
+    if let Error::Code(_) = self {
+      return;
+    }
+
+    if color.stderr().active() {
+      eprintln!("{}: {:#}", color.stderr().error().paint("error"), self);
+    } else {
+      eprintln!("error: {}", self);
+    }
+  }
 }
 
 impl<'src> From<SearchError> for Error<'src> {

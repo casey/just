@@ -210,15 +210,10 @@ const BASH_COMPLETION_REPLACEMENTS: &[(&str, &str)] = &[(
 )];
 
 impl Subcommand {
-  pub(crate) fn completions(verbosity: Verbosity, shell: &str) -> RunResult<'static, ()> {
+  pub(crate) fn completions(shell: &str) -> RunResult<'static, ()> {
     use clap::Shell;
 
-    fn replace(
-      verbosity: Verbosity,
-      haystack: &mut String,
-      needle: &str,
-      replacement: &str,
-    ) -> RunResult<'static, ()> {
+    fn replace(haystack: &mut String, needle: &str, replacement: &str) -> RunResult<'static, ()> {
       if let Some(index) = haystack.find(needle) {
         haystack.replace_range(index..index + needle.len(), replacement);
         Ok(())
@@ -243,19 +238,19 @@ impl Subcommand {
     match shell {
       Shell::Bash =>
         for (needle, replacement) in BASH_COMPLETION_REPLACEMENTS {
-          replace(verbosity, &mut script, needle, replacement)?;
+          replace(&mut script, needle, replacement)?;
         },
       Shell::Fish => {
         script.insert_str(0, FISH_RECIPE_COMPLETIONS);
       },
       Shell::PowerShell =>
         for (needle, replacement) in POWERSHELL_COMPLETION_REPLACEMENTS {
-          replace(verbosity, &mut script, needle, replacement)?;
+          replace(&mut script, needle, replacement)?;
         },
 
       Shell::Zsh =>
         for (needle, replacement) in ZSH_COMPLETION_REPLACEMENTS {
-          replace(verbosity, &mut script, needle, replacement)?;
+          replace(&mut script, needle, replacement)?;
         },
       Shell::Elvish => {},
     }

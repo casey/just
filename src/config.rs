@@ -540,7 +540,7 @@ impl Config {
     }
 
     if let Completions { shell } = self.subcommand {
-      return Ok(Subcommand::completions(self.verbosity, &shell)?);
+      return Ok(Subcommand::completions(&shell)?);
     }
 
     let search = Search::find(&self.search_config, &self.invocation_directory)?;
