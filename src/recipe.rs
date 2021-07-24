@@ -121,7 +121,7 @@ impl<'src, D> Recipe<'src, D> {
       let tmp = tempfile::Builder::new()
         .prefix("just")
         .tempdir()
-        .map_err(|error| RuntimeError::TmpdirIoError {
+        .map_err(|error| RuntimeError::TmpdirIo {
           recipe:   self.name(),
           io_error: error,
         })?;
@@ -130,7 +130,7 @@ impl<'src, D> Recipe<'src, D> {
       path.push(shebang.script_filename(self.name()));
 
       {
-        let mut f = fs::File::create(&path).map_err(|error| RuntimeError::TmpdirIoError {
+        let mut f = fs::File::create(&path).map_err(|error| RuntimeError::TmpdirIo {
           recipe:   self.name(),
           io_error: error,
         })?;
@@ -158,14 +158,14 @@ impl<'src, D> Recipe<'src, D> {
         }
 
         f.write_all(text.as_bytes())
-          .map_err(|error| RuntimeError::TmpdirIoError {
+          .map_err(|error| RuntimeError::TmpdirIo {
             recipe:   self.name(),
             io_error: error,
           })?;
       }
 
       // make the script executable
-      Platform::set_execute_permission(&path).map_err(|error| RuntimeError::TmpdirIoError {
+      Platform::set_execute_permission(&path).map_err(|error| RuntimeError::TmpdirIo {
         recipe:   self.name(),
         io_error: error,
       })?;
@@ -297,7 +297,7 @@ impl<'src, D> Recipe<'src, D> {
               ));
             },
           Err(io_error) => {
-            return Err(RuntimeError::IoError {
+            return Err(RuntimeError::Io {
               recipe: self.name(),
               io_error,
             });

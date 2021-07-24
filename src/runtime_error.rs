@@ -41,8 +41,7 @@ pub(crate) enum RuntimeError<'src> {
   Internal {
     message: String,
   },
-  // TODO: Rename to Io
-  IoError {
+  Io {
     recipe:   &'src str,
     io_error: io::Error,
   },
@@ -61,7 +60,7 @@ pub(crate) enum RuntimeError<'src> {
     line_number: Option<usize>,
     signal:      i32,
   },
-  TmpdirIoError {
+  TmpdirIo {
     recipe:   &'src str,
     io_error: io::Error,
   },
@@ -336,7 +335,7 @@ impl<'src> Display for RuntimeError<'src> {
         } else {
           write!(f, "Recipe `{}` failed for an unknown reason", recipe)?;
         },
-      IoError { recipe, io_error } => {
+      Io { recipe, io_error } => {
         match io_error.kind() {
           io::ErrorKind::NotFound => writeln!(
             f,
@@ -364,7 +363,7 @@ impl<'src> Display for RuntimeError<'src> {
           io_error
         )?;
       },
-      TmpdirIoError { recipe, io_error } => writeln!(
+      TmpdirIo { recipe, io_error } => writeln!(
         f,
         "Recipe `{}` could not be run because of an IO error while trying to create a temporary \
          directory or write a file to that directory`:{}",
