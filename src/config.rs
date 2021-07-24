@@ -532,7 +532,7 @@ impl Config {
     })
   }
 
-  pub(crate) fn run_subcommand(self) -> Result<(), i32> {
+  pub(crate) fn run_subcommand(self) -> Result<(), JustError> {
     use Subcommand::*;
 
     if self.subcommand == Init {
@@ -543,8 +543,7 @@ impl Config {
       return Subcommand::completions(self.verbosity, &shell);
     }
 
-    let search =
-      Search::find(&self.search_config, &self.invocation_directory).eprint(self.color)?;
+    let search = Search::find(&self.search_config, &self.invocation_directory)?;
 
     if self.subcommand == Edit {
       return self.edit(&search);
@@ -702,7 +701,7 @@ impl Config {
     Ok(())
   }
 
-  pub(crate) fn edit(&self, search: &Search) -> Result<(), i32> {
+  pub(crate) fn edit(&self, search: &Search) -> Result<(), JustError> {
     let editor = env::var_os("VISUAL")
       .or_else(|| env::var_os("EDITOR"))
       .unwrap_or_else(|| "vim".into());
@@ -720,7 +719,7 @@ impl Config {
           if self.verbosity.loud() {
             eprintln!("Editor `{}` failed: {}", editor.to_string_lossy(), status);
           }
-          Err(status.code().unwrap_or(EXIT_FAILURE))
+          Err(JustError::Code(status.code().unwrap_or(EXIT_FAILURE)))
         },
       Err(error) => {
         if self.verbosity.loud() {
@@ -730,7 +729,7 @@ impl Config {
             error
           );
         }
-        Err(EXIT_FAILURE)
+        Err(JustError::Code(EXIT_FAILURE))
       },
     }
   }
@@ -761,7 +760,7 @@ impl Config {
     }
   }
 
-  pub(crate) fn init(&self) -> Result<(), i32> {
+  pub(crate) fn init(&self) -> Result<(), JustError> {
     let search =
       Search::init(&self.search_config, &self.invocation_directory).eprint(self.color)?;
 
@@ -769,7 +768,7 @@ impl Config {
       if self.verbosity.loud() {
         eprintln!("Justfile `{}` already exists", search.justfile.display());
       }
-      Err(EXIT_FAILURE)
+      Err(JustError::Code(EXIT_FAILURE))
     } else if let Err(err) = fs::write(&search.justfile, INIT_JUSTFILE) {
       if self.verbosity.loud() {
         eprintln!(
@@ -778,7 +777,7 @@ impl Config {
           err
         );
       }
-      Err(EXIT_FAILURE)
+      Err(JustError::Code(EXIT_FAILURE))
     } else {
       if self.verbosity.loud() {
         eprintln!("Wrote justfile to `{}`", search.justfile.display());

@@ -210,7 +210,7 @@ const BASH_COMPLETION_REPLACEMENTS: &[(&str, &str)] = &[(
 )];
 
 impl Subcommand {
-  pub(crate) fn completions(verbosity: Verbosity, shell: &str) -> Result<(), i32> {
+  pub(crate) fn completions(verbosity: Verbosity, shell: &str) -> Result<(), JustError> {
     use clap::Shell;
 
     fn replace(
@@ -218,7 +218,7 @@ impl Subcommand {
       haystack: &mut String,
       needle: &str,
       replacement: &str,
-    ) -> Result<(), i32> {
+    ) -> Result<(), JustError> {
       if let Some(index) = haystack.find(needle) {
         haystack.replace_range(index..index + needle.len(), replacement);
         Ok(())
@@ -229,7 +229,7 @@ impl Subcommand {
           eprintln!("…in completion script:");
           eprintln!("{}", haystack);
         }
-        Err(EXIT_FAILURE)
+        Err(JustError::Code(EXIT_FAILURE))
       }
     }
 

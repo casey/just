@@ -85,6 +85,7 @@ mod function_context;
 mod interrupt_guard;
 mod interrupt_handler;
 mod item;
+mod just_error;
 mod justfile;
 mod keyed;
 mod keyword;

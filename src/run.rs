@@ -18,5 +18,13 @@ pub fn run() -> Result<(), i32> {
 
   let config = Config::from_matches(&matches).eprint(Color::auto())?;
 
-  config.run_subcommand()
+  let color = config.color;
+
+  match config.run_subcommand() {
+    Err(error) => match error {
+      JustError::Code(code) => Err(code),
+      JustError::Search(error) => Err(error).eprint(color),
+    },
+    Ok(()) => Ok(()),
+  }
 }
