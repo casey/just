@@ -19,5 +19,5 @@ pub(crate) use which::which;
 pub(crate) use yaml_rust::YamlLoader;
 
 pub(crate) use crate::{
-  assert_stdout::assert_stdout, assert_success::assert_success, tempdir::tempdir,
+  assert_stdout::assert_stdout, assert_success::assert_success, tempdir::tempdir, test::Test,
 };

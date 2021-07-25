@@ -47,9 +47,40 @@ pub(crate) struct Test<'a> {
   pub(crate) shell:    bool,
 }
 
+impl<'a> Test<'a> {
+  pub(crate) fn new() -> Self {
+    Self::default()
+  }
+
+  pub(crate) fn justfile(&mut self, justfile: &'a str) -> &mut Self {
+    self.justfile = justfile;
+    self
+  }
+
+  pub(crate) fn shell(&mut self, shell: bool) -> &mut Self {
+    self.shell = shell;
+    self
+  }
+
+  pub(crate) fn status(&mut self, exit_status: i32) -> &mut Self {
+    self.status = exit_status;
+    self
+  }
+
+  pub(crate) fn stderr(&mut self, stderr: &'a str) -> &mut Self {
+    self.stderr = stderr;
+    self
+  }
+
+  pub(crate) fn args(&mut self, args: &'a [&'a str]) -> &mut Self {
+    self.args = args;
+    self
+  }
+}
+
 impl<'a> Default for Test<'a> {
-  fn default() -> Test<'a> {
-    Test {
+  fn default() -> Self {
+    Self {
       justfile: "",
       args:     &[],
       env:      BTreeMap::new(),
@@ -63,7 +94,7 @@ impl<'a> Default for Test<'a> {
 }
 
 impl<'a> Test<'a> {
-  pub(crate) fn run(self) {
+  pub(crate) fn run(&self) {
     let tmp = tempdir();
 
     let justfile = unindent(self.justfile);
@@ -87,7 +118,7 @@ impl<'a> Test<'a> {
 
     let mut child = command
       .args(self.args)
-      .envs(self.env)
+      .envs(&self.env)
       .current_dir(tmp.path())
       .stdin(Stdio::piped())
       .stdout(Stdio::piped())

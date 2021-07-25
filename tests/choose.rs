@@ -113,19 +113,27 @@ test! {
   stderr: "echo foo\necho bar\n",
 }
 
-test! {
-  name: invoke_error,
-  justfile: "
-    foo:
-      echo foo
+#[test]
+fn invoke_error_function() {
+  Test::new()
+    .justfile(
+      "
+        foo:
+          echo foo
 
-    bar:
-      echo bar
-  ",
-  args: ("--shell", "/", "--choose"),
-  stderr: "error: Chooser `/ -cu fzf` invocation failed: Permission denied (os error 13)\n",
-  status: EXIT_FAILURE,
-  shell: false,
+        bar:
+          echo bar
+      ",
+    )
+    .stderr(if cfg!(windows) {
+      "error: Chooser `/ -cu fzf` invocation failed: Accessis denied. (os error 5)\n"
+    } else {
+      "error: Chooser `/ -cu fzf` invocation failed: Permission denied (os error 13)\n"
+    })
+    .status(EXIT_FAILURE)
+    .shell(false)
+    .args(&["--shell", "/", "--choose"])
+    .run();
 }
 
 #[test]
