@@ -74,7 +74,7 @@ fn status_error() {
 
   assert_eq!(
     String::from_utf8_lossy(&output.stderr),
-    "error: Editor `false` failed: exit code 2\n"
+    "error: Editor `false` failed: exit code: 2\n"
   );
 
   assert_eq!(output.status.code().unwrap(), 2);

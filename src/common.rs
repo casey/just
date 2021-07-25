@@ -11,7 +11,7 @@ pub(crate) use std::{
   mem,
   ops::{Index, Range, RangeInclusive},
   path::{Path, PathBuf},
-  process::{self, Command, Stdio},
+  process::{self, Command, ExitStatus, Stdio},
   rc::Rc,
   str::{self, Chars},
   sync::{Mutex, MutexGuard},

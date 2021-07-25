@@ -703,21 +703,20 @@ impl Config {
       .arg(&search.justfile)
       .status();
 
-    match error {
-      Ok(status) =>
-        if status.success() {
-          Ok(())
-        } else {
-          if self.verbosity.loud() {
-            eprintln!("Editor `{}` failed: {}", editor.to_string_lossy(), status);
-          }
-          Err(Error::Code(status.code().unwrap_or(EXIT_FAILURE)))
-        },
-      Err(io_error) => Err(Error::Run(RuntimeError::EditorInvoke {
-        editor: editor.clone(),
-        io_error,
-      })),
+    let status = match error {
+      Err(io_error) =>
+        return Err(Error::Run(RuntimeError::EditorInvoke {
+          editor: editor.clone(),
+          io_error,
+        })),
+      Ok(status) => status,
+    };
+
+    if !status.success() {
+      return Err(Error::Run(RuntimeError::EditorStatus { editor, status }));
     }
+
+    Ok(())
   }
 
   fn require_unstable(&self, message: &str) -> Result<(), Error<'static>> {

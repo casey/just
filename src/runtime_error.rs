@@ -38,6 +38,10 @@ pub(crate) enum RuntimeError<'src> {
     editor:   OsString,
     io_error: io::Error,
   },
+  EditorStatus {
+    editor: OsString,
+    status: ExitStatus,
+  },
   EvalUnknownVariable {
     variable:   String,
     suggestion: Option<Suggestion<'src>>,
@@ -105,6 +109,7 @@ impl<'src> RuntimeError<'src> {
         output_error: OutputError::Code(code),
         ..
       } => code,
+      Self::EditorStatus { status, .. } => status.code().unwrap_or(EXIT_FAILURE),
       _ => EXIT_FAILURE,
     }
   }
@@ -135,6 +140,14 @@ impl<'src> Display for RuntimeError<'src> {
           "Editor `{}` invocation failed: {}",
           editor.to_string_lossy(),
           io_error
+        )?;
+      },
+      EditorStatus { editor, status } => {
+        write!(
+          f,
+          "Editor `{}` failed: {}",
+          editor.to_string_lossy(),
+          status
         )?;
       },
       EvalUnknownVariable {
