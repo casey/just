@@ -148,7 +148,7 @@ impl<'src> Justfile<'src> {
         command.export(&self.settings, &dotenv, &scope);
 
         let status = InterruptHandler::guard(|| command.status()).map_err(|io_error| {
-          Error::CommandInvocation {
+          Error::CommandInvoke {
             binary: binary.clone(),
             arguments: arguments.clone(),
             io_error,
