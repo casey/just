@@ -48,7 +48,11 @@ fn invoke_error() {
 
   assert_eq!(
     String::from_utf8_lossy(&output.stderr),
-    "error: Editor `/` invocation failed: Permission denied (os error 13)\n"
+    if cfg!(windows) {
+      "error: Editor `/` invocation failed: Access is denied. (os error 5)\n"
+    } else {
+      "error: Editor `/` invocation failed: Permission denied (os error 13)\n"
+    }
   );
 }
 

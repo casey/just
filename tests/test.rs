@@ -3,7 +3,7 @@ use crate::common::*;
 macro_rules! test {
   (
     name:     $name:ident,
-    justfile: $justfile:expr,
+    $(justfile: $justfile:expr,)?
     $(args:     ($($arg:tt)*),)?
     $(env:      {
       $($env_key:literal : $env_value:literal,)*
@@ -21,30 +21,34 @@ macro_rules! test {
 
       $($(env.insert($env_key.to_string(), $env_value.to_string());)*)?
 
-      crate::test::Test {
-        justfile: $justfile,
+      let mut test = crate::test::Test {
         $(args: &[$($arg)*],)?
         $(stdin: $stdin,)?
-        $(stdout: $stdout,)?
-        $(stderr: $stderr,)?
         $(status: $status,)?
         $(shell: $shell,)?
         env,
         ..crate::test::Test::default()
-      }.run();
+      };
+
+      $(let test = test.justfile($justfile))?;
+      $(let test = test.stderr($stderr))?;
+      $(let test = test.stdout($stdout))?;
+
+      test.run()
     }
   }
 }
 
 pub(crate) struct Test<'a> {
-  pub(crate) justfile: &'a str,
-  pub(crate) args:     &'a [&'a str],
-  pub(crate) env:      BTreeMap<String, String>,
-  pub(crate) stdin:    &'a str,
-  pub(crate) stdout:   &'a str,
-  pub(crate) stderr:   &'a str,
-  pub(crate) status:   i32,
-  pub(crate) shell:    bool,
+  pub(crate) directory: TempDir,
+  pub(crate) justfile:  Option<String>,
+  pub(crate) args:      &'a [&'a str],
+  pub(crate) env:       BTreeMap<String, String>,
+  pub(crate) stdin:     &'a str,
+  pub(crate) stdout:    String,
+  pub(crate) stderr:    String,
+  pub(crate) status:    i32,
+  pub(crate) shell:     bool,
 }
 
 impl<'a> Test<'a> {
@@ -52,27 +56,41 @@ impl<'a> Test<'a> {
     Self::default()
   }
 
-  pub(crate) fn justfile(&mut self, justfile: &'a str) -> &mut Self {
-    self.justfile = justfile;
+  pub(crate) fn justfile(mut self, justfile: impl Into<String>) -> Self {
+    self.justfile = Some(justfile.into());
     self
   }
 
-  pub(crate) fn shell(&mut self, shell: bool) -> &mut Self {
+  pub(crate) fn justfile_path(&self) -> PathBuf {
+    self.directory.path().join("justfile")
+  }
+
+  pub(crate) fn no_justfile(mut self) -> Self {
+    self.justfile = None;
+    self
+  }
+
+  pub(crate) fn shell(mut self, shell: bool) -> Self {
     self.shell = shell;
     self
   }
 
-  pub(crate) fn status(&mut self, exit_status: i32) -> &mut Self {
+  pub(crate) fn status(mut self, exit_status: i32) -> Self {
     self.status = exit_status;
     self
   }
 
-  pub(crate) fn stderr(&mut self, stderr: &'a str) -> &mut Self {
-    self.stderr = stderr;
+  pub(crate) fn stderr(mut self, stderr: impl Into<String>) -> Self {
+    self.stderr = stderr.into();
     self
   }
 
-  pub(crate) fn args(&mut self, args: &'a [&'a str]) -> &mut Self {
+  pub(crate) fn stdout(mut self, stdout: impl Into<String>) -> Self {
+    self.stdout = stdout.into();
+    self
+  }
+
+  pub(crate) fn args(mut self, args: &'a [&'a str]) -> Self {
     self.args = args;
     self
   }
@@ -81,32 +99,30 @@ impl<'a> Test<'a> {
 impl<'a> Default for Test<'a> {
   fn default() -> Self {
     Self {
-      justfile: "",
-      args:     &[],
-      env:      BTreeMap::new(),
-      stdin:    "",
-      stdout:   "",
-      stderr:   "",
-      status:   EXIT_SUCCESS,
-      shell:    true,
+      args:      &[],
+      directory: tempdir(),
+      env:       BTreeMap::new(),
+      justfile:  Some(String::new()),
+      shell:     true,
+      status:    EXIT_SUCCESS,
+      stderr:    String::new(),
+      stdin:     "",
+      stdout:    String::new(),
     }
   }
 }
 
 impl<'a> Test<'a> {
-  pub(crate) fn run(&self) {
-    let tmp = tempdir();
+  pub(crate) fn run(self) {
+    if let Some(justfile) = &self.justfile {
+      let justfile = unindent(justfile);
+      fs::write(self.justfile_path(), justfile).unwrap();
+    }
 
-    let justfile = unindent(self.justfile);
+    let stdout = unindent(&self.stdout);
+    let stderr = unindent(&self.stderr);
 
-    let stdout = unindent(self.stdout);
-    let stderr = unindent(self.stderr);
-
-    let mut justfile_path = tmp.path().to_path_buf();
-    justfile_path.push("justfile");
-    fs::write(&justfile_path, justfile).unwrap();
-
-    let mut dotenv_path = tmp.path().to_path_buf();
+    let mut dotenv_path = self.directory.path().to_path_buf();
     dotenv_path.push(".env");
     fs::write(dotenv_path, "DOTENV_KEY=dotenv-value").unwrap();
 
@@ -119,7 +135,7 @@ impl<'a> Test<'a> {
     let mut child = command
       .args(self.args)
       .envs(&self.env)
-      .current_dir(tmp.path())
+      .current_dir(self.directory.path())
       .stdin(Stdio::piped())
       .stdout(Stdio::piped())
       .stderr(Stdio::piped())
@@ -153,7 +169,7 @@ impl<'a> Test<'a> {
     pretty_assertions::assert_eq!(have, want, "bad output");
 
     if self.status == EXIT_SUCCESS {
-      test_round_trip(tmp.path());
+      test_round_trip(self.directory.path());
     }
   }
 }

@@ -56,30 +56,21 @@ fn exists() {
 
 #[test]
 fn write_error() {
-  let tmp = tempdir();
+  let test = Test::new();
 
-  fs::create_dir(tmp.path().join("justfile")).unwrap();
+  let justfile_path = test.justfile_path();
 
-  let output = Command::new(executable_path("just"))
-    .current_dir(tmp.path())
-    .arg("--init")
-    .output()
-    .unwrap();
+  fs::create_dir(&justfile_path).unwrap();
 
-  assert!(!output.status.success());
-
-  assert_eq!(
-    str::from_utf8(&output.stderr).unwrap(),
-    format!(
+  test
+    .no_justfile()
+    .args(&["--init"])
+    .status(EXIT_FAILURE)
+    .stderr(format!(
       "error: Failed to write justfile to `{}`: Is a directory (os error 21)\n",
-      tmp
-        .path()
-        .join("justfile")
-        .canonicalize()
-        .unwrap()
-        .display()
-    ),
-  );
+      justfile_path.canonicalize().unwrap().display()
+    ))
+    .run();
 }
 
 #[test]
