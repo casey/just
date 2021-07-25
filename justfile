@@ -61,7 +61,7 @@ version := `sed -En 's/version[[:space:]]*=[[:space:]]*"([^"]+)"/\1/p' Cargo.tom
 changes:
   git log --pretty=format:%s >> CHANGELOG.md
 
-check: clippy test forbid
+check: clippy fmt test forbid
   git diff --no-ext-diff --quiet --exit-code
   grep '^\[{{ version }}\]' CHANGELOG.md
   cargo +nightly generate-lockfile -Z minimal-versions

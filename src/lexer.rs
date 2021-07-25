@@ -2306,7 +2306,9 @@ mod tests {
 
     assert_eq!(
       str::from_utf8(&cursor.into_inner()).unwrap(),
-        "error: Internal error, this may indicate a bug in just: Lexer presumed character `-`\nconsider filing an issue: https://github.com/casey/just/issues/new\n  |\n1 | !\n  | ^\n"
+      "error: Internal error, this may indicate a bug in just: \
+      Lexer presumed character `-`\nconsider filing an issue: \
+      https://github.com/casey/just/issues/new\n  |\n1 | !\n  | ^\n"
     );
   }
 }
