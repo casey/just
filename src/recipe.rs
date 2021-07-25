@@ -4,11 +4,7 @@ use std::process::{ExitStatus, Stdio};
 
 /// Return a `Error::Signal` if the process was terminated by a signal,
 /// otherwise return an `Error::UnknownFailure`
-fn error_from_signal(
-  recipe: &str,
-  line_number: Option<usize>,
-  exit_status: ExitStatus,
-) -> Error {
+fn error_from_signal(recipe: &str, line_number: Option<usize>, exit_status: ExitStatus) -> Error {
   match Platform::signal_from_exit_status(exit_status) {
     Some(signal) => Error::Signal {
       recipe,
@@ -108,11 +104,9 @@ impl<'src, D> Recipe<'src, D> {
         return Ok(());
       }
 
-      let shebang_line = evaluated_lines
-        .first()
-        .ok_or_else(|| Error::Internal {
-          message: "evaluated_lines was empty".to_owned(),
-        })?;
+      let shebang_line = evaluated_lines.first().ok_or_else(|| Error::Internal {
+        message: "evaluated_lines was empty".to_owned(),
+      })?;
 
       let shebang = Shebang::new(shebang_line).ok_or_else(|| Error::Internal {
         message: format!("bad shebang line: {}", shebang_line),

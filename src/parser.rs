@@ -49,10 +49,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     }
   }
 
-  fn error(
-    &self,
-    kind: CompileErrorKind<'src>,
-  ) -> CompileResult<'src, CompileError<'src>> {
+  fn error(&self, kind: CompileErrorKind<'src>) -> CompileResult<'src, CompileError<'src>> {
     Ok(self.next()?.error(kind))
   }
 
@@ -65,10 +62,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     })
   }
 
-  fn internal_error(
-    &self,
-    message: impl Into<String>,
-  ) -> CompileResult<'src, CompileError<'src>> {
+  fn internal_error(&self, message: impl Into<String>) -> CompileResult<'src, CompileError<'src>> {
     self.error(CompileErrorKind::Internal {
       message: message.into(),
     })

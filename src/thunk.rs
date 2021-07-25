@@ -63,13 +63,11 @@ impl<'src> Thunk<'src> {
             name,
           })
         },
-        _ => Err(
-          name.error(CompileErrorKind::FunctionArgumentCountMismatch {
-            function: name.lexeme(),
-            found:    arguments.len(),
-            expected: function.argc(),
-          }),
-        ),
+        _ => Err(name.error(CompileErrorKind::FunctionArgumentCountMismatch {
+          function: name.lexeme(),
+          found:    arguments.len(),
+          expected: function.argc(),
+        })),
       }
     } else {
       Err(name.error(CompileErrorKind::UnknownFunction {

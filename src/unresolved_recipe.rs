@@ -21,14 +21,16 @@ impl<'src> UnresolvedRecipe<'src> {
         .argument_range()
         .contains(&unresolved.arguments.len())
       {
-        return Err(unresolved.recipe.error(
-          CompileErrorKind::DependencyArgumentCountMismatch {
-            dependency: unresolved.recipe.lexeme(),
-            found:      unresolved.arguments.len(),
-            min:        resolved.min_arguments(),
-            max:        resolved.max_arguments(),
-          },
-        ));
+        return Err(
+          unresolved
+            .recipe
+            .error(CompileErrorKind::DependencyArgumentCountMismatch {
+              dependency: unresolved.recipe.lexeme(),
+              found:      unresolved.arguments.len(),
+              min:        resolved.min_arguments(),
+              max:        resolved.max_arguments(),
+            }),
+        );
       }
     }
 
