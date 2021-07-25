@@ -20,6 +20,7 @@
   clippy::missing_docs_in_private_items,
   clippy::missing_errors_doc,
   clippy::missing_inline_in_public_items,
+  clippy::needless_lifetimes,
   clippy::needless_pass_by_value,
   clippy::non_ascii_literal,
   clippy::option_if_let_else,

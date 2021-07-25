@@ -238,7 +238,7 @@ impl<'src> Justfile<'src> {
           tail = &tail[argument_count..];
         }
       } else {
-        missing.push(argument.to_string());
+        missing.push((*argument).to_owned());
       }
       rest = tail;
     }

@@ -540,13 +540,13 @@ impl Config {
     }
 
     if let Completions { shell } = self.subcommand {
-      return Ok(Subcommand::completions(&shell)?);
+      return Subcommand::completions(&shell);
     }
 
     let search = Search::find(&self.search_config, &self.invocation_directory)?;
 
     if self.subcommand == Edit {
-      return self.edit(&search);
+      return Self::edit(&search);
     }
 
     let src = loader.load(&search.justfile)?;
@@ -573,7 +573,7 @@ impl Config {
         arguments,
         overrides,
       } => self.run(justfile, &search, overrides, arguments)?,
-      Show { ref name } => self.show(&name, justfile)?,
+      Show { ref name } => Self::show(&name, justfile)?,
       Summary => self.summary(justfile),
       Variables => Self::variables(justfile),
       Completions { .. } | Edit | Init => unreachable!(),
@@ -619,7 +619,7 @@ impl Config {
       Err(io_error) => {
         return Err(Error::ChooserInvoke {
           shell_binary: justfile.settings.shell_binary(self).to_owned(),
-          shell_arguments: justfile.settings.shell_arguments(self).join(" ").to_owned(),
+          shell_arguments: justfile.settings.shell_arguments(self).join(" "),
           chooser,
           io_error,
         });
@@ -667,7 +667,7 @@ impl Config {
     Ok(())
   }
 
-  pub(crate) fn edit(&self, search: &Search) -> Result<(), Error<'static>> {
+  pub(crate) fn edit(search: &Search) -> Result<(), Error<'static>> {
     let editor = env::var_os("VISUAL")
       .or_else(|| env::var_os("EDITOR"))
       .unwrap_or_else(|| "vim".into());
@@ -678,11 +678,7 @@ impl Config {
       .status();
 
     let status = match error {
-      Err(io_error) =>
-        return Err(Error::EditorInvoke {
-          editor: editor.clone(),
-          io_error,
-        }),
+      Err(io_error) => return Err(Error::EditorInvoke { editor, io_error }),
       Ok(status) => status,
     };
 
@@ -725,20 +721,14 @@ impl Config {
     let search = Search::init(&self.search_config, &self.invocation_directory)?;
 
     if search.justfile.is_file() {
-      Err(
-        Error::InitExists {
-          justfile: search.justfile,
-        }
-        .into(),
-      )
+      Err(Error::InitExists {
+        justfile: search.justfile,
+      })
     } else if let Err(io_error) = fs::write(&search.justfile, INIT_JUSTFILE) {
-      Err(
-        Error::WriteJustfile {
-          justfile: search.justfile,
-          io_error,
-        }
-        .into(),
-      )
+      Err(Error::WriteJustfile {
+        justfile: search.justfile,
+        io_error,
+      })
     } else {
       if self.verbosity.loud() {
         eprintln!("Wrote justfile to `{}`", search.justfile.display());
@@ -842,10 +832,10 @@ impl Config {
       warn!("Failed to set CTRL-C handler: {}", error);
     }
 
-    Ok(justfile.run(&self, search, overrides, arguments)?)
+    justfile.run(&self, search, overrides, arguments)
   }
 
-  fn show<'src>(&self, name: &str, justfile: Justfile<'src>) -> Result<(), Error<'src>> {
+  fn show<'src>(name: &str, justfile: Justfile<'src>) -> Result<(), Error<'src>> {
     if let Some(alias) = justfile.get_alias(name) {
       let recipe = justfile.get_recipe(alias.target.name.lexeme()).unwrap();
       println!("{}", alias);
