@@ -4,8 +4,6 @@ pub(crate) enum Error<'src> {
   Search(SearchError),
   Compile(CompilationError<'src>),
   Config(ConfigError),
-  // TODO: remove this variant
-  Code(i32),
   Run(RuntimeError<'src>),
 }
 
@@ -22,24 +20,19 @@ impl<'src> Error<'src> {
   pub(crate) fn code(&self) -> i32 {
     match self {
       Self::Search(_) | Self::Compile(_) | Self::Config(_) => EXIT_FAILURE,
-      Self::Code(code) => *code,
-      Self::Run(error) => error.code(),
+      Self::Run(error) => error.code().unwrap_or(EXIT_FAILURE),
     }
   }
 
   fn context(&self) -> Option<Token<'src>> {
     match self {
-      Self::Search(_) | Self::Config(_) | Self::Code(_) => None,
+      Self::Search(_) | Self::Config(_) => None,
       Self::Compile(error) => Some(error.context()),
       Self::Run(error) => error.context(),
     }
   }
 
   pub(crate) fn write(&self, w: &mut dyn Write, color: Color) -> io::Result<()> {
-    if let Error::Code(_) = self {
-      return Ok(());
-    }
-
     let color = color.stderr();
 
     if color.active() {
@@ -88,7 +81,6 @@ impl<'src> Display for Error<'src> {
       Self::Search(error) => Display::fmt(error, f),
       Self::Compile(error) => Display::fmt(error, f),
       Self::Config(error) => Display::fmt(error, f),
-      Self::Code(_) => Ok(()),
       Self::Run(error) => Display::fmt(error, f),
     }
   }

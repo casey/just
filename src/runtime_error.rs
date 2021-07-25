@@ -13,6 +13,24 @@ pub(crate) enum RuntimeError<'src> {
     token:        Token<'src>,
     output_error: OutputError,
   },
+  ChooserInvoke {
+    shell_binary:    String,
+    shell_arguments: String,
+    chooser:         OsString,
+    io_error:        io::Error,
+  },
+  ChooserRead {
+    chooser:  OsString,
+    io_error: io::Error,
+  },
+  ChooserStatus {
+    chooser: OsString,
+    status:  ExitStatus,
+  },
+  ChooserWrite {
+    chooser:  OsString,
+    io_error: io::Error,
+  },
   Code {
     recipe:      &'src str,
     line_number: Option<usize>,
@@ -102,15 +120,15 @@ pub(crate) enum RuntimeError<'src> {
 }
 
 impl<'src> RuntimeError<'src> {
-  pub(crate) fn code(&self) -> i32 {
+  pub(crate) fn code(&self) -> Option<i32> {
     match *self {
       Self::Code { code, .. }
       | Self::Backtick {
         output_error: OutputError::Code(code),
         ..
-      } => code,
-      Self::EditorStatus { status, .. } => status.code().unwrap_or(EXIT_FAILURE),
-      _ => EXIT_FAILURE,
+      } => Some(code),
+      Self::ChooserStatus { status, .. } | Self::EditorStatus { status, .. } => status.code(),
+      _ => None,
     }
   }
 
@@ -158,6 +176,49 @@ impl<'src> Display for RuntimeError<'src> {
         if let Some(suggestion) = *suggestion {
           write!(f, "\n{}", suggestion)?;
         }
+      },
+      ChooserInvoke {
+        shell_binary,
+        shell_arguments,
+        chooser,
+        io_error,
+      } => {
+        write!(
+          f,
+          "Chooser `{} {} {}` invocation failed: {}",
+          shell_binary,
+          shell_arguments,
+          chooser.to_string_lossy(),
+          io_error,
+          /* justfile.settings.shell_binary(self),
+           * justfile.settings.shell_arguments(self).join(" "),
+           * chooser.to_string_lossy(),
+           * error */
+        )?;
+      },
+      ChooserRead { chooser, io_error } => {
+        write!(
+          f,
+          "Failed to read output from chooser `{}`: {}",
+          chooser.to_string_lossy(),
+          io_error
+        )?;
+      },
+      ChooserStatus { chooser, status } => {
+        write!(
+          f,
+          "Chooser `{}` failed: {}",
+          chooser.to_string_lossy(),
+          status
+        )?;
+      },
+      ChooserWrite { chooser, io_error } => {
+        write!(
+          f,
+          "Failed to write to chooser `{}`: {}",
+          chooser.to_string_lossy(),
+          io_error
+        )?;
       },
       UnknownRecipes {
         recipes,

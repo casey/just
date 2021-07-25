@@ -620,61 +620,39 @@ impl Config {
 
     let mut child = match result {
       Ok(child) => child,
-      Err(error) => {
-        if self.verbosity.loud() {
-          eprintln!(
-            "Chooser `{} {} {}` invocation failed: {}",
-            justfile.settings.shell_binary(self),
-            justfile.settings.shell_arguments(self).join(" "),
-            chooser.to_string_lossy(),
-            error
-          );
-        }
-        return Err(Error::Code(EXIT_FAILURE));
+      Err(io_error) => {
+        return Err(Error::Run(RuntimeError::ChooserInvoke {
+          shell_binary: justfile.settings.shell_binary(self).to_owned(),
+          shell_arguments: justfile.settings.shell_arguments(self).join(" ").to_owned(),
+          chooser,
+          io_error,
+        }));
       },
     };
 
     for recipe in recipes {
-      if let Err(error) = child
+      if let Err(io_error) = child
         .stdin
         .as_mut()
         .expect("Child was created with piped stdio")
         .write_all(format!("{}\n", recipe.name).as_bytes())
       {
-        if self.verbosity.loud() {
-          eprintln!(
-            "Failed to write to chooser `{}`: {}",
-            chooser.to_string_lossy(),
-            error
-          );
-        }
-        return Err(Error::Code(EXIT_FAILURE));
+        return Err(Error::Run(RuntimeError::ChooserWrite { io_error, chooser }));
       }
     }
 
     let output = match child.wait_with_output() {
       Ok(output) => output,
-      Err(error) => {
-        if self.verbosity.loud() {
-          eprintln!(
-            "Failed to read output from chooser `{}`: {}",
-            chooser.to_string_lossy(),
-            error
-          );
-        }
-        return Err(Error::Code(EXIT_FAILURE));
+      Err(io_error) => {
+        return Err(Error::Run(RuntimeError::ChooserRead { io_error, chooser }));
       },
     };
 
     if !output.status.success() {
-      if self.verbosity.loud() {
-        eprintln!(
-          "Chooser `{}` returned error: {}",
-          chooser.to_string_lossy(),
-          output.status
-        );
-      }
-      return Err(Error::Code(output.status.code().unwrap_or(EXIT_FAILURE)));
+      return Err(Error::Run(RuntimeError::ChooserStatus {
+        status: output.status,
+        chooser,
+      }));
     }
 
     let stdout = String::from_utf8_lossy(&output.stdout);
