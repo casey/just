@@ -2,9 +2,15 @@ use crate::common::*;
 
 #[derive(Debug)]
 pub(crate) enum Error<'src> {
-  Search(SearchError),
-  Compile(CompilationError<'src>),
-  Config(ConfigError),
+  Search {
+    search_error: SearchError,
+  },
+  Compile {
+    compile_error: CompilationError<'src>,
+  },
+  Config {
+    config_error: ConfigError,
+  },
   ArgumentCountMismatch {
     recipe:     &'src str,
     parameters: Vec<Parameter<'src>>,
@@ -128,9 +134,7 @@ pub(crate) enum Error<'src> {
 }
 
 // TODO:
-// - errors should have a `Context` method
 // - Remove Color::fmt(f)
-// - fold runtimeerror into Error?
 // - sort error enum variants and match statments
 
 impl<'src> Error<'src> {
@@ -148,8 +152,7 @@ impl<'src> Error<'src> {
 
   fn context(&self) -> Option<Token<'src>> {
     match self {
-      Self::Search(_) | Self::Config(_) => None,
-      Self::Compile(error) => Some(error.context()),
+      Self::Compile { compile_error } => Some(compile_error.context()),
       Self::FunctionCall { function, .. } => Some(function.token()),
       Self::Backtick { token, .. } => Some(*token),
       _ => None,
@@ -188,20 +191,26 @@ impl<'src> Error<'src> {
 }
 
 impl<'src> From<CompilationError<'src>> for Error<'src> {
-  fn from(error: CompilationError<'src>) -> Self {
-    Self::Compile(error)
+  fn from(compile_error: CompilationError<'src>) -> Self {
+    Self::Compile { compile_error }
+  }
+}
+
+impl<'src> From<ConfigError> for Error<'src> {
+  fn from(config_error: ConfigError) -> Self {
+    Self::Config { config_error }
   }
 }
 
 impl<'src> From<dotenv::Error> for Error<'src> {
   fn from(dotenv_error: dotenv::Error) -> Error<'src> {
-    Error::Dotenv { dotenv_error }
+    Self::Dotenv { dotenv_error }
   }
 }
 
 impl<'src> From<SearchError> for Error<'src> {
-  fn from(error: SearchError) -> Self {
-    Self::Search(error)
+  fn from(search_error: SearchError) -> Self {
+    Self::Search { search_error }
   }
 }
 
@@ -210,9 +219,9 @@ impl<'src> Display for Error<'src> {
     use Error::*;
 
     match self {
-      Search(error) => Display::fmt(error, f)?,
-      Compile(error) => Display::fmt(error, f)?,
-      Config(error) => Display::fmt(error, f)?,
+      Search { search_error } => Display::fmt(search_error, f)?,
+      Compile { compile_error } => Display::fmt(compile_error, f)?,
+      Config { config_error } => Display::fmt(config_error, f)?,
       EditorInvoke { editor, io_error } => {
         write!(
           f,

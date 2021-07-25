@@ -22,7 +22,7 @@ pub fn run() -> Result<(), i32> {
   let mut verbosity = Verbosity::default();
 
   Config::from_matches(&matches)
-    .map_err(Error::Config)
+    .map_err(Error::from)
     .and_then(|config| {
       color = config.color;
       verbosity = config.verbosity;

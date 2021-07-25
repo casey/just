@@ -2285,9 +2285,9 @@ mod tests {
 
   #[test]
   fn presume_error() {
-    let error = Lexer::new("!").presume('-').unwrap_err();
+    let compile_error = Lexer::new("!").presume('-').unwrap_err();
     assert_matches!(
-      error,
+      compile_error,
       CompilationError {
         token: Token {
           offset: 0,
@@ -2305,7 +2305,7 @@ mod tests {
 
     let mut cursor = Cursor::new(Vec::new());
 
-    Error::Compile(error)
+    Error::Compile { compile_error }
       .write(&mut cursor, Color::never())
       .unwrap();
 
