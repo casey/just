@@ -63,7 +63,10 @@ a Z="\t z":
 "#,
   args:     ("--show", "fo"),
   stdout:   "",
-  stderr:   "error: Justfile does not contain recipe `fo`.\nDid you mean `foo`, an alias for `hello`?\n",
+  stderr:   "
+    error: Justfile does not contain recipe `fo`.
+    Did you mean `foo`, an alias for `hello`?
+  ",
   status:   EXIT_FAILURE,
 }
 
