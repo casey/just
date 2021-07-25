@@ -681,12 +681,7 @@ impl<'src> Lexer<'src> {
   }
 
   /// Lex a two-character digraph
-  fn lex_digraph(
-    &mut self,
-    left: char,
-    right: char,
-    token: TokenKind,
-  ) -> CompileResult<'src, ()> {
+  fn lex_digraph(&mut self, left: char, right: char, token: TokenKind) -> CompileResult<'src, ()> {
     self.presume(left)?;
 
     if self.accepted(right)? {
@@ -2309,7 +2304,6 @@ mod tests {
       .write(&mut cursor, Color::never())
       .unwrap();
 
-    // TODO: Fix double newline
     assert_eq!(
       str::from_utf8(&cursor.into_inner()).unwrap(),
         "error: Internal error, this may indicate a bug in just: Lexer presumed character `-`\nconsider filing an issue: https://github.com/casey/just/issues/new\n  |\n1 | !\n  | ^\n"

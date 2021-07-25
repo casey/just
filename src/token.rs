@@ -19,7 +19,6 @@ impl<'src> Token<'src> {
     CompileError { token: *self, kind }
   }
 
-  // TODO: rename
   pub(crate) fn write_context(&self, w: &mut dyn Write, color: Color) -> io::Result<()> {
     let width = if self.length == 0 { 1 } else { self.length };
 
