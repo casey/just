@@ -46,7 +46,7 @@ impl<'src> Error<'src> {
     }
 
     if let Some(token) = self.context() {
-      token.write_context_2(w, color.error())?;
+      token.write_context(w, color.error())?;
       writeln!(w)?;
     }
 

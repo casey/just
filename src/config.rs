@@ -557,11 +557,7 @@ impl Config {
 
     if self.verbosity.loud() {
       for warning in &justfile.warnings {
-        if self.color.stderr().active() {
-          eprintln!("{:#}", warning);
-        } else {
-          eprintln!("{}", warning);
-        }
+        warning.write(&mut io::stderr(), self.color.stderr()).ok();
       }
     }
 
