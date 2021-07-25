@@ -32,6 +32,6 @@ pub fn run() -> Result<(), i32> {
       if !verbosity.quiet() {
         error.write(&mut io::stderr(), color).ok();
       }
-      error.code()
+      error.code().unwrap_or(EXIT_FAILURE)
     })
 }
