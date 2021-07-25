@@ -4,6 +4,17 @@ use crate::common::*;
 #[snafu(visibility(pub(crate)))]
 pub(crate) enum SearchError {
   #[snafu(display(
+    "I/O error reading directory `{}`: {}",
+    directory.display(),
+    io_error
+  ))]
+  Io {
+    directory: PathBuf,
+    io_error:  io::Error,
+  },
+  #[snafu(display("Justfile path had no parent: {}", path.display()))]
+  JustfileHadNoParent { path: PathBuf },
+  #[snafu(display(
     "Multiple candidate justfiles found in `{}`: {}",
     candidates[0].parent().unwrap().display(),
     List::and_ticked(
@@ -13,19 +24,8 @@ pub(crate) enum SearchError {
     ),
   ))]
   MultipleCandidates { candidates: Vec<PathBuf> },
-  #[snafu(display(
-    "I/O error reading directory `{}`: {}",
-    directory.display(),
-    io_error
-  ))]
-  Io {
-    directory: PathBuf,
-    io_error:  io::Error,
-  },
   #[snafu(display("No justfile found"))]
   NotFound,
-  #[snafu(display("Justfile path had no parent: {}", path.display()))]
-  JustfileHadNoParent { path: PathBuf },
 }
 
 #[cfg(test)]

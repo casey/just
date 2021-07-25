@@ -3,14 +3,14 @@ use crate::common::*;
 #[derive(Debug, Snafu)]
 #[snafu(visibility(pub(crate)))]
 pub(crate) enum ConfigError {
+  #[snafu(display("Failed to get current directory: {}", source))]
+  CurrentDir { source: io::Error },
   #[snafu(display(
     "Internal config error, this may indicate a bug in just: {} \
      consider filing an issue: https://github.com/casey/just/issues/new",
     message
   ))]
   Internal { message: String },
-  #[snafu(display("Failed to get current directory: {}", source))]
-  CurrentDir { source: io::Error },
   #[snafu(display(
     "Path-prefixed recipes may not be used with `--working-directory` or `--justfile`."
   ))]
@@ -26,6 +26,15 @@ pub(crate) enum ConfigError {
     arguments:  Vec<String>,
   },
   #[snafu(display(
+      "`--{}` used with unexpected overrides: {}",
+      subcommand.to_lowercase(),
+      List::and_ticked(overrides.iter().map(|(key, value)| format!("{}={}", key, value))),
+  ))]
+  SubcommandOverrides {
+    subcommand: &'static str,
+    overrides:  BTreeMap<String, String>,
+  },
+  #[snafu(display(
       "`--{}` used with unexpected overrides: {}; and arguments: {}",
       subcommand.to_lowercase(),
       List::and_ticked(overrides.iter().map(|(key, value)| format!("{}={}", key, value))),
@@ -35,15 +44,6 @@ pub(crate) enum ConfigError {
     subcommand: &'static str,
     overrides:  BTreeMap<String, String>,
     arguments:  Vec<String>,
-  },
-  #[snafu(display(
-      "`--{}` used with unexpected overrides: {}",
-      subcommand.to_lowercase(),
-      List::and_ticked(overrides.iter().map(|(key, value)| format!("{}={}", key, value))),
-  ))]
-  SubcommandOverrides {
-    subcommand: &'static str,
-    overrides:  BTreeMap<String, String>,
   },
 }
 
