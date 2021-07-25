@@ -218,7 +218,7 @@ impl Subcommand {
         haystack.replace_range(index..index + needle.len(), replacement);
         Ok(())
       } else {
-        Err(RuntimeError::internal(format!(
+        Err(Error::internal(format!(
           "Failed to find text:\n{}\n…in completion script:\n{}",
           needle, haystack
         )))

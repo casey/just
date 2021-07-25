@@ -108,7 +108,6 @@ mod recipe;
 mod recipe_context;
 mod recipe_resolver;
 mod run;
-mod runtime_error;
 mod scope;
 mod search;
 mod search_config;

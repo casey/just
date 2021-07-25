@@ -55,11 +55,11 @@ pub(crate) use crate::{
   lexer::Lexer, line::Line, list::List, loader::Loader, name::Name, output_error::OutputError,
   parameter::Parameter, parameter_kind::ParameterKind, parser::Parser, platform::Platform,
   position::Position, positional::Positional, recipe::Recipe, recipe_context::RecipeContext,
-  recipe_resolver::RecipeResolver, runtime_error::RuntimeError, scope::Scope, search::Search,
-  search_config::SearchConfig, search_error::SearchError, set::Set, setting::Setting,
-  settings::Settings, shebang::Shebang, show_whitespace::ShowWhitespace, string_kind::StringKind,
-  string_literal::StringLiteral, subcommand::Subcommand, suggestion::Suggestion, table::Table,
-  thunk::Thunk, token::Token, token_kind::TokenKind, unresolved_dependency::UnresolvedDependency,
+  recipe_resolver::RecipeResolver, scope::Scope, search::Search, search_config::SearchConfig,
+  search_error::SearchError, set::Set, setting::Setting, settings::Settings, shebang::Shebang,
+  show_whitespace::ShowWhitespace, string_kind::StringKind, string_literal::StringLiteral,
+  subcommand::Subcommand, suggestion::Suggestion, table::Table, thunk::Thunk, token::Token,
+  token_kind::TokenKind, unresolved_dependency::UnresolvedDependency,
   unresolved_recipe::UnresolvedRecipe, use_color::UseColor, variables::Variables,
   verbosity::Verbosity, warning::Warning,
 };
@@ -67,7 +67,7 @@ pub(crate) use crate::{
 // type aliases
 pub(crate) type CompilationResult<'a, T> = Result<T, CompilationError<'a>>;
 pub(crate) type ConfigResult<T> = Result<T, ConfigError>;
-pub(crate) type RunResult<'a, T> = Result<T, RuntimeError<'a>>;
+pub(crate) type RunResult<'a, T> = Result<T, Error<'a>>;
 pub(crate) type SearchResult<T> = Result<T, SearchError>;
 
 // modules used in tests

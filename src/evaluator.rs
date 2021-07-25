@@ -60,7 +60,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         {
           Ok(self.evaluate_assignment(assignment)?.to_owned())
         } else {
-          Err(RuntimeError::Internal {
+          Err(Error::Internal {
             message: format!("attempted to evaluate undefined variable `{}`", variable),
           })
         }
@@ -76,7 +76,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
 
         match thunk {
           Nullary { name, function, .. } =>
-            function(&context).map_err(|message| RuntimeError::FunctionCall {
+            function(&context).map_err(|message| Error::FunctionCall {
               function: *name,
               message,
             }),
@@ -86,7 +86,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
             arg,
             ..
           } => function(&context, &self.evaluate_expression(arg)?).map_err(|message| {
-            RuntimeError::FunctionCall {
+            Error::FunctionCall {
               function: *name,
               message,
             }
@@ -101,7 +101,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
             &self.evaluate_expression(a)?,
             &self.evaluate_expression(b)?,
           )
-          .map_err(|message| RuntimeError::FunctionCall {
+          .map_err(|message| Error::FunctionCall {
             function: *name,
             message,
           }),
@@ -116,7 +116,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
             &self.evaluate_expression(b)?,
             &self.evaluate_expression(c)?,
           )
-          .map_err(|message| RuntimeError::FunctionCall {
+          .map_err(|message| Error::FunctionCall {
             function: *name,
             message,
           }),
@@ -169,7 +169,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     });
 
     InterruptHandler::guard(|| {
-      output(cmd).map_err(|output_error| RuntimeError::Backtick {
+      output(cmd).map_err(|output_error| Error::Backtick {
         token: *token,
         output_error,
       })
@@ -233,7 +233,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         } else if parameter.kind == ParameterKind::Star {
           String::new()
         } else {
-          return Err(RuntimeError::Internal {
+          return Err(Error::Internal {
             message: "missing parameter without default".to_owned(),
           });
         }
@@ -285,7 +285,7 @@ mod tests {
        echo {{`f() { return 100; }; f`}}
     ",
     args: ["a"],
-    error: RuntimeError::Backtick {
+    error: Error::Backtick {
       token,
       output_error: OutputError::Code(code),
     },
@@ -305,7 +305,7 @@ mod tests {
         echo {{b}}
     "#,
     args: ["--quiet", "recipe"],
-    error: RuntimeError::Backtick {
+    error: Error::Backtick {
         token,
         output_error: OutputError::Code(_),
     },

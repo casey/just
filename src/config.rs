@@ -597,7 +597,7 @@ impl Config {
       .collect::<Vec<&Recipe<Dependency>>>();
 
     if recipes.is_empty() {
-      return Err(RuntimeError::NoChoosableRecipes.into());
+      return Err(Error::NoChoosableRecipes);
     }
 
     let chooser = chooser
@@ -617,12 +617,12 @@ impl Config {
     let mut child = match result {
       Ok(child) => child,
       Err(io_error) => {
-        return Err(Error::Run(RuntimeError::ChooserInvoke {
+        return Err(Error::ChooserInvoke {
           shell_binary: justfile.settings.shell_binary(self).to_owned(),
           shell_arguments: justfile.settings.shell_arguments(self).join(" ").to_owned(),
           chooser,
           io_error,
-        }));
+        });
       },
     };
 
@@ -633,22 +633,22 @@ impl Config {
         .expect("Child was created with piped stdio")
         .write_all(format!("{}\n", recipe.name).as_bytes())
       {
-        return Err(Error::Run(RuntimeError::ChooserWrite { io_error, chooser }));
+        return Err(Error::ChooserWrite { io_error, chooser });
       }
     }
 
     let output = match child.wait_with_output() {
       Ok(output) => output,
       Err(io_error) => {
-        return Err(Error::Run(RuntimeError::ChooserRead { io_error, chooser }));
+        return Err(Error::ChooserRead { io_error, chooser });
       },
     };
 
     if !output.status.success() {
-      return Err(Error::Run(RuntimeError::ChooserStatus {
+      return Err(Error::ChooserStatus {
         status: output.status,
         chooser,
-      }));
+      });
     }
 
     let stdout = String::from_utf8_lossy(&output.stdout);
@@ -679,15 +679,15 @@ impl Config {
 
     let status = match error {
       Err(io_error) =>
-        return Err(Error::Run(RuntimeError::EditorInvoke {
+        return Err(Error::EditorInvoke {
           editor: editor.clone(),
           io_error,
-        })),
+        }),
       Ok(status) => status,
     };
 
     if !status.success() {
-      return Err(Error::Run(RuntimeError::EditorStatus { editor, status }));
+      return Err(Error::EditorStatus { editor, status });
     }
 
     Ok(())
@@ -697,9 +697,9 @@ impl Config {
     if self.unstable {
       Ok(())
     } else {
-      Err(Error::Run(RuntimeError::Unstable {
+      Err(Error::Unstable {
         message: message.to_owned(),
-      }))
+      })
     }
   }
 
@@ -709,10 +709,10 @@ impl Config {
     if let Err(io_error) =
       File::create(&search.justfile).and_then(|mut file| write!(file, "{}", ast))
     {
-      Err(Error::Run(RuntimeError::WriteJustfile {
+      Err(Error::WriteJustfile {
         justfile: search.justfile.clone(),
         io_error,
-      }))
+      })
     } else {
       if self.verbosity.loud() {
         eprintln!("Wrote justfile to `{}`", search.justfile.display());
@@ -726,14 +726,14 @@ impl Config {
 
     if search.justfile.is_file() {
       Err(
-        RuntimeError::InitExists {
+        Error::InitExists {
           justfile: search.justfile,
         }
         .into(),
       )
     } else if let Err(io_error) = fs::write(&search.justfile, INIT_JUSTFILE) {
       Err(
-        RuntimeError::WriteJustfile {
+        Error::WriteJustfile {
           justfile: search.justfile,
           io_error,
         }
@@ -855,10 +855,10 @@ impl Config {
       println!("{}", recipe);
       Ok(())
     } else {
-      Err(Error::Run(RuntimeError::UnknownRecipes {
+      Err(Error::UnknownRecipes {
         recipes:    vec![name.to_owned()],
         suggestion: justfile.suggest_recipe(name),
-      }))
+      })
     }
   }
 

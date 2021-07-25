@@ -88,7 +88,7 @@ impl<'src> Justfile<'src> {
       .collect::<Vec<String>>();
 
     if !unknown_overrides.is_empty() {
-      return Err(RuntimeError::UnknownOverrides {
+      return Err(Error::UnknownOverrides {
         overrides: unknown_overrides,
       });
     }
@@ -112,7 +112,7 @@ impl<'src> Justfile<'src> {
       }
 
       if !unknown_overrides.is_empty() {
-        return Err(RuntimeError::UnknownOverrides {
+        return Err(Error::UnknownOverrides {
           overrides: unknown_overrides,
         });
       }
@@ -148,7 +148,7 @@ impl<'src> Justfile<'src> {
         command.export(&self.settings, &dotenv, &scope);
 
         let status = InterruptHandler::guard(|| command.status()).map_err(|io_error| {
-          RuntimeError::CommandInvocation {
+          Error::CommandInvocation {
             binary: binary.clone(),
             arguments: arguments.clone(),
             io_error,
@@ -156,7 +156,7 @@ impl<'src> Justfile<'src> {
         })?;
 
         if !status.success() {
-          return Err(RuntimeError::CommandStatus {
+          return Err(Error::CommandStatus {
             binary: binary.clone(),
             arguments: arguments.clone(),
             status,
@@ -170,7 +170,7 @@ impl<'src> Justfile<'src> {
           if let Some(value) = scope.value(variable) {
             print!("{}", value);
           } else {
-            return Err(RuntimeError::EvalUnknownVariable {
+            return Err(Error::EvalUnknownVariable {
               suggestion: self.suggest_variable(&variable),
               variable:   variable.clone(),
             });
@@ -202,14 +202,14 @@ impl<'src> Justfile<'src> {
     } else if let Some(recipe) = self.first() {
       let min_arguments = recipe.min_arguments();
       if min_arguments > 0 {
-        return Err(RuntimeError::DefaultRecipeRequiresArguments {
+        return Err(Error::DefaultRecipeRequiresArguments {
           recipe: recipe.name.lexeme(),
           min_arguments,
         });
       }
       vec![recipe.name()]
     } else {
-      return Err(RuntimeError::NoRecipes);
+      return Err(Error::NoRecipes);
     };
 
     let arguments = argvec.as_slice();
@@ -226,7 +226,7 @@ impl<'src> Justfile<'src> {
           let argument_range = recipe.argument_range();
           let argument_count = cmp::min(tail.len(), recipe.max_arguments());
           if !argument_range.range_contains(&argument_count) {
-            return Err(RuntimeError::ArgumentCountMismatch {
+            return Err(Error::ArgumentCountMismatch {
               recipe:     recipe.name(),
               parameters: recipe.parameters.clone(),
               found:      tail.len(),
@@ -249,7 +249,7 @@ impl<'src> Justfile<'src> {
       } else {
         None
       };
-      return Err(RuntimeError::UnknownRecipes {
+      return Err(Error::UnknownRecipes {
         recipes: missing,
         suggestion,
       });
@@ -407,7 +407,7 @@ mod tests {
   use super::*;
 
   use testing::compile;
-  use RuntimeError::*;
+  use Error::*;
 
   run_error! {
     name: unknown_recipes,

@@ -2,20 +2,20 @@ use crate::common::*;
 
 use std::process::{ExitStatus, Stdio};
 
-/// Return a `RuntimeError::Signal` if the process was terminated by a signal,
-/// otherwise return an `RuntimeError::UnknownFailure`
+/// Return a `Error::Signal` if the process was terminated by a signal,
+/// otherwise return an `Error::UnknownFailure`
 fn error_from_signal(
   recipe: &str,
   line_number: Option<usize>,
   exit_status: ExitStatus,
-) -> RuntimeError {
+) -> Error {
   match Platform::signal_from_exit_status(exit_status) {
-    Some(signal) => RuntimeError::Signal {
+    Some(signal) => Error::Signal {
       recipe,
       line_number,
       signal,
     },
-    None => RuntimeError::Unknown {
+    None => Error::Unknown {
       recipe,
       line_number,
     },
@@ -110,18 +110,18 @@ impl<'src, D> Recipe<'src, D> {
 
       let shebang_line = evaluated_lines
         .first()
-        .ok_or_else(|| RuntimeError::Internal {
+        .ok_or_else(|| Error::Internal {
           message: "evaluated_lines was empty".to_owned(),
         })?;
 
-      let shebang = Shebang::new(shebang_line).ok_or_else(|| RuntimeError::Internal {
+      let shebang = Shebang::new(shebang_line).ok_or_else(|| Error::Internal {
         message: format!("bad shebang line: {}", shebang_line),
       })?;
 
       let tmp = tempfile::Builder::new()
         .prefix("just")
         .tempdir()
-        .map_err(|error| RuntimeError::TmpdirIo {
+        .map_err(|error| Error::TmpdirIo {
           recipe:   self.name(),
           io_error: error,
         })?;
@@ -130,7 +130,7 @@ impl<'src, D> Recipe<'src, D> {
       path.push(shebang.script_filename(self.name()));
 
       {
-        let mut f = fs::File::create(&path).map_err(|error| RuntimeError::TmpdirIo {
+        let mut f = fs::File::create(&path).map_err(|error| Error::TmpdirIo {
           recipe:   self.name(),
           io_error: error,
         })?;
@@ -158,14 +158,14 @@ impl<'src, D> Recipe<'src, D> {
         }
 
         f.write_all(text.as_bytes())
-          .map_err(|error| RuntimeError::TmpdirIo {
+          .map_err(|error| Error::TmpdirIo {
             recipe:   self.name(),
             io_error: error,
           })?;
       }
 
       // make the script executable
-      Platform::set_execute_permission(&path).map_err(|error| RuntimeError::TmpdirIo {
+      Platform::set_execute_permission(&path).map_err(|error| Error::TmpdirIo {
         recipe:   self.name(),
         io_error: error,
       })?;
@@ -173,7 +173,7 @@ impl<'src, D> Recipe<'src, D> {
       // create a command to run the script
       let mut command =
         Platform::make_shebang_command(&path, &context.search.working_directory, shebang).map_err(
-          |output_error| RuntimeError::Cygpath {
+          |output_error| Error::Cygpath {
             recipe: self.name(),
             output_error,
           },
@@ -190,7 +190,7 @@ impl<'src, D> Recipe<'src, D> {
         Ok(exit_status) =>
           if let Some(code) = exit_status.code() {
             if code != 0 {
-              return Err(RuntimeError::Code {
+              return Err(Error::Code {
                 recipe: self.name(),
                 line_number: None,
                 code,
@@ -200,7 +200,7 @@ impl<'src, D> Recipe<'src, D> {
             return Err(error_from_signal(self.name(), None, exit_status));
           },
         Err(io_error) => {
-          return Err(RuntimeError::Shebang {
+          return Err(Error::Shebang {
             recipe: self.name(),
             command: shebang.interpreter.to_owned(),
             argument: shebang.argument.map(String::from),
@@ -283,7 +283,7 @@ impl<'src, D> Recipe<'src, D> {
           Ok(exit_status) =>
             if let Some(code) = exit_status.code() {
               if code != 0 && !infallable_command {
-                return Err(RuntimeError::Code {
+                return Err(Error::Code {
                   recipe: self.name(),
                   line_number: Some(line_number),
                   code,
@@ -297,7 +297,7 @@ impl<'src, D> Recipe<'src, D> {
               ));
             },
           Err(io_error) => {
-            return Err(RuntimeError::Io {
+            return Err(Error::Io {
               recipe: self.name(),
               io_error,
             });
