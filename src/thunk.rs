@@ -32,7 +32,7 @@ impl<'src> Thunk<'src> {
   pub(crate) fn resolve(
     name: Name<'src>,
     mut arguments: Vec<Expression<'src>>,
-  ) -> CompilationResult<'src, Thunk<'src>> {
+  ) -> CompileResult<'src, Thunk<'src>> {
     if let Some(function) = crate::function::TABLE.get(&name.lexeme()) {
       match (function, arguments.len()) {
         (Function::Nullary(function), 0) => Ok(Thunk::Nullary {

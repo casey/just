@@ -6,7 +6,7 @@ impl<'src> UnresolvedRecipe<'src> {
   pub(crate) fn resolve(
     self,
     resolved: Vec<Rc<Recipe<'src>>>,
-  ) -> CompilationResult<'src, Recipe<'src>> {
+  ) -> CompileResult<'src, Recipe<'src>> {
     assert_eq!(
       self.dependencies.len(),
       resolved.len(),

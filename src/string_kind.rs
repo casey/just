@@ -74,7 +74,7 @@ impl StringKind {
     self.indented
   }
 
-  pub(crate) fn from_string_or_backtick(token: Token) -> CompilationResult<Self> {
+  pub(crate) fn from_string_or_backtick(token: Token) -> CompileResult<Self> {
     Self::from_token_start(token.lexeme()).ok_or_else(|| {
       token.error(CompileErrorKind::Internal {
         message: "StringKind::from_token: Expected String or Backtick".to_owned(),

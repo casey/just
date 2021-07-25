@@ -12,7 +12,7 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
   pub(crate) fn resolve_recipes(
     unresolved_recipes: Table<'src, UnresolvedRecipe<'src>>,
     assignments: &Table<'src, Assignment<'src>>,
-  ) -> CompilationResult<'src, Table<'src, Rc<Recipe<'src>>>> {
+  ) -> CompileResult<'src, Table<'src, Rc<Recipe<'src>>>> {
     let mut resolver = RecipeResolver {
       resolved_recipes: Table::new(),
       unresolved_recipes,
@@ -58,7 +58,7 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
     &self,
     variable: &Token<'src>,
     parameters: &[Parameter],
-  ) -> CompilationResult<'src, ()> {
+  ) -> CompileResult<'src, ()> {
     let name = variable.lexeme();
     let undefined =
       !self.assignments.contains_key(name) && !parameters.iter().any(|p| p.name.lexeme() == name);
@@ -74,7 +74,7 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
     &mut self,
     stack: &mut Vec<&'src str>,
     recipe: UnresolvedRecipe<'src>,
-  ) -> CompilationResult<'src, Rc<Recipe<'src>>> {
+  ) -> CompileResult<'src, Rc<Recipe<'src>>> {
     if let Some(resolved) = self.resolved_recipes.get(recipe.name()) {
       return Ok(Rc::clone(resolved));
     }
