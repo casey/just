@@ -8,9 +8,6 @@ pub(crate) enum Error<'src> {
 }
 
 // TODO:
-// - errors should have a `Display` method that prints the error message with no
-//   newline and no color
-// - Error may bold the message outside of the Display impl
 // - errors should have a `Context` method
 // - Remove Color::fmt(f)
 // - fold runtimeerror into Error?

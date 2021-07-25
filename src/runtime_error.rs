@@ -41,6 +41,11 @@ pub(crate) enum RuntimeError<'src> {
     arguments: Vec<OsString>,
     io_error:  io::Error,
   },
+  CommandStatus {
+    binary:    OsString,
+    arguments: Vec<OsString>,
+    status:    ExitStatus,
+  },
   Cygpath {
     recipe:       &'src str,
     output_error: OutputError,
@@ -190,10 +195,6 @@ impl<'src> Display for RuntimeError<'src> {
           shell_arguments,
           chooser.to_string_lossy(),
           io_error,
-          /* justfile.settings.shell_binary(self),
-           * justfile.settings.shell_arguments(self).join(" "),
-           * chooser.to_string_lossy(),
-           * error */
         )?;
       },
       ChooserRead { chooser, io_error } => {
@@ -315,6 +316,22 @@ impl<'src> Display for RuntimeError<'src> {
             .collect::<Vec<String>>()
             .join(" "),
           io_error,
+        )?;
+      },
+      CommandStatus {
+        binary,
+        arguments,
+        status,
+      } => {
+        write!(
+          f,
+          "Command {} failed: {}",
+          iter::once(binary)
+            .chain(arguments)
+            .map(|value| Enclosure::tick(value.to_string_lossy()).to_string())
+            .collect::<Vec<String>>()
+            .join(" "),
+          status,
         )?;
       },
       Cygpath {

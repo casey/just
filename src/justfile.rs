@@ -156,7 +156,11 @@ impl<'src> Justfile<'src> {
         })?;
 
         if !status.success() {
-          process::exit(status.code().unwrap_or(EXIT_FAILURE));
+          return Err(RuntimeError::CommandStatus {
+            binary: binary.clone(),
+            arguments: arguments.clone(),
+            status,
+          });
         };
 
         return Ok(());
