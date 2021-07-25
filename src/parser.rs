@@ -51,15 +51,15 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
 
   fn error(
     &self,
-    kind: CompilationErrorKind<'src>,
-  ) -> CompilationResult<'src, CompilationError<'src>> {
+    kind: CompileErrorKind<'src>,
+  ) -> CompilationResult<'src, CompileError<'src>> {
     Ok(self.next()?.error(kind))
   }
 
   /// Construct an unexpected token error with the token returned by
   /// `Parser::next`
-  fn unexpected_token(&self) -> CompilationResult<'src, CompilationError<'src>> {
-    self.error(CompilationErrorKind::UnexpectedToken {
+  fn unexpected_token(&self) -> CompilationResult<'src, CompileError<'src>> {
+    self.error(CompileErrorKind::UnexpectedToken {
       expected: self.expected.iter().cloned().collect::<Vec<TokenKind>>(),
       found:    self.next()?.kind,
     })
@@ -68,8 +68,8 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   fn internal_error(
     &self,
     message: impl Into<String>,
-  ) -> CompilationResult<'src, CompilationError<'src>> {
-    self.error(CompilationErrorKind::Internal {
+  ) -> CompilationResult<'src, CompileError<'src>> {
+    self.error(CompileErrorKind::Internal {
       message: message.into(),
     })
   }
@@ -168,7 +168,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     if expected == found {
       Ok(())
     } else {
-      Err(identifier.error(CompilationErrorKind::ExpectedKeyword {
+      Err(identifier.error(CompileErrorKind::ExpectedKeyword {
         expected: vec![expected],
         found,
       }))
@@ -236,7 +236,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   /// Return an error if the next token is of kind `forbidden`
   fn forbid<F>(&self, forbidden: TokenKind, error: F) -> CompilationResult<'src, ()>
   where
-    F: FnOnce(Token) -> CompilationError,
+    F: FnOnce(Token) -> CompileError,
   {
     let next = self.next()?;
 
@@ -330,7 +330,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
         match Keyword::from_lexeme(next.lexeme()) {
           Some(Keyword::Alias) =>
             if self.next_are(&[Identifier, Identifier, Equals]) {
-              return Err(self.get(2)?.error(CompilationErrorKind::DeprecatedEquals));
+              return Err(self.get(2)?.error(CompileErrorKind::DeprecatedEquals));
             } else if self.next_are(&[Identifier, Identifier, ColonEquals]) {
               items.push(Item::Alias(self.parse_alias()?));
             } else {
@@ -339,7 +339,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
             },
           Some(Keyword::Export) =>
             if self.next_are(&[Identifier, Identifier, Equals]) {
-              return Err(self.get(2)?.error(CompilationErrorKind::DeprecatedEquals));
+              return Err(self.get(2)?.error(CompileErrorKind::DeprecatedEquals));
             } else if self.next_are(&[Identifier, Identifier, ColonEquals]) {
               self.presume_keyword(Keyword::Export)?;
               items.push(Item::Assignment(self.parse_assignment(true)?));
@@ -359,7 +359,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
             },
           _ =>
             if self.next_are(&[Identifier, Equals]) {
-              return Err(self.get(1)?.error(CompilationErrorKind::DeprecatedEquals));
+              return Err(self.get(1)?.error(CompileErrorKind::DeprecatedEquals));
             } else if self.next_are(&[Identifier, ColonEquals]) {
               items.push(Item::Assignment(self.parse_assignment(false)?));
             } else {
@@ -485,7 +485,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
       };
 
       if contents.starts_with("#!") {
-        return Err(next.error(CompilationErrorKind::BacktickShebang));
+        return Err(next.error(CompileErrorKind::BacktickShebang));
       }
 
       Ok(Expression::Backtick { contents, token })
@@ -540,7 +540,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
             '"' => cooked.push('"'),
             other => {
               return Err(
-                token.error(CompilationErrorKind::InvalidEscapeSequence { character: other }),
+                token.error(CompileErrorKind::InvalidEscapeSequence { character: other }),
               );
             },
           }
@@ -609,7 +609,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
       let variadic = self.parse_parameter(kind)?;
 
       self.forbid(Identifier, |token| {
-        token.error(CompilationErrorKind::ParameterFollowsVariadicParameter {
+        token.error(CompileErrorKind::ParameterFollowsVariadicParameter {
           parameter: token.lexeme(),
         })
       })?;
@@ -733,7 +733,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     } else if Keyword::False == identifier.lexeme() {
       false
     } else {
-      return Err(identifier.error(CompilationErrorKind::ExpectedKeyword {
+      return Err(identifier.error(CompileErrorKind::ExpectedKeyword {
         expected: vec![Keyword::True, Keyword::False],
         found:    identifier.lexeme(),
       }));
@@ -794,7 +794,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
         name,
       })
     } else {
-      Err(name.error(CompilationErrorKind::UnknownSetting {
+      Err(name.error(CompileErrorKind::UnknownSetting {
         setting: name.lexeme(),
       }))
     }
@@ -806,7 +806,7 @@ mod tests {
   use super::*;
 
   use pretty_assertions::assert_eq;
-  use CompilationErrorKind::*;
+  use CompileErrorKind::*;
 
   macro_rules! test {
     {
@@ -860,14 +860,14 @@ mod tests {
     line: usize,
     column: usize,
     length: usize,
-    kind: CompilationErrorKind,
+    kind: CompileErrorKind,
   ) {
     let tokens = Lexer::lex(src).expect("Lexing failed in parse test...");
 
     match Parser::parse(&tokens) {
       Ok(_) => panic!("Parsing unexpectedly succeeded"),
       Err(have) => {
-        let want = CompilationError {
+        let want = CompileError {
           token: Token {
             kind: have.token.kind,
             src,

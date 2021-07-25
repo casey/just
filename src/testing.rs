@@ -61,7 +61,7 @@ pub(crate) fn analysis_error(
   line: usize,
   column: usize,
   length: usize,
-  kind: CompilationErrorKind,
+  kind: CompileErrorKind,
 ) {
   let tokens = Lexer::lex(src).expect("Lexing failed in parse test...");
 
@@ -70,7 +70,7 @@ pub(crate) fn analysis_error(
   match Analyzer::analyze(ast) {
     Ok(_) => panic!("Analysis unexpectedly succeeded"),
     Err(have) => {
-      let want = CompilationError {
+      let want = CompileError {
         token: Token {
           kind: have.token.kind,
           src,

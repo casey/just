@@ -1,6 +1,6 @@
 use crate::common::*;
 
-use CompilationErrorKind::*;
+use CompileErrorKind::*;
 
 pub(crate) struct AssignmentResolver<'src: 'run, 'run> {
   assignments: &'run Table<'src, Assignment<'src>>,
@@ -45,7 +45,7 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
         length: 0,
         kind:   TokenKind::Unspecified,
       };
-      return Err(CompilationError {
+      return Err(CompileError {
         kind: Internal { message },
         token,
       });

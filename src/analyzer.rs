@@ -1,6 +1,6 @@
 use crate::common::*;
 
-use CompilationErrorKind::*;
+use CompileErrorKind::*;
 
 #[derive(Default)]
 pub(crate) struct Analyzer<'src> {

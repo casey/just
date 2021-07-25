@@ -6,7 +6,7 @@ pub(crate) enum Error<'src> {
     search_error: SearchError,
   },
   Compile {
-    compile_error: CompilationError<'src>,
+    compile_error: CompileError<'src>,
   },
   Config {
     config_error: ConfigError,
@@ -190,8 +190,8 @@ impl<'src> Error<'src> {
   }
 }
 
-impl<'src> From<CompilationError<'src>> for Error<'src> {
-  fn from(compile_error: CompilationError<'src>) -> Self {
+impl<'src> From<CompileError<'src>> for Error<'src> {
+  fn from(compile_error: CompileError<'src>) -> Self {
     Self::Compile { compile_error }
   }
 }

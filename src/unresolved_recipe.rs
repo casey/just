@@ -22,7 +22,7 @@ impl<'src> UnresolvedRecipe<'src> {
         .contains(&unresolved.arguments.len())
       {
         return Err(unresolved.recipe.error(
-          CompilationErrorKind::DependencyArgumentCountMismatch {
+          CompileErrorKind::DependencyArgumentCountMismatch {
             dependency: unresolved.recipe.lexeme(),
             found:      unresolved.arguments.len(),
             min:        resolved.min_arguments(),

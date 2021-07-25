@@ -64,7 +64,7 @@ impl<'src> Thunk<'src> {
           })
         },
         _ => Err(
-          name.error(CompilationErrorKind::FunctionArgumentCountMismatch {
+          name.error(CompileErrorKind::FunctionArgumentCountMismatch {
             function: name.lexeme(),
             found:    arguments.len(),
             expected: function.argc(),
@@ -72,7 +72,7 @@ impl<'src> Thunk<'src> {
         ),
       }
     } else {
-      Err(name.error(CompilationErrorKind::UnknownFunction {
+      Err(name.error(CompileErrorKind::UnknownFunction {
         function: name.lexeme(),
       }))
     }

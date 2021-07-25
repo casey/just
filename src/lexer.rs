@@ -1,6 +1,6 @@
 use crate::common::*;
 
-use CompilationErrorKind::*;
+use CompileErrorKind::*;
 use TokenKind::*;
 
 /// Just language lexer
@@ -199,7 +199,7 @@ impl<'src> Lexer<'src> {
   }
 
   /// Create an internal error with `message`
-  fn internal_error(&self, message: impl Into<String>) -> CompilationError<'src> {
+  fn internal_error(&self, message: impl Into<String>) -> CompileError<'src> {
     // Use `self.token_end` as the location of the error
     let token = Token {
       src:    self.src,
@@ -209,8 +209,8 @@ impl<'src> Lexer<'src> {
       length: 0,
       kind:   Unspecified,
     };
-    CompilationError {
-      kind: CompilationErrorKind::Internal {
+    CompileError {
+      kind: CompileErrorKind::Internal {
         message: message.into(),
       },
       token,
@@ -218,7 +218,7 @@ impl<'src> Lexer<'src> {
   }
 
   /// Create a compilation error with `kind`
-  fn error(&self, kind: CompilationErrorKind<'src>) -> CompilationError<'src> {
+  fn error(&self, kind: CompileErrorKind<'src>) -> CompileError<'src> {
     // Use the in-progress token span as the location of the error.
 
     // The width of the error site to highlight depends on the kind of error:
@@ -244,11 +244,11 @@ impl<'src> Lexer<'src> {
       length,
     };
 
-    CompilationError { token, kind }
+    CompileError { token, kind }
   }
 
-  fn unterminated_interpolation_error(interpolation_start: Token<'src>) -> CompilationError<'src> {
-    CompilationError {
+  fn unterminated_interpolation_error(interpolation_start: Token<'src>) -> CompileError<'src> {
+    CompileError {
       token: interpolation_start,
       kind:  UnterminatedInterpolation,
     }
@@ -980,12 +980,12 @@ mod tests {
     line: usize,
     column: usize,
     length: usize,
-    kind: CompilationErrorKind,
+    kind: CompileErrorKind,
   ) {
     match Lexer::lex(src) {
       Ok(_) => panic!("Lexing succeeded but expected"),
       Err(have) => {
-        let want = CompilationError {
+        let want = CompileError {
           token: Token {
             kind: have.token.kind,
             src,
@@ -2288,7 +2288,7 @@ mod tests {
     let compile_error = Lexer::new("!").presume('-').unwrap_err();
     assert_matches!(
       compile_error,
-      CompilationError {
+      CompileError {
         token: Token {
           offset: 0,
           line:   0,

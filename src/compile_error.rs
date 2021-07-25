@@ -1,20 +1,20 @@
 use crate::common::*;
 
 #[derive(Debug, PartialEq)]
-pub(crate) struct CompilationError<'src> {
+pub(crate) struct CompileError<'src> {
   pub(crate) token: Token<'src>,
-  pub(crate) kind:  CompilationErrorKind<'src>,
+  pub(crate) kind:  CompileErrorKind<'src>,
 }
 
-impl<'src> CompilationError<'src> {
+impl<'src> CompileError<'src> {
   pub(crate) fn context(&self) -> Token<'src> {
     self.token
   }
 }
 
-impl Display for CompilationError<'_> {
+impl Display for CompileError<'_> {
   fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
-    use CompilationErrorKind::*;
+    use CompileErrorKind::*;
 
     match &self.kind {
       AliasShadowsRecipe { alias, recipe_line } => {

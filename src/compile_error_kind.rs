@@ -1,7 +1,7 @@
 use crate::common::*;
 
 #[derive(Debug, PartialEq)]
-pub(crate) enum CompilationErrorKind<'src> {
+pub(crate) enum CompileErrorKind<'src> {
   AliasShadowsRecipe {
     alias:       &'src str,
     recipe_line: usize,

@@ -40,7 +40,7 @@ impl<'src> Name<'src> {
     }
   }
 
-  pub(crate) fn error(&self, kind: CompilationErrorKind<'src>) -> CompilationError<'src> {
+  pub(crate) fn error(&self, kind: CompileErrorKind<'src>) -> CompileError<'src> {
     self.token().error(kind)
   }
 }

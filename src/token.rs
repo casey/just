@@ -15,8 +15,8 @@ impl<'src> Token<'src> {
     &self.src[self.offset..self.offset + self.length]
   }
 
-  pub(crate) fn error(&self, kind: CompilationErrorKind<'src>) -> CompilationError<'src> {
-    CompilationError { token: *self, kind }
+  pub(crate) fn error(&self, kind: CompileErrorKind<'src>) -> CompileError<'src> {
+    CompileError { token: *self, kind }
   }
 
   // TODO: rename
