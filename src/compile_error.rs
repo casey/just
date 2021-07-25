@@ -55,70 +55,6 @@ impl Display for CompileError<'_> {
             circle.join(" -> ")
           )?;
         },
-
-      InvalidEscapeSequence { character } => {
-        let representation = match character {
-          '`' => r"\`".to_owned(),
-          '\\' => r"\".to_owned(),
-          '\'' => r"'".to_owned(),
-          '"' => r#"""#.to_owned(),
-          _ => character.escape_default().collect(),
-        };
-        write!(f, "`\\{}` is not a valid escape sequence", representation)?;
-      },
-      DeprecatedEquals => {
-        writeln!(
-          f,
-          "`=` in assignments, exports, and aliases has been phased out on favor of `:=`"
-        )?;
-        write!(
-          f,
-          "Please see this issue for more details: https://github.com/casey/just/issues/379"
-        )?;
-      },
-      DuplicateParameter { recipe, parameter } => {
-        write!(
-          f,
-          "Recipe `{}` has duplicate parameter `{}`",
-          recipe, parameter
-        )?;
-      },
-      DuplicateVariable { variable } => {
-        write!(f, "Variable `{}` has multiple definitions", variable)?;
-      },
-      UnexpectedToken {
-        ref expected,
-        found,
-      } => {
-        write!(f, "Expected {}, but found {}", List::or(expected), found)?;
-      },
-      DuplicateAlias { alias, first } => {
-        write!(
-          f,
-          "Alias `{}` first defined on line {} is redefined on line {}",
-          alias,
-          first.ordinal(),
-          self.token.line.ordinal(),
-        )?;
-      },
-      DuplicateRecipe { recipe, first } => {
-        write!(
-          f,
-          "Recipe `{}` first defined on line {} is redefined on line {}",
-          recipe,
-          first.ordinal(),
-          self.token.line.ordinal()
-        )?;
-      },
-      DuplicateSet { setting, first } => {
-        write!(
-          f,
-          "Setting `{}` first set on line {} is redefined on line {}",
-          setting,
-          first.ordinal(),
-          self.token.line.ordinal(),
-        )?;
-      },
       DependencyArgumentCountMismatch {
         dependency,
         found,
@@ -142,37 +78,59 @@ impl Display for CompileError<'_> {
           write!(f, "at most {} {}", max, Count("argument", *max))?;
         }
       },
+      DeprecatedEquals => {
+        writeln!(
+          f,
+          "`=` in assignments, exports, and aliases has been phased out on favor of `:=`"
+        )?;
+        write!(
+          f,
+          "Please see this issue for more details: https://github.com/casey/just/issues/379"
+        )?;
+      },
+      DuplicateAlias { alias, first } => {
+        write!(
+          f,
+          "Alias `{}` first defined on line {} is redefined on line {}",
+          alias,
+          first.ordinal(),
+          self.token.line.ordinal(),
+        )?;
+      },
+      DuplicateParameter { recipe, parameter } => {
+        write!(
+          f,
+          "Recipe `{}` has duplicate parameter `{}`",
+          recipe, parameter
+        )?;
+      },
+      DuplicateRecipe { recipe, first } => {
+        write!(
+          f,
+          "Recipe `{}` first defined on line {} is redefined on line {}",
+          recipe,
+          first.ordinal(),
+          self.token.line.ordinal()
+        )?;
+      },
+      DuplicateSet { setting, first } => {
+        write!(
+          f,
+          "Setting `{}` first set on line {} is redefined on line {}",
+          setting,
+          first.ordinal(),
+          self.token.line.ordinal(),
+        )?;
+      },
+      DuplicateVariable { variable } => {
+        write!(f, "Variable `{}` has multiple definitions", variable)?;
+      },
       ExpectedKeyword { expected, found } => write!(
         f,
         "Expected keyword {} but found identifier `{}`",
         List::or_ticked(expected),
         found
       )?,
-      ParameterShadowsVariable { parameter } => {
-        write!(
-          f,
-          "Parameter `{}` shadows variable of the same name",
-          parameter
-        )?;
-      },
-      RequiredParameterFollowsDefaultParameter { parameter } => {
-        write!(
-          f,
-          "Non-default parameter `{}` follows default parameter",
-          parameter
-        )?;
-      },
-      ParameterFollowsVariadicParameter { parameter } => {
-        write!(f, "Parameter `{}` follows variadic parameter", parameter)?;
-      },
-      MixedLeadingWhitespace { whitespace } => {
-        write!(
-          f,
-          "Found a mix of tabs and spaces in leading whitespace: `{}`\nLeading whitespace may \
-           consist of tabs or spaces, but not both",
-          ShowWhitespace(whitespace)
-        )?;
-      },
       ExtraLeadingWhitespace => {
         write!(f, "Recipe line has extra leading whitespace")?;
       },
@@ -199,33 +157,23 @@ impl Display for CompileError<'_> {
           ShowWhitespace(found)
         )?;
       },
-      UnknownAliasTarget { alias, target } => {
-        write!(f, "Alias `{}` has an unknown target `{}`", alias, target)?;
-      },
-      UnknownDependency { recipe, unknown } => {
+      Internal { ref message } => {
         write!(
           f,
-          "Recipe `{}` has unknown dependency `{}`",
-          recipe, unknown
+          "Internal error, this may indicate a bug in just: {}\n\
+           consider filing an issue: https://github.com/casey/just/issues/new",
+          message
         )?;
       },
-      UndefinedVariable { variable } => {
-        write!(f, "Variable `{}` not defined", variable)?;
-      },
-      UnknownFunction { function } => {
-        write!(f, "Call to unknown function `{}`", function)?;
-      },
-      UnknownSetting { setting } => {
-        write!(f, "Unknown setting `{}`", setting)?;
-      },
-      UnexpectedCharacter { expected } => {
-        write!(f, "Expected character `{}`", expected)?;
-      },
-      UnknownStartOfToken => {
-        write!(f, "Unknown start of token:")?;
-      },
-      UnexpectedEndOfToken { expected } => {
-        write!(f, "Expected character `{}` but found end-of-file", expected)?;
+      InvalidEscapeSequence { character } => {
+        let representation = match character {
+          '`' => r"\`".to_owned(),
+          '\\' => r"\".to_owned(),
+          '\'' => r"'".to_owned(),
+          '"' => r#"""#.to_owned(),
+          _ => character.escape_default().collect(),
+        };
+        write!(f, "`\\{}` is not a valid escape sequence", representation)?;
       },
       MismatchedClosingDelimiter {
         open,
@@ -240,28 +188,79 @@ impl Display for CompileError<'_> {
           open_line.ordinal(),
         )?;
       },
+      MixedLeadingWhitespace { whitespace } => {
+        write!(
+          f,
+          "Found a mix of tabs and spaces in leading whitespace: `{}`\nLeading whitespace may \
+           consist of tabs or spaces, but not both",
+          ShowWhitespace(whitespace)
+        )?;
+      },
+      ParameterFollowsVariadicParameter { parameter } => {
+        write!(f, "Parameter `{}` follows variadic parameter", parameter)?;
+      },
+      ParameterShadowsVariable { parameter } => {
+        write!(
+          f,
+          "Parameter `{}` shadows variable of the same name",
+          parameter
+        )?;
+      },
+      RequiredParameterFollowsDefaultParameter { parameter } => {
+        write!(
+          f,
+          "Non-default parameter `{}` follows default parameter",
+          parameter
+        )?;
+      },
+      UndefinedVariable { variable } => {
+        write!(f, "Variable `{}` not defined", variable)?;
+      },
+      UnexpectedCharacter { expected } => {
+        write!(f, "Expected character `{}`", expected)?;
+      },
       UnexpectedClosingDelimiter { close } => {
         write!(f, "Unexpected closing delimiter `{}`", close.close())?;
       },
+      UnexpectedEndOfToken { expected } => {
+        write!(f, "Expected character `{}` but found end-of-file", expected)?;
+      },
+      UnexpectedToken {
+        ref expected,
+        found,
+      } => {
+        write!(f, "Expected {}, but found {}", List::or(expected), found)?;
+      },
+      UnknownAliasTarget { alias, target } => {
+        write!(f, "Alias `{}` has an unknown target `{}`", alias, target)?;
+      },
+      UnknownDependency { recipe, unknown } => {
+        write!(
+          f,
+          "Recipe `{}` has unknown dependency `{}`",
+          recipe, unknown
+        )?;
+      },
+      UnknownFunction { function } => {
+        write!(f, "Call to unknown function `{}`", function)?;
+      },
+      UnknownSetting { setting } => {
+        write!(f, "Unknown setting `{}`", setting)?;
+      },
+      UnknownStartOfToken => {
+        write!(f, "Unknown start of token:")?;
+      },
       UnpairedCarriageReturn => {
         write!(f, "Unpaired carriage return")?;
+      },
+      UnterminatedBacktick => {
+        write!(f, "Unterminated backtick")?;
       },
       UnterminatedInterpolation => {
         write!(f, "Unterminated interpolation")?;
       },
       UnterminatedString => {
         write!(f, "Unterminated string")?;
-      },
-      UnterminatedBacktick => {
-        write!(f, "Unterminated backtick")?;
-      },
-      Internal { ref message } => {
-        write!(
-          f,
-          "Internal error, this may indicate a bug in just: {}\n\
-           consider filing an issue: https://github.com/casey/just/issues/new",
-          message
-        )?;
       },
     }
 
