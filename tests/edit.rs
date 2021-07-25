@@ -56,25 +56,27 @@ fn invoke_error() {
 fn status_error() {
   let tmp = temptree! {
     justfile: JUSTFILE,
+    "exit-2": "#!/usr/bin/env bash\nexit 2\n",
   };
 
-  let output = Command::new(executable_path("just"))
-    .current_dir(tmp.path())
-    .output()
-    .unwrap();
+  cmd_unit!(%"chmod +x", tmp.path().join("exit-2"));
 
-  assert!(!output.status.success());
+  let path = env::join_paths(
+    iter::once(tmp.path().to_owned()).chain(env::split_paths(&env::var_os("PATH").unwrap())),
+  )
+  .unwrap();
 
   let output = Command::new(executable_path("just"))
     .current_dir(tmp.path())
     .arg("--edit")
-    .env("VISUAL", "false")
+    .env("PATH", path)
+    .env("VISUAL", "exit-2")
     .output()
     .unwrap();
 
   assert_eq!(
     String::from_utf8_lossy(&output.stderr),
-    "error: Editor `false` failed: exit code: 2\n"
+    "error: Editor `exit-2` failed: exit code: 2\n"
   );
 
   assert_eq!(output.status.code().unwrap(), 2);
