@@ -133,10 +133,6 @@ pub(crate) enum Error<'src> {
   },
 }
 
-// TODO:
-// - Remove Color::fmt(f)
-// - sort error enum variants and match statments
-
 impl<'src> Error<'src> {
   pub(crate) fn code(&self) -> Option<i32> {
     match self {
@@ -256,9 +252,6 @@ impl<'src> Display for Error<'src> {
             max
           )?;
         }
-        // TODO:
-        // - This usage string shouldn't be bolded
-        // - parameters should be colored
         write!(f, "\nusage:\n    just {}", recipe)?;
         for param in parameters {
           write!(f, " {}", param)?;
@@ -502,29 +495,25 @@ impl<'src> Display for Error<'src> {
         )?;
       },
       Io { recipe, io_error } => {
-        // TODO:
-        // - tests io error spacing
-        // - what is the error even? better name?
         match io_error.kind() {
           io::ErrorKind::NotFound => write!(
             f,
-            "Recipe `{}` could not be run because just could not find `sh`:{}",
+            "Recipe `{}` could not be run because just could not find `sh`: {}",
             recipe, io_error
           ),
           io::ErrorKind::PermissionDenied => write!(
             f,
-            "Recipe `{}` could not be run because just could not run `sh`:{}",
+            "Recipe `{}` could not be run because just could not run `sh`: {}",
             recipe, io_error
           ),
           _ => write!(
             f,
-            "Recipe `{}` could not be run because of an IO error while launching `sh`:{}",
+            "Recipe `{}` could not be run because of an IO error while launching `sh`: {}",
             recipe, io_error
           ),
         }?;
       },
       Load { io_error, path } => {
-        // TODO: test this error message
         write!(
           f,
           "Failed to read justfile at `{}`: {}",
