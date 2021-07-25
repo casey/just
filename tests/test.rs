@@ -21,7 +21,7 @@ macro_rules! test {
 
       $($(env.insert($env_key.to_string(), $env_value.to_string());)*)?
 
-      let mut test = crate::test::Test {
+      let test = crate::test::Test {
         $(args: &[$($arg)*],)?
         $(stdin: $stdin,)?
         $(status: $status,)?
@@ -30,9 +30,9 @@ macro_rules! test {
         ..crate::test::Test::default()
       };
 
-      $(let test = test.justfile($justfile))?;
-      $(let test = test.stderr($stderr))?;
-      $(let test = test.stdout($stdout))?;
+      $(let test = test.justfile($justfile);)?
+      $(let test = test.stderr($stderr);)?
+      $(let test = test.stdout($stdout);)?
 
       test.run()
     }
