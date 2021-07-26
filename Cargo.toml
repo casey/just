@@ -48,6 +48,7 @@ features = ["derive"]
 cradle            = "0.0.13"
 executable-path   = "1.0.0"
 pretty_assertions = "0.7.0"
+regex = "1.5.4"
 temptree          = "0.1.0"
 which             = "4.0.0"
 yaml-rust         = "0.4.5"

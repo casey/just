@@ -79,18 +79,17 @@ fn invocation_directory() {
     ".git": {},
   };
 
-  let output = Command::new(executable_path("just"))
-    .current_dir(tmp.path())
+  let test = Test::with_tempdir(tmp);
+
+  let justfile_path = test.justfile_path();
+
+  let tmp = test
+    .no_justfile()
+    .stderr_regex("Wrote justfile to `.*`\n")
     .arg("--init")
-    .output()
-    .unwrap();
+    .run();
 
-  assert!(output.status.success());
-
-  assert_eq!(
-    fs::read_to_string(tmp.path().join("justfile")).unwrap(),
-    EXPECTED
-  );
+  assert_eq!(fs::read_to_string(justfile_path).unwrap(), EXPECTED);
 }
 
 #[test]

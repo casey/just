@@ -221,6 +221,7 @@ dependencies = [
  "libc",
  "log",
  "pretty_assertions",
+ "regex",
  "snafu",
  "strum",
  "strum_macros",

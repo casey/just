@@ -2,6 +2,7 @@ pub(crate) use std::{
   collections::BTreeMap,
   env::{self, consts::EXE_SUFFIX},
   error::Error,
+  fmt::Debug,
   fs,
   io::Write,
   iter,
@@ -14,6 +15,8 @@ pub(crate) use cradle::cmd_unit;
 pub(crate) use executable_path::executable_path;
 pub(crate) use just::unindent;
 pub(crate) use libc::{EXIT_FAILURE, EXIT_SUCCESS};
+pub(crate) use pretty_assertions::Comparison;
+pub(crate) use regex::Regex;
 pub(crate) use tempfile::TempDir;
 pub(crate) use temptree::temptree;
 pub(crate) use which::which;
