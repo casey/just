@@ -55,7 +55,7 @@ fn write_error() {
 
   cmd_unit!(%"chmod 400", &justfile_path);
 
-  let tempdir = test.run();
+  let _tempdir = test.run();
 
   assert_eq!(
     fs::read_to_string(&justfile_path).unwrap(),

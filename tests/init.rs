@@ -65,7 +65,7 @@ fn invocation_directory() {
 
   let justfile_path = test.justfile_path();
 
-  let tmp = test
+  let _tmp = test
     .no_justfile()
     .stderr_regex("Wrote justfile to `.*`\n")
     .arg("--init")
