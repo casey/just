@@ -26,6 +26,67 @@ fn invalid_justfile() {
   assert_stdout(&output, JUSTFILE);
 }
 
+#[test]
+fn invoke_error() {
+  let tmp = temptree! {
+    justfile: JUSTFILE,
+  };
+
+  let output = Command::new(executable_path("just"))
+    .current_dir(tmp.path())
+    .output()
+    .unwrap();
+
+  assert!(!output.status.success());
+
+  let output = Command::new(executable_path("just"))
+    .current_dir(tmp.path())
+    .arg("--edit")
+    .env("VISUAL", "/")
+    .output()
+    .unwrap();
+
+  assert_eq!(
+    String::from_utf8_lossy(&output.stderr),
+    if cfg!(windows) {
+      "error: Editor `/` invocation failed: Access is denied. (os error 5)\n"
+    } else {
+      "error: Editor `/` invocation failed: Permission denied (os error 13)\n"
+    }
+  );
+}
+
+#[test]
+#[cfg(not(windows))]
+fn status_error() {
+  let tmp = temptree! {
+    justfile: JUSTFILE,
+    "exit-2": "#!/usr/bin/env bash\nexit 2\n",
+  };
+
+  cmd_unit!(%"chmod +x", tmp.path().join("exit-2"));
+
+  let path = env::join_paths(
+    iter::once(tmp.path().to_owned()).chain(env::split_paths(&env::var_os("PATH").unwrap())),
+  )
+  .unwrap();
+
+  let output = Command::new(executable_path("just"))
+    .current_dir(tmp.path())
+    .arg("--edit")
+    .env("PATH", path)
+    .env("VISUAL", "exit-2")
+    .output()
+    .unwrap();
+
+  assert_eq!(
+    String::from_utf8_lossy(&output.stderr),
+    "error: Editor `exit-2` failed: exit code: 2\n"
+  );
+
+  assert_eq!(output.status.code().unwrap(), 2);
+}
+
 /// Test that editor is $VISUAL, $EDITOR, or "vim" in that order
 #[test]
 fn editor_precedence() {

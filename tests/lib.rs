@@ -27,6 +27,7 @@ mod readme;
 mod search;
 mod shebang;
 mod shell;
+mod show;
 mod string;
 mod sublime_syntax;
 mod subsequents;

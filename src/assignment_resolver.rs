@@ -1,6 +1,6 @@
 use crate::common::*;
 
-use CompilationErrorKind::*;
+use CompileErrorKind::*;
 
 pub(crate) struct AssignmentResolver<'src: 'run, 'run> {
   assignments: &'run Table<'src, Assignment<'src>>,
@@ -11,7 +11,7 @@ pub(crate) struct AssignmentResolver<'src: 'run, 'run> {
 impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
   pub(crate) fn resolve_assignments(
     assignments: &Table<'src, Assignment<'src>>,
-  ) -> CompilationResult<'src, ()> {
+  ) -> CompileResult<'src, ()> {
     let mut resolver = AssignmentResolver {
       stack: Vec::new(),
       evaluated: BTreeSet::new(),
@@ -25,7 +25,7 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
     Ok(())
   }
 
-  fn resolve_assignment(&mut self, name: &'src str) -> CompilationResult<'src, ()> {
+  fn resolve_assignment(&mut self, name: &'src str) -> CompileResult<'src, ()> {
     if self.evaluated.contains(name) {
       return Ok(());
     }
@@ -45,7 +45,7 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
         length: 0,
         kind:   TokenKind::Unspecified,
       };
-      return Err(CompilationError {
+      return Err(CompileError {
         kind: Internal { message },
         token,
       });
@@ -56,7 +56,7 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
     Ok(())
   }
 
-  fn resolve_expression(&mut self, expression: &Expression<'src>) -> CompilationResult<'src, ()> {
+  fn resolve_expression(&mut self, expression: &Expression<'src>) -> CompileResult<'src, ()> {
     match expression {
       Expression::Variable { name } => {
         let variable = name.lexeme();

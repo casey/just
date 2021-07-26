@@ -10,7 +10,7 @@ pub(crate) struct Justfile<'src> {
 }
 
 impl<'src> Justfile<'src> {
-  pub(crate) fn first(&self) -> Option<&Recipe> {
+  pub(crate) fn first(&self) -> Option<&Recipe<'src>> {
     let mut first: Option<&Recipe<Dependency>> = None;
     for recipe in self.recipes.values() {
       if let Some(first_recipe) = first {
@@ -28,7 +28,7 @@ impl<'src> Justfile<'src> {
     self.recipes.len()
   }
 
-  pub(crate) fn suggest_recipe(&self, input: &str) -> Option<Suggestion> {
+  pub(crate) fn suggest_recipe(&self, input: &str) -> Option<Suggestion<'src>> {
     let mut suggestions = self
       .recipes
       .keys()
@@ -54,7 +54,7 @@ impl<'src> Justfile<'src> {
       .next()
   }
 
-  pub(crate) fn suggest_variable(&self, input: &str) -> Option<Suggestion> {
+  pub(crate) fn suggest_variable(&self, input: &str) -> Option<Suggestion<'src>> {
     let mut suggestions = self
       .assignments
       .keys()
@@ -74,21 +74,21 @@ impl<'src> Justfile<'src> {
       .next()
   }
 
-  pub(crate) fn run<'run>(
-    &'run self,
-    config: &'run Config,
-    search: &'run Search,
-    overrides: &'run BTreeMap<String, String>,
-    arguments: &'run [String],
-  ) -> RunResult<'run, ()> {
+  pub(crate) fn run(
+    &self,
+    config: &Config,
+    search: &Search,
+    overrides: &BTreeMap<String, String>,
+    arguments: &[String],
+  ) -> RunResult<'src, ()> {
     let unknown_overrides = overrides
       .keys()
       .filter(|name| !self.assignments.contains_key(name.as_str()))
-      .map(String::as_str)
-      .collect::<Vec<&str>>();
+      .cloned()
+      .collect::<Vec<String>>();
 
     if !unknown_overrides.is_empty() {
-      return Err(RuntimeError::UnknownOverrides {
+      return Err(Error::UnknownOverrides {
         overrides: unknown_overrides,
       });
     }
@@ -107,12 +107,12 @@ impl<'src> Justfile<'src> {
         if let Some(assignment) = self.assignments.get(name) {
           scope.bind(assignment.export, assignment.name, value.clone());
         } else {
-          unknown_overrides.push(name.as_ref());
+          unknown_overrides.push(name.clone());
         }
       }
 
       if !unknown_overrides.is_empty() {
-        return Err(RuntimeError::UnknownOverrides {
+        return Err(Error::UnknownOverrides {
           overrides: unknown_overrides,
         });
       }
@@ -148,7 +148,7 @@ impl<'src> Justfile<'src> {
         command.export(&self.settings, &dotenv, &scope);
 
         let status = InterruptHandler::guard(|| command.status()).map_err(|io_error| {
-          RuntimeError::CommandInvocation {
+          Error::CommandInvoke {
             binary: binary.clone(),
             arguments: arguments.clone(),
             io_error,
@@ -156,7 +156,11 @@ impl<'src> Justfile<'src> {
         })?;
 
         if !status.success() {
-          process::exit(status.code().unwrap_or(EXIT_FAILURE));
+          return Err(Error::CommandStatus {
+            binary: binary.clone(),
+            arguments: arguments.clone(),
+            status,
+          });
         };
 
         return Ok(());
@@ -166,7 +170,7 @@ impl<'src> Justfile<'src> {
           if let Some(value) = scope.value(variable) {
             print!("{}", value);
           } else {
-            return Err(RuntimeError::EvalUnknownVariable {
+            return Err(Error::EvalUnknownVariable {
               suggestion: self.suggest_variable(&variable),
               variable:   variable.clone(),
             });
@@ -198,14 +202,14 @@ impl<'src> Justfile<'src> {
     } else if let Some(recipe) = self.first() {
       let min_arguments = recipe.min_arguments();
       if min_arguments > 0 {
-        return Err(RuntimeError::DefaultRecipeRequiresArguments {
+        return Err(Error::DefaultRecipeRequiresArguments {
           recipe: recipe.name.lexeme(),
           min_arguments,
         });
       }
       vec![recipe.name()]
     } else {
-      return Err(RuntimeError::NoRecipes);
+      return Err(Error::NoRecipes);
     };
 
     let arguments = argvec.as_slice();
@@ -222,9 +226,9 @@ impl<'src> Justfile<'src> {
           let argument_range = recipe.argument_range();
           let argument_count = cmp::min(tail.len(), recipe.max_arguments());
           if !argument_range.range_contains(&argument_count) {
-            return Err(RuntimeError::ArgumentCountMismatch {
+            return Err(Error::ArgumentCountMismatch {
               recipe:     recipe.name(),
-              parameters: recipe.parameters.iter().collect(),
+              parameters: recipe.parameters.clone(),
               found:      tail.len(),
               min:        recipe.min_arguments(),
               max:        recipe.max_arguments(),
@@ -234,7 +238,7 @@ impl<'src> Justfile<'src> {
           tail = &tail[argument_count..];
         }
       } else {
-        missing.push(*argument);
+        missing.push((*argument).to_owned());
       }
       rest = tail;
     }
@@ -245,7 +249,7 @@ impl<'src> Justfile<'src> {
       } else {
         None
       };
-      return Err(RuntimeError::UnknownRecipes {
+      return Err(Error::UnknownRecipes {
         recipes: missing,
         suggestion,
       });
@@ -266,7 +270,7 @@ impl<'src> Justfile<'src> {
     Ok(())
   }
 
-  pub(crate) fn get_alias(&self, name: &str) -> Option<&Alias> {
+  pub(crate) fn get_alias(&self, name: &str) -> Option<&Alias<'src>> {
     self.aliases.get(name)
   }
 
@@ -278,13 +282,13 @@ impl<'src> Justfile<'src> {
       .or_else(|| self.aliases.get(name).map(|alias| alias.target.as_ref()))
   }
 
-  fn run_recipe<'run>(
+  fn run_recipe(
     &self,
-    context: &'run RecipeContext<'src, 'run>,
+    context: &RecipeContext<'src, '_>,
     recipe: &Recipe<'src>,
-    arguments: &[&'run str],
+    arguments: &[&str],
     dotenv: &BTreeMap<String, String>,
-    search: &'run Search,
+    search: &Search,
     ran: &mut BTreeSet<Vec<String>>,
   ) -> RunResult<'src, ()> {
     let (outer, positional) = Evaluator::evaluate_parameters(
@@ -351,7 +355,7 @@ impl<'src> Justfile<'src> {
     Ok(())
   }
 
-  pub(crate) fn public_recipes(&self, source_order: bool) -> Vec<&Recipe<Dependency>> {
+  pub(crate) fn public_recipes(&self, source_order: bool) -> Vec<&Recipe<'src, Dependency>> {
     let mut recipes = self
       .recipes
       .values()
@@ -403,7 +407,7 @@ mod tests {
   use super::*;
 
   use testing::compile;
-  use RuntimeError::*;
+  use Error::*;
 
   run_error! {
     name: unknown_recipes,

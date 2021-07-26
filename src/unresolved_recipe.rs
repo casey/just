@@ -6,7 +6,7 @@ impl<'src> UnresolvedRecipe<'src> {
   pub(crate) fn resolve(
     self,
     resolved: Vec<Rc<Recipe<'src>>>,
-  ) -> CompilationResult<'src, Recipe<'src>> {
+  ) -> CompileResult<'src, Recipe<'src>> {
     assert_eq!(
       self.dependencies.len(),
       resolved.len(),
@@ -21,14 +21,16 @@ impl<'src> UnresolvedRecipe<'src> {
         .argument_range()
         .contains(&unresolved.arguments.len())
       {
-        return Err(unresolved.recipe.error(
-          CompilationErrorKind::DependencyArgumentCountMismatch {
-            dependency: unresolved.recipe.lexeme(),
-            found:      unresolved.arguments.len(),
-            min:        resolved.min_arguments(),
-            max:        resolved.max_arguments(),
-          },
-        ));
+        return Err(
+          unresolved
+            .recipe
+            .error(CompileErrorKind::DependencyArgumentCountMismatch {
+              dependency: unresolved.recipe.lexeme(),
+              found:      unresolved.arguments.len(),
+              min:        resolved.min_arguments(),
+              max:        resolved.max_arguments(),
+            }),
+        );
       }
     }
 

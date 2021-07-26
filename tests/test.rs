@@ -1,13 +1,13 @@
 use crate::common::*;
 
+use pretty_assertions::assert_eq;
+
 macro_rules! test {
   (
-    name:     $name:ident,
-    justfile: $justfile:expr,
-    $(args:     ($($arg:tt)*),)?
-    $(env:      {
-      $($env_key:literal : $env_value:literal,)*
-    },)?
+    name:       $name:ident,
+    $(justfile: $justfile:expr,)?
+    $(args:     ($($arg:tt),*),)?
+    $(env:      { $($env_key:literal : $env_value:literal,)* },)?
     $(stdin:    $stdin:expr,)?
     $(stdout:   $stdout:expr,)?
     $(stderr:   $stderr:expr,)?
@@ -16,66 +16,128 @@ macro_rules! test {
   ) => {
     #[test]
     fn $name() {
-      #[allow(unused_mut)]
-      let mut env = std::collections::BTreeMap::new();
+      let test = crate::test::Test::new();
 
-      $($(env.insert($env_key.to_string(), $env_value.to_string());)*)?
+      $($(let test = test.arg($arg);)*)?
+      $($(let test = test.env($env_key, $env_value);)*)?
+      $(let test = test.justfile($justfile);)?
+      $(let test = test.shell($shell);)?
+      $(let test = test.status($status);)?
+      $(let test = test.stderr($stderr);)?
+      $(let test = test.stdin($stdin);)?
+      $(let test = test.stdout($stdout);)?
 
-      crate::test::Test {
-        justfile: $justfile,
-        $(args: &[$($arg)*],)?
-        $(stdin: $stdin,)?
-        $(stdout: $stdout,)?
-        $(stderr: $stderr,)?
-        $(status: $status,)?
-        $(shell: $shell,)?
-        env,
-        ..crate::test::Test::default()
-      }.run();
+      test.run();
     }
   }
 }
 
-pub(crate) struct Test<'a> {
-  pub(crate) justfile: &'a str,
-  pub(crate) args:     &'a [&'a str],
-  pub(crate) env:      BTreeMap<String, String>,
-  pub(crate) stdin:    &'a str,
-  pub(crate) stdout:   &'a str,
-  pub(crate) stderr:   &'a str,
-  pub(crate) status:   i32,
-  pub(crate) shell:    bool,
+pub(crate) struct Test {
+  pub(crate) tempdir:      TempDir,
+  pub(crate) justfile:     Option<String>,
+  pub(crate) args:         Vec<String>,
+  pub(crate) env:          BTreeMap<String, String>,
+  pub(crate) stdin:        String,
+  pub(crate) stdout:       String,
+  pub(crate) stderr:       String,
+  pub(crate) stderr_regex: Option<Regex>,
+  pub(crate) status:       i32,
+  pub(crate) shell:        bool,
 }
 
-impl<'a> Default for Test<'a> {
-  fn default() -> Test<'a> {
-    Test {
-      justfile: "",
-      args:     &[],
-      env:      BTreeMap::new(),
-      stdin:    "",
-      stdout:   "",
-      stderr:   "",
-      status:   EXIT_SUCCESS,
-      shell:    true,
+impl Test {
+  pub(crate) fn new() -> Self {
+    Self::with_tempdir(tempdir())
+  }
+
+  pub(crate) fn with_tempdir(tempdir: TempDir) -> Self {
+    Self {
+      args: Vec::new(),
+      env: BTreeMap::new(),
+      justfile: Some(String::new()),
+      stderr_regex: None,
+      shell: true,
+      status: EXIT_SUCCESS,
+      stderr: String::new(),
+      stdin: String::new(),
+      stdout: String::new(),
+      tempdir,
     }
+  }
+
+  pub(crate) fn arg(mut self, val: &str) -> Self {
+    self.args.push(val.to_owned());
+    self
+  }
+
+  pub(crate) fn args(mut self, args: &[&str]) -> Self {
+    for arg in args {
+      self = self.arg(arg);
+    }
+    self
+  }
+
+  pub(crate) fn env(mut self, key: &str, val: &str) -> Self {
+    self.env.insert(key.to_string(), val.to_string());
+    self
+  }
+
+  pub(crate) fn justfile(mut self, justfile: impl Into<String>) -> Self {
+    self.justfile = Some(justfile.into());
+    self
+  }
+
+  pub(crate) fn justfile_path(&self) -> PathBuf {
+    self.tempdir.path().join("justfile")
+  }
+
+  pub(crate) fn no_justfile(mut self) -> Self {
+    self.justfile = None;
+    self
+  }
+
+  pub(crate) fn shell(mut self, shell: bool) -> Self {
+    self.shell = shell;
+    self
+  }
+
+  pub(crate) fn status(mut self, exit_status: i32) -> Self {
+    self.status = exit_status;
+    self
+  }
+
+  pub(crate) fn stderr(mut self, stderr: impl Into<String>) -> Self {
+    self.stderr = stderr.into();
+    self
+  }
+
+  pub(crate) fn stderr_regex(mut self, stderr_regex: impl AsRef<str>) -> Self {
+    self.stderr_regex = Some(Regex::new(&format!("^{}$", stderr_regex.as_ref())).unwrap());
+    self
+  }
+
+  pub(crate) fn stdin(mut self, stdin: impl Into<String>) -> Self {
+    self.stdin = stdin.into();
+    self
+  }
+
+  pub(crate) fn stdout(mut self, stdout: impl Into<String>) -> Self {
+    self.stdout = stdout.into();
+    self
   }
 }
 
-impl<'a> Test<'a> {
-  pub(crate) fn run(self) {
-    let tmp = tempdir();
+impl Test {
+  pub(crate) fn run(self) -> TempDir {
+    if let Some(justfile) = &self.justfile {
+      let justfile = unindent(justfile);
+      fs::write(self.justfile_path(), justfile).unwrap();
+    }
 
-    let justfile = unindent(self.justfile);
+    let stdout = unindent(&self.stdout);
+    let stderr = unindent(&self.stderr);
 
-    let stdout = unindent(self.stdout);
-    let stderr = unindent(self.stderr);
-
-    let mut justfile_path = tmp.path().to_path_buf();
-    justfile_path.push("justfile");
-    fs::write(&justfile_path, justfile).unwrap();
-
-    let mut dotenv_path = tmp.path().to_path_buf();
+    let mut dotenv_path = self.tempdir.path().to_path_buf();
     dotenv_path.push(".env");
     fs::write(dotenv_path, "DOTENV_KEY=dotenv-value").unwrap();
 
@@ -87,8 +149,8 @@ impl<'a> Test<'a> {
 
     let mut child = command
       .args(self.args)
-      .envs(self.env)
-      .current_dir(tmp.path())
+      .envs(&self.env)
+      .current_dir(self.tempdir.path())
       .stdin(Stdio::piped())
       .stdout(Stdio::piped())
       .stderr(Stdio::piped())
@@ -107,23 +169,37 @@ impl<'a> Test<'a> {
       .wait_with_output()
       .expect("failed to wait for just process");
 
-    let have = Output {
-      status: output.status.code().unwrap(),
-      stdout: str::from_utf8(&output.stdout).unwrap(),
-      stderr: str::from_utf8(&output.stderr).unwrap(),
-    };
+    fn compare<T: PartialEq + Debug>(name: &str, have: T, want: T) -> bool {
+      let equal = have == want;
+      if !equal {
+        eprintln!("Bad {}: {}", name, Comparison::new(&have, &want));
+      }
+      equal
+    }
 
-    let want = Output {
-      status: self.status,
-      stdout: &stdout,
-      stderr: &stderr,
-    };
+    let output_stderr = str::from_utf8(&output.stderr).unwrap();
 
-    assert_eq!(have, want, "bad output");
+    if let Some(ref stderr_regex) = self.stderr_regex {
+      if !stderr_regex.is_match(output_stderr) {
+        panic!(
+          "Stderr regex mismatch: {} !~= /{}/",
+          output_stderr, stderr_regex
+        );
+      }
+    }
+
+    if !compare("status", output.status.code().unwrap(), self.status)
+      | !compare("stdout", str::from_utf8(&output.stdout).unwrap(), &stdout)
+      | (self.stderr_regex.is_none() && !compare("stderr", output_stderr, &stderr))
+    {
+      panic!("Output mismatch.");
+    }
 
     if self.status == EXIT_SUCCESS {
-      test_round_trip(tmp.path());
+      test_round_trip(self.tempdir.path());
     }
+
+    self.tempdir
   }
 }
 

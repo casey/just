@@ -15,11 +15,11 @@ impl<'src> Token<'src> {
     &self.src[self.offset..self.offset + self.length]
   }
 
-  pub(crate) fn error(&self, kind: CompilationErrorKind<'src>) -> CompilationError<'src> {
-    CompilationError { token: *self, kind }
+  pub(crate) fn error(&self, kind: CompileErrorKind<'src>) -> CompileError<'src> {
+    CompileError { token: *self, kind }
   }
 
-  pub(crate) fn write_context(&self, f: &mut Formatter, color: Color) -> fmt::Result {
+  pub(crate) fn write_context(&self, w: &mut dyn Write, color: Color) -> io::Result<()> {
     let width = if self.length == 0 { 1 } else { self.length };
 
     let line_number = self.line.ordinal();
@@ -50,11 +50,11 @@ impl<'src> Token<'src> {
           i += c.len_utf8();
         }
         let line_number_width = line_number.to_string().len();
-        writeln!(f, "{0:1$} |", "", line_number_width)?;
-        writeln!(f, "{} | {}", line_number, space_line)?;
-        write!(f, "{0:1$} |", "", line_number_width)?;
+        writeln!(w, "{0:1$} |", "", line_number_width)?;
+        writeln!(w, "{} | {}", line_number, space_line)?;
+        write!(w, "{0:1$} |", "", line_number_width)?;
         write!(
-          f,
+          w,
           " {0:1$}{2}{3:^<4$}{5}",
           "",
           space_column,
@@ -67,12 +67,13 @@ impl<'src> Token<'src> {
       None =>
         if self.offset != self.src.len() {
           write!(
-            f,
+            w,
             "internal error: Error has invalid line number: {}",
             line_number
           )?;
         },
     }
+
     Ok(())
   }
 }

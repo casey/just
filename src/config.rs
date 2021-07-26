@@ -532,7 +532,7 @@ impl Config {
     })
   }
 
-  pub(crate) fn run_subcommand(self) -> Result<(), i32> {
+  pub(crate) fn run_subcommand<'src>(self, loader: &'src Loader) -> Result<(), Error<'src>> {
     use Subcommand::*;
 
     if self.subcommand == Init {
@@ -540,34 +540,24 @@ impl Config {
     }
 
     if let Completions { shell } = self.subcommand {
-      return Subcommand::completions(self.verbosity, &shell);
+      return Subcommand::completions(&shell);
     }
 
-    let search =
-      Search::find(&self.search_config, &self.invocation_directory).eprint(self.color)?;
+    let search = Search::find(&self.search_config, &self.invocation_directory)?;
 
     if self.subcommand == Edit {
-      return self.edit(&search);
+      return Self::edit(&search);
     }
 
-    let src = fs::read_to_string(&search.justfile)
-      .map_err(|io_error| LoadError {
-        io_error,
-        path: &search.justfile,
-      })
-      .eprint(self.color)?;
+    let src = loader.load(&search.justfile)?;
 
-    let tokens = Lexer::lex(&src).eprint(self.color)?;
-    let ast = Parser::parse(&tokens).eprint(self.color)?;
-    let justfile = Analyzer::analyze(ast.clone()).eprint(self.color)?;
+    let tokens = Lexer::lex(&src)?;
+    let ast = Parser::parse(&tokens)?;
+    let justfile = Analyzer::analyze(ast.clone())?;
 
     if self.verbosity.loud() {
       for warning in &justfile.warnings {
-        if self.color.stderr().active() {
-          eprintln!("{:#}", warning);
-        } else {
-          eprintln!("{}", warning);
-        }
+        warning.write(&mut io::stderr(), self.color.stderr()).ok();
       }
     }
 
@@ -575,7 +565,7 @@ impl Config {
       Choose { overrides, chooser } =>
         self.choose(justfile, &search, overrides, chooser.as_deref())?,
       Command { overrides, .. } => self.run(justfile, &search, overrides, &[])?,
-      Dump => Self::dump(ast)?,
+      Dump => Self::dump(ast),
       Evaluate { overrides, .. } => self.run(justfile, &search, overrides, &[])?,
       Format => self.format(ast, &search)?,
       List => self.list(justfile),
@@ -583,7 +573,7 @@ impl Config {
         arguments,
         overrides,
       } => self.run(justfile, &search, overrides, arguments)?,
-      Show { ref name } => self.show(&name, justfile)?,
+      Show { ref name } => Self::show(&name, justfile)?,
       Summary => self.summary(justfile),
       Variables => Self::variables(justfile),
       Completions { .. } | Edit | Init => unreachable!(),
@@ -592,13 +582,13 @@ impl Config {
     Ok(())
   }
 
-  fn choose(
+  fn choose<'src>(
     &self,
-    justfile: Justfile,
+    justfile: Justfile<'src>,
     search: &Search,
     overrides: &BTreeMap<String, String>,
     chooser: Option<&str>,
-  ) -> Result<(), i32> {
+  ) -> Result<(), Error<'src>> {
     let recipes = justfile
       .public_recipes(self.unsorted)
       .iter()
@@ -607,10 +597,7 @@ impl Config {
       .collect::<Vec<&Recipe<Dependency>>>();
 
     if recipes.is_empty() {
-      if self.verbosity.loud() {
-        eprintln!("Justfile contains no choosable recipes.");
-      }
-      return Err(EXIT_FAILURE);
+      return Err(Error::NoChoosableRecipes);
     }
 
     let chooser = chooser
@@ -629,61 +616,39 @@ impl Config {
 
     let mut child = match result {
       Ok(child) => child,
-      Err(error) => {
-        if self.verbosity.loud() {
-          eprintln!(
-            "Chooser `{} {} {}` invocation failed: {}",
-            justfile.settings.shell_binary(self),
-            justfile.settings.shell_arguments(self).join(" "),
-            chooser.to_string_lossy(),
-            error
-          );
-        }
-        return Err(EXIT_FAILURE);
+      Err(io_error) => {
+        return Err(Error::ChooserInvoke {
+          shell_binary: justfile.settings.shell_binary(self).to_owned(),
+          shell_arguments: justfile.settings.shell_arguments(self).join(" "),
+          chooser,
+          io_error,
+        });
       },
     };
 
     for recipe in recipes {
-      if let Err(error) = child
+      if let Err(io_error) = child
         .stdin
         .as_mut()
         .expect("Child was created with piped stdio")
         .write_all(format!("{}\n", recipe.name).as_bytes())
       {
-        if self.verbosity.loud() {
-          eprintln!(
-            "Failed to write to chooser `{}`: {}",
-            chooser.to_string_lossy(),
-            error
-          );
-        }
-        return Err(EXIT_FAILURE);
+        return Err(Error::ChooserWrite { io_error, chooser });
       }
     }
 
     let output = match child.wait_with_output() {
       Ok(output) => output,
-      Err(error) => {
-        if self.verbosity.loud() {
-          eprintln!(
-            "Failed to read output from chooser `{}`: {}",
-            chooser.to_string_lossy(),
-            error
-          );
-        }
-        return Err(EXIT_FAILURE);
+      Err(io_error) => {
+        return Err(Error::ChooserRead { io_error, chooser });
       },
     };
 
     if !output.status.success() {
-      if self.verbosity.loud() {
-        eprintln!(
-          "Chooser `{}` returned error: {}",
-          chooser.to_string_lossy(),
-          output.status
-        );
-      }
-      return Err(output.status.code().unwrap_or(EXIT_FAILURE));
+      return Err(Error::ChooserStatus {
+        status: output.status,
+        chooser,
+      });
     }
 
     let stdout = String::from_utf8_lossy(&output.stdout);
@@ -697,12 +662,11 @@ impl Config {
     self.run(justfile, search, overrides, &recipes)
   }
 
-  fn dump(ast: Ast) -> Result<(), i32> {
+  fn dump(ast: Ast) {
     print!("{}", ast);
-    Ok(())
   }
 
-  pub(crate) fn edit(&self, search: &Search) -> Result<(), i32> {
+  pub(crate) fn edit(search: &Search) -> Result<(), Error<'static>> {
     let editor = env::var_os("VISUAL")
       .or_else(|| env::var_os("EDITOR"))
       .unwrap_or_else(|| "vim".into());
@@ -712,47 +676,38 @@ impl Config {
       .arg(&search.justfile)
       .status();
 
-    match error {
-      Ok(status) =>
-        if status.success() {
-          Ok(())
-        } else {
-          if self.verbosity.loud() {
-            eprintln!("Editor `{}` failed: {}", editor.to_string_lossy(), status);
-          }
-          Err(status.code().unwrap_or(EXIT_FAILURE))
-        },
-      Err(error) => {
-        if self.verbosity.loud() {
-          eprintln!(
-            "Editor `{}` invocation failed: {}",
-            editor.to_string_lossy(),
-            error
-          );
-        }
-        Err(EXIT_FAILURE)
-      },
+    let status = match error {
+      Err(io_error) => return Err(Error::EditorInvoke { editor, io_error }),
+      Ok(status) => status,
+    };
+
+    if !status.success() {
+      return Err(Error::EditorStatus { editor, status });
+    }
+
+    Ok(())
+  }
+
+  fn require_unstable(&self, message: &str) -> Result<(), Error<'static>> {
+    if self.unstable {
+      Ok(())
+    } else {
+      Err(Error::Unstable {
+        message: message.to_owned(),
+      })
     }
   }
 
-  fn format(&self, ast: Ast, search: &Search) -> Result<(), i32> {
-    if !self.unstable {
-      eprintln!(
-        "The `--fmt` command is currently unstable. Pass the `--unstable` flag to enable it."
-      );
-      return Err(EXIT_FAILURE);
-    }
+  fn format(&self, ast: Ast, search: &Search) -> Result<(), Error<'static>> {
+    self.require_unstable("The `--fmt` command is currently unstable.")?;
 
-    if let Err(error) = File::create(&search.justfile).and_then(|mut file| write!(file, "{}", ast))
+    if let Err(io_error) =
+      File::create(&search.justfile).and_then(|mut file| write!(file, "{}", ast))
     {
-      if self.verbosity.loud() {
-        eprintln!(
-          "Failed to write justfile to `{}`: {}",
-          search.justfile.display(),
-          error
-        );
-      }
-      Err(EXIT_FAILURE)
+      Err(Error::WriteJustfile {
+        justfile: search.justfile.clone(),
+        io_error,
+      })
     } else {
       if self.verbosity.loud() {
         eprintln!("Wrote justfile to `{}`", search.justfile.display());
@@ -761,24 +716,18 @@ impl Config {
     }
   }
 
-  pub(crate) fn init(&self) -> Result<(), i32> {
-    let search =
-      Search::init(&self.search_config, &self.invocation_directory).eprint(self.color)?;
+  pub(crate) fn init(&self) -> Result<(), Error<'static>> {
+    let search = Search::init(&self.search_config, &self.invocation_directory)?;
 
-    if search.justfile.exists() {
-      if self.verbosity.loud() {
-        eprintln!("Justfile `{}` already exists", search.justfile.display());
-      }
-      Err(EXIT_FAILURE)
-    } else if let Err(err) = fs::write(&search.justfile, INIT_JUSTFILE) {
-      if self.verbosity.loud() {
-        eprintln!(
-          "Failed to write justfile to `{}`: {}",
-          search.justfile.display(),
-          err
-        );
-      }
-      Err(EXIT_FAILURE)
+    if search.justfile.is_file() {
+      Err(Error::InitExists {
+        justfile: search.justfile,
+      })
+    } else if let Err(io_error) = fs::write(&search.justfile, INIT_JUSTFILE) {
+      Err(Error::WriteJustfile {
+        justfile: search.justfile,
+        io_error,
+      })
     } else {
       if self.verbosity.loud() {
         eprintln!("Wrote justfile to `{}`", search.justfile.display());
@@ -871,27 +820,21 @@ impl Config {
     }
   }
 
-  fn run(
+  fn run<'src>(
     &self,
-    justfile: Justfile,
+    justfile: Justfile<'src>,
     search: &Search,
     overrides: &BTreeMap<String, String>,
     arguments: &[String],
-  ) -> Result<(), i32> {
+  ) -> Result<(), Error<'src>> {
     if let Err(error) = InterruptHandler::install(self.verbosity) {
       warn!("Failed to set CTRL-C handler: {}", error);
     }
 
-    let result = justfile.run(&self, search, overrides, arguments);
-
-    if !self.verbosity.quiet() {
-      result.eprint(self.color)
-    } else {
-      result.map_err(|err| err.code())
-    }
+    justfile.run(&self, search, overrides, arguments)
   }
 
-  fn show(&self, name: &str, justfile: Justfile) -> Result<(), i32> {
+  fn show<'src>(name: &str, justfile: Justfile<'src>) -> Result<(), Error<'src>> {
     if let Some(alias) = justfile.get_alias(name) {
       let recipe = justfile.get_recipe(alias.target.name.lexeme()).unwrap();
       println!("{}", alias);
@@ -901,13 +844,10 @@ impl Config {
       println!("{}", recipe);
       Ok(())
     } else {
-      if self.verbosity.loud() {
-        eprintln!("Justfile does not contain recipe `{}`.", name);
-        if let Some(suggestion) = justfile.suggest_recipe(name) {
-          eprintln!("{}", suggestion);
-        }
-      }
-      Err(EXIT_FAILURE)
+      Err(Error::UnknownRecipes {
+        recipes:    vec![name.to_owned()],
+        suggestion: justfile.suggest_recipe(name),
+      })
     }
   }
 

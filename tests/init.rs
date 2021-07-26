@@ -22,23 +22,38 @@ fn current_dir() {
 
 #[test]
 fn exists() {
-  let tmp = tempdir();
-
-  let output = Command::new(executable_path("just"))
-    .current_dir(tmp.path())
+  let tempdir = Test::new()
+    .no_justfile()
     .arg("--init")
-    .output()
-    .unwrap();
+    .stderr_regex("Wrote justfile to `.*`\n")
+    .run();
 
-  assert!(output.status.success());
-
-  let output = Command::new(executable_path("just"))
-    .current_dir(tmp.path())
+  Test::with_tempdir(tempdir)
+    .no_justfile()
     .arg("--init")
-    .output()
-    .unwrap();
+    .status(EXIT_FAILURE)
+    .stderr_regex("error: Justfile `.*` already exists\n")
+    .run();
+}
 
-  assert!(!output.status.success());
+#[test]
+fn write_error() {
+  let test = Test::new();
+
+  let justfile_path = test.justfile_path();
+
+  fs::create_dir(&justfile_path).unwrap();
+
+  test
+    .no_justfile()
+    .args(&["--init"])
+    .status(EXIT_FAILURE)
+    .stderr_regex(if cfg!(windows) {
+      r"error: Failed to write justfile to `.*`: Access is denied. \(os error 5\)\n"
+    } else {
+      r"error: Failed to write justfile to `.*`: Is a directory \(os error 21\)\n"
+    })
+    .run();
 }
 
 #[test]
@@ -47,18 +62,17 @@ fn invocation_directory() {
     ".git": {},
   };
 
-  let output = Command::new(executable_path("just"))
-    .current_dir(tmp.path())
+  let test = Test::with_tempdir(tmp);
+
+  let justfile_path = test.justfile_path();
+
+  let _tmp = test
+    .no_justfile()
+    .stderr_regex("Wrote justfile to `.*`\n")
     .arg("--init")
-    .output()
-    .unwrap();
+    .run();
 
-  assert!(output.status.success());
-
-  assert_eq!(
-    fs::read_to_string(tmp.path().join("justfile")).unwrap(),
-    EXPECTED
-  );
+  assert_eq!(fs::read_to_string(justfile_path).unwrap(), EXPECTED);
 }
 
 #[test]

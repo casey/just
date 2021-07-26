@@ -33,6 +33,7 @@ snafu         = "0.6.0"
 strum_macros  = "0.21.1"
 target        = "1.0.0"
 tempfile      = "3.0.0"
+typed-arena   = "2.0.1"
 unicode-width = "0.1.0"
 
 [dependencies.ctrlc]
@@ -44,8 +45,10 @@ version  = "0.21.0"
 features = ["derive"]
 
 [dev-dependencies]
+cradle            = "0.0.13"
 executable-path   = "1.0.0"
 pretty_assertions = "0.7.0"
+regex             = "1.5.4"
 temptree          = "0.1.0"
 which             = "4.0.0"
 yaml-rust         = "0.4.5"

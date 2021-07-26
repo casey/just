@@ -5,7 +5,8 @@ test! {
   justfile: "",
   args: ("--fmt"),
   stderr: "
-    The `--fmt` command is currently unstable. Pass the `--unstable` flag to enable it.
+    error: The `--fmt` command is currently unstable. \
+    Invoke `just` with the `--unstable` flag to enable unstable features.
   ",
   status: EXIT_FAILURE,
 }
@@ -32,6 +33,34 @@ fn unstable_passed() {
   }
 
   assert_eq!(fs::read_to_string(&justfile).unwrap(), "x := 'hello'\n",);
+}
+
+#[test]
+fn write_error() {
+  let tempdir = temptree! {
+    justfile: "x    :=    'hello'   ",
+  };
+
+  let test = Test::with_tempdir(tempdir)
+    .no_justfile()
+    .args(&["--fmt", "--unstable"])
+    .status(EXIT_FAILURE)
+    .stderr_regex(if cfg!(windows) {
+      r"error: Failed to write justfile to `.*`: Access is denied. \(os error 5\)\n"
+    } else {
+      r"error: Failed to write justfile to `.*`: Permission denied \(os error 13\)\n"
+    });
+
+  let justfile_path = test.justfile_path();
+
+  cmd_unit!(%"chmod 400", &justfile_path);
+
+  let _tempdir = test.run();
+
+  assert_eq!(
+    fs::read_to_string(&justfile_path).unwrap(),
+    "x    :=    'hello'   "
+  );
 }
 
 test! {

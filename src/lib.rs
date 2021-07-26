@@ -20,6 +20,7 @@
   clippy::missing_docs_in_private_items,
   clippy::missing_errors_doc,
   clippy::missing_inline_in_public_items,
+  clippy::needless_lifetimes,
   clippy::needless_pass_by_value,
   clippy::non_ascii_literal,
   clippy::option_if_let_else,
@@ -66,8 +67,8 @@ mod binding;
 mod color;
 mod command_ext;
 mod common;
-mod compilation_error;
-mod compilation_error_kind;
+mod compile_error;
+mod compile_error_kind;
 mod compiler;
 mod config;
 mod config_error;
@@ -76,7 +77,6 @@ mod delimiter;
 mod dependency;
 mod enclosure;
 mod error;
-mod error_result_ext;
 mod evaluator;
 mod expression;
 mod fragment;
@@ -92,7 +92,7 @@ mod lexer;
 mod line;
 mod list;
 mod load_dotenv;
-mod load_error;
+mod loader;
 mod name;
 mod ordinal;
 mod output;
@@ -109,7 +109,6 @@ mod recipe;
 mod recipe_context;
 mod recipe_resolver;
 mod run;
-mod runtime_error;
 mod scope;
 mod search;
 mod search_config;

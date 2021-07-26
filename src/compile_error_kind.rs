@@ -1,7 +1,7 @@
 use crate::common::*;
 
 #[derive(Debug, PartialEq)]
-pub(crate) enum CompilationErrorKind<'src> {
+pub(crate) enum CompileErrorKind<'src> {
   AliasShadowsRecipe {
     alias:       &'src str,
     recipe_line: usize,
@@ -34,12 +34,12 @@ pub(crate) enum CompilationErrorKind<'src> {
     recipe: &'src str,
     first:  usize,
   },
-  DuplicateVariable {
-    variable: &'src str,
-  },
   DuplicateSet {
     setting: &'src str,
     first:   usize,
+  },
+  DuplicateVariable {
+    variable: &'src str,
   },
   ExpectedKeyword {
     expected: Vec<Keyword>,
@@ -61,6 +61,11 @@ pub(crate) enum CompilationErrorKind<'src> {
   InvalidEscapeSequence {
     character: char,
   },
+  MismatchedClosingDelimiter {
+    close:     Delimiter,
+    open:      Delimiter,
+    open_line: usize,
+  },
   MixedLeadingWhitespace {
     whitespace: &'src str,
   },
@@ -75,6 +80,15 @@ pub(crate) enum CompilationErrorKind<'src> {
   },
   UndefinedVariable {
     variable: &'src str,
+  },
+  UnexpectedCharacter {
+    expected: char,
+  },
+  UnexpectedClosingDelimiter {
+    close: Delimiter,
+  },
+  UnexpectedEndOfToken {
+    expected: char,
   },
   UnexpectedToken {
     expected: Vec<TokenKind>,
@@ -91,26 +105,12 @@ pub(crate) enum CompilationErrorKind<'src> {
   UnknownFunction {
     function: &'src str,
   },
-  UnknownStartOfToken,
-  UnexpectedCharacter {
-    expected: char,
-  },
-  UnexpectedEndOfToken {
-    expected: char,
-  },
   UnknownSetting {
     setting: &'src str,
   },
+  UnknownStartOfToken,
   UnpairedCarriageReturn,
-  UnexpectedClosingDelimiter {
-    close: Delimiter,
-  },
-  MismatchedClosingDelimiter {
-    close:     Delimiter,
-    open:      Delimiter,
-    open_line: usize,
-  },
+  UnterminatedBacktick,
   UnterminatedInterpolation,
   UnterminatedString,
-  UnterminatedBacktick,
 }

@@ -16,7 +16,22 @@ pub fn run() -> Result<(), i32> {
   info!("Parsing command line arguments…");
   let matches = app.get_matches();
 
-  let config = Config::from_matches(&matches).eprint(Color::auto())?;
+  let loader = Loader::new();
 
-  config.run_subcommand()
+  let mut color = Color::auto();
+  let mut verbosity = Verbosity::default();
+
+  Config::from_matches(&matches)
+    .map_err(Error::from)
+    .and_then(|config| {
+      color = config.color;
+      verbosity = config.verbosity;
+      config.run_subcommand(&loader)
+    })
+    .map_err(|error| {
+      if !verbosity.quiet() {
+        error.write(&mut io::stderr(), color).ok();
+      }
+      error.code().unwrap_or(EXIT_FAILURE)
+    })
 }

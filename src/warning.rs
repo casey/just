@@ -13,19 +13,17 @@ impl Warning {
       Self::DotenvLoad => None,
     }
   }
-}
 
-impl Display for Warning {
-  fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-    let warning = Color::fmt(f).warning();
-    let message = Color::fmt(f).message();
+  pub(crate) fn write(&self, w: &mut dyn Write, color: Color) -> io::Result<()> {
+    let warning = color.warning();
+    let message = color.message();
 
-    write!(f, "{} {}", warning.paint("warning:"), message.prefix())?;
+    write!(w, "{} {}", warning.paint("warning:"), message.prefix())?;
 
     match self {
       Self::DotenvLoad => {
         #[rustfmt::skip]
-        write!(f, "\
+        write!(w, "\
 A `.env` file was found and loaded, but this behavior will change in the future.
 To silence this warning and continue loading `.env` files, add:
 
@@ -39,11 +37,10 @@ See https://github.com/casey/just/issues/469 for more details.")?;
       },
     }
 
-    write!(f, "{}", message.suffix())?;
+    writeln!(w, "{}", message.suffix())?;
 
     if let Some(token) = self.context() {
-      writeln!(f)?;
-      token.write_context(f, Color::fmt(f).warning())?;
+      token.write_context(w, warning)?;
     }
 
     Ok(())

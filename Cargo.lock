@@ -78,6 +78,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "cradle"
+version = "0.0.13"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2352f0ca05779da0791a0ea204cc7bfddf83ee6e6277c919d8c0a5801d27f0e4"
+dependencies = [
+ "rustversion",
+]
+
+[[package]]
 name = "ctor"
 version = "0.1.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -200,6 +209,7 @@ dependencies = [
  "atty",
  "camino",
  "clap",
+ "cradle",
  "ctrlc",
  "derivative",
  "dotenv",
@@ -211,12 +221,14 @@ dependencies = [
  "libc",
  "log",
  "pretty_assertions",
+ "regex",
  "snafu",
  "strum",
  "strum_macros",
  "target",
  "tempfile",
  "temptree",
+ "typed-arena",
  "unicode-width",
  "which",
  "yaml-rust",
@@ -427,6 +439,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "rustversion"
+version = "1.0.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "61b3909d758bb75c79f23d4736fac9433868679d3ad2ea7a61e3c25cfda9a088"
+
+[[package]]
 name = "snafu"
 version = "0.6.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -555,6 +573,12 @@ checksum = "d326610f408c7a4eb6f51c37c330e496b08506c9457c9d34287ecc38809fb060"
 dependencies = [
  "unicode-width",
 ]
+
+[[package]]
+name = "typed-arena"
+version = "2.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0685c84d5d54d1c26f7d3eb96cd41550adb97baed141a761cf335d3d33bcd0ae"
 
 [[package]]
 name = "unicode-segmentation"

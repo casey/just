@@ -1,6 +1,6 @@
 use crate::common::*;
 
-use CompilationErrorKind::*;
+use CompileErrorKind::*;
 
 #[derive(Default)]
 pub(crate) struct Analyzer<'src> {
@@ -11,11 +11,11 @@ pub(crate) struct Analyzer<'src> {
 }
 
 impl<'src> Analyzer<'src> {
-  pub(crate) fn analyze(ast: Ast<'src>) -> CompilationResult<'src, Justfile> {
+  pub(crate) fn analyze(ast: Ast<'src>) -> CompileResult<'src, Justfile> {
     Analyzer::default().justfile(ast)
   }
 
-  pub(crate) fn justfile(mut self, ast: Ast<'src>) -> CompilationResult<'src, Justfile<'src>> {
+  pub(crate) fn justfile(mut self, ast: Ast<'src>) -> CompileResult<'src, Justfile<'src>> {
     for item in ast.items {
       match item {
         Item::Alias(alias) => {
@@ -88,7 +88,7 @@ impl<'src> Analyzer<'src> {
     })
   }
 
-  fn analyze_recipe(&self, recipe: &UnresolvedRecipe<'src>) -> CompilationResult<'src, ()> {
+  fn analyze_recipe(&self, recipe: &UnresolvedRecipe<'src>) -> CompileResult<'src, ()> {
     if let Some(original) = self.recipes.get(recipe.name.lexeme()) {
       return Err(recipe.name.token().error(DuplicateRecipe {
         recipe: original.name(),
@@ -140,7 +140,7 @@ impl<'src> Analyzer<'src> {
     Ok(())
   }
 
-  fn analyze_assignment(&self, assignment: &Assignment<'src>) -> CompilationResult<'src, ()> {
+  fn analyze_assignment(&self, assignment: &Assignment<'src>) -> CompileResult<'src, ()> {
     if self.assignments.contains_key(assignment.name.lexeme()) {
       return Err(assignment.name.token().error(DuplicateVariable {
         variable: assignment.name.lexeme(),
@@ -149,7 +149,7 @@ impl<'src> Analyzer<'src> {
     Ok(())
   }
 
-  fn analyze_alias(&self, alias: &Alias<'src, Name<'src>>) -> CompilationResult<'src, ()> {
+  fn analyze_alias(&self, alias: &Alias<'src, Name<'src>>) -> CompileResult<'src, ()> {
     let name = alias.name.lexeme();
 
     if let Some(original) = self.aliases.get(name) {
@@ -162,7 +162,7 @@ impl<'src> Analyzer<'src> {
     Ok(())
   }
 
-  fn analyze_set(&self, set: &Set<'src>) -> CompilationResult<'src, ()> {
+  fn analyze_set(&self, set: &Set<'src>) -> CompileResult<'src, ()> {
     if let Some(original) = self.sets.get(set.name.lexeme()) {
       return Err(set.name.error(DuplicateSet {
         setting: original.name.lexeme(),
@@ -176,7 +176,7 @@ impl<'src> Analyzer<'src> {
   fn resolve_alias(
     recipes: &Table<'src, Rc<Recipe<'src>>>,
     alias: Alias<'src, Name<'src>>,
-  ) -> CompilationResult<'src, Alias<'src>> {
+  ) -> CompileResult<'src, Alias<'src>> {
     let token = alias.name.token();
     // Make sure the alias doesn't conflict with any recipe
     if let Some(recipe) = recipes.get(alias.name.lexeme()) {

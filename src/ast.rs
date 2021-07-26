@@ -1,9 +1,8 @@
 use crate::common::*;
 
-/// The top-level type produced by the parser.Not all successful parses result
+/// The top-level type produced by the parser. Not all successful parses result
 /// in valid justfiles, so additional consistency checks and name resolution
-/// are performed by the `Analyzer`, which produces a `Justfile` from an
-/// `Ast`.
+/// are performed by the `Analyzer`, which produces a `Justfile` from an `Ast`.
 #[derive(Debug, Clone)]
 pub(crate) struct Ast<'src> {
   /// Items in the justfile

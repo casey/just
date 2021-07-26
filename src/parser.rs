@@ -36,7 +36,7 @@ pub(crate) struct Parser<'tokens, 'src> {
 
 impl<'tokens, 'src> Parser<'tokens, 'src> {
   /// Parse `tokens` into an `Ast`
-  pub(crate) fn parse(tokens: &'tokens [Token<'src>]) -> CompilationResult<'src, Ast<'src>> {
+  pub(crate) fn parse(tokens: &'tokens [Token<'src>]) -> CompileResult<'src, Ast<'src>> {
     Self::new(tokens).parse_ast()
   }
 
@@ -49,27 +49,21 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     }
   }
 
-  fn error(
-    &self,
-    kind: CompilationErrorKind<'src>,
-  ) -> CompilationResult<'src, CompilationError<'src>> {
+  fn error(&self, kind: CompileErrorKind<'src>) -> CompileResult<'src, CompileError<'src>> {
     Ok(self.next()?.error(kind))
   }
 
   /// Construct an unexpected token error with the token returned by
   /// `Parser::next`
-  fn unexpected_token(&self) -> CompilationResult<'src, CompilationError<'src>> {
-    self.error(CompilationErrorKind::UnexpectedToken {
+  fn unexpected_token(&self) -> CompileResult<'src, CompileError<'src>> {
+    self.error(CompileErrorKind::UnexpectedToken {
       expected: self.expected.iter().cloned().collect::<Vec<TokenKind>>(),
       found:    self.next()?.kind,
     })
   }
 
-  fn internal_error(
-    &self,
-    message: impl Into<String>,
-  ) -> CompilationResult<'src, CompilationError<'src>> {
-    self.error(CompilationErrorKind::Internal {
+  fn internal_error(&self, message: impl Into<String>) -> CompileResult<'src, CompileError<'src>> {
+    self.error(CompileErrorKind::Internal {
       message: message.into(),
     })
   }
@@ -83,7 +77,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   }
 
   /// The next significant token
-  fn next(&self) -> CompilationResult<'src, Token<'src>> {
+  fn next(&self) -> CompileResult<'src, Token<'src>> {
     if let Some(token) = self.rest().next() {
       Ok(token)
     } else {
@@ -118,7 +112,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   }
 
   /// Get the `n`th next significant token
-  fn get(&self, n: usize) -> CompilationResult<'src, Token<'src>> {
+  fn get(&self, n: usize) -> CompileResult<'src, Token<'src>> {
     match self.rest().nth(n) {
       Some(token) => Ok(token),
       None => Err(self.internal_error("`Parser::get()` advanced past end of token stream")?),
@@ -126,7 +120,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   }
 
   /// Advance past one significant token, clearing the expected token set.
-  fn advance(&mut self) -> CompilationResult<'src, Token<'src>> {
+  fn advance(&mut self) -> CompileResult<'src, Token<'src>> {
     self.expected.clear();
 
     for skipped in &self.tokens[self.next..] {
@@ -142,7 +136,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
 
   /// Return the next token if it is of kind `expected`, otherwise, return an
   /// unexpected token error
-  fn expect(&mut self, expected: TokenKind) -> CompilationResult<'src, Token<'src>> {
+  fn expect(&mut self, expected: TokenKind) -> CompileResult<'src, Token<'src>> {
     if let Some(token) = self.accept(expected)? {
       Ok(token)
     } else {
@@ -151,7 +145,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   }
 
   /// Return an unexpected token error if the next token is not an EOL
-  fn expect_eol(&mut self) -> CompilationResult<'src, ()> {
+  fn expect_eol(&mut self) -> CompileResult<'src, ()> {
     self.accept(Comment)?;
 
     if self.next_is(Eof) {
@@ -161,14 +155,14 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     self.expect(Eol).map(|_| ())
   }
 
-  fn expect_keyword(&mut self, expected: Keyword) -> CompilationResult<'src, ()> {
+  fn expect_keyword(&mut self, expected: Keyword) -> CompileResult<'src, ()> {
     let identifier = self.expect(Identifier)?;
     let found = identifier.lexeme();
 
     if expected == found {
       Ok(())
     } else {
-      Err(identifier.error(CompilationErrorKind::ExpectedKeyword {
+      Err(identifier.error(CompileErrorKind::ExpectedKeyword {
         expected: vec![expected],
         found,
       }))
@@ -177,7 +171,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
 
   /// Return an internal error if the next token is not of kind `Identifier`
   /// with lexeme `lexeme`.
-  fn presume_keyword(&mut self, keyword: Keyword) -> CompilationResult<'src, ()> {
+  fn presume_keyword(&mut self, keyword: Keyword) -> CompileResult<'src, ()> {
     let next = self.advance()?;
 
     if next.kind != Identifier {
@@ -197,7 +191,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   }
 
   /// Return an internal error if the next token is not of kind `kind`.
-  fn presume(&mut self, kind: TokenKind) -> CompilationResult<'src, Token<'src>> {
+  fn presume(&mut self, kind: TokenKind) -> CompileResult<'src, Token<'src>> {
     let next = self.advance()?;
 
     if next.kind != kind {
@@ -211,7 +205,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   }
 
   /// Return an internal error if the next token is not one of kinds `kinds`.
-  fn presume_any(&mut self, kinds: &[TokenKind]) -> CompilationResult<'src, Token<'src>> {
+  fn presume_any(&mut self, kinds: &[TokenKind]) -> CompileResult<'src, Token<'src>> {
     let next = self.advance()?;
     if !kinds.contains(&next.kind) {
       Err(self.internal_error(format!(
@@ -225,7 +219,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   }
 
   /// Accept and return a token of kind `kind`
-  fn accept(&mut self, kind: TokenKind) -> CompilationResult<'src, Option<Token<'src>>> {
+  fn accept(&mut self, kind: TokenKind) -> CompileResult<'src, Option<Token<'src>>> {
     if self.next_is(kind) {
       Ok(Some(self.advance()?))
     } else {
@@ -234,9 +228,9 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   }
 
   /// Return an error if the next token is of kind `forbidden`
-  fn forbid<F>(&self, forbidden: TokenKind, error: F) -> CompilationResult<'src, ()>
+  fn forbid<F>(&self, forbidden: TokenKind, error: F) -> CompileResult<'src, ()>
   where
-    F: FnOnce(Token) -> CompilationError,
+    F: FnOnce(Token) -> CompileError,
   {
     let next = self.next()?;
 
@@ -248,7 +242,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   }
 
   /// Accept a token of kind `Identifier` and parse into a `Name`
-  fn accept_name(&mut self) -> CompilationResult<'src, Option<Name<'src>>> {
+  fn accept_name(&mut self) -> CompileResult<'src, Option<Name<'src>>> {
     if self.next_is(Identifier) {
       Ok(Some(self.parse_name()?))
     } else {
@@ -256,7 +250,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     }
   }
 
-  fn accepted_keyword(&mut self, keyword: Keyword) -> CompilationResult<'src, bool> {
+  fn accepted_keyword(&mut self, keyword: Keyword) -> CompileResult<'src, bool> {
     let next = self.next()?;
 
     if next.kind == Identifier && next.lexeme() == keyword.lexeme() {
@@ -268,7 +262,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   }
 
   /// Accept a dependency
-  fn accept_dependency(&mut self) -> CompilationResult<'src, Option<UnresolvedDependency<'src>>> {
+  fn accept_dependency(&mut self) -> CompileResult<'src, Option<UnresolvedDependency<'src>>> {
     if let Some(recipe) = self.accept_name()? {
       Ok(Some(UnresolvedDependency {
         arguments: Vec::new(),
@@ -290,12 +284,12 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   }
 
   /// Accept and return `true` if next token is of kind `kind`
-  fn accepted(&mut self, kind: TokenKind) -> CompilationResult<'src, bool> {
+  fn accepted(&mut self, kind: TokenKind) -> CompileResult<'src, bool> {
     Ok(self.accept(kind)?.is_some())
   }
 
   /// Parse a justfile, consumes self
-  fn parse_ast(mut self) -> CompilationResult<'src, Ast<'src>> {
+  fn parse_ast(mut self) -> CompileResult<'src, Ast<'src>> {
     fn pop_doc_comment<'src>(
       items: &mut Vec<Item<'src>>,
       eol_since_last_comment: bool,
@@ -330,7 +324,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
         match Keyword::from_lexeme(next.lexeme()) {
           Some(Keyword::Alias) =>
             if self.next_are(&[Identifier, Identifier, Equals]) {
-              return Err(self.get(2)?.error(CompilationErrorKind::DeprecatedEquals));
+              return Err(self.get(2)?.error(CompileErrorKind::DeprecatedEquals));
             } else if self.next_are(&[Identifier, Identifier, ColonEquals]) {
               items.push(Item::Alias(self.parse_alias()?));
             } else {
@@ -339,7 +333,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
             },
           Some(Keyword::Export) =>
             if self.next_are(&[Identifier, Identifier, Equals]) {
-              return Err(self.get(2)?.error(CompilationErrorKind::DeprecatedEquals));
+              return Err(self.get(2)?.error(CompileErrorKind::DeprecatedEquals));
             } else if self.next_are(&[Identifier, Identifier, ColonEquals]) {
               self.presume_keyword(Keyword::Export)?;
               items.push(Item::Assignment(self.parse_assignment(true)?));
@@ -359,7 +353,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
             },
           _ =>
             if self.next_are(&[Identifier, Equals]) {
-              return Err(self.get(1)?.error(CompilationErrorKind::DeprecatedEquals));
+              return Err(self.get(1)?.error(CompileErrorKind::DeprecatedEquals));
             } else if self.next_are(&[Identifier, ColonEquals]) {
               items.push(Item::Assignment(self.parse_assignment(false)?));
             } else {
@@ -389,7 +383,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   }
 
   /// Parse an alias, e.g `alias name := target`
-  fn parse_alias(&mut self) -> CompilationResult<'src, Alias<'src, Name<'src>>> {
+  fn parse_alias(&mut self) -> CompileResult<'src, Alias<'src, Name<'src>>> {
     self.presume_keyword(Keyword::Alias)?;
     let name = self.parse_name()?;
     self.presume_any(&[Equals, ColonEquals])?;
@@ -399,7 +393,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   }
 
   /// Parse an assignment, e.g. `foo := bar`
-  fn parse_assignment(&mut self, export: bool) -> CompilationResult<'src, Assignment<'src>> {
+  fn parse_assignment(&mut self, export: bool) -> CompileResult<'src, Assignment<'src>> {
     let name = self.parse_name()?;
     self.presume_any(&[Equals, ColonEquals])?;
     let value = self.parse_expression()?;
@@ -412,7 +406,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   }
 
   /// Parse an expression, e.g. `1 + 2`
-  fn parse_expression(&mut self) -> CompilationResult<'src, Expression<'src>> {
+  fn parse_expression(&mut self) -> CompileResult<'src, Expression<'src>> {
     if self.accepted_keyword(Keyword::If)? {
       self.parse_conditional()
     } else {
@@ -429,7 +423,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   }
 
   /// Parse a conditional, e.g. `if a == b { "foo" } else { "bar" }`
-  fn parse_conditional(&mut self) -> CompilationResult<'src, Expression<'src>> {
+  fn parse_conditional(&mut self) -> CompileResult<'src, Expression<'src>> {
     let lhs = self.parse_expression()?;
 
     let inverted = self.accepted(BangEquals)?;
@@ -467,7 +461,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   }
 
   /// Parse a value, e.g. `(bar)`
-  fn parse_value(&mut self) -> CompilationResult<'src, Expression<'src>> {
+  fn parse_value(&mut self) -> CompileResult<'src, Expression<'src>> {
     if self.next_is(StringToken) {
       Ok(Expression::StringLiteral {
         string_literal: self.parse_string_literal()?,
@@ -485,7 +479,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
       };
 
       if contents.starts_with("#!") {
-        return Err(next.error(CompilationErrorKind::BacktickShebang));
+        return Err(next.error(CompileErrorKind::BacktickShebang));
       }
 
       Ok(Expression::Backtick { contents, token })
@@ -511,7 +505,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   }
 
   /// Parse a string literal, e.g. `"FOO"`
-  fn parse_string_literal(&mut self) -> CompilationResult<'src, StringLiteral<'src>> {
+  fn parse_string_literal(&mut self) -> CompileResult<'src, StringLiteral<'src>> {
     let token = self.expect(StringToken)?;
 
     let kind = StringKind::from_string_or_backtick(token)?;
@@ -540,7 +534,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
             '"' => cooked.push('"'),
             other => {
               return Err(
-                token.error(CompilationErrorKind::InvalidEscapeSequence { character: other }),
+                token.error(CompileErrorKind::InvalidEscapeSequence { character: other }),
               );
             },
           }
@@ -560,12 +554,12 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   }
 
   /// Parse a name from an identifier token
-  fn parse_name(&mut self) -> CompilationResult<'src, Name<'src>> {
+  fn parse_name(&mut self) -> CompileResult<'src, Name<'src>> {
     self.expect(Identifier).map(Name::from_identifier)
   }
 
   /// Parse sequence of comma-separated expressions
-  fn parse_sequence(&mut self) -> CompilationResult<'src, Vec<Expression<'src>>> {
+  fn parse_sequence(&mut self) -> CompileResult<'src, Vec<Expression<'src>>> {
     self.presume(ParenL)?;
 
     let mut elements = Vec::new();
@@ -588,7 +582,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     &mut self,
     doc: Option<&'src str>,
     quiet: bool,
-  ) -> CompilationResult<'src, UnresolvedRecipe<'src>> {
+  ) -> CompileResult<'src, UnresolvedRecipe<'src>> {
     let name = self.parse_name()?;
 
     let mut positional = Vec::new();
@@ -609,7 +603,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
       let variadic = self.parse_parameter(kind)?;
 
       self.forbid(Identifier, |token| {
-        token.error(CompilationErrorKind::ParameterFollowsVariadicParameter {
+        token.error(CompileErrorKind::ParameterFollowsVariadicParameter {
           parameter: token.lexeme(),
         })
       })?;
@@ -661,7 +655,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   }
 
   /// Parse a recipe parameter
-  fn parse_parameter(&mut self, kind: ParameterKind) -> CompilationResult<'src, Parameter<'src>> {
+  fn parse_parameter(&mut self, kind: ParameterKind) -> CompileResult<'src, Parameter<'src>> {
     let export = self.accepted(Dollar)?;
 
     let name = self.parse_name()?;
@@ -681,7 +675,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   }
 
   /// Parse the body of a recipe
-  fn parse_body(&mut self) -> CompilationResult<'src, Vec<Line<'src>>> {
+  fn parse_body(&mut self) -> CompileResult<'src, Vec<Line<'src>>> {
     let mut lines = Vec::new();
 
     if self.accepted(Indent)? {
@@ -721,7 +715,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   }
 
   /// Parse a boolean setting value
-  fn parse_set_bool(&mut self) -> CompilationResult<'src, bool> {
+  fn parse_set_bool(&mut self) -> CompileResult<'src, bool> {
     if !self.accepted(ColonEquals)? {
       return Ok(true);
     }
@@ -733,7 +727,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     } else if Keyword::False == identifier.lexeme() {
       false
     } else {
-      return Err(identifier.error(CompilationErrorKind::ExpectedKeyword {
+      return Err(identifier.error(CompileErrorKind::ExpectedKeyword {
         expected: vec![Keyword::True, Keyword::False],
         found:    identifier.lexeme(),
       }));
@@ -743,7 +737,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   }
 
   /// Parse a setting
-  fn parse_set(&mut self) -> CompilationResult<'src, Set<'src>> {
+  fn parse_set(&mut self) -> CompileResult<'src, Set<'src>> {
     self.presume_keyword(Keyword::Set)?;
     let name = Name::from_identifier(self.presume(Identifier)?);
     let lexeme = name.lexeme();
@@ -794,7 +788,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
         name,
       })
     } else {
-      Err(name.error(CompilationErrorKind::UnknownSetting {
+      Err(name.error(CompileErrorKind::UnknownSetting {
         setting: name.lexeme(),
       }))
     }
@@ -806,7 +800,7 @@ mod tests {
   use super::*;
 
   use pretty_assertions::assert_eq;
-  use CompilationErrorKind::*;
+  use CompileErrorKind::*;
 
   macro_rules! test {
     {
@@ -860,14 +854,14 @@ mod tests {
     line: usize,
     column: usize,
     length: usize,
-    kind: CompilationErrorKind,
+    kind: CompileErrorKind,
   ) {
     let tokens = Lexer::lex(src).expect("Lexing failed in parse test...");
 
     match Parser::parse(&tokens) {
       Ok(_) => panic!("Parsing unexpectedly succeeded"),
       Err(have) => {
-        let want = CompilationError {
+        let want = CompileError {
           token: Token {
             kind: have.token.kind,
             src,
