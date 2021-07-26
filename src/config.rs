@@ -565,7 +565,7 @@ impl Config {
       Choose { overrides, chooser } =>
         self.choose(justfile, &search, overrides, chooser.as_deref())?,
       Command { overrides, .. } => self.run(justfile, &search, overrides, &[])?,
-      Dump => Self::dump(ast)?,
+      Dump => Self::dump(ast),
       Evaluate { overrides, .. } => self.run(justfile, &search, overrides, &[])?,
       Format => self.format(ast, &search)?,
       List => self.list(justfile),
@@ -662,9 +662,8 @@ impl Config {
     self.run(justfile, search, overrides, &recipes)
   }
 
-  fn dump(ast: Ast) -> Result<(), Error<'static>> {
+  fn dump(ast: Ast) {
     print!("{}", ast);
-    Ok(())
   }
 
   pub(crate) fn edit(search: &Search) -> Result<(), Error<'static>> {
