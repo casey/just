@@ -26,7 +26,7 @@ pub fn run() -> Result<(), i32> {
     .and_then(|config| {
       color = config.color;
       verbosity = config.verbosity;
-      config.run_subcommand(&loader)
+      config.run(&loader)
     })
     .map_err(|error| {
       if !verbosity.quiet() {
