@@ -57,6 +57,7 @@ fn invoke_error() {
 }
 
 #[test]
+#[cfg(not(windows))]
 fn status_error() {
   let tmp = temptree! {
     justfile: JUSTFILE,
