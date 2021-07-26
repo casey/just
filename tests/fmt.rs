@@ -37,35 +37,28 @@ fn unstable_passed() {
 
 #[test]
 fn write_error() {
-  let tmp = tempdir();
+  let tempdir = temptree! {
+    justfile: "x    :=    'hello'   ",
+  };
 
-  let justfile = tmp.path().join("justfile");
+  let test = Test::with_tempdir(tempdir)
+    .no_justfile()
+    .args(&["--fmt", "--unstable"])
+    .status(EXIT_FAILURE)
+    .stderr_regex(if cfg!(windows) {
+      r"error: Failed to write justfile to `.*`: Access is denied. \(os error 5\)\n"
+    } else {
+      r"error: Failed to write justfile to `.*`: Permission denied \(os error 13\)\n"
+    });
 
-  fs::write(&justfile, "x    :=    'hello'   ").unwrap();
+  let justfile_path = test.justfile_path();
 
-  cmd_unit!(%"chmod 400", &justfile);
+  cmd_unit!(%"chmod 400", &justfile_path);
 
-  let output = Command::new(executable_path("just"))
-    .current_dir(tmp.path())
-    .arg("--fmt")
-    .arg("--unstable")
-    .output()
-    .unwrap();
-
-  assert!(!output.status.success());
-
-  assert_eq!(
-    str::from_utf8(&output.stderr).unwrap(),
-    format!(
-      "error: Failed to write justfile to `{}`: Permission denied (os error 13)\n",
-      justfile.canonicalize().unwrap().display(),
-    )
-  );
-
-  assert_eq!(str::from_utf8(&output.stdout).unwrap(), "");
+  let tempdir = test.run();
 
   assert_eq!(
-    fs::read_to_string(&justfile).unwrap(),
+    fs::read_to_string(&justfile_path).unwrap(),
     "x    :=    'hello'   "
   );
 }

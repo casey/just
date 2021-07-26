@@ -22,36 +22,18 @@ fn current_dir() {
 
 #[test]
 fn exists() {
-  let tmp = tempdir();
-
-  let output = Command::new(executable_path("just"))
-    .current_dir(tmp.path())
+  let tempdir = Test::new()
+    .no_justfile()
     .arg("--init")
-    .output()
-    .unwrap();
+    .stderr_regex("Wrote justfile to `.*`\n")
+    .run();
 
-  assert!(output.status.success());
-
-  let output = Command::new(executable_path("just"))
-    .current_dir(tmp.path())
+  Test::with_tempdir(tempdir)
+    .no_justfile()
     .arg("--init")
-    .output()
-    .unwrap();
-
-  assert!(!output.status.success());
-
-  assert_eq!(
-    str::from_utf8(&output.stderr).unwrap(),
-    format!(
-      "error: Justfile `{}` already exists\n",
-      tmp
-        .path()
-        .join("justfile")
-        .canonicalize()
-        .unwrap()
-        .display()
-    ),
-  );
+    .status(EXIT_FAILURE)
+    .stderr_regex("error: Justfile `.*` already exists\n")
+    .run();
 }
 
 #[test]
