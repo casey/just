@@ -48,10 +48,11 @@ fn write_error() {
     .no_justfile()
     .args(&["--init"])
     .status(EXIT_FAILURE)
-    .stderr(format!(
-      "error: Failed to write justfile to `{}`: Is a directory (os error 21)\n",
-      justfile_path.canonicalize().unwrap().display()
-    ))
+    .stderr_regex(if cfg!(windows) {
+      r"error: Failed to write justfile to `.*`: Access is denied. \(os error 5\)\n"
+    } else {
+      r"error: Failed to write justfile to `.*`: Is a directory \(os error 21\)\n"
+    })
     .run();
 }
 
