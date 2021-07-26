@@ -109,11 +109,10 @@ install-dev-deps:
 # install system development dependencies with homebrew
 install-dev-deps-homebrew:
   brew tap "rhysd/actionlint" "https://github.com/rhysd/actionlint"
-  brew install help2man actionlint
-  brew install actionlint
+  brew install actionlint help2man shellcheck
 
 actionlint:
-  actionlint
+  SHELLCHECK_OPTS='-e SC2006 -e SC2002 -e SC2050' actionlint
 
 # everyone's favorite animate paper clip
 clippy:

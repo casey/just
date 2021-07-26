@@ -52,6 +52,8 @@ jobs:
       run: bash <(curl https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash)
 
     - name: Check Github Actions Workflow
+      env:
+        SHELLCHECK_OPTS: "-e SC2006 -e SC2002 -e SC2050"
       run: ${{ steps.actionlint.outputs.executable }} -color
 
     # An issue with BSD Tar causes sporadic failures on macOS.
@@ -60,7 +62,7 @@ jobs:
       if: ${{ matrix.os == 'macos-latest' }}
       run: |
         brew install gnu-tar
-        echo /usr/local/opt/gnu-tar/libexec/gnubin > $GITHUB_PATH
+        echo /usr/local/opt/gnu-tar/libexec/gnubin > "$GITHUB_PATH"
 
     - name: Cache Cargo
       uses: actions/cache@v2
@@ -80,7 +82,7 @@ jobs:
       run: |
         rustup component add clippy
         rustup target add ${{ matrix.target }}
-        rustup default `cat rust-toolchain`-${{ matrix.target }}
+        rustup default "`cat rust-toolchain`-${{ matrix.target }}"
 
     - name: Install AArch64 Toolchain
       if: ${{ matrix.target == 'aarch64-unknown-linux-gnu' }}
@@ -137,8 +139,8 @@ jobs:
     - name: Test Install Script With Explicit Target
       if: ${{ matrix.os != 'windows-2016' && steps.ref-type.outputs.value != 'release' }}
       run: |
-        cd `mktemp -d`
-        cat $GITHUB_WORKSPACE/docs/install.sh | bash -s -- --target ${{ matrix.target }} --to .
+        cd "`mktemp -d`"
+        cat "$GITHUB_WORKSPACE/docs/install.sh" | bash -s -- --target ${{ matrix.target }} --to .
         if [[ ${{ matrix.native }} == true ]]; then
           ./just --version
         fi
@@ -146,8 +148,8 @@ jobs:
     - name: Test Install Script Without Explicit Target
       if: ${{ matrix.os != 'windows-2016' && steps.ref-type.outputs.value != 'release' }}
       run: |
-        cd `mktemp -d`
-        cat $GITHUB_WORKSPACE/docs/install.sh | bash -s -- --to .
+        cd "`mktemp -d`"
+        cat "$GITHUB_WORKSPACE/docs/install.sh" | bash -s -- --to .
         ./just --version
 
     - name: Package
