@@ -37,7 +37,7 @@ pub(crate) enum Subcommand {
 }
 
 impl Subcommand {
-  pub(crate) fn choose<'src>(
+  fn choose<'src>(
     config: &Config,
     justfile: Justfile<'src>,
     search: &Search,
@@ -117,7 +117,7 @@ impl Subcommand {
     justfile.run(config, search, overrides, &recipes)
   }
 
-  pub(crate) fn completions(shell: &str) -> RunResult<'static, ()> {
+  fn completions(shell: &str) -> RunResult<'static, ()> {
     use clap::Shell;
 
     fn replace(haystack: &mut String, needle: &str, replacement: &str) -> RunResult<'static, ()> {
@@ -167,11 +167,11 @@ impl Subcommand {
     Ok(())
   }
 
-  pub(crate) fn dump(ast: Ast) {
+  fn dump(ast: Ast) {
     print!("{}", ast);
   }
 
-  pub(crate) fn edit(search: &Search) -> Result<(), Error<'static>> {
+  fn edit(search: &Search) -> Result<(), Error<'static>> {
     let editor = env::var_os("VISUAL")
       .or_else(|| env::var_os("EDITOR"))
       .unwrap_or_else(|| "vim".into());
@@ -193,7 +193,7 @@ impl Subcommand {
     Ok(())
   }
 
-  pub(crate) fn format(config: &Config, ast: Ast, search: &Search) -> Result<(), Error<'static>> {
+  fn format(config: &Config, ast: Ast, search: &Search) -> Result<(), Error<'static>> {
     config.require_unstable("The `--fmt` command is currently unstable.")?;
 
     if let Err(io_error) =
@@ -211,7 +211,7 @@ impl Subcommand {
     }
   }
 
-  pub(crate) fn init(config: &Config) -> Result<(), Error<'static>> {
+  fn init(config: &Config) -> Result<(), Error<'static>> {
     let search = Search::init(&config.search_config, &config.invocation_directory)?;
 
     if search.justfile.is_file() {
@@ -231,7 +231,7 @@ impl Subcommand {
     }
   }
 
-  pub(crate) fn list(config: &Config, justfile: Justfile) {
+  fn list(config: &Config, justfile: Justfile) {
     // Construct a target to alias map.
     let mut recipe_aliases: BTreeMap<&str, Vec<&str>> = BTreeMap::new();
     for alias in justfile.aliases.values() {
@@ -365,7 +365,7 @@ impl Subcommand {
     Ok(())
   }
 
-  pub(crate) fn show<'src>(name: &str, justfile: Justfile<'src>) -> Result<(), Error<'src>> {
+  fn show<'src>(name: &str, justfile: Justfile<'src>) -> Result<(), Error<'src>> {
     if let Some(alias) = justfile.get_alias(name) {
       let recipe = justfile.get_recipe(alias.target.name.lexeme()).unwrap();
       println!("{}", alias);
@@ -382,7 +382,7 @@ impl Subcommand {
     }
   }
 
-  pub(crate) fn summary(config: &Config, justfile: Justfile) {
+  fn summary(config: &Config, justfile: Justfile) {
     if justfile.count() == 0 {
       if config.verbosity.loud() {
         eprintln!("Justfile contains no recipes.");
@@ -398,7 +398,7 @@ impl Subcommand {
     }
   }
 
-  pub(crate) fn variables(justfile: Justfile) {
+  fn variables(justfile: Justfile) {
     for (i, (_, assignment)) in justfile.assignments.iter().enumerate() {
       if i > 0 {
         print!(" ");
@@ -406,5 +406,15 @@ impl Subcommand {
       print!("{}", assignment.name);
     }
     println!();
+  }
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn init_justfile() {
+    testing::compile(INIT_JUSTFILE);
   }
 }

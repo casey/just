@@ -11,7 +11,6 @@ pub(crate) const CHOOSE_HELP: &str = "Select one or more recipes to run using a 
 
 pub(crate) const DEFAULT_SHELL: &str = "sh";
 pub(crate) const DEFAULT_SHELL_ARG: &str = "-cu";
-pub(crate) const INIT_JUSTFILE: &str = "default:\n\techo 'Hello, world!'\n";
 
 #[derive(Debug, PartialEq)]
 pub(crate) struct Config {
@@ -1384,10 +1383,5 @@ ARGS:
       assert_eq!(subcommand, cmd::SUMMARY);
       assert_eq!(overrides, map!{"bar": "baz"});
     },
-  }
-
-  #[test]
-  fn init_justfile() {
-    testing::compile(INIT_JUSTFILE);
   }
 }
