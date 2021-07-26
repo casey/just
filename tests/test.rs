@@ -2,12 +2,10 @@ use crate::common::*;
 
 macro_rules! test {
   (
-    name:     $name:ident,
+    name:       $name:ident,
     $(justfile: $justfile:expr,)?
-    $(args:     ($($arg:tt)*),)?
-    $(env:      {
-      $($env_key:literal : $env_value:literal,)*
-    },)?
+    $(args:     ($($arg:tt),*),)?
+    $(env:      { $($env_key:literal : $env_value:literal,)* },)?
     $(stdin:    $stdin:expr,)?
     $(stdout:   $stdout:expr,)?
     $(stderr:   $stderr:expr,)?
@@ -16,22 +14,15 @@ macro_rules! test {
   ) => {
     #[test]
     fn $name() {
-      #[allow(unused_mut)]
-      let mut env = std::collections::BTreeMap::new();
+      let test = crate::test::Test::new();
 
-      $($(env.insert($env_key.to_string(), $env_value.to_string());)*)?
-
-      let test = crate::test::Test {
-        $(args: &[$($arg)*],)?
-        $(stdin: $stdin,)?
-        $(status: $status,)?
-        $(shell: $shell,)?
-        env,
-        ..crate::test::Test::default()
-      };
-
+      $($(let test = test.arg($arg);)*)?
+      $($(let test = test.env($env_key, $env_value);)*)?
       $(let test = test.justfile($justfile);)?
+      $(let test = test.shell($shell);)?
+      $(let test = test.status($status);)?
       $(let test = test.stderr($stderr);)?
+      $(let test = test.stdin($stdin);)?
       $(let test = test.stdout($stdout);)?
 
       test.run()
@@ -39,21 +30,41 @@ macro_rules! test {
   }
 }
 
-pub(crate) struct Test<'a> {
+pub(crate) struct Test {
   pub(crate) directory: TempDir,
   pub(crate) justfile:  Option<String>,
-  pub(crate) args:      &'a [&'a str],
+  pub(crate) args:      Vec<String>,
   pub(crate) env:       BTreeMap<String, String>,
-  pub(crate) stdin:     &'a str,
+  pub(crate) stdin:     String,
   pub(crate) stdout:    String,
   pub(crate) stderr:    String,
   pub(crate) status:    i32,
   pub(crate) shell:     bool,
 }
 
-impl<'a> Test<'a> {
+impl Test {
   pub(crate) fn new() -> Self {
-    Self::default()
+    Self {
+      args:      Vec::new(),
+      directory: tempdir(),
+      env:       BTreeMap::new(),
+      justfile:  Some(String::new()),
+      shell:     true,
+      status:    EXIT_SUCCESS,
+      stderr:    String::new(),
+      stdin:     String::new(),
+      stdout:    String::new(),
+    }
+  }
+
+  pub(crate) fn arg(mut self, val: &str) -> Self {
+    self.args.push(val.to_owned());
+    self
+  }
+
+  pub(crate) fn env(mut self, key: &str, val: &str) -> Self {
+    self.env.insert(key.to_string(), val.to_string());
+    self
   }
 
   pub(crate) fn justfile(mut self, justfile: impl Into<String>) -> Self {
@@ -85,34 +96,25 @@ impl<'a> Test<'a> {
     self
   }
 
+  pub(crate) fn stdin(mut self, stdin: impl Into<String>) -> Self {
+    self.stdin = stdin.into();
+    self
+  }
+
   pub(crate) fn stdout(mut self, stdout: impl Into<String>) -> Self {
     self.stdout = stdout.into();
     self
   }
 
-  pub(crate) fn args(mut self, args: &'a [&'a str]) -> Self {
-    self.args = args;
+  pub(crate) fn args(mut self, args: &[&str]) -> Self {
+    for arg in args {
+      self = self.arg(arg);
+    }
     self
   }
 }
 
-impl<'a> Default for Test<'a> {
-  fn default() -> Self {
-    Self {
-      args:      &[],
-      directory: tempdir(),
-      env:       BTreeMap::new(),
-      justfile:  Some(String::new()),
-      shell:     true,
-      status:    EXIT_SUCCESS,
-      stderr:    String::new(),
-      stdin:     "",
-      stdout:    String::new(),
-    }
-  }
-}
-
-impl<'a> Test<'a> {
+impl Test {
   pub(crate) fn run(self) {
     if let Some(justfile) = &self.justfile {
       let justfile = unindent(justfile);
