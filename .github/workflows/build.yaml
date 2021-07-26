@@ -47,10 +47,17 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - name: Download actionlint
+      id: actionlint
+      run: bash <(curl https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash)
+
+    - name: Check Github Actions Workflow
+      run: ${{ steps.actionlint.outputs.executable }} -color
+
     # An issue with BSD Tar causes sporadic failures on macOS.
     # c.f https://github.com/actions/cache/issues/403
     - name: Install GNU Tar
-      if: matrix.os == 'macos-latest'
+      if: ${{ matrix.os == 'macos-latest' }}
       run: |
         brew install gnu-tar
         echo /usr/local/opt/gnu-tar/libexec/gnubin > $GITHUB_PATH
@@ -62,10 +69,10 @@ jobs:
           ~/.cargo/registry
           ~/.cargo/git
           target
-        key: ${{ matrix.configration.os }}-${{ matrix.target }} cargo-${{ hashFiles('**/Cargo.lock') }}
+        key: ${{ matrix.os }}-${{ matrix.target }} cargo-${{ hashFiles('**/Cargo.lock') }}
 
     - name: Update Ubuntu Packages
-      if: matrix.os == 'ubuntu-latest'
+      if: ${{ matrix.os == 'ubuntu-latest' }}
       run: |
         sudo apt-get update
 
@@ -76,7 +83,7 @@ jobs:
         rustup default `cat rust-toolchain`-${{ matrix.target }}
 
     - name: Install AArch64 Toolchain
-      if: matrix.target == 'aarch64-unknown-linux-gnu'
+      if: ${{ matrix.target == 'aarch64-unknown-linux-gnu' }}
       run: sudo apt-get install gcc-aarch64-linux-gnu
 
     - name: Info
@@ -93,7 +100,7 @@ jobs:
       run: cargo build --all --target ${{ matrix.target }}
 
     - name: Test
-      if: matrix.native
+      if: ${{ matrix.native }}
       run: cargo test --all --target ${{ matrix.target }}
 
     - name: Clippy
@@ -111,13 +118,13 @@ jobs:
       run: cargo +nightly fmt --all -- --check
 
     - name: Completion Scripts
-      if: matrix.os != 'windows-2016'
+      if: ${{ matrix.os != 'windows-2016' }}
       run: |
         ./bin/generate-completions
         git diff --no-ext-diff --quiet --exit-code
 
     - name: Check for Forbidden Words
-      if: matrix.os == 'ubuntu-latest'
+      if: ${{ matrix.os == 'ubuntu-latest' }}
       run: |
         sudo apt-get update
         sudo apt-get install ripgrep
@@ -128,7 +135,7 @@ jobs:
       run: cargo run --package ref-type -- --reference ${{ github.ref }}
 
     - name: Test Install Script With Explicit Target
-      if: matrix.os != 'windows-2016' && steps.ref-type.outputs.value != 'release'
+      if: ${{ matrix.os != 'windows-2016' && steps.ref-type.outputs.value != 'release' }}
       run: |
         cd `mktemp -d`
         cat $GITHUB_WORKSPACE/docs/install.sh | bash -s -- --target ${{ matrix.target }} --to .
@@ -137,7 +144,7 @@ jobs:
         fi
 
     - name: Test Install Script Without Explicit Target
-      if: matrix.os != 'windows-2016' && steps.ref-type.outputs.value != 'release'
+      if: ${{ matrix.os != 'windows-2016' && steps.ref-type.outputs.value != 'release' }}
       run: |
         cd `mktemp -d`
         cat $GITHUB_WORKSPACE/docs/install.sh | bash -s -- --to .
@@ -145,13 +152,13 @@ jobs:
 
     - name: Package
       id: package
-      if: startsWith(github.ref, 'refs/tags/')
+      if: ${{ startsWith(github.ref, 'refs/tags/') }}
       run: ./bin/package ${{github.ref}} ${{matrix.os}} ${{ matrix.target }}
       shell: bash
 
     - name: Publish Archive
       uses: softprops/action-gh-release@v0.1.5
-      if: startsWith(github.ref, 'refs/tags/')
+      if: ${{ startsWith(github.ref, 'refs/tags/') }}
       with:
         draft: false
         files: ${{ steps.package.outputs.archive }}
@@ -161,7 +168,11 @@ jobs:
 
     - name: Publish Changelog
       uses: softprops/action-gh-release@v0.1.5
-      if: startsWith(github.ref, 'refs/tags/') && matrix.target == 'x86_64-unknown-linux-musl'
+      if: |
+        ${{
+          startsWith(github.ref, 'refs/tags/')
+          && matrix.target == 'x86_64-unknown-linux-musl'
+        }}
       with:
         draft: false
         files: CHANGELOG.md
