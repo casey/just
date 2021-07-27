@@ -70,6 +70,7 @@ mod common;
 mod compile_error;
 mod compile_error_kind;
 mod compiler;
+mod completions;
 mod config;
 mod config_error;
 mod count;

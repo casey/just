@@ -31,7 +31,7 @@ pub(crate) use typed_arena::Arena;
 pub(crate) use unicode_width::{UnicodeWidthChar, UnicodeWidthStr};
 
 // modules
-pub(crate) use crate::{config_error, setting};
+pub(crate) use crate::{completions, config, config_error, setting};
 
 // functions
 pub(crate) use crate::{load_dotenv::load_dotenv, output::output, unindent::unindent};
