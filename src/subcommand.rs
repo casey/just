@@ -37,6 +37,56 @@ pub(crate) enum Subcommand {
 }
 
 impl Subcommand {
+  pub(crate) fn run<'src>(&self, config: &Config, loader: &'src Loader) -> Result<(), Error<'src>> {
+    use Subcommand::*;
+
+    if let Init = self {
+      return Self::init(config);
+    }
+
+    if let Completions { shell } = self {
+      return Self::completions(&shell);
+    }
+
+    let search = Search::find(&config.search_config, &config.invocation_directory)?;
+
+    if let Edit = self {
+      return Self::edit(&search);
+    }
+
+    let src = loader.load(&search.justfile)?;
+
+    let tokens = Lexer::lex(&src)?;
+    let ast = Parser::parse(&tokens)?;
+    let justfile = Analyzer::analyze(ast.clone())?;
+
+    if config.verbosity.loud() {
+      for warning in &justfile.warnings {
+        warning.write(&mut io::stderr(), config.color.stderr()).ok();
+      }
+    }
+
+    match self {
+      Choose { overrides, chooser } =>
+        Self::choose(&config, justfile, &search, overrides, chooser.as_deref())?,
+      Command { overrides, .. } => justfile.run(&config, &search, overrides, &[])?,
+      Dump => Self::dump(ast),
+      Evaluate { overrides, .. } => justfile.run(&config, &search, overrides, &[])?,
+      Format => Self::format(&config, ast, &search)?,
+      List => Self::list(&config, justfile),
+      Run {
+        arguments,
+        overrides,
+      } => justfile.run(&config, &search, overrides, arguments)?,
+      Show { ref name } => Self::show(&name, justfile)?,
+      Summary => Self::summary(&config, justfile),
+      Variables => Self::variables(justfile),
+      Completions { .. } | Edit | Init => unreachable!(),
+    }
+
+    Ok(())
+  }
+
   fn choose<'src>(
     config: &Config,
     justfile: Justfile<'src>,
@@ -313,56 +363,6 @@ impl Subcommand {
         println!();
       }
     }
-  }
-
-  pub(crate) fn run<'src>(&self, config: &Config, loader: &'src Loader) -> Result<(), Error<'src>> {
-    use Subcommand::*;
-
-    if let Init = self {
-      return Self::init(config);
-    }
-
-    if let Completions { shell } = self {
-      return Self::completions(&shell);
-    }
-
-    let search = Search::find(&config.search_config, &config.invocation_directory)?;
-
-    if let Edit = self {
-      return Self::edit(&search);
-    }
-
-    let src = loader.load(&search.justfile)?;
-
-    let tokens = Lexer::lex(&src)?;
-    let ast = Parser::parse(&tokens)?;
-    let justfile = Analyzer::analyze(ast.clone())?;
-
-    if config.verbosity.loud() {
-      for warning in &justfile.warnings {
-        warning.write(&mut io::stderr(), config.color.stderr()).ok();
-      }
-    }
-
-    match self {
-      Choose { overrides, chooser } =>
-        Self::choose(&config, justfile, &search, overrides, chooser.as_deref())?,
-      Command { overrides, .. } => justfile.run(&config, &search, overrides, &[])?,
-      Dump => Self::dump(ast),
-      Evaluate { overrides, .. } => justfile.run(&config, &search, overrides, &[])?,
-      Format => Self::format(&config, ast, &search)?,
-      List => Self::list(&config, justfile),
-      Run {
-        arguments,
-        overrides,
-      } => justfile.run(&config, &search, overrides, arguments)?,
-      Show { ref name } => Self::show(&name, justfile)?,
-      Summary => Self::summary(&config, justfile),
-      Variables => Self::variables(justfile),
-      Completions { .. } | Edit | Init => unreachable!(),
-    }
-
-    Ok(())
   }
 
   fn show<'src>(name: &str, justfile: Justfile<'src>) -> Result<(), Error<'src>> {
