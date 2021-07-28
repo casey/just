@@ -1,7 +1,5 @@
 use crate::common::*;
 
-// Remove this on 2021-07-01.
-#[allow(unused)]
 pub(crate) fn load_dotenv(
   config: &Config,
   settings: &Settings,
@@ -19,15 +17,16 @@ pub(crate) fn load_dotenv(
     let path = directory.join(".env");
 
     if path.is_file() {
-      // Un-comment this on 2021-07-01.
-      //
-      // if settings.dotenv_load.is_none() && config.verbosity.loud() {
-      //   if config.color.stderr().active() {
-      //     eprintln!("{:#}", Warning::DotenvLoad);
-      //   } else {
-      //     eprintln!("{}", Warning::DotenvLoad);
-      //   }
-      // }
+      if settings.dotenv_load.is_none()
+        && config.verbosity.loud()
+        && !std::env::var_os("JUST_SUPPRESS_DOTENV_LOAD_WARNING")
+          .map(|val| val.as_os_str().to_str() == Some("1"))
+          .unwrap_or(false)
+      {
+        Warning::DotenvLoad
+          .write(&mut io::stderr(), config.color.stderr())
+          .ok();
+      }
 
       let iter = dotenv::from_path_iter(&path)?;
       let mut dotenv = BTreeMap::new();
