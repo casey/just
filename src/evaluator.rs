@@ -37,19 +37,17 @@ impl<'src, 'run> Evaluator<'src, 'run> {
   fn evaluate_assignment(&mut self, assignment: &Assignment<'src>) -> RunResult<'src, &str> {
     let name = assignment.name.lexeme();
 
-    let condition = if let Some(condition) = &assignment.condition {
-      Some(self.evaluate_condition(condition)?)
-    } else {
-      None
-    };
-
-    if self.scope.bound(name) {
-      self.scope.set_export_condition(name, condition);
-    } else {
+    if !self.scope.bound(name) {
       let value = self.evaluate_expression(&assignment.value)?;
+
       self
         .scope
-        .bind(assignment.export, assignment.name, value, condition);
+        .bind(assignment.export, assignment.name, value, None);
+    }
+
+    if let Some(condition) = &assignment.condition {
+      let condition = self.evaluate_condition(condition)?;
+      self.scope.set_export_condition(name, Some(condition));
     }
 
     Ok(self.scope.value(name).unwrap())
