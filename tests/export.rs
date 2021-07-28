@@ -183,7 +183,7 @@ fn condition_false() {
   Test::new()
     .justfile(
       r#"
-      export A := 'hello' if "a" == "b"
+      export(if "a" == "b") A := 'hello'
 
       foo:
         echo $A
@@ -200,7 +200,7 @@ fn condition_true() {
   Test::new()
     .justfile(
       r#"
-      export A := 'hello' if "a" == "a"
+      export(if "a" == "a") A := 'hello'
 
       foo:
         echo $A
@@ -217,7 +217,7 @@ fn condition_false_inverted() {
   Test::new()
     .justfile(
       r#"
-      export A := 'hello' if "a" != "a"
+      export(if "a" != "a") A := 'hello'
 
       foo:
         echo $A
@@ -234,7 +234,7 @@ fn condition_true_inverted() {
   Test::new()
     .justfile(
       r#"
-      export A := 'hello' if "a" != "b"
+      export(if "a" != "b") A := 'hello'
 
       foo:
         echo $A
@@ -251,7 +251,7 @@ fn condition_override_true() {
   Test::new()
     .justfile(
       r#"
-      export A := 'hello' if "a" == "a"
+      export(if "a" == "a") A := 'hello'
 
       foo:
         echo $A
@@ -269,7 +269,7 @@ fn condition_override_false() {
   Test::new()
     .justfile(
       r#"
-      export A := 'hello' if "a" != "a"
+      export(if "a" != "a") A := 'hello'
 
       foo:
         echo $A
@@ -287,7 +287,7 @@ fn condition_undefined_variable() {
   Test::new()
     .justfile(
       "
-      export A := 'hello' if x == 'a'
+      export(if x == 'a') A := 'hello'
 
       foo:
         echo $A
@@ -297,8 +297,8 @@ fn condition_undefined_variable() {
       "
       error: Variable `x` not defined
         |
-      1 | export A := 'hello' if x == 'a'
-        |                        ^
+      1 | export(if x == 'a') A := 'hello'
+        |           ^
     ",
     )
     .status(EXIT_FAILURE)
@@ -310,7 +310,7 @@ fn condition_can_depend_on_variable() {
   Test::new()
     .justfile(
       r#"
-      export A := 'hello' if A == "hello"
+      export(if A == "hello") A := 'hello'
 
       foo:
         echo $A
@@ -328,7 +328,7 @@ fn conditional_overrides_export_setting() {
       r#"
       set export
 
-      export A := 'hello' if "foo" == "bar"
+      export(if "foo" == "bar") A := 'hello'
 
       foo:
         echo $A

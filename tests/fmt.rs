@@ -992,21 +992,21 @@ test! {
 test! {
   name: assignment_condition,
   justfile: "
-    export FOO := 'hello' if 'a' == 'a'
+    export(if 'a' == 'a') FOO := 'hello'
   ",
   args: ("--dump"),
   stdout: "
-    export FOO := 'hello' if 'a' == 'a'
+    export(if 'a' == 'a') FOO := 'hello'
   ",
 }
 
 test! {
   name: assignment_condition_inverted,
   justfile: "
-    export FOO := 'hello' if 'a' != 'a'
+    export(if 'a' != 'a') FOO := 'hello'
   ",
   args: ("--dump"),
   stdout: "
-    export FOO := 'hello' if 'a' != 'a'
+    export(if 'a' != 'a') FOO := 'hello'
   ",
 }

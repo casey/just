@@ -328,10 +328,13 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
             items.push(Item::Alias(self.parse_alias()?)),
           Some(Keyword::Export) if self.next_are(&[Identifier, Identifier, Equals]) =>
             return Err(self.get(2)?.error(CompileErrorKind::DeprecatedEquals)),
-          Some(Keyword::Export) if self.next_are(&[Identifier, Identifier, ColonEquals]) => {
+          Some(Keyword::Export)
+            if self.next_are(&[Identifier, Identifier, ColonEquals])
+              || self.next_are(&[Identifier, ParenL]) =>
+          {
             self.presume_keyword(Keyword::Export)?;
             items.push(Item::Assignment(Box::new(self.parse_assignment(true)?)));
-          },
+          }
           Some(Keyword::Set)
             if self.next_are(&[Identifier, Identifier, ColonEquals])
               || self.next_are(&[Identifier, Identifier, Eol])
@@ -380,15 +383,18 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
 
   /// Parse an assignment, e.g. `foo := bar`
   fn parse_assignment(&mut self, export: bool) -> CompileResult<'src, Assignment<'src>> {
-    let name = self.parse_name()?;
-    self.presume_any(&[Equals, ColonEquals])?;
-    let value = self.parse_expression()?;
-
-    let condition = if export && self.accepted_keyword(Keyword::If)? {
-      Some(self.parse_condition()?)
+    let condition = if export && self.accepted(ParenL)? {
+      self.expect_keyword(Keyword::If)?;
+      let condition = self.parse_condition()?;
+      self.expect(ParenR)?;
+      Some(condition)
     } else {
       None
     };
+
+    let name = self.parse_name()?;
+    self.presume_any(&[Equals, ColonEquals])?;
+    let value = self.parse_expression()?;
 
     self.expect_eol()?;
 
@@ -933,7 +939,7 @@ mod tests {
 
   test! {
     name: export_condition,
-    text: "export x := 'hello' if a == b",
+    text: "export(if a == b) x := 'hello'",
     tree: (justfile (assignment #export (== a b) x "hello")),
   }
 
