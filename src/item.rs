@@ -4,7 +4,7 @@ use crate::common::*;
 #[derive(Debug, Clone)]
 pub(crate) enum Item<'src> {
   Alias(Alias<'src, Name<'src>>),
-  Assignment(Assignment<'src>),
+  Assignment(Box<Assignment<'src>>),
   Comment(&'src str),
   Recipe(UnresolvedRecipe<'src>),
   Set(Set<'src>),

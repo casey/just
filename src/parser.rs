@@ -330,7 +330,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
             return Err(self.get(2)?.error(CompileErrorKind::DeprecatedEquals)),
           Some(Keyword::Export) if self.next_are(&[Identifier, Identifier, ColonEquals]) => {
             self.presume_keyword(Keyword::Export)?;
-            items.push(Item::Assignment(self.parse_assignment(true)?));
+            items.push(Item::Assignment(Box::new(self.parse_assignment(true)?)));
           },
           Some(Keyword::Set)
             if self.next_are(&[Identifier, Identifier, ColonEquals])
@@ -341,7 +341,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
             if self.next_are(&[Identifier, Equals]) {
               return Err(self.get(1)?.error(CompileErrorKind::DeprecatedEquals));
             } else if self.next_are(&[Identifier, ColonEquals]) {
-              items.push(Item::Assignment(self.parse_assignment(false)?));
+              items.push(Item::Assignment(Box::new(self.parse_assignment(false)?)));
             } else {
               let doc = pop_doc_comment(&mut items, eol_since_last_comment);
               items.push(Item::Recipe(self.parse_recipe(doc, false)?));
