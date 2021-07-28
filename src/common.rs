@@ -38,8 +38,8 @@ pub(crate) use crate::{load_dotenv::load_dotenv, output::output, unindent::unind
 
 // traits
 pub(crate) use crate::{
-  command_ext::CommandExt, keyed::Keyed, ordinal::Ordinal, platform_interface::PlatformInterface,
-  range_ext::RangeExt,
+  color_display::ColorDisplay, command_ext::CommandExt, keyed::Keyed, ordinal::Ordinal,
+  platform_interface::PlatformInterface, range_ext::RangeExt,
 };
 
 // structs and enums

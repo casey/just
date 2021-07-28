@@ -62,7 +62,7 @@ impl Subcommand {
 
     if config.verbosity.loud() {
       for warning in &justfile.warnings {
-        warning.write(&mut io::stderr(), config.color.stderr()).ok();
+        eprintln!("{}", warning.color_display(config.color.stderr()));
       }
     }
 

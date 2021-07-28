@@ -23,9 +23,10 @@ pub(crate) fn load_dotenv(
           .map(|val| val.as_os_str().to_str() == Some("1"))
           .unwrap_or(false)
       {
-        Warning::DotenvLoad
-          .write(&mut io::stderr(), config.color.stderr())
-          .ok();
+        eprintln!(
+          "{}",
+          Warning::DotenvLoad.color_display(config.color.stderr())
+        );
       }
 
       let iter = dotenv::from_path_iter(&path)?;
