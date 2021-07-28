@@ -34,6 +34,12 @@ To silence this warning and stop loading `.env` files, add:
 
     set dotenv-load := false
 
+This warning may also be silenced by setting the `JUST_SUPPRESS_DOTENV_LOAD_WARNING`
+environment variable to `1`. This can be used to silence the warning globally by
+adding the following line to your shell rc file:
+
+  export JUST_SUPPRESS_DOTENV_LOAD_WARNING=1
+
 See https://github.com/casey/just/issues/469 for more details.")?;
       },
     }
