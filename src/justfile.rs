@@ -109,7 +109,7 @@ impl<'src> Justfile<'src> {
 
       for (name, value) in overrides {
         if let Some(assignment) = self.assignments.get(name) {
-          scope.bind(assignment.export, assignment.name, value.clone());
+          scope.bind(assignment.export, assignment.name, value.clone(), None);
         } else {
           unknown_overrides.push(name.clone());
         }

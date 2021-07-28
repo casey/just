@@ -104,7 +104,6 @@ impl<'text> Tree<'text> {
     I: IntoIterator<Item = T>,
     T: Into<Tree<'text>>,
   {
-    // Tree::List(children.into_iter().collect())
     let mut head = match self {
       Tree::List(children) => children,
       Tree::Atom(text) => vec![Tree::Atom(text)],

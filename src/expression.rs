@@ -22,11 +22,9 @@ pub(crate) enum Expression<'src> {
   },
   /// `if lhs == rhs { then } else { otherwise }`
   Conditional {
-    lhs:       Box<Expression<'src>>,
-    rhs:       Box<Expression<'src>>,
+    condition: Box<Condition<'src>>,
     then:      Box<Expression<'src>>,
     otherwise: Box<Expression<'src>>,
-    inverted:  bool,
   },
   /// `(contents)`
   Group { contents: Box<Expression<'src>> },
@@ -48,19 +46,13 @@ impl<'src> Display for Expression<'src> {
       Expression::Backtick { token, .. } => write!(f, "{}", token.lexeme()),
       Expression::Concatination { lhs, rhs } => write!(f, "{} + {}", lhs, rhs),
       Expression::Conditional {
-        lhs,
-        rhs,
+        condition,
         then,
         otherwise,
-        inverted,
       } => write!(
         f,
-        "if {} {} {} {{ {} }} else {{ {} }}",
-        lhs,
-        if *inverted { "!=" } else { "==" },
-        rhs,
-        then,
-        otherwise
+        "if {} {{ {} }} else {{ {} }}",
+        condition, then, otherwise
       ),
       Expression::StringLiteral { string_literal } => write!(f, "{}", string_literal),
       Expression::Variable { name } => write!(f, "{}", name.lexeme()),

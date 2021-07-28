@@ -20,14 +20,13 @@ impl<'expression, 'src> Iterator for Variables<'expression, 'src> {
       | Some(Expression::Backtick { .. })
       | Some(Expression::Call { .. }) => None,
       Some(Expression::Conditional {
-        lhs,
-        rhs,
+        condition,
         then,
         otherwise,
         ..
       }) => {
-        self.stack.push(lhs);
-        self.stack.push(rhs);
+        self.stack.push(&condition.lhs);
+        self.stack.push(&condition.rhs);
         self.stack.push(then);
         self.stack.push(otherwise);
         self.next()

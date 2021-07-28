@@ -383,8 +383,17 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     let name = self.parse_name()?;
     self.presume_any(&[Equals, ColonEquals])?;
     let value = self.parse_expression()?;
+
+    let condition = if export && self.accepted_keyword(Keyword::If)? {
+      Some(self.parse_condition()?)
+    } else {
+      None
+    };
+
     self.expect_eol()?;
+
     Ok(Assignment {
+      condition,
       export,
       name,
       value,
@@ -410,15 +419,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
 
   /// Parse a conditional, e.g. `if a == b { "foo" } else { "bar" }`
   fn parse_conditional(&mut self) -> CompileResult<'src, Expression<'src>> {
-    let lhs = self.parse_expression()?;
-
-    let inverted = self.accepted(BangEquals)?;
-
-    if !inverted {
-      self.expect(EqualsEquals)?;
-    }
-
-    let rhs = self.parse_expression()?;
+    let condition = self.parse_condition()?;
 
     self.expect(BraceL)?;
 
@@ -438,12 +439,25 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     };
 
     Ok(Expression::Conditional {
-      lhs: Box::new(lhs),
-      rhs: Box::new(rhs),
-      then: Box::new(then),
+      condition: Box::new(condition),
+      then:      Box::new(then),
       otherwise: Box::new(otherwise),
-      inverted,
     })
+  }
+
+  /// Parse a condition, e.g. `if a == b`
+  fn parse_condition(&mut self) -> CompileResult<'src, Condition<'src>> {
+    let lhs = self.parse_expression()?;
+
+    let inverted = self.accepted(BangEquals)?;
+
+    if !inverted {
+      self.expect(EqualsEquals)?;
+    }
+
+    let rhs = self.parse_expression()?;
+
+    Ok(Condition { lhs, rhs, inverted })
   }
 
   /// Parse a value, e.g. `(bar)`
@@ -918,11 +932,9 @@ mod tests {
   }
 
   test! {
-    name: export_equals,
-    text: r#"export x := "hello""#,
-    tree: (justfile
-      (assignment #export x "hello")
-    ),
+    name: export_condition,
+    text: "export x := 'hello' if a == b",
+    tree: (justfile (assignment #export (== a b) x "hello")),
   }
 
   test! {
@@ -1776,43 +1788,43 @@ mod tests {
   test! {
     name: conditional,
     text: "a := if b == c { d } else { e }",
-    tree: (justfile (assignment a (if b == c d e))),
+    tree: (justfile (assignment a (if (== b c) d e))),
   }
 
   test! {
     name: conditional_inverted,
     text: "a := if b != c { d } else { e }",
-    tree: (justfile (assignment a (if b != c d e))),
+    tree: (justfile (assignment a (if (!= b c) d e))),
   }
 
   test! {
     name: conditional_concatinations,
     text: "a := if b0 + b1 == c0 + c1 { d0 + d1 } else { e0 + e1 }",
-    tree: (justfile (assignment a (if (+ b0 b1) == (+ c0 c1) (+ d0 d1) (+ e0 e1)))),
+    tree: (justfile (assignment a (if (== (+ b0 b1) (+ c0 c1)) (+ d0 d1) (+ e0 e1)))),
   }
 
   test! {
     name: conditional_nested_lhs,
     text: "a := if if b == c { d } else { e } == c { d } else { e }",
-    tree: (justfile (assignment a (if (if b == c d e) == c d e))),
+    tree: (justfile (assignment a (if (== (if (== b c) d e) c) d e))),
   }
 
   test! {
     name: conditional_nested_rhs,
     text: "a := if c == if b == c { d } else { e } { d } else { e }",
-    tree: (justfile (assignment a (if c == (if b == c d e) d e))),
+    tree: (justfile (assignment a (if (== c (if (== b c) d e)) d e))),
   }
 
   test! {
     name: conditional_nested_then,
     text: "a := if b == c { if b == c { d } else { e } } else { e }",
-    tree: (justfile (assignment a (if b == c (if b == c d e) e))),
+    tree: (justfile (assignment a (if (== b c) (if (== b c) d e) e))),
   }
 
   test! {
     name: conditional_nested_otherwise,
     text: "a := if b == c { d } else { if b == c { d } else { e } }",
-    tree: (justfile (assignment a (if b == c d (if b == c d e)))),
+    tree: (justfile (assignment a (if (== b c) d (if (== b c) d e)))),
   }
 
   error! {
@@ -1978,6 +1990,19 @@ mod tests {
     kind:   UnexpectedToken {
       expected: vec![Asterisk, Colon, Dollar, Equals, Identifier, Plus],
       found:    Eof
+    },
+  }
+
+  error! {
+    name:   condition_without_export,
+    input:  "a := 'b' if 'a' == 'b'",
+    offset: 9,
+    line:   0,
+    column: 9,
+    width:  2,
+    kind:   UnexpectedToken {
+      expected: vec![Comment, Eof, Eol, Plus],
+      found: Identifier,
     },
   }
 

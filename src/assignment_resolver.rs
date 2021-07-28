@@ -30,11 +30,14 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
       return Ok(());
     }
 
-    self.stack.push(name);
-
     if let Some(assignment) = self.assignments.get(name) {
+      self.stack.push(name);
       self.resolve_expression(&assignment.value)?;
       self.evaluated.insert(name);
+      self.stack.pop();
+      if let Some(condition) = &assignment.condition {
+        self.resolve_condition(condition)?;
+      }
     } else {
       let message = format!("attempted to resolve unknown assignment `{}`", name);
       let token = Token {
@@ -51,8 +54,12 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
       });
     }
 
-    self.stack.pop();
+    Ok(())
+  }
 
+  fn resolve_condition(&mut self, condition: &Condition<'src>) -> CompileResult<'src, ()> {
+    self.resolve_expression(&condition.lhs)?;
+    self.resolve_expression(&condition.rhs)?;
     Ok(())
   }
 
@@ -95,14 +102,12 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
         self.resolve_expression(rhs)
       },
       Expression::Conditional {
-        lhs,
-        rhs,
+        condition,
         then,
         otherwise,
         ..
       } => {
-        self.resolve_expression(lhs)?;
-        self.resolve_expression(rhs)?;
+        self.resolve_condition(condition)?;
         self.resolve_expression(then)?;
         self.resolve_expression(otherwise)
       },

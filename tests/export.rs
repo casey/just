@@ -1,3 +1,5 @@
+use crate::common::*;
+
 test! {
   name:     success,
   justfile: r#"
@@ -174,4 +176,147 @@ test! {
   args: ("A=zzz"),
   stdout: "undefined\n",
   stderr: "echo $B\n",
+}
+
+#[test]
+fn condition_false() {
+  Test::new()
+    .justfile(
+      r#"
+      export A := 'hello' if "a" == "b"
+
+      foo:
+        echo $A
+    "#,
+    )
+    .env("A", "goodbye")
+    .stderr("echo $A\n")
+    .stdout("goodbye\n")
+    .run();
+}
+
+#[test]
+fn condition_true() {
+  Test::new()
+    .justfile(
+      r#"
+      export A := 'hello' if "a" == "a"
+
+      foo:
+        echo $A
+    "#,
+    )
+    .env("A", "goodbye")
+    .stderr("echo $A\n")
+    .stdout("hello\n")
+    .run();
+}
+
+#[test]
+fn condition_false_inverted() {
+  Test::new()
+    .justfile(
+      r#"
+      export A := 'hello' if "a" != "a"
+
+      foo:
+        echo $A
+    "#,
+    )
+    .env("A", "goodbye")
+    .stderr("echo $A\n")
+    .stdout("goodbye\n")
+    .run();
+}
+
+#[test]
+fn condition_true_inverted() {
+  Test::new()
+    .justfile(
+      r#"
+      export A := 'hello' if "a" != "b"
+
+      foo:
+        echo $A
+    "#,
+    )
+    .env("A", "goodbye")
+    .stderr("echo $A\n")
+    .stdout("hello\n")
+    .run();
+}
+
+#[test]
+fn condition_override_true() {
+  Test::new()
+    .justfile(
+      r#"
+      export A := 'hello' if "a" == "a"
+
+      foo:
+        echo $A
+    "#,
+    )
+    .args(&["A=baz"])
+    .env("A", "goodbye")
+    .stderr("echo $A\n")
+    .stdout("baz\n")
+    .run();
+}
+
+#[test]
+fn condition_override_false() {
+  Test::new()
+    .justfile(
+      r#"
+      export A := 'hello' if "a" != "a"
+
+      foo:
+        echo $A
+    "#,
+    )
+    .args(&["A=baz"])
+    .env("A", "goodbye")
+    .stderr("echo $A\n")
+    .stdout("goodbye\n")
+    .run();
+}
+
+#[test]
+fn condition_undefined_variable() {
+  Test::new()
+    .justfile(
+      "
+      export A := 'hello' if x == 'a'
+
+      foo:
+        echo $A
+    ",
+    )
+    .stderr(
+      "
+      error: Variable `x` not defined
+        |
+      1 | export A := 'hello' if x == 'a'
+        |                        ^
+    ",
+    )
+    .status(EXIT_FAILURE)
+    .run();
+}
+
+#[test]
+fn condition_can_depend_on_variable() {
+  Test::new()
+    .justfile(
+      r#"
+      export A := 'hello' if A == "hello"
+
+      foo:
+        echo $A
+    "#,
+    )
+    .stderr("echo $A\n")
+    .stdout("hello\n")
+    .run();
 }

@@ -988,3 +988,25 @@ test! {
         echo foo
   ",
 }
+
+test! {
+  name: assignment_condition,
+  justfile: "
+    export FOO := 'hello' if 'a' == 'a'
+  ",
+  args: ("--dump"),
+  stdout: "
+    export FOO := 'hello' if 'a' == 'a'
+  ",
+}
+
+test! {
+  name: assignment_condition_inverted,
+  justfile: "
+    export FOO := 'hello' if 'a' != 'a'
+  ",
+  args: ("--dump"),
+  stdout: "
+    export FOO := 'hello' if 'a' != 'a'
+  ",
+}

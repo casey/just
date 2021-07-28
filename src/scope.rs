@@ -21,8 +21,15 @@ impl<'src, 'run> Scope<'src, 'run> {
     }
   }
 
-  pub(crate) fn bind(&mut self, export: bool, name: Name<'src>, value: String) {
+  pub(crate) fn bind(
+    &mut self,
+    export: bool,
+    name: Name<'src>,
+    value: String,
+    condition: Option<bool>,
+  ) {
     self.bindings.insert(Binding {
+      condition,
       export,
       name,
       value,
@@ -53,5 +60,9 @@ impl<'src, 'run> Scope<'src, 'run> {
 
   pub(crate) fn parent(&self) -> Option<&'run Scope<'src, 'run>> {
     self.parent
+  }
+
+  pub(crate) fn set_export_condition(&mut self, name: &str, condition: Option<bool>) {
+    self.bindings.get_mut(name).unwrap().condition = condition;
   }
 }

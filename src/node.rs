@@ -37,15 +37,31 @@ impl<'src> Node<'src> for Alias<'src, Name<'src>> {
 
 impl<'src> Node<'src> for Assignment<'src> {
   fn tree(&self) -> Tree<'src> {
+    let mut tree = Tree::atom("assignment");
     if self.export {
-      Tree::atom("assignment")
-        .push("#")
-        .push(Keyword::Export.lexeme())
-    } else {
-      Tree::atom("assignment")
+      tree.push_mut("#");
+      tree.push_mut(Keyword::Export.lexeme());
     }
-    .push(self.name.lexeme())
-    .push(self.value.tree())
+    if let Some(condition) = &self.condition {
+      tree.push_mut(condition.tree());
+    }
+    tree.push_mut(self.name.lexeme());
+    tree.push_mut(self.value.tree());
+    tree
+  }
+}
+
+impl<'src> Node<'src> for Condition<'src> {
+  fn tree(&self) -> Tree<'src> {
+    let mut tree = Tree::List(Vec::new());
+    if self.inverted {
+      tree.push_mut("!=");
+    } else {
+      tree.push_mut("==");
+    }
+    tree.push_mut(self.lhs.tree());
+    tree.push_mut(self.rhs.tree());
+    tree
   }
 }
 
@@ -54,20 +70,12 @@ impl<'src> Node<'src> for Expression<'src> {
     match self {
       Expression::Concatination { lhs, rhs } => Tree::atom("+").push(lhs.tree()).push(rhs.tree()),
       Expression::Conditional {
-        lhs,
-        rhs,
         then,
         otherwise,
-        inverted,
+        condition,
       } => {
         let mut tree = Tree::atom(Keyword::If.lexeme());
-        tree.push_mut(lhs.tree());
-        if *inverted {
-          tree.push_mut("!=");
-        } else {
-          tree.push_mut("==");
-        }
-        tree.push_mut(rhs.tree());
+        tree.push_mut(condition.tree());
         tree.push_mut(then.tree());
         tree.push_mut(otherwise.tree());
         tree

@@ -188,7 +188,7 @@ impl Test {
       }
     }
 
-    if !compare("status", output.status.code().unwrap(), self.status)
+    if !compare("status", output.status.code(), Some(self.status))
       | !compare("stdout", str::from_utf8(&output.stdout).unwrap(), &stdout)
       | (self.stderr_regex.is_none() && !compare("stderr", output_stderr, &stderr))
     {

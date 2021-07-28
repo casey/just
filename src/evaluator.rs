@@ -37,9 +37,19 @@ impl<'src, 'run> Evaluator<'src, 'run> {
   fn evaluate_assignment(&mut self, assignment: &Assignment<'src>) -> RunResult<'src, &str> {
     let name = assignment.name.lexeme();
 
-    if !self.scope.bound(name) {
+    let condition = if let Some(condition) = &assignment.condition {
+      Some(self.evaluate_condition(condition)?)
+    } else {
+      None
+    };
+
+    if self.scope.bound(name) {
+      self.scope.set_export_condition(name, condition);
+    } else {
       let value = self.evaluate_expression(&assignment.value)?;
-      self.scope.bind(assignment.export, assignment.name, value);
+      self
+        .scope
+        .bind(assignment.export, assignment.name, value, condition);
     }
 
     Ok(self.scope.value(name).unwrap())
@@ -132,23 +142,28 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       Expression::Concatination { lhs, rhs } =>
         Ok(self.evaluate_expression(lhs)? + &self.evaluate_expression(rhs)?),
       Expression::Conditional {
-        lhs,
-        rhs,
+        condition,
         then,
         otherwise,
-        inverted,
-      } => {
-        let lhs = self.evaluate_expression(lhs)?;
-        let rhs = self.evaluate_expression(rhs)?;
-        let condition = if *inverted { lhs != rhs } else { lhs == rhs };
-        if condition {
+      } =>
+        if self.evaluate_condition(condition)? {
           self.evaluate_expression(then)
         } else {
           self.evaluate_expression(otherwise)
-        }
-      },
+        },
       Expression::Group { contents } => self.evaluate_expression(contents),
     }
+  }
+
+  fn evaluate_condition(&mut self, condition: &Condition<'src>) -> RunResult<'src, bool> {
+    let lhs = self.evaluate_expression(&condition.lhs)?;
+    let rhs = self.evaluate_expression(&condition.rhs)?;
+
+    Ok(if condition.inverted {
+      lhs != rhs
+    } else {
+      lhs == rhs
+    })
   }
 
   fn run_backtick(&self, raw: &str, token: &Token<'src>) -> RunResult<'src, String> {
@@ -250,7 +265,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         rest = &rest[1..];
         value
       };
-      scope.bind(parameter.export, parameter.name, value);
+      scope.bind(parameter.export, parameter.name, value, None);
     }
 
     Ok((scope, positional))

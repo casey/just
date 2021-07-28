@@ -26,6 +26,10 @@ impl<'key, V: Keyed<'key>> Table<'key, V> {
     self.map.get(key)
   }
 
+  pub(crate) fn get_mut(&mut self, key: &str) -> Option<&mut V> {
+    self.map.get_mut(key)
+  }
+
   pub(crate) fn values(&self) -> btree_map::Values<&'key str, V> {
     self.map.values()
   }

@@ -18,9 +18,9 @@ use crate::compiler::Compiler;
 
 mod full {
   pub(crate) use crate::{
-    assignment::Assignment, dependency::Dependency, expression::Expression, fragment::Fragment,
-    justfile::Justfile, line::Line, parameter::Parameter, parameter_kind::ParameterKind,
-    recipe::Recipe, thunk::Thunk,
+    assignment::Assignment, condition::Condition, dependency::Dependency, expression::Expression,
+    fragment::Fragment, justfile::Justfile, line::Line, parameter::Parameter,
+    parameter_kind::ParameterKind, recipe::Recipe, thunk::Thunk,
   };
 }
 
@@ -169,6 +169,7 @@ impl Fragment {
 pub struct Assignment {
   pub exported:   bool,
   pub expression: Expression,
+  pub condition:  Option<Condition>,
 }
 
 impl Assignment {
@@ -176,6 +177,7 @@ impl Assignment {
     Assignment {
       exported:   assignment.export,
       expression: Expression::new(&assignment.value),
+      condition:  assignment.condition.as_ref().map(Condition::new),
     }
   }
 }
@@ -194,11 +196,9 @@ pub enum Expression {
     rhs: Box<Expression>,
   },
   Conditional {
-    lhs:       Box<Expression>,
-    rhs:       Box<Expression>,
+    condition: Box<Condition>,
     then:      Box<Expression>,
     otherwise: Box<Expression>,
-    inverted:  bool,
   },
   String {
     text: String,
@@ -244,17 +244,13 @@ impl Expression {
         rhs: Box::new(Expression::new(rhs)),
       },
       Conditional {
-        lhs,
-        rhs,
-        inverted,
+        condition,
         then,
         otherwise,
       } => Expression::Conditional {
-        lhs:       Box::new(Expression::new(lhs)),
-        rhs:       Box::new(Expression::new(rhs)),
         then:      Box::new(Expression::new(then)),
         otherwise: Box::new(Expression::new(otherwise)),
-        inverted:  *inverted,
+        condition: Box::new(Condition::new(condition)),
       },
       StringLiteral { string_literal } => Expression::String {
         text: string_literal.cooked.clone(),
@@ -263,6 +259,23 @@ impl Expression {
         name: name.lexeme().to_owned(),
       },
       Group { contents } => Expression::new(contents),
+    }
+  }
+}
+
+#[derive(Eq, PartialEq, Hash, Ord, PartialOrd, Debug, Clone)]
+pub struct Condition {
+  lhs:      Expression,
+  rhs:      Expression,
+  inverted: bool,
+}
+
+impl Condition {
+  fn new(condition: &full::Condition) -> Self {
+    Self {
+      lhs:      Expression::new(&condition.lhs),
+      rhs:      Expression::new(&condition.rhs),
+      inverted: condition.inverted,
     }
   }
 }
