@@ -320,3 +320,22 @@ fn condition_can_depend_on_variable() {
     .stdout("hello\n")
     .run();
 }
+
+#[test]
+fn conditional_overrides_export_setting() {
+  Test::new()
+    .justfile(
+      r#"
+      set export
+
+      export A := 'hello' if "foo" == "bar"
+
+      foo:
+        echo $A
+    "#,
+    )
+    .env("A", "goodbye")
+    .stderr("echo $A\n")
+    .stdout("goodbye\n")
+    .run();
+}

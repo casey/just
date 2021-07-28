@@ -3,7 +3,7 @@ use crate::common::*;
 /// A binding of `name` to `value`
 #[derive(Debug, Clone, PartialEq)]
 pub(crate) struct Binding<'src, V = String, C = bool> {
-  /// TODO: document
+  /// Export binding only if conditional is true
   pub(crate) condition: Option<C>,
   /// Export binding as an environment variable to child processes
   pub(crate) export:    bool,
