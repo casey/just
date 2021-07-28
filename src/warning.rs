@@ -25,6 +25,7 @@ impl Warning {
         #[rustfmt::skip]
         write!(w, "\
 A `.env` file was found and loaded, but this behavior will change in the future.
+
 To silence this warning and continue loading `.env` files, add:
 
     set dotenv-load := true

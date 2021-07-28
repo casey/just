@@ -33,16 +33,17 @@ macro_rules! test {
 }
 
 pub(crate) struct Test {
-  pub(crate) tempdir:      TempDir,
-  pub(crate) justfile:     Option<String>,
-  pub(crate) args:         Vec<String>,
-  pub(crate) env:          BTreeMap<String, String>,
-  pub(crate) stdin:        String,
-  pub(crate) stdout:       String,
-  pub(crate) stderr:       String,
+  pub(crate) tempdir: TempDir,
+  pub(crate) justfile: Option<String>,
+  pub(crate) args: Vec<String>,
+  pub(crate) env: BTreeMap<String, String>,
+  pub(crate) stdin: String,
+  pub(crate) stdout: String,
+  pub(crate) stderr: String,
   pub(crate) stderr_regex: Option<Regex>,
-  pub(crate) status:       i32,
-  pub(crate) shell:        bool,
+  pub(crate) status: i32,
+  pub(crate) shell: bool,
+  pub(crate) suppress_dotenv_load_warning: bool,
 }
 
 impl Test {
@@ -55,12 +56,13 @@ impl Test {
       args: Vec::new(),
       env: BTreeMap::new(),
       justfile: Some(String::new()),
-      stderr_regex: None,
       shell: true,
       status: EXIT_SUCCESS,
       stderr: String::new(),
+      stderr_regex: None,
       stdin: String::new(),
       stdout: String::new(),
+      suppress_dotenv_load_warning: true,
       tempdir,
     }
   }
@@ -125,6 +127,11 @@ impl Test {
     self.stdout = stdout.into();
     self
   }
+
+  pub(crate) fn suppress_dotenv_load_warning(mut self, suppress_dotenv_load_warning: bool) -> Self {
+    self.suppress_dotenv_load_warning = suppress_dotenv_load_warning;
+    self
+  }
 }
 
 impl Test {
@@ -150,6 +157,14 @@ impl Test {
     let mut child = command
       .args(self.args)
       .envs(&self.env)
+      .env(
+        "JUST_SUPPRESS_DOTENV_LOAD_WARNING",
+        if self.suppress_dotenv_load_warning {
+          "1"
+        } else {
+          "0"
+        },
+      )
       .current_dir(self.tempdir.path())
       .stdin(Stdio::piped())
       .stdout(Stdio::piped())

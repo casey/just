@@ -60,27 +60,35 @@ test! {
   stderr:   "echo $DOTENV_KEY\n",
 }
 
-// Un-comment this on 2021-07-01.
-//
-// test! {
-//   name:     warning,
-//   justfile: r#"
-//     foo:
-//       echo $DOTENV_KEY
-//   "#,
-//   stdout:   "dotenv-value\n",
-//   stderr:   "
-//     warning: A `.env` file was found and loaded, but this behavior will
-// change in the future.     To silence this warning and continue loading `.env`
-// files, add:
+#[test]
+fn warning() {
+  Test::new()
+    .justfile(
+      "
+      foo:
+        echo $DOTENV_KEY
+    ",
+    )
+    .stdout("dotenv-value\n")
+    .stderr(
+      "
+warning: A `.env` file was found and loaded, but this behavior will change in the future.
 
-//         set dotenv-load := true
+To \
+       silence this warning and continue loading `.env` files, add:
 
-//     To silence this warning and stop loading `.env` files, add:
+    set dotenv-load := true
 
-//         set dotenv-load := false
+To silence \
+       this warning and stop loading `.env` files, add:
 
-//     See https://github.com/casey/just/issues/469 for more details.
-//     echo $DOTENV_KEY
-//   ",
-// }
+    set dotenv-load := false
+
+See https://github.com/casey/just/issues/469 \
+       for more details.
+echo $DOTENV_KEY
+   ",
+    )
+    .suppress_dotenv_load_warning(false)
+    .run();
+}
