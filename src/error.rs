@@ -604,7 +604,12 @@ impl<'src> ColorDisplay for Error<'src> {
     } = self
     {
       writeln!(f)?;
-      write!(f, "usage:\n    just {}", recipe)?;
+      write!(
+        f,
+        "{}:\n    just {}",
+        color.message().paint("usage"),
+        recipe
+      )?;
       for param in parameters {
         write!(f, " {}", param.color_display(color))?;
       }
