@@ -13,9 +13,8 @@ pub(crate) struct Parameter<'src> {
   pub(crate) export:  bool,
 }
 
-impl<'src> Display for Parameter<'src> {
-  fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
-    let color = Color::fmt(f);
+impl<'src> ColorDisplay for Parameter<'src> {
+  fn fmt(&self, f: &mut Formatter, color: Color) -> Result<(), fmt::Error> {
     if self.export {
       write!(f, "$")?;
     }

@@ -160,30 +160,6 @@ impl<'src> Error<'src> {
       message: message.into(),
     }
   }
-
-  pub(crate) fn write(&self, w: &mut dyn Write, color: Color) -> io::Result<()> {
-    let color = color.stderr();
-
-    if color.active() {
-      writeln!(
-        w,
-        "{}: {}{:#}{}",
-        color.error().paint("error"),
-        color.message().prefix(),
-        self,
-        color.message().suffix()
-      )?;
-    } else {
-      writeln!(w, "error: {}", self)?;
-    }
-
-    if let Some(token) = self.context() {
-      token.write_context(w, color.error())?;
-      writeln!(w)?;
-    }
-
-    Ok(())
-  }
 }
 
 impl<'src> From<CompileError<'src>> for Error<'src> {
@@ -210,9 +186,16 @@ impl<'src> From<SearchError> for Error<'src> {
   }
 }
 
-impl<'src> Display for Error<'src> {
-  fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+impl<'src> ColorDisplay for Error<'src> {
+  fn fmt(&self, f: &mut Formatter, color: Color) -> fmt::Result {
     use Error::*;
+
+    write!(
+      f,
+      "{}: {}",
+      color.error().paint("error"),
+      color.message().prefix()
+    )?;
 
     match self {
       ArgumentCountMismatch {
@@ -254,7 +237,7 @@ impl<'src> Display for Error<'src> {
         }
         write!(f, "\nusage:\n    just {}", recipe)?;
         for param in parameters {
-          write!(f, " {}", param)?;
+          write!(f, " {}", param.color_display(color))?;
         }
       },
       Backtick { output_error, .. } => match output_error {
@@ -617,6 +600,13 @@ impl<'src> Display for Error<'src> {
           io_error
         )?;
       },
+    }
+
+    write!(f, "{}", color.message().suffix())?;
+
+    if let Some(token) = self.context() {
+      writeln!(f)?;
+      write!(f, "{}", token.color_display(color.error()))?;
     }
 
     Ok(())

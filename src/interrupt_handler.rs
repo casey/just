@@ -21,9 +21,13 @@ impl InterruptHandler {
     match INSTANCE.lock() {
       Ok(guard) => guard,
       Err(poison_error) => {
-        eprintln!("{}", Error::Internal {
-          message: format!("interrupt handler mutex poisoned: {}", poison_error),
-        });
+        eprintln!(
+          "{}",
+          Error::Internal {
+            message: format!("interrupt handler mutex poisoned: {}", poison_error),
+          }
+          .color_display(Color::auto().stderr())
+        );
         std::process::exit(EXIT_FAILURE);
       },
     }
@@ -58,9 +62,14 @@ impl InterruptHandler {
   pub(crate) fn unblock(&mut self) {
     if self.blocks == 0 {
       if self.verbosity.loud() {
-        eprintln!("{}", Error::Internal {
-          message: "attempted to unblock interrupt handler, but handler was not blocked".to_owned(),
-        });
+        eprintln!(
+          "{}",
+          Error::Internal {
+            message: "attempted to unblock interrupt handler, but handler was not blocked"
+              .to_owned(),
+          }
+          .color_display(Color::auto().stderr())
+        );
       }
       std::process::exit(EXIT_FAILURE);
     }

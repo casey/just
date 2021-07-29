@@ -2,8 +2,6 @@ use crate::common::*;
 
 #[derive(Clone, Debug, PartialEq)]
 pub(crate) enum Warning {
-  // Remove this on 2021-07-01.
-  #[allow(dead_code)]
   DotenvLoad,
 }
 
@@ -13,17 +11,19 @@ impl Warning {
       Self::DotenvLoad => None,
     }
   }
+}
 
-  pub(crate) fn write(&self, w: &mut dyn Write, color: Color) -> io::Result<()> {
+impl ColorDisplay for Warning {
+  fn fmt(&self, f: &mut Formatter, color: Color) -> fmt::Result {
     let warning = color.warning();
     let message = color.message();
 
-    write!(w, "{} {}", warning.paint("warning:"), message.prefix())?;
+    write!(f, "{} {}", warning.paint("warning:"), message.prefix())?;
 
     match self {
       Self::DotenvLoad => {
         #[rustfmt::skip]
-        write!(w, "\
+        write!(f, "\
 A `.env` file was found and loaded, but this behavior will change in the future.
 
 To silence this warning and continue loading `.env` files, add:
@@ -44,10 +44,11 @@ See https://github.com/casey/just/issues/469 for more details.")?;
       },
     }
 
-    writeln!(w, "{}", message.suffix())?;
+    write!(f, "{}", message.suffix())?;
 
     if let Some(token) = self.context() {
-      token.write_context(w, warning)?;
+      writeln!(f)?;
+      write!(f, "{}", token.color_display(color))?;
     }
 
     Ok(())

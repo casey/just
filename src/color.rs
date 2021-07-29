@@ -30,14 +30,6 @@ impl Color {
     }
   }
 
-  pub(crate) fn fmt(fmt: &Formatter) -> Self {
-    if fmt.alternate() {
-      Self::always()
-    } else {
-      Self::never()
-    }
-  }
-
   pub(crate) fn auto() -> Self {
     Self {
       use_color: UseColor::Auto,

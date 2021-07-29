@@ -375,8 +375,8 @@ impl<'src> Justfile<'src> {
   }
 }
 
-impl<'src> Display for Justfile<'src> {
-  fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
+impl<'src> ColorDisplay for Justfile<'src> {
+  fn fmt(&self, f: &mut Formatter, color: Color) -> Result<(), fmt::Error> {
     let mut items = self.recipes.len() + self.assignments.len() + self.aliases.len();
     for (name, assignment) in &self.assignments {
       if assignment.export {
@@ -396,7 +396,7 @@ impl<'src> Display for Justfile<'src> {
       }
     }
     for recipe in self.recipes.values() {
-      write!(f, "{}", recipe)?;
+      write!(f, "{}", recipe.color_display(color))?;
       items -= 1;
       if items != 0 {
         write!(f, "\n\n")?;
@@ -683,11 +683,11 @@ mod tests {
 
   fn test(input: &str, expected: &str) {
     let justfile = compile(input);
-    let actual = format!("{:#}", justfile);
+    let actual = format!("{}", justfile.color_display(Color::never()));
     assert_eq!(actual, expected);
     println!("Re-parsing...");
     let reparsed = compile(&actual);
-    let redumped = format!("{:#}", reparsed);
+    let redumped = format!("{}", reparsed.color_display(Color::never()));
     assert_eq!(redumped, actual);
   }
 

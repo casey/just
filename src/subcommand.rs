@@ -62,24 +62,24 @@ impl Subcommand {
 
     if config.verbosity.loud() {
       for warning in &justfile.warnings {
-        warning.write(&mut io::stderr(), config.color.stderr()).ok();
+        eprintln!("{}", warning.color_display(config.color.stderr()));
       }
     }
 
     match self {
       Choose { overrides, chooser } =>
-        Self::choose(&config, justfile, &search, overrides, chooser.as_deref())?,
-      Command { overrides, .. } => justfile.run(&config, &search, overrides, &[])?,
+        Self::choose(config, justfile, &search, overrides, chooser.as_deref())?,
+      Command { overrides, .. } => justfile.run(config, &search, overrides, &[])?,
       Dump => Self::dump(ast),
-      Evaluate { overrides, .. } => justfile.run(&config, &search, overrides, &[])?,
-      Format => Self::format(&config, ast, &search)?,
-      List => Self::list(&config, justfile),
+      Evaluate { overrides, .. } => justfile.run(config, &search, overrides, &[])?,
+      Format => Self::format(config, ast, &search)?,
+      List => Self::list(config, justfile),
       Run {
         arguments,
         overrides,
-      } => justfile.run(&config, &search, overrides, arguments)?,
-      Show { ref name } => Self::show(&name, justfile)?,
-      Summary => Self::summary(&config, justfile),
+      } => justfile.run(config, &search, overrides, arguments)?,
+      Show { ref name } => Self::show(config, &name, justfile)?,
+      Summary => Self::summary(config, justfile),
       Variables => Self::variables(justfile),
       Completions { .. } | Edit | Init => unreachable!(),
     }
@@ -308,7 +308,9 @@ impl Subcommand {
         let mut line_width = UnicodeWidthStr::width(*name);
 
         for parameter in &recipe.parameters {
-          line_width += UnicodeWidthStr::width(format!(" {}", parameter).as_str());
+          line_width += UnicodeWidthStr::width(
+            format!(" {}", parameter.color_display(Color::never())).as_str(),
+          );
         }
 
         if line_width <= 30 {
@@ -331,11 +333,7 @@ impl Subcommand {
       {
         print!("{}{}", config.list_prefix, name);
         for parameter in &recipe.parameters {
-          if config.color.stdout().active() {
-            print!(" {:#}", parameter);
-          } else {
-            print!(" {}", parameter);
-          }
+          print!(" {}", parameter.color_display(config.color.stdout()));
         }
 
         // Declaring this outside of the nested loops will probably be more efficient,
@@ -365,14 +363,14 @@ impl Subcommand {
     }
   }
 
-  fn show<'src>(name: &str, justfile: Justfile<'src>) -> Result<(), Error<'src>> {
+  fn show<'src>(config: &Config, name: &str, justfile: Justfile<'src>) -> Result<(), Error<'src>> {
     if let Some(alias) = justfile.get_alias(name) {
       let recipe = justfile.get_recipe(alias.target.name.lexeme()).unwrap();
       println!("{}", alias);
-      println!("{}", recipe);
+      println!("{}", recipe.color_display(config.color.stdout()));
       Ok(())
     } else if let Some(recipe) = justfile.get_recipe(name) {
-      println!("{}", recipe);
+      println!("{}", recipe.color_display(config.color.stdout()));
       Ok(())
     } else {
       Err(Error::UnknownRecipes {
