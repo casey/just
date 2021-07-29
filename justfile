@@ -15,7 +15,7 @@ log := "warn"
 export JUST_LOG := log
 
 test:
-  cargo test
+  cargo ltest
 
 fuzz:
   cargo +nightly fuzz run fuzz-compiler
@@ -23,19 +23,12 @@ fuzz:
 run:
   cargo run
 
-@spam:
-  { \
-    figlet test; \
-    cargo build --color always 2>&1; \
-    cargo test  --color always -- --color always 2>&1; \
-  } | less
-
 # only run tests matching PATTERN
 filter PATTERN:
-  cargo test {{PATTERN}}
+  cargo ltest {{PATTERN}}
 
 build:
-  cargo build
+  cargo lbuild
 
 fmt:
   cargo +nightly fmt --all
@@ -65,7 +58,7 @@ check: actionlint fmt clippy test forbid
   git diff --no-ext-diff --quiet --exit-code
   grep '^\[{{ version }}\]' CHANGELOG.md
   cargo +nightly generate-lockfile -Z minimal-versions
-  cargo test
+  cargo ltest
   git checkout Cargo.lock
 
 publish-check: check man
@@ -101,10 +94,11 @@ install:
 install-dev-deps:
   rustup install nightly
   rustup update nightly
-  rustup run nightly cargo install -f clippy
-  cargo install -f cargo-watch
-  cargo install -f cargo-check
+  rustup run nightly cargo install clippy
   cargo +nightly install cargo-fuzz
+  cargo install cargo-check
+  cargo install cargo-limit
+  cargo install cargo-watch
 
 # install system development dependencies with homebrew
 install-dev-deps-homebrew:
@@ -116,7 +110,7 @@ actionlint:
 
 # everyone's favorite animate paper clip
 clippy:
-  cargo clippy --all --all-targets --all-features
+  cargo lclippy --all --all-targets --all-features
 
 forbid:
   ./bin/forbid
