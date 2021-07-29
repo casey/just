@@ -2,8 +2,6 @@ use crate::common::*;
 
 #[derive(Clone, Debug, PartialEq)]
 pub(crate) enum Warning {
-  // Remove this on 2021-07-01.
-  #[allow(dead_code)]
   DotenvLoad,
 }
 
@@ -49,8 +47,8 @@ See https://github.com/casey/just/issues/469 for more details.")?;
     write!(f, "{}", message.suffix())?;
 
     if let Some(token) = self.context() {
-      // todo: fix this
-      // token.write_context(f, warning).ok();
+      writeln!(f)?;
+      write!(f, "{}", token.color_display(color))?;
     }
 
     Ok(())

@@ -2298,17 +2298,13 @@ mod tests {
       } if message == "Lexer presumed character `-`"
     );
 
-    let mut cursor = Cursor::new(Vec::new());
-
-    Error::Compile { compile_error }
-      .write(&mut cursor, Color::never())
-      .unwrap();
-
     assert_eq!(
-      str::from_utf8(&cursor.into_inner()).unwrap(),
+      Error::Compile { compile_error }
+        .color_display(Color::never())
+        .to_string(),
       "error: Internal error, this may indicate a bug in just: \
       Lexer presumed character `-`\nconsider filing an issue: \
-      https://github.com/casey/just/issues/new\n  |\n1 | !\n  | ^\n"
+      https://github.com/casey/just/issues/new\n  |\n1 | !\n  | ^"
     );
   }
 }

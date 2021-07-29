@@ -309,8 +309,8 @@ impl<'src, D> Keyed<'src> for Recipe<'src, D> {
   }
 }
 
-impl<'src, D: Display> Display for Recipe<'src, D> {
-  fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
+impl<'src, D: Display> ColorDisplay for Recipe<'src, D> {
+  fn fmt(&self, f: &mut Formatter, color: Color) -> Result<(), fmt::Error> {
     if let Some(doc) = self.doc {
       writeln!(f, "# {}", doc)?;
     }
@@ -322,7 +322,7 @@ impl<'src, D: Display> Display for Recipe<'src, D> {
     }
 
     for parameter in &self.parameters {
-      write!(f, " {}", parameter)?;
+      write!(f, " {}", parameter.color_display(color))?;
     }
     write!(f, ":")?;
 
