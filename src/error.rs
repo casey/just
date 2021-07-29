@@ -200,11 +200,11 @@ impl<'src> ColorDisplay for Error<'src> {
     match self {
       ArgumentCountMismatch {
         recipe,
-        parameters,
         found,
         min,
         max,
-      } => {
+        ..
+      } =>
         if min == max {
           let expected = min;
           write!(
@@ -234,12 +234,7 @@ impl<'src> ColorDisplay for Error<'src> {
             Count("argument", *found),
             max
           )?;
-        }
-        write!(f, "\nusage:\n    just {}", recipe)?;
-        for param in parameters {
-          write!(f, " {}", param.color_display(color))?;
-        }
-      },
+        },
       Backtick { output_error, .. } => match output_error {
         OutputError::Code(code) => {
           write!(f, "Backtick failed with exit code {}", code)?;
@@ -603,6 +598,22 @@ impl<'src> ColorDisplay for Error<'src> {
     }
 
     write!(f, "{}", color.message().suffix())?;
+
+    if let ArgumentCountMismatch {
+      recipe, parameters, ..
+    } = self
+    {
+      writeln!(f)?;
+      write!(
+        f,
+        "{}:\n    just {}",
+        color.message().paint("usage"),
+        recipe
+      )?;
+      for param in parameters {
+        write!(f, " {}", param.color_display(color))?;
+      }
+    }
 
     if let Some(token) = self.context() {
       writeln!(f)?;

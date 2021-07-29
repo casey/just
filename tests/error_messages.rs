@@ -23,3 +23,19 @@ test! {
   ",
   status: EXIT_FAILURE,
 }
+
+#[test]
+fn argument_count_mismatch() {
+  Test::new()
+    .justfile("foo a b:")
+    .args(&["foo"])
+    .stderr(
+      "
+      error: Recipe `foo` got 0 arguments but takes 2
+      usage:
+          just foo a b
+    ",
+    )
+    .status(EXIT_FAILURE)
+    .run();
+}
