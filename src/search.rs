@@ -114,7 +114,7 @@ impl Search {
 
   fn justfile(directory: &Path) -> SearchResult<PathBuf> {
     for directory in directory.ancestors() {
-      let mut candidates = Vec::new();
+      let mut candidates = BTreeSet::new();
 
       let entries = fs::read_dir(directory).map_err(|io_error| SearchError::Io {
         io_error,
@@ -128,14 +128,14 @@ impl Search {
         if let Some(name) = entry.file_name().to_str() {
           for justfile_name in JUSTFILE_NAMES {
             if name.eq_ignore_ascii_case(justfile_name) {
-              candidates.push(entry.path());
+              candidates.insert(entry.path());
             }
           }
         }
       }
 
       if candidates.len() == 1 {
-        return Ok(candidates.pop().unwrap());
+        return Ok(candidates.into_iter().next().unwrap());
       } else if candidates.len() > 1 {
         return Err(SearchError::MultipleCandidates { candidates });
       }

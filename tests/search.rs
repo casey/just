@@ -179,7 +179,7 @@ fn dot_justfile_conflicts_with_justfile() {
         foo:
       ",
     })
-    .stderr_regex("error: Multiple candidate justfiles found in `.*`: `justfile` and `.justfile`\n")
+    .stderr_regex("error: Multiple candidate justfiles found in `.*`: `.justfile` and `justfile`\n")
     .status(EXIT_FAILURE)
     .run();
 }
