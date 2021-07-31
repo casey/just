@@ -1576,6 +1576,10 @@ default:
   echo foo
 ```
 
+=== Changelog
+
+An up-to-date changelog is available in link:CHANGELOG.md[]. `just --changelog` can also be used to get the changelog for a particular `just` binary.
+
 == Miscellanea
 
 === Companion Tools
