@@ -31,6 +31,7 @@ complete -c just -n "__fish_use_subcommand" -l clear-shell-args -d 'Clear shell 
 complete -c just -n "__fish_use_subcommand" -s u -l unsorted -d 'Return list and summary entries in source order'
 complete -c just -n "__fish_use_subcommand" -l unstable -d 'Enable unstable features'
 complete -c just -n "__fish_use_subcommand" -s v -l verbose -d 'Use verbose output'
+complete -c just -n "__fish_use_subcommand" -l changelog -d 'Print changelog'
 complete -c just -n "__fish_use_subcommand" -l choose -d 'Select one or more recipes to run using a binary. If `--chooser` is not passed the chooser defaults to the value of $JUST_CHOOSER, falling back to `fzf`'
 complete -c just -n "__fish_use_subcommand" -l dump -d 'Print entire justfile'
 complete -c just -n "__fish_use_subcommand" -s e -l edit -d 'Edit justfile with editor given by $VISUAL or $EDITOR, falling back to `vim`'
