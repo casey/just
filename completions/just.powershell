@@ -48,6 +48,7 @@ Register-ArgumentCompleter -Native -CommandName 'just' -ScriptBlock {
             [CompletionResult]::new('--unstable', 'unstable', [CompletionResultType]::ParameterName, 'Enable unstable features')
             [CompletionResult]::new('-v', 'v', [CompletionResultType]::ParameterName, 'Use verbose output')
             [CompletionResult]::new('--verbose', 'verbose', [CompletionResultType]::ParameterName, 'Use verbose output')
+            [CompletionResult]::new('--changelog', 'changelog', [CompletionResultType]::ParameterName, 'Print changelog')
             [CompletionResult]::new('--choose', 'choose', [CompletionResultType]::ParameterName, 'Select one or more recipes to run using a binary. If `--chooser` is not passed the chooser defaults to the value of $JUST_CHOOSER, falling back to `fzf`')
             [CompletionResult]::new('--dump', 'dump', [CompletionResultType]::ParameterName, 'Print entire justfile')
             [CompletionResult]::new('-e', 'e', [CompletionResultType]::ParameterName, 'Edit justfile with editor given by $VISUAL or $EDITOR, falling back to `vim`')

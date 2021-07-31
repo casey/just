@@ -3,6 +3,7 @@ mod test;
 
 mod assert_stdout;
 mod assert_success;
+mod changelog;
 mod choose;
 mod command;
 mod common;

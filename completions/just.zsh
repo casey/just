@@ -44,6 +44,7 @@ _just() {
 '--unstable[Enable unstable features]' \
 '*-v[Use verbose output]' \
 '*--verbose[Use verbose output]' \
+'--changelog[Print changelog]' \
 '--choose[Select one or more recipes to run using a binary. If `--chooser` is not passed the chooser defaults to the value of $JUST_CHOOSER, falling back to `fzf`]' \
 '--dump[Print entire justfile]' \
 '-e[Edit justfile with editor given by $VISUAL or $EDITOR, falling back to `vim`]' \
