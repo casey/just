@@ -18,7 +18,7 @@ pub(crate) use libc::{EXIT_FAILURE, EXIT_SUCCESS};
 pub(crate) use pretty_assertions::Comparison;
 pub(crate) use regex::Regex;
 pub(crate) use tempfile::TempDir;
-pub(crate) use temptree::temptree;
+pub(crate) use temptree::{temptree, tree, Tree};
 pub(crate) use which::which;
 pub(crate) use yaml_rust::YamlLoader;
 

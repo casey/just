@@ -231,7 +231,7 @@ another-recipe:
 
 When you invoke `just` it looks for file `justfile` in the current directory and upwards, so you can invoke it from any subdirectory of your project.
 
-The search for a `justfile` is case insensitive, so any case, like `Justfile`, `JUSTFILE`, or `JuStFiLe`, will work.
+The search for a `justfile` is case insensitive, so any case, like `Justfile`, `JUSTFILE`, or `JuStFiLe`, will work. `just` will also look for files with the name `.justfile`, in case you'd like to hide a `justfile`.
 
 Running `just` with no arguments runs the first recipe in the `justfile`:
 
@@ -1541,6 +1541,10 @@ $ (cd foo && just build)
 $ just foo/build
 $ just foo/
 ```
+
+=== Hiding Justfiles
+
+`just` looks for justfiles named `justfile` and `.justfile`, which can be used to keep a `justfile` hidden.
 
 === Just Scripts
 

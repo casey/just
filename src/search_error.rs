@@ -16,14 +16,14 @@ pub(crate) enum SearchError {
   JustfileHadNoParent { path: PathBuf },
   #[snafu(display(
     "Multiple candidate justfiles found in `{}`: {}",
-    candidates[0].parent().unwrap().display(),
+    candidates.iter().next().unwrap().parent().unwrap().display(),
     List::and_ticked(
       candidates
         .iter()
         .map(|candidate| candidate.file_name().unwrap().to_string_lossy())
     ),
   ))]
-  MultipleCandidates { candidates: Vec<PathBuf> },
+  MultipleCandidates { candidates: BTreeSet<PathBuf> },
   #[snafu(display("No justfile found"))]
   NotFound,
 }
@@ -35,15 +35,15 @@ mod tests {
   #[test]
   fn multiple_candidates_formatting() {
     let error = SearchError::MultipleCandidates {
-      candidates: vec![
-        PathBuf::from("/foo/justfile"),
-        PathBuf::from("/foo/JUSTFILE"),
-      ],
+      candidates: [Path::new("/foo/justfile"), Path::new("/foo/JUSTFILE")]
+        .iter()
+        .map(|path| path.to_path_buf())
+        .collect(),
     };
 
     assert_eq!(
       error.to_string(),
-      "Multiple candidate justfiles found in `/foo`: `justfile` and `JUSTFILE`"
+      "Multiple candidate justfiles found in `/foo`: `JUSTFILE` and `justfile`"
     );
   }
 }

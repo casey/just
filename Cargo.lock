@@ -549,9 +549,9 @@ dependencies = [
 
 [[package]]
 name = "temptree"
-version = "0.1.0"
+version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "13f60523942b252a93f18dd6c8ba53488929d59f7b106be23a29bc9cbc466461"
+checksum = "8fda94d8251b40088cb769576f436da19ac1d1ae792c97d0afe1cadc890c8630"
 dependencies = [
  "tempfile",
 ]

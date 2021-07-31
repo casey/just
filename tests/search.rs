@@ -142,3 +142,44 @@ fn single_upwards() {
 
   search_test(&path, &["../"]);
 }
+
+#[test]
+fn find_dot_justfile() {
+  Test::new()
+    .justfile(
+      "
+      foo:
+        echo bad
+    ",
+    )
+    .tree(tree! {
+      dir: {
+        ".justfile": "
+          foo:
+            echo ok
+        "
+      }
+    })
+    .current_dir("dir")
+    .stderr("echo ok\n")
+    .stdout("ok\n")
+    .run();
+}
+
+#[test]
+fn dot_justfile_conflicts_with_justfile() {
+  Test::new()
+    .justfile(
+      "
+        foo:
+    ",
+    )
+    .tree(tree! {
+      ".justfile": "
+        foo:
+      ",
+    })
+    .stderr_regex("error: Multiple candidate justfiles found in `.*`: `.justfile` and `justfile`\n")
+    .status(EXIT_FAILURE)
+    .run();
+}

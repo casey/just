@@ -23,7 +23,7 @@ pub(crate) fn config(args: &[&str]) -> Config {
 
 pub(crate) fn search(config: &Config) -> Search {
   let working_directory = config.invocation_directory.clone();
-  let justfile = working_directory.join(crate::search::FILENAME);
+  let justfile = working_directory.join("justfile");
 
   Search {
     justfile,

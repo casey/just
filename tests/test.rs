@@ -33,17 +33,18 @@ macro_rules! test {
 }
 
 pub(crate) struct Test {
-  pub(crate) tempdir: TempDir,
-  pub(crate) justfile: Option<String>,
   pub(crate) args: Vec<String>,
+  pub(crate) current_dir: PathBuf,
   pub(crate) env: BTreeMap<String, String>,
-  pub(crate) stdin: String,
-  pub(crate) stdout: String,
+  pub(crate) justfile: Option<String>,
+  pub(crate) shell: bool,
+  pub(crate) status: i32,
   pub(crate) stderr: String,
   pub(crate) stderr_regex: Option<Regex>,
-  pub(crate) status: i32,
-  pub(crate) shell: bool,
+  pub(crate) stdin: String,
+  pub(crate) stdout: String,
   pub(crate) suppress_dotenv_load_warning: bool,
+  pub(crate) tempdir: TempDir,
 }
 
 impl Test {
@@ -54,6 +55,7 @@ impl Test {
   pub(crate) fn with_tempdir(tempdir: TempDir) -> Self {
     Self {
       args: Vec::new(),
+      current_dir: PathBuf::new(),
       env: BTreeMap::new(),
       justfile: Some(String::new()),
       shell: true,
@@ -76,6 +78,11 @@ impl Test {
     for arg in args {
       self = self.arg(arg);
     }
+    self
+  }
+
+  pub(crate) fn current_dir(mut self, path: impl AsRef<Path>) -> Self {
+    self.current_dir = path.as_ref().to_owned();
     self
   }
 
@@ -132,6 +139,12 @@ impl Test {
     self.suppress_dotenv_load_warning = suppress_dotenv_load_warning;
     self
   }
+
+  pub(crate) fn tree(self, mut tree: Tree) -> Self {
+    tree.map(|_name, content| unindent(content));
+    tree.instantiate(&self.tempdir.path()).unwrap();
+    self
+  }
 }
 
 impl Test {
@@ -165,7 +178,7 @@ impl Test {
           "0"
         },
       )
-      .current_dir(self.tempdir.path())
+      .current_dir(self.tempdir.path().join(self.current_dir))
       .stdin(Stdio::piped())
       .stdout(Stdio::piped())
       .stderr(Stdio::piped())

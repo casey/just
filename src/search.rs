@@ -2,7 +2,8 @@ use crate::common::*;
 
 use std::path::Component;
 
-pub(crate) const FILENAME: &str = "justfile";
+const DEFAULT_JUSTFILE_NAME: &str = JUSTFILE_NAMES[0];
+const JUSTFILE_NAMES: &[&str] = &["justfile", ".justfile"];
 const PROJECT_ROOT_CHILDREN: &[&str] = &[".bzr", ".git", ".hg", ".svn", "_darcs"];
 
 pub(crate) struct Search {
@@ -69,7 +70,7 @@ impl Search {
       SearchConfig::FromInvocationDirectory => {
         let working_directory = Self::project_root(&invocation_directory)?;
 
-        let justfile = working_directory.join(FILENAME);
+        let justfile = working_directory.join(DEFAULT_JUSTFILE_NAME);
 
         Ok(Self {
           justfile,
@@ -82,7 +83,7 @@ impl Search {
 
         let working_directory = Self::project_root(&search_directory)?;
 
-        let justfile = working_directory.join(FILENAME);
+        let justfile = working_directory.join(DEFAULT_JUSTFILE_NAME);
 
         Ok(Self {
           justfile,
@@ -113,7 +114,7 @@ impl Search {
 
   fn justfile(directory: &Path) -> SearchResult<PathBuf> {
     for directory in directory.ancestors() {
-      let mut candidates = Vec::new();
+      let mut candidates = BTreeSet::new();
 
       let entries = fs::read_dir(directory).map_err(|io_error| SearchError::Io {
         io_error,
@@ -125,14 +126,16 @@ impl Search {
           directory: directory.to_owned(),
         })?;
         if let Some(name) = entry.file_name().to_str() {
-          if name.eq_ignore_ascii_case(FILENAME) {
-            candidates.push(entry.path());
+          for justfile_name in JUSTFILE_NAMES {
+            if name.eq_ignore_ascii_case(justfile_name) {
+              candidates.insert(entry.path());
+            }
           }
         }
       }
 
       if candidates.len() == 1 {
-        return Ok(candidates.pop().unwrap());
+        return Ok(candidates.into_iter().next().unwrap());
       } else if candidates.len() > 1 {
         return Err(SearchError::MultipleCandidates { candidates });
       }
@@ -212,10 +215,10 @@ mod tests {
   fn multiple_candidates() {
     let tmp = testing::tempdir();
     let mut path = tmp.path().to_path_buf();
-    path.push(FILENAME);
+    path.push(DEFAULT_JUSTFILE_NAME);
     fs::write(&path, "default:\n\techo ok").unwrap();
     path.pop();
-    path.push(FILENAME.to_uppercase());
+    path.push(DEFAULT_JUSTFILE_NAME.to_uppercase());
     if fs::File::open(path.as_path()).is_ok() {
       // We are in case-insensitive file system
       return;
@@ -232,7 +235,7 @@ mod tests {
   fn found() {
     let tmp = testing::tempdir();
     let mut path = tmp.path().to_path_buf();
-    path.push(FILENAME);
+    path.push(DEFAULT_JUSTFILE_NAME);
     fs::write(&path, "default:\n\techo ok").unwrap();
     path.pop();
     if let Err(err) = Search::justfile(path.as_path()) {
@@ -244,7 +247,7 @@ mod tests {
   fn found_spongebob_case() {
     let tmp = testing::tempdir();
     let mut path = tmp.path().to_path_buf();
-    let spongebob_case = FILENAME
+    let spongebob_case = DEFAULT_JUSTFILE_NAME
       .chars()
       .enumerate()
       .map(|(i, c)| {
@@ -267,7 +270,7 @@ mod tests {
   fn found_from_inner_dir() {
     let tmp = testing::tempdir();
     let mut path = tmp.path().to_path_buf();
-    path.push(FILENAME);
+    path.push(DEFAULT_JUSTFILE_NAME);
     fs::write(&path, "default:\n\techo ok").unwrap();
     path.pop();
     path.push("a");
@@ -283,12 +286,12 @@ mod tests {
   fn found_and_stopped_at_first_justfile() {
     let tmp = testing::tempdir();
     let mut path = tmp.path().to_path_buf();
-    path.push(FILENAME);
+    path.push(DEFAULT_JUSTFILE_NAME);
     fs::write(&path, "default:\n\techo ok").unwrap();
     path.pop();
     path.push("a");
     fs::create_dir(&path).expect("test justfile search: failed to create intermediary directory");
-    path.push(FILENAME);
+    path.push(DEFAULT_JUSTFILE_NAME);
     fs::write(&path, "default:\n\techo ok").unwrap();
     path.pop();
     path.push("b");
@@ -296,7 +299,7 @@ mod tests {
     match Search::justfile(path.as_path()) {
       Ok(found_path) => {
         path.pop();
-        path.push(FILENAME);
+        path.push(DEFAULT_JUSTFILE_NAME);
         assert_eq!(found_path, path);
       },
       Err(err) => panic!("No errors were expected: {}", err),
