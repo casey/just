@@ -575,6 +575,7 @@ USAGE:
     just [FLAGS] [OPTIONS] [--] [ARGUMENTS]...
 
 FLAGS:
+        --changelog           Print changelog
         --choose              Select one or more recipes to run using a binary. If `--chooser` is \
                                  not passed the chooser
                               defaults to the value of $JUST_CHOOSER, falling back to `fzf`
