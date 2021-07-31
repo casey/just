@@ -4,6 +4,7 @@ const INIT_JUSTFILE: &str = "default:\n\techo 'Hello, world!'\n";
 
 #[derive(PartialEq, Clone, Debug)]
 pub(crate) enum Subcommand {
+  Changelog,
   Choose {
     overrides: BTreeMap<String, String>,
     chooser:   Option<String>,
@@ -40,12 +41,14 @@ impl Subcommand {
   pub(crate) fn run<'src>(&self, config: &Config, loader: &'src Loader) -> Result<(), Error<'src>> {
     use Subcommand::*;
 
-    if let Init = self {
-      return Self::init(config);
-    }
-
-    if let Completions { shell } = self {
-      return Self::completions(&shell);
+    match self {
+      Changelog => {
+        Self::changelog();
+        return Ok(());
+      },
+      Completions { shell } => return Self::completions(&shell),
+      Init => return Self::init(config),
+      _ => {},
     }
 
     let search = Search::find(&config.search_config, &config.invocation_directory)?;
@@ -81,10 +84,14 @@ impl Subcommand {
       Show { ref name } => Self::show(config, &name, justfile)?,
       Summary => Self::summary(config, justfile),
       Variables => Self::variables(justfile),
-      Completions { .. } | Edit | Init => unreachable!(),
+      Changelog | Completions { .. } | Edit | Init => unreachable!(),
     }
 
     Ok(())
+  }
+
+  fn changelog() {
+    print!("{}", include_str!("../CHANGELOG.md"));
   }
 
   fn choose<'src>(

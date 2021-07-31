@@ -33,7 +33,9 @@ pub(crate) struct Config {
 }
 
 mod cmd {
+  pub(crate) const CHANGELOG: &str = "CHANGELOG";
   pub(crate) const CHOOSE: &str = "CHOOSE";
+  pub(crate) const COMMAND: &str = "COMMAND";
   pub(crate) const COMPLETIONS: &str = "COMPLETIONS";
   pub(crate) const DUMP: &str = "DUMP";
   pub(crate) const EDIT: &str = "EDIT";
@@ -44,9 +46,9 @@ mod cmd {
   pub(crate) const SHOW: &str = "SHOW";
   pub(crate) const SUMMARY: &str = "SUMMARY";
   pub(crate) const VARIABLES: &str = "VARIABLES";
-  pub(crate) const COMMAND: &str = "COMMAND";
 
   pub(crate) const ALL: &[&str] = &[
+    CHANGELOG,
     CHOOSE,
     COMMAND,
     COMPLETIONS,
@@ -62,6 +64,7 @@ mod cmd {
   ];
 
   pub(crate) const ARGLESS: &[&str] = &[
+    CHANGELOG,
     COMPLETIONS,
     DUMP,
     EDIT,
@@ -238,6 +241,11 @@ impl Config {
           .takes_value(true)
           .help("Use <WORKING-DIRECTORY> as working directory. --justfile must also be set")
           .requires(arg::JUSTFILE),
+      )
+      .arg(
+        Arg::with_name(cmd::CHANGELOG)
+          .long("changelog")
+          .help("Print changelog"),
       )
       .arg(Arg::with_name(cmd::CHOOSE).long("choose").help(CHOOSE_HELP))
       .arg(
@@ -431,7 +439,9 @@ impl Config {
       }
     }
 
-    let subcommand = if matches.is_present(cmd::CHOOSE) {
+    let subcommand = if matches.is_present(cmd::CHANGELOG) {
+      Subcommand::Changelog
+    } else if matches.is_present(cmd::CHOOSE) {
       Subcommand::Choose {
         chooser: matches.value_of(arg::CHOOSER).map(str::to_owned),
         overrides,
@@ -964,6 +974,11 @@ ARGS:
   }
 
   error! {
+    name: subcommand_conflict_changelog,
+    args: ["--list", "--changelog"],
+  }
+
+  error! {
     name: subcommand_conflict_summary,
     args: ["--list", "--summary"],
   }
@@ -1291,6 +1306,16 @@ ARGS:
     check: {
       assert_eq!(subcommand, cmd::COMPLETIONS);
       assert_eq!(arguments, &["foo"]);
+    },
+  }
+
+  error! {
+    name: changelog_arguments,
+    args: ["--changelog", "bar"],
+    error: ConfigError::SubcommandArguments { subcommand, arguments },
+    check: {
+      assert_eq!(subcommand, cmd::CHANGELOG);
+      assert_eq!(arguments, &["bar"]);
     },
   }
 
