@@ -1578,7 +1578,7 @@ default:
 
 === Changelog
 
-An up-to-date changelog is available in link:CHANGELOG.md[]. `just --changelog` can also be used to get the changelog for a particular `just` binary.
+An changelog for the latest release is available in link:CHANGELOG.md[]. Changelogs for previous releases are avaiable on https://github.com/casey/just/releases[the releases page]. `just --changelog` can also be used to get the changelog for a particular `just` binary.
 
 == Miscellanea
 
