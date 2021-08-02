@@ -291,7 +291,6 @@ dependencies = [
  "chrono",
  "git2",
  "hex",
- "libz-sys",
  "regex",
  "semver",
  "serde",
