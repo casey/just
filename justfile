@@ -68,10 +68,6 @@ publish: publish-check
   git push github {{version}}
   cargo publish
 
-tag name hash:
-  git tag --sign --message 'Release {{ name }}' {{ name }} {{hash}}
-  git push github {{ name }}
-
 push: check
   ! git branch | grep '* master'
   git push github
