@@ -22,7 +22,7 @@ impl Changelog {
         commit
           .version
           .as_ref()
-          .expect(&format!("No version for release {}", commit.oid())),
+          .unwrap_or_else(|| panic!("No version for release {}", commit.oid())),
       ));
     }
 

@@ -5,7 +5,9 @@ set -euxo pipefail
 which rg
 
 ! rg \
-  --glob !bin/forbid \
   --glob !CHANGELOG.md \
+  --glob !CHANGELOG.txt \
+  --glob !bin/forbid \
+  --glob !metadata.yaml \
   --ignore-case \
   'dbg!|fixme|todo|xxx'

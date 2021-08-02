@@ -19,7 +19,7 @@ impl Release {
         },
         version
       ))
-      .expect(&format!(""))
+      .unwrap()
       .peel_to_tag()
       .unwrap();
 
@@ -35,7 +35,7 @@ impl Release {
     self
       .sections
       .entry(commit.ty)
-      .or_insert(Section::default())
+      .or_insert_with(Section::default)
       .add(commit);
   }
 
