@@ -2256,21 +2256,3 @@ commits:
     summary: Initial commit. Broken.
     type: release
     version: 0.1.0
-  - hash: 421dd9653ca02c0212f65bbbfac4dc01593dfe3c
-    summary: Remove uncategorized commits
-    type: uncategorized
-  - hash: 9d7f1a1457433f3f6bbda5c5a4d323a27e00fe84
-    summary: Save changelog
-    type: uncategorized
-  - hash: 98fe8d2a1aaa84732ee063e1adc9a233db633ade
-    summary: "Make `--changelog` print CHANGELOG.txt"
-    type: uncategorized
-  - hash: 16d865dad9b3c8f195bb1f28170be5e07282e532
-    summary: More stuff
-    type: uncategorized
-  - hash: 385a00d6a2a1ba0b682475eed61feb6a1dc7c0b9
-    summary: Comment
-    type: uncategorized
-  - hash: 5bb4b4a382fd5e8ee7bc3e9d69622f238e83d514
-    summary: "Add `--changelog` subcommand (#932)"
-    type: uncategorized
