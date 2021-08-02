@@ -127,13 +127,6 @@ impl Section {
   }
 }
 
-// TODO:
-// - check in release script that changelog is up to date and all commits have
-//   metadata
-// - remove `---` from yaml
-// - reenalbe writing metadata metadata.write("metadata.yaml");
-// - print text changelog?
-
 #[derive(Default, Deserialize, Serialize)]
 struct Metadata {
   commits: Vec<Commit>,
@@ -146,7 +139,14 @@ impl Metadata {
   }
 
   fn write(&self, path: impl AsRef<Path>) {
-    fs::write(path, serde_yaml::to_string(self).unwrap()).unwrap();
+    fs::write(
+      path,
+      serde_yaml::to_string(self)
+        .unwrap()
+        .remove_prefix("---\n")
+        .unwrap(),
+    )
+    .unwrap();
   }
 
   fn commit_metadata(&self, oid: Oid) -> Option<&Commit> {
@@ -223,19 +223,6 @@ impl Commit {
   }
 }
 
-// TODO: document commit types
-// - added = user can do something new that they might like to know about
-// - changed = something that user was doing changed in a way that they would
-//   like to know about
-// - breaking = something that used to work now no longer worked
-// - fixed = somethign that didn't work now works
-// - release = release commit
-// - misc = anything that users either don't care about (development stuff,
-//   refactors, testing infrastructure) or will discover without needing to look
-//   for specifically (documentation fixes, error message fixes, etc)
-// - merge = merge commit that shouldn't show up in changelog
-// - require linear history after a point
-
 #[derive(
   Deserialize, PartialEq, Serialize, Ord, Eq, PartialOrd, Copy, Clone, strum_macros::Display,
 )]
@@ -248,6 +235,7 @@ enum CommitType {
   Added,
   Misc,
   Merge,
+  Uncategorized,
 }
 
 fn main() {
@@ -264,21 +252,22 @@ fn main() {
   for result in revwalker {
     let oid = result.unwrap();
     let summary = repo.find_commit(oid).unwrap().summary().unwrap().to_owned();
+    if metadata.commit_metadata(oid).is_none() {
+      metadata.add_uncategorized_commit(oid, &summary);
+    }
   }
 
-  // if metadata.commit_metadata(oid).is_none() {
-  //   metadata.add_uncategorized_commit(oid, &summary);
-  // }
+  metadata.write(metadata_path);
 
-  // let uncategorized = metadata
-  //   .commits
-  //   .iter()
-  //   .filter(|commit| commit.ty == CommitType::Uncategorized)
-  //   .count();
+  let uncategorized = metadata
+    .commits
+    .iter()
+    .filter(|commit| commit.ty == CommitType::Uncategorized)
+    .count();
 
-  // if uncategorized > 0 {
-  //   panic!("{} uncategorized commits, aborting…", uncategorized);
-  // }
+  if uncategorized > 0 {
+    panic!("{} uncategorized commits, aborting…", uncategorized);
+  }
 
   let mut changelog = Changelog::new(Format::Markdown);
 
