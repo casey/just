@@ -1,0 +1,1248 @@
+Changelog
+=========
+
+Unreleased
+----------
+
+### Fixed
+- Fix colors (#927)
+
+### Changed
+- Warn if `.env` file is loaded in `dotenv-load` isn't explicitly set (#925)
+
+### Added
+- Support `.justfile` as an alternative to `justfile` (#931)
+
+### Misc
+- Use cargo-limit for all recipes (#928)
+- Use ColorDisplay trait to print objects to the terminal (#926)
+- Deduplicate recipe parsing (#923)
+- Move subcommand functions into Subcommand (#918)
+- Check GitHub Actions workflow with actionlint (#921)
+- Add loader and refactor errors (#917)
+- Rename: Module → Ast (#915)
+
+0.9.9 - tag: 0.9.9 - 1970-1-1
+-----------------------------
+
+### Release
+- Release 0.9.9 (#913)
+- Release 0.9.8 (#896)
+
+### Fixed
+- Fix circular variable dependency error message (#909)
+
+### Added
+- Add subsequent dependencies (#820)
+- Implement `else if` chaining (#910)
+
+### Misc
+- Document new features (#914)
+- Improve readme (#904)
+- Add screenshot to readme (#911)
+- Add install instructions for Fedora Linux (#898)
+- Fix readme typos (#903)
+- Actually fix release tagging and publish changelog with releases (#901)
+- Fix broken prerelease tagging (#900)
+- Use string value for ref-type check (#897)
+- Fix changelog formatting (#894)
+
+0.9.7 - tag: 0.9.7 - 1970-1-1
+-----------------------------
+
+### Release
+- Release 0.9.7 (#893)
+
+### Added
+- Add string manipulation functions (#888)
+
+### Misc
+- Only run install script on CI for non-releases (#895)
+- Remove test-utilities crate (#892)
+- Remove outdated note in `Cargo.toml` (#891)
+- Link to GitHub release pages in changelog (#886)
+
+0.9.6 - tag: 0.9.6 - 1970-1-1
+-----------------------------
+
+### Release
+- Release v0.9.6 (#884)
+
+### Added
+- Add `clean` function for simplifying paths (#883)
+- Add `join` function for joining paths (#882)
+- Add path manipulation functions (#872)
+
+### Misc
+- Add `file_extensions` to Sublime syntax file (#878)
+- Document path manipulation functions in readme (#877)
+
+0.9.5 - tag: 0.9.5 - 1970-1-1
+-----------------------------
+
+### Release
+- Release v0.9.5 (#870)
+
+### Added
+- Add `--unstable` flag (#869)
+- Add Sublime Text syntax file (#864)
+- Add `--fmt` subcommand (#837)
+
+### Misc
+- Mention doniogela.dev/just/ in readme (#866)
+- Mention that vim-just is now available from vim-polyglot (#865)
+- Mention `--list-heading` newline behavior (#860)
+- Check for `rg` in `bin/forbid` (#859)
+- Document that variables are not exported to backticks in the same scope (#856)
+- Remove `dotenv_load` from tests (#853)
+- Remove `v` prefix from version (#850)
+- Improve install script (#847)
+- Move pages assets back to `docs` (#846)
+- Move pages assets to `www` (#845)
+
+0.9.4 - tag: v0.9.4 - 1970-1-1
+------------------------------
+
+### Release
+- Release v0.9.4 (#844)
+
+### Misc
+- Release `aarch64-unknown-linux-gnu` binaries (#843)
+- Add `$` to non-default parameter grammar (#839)
+- Add `$` to parameter grammar (#838)
+- Fix readme links (#836)
+- Add `vim-just` installation instructions to readme (#835)
+- Refactor shebang handling (#833)
+
+0.9.3 - tag: v0.9.3 - 1970-1-1
+------------------------------
+
+### Release
+- Release v0.9.3 (#832)
+
+### Fixed
+- Fix bang lexing and placate clippy (#821)
+
+### Added
+- Add shebang support for 'cmd.exe' (#828)
+- Add `.exe` to powershell scripts (#826)
+- Add the `--command` subcommand (#824)
+
+### Misc
+- Fixed missing close apostrophe in GRAMMAR.md (#830)
+- Make 'else' keyword in grammar (#829)
+- Add forbid script (#827)
+- Remove `summary` feature (#823)
+- Document that just is now in Arch official repo (#814)
+- Fix changelog years (#813)
+
+0.9.2 - tag: v0.9.2 - 1970-1-1
+------------------------------
+
+### Release
+- Release v0.9.2 (#811)
+
+### Fixed
+- Pass evaluated arguments as positional arguments (#810)
+
+0.9.1 - tag: v0.9.1 - 1970-1-1
+------------------------------
+
+### Release
+- Release v0.9.1 (#807)
+
+### Changed
+- Reform and improve string literals (#793)
+- Allow evaluating justfiles with no recipes (#794)
+- Unify string lexing (#790)
+
+### Added
+- Change `--eval` to print variable value only (#806)
+- Add `positional-arguments` setting (#804)
+- Allow filtering variables to evaluate (#795)
+
+### Misc
+- Fix typo in readme: `Recipe` -> `recipe` (#805)
+- Test multi-line strings in interpolation (#789)
+- Add shell setting examples to README (#787)
+- Disable .env warning for now
+- Warn if `.env` file loaded and `dotenv-load` unset (#784)
+
+0.9.0 - tag: v0.9.0 - 1970-1-1
+------------------------------
+
+### Release
+- Release v0.9.0 (#781)
+
+### Changed
+- Turn `=` deprecation warning into a hard error (#780)
+
+0.8.7 - tag: v0.8.7 - 1970-1-1
+------------------------------
+
+### Release
+- Release v0.8.7 (#779)
+
+### Added
+- Add `dotenv-load` setting (#778)
+
+### Misc
+- Change publish recipe to use stable rust (#777)
+
+0.8.6 - tag: v0.8.6 - 1970-1-1
+------------------------------
+
+### Release
+- Release v0.8.6 (#776)
+
+### Changed
+- Suppress all output to stderr when `--quiet` (#771)
+
+### Added
+- Add just_executable() function (#775)
+- Prefix parameters with `$` to export to environment (#773)
+- Add `set export` to export all variables as environment variables (#767)
+
+### Misc
+- Improve chooser invocation error message (#772)
+- De-emphasize cmd.exe in readme (#768)
+- Fix warnings (#770)
+
+0.8.5 - tag: v0.8.5 - 1970-1-1
+------------------------------
+
+### Release
+- Release v0.8.5 (#766)
+
+### Added
+- Allow escaping double braces with `{{{{` (#765)
+
+### Misc
+- Reorganize readme to highlight editor support (#764)
+- Add categories and keywords to Cargo manifest (#763)
+- Fix command output in readme (#760)
+- Note Emacs package `just-mode` in readme (#759)
+- Note shebang line splitting inconsistency in readme (#757)
+
+0.8.4 - tag: v0.8.4 - 1970-1-1
+------------------------------
+
+### Release
+- Release v0.8.4 (#754)
+
+### Added
+- Add options to control list formatting (#753)
+
+### Misc
+- Document how to change the working directory in a recipe (#752)
+- Implement `Default` for `Table` (#748)
+- Add Alpine Linux package to readme (#736)
+- Update to actions/cache@v2 (#742)
+- Add link in readme to GitHub Action (#729)
+- Add docs for justfile() and justfile_directory() (#726)
+- Fix CI (#727)
+- Improve readme (#725)
+- Replace saythanks.io link with malto: link (#723)
+
+0.8.3 - tag: v0.8.3 - 1970-1-1
+------------------------------
+
+### Release
+- Release v0.8.3 (#718)
+
+### Added
+- Allow ignore line endings inside delimiters (#717)
+
+### Misc
+- Update man page to v0.8.3 (#720)
+
+0.8.2 - tag: v0.8.2 - 1970-1-1
+------------------------------
+
+### Release
+- Release v0.8.2 (#715)
+
+### Fixed
+- Allow completing variables and recipes after `--set` in zsh completion script (#697)
+
+### Added
+- Add conditional expressions (#714)
+
+### Misc
+- Add Parser::forbid (#712)
+- Automatically track expected tokens while parsing (#711)
+- Document feature flags in Cargo.toml (#709)
+
+0.8.1 - tag: v0.8.1 - 1970-1-1
+------------------------------
+
+### Release
+- Release v0.8.1 (#707)
+
+### Changed
+- Allow choosing multiple recipes to run (#700)
+- Complete recipes names in PowerShell completion script (#651)
+- Complete recipes in bash completion script (#685)
+
+### Misc
+- Add FreeBSD port to readme (#705)
+- Placate clippy (#698)
+- Fix readme documentation for ignoring errors (#692)
+- Fix build fix (#693)
+
+0.8.0 - tag: v0.8.0 - 1970-1-1
+------------------------------
+
+### Release
+- Release v0.8.0 (#691)
+
+### Added
+- Allow suppressing failures with `-` prefix (#687)
+
+### Misc
+- Document how to ignore errors with `-` in readme (#690)
+- Install BSD Tar on GitHub Actions to fix CI errors (#689)
+- Move separate quiet config value to verbosity (#686)
+
+0.7.3 - tag: v0.7.3 - 1970-1-1
+------------------------------
+
+### Release
+- Release v0.7.3 (#681)
+
+### Added
+- Add the `--choose` subcommand (#680)
+
+### Misc
+- Combine integration tests into single binary (#679)
+- Document `--unsorted` flag in readme (#672)
+
+0.7.2 - tag: v0.7.2 - 1970-1-1
+------------------------------
+
+### Release
+- Release v0.7.2 (#670)
+
+### Added
+- Add option to print recipes in source order (#669)
+
+### Misc
+- Mention Linux, MacOS and Windows support in readme (#666)
+- Add list highlighting nice features to readme (#664)
+
+0.7.1 - tag: v0.7.1 - 1970-1-1
+------------------------------
+
+### Release
+- Release v0.7.1 (#662)
+
+### Fixed
+- Search for `.env` file from working directory (#661)
+
+### Misc
+- Move link-time optimization config into `Cargo.toml` (#658)
+
+0.7.0 - tag: v0.7.0 - 1970-1-1
+------------------------------
+
+### Release
+- Release v0.7.0 (#657)
+
+### Changed
+- Skip `.env` items which are set in environment (#656)
+
+### Misc
+- Mark tags that start with `v` as releases (#654)
+
+0.6.1 - tag: v0.6.1 - 1970-1-1
+------------------------------
+
+### Release
+- Release v0.6.1 (#653)
+
+### Changed
+- Only use `cygpath` on shebang if it contains `/` (#652)
+
+0.6.0 - tag: v0.6.0 - 1970-1-1
+------------------------------
+
+### Release
+- Release v0.6.0 (#649)
+
+### Changed
+- Ignore '@' returned from interpolation evaluation (#636)
+- Strip leading spaces after line continuation (#635)
+
+### Added
+- Add variadic parameters that accept zero or more arguments (#645)
+
+### Misc
+- Clarify variadic parameter default values (#646)
+-  Add keybase example justfile  (#640)
+- Strip trailing whitespace in `examples/pre-commit.just` (#644)
+- Test that example justfiles successfully parse (#643)
+- Link example justfiles in readme (#641)
+- Add example justfile (#639)
+- Document how to run recipes after another recipe (#630)
+
+0.5.11 - tag: v0.5.11 - 1970-1-1
+--------------------------------
+
+### Release
+- Release v0.5.11 (#629)
+
+### Changed
+- Complete recipe names in fish completion script (#625)
+- Suggest aliases for unknown recipes (#624)
+
+### Added
+- Don't load `.env` file when `--no-dotenv` is passed (#627)
+
+### Misc
+- Make man page manual name title case (#623)
+- Add Discord link to readme (#622)
+- Add `log` variable to justfile (#621)
+- Cache build artifacts (#620)
+- Link to recently indexed justfiles in the readme (#616)
+
+0.5.10 - tag: v0.5.10 - 1970-1-1
+--------------------------------
+
+### Release
+- Release v0.5.10 (#613)
+- Release v0.5.9 (#612)
+
+### Fixed
+- Don't require justfile to print completions (#596)
+
+### Added
+- Update zsh completion file (#606)
+- Add `--variables` subcommand that prints variable names (#608)
+- Add github pages site with improved install script (#597)
+
+### Misc
+- Trigger GitHub Actions workflow on release tags (#614)
+- Only build for linux on docs.rs (#611)
+- Trim completions and ensure final newline (#609)
+- Trigger build on pushes and pull requests (#607)
+-  Document behavior of `@` on shebang recipes (#602)
+- Add `.nojekyll` file to github pages site (#599)
+- Add `:` favicon (#598)
+- Delete old CI configuration and update build badge (#595)
+- Add download count badge to readme (#594)
+- Wrap comments at 80 characters (#593)
+- Use unstable rustfmt configuration options (#592)
+
+0.5.8 - tag: v0.5.8 - 1970-1-1
+------------------------------
+
+### Release
+- Release v0.5.7 (#591)
+
+### Changed
+- Only use `cygpath` on windows if present (#586)
+
+### Misc
+- Improve comments in justfile (#588)
+- Remove unused dependencies (#587)
+
+0.5.7 - tag: v0.5.7 - 1970-1-1
+------------------------------
+
+### Release
+- Release v0.5.7 (#584)
+
+### Misc
+- Don't include directories in release archive (#583)
+
+0.5.6 - tag: v0.5.6 - 1970-1-1
+------------------------------
+
+### Release
+- Release v0.5.6 (#582)
+
+### Misc
+- Build and upload release artifacts from GitHub Actions (#581)
+- List solus package in readme (#579)
+- Expand use of Github Actions (#580)
+- Fix readme typo: interpetation -> interpretation (#578)
+
+0.5.5 - tag: v0.5.5 - 1970-1-1
+------------------------------
+
+### Release
+- Release v0.5.5 (#576)
+
+### Added
+- Generate shell completion scripts with `--completions` (#572)
+
+### Misc
+- Check long lines and FIXME/TODO on CI (#575)
+- Add additional continuous integration checks (#574)
+
+0.5.4 - tag: v0.5.4 - 1970-1-1
+------------------------------
+
+### Release
+- Release v0.5.4 (#570)
+
+### Added
+- Add `justfile_directory()` and `justfile()` (#569)
+
+### Misc
+- Add table of package managers that include just to readme (#568)
+- Remove yaourt AUR helper from readme (#567)
+- Fix regression in error message color printing (#566)
+- Reform indentation handling (#565)
+
+0.5.3 - tag: v0.5.3 - 1970-1-1
+------------------------------
+
+### Release
+- Release v0.5.3 (#563)
+
+### Misc
+- Update Cargo.lock with new version (#564)
+- Improve pre-publish check (#562)
+- Fix typo: `chracter` -> `character` (#561)
+- Assert that lexer advances over entire input (#560)
+
+0.5.2 - tag: v0.5.2 - 1970-1-1
+------------------------------
+
+### Release
+- Release v0.5.2 (#557)
+
+### Added
+- Allow passing arguments to dependencies (#555)
+- Add flags to set and clear shell arguments (#551)
+
+### Misc
+- Reform scope and binding (#556)
+- Resolve functions (#550)
+- Remove unnecessary type argument to Alias (#549)
+- Resolve alias targets (#548)
+- Resolve recipe dependencies (#547)
+- Un-implement Deref for Table (#546)
+
+0.5.1 - tag: v0.5.1 - 1970-1-1
+------------------------------
+
+### Release
+- Release v0.5.1 (#544)
+
+### Changed
+- Avoid fs::canonicalize (#539)
+
+### Added
+- Add `--init` subcommand (#541)
+
+### Misc
+- Add missing `--init` test (#543)
+- Move lexer comment (#536)
+- Refactor Compilation error to contain a Token (#535)
+- Mention `set shell` as altenative to installing `sh` (#533)
+
+0.5.0 - tag: v0.5.0 - 1970-1-1
+------------------------------
+
+### Release
+- Release: v0.5.0 (#530)
+
+### Changed
+- Reform positional argument parsing (#523)
+- Highlight echoed recipe lines in bold by default (#512)
+
+### Added
+- Add `set shell := [...]` to grammar (#526)
+- Add `shell` setting (#525)
+
+### Misc
+- Document settings in readme (#527)
+- Gargantuan refactor (#522)
+- Move subcommand execution into Subcommand (#514)
+- Move `cd` out of Config::from_matches (#513)
+- Remove now-unnecessary borrow checker appeasement (#511)
+- Reform Parser (#509)
+- Note need to publish with nightly cargo (#506)
+
+0.4.5 - tag: v0.4.5 - 1970-1-1
+------------------------------
+
+### Release
+- Bump version: v0.4.4 -> v0.4.5 (#505)
+
+### Changed
+- Display alias with `--show NAME` if one exists
+
+### Misc
+- Use constants instead of literals in arg parser (#504)
+- Update dependencies (#501)
+- Improve messages for alias error messages (#500)
+- Refactor lexer tests (#498)
+- Remove unused `use` statements (#497)
+- Add repository attribute to Cargo.toml (#493)
+- Remove `misc.rs` (#491)
+- Refactor `run::run` and Config (#490)
+- Use more indented strings in integration tests (#489)
+- Check minimal version compatibility before publishing (#487)
+- Avoid using error code `1` in integration tests (#486)
+- Add explicit `Subcommand` enum (#484)
+- Start pulling argument parsing out of run::run() (#483)
+- Don't install `dash` on Travis (#482)
+- Add `unindent()` for nicer integration test strings (#481)
+- Allow integration test cases to omit common values (#480)
+- Use `bash` as shell for all integration tests (#479)
+- Fix `summary` feature conditional compilation (#475)
+- Hide summary functionality behind feature flag (#472)
+- Add context to deprecation warnings (#473)
+- Use `pub(crate)` instead of `pub` (#471)
+- Disable FreeBSD builds (#474)
+- Make comments in common.rs lowercase (#470)
+- Generate man page with help2man (#463)
+- Remove dependency on brev (#462)
+- Minimize dependency version requirements (#461)
+- Bump clap dependency to 2.33.0 (#458)
+- Use `tempfile` crate instead of `tempdir` (#455)
+- Document multi-line constructs (for/if/while) (#453)
+- Update deprecated rust range patterns and clippy config (#450)
+
+0.4.4 - tag: v0.4.4 - 1970-1-1
+------------------------------
+
+### Release
+- Bump version: v0.4.3 -> v0.4.4 (#449)
+
+### Changed
+- Ignore file name case while searching for justfile (#436)
+
+### Added
+- Display alias target with `--show` (#443)
+
+### Misc
+- Pass all arguments to `just watch` (#441)
+- Improve `done` recipe (#444)
+- Replace colored_diff with pretty_assertions (#440)
+- Update justfile to use `:=` instead of `=` (#432)
+
+0.4.3 - tag: v0.4.3 - 1970-1-1
+------------------------------
+
+### Release
+- Bump version: v0.4.2 -> v0.4.3 (#431)
+
+### Changed
+- Deprecate `=` in assignments, aliases, and exports in favor of `:=` (#413)
+
+### Added
+- Pass stdin handle to backtick process (#409)
+
+### Misc
+- Add Void Linux install instructions to readme (#423)
+- Mention Make’s “phony target” workaround in the comparison (#421)
+- Typo: "command equivelant" -> "command equivalent" (#418)
+- Remove `write_token_error_context` (#417)
+- Move CompilationErrorKind into separate module (#416)
+- Refactor and rename test macros (#415)
+- Lexer code deduplication and refactoring (#414)
+- Fix readme command line (#411)
+- Replace some calls to brev crate (#410)
+- Remove stray source files (#408)
+
+0.4.2 - tag: v0.4.2 - 1970-1-1
+------------------------------
+
+### Release
+- Bump version: v0.4.1 -> v0.4.2 (#407)
+
+### Changed
+- Replace regex-based lexer with character-at-a-time lexer (#406)
+
+0.4.1 - tag: v0.4.1 - 1970-1-1
+------------------------------
+
+### Release
+- Bump version: v0.4.0 -> v0.4.1 (#405)
+
+### Changed
+- Make summary function non-generic (#404)
+
+### Misc
+- Add installation instructions for Nix (#403)
+- Clean up justfile and fix version extraction (#402)
+
+0.4.0 - tag: v0.4.0 - 1970-1-1
+------------------------------
+
+### Release
+- Bump version: 0.3.13 -> 0.4.0 (#401)
+
+### Changed
+- Omit aliases that begin with `_` from --list` (#398)
+- Housekeeping (#394)
+- Förmatterdämmerung (#346)
+
+### Added
+- Allow arbitrary expressions as default arguments (#400)
+- Add justfile summaries (#399)
+- Add recipe aliases (#390)
+- Allow shebang lines so justfiles can be used as scripts (#393)
+- Allow `--justfile` without `--working-directory` (#392)
+- Add link to Chinese translation of readme (#377)
+
+### Misc
+- Add alias item to grammar (#397)
+- Remove typo of extra "the" in README (#382)
+- Mention just package in AUR (#380)
+- Actually link to Chinese translation (#378)
+- Add changelog for v0.3.13 (#372)
+
+0.3.13 - tag: v0.3.13 - 1970-1-1
+--------------------------------
+
+### Release
+- Bump version: 0.3.12 -> 0.3.13 (#371)
+
+### Fixed
+- Use PutBackN instead of PutBack in parser (#364)
+
+### Added
+- Print recipe signature if missing arguments (#369)
+- Add grandiloquent verbosity level that echos shebang recipes (#348)
+- Wait for child processes to finish (#345)
+- Provide prebuilt binary install command (#329)
+- Improve invalid escape sequence error messages (#328)
+
+### Misc
+- Fail fuzzing on internal errors (#366)
+- Fuzz test compiler (#362)
+- Fix another-recipe output in README (#360)
+- Add Scoop installation instructions to readme (#359)
+- Add more advice on escaping `{{` to readme (#356)
+- Mention how to escape `{{` and `}}` in readme (#353)
+- Remove trailing whitespace in parser tests (#350)
+- Slake Clippy's thirst for blood (#347)
+- Add editorconfig (#342)
+- Fix integration tests with dash (#338)
+- Fix instructions for install command (#330)
+
+0.3.12 - tag: v0.3.12 - 1970-1-1
+--------------------------------
+
+### Release
+- Bump version: 0.3.11 -> 0.3.12 (#324)
+
+### Added
+- Implement invocation_directory function (#312)
+
+0.3.11 - tag: v0.3.11 - 1970-1-1
+--------------------------------
+
+### Release
+- Bump version: 0.3.10 -> 0.3.11 (#318)
+
+### Fixed
+- Always enable ansi support on windows (#317)
+
+### Misc
+- Bump dependencies (#316)
+- Get package name from Cargo.toml (#315)
+- Remove unused recipes (#314)
+
+0.3.10 - tag: v0.3.10 - 1970-1-1
+--------------------------------
+
+### Release
+- Version bump + update deps: 0.3.9 -> 0.3.10 (#311)
+
+### Added
+- Make .env vars available in env_var functions (#310)
+
+0.3.9 - tag: v0.3.9 - 1970-1-1
+------------------------------
+
+### Release
+- Bump version: 0.3.8 -> 0.3.9 (#308)
+
+### Added
+- Add dotenv integration (#306)
+
+### Misc
+- Add example of running a command to top of readme (#307)
+- Add Companion Tools section to README (#305)
+
+0.3.8 - tag: v0.3.8 - 1970-1-1
+------------------------------
+
+### Release
+- Bump version to 0.3.8 and update dependencies (#304)
+
+### Added
+- Enable ANSI support for Windows 10 Console
+
+### Misc
+- Use `.adoc` for asciidoctor files instead of `.asc` (#300)
+- Mention kakoune syntax highlighting in readme (#299)
+
+0.3.7 - tag: v0.3.7 - 1970-1-1
+------------------------------
+
+### Release
+- Bump version: 0.3.6 -> 0.3.7 (#297)
+- Bump version: 0.3.5 -> 0.3.6 (#293)
+
+### Fixed
+- Allow ! in comments (#296)
+- Lex CRLF line endings properly (#292)
+
+### Misc
+- Fix readme formatting (#295)
+
+0.3.5 - tag: v0.3.5 - 1970-1-1
+------------------------------
+
+### Release
+- Bump version: 0.3.4 -> 0.3.5 (#286)
+- Bump version: 0.3.3 -> 0.3.4 (#269)
+
+### Fixed
+- Stop empty comments from swallowing the next line (#247)
+
+### Changed
+- Change license to CC0 (#270)
+
+### Added
+- Add `env_var(key)` and `env_var_or_default(key, default)` functions (#280)
+- Add functions (#277)
+- Align doc-comments in `--list` output (#273)
+- Build x86_64-pc-windows-gnu target for releases (#267)
+-  Do not evaluate backticks in assignments during dry runs (#253)
+
+### Misc
+- Add variadic parameter with default argument example (#285)
+- Revise installation methods (#284)
+- 📝 Link to VS Code Extension in readme (#281)
+- Make EOL after interpolation a proper error (#279)
+- Update changelog (#278)
+- Rename Scanner to Lexer (#276)
+- Only provide MinGW build on Windows (#274)
+- Misc fixes before publishing new version (#271)
+- Bump dependencies (#265)
+- Clean up grammar (#268)
+- Miscellaneous cleanup (#261)
+- Refactor Tokenizer (#260)
+- Refactor more tests into macro invocations (#259)
+- Refactor evaluators and resolvers into common form (#258)
+- Convert parser tests to macros (#257)
+- Use imperative mood in help strings (#256)
+- Use uppercase names for arguments (#255)
+- Rename `options` to `configuration` (#254)
+- Refactor some other stuff (#252)
+- Refactor Everything (#250)
+- Give errors clearer names (#249)
+- Add rename recipe to justfile (#248)
+- Make unexpected token formatting clearer (#243)
+- Add instructions for installing via Homebrew (#238)
+
+0.3.3 - tag: v0.3.3 - 1970-1-1
+------------------------------
+
+### Release
+- Bump version to 0.3.2
+
+### Misc
+- Fix release builder (#235)
+- Create a short markdown readme for crates.io
+- Add readme to Cargo.toml (#234)
+- Mention gitter in preamable (#233)
+- Put Table of Contents below preamble (#232)
+- Overhaul README (#231)
+- Fix homebrew issue on Travis (#230)
+
+0.3.1 - tag: v0.3.1 - 1970-1-1
+------------------------------
+
+### Changed
+- Hide recipes with names starting with an _ from --list and --sumamary (#229)
+- :fire: Stop parsing flags after positional args (#219)
+
+### Added
+- Add short options for justfile and working-directory (#222)
+
+### Misc
+- Update dependencies (#225)
+- Update Vagrantfile: install curl, force install just (#221)
+- Start a changelog in CHANGELOG.md (#220)
+- Retire warn! in favor of eprintln! (#218)
+- Add say thanks badge to readme (#215)
+- Fix typos in README.md (#213)
+
+0.2.33 - tag: v0.2.33 - 1970-1-1
+--------------------------------
+
+### Release
+- v0.2.32 -> v0.2.33
+
+### Misc
+- Update dependencies (#212)
+- Remove integration test debug spam (#206)
+- Remove old recipes (#205)
+- Refactor color handling (#204)
+- Build, test, and release on fewer os/arch combinations (#201)
+
+0.2.32 - tag: v0.2.32 - 1970-1-1
+--------------------------------
+
+### Release
+- Bump version: 0.2.31 -> 0.2.32
+- Bump version: 0.2.30 -> 0.2.31
+
+### Added
+- Include grammar, readme, and license in releases
+
+### Misc
+- Update release recipe
+
+0.2.29 - tag: v0.2.29 - 1970-1-1
+--------------------------------
+
+### Release
+- Bump version: 0.2.28 -> 0.2.29
+- Bump version: 0.2.27 -> 0.2.28 (#200)
+- Bump version: 0.2.26 -> 0.2.27
+- Bump version: 0.2.25 -> 0.2.26 (#150)
+- Bump version to 0.2.25 (#142)
+- Bump version: 0.2.23 -> 0.2.24 (#140)
+- Bump version to v0.2.23 (#129)
+- Bump version to v0.2.22 (#110)
+- Bump version to v0.2.21 (#103)
+- Bump version to 0.2.20 (#89)
+- Bump version to 0.2.19 (#83)
+- Bump version to 0.2.18 (#60)
+- Bump version to 0.2.16 (#21)
+
+### Breaking
+- 🔥 Disallow names that start with '-' (#154)
+
+### Fixed
+- Resolve dependencies after the first (#149)
+- Fix line numbers (#124)
+- Fix override argument processing bug (#115)
+- Fix spurious circular dependency error (#102)
+- Don't ignore `--color=never` (#56)
+
+### Changed
+- Error if running default recipe that requires arguments (#194)
+- Lift limitations on recipes that take parameters (#137)
+- Toggle meaning of '@' on recipes prefixed with '@' (#100)
+- Don't allow args with early exit options (#96)
+- Use colors in output
+- Use colored help message (#32)
+
+### Added
+- Add option to highlight echoed recipe lines (#190)
+- Make shebangs work on windows (#185)
+- Add --shell option to specify the shell to use (#175)
+- Allow path-prefixed first arguments (#139)
+- Add variadic parameters (#127)
+- Add comment to `push-f` recipe (#126)
+- Add --verbose flag (#123)
+- Allow `'` raw strings to contain literal newlines (#107)
+- Add doc comments to recipes (#101)
+- Allow line continuations in plain recipes with '\' (#99)
+- Add -e/--edit option to open justfile in $EDITOR (#95)
+- Suggest alternatives to uknown recipes (#91)
+- Make `--list` print recipes with arguments (#88)
+- Let recipes take default arguments (#77)
+- Add --dump option to print entire justfile (#67)
+- Allow justfile to be named `Justfile` (#19)
+- Add --quiet/-q flag to supress all output (#17)
+
+### Misc
+- Fix lints and things that make clippy sad (#199)
+- Make appveyor continuous integration tests pass (#196)
+- Use crate metadata in --help string (#197)
+- Remove debugging output (#195)
+- Set up cross platform continuous integration on travis (#191)
+- Add period to empty justfile error message (#192)
+- Write argument_range() in terms of min_arguments() and max_arguments() (#193)
+- Unicode integration test fix for windows (#189)
+- Use cygpath to translate paths on windows (#188)
+- Move output() and OutputError into brev (#187)
+- Refactor RunError::Backtick* to use OutputError (#186)
+- Improve shebang execution error message (#184)
+- Uppercase integration test exported variable names (#183)
+- Fix type in unit test panic message (#182)
+- Multi shell integration tests (#181)
+- Create platform module (#178)
+- Use libc::{EXIT_SUCCESS, EXIT_FAILURE} for status (#177)
+- Use CAPITALIZED option names (#176)
+- Sort clap arguments alphabetically (#174)
+- Update and adapt to latest versions of dependencies (#171)
+- Add a gitter badge (#170)
+- Remove trailing whitespace (#167)
+- Improve syntax highlighting suggestions in readme (#164)
+- Set emacs and vim filetype in justfile for syntax highlighting (#163)
+- Test all errors and error messages (#145)
+- Capitalize all error messages (#144)
+- readme: 'the in' -> 'in the' (#143)
+- Use '/' instead of "/" as argument to rfind (#141)
+- Readme: email -> issue (#138)
+- Remove duplicate `return` (#136)
+- Mention prebuilts in readme (#135)
+- mkdir -p tmp/... (#134)
+- Checkout master when building linux binaries (#133)
+- Build Linux binaries using Vagrant (#132)
+- Add recipes to build binaries for release (#131)
+- Add FLAGS to push recipe, get rid of push-f recipe (#130)
+- Collapse unnecessary block (#128)
+- Report line number in recipe failure messages (#125)
+- Renames: Parser::file and just::parse (#122)
+- Avoid using panic! outside of tests (#121)
+- Just is no longer a trival program ;_; (#120)
+- Mention {{...}} substitution gotcha in readme (#117)
+- Deny clippy lints by default (#112)
+- Make quine-text multiline string (#111)
+- Add multiline raw string example to readme (#109)
+- Fix readme typo (#108)
+- Explicitly license as WTFPL or MIT or APACHE-2.0 (#105)
+- Update project justfile to take advantage of 0.2.21 (#104)
+- Get rid of mostly unused Justfile.recipes() (#98)
+- Error -> CompileError (#97)
+- Use clap::ArgGroup for early exit conflicts (#94)
+- Line up names in --evaluate (#93)
+- Test that overrides are not evaluated (#92)
+- Add `install` recipe (#90)
+- Add `watch` and `install-dev-deps` recipes (#87)
+- Harmonize argument help text (#86)
+- Fix needless borrow clippy lints (#81)
+- Fix long lines (#80)
+- Improve missing parameter panic message (#79)
+- Lint when publishing (#78)
+- Improve `lint` recipe (#76)
+- Add `BACKTICK` to expression in grammar (#74)
+- Rename `grammar.md` to `GRAMMAR.md` (#73)
+- Use `...?` instead of `try!(...)` (#72)
+- Link to justfiles here and in the wild (#69)
+- Use clap's `conflicts_with` and `requires` (#68)
+- Test before publishing (#61)
+- Fix publish recipe (#59)
+- Remove unnecessary lifetimes (#58)
+- Add `done` recipe that cleans up a merged branch (#57)
+- Fix error messages with wide character
+- Fix off by one error in backtick error message (#52)
+- Include line in all error messages (#51)
+- Add no-op recipe to justfile for testing (#50)
+- Improve a few error messages (#47)
+- Add integration tests for arguments (#42)
+- Improve recipes with parameters section of readme (#41)
+- Add examples of comments to readme (#40)
+- Fixed typo in Readme (#38)
+- Use version from env! macro (#37)
+- Format Cargo.toml (#33)
+- Add frequently asked questions in FAQ.mq (#31)
+- Turn off Travis email notifications (#29)
+- Add build status badge to readme (#27)
+- Add Travis CI (#26)
+- Fix small typo in readme (#22)
+- Create a unique branch when bumping version (#20)
+- Avoid bashisms in tests (#18)
+- Move all run options into a struct (#16)
+- Add a 'filter' pattern to justfile (#15)
+- Fix "whyc" typo in README.md
+
+### Merge
+- Merge pull request #14 from casey/whyc-typo
+
+0.2.15 - tag: v0.2.15 - 1970-1-1
+--------------------------------
+
+### Release
+- Bump version to v0.2.15
+
+### Misc
+- Fix tab-indented lines in shebang recipes
+- Push code before publishing
+
+0.2.14 - tag: v0.2.14 - 1970-1-1
+--------------------------------
+
+### Release
+- New publish recipe, bump version to 0.2.14 to test.
+- Bump version
+- Bump version update description
+- Bump version to 0.2.11 and rename back to just
+- Notes, bump version
+- Notes + bump version
+- Bump version, add --debug
+- Bump version to 0.2.7
+- Bump version to 0.2.6, build before publishing
+- Bump version to 0.2.5
+- Bump version, use variable for quine text
+- Clippy fixes, bump version 0.2.3, string escapes
+- bump: 0.2.1 -> 0.2.2
+- version bump: 0.2.0 -> 0.2.1
+- Bump version to 0.2.0
+- Add period to no justfile found error. Bump version.
+- 0.1.3 -> 0.1.4
+- v0.1.2 -> v0.1.3
+- Remove dependency on brev, bump version
+- Update cargo.toml, version -> 0.1.1
+
+### Changed
+- Arguments done!
+- Add {:#} format printing to justfile for --show
+- Added missing arguments error whenever we try to run an recipe with arguments, since arguments are unsupported.
+- Make dependencies execute in order they appear
+- Invoke sh with `-u` (error on unbound variable)
+- Allow 'Justfile' in addition to 'justfile'
+- Update stuff
+- Fix cargo.toml.license
+- Working
+
+### Added
+- Added raw '' strings
+- export variables done
+- variable=value overrides done
+- Backticks implemented. Error messages still suck though.
+- Add assignment resolving
+- Arguments working but still ugly
+- Add '--debug' flag to print justfile with evaluated expressions and variables
+- line evaluation is done
+- Handle line interpolation parsing
+- Add --justfile and --working-directory flags
+- Support for polyglot recipes!
+- Add --show command line flag
+- Support for polyglot recipes!
+- Invoke sh with `-u` (error on unbound variable)
+- Add --show command line flag
+- Initial commit. Broken.
+
+### Misc
+- Add escape sequences and raw strings to README.md
+- Readme done
+- Readme.
+- Readme and notes
+- Readme wording
+- Mention overrides.
+- Updated readme
+- Update readme.
+- Rename arguments to parameters.
+- Update description
+- Update Cargo.lock
+- Fix shield link
+- Add crates.io shield
+- Notes
+- grammar.md phrasing
+- Notes, make sure indent in recipes is ignored
+- Use '=' literal
+- Grammar.md typos
+- Fix grammar.md headings
+- Notes and readme
+- New grammar.md
+- Move just.sh to extras/just.sh
+- Add just.sh
+- Make clippy more lenient with cyclomatic complexity
+- Moved last enhancements to github issues
+- Update Cargo.lock
+- Cleaned up export parsing
+- Use BTreeMap and BTreeSet as Map and Set
+- Update notes
+- Clippy lints
+- Backtick tests done!
+- Update notes
+- Remove unnecessary return
+- Panic commit.
+- Ready to actually implement backtick evaluation
+- Refactoring. Checkpoint commit.
+- Update notes
+- Update notes
+- Working on backticks. They are evaluated as strings for now.
+- Bump version in lock file. Make sure repo is clean before publishing
+- Surround tokens with `` in errors
+- Pretty errors with underlined tokens!
+- Notes
+- More tests
+- More integration tests
+- Move order test to integration tests
+- Add integration tests
+- Remove stray comment
+- Update Cargo.lock
+- Clean up code, rename Token.class -> Token.kind
+- Test that evaluated recipe lines are correct
+- Rewrite notes
+- Add sloc recipe
+- Remove stray newline
+- Parsing and tokenizing tests are now mostly passsing, not running recipes though.
+- Tokenize looks like it's working.
+- Reworked tokenizer, not trying to dig myself out of the wreckage.
+- Lots of work. Expression parsing and evaluation mostly.
+- Update notes
+- Update notes
+- Update notes
+- Add self_dependency test.
+- Update notes
+- Add comment to polyglot recipe in justfile
+- Ran clippy and fixed issues. I <3 clippy!
+- TokenClass -> TokenKind
+- Update notes
+- Update cargo.lock.
+- Shuffle tests in run_order
+- Add github repo to --help string
+- Update notes
+- Delete the grammar file
+- Make sure version in app.rs and Cargo.toml match before publishing
+- Reached feature parity with new parser
+- Starting to rewrite the parser
+- Comment out everything to rewrite parser
+- Notes
+- Giant fucking mess.
+- Update notes
+- Update Cargo.lock
+- Add `git push github master` to publish recipe
+- Add publish recipe
+- Update shebang test notes
+- Add test for shebang recipes
+- Update notes
+- Add polyglot recipes to justfile
+- More validation of recipes, allow leading shebang
+- Notes
+- Don't print double newline for --show
+- Remove list and args from justfile
+- Update notes
+- Update notes
+- Actually run recipes, add a bunch of tests
+- Update shebang test notes
+- Add test for shebang recipes
+- Update notes
+- Add polyglot recipes to justfile
+- More validation of recipes, allow leading shebang
+- Notes
+- Don't print double newline for --show
+- Remove list and args from justfile
+- Only test lib to avoid duplicate error messages
+- Update notes
+- Update notes
+- Actually run recipes, add a bunch of tests
+- Ignore /tmp and /target
+- Lots of work.
+- Update justfile, notes
+- Split into lib.rs and main.rs, wrote a bunch of tests
+- Update notes
+- Split command correctly on leading whitespace
+- Update notes
+- Added proper errors
+- use std::collections::
+- Basic parsing and circular dependency detection working
+- Update notes
+- Add notes
+- Add cat.
+- Further ramblings in readme
+- Expanded README.md
+- Update cargo.lock
+- Keep searching if justfile isn't found
+- Version bump in cargo.lock
+- Update cargo.log
+
+### Merge
+- Merge remote-tracking branch 'origin/master'

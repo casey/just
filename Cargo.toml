@@ -14,7 +14,7 @@ keywords    = ["command-line", "task", "runner", "development", "utility"]
 resolver    = "2"
 
 [workspace]
-members = [".", "bin/ref-type"]
+members = [".", "bin/ref-type", "bin/generate-changelog"]
 
 [dependencies]
 ansi_term     = "0.12.0"
