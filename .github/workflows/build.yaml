@@ -26,18 +26,18 @@ jobs:
         - x86_64-pc-windows-msvc
         - x86_64-unknown-linux-musl
         include:
-        # - target: x86_64-unknown-linux-musl
-        #   os:     ubuntu-latest
-        #   native: true
+        - target: x86_64-unknown-linux-musl
+          os:     ubuntu-latest
+          native: true
         - target: x86_64-apple-darwin
           os:     macos-latest
           native: true
         - target: x86_64-pc-windows-msvc
           os:     windows-2016
           native: true
-        # - target: aarch64-unknown-linux-gnu
-        #   os:     ubuntu-latest
-        #   native: false
+        - target: aarch64-unknown-linux-gnu
+          os:     ubuntu-latest
+          native: false
 
     runs-on: ${{matrix.os}}
 
