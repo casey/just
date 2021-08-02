@@ -91,7 +91,7 @@ impl Subcommand {
   }
 
   fn changelog() {
-    print!("{}", include_str!("../CHANGELOG.md"));
+    print!("{}", include_str!("../CHANGELOG.txt"));
   }
 
   fn choose<'src>(
