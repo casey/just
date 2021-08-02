@@ -13,6 +13,10 @@ serde-hex = "0.1.0"
 serde_yaml = "0.8.17"
 strum_macros = "0.21.1"
 
+[dependencies.libz-sys]
+version = "0.1.3"
+features = ["static"]
+
 [dependencies.git2]
 version = "0.13.20"
 default-features = false
