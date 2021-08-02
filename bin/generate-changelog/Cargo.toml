@@ -8,11 +8,14 @@ publish = false
 [dependencies]
 askama = "0.10.5"
 chrono = "0.4.19"
-git2 = "0.13.20"
 regex = "1.5.4"
 serde-hex = "0.1.0"
 serde_yaml = "0.8.17"
 strum_macros = "0.21.1"
+
+[dependencies.git2]
+version = "0.13.20"
+default-features = false
 
 [dependencies.hex]
 version = "0.4.3"
