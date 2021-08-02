@@ -9,10 +9,19 @@ publish = false
 askama = "0.10.5"
 chrono = "0.4.19"
 git2 = "0.13.20"
-hex = { version = "0.4.3", features = ["serde"] }
 regex = "1.5.4"
-semver = { version = "1.0.4", features = ["serde"] }
-serde = { version = "1.0.127", features = ["derive"] }
 serde-hex = "0.1.0"
 serde_yaml = "0.8.17"
 strum_macros = "0.21.1"
+
+[dependencies.hex]
+version = "0.4.3"
+features = ["serde"]
+
+[dependencies.semver]
+version = "1.0.4"
+features = ["serde"]
+
+[dependencies.serde]
+version = "1.0.127"
+features = ["derive"]
