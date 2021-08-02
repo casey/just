@@ -50,10 +50,6 @@ view-man: man
 
 version := `sed -En 's/version[[:space:]]*=[[:space:]]*"([^"]+)"/\1/p' Cargo.toml | head -1`
 
-# add git log messages to changelog
-changes:
-  git log --pretty=format:%s >> CHANGELOG.md
-
 check: actionlint fmt clippy test forbid
   git diff --no-ext-diff --quiet --exit-code
   grep '^\[{{ version }}\]' CHANGELOG.md
@@ -61,8 +57,9 @@ check: actionlint fmt clippy test forbid
   cargo ltest
   git checkout Cargo.lock
 
-publish-check: check man
+publish-check: check man generate-changelog
   cargo outdated --exit-code 1
+  git diff --no-ext-diff --quiet --exit-code
 
 # publish to crates.io and push release tag to github
 publish: publish-check
