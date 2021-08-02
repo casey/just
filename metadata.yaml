@@ -861,7 +861,7 @@ commits:
   - hash: 23443e2472b4292f1cbcdea2bda977b3791e9d56
     summary: "Bump version: v0.4.3 -> v0.4.4 (#449)"
     type: release
-    version:  0.4.4
+    version: 0.4.4
   - hash: 7f06bc68d439da628fb195211f5da26caecae137
     summary: "Ignore file name case while searching for justfile (#436)"
     type: changed
@@ -1942,7 +1942,7 @@ commits:
   - hash: ec41eaf0e7bd523ed75bf6653eaef58192a0f8e6
     summary: "Bump version, use variable for quine text"
     type: release
-    version:  0.2.4
+    version: 0.2.4
   - hash: 0a168032476bf378075bfb50132556d2e794e994
     summary: "Clippy fixes, bump version 0.2.3, string escapes"
     type: release

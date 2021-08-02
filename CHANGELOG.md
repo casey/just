@@ -1166,9 +1166,6 @@ Changelog
 - [Add a 'filter' pattern to justfile](https://github.com/casey/just/commit/416f3b3d59e4001270f6d930cac38b7735f42955) [(#15)](https://github.com/casey/just/pull/15)
 - [Fix "whyc" typo in README.md](https://github.com/casey/just/commit/7bc2be2cafdd7e1acd6ca56ece818dda7223035b)
 
-### Merge
-- [Merge pull request #14 from casey/whyc-typo](https://github.com/casey/just/commit/6610a721ea195fe7b6ae02657c5232d0cdcd1154)
-
 [0.2.15](https://github.com/casey/just/releases/tag/v0.2.15) - 2016-11-03
 -------------------------------------------------------------------------
 
@@ -1404,9 +1401,6 @@ Changelog
 - [Update Cargo.lock](https://github.com/casey/just/commit/fbe8c07d4315c4f4d28c3984c9dfebd0052084c3)
 - [Add `git push github master` to publish recipe](https://github.com/casey/just/commit/c476afb951915ef8c7fab82316af945fa0bb6df8)
 
-### Merge
-- [Merge remote-tracking branch 'origin/master'](https://github.com/casey/just/commit/ebf66f7600115ada72196198db474bd82bdd1f98)
-
 [0.2.0](https://github.com/casey/just/releases/tag/v0.2.0) - 2016-10-09
 -----------------------------------------------------------------------
 
@@ -1519,3 +1513,10 @@ Changelog
 
 ### Release
 - [Initial commit. Broken.](https://github.com/casey/just/commit/a0d5b83a8008c4fec292fbacde61240141554fc3)
+
+### Uncategorized
+- [Save changelog](https://github.com/casey/just/commit/9d7f1a1457433f3f6bbda5c5a4d323a27e00fe84)
+- [Make `--changelog` print CHANGELOG.txt](https://github.com/casey/just/commit/98fe8d2a1aaa84732ee063e1adc9a233db633ade)
+- [More stuff](https://github.com/casey/just/commit/16d865dad9b3c8f195bb1f28170be5e07282e532)
+- [Comment](https://github.com/casey/just/commit/385a00d6a2a1ba0b682475eed61feb6a1dc7c0b9)
+- [Add `--changelog` subcommand](https://github.com/casey/just/commit/5bb4b4a382fd5e8ee7bc3e9d69622f238e83d514) [(#932)](https://github.com/casey/just/pull/932)

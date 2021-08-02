@@ -44,6 +44,14 @@ impl Changelog {
       release.add(commit);
     }
   }
+
+  fn uncategorized_commit_count(&self) -> usize {
+    self
+      .releases
+      .iter()
+      .map(Release::uncategorized_commit_count)
+      .sum()
+  }
 }
 
 struct Release {
@@ -114,6 +122,14 @@ impl Release {
   fn tag(&self) -> &str {
     &self.tag
   }
+
+  fn uncategorized_commit_count(&self) -> usize {
+    self
+      .sections
+      .values()
+      .map(Section::uncategorized_commit_count)
+      .sum()
+  }
 }
 
 #[derive(Default)]
@@ -124,6 +140,14 @@ struct Section {
 impl Section {
   fn add(&mut self, commit: Commit) {
     self.commits.push(commit);
+  }
+
+  fn uncategorized_commit_count(&self) -> usize {
+    self
+      .commits
+      .iter()
+      .filter(|commit| commit.ty == CommitType::Uncategorized)
+      .count()
   }
 }
 
@@ -143,7 +167,7 @@ impl Metadata {
       path,
       serde_yaml::to_string(self)
         .unwrap()
-        .remove_prefix("---\n")
+        .strip_prefix("---\n")
         .unwrap(),
     )
     .unwrap();
@@ -180,6 +204,7 @@ struct Commit {
   summary: String,
   #[serde(rename = "type")]
   ty:      CommitType,
+  #[serde(skip_serializing_if = "Option::is_none")]
   version: Option<Version>,
 }
 
@@ -259,22 +284,18 @@ fn main() {
 
   metadata.write(metadata_path);
 
-  let uncategorized = metadata
-    .commits
-    .iter()
-    .filter(|commit| commit.ty == CommitType::Uncategorized)
-    .count();
-
-  if uncategorized > 0 {
-    panic!("{} uncategorized commits, aborting…", uncategorized);
-  }
-
   let mut changelog = Changelog::new(Format::Markdown);
 
   for commit in metadata.commits {
     if commit.ty != CommitType::Merge {
       changelog.add(&repo, commit);
     }
+  }
+
+  let uncategorized = changelog.uncategorized_commit_count();
+
+  if uncategorized > 0 {
+    panic!("{} uncategorized commits, aborting…", uncategorized);
   }
 
   fs::write("CHANGELOG.md", changelog.render().unwrap()).unwrap();
