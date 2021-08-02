@@ -58,8 +58,8 @@ check: actionlint fmt clippy test forbid
   git checkout Cargo.lock
 
 publish-check: check man generate-changelog
-  cargo outdated --exit-code 1
   git diff --no-ext-diff --quiet --exit-code
+  cargo outdated --exit-code 1
 
 # publish to crates.io and push release tag to github
 publish: publish-check

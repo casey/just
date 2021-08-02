@@ -10,11 +10,11 @@ mod release;
 mod section;
 
 fn main() {
-  let repo = Repository::open(".").unwrap();
-
   let metadata_path = Path::new("metadata.yaml");
 
   let mut metadata = Metadata::read(metadata_path);
+
+  let repo = Repository::open(".").unwrap();
 
   let mut revwalker = repo.revwalk().unwrap();
 
