@@ -1513,10 +1513,3 @@ Changelog
 
 ### Release
 - Initial commit. Broken.
-
-### Uncategorized
-- Save changelog
-- Make `--changelog` print CHANGELOG.txt
-- More stuff
-- Comment
-- Add `--changelog` subcommand (#932)

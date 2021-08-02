@@ -1513,10 +1513,3 @@ Changelog
 
 ### Release
 - [Initial commit. Broken.](https://github.com/casey/just/commit/a0d5b83a8008c4fec292fbacde61240141554fc3)
-
-### Uncategorized
-- [Save changelog](https://github.com/casey/just/commit/9d7f1a1457433f3f6bbda5c5a4d323a27e00fe84)
-- [Make `--changelog` print CHANGELOG.txt](https://github.com/casey/just/commit/98fe8d2a1aaa84732ee063e1adc9a233db633ade)
-- [More stuff](https://github.com/casey/just/commit/16d865dad9b3c8f195bb1f28170be5e07282e532)
-- [Comment](https://github.com/casey/just/commit/385a00d6a2a1ba0b682475eed61feb6a1dc7c0b9)
-- [Add `--changelog` subcommand](https://github.com/casey/just/commit/5bb4b4a382fd5e8ee7bc3e9d69622f238e83d514) [(#932)](https://github.com/casey/just/pull/932)

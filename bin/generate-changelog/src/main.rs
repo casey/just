@@ -20,11 +20,18 @@ fn main() {
 
   revwalker.push_head().unwrap();
 
+  let mut seen_categorized = false;
+
   for result in revwalker {
     let oid = result.unwrap();
     let summary = repo.find_commit(oid).unwrap().summary().unwrap().to_owned();
-    if metadata.commit_metadata(oid).is_none() {
-      metadata.add_uncategorized_commit(oid, &summary);
+
+    match metadata.commit(oid) {
+      Some(commit) => seen_categorized = commit.ty != CommitType::Uncategorized,
+      None =>
+        if seen_categorized {
+          metadata.add_uncategorized_commit(oid, &summary);
+        },
     }
   }
 

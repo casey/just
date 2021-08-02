@@ -22,7 +22,7 @@ impl Metadata {
     .unwrap();
   }
 
-  pub(crate) fn commit_metadata(&self, oid: Oid) -> Option<&Commit> {
+  pub(crate) fn commit(&self, oid: Oid) -> Option<&Commit> {
     for commit in &self.commits {
       if commit.hash == oid.as_bytes() {
         return Some(commit);
@@ -33,7 +33,7 @@ impl Metadata {
   }
 
   pub(crate) fn add_uncategorized_commit(&mut self, oid: Oid, summary: &str) {
-    if self.commit_metadata(oid).is_some() {
+    if self.commit(oid).is_some() {
       panic!("Commit {} already has metadata", oid);
     }
 
