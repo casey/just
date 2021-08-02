@@ -32,6 +32,7 @@ commits:
   - hash: 2a4c5ae0f07cc7b0a0799b23424aab9cf1e37593
     summary: "Release 0.9.9 (#913)"
     type: release
+    version: 0.9.9
   - hash: 985f15004f25a68af0ccd4db878c1d2f25e56357
     summary: "Document new features (#914)"
     type: misc
@@ -68,6 +69,7 @@ commits:
   - hash: 32f3132997f074d692017018d9edd654f87c4427
     summary: "Release 0.9.8 (#896)"
     type: release
+    version: 0.9.8
   - hash: 2c8187348bf61d62a5097a6758537cd601c2d1ec
     summary: "Fix changelog formatting (#894)"
     type: misc
@@ -77,6 +79,7 @@ commits:
   - hash: 6272151551c3da19701b11bff55e8278eaa06df6
     summary: "Release 0.9.7 (#893)"
     type: release
+    version: 0.9.7
   - hash: d797592365e2167163cae37d12477115b3959ff4
     summary: "Remove test-utilities crate (#892)"
     type: misc
@@ -92,6 +95,7 @@ commits:
   - hash: 7aaa20a9767048e0dad97b49fd21d8a4e645f83d
     summary: "Release v0.9.6 (#884)"
     type: release
+    version: 0.9.6
   - hash: 024f8279bcd34b84f85beb0c332ccb99e66096aa
     summary: "Add `clean` function for simplifying paths (#883)"
     type: added
@@ -110,6 +114,7 @@ commits:
   - hash: 4a82c45dda3daaa33c07a8cbbbe886a45a3abd72
     summary: "Release v0.9.5 (#870)"
     type: release
+    version: 0.9.5
   - hash: a6453ded990ce91ed2621b947676fa1725008031
     summary: "Add `--unstable` flag (#869)"
     type: added
@@ -152,6 +157,7 @@ commits:
   - hash: c198099c17aba7664842f71038e5db00e5664961
     summary: "Release v0.9.4 (#844)"
     type: release
+    version: 0.9.4
   - hash: c40b4e6b962791935f638c675fa4d79e463988ca
     summary: "Release `aarch64-unknown-linux-gnu` binaries (#843)"
     type: misc
@@ -173,6 +179,7 @@ commits:
   - hash: 48f00865f9f70356712fb2bf10b2a00aa5d906fb
     summary: "Release v0.9.3 (#832)"
     type: release
+    version: 0.9.3
   - hash: 7be66f890f4605272191025fd3d20dc698c6f1c4
     summary: "Add shebang support for 'cmd.exe' (#828)"
     type: added
@@ -206,12 +213,14 @@ commits:
   - hash: cde2ce0d879c65d0aeec3ad89cf2088be13570dc
     summary: "Release v0.9.2 (#811)"
     type: release
+    version: 0.9.2
   - hash: 2abdeb386e5bd31a9516616a6cae8af4ecbd512c
     summary: "Pass evaluated arguments as positional arguments (#810)"
     type: fixed
   - hash: 7889f10a6a41dff63acd245360ccf4e66a8d1a93
     summary: "Release v0.9.1 (#807)"
     type: release
+    version: 0.9.1
   - hash: 09b370e10dc0a01f8735505cc53dfc0c1ff26a03
     summary: "Change `--eval` to print variable value only (#806)"
     type: added
@@ -248,12 +257,14 @@ commits:
   - hash: 6e2e540751d7fa28497b60e4c1957b16a044ef43
     summary: "Release v0.9.0 (#781)"
     type: release
+    version: 0.9.0
   - hash: 10282bd63618742af5f20c777388c92c56136c49
     summary: "Turn `=` deprecation warning into a hard error (#780)"
     type: changed
   - hash: 4e2e10177b0f8f8baff8b13213ed2855a3e79385
     summary: "Release v0.8.7 (#779)"
     type: release
+    version: 0.8.7
   - hash: 18b9799e8d9a2fa8094a03119550abde0e882f1a
     summary: "Add `dotenv-load` setting (#778)"
     type: added
@@ -263,6 +274,7 @@ commits:
   - hash: d81d17ba0a2f2e4a901e215a569eae3100ecbab5
     summary: "Release v0.8.6 (#776)"
     type: release
+    version: 0.8.6
   - hash: 13e9f406c8eef372135355846a70c8f003f14824
     summary: "Add just_executable() function (#775)"
     type: added
@@ -287,6 +299,7 @@ commits:
   - hash: 21f5e753951e5b1be52aeb692d8cc137e41f644f
     summary: "Release v0.8.5 (#766)"
     type: release
+    version: 0.8.5
   - hash: d3b277c04c5b459b1915afc177eded20bf37202b
     summary: "Allow escaping double braces with `{{{{` (#765)"
     type: added
@@ -308,6 +321,7 @@ commits:
   - hash: c647efa200c71bf8b73511c47e88a1cca0f87c0e
     summary: "Release v0.8.4 (#754)"
     type: release
+    version: 0.8.4
   - hash: bac851ff68874a48bfa2f395c1309f3a09025aa1
     summary: "Add options to control list formatting (#753)"
     type: added
@@ -344,12 +358,14 @@ commits:
   - hash: 19f986d495ee34d8ecceaaaf8aa3dd92abb394aa
     summary: "Release v0.8.3 (#718)"
     type: release
+    version: 0.8.3
   - hash: aa506fa5bd228ed6070de90045b963ffba8319f0
     summary: "Allow ignore line endings inside delimiters (#717)"
     type: added
   - hash: 70768eb24c85027495859a5976c4ac721faa7466
     summary: "Release v0.8.2 (#715)"
     type: release
+    version: 0.8.2
   - hash: 19f7ad09a7d69b4bee758aef9d6628d9dd7c0f7a
     summary: "Add conditional expressions (#714)"
     type: added
@@ -368,6 +384,7 @@ commits:
   - hash: b64718b295cb9288445c0e316392c15a26b660f2
     summary: "Release v0.8.1 (#707)"
     type: release
+    version: 0.8.1
   - hash: a1dec5d66751a346b6b0e93c223ff5c9cfc78eb7
     summary: "Add FreeBSD port to readme (#705)"
     type: misc
@@ -392,6 +409,7 @@ commits:
   - hash: 935f1130ac73168e09ad5025b8e913808d8cb166
     summary: "Release v0.8.0 (#691)"
     type: release
+    version: 0.8.0
   - hash: 30fee97f735071216970c19c6d494f02e0b91ac5
     summary: "Document how to ignore errors with `-` in readme (#690)"
     type: misc
@@ -407,6 +425,7 @@ commits:
   - hash: d3ec3e4ce88f04814b63066c4afb0ed62c11f46d
     summary: "Release v0.7.3 (#681)"
     type: release
+    version: 0.7.3
   - hash: 9d0246998dec285605ebc158ceea7964330c96c5
     summary: "Add the `--choose` subcommand (#680)"
     type: added
@@ -419,6 +438,7 @@ commits:
   - hash: 551a22b5fcf3acfd83f53aea39ae9d06c1b7bb70
     summary: "Release v0.7.2 (#670)"
     type: release
+    version: 0.7.2
   - hash: 9ecfd2bef4bc9e6da70492b88d0fd13fde2d6a3b
     summary: "Add option to print recipes in source order (#669)"
     type: added
@@ -431,6 +451,7 @@ commits:
   - hash: 981465ad3074d03568f17f22cdd92a5a4f9b0bcd
     summary: "Release v0.7.1 (#662)"
     type: release
+    version: 0.7.1
   - hash: 05d73a423ac1b7a555690b8e2c9050be77bda65c
     summary: "Search for `.env` file from working directory (#661)"
     type: fixed
@@ -440,6 +461,7 @@ commits:
   - hash: c1a0001939f84d74238cb16b1248a8f18ba79722
     summary: "Release v0.7.0 (#657)"
     type: release
+    version: 0.7.0
   - hash: 837b6e6a00bd6c138e5d363c1f24c4d1dd1586b9
     summary: "Skip `.env` items which are set in environment (#656)"
     type: changed
@@ -449,12 +471,14 @@ commits:
   - hash: 7384307fdca839598ff9d9599480b44c3ba28083
     summary: "Release v0.6.1 (#653)"
     type: release
+    version: 0.6.1
   - hash: 5533073f565102419fe581934c9fb23a477dcc69
     summary: "Only use `cygpath` on shebang if it contains `/` (#652)"
     type: changed
   - hash: 863fb53885b602d1346071d51dd929bef7fc76ff
     summary: "Release v0.6.0 (#649)"
     type: release
+    version: 0.6.0
   - hash: 7615fe13a5e12d1b541d40020d8c8bab40d2db2c
     summary: "Clarify variadic parameter default values (#646)"
     type: misc
@@ -488,6 +512,7 @@ commits:
   - hash: 2e6e48d8f4accca60d19319b736809f7e727503b
     summary: "Release v0.5.11 (#629)"
     type: release
+    version: 0.5.11
   - hash: d6a1a2b568fba217004248a3a2c85c131122d926
     summary: "Don't load `.env` file when `--no-dotenv` is passed (#627)"
     type: added
@@ -518,9 +543,11 @@ commits:
   - hash: 985a6a833d77e95ee7589d83de15ee685c85e469
     summary: "Release v0.5.10 (#613)"
     type: release
+    version: 0.5.10
   - hash: 8fea09a3ddbc8352b8d29ef74bbdb5fafdef5c07
     summary: "Release v0.5.9 (#612)"
     type: release
+    version: 0.5.9
   - hash: 2da5581d0f87cfb535287c70e92a57a4207aed4a
     summary: "Only build for linux on docs.rs (#611)"
     type: misc
@@ -566,6 +593,7 @@ commits:
   - hash: aceee3e2178a9f519291033d25b7ad863578bb0f
     summary: "Release v0.5.7 (#591)"
     type: release
+    version: 0.5.7
   - hash: b1ebf631245bd4fafb1280b3ff257e39cf6a846f
     summary: "Improve comments in justfile (#588)"
     type: misc
@@ -578,12 +606,14 @@ commits:
   - hash: 1d084f1d4e0dbca366318337def98721c40c93fd
     summary: "Release v0.5.7 (#584)"
     type: release
+    version: 0.5.7
   - hash: 1a820a28993ab8950c543e889d670154de7830e1
     summary: "Don't include directories in release archive (#583)"
     type: misc
   - hash: f3d5d124a45ef90709ee863761f3b6b433064448
     summary: "Release v0.5.6 (#582)"
     type: release
+    version: 0.5.6
   - hash: 4d175ada13f442fe9ad0a8b50a37ca77f27936a5
     summary: "Build and upload release artifacts from GitHub Actions (#581)"
     type: misc
@@ -599,6 +629,7 @@ commits:
   - hash: 56496e14bf94e1fe97349f5ae3408699646397f4
     summary: "Release v0.5.5 (#576)"
     type: release
+    version: 0.5.5
   - hash: f50196a67fe1c8186e43c3a029c5b3cc26a919fd
     summary: "Check long lines and FIXME/TODO on CI (#575)"
     type: misc
@@ -611,6 +642,7 @@ commits:
   - hash: e14447030a5f0570d3e1fdd6ade3a18ed39e4e0a
     summary: "Release v0.5.4 (#570)"
     type: release
+    version: 0.5.4
   - hash: 61ab53dbc1950029dba1153cb427b973282c2cec
     summary: "Add `justfile_directory()` and `justfile()` (#569)"
     type: added
@@ -632,6 +664,7 @@ commits:
   - hash: 320e2027a152e3c7db22ad78f974a0709a9f9aee
     summary: "Release v0.5.3 (#563)"
     type: release
+    version: 0.5.3
   - hash: 49cd7f5a933f5a973d174830e97ff3097e1b1dc7
     summary: "Improve pre-publish check (#562)"
     type: misc
@@ -644,6 +677,7 @@ commits:
   - hash: 20790a0cc750e413337374dd2d0a2b61c4c74f5c
     summary: "Release v0.5.2 (#557)"
     type: release
+    version: 0.5.2
   - hash: 0931fa8dbf83851aac85e10f302a3aa29282961f
     summary: "Allow passing arguments to dependencies (#555)"
     type: added
@@ -671,6 +705,7 @@ commits:
   - hash: e5232fda89b8841bbf62ce52a0c6a6018e09804d
     summary: "Release v0.5.1 (#544)"
     type: release
+    version: 0.5.1
   - hash: d157c87460a0f21ccb883f82105f02f4d595175b
     summary: "Add missing `--init` test (#543)"
     type: misc
@@ -692,6 +727,7 @@ commits:
   - hash: c40d16f2a24b07f0e045a50d861aec0bff1cb6b1
     summary: "Release: v0.5.0 (#530)"
     type: release
+    version: 0.5.0
   - hash: 9f82ed901566bc8b88beccfcd38f83c088166c97
     summary: "Document settings in readme (#527)"
     type: misc
@@ -728,6 +764,7 @@ commits:
   - hash: f3b803007046d00b6a728c2ddeda283b24f53ab9
     summary: "Bump version: v0.4.4 -> v0.4.5 (#505)"
     type: release
+    version: 0.4.5
   - hash: 48b25c14b154e29bb866fae3b8beeef5f4e9c2d4
     summary: "Use constants instead of literals in arg parser (#504)"
     type: misc
@@ -824,6 +861,7 @@ commits:
   - hash: 23443e2472b4292f1cbcdea2bda977b3791e9d56
     summary: "Bump version: v0.4.3 -> v0.4.4 (#449)"
     type: release
+    version:  0.4.4
   - hash: 7f06bc68d439da628fb195211f5da26caecae137
     summary: "Ignore file name case while searching for justfile (#436)"
     type: changed
@@ -845,6 +883,7 @@ commits:
   - hash: ea2afb627b0c688b451ddc7a436eb125c0d64447
     summary: "Bump version: v0.4.2 -> v0.4.3 (#431)"
     type: release
+    version: 0.4.3
   - hash: bde647279a31700fd55ecb9b1401ef5a91d17e84
     summary: "Add Void Linux install instructions to readme (#423)"
     type: misc
@@ -884,12 +923,14 @@ commits:
   - hash: 85336f09b008dd9749e1eb60de40456560bde4ff
     summary: "Bump version: v0.4.1 -> v0.4.2 (#407)"
     type: release
+    version: 0.4.2
   - hash: 596ea3446058ec05a2b43d84c90d05f86555f8ae
     summary: "Replace regex-based lexer with character-at-a-time lexer (#406)"
     type: changed
   - hash: e615ea03898a7e0e1e853805a61a5f42225af456
     summary: "Bump version: v0.4.0 -> v0.4.1 (#405)"
     type: release
+    version: 0.4.1
   - hash: a2e55ef40e231518b8d2699e25fe20bc5b8319d7
     summary: "Make summary function non-generic (#404)"
     type: changed
@@ -902,6 +943,7 @@ commits:
   - hash: c3d1d9049fde924b1acf8c3a40f589eb57a17db8
     summary: "Bump version: 0.3.13 -> 0.4.0 (#401)"
     type: release
+    version: 0.4.0
   - hash: fe0a6c252c4243d16d6161eb828f35a72de682e5
     summary: "Allow arbitrary expressions as default arguments (#400)"
     type: added
@@ -947,6 +989,7 @@ commits:
   - hash: 849cdcb37fb42feb5e8724ec9fb3b34027e0da4f
     summary: "Bump version: 0.3.12 -> 0.3.13 (#371)"
     type: release
+    version: 0.3.13
   - hash: af97f3f1c1f7fb09870ab3a07ce2e333e644fef9
     summary: "Print recipe signature if missing arguments (#369)"
     type: added
@@ -1001,12 +1044,14 @@ commits:
   - hash: 5acc112a9749063a554e3626a6055bb88f093468
     summary: "Bump version: 0.3.11 -> 0.3.12 (#324)"
     type: release
+    version: 0.3.12
   - hash: cf3fde442f5c3a215ffdef387f5f56f1759d17cd
     summary: "Implement invocation_directory function (#312)"
     type: added
   - hash: ee7302c0e3a9668aa3819112907db2b52c37098a
     summary: "Bump version: 0.3.10 -> 0.3.11 (#318)"
     type: release
+    version: 0.3.11
   - hash: 2f8e89228a3adc1d0f258e0ff44518731390a727
     summary: "Bump dependencies (#316)"
     type: misc
@@ -1022,12 +1067,14 @@ commits:
   - hash: ef45b02cc38d7cf8b7223a764c2935cd38f70be2
     summary: "Version bump + update deps: 0.3.9 -> 0.3.10 (#311)"
     type: release
+    version: 0.3.10
   - hash: 68b343bc17e7b60b2ce93d17fd11f4f20cbdcbc2
     summary: "Make .env vars available in env_var functions (#310)"
     type: added
   - hash: 70e96d52ebec1695819a4e6bf409f0b778a3d655
     summary: "Bump version: 0.3.8 -> 0.3.9 (#308)"
     type: release
+    version: 0.3.9
   - hash: 70234f61939157eb62eaf8709c79655e1d2e0e9f
     summary: "Add dotenv integration (#306)"
     type: added
@@ -1040,6 +1087,7 @@ commits:
   - hash: 0e42d1435b23d1f41c5f485474cabc51bfd84f53
     summary: "Bump version to 0.3.8 and update dependencies (#304)"
     type: release
+    version: 0.3.8
   - hash: 9eac537a01af771fd97f6d8393e764dc14e61739
     summary: Enable ANSI support for Windows 10 Console
     type: added
@@ -1052,6 +1100,7 @@ commits:
   - hash: 667f81d79dfa674cf97fc41e25b5bb3d89e3589f
     summary: "Bump version: 0.3.6 -> 0.3.7 (#297)"
     type: release
+    version: 0.3.7
   - hash: 5cbcf47038139e82c4e0d38b8cafa32e00b2400c
     summary: "Allow ! in comments (#296)"
     type: fixed
@@ -1061,12 +1110,14 @@ commits:
   - hash: 337f8f882b39b7cf650582a8ed5f7b9473b83cf0
     summary: "Bump version: 0.3.5 -> 0.3.6 (#293)"
     type: release
+    version: 0.3.6
   - hash: 1d0aa178f7b62a063b9a8d53955444dc4325597c
     summary: "Lex CRLF line endings properly (#292)"
     type: fixed
   - hash: 26098ba6096a58bdaee20a1834590c108eee067c
     summary: "Bump version: 0.3.4 -> 0.3.5 (#286)"
     type: release
+    version: 0.3.5
   - hash: 9fc3262bbb91f5018b9203ffec08ebbd6f2838c5
     summary: "Add variadic parameter with default argument example (#285)"
     type: misc
@@ -1103,6 +1154,7 @@ commits:
   - hash: 88afe90630ac3faa0294fce94f39a8339680de97
     summary: "Bump version: 0.3.3 -> 0.3.4 (#269)"
     type: release
+    version: 0.3.4
   - hash: a88d785afe9f768ccd517787b50c8b30abca67a2
     summary: "Change license to CC0 (#270)"
     type: changed
@@ -1172,6 +1224,7 @@ commits:
   - hash: 7874e22d47d8e1477def970b9b191849f77c72f5
     summary: Bump version to 0.3.2
     type: release
+    version: 0.3.2
   - hash: 7f3f13bd4bb3db5489e67d02be295d02c4d596d2
     summary: "Add readme to Cargo.toml (#234)"
     type: misc
@@ -1217,6 +1270,7 @@ commits:
   - hash: f284f75d3285de7480003d657e70af9c9d954b9e
     summary: v0.2.32 -> v0.2.33
     type: release
+    version: 0.2.33
   - hash: d841e4c4bc0b20230ef803c6e07e84ef6f565162
     summary: "Update dependencies (#212)"
     type: misc
@@ -1235,9 +1289,11 @@ commits:
   - hash: 62a0d7de059459eed800dc852264bd50949378aa
     summary: "Bump version: 0.2.31 -> 0.2.32"
     type: release
+    version: 0.2.32
   - hash: 2b59771c9db9d645eb1ae86cd7f337d2c2b98578
     summary: "Bump version: 0.2.30 -> 0.2.31"
     type: release
+    version: 0.2.31
   - hash: dca8cffde493c8fcd1c5aeb9bfc9b8117414c49f
     summary: Update release recipe
     type: misc
@@ -1247,9 +1303,11 @@ commits:
   - hash: 9b8808af4020b25f5fc703db315ac83e6aacbd56
     summary: "Bump version: 0.2.28 -> 0.2.29"
     type: release
+    version: 0.2.29
   - hash: 1cb7be2351fc25cc7e2b0d853ea31cb0ab7b1ffb
     summary: "Bump version: 0.2.27 -> 0.2.28 (#200)"
     type: release
+    version: 0.2.28
   - hash: 98fe09f26bb2a332b56a9098e1bae49cf0a51eb4
     summary: "Fix lints and things that make clippy sad (#199)"
     type: misc
@@ -1280,6 +1338,7 @@ commits:
   - hash: 9fce455851bc08ab2b87a9446fb5998099392f59
     summary: "Bump version: 0.2.26 -> 0.2.27"
     type: release
+    version: 0.2.27
   - hash: bb15310549d16ae2794a7cb1edb976c68d7f3f85
     summary: "Unicode integration test fix for windows (#189)"
     type: misc
@@ -1343,6 +1402,7 @@ commits:
   - hash: 763f5798be926c2dc6e64f78101d19fe8e0899ef
     summary: "Bump version: 0.2.25 -> 0.2.26 (#150)"
     type: release
+    version: 0.2.26
   - hash: bed28c1df5efb156de171efef65d44b4230c888e
     summary: "Resolve dependencies after the first (#149)"
     type: fixed
@@ -1358,12 +1418,14 @@ commits:
   - hash: 2cb88cc06c0cc574925127fbea9b4a4deb95d17f
     summary: "Bump version to 0.2.25 (#142)"
     type: release
+    version: 0.2.25
   - hash: d17911a57378b6d862794ba33b14f5366a4be9dc
     summary: "Use '/' instead of \"/\" as argument to rfind (#141)"
     type: misc
   - hash: 02a160d2e0824ee3c782aaf1e6b79b728200d3d3
     summary: "Bump version: 0.2.23 -> 0.2.24 (#140)"
     type: release
+    version: 0.2.24
   - hash: b267d0444ecd14def505e050c18237a02bc34424
     summary: "Allow path-prefixed first arguments (#139)"
     type: added
@@ -1397,6 +1459,7 @@ commits:
   - hash: bf42b23be3ada32f146e707ea011ff2e6992c13f
     summary: "Bump version to v0.2.23 (#129)"
     type: release
+    version: 0.2.23
   - hash: 11c0d349dbd5e71c56868ea93500a2ae64eeef13
     summary: "Collapse unnecessary block (#128)"
     type: misc
@@ -1439,6 +1502,7 @@ commits:
   - hash: 1690da3e6bddeda0d09ae536b308b610f3102498
     summary: "Bump version to v0.2.22 (#110)"
     type: release
+    version: 0.2.22
   - hash: 3d7888708c69728951e6e1555581e54e1e38e374
     summary: "Add multiline raw string example to readme (#109)"
     type: misc
@@ -1457,6 +1521,7 @@ commits:
   - hash: 0b950db17d1a7c8dc06c6161198c1d4095b288d2
     summary: "Bump version to v0.2.21 (#103)"
     type: release
+    version: 0.2.21
   - hash: 2b81dc2b769e403cd3be9a4ca86d74389a6ac097
     summary: "Fix spurious circular dependency error (#102)"
     type: fixed
@@ -1499,6 +1564,7 @@ commits:
   - hash: 1affac98a922527a0275e3ad89f1a8e995fc3da2
     summary: "Bump version to 0.2.20 (#89)"
     type: release
+    version: 0.2.20
   - hash: 6e8289c624e98b3af08c05a73ffc9bcb1fa1ebf3
     summary: "Make `--list` print recipes with arguments (#88)"
     type: added
@@ -1511,6 +1577,7 @@ commits:
   - hash: 981823cbabcfbeef71e1116c9155513eb541a6ac
     summary: "Bump version to 0.2.19 (#83)"
     type: release
+    version: 0.2.19
   - hash: 7e3859ef180f1954f930b71828a093576b607933
     summary: "Fix needless borrow clippy lints (#81)"
     type: misc
@@ -1553,6 +1620,7 @@ commits:
   - hash: 976c4fd97983b82019bf71061fa5aa2b2a0380f9
     summary: "Bump version to 0.2.18 (#60)"
     type: release
+    version: 0.2.18
   - hash: 716b4eba19a30585910346cfa92d1e38fcfced9a
     summary: "Fix publish recipe (#59)"
     type: misc
@@ -1622,6 +1690,7 @@ commits:
   - hash: 39a78c968f6b82f4358ebeda8093308d574822cb
     summary: "Bump version to 0.2.16 (#21)"
     type: release
+    version: 0.2.16
   - hash: 6861a346c38bfe42241634304025e29e1c65d3ed
     summary: "Create a unique branch when bumping version (#20)"
     type: misc
@@ -1649,6 +1718,7 @@ commits:
   - hash: dd16fe316ba74eb756b03815549ce78cbe69f519
     summary: Bump version to v0.2.15
     type: release
+    version: 0.2.15
   - hash: 9f2568c461173a1ffe05152670c60bb258087260
     summary: Fix tab-indented lines in shebang recipes
     type: misc
@@ -1658,12 +1728,14 @@ commits:
   - hash: f9abb728870e2669ca0fbdd162a059857501de15
     summary: "New publish recipe, bump version to 0.2.14 to test."
     type: release
+    version: 0.2.14
   - hash: 3b312e272862f92f696252b43408711c44629223
     summary: Add escape sequences and raw strings to README.md
     type: misc
   - hash: 3fb4fc8074136dea8dfe5cda6e2618b4f1a58060
     summary: Bump version
     type: release
+    version: 0.2.13
   - hash: 390491f7fabd6d9b384fddece59620af9d72f3de
     summary: Readme done
     type: misc
@@ -1697,6 +1769,7 @@ commits:
   - hash: e354ca0a8ea1c6d8d2a5e4f67f614234afe676f8
     summary: Bump version update description
     type: release
+    version: 0.2.11
   - hash: 8a59d19cc72d461125bd3e677d169895612fc370
     summary: Fix shield link
     type: misc
@@ -1736,12 +1809,14 @@ commits:
   - hash: 9e9b525369904f8a905752975e1e4660aedc3a45
     summary: Bump version to 0.2.11 and rename back to just
     type: release
+    version: 0.2.11
   - hash: 686074df0e33c48cfbb1d0112d1ebe6b325325d5
     summary: Make clippy more lenient with cyclomatic complexity
     type: misc
   - hash: 0b182002a48427a26fe4e99bd4930a042ac06eea
     summary: "Notes, bump version"
     type: release
+    version: 0.2.10
   - hash: dc925fe5902699da52804c6c4aa627a90ecaa7a2
     summary: Moved last enhancements to github issues
     type: misc
@@ -1754,6 +1829,7 @@ commits:
   - hash: 843662c28521663c6b173e4725e6e03b719e9e78
     summary: Notes + bump version
     type: release
+    version: 0.2.9
   - hash: 2568e949b54337600b0547d9ba23b68619c7b8aa
     summary: Cleaned up export parsing
     type: misc
@@ -1772,6 +1848,7 @@ commits:
   - hash: cc683cbb04280940922b042abe9d72c33dd77559
     summary: "Bump version, add --debug"
     type: release
+    version: 0.2.8
   - hash: 9a368fb351895b932a54d20b06494511c653f9d3
     summary: variable=value overrides done
     type: added
@@ -1787,6 +1864,7 @@ commits:
   - hash: 2bc7485801f4310e1ae2cf757aaec328042cb1f6
     summary: Bump version to 0.2.7
     type: release
+    version: 0.2.7
   - hash: 980c5d0b33e90f5d94ac90ffa110ab94bf2b8894
     summary: Backticks implemented. Error messages still suck though.
     type: added
@@ -1823,9 +1901,11 @@ commits:
   - hash: 011876baff9515eed990c52a83b9ee18bf2e578c
     summary: "Bump version to 0.2.6, build before publishing"
     type: release
+    version: 0.2.6
   - hash: b46cfd97ba57679bfaba6a9f90c27647d0b3ebab
     summary: Bump version to 0.2.5
     type: release
+    version: 0.2.5
   - hash: 58fb70e16e1637d146080aeaa159fdb6e6d5605f
     summary: "Surround tokens with `` in errors"
     type: misc
@@ -1862,9 +1942,11 @@ commits:
   - hash: ec41eaf0e7bd523ed75bf6653eaef58192a0f8e6
     summary: "Bump version, use variable for quine text"
     type: release
+    version:  0.2.4
   - hash: 0a168032476bf378075bfb50132556d2e794e994
     summary: "Clippy fixes, bump version 0.2.3, string escapes"
     type: release
+    version: 0.2.3
   - hash: fa2fae5fb8772354a4d043009b0d9856f2922e4c
     summary: "Clean up code, rename Token.class -> Token.kind"
     type: misc
@@ -1925,6 +2007,7 @@ commits:
   - hash: 8d8f38b3d827221e4fff84fad661548abec5ff8b
     summary: "bump: 0.2.1 -> 0.2.2"
     type: release
+    version: 0.2.2
   - hash: 92d231c2ec63966fe451949f776ad3a1aacf6dc5
     summary: Add --justfile and --working-directory flags
     type: added
@@ -1940,6 +2023,7 @@ commits:
   - hash: 756a74bc1816e2d6891ebae87f8af9704f0eeeb9
     summary: "version bump: 0.2.0 -> 0.2.1"
     type: release
+    version: 0.2.1
   - hash: 5125a1ddac9ed3ab1d50cd0de1dbb88ee396dc6d
     summary: Shuffle tests in run_order
     type: misc
@@ -1988,6 +2072,7 @@ commits:
   - hash: 61b71115740524c95a17fbeb9e6598695b2ac270
     summary: Bump version to 0.2.0
     type: release
+    version: 0.2.0
   - hash: c3bfb44917ef6eb279128d68bfce4ea5a1450849
     summary: Add publish recipe
     type: misc
@@ -2126,12 +2211,14 @@ commits:
   - hash: dd83cc46bfc1810745602290f3f8ae60f4f332ae
     summary: Add period to no justfile found error. Bump version.
     type: release
+    version: 0.1.5
   - hash: 68029874c7e90d7a096ccb3daf85222ffad9f0e5
     summary: Update cargo.lock
     type: misc
   - hash: 0f245031bac7a2bb15d24f57353e5b432620e74a
     summary: 0.1.3 -> 0.1.4
     type: release
+    version: 0.1.4
   - hash: f3a92285af3ae0d5f4219a35eec5382959e46ec2
     summary: "Keep searching if justfile isn't found"
     type: misc
@@ -2141,6 +2228,7 @@ commits:
   - hash: 9665d31180c260fd4fd1477619d08a90b44d4a7d
     summary: v0.1.2 -> v0.1.3
     type: release
+    version: 0.1.3
   - hash: 0f74d2e4fade23e9d45ac5891e50b5e461af47f7
     summary: Update cargo.log
     type: misc
@@ -2150,6 +2238,7 @@ commits:
   - hash: 696fd3a5f14305a2c2ff7fb4c8f6f3986b3211db
     summary: "Remove dependency on brev, bump version"
     type: release
+    version: 0.1.2
   - hash: 3b78451f2300c5ea7a614fe3a245bbde98ffd89b
     summary: Update stuff
     type: changed
@@ -2159,9 +2248,11 @@ commits:
   - hash: 9dddb3d4589a75d16f0a12184e3e88435cd00a3a
     summary: "Update cargo.toml, version -> 0.1.1"
     type: release
+    version: 0.1.1
   - hash: 114f6b7bdc016f581fd83092d93ac56a5f6758cf
     summary: Working
     type: changed
   - hash: a0d5b83a8008c4fec292fbacde61240141554fc3
     summary: Initial commit. Broken.
-    type: added
+    type: release
+    version: 0.1.0

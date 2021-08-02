@@ -1,33 +1,11 @@
 Changelog
 =========
 
-Unreleased
-----------
-
-### Fixed
-- [Fix colors](https://github.com/casey/just/commit/7efb82f4cb6cefa98a543da4e46f458fd6aeb7ed) [(#927)](https://github.com/casey/just/pull/927)
-
-### Changed
-- [Warn if `.env` file is loaded in `dotenv-load` isn't explicitly set](https://github.com/casey/just/commit/1f20ca64810266332b2c485bd3160347acbfea4c) [(#925)](https://github.com/casey/just/pull/925)
-
-### Added
-- [Support `.justfile` as an alternative to `justfile`](https://github.com/casey/just/commit/9c3bbc9fa7a7e30962d49776906b2e1c232e8813) [(#931)](https://github.com/casey/just/pull/931)
-
-### Misc
-- [Use cargo-limit for all recipes](https://github.com/casey/just/commit/0662e4c0420a4b8dd704d39d2cc70803bfe64ea2) [(#928)](https://github.com/casey/just/pull/928)
-- [Use ColorDisplay trait to print objects to the terminal](https://github.com/casey/just/commit/27cf2b96df127dd9475a5b1c1c412a13124edbad) [(#926)](https://github.com/casey/just/pull/926)
-- [Deduplicate recipe parsing](https://github.com/casey/just/commit/9ee1a63e99f067601815f069490028c50493c342) [(#923)](https://github.com/casey/just/pull/923)
-- [Move subcommand functions into Subcommand](https://github.com/casey/just/commit/ce0376cfdf796c8589735d4a25f751daedffcac2) [(#918)](https://github.com/casey/just/pull/918)
-- [Check GitHub Actions workflow with actionlint](https://github.com/casey/just/commit/4ada364edec9eb38665dcc34f7111c5435e2306c) [(#921)](https://github.com/casey/just/pull/921)
-- [Add loader and refactor errors](https://github.com/casey/just/commit/1b0fafea75297c1405c80bfc45a7d12588c557ec) [(#917)](https://github.com/casey/just/pull/917)
-- [Rename: Module → Ast](https://github.com/casey/just/commit/98457c05d730322d1e1ad049b1e19d6bf46c4f89) [(#915)](https://github.com/casey/just/pull/915)
-
-[0.9.9](https://github.com/casey/just/releases/tag/0.9.9) - 1970-1-1
---------------------------------------------------------------------
+[0.9.9](https://github.com/casey/just/releases/tag/0.9.9) - 2021-07-22
+----------------------------------------------------------------------
 
 ### Release
 - [Release 0.9.9](https://github.com/casey/just/commit/2a4c5ae0f07cc7b0a0799b23424aab9cf1e37593) [(#913)](https://github.com/casey/just/pull/913)
-- [Release 0.9.8](https://github.com/casey/just/commit/32f3132997f074d692017018d9edd654f87c4427) [(#896)](https://github.com/casey/just/pull/896)
 
 ### Fixed
 - [Fix circular variable dependency error message](https://github.com/casey/just/commit/0fea73455bfd329e9e144f057a01af8891a27569) [(#909)](https://github.com/casey/just/pull/909)
@@ -45,10 +23,19 @@ Unreleased
 - [Actually fix release tagging and publish changelog with releases](https://github.com/casey/just/commit/1742cf0e127e4525135a7c398600ac9ce8650237) [(#901)](https://github.com/casey/just/pull/901)
 - [Fix broken prerelease tagging](https://github.com/casey/just/commit/a415d1bdc1ab3ae5d11ee036c895aceb470ca3d7) [(#900)](https://github.com/casey/just/pull/900)
 - [Use string value for ref-type check](https://github.com/casey/just/commit/a846a728f13a1c8d952c75ee23983bd617fffc5e) [(#897)](https://github.com/casey/just/pull/897)
-- [Fix changelog formatting](https://github.com/casey/just/commit/2c8187348bf61d62a5097a6758537cd601c2d1ec) [(#894)](https://github.com/casey/just/pull/894)
 
-[0.9.7](https://github.com/casey/just/releases/tag/0.9.7) - 1970-1-1
---------------------------------------------------------------------
+[0.9.8](https://github.com/casey/just/releases/tag/0.9.8) - 2021-07-04
+----------------------------------------------------------------------
+
+### Release
+- [Release 0.9.8](https://github.com/casey/just/commit/32f3132997f074d692017018d9edd654f87c4427) [(#896)](https://github.com/casey/just/pull/896)
+
+### Misc
+- [Fix changelog formatting](https://github.com/casey/just/commit/2c8187348bf61d62a5097a6758537cd601c2d1ec) [(#894)](https://github.com/casey/just/pull/894)
+- [Only run install script on CI for non-releases](https://github.com/casey/just/commit/ba7631964d44f14dedebd4c4ef57cd5563a8521a) [(#895)](https://github.com/casey/just/pull/895)
+
+[0.9.7](https://github.com/casey/just/releases/tag/0.9.7) - 2021-07-03
+----------------------------------------------------------------------
 
 ### Release
 - [Release 0.9.7](https://github.com/casey/just/commit/6272151551c3da19701b11bff55e8278eaa06df6) [(#893)](https://github.com/casey/just/pull/893)
@@ -57,13 +44,12 @@ Unreleased
 - [Add string manipulation functions](https://github.com/casey/just/commit/a24c86ed5a07ef9bf6b487ce1d85ab411bf5e0f1) [(#888)](https://github.com/casey/just/pull/888)
 
 ### Misc
-- [Only run install script on CI for non-releases](https://github.com/casey/just/commit/ba7631964d44f14dedebd4c4ef57cd5563a8521a) [(#895)](https://github.com/casey/just/pull/895)
 - [Remove test-utilities crate](https://github.com/casey/just/commit/d797592365e2167163cae37d12477115b3959ff4) [(#892)](https://github.com/casey/just/pull/892)
 - [Remove outdated note in `Cargo.toml`](https://github.com/casey/just/commit/ee3b7714f66d2f948eb55bc98102f2e60d7ae46e) [(#891)](https://github.com/casey/just/pull/891)
 - [Link to GitHub release pages in changelog](https://github.com/casey/just/commit/9ecf8ab027114016bb948b87d98908d1682e9580) [(#886)](https://github.com/casey/just/pull/886)
 
-[0.9.6](https://github.com/casey/just/releases/tag/0.9.6) - 1970-1-1
---------------------------------------------------------------------
+[0.9.6](https://github.com/casey/just/releases/tag/0.9.6) - 2021-06-25
+----------------------------------------------------------------------
 
 ### Release
 - [Release v0.9.6](https://github.com/casey/just/commit/7aaa20a9767048e0dad97b49fd21d8a4e645f83d) [(#884)](https://github.com/casey/just/pull/884)
@@ -77,8 +63,8 @@ Unreleased
 - [Add `file_extensions` to Sublime syntax file](https://github.com/casey/just/commit/9dc2385c647b561e4ba739af63b7ef4203ad5928) [(#878)](https://github.com/casey/just/pull/878)
 - [Document path manipulation functions in readme](https://github.com/casey/just/commit/8557a6c6b3810b52fb0b2a4036f8d76728056ddb) [(#877)](https://github.com/casey/just/pull/877)
 
-[0.9.5](https://github.com/casey/just/releases/tag/0.9.5) - 1970-1-1
---------------------------------------------------------------------
+[0.9.5](https://github.com/casey/just/releases/tag/0.9.5) - 2021-06-12
+----------------------------------------------------------------------
 
 ### Release
 - [Release v0.9.5](https://github.com/casey/just/commit/4a82c45dda3daaa33c07a8cbbbe886a45a3abd72) [(#870)](https://github.com/casey/just/pull/870)
@@ -100,8 +86,8 @@ Unreleased
 - [Move pages assets back to `docs`](https://github.com/casey/just/commit/98c8911f8543852cee59a913e655ec930b3d5b82) [(#846)](https://github.com/casey/just/pull/846)
 - [Move pages assets to `www`](https://github.com/casey/just/commit/38d707873f4db1f50f4029588f94cdba858d8567) [(#845)](https://github.com/casey/just/pull/845)
 
-[0.9.4](https://github.com/casey/just/releases/tag/v0.9.4) - 1970-1-1
----------------------------------------------------------------------
+[0.9.4](https://github.com/casey/just/releases/tag/v0.9.4) - 2021-05-28
+-----------------------------------------------------------------------
 
 ### Release
 - [Release v0.9.4](https://github.com/casey/just/commit/c198099c17aba7664842f71038e5db00e5664961) [(#844)](https://github.com/casey/just/pull/844)
@@ -114,8 +100,8 @@ Unreleased
 - [Add `vim-just` installation instructions to readme](https://github.com/casey/just/commit/4ed63f886f06d688c3ce8e1e8307999c5b5fb4d4) [(#835)](https://github.com/casey/just/pull/835)
 - [Refactor shebang handling](https://github.com/casey/just/commit/a6b13a31b64a6c85463331dd439e82ce81b3d5c2) [(#833)](https://github.com/casey/just/pull/833)
 
-[0.9.3](https://github.com/casey/just/releases/tag/v0.9.3) - 1970-1-1
----------------------------------------------------------------------
+[0.9.3](https://github.com/casey/just/releases/tag/v0.9.3) - 2021-05-16
+-----------------------------------------------------------------------
 
 ### Release
 - [Release v0.9.3](https://github.com/casey/just/commit/48f00865f9f70356712fb2bf10b2a00aa5d906fb) [(#832)](https://github.com/casey/just/pull/832)
@@ -136,8 +122,8 @@ Unreleased
 - [Document that just is now in Arch official repo](https://github.com/casey/just/commit/8b9a5e60105b76129fafbb54f3b055de1ad548b7) [(#814)](https://github.com/casey/just/pull/814)
 - [Fix changelog years](https://github.com/casey/just/commit/a722ac9b18b021c470e91b83455fb2341e467cdf) [(#813)](https://github.com/casey/just/pull/813)
 
-[0.9.2](https://github.com/casey/just/releases/tag/v0.9.2) - 1970-1-1
----------------------------------------------------------------------
+[0.9.2](https://github.com/casey/just/releases/tag/v0.9.2) - 2021-05-02
+-----------------------------------------------------------------------
 
 ### Release
 - [Release v0.9.2](https://github.com/casey/just/commit/cde2ce0d879c65d0aeec3ad89cf2088be13570dc) [(#811)](https://github.com/casey/just/pull/811)
@@ -145,8 +131,8 @@ Unreleased
 ### Fixed
 - [Pass evaluated arguments as positional arguments](https://github.com/casey/just/commit/2abdeb386e5bd31a9516616a6cae8af4ecbd512c) [(#810)](https://github.com/casey/just/pull/810)
 
-[0.9.1](https://github.com/casey/just/releases/tag/v0.9.1) - 1970-1-1
----------------------------------------------------------------------
+[0.9.1](https://github.com/casey/just/releases/tag/v0.9.1) - 2021-04-26
+-----------------------------------------------------------------------
 
 ### Release
 - [Release v0.9.1](https://github.com/casey/just/commit/7889f10a6a41dff63acd245360ccf4e66a8d1a93) [(#807)](https://github.com/casey/just/pull/807)
@@ -168,8 +154,8 @@ Unreleased
 - [Disable .env warning for now](https://github.com/casey/just/commit/a1a016b4e0f48d6dc4d7956665b5fb0042ea0604)
 - [Warn if `.env` file loaded and `dotenv-load` unset](https://github.com/casey/just/commit/e4ebf6dad96ee34224ca38e4c9f72850f4de5939) [(#784)](https://github.com/casey/just/pull/784)
 
-[0.9.0](https://github.com/casey/just/releases/tag/v0.9.0) - 1970-1-1
----------------------------------------------------------------------
+[0.9.0](https://github.com/casey/just/releases/tag/v0.9.0) - 2021-03-29
+-----------------------------------------------------------------------
 
 ### Release
 - [Release v0.9.0](https://github.com/casey/just/commit/6e2e540751d7fa28497b60e4c1957b16a044ef43) [(#781)](https://github.com/casey/just/pull/781)
@@ -177,8 +163,8 @@ Unreleased
 ### Changed
 - [Turn `=` deprecation warning into a hard error](https://github.com/casey/just/commit/10282bd63618742af5f20c777388c92c56136c49) [(#780)](https://github.com/casey/just/pull/780)
 
-[0.8.7](https://github.com/casey/just/releases/tag/v0.8.7) - 1970-1-1
----------------------------------------------------------------------
+[0.8.7](https://github.com/casey/just/releases/tag/v0.8.7) - 2021-03-29
+-----------------------------------------------------------------------
 
 ### Release
 - [Release v0.8.7](https://github.com/casey/just/commit/4e2e10177b0f8f8baff8b13213ed2855a3e79385) [(#779)](https://github.com/casey/just/pull/779)
@@ -189,8 +175,8 @@ Unreleased
 ### Misc
 - [Change publish recipe to use stable rust](https://github.com/casey/just/commit/2e8c58e1cdc45a9a5a7dc5d4dc936debf4793982) [(#777)](https://github.com/casey/just/pull/777)
 
-[0.8.6](https://github.com/casey/just/releases/tag/v0.8.6) - 1970-1-1
----------------------------------------------------------------------
+[0.8.6](https://github.com/casey/just/releases/tag/v0.8.6) - 2021-03-28
+-----------------------------------------------------------------------
 
 ### Release
 - [Release v0.8.6](https://github.com/casey/just/commit/d81d17ba0a2f2e4a901e215a569eae3100ecbab5) [(#776)](https://github.com/casey/just/pull/776)
@@ -208,8 +194,8 @@ Unreleased
 - [De-emphasize cmd.exe in readme](https://github.com/casey/just/commit/d398417de38c62e60a292d1cb762b7ffc59b2abb) [(#768)](https://github.com/casey/just/pull/768)
 - [Fix warnings](https://github.com/casey/just/commit/9eb774e2ceeb5992f8b0e24f436face11e6ef14a) [(#770)](https://github.com/casey/just/pull/770)
 
-[0.8.5](https://github.com/casey/just/releases/tag/v0.8.5) - 1970-1-1
----------------------------------------------------------------------
+[0.8.5](https://github.com/casey/just/releases/tag/v0.8.5) - 2021-03-25
+-----------------------------------------------------------------------
 
 ### Release
 - [Release v0.8.5](https://github.com/casey/just/commit/21f5e753951e5b1be52aeb692d8cc137e41f644f) [(#766)](https://github.com/casey/just/pull/766)
@@ -224,8 +210,8 @@ Unreleased
 - [Note Emacs package `just-mode` in readme](https://github.com/casey/just/commit/5f3f4dee51481b1dc7bb4e9efff5bdda20024796) [(#759)](https://github.com/casey/just/pull/759)
 - [Note shebang line splitting inconsistency in readme](https://github.com/casey/just/commit/7ae890ce6137a3e15df5327265a3042e952fe215) [(#757)](https://github.com/casey/just/pull/757)
 
-[0.8.4](https://github.com/casey/just/releases/tag/v0.8.4) - 1970-1-1
----------------------------------------------------------------------
+[0.8.4](https://github.com/casey/just/releases/tag/v0.8.4) - 2021-02-09
+-----------------------------------------------------------------------
 
 ### Release
 - [Release v0.8.4](https://github.com/casey/just/commit/c647efa200c71bf8b73511c47e88a1cca0f87c0e) [(#754)](https://github.com/casey/just/pull/754)
@@ -243,9 +229,10 @@ Unreleased
 - [Fix CI](https://github.com/casey/just/commit/1fc4842e4cf6ac0d4ff6a74e2f806d9a8fbd3e6c) [(#727)](https://github.com/casey/just/pull/727)
 - [Improve readme](https://github.com/casey/just/commit/8502cf66182311174c1bace19919fd93b5c33f9a) [(#725)](https://github.com/casey/just/pull/725)
 - [Replace saythanks.io link with malto: link](https://github.com/casey/just/commit/c4835c8ff137c4c242bb9fc03fb8d1d63a7c7791) [(#723)](https://github.com/casey/just/pull/723)
+- [Update man page to v0.8.3](https://github.com/casey/just/commit/ea64e0ec49c4e9d61bfd053e8cd62573bc9a5cba) [(#720)](https://github.com/casey/just/pull/720)
 
-[0.8.3](https://github.com/casey/just/releases/tag/v0.8.3) - 1970-1-1
----------------------------------------------------------------------
+[0.8.3](https://github.com/casey/just/releases/tag/v0.8.3) - 2020-10-28
+-----------------------------------------------------------------------
 
 ### Release
 - [Release v0.8.3](https://github.com/casey/just/commit/19f986d495ee34d8ecceaaaf8aa3dd92abb394aa) [(#718)](https://github.com/casey/just/pull/718)
@@ -253,11 +240,8 @@ Unreleased
 ### Added
 - [Allow ignore line endings inside delimiters](https://github.com/casey/just/commit/aa506fa5bd228ed6070de90045b963ffba8319f0) [(#717)](https://github.com/casey/just/pull/717)
 
-### Misc
-- [Update man page to v0.8.3](https://github.com/casey/just/commit/ea64e0ec49c4e9d61bfd053e8cd62573bc9a5cba) [(#720)](https://github.com/casey/just/pull/720)
-
-[0.8.2](https://github.com/casey/just/releases/tag/v0.8.2) - 1970-1-1
----------------------------------------------------------------------
+[0.8.2](https://github.com/casey/just/releases/tag/v0.8.2) - 2020-10-27
+-----------------------------------------------------------------------
 
 ### Release
 - [Release v0.8.2](https://github.com/casey/just/commit/70768eb24c85027495859a5976c4ac721faa7466) [(#715)](https://github.com/casey/just/pull/715)
@@ -273,8 +257,8 @@ Unreleased
 - [Automatically track expected tokens while parsing](https://github.com/casey/just/commit/bdf1c922512e29e6a32d288dc01b4a7c7bf6ed9f) [(#711)](https://github.com/casey/just/pull/711)
 - [Document feature flags in Cargo.toml](https://github.com/casey/just/commit/d7799ebec46753db26e098245f6fc14f7b093842) [(#709)](https://github.com/casey/just/pull/709)
 
-[0.8.1](https://github.com/casey/just/releases/tag/v0.8.1) - 1970-1-1
----------------------------------------------------------------------
+[0.8.1](https://github.com/casey/just/releases/tag/v0.8.1) - 2020-10-16
+-----------------------------------------------------------------------
 
 ### Release
 - [Release v0.8.1](https://github.com/casey/just/commit/b64718b295cb9288445c0e316392c15a26b660f2) [(#707)](https://github.com/casey/just/pull/707)
@@ -290,8 +274,8 @@ Unreleased
 - [Fix readme documentation for ignoring errors](https://github.com/casey/just/commit/601cc690285e9cc8814e3d2defa3d7db5e238144) [(#692)](https://github.com/casey/just/pull/692)
 - [Fix build fix](https://github.com/casey/just/commit/2909614f685c22a9164a73282de8e338c5ac98a9) [(#693)](https://github.com/casey/just/pull/693)
 
-[0.8.0](https://github.com/casey/just/releases/tag/v0.8.0) - 1970-1-1
----------------------------------------------------------------------
+[0.8.0](https://github.com/casey/just/releases/tag/v0.8.0) - 2020-10-03
+-----------------------------------------------------------------------
 
 ### Release
 - [Release v0.8.0](https://github.com/casey/just/commit/935f1130ac73168e09ad5025b8e913808d8cb166) [(#691)](https://github.com/casey/just/pull/691)
@@ -304,8 +288,8 @@ Unreleased
 - [Install BSD Tar on GitHub Actions to fix CI errors](https://github.com/casey/just/commit/db6a9197c69c9a5744dda57f0ef05076059b75a8) [(#689)](https://github.com/casey/just/pull/689)
 - [Move separate quiet config value to verbosity](https://github.com/casey/just/commit/991f42d4ac9fa9caf2270ab53c91d651c5633119) [(#686)](https://github.com/casey/just/pull/686)
 
-[0.7.3](https://github.com/casey/just/releases/tag/v0.7.3) - 1970-1-1
----------------------------------------------------------------------
+[0.7.3](https://github.com/casey/just/releases/tag/v0.7.3) - 2020-09-18
+-----------------------------------------------------------------------
 
 ### Release
 - [Release v0.7.3](https://github.com/casey/just/commit/d3ec3e4ce88f04814b63066c4afb0ed62c11f46d) [(#681)](https://github.com/casey/just/pull/681)
@@ -317,8 +301,8 @@ Unreleased
 - [Combine integration tests into single binary](https://github.com/casey/just/commit/55985aa242bba18aad0c6b652127571d3d8a695b) [(#679)](https://github.com/casey/just/pull/679)
 - [Document `--unsorted` flag in readme](https://github.com/casey/just/commit/c62ff5a3d01a160f2c5b75594df3faef680fdd7b) [(#672)](https://github.com/casey/just/pull/672)
 
-[0.7.2](https://github.com/casey/just/releases/tag/v0.7.2) - 1970-1-1
----------------------------------------------------------------------
+[0.7.2](https://github.com/casey/just/releases/tag/v0.7.2) - 2020-08-24
+-----------------------------------------------------------------------
 
 ### Release
 - [Release v0.7.2](https://github.com/casey/just/commit/551a22b5fcf3acfd83f53aea39ae9d06c1b7bb70) [(#670)](https://github.com/casey/just/pull/670)
@@ -330,8 +314,8 @@ Unreleased
 - [Mention Linux, MacOS and Windows support in readme](https://github.com/casey/just/commit/75898e29b600a0acad6f64aeac391102f1873732) [(#666)](https://github.com/casey/just/pull/666)
 - [Add list highlighting nice features to readme](https://github.com/casey/just/commit/5e2b51e83e9b459bd769d26bc0a2df7184a44b31) [(#664)](https://github.com/casey/just/pull/664)
 
-[0.7.1](https://github.com/casey/just/releases/tag/v0.7.1) - 1970-1-1
----------------------------------------------------------------------
+[0.7.1](https://github.com/casey/just/releases/tag/v0.7.1) - 2020-07-19
+-----------------------------------------------------------------------
 
 ### Release
 - [Release v0.7.1](https://github.com/casey/just/commit/981465ad3074d03568f17f22cdd92a5a4f9b0bcd) [(#662)](https://github.com/casey/just/pull/662)
@@ -342,8 +326,8 @@ Unreleased
 ### Misc
 - [Move link-time optimization config into `Cargo.toml`](https://github.com/casey/just/commit/8fad0626f8f77133309dc84e0a5648986cbd153b) [(#658)](https://github.com/casey/just/pull/658)
 
-[0.7.0](https://github.com/casey/just/releases/tag/v0.7.0) - 1970-1-1
----------------------------------------------------------------------
+[0.7.0](https://github.com/casey/just/releases/tag/v0.7.0) - 2020-07-17
+-----------------------------------------------------------------------
 
 ### Release
 - [Release v0.7.0](https://github.com/casey/just/commit/c1a0001939f84d74238cb16b1248a8f18ba79722) [(#657)](https://github.com/casey/just/pull/657)
@@ -354,8 +338,8 @@ Unreleased
 ### Misc
 - [Mark tags that start with `v` as releases](https://github.com/casey/just/commit/cea4a1608199672934f9db1b1b2c11f0feb3fd2f) [(#654)](https://github.com/casey/just/pull/654)
 
-[0.6.1](https://github.com/casey/just/releases/tag/v0.6.1) - 1970-1-1
----------------------------------------------------------------------
+[0.6.1](https://github.com/casey/just/releases/tag/v0.6.1) - 2020-06-28
+-----------------------------------------------------------------------
 
 ### Release
 - [Release v0.6.1](https://github.com/casey/just/commit/7384307fdca839598ff9d9599480b44c3ba28083) [(#653)](https://github.com/casey/just/pull/653)
@@ -363,8 +347,8 @@ Unreleased
 ### Changed
 - [Only use `cygpath` on shebang if it contains `/`](https://github.com/casey/just/commit/5533073f565102419fe581934c9fb23a477dcc69) [(#652)](https://github.com/casey/just/pull/652)
 
-[0.6.0](https://github.com/casey/just/releases/tag/v0.6.0) - 1970-1-1
----------------------------------------------------------------------
+[0.6.0](https://github.com/casey/just/releases/tag/v0.6.0) - 2020-06-18
+-----------------------------------------------------------------------
 
 ### Release
 - [Release v0.6.0](https://github.com/casey/just/commit/863fb53885b602d1346071d51dd929bef7fc76ff) [(#649)](https://github.com/casey/just/pull/649)
@@ -385,8 +369,8 @@ Unreleased
 - [Add example justfile](https://github.com/casey/just/commit/3ec04f385adb35404bfa3a8fe95e2704d9ea9aa8) [(#639)](https://github.com/casey/just/pull/639)
 - [Document how to run recipes after another recipe](https://github.com/casey/just/commit/4fdb7717317c6b9df7d290f0543f3abfa49f31ae) [(#630)](https://github.com/casey/just/pull/630)
 
-[0.5.11](https://github.com/casey/just/releases/tag/v0.5.11) - 1970-1-1
------------------------------------------------------------------------
+[0.5.11](https://github.com/casey/just/releases/tag/v0.5.11) - 2020-05-24
+-------------------------------------------------------------------------
 
 ### Release
 - [Release v0.5.11](https://github.com/casey/just/commit/2e6e48d8f4accca60d19319b736809f7e727503b) [(#629)](https://github.com/casey/just/pull/629)
@@ -404,12 +388,18 @@ Unreleased
 - [Add `log` variable to justfile](https://github.com/casey/just/commit/f73de24fd7d2ce947a22fadf6fe9c97bedff17e0) [(#621)](https://github.com/casey/just/pull/621)
 - [Cache build artifacts](https://github.com/casey/just/commit/1f8c2305124e071ea764c9226cbaf863c1877e67) [(#620)](https://github.com/casey/just/pull/620)
 - [Link to recently indexed justfiles in the readme](https://github.com/casey/just/commit/42c22b574472b5c644230aa95af0a4b9f7f40b0e) [(#616)](https://github.com/casey/just/pull/616)
+- [Trigger GitHub Actions workflow on release tags](https://github.com/casey/just/commit/48892479a38863f364150045eb9cbffe9badbfe7) [(#614)](https://github.com/casey/just/pull/614)
 
-[0.5.10](https://github.com/casey/just/releases/tag/v0.5.10) - 1970-1-1
------------------------------------------------------------------------
+[0.5.10](https://github.com/casey/just/releases/tag/v0.5.10) - 2020-03-18
+-------------------------------------------------------------------------
 
 ### Release
 - [Release v0.5.10](https://github.com/casey/just/commit/985a6a833d77e95ee7589d83de15ee685c85e469) [(#613)](https://github.com/casey/just/pull/613)
+
+[0.5.9](https://github.com/casey/just/releases/tag/v0.5.9) - 2020-03-18
+-----------------------------------------------------------------------
+
+### Release
 - [Release v0.5.9](https://github.com/casey/just/commit/8fea09a3ddbc8352b8d29ef74bbdb5fafdef5c07) [(#612)](https://github.com/casey/just/pull/612)
 
 ### Fixed
@@ -421,7 +411,6 @@ Unreleased
 - [Add github pages site with improved install script](https://github.com/casey/just/commit/33ad82f5c7c4c3fda3337de477af47bcf4e0a737) [(#597)](https://github.com/casey/just/pull/597)
 
 ### Misc
-- [Trigger GitHub Actions workflow on release tags](https://github.com/casey/just/commit/48892479a38863f364150045eb9cbffe9badbfe7) [(#614)](https://github.com/casey/just/pull/614)
 - [Only build for linux on docs.rs](https://github.com/casey/just/commit/2da5581d0f87cfb535287c70e92a57a4207aed4a) [(#611)](https://github.com/casey/just/pull/611)
 - [Trim completions and ensure final newline](https://github.com/casey/just/commit/784232e98b835e0ae7a86450a5236a0a37ebddee) [(#609)](https://github.com/casey/just/pull/609)
 - [Trigger build on pushes and pull requests](https://github.com/casey/just/commit/2b688d48587f26c097a55a9fb329c0d8077b589a) [(#607)](https://github.com/casey/just/pull/607)
@@ -433,8 +422,8 @@ Unreleased
 - [Wrap comments at 80 characters](https://github.com/casey/just/commit/9731278d2a1cf680cc7939242d440a982f1f49be) [(#593)](https://github.com/casey/just/pull/593)
 - [Use unstable rustfmt configuration options](https://github.com/casey/just/commit/3ec7dea4a37a7c8342c2feb1c3c147700cea7803) [(#592)](https://github.com/casey/just/pull/592)
 
-[0.5.8](https://github.com/casey/just/releases/tag/v0.5.8) - 1970-1-1
----------------------------------------------------------------------
+[0.5.7](https://github.com/casey/just/releases/tag/v0.5.7) - 2020-01-28
+-----------------------------------------------------------------------
 
 ### Release
 - [Release v0.5.7](https://github.com/casey/just/commit/aceee3e2178a9f519291033d25b7ad863578bb0f) [(#591)](https://github.com/casey/just/pull/591)
@@ -446,8 +435,8 @@ Unreleased
 - [Improve comments in justfile](https://github.com/casey/just/commit/b1ebf631245bd4fafb1280b3ff257e39cf6a846f) [(#588)](https://github.com/casey/just/pull/588)
 - [Remove unused dependencies](https://github.com/casey/just/commit/88f4ee760afeb19d687cbb53ff3e2b07f7cf8e6e) [(#587)](https://github.com/casey/just/pull/587)
 
-[0.5.7](https://github.com/casey/just/releases/tag/v0.5.7) - 1970-1-1
----------------------------------------------------------------------
+[0.5.7](https://github.com/casey/just/releases/tag/v0.5.7) - 2020-01-28
+-----------------------------------------------------------------------
 
 ### Release
 - [Release v0.5.7](https://github.com/casey/just/commit/1d084f1d4e0dbca366318337def98721c40c93fd) [(#584)](https://github.com/casey/just/pull/584)
@@ -455,8 +444,8 @@ Unreleased
 ### Misc
 - [Don't include directories in release archive](https://github.com/casey/just/commit/1a820a28993ab8950c543e889d670154de7830e1) [(#583)](https://github.com/casey/just/pull/583)
 
-[0.5.6](https://github.com/casey/just/releases/tag/v0.5.6) - 1970-1-1
----------------------------------------------------------------------
+[0.5.6](https://github.com/casey/just/releases/tag/v0.5.6) - 2020-01-28
+-----------------------------------------------------------------------
 
 ### Release
 - [Release v0.5.6](https://github.com/casey/just/commit/f3d5d124a45ef90709ee863761f3b6b433064448) [(#582)](https://github.com/casey/just/pull/582)
@@ -467,8 +456,8 @@ Unreleased
 - [Expand use of Github Actions](https://github.com/casey/just/commit/e3ac2c61e56e97b5b6e10f95a1a0bec5fea2548a) [(#580)](https://github.com/casey/just/pull/580)
 - [Fix readme typo: interpetation -> interpretation](https://github.com/casey/just/commit/5cb15532e8608d4d11aa880019fe5816cf2b6740) [(#578)](https://github.com/casey/just/pull/578)
 
-[0.5.5](https://github.com/casey/just/releases/tag/v0.5.5) - 1970-1-1
----------------------------------------------------------------------
+[0.5.5](https://github.com/casey/just/releases/tag/v0.5.5) - 2020-01-15
+-----------------------------------------------------------------------
 
 ### Release
 - [Release v0.5.5](https://github.com/casey/just/commit/56496e14bf94e1fe97349f5ae3408699646397f4) [(#576)](https://github.com/casey/just/pull/576)
@@ -480,8 +469,8 @@ Unreleased
 - [Check long lines and FIXME/TODO on CI](https://github.com/casey/just/commit/f50196a67fe1c8186e43c3a029c5b3cc26a919fd) [(#575)](https://github.com/casey/just/pull/575)
 - [Add additional continuous integration checks](https://github.com/casey/just/commit/ed991cb509fffc5556a091cae4ba4e37a0e912ca) [(#574)](https://github.com/casey/just/pull/574)
 
-[0.5.4](https://github.com/casey/just/releases/tag/v0.5.4) - 1970-1-1
----------------------------------------------------------------------
+[0.5.4](https://github.com/casey/just/releases/tag/v0.5.4) - 2019-12-25
+-----------------------------------------------------------------------
 
 ### Release
 - [Release v0.5.4](https://github.com/casey/just/commit/e14447030a5f0570d3e1fdd6ade3a18ed39e4e0a) [(#570)](https://github.com/casey/just/pull/570)
@@ -494,21 +483,21 @@ Unreleased
 - [Remove yaourt AUR helper from readme](https://github.com/casey/just/commit/b8d6fc66816e565b88cce82333b1ea39050ca45b) [(#567)](https://github.com/casey/just/pull/567)
 - [Fix regression in error message color printing](https://github.com/casey/just/commit/fe906a1b6f0f417ec45e77d3ff92a34a53008ab6) [(#566)](https://github.com/casey/just/pull/566)
 - [Reform indentation handling](https://github.com/casey/just/commit/bb4afe14816d78e196817d6bd34dde2f2d2fd3d8) [(#565)](https://github.com/casey/just/pull/565)
+- [Update Cargo.lock with new version](https://github.com/casey/just/commit/66121d478b934d7ddadc9959624c3378e78a1c88) [(#564)](https://github.com/casey/just/pull/564)
 
-[0.5.3](https://github.com/casey/just/releases/tag/v0.5.3) - 1970-1-1
----------------------------------------------------------------------
+[0.5.3](https://github.com/casey/just/releases/tag/v0.5.3) - 2019-12-12
+-----------------------------------------------------------------------
 
 ### Release
 - [Release v0.5.3](https://github.com/casey/just/commit/320e2027a152e3c7db22ad78f974a0709a9f9aee) [(#563)](https://github.com/casey/just/pull/563)
 
 ### Misc
-- [Update Cargo.lock with new version](https://github.com/casey/just/commit/66121d478b934d7ddadc9959624c3378e78a1c88) [(#564)](https://github.com/casey/just/pull/564)
 - [Improve pre-publish check](https://github.com/casey/just/commit/49cd7f5a933f5a973d174830e97ff3097e1b1dc7) [(#562)](https://github.com/casey/just/pull/562)
 - [Fix typo: `chracter` -> `character`](https://github.com/casey/just/commit/9eb867dd15a98c5a81f8a133db4398a318eb4356) [(#561)](https://github.com/casey/just/pull/561)
 - [Assert that lexer advances over entire input](https://github.com/casey/just/commit/b5dea44ee7859a499ee4858ae234963bd9152551) [(#560)](https://github.com/casey/just/pull/560)
 
-[0.5.2](https://github.com/casey/just/releases/tag/v0.5.2) - 1970-1-1
----------------------------------------------------------------------
+[0.5.2](https://github.com/casey/just/releases/tag/v0.5.2) - 2019-12-07
+-----------------------------------------------------------------------
 
 ### Release
 - [Release v0.5.2](https://github.com/casey/just/commit/20790a0cc750e413337374dd2d0a2b61c4c74f5c) [(#557)](https://github.com/casey/just/pull/557)
@@ -525,8 +514,8 @@ Unreleased
 - [Resolve recipe dependencies](https://github.com/casey/just/commit/30c77f8d033c7b5dea9ce193bffcf773f66e548a) [(#547)](https://github.com/casey/just/pull/547)
 - [Un-implement Deref for Table](https://github.com/casey/just/commit/72bc85e4eacbbdc096267d12743fbec6af613158) [(#546)](https://github.com/casey/just/pull/546)
 
-[0.5.1](https://github.com/casey/just/releases/tag/v0.5.1) - 1970-1-1
----------------------------------------------------------------------
+[0.5.1](https://github.com/casey/just/releases/tag/v0.5.1) - 2019-11-20
+-----------------------------------------------------------------------
 
 ### Release
 - [Release v0.5.1](https://github.com/casey/just/commit/e5232fda89b8841bbf62ce52a0c6a6018e09804d) [(#544)](https://github.com/casey/just/pull/544)
@@ -543,8 +532,8 @@ Unreleased
 - [Refactor Compilation error to contain a Token](https://github.com/casey/just/commit/598f1c3200fe5a3a98c5630213f74bdcf78adab9) [(#535)](https://github.com/casey/just/pull/535)
 - [Mention `set shell` as altenative to installing `sh`](https://github.com/casey/just/commit/7046443b39d2008c8904a77f26d65012b4e1b396) [(#533)](https://github.com/casey/just/pull/533)
 
-[0.5.0](https://github.com/casey/just/releases/tag/v0.5.0) - 1970-1-1
----------------------------------------------------------------------
+[0.5.0](https://github.com/casey/just/releases/tag/v0.5.0) - 2019-11-12
+-----------------------------------------------------------------------
 
 ### Release
 - [Release: v0.5.0](https://github.com/casey/just/commit/c40d16f2a24b07f0e045a50d861aec0bff1cb6b1) [(#530)](https://github.com/casey/just/pull/530)
@@ -566,8 +555,8 @@ Unreleased
 - [Reform Parser](https://github.com/casey/just/commit/b2285ce0e07ea6c07807507d5ebee19ae1804984) [(#509)](https://github.com/casey/just/pull/509)
 - [Note need to publish with nightly cargo](https://github.com/casey/just/commit/8e084a7042dab8e531bd9a9eec7532b50b0a2a1f) [(#506)](https://github.com/casey/just/pull/506)
 
-[0.4.5](https://github.com/casey/just/releases/tag/v0.4.5) - 1970-1-1
----------------------------------------------------------------------
+[0.4.5](https://github.com/casey/just/releases/tag/v0.4.5) - 2019-11-01
+-----------------------------------------------------------------------
 
 ### Release
 - [Bump version: v0.4.4 -> v0.4.5](https://github.com/casey/just/commit/f3b803007046d00b6a728c2ddeda283b24f53ab9) [(#505)](https://github.com/casey/just/pull/505)
@@ -607,8 +596,8 @@ Unreleased
 - [Document multi-line constructs (for/if/while)](https://github.com/casey/just/commit/3e61ddf8e728648fd12e0a064da7e5b9b5621288) [(#453)](https://github.com/casey/just/pull/453)
 - [Update deprecated rust range patterns and clippy config](https://github.com/casey/just/commit/a4556241de8162aff91eeaffbca348b611c3a595) [(#450)](https://github.com/casey/just/pull/450)
 
-[0.4.4](https://github.com/casey/just/releases/tag/v0.4.4) - 1970-1-1
----------------------------------------------------------------------
+[0.4.4](https://github.com/casey/just/releases/tag/v0.4.4) - 2019-06-02
+-----------------------------------------------------------------------
 
 ### Release
 - [Bump version: v0.4.3 -> v0.4.4](https://github.com/casey/just/commit/23443e2472b4292f1cbcdea2bda977b3791e9d56) [(#449)](https://github.com/casey/just/pull/449)
@@ -625,8 +614,8 @@ Unreleased
 - [Replace colored_diff with pretty_assertions](https://github.com/casey/just/commit/22e96447b4cffa98196ef1cfbcaa47ca14f84b60) [(#440)](https://github.com/casey/just/pull/440)
 - [Update justfile to use `:=` instead of `=`](https://github.com/casey/just/commit/d46e6d86a640a644a678c4e4cf9595d8dd1a80de) [(#432)](https://github.com/casey/just/pull/432)
 
-[0.4.3](https://github.com/casey/just/releases/tag/v0.4.3) - 1970-1-1
----------------------------------------------------------------------
+[0.4.3](https://github.com/casey/just/releases/tag/v0.4.3) - 2019-05-08
+-----------------------------------------------------------------------
 
 ### Release
 - [Bump version: v0.4.2 -> v0.4.3](https://github.com/casey/just/commit/ea2afb627b0c688b451ddc7a436eb125c0d64447) [(#431)](https://github.com/casey/just/pull/431)
@@ -649,8 +638,8 @@ Unreleased
 - [Replace some calls to brev crate](https://github.com/casey/just/commit/eb3ae2d093a8acd0d8dbfea3c79350e1c11cc409) [(#410)](https://github.com/casey/just/pull/410)
 - [Remove stray source files](https://github.com/casey/just/commit/aa81f458d01a9afc201156d4c2dc74e56d626fcc) [(#408)](https://github.com/casey/just/pull/408)
 
-[0.4.2](https://github.com/casey/just/releases/tag/v0.4.2) - 1970-1-1
----------------------------------------------------------------------
+[0.4.2](https://github.com/casey/just/releases/tag/v0.4.2) - 2019-04-16
+-----------------------------------------------------------------------
 
 ### Release
 - [Bump version: v0.4.1 -> v0.4.2](https://github.com/casey/just/commit/85336f09b008dd9749e1eb60de40456560bde4ff) [(#407)](https://github.com/casey/just/pull/407)
@@ -658,8 +647,8 @@ Unreleased
 ### Changed
 - [Replace regex-based lexer with character-at-a-time lexer](https://github.com/casey/just/commit/596ea3446058ec05a2b43d84c90d05f86555f8ae) [(#406)](https://github.com/casey/just/pull/406)
 
-[0.4.1](https://github.com/casey/just/releases/tag/v0.4.1) - 1970-1-1
----------------------------------------------------------------------
+[0.4.1](https://github.com/casey/just/releases/tag/v0.4.1) - 2019-04-15
+-----------------------------------------------------------------------
 
 ### Release
 - [Bump version: v0.4.0 -> v0.4.1](https://github.com/casey/just/commit/e615ea03898a7e0e1e853805a61a5f42225af456) [(#405)](https://github.com/casey/just/pull/405)
@@ -671,8 +660,8 @@ Unreleased
 - [Add installation instructions for Nix](https://github.com/casey/just/commit/50d4323f4303d52e33048bdbee53aab2d60ed6f3) [(#403)](https://github.com/casey/just/pull/403)
 - [Clean up justfile and fix version extraction](https://github.com/casey/just/commit/1d5fa6d29b363000d8161897a3ae91aa71db48d2) [(#402)](https://github.com/casey/just/pull/402)
 
-[0.4.0](https://github.com/casey/just/releases/tag/v0.4.0) - 1970-1-1
----------------------------------------------------------------------
+[0.4.0](https://github.com/casey/just/releases/tag/v0.4.0) - 2019-04-12
+-----------------------------------------------------------------------
 
 ### Release
 - [Bump version: 0.3.13 -> 0.4.0](https://github.com/casey/just/commit/c3d1d9049fde924b1acf8c3a40f589eb57a17db8) [(#401)](https://github.com/casey/just/pull/401)
@@ -697,8 +686,8 @@ Unreleased
 - [Actually link to Chinese translation](https://github.com/casey/just/commit/ec82cc20d3352e93dd27ed7be406039591b4a7aa) [(#378)](https://github.com/casey/just/pull/378)
 - [Add changelog for v0.3.13](https://github.com/casey/just/commit/1ad3f996366a515ac4124ad44e1db7bba145884c) [(#372)](https://github.com/casey/just/pull/372)
 
-[0.3.13](https://github.com/casey/just/releases/tag/v0.3.13) - 1970-1-1
------------------------------------------------------------------------
+[0.3.13](https://github.com/casey/just/releases/tag/v0.3.13) - 2018-11-06
+-------------------------------------------------------------------------
 
 ### Release
 - [Bump version: 0.3.12 -> 0.3.13](https://github.com/casey/just/commit/849cdcb37fb42feb5e8724ec9fb3b34027e0da4f) [(#371)](https://github.com/casey/just/pull/371)
@@ -726,8 +715,8 @@ Unreleased
 - [Fix integration tests with dash](https://github.com/casey/just/commit/f0404d434c32c48f6f35f1b80f6f2e00ba30fc4a) [(#338)](https://github.com/casey/just/pull/338)
 - [Fix instructions for install command](https://github.com/casey/just/commit/e4ab3416f00376aa2d6852ad9f02edebcfc8a772) [(#330)](https://github.com/casey/just/pull/330)
 
-[0.3.12](https://github.com/casey/just/releases/tag/v0.3.12) - 1970-1-1
------------------------------------------------------------------------
+[0.3.12](https://github.com/casey/just/releases/tag/v0.3.12) - 2018-06-19
+-------------------------------------------------------------------------
 
 ### Release
 - [Bump version: 0.3.11 -> 0.3.12](https://github.com/casey/just/commit/5acc112a9749063a554e3626a6055bb88f093468) [(#324)](https://github.com/casey/just/pull/324)
@@ -735,8 +724,8 @@ Unreleased
 ### Added
 - [Implement invocation_directory function](https://github.com/casey/just/commit/cf3fde442f5c3a215ffdef387f5f56f1759d17cd) [(#312)](https://github.com/casey/just/pull/312)
 
-[0.3.11](https://github.com/casey/just/releases/tag/v0.3.11) - 1970-1-1
------------------------------------------------------------------------
+[0.3.11](https://github.com/casey/just/releases/tag/v0.3.11) - 2018-05-07
+-------------------------------------------------------------------------
 
 ### Release
 - [Bump version: 0.3.10 -> 0.3.11](https://github.com/casey/just/commit/ee7302c0e3a9668aa3819112907db2b52c37098a) [(#318)](https://github.com/casey/just/pull/318)
@@ -749,8 +738,8 @@ Unreleased
 - [Get package name from Cargo.toml](https://github.com/casey/just/commit/a3294822c375a0d3099476e11d9c80ae5affff4c) [(#315)](https://github.com/casey/just/pull/315)
 - [Remove unused recipes](https://github.com/casey/just/commit/c0f8dfbc89480247321cced40e790f9eeb4e6479) [(#314)](https://github.com/casey/just/pull/314)
 
-[0.3.10](https://github.com/casey/just/releases/tag/v0.3.10) - 1970-1-1
------------------------------------------------------------------------
+[0.3.10](https://github.com/casey/just/releases/tag/v0.3.10) - 2018-03-20
+-------------------------------------------------------------------------
 
 ### Release
 - [Version bump + update deps: 0.3.9 -> 0.3.10](https://github.com/casey/just/commit/ef45b02cc38d7cf8b7223a764c2935cd38f70be2) [(#311)](https://github.com/casey/just/pull/311)
@@ -758,8 +747,8 @@ Unreleased
 ### Added
 - [Make .env vars available in env_var functions](https://github.com/casey/just/commit/68b343bc17e7b60b2ce93d17fd11f4f20cbdcbc2) [(#310)](https://github.com/casey/just/pull/310)
 
-[0.3.9](https://github.com/casey/just/releases/tag/v0.3.9) - 1970-1-1
----------------------------------------------------------------------
+[0.3.9](https://github.com/casey/just/releases/tag/v0.3.9) - 2018-03-05
+-----------------------------------------------------------------------
 
 ### Release
 - [Bump version: 0.3.8 -> 0.3.9](https://github.com/casey/just/commit/70e96d52ebec1695819a4e6bf409f0b778a3d655) [(#308)](https://github.com/casey/just/pull/308)
@@ -771,8 +760,8 @@ Unreleased
 - [Add example of running a command to top of readme](https://github.com/casey/just/commit/ec56336df75b82408cd3d7cc64c216dd8a28a6c6) [(#307)](https://github.com/casey/just/pull/307)
 - [Add Companion Tools section to README](https://github.com/casey/just/commit/76ac5098e55dcb8e5f564801b44ed8bd5cdfad45) [(#305)](https://github.com/casey/just/pull/305)
 
-[0.3.8](https://github.com/casey/just/releases/tag/v0.3.8) - 1970-1-1
----------------------------------------------------------------------
+[0.3.8](https://github.com/casey/just/releases/tag/v0.3.8) - 2018-02-16
+-----------------------------------------------------------------------
 
 ### Release
 - [Bump version to 0.3.8 and update dependencies](https://github.com/casey/just/commit/0e42d1435b23d1f41c5f485474cabc51bfd84f53) [(#304)](https://github.com/casey/just/pull/304)
@@ -784,39 +773,37 @@ Unreleased
 - [Use `.adoc` for asciidoctor files instead of `.asc`](https://github.com/casey/just/commit/b7a126742f9c7304aabbe42f4ddc3723c41a3b4f) [(#300)](https://github.com/casey/just/pull/300)
 - [Mention kakoune syntax highlighting in readme](https://github.com/casey/just/commit/1f4cf781e73e84d69ecfe518d33f410d39e4406d) [(#299)](https://github.com/casey/just/pull/299)
 
-[0.3.7](https://github.com/casey/just/releases/tag/v0.3.7) - 1970-1-1
----------------------------------------------------------------------
+[0.3.7](https://github.com/casey/just/releases/tag/v0.3.7) - 2018-01-23
+-----------------------------------------------------------------------
 
 ### Release
 - [Bump version: 0.3.6 -> 0.3.7](https://github.com/casey/just/commit/667f81d79dfa674cf97fc41e25b5bb3d89e3589f) [(#297)](https://github.com/casey/just/pull/297)
-- [Bump version: 0.3.5 -> 0.3.6](https://github.com/casey/just/commit/337f8f882b39b7cf650582a8ed5f7b9473b83cf0) [(#293)](https://github.com/casey/just/pull/293)
 
 ### Fixed
 - [Allow ! in comments](https://github.com/casey/just/commit/5cbcf47038139e82c4e0d38b8cafa32e00b2400c) [(#296)](https://github.com/casey/just/pull/296)
-- [Lex CRLF line endings properly](https://github.com/casey/just/commit/1d0aa178f7b62a063b9a8d53955444dc4325597c) [(#292)](https://github.com/casey/just/pull/292)
 
 ### Misc
 - [Fix readme formatting](https://github.com/casey/just/commit/573cebd4ab15f80e76d9dc5674d012d34dbca3e0) [(#295)](https://github.com/casey/just/pull/295)
 
-[0.3.5](https://github.com/casey/just/releases/tag/v0.3.5) - 1970-1-1
----------------------------------------------------------------------
+[0.3.6](https://github.com/casey/just/releases/tag/v0.3.6) - 2018-01-05
+-----------------------------------------------------------------------
+
+### Release
+- [Bump version: 0.3.5 -> 0.3.6](https://github.com/casey/just/commit/337f8f882b39b7cf650582a8ed5f7b9473b83cf0) [(#293)](https://github.com/casey/just/pull/293)
+
+### Fixed
+- [Lex CRLF line endings properly](https://github.com/casey/just/commit/1d0aa178f7b62a063b9a8d53955444dc4325597c) [(#292)](https://github.com/casey/just/pull/292)
+
+[0.3.5](https://github.com/casey/just/releases/tag/v0.3.5) - 2017-12-11
+-----------------------------------------------------------------------
 
 ### Release
 - [Bump version: 0.3.4 -> 0.3.5](https://github.com/casey/just/commit/26098ba6096a58bdaee20a1834590c108eee067c) [(#286)](https://github.com/casey/just/pull/286)
-- [Bump version: 0.3.3 -> 0.3.4](https://github.com/casey/just/commit/88afe90630ac3faa0294fce94f39a8339680de97) [(#269)](https://github.com/casey/just/pull/269)
-
-### Fixed
-- [Stop empty comments from swallowing the next line](https://github.com/casey/just/commit/3acd56646f9711e0d7e2e054d8103d4898692341) [(#247)](https://github.com/casey/just/pull/247)
-
-### Changed
-- [Change license to CC0](https://github.com/casey/just/commit/a88d785afe9f768ccd517787b50c8b30abca67a2) [(#270)](https://github.com/casey/just/pull/270)
 
 ### Added
 - [Add `env_var(key)` and `env_var_or_default(key, default)` functions](https://github.com/casey/just/commit/79c0994387cf032c6342e343d8475acde7bc85f2) [(#280)](https://github.com/casey/just/pull/280)
 - [Add functions](https://github.com/casey/just/commit/afa4aebd4aa0635108aea1b771ce21551e628b76) [(#277)](https://github.com/casey/just/pull/277)
 - [Align doc-comments in `--list` output](https://github.com/casey/just/commit/c5eeb8944e57167fc42397946dd07c0f49eec786) [(#273)](https://github.com/casey/just/pull/273)
-- [Build x86_64-pc-windows-gnu target for releases](https://github.com/casey/just/commit/69e79b9390402c0aa13cf608754f79c1e8095f0f) [(#267)](https://github.com/casey/just/pull/267)
-- [ Do not evaluate backticks in assignments during dry runs](https://github.com/casey/just/commit/acb5d6f98b46c62bb4c22c6ac675eefbc3a61336) [(#253)](https://github.com/casey/just/pull/253)
 
 ### Misc
 - [Add variadic parameter with default argument example](https://github.com/casey/just/commit/9fc3262bbb91f5018b9203ffec08ebbd6f2838c5) [(#285)](https://github.com/casey/just/pull/285)
@@ -827,6 +814,24 @@ Unreleased
 - [Rename Scanner to Lexer](https://github.com/casey/just/commit/66391de3f8779ccec4588dbc7d56d3ab9a3ccc9a) [(#276)](https://github.com/casey/just/pull/276)
 - [Only provide MinGW build on Windows](https://github.com/casey/just/commit/5f8e1eac7e0009d339bf6569db1ab5955d4f34d8) [(#274)](https://github.com/casey/just/pull/274)
 - [Misc fixes before publishing new version](https://github.com/casey/just/commit/19a559c8680ab1c7c256c06ba2c0091e0d7ba6b8) [(#271)](https://github.com/casey/just/pull/271)
+
+[0.3.4](https://github.com/casey/just/releases/tag/v0.3.4) - 2017-11-30
+-----------------------------------------------------------------------
+
+### Release
+- [Bump version: 0.3.3 -> 0.3.4](https://github.com/casey/just/commit/88afe90630ac3faa0294fce94f39a8339680de97) [(#269)](https://github.com/casey/just/pull/269)
+
+### Fixed
+- [Stop empty comments from swallowing the next line](https://github.com/casey/just/commit/3acd56646f9711e0d7e2e054d8103d4898692341) [(#247)](https://github.com/casey/just/pull/247)
+
+### Changed
+- [Change license to CC0](https://github.com/casey/just/commit/a88d785afe9f768ccd517787b50c8b30abca67a2) [(#270)](https://github.com/casey/just/pull/270)
+
+### Added
+- [Build x86_64-pc-windows-gnu target for releases](https://github.com/casey/just/commit/69e79b9390402c0aa13cf608754f79c1e8095f0f) [(#267)](https://github.com/casey/just/pull/267)
+- [ Do not evaluate backticks in assignments during dry runs](https://github.com/casey/just/commit/acb5d6f98b46c62bb4c22c6ac675eefbc3a61336) [(#253)](https://github.com/casey/just/pull/253)
+
+### Misc
 - [Bump dependencies](https://github.com/casey/just/commit/ce65a1582b6f8a4e3d012733e8a9a0b835920314) [(#265)](https://github.com/casey/just/pull/265)
 - [Clean up grammar](https://github.com/casey/just/commit/659af492314189c28c53ded01829f469430ecb94) [(#268)](https://github.com/casey/just/pull/268)
 - [Miscellaneous cleanup](https://github.com/casey/just/commit/def1bda9ff780dd333b45f882c5ebe057d78120c) [(#261)](https://github.com/casey/just/pull/261)
@@ -843,24 +848,14 @@ Unreleased
 - [Add rename recipe to justfile](https://github.com/casey/just/commit/a4bf6c3a4ef7a6bfe5f9664cc72c52f191c66545) [(#248)](https://github.com/casey/just/pull/248)
 - [Make unexpected token formatting clearer](https://github.com/casey/just/commit/b9e1f7391960e5b56ebd384488a62a933a60a702) [(#243)](https://github.com/casey/just/pull/243)
 - [Add instructions for installing via Homebrew](https://github.com/casey/just/commit/fcc27a9993e027a32c3a703b5cb4d883d7a783b9) [(#238)](https://github.com/casey/just/pull/238)
+- [Fix release builder](https://github.com/casey/just/commit/5800d733025927769f30c0334c24811185f50245) [(#235)](https://github.com/casey/just/pull/235)
+- [Create a short markdown readme for crates.io](https://github.com/casey/just/commit/0030878ad75470d6d7d447a115196ac26c2509c4)
 
-[0.3.3](https://github.com/casey/just/releases/tag/v0.3.3) - 1970-1-1
----------------------------------------------------------------------
+[0.3.2](https://github.com/casey/just/releases/tag/v0.3.2) - 2017-10-15
+-----------------------------------------------------------------------
 
 ### Release
 - [Bump version to 0.3.2](https://github.com/casey/just/commit/7874e22d47d8e1477def970b9b191849f77c72f5)
-
-### Misc
-- [Fix release builder](https://github.com/casey/just/commit/5800d733025927769f30c0334c24811185f50245) [(#235)](https://github.com/casey/just/pull/235)
-- [Create a short markdown readme for crates.io](https://github.com/casey/just/commit/0030878ad75470d6d7d447a115196ac26c2509c4)
-- [Add readme to Cargo.toml](https://github.com/casey/just/commit/7f3f13bd4bb3db5489e67d02be295d02c4d596d2) [(#234)](https://github.com/casey/just/pull/234)
-- [Mention gitter in preamable](https://github.com/casey/just/commit/7ff6e4194106d197b5a64094a30e3cac688734ee) [(#233)](https://github.com/casey/just/pull/233)
-- [Put Table of Contents below preamble](https://github.com/casey/just/commit/340b8e5af4256a620e71b0bf45634f049f07b6c4) [(#232)](https://github.com/casey/just/pull/232)
-- [Overhaul README](https://github.com/casey/just/commit/6e3b43ac9ea26f8bd6e3126636223a42888d6e1d) [(#231)](https://github.com/casey/just/pull/231)
-- [Fix homebrew issue on Travis](https://github.com/casey/just/commit/f1a403541c8369192e454fc7de2125b7b1b8de61) [(#230)](https://github.com/casey/just/pull/230)
-
-[0.3.1](https://github.com/casey/just/releases/tag/v0.3.1) - 1970-1-1
----------------------------------------------------------------------
 
 ### Changed
 - [Hide recipes with names starting with an _ from --list and --sumamary](https://github.com/casey/just/commit/8fa91a4eb14e576c115a6f1714f27509bd0ed5d9) [(#229)](https://github.com/casey/just/pull/229)
@@ -870,6 +865,11 @@ Unreleased
 - [Add short options for justfile and working-directory](https://github.com/casey/just/commit/a07fc226c141ca9e21585e9925c9dc50408f8112) [(#222)](https://github.com/casey/just/pull/222)
 
 ### Misc
+- [Add readme to Cargo.toml](https://github.com/casey/just/commit/7f3f13bd4bb3db5489e67d02be295d02c4d596d2) [(#234)](https://github.com/casey/just/pull/234)
+- [Mention gitter in preamable](https://github.com/casey/just/commit/7ff6e4194106d197b5a64094a30e3cac688734ee) [(#233)](https://github.com/casey/just/pull/233)
+- [Put Table of Contents below preamble](https://github.com/casey/just/commit/340b8e5af4256a620e71b0bf45634f049f07b6c4) [(#232)](https://github.com/casey/just/pull/232)
+- [Overhaul README](https://github.com/casey/just/commit/6e3b43ac9ea26f8bd6e3126636223a42888d6e1d) [(#231)](https://github.com/casey/just/pull/231)
+- [Fix homebrew issue on Travis](https://github.com/casey/just/commit/f1a403541c8369192e454fc7de2125b7b1b8de61) [(#230)](https://github.com/casey/just/pull/230)
 - [Update dependencies](https://github.com/casey/just/commit/e22da124d4010093ccdedc4b7d3e61db964a1b68) [(#225)](https://github.com/casey/just/pull/225)
 - [Update Vagrantfile: install curl, force install just](https://github.com/casey/just/commit/0a57519ad76c53137e85c1bc0becf56965b46a8a) [(#221)](https://github.com/casey/just/pull/221)
 - [Start a changelog in CHANGELOG.md](https://github.com/casey/just/commit/0024dae7208a1e546b25dfb6dc3c2b549ea96560) [(#220)](https://github.com/casey/just/pull/220)
@@ -877,8 +877,8 @@ Unreleased
 - [Add say thanks badge to readme](https://github.com/casey/just/commit/35748f191f43347513cd97f0b74f0c699f33ff7c) [(#215)](https://github.com/casey/just/pull/215)
 - [Fix typos in README.md](https://github.com/casey/just/commit/23f88811178abf0ef08dd85b264c762ede1edc5d) [(#213)](https://github.com/casey/just/pull/213)
 
-[0.2.33](https://github.com/casey/just/releases/tag/v0.2.33) - 1970-1-1
------------------------------------------------------------------------
+[0.2.33](https://github.com/casey/just/releases/tag/v0.2.33) - 2017-08-03
+-------------------------------------------------------------------------
 
 ### Release
 - [v0.2.32 -> v0.2.33](https://github.com/casey/just/commit/f284f75d3285de7480003d657e70af9c9d954b9e)
@@ -890,11 +890,16 @@ Unreleased
 - [Refactor color handling](https://github.com/casey/just/commit/1b1a155ddae2e4bfc2bbc62cabf1b42780b05e7e) [(#204)](https://github.com/casey/just/pull/204)
 - [Build, test, and release on fewer os/arch combinations](https://github.com/casey/just/commit/5af2e4ae5e414060e79cfebb3e454b4bbca4cada) [(#201)](https://github.com/casey/just/pull/201)
 
-[0.2.32](https://github.com/casey/just/releases/tag/v0.2.32) - 1970-1-1
------------------------------------------------------------------------
+[0.2.32](https://github.com/casey/just/releases/tag/v0.2.32) - 2017-05-13
+-------------------------------------------------------------------------
 
 ### Release
 - [Bump version: 0.2.31 -> 0.2.32](https://github.com/casey/just/commit/62a0d7de059459eed800dc852264bd50949378aa)
+
+[0.2.31](https://github.com/casey/just/releases/tag/v0.2.31) - 2017-05-13
+-------------------------------------------------------------------------
+
+### Release
 - [Bump version: 0.2.30 -> 0.2.31](https://github.com/casey/just/commit/2b59771c9db9d645eb1ae86cd7f337d2c2b98578)
 
 ### Added
@@ -903,60 +908,23 @@ Unreleased
 ### Misc
 - [Update release recipe](https://github.com/casey/just/commit/dca8cffde493c8fcd1c5aeb9bfc9b8117414c49f)
 
-[0.2.29](https://github.com/casey/just/releases/tag/v0.2.29) - 1970-1-1
------------------------------------------------------------------------
+[0.2.29](https://github.com/casey/just/releases/tag/v0.2.29) - 2017-05-13
+-------------------------------------------------------------------------
 
 ### Release
 - [Bump version: 0.2.28 -> 0.2.29](https://github.com/casey/just/commit/9b8808af4020b25f5fc703db315ac83e6aacbd56)
+
+[0.2.28](https://github.com/casey/just/releases/tag/v0.2.28) - 2017-05-13
+-------------------------------------------------------------------------
+
+### Release
 - [Bump version: 0.2.27 -> 0.2.28](https://github.com/casey/just/commit/1cb7be2351fc25cc7e2b0d853ea31cb0ab7b1ffb) [(#200)](https://github.com/casey/just/pull/200)
-- [Bump version: 0.2.26 -> 0.2.27](https://github.com/casey/just/commit/9fce455851bc08ab2b87a9446fb5998099392f59)
-- [Bump version: 0.2.25 -> 0.2.26](https://github.com/casey/just/commit/763f5798be926c2dc6e64f78101d19fe8e0899ef) [(#150)](https://github.com/casey/just/pull/150)
-- [Bump version to 0.2.25](https://github.com/casey/just/commit/2cb88cc06c0cc574925127fbea9b4a4deb95d17f) [(#142)](https://github.com/casey/just/pull/142)
-- [Bump version: 0.2.23 -> 0.2.24](https://github.com/casey/just/commit/02a160d2e0824ee3c782aaf1e6b79b728200d3d3) [(#140)](https://github.com/casey/just/pull/140)
-- [Bump version to v0.2.23](https://github.com/casey/just/commit/bf42b23be3ada32f146e707ea011ff2e6992c13f) [(#129)](https://github.com/casey/just/pull/129)
-- [Bump version to v0.2.22](https://github.com/casey/just/commit/1690da3e6bddeda0d09ae536b308b610f3102498) [(#110)](https://github.com/casey/just/pull/110)
-- [Bump version to v0.2.21](https://github.com/casey/just/commit/0b950db17d1a7c8dc06c6161198c1d4095b288d2) [(#103)](https://github.com/casey/just/pull/103)
-- [Bump version to 0.2.20](https://github.com/casey/just/commit/1affac98a922527a0275e3ad89f1a8e995fc3da2) [(#89)](https://github.com/casey/just/pull/89)
-- [Bump version to 0.2.19](https://github.com/casey/just/commit/981823cbabcfbeef71e1116c9155513eb541a6ac) [(#83)](https://github.com/casey/just/pull/83)
-- [Bump version to 0.2.18](https://github.com/casey/just/commit/976c4fd97983b82019bf71061fa5aa2b2a0380f9) [(#60)](https://github.com/casey/just/pull/60)
-- [Bump version to 0.2.16](https://github.com/casey/just/commit/39a78c968f6b82f4358ebeda8093308d574822cb) [(#21)](https://github.com/casey/just/pull/21)
-
-### Breaking
-- [🔥 Disallow names that start with '-'](https://github.com/casey/just/commit/b6b01bf6d480e42b46ff1baf2a4ed2ee94b18873) [(#154)](https://github.com/casey/just/pull/154)
-
-### Fixed
-- [Resolve dependencies after the first](https://github.com/casey/just/commit/bed28c1df5efb156de171efef65d44b4230c888e) [(#149)](https://github.com/casey/just/pull/149)
-- [Fix line numbers](https://github.com/casey/just/commit/07634d9390f2c416171030de6ba2bb30075972c5) [(#124)](https://github.com/casey/just/pull/124)
-- [Fix override argument processing bug](https://github.com/casey/just/commit/91d1e59667abdde4b4f60d049d6489083c602f1b) [(#115)](https://github.com/casey/just/pull/115)
-- [Fix spurious circular dependency error](https://github.com/casey/just/commit/2b81dc2b769e403cd3be9a4ca86d74389a6ac097) [(#102)](https://github.com/casey/just/pull/102)
-- [Don't ignore `--color=never`](https://github.com/casey/just/commit/2882b78de55c08af80093fc58ff92f476bcb4360) [(#56)](https://github.com/casey/just/pull/56)
 
 ### Changed
 - [Error if running default recipe that requires arguments](https://github.com/casey/just/commit/616d324cd76d81bb1bb3abc5ce9212f1877b463c) [(#194)](https://github.com/casey/just/pull/194)
-- [Lift limitations on recipes that take parameters](https://github.com/casey/just/commit/c6256333ed4dd39d32c443fcc9efabec1704d934) [(#137)](https://github.com/casey/just/pull/137)
-- [Toggle meaning of '@' on recipes prefixed with '@'](https://github.com/casey/just/commit/112462ec6244ee4e46e23e425a61d71927886ffd) [(#100)](https://github.com/casey/just/pull/100)
-- [Don't allow args with early exit options](https://github.com/casey/just/commit/caf2570bb2c1a109610aecc0e33bfe6a2dbf80c3) [(#96)](https://github.com/casey/just/pull/96)
-- [Use colors in output](https://github.com/casey/just/commit/4d20ffeac4013d533c43f3bc01f63070304f860b)
-- [Use colored help message](https://github.com/casey/just/commit/2b55ae35bbc7dde245fe31f092641d2b5f430ce3) [(#32)](https://github.com/casey/just/pull/32)
 
 ### Added
 - [Add option to highlight echoed recipe lines](https://github.com/casey/just/commit/1990c58a2186bf788b6cbc13c6048ff3976c0ea7) [(#190)](https://github.com/casey/just/pull/190)
-- [Make shebangs work on windows](https://github.com/casey/just/commit/84a55da1ceea6559339cfb2d2866f40e6df32213) [(#185)](https://github.com/casey/just/pull/185)
-- [Add --shell option to specify the shell to use](https://github.com/casey/just/commit/c9ce4601b9b362ffe6d2270fcfb0fecf62e15965) [(#175)](https://github.com/casey/just/pull/175)
-- [Allow path-prefixed first arguments](https://github.com/casey/just/commit/b267d0444ecd14def505e050c18237a02bc34424) [(#139)](https://github.com/casey/just/pull/139)
-- [Add variadic parameters](https://github.com/casey/just/commit/1ac5b4ea42f65a7f8a1dd4aee0c866bde8a1f62e) [(#127)](https://github.com/casey/just/pull/127)
-- [Add comment to `push-f` recipe](https://github.com/casey/just/commit/9ece0b9a6be3e35ef6d1e67c2de598c28bec1cf9) [(#126)](https://github.com/casey/just/pull/126)
-- [Add --verbose flag](https://github.com/casey/just/commit/2f4bcc57bc9023ed123f7e391745b77e1e5094c1) [(#123)](https://github.com/casey/just/pull/123)
-- [Allow `'` raw strings to contain literal newlines](https://github.com/casey/just/commit/10c377b88c7fcfd7fb13d56251c1769bf3d51643) [(#107)](https://github.com/casey/just/pull/107)
-- [Add doc comments to recipes](https://github.com/casey/just/commit/26bfef4a2f19b9756980130655dfa6c3aa5e5b79) [(#101)](https://github.com/casey/just/pull/101)
-- [Allow line continuations in plain recipes with '\'](https://github.com/casey/just/commit/babe97bf0d60fafa712b5e4a19402ce7cda0f3e6) [(#99)](https://github.com/casey/just/pull/99)
-- [Add -e/--edit option to open justfile in $EDITOR](https://github.com/casey/just/commit/2f530adf4811054e7b0fcbca4c0b63a40d4852c1) [(#95)](https://github.com/casey/just/pull/95)
-- [Suggest alternatives to uknown recipes](https://github.com/casey/just/commit/3d8d901968d32da95695b5307a4eba3c93835081) [(#91)](https://github.com/casey/just/pull/91)
-- [Make `--list` print recipes with arguments](https://github.com/casey/just/commit/6e8289c624e98b3af08c05a73ffc9bcb1fa1ebf3) [(#88)](https://github.com/casey/just/pull/88)
-- [Let recipes take default arguments](https://github.com/casey/just/commit/886acf2f953fab3ce5bc2c968c17c1a5a105907b) [(#77)](https://github.com/casey/just/pull/77)
-- [Add --dump option to print entire justfile](https://github.com/casey/just/commit/0f9fb418a06d2f10693c8aff99ebd231a6b85afd) [(#67)](https://github.com/casey/just/pull/67)
-- [Allow justfile to be named `Justfile`](https://github.com/casey/just/commit/9a742e6336145e5d4627521b8f88784a7ee327a9) [(#19)](https://github.com/casey/just/pull/19)
-- [Add --quiet/-q flag to supress all output](https://github.com/casey/just/commit/e4d35a8270e0a0594090805f5512df08f147f9ee) [(#17)](https://github.com/casey/just/pull/17)
 
 ### Misc
 - [Fix lints and things that make clippy sad](https://github.com/casey/just/commit/98fe09f26bb2a332b56a9098e1bae49cf0a51eb4) [(#199)](https://github.com/casey/just/pull/199)
@@ -966,6 +934,21 @@ Unreleased
 - [Set up cross platform continuous integration on travis](https://github.com/casey/just/commit/4a35c140244f36b03e5b9997c11e539c95095dc7) [(#191)](https://github.com/casey/just/pull/191)
 - [Add period to empty justfile error message](https://github.com/casey/just/commit/200cb4ee26cb8bd433151937960964bb51c1f943) [(#192)](https://github.com/casey/just/pull/192)
 - [Write argument_range() in terms of min_arguments() and max_arguments()](https://github.com/casey/just/commit/7f2d36023140da86f792f9d2cd0d182068f905bf) [(#193)](https://github.com/casey/just/pull/193)
+
+[0.2.27](https://github.com/casey/just/releases/tag/v0.2.27) - 2017-04-24
+-------------------------------------------------------------------------
+
+### Release
+- [Bump version: 0.2.26 -> 0.2.27](https://github.com/casey/just/commit/9fce455851bc08ab2b87a9446fb5998099392f59)
+
+### Breaking
+- [🔥 Disallow names that start with '-'](https://github.com/casey/just/commit/b6b01bf6d480e42b46ff1baf2a4ed2ee94b18873) [(#154)](https://github.com/casey/just/pull/154)
+
+### Added
+- [Make shebangs work on windows](https://github.com/casey/just/commit/84a55da1ceea6559339cfb2d2866f40e6df32213) [(#185)](https://github.com/casey/just/pull/185)
+- [Add --shell option to specify the shell to use](https://github.com/casey/just/commit/c9ce4601b9b362ffe6d2270fcfb0fecf62e15965) [(#175)](https://github.com/casey/just/pull/175)
+
+### Misc
 - [Unicode integration test fix for windows](https://github.com/casey/just/commit/bb15310549d16ae2794a7cb1edb976c68d7f3f85) [(#189)](https://github.com/casey/just/pull/189)
 - [Use cygpath to translate paths on windows](https://github.com/casey/just/commit/165e7951afe33f4d121cf83d8740bf7f28770323) [(#188)](https://github.com/casey/just/pull/188)
 - [Move output() and OutputError into brev](https://github.com/casey/just/commit/832cf7b35733b6b6c4014b7b865709b760f53a84) [(#187)](https://github.com/casey/just/pull/187)
@@ -983,10 +966,43 @@ Unreleased
 - [Remove trailing whitespace](https://github.com/casey/just/commit/435b4c5ea3def3055e09fca63644187642c3c548) [(#167)](https://github.com/casey/just/pull/167)
 - [Improve syntax highlighting suggestions in readme](https://github.com/casey/just/commit/e45164da4da40c11b17332d3991b43d5c425028c) [(#164)](https://github.com/casey/just/pull/164)
 - [Set emacs and vim filetype in justfile for syntax highlighting](https://github.com/casey/just/commit/d68f7867ca5bb29e4e0d13f31fa48e6475e8c9e7) [(#163)](https://github.com/casey/just/pull/163)
+
+[0.2.26](https://github.com/casey/just/releases/tag/v0.2.26) - 2017-01-19
+-------------------------------------------------------------------------
+
+### Release
+- [Bump version: 0.2.25 -> 0.2.26](https://github.com/casey/just/commit/763f5798be926c2dc6e64f78101d19fe8e0899ef) [(#150)](https://github.com/casey/just/pull/150)
+
+### Fixed
+- [Resolve dependencies after the first](https://github.com/casey/just/commit/bed28c1df5efb156de171efef65d44b4230c888e) [(#149)](https://github.com/casey/just/pull/149)
+
+### Misc
 - [Test all errors and error messages](https://github.com/casey/just/commit/1befc8674e77a973c6c7a8a8dfe65202d85bfd83) [(#145)](https://github.com/casey/just/pull/145)
 - [Capitalize all error messages](https://github.com/casey/just/commit/64e4905e49c2b2019db4f14d2f81cf6f8d184c9d) [(#144)](https://github.com/casey/just/pull/144)
 - [readme: 'the in' -> 'in the'](https://github.com/casey/just/commit/9c552fe8d00c53c6f4214acf33a96f7152ce90bb) [(#143)](https://github.com/casey/just/pull/143)
+
+[0.2.25](https://github.com/casey/just/releases/tag/v0.2.25) - 2016-12-30
+-------------------------------------------------------------------------
+
+### Release
+- [Bump version to 0.2.25](https://github.com/casey/just/commit/2cb88cc06c0cc574925127fbea9b4a4deb95d17f) [(#142)](https://github.com/casey/just/pull/142)
+
+### Misc
 - [Use '/' instead of "/" as argument to rfind](https://github.com/casey/just/commit/d17911a57378b6d862794ba33b14f5366a4be9dc) [(#141)](https://github.com/casey/just/pull/141)
+
+[0.2.24](https://github.com/casey/just/releases/tag/v0.2.24) - 2016-12-30
+-------------------------------------------------------------------------
+
+### Release
+- [Bump version: 0.2.23 -> 0.2.24](https://github.com/casey/just/commit/02a160d2e0824ee3c782aaf1e6b79b728200d3d3) [(#140)](https://github.com/casey/just/pull/140)
+
+### Changed
+- [Lift limitations on recipes that take parameters](https://github.com/casey/just/commit/c6256333ed4dd39d32c443fcc9efabec1704d934) [(#137)](https://github.com/casey/just/pull/137)
+
+### Added
+- [Allow path-prefixed first arguments](https://github.com/casey/just/commit/b267d0444ecd14def505e050c18237a02bc34424) [(#139)](https://github.com/casey/just/pull/139)
+
+### Misc
 - [Readme: email -> issue](https://github.com/casey/just/commit/86755582bb9c49f5a8482166842c5ab220da21ca) [(#138)](https://github.com/casey/just/pull/138)
 - [Remove duplicate `return`](https://github.com/casey/just/commit/af543d7258403cd112d753e7c417955ac611ea9b) [(#136)](https://github.com/casey/just/pull/136)
 - [Mention prebuilts in readme](https://github.com/casey/just/commit/99e48fe2c633332b65a0b86a6c81c17f31d0f39f) [(#135)](https://github.com/casey/just/pull/135)
@@ -995,6 +1011,23 @@ Unreleased
 - [Build Linux binaries using Vagrant](https://github.com/casey/just/commit/6b9922fc2c430a0680ea984058717f71bc1ed0b7) [(#132)](https://github.com/casey/just/pull/132)
 - [Add recipes to build binaries for release](https://github.com/casey/just/commit/da8108f19d506ac3f4e1fa3b0c6a11e82ea09631) [(#131)](https://github.com/casey/just/pull/131)
 - [Add FLAGS to push recipe, get rid of push-f recipe](https://github.com/casey/just/commit/0195a15e687da2ccd6a85f8f3cffa9f981ed1c28) [(#130)](https://github.com/casey/just/pull/130)
+
+[0.2.23](https://github.com/casey/just/releases/tag/v0.2.23) - 2016-11-18
+-------------------------------------------------------------------------
+
+### Release
+- [Bump version to v0.2.23](https://github.com/casey/just/commit/bf42b23be3ada32f146e707ea011ff2e6992c13f) [(#129)](https://github.com/casey/just/pull/129)
+
+### Fixed
+- [Fix line numbers](https://github.com/casey/just/commit/07634d9390f2c416171030de6ba2bb30075972c5) [(#124)](https://github.com/casey/just/pull/124)
+- [Fix override argument processing bug](https://github.com/casey/just/commit/91d1e59667abdde4b4f60d049d6489083c602f1b) [(#115)](https://github.com/casey/just/pull/115)
+
+### Added
+- [Add variadic parameters](https://github.com/casey/just/commit/1ac5b4ea42f65a7f8a1dd4aee0c866bde8a1f62e) [(#127)](https://github.com/casey/just/pull/127)
+- [Add comment to `push-f` recipe](https://github.com/casey/just/commit/9ece0b9a6be3e35ef6d1e67c2de598c28bec1cf9) [(#126)](https://github.com/casey/just/pull/126)
+- [Add --verbose flag](https://github.com/casey/just/commit/2f4bcc57bc9023ed123f7e391745b77e1e5094c1) [(#123)](https://github.com/casey/just/pull/123)
+
+### Misc
 - [Collapse unnecessary block](https://github.com/casey/just/commit/11c0d349dbd5e71c56868ea93500a2ae64eeef13) [(#128)](https://github.com/casey/just/pull/128)
 - [Report line number in recipe failure messages](https://github.com/casey/just/commit/cef117f8bd649a090453ddb45531043763a06b1b) [(#125)](https://github.com/casey/just/pull/125)
 - [Renames: Parser::file and just::parse](https://github.com/casey/just/commit/133b4a2ada7095236eac549154524a3afa410953) [(#122)](https://github.com/casey/just/pull/122)
@@ -1003,18 +1036,73 @@ Unreleased
 - [Mention {{...}} substitution gotcha in readme](https://github.com/casey/just/commit/0ac2cdd124a26c00fd6775a00c9f55d26ace6a93) [(#117)](https://github.com/casey/just/pull/117)
 - [Deny clippy lints by default](https://github.com/casey/just/commit/aaee7341c4d97556dc67e20f473a2c1207c97ad7) [(#112)](https://github.com/casey/just/pull/112)
 - [Make quine-text multiline string](https://github.com/casey/just/commit/de4a299899e33be961f53e2ad62f3e109ef1c7e6) [(#111)](https://github.com/casey/just/pull/111)
+
+[0.2.22](https://github.com/casey/just/releases/tag/v0.2.22) - 2016-11-13
+-------------------------------------------------------------------------
+
+### Release
+- [Bump version to v0.2.22](https://github.com/casey/just/commit/1690da3e6bddeda0d09ae536b308b610f3102498) [(#110)](https://github.com/casey/just/pull/110)
+
+### Added
+- [Allow `'` raw strings to contain literal newlines](https://github.com/casey/just/commit/10c377b88c7fcfd7fb13d56251c1769bf3d51643) [(#107)](https://github.com/casey/just/pull/107)
+
+### Misc
 - [Add multiline raw string example to readme](https://github.com/casey/just/commit/3d7888708c69728951e6e1555581e54e1e38e374) [(#109)](https://github.com/casey/just/pull/109)
 - [Fix readme typo](https://github.com/casey/just/commit/1e7a0fa63b92f43028484f2692ee12c24c72bc6c) [(#108)](https://github.com/casey/just/pull/108)
 - [Explicitly license as WTFPL or MIT or APACHE-2.0](https://github.com/casey/just/commit/9d9aaa91b11ef36f7236558f6e0a0d7989c6f09c) [(#105)](https://github.com/casey/just/pull/105)
 - [Update project justfile to take advantage of 0.2.21](https://github.com/casey/just/commit/c8d8fad2944e4c772e9e9400f937301ebb89b4e0) [(#104)](https://github.com/casey/just/pull/104)
+
+[0.2.21](https://github.com/casey/just/releases/tag/v0.2.21) - 2016-11-13
+-------------------------------------------------------------------------
+
+### Release
+- [Bump version to v0.2.21](https://github.com/casey/just/commit/0b950db17d1a7c8dc06c6161198c1d4095b288d2) [(#103)](https://github.com/casey/just/pull/103)
+
+### Fixed
+- [Fix spurious circular dependency error](https://github.com/casey/just/commit/2b81dc2b769e403cd3be9a4ca86d74389a6ac097) [(#102)](https://github.com/casey/just/pull/102)
+
+### Changed
+- [Toggle meaning of '@' on recipes prefixed with '@'](https://github.com/casey/just/commit/112462ec6244ee4e46e23e425a61d71927886ffd) [(#100)](https://github.com/casey/just/pull/100)
+- [Don't allow args with early exit options](https://github.com/casey/just/commit/caf2570bb2c1a109610aecc0e33bfe6a2dbf80c3) [(#96)](https://github.com/casey/just/pull/96)
+
+### Added
+- [Add doc comments to recipes](https://github.com/casey/just/commit/26bfef4a2f19b9756980130655dfa6c3aa5e5b79) [(#101)](https://github.com/casey/just/pull/101)
+- [Allow line continuations in plain recipes with '\'](https://github.com/casey/just/commit/babe97bf0d60fafa712b5e4a19402ce7cda0f3e6) [(#99)](https://github.com/casey/just/pull/99)
+- [Add -e/--edit option to open justfile in $EDITOR](https://github.com/casey/just/commit/2f530adf4811054e7b0fcbca4c0b63a40d4852c1) [(#95)](https://github.com/casey/just/pull/95)
+- [Suggest alternatives to uknown recipes](https://github.com/casey/just/commit/3d8d901968d32da95695b5307a4eba3c93835081) [(#91)](https://github.com/casey/just/pull/91)
+
+### Misc
 - [Get rid of mostly unused Justfile.recipes()](https://github.com/casey/just/commit/5b2d671c1d590e861477c5ec4b61a7590f40b1d4) [(#98)](https://github.com/casey/just/pull/98)
 - [Error -> CompileError](https://github.com/casey/just/commit/1856646a9c65791c3818d1306c8d66c728c64d63) [(#97)](https://github.com/casey/just/pull/97)
 - [Use clap::ArgGroup for early exit conflicts](https://github.com/casey/just/commit/0dcdc5dc811af0c6d38fd480ea0a11a926a40837) [(#94)](https://github.com/casey/just/pull/94)
 - [Line up names in --evaluate](https://github.com/casey/just/commit/7cfc37f64765a368632a01260674df72b339a1d6) [(#93)](https://github.com/casey/just/pull/93)
 - [Test that overrides are not evaluated](https://github.com/casey/just/commit/edbd94d65441164a12dced1f69d8d7c1f3c89470) [(#92)](https://github.com/casey/just/pull/92)
 - [Add `install` recipe](https://github.com/casey/just/commit/26910a9fdc2403a7bb3db77fc1ab7c1ae0a1291a) [(#90)](https://github.com/casey/just/pull/90)
+
+[0.2.20](https://github.com/casey/just/releases/tag/v0.2.20) - 2016-11-12
+-------------------------------------------------------------------------
+
+### Release
+- [Bump version to 0.2.20](https://github.com/casey/just/commit/1affac98a922527a0275e3ad89f1a8e995fc3da2) [(#89)](https://github.com/casey/just/pull/89)
+
+### Added
+- [Make `--list` print recipes with arguments](https://github.com/casey/just/commit/6e8289c624e98b3af08c05a73ffc9bcb1fa1ebf3) [(#88)](https://github.com/casey/just/pull/88)
+
+### Misc
 - [Add `watch` and `install-dev-deps` recipes](https://github.com/casey/just/commit/a44640b613a2561a491a77ef997193287ff947d2) [(#87)](https://github.com/casey/just/pull/87)
 - [Harmonize argument help text](https://github.com/casey/just/commit/5a5209fb5c8163ace9c350013622f4fba94bfc05) [(#86)](https://github.com/casey/just/pull/86)
+
+[0.2.19](https://github.com/casey/just/releases/tag/v0.2.19) - 2016-11-12
+-------------------------------------------------------------------------
+
+### Release
+- [Bump version to 0.2.19](https://github.com/casey/just/commit/981823cbabcfbeef71e1116c9155513eb541a6ac) [(#83)](https://github.com/casey/just/pull/83)
+
+### Added
+- [Let recipes take default arguments](https://github.com/casey/just/commit/886acf2f953fab3ce5bc2c968c17c1a5a105907b) [(#77)](https://github.com/casey/just/pull/77)
+- [Add --dump option to print entire justfile](https://github.com/casey/just/commit/0f9fb418a06d2f10693c8aff99ebd231a6b85afd) [(#67)](https://github.com/casey/just/pull/67)
+
+### Misc
 - [Fix needless borrow clippy lints](https://github.com/casey/just/commit/7e3859ef180f1954f930b71828a093576b607933) [(#81)](https://github.com/casey/just/pull/81)
 - [Fix long lines](https://github.com/casey/just/commit/95edb8ac3c45ef35161073243e40faadb64c09ef) [(#80)](https://github.com/casey/just/pull/80)
 - [Improve missing parameter panic message](https://github.com/casey/just/commit/ff2ca9b30c8203d113012e5f0966c68a623ebc14) [(#79)](https://github.com/casey/just/pull/79)
@@ -1026,6 +1114,21 @@ Unreleased
 - [Link to justfiles here and in the wild](https://github.com/casey/just/commit/bd69f3298eed4ef2e8a2f879db3d7fdcaa5dca60) [(#69)](https://github.com/casey/just/pull/69)
 - [Use clap's `conflicts_with` and `requires`](https://github.com/casey/just/commit/98990fe2abae958f80575943960945c965c4705b) [(#68)](https://github.com/casey/just/pull/68)
 - [Test before publishing](https://github.com/casey/just/commit/d3c2d1acfaed12c332e02d8bc42ffe0054544971) [(#61)](https://github.com/casey/just/pull/61)
+
+[0.2.18](https://github.com/casey/just/releases/tag/v0.2.18) - 2016-11-12
+-------------------------------------------------------------------------
+
+### Release
+- [Bump version to 0.2.18](https://github.com/casey/just/commit/976c4fd97983b82019bf71061fa5aa2b2a0380f9) [(#60)](https://github.com/casey/just/pull/60)
+
+### Fixed
+- [Don't ignore `--color=never`](https://github.com/casey/just/commit/2882b78de55c08af80093fc58ff92f476bcb4360) [(#56)](https://github.com/casey/just/pull/56)
+
+### Changed
+- [Use colors in output](https://github.com/casey/just/commit/4d20ffeac4013d533c43f3bc01f63070304f860b)
+- [Use colored help message](https://github.com/casey/just/commit/2b55ae35bbc7dde245fe31f092641d2b5f430ce3) [(#32)](https://github.com/casey/just/pull/32)
+
+### Misc
 - [Fix publish recipe](https://github.com/casey/just/commit/716b4eba19a30585910346cfa92d1e38fcfced9a) [(#59)](https://github.com/casey/just/pull/59)
 - [Remove unnecessary lifetimes](https://github.com/casey/just/commit/510a269d00d96ad0a7d6d56f1c3b39f6739dadb3) [(#58)](https://github.com/casey/just/pull/58)
 - [Add `done` recipe that cleans up a merged branch](https://github.com/casey/just/commit/b03849006170f055287808b791e9917b13245ca6) [(#57)](https://github.com/casey/just/pull/57)
@@ -1045,6 +1148,18 @@ Unreleased
 - [Add build status badge to readme](https://github.com/casey/just/commit/d56ab91e8d33319cf6b9bc5923d62cf4e4d5ba86) [(#27)](https://github.com/casey/just/pull/27)
 - [Add Travis CI](https://github.com/casey/just/commit/aa1323335e1c84d5d3f5e341b7c48313f20e8606) [(#26)](https://github.com/casey/just/pull/26)
 - [Fix small typo in readme](https://github.com/casey/just/commit/5d98bab31dd3d9a67e14c8b8d19a02015f417ad1) [(#22)](https://github.com/casey/just/pull/22)
+
+[0.2.16](https://github.com/casey/just/releases/tag/v0.2.16) - 2016-11-05
+-------------------------------------------------------------------------
+
+### Release
+- [Bump version to 0.2.16](https://github.com/casey/just/commit/39a78c968f6b82f4358ebeda8093308d574822cb) [(#21)](https://github.com/casey/just/pull/21)
+
+### Added
+- [Allow justfile to be named `Justfile`](https://github.com/casey/just/commit/9a742e6336145e5d4627521b8f88784a7ee327a9) [(#19)](https://github.com/casey/just/pull/19)
+- [Add --quiet/-q flag to supress all output](https://github.com/casey/just/commit/e4d35a8270e0a0594090805f5512df08f147f9ee) [(#17)](https://github.com/casey/just/pull/17)
+
+### Misc
 - [Create a unique branch when bumping version](https://github.com/casey/just/commit/6861a346c38bfe42241634304025e29e1c65d3ed) [(#20)](https://github.com/casey/just/pull/20)
 - [Avoid bashisms in tests](https://github.com/casey/just/commit/adef254b235dc1f7d950da77c5c1a0ff9c067bf3) [(#18)](https://github.com/casey/just/pull/18)
 - [Move all run options into a struct](https://github.com/casey/just/commit/599cc80f862548fe76a61364b847073bfa6b6dbc) [(#16)](https://github.com/casey/just/pull/16)
@@ -1054,8 +1169,8 @@ Unreleased
 ### Merge
 - [Merge pull request #14 from casey/whyc-typo](https://github.com/casey/just/commit/6610a721ea195fe7b6ae02657c5232d0cdcd1154)
 
-[0.2.15](https://github.com/casey/just/releases/tag/v0.2.15) - 1970-1-1
------------------------------------------------------------------------
+[0.2.15](https://github.com/casey/just/releases/tag/v0.2.15) - 2016-11-03
+-------------------------------------------------------------------------
 
 ### Release
 - [Bump version to v0.2.15](https://github.com/casey/just/commit/dd16fe316ba74eb756b03815549ce78cbe69f519)
@@ -1064,62 +1179,22 @@ Unreleased
 - [Fix tab-indented lines in shebang recipes](https://github.com/casey/just/commit/9f2568c461173a1ffe05152670c60bb258087260)
 - [Push code before publishing](https://github.com/casey/just/commit/ac996f89401b916eacfcd4b87199d644e1eb6635)
 
-[0.2.14](https://github.com/casey/just/releases/tag/v0.2.14) - 1970-1-1
------------------------------------------------------------------------
+[0.2.14](https://github.com/casey/just/releases/tag/v0.2.14) - 2016-11-02
+-------------------------------------------------------------------------
 
 ### Release
 - [New publish recipe, bump version to 0.2.14 to test.](https://github.com/casey/just/commit/f9abb728870e2669ca0fbdd162a059857501de15)
-- [Bump version](https://github.com/casey/just/commit/3fb4fc8074136dea8dfe5cda6e2618b4f1a58060)
-- [Bump version update description](https://github.com/casey/just/commit/e354ca0a8ea1c6d8d2a5e4f67f614234afe676f8)
-- [Bump version to 0.2.11 and rename back to just](https://github.com/casey/just/commit/9e9b525369904f8a905752975e1e4660aedc3a45)
-- [Notes, bump version](https://github.com/casey/just/commit/0b182002a48427a26fe4e99bd4930a042ac06eea)
-- [Notes + bump version](https://github.com/casey/just/commit/843662c28521663c6b173e4725e6e03b719e9e78)
-- [Bump version, add --debug](https://github.com/casey/just/commit/cc683cbb04280940922b042abe9d72c33dd77559)
-- [Bump version to 0.2.7](https://github.com/casey/just/commit/2bc7485801f4310e1ae2cf757aaec328042cb1f6)
-- [Bump version to 0.2.6, build before publishing](https://github.com/casey/just/commit/011876baff9515eed990c52a83b9ee18bf2e578c)
-- [Bump version to 0.2.5](https://github.com/casey/just/commit/b46cfd97ba57679bfaba6a9f90c27647d0b3ebab)
-- [Bump version, use variable for quine text](https://github.com/casey/just/commit/ec41eaf0e7bd523ed75bf6653eaef58192a0f8e6)
-- [Clippy fixes, bump version 0.2.3, string escapes](https://github.com/casey/just/commit/0a168032476bf378075bfb50132556d2e794e994)
-- [bump: 0.2.1 -> 0.2.2](https://github.com/casey/just/commit/8d8f38b3d827221e4fff84fad661548abec5ff8b)
-- [version bump: 0.2.0 -> 0.2.1](https://github.com/casey/just/commit/756a74bc1816e2d6891ebae87f8af9704f0eeeb9)
-- [Bump version to 0.2.0](https://github.com/casey/just/commit/61b71115740524c95a17fbeb9e6598695b2ac270)
-- [Add period to no justfile found error. Bump version.](https://github.com/casey/just/commit/dd83cc46bfc1810745602290f3f8ae60f4f332ae)
-- [0.1.3 -> 0.1.4](https://github.com/casey/just/commit/0f245031bac7a2bb15d24f57353e5b432620e74a)
-- [v0.1.2 -> v0.1.3](https://github.com/casey/just/commit/9665d31180c260fd4fd1477619d08a90b44d4a7d)
-- [Remove dependency on brev, bump version](https://github.com/casey/just/commit/696fd3a5f14305a2c2ff7fb4c8f6f3986b3211db)
-- [Update cargo.toml, version -> 0.1.1](https://github.com/casey/just/commit/9dddb3d4589a75d16f0a12184e3e88435cd00a3a)
-
-### Changed
-- [Arguments done!](https://github.com/casey/just/commit/b57b84e5509d2dd4ba0b208f2e72116192f918fd)
-- [Add {:#} format printing to justfile for --show](https://github.com/casey/just/commit/01df3d5e4aa659455aafdeede0c05a1bed35c872)
-- [Added missing arguments error whenever we try to run an recipe with arguments, since arguments are unsupported.](https://github.com/casey/just/commit/ebd41864526b01b1bb42b2e4f9ab7f03c0d057a2)
-- [Make dependencies execute in order they appear](https://github.com/casey/just/commit/e5efa3f7d5279cffb68a01156a111b81beff2db3)
-- [Invoke sh with `-u` (error on unbound variable)](https://github.com/casey/just/commit/b5cac00ffce11138f81e05ab122d21b234654e69)
-- [Allow 'Justfile' in addition to 'justfile'](https://github.com/casey/just/commit/10e1ef4f0fb6ad4b20a5038650019bcd475debc2)
-- [Update stuff](https://github.com/casey/just/commit/3b78451f2300c5ea7a614fe3a245bbde98ffd89b)
-- [Fix cargo.toml.license](https://github.com/casey/just/commit/b0d72f319feb3efe62ba19ac8aaa83b9b5daae35)
-- [Working](https://github.com/casey/just/commit/114f6b7bdc016f581fd83092d93ac56a5f6758cf)
-
-### Added
-- [Added raw '' strings](https://github.com/casey/just/commit/1290c5a8bd15c124d96d72e8dce91d050cd2bc7c)
-- [export variables done](https://github.com/casey/just/commit/69f8e07a30b2f2f9bd8482980c201c90a65e147f)
-- [variable=value overrides done](https://github.com/casey/just/commit/9a368fb351895b932a54d20b06494511c653f9d3)
-- [Backticks implemented. Error messages still suck though.](https://github.com/casey/just/commit/980c5d0b33e90f5d94ac90ffa110ab94bf2b8894)
-- [Add assignment resolving](https://github.com/casey/just/commit/810365f22b7033680b20c286bf7c891e51611bd5)
-- [Arguments working but still ugly](https://github.com/casey/just/commit/ac5433248ec859c662d3ba630daf3f9963c9b1f6)
-- [Add '--debug' flag to print justfile with evaluated expressions and variables](https://github.com/casey/just/commit/3c80f7f7ae2e46d2f2b102088373ae976e2df7d7)
-- [line evaluation is done](https://github.com/casey/just/commit/4bb926abc4f3263c2d6adaeec7f0bb4d6efbeeee)
-- [Handle line interpolation parsing](https://github.com/casey/just/commit/9aed7ca1294bc2573040a96a9bace02c3973a623)
-- [Add --justfile and --working-directory flags](https://github.com/casey/just/commit/92d231c2ec63966fe451949f776ad3a1aacf6dc5)
-- [Support for polyglot recipes!](https://github.com/casey/just/commit/71a43591883c737757c1cdca5fdf3d4ed2fb1455)
-- [Add --show command line flag](https://github.com/casey/just/commit/b11b81c640c63d2aceaf03ffe0eba2773806b88f)
-- [Support for polyglot recipes!](https://github.com/casey/just/commit/25785eea77540d5519ce890d80f2f0a42926030b)
-- [Invoke sh with `-u` (error on unbound variable)](https://github.com/casey/just/commit/2a721db2807e72c27f4bae3cc2ebeb7a04c4976a)
-- [Add --show command line flag](https://github.com/casey/just/commit/2ab75ef03aa6c4501d321e45ef78249ed990ba1d)
-- [Initial commit. Broken.](https://github.com/casey/just/commit/a0d5b83a8008c4fec292fbacde61240141554fc3)
 
 ### Misc
 - [Add escape sequences and raw strings to README.md](https://github.com/casey/just/commit/3b312e272862f92f696252b43408711c44629223)
+
+[0.2.13](https://github.com/casey/just/releases/tag/v0.2.13) - 2016-11-01
+-------------------------------------------------------------------------
+
+### Release
+- [Bump version](https://github.com/casey/just/commit/3fb4fc8074136dea8dfe5cda6e2618b4f1a58060)
+
+### Misc
 - [Readme done](https://github.com/casey/just/commit/390491f7fabd6d9b384fddece59620af9d72f3de)
 - [Readme.](https://github.com/casey/just/commit/398fb15c8b9fac0b75b0cfbb1d6f3c97e8cce9a2)
 - [Readme and notes](https://github.com/casey/just/commit/763f73f0a8260596f3fe57920a5df0e92e6a1ef1)
@@ -1130,6 +1205,14 @@ Unreleased
 - [Rename arguments to parameters.](https://github.com/casey/just/commit/7f6a74af24ac38729784bc5a3bc2b63911e4722a)
 - [Update description](https://github.com/casey/just/commit/0127986bcefeb80f273a9448ac5b5f2cd02f20a6)
 - [Update Cargo.lock](https://github.com/casey/just/commit/91bad7e627bd8cbde2132a6c8dfff4cdf9d92c83)
+
+[0.2.11](https://github.com/casey/just/releases/tag/v0.2.11) - 2016-10-31
+-------------------------------------------------------------------------
+
+### Release
+- [Bump version update description](https://github.com/casey/just/commit/e354ca0a8ea1c6d8d2a5e4f67f614234afe676f8)
+
+### Misc
 - [Fix shield link](https://github.com/casey/just/commit/8a59d19cc72d461125bd3e677d169895612fc370)
 - [Add crates.io shield](https://github.com/casey/just/commit/8de21fdc267b2ab0e9b327a5ff80a380de95c7fc)
 - [Notes](https://github.com/casey/just/commit/ca29dd0494683afcf10e08e3f677c9a70907e487)
@@ -1142,16 +1225,73 @@ Unreleased
 - [New grammar.md](https://github.com/casey/just/commit/2f38f6b86ecee170269300deeadcfa1e9565f99d)
 - [Move just.sh to extras/just.sh](https://github.com/casey/just/commit/fb81dd1e294f42578fc29be4421ebf119835e4b0)
 - [Add just.sh](https://github.com/casey/just/commit/e091b5f1ae416a4a27f1dd1993d41a40f377f997)
+
+[0.2.11](https://github.com/casey/just/releases/tag/v0.2.11) - 2016-10-31
+-------------------------------------------------------------------------
+
+### Release
+- [Bump version to 0.2.11 and rename back to just](https://github.com/casey/just/commit/9e9b525369904f8a905752975e1e4660aedc3a45)
+
+### Misc
 - [Make clippy more lenient with cyclomatic complexity](https://github.com/casey/just/commit/686074df0e33c48cfbb1d0112d1ebe6b325325d5)
+
+[0.2.10](https://github.com/casey/just/releases/tag/v0.2.10) - 2016-10-31
+-------------------------------------------------------------------------
+
+### Release
+- [Notes, bump version](https://github.com/casey/just/commit/0b182002a48427a26fe4e99bd4930a042ac06eea)
+
+### Added
+- [Added raw '' strings](https://github.com/casey/just/commit/1290c5a8bd15c124d96d72e8dce91d050cd2bc7c)
+
+### Misc
 - [Moved last enhancements to github issues](https://github.com/casey/just/commit/dc925fe5902699da52804c6c4aa627a90ecaa7a2)
 - [Update Cargo.lock](https://github.com/casey/just/commit/38a47801a2cece24b259c4ef1526b86bfada3103)
+
+[0.2.9](https://github.com/casey/just/releases/tag/v0.2.9) - 2016-10-30
+-----------------------------------------------------------------------
+
+### Release
+- [Notes + bump version](https://github.com/casey/just/commit/843662c28521663c6b173e4725e6e03b719e9e78)
+
+### Added
+- [export variables done](https://github.com/casey/just/commit/69f8e07a30b2f2f9bd8482980c201c90a65e147f)
+
+### Misc
 - [Cleaned up export parsing](https://github.com/casey/just/commit/2568e949b54337600b0547d9ba23b68619c7b8aa)
 - [Use BTreeMap and BTreeSet as Map and Set](https://github.com/casey/just/commit/f925520101c0d60ea6ad0b84891879eda4b0e8ce)
 - [Update notes](https://github.com/casey/just/commit/93a3b3533bedb95af3992a94954e164b9dfb25b2)
 - [Clippy lints](https://github.com/casey/just/commit/3b9ff6fd52b3997e63259d13f55fb6075a979ea7)
+
+[0.2.8](https://github.com/casey/just/releases/tag/v0.2.8) - 2016-10-30
+-----------------------------------------------------------------------
+
+### Release
+- [Bump version, add --debug](https://github.com/casey/just/commit/cc683cbb04280940922b042abe9d72c33dd77559)
+
+### Added
+- [variable=value overrides done](https://github.com/casey/just/commit/9a368fb351895b932a54d20b06494511c653f9d3)
+
+### Misc
 - [Backtick tests done!](https://github.com/casey/just/commit/25c6432fa3a4536de32d959ac2ba6c966bf92ebb)
 - [Update notes](https://github.com/casey/just/commit/21320d36eeaaabeb1eafcea4fa564d742b8ae5c5)
 - [Remove unnecessary return](https://github.com/casey/just/commit/9118d399035e2fecb3cb6f8a95c8da0798328c66)
+
+[0.2.7](https://github.com/casey/just/releases/tag/v0.2.7) - 2016-10-30
+-----------------------------------------------------------------------
+
+### Release
+- [Bump version to 0.2.7](https://github.com/casey/just/commit/2bc7485801f4310e1ae2cf757aaec328042cb1f6)
+
+### Changed
+- [Arguments done!](https://github.com/casey/just/commit/b57b84e5509d2dd4ba0b208f2e72116192f918fd)
+
+### Added
+- [Backticks implemented. Error messages still suck though.](https://github.com/casey/just/commit/980c5d0b33e90f5d94ac90ffa110ab94bf2b8894)
+- [Add assignment resolving](https://github.com/casey/just/commit/810365f22b7033680b20c286bf7c891e51611bd5)
+- [Arguments working but still ugly](https://github.com/casey/just/commit/ac5433248ec859c662d3ba630daf3f9963c9b1f6)
+
+### Misc
 - [Panic commit.](https://github.com/casey/just/commit/8b149b66fcacab8a47675fac893fdeef3650ecbe)
 - [Ready to actually implement backtick evaluation](https://github.com/casey/just/commit/3d3c4394c271086f181dc4b7af1bcb6b63cc1ae1)
 - [Refactoring. Checkpoint commit.](https://github.com/casey/just/commit/70e9d4e653d6cb79d85f78e6cec503132b7d7c0f)
@@ -1159,6 +1299,26 @@ Unreleased
 - [Update notes](https://github.com/casey/just/commit/41933385a3e8506a21f768cf83b340bbd0fe56ae)
 - [Working on backticks. They are evaluated as strings for now.](https://github.com/casey/just/commit/70d1df5b9cc5f767646a4963c52ed06ab8c84ae2)
 - [Bump version in lock file. Make sure repo is clean before publishing](https://github.com/casey/just/commit/b956ce23978c91448ff712da0fd6e77591e3484f)
+
+[0.2.6](https://github.com/casey/just/releases/tag/v0.2.6) - 2016-10-29
+-----------------------------------------------------------------------
+
+### Release
+- [Bump version to 0.2.6, build before publishing](https://github.com/casey/just/commit/011876baff9515eed990c52a83b9ee18bf2e578c)
+
+[0.2.5](https://github.com/casey/just/releases/tag/v0.2.5) - 2016-10-29
+-----------------------------------------------------------------------
+
+### Release
+- [Bump version to 0.2.5](https://github.com/casey/just/commit/b46cfd97ba57679bfaba6a9f90c27647d0b3ebab)
+
+### Changed
+- [Add {:#} format printing to justfile for --show](https://github.com/casey/just/commit/01df3d5e4aa659455aafdeede0c05a1bed35c872)
+
+### Added
+- [Add '--debug' flag to print justfile with evaluated expressions and variables](https://github.com/casey/just/commit/3c80f7f7ae2e46d2f2b102088373ae976e2df7d7)
+
+### Misc
 - [Surround tokens with `` in errors](https://github.com/casey/just/commit/58fb70e16e1637d146080aeaa159fdb6e6d5605f)
 - [Pretty errors with underlined tokens!](https://github.com/casey/just/commit/0f29b4fc2a4178cba4ca0bc82879bf18abddff8a)
 - [Notes](https://github.com/casey/just/commit/a55adafa603b557026548e0b47d0bad92940c860)
@@ -1168,6 +1328,27 @@ Unreleased
 - [Add integration tests](https://github.com/casey/just/commit/a1722fe241834bc53e95b8c5d382da91f23f76a4)
 - [Remove stray comment](https://github.com/casey/just/commit/1d74432dd108238ef8bb0fa1b7d5bc2bef5ff32e)
 - [Update Cargo.lock](https://github.com/casey/just/commit/44334ff093fb690e1c788fe933182d9cdf035177)
+
+[0.2.4](https://github.com/casey/just/releases/tag/v0.2.4) - 2016-10-28
+-----------------------------------------------------------------------
+
+### Release
+- [Bump version, use variable for quine text](https://github.com/casey/just/commit/ec41eaf0e7bd523ed75bf6653eaef58192a0f8e6)
+
+[0.2.3](https://github.com/casey/just/releases/tag/v0.2.3) - 2016-10-28
+-----------------------------------------------------------------------
+
+### Release
+- [Clippy fixes, bump version 0.2.3, string escapes](https://github.com/casey/just/commit/0a168032476bf378075bfb50132556d2e794e994)
+
+### Changed
+- [Added missing arguments error whenever we try to run an recipe with arguments, since arguments are unsupported.](https://github.com/casey/just/commit/ebd41864526b01b1bb42b2e4f9ab7f03c0d057a2)
+
+### Added
+- [line evaluation is done](https://github.com/casey/just/commit/4bb926abc4f3263c2d6adaeec7f0bb4d6efbeeee)
+- [Handle line interpolation parsing](https://github.com/casey/just/commit/9aed7ca1294bc2573040a96a9bace02c3973a623)
+
+### Misc
 - [Clean up code, rename Token.class -> Token.kind](https://github.com/casey/just/commit/fa2fae5fb8772354a4d043009b0d9856f2922e4c)
 - [Test that evaluated recipe lines are correct](https://github.com/casey/just/commit/dd824ef36463da28bdeff4e367934617e985c592)
 - [Rewrite notes](https://github.com/casey/just/commit/526f569b8e7e0fc142443d4b8795e0caa210eb31)
@@ -1184,9 +1365,31 @@ Unreleased
 - [Update notes](https://github.com/casey/just/commit/f01ef06bf0f1affa0e3928437d263b1f865b2946)
 - [Add comment to polyglot recipe in justfile](https://github.com/casey/just/commit/ab2e19d409cdb6fb7172c472111f585a9ac07577)
 - [Ran clippy and fixed issues. I <3 clippy!](https://github.com/casey/just/commit/f74ece6629ca62c183ed836af3c6e03ad6100137)
+
+[0.2.2](https://github.com/casey/just/releases/tag/v0.2.2) - 2016-10-24
+-----------------------------------------------------------------------
+
+### Release
+- [bump: 0.2.1 -> 0.2.2](https://github.com/casey/just/commit/8d8f38b3d827221e4fff84fad661548abec5ff8b)
+
+### Added
+- [Add --justfile and --working-directory flags](https://github.com/casey/just/commit/92d231c2ec63966fe451949f776ad3a1aacf6dc5)
+
+### Misc
 - [TokenClass -> TokenKind](https://github.com/casey/just/commit/e8a4a82e4db4e1c023e53b6232fb2375ce1eec87)
 - [Update notes](https://github.com/casey/just/commit/512d3f67a8e487aebf362b67053551421d016f33)
 - [Update cargo.lock.](https://github.com/casey/just/commit/6e687c506edb7dee5bc1ae879c78eb5ca4756e9d)
+
+[0.2.1](https://github.com/casey/just/releases/tag/v0.2.1) - 2016-10-24
+-----------------------------------------------------------------------
+
+### Release
+- [version bump: 0.2.0 -> 0.2.1](https://github.com/casey/just/commit/756a74bc1816e2d6891ebae87f8af9704f0eeeb9)
+
+### Changed
+- [Make dependencies execute in order they appear](https://github.com/casey/just/commit/e5efa3f7d5279cffb68a01156a111b81beff2db3)
+
+### Misc
 - [Shuffle tests in run_order](https://github.com/casey/just/commit/5125a1ddac9ed3ab1d50cd0de1dbb88ee396dc6d)
 - [Add github repo to --help string](https://github.com/casey/just/commit/534d70256689be87bf203f17109a1db0e0292b99)
 - [Update notes](https://github.com/casey/just/commit/8d358faf69b7456e2e3baed33158527d297bc7ad)
@@ -1200,6 +1403,27 @@ Unreleased
 - [Update notes](https://github.com/casey/just/commit/3f231fb5b0394f2346589763a60f48bd36e562b1)
 - [Update Cargo.lock](https://github.com/casey/just/commit/fbe8c07d4315c4f4d28c3984c9dfebd0052084c3)
 - [Add `git push github master` to publish recipe](https://github.com/casey/just/commit/c476afb951915ef8c7fab82316af945fa0bb6df8)
+
+### Merge
+- [Merge remote-tracking branch 'origin/master'](https://github.com/casey/just/commit/ebf66f7600115ada72196198db474bd82bdd1f98)
+
+[0.2.0](https://github.com/casey/just/releases/tag/v0.2.0) - 2016-10-09
+-----------------------------------------------------------------------
+
+### Release
+- [Bump version to 0.2.0](https://github.com/casey/just/commit/61b71115740524c95a17fbeb9e6598695b2ac270)
+
+### Changed
+- [Invoke sh with `-u` (error on unbound variable)](https://github.com/casey/just/commit/b5cac00ffce11138f81e05ab122d21b234654e69)
+
+### Added
+- [Support for polyglot recipes!](https://github.com/casey/just/commit/71a43591883c737757c1cdca5fdf3d4ed2fb1455)
+- [Add --show command line flag](https://github.com/casey/just/commit/b11b81c640c63d2aceaf03ffe0eba2773806b88f)
+- [Support for polyglot recipes!](https://github.com/casey/just/commit/25785eea77540d5519ce890d80f2f0a42926030b)
+- [Invoke sh with `-u` (error on unbound variable)](https://github.com/casey/just/commit/2a721db2807e72c27f4bae3cc2ebeb7a04c4976a)
+- [Add --show command line flag](https://github.com/casey/just/commit/2ab75ef03aa6c4501d321e45ef78249ed990ba1d)
+
+### Misc
 - [Add publish recipe](https://github.com/casey/just/commit/c3bfb44917ef6eb279128d68bfce4ea5a1450849)
 - [Update shebang test notes](https://github.com/casey/just/commit/4646c9365eab1e9efad48e71828184b068b071bb)
 - [Add test for shebang recipes](https://github.com/casey/just/commit/b7f7deb4bb63aa252b79a2d9f1360c6c2ccfb1c4)
@@ -1239,10 +1463,59 @@ Unreleased
 - [Add cat.](https://github.com/casey/just/commit/ca3d159ae4621d9669f58aeab44c6fb53c0009c6)
 - [Further ramblings in readme](https://github.com/casey/just/commit/fc3b526b2442c4eda7000212453f040ffdde231c)
 - [Expanded README.md](https://github.com/casey/just/commit/7529c628ca3fd8c22a9249c3f363110a3e78b3bb)
+
+[0.1.5](https://github.com/casey/just/releases/tag/v0.1.5) - 2016-09-28
+-----------------------------------------------------------------------
+
+### Release
+- [Add period to no justfile found error. Bump version.](https://github.com/casey/just/commit/dd83cc46bfc1810745602290f3f8ae60f4f332ae)
+
+### Misc
 - [Update cargo.lock](https://github.com/casey/just/commit/68029874c7e90d7a096ccb3daf85222ffad9f0e5)
+
+[0.1.4](https://github.com/casey/just/releases/tag/v0.1.4) - 2016-09-28
+-----------------------------------------------------------------------
+
+### Release
+- [0.1.3 -> 0.1.4](https://github.com/casey/just/commit/0f245031bac7a2bb15d24f57353e5b432620e74a)
+
+### Misc
 - [Keep searching if justfile isn't found](https://github.com/casey/just/commit/f3a92285af3ae0d5f4219a35eec5382959e46ec2)
 - [Version bump in cargo.lock](https://github.com/casey/just/commit/9f9346b3387f742e96872d13116b70df1180375e)
+
+[0.1.3](https://github.com/casey/just/releases/tag/v0.1.3) - 2016-09-28
+-----------------------------------------------------------------------
+
+### Release
+- [v0.1.2 -> v0.1.3](https://github.com/casey/just/commit/9665d31180c260fd4fd1477619d08a90b44d4a7d)
+
+### Changed
+- [Allow 'Justfile' in addition to 'justfile'](https://github.com/casey/just/commit/10e1ef4f0fb6ad4b20a5038650019bcd475debc2)
+
+### Misc
 - [Update cargo.log](https://github.com/casey/just/commit/0f74d2e4fade23e9d45ac5891e50b5e461af47f7)
 
-### Merge
-- [Merge remote-tracking branch 'origin/master'](https://github.com/casey/just/commit/ebf66f7600115ada72196198db474bd82bdd1f98)
+[0.1.2](https://github.com/casey/just/releases/tag/v0.1.2) - 2016-09-28
+-----------------------------------------------------------------------
+
+### Release
+- [Remove dependency on brev, bump version](https://github.com/casey/just/commit/696fd3a5f14305a2c2ff7fb4c8f6f3986b3211db)
+
+### Changed
+- [Update stuff](https://github.com/casey/just/commit/3b78451f2300c5ea7a614fe3a245bbde98ffd89b)
+- [Fix cargo.toml.license](https://github.com/casey/just/commit/b0d72f319feb3efe62ba19ac8aaa83b9b5daae35)
+
+[0.1.1](https://github.com/casey/just/releases/tag/v0.1.1) - 2016-09-28
+-----------------------------------------------------------------------
+
+### Release
+- [Update cargo.toml, version -> 0.1.1](https://github.com/casey/just/commit/9dddb3d4589a75d16f0a12184e3e88435cd00a3a)
+
+### Changed
+- [Working](https://github.com/casey/just/commit/114f6b7bdc016f581fd83092d93ac56a5f6758cf)
+
+[0.1.0](https://github.com/casey/just/releases/tag/v0.1.0) - 2016-06-17
+-----------------------------------------------------------------------
+
+### Release
+- [Initial commit. Broken.](https://github.com/casey/just/commit/a0d5b83a8008c4fec292fbacde61240141554fc3)

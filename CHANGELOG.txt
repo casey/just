@@ -1,33 +1,11 @@
 Changelog
 =========
 
-Unreleased
-----------
-
-### Fixed
-- Fix colors (#927)
-
-### Changed
-- Warn if `.env` file is loaded in `dotenv-load` isn't explicitly set (#925)
-
-### Added
-- Support `.justfile` as an alternative to `justfile` (#931)
-
-### Misc
-- Use cargo-limit for all recipes (#928)
-- Use ColorDisplay trait to print objects to the terminal (#926)
-- Deduplicate recipe parsing (#923)
-- Move subcommand functions into Subcommand (#918)
-- Check GitHub Actions workflow with actionlint (#921)
-- Add loader and refactor errors (#917)
-- Rename: Module → Ast (#915)
-
-0.9.9 - tag: 0.9.9 - 1970-1-1
------------------------------
+0.9.9 - 2021-07-22
+------------------
 
 ### Release
 - Release 0.9.9 (#913)
-- Release 0.9.8 (#896)
 
 ### Fixed
 - Fix circular variable dependency error message (#909)
@@ -45,10 +23,19 @@ Unreleased
 - Actually fix release tagging and publish changelog with releases (#901)
 - Fix broken prerelease tagging (#900)
 - Use string value for ref-type check (#897)
-- Fix changelog formatting (#894)
 
-0.9.7 - tag: 0.9.7 - 1970-1-1
------------------------------
+0.9.8 - 2021-07-04
+------------------
+
+### Release
+- Release 0.9.8 (#896)
+
+### Misc
+- Fix changelog formatting (#894)
+- Only run install script on CI for non-releases (#895)
+
+0.9.7 - 2021-07-03
+------------------
 
 ### Release
 - Release 0.9.7 (#893)
@@ -57,13 +44,12 @@ Unreleased
 - Add string manipulation functions (#888)
 
 ### Misc
-- Only run install script on CI for non-releases (#895)
 - Remove test-utilities crate (#892)
 - Remove outdated note in `Cargo.toml` (#891)
 - Link to GitHub release pages in changelog (#886)
 
-0.9.6 - tag: 0.9.6 - 1970-1-1
------------------------------
+0.9.6 - 2021-06-25
+------------------
 
 ### Release
 - Release v0.9.6 (#884)
@@ -77,8 +63,8 @@ Unreleased
 - Add `file_extensions` to Sublime syntax file (#878)
 - Document path manipulation functions in readme (#877)
 
-0.9.5 - tag: 0.9.5 - 1970-1-1
------------------------------
+0.9.5 - 2021-06-12
+------------------
 
 ### Release
 - Release v0.9.5 (#870)
@@ -100,8 +86,8 @@ Unreleased
 - Move pages assets back to `docs` (#846)
 - Move pages assets to `www` (#845)
 
-0.9.4 - tag: v0.9.4 - 1970-1-1
-------------------------------
+0.9.4 - 2021-05-28
+------------------
 
 ### Release
 - Release v0.9.4 (#844)
@@ -114,8 +100,8 @@ Unreleased
 - Add `vim-just` installation instructions to readme (#835)
 - Refactor shebang handling (#833)
 
-0.9.3 - tag: v0.9.3 - 1970-1-1
-------------------------------
+0.9.3 - 2021-05-16
+------------------
 
 ### Release
 - Release v0.9.3 (#832)
@@ -136,8 +122,8 @@ Unreleased
 - Document that just is now in Arch official repo (#814)
 - Fix changelog years (#813)
 
-0.9.2 - tag: v0.9.2 - 1970-1-1
-------------------------------
+0.9.2 - 2021-05-02
+------------------
 
 ### Release
 - Release v0.9.2 (#811)
@@ -145,8 +131,8 @@ Unreleased
 ### Fixed
 - Pass evaluated arguments as positional arguments (#810)
 
-0.9.1 - tag: v0.9.1 - 1970-1-1
-------------------------------
+0.9.1 - 2021-04-26
+------------------
 
 ### Release
 - Release v0.9.1 (#807)
@@ -168,8 +154,8 @@ Unreleased
 - Disable .env warning for now
 - Warn if `.env` file loaded and `dotenv-load` unset (#784)
 
-0.9.0 - tag: v0.9.0 - 1970-1-1
-------------------------------
+0.9.0 - 2021-03-29
+------------------
 
 ### Release
 - Release v0.9.0 (#781)
@@ -177,8 +163,8 @@ Unreleased
 ### Changed
 - Turn `=` deprecation warning into a hard error (#780)
 
-0.8.7 - tag: v0.8.7 - 1970-1-1
-------------------------------
+0.8.7 - 2021-03-29
+------------------
 
 ### Release
 - Release v0.8.7 (#779)
@@ -189,8 +175,8 @@ Unreleased
 ### Misc
 - Change publish recipe to use stable rust (#777)
 
-0.8.6 - tag: v0.8.6 - 1970-1-1
-------------------------------
+0.8.6 - 2021-03-28
+------------------
 
 ### Release
 - Release v0.8.6 (#776)
@@ -208,8 +194,8 @@ Unreleased
 - De-emphasize cmd.exe in readme (#768)
 - Fix warnings (#770)
 
-0.8.5 - tag: v0.8.5 - 1970-1-1
-------------------------------
+0.8.5 - 2021-03-25
+------------------
 
 ### Release
 - Release v0.8.5 (#766)
@@ -224,8 +210,8 @@ Unreleased
 - Note Emacs package `just-mode` in readme (#759)
 - Note shebang line splitting inconsistency in readme (#757)
 
-0.8.4 - tag: v0.8.4 - 1970-1-1
-------------------------------
+0.8.4 - 2021-02-09
+------------------
 
 ### Release
 - Release v0.8.4 (#754)
@@ -243,9 +229,10 @@ Unreleased
 - Fix CI (#727)
 - Improve readme (#725)
 - Replace saythanks.io link with malto: link (#723)
+- Update man page to v0.8.3 (#720)
 
-0.8.3 - tag: v0.8.3 - 1970-1-1
-------------------------------
+0.8.3 - 2020-10-28
+------------------
 
 ### Release
 - Release v0.8.3 (#718)
@@ -253,11 +240,8 @@ Unreleased
 ### Added
 - Allow ignore line endings inside delimiters (#717)
 
-### Misc
-- Update man page to v0.8.3 (#720)
-
-0.8.2 - tag: v0.8.2 - 1970-1-1
-------------------------------
+0.8.2 - 2020-10-27
+------------------
 
 ### Release
 - Release v0.8.2 (#715)
@@ -273,8 +257,8 @@ Unreleased
 - Automatically track expected tokens while parsing (#711)
 - Document feature flags in Cargo.toml (#709)
 
-0.8.1 - tag: v0.8.1 - 1970-1-1
-------------------------------
+0.8.1 - 2020-10-16
+------------------
 
 ### Release
 - Release v0.8.1 (#707)
@@ -290,8 +274,8 @@ Unreleased
 - Fix readme documentation for ignoring errors (#692)
 - Fix build fix (#693)
 
-0.8.0 - tag: v0.8.0 - 1970-1-1
-------------------------------
+0.8.0 - 2020-10-03
+------------------
 
 ### Release
 - Release v0.8.0 (#691)
@@ -304,8 +288,8 @@ Unreleased
 - Install BSD Tar on GitHub Actions to fix CI errors (#689)
 - Move separate quiet config value to verbosity (#686)
 
-0.7.3 - tag: v0.7.3 - 1970-1-1
-------------------------------
+0.7.3 - 2020-09-18
+------------------
 
 ### Release
 - Release v0.7.3 (#681)
@@ -317,8 +301,8 @@ Unreleased
 - Combine integration tests into single binary (#679)
 - Document `--unsorted` flag in readme (#672)
 
-0.7.2 - tag: v0.7.2 - 1970-1-1
-------------------------------
+0.7.2 - 2020-08-24
+------------------
 
 ### Release
 - Release v0.7.2 (#670)
@@ -330,8 +314,8 @@ Unreleased
 - Mention Linux, MacOS and Windows support in readme (#666)
 - Add list highlighting nice features to readme (#664)
 
-0.7.1 - tag: v0.7.1 - 1970-1-1
-------------------------------
+0.7.1 - 2020-07-19
+------------------
 
 ### Release
 - Release v0.7.1 (#662)
@@ -342,8 +326,8 @@ Unreleased
 ### Misc
 - Move link-time optimization config into `Cargo.toml` (#658)
 
-0.7.0 - tag: v0.7.0 - 1970-1-1
-------------------------------
+0.7.0 - 2020-07-17
+------------------
 
 ### Release
 - Release v0.7.0 (#657)
@@ -354,8 +338,8 @@ Unreleased
 ### Misc
 - Mark tags that start with `v` as releases (#654)
 
-0.6.1 - tag: v0.6.1 - 1970-1-1
-------------------------------
+0.6.1 - 2020-06-28
+------------------
 
 ### Release
 - Release v0.6.1 (#653)
@@ -363,8 +347,8 @@ Unreleased
 ### Changed
 - Only use `cygpath` on shebang if it contains `/` (#652)
 
-0.6.0 - tag: v0.6.0 - 1970-1-1
-------------------------------
+0.6.0 - 2020-06-18
+------------------
 
 ### Release
 - Release v0.6.0 (#649)
@@ -385,8 +369,8 @@ Unreleased
 - Add example justfile (#639)
 - Document how to run recipes after another recipe (#630)
 
-0.5.11 - tag: v0.5.11 - 1970-1-1
---------------------------------
+0.5.11 - 2020-05-24
+-------------------
 
 ### Release
 - Release v0.5.11 (#629)
@@ -404,12 +388,18 @@ Unreleased
 - Add `log` variable to justfile (#621)
 - Cache build artifacts (#620)
 - Link to recently indexed justfiles in the readme (#616)
+- Trigger GitHub Actions workflow on release tags (#614)
 
-0.5.10 - tag: v0.5.10 - 1970-1-1
---------------------------------
+0.5.10 - 2020-03-18
+-------------------
 
 ### Release
 - Release v0.5.10 (#613)
+
+0.5.9 - 2020-03-18
+------------------
+
+### Release
 - Release v0.5.9 (#612)
 
 ### Fixed
@@ -421,7 +411,6 @@ Unreleased
 - Add github pages site with improved install script (#597)
 
 ### Misc
-- Trigger GitHub Actions workflow on release tags (#614)
 - Only build for linux on docs.rs (#611)
 - Trim completions and ensure final newline (#609)
 - Trigger build on pushes and pull requests (#607)
@@ -433,8 +422,8 @@ Unreleased
 - Wrap comments at 80 characters (#593)
 - Use unstable rustfmt configuration options (#592)
 
-0.5.8 - tag: v0.5.8 - 1970-1-1
-------------------------------
+0.5.7 - 2020-01-28
+------------------
 
 ### Release
 - Release v0.5.7 (#591)
@@ -446,8 +435,8 @@ Unreleased
 - Improve comments in justfile (#588)
 - Remove unused dependencies (#587)
 
-0.5.7 - tag: v0.5.7 - 1970-1-1
-------------------------------
+0.5.7 - 2020-01-28
+------------------
 
 ### Release
 - Release v0.5.7 (#584)
@@ -455,8 +444,8 @@ Unreleased
 ### Misc
 - Don't include directories in release archive (#583)
 
-0.5.6 - tag: v0.5.6 - 1970-1-1
-------------------------------
+0.5.6 - 2020-01-28
+------------------
 
 ### Release
 - Release v0.5.6 (#582)
@@ -467,8 +456,8 @@ Unreleased
 - Expand use of Github Actions (#580)
 - Fix readme typo: interpetation -> interpretation (#578)
 
-0.5.5 - tag: v0.5.5 - 1970-1-1
-------------------------------
+0.5.5 - 2020-01-15
+------------------
 
 ### Release
 - Release v0.5.5 (#576)
@@ -480,8 +469,8 @@ Unreleased
 - Check long lines and FIXME/TODO on CI (#575)
 - Add additional continuous integration checks (#574)
 
-0.5.4 - tag: v0.5.4 - 1970-1-1
-------------------------------
+0.5.4 - 2019-12-25
+------------------
 
 ### Release
 - Release v0.5.4 (#570)
@@ -494,21 +483,21 @@ Unreleased
 - Remove yaourt AUR helper from readme (#567)
 - Fix regression in error message color printing (#566)
 - Reform indentation handling (#565)
+- Update Cargo.lock with new version (#564)
 
-0.5.3 - tag: v0.5.3 - 1970-1-1
-------------------------------
+0.5.3 - 2019-12-12
+------------------
 
 ### Release
 - Release v0.5.3 (#563)
 
 ### Misc
-- Update Cargo.lock with new version (#564)
 - Improve pre-publish check (#562)
 - Fix typo: `chracter` -> `character` (#561)
 - Assert that lexer advances over entire input (#560)
 
-0.5.2 - tag: v0.5.2 - 1970-1-1
-------------------------------
+0.5.2 - 2019-12-07
+------------------
 
 ### Release
 - Release v0.5.2 (#557)
@@ -525,8 +514,8 @@ Unreleased
 - Resolve recipe dependencies (#547)
 - Un-implement Deref for Table (#546)
 
-0.5.1 - tag: v0.5.1 - 1970-1-1
-------------------------------
+0.5.1 - 2019-11-20
+------------------
 
 ### Release
 - Release v0.5.1 (#544)
@@ -543,8 +532,8 @@ Unreleased
 - Refactor Compilation error to contain a Token (#535)
 - Mention `set shell` as altenative to installing `sh` (#533)
 
-0.5.0 - tag: v0.5.0 - 1970-1-1
-------------------------------
+0.5.0 - 2019-11-12
+------------------
 
 ### Release
 - Release: v0.5.0 (#530)
@@ -566,8 +555,8 @@ Unreleased
 - Reform Parser (#509)
 - Note need to publish with nightly cargo (#506)
 
-0.4.5 - tag: v0.4.5 - 1970-1-1
-------------------------------
+0.4.5 - 2019-11-01
+------------------
 
 ### Release
 - Bump version: v0.4.4 -> v0.4.5 (#505)
@@ -607,8 +596,8 @@ Unreleased
 - Document multi-line constructs (for/if/while) (#453)
 - Update deprecated rust range patterns and clippy config (#450)
 
-0.4.4 - tag: v0.4.4 - 1970-1-1
-------------------------------
+0.4.4 - 2019-06-02
+------------------
 
 ### Release
 - Bump version: v0.4.3 -> v0.4.4 (#449)
@@ -625,8 +614,8 @@ Unreleased
 - Replace colored_diff with pretty_assertions (#440)
 - Update justfile to use `:=` instead of `=` (#432)
 
-0.4.3 - tag: v0.4.3 - 1970-1-1
-------------------------------
+0.4.3 - 2019-05-08
+------------------
 
 ### Release
 - Bump version: v0.4.2 -> v0.4.3 (#431)
@@ -649,8 +638,8 @@ Unreleased
 - Replace some calls to brev crate (#410)
 - Remove stray source files (#408)
 
-0.4.2 - tag: v0.4.2 - 1970-1-1
-------------------------------
+0.4.2 - 2019-04-16
+------------------
 
 ### Release
 - Bump version: v0.4.1 -> v0.4.2 (#407)
@@ -658,8 +647,8 @@ Unreleased
 ### Changed
 - Replace regex-based lexer with character-at-a-time lexer (#406)
 
-0.4.1 - tag: v0.4.1 - 1970-1-1
-------------------------------
+0.4.1 - 2019-04-15
+------------------
 
 ### Release
 - Bump version: v0.4.0 -> v0.4.1 (#405)
@@ -671,8 +660,8 @@ Unreleased
 - Add installation instructions for Nix (#403)
 - Clean up justfile and fix version extraction (#402)
 
-0.4.0 - tag: v0.4.0 - 1970-1-1
-------------------------------
+0.4.0 - 2019-04-12
+------------------
 
 ### Release
 - Bump version: 0.3.13 -> 0.4.0 (#401)
@@ -697,8 +686,8 @@ Unreleased
 - Actually link to Chinese translation (#378)
 - Add changelog for v0.3.13 (#372)
 
-0.3.13 - tag: v0.3.13 - 1970-1-1
---------------------------------
+0.3.13 - 2018-11-06
+-------------------
 
 ### Release
 - Bump version: 0.3.12 -> 0.3.13 (#371)
@@ -726,8 +715,8 @@ Unreleased
 - Fix integration tests with dash (#338)
 - Fix instructions for install command (#330)
 
-0.3.12 - tag: v0.3.12 - 1970-1-1
---------------------------------
+0.3.12 - 2018-06-19
+-------------------
 
 ### Release
 - Bump version: 0.3.11 -> 0.3.12 (#324)
@@ -735,8 +724,8 @@ Unreleased
 ### Added
 - Implement invocation_directory function (#312)
 
-0.3.11 - tag: v0.3.11 - 1970-1-1
---------------------------------
+0.3.11 - 2018-05-07
+-------------------
 
 ### Release
 - Bump version: 0.3.10 -> 0.3.11 (#318)
@@ -749,8 +738,8 @@ Unreleased
 - Get package name from Cargo.toml (#315)
 - Remove unused recipes (#314)
 
-0.3.10 - tag: v0.3.10 - 1970-1-1
---------------------------------
+0.3.10 - 2018-03-20
+-------------------
 
 ### Release
 - Version bump + update deps: 0.3.9 -> 0.3.10 (#311)
@@ -758,8 +747,8 @@ Unreleased
 ### Added
 - Make .env vars available in env_var functions (#310)
 
-0.3.9 - tag: v0.3.9 - 1970-1-1
-------------------------------
+0.3.9 - 2018-03-05
+------------------
 
 ### Release
 - Bump version: 0.3.8 -> 0.3.9 (#308)
@@ -771,8 +760,8 @@ Unreleased
 - Add example of running a command to top of readme (#307)
 - Add Companion Tools section to README (#305)
 
-0.3.8 - tag: v0.3.8 - 1970-1-1
-------------------------------
+0.3.8 - 2018-02-16
+------------------
 
 ### Release
 - Bump version to 0.3.8 and update dependencies (#304)
@@ -784,39 +773,37 @@ Unreleased
 - Use `.adoc` for asciidoctor files instead of `.asc` (#300)
 - Mention kakoune syntax highlighting in readme (#299)
 
-0.3.7 - tag: v0.3.7 - 1970-1-1
-------------------------------
+0.3.7 - 2018-01-23
+------------------
 
 ### Release
 - Bump version: 0.3.6 -> 0.3.7 (#297)
-- Bump version: 0.3.5 -> 0.3.6 (#293)
 
 ### Fixed
 - Allow ! in comments (#296)
-- Lex CRLF line endings properly (#292)
 
 ### Misc
 - Fix readme formatting (#295)
 
-0.3.5 - tag: v0.3.5 - 1970-1-1
-------------------------------
+0.3.6 - 2018-01-05
+------------------
+
+### Release
+- Bump version: 0.3.5 -> 0.3.6 (#293)
+
+### Fixed
+- Lex CRLF line endings properly (#292)
+
+0.3.5 - 2017-12-11
+------------------
 
 ### Release
 - Bump version: 0.3.4 -> 0.3.5 (#286)
-- Bump version: 0.3.3 -> 0.3.4 (#269)
-
-### Fixed
-- Stop empty comments from swallowing the next line (#247)
-
-### Changed
-- Change license to CC0 (#270)
 
 ### Added
 - Add `env_var(key)` and `env_var_or_default(key, default)` functions (#280)
 - Add functions (#277)
 - Align doc-comments in `--list` output (#273)
-- Build x86_64-pc-windows-gnu target for releases (#267)
--  Do not evaluate backticks in assignments during dry runs (#253)
 
 ### Misc
 - Add variadic parameter with default argument example (#285)
@@ -827,6 +814,24 @@ Unreleased
 - Rename Scanner to Lexer (#276)
 - Only provide MinGW build on Windows (#274)
 - Misc fixes before publishing new version (#271)
+
+0.3.4 - 2017-11-30
+------------------
+
+### Release
+- Bump version: 0.3.3 -> 0.3.4 (#269)
+
+### Fixed
+- Stop empty comments from swallowing the next line (#247)
+
+### Changed
+- Change license to CC0 (#270)
+
+### Added
+- Build x86_64-pc-windows-gnu target for releases (#267)
+-  Do not evaluate backticks in assignments during dry runs (#253)
+
+### Misc
 - Bump dependencies (#265)
 - Clean up grammar (#268)
 - Miscellaneous cleanup (#261)
@@ -843,24 +848,14 @@ Unreleased
 - Add rename recipe to justfile (#248)
 - Make unexpected token formatting clearer (#243)
 - Add instructions for installing via Homebrew (#238)
+- Fix release builder (#235)
+- Create a short markdown readme for crates.io
 
-0.3.3 - tag: v0.3.3 - 1970-1-1
-------------------------------
+0.3.2 - 2017-10-15
+------------------
 
 ### Release
 - Bump version to 0.3.2
-
-### Misc
-- Fix release builder (#235)
-- Create a short markdown readme for crates.io
-- Add readme to Cargo.toml (#234)
-- Mention gitter in preamable (#233)
-- Put Table of Contents below preamble (#232)
-- Overhaul README (#231)
-- Fix homebrew issue on Travis (#230)
-
-0.3.1 - tag: v0.3.1 - 1970-1-1
-------------------------------
 
 ### Changed
 - Hide recipes with names starting with an _ from --list and --sumamary (#229)
@@ -870,6 +865,11 @@ Unreleased
 - Add short options for justfile and working-directory (#222)
 
 ### Misc
+- Add readme to Cargo.toml (#234)
+- Mention gitter in preamable (#233)
+- Put Table of Contents below preamble (#232)
+- Overhaul README (#231)
+- Fix homebrew issue on Travis (#230)
 - Update dependencies (#225)
 - Update Vagrantfile: install curl, force install just (#221)
 - Start a changelog in CHANGELOG.md (#220)
@@ -877,8 +877,8 @@ Unreleased
 - Add say thanks badge to readme (#215)
 - Fix typos in README.md (#213)
 
-0.2.33 - tag: v0.2.33 - 1970-1-1
---------------------------------
+0.2.33 - 2017-08-03
+-------------------
 
 ### Release
 - v0.2.32 -> v0.2.33
@@ -890,11 +890,16 @@ Unreleased
 - Refactor color handling (#204)
 - Build, test, and release on fewer os/arch combinations (#201)
 
-0.2.32 - tag: v0.2.32 - 1970-1-1
---------------------------------
+0.2.32 - 2017-05-13
+-------------------
 
 ### Release
 - Bump version: 0.2.31 -> 0.2.32
+
+0.2.31 - 2017-05-13
+-------------------
+
+### Release
 - Bump version: 0.2.30 -> 0.2.31
 
 ### Added
@@ -903,60 +908,23 @@ Unreleased
 ### Misc
 - Update release recipe
 
-0.2.29 - tag: v0.2.29 - 1970-1-1
---------------------------------
+0.2.29 - 2017-05-13
+-------------------
 
 ### Release
 - Bump version: 0.2.28 -> 0.2.29
+
+0.2.28 - 2017-05-13
+-------------------
+
+### Release
 - Bump version: 0.2.27 -> 0.2.28 (#200)
-- Bump version: 0.2.26 -> 0.2.27
-- Bump version: 0.2.25 -> 0.2.26 (#150)
-- Bump version to 0.2.25 (#142)
-- Bump version: 0.2.23 -> 0.2.24 (#140)
-- Bump version to v0.2.23 (#129)
-- Bump version to v0.2.22 (#110)
-- Bump version to v0.2.21 (#103)
-- Bump version to 0.2.20 (#89)
-- Bump version to 0.2.19 (#83)
-- Bump version to 0.2.18 (#60)
-- Bump version to 0.2.16 (#21)
-
-### Breaking
-- 🔥 Disallow names that start with '-' (#154)
-
-### Fixed
-- Resolve dependencies after the first (#149)
-- Fix line numbers (#124)
-- Fix override argument processing bug (#115)
-- Fix spurious circular dependency error (#102)
-- Don't ignore `--color=never` (#56)
 
 ### Changed
 - Error if running default recipe that requires arguments (#194)
-- Lift limitations on recipes that take parameters (#137)
-- Toggle meaning of '@' on recipes prefixed with '@' (#100)
-- Don't allow args with early exit options (#96)
-- Use colors in output
-- Use colored help message (#32)
 
 ### Added
 - Add option to highlight echoed recipe lines (#190)
-- Make shebangs work on windows (#185)
-- Add --shell option to specify the shell to use (#175)
-- Allow path-prefixed first arguments (#139)
-- Add variadic parameters (#127)
-- Add comment to `push-f` recipe (#126)
-- Add --verbose flag (#123)
-- Allow `'` raw strings to contain literal newlines (#107)
-- Add doc comments to recipes (#101)
-- Allow line continuations in plain recipes with '\' (#99)
-- Add -e/--edit option to open justfile in $EDITOR (#95)
-- Suggest alternatives to uknown recipes (#91)
-- Make `--list` print recipes with arguments (#88)
-- Let recipes take default arguments (#77)
-- Add --dump option to print entire justfile (#67)
-- Allow justfile to be named `Justfile` (#19)
-- Add --quiet/-q flag to supress all output (#17)
 
 ### Misc
 - Fix lints and things that make clippy sad (#199)
@@ -966,6 +934,21 @@ Unreleased
 - Set up cross platform continuous integration on travis (#191)
 - Add period to empty justfile error message (#192)
 - Write argument_range() in terms of min_arguments() and max_arguments() (#193)
+
+0.2.27 - 2017-04-24
+-------------------
+
+### Release
+- Bump version: 0.2.26 -> 0.2.27
+
+### Breaking
+- 🔥 Disallow names that start with '-' (#154)
+
+### Added
+- Make shebangs work on windows (#185)
+- Add --shell option to specify the shell to use (#175)
+
+### Misc
 - Unicode integration test fix for windows (#189)
 - Use cygpath to translate paths on windows (#188)
 - Move output() and OutputError into brev (#187)
@@ -983,10 +966,43 @@ Unreleased
 - Remove trailing whitespace (#167)
 - Improve syntax highlighting suggestions in readme (#164)
 - Set emacs and vim filetype in justfile for syntax highlighting (#163)
+
+0.2.26 - 2017-01-19
+-------------------
+
+### Release
+- Bump version: 0.2.25 -> 0.2.26 (#150)
+
+### Fixed
+- Resolve dependencies after the first (#149)
+
+### Misc
 - Test all errors and error messages (#145)
 - Capitalize all error messages (#144)
 - readme: 'the in' -> 'in the' (#143)
+
+0.2.25 - 2016-12-30
+-------------------
+
+### Release
+- Bump version to 0.2.25 (#142)
+
+### Misc
 - Use '/' instead of "/" as argument to rfind (#141)
+
+0.2.24 - 2016-12-30
+-------------------
+
+### Release
+- Bump version: 0.2.23 -> 0.2.24 (#140)
+
+### Changed
+- Lift limitations on recipes that take parameters (#137)
+
+### Added
+- Allow path-prefixed first arguments (#139)
+
+### Misc
 - Readme: email -> issue (#138)
 - Remove duplicate `return` (#136)
 - Mention prebuilts in readme (#135)
@@ -995,6 +1011,23 @@ Unreleased
 - Build Linux binaries using Vagrant (#132)
 - Add recipes to build binaries for release (#131)
 - Add FLAGS to push recipe, get rid of push-f recipe (#130)
+
+0.2.23 - 2016-11-18
+-------------------
+
+### Release
+- Bump version to v0.2.23 (#129)
+
+### Fixed
+- Fix line numbers (#124)
+- Fix override argument processing bug (#115)
+
+### Added
+- Add variadic parameters (#127)
+- Add comment to `push-f` recipe (#126)
+- Add --verbose flag (#123)
+
+### Misc
 - Collapse unnecessary block (#128)
 - Report line number in recipe failure messages (#125)
 - Renames: Parser::file and just::parse (#122)
@@ -1003,18 +1036,73 @@ Unreleased
 - Mention {{...}} substitution gotcha in readme (#117)
 - Deny clippy lints by default (#112)
 - Make quine-text multiline string (#111)
+
+0.2.22 - 2016-11-13
+-------------------
+
+### Release
+- Bump version to v0.2.22 (#110)
+
+### Added
+- Allow `'` raw strings to contain literal newlines (#107)
+
+### Misc
 - Add multiline raw string example to readme (#109)
 - Fix readme typo (#108)
 - Explicitly license as WTFPL or MIT or APACHE-2.0 (#105)
 - Update project justfile to take advantage of 0.2.21 (#104)
+
+0.2.21 - 2016-11-13
+-------------------
+
+### Release
+- Bump version to v0.2.21 (#103)
+
+### Fixed
+- Fix spurious circular dependency error (#102)
+
+### Changed
+- Toggle meaning of '@' on recipes prefixed with '@' (#100)
+- Don't allow args with early exit options (#96)
+
+### Added
+- Add doc comments to recipes (#101)
+- Allow line continuations in plain recipes with '\' (#99)
+- Add -e/--edit option to open justfile in $EDITOR (#95)
+- Suggest alternatives to uknown recipes (#91)
+
+### Misc
 - Get rid of mostly unused Justfile.recipes() (#98)
 - Error -> CompileError (#97)
 - Use clap::ArgGroup for early exit conflicts (#94)
 - Line up names in --evaluate (#93)
 - Test that overrides are not evaluated (#92)
 - Add `install` recipe (#90)
+
+0.2.20 - 2016-11-12
+-------------------
+
+### Release
+- Bump version to 0.2.20 (#89)
+
+### Added
+- Make `--list` print recipes with arguments (#88)
+
+### Misc
 - Add `watch` and `install-dev-deps` recipes (#87)
 - Harmonize argument help text (#86)
+
+0.2.19 - 2016-11-12
+-------------------
+
+### Release
+- Bump version to 0.2.19 (#83)
+
+### Added
+- Let recipes take default arguments (#77)
+- Add --dump option to print entire justfile (#67)
+
+### Misc
 - Fix needless borrow clippy lints (#81)
 - Fix long lines (#80)
 - Improve missing parameter panic message (#79)
@@ -1026,6 +1114,21 @@ Unreleased
 - Link to justfiles here and in the wild (#69)
 - Use clap's `conflicts_with` and `requires` (#68)
 - Test before publishing (#61)
+
+0.2.18 - 2016-11-12
+-------------------
+
+### Release
+- Bump version to 0.2.18 (#60)
+
+### Fixed
+- Don't ignore `--color=never` (#56)
+
+### Changed
+- Use colors in output
+- Use colored help message (#32)
+
+### Misc
 - Fix publish recipe (#59)
 - Remove unnecessary lifetimes (#58)
 - Add `done` recipe that cleans up a merged branch (#57)
@@ -1045,6 +1148,18 @@ Unreleased
 - Add build status badge to readme (#27)
 - Add Travis CI (#26)
 - Fix small typo in readme (#22)
+
+0.2.16 - 2016-11-05
+-------------------
+
+### Release
+- Bump version to 0.2.16 (#21)
+
+### Added
+- Allow justfile to be named `Justfile` (#19)
+- Add --quiet/-q flag to supress all output (#17)
+
+### Misc
 - Create a unique branch when bumping version (#20)
 - Avoid bashisms in tests (#18)
 - Move all run options into a struct (#16)
@@ -1054,8 +1169,8 @@ Unreleased
 ### Merge
 - Merge pull request #14 from casey/whyc-typo
 
-0.2.15 - tag: v0.2.15 - 1970-1-1
---------------------------------
+0.2.15 - 2016-11-03
+-------------------
 
 ### Release
 - Bump version to v0.2.15
@@ -1064,62 +1179,22 @@ Unreleased
 - Fix tab-indented lines in shebang recipes
 - Push code before publishing
 
-0.2.14 - tag: v0.2.14 - 1970-1-1
---------------------------------
+0.2.14 - 2016-11-02
+-------------------
 
 ### Release
 - New publish recipe, bump version to 0.2.14 to test.
-- Bump version
-- Bump version update description
-- Bump version to 0.2.11 and rename back to just
-- Notes, bump version
-- Notes + bump version
-- Bump version, add --debug
-- Bump version to 0.2.7
-- Bump version to 0.2.6, build before publishing
-- Bump version to 0.2.5
-- Bump version, use variable for quine text
-- Clippy fixes, bump version 0.2.3, string escapes
-- bump: 0.2.1 -> 0.2.2
-- version bump: 0.2.0 -> 0.2.1
-- Bump version to 0.2.0
-- Add period to no justfile found error. Bump version.
-- 0.1.3 -> 0.1.4
-- v0.1.2 -> v0.1.3
-- Remove dependency on brev, bump version
-- Update cargo.toml, version -> 0.1.1
-
-### Changed
-- Arguments done!
-- Add {:#} format printing to justfile for --show
-- Added missing arguments error whenever we try to run an recipe with arguments, since arguments are unsupported.
-- Make dependencies execute in order they appear
-- Invoke sh with `-u` (error on unbound variable)
-- Allow 'Justfile' in addition to 'justfile'
-- Update stuff
-- Fix cargo.toml.license
-- Working
-
-### Added
-- Added raw '' strings
-- export variables done
-- variable=value overrides done
-- Backticks implemented. Error messages still suck though.
-- Add assignment resolving
-- Arguments working but still ugly
-- Add '--debug' flag to print justfile with evaluated expressions and variables
-- line evaluation is done
-- Handle line interpolation parsing
-- Add --justfile and --working-directory flags
-- Support for polyglot recipes!
-- Add --show command line flag
-- Support for polyglot recipes!
-- Invoke sh with `-u` (error on unbound variable)
-- Add --show command line flag
-- Initial commit. Broken.
 
 ### Misc
 - Add escape sequences and raw strings to README.md
+
+0.2.13 - 2016-11-01
+-------------------
+
+### Release
+- Bump version
+
+### Misc
 - Readme done
 - Readme.
 - Readme and notes
@@ -1130,6 +1205,14 @@ Unreleased
 - Rename arguments to parameters.
 - Update description
 - Update Cargo.lock
+
+0.2.11 - 2016-10-31
+-------------------
+
+### Release
+- Bump version update description
+
+### Misc
 - Fix shield link
 - Add crates.io shield
 - Notes
@@ -1142,16 +1225,73 @@ Unreleased
 - New grammar.md
 - Move just.sh to extras/just.sh
 - Add just.sh
+
+0.2.11 - 2016-10-31
+-------------------
+
+### Release
+- Bump version to 0.2.11 and rename back to just
+
+### Misc
 - Make clippy more lenient with cyclomatic complexity
+
+0.2.10 - 2016-10-31
+-------------------
+
+### Release
+- Notes, bump version
+
+### Added
+- Added raw '' strings
+
+### Misc
 - Moved last enhancements to github issues
 - Update Cargo.lock
+
+0.2.9 - 2016-10-30
+------------------
+
+### Release
+- Notes + bump version
+
+### Added
+- export variables done
+
+### Misc
 - Cleaned up export parsing
 - Use BTreeMap and BTreeSet as Map and Set
 - Update notes
 - Clippy lints
+
+0.2.8 - 2016-10-30
+------------------
+
+### Release
+- Bump version, add --debug
+
+### Added
+- variable=value overrides done
+
+### Misc
 - Backtick tests done!
 - Update notes
 - Remove unnecessary return
+
+0.2.7 - 2016-10-30
+------------------
+
+### Release
+- Bump version to 0.2.7
+
+### Changed
+- Arguments done!
+
+### Added
+- Backticks implemented. Error messages still suck though.
+- Add assignment resolving
+- Arguments working but still ugly
+
+### Misc
 - Panic commit.
 - Ready to actually implement backtick evaluation
 - Refactoring. Checkpoint commit.
@@ -1159,6 +1299,26 @@ Unreleased
 - Update notes
 - Working on backticks. They are evaluated as strings for now.
 - Bump version in lock file. Make sure repo is clean before publishing
+
+0.2.6 - 2016-10-29
+------------------
+
+### Release
+- Bump version to 0.2.6, build before publishing
+
+0.2.5 - 2016-10-29
+------------------
+
+### Release
+- Bump version to 0.2.5
+
+### Changed
+- Add {:#} format printing to justfile for --show
+
+### Added
+- Add '--debug' flag to print justfile with evaluated expressions and variables
+
+### Misc
 - Surround tokens with `` in errors
 - Pretty errors with underlined tokens!
 - Notes
@@ -1168,6 +1328,27 @@ Unreleased
 - Add integration tests
 - Remove stray comment
 - Update Cargo.lock
+
+0.2.4 - 2016-10-28
+------------------
+
+### Release
+- Bump version, use variable for quine text
+
+0.2.3 - 2016-10-28
+------------------
+
+### Release
+- Clippy fixes, bump version 0.2.3, string escapes
+
+### Changed
+- Added missing arguments error whenever we try to run an recipe with arguments, since arguments are unsupported.
+
+### Added
+- line evaluation is done
+- Handle line interpolation parsing
+
+### Misc
 - Clean up code, rename Token.class -> Token.kind
 - Test that evaluated recipe lines are correct
 - Rewrite notes
@@ -1184,9 +1365,31 @@ Unreleased
 - Update notes
 - Add comment to polyglot recipe in justfile
 - Ran clippy and fixed issues. I <3 clippy!
+
+0.2.2 - 2016-10-24
+------------------
+
+### Release
+- bump: 0.2.1 -> 0.2.2
+
+### Added
+- Add --justfile and --working-directory flags
+
+### Misc
 - TokenClass -> TokenKind
 - Update notes
 - Update cargo.lock.
+
+0.2.1 - 2016-10-24
+------------------
+
+### Release
+- version bump: 0.2.0 -> 0.2.1
+
+### Changed
+- Make dependencies execute in order they appear
+
+### Misc
 - Shuffle tests in run_order
 - Add github repo to --help string
 - Update notes
@@ -1200,6 +1403,27 @@ Unreleased
 - Update notes
 - Update Cargo.lock
 - Add `git push github master` to publish recipe
+
+### Merge
+- Merge remote-tracking branch 'origin/master'
+
+0.2.0 - 2016-10-09
+------------------
+
+### Release
+- Bump version to 0.2.0
+
+### Changed
+- Invoke sh with `-u` (error on unbound variable)
+
+### Added
+- Support for polyglot recipes!
+- Add --show command line flag
+- Support for polyglot recipes!
+- Invoke sh with `-u` (error on unbound variable)
+- Add --show command line flag
+
+### Misc
 - Add publish recipe
 - Update shebang test notes
 - Add test for shebang recipes
@@ -1239,10 +1463,59 @@ Unreleased
 - Add cat.
 - Further ramblings in readme
 - Expanded README.md
+
+0.1.5 - 2016-09-28
+------------------
+
+### Release
+- Add period to no justfile found error. Bump version.
+
+### Misc
 - Update cargo.lock
+
+0.1.4 - 2016-09-28
+------------------
+
+### Release
+- 0.1.3 -> 0.1.4
+
+### Misc
 - Keep searching if justfile isn't found
 - Version bump in cargo.lock
+
+0.1.3 - 2016-09-28
+------------------
+
+### Release
+- v0.1.2 -> v0.1.3
+
+### Changed
+- Allow 'Justfile' in addition to 'justfile'
+
+### Misc
 - Update cargo.log
 
-### Merge
-- Merge remote-tracking branch 'origin/master'
+0.1.2 - 2016-09-28
+------------------
+
+### Release
+- Remove dependency on brev, bump version
+
+### Changed
+- Update stuff
+- Fix cargo.toml.license
+
+0.1.1 - 2016-09-28
+------------------
+
+### Release
+- Update cargo.toml, version -> 0.1.1
+
+### Changed
+- Working
+
+0.1.0 - 2016-06-17
+------------------
+
+### Release
+- Initial commit. Broken.

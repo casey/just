@@ -67,9 +67,13 @@ publish-check: check man
 # publish to crates.io and push release tag to github
 publish: publish-check
   git branch | grep '* master'
-  git tag -a {{version}} -m 'Release {{version}}'
+  git tag --sign --message 'Release {{version}}' {{version}}
   git push github {{version}}
   cargo publish
+
+tag name hash:
+  git tag --sign --message 'Release {{ name }}' {{ name }} {{hash}}
+  git push github {{ name }}
 
 push: check
   ! git branch | grep '* master'
@@ -165,6 +169,9 @@ watch-readme:
 
 generate-completions:
   ./bin/generate-completions
+
+generate-changelog:
+  cargo run -p generate-changelog
 
 # run all polyglot recipes
 polyglot: _python _js _perl _sh _ruby

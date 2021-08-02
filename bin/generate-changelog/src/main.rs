@@ -1,28 +1,13 @@
-use std::{
-  collections::BTreeMap,
-  convert::TryInto,
-  fmt::{self, Display, Formatter},
-  fs, io,
-  path::Path,
-  process, str,
-};
+use std::{collections::BTreeMap, convert::TryInto, fs, path::Path, str};
 
 use ::{
   askama::Template,
+  chrono::NaiveDateTime,
   git2::{Oid, Repository, Time},
   regex::Regex,
+  semver::Version,
   serde::{Deserialize, Serialize},
 };
-
-macro_rules! die {
-  {$($input:tt)+} => {
-    {
-      eprint!("error: ");
-      eprintln!($($input)*);
-      process::exit(1);
-    }
-  }
-}
 
 enum Format {
   Markdown,
@@ -45,48 +30,50 @@ impl Changelog {
   }
 
   fn add(&mut self, repo: &Repository, commit: Commit) {
-    let mut commit_tag = None;
-
-    repo.tag_foreach(|oid, tag| {
-      if repo.find_tag(oid).unwrap().target_id() == commit.oid() {
-        let tag = str::from_utf8(tag).unwrap();
-
-        if let Some(captures) = Regex::new(r"^refs/tags/(v?[0-9]+\.[0-9]+\.[0-9]+)$")
-          .unwrap()
-          .captures(tag)
-        {
-          if commit_tag.is_some() {
-            panic!("Duplicate tag for commit {}", commit.oid());
-          }
-          commit_tag = Some(captures[1].to_owned());
-        } else {
-          eprintln!("Tag is not release tag: {}", tag);
-        }
-      }
-
-      true
-    });
-
-    if let Some(commit_tag) = commit_tag {
-      self.releases.push(Release::new(Some(commit_tag)));
-    } else if self.releases.is_empty() {
-      self.releases.push(Release::new(None));
+    if commit.ty == CommitType::Release {
+      self.releases.push(Release::new(
+        repo,
+        commit
+          .version
+          .as_ref()
+          .expect(&format!("No version for release {}", commit.oid())),
+      ));
     }
 
-    self.releases.last_mut().unwrap().add(commit);
+    if let Some(release) = self.releases.last_mut() {
+      release.add(commit);
+    }
   }
 }
 
 struct Release {
-  tag:      Option<String>,
+  version:  Version,
+  tag:      String,
   sections: BTreeMap<CommitType, Section>,
+  time:     Time,
 }
 
 impl Release {
-  fn new(tag: Option<String>) -> Self {
+  fn new(repo: &Repository, version: &Version) -> Self {
+    let tag = repo
+      .find_reference(&format!(
+        "refs/tags/{}{}",
+        if version <= &Version::new(0, 9, 4) {
+          "v"
+        } else {
+          ""
+        },
+        version
+      ))
+      .expect(&format!(""))
+      .peel_to_tag()
+      .unwrap();
+
     Self {
       sections: BTreeMap::new(),
-      tag,
+      version:  version.clone(),
+      tag:      tag.name().unwrap().to_owned(),
+      time:     tag.target().unwrap().peel_to_commit().unwrap().time(),
     }
   }
 
@@ -99,18 +86,14 @@ impl Release {
   }
 
   fn header(&self, format: &Format) -> String {
-    let mut header = if self.tag.is_some() {
-      match format {
-        Format::Markdown => format!(
-          "[{}](https://github.com/casey/just/releases/tag/{}) - {}",
-          self.name(),
-          self.tag(),
-          self.date()
-        ),
-        Format::Text => format!("{} - {}", self.tag(), self.date()),
-      }
-    } else {
-      String::from("Unreleased")
+    let mut header = match format {
+      Format::Markdown => format!(
+        "[{}](https://github.com/casey/just/releases/tag/{}) - {}",
+        self.version(),
+        self.tag(),
+        self.date()
+      ),
+      Format::Text => format!("{} - {}", self.version(), self.date()),
     };
 
     header.push('\n');
@@ -119,16 +102,17 @@ impl Release {
   }
 
   fn date(&self) -> String {
-    // TODO: fix
-    "1970-1-1".into()
+    NaiveDateTime::from_timestamp(self.time.seconds(), 0)
+      .format("%Y-%m-%d")
+      .to_string()
   }
 
-  fn name(&self) -> &str {
-    self.tag().strip_prefix("v").unwrap_or(self.tag())
+  fn version(&self) -> &Version {
+    &self.version
   }
 
   fn tag(&self) -> &str {
-    self.tag.as_ref().unwrap()
+    &self.tag
   }
 }
 
@@ -138,25 +122,15 @@ struct Section {
 }
 
 impl Section {
-  fn name(&self) -> String {
-    // TODO: fix
-    "name".into()
-  }
-
   fn add(&mut self, commit: Commit) {
     self.commits.push(commit);
-  }
-
-  fn commits(&self) -> impl Iterator<Item = &Commit> {
-    self.commits.iter()
   }
 }
 
 // TODO:
-// - include release names and commits
+// - check in release script that changelog is up to date and all commits have
+//   metadata
 // - remove `---` from yaml
-// - hide merge prs
-// - render .txt changelog
 // - reenalbe writing metadata metadata.write("metadata.yaml");
 // - print text changelog?
 
@@ -172,7 +146,7 @@ impl Metadata {
   }
 
   fn write(&self, path: impl AsRef<Path>) {
-    fs::write(path, serde_yaml::to_string(self).unwrap());
+    fs::write(path, serde_yaml::to_string(self).unwrap()).unwrap();
   }
 
   fn commit_metadata(&self, oid: Oid) -> Option<&Commit> {
@@ -194,6 +168,7 @@ impl Metadata {
       hash:    oid.as_bytes().try_into().unwrap(),
       summary: summary.to_owned(),
       ty:      CommitType::Uncategorized,
+      version: None,
     });
   }
 }
@@ -205,6 +180,7 @@ struct Commit {
   summary: String,
   #[serde(rename = "type")]
   ty:      CommitType,
+  version: Option<Version>,
 }
 
 impl Commit {
@@ -271,7 +247,6 @@ enum CommitType {
   Changed,
   Added,
   Misc,
-  Uncategorized,
   Merge,
 }
 
@@ -289,25 +264,28 @@ fn main() {
   for result in revwalker {
     let oid = result.unwrap();
     let summary = repo.find_commit(oid).unwrap().summary().unwrap().to_owned();
-    if metadata.commit_metadata(oid).is_none() {
-      metadata.add_uncategorized_commit(oid, &summary);
-    }
   }
 
-  let uncategorized = metadata
-    .commits
-    .iter()
-    .filter(|commit| commit.ty == CommitType::Uncategorized)
-    .count();
+  // if metadata.commit_metadata(oid).is_none() {
+  //   metadata.add_uncategorized_commit(oid, &summary);
+  // }
 
-  if uncategorized > 0 {
-    panic!("{} uncategorized commits, aborting…", uncategorized);
-  }
+  // let uncategorized = metadata
+  //   .commits
+  //   .iter()
+  //   .filter(|commit| commit.ty == CommitType::Uncategorized)
+  //   .count();
+
+  // if uncategorized > 0 {
+  //   panic!("{} uncategorized commits, aborting…", uncategorized);
+  // }
 
   let mut changelog = Changelog::new(Format::Markdown);
 
   for commit in metadata.commits {
-    changelog.add(&repo, commit);
+    if commit.ty != CommitType::Merge {
+      changelog.add(&repo, commit);
+    }
   }
 
   fs::write("CHANGELOG.md", changelog.render().unwrap()).unwrap();
