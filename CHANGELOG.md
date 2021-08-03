@@ -4,12 +4,12 @@ Changelog
 [0.10.0](https://github.com/casey/just/releases/tag/0.10.0) - 2021-8-2
 ----------------------------------------------------------------------
 
+### Changed
+- Warn if `.env` file is loaded in `dotenv-load` isn't explicitly set (#925)
+
 ### Added
 - Add `--changelog` subcommand (#932)
 - Support `.justfile` as an alternative to `justfile` (#931)
-
-### Changed
-- Warn if `.env` file is loaded in `dotenv-load` isn't explicitly set (#925)
 
 ### Misc
 - Use cargo-limit for all recipes (#928)
