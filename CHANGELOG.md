@@ -1,6 +1,26 @@
 Changelog
 =========
 
+[0.10.0](https://github.com/casey/just/releases/tag/0.10.0) - 2021-8-2
+----------------------------------------------------------------------
+
+### Changed
+- Warn if `.env` file is loaded in `dotenv-load` isn't explicitly set (#925)
+
+### Added
+- Add `--changelog` subcommand (#932)
+- Support `.justfile` as an alternative to `justfile` (#931)
+
+### Misc
+- Use cargo-limit for all recipes (#928)
+- Fix colors (#927)
+- Use ColorDisplay trait to print objects to the terminal (#926)
+- Deduplicate recipe parsing (#923)
+- Move subcommand functions into Subcommand (#918)
+- Check GitHub Actions workflow with actionlint (#921)
+- Add loader and refactor errors (#917)
+- Rename: Module → Ast (#915)
+
 [0.9.9](https://github.com/casey/just/releases/tag/0.9.9) - 2021-7-22
 ---------------------------------------------------------------------
 

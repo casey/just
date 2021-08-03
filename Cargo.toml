@@ -1,6 +1,6 @@
 [package]
 name        = "just"
-version     = "0.9.9"
+version     = "0.10.0"
 description = "🤖 Just a command runner"
 authors     = ["Casey Rodarmor <casey@rodarmor.com>"]
 license     = "CC0-1.0"
@@ -45,7 +45,7 @@ version  = "0.21.0"
 features = ["derive"]
 
 [dev-dependencies]
-cradle            = "0.0.13"
+cradle            = "0.0.16"
 executable-path   = "1.0.0"
 pretty_assertions = "0.7.0"
 regex             = "1.5.4"

@@ -566,7 +566,7 @@ mod tests {
   // have proper tests for all the flags, but this will do for now.
   #[test]
   fn help() {
-    const EXPECTED_HELP: &str = "just 0.9.9
+    const EXPECTED_HELP: &str = "just 0.10.0
 Casey Rodarmor <casey@rodarmor.com>
 🤖 Just a command runner \
                                  - https://github.com/casey/just
