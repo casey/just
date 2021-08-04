@@ -1624,16 +1624,16 @@ Before `just` was a fancy Rust program it was a tiny shell script that called `m
 
 === Non-Project Specific Justfile
 
-If you want some commands to be available everywhere, put them in `~/.justfile` and add the following to your shell's initialization file:
+If you want some commands to be available everywhere, put them in `~/.global.justfile` and add the following to your shell's initialization file:
 
 ```sh
-alias .j='just --justfile ~/.justfile --working-directory ~'
+alias .j='just --justfile ~/.global.justfile --working-directory ~'
 ```
 
 Or, if you'd rather they run in the current directory:
 
 ```sh
-alias .j='just --justfile ~/.justfile --working-directory .'
+alias .j='just --justfile ~/.global.justfile --working-directory .'
 ```
 
 I'm pretty sure that nobody actually uses this feature, but it's there.
