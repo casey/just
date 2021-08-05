@@ -21,6 +21,8 @@ complete -c just -n "__fish_use_subcommand" -s d -l working-directory -d 'Use <W
 complete -c just -n "__fish_use_subcommand" -s c -l command -d 'Run an arbitrary command with the working directory, `.env`, overrides, and exports set'
 complete -c just -n "__fish_use_subcommand" -l completions -d 'Print shell completion script for <SHELL>' -r -f -a "zsh bash fish powershell elvish"
 complete -c just -n "__fish_use_subcommand" -s s -l show -d 'Show information about <RECIPE>'
+complete -c just -n "__fish_use_subcommand" -l dotenv-filename -d 'Load from environment file <DOTENV-FILENAME> instead of .env'
+complete -c just -n "__fish_use_subcommand" -l dotenv-path -d 'Load from environment file at <DOTENV-PATH> instead of ./.env'
 complete -c just -n "__fish_use_subcommand" -l dry-run -d 'Print what just would do without doing it'
 complete -c just -n "__fish_use_subcommand" -l highlight -d 'Highlight echoed recipe lines in bold'
 complete -c just -n "__fish_use_subcommand" -l no-dotenv -d 'Don\'t load `.env` file'

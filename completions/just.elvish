@@ -30,6 +30,8 @@ edit:completion:arg-completer[just] = [@words]{
             cand --completions 'Print shell completion script for <SHELL>'
             cand -s 'Show information about <RECIPE>'
             cand --show 'Show information about <RECIPE>'
+            cand --dotenv-filename 'Load from environment file <DOTENV-FILENAME> instead of .env'
+            cand --dotenv-path 'Load from environment file at <DOTENV-PATH> instead of ./.env'
             cand --dry-run 'Print what just would do without doing it'
             cand --highlight 'Highlight echoed recipe lines in bold'
             cand --no-dotenv 'Don''t load `.env` file'
