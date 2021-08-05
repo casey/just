@@ -561,7 +561,7 @@ impl Config {
       dotenv_path: matches
         .value_of(arg::DOTENV_PATH)
         .map(PathBuf::from)
-        .unwrap_or(PathBuf::new()),
+        .unwrap_or_default(),
       verbosity,
     })
   }

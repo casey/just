@@ -29,7 +29,7 @@ fn load_from_file(
       dotenv.insert(key, value);
     }
   }
-  return Ok(dotenv);
+  Ok(dotenv)
 }
 
 pub(crate) fn load_dotenv(
