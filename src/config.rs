@@ -576,17 +576,18 @@ USAGE:
 
 FLAGS:
         --changelog           Print changelog
-        --choose              Select one or more recipes to run using a binary. If `--chooser` is \
-                                 not passed the chooser
-                              defaults to the value of $JUST_CHOOSER, falling back to `fzf`
+        --choose              Select one or more recipes to run using a binary.
+                              If `--chooser` is not passed the chooser defaults
+                              to the value of $JUST_CHOOSER, falling back to
+                              `fzf`
         --clear-shell-args    Clear shell arguments
         --dry-run             Print what just would do without doing it
         --dump                Print entire justfile
-    -e, --edit                Edit justfile with editor given by $VISUAL or $EDITOR, falling back \
-                                 to `vim`
-        --evaluate            Evaluate and print all variables. If a variable name is given as an \
-                                 argument, only print
-                              that variable's value.
+    -e, --edit                Edit justfile with editor given by $VISUAL or
+                              $EDITOR, falling back to `vim`
+        --evaluate            Evaluate and print all variables. If a variable
+                              name is given as an argument, only print that
+                              variable's value.
         --fmt                 Format and overwrite justfile
         --highlight           Highlight echoed recipe lines in bold
         --init                Initialize new justfile in project root
@@ -594,8 +595,8 @@ FLAGS:
         --no-dotenv           Don't load `.env` file
         --no-highlight        Don't highlight echoed recipe lines in bold
     -q, --quiet               Suppress all output
-        --shell-command       Invoke <COMMAND> with the shell used to run recipe lines and \
-                                 backticks
+        --shell-command       Invoke <COMMAND> with the shell used to run recipe
+                              lines and backticks
         --summary             List names of available recipes
     -u, --unsorted            Return list and summary entries in source order
         --unstable            Enable unstable features
@@ -603,34 +604,46 @@ FLAGS:
     -v, --verbose             Use verbose output
 
 OPTIONS:
-        --chooser <CHOOSER>                        Override binary invoked by `--choose`
+        --chooser <CHOOSER>
+            Override binary invoked by `--choose`
+
         --color <COLOR>
-            Print colorful output [default: auto]  [possible values: auto, always, never]
-
+            Print colorful output [default: auto]  [possible values: auto,
+            always, never]
     -c, --command <COMMAND>
-            Run an arbitrary command with the working directory, `.env`, overrides, and exports set
-
+            Run an arbitrary command with the working directory, `.env`,
+            overrides, and exports set
         --completions <SHELL>
-            Print shell completion script for <SHELL> [possible values: zsh, bash, fish, \
-                                 powershell, elvish]
-
+            Print shell completion script for <SHELL> [possible values: zsh,
+            bash, fish, powershell, elvish]
     -f, --justfile <JUSTFILE>                      Use <JUSTFILE> as justfile
         --list-heading <TEXT>                      Print <TEXT> before list
-        --list-prefix <TEXT>                       Print <TEXT> before each list item
-        --set <VARIABLE> <VALUE>                   Override <VARIABLE> with <VALUE>
-        --shell <SHELL>                            Invoke <SHELL> to run recipes [default: sh]
-        --shell-arg <SHELL-ARG>...                 Invoke shell with <SHELL-ARG> as an argument \
-                                 [default: -cu]
-    -s, --show <RECIPE>                            Show information about <RECIPE>
-    -d, --working-directory <WORKING-DIRECTORY>
-            Use <WORKING-DIRECTORY> as working directory. --justfile must also be set
+        --list-prefix <TEXT>
+            Print <TEXT> before each list item
 
+        --set <VARIABLE> <VALUE>
+            Override <VARIABLE> with <VALUE>
+
+        --shell <SHELL>
+            Invoke <SHELL> to run recipes [default: sh]
+
+        --shell-arg <SHELL-ARG>...
+            Invoke shell with <SHELL-ARG> as an argument [default: -cu]
+
+    -s, --show <RECIPE>
+            Show information about <RECIPE>
+
+    -d, --working-directory <WORKING-DIRECTORY>
+            Use <WORKING-DIRECTORY> as working directory. --justfile must also
+            be set
 
 ARGS:
-    <ARGUMENTS>...    Overrides and recipe(s) to run, defaulting to the first recipe in the \
-                                 justfile";
+    <ARGUMENTS>...    Overrides and recipe(s) to run, defaulting to the
+                      first recipe in the justfile";
 
-    let app = Config::app().setting(AppSettings::ColorNever);
+    let app = Config::app()
+      .setting(AppSettings::ColorNever)
+      .set_term_width(80);
     let mut buffer = Vec::new();
     app.write_help(&mut buffer).unwrap();
     let help = str::from_utf8(&buffer).unwrap();
