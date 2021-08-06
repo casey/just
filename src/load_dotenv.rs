@@ -41,10 +41,8 @@ pub(crate) fn load_dotenv(
     return Ok(BTreeMap::new());
   }
 
-  // look directly for the environment file if specified by path
-  let path = working_directory.join(&config.dotenv_path);
-  if path.is_file() {
-    return load_from_file(config, settings, &path);
+  if let Some(dotenv_path) = &config.dotenv_path {
+    return load_from_file(config, settings, &dotenv_path);
   }
 
   // search upward for the environment file if specified by filename

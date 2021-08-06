@@ -29,8 +29,8 @@ pub(crate) struct Config {
   pub(crate) subcommand:           Subcommand,
   pub(crate) unsorted:             bool,
   pub(crate) unstable:             bool,
-  pub(crate) dotenv_filename:      String,
-  pub(crate) dotenv_path:          PathBuf,
+  pub(crate) dotenv_filename:      Option<OsString>,
+  pub(crate) dotenv_path:          Option<PathBuf>,
   pub(crate) verbosity:            Verbosity,
 }
 
@@ -325,13 +325,13 @@ impl Config {
         Arg::with_name(arg::DOTENV_FILENAME)
           .long("dotenv-filename")
           .takes_value(true)
-          .help("Load from environment file <DOTENV-FILENAME> instead of .env")
+          .help("Search for environment file named <DOTENV-FILENAME> instead of `.env`")
           .conflicts_with(arg::DOTENV_PATH),
       )
       .arg(
         Arg::with_name(arg::DOTENV_PATH)
           .long("dotenv-path")
-          .help("Load from environment file at <DOTENV-PATH> instead of ./.env")
+          .help("Load environment file at <DOTENV-PATH> instead of searching for `.env` file")
           .takes_value(true),
       )
       .group(ArgGroup::with_name("SUBCOMMAND").args(cmd::ALL))
