@@ -1,5 +1,35 @@
 use crate::common::*;
 
+const DEFAULT_DOTENV_FILENAME: &str = ".env";
+
+pub(crate) fn load_dotenv(
+  config: &Config,
+  settings: &Settings,
+  working_directory: &Path,
+) -> RunResult<'static, BTreeMap<String, String>> {
+  if !settings.dotenv_load.unwrap_or(true) {
+    return Ok(BTreeMap::new());
+  }
+
+  if let Some(path) = &config.dotenv_path {
+    return load_from_file(config, settings, &path);
+  }
+
+  let filename = match &config.dotenv_filename {
+    Some(name) => name,
+    None => DEFAULT_DOTENV_FILENAME,
+  };
+
+  for directory in working_directory.ancestors() {
+    let path = directory.join(&filename);
+    if path.is_file() {
+      return load_from_file(config, settings, &path);
+    }
+  }
+
+  Ok(BTreeMap::new())
+}
+
 fn load_from_file(
   config: &Config,
   settings: &Settings,
@@ -11,6 +41,8 @@ fn load_from_file(
 
   if settings.dotenv_load.is_none()
     && config.verbosity.loud()
+    && config.dotenv_filename.is_none()
+    && config.dotenv_path.is_none()
     && !std::env::var_os("JUST_SUPPRESS_DOTENV_LOAD_WARNING")
       .map(|val| val.as_os_str().to_str() == Some("1"))
       .unwrap_or(false)
@@ -30,28 +62,4 @@ fn load_from_file(
     }
   }
   Ok(dotenv)
-}
-
-pub(crate) fn load_dotenv(
-  config: &Config,
-  settings: &Settings,
-  working_directory: &Path,
-) -> RunResult<'static, BTreeMap<String, String>> {
-  if !settings.dotenv_load.unwrap_or(true) {
-    return Ok(BTreeMap::new());
-  }
-
-  if let Some(dotenv_path) = &config.dotenv_path {
-    return load_from_file(config, settings, &dotenv_path);
-  }
-
-  // search upward for the environment file if specified by filename
-  for directory in working_directory.ancestors() {
-    let path = directory.join(&config.dotenv_filename);
-    if path.is_file() {
-      return load_from_file(config, settings, &path);
-    }
-  }
-
-  Ok(BTreeMap::new())
 }

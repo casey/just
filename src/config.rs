@@ -29,7 +29,7 @@ pub(crate) struct Config {
   pub(crate) subcommand:           Subcommand,
   pub(crate) unsorted:             bool,
   pub(crate) unstable:             bool,
-  pub(crate) dotenv_filename:      Option<OsString>,
+  pub(crate) dotenv_filename:      Option<String>,
   pub(crate) dotenv_path:          Option<PathBuf>,
   pub(crate) verbosity:            Verbosity,
 }
@@ -554,14 +554,8 @@ impl Config {
       shell_args,
       shell_present,
       subcommand,
-      dotenv_filename: matches
-        .value_of(arg::DOTENV_FILENAME)
-        .unwrap_or(".env")
-        .to_owned(),
-      dotenv_path: matches
-        .value_of(arg::DOTENV_PATH)
-        .map(PathBuf::from)
-        .unwrap_or_default(),
+      dotenv_filename: matches.value_of(arg::DOTENV_FILENAME).map(str::to_owned),
+      dotenv_path: matches.value_of(arg::DOTENV_PATH).map(PathBuf::from),
       verbosity,
     })
   }
@@ -642,11 +636,11 @@ OPTIONS:
             Print shell completion script for <SHELL> [possible values: zsh,
             bash, fish, powershell, elvish]
         --dotenv-filename <DOTENV_FILENAME>
-            Load from environment file <DOTENV-FILENAME> instead of .env
-
+            Search for environment file named <DOTENV-FILENAME> instead of
+            `.env`
         --dotenv-path <DOTENV_PATH>
-            Load from environment file at <DOTENV-PATH> instead of ./.env
-
+            Load environment file at <DOTENV-PATH> instead of searching for
+            `.env` file
     -f, --justfile <JUSTFILE>                      Use <JUSTFILE> as justfile
         --list-heading <TEXT>                      Print <TEXT> before list
         --list-prefix <TEXT>
