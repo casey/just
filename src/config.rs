@@ -908,6 +908,11 @@ ARGS:
     verbosity: Verbosity::Quiet,
   }
 
+  error! {
+    name: dotenv_both_filename_and_path,
+    args: ["--dotenv-filename", "foo", "--dotenv-path", "bar"],
+  }
+
   test! {
     name: set_default,
     args: [],

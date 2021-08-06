@@ -101,3 +101,41 @@ echo $DOTENV_KEY
     .suppress_dotenv_load_warning(false)
     .run();
 }
+
+#[test]
+fn path_not_found() {
+  Test::new()
+    .justfile("foo:\n\techo $NAME")
+    .args(&["--dotenv-path", ".env.prod"])
+    .stderr("error: Failed to load environment file: No such file or directory (os error 2)\n")
+    .status(EXIT_FAILURE)
+    .run();
+}
+
+#[test]
+fn path_resolves() {
+  Test::new()
+    .justfile("foo:\n\t#!/bin/bash\n\techo $NAME")
+    .tree(tree! {
+      subdir: {
+        ".env": "NAME=bar"
+      }
+    })
+    .args(&["--dotenv-path", "subdir/.env"])
+    .stdout("bar\n")
+    .status(EXIT_SUCCESS)
+    .run();
+}
+
+#[test]
+fn filename_resolves() {
+  Test::new()
+    .justfile("foo:\n\t#!/bin/bash\n\techo $NAME")
+    .tree(tree! {
+      ".env.special": "NAME=bar"
+    })
+    .args(&["--dotenv-filename", ".env.special"])
+    .stdout("bar\n")
+    .status(EXIT_SUCCESS)
+    .run();
+}
