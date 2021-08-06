@@ -108,7 +108,8 @@ fn path_not_found() {
     .justfile("foo:\n\techo $NAME")
     .args(&["--dotenv-path", ".env.prod"])
     .stderr(if cfg!(windows) {
-      "error: Failed to load environment file: The system cannot find the file specified. (os error 2)\n"
+      "error: Failed to load environment file: The system cannot find the file specified. (os \
+       error 2)\n"
     } else {
       "error: Failed to load environment file: No such file or directory (os error 2)\n"
     })
