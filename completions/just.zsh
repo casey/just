@@ -32,7 +32,7 @@ _just() {
 '-s+[Show information about <RECIPE>]: :_just_commands' \
 '--show=[Show information about <RECIPE>]: :_just_commands' \
 '(--dotenv-path)--dotenv-filename=[Search for environment file named <DOTENV-FILENAME> instead of `.env`]' \
-'--dotenv-path=[Load environment file at <DOTENV-PATH> instead of searching for `.env` file]' \
+'--dotenv-path=[Load environment file at <DOTENV-PATH> instead of searching for one]' \
 '(-q --quiet)--dry-run[Print what just would do without doing it]' \
 '--highlight[Highlight echoed recipe lines in bold]' \
 '--no-dotenv[Don'\''t load `.env` file]' \

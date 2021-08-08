@@ -15,7 +15,11 @@ pub(crate) fn load_dotenv(
     return load_from_file(config, settings, &path);
   }
 
-  let filename = config.dotenv_filename.unwrap_or(DEFAULT_DOTENV_FILENAME);
+  let filename = config
+    .dotenv_filename
+    .as_deref()
+    .unwrap_or(DEFAULT_DOTENV_FILENAME)
+    .to_owned();
 
   for directory in working_directory.ancestors() {
     let path = directory.join(&filename);

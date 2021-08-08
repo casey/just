@@ -31,7 +31,7 @@ edit:completion:arg-completer[just] = [@words]{
             cand -s 'Show information about <RECIPE>'
             cand --show 'Show information about <RECIPE>'
             cand --dotenv-filename 'Search for environment file named <DOTENV-FILENAME> instead of `.env`'
-            cand --dotenv-path 'Load environment file at <DOTENV-PATH> instead of searching for `.env` file'
+            cand --dotenv-path 'Load environment file at <DOTENV-PATH> instead of searching for one'
             cand --dry-run 'Print what just would do without doing it'
             cand --highlight 'Highlight echoed recipe lines in bold'
             cand --no-dotenv 'Don''t load `.env` file'

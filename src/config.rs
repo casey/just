@@ -639,8 +639,8 @@ OPTIONS:
             Search for environment file named <DOTENV-FILENAME> instead of
             `.env`
         --dotenv-path <DOTENV_PATH>
-            Load environment file at <DOTENV-PATH> instead of searching for
-            `.env` file
+            Load environment file at <DOTENV-PATH> instead of searching for one
+
     -f, --justfile <JUSTFILE>                      Use <JUSTFILE> as justfile
         --list-heading <TEXT>                      Print <TEXT> before list
         --list-prefix <TEXT>

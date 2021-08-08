@@ -36,7 +36,7 @@ Register-ArgumentCompleter -Native -CommandName 'just' -ScriptBlock {
             [CompletionResult]::new('-s', 's', [CompletionResultType]::ParameterName, 'Show information about <RECIPE>')
             [CompletionResult]::new('--show', 'show', [CompletionResultType]::ParameterName, 'Show information about <RECIPE>')
             [CompletionResult]::new('--dotenv-filename', 'dotenv-filename', [CompletionResultType]::ParameterName, 'Search for environment file named <DOTENV-FILENAME> instead of `.env`')
-            [CompletionResult]::new('--dotenv-path', 'dotenv-path', [CompletionResultType]::ParameterName, 'Load environment file at <DOTENV-PATH> instead of searching for `.env` file')
+            [CompletionResult]::new('--dotenv-path', 'dotenv-path', [CompletionResultType]::ParameterName, 'Load environment file at <DOTENV-PATH> instead of searching for one')
             [CompletionResult]::new('--dry-run', 'dry-run', [CompletionResultType]::ParameterName, 'Print what just would do without doing it')
             [CompletionResult]::new('--highlight', 'highlight', [CompletionResultType]::ParameterName, 'Highlight echoed recipe lines in bold')
             [CompletionResult]::new('--no-dotenv', 'no-dotenv', [CompletionResultType]::ParameterName, 'Don''t load `.env` file')

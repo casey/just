@@ -105,10 +105,12 @@ echo $DOTENV_KEY
 #[test]
 fn path_not_found() {
   Test::new()
-    .justfile("
+    .justfile(
+      "
       foo:
         echo $NAME
-    ")
+    ",
+    )
     .args(&["--dotenv-path", ".env.prod"])
     .stderr(if cfg!(windows) {
       "error: Failed to load environment file: The system cannot find the file specified. (os \
@@ -123,7 +125,13 @@ fn path_not_found() {
 #[test]
 fn path_resolves() {
   Test::new()
-    .justfile("foo:\n\t#!/bin/bash\n\techo $NAME")
+    .justfile(
+      "
+      foo:
+        #!/bin/bash
+        echo $NAME
+    ",
+    )
     .tree(tree! {
       subdir: {
         ".env": "NAME=bar"
@@ -138,7 +146,13 @@ fn path_resolves() {
 #[test]
 fn filename_resolves() {
   Test::new()
-    .justfile("foo:\n\t#!/bin/bash\n\techo $NAME")
+    .justfile(
+      "
+      foo:
+        #!/bin/bash
+        echo $NAME
+    ",
+    )
     .tree(tree! {
       ".env.special": "NAME=bar"
     })
