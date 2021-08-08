@@ -15,10 +15,7 @@ pub(crate) fn load_dotenv(
     return load_from_file(config, settings, &path);
   }
 
-  let filename = match &config.dotenv_filename {
-    Some(name) => name,
-    None => DEFAULT_DOTENV_FILENAME,
-  };
+  let filename = config.dotenv_filename.unwrap_or(DEFAULT_DOTENV_FILENAME);
 
   for directory in working_directory.ancestors() {
     let path = directory.join(&filename);
@@ -39,8 +36,8 @@ fn load_from_file(
   // https://github.com/dotenv-rs/dotenv/issues/13
   #![allow(deprecated)]
 
-  if settings.dotenv_load.is_none()
-    && config.verbosity.loud()
+  if config.verbosity.loud()
+    && settings.dotenv_load.is_none()
     && config.dotenv_filename.is_none()
     && config.dotenv_path.is_none()
     && !std::env::var_os("JUST_SUPPRESS_DOTENV_LOAD_WARNING")

@@ -105,7 +105,10 @@ echo $DOTENV_KEY
 #[test]
 fn path_not_found() {
   Test::new()
-    .justfile("foo:\n\techo $NAME")
+    .justfile("
+      foo:
+        echo $NAME
+    ")
     .args(&["--dotenv-path", ".env.prod"])
     .stderr(if cfg!(windows) {
       "error: Failed to load environment file: The system cannot find the file specified. (os \
