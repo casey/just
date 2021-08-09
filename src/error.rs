@@ -426,7 +426,7 @@ impl<'src> ColorDisplay for Error<'src> {
         )?;
       },
       Dotenv { dotenv_error } => {
-        write!(f, "Failed to load .env: {}", dotenv_error)?;
+        write!(f, "Failed to load environment file: {}", dotenv_error)?;
       },
       EditorInvoke { editor, io_error } => {
         write!(

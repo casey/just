@@ -29,6 +29,8 @@ pub(crate) struct Config {
   pub(crate) subcommand:           Subcommand,
   pub(crate) unsorted:             bool,
   pub(crate) unstable:             bool,
+  pub(crate) dotenv_filename:      Option<String>,
+  pub(crate) dotenv_path:          Option<PathBuf>,
   pub(crate) verbosity:            Verbosity,
 }
 
@@ -96,6 +98,8 @@ mod arg {
   pub(crate) const SHELL_COMMAND: &str = "SHELL-COMMAND";
   pub(crate) const UNSORTED: &str = "UNSORTED";
   pub(crate) const UNSTABLE: &str = "UNSTABLE";
+  pub(crate) const DOTENV_FILENAME: &str = "DOTENV_FILENAME";
+  pub(crate) const DOTENV_PATH: &str = "DOTENV_PATH";
   pub(crate) const VERBOSE: &str = "VERBOSE";
   pub(crate) const WORKING_DIRECTORY: &str = "WORKING-DIRECTORY";
 
@@ -317,6 +321,19 @@ impl Config {
           .long("variables")
           .help("List names of variables"),
       )
+      .arg(
+        Arg::with_name(arg::DOTENV_FILENAME)
+          .long("dotenv-filename")
+          .takes_value(true)
+          .help("Search for environment file named <DOTENV-FILENAME> instead of `.env`")
+          .conflicts_with(arg::DOTENV_PATH),
+      )
+      .arg(
+        Arg::with_name(arg::DOTENV_PATH)
+          .long("dotenv-path")
+          .help("Load environment file at <DOTENV-PATH> instead of searching for one")
+          .takes_value(true),
+      )
       .group(ArgGroup::with_name("SUBCOMMAND").args(cmd::ALL))
       .arg(
         Arg::with_name(arg::ARGUMENTS)
@@ -537,6 +554,8 @@ impl Config {
       shell_args,
       shell_present,
       subcommand,
+      dotenv_filename: matches.value_of(arg::DOTENV_FILENAME).map(str::to_owned),
+      dotenv_path: matches.value_of(arg::DOTENV_PATH).map(PathBuf::from),
       verbosity,
     })
   }
@@ -616,6 +635,12 @@ OPTIONS:
         --completions <SHELL>
             Print shell completion script for <SHELL> [possible values: zsh,
             bash, fish, powershell, elvish]
+        --dotenv-filename <DOTENV_FILENAME>
+            Search for environment file named <DOTENV-FILENAME> instead of
+            `.env`
+        --dotenv-path <DOTENV_PATH>
+            Load environment file at <DOTENV-PATH> instead of searching for one
+
     -f, --justfile <JUSTFILE>                      Use <JUSTFILE> as justfile
         --list-heading <TEXT>                      Print <TEXT> before list
         --list-prefix <TEXT>
@@ -881,6 +906,11 @@ ARGS:
     name: quiet_short,
     args: ["-q"],
     verbosity: Verbosity::Quiet,
+  }
+
+  error! {
+    name: dotenv_both_filename_and_path,
+    args: ["--dotenv-filename", "foo", "--dotenv-path", "bar"],
   }
 
   test! {
