@@ -7,7 +7,10 @@ pub(crate) fn load_dotenv(
   settings: &Settings,
   working_directory: &Path,
 ) -> RunResult<'static, BTreeMap<String, String>> {
-  if !settings.dotenv_load.unwrap_or(true) {
+  if !settings.dotenv_load.unwrap_or(true)
+    && config.dotenv_filename.is_none()
+    && config.dotenv_path.is_none()
+  {
     return Ok(BTreeMap::new());
   }
 

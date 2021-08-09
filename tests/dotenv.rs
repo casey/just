@@ -161,3 +161,47 @@ fn filename_resolves() {
     .status(EXIT_SUCCESS)
     .run();
 }
+
+#[test]
+fn filename_flag_overwrites_no_load() {
+  Test::new()
+    .justfile(
+      "
+      set dotenv-load := false
+
+      foo:
+        #!/bin/bash
+        echo $NAME
+    ",
+    )
+    .tree(tree! {
+      ".env.special": "NAME=bar"
+    })
+    .args(&["--dotenv-filename", ".env.special"])
+    .stdout("bar\n")
+    .status(EXIT_SUCCESS)
+    .run();
+}
+
+#[test]
+fn path_flag_overwrites_no_load() {
+  Test::new()
+    .justfile(
+      "
+      set dotenv-load := false
+
+      foo:
+        #!/bin/bash
+        echo $NAME
+    ",
+    )
+    .tree(tree! {
+      subdir: {
+        ".env": "NAME=bar"
+      }
+    })
+    .args(&["--dotenv-path", "subdir/.env"])
+    .stdout("bar\n")
+    .status(EXIT_SUCCESS)
+    .run();
+}
