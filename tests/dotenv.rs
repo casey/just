@@ -128,8 +128,7 @@ fn path_resolves() {
     .justfile(
       "
       foo:
-        #!/bin/bash
-        echo $NAME
+        @echo $NAME
     ",
     )
     .tree(tree! {
@@ -149,8 +148,7 @@ fn filename_resolves() {
     .justfile(
       "
       foo:
-        #!/bin/bash
-        echo $NAME
+        @echo $NAME
     ",
     )
     .tree(tree! {
@@ -170,8 +168,7 @@ fn filename_flag_overwrites_no_load() {
       set dotenv-load := false
 
       foo:
-        #!/bin/bash
-        echo $NAME
+        @echo $NAME
     ",
     )
     .tree(tree! {
@@ -191,8 +188,7 @@ fn path_flag_overwrites_no_load() {
       set dotenv-load := false
 
       foo:
-        #!/bin/bash
-        echo $NAME
+        @echo $NAME
     ",
     )
     .tree(tree! {
