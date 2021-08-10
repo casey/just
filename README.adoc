@@ -130,6 +130,18 @@ You can use the following command on Linux, MacOS, or Windows to download the la
 curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to DEST
 ```
 
+=== GitHub Actions
+
+link:https://github.com/extractions/setup-just[extractions/setup-just] can be used to install `just` in a GitHub Actions workflow.
+
+Example usage:
+
+```yaml
+- uses: extractions/setup-just@v1
+  with:
+    just-version: 0.8  # optional semver specification, otherwise latest
+```
+
 == Editor Support
 
 `justfile` syntax is close enough to `make` that you may want to tell your editor to use `make` syntax highlighting for `just`.
@@ -1587,18 +1599,6 @@ A changelog for the latest release is available in link:CHANGELOG.md[]. Changelo
 Tools that pair nicely with `just` include:
 
 - https://github.com/mattgreen/watchexec[`watchexec`] — a simple tool that watches a path and runs a command whenever it detects modifications.
-
-=== GitHub Actions
-
-link:https://github.com/extractions/setup-just[extractions/setup-just] can be used to install `just` in a GitHub Actions workflow.
-
-Example usage:
-
-```yaml
-- uses: extractions/setup-just@v1
-  with:
-    just-version: 0.8  # optional semver specification, otherwise latest
-```
 
 === Shell Alias
 
