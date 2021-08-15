@@ -145,7 +145,7 @@ Example usage:
 
 === Release RSS Feed
 
-An [RSS](https://en.wikipedia.org/wiki/RSS) feed of `just` releases is published [here](https://github.com/casey/just/releases.atom).
+An https://en.wikipedia.org/wiki/RSS[RSS feed] of `just` releases is available https://github.com/casey/just/releases.atom[here].
 
 == Editor Support
 
