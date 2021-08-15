@@ -143,6 +143,10 @@ Example usage:
     just-version: 0.8  # optional semver specification, otherwise latest
 ```
 
+=== Release RSS Feed
+
+An [RSS](https://en.wikipedia.org/wiki/RSS) feed of `just` releases is published [here](https://github.com/casey/just/releases.atom).
+
 == Editor Support
 
 `justfile` syntax is close enough to `make` that you may want to tell your editor to use `make` syntax highlighting for `just`.
