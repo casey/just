@@ -151,7 +151,7 @@ An https://en.wikipedia.org/wiki/RSS[RSS feed] of `just` releases is available h
 
 `justfile` syntax is close enough to `make` that you may want to tell your editor to use `make` syntax highlighting for `just`.
 
-=== Vim
+=== Vim and Neovim
 
 ==== `vim-just`
 
@@ -176,6 +176,10 @@ git clone https://github.com/NoahTheDuke/vim-just.git
 ```
 
 `vim-just` is also available from https://github.com/sheerun/vim-polyglot[vim-polyglot], a multi-language Vim plugin.
+
+==== `tree-sitter-just`
+
+https://github.com/IndianBoy42/tree-sitter-just[tree-sitter-just] is an https://github.com/nvim-treesitter/nvim-treesitter[Nvim Treesitter] plugin for Neovim.
 
 ==== Makefile Syntax Highlighting
 
