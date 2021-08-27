@@ -3,17 +3,18 @@ use crate::common::*;
 use pretty_assertions::assert_eq;
 
 macro_rules! test {
-  (
-    name:       $name:ident,
+  {
+    name: $name:ident,
     $(justfile: $justfile:expr,)?
-    $(args:     ($($arg:tt),*),)?
-    $(env:      { $($env_key:literal : $env_value:literal,)* },)?
-    $(stdin:    $stdin:expr,)?
-    $(stdout:   $stdout:expr,)?
-    $(stderr:   $stderr:expr,)?
-    $(status:   $status:expr,)?
-    $(shell:    $shell:expr,)?
-  ) => {
+    $(args: ($($arg:tt),*),)?
+    $(env: { $($env_key:literal : $env_value:literal,)* },)?
+    $(stdin: $stdin:expr,)?
+    $(stdout: $stdout:expr,)?
+    $(stderr: $stderr:expr,)?
+    $(stderr_regex: $stderr_regex:expr,)?
+    $(status: $status:expr,)?
+    $(shell: $shell:expr,)?
+  } => {
     #[test]
     fn $name() {
       let test = crate::test::Test::new();
@@ -24,6 +25,7 @@ macro_rules! test {
       $(let test = test.shell($shell);)?
       $(let test = test.status($status);)?
       $(let test = test.stderr($stderr);)?
+      $(let test = test.stderr_regex($stderr_regex);)?
       $(let test = test.stdin($stdin);)?
       $(let test = test.stdout($stdout);)?
 

@@ -160,9 +160,10 @@ fn status_error() {
     .output()
     .unwrap();
 
-  assert_eq!(
-    String::from_utf8_lossy(&output.stderr),
-    "error: Chooser `exit-2` failed: exit code: 2\n",
+  assert!(
+    Regex::new("^error: Chooser `exit-2` failed: exit (code|status): 2\n$")
+      .unwrap()
+      .is_match(str::from_utf8(&output.stderr).unwrap())
   );
 
   assert_eq!(output.status.code().unwrap(), 2);
