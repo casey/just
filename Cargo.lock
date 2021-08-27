@@ -532,9 +532,9 @@ dependencies = [
 
 [[package]]
 name = "target"
-version = "1.1.0"
+version = "2.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d1e4fbc9c74e1521bc75f7780d2546587e2ade1822f4c5107ce6e262162a2a8c"
+checksum = "ba852e71502340e2eaf2fa51f9b3ec6aa25750da1aa65771491c69d67789b05c"
 
 [[package]]
 name = "tempfile"
