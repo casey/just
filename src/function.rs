@@ -179,7 +179,7 @@ fn os(_context: &FunctionContext) -> Result<String, String> {
 }
 
 fn os_family(_context: &FunctionContext) -> Result<String, String> {
-  Ok(target::os_family().to_owned())
+  Ok(target::family().to_owned())
 }
 
 fn parent_directory(_context: &FunctionContext, path: &str) -> Result<String, String> {
