@@ -6,8 +6,8 @@ test! {
 foo:
   echo {{arch()}} {{os()}} {{os_family()}}
 "#,
-  stdout:   format!("{} {} {}\n", target::arch(), target::os(), target::os_family()).as_str(),
-  stderr:   format!("echo {} {} {}\n", target::arch(), target::os(), target::os_family()).as_str(),
+  stdout:   format!("{} {} {}\n", target::arch(), target::os(), target::family()).as_str(),
+  stderr:   format!("echo {} {} {}\n", target::arch(), target::os(), target::family()).as_str(),
 }
 
 test! {
@@ -20,8 +20,8 @@ f := os_family()
 foo:
   echo {{a}} {{o}} {{f}}
 "#,
-  stdout:   format!("{} {} {}\n", target::arch(), target::os(), target::os_family()).as_str(),
-  stderr:   format!("echo {} {} {}\n", target::arch(), target::os(), target::os_family()).as_str(),
+  stdout:   format!("{} {} {}\n", target::arch(), target::os(), target::family()).as_str(),
+  stderr:   format!("echo {} {} {}\n", target::arch(), target::os(), target::family()).as_str(),
 }
 
 #[cfg(not(windows))]
@@ -249,8 +249,8 @@ test! {
 foo a=arch() o=os() f=os_family():
   echo {{a}} {{o}} {{f}}
 "#,
-  stdout:   format!("{} {} {}\n", target::arch(), target::os(), target::os_family()).as_str(),
-  stderr:   format!("echo {} {} {}\n", target::arch(), target::os(), target::os_family()).as_str(),
+  stdout:   format!("{} {} {}\n", target::arch(), target::os(), target::family()).as_str(),
+  stderr:   format!("echo {} {} {}\n", target::arch(), target::os(), target::family()).as_str(),
 }
 
 test! {
