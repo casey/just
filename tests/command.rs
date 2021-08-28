@@ -91,7 +91,7 @@ test! {
       echo XYZ
   ",
   args: ("--command", "false"),
-  stderr: "error: Command `false` failed: exit code: 1\n",
+  stderr_regex: "error: Command `false` failed: exit (code|status): 1\n",
   status: EXIT_FAILURE,
 }
 
