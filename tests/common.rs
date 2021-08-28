@@ -11,7 +11,7 @@ pub(crate) use std::{
   str,
 };
 
-pub(crate) use cradle::cmd_unit;
+pub(crate) use cradle::input::Input;
 pub(crate) use executable_path::executable_path;
 pub(crate) use just::unindent;
 pub(crate) use libc::{EXIT_FAILURE, EXIT_SUCCESS};

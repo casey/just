@@ -53,7 +53,7 @@ fn write_error() {
 
   let justfile_path = test.justfile_path();
 
-  cmd_unit!(%"chmod 400", &justfile_path);
+  ("chmod", "400", &justfile_path).run();
 
   let _tempdir = test.run();
 

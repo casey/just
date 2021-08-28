@@ -1,6 +1,24 @@
 Changelog
 =========
 
+[0.10.1](https://github.com/casey/just/releases/tag/0.10.1) - 2021-8-27
+----------------------------------------------------------------------
+
+### Added
+- Add flags for specifying name and path to environment file (#941)
+
+### Misc
+- Fix error message tests for Alpine Linux (#956)
+- Bump `target` version to 2.0 (#957)
+- Mention `tree-sitter-just` in readme (#951)
+- Document release RSS feed in readme (#950)
+- Add installation instructions for Gentoo Linux (#946)
+- Make GitHub Actions instructions more prominent (#944)
+- Wrap `--help` text to terminal width (#940)
+- Add `.justfile` to sublime syntax file_extensions (#938)
+- Suggest using `~/.global.justfile` instead of `~/.justfile` (#937)
+- Update man page (#935)
+
 [0.10.0](https://github.com/casey/just/releases/tag/0.10.0) - 2021-8-2
 ----------------------------------------------------------------------
 
