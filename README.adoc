@@ -203,7 +203,9 @@ Or add the following to an individual justfile to enable `make` mode on a per-fi
 
 === Emacs
 
-There is a MELPA package, https://melpa.org/#/just-mode[just-mode], for automatic Emacs syntax highlighting and automatic indentation in justfiles. There is also the https://github.com/psibi/justl.el[justl] mode which can be used to drive the execution of recipes within Emacs.
+https://github.com/leon-barrett/just-mode.el[just-mode] provides syntax highlighting and automatic indentation of justfiles, and is available on https://melpa.org/[MELPA] as https://melpa.org/#/just-mode[just-mode]
+
+https://github.com/psibi/justl.el[justl] provides commands for executing and listing recipes.
 
 You can add the following to an individual justfile to enable `make` mode on a per-file basis:
 
