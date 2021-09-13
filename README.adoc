@@ -981,7 +981,7 @@ test $RUST_BACKTRACE="1":
 Exported variables and parameters are not exported to backticks in the same scope.
 
 ```make
-export FOO := "world"
+export WORLD := "world"
 # This backtick will fail with "WORLD: unbound variable"
 BAR := `echo hello $WORLD`
 ```
