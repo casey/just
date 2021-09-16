@@ -20,6 +20,6 @@ unstable_features = true
 # wrap_comments = true
 
 # match_block_trailing_comma = true
+# overflow_delimited_expr = true
 
 struct_field_align_threshold = 20
-overflow_delimited_expr = true

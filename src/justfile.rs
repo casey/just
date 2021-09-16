@@ -33,16 +33,19 @@ impl<'src> Justfile<'src> {
       .recipes
       .keys()
       .map(|name| {
-        (edit_distance(name, input), Suggestion {
-          name,
-          target: None,
-        })
+        (
+          edit_distance(name, input),
+          Suggestion { name, target: None },
+        )
       })
       .chain(self.aliases.iter().map(|(name, alias)| {
-        (edit_distance(name, input), Suggestion {
-          name,
-          target: Some(alias.target.name.lexeme()),
-        })
+        (
+          edit_distance(name, input),
+          Suggestion {
+            name,
+            target: Some(alias.target.name.lexeme()),
+          },
+        )
       }))
       .filter(|(distance, _suggestion)| distance < &3)
       .collect::<Vec<(usize, Suggestion)>>();
@@ -59,10 +62,10 @@ impl<'src> Justfile<'src> {
       .assignments
       .keys()
       .map(|name| {
-        (edit_distance(name, input), Suggestion {
-          name,
-          target: None,
-        })
+        (
+          edit_distance(name, input),
+          Suggestion { name, target: None },
+        )
       })
       .filter(|(distance, _suggestion)| distance < &3)
       .collect::<Vec<(usize, Suggestion)>>();
