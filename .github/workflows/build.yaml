@@ -80,7 +80,7 @@ jobs:
 
     - name: Install Rust Toolchain
       run: |
-        rustup component add clippy
+        rustup component add clippy rustfmt
         rustup target add ${{ matrix.target }}
         rustup default "`cat rust-toolchain`-${{ matrix.target }}"
 
