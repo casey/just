@@ -620,7 +620,8 @@ impl<'src> Lexer<'src> {
 
     for (second, then) in choices {
       if self.accepted(*second)? {
-        return Ok(self.token(*then));
+        self.token(*then);
+        return Ok(());
       }
     }
 

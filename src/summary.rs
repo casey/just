@@ -251,7 +251,7 @@ impl Expression {
         then,
       } => Expression::Conditional {
         lhs: Box::new(Expression::new(lhs)),
-        operator: ConditionalOperator::new(operator),
+        operator: ConditionalOperator::new(*operator),
         otherwise: Box::new(Expression::new(otherwise)),
         rhs: Box::new(Expression::new(rhs)),
         then: Box::new(Expression::new(then)),
@@ -275,7 +275,7 @@ pub enum ConditionalOperator {
 }
 
 impl ConditionalOperator {
-  fn new(operator: &full::ConditionalOperator) -> Self {
+  fn new(operator: full::ConditionalOperator) -> Self {
     match operator {
       full::ConditionalOperator::Equality => Self::Equality,
       full::ConditionalOperator::Inequality => Self::Inequality,
