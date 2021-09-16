@@ -1,4 +1,28 @@
 test! {
+  name: default,
+  justfile: r#"
+    foo bar baz:
+      echo $0
+      echo $1
+      echo $2
+      echo "$@"
+  "#,
+  args:   ("foo", "hello", "goodbye"),
+  stdout: "
+    foo
+    hello
+    goodbye
+    hello goodbye
+  ",
+  stderr: r#"
+    echo $0
+    echo $1
+    echo $2
+    echo "$@"
+  "#,
+}
+
+test! {
   name: linewise,
   justfile: r#"
     set positional-arguments

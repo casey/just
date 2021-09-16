@@ -13,7 +13,7 @@ impl<'src> Settings<'src> {
     Settings {
       dotenv_load: None,
       export: false,
-      positional_arguments: false,
+      positional_arguments: true,
       shell: None,
     }
   }

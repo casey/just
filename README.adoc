@@ -487,6 +487,8 @@ goodbye
 
 ==== Positional Arguments
 
+As of `just` 0.11.0, the `positional-arguments` setting defaults to `true`. Positional arguments can be turned off with `set positional-arguments := false`.
+
 If `positional-arguments` is `true`, recipe arguments will be passed as positional arguments to commands. For linewise recipes, argument `$0` will be the name of the recipe.
 
 For example, running this recipe:
@@ -1001,6 +1003,16 @@ build target:
     @echo 'Building {{target}}...'
     cd {{target}} && make
 ```
+
+Recipe arguments maybe accessed using `{{…}}` syntax and `just` expressions, or as positional arguments:
+
+```make
+build target:
+    @echo "Building $1..."
+    cd "$1" && make
+```
+
+Expressions inside `{{…}}` are checked at compile time. However, they are subject to evaluation and splitting by the shell. This can make passing arguments containing that are treated specially by the shell tricky, for example `"'* !`. To avoid this, use quoted positional arguments, for example `"$1"` and `"$@"`.
 
 To pass arguments on the command line, put them after the recipe name:
 

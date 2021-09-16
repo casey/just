@@ -33,8 +33,14 @@ fn flag() {
     .output()
     .unwrap();
 
-  let stdout = "-cu -cu EXPRESSION\n-cu -cu DEFAULT\n-cu RECIPE\n";
-  assert_stdout(&output, stdout);
+  assert_stdout(
+    &output,
+    concat!(
+      "-cu -cu EXPRESSION recipe -cu DEFAULT\n",
+      "-cu -cu DEFAULT recipe -cu DEFAULT\n",
+      "-cu RECIPE recipe -cu DEFAULT\n"
+    ),
+  );
 }
 
 const JUSTFILE_CMD: &str = r#"
@@ -147,7 +153,7 @@ test! {
       echo foo
   ",
   args: (),
-  stdout: "echo barecho foo",
+  stdout: "echo bar fooecho foo foo",
   stderr: "echo bar\necho foo\n",
   shell: false,
 }
