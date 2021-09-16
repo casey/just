@@ -327,7 +327,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
             return Err(self.get(2)?.error(CompileErrorKind::DeprecatedEquals))
           }
           Some(Keyword::Alias) if self.next_are(&[Identifier, Identifier, ColonEquals]) => {
-            items.push(Item::Alias(self.parse_alias()?))
+            items.push(Item::Alias(self.parse_alias()?));
           }
           Some(Keyword::Export) if self.next_are(&[Identifier, Identifier, Equals]) => {
             return Err(self.get(2)?.error(CompileErrorKind::DeprecatedEquals))
@@ -341,7 +341,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
               || self.next_are(&[Identifier, Identifier, Eol])
               || self.next_are(&[Identifier, Identifier, Eof]) =>
           {
-            items.push(Item::Set(self.parse_set()?))
+            items.push(Item::Set(self.parse_set()?));
           }
           _ => {
             if self.next_are(&[Identifier, Equals]) {

@@ -214,7 +214,7 @@ impl<'src> Node<'src> for Set<'src> {
 
     match &self.value {
       DotenvLoad(value) | Export(value) | PositionalArguments(value) => {
-        set.push_mut(value.to_string())
+        set.push_mut(value.to_string());
       }
       Shell(setting::Shell { command, arguments }) => {
         set.push_mut(Tree::string(&command.cooked));
