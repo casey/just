@@ -73,9 +73,10 @@ impl Subcommand {
       Choose { overrides, chooser } => {
         Self::choose(config, justfile, &search, overrides, chooser.as_deref())?;
       }
-      Command { overrides, .. } => justfile.run(config, &search, overrides, &[])?,
+      Command { overrides, .. } | Evaluate { overrides, .. } => {
+        justfile.run(config, &search, overrides, &[])?
+      }
       Dump => Self::dump(ast),
-      Evaluate { overrides, .. } => justfile.run(config, &search, overrides, &[])?,
       Format => Self::format(config, ast, &search)?,
       List => Self::list(config, justfile),
       Run {

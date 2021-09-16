@@ -17,9 +17,9 @@ pub(crate) struct Shell<'src> {
 impl<'src> Display for Setting<'src> {
   fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
     match self {
-      Setting::DotenvLoad(value) => write!(f, "{}", value),
-      Setting::Export(value) => write!(f, "{}", value),
-      Setting::PositionalArguments(value) => write!(f, "{}", value),
+      Setting::DotenvLoad(value) | Setting::Export(value) | Setting::PositionalArguments(value) => {
+        write!(f, "{}", value)
+      }
       Setting::Shell(shell) => write!(f, "{}", shell),
     }
   }

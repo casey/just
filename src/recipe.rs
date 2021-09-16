@@ -212,11 +212,8 @@ impl<'src, D> Recipe<'src, D> {
         }
         let mut evaluated = String::new();
         let mut continued = false;
-        let quiet_command = lines.peek().map(|line| line.is_quiet()).unwrap_or(false);
-        let infallable_command = lines
-          .peek()
-          .map(|line| line.is_infallable())
-          .unwrap_or(false);
+        let quiet_command = lines.peek().map_or(false, |line| line.is_quiet());
+        let infallable_command = lines.peek().map_or(false, |line| line.is_infallable());
         loop {
           if lines.peek().is_none() {
             break;

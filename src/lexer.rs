@@ -257,12 +257,7 @@ impl<'src> Lexer<'src> {
 
   /// True if `text` could be an identifier
   pub(crate) fn is_identifier(text: &str) -> bool {
-    if !text
-      .chars()
-      .next()
-      .map(Self::is_identifier_start)
-      .unwrap_or(false)
-    {
+    if !text.chars().next().map_or(false, Self::is_identifier_start) {
       return false;
     }
 
@@ -496,11 +491,9 @@ impl<'src> Lexer<'src> {
       '}' => self.lex_delimiter(BraceR),
       '+' => self.lex_single(Plus),
       '#' => self.lex_comment(),
-      ' ' => self.lex_whitespace(),
+      ' ' | '\t' => self.lex_whitespace(),
       '`' | '"' | '\'' => self.lex_string(),
-      '\n' => self.lex_eol(),
-      '\r' => self.lex_eol(),
-      '\t' => self.lex_whitespace(),
+      '\n' | '\r' => self.lex_eol(),
       _ if Self::is_identifier_start(start) => self.lex_identifier(),
       _ => {
         self.advance()?;

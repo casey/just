@@ -637,7 +637,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     Ok(Recipe {
       parameters: positional.into_iter().chain(variadic).collect(),
       private: name.lexeme().starts_with('_'),
-      shebang: body.first().map(Line::is_shebang).unwrap_or(false),
+      shebang: body.first().map_or(false, Line::is_shebang),
       priors,
       body,
       dependencies,
@@ -700,7 +700,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
       }
     }
 
-    while lines.last().map(Line::is_empty).unwrap_or(false) {
+    while lines.last().map_or(false, Line::is_empty) {
       lines.pop();
     }
 
