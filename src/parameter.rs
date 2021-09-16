@@ -4,13 +4,13 @@ use crate::common::*;
 #[derive(PartialEq, Debug, Clone)]
 pub(crate) struct Parameter<'src> {
   /// The parameter name
-  pub(crate) name:    Name<'src>,
+  pub(crate) name: Name<'src>,
   /// The kind of parameter
-  pub(crate) kind:    ParameterKind,
+  pub(crate) kind: ParameterKind,
   /// An optional default expression
   pub(crate) default: Option<Expression<'src>>,
   /// Export parameter as environment variable
-  pub(crate) export:  bool,
+  pub(crate) export: bool,
 }
 
 impl<'src> ColorDisplay for Parameter<'src> {

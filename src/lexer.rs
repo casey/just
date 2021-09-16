@@ -13,27 +13,27 @@ use TokenKind::*;
 /// bad.
 pub(crate) struct Lexer<'src> {
   /// Source text
-  src:                 &'src str,
+  src: &'src str,
   /// Char iterator
-  chars:               Chars<'src>,
+  chars: Chars<'src>,
   /// Tokens
-  tokens:              Vec<Token<'src>>,
+  tokens: Vec<Token<'src>>,
   /// Current token start
-  token_start:         Position,
+  token_start: Position,
   /// Current token end
-  token_end:           Position,
+  token_end: Position,
   /// Next character to be lexed
-  next:                Option<char>,
+  next: Option<char>,
   /// Next indent will start a recipe body
   recipe_body_pending: bool,
   /// Inside recipe body
-  recipe_body:         bool,
+  recipe_body: bool,
   /// Indentation stack
-  indentation:         Vec<&'src str>,
+  indentation: Vec<&'src str>,
   /// Interpolation token start stack
   interpolation_stack: Vec<Token<'src>>,
   /// Current open delimiters
-  open_delimiters:     Vec<(Delimiter, usize)>,
+  open_delimiters: Vec<(Delimiter, usize)>,
 }
 
 impl<'src> Lexer<'src> {
@@ -50,7 +50,7 @@ impl<'src> Lexer<'src> {
     let start = Position {
       offset: 0,
       column: 0,
-      line:   0,
+      line: 0,
     };
 
     Lexer {
@@ -86,7 +86,7 @@ impl<'src> Lexer<'src> {
         self.next = self.chars.next();
 
         Ok(())
-      },
+      }
       None => Err(self.internal_error("Lexer advanced past end of text")),
     }
   }
@@ -202,12 +202,12 @@ impl<'src> Lexer<'src> {
   fn internal_error(&self, message: impl Into<String>) -> CompileError<'src> {
     // Use `self.token_end` as the location of the error
     let token = Token {
-      src:    self.src,
+      src: self.src,
       offset: self.token_end.offset,
-      line:   self.token_end.line,
+      line: self.token_end.line,
       column: self.token_end.column,
       length: 0,
-      kind:   Unspecified,
+      kind: Unspecified,
     };
     CompileError {
       kind: CompileErrorKind::Internal {
@@ -226,11 +226,12 @@ impl<'src> Lexer<'src> {
       UnterminatedString | UnterminatedBacktick => {
         let kind = match StringKind::from_token_start(self.lexeme()) {
           Some(kind) => kind,
-          None =>
-            return self.internal_error("Lexer::error: expected string or backtick token start"),
+          None => {
+            return self.internal_error("Lexer::error: expected string or backtick token start")
+          }
         };
         kind.delimiter().len()
-      },
+      }
       // highlight the full token
       _ => self.lexeme().len(),
     };
@@ -250,7 +251,7 @@ impl<'src> Lexer<'src> {
   fn unterminated_interpolation_error(interpolation_start: Token<'src>) -> CompileError<'src> {
     CompileError {
       token: interpolation_start,
-      kind:  UnterminatedInterpolation,
+      kind: UnterminatedInterpolation,
     }
   }
 
@@ -304,7 +305,7 @@ impl<'src> Lexer<'src> {
           } else {
             self.lex_normal(first)?;
           };
-        },
+        }
         None => break,
       }
     }
@@ -411,7 +412,7 @@ impl<'src> Lexer<'src> {
         };
 
         Ok(())
-      },
+      }
       Continue => {
         if !self.indentation().is_empty() {
           for _ in self.indentation().chars() {
@@ -422,7 +423,7 @@ impl<'src> Lexer<'src> {
         }
 
         Ok(())
-      },
+      }
       Decrease => {
         while self.indentation() != whitespace {
           self.lex_dedent();
@@ -437,14 +438,14 @@ impl<'src> Lexer<'src> {
         }
 
         Ok(())
-      },
+      }
       Mixed { whitespace } => {
         for _ in whitespace.chars() {
           self.advance()?;
         }
 
         Err(self.error(MixedLeadingWhitespace { whitespace }))
-      },
+      }
       Inconsistent => {
         for _ in whitespace.chars() {
           self.advance()?;
@@ -452,9 +453,9 @@ impl<'src> Lexer<'src> {
 
         Err(self.error(InconsistentLeadingWhitespace {
           expected: self.indentation(),
-          found:    whitespace,
+          found: whitespace,
         }))
-      },
+      }
       Increase => {
         while self.next_is_whitespace() {
           self.advance()?;
@@ -472,7 +473,7 @@ impl<'src> Lexer<'src> {
         }
 
         Ok(())
-      },
+      }
     }
   }
 
@@ -504,7 +505,7 @@ impl<'src> Lexer<'src> {
       _ => {
         self.advance()?;
         Err(self.error(UnknownStartOfToken))
-      },
+      }
     }
   }
 
@@ -585,7 +586,7 @@ impl<'src> Lexer<'src> {
           .interpolation_stack
           .push(self.tokens[self.tokens.len() - 1]);
         Ok(())
-      },
+      }
       EndOfFile => Ok(()),
     }
   }
@@ -644,11 +645,12 @@ impl<'src> Lexer<'src> {
       BracketR => self.close_delimiter(Bracket)?,
       ParenL => self.open_delimiter(Paren),
       ParenR => self.close_delimiter(Paren)?,
-      _ =>
+      _ => {
         return Err(self.internal_error(format!(
           "Lexer::lex_delimiter called with non-delimiter token: `{}`",
           kind,
-        ))),
+        )))
+      }
     }
 
     // Emit the delimiter token
@@ -947,8 +949,9 @@ mod tests {
       Dedent | Eof => "",
 
       // Variable lexemes
-      Text | StringToken | Backtick | Identifier | Comment | Unspecified =>
-        panic!("Token {:?} has no default lexeme", kind),
+      Text | StringToken | Backtick | Identifier | Comment | Unspecified => {
+        panic!("Token {:?} has no default lexeme", kind)
+      }
     }
   }
 
@@ -992,7 +995,7 @@ mod tests {
           kind,
         };
         assert_eq!(have, want);
-      },
+      }
     }
   }
 

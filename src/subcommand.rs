@@ -7,11 +7,11 @@ pub(crate) enum Subcommand {
   Changelog,
   Choose {
     overrides: BTreeMap<String, String>,
-    chooser:   Option<String>,
+    chooser: Option<String>,
   },
   Command {
     arguments: Vec<OsString>,
-    binary:    OsString,
+    binary: OsString,
     overrides: BTreeMap<String, String>,
   },
   Completions {
@@ -21,7 +21,7 @@ pub(crate) enum Subcommand {
   Edit,
   Evaluate {
     overrides: BTreeMap<String, String>,
-    variable:  Option<String>,
+    variable: Option<String>,
   },
   Format,
   Init,
@@ -45,10 +45,10 @@ impl Subcommand {
       Changelog => {
         Self::changelog();
         return Ok(());
-      },
+      }
       Completions { shell } => return Self::completions(&shell),
       Init => return Self::init(config),
-      _ => {},
+      _ => {}
     }
 
     let search = Search::find(&config.search_config, &config.invocation_directory)?;
@@ -70,8 +70,9 @@ impl Subcommand {
     }
 
     match self {
-      Choose { overrides, chooser } =>
-        Self::choose(config, justfile, &search, overrides, chooser.as_deref())?,
+      Choose { overrides, chooser } => {
+        Self::choose(config, justfile, &search, overrides, chooser.as_deref())?;
+      }
       Command { overrides, .. } => justfile.run(config, &search, overrides, &[])?,
       Dump => Self::dump(ast),
       Evaluate { overrides, .. } => justfile.run(config, &search, overrides, &[])?,
@@ -135,7 +136,7 @@ impl Subcommand {
           chooser,
           io_error,
         });
-      },
+      }
     };
 
     for recipe in recipes {
@@ -153,7 +154,7 @@ impl Subcommand {
       Ok(output) => output,
       Err(io_error) => {
         return Err(Error::ChooserRead { io_error, chooser });
-      },
+      }
     };
 
     if !output.status.success() {
@@ -200,23 +201,26 @@ impl Subcommand {
     let mut script = String::from_utf8(buffer).expect("Clap completion not UTF-8");
 
     match shell {
-      Shell::Bash =>
+      Shell::Bash => {
         for (needle, replacement) in completions::BASH_COMPLETION_REPLACEMENTS {
           replace(&mut script, needle, replacement)?;
-        },
+        }
+      }
       Shell::Fish => {
         script.insert_str(0, completions::FISH_RECIPE_COMPLETIONS);
-      },
-      Shell::PowerShell =>
+      }
+      Shell::PowerShell => {
         for (needle, replacement) in completions::POWERSHELL_COMPLETION_REPLACEMENTS {
           replace(&mut script, needle, replacement)?;
-        },
+        }
+      }
 
-      Shell::Zsh =>
+      Shell::Zsh => {
         for (needle, replacement) in completions::ZSH_COMPLETION_REPLACEMENTS {
           replace(&mut script, needle, replacement)?;
-        },
-      Shell::Elvish => {},
+        }
+      }
+      Shell::Elvish => {}
     }
 
     println!("{}", script.trim());
@@ -363,7 +367,7 @@ impl Subcommand {
           _ => {
             let alias_doc = format!("alias for `{}`", recipe.name);
             print_doc(&alias_doc);
-          },
+          }
         }
         println!();
       }
@@ -381,7 +385,7 @@ impl Subcommand {
       Ok(())
     } else {
       Err(Error::UnknownRecipes {
-        recipes:    vec![name.to_owned()],
+        recipes: vec![name.to_owned()],
         suggestion: justfile.suggest_recipe(name),
       })
     }

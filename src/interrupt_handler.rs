@@ -1,9 +1,9 @@
 use crate::common::*;
 
 pub(crate) struct InterruptHandler {
-  blocks:      u32,
+  blocks: u32,
   interrupted: bool,
-  verbosity:   Verbosity,
+  verbosity: Verbosity,
 }
 
 impl InterruptHandler {
@@ -29,15 +29,15 @@ impl InterruptHandler {
           .color_display(Color::auto().stderr())
         );
         std::process::exit(EXIT_FAILURE);
-      },
+      }
     }
   }
 
   fn new() -> Self {
     Self {
-      blocks:      0,
+      blocks: 0,
       interrupted: false,
-      verbosity:   Verbosity::default(),
+      verbosity: Verbosity::default(),
     }
   }
 

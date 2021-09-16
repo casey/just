@@ -23,7 +23,7 @@ pub(crate) enum ConfigError {
   ))]
   SubcommandArguments {
     subcommand: &'static str,
-    arguments:  Vec<String>,
+    arguments: Vec<String>,
   },
   #[snafu(display(
       "`--{}` used with unexpected overrides: {}",
@@ -32,7 +32,7 @@ pub(crate) enum ConfigError {
   ))]
   SubcommandOverrides {
     subcommand: &'static str,
-    overrides:  BTreeMap<String, String>,
+    overrides: BTreeMap<String, String>,
   },
   #[snafu(display(
       "`--{}` used with unexpected overrides: {}; and arguments: {}",
@@ -42,8 +42,8 @@ pub(crate) enum ConfigError {
   ]
   SubcommandOverridesAndArguments {
     subcommand: &'static str,
-    overrides:  BTreeMap<String, String>,
-    arguments:  Vec<String>,
+    overrides: BTreeMap<String, String>,
+    arguments: Vec<String>,
   },
 }
 

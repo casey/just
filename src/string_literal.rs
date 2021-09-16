@@ -2,8 +2,8 @@ use crate::common::*;
 
 #[derive(PartialEq, Debug, Clone)]
 pub(crate) struct StringLiteral<'src> {
-  pub(crate) kind:   StringKind,
-  pub(crate) raw:    &'src str,
+  pub(crate) kind: StringKind,
+  pub(crate) raw: &'src str,
   pub(crate) cooked: String,
 }
 

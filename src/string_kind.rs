@@ -3,7 +3,7 @@ use crate::common::*;
 #[derive(Debug, PartialEq, Clone, Copy, Ord, PartialOrd, Eq)]
 pub(crate) struct StringKind {
   delimiter: StringDelimiter,
-  indented:  bool,
+  indented: bool,
 }
 
 #[derive(Debug, PartialEq, Clone, Copy, Ord, PartialOrd, Eq)]
@@ -57,8 +57,9 @@ impl StringKind {
 
   pub(crate) fn unterminated_error_kind(self) -> CompileErrorKind<'static> {
     match self.delimiter {
-      StringDelimiter::QuoteDouble | StringDelimiter::QuoteSingle =>
-        CompileErrorKind::UnterminatedString,
+      StringDelimiter::QuoteDouble | StringDelimiter::QuoteSingle => {
+        CompileErrorKind::UnterminatedString
+      }
       StringDelimiter::Backtick => CompileErrorKind::UnterminatedBacktick,
     }
   }

@@ -41,7 +41,7 @@ adding the following line to your shell rc file:
   export JUST_SUPPRESS_DOTENV_LOAD_WARNING=1
 
 See https://github.com/casey/just/issues/469 for more details.")?;
-      },
+      }
     }
 
     write!(f, "{}", message.suffix())?;

@@ -10,7 +10,7 @@ pub(crate) enum SearchError {
   ))]
   Io {
     directory: PathBuf,
-    io_error:  io::Error,
+    io_error: io::Error,
   },
   #[snafu(display("Justfile path had no parent: {}", path.display()))]
   JustfileHadNoParent { path: PathBuf },

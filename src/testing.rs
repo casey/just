@@ -82,7 +82,7 @@ pub(crate) fn analysis_error(
         kind,
       };
       assert_eq!(have, want);
-    },
+    }
   }
 }
 

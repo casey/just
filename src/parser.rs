@@ -27,9 +27,9 @@ use TokenKind::*;
 /// contents of the set is printed in the resultant error message.
 pub(crate) struct Parser<'tokens, 'src> {
   /// Source tokens
-  tokens:   &'tokens [Token<'src>],
+  tokens: &'tokens [Token<'src>],
   /// Index of the next un-parsed token
-  next:     usize,
+  next: usize,
   /// Current expected tokens
   expected: BTreeSet<TokenKind>,
 }
@@ -58,7 +58,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   fn unexpected_token(&self) -> CompileResult<'src, CompileError<'src>> {
     self.error(CompileErrorKind::UnexpectedToken {
       expected: self.expected.iter().cloned().collect::<Vec<TokenKind>>(),
-      found:    self.next()?.kind,
+      found: self.next()?.kind,
     })
   }
 
@@ -101,10 +101,11 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     let mut rest = self.rest();
     for kind in kinds {
       match rest.next() {
-        Some(token) =>
+        Some(token) => {
           if token.kind != *kind {
             return false;
-          },
+          }
+        }
         None => return false,
       }
     }
@@ -322,22 +323,27 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
         break;
       } else if self.next_is(Identifier) {
         match Keyword::from_lexeme(next.lexeme()) {
-          Some(Keyword::Alias) if self.next_are(&[Identifier, Identifier, Equals]) =>
-            return Err(self.get(2)?.error(CompileErrorKind::DeprecatedEquals)),
-          Some(Keyword::Alias) if self.next_are(&[Identifier, Identifier, ColonEquals]) =>
-            items.push(Item::Alias(self.parse_alias()?)),
-          Some(Keyword::Export) if self.next_are(&[Identifier, Identifier, Equals]) =>
-            return Err(self.get(2)?.error(CompileErrorKind::DeprecatedEquals)),
+          Some(Keyword::Alias) if self.next_are(&[Identifier, Identifier, Equals]) => {
+            return Err(self.get(2)?.error(CompileErrorKind::DeprecatedEquals))
+          }
+          Some(Keyword::Alias) if self.next_are(&[Identifier, Identifier, ColonEquals]) => {
+            items.push(Item::Alias(self.parse_alias()?));
+          }
+          Some(Keyword::Export) if self.next_are(&[Identifier, Identifier, Equals]) => {
+            return Err(self.get(2)?.error(CompileErrorKind::DeprecatedEquals))
+          }
           Some(Keyword::Export) if self.next_are(&[Identifier, Identifier, ColonEquals]) => {
             self.presume_keyword(Keyword::Export)?;
             items.push(Item::Assignment(self.parse_assignment(true)?));
-          },
+          }
           Some(Keyword::Set)
             if self.next_are(&[Identifier, Identifier, ColonEquals])
               || self.next_are(&[Identifier, Identifier, Eol])
               || self.next_are(&[Identifier, Identifier, Eof]) =>
-            items.push(Item::Set(self.parse_set()?)),
-          _ =>
+          {
+            items.push(Item::Set(self.parse_set()?));
+          }
+          _ => {
             if self.next_are(&[Identifier, Equals]) {
               return Err(self.get(1)?.error(CompileErrorKind::DeprecatedEquals));
             } else if self.next_are(&[Identifier, ColonEquals]) {
@@ -345,7 +351,8 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
             } else {
               let doc = pop_doc_comment(&mut items, eol_since_last_comment);
               items.push(Item::Recipe(self.parse_recipe(doc, false)?));
-            },
+            }
+          }
         }
       } else if self.accepted(At)? {
         let doc = pop_doc_comment(&mut items, eol_since_last_comment);
@@ -516,13 +523,13 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
             'r' => cooked.push('\r'),
             't' => cooked.push('\t'),
             '\\' => cooked.push('\\'),
-            '\n' => {},
+            '\n' => {}
             '"' => cooked.push('"'),
             other => {
               return Err(
                 token.error(CompileErrorKind::InvalidEscapeSequence { character: other }),
               );
-            },
+            }
           }
           escape = false;
         } else if c == '\\' {
@@ -715,7 +722,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     } else {
       return Err(identifier.error(CompileErrorKind::ExpectedKeyword {
         expected: vec![Keyword::True, Keyword::False],
-        found:    identifier.lexeme(),
+        found: identifier.lexeme(),
       }));
     };
 
@@ -859,7 +866,7 @@ mod tests {
           kind,
         };
         assert_eq!(have, want);
-      },
+      }
     }
   }
 

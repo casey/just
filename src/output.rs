@@ -28,7 +28,7 @@ pub(crate) fn output(mut command: Command) -> Result<String, OutputError> {
           .to_owned(),
         ),
       }
-    },
+    }
     Err(io_error) => Err(OutputError::Io(io_error)),
   }
 }

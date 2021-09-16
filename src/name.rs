@@ -6,9 +6,9 @@ use crate::common::*;
 pub(crate) struct Name<'src> {
   pub(crate) offset: usize,
   pub(crate) length: usize,
-  pub(crate) line:   usize,
+  pub(crate) line: usize,
   pub(crate) column: usize,
-  pub(crate) src:    &'src str,
+  pub(crate) src: &'src str,
 }
 
 impl<'src> Name<'src> {
@@ -20,12 +20,12 @@ impl<'src> Name<'src> {
   /// Turn this name back into a token
   pub(crate) fn token(&self) -> Token<'src> {
     Token {
-      kind:   TokenKind::Identifier,
+      kind: TokenKind::Identifier,
       offset: self.offset,
       length: self.length,
-      line:   self.line,
+      line: self.line,
       column: self.column,
-      src:    self.src,
+      src: self.src,
     }
   }
 
@@ -34,9 +34,9 @@ impl<'src> Name<'src> {
     Name {
       offset: token.offset,
       length: token.length,
-      line:   token.line,
+      line: token.line,
       column: token.column,
-      src:    token.src,
+      src: token.src,
     }
   }
 

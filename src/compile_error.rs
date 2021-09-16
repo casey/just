@@ -3,7 +3,7 @@ use crate::common::*;
 #[derive(Debug, PartialEq)]
 pub(crate) struct CompileError<'src> {
   pub(crate) token: Token<'src>,
-  pub(crate) kind:  CompileErrorKind<'src>,
+  pub(crate) kind: CompileErrorKind<'src>,
 }
 
 impl<'src> CompileError<'src> {
@@ -26,11 +26,11 @@ impl Display for CompileError<'_> {
           alias,
           recipe_line.ordinal(),
         )?;
-      },
+      }
       BacktickShebang => {
         write!(f, "Backticks may not start with `#!`")?;
-      },
-      CircularRecipeDependency { recipe, ref circle } =>
+      }
+      CircularRecipeDependency { recipe, ref circle } => {
         if circle.len() == 2 {
           write!(f, "Recipe `{}` depends on itself", recipe)?;
         } else {
@@ -40,11 +40,12 @@ impl Display for CompileError<'_> {
             recipe,
             circle.join(" -> ")
           )?;
-        },
+        }
+      }
       CircularVariableDependency {
         variable,
         ref circle,
-      } =>
+      } => {
         if circle.len() == 2 {
           write!(f, "Variable `{}` is defined in terms of itself", variable)?;
         } else {
@@ -54,7 +55,8 @@ impl Display for CompileError<'_> {
             variable,
             circle.join(" -> ")
           )?;
-        },
+        }
+      }
       DependencyArgumentCountMismatch {
         dependency,
         found,
@@ -77,7 +79,7 @@ impl Display for CompileError<'_> {
         } else {
           write!(f, "at most {} {}", max, Count("argument", *max))?;
         }
-      },
+      }
       DeprecatedEquals => {
         writeln!(
           f,
@@ -87,7 +89,7 @@ impl Display for CompileError<'_> {
           f,
           "Please see this issue for more details: https://github.com/casey/just/issues/379"
         )?;
-      },
+      }
       DuplicateAlias { alias, first } => {
         write!(
           f,
@@ -96,14 +98,14 @@ impl Display for CompileError<'_> {
           first.ordinal(),
           self.token.line.ordinal(),
         )?;
-      },
+      }
       DuplicateParameter { recipe, parameter } => {
         write!(
           f,
           "Recipe `{}` has duplicate parameter `{}`",
           recipe, parameter
         )?;
-      },
+      }
       DuplicateRecipe { recipe, first } => {
         write!(
           f,
@@ -112,7 +114,7 @@ impl Display for CompileError<'_> {
           first.ordinal(),
           self.token.line.ordinal()
         )?;
-      },
+      }
       DuplicateSet { setting, first } => {
         write!(
           f,
@@ -121,10 +123,10 @@ impl Display for CompileError<'_> {
           first.ordinal(),
           self.token.line.ordinal(),
         )?;
-      },
+      }
       DuplicateVariable { variable } => {
         write!(f, "Variable `{}` has multiple definitions", variable)?;
-      },
+      }
       ExpectedKeyword { expected, found } => write!(
         f,
         "Expected keyword {} but found identifier `{}`",
@@ -133,7 +135,7 @@ impl Display for CompileError<'_> {
       )?,
       ExtraLeadingWhitespace => {
         write!(f, "Recipe line has extra leading whitespace")?;
-      },
+      }
       FunctionArgumentCountMismatch {
         function,
         found,
@@ -147,7 +149,7 @@ impl Display for CompileError<'_> {
           Count("argument", *found),
           expected
         )?;
-      },
+      }
       InconsistentLeadingWhitespace { expected, found } => {
         write!(
           f,
@@ -156,7 +158,7 @@ impl Display for CompileError<'_> {
           ShowWhitespace(expected),
           ShowWhitespace(found)
         )?;
-      },
+      }
       Internal { ref message } => {
         write!(
           f,
@@ -164,7 +166,7 @@ impl Display for CompileError<'_> {
            consider filing an issue: https://github.com/casey/just/issues/new",
           message
         )?;
-      },
+      }
       InvalidEscapeSequence { character } => {
         let representation = match character {
           '`' => r"\`".to_owned(),
@@ -174,7 +176,7 @@ impl Display for CompileError<'_> {
           _ => character.escape_default().collect(),
         };
         write!(f, "`\\{}` is not a valid escape sequence", representation)?;
-      },
+      }
       MismatchedClosingDelimiter {
         open,
         open_line,
@@ -187,7 +189,7 @@ impl Display for CompileError<'_> {
           open.open(),
           open_line.ordinal(),
         )?;
-      },
+      }
       MixedLeadingWhitespace { whitespace } => {
         write!(
           f,
@@ -195,73 +197,73 @@ impl Display for CompileError<'_> {
            consist of tabs or spaces, but not both",
           ShowWhitespace(whitespace)
         )?;
-      },
+      }
       ParameterFollowsVariadicParameter { parameter } => {
         write!(f, "Parameter `{}` follows variadic parameter", parameter)?;
-      },
+      }
       ParameterShadowsVariable { parameter } => {
         write!(
           f,
           "Parameter `{}` shadows variable of the same name",
           parameter
         )?;
-      },
+      }
       RequiredParameterFollowsDefaultParameter { parameter } => {
         write!(
           f,
           "Non-default parameter `{}` follows default parameter",
           parameter
         )?;
-      },
+      }
       UndefinedVariable { variable } => {
         write!(f, "Variable `{}` not defined", variable)?;
-      },
+      }
       UnexpectedCharacter { expected } => {
         write!(f, "Expected character `{}`", expected)?;
-      },
+      }
       UnexpectedClosingDelimiter { close } => {
         write!(f, "Unexpected closing delimiter `{}`", close.close())?;
-      },
+      }
       UnexpectedEndOfToken { expected } => {
         write!(f, "Expected character `{}` but found end-of-file", expected)?;
-      },
+      }
       UnexpectedToken {
         ref expected,
         found,
       } => {
         write!(f, "Expected {}, but found {}", List::or(expected), found)?;
-      },
+      }
       UnknownAliasTarget { alias, target } => {
         write!(f, "Alias `{}` has an unknown target `{}`", alias, target)?;
-      },
+      }
       UnknownDependency { recipe, unknown } => {
         write!(
           f,
           "Recipe `{}` has unknown dependency `{}`",
           recipe, unknown
         )?;
-      },
+      }
       UnknownFunction { function } => {
         write!(f, "Call to unknown function `{}`", function)?;
-      },
+      }
       UnknownSetting { setting } => {
         write!(f, "Unknown setting `{}`", setting)?;
-      },
+      }
       UnknownStartOfToken => {
         write!(f, "Unknown start of token:")?;
-      },
+      }
       UnpairedCarriageReturn => {
         write!(f, "Unpaired carriage return")?;
-      },
+      }
       UnterminatedBacktick => {
         write!(f, "Unterminated backtick")?;
-      },
+      }
       UnterminatedInterpolation => {
         write!(f, "Unterminated interpolation")?;
-      },
+      }
       UnterminatedString => {
         write!(f, "Unterminated string")?;
-      },
+      }
     }
 
     Ok(())

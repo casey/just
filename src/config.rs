@@ -14,24 +14,24 @@ pub(crate) const DEFAULT_SHELL_ARG: &str = "-cu";
 
 #[derive(Debug, PartialEq)]
 pub(crate) struct Config {
-  pub(crate) color:                Color,
-  pub(crate) dry_run:              bool,
-  pub(crate) highlight:            bool,
+  pub(crate) color: Color,
+  pub(crate) dry_run: bool,
+  pub(crate) highlight: bool,
   pub(crate) invocation_directory: PathBuf,
-  pub(crate) list_heading:         String,
-  pub(crate) list_prefix:          String,
-  pub(crate) load_dotenv:          bool,
-  pub(crate) search_config:        SearchConfig,
-  pub(crate) shell:                String,
-  pub(crate) shell_args:           Vec<String>,
-  pub(crate) shell_command:        bool,
-  pub(crate) shell_present:        bool,
-  pub(crate) subcommand:           Subcommand,
-  pub(crate) unsorted:             bool,
-  pub(crate) unstable:             bool,
-  pub(crate) dotenv_filename:      Option<String>,
-  pub(crate) dotenv_path:          Option<PathBuf>,
-  pub(crate) verbosity:            Verbosity,
+  pub(crate) list_heading: String,
+  pub(crate) list_prefix: String,
+  pub(crate) load_dotenv: bool,
+  pub(crate) search_config: SearchConfig,
+  pub(crate) shell: String,
+  pub(crate) shell_args: Vec<String>,
+  pub(crate) shell_command: bool,
+  pub(crate) shell_present: bool,
+  pub(crate) subcommand: Subcommand,
+  pub(crate) unsorted: bool,
+  pub(crate) unstable: bool,
+  pub(crate) dotenv_filename: Option<String>,
+  pub(crate) dotenv_path: Option<PathBuf>,
+  pub(crate) verbosity: Verbosity,
 }
 
 mod cmd {
@@ -416,15 +416,17 @@ impl Config {
         match (justfile, working_directory) {
           (None, None) => SearchConfig::FromInvocationDirectory,
           (Some(justfile), None) => SearchConfig::WithJustfile { justfile },
-          (Some(justfile), Some(working_directory)) =>
+          (Some(justfile), Some(working_directory)) => {
             SearchConfig::WithJustfileAndWorkingDirectory {
               justfile,
               working_directory,
-            },
-          (None, Some(_)) =>
+            }
+          }
+          (None, Some(_)) => {
             return Err(ConfigError::internal(
               "--working-directory set without --justfile",
-            )),
+            ))
+          }
         }
       }
     };
@@ -432,26 +434,26 @@ impl Config {
     for subcommand in cmd::ARGLESS {
       if matches.is_present(subcommand) {
         match (!overrides.is_empty(), !positional.arguments.is_empty()) {
-          (false, false) => {},
+          (false, false) => {}
           (true, false) => {
             return Err(ConfigError::SubcommandOverrides {
               subcommand,
               overrides,
             });
-          },
+          }
           (false, true) => {
             return Err(ConfigError::SubcommandArguments {
               arguments: positional.arguments,
               subcommand,
             });
-          },
+          }
           (true, true) => {
             return Err(ConfigError::SubcommandOverridesAndArguments {
               arguments: positional.arguments,
               subcommand,
               overrides,
             });
-          },
+          }
         }
       }
     }
@@ -497,7 +499,7 @@ impl Config {
       if positional.arguments.len() > 1 {
         return Err(ConfigError::SubcommandArguments {
           subcommand: cmd::EVALUATE,
-          arguments:  positional
+          arguments: positional
             .arguments
             .into_iter()
             .skip(1)

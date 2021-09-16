@@ -71,7 +71,7 @@ impl<'src> Node<'src> for Expression<'src> {
         tree.push_mut(then.tree());
         tree.push_mut(otherwise.tree());
         tree
-      },
+      }
       Expression::Call { thunk } => {
         use Thunk::*;
 
@@ -82,14 +82,14 @@ impl<'src> Node<'src> for Expression<'src> {
           Unary { name, arg, .. } => {
             tree.push_mut(name.lexeme());
             tree.push_mut(arg.tree());
-          },
+          }
           Binary {
             name, args: [a, b], ..
           } => {
             tree.push_mut(name.lexeme());
             tree.push_mut(a.tree());
             tree.push_mut(b.tree());
-          },
+          }
           Ternary {
             name,
             args: [a, b, c],
@@ -99,11 +99,11 @@ impl<'src> Node<'src> for Expression<'src> {
             tree.push_mut(a.tree());
             tree.push_mut(b.tree());
             tree.push_mut(c.tree());
-          },
+          }
         }
 
         tree
-      },
+      }
       Expression::Variable { name } => Tree::atom(name.lexeme()),
       Expression::StringLiteral {
         string_literal: StringLiteral { cooked, .. },
@@ -213,14 +213,15 @@ impl<'src> Node<'src> for Set<'src> {
     set.push_mut(self.name.lexeme().replace('-', "_"));
 
     match &self.value {
-      DotenvLoad(value) | Export(value) | PositionalArguments(value) =>
-        set.push_mut(value.to_string()),
+      DotenvLoad(value) | Export(value) | PositionalArguments(value) => {
+        set.push_mut(value.to_string());
+      }
       Shell(setting::Shell { command, arguments }) => {
         set.push_mut(Tree::string(&command.cooked));
         for argument in arguments {
           set.push_mut(Tree::string(&argument.cooked));
         }
-      },
+      }
     }
 
     set

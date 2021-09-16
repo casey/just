@@ -4,10 +4,10 @@ use CompileErrorKind::*;
 
 #[derive(Default)]
 pub(crate) struct Analyzer<'src> {
-  recipes:     Table<'src, UnresolvedRecipe<'src>>,
+  recipes: Table<'src, UnresolvedRecipe<'src>>,
   assignments: Table<'src, Assignment<'src>>,
-  aliases:     Table<'src, Alias<'src, Name<'src>>>,
-  sets:        Table<'src, Set<'src>>,
+  aliases: Table<'src, Alias<'src, Name<'src>>>,
+  sets: Table<'src, Set<'src>>,
 }
 
 impl<'src> Analyzer<'src> {
@@ -21,20 +21,20 @@ impl<'src> Analyzer<'src> {
         Item::Alias(alias) => {
           self.analyze_alias(&alias)?;
           self.aliases.insert(alias);
-        },
+        }
         Item::Assignment(assignment) => {
           self.analyze_assignment(&assignment)?;
           self.assignments.insert(assignment);
-        },
+        }
         Item::Comment(_) => (),
         Item::Recipe(recipe) => {
           self.analyze_recipe(&recipe)?;
           self.recipes.insert(recipe);
-        },
+        }
         Item::Set(set) => {
           self.analyze_set(&set)?;
           self.sets.insert(set);
-        },
+        }
       }
     }
 
@@ -65,17 +65,17 @@ impl<'src> Analyzer<'src> {
       match set.value {
         Setting::DotenvLoad(dotenv_load) => {
           settings.dotenv_load = Some(dotenv_load);
-        },
+        }
         Setting::Export(export) => {
           settings.export = export;
-        },
+        }
         Setting::PositionalArguments(positional_arguments) => {
           settings.positional_arguments = positional_arguments;
-        },
+        }
         Setting::Shell(shell) => {
           assert!(settings.shell.is_none());
           settings.shell = Some(shell);
-        },
+        }
       }
     }
 
@@ -92,7 +92,7 @@ impl<'src> Analyzer<'src> {
     if let Some(original) = self.recipes.get(recipe.name.lexeme()) {
       return Err(recipe.name.token().error(DuplicateRecipe {
         recipe: original.name(),
-        first:  original.line_number(),
+        first: original.line_number(),
       }));
     }
 
@@ -102,7 +102,7 @@ impl<'src> Analyzer<'src> {
     for parameter in &recipe.parameters {
       if parameters.contains(parameter.name.lexeme()) {
         return Err(parameter.name.token().error(DuplicateParameter {
-          recipe:    recipe.name.lexeme(),
+          recipe: recipe.name.lexeme(),
           parameter: parameter.name.lexeme(),
         }));
       }
@@ -166,7 +166,7 @@ impl<'src> Analyzer<'src> {
     if let Some(original) = self.sets.get(set.name.lexeme()) {
       return Err(set.name.error(DuplicateSet {
         setting: original.name.lexeme(),
-        first:   original.name.line,
+        first: original.name.line,
       }));
     }
 
@@ -181,7 +181,7 @@ impl<'src> Analyzer<'src> {
     // Make sure the alias doesn't conflict with any recipe
     if let Some(recipe) = recipes.get(alias.name.lexeme()) {
       return Err(token.error(AliasShadowsRecipe {
-        alias:       alias.name.lexeme(),
+        alias: alias.name.lexeme(),
         recipe_line: recipe.line_number(),
       }));
     }
@@ -190,7 +190,7 @@ impl<'src> Analyzer<'src> {
     match recipes.get(alias.target.lexeme()) {
       Some(target) => Ok(alias.resolve(Rc::clone(target))),
       None => Err(token.error(UnknownAliasTarget {
-        alias:  alias.name.lexeme(),
+        alias: alias.name.lexeme(),
         target: alias.target.lexeme(),
       })),
     }

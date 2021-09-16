@@ -3,7 +3,7 @@ use crate::common::*;
 /// An alias, e.g. `name := target`
 #[derive(Debug, PartialEq, Clone)]
 pub(crate) struct Alias<'src, T = Rc<Recipe<'src>>> {
-  pub(crate) name:   Name<'src>,
+  pub(crate) name: Name<'src>,
   pub(crate) target: T,
 }
 

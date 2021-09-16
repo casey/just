@@ -2,11 +2,11 @@ use crate::common::*;
 
 #[derive(Debug, PartialEq)]
 pub(crate) struct Justfile<'src> {
-  pub(crate) recipes:     Table<'src, Rc<Recipe<'src>>>,
+  pub(crate) recipes: Table<'src, Rc<Recipe<'src>>>,
   pub(crate) assignments: Table<'src, Assignment<'src>>,
-  pub(crate) aliases:     Table<'src, Alias<'src>>,
-  pub(crate) settings:    Settings<'src>,
-  pub(crate) warnings:    Vec<Warning>,
+  pub(crate) aliases: Table<'src, Alias<'src>>,
+  pub(crate) settings: Settings<'src>,
+  pub(crate) warnings: Vec<Warning>,
 }
 
 impl<'src> Justfile<'src> {
@@ -33,16 +33,19 @@ impl<'src> Justfile<'src> {
       .recipes
       .keys()
       .map(|name| {
-        (edit_distance(name, input), Suggestion {
-          name,
-          target: None,
-        })
+        (
+          edit_distance(name, input),
+          Suggestion { name, target: None },
+        )
       })
       .chain(self.aliases.iter().map(|(name, alias)| {
-        (edit_distance(name, input), Suggestion {
-          name,
-          target: Some(alias.target.name.lexeme()),
-        })
+        (
+          edit_distance(name, input),
+          Suggestion {
+            name,
+            target: Some(alias.target.name.lexeme()),
+          },
+        )
       }))
       .filter(|(distance, _suggestion)| distance < &3)
       .collect::<Vec<(usize, Suggestion)>>();
@@ -59,10 +62,10 @@ impl<'src> Justfile<'src> {
       .assignments
       .keys()
       .map(|name| {
-        (edit_distance(name, input), Suggestion {
-          name,
-          target: None,
-        })
+        (
+          edit_distance(name, input),
+          Suggestion { name, target: None },
+        )
       })
       .filter(|(distance, _suggestion)| distance < &3)
       .collect::<Vec<(usize, Suggestion)>>();
@@ -168,7 +171,7 @@ impl<'src> Justfile<'src> {
         };
 
         return Ok(());
-      },
+      }
       Subcommand::Evaluate { variable, .. } => {
         if let Some(variable) = variable {
           if let Some(value) = scope.value(variable) {
@@ -176,7 +179,7 @@ impl<'src> Justfile<'src> {
           } else {
             return Err(Error::EvalUnknownVariable {
               suggestion: self.suggest_variable(&variable),
-              variable:   variable.clone(),
+              variable: variable.clone(),
             });
           }
         } else {
@@ -197,8 +200,8 @@ impl<'src> Justfile<'src> {
         }
 
         return Ok(());
-      },
-      _ => {},
+      }
+      _ => {}
     }
 
     let argvec: Vec<&str> = if !arguments.is_empty() {
@@ -231,11 +234,11 @@ impl<'src> Justfile<'src> {
           let argument_count = cmp::min(tail.len(), recipe.max_arguments());
           if !argument_range.range_contains(&argument_count) {
             return Err(Error::ArgumentCountMismatch {
-              recipe:     recipe.name(),
+              recipe: recipe.name(),
               parameters: recipe.parameters.clone(),
-              found:      tail.len(),
-              min:        recipe.min_arguments(),
-              max:        recipe.max_arguments(),
+              found: tail.len(),
+              min: recipe.min_arguments(),
+              max: recipe.max_arguments(),
             });
           }
           grouped.push((recipe, &tail[0..argument_count]));

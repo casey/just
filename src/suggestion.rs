@@ -2,7 +2,7 @@ use crate::common::*;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub(crate) struct Suggestion<'src> {
-  pub(crate) name:   &'src str,
+  pub(crate) name: &'src str,
   pub(crate) target: Option<&'src str>,
 }
 

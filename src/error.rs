@@ -3,48 +3,48 @@ use crate::common::*;
 #[derive(Debug)]
 pub(crate) enum Error<'src> {
   ArgumentCountMismatch {
-    recipe:     &'src str,
+    recipe: &'src str,
     parameters: Vec<Parameter<'src>>,
-    found:      usize,
-    min:        usize,
-    max:        usize,
+    found: usize,
+    min: usize,
+    max: usize,
   },
   Backtick {
-    token:        Token<'src>,
+    token: Token<'src>,
     output_error: OutputError,
   },
   ChooserInvoke {
-    shell_binary:    String,
+    shell_binary: String,
     shell_arguments: String,
-    chooser:         OsString,
-    io_error:        io::Error,
+    chooser: OsString,
+    io_error: io::Error,
   },
   ChooserRead {
-    chooser:  OsString,
+    chooser: OsString,
     io_error: io::Error,
   },
   ChooserStatus {
     chooser: OsString,
-    status:  ExitStatus,
+    status: ExitStatus,
   },
   ChooserWrite {
-    chooser:  OsString,
+    chooser: OsString,
     io_error: io::Error,
   },
   Code {
-    recipe:      &'src str,
+    recipe: &'src str,
     line_number: Option<usize>,
-    code:        i32,
+    code: i32,
   },
   CommandInvoke {
-    binary:    OsString,
+    binary: OsString,
     arguments: Vec<OsString>,
-    io_error:  io::Error,
+    io_error: io::Error,
   },
   CommandStatus {
-    binary:    OsString,
+    binary: OsString,
     arguments: Vec<OsString>,
-    status:    ExitStatus,
+    status: ExitStatus,
   },
   Compile {
     compile_error: CompileError<'src>,
@@ -53,18 +53,18 @@ pub(crate) enum Error<'src> {
     config_error: ConfigError,
   },
   Cygpath {
-    recipe:       &'src str,
+    recipe: &'src str,
     output_error: OutputError,
   },
   DefaultRecipeRequiresArguments {
-    recipe:        &'src str,
+    recipe: &'src str,
     min_arguments: usize,
   },
   Dotenv {
     dotenv_error: dotenv::Error,
   },
   EditorInvoke {
-    editor:   OsString,
+    editor: OsString,
     io_error: io::Error,
   },
   EditorStatus {
@@ -72,12 +72,12 @@ pub(crate) enum Error<'src> {
     status: ExitStatus,
   },
   EvalUnknownVariable {
-    variable:   String,
+    variable: String,
     suggestion: Option<Suggestion<'src>>,
   },
   FunctionCall {
     function: Name<'src>,
-    message:  String,
+    message: String,
   },
   InitExists {
     justfile: PathBuf,
@@ -86,11 +86,11 @@ pub(crate) enum Error<'src> {
     message: String,
   },
   Io {
-    recipe:   &'src str,
+    recipe: &'src str,
     io_error: io::Error,
   },
   Load {
-    path:     PathBuf,
+    path: PathBuf,
     io_error: io::Error,
   },
   NoChoosableRecipes,
@@ -99,29 +99,29 @@ pub(crate) enum Error<'src> {
     search_error: SearchError,
   },
   Shebang {
-    recipe:   &'src str,
-    command:  String,
+    recipe: &'src str,
+    command: String,
     argument: Option<String>,
     io_error: io::Error,
   },
   Signal {
-    recipe:      &'src str,
+    recipe: &'src str,
     line_number: Option<usize>,
-    signal:      i32,
+    signal: i32,
   },
   TmpdirIo {
-    recipe:   &'src str,
+    recipe: &'src str,
     io_error: io::Error,
   },
   Unknown {
-    recipe:      &'src str,
+    recipe: &'src str,
     line_number: Option<usize>,
   },
   UnknownOverrides {
     overrides: Vec<String>,
   },
   UnknownRecipes {
-    recipes:    Vec<String>,
+    recipes: Vec<String>,
     suggestion: Option<Suggestion<'src>>,
   },
   Unstable {
@@ -204,7 +204,7 @@ impl<'src> ColorDisplay for Error<'src> {
         min,
         max,
         ..
-      } =>
+      } => {
         if min == max {
           let expected = min;
           write!(
@@ -234,17 +234,18 @@ impl<'src> ColorDisplay for Error<'src> {
             Count("argument", *found),
             max
           )?;
-        },
+        }
+      }
       Backtick { output_error, .. } => match output_error {
         OutputError::Code(code) => {
           write!(f, "Backtick failed with exit code {}", code)?;
-        },
+        }
         OutputError::Signal(signal) => {
           write!(f, "Backtick was terminated by signal {}", signal)?;
-        },
+        }
         OutputError::Unknown => {
           write!(f, "Backtick failed for an unknown reason")?;
-        },
+        }
         OutputError::Io(io_error) => {
           match io_error.kind() {
             io::ErrorKind::NotFound => write!(
@@ -263,14 +264,14 @@ impl<'src> ColorDisplay for Error<'src> {
               io_error
             ),
           }?;
-        },
+        }
         OutputError::Utf8(utf8_error) => {
           write!(
             f,
             "Backtick succeeded but stdout was not utf8: {}",
             utf8_error
           )?;
-        },
+        }
       },
       ChooserInvoke {
         shell_binary,
@@ -286,7 +287,7 @@ impl<'src> ColorDisplay for Error<'src> {
           chooser.to_string_lossy(),
           io_error,
         )?;
-      },
+      }
       ChooserRead { chooser, io_error } => {
         write!(
           f,
@@ -294,7 +295,7 @@ impl<'src> ColorDisplay for Error<'src> {
           chooser.to_string_lossy(),
           io_error
         )?;
-      },
+      }
       ChooserStatus { chooser, status } => {
         write!(
           f,
@@ -302,7 +303,7 @@ impl<'src> ColorDisplay for Error<'src> {
           chooser.to_string_lossy(),
           status
         )?;
-      },
+      }
       ChooserWrite { chooser, io_error } => {
         write!(
           f,
@@ -310,12 +311,12 @@ impl<'src> ColorDisplay for Error<'src> {
           chooser.to_string_lossy(),
           io_error
         )?;
-      },
+      }
       Code {
         recipe,
         line_number,
         code,
-      } =>
+      } => {
         if let Some(n) = line_number {
           write!(
             f,
@@ -324,7 +325,8 @@ impl<'src> ColorDisplay for Error<'src> {
           )?;
         } else {
           write!(f, "Recipe `{}` failed with exit code {}", recipe, code)?;
-        },
+        }
+      }
       CommandInvoke {
         binary,
         arguments,
@@ -340,7 +342,7 @@ impl<'src> ColorDisplay for Error<'src> {
             .join(" "),
           io_error,
         )?;
-      },
+      }
       CommandStatus {
         binary,
         arguments,
@@ -356,7 +358,7 @@ impl<'src> ColorDisplay for Error<'src> {
             .join(" "),
           status,
         )?;
-      },
+      }
       Compile { compile_error } => Display::fmt(compile_error, f)?,
       Config { config_error } => Display::fmt(config_error, f)?,
       Cygpath {
@@ -370,7 +372,7 @@ impl<'src> ColorDisplay for Error<'src> {
              path",
             code, recipe
           )?;
-        },
+        }
         OutputError::Signal(signal) => {
           write!(
             f,
@@ -378,7 +380,7 @@ impl<'src> ColorDisplay for Error<'src> {
              path",
             signal, recipe
           )?;
-        },
+        }
         OutputError::Unknown => {
           write!(
             f,
@@ -386,7 +388,7 @@ impl<'src> ColorDisplay for Error<'src> {
              interpreter path",
             recipe
           )?;
-        },
+        }
         OutputError::Io(io_error) => {
           match io_error.kind() {
             io::ErrorKind::NotFound => write!(
@@ -403,7 +405,7 @@ impl<'src> ColorDisplay for Error<'src> {
             ),
             _ => write!(f, "Could not run `cygpath` executable:\n{}", io_error),
           }?;
-        },
+        }
         OutputError::Utf8(utf8_error) => {
           write!(
             f,
@@ -411,7 +413,7 @@ impl<'src> ColorDisplay for Error<'src> {
              not utf8: {}",
             recipe, utf8_error
           )?;
-        },
+        }
       },
       DefaultRecipeRequiresArguments {
         recipe,
@@ -424,10 +426,10 @@ impl<'src> ColorDisplay for Error<'src> {
           min_arguments,
           Count("argument", *min_arguments),
         )?;
-      },
+      }
       Dotenv { dotenv_error } => {
         write!(f, "Failed to load environment file: {}", dotenv_error)?;
-      },
+      }
       EditorInvoke { editor, io_error } => {
         write!(
           f,
@@ -435,7 +437,7 @@ impl<'src> ColorDisplay for Error<'src> {
           editor.to_string_lossy(),
           io_error
         )?;
-      },
+      }
       EditorStatus { editor, status } => {
         write!(
           f,
@@ -443,7 +445,7 @@ impl<'src> ColorDisplay for Error<'src> {
           editor.to_string_lossy(),
           status
         )?;
-      },
+      }
       EvalUnknownVariable {
         variable,
         suggestion,
@@ -452,7 +454,7 @@ impl<'src> ColorDisplay for Error<'src> {
         if let Some(suggestion) = *suggestion {
           write!(f, "\n{}", suggestion)?;
         }
-      },
+      }
       FunctionCall { function, message } => {
         write!(
           f,
@@ -460,10 +462,10 @@ impl<'src> ColorDisplay for Error<'src> {
           function.lexeme(),
           message
         )?;
-      },
+      }
       InitExists { justfile } => {
         write!(f, "Justfile `{}` already exists", justfile.display())?;
-      },
+      }
       Internal { message } => {
         write!(
           f,
@@ -471,7 +473,7 @@ impl<'src> ColorDisplay for Error<'src> {
            consider filing an issue: https://github.com/casey/just/issues/new",
           message
         )?;
-      },
+      }
       Io { recipe, io_error } => {
         match io_error.kind() {
           io::ErrorKind::NotFound => write!(
@@ -490,7 +492,7 @@ impl<'src> ColorDisplay for Error<'src> {
             recipe, io_error
           ),
         }?;
-      },
+      }
       Load { io_error, path } => {
         write!(
           f,
@@ -498,20 +500,20 @@ impl<'src> ColorDisplay for Error<'src> {
           path.display(),
           io_error
         )?;
-      },
+      }
       NoChoosableRecipes => {
         write!(f, "Justfile contains no choosable recipes.")?;
-      },
+      }
       NoRecipes => {
         write!(f, "Justfile contains no recipes.")?;
-      },
+      }
       Search { search_error } => Display::fmt(search_error, f)?,
       Shebang {
         recipe,
         command,
         argument,
         io_error,
-      } =>
+      } => {
         if let Some(argument) = argument {
           write!(
             f,
@@ -524,12 +526,13 @@ impl<'src> ColorDisplay for Error<'src> {
             "Recipe `{}` with shebang `#!{}` execution error: {}",
             recipe, command, io_error
           )?;
-        },
+        }
+      }
       Signal {
         recipe,
         line_number,
         signal,
-      } =>
+      } => {
         if let Some(n) = line_number {
           write!(
             f,
@@ -538,7 +541,8 @@ impl<'src> ColorDisplay for Error<'src> {
           )?;
         } else {
           write!(f, "Recipe `{}` was terminated by signal {}", recipe, signal)?;
-        },
+        }
+      }
       TmpdirIo { recipe, io_error } => write!(
         f,
         "Recipe `{}` could not be run because of an IO error while trying to create a temporary \
@@ -548,7 +552,7 @@ impl<'src> ColorDisplay for Error<'src> {
       Unknown {
         recipe,
         line_number,
-      } =>
+      } => {
         if let Some(n) = line_number {
           write!(
             f,
@@ -557,7 +561,8 @@ impl<'src> ColorDisplay for Error<'src> {
           )?;
         } else {
           write!(f, "Recipe `{}` failed for an unknown reason", recipe)?;
-        },
+        }
+      }
       UnknownOverrides { overrides } => {
         write!(
           f,
@@ -565,7 +570,7 @@ impl<'src> ColorDisplay for Error<'src> {
           Count("Variable", overrides.len()),
           List::and_ticked(overrides),
         )?;
-      },
+      }
       UnknownRecipes {
         recipes,
         suggestion,
@@ -579,14 +584,14 @@ impl<'src> ColorDisplay for Error<'src> {
         if let Some(suggestion) = *suggestion {
           write!(f, "\n{}", suggestion)?;
         }
-      },
+      }
       Unstable { message } => {
         write!(
           f,
           "{} Invoke `just` with the `--unstable` flag to enable unstable features.",
           message
         )?;
-      },
+      }
       WriteJustfile { justfile, io_error } => {
         write!(
           f,
@@ -594,7 +599,7 @@ impl<'src> ColorDisplay for Error<'src> {
           justfile.display(),
           io_error
         )?;
-      },
+      }
     }
 
     write!(f, "{}", color.message().suffix())?;

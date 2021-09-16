@@ -4,8 +4,8 @@ use CompileErrorKind::*;
 
 pub(crate) struct AssignmentResolver<'src: 'run, 'run> {
   assignments: &'run Table<'src, Assignment<'src>>,
-  stack:       Vec<&'src str>,
-  evaluated:   BTreeSet<&'src str>,
+  stack: Vec<&'src str>,
+  evaluated: BTreeSet<&'src str>,
 }
 
 impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
@@ -38,12 +38,12 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
     } else {
       let message = format!("attempted to resolve unknown assignment `{}`", name);
       let token = Token {
-        src:    "",
+        src: "",
         offset: 0,
-        line:   0,
+        line: 0,
         column: 0,
         length: 0,
-        kind:   TokenKind::Unspecified,
+        kind: TokenKind::Unspecified,
       };
       return Err(CompileError {
         kind: Internal { message },
@@ -74,26 +74,26 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
         } else {
           Err(name.token().error(UndefinedVariable { variable }))
         }
-      },
+      }
       Expression::Call { thunk } => match thunk {
         Thunk::Nullary { .. } => Ok(()),
         Thunk::Unary { arg, .. } => self.resolve_expression(arg),
         Thunk::Binary { args: [a, b], .. } => {
           self.resolve_expression(a)?;
           self.resolve_expression(b)
-        },
+        }
         Thunk::Ternary {
           args: [a, b, c], ..
         } => {
           self.resolve_expression(a)?;
           self.resolve_expression(b)?;
           self.resolve_expression(c)
-        },
+        }
       },
       Expression::Concatination { lhs, rhs } => {
         self.resolve_expression(lhs)?;
         self.resolve_expression(rhs)
-      },
+      }
       Expression::Conditional {
         lhs,
         rhs,
@@ -105,7 +105,7 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
         self.resolve_expression(rhs)?;
         self.resolve_expression(then)?;
         self.resolve_expression(otherwise)
-      },
+      }
       Expression::StringLiteral { .. } | Expression::Backtick { .. } => Ok(()),
       Expression::Group { contents } => self.resolve_expression(contents),
     }

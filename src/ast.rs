@@ -6,7 +6,7 @@ use crate::common::*;
 #[derive(Debug, Clone)]
 pub(crate) struct Ast<'src> {
   /// Items in the justfile
-  pub(crate) items:    Vec<Item<'src>>,
+  pub(crate) items: Vec<Item<'src>>,
   /// Non-fatal warnings encountered during parsing
   pub(crate) warnings: Vec<Warning>,
 }

@@ -14,7 +14,7 @@ pub(crate) enum SearchConfig {
   WithJustfile { justfile: PathBuf },
   /// Use user-specified justfile and working directory.
   WithJustfileAndWorkingDirectory {
-    justfile:          PathBuf,
+    justfile: PathBuf,
     working_directory: PathBuf,
   },
 }
