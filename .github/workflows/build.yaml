@@ -108,16 +108,8 @@ jobs:
     - name: Clippy
       run: cargo clippy --all --all-targets --all-features
 
-    - name: Install Rustfmt Toolchain
-      uses: actions-rs/toolchain@v1
-      with:
-        toolchain: nightly
-        target: ${{ matrix.target }}
-        profile: minimal
-        components: rustfmt
-
     - name: Format
-      run: cargo +nightly fmt --all -- --check
+      run: cargo fmt --all -- --check
 
     - name: Completion Scripts
       if: ${{ matrix.os != 'windows-2016' }}

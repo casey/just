@@ -31,7 +31,7 @@ build:
   cargo lbuild
 
 fmt:
-  cargo +nightly fmt --all
+  cargo fmt --all
 
 watch +COMMAND='ltest':
   cargo watch --clear --exec "{{COMMAND}}"
@@ -94,7 +94,6 @@ install:
 install-dev-deps:
   rustup install nightly
   rustup update nightly
-  rustup run nightly cargo install clippy
   cargo +nightly install cargo-fuzz
   cargo install cargo-check
   cargo install cargo-limit
