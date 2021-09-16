@@ -3,48 +3,48 @@ use crate::common::*;
 #[derive(Debug)]
 pub(crate) enum Error<'src> {
   ArgumentCountMismatch {
-    recipe:     &'src str,
+    recipe: &'src str,
     parameters: Vec<Parameter<'src>>,
-    found:      usize,
-    min:        usize,
-    max:        usize,
+    found: usize,
+    min: usize,
+    max: usize,
   },
   Backtick {
-    token:        Token<'src>,
+    token: Token<'src>,
     output_error: OutputError,
   },
   ChooserInvoke {
-    shell_binary:    String,
+    shell_binary: String,
     shell_arguments: String,
-    chooser:         OsString,
-    io_error:        io::Error,
+    chooser: OsString,
+    io_error: io::Error,
   },
   ChooserRead {
-    chooser:  OsString,
+    chooser: OsString,
     io_error: io::Error,
   },
   ChooserStatus {
     chooser: OsString,
-    status:  ExitStatus,
+    status: ExitStatus,
   },
   ChooserWrite {
-    chooser:  OsString,
+    chooser: OsString,
     io_error: io::Error,
   },
   Code {
-    recipe:      &'src str,
+    recipe: &'src str,
     line_number: Option<usize>,
-    code:        i32,
+    code: i32,
   },
   CommandInvoke {
-    binary:    OsString,
+    binary: OsString,
     arguments: Vec<OsString>,
-    io_error:  io::Error,
+    io_error: io::Error,
   },
   CommandStatus {
-    binary:    OsString,
+    binary: OsString,
     arguments: Vec<OsString>,
-    status:    ExitStatus,
+    status: ExitStatus,
   },
   Compile {
     compile_error: CompileError<'src>,
@@ -53,18 +53,18 @@ pub(crate) enum Error<'src> {
     config_error: ConfigError,
   },
   Cygpath {
-    recipe:       &'src str,
+    recipe: &'src str,
     output_error: OutputError,
   },
   DefaultRecipeRequiresArguments {
-    recipe:        &'src str,
+    recipe: &'src str,
     min_arguments: usize,
   },
   Dotenv {
     dotenv_error: dotenv::Error,
   },
   EditorInvoke {
-    editor:   OsString,
+    editor: OsString,
     io_error: io::Error,
   },
   EditorStatus {
@@ -72,12 +72,12 @@ pub(crate) enum Error<'src> {
     status: ExitStatus,
   },
   EvalUnknownVariable {
-    variable:   String,
+    variable: String,
     suggestion: Option<Suggestion<'src>>,
   },
   FunctionCall {
     function: Name<'src>,
-    message:  String,
+    message: String,
   },
   InitExists {
     justfile: PathBuf,
@@ -86,11 +86,11 @@ pub(crate) enum Error<'src> {
     message: String,
   },
   Io {
-    recipe:   &'src str,
+    recipe: &'src str,
     io_error: io::Error,
   },
   Load {
-    path:     PathBuf,
+    path: PathBuf,
     io_error: io::Error,
   },
   NoChoosableRecipes,
@@ -99,29 +99,29 @@ pub(crate) enum Error<'src> {
     search_error: SearchError,
   },
   Shebang {
-    recipe:   &'src str,
-    command:  String,
+    recipe: &'src str,
+    command: String,
     argument: Option<String>,
     io_error: io::Error,
   },
   Signal {
-    recipe:      &'src str,
+    recipe: &'src str,
     line_number: Option<usize>,
-    signal:      i32,
+    signal: i32,
   },
   TmpdirIo {
-    recipe:   &'src str,
+    recipe: &'src str,
     io_error: io::Error,
   },
   Unknown {
-    recipe:      &'src str,
+    recipe: &'src str,
     line_number: Option<usize>,
   },
   UnknownOverrides {
     overrides: Vec<String>,
   },
   UnknownRecipes {
-    recipes:    Vec<String>,
+    recipes: Vec<String>,
     suggestion: Option<Suggestion<'src>>,
   },
   Unstable {

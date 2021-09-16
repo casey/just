@@ -3,7 +3,7 @@ use crate::common::*;
 #[derive(Debug, PartialEq)]
 pub(crate) struct CompileError<'src> {
   pub(crate) token: Token<'src>,
-  pub(crate) kind:  CompileErrorKind<'src>,
+  pub(crate) kind: CompileErrorKind<'src>,
 }
 
 impl<'src> CompileError<'src> {

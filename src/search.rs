@@ -7,7 +7,7 @@ const JUSTFILE_NAMES: &[&str] = &["justfile", ".justfile"];
 const PROJECT_ROOT_CHILDREN: &[&str] = &[".bzr", ".git", ".hg", ".svn", "_darcs"];
 
 pub(crate) struct Search {
-  pub(crate) justfile:          PathBuf,
+  pub(crate) justfile: PathBuf,
   pub(crate) working_directory: PathBuf,
 }
 
@@ -56,7 +56,7 @@ impl Search {
         justfile,
         working_directory,
       } => Ok(Self {
-        justfile:          Self::clean(invocation_directory, justfile),
+        justfile: Self::clean(invocation_directory, justfile),
         working_directory: Self::clean(invocation_directory, working_directory),
       }),
     }
@@ -106,7 +106,7 @@ impl Search {
         justfile,
         working_directory,
       } => Ok(Self {
-        justfile:          Self::clean(invocation_directory, justfile),
+        justfile: Self::clean(invocation_directory, justfile),
         working_directory: Self::clean(invocation_directory, working_directory),
       }),
     }

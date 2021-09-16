@@ -11,7 +11,7 @@ pub(crate) enum Expression<'src> {
   /// `contents`
   Backtick {
     contents: String,
-    token:    Token<'src>,
+    token: Token<'src>,
   },
   /// `name(arguments)`
   Call { thunk: Thunk<'src> },
@@ -22,11 +22,11 @@ pub(crate) enum Expression<'src> {
   },
   /// `if lhs == rhs { then } else { otherwise }`
   Conditional {
-    lhs:       Box<Expression<'src>>,
-    rhs:       Box<Expression<'src>>,
-    then:      Box<Expression<'src>>,
+    lhs: Box<Expression<'src>>,
+    rhs: Box<Expression<'src>>,
+    then: Box<Expression<'src>>,
     otherwise: Box<Expression<'src>>,
-    inverted:  bool,
+    inverted: bool,
   },
   /// `(contents)`
   Group { contents: Box<Expression<'src>> },

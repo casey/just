@@ -4,27 +4,27 @@ use crate::common::*;
 #[derivative(Debug, Clone, PartialEq = "feature_allow_slow_enum")]
 pub(crate) enum Thunk<'src> {
   Nullary {
-    name:     Name<'src>,
+    name: Name<'src>,
     #[derivative(Debug = "ignore", PartialEq = "ignore")]
     function: fn(&FunctionContext) -> Result<String, String>,
   },
   Unary {
-    name:     Name<'src>,
+    name: Name<'src>,
     #[derivative(Debug = "ignore", PartialEq = "ignore")]
     function: fn(&FunctionContext, &str) -> Result<String, String>,
-    arg:      Box<Expression<'src>>,
+    arg: Box<Expression<'src>>,
   },
   Binary {
-    name:     Name<'src>,
+    name: Name<'src>,
     #[derivative(Debug = "ignore", PartialEq = "ignore")]
     function: fn(&FunctionContext, &str, &str) -> Result<String, String>,
-    args:     [Box<Expression<'src>>; 2],
+    args: [Box<Expression<'src>>; 2],
   },
   Ternary {
-    name:     Name<'src>,
+    name: Name<'src>,
     #[derivative(Debug = "ignore", PartialEq = "ignore")]
     function: fn(&FunctionContext, &str, &str, &str) -> Result<String, String>,
-    args:     [Box<Expression<'src>>; 3],
+    args: [Box<Expression<'src>>; 3],
   },
 }
 
@@ -65,7 +65,7 @@ impl<'src> Thunk<'src> {
         }
         _ => Err(name.error(CompileErrorKind::FunctionArgumentCountMismatch {
           function: name.lexeme(),
-          found:    arguments.len(),
+          found: arguments.len(),
           expected: function.argc(),
         })),
       }

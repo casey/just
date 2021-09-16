@@ -4,10 +4,10 @@ use crate::common::*;
 pub(crate) struct Token<'src> {
   pub(crate) offset: usize,
   pub(crate) length: usize,
-  pub(crate) line:   usize,
+  pub(crate) line: usize,
   pub(crate) column: usize,
-  pub(crate) src:    &'src str,
-  pub(crate) kind:   TokenKind,
+  pub(crate) src: &'src str,
+  pub(crate) kind: TokenKind,
 }
 
 impl<'src> Token<'src> {

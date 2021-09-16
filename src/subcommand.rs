@@ -7,11 +7,11 @@ pub(crate) enum Subcommand {
   Changelog,
   Choose {
     overrides: BTreeMap<String, String>,
-    chooser:   Option<String>,
+    chooser: Option<String>,
   },
   Command {
     arguments: Vec<OsString>,
-    binary:    OsString,
+    binary: OsString,
     overrides: BTreeMap<String, String>,
   },
   Completions {
@@ -21,7 +21,7 @@ pub(crate) enum Subcommand {
   Edit,
   Evaluate {
     overrides: BTreeMap<String, String>,
-    variable:  Option<String>,
+    variable: Option<String>,
   },
   Format,
   Init,
@@ -381,7 +381,7 @@ impl Subcommand {
       Ok(())
     } else {
       Err(Error::UnknownRecipes {
-        recipes:    vec![name.to_owned()],
+        recipes: vec![name.to_owned()],
         suggestion: justfile.suggest_recipe(name),
       })
     }

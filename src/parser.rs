@@ -27,9 +27,9 @@ use TokenKind::*;
 /// contents of the set is printed in the resultant error message.
 pub(crate) struct Parser<'tokens, 'src> {
   /// Source tokens
-  tokens:   &'tokens [Token<'src>],
+  tokens: &'tokens [Token<'src>],
   /// Index of the next un-parsed token
-  next:     usize,
+  next: usize,
   /// Current expected tokens
   expected: BTreeSet<TokenKind>,
 }
@@ -58,7 +58,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   fn unexpected_token(&self) -> CompileResult<'src, CompileError<'src>> {
     self.error(CompileErrorKind::UnexpectedToken {
       expected: self.expected.iter().cloned().collect::<Vec<TokenKind>>(),
-      found:    self.next()?.kind,
+      found: self.next()?.kind,
     })
   }
 
@@ -715,7 +715,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     } else {
       return Err(identifier.error(CompileErrorKind::ExpectedKeyword {
         expected: vec![Keyword::True, Keyword::False],
-        found:    identifier.lexeme(),
+        found: identifier.lexeme(),
       }));
     };
 

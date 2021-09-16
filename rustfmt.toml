@@ -21,5 +21,4 @@ unstable_features = true
 
 # match_block_trailing_comma = true
 # overflow_delimited_expr = true
-
-struct_field_align_threshold = 20
+# struct_field_align_threshold = 20

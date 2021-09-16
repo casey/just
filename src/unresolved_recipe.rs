@@ -26,9 +26,9 @@ impl<'src> UnresolvedRecipe<'src> {
             .recipe
             .error(CompileErrorKind::DependencyArgumentCountMismatch {
               dependency: unresolved.recipe.lexeme(),
-              found:      unresolved.arguments.len(),
-              min:        resolved.min_arguments(),
-              max:        resolved.max_arguments(),
+              found: unresolved.arguments.len(),
+              min: resolved.min_arguments(),
+              max: resolved.max_arguments(),
             }),
         );
       }
@@ -39,7 +39,7 @@ impl<'src> UnresolvedRecipe<'src> {
       .into_iter()
       .zip(resolved)
       .map(|(unresolved, resolved)| Dependency {
-        recipe:    resolved,
+        recipe: resolved,
         arguments: unresolved.arguments,
       })
       .collect();

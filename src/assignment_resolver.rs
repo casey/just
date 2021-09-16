@@ -4,8 +4,8 @@ use CompileErrorKind::*;
 
 pub(crate) struct AssignmentResolver<'src: 'run, 'run> {
   assignments: &'run Table<'src, Assignment<'src>>,
-  stack:       Vec<&'src str>,
-  evaluated:   BTreeSet<&'src str>,
+  stack: Vec<&'src str>,
+  evaluated: BTreeSet<&'src str>,
 }
 
 impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
@@ -38,12 +38,12 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
     } else {
       let message = format!("attempted to resolve unknown assignment `{}`", name);
       let token = Token {
-        src:    "",
+        src: "",
         offset: 0,
-        line:   0,
+        line: 0,
         column: 0,
         length: 0,
-        kind:   TokenKind::Unspecified,
+        kind: TokenKind::Unspecified,
       };
       return Err(CompileError {
         kind: Internal { message },

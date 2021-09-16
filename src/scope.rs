@@ -2,21 +2,21 @@ use crate::common::*;
 
 #[derive(Debug)]
 pub(crate) struct Scope<'src: 'run, 'run> {
-  parent:   Option<&'run Scope<'src, 'run>>,
+  parent: Option<&'run Scope<'src, 'run>>,
   bindings: Table<'src, Binding<'src, String>>,
 }
 
 impl<'src, 'run> Scope<'src, 'run> {
   pub(crate) fn child(&'run self) -> Scope<'src, 'run> {
     Scope {
-      parent:   Some(self),
+      parent: Some(self),
       bindings: Table::new(),
     }
   }
 
   pub(crate) fn new() -> Scope<'src, 'run> {
     Scope {
-      parent:   None,
+      parent: None,
       bindings: Table::new(),
     }
   }

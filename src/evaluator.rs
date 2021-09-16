@@ -2,11 +2,11 @@ use crate::common::*;
 
 pub(crate) struct Evaluator<'src: 'run, 'run> {
   assignments: Option<&'run Table<'src, Assignment<'src>>>,
-  config:      &'run Config,
-  dotenv:      &'run BTreeMap<String, String>,
-  scope:       Scope<'src, 'run>,
-  settings:    &'run Settings<'run>,
-  search:      &'run Search,
+  config: &'run Config,
+  dotenv: &'run BTreeMap<String, String>,
+  scope: Scope<'src, 'run>,
+  settings: &'run Settings<'run>,
+  search: &'run Search,
 }
 
 impl<'src, 'run> Evaluator<'src, 'run> {
@@ -69,9 +69,9 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         use Thunk::*;
 
         let context = FunctionContext {
-          dotenv:               self.dotenv,
+          dotenv: self.dotenv,
           invocation_directory: &self.config.invocation_directory,
-          search:               self.search,
+          search: self.search,
         };
 
         match thunk {

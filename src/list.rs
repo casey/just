@@ -5,21 +5,21 @@ use crate::common::*;
 
 pub struct List<T: Display, I: Iterator<Item = T> + Clone> {
   conjunction: &'static str,
-  values:      I,
+  values: I,
 }
 
 impl<T: Display, I: Iterator<Item = T> + Clone> List<T, I> {
   pub fn or<II: IntoIterator<Item = T, IntoIter = I>>(values: II) -> List<T, I> {
     List {
       conjunction: "or",
-      values:      values.into_iter(),
+      values: values.into_iter(),
     }
   }
 
   pub fn and<II: IntoIterator<Item = T, IntoIter = I>>(values: II) -> List<T, I> {
     List {
       conjunction: "and",
-      values:      values.into_iter(),
+      values: values.into_iter(),
     }
   }
 

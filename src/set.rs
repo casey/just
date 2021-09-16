@@ -2,7 +2,7 @@ use crate::common::*;
 
 #[derive(Debug, Clone)]
 pub(crate) struct Set<'src> {
-  pub(crate) name:  Name<'src>,
+  pub(crate) name: Name<'src>,
   pub(crate) value: Setting<'src>,
 }
 

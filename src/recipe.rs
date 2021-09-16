@@ -21,15 +21,15 @@ fn error_from_signal(recipe: &str, line_number: Option<usize>, exit_status: Exit
 /// A recipe, e.g. `foo: bar baz`
 #[derive(PartialEq, Debug, Clone)]
 pub(crate) struct Recipe<'src, D = Dependency<'src>> {
-  pub(crate) body:         Vec<Line<'src>>,
+  pub(crate) body: Vec<Line<'src>>,
   pub(crate) dependencies: Vec<D>,
-  pub(crate) doc:          Option<&'src str>,
-  pub(crate) name:         Name<'src>,
-  pub(crate) parameters:   Vec<Parameter<'src>>,
-  pub(crate) private:      bool,
-  pub(crate) quiet:        bool,
-  pub(crate) shebang:      bool,
-  pub(crate) priors:       usize,
+  pub(crate) doc: Option<&'src str>,
+  pub(crate) name: Name<'src>,
+  pub(crate) parameters: Vec<Parameter<'src>>,
+  pub(crate) private: bool,
+  pub(crate) quiet: bool,
+  pub(crate) shebang: bool,
+  pub(crate) priors: usize,
 }
 
 impl<'src, D> Recipe<'src, D> {
@@ -116,7 +116,7 @@ impl<'src, D> Recipe<'src, D> {
         .prefix("just")
         .tempdir()
         .map_err(|error| Error::TmpdirIo {
-          recipe:   self.name(),
+          recipe: self.name(),
           io_error: error,
         })?;
       let mut path = tmp.path().to_path_buf();
@@ -125,7 +125,7 @@ impl<'src, D> Recipe<'src, D> {
 
       {
         let mut f = fs::File::create(&path).map_err(|error| Error::TmpdirIo {
-          recipe:   self.name(),
+          recipe: self.name(),
           io_error: error,
         })?;
         let mut text = String::new();
@@ -153,14 +153,14 @@ impl<'src, D> Recipe<'src, D> {
 
         f.write_all(text.as_bytes())
           .map_err(|error| Error::TmpdirIo {
-            recipe:   self.name(),
+            recipe: self.name(),
             io_error: error,
           })?;
       }
 
       // make the script executable
       Platform::set_execute_permission(&path).map_err(|error| Error::TmpdirIo {
-        recipe:   self.name(),
+        recipe: self.name(),
         io_error: error,
       })?;
 

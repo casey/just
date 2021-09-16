@@ -29,11 +29,11 @@ use crate::common::*;
 #[cfg_attr(test, derive(PartialEq, Debug))]
 pub struct Positional {
   /// Overrides from values of the form `[a-zA-Z_][a-zA-Z0-9_-]*=.*`
-  pub overrides:        Vec<(String, String)>,
+  pub overrides: Vec<(String, String)>,
   /// An argument equal to '.', '..', or ending with `/`
   pub search_directory: Option<String>,
   /// Everything else
-  pub arguments:        Vec<String>,
+  pub arguments: Vec<String>,
 }
 
 impl Positional {

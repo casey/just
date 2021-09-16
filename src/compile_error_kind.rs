@@ -3,7 +3,7 @@ use crate::common::*;
 #[derive(Debug, PartialEq)]
 pub(crate) enum CompileErrorKind<'src> {
   AliasShadowsRecipe {
-    alias:       &'src str,
+    alias: &'src str,
     recipe_line: usize,
   },
   BacktickShebang,
@@ -13,13 +13,13 @@ pub(crate) enum CompileErrorKind<'src> {
   },
   CircularVariableDependency {
     variable: &'src str,
-    circle:   Vec<&'src str>,
+    circle: Vec<&'src str>,
   },
   DependencyArgumentCountMismatch {
     dependency: &'src str,
-    found:      usize,
-    min:        usize,
-    max:        usize,
+    found: usize,
+    min: usize,
+    max: usize,
   },
   DeprecatedEquals,
   DuplicateAlias {
@@ -27,33 +27,33 @@ pub(crate) enum CompileErrorKind<'src> {
     first: usize,
   },
   DuplicateParameter {
-    recipe:    &'src str,
+    recipe: &'src str,
     parameter: &'src str,
   },
   DuplicateRecipe {
     recipe: &'src str,
-    first:  usize,
+    first: usize,
   },
   DuplicateSet {
     setting: &'src str,
-    first:   usize,
+    first: usize,
   },
   DuplicateVariable {
     variable: &'src str,
   },
   ExpectedKeyword {
     expected: Vec<Keyword>,
-    found:    &'src str,
+    found: &'src str,
   },
   ExtraLeadingWhitespace,
   FunctionArgumentCountMismatch {
     function: &'src str,
-    found:    usize,
+    found: usize,
     expected: usize,
   },
   InconsistentLeadingWhitespace {
     expected: &'src str,
-    found:    &'src str,
+    found: &'src str,
   },
   Internal {
     message: String,
@@ -62,8 +62,8 @@ pub(crate) enum CompileErrorKind<'src> {
     character: char,
   },
   MismatchedClosingDelimiter {
-    close:     Delimiter,
-    open:      Delimiter,
+    close: Delimiter,
+    open: Delimiter,
     open_line: usize,
   },
   MixedLeadingWhitespace {
@@ -92,14 +92,14 @@ pub(crate) enum CompileErrorKind<'src> {
   },
   UnexpectedToken {
     expected: Vec<TokenKind>,
-    found:    TokenKind,
+    found: TokenKind,
   },
   UnknownAliasTarget {
-    alias:  &'src str,
+    alias: &'src str,
     target: &'src str,
   },
   UnknownDependency {
-    recipe:  &'src str,
+    recipe: &'src str,
     unknown: &'src str,
   },
   UnknownFunction {
