@@ -58,15 +58,11 @@ impl<'src> Node<'src> for Expression<'src> {
         rhs,
         then,
         otherwise,
-        inverted,
+        operator,
       } => {
         let mut tree = Tree::atom(Keyword::If.lexeme());
         tree.push_mut(lhs.tree());
-        if *inverted {
-          tree.push_mut("!=");
-        } else {
-          tree.push_mut("==");
-        }
+        tree.push_mut(operator.to_string());
         tree.push_mut(rhs.tree());
         tree.push_mut(then.tree());
         tree.push_mut(otherwise.tree());

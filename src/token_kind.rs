@@ -21,6 +21,7 @@ pub(crate) enum TokenKind {
   Eol,
   Equals,
   EqualsEquals,
+  EqualsTilde,
   Identifier,
   Indent,
   InterpolationEnd,
@@ -69,6 +70,7 @@ impl Display for TokenKind {
         Plus => "'+'",
         StringToken => "string",
         Text => "command text",
+        EqualsTilde => "'=~'",
         Unspecified => "unspecified",
         Whitespace => "whitespace",
       }
