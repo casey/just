@@ -45,10 +45,10 @@ impl Subcommand {
       Changelog => {
         Self::changelog();
         return Ok(());
-      },
+      }
       Completions { shell } => return Self::completions(&shell),
       Init => return Self::init(config),
-      _ => {},
+      _ => {}
     }
 
     let search = Search::find(&config.search_config, &config.invocation_directory)?;
@@ -135,7 +135,7 @@ impl Subcommand {
           chooser,
           io_error,
         });
-      },
+      }
     };
 
     for recipe in recipes {
@@ -153,7 +153,7 @@ impl Subcommand {
       Ok(output) => output,
       Err(io_error) => {
         return Err(Error::ChooserRead { io_error, chooser });
-      },
+      }
     };
 
     if !output.status.success() {
@@ -206,7 +206,7 @@ impl Subcommand {
         },
       Shell::Fish => {
         script.insert_str(0, completions::FISH_RECIPE_COMPLETIONS);
-      },
+      }
       Shell::PowerShell =>
         for (needle, replacement) in completions::POWERSHELL_COMPLETION_REPLACEMENTS {
           replace(&mut script, needle, replacement)?;
@@ -216,7 +216,7 @@ impl Subcommand {
         for (needle, replacement) in completions::ZSH_COMPLETION_REPLACEMENTS {
           replace(&mut script, needle, replacement)?;
         },
-      Shell::Elvish => {},
+      Shell::Elvish => {}
     }
 
     println!("{}", script.trim());
@@ -363,7 +363,7 @@ impl Subcommand {
           _ => {
             let alias_doc = format!("alias for `{}`", recipe.name);
             print_doc(&alias_doc);
-          },
+          }
         }
         println!();
       }

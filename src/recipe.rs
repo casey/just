@@ -200,7 +200,7 @@ impl<'src, D> Recipe<'src, D> {
             argument: shebang.argument.map(String::from),
             io_error,
           });
-        },
+        }
       };
     } else {
       let mut lines = self.body.iter().peekable();
@@ -295,7 +295,7 @@ impl<'src, D> Recipe<'src, D> {
               recipe: self.name(),
               io_error,
             });
-          },
+          }
         };
       }
     }

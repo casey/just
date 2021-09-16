@@ -21,20 +21,20 @@ impl<'src> Analyzer<'src> {
         Item::Alias(alias) => {
           self.analyze_alias(&alias)?;
           self.aliases.insert(alias);
-        },
+        }
         Item::Assignment(assignment) => {
           self.analyze_assignment(&assignment)?;
           self.assignments.insert(assignment);
-        },
+        }
         Item::Comment(_) => (),
         Item::Recipe(recipe) => {
           self.analyze_recipe(&recipe)?;
           self.recipes.insert(recipe);
-        },
+        }
         Item::Set(set) => {
           self.analyze_set(&set)?;
           self.sets.insert(set);
-        },
+        }
       }
     }
 
@@ -65,17 +65,17 @@ impl<'src> Analyzer<'src> {
       match set.value {
         Setting::DotenvLoad(dotenv_load) => {
           settings.dotenv_load = Some(dotenv_load);
-        },
+        }
         Setting::Export(export) => {
           settings.export = export;
-        },
+        }
         Setting::PositionalArguments(positional_arguments) => {
           settings.positional_arguments = positional_arguments;
-        },
+        }
         Setting::Shell(shell) => {
           assert!(settings.shell.is_none());
           settings.shell = Some(shell);
-        },
+        }
       }
     }
 

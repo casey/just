@@ -331,7 +331,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
           Some(Keyword::Export) if self.next_are(&[Identifier, Identifier, ColonEquals]) => {
             self.presume_keyword(Keyword::Export)?;
             items.push(Item::Assignment(self.parse_assignment(true)?));
-          },
+          }
           Some(Keyword::Set)
             if self.next_are(&[Identifier, Identifier, ColonEquals])
               || self.next_are(&[Identifier, Identifier, Eol])
@@ -516,13 +516,13 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
             'r' => cooked.push('\r'),
             't' => cooked.push('\t'),
             '\\' => cooked.push('\\'),
-            '\n' => {},
+            '\n' => {}
             '"' => cooked.push('"'),
             other => {
               return Err(
                 token.error(CompileErrorKind::InvalidEscapeSequence { character: other }),
               );
-            },
+            }
           }
           escape = false;
         } else if c == '\\' {
@@ -859,7 +859,7 @@ mod tests {
           kind,
         };
         assert_eq!(have, want);
-      },
+      }
     }
   }
 

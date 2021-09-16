@@ -92,7 +92,7 @@ impl<'text> Tree<'text> {
       Tree::List(mut children) => {
         children.push(tree.into());
         Tree::List(children)
-      },
+      }
       Tree::Atom(text) => Tree::List(vec![Tree::Atom(text), tree.into()]),
     }
   }
@@ -137,7 +137,7 @@ impl Display for Tree<'_> {
         }
 
         write!(f, ")")
-      },
+      }
       Tree::Atom(text) => write!(f, "{}", text),
     }
   }

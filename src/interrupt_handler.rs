@@ -29,7 +29,7 @@ impl InterruptHandler {
           .color_display(Color::auto().stderr())
         );
         std::process::exit(EXIT_FAILURE);
-      },
+      }
     }
   }
 

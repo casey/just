@@ -52,7 +52,7 @@ impl<'src> Thunk<'src> {
             args: [a, b],
             name,
           })
-        },
+        }
         (Function::Ternary(function), 3) => {
           let c = Box::new(arguments.pop().unwrap());
           let b = Box::new(arguments.pop().unwrap());
@@ -62,7 +62,7 @@ impl<'src> Thunk<'src> {
             args: [a, b, c],
             name,
           })
-        },
+        }
         _ => Err(name.error(CompileErrorKind::FunctionArgumentCountMismatch {
           function: name.lexeme(),
           found:    arguments.len(),

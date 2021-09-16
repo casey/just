@@ -68,11 +68,11 @@ impl<T: Display, I: Iterator<Item = T> + Clone> Display for List<T, I> {
           write!(f, ", {}", c)?;
           current = Some(n);
           next = values.next();
-        },
+        }
         (Some(c), None) => {
           write!(f, ", {} {}", self.conjunction, c)?;
           return Ok(());
-        },
+        }
         _ => unreachable!("Iterator was fused, but returned Some after None"),
       }
     }

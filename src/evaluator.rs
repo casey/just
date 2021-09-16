@@ -64,7 +64,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
             message: format!("attempted to evaluate undefined variable `{}`", variable),
           })
         }
-      },
+      }
       Expression::Call { thunk } => {
         use Thunk::*;
 
@@ -121,7 +121,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
             message,
           }),
         }
-      },
+      }
       Expression::StringLiteral { string_literal } => Ok(string_literal.cooked.clone()),
       Expression::Backtick { contents, token } =>
         if self.config.dry_run {
@@ -146,7 +146,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         } else {
           self.evaluate_expression(otherwise)
         }
-      },
+      }
       Expression::Group { contents } => self.evaluate_expression(contents),
     }
   }
@@ -192,10 +192,10 @@ impl<'src, 'run> Evaluator<'src, 'run> {
           } else {
             evaluated += &lexeme;
           }
-        },
+        }
         Fragment::Interpolation { expression } => {
           evaluated += &self.evaluate_expression(expression)?;
-        },
+        }
       }
     }
     Ok(evaluated)

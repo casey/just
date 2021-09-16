@@ -65,7 +65,7 @@ impl<'src> ColorDisplay for Token<'src> {
           space_width.max(1),
           color.suffix()
         )?;
-      },
+      }
       None =>
         if self.offset != self.src.len() {
           write!(

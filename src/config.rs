@@ -432,26 +432,26 @@ impl Config {
     for subcommand in cmd::ARGLESS {
       if matches.is_present(subcommand) {
         match (!overrides.is_empty(), !positional.arguments.is_empty()) {
-          (false, false) => {},
+          (false, false) => {}
           (true, false) => {
             return Err(ConfigError::SubcommandOverrides {
               subcommand,
               overrides,
             });
-          },
+          }
           (false, true) => {
             return Err(ConfigError::SubcommandArguments {
               arguments: positional.arguments,
               subcommand,
             });
-          },
+          }
           (true, true) => {
             return Err(ConfigError::SubcommandOverridesAndArguments {
               arguments: positional.arguments,
               subcommand,
               overrides,
             });
-          },
+          }
         }
       }
     }

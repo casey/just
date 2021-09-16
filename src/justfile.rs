@@ -168,7 +168,7 @@ impl<'src> Justfile<'src> {
         };
 
         return Ok(());
-      },
+      }
       Subcommand::Evaluate { variable, .. } => {
         if let Some(variable) = variable {
           if let Some(value) = scope.value(variable) {
@@ -197,8 +197,8 @@ impl<'src> Justfile<'src> {
         }
 
         return Ok(());
-      },
-      _ => {},
+      }
+      _ => {}
     }
 
     let argvec: Vec<&str> = if !arguments.is_empty() {

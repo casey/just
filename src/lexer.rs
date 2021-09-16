@@ -86,7 +86,7 @@ impl<'src> Lexer<'src> {
         self.next = self.chars.next();
 
         Ok(())
-      },
+      }
       None => Err(self.internal_error("Lexer advanced past end of text")),
     }
   }
@@ -230,7 +230,7 @@ impl<'src> Lexer<'src> {
             return self.internal_error("Lexer::error: expected string or backtick token start"),
         };
         kind.delimiter().len()
-      },
+      }
       // highlight the full token
       _ => self.lexeme().len(),
     };
@@ -304,7 +304,7 @@ impl<'src> Lexer<'src> {
           } else {
             self.lex_normal(first)?;
           };
-        },
+        }
         None => break,
       }
     }
@@ -411,7 +411,7 @@ impl<'src> Lexer<'src> {
         };
 
         Ok(())
-      },
+      }
       Continue => {
         if !self.indentation().is_empty() {
           for _ in self.indentation().chars() {
@@ -422,7 +422,7 @@ impl<'src> Lexer<'src> {
         }
 
         Ok(())
-      },
+      }
       Decrease => {
         while self.indentation() != whitespace {
           self.lex_dedent();
@@ -437,14 +437,14 @@ impl<'src> Lexer<'src> {
         }
 
         Ok(())
-      },
+      }
       Mixed { whitespace } => {
         for _ in whitespace.chars() {
           self.advance()?;
         }
 
         Err(self.error(MixedLeadingWhitespace { whitespace }))
-      },
+      }
       Inconsistent => {
         for _ in whitespace.chars() {
           self.advance()?;
@@ -454,7 +454,7 @@ impl<'src> Lexer<'src> {
           expected: self.indentation(),
           found:    whitespace,
         }))
-      },
+      }
       Increase => {
         while self.next_is_whitespace() {
           self.advance()?;
@@ -472,7 +472,7 @@ impl<'src> Lexer<'src> {
         }
 
         Ok(())
-      },
+      }
     }
   }
 
@@ -504,7 +504,7 @@ impl<'src> Lexer<'src> {
       _ => {
         self.advance()?;
         Err(self.error(UnknownStartOfToken))
-      },
+      }
     }
   }
 
@@ -585,7 +585,7 @@ impl<'src> Lexer<'src> {
           .interpolation_stack
           .push(self.tokens[self.tokens.len() - 1]);
         Ok(())
-      },
+      }
       EndOfFile => Ok(()),
     }
   }
@@ -992,7 +992,7 @@ mod tests {
           kind,
         };
         assert_eq!(have, want);
-      },
+      }
     }
   }
 

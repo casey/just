@@ -74,26 +74,26 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
         } else {
           Err(name.token().error(UndefinedVariable { variable }))
         }
-      },
+      }
       Expression::Call { thunk } => match thunk {
         Thunk::Nullary { .. } => Ok(()),
         Thunk::Unary { arg, .. } => self.resolve_expression(arg),
         Thunk::Binary { args: [a, b], .. } => {
           self.resolve_expression(a)?;
           self.resolve_expression(b)
-        },
+        }
         Thunk::Ternary {
           args: [a, b, c], ..
         } => {
           self.resolve_expression(a)?;
           self.resolve_expression(b)?;
           self.resolve_expression(c)
-        },
+        }
       },
       Expression::Concatination { lhs, rhs } => {
         self.resolve_expression(lhs)?;
         self.resolve_expression(rhs)
-      },
+      }
       Expression::Conditional {
         lhs,
         rhs,
@@ -105,7 +105,7 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
         self.resolve_expression(rhs)?;
         self.resolve_expression(then)?;
         self.resolve_expression(otherwise)
-      },
+      }
       Expression::StringLiteral { .. } | Expression::Backtick { .. } => Ok(()),
       Expression::Group { contents } => self.resolve_expression(contents),
     }
