@@ -36,10 +36,8 @@ impl<'src, 'run> Scope<'src, 'run> {
   pub(crate) fn value(&self, name: &str) -> Option<&str> {
     if let Some(binding) = self.bindings.get(name) {
       Some(binding.value.as_ref())
-    } else if let Some(parent) = self.parent {
-      parent.value(name)
     } else {
-      None
+      self.parent?.value(name)
     }
   }
 

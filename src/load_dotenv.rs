@@ -48,8 +48,7 @@ fn load_from_file(
     && config.dotenv_filename.is_none()
     && config.dotenv_path.is_none()
     && !std::env::var_os("JUST_SUPPRESS_DOTENV_LOAD_WARNING")
-      .map(|val| val.as_os_str().to_str() == Some("1"))
-      .unwrap_or(false)
+      .map_or(false, |val| val.as_os_str().to_str() == Some("1"))
   {
     eprintln!(
       "{}",

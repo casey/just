@@ -75,17 +75,15 @@ impl Positional {
 
   /// Parse an override from a value of the form `NAME=.*`.
   fn override_from_value(value: &str) -> Option<(String, String)> {
-    if let Some(equals) = value.find('=') {
-      let (identifier, equals_value) = value.split_at(equals);
+    let equals = value.find('=')?;
 
-      // exclude `=` from value
-      let value = &equals_value[1..];
+    let (identifier, equals_value) = value.split_at(equals);
 
-      if Lexer::is_identifier(identifier) {
-        Some((identifier.to_owned(), value.to_owned()))
-      } else {
-        None
-      }
+    // exclude `=` from value
+    let value = &equals_value[1..];
+
+    if Lexer::is_identifier(identifier) {
+      Some((identifier.to_owned(), value.to_owned()))
     } else {
       None
     }

@@ -134,10 +134,10 @@ impl Search {
         }
       }
 
-      if candidates.len() == 1 {
-        return Ok(candidates.into_iter().next().unwrap());
-      } else if candidates.len() > 1 {
-        return Err(SearchError::MultipleCandidates { candidates });
+      match candidates.len() {
+        0 => {}
+        1 => return Ok(candidates.into_iter().next().unwrap()),
+        _ => return Err(SearchError::MultipleCandidates { candidates }),
       }
     }
 

@@ -33,8 +33,8 @@ impl<'line> Shebang<'line> {
   fn interpreter_filename(&self) -> &str {
     self
       .interpreter
-      .rsplit_once(|c| matches!(c, '/' | '\\'))
-      .map(|(_path, filename)| filename)
+      .split(|c| matches!(c, '/' | '\\'))
+      .last()
       .unwrap_or(self.interpreter)
   }
 

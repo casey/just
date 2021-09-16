@@ -1661,6 +1661,10 @@ https://github.com/casey/janus[Janus] is a tool that collects and analyzes justf
 
 Before merging a particularly large or gruesome change, Janus should be run to make sure that nothing breaks. Don't worry about running Janus yourself, Casey will happily run it for you on changes that need it.
 
+=== Minimum Supported Rust Version
+
+The minimum supported Rust version, or MSRV, can be found in link:rust-toolchain[].
+
 == Frequently Asked Questions
 
 === What are the idiosyncrasies of Make that Just avoids?
