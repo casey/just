@@ -466,10 +466,7 @@ impl Config {
         overrides,
       }
     } else if let Some(values) = matches.values_of_os(cmd::COMMAND) {
-      let mut arguments = values
-        .into_iter()
-        .map(OsStr::to_owned)
-        .collect::<Vec<OsString>>();
+      let mut arguments = values.map(OsStr::to_owned).collect::<Vec<OsString>>();
       Subcommand::Command {
         binary: arguments.remove(0),
         arguments,

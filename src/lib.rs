@@ -9,7 +9,6 @@
   clippy::shadow_unrelated,
   clippy::struct_excessive_bools,
   clippy::too_many_lines,
-  clippy::unnecessary_wraps,
   clippy::wildcard_imports
 )]
 
