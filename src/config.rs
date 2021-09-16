@@ -416,15 +416,17 @@ impl Config {
         match (justfile, working_directory) {
           (None, None) => SearchConfig::FromInvocationDirectory,
           (Some(justfile), None) => SearchConfig::WithJustfile { justfile },
-          (Some(justfile), Some(working_directory)) =>
+          (Some(justfile), Some(working_directory)) => {
             SearchConfig::WithJustfileAndWorkingDirectory {
               justfile,
               working_directory,
-            },
-          (None, Some(_)) =>
+            }
+          }
+          (None, Some(_)) => {
             return Err(ConfigError::internal(
               "--working-directory set without --justfile",
-            )),
+            ))
+          }
         }
       }
     };

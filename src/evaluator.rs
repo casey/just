@@ -75,11 +75,12 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         };
 
         match thunk {
-          Nullary { name, function, .. } =>
+          Nullary { name, function, .. } => {
             function(&context).map_err(|message| Error::FunctionCall {
               function: *name,
               message,
-            }),
+            })
+          }
           Unary {
             name,
             function,
@@ -123,14 +124,16 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         }
       }
       Expression::StringLiteral { string_literal } => Ok(string_literal.cooked.clone()),
-      Expression::Backtick { contents, token } =>
+      Expression::Backtick { contents, token } => {
         if self.config.dry_run {
           Ok(format!("`{}`", contents))
         } else {
           Ok(self.run_backtick(contents, token)?)
-        },
-      Expression::Concatination { lhs, rhs } =>
-        Ok(self.evaluate_expression(lhs)? + &self.evaluate_expression(rhs)?),
+        }
+      }
+      Expression::Concatination { lhs, rhs } => {
+        Ok(self.evaluate_expression(lhs)? + &self.evaluate_expression(rhs)?)
+      }
       Expression::Conditional {
         lhs,
         rhs,

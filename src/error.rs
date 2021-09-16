@@ -204,7 +204,7 @@ impl<'src> ColorDisplay for Error<'src> {
         min,
         max,
         ..
-      } =>
+      } => {
         if min == max {
           let expected = min;
           write!(
@@ -234,7 +234,8 @@ impl<'src> ColorDisplay for Error<'src> {
             Count("argument", *found),
             max
           )?;
-        },
+        }
+      }
       Backtick { output_error, .. } => match output_error {
         OutputError::Code(code) => {
           write!(f, "Backtick failed with exit code {}", code)?;
@@ -315,7 +316,7 @@ impl<'src> ColorDisplay for Error<'src> {
         recipe,
         line_number,
         code,
-      } =>
+      } => {
         if let Some(n) = line_number {
           write!(
             f,
@@ -324,7 +325,8 @@ impl<'src> ColorDisplay for Error<'src> {
           )?;
         } else {
           write!(f, "Recipe `{}` failed with exit code {}", recipe, code)?;
-        },
+        }
+      }
       CommandInvoke {
         binary,
         arguments,
@@ -511,7 +513,7 @@ impl<'src> ColorDisplay for Error<'src> {
         command,
         argument,
         io_error,
-      } =>
+      } => {
         if let Some(argument) = argument {
           write!(
             f,
@@ -524,12 +526,13 @@ impl<'src> ColorDisplay for Error<'src> {
             "Recipe `{}` with shebang `#!{}` execution error: {}",
             recipe, command, io_error
           )?;
-        },
+        }
+      }
       Signal {
         recipe,
         line_number,
         signal,
-      } =>
+      } => {
         if let Some(n) = line_number {
           write!(
             f,
@@ -538,7 +541,8 @@ impl<'src> ColorDisplay for Error<'src> {
           )?;
         } else {
           write!(f, "Recipe `{}` was terminated by signal {}", recipe, signal)?;
-        },
+        }
+      }
       TmpdirIo { recipe, io_error } => write!(
         f,
         "Recipe `{}` could not be run because of an IO error while trying to create a temporary \
@@ -548,7 +552,7 @@ impl<'src> ColorDisplay for Error<'src> {
       Unknown {
         recipe,
         line_number,
-      } =>
+      } => {
         if let Some(n) = line_number {
           write!(
             f,
@@ -557,7 +561,8 @@ impl<'src> ColorDisplay for Error<'src> {
           )?;
         } else {
           write!(f, "Recipe `{}` failed for an unknown reason", recipe)?;
-        },
+        }
+      }
       UnknownOverrides { overrides } => {
         write!(
           f,

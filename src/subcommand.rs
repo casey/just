@@ -70,8 +70,9 @@ impl Subcommand {
     }
 
     match self {
-      Choose { overrides, chooser } =>
-        Self::choose(config, justfile, &search, overrides, chooser.as_deref())?,
+      Choose { overrides, chooser } => {
+        Self::choose(config, justfile, &search, overrides, chooser.as_deref())?
+      }
       Command { overrides, .. } => justfile.run(config, &search, overrides, &[])?,
       Dump => Self::dump(ast),
       Evaluate { overrides, .. } => justfile.run(config, &search, overrides, &[])?,
@@ -200,22 +201,25 @@ impl Subcommand {
     let mut script = String::from_utf8(buffer).expect("Clap completion not UTF-8");
 
     match shell {
-      Shell::Bash =>
+      Shell::Bash => {
         for (needle, replacement) in completions::BASH_COMPLETION_REPLACEMENTS {
           replace(&mut script, needle, replacement)?;
-        },
+        }
+      }
       Shell::Fish => {
         script.insert_str(0, completions::FISH_RECIPE_COMPLETIONS);
       }
-      Shell::PowerShell =>
+      Shell::PowerShell => {
         for (needle, replacement) in completions::POWERSHELL_COMPLETION_REPLACEMENTS {
           replace(&mut script, needle, replacement)?;
-        },
+        }
+      }
 
-      Shell::Zsh =>
+      Shell::Zsh => {
         for (needle, replacement) in completions::ZSH_COMPLETION_REPLACEMENTS {
           replace(&mut script, needle, replacement)?;
-        },
+        }
+      }
       Shell::Elvish => {}
     }
 

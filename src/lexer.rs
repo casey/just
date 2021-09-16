@@ -226,8 +226,9 @@ impl<'src> Lexer<'src> {
       UnterminatedString | UnterminatedBacktick => {
         let kind = match StringKind::from_token_start(self.lexeme()) {
           Some(kind) => kind,
-          None =>
-            return self.internal_error("Lexer::error: expected string or backtick token start"),
+          None => {
+            return self.internal_error("Lexer::error: expected string or backtick token start")
+          }
         };
         kind.delimiter().len()
       }
@@ -644,11 +645,12 @@ impl<'src> Lexer<'src> {
       BracketR => self.close_delimiter(Bracket)?,
       ParenL => self.open_delimiter(Paren),
       ParenR => self.close_delimiter(Paren)?,
-      _ =>
+      _ => {
         return Err(self.internal_error(format!(
           "Lexer::lex_delimiter called with non-delimiter token: `{}`",
           kind,
-        ))),
+        )))
+      }
     }
 
     // Emit the delimiter token
@@ -947,8 +949,9 @@ mod tests {
       Dedent | Eof => "",
 
       // Variable lexemes
-      Text | StringToken | Backtick | Identifier | Comment | Unspecified =>
-        panic!("Token {:?} has no default lexeme", kind),
+      Text | StringToken | Backtick | Identifier | Comment | Unspecified => {
+        panic!("Token {:?} has no default lexeme", kind)
+      }
     }
   }
 

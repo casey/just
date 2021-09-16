@@ -181,7 +181,7 @@ impl<'src, D> Recipe<'src, D> {
 
       // run it!
       match InterruptHandler::guard(|| command.status()) {
-        Ok(exit_status) =>
+        Ok(exit_status) => {
           if let Some(code) = exit_status.code() {
             if code != 0 {
               return Err(Error::Code {
@@ -192,7 +192,8 @@ impl<'src, D> Recipe<'src, D> {
             }
           } else {
             return Err(error_from_signal(self.name(), None, exit_status));
-          },
+          }
+        }
         Err(io_error) => {
           return Err(Error::Shebang {
             recipe: self.name(),
@@ -274,7 +275,7 @@ impl<'src, D> Recipe<'src, D> {
         cmd.export(context.settings, dotenv, &scope);
 
         match InterruptHandler::guard(|| cmd.status()) {
-          Ok(exit_status) =>
+          Ok(exit_status) => {
             if let Some(code) = exit_status.code() {
               if code != 0 && !infallable_command {
                 return Err(Error::Code {
@@ -289,7 +290,8 @@ impl<'src, D> Recipe<'src, D> {
                 Some(line_number),
                 exit_status,
               ));
-            },
+            }
+          }
           Err(io_error) => {
             return Err(Error::Io {
               recipe: self.name(),

@@ -30,7 +30,7 @@ impl Display for CompileError<'_> {
       BacktickShebang => {
         write!(f, "Backticks may not start with `#!`")?;
       }
-      CircularRecipeDependency { recipe, ref circle } =>
+      CircularRecipeDependency { recipe, ref circle } => {
         if circle.len() == 2 {
           write!(f, "Recipe `{}` depends on itself", recipe)?;
         } else {
@@ -40,11 +40,12 @@ impl Display for CompileError<'_> {
             recipe,
             circle.join(" -> ")
           )?;
-        },
+        }
+      }
       CircularVariableDependency {
         variable,
         ref circle,
-      } =>
+      } => {
         if circle.len() == 2 {
           write!(f, "Variable `{}` is defined in terms of itself", variable)?;
         } else {
@@ -54,7 +55,8 @@ impl Display for CompileError<'_> {
             variable,
             circle.join(" -> ")
           )?;
-        },
+        }
+      }
       DependencyArgumentCountMismatch {
         dependency,
         found,

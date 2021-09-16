@@ -101,10 +101,11 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     let mut rest = self.rest();
     for kind in kinds {
       match rest.next() {
-        Some(token) =>
+        Some(token) => {
           if token.kind != *kind {
             return false;
-          },
+          }
+        }
         None => return false,
       }
     }
@@ -322,12 +323,15 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
         break;
       } else if self.next_is(Identifier) {
         match Keyword::from_lexeme(next.lexeme()) {
-          Some(Keyword::Alias) if self.next_are(&[Identifier, Identifier, Equals]) =>
-            return Err(self.get(2)?.error(CompileErrorKind::DeprecatedEquals)),
-          Some(Keyword::Alias) if self.next_are(&[Identifier, Identifier, ColonEquals]) =>
-            items.push(Item::Alias(self.parse_alias()?)),
-          Some(Keyword::Export) if self.next_are(&[Identifier, Identifier, Equals]) =>
-            return Err(self.get(2)?.error(CompileErrorKind::DeprecatedEquals)),
+          Some(Keyword::Alias) if self.next_are(&[Identifier, Identifier, Equals]) => {
+            return Err(self.get(2)?.error(CompileErrorKind::DeprecatedEquals))
+          }
+          Some(Keyword::Alias) if self.next_are(&[Identifier, Identifier, ColonEquals]) => {
+            items.push(Item::Alias(self.parse_alias()?))
+          }
+          Some(Keyword::Export) if self.next_are(&[Identifier, Identifier, Equals]) => {
+            return Err(self.get(2)?.error(CompileErrorKind::DeprecatedEquals))
+          }
           Some(Keyword::Export) if self.next_are(&[Identifier, Identifier, ColonEquals]) => {
             self.presume_keyword(Keyword::Export)?;
             items.push(Item::Assignment(self.parse_assignment(true)?));
@@ -336,8 +340,10 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
             if self.next_are(&[Identifier, Identifier, ColonEquals])
               || self.next_are(&[Identifier, Identifier, Eol])
               || self.next_are(&[Identifier, Identifier, Eof]) =>
-            items.push(Item::Set(self.parse_set()?)),
-          _ =>
+          {
+            items.push(Item::Set(self.parse_set()?))
+          }
+          _ => {
             if self.next_are(&[Identifier, Equals]) {
               return Err(self.get(1)?.error(CompileErrorKind::DeprecatedEquals));
             } else if self.next_are(&[Identifier, ColonEquals]) {
@@ -345,7 +351,8 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
             } else {
               let doc = pop_doc_comment(&mut items, eol_since_last_comment);
               items.push(Item::Recipe(self.parse_recipe(doc, false)?));
-            },
+            }
+          }
         }
       } else if self.accepted(At)? {
         let doc = pop_doc_comment(&mut items, eol_since_last_comment);

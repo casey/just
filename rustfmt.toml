@@ -1,5 +1,4 @@
 edition = "2018"
-match_arm_blocks = false
 max_width = 100
 newline_style = "Unix"
 tab_spaces = 2

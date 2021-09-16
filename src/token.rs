@@ -66,14 +66,15 @@ impl<'src> ColorDisplay for Token<'src> {
           color.suffix()
         )?;
       }
-      None =>
+      None => {
         if self.offset != self.src.len() {
           write!(
             f,
             "internal error: Error has invalid line number: {}",
             line_number
           )?;
-        },
+        }
+      }
     }
 
     Ok(())
