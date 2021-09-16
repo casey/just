@@ -146,7 +146,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         let condition = match operator {
           ConditionalOperator::Equality => lhs_value == rhs_value,
           ConditionalOperator::Inequality => lhs_value != rhs_value,
-          ConditionalOperator::Match => Regex::new(&rhs_value)
+          ConditionalOperator::RegexMatch => Regex::new(&rhs_value)
             .map_err(|source| Error::RegexCompile { source })?
             .is_match(&lhs_value),
         };

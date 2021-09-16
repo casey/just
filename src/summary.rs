@@ -271,7 +271,7 @@ impl Expression {
 pub enum ConditionalOperator {
   Equality,
   Inequality,
-  Match,
+  RegexMatch,
 }
 
 impl ConditionalOperator {
@@ -279,7 +279,7 @@ impl ConditionalOperator {
     match operator {
       full::ConditionalOperator::Equality => Self::Equality,
       full::ConditionalOperator::Inequality => Self::Inequality,
-      full::ConditionalOperator::Match => Self::Match,
+      full::ConditionalOperator::RegexMatch => Self::RegexMatch,
     }
   }
 }

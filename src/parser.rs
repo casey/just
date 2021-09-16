@@ -422,7 +422,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     let operator = if self.accepted(BangEquals)? {
       ConditionalOperator::Inequality
     } else if self.accepted(EqualsTilde)? {
-      ConditionalOperator::Match
+      ConditionalOperator::RegexMatch
     } else {
       self.expect(EqualsEquals)?;
       ConditionalOperator::Equality
