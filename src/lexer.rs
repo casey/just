@@ -475,25 +475,25 @@ impl<'src> Lexer<'src> {
   /// Lex token beginning with `start` outside of a recipe body
   fn lex_normal(&mut self, start: char) -> CompileResult<'src, ()> {
     match start {
-      '&' => self.lex_digraph('&', '&', AmpersandAmpersand),
+      ' ' | '\t' => self.lex_whitespace(),
       '!' => self.lex_digraph('!', '=', BangEquals),
-      '*' => self.lex_single(Asterisk),
+      '#' => self.lex_comment(),
       '$' => self.lex_single(Dollar),
-      '@' => self.lex_single(At),
-      '[' => self.lex_delimiter(BracketL),
-      ']' => self.lex_delimiter(BracketR),
-      '=' => self.lex_choice('=', EqualsEquals, Equals),
-      ',' => self.lex_single(Comma),
-      ':' => self.lex_colon(),
+      '&' => self.lex_digraph('&', '&', AmpersandAmpersand),
       '(' => self.lex_delimiter(ParenL),
       ')' => self.lex_delimiter(ParenR),
+      '*' => self.lex_single(Asterisk),
+      '+' => self.lex_single(Plus),
+      ',' => self.lex_single(Comma),
+      ':' => self.lex_colon(),
+      '=' => self.lex_choices('=', &[('=', EqualsEquals), ('~', EqualsTilde)], Equals),
+      '@' => self.lex_single(At),
+      '[' => self.lex_delimiter(BracketL),
+      '\n' | '\r' => self.lex_eol(),
+      ']' => self.lex_delimiter(BracketR),
+      '`' | '"' | '\'' => self.lex_string(),
       '{' => self.lex_delimiter(BraceL),
       '}' => self.lex_delimiter(BraceR),
-      '+' => self.lex_single(Plus),
-      '#' => self.lex_comment(),
-      ' ' | '\t' => self.lex_whitespace(),
-      '`' | '"' | '\'' => self.lex_string(),
-      '\n' | '\r' => self.lex_eol(),
       _ if Self::is_identifier_start(start) => self.lex_identifier(),
       _ => {
         self.advance()?;
@@ -610,19 +610,21 @@ impl<'src> Lexer<'src> {
   /// Lex a double-character token of kind `then` if the second character of
   /// that token would be `second`, otherwise lex a single-character token of
   /// kind `otherwise`
-  fn lex_choice(
+  fn lex_choices(
     &mut self,
-    second: char,
-    then: TokenKind,
+    first: char,
+    choices: &[(char, TokenKind)],
     otherwise: TokenKind,
   ) -> CompileResult<'src, ()> {
-    self.advance()?;
+    self.presume(first)?;
 
-    if self.accepted(second)? {
-      self.token(then);
-    } else {
-      self.token(otherwise);
+    for (second, then) in choices {
+      if self.accepted(*second)? {
+        return Ok(self.token(*then));
+      }
     }
+
+    self.token(otherwise);
 
     Ok(())
   }
@@ -930,6 +932,7 @@ mod tests {
       Eol => "\n",
       Equals => "=",
       EqualsEquals => "==",
+      EqualsTilde => "=~",
       Indent => "  ",
       InterpolationEnd => "}}",
       InterpolationStart => "{{",
@@ -2054,7 +2057,7 @@ mod tests {
 
   error! {
     name:   tokenize_unknown,
-    input:  "~",
+    input:  "%",
     offset: 0,
     line:   0,
     column: 0,
@@ -2111,16 +2114,6 @@ mod tests {
     column: 3,
     width:  1,
     kind:   UnpairedCarriageReturn,
-  }
-
-  error! {
-    name:   unknown_start_of_token_tilde,
-    input:  "~",
-    offset: 0,
-    line:   0,
-    column: 0,
-    width:  1,
-    kind:   UnknownStartOfToken,
   }
 
   error! {

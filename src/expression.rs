@@ -26,7 +26,7 @@ pub(crate) enum Expression<'src> {
     rhs: Box<Expression<'src>>,
     then: Box<Expression<'src>>,
     otherwise: Box<Expression<'src>>,
-    inverted: bool,
+    operator: ConditionalOperator,
   },
   /// `(contents)`
   Group { contents: Box<Expression<'src>> },
@@ -52,15 +52,11 @@ impl<'src> Display for Expression<'src> {
         rhs,
         then,
         otherwise,
-        inverted,
+        operator,
       } => write!(
         f,
         "if {} {} {} {{ {} }} else {{ {} }}",
-        lhs,
-        if *inverted { "!=" } else { "==" },
-        rhs,
-        then,
-        otherwise
+        lhs, operator, rhs, then, otherwise
       ),
       Expression::StringLiteral { string_literal } => write!(f, "{}", string_literal),
       Expression::Variable { name } => write!(f, "{}", name.lexeme()),

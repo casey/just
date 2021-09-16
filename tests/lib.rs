@@ -25,6 +25,7 @@ mod misc;
 mod positional_arguments;
 mod quiet;
 mod readme;
+mod regexes;
 mod search;
 mod shebang;
 mod shell;

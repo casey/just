@@ -139,11 +139,17 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         rhs,
         then,
         otherwise,
-        inverted,
+        operator,
       } => {
-        let lhs = self.evaluate_expression(lhs)?;
-        let rhs = self.evaluate_expression(rhs)?;
-        let condition = if *inverted { lhs != rhs } else { lhs == rhs };
+        let lhs_value = self.evaluate_expression(lhs)?;
+        let rhs_value = self.evaluate_expression(rhs)?;
+        let condition = match operator {
+          ConditionalOperator::Equality => lhs_value == rhs_value,
+          ConditionalOperator::Inequality => lhs_value != rhs_value,
+          ConditionalOperator::Match => Regex::new(&rhs_value)
+            .map_err(|source| Error::RegexCompile { source })?
+            .is_match(&lhs_value),
+        };
         if condition {
           self.evaluate_expression(then)
         } else {

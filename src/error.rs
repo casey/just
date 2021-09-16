@@ -95,6 +95,9 @@ pub(crate) enum Error<'src> {
   },
   NoChoosableRecipes,
   NoRecipes,
+  RegexCompile {
+    source: regex::Error,
+  },
   Search {
     search_error: SearchError,
   },
@@ -506,6 +509,9 @@ impl<'src> ColorDisplay for Error<'src> {
       }
       NoRecipes => {
         write!(f, "Justfile contains no recipes.")?;
+      }
+      RegexCompile { source } => {
+        write!(f, "{}", source)?;
       }
       Search { search_error } => Display::fmt(search_error, f)?,
       Shebang {

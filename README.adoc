@@ -884,6 +884,22 @@ $ just bar
 xyz
 ```
 
+And match against regular expressions:
+
+```make
+foo := if "hello" =~ 'hel+o' { "match" } else { "mismatch" }
+
+bar:
+  @echo {{foo}}
+```
+
+```sh
+$ just bar
+match
+```
+
+Regular expressions are provided by the https://github.com/rust-lang/regex[regex crate], whose syntax is documented on https://docs.rs/regex/1.5.4/regex/#syntax[docs.rs]. Since regular expressions commonly use backslash escape sequences, consider using single-quoted string literals, which will pass slashes to the regex parser unmolested.
+
 Conditional expressions short-circuit, which means they only evaluate one of
 their branches. This can be used to make sure that backtick expressions don't
 run when they shouldn't.

@@ -18,9 +18,9 @@ use crate::compiler::Compiler;
 
 mod full {
   pub(crate) use crate::{
-    assignment::Assignment, dependency::Dependency, expression::Expression, fragment::Fragment,
-    justfile::Justfile, line::Line, parameter::Parameter, parameter_kind::ParameterKind,
-    recipe::Recipe, thunk::Thunk,
+    assignment::Assignment, conditional_operator::ConditionalOperator, dependency::Dependency,
+    expression::Expression, fragment::Fragment, justfile::Justfile, line::Line,
+    parameter::Parameter, parameter_kind::ParameterKind, recipe::Recipe, thunk::Thunk,
   };
 }
 
@@ -198,7 +198,7 @@ pub enum Expression {
     rhs: Box<Expression>,
     then: Box<Expression>,
     otherwise: Box<Expression>,
-    inverted: bool,
+    operator: ConditionalOperator,
   },
   String {
     text: String,
@@ -245,16 +245,16 @@ impl Expression {
       },
       Conditional {
         lhs,
-        rhs,
-        inverted,
-        then,
+        operator,
         otherwise,
+        rhs,
+        then,
       } => Expression::Conditional {
         lhs: Box::new(Expression::new(lhs)),
+        operator: ConditionalOperator::new(operator),
+        otherwise: Box::new(Expression::new(otherwise)),
         rhs: Box::new(Expression::new(rhs)),
         then: Box::new(Expression::new(then)),
-        otherwise: Box::new(Expression::new(otherwise)),
-        inverted: *inverted,
       },
       StringLiteral { string_literal } => Expression::String {
         text: string_literal.cooked.clone(),
@@ -268,14 +268,31 @@ impl Expression {
 }
 
 #[derive(Eq, PartialEq, Hash, Ord, PartialOrd, Debug, Clone)]
+pub enum ConditionalOperator {
+  Equality,
+  Inequality,
+  Match,
+}
+
+impl ConditionalOperator {
+  fn new(operator: &full::ConditionalOperator) -> Self {
+    match operator {
+      full::ConditionalOperator::Equality => Self::Equality,
+      full::ConditionalOperator::Inequality => Self::Inequality,
+      full::ConditionalOperator::Match => Self::Match,
+    }
+  }
+}
+
+#[derive(Eq, PartialEq, Hash, Ord, PartialOrd, Debug, Clone)]
 pub struct Dependency {
   pub recipe: String,
   pub arguments: Vec<Expression>,
 }
 
 impl Dependency {
-  fn new(dependency: &full::Dependency) -> Dependency {
-    Dependency {
+  fn new(dependency: &full::Dependency) -> Self {
+    Self {
       recipe: dependency.recipe.name().to_owned(),
       arguments: dependency.arguments.iter().map(Expression::new).collect(),
     }

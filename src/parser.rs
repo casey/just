@@ -419,11 +419,14 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   fn parse_conditional(&mut self) -> CompileResult<'src, Expression<'src>> {
     let lhs = self.parse_expression()?;
 
-    let inverted = self.accepted(BangEquals)?;
-
-    if !inverted {
+    let operator = if self.accepted(BangEquals)? {
+      ConditionalOperator::Inequality
+    } else if self.accepted(EqualsTilde)? {
+      ConditionalOperator::Match
+    } else {
       self.expect(EqualsEquals)?;
-    }
+      ConditionalOperator::Equality
+    };
 
     let rhs = self.parse_expression()?;
 
@@ -449,7 +452,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
       rhs: Box::new(rhs),
       then: Box::new(then),
       otherwise: Box::new(otherwise),
-      inverted,
+      operator,
     })
   }
 
