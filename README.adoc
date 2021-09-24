@@ -135,7 +135,9 @@ list:
 | https://archlinux.org/packages/community/x86_64/just/[just]
 | `pacman -S just`
 
-| https://nixos.org/nixos/[NixOS], https://nixos.org/nix/manual/#ch-supported-platforms[Linux], https://nixos.org/nix/manual/#ch-supported-platforms[macOS]
+| https://nixos.org/nixos/[NixOS],
+  https://nixos.org/nix/manual/#ch-supported-platforms[Linux],
+  https://nixos.org/nix/manual/#ch-supported-platforms[macOS]
 | https://nixos.org/nix/[Nix]
 | https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/tools/just/default.nix[just]
 | `nix-env -iA nixos.just`
