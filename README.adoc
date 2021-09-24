@@ -176,7 +176,6 @@ list:
 | `conda install -c conda-forge just`
 |===
 
-
 === Pre-Built Binaries
 
 Pre-built binaries for Linux, MacOS, and Windows can be found on https://github.com/casey/just/releases[the releases page].
