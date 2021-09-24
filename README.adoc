@@ -105,7 +105,6 @@ list:
 
 [options="header"]
 |=
-
 | Operating System
 | Package Manager
 | Package
@@ -175,7 +174,6 @@ list:
 | https://docs.conda.io/projects/conda/en/latest/index.html[Conda]
 | https://anaconda.org/conda-forge/just[just]
 | `conda install -c conda-forge just`
-
 |=
 
 
