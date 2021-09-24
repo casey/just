@@ -206,8 +206,6 @@ export PATH="$PATH:$HOME/bin"
 just --help
 ```
 
-/sys/bin
-
 === GitHub Actions
 
 link:https://github.com/extractions/setup-just[extractions/setup-just] can be used to install `just` in a GitHub Actions workflow.
