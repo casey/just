@@ -1,8 +1,24 @@
 Changelog
 =========
 
+[0.10.2](https://github.com/casey/just/releases/tag/0.10.2) - 2021-9-26
+-----------------------------------------------------------------------
+
+### Added
+- Implement regular expression match conditionals (#970)
+
+### Misc
+- Add detailed instructions for installing prebuilt binaries (#978)
+- Improve readme package table formatting (#977)
+- Add conda package to README (#976)
+- Change MSRV to 1.46.0 (#968)
+- Use stable rustfmt instead of nightly (#967)
+- Fix readme typo: FOO → WORLD (#964)
+- Reword Emacs section in readme (#962)
+- Mention justl mode for Emacs (#961)
+
 [0.10.1](https://github.com/casey/just/releases/tag/0.10.1) - 2021-8-27
-----------------------------------------------------------------------
+-----------------------------------------------------------------------
 
 ### Added
 - Add flags for specifying name and path to environment file (#941)
