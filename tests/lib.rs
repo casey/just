@@ -12,6 +12,7 @@ mod conditional;
 mod delimiters;
 mod dotenv;
 mod edit;
+mod equals;
 mod error_messages;
 mod evaluate;
 mod examples;

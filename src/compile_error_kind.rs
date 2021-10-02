@@ -21,7 +21,6 @@ pub(crate) enum CompileErrorKind<'src> {
     min: usize,
     max: usize,
   },
-  DeprecatedEquals,
   DuplicateAlias {
     alias: &'src str,
     first: usize,

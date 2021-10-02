@@ -80,16 +80,6 @@ impl Display for CompileError<'_> {
           write!(f, "at most {} {}", max, Count("argument", *max))?;
         }
       }
-      DeprecatedEquals => {
-        writeln!(
-          f,
-          "`=` in assignments, exports, and aliases has been phased out on favor of `:=`"
-        )?;
-        write!(
-          f,
-          "Please see this issue for more details: https://github.com/casey/just/issues/379"
-        )?;
-      }
       DuplicateAlias { alias, first } => {
         write!(
           f,

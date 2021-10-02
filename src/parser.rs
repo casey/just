@@ -112,14 +112,6 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     true
   }
 
-  /// Get the `n`th next significant token
-  fn get(&self, n: usize) -> CompileResult<'src, Token<'src>> {
-    match self.rest().nth(n) {
-      Some(token) => Ok(token),
-      None => Err(self.internal_error("`Parser::get()` advanced past end of token stream")?),
-    }
-  }
-
   /// Advance past one significant token, clearing the expected token set.
   fn advance(&mut self) -> CompileResult<'src, Token<'src>> {
     self.expected.clear();
@@ -323,14 +315,8 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
         break;
       } else if self.next_is(Identifier) {
         match Keyword::from_lexeme(next.lexeme()) {
-          Some(Keyword::Alias) if self.next_are(&[Identifier, Identifier, Equals]) => {
-            return Err(self.get(2)?.error(CompileErrorKind::DeprecatedEquals))
-          }
           Some(Keyword::Alias) if self.next_are(&[Identifier, Identifier, ColonEquals]) => {
             items.push(Item::Alias(self.parse_alias()?));
-          }
-          Some(Keyword::Export) if self.next_are(&[Identifier, Identifier, Equals]) => {
-            return Err(self.get(2)?.error(CompileErrorKind::DeprecatedEquals))
           }
           Some(Keyword::Export) if self.next_are(&[Identifier, Identifier, ColonEquals]) => {
             self.presume_keyword(Keyword::Export)?;
@@ -344,9 +330,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
             items.push(Item::Set(self.parse_set()?));
           }
           _ => {
-            if self.next_are(&[Identifier, Equals]) {
-              return Err(self.get(1)?.error(CompileErrorKind::DeprecatedEquals));
-            } else if self.next_are(&[Identifier, ColonEquals]) {
+            if self.next_are(&[Identifier, ColonEquals]) {
               items.push(Item::Assignment(self.parse_assignment(false)?));
             } else {
               let doc = pop_doc_comment(&mut items, eol_since_last_comment);

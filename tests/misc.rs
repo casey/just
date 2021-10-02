@@ -1831,7 +1831,7 @@ default a=`read A && echo $A` b=`read B && echo $B`:
 }
 
 test! {
-  name: equals_deprecated_assignment,
+  name: old_equals_assignment_syntax_produces_error,
   justfile: "
     foo = 'bar'
 
@@ -1839,49 +1839,11 @@ test! {
       echo {{foo}}
   ",
   stderr: "
-    error: `=` in assignments, exports, and aliases has been phased out on favor of `:=`
-    Please see this issue for more details: https://github.com/casey/just/issues/379
+    error: Expected '*', ':', '$', identifier, or '+', but found '='
       |
     1 | foo = 'bar'
       |     ^
-  ",
-  status: EXIT_FAILURE,
-}
-
-test! {
-  name: equals_deprecated_export,
-  justfile: "
-    export FOO = 'bar'
-
-    default:
-      echo $FOO
     ",
-  stderr: "
-    error: `=` in assignments, exports, and aliases has been phased out on favor of `:=`
-    Please see this issue for more details: https://github.com/casey/just/issues/379
-      |
-    1 | export FOO = 'bar'
-      |            ^
-  ",
-  status: EXIT_FAILURE,
-}
-
-test! {
-  name: equals_deprecated_alias,
-  justfile: "
-    alias foo = default
-
-    default:
-      echo default
-  ",
-  args: ("foo"),
-  stderr: "
-    error: `=` in assignments, exports, and aliases has been phased out on favor of `:=`
-    Please see this issue for more details: https://github.com/casey/just/issues/379
-      |
-    1 | alias foo = default
-      |           ^
-  ",
   status: EXIT_FAILURE,
 }
 
