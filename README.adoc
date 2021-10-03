@@ -25,6 +25,8 @@ cc *.c -o main
 Yay, all your tests passed!
 ```
 
+image:usage.gif[usage]
+
 `just` has a ton of useful features, and many improvements over `make`:
 
 - `just` is a command runner, not a build system, so it avoids much of
