@@ -14,17 +14,6 @@ image:https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg[say thanks,link=mai
 
 Commands, called recipes, are stored in a file called `justfile` with syntax inspired by `make`:
 
-image:screenshot.png[screenshot]
-
-You can then run them with `just RECIPE`:
-
-```sh
-$ just test-all
-cc *.c -o main
-./test --all
-Yay, all your tests passed!
-```
-
 image:usage.gif[usage]
 
 `just` has a ton of useful features, and many improvements over `make`:
