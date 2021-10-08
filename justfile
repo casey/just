@@ -198,3 +198,23 @@ pwd:
 # mode: makefile
 # End:
 # vim: set ft=make :
+
+# record, upload, and render demo animation
+demo: demo-record demo-upload demo-render
+
+demo-record:
+	#!/usr/bin/env bash
+	set -euxo pipefail
+	cargo build --release --all
+	rm -f tmp/justfile
+	asciinema rec \
+		--title "Just {{version}} Demo" \
+		--command ./target/release/demo \
+		--overwrite \
+		tmp/demo.json
+
+demo-upload:
+	asciinema upload tmp/demo.json
+
+demo-render:
+	../asciicast2gif/asciicast2gif -S4 tmp/demo.json www/demo.gif
