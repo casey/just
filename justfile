@@ -200,7 +200,7 @@ pwd:
 # vim: set ft=make :
 
 # record, upload, and render demo animation
-demo: demo-record demo-upload demo-render
+demo: demo-record demo-render
 
 demo-record:
 	#!/usr/bin/env bash
@@ -217,4 +217,4 @@ demo-upload:
 	asciinema upload tmp/demo.json
 
 demo-render:
-	../asciicast2gif/asciicast2gif -S4 tmp/demo.json www/demo.gif
+	asciicast2gif -S4 tmp/demo.json www/demo.gif
