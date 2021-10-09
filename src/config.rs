@@ -45,6 +45,7 @@ mod cmd {
   pub(crate) const FORMAT: &str = "FORMAT";
   pub(crate) const INIT: &str = "INIT";
   pub(crate) const LIST: &str = "LIST";
+  pub(crate) const JSON: &str = "JSON";
   pub(crate) const SHOW: &str = "SHOW";
   pub(crate) const SUMMARY: &str = "SUMMARY";
   pub(crate) const VARIABLES: &str = "VARIABLES";
@@ -59,6 +60,7 @@ mod cmd {
     EVALUATE,
     FORMAT,
     INIT,
+    JSON,
     LIST,
     SHOW,
     SUMMARY,
@@ -72,6 +74,7 @@ mod cmd {
     EDIT,
     FORMAT,
     INIT,
+    JSON,
     LIST,
     SHOW,
     SUMMARY,
@@ -275,7 +278,7 @@ impl Config {
       .arg(
         Arg::with_name(cmd::DUMP)
           .long("dump")
-          .help("Print entire justfile"),
+          .help("Print justfile"),
       )
       .arg(
         Arg::with_name(cmd::EDIT)
@@ -296,6 +299,11 @@ impl Config {
         Arg::with_name(cmd::INIT)
           .long("init")
           .help("Initialize new justfile in project root"),
+      )
+      .arg(
+        Arg::with_name(cmd::JSON)
+          .long("json")
+          .help("Print justfile as JSON"),
       )
       .arg(
         Arg::with_name(cmd::LIST)
@@ -486,6 +494,8 @@ impl Config {
       Subcommand::Format
     } else if matches.is_present(cmd::INIT) {
       Subcommand::Init
+    } else if matches.is_present(cmd::JSON) {
+      Subcommand::Json
     } else if matches.is_present(cmd::LIST) {
       Subcommand::List
     } else if let Some(name) = matches.value_of(cmd::SHOW) {

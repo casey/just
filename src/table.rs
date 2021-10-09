@@ -93,3 +93,13 @@ impl<'table, V: Keyed<'table> + 'table> IntoIterator for &'table Table<'table, V
     self.map.iter()
   }
 }
+
+impl<'key, V: Keyed<'key>> Serialize for Table<'key, V> {
+  fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+  where
+    S: Serializer,
+  {
+    let mut map = serializer.serialize_map(None)?;
+    map.end()
+  }
+}

@@ -25,6 +25,7 @@ pub(crate) enum Subcommand {
   },
   Format,
   Init,
+  Json,
   List,
   Run {
     overrides: BTreeMap<String, String>,
@@ -78,6 +79,7 @@ impl Subcommand {
       }
       Dump => Self::dump(ast),
       Format => Self::format(config, ast, &search)?,
+      Json => Self::json(justfile)?,
       List => Self::list(config, justfile),
       Run {
         arguments,
@@ -291,6 +293,11 @@ impl Subcommand {
       }
       Ok(())
     }
+  }
+
+  fn json(justfile: Justfile) -> Result<(), Error<'static>> {
+    serde_json::to_writer(io::stdout(), &justfile).unwrap();
+    Ok(())
   }
 
   fn list(config: &Config, justfile: Justfile) {

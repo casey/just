@@ -10,6 +10,10 @@ pub(crate) struct Justfile<'src> {
 }
 
 impl<'src> Justfile<'src> {
+  pub(crate) fn count(&self) -> usize {
+    self.recipes.len()
+  }
+
   pub(crate) fn first(&self) -> Option<&Recipe<'src>> {
     let mut first: Option<&Recipe<Dependency>> = None;
     for recipe in self.recipes.values() {
@@ -22,10 +26,6 @@ impl<'src> Justfile<'src> {
       }
     }
     first
-  }
-
-  pub(crate) fn count(&self) -> usize {
-    self.recipes.len()
   }
 
   pub(crate) fn suggest_recipe(&self, input: &str) -> Option<Suggestion<'src>> {
@@ -406,6 +406,19 @@ impl<'src> ColorDisplay for Justfile<'src> {
       }
     }
     Ok(())
+  }
+}
+
+impl<'src> Serialize for Justfile<'src> {
+  fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+  where
+    S: Serializer,
+  {
+    let mut map = serializer.serialize_map(None)?;
+
+    map.serialize_entry("recipes", &self.recipes)?;
+
+    map.end()
   }
 }
 
