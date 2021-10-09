@@ -14,33 +14,43 @@ impl<'expression, 'src> Iterator for Variables<'expression, 'src> {
   type Item = Token<'src>;
 
   fn next(&mut self) -> Option<Token<'src>> {
-    match self.stack.pop() {
-      None
-      | Some(Expression::StringLiteral { .. })
-      | Some(Expression::Backtick { .. })
-      | Some(Expression::Call { .. }) => None,
-      Some(Expression::Conditional {
-        lhs,
-        rhs,
-        then,
-        otherwise,
-        ..
-      }) => {
-        self.stack.push(lhs);
-        self.stack.push(rhs);
-        self.stack.push(then);
-        self.stack.push(otherwise);
-        self.next()
-      }
-      Some(Expression::Variable { name, .. }) => Some(name.token()),
-      Some(Expression::Concatination { lhs, rhs }) => {
-        self.stack.push(lhs);
-        self.stack.push(rhs);
-        self.next()
-      }
-      Some(Expression::Group { contents }) => {
-        self.stack.push(contents);
-        self.next()
+    loop {
+      match self.stack.pop()? {
+        Expression::StringLiteral { .. } | Expression::Backtick { .. } => {}
+        Expression::Call { thunk } => match thunk {
+          Thunk::Nullary { .. } => {}
+          Thunk::Unary { arg, .. } => self.stack.push(arg),
+          Thunk::Binary { args, .. } => {
+            for arg in args.iter().rev() {
+              self.stack.push(arg);
+            }
+          }
+          Thunk::Ternary { args, .. } => {
+            for arg in args.iter().rev() {
+              self.stack.push(arg);
+            }
+          }
+        },
+        Expression::Conditional {
+          lhs,
+          rhs,
+          then,
+          otherwise,
+          ..
+        } => {
+          self.stack.push(otherwise);
+          self.stack.push(then);
+          self.stack.push(rhs);
+          self.stack.push(lhs);
+        }
+        Expression::Variable { name, .. } => return Some(name.token()),
+        Expression::Concatination { lhs, rhs } => {
+          self.stack.push(rhs);
+          self.stack.push(lhs);
+        }
+        Expression::Group { contents } => {
+          self.stack.push(contents);
+        }
       }
     }
   }
