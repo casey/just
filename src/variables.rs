@@ -38,15 +38,15 @@ impl<'expression, 'src> Iterator for Variables<'expression, 'src> {
           otherwise,
           ..
         } => {
-          self.stack.push(lhs);
-          self.stack.push(rhs);
-          self.stack.push(then);
           self.stack.push(otherwise);
+          self.stack.push(then);
+          self.stack.push(rhs);
+          self.stack.push(lhs);
         }
         Expression::Variable { name, .. } => return Some(name.token()),
         Expression::Concatination { lhs, rhs } => {
-          self.stack.push(lhs);
           self.stack.push(rhs);
+          self.stack.push(lhs);
         }
         Expression::Group { contents } => {
           self.stack.push(contents);
