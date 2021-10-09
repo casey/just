@@ -1,11 +1,17 @@
 use crate::common::*;
 
-#[derive(Debug, PartialEq)]
+use serde::Serialize;
+
+#[derive(Debug, PartialEq, Serialize)]
 pub(crate) struct Justfile<'src> {
-  pub(crate) recipes: Table<'src, Rc<Recipe<'src>>>,
-  pub(crate) assignments: Table<'src, Assignment<'src>>,
+  #[serde(skip_serializing)]
   pub(crate) aliases: Table<'src, Alias<'src>>,
+  #[serde(skip_serializing)]
+  pub(crate) assignments: Table<'src, Assignment<'src>>,
+  pub(crate) recipes: Table<'src, Rc<Recipe<'src>>>,
+  #[serde(skip_serializing)]
   pub(crate) settings: Settings<'src>,
+  #[serde(skip_serializing)]
   pub(crate) warnings: Vec<Warning>,
 }
 
@@ -406,19 +412,6 @@ impl<'src> ColorDisplay for Justfile<'src> {
       }
     }
     Ok(())
-  }
-}
-
-impl<'src> Serialize for Justfile<'src> {
-  fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-  where
-    S: Serializer,
-  {
-    let mut map = serializer.serialize_map(None)?;
-
-    map.serialize_entry("recipes", &self.recipes)?;
-
-    map.end()
   }
 }
 

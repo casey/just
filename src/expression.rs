@@ -65,3 +65,12 @@ impl<'src> Display for Expression<'src> {
     }
   }
 }
+
+impl<'src> Serialize for Expression<'src> {
+  fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+  where
+    S: Serializer,
+  {
+    todo!();
+  }
+}

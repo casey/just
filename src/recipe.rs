@@ -19,17 +19,19 @@ fn error_from_signal(recipe: &str, line_number: Option<usize>, exit_status: Exit
 }
 
 /// A recipe, e.g. `foo: bar baz`
-#[derive(PartialEq, Debug, Clone)]
+#[derive(PartialEq, Debug, Clone, Serialize)]
 pub(crate) struct Recipe<'src, D = Dependency<'src>> {
+  #[serde(skip_serializing)]
   pub(crate) body: Vec<Line<'src>>,
   pub(crate) dependencies: Vec<D>,
   pub(crate) doc: Option<&'src str>,
   pub(crate) name: Name<'src>,
+  #[serde(skip_serializing)]
   pub(crate) parameters: Vec<Parameter<'src>>,
+  pub(crate) priors: usize,
   pub(crate) private: bool,
   pub(crate) quiet: bool,
   pub(crate) shebang: bool,
-  pub(crate) priors: usize,
 }
 
 impl<'src, D> Recipe<'src, D> {
@@ -302,12 +304,6 @@ impl<'src, D> Recipe<'src, D> {
   }
 }
 
-impl<'src, D> Keyed<'src> for Recipe<'src, D> {
-  fn key(&self) -> &'src str {
-    self.name.lexeme()
-  }
-}
-
 impl<'src, D: Display> ColorDisplay for Recipe<'src, D> {
   fn fmt(&self, f: &mut Formatter, color: Color) -> Result<(), fmt::Error> {
     if let Some(doc) = self.doc {
@@ -351,5 +347,11 @@ impl<'src, D: Display> ColorDisplay for Recipe<'src, D> {
       }
     }
     Ok(())
+  }
+}
+
+impl<'src, D> Keyed<'src> for Recipe<'src, D> {
+  fn key(&self) -> &'src str {
+    self.name.lexeme()
   }
 }

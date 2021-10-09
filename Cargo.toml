@@ -35,7 +35,6 @@ target = "2.0.0"
 tempfile = "3.0.0"
 typed-arena = "2.0.1"
 unicode-width = "0.1.0"
-serde = "1.0.130"
 
 [dependencies.clap]
 version = "2.33.0"
@@ -44,6 +43,10 @@ features = ["wrap_help"]
 [dependencies.ctrlc]
 version  = "3.1.1"
 features = ["termination"]
+
+[dependencies.serde]
+version = "1.0.130"
+features = ["derive", "rc"]
 
 [dependencies.strum]
 version  = "0.21.0"

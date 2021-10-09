@@ -297,6 +297,7 @@ impl Subcommand {
 
   fn json(justfile: Justfile) -> Result<(), Error<'static>> {
     serde_json::to_writer(io::stdout(), &justfile).unwrap();
+    println!();
     Ok(())
   }
 

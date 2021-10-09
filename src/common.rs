@@ -27,7 +27,7 @@ pub(crate) use ::{
   libc::EXIT_FAILURE,
   log::{info, warn},
   regex::Regex,
-  serde::{ser::SerializeMap, Serialize, Serializer},
+  serde::{Serialize, Serializer},
   snafu::{ResultExt, Snafu},
   strum::{Display, EnumString, IntoStaticStr},
   typed_arena::Arena,

@@ -2,7 +2,8 @@ use crate::common::*;
 
 use std::collections::btree_map;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize)]
+#[serde(transparent)]
 pub(crate) struct Table<'key, V: Keyed<'key>> {
   map: BTreeMap<&'key str, V>,
 }
@@ -91,15 +92,5 @@ impl<'table, V: Keyed<'table> + 'table> IntoIterator for &'table Table<'table, V
   #[must_use]
   fn into_iter(self) -> btree_map::Iter<'table, &'table str, V> {
     self.map.iter()
-  }
-}
-
-impl<'key, V: Keyed<'key>> Serialize for Table<'key, V> {
-  fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-  where
-    S: Serializer,
-  {
-    let mut map = serializer.serialize_map(None)?;
-    map.end()
   }
 }

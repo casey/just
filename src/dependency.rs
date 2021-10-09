@@ -1,9 +1,10 @@
 use crate::common::*;
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Serialize)]
 pub(crate) struct Dependency<'src> {
-  pub(crate) recipe: Rc<Recipe<'src>>,
   pub(crate) arguments: Vec<Expression<'src>>,
+  #[serde(rename = "name", serialize_with = "serialize_name")]
+  pub(crate) recipe: Rc<Recipe<'src>>,
 }
 
 impl<'src> Display for Dependency<'src> {
@@ -20,4 +21,11 @@ impl<'src> Display for Dependency<'src> {
       write!(f, ")")
     }
   }
+}
+
+fn serialize_name<S>(recipe: &Rc<Recipe>, serializer: S) -> Result<S::Ok, S::Error>
+where
+  S: Serializer,
+{
+  serializer.serialize_str(&recipe.name())
 }
