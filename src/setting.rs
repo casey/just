@@ -8,10 +8,10 @@ pub(crate) enum Setting<'src> {
   Shell(Shell<'src>),
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize)]
 pub(crate) struct Shell<'src> {
-  pub(crate) command: StringLiteral<'src>,
   pub(crate) arguments: Vec<StringLiteral<'src>>,
+  pub(crate) command: StringLiteral<'src>,
 }
 
 impl<'src> Display for Setting<'src> {

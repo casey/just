@@ -71,6 +71,45 @@ impl<'src> Serialize for Expression<'src> {
   where
     S: Serializer,
   {
-    todo!();
+    match self {
+      Self::Backtick { contents, .. } => {
+        let mut seq = serializer.serialize_seq(None)?;
+        seq.serialize_element("evaluate")?;
+        seq.serialize_element(contents)?;
+        seq.end()
+      }
+      Self::Call { thunk } => thunk.serialize(serializer),
+      Self::Concatination { lhs, rhs } => {
+        let mut seq = serializer.serialize_seq(None)?;
+        seq.serialize_element("+")?;
+        seq.serialize_element(lhs)?;
+        seq.serialize_element(rhs)?;
+        seq.end()
+      }
+      Self::Conditional {
+        lhs,
+        rhs,
+        then,
+        otherwise,
+        operator,
+      } => {
+        let mut seq = serializer.serialize_seq(None)?;
+        seq.serialize_element("if")?;
+        seq.serialize_element(&operator.to_string())?;
+        seq.serialize_element(lhs)?;
+        seq.serialize_element(rhs)?;
+        seq.serialize_element(then)?;
+        seq.serialize_element(otherwise)?;
+        seq.end()
+      }
+      Self::Group { contents } => contents.serialize(serializer),
+      Self::StringLiteral { string_literal } => string_literal.serialize(serializer),
+      Self::Variable { name } => {
+        let mut seq = serializer.serialize_seq(None)?;
+        seq.serialize_element("variable")?;
+        seq.serialize_element(name)?;
+        seq.end()
+      }
+    }
   }
 }

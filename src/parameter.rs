@@ -1,7 +1,7 @@
 use crate::common::*;
 
 /// A single function parameter
-#[derive(PartialEq, Debug, Clone)]
+#[derive(PartialEq, Debug, Clone, Serialize)]
 pub(crate) struct Parameter<'src> {
   /// An optional default expression
   pub(crate) default: Option<Expression<'src>>,

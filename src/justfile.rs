@@ -5,12 +5,9 @@ use serde::Serialize;
 #[derive(Debug, PartialEq, Serialize)]
 pub(crate) struct Justfile<'src> {
   pub(crate) aliases: Table<'src, Alias<'src>>,
-  #[serde(skip_serializing)]
   pub(crate) assignments: Table<'src, Assignment<'src>>,
   pub(crate) recipes: Table<'src, Rc<Recipe<'src>>>,
-  #[serde(skip_serializing)]
   pub(crate) settings: Settings<'src>,
-  #[serde(skip_serializing)]
   pub(crate) warnings: Vec<Warning>,
 }
 

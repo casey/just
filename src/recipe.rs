@@ -21,12 +21,10 @@ fn error_from_signal(recipe: &str, line_number: Option<usize>, exit_status: Exit
 /// A recipe, e.g. `foo: bar baz`
 #[derive(PartialEq, Debug, Clone, Serialize)]
 pub(crate) struct Recipe<'src, D = Dependency<'src>> {
-  #[serde(skip_serializing)]
   pub(crate) body: Vec<Line<'src>>,
   pub(crate) dependencies: Vec<D>,
   pub(crate) doc: Option<&'src str>,
   pub(crate) name: Name<'src>,
-  #[serde(skip_serializing)]
   pub(crate) parameters: Vec<Parameter<'src>>,
   pub(crate) priors: usize,
   pub(crate) private: bool,
