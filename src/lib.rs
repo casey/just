@@ -35,8 +35,11 @@ pub mod node;
 #[cfg(fuzzing)]
 pub(crate) mod fuzzing;
 
-#[cfg(test)]
-mod compiler;
+// Used by Janus, https://github.com/casey/janus, a tool
+// that analyses all public justfiles on GitHub to avoid
+// breaking changes.
+#[doc(hidden)]
+pub mod summary;
 
 mod alias;
 mod analyzer;
@@ -50,6 +53,7 @@ mod command_ext;
 mod common;
 mod compile_error;
 mod compile_error_kind;
+mod compiler;
 mod completions;
 mod conditional_operator;
 mod config;
