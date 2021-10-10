@@ -12,6 +12,36 @@ fn test(justfile: &str, value: Value) {
 }
 
 #[test]
+fn alias() {
+  test(
+    "
+      alias f := foo
+
+      foo:
+    ",
+    json!({
+      "aliases": {
+        "f": {
+          "name": "f",
+          "target": "foo",
+        }
+      },
+      "recipes": {
+        "foo": {
+          "dependencies": [],
+          "doc": null,
+          "name": "foo",
+          "priors": 0,
+          "private": false,
+          "quiet": false,
+          "shebang": false,
+        }
+      }
+    }),
+  );
+}
+
+#[test]
 fn dependencies() {
   test(
     "
@@ -19,6 +49,7 @@ fn dependencies() {
       bar: foo
     ",
     json!({
+      "aliases": {},
       "recipes": {
         "bar": {
           "doc": null,
@@ -51,6 +82,7 @@ fn doc_comment() {
   test(
     "# hello\nfoo:",
     json!({
+      "aliases": {},
       "recipes": {
         "foo": {
           "dependencies": [],
@@ -71,6 +103,7 @@ fn empty_justfile() {
   test(
     "",
     json!({
+      "aliases": {},
       "recipes": {}
     }),
   );
@@ -85,6 +118,7 @@ fn priors() {
       c:
     ",
     json!({
+      "aliases": {},
       "recipes": {
         "a": {
           "dependencies": [],
@@ -133,6 +167,7 @@ fn private() {
   test(
     "_foo:",
     json!({
+      "aliases": {},
       "recipes": {
         "_foo": {
           "dependencies": [],
@@ -153,6 +188,7 @@ fn quiet() {
   test(
     "@foo:",
     json!({
+      "aliases": {},
       "recipes": {
         "foo": {
           "dependencies": [],
@@ -176,6 +212,7 @@ fn shebang() {
         #!bar
     ",
     json!({
+      "aliases": {},
       "recipes": {
         "foo": {
           "dependencies": [],
@@ -196,6 +233,7 @@ fn simple() {
   test(
     "foo:",
     json!({
+      "aliases": {},
       "recipes": {
         "foo": {
           "dependencies": [],

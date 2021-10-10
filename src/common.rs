@@ -35,7 +35,7 @@ pub(crate) use ::{
 };
 
 // modules
-pub(crate) use crate::{completions, config, config_error, setting};
+pub(crate) use crate::{completions, config, config_error, keyed, setting};
 
 // functions
 pub(crate) use crate::{load_dotenv::load_dotenv, output::output, unindent::unindent};

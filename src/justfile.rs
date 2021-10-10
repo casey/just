@@ -4,7 +4,6 @@ use serde::Serialize;
 
 #[derive(Debug, PartialEq, Serialize)]
 pub(crate) struct Justfile<'src> {
-  #[serde(skip_serializing)]
   pub(crate) aliases: Table<'src, Alias<'src>>,
   #[serde(skip_serializing)]
   pub(crate) assignments: Table<'src, Assignment<'src>>,
