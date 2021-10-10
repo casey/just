@@ -6,28 +6,29 @@ use serde::Serialize;
 pub(crate) struct Justfile<'src> {
   pub(crate) aliases: Table<'src, Alias<'src>>,
   pub(crate) assignments: Table<'src, Assignment<'src>>,
+  #[serde(serialize_with = "name")]
+  pub(crate) first: Option<Rc<Recipe<'src>>>,
   pub(crate) recipes: Table<'src, Rc<Recipe<'src>>>,
   pub(crate) settings: Settings<'src>,
   pub(crate) warnings: Vec<Warning>,
 }
 
+pub(crate) fn name<'src, S>(
+  recipe: &Option<Rc<Recipe<'src>>>,
+  serializer: S,
+) -> Result<S::Ok, S::Error>
+where
+  S: Serializer,
+{
+  match recipe {
+    None => serializer.serialize_none(),
+    Some(recipe) => recipe.name().serialize(serializer),
+  }
+}
+
 impl<'src> Justfile<'src> {
   pub(crate) fn count(&self) -> usize {
     self.recipes.len()
-  }
-
-  pub(crate) fn first(&self) -> Option<&Recipe<'src>> {
-    let mut first: Option<&Recipe<Dependency>> = None;
-    for recipe in self.recipes.values() {
-      if let Some(first_recipe) = first {
-        if recipe.line_number() < first_recipe.line_number() {
-          first = Some(recipe);
-        }
-      } else {
-        first = Some(recipe);
-      }
-    }
-    first
   }
 
   pub(crate) fn suggest_recipe(&self, input: &str) -> Option<Suggestion<'src>> {
@@ -208,7 +209,7 @@ impl<'src> Justfile<'src> {
 
     let argvec: Vec<&str> = if !arguments.is_empty() {
       arguments.iter().map(String::as_str).collect()
-    } else if let Some(recipe) = self.first() {
+    } else if let Some(recipe) = &self.first {
       let min_arguments = recipe.min_arguments();
       if min_arguments > 0 {
         return Err(Error::DefaultRecipeRequiresArguments {

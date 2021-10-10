@@ -19,6 +19,7 @@ fn alias() {
       foo:
     ",
     json!({
+      "first": "foo",
       "aliases": {
         "f": {
           "name": "f",
@@ -63,6 +64,7 @@ fn assignment() {
           "value": "bar",
         }
       },
+      "first": null,
       "recipes": {},
       "settings": {
         "dotenv_load": null,
@@ -86,6 +88,7 @@ fn body() {
     json!({
       "aliases": {},
       "assignments": {},
+      "first": "foo",
       "recipes": {
         "foo": {
           "body": [
@@ -123,6 +126,7 @@ fn dependencies() {
     json!({
       "aliases": {},
       "assignments": {},
+      "first": "foo",
       "recipes": {
         "bar": {
           "doc": null,
@@ -183,6 +187,7 @@ fn dependency_argument() {
     ",
     json!({
       "aliases": {},
+      "first": "foo",
       "assignments": {
         "x": {
           "export": false,
@@ -252,6 +257,7 @@ fn doc_comment() {
     "# hello\nfoo:",
     json!({
       "aliases": {},
+      "first": "foo",
       "assignments": {},
       "recipes": {
         "foo": {
@@ -284,6 +290,7 @@ fn empty_justfile() {
     json!({
       "aliases": {},
       "assignments": {},
+      "first": null,
       "recipes": {},
       "settings": {
         "dotenv_load": null,
@@ -309,6 +316,7 @@ fn parameters() {
     ",
     json!({
       "aliases": {},
+      "first": "a",
       "assignments": {},
       "recipes": {
         "a": {
@@ -435,6 +443,7 @@ fn priors() {
     json!({
       "aliases": {},
       "assignments": {},
+      "first": "a",
       "recipes": {
         "a": {
           "body": [],
@@ -498,6 +507,7 @@ fn private() {
     json!({
       "aliases": {},
       "assignments": {},
+      "first": "_foo",
       "recipes": {
         "_foo": {
           "body": [],
@@ -529,6 +539,7 @@ fn quiet() {
     json!({
       "aliases": {},
       "assignments": {},
+      "first": "foo",
       "recipes": {
         "foo": {
           "body": [],
@@ -568,6 +579,7 @@ fn settings() {
     json!({
       "aliases": {},
       "assignments": {},
+      "first": "foo",
       "recipes": {
         "foo": {
           "body": [["#!bar"]],
@@ -605,6 +617,7 @@ fn shebang() {
     json!({
       "aliases": {},
       "assignments": {},
+      "first": "foo",
       "recipes": {
         "foo": {
           "body": [["#!bar"]],
@@ -636,6 +649,7 @@ fn simple() {
     json!({
       "aliases": {},
       "assignments": {},
+      "first": "foo",
       "recipes": {
         "foo": {
           "body": [],
