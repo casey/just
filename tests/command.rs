@@ -33,7 +33,7 @@ test! {
     USAGE:
         just{} --color <COLOR> --shell <SHELL> --shell-arg <SHELL-ARG>... \
         <--changelog|--choose|--command <COMMAND>|--completions <SHELL>|--dump|--edit|\
-        --evaluate|--fmt|--init|--list|--show <RECIPE>|--summary|--variables>
+        --evaluate|--fmt|--init|--json|--list|--show <RECIPE>|--summary|--variables>
 
     For more information try --help
   ", EXE_SUFFIX),

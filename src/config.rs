@@ -610,7 +610,7 @@ FLAGS:
                               `fzf`
         --clear-shell-args    Clear shell arguments
         --dry-run             Print what just would do without doing it
-        --dump                Print entire justfile
+        --dump                Print justfile
     -e, --edit                Edit justfile with editor given by $VISUAL or
                               $EDITOR, falling back to `vim`
         --evaluate            Evaluate and print all variables. If a variable
@@ -619,6 +619,7 @@ FLAGS:
         --fmt                 Format and overwrite justfile
         --highlight           Highlight echoed recipe lines in bold
         --init                Initialize new justfile in project root
+        --json                Print justfile as JSON
     -l, --list                List available recipes and their arguments
         --no-dotenv           Don't load `.env` file
         --no-highlight        Don't highlight echoed recipe lines in bold
