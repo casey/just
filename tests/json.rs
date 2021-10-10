@@ -1,7 +1,5 @@
 use crate::common::*;
 
-use serde_json::{json, Value};
-
 fn test(justfile: &str, value: Value) {
   Test::new()
     .justfile(justfile)
