@@ -17,6 +17,7 @@ _just() {
     local common=(
 '--chooser=[Override binary invoked by `--choose`]' \
 '--color=[Print colorful output]: :(auto always never)' \
+'--dump-format=[Dump justfile as <FORMAT>]: :(just json)' \
 '--list-heading=[Print <TEXT> before list]' \
 '--list-prefix=[Print <TEXT> before each list item]' \
 '-f+[Use <JUSTFILE> as justfile]' \
@@ -54,7 +55,6 @@ _just() {
 '--evaluate[Evaluate and print all variables. If a variable name is given as an argument, only print that variable'\''s value.]' \
 '--fmt[Format and overwrite justfile]' \
 '--init[Initialize new justfile in project root]' \
-'--json[Print justfile as JSON]' \
 '-l[List available recipes and their arguments]' \
 '--list[List available recipes and their arguments]' \
 '--summary[List names of available recipes]' \

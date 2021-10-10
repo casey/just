@@ -16,6 +16,7 @@ edit:completion:arg-completer[just] = [@words]{
         &'just'= {
             cand --chooser 'Override binary invoked by `--choose`'
             cand --color 'Print colorful output'
+            cand --dump-format 'Dump justfile as <FORMAT>'
             cand --list-heading 'Print <TEXT> before list'
             cand --list-prefix 'Print <TEXT> before each list item'
             cand -f 'Use <JUSTFILE> as justfile'
@@ -53,7 +54,6 @@ edit:completion:arg-completer[just] = [@words]{
             cand --evaluate 'Evaluate and print all variables. If a variable name is given as an argument, only print that variable''s value.'
             cand --fmt 'Format and overwrite justfile'
             cand --init 'Initialize new justfile in project root'
-            cand --json 'Print justfile as JSON'
             cand -l 'List available recipes and their arguments'
             cand --list 'List available recipes and their arguments'
             cand --summary 'List names of available recipes'
