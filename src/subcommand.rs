@@ -79,7 +79,7 @@ impl Subcommand {
       }
       Dump => Self::dump(ast),
       Format => Self::format(config, ast, &search)?,
-      Json => Self::json(justfile)?,
+      Json => Self::json(config, justfile)?,
       List => Self::list(config, justfile),
       Run {
         arguments,
@@ -295,7 +295,8 @@ impl Subcommand {
     }
   }
 
-  fn json(justfile: Justfile) -> Result<(), Error<'static>> {
+  fn json(config: &Config, justfile: Justfile) -> Result<(), Error<'static>> {
+    config.require_unstable("The `--json` command is currently unstable.")?;
     serde_json::to_writer(io::stdout(), &justfile).unwrap();
     println!();
     Ok(())

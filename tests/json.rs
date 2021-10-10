@@ -5,7 +5,7 @@ use serde_json::{json, Value};
 fn test(justfile: &str, value: Value) {
   Test::new()
     .justfile(justfile)
-    .args(&["--json"])
+    .args(&["--json", "--unstable"])
     .stdout(format!("{}\n", serde_json::to_string(&value).unwrap()))
     .run();
 }
@@ -562,6 +562,16 @@ fn quiet() {
       "warnings": [],
     }),
   );
+}
+
+#[test]
+fn requires_unstable() {
+  Test::new()
+    .justfile("foo:")
+    .args(&["--json"])
+    .stderr("error: The `--json` command is currently unstable. Invoke `just` with the `--unstable` flag to enable unstable features.\n")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 #[test]
