@@ -15,7 +15,10 @@ pub(crate) const DEFAULT_SHELL_ARG: &str = "-cu";
 #[derive(Debug, PartialEq)]
 pub(crate) struct Config {
   pub(crate) color: Color,
+  pub(crate) dotenv_filename: Option<String>,
+  pub(crate) dotenv_path: Option<PathBuf>,
   pub(crate) dry_run: bool,
+  pub(crate) dump_format: DumpFormat,
   pub(crate) highlight: bool,
   pub(crate) invocation_directory: PathBuf,
   pub(crate) list_heading: String,
@@ -29,8 +32,6 @@ pub(crate) struct Config {
   pub(crate) subcommand: Subcommand,
   pub(crate) unsorted: bool,
   pub(crate) unstable: bool,
-  pub(crate) dotenv_filename: Option<String>,
-  pub(crate) dotenv_path: Option<PathBuf>,
   pub(crate) verbosity: Verbosity,
 }
 
@@ -45,7 +46,6 @@ mod cmd {
   pub(crate) const FORMAT: &str = "FORMAT";
   pub(crate) const INIT: &str = "INIT";
   pub(crate) const LIST: &str = "LIST";
-  pub(crate) const JSON: &str = "JSON";
   pub(crate) const SHOW: &str = "SHOW";
   pub(crate) const SUMMARY: &str = "SUMMARY";
   pub(crate) const VARIABLES: &str = "VARIABLES";
@@ -60,7 +60,6 @@ mod cmd {
     EVALUATE,
     FORMAT,
     INIT,
-    JSON,
     LIST,
     SHOW,
     SUMMARY,
@@ -74,7 +73,6 @@ mod cmd {
     EDIT,
     FORMAT,
     INIT,
-    JSON,
     LIST,
     SHOW,
     SUMMARY,
@@ -87,7 +85,10 @@ mod arg {
   pub(crate) const CHOOSER: &str = "CHOOSER";
   pub(crate) const CLEAR_SHELL_ARGS: &str = "CLEAR-SHELL-ARGS";
   pub(crate) const COLOR: &str = "COLOR";
+  pub(crate) const DOTENV_FILENAME: &str = "DOTENV_FILENAME";
+  pub(crate) const DOTENV_PATH: &str = "DOTENV_PATH";
   pub(crate) const DRY_RUN: &str = "DRY-RUN";
+  pub(crate) const DUMP_FORMAT: &str = "DUMP-FORMAT";
   pub(crate) const HIGHLIGHT: &str = "HIGHLIGHT";
   pub(crate) const JUSTFILE: &str = "JUSTFILE";
   pub(crate) const LIST_HEADING: &str = "LIST-HEADING";
@@ -101,8 +102,6 @@ mod arg {
   pub(crate) const SHELL_COMMAND: &str = "SHELL-COMMAND";
   pub(crate) const UNSORTED: &str = "UNSORTED";
   pub(crate) const UNSTABLE: &str = "UNSTABLE";
-  pub(crate) const DOTENV_FILENAME: &str = "DOTENV_FILENAME";
-  pub(crate) const DOTENV_PATH: &str = "DOTENV_PATH";
   pub(crate) const VERBOSE: &str = "VERBOSE";
   pub(crate) const WORKING_DIRECTORY: &str = "WORKING-DIRECTORY";
 
@@ -110,6 +109,10 @@ mod arg {
   pub(crate) const COLOR_AUTO: &str = "auto";
   pub(crate) const COLOR_NEVER: &str = "never";
   pub(crate) const COLOR_VALUES: &[&str] = &[COLOR_AUTO, COLOR_ALWAYS, COLOR_NEVER];
+
+  pub(crate) const DUMP_FORMAT_JUST: &str = "just";
+  pub(crate) const DUMP_FORMAT_JSON: &str = "json";
+  pub(crate) const DUMP_FORMAT_VALUES: &[&str] = &[DUMP_FORMAT_JUST, DUMP_FORMAT_JSON];
 }
 
 impl Config {
@@ -138,6 +141,15 @@ impl Config {
           .long("dry-run")
           .help("Print what just would do without doing it")
           .conflicts_with(arg::QUIET),
+      )
+      .arg(
+        Arg::with_name(arg::DUMP_FORMAT)
+          .long("dump-format")
+          .takes_value(true)
+          .possible_values(arg::DUMP_FORMAT_VALUES)
+          .default_value(arg::DUMP_FORMAT_JUST)
+          .value_name("FORMAT")
+          .help("Dump justfile as <FORMAT>"),
       )
       .arg(
         Arg::with_name(arg::HIGHLIGHT)
@@ -301,11 +313,6 @@ impl Config {
           .help("Initialize new justfile in project root"),
       )
       .arg(
-        Arg::with_name(cmd::JSON)
-          .long("json")
-          .help("Print justfile as JSON"),
-      )
-      .arg(
         Arg::with_name(cmd::LIST)
           .short("l")
           .long("list")
@@ -374,6 +381,16 @@ impl Config {
       arg::COLOR_NEVER => Ok(Color::never()),
       _ => Err(ConfigError::Internal {
         message: format!("Invalid argument `{}` to --color.", value),
+      }),
+    }
+  }
+
+  fn dump_format_from_value(value: &str) -> ConfigResult<DumpFormat> {
+    match value {
+      arg::DUMP_FORMAT_JSON => Ok(DumpFormat::Json),
+      arg::DUMP_FORMAT_JUST => Ok(DumpFormat::Just),
+      _ => Err(ConfigError::Internal {
+        message: format!("Invalid argument `{}` to --dump-format.", value),
       }),
     }
   }
@@ -494,8 +511,6 @@ impl Config {
       Subcommand::Format
     } else if matches.is_present(cmd::INIT) {
       Subcommand::Init
-    } else if matches.is_present(cmd::JSON) {
-      Subcommand::Json
     } else if matches.is_present(cmd::LIST) {
       Subcommand::List
     } else if let Some(name) = matches.value_of(cmd::SHOW) {
@@ -543,6 +558,11 @@ impl Config {
 
     Ok(Self {
       dry_run: matches.is_present(arg::DRY_RUN),
+      dump_format: Self::dump_format_from_value(
+        matches
+          .value_of(arg::DUMP_FORMAT)
+          .expect("`--dump-format` had no value"),
+      )?,
       highlight: !matches.is_present(arg::NO_HIGHLIGHT),
       shell: matches.value_of(arg::SHELL).unwrap().to_owned(),
       load_dotenv: !matches.is_present(arg::NO_DOTENV),
@@ -619,7 +639,6 @@ FLAGS:
         --fmt                 Format and overwrite justfile
         --highlight           Highlight echoed recipe lines in bold
         --init                Initialize new justfile in project root
-        --json                Print justfile as JSON
     -l, --list                List available recipes and their arguments
         --no-dotenv           Don't load `.env` file
         --no-highlight        Don't highlight echoed recipe lines in bold
@@ -651,6 +670,9 @@ OPTIONS:
         --dotenv-path <DOTENV_PATH>
             Load environment file at <DOTENV-PATH> instead of searching for one
 
+        --dump-format <FORMAT>
+            Dump justfile as <FORMAT> [default: just]  [possible values: just,
+            json]
     -f, --justfile <JUSTFILE>                      Use <JUSTFILE> as justfile
         --list-heading <TEXT>                      Print <TEXT> before list
         --list-prefix <TEXT>
@@ -692,6 +714,7 @@ ARGS:
       args: [$($arg:expr),*],
       $(color: $color:expr,)?
       $(dry_run: $dry_run:expr,)?
+      $(dump_format: $dump_format:expr,)?
       $(highlight: $highlight:expr,)?
       $(search_config: $search_config:expr,)?
       $(shell: $shell:expr,)?
@@ -711,6 +734,7 @@ ARGS:
         let want = Config {
           $(color: $color,)?
           $(dry_run: $dry_run,)?
+          $(dump_format: $dump_format,)?
           $(highlight: $highlight,)?
           $(search_config: $search_config,)?
           $(shell: $shell.to_owned(),)?
@@ -1098,6 +1122,12 @@ ARGS:
     name: subcommand_dump,
     args: ["--dump"],
     subcommand: Subcommand::Dump,
+  }
+
+  test! {
+    name: dump_format,
+    args: ["--dump-format", "json"],
+    dump_format: DumpFormat::Json,
   }
 
   test! {

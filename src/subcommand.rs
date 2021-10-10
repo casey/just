@@ -25,7 +25,6 @@ pub(crate) enum Subcommand {
   },
   Format,
   Init,
-  Json,
   List,
   Run {
     overrides: BTreeMap<String, String>,
@@ -77,9 +76,8 @@ impl Subcommand {
       Command { overrides, .. } | Evaluate { overrides, .. } => {
         justfile.run(config, &search, overrides, &[])?
       }
-      Dump => Self::dump(ast),
+      Dump => Self::dump(config, ast, justfile)?,
       Format => Self::format(config, ast, &search)?,
-      Json => Self::json(config, justfile)?,
       List => Self::list(config, justfile),
       Run {
         arguments,
@@ -231,8 +229,16 @@ impl Subcommand {
     Ok(())
   }
 
-  fn dump(ast: Ast) {
-    print!("{}", ast);
+  fn dump(config: &Config, ast: Ast, justfile: Justfile) -> Result<(), Error<'static>> {
+    match config.dump_format {
+      DumpFormat::Json => {
+        config.require_unstable("The JSON dump format is currently unstable.")?;
+        serde_json::to_writer(io::stdout(), &justfile).unwrap();
+        println!();
+      }
+      DumpFormat::Just => print!("{}", ast),
+    }
+    Ok(())
   }
 
   fn edit(search: &Search) -> Result<(), Error<'static>> {
@@ -293,13 +299,6 @@ impl Subcommand {
       }
       Ok(())
     }
-  }
-
-  fn json(config: &Config, justfile: Justfile) -> Result<(), Error<'static>> {
-    config.require_unstable("The `--json` command is currently unstable.")?;
-    serde_json::to_writer(io::stdout(), &justfile).unwrap();
-    println!();
-    Ok(())
   }
 
   fn list(config: &Config, justfile: Justfile) {

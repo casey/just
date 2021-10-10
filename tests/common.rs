@@ -18,6 +18,7 @@ pub(crate) use ::{
   libc::{EXIT_FAILURE, EXIT_SUCCESS},
   pretty_assertions::Comparison,
   regex::Regex,
+  serde_json::{json, Value},
   tempfile::TempDir,
   temptree::{temptree, tree, Tree},
   which::which,

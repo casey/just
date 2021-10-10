@@ -61,6 +61,7 @@ mod config_error;
 mod count;
 mod delimiter;
 mod dependency;
+mod dump_format;
 mod enclosure;
 mod error;
 mod evaluator;
