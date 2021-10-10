@@ -233,7 +233,8 @@ impl Subcommand {
     match config.dump_format {
       DumpFormat::Json => {
         config.require_unstable("The JSON dump format is currently unstable.")?;
-        serde_json::to_writer(io::stdout(), &justfile).unwrap();
+        serde_json::to_writer(io::stdout(), &justfile)
+          .map_err(|serde_json_error| Error::DumpJson { serde_json_error })?;
         println!();
       }
       DumpFormat::Just => print!("{}", ast),
