@@ -14,17 +14,12 @@ echo "Packaging $bin $version for $target..."
 test -f Cargo.lock || cargo generate-lockfile
 
 echo "Building $bin..."
+cargo build --bin $bin --target $target --release
+executable=target/$target/release/$bin
 
-case $os in
-  ubuntu-latest | macos-latest)
-    cargo rustc --bin $bin --target $target --release
-    executable=target/$target/release/$bin
-    ;;
-  windows-2016)
-    cargo rustc --bin $bin --target $target --release -- -C target-feature="+crt-static"
-    executable=target/$target/release/$bin.exe
-    ;;
-esac
+if [[ $os == windows-2016 ]]; then
+  executable=$executable.exe
+fi
 
 echo "Copying release files..."
 mkdir dist
