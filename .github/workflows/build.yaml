@@ -42,7 +42,7 @@ jobs:
     runs-on: ${{matrix.os}}
 
     env:
-      RUSTFLAGS: --deny warnings --codegen=target-feature=+crt-static
+      RUSTFLAGS: --deny warnings --codegen target-feature=+crt-static
 
     steps:
     - uses: actions/checkout@v2
