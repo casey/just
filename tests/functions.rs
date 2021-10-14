@@ -351,4 +351,7 @@ fn trim_end() {
 #[test]
 fn join() {
   assert_eval_eq("join('a', 'b', 'c', 'd')", "a/b/c/d");
+  assert_eval_eq("join('a', '/b', 'c', 'd')", "/b/c/d");
+  assert_eval_eq("join('a', '/b', '/c', 'd')", "/c/d");
+  assert_eval_eq("join('a', '/b', '/c', '/d')", "/d");
 }

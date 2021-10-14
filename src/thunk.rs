@@ -114,7 +114,7 @@ impl Display for Thunk<'_> {
       } => {
         write!(f, "{}({}, {}", name.lexeme(), a, b)?;
         for arg in rest {
-          write!(f, " {}", arg)?;
+          write!(f, ", {}", arg)?;
         }
         write!(f, ")")
       }
