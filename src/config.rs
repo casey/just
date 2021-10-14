@@ -85,8 +85,8 @@ mod arg {
   pub(crate) const CHOOSER: &str = "CHOOSER";
   pub(crate) const CLEAR_SHELL_ARGS: &str = "CLEAR-SHELL-ARGS";
   pub(crate) const COLOR: &str = "COLOR";
-  pub(crate) const DOTENV_FILENAME: &str = "DOTENV_FILENAME";
-  pub(crate) const DOTENV_PATH: &str = "DOTENV_PATH";
+  pub(crate) const DOTENV_FILENAME: &str = "DOTENV-FILENAME";
+  pub(crate) const DOTENV_PATH: &str = "DOTENV-PATH";
   pub(crate) const DRY_RUN: &str = "DRY-RUN";
   pub(crate) const DUMP_FORMAT: &str = "DUMP-FORMAT";
   pub(crate) const HIGHLIGHT: &str = "HIGHLIGHT";
