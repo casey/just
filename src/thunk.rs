@@ -24,7 +24,7 @@ pub(crate) enum Thunk<'src> {
     name: Name<'src>,
     #[derivative(Debug = "ignore", PartialEq = "ignore")]
     function: fn(&FunctionContext, &str, &str, &[String]) -> Result<String, String>,
-    args: ([Box<Expression<'src>>; 2], Vec<Box<Expression<'src>>>),
+    args: ([Box<Expression<'src>>; 2], Vec<Expression<'src>>),
   },
   Ternary {
     name: Name<'src>,
@@ -66,7 +66,7 @@ impl<'src> Thunk<'src> {
           let mut rest = Vec::new();
 
           while arguments.len() > 2 {
-            rest.push(Box::new(arguments.pop().unwrap()));
+            rest.push(arguments.pop().unwrap());
           }
           rest.reverse();
 
