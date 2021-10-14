@@ -6,24 +6,11 @@ use serde::Serialize;
 pub(crate) struct Justfile<'src> {
   pub(crate) aliases: Table<'src, Alias<'src>>,
   pub(crate) assignments: Table<'src, Assignment<'src>>,
-  #[serde(serialize_with = "name")]
+  #[serde(serialize_with = "keyed::serialize_option")]
   pub(crate) first: Option<Rc<Recipe<'src>>>,
   pub(crate) recipes: Table<'src, Rc<Recipe<'src>>>,
   pub(crate) settings: Settings<'src>,
   pub(crate) warnings: Vec<Warning>,
-}
-
-pub(crate) fn name<'src, S>(
-  recipe: &Option<Rc<Recipe<'src>>>,
-  serializer: S,
-) -> Result<S::Ok, S::Error>
-where
-  S: Serializer,
-{
-  match recipe {
-    None => serializer.serialize_none(),
-    Some(recipe) => recipe.name().serialize(serializer),
-  }
 }
 
 impl<'src> Justfile<'src> {
