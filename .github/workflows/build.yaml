@@ -42,7 +42,7 @@ jobs:
     runs-on: ${{matrix.os}}
 
     env:
-      RUSTFLAGS: "-D warnings"
+      RUSTFLAGS: --deny warnings
 
     steps:
     - uses: actions/checkout@v2
