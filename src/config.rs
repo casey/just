@@ -374,7 +374,13 @@ impl Config {
     }
   }
 
-  fn color_from_value(value: &str) -> ConfigResult<Color> {
+  fn color_from_matches(matches: &ArgMatches) -> ConfigResult<Color> {
+    let value = matches
+      .value_of(arg::COLOR)
+      .ok_or_else(|| ConfigError::Internal {
+        message: "`--color` had no value".to_string(),
+      })?;
+
     match value {
       arg::COLOR_AUTO => Ok(Color::auto()),
       arg::COLOR_ALWAYS => Ok(Color::always()),
@@ -385,7 +391,13 @@ impl Config {
     }
   }
 
-  fn dump_format_from_value(value: &str) -> ConfigResult<DumpFormat> {
+  fn dump_format_from_matches(matches: &ArgMatches) -> ConfigResult<DumpFormat> {
+    let value = matches
+      .value_of(arg::DUMP_FORMAT)
+      .ok_or_else(|| ConfigError::Internal {
+        message: "`--dump-format` had no value".to_string(),
+      })?;
+
     match value {
       arg::DUMP_FORMAT_JSON => Ok(DumpFormat::Json),
       arg::DUMP_FORMAT_JUST => Ok(DumpFormat::Just),
@@ -404,11 +416,7 @@ impl Config {
       Verbosity::from_flag_occurrences(matches.occurrences_of(arg::VERBOSE))
     };
 
-    let color = Self::color_from_value(
-      matches
-        .value_of(arg::COLOR)
-        .expect("`--color` had no value"),
-    )?;
+    let color = Self::color_from_matches(matches)?;
 
     let set_count = matches.occurrences_of(arg::SET);
     let mut overrides = BTreeMap::new();
@@ -558,11 +566,7 @@ impl Config {
 
     Ok(Self {
       dry_run: matches.is_present(arg::DRY_RUN),
-      dump_format: Self::dump_format_from_value(
-        matches
-          .value_of(arg::DUMP_FORMAT)
-          .expect("`--dump-format` had no value"),
-      )?,
+      dump_format: Self::dump_format_from_matches(matches)?,
       highlight: !matches.is_present(arg::NO_HIGHLIGHT),
       shell: matches.value_of(arg::SHELL).unwrap().to_owned(),
       load_dotenv: !matches.is_present(arg::NO_DOTENV),
@@ -664,10 +668,10 @@ OPTIONS:
         --completions <SHELL>
             Print shell completion script for <SHELL> [possible values: zsh,
             bash, fish, powershell, elvish]
-        --dotenv-filename <DOTENV_FILENAME>
+        --dotenv-filename <DOTENV-FILENAME>
             Search for environment file named <DOTENV-FILENAME> instead of
             `.env`
-        --dotenv-path <DOTENV_PATH>
+        --dotenv-path <DOTENV-PATH>
             Load environment file at <DOTENV-PATH> instead of searching for one
 
         --dump-format <FORMAT>
