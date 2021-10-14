@@ -63,7 +63,7 @@ impl<'src> Thunk<'src> {
           })
         }
         (Function::BinaryPlus(function), 2..=usize::MAX) => {
-          let mut rest = arguments.drain(2..).collect();
+          let rest = arguments.drain(2..).collect();
           let b = Box::new(arguments.pop().unwrap());
           let a = Box::new(arguments.pop().unwrap());
           Ok(Thunk::BinaryPlus {
