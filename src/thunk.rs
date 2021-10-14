@@ -63,13 +63,7 @@ impl<'src> Thunk<'src> {
           })
         }
         (Function::BinaryPlus(function), 2..=usize::MAX) => {
-          let mut rest = Vec::new();
-
-          while arguments.len() > 2 {
-            rest.push(arguments.pop().unwrap());
-          }
-          rest.reverse();
-
+          let mut rest = arguments.drain(2..).collect();
           let b = Box::new(arguments.pop().unwrap());
           let a = Box::new(arguments.pop().unwrap());
           Ok(Thunk::BinaryPlus {

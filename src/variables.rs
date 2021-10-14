@@ -29,11 +29,10 @@ impl<'expression, 'src> Iterator for Variables<'expression, 'src> {
             args: ([a, b], rest),
             ..
           } => {
-            for arg in rest.iter().rev() {
+            let first: &[&Expression] = &[a, b];
+            for arg in first.iter().copied().chain(rest).rev() {
               self.stack.push(arg);
             }
-            self.stack.push(b);
-            self.stack.push(a);
           }
           Thunk::Ternary { args, .. } => {
             for arg in args.iter().rev() {

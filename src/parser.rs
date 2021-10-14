@@ -2170,4 +2170,32 @@ mod tests {
       expected: 2..2,
     },
   }
+
+  error! {
+    name: function_argument_count_binary_plus,
+    input: "x := join('foo')",
+    offset: 5,
+    line: 0,
+    column: 5,
+    width: 4,
+    kind: FunctionArgumentCountMismatch {
+      function: "join",
+      found: 1,
+      expected: 2..usize::MAX,
+    },
+  }
+
+  error! {
+    name: function_argument_count_ternary,
+    input: "x := replace('foo')",
+    offset: 5,
+    line: 0,
+    column: 5,
+    width: 7,
+    kind: FunctionArgumentCountMismatch {
+      function: "replace",
+      found: 1,
+      expected: 3..3,
+    },
+  }
 }
