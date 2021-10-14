@@ -28,8 +28,10 @@ lazy_static! {
     ("parent_directory", Unary(parent_directory)),
     ("replace", Ternary(replace)),
     ("trim", Unary(trim)),
+    ("trim_end", Unary(trim_end)),
     ("trim_end_match", Binary(trim_end_match)),
     ("trim_end_matches", Binary(trim_end_matches)),
+    ("trim_start", Unary(trim_start)),
     ("trim_start_match", Binary(trim_start_match)),
     ("trim_start_matches", Binary(trim_start_matches)),
     ("uppercase", Unary(uppercase)),
@@ -201,12 +203,20 @@ fn trim(_context: &FunctionContext, s: &str) -> Result<String, String> {
   Ok(s.trim().to_owned())
 }
 
+fn trim_end(_context: &FunctionContext, s: &str) -> Result<String, String> {
+  Ok(s.trim_end().to_owned())
+}
+
 fn trim_end_match(_context: &FunctionContext, s: &str, pat: &str) -> Result<String, String> {
   Ok(s.strip_suffix(pat).unwrap_or(s).to_owned())
 }
 
 fn trim_end_matches(_context: &FunctionContext, s: &str, pat: &str) -> Result<String, String> {
   Ok(s.trim_end_matches(pat).to_owned())
+}
+
+fn trim_start(_context: &FunctionContext, s: &str) -> Result<String, String> {
+  Ok(s.trim_start().to_owned())
 }
 
 fn trim_start_match(_context: &FunctionContext, s: &str, pat: &str) -> Result<String, String> {
