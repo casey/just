@@ -25,6 +25,16 @@ impl<'expression, 'src> Iterator for Variables<'expression, 'src> {
               self.stack.push(arg);
             }
           }
+          Thunk::BinaryPlus {
+            args: ([a, b], rest),
+            ..
+          } => {
+            for arg in rest.iter().rev() {
+              self.stack.push(arg);
+            }
+            self.stack.push(b);
+            self.stack.push(a);
+          }
           Thunk::Ternary { args, .. } => {
             for arg in args.iter().rev() {
               self.stack.push(arg);

@@ -2139,7 +2139,7 @@ mod tests {
     kind: FunctionArgumentCountMismatch {
       function: "arch",
       found: 1,
-      expected: 0,
+      expected: 0..0,
     },
   }
 
@@ -2153,7 +2153,7 @@ mod tests {
     kind: FunctionArgumentCountMismatch {
       function: "env_var",
       found: 0,
-      expected: 1,
+      expected: 1..1,
     },
   }
 
@@ -2167,7 +2167,7 @@ mod tests {
     kind: FunctionArgumentCountMismatch {
       function: "env_var_or_default",
       found: 1,
-      expected: 2,
+      expected: 2..2,
     },
   }
 }

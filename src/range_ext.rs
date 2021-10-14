@@ -2,6 +2,21 @@ use crate::common::*;
 
 pub(crate) trait RangeExt<T> {
   fn range_contains(&self, i: &T) -> bool;
+
+  fn display(&self) -> DisplayRange<&Self> {
+    DisplayRange(self)
+  }
+}
+
+pub(crate) struct DisplayRange<T>(T);
+
+impl<T> Display for DisplayRange<&Range<T>>
+where
+  T: Display,
+{
+  fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+    todo!()
+  }
 }
 
 impl<T> RangeExt<T> for Range<T>

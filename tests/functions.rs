@@ -347,3 +347,8 @@ fn trim_start() {
 fn trim_end() {
   assert_eval_eq("trim_end('  f  ')", "  f");
 }
+
+#[test]
+fn join() {
+  assert_eval_eq("join('a', 'b', 'c', 'd')", "a/b/c/d");
+}

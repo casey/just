@@ -5,6 +5,7 @@ pub(crate) enum Function {
   Nullary(fn(&FunctionContext) -> Result<String, String>),
   Unary(fn(&FunctionContext, &str) -> Result<String, String>),
   Binary(fn(&FunctionContext, &str, &str) -> Result<String, String>),
+  BinaryPlus(fn(&FunctionContext, &str, &str, &[String]) -> Result<String, String>),
   Ternary(fn(&FunctionContext, &str, &str, &str) -> Result<String, String>),
 }
 
@@ -18,7 +19,7 @@ lazy_static! {
     ("file_name", Unary(file_name)),
     ("file_stem", Unary(file_stem)),
     ("invocation_directory", Nullary(invocation_directory)),
-    ("join", Binary(join)),
+    ("join", BinaryPlus(join)),
     ("just_executable", Nullary(just_executable)),
     ("justfile", Nullary(justfile)),
     ("justfile_directory", Nullary(justfile_directory)),
@@ -42,12 +43,13 @@ lazy_static! {
 }
 
 impl Function {
-  pub(crate) fn argc(&self) -> usize {
+  pub(crate) fn argc(&self) -> Range<usize> {
     match *self {
-      Nullary(_) => 0,
-      Unary(_) => 1,
-      Binary(_) => 2,
-      Ternary(_) => 3,
+      Nullary(_) => 0..0,
+      Unary(_) => 1..1,
+      Binary(_) => 2..2,
+      BinaryPlus(_) => 2..usize::MAX,
+      Ternary(_) => 3..3,
     }
   }
 }
@@ -127,8 +129,17 @@ fn invocation_directory(context: &FunctionContext) -> Result<String, String> {
   .map_err(|e| format!("Error getting shell path: {}", e))
 }
 
-fn join(_context: &FunctionContext, base: &str, with: &str) -> Result<String, String> {
-  Ok(Utf8Path::new(base).join(with).to_string())
+fn join(
+  _context: &FunctionContext,
+  base: &str,
+  with: &str,
+  and: &[String],
+) -> Result<String, String> {
+  let mut result = Utf8Path::new(base).join(with);
+  for arg in and {
+    result.push(arg);
+  }
+  Ok(result.to_string())
 }
 
 fn just_executable(_context: &FunctionContext) -> Result<String, String> {

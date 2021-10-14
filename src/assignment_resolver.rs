@@ -82,6 +82,17 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
           self.resolve_expression(a)?;
           self.resolve_expression(b)
         }
+        Thunk::BinaryPlus {
+          args: ([a, b], rest),
+          ..
+        } => {
+          self.resolve_expression(a)?;
+          self.resolve_expression(b)?;
+          for arg in rest {
+            self.resolve_expression(arg)?;
+          }
+          Ok(())
+        }
         Thunk::Ternary {
           args: [a, b, c], ..
         } => {

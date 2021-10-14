@@ -19,17 +19,19 @@ pub(crate) use std::{
 };
 
 // dependencies
-pub(crate) use camino::Utf8Path;
-pub(crate) use derivative::Derivative;
-pub(crate) use edit_distance::edit_distance;
-pub(crate) use lexiclean::Lexiclean;
-pub(crate) use libc::EXIT_FAILURE;
-pub(crate) use log::{info, warn};
-pub(crate) use regex::Regex;
-pub(crate) use snafu::{ResultExt, Snafu};
-pub(crate) use strum::{Display, EnumString, IntoStaticStr};
-pub(crate) use typed_arena::Arena;
-pub(crate) use unicode_width::{UnicodeWidthChar, UnicodeWidthStr};
+pub(crate) use ::{
+  camino::{Utf8Path, Utf8PathBuf},
+  derivative::Derivative,
+  edit_distance::edit_distance,
+  lexiclean::Lexiclean,
+  libc::EXIT_FAILURE,
+  log::{info, warn},
+  regex::Regex,
+  snafu::{ResultExt, Snafu},
+  strum::{Display, EnumString, IntoStaticStr},
+  typed_arena::Arena,
+  unicode_width::{UnicodeWidthChar, UnicodeWidthStr},
+};
 
 // modules
 pub(crate) use crate::{completions, config, config_error, setting};
