@@ -308,6 +308,7 @@ fn assert_eval_eq(expression: &str, result: &str) {
     .justfile(format!("x := {}", expression))
     .args(&["--evaluate", "x"])
     .stdout(result)
+    .unindent_stdout(false)
     .run();
 }
 
@@ -335,4 +336,14 @@ fn trim_start_matches() {
 fn trim_start_match() {
   assert_eval_eq("trim_start_match('oof', 'o')", "of");
   assert_eval_eq("trim_start_match('ababf', 'ab')", "abf");
+}
+
+#[test]
+fn trim_start() {
+  assert_eval_eq("trim_start('  f  ')", "f  ");
+}
+
+#[test]
+fn trim_end() {
+  assert_eval_eq("trim_end('  f  ')", "  f");
 }

@@ -47,6 +47,7 @@ pub(crate) struct Test {
   pub(crate) stdout: String,
   pub(crate) suppress_dotenv_load_warning: bool,
   pub(crate) tempdir: TempDir,
+  pub(crate) unindent_stdout: bool,
 }
 
 impl Test {
@@ -68,6 +69,7 @@ impl Test {
       stdout: String::new(),
       suppress_dotenv_load_warning: true,
       tempdir,
+      unindent_stdout: true,
     }
   }
 
@@ -147,6 +149,11 @@ impl Test {
     tree.instantiate(&self.tempdir.path()).unwrap();
     self
   }
+
+  pub(crate) fn unindent_stdout(mut self, unindent_stdout: bool) -> Self {
+    self.unindent_stdout = unindent_stdout;
+    self
+  }
 }
 
 impl Test {
@@ -156,7 +163,11 @@ impl Test {
       fs::write(self.justfile_path(), justfile).unwrap();
     }
 
-    let stdout = unindent(&self.stdout);
+    let stdout = if self.unindent_stdout {
+      unindent(&self.stdout)
+    } else {
+      self.stdout
+    };
     let stderr = unindent(&self.stderr);
 
     let mut dotenv_path = self.tempdir.path().to_path_buf();
