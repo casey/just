@@ -3,7 +3,7 @@ use crate::common::*;
 #[derive(PartialEq, Debug, Serialize)]
 pub(crate) struct Dependency<'src> {
   pub(crate) arguments: Vec<Expression<'src>>,
-  #[serde(rename = "name", serialize_with = "keyed::serialize")]
+  #[serde(serialize_with = "keyed::serialize")]
   pub(crate) recipe: Rc<Recipe<'src>>,
 }
 

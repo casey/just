@@ -132,7 +132,7 @@ fn dependencies() {
           "body": [],
           "dependencies": [{
             "arguments": [],
-            "name": "foo"
+            "recipe": "foo"
           }],
           "parameters": [],
           "priors": 1,
@@ -211,7 +211,7 @@ fn dependency_argument() {
               ["call", "join", "a", "b"],
               ["call", "replace", "a", "b", "c"],
             ],
-            "name": "foo"
+            "recipe": "foo"
           }],
           "parameters": [],
           "priors": 1,
@@ -459,11 +459,11 @@ fn priors() {
           "dependencies": [
             {
               "arguments": [],
-              "name": "a",
+              "recipe": "a",
             },
             {
               "arguments": [],
-              "name": "c",
+              "recipe": "c",
             }
           ],
           "doc": null,
