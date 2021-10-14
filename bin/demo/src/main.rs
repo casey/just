@@ -14,18 +14,22 @@ const SCRIPT: &str = "
   ./main
 ";
 
-const BACKGROUND_COMMANDS: [&str; 10] = [
-  "nvr --remote-send 'i'",
-  "nvr --remote-send 'alias b := build<enter><enter>'",
-  "nvr --remote-send 'host := `uname -a`<enter><enter>'",
-  "nvr --remote-send '# build main<enter>'",
-  "nvr --remote-send 'build:<enter>    cc *.c -o main<enter><esc>i<enter>'",
-  "nvr --remote-send '# test everything<enter>'",
-  "nvr --remote-send 'test-all: build<enter>    ./test --all<enter><esc>i<enter>'",
-  "nvr --remote-send '# run a specific test<enter>'",
-  "nvr --remote-send 'test TEST: build<enter>    ./test --test {{TEST}}<enter><esc>'",
-  "nvr --remote-send ':x<enter>'",
-];
+const JUSTFILE: &str = "alias b := build
+
+host := `uname -a`
+
+# build main
+build:
+    cc *.c -o main
+
+# test everything
+test-all: build
+    ./test --all
+
+# run a specific test
+test TEST: build
+    ./test --test {{TEST}}
+";
 
 const PROMPT: &str = "\x1b[0;34m$\x1b[0m ";
 
@@ -54,18 +58,41 @@ fn run(command: &[&str]) -> Result<()> {
   Ok(())
 }
 
+fn send_char_to_nvr(c: char) {
+  let to_send = if c == '\n' {
+    String::from("<enter>")
+  } else if c == '\\' {
+    String::from("<esc>")
+  } else {
+    c.to_string()
+  };
+  let parts = shlex::split(&format!("nvr --remote-send '{}'", to_send))
+    .expect("Could not parse shell command");
+  let mut parts_iter = parts.iter();
+
+  Command::new(parts_iter.next().unwrap())
+    .args(parts_iter.collect::<Vec<_>>())
+    .current_dir("tmp")
+    .status()
+    .expect("Command failed");
+}
+
 fn run_background_commands(line_delay: Duration) {
   spawn(move || {
     sleep(line_delay);
-    for &background_command in BACKGROUND_COMMANDS.iter() {
-      let parts = shlex::split(background_command).expect("Could not parse shell command");
-      let mut parts_iter = parts.iter();
-      Command::new(parts_iter.next().unwrap())
-        .args(parts_iter.collect::<Vec<_>>())
-        .current_dir("tmp")
-        .status()
-        .expect("Command failed");
-      sleep(line_delay * 3);
+    send_char_to_nvr('i');
+    sleep(line_delay);
+
+    for c in JUSTFILE.chars() {
+      send_char_to_nvr(c);
+      if c == '\n' {
+        sleep(line_delay);
+      }
+    }
+
+    for c in "\\:x\n".chars() {
+      send_char_to_nvr(c);
+      sleep(line_delay);
     }
   });
 }
