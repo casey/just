@@ -202,7 +202,7 @@ fn dependency_argument() {
             "arguments": [
               "baz",
               "baz",
-              ["+", "a", "b"],
+              ["concatinate", "a", "b"],
               ["evaluate", "echo"],
               ["variable", "x"],
               ["if", "==", "a", "b", "c", "d"],
