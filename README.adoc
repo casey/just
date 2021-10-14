@@ -854,10 +854,14 @@ The executable is at: /bin/just
 
 ==== String Manipulation
 
-- `uppercase(s)` - Convert `s` to uppercase.
 - `lowercase(s)` - Convert `s` to lowercase.
-- `trim(s)` - Remove leading and trailing whitespace from `s`.
 - `replace(s, from, to)` - Replace all occurrences of `from` in `s` to `to`.
+- `trim(s)` - Remove leading and trailing whitespace from `s`.
+- `trim_end_match(s, pat)` - Remove suffix of `s` matching `pat`.
+- `trim_end_matches(s, pat)` - Repeatedly remove suffixes of `s` matching `pat`.
+- `trim_start_match(s, pat)` - Remove prefix of `s` matching `pat`.
+- `trim_start_matches(s, pat)` - Repeatedly remove prefixes of `s` matching `pat`.
+- `uppercase(s)` - Convert `s` to uppercase.
 
 ==== Dotenv Integration
 

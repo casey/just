@@ -302,3 +302,37 @@ test! {
   stdout: "foofoofoo\n",
   stderr: "echo foofoofoo\n",
 }
+
+fn assert_eval_eq(expression: &str, result: &str) {
+  Test::new()
+    .justfile(format!("x := {}", expression))
+    .args(&["--evaluate", "x"])
+    .stdout(result)
+    .run();
+}
+
+#[test]
+fn trim_end_matches() {
+  assert_eval_eq("trim_end_matches('foo', 'o')", "f");
+  assert_eval_eq("trim_end_matches('fabab', 'ab')", "f");
+  assert_eval_eq("trim_end_matches('fbaabab', 'ab')", "fba");
+}
+
+#[test]
+fn trim_end_match() {
+  assert_eval_eq("trim_end_match('foo', 'o')", "fo");
+  assert_eval_eq("trim_end_match('fabab', 'ab')", "fab");
+}
+
+#[test]
+fn trim_start_matches() {
+  assert_eval_eq("trim_start_matches('oof', 'o')", "f");
+  assert_eval_eq("trim_start_matches('ababf', 'ab')", "f");
+  assert_eval_eq("trim_start_matches('ababbaf', 'ab')", "baf");
+}
+
+#[test]
+fn trim_start_match() {
+  assert_eval_eq("trim_start_match('oof', 'o')", "of");
+  assert_eval_eq("trim_start_match('ababf', 'ab')", "abf");
+}
