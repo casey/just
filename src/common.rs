@@ -20,7 +20,7 @@ pub(crate) use std::{
 
 // dependencies
 pub(crate) use ::{
-  camino::{Utf8Path, Utf8PathBuf},
+  camino::Utf8Path,
   derivative::Derivative,
   edit_distance::edit_distance,
   lexiclean::Lexiclean,
