@@ -2,6 +2,25 @@ use crate::common::*;
 
 pub(crate) trait RangeExt<T> {
   fn range_contains(&self, i: &T) -> bool;
+
+  fn display(&self) -> DisplayRange<&Self> {
+    DisplayRange(self)
+  }
+}
+
+pub(crate) struct DisplayRange<T>(T);
+
+impl Display for DisplayRange<&Range<usize>> {
+  fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+    if self.0.start == self.0.end {
+      write!(f, "{}", self.0.start)?;
+    } else if self.0.end == usize::MAX {
+      write!(f, "{} or more", self.0.start)?;
+    } else {
+      write!(f, "{} to {}", self.0.start, self.0.end)?;
+    }
+    Ok(())
+  }
 }
 
 impl<T> RangeExt<T> for Range<T>
@@ -52,5 +71,12 @@ mod tests {
     assert!((0..=10).range_contains(&7));
     assert!((1..=10).range_contains(&10));
     assert!((10..=20).range_contains(&15));
+  }
+
+  #[test]
+  fn display() {
+    assert_eq!((1..1).display().to_string(), "1");
+    assert_eq!((1..2).display().to_string(), "1 to 2");
+    assert_eq!((1..usize::MAX).display().to_string(), "1 or more");
   }
 }

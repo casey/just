@@ -137,7 +137,7 @@ impl Display for CompileError<'_> {
           function,
           found,
           Count("argument", *found),
-          expected
+          expected.display(),
         )?;
       }
       InconsistentLeadingWhitespace { expected, found } => {

@@ -86,6 +86,18 @@ impl<'src> Node<'src> for Expression<'src> {
             tree.push_mut(a.tree());
             tree.push_mut(b.tree());
           }
+          BinaryPlus {
+            name,
+            args: ([a, b], rest),
+            ..
+          } => {
+            tree.push_mut(name.lexeme());
+            tree.push_mut(a.tree());
+            tree.push_mut(b.tree());
+            for arg in rest {
+              tree.push_mut(arg.tree());
+            }
+          }
           Ternary {
             name,
             args: [a, b, c],

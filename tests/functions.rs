@@ -347,3 +347,38 @@ fn trim_start() {
 fn trim_end() {
   assert_eval_eq("trim_end('  f  ')", "  f");
 }
+
+#[test]
+#[cfg(not(windows))]
+fn join() {
+  assert_eval_eq("join('a', 'b', 'c', 'd')", "a/b/c/d");
+  assert_eval_eq("join('a', '/b', 'c', 'd')", "/b/c/d");
+  assert_eval_eq("join('a', '/b', '/c', 'd')", "/c/d");
+  assert_eval_eq("join('a', '/b', '/c', '/d')", "/d");
+}
+
+#[test]
+#[cfg(windows)]
+fn join() {
+  assert_eval_eq("join('a', 'b', 'c', 'd')", "a\\b\\c\\d");
+  assert_eval_eq("join('a', '\\b', 'c', 'd')", "\\b\\c\\d");
+  assert_eval_eq("join('a', '\\b', '\\c', 'd')", "\\c\\d");
+  assert_eval_eq("join('a', '\\b', '\\c', '\\d')", "\\d");
+}
+
+#[test]
+fn join_argument_count_error() {
+  Test::new()
+    .justfile("x := join('a')")
+    .args(&["--evaluate"])
+    .stderr(
+      "
+      error: Function `join` called with 1 argument but takes 2 or more
+        |
+      1 | x := join(\'a\')
+        |      ^^^^
+      ",
+    )
+    .status(EXIT_FAILURE)
+    .run();
+}

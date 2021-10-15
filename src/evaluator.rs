@@ -106,6 +106,25 @@ impl<'src, 'run> Evaluator<'src, 'run> {
             function: *name,
             message,
           }),
+          BinaryPlus {
+            name,
+            function,
+            args: ([a, b], rest),
+            ..
+          } => {
+            let a = self.evaluate_expression(a)?;
+            let b = self.evaluate_expression(b)?;
+
+            let mut rest_evaluated = Vec::new();
+            for arg in rest {
+              rest_evaluated.push(self.evaluate_expression(arg)?);
+            }
+
+            function(&context, &a, &b, &rest_evaluated).map_err(|message| Error::FunctionCall {
+              function: *name,
+              message,
+            })
+          }
           Ternary {
             name,
             function,
