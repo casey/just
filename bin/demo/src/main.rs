@@ -100,7 +100,7 @@ fn run_background_commands(line_delay: Duration) {
 fn main() -> Result<()> {
   let char_delay = Duration::from_millis(1000 * 60 / CPM);
   let line_delay = char_delay * 7;
-  let enter_delay = char_delay * 5;
+  let enter_delay = char_delay * 15;
 
   run_background_commands(line_delay);
   run(&["nvr", "-s", "justfile"])?;

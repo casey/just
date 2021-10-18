@@ -14,7 +14,7 @@ image:https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg[say thanks,link=mai
 
 Commands, called recipes, are stored in a file called `justfile` with syntax inspired by `make`:
 
-image:usage.gif[usage]
+image:demo.gif[demo]
 
 `just` has a ton of useful features, and many improvements over `make`:
 

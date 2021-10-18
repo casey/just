@@ -217,4 +217,4 @@ demo-upload:
 	asciinema upload tmp/demo.json
 
 demo-render:
-	asciicast2gif -S4 tmp/demo.json www/demo.gif
+	asciicast2gif -S2 -w 50 -h 20 tmp/demo.json demo.gif
