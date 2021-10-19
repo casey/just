@@ -178,6 +178,8 @@ list:
 | `conda install -c conda-forge just`
 |===
 
+image:https://repology.org/badge/vertical-allrepos/just.svg[package version table,link=https://repology.org/project/just/versions]
+
 === Pre-Built Binaries
 
 Pre-built binaries for Linux, MacOS, and Windows can be found on https://github.com/casey/just/releases[the releases page].
