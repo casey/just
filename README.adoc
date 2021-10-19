@@ -180,9 +180,7 @@ list:
 
 === Package Versions
 
-<a href="https://repology.org/project/just/versions">
-  <img src="https://repology.org/badge/vertical-allrepos/just.svg" alt="Package version table">
-</a>
+image:https://repology.org/badge/vertical-allrepos/just.svg[package version table,link=https://repology.org/project/just/versions]
 
 === Pre-Built Binaries
 
