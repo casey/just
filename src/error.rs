@@ -253,17 +253,17 @@ impl<'src> ColorDisplay for Error<'src> {
           match io_error.kind() {
             io::ErrorKind::NotFound => write!(
               f,
-              "Backtick could not be run because just could not find the shell command:\n{}",
+              "Backtick could not be run because just could not find the shell:\n{}",
               io_error
             ),
             io::ErrorKind::PermissionDenied => write!(
               f,
-              "Backtick could not be run because just could not run the shell command:\n{}",
+              "Backtick could not be run because just could not run the shell:\n{}",
               io_error
             ),
             _ => write!(
               f,
-              "Backtick could not be run because of an IO error while launching the shell command:\n{}",
+              "Backtick could not be run because of an IO error while launching the shell:\n{}",
               io_error
             ),
           }?;
@@ -481,17 +481,17 @@ impl<'src> ColorDisplay for Error<'src> {
         match io_error.kind() {
           io::ErrorKind::NotFound => write!(
             f,
-            "Recipe `{}` could not be run because just could not find the shell command: {}",
+            "Recipe `{}` could not be run because just could not find the shell: {}",
             recipe, io_error
           ),
           io::ErrorKind::PermissionDenied => write!(
             f,
-            "Recipe `{}` could not be run because just could not run the shell command: {}",
+            "Recipe `{}` could not be run because just could not run the shell: {}",
             recipe, io_error
           ),
           _ => write!(
             f,
-            "Recipe `{}` could not be run because of an IO error while launching the shell command: {}",
+            "Recipe `{}` could not be run because of an IO error while launching the shell: {}",
             recipe, io_error
           ),
         }?;
