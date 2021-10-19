@@ -178,8 +178,6 @@ list:
 | `conda install -c conda-forge just`
 |===
 
-=== Package Versions
-
 image:https://repology.org/badge/vertical-allrepos/just.svg[package version table,link=https://repology.org/project/just/versions]
 
 === Pre-Built Binaries
