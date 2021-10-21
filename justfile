@@ -203,18 +203,19 @@ pwd:
 demo: demo-record demo-render
 
 demo-record:
-	#!/usr/bin/env bash
-	set -euxo pipefail
-	cargo build --release --all
-	rm -f tmp/justfile
-	asciinema rec \
-		--title "Just {{version}} Demo" \
-		--command ./target/release/demo \
-		--overwrite \
-		tmp/demo.json
-
-demo-upload:
-	asciinema upload tmp/demo.json
+  #!/usr/bin/env bash
+  set -euxo pipefail
+  cargo build --release --all
+  rm -rf tmp
+  mkdir tmp
+  asciinema rec \
+    --title "Just {{version}} Demo" \
+    --command ./target/release/demo \
+    --overwrite \
+    tmp/demo.json
 
 demo-render:
-	asciicast2gif -S2 -w 50 -h 20 tmp/demo.json demo.gif
+  asciicast2gif -S2 -w 50 -h 20 tmp/demo.json demo.gif
+
+demo-upload:
+  asciinema upload tmp/demo.json
