@@ -85,9 +85,6 @@ fn run_background_commands(line_delay: Duration) {
 
     for c in JUSTFILE.chars() {
       send_char_to_nvr(c);
-      if c == '\n' {
-        sleep(line_delay);
-      }
     }
 
     for c in "\\:x\n".chars() {
