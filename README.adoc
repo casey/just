@@ -1769,7 +1769,7 @@ I'm pretty sure that nobody actually uses this feature, but it's there.
 You can customize the above aliases with additional options. For example, if you'd prefer to have the recipes in your justfile run in your home directory, instead of the current directory:
 
 ```sh
-alias .j='just --justfile ~/.user.justfile --working-directory .'
+alias .j='just --justfile ~/.user.justfile --working-directory ~'
 ```
 
 == Contributing
