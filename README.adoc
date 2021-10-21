@@ -1748,6 +1748,8 @@ done
 
 Now, if you have a recipe called `foo` in `~/.user.justfile`, you can just type `foo` at the command line to run it.
 
+It took me way too long to realize that you could create recipe aliases like this. Notwithstanding my tardiness, I am very pleased to bring you this major advance in justfile technology.
+
 ==== Forwarding Alias
 
 If you'd rather not create aliases for every recipe, you can create a single alias:
@@ -1757,6 +1759,10 @@ alias .j='just --justfile ~/.user.justfile --working-directory .'
 ```
 
 Now, if you have a recipe called `foo` in `~/.user.justfile`, you can just type `.j foo` at the command line to run it.
+
+I'm pretty sure that nobody actually uses this feature, but it's there.
+
+¯\\_(ツ)_/¯
 
 ==== Customization
 
