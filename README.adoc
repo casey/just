@@ -1730,11 +1730,9 @@ A non-normative grammar of justfiles can be found in link:GRAMMAR.md[].
 
 Before `just` was a fancy Rust program it was a tiny shell script that called `make`. You can find the old version in link:extras/just.sh[].
 
-=== Non-Project Specific Justfile
+=== User Justfiles
 
-If you want some recipes to be available everywhere, you have a few options.
-
-First, create a justfile in `~/.user.justfile` with some recipes.
+If you want some recipes to be available everywhere, first create a justfile in `~/.user.justfile` with some recipes.
 
 ==== Recipe Aliases
 
