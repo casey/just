@@ -169,6 +169,8 @@ list:
 | `conda install -c conda-forge just`
 |===
 
+image:https://repology.org/badge/vertical-allrepos/just.svg[package version table,link=https://repology.org/project/just/versions]
+
 === Pre-Built Binaries
 
 Pre-built binaries for Linux, MacOS, and Windows can be found on https://github.com/casey/just/releases[the releases page].
@@ -845,10 +847,16 @@ The executable is at: /bin/just
 
 ==== String Manipulation
 
-- `uppercase(s)` - Convert `s` to uppercase.
 - `lowercase(s)` - Convert `s` to lowercase.
-- `trim(s)` - Remove leading and trailing whitespace from `s`.
 - `replace(s, from, to)` - Replace all occurrences of `from` in `s` to `to`.
+- `trim(s)` - Remove leading and trailing whitespace from `s`.
+- `trim_end(s)` - Remove trailing whitespace from `s`.
+- `trim_end_match(s, pat)` - Remove suffix of `s` matching `pat`.
+- `trim_end_matches(s, pat)` - Repeatedly remove suffixes of `s` matching `pat`.
+- `trim_start(s)` - Remove leading whitespace from `s`.
+- `trim_start_match(s, pat)` - Remove prefix of `s` matching `pat`.
+- `trim_start_matches(s, pat)` - Repeatedly remove prefixes of `s` matching `pat`.
+- `uppercase(s)` - Convert `s` to uppercase.
 
 ==== Dotenv Integration
 
@@ -892,7 +900,7 @@ These functions can fail, for example if a path does not have an extension, whic
 
 ===== Infallible
 
-- `join(a, b)` - Join path `a` with path `b`. `join("foo/bar", "baz")` is `foo/bar/baz`.
+- `join(a, b…)` - Join path `a` with path `b`. `join("foo/bar", "baz")` is `foo/bar/baz`. Accepts two or more arguments.
 - `clean(path)` - Simplify `path` by removing extra path separators, intermediate `.` components, and `..` where possible. `clean("foo//bar")` is `foo/bar`, `clean("foo/..")` is `.`, `clean("foo/./bar")` is `foo/bar`.
 
 === Command Evaluation Using Backticks
@@ -1683,7 +1691,7 @@ default:
 
 === Changelog
 
-A changelog for the latest release is available in link:CHANGELOG.md[]. Changelogs for previous releases are avaiable on https://github.com/casey/just/releases[the releases page]. `just --changelog` can also be used to make a `just` binary print its changelog.
+A changelog for the latest release is available in link:CHANGELOG.md[]. Changelogs for previous releases are available on https://github.com/casey/just/releases[the releases page]. `just --changelog` can also be used to make a `just` binary print its changelog.
 
 == Miscellanea
 

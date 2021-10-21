@@ -20,6 +20,12 @@ pub(crate) enum Thunk<'src> {
     function: fn(&FunctionContext, &str, &str) -> Result<String, String>,
     args: [Box<Expression<'src>>; 2],
   },
+  BinaryPlus {
+    name: Name<'src>,
+    #[derivative(Debug = "ignore", PartialEq = "ignore")]
+    function: fn(&FunctionContext, &str, &str, &[String]) -> Result<String, String>,
+    args: ([Box<Expression<'src>>; 2], Vec<Expression<'src>>),
+  },
   Ternary {
     name: Name<'src>,
     #[derivative(Debug = "ignore", PartialEq = "ignore")]
@@ -56,6 +62,16 @@ impl<'src> Thunk<'src> {
             name,
           })
         }
+        (Function::BinaryPlus(function), 2..=usize::MAX) => {
+          let rest = arguments.drain(2..).collect();
+          let b = Box::new(arguments.pop().unwrap());
+          let a = Box::new(arguments.pop().unwrap());
+          Ok(Thunk::BinaryPlus {
+            function: *function,
+            args: ([a, b], rest),
+            name,
+          })
+        }
         (Function::Ternary(function), 3) => {
           let c = Box::new(arguments.pop().unwrap());
           let b = Box::new(arguments.pop().unwrap());
@@ -85,6 +101,17 @@ impl Display for Thunk<'_> {
       Binary {
         name, args: [a, b], ..
       } => write!(f, "{}({}, {})", name.lexeme(), a, b),
+      BinaryPlus {
+        name,
+        args: ([a, b], rest),
+        ..
+      } => {
+        write!(f, "{}({}, {}", name.lexeme(), a, b)?;
+        for arg in rest {
+          write!(f, ", {}", arg)?;
+        }
+        write!(f, ")")
+      }
       Ternary {
         name,
         args: [a, b, c],

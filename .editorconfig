@@ -16,7 +16,3 @@ indent_style = space
 indent_size = 2
 # Trim trailing whitespace
 trim_trailing_whitespace = true
-
-[justfile]
-# Use tabs in justfile
-indent_style = tab
