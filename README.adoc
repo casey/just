@@ -1732,7 +1732,9 @@ Before `just` was a fancy Rust program it was a tiny shell script that called `m
 
 === User Justfiles
 
-If you want some recipes to be available everywhere, first create a justfile in `~/.user.justfile` with some recipes.
+If you want some recipes to be available everywhere, you have a few options.
+
+First, create a justfile in `~/.user.justfile` with some recipes.
 
 ==== Recipe Aliases
 
