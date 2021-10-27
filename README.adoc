@@ -416,7 +416,16 @@ test:
 You can also use dependencies to run multiple recipes by default:
 
 ```make
-default: build test lint
+default: lint build test
+
+build:
+  echo Building…
+
+test:
+  echo Testing…
+
+lint:
+  echo Linting…
 ```
 
 If no recipe makes sense as the default recipe, you can add a recipe to the beginning of your justfile that lists the available recipes:
