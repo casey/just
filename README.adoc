@@ -1805,6 +1805,13 @@ You can customize the above aliases with additional options. For example, if you
 alias .j='just --justfile ~/.user.justfile --working-directory ~'
 ```
 
+=== Alternatives and Prior Art
+
+There is no shortage of command runners out there! Some more or less similar alternatives to `just` include:
+
+- [mmake](https://github.com/tj/mmake): A wrapper around `make` with a number of improvements, including remote includes.
+- [robo](https://github.com/tj/robo): A YAML-based command runner written in Go.
+
 == Contributing
 
 `just` welcomes your contributions! `just` is released under the maximally permissive https://creativecommons.org/publicdomain/zero/1.0/legalcode.txt[CC0] public domain dedication and fallback license, so your changes must also be released under this license.
