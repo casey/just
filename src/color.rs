@@ -95,6 +95,14 @@ impl Color {
     self.restyle(Style::new().fg(Green))
   }
 
+  pub(crate) fn diff_added(self) -> Self {
+    self.restyle(Style::new().fg(Green))
+  }
+
+  pub(crate) fn diff_deleted(self) -> Self {
+    self.restyle(Style::new().fg(Red))
+  }
+
   pub(crate) fn active(&self) -> bool {
     match self.use_color {
       UseColor::Always => true,

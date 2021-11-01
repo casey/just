@@ -28,7 +28,6 @@ lexiclean = "0.0.1"
 libc = "0.2.0"
 log = "0.4.4"
 regex = "1.5.4"
-similar = "2.1.0"
 snafu = "0.6.0"
 strum_macros = "0.22.0"
 target = "2.0.0"
@@ -43,6 +42,10 @@ features = ["wrap_help"]
 [dependencies.ctrlc]
 version  = "3.1.1"
 features = ["termination"]
+
+[dependencies.similar]
+version = "2.1.0"
+features = ["unicode"]
 
 [dependencies.strum]
 version  = "0.22.0"

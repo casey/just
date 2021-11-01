@@ -5,7 +5,7 @@ pub(crate) use std::{
   env,
   ffi::{OsStr, OsString},
   fmt::{self, Debug, Display, Formatter},
-  fs::{self, File},
+  fs,
   io::{self, Cursor, Write},
   iter::{self, FromIterator},
   mem,
