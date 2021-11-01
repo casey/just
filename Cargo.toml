@@ -1,6 +1,6 @@
 [package]
 name = "just"
-version = "0.10.2"
+version = "0.10.3"
 description = "🤖 Just a command runner"
 authors = ["Casey Rodarmor <casey@rodarmor.com>"]
 license = "CC0-1.0"
@@ -30,7 +30,7 @@ log = "0.4.4"
 regex = "1.5.4"
 similar = "2.1.0"
 snafu = "0.6.0"
-strum_macros = "0.21.1"
+strum_macros = "0.22.0"
 target = "2.0.0"
 tempfile = "3.0.0"
 typed-arena = "2.0.1"
@@ -45,7 +45,7 @@ version  = "3.1.1"
 features = ["termination"]
 
 [dependencies.strum]
-version  = "0.21.0"
+version  = "0.22.0"
 features = ["derive"]
 
 [dev-dependencies]
