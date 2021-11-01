@@ -22,7 +22,7 @@ test! {
 }
 
 test! {
-  name: dry_run_ok,
+  name: check_ok,
   justfile: r#"
 # comment   with   spaces
 
@@ -42,16 +42,25 @@ deps:
 }
 
 test! {
-  name: dry_run_found_diff,
+  name: check_found_diff,
   justfile: "x:=``\n",
   args: ("--unstable", "--fmt", "--check"),
-  stdout: "
-  @@ -1 +1 @@
-  -x:=``
-  +x := ``
-  ",
   stderr: "
+    -x:=``
+    +x := ``
     error: Formatted justfile differs from original.
+  ",
+  status: EXIT_FAILURE,
+}
+
+test! {
+  name: check_diff_color,
+  justfile: "x:=``\n",
+  args: ("--unstable", "--fmt", "--check", "--color", "always"),
+  stderr: "
+    \u{1b}[31m-x:=``
+    \u{1b}[0m\u{1b}[32m+x := ``
+    \u{1b}[0m\u{1b}[1;31merror\u{1b}[0m: \u{1b}[1mFormatted justfile differs from original.\u{1b}[0m
   ",
   status: EXIT_FAILURE,
 }
