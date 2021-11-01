@@ -75,6 +75,7 @@ pub(crate) enum Error<'src> {
     variable: String,
     suggestion: Option<Suggestion<'src>>,
   },
+  FormatCheckFoundDiff,
   FunctionCall {
     function: Name<'src>,
     message: String,
@@ -457,6 +458,9 @@ impl<'src> ColorDisplay for Error<'src> {
         if let Some(suggestion) = *suggestion {
           write!(f, "\n{}", suggestion)?;
         }
+      }
+      FormatCheckFoundDiff => {
+        write!(f, "Formatted justfile differs from original.")?;
       }
       FunctionCall { function, message } => {
         write!(

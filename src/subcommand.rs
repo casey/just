@@ -77,7 +77,7 @@ impl Subcommand {
         justfile.run(config, &search, overrides, &[])?
       }
       Dump => Self::dump(ast),
-      Format => Self::format(config, ast, &search)?,
+      Format => Self::format(config, ast, &src, &search)?,
       List => Self::list(config, justfile),
       Run {
         arguments,
@@ -255,11 +255,22 @@ impl Subcommand {
     Ok(())
   }
 
-  fn format(config: &Config, ast: Ast, search: &Search) -> Result<(), Error<'static>> {
+  fn format(config: &Config, ast: Ast, src: &str, search: &Search) -> Result<(), Error<'static>> {
     config.require_unstable("The `--fmt` command is currently unstable.")?;
 
-    if let Err(io_error) =
-      File::create(&search.justfile).and_then(|mut file| write!(file, "{}", ast))
+    let src_formatted = ast.to_string();
+    if config.check {
+      if src == src_formatted {
+        Ok(())
+      } else {
+        print!(
+          "{}",
+          similar::udiff::unified_diff(similar::Algorithm::Patience, &src, &src_formatted, 2, None)
+        );
+        Err(Error::FormatCheckFoundDiff)
+      }
+    } else if let Err(io_error) =
+      File::create(&search.justfile).and_then(|mut file| file.write_all(&src_formatted.as_bytes()))
     {
       Err(Error::WriteJustfile {
         justfile: search.justfile.clone(),

@@ -15,6 +15,7 @@ pub(crate) const DEFAULT_SHELL_ARG: &str = "-cu";
 #[derive(Debug, PartialEq)]
 pub(crate) struct Config {
   pub(crate) color: Color,
+  pub(crate) check: bool,
   pub(crate) dry_run: bool,
   pub(crate) highlight: bool,
   pub(crate) invocation_directory: PathBuf,
@@ -81,6 +82,7 @@ mod cmd {
 
 mod arg {
   pub(crate) const ARGUMENTS: &str = "ARGUMENTS";
+  pub(crate) const CHECK: &str = "CHECK";
   pub(crate) const CHOOSER: &str = "CHOOSER";
   pub(crate) const CLEAR_SHELL_ARGS: &str = "CLEAR-SHELL-ARGS";
   pub(crate) const COLOR: &str = "COLOR";
@@ -116,6 +118,12 @@ impl Config {
       .version_message("Print version information")
       .setting(AppSettings::ColoredHelp)
       .setting(AppSettings::TrailingVarArg)
+      .arg(
+        Arg::with_name(arg::CHECK)
+          .long("check")
+          .requires(cmd::FORMAT)
+          .help("Run `--fmt` in 'check' mode. Exits with 0 if justfile is formatted correctly. Exits with 1 and prints a diff if formatting is required."),
+      )
       .arg(
         Arg::with_name(arg::CHOOSER)
           .long("chooser")
@@ -532,6 +540,7 @@ impl Config {
       || matches.occurrences_of(arg::SHELL_ARG) > 0;
 
     Ok(Self {
+      check: matches.is_present(arg::CHECK),
       dry_run: matches.is_present(arg::DRY_RUN),
       highlight: !matches.is_present(arg::NO_HIGHLIGHT),
       shell: matches.value_of(arg::SHELL).unwrap().to_owned(),
@@ -594,6 +603,9 @@ USAGE:
 
 FLAGS:
         --changelog           Print changelog
+        --check               Run `--fmt` in 'check' mode. Exits with 0 if
+                              justfile is formatted correctly. Exits with 1 and
+                              prints a diff if formatting is required.
         --choose              Select one or more recipes to run using a binary.
                               If `--chooser` is not passed the chooser defaults
                               to the value of $JUST_CHOOSER, falling back to
