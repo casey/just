@@ -57,7 +57,12 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   /// `Parser::next`
   fn unexpected_token(&self) -> CompileResult<'src, CompileError<'src>> {
     self.error(CompileErrorKind::UnexpectedToken {
-      expected: self.expected.iter().cloned().collect::<Vec<TokenKind>>(),
+      expected: self
+        .expected
+        .iter()
+        .cloned()
+        .filter(|kind| *kind != ByteOrderMark)
+        .collect::<Vec<TokenKind>>(),
       found: self.next()?.kind,
     })
   }
@@ -301,6 +306,8 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     let mut items = Vec::new();
 
     let mut eol_since_last_comment = false;
+
+    self.accept(ByteOrderMark)?;
 
     loop {
       let next = self.next()?;
