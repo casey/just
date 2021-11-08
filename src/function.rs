@@ -27,6 +27,7 @@ lazy_static! {
     ("os", Nullary(os)),
     ("os_family", Nullary(os_family)),
     ("parent_directory", Unary(parent_directory)),
+    ("quote", Unary(quote)),
     ("replace", Ternary(replace)),
     ("trim", Unary(trim)),
     ("trim_end", Unary(trim_end)),
@@ -204,6 +205,10 @@ fn parent_directory(_context: &FunctionContext, path: &str) -> Result<String, St
     .parent()
     .map(Utf8Path::to_string)
     .ok_or_else(|| format!("Could not extract parent directory from `{}`", path))
+}
+
+fn quote(_context: &FunctionContext, s: &str) -> Result<String, String> {
+  Ok(format!("'{}'", s.replace('\'', "'\\''")))
 }
 
 fn replace(_context: &FunctionContext, s: &str, from: &str, to: &str) -> Result<String, String> {
