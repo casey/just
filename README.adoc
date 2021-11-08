@@ -888,6 +888,7 @@ The executable is at: /bin/just
 ==== String Manipulation
 
 - `lowercase(s)` - Convert `s` to lowercase.
+- `quote(s)` - Replace all single quotes with `'\''` and prepend and append single quotes to `s`. This is sufficient to escape special characters for many shells, including most Bourne shell descendants.
 - `replace(s, from, to)` - Replace all occurrences of `from` in `s` to `to`.
 - `trim(s)` - Remove leading and trailing whitespace from `s`.
 - `trim_end(s)` - Remove trailing whitespace from `s`.

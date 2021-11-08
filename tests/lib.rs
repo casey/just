@@ -26,6 +26,7 @@ mod invocation_directory;
 mod misc;
 mod positional_arguments;
 mod quiet;
+mod quote;
 mod readme;
 mod regexes;
 mod search;
