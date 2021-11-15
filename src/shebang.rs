@@ -41,7 +41,7 @@ impl<'line> Shebang<'line> {
   pub(crate) fn script_filename(&self, recipe: &str) -> String {
     match self.interpreter_filename() {
       "cmd" | "cmd.exe" => format!("{}.bat", recipe),
-      "powershell" | "powershell.exe" => format!("{}.ps1", recipe),
+      "powershell" | "powershell.exe" | "pwsh" | "pwsh.exe" => format!("{}.ps1", recipe),
       _ => recipe.to_owned(),
     }
   }
