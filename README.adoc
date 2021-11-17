@@ -1730,6 +1730,10 @@ default:
   echo foo
 ```
 
+=== Dumping Justfiles as JSON
+
+The `--dump` command can be used with `--dump-format json` to print a JSON representation of a justfile. The JSON format is currently unstable, so the `--unstable` flag is required.
+
 === Changelog
 
 A changelog for the latest release is available in link:CHANGELOG.md[]. Changelogs for previous releases are available on https://github.com/casey/just/releases[the releases page]. `just --changelog` can also be used to make a `just` binary print its changelog.

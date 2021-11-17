@@ -1,6 +1,6 @@
 use crate::common::*;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize)]
 pub(crate) struct Settings<'src> {
   pub(crate) dotenv_load: Option<bool>,
   pub(crate) export: bool,

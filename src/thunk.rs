@@ -35,6 +35,16 @@ pub(crate) enum Thunk<'src> {
 }
 
 impl<'src> Thunk<'src> {
+  fn name(&self) -> &Name<'src> {
+    match self {
+      Self::Nullary { name, .. }
+      | Self::Unary { name, .. }
+      | Self::Binary { name, .. }
+      | Self::BinaryPlus { name, .. }
+      | Self::Ternary { name, .. } => name,
+    }
+  }
+
   pub(crate) fn resolve(
     name: Name<'src>,
     mut arguments: Vec<Expression<'src>>,
@@ -118,5 +128,36 @@ impl Display for Thunk<'_> {
         ..
       } => write!(f, "{}({}, {}, {})", name.lexeme(), a, b, c),
     }
+  }
+}
+
+impl<'src> Serialize for Thunk<'src> {
+  fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+  where
+    S: Serializer,
+  {
+    let mut seq = serializer.serialize_seq(None)?;
+    seq.serialize_element("call")?;
+    seq.serialize_element(self.name())?;
+    match self {
+      Self::Nullary { .. } => {}
+      Self::Unary { arg, .. } => seq.serialize_element(&arg)?,
+      Self::Binary { args, .. } => {
+        for arg in args {
+          seq.serialize_element(arg)?;
+        }
+      }
+      Self::BinaryPlus { args, .. } => {
+        for arg in args.0.iter().map(Box::as_ref).chain(&args.1) {
+          seq.serialize_element(arg)?;
+        }
+      }
+      Self::Ternary { args, .. } => {
+        for arg in args {
+          seq.serialize_element(arg)?;
+        }
+      }
+    }
+    seq.end()
   }
 }

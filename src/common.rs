@@ -27,6 +27,10 @@ pub(crate) use ::{
   libc::EXIT_FAILURE,
   log::{info, warn},
   regex::Regex,
+  serde::{
+    ser::{SerializeMap, SerializeSeq},
+    Serialize, Serializer,
+  },
   snafu::{ResultExt, Snafu},
   strum::{Display, EnumString, IntoStaticStr},
   typed_arena::Arena,
@@ -34,7 +38,7 @@ pub(crate) use ::{
 };
 
 // modules
-pub(crate) use crate::{completions, config, config_error, setting};
+pub(crate) use crate::{completions, config, config_error, keyed, setting};
 
 // functions
 pub(crate) use crate::{load_dotenv::load_dotenv, output::output, unindent::unindent};
@@ -51,18 +55,18 @@ pub(crate) use crate::{
   assignment_resolver::AssignmentResolver, ast::Ast, binding::Binding, color::Color,
   compile_error::CompileError, compile_error_kind::CompileErrorKind,
   conditional_operator::ConditionalOperator, config::Config, config_error::ConfigError,
-  count::Count, delimiter::Delimiter, dependency::Dependency, enclosure::Enclosure, error::Error,
-  evaluator::Evaluator, expression::Expression, fragment::Fragment, function::Function,
-  function_context::FunctionContext, interrupt_guard::InterruptGuard,
-  interrupt_handler::InterruptHandler, item::Item, justfile::Justfile, keyword::Keyword,
-  lexer::Lexer, line::Line, list::List, loader::Loader, name::Name, output_error::OutputError,
-  parameter::Parameter, parameter_kind::ParameterKind, parser::Parser, platform::Platform,
-  position::Position, positional::Positional, recipe::Recipe, recipe_context::RecipeContext,
-  recipe_resolver::RecipeResolver, scope::Scope, search::Search, search_config::SearchConfig,
-  search_error::SearchError, set::Set, setting::Setting, settings::Settings, shebang::Shebang,
-  show_whitespace::ShowWhitespace, string_kind::StringKind, string_literal::StringLiteral,
-  subcommand::Subcommand, suggestion::Suggestion, table::Table, thunk::Thunk, token::Token,
-  token_kind::TokenKind, unresolved_dependency::UnresolvedDependency,
+  count::Count, delimiter::Delimiter, dependency::Dependency, dump_format::DumpFormat,
+  enclosure::Enclosure, error::Error, evaluator::Evaluator, expression::Expression,
+  fragment::Fragment, function::Function, function_context::FunctionContext,
+  interrupt_guard::InterruptGuard, interrupt_handler::InterruptHandler, item::Item,
+  justfile::Justfile, keyword::Keyword, lexer::Lexer, line::Line, list::List, loader::Loader,
+  name::Name, output_error::OutputError, parameter::Parameter, parameter_kind::ParameterKind,
+  parser::Parser, platform::Platform, position::Position, positional::Positional, recipe::Recipe,
+  recipe_context::RecipeContext, recipe_resolver::RecipeResolver, scope::Scope, search::Search,
+  search_config::SearchConfig, search_error::SearchError, set::Set, setting::Setting,
+  settings::Settings, shebang::Shebang, show_whitespace::ShowWhitespace, string_kind::StringKind,
+  string_literal::StringLiteral, subcommand::Subcommand, suggestion::Suggestion, table::Table,
+  thunk::Thunk, token::Token, token_kind::TokenKind, unresolved_dependency::UnresolvedDependency,
   unresolved_recipe::UnresolvedRecipe, use_color::UseColor, variables::Variables,
   verbosity::Verbosity, warning::Warning,
 };

@@ -17,6 +17,7 @@ _just() {
     local common=(
 '--chooser=[Override binary invoked by `--choose`]' \
 '--color=[Print colorful output]: :(auto always never)' \
+'--dump-format=[Dump justfile as <FORMAT>]: :(just json)' \
 '--list-heading=[Print <TEXT> before list]' \
 '--list-prefix=[Print <TEXT> before each list item]' \
 '-f+[Use <JUSTFILE> as justfile]' \
@@ -49,7 +50,7 @@ _just() {
 '*--verbose[Use verbose output]' \
 '--changelog[Print changelog]' \
 '--choose[Select one or more recipes to run using a binary. If `--chooser` is not passed the chooser defaults to the value of $JUST_CHOOSER, falling back to `fzf`]' \
-'--dump[Print entire justfile]' \
+'--dump[Print justfile]' \
 '-e[Edit justfile with editor given by $VISUAL or $EDITOR, falling back to `vim`]' \
 '--edit[Edit justfile with editor given by $VISUAL or $EDITOR, falling back to `vim`]' \
 '--evaluate[Evaluate and print all variables. If a variable name is given as an argument, only print that variable'\''s value.]' \

@@ -54,3 +54,16 @@ See https://github.com/casey/just/issues/469 for more details.")?;
     Ok(())
   }
 }
+
+impl Serialize for Warning {
+  fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+  where
+    S: Serializer,
+  {
+    let mut map = serializer.serialize_map(None)?;
+
+    map.serialize_entry("message", &self.color_display(Color::never()).to_string())?;
+
+    map.end()
+  }
+}

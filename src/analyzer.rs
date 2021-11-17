@@ -81,6 +81,16 @@ impl<'src> Analyzer<'src> {
 
     Ok(Justfile {
       warnings: ast.warnings,
+      first: recipes
+        .values()
+        .fold(None, |accumulator, next| match accumulator {
+          None => Some(Rc::clone(next)),
+          Some(previous) => Some(if previous.line_number() < next.line_number() {
+            previous
+          } else {
+            Rc::clone(next)
+          }),
+        }),
       aliases,
       assignments,
       recipes,

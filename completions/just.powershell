@@ -21,6 +21,7 @@ Register-ArgumentCompleter -Native -CommandName 'just' -ScriptBlock {
         'just' {
             [CompletionResult]::new('--chooser', 'chooser', [CompletionResultType]::ParameterName, 'Override binary invoked by `--choose`')
             [CompletionResult]::new('--color', 'color', [CompletionResultType]::ParameterName, 'Print colorful output')
+            [CompletionResult]::new('--dump-format', 'dump-format', [CompletionResultType]::ParameterName, 'Dump justfile as <FORMAT>')
             [CompletionResult]::new('--list-heading', 'list-heading', [CompletionResultType]::ParameterName, 'Print <TEXT> before list')
             [CompletionResult]::new('--list-prefix', 'list-prefix', [CompletionResultType]::ParameterName, 'Print <TEXT> before each list item')
             [CompletionResult]::new('-f', 'f', [CompletionResultType]::ParameterName, 'Use <JUSTFILE> as justfile')
@@ -53,7 +54,7 @@ Register-ArgumentCompleter -Native -CommandName 'just' -ScriptBlock {
             [CompletionResult]::new('--verbose', 'verbose', [CompletionResultType]::ParameterName, 'Use verbose output')
             [CompletionResult]::new('--changelog', 'changelog', [CompletionResultType]::ParameterName, 'Print changelog')
             [CompletionResult]::new('--choose', 'choose', [CompletionResultType]::ParameterName, 'Select one or more recipes to run using a binary. If `--chooser` is not passed the chooser defaults to the value of $JUST_CHOOSER, falling back to `fzf`')
-            [CompletionResult]::new('--dump', 'dump', [CompletionResultType]::ParameterName, 'Print entire justfile')
+            [CompletionResult]::new('--dump', 'dump', [CompletionResultType]::ParameterName, 'Print justfile')
             [CompletionResult]::new('-e', 'e', [CompletionResultType]::ParameterName, 'Edit justfile with editor given by $VISUAL or $EDITOR, falling back to `vim`')
             [CompletionResult]::new('--edit', 'edit', [CompletionResultType]::ParameterName, 'Edit justfile with editor given by $VISUAL or $EDITOR, falling back to `vim`')
             [CompletionResult]::new('--evaluate', 'evaluate', [CompletionResultType]::ParameterName, 'Evaluate and print all variables. If a variable name is given as an argument, only print that variable''s value.')

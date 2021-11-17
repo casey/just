@@ -1,9 +1,13 @@
 use crate::common::*;
 
 /// An alias, e.g. `name := target`
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Serialize)]
 pub(crate) struct Alias<'src, T = Rc<Recipe<'src>>> {
   pub(crate) name: Name<'src>,
+  #[serde(
+    bound(serialize = "T: Keyed<'src>"),
+    serialize_with = "keyed::serialize"
+  )]
   pub(crate) target: T,
 }
 
