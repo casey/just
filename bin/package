@@ -40,7 +40,7 @@ case $OS in
     echo "::set-output name=archive::$ARCHIVE"
     ;;
   windows-2016)
-    archive=$DIST/just-$VERSION-$TARGET.zip
+    ARCHIVE=$DIST/just-$VERSION-$TARGET.zip
     7z a $ARCHIVE *
     echo "::set-output name=archive::`pwd -W`/just-$VERSION-$TARGET.zip"
     ;;
