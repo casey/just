@@ -37,7 +37,7 @@ jobs:
           native: true
           target_rustflags: ''
         - target: x86_64-pc-windows-msvc
-          os: windows-2016
+          os: windows-latest
           native: true
           target_rustflags: ''
         - target: x86_64-unknown-linux-musl
@@ -72,7 +72,6 @@ jobs:
     - name: Test
       if: matrix.native
       run: cargo test --all --all-features --target ${{ matrix.target }}
-
 
     - name: Ref Type
       id: ref-type

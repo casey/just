@@ -15,7 +15,7 @@ jobs:
         os:
         - ubuntu-latest
         - macos-latest
-        - windows-2016
+        - windows-latest
 
     runs-on: ${{matrix.os}}
 
@@ -48,7 +48,7 @@ jobs:
       run: cargo fmt --all -- --check
 
     - name: Completion Scripts
-      if: ${{ matrix.os != 'windows-2016' }}
+      if: ${{ matrix.os == 'ubuntu-latest' }}
       run: |
         ./bin/generate-completions
         git diff --no-ext-diff --quiet --exit-code
