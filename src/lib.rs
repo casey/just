@@ -12,6 +12,12 @@
   clippy::wildcard_imports
 )]
 
+pub use crate::run::run;
+
+// Used in integration tests.
+#[doc(hidden)]
+pub use unindent::unindent;
+
 #[macro_use]
 extern crate lazy_static;
 
@@ -28,6 +34,12 @@ pub mod node;
 
 #[cfg(fuzzing)]
 pub(crate) mod fuzzing;
+
+// Used by Janus, https://github.com/casey/janus, a tool
+// that analyses all public justfiles on GitHub to avoid
+// breaking changes.
+#[doc(hidden)]
+pub mod summary;
 
 mod alias;
 mod analyzer;
@@ -49,6 +61,7 @@ mod config_error;
 mod count;
 mod delimiter;
 mod dependency;
+mod dump_format;
 mod enclosure;
 mod error;
 mod evaluator;
@@ -107,15 +120,3 @@ mod use_color;
 mod variables;
 mod verbosity;
 mod warning;
-
-pub use crate::run::run;
-
-// Used in integration tests.
-#[doc(hidden)]
-pub use unindent::unindent;
-
-// Used by Janus, https://github.com/casey/janus, a tool
-// that analyses all public justfiles on GitHub to avoid
-// breaking changes.
-#[doc(hidden)]
-pub mod summary;

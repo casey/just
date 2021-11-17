@@ -1,29 +1,19 @@
 use crate::common::*;
 
-#[derive(Debug, PartialEq)]
+use serde::Serialize;
+
+#[derive(Debug, PartialEq, Serialize)]
 pub(crate) struct Justfile<'src> {
-  pub(crate) recipes: Table<'src, Rc<Recipe<'src>>>,
-  pub(crate) assignments: Table<'src, Assignment<'src>>,
   pub(crate) aliases: Table<'src, Alias<'src>>,
+  pub(crate) assignments: Table<'src, Assignment<'src>>,
+  #[serde(serialize_with = "keyed::serialize_option")]
+  pub(crate) first: Option<Rc<Recipe<'src>>>,
+  pub(crate) recipes: Table<'src, Rc<Recipe<'src>>>,
   pub(crate) settings: Settings<'src>,
   pub(crate) warnings: Vec<Warning>,
 }
 
 impl<'src> Justfile<'src> {
-  pub(crate) fn first(&self) -> Option<&Recipe<'src>> {
-    let mut first: Option<&Recipe<Dependency>> = None;
-    for recipe in self.recipes.values() {
-      if let Some(first_recipe) = first {
-        if recipe.line_number() < first_recipe.line_number() {
-          first = Some(recipe);
-        }
-      } else {
-        first = Some(recipe);
-      }
-    }
-    first
-  }
-
   pub(crate) fn count(&self) -> usize {
     self.recipes.len()
   }
@@ -206,7 +196,7 @@ impl<'src> Justfile<'src> {
 
     let argvec: Vec<&str> = if !arguments.is_empty() {
       arguments.iter().map(String::as_str).collect()
-    } else if let Some(recipe) = self.first() {
+    } else if let Some(recipe) = &self.first {
       let min_arguments = recipe.min_arguments();
       if min_arguments > 0 {
         return Err(Error::DefaultRecipeRequiresArguments {

@@ -20,7 +20,7 @@ _just() {
 
     case "${cmd}" in
         just)
-            opts=" -q -u -v -e -l -h -V -f -d -c -s  --check --dry-run --highlight --no-dotenv --no-highlight --quiet --shell-command --clear-shell-args --unsorted --unstable --verbose --changelog --choose --dump --edit --evaluate --fmt --init --list --summary --variables --help --version --chooser --color --list-heading --list-prefix --justfile --set --shell --shell-arg --working-directory --command --completions --show --dotenv-filename --dotenv-path  <ARGUMENTS>... "
+            opts=" -q -u -v -e -l -h -V -f -d -c -s  --check --dry-run --highlight --no-dotenv --no-highlight --quiet --shell-command --clear-shell-args --unsorted --unstable --verbose --changelog --choose --dump --edit --evaluate --fmt --init --list --summary --variables --help --version --chooser --color --dump-format --list-heading --list-prefix --justfile --set --shell --shell-arg --working-directory --command --completions --show --dotenv-filename --dotenv-path  <ARGUMENTS>... "
                 if [[ ${cur} == -* ]] ; then
                     COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                     return 0
@@ -39,6 +39,10 @@ _just() {
                     ;;
                 --color)
                     COMPREPLY=($(compgen -W "auto always never" -- "${cur}"))
+                    return 0
+                    ;;
+                --dump-format)
+                    COMPREPLY=($(compgen -W "just json" -- "${cur}"))
                     return 0
                     ;;
                 --list-heading)

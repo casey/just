@@ -31,7 +31,7 @@ test! {
     error: The argument '--command <COMMAND>' requires a value but none was supplied
 
     USAGE:
-        just{} --color <COLOR> --shell <SHELL> --shell-arg <SHELL-ARG>... \
+        just{} --color <COLOR> --dump-format <FORMAT> --shell <SHELL> --shell-arg <SHELL-ARG>... \
         <--changelog|--choose|--command <COMMAND>|--completions <SHELL>|--dump|--edit|\
         --evaluate|--fmt|--init|--list|--show <RECIPE>|--summary|--variables>
 

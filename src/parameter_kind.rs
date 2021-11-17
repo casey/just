@@ -1,7 +1,8 @@
 use crate::common::*;
 
 /// Parameters can either be…
-#[derive(Debug, Copy, Clone, Eq, PartialEq)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "snake_case")]
 pub(crate) enum ParameterKind {
   /// …singular, accepting a single argument
   Singular,

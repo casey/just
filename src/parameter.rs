@@ -1,16 +1,16 @@
 use crate::common::*;
 
 /// A single function parameter
-#[derive(PartialEq, Debug, Clone)]
+#[derive(PartialEq, Debug, Clone, Serialize)]
 pub(crate) struct Parameter<'src> {
-  /// The parameter name
-  pub(crate) name: Name<'src>,
-  /// The kind of parameter
-  pub(crate) kind: ParameterKind,
   /// An optional default expression
   pub(crate) default: Option<Expression<'src>>,
   /// Export parameter as environment variable
   pub(crate) export: bool,
+  /// The kind of parameter
+  pub(crate) kind: ParameterKind,
+  /// The parameter name
+  pub(crate) name: Name<'src>,
 }
 
 impl<'src> ColorDisplay for Parameter<'src> {

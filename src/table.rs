@@ -2,7 +2,8 @@ use crate::common::*;
 
 use std::collections::btree_map;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize)]
+#[serde(transparent)]
 pub(crate) struct Table<'key, V: Keyed<'key>> {
   map: BTreeMap<&'key str, V>,
 }

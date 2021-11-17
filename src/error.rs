@@ -63,6 +63,9 @@ pub(crate) enum Error<'src> {
   Dotenv {
     dotenv_error: dotenv::Error,
   },
+  DumpJson {
+    serde_json_error: serde_json::Error,
+  },
   EditorInvoke {
     editor: OsString,
     io_error: io::Error,
@@ -433,6 +436,9 @@ impl<'src> ColorDisplay for Error<'src> {
       }
       Dotenv { dotenv_error } => {
         write!(f, "Failed to load environment file: {}", dotenv_error)?;
+      }
+      DumpJson { serde_json_error } => {
+        write!(f, "Failed to dump JSON to stdout: {}", serde_json_error)?;
       }
       EditorInvoke { editor, io_error } => {
         write!(

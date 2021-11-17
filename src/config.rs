@@ -14,9 +14,12 @@ pub(crate) const DEFAULT_SHELL_ARG: &str = "-cu";
 
 #[derive(Debug, PartialEq)]
 pub(crate) struct Config {
-  pub(crate) color: Color,
   pub(crate) check: bool,
+  pub(crate) color: Color,
+  pub(crate) dotenv_filename: Option<String>,
+  pub(crate) dotenv_path: Option<PathBuf>,
   pub(crate) dry_run: bool,
+  pub(crate) dump_format: DumpFormat,
   pub(crate) highlight: bool,
   pub(crate) invocation_directory: PathBuf,
   pub(crate) list_heading: String,
@@ -30,8 +33,6 @@ pub(crate) struct Config {
   pub(crate) subcommand: Subcommand,
   pub(crate) unsorted: bool,
   pub(crate) unstable: bool,
-  pub(crate) dotenv_filename: Option<String>,
-  pub(crate) dotenv_path: Option<PathBuf>,
   pub(crate) verbosity: Verbosity,
 }
 
@@ -86,7 +87,10 @@ mod arg {
   pub(crate) const CHOOSER: &str = "CHOOSER";
   pub(crate) const CLEAR_SHELL_ARGS: &str = "CLEAR-SHELL-ARGS";
   pub(crate) const COLOR: &str = "COLOR";
+  pub(crate) const DOTENV_FILENAME: &str = "DOTENV-FILENAME";
+  pub(crate) const DOTENV_PATH: &str = "DOTENV-PATH";
   pub(crate) const DRY_RUN: &str = "DRY-RUN";
+  pub(crate) const DUMP_FORMAT: &str = "DUMP-FORMAT";
   pub(crate) const HIGHLIGHT: &str = "HIGHLIGHT";
   pub(crate) const JUSTFILE: &str = "JUSTFILE";
   pub(crate) const LIST_HEADING: &str = "LIST-HEADING";
@@ -100,8 +104,6 @@ mod arg {
   pub(crate) const SHELL_COMMAND: &str = "SHELL-COMMAND";
   pub(crate) const UNSORTED: &str = "UNSORTED";
   pub(crate) const UNSTABLE: &str = "UNSTABLE";
-  pub(crate) const DOTENV_FILENAME: &str = "DOTENV_FILENAME";
-  pub(crate) const DOTENV_PATH: &str = "DOTENV_PATH";
   pub(crate) const VERBOSE: &str = "VERBOSE";
   pub(crate) const WORKING_DIRECTORY: &str = "WORKING-DIRECTORY";
 
@@ -109,6 +111,10 @@ mod arg {
   pub(crate) const COLOR_AUTO: &str = "auto";
   pub(crate) const COLOR_NEVER: &str = "never";
   pub(crate) const COLOR_VALUES: &[&str] = &[COLOR_AUTO, COLOR_ALWAYS, COLOR_NEVER];
+
+  pub(crate) const DUMP_FORMAT_JSON: &str = "json";
+  pub(crate) const DUMP_FORMAT_JUST: &str = "just";
+  pub(crate) const DUMP_FORMAT_VALUES: &[&str] = &[DUMP_FORMAT_JUST, DUMP_FORMAT_JSON];
 }
 
 impl Config {
@@ -143,6 +149,15 @@ impl Config {
           .long("dry-run")
           .help("Print what just would do without doing it")
           .conflicts_with(arg::QUIET),
+      )
+      .arg(
+        Arg::with_name(arg::DUMP_FORMAT)
+          .long("dump-format")
+          .takes_value(true)
+          .possible_values(arg::DUMP_FORMAT_VALUES)
+          .default_value(arg::DUMP_FORMAT_JUST)
+          .value_name("FORMAT")
+          .help("Dump justfile as <FORMAT>"),
       )
       .arg(
         Arg::with_name(arg::HIGHLIGHT)
@@ -283,7 +298,7 @@ impl Config {
       .arg(
         Arg::with_name(cmd::DUMP)
           .long("dump")
-          .help("Print entire justfile"),
+          .help("Print justfile"),
       )
       .arg(
         Arg::with_name(cmd::EDIT)
@@ -367,13 +382,35 @@ impl Config {
     }
   }
 
-  fn color_from_value(value: &str) -> ConfigResult<Color> {
+  fn color_from_matches(matches: &ArgMatches) -> ConfigResult<Color> {
+    let value = matches
+      .value_of(arg::COLOR)
+      .ok_or_else(|| ConfigError::Internal {
+        message: "`--color` had no value".to_string(),
+      })?;
+
     match value {
       arg::COLOR_AUTO => Ok(Color::auto()),
       arg::COLOR_ALWAYS => Ok(Color::always()),
       arg::COLOR_NEVER => Ok(Color::never()),
       _ => Err(ConfigError::Internal {
         message: format!("Invalid argument `{}` to --color.", value),
+      }),
+    }
+  }
+
+  fn dump_format_from_matches(matches: &ArgMatches) -> ConfigResult<DumpFormat> {
+    let value = matches
+      .value_of(arg::DUMP_FORMAT)
+      .ok_or_else(|| ConfigError::Internal {
+        message: "`--dump-format` had no value".to_string(),
+      })?;
+
+    match value {
+      arg::DUMP_FORMAT_JSON => Ok(DumpFormat::Json),
+      arg::DUMP_FORMAT_JUST => Ok(DumpFormat::Just),
+      _ => Err(ConfigError::Internal {
+        message: format!("Invalid argument `{}` to --dump-format.", value),
       }),
     }
   }
@@ -387,11 +424,7 @@ impl Config {
       Verbosity::from_flag_occurrences(matches.occurrences_of(arg::VERBOSE))
     };
 
-    let color = Self::color_from_value(
-      matches
-        .value_of(arg::COLOR)
-        .expect("`--color` had no value"),
-    )?;
+    let color = Self::color_from_matches(matches)?;
 
     let set_count = matches.occurrences_of(arg::SET);
     let mut overrides = BTreeMap::new();
@@ -542,6 +575,7 @@ impl Config {
     Ok(Self {
       check: matches.is_present(arg::CHECK),
       dry_run: matches.is_present(arg::DRY_RUN),
+      dump_format: Self::dump_format_from_matches(matches)?,
       highlight: !matches.is_present(arg::NO_HIGHLIGHT),
       shell: matches.value_of(arg::SHELL).unwrap().to_owned(),
       load_dotenv: !matches.is_present(arg::NO_DOTENV),
@@ -612,7 +646,7 @@ FLAGS:
                               `fzf`
         --clear-shell-args    Clear shell arguments
         --dry-run             Print what just would do without doing it
-        --dump                Print entire justfile
+        --dump                Print justfile
     -e, --edit                Edit justfile with editor given by $VISUAL or
                               $EDITOR, falling back to `vim`
         --evaluate            Evaluate and print all variables. If a variable
@@ -646,12 +680,15 @@ OPTIONS:
         --completions <SHELL>
             Print shell completion script for <SHELL> [possible values: zsh,
             bash, fish, powershell, elvish]
-        --dotenv-filename <DOTENV_FILENAME>
+        --dotenv-filename <DOTENV-FILENAME>
             Search for environment file named <DOTENV-FILENAME> instead of
             `.env`
-        --dotenv-path <DOTENV_PATH>
+        --dotenv-path <DOTENV-PATH>
             Load environment file at <DOTENV-PATH> instead of searching for one
 
+        --dump-format <FORMAT>
+            Dump justfile as <FORMAT> [default: just]  [possible values: just,
+            json]
     -f, --justfile <JUSTFILE>                      Use <JUSTFILE> as justfile
         --list-heading <TEXT>                      Print <TEXT> before list
         --list-prefix <TEXT>
@@ -693,6 +730,7 @@ ARGS:
       args: [$($arg:expr),*],
       $(color: $color:expr,)?
       $(dry_run: $dry_run:expr,)?
+      $(dump_format: $dump_format:expr,)?
       $(highlight: $highlight:expr,)?
       $(search_config: $search_config:expr,)?
       $(shell: $shell:expr,)?
@@ -712,6 +750,7 @@ ARGS:
         let want = Config {
           $(color: $color,)?
           $(dry_run: $dry_run,)?
+          $(dump_format: $dump_format,)?
           $(highlight: $highlight,)?
           $(search_config: $search_config,)?
           $(shell: $shell.to_owned(),)?
@@ -1099,6 +1138,12 @@ ARGS:
     name: subcommand_dump,
     args: ["--dump"],
     subcommand: Subcommand::Dump,
+  }
+
+  test! {
+    name: dump_format,
+    args: ["--dump-format", "json"],
+    dump_format: DumpFormat::Json,
   }
 
   test! {

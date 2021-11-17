@@ -23,6 +23,7 @@ mod functions;
 mod init;
 mod interrupts;
 mod invocation_directory;
+mod json;
 mod misc;
 mod positional_arguments;
 mod quiet;

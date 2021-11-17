@@ -76,7 +76,7 @@ impl Subcommand {
       Command { overrides, .. } | Evaluate { overrides, .. } => {
         justfile.run(config, &search, overrides, &[])?
       }
-      Dump => Self::dump(ast),
+      Dump => Self::dump(config, ast, justfile)?,
       Format => Self::format(config, &search, &src, ast)?,
       List => Self::list(config, justfile),
       Run {
@@ -229,8 +229,17 @@ impl Subcommand {
     Ok(())
   }
 
-  fn dump(ast: Ast) {
-    print!("{}", ast);
+  fn dump(config: &Config, ast: Ast, justfile: Justfile) -> Result<(), Error<'static>> {
+    match config.dump_format {
+      DumpFormat::Json => {
+        config.require_unstable("The JSON dump format is currently unstable.")?;
+        serde_json::to_writer(io::stdout(), &justfile)
+          .map_err(|serde_json_error| Error::DumpJson { serde_json_error })?;
+        println!();
+      }
+      DumpFormat::Just => print!("{}", ast),
+    }
+    Ok(())
   }
 
   fn edit(search: &Search) -> Result<(), Error<'static>> {
