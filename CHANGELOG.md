@@ -1,6 +1,31 @@
 Changelog
 =========
 
+[0.10.3](https://github.com/casey/just/releases/tag/0.10.3) - 2021-10-30
+------------------------------------------------------------------------
+
+### Added
+- Add `trim_end(s)` and `trim_start(s)` functions (#999)
+- Add more string manipulation functions (#998)
+
+### Changed
+- Make `join` accept two or more arguments (#1000)
+
+### Misc
+- Add alternatives and prior art section to readme (#1008)
+- Fix readme `make`'s not correctly displayed (#1007)
+- Document the default recipe (#1006)
+- Document creating user justfile recipe aliases (#1005)
+- Fix readme typo (#1004)
+- Add packaging status table to readme (#1003)
+- Reword `sh` not found error messages (#1002)
+- Only pass +crt-static to cargo build (#997)
+- Stop using tabs in justfile in editorconfig (#996)
+- Use consistent rustflags formatting (#994)
+- Use `cargo build` instead of `cargo rustc` (#993)
+- Don't skip variables in variable iterator (#991)
+- Remove deprecated equals error (#985)
+
 [0.10.2](https://github.com/casey/just/releases/tag/0.10.2) - 2021-9-26
 -----------------------------------------------------------------------
 

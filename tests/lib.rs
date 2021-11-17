@@ -3,6 +3,7 @@ mod test;
 
 mod assert_stdout;
 mod assert_success;
+mod byte_order_mark;
 mod changelog;
 mod choose;
 mod command;
@@ -26,6 +27,7 @@ mod json;
 mod misc;
 mod positional_arguments;
 mod quiet;
+mod quote;
 mod readme;
 mod regexes;
 mod search;

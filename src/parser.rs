@@ -57,7 +57,12 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   /// `Parser::next`
   fn unexpected_token(&self) -> CompileResult<'src, CompileError<'src>> {
     self.error(CompileErrorKind::UnexpectedToken {
-      expected: self.expected.iter().cloned().collect::<Vec<TokenKind>>(),
+      expected: self
+        .expected
+        .iter()
+        .cloned()
+        .filter(|kind| *kind != ByteOrderMark)
+        .collect::<Vec<TokenKind>>(),
       found: self.next()?.kind,
     })
   }
@@ -301,6 +306,8 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     let mut items = Vec::new();
 
     let mut eol_since_last_comment = false;
+
+    self.accept(ByteOrderMark)?;
 
     loop {
       let next = self.next()?;
@@ -2139,7 +2146,7 @@ mod tests {
     kind: FunctionArgumentCountMismatch {
       function: "arch",
       found: 1,
-      expected: 0,
+      expected: 0..0,
     },
   }
 
@@ -2153,7 +2160,7 @@ mod tests {
     kind: FunctionArgumentCountMismatch {
       function: "env_var",
       found: 0,
-      expected: 1,
+      expected: 1..1,
     },
   }
 
@@ -2167,7 +2174,35 @@ mod tests {
     kind: FunctionArgumentCountMismatch {
       function: "env_var_or_default",
       found: 1,
-      expected: 2,
+      expected: 2..2,
+    },
+  }
+
+  error! {
+    name: function_argument_count_binary_plus,
+    input: "x := join('foo')",
+    offset: 5,
+    line: 0,
+    column: 5,
+    width: 4,
+    kind: FunctionArgumentCountMismatch {
+      function: "join",
+      found: 1,
+      expected: 2..usize::MAX,
+    },
+  }
+
+  error! {
+    name: function_argument_count_ternary,
+    input: "x := replace('foo')",
+    offset: 5,
+    line: 0,
+    column: 5,
+    width: 7,
+    kind: FunctionArgumentCountMismatch {
+      function: "replace",
+      found: 1,
+      expected: 3..3,
     },
   }
 }

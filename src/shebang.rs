@@ -41,7 +41,7 @@ impl<'line> Shebang<'line> {
   pub(crate) fn script_filename(&self, recipe: &str) -> String {
     match self.interpreter_filename() {
       "cmd" | "cmd.exe" => format!("{}.bat", recipe),
-      "powershell" | "powershell.exe" => format!("{}.ps1", recipe),
+      "powershell" | "powershell.exe" | "pwsh" | "pwsh.exe" => format!("{}.ps1", recipe),
       _ => recipe.to_owned(),
     }
   }
@@ -144,11 +144,27 @@ mod tests {
   }
 
   #[test]
+  fn pwsh_script_filename() {
+    assert_eq!(
+      Shebang::new("#!pwsh").unwrap().script_filename("foo"),
+      "foo.ps1"
+    );
+  }
+
+  #[test]
   fn powershell_exe_script_filename() {
     assert_eq!(
       Shebang::new("#!powershell.exe")
         .unwrap()
         .script_filename("foo"),
+      "foo.ps1"
+    );
+  }
+
+  #[test]
+  fn pwsh_exe_script_filename() {
+    assert_eq!(
+      Shebang::new("#!pwsh.exe").unwrap().script_filename("foo"),
       "foo.ps1"
     );
   }

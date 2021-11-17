@@ -20,6 +20,12 @@ pub(crate) enum Thunk<'src> {
     function: fn(&FunctionContext, &str, &str) -> Result<String, String>,
     args: [Box<Expression<'src>>; 2],
   },
+  BinaryPlus {
+    name: Name<'src>,
+    #[derivative(Debug = "ignore", PartialEq = "ignore")]
+    function: fn(&FunctionContext, &str, &str, &[String]) -> Result<String, String>,
+    args: ([Box<Expression<'src>>; 2], Vec<Expression<'src>>),
+  },
   Ternary {
     name: Name<'src>,
     #[derivative(Debug = "ignore", PartialEq = "ignore")]
@@ -34,6 +40,7 @@ impl<'src> Thunk<'src> {
       Self::Nullary { name, .. }
       | Self::Unary { name, .. }
       | Self::Binary { name, .. }
+      | Self::BinaryPlus { name, .. }
       | Self::Ternary { name, .. } => name,
     }
   }
@@ -62,6 +69,16 @@ impl<'src> Thunk<'src> {
           Ok(Thunk::Binary {
             function: *function,
             args: [a, b],
+            name,
+          })
+        }
+        (Function::BinaryPlus(function), 2..=usize::MAX) => {
+          let rest = arguments.drain(2..).collect();
+          let b = Box::new(arguments.pop().unwrap());
+          let a = Box::new(arguments.pop().unwrap());
+          Ok(Thunk::BinaryPlus {
+            function: *function,
+            args: ([a, b], rest),
             name,
           })
         }
@@ -94,6 +111,17 @@ impl Display for Thunk<'_> {
       Binary {
         name, args: [a, b], ..
       } => write!(f, "{}({}, {})", name.lexeme(), a, b),
+      BinaryPlus {
+        name,
+        args: ([a, b], rest),
+        ..
+      } => {
+        write!(f, "{}({}, {}", name.lexeme(), a, b)?;
+        for arg in rest {
+          write!(f, ", {}", arg)?;
+        }
+        write!(f, ")")
+      }
       Ternary {
         name,
         args: [a, b, c],
@@ -116,12 +144,17 @@ impl<'src> Serialize for Thunk<'src> {
       Self::Unary { arg, .. } => seq.serialize_element(&arg)?,
       Self::Binary { args, .. } => {
         for arg in args {
-          seq.serialize_element(&arg)?;
+          seq.serialize_element(arg)?;
+        }
+      }
+      Self::BinaryPlus { args, .. } => {
+        for arg in args.0.iter().map(Box::as_ref).chain(&args.1) {
+          seq.serialize_element(arg)?;
         }
       }
       Self::Ternary { args, .. } => {
         for arg in args {
-          seq.serialize_element(&arg)?;
+          seq.serialize_element(arg)?;
         }
       }
     }

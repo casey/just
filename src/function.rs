@@ -5,6 +5,7 @@ pub(crate) enum Function {
   Nullary(fn(&FunctionContext) -> Result<String, String>),
   Unary(fn(&FunctionContext, &str) -> Result<String, String>),
   Binary(fn(&FunctionContext, &str, &str) -> Result<String, String>),
+  BinaryPlus(fn(&FunctionContext, &str, &str, &[String]) -> Result<String, String>),
   Ternary(fn(&FunctionContext, &str, &str, &str) -> Result<String, String>),
 }
 
@@ -18,7 +19,7 @@ lazy_static! {
     ("file_name", Unary(file_name)),
     ("file_stem", Unary(file_stem)),
     ("invocation_directory", Nullary(invocation_directory)),
-    ("join", Binary(join)),
+    ("join", BinaryPlus(join)),
     ("just_executable", Nullary(just_executable)),
     ("justfile", Nullary(justfile)),
     ("justfile_directory", Nullary(justfile_directory)),
@@ -26,8 +27,15 @@ lazy_static! {
     ("os", Nullary(os)),
     ("os_family", Nullary(os_family)),
     ("parent_directory", Unary(parent_directory)),
+    ("quote", Unary(quote)),
     ("replace", Ternary(replace)),
     ("trim", Unary(trim)),
+    ("trim_end", Unary(trim_end)),
+    ("trim_end_match", Binary(trim_end_match)),
+    ("trim_end_matches", Binary(trim_end_matches)),
+    ("trim_start", Unary(trim_start)),
+    ("trim_start_match", Binary(trim_start_match)),
+    ("trim_start_matches", Binary(trim_start_matches)),
     ("uppercase", Unary(uppercase)),
     ("without_extension", Unary(without_extension)),
   ]
@@ -36,12 +44,13 @@ lazy_static! {
 }
 
 impl Function {
-  pub(crate) fn argc(&self) -> usize {
+  pub(crate) fn argc(&self) -> Range<usize> {
     match *self {
-      Nullary(_) => 0,
-      Unary(_) => 1,
-      Binary(_) => 2,
-      Ternary(_) => 3,
+      Nullary(_) => 0..0,
+      Unary(_) => 1..1,
+      Binary(_) => 2..2,
+      BinaryPlus(_) => 2..usize::MAX,
+      Ternary(_) => 3..3,
     }
   }
 }
@@ -121,8 +130,17 @@ fn invocation_directory(context: &FunctionContext) -> Result<String, String> {
   .map_err(|e| format!("Error getting shell path: {}", e))
 }
 
-fn join(_context: &FunctionContext, base: &str, with: &str) -> Result<String, String> {
-  Ok(Utf8Path::new(base).join(with).to_string())
+fn join(
+  _context: &FunctionContext,
+  base: &str,
+  with: &str,
+  and: &[String],
+) -> Result<String, String> {
+  let mut result = Utf8Path::new(base).join(with);
+  for arg in and {
+    result.push(arg);
+  }
+  Ok(result.to_string())
 }
 
 fn just_executable(_context: &FunctionContext) -> Result<String, String> {
@@ -189,12 +207,40 @@ fn parent_directory(_context: &FunctionContext, path: &str) -> Result<String, St
     .ok_or_else(|| format!("Could not extract parent directory from `{}`", path))
 }
 
+fn quote(_context: &FunctionContext, s: &str) -> Result<String, String> {
+  Ok(format!("'{}'", s.replace('\'', "'\\''")))
+}
+
 fn replace(_context: &FunctionContext, s: &str, from: &str, to: &str) -> Result<String, String> {
   Ok(s.replace(from, to))
 }
 
 fn trim(_context: &FunctionContext, s: &str) -> Result<String, String> {
   Ok(s.trim().to_owned())
+}
+
+fn trim_end(_context: &FunctionContext, s: &str) -> Result<String, String> {
+  Ok(s.trim_end().to_owned())
+}
+
+fn trim_end_match(_context: &FunctionContext, s: &str, pat: &str) -> Result<String, String> {
+  Ok(s.strip_suffix(pat).unwrap_or(s).to_owned())
+}
+
+fn trim_end_matches(_context: &FunctionContext, s: &str, pat: &str) -> Result<String, String> {
+  Ok(s.trim_end_matches(pat).to_owned())
+}
+
+fn trim_start(_context: &FunctionContext, s: &str) -> Result<String, String> {
+  Ok(s.trim_start().to_owned())
+}
+
+fn trim_start_match(_context: &FunctionContext, s: &str, pat: &str) -> Result<String, String> {
+  Ok(s.strip_prefix(pat).unwrap_or(s).to_owned())
+}
+
+fn trim_start_matches(_context: &FunctionContext, s: &str, pat: &str) -> Result<String, String> {
+  Ok(s.trim_start_matches(pat).to_owned())
 }
 
 fn uppercase(_context: &FunctionContext, s: &str) -> Result<String, String> {

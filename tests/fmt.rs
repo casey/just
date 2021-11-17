@@ -11,6 +11,60 @@ test! {
   status: EXIT_FAILURE,
 }
 
+test! {
+  name: check_without_fmt,
+  justfile: "",
+  args: ("--check"),
+  stderr_regex: "error: The following required arguments were not provided:
+    --fmt
+(.|\\n)+",
+  status: EXIT_FAILURE,
+}
+
+test! {
+  name: check_ok,
+  justfile: r#"
+# comment   with   spaces
+
+export x := `backtick
+with
+lines`
+
+recipe: deps
+    echo "$x"
+
+deps:
+    echo {{ x }}
+    echo '$x'
+"#,
+  args: ("--unstable", "--fmt", "--check"),
+  status: EXIT_SUCCESS,
+}
+
+test! {
+  name: check_found_diff,
+  justfile: "x:=``\n",
+  args: ("--unstable", "--fmt", "--check"),
+  stderr: "
+    -x:=``
+    +x := ``
+    error: Formatted justfile differs from original.
+  ",
+  status: EXIT_FAILURE,
+}
+
+test! {
+  name: check_diff_color,
+  justfile: "x:=``\n",
+  args: ("--unstable", "--fmt", "--check", "--color", "always"),
+  stderr: "
+    \u{1b}[31m-x:=``
+    \u{1b}[0m\u{1b}[32m+x := ``
+    \u{1b}[0m\u{1b}[1;31merror\u{1b}[0m: \u{1b}[1mFormatted justfile differs from original.\u{1b}[0m
+  ",
+  status: EXIT_FAILURE,
+}
+
 #[test]
 fn unstable_passed() {
   let tmp = tempdir();

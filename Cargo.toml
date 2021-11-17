@@ -1,6 +1,6 @@
 [package]
 name = "just"
-version = "0.10.2"
+version = "0.10.3"
 description = "🤖 Just a command runner"
 authors = ["Casey Rodarmor <casey@rodarmor.com>"]
 license = "CC0-1.0"
@@ -19,6 +19,8 @@ members = [".", "bin/ref-type"]
 ansi_term = "0.12.0"
 atty = "0.2.0"
 camino = "1.0.4"
+clap = { version = "2.33.0", features = ["wrap_help"] }
+ctrlc = { version  = "3.1.1", features = ["termination"] }
 derivative = "2.0.0"
 dotenv = "0.15.0"
 edit-distance = "2.0.0"
@@ -28,29 +30,16 @@ lexiclean = "0.0.1"
 libc = "0.2.0"
 log = "0.4.4"
 regex = "1.5.4"
+serde = { version = "1.0.130", features = ["derive", "rc"] }
 serde_json = "1.0.68"
+similar = { version = "2.1.0", features = ["unicode"] }
 snafu = "0.6.0"
-strum_macros = "0.21.1"
+strum = { version  = "0.22.0", features = ["derive"] }
+strum_macros = "0.22.0"
 target = "2.0.0"
 tempfile = "3.0.0"
 typed-arena = "2.0.1"
 unicode-width = "0.1.0"
-
-[dependencies.clap]
-version = "2.33.0"
-features = ["wrap_help"]
-
-[dependencies.ctrlc]
-version  = "3.1.1"
-features = ["termination"]
-
-[dependencies.serde]
-version = "1.0.130"
-features = ["derive", "rc"]
-
-[dependencies.strum]
-version  = "0.21.0"
-features = ["derive"]
 
 [dev-dependencies]
 cradle = "0.2.0"

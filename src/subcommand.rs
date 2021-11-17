@@ -77,7 +77,7 @@ impl Subcommand {
         justfile.run(config, &search, overrides, &[])?
       }
       Dump => Self::dump(config, ast, justfile)?,
-      Format => Self::format(config, ast, &search)?,
+      Format => Self::format(config, &search, &src, ast)?,
       List => Self::list(config, justfile),
       Run {
         arguments,
@@ -264,22 +264,47 @@ impl Subcommand {
     Ok(())
   }
 
-  fn format(config: &Config, ast: Ast, search: &Search) -> Result<(), Error<'static>> {
+  fn format(config: &Config, search: &Search, src: &str, ast: Ast) -> Result<(), Error<'static>> {
     config.require_unstable("The `--fmt` command is currently unstable.")?;
 
-    if let Err(io_error) =
-      File::create(&search.justfile).and_then(|mut file| write!(file, "{}", ast))
-    {
-      Err(Error::WriteJustfile {
-        justfile: search.justfile.clone(),
-        io_error,
-      })
-    } else {
-      if config.verbosity.loud() {
-        eprintln!("Wrote justfile to `{}`", search.justfile.display());
-      }
-      Ok(())
+    let formatted = ast.to_string();
+
+    if config.check {
+      return if formatted != src {
+        use similar::{ChangeTag, TextDiff};
+
+        let diff = TextDiff::configure()
+          .algorithm(similar::Algorithm::Patience)
+          .diff_lines(src, &formatted);
+
+        for op in diff.ops() {
+          for change in diff.iter_changes(op) {
+            let (symbol, color) = match change.tag() {
+              ChangeTag::Delete => ("-", config.color.stderr().diff_deleted()),
+              ChangeTag::Equal => (" ", config.color.stderr()),
+              ChangeTag::Insert => ("+", config.color.stderr().diff_added()),
+            };
+
+            eprint!("{}{}{}{}", color.prefix(), symbol, change, color.suffix());
+          }
+        }
+
+        Err(Error::FormatCheckFoundDiff)
+      } else {
+        Ok(())
+      };
     }
+
+    fs::write(&search.justfile, formatted).map_err(|io_error| Error::WriteJustfile {
+      justfile: search.justfile.clone(),
+      io_error,
+    })?;
+
+    if config.verbosity.loud() {
+      eprintln!("Wrote justfile to `{}`", search.justfile.display());
+    }
+
+    Ok(())
   }
 
   fn init(config: &Config) -> Result<(), Error<'static>> {
