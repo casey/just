@@ -71,7 +71,7 @@ jobs:
 
     - name: Test
       if: matrix.native
-      run: cargo test --all --all-features --target ${{ matrix.target }}
+      run: cargo test --all --target ${{ matrix.target }}
 
     - name: Ref Type
       id: ref-type
