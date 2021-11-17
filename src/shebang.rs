@@ -144,11 +144,27 @@ mod tests {
   }
 
   #[test]
+  fn pwsh_script_filename() {
+    assert_eq!(
+      Shebang::new("#!pwsh").unwrap().script_filename("foo"),
+      "foo.ps1"
+    );
+  }
+
+  #[test]
   fn powershell_exe_script_filename() {
     assert_eq!(
       Shebang::new("#!powershell.exe")
         .unwrap()
         .script_filename("foo"),
+      "foo.ps1"
+    );
+  }
+
+  #[test]
+  fn pwsh_exe_script_filename() {
+    assert_eq!(
+      Shebang::new("#!pwsh.exe").unwrap().script_filename("foo"),
       "foo.ps1"
     );
   }
