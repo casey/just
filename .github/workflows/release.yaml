@@ -37,7 +37,7 @@ jobs:
           native: true
           target_rustflags: ''
         - target: x86_64-pc-windows-msvc
-          os: windows-latest
+          os: windows-2016
           native: true
           target_rustflags: ''
         - target: x86_64-unknown-linux-musl
