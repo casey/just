@@ -28,7 +28,7 @@ Yay, all your tests passed!
 `just` has a ton of useful features, and many improvements over `make`:
 
 - `just` is a command runner, not a build system, so it avoids much of
-  link:https://github.com/casey/just#what-are-the-idiosyncrasies-of-make-that-just-avoids[`make`'s
+  link:https://github.com/casey/just#what-are-the-idiosyncrasies-of-make-that-just-avoids[``make``'s
   complexity and idiosyncrasies]. No need for `.PHONY` recipes!
 
 - Linux, MacOS, and Windows are supported with no additional dependencies. (Although if your system doesn't have an `sh`, you'll need to link:https://github.com/casey/just#shell[choose a different shell].)
