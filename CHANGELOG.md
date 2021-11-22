@@ -1,6 +1,21 @@
 Changelog
 =========
 
+[0.10.4](https://github.com/casey/just/releases/tag/0.10.4) - 2021-11-21
+------------------------------------------------------------------------
+
+### Added
+- Add `--dump-format json` (#992)
+- Add `quote(s)` function for escaping strings (#1022)
+- fmt: check formatting with `--check` (#1001)
+
+### Misc
+- Refactor github actions (#1028)
+- Fix readme formatting (#1030)
+- Use ps1 extension for pwsh shebangs (#1027)
+- Ignore leading byte order mark in source files (#1021)
+- Add color to `just --fmt --check` diff (#1015)
+
 [0.10.3](https://github.com/casey/just/releases/tag/0.10.3) - 2021-10-30
 ------------------------------------------------------------------------
 
