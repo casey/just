@@ -61,15 +61,19 @@ check: actionlint fmt clippy test forbid
   cargo ltest
   git checkout Cargo.lock
 
-publish-check: check man
-  cargo outdated --root-deps-only --exit-code 1
-
-# publish to crates.io and push release tag to github
-publish: publish-check
-  git branch | grep '* master'
-  git tag -a {{version}} -m 'Release {{version}}'
-  git push github {{version}}
+# publish current GitHub master branch
+publish:
+  #!/usr/bin/env bash
+  set -euxo pipefail
+  rm -rf tmp/release
+  git clone git@github.com:casey/just.git tmp/release
+  VERSION=`sed -En 's/version[[:space:]]*=[[:space:]]*"([^"]+)"/\1/p' Cargo.toml | head -1`
+  cd tmp/release
+  git tag -a $VERSION -m "Release $VERSION"
+  git push github $VERSION
   cargo publish
+  cd ../..
+  rm -rf tmp/release
 
 push: check
   ! git branch | grep '* master'
