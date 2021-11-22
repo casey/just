@@ -1,0 +1,61 @@
+name: Test
+
+on: pull_request
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  all:
+    name: All
+
+    strategy:
+      matrix:
+        os:
+        - ubuntu-latest
+        - macos-latest
+        - windows-2016
+
+    runs-on: ${{matrix.os}}
+
+    env:
+      RUSTFLAGS: --deny warnings
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install Rust Toolchain Components
+      uses: actions-rs/toolchain@v1
+      with:
+        components: clippy, rustfmt
+        override: true
+        toolchain: 1.47.0
+
+    - uses: Swatinem/rust-cache@v1
+
+    - name: Check Lockfile
+      run: |
+        cargo update --locked --package just
+
+    - name: Test
+      run: cargo test --all
+
+    - name: Clippy
+      run: cargo clippy --all --all-targets
+
+    - name: Format
+      run: cargo fmt --all -- --check
+
+    - name: Completion Scripts
+      if: ${{ matrix.os == 'ubuntu-latest' }}
+      run: |
+        ./bin/generate-completions
+        git diff --no-ext-diff --quiet --exit-code
+
+    - name: Check for Forbidden Words
+      if: ${{ matrix.os == 'ubuntu-latest' }}
+      run: |
+        sudo apt-get update
+        sudo apt-get install ripgrep
+        ./bin/forbid

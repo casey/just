@@ -2,49 +2,46 @@
 
 set -euxo pipefail
 
-version=${1#"refs/tags/"}
-os=$2
-target=$3
-src=`pwd`
-dist=$src/dist
-bin=just
+VERSION=${REF#"refs/tags/"}
+SRC=`pwd`
+DIST=$SRC/dist
 
-echo "Packaging $bin $version for $target..."
+echo "Packaging just $VERSION for $TARGET..."
 
 test -f Cargo.lock || cargo generate-lockfile
 
-echo "Building $bin..."
-RUSTFLAGS='--deny warnings --codegen target-feature=+crt-static' \
-  cargo build --bin $bin --target $target --release
-executable=target/$target/release/$bin
+echo "Building just..."
+RUSTFLAGS="--deny warnings --codegen target-feature=+crt-static $TARGET_RUSTFLAGS" \
+  cargo build --bin just --target $TARGET --release
+EXECUTABLE=target/$TARGET/release/just
 
-if [[ $os == windows-2016 ]]; then
-  executable=$executable.exe
+if [[ $OS == windows-2016 ]]; then
+  EXECUTABLE=$EXECUTABLE.exe
 fi
 
 echo "Copying release files..."
 mkdir dist
 cp \
-  $executable \
+  $EXECUTABLE \
   Cargo.lock \
   Cargo.toml \
   GRAMMAR.md \
   LICENSE \
   README.adoc \
   man/just.1 \
-  $dist
+  $DIST
 
-cd $dist
+cd $DIST
 echo "Creating release archive..."
-case $os in
+case $OS in
   ubuntu-latest | macos-latest)
-    archive=$dist/$bin-$version-$target.tar.gz
-    tar czf $archive *
-    echo "::set-output name=archive::$archive"
+    ARCHIVE=$DIST/just-$VERSION-$TARGET.tar.gz
+    tar czf $ARCHIVE *
+    echo "::set-output name=archive::$ARCHIVE"
     ;;
   windows-2016)
-    archive=$dist/$bin-$version-$target.zip
-    7z a $archive *
-    echo "::set-output name=archive::`pwd -W`/$bin-$version-$target.zip"
+    ARCHIVE=$DIST/just-$VERSION-$TARGET.zip
+    7z a $ARCHIVE *
+    echo "::set-output name=archive::`pwd -W`/just-$VERSION-$TARGET.zip"
     ;;
 esac
