@@ -106,7 +106,7 @@ if [ -z ${target-} ]; then
   uname_target=`uname -m`-`uname -s`
 
   case $uname_target in
-    aarch64-Linux)     target=aarch64-unknown-linux-gnu;;
+    aarch64-Linux)     target=aarch64-unknown-linux-musl;;
     x86_64-Darwin)     target=x86_64-apple-darwin;;
     x86_64-Linux)      target=x86_64-unknown-linux-musl;;
     x86_64-Windows_NT) target=x86_64-pc-windows-msvc;;
