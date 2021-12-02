@@ -9,7 +9,7 @@ _just() {
     for i in ${COMP_WORDS[@]}
     do
         case "${i}" in
-            just)
+            "$1")
                 cmd="just"
                 ;;
             

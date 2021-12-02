@@ -156,12 +156,13 @@ pub(crate) const POWERSHELL_COMPLETION_REPLACEMENTS: &[(&str, &str)] = &[(
         Sort-Object -Property ListItemText"#,
 )];
 
-pub(crate) const BASH_COMPLETION_REPLACEMENTS: &[(&str, &str)] = &[(
-  r#"            if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
+pub(crate) const BASH_COMPLETION_REPLACEMENTS: &[(&str, &str)] = &[
+  (
+    r#"            if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
             fi"#,
-  r#"                if [[ ${cur} == -* ]] ; then
+    r#"                if [[ ${cur} == -* ]] ; then
                     COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                     return 0
                 elif [[ ${COMP_CWORD} -eq 1 ]]; then
@@ -171,4 +172,6 @@ pub(crate) const BASH_COMPLETION_REPLACEMENTS: &[(&str, &str)] = &[(
                         return 0
                     fi
                 fi"#,
-)];
+  ),
+  (r#"            just)"#, r#"            "$1")"#),
+];
