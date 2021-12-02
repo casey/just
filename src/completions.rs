@@ -172,8 +172,6 @@ pub(crate) const BASH_COMPLETION_REPLACEMENTS: &[(&str, &str)] = &[
                         return 0
                     fi
                 fi"#,
-  ), (
-    r#"            just)"#,
-    r#"            "$1")"#,
-    )
+  ),
+  (r#"            just)"#, r#"            "$1")"#),
 ];
