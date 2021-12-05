@@ -70,7 +70,7 @@ publish:
   VERSION=`sed -En 's/version[[:space:]]*=[[:space:]]*"([^"]+)"/\1/p' Cargo.toml | head -1`
   cd tmp/release
   git tag -a $VERSION -m "Release $VERSION"
-  git push github $VERSION
+  git push origin $VERSION
   cargo publish
   cd ../..
   rm -rf tmp/release
