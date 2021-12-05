@@ -1,6 +1,18 @@
 Changelog
 =========
 
+[0.10.5](https://github.com/casey/just/releases/tag/0.10.5) - 2021-12-4
+-----------------------------------------------------------------------
+
+## Changed
+- Use musl libc for ARM binaries (#1037)
+
+## Misc
+- Make completions work with Bash alias (#1035)
+- Run tests on PRs (#1040)
+- Improve GitHub Actions workflow triggers (#1033)
+- Publish from GitHub master branch instead of local master (#1032)
+
 [0.10.4](https://github.com/casey/just/releases/tag/0.10.4) - 2021-11-21
 ------------------------------------------------------------------------
 
