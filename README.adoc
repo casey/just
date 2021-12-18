@@ -120,7 +120,7 @@ list:
 | https://github.com/ScoopInstaller/Main/blob/master/bucket/just.json[just]
 | `scoop install just`
 
-| https://en.wikipedia.org/wiki/MacOS[macOS]
+| https://docs.brew.sh/Installation[Various]
 | https://brew.sh[Homebrew]
 | https://formulae.brew.sh/formula/just[just]
 | `brew install just`
