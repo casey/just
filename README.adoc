@@ -318,6 +318,9 @@ Feel free to send me the commands necessary to get syntax highlighting working i
 
 See xref:Installation[] for how to install `just` on your computer. Try running `just --version` to make sure that it's installed correctly.
 
+For an overview of the syntax, check out [this
+cheatsheet](https://cheatography.com/linux-china/cheat-sheets/justfile/).
+
 Once `just` is installed and working, create a file named `justfile` in the root of your project with the following contents:
 
 ```make
