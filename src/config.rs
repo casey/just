@@ -218,6 +218,7 @@ impl Config {
           .long("shell")
           .takes_value(true)
           .default_value(DEFAULT_SHELL)
+          .env("JUST_SHELL")
           .help("Invoke <SHELL> to run recipes"),
       )
       .arg(
@@ -227,6 +228,7 @@ impl Config {
           .multiple(true)
           .number_of_values(1)
           .default_value(DEFAULT_SHELL_ARG)
+          .env("JUST_SHELL_ARG")
           .allow_hyphen_values(true)
           .overrides_with(arg::CLEAR_SHELL_ARGS)
           .help("Invoke shell with <SHELL-ARG> as an argument"),
