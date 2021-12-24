@@ -700,10 +700,10 @@ OPTIONS:
             Override <VARIABLE> with <VALUE>
 
         --shell <SHELL>
-            Invoke <SHELL> to run recipes [default: sh]
+            Invoke <SHELL> to run recipes [env: JUST_SHELL=]  [default: sh]
 
         --shell-arg <SHELL-ARG>...
-            Invoke shell with <SHELL-ARG> as an argument [default: -cu]
+            Invoke shell with <SHELL-ARG> as an argument [env: JUST_SHELL_ARG=]  [default: -cu]
 
     -s, --show <RECIPE>
             Show information about <RECIPE>
