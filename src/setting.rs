@@ -6,6 +6,7 @@ pub(crate) enum Setting<'src> {
   Export(bool),
   PositionalArguments(bool),
   Shell(Shell<'src>),
+  WindowsPowerShell(bool),
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
@@ -17,9 +18,10 @@ pub(crate) struct Shell<'src> {
 impl<'src> Display for Setting<'src> {
   fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
     match self {
-      Setting::DotenvLoad(value) | Setting::Export(value) | Setting::PositionalArguments(value) => {
-        write!(f, "{}", value)
-      }
+      Setting::DotenvLoad(value)
+      | Setting::Export(value)
+      | Setting::PositionalArguments(value)
+      | Setting::WindowsPowerShell(value) => write!(f, "{}", value),
       Setting::Shell(shell) => write!(f, "{}", shell),
     }
   }

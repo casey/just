@@ -747,6 +747,12 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
         value: Setting::PositionalArguments(value),
         name,
       });
+    } else if Keyword::WindowsPowershell == lexeme {
+      let value = self.parse_set_bool()?;
+      return Ok(Set {
+        value: Setting::WindowsPowerShell(value),
+        name,
+      });
     }
 
     self.expect(ColonEquals)?;
@@ -1772,6 +1778,24 @@ mod tests {
     name: set_shell_with_two_arguments,
     text: "set shell := ['bash', '-cu', '-l']",
     tree: (justfile (set shell "bash" "-cu" "-l")),
+  }
+
+  test! {
+    name: set_windows_powershell_implicit,
+    text: "set windows-powershell",
+    tree: (justfile (set windows_powershell true)),
+  }
+
+  test! {
+    name: set_windows_powershell_true,
+    text: "set windows-powershell := true",
+    tree: (justfile (set windows_powershell true)),
+  }
+
+  test! {
+    name: set_windows_powershell_false,
+    text: "set windows-powershell := false",
+    tree: (justfile (set windows_powershell false)),
   }
 
   test! {

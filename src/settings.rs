@@ -6,6 +6,7 @@ pub(crate) struct Settings<'src> {
   pub(crate) export: bool,
   pub(crate) positional_arguments: bool,
   pub(crate) shell: Option<setting::Shell<'src>>,
+  pub(crate) windows_powershell: bool,
 }
 
 impl<'src> Settings<'src> {
@@ -15,6 +16,7 @@ impl<'src> Settings<'src> {
       export: false,
       positional_arguments: false,
       shell: None,
+      windows_powershell: false,
     }
   }
 

@@ -557,6 +557,7 @@ foo:
 | `export` | boolean | Export all variables as environment variables.
 | `positional-arguments` | boolean | Pass positional arguments.
 | `shell` | `[COMMAND, ARGS...]` | Set the command used to invoke recipes and evaluate backticks.
+| `windows-powershell` | boolean | Use PowerShell on Windows as default shell.
 |=================
 
 Boolean settings can be written as:
@@ -634,6 +635,21 @@ foo:
 ```
 
 `just` passes the command to be executed as an argument. Many shells will need an additional flag, often `-c`, to make them evaluate the first argument.
+
+==== Windows PowerShell
+
+To be able to run the same justfile on Linux and Windows `set shell` is not enough because it would change the shell on every platform. To set PowerShell as the default shell when running `just` on Windows set `windows-powershell` to true.
+
+```make
+set windows-powershell
+
+hello-windows:
+  Write-Host "Hello, world!"
+
+hello-linux:
+  echo 'Hello, world!'
+```
+
 
 ===== Python 3
 
