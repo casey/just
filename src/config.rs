@@ -9,9 +9,6 @@ pub(crate) const CHOOSE_HELP: &str = "Select one or more recipes to run using a 
                                       `--chooser` is not passed the chooser defaults to the value \
                                       of $JUST_CHOOSER, falling back to `fzf`";
 
-pub(crate) const DEFAULT_SHELL: &str = "sh";
-pub(crate) const DEFAULT_SHELL_ARG: &str = "-cu";
-
 #[derive(Debug, PartialEq)]
 pub(crate) struct Config {
   pub(crate) check: bool,
@@ -217,7 +214,6 @@ impl Config {
         Arg::with_name(arg::SHELL)
           .long("shell")
           .takes_value(true)
-          .default_value(DEFAULT_SHELL)
           .help("Invoke <SHELL> to run recipes"),
       )
       .arg(
@@ -226,7 +222,6 @@ impl Config {
           .takes_value(true)
           .multiple(true)
           .number_of_values(1)
-          .default_value(DEFAULT_SHELL_ARG)
           .allow_hyphen_values(true)
           .overrides_with(arg::CLEAR_SHELL_ARGS)
           .help("Invoke shell with <SHELL-ARG> as an argument"),
@@ -558,14 +553,14 @@ impl Config {
       }
     };
 
-    let shell_args = if matches.is_present(arg::CLEAR_SHELL_ARGS) {
-      Vec::new()
-    } else {
+    let shell_args = if matches.is_present(arg::SHELL_ARG) {
       matches
         .values_of(arg::SHELL_ARG)
         .unwrap()
         .map(str::to_owned)
         .collect()
+    } else {
+      Vec::new()
     };
 
     let shell_present = matches.occurrences_of(arg::CLEAR_SHELL_ARGS) > 0
@@ -577,7 +572,7 @@ impl Config {
       dry_run: matches.is_present(arg::DRY_RUN),
       dump_format: Self::dump_format_from_matches(matches)?,
       highlight: !matches.is_present(arg::NO_HIGHLIGHT),
-      shell: matches.value_of(arg::SHELL).unwrap().to_owned(),
+      shell: matches.value_of(arg::SHELL).unwrap_or("").to_owned(),
       load_dotenv: !matches.is_present(arg::NO_DOTENV),
       shell_command: matches.is_present(arg::SHELL_COMMAND),
       unsorted: matches.is_present(arg::UNSORTED),
@@ -697,11 +692,9 @@ OPTIONS:
         --set <VARIABLE> <VALUE>
             Override <VARIABLE> with <VALUE>
 
-        --shell <SHELL>
-            Invoke <SHELL> to run recipes [default: sh]
-
+        --shell <SHELL>                            Invoke <SHELL> to run recipes
         --shell-arg <SHELL-ARG>...
-            Invoke shell with <SHELL-ARG> as an argument [default: -cu]
+            Invoke shell with <SHELL-ARG> as an argument
 
     -s, --show <RECIPE>
             Show information about <RECIPE>
@@ -1016,8 +1009,8 @@ ARGS:
   test! {
     name: shell_default,
     args: [],
-    shell: "sh",
-    shell_args: vec!["-cu".to_owned()],
+    shell: "",
+    shell_args: vec![],
     shell_present: false,
   }
 
@@ -1262,7 +1255,7 @@ ARGS:
   test! {
     name: shell_args_default,
     args: [],
-    shell_args: vec!["-cu".to_owned()],
+    shell_args: vec![],
   }
 
   test! {

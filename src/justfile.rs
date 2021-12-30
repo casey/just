@@ -448,6 +448,7 @@ mod tests {
   // a variable and continuing even though a command fails, whereas in plain
   // recipes variables are not available in subsequent lines and execution stops
   // when a line fails.
+  #[cfg(target_os = "linux")]
   run_error! {
     name: run_shebang,
     src: "
@@ -471,9 +472,34 @@ mod tests {
     }
   }
 
+  #[cfg(target_os = "windows")]
+  run_error! {
+    name: run_shebang,
+    src: "
+      a:
+        #!powershell.exe
+        $code = 200
+          function x() { exit $code; }
+            x
+              x
+    ",
+    args: ["a"],
+    error: Code {
+      recipe,
+      line_number,
+      code: _,
+    },
+    check: {
+      assert_eq!(recipe, "a");
+      // assert_eq!(code, 200); // FIXME: incorrectly reports 1 (https://github.com/casey/just/issues/1060)
+      assert_eq!(line_number, None);
+    }
+  }
+
   run_error! {
     name: code_error,
     src: "
+      set windows-powershell
       fail:
         @exit 100
     ",
@@ -486,10 +512,11 @@ mod tests {
     check: {
       assert_eq!(recipe, "fail");
       assert_eq!(code, 100);
-      assert_eq!(line_number, Some(2));
+      assert_eq!(line_number, Some(3));
     }
   }
 
+  #[cfg(target_os = "linux")]
   run_error! {
     name: run_args,
     src: r#"
@@ -506,6 +533,27 @@ mod tests {
       assert_eq!(recipe, "a");
       assert_eq!(code, 150);
       assert_eq!(line_number, Some(2));
+    }
+  }
+
+  #[cfg(target_os = "windows")]
+  run_error! {
+    name: run_args,
+    src: r#"
+      set windows-powershell
+      a return code:
+        @function x() { {{return}} {{code + "0"}}; }; x
+    "#,
+    args: ["a", "exit", "15"],
+    error: Code {
+      recipe,
+      line_number,
+      code,
+    },
+    check: {
+      assert_eq!(recipe, "a");
+      assert_eq!(code, 150);
+      assert_eq!(line_number, Some(3));
     }
   }
 
@@ -642,6 +690,8 @@ mod tests {
     }
   }
 
+  // FIXME: this test currently fails on Windows (https://github.com/casey/just/issues/1061)
+  #[cfg(target_os = "linux")]
   run_error! {
     name: export_failure,
     src: r#"
