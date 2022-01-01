@@ -128,7 +128,7 @@ fn invoke_error_function() {
     .stderr(if cfg!(windows) {
       "error: Chooser `/ -cu fzf` invocation failed: Access is denied. (os error 5)\n"
     } else {
-      "error: Chooser `/ -cu fzf` invocation failed: Permission denied (os error 13)\n"
+      "error: Chooser `/ fzf` invocation failed: Permission denied (os error 13)\n"
     })
     .status(EXIT_FAILURE)
     .shell(false)
