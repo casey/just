@@ -35,7 +35,7 @@ impl<'src> Line<'src> {
     }
   }
 
-  pub(crate) fn is_infallable(&self) -> bool {
+  pub(crate) fn is_infallible(&self) -> bool {
     match self.fragments.first() {
       Some(Fragment::Text { token }) => {
         token.lexeme().starts_with('-') || token.lexeme().starts_with("@-")
