@@ -1035,9 +1035,9 @@ foo:
 }
 
 test! {
-  name: infallable_command,
+  name: infallible_command,
   justfile: r#"
-infallable:
+infallible:
   -exit 101
 "#,
   stderr: "exit 101\n",
@@ -1045,15 +1045,15 @@ infallable:
 }
 
 test! {
-  name: infallable_with_failing,
+  name: infallible_with_failing,
   justfile: r#"
-infallable:
+infallible:
   -exit 101
   exit 202
 "#,
   stderr: r#"exit 101
 exit 202
-error: Recipe `infallable` failed on line 3 with exit code 202
+error: Recipe `infallible` failed on line 3 with exit code 202
 "#,
   status: 202,
 }
