@@ -24,6 +24,7 @@ mod init;
 mod interrupts;
 mod invocation_directory;
 mod json;
+mod line_prefixes;
 mod misc;
 mod positional_arguments;
 mod quiet;
