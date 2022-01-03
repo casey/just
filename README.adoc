@@ -637,9 +637,6 @@ $ just test foo "bar baz"
 - foo
 - bar baz
 ```
-
-Running it with _two_ arguments:
-
              
 ==== Shell
 
