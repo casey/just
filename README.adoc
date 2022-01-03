@@ -619,7 +619,7 @@ foo
 hello
 ```
 
-When using a `sh`-compatible shell, such as `bash` or `zsh, `$@` expands to the positional arguments given to the recipe, starting from one. When used within double quotes as `"$@"`, arguments including whitespace will be passed on as if they were double-quoted. That is, "$@" is equivalent to "$1" "$2"... When there are no positional parameters, "$@" and $@ expand to nothing (i.e., they are removed).
+When using an `sh`-compatible shell, such as `bash` or `zsh`, `$@` expands to the positional arguments given to the recipe, starting from one. When used within double quotes as `"$@"`, arguments including whitespace will be passed on as if they were double-quoted. That is, "$@" is equivalent to "$1" "$2"... When there are no positional parameters, "$@" and $@ expand to nothing (i.e., they are removed).
 
 This example recipe will print arguments one by one on separate lines:
 
