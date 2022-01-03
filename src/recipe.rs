@@ -228,7 +228,15 @@ impl<'src, D> Recipe<'src, D> {
             break;
           }
         }
-        let command = &evaluated.as_str()[quiet_command as usize + infallable_command as usize..];
+        let mut command = evaluated.as_str();
+
+        if quiet_command {
+          command = &command[1..];
+        }
+
+        if infallible_command {
+          command = &command[1..];
+        }
 
         if command.is_empty() {
           continue;
