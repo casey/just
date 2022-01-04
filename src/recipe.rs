@@ -213,7 +213,7 @@ impl<'src, D> Recipe<'src, D> {
         let mut evaluated = String::new();
         let mut continued = false;
         let quiet_command = lines.peek().map_or(false, |line| line.is_quiet());
-        let infallable_command = lines.peek().map_or(false, |line| line.is_infallable());
+        let infallible_command = lines.peek().map_or(false, |line| line.is_infallible());
         loop {
           if lines.peek().is_none() {
             break;
@@ -229,7 +229,12 @@ impl<'src, D> Recipe<'src, D> {
           }
         }
         let mut command = evaluated.as_str();
-        if quiet_command || infallable_command {
+
+        if quiet_command {
+          command = &command[1..];
+        }
+
+        if infallible_command {
           command = &command[1..];
         }
 
@@ -274,7 +279,7 @@ impl<'src, D> Recipe<'src, D> {
         match InterruptHandler::guard(|| cmd.status()) {
           Ok(exit_status) => {
             if let Some(code) = exit_status.code() {
-              if code != 0 && !infallable_command {
+              if code != 0 && !infallible_command {
                 return Err(Error::Code {
                   recipe: self.name(),
                   line_number: Some(line_number),
