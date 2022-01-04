@@ -490,6 +490,82 @@ mod tests {
     }
   }
 
+  #[cfg(target_os = "windows")]
+  run_error! {
+    name: run_powershell,
+    src: "
+      a:
+        exit 200
+    ",
+    args: ["--shell", "powershell.exe", "--shell-arg", "-c", "a"],
+    error: Code {
+      code,
+      ..
+    },
+    check: {
+      assert_eq!(code, 200);
+    }
+  }
+
+  #[cfg(target_os = "windows")]
+  run_error! {
+    name: run_shebang_powershell,
+    src: "
+      a:
+        #!powershell.exe
+        exit 200
+    ",
+    args: ["a"],
+    error: Code {
+      code,
+      ..
+    },
+    check: {
+      assert_eq!(code, 200);
+    }
+  }
+
+  #[cfg(target_os = "windows")]
+  run_error! {
+    name: backtick_code,
+    src: "
+      a:
+       echo {{`f() { return 100; }; f`}}
+    ",
+    args: ["--shell", "powershell.exe", "--shell-arg", "-c", "a"],
+    error: Error::Backtick {
+      token,
+      output_error: OutputError::Code(code),
+    },
+    check: {
+      assert_eq!(code, 100);
+      assert_eq!(token.lexeme(), "`f() { return 100; }; f`");
+    }
+  }
+
+  #[cfg(target_os = "windows")]
+  run_error! {
+    name: export_failure_powershell,
+    src: r#"
+      export foo := "a"
+      baz := "c"
+      export bar := "b"
+      export abc := foo + bar + baz
+      wut:
+        echo $foo $bar $baz
+    "#,
+    args: ["--quiet", "--shell", "powershell.exe", "--shell-arg", "-c", "wut"],
+    error: Code {
+      line_number,
+      recipe,
+      ..
+    },
+    check: {
+      assert_eq!(recipe, "wut");
+      assert_eq!(line_number, Some(7));
+    }
+  }
+
   run_error! {
     name: run_args,
     src: r#"
