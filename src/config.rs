@@ -416,7 +416,7 @@ impl Config {
   }
 
   pub(crate) fn from_matches(matches: &ArgMatches) -> ConfigResult<Self> {
-    let invocation_directory = env::current_dir().context(config_error::CurrentDirSnafu)?;
+    let invocation_directory = env::current_dir().context(config_error::CurrentDirContext)?;
 
     let verbosity = if matches.is_present(arg::QUIET) {
       Verbosity::Quiet
