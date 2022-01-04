@@ -76,7 +76,7 @@ impl<'src> Settings<'src> {
     } else if config.shell_args_present {
       config.shell_args.iter().map(String::as_ref).collect()
     } else {
-      // Default value for shell
+      // Default value for shell-args
       if cfg!(windows) && self.windows_powershell {
         vec![WINDOWS_DEFAULT_SHELL_ARG]
       } else {
