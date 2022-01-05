@@ -6,6 +6,7 @@ mod assert_success;
 mod byte_order_mark;
 mod changelog;
 mod choose;
+mod closures;
 mod command;
 mod common;
 mod completions;
