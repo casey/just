@@ -45,6 +45,7 @@ justfile      : item* EOF
 item          : recipe
               | alias
               | assignment
+              | closure
               | export
               | setting
               | eol
@@ -55,6 +56,8 @@ eol           : NEWLINE
 alias         : 'alias' NAME ':=' NAME
 
 assignment    : NAME ':=' expression eol
+
+closure       : NAME '(' sequence? ')' ':=' expression eol
 
 export        : 'export' assignment
 
