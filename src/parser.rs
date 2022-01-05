@@ -339,6 +339,8 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
           _ => {
             if self.next_are(&[Identifier, ColonEquals]) {
               items.push(Item::Assignment(self.parse_assignment(false)?));
+            } else if self.next_are(&[Identifier, ParenL]) {
+              items.push(Item::Closure(self.parse_closure()?));
             } else {
               let doc = pop_doc_comment(&mut items, eol_since_last_comment);
               items.push(Item::Recipe(self.parse_recipe(doc, false)?));
@@ -384,6 +386,25 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     self.expect_eol()?;
     Ok(Assignment {
       export,
+      name,
+      value,
+    })
+  }
+
+  /// Parse a closure, e.g. `id(s) := s`
+  fn parse_closure(&mut self) -> CompileResult<'src, NamedClosure<'src>> {
+    let name = self.parse_name()?;
+    let params = self.parse_params()?; // parse_params presumes next is ParenL for us
+
+    self.expect(ColonEquals)?;
+
+    let rule = self.parse_expression()?;
+    self.expect_eol()?;
+
+    let value = Closure { params, rule };
+
+    Ok(NamedClosure {
+      export: false, // can't export functions
       name,
       value,
     })
@@ -553,6 +574,25 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
 
     while !self.next_is(ParenR) {
       elements.push(self.parse_expression()?);
+
+      if !self.accepted(Comma)? {
+        break;
+      }
+    }
+
+    self.expect(ParenR)?;
+
+    Ok(elements)
+  }
+
+  /// Parse sequence of comma-separated names
+  fn parse_params(&mut self) -> CompileResult<'src, Vec<Name<'src>>> {
+    self.presume(ParenL)?;
+
+    let mut elements = Vec::new();
+
+    while !self.next_is(ParenR) {
+      elements.push(self.parse_name()?);
 
       if !self.accepted(Comma)? {
         break;
@@ -1816,6 +1856,24 @@ mod tests {
     tree: (justfile (assignment a (if b == c d (if b == c d e)))),
   }
 
+  test! {
+    name: identity_closure,
+    text: "id(s) := s",
+    tree: (justfile (closure (params s) s)),
+  }
+
+  test! {
+    name: add_bar_closure,
+    text: "add_bar(s) := s + 'bar'",
+    tree: (justfile (closure (params s) (+ s "bar"))),
+  }
+
+  test! {
+    name: no_arg_closure,
+    text: "do_something() := 'bar'",
+    tree: (justfile (closure params "bar")),
+  }
+
   error! {
     name:   alias_syntax_multiple_rhs,
     input:  "alias foo := bar baz",
@@ -2203,6 +2261,19 @@ mod tests {
       function: "replace",
       found: 1,
       expected: 3..3,
+    },
+  }
+
+  error! {
+    name: closure_no_lparen,
+    input: "id(s := s",
+    offset: 5,
+    line: 0,
+    column: 5,
+    width: 2,
+    kind: UnexpectedToken {
+      expected: vec![Comma, ParenR],
+      found: ColonEquals,
     },
   }
 }
