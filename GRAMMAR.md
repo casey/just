@@ -1,14 +1,12 @@
-justfile grammar
-================
+# justfile grammar
 
 Justfiles are processed by a mildly context-sensitive tokenizer
 and a recursive descent parser. The grammar is LL(k), for an
 unknown but hopefully reasonable value of k.
 
-tokens
-------
+## tokens
 
-```
+````
 BACKTICK            = `[^`]*`
 INDENTED_BACKTICK   = ```[^(```)]*```
 COMMENT             = #([^!].*)?$
@@ -23,10 +21,9 @@ INDENTED_RAW_STRING = '''[^(''')]*'''
 STRING              = "[^"]*" # also processes \n \r \t \" \\ escapes
 INDENTED_STRING     = """[^("""]*""" # also processes \n \r \t \" \\ escapes
 TEXT                = recipe text, only matches in a recipe body
-```
+````
 
-grammar syntax
---------------
+## grammar syntax
 
 ```
 |   alternation
@@ -36,8 +33,7 @@ _*  repetition (0 or more times)
 _+  repetition (1 or more times)
 ```
 
-grammar
--------
+## grammar
 
 ```
 justfile      : item* EOF
@@ -57,7 +53,10 @@ alias         : 'alias' NAME ':=' NAME
 
 assignment    : NAME ':=' expression eol
 
-closure       : NAME '(' sequence? ')' ':=' expression eol
+closure       : NAME '(' params? ')' ':=' expression eol
+
+params        : NAME ',' params
+              | NAME ','?
 
 export        : 'export' assignment
 

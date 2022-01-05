@@ -56,7 +56,7 @@ impl<'src> Node<'src> for NamedClosure<'src> {
       .value
       .params
       .iter()
-      .fold(Tree::atom("seq"), |t, x| t.push(x.lexeme()));
+      .fold(Tree::atom("params"), |t, x| t.push(x.lexeme()));
 
     Tree::atom("closure")
       .push(params)
