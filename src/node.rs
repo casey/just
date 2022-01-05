@@ -52,7 +52,15 @@ impl<'src> Node<'src> for Assignment<'src> {
 
 impl<'src> Node<'src> for NamedClosure<'src> {
   fn tree(&self) -> Tree<'src> {
-    todo!()
+    let params = self
+      .value
+      .params
+      .iter()
+      .fold(Tree::atom("seq"), |t, x| t.push(x.lexeme()));
+
+    Tree::atom("closure")
+      .push(params)
+      .push(self.value.rule.tree())
   }
 }
 

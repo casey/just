@@ -2,8 +2,8 @@ use crate::common::*;
 
 #[derive(Clone, Debug)]
 pub(crate) struct Closure<'src> {
-  params: Vec<Name<'src>>,
-  rule: Expression<'src>,
+  pub(crate) params: Vec<Name<'src>>,
+  pub(crate) rule: Expression<'src>,
 }
 
 pub(crate) type NamedClosure<'src> = Binding<'src, Closure<'src>>;
