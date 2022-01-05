@@ -20,6 +20,7 @@ impl<'src> Node<'src> for Item<'src> {
     match self {
       Item::Alias(alias) => alias.tree(),
       Item::Assignment(assignment) => assignment.tree(),
+      Item::Closure(closure) => closure.tree(),
       Item::Comment(comment) => comment.tree(),
       Item::Recipe(recipe) => recipe.tree(),
       Item::Set(set) => set.tree(),
@@ -46,6 +47,12 @@ impl<'src> Node<'src> for Assignment<'src> {
     }
     .push(self.name.lexeme())
     .push(self.value.tree())
+  }
+}
+
+impl<'src> Node<'src> for NamedClosure<'src> {
+  fn tree(&self) -> Tree<'src> {
+    todo!()
   }
 }
 

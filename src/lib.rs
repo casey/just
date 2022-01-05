@@ -47,6 +47,7 @@ mod assignment;
 mod assignment_resolver;
 mod ast;
 mod binding;
+mod closure;
 mod color;
 mod color_display;
 mod command_ext;

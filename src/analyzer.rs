@@ -26,6 +26,7 @@ impl<'src> Analyzer<'src> {
           self.analyze_assignment(&assignment)?;
           self.assignments.insert(assignment);
         }
+        Item::Closure(_) => todo!(),
         Item::Comment(_) => (),
         Item::Recipe(recipe) => {
           self.analyze_recipe(&recipe)?;

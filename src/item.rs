@@ -5,6 +5,7 @@ use crate::common::*;
 pub(crate) enum Item<'src> {
   Alias(Alias<'src, Name<'src>>),
   Assignment(Assignment<'src>),
+  Closure(NamedClosure<'src>),
   Comment(&'src str),
   Recipe(UnresolvedRecipe<'src>),
   Set(Set<'src>),
@@ -15,6 +16,7 @@ impl<'src> Display for Item<'src> {
     match self {
       Item::Alias(alias) => write!(f, "{}", alias),
       Item::Assignment(assignment) => write!(f, "{}", assignment),
+      Item::Closure(closure) => write!(f, "{}", closure),
       Item::Comment(comment) => write!(f, "{}", comment),
       Item::Recipe(recipe) => write!(f, "{}", recipe.color_display(Color::never())),
       Item::Set(set) => write!(f, "{}", set),

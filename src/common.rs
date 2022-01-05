@@ -52,8 +52,8 @@ pub(crate) use crate::{
 // structs and enums
 pub(crate) use crate::{
   alias::Alias, analyzer::Analyzer, assignment::Assignment,
-  assignment_resolver::AssignmentResolver, ast::Ast, binding::Binding, color::Color,
-  compile_error::CompileError, compile_error_kind::CompileErrorKind,
+  assignment_resolver::AssignmentResolver, ast::Ast, binding::Binding, closure::NamedClosure,
+  color::Color, compile_error::CompileError, compile_error_kind::CompileErrorKind,
   conditional_operator::ConditionalOperator, config::Config, config_error::ConfigError,
   count::Count, delimiter::Delimiter, dependency::Dependency, dump_format::DumpFormat,
   enclosure::Enclosure, error::Error, evaluator::Evaluator, expression::Expression,
