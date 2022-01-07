@@ -4,6 +4,7 @@ use CompileErrorKind::*;
 
 pub(crate) struct AssignmentResolver<'src: 'run, 'run> {
   assignments: &'run Table<'src, Assignment<'src>>,
+  closures: &'run Table<'src, NamedClosure<'src>>,
   stack: Vec<&'src str>,
   evaluated: BTreeSet<&'src str>,
 }
@@ -11,11 +12,13 @@ pub(crate) struct AssignmentResolver<'src: 'run, 'run> {
 impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
   pub(crate) fn resolve_assignments(
     assignments: &Table<'src, Assignment<'src>>,
+    closures: &Table<'src, NamedClosure<'src>>,
   ) -> CompileResult<'src, ()> {
     let mut resolver = AssignmentResolver {
       stack: Vec::new(),
       evaluated: BTreeSet::new(),
       assignments,
+      closures,
     };
 
     for name in assignments.keys() {
@@ -100,7 +103,29 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
           self.resolve_expression(b)?;
           self.resolve_expression(c)
         }
-        Thunk::User { name, args } => todo!(),
+        Thunk::User { name, args } => {
+          let closure = self.closures.get(name.lexeme()).ok_or_else(|| {
+            name.error(UnknownFunction {
+              function: name.lexeme(),
+            })
+          })?;
+
+          let func_args = closure.value.params.len();
+          let call_args = args.len();
+
+          if func_args != call_args {
+            return Err(name.error(FunctionArgumentCountMismatch {
+              function: name.lexeme(),
+              found: call_args,
+              expected: func_args..func_args,
+            }));
+          }
+
+          for arg in args {
+            self.resolve_expression(arg)?;
+          }
+          Ok(())
+        }
       },
       Expression::Concatination { lhs, rhs } => {
         self.resolve_expression(lhs)?;

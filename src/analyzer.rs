@@ -45,7 +45,7 @@ impl<'src> Analyzer<'src> {
 
     let assignments = self.assignments;
 
-    AssignmentResolver::resolve_assignments(&assignments)?;
+    AssignmentResolver::resolve_assignments(&assignments, &self.closures)?;
 
     let recipes = RecipeResolver::resolve_recipes(self.recipes, &assignments)?;
 
@@ -333,6 +333,16 @@ mod tests {
     column: 0,
     width:  2,
     kind:   DuplicateFunction{function: "id"},
+  }
+
+  analysis_error! {
+    name:   closure_wrong_arguments,
+    input:  "id(s) := s\nfoo := id()",
+    offset: 18,
+    line:   1,
+    column: 7,
+    width:  2,
+    kind:   FunctionArgumentCountMismatch { function: "id", found: 0, expected: 1..1 },
   }
 
   analysis_error! {
