@@ -142,9 +142,9 @@ impl Display for Thunk<'_> {
         ..
       } => write!(f, "{}({}, {}, {})", name.lexeme(), a, b, c),
       User { name, args } => {
-        write!(f, "{}(", name.lexeme());
+        write!(f, "{}(", name.lexeme())?;
 
-        let mut args = args.into_iter();
+        let mut args = args.iter();
         if let Some(arg) = args.next() {
           write!(f, "{}", arg)?;
 
