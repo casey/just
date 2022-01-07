@@ -140,6 +140,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
             function: *name,
             message,
           }),
+          User { name, args } => todo!(),
         }
       }
       Expression::StringLiteral { string_literal } => Ok(string_literal.cooked.clone()),

@@ -100,6 +100,7 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
           self.resolve_expression(b)?;
           self.resolve_expression(c)
         }
+        Thunk::User { name, args } => todo!(),
       },
       Expression::Concatination { lhs, rhs } => {
         self.resolve_expression(lhs)?;

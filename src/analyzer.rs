@@ -326,7 +326,7 @@ mod tests {
   }
 
   analysis_error! {
-    name:   duplicate_function,
+    name:   duplicate_closure,
     input:  "id(s) := s\nid(s) := s",
     offset: 11,
     line:   1,

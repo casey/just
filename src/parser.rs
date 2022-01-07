@@ -1874,6 +1874,12 @@ mod tests {
     tree: (justfile (closure params "bar")),
   }
 
+  test! {
+    name: closure_call,
+    text: "foo := not_built_in(\"foo\", \"bar\")",
+    tree: (justfile (assignment foo (call not_built_in "foo" "bar"))),
+  }
+
   error! {
     name:   alias_syntax_multiple_rhs,
     input:  "alias foo := bar baz",

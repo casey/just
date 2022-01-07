@@ -123,6 +123,12 @@ impl<'src> Node<'src> for Expression<'src> {
             tree.push_mut(b.tree());
             tree.push_mut(c.tree());
           }
+          User { name, args } => {
+            tree.push_mut(name.lexeme());
+            for arg in args {
+              tree.push_mut(arg.tree());
+            }
+          }
         }
 
         tree

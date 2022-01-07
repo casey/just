@@ -252,6 +252,7 @@ impl Expression {
           name: name.lexeme().to_owned(),
           arguments: vec![Expression::new(a), Expression::new(b), Expression::new(c)],
         },
+        full::Thunk::User { name, args } => todo!(),
       },
       Concatination { lhs, rhs } => Expression::Concatination {
         lhs: Box::new(Expression::new(lhs)),

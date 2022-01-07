@@ -39,6 +39,7 @@ impl<'expression, 'src> Iterator for Variables<'expression, 'src> {
               self.stack.push(arg);
             }
           }
+          Thunk::User { name, args } => todo!(),
         },
         Expression::Conditional {
           lhs,
