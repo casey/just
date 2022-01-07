@@ -89,6 +89,9 @@ impl Display for CompileError<'_> {
           self.token.line.ordinal(),
         )?;
       }
+      DuplicateFunction { function } => {
+        write!(f, "Function `{}` has multiple definitions", function)?;
+      }
       DuplicateParameter { recipe, parameter } => {
         write!(
           f,

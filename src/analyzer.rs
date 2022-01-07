@@ -7,6 +7,7 @@ pub(crate) struct Analyzer<'src> {
   recipes: Table<'src, UnresolvedRecipe<'src>>,
   assignments: Table<'src, Assignment<'src>>,
   aliases: Table<'src, Alias<'src, Name<'src>>>,
+  closures: Table<'src, NamedClosure<'src>>,
   sets: Table<'src, Set<'src>>,
 }
 
@@ -26,7 +27,10 @@ impl<'src> Analyzer<'src> {
           self.analyze_assignment(&assignment)?;
           self.assignments.insert(assignment);
         }
-        Item::Closure(_) => todo!(),
+        Item::Closure(closure) => {
+          self.analyze_closure(&closure)?;
+          self.closures.insert(closure);
+        }
         Item::Comment(_) => (),
         Item::Recipe(recipe) => {
           self.analyze_recipe(&recipe)?;
@@ -155,6 +159,15 @@ impl<'src> Analyzer<'src> {
     if self.assignments.contains_key(assignment.name.lexeme()) {
       return Err(assignment.name.token().error(DuplicateVariable {
         variable: assignment.name.lexeme(),
+      }));
+    }
+    Ok(())
+  }
+
+  fn analyze_closure(&self, closure: &NamedClosure<'src>) -> CompileResult<'src, ()> {
+    if self.closures.contains_key(closure.name.lexeme()) {
+      return Err(closure.name.token().error(DuplicateFunction {
+        function: closure.name.lexeme(),
       }));
     }
     Ok(())
@@ -310,6 +323,16 @@ mod tests {
     column: 0,
     width:  1,
     kind:   DuplicateVariable{variable: "a"},
+  }
+
+  analysis_error! {
+    name:   duplicate_function,
+    input:  "id(s) := s\nid(s) := s",
+    offset: 11,
+    line:   1,
+    column: 0,
+    width:  2,
+    kind:   DuplicateFunction{function: "id"},
   }
 
   analysis_error! {
