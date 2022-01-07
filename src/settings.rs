@@ -38,9 +38,6 @@ impl<'src> Settings<'src> {
     // 1) CLI argument (config)
     // 2) Settings in justfile (settings)
     // 3) Default/PowerShell
-
-    // Restores old behaviour where when `--shell-arg` was given `--shell` or
-    // the default shell was used (overwriting `set shell` in justfiles).
     let shell_or_args_present = config.shell_present | config.shell_args_present;
 
     if let (Some(shell), false) = (&self.shell, shell_or_args_present) {
@@ -58,13 +55,7 @@ impl<'src> Settings<'src> {
   }
 
   pub(crate) fn shell_arguments<'a>(&'a self, config: &'a Config) -> Vec<&'a str> {
-    // Order of precedence:
-    // 1) CLI argument (config)
-    // 2) Settings in justfile (settings)
-    // 3) Default/PowerShell
-
-    // Restores old behaviour where when `--shell` was given `--shell-arg` or
-    // the default shell args were used (overwriting `set shell` in justfiles).
+    // Order of precedence like in fn shell_binary
     let shell_or_args_present = config.shell_present | config.shell_args_present;
 
     if let (Some(shell), false) = (&self.shell, shell_or_args_present) {
