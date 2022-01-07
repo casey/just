@@ -1859,19 +1859,19 @@ mod tests {
   test! {
     name: identity_closure,
     text: "id(s) := s",
-    tree: (justfile (closure (params s) s)),
+    tree: (justfile (closure id (params s) s)),
   }
 
   test! {
     name: add_bar_closure,
     text: "add_bar(s) := s + 'bar'",
-    tree: (justfile (closure (params s) (+ s "bar"))),
+    tree: (justfile (closure add_bar (params s) (+ s "bar"))),
   }
 
   test! {
     name: no_arg_closure,
     text: "do_something() := 'bar'",
-    tree: (justfile (closure params "bar")),
+    tree: (justfile (closure do_something params "bar")),
   }
 
   test! {

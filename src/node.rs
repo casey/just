@@ -59,6 +59,7 @@ impl<'src> Node<'src> for NamedClosure<'src> {
       .fold(Tree::atom("params"), |t, x| t.push(x.lexeme()));
 
     Tree::atom("closure")
+      .push(self.name.lexeme())
       .push(params)
       .push(self.value.rule.tree())
   }
