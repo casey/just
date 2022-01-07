@@ -27,6 +27,7 @@ pub(crate) struct Config {
   pub(crate) shell_args: Vec<String>,
   pub(crate) shell_command: bool,
   pub(crate) shell_present: bool,
+  pub(crate) shell_args_present: bool,
   pub(crate) subcommand: Subcommand,
   pub(crate) unsorted: bool,
   pub(crate) unstable: bool,
@@ -563,8 +564,9 @@ impl Config {
       Vec::new()
     };
 
-    let shell_present = matches.occurrences_of(arg::CLEAR_SHELL_ARGS) > 0
-      || matches.occurrences_of(arg::SHELL) > 0
+    let shell_present = matches.occurrences_of(arg::SHELL) > 0;
+
+    let shell_args_present = matches.occurrences_of(arg::CLEAR_SHELL_ARGS) > 0
       || matches.occurrences_of(arg::SHELL_ARG) > 0;
 
     Ok(Self {
@@ -590,6 +592,7 @@ impl Config {
       search_config,
       shell_args,
       shell_present,
+      shell_args_present,
       subcommand,
       dotenv_filename: matches.value_of(arg::DOTENV_FILENAME).map(str::to_owned),
       dotenv_path: matches.value_of(arg::DOTENV_PATH).map(PathBuf::from),
@@ -729,6 +732,7 @@ ARGS:
       $(shell: $shell:expr,)?
       $(shell_args: $shell_args:expr,)?
       $(shell_present: $shell_present:expr,)?
+      $(shell_args_present: $shell_args_present:expr,)?
       $(subcommand: $subcommand:expr,)?
       $(unsorted: $unsorted:expr,)?
       $(verbosity: $verbosity:expr,)?
@@ -749,6 +753,7 @@ ARGS:
           $(shell: $shell.to_owned(),)?
           $(shell_args: $shell_args,)?
           $(shell_present: $shell_present,)?
+          $(shell_args_present: $shell_args_present,)?
           $(subcommand: $subcommand,)?
           $(unsorted: $unsorted,)?
           $(verbosity: $verbosity,)?
@@ -1012,6 +1017,7 @@ ARGS:
     shell: "",
     shell_args: vec![],
     shell_present: false,
+    shell_args_present: false,
   }
 
   test! {
@@ -1019,6 +1025,15 @@ ARGS:
     args: ["--shell", "tclsh"],
     shell: "tclsh",
     shell_present: true,
+    shell_args_present: false,
+  }
+
+  test! {
+    name: shell_args_set,
+    args: ["--shell-arg", "hello"],
+    shell_args: vec!["hello".into()],
+    shell_present: false,
+    shell_args_present: true,
   }
 
   test! {
@@ -1262,49 +1277,56 @@ ARGS:
     name: shell_args_set_hyphen,
     args: ["--shell-arg", "--foo"],
     shell_args: vec!["--foo".to_owned()],
-    shell_present: true,
+    shell_present: false,
+    shell_args_present: true,
   }
 
   test! {
     name: shell_args_set_word,
     args: ["--shell-arg", "foo"],
     shell_args: vec!["foo".to_owned()],
-    shell_present: true,
+    shell_present: false,
+    shell_args_present: true,
   }
 
   test! {
     name: shell_args_set_multiple,
     args: ["--shell-arg", "foo", "--shell-arg", "bar"],
     shell_args: vec!["foo".to_owned(), "bar".to_owned()],
-    shell_present: true,
+    shell_present: false,
+    shell_args_present: true,
   }
 
   test! {
     name: shell_args_clear,
     args: ["--clear-shell-args"],
     shell_args: vec![],
-    shell_present: true,
+    shell_present: false,
+    shell_args_present: true,
   }
 
   test! {
     name: shell_args_clear_and_set,
     args: ["--clear-shell-args", "--shell-arg", "bar"],
     shell_args: vec!["bar".to_owned()],
-    shell_present: true,
+    shell_present: false,
+    shell_args_present: true,
   }
 
   test! {
     name: shell_args_set_and_clear,
     args: ["--shell-arg", "bar", "--clear-shell-args"],
     shell_args: vec![],
-    shell_present: true,
+    shell_present: false,
+    shell_args_present: true,
   }
 
   test! {
     name: shell_args_set_multiple_and_clear,
     args: ["--shell-arg", "bar", "--shell-arg", "baz", "--clear-shell-args"],
     shell_args: vec![],
-    shell_present: true,
+    shell_present: false,
+    shell_args_present: true,
   }
 
   test! {

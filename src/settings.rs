@@ -34,38 +34,54 @@ impl<'src> Settings<'src> {
   }
 
   pub(crate) fn shell_binary<'a>(&'a self, config: &'a Config) -> &'a str {
-    if config.shell_present {
-      return &config.shell;
-    }
+    // Order of precedence:
+    // 1) CLI argument (config)
+    // 2) Settings in justfile (settings)
+    // 3) Default/PowerShell
 
-    if cfg!(windows) && self.windows_powershell {
-      return WINDOWS_DEFAULT_SHELL;
-    }
+    // Restores old behaviour where when `--shell-arg` was given `--shell` or
+    // the default shell was used (overwriting `set shell` in justfiles).
+    let shell_or_args_present = config.shell_present | config.shell_args_present;
 
-    if let Some(shell) = &self.shell {
-      return shell.command.cooked.as_ref();
+    if let (Some(shell), false) = (&self.shell, shell_or_args_present) {
+      shell.command.cooked.as_ref()
+    } else if config.shell_present {
+      &config.shell
     } else {
-      return DEFAULT_SHELL;
+      // Default value for shell
+      if cfg!(windows) && self.windows_powershell {
+        WINDOWS_DEFAULT_SHELL
+      } else {
+        DEFAULT_SHELL
+      }
     }
   }
 
   pub(crate) fn shell_arguments<'a>(&'a self, config: &'a Config) -> Vec<&'a str> {
-    if config.shell_present {
-      return config.shell_args.iter().map(String::as_ref).collect();
-    }
+    // Order of precedence:
+    // 1) CLI argument (config)
+    // 2) Settings in justfile (settings)
+    // 3) Default/PowerShell
 
-    if cfg!(windows) && self.windows_powershell {
-      return vec![WINDOWS_DEFAULT_SHELL_ARG];
-    }
+    // Restores old behaviour where when `--shell` was given `--shell-arg` or
+    // the default shell args were used (overwriting `set shell` in justfiles).
+    let shell_or_args_present = config.shell_present | config.shell_args_present;
 
-    if let Some(shell) = &self.shell {
-      return shell
+    if let (Some(shell), false) = (&self.shell, shell_or_args_present) {
+      shell
         .arguments
         .iter()
         .map(|argument| argument.cooked.as_ref())
-        .collect();
+        .collect()
+    } else if config.shell_args_present {
+      config.shell_args.iter().map(String::as_ref).collect()
     } else {
-      return vec![DEFAULT_SHELL_ARG];
+      // Default value for shell-args
+      if cfg!(windows) && self.windows_powershell {
+        vec![WINDOWS_DEFAULT_SHELL_ARG]
+      } else {
+        vec![DEFAULT_SHELL_ARG]
+      }
     }
   }
 }
@@ -118,6 +134,7 @@ mod tests {
 
     let config = Config {
       shell_present: true,
+      shell_args_present: true,
       shell_command: true,
       shell: "lol".to_string(),
       shell_args: vec!["-nice".to_string()],
@@ -135,6 +152,7 @@ mod tests {
 
     let config = Config {
       shell_present: true,
+      shell_args_present: true,
       shell_command: true,
       shell: "lol".to_string(),
       shell_args: vec!["-nice".to_string()],
@@ -171,5 +189,27 @@ mod tests {
 
     assert_eq!(settings.shell_binary(&config), "asdf.exe");
     assert_eq!(settings.shell_arguments(&config), vec!["-nope"]);
+  }
+
+  #[test]
+  fn shell_args_present_but_not_shell() {
+    let mut settings = Settings::new();
+    settings.windows_powershell = true;
+
+    let config = Config {
+      shell_present: false,
+      shell_args_present: true,
+      shell_command: false,
+      shell_args: vec!["-nice".to_string()],
+      ..testing::config(&[])
+    };
+
+    if cfg!(windows) {
+      assert_eq!(settings.shell_binary(&config), "powershell.exe");
+      assert_eq!(settings.shell_arguments(&config), vec!["-nice"]);
+    } else {
+      assert_eq!(settings.shell_binary(&config), "sh");
+      assert_eq!(settings.shell_arguments(&config), vec!["-nice"]);
+    }
   }
 }
