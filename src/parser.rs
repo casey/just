@@ -2171,36 +2171,6 @@ mod tests {
   }
 
   error! {
-    name:   unknown_function,
-    input:  "a := foo()",
-    offset: 5,
-    line:   0,
-    column: 5,
-    width:  3,
-    kind:   UnknownFunction{function: "foo"},
-  }
-
-  error! {
-    name:   unknown_function_in_interpolation,
-    input:  "a:\n echo {{bar()}}",
-    offset: 11,
-    line:   1,
-    column: 8,
-    width:  3,
-    kind:   UnknownFunction{function: "bar"},
-  }
-
-  error! {
-    name:   unknown_function_in_default,
-    input:  "a f=baz():",
-    offset: 4,
-    line:   0,
-    column: 4,
-    width:  3,
-    kind:   UnknownFunction{function: "baz"},
-  }
-
-  error! {
     name: function_argument_count_nullary,
     input: "x := arch('foo')",
     offset: 5,
