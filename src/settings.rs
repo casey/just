@@ -1,9 +1,9 @@
 use crate::common::*;
 
 pub(crate) const DEFAULT_SHELL: &str = "sh";
-pub(crate) const DEFAULT_SHELL_ARG: &str = "-cu";
+pub(crate) const DEFAULT_SHELL_ARG: &[&str] = &["-cu"];
 pub(crate) const WINDOWS_DEFAULT_SHELL: &str = "powershell.exe";
-pub(crate) const WINDOWS_DEFAULT_SHELL_ARG: &str = "-c";
+pub(crate) const WINDOWS_DEFAULT_SHELL_ARG: &[&str] = &["-NoLogo", "-Command"];
 
 #[derive(Debug, PartialEq, Serialize)]
 pub(crate) struct Settings<'src> {
@@ -69,9 +69,9 @@ impl<'src> Settings<'src> {
     } else {
       // Default value for shell-args
       if cfg!(windows) && self.windows_powershell {
-        vec![WINDOWS_DEFAULT_SHELL_ARG]
+        WINDOWS_DEFAULT_SHELL_ARG.to_vec()
       } else {
-        vec![DEFAULT_SHELL_ARG]
+        DEFAULT_SHELL_ARG.to_vec()
       }
     }
   }
@@ -111,7 +111,10 @@ mod tests {
 
     if cfg!(windows) {
       assert_eq!(settings.shell_binary(&config), "powershell.exe");
-      assert_eq!(settings.shell_arguments(&config), vec!["-c"]);
+      assert_eq!(
+        settings.shell_arguments(&config),
+        vec!["-NoLogo", "-Command"]
+      );
     } else {
       assert_eq!(settings.shell_binary(&config), "sh");
       assert_eq!(settings.shell_arguments(&config), vec!["-cu"]);
