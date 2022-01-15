@@ -40,4 +40,5 @@ mod sublime_syntax;
 mod subsequents;
 mod tempdir;
 mod undefined_variables;
+mod windows_powershell;
 mod working_directory;
