@@ -34,10 +34,6 @@ impl<'src> Settings<'src> {
   }
 
   pub(crate) fn shell_binary<'a>(&'a self, config: &'a Config) -> &'a str {
-    // Order of precedence:
-    // 1) CLI argument (config)
-    // 2) Settings in justfile (settings)
-    // 3) Default/PowerShell
     let shell_or_args_present = config.shell_present | config.shell_args_present;
 
     if let (Some(shell), false) = (&self.shell, shell_or_args_present) {
@@ -45,7 +41,6 @@ impl<'src> Settings<'src> {
     } else if config.shell_present {
       &config.shell
     } else {
-      // Default value for shell
       if cfg!(windows) && self.windows_powershell {
         WINDOWS_DEFAULT_SHELL
       } else {
@@ -55,7 +50,6 @@ impl<'src> Settings<'src> {
   }
 
   pub(crate) fn shell_arguments<'a>(&'a self, config: &'a Config) -> Vec<&'a str> {
-    // Order of precedence like in fn shell_binary
     let shell_or_args_present = config.shell_present | config.shell_args_present;
 
     if let (Some(shell), false) = (&self.shell, shell_or_args_present) {
@@ -67,7 +61,6 @@ impl<'src> Settings<'src> {
     } else if config.shell_args_present {
       config.shell_args.iter().map(String::as_ref).collect()
     } else {
-      // Default value for shell-args
       if cfg!(windows) && self.windows_powershell {
         WINDOWS_DEFAULT_SHELL_ARG.to_vec()
       } else {

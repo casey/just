@@ -659,17 +659,8 @@ foo:
 
 ==== Windows PowerShell
 
-To be able to run the same justfile on Linux and Windows `set shell` is not enough because it would change the shell on every platform. To set PowerShell as the default shell when running `just` on Windows set `windows-powershell` to true.
+`just` uses `sh` on Windows by default. To use PowerShell instead, set `windows-powershell` to true.
 
-```make
-set windows-powershell
-
-hello-windows:
-  Write-Host "Hello, world!"
-
-hello-linux:
-  echo 'Hello, world!'
-```
 
 
 ===== Python 3
