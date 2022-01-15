@@ -34,12 +34,12 @@ impl<'src> Settings<'src> {
   }
 
   pub(crate) fn shell_binary<'a>(&'a self, config: &'a Config) -> &'a str {
-    let shell_or_args_present = config.shell_present | config.shell_args_present;
+    let shell_or_args_present = config.shell.is_some() | config.shell_args.is_some();
 
     if let (Some(shell), false) = (&self.shell, shell_or_args_present) {
       shell.command.cooked.as_ref()
-    } else if config.shell_present {
-      &config.shell
+    } else if let Some(shell) = &config.shell {
+      shell
     } else if cfg!(windows) && self.windows_powershell {
       WINDOWS_DEFAULT_SHELL
     } else {
@@ -48,7 +48,7 @@ impl<'src> Settings<'src> {
   }
 
   pub(crate) fn shell_arguments<'a>(&'a self, config: &'a Config) -> Vec<&'a str> {
-    let shell_or_args_present = config.shell_present | config.shell_args_present;
+    let shell_or_args_present = config.shell.is_some() | config.shell_args.is_some();
 
     if let (Some(shell), false) = (&self.shell, shell_or_args_present) {
       shell
@@ -56,8 +56,8 @@ impl<'src> Settings<'src> {
         .iter()
         .map(|argument| argument.cooked.as_ref())
         .collect()
-    } else if config.shell_args_present {
-      config.shell_args.iter().map(String::as_ref).collect()
+    } else if let Some(shell_args) = &config.shell_args {
+      shell_args.iter().map(String::as_ref).collect()
     } else if cfg!(windows) && self.windows_powershell {
       WINDOWS_DEFAULT_SHELL_ARGS.to_vec()
     } else {
@@ -78,7 +78,6 @@ mod tests {
     settings.windows_powershell = false;
 
     let config = Config {
-      shell_present: false,
       shell_command: false,
       ..testing::config(&[])
     };
@@ -93,7 +92,6 @@ mod tests {
     settings.windows_powershell = true;
 
     let config = Config {
-      shell_present: false,
       shell_command: false,
       ..testing::config(&[])
     };
@@ -116,11 +114,9 @@ mod tests {
     settings.windows_powershell = false;
 
     let config = Config {
-      shell_present: true,
-      shell_args_present: true,
       shell_command: true,
-      shell: "lol".to_string(),
-      shell_args: vec!["-nice".to_string()],
+      shell: Some("lol".to_string()),
+      shell_args: Some(vec!["-nice".to_string()]),
       ..testing::config(&[])
     };
 
@@ -134,11 +130,9 @@ mod tests {
     settings.windows_powershell = true;
 
     let config = Config {
-      shell_present: true,
-      shell_args_present: true,
       shell_command: true,
-      shell: "lol".to_string(),
-      shell_args: vec!["-nice".to_string()],
+      shell: Some("lol".to_string()),
+      shell_args: Some(vec!["-nice".to_string()]),
       ..testing::config(&[])
     };
 
@@ -165,7 +159,6 @@ mod tests {
     });
 
     let config = Config {
-      shell_present: false,
       shell_command: false,
       ..testing::config(&[])
     };
@@ -180,10 +173,8 @@ mod tests {
     settings.windows_powershell = true;
 
     let config = Config {
-      shell_present: false,
-      shell_args_present: true,
       shell_command: false,
-      shell_args: vec!["-nice".to_string()],
+      shell_args: Some(vec!["-nice".to_string()]),
       ..testing::config(&[])
     };
 
