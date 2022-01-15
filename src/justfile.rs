@@ -472,27 +472,6 @@ mod tests {
   }
 
   run_error! {
-    name: code_error,
-    src: "
-      set windows-powershell
-      fail:
-        @exit 100
-    ",
-    args: ["fail"],
-    error: Code {
-      recipe,
-      line_number,
-      code,
-    },
-    check: {
-      assert_eq!(recipe, "fail");
-      assert_eq!(code, 100);
-      assert_eq!(line_number, Some(3));
-    }
-  }
-
-  #[cfg(target_os = "linux")]
-  run_error! {
     name: run_args,
     src: r#"
       a return code:
@@ -508,27 +487,6 @@ mod tests {
       assert_eq!(recipe, "a");
       assert_eq!(code, 150);
       assert_eq!(line_number, Some(2));
-    }
-  }
-
-  #[cfg(target_os = "windows")]
-  run_error! {
-    name: run_args,
-    src: r#"
-      set windows-powershell
-      a return code:
-        @function x() { {{return}} {{code + "0"}}; }; x
-    "#,
-    args: ["a", "exit", "15"],
-    error: Code {
-      recipe,
-      line_number,
-      code,
-    },
-    check: {
-      assert_eq!(recipe, "a");
-      assert_eq!(code, 150);
-      assert_eq!(line_number, Some(3));
     }
   }
 

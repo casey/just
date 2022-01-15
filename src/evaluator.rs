@@ -303,7 +303,6 @@ impl<'src, 'run> Evaluator<'src, 'run> {
 }
 
 #[cfg(test)]
-#[allow(dead_code)]
 mod tests {
   use super::*;
 

@@ -554,15 +554,11 @@ impl Config {
       }
     };
 
-    let shell_args = if matches.is_present(arg::SHELL_ARG) {
-      matches
-        .values_of(arg::SHELL_ARG)
-        .unwrap()
-        .map(str::to_owned)
-        .collect()
-    } else {
-      Vec::new()
-    };
+    let shell_args = matches
+      .values_of(arg::SHELL_ARG)
+      .map_or(Vec::new(), |shell_args| {
+        shell_args.map(str::to_owned).collect()
+      });
 
     let shell_present = matches.occurrences_of(arg::SHELL) > 0;
 

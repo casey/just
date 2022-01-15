@@ -3,7 +3,7 @@ use crate::common::*;
 pub(crate) const DEFAULT_SHELL: &str = "sh";
 pub(crate) const DEFAULT_SHELL_ARG: &[&str] = &["-cu"];
 pub(crate) const WINDOWS_DEFAULT_SHELL: &str = "powershell.exe";
-pub(crate) const WINDOWS_DEFAULT_SHELL_ARG: &[&str] = &["-NoLogo", "-Command"];
+pub(crate) const WINDOWS_DEFAULT_SHELL_ARGS: &[&str] = &["-NoLogo", "-Command"];
 
 #[derive(Debug, PartialEq, Serialize)]
 pub(crate) struct Settings<'src> {
@@ -40,12 +40,10 @@ impl<'src> Settings<'src> {
       shell.command.cooked.as_ref()
     } else if config.shell_present {
       &config.shell
+    } else if cfg!(windows) && self.windows_powershell {
+      WINDOWS_DEFAULT_SHELL
     } else {
-      if cfg!(windows) && self.windows_powershell {
-        WINDOWS_DEFAULT_SHELL
-      } else {
-        DEFAULT_SHELL
-      }
+      DEFAULT_SHELL
     }
   }
 
@@ -60,12 +58,10 @@ impl<'src> Settings<'src> {
         .collect()
     } else if config.shell_args_present {
       config.shell_args.iter().map(String::as_ref).collect()
+    } else if cfg!(windows) && self.windows_powershell {
+      WINDOWS_DEFAULT_SHELL_ARGS.to_vec()
     } else {
-      if cfg!(windows) && self.windows_powershell {
-        WINDOWS_DEFAULT_SHELL_ARG.to_vec()
-      } else {
-        DEFAULT_SHELL_ARG.to_vec()
-      }
+      DEFAULT_SHELL_ARG.to_vec()
     }
   }
 }
