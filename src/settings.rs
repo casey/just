@@ -109,7 +109,7 @@ mod tests {
 
   #[test]
   fn overwrite_shell() {
-    let mut settings = Settings::new();
+    let settings = Settings::new();
 
     let config = Config {
       shell_command: true,
