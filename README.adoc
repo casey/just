@@ -559,6 +559,7 @@ foo:
 | `export` | boolean | Export all variables as environment variables.
 | `positional-arguments` | boolean | Pass positional arguments.
 | `shell` | `[COMMAND, ARGS...]` | Set the command used to invoke recipes and evaluate backticks.
+| `windows-powershell` | boolean | Use PowerShell on Windows as default shell.
 |=================
 
 Boolean settings can be written as:
@@ -637,7 +638,7 @@ $ just test foo "bar baz"
 - foo
 - bar baz
 ```
-             
+
 ==== Shell
 
 The `shell` setting controls the command used to invoke recipe lines and backticks. Shebang recipes are unaffected.
@@ -655,6 +656,17 @@ foo:
 ```
 
 `just` passes the command to be executed as an argument. Many shells will need an additional flag, often `-c`, to make them evaluate the first argument.
+
+==== Windows PowerShell
+
+`just` uses `sh` on Windows by default. To use PowerShell instead, set `windows-powershell` to true.
+
+```make
+set windows-powershell := true
+
+hello:
+  Write-Host "Hello, world!"
+```
 
 ===== Python 3
 
