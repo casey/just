@@ -566,11 +566,7 @@ impl Config {
       None
     };
 
-    let shell = if matches.occurrences_of(arg::SHELL) > 0 {
-      Some(matches.value_of(arg::SHELL).unwrap().to_owned())
-    } else {
-      None
-    };
+    let shell = matches.value_of(arg::SHELL).map(str::to_owned);
 
     Ok(Self {
       check: matches.is_present(arg::CHECK),

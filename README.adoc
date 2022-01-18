@@ -638,7 +638,7 @@ $ just test foo "bar baz"
 - foo
 - bar baz
 ```
-             
+
 ==== Shell
 
 The `shell` setting controls the command used to invoke recipe lines and backticks. Shebang recipes are unaffected.
@@ -660,8 +660,6 @@ foo:
 ==== Windows PowerShell
 
 `just` uses `sh` on Windows by default. To use PowerShell instead, set `windows-powershell` to true.
-
-
 
 ===== Python 3
 

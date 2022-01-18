@@ -40,5 +40,6 @@ mod sublime_syntax;
 mod subsequents;
 mod tempdir;
 mod undefined_variables;
+#[cfg(target_family = "windows")]
 mod windows_powershell;
 mod working_directory;

@@ -1,8 +1,6 @@
-#[cfg(target_family = "windows")]
 use crate::common::*;
 
 #[test]
-#[cfg(target_family = "windows")]
 fn windows_poweshell_setting_uses_powershell() {
   Test::new()
     .justfile(

@@ -472,6 +472,25 @@ mod tests {
   }
 
   run_error! {
+    name: code_error,
+    src: "
+      fail:
+        @exit 100
+    ",
+    args: ["fail"],
+    error: Code {
+      recipe,
+      line_number,
+      code,
+    },
+    check: {
+      assert_eq!(recipe, "fail");
+      assert_eq!(code, 100);
+      assert_eq!(line_number, Some(2));
+    }
+  }
+
+  run_error! {
     name: run_args,
     src: r#"
       a return code:

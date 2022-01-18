@@ -1,9 +1,9 @@
 use crate::common::*;
 
 pub(crate) const DEFAULT_SHELL: &str = "sh";
-pub(crate) const DEFAULT_SHELL_ARG: &[&str] = &["-cu"];
-pub(crate) const WINDOWS_DEFAULT_SHELL: &str = "powershell.exe";
-pub(crate) const WINDOWS_DEFAULT_SHELL_ARGS: &[&str] = &["-NoLogo", "-Command"];
+pub(crate) const DEFAULT_SHELL_ARGS: &[&str] = &["-cu"];
+pub(crate) const WINDOWS_POWERSHELL_SHELL: &str = "powershell.exe";
+pub(crate) const WINDOWS_POWERSHELL_ARGS: &[&str] = &["-NoLogo", "-Command"];
 
 #[derive(Debug, PartialEq, Serialize)]
 pub(crate) struct Settings<'src> {
@@ -34,21 +34,21 @@ impl<'src> Settings<'src> {
   }
 
   pub(crate) fn shell_binary<'a>(&'a self, config: &'a Config) -> &'a str {
-    let shell_or_args_present = config.shell.is_some() | config.shell_args.is_some();
+    let shell_or_args_present = config.shell.is_some() || config.shell_args.is_some();
 
     if let (Some(shell), false) = (&self.shell, shell_or_args_present) {
       shell.command.cooked.as_ref()
     } else if let Some(shell) = &config.shell {
       shell
     } else if cfg!(windows) && self.windows_powershell {
-      WINDOWS_DEFAULT_SHELL
+      WINDOWS_POWERSHELL_SHELL
     } else {
       DEFAULT_SHELL
     }
   }
 
   pub(crate) fn shell_arguments<'a>(&'a self, config: &'a Config) -> Vec<&'a str> {
-    let shell_or_args_present = config.shell.is_some() | config.shell_args.is_some();
+    let shell_or_args_present = config.shell.is_some() || config.shell_args.is_some();
 
     if let (Some(shell), false) = (&self.shell, shell_or_args_present) {
       shell
@@ -59,9 +59,9 @@ impl<'src> Settings<'src> {
     } else if let Some(shell_args) = &config.shell_args {
       shell_args.iter().map(String::as_ref).collect()
     } else if cfg!(windows) && self.windows_powershell {
-      WINDOWS_DEFAULT_SHELL_ARGS.to_vec()
+      WINDOWS_POWERSHELL_ARGS.to_vec()
     } else {
-      DEFAULT_SHELL_ARG.to_vec()
+      DEFAULT_SHELL_ARGS.to_vec()
     }
   }
 }
@@ -74,8 +74,7 @@ mod tests {
 
   #[test]
   fn default_shell() {
-    let mut settings = Settings::new();
-    settings.windows_powershell = false;
+    let settings = Settings::new();
 
     let config = Config {
       shell_command: false,
@@ -143,7 +142,6 @@ mod tests {
   #[test]
   fn shell_cooked() {
     let mut settings = Settings::new();
-    settings.windows_powershell = false;
 
     settings.shell = Some(Shell {
       command: StringLiteral {
@@ -165,6 +163,19 @@ mod tests {
 
     assert_eq!(settings.shell_binary(&config), "asdf.exe");
     assert_eq!(settings.shell_arguments(&config), vec!["-nope"]);
+  }
+
+  #[test]
+  fn shell_present_but_not_shell_args() {
+    let mut settings = Settings::new();
+    settings.windows_powershell = true;
+
+    let config = Config {
+      shell: Some("lol".to_string()),
+      ..testing::config(&[])
+    };
+
+    assert_eq!(settings.shell_binary(&config), "lol");
   }
 
   #[test]
