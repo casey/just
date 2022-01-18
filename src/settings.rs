@@ -110,7 +110,6 @@ mod tests {
   #[test]
   fn overwrite_shell() {
     let mut settings = Settings::new();
-    settings.windows_powershell = false;
 
     let config = Config {
       shell_command: true,
