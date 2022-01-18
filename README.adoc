@@ -661,6 +661,13 @@ foo:
 
 `just` uses `sh` on Windows by default. To use PowerShell instead, set `windows-powershell` to true.
 
+```make
+set windows-powershell := true
+
+hello:
+  Write-Host "Hello, world!"
+```
+
 ===== Python 3
 
 ```make
