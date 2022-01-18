@@ -566,14 +566,12 @@ impl Config {
       None
     };
 
-    let shell = matches.value_of(arg::SHELL).map(str::to_owned);
-
     Ok(Self {
       check: matches.is_present(arg::CHECK),
       dry_run: matches.is_present(arg::DRY_RUN),
       dump_format: Self::dump_format_from_matches(matches)?,
       highlight: !matches.is_present(arg::NO_HIGHLIGHT),
-      shell,
+      shell: matches.value_of(arg::SHELL).map(str::to_owned),
       load_dotenv: !matches.is_present(arg::NO_DOTENV),
       shell_command: matches.is_present(arg::SHELL_COMMAND),
       unsorted: matches.is_present(arg::UNSORTED),
