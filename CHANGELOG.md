@@ -1,13 +1,32 @@
 Changelog
 =========
 
+[0.10.6](https://github.com/casey/just/releases/tag/0.10.6) - 2022-1-29
+-----------------------------------------------------------------------
+
+### Added
+- Add windows-powershell setting (#1057)
+
+### Changed
+- Allow using `-` and `@` in any order (#1063)
+
+### Misc
+- Use `Context` suffix for snafu error contexts (#1068)
+- Upgrade snafu to 0.7 (#1067)
+- Mention "$@" in the README (#1064)
+- Note how to use PowerShell with CLI in readme (#1056)
+- Link to cheatsheet from readme (#1053)
+- Link to Homebrew installation docs in readme (#1049)
+- Workflow tweaks (#1045)
+- Push to correct origin in publish recipe (#1044)
+
 [0.10.5](https://github.com/casey/just/releases/tag/0.10.5) - 2021-12-4
 -----------------------------------------------------------------------
 
-## Changed
+### Changed
 - Use musl libc for ARM binaries (#1037)
 
-## Misc
+### Misc
 - Make completions work with Bash alias (#1035)
 - Run tests on PRs (#1040)
 - Improve GitHub Actions workflow triggers (#1033)
