@@ -67,10 +67,6 @@ jobs:
         sudo apt-get update
         sudo apt-get install gcc-arm-linux-gnueabihf
 
-    - name: Test
-      if: matrix.native
-      run: cargo test --all --target ${{ matrix.target }}
-
     - name: Ref Type
       id: ref-type
       run: cargo run --package ref-type -- --reference ${{ github.ref }}
