@@ -15,7 +15,7 @@ pub(crate) fn load_dotenv(
   }
 
   if let Some(path) = &config.dotenv_path {
-    return load_from_file(config, settings, &path);
+    return load_from_file(config, settings, path);
   }
 
   let filename = config

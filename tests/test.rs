@@ -146,7 +146,7 @@ impl Test {
 
   pub(crate) fn tree(self, mut tree: Tree) -> Self {
     tree.map(|_name, content| unindent(content));
-    tree.instantiate(&self.tempdir.path()).unwrap();
+    tree.instantiate(self.tempdir.path()).unwrap();
     self
   }
 

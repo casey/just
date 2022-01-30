@@ -60,7 +60,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
       expected: self
         .expected
         .iter()
-        .cloned()
+        .copied()
         .filter(|kind| *kind != ByteOrderMark)
         .collect::<Vec<TokenKind>>(),
       found: self.next()?.kind,
@@ -77,7 +77,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   fn rest(&self) -> impl Iterator<Item = Token<'src>> + 'tokens {
     self.tokens[self.next..]
       .iter()
-      .cloned()
+      .copied()
       .filter(|token| token.kind != Whitespace)
   }
 
@@ -654,10 +654,10 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     };
 
     Ok(Parameter {
-      name,
-      kind,
       default,
       export,
+      kind,
+      name,
     })
   }
 
@@ -777,7 +777,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
       self.expect(BracketR)?;
 
       Ok(Set {
-        value: Setting::Shell(setting::Shell { command, arguments }),
+        value: Setting::Shell(setting::Shell { arguments, command }),
         name,
       })
     } else {

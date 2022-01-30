@@ -15,7 +15,7 @@ where
   S: Serializer,
   K: Keyed<'src>,
 {
-  serializer.serialize_str(&keyed.key())
+  serializer.serialize_str(keyed.key())
 }
 
 pub(crate) fn serialize_option<'src, S, K>(
