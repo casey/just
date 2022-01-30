@@ -227,7 +227,7 @@ checksum = "1aab8fc367588b89dcee83ab0fd66b72b50b72fa1904d7095045ace2b0c81c35"
 
 [[package]]
 name = "just"
-version = "0.10.6"
+version = "0.10.7"
 dependencies = [
  "ansi_term",
  "atty",
