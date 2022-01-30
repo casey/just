@@ -24,23 +24,18 @@ jobs:
         include:
         - target: aarch64-unknown-linux-musl
           os: ubuntu-latest
-          native: false
           target_rustflags: '--codegen linker=aarch64-linux-gnu-gcc'
         - target: armv7-unknown-linux-musleabihf
           os: ubuntu-latest
-          native: false
           target_rustflags: '--codegen linker=arm-linux-gnueabihf-gcc'
         - target: x86_64-apple-darwin
           os: macos-latest
-          native: true
           target_rustflags: ''
         - target: x86_64-pc-windows-msvc
           os: windows-2016
-          native: true
           target_rustflags: ''
         - target: x86_64-unknown-linux-musl
           os: ubuntu-latest
-          native: true
           target_rustflags: ''
 
     runs-on: ${{matrix.os}}
