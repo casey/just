@@ -14,7 +14,7 @@ pub fn unindent(text: &str) -> String {
   let common_indentation = lines
     .iter()
     .filter(|line| !blank(line))
-    .cloned()
+    .copied()
     .map(indentation)
     .fold(
       None,

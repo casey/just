@@ -1,3 +1,5 @@
+#![allow(clippy::unnecessary_wraps)]
+
 use crate::common::*;
 
 use Function::*;

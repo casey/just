@@ -46,7 +46,7 @@ impl Subcommand {
         Self::changelog();
         return Ok(());
       }
-      Completions { shell } => return Self::completions(&shell),
+      Completions { shell } => return Self::completions(shell),
       Init => return Self::init(config),
       _ => {}
     }
@@ -59,7 +59,7 @@ impl Subcommand {
 
     let src = loader.load(&search.justfile)?;
 
-    let tokens = Lexer::lex(&src)?;
+    let tokens = Lexer::lex(src)?;
     let ast = Parser::parse(&tokens)?;
     let justfile = Analyzer::analyze(ast.clone())?;
 
@@ -74,16 +74,16 @@ impl Subcommand {
         Self::choose(config, justfile, &search, overrides, chooser.as_deref())?;
       }
       Command { overrides, .. } | Evaluate { overrides, .. } => {
-        justfile.run(config, &search, overrides, &[])?
+        justfile.run(config, &search, overrides, &[])?;
       }
       Dump => Self::dump(config, ast, justfile)?,
-      Format => Self::format(config, &search, &src, ast)?,
+      Format => Self::format(config, &search, src, ast)?,
       List => Self::list(config, justfile),
       Run {
         arguments,
         overrides,
       } => justfile.run(config, &search, overrides, arguments)?,
-      Show { ref name } => Self::show(config, &name, justfile)?,
+      Show { ref name } => Self::show(config, name, justfile)?,
       Summary => Self::summary(config, justfile),
       Variables => Self::variables(justfile),
       Changelog | Completions { .. } | Edit | Init => unreachable!(),
@@ -107,7 +107,7 @@ impl Subcommand {
       .public_recipes(config.unsorted)
       .iter()
       .filter(|recipe| recipe.min_arguments() == 0)
-      .cloned()
+      .copied()
       .collect::<Vec<&Recipe<Dependency>>>();
 
     if recipes.is_empty() {
@@ -121,7 +121,7 @@ impl Subcommand {
 
     let result = justfile
       .settings
-      .shell_command(&config)
+      .shell_command(config)
       .arg(&chooser)
       .current_dir(&search.working_directory)
       .stdin(Stdio::piped())
@@ -132,8 +132,8 @@ impl Subcommand {
       Ok(child) => child,
       Err(io_error) => {
         return Err(Error::ChooserInvoke {
-          shell_binary: justfile.settings.shell_binary(&config).to_owned(),
-          shell_arguments: justfile.settings.shell_arguments(&config).join(" "),
+          shell_binary: justfile.settings.shell_binary(config).to_owned(),
+          shell_arguments: justfile.settings.shell_arguments(config).join(" "),
           chooser,
           io_error,
         });
@@ -365,7 +365,7 @@ impl Subcommand {
       }
     }
 
-    let max_line_width = cmp::min(line_widths.values().cloned().max().unwrap_or(0), 30);
+    let max_line_width = cmp::min(line_widths.values().copied().max().unwrap_or(0), 30);
 
     let doc_color = config.color.stdout().doc();
     print!("{}", config.list_heading);
@@ -392,7 +392,7 @@ impl Subcommand {
             doc_color.paint("#"),
             doc_color.paint(doc),
             padding = max_line_width
-              .saturating_sub(line_widths.get(name).cloned().unwrap_or(max_line_width))
+              .saturating_sub(line_widths.get(name).copied().unwrap_or(max_line_width))
           );
         };
 

@@ -87,7 +87,7 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
 
       if let Some(resolved) = self.resolved_recipes.get(name) {
         // dependency already resolved
-        dependencies.push(Rc::clone(&resolved));
+        dependencies.push(Rc::clone(resolved));
       } else if stack.contains(&name) {
         let first = stack[0];
         stack.push(first);
@@ -97,7 +97,7 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
             circle: stack
               .iter()
               .skip_while(|name| **name != dependency.recipe.lexeme())
-              .cloned()
+              .copied()
               .collect(),
           }),
         );
