@@ -1,6 +1,14 @@
 Changelog
 =========
 
+[0.10.7](https://github.com/casey/just/releases/tag/0.10.7) - 2022-1-30
+-----------------------------------------------------------------------
+
+### Misc
+- Don't run tests in release workflow (#1080)
+- Fix windows chooser invocation error message test (#1079)
+- Remove call to sed in justfile (#1078)
+
 [0.10.6](https://github.com/casey/just/releases/tag/0.10.6) - 2022-1-29
 -----------------------------------------------------------------------
 
