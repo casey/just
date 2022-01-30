@@ -125,7 +125,7 @@ impl Test {
   }
 
   pub(crate) fn stderr_regex(mut self, stderr_regex: impl AsRef<str>) -> Self {
-    self.stderr_regex = Some(Regex::new(&format!("^{}$", stderr_regex.as_ref())).unwrap());
+    self.stderr_regex = Some(Regex::new(&format!("(?m)^{}$", stderr_regex.as_ref())).unwrap());
     self
   }
 
@@ -223,7 +223,7 @@ impl Test {
     if let Some(ref stderr_regex) = self.stderr_regex {
       if !stderr_regex.is_match(output_stderr) {
         panic!(
-          "Stderr regex mismatch: {} !~= /{}/",
+          "Stderr regex mismatch:\n{:?}\n!~=\n/{:?}/",
           output_stderr, stderr_regex
         );
       }
