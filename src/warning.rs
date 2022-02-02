@@ -4,6 +4,7 @@ use crate::common::*;
 pub(crate) enum Warning {}
 
 impl Warning {
+  #[allow(clippy::unused_self)]
   fn context(&self) -> Option<&Token> {
     None
   }
@@ -15,10 +16,6 @@ impl ColorDisplay for Warning {
     let message = color.message();
 
     write!(f, "{} {}", warning.paint("warning:"), message.prefix())?;
-
-    match self {
-      _ => {}
-    }
 
     write!(f, "{}", message.suffix())?;
 

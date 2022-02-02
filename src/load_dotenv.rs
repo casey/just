@@ -15,7 +15,7 @@ pub(crate) fn load_dotenv(
   }
 
   if let Some(path) = &config.dotenv_path {
-    return load_from_file(config, settings, path);
+    return load_from_file(path);
   }
 
   let filename = config
@@ -27,18 +27,14 @@ pub(crate) fn load_dotenv(
   for directory in working_directory.ancestors() {
     let path = directory.join(&filename);
     if path.is_file() {
-      return load_from_file(config, settings, &path);
+      return load_from_file(&path);
     }
   }
 
   Ok(BTreeMap::new())
 }
 
-fn load_from_file(
-  config: &Config,
-  settings: &Settings,
-  path: &Path,
-) -> RunResult<'static, BTreeMap<String, String>> {
+fn load_from_file(path: &Path) -> RunResult<'static, BTreeMap<String, String>> {
   // `dotenv::from_path_iter` should eventually be un-deprecated, see:
   // https://github.com/dotenv-rs/dotenv/issues/13
   #![allow(deprecated)]
