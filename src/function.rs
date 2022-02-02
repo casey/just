@@ -1,4 +1,4 @@
-#![allow(unknown_lints)]
+#![allow(clippy::unknown_clippy_lints)]
 #![allow(clippy::unnecessary_wraps)]
 
 use crate::common::*;
