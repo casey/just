@@ -7,7 +7,7 @@ pub(crate) fn load_dotenv(
   settings: &Settings,
   working_directory: &Path,
 ) -> RunResult<'static, BTreeMap<String, String>> {
-  if !settings.dotenv_load.unwrap_or(true)
+  if !settings.dotenv_load.unwrap_or(false)
     && config.dotenv_filename.is_none()
     && config.dotenv_path.is_none()
   {
@@ -42,19 +42,6 @@ fn load_from_file(
   // `dotenv::from_path_iter` should eventually be un-deprecated, see:
   // https://github.com/dotenv-rs/dotenv/issues/13
   #![allow(deprecated)]
-
-  if config.verbosity.loud()
-    && settings.dotenv_load.is_none()
-    && config.dotenv_filename.is_none()
-    && config.dotenv_path.is_none()
-    && !std::env::var_os("JUST_SUPPRESS_DOTENV_LOAD_WARNING")
-      .map_or(false, |val| val.as_os_str().to_str() == Some("1"))
-  {
-    eprintln!(
-      "{}",
-      Warning::DotenvLoad.color_display(config.color.stderr())
-    );
-  }
 
   let iter = dotenv::from_path_iter(&path)?;
   let mut dotenv = BTreeMap::new();
