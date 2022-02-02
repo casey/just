@@ -28,16 +28,14 @@ test! {
   ",
   args: ("--command"),
   stderr: &format!("
-    error: The argument '--command <COMMAND>' requires a value but none was supplied
+    error: The argument '--command <COMMAND>...' requires a value but none was supplied
 
     USAGE:
-        just{} --color <COLOR> --dump-format <FORMAT> --shell <SHELL> \
-        <--changelog|--choose|--command <COMMAND>|--completions <SHELL>|--dump|--edit|\
-        --evaluate|--fmt|--init|--list|--show <RECIPE>|--summary|--variables>
+        just{} [OPTIONS] [--] [ARGUMENTS]...
 
     For more information try --help
   ", EXE_SUFFIX),
-  status: EXIT_FAILURE,
+  status: 2,
 }
 
 test! {

@@ -16,7 +16,7 @@ pub(crate) fn config(args: &[&str]) -> Config {
 
   let app = Config::app();
 
-  let matches = app.get_matches_from_safe(args).unwrap();
+  let matches = app.try_get_matches_from(args).unwrap();
 
   Config::from_matches(&matches).unwrap()
 }

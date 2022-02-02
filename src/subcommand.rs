@@ -177,7 +177,7 @@ impl Subcommand {
   }
 
   fn completions(shell: &str) -> RunResult<'static, ()> {
-    use clap::Shell;
+    use clap_complete::Shell;
 
     fn replace(haystack: &mut String, needle: &str, replacement: &str) -> RunResult<'static, ()> {
       if let Some(index) = haystack.find(needle) {
@@ -197,7 +197,12 @@ impl Subcommand {
 
     let buffer = Vec::new();
     let mut cursor = Cursor::new(buffer);
-    Config::app().gen_completions_to(env!("CARGO_PKG_NAME"), shell, &mut cursor);
+    clap_complete::generator::generate(
+      shell,
+      &mut Config::app(),
+      env!("CARGO_PKG_NAME"),
+      &mut cursor,
+    );
     let buffer = cursor.into_inner();
     let mut script = String::from_utf8(buffer).expect("Clap completion not UTF-8");
 
@@ -215,13 +220,12 @@ impl Subcommand {
           replace(&mut script, needle, replacement)?;
         }
       }
-
       Shell::Zsh => {
         for (needle, replacement) in completions::ZSH_COMPLETION_REPLACEMENTS {
           replace(&mut script, needle, replacement)?;
         }
       }
-      Shell::Elvish => {}
+      _ => {}
     }
 
     println!("{}", script.trim());

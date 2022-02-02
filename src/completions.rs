@@ -157,21 +157,21 @@ pub(crate) const POWERSHELL_COMPLETION_REPLACEMENTS: &[(&str, &str)] = &[(
 )];
 
 pub(crate) const BASH_COMPLETION_REPLACEMENTS: &[(&str, &str)] = &[
-  (
-    r#"            if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
-                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
-                return 0
-            fi"#,
-    r#"                if [[ ${cur} == -* ]] ; then
-                    COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
-                    return 0
-                elif [[ ${COMP_CWORD} -eq 1 ]]; then
-                    local recipes=$(just --summary --color never 2> /dev/null)
-                    if [[ $? -eq 0 ]]; then
-                        COMPREPLY=( $(compgen -W "${recipes}" -- "${cur}") )
-                        return 0
-                    fi
-                fi"#,
-  ),
-  (r#"            just)"#, r#"            "$1")"#),
+  // (
+  //   r#"            if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
+  //               COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+  //               return 0
+  //           fi"#,
+  //   r#"                if [[ ${cur} == -* ]] ; then
+  //                   COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+  //                   return 0
+  //               elif [[ ${COMP_CWORD} -eq 1 ]]; then
+  //                   local recipes=$(just --summary --color never 2> /dev/null)
+  //                   if [[ $? -eq 0 ]]; then
+  //                       COMPREPLY=( $(compgen -W "${recipes}" -- "${cur}") )
+  //                       return 0
+  //                   fi
+  //               fi"#,
+  // ),
+  // (r#"            just)"#, r#"            "$1")"#),
 ];

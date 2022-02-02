@@ -114,26 +114,25 @@ mod arg {
 }
 
 impl Config {
-  pub(crate) fn app() -> App<'static, 'static> {
+  pub(crate) fn app() -> App<'static> {
     let app = App::new(env!("CARGO_PKG_NAME"))
-      .help_message("Print help information")
-      .version_message("Print version information")
-      .setting(AppSettings::ColoredHelp)
+      .mut_arg("help", |a| a.help("Print help information"))
+      .mut_arg("version", |a| a.help("Print version information"))
       .setting(AppSettings::TrailingVarArg)
       .arg(
-        Arg::with_name(arg::CHECK)
+        Arg::new(arg::CHECK)
           .long("check")
           .requires(cmd::FORMAT)
           .help("Run `--fmt` in 'check' mode. Exits with 0 if justfile is formatted correctly. Exits with 1 and prints a diff if formatting is required."),
       )
       .arg(
-        Arg::with_name(arg::CHOOSER)
+        Arg::new(arg::CHOOSER)
           .long("chooser")
           .takes_value(true)
           .help("Override binary invoked by `--choose`"),
       )
       .arg(
-        Arg::with_name(arg::COLOR)
+        Arg::new(arg::COLOR)
           .long("color")
           .takes_value(true)
           .possible_values(arg::COLOR_VALUES)
@@ -141,13 +140,13 @@ impl Config {
           .help("Print colorful output"),
       )
       .arg(
-        Arg::with_name(arg::DRY_RUN)
+        Arg::new(arg::DRY_RUN)
           .long("dry-run")
           .help("Print what just would do without doing it")
           .conflicts_with(arg::QUIET),
       )
       .arg(
-        Arg::with_name(arg::DUMP_FORMAT)
+        Arg::new(arg::DUMP_FORMAT)
           .long("dump-format")
           .takes_value(true)
           .possible_values(arg::DUMP_FORMAT_VALUES)
@@ -156,205 +155,207 @@ impl Config {
           .help("Dump justfile as <FORMAT>"),
       )
       .arg(
-        Arg::with_name(arg::HIGHLIGHT)
+        Arg::new(arg::HIGHLIGHT)
           .long("highlight")
           .help("Highlight echoed recipe lines in bold")
           .overrides_with(arg::NO_HIGHLIGHT),
       )
       .arg(
-        Arg::with_name(arg::LIST_HEADING)
+        Arg::new(arg::LIST_HEADING)
           .long("list-heading")
           .help("Print <TEXT> before list")
           .value_name("TEXT")
           .takes_value(true),
       )
       .arg(
-        Arg::with_name(arg::LIST_PREFIX)
+        Arg::new(arg::LIST_PREFIX)
           .long("list-prefix")
           .help("Print <TEXT> before each list item")
           .value_name("TEXT")
           .takes_value(true),
       )
       .arg(
-        Arg::with_name(arg::NO_DOTENV)
+        Arg::new(arg::NO_DOTENV)
           .long("no-dotenv")
           .help("Don't load `.env` file"),
       )
       .arg(
-        Arg::with_name(arg::NO_HIGHLIGHT)
+        Arg::new(arg::NO_HIGHLIGHT)
           .long("no-highlight")
           .help("Don't highlight echoed recipe lines in bold")
           .overrides_with(arg::HIGHLIGHT),
       )
       .arg(
-        Arg::with_name(arg::JUSTFILE)
-          .short("f")
+        Arg::new(arg::JUSTFILE)
+          .short('f')
           .long("justfile")
           .takes_value(true)
           .help("Use <JUSTFILE> as justfile"),
       )
       .arg(
-        Arg::with_name(arg::QUIET)
-          .short("q")
+        Arg::new(arg::QUIET)
+          .short('q')
           .long("quiet")
           .help("Suppress all output")
           .conflicts_with(arg::DRY_RUN),
       )
       .arg(
-        Arg::with_name(arg::SET)
+        Arg::new(arg::SET)
           .long("set")
           .takes_value(true)
           .number_of_values(2)
           .value_names(&["VARIABLE", "VALUE"])
-          .multiple(true)
+          .multiple_values(true)
+          .multiple_occurrences(true)
           .help("Override <VARIABLE> with <VALUE>"),
       )
       .arg(
-        Arg::with_name(arg::SHELL)
+        Arg::new(arg::SHELL)
           .long("shell")
           .takes_value(true)
           .help("Invoke <SHELL> to run recipes"),
       )
       .arg(
-        Arg::with_name(arg::SHELL_ARG)
+        Arg::new(arg::SHELL_ARG)
           .long("shell-arg")
           .takes_value(true)
-          .multiple(true)
+          .multiple_occurrences(true)
           .number_of_values(1)
           .allow_hyphen_values(true)
           .overrides_with(arg::CLEAR_SHELL_ARGS)
           .help("Invoke shell with <SHELL-ARG> as an argument"),
       )
       .arg(
-        Arg::with_name(arg::SHELL_COMMAND)
+        Arg::new(arg::SHELL_COMMAND)
           .long("shell-command")
           .requires(cmd::COMMAND)
           .help("Invoke <COMMAND> with the shell used to run recipe lines and backticks"),
       )
       .arg(
-        Arg::with_name(arg::CLEAR_SHELL_ARGS)
+        Arg::new(arg::CLEAR_SHELL_ARGS)
           .long("clear-shell-args")
           .overrides_with(arg::SHELL_ARG)
           .help("Clear shell arguments"),
       )
       .arg(
-        Arg::with_name(arg::UNSORTED)
+        Arg::new(arg::UNSORTED)
           .long("unsorted")
-          .short("u")
+          .short('u')
           .help("Return list and summary entries in source order"),
       )
       .arg(
-        Arg::with_name(arg::UNSTABLE)
+        Arg::new(arg::UNSTABLE)
           .long("unstable")
           .help("Enable unstable features"),
       )
       .arg(
-        Arg::with_name(arg::VERBOSE)
-          .short("v")
+        Arg::new(arg::VERBOSE)
+          .short('v')
           .long("verbose")
-          .multiple(true)
+          .multiple_occurrences(true)
           .help("Use verbose output"),
       )
       .arg(
-        Arg::with_name(arg::WORKING_DIRECTORY)
-          .short("d")
+        Arg::new(arg::WORKING_DIRECTORY)
+          .short('d')
           .long("working-directory")
           .takes_value(true)
           .help("Use <WORKING-DIRECTORY> as working directory. --justfile must also be set")
           .requires(arg::JUSTFILE),
       )
       .arg(
-        Arg::with_name(cmd::CHANGELOG)
+        Arg::new(cmd::CHANGELOG)
           .long("changelog")
           .help("Print changelog"),
       )
-      .arg(Arg::with_name(cmd::CHOOSE).long("choose").help(CHOOSE_HELP))
+      .arg(Arg::new(cmd::CHOOSE).long("choose").help(CHOOSE_HELP))
       .arg(
-        Arg::with_name(cmd::COMMAND)
+        Arg::new(cmd::COMMAND)
           .long("command")
-          .short("c")
+          .short('c')
           .min_values(1)
           .allow_hyphen_values(true)
+          .allow_invalid_utf8(true)
           .help(
             "Run an arbitrary command with the working directory, `.env`, overrides, and exports \
              set",
           ),
       )
       .arg(
-        Arg::with_name(cmd::COMPLETIONS)
+        Arg::new(cmd::COMPLETIONS)
           .long("completions")
           .takes_value(true)
           .value_name("SHELL")
-          .possible_values(&clap::Shell::variants())
-          .set(ArgSettings::CaseInsensitive)
+          .possible_values(clap_complete::Shell::possible_values())
+          .setting(ArgSettings::IgnoreCase)
           .help("Print shell completion script for <SHELL>"),
       )
       .arg(
-        Arg::with_name(cmd::DUMP)
+        Arg::new(cmd::DUMP)
           .long("dump")
           .help("Print justfile"),
       )
       .arg(
-        Arg::with_name(cmd::EDIT)
-          .short("e")
+        Arg::new(cmd::EDIT)
+          .short('e')
           .long("edit")
           .help("Edit justfile with editor given by $VISUAL or $EDITOR, falling back to `vim`"),
       )
-      .arg(Arg::with_name(cmd::EVALUATE).long("evaluate").help(
+      .arg(Arg::new(cmd::EVALUATE).long("evaluate").help(
         "Evaluate and print all variables. If a variable name is given as an argument, only print \
          that variable's value.",
       ))
       .arg(
-        Arg::with_name(cmd::FORMAT)
+        Arg::new(cmd::FORMAT)
           .long("fmt")
           .help("Format and overwrite justfile"),
       )
       .arg(
-        Arg::with_name(cmd::INIT)
+        Arg::new(cmd::INIT)
           .long("init")
           .help("Initialize new justfile in project root"),
       )
       .arg(
-        Arg::with_name(cmd::LIST)
-          .short("l")
+        Arg::new(cmd::LIST)
+          .short('l')
           .long("list")
           .help("List available recipes and their arguments"),
       )
       .arg(
-        Arg::with_name(cmd::SHOW)
-          .short("s")
+        Arg::new(cmd::SHOW)
+          .short('s')
           .long("show")
           .takes_value(true)
           .value_name("RECIPE")
           .help("Show information about <RECIPE>"),
       )
       .arg(
-        Arg::with_name(cmd::SUMMARY)
+        Arg::new(cmd::SUMMARY)
           .long("summary")
           .help("List names of available recipes"),
       )
       .arg(
-        Arg::with_name(cmd::VARIABLES)
+        Arg::new(cmd::VARIABLES)
           .long("variables")
           .help("List names of variables"),
       )
       .arg(
-        Arg::with_name(arg::DOTENV_FILENAME)
+        Arg::new(arg::DOTENV_FILENAME)
           .long("dotenv-filename")
           .takes_value(true)
           .help("Search for environment file named <DOTENV-FILENAME> instead of `.env`")
           .conflicts_with(arg::DOTENV_PATH),
       )
       .arg(
-        Arg::with_name(arg::DOTENV_PATH)
+        Arg::new(arg::DOTENV_PATH)
           .long("dotenv-path")
           .help("Load environment file at <DOTENV-PATH> instead of searching for one")
           .takes_value(true),
       )
-      .group(ArgGroup::with_name("SUBCOMMAND").args(cmd::ALL))
+      .group(ArgGroup::new("SUBCOMMAND").args(cmd::ALL))
       .arg(
-        Arg::with_name(arg::ARGUMENTS)
-          .multiple(true)
+        Arg::new(arg::ARGUMENTS)
+          .multiple_values(true)
           .help("Overrides and recipe(s) to run, defaulting to the first recipe in the justfile"),
       );
 
@@ -680,7 +681,7 @@ mod tests {
 
         let app = Config::app();
 
-        app.get_matches_from_safe(arguments).expect_err("Expected clap error");
+        app.try_get_matches_from(arguments).expect_err("Expected clap error");
       }
     };
     {
@@ -698,7 +699,7 @@ mod tests {
 
         let app = Config::app();
 
-        let matches = app.get_matches_from_safe(arguments).expect("Matching failes");
+        let matches = app.try_get_matches_from(arguments).expect("Matching failes");
 
         match Config::from_matches(&matches).expect_err("config parsing succeeded") {
           $error => { $($check)? }
