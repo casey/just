@@ -6,7 +6,7 @@ fn dotenv() {
     ".env": "KEY=ROOT",
     sub: {
       ".env": "KEY=SUB",
-      justfile: "default:\n\techo KEY=$KEY",
+      justfile: "default:\n\techo KEY=${KEY:-unset}",
     },
   };
 
@@ -21,7 +21,7 @@ fn dotenv() {
   assert_eq!(output.status.code().unwrap(), 0);
 
   let stdout = str::from_utf8(&output.stdout).unwrap();
-  assert_eq!(stdout, "KEY=SUB\n");
+  assert_eq!(stdout, "KEY=unset\n");
 }
 
 test! {
@@ -61,43 +61,16 @@ test! {
 }
 
 #[test]
-fn warning() {
+fn no_warning() {
   Test::new()
     .justfile(
       "
       foo:
-        echo $DOTENV_KEY
+        echo ${DOTENV_KEY:-unset}
     ",
     )
-    .stdout("dotenv-value\n")
-    .stderr(
-      "
-warning: A `.env` file was found and loaded, but this behavior will change in the future.
-
-To \
-       silence this warning and continue loading `.env` files, add:
-
-    set dotenv-load := true
-
-To silence \
-       this warning and stop loading `.env` files, add:
-
-    set dotenv-load := false
-
-This warning may \
-       also be silenced by setting the `JUST_SUPPRESS_DOTENV_LOAD_WARNING`
-environment variable to `1`. \
-       This can be used to silence the warning globally by
-adding the following line to your shell rc \
-       file:
-
-  export JUST_SUPPRESS_DOTENV_LOAD_WARNING=1
-
-See https://github.com/casey/just/issues/469 \
-       for more details.
-echo $DOTENV_KEY
-   ",
-    )
+    .stdout("unset\n")
+    .stderr("echo ${DOTENV_KEY:-unset}\n")
     .suppress_dotenv_load_warning(false)
     .run();
 }

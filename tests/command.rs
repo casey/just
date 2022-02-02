@@ -43,6 +43,8 @@ test! {
 test! {
   name: env_is_loaded,
   justfile: "
+    set dotenv-load
+
     x:
       echo XYZ
   ",
