@@ -43,6 +43,7 @@ pub(crate) struct Test {
   pub(crate) status: i32,
   pub(crate) stderr: String,
   pub(crate) stderr_regex: Option<Regex>,
+  pub(crate) stdout_regex: Option<Regex>,
   pub(crate) stdin: String,
   pub(crate) stdout: String,
   pub(crate) suppress_dotenv_load_warning: bool,
@@ -67,10 +68,16 @@ impl Test {
       stderr_regex: None,
       stdin: String::new(),
       stdout: String::new(),
+      stdout_regex: None,
       suppress_dotenv_load_warning: true,
-      tempdir,
       unindent_stdout: true,
+      tempdir,
     }
+  }
+
+  pub(crate) fn invocation(mut self, val: &str) -> Self {
+    self.args.extend(val.split_whitespace().map(str::to_owned));
+    self
   }
 
   pub(crate) fn arg(mut self, val: &str) -> Self {
@@ -136,6 +143,11 @@ impl Test {
 
   pub(crate) fn stdout(mut self, stdout: impl Into<String>) -> Self {
     self.stdout = stdout.into();
+    self
+  }
+
+  pub(crate) fn stdout_regex(mut self, stdout_regex: impl AsRef<str>) -> Self {
+    self.stdout_regex = Some(Regex::new(&format!("(?m)^{}$", stdout_regex.as_ref())).unwrap());
     self
   }
 
@@ -229,8 +241,19 @@ impl Test {
       }
     }
 
+    let output_stdout = str::from_utf8(&output.stdout).unwrap();
+
+    if let Some(ref stdout_regex) = self.stdout_regex {
+      if !stdout_regex.is_match(output_stdout) {
+        panic!(
+          "Stdout regex mismatch:\n{:?}\n!~=\n/{:?}/",
+          output_stdout, stdout_regex
+        );
+      }
+    }
+
     if !compare("status", output.status.code().unwrap(), self.status)
-      | !compare("stdout", str::from_utf8(&output.stdout).unwrap(), &stdout)
+      | (self.stdout_regex.is_none() && !compare("stdout", output_stdout, &stdout))
       | (self.stderr_regex.is_none() && !compare("stderr", output_stderr, &stderr))
     {
       panic!("Output mismatch.");
