@@ -1,6 +1,12 @@
 Changelog
 =========
 
+[0.11.0](https://github.com/casey/just/releases/tag/0.11.0) - 2022-2-3
+----------------------------------------------------------------------
+
+### Breaking
+- Change dotenv-load default to false (#1082)
+
 [0.10.7](https://github.com/casey/just/releases/tag/0.10.7) - 2022-1-30
 -----------------------------------------------------------------------
 
