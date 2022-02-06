@@ -205,6 +205,7 @@ convert-readme:
   echo '======' >> README.md
   echo >> README.md
   cat output.md >> README.md
+  rm output.md input.xml input.adoc
 
 # Local Variables:
 # mode: makefile
