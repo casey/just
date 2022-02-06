@@ -116,11 +116,13 @@ most Windows users.)
 | [Fedora Linux][fedora linux]                         | [DNF][dnf]                | [just][just-fedora]                              | `dnf install just`                                                                      |
 | [Gentoo Linux][gentoo linux]                         | [Portage][gentoo-portage] | [dm9pZCAq overlay: sys-devel/just][just-portage] | `eselect repository enable dm9pZCAq && emerge --sync dm9pZCAq && emerge sys-devel/just` |
 | [Various][conda-platforms]                           | [Conda][conda]            | [just][just-conda]                               | `conda install -c conda-forge just`                                                     |
+| [Microsoft Windows][windows]                         | [Chocolatey][chocolatey]  | [just][just-chocolatey]                          | `choco install just`                                                                    |
 
 [alpine linux]: https://alpinelinux.org/
 [apk-tools]: https://wiki.alpinelinux.org/wiki/Alpine_Linux_package_management
 [arch linux]: https://www.archlinux.org
 [cargo]: https://www.rust-lang.org
+[chocolatey]: https://chocolatey.org/
 [conda-platforms]: https://docs.conda.io/en/latest/miniconda.html#system-requirements
 [conda]: https://docs.conda.io/projects/conda/en/latest/index.html
 [dnf]: https://dnf.readthedocs.io/en/latest/
@@ -132,6 +134,7 @@ most Windows users.)
 [homebrew-install]: https://docs.brew.sh/Installation
 [homebrew]: https://brew.sh
 [just-alpine]: https://pkgs.alpinelinux.org/package/edge/community/x86_64/just
+[just-chocolatey]: https://community.chocolatey.org/packages/just
 [just-conda]: https://anaconda.org/conda-forge/just
 [just-crate]: https://crates.io/crates/just
 [just-fedora]: https://src.fedoraproject.org/rpms/rust-just
