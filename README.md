@@ -433,7 +433,7 @@ like running the tests:
 
 ```make
 test:
-cargo test
+  cargo test
 ```
 
 You can also use dependencies to run multiple recipes by default:
@@ -583,13 +583,13 @@ foo:
 
 Boolean settings can be written as:
 
-```make
+```
 set NAME
 ```
 
 Which is equivalent to:
 
-```make
+```
 set NAME := true
 ```
 
@@ -1524,7 +1524,7 @@ For example, to execute this recipe on Windows:
 echo:
     #!/bin/sh
 
-  echo "Hello!"
+    echo "Hello!"
 ```
 
 The interpreter path `/bin/sh` will be translated to a Windows-style path using
@@ -1539,7 +1539,7 @@ a Windows-style path to the interpreter.
 Recipe lines are interpreted by the shell, not `just`, so it's not possible to
 set `just` variables in the middle of a recipe:
 
-```make
+```
 foo:
     x := "hello" # This doesn't work!
     echo {{x}}
@@ -1607,7 +1607,7 @@ means that multi-line constructs probably won't do what you want.
 
 For example, with the following `justfile`:
 
-```make
+```
 conditional:
     if true; then
         echo 'True!'
