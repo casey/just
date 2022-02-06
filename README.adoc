@@ -203,6 +203,7 @@ curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -
 
 For example, to install `just` to `~/bin`:
 
+[source,sh]
 ----
 # create `~/bin`
 mkdir -p ~/bin
@@ -259,6 +260,7 @@ call plug#end()
 
 Or with Vim's built-in package support:
 
+[source,sh]
 ----
 mkdir -p ~/.vim/pack/vendor/start
 cd ~/.vim/pack/vendor/start
@@ -288,6 +290,7 @@ augroup END
 
 Or add the following to an individual justfile to enable `make` mode on a per-file basis:
 
+[source,text]
 ----
 # vim: set ft=make :
 ----
@@ -300,6 +303,7 @@ https://github.com/psibi/justl.el[justl] provides commands for executing and lis
 
 You can add the following to an individual justfile to enable `make` mode on a per-file basis:
 
+[source,text]
 ----
 # Local Variables:
 # mode: makefile
@@ -312,6 +316,7 @@ An extension for VS Code by https://github.com/skellock[skellock] is https://mar
 
 You can install it from the command line by running:
 
+[source,sh]
 ----
 code --install-extension skellock.just
 ----
@@ -456,6 +461,7 @@ lint:
 
 If no recipe makes sense as the default recipe, you can add a recipe to the beginning of your justfile that lists the available recipes:
 
+[source,make]
 ----
 default:
   just --list
@@ -519,6 +525,7 @@ default:
 
 The heading text can be customized with `--list-heading`:
 
+[source,sh]
 ----
 $ just --list --list-heading $'Cool stuff…\n'
 Cool stuff…
@@ -528,6 +535,7 @@ Cool stuff…
 
 And the indentation can be customized with `--list-prefix`:
 
+[source,sh]
 ----
 $ just --list --list-prefix ····
 Available recipes:
@@ -539,6 +547,7 @@ The argument to `--list-heading` replaces both the heading and the newline
 following it, so it should contain a newline if non-empty. It works this way so
 you can suppress the heading line entirely by passing the empty string:
 
+[source,sh]
 ----
 $ just --list --list-heading ''
     test
@@ -595,12 +604,14 @@ foo:
 
 Boolean settings can be written as:
 
+[source,mf]
 ----
 set NAME
 ----
 
 Which is equivalent to:
 
+[source,mf]
 ----
 set NAME := true
 ----
@@ -624,6 +635,7 @@ a := "hello"
   echo $b
 ----
 
+[source,sh]
 ----
 $ just foo goodbye
 hello
@@ -647,6 +659,7 @@ set positional-arguments
 
 Will produce the following output:
 
+[source,sh]
 ----
 $ just foo hello
 foo
@@ -667,6 +680,7 @@ set positional-arguments
 
 Running it with _two_ arguments:
 
+[source,sh]
 ----
 $ just test foo "bar baz"
 - foo
@@ -917,6 +931,7 @@ system-info:
     @echo "This is an {{arch()}} machine".
 ----
 
+[source,sh]
 ----
 $ just system-info
 This is an x86_64 machine
@@ -934,6 +949,7 @@ This is an x86_64 machine
 
 For example, to call `rustfmt` on files just under the "current directory" (from the user/invoker's perspective), use the following rule:
 
+[source,make]
 ----
 rustfmt:
     find {{invocation_directory()}} -name \*.rs -exec rustfmt {} \;
@@ -941,6 +957,7 @@ rustfmt:
 
 Alternatively, if your command needs to be run from the current directory, you could use (e.g.):
 
+[source,make]
 ----
 build:
     cd {{invocation_directory()}}; ./some_script_that_needs_to_be_run_from_here
@@ -954,6 +971,7 @@ build:
 
 For example, to run a command relative to the location of the current justfile:
 
+[source,make]
 ----
 script:
   ./{{justfile_directory()}}/scripts/some_script
@@ -971,6 +989,7 @@ executable:
     @echo The executable is at: {{just_executable()}}
 ----
 
+[source,sh]
 ----
 $ just
 The executable is at: /bin/just
@@ -996,6 +1015,7 @@ The executable is at: /bin/just
 
 For example, if your `.env` file contains:
 
+[source,sh]
 ----
 # a comment, will be ignored
 DATABASE_ADDRESS=localhost:6379
@@ -1534,6 +1554,7 @@ If the interpreter path does not contain a `/` it will be executed without being
 Recipe lines are interpreted by the shell, not `just`, so it's not possible to set
 `just` variables in the middle of a recipe:
 
+[source,mf]
 ----
 foo:
   x := "hello" # This doesn't work!
@@ -1606,6 +1627,7 @@ Recipes without an initial shebang are evaluated and run line-by-line, which mea
 
 For example, with the following justfile:
 
+[source,mf]
 ----
 conditional:
     if true; then
@@ -1615,6 +1637,7 @@ conditional:
 
 The extra leading whitespace before the second line of the `conditional` recipe will produce a parse error:
 
+[source,sh]
 ----
 $ just conditional
 error: Recipe line has extra leading whitespace
@@ -1793,7 +1816,6 @@ Foo!
 
 Adding `@` to a shebang recipe name makes `just` print the recipe before executing it:
 
-
 [source,make]
 ----
 @bar:
@@ -1886,6 +1908,7 @@ With the above shebang, `just` will change its working directory to the location
 
 Note: Shebang line splitting is not consistent across operating systems. The previous examples have only been tested on macOS. On Linux, you may need to pass the `-S` flag to `env`:
 
+[source,make]
 ----
 #!/usr/bin/env -S just --justfile
 

@@ -199,6 +199,8 @@ convert-readme:
   cp README.adoc input.adoc
   asciidoc -b docbook input.adoc
   iconv -t utf-8 README.xml | pandoc -f docbook -t gfm --wrap=none --shift-heading-level-by=1 --markdown-headings=setext | iconv -f utf-8 > output.md
+  gsed -i 's/^-   /- /' output.md
+  gsed -i 's/^``` /```/' output.md
   echo '`just`' > README.md
   echo '======' >> README.md
   echo >> README.md
