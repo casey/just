@@ -173,8 +173,7 @@ latest release, just replace `DEST` with the directory where you'd like to put
 `just`:
 
 ```sh
-curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | \
-    bash -s -- --to DEST
+curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to DEST
 ```
 
 For example, to install `just` to `~/bin`:
@@ -184,8 +183,7 @@ For example, to install `just` to `~/bin`:
 mkdir -p ~/bin
 
 # download and extract `just` to `~/bin/just`
-curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | \
-    bash -s -- --to ~/bin
+curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to ~/bin
 
 # add `~/bin` to the paths that your shell searches for executables
 # this line should be added to your shells initialization file,
