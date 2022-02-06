@@ -178,6 +178,11 @@ You can also set the shell using command-line arguments. For example, to use Pow
 | https://docs.conda.io/projects/conda/en/latest/index.html[Conda]
 | https://anaconda.org/conda-forge/just[just]
 | `conda install -c conda-forge just`
+
+| https://en.wikipedia.org/wiki/Microsoft_Windows[Microsoft Windows]
+| https://chocolatey.org/[Chocolatey]
+| https://github.com/michidk/just-choco[just]
+| `choco install just`
 |===
 
 image:https://repology.org/badge/vertical-allrepos/just.svg[package version table,link=https://repology.org/project/just/versions]
