@@ -154,29 +154,19 @@ quine-text := '
   }
 '
 
-ruby_renderer := """
-  ruby -r github/markup -e 'File.write("tmp/README.html", GitHub::Markup.render("README.md", File.read("README.md")))'
-  """
+render-readme-ruby:
+  #!/usr/bin/env ruby
+  require 'github/markup'
+  $rendered = GitHub::Markup.render("README.md", File.read("README.md"))
+  File.write('tmp/README.html', $rendered)
 
-pandoc_renderer := """
+render-readme-pandoc:
   pandoc --standalone \
     --metadata title="just" \
     --from gfm+gfm_auto_identifiers-ascii_identifiers \
     --to html \
     --output tmp/README.html \
     README.md
-  """
-
-renderer := if os_family() == "windows" {
-  ruby_renderer
-} else if `command -v pandoc` == "" {
-  ruby_renderer
-} else {
-  pandoc_renderer
-}
-
-render-readme:
-  {{ renderer }}
 
 watch-readme:
   just render-readme
