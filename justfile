@@ -107,6 +107,7 @@ install-dev-deps:
 # install system development dependencies with homebrew
 install-dev-deps-homebrew:
   brew install help2man
+  brew install pandoc
 
 # everyone's favorite animate paper clip
 clippy:
@@ -153,11 +154,29 @@ quine-text := '
   }
 '
 
+ruby_renderer := """
+  ruby -r github/markup -e 'File.write("tmp/README.html", GitHub::Markup.render("README.md", File.read("README.md")))'
+  """
+
+pandoc_renderer := """
+  pandoc --standalone \
+    --metadata title="just" \
+    --from gfm+gfm_auto_identifiers-ascii_identifiers \
+    --to html \
+    --output tmp/README.html \
+    README.md
+  """
+
+renderer := if os_family() == "windows" {
+  ruby_renderer
+} else if `command -v pandoc` == "" {
+  ruby_renderer
+} else {
+  pandoc_renderer
+}
+
 render-readme:
-  #!/usr/bin/env ruby
-  require 'github/markup'
-  $rendered = GitHub::Markup.render("README.md", File.read("README.md"))
-  File.write('tmp/README.html', $rendered)
+  {{ renderer }}
 
 watch-readme:
   just render-readme
@@ -198,4 +217,4 @@ pwd:
 # Local Variables:
 # mode: makefile
 # End:
-# vim: set ft=make :
+# vim: set ft=make ft=just :

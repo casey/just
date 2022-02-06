@@ -23,8 +23,8 @@ Yay, all your tests passed!
 `just` has a ton of useful features, and many improvements over `make`:
 
 - `just` is a command runner, not a build system, so it avoids much of
-  [`make`'s complexity and idiosyncrasies][make-idiosyncracies]. No need for
-  `.PHONY` recipes!
+  [`make`'s complexity and idiosyncrasies](#what-are-the-idiosyncrasies-of-make-that-just-avoids).
+  No need for `.PHONY` recipes!
 
 - Linux, MacOS, and Windows are supported with no additional dependencies.
   (Although if your system doesn't have an `sh`, you'll need to [choose
@@ -65,8 +65,9 @@ always welcome!
 `just` should run on any system with a reasonable `sh`, including Linux, MacOS,
 and the BSDs.
 
-On Windows, `just` works with the `sh` provided by [Git for Windows], [GitHub
-Desktop], or [Cygwin].
+On Windows, `just` works with the `sh` provided by [Git for
+Windows](https://git-scm.com), [GitHub Desktop](https://desktop.github.com), or
+[Cygwin](http://www.cygwin.com).
 
 If you'd rather not install `sh`, you can use the `shell` setting to use the
 shell of your choice.
@@ -100,28 +101,69 @@ most Windows users.)
 
 ### Packages
 
-| Operating System                                | Package Manager           | Package                            | Command                                                                                 |
-| ----------------------------------------------- | ------------------------- | ---------------------------------- | --------------------------------------------------------------------------------------- |
-| [Various][rust-platforms]                       | [Cargo]                   | [just][just-crate]                 | `cargo install just`                                                                    |
-| [Microsoft Windows]                             | [Scoop]                   | [just][just-scoop]                 | `scoop install just`                                                                    |
-| [Various][homebrew-install]                     | [Homebrew]                | [just][just-homebrew]              | `brew install just`                                                                     |
-| [macOS]                                         | [MacPorts]                | [just][just-macports]              | `port install just`                                                                     |
-| [Arch Linux]                                    | [pacman]                  | [just][just-pacman]                | `pacman -S just`                                                                        |
-| [NixOS], [Linux][nix-linux], [macOS][nix-macos] | [Nix]                     | [just][just-nixpkg]                | `nix-env -iA nixos.just`                                                                |
-| [Solus]                                         | [eopkg][solus-eopkg]      | [just][just-solus]                 | `eopkg install just`                                                                    |
-| [Void Linux]                                    | [XBPS]                    | [just][just-void]                  | `xbps-install -S just`                                                                  |
-| [FreeBSD]                                       | [pkg][freebsd-pkg]        | [just][just-freebsd]               | `pkg install just`                                                                      |
-| [Alpine Linux]                                  | [apk-tools]               | [just][just-alpine]                | `apk add just`                                                                          |
-| [Fedora Linux]                                  | [DNF]                     | [just][just-fedora]                | `dnf install just`                                                                      |
-| [Gentoo Linux]                                  | [Portage][gentoo-portage] | [dm9pZCAq overlay: sys-devel/just] | `eselect repository enable dm9pZCAq && emerge --sync dm9pZCAq && emerge sys-devel/just` |
-| [Various][conda-platforms]                      | [Conda]                   | [just][just-conda]                 | `conda install -c conda-forge just`                                                     |
+| Operating System                                     | Package Manager           | Package                                          | Command                                                                                 |
+| ---------------------------------------------------- | ------------------------- | ------------------------------------------------ | --------------------------------------------------------------------------------------- |
+| [Various][rust-platforms]                            | [Cargo][cargo]            | [just][just-crate]                               | `cargo install just`                                                                    |
+| [Microsoft Windows][windows]                         | [Scoop][scoop]            | [just][just-scoop]                               | `scoop install just`                                                                    |
+| [Various][homebrew-install]                          | [Homebrew][homebrew]      | [just][just-homebrew]                            | `brew install just`                                                                     |
+| [macOS][macos]                                       | [MacPorts][macports]      | [just][just-macports]                            | `port install just`                                                                     |
+| [Arch Linux][arch linux]                             | [pacman][pacman]          | [just][just-pacman]                              | `pacman -S just`                                                                        |
+| [NixOS][nixos], [Linux][nix-plat], [macOS][nix-plat] | [Nix][nix]                | [just][just-nixpkg]                              | `nix-env -iA nixos.just`                                                                |
+| [Solus][solus]                                       | [eopkg][solus-eopkg]      | [just][just-solus]                               | `eopkg install just`                                                                    |
+| [Void Linux][void linux]                             | [XBPS][xbps]              | [just][just-void]                                | `xbps-install -S just`                                                                  |
+| [FreeBSD][freebsd]                                   | [pkg][freebsd-pkg]        | [just][just-freebsd]                             | `pkg install just`                                                                      |
+| [Alpine Linux][alpine linux]                         | [apk-tools][apk-tools]    | [just][just-alpine]                              | `apk add just`                                                                          |
+| [Fedora Linux][fedora linux]                         | [DNF][dnf]                | [just][just-fedora]                              | `dnf install just`                                                                      |
+| [Gentoo Linux][gentoo linux]                         | [Portage][gentoo-portage] | [dm9pZCAq overlay: sys-devel/just][just-portage] | `eselect repository enable dm9pZCAq && emerge --sync dm9pZCAq && emerge sys-devel/just` |
+| [Various][conda-platforms]                           | [Conda][conda]            | [just][just-conda]                               | `conda install -c conda-forge just`                                                     |
+
+[rust-platforms]: https://forge.rust-lang.org/release/platform-support.html
+[cargo]: https://www.rust-lang.org
+[just-crate]: https://crates.io/crates/just
+[windows]: https://en.wikipedia.org/wiki/Microsoft_Windows
+[scoop]: https://scoop.sh
+[just-scoop]: https://github.com/ScoopInstaller/Main/blob/master/bucket/just.json
+[homebrew-install]: https://docs.brew.sh/Installation
+[homebrew]: https://brew.sh
+[just-homebrew]: https://formulae.brew.sh/formula/just
+[macos]: https://en.wikipedia.org/wiki/MacOS
+[macports]: https://www.macports.org
+[just-macports]: https://ports.macports.org/port/just/summary
+[arch linux]: https://www.archlinux.org
+[pacman]: https://wiki.archlinux.org/title/Pacman
+[just-pacman]: https://archlinux.org/packages/community/x86_64/just/
+[nixos]: https://nixos.org/nixos/
+[nix-plat]: https://nixos.org/nix/manual/#ch-supported-platforms
+[nix]: https://nixos.org/nix/
+[just-nixpkg]: https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/tools/just/default.nix
+[solus]: https://getsol.us/
+[solus-eopkg]: https://getsol.us/articles/package-management/basics/en
+[just-solus]: https://dev.getsol.us/source/just/
+[void linux]: https://voidlinux.org
+[xbps]: https://wiki.voidlinux.org/XBPS
+[just-void]: https://github.com/void-linux/void-packages/blob/master/srcpkgs/just/template
+[freebsd]: https://www.freebsd.org/
+[freebsd-pkg]: https://www.freebsd.org/doc/handbook/pkgng-intro.html
+[just-freebsd]: https://www.freshports.org/deskutils/just/
+[alpine linux]: https://alpinelinux.org/
+[apk-tools]: https://wiki.alpinelinux.org/wiki/Alpine_Linux_package_management
+[just-alpine]: https://pkgs.alpinelinux.org/package/edge/community/x86_64/just
+[fedora linux]: https://getfedora.org/
+[dnf]: https://dnf.readthedocs.io/en/latest/
+[just-fedora]: https://src.fedoraproject.org/rpms/rust-just
+[gentoo linux]: https://www.gentoo.org/
+[gentoo-portage]: https://wiki.gentoo.org/wiki/Portage
+[just-portage]: https://github.com/gentoo-mirror/dm9pZCAq/tree/master/sys-devel/just
+[conda-platforms]: https://docs.conda.io/en/latest/miniconda.html#system-requirements
+[conda]: https://docs.conda.io/projects/conda/en/latest/index.html
+[just-conda]: https://anaconda.org/conda-forge/just
 
 ![package version table](https://repology.org/badge/vertical-allrepos/just.svg)
 
 ### Pre-Built Binaries
 
 Pre-built binaries for Linux, MacOS, and Windows can be found on [the releases
-page].
+page](https://github.com/casey/just/releases).
 
 You can use the following command on Linux, MacOS, or Windows to download the
 latest release, just replace `DEST` with the directory where you'd like to put
@@ -153,8 +195,8 @@ just --help
 
 ### GitHub Actions
 
-[extractions/setup-just] can be used to install `just` in a GitHub Actions
-workflow.
+[extractions/setup-just](https://github.com/extractions/setup-just) can be used
+to install `just` in a GitHub Actions workflow.
 
 Example usage:
 
@@ -165,7 +207,8 @@ Example usage:
 
 ### Release RSS Feed
 
-An [RSS feed] of `just` releases is available [here][just-release.atom].
+An [RSS feed](https://en.wikipedia.org/wiki/RSS) of `just` releases is available
+[here](https://github.com/casey/just/releases.atom).
 
 ## Editor Support
 
@@ -176,8 +219,9 @@ editor to use `make` syntax highlighting for `just`.
 
 #### `vim-just`
 
-The [vim-just] plugin provides syntax highlighting for `justfile`s. Install it
-with your favorite package manager, like [Plug][vim-plug]:
+The [vim-just](https://github.com/NoahTheDuke/vim-just) plugin provides syntax
+highlighting for `justfile`s. Install it with your favorite package manager,
+like [Plug](https://github.com/junegunn/vim-plug):
 
 ```vim
 call plug#begin()
@@ -195,11 +239,15 @@ cd ~/.vim/pack/vendor/start
 git clone https://github.com/NoahTheDuke/vim-just.git
 ```
 
-`vim-just` is also available from [vim-polyglot], a multi-language Vim plugin.
+`vim-just` is also available from
+[vim-polyglot](https://github.com/sheerun/vim-polyglot), a multi-language Vim
+plugin.
 
 #### `tree-sitter-just`
 
-[tree-sitter-just] is an [Nvim Treesitter] plugin for Neovim.
+[tree-sitter-just](https://github.com/IndianBoy42/tree-sitter-just) is an [Nvim
+Treesitter](treesitter]: https://github.com/nvim-treesitter/nvim-treesitter)
+plugin for Neovim.
 
 #### Makefile Syntax Highlighting
 
@@ -225,10 +273,12 @@ a per-file basis:
 
 ### Emacs
 
-[just-mode] provides syntax highlighting and automatic indentation of
-`justfile`s. It is available on [MELPA] as [just-mode][just-mode-melpa].
+[just-mode](https://github.com/leon-barrett/just-mode.el) provides syntax
+highlighting and automatic indentation of `justfile`s. It is available on
+[MELPA](https://melpa.org/) as [just-mode](https://melpa.org/#/just-mode).
 
-[justl] provides commands for executing and listing recipes.
+[justl](https://github.com/psibi/justl.el) provides commands for executing and
+listing recipes.
 
 You can add the following to an individual `justfile` to enable `make` mode on
 a per-file basis:
@@ -241,8 +291,9 @@ a per-file basis:
 
 ## Visual Studio Code
 
-An extension for VS Code by [skellock] is [available here][just-vscode]
-([repository][just-vscode-repo]).
+An extension for VS Code by [skellock](https://github.com/skellock) is
+[available here](https://marketplace.visualstudio.com/items?itemName=skellock.just)
+([repository](https://github.com/skellock/vscode-just)).
 
 You can install it from the command line by running:
 
@@ -270,7 +321,8 @@ in your editor of choice so that I may include them here.
 See [Installation](#installation) for how to install `just` on your computer.
 Try running `just --version` to make sure that it's installed correctly.
 
-For an overview of the syntax, check out [this cheatsheet][just-cheatsheet].
+For an overview of the syntax, check out [this
+cheatsheet](https://cheatography.com/linux-china/cheat-sheets/justfile/).
 
 Once `just` is installed and working, create a file named `justfile` in
 the root of your project with the following contents:
@@ -365,8 +417,8 @@ testing... all tests passed!
 A variety of example `justfile`s can be found in the [examples
 directory](examples).
 
-This [blog post][toniogela-just] discusses using `just` to improve management of
-shared machines, and includes a number of example `justfile`s.
+This [blog post](https://toniogela.dev/just/) discusses using `just` to improve
+management of shared machines, and includes a number of example `justfile`s.
 
 ## Features
 
@@ -1070,10 +1122,11 @@ $ just bar
 match
 ```
 
-Regular expressions are provided by the [regex crate], whose syntax is
-documented on [docs.rs][regex-crate-docs]. Since regular expressions commonly
-use backslash escape sequences, consider using single-quoted string literals,
-which will pass slashes to the regex parser unmolested.
+Regular expressions are provided by the [regex
+crate](https://github.com/rust-lang/regex), whose syntax is documented on
+[docs.rs](https://docs.rs/regex/1.5.4/regex/#syntax). Since regular expressions
+commonly use backslash escape sequences, consider using single-quoted string
+literals, which will pass slashes to the regex parser unmolested.
 
 Conditional expressions short-circuit, which means they only evaluate one of
 their branches. This can be used to make sure that backtick expressions don't
@@ -1460,7 +1513,7 @@ Together, these avoid a lot of shell scripting gotchas.
 
 On Windows, shebang interpreter paths containing a `/` are translated from
 Unix-style paths to Windows-style paths using `cygpath`, a utility that ships
-with [Cygwin].
+with [Cygwin](http://www.cygwin.com).
 
 For example, to execute this recipe on Windows:
 
@@ -1961,8 +2014,10 @@ alternatives to `just` include:
 ## Contributing
 
 `just` welcomes your contributions! `just` is released under the maximally
-permissive [CC0] public domain dedication and fallback license, so your changes
-must also be released under this license.
+permissive
+[CC0](https://creativecommons.org/publicdomain/zero/1.0/legalcode.txt) public
+domain dedication and fallback license, so your changes must also be released
+under this license.
 
 ## Janus
 
@@ -2007,7 +2062,8 @@ doesn't have anything to do and exits.
 
 To be fair, this behavior is desirable when using `make` as a build system, but
 not when using it as a command runner. You can disable this behavior for
-specific targets using `make`'s built-in [`.PHONY` target name][phony-targets],
+specific targets using `make`'s built-in [`.PHONY` target
+name](https://www.gnu.org/software/make/manual/html_node/Phony-Targets.html),
 but the syntax is verbose and can be hard to remember. The explicit list of
 phony targets, written separately from the recipe definitions, also introduces
 the risk of accidentally defining a new non-phony target. In `just`, all recipes
@@ -2077,7 +2133,8 @@ do are in the `justfile`, and that if you type `just` something useful (or at
 least interesting!) will probably happen.
 
 For ideas for recipes, check out [this project's `justfile`](justfile), or some
-of the `justfile`s [out in the wild][wild-justfiles].
+of the `justfile`s [out in the
+wild](https://github.com/search?o=desc&q=filename%3Ajustfile&s=indexed&type=Code).
 
 Anyways, I think that's about it for this incredibly long-winded README.
 
@@ -2085,72 +2142,3 @@ I hope you enjoy using `just` and find great success and satisfaction in all
 your computational endeavors!
 
 😸
-
-[make-idiosyncracies]: #what-are-the-idiosyncrasies-of-make-that-just-avoids
-[git for windows]: https://git-scm.com
-[github desktop]: https://desktop.github.com
-[cygwin]: http://www.cygwin.com
-[rust-platforms]: https://forge.rust-lang.org/release/platform-support.html
-[cargo]: https://www.rust-lang.org
-[just-crate]: https://crates.io/crates/just
-[microsoft windows]: https://en.wikipedia.org/wiki/Microsoft_Windows
-[scoop]: https://scoop.sh
-[just-scoop]: https://github.com/ScoopInstaller/Main/blob/master/bucket/just.json
-[homebrew-install]: https://docs.brew.sh/Installation
-[homebrew]: https://brew.sh
-[just-homebrew]: https://formulae.brew.sh/formula/just
-[macos]: https://en.wikipedia.org/wiki/MacOS
-[macports]: https://www.macports.org
-[just-macports]: https://ports.macports.org/port/just/summary
-[arch linux]: https://www.archlinux.org
-[pacman]: https://wiki.archlinux.org/title/Pacman
-[just-pacman]: https://archlinux.org/packages/community/x86_64/just/
-[nixos]: https://nixos.org/nixos/
-[nix-linux]: https://nixos.org/nix/manual/#ch-supported-platforms
-[nix-macos]: https://nixos.org/nix/manual/#ch-supported-platforms
-[nix]: https://nixos.org/nix/
-[just-nixpkg]: https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/tools/just/default.nix
-[solus]: https://getsol.us/
-[solus-eopkg]: https://getsol.us/articles/package-management/basics/en
-[just-solus]: https://dev.getsol.us/source/just/
-[void linux]: https://voidlinux.org
-[xbps]: https://wiki.voidlinux.org/XBPS
-[just-void]: https://github.com/void-linux/void-packages/blob/master/srcpkgs/just/template
-[freebsd]: https://www.freebsd.org/
-[freebsd-pkg]: https://www.freebsd.org/doc/handbook/pkgng-intro.html
-[just-freebsd]: https://www.freshports.org/deskutils/just/
-[alpine linux]: https://alpinelinux.org/
-[apk-tools]: https://wiki.alpinelinux.org/wiki/Alpine_Linux_package_management
-[just-alpine]: https://pkgs.alpinelinux.org/package/edge/community/x86_64/just
-[fedora linux]: https://getfedora.org/
-[dnf]: https://dnf.readthedocs.io/en/latest/
-[just-fedora]: https://src.fedoraproject.org/rpms/rust-just
-[gentoo linux]: https://www.gentoo.org/
-[gentoo-portage]: https://wiki.gentoo.org/wiki/Portage
-[dm9pzcaq overlay: sys-devel/just]: https://github.com/gentoo-mirror/dm9pZCAq/tree/master/sys-devel/just
-[conda-platforms]: https://docs.conda.io/en/latest/miniconda.html#system-requirements
-[conda]: https://docs.conda.io/projects/conda/en/latest/index.html
-[just-conda]: https://anaconda.org/conda-forge/just
-[the releases page]: https://github.com/casey/just/releases
-[extractions/setup-just]: https://github.com/extractions/setup-just
-[rss feed]: https://en.wikipedia.org/wiki/RSS
-[just-release.atom]: https://github.com/casey/just/releases.atom
-[vim-just]: https://github.com/NoahTheDuke/vim-just
-[vim-plug]: https://github.com/junegunn/vim-plug
-[vim-polyglot]: https://github.com/sheerun/vim-polyglot
-[tree-sitter-just]: https://github.com/IndianBoy42/tree-sitter-just
-[nvim treesitter]: https://github.com/nvim-treesitter/nvim-treesitter
-[just-mode]: https://github.com/leon-barrett/just-mode.el
-[melpa]: https://melpa.org/
-[just-mode-melpa]: https://melpa.org/#/just-mode
-[justl]: https://github.com/psibi/justl.el
-[skellock]: https://github.com/skellock
-[just-vscode]: https://marketplace.visualstudio.com/items?itemName=skellock.just
-[just-vscode-repo]: https://github.com/skellock/vscode-just
-[just-cheatsheet]: https://cheatography.com/linux-china/cheat-sheets/justfile/
-[toniogela-just]: https://toniogela.dev/just/
-[regex crate]: https://github.com/rust-lang/regex
-[regex-crate-docs]: https://docs.rs/regex/1.5.4/regex/#syntax
-[cc0]: https://creativecommons.org/publicdomain/zero/1.0/legalcode.txt
-[phony-targets]: https://www.gnu.org/software/make/manual/html_node/Phony-Targets.html
-[wild-justfiles]: https://github.com/search?o=desc&q=filename%3Ajustfile&s=indexed&type=Code
