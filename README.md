@@ -1,7 +1,11 @@
 `just`
 ======
 
-![crates.io version](https://img.shields.io/crates/v/just.svg) ![build status](https://github.com/casey/just/workflows/Build/badge.svg) ![downloads](https://img.shields.io/github/downloads/casey/just/total.svg) ![chat on discord](https://img.shields.io/discord/695580069837406228?logo=discord) ![say thanks](https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg)
+![crates.io version](https://img.shields.io/crates/v/just.svg)
+![build status](https://github.com/casey/just/workflows/Build/badge.svg)
+![downloads](https://img.shields.io/github/downloads/casey/just/total.svg)
+![chat on discord](https://img.shields.io/discord/695580069837406228?logo=discord)
+![say thanks](https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg)
 
 `just` is a handy way to save and run project-specific commands.
 
