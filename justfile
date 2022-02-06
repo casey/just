@@ -156,12 +156,12 @@ quine-text := '
 render-readme:
   #!/usr/bin/env ruby
   require 'github/markup'
-  $rendered = GitHub::Markup.render("README.adoc", File.read("README.adoc"))
+  $rendered = GitHub::Markup.render("README.md", File.read("README.md"))
   File.write('tmp/README.html', $rendered)
 
 watch-readme:
   just render-readme
-  fswatch -ro README.adoc | xargs -n1 -I{} just render-readme
+  fswatch -ro README.md | xargs -n1 -I{} just render-readme
 
 generate-completions:
   ./bin/generate-completions
