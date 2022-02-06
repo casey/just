@@ -1860,8 +1860,8 @@ alias .j='just --justfile ~/.user.justfile --working-directory ~'
 
 There is no shortage of command runners out there! Some more or less similar alternatives to `just` include:
 
-- [mmake](https://github.com/tj/mmake): A wrapper around `make` with a number of improvements, including remote includes.
-- [robo](https://github.com/tj/robo): A YAML-based command runner written in Go.
+- link:https://github.com/tj/mmake[mmake]: A wrapper around `make` with a number of improvements, including remote includes.
+- link:https://github.com/tj/robo[robo]: A YAML-based command runner written in Go.
 
 == Contributing
 
