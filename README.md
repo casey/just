@@ -1,5 +1,4 @@
-`just`
-======
+# `just`
 
 ![crates.io version](https://img.shields.io/crates/v/just.svg)
 ![build status](https://github.com/casey/just/workflows/Build/badge.svg)
@@ -50,8 +49,7 @@ Yay, all your tests passed!
 
 If you need help with `just` please feel free to open an issue or ping me on [Discord](https://discord.gg/ezYScXR). Feature requests and bug reports are always welcome!
 
-Installation
-------------
+## Installation
 
 ### Prerequisites
 
@@ -150,8 +148,7 @@ Example usage:
 
 An [RSS feed](https://en.wikipedia.org/wiki/RSS) of `just` releases is available [here](https://github.com/casey/just/releases.atom).
 
-Editor Support
---------------
+## Editor Support
 
 `justfile` syntax is close enough to `make` that you may want to tell your editor to use `make` syntax highlighting for `just`.
 
@@ -241,8 +238,7 @@ A syntax file for Sublime Text written by TonioGela is available in [extras/just
 
 Feel free to send me the commands necessary to get syntax highlighting working in your editor of choice so that I may include them here.
 
-Quick Start
------------
+## Quick Start
 
 See [the installation section](#Installation) for how to install `just` on your computer. Try running `just --version` to make sure that it’s installed correctly.
 
@@ -326,15 +322,13 @@ cc main.c foo.c bar.c -o main
 testing... all tests passed!
 ```
 
-Examples
---------
+## Examples
 
 A variety of example justfiles can be found in the [examples directory](examples).
 
 This [blog post](https://toniogela.dev/just/) discusses using `just` to improve management of shared machines, and includes a number of example justfiles.
 
-Features
---------
+## Features
 
 ### The Default Recipe
 
@@ -1684,8 +1678,7 @@ The `--dump` command can be used with `--dump-format json` to print a JSON repre
 
 A changelog for the latest release is available in [CHANGELOG.md](CHANGELOG.md). Changelogs for previous releases are available on [the releases page](https://github.com/casey/just/releases). `just --changelog` can also be used to make a `just` binary print its changelog.
 
-Miscellanea
------------
+## Miscellanea
 
 ### Companion Tools
 
@@ -1771,8 +1764,7 @@ There is no shortage of command runners out there! Some more or less similar alt
 
 - [robo](https://github.com/tj/robo): A YAML-based command runner written in Go.
 
-Contributing
-------------
+## Contributing
 
 `just` welcomes your contributions! `just` is released under the maximally permissive [CC0](https://creativecommons.org/publicdomain/zero/1.0/legalcode.txt) public domain dedication and fallback license, so your changes must also be released under this license.
 
@@ -1786,8 +1778,7 @@ Before merging a particularly large or gruesome change, Janus should be run to m
 
 The minimum supported Rust version, or MSRV, is Rust 1.47.0.
 
-Frequently Asked Questions
---------------------------
+## Frequently Asked Questions
 
 ### What are the idiosyncrasies of Make that Just avoids?
 
@@ -1821,8 +1812,7 @@ Other examples of `make`'s idiosyncrasies include the difference between `=` and
 
 Also, although `just` is written in Rust, it can be used regardless of the language or build system your project uses.
 
-Further Ramblings
------------------
+## Further Ramblings
 
 I personally find it very useful to write a `justfile` for almost every project, big or small.
 
