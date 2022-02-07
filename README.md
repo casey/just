@@ -27,7 +27,7 @@ Yay, all your tests passed!
 
 - `just` is a command runner, not a build system, so it avoids much of [`make`'s complexity and idiosyncrasies](https://github.com/casey/just#what-are-the-idiosyncrasies-of-make-that-just-avoids). No need for `.PHONY` recipes!
 
-- Linux, MacOS, and Windows are supported with no additional dependencies. (Although if your system doesn’t have an `sh`, you’ll need to [choose a different shell](https://github.com/casey/just#shell).)
+- Linux, MacOS, and Windows are supported with no additional dependencies. (Although if your system doesn't have an `sh`, you'll need to [choose a different shell](https://github.com/casey/just#shell).)
 
 - Errors are specific and informative, and syntax errors are reported along with their source context.
 
@@ -57,7 +57,7 @@ If you need help with `just` please feel free to open an issue or ping me on [Di
 
 On Windows, `just` works with the `sh` provided by [Git for Windows](https://git-scm.com), [GitHub Desktop](https://desktop.github.com), or [Cygwin](http://www.cygwin.com).
 
-If you’d rather not install `sh`, you can use the `shell` setting to use the shell of your choice.
+If you'd rather not install `sh`, you can use the `shell` setting to use the shell of your choice.
 
 Like PowerShell:
 
@@ -108,7 +108,7 @@ You can also set the shell using command-line arguments. For example, to use Pow
 
 Pre-built binaries for Linux, MacOS, and Windows can be found on [the releases page](https://github.com/casey/just/releases).
 
-You can use the following command on Linux, MacOS, or Windows to download the latest release, just replace `DEST` with the directory where you’d like to put `just`:
+You can use the following command on Linux, MacOS, or Windows to download the latest release, just replace `DEST` with the directory where you'd like to put `just`:
 
 ```sh
 curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to DEST
@@ -168,7 +168,7 @@ Plug 'NoahTheDuke/vim-just'
 call plug#end()
 ```
 
-Or with Vim’s built-in package support:
+Or with Vim's built-in package support:
 
 ```sh
 mkdir -p ~/.vim/pack/vendor/start
@@ -184,7 +184,7 @@ git clone https://github.com/NoahTheDuke/vim-just.git
 
 #### Makefile Syntax Highlighting
 
-Vim’s built-in makefile syntax highlighting isn’t perfect for justfiles, but it’s better than nothing. You can put the following in `~/.vim/filetype.vim`:
+Vim's built-in makefile syntax highlighting isn't perfect for justfiles, but it's better than nothing. You can put the following in `~/.vim/filetype.vim`:
 
 ```vimscript
 if exists("did_load_filetypes")
@@ -240,7 +240,7 @@ Feel free to send me the commands necessary to get syntax highlighting working i
 
 ## Quick Start
 
-See [the installation section](#Installation) for how to install `just` on your computer. Try running `just --version` to make sure that it’s installed correctly.
+See [the installation section](#Installation) for how to install `just` on your computer. Try running `just --version` to make sure that it's installed correctly.
 
 For an overview of the syntax, check out [this cheatsheet](https://cheatography.com/linux-china/cheat-sheets/justfile/).
 
@@ -257,7 +257,7 @@ another-recipe:
 
 When you invoke `just` it looks for file `justfile` in the current directory and upwards, so you can invoke it from any subdirectory of your project.
 
-The search for a `justfile` is case insensitive, so any case, like `Justfile`, `JUSTFILE`, or `JuStFiLe`, will work. `just` will also look for files with the name `.justfile`, in case you’d like to hide a `justfile`.
+The search for a `justfile` is case insensitive, so any case, like `Justfile`, `JUSTFILE`, or `JuStFiLe`, will work. `just` will also look for files with the name `.justfile`, in case you'd like to hide a `justfile`.
 
 Running `just` with no arguments runs the first recipe in the `justfile`:
 
@@ -305,7 +305,7 @@ cc main.c foo.c bar.c -o main
 testing... all tests passed!
 ```
 
-Recipes without dependencies will run in the order they’re given on the command line:
+Recipes without dependencies will run in the order they're given on the command line:
 
 ```sh
 $ just build sloc
@@ -345,13 +345,13 @@ You can also use dependencies to run multiple recipes by default:
 default: lint build test
 
 build:
-  echo Building…
+  echo Building...
 
 test:
-  echo Testing…
+  echo Testing...
 
 lint:
-  echo Linting…
+  echo Linting...
 ```
 
 If no recipe makes sense as the default recipe, you can add a recipe to the beginning of your justfile that lists the available recipes:
@@ -403,7 +403,7 @@ $ just --summary --unsorted
 test build
 ```
 
-If you’d like `just` to default to listing the recipes in the justfile, you can use this as your default recipe:
+If you'd like `just` to default to listing the recipes in the justfile, you can use this as your default recipe:
 
 ```make
 default:
@@ -413,8 +413,8 @@ default:
 The heading text can be customized with `--list-heading`:
 
 ```sh
-$ just --list --list-heading $'Cool stuff…\n'
-Cool stuff…
+$ just --list --list-heading $'Cool stuff...\n'
+Cool stuff...
     test
     build
 ```
@@ -656,9 +656,9 @@ braces:
     echo 'I {{{{LOVE}} curly braces!'
 ```
 
-(An unmatched `}}` is ignored, so it doesn’t need to be escaped.)
+(An unmatched `}}` is ignored, so it doesn't need to be escaped.)
 
-Another option is to put all the text you’d like to escape inside of an interpolation:
+Another option is to put all the text you'd like to escape inside of an interpolation:
 
 ```make
 braces:
@@ -789,9 +789,9 @@ This is an x86_64 machine
 
 #### Invocation Directory
 
-- `invocation_directory()` - Retrieves the path of the current working directory, before `just` changed it (chdir’d) prior to executing commands.
+- `invocation_directory()` - Retrieves the path of the current working directory, before `just` changed it (chdir'd) prior to executing commands.
 
-For example, to call `rustfmt` on files just under the "current directory" (from the user/invoker’s perspective), use the following rule:
+For example, to call `rustfmt` on files just under the "current directory" (from the user/invoker's perspective), use the following rule:
 
 ```make
 rustfmt:
@@ -904,7 +904,7 @@ These functions can fail, for example if a path does not have an extension, whic
 
 ##### Infallible
 
-- `join(a, b…)` - Join path `a` with path `b`. `join("foo/bar", "baz")` is `foo/bar/baz`. Accepts two or more arguments.
+- `join(a, b...)` - Join path `a` with path `b`. `join("foo/bar", "baz")` is `foo/bar/baz`. Accepts two or more arguments.
 
 - `clean(path)` - Simplify `path` by removing extra path separators, intermediate `.` components, and `..` where possible. `clean("foo//bar")` is `foo/bar`, `clean("foo/..")` is `.`, `clean("foo/./bar")` is `foo/bar`.
 
@@ -979,7 +979,7 @@ match
 
 Regular expressions are provided by the [regex crate](https://github.com/rust-lang/regex), whose syntax is documented on [docs.rs](https://docs.rs/regex/1.5.4/regex/#syntax). Since regular expressions commonly use backslash escape sequences, consider using single-quoted string literals, which will pass slashes to the regex parser unmolested.
 
-Conditional expressions short-circuit, which means they only evaluate one of their branches. This can be used to make sure that backtick expressions don’t run when they shouldn’t.
+Conditional expressions short-circuit, which means they only evaluate one of their branches. This can be used to make sure that backtick expressions don't run when they shouldn't.
 
 ```make
 foo := if env_var("RELEASE") == "true" { `get-something-from-release-database` } else { "dummy-value" }
@@ -1242,7 +1242,7 @@ D!
 
 ### Running Recipes in the Middle of a Recipe
 
-`just` doesn’t support running recipes in the middle of another recipe, but you can call `just` recursively in the middle of a recipe. Given the following justfile:
+`just` doesn't support running recipes in the middle of another recipe, but you can call `just` recursively in the middle of a recipe. Given the following justfile:
 
 ```make
 a:
@@ -1313,7 +1313,7 @@ Hello from ruby!
 
 ### Safer Bash Shebang Recipes
 
-If you’re writing a `bash` shebang recipe, consider adding `set -euxo pipefail`:
+If you're writing a `bash` shebang recipe, consider adding `set -euxo pipefail`:
 
 ```make
 foo:
@@ -1323,13 +1323,13 @@ foo:
     echo "$hello from Bash!"
 ```
 
-It isn’t strictly necessary, but `set -euxo pipefail` turns on a few useful features that make `bash` shebang recipes behave more like normal, linewise `just` recipe:
+It isn't strictly necessary, but `set -euxo pipefail` turns on a few useful features that make `bash` shebang recipes behave more like normal, linewise `just` recipe:
 
 - `set -e` makes `bash` exit if a command fails.
 
 - `set -u` makes `bash` exit if a variable is undefined.
 
-- `set -x` makes `bash` print each script line before it’s run.
+- `set -x` makes `bash` print each script line before it's run.
 
 - `set -o pipefail` makes `bash` exit if a command in a pipeline fails.
 
@@ -1354,7 +1354,7 @@ If the interpreter path does not contain a `/` it will be executed without being
 
 ### Setting Variables in a Recipe
 
-Recipe lines are interpreted by the shell, not `just`, so it’s not possible to set `just` variables in the middle of a recipe:
+Recipe lines are interpreted by the shell, not `just`, so it's not possible to set `just` variables in the middle of a recipe:
 
 ```mf
 foo:
@@ -1362,7 +1362,7 @@ foo:
   echo {{x}}
 ```
 
-It is possible to use shell variables, but there’s another problem. Every recipe line is run by a new shell instance, so variables set in one line won’t be set in the next:
+It is possible to use shell variables, but there's another problem. Every recipe line is run by a new shell instance, so variables set in one line won't be set in the next:
 
 ```make
 foo:
@@ -1383,13 +1383,13 @@ foo:
 
 ### Changing the Working Directory in a Recipe
 
-Each recipe line is executed by a new shell, so if you change the working directory on one line, it won’t have an effect on later lines:
+Each recipe line is executed by a new shell, so if you change the working directory on one line, it won't have an effect on later lines:
 
 ```make
 foo:
-  pwd    # This `pwd` will print the same directory…
+  pwd    # This `pwd` will print the same directory...
   cd bar
-  pwd    # …as this `pwd`!
+  pwd    # ...as this `pwd`!
 ```
 
 There are a couple ways around this. One is to call `cd` on the same line as the command you want to run:
@@ -1411,7 +1411,7 @@ foo:
 
 ### Multi-Line Constructs
 
-Recipes without an initial shebang are evaluated and run line-by-line, which means that multi-line constructs probably won’t do what you want.
+Recipes without an initial shebang are evaluated and run line-by-line, which means that multi-line constructs probably won't do what you want.
 
 For example, with the following justfile:
 
@@ -1603,13 +1603,13 @@ The `--choose` subcommand makes `just` invoke a chooser to select which recipes 
 
 Because there is currently no way to run a recipe that requires arguments with `--choose`, such recipes will not be given to the chooser. Private recipes and aliases are also skipped.
 
-The chooser can be overridden with the `--chooser` flag. If `--chooser` is not given, then `just` first checks if `$JUST_CHOOSER` is set. If it isn’t, then the chooser defaults to `fzf`, a popular fuzzy finder.
+The chooser can be overridden with the `--chooser` flag. If `--chooser` is not given, then `just` first checks if `$JUST_CHOOSER` is set. If it isn't, then the chooser defaults to `fzf`, a popular fuzzy finder.
 
 Arguments can be included in the chooser, i.e. `fzf --exact`.
 
 The chooser is invoked in the same way as recipe lines. For example, if the chooser is `fzf`, it will be invoked with `sh -cu 'fzf'`, and if the shell, or the shell arguments are overridden, the chooser invocation will respect those overrides.
 
-If you’d like `just` to default to selecting recipes with a chooser, you can use this as your default recipe:
+If you'd like `just` to default to selecting recipes with a chooser, you can use this as your default recipe:
 
 ```make
 default:
@@ -1626,7 +1626,7 @@ If the first argument passed to `just` contains a `/`, then the following occurs
 
 3.  The part after the last slash is treated as a normal argument, or ignored if it is empty.
 
-This may seem a little strange, but it’s useful if you wish to run a command in a justfile that is in a subdirectory.
+This may seem a little strange, but it's useful if you wish to run a command in a justfile that is in a subdirectory.
 
 For example, if you are in a directory which contains a subdirectory named `foo`, which contains a justfile with the recipe `build`, which is also the default recipe, the following are all equivalent:
 
@@ -1659,7 +1659,7 @@ foo
 
 When a script with a shebang is executed, the system supplies the path to the script as an argument to the command in the shebang. So, with a shebang of `#!/usr/bin/env just --justfile`, the command will be `/usr/bin/env just --justfile PATH_TO_SCRIPT`.
 
-With the above shebang, `just` will change its working directory to the location of the script. If you’d rather leave the working directory unchanged, use `#!/usr/bin/env just --working-directory . --justfile`.
+With the above shebang, `just` will change its working directory to the location of the script. If you'd rather leave the working directory unchanged, use `#!/usr/bin/env just --working-directory . --justfile`.
 
 Note: Shebang line splitting is not consistent across operating systems. The previous examples have only been tested on macOS. On Linux, you may need to pass the `-S` flag to `env`:
 
@@ -1688,7 +1688,7 @@ Tools that pair nicely with `just` include:
 
 ### Shell Alias
 
-For lightning-fast command running, put `alias j=just` in your shell’s configuration file.
+For lightning-fast command running, put `alias j=just` in your shell's configuration file.
 
 In `bash`, the aliased command may not keep the shell completion functionality described in the next section. Add the following line to your `.bashrc` to use the same completion function as `just` for your aliased command:
 
@@ -1698,7 +1698,7 @@ complete -F _just -o bashdefault -o default j
 
 ### Shell Completion Scripts
 
-Shell completion scripts for Bash, Zsh, Fish, PowerShell, and Elvish are available in the [completions](completions) directory. Please refer to your shell’s documentation for how to install them.
+Shell completion scripts for Bash, Zsh, Fish, PowerShell, and Elvish are available in the [completions](completions) directory. Please refer to your shell's documentation for how to install them.
 
 The `just` binary can also generate the same completion scripts at runtime, using the `--completions` command:
 
@@ -1722,7 +1722,7 @@ First, create a justfile in `~/.user.justfile` with some recipes.
 
 #### Recipe Aliases
 
-If you want to call the recipes in `~/.user.justfile` by name, and don’t mind creating an alias for every recipe, add the following to your shell’s initialization script:
+If you want to call the recipes in `~/.user.justfile` by name, and don't mind creating an alias for every recipe, add the following to your shell's initialization script:
 
 ```sh
 for recipe in `just --justfile ~/.user.justfile --summary`; do
@@ -1736,7 +1736,7 @@ It took me way too long to realize that you could create recipe aliases like thi
 
 #### Forwarding Alias
 
-If you’d rather not create aliases for every recipe, you can create a single alias:
+If you'd rather not create aliases for every recipe, you can create a single alias:
 
 ```sh
 alias .j='just --justfile ~/.user.justfile --working-directory .'
@@ -1744,13 +1744,13 @@ alias .j='just --justfile ~/.user.justfile --working-directory .'
 
 Now, if you have a recipe called `foo` in `~/.user.justfile`, you can just type `.j foo` at the command line to run it.
 
-I’m pretty sure that nobody actually uses this feature, but it’s there.
+I'm pretty sure that nobody actually uses this feature, but it's there.
 
 ¯\\\_(ツ)\_/¯
 
 #### Customization
 
-You can customize the above aliases with additional options. For example, if you’d prefer to have the recipes in your justfile run in your home directory, instead of the current directory:
+You can customize the above aliases with additional options. For example, if you'd prefer to have the recipes in your justfile run in your home directory, instead of the current directory:
 
 ```sh
 alias .j='just --justfile ~/.user.justfile --working-directory ~'
@@ -1772,7 +1772,7 @@ There is no shortage of command runners out there! Some more or less similar alt
 
 [Janus](https://github.com/casey/janus) is a tool that collects and analyzes justfiles, and can determine if a new version of `just` breaks or changes the interpretation of existing justfiles.
 
-Before merging a particularly large or gruesome change, Janus should be run to make sure that nothing breaks. Don’t worry about running Janus yourself, Casey will happily run it for you on changes that need it.
+Before merging a particularly large or gruesome change, Janus should be run to make sure that nothing breaks. Don't worry about running Janus yourself, Casey will happily run it for you on changes that need it.
 
 ### Minimum Supported Rust Version
 
@@ -1784,7 +1784,7 @@ The minimum supported Rust version, or MSRV, is Rust 1.47.0.
 
 `make` has some behaviors which are confusing, complicated, or make it unsuitable for use as a general command runner.
 
-One example is that under some circumstances, `make` won’t actually run the commands in a recipe. For example, if you have a file called `test` and the following makefile:
+One example is that under some circumstances, `make` won't actually run the commands in a recipe. For example, if you have a file called `test` and the following makefile:
 
 ```make
 test:
@@ -1798,13 +1798,13 @@ $ make test
 make: `test' is up to date.
 ```
 
-`make` assumes that the `test` recipe produces a file called `test`. Since this file exists and the recipe has no other dependencies, `make` thinks that it doesn’t have anything to do and exits.
+`make` assumes that the `test` recipe produces a file called `test`. Since this file exists and the recipe has no other dependencies, `make` thinks that it doesn't have anything to do and exits.
 
 To be fair, this behavior is desirable when using `make` as a build system, but not when using it as a command runner. You can disable this behavior for specific targets using `make`'s built-in [`.PHONY` target name](https://www.gnu.org/software/make/manual/html_node/Phony-Targets.html), but the syntax is verbose and can be hard to remember. The explicit list of phony targets, written separately from the recipe definitions, also introduces the risk of accidentally defining a new non-phony target. In `just`, all recipes are treated as if they were phony.
 
 Other examples of `make`'s idiosyncrasies include the difference between `=` and `:=` in assignments, the confusing error messages that are produced if you mess up your makefile, needing `$$` to use environment variables in recipes, and incompatibilities between different flavors of `make`.
 
-### What’s the relationship between Just and Cargo build scripts?
+### What's the relationship between Just and Cargo build scripts?
 
 [`cargo` build scripts](http://doc.crates.io/build-script.html) have a pretty specific use, which is to control how `cargo` builds your Rust project. This might include adding flags to `rustc` invocations, building an external dependency, or running some kind of codegen step.
 
@@ -1816,11 +1816,11 @@ Also, although `just` is written in Rust, it can be used regardless of the langu
 
 I personally find it very useful to write a `justfile` for almost every project, big or small.
 
-On a big project with multiple contributors, it’s very useful to have a file with all the commands needed to work on the project close at hand.
+On a big project with multiple contributors, it's very useful to have a file with all the commands needed to work on the project close at hand.
 
 There are probably different commands to test, build, lint, deploy, and the like, and having them all in one place is useful and cuts down on the time you have to spend telling people which commands to run and how to type them.
 
-And, with an easy place to put commands, it’s likely that you’ll come up with other useful things which are part of the project’s collective wisdom, but which aren’t written down anywhere, like the arcane commands needed for some part of your revision control workflow, install all your project’s dependencies, or all the random flags you might need to pass to the build system.
+And, with an easy place to put commands, it's likely that you'll come up with other useful things which are part of the project's collective wisdom, but which aren't written down anywhere, like the arcane commands needed for some part of your revision control workflow, install all your project's dependencies, or all the random flags you might need to pass to the build system.
 
 Some ideas for recipes:
 
@@ -1838,11 +1838,11 @@ Some ideas for recipes:
 
 - Any complex set of commands that you really should write down somewhere, if only to be able to remember them
 
-Even for small, personal projects it’s nice to be able to remember commands by name instead of ^Reverse searching your shell history, and it’s a huge boon to be able to go into an old project written in a random language with a mysterious build system and know that all the commands you need to do whatever you need to do are in the `justfile`, and that if you type `just` something useful (or at least interesting!) will probably happen.
+Even for small, personal projects it's nice to be able to remember commands by name instead of ^Reverse searching your shell history, and it's a huge boon to be able to go into an old project written in a random language with a mysterious build system and know that all the commands you need to do whatever you need to do are in the `justfile`, and that if you type `just` something useful (or at least interesting!) will probably happen.
 
-For ideas for recipes, check out [this project’s `justfile`](justfile), or some of the `justfile`​s [out in the wild](https://github.com/search?o=desc&q=filename%3Ajustfile&s=indexed&type=Code).
+For ideas for recipes, check out [this project's `justfile`](justfile), or some of the `justfile`​s [out in the wild](https://github.com/search?o=desc&q=filename%3Ajustfile&s=indexed&type=Code).
 
-Anyways, I think that’s about it for this incredibly long-winded README.
+Anyways, I think that's about it for this incredibly long-winded README.
 
 I hope you enjoy using `just` and find great success and satisfaction in all your computational endeavors!
 
