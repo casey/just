@@ -616,7 +616,7 @@ foo:
 
 `just` passes the command to be executed as an argument. Many shells will need an additional flag, often `-c`, to make them evaluate the first argument.
 
-#### Windows PowerShell
+##### Windows PowerShell
 
 `just` uses `sh` on Windows by default. To use PowerShell instead, set `windows-powershell` to true.
 
@@ -1716,7 +1716,7 @@ default:
 
 The `--dump` command can be used with `--dump-format json` to print a JSON representation of a `justfile`. The JSON format is currently unstable, so the `--unstable` flag is required.
 
-### Changelog
+## Changelog
 
 A changelog for the latest release is available in [CHANGELOG.md](CHANGELOG.md). Changelogs for previous releases are available on [the releases page](https://github.com/casey/just/releases). `just --changelog` can also be used to make a `just` binary print its changelog.
 
