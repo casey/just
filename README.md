@@ -86,7 +86,7 @@ You can also set the shell using command-line arguments. For example, to use Pow
 ### Packages
 
 | Operating System                                                                                                                                                | Package Manager                                                                | Package                                                                                                  | Command                                                                                 |
-|-----------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------|
+| --------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
 | [Various](https://forge.rust-lang.org/release/platform-support.html)                                                                                            | [Cargo](https://www.rust-lang.org)                                             | [just](https://crates.io/crates/just)                                                                    | `cargo install just`                                                                    |
 | [Microsoft Windows](https://en.wikipedia.org/wiki/Microsoft_Windows)                                                                                            | [Scoop](https://scoop.sh)                                                      | [just](https://github.com/ScoopInstaller/Main/blob/master/bucket/just.json)                              | `scoop install just`                                                                    |
 | [Various](https://docs.brew.sh/Installation)                                                                                                                    | [Homebrew](https://brew.sh)                                                    | [just](https://formulae.brew.sh/formula/just)                                                            | `brew install just`                                                                     |
@@ -141,7 +141,7 @@ Example usage:
 ```yaml
 - uses: extractions/setup-just@v1
   with:
-    just-version: 0.8  # optional semver specification, otherwise latest
+    just-version: 0.8 # optional semver specification, otherwise latest
 ```
 
 ### Release RSS Feed
@@ -471,7 +471,7 @@ foo:
 #### Table of Settings
 
 | Name                   | Value                | Description                                                    |
-|------------------------|----------------------|----------------------------------------------------------------|
+| ---------------------- | -------------------- | -------------------------------------------------------------- |
 | `dotenv-load`          | boolean              | Load a `.env` file, if present.                                |
 | `export`               | boolean              | Export all variables as environment variables.                 |
 | `positional-arguments` | boolean              | Pass positional arguments.                                     |
@@ -547,7 +547,7 @@ set positional-arguments
     bash -c 'while (( "$#" )); do echo - $1; shift; done' -- "$@"
 ```
 
-Running it with *two* arguments:
+Running it with _two_ arguments:
 
 ```sh
 $ just test foo "bar baz"
@@ -921,7 +921,7 @@ serve:
 
 Indented backticks, delimited by three backticks, are de-indented in the same manner as indented strings:
 
-```` make
+````make
 # This backtick evaluates the command `echo foo\necho bar\n`, which produces the value `foo\nbar\n`.
 stuff := ```
     echo foo
@@ -1154,7 +1154,7 @@ backup +FILES:
   scp {{FILES}} me@server.com:
 ```
 
-Variadic parameters prefixed with `+` accept *one or more* arguments and expand to a string containing those arguments separated by spaces:
+Variadic parameters prefixed with `+` accept _one or more_ arguments and expand to a string containing those arguments separated by spaces:
 
 ```sh
 $ just backup FAQ.md GRAMMAR.md
@@ -1163,7 +1163,7 @@ FAQ.md                  100% 1831     1.8KB/s   00:00
 GRAMMAR.md              100% 1666     1.6KB/s   00:00
 ```
 
-Variadic parameters prefixed with `*` accept *zero or more* arguments and expand to a string containing those arguments separated by spaces, or an empty string if no arguments are present:
+Variadic parameters prefixed with `*` accept _zero or more_ arguments and expand to a string containing those arguments separated by spaces, or an empty string if no arguments are present:
 
 ```make
 commit MESSAGE *FLAGS:
@@ -1226,7 +1226,7 @@ d:
   echo 'D!'
 ```
 
-…running *b* prints:
+…running _b_ prints:
 
 ```sh
 $ just b
@@ -1257,7 +1257,7 @@ c:
   echo 'C!'
 ```
 
-…running *b* prints:
+…running _b_ prints:
 
 ```sh
 $ just b
@@ -1551,7 +1551,7 @@ This is useful for helper recipes which are only meant to be used as dependencie
 
 ### Quiet Recipes
 
-A recipe name may be prefixed with *@* to invert the meaning of *@* before each line:
+A recipe name may be prefixed with _@_ to invert the meaning of _@_ before each line:
 
 ```make
 @quiet:
@@ -1560,7 +1560,7 @@ A recipe name may be prefixed with *@* to invert the meaning of *@* before each 
   @# all done!
 ```
 
-Now only the lines starting with *@* will be echoed:
+Now only the lines starting with _@_ will be echoed:
 
 ```sh
 $ j quiet
