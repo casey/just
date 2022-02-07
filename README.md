@@ -248,11 +248,11 @@ Once `just` is installed and working, create a file named `justfile` in the root
 
 ```make
 recipe-name:
-    echo 'This is a recipe!'
+  echo 'This is a recipe!'
 
 # this is a comment
 another-recipe:
-    @echo 'This is another recipe.'
+  @echo 'This is another recipe.'
 ```
 
 When you invoke `just` it looks for file `justfile` in the current directory and upwards, so you can invoke it from any subdirectory of your project.
@@ -280,22 +280,22 @@ Recipes stop running if a command fails. Here `cargo publish` will only run if `
 
 ```make
 publish:
-    cargo test
-    # tests passed, time to publish!
-    cargo publish
+  cargo test
+  # tests passed, time to publish!
+  cargo publish
 ```
 
 Recipes can depend on other recipes. Here the `test` recipe depends on the `build` recipe, so `build` will run before `test`:
 
 ```make
 build:
-    cc main.c foo.c bar.c -o main
+  cc main.c foo.c bar.c -o main
 
 test: build
-    ./test
+  ./test
 
 sloc:
-    @echo "`wc -l *.c` lines of code"
+  @echo "`wc -l *.c` lines of code"
 ```
 
 ```sh
@@ -544,7 +544,7 @@ This example recipe will print arguments one by one on separate lines:
 set positional-arguments
 
 @test *args='':
-    bash -c 'while (( "$#" )); do echo - $1; shift; done' -- "$@"
+  bash -c 'while (( "$#" )); do echo - $1; shift; done' -- "$@"
 ```
 
 Running it with _two_ arguments:
@@ -639,12 +639,12 @@ tardir  := "awesomesauce-" + version
 tarball := tardir + ".tar.gz"
 
 publish:
-    rm -f {{tarball}}
-    mkdir {{tardir}}
-    cp README.md *.c {{tardir}}
-    tar zcvf {{tarball}} {{tardir}}
-    scp {{tarball}} me@server.com:release/
-    rm -rf {{tarball}} {{tardir}}
+  rm -f {{tarball}}
+  mkdir {{tardir}}
+  cp README.md *.c {{tardir}}
+  tar zcvf {{tarball}} {{tardir}}
+  scp {{tarball}} me@server.com:release/
+  rm -rf {{tarball}} {{tardir}}
 ```
 
 #### Escaping `{{`
@@ -653,7 +653,7 @@ To write a recipe containing `{{`, use `{{{{`:
 
 ```make
 braces:
-    echo 'I {{{{LOVE}} curly braces!'
+  echo 'I {{{{LOVE}} curly braces!'
 ```
 
 (An unmatched `}}` is ignored, so it doesn't need to be escaped.)
@@ -662,14 +662,14 @@ Another option is to put all the text you'd like to escape inside of an interpol
 
 ```make
 braces:
-    echo '{{'I {{LOVE}} curly braces!'}}'
+  echo '{{'I {{LOVE}} curly braces!'}}'
 ```
 
 Yet another option is to use `{{ "{{" }}`:
 
 ```make
 braces:
-    echo 'I {{ "{{" }}LOVE}} curly braces!'
+  echo 'I {{ "{{" }}LOVE}} curly braces!'
 ```
 
 ### Strings
@@ -745,8 +745,8 @@ Normally, if a command returns a non-zero exit status, execution will stop. To c
 
 ```make
 foo:
-    -cat foo
-    echo 'Done!'
+  -cat foo
+  echo 'Done!'
 ```
 
 ```sh
@@ -773,7 +773,7 @@ For example:
 
 ```make
 system-info:
-    @echo "This is an {{arch()}} machine".
+  @echo "This is an {{arch()}} machine".
 ```
 
 ```sh
@@ -795,14 +795,14 @@ For example, to call `rustfmt` on files just under the "current directory" (from
 
 ```make
 rustfmt:
-    find {{invocation_directory()}} -name \*.rs -exec rustfmt {} \;
+  find {{invocation_directory()}} -name \*.rs -exec rustfmt {} \;
 ```
 
 Alternatively, if your command needs to be run from the current directory, you could use (e.g.):
 
 ```make
 build:
-    cd {{invocation_directory()}}; ./some_script_that_needs_to_be_run_from_here
+  cd {{invocation_directory()}}; ./some_script_that_needs_to_be_run_from_here
 ```
 
 #### Justfile and Justfile Directory
@@ -826,7 +826,7 @@ For example:
 
 ```make
 executable:
-    @echo The executable is at: {{just_executable()}}
+  @echo The executable is at: {{just_executable()}}
 ```
 
 ```sh
@@ -916,7 +916,7 @@ Backticks can be used to store the result of commands:
 localhost := `dumpinterfaces | cut -d: -f2 | sed 's/\/.*//' | sed 's/ //g'`
 
 serve:
-    ./serve {{localhost}} 8080
+  ./serve {{localhost}} 8080
 ```
 
 Indented backticks, delimited by three backticks, are de-indented in the same manner as indented strings:
@@ -1022,10 +1022,10 @@ Variables can be overridden from the command line.
 os := "linux"
 
 test: build
-    ./test --test {{os}}
+  ./test --test {{os}}
 
 build:
-    ./build {{os}}
+  ./build {{os}}
 ```
 
 ```sh
@@ -1058,16 +1058,16 @@ Assignments prefixed with the `export` keyword will be exported to recipes as en
 export RUST_BACKTRACE := "1"
 
 test:
-    # will print a stack trace if it crashes
-    cargo test
+  # will print a stack trace if it crashes
+  cargo test
 ```
 
 Parameters prefixed with a `$` will be exported as environment variables:
 
 ```make
 test $RUST_BACKTRACE="1":
-    # will print a stack trace if it crashes
-    cargo test
+  # will print a stack trace if it crashes
+  cargo test
 ```
 
 Exported variables and parameters are not exported to backticks in the same scope.
@@ -1090,8 +1090,8 @@ Recipes may have parameters. Here recipe `build` has a parameter called `target`
 
 ```make
 build target:
-    @echo 'Building {{target}}...'
-    cd {{target}} && make
+  @echo 'Building {{target}}...'
+  cd {{target}} && make
 ```
 
 To pass arguments on the command line, put them after the recipe name:
@@ -1118,8 +1118,8 @@ Parameters may have default values:
 default := 'all'
 
 test target tests=default:
-    @echo 'Testing {{target}}:{{tests}}...'
-    ./test --tests {{tests}} {{target}}
+  @echo 'Testing {{target}}:{{tests}}...'
+  ./test --tests {{tests}} {{target}}
 ```
 
 Parameters with default values may be omitted:
@@ -1181,7 +1181,7 @@ test +FLAGS='-q':
 
 ```make
 search QUERY:
-    lynx https://www.google.com/?q={{QUERY}}
+  lynx https://www.google.com/?q={{QUERY}}
 ```
 
 And you type:
@@ -1196,7 +1196,7 @@ You can fix this by adding quotes:
 
 ```make
 search QUERY:
-    lynx 'https://www.google.com/?q={{QUERY}}'
+  lynx 'https://www.google.com/?q={{QUERY}}'
 ```
 
 Parameters prefixed with a `$` will be exported as environment variables:
@@ -1281,25 +1281,25 @@ Recipes that start with a `#!` are executed as scripts, so you can write recipes
 polyglot: python js perl sh ruby
 
 python:
-    #!/usr/bin/env python3
-    print('Hello from python!')
+  #!/usr/bin/env python3
+  print('Hello from python!')
 
 js:
-    #!/usr/bin/env node
-    console.log('Greetings from JavaScript!')
+  #!/usr/bin/env node
+  console.log('Greetings from JavaScript!')
 
 perl:
-    #!/usr/bin/env perl
-    print "Larry Wall says Hi!\n";
+  #!/usr/bin/env perl
+  print "Larry Wall says Hi!\n";
 
 sh:
-    #!/usr/bin/env sh
-    hello='Yo'
-    echo "$hello from a shell script!"
+  #!/usr/bin/env sh
+  hello='Yo'
+  echo "$hello from a shell script!"
 
 ruby:
-    #!/usr/bin/env ruby
-    puts "Hello from ruby!"
+  #!/usr/bin/env ruby
+  puts "Hello from ruby!"
 ```
 
 ```sh
@@ -1317,10 +1317,10 @@ If you're writing a `bash` shebang recipe, consider adding `set -euxo pipefail`:
 
 ```make
 foo:
-    #!/usr/bin/env bash
-    set -euxo pipefail
-    hello='Yo'
-    echo "$hello from Bash!"
+  #!/usr/bin/env bash
+  set -euxo pipefail
+  hello='Yo'
+  echo "$hello from Bash!"
 ```
 
 It isn't strictly necessary, but `set -euxo pipefail` turns on a few useful features that make `bash` shebang recipes behave more like normal, linewise `just` recipe:
@@ -1344,7 +1344,6 @@ For example, to execute this recipe on Windows:
 ```make
 echo:
   #!/bin/sh
-
   echo "Hello!"
 ```
 
@@ -1417,9 +1416,9 @@ For example, with the following `justfile`:
 
 ```mf
 conditional:
-    if true; then
-        echo 'True!'
-    fi
+  if true; then
+    echo 'True!'
+  fi
 ```
 
 The extra leading whitespace before the second line of the `conditional` recipe will produce a parse error:
@@ -1438,66 +1437,66 @@ To work around this, you can write conditionals on one line, escape newlines wit
 
 ```make
 conditional:
-    if true; then echo 'True!'; fi
+  if true; then echo 'True!'; fi
 ```
 
 ```make
 conditional:
-    if true; then \
-        echo 'True!'; \
-    fi
+  if true; then \
+    echo 'True!'; \
+  fi
 ```
 
 ```make
 conditional:
-    #!/usr/bin/env sh
-    if true; then
-        echo 'True!'
-    fi
+  #!/usr/bin/env sh
+  if true; then
+    echo 'True!'
+  fi
 ```
 
 #### `for` loops
 
 ```make
 for:
-    for file in `ls .`; do echo $file; done
+  for file in `ls .`; do echo $file; done
 ```
 
 ```make
 for:
-    for file in `ls .`; do \
-        echo $file; \
-    done
+  for file in `ls .`; do \
+    echo $file; \
+  done
 ```
 
 ```make
 for:
-    #!/usr/bin/env sh
-    for file in `ls .`; do
-        echo $file
-    done
+  #!/usr/bin/env sh
+  for file in `ls .`; do
+    echo $file
+  done
 ```
 
 #### `while` loops
 
 ```make
 while:
-    while `server-is-dead`; do ping -c 1 server; done
+  while `server-is-dead`; do ping -c 1 server; done
 ```
 
 ```make
 while:
-    while `server-is-dead`; do \
-        ping -c 1 server; \
-    done
+  while `server-is-dead`; do \
+    ping -c 1 server; \
+  done
 ```
 
 ```make
 while:
-    #!/usr/bin/env sh
-    while `server-is-dead`; do
-        do ping -c 1 server
-    done
+  #!/usr/bin/env sh
+  while `server-is-dead`; do
+    ping -c 1 server
+  done
 ```
 
 ### Command Line Options
@@ -1514,8 +1513,8 @@ Available recipes:
   ruby
 $ just --show perl
 perl:
-    #!/usr/bin/env perl
-    print "Larry Wall says Hi!\n";
+  #!/usr/bin/env perl
+  print "Larry Wall says Hi!\n";
 $ just --show polyglot
 polyglot: python js perl sh ruby
 ```
