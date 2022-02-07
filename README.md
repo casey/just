@@ -117,10 +117,10 @@ curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -
 For example, to install `just` to `~/bin`:
 
 ```sh
-# create `~/bin`
+# create ~/bin
 mkdir -p ~/bin
 
-# download and extract `just` to `~/bin/just`
+# download and extract just to ~/bin/just
 curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to ~/bin
 
 # add `~/bin` to the paths that your shell searches for executables
@@ -204,7 +204,7 @@ Or add the following to an individual `justfile` to enable `make` mode on a per-
 
 ### Emacs
 
-[just-mode](https://github.com/leon-barrett/just-mode.el) provides syntax highlighting and automatic indentation of `justfile`s. It is available on [MELPA](https://melpa.org/) as [just-mode](https://melpa.org/#/just-mode)
+[just-mode](https://github.com/leon-barrett/just-mode.el) provides syntax highlighting and automatic indentation of `justfile`s. It is available on [MELPA](https://melpa.org/) as [just-mode](https://melpa.org/#/just-mode).
 
 [justl](https://github.com/psibi/justl.el) provides commands for executing and listing recipes.
 
@@ -218,7 +218,7 @@ You can add the following to an individual `justfile` to enable `make` mode on a
 
 ### Visual Studio Code
 
-An extension for VS Code by [skellock](https://github.com/skellock) is [available here](https://marketplace.visualstudio.com/items?itemName=skellock.just). ([repository](https://github.com/skellock/vscode-just))
+An extension for VS Code by [skellock](https://github.com/skellock) is [available here](https://marketplace.visualstudio.com/items?itemName=skellock.just) ([repository](https://github.com/skellock/vscode-just)).
 
 You can install it from the command line by running:
 
@@ -536,7 +536,7 @@ foo
 hello
 ```
 
-When using an `sh`-compatible shell, such as `bash` or `zsh`, `$@` expands to the positional arguments given to the recipe, starting from one. When used within double quotes as `"$@"`, arguments including whitespace will be passed on as if they were double-quoted. That is, "$@" is equivalent to "$1" "$2"… When there are no positional parameters, "$@" and $@ expand to nothing (i.e., they are removed).
+When using an `sh`-compatible shell, such as `bash` or `zsh`, `$@` expands to the positional arguments given to the recipe, starting from one. When used within double quotes as `"$@"`, arguments including whitespace will be passed on as if they were double-quoted. That is, `"$@"` is equivalent to `"$1" "$2"`… When there are no positional parameters, `"$@"` and `$@` expand to nothing (i.e., they are removed).
 
 This example recipe will print arguments one by one on separate lines:
 
@@ -763,11 +763,11 @@ Done!
 
 #### System Information
 
-- `arch()` – Instruction set architecture. Possible values are: `"aarch64"`, `"arm"`, `"asmjs"`, `"hexagon"`, `"mips"`, `"msp430"`, `"powerpc"`, `"powerpc64"`, `"s390x"`, `"sparc"`, `"wasm32"`, `"x86"`, `"x86_64"`, and `"xcore"`.
+- `arch()` — Instruction set architecture. Possible values are: `"aarch64"`, `"arm"`, `"asmjs"`, `"hexagon"`, `"mips"`, `"msp430"`, `"powerpc"`, `"powerpc64"`, `"s390x"`, `"sparc"`, `"wasm32"`, `"x86"`, `"x86_64"`, and `"xcore"`.
 
-- `os()` – Operating system. Possible values are: `"android"`, `"bitrig"`, `"dragonfly"`, `"emscripten"`, `"freebsd"`, `"haiku"`, `"ios"`, `"linux"`, `"macos"`, `"netbsd"`, `"openbsd"`, `"solaris"`, and `"windows"`.
+- `os()` — Operating system. Possible values are: `"android"`, `"bitrig"`, `"dragonfly"`, `"emscripten"`, `"freebsd"`, `"haiku"`, `"ios"`, `"linux"`, `"macos"`, `"netbsd"`, `"openbsd"`, `"solaris"`, and `"windows"`.
 
-- `os_family()` – Operating system family; possible values are: `"unix"` and `"windows"`.
+- `os_family()` — Operating system family; possible values are: `"unix"` and `"windows"`.
 
 For example:
 
@@ -783,9 +783,9 @@ This is an x86_64 machine
 
 #### Environment Variables
 
-- `env_var(key)` – Retrieves the environment variable with name `key`, aborting if it is not present.
+- `env_var(key)` — Retrieves the environment variable with name `key`, aborting if it is not present.
 
-- `env_var_or_default(key, default)` – Retrieves the environment variable with name `key`, returning `default` if it is not present.
+- `env_var_or_default(key, default)` — Retrieves the environment variable with name `key`, returning `default` if it is not present.
 
 #### Invocation Directory
 
@@ -1550,7 +1550,7 @@ This is useful for helper recipes which are only meant to be used as dependencie
 
 ### Quiet Recipes
 
-A recipe name may be prefixed with _@_ to invert the meaning of _@_ before each line:
+A recipe name may be prefixed with `@` to invert the meaning of `@` before each line:
 
 ```make
 @quiet:
@@ -1559,7 +1559,7 @@ A recipe name may be prefixed with _@_ to invert the meaning of _@_ before each 
   @# all done!
 ```
 
-Now only the lines starting with _@_ will be echoed:
+Now only the lines starting with `@` will be echoed:
 
 ```sh
 $ j quiet
@@ -1590,7 +1590,7 @@ Adding `@` to a shebang recipe name makes `just` print the recipe before executi
 ```
 
 ```sh
-$ just bar                                                                                    ~/src/just
+$ just bar
 #!/usr/bin/env bash
 echo 'Bar!'
 Bar!
