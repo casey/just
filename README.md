@@ -156,7 +156,7 @@ An [RSS feed](https://en.wikipedia.org/wiki/RSS) of `just` releases is available
 
 #### `vim-just`
 
-The [vim-just](https://github.com/NoahTheDuke/vim-just) plugin provides syntax highlighting for justfiles.
+The [vim-just](https://github.com/NoahTheDuke/vim-just) plugin provides syntax highlighting for `justfile`s.
 
 Install it with your favorite package manager, like [Plug](https://github.com/junegunn/vim-plug):
 
@@ -184,7 +184,7 @@ git clone https://github.com/NoahTheDuke/vim-just.git
 
 #### Makefile Syntax Highlighting
 
-Vim's built-in makefile syntax highlighting isn't perfect for justfiles, but it's better than nothing. You can put the following in `~/.vim/filetype.vim`:
+Vim's built-in makefile syntax highlighting isn't perfect for `justfile`s, but it's better than nothing. You can put the following in `~/.vim/filetype.vim`:
 
 ```vimscript
 if exists("did_load_filetypes")
@@ -196,7 +196,7 @@ augroup filetypedetect
 augroup END
 ```
 
-Or add the following to an individual justfile to enable `make` mode on a per-file basis:
+Or add the following to an individual `justfile` to enable `make` mode on a per-file basis:
 
 ```text
 # vim: set ft=make :
@@ -204,11 +204,11 @@ Or add the following to an individual justfile to enable `make` mode on a per-fi
 
 ### Emacs
 
-[just-mode](https://github.com/leon-barrett/just-mode.el) provides syntax highlighting and automatic indentation of justfiles. It is available on [MELPA](https://melpa.org/) as [just-mode](https://melpa.org/#/just-mode)
+[just-mode](https://github.com/leon-barrett/just-mode.el) provides syntax highlighting and automatic indentation of `justfile`s. It is available on [MELPA](https://melpa.org/) as [just-mode](https://melpa.org/#/just-mode)
 
 [justl](https://github.com/psibi/justl.el) provides commands for executing and listing recipes.
 
-You can add the following to an individual justfile to enable `make` mode on a per-file basis:
+You can add the following to an individual `justfile` to enable `make` mode on a per-file basis:
 
 ```text
 # Local Variables:
@@ -324,15 +324,15 @@ testing... all tests passed!
 
 ## Examples
 
-A variety of example justfiles can be found in the [examples directory](examples).
+A variety of example `justfile`s can be found in the [examples directory](examples).
 
-This [blog post](https://toniogela.dev/just/) discusses using `just` to improve management of shared machines, and includes a number of example justfiles.
+This [blog post](https://toniogela.dev/just/) discusses using `just` to improve management of shared machines, and includes a number of example `justfile`s.
 
 ## Features
 
 ### The Default Recipe
 
-When `just` is invoked without a recipe, it runs the first recipe in the justfile. This recipe might be the most frequently run command in the project, like running the tests:
+When `just` is invoked without a recipe, it runs the first recipe in the `justfile`. This recipe might be the most frequently run command in the project, like running the tests:
 
 ```make
 test:
@@ -354,7 +354,7 @@ lint:
   echo Linting...
 ```
 
-If no recipe makes sense as the default recipe, you can add a recipe to the beginning of your justfile that lists the available recipes:
+If no recipe makes sense as the default recipe, you can add a recipe to the beginning of your `justfile` that lists the available recipes:
 
 ```make
 default:
@@ -381,7 +381,7 @@ $ just --summary
 build test deploy lint
 ```
 
-Pass `--unsorted` to print recipes in the order they appear in the justfile:
+Pass `--unsorted` to print recipes in the order they appear in the `justfile`:
 
 ```make
 test:
@@ -403,7 +403,7 @@ $ just --summary --unsorted
 test build
 ```
 
-If you'd like `just` to default to listing the recipes in the justfile, you can use this as your default recipe:
+If you'd like `just` to default to listing the recipes in the `justfile`, you can use this as your default recipe:
 
 ```make
 default:
@@ -456,7 +456,7 @@ Building!
 
 ### Settings
 
-Settings control interpretation and execution. Each setting may be specified at most once, anywhere in the justfile.
+Settings control interpretation and execution. Each setting may be specified at most once, anywhere in the `justfile`.
 
 For example:
 
@@ -807,11 +807,11 @@ build:
 
 #### Justfile and Justfile Directory
 
-- `justfile()` - Retrieves the path of the current justfile.
+- `justfile()` - Retrieves the path of the current `justfile`.
 
-- `justfile_directory()` - Retrieves the path of the parent directory of the current justfile.
+- `justfile_directory()` - Retrieves the path of the parent directory of the current `justfile`.
 
-For example, to run a command relative to the location of the current justfile:
+For example, to run a command relative to the location of the current `justfile`:
 
 ```make
 script:
@@ -860,7 +860,7 @@ The executable is at: /bin/just
 
 #### Dotenv Integration
 
-`just` will load environment variables from a file named `.env`. This file can be located in the same directory as your justfile or in a parent directory. These variables are environment variables, not `just` variables, and so must be accessed using `$VARIABLE_NAME` in recipes and backticks.
+`just` will load environment variables from a file named `.env`. This file can be located in the same directory as your `justfile` or in a parent directory. These variables are environment variables, not `just` variables, and so must be accessed using `$VARIABLE_NAME` in recipes and backticks.
 
 For example, if your `.env` file contains:
 
@@ -870,7 +870,7 @@ DATABASE_ADDRESS=localhost:6379
 SERVER_PORT=1337
 ```
 
-And your justfile contains:
+And your `justfile` contains:
 
 ```make
 serve:
@@ -1242,7 +1242,7 @@ D!
 
 ### Running Recipes in the Middle of a Recipe
 
-`just` doesn't support running recipes in the middle of another recipe, but you can call `just` recursively in the middle of a recipe. Given the following justfile:
+`just` doesn't support running recipes in the middle of another recipe, but you can call `just` recursively in the middle of a recipe. Given the following `justfile`:
 
 ```make
 a:
@@ -1413,7 +1413,7 @@ foo:
 
 Recipes without an initial shebang are evaluated and run line-by-line, which means that multi-line constructs probably won't do what you want.
 
-For example, with the following justfile:
+For example, with the following `justfile`:
 
 ```mf
 conditional:
@@ -1616,19 +1616,19 @@ default:
   @just --choose
 ```
 
-### Invoking Justfiles in Other Directories
+### Invoking `justfile`s in Other Directories
 
 If the first argument passed to `just` contains a `/`, then the following occurs:
 
 1.  The argument is split at the last `/`.
 
-2.  The part before the last `/` is treated as a directory. `just` will start its search for the justfile there, instead of in the current directory.
+2.  The part before the last `/` is treated as a directory. `just` will start its search for the `justfile` there, instead of in the current directory.
 
 3.  The part after the last slash is treated as a normal argument, or ignored if it is empty.
 
-This may seem a little strange, but it's useful if you wish to run a command in a justfile that is in a subdirectory.
+This may seem a little strange, but it's useful if you wish to run a command in a `justfile` that is in a subdirectory.
 
-For example, if you are in a directory which contains a subdirectory named `foo`, which contains a justfile with the recipe `build`, which is also the default recipe, the following are all equivalent:
+For example, if you are in a directory which contains a subdirectory named `foo`, which contains a `justfile` with the recipe `build`, which is also the default recipe, the following are all equivalent:
 
 ```sh
 $ (cd foo && just build)
@@ -1636,13 +1636,13 @@ $ just foo/build
 $ just foo/
 ```
 
-### Hiding Justfiles
+### Hiding `justfile`s
 
-`just` looks for justfiles named `justfile` and `.justfile`, which can be used to keep a `justfile` hidden.
+`just` looks for `justfile`s named `justfile` and `.justfile`, which can be used to keep a `justfile` hidden.
 
 ### Just Scripts
 
-By adding a shebang line to the top of a justfile and making it executable, `just` can be used as an interpreter for scripts:
+By adding a shebang line to the top of a `justfile` and making it executable, `just` can be used as an interpreter for scripts:
 
 ```sh
 $ cat > script <<EOF
@@ -1670,9 +1670,9 @@ default:
   echo foo
 ```
 
-### Dumping Justfiles as JSON
+### Dumping `justfile`s as JSON
 
-The `--dump` command can be used with `--dump-format json` to print a JSON representation of a justfile. The JSON format is currently unstable, so the `--unstable` flag is required.
+The `--dump` command can be used with `--dump-format json` to print a JSON representation of a `justfile`. The JSON format is currently unstable, so the `--unstable` flag is required.
 
 ### Changelog
 
@@ -1708,17 +1708,17 @@ $ just --completions zsh > just.zsh
 
 ### Grammar
 
-A non-normative grammar of justfiles can be found in [GRAMMAR.md](GRAMMAR.md).
+A non-normative grammar of `justfile`s can be found in [GRAMMAR.md](GRAMMAR.md).
 
 ### just.sh
 
 Before `just` was a fancy Rust program it was a tiny shell script that called `make`. You can find the old version in [extras/just.sh](extras/just.sh).
 
-### User Justfiles
+### User `justfile`s
 
 If you want some recipes to be available everywhere, you have a few options.
 
-First, create a justfile in `~/.user.justfile` with some recipes.
+First, create a `justfile` in `~/.user.justfile` with some recipes.
 
 #### Recipe Aliases
 
@@ -1732,7 +1732,7 @@ done
 
 Now, if you have a recipe called `foo` in `~/.user.justfile`, you can just type `foo` at the command line to run it.
 
-It took me way too long to realize that you could create recipe aliases like this. Notwithstanding my tardiness, I am very pleased to bring you this major advance in justfile technology.
+It took me way too long to realize that you could create recipe aliases like this. Notwithstanding my tardiness, I am very pleased to bring you this major advance in `justfile` technology.
 
 #### Forwarding Alias
 
@@ -1750,7 +1750,7 @@ I'm pretty sure that nobody actually uses this feature, but it's there.
 
 #### Customization
 
-You can customize the above aliases with additional options. For example, if you'd prefer to have the recipes in your justfile run in your home directory, instead of the current directory:
+You can customize the above aliases with additional options. For example, if you'd prefer to have the recipes in your `justfile` run in your home directory, instead of the current directory:
 
 ```sh
 alias .j='just --justfile ~/.user.justfile --working-directory ~'
@@ -1770,7 +1770,7 @@ There is no shortage of command runners out there! Some more or less similar alt
 
 ### Janus
 
-[Janus](https://github.com/casey/janus) is a tool that collects and analyzes justfiles, and can determine if a new version of `just` breaks or changes the interpretation of existing justfiles.
+[Janus](https://github.com/casey/janus) is a tool that collects and analyzes `justfile`s, and can determine if a new version of `just` breaks or changes the interpretation of existing `justfile`s.
 
 Before merging a particularly large or gruesome change, Janus should be run to make sure that nothing breaks. Don't worry about running Janus yourself, Casey will happily run it for you on changes that need it.
 
@@ -1840,7 +1840,7 @@ Some ideas for recipes:
 
 Even for small, personal projects it's nice to be able to remember commands by name instead of ^Reverse searching your shell history, and it's a huge boon to be able to go into an old project written in a random language with a mysterious build system and know that all the commands you need to do whatever you need to do are in the `justfile`, and that if you type `just` something useful (or at least interesting!) will probably happen.
 
-For ideas for recipes, check out [this project's `justfile`](justfile), or some of the `justfile`​s [out in the wild](https://github.com/search?o=desc&q=filename%3Ajustfile&s=indexed&type=Code).
+For ideas for recipes, check out [this project's `justfile`](justfile), or some of the `justfile`s [out in the wild](https://github.com/search?o=desc&q=filename%3Ajustfile&s=indexed&type=Code).
 
 Anyways, I think that's about it for this incredibly long-winded README.
 
