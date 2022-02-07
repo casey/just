@@ -345,7 +345,7 @@ sloc:
 $ just test
 cc main.c foo.c bar.c -o main
 ./test
-testing... all tests passed!
+testing… all tests passed!
 ```
 
 Recipes without dependencies will run in the order they're given on the command line:
@@ -362,7 +362,7 @@ Dependencies will always run first, even if they are passed after a recipe that 
 $ just test build
 cc main.c foo.c bar.c -o main
 ./test
-testing... all tests passed!
+testing… all tests passed!
 ```
 
 ## Examples
@@ -388,13 +388,13 @@ You can also use dependencies to run multiple recipes by default:
 default: lint build test
 
 build:
-  echo Building...
+  echo Building…
 
 test:
-  echo Testing...
+  echo Testing…
 
 lint:
-  echo Linting...
+  echo Linting…
 ```
 
 If no recipe makes sense as the default recipe, you can add a recipe to the beginning of your `justfile` that lists the available recipes:
@@ -456,8 +456,8 @@ default:
 The heading text can be customized with `--list-heading`:
 
 ```sh
-$ just --list --list-heading $'Cool stuff...\n'
-Cool stuff...
+$ just --list --list-heading $'Cool stuff…\n'
+Cool stuff…
     test
     build
 ```
@@ -513,13 +513,13 @@ foo:
 
 #### Table of Settings
 
-| Name                   | Value                | Description                                                    |
-| ---------------------- | -------------------- | -------------------------------------------------------------- |
-| `dotenv-load`          | boolean              | Load a `.env` file, if present.                                |
-| `export`               | boolean              | Export all variables as environment variables.                 |
-| `positional-arguments` | boolean              | Pass positional arguments.                                     |
-| `shell`                | `[COMMAND, ARGS...]` | Set the command used to invoke recipes and evaluate backticks. |
-| `windows-powershell`   | boolean              | Use PowerShell on Windows as default shell.                    |
+| Name                   | Value              | Description                                                    |
+| ---------------------- | ------------------ | -------------------------------------------------------------- |
+| `dotenv-load`          | boolean            | Load a `.env` file, if present.                                |
+| `export`               | boolean            | Export all variables as environment variables.                 |
+| `positional-arguments` | boolean            | Pass positional arguments.                                     |
+| `shell`                | `[COMMAND, ARGS…]` | Set the command used to invoke recipes and evaluate backticks. |
+| `windows-powershell`   | boolean            | Use PowerShell on Windows as default shell.                    |
 
 Boolean settings can be written as:
 
@@ -688,7 +688,7 @@ And your `justfile` contains:
 
 ```make
 serve:
-  @echo "Starting server with database $DATABASE_ADDRESS on port $SERVER_PORT..."
+  @echo "Starting server with database $DATABASE_ADDRESS on port $SERVER_PORT…"
   ./server --database $DATABASE_ADDRESS --port $SERVER_PORT
 ```
 
@@ -696,13 +696,13 @@ serve:
 
 ```sh
 $ just serve
-Starting server with database localhost:6379 on port 1337...
+Starting server with database localhost:6379 on port 1337…
 ./server --database $DATABASE_ADDRESS --port $SERVER_PORT
 ```
 
 ### Variables and Substitution
 
-Variables, strings, concatenation, and substitution using `{{...}}` are supported:
+Variables, strings, concatenation, and substitution using `{{…}}` are supported:
 
 ```make
 version := "0.2.7"
@@ -947,7 +947,7 @@ These functions can fail, for example if a path does not have an extension, whic
 
 ##### Infallible
 
-- `join(a, b...)` - Join path `a` with path `b`. `join("foo/bar", "baz")` is `foo/bar/baz`. Accepts two or more arguments.
+- `join(a, b…)` - Join path `a` with path `b`. `join("foo/bar", "baz")` is `foo/bar/baz`. Accepts two or more arguments.
 
 - `clean(path)` - Simplify `path` by removing extra path separators, intermediate `.` components, and `..` where possible. `clean("foo//bar")` is `foo/bar`, `clean("foo/..")` is `.`, `clean("foo/./bar")` is `foo/bar`.
 
@@ -1133,7 +1133,7 @@ Recipes may have parameters. Here recipe `build` has a parameter called `target`
 
 ```make
 build target:
-  @echo 'Building {{target}}...'
+  @echo 'Building {{target}}…'
   cd {{target}} && make
 ```
 
@@ -1141,7 +1141,7 @@ To pass arguments on the command line, put them after the recipe name:
 
 ```sh
 $ just build my-awesome-project
-Building my-awesome-project...
+Building my-awesome-project…
 cd my-awesome-project && make
 ```
 
@@ -1151,7 +1151,7 @@ To pass arguments to a dependency, put the dependency in parentheses along with 
 default: (build "main")
 
 build target:
-  @echo 'Building {{target}}...'
+  @echo 'Building {{target}}…'
   cd {{target}} && make
 ```
 
@@ -1161,7 +1161,7 @@ Parameters may have default values:
 default := 'all'
 
 test target tests=default:
-  @echo 'Testing {{target}}:{{tests}}...'
+  @echo 'Testing {{target}}:{{tests}}…'
   ./test --tests {{tests}} {{target}}
 ```
 
@@ -1169,7 +1169,7 @@ Parameters with default values may be omitted:
 
 ```sh
 $ just test server
-Testing server:all...
+Testing server:all…
 ./test --tests all server
 ```
 
@@ -1177,7 +1177,7 @@ Or supplied:
 
 ```sh
 $ just test server unit
-Testing server:unit...
+Testing server:unit…
 ./test --tests unit server
 ```
 
@@ -1220,7 +1220,7 @@ test +FLAGS='-q':
   cargo test {{FLAGS}}
 ```
 
-`{{...}}` substitutions may need to be quoted if they contain spaces. For example, if you have the following recipe:
+`{{…}}` substitutions may need to be quoted if they contain spaces. For example, if you have the following recipe:
 
 ```make
 search QUERY:
@@ -1429,9 +1429,9 @@ Each recipe line is executed by a new shell, so if you change the working direct
 
 ```make
 foo:
-  pwd    # This `pwd` will print the same directory...
+  pwd    # This `pwd` will print the same directory…
   cd bar
-  pwd    # ...as this `pwd`!
+  pwd    # …as this `pwd`!
 ```
 
 There are a couple ways around this. One is to call `cd` on the same line as the command you want to run:
