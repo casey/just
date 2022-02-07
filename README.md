@@ -244,7 +244,7 @@ Feel free to send me the commands necessary to get syntax highlighting working i
 Quick Start
 -----------
 
-See [???](#Installation) for how to install `just` on your computer. Try running `just --version` to make sure that it’s installed correctly.
+See [the installation section](#Installation) for how to install `just` on your computer. Try running `just --version` to make sure that it’s installed correctly.
 
 For an overview of the syntax, check out [this cheatsheet](https://cheatography.com/linux-china/cheat-sheets/justfile/).
 
