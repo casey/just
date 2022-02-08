@@ -1,5 +1,5 @@
 `just`
-------
+======
 
 ![crates.io version](https://img.shields.io/crates/v/just.svg)
 ![build status](https://github.com/casey/just/workflows/Build/badge.svg)
