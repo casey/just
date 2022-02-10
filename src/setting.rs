@@ -2,6 +2,7 @@ use crate::common::*;
 
 #[derive(Debug, Clone)]
 pub(crate) enum Setting<'src> {
+  AllowDuplicates(bool),
   DotenvLoad(bool),
   Export(bool),
   PositionalArguments(bool),
@@ -18,7 +19,8 @@ pub(crate) struct Shell<'src> {
 impl<'src> Display for Setting<'src> {
   fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
     match self {
-      Setting::DotenvLoad(value)
+      Setting::AllowDuplicates(value)
+      | Setting::DotenvLoad(value)
       | Setting::Export(value)
       | Setting::PositionalArguments(value)
       | Setting::WindowsPowerShell(value) => write!(f, "{}", value),

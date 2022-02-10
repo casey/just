@@ -1,4 +1,5 @@
 use crate::common::*;
+use crate::compile_error::*;
 
 use CompileErrorKind::*;
 
@@ -16,6 +17,9 @@ impl<'src> Analyzer<'src> {
   }
 
   pub(crate) fn justfile(mut self, ast: Ast<'src>) -> CompileResult<'src, Justfile<'src>> {
+
+    let mut settings = Settings::new();
+
     for item in ast.items {
       match item {
         Item::Alias(alias) => {
@@ -28,12 +32,20 @@ impl<'src> Analyzer<'src> {
         }
         Item::Comment(_) => (),
         Item::Recipe(recipe) => {
-          self.analyze_recipe(&recipe)?;
+          let r = self.analyze_recipe(&recipe);
+          match r {
+              Err(CompileError{token: _, kind: DuplicateRecipe{..}}) if settings.allow_duplicates => {
+                  self.recipes.remove(recipe.name.lexeme());
+              },
+              Err(e) => return Err(e),
+              Ok(_) => (),
+          };
           self.recipes.insert(recipe);
         }
         Item::Set(set) => {
           self.analyze_set(&set)?;
-          self.sets.insert(set);
+          // self.sets.insert(set);
+          self.resolve_set(&mut settings, set)?;
         }
       }
     }
@@ -57,29 +69,6 @@ impl<'src> Analyzer<'src> {
     let mut aliases = Table::new();
     while let Some(alias) = self.aliases.pop() {
       aliases.insert(Self::resolve_alias(&recipes, alias)?);
-    }
-
-    let mut settings = Settings::new();
-
-    for (_, set) in self.sets {
-      match set.value {
-        Setting::DotenvLoad(dotenv_load) => {
-          settings.dotenv_load = Some(dotenv_load);
-        }
-        Setting::Export(export) => {
-          settings.export = export;
-        }
-        Setting::PositionalArguments(positional_arguments) => {
-          settings.positional_arguments = positional_arguments;
-        }
-        Setting::Shell(shell) => {
-          assert!(settings.shell.is_none());
-          settings.shell = Some(shell);
-        }
-        Setting::WindowsPowerShell(windows_powershell) => {
-          settings.windows_powershell = windows_powershell;
-        }
-      }
     }
 
     Ok(Justfile {
@@ -183,6 +172,31 @@ impl<'src> Analyzer<'src> {
       }));
     }
 
+    Ok(())
+  }
+
+  fn resolve_set(&self, settings: &mut Settings<'src>, set: Set<'src>) -> CompileResult<'src, ()> {
+    match set.value {
+      Setting::AllowDuplicates(allow_duplicates) => {
+        settings.allow_duplicates = allow_duplicates;
+      }
+      Setting::DotenvLoad(dotenv_load) => {
+        settings.dotenv_load = Some(dotenv_load);
+      }
+      Setting::Export(export) => {
+        settings.export = export;
+      }
+      Setting::PositionalArguments(positional_arguments) => {
+        settings.positional_arguments = positional_arguments;
+      }
+      Setting::Shell(shell) => {
+        assert!(settings.shell.is_none());
+        settings.shell = Some(shell);
+      }
+      Setting::WindowsPowerShell(windows_powershell) => {
+        settings.windows_powershell = windows_powershell;
+      }
+    };
     Ok(())
   }
 
@@ -297,6 +311,16 @@ mod tests {
   analysis_error! {
     name:   duplicate_recipe,
     input:  "a:\nb:\na:",
+    offset:  6,
+    line:   2,
+    column: 0,
+    width:  1,
+    kind:   DuplicateRecipe{recipe: "a", first: 0},
+  }
+  
+  analysis_error! {
+    name:   duplicate_recipes_with_allowed_duplicates,
+    input:  "set allow-duplicates := true\na:\nb:\na:",
     offset:  6,
     line:   2,
     column: 0,

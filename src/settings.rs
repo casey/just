@@ -7,6 +7,7 @@ pub(crate) const WINDOWS_POWERSHELL_ARGS: &[&str] = &["-NoLogo", "-Command"];
 
 #[derive(Debug, PartialEq, Serialize)]
 pub(crate) struct Settings<'src> {
+  pub(crate) allow_duplicates: bool,
   pub(crate) dotenv_load: Option<bool>,
   pub(crate) export: bool,
   pub(crate) positional_arguments: bool,
@@ -17,6 +18,7 @@ pub(crate) struct Settings<'src> {
 impl<'src> Settings<'src> {
   pub(crate) fn new() -> Settings<'src> {
     Settings {
+      allow_duplicates: false,
       dotenv_load: None,
       export: false,
       positional_arguments: false,
