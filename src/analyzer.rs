@@ -16,7 +16,7 @@ impl<'src> Analyzer<'src> {
   }
 
   pub(crate) fn justfile(mut self, ast: Ast<'src>) -> CompileResult<'src, Justfile<'src>> {
-    let mut recipes: Vec<UnresolvedRecipe<'src>> = Vec::new();
+    let mut recipes = Vec::new();
 
     for item in ast.items {
       match item {
