@@ -519,13 +519,14 @@ foo:
 
 #### Table of Settings
 
-| Name                   | Value              | Description                                                    |
-| ---------------------- | ------------------ | -------------------------------------------------------------- |
-| `dotenv-load`          | boolean            | Load a `.env` file, if present.                                |
-| `export`               | boolean            | Export all variables as environment variables.                 |
-| `positional-arguments` | boolean            | Pass positional arguments.                                     |
-| `shell`                | `[COMMAND, ARGS…]` | Set the command used to invoke recipes and evaluate backticks. |
-| `windows-powershell`   | boolean            | Use PowerShell on Windows as default shell.                    |
+| Name                      | Value              | Description                                                    |
+| ------------------------- | ------------------ | -------------------------------------------------------------- |
+| `allow-duplicate-recipes` | boolean            | Allow duplicate recipes (last definition is used).             |
+| `dotenv-load`             | boolean            | Load a `.env` file, if present.                                |
+| `export`                  | boolean            | Export all variables as environment variables.                 |
+| `positional-arguments`    | boolean            | Pass positional arguments.                                     |
+| `shell`                   | `[COMMAND, ARGS…]` | Set the command used to invoke recipes and evaluate backticks. |
+| `windows-powershell`      | boolean            | Use PowerShell on Windows as default shell.                    |
 
 Boolean settings can be written as:
 
@@ -537,6 +538,25 @@ Which is equivalent to:
 
 ```mf
 set NAME := true
+```
+
+#### Allow Duplicate Recipes
+
+If `allow-duplicate-recipes` is `true`, recipes can be redefined, (the last definition will be used). Defaults to `false`.
+
+```make
+set allow-duplicate-recipes
+
+@foo:
+  echo foo
+
+@foo:
+  echo bar
+```
+
+```sh
+$ just foo
+bar
 ```
 
 #### Dotenv Load
