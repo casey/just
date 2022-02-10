@@ -1,5 +1,4 @@
 use crate::common::*;
-use crate::compile_error::*;
 
 use CompileErrorKind::*;
 
@@ -17,8 +16,7 @@ impl<'src> Analyzer<'src> {
   }
 
   pub(crate) fn justfile(mut self, ast: Ast<'src>) -> CompileResult<'src, Justfile<'src>> {
-
-    let mut settings = Settings::new();
+    let mut recipes: Vec<UnresolvedRecipe<'src>> = Vec::new();
 
     for item in ast.items {
       match item {
@@ -32,20 +30,38 @@ impl<'src> Analyzer<'src> {
         }
         Item::Comment(_) => (),
         Item::Recipe(recipe) => {
-          let r = self.analyze_recipe(&recipe);
-          match r {
-              Err(CompileError{token: _, kind: DuplicateRecipe{..}}) if settings.allow_duplicate_recipes => {
-                  self.recipes.remove(recipe.name.lexeme());
-              },
-              Err(e) => return Err(e),
-              Ok(_) => (),
-          };
-          self.recipes.insert(recipe);
+          self.analyze_recipe(&recipe)?;
+          recipes.push(recipe);
         }
         Item::Set(set) => {
           self.analyze_set(&set)?;
-          // self.sets.insert(set);
-          self.resolve_set(&mut settings, set)?;
+          self.sets.insert(set);
+        }
+      }
+    }
+
+    let mut settings = Settings::new();
+
+    for (_, set) in self.sets {
+      match set.value {
+        Setting::AllowDuplicateRecipes(allow_duplicate_recipes) => {
+          settings.allow_duplicate_recipes = allow_duplicate_recipes;
+        }
+        Setting::DotenvLoad(dotenv_load) => {
+          settings.dotenv_load = Some(dotenv_load);
+        }
+        Setting::Export(export) => {
+          settings.export = export;
+        }
+        Setting::PositionalArguments(positional_arguments) => {
+          settings.positional_arguments = positional_arguments;
+        }
+        Setting::Shell(shell) => {
+          assert!(settings.shell.is_none());
+          settings.shell = Some(shell);
+        }
+        Setting::WindowsPowerShell(windows_powershell) => {
+          settings.windows_powershell = windows_powershell;
         }
       }
     }
@@ -53,6 +69,20 @@ impl<'src> Analyzer<'src> {
     let assignments = self.assignments;
 
     AssignmentResolver::resolve_assignments(&assignments)?;
+
+    for recipe in recipes.into_iter() {
+      if let Some(original) = self.recipes.get(recipe.name.lexeme()) {
+        if settings.allow_duplicate_recipes {
+            self.recipes.remove(recipe.name.lexeme());
+        } else {
+          return Err(recipe.name.token().error(DuplicateRecipe {
+            recipe: original.name(),
+            first: original.line_number(),
+          }));
+        }
+      }
+      self.recipes.insert(recipe);
+    }
 
     let recipes = RecipeResolver::resolve_recipes(self.recipes, &assignments)?;
 
@@ -91,12 +121,6 @@ impl<'src> Analyzer<'src> {
   }
 
   fn analyze_recipe(&self, recipe: &UnresolvedRecipe<'src>) -> CompileResult<'src, ()> {
-    if let Some(original) = self.recipes.get(recipe.name.lexeme()) {
-      return Err(recipe.name.token().error(DuplicateRecipe {
-        recipe: original.name(),
-        first: original.line_number(),
-      }));
-    }
 
     let mut parameters = BTreeSet::new();
     let mut passed_default = false;
@@ -172,31 +196,6 @@ impl<'src> Analyzer<'src> {
       }));
     }
 
-    Ok(())
-  }
-
-  fn resolve_set(&self, settings: &mut Settings<'src>, set: Set<'src>) -> CompileResult<'src, ()> {
-    match set.value {
-      Setting::AllowDuplicateRecipes(allow_duplicate_recipes) => {
-        settings.allow_duplicate_recipes = allow_duplicate_recipes;
-      }
-      Setting::DotenvLoad(dotenv_load) => {
-        settings.dotenv_load = Some(dotenv_load);
-      }
-      Setting::Export(export) => {
-        settings.export = export;
-      }
-      Setting::PositionalArguments(positional_arguments) => {
-        settings.positional_arguments = positional_arguments;
-      }
-      Setting::Shell(shell) => {
-        assert!(settings.shell.is_none());
-        settings.shell = Some(shell);
-      }
-      Setting::WindowsPowerShell(windows_powershell) => {
-        settings.windows_powershell = windows_powershell;
-      }
-    };
     Ok(())
   }
 

@@ -1222,6 +1222,14 @@ test! {
 }
 
 test! {
+  name:     allow_duplicate_recipes,
+  justfile: "b:\n  echo foo\nb:\n  echo bar\nset allow-duplicate-recipes",
+  args:     ("b"),
+  stdout: "bar\n",
+  stderr: "echo bar\n",
+}
+
+test! {
   name:     duplicate_variable,
   justfile: "a := 'hello'\na := 'hello'\nfoo:",
   args:     ("foo"),
