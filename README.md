@@ -1,3 +1,5 @@
+↖️ Table of contents.
+
 `just`
 ======
 
