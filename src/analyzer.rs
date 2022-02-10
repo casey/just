@@ -70,7 +70,7 @@ impl<'src> Analyzer<'src> {
 
     AssignmentResolver::resolve_assignments(&assignments)?;
 
-    for recipe in recipes.into_iter() {
+    for recipe in recipes {
       if let Some(original) = self.recipes.get(recipe.name.lexeme()) {
         if settings.allow_duplicate_recipes {
             self.recipes.remove(recipe.name.lexeme());
@@ -316,7 +316,7 @@ mod tests {
     width:  1,
     kind:   DuplicateRecipe{recipe: "a", first: 0},
   }
-  
+
   analysis_error! {
     name:   duplicate_variable,
     input:  "a := \"0\"\na := \"0\"",
