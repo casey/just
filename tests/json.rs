@@ -39,6 +39,7 @@ fn alias() {
         }
       },
       "settings": {
+        "allow_duplicates": false,
         "dotenv_load": null,
         "export": false,
         "positional_arguments": false,
@@ -66,6 +67,7 @@ fn assignment() {
       "first": null,
       "recipes": {},
       "settings": {
+        "allow_duplicates": false,
         "dotenv_load": null,
         "export": false,
         "positional_arguments": false,
@@ -106,6 +108,7 @@ fn body() {
         }
       },
       "settings": {
+        "allow_duplicates": false,
         "dotenv_load": null,
         "export": false,
         "positional_arguments": false,
@@ -156,6 +159,7 @@ fn dependencies() {
         }
       },
       "settings": {
+        "allow_duplicates": false,
         "dotenv_load": null,
         "export": false,
         "positional_arguments": false,
@@ -243,6 +247,52 @@ fn dependency_argument() {
         }
       },
       "settings": {
+        "allow_duplicates": false,
+        "dotenv_load": null,
+        "export": false,
+        "positional_arguments": false,
+        "shell": null,
+        "windows_powershell": false,
+      },
+      "warnings": [],
+    }),
+  );
+}
+
+#[test]
+fn duplicates() {
+  test(
+    "
+      set allow-duplicates
+      alias f := foo
+
+      foo:
+      foo:
+    ",
+    json!({
+      "first": "foo",
+      "aliases": {
+        "f": {
+          "name": "f",
+          "target": "foo",
+        }
+      },
+      "assignments": {},
+      "recipes": {
+        "foo": {
+          "body": [],
+          "dependencies": [],
+          "doc": null,
+          "name": "foo",
+          "parameters": [],
+          "priors": 0,
+          "private": false,
+          "quiet": false,
+          "shebang": false,
+        }
+      },
+      "settings": {
+        "allow_duplicates": true,
         "dotenv_load": null,
         "export": false,
         "positional_arguments": false,
@@ -276,6 +326,7 @@ fn doc_comment() {
         }
       },
       "settings": {
+        "allow_duplicates": false,
         "dotenv_load": null,
         "export": false,
         "positional_arguments": false,
@@ -297,6 +348,7 @@ fn empty_justfile() {
       "first": null,
       "recipes": {},
       "settings": {
+        "allow_duplicates": false,
         "dotenv_load": null,
         "export": false,
         "positional_arguments": false,
@@ -427,6 +479,7 @@ fn parameters() {
         },
       },
       "settings": {
+        "allow_duplicates": false,
         "dotenv_load": null,
         "export": false,
         "positional_arguments": false,
@@ -496,6 +549,7 @@ fn priors() {
         },
       },
       "settings": {
+        "allow_duplicates": false,
         "dotenv_load": null,
         "export": false,
         "positional_arguments": false,
@@ -529,6 +583,7 @@ fn private() {
         }
       },
       "settings": {
+        "allow_duplicates": false,
         "dotenv_load": null,
         "export": false,
         "positional_arguments": false,
@@ -562,6 +617,7 @@ fn quiet() {
         }
       },
       "settings": {
+        "allow_duplicates": false,
         "dotenv_load": null,
         "export": false,
         "positional_arguments": false,
@@ -613,6 +669,7 @@ fn settings() {
         }
       },
       "settings": {
+        "allow_duplicates": false,
         "dotenv_load": true,
         "export": true,
         "positional_arguments": true,
@@ -652,6 +709,7 @@ fn shebang() {
         }
       },
       "settings": {
+        "allow_duplicates": false,
         "dotenv_load": null,
         "export": false,
         "positional_arguments": false,
@@ -685,6 +743,7 @@ fn simple() {
         }
       },
       "settings": {
+        "allow_duplicates": false,
         "dotenv_load": null,
         "export": false,
         "positional_arguments": false,

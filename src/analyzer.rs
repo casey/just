@@ -319,16 +319,6 @@ mod tests {
   }
   
   analysis_error! {
-    name:   duplicate_recipes_with_allowed_duplicates,
-    input:  "set allow-duplicates := true\na:\nb:\na:",
-    offset:  6,
-    line:   2,
-    column: 0,
-    width:  1,
-    kind:   DuplicateRecipe{recipe: "a", first: 0},
-  }
-
-  analysis_error! {
     name:   duplicate_variable,
     input:  "a := \"0\"\na := \"0\"",
     offset: 9,
