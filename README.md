@@ -542,7 +542,7 @@ set NAME := true
 
 #### Allow Duplicate Recipes
 
-If `allow-duplicate-recipes` is `true`, recipes can be redefined, (the last definition will be used). Defaults to `false`.
+If `allow-duplicate-recipes` is `true`, recipes can be redefined and the last definition of duplicate recipes will be used. Defaults to `false`.
 
 ```make
 set allow-duplicate-recipes
