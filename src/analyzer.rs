@@ -34,7 +34,7 @@ impl<'src> Analyzer<'src> {
         Item::Recipe(recipe) => {
           let r = self.analyze_recipe(&recipe);
           match r {
-              Err(CompileError{token: _, kind: DuplicateRecipe{..}}) if settings.allow_duplicates => {
+              Err(CompileError{token: _, kind: DuplicateRecipe{..}}) if settings.allow_duplicate_recipes => {
                   self.recipes.remove(recipe.name.lexeme());
               },
               Err(e) => return Err(e),
@@ -177,8 +177,8 @@ impl<'src> Analyzer<'src> {
 
   fn resolve_set(&self, settings: &mut Settings<'src>, set: Set<'src>) -> CompileResult<'src, ()> {
     match set.value {
-      Setting::AllowDuplicates(allow_duplicates) => {
-        settings.allow_duplicates = allow_duplicates;
+      Setting::AllowDuplicateRecipes(allow_duplicate_recipes) => {
+        settings.allow_duplicate_recipes = allow_duplicate_recipes;
       }
       Setting::DotenvLoad(dotenv_load) => {
         settings.dotenv_load = Some(dotenv_load);

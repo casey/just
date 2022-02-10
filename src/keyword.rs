@@ -4,7 +4,7 @@ use crate::common::*;
 #[strum(serialize_all = "kebab_case")]
 pub(crate) enum Keyword {
   Alias,
-  AllowDuplicates,
+  AllowDuplicateRecipes,
   DotenvLoad,
   Else,
   Export,
