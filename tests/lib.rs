@@ -1,6 +1,7 @@
 #[macro_use]
 mod test;
 
+mod allow_duplicate_recipes;
 mod assert_stdout;
 mod assert_success;
 mod byte_order_mark;

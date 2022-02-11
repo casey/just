@@ -284,7 +284,14 @@ fn duplicate_recipes() {
           "dependencies": [],
           "doc": null,
           "name": "foo",
-          "parameters": [],
+          "parameters": [
+            {
+              "name": "bar",
+              "export": false,
+              "default": null,
+              "kind": "singular",
+            },
+          ],
           "priors": 0,
           "private": false,
           "quiet": false,

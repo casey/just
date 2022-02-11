@@ -519,14 +519,14 @@ foo:
 
 #### Table of Settings
 
-| Name                      | Value              | Description                                                    |
-| ------------------------- | ------------------ | -------------------------------------------------------------- |
+| Name                      | Value              | Description                                                                                   |
+| ------------------------- | ------------------ | --------------------------------------------------------------------------------------------- |
 | `allow-duplicate-recipes` | boolean            | Allow recipes appearing later in a `justfile` to override earlier recipes with the same name. |
-| `dotenv-load`             | boolean            | Load a `.env` file, if present.                                |
-| `export`                  | boolean            | Export all variables as environment variables.                 |
-| `positional-arguments`    | boolean            | Pass positional arguments.                                     |
-| `shell`                   | `[COMMAND, ARGS…]` | Set the command used to invoke recipes and evaluate backticks. |
-| `windows-powershell`      | boolean            | Use PowerShell on Windows as default shell.                    |
+| `dotenv-load`             | boolean            | Load a `.env` file, if present.                                                               |
+| `export`                  | boolean            | Export all variables as environment variables.                                                |
+| `positional-arguments`    | boolean            | Pass positional arguments.                                                                    |
+| `shell`                   | `[COMMAND, ARGS…]` | Set the command used to invoke recipes and evaluate backticks.                                |
+| `windows-powershell`      | boolean            | Use PowerShell on Windows as default shell.                                                   |
 
 Boolean settings can be written as:
 
