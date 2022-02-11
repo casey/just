@@ -72,9 +72,7 @@ impl<'src> Analyzer<'src> {
 
     for recipe in recipes {
       if let Some(original) = self.recipes.get(recipe.name.lexeme()) {
-        if settings.allow_duplicate_recipes {
-            self.recipes.remove(recipe.name.lexeme());
-        } else {
+        if !settings.allow_duplicate_recipes {
           return Err(recipe.name.token().error(DuplicateRecipe {
             recipe: original.name(),
             first: original.line_number(),
@@ -121,7 +119,6 @@ impl<'src> Analyzer<'src> {
   }
 
   fn analyze_recipe(&self, recipe: &UnresolvedRecipe<'src>) -> CompileResult<'src, ()> {
-
     let mut parameters = BTreeSet::new();
     let mut passed_default = false;
 

@@ -521,7 +521,7 @@ foo:
 
 | Name                      | Value              | Description                                                    |
 | ------------------------- | ------------------ | -------------------------------------------------------------- |
-| `allow-duplicate-recipes` | boolean            | Allow duplicate recipes (last definition is used).             |
+| `allow-duplicate-recipes` | boolean            | Allow recipes appearing later in a `justfile` to override earlier recipes with the same name. |
 | `dotenv-load`             | boolean            | Load a `.env` file, if present.                                |
 | `export`                  | boolean            | Export all variables as environment variables.                 |
 | `positional-arguments`    | boolean            | Pass positional arguments.                                     |
@@ -542,7 +542,7 @@ set NAME := true
 
 #### Allow Duplicate Recipes
 
-If `allow-duplicate-recipes` is `true`, recipes can be redefined and the last definition of duplicate recipes will be used. Defaults to `false`.
+If `allow-duplicate-recipes` is `true`, defining multiple recipes with the same name is not an error, and the last definition is used. Defaults to `false`.
 
 ```make
 set allow-duplicate-recipes

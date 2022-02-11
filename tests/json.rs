@@ -267,7 +267,7 @@ fn duplicate_recipes() {
       alias f := foo
 
       foo:
-      foo:
+      foo bar:
     ",
     json!({
       "first": "foo",
