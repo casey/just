@@ -30,7 +30,7 @@ impl<'src> Analyzer<'src> {
         }
         Item::Comment(_) => (),
         Item::Recipe(recipe) => {
-          self.analyze_recipe(&recipe)?;
+          Self::analyze_recipe(&recipe)?;
           recipes.push(recipe);
         }
         Item::Set(set) => {
@@ -118,7 +118,7 @@ impl<'src> Analyzer<'src> {
     })
   }
 
-  fn analyze_recipe(&self, recipe: &UnresolvedRecipe<'src>) -> CompileResult<'src, ()> {
+  fn analyze_recipe(recipe: &UnresolvedRecipe<'src>) -> CompileResult<'src, ()> {
     let mut parameters = BTreeSet::new();
     let mut passed_default = false;
 
