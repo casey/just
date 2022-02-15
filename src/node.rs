@@ -221,7 +221,11 @@ impl<'src> Node<'src> for Set<'src> {
     set.push_mut(self.name.lexeme().replace('-', "_"));
 
     match &self.value {
-      DotenvLoad(value) | Export(value) | PositionalArguments(value) | WindowsPowerShell(value) => {
+      AllowDuplicateRecipes(value)
+      | DotenvLoad(value)
+      | Export(value)
+      | PositionalArguments(value)
+      | WindowsPowerShell(value) => {
         set.push_mut(value.to_string());
       }
       Shell(setting::Shell { command, arguments }) => {

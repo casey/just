@@ -521,13 +521,14 @@ foo:
 
 #### Table of Settings
 
-| Name                   | Value              | Description                                                    |
-| ---------------------- | ------------------ | -------------------------------------------------------------- |
-| `dotenv-load`          | boolean            | Load a `.env` file, if present.                                |
-| `export`               | boolean            | Export all variables as environment variables.                 |
-| `positional-arguments` | boolean            | Pass positional arguments.                                     |
-| `shell`                | `[COMMAND, ARGS…]` | Set the command used to invoke recipes and evaluate backticks. |
-| `windows-powershell`   | boolean            | Use PowerShell on Windows as default shell.                    |
+| Name                      | Value              | Description                                                                                   |
+| ------------------------- | ------------------ | --------------------------------------------------------------------------------------------- |
+| `allow-duplicate-recipes` | boolean            | Allow recipes appearing later in a `justfile` to override earlier recipes with the same name. |
+| `dotenv-load`             | boolean            | Load a `.env` file, if present.                                                               |
+| `export`                  | boolean            | Export all variables as environment variables.                                                |
+| `positional-arguments`    | boolean            | Pass positional arguments.                                                                    |
+| `shell`                   | `[COMMAND, ARGS…]` | Set the command used to invoke recipes and evaluate backticks.                                |
+| `windows-powershell`      | boolean            | Use PowerShell on Windows as default shell.                                                   |
 
 Boolean settings can be written as:
 
@@ -539,6 +540,25 @@ Which is equivalent to:
 
 ```mf
 set NAME := true
+```
+
+#### Allow Duplicate Recipes
+
+If `allow-duplicate-recipes` is set to `true`, defining multiple recipes with the same name is not an error and the last definition is used. Defaults to `false`.
+
+```make
+set allow-duplicate-recipes
+
+@foo:
+  echo foo
+
+@foo:
+  echo bar
+```
+
+```sh
+$ just foo
+bar
 ```
 
 #### Dotenv Load

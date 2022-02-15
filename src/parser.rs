@@ -729,7 +729,13 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     let name = Name::from_identifier(self.presume(Identifier)?);
     let lexeme = name.lexeme();
 
-    if Keyword::DotenvLoad == lexeme {
+    if Keyword::AllowDuplicateRecipes == lexeme {
+      let value = self.parse_set_bool()?;
+      return Ok(Set {
+        value: Setting::AllowDuplicateRecipes(value),
+        name,
+      });
+    } else if Keyword::DotenvLoad == lexeme {
       let value = self.parse_set_bool()?;
       return Ok(Set {
         value: Setting::DotenvLoad(value),
@@ -1712,6 +1718,12 @@ mod tests {
     name: set_dotenv_load_implicit,
     text: "set dotenv-load",
     tree: (justfile (set dotenv_load true)),
+  }
+
+  test! {
+    name: set_allow_duplicate_recipes_implicit,
+    text: "set allow-duplicate-recipes",
+    tree: (justfile (set allow_duplicate_recipes true)),
   }
 
   test! {
