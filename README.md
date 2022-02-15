@@ -544,7 +544,7 @@ set NAME := true
 
 #### Allow Duplicate Recipes
 
-If `allow-duplicate-recipes` is `true`, defining multiple recipes with the same name is not an error, and the last definition is used. Defaults to `false`.
+If `allow-duplicate-recipes` is set to `true`, defining multiple recipes with the same name is not an error and the last definition is used. Defaults to `false`.
 
 ```make
 set allow-duplicate-recipes
