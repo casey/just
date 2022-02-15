@@ -1,6 +1,19 @@
 Changelog
 =========
 
+[0.11.1](https://github.com/casey/just/releases/tag/0.11.1) - 2022-2-14
+-----------------------------------------------------------------------
+
+### Added
+- Allow duplicate recipes (#1095)
+
+### Misc
+- Add arrow pointing to table of contents button (#1096)
+- Improve readme (#1093)
+- Remove asciidoc readme (#1092)
+- Convert README.adoc to markdown (#1091)
+- Add choco package to README (#1090)
+
 [0.11.0](https://github.com/casey/just/releases/tag/0.11.0) - 2022-2-3
 ----------------------------------------------------------------------
 
