@@ -563,7 +563,7 @@ bar
 
 #### Dotenv Load
 
-If `dotenv-load` is `true`, a `.env` file will be loaded if present. Defaults to `true`.
+If `dotenv-load` is `true`, a `.env` file will be loaded if present. Defaults to `false`.
 
 #### Export
 
@@ -702,7 +702,7 @@ Available recipes:
 
 ### Dotenv Integration
 
-`just` will load environment variables from a file named `.env`. This file can be located in the same directory as your `justfile` or in a parent directory. These variables are environment variables, not `just` variables, and so must be accessed using `$VARIABLE_NAME` in recipes and backticks.
+If `dotenv-load` is set to `true`, `just` will load environment variables from a file named `.env`. This file can be located in the same directory as your `justfile` or in a parent directory. These variables are environment variables, not `just` variables, and so must be accessed using `$VARIABLE_NAME` in recipes and backticks.
 
 For example, if your `.env` file contains:
 
@@ -715,6 +715,8 @@ SERVER_PORT=1337
 And your `justfile` contains:
 
 ```make
+set dotenv-load
+
 serve:
   @echo "Starting server with database $DATABASE_ADDRESS on port $SERVER_PORT…"
   ./server --database $DATABASE_ADDRESS --port $SERVER_PORT

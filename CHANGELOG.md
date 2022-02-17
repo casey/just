@@ -1,6 +1,13 @@
 Changelog
 =========
 
+[0.11.2](https://github.com/casey/just/releases/tag/0.11.2) - 2022-2-15
+-----------------------------------------------------------------------
+
+### Misc
+- Fix dotenv-load documentation (#1104)
+- Fixup broken release package script (#1100)
+
 [0.11.1](https://github.com/casey/just/releases/tag/0.11.1) - 2022-2-14
 -----------------------------------------------------------------------
 
