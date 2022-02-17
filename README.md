@@ -1404,7 +1404,7 @@ It isn't strictly necessary, but `set -euxo pipefail` turns on a few useful feat
 
 - `set -x` makes `bash` print each script line before it's run.
 
-- `set -o pipefail` makes `bash` exit if a command in a pipeline fails.
+- `set -o pipefail` makes `bash` exit if a command in a pipeline fails. This is `bash`-specific, so isn't turned on in normal linewise `just` recipes.
 
 Together, these avoid a lot of shell scripting gotchas.
 
