@@ -979,6 +979,10 @@ These functions can fail, for example if a path does not have an extension, whic
 
 - `clean(path)` - Simplify `path` by removing extra path separators, intermediate `.` components, and `..` where possible. `clean("foo//bar")` is `foo/bar`, `clean("foo/..")` is `.`, `clean("foo/./bar")` is `foo/bar`.
 
+###### Boolean
+
+- `path_exists(path)` - Check if file/directory at provided path exists. It returns `true` or `false` values.
+
 ### Command Evaluation Using Backticks
 
 Backticks can be used to store the result of commands:
