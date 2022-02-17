@@ -382,3 +382,69 @@ fn join_argument_count_error() {
     .status(EXIT_FAILURE)
     .run();
 }
+
+#[test]
+fn test_path_exists_filepath_exist() {
+  let test = Test::new();
+  let testfilepathbuf = test.tempdir.path().join("testfile.txt");
+  let testfilepath = testfilepathbuf.as_path();
+  let _file = std::fs::File::create(testfilepath);
+  test
+    .justfile(format!(
+      "x := path_exists(\"{}\")",
+      testfilepath.to_str().unwrap()
+    ))
+    .args(&["--evaluate", "x"])
+    .stdout("true")
+    .unindent_stdout(false)
+    .run();
+}
+
+#[test]
+fn test_path_exists_filepath_doesnt_exist() {
+  let test = Test::new();
+  let testfilepathbuf = test.tempdir.path().join("testfile.txt");
+  let testfilepath = testfilepathbuf.as_path();
+  test
+    .justfile(format!(
+      "x := path_exists(\"{}\")",
+      testfilepath.to_str().unwrap()
+    ))
+    .args(&["--evaluate", "x"])
+    .stdout("false")
+    .unindent_stdout(false)
+    .run();
+}
+
+#[test]
+fn test_path_exists_dirpath_exist() {
+  let test = Test::new();
+  let testdirpathbuf = test.tempdir.path().join("testdir");
+  let testdirpath = testdirpathbuf.as_path();
+  std::fs::create_dir_all(testdirpath).unwrap();
+  test
+    .justfile(format!(
+      "x := path_exists(\"{}\")",
+      testdirpath.to_str().unwrap()
+    ))
+    .args(&["--evaluate", "x"])
+    .stdout("true")
+    .unindent_stdout(false)
+    .run();
+}
+
+#[test]
+fn test_path_exists_dirpath_doesnt_exist() {
+  let test = Test::new();
+  let testdirpathbuf = test.tempdir.path().join("testdir");
+  let testdirpath = testdirpathbuf.as_path();
+  test
+    .justfile(format!(
+      "x := path_exists(\"{}\")",
+      testdirpath.to_str().unwrap()
+    ))
+    .args(&["--evaluate", "x"])
+    .stdout("false")
+    .unindent_stdout(false)
+    .run();
+}
