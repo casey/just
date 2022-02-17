@@ -1553,6 +1553,8 @@ test! {
    name:     dotenv_variable_in_recipe,
    justfile: "
 #
+set dotenv-load
+
 echo:
   echo $DOTENV_KEY
  ",
@@ -1564,6 +1566,7 @@ test! {
    name:     dotenv_variable_in_backtick,
    justfile: "
 #
+set dotenv-load
 X:=`echo $DOTENV_KEY`
 echo:
   echo {{X}}
@@ -1575,6 +1578,7 @@ test! {
    name:     dotenv_variable_in_function_in_recipe,
    justfile: "
 #
+set dotenv-load
 echo:
   echo {{env_var_or_default('DOTENV_KEY', 'foo')}}
   echo {{env_var('DOTENV_KEY')}}
@@ -1587,6 +1591,7 @@ test! {
    name:     dotenv_variable_in_function_in_backtick,
    justfile: "
 #
+set dotenv-load
 X:=env_var_or_default('DOTENV_KEY', 'foo')
 Y:=env_var('DOTENV_KEY')
 echo:

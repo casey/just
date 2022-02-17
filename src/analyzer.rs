@@ -16,6 +16,8 @@ impl<'src> Analyzer<'src> {
   }
 
   pub(crate) fn justfile(mut self, ast: Ast<'src>) -> CompileResult<'src, Justfile<'src>> {
+    let mut recipes = Vec::new();
+
     for item in ast.items {
       match item {
         Item::Alias(alias) => {
@@ -28,8 +30,8 @@ impl<'src> Analyzer<'src> {
         }
         Item::Comment(_) => (),
         Item::Recipe(recipe) => {
-          self.analyze_recipe(&recipe)?;
-          self.recipes.insert(recipe);
+          Self::analyze_recipe(&recipe)?;
+          recipes.push(recipe);
         }
         Item::Set(set) => {
           self.analyze_set(&set)?;
@@ -38,9 +40,47 @@ impl<'src> Analyzer<'src> {
       }
     }
 
+    let mut settings = Settings::new();
+
+    for (_, set) in self.sets {
+      match set.value {
+        Setting::AllowDuplicateRecipes(allow_duplicate_recipes) => {
+          settings.allow_duplicate_recipes = allow_duplicate_recipes;
+        }
+        Setting::DotenvLoad(dotenv_load) => {
+          settings.dotenv_load = Some(dotenv_load);
+        }
+        Setting::Export(export) => {
+          settings.export = export;
+        }
+        Setting::PositionalArguments(positional_arguments) => {
+          settings.positional_arguments = positional_arguments;
+        }
+        Setting::Shell(shell) => {
+          assert!(settings.shell.is_none());
+          settings.shell = Some(shell);
+        }
+        Setting::WindowsPowerShell(windows_powershell) => {
+          settings.windows_powershell = windows_powershell;
+        }
+      }
+    }
+
     let assignments = self.assignments;
 
     AssignmentResolver::resolve_assignments(&assignments)?;
+
+    for recipe in recipes {
+      if let Some(original) = self.recipes.get(recipe.name.lexeme()) {
+        if !settings.allow_duplicate_recipes {
+          return Err(recipe.name.token().error(DuplicateRecipe {
+            recipe: original.name(),
+            first: original.line_number(),
+          }));
+        }
+      }
+      self.recipes.insert(recipe);
+    }
 
     let recipes = RecipeResolver::resolve_recipes(self.recipes, &assignments)?;
 
@@ -57,26 +97,6 @@ impl<'src> Analyzer<'src> {
     let mut aliases = Table::new();
     while let Some(alias) = self.aliases.pop() {
       aliases.insert(Self::resolve_alias(&recipes, alias)?);
-    }
-
-    let mut settings = Settings::new();
-
-    for (_, set) in self.sets {
-      match set.value {
-        Setting::DotenvLoad(dotenv_load) => {
-          settings.dotenv_load = Some(dotenv_load);
-        }
-        Setting::Export(export) => {
-          settings.export = export;
-        }
-        Setting::PositionalArguments(positional_arguments) => {
-          settings.positional_arguments = positional_arguments;
-        }
-        Setting::Shell(shell) => {
-          assert!(settings.shell.is_none());
-          settings.shell = Some(shell);
-        }
-      }
     }
 
     Ok(Justfile {
@@ -98,14 +118,7 @@ impl<'src> Analyzer<'src> {
     })
   }
 
-  fn analyze_recipe(&self, recipe: &UnresolvedRecipe<'src>) -> CompileResult<'src, ()> {
-    if let Some(original) = self.recipes.get(recipe.name.lexeme()) {
-      return Err(recipe.name.token().error(DuplicateRecipe {
-        recipe: original.name(),
-        first: original.line_number(),
-      }));
-    }
-
+  fn analyze_recipe(recipe: &UnresolvedRecipe<'src>) -> CompileResult<'src, ()> {
     let mut parameters = BTreeSet::new();
     let mut passed_default = false;
 

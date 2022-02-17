@@ -174,7 +174,7 @@ impl<'src> Lexer<'src> {
 
   /// Get current indentation
   fn indentation(&self) -> &'src str {
-    self.indentation.last().cloned().unwrap()
+    self.indentation.last().unwrap()
   }
 
   /// Are we currently indented

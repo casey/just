@@ -48,15 +48,16 @@ man:
 view-man: man
   man man/just.1
 
-version := `sed -En 's/version[[:space:]]*=[[:space:]]*"([^"]+)"/\1/p' Cargo.toml | head -1`
-
 # add git log messages to changelog
 changes:
   git log --pretty=format:%s >> CHANGELOG.md
 
-check: actionlint fmt clippy test forbid
+check: fmt clippy test forbid
+  #!/usr/bin/env bash
+  set -euxo pipefail
   git diff --no-ext-diff --quiet --exit-code
-  grep '^\[{{ version }}\]' CHANGELOG.md
+  VERSION=`sed -En 's/version[[:space:]]*=[[:space:]]*"([^"]+)"/\1/p' Cargo.toml | head -1`
+  grep "^\[$VERSION\]" CHANGELOG.md
   cargo +nightly generate-lockfile -Z minimal-versions
   cargo ltest
   git checkout Cargo.lock
@@ -105,11 +106,7 @@ install-dev-deps:
 
 # install system development dependencies with homebrew
 install-dev-deps-homebrew:
-  brew tap "rhysd/actionlint" "https://github.com/rhysd/actionlint"
-  brew install actionlint help2man shellcheck
-
-actionlint:
-  SHELLCHECK_OPTS='-e SC2006 -e SC2002 -e SC2050' actionlint
+  brew install help2man
 
 # everyone's favorite animate paper clip
 clippy:

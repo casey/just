@@ -4,6 +4,7 @@ use crate::common::*;
 #[strum(serialize_all = "kebab_case")]
 pub(crate) enum Keyword {
   Alias,
+  AllowDuplicateRecipes,
   DotenvLoad,
   Else,
   Export,
@@ -13,6 +14,7 @@ pub(crate) enum Keyword {
   Set,
   Shell,
   True,
+  WindowsPowershell,
 }
 
 impl Keyword {

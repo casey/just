@@ -56,6 +56,6 @@ impl<'src> Serialize for Name<'src> {
   where
     S: Serializer,
   {
-    serializer.serialize_str(&self.lexeme())
+    serializer.serialize_str(self.lexeme())
   }
 }
