@@ -18,7 +18,7 @@ impl Search {
   ) -> SearchResult<Self> {
     match search_config {
       SearchConfig::FromInvocationDirectory => {
-        let justfile = Self::justfile(&invocation_directory)?;
+        let justfile = Self::justfile(invocation_directory)?;
 
         let working_directory = Self::working_directory_from_justfile(&justfile)?;
 
@@ -68,7 +68,7 @@ impl Search {
   ) -> SearchResult<Self> {
     match search_config {
       SearchConfig::FromInvocationDirectory => {
-        let working_directory = Self::project_root(&invocation_directory)?;
+        let working_directory = Self::project_root(invocation_directory)?;
 
         let justfile = working_directory.join(DEFAULT_JUSTFILE_NAME);
 
@@ -174,7 +174,7 @@ impl Search {
           io_error,
           directory: directory.to_owned(),
         })?;
-        for project_root_child in PROJECT_ROOT_CHILDREN.iter().cloned() {
+        for project_root_child in PROJECT_ROOT_CHILDREN.iter().copied() {
           if entry.file_name() == project_root_child {
             return Ok(directory.to_owned());
           }

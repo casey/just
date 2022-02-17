@@ -5,7 +5,7 @@ fn readme() {
   let mut justfiles = vec![];
   let mut current = None;
 
-  for line in fs::read_to_string("README.adoc").unwrap().lines() {
+  for line in fs::read_to_string("README.md").unwrap().lines() {
     if let Some(mut justfile) = current {
       if line == "```" {
         justfiles.push(justfile);

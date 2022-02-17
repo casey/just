@@ -1,13 +1,66 @@
 Changelog
 =========
 
+[0.11.2](https://github.com/casey/just/releases/tag/0.11.2) - 2022-2-15
+-----------------------------------------------------------------------
+
+### Misc
+- Fix dotenv-load documentation (#1104)
+- Fixup broken release package script (#1100)
+
+[0.11.1](https://github.com/casey/just/releases/tag/0.11.1) - 2022-2-14
+-----------------------------------------------------------------------
+
+### Added
+- Allow duplicate recipes (#1095)
+
+### Misc
+- Add arrow pointing to table of contents button (#1096)
+- Improve readme (#1093)
+- Remove asciidoc readme (#1092)
+- Convert README.adoc to markdown (#1091)
+- Add choco package to README (#1090)
+
+[0.11.0](https://github.com/casey/just/releases/tag/0.11.0) - 2022-2-3
+----------------------------------------------------------------------
+
+### Breaking
+- Change dotenv-load default to false (#1082)
+
+[0.10.7](https://github.com/casey/just/releases/tag/0.10.7) - 2022-1-30
+-----------------------------------------------------------------------
+
+### Misc
+- Don't run tests in release workflow (#1080)
+- Fix windows chooser invocation error message test (#1079)
+- Remove call to sed in justfile (#1078)
+
+[0.10.6](https://github.com/casey/just/releases/tag/0.10.6) - 2022-1-29
+-----------------------------------------------------------------------
+
+### Added
+- Add windows-powershell setting (#1057)
+
+### Changed
+- Allow using `-` and `@` in any order (#1063)
+
+### Misc
+- Use `Context` suffix for snafu error contexts (#1068)
+- Upgrade snafu to 0.7 (#1067)
+- Mention "$@" in the README (#1064)
+- Note how to use PowerShell with CLI in readme (#1056)
+- Link to cheatsheet from readme (#1053)
+- Link to Homebrew installation docs in readme (#1049)
+- Workflow tweaks (#1045)
+- Push to correct origin in publish recipe (#1044)
+
 [0.10.5](https://github.com/casey/just/releases/tag/0.10.5) - 2021-12-4
 -----------------------------------------------------------------------
 
-## Changed
+### Changed
 - Use musl libc for ARM binaries (#1037)
 
-## Misc
+### Misc
 - Make completions work with Bash alias (#1035)
 - Run tests on PRs (#1040)
 - Improve GitHub Actions workflow triggers (#1033)

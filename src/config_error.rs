@@ -1,7 +1,7 @@
 use crate::common::*;
 
 #[derive(Debug, Snafu)]
-#[snafu(visibility(pub(crate)))]
+#[snafu(visibility(pub(crate)), context(suffix(Context)))]
 pub(crate) enum ConfigError {
   #[snafu(display("Failed to get current directory: {}", source))]
   CurrentDir { source: io::Error },

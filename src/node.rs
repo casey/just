@@ -10,8 +10,8 @@ pub(crate) trait Node<'src> {
 impl<'src> Node<'src> for Ast<'src> {
   fn tree(&self) -> Tree<'src> {
     Tree::atom("justfile")
-      .extend(self.items.iter().map(|item| item.tree()))
-      .extend(self.warnings.iter().map(|warning| warning.tree()))
+      .extend(self.items.iter().map(Node::tree))
+      .extend(self.warnings.iter().map(Node::tree))
   }
 }
 
@@ -179,7 +179,7 @@ impl<'src> Node<'src> for UnresolvedRecipe<'src> {
     }
 
     if !self.body.is_empty() {
-      t.push_mut(Tree::atom("body").extend(self.body.iter().map(|line| line.tree())));
+      t.push_mut(Tree::atom("body").extend(self.body.iter().map(Node::tree)));
     }
 
     t
@@ -200,7 +200,7 @@ impl<'src> Node<'src> for Parameter<'src> {
 
 impl<'src> Node<'src> for Line<'src> {
   fn tree(&self) -> Tree<'src> {
-    Tree::list(self.fragments.iter().map(|fragment| fragment.tree()))
+    Tree::list(self.fragments.iter().map(Node::tree))
   }
 }
 
@@ -221,7 +221,11 @@ impl<'src> Node<'src> for Set<'src> {
     set.push_mut(self.name.lexeme().replace('-', "_"));
 
     match &self.value {
-      DotenvLoad(value) | Export(value) | PositionalArguments(value) => {
+      AllowDuplicateRecipes(value)
+      | DotenvLoad(value)
+      | Export(value)
+      | PositionalArguments(value)
+      | WindowsPowerShell(value) => {
         set.push_mut(value.to_string());
       }
       Shell(setting::Shell { command, arguments }) => {

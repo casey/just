@@ -87,11 +87,7 @@ impl Recipe {
       private: recipe.private,
       shebang: recipe.shebang,
       quiet: recipe.quiet,
-      dependencies: recipe
-        .dependencies
-        .iter()
-        .map(|dependency| Dependency::new(dependency))
-        .collect(),
+      dependencies: recipe.dependencies.iter().map(Dependency::new).collect(),
       lines: recipe.body.iter().map(Line::new).collect(),
       parameters: recipe.parameters.iter().map(Parameter::new).collect(),
       aliases,

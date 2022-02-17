@@ -91,7 +91,7 @@ impl<'src> Justfile<'src> {
     }
 
     let dotenv = if config.load_dotenv {
-      load_dotenv(&config, &self.settings, &search.working_directory)?
+      load_dotenv(config, &self.settings, &search.working_directory)?
     } else {
       BTreeMap::new()
     };
@@ -129,7 +129,7 @@ impl<'src> Justfile<'src> {
         binary, arguments, ..
       } => {
         let mut command = if config.shell_command {
-          let mut command = self.settings.shell_command(&config);
+          let mut command = self.settings.shell_command(config);
           command.arg(binary);
           command
         } else {
@@ -168,7 +168,7 @@ impl<'src> Justfile<'src> {
             print!("{}", value);
           } else {
             return Err(Error::EvalUnknownVariable {
-              suggestion: self.suggest_variable(&variable),
+              suggestion: self.suggest_variable(variable),
               variable: variable.clone(),
             });
           }
@@ -261,7 +261,7 @@ impl<'src> Justfile<'src> {
 
     let mut ran = BTreeSet::new();
     for (recipe, arguments) in grouped {
-      self.run_recipe(&context, recipe, arguments, &dotenv, &search, &mut ran)?;
+      self.run_recipe(&context, recipe, arguments, &dotenv, search, &mut ran)?;
     }
 
     Ok(())
@@ -344,7 +344,7 @@ impl<'src> Justfile<'src> {
     }
 
     let mut invocation = vec![recipe.name().to_owned()];
-    for argument in arguments.iter().cloned() {
+    for argument in arguments.iter().copied() {
       invocation.push(argument.to_owned());
     }
 

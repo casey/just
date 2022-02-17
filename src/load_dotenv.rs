@@ -7,7 +7,7 @@ pub(crate) fn load_dotenv(
   settings: &Settings,
   working_directory: &Path,
 ) -> RunResult<'static, BTreeMap<String, String>> {
-  if !settings.dotenv_load.unwrap_or(true)
+  if !settings.dotenv_load.unwrap_or(false)
     && config.dotenv_filename.is_none()
     && config.dotenv_path.is_none()
   {
@@ -15,7 +15,7 @@ pub(crate) fn load_dotenv(
   }
 
   if let Some(path) = &config.dotenv_path {
-    return load_from_file(config, settings, &path);
+    return load_from_file(path);
   }
 
   let filename = config
@@ -27,34 +27,17 @@ pub(crate) fn load_dotenv(
   for directory in working_directory.ancestors() {
     let path = directory.join(&filename);
     if path.is_file() {
-      return load_from_file(config, settings, &path);
+      return load_from_file(&path);
     }
   }
 
   Ok(BTreeMap::new())
 }
 
-fn load_from_file(
-  config: &Config,
-  settings: &Settings,
-  path: &Path,
-) -> RunResult<'static, BTreeMap<String, String>> {
+fn load_from_file(path: &Path) -> RunResult<'static, BTreeMap<String, String>> {
   // `dotenv::from_path_iter` should eventually be un-deprecated, see:
   // https://github.com/dotenv-rs/dotenv/issues/13
   #![allow(deprecated)]
-
-  if config.verbosity.loud()
-    && settings.dotenv_load.is_none()
-    && config.dotenv_filename.is_none()
-    && config.dotenv_path.is_none()
-    && !std::env::var_os("JUST_SUPPRESS_DOTENV_LOAD_WARNING")
-      .map_or(false, |val| val.as_os_str().to_str() == Some("1"))
-  {
-    eprintln!(
-      "{}",
-      Warning::DotenvLoad.color_display(config.color.stderr())
-    );
-  }
 
   let iter = dotenv::from_path_iter(&path)?;
   let mut dotenv = BTreeMap::new();

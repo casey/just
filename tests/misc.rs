@@ -1035,9 +1035,9 @@ foo:
 }
 
 test! {
-  name: infallable_command,
+  name: infallible_command,
   justfile: r#"
-infallable:
+infallible:
   -exit 101
 "#,
   stderr: "exit 101\n",
@@ -1045,15 +1045,15 @@ infallable:
 }
 
 test! {
-  name: infallable_with_failing,
+  name: infallible_with_failing,
   justfile: r#"
-infallable:
+infallible:
   -exit 101
   exit 202
 "#,
   stderr: r#"exit 101
 exit 202
-error: Recipe `infallable` failed on line 3 with exit code 202
+error: Recipe `infallible` failed on line 3 with exit code 202
 "#,
   status: 202,
 }
@@ -1553,6 +1553,8 @@ test! {
    name:     dotenv_variable_in_recipe,
    justfile: "
 #
+set dotenv-load
+
 echo:
   echo $DOTENV_KEY
  ",
@@ -1564,6 +1566,7 @@ test! {
    name:     dotenv_variable_in_backtick,
    justfile: "
 #
+set dotenv-load
 X:=`echo $DOTENV_KEY`
 echo:
   echo {{X}}
@@ -1575,6 +1578,7 @@ test! {
    name:     dotenv_variable_in_function_in_recipe,
    justfile: "
 #
+set dotenv-load
 echo:
   echo {{env_var_or_default('DOTENV_KEY', 'foo')}}
   echo {{env_var('DOTENV_KEY')}}
@@ -1587,6 +1591,7 @@ test! {
    name:     dotenv_variable_in_function_in_backtick,
    justfile: "
 #
+set dotenv-load
 X:=env_var_or_default('DOTENV_KEY', 'foo')
 Y:=env_var('DOTENV_KEY')
 echo:

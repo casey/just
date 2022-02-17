@@ -1,6 +1,7 @@
 #[macro_use]
 mod test;
 
+mod allow_duplicate_recipes;
 mod assert_stdout;
 mod assert_success;
 mod byte_order_mark;
@@ -24,6 +25,7 @@ mod init;
 mod interrupts;
 mod invocation_directory;
 mod json;
+mod line_prefixes;
 mod misc;
 mod positional_arguments;
 mod quiet;
@@ -39,4 +41,6 @@ mod sublime_syntax;
 mod subsequents;
 mod tempdir;
 mod undefined_variables;
+#[cfg(target_family = "windows")]
+mod windows_powershell;
 mod working_directory;

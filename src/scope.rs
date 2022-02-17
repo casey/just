@@ -46,7 +46,7 @@ impl<'src, 'run> Scope<'src, 'run> {
   }
 
   pub(crate) fn names(&self) -> impl Iterator<Item = &str> {
-    self.bindings.keys().cloned()
+    self.bindings.keys().copied()
   }
 
   pub(crate) fn parent(&self) -> Option<&'run Scope<'src, 'run>> {

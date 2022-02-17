@@ -31,7 +31,7 @@ test! {
     error: The argument '--command <COMMAND>' requires a value but none was supplied
 
     USAGE:
-        just{} --color <COLOR> --dump-format <FORMAT> --shell <SHELL> --shell-arg <SHELL-ARG>... \
+        just{} --color <COLOR> --dump-format <FORMAT> --shell <SHELL> \
         <--changelog|--choose|--command <COMMAND>|--completions <SHELL>|--dump|--edit|\
         --evaluate|--fmt|--init|--list|--show <RECIPE>|--summary|--variables>
 
@@ -43,6 +43,8 @@ test! {
 test! {
   name: env_is_loaded,
   justfile: "
+    set dotenv-load
+
     x:
       echo XYZ
   ",

@@ -9,9 +9,6 @@ pub(crate) const CHOOSE_HELP: &str = "Select one or more recipes to run using a 
                                       `--chooser` is not passed the chooser defaults to the value \
                                       of $JUST_CHOOSER, falling back to `fzf`";
 
-pub(crate) const DEFAULT_SHELL: &str = "sh";
-pub(crate) const DEFAULT_SHELL_ARG: &str = "-cu";
-
 #[derive(Debug, PartialEq)]
 pub(crate) struct Config {
   pub(crate) check: bool,
@@ -26,10 +23,9 @@ pub(crate) struct Config {
   pub(crate) list_prefix: String,
   pub(crate) load_dotenv: bool,
   pub(crate) search_config: SearchConfig,
-  pub(crate) shell: String,
-  pub(crate) shell_args: Vec<String>,
+  pub(crate) shell: Option<String>,
+  pub(crate) shell_args: Option<Vec<String>>,
   pub(crate) shell_command: bool,
-  pub(crate) shell_present: bool,
   pub(crate) subcommand: Subcommand,
   pub(crate) unsorted: bool,
   pub(crate) unstable: bool,
@@ -217,7 +213,6 @@ impl Config {
         Arg::with_name(arg::SHELL)
           .long("shell")
           .takes_value(true)
-          .default_value(DEFAULT_SHELL)
           .help("Invoke <SHELL> to run recipes"),
       )
       .arg(
@@ -226,7 +221,6 @@ impl Config {
           .takes_value(true)
           .multiple(true)
           .number_of_values(1)
-          .default_value(DEFAULT_SHELL_ARG)
           .allow_hyphen_values(true)
           .overrides_with(arg::CLEAR_SHELL_ARGS)
           .help("Invoke shell with <SHELL-ARG> as an argument"),
@@ -416,7 +410,7 @@ impl Config {
   }
 
   pub(crate) fn from_matches(matches: &ArgMatches) -> ConfigResult<Self> {
-    let invocation_directory = env::current_dir().context(config_error::CurrentDir)?;
+    let invocation_directory = env::current_dir().context(config_error::CurrentDirContext)?;
 
     let verbosity = if matches.is_present(arg::QUIET) {
       Verbosity::Quiet
@@ -558,26 +552,26 @@ impl Config {
       }
     };
 
-    let shell_args = if matches.is_present(arg::CLEAR_SHELL_ARGS) {
-      Vec::new()
+    let shell_args = if matches.occurrences_of(arg::SHELL_ARG) > 0
+      || matches.occurrences_of(arg::CLEAR_SHELL_ARGS) > 0
+    {
+      Some(
+        matches
+          .values_of(arg::SHELL_ARG)
+          .map_or(Vec::new(), |shell_args| {
+            shell_args.map(str::to_owned).collect()
+          }),
+      )
     } else {
-      matches
-        .values_of(arg::SHELL_ARG)
-        .unwrap()
-        .map(str::to_owned)
-        .collect()
+      None
     };
-
-    let shell_present = matches.occurrences_of(arg::CLEAR_SHELL_ARGS) > 0
-      || matches.occurrences_of(arg::SHELL) > 0
-      || matches.occurrences_of(arg::SHELL_ARG) > 0;
 
     Ok(Self {
       check: matches.is_present(arg::CHECK),
       dry_run: matches.is_present(arg::DRY_RUN),
       dump_format: Self::dump_format_from_matches(matches)?,
       highlight: !matches.is_present(arg::NO_HIGHLIGHT),
-      shell: matches.value_of(arg::SHELL).unwrap().to_owned(),
+      shell: matches.value_of(arg::SHELL).map(str::to_owned),
       load_dotenv: !matches.is_present(arg::NO_DOTENV),
       shell_command: matches.is_present(arg::SHELL_COMMAND),
       unsorted: matches.is_present(arg::UNSORTED),
@@ -594,7 +588,6 @@ impl Config {
       invocation_directory,
       search_config,
       shell_args,
-      shell_present,
       subcommand,
       dotenv_filename: matches.value_of(arg::DOTENV_FILENAME).map(str::to_owned),
       dotenv_path: matches.value_of(arg::DOTENV_PATH).map(PathBuf::from),
@@ -623,107 +616,6 @@ mod tests {
 
   use pretty_assertions::assert_eq;
 
-  // This test guards against unintended changes to the argument parser. We should
-  // have proper tests for all the flags, but this will do for now.
-  #[test]
-  fn help() {
-    const EXPECTED_HELP: &str = "just 0.10.5
-Casey Rodarmor <casey@rodarmor.com>
-🤖 Just a command runner \
-                                 - https://github.com/casey/just
-
-USAGE:
-    just [FLAGS] [OPTIONS] [--] [ARGUMENTS]...
-
-FLAGS:
-        --changelog           Print changelog
-        --check               Run `--fmt` in 'check' mode. Exits with 0 if
-                              justfile is formatted correctly. Exits with 1 and
-                              prints a diff if formatting is required.
-        --choose              Select one or more recipes to run using a binary.
-                              If `--chooser` is not passed the chooser defaults
-                              to the value of $JUST_CHOOSER, falling back to
-                              `fzf`
-        --clear-shell-args    Clear shell arguments
-        --dry-run             Print what just would do without doing it
-        --dump                Print justfile
-    -e, --edit                Edit justfile with editor given by $VISUAL or
-                              $EDITOR, falling back to `vim`
-        --evaluate            Evaluate and print all variables. If a variable
-                              name is given as an argument, only print that
-                              variable's value.
-        --fmt                 Format and overwrite justfile
-        --highlight           Highlight echoed recipe lines in bold
-        --init                Initialize new justfile in project root
-    -l, --list                List available recipes and their arguments
-        --no-dotenv           Don't load `.env` file
-        --no-highlight        Don't highlight echoed recipe lines in bold
-    -q, --quiet               Suppress all output
-        --shell-command       Invoke <COMMAND> with the shell used to run recipe
-                              lines and backticks
-        --summary             List names of available recipes
-    -u, --unsorted            Return list and summary entries in source order
-        --unstable            Enable unstable features
-        --variables           List names of variables
-    -v, --verbose             Use verbose output
-
-OPTIONS:
-        --chooser <CHOOSER>
-            Override binary invoked by `--choose`
-
-        --color <COLOR>
-            Print colorful output [default: auto]  [possible values: auto,
-            always, never]
-    -c, --command <COMMAND>
-            Run an arbitrary command with the working directory, `.env`,
-            overrides, and exports set
-        --completions <SHELL>
-            Print shell completion script for <SHELL> [possible values: zsh,
-            bash, fish, powershell, elvish]
-        --dotenv-filename <DOTENV-FILENAME>
-            Search for environment file named <DOTENV-FILENAME> instead of
-            `.env`
-        --dotenv-path <DOTENV-PATH>
-            Load environment file at <DOTENV-PATH> instead of searching for one
-
-        --dump-format <FORMAT>
-            Dump justfile as <FORMAT> [default: just]  [possible values: just,
-            json]
-    -f, --justfile <JUSTFILE>                      Use <JUSTFILE> as justfile
-        --list-heading <TEXT>                      Print <TEXT> before list
-        --list-prefix <TEXT>
-            Print <TEXT> before each list item
-
-        --set <VARIABLE> <VALUE>
-            Override <VARIABLE> with <VALUE>
-
-        --shell <SHELL>
-            Invoke <SHELL> to run recipes [default: sh]
-
-        --shell-arg <SHELL-ARG>...
-            Invoke shell with <SHELL-ARG> as an argument [default: -cu]
-
-    -s, --show <RECIPE>
-            Show information about <RECIPE>
-
-    -d, --working-directory <WORKING-DIRECTORY>
-            Use <WORKING-DIRECTORY> as working directory. --justfile must also
-            be set
-
-ARGS:
-    <ARGUMENTS>...    Overrides and recipe(s) to run, defaulting to the
-                      first recipe in the justfile";
-
-    let app = Config::app()
-      .setting(AppSettings::ColorNever)
-      .set_term_width(80);
-    let mut buffer = Vec::new();
-    app.write_help(&mut buffer).unwrap();
-    let help = str::from_utf8(&buffer).unwrap();
-
-    assert_eq!(help, EXPECTED_HELP);
-  }
-
   macro_rules! test {
     {
       name: $name:ident,
@@ -735,7 +627,6 @@ ARGS:
       $(search_config: $search_config:expr,)?
       $(shell: $shell:expr,)?
       $(shell_args: $shell_args:expr,)?
-      $(shell_present: $shell_present:expr,)?
       $(subcommand: $subcommand:expr,)?
       $(unsorted: $unsorted:expr,)?
       $(verbosity: $verbosity:expr,)?
@@ -753,9 +644,8 @@ ARGS:
           $(dump_format: $dump_format,)?
           $(highlight: $highlight,)?
           $(search_config: $search_config,)?
-          $(shell: $shell.to_owned(),)?
+          $(shell: $shell,)?
           $(shell_args: $shell_args,)?
-          $(shell_present: $shell_present,)?
           $(subcommand: $subcommand,)?
           $(unsorted: $unsorted,)?
           $(verbosity: $verbosity,)?
@@ -1016,16 +906,21 @@ ARGS:
   test! {
     name: shell_default,
     args: [],
-    shell: "sh",
-    shell_args: vec!["-cu".to_owned()],
-    shell_present: false,
+    shell: None,
+    shell_args: None,
   }
 
   test! {
     name: shell_set,
     args: ["--shell", "tclsh"],
-    shell: "tclsh",
-    shell_present: true,
+    shell: Some("tclsh".to_owned()),
+  }
+
+  test! {
+    name: shell_args_set,
+    args: ["--shell-arg", "hello"],
+    shell: None,
+    shell_args: Some(vec!["hello".into()]),
   }
 
   test! {
@@ -1262,56 +1157,53 @@ ARGS:
   test! {
     name: shell_args_default,
     args: [],
-    shell_args: vec!["-cu".to_owned()],
   }
 
   test! {
     name: shell_args_set_hyphen,
     args: ["--shell-arg", "--foo"],
-    shell_args: vec!["--foo".to_owned()],
-    shell_present: true,
+    shell_args: Some(vec!["--foo".to_owned()]),
   }
 
   test! {
     name: shell_args_set_word,
     args: ["--shell-arg", "foo"],
-    shell_args: vec!["foo".to_owned()],
-    shell_present: true,
+    shell_args: Some(vec!["foo".to_owned()]),
   }
 
   test! {
     name: shell_args_set_multiple,
     args: ["--shell-arg", "foo", "--shell-arg", "bar"],
-    shell_args: vec!["foo".to_owned(), "bar".to_owned()],
-    shell_present: true,
+    shell_args: Some(vec!["foo".to_owned(), "bar".to_owned()]),
+
   }
 
   test! {
     name: shell_args_clear,
     args: ["--clear-shell-args"],
-    shell_args: vec![],
-    shell_present: true,
+    shell_args: Some(vec![]),
+
   }
 
   test! {
     name: shell_args_clear_and_set,
     args: ["--clear-shell-args", "--shell-arg", "bar"],
-    shell_args: vec!["bar".to_owned()],
-    shell_present: true,
+    shell_args: Some(vec!["bar".to_owned()]),
+
   }
 
   test! {
     name: shell_args_set_and_clear,
     args: ["--shell-arg", "bar", "--clear-shell-args"],
-    shell_args: vec![],
-    shell_present: true,
+    shell_args: Some(vec![]),
+
   }
 
   test! {
     name: shell_args_set_multiple_and_clear,
     args: ["--shell-arg", "bar", "--shell-arg", "baz", "--clear-shell-args"],
-    shell_args: vec![],
-    shell_present: true,
+    shell_args: Some(vec![]),
+
   }
 
   test! {

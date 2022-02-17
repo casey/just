@@ -1,5 +1,7 @@
 #![deny(clippy::all, clippy::pedantic)]
 #![allow(
+  clippy::doc_markdown,
+  clippy::empty_enum,
   clippy::enum_glob_use,
   clippy::if_not_else,
   clippy::missing_errors_doc,
