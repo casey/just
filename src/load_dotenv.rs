@@ -1,6 +1,5 @@
 use crate::common::*;
-
-const DEFAULT_DOTENV_FILENAME: &str = ".env";
+use crate::settings::DEFAULT_DOTENV_FILENAME;
 
 pub(crate) fn load_dotenv(
   config: &Config,
@@ -13,39 +12,41 @@ pub(crate) fn load_dotenv(
   {
     return Ok(BTreeMap::new());
   }
+  let mut dotenv: BTreeMap<String, String> = BTreeMap::new();
 
   if let Some(path) = &config.dotenv_path {
-    return load_from_file(path);
+    dotenv = load_from_file(path, dotenv);
+    return Ok(dotenv);
   }
 
-  let filename = config
-    .dotenv_filename
-    .as_deref()
-    .unwrap_or(DEFAULT_DOTENV_FILENAME)
-    .to_owned();
+  for filename in settings.dotenv_filenames {
+    let filename = config
+      .dotenv_filename
+      .as_deref()
+      .unwrap_or(&filename)
+      .to_owned();
 
-  for directory in working_directory.ancestors() {
-    let path = directory.join(&filename);
-    if path.is_file() {
-      return load_from_file(&path);
+    for directory in working_directory.ancestors() {
+      let path = directory.join(&filename);
+      if path.is_file() {
+        dotenv = load_from_file(&path, dotenv);
+      }
     }
   }
-
-  Ok(BTreeMap::new())
+  return Ok(dotenv);
 }
 
-fn load_from_file(path: &Path) -> RunResult<'static, BTreeMap<String, String>> {
+fn load_from_file(path: &Path, mut dotenv: BTreeMap<String, String>) -> BTreeMap<String, String> {
   // `dotenv::from_path_iter` should eventually be un-deprecated, see:
   // https://github.com/dotenv-rs/dotenv/issues/13
   #![allow(deprecated)]
 
   let iter = dotenv::from_path_iter(&path)?;
-  let mut dotenv = BTreeMap::new();
   for result in iter {
     let (key, value) = result?;
     if env::var_os(&key).is_none() {
       dotenv.insert(key, value);
     }
   }
-  Ok(dotenv)
+  return dotenv;
 }
