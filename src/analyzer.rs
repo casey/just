@@ -63,6 +63,9 @@ impl<'src> Analyzer<'src> {
         Setting::WindowsPowerShell(windows_powershell) => {
           settings.windows_powershell = windows_powershell;
         }
+        Setting::DotenvFilenames(dotenv_filenames) => {
+          settings.dotenv_filenames = dotenv_filenames;
+        }
       }
     }
 
