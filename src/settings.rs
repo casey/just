@@ -5,6 +5,8 @@ pub(crate) const DEFAULT_SHELL_ARGS: &[&str] = &["-cu"];
 pub(crate) const WINDOWS_POWERSHELL_SHELL: &str = "powershell.exe";
 pub(crate) const WINDOWS_POWERSHELL_ARGS: &[&str] = &["-NoLogo", "-Command"];
 
+pub const DEFAULT_DOTENV_FILENAME: &str = ".env";
+
 #[derive(Debug, PartialEq, Serialize)]
 pub(crate) struct Settings<'src> {
   pub(crate) allow_duplicate_recipes: bool,
@@ -13,6 +15,7 @@ pub(crate) struct Settings<'src> {
   pub(crate) positional_arguments: bool,
   pub(crate) shell: Option<setting::Shell<'src>>,
   pub(crate) windows_powershell: bool,
+  pub(crate) dotenv_filenames: Vec<String>,
 }
 
 impl<'src> Settings<'src> {
@@ -24,6 +27,7 @@ impl<'src> Settings<'src> {
       positional_arguments: false,
       shell: None,
       windows_powershell: false,
+      dotenv_filenames: vec![DEFAULT_DOTENV_FILENAME.to_string()],
     }
   }
 
