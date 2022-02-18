@@ -8,6 +8,7 @@ pub(crate) enum Setting<'src> {
   PositionalArguments(bool),
   Shell(Shell<'src>),
   WindowsPowerShell(bool),
+  DotenvFilenames(Vec<String>),
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
@@ -24,6 +25,7 @@ impl<'src> Display for Setting<'src> {
       | Setting::Export(value)
       | Setting::PositionalArguments(value)
       | Setting::WindowsPowerShell(value) => write!(f, "{}", value),
+      Setting::DotenvFilenames(value) => write!(f, "{:?}", value),
       Setting::Shell(shell) => write!(f, "{}", shell),
     }
   }
