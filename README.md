@@ -981,9 +981,9 @@ These functions can fail, for example if a path does not have an extension, whic
 
 - `clean(path)` - Simplify `path` by removing extra path separators, intermediate `.` components, and `..` where possible. `clean("foo//bar")` is `foo/bar`, `clean("foo/..")` is `.`, `clean("foo/./bar")` is `foo/bar`.
 
-###### Boolean
+#### Filesystem Access
 
-- `path_exists(path)` - Check if file/directory at provided path exists. It returns `true` or `false` values.
+- `path_exists(path)` - Returns `true` if the path points at an existing entity and `false` otherwise. Traverses symbolic links, and returns `false` if the path is inaccessible or points to a broken symlink.
 
 ### Command Evaluation Using Backticks
 
