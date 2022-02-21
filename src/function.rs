@@ -30,6 +30,7 @@ lazy_static! {
     ("os", Nullary(os)),
     ("os_family", Nullary(os_family)),
     ("parent_directory", Unary(parent_directory)),
+    ("path_exists", Unary(path_exists)),
     ("quote", Unary(quote)),
     ("replace", Ternary(replace)),
     ("trim", Unary(trim)),
@@ -208,6 +209,10 @@ fn parent_directory(_context: &FunctionContext, path: &str) -> Result<String, St
     .parent()
     .map(Utf8Path::to_string)
     .ok_or_else(|| format!("Could not extract parent directory from `{}`", path))
+}
+
+fn path_exists(_context: &FunctionContext, path: &str) -> Result<String, String> {
+  Ok(Utf8Path::new(path).exists().to_string())
 }
 
 fn quote(_context: &FunctionContext, s: &str) -> Result<String, String> {

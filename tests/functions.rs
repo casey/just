@@ -382,3 +382,24 @@ fn join_argument_count_error() {
     .status(EXIT_FAILURE)
     .run();
 }
+
+#[test]
+fn test_path_exists_filepath_exist() {
+  Test::new()
+    .tree(tree! {
+      testfile: ""
+    })
+    .justfile("x := path_exists('testfile')")
+    .args(&["--evaluate", "x"])
+    .stdout("true")
+    .run();
+}
+
+#[test]
+fn test_path_exists_filepath_doesnt_exist() {
+  Test::new()
+    .justfile("x := path_exists('testfile')")
+    .args(&["--evaluate", "x"])
+    .stdout("false")
+    .run();
+}
