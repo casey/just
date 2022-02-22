@@ -202,7 +202,7 @@ With the release of version 1.0, `just` features a strong commitment to backward
 
 Future releases will not introduce backwards incompatible changes that make existing `justfile`s stop working, or break working invocations of the command-line interface.
 
-This does not, however, preclude fixing outright bugs, even if it might break user `justfiles` that rely on the behavior of those bugs.
+This does not, however, preclude fixing outright bugs, even if doing so might break user `justfiles` that rely on their behavior.
 
 There will never be a `just` 2.0. Any desirable backwards-incompatible changes will be opt-in on a per-`justfile` basis, so users can migrate at their leisure.
 
