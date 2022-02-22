@@ -1,6 +1,15 @@
 Changelog
 =========
 
+[1.0.0](https://github.com/casey/just/releases/tag/1.0.0) - 2022-2-22
+---------------------------------------------------------------------
+
+### Added
+- Add path_exists() function (#1106)
+
+### Misc
+- Note that `pipefail` isn't normally set (#1108)
+
 [0.11.2](https://github.com/casey/just/releases/tag/0.11.2) - 2022-2-15
 -----------------------------------------------------------------------
 
