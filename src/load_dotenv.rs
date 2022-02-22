@@ -21,7 +21,7 @@ pub(crate) fn load_dotenv(
     let filename = config
       .dotenv_filename
       .as_deref()
-      .unwrap_or(&filename)
+      .unwrap_or(&filename.cooked)
       .to_owned();
 
     for directory in working_directory.ancestors() {

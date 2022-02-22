@@ -735,7 +735,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
         value: Setting::AllowDuplicateRecipes(value),
         name,
       });
-    } else if Keyword::DotenvLoad == lexeme {
+    } else if Keyword::DotenvFilenames == lexeme {
       let value = self.parse_set_bool()?;
       return Ok(Set {
         value: Setting::DotenvLoad(value),
@@ -782,10 +782,32 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
 
       self.expect(BracketR)?;
 
-      Ok(Set {
+      return Ok(Set {
         value: Setting::Shell(setting::Shell { arguments, command }),
         name,
-      })
+      });
+    }
+
+    if name.lexeme() == Keyword::DotenvFilenames.lexeme() {
+      self.expect(BracketL)?;
+
+      let mut filenames = Vec::new();
+
+      if self.accepted(Comma)? {
+        while !self.next_is(BracketR) {
+          filenames.push(self.parse_string_literal()?);
+
+          if !self.accepted(Comma)? {
+            break;
+          }
+        }
+      }
+      self.expect(BracketR)?;
+
+      return Ok(Set {
+        value: Setting::DotenvFilenames(filenames),
+        name,
+      });
     } else {
       Err(name.error(CompileErrorKind::UnknownSetting {
         setting: name.lexeme(),

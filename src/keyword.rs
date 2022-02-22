@@ -6,6 +6,7 @@ pub(crate) enum Keyword {
   Alias,
   AllowDuplicateRecipes,
   DotenvLoad,
+  DotenvFilenames,
   Else,
   Export,
   False,

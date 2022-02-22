@@ -10,24 +10,24 @@ pub const DEFAULT_DOTENV_FILENAME: &str = ".env";
 #[derive(Debug, PartialEq, Serialize)]
 pub(crate) struct Settings<'src> {
   pub(crate) allow_duplicate_recipes: bool,
+  pub(crate) dotenv_filenames: Vec<StringLiteral<'src>>,
   pub(crate) dotenv_load: Option<bool>,
   pub(crate) export: bool,
   pub(crate) positional_arguments: bool,
   pub(crate) shell: Option<setting::Shell<'src>>,
   pub(crate) windows_powershell: bool,
-  pub(crate) dotenv_filenames: Vec<String>,
 }
 
 impl<'src> Settings<'src> {
   pub(crate) fn new() -> Settings<'src> {
     Settings {
       allow_duplicate_recipes: false,
+      dotenv_filenames: vec![],
       dotenv_load: None,
       export: false,
       positional_arguments: false,
       shell: None,
       windows_powershell: false,
-      dotenv_filenames: vec![DEFAULT_DOTENV_FILENAME.to_string()],
     }
   }
 

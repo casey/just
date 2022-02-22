@@ -230,7 +230,7 @@ impl<'src> Node<'src> for Set<'src> {
       }
       DotenvFilenames(values) => {
         for value in values {
-          set.push_mut(Tree::string(&value))
+          set.push_mut(Tree::string(&value.cooked))
         }
       }
       Shell(setting::Shell { command, arguments }) => {

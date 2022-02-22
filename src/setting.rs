@@ -3,12 +3,12 @@ use crate::common::*;
 #[derive(Debug, Clone)]
 pub(crate) enum Setting<'src> {
   AllowDuplicateRecipes(bool),
+  DotenvFilenames(Vec<StringLiteral<'src>>),
   DotenvLoad(bool),
   Export(bool),
   PositionalArguments(bool),
   Shell(Shell<'src>),
   WindowsPowerShell(bool),
-  DotenvFilenames(Vec<String>),
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
