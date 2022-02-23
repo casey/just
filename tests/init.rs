@@ -1,6 +1,6 @@
 use crate::common::*;
 
-const EXPECTED: &str = "default:\n\techo 'Hello, world!'\n";
+const EXPECTED: &str = "default:\n    echo 'Hello, world!'\n";
 
 #[test]
 fn current_dir() {
@@ -187,4 +187,20 @@ fn justfile_and_working_directory() {
     fs::read_to_string(tmp.path().join("justfile")).unwrap(),
     EXPECTED
   );
+}
+
+#[test]
+fn fmt_compatibility() {
+  let tempdir = Test::new()
+    .no_justfile()
+    .arg("--init")
+    .stderr_regex("Wrote justfile to `.*`\n")
+    .run();
+  Test::with_tempdir(tempdir)
+    .no_justfile()
+    .arg("--unstable")
+    .arg("--check")
+    .arg("--fmt")
+    .status(EXIT_SUCCESS)
+    .run();
 }
