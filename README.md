@@ -897,17 +897,19 @@ This is an x86_64 machine
 
 #### Environment Variables
 
-- `env_var(key)` — Retrieves the environment variable with name `key`, aborting if it is not present. It will be available as environment variable to the recipes.
+- `env_var(key)` — Retrieves the environment variable with name `key`, aborting if it is not present.
 
 ```make
-HELLO := env_var('HELLO')
+home_dir := env_var('HOME')
 
 test:
-  echo "${HELLO}"
+  echo "{{home_dir}}"
+
+$ just
+/home/user1
 ```
 
-- `env_var_or_default(key, default)` — Retrieves the environment variable with name `key`, returning `default` if it is not present. It will be available as environment variable to the recipes.
-
+- `env_var_or_default(key, default)` — Retrieves the environment variable with name `key`, returning `default` if it is not present.
 
 #### Invocation Directory
 
@@ -1148,7 +1150,7 @@ $ just --set os bsd
 ./test --test bsd
 ```
 
-### Environment Variables
+### Getting and Setting Environment Variables
 
 #### Exporting `just` Variables
 
@@ -1186,13 +1188,24 @@ a $A $B=`echo $A`:
 
 When [export](#export) is set, all `just` variables are exported as environment variables.
 
+#### Getting Environment Variables from the environment
+
+Environment variables from the environment are passed automatically to the recipes.
+
+```make
+print_home_folder:
+  echo "HOME is: '${HOME}'"
+
+$ just
+HOME is '/home/myuser'
+```
 #### Loading Environment Variables from a `.env` File
 
 `just` will load environment variables from a `.env` file if [dotenv-load](#dotenv-load) is set. The variables in the file will be available as environment variables to the recipes. See [dotenv-integration](#dotenv-integration) for more information.
 
 #### Setting `just` Variables from Environments Variables
 
-Environment variables can be propagated to `just` variables using the functions `env_var()` and `env_var_or_default()`. These variables will be available as environment variables to the recipes.
+Environment variables can be propagated to `just` variables using the functions `env_var()` and `env_var_or_default()`.
 See [environment-variables](#environment-variables).
 
 ### Recipe Parameters
