@@ -1150,7 +1150,7 @@ $ just --set os bsd
 
 ### Environment Variables
 
-#### Exporting `just` variables
+#### Exporting `just` Variables
 
 Assignments prefixed with the `export` keyword will be exported to recipes as environment variables:
 
