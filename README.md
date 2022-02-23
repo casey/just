@@ -715,7 +715,7 @@ Available recipes:
 
 ### Dotenv Integration
 
-If [`dotenv-load`](#dotenv-load) is set to `true`, `just` will load environment variables from a file named `.env`. This file can be located in the same directory as your `justfile` or in a parent directory. These variables are environment variables, not `just` variables, and so must be accessed using `$VARIABLE_NAME` in recipes and backticks.
+If [`dotenv-load`](#dotenv-load) is set, `just` will load environment variables from a file named `.env`. This file can be located in the same directory as your `justfile` or in a parent directory. These variables are environment variables, not `just` variables, and so must be accessed using `$VARIABLE_NAME` in recipes and backticks.
 
 For example, if your `.env` file contains:
 
