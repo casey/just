@@ -1186,16 +1186,6 @@ a $A $B=`echo $A`:
 
 When [export](#export) is set, all `just` variables are exported as environment variables.
 
-```make
-export := true
-
-HELLO := "Hello"
-WORLD := "World"
-
-test:
-  echo "${HELLO} ${WORLD}"  # will display 'Hello World'
-```
-
 #### Loading Environment Variables from a `.env` File
 
 `just` will load environment variables from a `.env` file if [dotenv-load](#dotenv-load) is set. The variables in the file will be available as environment variables to the recipes. See [dotenv-integration](#dotenv-integration) for more information.
