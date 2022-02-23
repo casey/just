@@ -715,7 +715,7 @@ Available recipes:
 
 ### Dotenv Integration
 
-If `dotenv-load` is set to `true`, `just` will load environment variables from a file named `.env`. This file can be located in the same directory as your `justfile` or in a parent directory. These variables are environment variables, not `just` variables, and so must be accessed using `$VARIABLE_NAME` in recipes and backticks.
+If [`dotenv-load`](#dotenv-load) is set to `true`, `just` will load environment variables from a file named `.env`. This file can be located in the same directory as your `justfile` or in a parent directory. These variables are environment variables, not `just` variables, and so must be accessed using `$VARIABLE_NAME` in recipes and backticks.
 
 For example, if your `.env` file contains:
 
@@ -897,9 +897,17 @@ This is an x86_64 machine
 
 #### Environment Variables
 
-- `env_var(key)` — Retrieves the environment variable with name `key`, aborting if it is not present.
+- `env_var(key)` — Retrieves the environment variable with name `key`, aborting if it is not present. It will be available as environment variable to the recipes.
 
-- `env_var_or_default(key, default)` — Retrieves the environment variable with name `key`, returning `default` if it is not present.
+```make
+HELLO := env_var('HELLO')
+
+test:
+  echo "${HELLO}"
+```
+
+- `env_var_or_default(key, default)` — Retrieves the environment variable with name `key`, returning `default` if it is not present. It will be available as environment variable to the recipes.
+
 
 #### Invocation Directory
 
@@ -1142,6 +1150,8 @@ $ just --set os bsd
 
 ### Environment Variables
 
+#### Exporting `just` variables
+
 Assignments prefixed with the `export` keyword will be exported to recipes as environment variables:
 
 ```make
@@ -1173,6 +1183,27 @@ BAR := `echo hello $WORLD`
 a $A $B=`echo $A`:
   echo $A $B
 ```
+
+When [export](#export) is set, all `just` variables are exported as environment variables.
+
+```make
+export := true
+
+HELLO := "Hello"
+WORLD := "World"
+
+test:
+  echo "${HELLO} ${WORLD}"  # will display 'Hello World'
+```
+
+#### Loading Environment Variables from a `.env` File
+
+`just` will load environment variables from a `.env` file if [dotenv-load](#dotenv-load) is set. The variables in the file will be available as environment variables to the recipes. See [dotenv-integration](#dotenv-integration) for more information.
+
+#### Setting `just` Variables from Environments Variables
+
+Environment variables can be propagated to `just` variables using the functions `env_var()` and `env_var_or_default()`. These variables will be available as environment variables to the recipes.
+See [environment-variables](#environment-variables).
 
 ### Recipe Parameters
 
