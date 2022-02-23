@@ -1847,6 +1847,14 @@ You can customize the above aliases with additional options. For example, if you
 alias .j='just --justfile ~/.user.justfile --working-directory ~'
 ```
 
+### Node.js `package.json` Script Compatibility
+
+The following export statement gives `just` recipes access to local Node module binaries, and makes `just` recipe commands behave more like `script` entries in a Node.js `package.json` file:
+
+```make
+export PATH := "./node_modules/.bin:" + env_var('PATH')
+```
+
 ### Alternatives and Prior Art
 
 There is no shortage of command runners out there! Some more or less similar alternatives to `just` include:
