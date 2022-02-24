@@ -2,8 +2,7 @@
 # ^ A shebang isn't required, but allows a justfile to be executed
 #   like a script, with `./justfile test`, for example.
 
-# Windows users will need to enable this unless running under something like Git for Windows, GitHub Desktop, or Cygwin.
-#set windows-powershell := true
+set windows-powershell := true
 
 alias t := test
 
