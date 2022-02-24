@@ -904,7 +904,9 @@ home_dir := env_var('HOME')
 
 test:
   echo "{{home_dir}}"
+```
 
+```sh
 $ just
 /home/user1
 ```
@@ -1195,7 +1197,9 @@ Environment variables from the environment are passed automatically to the recip
 ```make
 print_home_folder:
   echo "HOME is: '${HOME}'"
+```
 
+```sh
 $ just
 HOME is '/home/myuser'
 ```
