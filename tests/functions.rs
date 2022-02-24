@@ -403,3 +403,33 @@ fn test_path_exists_filepath_doesnt_exist() {
     .stdout("false")
     .run();
 }
+
+#[test]
+fn error_errors_with_message() {
+  Test::new()
+    .justfile("x := error ('Thing Not Supported')")
+    .args(&["--evaluate"])
+    .status(1)
+    .stderr("error: Call to function `error` failed: Thing Not Supported\n  |\n1 | x := error ('Thing Not Supported')\n  |      ^^^^^\n")
+    .run();
+}
+
+#[test]
+fn error_errors_with_no_message() {
+  Test::new()
+    .justfile("x := error ('')")
+    .args(&["--evaluate"])
+    .status(1)
+    .stderr("error: Call to function `error` failed: \n  |\n1 | x := error ('')\n  |      ^^^^^\n")
+    .run();
+}
+
+#[test]
+fn error_errors_with_message_based_upon_branch() {
+  Test::new()
+    .justfile("x := if \"true\" == \"false\" {{ error(\"if case\") }} else {{ error(\"else case\") }}")
+    .args(&["--evaluate"])
+    .status(1)
+    .stderr("error: Expected backtick, identifier, '(', or string, but found '{'\n  |\n1 | x := if \"true\" == \"false\" {{ error(\"if case\") }} else {{ error(\"else case\") }}\n  |                            ^\n")
+    .run();
+}

@@ -1104,6 +1104,28 @@ $ just bar
 abc
 ```
 
+### Stopping execution with error
+
+Execution can be halted with the error function. For example:
+
+```
+foo := if "hello" == "goodbye" {
+  "xyz"
+} else if "a" == "b" {
+  "abc"
+} else {
+  error("123")
+}
+```
+
+when run will produce:
+
+```
+error: Call to function `error` failed: 123
+   |
+16 |   error("123")
+```
+
 ### Setting Variables from the Command Line
 
 Variables can be overridden from the command line.

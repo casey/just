@@ -18,6 +18,7 @@ lazy_static! {
     ("clean", Unary(clean)),
     ("env_var", Unary(env_var)),
     ("env_var_or_default", Binary(env_var_or_default)),
+    ("error", Unary(error)),
     ("extension", Unary(extension)),
     ("file_name", Unary(file_name)),
     ("file_stem", Unary(file_stem)),
@@ -103,6 +104,10 @@ fn env_var_or_default(
     )),
     Ok(value) => Ok(value),
   }
+}
+
+fn error(_context: &FunctionContext, message: &str) -> Result<String, String> {
+  Err(message.to_owned())
 }
 
 fn extension(_context: &FunctionContext, path: &str) -> Result<String, String> {
