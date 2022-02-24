@@ -1106,7 +1106,7 @@ abc
 
 ### Stopping execution with error
 
-Execution can be halted with the error function. For example:
+Execution can be halted with the `error` function. For example:
 
 ```
 foo := if "hello" == "goodbye" {
@@ -1118,7 +1118,7 @@ foo := if "hello" == "goodbye" {
 }
 ```
 
-when run will produce:
+Which produce the following error when run:
 
 ```
 error: Call to function `error` failed: 123
