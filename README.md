@@ -998,6 +998,10 @@ These functions can fail, for example if a path does not have an extension, whic
 
 - `path_exists(path)` - Returns `true` if the path points at an existing entity and `false` otherwise. Traverses symbolic links, and returns `false` if the path is inaccessible or points to a broken symlink.
 
+##### Error Reporting
+
+- `error(message)` - Abort execution and report error `message` to user.
+
 ### Command Evaluation Using Backticks
 
 Backticks can be used to store the result of commands:
