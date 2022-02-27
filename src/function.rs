@@ -61,11 +61,12 @@ impl Function {
 }
 
 fn abs_path(ctx: &FunctionContext, path: &str) -> Result<String, String> {
-  match ctx.search.working_directory.to_str() {
-    Some(wd) => Ok(Utf8Path::new(wd).join(path).into()),
+  let abs_path_unchecked = ctx.search.working_directory.join(path).lexiclean();
+  match abs_path_unchecked.to_str() {
+    Some(wd) => Ok(wd.to_string()),
     None => Err(format!(
-      "Working directory path is not valid unicode: {}",
-      ctx.search.working_directory.to_string_lossy()
+      "Directory path is not valid unicode: {}",
+      abs_path_unchecked.to_string_lossy()
     )),
   }
 }
