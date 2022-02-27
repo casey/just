@@ -60,11 +60,13 @@ impl Function {
   }
 }
 
-fn abs_path(context: &FunctionContext, path: &str) -> Result<String, String> {
-  let corrected_path = context.invocation_directory.join(path);
-  match corrected_path.canonicalize() {
-    Ok(p) => Ok(p.to_string_lossy().into()),
-    Err(e) => Err(format!("Error getting absolute path: {}", e)),
+fn abs_path(ctx: &FunctionContext, path: &str) -> Result<String, String> {
+  match ctx.search.working_directory.to_str() {
+    Some(wd) => Ok(Utf8Path::new(wd).join(path).into()),
+    None => Err(format!(
+      "Working directory path is not valid unicode: {}",
+      ctx.search.working_directory.to_string_lossy()
+    )),
   }
 }
 
