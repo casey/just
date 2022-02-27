@@ -14,6 +14,7 @@ pub(crate) enum Function {
 
 lazy_static! {
   pub(crate) static ref TABLE: BTreeMap<&'static str, Function> = vec![
+    ("abs_path", Unary(abs_path)),
     ("arch", Nullary(arch)),
     ("clean", Unary(clean)),
     ("env_var", Unary(env_var)),
@@ -56,6 +57,14 @@ impl Function {
       BinaryPlus(_) => 2..usize::MAX,
       Ternary(_) => 3..3,
     }
+  }
+}
+
+fn abs_path(context: &FunctionContext, path: &str) -> Result<String, String> {
+  let corrected_path = context.invocation_directory.join(path);
+  match corrected_path.canonicalize() {
+    Ok(p) => Ok(p.to_string_lossy().into()),
+    Err(e) => Err(format!("Error getting absolute path: {}", e)),
   }
 }
 
