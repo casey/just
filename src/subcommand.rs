@@ -1,6 +1,6 @@
 use crate::common::*;
 
-const INIT_JUSTFILE: &str = "default:\n\techo 'Hello, world!'\n";
+const INIT_JUSTFILE: &str = "default:\n    echo 'Hello, world!'\n";
 
 #[derive(PartialEq, Clone, Debug)]
 pub(crate) enum Subcommand {
