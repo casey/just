@@ -154,7 +154,7 @@ fn just_executable(_context: &FunctionContext) -> Result<String, String> {
   exe_path.to_str().map(str::to_owned).ok_or_else(|| {
     format!(
       "Executable path is not valid unicode: {}",
-      exe_path.to_string_lossy()
+      exe_path.display()
     )
   })
 }
@@ -168,7 +168,7 @@ fn justfile(context: &FunctionContext) -> Result<String, String> {
     .ok_or_else(|| {
       format!(
         "Justfile path is not valid unicode: {}",
-        context.search.justfile.to_string_lossy()
+        context.search.justfile.display()
       )
     })
 }
@@ -187,7 +187,7 @@ fn justfile_directory(context: &FunctionContext) -> Result<String, String> {
     .ok_or_else(|| {
       format!(
         "Justfile directory is not valid unicode: {}",
-        justfile_directory.to_string_lossy()
+        justfile_directory.display()
       )
     })
 }
