@@ -211,8 +211,15 @@ fn parent_directory(_context: &FunctionContext, path: &str) -> Result<String, St
     .ok_or_else(|| format!("Could not extract parent directory from `{}`", path))
 }
 
-fn path_exists(_context: &FunctionContext, path: &str) -> Result<String, String> {
-  Ok(Utf8Path::new(path).exists().to_string())
+fn path_exists(context: &FunctionContext, path: &str) -> Result<String, String> {
+  Ok(
+    context
+      .search
+      .working_directory
+      .join(path)
+      .exists()
+      .to_string(),
+  )
 }
 
 fn quote(_context: &FunctionContext, s: &str) -> Result<String, String> {
