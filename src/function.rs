@@ -14,7 +14,7 @@ pub(crate) enum Function {
 
 lazy_static! {
   pub(crate) static ref TABLE: BTreeMap<&'static str, Function> = vec![
-    ("abs_path", Unary(abs_path)),
+    ("absolute_path", Unary(absolute_path)),
     ("arch", Nullary(arch)),
     ("clean", Unary(clean)),
     ("env_var", Unary(env_var)),
@@ -60,8 +60,8 @@ impl Function {
   }
 }
 
-fn abs_path(ctx: &FunctionContext, path: &str) -> Result<String, String> {
-  let abs_path_unchecked = ctx.search.working_directory.join(path).lexiclean();
+fn absolute_path(context: &FunctionContext, path: &str) -> Result<String, String> {
+  let abs_path_unchecked = context.search.working_directory.join(path).lexiclean();
   match abs_path_unchecked.to_str() {
     Some(wd) => Ok(wd.to_string()),
     None => Err(format!(
