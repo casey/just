@@ -403,3 +403,18 @@ fn test_path_exists_filepath_doesnt_exist() {
     .stdout("false")
     .run();
 }
+
+#[test]
+fn path_exists_subdir() {
+  Test::new()
+    .tree(tree! {
+      foo: "",
+      bar: {
+      }
+    })
+    .justfile("x := path_exists('foo')")
+    .current_dir("bar")
+    .args(&["--evaluate", "x"])
+    .stdout("true")
+    .run();
+}
