@@ -1,6 +1,17 @@
 Changelog
 =========
 
+[1.0.1](https://github.com/casey/just/releases/tag/1.0.1) - 2022-2-28
+---------------------------------------------------------------------
+
+### Fixed
+- Make path_exists() relative to current directory (#1122)
+
+### Misc
+- Detail environment variable usage in readme (#1086)
+- Format --init justfile (#1116)
+- Add hint for Node.js script compatibility (#1113)
+
 [1.0.0](https://github.com/casey/just/releases/tag/1.0.0) - 2022-2-22
 ---------------------------------------------------------------------
 
