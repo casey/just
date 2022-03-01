@@ -63,7 +63,7 @@ impl Function {
 fn absolute_path(context: &FunctionContext, path: &str) -> Result<String, String> {
   let abs_path_unchecked = context.search.working_directory.join(path).lexiclean();
   match abs_path_unchecked.to_str() {
-    Some(wd) => Ok(Utf8Path::new(wd).to_string()),
+    Some(absolute_path) => Ok(absolute_path.to_owned()),
     None => Err(format!(
       "Working directory is not valid unicode: {}",
       context.search.working_directory.display()
