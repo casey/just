@@ -435,7 +435,6 @@ fn test_absolute_path_resolves_parent() {
         .unwrap()
         .to_owned(),
     )
-    master
     .run();
 }
 
