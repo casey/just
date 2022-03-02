@@ -435,5 +435,21 @@ fn test_absolute_path_resolves_parent() {
         .unwrap()
         .to_owned(),
     )
+    master
+    .run();
+}
+
+#[test]
+fn path_exists_subdir() {
+  Test::new()
+    .tree(tree! {
+      foo: "",
+      bar: {
+      }
+    })
+    .justfile("x := path_exists('foo')")
+    .current_dir("bar")
+    .args(&["--evaluate", "x"])
+    .stdout("true")
     .run();
 }
