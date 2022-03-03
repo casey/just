@@ -988,6 +988,8 @@ The executable is at: /bin/just
 
 ##### Fallible
 
+- `absolute_path(path)` - Absolute path to relative `path` in the invocation directory. `absolute_path("./bar.txt")` in directory `/foo` is `/foo/bar.txt`.
+
 - `extension(path)` - Extension of `path`. `extension("/foo/bar.txt")` is `txt`.
 
 - `file_name(path)` - File name of `path` with any leading directory components removed. `file_name("/foo/bar.txt")` is `bar.txt`.

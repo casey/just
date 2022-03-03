@@ -405,6 +405,54 @@ fn test_path_exists_filepath_doesnt_exist() {
 }
 
 #[test]
+fn test_absolute_path_resolves() {
+  let test_object = Test::new()
+    .justfile("path := absolute_path('./test_file')")
+    .args(&["--evaluate", "path"]);
+
+  let mut tempdir = test_object.tempdir.path().to_owned();
+
+  // Just retrieves the current directory via env::current_dir(), which
+  // does the moral equivalent of canonicalize, which will remove symlinks.
+  // So, we have to canonicalize here, so that we can match it.
+  if cfg!(unix) {
+    tempdir = tempdir.canonicalize().unwrap();
+  }
+
+  test_object
+    .stdout(tempdir.join("test_file").to_str().unwrap().to_owned())
+    .run();
+}
+
+#[test]
+fn test_absolute_path_resolves_parent() {
+  let test_object = Test::new()
+    .justfile("path := absolute_path('../test_file')")
+    .args(&["--evaluate", "path"]);
+
+  let mut tempdir = test_object.tempdir.path().to_owned();
+
+  // Just retrieves the current directory via env::current_dir(), which
+  // does the moral equivalent of canonicalize, which will remove symlinks.
+  // So, we have to canonicalize here, so that we can match it.
+  if cfg!(unix) {
+    tempdir = tempdir.canonicalize().unwrap();
+  }
+
+  test_object
+    .stdout(
+      tempdir
+        .parent()
+        .unwrap()
+        .join("test_file")
+        .to_str()
+        .unwrap()
+        .to_owned(),
+    )
+    .run();
+}
+
+#[test]
 fn path_exists_subdir() {
   Test::new()
     .tree(tree! {

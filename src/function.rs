@@ -14,6 +14,7 @@ pub(crate) enum Function {
 
 lazy_static! {
   pub(crate) static ref TABLE: BTreeMap<&'static str, Function> = vec![
+    ("absolute_path", Unary(absolute_path)),
     ("arch", Nullary(arch)),
     ("clean", Unary(clean)),
     ("env_var", Unary(env_var)),
@@ -56,6 +57,17 @@ impl Function {
       BinaryPlus(_) => 2..usize::MAX,
       Ternary(_) => 3..3,
     }
+  }
+}
+
+fn absolute_path(context: &FunctionContext, path: &str) -> Result<String, String> {
+  let abs_path_unchecked = context.search.working_directory.join(path).lexiclean();
+  match abs_path_unchecked.to_str() {
+    Some(absolute_path) => Ok(absolute_path.to_owned()),
+    None => Err(format!(
+      "Working directory is not valid unicode: {}",
+      context.search.working_directory.display()
+    )),
   }
 }
 
