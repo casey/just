@@ -1012,6 +1012,10 @@ These functions can fail, for example if a path does not have an extension, whic
 
 - `path_exists(path)` - Returns `true` if the path points at an existing entity and `false` otherwise. Traverses symbolic links, and returns `false` if the path is inaccessible or points to a broken symlink.
 
+##### Error Reporting
+
+- `error(message)` - Abort execution and report error `message` to user.
+
 ### Command Evaluation Using Backticks
 
 Backticks can be used to store the result of commands:
@@ -1116,6 +1120,28 @@ bar:
 ```sh
 $ just bar
 abc
+```
+
+### Stopping execution with error
+
+Execution can be halted with the `error` function. For example:
+
+```
+foo := if "hello" == "goodbye" {
+  "xyz"
+} else if "a" == "b" {
+  "abc"
+} else {
+  error("123")
+}
+```
+
+Which produce the following error when run:
+
+```
+error: Call to function `error` failed: 123
+   |
+16 |   error("123")
 ```
 
 ### Setting Variables from the Command Line

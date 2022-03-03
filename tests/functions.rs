@@ -405,6 +405,16 @@ fn test_path_exists_filepath_doesnt_exist() {
 }
 
 #[test]
+fn error_errors_with_message() {
+  Test::new()
+    .justfile("x := error ('Thing Not Supported')")
+    .args(&["--evaluate"])
+    .status(1)
+    .stderr("error: Call to function `error` failed: Thing Not Supported\n  |\n1 | x := error ('Thing Not Supported')\n  |      ^^^^^\n")
+    .run();
+}
+
+#[test]
 fn test_absolute_path_resolves() {
   let test_object = Test::new()
     .justfile("path := absolute_path('./test_file')")
