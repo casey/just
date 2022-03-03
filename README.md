@@ -715,7 +715,7 @@ Available recipes:
 
 ### Dotenv Integration
 
-If `dotenv-load` is set to `true`, `just` will load environment variables from a file named `.env`. This file can be located in the same directory as your `justfile` or in a parent directory. These variables are environment variables, not `just` variables, and so must be accessed using `$VARIABLE_NAME` in recipes and backticks.
+If [`dotenv-load`](#dotenv-load) is set, `just` will load environment variables from a file named `.env`. This file can be located in the same directory as your `justfile` or in a parent directory. These variables are environment variables, not `just` variables, and so must be accessed using `$VARIABLE_NAME` in recipes and backticks.
 
 For example, if your `.env` file contains:
 
@@ -899,6 +899,18 @@ This is an x86_64 machine
 
 - `env_var(key)` — Retrieves the environment variable with name `key`, aborting if it is not present.
 
+```make
+home_dir := env_var('HOME')
+
+test:
+  echo "{{home_dir}}"
+```
+
+```sh
+$ just
+/home/user1
+```
+
 - `env_var_or_default(key, default)` — Retrieves the environment variable with name `key`, returning `default` if it is not present.
 
 #### Invocation Directory
@@ -975,6 +987,8 @@ The executable is at: /bin/just
 #### Path Manipulation
 
 ##### Fallible
+
+- `absolute_path(path)` - Absolute path to relative `path` in the invocation directory. `absolute_path("./bar.txt")` in directory `/foo` is `/foo/bar.txt`.
 
 - `extension(path)` - Extension of `path`. `extension("/foo/bar.txt")` is `txt`.
 
@@ -1166,7 +1180,9 @@ $ just --set os bsd
 ./test --test bsd
 ```
 
-### Environment Variables
+### Getting and Setting Environment Variables
+
+#### Exporting `just` Variables
 
 Assignments prefixed with the `export` keyword will be exported to recipes as environment variables:
 
@@ -1199,6 +1215,30 @@ BAR := `echo hello $WORLD`
 a $A $B=`echo $A`:
   echo $A $B
 ```
+
+When [export](#export) is set, all `just` variables are exported as environment variables.
+
+#### Getting Environment Variables from the environment
+
+Environment variables from the environment are passed automatically to the recipes.
+
+```make
+print_home_folder:
+  echo "HOME is: '${HOME}'"
+```
+
+```sh
+$ just
+HOME is '/home/myuser'
+```
+#### Loading Environment Variables from a `.env` File
+
+`just` will load environment variables from a `.env` file if [dotenv-load](#dotenv-load) is set. The variables in the file will be available as environment variables to the recipes. See [dotenv-integration](#dotenv-integration) for more information.
+
+#### Setting `just` Variables from Environments Variables
+
+Environment variables can be propagated to `just` variables using the functions `env_var()` and `env_var_or_default()`.
+See [environment-variables](#environment-variables).
 
 ### Recipe Parameters
 

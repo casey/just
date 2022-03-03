@@ -14,6 +14,7 @@ pub(crate) enum Function {
 
 lazy_static! {
   pub(crate) static ref TABLE: BTreeMap<&'static str, Function> = vec![
+    ("absolute_path", Unary(absolute_path)),
     ("arch", Nullary(arch)),
     ("clean", Unary(clean)),
     ("env_var", Unary(env_var)),
@@ -57,6 +58,17 @@ impl Function {
       BinaryPlus(_) => 2..usize::MAX,
       Ternary(_) => 3..3,
     }
+  }
+}
+
+fn absolute_path(context: &FunctionContext, path: &str) -> Result<String, String> {
+  let abs_path_unchecked = context.search.working_directory.join(path).lexiclean();
+  match abs_path_unchecked.to_str() {
+    Some(absolute_path) => Ok(absolute_path.to_owned()),
+    None => Err(format!(
+      "Working directory is not valid unicode: {}",
+      context.search.working_directory.display()
+    )),
   }
 }
 
@@ -159,7 +171,7 @@ fn just_executable(_context: &FunctionContext) -> Result<String, String> {
   exe_path.to_str().map(str::to_owned).ok_or_else(|| {
     format!(
       "Executable path is not valid unicode: {}",
-      exe_path.to_string_lossy()
+      exe_path.display()
     )
   })
 }
@@ -173,7 +185,7 @@ fn justfile(context: &FunctionContext) -> Result<String, String> {
     .ok_or_else(|| {
       format!(
         "Justfile path is not valid unicode: {}",
-        context.search.justfile.to_string_lossy()
+        context.search.justfile.display()
       )
     })
 }
@@ -192,7 +204,7 @@ fn justfile_directory(context: &FunctionContext) -> Result<String, String> {
     .ok_or_else(|| {
       format!(
         "Justfile directory is not valid unicode: {}",
-        justfile_directory.to_string_lossy()
+        justfile_directory.display()
       )
     })
 }
@@ -216,8 +228,15 @@ fn parent_directory(_context: &FunctionContext, path: &str) -> Result<String, St
     .ok_or_else(|| format!("Could not extract parent directory from `{}`", path))
 }
 
-fn path_exists(_context: &FunctionContext, path: &str) -> Result<String, String> {
-  Ok(Utf8Path::new(path).exists().to_string())
+fn path_exists(context: &FunctionContext, path: &str) -> Result<String, String> {
+  Ok(
+    context
+      .search
+      .working_directory
+      .join(path)
+      .exists()
+      .to_string(),
+  )
 }
 
 fn quote(_context: &FunctionContext, s: &str) -> Result<String, String> {
