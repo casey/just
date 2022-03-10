@@ -1,6 +1,13 @@
 Changelog
 =========
 
+[1.1.0](https://github.com/casey/just/releases/tag/1.1.0) - 2022-3-10
+---------------------------------------------------------------------
+
+### Added
+- Add `error()` function (#1118)
+- Add `absolute_path` function (#1121)
+
 [1.0.1](https://github.com/casey/just/releases/tag/1.0.1) - 2022-2-28
 ---------------------------------------------------------------------
 
