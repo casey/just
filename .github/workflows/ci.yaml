@@ -31,6 +31,10 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - name: Remove Broken WSL bash executable
+      shell: cmd
+      run: del C:/Windows/System32/bash.exe
+
     - name: Install Rust Toolchain Components
       uses: actions-rs/toolchain@v1
       with:
