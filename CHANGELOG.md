@@ -1,6 +1,13 @@
 Changelog
 =========
 
+[1.1.1](https://github.com/casey/just/releases/tag/1.1.1) - 2022-3-22
+---------------------------------------------------------------------
+
+### Misc
+- Build MacOS ARM release binaries (#1138)
+- Upgrade Windows Actions runners to windows-latest (#1137)
+
 [1.1.0](https://github.com/casey/just/releases/tag/1.1.0) - 2022-3-10
 ---------------------------------------------------------------------
 
