@@ -21,7 +21,7 @@ jobs:
         os:
         - ubuntu-latest
         - macos-latest
-        - windows-2016
+        - windows-latest
 
     runs-on: ${{matrix.os}}
 
@@ -30,6 +30,14 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+
+    - name: Remove Broken WSL bash executable
+      if: ${{ matrix.os == 'windows-latest' }}
+      shell: cmd
+      run: |
+        takeown /F C:\Windows\System32\bash.exe
+        icacls C:\Windows\System32\bash.exe /grant administrators:F
+        del C:\Windows\System32\bash.exe
 
     - name: Install Rust Toolchain Components
       uses: actions-rs/toolchain@v1
