@@ -34,7 +34,7 @@ jobs:
     - name: Remove Broken WSL bash executable
       if: ${{ matrix.os == 'windows-latest' }}
       shell: cmd
-      run: del C:/Windows/System32/bash.exe
+      run: del C:\Windows\System32\bash.exe
 
     - name: Install Rust Toolchain Components
       uses: actions-rs/toolchain@v1
