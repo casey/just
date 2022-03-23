@@ -5,7 +5,6 @@ Changelog
 ---------------------------------------------------------------------
 
 ### Misc
-
 - Build MacOS ARM release binaries (#1138)
 - Upgrade Windows Actions runners to windows-latest (#1137)
 
