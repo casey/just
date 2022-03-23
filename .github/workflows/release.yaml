@@ -32,7 +32,7 @@ jobs:
           os: macos-latest
           target_rustflags: ''
         - target: x86_64-pc-windows-msvc
-          os: windows-2016
+          os: windows-latest
           target_rustflags: ''
         - target: x86_64-unknown-linux-musl
           os: ubuntu-latest
