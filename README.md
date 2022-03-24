@@ -1562,6 +1562,10 @@ foo:
   pwd
 ```
 
+### Indentation
+
+Recipe lines can be indented with spaces or tabs, but not a mix of both. All of a recipe's lines must have the same indentation, but different recipes in the same `justfile` may use different indentation.
+
 ### Multi-Line Constructs
 
 Recipes without an initial shebang are evaluated and run line-by-line, which means that multi-line constructs probably won't do what you want.
