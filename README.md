@@ -389,8 +389,6 @@ Examples
 
 A variety of example `justfile`s can be found in the [examples directory](examples).
 
-This [blog post](https://toniogela.dev/just/) discusses using `just` to improve management of shared machines, and includes a number of example `justfile`s.
-
 Features
 --------
 
