@@ -606,7 +606,7 @@ impl Config {
   }
 
   pub(crate) fn run<'src>(self, loader: &'src Loader) -> Result<(), Error<'src>> {
-    self.subcommand.run(&self, loader)
+    self.subcommand.execute(&self, loader)
   }
 }
 

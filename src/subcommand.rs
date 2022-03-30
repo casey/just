@@ -27,8 +27,8 @@ pub(crate) enum Subcommand {
   Init,
   List,
   Run {
-    overrides: BTreeMap<String, String>,
     arguments: Vec<String>,
+    overrides: BTreeMap<String, String>,
   },
   Show {
     name: String,
@@ -38,7 +38,11 @@ pub(crate) enum Subcommand {
 }
 
 impl Subcommand {
-  pub(crate) fn run<'src>(&self, config: &Config, loader: &'src Loader) -> Result<(), Error<'src>> {
+  pub(crate) fn execute<'src>(
+    &self,
+    config: &Config,
+    loader: &'src Loader,
+  ) -> Result<(), Error<'src>> {
     use Subcommand::*;
 
     match self {
@@ -48,6 +52,10 @@ impl Subcommand {
       }
       Completions { shell } => return Self::completions(shell),
       Init => return Self::init(config),
+      Run {
+        arguments,
+        overrides,
+      } => return Self::run(config, loader, &arguments, &overrides),
       _ => {}
     }
 
@@ -79,17 +87,81 @@ impl Subcommand {
       Dump => Self::dump(config, ast, justfile)?,
       Format => Self::format(config, &search, src, ast)?,
       List => Self::list(config, justfile),
-      Run {
-        arguments,
-        overrides,
-      } => justfile.run(config, &search, overrides, arguments)?,
       Show { ref name } => Self::show(config, name, justfile)?,
       Summary => Self::summary(config, justfile),
       Variables => Self::variables(justfile),
-      Changelog | Completions { .. } | Edit | Init => unreachable!(),
+      Changelog | Completions { .. } | Edit | Init | Run { .. } => unreachable!(),
     }
 
     Ok(())
+  }
+
+  pub(crate) fn run<'src>(
+    config: &Config,
+    loader: &'src Loader,
+    arguments: &[String],
+    overrides: &BTreeMap<String, String>,
+  ) -> Result<(), Error<'src>> {
+    if config.search_config == SearchConfig::FromInvocationDirectory {
+      let mut path = config.invocation_directory.clone();
+
+      let mut errors = Vec::new();
+
+      loop {
+        let search = match Search::find_next(&path) {
+          Err(err) => {
+            errors.push(err.into());
+            break;
+          }
+          Ok(search) => search,
+        };
+
+        match Self::run_inner(config, loader, arguments, overrides, &search) {
+          Err(err @ Error::UnknownRecipes { .. }) => {
+            match search.justfile.parent().unwrap().parent() {
+              Some(parent) => {
+                errors.push(err);
+                path = parent.into();
+              }
+              None => return Err(err),
+            }
+          }
+          result => return result,
+        }
+      }
+
+      Err(errors.remove(0).into())
+    } else {
+      Self::run_inner(
+        config,
+        loader,
+        arguments,
+        overrides,
+        &Search::find(&config.search_config, &config.invocation_directory)?,
+      )
+    }
+  }
+
+  pub(crate) fn run_inner<'src>(
+    config: &Config,
+    loader: &'src Loader,
+    arguments: &[String],
+    overrides: &BTreeMap<String, String>,
+    search: &Search,
+  ) -> Result<(), Error<'src>> {
+    let src = loader.load(&search.justfile)?;
+
+    let tokens = Lexer::lex(src)?;
+    let ast = Parser::parse(&tokens)?;
+    let justfile = Analyzer::analyze(ast.clone())?;
+
+    if config.verbosity.loud() {
+      for warning in &justfile.warnings {
+        eprintln!("{}", warning.color_display(config.color.stderr()));
+      }
+    }
+
+    justfile.run(config, &search, overrides, arguments)
   }
 
   fn changelog() {
