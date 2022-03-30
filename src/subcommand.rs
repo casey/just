@@ -65,17 +65,7 @@ impl Subcommand {
       return Self::edit(&search);
     }
 
-    let src = loader.load(&search.justfile)?;
-
-    let tokens = Lexer::lex(src)?;
-    let ast = Parser::parse(&tokens)?;
-    let justfile = Analyzer::analyze(ast.clone())?;
-
-    if config.verbosity.loud() {
-      for warning in &justfile.warnings {
-        eprintln!("{}", warning.color_display(config.color.stderr()));
-      }
-    }
+    let (src, ast, justfile) = Self::compile(&config, loader, &search)?;
 
     match self {
       Choose { overrides, chooser } => {
@@ -142,13 +132,22 @@ impl Subcommand {
     }
   }
 
-  pub(crate) fn run_inner<'src>(
+  fn run_inner<'src>(
     config: &Config,
     loader: &'src Loader,
     arguments: &[String],
     overrides: &BTreeMap<String, String>,
     search: &Search,
   ) -> Result<(), Error<'src>> {
+    let (_src, _ast, justfile) = Self::compile(config, loader, search)?;
+    justfile.run(config, &search, overrides, arguments)
+  }
+
+  fn compile<'src>(
+    config: &Config,
+    loader: &'src Loader,
+    search: &Search,
+  ) -> Result<(&'src str, Ast<'src>, Justfile<'src>), Error<'src>> {
     let src = loader.load(&search.justfile)?;
 
     let tokens = Lexer::lex(src)?;
@@ -161,7 +160,7 @@ impl Subcommand {
       }
     }
 
-    justfile.run(config, &search, overrides, arguments)
+    Ok((src, ast, justfile))
   }
 
   fn changelog() {
