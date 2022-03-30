@@ -88,3 +88,27 @@ fn test_invocation_directory() {
     panic!("test failed");
   }
 }
+
+#[test]
+fn invocation_directory_is_preserved_with_slash_recipe() {
+  let tmp = tempdir();
+
+  fs::create_dir_all(tmp.path().join("dir/")).unwrap();
+
+  fs::write(
+    tmp.path().join("dir/justfile"),
+    "foo:\n echo {{invocation_directory()}}",
+  )
+  .unwrap();
+
+  let output = Command::new(&executable_path("just"))
+    .current_dir(&tmp)
+    .args(&["--shell", "sh", "dir/"])
+    .output()
+    .unwrap();
+
+  assert_eq!(
+    str::from_utf8(&output.stdout).unwrap(),
+    format!("{}\n", tmp.path().canonicalize().unwrap().to_str().unwrap()),
+  );
+}
