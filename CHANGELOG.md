@@ -1,6 +1,16 @@
 Changelog
 =========
 
+[1.1.2](https://github.com/casey/just/releases/tag/1.1.2) - 2022-3-30
+---------------------------------------------------------------------
+
+### Misc
+- Document indentation rules (#1142)
+- Remove stale link from readme (#1141)
+
+### Unstable
+- Search for missing recipes in parent directory justfiles (#1149)
+
 [1.1.1](https://github.com/casey/just/releases/tag/1.1.1) - 2022-3-22
 ---------------------------------------------------------------------
 
