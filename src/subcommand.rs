@@ -55,7 +55,7 @@ impl Subcommand {
       Run {
         arguments,
         overrides,
-      } => return Self::run(config, loader, &arguments, &overrides),
+      } => return Self::run(config, loader, arguments, overrides),
       _ => {}
     }
 
@@ -65,7 +65,7 @@ impl Subcommand {
       return Self::edit(&search);
     }
 
-    let (src, ast, justfile) = Self::compile(&config, loader, &search)?;
+    let (src, ast, justfile) = Self::compile(config, loader, &search)?;
 
     match self {
       Choose { overrides, chooser } => {
@@ -105,21 +105,19 @@ impl Subcommand {
           },
           Err(err) => return Err(err.into()),
           Ok(search) => {
-            if config.verbosity.loud() {
-              if path != config.invocation_directory {
-                eprintln!(
-                  "Trying {}",
-                  config
-                    .invocation_directory
-                    .strip_prefix(path)
-                    .unwrap()
-                    .components()
-                    .map(|_| path::Component::ParentDir)
-                    .collect::<PathBuf>()
-                    .join(search.justfile.file_name().unwrap())
-                    .display()
-                );
-              }
+            if config.verbosity.loud() && path != config.invocation_directory {
+              eprintln!(
+                "Trying {}",
+                config
+                  .invocation_directory
+                  .strip_prefix(path)
+                  .unwrap()
+                  .components()
+                  .map(|_| path::Component::ParentDir)
+                  .collect::<PathBuf>()
+                  .join(search.justfile.file_name().unwrap())
+                  .display()
+              );
             }
             search
           }
@@ -157,7 +155,7 @@ impl Subcommand {
     search: &Search,
   ) -> Result<(), Error<'src>> {
     let (_src, _ast, justfile) = Self::compile(config, loader, search)?;
-    justfile.run(config, &search, overrides, arguments)
+    justfile.run(config, search, overrides, arguments)
   }
 
   fn compile<'src>(

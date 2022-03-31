@@ -340,8 +340,8 @@ impl<'src> Justfile<'src> {
     }
 
     let mut invocation = vec![recipe.name().to_owned()];
-    for argument in arguments.iter().copied() {
-      invocation.push(argument.to_owned());
+    for argument in arguments {
+      invocation.push((*argument).to_string());
     }
 
     ran.insert(invocation);
