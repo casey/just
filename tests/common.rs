@@ -6,7 +6,7 @@ pub(crate) use std::{
   fs,
   io::Write,
   iter,
-  path::{Path, PathBuf},
+  path::{Path, PathBuf, MAIN_SEPARATOR},
   process::{Command, Output, Stdio},
   str,
 };

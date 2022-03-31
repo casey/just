@@ -19,12 +19,13 @@ fn runs_recipe_in_parent_if_not_found_in_current() {
     )
     .args(&["--unstable", "foo"])
     .current_dir("bar")
-    .stderr(
+    .stderr(format!(
       "
-      Trying ../justfile
+      Trying ..{}justfile
       echo root
     ",
-    )
+      MAIN_SEPARATOR
+    ))
     .stdout("root\n")
     .run();
 }
@@ -43,15 +44,16 @@ fn print_error_from_parent_if_recipe_not_found_in_current() {
     .justfile("foo:\n echo {{bar}}")
     .args(&["--unstable", "foo"])
     .current_dir("bar")
-    .stderr(
+    .stderr(format!(
       "
-      Trying ../justfile
+      Trying ..{}justfile
       error: Variable `bar` not defined
         |
-      2 |  echo {{bar}}
+      2 |  echo {{{{bar}}}}
         |         ^^^
     ",
-    )
+      MAIN_SEPARATOR
+    ))
     .status(EXIT_FAILURE)
     .run();
 }
@@ -179,11 +181,12 @@ fn prints_correct_error_message_when_recipe_not_found() {
     .args(&["--unstable", "foo"])
     .current_dir("bar")
     .status(EXIT_FAILURE)
-    .stderr(
+    .stderr(format!(
       "
-      Trying ../justfile
+      Trying ..{}justfile
       error: Justfile does not contain recipe `foo`.
     ",
-    )
+      MAIN_SEPARATOR,
+    ))
     .run();
 }
