@@ -17,17 +17,7 @@ impl Search {
     invocation_directory: &Path,
   ) -> SearchResult<Self> {
     match search_config {
-      SearchConfig::FromInvocationDirectory => {
-        let justfile = Self::justfile(invocation_directory)?;
-
-        let working_directory = Self::working_directory_from_justfile(&justfile)?;
-
-        Ok(Self {
-          justfile,
-          working_directory,
-        })
-      }
-
+      SearchConfig::FromInvocationDirectory => Self::find_next(invocation_directory),
       SearchConfig::FromSearchDirectory { search_directory } => {
         let search_directory = Self::clean(invocation_directory, search_directory);
 
@@ -40,7 +30,6 @@ impl Search {
           working_directory,
         })
       }
-
       SearchConfig::WithJustfile { justfile } => {
         let justfile = Self::clean(invocation_directory, justfile);
 
@@ -51,7 +40,6 @@ impl Search {
           working_directory,
         })
       }
-
       SearchConfig::WithJustfileAndWorkingDirectory {
         justfile,
         working_directory,
@@ -60,6 +48,17 @@ impl Search {
         working_directory: Self::clean(invocation_directory, working_directory),
       }),
     }
+  }
+
+  pub(crate) fn find_next(starting_dir: &Path) -> SearchResult<Self> {
+    let justfile = Self::justfile(starting_dir)?;
+
+    let working_directory = Self::working_directory_from_justfile(&justfile)?;
+
+    Ok(Self {
+      justfile,
+      working_directory,
+    })
   }
 
   pub(crate) fn init(

@@ -45,7 +45,6 @@ pub(crate) struct Test {
   pub(crate) stderr_regex: Option<Regex>,
   pub(crate) stdin: String,
   pub(crate) stdout: String,
-  pub(crate) suppress_dotenv_load_warning: bool,
   pub(crate) tempdir: TempDir,
   pub(crate) unindent_stdout: bool,
 }
@@ -67,7 +66,6 @@ impl Test {
       stderr_regex: None,
       stdin: String::new(),
       stdout: String::new(),
-      suppress_dotenv_load_warning: true,
       tempdir,
       unindent_stdout: true,
     }
@@ -139,11 +137,6 @@ impl Test {
     self
   }
 
-  pub(crate) fn suppress_dotenv_load_warning(mut self, suppress_dotenv_load_warning: bool) -> Self {
-    self.suppress_dotenv_load_warning = suppress_dotenv_load_warning;
-    self
-  }
-
   pub(crate) fn tree(self, mut tree: Tree) -> Self {
     tree.map(|_name, content| unindent(content));
     tree.instantiate(self.tempdir.path()).unwrap();
@@ -183,14 +176,6 @@ impl Test {
     let mut child = command
       .args(self.args)
       .envs(&self.env)
-      .env(
-        "JUST_SUPPRESS_DOTENV_LOAD_WARNING",
-        if self.suppress_dotenv_load_warning {
-          "1"
-        } else {
-          "0"
-        },
-      )
       .current_dir(self.tempdir.path().join(self.current_dir))
       .stdin(Stdio::piped())
       .stdout(Stdio::piped())

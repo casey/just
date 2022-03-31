@@ -10,7 +10,7 @@ pub(crate) use std::{
   iter::{self, FromIterator},
   mem,
   ops::{Index, Range, RangeInclusive},
-  path::{Path, PathBuf},
+  path::{self, Path, PathBuf},
   process::{self, Command, ExitStatus, Stdio},
   rc::Rc,
   str::{self, Chars},
