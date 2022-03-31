@@ -74,10 +74,6 @@ impl<'src> Justfile<'src> {
     overrides: &BTreeMap<String, String>,
     arguments: &[String],
   ) -> RunResult<'src, ()> {
-    if let Err(error) = InterruptHandler::install(config.verbosity) {
-      warn!("Failed to set CTRL-C handler: {}", error);
-    }
-
     let unknown_overrides = overrides
       .keys()
       .filter(|name| !self.assignments.contains_key(name.as_str()))

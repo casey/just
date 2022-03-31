@@ -92,25 +92,44 @@ impl Subcommand {
     arguments: &[String],
     overrides: &BTreeMap<String, String>,
   ) -> Result<(), Error<'src>> {
-    if config.search_config == SearchConfig::FromInvocationDirectory {
+    if config.unstable && config.search_config == SearchConfig::FromInvocationDirectory {
       let mut path = config.invocation_directory.clone();
 
-      let mut errors = Vec::new();
+      let mut unknown_recipes_errors = None;
 
       loop {
         let search = match Search::find_next(&path) {
-          Err(err) => {
-            errors.push(err.into());
-            break;
+          Err(SearchError::NotFound) => match unknown_recipes_errors {
+            Some(err) => return Err(err),
+            None => return Err(SearchError::NotFound.into()),
+          },
+          Err(err) => return Err(err.into()),
+          Ok(search) => {
+            if config.verbosity.loud() {
+              if path != config.invocation_directory {
+                eprintln!(
+                  "Trying {}",
+                  config
+                    .invocation_directory
+                    .strip_prefix(path)
+                    .unwrap()
+                    .components()
+                    .map(|_| path::Component::ParentDir)
+                    .collect::<PathBuf>()
+                    .join(search.justfile.file_name().unwrap())
+                    .display()
+                );
+              }
+            }
+            search
           }
-          Ok(search) => search,
         };
 
         match Self::run_inner(config, loader, arguments, overrides, &search) {
           Err(err @ Error::UnknownRecipes { .. }) => {
             match search.justfile.parent().unwrap().parent() {
               Some(parent) => {
-                errors.push(err);
+                unknown_recipes_errors.get_or_insert(err);
                 path = parent.into();
               }
               None => return Err(err),
@@ -119,8 +138,6 @@ impl Subcommand {
           result => return result,
         }
       }
-
-      Err(errors.remove(0).into())
     } else {
       Self::run_inner(
         config,

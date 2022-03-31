@@ -606,6 +606,10 @@ impl Config {
   }
 
   pub(crate) fn run<'src>(self, loader: &'src Loader) -> Result<(), Error<'src>> {
+    if let Err(error) = InterruptHandler::install(self.verbosity) {
+      warn!("Failed to set CTRL-C handler: {}", error);
+    }
+
     self.subcommand.execute(&self, loader)
   }
 }
