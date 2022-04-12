@@ -893,6 +893,8 @@ $ just system-info
 This is an x86_64 machine
 ```
 
+The `os_family()` function can be used to create cross-platform `justfile`s that work on various operating systems. For an example, see [cross-platform.just](examples/cross-platform.just) file.
+
 #### Environment Variables
 
 - `env_var(key)` — Retrieves the environment variable with name `key`, aborting if it is not present.
