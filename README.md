@@ -893,7 +893,7 @@ $ just system-info
 This is an x86_64 machine
 ```
 
-`os_family()` can be used to create cross-platform `justfile` if the project has contributors using various operating systems. For example see  [cross-platform.just](examples/cross-platform.just) file.
+The `os_family()` function can be used to create cross-platform `justfile`s that work on various operating systems. For an example, see [cross-platform.just](examples/cross-platform.just) file.
 
 #### Environment Variables
 
