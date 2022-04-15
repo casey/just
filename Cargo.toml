@@ -13,7 +13,7 @@ categories = ["command-line-utilities", "development-tools"]
 keywords = ["command-line", "task", "runner", "development", "utility"]
 
 [workspace]
-members = [".", "bin/ref-type"]
+members = [".", "bin/ref-type", "bin/generate-book"]
 
 [dependencies]
 ansi_term = "0.12.0"

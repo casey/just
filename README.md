@@ -11,6 +11,8 @@
 
 `just` is a handy way to save and run project-specific commands.
 
+This readme is also available as a [book](https://just.systems/book/);
+
 (非官方中文文档,[这里](https://github.com/chinanf-boy/just-zh),快看过来!)
 
 Commands, called recipes, are stored in a file called `justfile` with syntax inspired by `make`:
