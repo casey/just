@@ -915,7 +915,7 @@ $ just
 
 #### Invocation Directory
 
-- `invocation_directory()` - Retrieves the path of the current working directory, before `just` changed it (chdir'd) prior to executing commands.
+- `invocation_directory()` - Retrieves the absolute path to the current directory when `just` was invoked, before  `just` changed it (chdir'd) prior to executing commands.
 
 For example, to call `rustfmt` on files just under the "current directory" (from the user/invoker's perspective), use the following rule:
 
