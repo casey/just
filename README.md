@@ -1030,6 +1030,12 @@ These functions can fail, for example if a path does not have an extension, whic
 
 - `error(message)` - Abort execution and report error `message` to user.
 
+#### UUID an Hash Generation
+
+- `uuid()` - Randomly generates a hyphenated UUID string.
+- `digest(textdata)` Generates a sha256 hash of the given text data. Example: `digest("just hello")`
+- `digest_file(path)` Generates a sha256 hash of the given file. Example: `digest_file("/path/to/file")`
+
 ### Command Evaluation Using Backticks
 
 Backticks can be used to store the result of commands:
