@@ -1030,7 +1030,7 @@ These functions can fail, for example if a path does not have an extension, whic
 
 - `error(message)` - Abort execution and report error `message` to user.
 
-#### UUID an Hash Generation
+#### UUID and Hash Generation
 
 - `uuid()` - Randomly generates a hyphenated UUID string.
 - `digest(textdata)` Generates a sha256 hash of the given text data. Example: `digest("just hello")`
