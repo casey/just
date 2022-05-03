@@ -1032,9 +1032,9 @@ These functions can fail, for example if a path does not have an extension, whic
 
 #### UUID and Hash Generation
 
+- `sha256(textdata)` Generates a sha256 hash of the given text data. Example: `sha256("just hello")`
+- `sha256_file(path)` Generates a sha256 hash of the given file. Example: `sha256_file("/path/to/file")`
 - `uuid()` - Randomly generates a hyphenated UUID string.
-- `digest(textdata)` Generates a sha256 hash of the given text data. Example: `digest("just hello")`
-- `digest_file(path)` Generates a sha256 hash of the given file. Example: `digest_file("/path/to/file")`
 
 ### Command Evaluation Using Backticks
 

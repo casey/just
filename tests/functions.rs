@@ -487,21 +487,21 @@ fn uuid() {
 }
 
 #[test]
-fn digest() {
+fn sha256() {
   Test::new()
-    .justfile("x := digest('5943ee37-0000-1000-8000-010203040506')")
+    .justfile("x := sha256('5943ee37-0000-1000-8000-010203040506')")
     .args(&["--evaluate", "x"])
     .stdout("2330d7f5eb94a820b54fed59a8eced236f80b633a504289c030b6a65aef58871")
     .run();
 }
 
 #[test]
-fn digest_file() {
+fn sha256_file() {
   let mut tmpfile = tempfile::NamedTempFile::new().unwrap();
   writeln!(tmpfile, "just is great").unwrap();
   let tmppath = tmpfile.into_temp_path();
 
-  let justfile_content = format!("x := digest_file('{}')", tmppath.to_str().unwrap());
+  let justfile_content = format!("x := sha256_file('{}')", tmppath.to_str().unwrap());
 
   Test::new()
     .justfile(justfile_content)

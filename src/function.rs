@@ -17,8 +17,6 @@ lazy_static! {
     ("absolute_path", Unary(absolute_path)),
     ("arch", Nullary(arch)),
     ("clean", Unary(clean)),
-    ("digest", Unary(digest)),
-    ("digest_file", Unary(digest_file)),
     ("env_var", Unary(env_var)),
     ("env_var_or_default", Binary(env_var_or_default)),
     ("error", Unary(error)),
@@ -37,6 +35,8 @@ lazy_static! {
     ("path_exists", Unary(path_exists)),
     ("quote", Unary(quote)),
     ("replace", Ternary(replace)),
+    ("sha256", Unary(sha256)),
+    ("sha256_file", Unary(sha256_file)),
     ("trim", Unary(trim)),
     ("trim_end", Unary(trim_end)),
     ("trim_end_match", Binary(trim_end_match)),
@@ -250,6 +250,23 @@ fn replace(_context: &FunctionContext, s: &str, from: &str, to: &str) -> Result<
   Ok(s.replace(from, to))
 }
 
+fn sha256(_context: &FunctionContext, s: &str) -> Result<String, String> {
+  use sha2::{Digest, Sha256};
+  let mut hasher = Sha256::new();
+  hasher.update(s);
+  let hash = hasher.finalize();
+  Ok(format!("{:x}", hash))
+}
+
+fn sha256_file(_context: &FunctionContext, path: &str) -> Result<String, String> {
+  use sha2::{Digest, Sha256};
+  let mut hasher = Sha256::new();
+  let mut file = std::fs::File::open(path).unwrap();
+  std::io::copy(&mut file, &mut hasher).unwrap();
+  let hash = hasher.finalize();
+  Ok(format!("{:x}", hash))
+}
+
 fn trim(_context: &FunctionContext, s: &str) -> Result<String, String> {
   Ok(s.trim().to_owned())
 }
@@ -284,23 +301,6 @@ fn uppercase(_context: &FunctionContext, s: &str) -> Result<String, String> {
 
 fn uuid(_context: &FunctionContext) -> Result<String, String> {
   Ok(uuid::Uuid::new_v4().to_string())
-}
-
-fn digest(_context: &FunctionContext, s: &str) -> Result<String, String> {
-  use sha2::{Digest, Sha256};
-  let mut hasher = Sha256::new();
-  hasher.update(s);
-  let hash = hasher.finalize();
-  Ok(format!("{:x}", hash))
-}
-
-fn digest_file(_context: &FunctionContext, path: &str) -> Result<String, String> {
-  use sha2::{Digest, Sha256};
-  let mut hasher = Sha256::new();
-  let mut file = std::fs::File::open(path).unwrap();
-  std::io::copy(&mut file, &mut hasher).unwrap();
-  let hash = hasher.finalize();
-  Ok(format!("{:x}", hash))
 }
 
 fn without_extension(_context: &FunctionContext, path: &str) -> Result<String, String> {
