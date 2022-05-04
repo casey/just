@@ -73,3 +73,23 @@ jobs:
         sudo apt-get update
         sudo apt-get install ripgrep
         ./bin/forbid
+
+    - name: Install `mdbook`
+      if: ${{ matrix.os == 'ubuntu-latest' }}
+      uses: peaceiris/actions-mdbook@v1
+      with:
+        mdbook-version: latest
+
+    - name: Build book
+      if: ${{ matrix.os == 'ubuntu-latest' }}
+      run: |
+        cargo run --package generate-book
+        mdbook build book
+
+    - name: Deploy Pages
+      uses: peaceiris/actions-gh-pages@v3
+      if: github.ref == 'refs/heads/master' && matrix.os == 'ubuntu-latest'
+      with:
+        github_token: ${{secrets.GITHUB_TOKEN}}
+        publish_branch: gh-pages
+        publish_dir: www

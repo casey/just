@@ -9,6 +9,9 @@ use {
 };
 
 fn main() -> Result<(), Box<dyn Error>> {
+  fs::remove_dir_all("book/src").ok();
+  fs::create_dir("book/src")?;
+
   let txt = fs::read_to_string("README.md")?;
 
   let mut chapters = vec![(1usize, Vec::new())];
@@ -32,7 +35,7 @@ fn main() -> Result<(), Box<dyn Error>> {
       txt.lines().next().unwrap().split_once(' ').unwrap().1
     };
 
-    let path = format!("bin/generate-book/book/src/chapter_{}.md", i + 1);
+    let path = format!("book/src/chapter_{}.md", i + 1);
     fs::write(&path, &txt)?;
     summary.push_str(&format!(
       "{}- [{}](chapter_{}.md)\n",
@@ -42,7 +45,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     ));
   }
 
-  fs::write("bin/generate-book/book/src/SUMMARY.md", summary)?;
+  fs::write("book/src/SUMMARY.md", summary)?;
 
   Ok(())
 }
