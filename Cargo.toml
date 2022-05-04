@@ -39,6 +39,7 @@ target = "2.0.0"
 tempfile = "3.0.0"
 typed-arena = "2.0.1"
 unicode-width = "0.1.0"
+uuid = { version = "1.0.0", features = ["v4"] }
 
 [dev-dependencies]
 cradle = "0.2.0"

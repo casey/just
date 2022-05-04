@@ -43,6 +43,7 @@ lazy_static! {
     ("trim_start_match", Binary(trim_start_match)),
     ("trim_start_matches", Binary(trim_start_matches)),
     ("uppercase", Unary(uppercase)),
+    ("uuid", Nullary(uuid)),
     ("without_extension", Unary(without_extension)),
   ]
   .into_iter()
@@ -277,6 +278,10 @@ fn trim_start_matches(_context: &FunctionContext, s: &str, pat: &str) -> Result<
 
 fn uppercase(_context: &FunctionContext, s: &str) -> Result<String, String> {
   Ok(s.to_uppercase())
+}
+
+fn uuid(_context: &FunctionContext) -> Result<String, String> {
+  Ok(uuid::Uuid::new_v4().to_string())
 }
 
 fn without_extension(_context: &FunctionContext, path: &str) -> Result<String, String> {
