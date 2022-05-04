@@ -33,6 +33,7 @@ mod quiet;
 mod quote;
 mod readme;
 mod regexes;
+mod run;
 mod search;
 mod shebang;
 mod shell;
