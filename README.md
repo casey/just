@@ -7,7 +7,7 @@
 [![build status](https://github.com/casey/just/workflows/Build/badge.svg)](https://github.com/casey/just/actions)
 [![downloads](https://img.shields.io/github/downloads/casey/just/total.svg)](https://github.com/casey/just/releases)
 [![chat on discord](https://img.shields.io/discord/695580069837406228?logo=discord)](https://discord.gg/ezYScXR)
-[![say thanks](https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg)](mailto:casey@rodarmor.com?subject=Thanks for Just!)
+[![say thanks](https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg)](mailto:casey@rodarmor.com?subject=Thanks%20for%20Just!)
 
 `just` is a handy way to save and run project-specific commands.
 
