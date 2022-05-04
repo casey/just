@@ -1,4 +1,4 @@
-use crate::{common::*, test::OutputValidation};
+use crate::common::*;
 
 test! {
   name:     test_os_arch_functions_in_interpolation,
@@ -479,22 +479,10 @@ fn path_exists_subdir() {
 
 #[test]
 fn uuid() {
-  struct UuidValidator {}
-  impl OutputValidation for UuidValidator {
-    fn validate(&self, output: &std::process::Output) {
-      let dumped = String::from_utf8(output.stdout.clone()).unwrap();
-      let uuid = uuid::Uuid::parse_str(&dumped).unwrap();
-      assert_eq!(Some(uuid::Version::Random), uuid.get_version());
-    }
-    fn do_round_trip(&self) -> bool {
-      true
-    }
-  }
-
   Test::new()
     .justfile("x := uuid()")
     .args(&["--evaluate", "x"])
-    .custom_validator(Some(Box::new(UuidValidator {})))
+    .stdout_regex("........-....-....-....-............")
     .run();
 }
 

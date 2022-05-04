@@ -287,11 +287,20 @@ fn uuid(_context: &FunctionContext) -> Result<String, String> {
 }
 
 fn digest(_context: &FunctionContext, s: &str) -> Result<String, String> {
-  Ok(sha256::digest(s))
+  use sha2::{Digest, Sha256};
+  let mut hasher = Sha256::new();
+  hasher.update(s);
+  let hash = hasher.finalize();
+  Ok(format!("{:x}", hash))
 }
 
 fn digest_file(_context: &FunctionContext, path: &str) -> Result<String, String> {
-  Ok(sha256::digest_file(path).unwrap())
+  use sha2::{Digest, Sha256};
+  let mut hasher = Sha256::new();
+  let mut file = std::fs::File::open(path).unwrap();
+  std::io::copy(&mut file, &mut hasher).unwrap();
+  let hash = hasher.finalize();
+  Ok(format!("{:x}", hash))
 }
 
 fn without_extension(_context: &FunctionContext, path: &str) -> Result<String, String> {
