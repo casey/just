@@ -11,7 +11,7 @@
 
 `just` is a handy way to save and run project-specific commands.
 
-This readme is also available as a [book](https://just.systems/book/);
+This readme is also available as a [book](https://just.systems/man/);
 
 (非官方中文文档,[这里](https://github.com/chinanf-boy/just-zh),快看过来!)
 
