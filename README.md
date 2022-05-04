@@ -1,13 +1,25 @@
 ↖️ Table of Contents
 
-`just`
-======
+<h1 align="center"><code>just</code></h1>
 
-[![crates.io version](https://img.shields.io/crates/v/just.svg)](https://crates.io/crates/just)
-[![build status](https://github.com/casey/just/workflows/Build/badge.svg)](https://github.com/casey/just/actions)
-[![downloads](https://img.shields.io/github/downloads/casey/just/total.svg)](https://github.com/casey/just/releases)
-[![chat on discord](https://img.shields.io/discord/695580069837406228?logo=discord)](https://discord.gg/ezYScXR)
-[![say thanks](https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg)](mailto:casey@rodarmor.com?subject=Thanks%20for%20Just!)
+<div align="center">
+  <a href="https://crates.io/crates/just">
+    <img src="https://img.shields.io/crates/v/just.svg" alt="crates.io version">
+  </a>
+  <a href="https://github.com/casey/just/actions">
+    <img src="https://github.com/casey/just/workflows/Build/badge.svg" alt="build status">
+  </a>
+  <a href="https://github.com/casey/just/releases">
+    <img src="https://img.shields.io/github/downloads/casey/just/total.svg" alt="downloads">
+  </a>
+  <a href="https://discord.gg/ezYScXR">
+    <img src="https://img.shields.io/discord/695580069837406228?logo=discord" alt="chat on discord">
+  </a>
+  <a href="mailto:casey@rodarmor.com?subject=Thanks%20for%20Just!">
+    <img src="https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg" alt="say thanks">
+  </a>
+</div>
+<br>
 
 `just` is a handy way to save and run project-specific commands.
 
