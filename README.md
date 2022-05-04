@@ -917,7 +917,7 @@ $ just
 
 #### Invocation Directory
 
-- `invocation_directory()` - Retrieves the path of the current working directory, before `just` changed it (chdir'd) prior to executing commands.
+- `invocation_directory()` - Retrieves the absolute path to the current directory when `just` was invoked, before  `just` changed it (chdir'd) prior to executing commands.
 
 For example, to call `rustfmt` on files just under the "current directory" (from the user/invoker's perspective), use the following rule:
 
@@ -990,7 +990,7 @@ The executable is at: /bin/just
 
 ##### Fallible
 
-- `absolute_path(path)` - Absolute path to relative `path` in the invocation directory. `absolute_path("./bar.txt")` in directory `/foo` is `/foo/bar.txt`.
+- `absolute_path(path)` - Absolute path to relative `path` in the working directory. `absolute_path("./bar.txt")` in directory `/foo` is `/foo/bar.txt`.
 
 - `extension(path)` - Extension of `path`. `extension("/foo/bar.txt")` is `txt`.
 

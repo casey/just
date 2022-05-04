@@ -99,7 +99,10 @@ if [ -z ${dest-} ]; then
 fi
 
 if [ -z ${tag-} ]; then
-  tag=$(curl -s "$releases/latest" | cut -d'"' -f2 | rev | cut -d'/' -f1 | rev)
+  tag=$(curl -s "https://api.github.com/repos/casey/just/releases/latest" |
+    grep tag_name |
+    cut -d'"' -f4
+  )
 fi
 
 if [ -z ${target-} ]; then
