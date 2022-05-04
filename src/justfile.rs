@@ -309,19 +309,15 @@ impl<'src> Justfile<'src> {
       Evaluator::recipe_evaluator(context.config, dotenv, &scope, context.settings, search);
 
     for Dependency { recipe, arguments } in recipe.dependencies.iter().take(recipe.priors) {
-      let mut evaluated_arguments = Vec::new();
-
-      for argument in arguments {
-        evaluated_arguments.push(evaluator.evaluate_expression(argument)?);
-      }
+      let arguments = arguments
+        .iter()
+        .map(|argument| evaluator.evaluate_expression(argument))
+        .collect::<RunResult<Vec<String>>>()?;
 
       self.run_recipe(
         context,
         recipe,
-        &evaluated_arguments
-          .iter()
-          .map(String::as_ref)
-          .collect::<Vec<&str>>(),
+        &arguments.iter().map(String::as_ref).collect::<Vec<&str>>(),
         dotenv,
         search,
         ran,
