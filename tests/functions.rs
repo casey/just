@@ -497,14 +497,14 @@ fn sha256() {
 
 #[test]
 fn sha256_file() {
-  let mut tmpfile = tempfile::NamedTempFile::new().unwrap();
-  writeln!(tmpfile, "just is great").unwrap();
-  let tmppath = tmpfile.into_temp_path();
-
-  let justfile_content = format!("x := sha256_file('{}')", tmppath.to_str().unwrap());
-
   Test::new()
-    .justfile(justfile_content)
+    .justfile("x := sha256_file('sub/shafile')")
+    .tree(tree! {
+      sub: {
+        shafile: "just is great\n",
+      }
+    })
+    .current_dir("sub")
     .args(&["--evaluate", "x"])
     .stdout("177b3d79aaafb53a7a4d7aaba99a82f27c73370e8cb0295571aade1e4fea1cd2")
     .run();
