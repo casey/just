@@ -260,11 +260,12 @@ fn sha256(_context: &FunctionContext, s: &str) -> Result<String, String> {
 
 fn sha256_file(_context: &FunctionContext, path: &str) -> Result<String, String> {
   use sha2::{Digest, Sha256};
+  let justpath = _context.search.working_directory.join(path);
   let mut hasher = Sha256::new();
-  let mut file = std::fs::File::open(path)
-    .map_err(|err| format!("Failed to open file at `{}`: {}", path, err))?;
+  let mut file = std::fs::File::open(&justpath)
+    .map_err(|err| format!("Failed to open file at `{:?}`: {}", &justpath.to_str(), err))?;
   std::io::copy(&mut file, &mut hasher)
-    .map_err(|err| format!("Failed to read file at `{}`: {}", path, err))?;
+    .map_err(|err| format!("Failed to read file at `{:?}`: {}", &justpath.to_str(), err))?;
   let hash = hasher.finalize();
   Ok(format!("{:x}", hash))
 }
