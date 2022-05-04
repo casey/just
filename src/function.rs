@@ -17,6 +17,8 @@ lazy_static! {
     ("absolute_path", Unary(absolute_path)),
     ("arch", Nullary(arch)),
     ("clean", Unary(clean)),
+    ("digest", Unary(digest)),
+    ("digest_file", Unary(digest_file)),
     ("env_var", Unary(env_var)),
     ("env_var_or_default", Binary(env_var_or_default)),
     ("error", Unary(error)),
@@ -282,6 +284,14 @@ fn uppercase(_context: &FunctionContext, s: &str) -> Result<String, String> {
 
 fn uuid(_context: &FunctionContext) -> Result<String, String> {
   Ok(uuid::Uuid::new_v4().to_string())
+}
+
+fn digest(_context: &FunctionContext, s: &str) -> Result<String, String> {
+  Ok(sha256::digest(s))
+}
+
+fn digest_file(_context: &FunctionContext, path: &str) -> Result<String, String> {
+  Ok(sha256::digest_file(path).unwrap())
 }
 
 fn without_extension(_context: &FunctionContext, path: &str) -> Result<String, String> {

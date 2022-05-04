@@ -1,4 +1,4 @@
-use crate::common::*;
+use crate::{common::*, test::OutputValidation};
 
 test! {
   name:     test_os_arch_functions_in_interpolation,
@@ -474,5 +474,50 @@ fn path_exists_subdir() {
     .current_dir("bar")
     .args(&["--evaluate", "x"])
     .stdout("true")
+    .run();
+}
+
+#[test]
+fn uuid() {
+  struct UuidValidator {}
+  impl OutputValidation for UuidValidator {
+    fn validate(&self, output: &std::process::Output) {
+      let dumped = String::from_utf8(output.stdout.clone()).unwrap();
+      let uuid = uuid::Uuid::parse_str(&dumped).unwrap();
+      assert_eq!(Some(uuid::Version::Random), uuid.get_version());
+    }
+    fn do_round_trip(&self) -> bool {
+      true
+    }
+  }
+
+  Test::new()
+    .justfile("x := uuid()")
+    .args(&["--evaluate", "x"])
+    .custom_validator(Some(Box::new(UuidValidator {})))
+    .run();
+}
+
+#[test]
+fn digest() {
+  Test::new()
+    .justfile("x := digest('5943ee37-0000-1000-8000-010203040506')")
+    .args(&["--evaluate", "x"])
+    .stdout("2330d7f5eb94a820b54fed59a8eced236f80b633a504289c030b6a65aef58871")
+    .run();
+}
+
+#[test]
+fn digest_file() {
+  let mut tmpfile = tempfile::NamedTempFile::new().unwrap();
+  writeln!(tmpfile, "just is great").unwrap();
+  let tmppath = tmpfile.into_temp_path();
+
+  let justfile_content = format!("x := digest_file('{}')", tmppath.to_str().unwrap());
+
+  Test::new()
+    .justfile(justfile_content)
+    .args(&["--evaluate", "x"])
+    .stdout("177b3d79aaafb53a7a4d7aaba99a82f27c73370e8cb0295571aade1e4fea1cd2")
     .run();
 }
