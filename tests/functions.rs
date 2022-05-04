@@ -476,3 +476,36 @@ fn path_exists_subdir() {
     .stdout("true")
     .run();
 }
+
+#[test]
+fn uuid() {
+  Test::new()
+    .justfile("x := uuid()")
+    .args(&["--evaluate", "x"])
+    .stdout_regex("........-....-....-....-............")
+    .run();
+}
+
+#[test]
+fn sha256() {
+  Test::new()
+    .justfile("x := sha256('5943ee37-0000-1000-8000-010203040506')")
+    .args(&["--evaluate", "x"])
+    .stdout("2330d7f5eb94a820b54fed59a8eced236f80b633a504289c030b6a65aef58871")
+    .run();
+}
+
+#[test]
+fn sha256_file() {
+  Test::new()
+    .justfile("x := sha256_file('sub/shafile')")
+    .tree(tree! {
+      sub: {
+        shafile: "just is great\n",
+      }
+    })
+    .current_dir("sub")
+    .args(&["--evaluate", "x"])
+    .stdout("177b3d79aaafb53a7a4d7aaba99a82f27c73370e8cb0295571aade1e4fea1cd2")
+    .run();
+}

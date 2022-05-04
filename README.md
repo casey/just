@@ -1030,6 +1030,12 @@ These functions can fail, for example if a path does not have an extension, whic
 
 - `error(message)` - Abort execution and report error `message` to user.
 
+#### UUID and Hash Generation
+
+- `sha256(string)` - Return the SHA-256 hash of `string` as a hexadecimal string.
+- `sha256_file(path)` - Return the SHA-256 hash of the file at `path` as a hexadecimal string.
+- `uuid()` - Return a randomly generated UUID.
+
 ### Command Evaluation Using Backticks
 
 Backticks can be used to store the result of commands:
