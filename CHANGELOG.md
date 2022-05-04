@@ -1,6 +1,18 @@
 Changelog
 =========
 
+[1.1.3](https://github.com/casey/just/releases/tag/1.1.3) - 2022-5-3
+--------------------------------------------------------------------
+
+### Fixed
+- Skip duplicate recipe arguments (#1174)
+
+### Misc
+- Fix install script (#1172)
+- Document that `invocation_directory()` returns an absolute path (#1162)
+- Fix absolute_path documentation (#1160)
+- Add cross-platform justfile example (#1152)
+
 [1.1.2](https://github.com/casey/just/releases/tag/1.1.2) - 2022-3-30
 ---------------------------------------------------------------------
 
