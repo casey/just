@@ -35,6 +35,8 @@ lazy_static! {
     ("path_exists", Unary(path_exists)),
     ("quote", Unary(quote)),
     ("replace", Ternary(replace)),
+    ("sha256", Unary(sha256)),
+    ("sha256_file", Unary(sha256_file)),
     ("trim", Unary(trim)),
     ("trim_end", Unary(trim_end)),
     ("trim_end_match", Binary(trim_end_match)),
@@ -43,6 +45,7 @@ lazy_static! {
     ("trim_start_match", Binary(trim_start_match)),
     ("trim_start_matches", Binary(trim_start_matches)),
     ("uppercase", Unary(uppercase)),
+    ("uuid", Nullary(uuid)),
     ("without_extension", Unary(without_extension)),
   ]
   .into_iter()
@@ -247,6 +250,26 @@ fn replace(_context: &FunctionContext, s: &str, from: &str, to: &str) -> Result<
   Ok(s.replace(from, to))
 }
 
+fn sha256(_context: &FunctionContext, s: &str) -> Result<String, String> {
+  use sha2::{Digest, Sha256};
+  let mut hasher = Sha256::new();
+  hasher.update(s);
+  let hash = hasher.finalize();
+  Ok(format!("{:x}", hash))
+}
+
+fn sha256_file(context: &FunctionContext, path: &str) -> Result<String, String> {
+  use sha2::{Digest, Sha256};
+  let justpath = context.search.working_directory.join(path);
+  let mut hasher = Sha256::new();
+  let mut file = std::fs::File::open(&justpath)
+    .map_err(|err| format!("Failed to open file at `{:?}`: {}", &justpath.to_str(), err))?;
+  std::io::copy(&mut file, &mut hasher)
+    .map_err(|err| format!("Failed to read file at `{:?}`: {}", &justpath.to_str(), err))?;
+  let hash = hasher.finalize();
+  Ok(format!("{:x}", hash))
+}
+
 fn trim(_context: &FunctionContext, s: &str) -> Result<String, String> {
   Ok(s.trim().to_owned())
 }
@@ -277,6 +300,10 @@ fn trim_start_matches(_context: &FunctionContext, s: &str, pat: &str) -> Result<
 
 fn uppercase(_context: &FunctionContext, s: &str) -> Result<String, String> {
   Ok(s.to_uppercase())
+}
+
+fn uuid(_context: &FunctionContext) -> Result<String, String> {
+  Ok(uuid::Uuid::new_v4().to_string())
 }
 
 fn without_extension(_context: &FunctionContext, path: &str) -> Result<String, String> {
