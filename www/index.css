@@ -16,7 +16,7 @@ html {
   color: white;
   overflow: hidden;
   text-align: center;
-  font-family: sans-serif;
+  font-family: monospace;
   font-size: var(--size);
   line-height: var(--size);
 }
@@ -59,10 +59,10 @@ body > a {
 
 /* just is an isogram */
 #j:after       { content: 'j'; }
-#j:hover:after { content: 'J'; }
+#j:hover:after { content: ':'; }
 #u:after       { content: 'u'; }
-#u:hover:after { content: 'U'; }
+#u:hover:after { content: '~'; }
 #s:after       { content: 's'; }
-#s:hover:after { content: 'S'; }
+#s:hover:after { content: '$'; }
 #t:after       { content: 't'; }
-#t:hover:after { content: 'T'; }
+#t:hover:after { content: '='; }
