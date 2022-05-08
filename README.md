@@ -62,7 +62,7 @@ Yay, all your tests passed!
 
 - `just` can be invoked from any subdirectory, not just the directory that contains the `justfile`.
 
-- And [much more](#manual)!
+- And [much more](#Features)!
 
 If you need help with `just` please feel free to open an issue or ping me on [Discord](https://discord.gg/ezYScXR). Feature requests and bug reports are always welcome!
 
