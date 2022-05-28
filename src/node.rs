@@ -226,7 +226,8 @@ impl<'src> Node<'src> for Set<'src> {
       | Setting::WindowsPowerShell(value) => {
         set.push_mut(value.to_string());
       }
-      Setting::Shell(Shell { command, arguments }) => {
+      Setting::Shell(Shell { command, arguments })
+      | Setting::WindowsShell(Shell { command, arguments }) => {
         set.push_mut(Tree::string(&command.cooked));
         for argument in arguments {
           set.push_mut(Tree::string(&argument.cooked));

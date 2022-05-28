@@ -764,26 +764,13 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     self.expect(ColonEquals)?;
 
     if name.lexeme() == Keyword::Shell.lexeme() {
-      self.expect(BracketL)?;
-
-      let command = self.parse_string_literal()?;
-
-      let mut arguments = Vec::new();
-
-      if self.accepted(Comma)? {
-        while !self.next_is(BracketR) {
-          arguments.push(self.parse_string_literal()?);
-
-          if !self.accepted(Comma)? {
-            break;
-          }
-        }
-      }
-
-      self.expect(BracketR)?;
-
       Ok(Set {
-        value: Setting::Shell(Shell { arguments, command }),
+        value: Setting::Shell(self.parse_shell()?),
+        name,
+      })
+    } else if name.lexeme() == Keyword::WindowsShell.lexeme() {
+      Ok(Set {
+        value: Setting::WindowsShell(self.parse_shell()?),
         name,
       })
     } else {
@@ -791,6 +778,29 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
         setting: name.lexeme(),
       }))
     }
+  }
+
+  /// Parse a shell setting value
+  fn parse_shell(&mut self) -> CompileResult<'src, Shell<'src>> {
+    self.expect(BracketL)?;
+
+    let command = self.parse_string_literal()?;
+
+    let mut arguments = Vec::new();
+
+    if self.accepted(Comma)? {
+      while !self.next_is(BracketR) {
+        arguments.push(self.parse_string_literal()?);
+
+        if !self.accepted(Comma)? {
+          break;
+        }
+      }
+    }
+
+    self.expect(BracketR)?;
+
+    Ok(Shell { arguments, command })
   }
 }
 

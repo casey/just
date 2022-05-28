@@ -8,6 +8,7 @@ pub(crate) enum Setting<'src> {
   PositionalArguments(bool),
   Shell(Shell<'src>),
   WindowsPowerShell(bool),
+  WindowsShell(Shell<'src>),
 }
 
 impl<'src> Display for Setting<'src> {
@@ -18,7 +19,7 @@ impl<'src> Display for Setting<'src> {
       | Setting::Export(value)
       | Setting::PositionalArguments(value)
       | Setting::WindowsPowerShell(value) => write!(f, "{}", value),
-      Setting::Shell(shell) => write!(f, "{}", shell),
+      Setting::Shell(shell) | Setting::WindowsShell(shell) => write!(f, "{}", shell),
     }
   }
 }
