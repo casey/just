@@ -110,8 +110,8 @@ You can also set the shell using command-line arguments. For example, to use Pow
 | [Various][homebrew-install]                          | [Homebrew][homebrew]      | [just][just-homebrew]                            | `brew install just`                                                                     |
 | [macOS][macos]                                       | [MacPorts][macports]      | [just][just-macports]                            | `port install just`                                                                     |
 | [Arch Linux][arch linux]                             | [pacman][pacman]          | [just][just-pacman]                              | `pacman -S just`                                                                        |
-| [NixOS][nixos], [Linux][nix-plat], [macOS][nix-plat] | [Nix][nix]                | [just][just-nixpkg]                              | `nix-env -iA nixos.just`   
-|[Linux (non-NixOS)][nix-plat] [macOS][nix-plat] | [Nix][nix]                | [just][just-nixpkg]                              | `nix-env -iA nixpkgs.just`                                                                |
+| [Various][nix-platforms]                             | [Nix][nix]                | [just][just-nixpkg]                              | `nix-env -iA nixpkgs.just`                                                              |
+| [NixOS][nixos]                                       | [Nix][nix]                | [just][just-nixpkg]                              | `nix-env -iA nixos.just`                                                                |
 | [Solus][solus]                                       | [eopkg][solus-eopkg]      | [just][just-solus]                               | `eopkg install just`                                                                    |
 | [Void Linux][void linux]                             | [XBPS][xbps]              | [just][just-void]                                | `xbps-install -S just`                                                                  |
 | [FreeBSD][freebsd]                                   | [pkg][freebsd-pkg]        | [just][just-freebsd]                             | `pkg install just`                                                                      |
@@ -134,6 +134,7 @@ You can also set the shell using command-line arguments. For example, to use Pow
 [macports]: https://www.macports.org
 [just-macports]: https://ports.macports.org/port/just/summary
 [arch linux]: https://www.archlinux.org
+[nix-platforms]: https://nixos.org/download.html#download-nix
 [pacman]: https://wiki.archlinux.org/title/Pacman
 [just-pacman]: https://archlinux.org/packages/community/x86_64/just/
 [nixos]: https://nixos.org/nixos/
