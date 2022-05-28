@@ -15,7 +15,7 @@ log := "warn"
 export JUST_LOG := log
 
 test:
-  cargo ltest
+  cargo test
 
 fuzz:
   cargo +nightly fuzz run fuzz-compiler
@@ -25,10 +25,10 @@ run:
 
 # only run tests matching PATTERN
 filter PATTERN:
-  cargo ltest {{PATTERN}}
+  cargo test {{PATTERN}}
 
 build:
-  cargo lbuild
+  cargo build
 
 fmt:
   cargo fmt --all
@@ -59,7 +59,7 @@ check: fmt clippy test forbid
   VERSION=`sed -En 's/version[[:space:]]*=[[:space:]]*"([^"]+)"/\1/p' Cargo.toml | head -1`
   grep "^\[$VERSION\]" CHANGELOG.md
   cargo +nightly generate-lockfile -Z minimal-versions
-  cargo ltest
+  cargo test
   git checkout Cargo.lock
 
 # publish current GitHub master branch
@@ -101,7 +101,6 @@ install-dev-deps:
   rustup update nightly
   cargo +nightly install cargo-fuzz
   cargo install cargo-check
-  cargo install cargo-limit
   cargo install cargo-watch
 
 # install system development dependencies with homebrew
@@ -110,7 +109,7 @@ install-dev-deps-homebrew:
 
 # everyone's favorite animate paper clip
 clippy:
-  cargo lclippy --all --all-targets --all-features
+  cargo clippy --all --all-targets --all-features
 
 forbid:
   ./bin/forbid
