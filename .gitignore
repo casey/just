@@ -1,5 +1,6 @@
 /.vagrant
 /README.html
+/book/src
 /fuzz/artifacts
 /fuzz/corpus
 /fuzz/target
@@ -7,3 +8,4 @@
 /test-utilities/Cargo.lock
 /test-utilities/target
 /tmp
+/www/man

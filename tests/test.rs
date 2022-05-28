@@ -10,6 +10,7 @@ macro_rules! test {
     $(env: { $($env_key:literal : $env_value:literal,)* },)?
     $(stdin: $stdin:expr,)?
     $(stdout: $stdout:expr,)?
+    $(stdout_regex: $stdout_regex:expr,)?
     $(stderr: $stderr:expr,)?
     $(stderr_regex: $stderr_regex:expr,)?
     $(status: $status:expr,)?
@@ -28,6 +29,7 @@ macro_rules! test {
       $(let test = test.stderr_regex($stderr_regex);)?
       $(let test = test.stdin($stdin);)?
       $(let test = test.stdout($stdout);)?
+      $(let test = test.stdout_regex($stdout_regex);)?
 
       test.run();
     }
@@ -45,7 +47,7 @@ pub(crate) struct Test {
   pub(crate) stderr_regex: Option<Regex>,
   pub(crate) stdin: String,
   pub(crate) stdout: String,
-  pub(crate) suppress_dotenv_load_warning: bool,
+  pub(crate) stdout_regex: Option<Regex>,
   pub(crate) tempdir: TempDir,
   pub(crate) unindent_stdout: bool,
 }
@@ -67,7 +69,7 @@ impl Test {
       stderr_regex: None,
       stdin: String::new(),
       stdout: String::new(),
-      suppress_dotenv_load_warning: true,
+      stdout_regex: None,
       tempdir,
       unindent_stdout: true,
     }
@@ -139,8 +141,8 @@ impl Test {
     self
   }
 
-  pub(crate) fn suppress_dotenv_load_warning(mut self, suppress_dotenv_load_warning: bool) -> Self {
-    self.suppress_dotenv_load_warning = suppress_dotenv_load_warning;
+  pub(crate) fn stdout_regex(mut self, stdout_regex: impl AsRef<str>) -> Self {
+    self.stdout_regex = Some(Regex::new(&format!("(?m)^{}$", stdout_regex.as_ref())).unwrap());
     self
   }
 
@@ -183,14 +185,6 @@ impl Test {
     let mut child = command
       .args(self.args)
       .envs(&self.env)
-      .env(
-        "JUST_SUPPRESS_DOTENV_LOAD_WARNING",
-        if self.suppress_dotenv_load_warning {
-          "1"
-        } else {
-          "0"
-        },
-      )
       .current_dir(self.tempdir.path().join(self.current_dir))
       .stdin(Stdio::piped())
       .stdout(Stdio::piped())
@@ -218,7 +212,17 @@ impl Test {
       equal
     }
 
+    let output_stdout = str::from_utf8(&output.stdout).unwrap();
     let output_stderr = str::from_utf8(&output.stderr).unwrap();
+
+    if let Some(ref stdout_regex) = self.stdout_regex {
+      if !stdout_regex.is_match(output_stdout) {
+        panic!(
+          "Stdout regex mismatch:\n{:?}\n!~=\n/{:?}/",
+          output_stderr, stdout_regex
+        );
+      }
+    }
 
     if let Some(ref stderr_regex) = self.stderr_regex {
       if !stderr_regex.is_match(output_stderr) {
@@ -230,7 +234,7 @@ impl Test {
     }
 
     if !compare("status", output.status.code().unwrap(), self.status)
-      | !compare("stdout", str::from_utf8(&output.stdout).unwrap(), &stdout)
+      | (self.stdout_regex.is_none() && !compare("stdout", output_stdout, &stdout))
       | (self.stderr_regex.is_none() && !compare("stderr", output_stderr, &stderr))
     {
       panic!("Output mismatch.");

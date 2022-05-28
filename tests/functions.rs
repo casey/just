@@ -403,3 +403,109 @@ fn test_path_exists_filepath_doesnt_exist() {
     .stdout("false")
     .run();
 }
+
+#[test]
+fn error_errors_with_message() {
+  Test::new()
+    .justfile("x := error ('Thing Not Supported')")
+    .args(&["--evaluate"])
+    .status(1)
+    .stderr("error: Call to function `error` failed: Thing Not Supported\n  |\n1 | x := error ('Thing Not Supported')\n  |      ^^^^^\n")
+    .run();
+}
+
+#[test]
+fn test_absolute_path_resolves() {
+  let test_object = Test::new()
+    .justfile("path := absolute_path('./test_file')")
+    .args(&["--evaluate", "path"]);
+
+  let mut tempdir = test_object.tempdir.path().to_owned();
+
+  // Just retrieves the current directory via env::current_dir(), which
+  // does the moral equivalent of canonicalize, which will remove symlinks.
+  // So, we have to canonicalize here, so that we can match it.
+  if cfg!(unix) {
+    tempdir = tempdir.canonicalize().unwrap();
+  }
+
+  test_object
+    .stdout(tempdir.join("test_file").to_str().unwrap().to_owned())
+    .run();
+}
+
+#[test]
+fn test_absolute_path_resolves_parent() {
+  let test_object = Test::new()
+    .justfile("path := absolute_path('../test_file')")
+    .args(&["--evaluate", "path"]);
+
+  let mut tempdir = test_object.tempdir.path().to_owned();
+
+  // Just retrieves the current directory via env::current_dir(), which
+  // does the moral equivalent of canonicalize, which will remove symlinks.
+  // So, we have to canonicalize here, so that we can match it.
+  if cfg!(unix) {
+    tempdir = tempdir.canonicalize().unwrap();
+  }
+
+  test_object
+    .stdout(
+      tempdir
+        .parent()
+        .unwrap()
+        .join("test_file")
+        .to_str()
+        .unwrap()
+        .to_owned(),
+    )
+    .run();
+}
+
+#[test]
+fn path_exists_subdir() {
+  Test::new()
+    .tree(tree! {
+      foo: "",
+      bar: {
+      }
+    })
+    .justfile("x := path_exists('foo')")
+    .current_dir("bar")
+    .args(&["--evaluate", "x"])
+    .stdout("true")
+    .run();
+}
+
+#[test]
+fn uuid() {
+  Test::new()
+    .justfile("x := uuid()")
+    .args(&["--evaluate", "x"])
+    .stdout_regex("........-....-....-....-............")
+    .run();
+}
+
+#[test]
+fn sha256() {
+  Test::new()
+    .justfile("x := sha256('5943ee37-0000-1000-8000-010203040506')")
+    .args(&["--evaluate", "x"])
+    .stdout("2330d7f5eb94a820b54fed59a8eced236f80b633a504289c030b6a65aef58871")
+    .run();
+}
+
+#[test]
+fn sha256_file() {
+  Test::new()
+    .justfile("x := sha256_file('sub/shafile')")
+    .tree(tree! {
+      sub: {
+        shafile: "just is great\n",
+      }
+    })
+    .current_dir("sub")
+    .args(&["--evaluate", "x"])
+    .stdout("177b3d79aaafb53a7a4d7aaba99a82f27c73370e8cb0295571aade1e4fea1cd2")
+    .run();
+}

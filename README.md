@@ -1,15 +1,29 @@
 ↖️ Table of Contents
 
-`just`
-======
+<h1 align="center"><code>just</code></h1>
 
-![crates.io version](https://img.shields.io/crates/v/just.svg)
-![build status](https://github.com/casey/just/workflows/Build/badge.svg)
-![downloads](https://img.shields.io/github/downloads/casey/just/total.svg)
-![chat on discord](https://img.shields.io/discord/695580069837406228?logo=discord)
-![say thanks](https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg)
+<div align="center">
+  <a href="https://crates.io/crates/just">
+    <img src="https://img.shields.io/crates/v/just.svg" alt="crates.io version">
+  </a>
+  <a href="https://github.com/casey/just/actions">
+    <img src="https://github.com/casey/just/workflows/Build/badge.svg" alt="build status">
+  </a>
+  <a href="https://github.com/casey/just/releases">
+    <img src="https://img.shields.io/github/downloads/casey/just/total.svg" alt="downloads">
+  </a>
+  <a href="https://discord.gg/ezYScXR">
+    <img src="https://img.shields.io/discord/695580069837406228?logo=discord" alt="chat on discord">
+  </a>
+  <a href="mailto:casey@rodarmor.com?subject=Thanks%20for%20Just!">
+    <img src="https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg" alt="say thanks">
+  </a>
+</div>
+<br>
 
 `just` is a handy way to save and run project-specific commands.
+
+This readme is also available as a [book](https://just.systems/man/);
 
 (非官方中文文档,[这里](https://github.com/chinanf-boy/just-zh),快看过来!)
 
@@ -48,7 +62,7 @@ Yay, all your tests passed!
 
 - `just` can be invoked from any subdirectory, not just the directory that contains the `justfile`.
 
-- And [much more](#manual)!
+- And [much more](https://just.systems/man/)!
 
 If you need help with `just` please feel free to open an issue or ping me on [Discord](https://discord.gg/ezYScXR). Feature requests and bug reports are always welcome!
 
@@ -96,7 +110,8 @@ You can also set the shell using command-line arguments. For example, to use Pow
 | [Various][homebrew-install]                          | [Homebrew][homebrew]      | [just][just-homebrew]                            | `brew install just`                                                                     |
 | [macOS][macos]                                       | [MacPorts][macports]      | [just][just-macports]                            | `port install just`                                                                     |
 | [Arch Linux][arch linux]                             | [pacman][pacman]          | [just][just-pacman]                              | `pacman -S just`                                                                        |
-| [NixOS][nixos], [Linux][nix-plat], [macOS][nix-plat] | [Nix][nix]                | [just][just-nixpkg]                              | `nix-env -iA nixos.just`                                                                |
+| [Various][nix-platforms]                             | [Nix][nix]                | [just][just-nixpkg]                              | `nix-env -iA nixpkgs.just`                                                              |
+| [NixOS][nixos]                                       | [Nix][nix]                | [just][just-nixpkg]                              | `nix-env -iA nixos.just`                                                                |
 | [Solus][solus]                                       | [eopkg][solus-eopkg]      | [just][just-solus]                               | `eopkg install just`                                                                    |
 | [Void Linux][void linux]                             | [XBPS][xbps]              | [just][just-void]                                | `xbps-install -S just`                                                                  |
 | [FreeBSD][freebsd]                                   | [pkg][freebsd-pkg]        | [just][just-freebsd]                             | `pkg install just`                                                                      |
@@ -119,6 +134,7 @@ You can also set the shell using command-line arguments. For example, to use Pow
 [macports]: https://www.macports.org
 [just-macports]: https://ports.macports.org/port/just/summary
 [arch linux]: https://www.archlinux.org
+[nix-platforms]: https://nixos.org/download.html#download-nix
 [pacman]: https://wiki.archlinux.org/title/Pacman
 [just-pacman]: https://archlinux.org/packages/community/x86_64/just/
 [nixos]: https://nixos.org/nixos/
@@ -388,8 +404,6 @@ Examples
 --------
 
 A variety of example `justfile`s can be found in the [examples directory](examples).
-
-This [blog post](https://toniogela.dev/just/) discusses using `just` to improve management of shared machines, and includes a number of example `justfile`s.
 
 Features
 --------
@@ -895,6 +909,8 @@ $ just system-info
 This is an x86_64 machine
 ```
 
+The `os_family()` function can be used to create cross-platform `justfile`s that work on various operating systems. For an example, see [cross-platform.just](examples/cross-platform.just) file.
+
 #### Environment Variables
 
 - `env_var(key)` — Retrieves the environment variable with name `key`, aborting if it is not present.
@@ -915,7 +931,7 @@ $ just
 
 #### Invocation Directory
 
-- `invocation_directory()` - Retrieves the path of the current working directory, before `just` changed it (chdir'd) prior to executing commands.
+- `invocation_directory()` - Retrieves the absolute path to the current directory when `just` was invoked, before  `just` changed it (chdir'd) prior to executing commands.
 
 For example, to call `rustfmt` on files just under the "current directory" (from the user/invoker's perspective), use the following rule:
 
@@ -988,6 +1004,8 @@ The executable is at: /bin/just
 
 ##### Fallible
 
+- `absolute_path(path)` - Absolute path to relative `path` in the working directory. `absolute_path("./bar.txt")` in directory `/foo` is `/foo/bar.txt`.
+
 - `extension(path)` - Extension of `path`. `extension("/foo/bar.txt")` is `txt`.
 
 - `file_name(path)` - File name of `path` with any leading directory components removed. `file_name("/foo/bar.txt")` is `bar.txt`.
@@ -1009,6 +1027,16 @@ These functions can fail, for example if a path does not have an extension, whic
 #### Filesystem Access
 
 - `path_exists(path)` - Returns `true` if the path points at an existing entity and `false` otherwise. Traverses symbolic links, and returns `false` if the path is inaccessible or points to a broken symlink.
+
+##### Error Reporting
+
+- `error(message)` - Abort execution and report error `message` to user.
+
+#### UUID and Hash Generation
+
+- `sha256(string)` - Return the SHA-256 hash of `string` as a hexadecimal string.
+- `sha256_file(path)` - Return the SHA-256 hash of the file at `path` as a hexadecimal string.
+- `uuid()` - Return a randomly generated UUID.
 
 ### Command Evaluation Using Backticks
 
@@ -1114,6 +1142,28 @@ bar:
 ```sh
 $ just bar
 abc
+```
+
+### Stopping execution with error
+
+Execution can be halted with the `error` function. For example:
+
+```
+foo := if "hello" == "goodbye" {
+  "xyz"
+} else if "a" == "b" {
+  "abc"
+} else {
+  error("123")
+}
+```
+
+Which produce the following error when run:
+
+```
+error: Call to function `error` failed: 123
+   |
+16 |   error("123")
 ```
 
 ### Setting Variables from the Command Line
@@ -1536,6 +1586,10 @@ foo:
   pwd
 ```
 
+### Indentation
+
+Recipe lines can be indented with spaces or tabs, but not a mix of both. All of a recipe's lines must have the same indentation, but different recipes in the same `justfile` may use different indentation.
+
 ### Multi-Line Constructs
 
 Recipes without an initial shebang are evaluated and run line-by-line, which means that multi-line constructs probably won't do what you want.
@@ -1800,6 +1854,35 @@ default:
 ### Dumping `justfile`s as JSON
 
 The `--dump` command can be used with `--dump-format json` to print a JSON representation of a `justfile`. The JSON format is currently unstable, so the `--unstable` flag is required.
+
+### Falling back to parent `justfile`s
+
+If a recipe is not found, `just` will look for `justfile`s in the parent
+directory and up, until it reaches the root directory.
+
+This feature is currently unstable, and so must be enabled with the
+`--unstable` flag.
+
+As an example, suppose the current directory contains this `justfile`:
+
+```make
+foo:
+  echo foo
+```
+
+And the parent directory contains this `justfile`:
+
+```make
+bar:
+  echo bar
+```
+
+```sh
+$ just --unstable bar
+Trying ../justfile
+echo bar
+bar
+```
 
 Changelog
 ---------

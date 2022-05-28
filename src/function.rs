@@ -1,4 +1,4 @@
-#![allow(clippy::unknown_clippy_lints)]
+#![allow(unknown_lints)]
 #![allow(clippy::unnecessary_wraps)]
 
 use crate::common::*;
@@ -14,10 +14,12 @@ pub(crate) enum Function {
 
 lazy_static! {
   pub(crate) static ref TABLE: BTreeMap<&'static str, Function> = vec![
+    ("absolute_path", Unary(absolute_path)),
     ("arch", Nullary(arch)),
     ("clean", Unary(clean)),
     ("env_var", Unary(env_var)),
     ("env_var_or_default", Binary(env_var_or_default)),
+    ("error", Unary(error)),
     ("extension", Unary(extension)),
     ("file_name", Unary(file_name)),
     ("file_stem", Unary(file_stem)),
@@ -33,6 +35,8 @@ lazy_static! {
     ("path_exists", Unary(path_exists)),
     ("quote", Unary(quote)),
     ("replace", Ternary(replace)),
+    ("sha256", Unary(sha256)),
+    ("sha256_file", Unary(sha256_file)),
     ("trim", Unary(trim)),
     ("trim_end", Unary(trim_end)),
     ("trim_end_match", Binary(trim_end_match)),
@@ -41,6 +45,7 @@ lazy_static! {
     ("trim_start_match", Binary(trim_start_match)),
     ("trim_start_matches", Binary(trim_start_matches)),
     ("uppercase", Unary(uppercase)),
+    ("uuid", Nullary(uuid)),
     ("without_extension", Unary(without_extension)),
   ]
   .into_iter()
@@ -56,6 +61,17 @@ impl Function {
       BinaryPlus(_) => 2..usize::MAX,
       Ternary(_) => 3..3,
     }
+  }
+}
+
+fn absolute_path(context: &FunctionContext, path: &str) -> Result<String, String> {
+  let abs_path_unchecked = context.search.working_directory.join(path).lexiclean();
+  match abs_path_unchecked.to_str() {
+    Some(absolute_path) => Ok(absolute_path.to_owned()),
+    None => Err(format!(
+      "Working directory is not valid unicode: {}",
+      context.search.working_directory.display()
+    )),
   }
 }
 
@@ -103,6 +119,10 @@ fn env_var_or_default(
     )),
     Ok(value) => Ok(value),
   }
+}
+
+fn error(_context: &FunctionContext, message: &str) -> Result<String, String> {
+  Err(message.to_owned())
 }
 
 fn extension(_context: &FunctionContext, path: &str) -> Result<String, String> {
@@ -154,7 +174,7 @@ fn just_executable(_context: &FunctionContext) -> Result<String, String> {
   exe_path.to_str().map(str::to_owned).ok_or_else(|| {
     format!(
       "Executable path is not valid unicode: {}",
-      exe_path.to_string_lossy()
+      exe_path.display()
     )
   })
 }
@@ -168,7 +188,7 @@ fn justfile(context: &FunctionContext) -> Result<String, String> {
     .ok_or_else(|| {
       format!(
         "Justfile path is not valid unicode: {}",
-        context.search.justfile.to_string_lossy()
+        context.search.justfile.display()
       )
     })
 }
@@ -187,7 +207,7 @@ fn justfile_directory(context: &FunctionContext) -> Result<String, String> {
     .ok_or_else(|| {
       format!(
         "Justfile directory is not valid unicode: {}",
-        justfile_directory.to_string_lossy()
+        justfile_directory.display()
       )
     })
 }
@@ -211,8 +231,15 @@ fn parent_directory(_context: &FunctionContext, path: &str) -> Result<String, St
     .ok_or_else(|| format!("Could not extract parent directory from `{}`", path))
 }
 
-fn path_exists(_context: &FunctionContext, path: &str) -> Result<String, String> {
-  Ok(Utf8Path::new(path).exists().to_string())
+fn path_exists(context: &FunctionContext, path: &str) -> Result<String, String> {
+  Ok(
+    context
+      .search
+      .working_directory
+      .join(path)
+      .exists()
+      .to_string(),
+  )
 }
 
 fn quote(_context: &FunctionContext, s: &str) -> Result<String, String> {
@@ -221,6 +248,26 @@ fn quote(_context: &FunctionContext, s: &str) -> Result<String, String> {
 
 fn replace(_context: &FunctionContext, s: &str, from: &str, to: &str) -> Result<String, String> {
   Ok(s.replace(from, to))
+}
+
+fn sha256(_context: &FunctionContext, s: &str) -> Result<String, String> {
+  use sha2::{Digest, Sha256};
+  let mut hasher = Sha256::new();
+  hasher.update(s);
+  let hash = hasher.finalize();
+  Ok(format!("{:x}", hash))
+}
+
+fn sha256_file(context: &FunctionContext, path: &str) -> Result<String, String> {
+  use sha2::{Digest, Sha256};
+  let justpath = context.search.working_directory.join(path);
+  let mut hasher = Sha256::new();
+  let mut file = std::fs::File::open(&justpath)
+    .map_err(|err| format!("Failed to open file at `{:?}`: {}", &justpath.to_str(), err))?;
+  std::io::copy(&mut file, &mut hasher)
+    .map_err(|err| format!("Failed to read file at `{:?}`: {}", &justpath.to_str(), err))?;
+  let hash = hasher.finalize();
+  Ok(format!("{:x}", hash))
 }
 
 fn trim(_context: &FunctionContext, s: &str) -> Result<String, String> {
@@ -253,6 +300,10 @@ fn trim_start_matches(_context: &FunctionContext, s: &str, pat: &str) -> Result<
 
 fn uppercase(_context: &FunctionContext, s: &str) -> Result<String, String> {
   Ok(s.to_uppercase())
+}
+
+fn uuid(_context: &FunctionContext) -> Result<String, String> {
+  Ok(uuid::Uuid::new_v4().to_string())
 }
 
 fn without_extension(_context: &FunctionContext, path: &str) -> Result<String, String> {

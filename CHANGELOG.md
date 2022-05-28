@@ -1,6 +1,53 @@
 Changelog
 =========
 
+[1.1.3](https://github.com/casey/just/releases/tag/1.1.3) - 2022-5-3
+--------------------------------------------------------------------
+
+### Fixed
+- Skip duplicate recipe arguments (#1174)
+
+### Misc
+- Fix install script (#1172)
+- Document that `invocation_directory()` returns an absolute path (#1162)
+- Fix absolute_path documentation (#1160)
+- Add cross-platform justfile example (#1152)
+
+[1.1.2](https://github.com/casey/just/releases/tag/1.1.2) - 2022-3-30
+---------------------------------------------------------------------
+
+### Misc
+- Document indentation rules (#1142)
+- Remove stale link from readme (#1141)
+
+### Unstable
+- Search for missing recipes in parent directory justfiles (#1149)
+
+[1.1.1](https://github.com/casey/just/releases/tag/1.1.1) - 2022-3-22
+---------------------------------------------------------------------
+
+### Misc
+- Build MacOS ARM release binaries (#1138)
+- Upgrade Windows Actions runners to windows-latest (#1137)
+
+[1.1.0](https://github.com/casey/just/releases/tag/1.1.0) - 2022-3-10
+---------------------------------------------------------------------
+
+### Added
+- Add `error()` function (#1118)
+- Add `absolute_path` function (#1121)
+
+[1.0.1](https://github.com/casey/just/releases/tag/1.0.1) - 2022-2-28
+---------------------------------------------------------------------
+
+### Fixed
+- Make path_exists() relative to current directory (#1122)
+
+### Misc
+- Detail environment variable usage in readme (#1086)
+- Format --init justfile (#1116)
+- Add hint for Node.js script compatibility (#1113)
+
 [1.0.0](https://github.com/casey/just/releases/tag/1.0.0) - 2022-2-22
 ---------------------------------------------------------------------
 

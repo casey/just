@@ -99,7 +99,10 @@ if [ -z ${dest-} ]; then
 fi
 
 if [ -z ${tag-} ]; then
-  tag=$(curl -s "$releases/latest" | cut -d'"' -f2 | rev | cut -d'/' -f1 | rev)
+  tag=$(curl -s "https://api.github.com/repos/casey/just/releases/latest" |
+    grep tag_name |
+    cut -d'"' -f4
+  )
 fi
 
 if [ -z ${target-} ]; then
@@ -107,6 +110,7 @@ if [ -z ${target-} ]; then
 
   case $uname_target in
     aarch64-Linux)     target=aarch64-unknown-linux-musl;;
+    arm64-Darwin)      target=aarch64-apple-darwin;;
     x86_64-Darwin)     target=x86_64-apple-darwin;;
     x86_64-Linux)      target=x86_64-unknown-linux-musl;;
     x86_64-Windows_NT) target=x86_64-pc-windows-msvc;;
