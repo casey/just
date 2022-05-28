@@ -783,7 +783,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
       self.expect(BracketR)?;
 
       Ok(Set {
-        value: Setting::Shell(setting::Shell { arguments, command }),
+        value: Setting::Shell(Shell { arguments, command }),
         name,
       })
     } else {

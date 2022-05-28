@@ -106,6 +106,7 @@ mod set;
 mod setting;
 mod settings;
 mod shebang;
+mod shell;
 mod show_whitespace;
 mod string_kind;
 mod string_literal;

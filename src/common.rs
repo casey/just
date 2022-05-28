@@ -38,7 +38,7 @@ pub(crate) use ::{
 };
 
 // modules
-pub(crate) use crate::{completions, config, config_error, keyed, setting};
+pub(crate) use crate::{completions, config, config_error, keyed};
 
 // functions
 pub(crate) use crate::{load_dotenv::load_dotenv, output::output, unindent::unindent};
@@ -64,11 +64,11 @@ pub(crate) use crate::{
   parser::Parser, platform::Platform, position::Position, positional::Positional, recipe::Recipe,
   recipe_context::RecipeContext, recipe_resolver::RecipeResolver, scope::Scope, search::Search,
   search_config::SearchConfig, search_error::SearchError, set::Set, setting::Setting,
-  settings::Settings, shebang::Shebang, show_whitespace::ShowWhitespace, string_kind::StringKind,
-  string_literal::StringLiteral, subcommand::Subcommand, suggestion::Suggestion, table::Table,
-  thunk::Thunk, token::Token, token_kind::TokenKind, unresolved_dependency::UnresolvedDependency,
-  unresolved_recipe::UnresolvedRecipe, use_color::UseColor, variables::Variables,
-  verbosity::Verbosity, warning::Warning,
+  settings::Settings, shebang::Shebang, shell::Shell, show_whitespace::ShowWhitespace,
+  string_kind::StringKind, string_literal::StringLiteral, subcommand::Subcommand,
+  suggestion::Suggestion, table::Table, thunk::Thunk, token::Token, token_kind::TokenKind,
+  unresolved_dependency::UnresolvedDependency, unresolved_recipe::UnresolvedRecipe,
+  use_color::UseColor, variables::Variables, verbosity::Verbosity, warning::Warning,
 };
 
 // type aliases

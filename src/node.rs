@@ -215,20 +215,18 @@ impl<'src> Node<'src> for Fragment<'src> {
 
 impl<'src> Node<'src> for Set<'src> {
   fn tree(&self) -> Tree<'src> {
-    use Setting::*;
-
     let mut set = Tree::atom(Keyword::Set.lexeme());
     set.push_mut(self.name.lexeme().replace('-', "_"));
 
     match &self.value {
-      AllowDuplicateRecipes(value)
-      | DotenvLoad(value)
-      | Export(value)
-      | PositionalArguments(value)
-      | WindowsPowerShell(value) => {
+      Setting::AllowDuplicateRecipes(value)
+      | Setting::DotenvLoad(value)
+      | Setting::Export(value)
+      | Setting::PositionalArguments(value)
+      | Setting::WindowsPowerShell(value) => {
         set.push_mut(value.to_string());
       }
-      Shell(setting::Shell { command, arguments }) => {
+      Setting::Shell(Shell { command, arguments }) => {
         set.push_mut(Tree::string(&command.cooked));
         for argument in arguments {
           set.push_mut(Tree::string(&argument.cooked));

@@ -11,7 +11,7 @@ pub(crate) struct Settings<'src> {
   pub(crate) dotenv_load: Option<bool>,
   pub(crate) export: bool,
   pub(crate) positional_arguments: bool,
-  pub(crate) shell: Option<setting::Shell<'src>>,
+  pub(crate) shell: Option<Shell<'src>>,
   pub(crate) windows_powershell: bool,
 }
 
@@ -70,8 +70,6 @@ impl<'src> Settings<'src> {
 
 #[cfg(test)]
 mod tests {
-  use crate::setting::Shell;
-
   use super::*;
 
   #[test]
