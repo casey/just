@@ -399,7 +399,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
       if self.accepted(Plus)? {
         let lhs = Box::new(value);
         let rhs = Box::new(self.parse_expression()?);
-        Ok(Expression::Concatination { lhs, rhs })
+        Ok(Expression::Concatenation { lhs, rhs })
       } else {
         Ok(value)
       }
