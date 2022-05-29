@@ -627,7 +627,7 @@ Changelog
 - Avoid fs::canonicalize (#539)
 
 ### Misc
-- Mention `set shell` as altenative to installing `sh` (#533)
+- Mention `set shell` as alternative to installing `sh` (#533)
 - Refactor Compilation error to contain a Token (#535)
 - Move lexer comment (#536)
 - Add missing `--init` test (#543)

@@ -665,7 +665,7 @@ mod tests {
     let app = Config::app();
     let matches = app
       .get_matches_from_safe(arguments)
-      .expect("agument parsing failed");
+      .expect("argument parsing failed");
     let have = Config::from_matches(&matches).expect("config parsing failed");
     assert_eq!(have, want);
   }
@@ -702,7 +702,7 @@ mod tests {
 
         let app = Config::app();
 
-        let matches = app.get_matches_from_safe(arguments).expect("Matching failes");
+        let matches = app.get_matches_from_safe(arguments).expect("Matching fails");
 
         match Config::from_matches(&matches).expect_err("config parsing succeeded") {
           $error => { $($check)? }

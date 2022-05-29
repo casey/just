@@ -40,7 +40,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     Self::new(tokens).parse_ast()
   }
 
-  /// Construct a new Paser from a token stream
+  /// Construct a new Parser from a token stream
   fn new(tokens: &'tokens [Token<'src>]) -> Parser<'tokens, 'src> {
     Parser {
       next: 0,

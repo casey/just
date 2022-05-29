@@ -1680,7 +1680,7 @@ foo x='bar':
 }
 
 test! {
-   name:     default_concatination,
+   name:     default_concatenation,
    justfile: "
 foo x=(`echo foo` + 'bar'):
   echo {{x}}
