@@ -33,7 +33,7 @@ build:
 fmt:
   cargo fmt --all
 
-watch +COMMAND='ltest':
+watch +COMMAND='test':
   cargo watch --clear --exec "{{COMMAND}}"
 
 man:

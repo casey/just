@@ -40,7 +40,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     Self::new(tokens).parse_ast()
   }
 
-  /// Construct a new Paser from a token stream
+  /// Construct a new Parser from a token stream
   fn new(tokens: &'tokens [Token<'src>]) -> Parser<'tokens, 'src> {
     Parser {
       next: 0,
@@ -399,7 +399,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
       if self.accepted(Plus)? {
         let lhs = Box::new(value);
         let rhs = Box::new(self.parse_expression()?);
-        Ok(Expression::Concatination { lhs, rhs })
+        Ok(Expression::Concatenation { lhs, rhs })
       } else {
         Ok(value)
       }
@@ -1107,7 +1107,7 @@ mod tests {
   }
 
   test! {
-    name: recipe_dependency_argument_concatination,
+    name: recipe_dependency_argument_concatenation,
     text: "foo: (bar 'a' + 'b' 'c' + 'd')",
     tree: (justfile (recipe foo (deps (bar (+ 'a' 'b') (+ 'c' 'd'))))),
   }
@@ -1341,7 +1341,7 @@ mod tests {
   }
 
   test! {
-    name: parameter_default_concatination_variable,
+    name: parameter_default_concatenation_variable,
     text: r#"
       x := "10"
 
@@ -1636,7 +1636,7 @@ mod tests {
   }
 
   test! {
-    name: parameter_default_concatination_string,
+    name: parameter_default_concatenation_string,
     text: r#"
       f x=(`echo hello` + "foo"):
     "#,
@@ -1644,7 +1644,7 @@ mod tests {
   }
 
   test! {
-    name: concatination_in_group,
+    name: concatenation_in_group,
     text: "x := ('0' + '1')",
     tree: (justfile (assignment x ((+ "0" "1")))),
   }
@@ -1823,7 +1823,7 @@ mod tests {
   }
 
   test! {
-    name: conditional_concatinations,
+    name: conditional_concatenations,
     text: "a := if b0 + b1 == c0 + c1 { d0 + d1 } else { e0 + e1 }",
     tree: (justfile (assignment a (if (+ b0 b1) == (+ c0 c1) (+ d0 d1) (+ e0 e1)))),
   }
@@ -2039,7 +2039,7 @@ mod tests {
   }
 
   error! {
-    name:   concatination_in_default,
+    name:   concatenation_in_default,
     input:  "foo a=c+d e:",
     offset: 10,
     line:   0,

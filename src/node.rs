@@ -1,6 +1,6 @@
 use crate::common::*;
 
-/// Methods commmon to all AST nodes. Currently only used in parser unit tests.
+/// Methods common to all AST nodes. Currently only used in parser unit tests.
 pub(crate) trait Node<'src> {
   /// Construct an untyped tree of atoms representing this Node. This function,
   /// and `Tree` type, are only used in parser unit tests.
@@ -52,7 +52,7 @@ impl<'src> Node<'src> for Assignment<'src> {
 impl<'src> Node<'src> for Expression<'src> {
   fn tree(&self) -> Tree<'src> {
     match self {
-      Expression::Concatination { lhs, rhs } => Tree::atom("+").push(lhs.tree()).push(rhs.tree()),
+      Expression::Concatenation { lhs, rhs } => Tree::atom("+").push(lhs.tree()).push(rhs.tree()),
       Expression::Conditional {
         lhs,
         rhs,

@@ -970,7 +970,7 @@ f x=`echo hello`:
   }
 
   test! {
-    parameter_default_concatination_string,
+    parameter_default_concatenation_string,
     r#"
 f x=(`echo hello` + "foo"):
 "#,
@@ -978,7 +978,7 @@ f x=(`echo hello` + "foo"):
   }
 
   test! {
-    parameter_default_concatination_variable,
+    parameter_default_concatenation_variable,
     r#"
 x := "10"
 f y=(`echo hello` + x) +z="foo":
@@ -1000,7 +1000,7 @@ f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
   }
 
   test! {
-    concatination_in_group,
+    concatenation_in_group,
     "x := ('0' + '1')",
     "x := ('0' + '1')",
   }

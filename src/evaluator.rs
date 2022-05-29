@@ -150,7 +150,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
           Ok(self.run_backtick(contents, token)?)
         }
       }
-      Expression::Concatination { lhs, rhs } => {
+      Expression::Concatenation { lhs, rhs } => {
         Ok(self.evaluate_expression(lhs)? + &self.evaluate_expression(rhs)?)
       }
       Expression::Conditional {
