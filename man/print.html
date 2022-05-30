@@ -351,7 +351,7 @@ This is a recipe!
 <pre><code class="language-sh">$ just another-recipe
 This is another recipe.
 </code></pre>
-<p><code>just</code> prints each command to standard error before running it, which is why <code>echo 'This is a recipe!'</code> was printed. This is suppressed for lines starting with <code>@</code>, which is why <code>echo 'Another recipe.'</code> was not printed.</p>
+<p><code>just</code> prints each command to standard error before running it, which is why <code>echo 'This is a recipe!'</code> was printed. This is suppressed for lines starting with <code>@</code>, which is why <code>echo 'This is another recipe.'</code> was not printed.</p>
 <p>Recipes stop running if a command fails. Here <code>cargo publish</code> will only run if <code>cargo test</code> succeeds:</p>
 <pre><code class="language-make">publish:
   cargo test
