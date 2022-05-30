@@ -23,7 +23,7 @@
 
 `just` 为您提供一种保存和运行项目特有命令的便捷方式。
 
-本指南同时也以 [书](https://just.systems/man/) 的形式在线阅读；
+本指南同时也可以以 [书](https://just.systems/man/) 的形式在线阅读；
 
 命令，在此也称为配方，存储在一个名为 `justfile` 的文件中，其语法受 `make` 启发：
 
@@ -73,7 +73,7 @@ Yay, all your tests passed!
 
 在 Windows 上，`just` 可以使用 [Git for Windows](https://git-scm.com)、[GitHub Desktop](https://desktop.github.com) 或 [Cygwin](http://www.cygwin.com) 所提供的 `sh`。
 
-如果你不愿意安装 `sh`，也可以使用 `shell` 设置来指定你选择的 Shell。
+如果你不愿意安装 `sh`，也可以使用 `shell` 设置来指定你要使用的 Shell。
 
 比如 PowerShell：
 
@@ -215,8 +215,188 @@ just --help
 
 未来的版本将不会引入向后不兼容的变化，不会使现有的 `justfile` 停止工作，或破坏命令行界面的正常调用。
 
-然而，这并不排除错误修复，即使这样做可能会破坏依赖其行为的 `justfiles`。
+然而，这并不排除修复全面的错误，即使这样做可能会破坏依赖其行为的 `justfiles`。
 
 永远不会有一个 `just` 2.0。任何理想的向后兼容的变化都是在每个 `justfile` 的基础上选择性加入的，所以用户可以在他们的闲暇时间进行迁移。
 
 还没有准备好稳定化的功能将在 `--unstable` 标志后被选择性启用。由`--unstable`启用的功能可能会在任何时候以不兼容的方式发生变化。
+
+编辑器支持
+--------------
+
+`justfile` 的语法与 `make` 非常接近，你可以让你的编辑器对 `just` 使用 `make` 语法高亮。
+
+### Vim 和 Neovim
+
+#### `vim-just`
+
+[vim-just](https://github.com/NoahTheDuke/vim-just) 插件可以为 vim 提供 `justfile` 语法高亮显示。
+
+你可以用你喜欢的软件包管理器安装它，如 [Plug](https://github.com/junegunn/vim-plug)：
+
+```vim
+call plug#begin()
+
+Plug 'NoahTheDuke/vim-just'
+
+call plug#end()
+```
+
+或者使用 Vim 的内置包支持：
+
+```sh
+mkdir -p ~/.vim/pack/vendor/start
+cd ~/.vim/pack/vendor/start
+git clone https://github.com/NoahTheDuke/vim-just.git
+```
+
+`vim-just` 也可以从 [vim-polyglot](https://github.com/sheerun/vim-polyglot) 获得，这是一个多语言的 Vim 插件。
+
+#### `tree-sitter-just`
+
+[tree-sitter-just](https://github.com/IndianBoy42/tree-sitter-just) 是一个针对 Neovim 的 [Nvim Treesitter](https://github.com/nvim-treesitter/nvim-treesitter) 插件。
+
+#### Makefile 语法高亮
+
+Vim 内置的 makefile 语法高亮对 `justfile` 来说并不完美，但总比没有好。你可以把以下内容放在 `~/.vim/filetype.vim` 中：
+
+```vimscript
+if exists("did_load_filetypes")
+  finish
+endif
+
+augroup filetypedetect
+  au BufNewFile,BufRead justfile setf make
+augroup END
+```
+或者在单个 `justfile` 中添加以下内容，以在每个文件的基础上启用 `make` 模式：
+
+```text
+# vim: set ft=make :
+```
+
+### Emacs
+
+[just-mode](https://github.com/leon-barrett/just-mode.el) 可以为 `justfile` 提供语法高亮和自动缩进。它可以在 [MELPA](https://melpa.org/) 上通过 [just-mode](https://melpa.org/#/just-mode) 获得。
+
+[justl](https://github.com/psibi/justl.el) 提供了执行和列出配方的命令。
+
+你可以在一个单独的 `justfile` 中添加以下内容，以便对每个文件启用 `make` 模式：
+
+```text
+# Local Variables:
+# mode: makefile
+# End:
+```
+
+### Visual Studio Code
+
+由 [skellock](https://github.com/skellock) 为 VS Code 提供的扩展 [可在此获得](https://marketplace.visualstudio.com/items?itemName=skellock.just)（[仓库](https://github.com/skellock/vscode-just)）。
+
+你可以通过运行以下命令来安装它：
+
+```sh
+code --install-extension skellock.just
+```
+
+### Kakoune
+
+Kakoune 已经内置支持 `justfile` 语法高亮，这要感谢 TeddyDD。
+
+### Sublime Text
+
+由 TonioGela 编写的 Sublime Text 的语法高亮文件在 [extras/just.sublim-syntax](extras/just.sublim-syntax) 中提供。
+
+### 其它编辑器
+
+欢迎给我发送必要的命令，以便在你选择的编辑器中实现语法高亮，这样我就可以把它们放在这里。
+
+快速开始
+-----------
+
+参见 [安装部分](#安装) 了解如何在你的电脑上安装 `just`。试着运行 `just --version` 以确保它被正确安装。
+
+关于语法的概述，请查看这个 [速查表](https://cheatography.com/linux-china/cheat-sheets/justfile/)。
+
+一旦 `just` 安装完毕并开始工作，在你的项目根目录创建一个名为 `justfile` 的文件，内容如下：
+
+```make
+recipe-name:
+  echo 'This is a recipe!'
+
+# 这是一行注释
+another-recipe:
+  @echo 'This is another recipe.'
+```
+
+当你调用 `just` 时，它会在当前目录和父目录寻找文件 `justfile`，所以你可以从你项目的任何子目录中调用它。
+
+搜索 `justfile` 是不分大小写的，所以任何大小写，如 `Justfile`、`JUSTFILE` 或 `JuStFiLe` 都可以工作。`just` 也会寻找名字为 `.justfile` 的文件，以便你打算隐藏一个 `justfile`。
+
+运行 `just` 时未传参数，则运行 `justfile` 中的第一个配方：
+
+```sh
+$ just
+echo 'This is a recipe!'
+This is a recipe!
+```
+
+通过一个或多个参数指定要运行的配方：
+
+```sh
+$ just another-recipe
+This is another recipe.
+```
+
+`just` 在运行每条命令前都会将其打印到标准错误中，这就是为什么 `echo 'This is a recipe!'` 被打印出来。对于以 `@` 开头的行，这将被抑制，这就是为什么 `echo 'This is another recipe.'` 没有被打印。
+
+如果一个命令失败，配方就会停止运行。这里 `cargo publish` 只有在 `cargo test` 成功后才会运行：
+
+```make
+publish:
+  cargo test
+  # 前面的测试通过才会执行 publish!
+  cargo publish
+```
+
+配方可以依赖其他配方。在这里，`test` 配方依赖于 `build` 配方，所以 `build` 将在 `test` 之前运行：
+
+```make
+build:
+  cc main.c foo.c bar.c -o main
+
+test: build
+  ./test
+
+sloc:
+  @echo "`wc -l *.c` lines of code"
+```
+
+```sh
+$ just test
+cc main.c foo.c bar.c -o main
+./test
+testing… all tests passed!
+```
+
+没有依赖关系的配方将按照命令行上给出的顺序运行：
+
+```sh
+$ just build sloc
+cc main.c foo.c bar.c -o main
+1337 lines of code
+```
+
+依赖项总是先运行，即使它们被放在依赖它们的配方之后：
+
+```sh
+$ just test build
+cc main.c foo.c bar.c -o main
+./test
+testing… all tests passed!
+```
+
+示例
+--------
+
+在 [Examples 目录](examples) 中可以找到各种 `justfile` 的例子。

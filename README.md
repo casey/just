@@ -352,7 +352,7 @@ $ just another-recipe
 This is another recipe.
 ```
 
-`just` prints each command to standard error before running it, which is why `echo 'This is a recipe!'` was printed. This is suppressed for lines starting with `@`, which is why `echo 'Another recipe.'` was not printed.
+`just` prints each command to standard error before running it, which is why `echo 'This is a recipe!'` was printed. This is suppressed for lines starting with `@`, which is why `echo 'This is another recipe.'` was not printed.
 
 Recipes stop running if a command fails. Here `cargo publish` will only run if `cargo test` succeeds:
 
