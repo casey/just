@@ -297,7 +297,7 @@ mod tests {
   }
 
   analysis_error! {
-    name:   parameter_shadows_varible,
+    name:   parameter_shadows_variable,
     input:  "foo := \"h\"\na foo:",
     offset:  13,
     line:   1,

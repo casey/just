@@ -185,7 +185,7 @@ pub enum Expression {
     name: String,
     arguments: Vec<Expression>,
   },
-  Concatination {
+  Concatenation {
     lhs: Box<Expression>,
     rhs: Box<Expression>,
   },
@@ -249,7 +249,7 @@ impl Expression {
           arguments: vec![Expression::new(a), Expression::new(b), Expression::new(c)],
         },
       },
-      Concatination { lhs, rhs } => Expression::Concatination {
+      Concatenation { lhs, rhs } => Expression::Concatenation {
         lhs: Box::new(Expression::new(lhs)),
         rhs: Box::new(Expression::new(rhs)),
       },

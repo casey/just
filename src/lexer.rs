@@ -1107,7 +1107,7 @@ mod tests {
   }
 
   test! {
-    name:   export_concatination,
+    name:   export_concatenation,
     text:   "export foo = 'foo' + 'bar'",
     tokens: (
       Identifier:"export",

@@ -16,7 +16,7 @@ pub(crate) enum Expression<'src> {
   /// `name(arguments)`
   Call { thunk: Thunk<'src> },
   /// `lhs + rhs`
-  Concatination {
+  Concatenation {
     lhs: Box<Expression<'src>>,
     rhs: Box<Expression<'src>>,
   },
@@ -46,7 +46,7 @@ impl<'src> Display for Expression<'src> {
   fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
     match self {
       Expression::Backtick { token, .. } => write!(f, "{}", token.lexeme()),
-      Expression::Concatination { lhs, rhs } => write!(f, "{} + {}", lhs, rhs),
+      Expression::Concatenation { lhs, rhs } => write!(f, "{} + {}", lhs, rhs),
       Expression::Conditional {
         lhs,
         rhs,
@@ -79,7 +79,7 @@ impl<'src> Serialize for Expression<'src> {
         seq.end()
       }
       Self::Call { thunk } => thunk.serialize(serializer),
-      Self::Concatination { lhs, rhs } => {
+      Self::Concatenation { lhs, rhs } => {
         let mut seq = serializer.serialize_seq(None)?;
         seq.serialize_element("concatinate")?;
         seq.serialize_element(lhs)?;

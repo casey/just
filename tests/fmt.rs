@@ -917,7 +917,7 @@ test! {
 }
 
 test! {
-  name: group_recipies,
+  name: group_recipes,
   justfile: "
     foo:
         echo foo
