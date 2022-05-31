@@ -1,6 +1,27 @@
 Changelog
 =========
 
+[1.2.0](https://github.com/casey/just/releases/tag/1.2.0) - 2022-5-31
+---------------------------------------------------------------------
+
+### Added
+- Add `windows-shell` setting (#1198)
+- SHA-256 and UUID functions (#1170)
+
+### Misc
+- Translate editor support and quick start to Chinese (#1206)
+- Translate first section of readme into Chinese (#1205)
+- Fix a bunch of typos (#1204)
+- Remove cargo-limit usage from justfile (#1199)
+- Add nix package manager install instructions (#1194)
+- Fix broken link in readme (#1183)
+- Add screenshot to manual (#1181)
+- Style homepage (#1180)
+- Center readme (#1178)
+- Style and add links to homepage (#1177)
+- Fix readme badge links (#1176)
+- Generate book from readme (#1155)
+
 [1.1.3](https://github.com/casey/just/releases/tag/1.1.3) - 2022-5-3
 --------------------------------------------------------------------
 
