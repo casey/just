@@ -11,8 +11,9 @@ pub(crate) struct Settings<'src> {
   pub(crate) dotenv_load: Option<bool>,
   pub(crate) export: bool,
   pub(crate) positional_arguments: bool,
-  pub(crate) shell: Option<setting::Shell<'src>>,
+  pub(crate) shell: Option<Shell<'src>>,
   pub(crate) windows_powershell: bool,
+  pub(crate) windows_shell: Option<Shell<'src>>,
 }
 
 impl<'src> Settings<'src> {
@@ -24,6 +25,7 @@ impl<'src> Settings<'src> {
       positional_arguments: false,
       shell: None,
       windows_powershell: false,
+      windows_shell: None,
     }
   }
 
@@ -42,6 +44,8 @@ impl<'src> Settings<'src> {
       shell.command.cooked.as_ref()
     } else if let Some(shell) = &config.shell {
       shell
+    } else if let (true, Some(shell)) = (cfg!(windows), &self.windows_shell) {
+      shell.command.cooked.as_ref()
     } else if cfg!(windows) && self.windows_powershell {
       WINDOWS_POWERSHELL_SHELL
     } else {
@@ -60,6 +64,12 @@ impl<'src> Settings<'src> {
         .collect()
     } else if let Some(shell_args) = &config.shell_args {
       shell_args.iter().map(String::as_ref).collect()
+    } else if let (true, Some(shell)) = (cfg!(windows), &self.windows_shell) {
+      shell
+        .arguments
+        .iter()
+        .map(|argument| argument.cooked.as_ref())
+        .collect()
     } else if cfg!(windows) && self.windows_powershell {
       WINDOWS_POWERSHELL_ARGS.to_vec()
     } else {
@@ -70,8 +80,6 @@ impl<'src> Settings<'src> {
 
 #[cfg(test)]
 mod tests {
-  use crate::setting::Shell;
-
   use super::*;
 
   #[test]

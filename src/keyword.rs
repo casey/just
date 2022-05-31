@@ -15,6 +15,7 @@ pub(crate) enum Keyword {
   Shell,
   True,
   WindowsPowershell,
+  WindowsShell,
 }
 
 impl Keyword {

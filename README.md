@@ -671,9 +671,22 @@ foo:
 
 `just` passes the command to be executed as an argument. Many shells will need an additional flag, often `-c`, to make them evaluate the first argument.
 
+##### Windows Shell
+
+`just` uses `sh` on Windows by default. To use a different shell on Windows, use `windows-shell`:
+
+```make
+set windows-shell := ["pwsh.exe", "-NoLogo", "-Command"]
+
+hello:
+  Write-Host "Hello, world!"
+```
+
 ##### Windows PowerShell
 
-`just` uses `sh` on Windows by default. To use PowerShell instead, set `windows-powershell` to true.
+*`set windows-powershell` uses the legacy `powershell.exe` binary, and is no longer recommended. See the `windows-shell` setting above for a more flexible way to control which shell is used on Windows.*
+
+`just` uses `sh` on Windows by default. To use `powershell.exe` instead, set `windows-powershell` to true.
 
 ```make
 set windows-powershell := true
