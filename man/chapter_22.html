@@ -226,8 +226,16 @@ foo:
   print(&quot;{{foos}}&quot;)
 </code></pre>
 <p><code>just</code> passes the command to be executed as an argument. Many shells will need an additional flag, often <code>-c</code>, to make them evaluate the first argument.</p>
+<h5 id="windows-shell"><a class="header" href="#windows-shell">Windows Shell</a></h5>
+<p><code>just</code> uses <code>sh</code> on Windows by default. To use a different shell on Windows, use <code>windows-shell</code>:</p>
+<pre><code class="language-make">set windows-shell := [&quot;pwsh.exe&quot;, &quot;-NoLogo&quot;, &quot;-Command&quot;]
+
+hello:
+  Write-Host &quot;Hello, world!&quot;
+</code></pre>
 <h5 id="windows-powershell"><a class="header" href="#windows-powershell">Windows PowerShell</a></h5>
-<p><code>just</code> uses <code>sh</code> on Windows by default. To use PowerShell instead, set <code>windows-powershell</code> to true.</p>
+<p><em><code>set windows-powershell</code> uses the legacy <code>powershell.exe</code> binary, and is no longer recommended. See the <code>windows-shell</code> setting above for a more flexible way to control which shell is used on Windows.</em></p>
+<p><code>just</code> uses <code>sh</code> on Windows by default. To use <code>powershell.exe</code> instead, set <code>windows-powershell</code> to true.</p>
 <pre><code class="language-make">set windows-powershell := true
 
 hello:
