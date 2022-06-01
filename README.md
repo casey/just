@@ -303,6 +303,10 @@ You can install it from the command line by running:
 code --install-extension skellock.just
 ```
 
+### JetBrains IDEs
+
+A plugin for JetBrains IDEs by [linux_china](https://github.com/linux-china) is [available here](https://plugins.jetbrains.com/plugin/18658-just).
+
 ### Kakoune
 
 Kakoune supports `justfile` syntax highlighting out of the box, thanks to TeddyDD.
