@@ -400,3 +400,1088 @@ testing… all tests passed!
 --------
 
 在 [Examples 目录](examples) 中可以找到各种 `justfile` 的例子。
+
+特性介绍
+--------
+
+### 默认配方
+
+当 `just` 被调用而没有传入任何配方时，它会运行 `justfile` 中的第一个配方。这个配方可能是项目中最常运行的命令，比如运行测试：
+
+```make
+test:
+  cargo test
+```
+
+你也可以使用依赖关系来默认运行多个配方：
+
+```make
+default: lint build test
+
+build:
+  echo Building…
+
+test:
+  echo Testing…
+
+lint:
+  echo Linting…
+```
+
+在没有合适配方作为默认配方的情况下，你也可以在 `justfile` 的开头添加一个配方，用于列出可用的配方：
+
+```make
+default:
+  just --list
+```
+
+### 列出可用的配方
+
+可以用 `just --list` 按字母顺序列出配方：
+
+```sh
+$ just --list
+Available recipes:
+    build
+    test
+    deploy
+    lint
+```
+
+`just --summary` 以更简洁的形式列出配方：
+
+```sh
+$ just --summary
+build test deploy lint
+```
+
+传入 `--unsorted` 选项可以按照它们在 `justfile` 中出现的顺序打印配方：
+
+```make
+test:
+  echo 'Testing!'
+
+build:
+  echo 'Building!'
+```
+
+```sh
+$ just --list --unsorted
+Available recipes:
+    test
+    build
+```
+
+```sh
+$ just --summary --unsorted
+test build
+```
+
+如果你想让 `just` 默认列出 `justfile` 中的配方，你可以使用这个作为默认配方：
+
+```make
+default:
+  @just --list
+```
+
+标题文本可以用 `--list-heading` 来定制：
+
+```sh
+$ just --list --list-heading $'Cool stuff…\n'
+Cool stuff…
+    test
+    build
+```
+
+而缩进可以用 `--list-prefix` 来定制：
+
+```sh
+$ just --list --list-prefix ····
+Available recipes:
+····test
+····build
+```
+
+`--list-heading` 参数同时替换了标题和后面的换行，所以如果不是空的，应该包含一个换行。这样做是为了允许你通过传递空字符串来完全抑制标题行：
+
+```sh
+$ just --list --list-heading ''
+    test
+    build
+```
+
+### 别名
+
+别名允许你用其他名称来调用配方：
+
+```make
+alias b := build
+
+build:
+  echo 'Building!'
+```
+
+```sh
+$ just b
+build
+echo 'Building!'
+Building!
+```
+
+### 设置
+
+设置控制解释和执行。每个设置最多可以指定一次，可以出现在 `justfile` 的任何地方。
+
+例如：
+
+```make
+set shell := ["zsh", "-cu"]
+
+foo:
+  # this line will be run as `zsh -cu 'ls **/*.txt'`
+  ls **/*.txt
+```
+
+#### 设置一览表
+
+| 名称                      | 值                 | 描述                                                   |
+| ------------------------- | ------------------ | ------------------------------------------------------ |
+| `allow-duplicate-recipes` | boolean            | 允许在 `justfile` 后面出现的配方覆盖之前的同名配方     |
+| `dotenv-load`             | boolean            | 加载 `.env` 环境变量文件, 如果有的话                   |
+| `export`                  | boolean            | 将所有变量导出为环境变量                               |
+| `positional-arguments`    | boolean            | 传递位置参数                                           |
+| `shell`                   | `[COMMAND, ARGS…]` | 设置用于调用配方和评估反引号内包裹内容的命令           |
+| `windows-powershell`      | boolean            | 在 Windows 上使用 PowerShell 作为默认 Shell            |
+
+Bool 类型设置可以写成：
+
+```mf
+set NAME
+```
+
+这就相当于：
+
+```mf
+set NAME := true
+```
+
+#### 允许重复的配方
+
+如果 `allow-duplicate-recipes` 被设置为 `true`，那么定义多个同名的配方就不会出错，而会使用最后的定义。默认为 `false`。
+
+```make
+set allow-duplicate-recipes
+
+@foo:
+  echo foo
+
+@foo:
+  echo bar
+```
+
+```sh
+$ just foo
+bar
+```
+
+#### 环境变量加载
+
+如果将 `dotenv-load` 设置为 `true`，并且存在 `.env` 文件，则该环境配置文件将被加载。默认为 `false`。
+
+#### 导出
+
+`export` 设置使所有 `just` 变量作为环境变量被导出。默认值为 `false`。
+
+```make
+set export
+
+a := "hello"
+
+@foo b:
+  echo $a
+  echo $b
+```
+
+```sh
+$ just foo goodbye
+hello
+goodbye
+```
+
+#### 位置参数
+
+如果 `positional-arguments` 为 `true`，配方参数将作为位置参数传递给命令。对于行式配方，参数 `$0` 将是配方的名称。
+
+例如，运行这个配方：
+
+```make
+set positional-arguments
+
+@foo bar:
+  echo $0
+  echo $1
+```
+
+将产生以下输出：
+
+```sh
+$ just foo hello
+foo
+hello
+```
+
+当使用 `sh` 兼容的 Shell，如 `bash` 或 `zsh` 时，`$@` 会展开为传给配方的位置参数，从1开始。当在双引号内使用 `"$@"` 时，包括空白的参数将被传递，就像它们是双引号一样。也就是说，`"$@"` 相当于 `"$1" "$2"`......当没有位置参数时，`"$@"` 和 `$@` 将展开为空（即，它们被删除）。
+
+这个例子的配方将逐行打印参数：
+
+```make
+set positional-arguments
+
+@test *args='':
+  bash -c 'while (( "$#" )); do echo - $1; shift; done' -- "$@"
+```
+
+用 _两个_ 参数运行：
+
+```sh
+$ just test foo "bar baz"
+- foo
+- bar baz
+```
+
+#### Shell
+
+`shell` 设置控制用于调用执行配方代码行和反引号内指令的命令。Shebang 配方不受影响。
+
+```make
+# use python3 to execute recipe lines and backticks
+set shell := ["python3", "-c"]
+
+# use print to capture result of evaluation
+foos := `print("foo" * 4)`
+
+foo:
+  print("Snake snake snake snake.")
+  print("{{foos}}")
+```
+
+`just` 把要执行的命令作为一个参数进行传递。许多 Shell 需要一个额外的标志，通常是 `-c`，以使它们评估执行第一个参数。
+
+##### Windows PowerShell
+
+`just` 在Windows上默认使用 `sh`。要使用 PowerShell，请将 `windows-powershell` 设置为 `true`。
+
+```make
+set windows-powershell := true
+
+hello:
+  Write-Host "Hello, world!"
+```
+
+##### Python 3
+
+```make
+set shell := ["python3", "-c"]
+```
+
+##### Bash
+
+```make
+set shell := ["bash", "-uc"]
+```
+
+##### Z Shell
+
+```make
+set shell := ["zsh", "-uc"]
+```
+
+##### Fish
+
+```make
+set shell := ["fish", "-c"]
+```
+
+### 文档注释
+
+紧接着配方前面的注释将出现在 `just --list` 中：
+
+```make
+# build stuff
+build:
+  ./bin/build
+
+# test stuff
+test:
+  ./bin/test
+```
+
+```sh
+$ just --list
+Available recipes:
+    build # build stuff
+    test # test stuff
+```
+
+### `.env` 集成
+
+如果 [`dotenv-load`](#dotenv-load) 被设置，`just` 将从一个名为 `.env` 的文件中加载环境变量。这个文件可以和你的 `justfile` 位于同一目录下，或者位于其父目录下。这些变量是环境变量，而不是 `just` 的变量，因此必须使用 `$VARIABLE_NAME` 在配方和反引号中访问。
+
+例如，假如你的 `.env` 文件包含：
+
+```sh
+# 注释，将被忽略
+DATABASE_ADDRESS=localhost:6379
+SERVER_PORT=1337
+```
+
+而你的 `justfile` 包含：
+
+```make
+set dotenv-load
+
+serve:
+  @echo "Starting server with database $DATABASE_ADDRESS on port $SERVER_PORT…"
+  ./server --database $DATABASE_ADDRESS --port $SERVER_PORT
+```
+
+`just serve` 将会输出：
+
+```sh
+$ just serve
+Starting server with database localhost:6379 on port 1337…
+./server --database $DATABASE_ADDRESS --port $SERVER_PORT
+```
+
+### 变量和替换
+
+支持在变量、字符串、拼接和替换中使用 `{{…}}` ：
+
+```make
+version := "0.2.7"
+tardir  := "awesomesauce-" + version
+tarball := tardir + ".tar.gz"
+
+publish:
+  rm -f {{tarball}}
+  mkdir {{tardir}}
+  cp README.md *.c {{tardir}}
+  tar zcvf {{tarball}} {{tardir}}
+  scp {{tarball}} me@server.com:release/
+  rm -rf {{tarball}} {{tardir}}
+```
+
+#### 转义 `{{`
+
+想要写一个包含  `{{` 的配方，可以使用 `{{{{`：
+
+```make
+braces:
+  echo 'I {{{{LOVE}} curly braces!'
+```
+
+(未匹配的 `}}` 会被忽略，所以不需要转义)
+
+另一个选择是把所有你想转义的文本都放在插值里面：
+
+```make
+braces:
+  echo '{{'I {{LOVE}} curly braces!'}}'
+```
+
+然而，另一个选择是使用  `{{ "{{" }}`：
+
+```make
+braces:
+  echo 'I {{ "{{" }}LOVE}} curly braces!'
+```
+
+### 字符串
+
+双引号字符串支持转义序列：
+
+```make
+string-with-tab             := "\t"
+string-with-newline         := "\n"
+string-with-carriage-return := "\r"
+string-with-double-quote    := "\""
+string-with-slash           := "\\"
+string-with-no-newline      := "\
+"
+```
+
+```sh
+$ just --evaluate
+"tring-with-carriage-return := "
+string-with-double-quote    := """
+string-with-newline         := "
+"
+string-with-no-newline      := ""
+string-with-slash           := "\"
+string-with-tab             := "     "
+```
+
+字符串可以包含换行符：
+
+```make
+single := '
+hello
+'
+
+double := "
+goodbye
+"
+```
+
+单引号字符串不支持转义序列：
+
+```make
+escapes := '\t\n\r\"\\'
+```
+
+```sh
+$ just --evaluate
+escapes := "\t\n\r\"\\"
+```
+
+支持单引号和双引号字符串的缩进版本，以三个单引号或三个双引号为界。缩进的字符串行被删除了所有非空行所共有的前导空白：
+
+```make
+# 这个字符串执行结果为 `foo\nbar\n`
+x := '''
+  foo
+  bar
+'''
+
+# 这个字符串执行结果为 `abc\n  wuv\nbar\n`
+y := """
+  abc
+    wuv
+  xyz
+"""
+```
+
+与未缩进的字符串类似，缩进的双引号字符串处理转义序列，而缩进的单引号字符串则忽略转义序列。转义序列的处理是在取消缩进后进行的。取消缩进的算法不考虑转义序列产生的空白或换行。
+
+### 错误忽略
+
+通常情况下，如果一个命令返回一个非零的退出状态，将停止执行。要想在一个命令之后继续执行，即使它失败了，需要在命令前加上 `-`：
+
+```make
+foo:
+  -cat foo
+  echo 'Done!'
+```
+
+```sh
+$ just foo
+cat foo
+cat: foo: No such file or directory
+echo 'Done!'
+Done!
+```
+
+### 函数
+
+`just` 提供了一些内置函数，在编写配方时可能很有用。
+
+#### 系统信息
+
+- `arch()` — 指令集结构。可能的值是：`"aarch64"`, `"arm"`, `"asmjs"`, `"hexagon"`, `"mips"`, `"msp430"`, `"powerpc"`, `"powerpc64"`, `"s390x"`, `"sparc"`, `"wasm32"`, `"x86"`, `"x86_64"`, 和 `"xcore"`。
+
+- `os()` — 操作系统，可能的值是: `"android"`, `"bitrig"`, `"dragonfly"`, `"emscripten"`, `"freebsd"`, `"haiku"`, `"ios"`, `"linux"`, `"macos"`, `"netbsd"`, `"openbsd"`, `"solaris"`, 和 `"windows"`。
+
+- `os_family()` — 操作系统系列；可能的值是：`"unix"` 和 `"windows"`。
+
+例如：
+
+```make
+system-info:
+  @echo "This is an {{arch()}} machine".
+```
+
+```sh
+$ just system-info
+This is an x86_64 machine
+```
+
+`os_family()` 函数可以用来创建跨平台的 `justfile`，使其可以在不同的操作系统上工作。一个例子，见 [cross-platform.just](examples/cross-platform.just) 文件。
+
+#### 环境变量
+
+- `env_var(key)` — 获取名称为 `key` 的环境变量，如果不存在则终止。
+
+```make
+home_dir := env_var('HOME')
+
+test:
+  echo "{{home_dir}}"
+```
+
+```sh
+$ just
+/home/user1
+```
+
+- `env_var_or_default(key, default)` — 获取名称为 `key` 的环境变量，如果不存在则返回 `default`。
+
+#### 调用目录
+
+- `invocation_directory()` - 获取 `just` 被调用时当前目录所对应的绝对路径，在 `just` 改变路径并执行相应命令前。
+
+例如，要对 "当前目录" 下的文件调用 `rustfmt`（从用户/调用者的角度看），使用以下规则：
+
+```make
+rustfmt:
+  find {{invocation_directory()}} -name \*.rs -exec rustfmt {} \;
+```
+
+另外，如果你的命令需要从当前目录运行，你可以使用如下方式：
+
+```make
+build:
+  cd {{invocation_directory()}}; ./some_script_that_needs_to_be_run_from_here
+```
+
+#### Justfile 和 Justfile 目录
+
+- `justfile()` - 取得当前 `justfile` 的路径。
+
+- `justfile_directory()` - 取得当前 `justfile` 文件父目录的路径。
+
+例如，运行一个相对于当前 `justfile` 位置的命令：
+
+```make
+script:
+  ./{{justfile_directory()}}/scripts/some_script
+```
+
+#### Just 可执行程序
+
+- `just_executable()` - `just` 可执行文件的绝对路径。
+
+例如：
+
+```make
+executable:
+  @echo The executable is at: {{just_executable()}}
+```
+
+```sh
+$ just
+The executable is at: /bin/just
+```
+
+#### 字符串处理
+
+- `lowercase(s)` - 将 `s` 转换为小写形式。
+
+- `quote(s)` - 用 `'\''` 替换所有的单引号，并在 `s` 的首尾添加单引号。这足以为许多 Shell 转义特殊字符，包括大多数 Bourne Shell 的后代。
+
+- `replace(s, from, to)` - 将 `s` 中的所有 `from` 替换为 `to`。
+
+- `trim(s)` - 去掉 `s` 的首尾空格。
+
+- `trim_end(s)` - 去掉 `s` 的尾部空格。
+
+- `trim_end_match(s, pat)` - 删除与 `pat` 匹配的 `s` 的后缀。
+
+- `trim_end_matches(s, pat)` - 反复删除与 `pat` 匹配的 `s` 的后缀。
+
+- `trim_start(s)` - 去掉 `s` 的首部空格。
+
+- `trim_start_match(s, pat)` - 删除与 `pat` 匹配的 `s` 的前缀。
+
+- `trim_start_matches(s, pat)` - 反复删除与 `pat` 匹配的 `s` 的前缀。
+
+- `uppercase(s)` - 将 `s` 转换为大写形式。
+
+#### 路径操作
+
+##### 非可靠的
+
+- `absolute_path(path)` - 将当前工作目录中到相对路径 `path` 的路径转换为绝对路径。在 `/foo` 目录通过 `absolute_path("./bar.txt")` 可以得到 `/foo/bar.txt`。
+
+- `extension(path)` - 获取 `path` 的扩展名。`extension("/foo/bar.txt")` 结果为 `txt`。
+
+- `file_name(path)` - 获取 `path` 的文件名，去掉任何前面的目录部分。`file_name("/foo/bar.txt")` 的结果为 `bar.txt`。
+
+- `file_stem(path)` - 获取 `path` 的文件名，不含扩展名。`file_stem("/foo/bar.txt")` 的结果为 `bar`。
+
+- `parent_directory(path)` - 获取 `path` 的父目录。`parent_directory("/foo/bar.txt")` 的结果为 `/foo`。
+
+- `without_extension(path)` - 获取 `path` 不含扩展名部分。`without_extension("/foo/bar.txt")` 的结果为 `/foo/bar`。
+
+这些函数可能会失败，例如，如果一个路径没有扩展名，则将停止执行。
+
+##### 可靠的
+
+- `join(a, b…)` - 将路径 `a` 与路径 `b` 连接。`join("foo/bar", "baz")` 结果为 `foo/bar/baz`。接受两个或多个参数。
+
+- `clean(path)` - 通过删除多余的路径分隔符、中间的 `.` 和 `..` 来简化 `path`。`clean("foo//bar")` 结果为 `foo/bar`，`clean("foo/..")` 为 `.`，`clean("foo/./bar")` 结果为 `foo/bar`。
+
+#### 文件系统访问
+
+- `path_exists(path)` - 如果路径指向一个存在的文件或目录，则返回 `true`，否则返回 `false`。也会遍历符号链接，如果路径无法访问或指向一个无效的符号链接，则返回 `false`。
+
+##### 错误报告
+
+- `error(message)` - 终止执行并向用户报告错误 `message`。
+
+#### UUID 和哈希值生成
+
+- `sha256(string)` - 以十六进制字符串形式返回 `string` 的 SHA-256 哈希值。
+- `sha256_file(path)` - 以十六进制字符串形式返回 `path` 处的文件的 SHA-256 哈希值。
+- `uuid()` - 返回一个随机生成的 UUID。
+
+### 使用反引号的命令求值
+
+反引号可以用来存储命令的求值结果：
+
+```make
+localhost := `dumpinterfaces | cut -d: -f2 | sed 's/\/.*//' | sed 's/ //g'`
+
+serve:
+  ./serve {{localhost}} 8080
+```
+
+缩进的反引号，以三个反引号为界，与字符串缩进的方式一样，会被去掉缩进：
+
+````make
+# This backtick evaluates the command `echo foo\necho bar\n`, which produces the value `foo\nbar\n`.
+stuff := ```
+    echo foo
+    echo bar
+  ```
+````
+
+参见[Strings](#strings)部分，了解去除缩进的细节。
+
+反引号内不能以 `#!` 开头。这种语法是为将来的升级而保留的。
+
+### 条件表达式
+
+`if` / `else` 表达式评估不同的分支，取决于两个表达式是否评估为相同的值：
+
+```make
+foo := if "2" == "2" { "Good!" } else { "1984" }
+
+bar:
+  @echo "{{foo}}"
+```
+
+```sh
+$ just bar
+Good!
+```
+
+也可以用于测试不相等：
+
+```make
+foo := if "hello" != "goodbye" { "xyz" } else { "abc" }
+
+bar:
+  @echo {{foo}}
+```
+
+```sh
+$ just bar
+xyz
+```
+
+还支持与正则表达式进行匹配：
+
+```make
+foo := if "hello" =~ 'hel+o' { "match" } else { "mismatch" }
+
+bar:
+  @echo {{foo}}
+```
+
+```sh
+$ just bar
+match
+```
+
+正则表达式由 [Regex 包](https://github.com/rust-lang/regex) 提供，其语法在 [docs.rs](https://docs.rs/regex/1.5.4/regex/#syntax) 上有对应文档。由于正则表达式通常使用反斜线转义序列，请考虑使用单引号的字符串字面值，这将使斜线不受干扰地传递给正则分析器。
+
+条件表达式是短路的，这意味着它们只评估其中的一个分支。这可以用来确保反引号内的表达式在不应该运行的时候不会运行。
+
+```make
+foo := if env_var("RELEASE") == "true" { `get-something-from-release-database` } else { "dummy-value" }
+```
+
+条件语句也可以在配方中使用：
+
+```make
+bar foo:
+  echo {{ if foo == "bar" { "hello" } else { "goodbye" } }}
+```
+
+注意最后的 `}` 后面的空格! 没有这个空格，插值将被提前结束。
+
+多个条件语句可以被连起来：
+
+```make
+foo := if "hello" == "goodbye" {
+  "xyz"
+} else if "a" == "a" {
+  "abc"
+} else {
+  "123"
+}
+
+bar:
+  @echo {{foo}}
+```
+
+```sh
+$ just bar
+abc
+```
+
+### 出现错误停止执行
+
+可以用 `error` 函数停止执行。比如：
+
+```
+foo := if "hello" == "goodbye" {
+  "xyz"
+} else if "a" == "b" {
+  "abc"
+} else {
+  error("123")
+}
+```
+
+在运行时产生以下错误：
+
+```
+error: Call to function `error` failed: 123
+   |
+16 |   error("123")
+```
+
+### 从命令行设置变量
+
+变量可以从命令行进行覆盖。
+
+```make
+os := "linux"
+
+test: build
+  ./test --test {{os}}
+
+build:
+  ./build {{os}}
+```
+
+```sh
+$ just
+./build linux
+./test --test linux
+```
+
+任何数量的 `NAME=VALUE` 形式的参数都可以在配方前传递：
+
+```sh
+$ just os=plan9
+./build plan9
+./test --test plan9
+```
+
+或者你可以使用 `--set` 标志：
+
+```sh
+$ just --set os bsd
+./build bsd
+./test --test bsd
+```
+
+### 获取和设置环境变量
+
+#### 导出 `just` 变量
+
+以 `export` 关键字为前缀的赋值将作为环境变量导出到配方中：
+
+```make
+export RUST_BACKTRACE := "1"
+
+test:
+  # 如果它崩溃了，将打印一个堆栈追踪
+  cargo test
+```
+
+以 `$` 为前缀的参数将被作为环境变量导出：
+
+```make
+test $RUST_BACKTRACE="1":
+  # 如果它崩溃了，将打印一个堆栈追踪
+  cargo test
+```
+
+导出的变量和参数不会被导出到同一作用域内反引号包裹的表达式里。
+
+```make
+export WORLD := "world"
+# This backtick will fail with "WORLD: unbound variable"
+BAR := `echo hello $WORLD`
+```
+
+```make
+# Running `just a foo` will fail with "A: unbound variable"
+a $A $B=`echo $A`:
+  echo $A $B
+```
+
+当 [export](#export) 被设置时，所有的 `just` 变量都将作为环境变量被导出。
+
+#### 从环境中获取环境变量
+
+来自环境的环境变量会自动传递给配方：
+
+```make
+print_home_folder:
+  echo "HOME is: '${HOME}'"
+```
+
+```sh
+$ just
+HOME is '/home/myuser'
+```
+
+#### 从 `.env` 文件加载环境变量
+
+如果 [dotenv-load](#dotenv-load) 被设置，`just` 将从 `.env` 文件中加载环境变量。该文件中的变量将作为环境变量提供给配方。参见 [dotenv-integration](#dotenv-integration) 以获得更多信息。
+
+#### 从环境变量中设置 `just` 变量
+
+环境变量可以通过函数 `env_var()` 和 `env_var_or_default()` 传入到 `just` 变量。
+参见 [environment-variables](#environment-variables)。
+
+### 配方参数
+
+配方可以有参数。这里的配方 `build` 有一个参数叫 `target`:
+
+```make
+build target:
+  @echo 'Building {{target}}…'
+  cd {{target}} && make
+```
+
+要在命令行上传递参数，请把它们放在配方名称后面：
+
+```sh
+$ just build my-awesome-project
+Building my-awesome-project…
+cd my-awesome-project && make
+```
+
+要向依赖配方传递参数，请将依赖配方和参数一起放在括号里：
+
+```make
+default: (build "main")
+
+build target:
+  @echo 'Building {{target}}…'
+  cd {{target}} && make
+```
+
+参数可以有默认值：
+
+```make
+default := 'all'
+
+test target tests=default:
+  @echo 'Testing {{target}}:{{tests}}…'
+  ./test --tests {{tests}} {{target}}
+```
+
+有默认值的参数可以省略：
+
+```sh
+$ just test server
+Testing server:all…
+./test --tests all server
+```
+
+或者提供：
+
+```sh
+$ just test server unit
+Testing server:unit…
+./test --tests unit server
+```
+
+默认值可以是任意的表达式，但字符串拼接必须是放在括号内：
+
+```make
+arch := "wasm"
+
+test triple=(arch + "-unknown-unknown"):
+  ./test {{triple}}
+```
+
+配方的最后一个参数可以是变长的，在参数名称前用 `+` 或 `*` 表示：
+
+```make
+backup +FILES:
+  scp {{FILES}} me@server.com:
+```
+
+以 `+` 为前缀的变长参数接受 _一个或多个_ 参数，并展开为一个包含这些参数的字符串，以空格分隔：
+
+```sh
+$ just backup FAQ.md GRAMMAR.md
+scp FAQ.md GRAMMAR.md me@server.com:
+FAQ.md                  100% 1831     1.8KB/s   00:00
+GRAMMAR.md              100% 1666     1.6KB/s   00:00
+```
+
+以 `*` 为前缀的变长参数接受 _0个或更多_ 参数，并展开为一个包含这些参数的字符串，以空格分隔，如果没有参数，则为空字符串：
+
+```make
+commit MESSAGE *FLAGS:
+  git commit {{FLAGS}} -m "{{MESSAGE}}"
+```
+
+变长参数可以被分配默认值。这些参数被命令行上传递的参数所覆盖：
+
+```make
+test +FLAGS='-q':
+  cargo test {{FLAGS}}
+```
+
+`{{…}}` 的替换可能需要加引号，如果它们包含空格。例如，如果你有以下配方：
+
+```make
+search QUERY:
+  lynx https://www.google.com/?q={{QUERY}}
+```
+
+然后你输入：
+
+```sh
+$ just search "cat toupee"
+```
+
+`just` 将运行 `lynx https://www.google.com/?q=cat toupee` 命令，这将被 `sh` 解析为`lynx`、`https://www.google.com/?q=cat` 和 `toupee`，而不是原来的 `lynx` 和 `https://www.google.com/?q=cat toupee`。
+
+你可以通过添加引号来解决这个问题：
+
+```make
+search QUERY:
+  lynx 'https://www.google.com/?q={{QUERY}}'
+```
+
+以 `$` 为前缀的参数将被作为环境变量导出：
+
+```make
+foo $bar:
+  echo $bar
+```
+
+### 在配方的末尾运行配方
+
+一个配方的正常依赖总是在配方开始之前运行。也就是说，被依赖方总是在依赖方之前运行。这些依赖被称为 "前期依赖"。
+
+一个配方也可以有后续的依赖，它们在配方之后运行，用 `&&` 表示：
+
+```make
+a:
+  echo 'A!'
+
+b: a && c d
+  echo 'B!'
+
+c:
+  echo 'C!'
+
+d:
+  echo 'D!'
+```
+
+…运行 _b_ 输出：
+
+```sh
+$ just b
+echo 'A!'
+A!
+echo 'B!'
+B!
+echo 'C!'
+C!
+echo 'D!'
+D!
+```
+
+### 在配方中间运行配方
+
+`just` 不支持在配方的中间运行另一个配方，但你可以在一个配方的中间递归调用 `just`。例如以下 `justfile`：
+
+```make
+a:
+  echo 'A!'
+
+b: a
+  echo 'B start!'
+  just c
+  echo 'B end!'
+
+c:
+  echo 'C!'
+```
+
+…运行 _b_ 输出：
+
+```sh
+$ just b
+echo 'A!'
+A!
+echo 'B start!'
+B start!
+echo 'C!'
+C!
+echo 'B end!'
+B end!
+```
+
+这有局限性，因为配方 `c` 是以一个全新的 `just` 调用来运行的，赋值将被重新计算，依赖可能会运行两次，命令行参数不会被传入到子 `just` 进程。
+
+### 用其他语言书写配方
+
+以 `#!` 开头的配方将作为脚本执行，因此你可以用其他语言编写配方：
+
+```make
+polyglot: python js perl sh ruby
+
+python:
+  #!/usr/bin/env python3
+  print('Hello from python!')
+
+js:
+  #!/usr/bin/env node
+  console.log('Greetings from JavaScript!')
+
+perl:
+  #!/usr/bin/env perl
+  print "Larry Wall says Hi!\n";
+
+sh:
+  #!/usr/bin/env sh
+  hello='Yo'
+  echo "$hello from a shell script!"
+
+ruby:
+  #!/usr/bin/env ruby
+  puts "Hello from ruby!"
+```
+
+```sh
+$ just polyglot
+Hello from python!
+Greetings from JavaScript!
+Larry Wall says Hi!
+Yo from a shell script!
+Hello from ruby!
+```
