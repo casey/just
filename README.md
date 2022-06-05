@@ -407,7 +407,7 @@ testing… all tests passed!
 Examples
 --------
 
-A variety of example `justfile`s can be found in the [examples directory](examples).
+A variety of example `justfile`s can be found in the [examples directory](https://github.com/casey/just/tree/master/examples).
 
 Features
 --------
