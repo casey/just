@@ -1485,3 +1485,396 @@ Larry Wall says Hi!
 Yo from a shell script!
 Hello from ruby!
 ```
+
+### 更加安全的 Bash Shebang 配方
+
+如果你正在写一个 `bash` Shebang 配方，考虑加入 `set -euxo pipefail`：
+
+```make
+foo:
+  #!/usr/bin/env bash
+  set -euxo pipefail
+  hello='Yo'
+  echo "$hello from Bash!"
+```
+
+严格意义上说这不是必须的，但是 `set -euxo pipefail` 开启了一些有用的功能，使 `bash` Shebang 配方的行为更像正常的、行式的 `just` 配方:
+
+- `set -e` 使 `bash` 在命令失败时退出。
+
+- `set -u` 使 `bash` 在变量未定义时退出。
+
+- `set -x` 使 `bash` 在运行前打印每一行脚本。
+
+- `set -o pipefail` 使 `bash` 在管道中的一个命令失败时退出。这是 `bash` 特有的，所以在普通的行式 `just` 配方中没有开启。
+
+这些措施共同避免了很多 Shell 脚本的问题。
+
+#### 在 Windows 上执行 Shebang 配方
+
+在 Windows 上，包含 `/` 的 Shebang 解释器路径通过 `cygpath` 从 Unix 风格的路径转换为 Windows 风格的路径，该工具随 [Cygwin](http://www.cygwin.com) 一起提供。
+
+例如，要在 Windows 上执行这个配方：
+
+```make
+echo:
+  #!/bin/sh
+  echo "Hello!"
+```
+
+解释器路径 `/bin/sh` 在执行前将被 `cygpath` 翻译成 Windows 风格的路径。
+
+如果解释器路径不包含 `/`，它将被执行而不被翻译。这主要用于 `cygpath` 不可用或者你希望向解释器传递一个 Windows 风格的路径的情况下。
+
+### 在配方中设置变量
+
+配方代码行是由 Shell 解释的，而不是 `just`，所以不可能在配方中设置 `just` 变量：
+
+```mf
+foo:
+  x := "hello" # This doesn't work!
+  echo {{x}}
+```
+
+使用 Shell 变量是可能的，但还有一个问题：每一行配方都由一个新的 Shell 实例运行，所以在一行中设置的变量不会在下一行中生效：
+
+```make
+foo:
+  x=hello && echo $x # 这个没问题！
+  y=bye
+  echo $y            # 这个是有问题的, `y` 在此处未定义!
+```
+
+解决这个问题的最好方法是使用 Shebang 配方。Shebang 配方体被提取出来并作为脚本运行，所以一个 Shell 实例就可以运行整个配方体：
+
+```make
+foo:
+  #!/usr/bin/env bash
+  set -euxo pipefail
+  x=hello
+  echo $x
+```
+
+### 改变配方中的工作目录
+
+每一行配方都由一个新的 Shell 执行，所以如果你在某一行改变了工作目录，对后面的行不会有影响：
+
+```make
+foo:
+  pwd    # This `pwd` will print the same directory…
+  cd bar
+  pwd    # …as this `pwd`!
+```
+
+有几个方法可以解决这个问题。一个是在你想运行的命令的同一行调用 `cd`：
+
+```make
+foo:
+  cd bar && pwd
+```
+
+另一种方法是使用 Shebang 配方。Shebang 配方体被提取并作为脚本运行，因此一个 Shell 实例将运行整个配方体，所以一行的 `pwd` 改变将影响后面的行，就像一个 Shell 脚本：
+
+```make
+foo:
+  #!/usr/bin/env bash
+  set -euxo pipefail
+  cd bar
+  pwd
+```
+
+### 缩进
+
+配方代码行可以用空格或制表符缩进，但不能两者混合使用。一个配方的所有行必须有相同的缩进，但同一 `justfile` 中的不同配方可以使用不同的缩进。
+
+### 多行结构
+
+没有初始 Shebang 的配方会被逐行评估和运行，这意味着多行结构可能不会像你预期的那样工作。
+
+例如对于下面的 `justfile`：
+
+```mf
+conditional:
+  if true; then
+    echo 'True!'
+  fi
+```
+
+在 `conditional` 配方的第二行前有额外的前导空格，会产生一个解析错误：
+
+```sh
+$ just conditional
+error: Recipe line has extra leading whitespace
+  |
+3 |         echo 'True!'
+  |     ^^^^^^^^^^^^^^^^
+```
+
+为了解决这个问题，你可以在一行上写条件，用斜线转义换行，或者在你的配方中添加一个 Shebang。我们提供了一些多行结构的例子可供参考。
+
+#### `if` 语句
+
+```make
+conditional:
+  if true; then echo 'True!'; fi
+```
+
+```make
+conditional:
+  if true; then \
+    echo 'True!'; \
+  fi
+```
+
+```make
+conditional:
+  #!/usr/bin/env sh
+  if true; then
+    echo 'True!'
+  fi
+```
+
+#### `for` 循环
+
+```make
+for:
+  for file in `ls .`; do echo $file; done
+```
+
+```make
+for:
+  for file in `ls .`; do \
+    echo $file; \
+  done
+```
+
+```make
+for:
+  #!/usr/bin/env sh
+  for file in `ls .`; do
+    echo $file
+  done
+```
+
+#### `while` 循环
+
+```make
+while:
+  while `server-is-dead`; do ping -c 1 server; done
+```
+
+```make
+while:
+  while `server-is-dead`; do \
+    ping -c 1 server; \
+  done
+```
+
+```make
+while:
+  #!/usr/bin/env sh
+  while `server-is-dead`; do
+    ping -c 1 server
+  done
+```
+
+### 命令行选项
+
+`just` 提供了一些有用的命令行选项，用于列出、Dump 和调试配方以及变量：
+
+```sh
+$ just --list
+Available recipes:
+  js
+  perl
+  polyglot
+  python
+  ruby
+$ just --show perl
+perl:
+  #!/usr/bin/env perl
+  print "Larry Wall says Hi!\n";
+$ just --show polyglot
+polyglot: python js perl sh ruby
+```
+
+可以通过 `just --help` 命令查看所有选项。
+
+### 私有配方
+
+名字以 `_` 开头的配方和别名将在 `just --list` 中被忽略：
+
+```make
+test: _test-helper
+  ./bin/test
+
+_test-helper:
+  ./bin/super-secret-test-helper-stuff
+```
+
+```sh
+$ just --list
+Available recipes:
+    test
+```
+
+`just --summary` 亦然：
+
+```sh
+$ just --summary
+test
+```
+
+这对那些只作为其他配方的依赖使用的辅助配方很有用。
+
+### 安静配方
+
+配方名称可在前面加上 `@`，可以在每行反转行首 `@` 的含义：
+
+```make
+@quiet:
+  echo hello
+  echo goodbye
+  @# all done!
+```
+
+现在只有以 `@` 开头的行才会被回显：
+
+```sh
+$ j quiet
+hello
+goodbye
+# all done!
+```
+
+Shebang 配方默认是安静的：
+
+```make
+foo:
+  #!/usr/bin/env bash
+  echo 'Foo!'
+```
+
+```sh
+$ just foo
+Foo!
+```
+
+在 Shebang 配方名称前面添加 `@`，使 `just` 在执行配方前打印该配方：
+
+```make
+@bar:
+  #!/usr/bin/env bash
+  echo 'Bar!'
+```
+
+```sh
+$ just bar
+#!/usr/bin/env bash
+echo 'Bar!'
+Bar!
+```
+
+### 通过交互式选择器选择要运行的配方
+
+`--choose` 子命令可以使 `just` 唤起一个选择器来让您选择要运行的配方。选择器应该从标准输入中读取包含配方名称的行，并将其中一个或多个用空格分隔的名称打印到标准输出。
+
+因为目前没有办法通过 `--choose` 运行一个需要传入参数的配方，所以这样的配方将不会在选择器中列出。另外，私有配方和别名也会被忽略。
+
+选择器可以用 `--chooser` 标志来覆写。如果 `--chooser` 没有给出，那么 `just` 首先检查 `$JUST_CHOOSER` 是否被设置。如果没有，那么将使用默认选择器 `fzf`，这是一个流行的模糊查找器。
+
+参数可以包含在选择器中，例如：`fzf --exact`。
+
+选择器的调用方式与配方行的调用方式相同。例如，如果选择器是 `fzf`，它将被通过 `sh -cu 'fzf'` 调用，如果 Shell 或 Shell 参数被覆写，选择器的调用将尊重这些覆写。
+
+如果你希望 `just` 默认用选择器来选择配方，你可以用这个作为你的默认配方：
+
+```make
+default:
+  @just --choose
+```
+
+### 在其他目录下调用 `justfile`
+
+如果传递给 `just` 的第一个参数包含 `/`，那么就会发生以下情况：
+
+1.  参数在最后的 `/` 处被分割；
+
+2.  最后一个 `/` 之前的部分将被视为一个目录。`just` 将从这里开始搜索 `justfile`，而不是在当前目录下；
+
+3.  最后一个斜线之后的部分被视为正常参数，如果是空的，则被忽略；
+
+这可能看起来有点奇怪，但如果你想在一个子目录下的 `justfile` 中运行一个命令，这很有用。
+
+例如，如果你在一个目录中，该目录包含一个名为 `foo` 的子目录，该目录包含一个 `justfile`，其配方为 `build`，也是默认的配方，以下都是等同的：
+
+```sh
+$ (cd foo && just build)
+$ just foo/build
+$ just foo/
+```
+
+### 隐藏 `justfile`
+
+`just` 会寻找名为 `justfile` 和 `.justfile` 的 `justfile`，因此你也可以使用隐藏的 `justfile`（即 `.justfile`）。
+
+### Just 脚本
+
+通过在 `justfile` 的顶部添加 Shebang 行并使其可执行，`just` 可以作为脚本的解释器使用：
+
+```sh
+$ cat > script <<EOF
+#!/usr/bin/env just --justfile
+
+foo:
+  echo foo
+EOF
+$ chmod +x script
+$ ./script foo
+echo foo
+foo
+```
+
+当一个带有 Shebang 的脚本被执行时，系统会提供该脚本的路径作为 Shebang 中命令的参数。因此，如果 Shebang 是 `#!/usr/bin/env just --justfile`，对应的命令将是 `/usr/bin/env just --justfile PATH_TO_SCRIPT`。
+
+对于上面的命令，`just` 会把它的工作目录改为脚本的位置。如果你想让工作目录保持不变，可以使用 `#!/usr/bin/env just --working-directory . --justfile`。
+
+注意：Shebang 的行分隔在不同的操作系统中并不一致。前面的例子只在 macOS 上进行了测试。在 Linux 上，你可能需要向 `env` 传递 `-S` 标志：
+
+```make
+#!/usr/bin/env -S just --justfile
+
+default:
+  echo foo
+```
+
+### 将 `justfile` 转为JSON文件
+
+`--dump` 命令可以和 `--dump-format json` 一起使用，以打印一个 `justfile` 的JSON表示。JSON格式目前还不稳定，所以需要添加 `--unstable` 标志。
+
+### 回退到父 `justfile`
+
+如果没有找到配方，`just` 将在父目录和递归地在其上级目录里寻找 `justfile`，直到到达根目录。
+
+这个功能目前是不稳定的，所以必须用 `--unstable` 标志启用。
+
+举个例子，假设当前目录包含这个 `justfile`：
+
+```make
+foo:
+  echo foo
+```
+
+而父目录包含这个 `justfile`：
+
+```make
+bar:
+  echo bar
+```
+
+```sh
+$ just --unstable bar
+Trying ../justfile
+echo bar
+bar
+```
