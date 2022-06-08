@@ -25,7 +25,7 @@
 
 This readme is also available as a [book](https://just.systems/man/);
 
-(非官方中文文档,[这里](https://github.com/chinanf-boy/just-zh),快看过来!)
+(中文文档在 [这里](README.中文.md), 快看过来!)
 
 Commands, called recipes, are stored in a file called `justfile` with syntax inspired by `make`:
 

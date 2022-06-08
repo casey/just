@@ -23,7 +23,7 @@
 
 `just` 为您提供一种保存和运行项目特有命令的便捷方式。
 
-本指南同时也可以以 [书](https://just.systems/man/) 的形式在线阅读；
+本指南同时也可以以 [书](https://just.systems/man/) 的形式提供在线阅读；
 
 命令，在此也称为配方，存储在一个名为 `justfile` 的文件中，其语法受 `make` 启发：
 
@@ -40,7 +40,7 @@ Yay, all your tests passed!
 
 `just` 有很多很棒的特性，而且相比 `make` 有很多改进：
 
-- `just` 是一个命令运行器，而不是一个构建系统，所以它避免了许多 [`make` 的复杂性和特异性](#what-are-theidiosyncrasies-of-make-that-just-avoids)。不需要 `.PHONY` 配方!
+- `just` 是一个命令运行器，而不是一个构建系统，所以它避免了许多 [`make` 的复杂性和特异性](#just-避免了-make-的哪些特异性)。不需要 `.PHONY` 配方!
 
 - 支持 Linux、MacOS 和 Windows，而且无需额外的依赖。(尽管如果你的系统没有 `sh`，你需要 [选择一个不同的 Shell](#shell))。
 
@@ -50,26 +50,26 @@ Yay, all your tests passed!
 
 - 错误会尽可能被静态地解决。未知的配方和循环依赖关系会在运行之前被报告。
 
-- `just` 可以 [加载`.env`文件](#dotenv-integration)，简化环境变量注入。
+- `just` 可以 [加载`.env`文件](#env-集成)，简化环境变量注入。
 
-- 配方可以在 [命令行中列出](#listing-available-recipes)。
+- 配方可以在 [命令行中列出](#列出可用的配方)。
 
-- 命令行自动补全脚本 [支持大多数流行的 Shell](#shell-completion-scripts)。
+- 命令行自动补全脚本 [支持大多数流行的 Shell](#shell-自动补全脚本)。
 
-- 配方可以用 [任意语言](#writing-recipes-in-other-languages) 编写，如 Python 或 NodeJS。
+- 配方可以用 [任意语言](#用其他语言书写配方) 编写，如 Python 或 NodeJS。
 
 - `just` 可以从任何子目录中调用，而不仅仅是包含 `justfile` 的目录。
 
 - 不仅如此，还有 [更多](https://just.systems/man/)！
 
-如果你在使用 `just` 方面需要帮助，请随时创建一个 Issue 或在[Discord](https://discord.gg/ezYScXR)上与我联系。我们随时欢迎功能请求和错误报告！
+如果你在使用 `just` 方面需要帮助，请随时创建一个 Issue 或在 [Discord](https://discord.gg/ezYScXR) 上与我联系。我们随时欢迎功能请求和错误报告！
 
 安装
 ------------
 
 ### 预备知识
 
-`just` 应该可以在任何有合适的 `sh` 的系统上运行，包括Linux、MacOS 和 BSD。
+`just` 应该可以在任何有合适的 `sh` 的系统上运行，包括 Linux、MacOS 和 BSD。
 
 在 Windows 上，`just` 可以使用 [Git for Windows](https://git-scm.com)、[GitHub Desktop](https://desktop.github.com) 或 [Cygwin](http://www.cygwin.com) 所提供的 `sh`。
 
@@ -95,9 +95,9 @@ list:
   dir
 ```
 
-你也可以使用命令行参数来设置 Shell。例如，若要使用PowerShell 也可以用 `--shell powershell.exe --shell-arg -c` 启动`just`。
+你也可以使用命令行参数来设置 Shell。例如，若要使用 PowerShell 也可以用 `--shell powershell.exe --shell-arg -c` 启动`just`。
 
-(PowerShell 默认安装在 Windows 7 SP1 和 Windows Server 2008 R2 S1 及更高版本上，而 `cmd.exe` 相当麻烦，所以PowerShell 被推荐给大多数 Windows 用户)
+(PowerShell 默认安装在 Windows 7 SP1 和 Windows Server 2008 R2 S1 及更高版本上，而 `cmd.exe` 相当麻烦，所以 PowerShell 被推荐给大多数 Windows 用户)
 
 ### 安装包
 
@@ -169,7 +169,7 @@ list:
 
 Linux、MacOS 和 Windows 的预制二进制文件可以在 [发布页](https://github.com/casey/just/releases) 上找到。
 
-你也可以在 Linux、MacOS 或 Windows 上使用下面的命令来下载最新的版本，只需将 `DEST` 替换为你想存储 `just` 的目录：
+你也可以在 Linux、MacOS 或 Windows 上使用下面的命令来下载最新的版本，只需将 `DEST` 替换为你想存储 `just` 的目录即可：
 
 ```sh
 curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to DEST
@@ -211,7 +211,7 @@ just --help
 向后兼容性
 -----------------------
 
-随着1.0版本的发布，`just` 突出对向后兼容性和稳定性的强烈承诺。
+随着 1.0 版本的发布，`just` 突出对向后兼容性和稳定性的强烈承诺。
 
 未来的版本将不会引入向后不兼容的变化，不会使现有的 `justfile` 停止工作，或破坏命令行界面的正常调用。
 
@@ -219,7 +219,7 @@ just --help
 
 永远不会有一个 `just` 2.0。任何理想的向后兼容的变化都是在每个 `justfile` 的基础上选择性加入的，所以用户可以在他们的闲暇时间进行迁移。
 
-还没有准备好稳定化的功能将在 `--unstable` 标志后被选择性启用。由`--unstable`启用的功能可能会在任何时候以不兼容的方式发生变化。
+还没有准备好稳定化的功能将在 `--unstable` 标志后被选择性启用。由 `--unstable` 启用的功能可能会在任何时候以不兼容的方式发生变化。
 
 编辑器支持
 --------------
@@ -669,7 +669,7 @@ foo:
 
 ##### Windows PowerShell
 
-`just` 在Windows上默认使用 `sh`。要使用 PowerShell，请将 `windows-powershell` 设置为 `true`。
+`just` 在 Windows 上默认使用 `sh`。要使用 PowerShell，请将 `windows-powershell` 设置为 `true`。
 
 ```make
 set windows-powershell := true
@@ -725,7 +725,7 @@ Available recipes:
 
 ### `.env` 集成
 
-如果 [`dotenv-load`](#dotenv-load) 被设置，`just` 将从一个名为 `.env` 的文件中加载环境变量。这个文件可以和你的 `justfile` 位于同一目录下，或者位于其父目录下。这些变量是环境变量，而不是 `just` 的变量，因此必须使用 `$VARIABLE_NAME` 在配方和反引号中访问。
+如果 [`dotenv-load`](#环境变量加载) 被设置，`just` 将从一个名为 `.env` 的文件中加载环境变量。这个文件可以和你的 `justfile` 位于同一目录下，或者位于其父目录下。这些变量是环境变量，而不是 `just` 的变量，因此必须使用 `$VARIABLE_NAME` 在配方和反引号中访问。
 
 例如，假如你的 `.env` 文件包含：
 
@@ -1055,7 +1055,7 @@ stuff := ```
   ```
 ````
 
-参见[Strings](#strings)部分，了解去除缩进的细节。
+参见 [字符串](#字符串) 部分，了解去除缩进的细节。
 
 反引号内不能以 `#!` 开头。这种语法是为将来的升级而保留的。
 
@@ -1234,7 +1234,7 @@ a $A $B=`echo $A`:
   echo $A $B
 ```
 
-当 [export](#export) 被设置时，所有的 `just` 变量都将作为环境变量被导出。
+当 [export](#导出) 被设置时，所有的 `just` 变量都将作为环境变量被导出。
 
 #### 从环境中获取环境变量
 
@@ -1252,12 +1252,12 @@ HOME is '/home/myuser'
 
 #### 从 `.env` 文件加载环境变量
 
-如果 [dotenv-load](#dotenv-load) 被设置，`just` 将从 `.env` 文件中加载环境变量。该文件中的变量将作为环境变量提供给配方。参见 [dotenv-integration](#dotenv-integration) 以获得更多信息。
+如果 [dotenv-load](#环境变量加载) 被设置，`just` 将从 `.env` 文件中加载环境变量。该文件中的变量将作为环境变量提供给配方。参见 [环境变量集成](#env-集成) 以获得更多信息。
 
 #### 从环境变量中设置 `just` 变量
 
 环境变量可以通过函数 `env_var()` 和 `env_var_or_default()` 传入到 `just` 变量。
-参见 [environment-variables](#environment-variables)。
+参见 [environment-variables](#环境变量)。
 
 ### 配方参数
 
@@ -1878,3 +1878,190 @@ Trying ../justfile
 echo bar
 bar
 ```
+
+更新日志
+---------
+
+最新版本的更新日志可以在 [CHANGELOG.md](CHANGELOG.md) 中找到。以前版本的更新日志可在 [发布页](https://github.com/casey/just/releases) 找到。`just --changelog` 也可以用来使 `just` 二进制文件打印其更新日志。
+
+杂项
+-----------
+
+### 配套工具
+
+与 `just` 搭配得很好的工具包括：
+
+- [`watchexec`](https://github.com/mattgreen/watchexec) — 一个简单的工具，它监控一个路径，并在检测到修改时运行一个命令。
+
+### Shell 别名
+
+为了快速运行命令, 可以把 `alias j=just` 放在你的 Shell 配置文件中。
+
+在 `bash` 中，别名的命令可能不会保留下一节中描述的 Shell 自动补全功能。可以在你的 `.bashrc` 中添加以下一行，以便在你的别名命令中使用与 `just` 相同的自动补全功能：
+
+```sh
+complete -F _just -o bashdefault -o default j
+```
+
+### Shell 自动补全脚本
+
+Bash、Zsh、Fish、PowerShell 和 Elvish 的 Shell 自动补全脚本可以在 [自动补全](completions) 目录下找到。关于如何安装它们，请参考你的 Shell 文档。
+
+`just` 二进制文件也可以在运行时生成相同的自动补全脚本，使用 `--completions` 命令即可，如下：
+
+```sh
+$ just --completions zsh > just.zsh
+```
+
+### 语法
+
+在 [GRAMMAR.md](GRAMMAR.md) 中可以找到一个非正式的 `justfile` 语法说明。
+
+### just.sh
+
+在 `just` 成为一个精致的 Rust 程序之前，它是一个很小的 Shell 脚本，叫 `make`。你可以在 [extras/just.sh](extras/just.sh) 中找到旧版本。
+
+### 用户 `justfile`
+
+如果你想让一些配方在任何地方都能使用，你有几个选择。
+
+首先，在 `~/.user.justfile` 中创建一个带有一些配方的 `justfile`。
+
+#### 配方别名
+
+如果你想通过名称来调用 `~/.user.justfile` 中的配方，并且不介意为每个配方创建一个别名，可以在你的 Shell 初始化脚本中加入以下内容：
+
+```sh
+for recipe in `just --justfile ~/.user.justfile --summary`; do
+  alias $recipe="just --justfile ~/.user.justfile --working-directory . $recipe"
+done
+```
+
+现在，如果你在 `~/.user.justfile` 里有一个叫 `foo` 的配方，你可以在命令行输入 `foo` 来运行它。
+
+我花了很长时间才意识到你可以像这样创建配方别名。尽管有点迟，但我很高兴给你带来这个 `justfile` 技术的重大进步。
+
+#### 别名转发
+
+如果你不想为每个配方创建别名，你可以创建一个别名：
+
+```sh
+alias .j='just --justfile ~/.user.justfile --working-directory .'
+```
+
+现在，如果你在 `~/.user.justfile` 里有一个叫 `foo` 的配方，你可以在命令行输入 `.j foo` 来运行它。
+
+我很确定没有人真正使用这个功能，但它确实存在。
+
+¯\\\_(ツ)\_/¯
+
+#### 定制化
+
+你可以用额外的选项来定制上述别名。例如，如果你想让你的 `justfile` 中的配方在你的主目录中运行，而不是在当前目录中运行：
+
+```sh
+alias .j='just --justfile ~/.user.justfile --working-directory ~'
+```
+
+### Node.js `package.json` 脚本兼容性
+
+下面的导出语句使 `just` 配方能够访问本地 Node 模块二进制文件，并使 `just` 配方命令的行为更像 Node.js `package.json` 文件中的 `script` 条目：
+
+```make
+export PATH := "./node_modules/.bin:" + env_var('PATH')
+```
+
+### 替代方案
+
+现在并不缺少命令运行器！在这里，有一些或多或少比较类似于 `just` 的替代方案，包括：
+
+- [mmake](https://github.com/tj/mmake): 一个围绕 `make` 的包装器，有很多改进，包括远程引入。
+
+- [robo](https://github.com/tj/robo): 一个用 Go 编写的基于 YAML 的命令运行器。
+
+贡献
+------------
+
+`just` 欢迎你的贡献! `just` 是在最大许可的 [CC0](https://creativecommons.org/publicdomain/zero/1.0/legalcode.txt) 公共领域奉献和后备许可下发布的，所以你的修改也必须在这个许可下发布。
+
+### Janus
+
+[Janus](https://github.com/casey/janus) 是一个收集和分析 `justfile` 的工具，可以确定新版本的 `just` 是否会破坏或改变现有 `justfile` 的解析。
+
+在合并一个特别大的或可怕的变化之前，应该运行 `Janus` 以确保没有任何破坏。不要担心自己运行 `Janus`，Casey 会很乐意在需要时为你运行它。
+
+### 最小支持的 Rust 版本
+
+最低支持的 Rust 版本，即 MSRV，是 Rust 1.47.0。
+
+常见问题
+--------------------------
+
+### Just 避免了 Make 的哪些特异性？
+
+`make` 有一些行为令人感到困惑、复杂，或者使它不适合作为通用的命令运行器。
+
+一个例子是，在某些情况下，`make` 不会实际运行配方中的命令。例如，如果你有一个名为 `test` 的文件和以下 makefile：
+
+```make
+test:
+  ./test
+```
+
+`make` 将会拒绝运行你的测试：
+
+```sh
+$ make test
+make: `test' is up to date.
+```
+
+`make` 假定 `test` 配方产生一个名为 `test` 的文件。由于这个文件已经存在，而且由于配方没有其他依赖，`make` 认为它没有任何事情可做并退出。
+
+公平地说，当把 `make` 作为一个构建系统时，这种行为是可取的，但当把它作为一个命令运行器时就不可取了。你可以使用 `make` 内置的 [`.PHONY` 目标名称](https://www.gnu.org/software/make/manual/html_node/Phony-Targets.html) 为特定的目标禁用这种行为，但其语法很冗长，而且很难记住。明确的虚假目标列表与配方定义分开写，也带来了意外定义新的非虚假目标的风险。在 `just` 中，所有的配方都被当作是虚假的。
+
+其他 `make` 特异行为的例子包括赋值中 `=` 和 `:=` 的区别；如果你弄乱了你的 makefile，将会产生混乱的错误信息；需要 `$$` 在配方中使用环境变量；以及不同口味的 `make` 之间的不相容性。
+
+### Just 和 Cargo 构建脚本之间有什么关系？
+
+[`cargo` 构建脚本](http://doc.crates.io/build-script.html) 有一个相当特定的用途，就是控制 `cargo` 如何构建你的 Rust 项目。这可能包括给 `rustc` 调用添加标志，构建外部依赖，或运行某种 codegen 步骤。
+
+另一方面，`just` 是用于你可能在开发中会运行的所有其他的杂项命令。比如在不同的配置下运行测试，对代码进行检查，将构建的产出推送到服务器，删除临时文件，等等。
+
+另外，尽管 `just` 是用 Rust 编写的，但它可以被用于任何语言或项目使用的构建系统。
+
+进一步漫谈
+-----------------
+
+我个人认为为几乎每个项目写一个 `justfile` 非常有用，无论大小。
+
+在一个有多个贡献者的大项目中，有一个包含项目工作所需的所有命令的文件是非常有用的，这样所有命令唾手可得。
+
+可能有不同的命令来测试、构建、检查、部署等等，把它们都放在一个地方是很方便的，可以减少你花在告诉人们要运行哪些命令和如何输入这些命令的时间。
+
+而且，有了一个容易放置命令的地方，你很可能会想出其他有用的东西，这些东西是项目集体智慧的一部分，但没有写在任何地方，比如修订控制工作流程的某些部分需要的神秘命令，安装你项目的所有依赖，或者你可能需要传递给构建系统的所有任意标志等。
+
+一些关于配方的想法：
+
+- 部署/发布项目
+
+- 在发布模式与调试模式下进行构建
+
+- 在调试模式下运行或启用日志记录功能
+
+- 复杂的 git 工作流程
+
+- 更新依赖
+
+- 运行不同的测试集，例如快速测试与慢速测试，或以更多输出模式运行它们
+
+- 任何复杂的命令集，你真的应该写下来，如果只是为了能够记住它们的话
+
+即使是小型的个人项目，能够通过名字记住命令，而不是通过 ^Reverse 搜索你的 Shell 历史，这也是一个巨大的福音，能够进入一个用任意语言编写的旧项目，并知道你需要用到的所有命令都在 `justfile` 中，如果你输入 `just`，就可能会输出一些有用的（或至少是有趣的！）信息。
+
+关于配方的想法，请查看 [这个项目的 `justfile`](justfile)，或一些 [在其他项目里](https://github.com/search?o=desc&q=filename%3Ajustfile&s=indexed&type=Code) 的 `justfile`。
+
+总之，我想这个令人难以置信地啰嗦的 README 就到此为止了。
+
+我希望你喜欢使用 `just`，并在你所有的计算工作中找到巨大的成功和满足！
+
+😸
