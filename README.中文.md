@@ -299,6 +299,10 @@ augroup END
 code --install-extension skellock.just
 ```
 
+### JetBrains IDEs
+
+由 [linux_china](https://github.com/linux-china) 为 JetBrains IDEs 提供的插件可 [由此获得](https://plugins.jetbrains.com/plugin/18658-just)。
+
 ### Kakoune
 
 Kakoune 已经内置支持 `justfile` 语法高亮，这要感谢 TeddyDD。
@@ -399,7 +403,7 @@ testing… all tests passed!
 示例
 --------
 
-在 [Examples 目录](examples) 中可以找到各种 `justfile` 的例子。
+在 [Examples 目录](https://github.com/casey/just/tree/master/examples) 中可以找到各种 `justfile` 的例子。
 
 特性介绍
 --------
@@ -667,9 +671,22 @@ foo:
 
 `just` 把要执行的命令作为一个参数进行传递。许多 Shell 需要一个额外的标志，通常是 `-c`，以使它们评估执行第一个参数。
 
+##### Windows Shell
+
+`just` 在 Windows 上默认使用 `sh`。要在 Windows 上使用不同的 Shell，请使用`windows-shell`：
+
+```make
+set windows-shell := ["pwsh.exe", "-NoLogo", "-Command"]
+
+hello:
+  Write-Host "Hello, world!"
+```
+
 ##### Windows PowerShell
 
-`just` 在 Windows 上默认使用 `sh`。要使用 PowerShell，请将 `windows-powershell` 设置为 `true`。
+*`set windows-powershell` 使用遗留的 `powershell.exe` 二进制文件，不再推荐。请参阅上面的 `windows-shell` 设置，以通过更灵活的方式来控制在 Windows 上使用哪个 Shell。*
+
+`just` 在 Windows 上默认使用 `sh`。要使用 `powershell.exe` 作为替代，请将 `windows-powershell` 设置为 `true`。
 
 ```make
 set windows-powershell := true
@@ -2038,7 +2055,7 @@ make: `test' is up to date.
 
 可能有不同的命令来测试、构建、检查、部署等等，把它们都放在一个地方是很方便的，可以减少你花在告诉人们要运行哪些命令和如何输入这些命令的时间。
 
-而且，有了一个容易放置命令的地方，你很可能会想出其他有用的东西，这些东西是项目集体智慧的一部分，但没有写在任何地方，比如修订控制工作流程的某些部分需要的神秘命令，安装你项目的所有依赖，或者你可能需要传递给构建系统的所有任意标志等。
+而且，有了一个容易放置命令的地方，你很可能会想出其他有用的东西，这些东西是项目集体智慧的一部分，但没有写在任何地方，比如修订控制工作流程的某些部分需要的神秘命令，安装你项目的所有依赖，或者所有你可能需要传递给构建系统的任意标志等。
 
 一些关于配方的想法：
 
