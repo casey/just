@@ -29,7 +29,7 @@ This readme is also available as a [book](https://just.systems/man/en/);
 
 Commands, called recipes, are stored in a file called `justfile` with syntax inspired by `make`:
 
-![screenshot](screenshot.png)
+![screenshot](https://raw.githubusercontent.com/casey/just/master/screenshot.png)
 
 You can then run them with `just RECIPE`:
 
