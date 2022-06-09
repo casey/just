@@ -1,0 +1,236 @@
+<!DOCTYPE HTML>
+<html lang="zh" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Introduction - Just Programmer&#x27;s Manual</title>
+        <!-- Custom HTML head -->
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded "><a href="chapter_1.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="chapter_2.html"><strong aria-hidden="true">1.1.</strong> 安装</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="chapter_3.html"><strong aria-hidden="true">1.1.1.</strong> 预备知识</a></li><li class="chapter-item expanded "><a href="chapter_4.html"><strong aria-hidden="true">1.1.2.</strong> 安装包</a></li><li class="chapter-item expanded "><a href="chapter_5.html"><strong aria-hidden="true">1.1.3.</strong> 预制二进制文件</a></li><li class="chapter-item expanded "><a href="chapter_6.html"><strong aria-hidden="true">1.1.4.</strong> GitHub Actions</a></li><li class="chapter-item expanded "><a href="chapter_7.html"><strong aria-hidden="true">1.1.5.</strong> 发布 RSS 订阅</a></li></ol></li><li class="chapter-item expanded "><a href="chapter_8.html"><strong aria-hidden="true">1.2.</strong> 向后兼容性</a></li><li class="chapter-item expanded "><a href="chapter_9.html"><strong aria-hidden="true">1.3.</strong> 编辑器支持</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="chapter_10.html"><strong aria-hidden="true">1.3.1.</strong> Vim 和 Neovim</a></li><li class="chapter-item expanded "><a href="chapter_11.html"><strong aria-hidden="true">1.3.2.</strong> Emacs</a></li><li class="chapter-item expanded "><a href="chapter_12.html"><strong aria-hidden="true">1.3.3.</strong> Visual Studio Code</a></li><li class="chapter-item expanded "><a href="chapter_13.html"><strong aria-hidden="true">1.3.4.</strong> JetBrains IDEs</a></li><li class="chapter-item expanded "><a href="chapter_14.html"><strong aria-hidden="true">1.3.5.</strong> Kakoune</a></li><li class="chapter-item expanded "><a href="chapter_15.html"><strong aria-hidden="true">1.3.6.</strong> Sublime Text</a></li><li class="chapter-item expanded "><a href="chapter_16.html"><strong aria-hidden="true">1.3.7.</strong> 其它编辑器</a></li></ol></li><li class="chapter-item expanded "><a href="chapter_17.html"><strong aria-hidden="true">1.4.</strong> 快速开始</a></li><li class="chapter-item expanded "><a href="chapter_18.html"><strong aria-hidden="true">1.5.</strong> 示例</a></li><li class="chapter-item expanded "><a href="chapter_19.html"><strong aria-hidden="true">1.6.</strong> 特性介绍</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="chapter_20.html"><strong aria-hidden="true">1.6.1.</strong> 默认配方</a></li><li class="chapter-item expanded "><a href="chapter_21.html"><strong aria-hidden="true">1.6.2.</strong> 列出可用的配方</a></li><li class="chapter-item expanded "><a href="chapter_22.html"><strong aria-hidden="true">1.6.3.</strong> 别名</a></li><li class="chapter-item expanded "><a href="chapter_23.html"><strong aria-hidden="true">1.6.4.</strong> 设置</a></li><li class="chapter-item expanded "><a href="chapter_24.html"><strong aria-hidden="true">1.6.5.</strong> 文档注释</a></li><li class="chapter-item expanded "><a href="chapter_25.html"><strong aria-hidden="true">1.6.6.</strong> .env 集成</a></li><li class="chapter-item expanded "><a href="chapter_26.html"><strong aria-hidden="true">1.6.7.</strong> 变量和替换</a></li><li class="chapter-item expanded "><a href="chapter_27.html"><strong aria-hidden="true">1.6.8.</strong> 字符串</a></li><li class="chapter-item expanded "><a href="chapter_28.html"><strong aria-hidden="true">1.6.9.</strong> 错误忽略</a></li><li class="chapter-item expanded "><a href="chapter_29.html"><strong aria-hidden="true">1.6.10.</strong> 函数</a></li><li class="chapter-item expanded "><a href="chapter_30.html"><strong aria-hidden="true">1.6.11.</strong> 使用反引号的命令求值</a></li><li class="chapter-item expanded "><a href="chapter_31.html"><strong aria-hidden="true">1.6.12.</strong> 条件表达式</a></li><li class="chapter-item expanded "><a href="chapter_32.html"><strong aria-hidden="true">1.6.13.</strong> 出现错误停止执行</a></li><li class="chapter-item expanded "><a href="chapter_33.html"><strong aria-hidden="true">1.6.14.</strong> 从命令行设置变量</a></li><li class="chapter-item expanded "><a href="chapter_34.html"><strong aria-hidden="true">1.6.15.</strong> 获取和设置环境变量</a></li><li class="chapter-item expanded "><a href="chapter_35.html"><strong aria-hidden="true">1.6.16.</strong> 配方参数</a></li><li class="chapter-item expanded "><a href="chapter_36.html"><strong aria-hidden="true">1.6.17.</strong> 在配方的末尾运行配方</a></li><li class="chapter-item expanded "><a href="chapter_37.html"><strong aria-hidden="true">1.6.18.</strong> 在配方中间运行配方</a></li><li class="chapter-item expanded "><a href="chapter_38.html"><strong aria-hidden="true">1.6.19.</strong> 用其他语言书写配方</a></li><li class="chapter-item expanded "><a href="chapter_39.html"><strong aria-hidden="true">1.6.20.</strong> 更加安全的 Bash Shebang 配方</a></li><li class="chapter-item expanded "><a href="chapter_40.html"><strong aria-hidden="true">1.6.21.</strong> 在配方中设置变量</a></li><li class="chapter-item expanded "><a href="chapter_41.html"><strong aria-hidden="true">1.6.22.</strong> 改变配方中的工作目录</a></li><li class="chapter-item expanded "><a href="chapter_42.html"><strong aria-hidden="true">1.6.23.</strong> 缩进</a></li><li class="chapter-item expanded "><a href="chapter_43.html"><strong aria-hidden="true">1.6.24.</strong> 多行结构</a></li><li class="chapter-item expanded "><a href="chapter_44.html"><strong aria-hidden="true">1.6.25.</strong> 命令行选项</a></li><li class="chapter-item expanded "><a href="chapter_45.html"><strong aria-hidden="true">1.6.26.</strong> 私有配方</a></li><li class="chapter-item expanded "><a href="chapter_46.html"><strong aria-hidden="true">1.6.27.</strong> 安静配方</a></li><li class="chapter-item expanded "><a href="chapter_47.html"><strong aria-hidden="true">1.6.28.</strong> 通过交互式选择器选择要运行的配方</a></li><li class="chapter-item expanded "><a href="chapter_48.html"><strong aria-hidden="true">1.6.29.</strong> 在其他目录下调用 justfile</a></li><li class="chapter-item expanded "><a href="chapter_49.html"><strong aria-hidden="true">1.6.30.</strong> 隐藏 justfile</a></li><li class="chapter-item expanded "><a href="chapter_50.html"><strong aria-hidden="true">1.6.31.</strong> Just 脚本</a></li><li class="chapter-item expanded "><a href="chapter_51.html"><strong aria-hidden="true">1.6.32.</strong> 将 justfile 转为JSON文件</a></li><li class="chapter-item expanded "><a href="chapter_52.html"><strong aria-hidden="true">1.6.33.</strong> 回退到父 justfile</a></li></ol></li><li class="chapter-item expanded "><a href="chapter_53.html"><strong aria-hidden="true">1.7.</strong> 更新日志</a></li><li class="chapter-item expanded "><a href="chapter_54.html"><strong aria-hidden="true">1.8.</strong> 杂项</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="chapter_55.html"><strong aria-hidden="true">1.8.1.</strong> 配套工具</a></li><li class="chapter-item expanded "><a href="chapter_56.html"><strong aria-hidden="true">1.8.2.</strong> Shell 别名</a></li><li class="chapter-item expanded "><a href="chapter_57.html"><strong aria-hidden="true">1.8.3.</strong> Shell 自动补全脚本</a></li><li class="chapter-item expanded "><a href="chapter_58.html"><strong aria-hidden="true">1.8.4.</strong> 语法</a></li><li class="chapter-item expanded "><a href="chapter_59.html"><strong aria-hidden="true">1.8.5.</strong> just.sh</a></li><li class="chapter-item expanded "><a href="chapter_60.html"><strong aria-hidden="true">1.8.6.</strong> 用户 justfile</a></li><li class="chapter-item expanded "><a href="chapter_61.html"><strong aria-hidden="true">1.8.7.</strong> Node.js package.json 脚本兼容性</a></li><li class="chapter-item expanded "><a href="chapter_62.html"><strong aria-hidden="true">1.8.8.</strong> 替代方案</a></li></ol></li><li class="chapter-item expanded "><a href="chapter_63.html"><strong aria-hidden="true">1.9.</strong> 贡献</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="chapter_64.html"><strong aria-hidden="true">1.9.1.</strong> Janus</a></li><li class="chapter-item expanded "><a href="chapter_65.html"><strong aria-hidden="true">1.9.2.</strong> 最小支持的 Rust 版本</a></li></ol></li><li class="chapter-item expanded "><a href="chapter_66.html"><strong aria-hidden="true">1.10.</strong> 常见问题</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="chapter_67.html"><strong aria-hidden="true">1.10.1.</strong> Just 避免了 Make 的哪些特异性？</a></li><li class="chapter-item expanded "><a href="chapter_68.html"><strong aria-hidden="true">1.10.2.</strong> Just 和 Cargo 构建脚本之间有什么关系？</a></li></ol></li><li class="chapter-item expanded "><a href="chapter_69.html"><strong aria-hidden="true">1.11.</strong> 进一步漫谈</a></li></ol></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Just Programmer&#x27;s Manual</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 align="center"><code>just</code></h1>
+<div align="center">
+  <a href="https://crates.io/crates/just">
+    <img src="https://img.shields.io/crates/v/just.svg" alt="crates.io version">
+  </a>
+  <a href="https://github.com/casey/just/actions">
+    <img src="https://github.com/casey/just/workflows/Build/badge.svg" alt="build status">
+  </a>
+  <a href="https://github.com/casey/just/releases">
+    <img src="https://img.shields.io/github/downloads/casey/just/total.svg" alt="downloads">
+  </a>
+  <a href="https://discord.gg/ezYScXR">
+    <img src="https://img.shields.io/discord/695580069837406228?logo=discord" alt="chat on discord">
+  </a>
+  <a href="mailto:casey@rodarmor.com?subject=Thanks%20for%20Just!">
+    <img src="https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg" alt="say thanks">
+  </a>
+</div>
+<br>
+<p><code>just</code> 为您提供一种保存和运行项目特有命令的便捷方式。</p>
+<p>本指南同时也可以以 <a href="https://just.systems/man/zh/">书</a> 的形式提供在线阅读；</p>
+<p>命令，在此也称为配方，存储在一个名为 <code>justfile</code> 的文件中，其语法受 <code>make</code> 启发：</p>
+<p><img src="screenshot.png" alt="screenshot" /></p>
+<p>然后你可以用 <code>just RECIPE</code> 运行它们：</p>
+<pre><code class="language-sh">$ just test-all
+cc *.c -o main
+./test --all
+Yay, all your tests passed!
+</code></pre>
+<p><code>just</code> 有很多很棒的特性，而且相比 <code>make</code> 有很多改进：</p>
+<ul>
+<li>
+<p><code>just</code> 是一个命令运行器，而不是一个构建系统，所以它避免了许多 <a href="#just-%E9%81%BF%E5%85%8D%E4%BA%86-make-%E7%9A%84%E5%93%AA%E4%BA%9B%E7%89%B9%E5%BC%82%E6%80%A7"><code>make</code> 的复杂性和特异性</a>。不需要 <code>.PHONY</code> 配方!</p>
+</li>
+<li>
+<p>支持 Linux、MacOS 和 Windows，而且无需额外的依赖。(尽管如果你的系统没有 <code>sh</code>，你需要 <a href="#shell">选择一个不同的 Shell</a>)。</p>
+</li>
+<li>
+<p>错误具体且富有参考价值，语法错误将会与产生它们的上下文一起被报告。</p>
+</li>
+<li>
+<p>配方可以接受 <a href="#%E9%85%8D%E6%96%B9%E5%8F%82%E6%95%B0">命令行参数</a>。</p>
+</li>
+<li>
+<p>错误会尽可能被静态地解决。未知的配方和循环依赖关系会在运行之前被报告。</p>
+</li>
+<li>
+<p><code>just</code> 可以 <a href="#env-%E9%9B%86%E6%88%90">加载<code>.env</code>文件</a>，简化环境变量注入。</p>
+</li>
+<li>
+<p>配方可以在 <a href="#%E5%88%97%E5%87%BA%E5%8F%AF%E7%94%A8%E7%9A%84%E9%85%8D%E6%96%B9">命令行中列出</a>。</p>
+</li>
+<li>
+<p>命令行自动补全脚本 <a href="#shell-%E8%87%AA%E5%8A%A8%E8%A1%A5%E5%85%A8%E8%84%9A%E6%9C%AC">支持大多数流行的 Shell</a>。</p>
+</li>
+<li>
+<p>配方可以用 <a href="#%E7%94%A8%E5%85%B6%E4%BB%96%E8%AF%AD%E8%A8%80%E4%B9%A6%E5%86%99%E9%85%8D%E6%96%B9">任意语言</a> 编写，如 Python 或 NodeJS。</p>
+</li>
+<li>
+<p><code>just</code> 可以从任何子目录中调用，而不仅仅是包含 <code>justfile</code> 的目录。</p>
+</li>
+<li>
+<p>不仅如此，还有 <a href="https://just.systems/man/">更多</a>！</p>
+</li>
+</ul>
+<p>如果你在使用 <code>just</code> 方面需要帮助，请随时创建一个 Issue 或在 <a href="https://discord.gg/ezYScXR">Discord</a> 上与我联系。我们随时欢迎功能请求和错误报告！</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="next" href="chapter_2.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="next" href="chapter_2.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+    </body>
+</html>

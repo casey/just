@@ -1,0 +1,1588 @@
+<!DOCTYPE HTML>
+<html lang="zh" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Just Programmer&#x27;s Manual</title>
+        <meta name="robots" content="noindex" />
+        <!-- Custom HTML head -->
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded "><a href="chapter_1.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="chapter_2.html"><strong aria-hidden="true">1.1.</strong> 安装</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="chapter_3.html"><strong aria-hidden="true">1.1.1.</strong> 预备知识</a></li><li class="chapter-item expanded "><a href="chapter_4.html"><strong aria-hidden="true">1.1.2.</strong> 安装包</a></li><li class="chapter-item expanded "><a href="chapter_5.html"><strong aria-hidden="true">1.1.3.</strong> 预制二进制文件</a></li><li class="chapter-item expanded "><a href="chapter_6.html"><strong aria-hidden="true">1.1.4.</strong> GitHub Actions</a></li><li class="chapter-item expanded "><a href="chapter_7.html"><strong aria-hidden="true">1.1.5.</strong> 发布 RSS 订阅</a></li></ol></li><li class="chapter-item expanded "><a href="chapter_8.html"><strong aria-hidden="true">1.2.</strong> 向后兼容性</a></li><li class="chapter-item expanded "><a href="chapter_9.html"><strong aria-hidden="true">1.3.</strong> 编辑器支持</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="chapter_10.html"><strong aria-hidden="true">1.3.1.</strong> Vim 和 Neovim</a></li><li class="chapter-item expanded "><a href="chapter_11.html"><strong aria-hidden="true">1.3.2.</strong> Emacs</a></li><li class="chapter-item expanded "><a href="chapter_12.html"><strong aria-hidden="true">1.3.3.</strong> Visual Studio Code</a></li><li class="chapter-item expanded "><a href="chapter_13.html"><strong aria-hidden="true">1.3.4.</strong> JetBrains IDEs</a></li><li class="chapter-item expanded "><a href="chapter_14.html"><strong aria-hidden="true">1.3.5.</strong> Kakoune</a></li><li class="chapter-item expanded "><a href="chapter_15.html"><strong aria-hidden="true">1.3.6.</strong> Sublime Text</a></li><li class="chapter-item expanded "><a href="chapter_16.html"><strong aria-hidden="true">1.3.7.</strong> 其它编辑器</a></li></ol></li><li class="chapter-item expanded "><a href="chapter_17.html"><strong aria-hidden="true">1.4.</strong> 快速开始</a></li><li class="chapter-item expanded "><a href="chapter_18.html"><strong aria-hidden="true">1.5.</strong> 示例</a></li><li class="chapter-item expanded "><a href="chapter_19.html"><strong aria-hidden="true">1.6.</strong> 特性介绍</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="chapter_20.html"><strong aria-hidden="true">1.6.1.</strong> 默认配方</a></li><li class="chapter-item expanded "><a href="chapter_21.html"><strong aria-hidden="true">1.6.2.</strong> 列出可用的配方</a></li><li class="chapter-item expanded "><a href="chapter_22.html"><strong aria-hidden="true">1.6.3.</strong> 别名</a></li><li class="chapter-item expanded "><a href="chapter_23.html"><strong aria-hidden="true">1.6.4.</strong> 设置</a></li><li class="chapter-item expanded "><a href="chapter_24.html"><strong aria-hidden="true">1.6.5.</strong> 文档注释</a></li><li class="chapter-item expanded "><a href="chapter_25.html"><strong aria-hidden="true">1.6.6.</strong> .env 集成</a></li><li class="chapter-item expanded "><a href="chapter_26.html"><strong aria-hidden="true">1.6.7.</strong> 变量和替换</a></li><li class="chapter-item expanded "><a href="chapter_27.html"><strong aria-hidden="true">1.6.8.</strong> 字符串</a></li><li class="chapter-item expanded "><a href="chapter_28.html"><strong aria-hidden="true">1.6.9.</strong> 错误忽略</a></li><li class="chapter-item expanded "><a href="chapter_29.html"><strong aria-hidden="true">1.6.10.</strong> 函数</a></li><li class="chapter-item expanded "><a href="chapter_30.html"><strong aria-hidden="true">1.6.11.</strong> 使用反引号的命令求值</a></li><li class="chapter-item expanded "><a href="chapter_31.html"><strong aria-hidden="true">1.6.12.</strong> 条件表达式</a></li><li class="chapter-item expanded "><a href="chapter_32.html"><strong aria-hidden="true">1.6.13.</strong> 出现错误停止执行</a></li><li class="chapter-item expanded "><a href="chapter_33.html"><strong aria-hidden="true">1.6.14.</strong> 从命令行设置变量</a></li><li class="chapter-item expanded "><a href="chapter_34.html"><strong aria-hidden="true">1.6.15.</strong> 获取和设置环境变量</a></li><li class="chapter-item expanded "><a href="chapter_35.html"><strong aria-hidden="true">1.6.16.</strong> 配方参数</a></li><li class="chapter-item expanded "><a href="chapter_36.html"><strong aria-hidden="true">1.6.17.</strong> 在配方的末尾运行配方</a></li><li class="chapter-item expanded "><a href="chapter_37.html"><strong aria-hidden="true">1.6.18.</strong> 在配方中间运行配方</a></li><li class="chapter-item expanded "><a href="chapter_38.html"><strong aria-hidden="true">1.6.19.</strong> 用其他语言书写配方</a></li><li class="chapter-item expanded "><a href="chapter_39.html"><strong aria-hidden="true">1.6.20.</strong> 更加安全的 Bash Shebang 配方</a></li><li class="chapter-item expanded "><a href="chapter_40.html"><strong aria-hidden="true">1.6.21.</strong> 在配方中设置变量</a></li><li class="chapter-item expanded "><a href="chapter_41.html"><strong aria-hidden="true">1.6.22.</strong> 改变配方中的工作目录</a></li><li class="chapter-item expanded "><a href="chapter_42.html"><strong aria-hidden="true">1.6.23.</strong> 缩进</a></li><li class="chapter-item expanded "><a href="chapter_43.html"><strong aria-hidden="true">1.6.24.</strong> 多行结构</a></li><li class="chapter-item expanded "><a href="chapter_44.html"><strong aria-hidden="true">1.6.25.</strong> 命令行选项</a></li><li class="chapter-item expanded "><a href="chapter_45.html"><strong aria-hidden="true">1.6.26.</strong> 私有配方</a></li><li class="chapter-item expanded "><a href="chapter_46.html"><strong aria-hidden="true">1.6.27.</strong> 安静配方</a></li><li class="chapter-item expanded "><a href="chapter_47.html"><strong aria-hidden="true">1.6.28.</strong> 通过交互式选择器选择要运行的配方</a></li><li class="chapter-item expanded "><a href="chapter_48.html"><strong aria-hidden="true">1.6.29.</strong> 在其他目录下调用 justfile</a></li><li class="chapter-item expanded "><a href="chapter_49.html"><strong aria-hidden="true">1.6.30.</strong> 隐藏 justfile</a></li><li class="chapter-item expanded "><a href="chapter_50.html"><strong aria-hidden="true">1.6.31.</strong> Just 脚本</a></li><li class="chapter-item expanded "><a href="chapter_51.html"><strong aria-hidden="true">1.6.32.</strong> 将 justfile 转为JSON文件</a></li><li class="chapter-item expanded "><a href="chapter_52.html"><strong aria-hidden="true">1.6.33.</strong> 回退到父 justfile</a></li></ol></li><li class="chapter-item expanded "><a href="chapter_53.html"><strong aria-hidden="true">1.7.</strong> 更新日志</a></li><li class="chapter-item expanded "><a href="chapter_54.html"><strong aria-hidden="true">1.8.</strong> 杂项</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="chapter_55.html"><strong aria-hidden="true">1.8.1.</strong> 配套工具</a></li><li class="chapter-item expanded "><a href="chapter_56.html"><strong aria-hidden="true">1.8.2.</strong> Shell 别名</a></li><li class="chapter-item expanded "><a href="chapter_57.html"><strong aria-hidden="true">1.8.3.</strong> Shell 自动补全脚本</a></li><li class="chapter-item expanded "><a href="chapter_58.html"><strong aria-hidden="true">1.8.4.</strong> 语法</a></li><li class="chapter-item expanded "><a href="chapter_59.html"><strong aria-hidden="true">1.8.5.</strong> just.sh</a></li><li class="chapter-item expanded "><a href="chapter_60.html"><strong aria-hidden="true">1.8.6.</strong> 用户 justfile</a></li><li class="chapter-item expanded "><a href="chapter_61.html"><strong aria-hidden="true">1.8.7.</strong> Node.js package.json 脚本兼容性</a></li><li class="chapter-item expanded "><a href="chapter_62.html"><strong aria-hidden="true">1.8.8.</strong> 替代方案</a></li></ol></li><li class="chapter-item expanded "><a href="chapter_63.html"><strong aria-hidden="true">1.9.</strong> 贡献</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="chapter_64.html"><strong aria-hidden="true">1.9.1.</strong> Janus</a></li><li class="chapter-item expanded "><a href="chapter_65.html"><strong aria-hidden="true">1.9.2.</strong> 最小支持的 Rust 版本</a></li></ol></li><li class="chapter-item expanded "><a href="chapter_66.html"><strong aria-hidden="true">1.10.</strong> 常见问题</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="chapter_67.html"><strong aria-hidden="true">1.10.1.</strong> Just 避免了 Make 的哪些特异性？</a></li><li class="chapter-item expanded "><a href="chapter_68.html"><strong aria-hidden="true">1.10.2.</strong> Just 和 Cargo 构建脚本之间有什么关系？</a></li></ol></li><li class="chapter-item expanded "><a href="chapter_69.html"><strong aria-hidden="true">1.11.</strong> 进一步漫谈</a></li></ol></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Just Programmer&#x27;s Manual</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 align="center"><code>just</code></h1>
+<div align="center">
+  <a href="https://crates.io/crates/just">
+    <img src="https://img.shields.io/crates/v/just.svg" alt="crates.io version">
+  </a>
+  <a href="https://github.com/casey/just/actions">
+    <img src="https://github.com/casey/just/workflows/Build/badge.svg" alt="build status">
+  </a>
+  <a href="https://github.com/casey/just/releases">
+    <img src="https://img.shields.io/github/downloads/casey/just/total.svg" alt="downloads">
+  </a>
+  <a href="https://discord.gg/ezYScXR">
+    <img src="https://img.shields.io/discord/695580069837406228?logo=discord" alt="chat on discord">
+  </a>
+  <a href="mailto:casey@rodarmor.com?subject=Thanks%20for%20Just!">
+    <img src="https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg" alt="say thanks">
+  </a>
+</div>
+<br>
+<p><code>just</code> 为您提供一种保存和运行项目特有命令的便捷方式。</p>
+<p>本指南同时也可以以 <a href="https://just.systems/man/zh/">书</a> 的形式提供在线阅读；</p>
+<p>命令，在此也称为配方，存储在一个名为 <code>justfile</code> 的文件中，其语法受 <code>make</code> 启发：</p>
+<p><img src="screenshot.png" alt="screenshot" /></p>
+<p>然后你可以用 <code>just RECIPE</code> 运行它们：</p>
+<pre><code class="language-sh">$ just test-all
+cc *.c -o main
+./test --all
+Yay, all your tests passed!
+</code></pre>
+<p><code>just</code> 有很多很棒的特性，而且相比 <code>make</code> 有很多改进：</p>
+<ul>
+<li>
+<p><code>just</code> 是一个命令运行器，而不是一个构建系统，所以它避免了许多 <a href="chapter_1.html#just-%E9%81%BF%E5%85%8D%E4%BA%86-make-%E7%9A%84%E5%93%AA%E4%BA%9B%E7%89%B9%E5%BC%82%E6%80%A7"><code>make</code> 的复杂性和特异性</a>。不需要 <code>.PHONY</code> 配方!</p>
+</li>
+<li>
+<p>支持 Linux、MacOS 和 Windows，而且无需额外的依赖。(尽管如果你的系统没有 <code>sh</code>，你需要 <a href="chapter_1.html#shell">选择一个不同的 Shell</a>)。</p>
+</li>
+<li>
+<p>错误具体且富有参考价值，语法错误将会与产生它们的上下文一起被报告。</p>
+</li>
+<li>
+<p>配方可以接受 <a href="chapter_1.html#%E9%85%8D%E6%96%B9%E5%8F%82%E6%95%B0">命令行参数</a>。</p>
+</li>
+<li>
+<p>错误会尽可能被静态地解决。未知的配方和循环依赖关系会在运行之前被报告。</p>
+</li>
+<li>
+<p><code>just</code> 可以 <a href="chapter_1.html#env-%E9%9B%86%E6%88%90">加载<code>.env</code>文件</a>，简化环境变量注入。</p>
+</li>
+<li>
+<p>配方可以在 <a href="chapter_1.html#%E5%88%97%E5%87%BA%E5%8F%AF%E7%94%A8%E7%9A%84%E9%85%8D%E6%96%B9">命令行中列出</a>。</p>
+</li>
+<li>
+<p>命令行自动补全脚本 <a href="chapter_1.html#shell-%E8%87%AA%E5%8A%A8%E8%A1%A5%E5%85%A8%E8%84%9A%E6%9C%AC">支持大多数流行的 Shell</a>。</p>
+</li>
+<li>
+<p>配方可以用 <a href="chapter_1.html#%E7%94%A8%E5%85%B6%E4%BB%96%E8%AF%AD%E8%A8%80%E4%B9%A6%E5%86%99%E9%85%8D%E6%96%B9">任意语言</a> 编写，如 Python 或 NodeJS。</p>
+</li>
+<li>
+<p><code>just</code> 可以从任何子目录中调用，而不仅仅是包含 <code>justfile</code> 的目录。</p>
+</li>
+<li>
+<p>不仅如此，还有 <a href="https://just.systems/man/">更多</a>！</p>
+</li>
+</ul>
+<p>如果你在使用 <code>just</code> 方面需要帮助，请随时创建一个 Issue 或在 <a href="https://discord.gg/ezYScXR">Discord</a> 上与我联系。我们随时欢迎功能请求和错误报告！</p>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="安装"><a class="header" href="#安装">安装</a></h2>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="预备知识"><a class="header" href="#预备知识">预备知识</a></h3>
+<p><code>just</code> 应该可以在任何有合适的 <code>sh</code> 的系统上运行，包括 Linux、MacOS 和 BSD。</p>
+<p>在 Windows 上，<code>just</code> 可以使用 <a href="https://git-scm.com">Git for Windows</a>、<a href="https://desktop.github.com">GitHub Desktop</a> 或 <a href="http://www.cygwin.com">Cygwin</a> 所提供的 <code>sh</code>。</p>
+<p>如果你不愿意安装 <code>sh</code>，也可以使用 <code>shell</code> 设置来指定你要使用的 Shell。</p>
+<p>比如 PowerShell：</p>
+<pre><code class="language-make"># 使用 PowerShell 替代 sh:
+set shell := [&quot;powershell.exe&quot;, &quot;-c&quot;]
+
+hello:
+  Write-Host &quot;Hello, world!&quot;
+</code></pre>
+<p>…或者 <code>cmd.exe</code>:</p>
+<pre><code class="language-make"># 使用 cmd.exe 替代 sh:
+set shell := [&quot;cmd.exe&quot;, &quot;/c&quot;]
+
+list:
+  dir
+</code></pre>
+<p>你也可以使用命令行参数来设置 Shell。例如，若要使用 PowerShell 也可以用 <code>--shell powershell.exe --shell-arg -c</code> 启动<code>just</code>。</p>
+<p>(PowerShell 默认安装在 Windows 7 SP1 和 Windows Server 2008 R2 S1 及更高版本上，而 <code>cmd.exe</code> 相当麻烦，所以 PowerShell 被推荐给大多数 Windows 用户)</p>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="安装包"><a class="header" href="#安装包">安装包</a></h3>
+<table><thead><tr><th>操作系统</th><th>包管理器</th><th>安装包</th><th>命令</th></tr></thead><tbody>
+<tr><td><a href="https://forge.rust-lang.org/release/platform-support.html">Various</a></td><td><a href="https://www.rust-lang.org">Cargo</a></td><td><a href="https://crates.io/crates/just">just</a></td><td><code>cargo install just</code></td></tr>
+<tr><td><a href="https://en.wikipedia.org/wiki/Microsoft_Windows">Microsoft Windows</a></td><td><a href="https://scoop.sh">Scoop</a></td><td><a href="https://github.com/ScoopInstaller/Main/blob/master/bucket/just.json">just</a></td><td><code>scoop install just</code></td></tr>
+<tr><td><a href="https://docs.brew.sh/Installation">Various</a></td><td><a href="https://brew.sh">Homebrew</a></td><td><a href="https://formulae.brew.sh/formula/just">just</a></td><td><code>brew install just</code></td></tr>
+<tr><td><a href="https://en.wikipedia.org/wiki/MacOS">macOS</a></td><td><a href="https://www.macports.org">MacPorts</a></td><td><a href="https://ports.macports.org/port/just/summary">just</a></td><td><code>port install just</code></td></tr>
+<tr><td><a href="https://www.archlinux.org">Arch Linux</a></td><td><a href="https://wiki.archlinux.org/title/Pacman">pacman</a></td><td><a href="https://archlinux.org/packages/community/x86_64/just/">just</a></td><td><code>pacman -S just</code></td></tr>
+<tr><td><a href="https://nixos.org/download.html#download-nix">Various</a></td><td><a href="https://nixos.org/nix/">Nix</a></td><td><a href="https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/tools/just/default.nix">just</a></td><td><code>nix-env -iA nixpkgs.just</code></td></tr>
+<tr><td><a href="https://nixos.org/nixos/">NixOS</a></td><td><a href="https://nixos.org/nix/">Nix</a></td><td><a href="https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/tools/just/default.nix">just</a></td><td><code>nix-env -iA nixos.just</code></td></tr>
+<tr><td><a href="https://getsol.us/">Solus</a></td><td><a href="https://getsol.us/articles/package-management/basics/en">eopkg</a></td><td><a href="https://dev.getsol.us/source/just/">just</a></td><td><code>eopkg install just</code></td></tr>
+<tr><td><a href="https://voidlinux.org">Void Linux</a></td><td><a href="https://wiki.voidlinux.org/XBPS">XBPS</a></td><td><a href="https://github.com/void-linux/void-packages/blob/master/srcpkgs/just/template">just</a></td><td><code>xbps-install -S just</code></td></tr>
+<tr><td><a href="https://www.freebsd.org/">FreeBSD</a></td><td><a href="https://www.freebsd.org/doc/handbook/pkgng-intro.html">pkg</a></td><td><a href="https://www.freshports.org/deskutils/just/">just</a></td><td><code>pkg install just</code></td></tr>
+<tr><td><a href="https://alpinelinux.org/">Alpine Linux</a></td><td><a href="https://wiki.alpinelinux.org/wiki/Alpine_Linux_package_management">apk-tools</a></td><td><a href="https://pkgs.alpinelinux.org/package/edge/community/x86_64/just">just</a></td><td><code>apk add just</code></td></tr>
+<tr><td><a href="https://getfedora.org/">Fedora Linux</a></td><td><a href="https://dnf.readthedocs.io/en/latest/">DNF</a></td><td><a href="https://src.fedoraproject.org/rpms/rust-just">just</a></td><td><code>dnf install just</code></td></tr>
+<tr><td><a href="https://www.gentoo.org/">Gentoo Linux</a></td><td><a href="https://wiki.gentoo.org/wiki/Portage">Portage</a></td><td><a href="https://github.com/gentoo-mirror/dm9pZCAq/tree/master/sys-devel/just">dm9pZCAq overlay: sys-devel/just</a></td><td><code>eselect repository enable dm9pZCAq &amp;&amp; emerge --sync dm9pZCAq &amp;&amp; emerge sys-devel/just</code></td></tr>
+<tr><td><a href="https://docs.conda.io/en/latest/miniconda.html#system-requirements">Various</a></td><td><a href="https://docs.conda.io/projects/conda/en/latest/index.html">Conda</a></td><td><a href="https://anaconda.org/conda-forge/just">just</a></td><td><code>conda install -c conda-forge just</code></td></tr>
+<tr><td><a href="https://en.wikipedia.org/wiki/Microsoft_Windows">Microsoft Windows</a></td><td><a href="https://chocolatey.org">Chocolatey</a></td><td><a href="https://github.com/michidk/just-choco">just</a></td><td><code>choco install just</code></td></tr>
+</tbody></table>
+<p><img src="https://repology.org/badge/vertical-allrepos/just.svg" alt="package version table" /></p>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="预制二进制文件"><a class="header" href="#预制二进制文件">预制二进制文件</a></h3>
+<p>Linux、MacOS 和 Windows 的预制二进制文件可以在 <a href="https://github.com/casey/just/releases">发布页</a> 上找到。</p>
+<p>你也可以在 Linux、MacOS 或 Windows 上使用下面的命令来下载最新的版本，只需将 <code>DEST</code> 替换为你想安装 <code>just</code> 的目录即可：</p>
+<pre><code class="language-sh">curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to DEST
+</code></pre>
+<p>例如，安装 <code>just</code> 到 <code>~/bin</code> 目录：</p>
+<pre><code class="language-sh"># 创建 ~/bin
+mkdir -p ~/bin
+
+# 下载并解压 just 到 ~/bin/just
+curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to ~/bin
+
+# 在 Shell 搜索可执行文件的路径中添加`~/bin`
+# 这一行应该被添加到你的 Shell 初始化文件中，e.g. `~/.bashrc` 或者 `~/.zshrc`：
+export PATH=&quot;$PATH:$HOME/bin&quot;
+
+# 现在 just 应该就可以执行了
+just --help
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="github-actions"><a class="header" href="#github-actions">GitHub Actions</a></h3>
+<p><a href="https://github.com/extractions/setup-just">extractions/setup-just</a> 可以用来在 GitHub Actions 的工作流程中安装 <code>just</code>。</p>
+<p>使用举例：</p>
+<pre><code class="language-yaml">- uses: extractions/setup-just@v1
+  with:
+    just-version: 0.8 # optional semver specification, otherwise latest
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="发布-rss-订阅"><a class="header" href="#发布-rss-订阅">发布 RSS 订阅</a></h3>
+<p><code>just</code> 的发布 <a href="https://en.wikipedia.org/wiki/RSS">RSS 订阅</a> 可以在 <a href="https://github.com/casey/just/releases.atom">这里</a> 找到。</p>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="向后兼容性"><a class="header" href="#向后兼容性">向后兼容性</a></h2>
+<p>随着 1.0 版本的发布，<code>just</code> 突出对向后兼容性和稳定性的强烈承诺。</p>
+<p>未来的版本将不会引入向后不兼容的变化，不会使现有的 <code>justfile</code> 停止工作，或破坏命令行界面的正常调用。</p>
+<p>然而，这并不排除修复全面的错误，即使这样做可能会破坏依赖其行为的 <code>justfiles</code>。</p>
+<p>永远不会有一个 <code>just</code> 2.0。任何理想的向后兼容的变化都是在每个 <code>justfile</code> 的基础上选择性加入的，所以用户可以在他们的闲暇时间进行迁移。</p>
+<p>还没有准备好稳定化的功能将在 <code>--unstable</code> 标志后被选择性启用。由 <code>--unstable</code> 启用的功能可能会在任何时候以不兼容的方式发生变化。</p>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="编辑器支持"><a class="header" href="#编辑器支持">编辑器支持</a></h2>
+<p><code>justfile</code> 的语法与 <code>make</code> 非常接近，你可以让你的编辑器对 <code>just</code> 使用 <code>make</code> 语法高亮。</p>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="vim-和-neovim"><a class="header" href="#vim-和-neovim">Vim 和 Neovim</a></h3>
+<h4 id="vim-just"><a class="header" href="#vim-just"><code>vim-just</code></a></h4>
+<p><a href="https://github.com/NoahTheDuke/vim-just">vim-just</a> 插件可以为 vim 提供 <code>justfile</code> 语法高亮显示。</p>
+<p>你可以用你喜欢的软件包管理器安装它，如 <a href="https://github.com/junegunn/vim-plug">Plug</a>：</p>
+<pre><code class="language-vim">call plug#begin()
+
+Plug 'NoahTheDuke/vim-just'
+
+call plug#end()
+</code></pre>
+<p>或者使用 Vim 的内置包支持：</p>
+<pre><code class="language-sh">mkdir -p ~/.vim/pack/vendor/start
+cd ~/.vim/pack/vendor/start
+git clone https://github.com/NoahTheDuke/vim-just.git
+</code></pre>
+<p><code>vim-just</code> 也可以从 <a href="https://github.com/sheerun/vim-polyglot">vim-polyglot</a> 获得，这是一个多语言的 Vim 插件。</p>
+<h4 id="tree-sitter-just"><a class="header" href="#tree-sitter-just"><code>tree-sitter-just</code></a></h4>
+<p><a href="https://github.com/IndianBoy42/tree-sitter-just">tree-sitter-just</a> 是一个针对 Neovim 的 <a href="https://github.com/nvim-treesitter/nvim-treesitter">Nvim Treesitter</a> 插件。</p>
+<h4 id="makefile-语法高亮"><a class="header" href="#makefile-语法高亮">Makefile 语法高亮</a></h4>
+<p>Vim 内置的 makefile 语法高亮对 <code>justfile</code> 来说并不完美，但总比没有好。你可以把以下内容放在 <code>~/.vim/filetype.vim</code> 中：</p>
+<pre><code class="language-vimscript">if exists(&quot;did_load_filetypes&quot;)
+  finish
+endif
+
+augroup filetypedetect
+  au BufNewFile,BufRead justfile setf make
+augroup END
+</code></pre>
+<p>或者在单个 <code>justfile</code> 中添加以下内容，以在每个文件的基础上启用 <code>make</code> 模式：</p>
+<pre><code class="language-text"># vim: set ft=make :
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="emacs"><a class="header" href="#emacs">Emacs</a></h3>
+<p><a href="https://github.com/leon-barrett/just-mode.el">just-mode</a> 可以为 <code>justfile</code> 提供语法高亮和自动缩进。它可以在 <a href="https://melpa.org/">MELPA</a> 上通过 <a href="https://melpa.org/#/just-mode">just-mode</a> 获得。</p>
+<p><a href="https://github.com/psibi/justl.el">justl</a> 提供了执行和列出配方的命令。</p>
+<p>你可以在一个单独的 <code>justfile</code> 中添加以下内容，以便对每个文件启用 <code>make</code> 模式：</p>
+<pre><code class="language-text"># Local Variables:
+# mode: makefile
+# End:
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="visual-studio-code"><a class="header" href="#visual-studio-code">Visual Studio Code</a></h3>
+<p>由 <a href="https://github.com/skellock">skellock</a> 为 VS Code 提供的扩展 <a href="https://marketplace.visualstudio.com/items?itemName=skellock.just">可在此获得</a>（<a href="https://github.com/skellock/vscode-just">仓库</a>）。</p>
+<p>你可以通过运行以下命令来安装它：</p>
+<pre><code class="language-sh">code --install-extension skellock.just
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="jetbrains-ides"><a class="header" href="#jetbrains-ides">JetBrains IDEs</a></h3>
+<p>由 <a href="https://github.com/linux-china">linux_china</a> 为 JetBrains IDEs 提供的插件可 <a href="https://plugins.jetbrains.com/plugin/18658-just">由此获得</a>。</p>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="kakoune"><a class="header" href="#kakoune">Kakoune</a></h3>
+<p>Kakoune 已经内置支持 <code>justfile</code> 语法高亮，这要感谢 TeddyDD。</p>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="sublime-text"><a class="header" href="#sublime-text">Sublime Text</a></h3>
+<p>由 TonioGela 编写的 Sublime Text 的语法高亮文件在 <a href="extras/just.sublim-syntax">extras/just.sublim-syntax</a> 中提供。</p>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="其它编辑器"><a class="header" href="#其它编辑器">其它编辑器</a></h3>
+<p>欢迎给我发送必要的命令，以便在你选择的编辑器中实现语法高亮，这样我就可以把它们放在这里。</p>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="快速开始"><a class="header" href="#快速开始">快速开始</a></h2>
+<p>参见 <a href="chapter_17.html#%E5%AE%89%E8%A3%85">安装部分</a> 了解如何在你的电脑上安装 <code>just</code>。试着运行 <code>just --version</code> 以确保它被正确安装。</p>
+<p>关于语法的概述，请查看这个 <a href="https://cheatography.com/linux-china/cheat-sheets/justfile/">速查表</a>。</p>
+<p>一旦 <code>just</code> 安装完毕并开始工作，在你的项目根目录创建一个名为 <code>justfile</code> 的文件，内容如下：</p>
+<pre><code class="language-make">recipe-name:
+  echo 'This is a recipe!'
+
+# 这是一行注释
+another-recipe:
+  @echo 'This is another recipe.'
+</code></pre>
+<p>当你调用 <code>just</code> 时，它会在当前目录和父目录寻找文件 <code>justfile</code>，所以你可以从你项目的任何子目录中调用它。</p>
+<p>搜索 <code>justfile</code> 是不分大小写的，所以任何大小写，如 <code>Justfile</code>、<code>JUSTFILE</code> 或 <code>JuStFiLe</code> 都可以工作。<code>just</code> 也会寻找名字为 <code>.justfile</code> 的文件，以便你打算隐藏一个 <code>justfile</code>。</p>
+<p>运行 <code>just</code> 时未传参数，则运行 <code>justfile</code> 中的第一个配方：</p>
+<pre><code class="language-sh">$ just
+echo 'This is a recipe!'
+This is a recipe!
+</code></pre>
+<p>通过一个或多个参数指定要运行的配方：</p>
+<pre><code class="language-sh">$ just another-recipe
+This is another recipe.
+</code></pre>
+<p><code>just</code> 在运行每条命令前都会将其打印到标准错误中，这就是为什么 <code>echo 'This is a recipe!'</code> 被打印出来。对于以 <code>@</code> 开头的行，这将被抑制，这就是为什么 <code>echo 'This is another recipe.'</code> 没有被打印。</p>
+<p>如果一个命令失败，配方就会停止运行。这里 <code>cargo publish</code> 只有在 <code>cargo test</code> 成功后才会运行：</p>
+<pre><code class="language-make">publish:
+  cargo test
+  # 前面的测试通过才会执行 publish!
+  cargo publish
+</code></pre>
+<p>配方可以依赖其他配方。在这里，<code>test</code> 配方依赖于 <code>build</code> 配方，所以 <code>build</code> 将在 <code>test</code> 之前运行：</p>
+<pre><code class="language-make">build:
+  cc main.c foo.c bar.c -o main
+
+test: build
+  ./test
+
+sloc:
+  @echo &quot;`wc -l *.c` lines of code&quot;
+</code></pre>
+<pre><code class="language-sh">$ just test
+cc main.c foo.c bar.c -o main
+./test
+testing… all tests passed!
+</code></pre>
+<p>没有依赖关系的配方将按照命令行上给出的顺序运行：</p>
+<pre><code class="language-sh">$ just build sloc
+cc main.c foo.c bar.c -o main
+1337 lines of code
+</code></pre>
+<p>依赖项总是先运行，即使它们被放在依赖它们的配方之后：</p>
+<pre><code class="language-sh">$ just test build
+cc main.c foo.c bar.c -o main
+./test
+testing… all tests passed!
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="示例"><a class="header" href="#示例">示例</a></h2>
+<p>在 <a href="https://github.com/casey/just/tree/master/examples">Examples 目录</a> 中可以找到各种 <code>justfile</code> 的例子。</p>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="特性介绍"><a class="header" href="#特性介绍">特性介绍</a></h2>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="默认配方"><a class="header" href="#默认配方">默认配方</a></h3>
+<p>当 <code>just</code> 被调用而没有传入任何配方时，它会运行 <code>justfile</code> 中的第一个配方。这个配方可能是项目中最常运行的命令，比如运行测试：</p>
+<pre><code class="language-make">test:
+  cargo test
+</code></pre>
+<p>你也可以使用依赖关系来默认运行多个配方：</p>
+<pre><code class="language-make">default: lint build test
+
+build:
+  echo Building…
+
+test:
+  echo Testing…
+
+lint:
+  echo Linting…
+</code></pre>
+<p>在没有合适配方作为默认配方的情况下，你也可以在 <code>justfile</code> 的开头添加一个配方，用于列出可用的配方：</p>
+<pre><code class="language-make">default:
+  just --list
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="列出可用的配方"><a class="header" href="#列出可用的配方">列出可用的配方</a></h3>
+<p>可以用 <code>just --list</code> 按字母顺序列出配方：</p>
+<pre><code class="language-sh">$ just --list
+Available recipes:
+    build
+    test
+    deploy
+    lint
+</code></pre>
+<p><code>just --summary</code> 以更简洁的形式列出配方：</p>
+<pre><code class="language-sh">$ just --summary
+build test deploy lint
+</code></pre>
+<p>传入 <code>--unsorted</code> 选项可以按照它们在 <code>justfile</code> 中出现的顺序打印配方：</p>
+<pre><code class="language-make">test:
+  echo 'Testing!'
+
+build:
+  echo 'Building!'
+</code></pre>
+<pre><code class="language-sh">$ just --list --unsorted
+Available recipes:
+    test
+    build
+</code></pre>
+<pre><code class="language-sh">$ just --summary --unsorted
+test build
+</code></pre>
+<p>如果你想让 <code>just</code> 默认列出 <code>justfile</code> 中的配方，你可以使用这个作为默认配方：</p>
+<pre><code class="language-make">default:
+  @just --list
+</code></pre>
+<p>标题文本可以用 <code>--list-heading</code> 来定制：</p>
+<pre><code class="language-sh">$ just --list --list-heading $'Cool stuff…\n'
+Cool stuff…
+    test
+    build
+</code></pre>
+<p>而缩进可以用 <code>--list-prefix</code> 来定制：</p>
+<pre><code class="language-sh">$ just --list --list-prefix ····
+Available recipes:
+····test
+····build
+</code></pre>
+<p><code>--list-heading</code> 参数同时替换了标题和后面的换行，所以如果不是空的，应该包含一个换行。这样做是为了允许你通过传递空字符串来完全抑制标题行：</p>
+<pre><code class="language-sh">$ just --list --list-heading ''
+    test
+    build
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="别名"><a class="header" href="#别名">别名</a></h3>
+<p>别名允许你用其他名称来调用配方：</p>
+<pre><code class="language-make">alias b := build
+
+build:
+  echo 'Building!'
+</code></pre>
+<pre><code class="language-sh">$ just b
+build
+echo 'Building!'
+Building!
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="设置"><a class="header" href="#设置">设置</a></h3>
+<p>设置控制解释和执行。每个设置最多可以指定一次，可以出现在 <code>justfile</code> 的任何地方。</p>
+<p>例如：</p>
+<pre><code class="language-make">set shell := [&quot;zsh&quot;, &quot;-cu&quot;]
+
+foo:
+  # this line will be run as `zsh -cu 'ls **/*.txt'`
+  ls **/*.txt
+</code></pre>
+<h4 id="设置一览表"><a class="header" href="#设置一览表">设置一览表</a></h4>
+<table><thead><tr><th>名称</th><th>值</th><th>描述</th></tr></thead><tbody>
+<tr><td><code>allow-duplicate-recipes</code></td><td>boolean</td><td>允许在 <code>justfile</code> 后面出现的配方覆盖之前的同名配方</td></tr>
+<tr><td><code>dotenv-load</code></td><td>boolean</td><td>加载 <code>.env</code> 环境变量文件, 如果有的话</td></tr>
+<tr><td><code>export</code></td><td>boolean</td><td>将所有变量导出为环境变量</td></tr>
+<tr><td><code>positional-arguments</code></td><td>boolean</td><td>传递位置参数</td></tr>
+<tr><td><code>shell</code></td><td><code>[COMMAND, ARGS…]</code></td><td>设置用于调用配方和评估反引号内包裹内容的命令</td></tr>
+<tr><td><code>windows-powershell</code></td><td>boolean</td><td>在 Windows 上使用 PowerShell 作为默认 Shell</td></tr>
+</tbody></table>
+<p>Bool 类型设置可以写成：</p>
+<pre><code class="language-mf">set NAME
+</code></pre>
+<p>这就相当于：</p>
+<pre><code class="language-mf">set NAME := true
+</code></pre>
+<h4 id="允许重复的配方"><a class="header" href="#允许重复的配方">允许重复的配方</a></h4>
+<p>如果 <code>allow-duplicate-recipes</code> 被设置为 <code>true</code>，那么定义多个同名的配方就不会出错，而会使用最后的定义。默认为 <code>false</code>。</p>
+<pre><code class="language-make">set allow-duplicate-recipes
+
+@foo:
+  echo foo
+
+@foo:
+  echo bar
+</code></pre>
+<pre><code class="language-sh">$ just foo
+bar
+</code></pre>
+<h4 id="环境变量加载"><a class="header" href="#环境变量加载">环境变量加载</a></h4>
+<p>如果将 <code>dotenv-load</code> 设置为 <code>true</code>，并且存在 <code>.env</code> 文件，则该环境配置文件将被加载。默认为 <code>false</code>。</p>
+<h4 id="导出"><a class="header" href="#导出">导出</a></h4>
+<p><code>export</code> 设置使所有 <code>just</code> 变量作为环境变量被导出。默认值为 <code>false</code>。</p>
+<pre><code class="language-make">set export
+
+a := &quot;hello&quot;
+
+@foo b:
+  echo $a
+  echo $b
+</code></pre>
+<pre><code class="language-sh">$ just foo goodbye
+hello
+goodbye
+</code></pre>
+<h4 id="位置参数"><a class="header" href="#位置参数">位置参数</a></h4>
+<p>如果 <code>positional-arguments</code> 为 <code>true</code>，配方参数将作为位置参数传递给命令。对于行式配方，参数 <code>$0</code> 将是配方的名称。</p>
+<p>例如，运行这个配方：</p>
+<pre><code class="language-make">set positional-arguments
+
+@foo bar:
+  echo $0
+  echo $1
+</code></pre>
+<p>将产生以下输出：</p>
+<pre><code class="language-sh">$ just foo hello
+foo
+hello
+</code></pre>
+<p>当使用 <code>sh</code> 兼容的 Shell，如 <code>bash</code> 或 <code>zsh</code> 时，<code>$@</code> 会展开为传给配方的位置参数，从1开始。当在双引号内使用 <code>&quot;$@&quot;</code> 时，包括空白的参数将被传递，就像它们是双引号一样。也就是说，<code>&quot;$@&quot;</code> 相当于 <code>&quot;$1&quot; &quot;$2&quot;</code>……当没有位置参数时，<code>&quot;$@&quot;</code> 和 <code>$@</code> 将展开为空（即，它们被删除）。</p>
+<p>这个例子的配方将逐行打印参数：</p>
+<pre><code class="language-make">set positional-arguments
+
+@test *args='':
+  bash -c 'while (( &quot;$#&quot; )); do echo - $1; shift; done' -- &quot;$@&quot;
+</code></pre>
+<p>用 <em>两个</em> 参数运行：</p>
+<pre><code class="language-sh">$ just test foo &quot;bar baz&quot;
+- foo
+- bar baz
+</code></pre>
+<h4 id="shell"><a class="header" href="#shell">Shell</a></h4>
+<p><code>shell</code> 设置控制用于调用执行配方代码行和反引号内指令的命令。Shebang 配方不受影响。</p>
+<pre><code class="language-make"># use python3 to execute recipe lines and backticks
+set shell := [&quot;python3&quot;, &quot;-c&quot;]
+
+# use print to capture result of evaluation
+foos := `print(&quot;foo&quot; * 4)`
+
+foo:
+  print(&quot;Snake snake snake snake.&quot;)
+  print(&quot;{{foos}}&quot;)
+</code></pre>
+<p><code>just</code> 把要执行的命令作为一个参数进行传递。许多 Shell 需要一个额外的标志，通常是 <code>-c</code>，以使它们评估执行第一个参数。</p>
+<h5 id="windows-shell"><a class="header" href="#windows-shell">Windows Shell</a></h5>
+<p><code>just</code> 在 Windows 上默认使用 <code>sh</code>。要在 Windows 上使用不同的 Shell，请使用<code>windows-shell</code>：</p>
+<pre><code class="language-make">set windows-shell := [&quot;pwsh.exe&quot;, &quot;-NoLogo&quot;, &quot;-Command&quot;]
+
+hello:
+  Write-Host &quot;Hello, world!&quot;
+</code></pre>
+<h5 id="windows-powershell"><a class="header" href="#windows-powershell">Windows PowerShell</a></h5>
+<p><em><code>set windows-powershell</code> 使用遗留的 <code>powershell.exe</code> 二进制文件，不再推荐。请参阅上面的 <code>windows-shell</code> 设置，以通过更灵活的方式来控制在 Windows 上使用哪个 Shell。</em></p>
+<p><code>just</code> 在 Windows 上默认使用 <code>sh</code>。要使用 <code>powershell.exe</code> 作为替代，请将 <code>windows-powershell</code> 设置为 <code>true</code>。</p>
+<pre><code class="language-make">set windows-powershell := true
+
+hello:
+  Write-Host &quot;Hello, world!&quot;
+</code></pre>
+<h5 id="python-3"><a class="header" href="#python-3">Python 3</a></h5>
+<pre><code class="language-make">set shell := [&quot;python3&quot;, &quot;-c&quot;]
+</code></pre>
+<h5 id="bash"><a class="header" href="#bash">Bash</a></h5>
+<pre><code class="language-make">set shell := [&quot;bash&quot;, &quot;-uc&quot;]
+</code></pre>
+<h5 id="z-shell"><a class="header" href="#z-shell">Z Shell</a></h5>
+<pre><code class="language-make">set shell := [&quot;zsh&quot;, &quot;-uc&quot;]
+</code></pre>
+<h5 id="fish"><a class="header" href="#fish">Fish</a></h5>
+<pre><code class="language-make">set shell := [&quot;fish&quot;, &quot;-c&quot;]
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="文档注释"><a class="header" href="#文档注释">文档注释</a></h3>
+<p>紧接着配方前面的注释将出现在 <code>just --list</code> 中：</p>
+<pre><code class="language-make"># build stuff
+build:
+  ./bin/build
+
+# test stuff
+test:
+  ./bin/test
+</code></pre>
+<pre><code class="language-sh">$ just --list
+Available recipes:
+    build # build stuff
+    test # test stuff
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="env-集成"><a class="header" href="#env-集成"><code>.env</code> 集成</a></h3>
+<p>如果 <a href="chapter_25.html#%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E5%8A%A0%E8%BD%BD"><code>dotenv-load</code></a> 被设置，<code>just</code> 将从一个名为 <code>.env</code> 的文件中加载环境变量。这个文件可以和你的 <code>justfile</code> 位于同一目录下，或者位于其父目录下。这些变量是环境变量，而不是 <code>just</code> 的变量，因此必须使用 <code>$VARIABLE_NAME</code> 在配方和反引号中访问。</p>
+<p>例如，假如你的 <code>.env</code> 文件包含：</p>
+<pre><code class="language-sh"># 注释，将被忽略
+DATABASE_ADDRESS=localhost:6379
+SERVER_PORT=1337
+</code></pre>
+<p>而你的 <code>justfile</code> 包含：</p>
+<pre><code class="language-make">set dotenv-load
+
+serve:
+  @echo &quot;Starting server with database $DATABASE_ADDRESS on port $SERVER_PORT…&quot;
+  ./server --database $DATABASE_ADDRESS --port $SERVER_PORT
+</code></pre>
+<p><code>just serve</code> 将会输出：</p>
+<pre><code class="language-sh">$ just serve
+Starting server with database localhost:6379 on port 1337…
+./server --database $DATABASE_ADDRESS --port $SERVER_PORT
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="变量和替换"><a class="header" href="#变量和替换">变量和替换</a></h3>
+<p>支持在变量、字符串、拼接和替换中使用 <code>{{…}}</code> ：</p>
+<pre><code class="language-make">version := &quot;0.2.7&quot;
+tardir  := &quot;awesomesauce-&quot; + version
+tarball := tardir + &quot;.tar.gz&quot;
+
+publish:
+  rm -f {{tarball}}
+  mkdir {{tardir}}
+  cp README.md *.c {{tardir}}
+  tar zcvf {{tarball}} {{tardir}}
+  scp {{tarball}} me@server.com:release/
+  rm -rf {{tarball}} {{tardir}}
+</code></pre>
+<h4 id="转义-"><a class="header" href="#转义-">转义 <code>{{</code></a></h4>
+<p>想要写一个包含  <code>{{</code> 的配方，可以使用 <code>{{{{</code>：</p>
+<pre><code class="language-make">braces:
+  echo 'I {{{{LOVE}} curly braces!'
+</code></pre>
+<p>(未匹配的 <code>}}</code> 会被忽略，所以不需要转义)</p>
+<p>另一个选择是把所有你想转义的文本都放在插值里面：</p>
+<pre><code class="language-make">braces:
+  echo '{{'I {{LOVE}} curly braces!'}}'
+</code></pre>
+<p>然而，另一个选择是使用  <code>{{ &quot;{{&quot; }}</code>：</p>
+<pre><code class="language-make">braces:
+  echo 'I {{ &quot;{{&quot; }}LOVE}} curly braces!'
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="字符串"><a class="header" href="#字符串">字符串</a></h3>
+<p>双引号字符串支持转义序列：</p>
+<pre><code class="language-make">string-with-tab             := &quot;\t&quot;
+string-with-newline         := &quot;\n&quot;
+string-with-carriage-return := &quot;\r&quot;
+string-with-double-quote    := &quot;\&quot;&quot;
+string-with-slash           := &quot;\\&quot;
+string-with-no-newline      := &quot;\
+&quot;
+</code></pre>
+<pre><code class="language-sh">$ just --evaluate
+&quot;tring-with-carriage-return := &quot;
+string-with-double-quote    := &quot;&quot;&quot;
+string-with-newline         := &quot;
+&quot;
+string-with-no-newline      := &quot;&quot;
+string-with-slash           := &quot;\&quot;
+string-with-tab             := &quot;     &quot;
+</code></pre>
+<p>字符串可以包含换行符：</p>
+<pre><code class="language-make">single := '
+hello
+'
+
+double := &quot;
+goodbye
+&quot;
+</code></pre>
+<p>单引号字符串不支持转义序列：</p>
+<pre><code class="language-make">escapes := '\t\n\r\&quot;\\'
+</code></pre>
+<pre><code class="language-sh">$ just --evaluate
+escapes := &quot;\t\n\r\&quot;\\&quot;
+</code></pre>
+<p>支持单引号和双引号字符串的缩进版本，以三个单引号或三个双引号为界。缩进的字符串行被删除了所有非空行所共有的前导空白：</p>
+<pre><code class="language-make"># 这个字符串执行结果为 `foo\nbar\n`
+x := '''
+  foo
+  bar
+'''
+
+# 这个字符串执行结果为 `abc\n  wuv\nbar\n`
+y := &quot;&quot;&quot;
+  abc
+    wuv
+  xyz
+&quot;&quot;&quot;
+</code></pre>
+<p>与未缩进的字符串类似，缩进的双引号字符串处理转义序列，而缩进的单引号字符串则忽略转义序列。转义序列的处理是在取消缩进后进行的。取消缩进的算法不考虑转义序列产生的空白或换行。</p>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="错误忽略"><a class="header" href="#错误忽略">错误忽略</a></h3>
+<p>通常情况下，如果一个命令返回一个非零的退出状态，将停止执行。要想在一个命令之后继续执行，即使它失败了，需要在命令前加上 <code>-</code>：</p>
+<pre><code class="language-make">foo:
+  -cat foo
+  echo 'Done!'
+</code></pre>
+<pre><code class="language-sh">$ just foo
+cat foo
+cat: foo: No such file or directory
+echo 'Done!'
+Done!
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="函数"><a class="header" href="#函数">函数</a></h3>
+<p><code>just</code> 提供了一些内置函数，在编写配方时可能很有用。</p>
+<h4 id="系统信息"><a class="header" href="#系统信息">系统信息</a></h4>
+<ul>
+<li>
+<p><code>arch()</code> — 指令集结构。可能的值是：<code>&quot;aarch64&quot;</code>, <code>&quot;arm&quot;</code>, <code>&quot;asmjs&quot;</code>, <code>&quot;hexagon&quot;</code>, <code>&quot;mips&quot;</code>, <code>&quot;msp430&quot;</code>, <code>&quot;powerpc&quot;</code>, <code>&quot;powerpc64&quot;</code>, <code>&quot;s390x&quot;</code>, <code>&quot;sparc&quot;</code>, <code>&quot;wasm32&quot;</code>, <code>&quot;x86&quot;</code>, <code>&quot;x86_64&quot;</code>, 和 <code>&quot;xcore&quot;</code>。</p>
+</li>
+<li>
+<p><code>os()</code> — 操作系统，可能的值是: <code>&quot;android&quot;</code>, <code>&quot;bitrig&quot;</code>, <code>&quot;dragonfly&quot;</code>, <code>&quot;emscripten&quot;</code>, <code>&quot;freebsd&quot;</code>, <code>&quot;haiku&quot;</code>, <code>&quot;ios&quot;</code>, <code>&quot;linux&quot;</code>, <code>&quot;macos&quot;</code>, <code>&quot;netbsd&quot;</code>, <code>&quot;openbsd&quot;</code>, <code>&quot;solaris&quot;</code>, 和 <code>&quot;windows&quot;</code>。</p>
+</li>
+<li>
+<p><code>os_family()</code> — 操作系统系列；可能的值是：<code>&quot;unix&quot;</code> 和 <code>&quot;windows&quot;</code>。</p>
+</li>
+</ul>
+<p>例如：</p>
+<pre><code class="language-make">system-info:
+  @echo &quot;This is an {{arch()}} machine&quot;.
+</code></pre>
+<pre><code class="language-sh">$ just system-info
+This is an x86_64 machine
+</code></pre>
+<p><code>os_family()</code> 函数可以用来创建跨平台的 <code>justfile</code>，使其可以在不同的操作系统上工作。一个例子，见 <a href="examples/cross-platform.just">cross-platform.just</a> 文件。</p>
+<h4 id="环境变量"><a class="header" href="#环境变量">环境变量</a></h4>
+<ul>
+<li><code>env_var(key)</code> — 获取名称为 <code>key</code> 的环境变量，如果不存在则终止。</li>
+</ul>
+<pre><code class="language-make">home_dir := env_var('HOME')
+
+test:
+  echo &quot;{{home_dir}}&quot;
+</code></pre>
+<pre><code class="language-sh">$ just
+/home/user1
+</code></pre>
+<ul>
+<li><code>env_var_or_default(key, default)</code> — 获取名称为 <code>key</code> 的环境变量，如果不存在则返回 <code>default</code>。</li>
+</ul>
+<h4 id="调用目录"><a class="header" href="#调用目录">调用目录</a></h4>
+<ul>
+<li><code>invocation_directory()</code> - 获取 <code>just</code> 被调用时当前目录所对应的绝对路径，在 <code>just</code> 改变路径并执行相应命令前。</li>
+</ul>
+<p>例如，要对 “当前目录” 下的文件调用 <code>rustfmt</code>（从用户/调用者的角度看），使用以下规则：</p>
+<pre><code class="language-make">rustfmt:
+  find {{invocation_directory()}} -name \*.rs -exec rustfmt {} \;
+</code></pre>
+<p>另外，如果你的命令需要从当前目录运行，你可以使用如下方式：</p>
+<pre><code class="language-make">build:
+  cd {{invocation_directory()}}; ./some_script_that_needs_to_be_run_from_here
+</code></pre>
+<h4 id="justfile-和-justfile-目录"><a class="header" href="#justfile-和-justfile-目录">Justfile 和 Justfile 目录</a></h4>
+<ul>
+<li>
+<p><code>justfile()</code> - 取得当前 <code>justfile</code> 的路径。</p>
+</li>
+<li>
+<p><code>justfile_directory()</code> - 取得当前 <code>justfile</code> 文件父目录的路径。</p>
+</li>
+</ul>
+<p>例如，运行一个相对于当前 <code>justfile</code> 位置的命令：</p>
+<pre><code class="language-make">script:
+  ./{{justfile_directory()}}/scripts/some_script
+</code></pre>
+<h4 id="just-可执行程序"><a class="header" href="#just-可执行程序">Just 可执行程序</a></h4>
+<ul>
+<li><code>just_executable()</code> - <code>just</code> 可执行文件的绝对路径。</li>
+</ul>
+<p>例如：</p>
+<pre><code class="language-make">executable:
+  @echo The executable is at: {{just_executable()}}
+</code></pre>
+<pre><code class="language-sh">$ just
+The executable is at: /bin/just
+</code></pre>
+<h4 id="字符串处理"><a class="header" href="#字符串处理">字符串处理</a></h4>
+<ul>
+<li>
+<p><code>lowercase(s)</code> - 将 <code>s</code> 转换为小写形式。</p>
+</li>
+<li>
+<p><code>quote(s)</code> - 用 <code>'\''</code> 替换所有的单引号，并在 <code>s</code> 的首尾添加单引号。这足以为许多 Shell 转义特殊字符，包括大多数 Bourne Shell 的后代。</p>
+</li>
+<li>
+<p><code>replace(s, from, to)</code> - 将 <code>s</code> 中的所有 <code>from</code> 替换为 <code>to</code>。</p>
+</li>
+<li>
+<p><code>trim(s)</code> - 去掉 <code>s</code> 的首尾空格。</p>
+</li>
+<li>
+<p><code>trim_end(s)</code> - 去掉 <code>s</code> 的尾部空格。</p>
+</li>
+<li>
+<p><code>trim_end_match(s, pat)</code> - 删除与 <code>pat</code> 匹配的 <code>s</code> 的后缀。</p>
+</li>
+<li>
+<p><code>trim_end_matches(s, pat)</code> - 反复删除与 <code>pat</code> 匹配的 <code>s</code> 的后缀。</p>
+</li>
+<li>
+<p><code>trim_start(s)</code> - 去掉 <code>s</code> 的首部空格。</p>
+</li>
+<li>
+<p><code>trim_start_match(s, pat)</code> - 删除与 <code>pat</code> 匹配的 <code>s</code> 的前缀。</p>
+</li>
+<li>
+<p><code>trim_start_matches(s, pat)</code> - 反复删除与 <code>pat</code> 匹配的 <code>s</code> 的前缀。</p>
+</li>
+<li>
+<p><code>uppercase(s)</code> - 将 <code>s</code> 转换为大写形式。</p>
+</li>
+</ul>
+<h4 id="路径操作"><a class="header" href="#路径操作">路径操作</a></h4>
+<h5 id="非可靠的"><a class="header" href="#非可靠的">非可靠的</a></h5>
+<ul>
+<li>
+<p><code>absolute_path(path)</code> - 将当前工作目录中到相对路径 <code>path</code> 的路径转换为绝对路径。在 <code>/foo</code> 目录通过 <code>absolute_path(&quot;./bar.txt&quot;)</code> 可以得到 <code>/foo/bar.txt</code>。</p>
+</li>
+<li>
+<p><code>extension(path)</code> - 获取 <code>path</code> 的扩展名。<code>extension(&quot;/foo/bar.txt&quot;)</code> 结果为 <code>txt</code>。</p>
+</li>
+<li>
+<p><code>file_name(path)</code> - 获取 <code>path</code> 的文件名，去掉任何前面的目录部分。<code>file_name(&quot;/foo/bar.txt&quot;)</code> 的结果为 <code>bar.txt</code>。</p>
+</li>
+<li>
+<p><code>file_stem(path)</code> - 获取 <code>path</code> 的文件名，不含扩展名。<code>file_stem(&quot;/foo/bar.txt&quot;)</code> 的结果为 <code>bar</code>。</p>
+</li>
+<li>
+<p><code>parent_directory(path)</code> - 获取 <code>path</code> 的父目录。<code>parent_directory(&quot;/foo/bar.txt&quot;)</code> 的结果为 <code>/foo</code>。</p>
+</li>
+<li>
+<p><code>without_extension(path)</code> - 获取 <code>path</code> 不含扩展名部分。<code>without_extension(&quot;/foo/bar.txt&quot;)</code> 的结果为 <code>/foo/bar</code>。</p>
+</li>
+</ul>
+<p>这些函数可能会失败，例如，如果一个路径没有扩展名，则将停止执行。</p>
+<h5 id="可靠的"><a class="header" href="#可靠的">可靠的</a></h5>
+<ul>
+<li>
+<p><code>join(a, b…)</code> - 将路径 <code>a</code> 与路径 <code>b</code> 连接。<code>join(&quot;foo/bar&quot;, &quot;baz&quot;)</code> 结果为 <code>foo/bar/baz</code>。接受两个或多个参数。</p>
+</li>
+<li>
+<p><code>clean(path)</code> - 通过删除多余的路径分隔符、中间的 <code>.</code> 和 <code>..</code> 来简化 <code>path</code>。<code>clean(&quot;foo//bar&quot;)</code> 结果为 <code>foo/bar</code>，<code>clean(&quot;foo/..&quot;)</code> 为 <code>.</code>，<code>clean(&quot;foo/./bar&quot;)</code> 结果为 <code>foo/bar</code>。</p>
+</li>
+</ul>
+<h4 id="文件系统访问"><a class="header" href="#文件系统访问">文件系统访问</a></h4>
+<ul>
+<li><code>path_exists(path)</code> - 如果路径指向一个存在的文件或目录，则返回 <code>true</code>，否则返回 <code>false</code>。也会遍历符号链接，如果路径无法访问或指向一个无效的符号链接，则返回 <code>false</code>。</li>
+</ul>
+<h5 id="错误报告"><a class="header" href="#错误报告">错误报告</a></h5>
+<ul>
+<li><code>error(message)</code> - 终止执行并向用户报告错误 <code>message</code>。</li>
+</ul>
+<h4 id="uuid-和哈希值生成"><a class="header" href="#uuid-和哈希值生成">UUID 和哈希值生成</a></h4>
+<ul>
+<li><code>sha256(string)</code> - 以十六进制字符串形式返回 <code>string</code> 的 SHA-256 哈希值。</li>
+<li><code>sha256_file(path)</code> - 以十六进制字符串形式返回 <code>path</code> 处的文件的 SHA-256 哈希值。</li>
+<li><code>uuid()</code> - 返回一个随机生成的 UUID。</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="使用反引号的命令求值"><a class="header" href="#使用反引号的命令求值">使用反引号的命令求值</a></h3>
+<p>反引号可以用来存储命令的求值结果：</p>
+<pre><code class="language-make">localhost := `dumpinterfaces | cut -d: -f2 | sed 's/\/.*//' | sed 's/ //g'`
+
+serve:
+  ./serve {{localhost}} 8080
+</code></pre>
+<p>缩进的反引号，以三个反引号为界，与字符串缩进的方式一样，会被去掉缩进：</p>
+<pre><code class="language-make"># This backtick evaluates the command `echo foo\necho bar\n`, which produces the value `foo\nbar\n`.
+stuff := ```
+    echo foo
+    echo bar
+  ```
+</code></pre>
+<p>参见 <a href="chapter_30.html#%E5%AD%97%E7%AC%A6%E4%B8%B2">字符串</a> 部分，了解去除缩进的细节。</p>
+<p>反引号内不能以 <code>#!</code> 开头。这种语法是为将来的升级而保留的。</p>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="条件表达式"><a class="header" href="#条件表达式">条件表达式</a></h3>
+<p><code>if</code> / <code>else</code> 表达式评估不同的分支，取决于两个表达式是否评估为相同的值：</p>
+<pre><code class="language-make">foo := if &quot;2&quot; == &quot;2&quot; { &quot;Good!&quot; } else { &quot;1984&quot; }
+
+bar:
+  @echo &quot;{{foo}}&quot;
+</code></pre>
+<pre><code class="language-sh">$ just bar
+Good!
+</code></pre>
+<p>也可以用于测试不相等：</p>
+<pre><code class="language-make">foo := if &quot;hello&quot; != &quot;goodbye&quot; { &quot;xyz&quot; } else { &quot;abc&quot; }
+
+bar:
+  @echo {{foo}}
+</code></pre>
+<pre><code class="language-sh">$ just bar
+xyz
+</code></pre>
+<p>还支持与正则表达式进行匹配：</p>
+<pre><code class="language-make">foo := if &quot;hello&quot; =~ 'hel+o' { &quot;match&quot; } else { &quot;mismatch&quot; }
+
+bar:
+  @echo {{foo}}
+</code></pre>
+<pre><code class="language-sh">$ just bar
+match
+</code></pre>
+<p>正则表达式由 <a href="https://github.com/rust-lang/regex">Regex 包</a> 提供，其语法在 <a href="https://docs.rs/regex/1.5.4/regex/#syntax">docs.rs</a> 上有对应文档。由于正则表达式通常使用反斜线转义序列，请考虑使用单引号的字符串字面值，这将使斜线不受干扰地传递给正则分析器。</p>
+<p>条件表达式是短路的，这意味着它们只评估其中的一个分支。这可以用来确保反引号内的表达式在不应该运行的时候不会运行。</p>
+<pre><code class="language-make">foo := if env_var(&quot;RELEASE&quot;) == &quot;true&quot; { `get-something-from-release-database` } else { &quot;dummy-value&quot; }
+</code></pre>
+<p>条件语句也可以在配方中使用：</p>
+<pre><code class="language-make">bar foo:
+  echo {{ if foo == &quot;bar&quot; { &quot;hello&quot; } else { &quot;goodbye&quot; } }}
+</code></pre>
+<p>注意最后的 <code>}</code> 后面的空格! 没有这个空格，插值将被提前结束。</p>
+<p>多个条件语句可以被连起来：</p>
+<pre><code class="language-make">foo := if &quot;hello&quot; == &quot;goodbye&quot; {
+  &quot;xyz&quot;
+} else if &quot;a&quot; == &quot;a&quot; {
+  &quot;abc&quot;
+} else {
+  &quot;123&quot;
+}
+
+bar:
+  @echo {{foo}}
+</code></pre>
+<pre><code class="language-sh">$ just bar
+abc
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="出现错误停止执行"><a class="header" href="#出现错误停止执行">出现错误停止执行</a></h3>
+<p>可以用 <code>error</code> 函数停止执行。比如：</p>
+<pre><code>foo := if &quot;hello&quot; == &quot;goodbye&quot; {
+  &quot;xyz&quot;
+} else if &quot;a&quot; == &quot;b&quot; {
+  &quot;abc&quot;
+} else {
+  error(&quot;123&quot;)
+}
+</code></pre>
+<p>在运行时产生以下错误：</p>
+<pre><code>error: Call to function `error` failed: 123
+   |
+16 |   error(&quot;123&quot;)
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="从命令行设置变量"><a class="header" href="#从命令行设置变量">从命令行设置变量</a></h3>
+<p>变量可以从命令行进行覆盖。</p>
+<pre><code class="language-make">os := &quot;linux&quot;
+
+test: build
+  ./test --test {{os}}
+
+build:
+  ./build {{os}}
+</code></pre>
+<pre><code class="language-sh">$ just
+./build linux
+./test --test linux
+</code></pre>
+<p>任何数量的 <code>NAME=VALUE</code> 形式的参数都可以在配方前传递：</p>
+<pre><code class="language-sh">$ just os=plan9
+./build plan9
+./test --test plan9
+</code></pre>
+<p>或者你可以使用 <code>--set</code> 标志：</p>
+<pre><code class="language-sh">$ just --set os bsd
+./build bsd
+./test --test bsd
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="获取和设置环境变量"><a class="header" href="#获取和设置环境变量">获取和设置环境变量</a></h3>
+<h4 id="导出-just-变量"><a class="header" href="#导出-just-变量">导出 <code>just</code> 变量</a></h4>
+<p>以 <code>export</code> 关键字为前缀的赋值将作为环境变量导出到配方中：</p>
+<pre><code class="language-make">export RUST_BACKTRACE := &quot;1&quot;
+
+test:
+  # 如果它崩溃了，将打印一个堆栈追踪
+  cargo test
+</code></pre>
+<p>以 <code>$</code> 为前缀的参数将被作为环境变量导出：</p>
+<pre><code class="language-make">test $RUST_BACKTRACE=&quot;1&quot;:
+  # 如果它崩溃了，将打印一个堆栈追踪
+  cargo test
+</code></pre>
+<p>导出的变量和参数不会被导出到同一作用域内反引号包裹的表达式里。</p>
+<pre><code class="language-make">export WORLD := &quot;world&quot;
+# This backtick will fail with &quot;WORLD: unbound variable&quot;
+BAR := `echo hello $WORLD`
+</code></pre>
+<pre><code class="language-make"># Running `just a foo` will fail with &quot;A: unbound variable&quot;
+a $A $B=`echo $A`:
+  echo $A $B
+</code></pre>
+<p>当 <a href="chapter_34.html#%E5%AF%BC%E5%87%BA">export</a> 被设置时，所有的 <code>just</code> 变量都将作为环境变量被导出。</p>
+<h4 id="从环境中获取环境变量"><a class="header" href="#从环境中获取环境变量">从环境中获取环境变量</a></h4>
+<p>来自环境的环境变量会自动传递给配方：</p>
+<pre><code class="language-make">print_home_folder:
+  echo &quot;HOME is: '${HOME}'&quot;
+</code></pre>
+<pre><code class="language-sh">$ just
+HOME is '/home/myuser'
+</code></pre>
+<h4 id="从-env-文件加载环境变量"><a class="header" href="#从-env-文件加载环境变量">从 <code>.env</code> 文件加载环境变量</a></h4>
+<p>如果 <a href="chapter_34.html#%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E5%8A%A0%E8%BD%BD">dotenv-load</a> 被设置，<code>just</code> 将从 <code>.env</code> 文件中加载环境变量。该文件中的变量将作为环境变量提供给配方。参见 <a href="chapter_34.html#env-%E9%9B%86%E6%88%90">环境变量集成</a> 以获得更多信息。</p>
+<h4 id="从环境变量中设置-just-变量"><a class="header" href="#从环境变量中设置-just-变量">从环境变量中设置 <code>just</code> 变量</a></h4>
+<p>环境变量可以通过函数 <code>env_var()</code> 和 <code>env_var_or_default()</code> 传入到 <code>just</code> 变量。
+参见 <a href="chapter_34.html#%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F">environment-variables</a>。</p>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="配方参数"><a class="header" href="#配方参数">配方参数</a></h3>
+<p>配方可以有参数。这里的配方 <code>build</code> 有一个参数叫 <code>target</code>:</p>
+<pre><code class="language-make">build target:
+  @echo 'Building {{target}}…'
+  cd {{target}} &amp;&amp; make
+</code></pre>
+<p>要在命令行上传递参数，请把它们放在配方名称后面：</p>
+<pre><code class="language-sh">$ just build my-awesome-project
+Building my-awesome-project…
+cd my-awesome-project &amp;&amp; make
+</code></pre>
+<p>要向依赖配方传递参数，请将依赖配方和参数一起放在括号里：</p>
+<pre><code class="language-make">default: (build &quot;main&quot;)
+
+build target:
+  @echo 'Building {{target}}…'
+  cd {{target}} &amp;&amp; make
+</code></pre>
+<p>参数可以有默认值：</p>
+<pre><code class="language-make">default := 'all'
+
+test target tests=default:
+  @echo 'Testing {{target}}:{{tests}}…'
+  ./test --tests {{tests}} {{target}}
+</code></pre>
+<p>有默认值的参数可以省略：</p>
+<pre><code class="language-sh">$ just test server
+Testing server:all…
+./test --tests all server
+</code></pre>
+<p>或者提供：</p>
+<pre><code class="language-sh">$ just test server unit
+Testing server:unit…
+./test --tests unit server
+</code></pre>
+<p>默认值可以是任意的表达式，但字符串拼接必须是放在括号内：</p>
+<pre><code class="language-make">arch := &quot;wasm&quot;
+
+test triple=(arch + &quot;-unknown-unknown&quot;):
+  ./test {{triple}}
+</code></pre>
+<p>配方的最后一个参数可以是变长的，在参数名称前用 <code>+</code> 或 <code>*</code> 表示：</p>
+<pre><code class="language-make">backup +FILES:
+  scp {{FILES}} me@server.com:
+</code></pre>
+<p>以 <code>+</code> 为前缀的变长参数接受 <em>一个或多个</em> 参数，并展开为一个包含这些参数的字符串，以空格分隔：</p>
+<pre><code class="language-sh">$ just backup FAQ.md GRAMMAR.md
+scp FAQ.md GRAMMAR.md me@server.com:
+FAQ.md                  100% 1831     1.8KB/s   00:00
+GRAMMAR.md              100% 1666     1.6KB/s   00:00
+</code></pre>
+<p>以 <code>*</code> 为前缀的变长参数接受 <em>0个或更多</em> 参数，并展开为一个包含这些参数的字符串，以空格分隔，如果没有参数，则为空字符串：</p>
+<pre><code class="language-make">commit MESSAGE *FLAGS:
+  git commit {{FLAGS}} -m &quot;{{MESSAGE}}&quot;
+</code></pre>
+<p>变长参数可以被分配默认值。这些参数被命令行上传递的参数所覆盖：</p>
+<pre><code class="language-make">test +FLAGS='-q':
+  cargo test {{FLAGS}}
+</code></pre>
+<p><code>{{…}}</code> 的替换可能需要加引号，如果它们包含空格。例如，如果你有以下配方：</p>
+<pre><code class="language-make">search QUERY:
+  lynx https://www.google.com/?q={{QUERY}}
+</code></pre>
+<p>然后你输入：</p>
+<pre><code class="language-sh">$ just search &quot;cat toupee&quot;
+</code></pre>
+<p><code>just</code> 将运行 <code>lynx https://www.google.com/?q=cat toupee</code> 命令，这将被 <code>sh</code> 解析为<code>lynx</code>、<code>https://www.google.com/?q=cat</code> 和 <code>toupee</code>，而不是原来的 <code>lynx</code> 和 <code>https://www.google.com/?q=cat toupee</code>。</p>
+<p>你可以通过添加引号来解决这个问题：</p>
+<pre><code class="language-make">search QUERY:
+  lynx 'https://www.google.com/?q={{QUERY}}'
+</code></pre>
+<p>以 <code>$</code> 为前缀的参数将被作为环境变量导出：</p>
+<pre><code class="language-make">foo $bar:
+  echo $bar
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="在配方的末尾运行配方"><a class="header" href="#在配方的末尾运行配方">在配方的末尾运行配方</a></h3>
+<p>一个配方的正常依赖总是在配方开始之前运行。也就是说，被依赖方总是在依赖方之前运行。这些依赖被称为 “前期依赖”。</p>
+<p>一个配方也可以有后续的依赖，它们在配方之后运行，用 <code>&amp;&amp;</code> 表示：</p>
+<pre><code class="language-make">a:
+  echo 'A!'
+
+b: a &amp;&amp; c d
+  echo 'B!'
+
+c:
+  echo 'C!'
+
+d:
+  echo 'D!'
+</code></pre>
+<p>…运行 <em>b</em> 输出：</p>
+<pre><code class="language-sh">$ just b
+echo 'A!'
+A!
+echo 'B!'
+B!
+echo 'C!'
+C!
+echo 'D!'
+D!
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="在配方中间运行配方"><a class="header" href="#在配方中间运行配方">在配方中间运行配方</a></h3>
+<p><code>just</code> 不支持在配方的中间运行另一个配方，但你可以在一个配方的中间递归调用 <code>just</code>。例如以下 <code>justfile</code>：</p>
+<pre><code class="language-make">a:
+  echo 'A!'
+
+b: a
+  echo 'B start!'
+  just c
+  echo 'B end!'
+
+c:
+  echo 'C!'
+</code></pre>
+<p>…运行 <em>b</em> 输出：</p>
+<pre><code class="language-sh">$ just b
+echo 'A!'
+A!
+echo 'B start!'
+B start!
+echo 'C!'
+C!
+echo 'B end!'
+B end!
+</code></pre>
+<p>这有局限性，因为配方 <code>c</code> 是以一个全新的 <code>just</code> 调用来运行的，赋值将被重新计算，依赖可能会运行两次，命令行参数不会被传入到子 <code>just</code> 进程。</p>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="用其他语言书写配方"><a class="header" href="#用其他语言书写配方">用其他语言书写配方</a></h3>
+<p>以 <code>#!</code> 开头的配方将作为脚本执行，因此你可以用其他语言编写配方：</p>
+<pre><code class="language-make">polyglot: python js perl sh ruby
+
+python:
+  #!/usr/bin/env python3
+  print('Hello from python!')
+
+js:
+  #!/usr/bin/env node
+  console.log('Greetings from JavaScript!')
+
+perl:
+  #!/usr/bin/env perl
+  print &quot;Larry Wall says Hi!\n&quot;;
+
+sh:
+  #!/usr/bin/env sh
+  hello='Yo'
+  echo &quot;$hello from a shell script!&quot;
+
+ruby:
+  #!/usr/bin/env ruby
+  puts &quot;Hello from ruby!&quot;
+</code></pre>
+<pre><code class="language-sh">$ just polyglot
+Hello from python!
+Greetings from JavaScript!
+Larry Wall says Hi!
+Yo from a shell script!
+Hello from ruby!
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="更加安全的-bash-shebang-配方"><a class="header" href="#更加安全的-bash-shebang-配方">更加安全的 Bash Shebang 配方</a></h3>
+<p>如果你正在写一个 <code>bash</code> Shebang 配方，考虑加入 <code>set -euxo pipefail</code>：</p>
+<pre><code class="language-make">foo:
+  #!/usr/bin/env bash
+  set -euxo pipefail
+  hello='Yo'
+  echo &quot;$hello from Bash!&quot;
+</code></pre>
+<p>严格意义上说这不是必须的，但是 <code>set -euxo pipefail</code> 开启了一些有用的功能，使 <code>bash</code> Shebang 配方的行为更像正常的、行式的 <code>just</code> 配方:</p>
+<ul>
+<li>
+<p><code>set -e</code> 使 <code>bash</code> 在命令失败时退出。</p>
+</li>
+<li>
+<p><code>set -u</code> 使 <code>bash</code> 在变量未定义时退出。</p>
+</li>
+<li>
+<p><code>set -x</code> 使 <code>bash</code> 在运行前打印每一行脚本。</p>
+</li>
+<li>
+<p><code>set -o pipefail</code> 使 <code>bash</code> 在管道中的一个命令失败时退出。这是 <code>bash</code> 特有的，所以在普通的行式 <code>just</code> 配方中没有开启。</p>
+</li>
+</ul>
+<p>这些措施共同避免了很多 Shell 脚本的问题。</p>
+<h4 id="在-windows-上执行-shebang-配方"><a class="header" href="#在-windows-上执行-shebang-配方">在 Windows 上执行 Shebang 配方</a></h4>
+<p>在 Windows 上，包含 <code>/</code> 的 Shebang 解释器路径通过 <code>cygpath</code> 从 Unix 风格的路径转换为 Windows 风格的路径，该工具随 <a href="http://www.cygwin.com">Cygwin</a> 一起提供。</p>
+<p>例如，要在 Windows 上执行这个配方：</p>
+<pre><code class="language-make">echo:
+  #!/bin/sh
+  echo &quot;Hello!&quot;
+</code></pre>
+<p>解释器路径 <code>/bin/sh</code> 在执行前将被 <code>cygpath</code> 翻译成 Windows 风格的路径。</p>
+<p>如果解释器路径不包含 <code>/</code>，它将被执行而不被翻译。这主要用于 <code>cygpath</code> 不可用或者你希望向解释器传递一个 Windows 风格的路径的情况下。</p>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="在配方中设置变量"><a class="header" href="#在配方中设置变量">在配方中设置变量</a></h3>
+<p>配方代码行是由 Shell 解释的，而不是 <code>just</code>，所以不可能在配方中设置 <code>just</code> 变量：</p>
+<pre><code class="language-mf">foo:
+  x := &quot;hello&quot; # This doesn't work!
+  echo {{x}}
+</code></pre>
+<p>使用 Shell 变量是可能的，但还有一个问题：每一行配方都由一个新的 Shell 实例运行，所以在一行中设置的变量不会在下一行中生效：</p>
+<pre><code class="language-make">foo:
+  x=hello &amp;&amp; echo $x # 这个没问题！
+  y=bye
+  echo $y            # 这个是有问题的, `y` 在此处未定义!
+</code></pre>
+<p>解决这个问题的最好方法是使用 Shebang 配方。Shebang 配方体被提取出来并作为脚本运行，所以一个 Shell 实例就可以运行整个配方体：</p>
+<pre><code class="language-make">foo:
+  #!/usr/bin/env bash
+  set -euxo pipefail
+  x=hello
+  echo $x
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="改变配方中的工作目录"><a class="header" href="#改变配方中的工作目录">改变配方中的工作目录</a></h3>
+<p>每一行配方都由一个新的 Shell 执行，所以如果你在某一行改变了工作目录，对后面的行不会有影响：</p>
+<pre><code class="language-make">foo:
+  pwd    # This `pwd` will print the same directory…
+  cd bar
+  pwd    # …as this `pwd`!
+</code></pre>
+<p>有几个方法可以解决这个问题。一个是在你想运行的命令的同一行调用 <code>cd</code>：</p>
+<pre><code class="language-make">foo:
+  cd bar &amp;&amp; pwd
+</code></pre>
+<p>另一种方法是使用 Shebang 配方。Shebang 配方体被提取并作为脚本运行，因此一个 Shell 实例将运行整个配方体，所以一行的 <code>pwd</code> 改变将影响后面的行，就像一个 Shell 脚本：</p>
+<pre><code class="language-make">foo:
+  #!/usr/bin/env bash
+  set -euxo pipefail
+  cd bar
+  pwd
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="缩进"><a class="header" href="#缩进">缩进</a></h3>
+<p>配方代码行可以用空格或制表符缩进，但不能两者混合使用。一个配方的所有行必须有相同的缩进，但同一 <code>justfile</code> 中的不同配方可以使用不同的缩进。</p>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="多行结构"><a class="header" href="#多行结构">多行结构</a></h3>
+<p>没有初始 Shebang 的配方会被逐行评估和运行，这意味着多行结构可能不会像你预期的那样工作。</p>
+<p>例如对于下面的 <code>justfile</code>：</p>
+<pre><code class="language-mf">conditional:
+  if true; then
+    echo 'True!'
+  fi
+</code></pre>
+<p>在 <code>conditional</code> 配方的第二行前有额外的前导空格，会产生一个解析错误：</p>
+<pre><code class="language-sh">$ just conditional
+error: Recipe line has extra leading whitespace
+  |
+3 |         echo 'True!'
+  |     ^^^^^^^^^^^^^^^^
+</code></pre>
+<p>为了解决这个问题，你可以在一行上写条件，用斜线转义换行，或者在你的配方中添加一个 Shebang。我们提供了一些多行结构的例子可供参考。</p>
+<h4 id="if-语句"><a class="header" href="#if-语句"><code>if</code> 语句</a></h4>
+<pre><code class="language-make">conditional:
+  if true; then echo 'True!'; fi
+</code></pre>
+<pre><code class="language-make">conditional:
+  if true; then \
+    echo 'True!'; \
+  fi
+</code></pre>
+<pre><code class="language-make">conditional:
+  #!/usr/bin/env sh
+  if true; then
+    echo 'True!'
+  fi
+</code></pre>
+<h4 id="for-循环"><a class="header" href="#for-循环"><code>for</code> 循环</a></h4>
+<pre><code class="language-make">for:
+  for file in `ls .`; do echo $file; done
+</code></pre>
+<pre><code class="language-make">for:
+  for file in `ls .`; do \
+    echo $file; \
+  done
+</code></pre>
+<pre><code class="language-make">for:
+  #!/usr/bin/env sh
+  for file in `ls .`; do
+    echo $file
+  done
+</code></pre>
+<h4 id="while-循环"><a class="header" href="#while-循环"><code>while</code> 循环</a></h4>
+<pre><code class="language-make">while:
+  while `server-is-dead`; do ping -c 1 server; done
+</code></pre>
+<pre><code class="language-make">while:
+  while `server-is-dead`; do \
+    ping -c 1 server; \
+  done
+</code></pre>
+<pre><code class="language-make">while:
+  #!/usr/bin/env sh
+  while `server-is-dead`; do
+    ping -c 1 server
+  done
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="命令行选项"><a class="header" href="#命令行选项">命令行选项</a></h3>
+<p><code>just</code> 提供了一些有用的命令行选项，用于列出、Dump 和调试配方以及变量：</p>
+<pre><code class="language-sh">$ just --list
+Available recipes:
+  js
+  perl
+  polyglot
+  python
+  ruby
+$ just --show perl
+perl:
+  #!/usr/bin/env perl
+  print &quot;Larry Wall says Hi!\n&quot;;
+$ just --show polyglot
+polyglot: python js perl sh ruby
+</code></pre>
+<p>可以通过 <code>just --help</code> 命令查看所有选项。</p>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="私有配方"><a class="header" href="#私有配方">私有配方</a></h3>
+<p>名字以 <code>_</code> 开头的配方和别名将在 <code>just --list</code> 中被忽略：</p>
+<pre><code class="language-make">test: _test-helper
+  ./bin/test
+
+_test-helper:
+  ./bin/super-secret-test-helper-stuff
+</code></pre>
+<pre><code class="language-sh">$ just --list
+Available recipes:
+    test
+</code></pre>
+<p><code>just --summary</code> 亦然：</p>
+<pre><code class="language-sh">$ just --summary
+test
+</code></pre>
+<p>这对那些只作为其他配方的依赖使用的辅助配方很有用。</p>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="安静配方"><a class="header" href="#安静配方">安静配方</a></h3>
+<p>配方名称可在前面加上 <code>@</code>，可以在每行反转行首 <code>@</code> 的含义：</p>
+<pre><code class="language-make">@quiet:
+  echo hello
+  echo goodbye
+  @# all done!
+</code></pre>
+<p>现在只有以 <code>@</code> 开头的行才会被回显：</p>
+<pre><code class="language-sh">$ j quiet
+hello
+goodbye
+# all done!
+</code></pre>
+<p>Shebang 配方默认是安静的：</p>
+<pre><code class="language-make">foo:
+  #!/usr/bin/env bash
+  echo 'Foo!'
+</code></pre>
+<pre><code class="language-sh">$ just foo
+Foo!
+</code></pre>
+<p>在 Shebang 配方名称前面添加 <code>@</code>，使 <code>just</code> 在执行配方前打印该配方：</p>
+<pre><code class="language-make">@bar:
+  #!/usr/bin/env bash
+  echo 'Bar!'
+</code></pre>
+<pre><code class="language-sh">$ just bar
+#!/usr/bin/env bash
+echo 'Bar!'
+Bar!
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="通过交互式选择器选择要运行的配方"><a class="header" href="#通过交互式选择器选择要运行的配方">通过交互式选择器选择要运行的配方</a></h3>
+<p><code>--choose</code> 子命令可以使 <code>just</code> 唤起一个选择器来让您选择要运行的配方。选择器应该从标准输入中读取包含配方名称的行，并将其中一个或多个用空格分隔的名称打印到标准输出。</p>
+<p>因为目前没有办法通过 <code>--choose</code> 运行一个需要传入参数的配方，所以这样的配方将不会在选择器中列出。另外，私有配方和别名也会被忽略。</p>
+<p>选择器可以用 <code>--chooser</code> 标志来覆写。如果 <code>--chooser</code> 没有给出，那么 <code>just</code> 首先检查 <code>$JUST_CHOOSER</code> 是否被设置。如果没有，那么将使用默认选择器 <code>fzf</code>，这是一个流行的模糊查找器。</p>
+<p>参数可以包含在选择器中，例如：<code>fzf --exact</code>。</p>
+<p>选择器的调用方式与配方行的调用方式相同。例如，如果选择器是 <code>fzf</code>，它将被通过 <code>sh -cu 'fzf'</code> 调用，如果 Shell 或 Shell 参数被覆写，选择器的调用将尊重这些覆写。</p>
+<p>如果你希望 <code>just</code> 默认用选择器来选择配方，你可以用这个作为你的默认配方：</p>
+<pre><code class="language-make">default:
+  @just --choose
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="在其他目录下调用-justfile"><a class="header" href="#在其他目录下调用-justfile">在其他目录下调用 <code>justfile</code></a></h3>
+<p>如果传递给 <code>just</code> 的第一个参数包含 <code>/</code>，那么就会发生以下情况：</p>
+<ol>
+<li>
+<p>参数在最后的 <code>/</code> 处被分割；</p>
+</li>
+<li>
+<p>最后一个 <code>/</code> 之前的部分将被视为一个目录。<code>just</code> 将从这里开始搜索 <code>justfile</code>，而不是在当前目录下；</p>
+</li>
+<li>
+<p>最后一个斜线之后的部分被视为正常参数，如果是空的，则被忽略；</p>
+</li>
+</ol>
+<p>这可能看起来有点奇怪，但如果你想在一个子目录下的 <code>justfile</code> 中运行一个命令，这很有用。</p>
+<p>例如，如果你在一个目录中，该目录包含一个名为 <code>foo</code> 的子目录，该目录包含一个 <code>justfile</code>，其配方为 <code>build</code>，也是默认的配方，以下都是等同的：</p>
+<pre><code class="language-sh">$ (cd foo &amp;&amp; just build)
+$ just foo/build
+$ just foo/
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="隐藏-justfile"><a class="header" href="#隐藏-justfile">隐藏 <code>justfile</code></a></h3>
+<p><code>just</code> 会寻找名为 <code>justfile</code> 和 <code>.justfile</code> 的 <code>justfile</code>，因此你也可以使用隐藏的 <code>justfile</code>（即 <code>.justfile</code>）。</p>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="just-脚本"><a class="header" href="#just-脚本">Just 脚本</a></h3>
+<p>通过在 <code>justfile</code> 的顶部添加 Shebang 行并使其可执行，<code>just</code> 可以作为脚本的解释器使用：</p>
+<pre><code class="language-sh">$ cat &gt; script &lt;&lt;EOF
+#!/usr/bin/env just --justfile
+
+foo:
+  echo foo
+EOF
+$ chmod +x script
+$ ./script foo
+echo foo
+foo
+</code></pre>
+<p>当一个带有 Shebang 的脚本被执行时，系统会提供该脚本的路径作为 Shebang 中命令的参数。因此，如果 Shebang 是 <code>#!/usr/bin/env just --justfile</code>，对应的命令将是 <code>/usr/bin/env just --justfile PATH_TO_SCRIPT</code>。</p>
+<p>对于上面的命令，<code>just</code> 会把它的工作目录改为脚本的位置。如果你想让工作目录保持不变，可以使用 <code>#!/usr/bin/env just --working-directory . --justfile</code>。</p>
+<p>注意：Shebang 的行分隔在不同的操作系统中并不一致。前面的例子只在 macOS 上进行了测试。在 Linux 上，你可能需要向 <code>env</code> 传递 <code>-S</code> 标志：</p>
+<pre><code class="language-make">#!/usr/bin/env -S just --justfile
+
+default:
+  echo foo
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="将-justfile-转为json文件"><a class="header" href="#将-justfile-转为json文件">将 <code>justfile</code> 转为JSON文件</a></h3>
+<p><code>--dump</code> 命令可以和 <code>--dump-format json</code> 一起使用，以打印一个 <code>justfile</code> 的JSON表示。JSON格式目前还不稳定，所以需要添加 <code>--unstable</code> 标志。</p>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="回退到父-justfile"><a class="header" href="#回退到父-justfile">回退到父 <code>justfile</code></a></h3>
+<p>如果没有找到配方，<code>just</code> 将在父目录和递归地在其上级目录里寻找 <code>justfile</code>，直到到达根目录。</p>
+<p>这个功能目前是不稳定的，所以必须用 <code>--unstable</code> 标志启用。</p>
+<p>举个例子，假设当前目录包含这个 <code>justfile</code>：</p>
+<pre><code class="language-make">foo:
+  echo foo
+</code></pre>
+<p>而父目录包含这个 <code>justfile</code>：</p>
+<pre><code class="language-make">bar:
+  echo bar
+</code></pre>
+<pre><code class="language-sh">$ just --unstable bar
+Trying ../justfile
+echo bar
+bar
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="更新日志"><a class="header" href="#更新日志">更新日志</a></h2>
+<p>最新版本的更新日志可以在 <a href="CHANGELOG.html">CHANGELOG.md</a> 中找到。以前版本的更新日志可在 <a href="https://github.com/casey/just/releases">发布页</a> 找到。<code>just --changelog</code> 也可以用来使 <code>just</code> 二进制文件打印其更新日志。</p>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="杂项"><a class="header" href="#杂项">杂项</a></h2>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="配套工具"><a class="header" href="#配套工具">配套工具</a></h3>
+<p>与 <code>just</code> 搭配得很好的工具包括：</p>
+<ul>
+<li><a href="https://github.com/mattgreen/watchexec"><code>watchexec</code></a> — 一个简单的工具，它监控一个路径，并在检测到修改时运行一个命令。</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="shell-别名"><a class="header" href="#shell-别名">Shell 别名</a></h3>
+<p>为了快速运行命令, 可以把 <code>alias j=just</code> 放在你的 Shell 配置文件中。</p>
+<p>在 <code>bash</code> 中，别名的命令可能不会保留下一节中描述的 Shell 自动补全功能。可以在你的 <code>.bashrc</code> 中添加以下一行，以便在你的别名命令中使用与 <code>just</code> 相同的自动补全功能：</p>
+<pre><code class="language-sh">complete -F _just -o bashdefault -o default j
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="shell-自动补全脚本"><a class="header" href="#shell-自动补全脚本">Shell 自动补全脚本</a></h3>
+<p>Bash、Zsh、Fish、PowerShell 和 Elvish 的 Shell 自动补全脚本可以在 <a href="completions">自动补全</a> 目录下找到。关于如何安装它们，请参考你的 Shell 文档。</p>
+<p><code>just</code> 二进制文件也可以在运行时生成相同的自动补全脚本，使用 <code>--completions</code> 命令即可，如下：</p>
+<pre><code class="language-sh">$ just --completions zsh &gt; just.zsh
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="语法"><a class="header" href="#语法">语法</a></h3>
+<p>在 <a href="GRAMMAR.html">GRAMMAR.md</a> 中可以找到一个非正式的 <code>justfile</code> 语法说明。</p>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="justsh"><a class="header" href="#justsh">just.sh</a></h3>
+<p>在 <code>just</code> 成为一个精致的 Rust 程序之前，它是一个很小的 Shell 脚本，叫 <code>make</code>。你可以在 <a href="extras/just.sh">extras/just.sh</a> 中找到旧版本。</p>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="用户-justfile"><a class="header" href="#用户-justfile">用户 <code>justfile</code></a></h3>
+<p>如果你想让一些配方在任何地方都能使用，你有几个选择。</p>
+<p>首先，在 <code>~/.user.justfile</code> 中创建一个带有一些配方的 <code>justfile</code>。</p>
+<h4 id="配方别名"><a class="header" href="#配方别名">配方别名</a></h4>
+<p>如果你想通过名称来调用 <code>~/.user.justfile</code> 中的配方，并且不介意为每个配方创建一个别名，可以在你的 Shell 初始化脚本中加入以下内容：</p>
+<pre><code class="language-sh">for recipe in `just --justfile ~/.user.justfile --summary`; do
+  alias $recipe=&quot;just --justfile ~/.user.justfile --working-directory . $recipe&quot;
+done
+</code></pre>
+<p>现在，如果你在 <code>~/.user.justfile</code> 里有一个叫 <code>foo</code> 的配方，你可以在命令行输入 <code>foo</code> 来运行它。</p>
+<p>我花了很长时间才意识到你可以像这样创建配方别名。尽管有点迟，但我很高兴给你带来这个 <code>justfile</code> 技术的重大进步。</p>
+<h4 id="别名转发"><a class="header" href="#别名转发">别名转发</a></h4>
+<p>如果你不想为每个配方创建别名，你可以创建一个别名：</p>
+<pre><code class="language-sh">alias .j='just --justfile ~/.user.justfile --working-directory .'
+</code></pre>
+<p>现在，如果你在 <code>~/.user.justfile</code> 里有一个叫 <code>foo</code> 的配方，你可以在命令行输入 <code>.j foo</code> 来运行它。</p>
+<p>我很确定没有人真正使用这个功能，但它确实存在。</p>
+<p>¯\_(ツ)_/¯</p>
+<h4 id="定制化"><a class="header" href="#定制化">定制化</a></h4>
+<p>你可以用额外的选项来定制上述别名。例如，如果你想让你的 <code>justfile</code> 中的配方在你的主目录中运行，而不是在当前目录中运行：</p>
+<pre><code class="language-sh">alias .j='just --justfile ~/.user.justfile --working-directory ~'
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="nodejs-packagejson-脚本兼容性"><a class="header" href="#nodejs-packagejson-脚本兼容性">Node.js <code>package.json</code> 脚本兼容性</a></h3>
+<p>下面的导出语句使 <code>just</code> 配方能够访问本地 Node 模块二进制文件，并使 <code>just</code> 配方命令的行为更像 Node.js <code>package.json</code> 文件中的 <code>script</code> 条目：</p>
+<pre><code class="language-make">export PATH := &quot;./node_modules/.bin:&quot; + env_var('PATH')
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="替代方案"><a class="header" href="#替代方案">替代方案</a></h3>
+<p>现在并不缺少命令运行器！在这里，有一些或多或少比较类似于 <code>just</code> 的替代方案，包括：</p>
+<ul>
+<li>
+<p><a href="https://github.com/tj/mmake">mmake</a>: 一个围绕 <code>make</code> 的包装器，有很多改进，包括远程引入。</p>
+</li>
+<li>
+<p><a href="https://github.com/tj/robo">robo</a>: 一个用 Go 编写的基于 YAML 的命令运行器。</p>
+</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="贡献"><a class="header" href="#贡献">贡献</a></h2>
+<p><code>just</code> 欢迎你的贡献! <code>just</code> 是在最大许可的 <a href="https://creativecommons.org/publicdomain/zero/1.0/legalcode.txt">CC0</a> 公共领域奉献和后备许可下发布的，所以你的修改也必须在这个许可下发布。</p>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="janus"><a class="header" href="#janus">Janus</a></h3>
+<p><a href="https://github.com/casey/janus">Janus</a> 是一个收集和分析 <code>justfile</code> 的工具，可以确定新版本的 <code>just</code> 是否会破坏或改变现有 <code>justfile</code> 的解析。</p>
+<p>在合并一个特别大的或可怕的变化之前，应该运行 <code>Janus</code> 以确保没有任何破坏。不要担心自己运行 <code>Janus</code>，Casey 会很乐意在需要时为你运行它。</p>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="最小支持的-rust-版本"><a class="header" href="#最小支持的-rust-版本">最小支持的 Rust 版本</a></h3>
+<p>最低支持的 Rust 版本，即 MSRV，是 Rust 1.47.0。</p>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="常见问题"><a class="header" href="#常见问题">常见问题</a></h2>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="just-避免了-make-的哪些特异性"><a class="header" href="#just-避免了-make-的哪些特异性">Just 避免了 Make 的哪些特异性？</a></h3>
+<p><code>make</code> 有一些行为令人感到困惑、复杂，或者使它不适合作为通用的命令运行器。</p>
+<p>一个例子是，在某些情况下，<code>make</code> 不会实际运行配方中的命令。例如，如果你有一个名为 <code>test</code> 的文件和以下 makefile：</p>
+<pre><code class="language-make">test:
+  ./test
+</code></pre>
+<p><code>make</code> 将会拒绝运行你的测试：</p>
+<pre><code class="language-sh">$ make test
+make: `test' is up to date.
+</code></pre>
+<p><code>make</code> 假定 <code>test</code> 配方产生一个名为 <code>test</code> 的文件。由于这个文件已经存在，而且由于配方没有其他依赖，<code>make</code> 认为它没有任何事情可做并退出。</p>
+<p>公平地说，当把 <code>make</code> 作为一个构建系统时，这种行为是可取的，但当把它作为一个命令运行器时就不可取了。你可以使用 <code>make</code> 内置的 <a href="https://www.gnu.org/software/make/manual/html_node/Phony-Targets.html"><code>.PHONY</code> 目标名称</a> 为特定的目标禁用这种行为，但其语法很冗长，而且很难记住。明确的虚假目标列表与配方定义分开写，也带来了意外定义新的非虚假目标的风险。在 <code>just</code> 中，所有的配方都被当作是虚假的。</p>
+<p>其他 <code>make</code> 特异行为的例子包括赋值中 <code>=</code> 和 <code>:=</code> 的区别；如果你弄乱了你的 makefile，将会产生混乱的错误信息；需要 <code>$$</code> 在配方中使用环境变量；以及不同口味的 <code>make</code> 之间的不相容性。</p>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="just-和-cargo-构建脚本之间有什么关系"><a class="header" href="#just-和-cargo-构建脚本之间有什么关系">Just 和 Cargo 构建脚本之间有什么关系？</a></h3>
+<p><a href="http://doc.crates.io/build-script.html"><code>cargo</code> 构建脚本</a> 有一个相当特定的用途，就是控制 <code>cargo</code> 如何构建你的 Rust 项目。这可能包括给 <code>rustc</code> 调用添加标志，构建外部依赖，或运行某种 codegen 步骤。</p>
+<p>另一方面，<code>just</code> 是用于你可能在开发中会运行的所有其他的杂项命令。比如在不同的配置下运行测试，对代码进行检查，将构建的产出推送到服务器，删除临时文件，等等。</p>
+<p>另外，尽管 <code>just</code> 是用 Rust 编写的，但它可以被用于任何语言或项目使用的构建系统。</p>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="进一步漫谈"><a class="header" href="#进一步漫谈">进一步漫谈</a></h2>
+<p>我个人认为为几乎每个项目写一个 <code>justfile</code> 非常有用，无论大小。</p>
+<p>在一个有多个贡献者的大项目中，有一个包含项目工作所需的所有命令的文件是非常有用的，这样所有命令唾手可得。</p>
+<p>可能有不同的命令来测试、构建、检查、部署等等，把它们都放在一个地方是很方便的，可以减少你花在告诉人们要运行哪些命令和如何输入这些命令的时间。</p>
+<p>而且，有了一个容易放置命令的地方，你很可能会想出其他有用的东西，这些东西是项目集体智慧的一部分，但没有写在任何地方，比如修订控制工作流程的某些部分需要的神秘命令，安装你项目的所有依赖，或者所有你可能需要传递给构建系统的任意标志等。</p>
+<p>一些关于配方的想法：</p>
+<ul>
+<li>
+<p>部署/发布项目</p>
+</li>
+<li>
+<p>在发布模式与调试模式下进行构建</p>
+</li>
+<li>
+<p>在调试模式下运行或启用日志记录功能</p>
+</li>
+<li>
+<p>复杂的 git 工作流程</p>
+</li>
+<li>
+<p>更新依赖</p>
+</li>
+<li>
+<p>运行不同的测试集，例如快速测试与慢速测试，或以更多输出模式运行它们</p>
+</li>
+<li>
+<p>任何复杂的命令集，你真的应该写下来，如果只是为了能够记住它们的话</p>
+</li>
+</ul>
+<p>即使是小型的个人项目，能够通过名字记住命令，而不是通过 ^Reverse 搜索你的 Shell 历史，这也是一个巨大的福音，能够进入一个用任意语言编写的旧项目，并知道你需要用到的所有命令都在 <code>justfile</code> 中，如果你输入 <code>just</code>，就可能会输出一些有用的（或至少是有趣的！）信息。</p>
+<p>关于配方的想法，请查看 <a href="justfile">这个项目的 <code>justfile</code></a>，或一些 <a href="https://github.com/search?o=desc&amp;q=filename%3Ajustfile&amp;s=indexed&amp;type=Code">在其他项目里</a> 的 <code>justfile</code>。</p>
+<p>总之，我想这个令人难以置信地啰嗦的 README 就到此为止了。</p>
+<p>我希望你喜欢使用 <code>just</code>，并在你所有的计算工作中找到巨大的成功和满足！</p>
+<p>😸</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+            </nav>
+
+        </div>
+
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        <script type="text/javascript">
+        window.addEventListener('load', function() {
+            window.setTimeout(window.print, 100);
+        });
+        </script>
+    </body>
+</html>
