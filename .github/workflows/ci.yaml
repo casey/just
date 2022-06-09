@@ -86,7 +86,8 @@ jobs:
         cargo run --package generate-book
         mdbook build book/en
         mdbook build book/zh
-        cp screenshot.png www/man
+        cp screenshot.png www/en/man
+        cp screenshot.png www/zh/man
 
     - name: Deploy Pages
       uses: peaceiris/actions-gh-pages@v3
