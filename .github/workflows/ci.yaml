@@ -84,7 +84,8 @@ jobs:
       if: ${{ matrix.os == 'ubuntu-latest' }}
       run: |
         cargo run --package generate-book
-        mdbook build book
+        mdbook build book/en
+        mdbook build book/zh
         cp screenshot.png www/man
 
     - name: Deploy Pages

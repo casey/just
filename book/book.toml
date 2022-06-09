@@ -1,9 +1,0 @@
-[book]
-authors = ["Casey Rodarmor"]
-language = "en"
-multilingual = false
-src = "src"
-title = "Just Programmer's Manual"
-
-[build]
-build-dir = "../www/man"
