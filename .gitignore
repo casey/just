@@ -1,6 +1,7 @@
 /.vagrant
 /README.html
-/book/src
+/book/en/src
+/book/zh/src
 /fuzz/artifacts
 /fuzz/corpus
 /fuzz/target
