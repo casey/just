@@ -68,7 +68,7 @@ fn main() -> Result<(), Box<dyn Error>> {
       ));
     }
 
-    fs::write(format!("src}/SUMMARY.md", src), summary).unwrap();
+    fs::write(format!("{}/SUMMARY.md", src), summary).unwrap();
   }
 
   Ok(())
