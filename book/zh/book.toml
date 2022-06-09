@@ -2,7 +2,7 @@
 authors = ["Casey Rodarmor"]
 language = "zh"
 src = "src"
-title = "Just Programmer's Manual"
+title = "Just 用户指南"
 
 [build]
 build-dir = "../../www/man/zh"

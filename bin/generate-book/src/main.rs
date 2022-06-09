@@ -27,6 +27,13 @@ impl Language {
       Self::Chinese => ".中文",
     }
   }
+
+  fn introduction(&self) -> &'static str {
+    match self {
+      Self::Chinese => "介绍",
+      Self::English => "Introduction",
+    }
+  }
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -53,7 +60,7 @@ fn main() -> Result<(), Box<dyn Error>> {
       cmark(chapter.iter(), &mut txt)?;
       let title = if i == 0 {
         txt = txt.split_inclusive('\n').skip(1).collect::<String>();
-        "Introduction"
+        language.introduction()
       } else {
         txt.lines().next().unwrap().split_once(' ').unwrap().1
       };
