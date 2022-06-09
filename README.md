@@ -23,7 +23,7 @@
 
 `just` is a handy way to save and run project-specific commands.
 
-This readme is also available as a [book](https://just.systems/man/);
+This readme is also available as a [book](https://just.systems/man/en/);
 
 (中文文档在 [这里](README.中文.md), 快看过来!)
 
