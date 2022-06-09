@@ -58,7 +58,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         txt.lines().next().unwrap().split_once(' ').unwrap().1
       };
 
-      let path = format!("{src}/chapter_{}.md", i + 1);
+      let path = format!("{}/chapter_{}.md", src, i + 1);
       fs::write(&path, &txt)?;
       summary.push_str(&format!(
         "{}- [{}](chapter_{}.md)\n",
@@ -68,7 +68,7 @@ fn main() -> Result<(), Box<dyn Error>> {
       ));
     }
 
-    fs::write(format!("{src}/SUMMARY.md"), summary).unwrap();
+    fs::write(format!("src}/SUMMARY.md", src), summary).unwrap();
   }
 
   Ok(())
