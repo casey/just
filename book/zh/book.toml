@@ -1,0 +1,8 @@
+[book]
+authors = ["Casey Rodarmor"]
+language = "zh"
+src = "src"
+title = "Just Programmer's Manual"
+
+[build]
+build-dir = "../../www/man/zh"
