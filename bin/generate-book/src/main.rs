@@ -30,7 +30,7 @@ impl Language {
 
   fn introduction(&self) -> &'static str {
     match self {
-      Self::Chinese => "介绍",
+      Self::Chinese => "说明",
       Self::English => "Introduction",
     }
   }
