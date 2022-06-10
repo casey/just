@@ -723,6 +723,20 @@ set shell := ["zsh", "-uc"]
 set shell := ["fish", "-c"]
 ```
 
+##### Nushell
+
+```make
+set shell := ["nu", "-c"]
+```
+
+If you want to change the default table mode to `light`:
+
+```make
+set shell := ['nu', '-m', 'light', '-c']
+```
+
+*[Nushell](https://github.com/nushell/nushell) was written in Rust, and **has cross-platform support for Windows / macOS and Linux**.*
+
 ### Documentation Comments
 
 Comments immediately preceding a recipe will appear in `just --list`:
@@ -1491,6 +1505,11 @@ sh:
   #!/usr/bin/env sh
   hello='Yo'
   echo "$hello from a shell script!"
+
+nu:
+  #!/usr/bin/env nu
+  let hello = 'Yo'
+  echo $"($hello) from a shell script!"
 
 ruby:
   #!/usr/bin/env ruby

@@ -27,7 +27,7 @@
 
 命令，在此也称为配方，存储在一个名为 `justfile` 的文件中，其语法受 `make` 启发：
 
-![screenshot](screenshot.png)
+![screenshot](https://raw.githubusercontent.com/casey/just/master/screenshot.png)
 
 然后你可以用 `just RECIPE` 运行它们：
 
@@ -718,6 +718,20 @@ set shell := ["zsh", "-uc"]
 ```make
 set shell := ["fish", "-c"]
 ```
+
+##### Nushell
+
+```make
+set shell := ["nu", "-c"]
+```
+
+如果你想设置默认的表格显示模式为 `light`:
+
+```make
+set shell := ['nu', '-m', 'light', '-c']
+```
+
+*[Nushell](https://github.com/nushell/nushell) 使用 Rust 开发并且具备良好的跨平台能力，**支持 Windows / macOS 和各种 Linux 发行版***
 
 ### 文档注释
 
@@ -1489,6 +1503,11 @@ sh:
   hello='Yo'
   echo "$hello from a shell script!"
 
+nu:
+  #!/usr/bin/env nu
+  let hello = 'Yo'
+  echo $"($hello) from a shell script!"
+
 ruby:
   #!/usr/bin/env ruby
   puts "Hello from ruby!"
@@ -1899,7 +1918,7 @@ bar
 更新日志
 ---------
 
-最新版本的更新日志可以在 [CHANGELOG.md](CHANGELOG.md) 中找到。以前版本的更新日志可在 [发布页](https://github.com/casey/just/releases) 找到。`just --changelog` 也可以用来使 `just` 二进制文件打印其更新日志。
+最新版本的更新日志可以在 [CHANGELOG.md](https://raw.githubusercontent.com/casey/just/master/CHANGELOG.md) 中找到。以前版本的更新日志可在 [发布页](https://github.com/casey/just/releases) 找到。`just --changelog` 也可以用来使 `just` 二进制文件打印其更新日志。
 
 杂项
 -----------
