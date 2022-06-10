@@ -590,6 +590,13 @@ hello:
 <h5 id="fish"><a class="header" href="#fish">Fish</a></h5>
 <pre><code class="language-make">set shell := [&quot;fish&quot;, &quot;-c&quot;]
 </code></pre>
+<h5 id="nushell"><a class="header" href="#nushell">Nushell</a></h5>
+<pre><code class="language-make">set shell := [&quot;nu&quot;, &quot;-c&quot;]
+</code></pre>
+<p>If you want to change the default table mode to <code>light</code>:</p>
+<pre><code class="language-make">set shell := ['nu', '-m', 'light', '-c']
+</code></pre>
+<p><em><a href="https://github.com/nushell/nushell">Nushell</a> was written in Rust, and <strong>has cross-platform support for Windows / macOS and Linux</strong>.</em></p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="documentation-comments"><a class="header" href="#documentation-comments">Documentation Comments</a></h3>
 <p>Comments immediately preceding a recipe will appear in <code>just --list</code>:</p>
 <pre><code class="language-make"># build stuff
@@ -1158,6 +1165,11 @@ sh:
   #!/usr/bin/env sh
   hello='Yo'
   echo &quot;$hello from a shell script!&quot;
+
+nu:
+  #!/usr/bin/env nu
+  let hello = 'Yo'
+  echo $&quot;($hello) from a shell script!&quot;
 
 ruby:
   #!/usr/bin/env ruby

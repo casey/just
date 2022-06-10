@@ -157,7 +157,7 @@
 <p><code>just</code> 为您提供一种保存和运行项目特有命令的便捷方式。</p>
 <p>本指南同时也可以以 <a href="https://just.systems/man/zh/">书</a> 的形式提供在线阅读；</p>
 <p>命令，在此也称为配方，存储在一个名为 <code>justfile</code> 的文件中，其语法受 <code>make</code> 启发：</p>
-<p><img src="screenshot.png" alt="screenshot" /></p>
+<p><img src="https://raw.githubusercontent.com/casey/just/master/screenshot.png" alt="screenshot" /></p>
 <p>然后你可以用 <code>just RECIPE</code> 运行它们：</p>
 <pre><code class="language-sh">$ just test-all
 cc *.c -o main
@@ -588,6 +588,13 @@ hello:
 <h5 id="fish"><a class="header" href="#fish">Fish</a></h5>
 <pre><code class="language-make">set shell := [&quot;fish&quot;, &quot;-c&quot;]
 </code></pre>
+<h5 id="nushell"><a class="header" href="#nushell">Nushell</a></h5>
+<pre><code class="language-make">set shell := [&quot;nu&quot;, &quot;-c&quot;]
+</code></pre>
+<p>如果你想设置默认的表格显示模式为 <code>light</code>:</p>
+<pre><code class="language-make">set shell := ['nu', '-m', 'light', '-c']
+</code></pre>
+<p><em><a href="https://github.com/nushell/nushell">Nushell</a> 使用 Rust 开发并且具备良好的跨平台能力，<strong>支持 Windows / macOS 和各种 Linux 发行版</strong></em></p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="文档注释"><a class="header" href="#文档注释">文档注释</a></h3>
 <p>紧接着配方前面的注释将出现在 <code>just --list</code> 中：</p>
 <pre><code class="language-make"># build stuff
@@ -1157,6 +1164,11 @@ sh:
   hello='Yo'
   echo &quot;$hello from a shell script!&quot;
 
+nu:
+  #!/usr/bin/env nu
+  let hello = 'Yo'
+  echo $&quot;($hello) from a shell script!&quot;
+
 ruby:
   #!/usr/bin/env ruby
   puts &quot;Hello from ruby!&quot;
@@ -1437,7 +1449,7 @@ echo bar
 bar
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="更新日志"><a class="header" href="#更新日志">更新日志</a></h2>
-<p>最新版本的更新日志可以在 <a href="CHANGELOG.html">CHANGELOG.md</a> 中找到。以前版本的更新日志可在 <a href="https://github.com/casey/just/releases">发布页</a> 找到。<code>just --changelog</code> 也可以用来使 <code>just</code> 二进制文件打印其更新日志。</p>
+<p>最新版本的更新日志可以在 <a href="https://raw.githubusercontent.com/casey/just/master/CHANGELOG.md">CHANGELOG.md</a> 中找到。以前版本的更新日志可在 <a href="https://github.com/casey/just/releases">发布页</a> 找到。<code>just --changelog</code> 也可以用来使 <code>just</code> 二进制文件打印其更新日志。</p>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="杂项"><a class="header" href="#杂项">杂项</a></h2>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="配套工具"><a class="header" href="#配套工具">配套工具</a></h3>
 <p>与 <code>just</code> 搭配得很好的工具包括：</p>
