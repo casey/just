@@ -120,6 +120,9 @@ pub(crate) enum Error<'src> {
     recipe: &'src str,
     io_error: io::Error,
   },
+  Update {
+    message: String,
+  },
   Unknown {
     recipe: &'src str,
     line_number: Option<usize>,
@@ -565,6 +568,9 @@ impl<'src> ColorDisplay for Error<'src> {
          directory or write a file to that directory`:{}",
         recipe, io_error
       )?,
+      Update { message } => {
+        write!(f, "Error while updating: {}", message)?;
+      }
       Unknown {
         recipe,
         line_number,

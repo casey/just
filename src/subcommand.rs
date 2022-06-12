@@ -34,6 +34,7 @@ pub(crate) enum Subcommand {
     name: String,
   },
   Summary,
+  Update,
   Variables,
 }
 
@@ -56,6 +57,7 @@ impl Subcommand {
         arguments,
         overrides,
       } => return Self::run(config, loader, arguments, overrides),
+      Update => return Self::update(),
       _ => {}
     }
 
@@ -80,7 +82,7 @@ impl Subcommand {
       Show { ref name } => Self::show(config, name, justfile)?,
       Summary => Self::summary(config, justfile),
       Variables => Self::variables(justfile),
-      Changelog | Completions { .. } | Edit | Init | Run { .. } => unreachable!(),
+      Changelog | Completions { .. } | Edit | Init | Run { .. } | Update => unreachable!(),
     }
 
     Ok(())
@@ -526,6 +528,20 @@ impl Subcommand {
         .join(" ");
       println!("{}", summary);
     }
+  }
+
+  fn update() -> Result<(), Error<'static>> {
+    let result = crate::update::update_just();
+    let _status = match result {
+      Err(update_error) => {
+        return Err(Error::Update {
+          message: update_error.to_string(),
+        })
+      }
+      Ok(status) => status,
+    };
+
+    Ok(())
   }
 
   fn variables(justfile: Justfile) {

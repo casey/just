@@ -30,6 +30,7 @@ lexiclean = "0.0.1"
 libc = "0.2.0"
 log = "0.4.4"
 regex = "1.5.4"
+self_update = { version = "0.30.0", features = ["archive-tar", "compression-flate2"] }
 serde = { version = "1.0.130", features = ["derive", "rc"] }
 serde_json = "1.0.68"
 sha2 = "0.10"

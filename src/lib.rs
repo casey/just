@@ -119,6 +119,7 @@ mod token_kind;
 mod unindent;
 mod unresolved_dependency;
 mod unresolved_recipe;
+mod update;
 mod use_color;
 mod variables;
 mod verbosity;

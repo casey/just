@@ -45,6 +45,7 @@ mod cmd {
   pub(crate) const LIST: &str = "LIST";
   pub(crate) const SHOW: &str = "SHOW";
   pub(crate) const SUMMARY: &str = "SUMMARY";
+  pub(crate) const UPDATE: &str = "UPDATE";
   pub(crate) const VARIABLES: &str = "VARIABLES";
 
   pub(crate) const ALL: &[&str] = &[
@@ -60,6 +61,7 @@ mod cmd {
     LIST,
     SHOW,
     SUMMARY,
+    UPDATE,
     VARIABLES,
   ];
 
@@ -73,6 +75,7 @@ mod cmd {
     LIST,
     SHOW,
     SUMMARY,
+    UPDATE,
     VARIABLES,
   ];
 }
@@ -334,6 +337,11 @@ impl Config {
           .help("List names of available recipes"),
       )
       .arg(
+        Arg::with_name(cmd::UPDATE)
+          .long("update")
+          .help("Update just in-place to its latest version"),
+      )
+      .arg(
         Arg::with_name(cmd::VARIABLES)
           .long("variables")
           .help("List names of variables"),
@@ -543,6 +551,8 @@ impl Config {
         variable: positional.arguments.into_iter().next(),
         overrides,
       }
+    } else if matches.is_present(cmd::UPDATE) {
+      Subcommand::Update
     } else if matches.is_present(cmd::VARIABLES) {
       Subcommand::Variables
     } else {
@@ -1004,6 +1014,11 @@ mod tests {
   error! {
     name: subcommand_conflict_completions,
     args: ["--list", "--completions"],
+  }
+
+  error! {
+    name: subcommand_conflict_variables,
+    args: ["--list", "--update"],
   }
 
   error! {
