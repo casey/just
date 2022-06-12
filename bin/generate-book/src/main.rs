@@ -1,11 +1,7 @@
 use {
-  pulldown_cmark::{
-    Event,
-    HeadingLevel::{H2, H3},
-    Options, Parser, Tag,
-  },
+  pulldown_cmark::{Event, HeadingLevel, Options, Parser, Tag},
   pulldown_cmark_to_cmark::cmark,
-  std::{error::Error, fs},
+  std::{error::Error, fs, ops::Deref},
 };
 
 enum Language {
@@ -36,6 +32,40 @@ impl Language {
   }
 }
 
+struct Chapter<'a> {
+  level: HeadingLevel,
+  events: Vec<Event<'a>>,
+}
+
+impl<'a> Chapter<'a> {
+  fn title(&self) -> String {
+    self
+      .events
+      .iter()
+      .skip_while(|event| !matches!(event, Event::Start(Tag::Heading(..))))
+      .skip(1)
+      .take_while(|event| !matches!(event, Event::End(Tag::Heading(..))))
+      .filter_map(|event| match event {
+        Event::Code(content) | Event::Text(content) => Some(content.deref()),
+        _ => None,
+      })
+      .collect()
+  }
+
+  fn slug(&self) -> String {
+    let mut slug = String::new();
+    for c in self.title().chars() {
+      match c {
+        'A'..='Z' => slug.extend(c.to_lowercase()),
+        ' ' => slug.push('-'),
+        '.' => {}
+        _ => slug.push(c),
+      }
+    }
+    slug
+  }
+}
+
 fn main() -> Result<(), Box<dyn Error>> {
   for language in [Language::English, Language::Chinese] {
     let src = format!("book/{}/src", language.code());
@@ -44,20 +74,27 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let txt = fs::read_to_string(format!("README{}.md", language.suffix()))?;
 
-    let mut chapters = vec![(1usize, Vec::new())];
+    let mut chapters = vec![Chapter {
+      level: HeadingLevel::H1,
+      events: Vec::new(),
+    }];
 
     for event in Parser::new_ext(&txt, Options::all()) {
-      if let Event::Start(Tag::Heading(level @ (H2 | H3), ..)) = event {
-        chapters.push((if level == H2 { 2 } else { 3 }, Vec::new()));
+      if let Event::Start(Tag::Heading(level @ (HeadingLevel::H2 | HeadingLevel::H3), ..)) = event {
+        chapters.push(Chapter {
+          level,
+          events: Vec::new(),
+        });
       }
-      chapters.last_mut().unwrap().1.push(event);
+      chapters.last_mut().unwrap().events.push(event);
     }
 
     let mut summary = String::new();
 
-    for (i, (level, chapter)) in chapters.into_iter().enumerate() {
+    for (i, chapter) in chapters.into_iter().enumerate() {
+      eprintln!("{} - {}", chapter.title(), chapter.slug());
       let mut txt = String::new();
-      cmark(chapter.iter(), &mut txt)?;
+      cmark(chapter.events.iter(), &mut txt)?;
       let title = if i == 0 {
         txt = txt.split_inclusive('\n').skip(1).collect::<String>();
         language.introduction()
@@ -67,9 +104,17 @@ fn main() -> Result<(), Box<dyn Error>> {
 
       let path = format!("{}/chapter_{}.md", src, i + 1);
       fs::write(&path, &txt)?;
+      let indent = match chapter.level {
+        HeadingLevel::H1 => 0,
+        HeadingLevel::H2 => 1,
+        HeadingLevel::H3 => 2,
+        HeadingLevel::H4 => 3,
+        HeadingLevel::H5 => 4,
+        HeadingLevel::H6 => 5,
+      };
       summary.push_str(&format!(
         "{}- [{}](chapter_{}.md)\n",
-        " ".repeat((level.saturating_sub(1)) * 4),
+        " ".repeat(indent * 4),
         title,
         i + 1
       ));
