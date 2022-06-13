@@ -165,6 +165,11 @@ watch-readme:
 generate-completions:
   ./bin/generate-completions
 
+build-book:
+  cargo run --package generate-book
+  mdbook build book/en
+  mdbook build book/zh
+
 # run all polyglot recipes
 polyglot: _python _js _perl _sh _ruby
 # (recipes that start with `_` are hidden from --list)

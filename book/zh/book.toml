@@ -5,4 +5,8 @@ src = "src"
 title = "Just 用户指南"
 
 [build]
-build-dir = "../../www/man/zh"
+build-dir = "build"
+
+[output.html]
+
+[output.linkcheck]
