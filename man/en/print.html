@@ -168,31 +168,31 @@ Yay, all your tests passed!
 <p><code>just</code> has a ton of useful features, and many improvements over <code>make</code>:</p>
 <ul>
 <li>
-<p><code>just</code> is a command runner, not a build system, so it avoids much of <a href="chapter_1.html#what-are-the-idiosyncrasies-of-make-that-just-avoids"><code>make</code>’s complexity and idiosyncrasies</a>. No need for <code>.PHONY</code> recipes!</p>
+<p><code>just</code> is a command runner, not a build system, so it avoids much of <a href="chapter_67.html"><code>make</code>’s complexity and idiosyncrasies</a>. No need for <code>.PHONY</code> recipes!</p>
 </li>
 <li>
-<p>Linux, MacOS, and Windows are supported with no additional dependencies. (Although if your system doesn’t have an <code>sh</code>, you’ll need to <a href="chapter_1.html#shell">choose a different shell</a>.)</p>
+<p>Linux, MacOS, and Windows are supported with no additional dependencies. (Although if your system doesn’t have an <code>sh</code>, you’ll need to <a href="chapter_23.html#shell">choose a different shell</a>.)</p>
 </li>
 <li>
 <p>Errors are specific and informative, and syntax errors are reported along with their source context.</p>
 </li>
 <li>
-<p>Recipes can accept <a href="chapter_1.html#recipe-parameters">command line arguments</a>.</p>
+<p>Recipes can accept <a href="chapter_35.html">command line arguments</a>.</p>
 </li>
 <li>
 <p>Wherever possible, errors are resolved statically. Unknown recipes and circular dependencies are reported before anything runs.</p>
 </li>
 <li>
-<p><code>just</code> <a href="chapter_1.html#dotenv-integration">loads <code>.env</code> files</a>, making it easy to populate environment variables.</p>
+<p><code>just</code> <a href="chapter_25.html">loads <code>.env</code> files</a>, making it easy to populate environment variables.</p>
 </li>
 <li>
-<p>Recipes can be <a href="chapter_1.html#listing-available-recipes">listed from the command line</a>.</p>
+<p>Recipes can be <a href="chapter_21.html">listed from the command line</a>.</p>
 </li>
 <li>
-<p>Command line completion scripts are <a href="chapter_1.html#shell-completion-scripts">available for most popular shells</a>.</p>
+<p>Command line completion scripts are <a href="chapter_57.html">available for most popular shells</a>.</p>
 </li>
 <li>
-<p>Recipes can be written in <a href="chapter_1.html#writing-recipes-in-other-languages">arbitrary languages</a>, like Python or NodeJS.</p>
+<p>Recipes can be written in <a href="chapter_38.html">arbitrary languages</a>, like Python or NodeJS.</p>
 </li>
 <li>
 <p><code>just</code> can be invoked from any subdirectory, not just the directory that contains the <code>justfile</code>.</p>
@@ -328,11 +328,11 @@ augroup END
 <div style="break-before: page; page-break-before: always;"></div><h3 id="kakoune"><a class="header" href="#kakoune">Kakoune</a></h3>
 <p>Kakoune supports <code>justfile</code> syntax highlighting out of the box, thanks to TeddyDD.</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="sublime-text"><a class="header" href="#sublime-text">Sublime Text</a></h3>
-<p>A syntax file for Sublime Text written by TonioGela is available in <a href="extras/just.sublime-syntax">extras/just.sublime-syntax</a>.</p>
+<p>A syntax file for Sublime Text written by TonioGela is available in <a href="https://github.com/casey/just/blob/master/extras/just.sublime-syntax">extras/just.sublime-syntax</a>.</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="other-editors"><a class="header" href="#other-editors">Other Editors</a></h3>
 <p>Feel free to send me the commands necessary to get syntax highlighting working in your editor of choice so that I may include them here.</p>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="quick-start"><a class="header" href="#quick-start">Quick Start</a></h2>
-<p>See <a href="chapter_17.html#installation">the installation section</a> for how to install <code>just</code> on your computer. Try running <code>just --version</code> to make sure that it’s installed correctly.</p>
+<p>See <a href="chapter_2.html">the installation section</a> for how to install <code>just</code> on your computer. Try running <code>just --version</code> to make sure that it’s installed correctly.</p>
 <p>For an overview of the syntax, check out <a href="https://cheatography.com/linux-china/cheat-sheets/justfile/">this cheatsheet</a>.</p>
 <p>Once <code>just</code> is installed and working, create a file named <code>justfile</code> in the root of your project with the following contents:</p>
 <pre><code class="language-make">recipe-name:
@@ -613,7 +613,7 @@ Available recipes:
     test # test stuff
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="dotenv-integration"><a class="header" href="#dotenv-integration">Dotenv Integration</a></h3>
-<p>If <a href="chapter_25.html#dotenv-load"><code>dotenv-load</code></a> is set, <code>just</code> will load environment variables from a file named <code>.env</code>. This file can be located in the same directory as your <code>justfile</code> or in a parent directory. These variables are environment variables, not <code>just</code> variables, and so must be accessed using <code>$VARIABLE_NAME</code> in recipes and backticks.</p>
+<p>If <a href="chapter_23.html#dotenv-load"><code>dotenv-load</code></a> is set, <code>just</code> will load environment variables from a file named <code>.env</code>. This file can be located in the same directory as your <code>justfile</code> or in a parent directory. These variables are environment variables, not <code>just</code> variables, and so must be accessed using <code>$VARIABLE_NAME</code> in recipes and backticks.</p>
 <p>For example, if your <code>.env</code> file contains:</p>
 <pre><code class="language-sh"># a comment, will be ignored
 DATABASE_ADDRESS=localhost:6379
@@ -741,7 +741,7 @@ Done!
 <pre><code class="language-sh">$ just system-info
 This is an x86_64 machine
 </code></pre>
-<p>The <code>os_family()</code> function can be used to create cross-platform <code>justfile</code>s that work on various operating systems. For an example, see <a href="examples/cross-platform.just">cross-platform.just</a> file.</p>
+<p>The <code>os_family()</code> function can be used to create cross-platform <code>justfile</code>s that work on various operating systems. For an example, see <a href="https://github.com/casey/just/blob/master/examples/cross-platform.just">cross-platform.just</a> file.</p>
 <h4 id="environment-variables"><a class="header" href="#environment-variables">Environment Variables</a></h4>
 <ul>
 <li><code>env_var(key)</code> — Retrieves the environment variable with name <code>key</code>, aborting if it is not present.</li>
@@ -889,7 +889,7 @@ stuff := ```
     echo bar
   ```
 </code></pre>
-<p>See the <a href="chapter_30.html#strings">Strings</a> section for details on unindenting.</p>
+<p>See the <a href="chapter_27.html">Strings</a> section for details on unindenting.</p>
 <p>Backticks may not start with <code>#!</code>. This syntax is reserved for a future upgrade.</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="conditional-expressions"><a class="header" href="#conditional-expressions">Conditional Expressions</a></h3>
 <p><code>if</code>/<code>else</code> expressions evaluate different branches depending on if two expressions evaluate to the same value:</p>
@@ -1005,7 +1005,7 @@ BAR := `echo hello $WORLD`
 a $A $B=`echo $A`:
   echo $A $B
 </code></pre>
-<p>When <a href="chapter_34.html#export">export</a> is set, all <code>just</code> variables are exported as environment variables.</p>
+<p>When <a href="chapter_23.html#export">export</a> is set, all <code>just</code> variables are exported as environment variables.</p>
 <h4 id="getting-environment-variables-from-the-environment"><a class="header" href="#getting-environment-variables-from-the-environment">Getting Environment Variables from the environment</a></h4>
 <p>Environment variables from the environment are passed automatically to the recipes.</p>
 <pre><code class="language-make">print_home_folder:
@@ -1015,10 +1015,10 @@ a $A $B=`echo $A`:
 HOME is '/home/myuser'
 </code></pre>
 <h4 id="loading-environment-variables-from-a-env-file"><a class="header" href="#loading-environment-variables-from-a-env-file">Loading Environment Variables from a <code>.env</code> File</a></h4>
-<p><code>just</code> will load environment variables from a <code>.env</code> file if <a href="chapter_34.html#dotenv-load">dotenv-load</a> is set. The variables in the file will be available as environment variables to the recipes. See <a href="chapter_34.html#dotenv-integration">dotenv-integration</a> for more information.</p>
+<p><code>just</code> will load environment variables from a <code>.env</code> file if <a href="chapter_23.html#dotenv-load">dotenv-load</a> is set. The variables in the file will be available as environment variables to the recipes. See <a href="chapter_25.html">dotenv-integration</a> for more information.</p>
 <h4 id="setting-just-variables-from-environments-variables"><a class="header" href="#setting-just-variables-from-environments-variables">Setting <code>just</code> Variables from Environments Variables</a></h4>
 <p>Environment variables can be propagated to <code>just</code> variables using the functions <code>env_var()</code> and <code>env_var_or_default()</code>.
-See <a href="chapter_34.html#environment-variables">environment-variables</a>.</p>
+See <a href="chapter_29.html#environment-variables">environment-variables</a>.</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="recipe-parameters"><a class="header" href="#recipe-parameters">Recipe Parameters</a></h3>
 <p>Recipes may have parameters. Here recipe <code>build</code> has a parameter called <code>target</code>:</p>
 <pre><code class="language-make">build target:
@@ -1466,14 +1466,14 @@ bar
 <pre><code class="language-sh">complete -F _just -o bashdefault -o default j
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="shell-completion-scripts"><a class="header" href="#shell-completion-scripts">Shell Completion Scripts</a></h3>
-<p>Shell completion scripts for Bash, Zsh, Fish, PowerShell, and Elvish are available in the <a href="completions">completions</a> directory. Please refer to your shell’s documentation for how to install them.</p>
+<p>Shell completion scripts for Bash, Zsh, Fish, PowerShell, and Elvish are available in the <a href="https://github.com/casey/just/tree/master/completions">completions</a> directory. Please refer to your shell’s documentation for how to install them.</p>
 <p>The <code>just</code> binary can also generate the same completion scripts at runtime, using the <code>--completions</code> command:</p>
 <pre><code class="language-sh">$ just --completions zsh &gt; just.zsh
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="grammar"><a class="header" href="#grammar">Grammar</a></h3>
-<p>A non-normative grammar of <code>justfile</code>s can be found in <a href="GRAMMAR.html">GRAMMAR.md</a>.</p>
+<p>A non-normative grammar of <code>justfile</code>s can be found in <a href="https://github.com/casey/just/blob/master/GRAMMAR.md">GRAMMAR.md</a>.</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="justsh"><a class="header" href="#justsh">just.sh</a></h3>
-<p>Before <code>just</code> was a fancy Rust program it was a tiny shell script that called <code>make</code>. You can find the old version in <a href="extras/just.sh">extras/just.sh</a>.</p>
+<p>Before <code>just</code> was a fancy Rust program it was a tiny shell script that called <code>make</code>. You can find the old version in <a href="https://github.com/casey/just/blob/master/extras/just.sh">extras/just.sh</a>.</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="user-justfiles"><a class="header" href="#user-justfiles">User <code>justfile</code>s</a></h3>
 <p>If you want some recipes to be available everywhere, you have a few options.</p>
 <p>First, create a <code>justfile</code> in <code>~/.user.justfile</code> with some recipes.</p>
@@ -1565,7 +1565,7 @@ make: `test' is up to date.
 </li>
 </ul>
 <p>Even for small, personal projects it’s nice to be able to remember commands by name instead of ^Reverse searching your shell history, and it’s a huge boon to be able to go into an old project written in a random language with a mysterious build system and know that all the commands you need to do whatever you need to do are in the <code>justfile</code>, and that if you type <code>just</code> something useful (or at least interesting!) will probably happen.</p>
-<p>For ideas for recipes, check out <a href="justfile">this project’s <code>justfile</code></a>, or some of the <code>justfile</code>s <a href="https://github.com/search?o=desc&amp;q=filename%3Ajustfile&amp;s=indexed&amp;type=Code">out in the wild</a>.</p>
+<p>For ideas for recipes, check out <a href="https://github.com/casey/just/blob/master/justfile">this project’s <code>justfile</code></a>, or some of the <code>justfile</code>s <a href="https://github.com/search?o=desc&amp;q=filename%3Ajustfile&amp;s=indexed&amp;type=Code">out in the wild</a>.</p>
 <p>Anyways, I think that’s about it for this incredibly long-winded README.</p>
 <p>I hope you enjoy using <code>just</code> and find great success and satisfaction in all your computational endeavors!</p>
 <p>😸</p>

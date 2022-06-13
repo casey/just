@@ -157,7 +157,7 @@ BAR := `echo hello $WORLD`
 a $A $B=`echo $A`:
   echo $A $B
 </code></pre>
-<p>当 <a href="#%E5%AF%BC%E5%87%BA">export</a> 被设置时，所有的 <code>just</code> 变量都将作为环境变量被导出。</p>
+<p>当 <a href="chapter_23.html#%E5%AF%BC%E5%87%BA">export</a> 被设置时，所有的 <code>just</code> 变量都将作为环境变量被导出。</p>
 <h4 id="从环境中获取环境变量"><a class="header" href="#从环境中获取环境变量">从环境中获取环境变量</a></h4>
 <p>来自环境的环境变量会自动传递给配方：</p>
 <pre><code class="language-make">print_home_folder:
@@ -167,10 +167,10 @@ a $A $B=`echo $A`:
 HOME is '/home/myuser'
 </code></pre>
 <h4 id="从-env-文件加载环境变量"><a class="header" href="#从-env-文件加载环境变量">从 <code>.env</code> 文件加载环境变量</a></h4>
-<p>如果 <a href="#%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E5%8A%A0%E8%BD%BD">dotenv-load</a> 被设置，<code>just</code> 将从 <code>.env</code> 文件中加载环境变量。该文件中的变量将作为环境变量提供给配方。参见 <a href="#env-%E9%9B%86%E6%88%90">环境变量集成</a> 以获得更多信息。</p>
+<p>如果 <a href="chapter_23.html#%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E5%8A%A0%E8%BD%BD">dotenv-load</a> 被设置，<code>just</code> 将从 <code>.env</code> 文件中加载环境变量。该文件中的变量将作为环境变量提供给配方。参见 <a href="chapter_25.html">环境变量集成</a> 以获得更多信息。</p>
 <h4 id="从环境变量中设置-just-变量"><a class="header" href="#从环境变量中设置-just-变量">从环境变量中设置 <code>just</code> 变量</a></h4>
 <p>环境变量可以通过函数 <code>env_var()</code> 和 <code>env_var_or_default()</code> 传入到 <code>just</code> 变量。
-参见 <a href="#%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F">environment-variables</a>。</p>
+参见 <a href="chapter_29.html#%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F">environment-variables</a>。</p>
 
                     </main>
 

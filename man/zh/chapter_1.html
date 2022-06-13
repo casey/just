@@ -166,31 +166,31 @@ Yay, all your tests passed!
 <p><code>just</code> 有很多很棒的特性，而且相比 <code>make</code> 有很多改进：</p>
 <ul>
 <li>
-<p><code>just</code> 是一个命令运行器，而不是一个构建系统，所以它避免了许多 <a href="#just-%E9%81%BF%E5%85%8D%E4%BA%86-make-%E7%9A%84%E5%93%AA%E4%BA%9B%E7%89%B9%E5%BC%82%E6%80%A7"><code>make</code> 的复杂性和特异性</a>。不需要 <code>.PHONY</code> 配方!</p>
+<p><code>just</code> 是一个命令运行器，而不是一个构建系统，所以它避免了许多 <a href="chapter_67.html"><code>make</code> 的复杂性和特异性</a>。不需要 <code>.PHONY</code> 配方!</p>
 </li>
 <li>
-<p>支持 Linux、MacOS 和 Windows，而且无需额外的依赖。(尽管如果你的系统没有 <code>sh</code>，你需要 <a href="#shell">选择一个不同的 Shell</a>)。</p>
+<p>支持 Linux、MacOS 和 Windows，而且无需额外的依赖。(尽管如果你的系统没有 <code>sh</code>，你需要 <a href="chapter_23.html#shell">选择一个不同的 Shell</a>)。</p>
 </li>
 <li>
 <p>错误具体且富有参考价值，语法错误将会与产生它们的上下文一起被报告。</p>
 </li>
 <li>
-<p>配方可以接受 <a href="#%E9%85%8D%E6%96%B9%E5%8F%82%E6%95%B0">命令行参数</a>。</p>
+<p>配方可以接受 <a href="chapter_35.html">命令行参数</a>。</p>
 </li>
 <li>
 <p>错误会尽可能被静态地解决。未知的配方和循环依赖关系会在运行之前被报告。</p>
 </li>
 <li>
-<p><code>just</code> 可以 <a href="#env-%E9%9B%86%E6%88%90">加载<code>.env</code>文件</a>，简化环境变量注入。</p>
+<p><code>just</code> 可以 <a href="chapter_25.html">加载<code>.env</code>文件</a>，简化环境变量注入。</p>
 </li>
 <li>
-<p>配方可以在 <a href="#%E5%88%97%E5%87%BA%E5%8F%AF%E7%94%A8%E7%9A%84%E9%85%8D%E6%96%B9">命令行中列出</a>。</p>
+<p>配方可以在 <a href="chapter_21.html">命令行中列出</a>。</p>
 </li>
 <li>
-<p>命令行自动补全脚本 <a href="#shell-%E8%87%AA%E5%8A%A8%E8%A1%A5%E5%85%A8%E8%84%9A%E6%9C%AC">支持大多数流行的 Shell</a>。</p>
+<p>命令行自动补全脚本 <a href="chapter_57.html">支持大多数流行的 Shell</a>。</p>
 </li>
 <li>
-<p>配方可以用 <a href="#%E7%94%A8%E5%85%B6%E4%BB%96%E8%AF%AD%E8%A8%80%E4%B9%A6%E5%86%99%E9%85%8D%E6%96%B9">任意语言</a> 编写，如 Python 或 NodeJS。</p>
+<p>配方可以用 <a href="chapter_38.html">任意语言</a> 编写，如 Python 或 NodeJS。</p>
 </li>
 <li>
 <p><code>just</code> 可以从任何子目录中调用，而不仅仅是包含 <code>justfile</code> 的目录。</p>

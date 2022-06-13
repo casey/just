@@ -157,7 +157,7 @@ BAR := `echo hello $WORLD`
 a $A $B=`echo $A`:
   echo $A $B
 </code></pre>
-<p>When <a href="#export">export</a> is set, all <code>just</code> variables are exported as environment variables.</p>
+<p>When <a href="chapter_23.html#export">export</a> is set, all <code>just</code> variables are exported as environment variables.</p>
 <h4 id="getting-environment-variables-from-the-environment"><a class="header" href="#getting-environment-variables-from-the-environment">Getting Environment Variables from the environment</a></h4>
 <p>Environment variables from the environment are passed automatically to the recipes.</p>
 <pre><code class="language-make">print_home_folder:
@@ -167,10 +167,10 @@ a $A $B=`echo $A`:
 HOME is '/home/myuser'
 </code></pre>
 <h4 id="loading-environment-variables-from-a-env-file"><a class="header" href="#loading-environment-variables-from-a-env-file">Loading Environment Variables from a <code>.env</code> File</a></h4>
-<p><code>just</code> will load environment variables from a <code>.env</code> file if <a href="#dotenv-load">dotenv-load</a> is set. The variables in the file will be available as environment variables to the recipes. See <a href="#dotenv-integration">dotenv-integration</a> for more information.</p>
+<p><code>just</code> will load environment variables from a <code>.env</code> file if <a href="chapter_23.html#dotenv-load">dotenv-load</a> is set. The variables in the file will be available as environment variables to the recipes. See <a href="chapter_25.html">dotenv-integration</a> for more information.</p>
 <h4 id="setting-just-variables-from-environments-variables"><a class="header" href="#setting-just-variables-from-environments-variables">Setting <code>just</code> Variables from Environments Variables</a></h4>
 <p>Environment variables can be propagated to <code>just</code> variables using the functions <code>env_var()</code> and <code>env_var_or_default()</code>.
-See <a href="#environment-variables">environment-variables</a>.</p>
+See <a href="chapter_29.html#environment-variables">environment-variables</a>.</p>
 
                     </main>
 

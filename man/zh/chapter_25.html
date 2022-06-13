@@ -135,7 +135,7 @@
                 <div id="content" class="content">
                     <main>
                         <h3 id="env-集成"><a class="header" href="#env-集成"><code>.env</code> 集成</a></h3>
-<p>如果 <a href="#%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E5%8A%A0%E8%BD%BD"><code>dotenv-load</code></a> 被设置，<code>just</code> 将从一个名为 <code>.env</code> 的文件中加载环境变量。这个文件可以和你的 <code>justfile</code> 位于同一目录下，或者位于其父目录下。这些变量是环境变量，而不是 <code>just</code> 的变量，因此必须使用 <code>$VARIABLE_NAME</code> 在配方和反引号中访问。</p>
+<p>如果 <a href="chapter_23.html#%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E5%8A%A0%E8%BD%BD"><code>dotenv-load</code></a> 被设置，<code>just</code> 将从一个名为 <code>.env</code> 的文件中加载环境变量。这个文件可以和你的 <code>justfile</code> 位于同一目录下，或者位于其父目录下。这些变量是环境变量，而不是 <code>just</code> 的变量，因此必须使用 <code>$VARIABLE_NAME</code> 在配方和反引号中访问。</p>
 <p>例如，假如你的 <code>.env</code> 文件包含：</p>
 <pre><code class="language-sh"># 注释，将被忽略
 DATABASE_ADDRESS=localhost:6379

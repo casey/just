@@ -167,31 +167,31 @@ Yay, all your tests passed!
 <p><code>just</code> 有很多很棒的特性，而且相比 <code>make</code> 有很多改进：</p>
 <ul>
 <li>
-<p><code>just</code> 是一个命令运行器，而不是一个构建系统，所以它避免了许多 <a href="chapter_1.html#just-%E9%81%BF%E5%85%8D%E4%BA%86-make-%E7%9A%84%E5%93%AA%E4%BA%9B%E7%89%B9%E5%BC%82%E6%80%A7"><code>make</code> 的复杂性和特异性</a>。不需要 <code>.PHONY</code> 配方!</p>
+<p><code>just</code> 是一个命令运行器，而不是一个构建系统，所以它避免了许多 <a href="chapter_67.html"><code>make</code> 的复杂性和特异性</a>。不需要 <code>.PHONY</code> 配方!</p>
 </li>
 <li>
-<p>支持 Linux、MacOS 和 Windows，而且无需额外的依赖。(尽管如果你的系统没有 <code>sh</code>，你需要 <a href="chapter_1.html#shell">选择一个不同的 Shell</a>)。</p>
+<p>支持 Linux、MacOS 和 Windows，而且无需额外的依赖。(尽管如果你的系统没有 <code>sh</code>，你需要 <a href="chapter_23.html#shell">选择一个不同的 Shell</a>)。</p>
 </li>
 <li>
 <p>错误具体且富有参考价值，语法错误将会与产生它们的上下文一起被报告。</p>
 </li>
 <li>
-<p>配方可以接受 <a href="chapter_1.html#%E9%85%8D%E6%96%B9%E5%8F%82%E6%95%B0">命令行参数</a>。</p>
+<p>配方可以接受 <a href="chapter_35.html">命令行参数</a>。</p>
 </li>
 <li>
 <p>错误会尽可能被静态地解决。未知的配方和循环依赖关系会在运行之前被报告。</p>
 </li>
 <li>
-<p><code>just</code> 可以 <a href="chapter_1.html#env-%E9%9B%86%E6%88%90">加载<code>.env</code>文件</a>，简化环境变量注入。</p>
+<p><code>just</code> 可以 <a href="chapter_25.html">加载<code>.env</code>文件</a>，简化环境变量注入。</p>
 </li>
 <li>
-<p>配方可以在 <a href="chapter_1.html#%E5%88%97%E5%87%BA%E5%8F%AF%E7%94%A8%E7%9A%84%E9%85%8D%E6%96%B9">命令行中列出</a>。</p>
+<p>配方可以在 <a href="chapter_21.html">命令行中列出</a>。</p>
 </li>
 <li>
-<p>命令行自动补全脚本 <a href="chapter_1.html#shell-%E8%87%AA%E5%8A%A8%E8%A1%A5%E5%85%A8%E8%84%9A%E6%9C%AC">支持大多数流行的 Shell</a>。</p>
+<p>命令行自动补全脚本 <a href="chapter_57.html">支持大多数流行的 Shell</a>。</p>
 </li>
 <li>
-<p>配方可以用 <a href="chapter_1.html#%E7%94%A8%E5%85%B6%E4%BB%96%E8%AF%AD%E8%A8%80%E4%B9%A6%E5%86%99%E9%85%8D%E6%96%B9">任意语言</a> 编写，如 Python 或 NodeJS。</p>
+<p>配方可以用 <a href="chapter_38.html">任意语言</a> 编写，如 Python 或 NodeJS。</p>
 </li>
 <li>
 <p><code>just</code> 可以从任何子目录中调用，而不仅仅是包含 <code>justfile</code> 的目录。</p>
@@ -326,11 +326,11 @@ augroup END
 <div style="break-before: page; page-break-before: always;"></div><h3 id="kakoune"><a class="header" href="#kakoune">Kakoune</a></h3>
 <p>Kakoune 已经内置支持 <code>justfile</code> 语法高亮，这要感谢 TeddyDD。</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="sublime-text"><a class="header" href="#sublime-text">Sublime Text</a></h3>
-<p>由 TonioGela 编写的 Sublime Text 的语法高亮文件在 <a href="extras/just.sublim-syntax">extras/just.sublim-syntax</a> 中提供。</p>
+<p>由 TonioGela 编写的 Sublime Text 的语法高亮文件在 <a href="https://github.com/casey/just/blob/master/extras/just.sublime-syntax">extras/just.sublim-syntax</a> 中提供。</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="其它编辑器"><a class="header" href="#其它编辑器">其它编辑器</a></h3>
 <p>欢迎给我发送必要的命令，以便在你选择的编辑器中实现语法高亮，这样我就可以把它们放在这里。</p>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="快速开始"><a class="header" href="#快速开始">快速开始</a></h2>
-<p>参见 <a href="chapter_17.html#%E5%AE%89%E8%A3%85">安装部分</a> 了解如何在你的电脑上安装 <code>just</code>。试着运行 <code>just --version</code> 以确保它被正确安装。</p>
+<p>参见 <a href="chapter_2.html">安装部分</a> 了解如何在你的电脑上安装 <code>just</code>。试着运行 <code>just --version</code> 以确保它被正确安装。</p>
 <p>关于语法的概述，请查看这个 <a href="https://cheatography.com/linux-china/cheat-sheets/justfile/">速查表</a>。</p>
 <p>一旦 <code>just</code> 安装完毕并开始工作，在你的项目根目录创建一个名为 <code>justfile</code> 的文件，内容如下：</p>
 <pre><code class="language-make">recipe-name:
@@ -611,7 +611,7 @@ Available recipes:
     test # test stuff
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="env-集成"><a class="header" href="#env-集成"><code>.env</code> 集成</a></h3>
-<p>如果 <a href="chapter_25.html#%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E5%8A%A0%E8%BD%BD"><code>dotenv-load</code></a> 被设置，<code>just</code> 将从一个名为 <code>.env</code> 的文件中加载环境变量。这个文件可以和你的 <code>justfile</code> 位于同一目录下，或者位于其父目录下。这些变量是环境变量，而不是 <code>just</code> 的变量，因此必须使用 <code>$VARIABLE_NAME</code> 在配方和反引号中访问。</p>
+<p>如果 <a href="chapter_23.html#%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E5%8A%A0%E8%BD%BD"><code>dotenv-load</code></a> 被设置，<code>just</code> 将从一个名为 <code>.env</code> 的文件中加载环境变量。这个文件可以和你的 <code>justfile</code> 位于同一目录下，或者位于其父目录下。这些变量是环境变量，而不是 <code>just</code> 的变量，因此必须使用 <code>$VARIABLE_NAME</code> 在配方和反引号中访问。</p>
 <p>例如，假如你的 <code>.env</code> 文件包含：</p>
 <pre><code class="language-sh"># 注释，将被忽略
 DATABASE_ADDRESS=localhost:6379
@@ -739,7 +739,7 @@ Done!
 <pre><code class="language-sh">$ just system-info
 This is an x86_64 machine
 </code></pre>
-<p><code>os_family()</code> 函数可以用来创建跨平台的 <code>justfile</code>，使其可以在不同的操作系统上工作。一个例子，见 <a href="examples/cross-platform.just">cross-platform.just</a> 文件。</p>
+<p><code>os_family()</code> 函数可以用来创建跨平台的 <code>justfile</code>，使其可以在不同的操作系统上工作。一个例子，见 <a href="https://github.com/casey/just/blob/master/examples/cross-platform.just">cross-platform.just</a> 文件。</p>
 <h4 id="环境变量"><a class="header" href="#环境变量">环境变量</a></h4>
 <ul>
 <li><code>env_var(key)</code> — 获取名称为 <code>key</code> 的环境变量，如果不存在则终止。</li>
@@ -887,7 +887,7 @@ stuff := ```
     echo bar
   ```
 </code></pre>
-<p>参见 <a href="chapter_30.html#%E5%AD%97%E7%AC%A6%E4%B8%B2">字符串</a> 部分，了解去除缩进的细节。</p>
+<p>参见 <a href="chapter_27.html">字符串</a> 部分，了解去除缩进的细节。</p>
 <p>反引号内不能以 <code>#!</code> 开头。这种语法是为将来的升级而保留的。</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="条件表达式"><a class="header" href="#条件表达式">条件表达式</a></h3>
 <p><code>if</code> / <code>else</code> 表达式评估不同的分支，取决于两个表达式是否评估为相同的值：</p>
@@ -1003,7 +1003,7 @@ BAR := `echo hello $WORLD`
 a $A $B=`echo $A`:
   echo $A $B
 </code></pre>
-<p>当 <a href="chapter_34.html#%E5%AF%BC%E5%87%BA">export</a> 被设置时，所有的 <code>just</code> 变量都将作为环境变量被导出。</p>
+<p>当 <a href="chapter_23.html#%E5%AF%BC%E5%87%BA">export</a> 被设置时，所有的 <code>just</code> 变量都将作为环境变量被导出。</p>
 <h4 id="从环境中获取环境变量"><a class="header" href="#从环境中获取环境变量">从环境中获取环境变量</a></h4>
 <p>来自环境的环境变量会自动传递给配方：</p>
 <pre><code class="language-make">print_home_folder:
@@ -1013,10 +1013,10 @@ a $A $B=`echo $A`:
 HOME is '/home/myuser'
 </code></pre>
 <h4 id="从-env-文件加载环境变量"><a class="header" href="#从-env-文件加载环境变量">从 <code>.env</code> 文件加载环境变量</a></h4>
-<p>如果 <a href="chapter_34.html#%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E5%8A%A0%E8%BD%BD">dotenv-load</a> 被设置，<code>just</code> 将从 <code>.env</code> 文件中加载环境变量。该文件中的变量将作为环境变量提供给配方。参见 <a href="chapter_34.html#env-%E9%9B%86%E6%88%90">环境变量集成</a> 以获得更多信息。</p>
+<p>如果 <a href="chapter_23.html#%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E5%8A%A0%E8%BD%BD">dotenv-load</a> 被设置，<code>just</code> 将从 <code>.env</code> 文件中加载环境变量。该文件中的变量将作为环境变量提供给配方。参见 <a href="chapter_25.html">环境变量集成</a> 以获得更多信息。</p>
 <h4 id="从环境变量中设置-just-变量"><a class="header" href="#从环境变量中设置-just-变量">从环境变量中设置 <code>just</code> 变量</a></h4>
 <p>环境变量可以通过函数 <code>env_var()</code> 和 <code>env_var_or_default()</code> 传入到 <code>just</code> 变量。
-参见 <a href="chapter_34.html#%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F">environment-variables</a>。</p>
+参见 <a href="chapter_29.html#%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F">environment-variables</a>。</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="配方参数"><a class="header" href="#配方参数">配方参数</a></h3>
 <p>配方可以有参数。这里的配方 <code>build</code> 有一个参数叫 <code>target</code>:</p>
 <pre><code class="language-make">build target:
@@ -1462,14 +1462,14 @@ bar
 <pre><code class="language-sh">complete -F _just -o bashdefault -o default j
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="shell-自动补全脚本"><a class="header" href="#shell-自动补全脚本">Shell 自动补全脚本</a></h3>
-<p>Bash、Zsh、Fish、PowerShell 和 Elvish 的 Shell 自动补全脚本可以在 <a href="completions">自动补全</a> 目录下找到。关于如何安装它们，请参考你的 Shell 文档。</p>
+<p>Bash、Zsh、Fish、PowerShell 和 Elvish 的 Shell 自动补全脚本可以在 <a href="https://github.com/casey/just/tree/master/completions">自动补全</a> 目录下找到。关于如何安装它们，请参考你的 Shell 文档。</p>
 <p><code>just</code> 二进制文件也可以在运行时生成相同的自动补全脚本，使用 <code>--completions</code> 命令即可，如下：</p>
 <pre><code class="language-sh">$ just --completions zsh &gt; just.zsh
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="语法"><a class="header" href="#语法">语法</a></h3>
-<p>在 <a href="GRAMMAR.html">GRAMMAR.md</a> 中可以找到一个非正式的 <code>justfile</code> 语法说明。</p>
+<p>在 <a href="https://github.com/casey/just/blob/master/GRAMMAR.md">GRAMMAR.md</a> 中可以找到一个非正式的 <code>justfile</code> 语法说明。</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="justsh"><a class="header" href="#justsh">just.sh</a></h3>
-<p>在 <code>just</code> 成为一个精致的 Rust 程序之前，它是一个很小的 Shell 脚本，叫 <code>make</code>。你可以在 <a href="extras/just.sh">extras/just.sh</a> 中找到旧版本。</p>
+<p>在 <code>just</code> 成为一个精致的 Rust 程序之前，它是一个很小的 Shell 脚本，叫 <code>make</code>。你可以在 <a href="https://github.com/casey/just/blob/master/extras/just.sh">extras/just.sh</a> 中找到旧版本。</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="用户-justfile"><a class="header" href="#用户-justfile">用户 <code>justfile</code></a></h3>
 <p>如果你想让一些配方在任何地方都能使用，你有几个选择。</p>
 <p>首先，在 <code>~/.user.justfile</code> 中创建一个带有一些配方的 <code>justfile</code>。</p>
@@ -1561,7 +1561,7 @@ make: `test' is up to date.
 </li>
 </ul>
 <p>即使是小型的个人项目，能够通过名字记住命令，而不是通过 ^Reverse 搜索你的 Shell 历史，这也是一个巨大的福音，能够进入一个用任意语言编写的旧项目，并知道你需要用到的所有命令都在 <code>justfile</code> 中，如果你输入 <code>just</code>，就可能会输出一些有用的（或至少是有趣的！）信息。</p>
-<p>关于配方的想法，请查看 <a href="justfile">这个项目的 <code>justfile</code></a>，或一些 <a href="https://github.com/search?o=desc&amp;q=filename%3Ajustfile&amp;s=indexed&amp;type=Code">在其他项目里</a> 的 <code>justfile</code>。</p>
+<p>关于配方的想法，请查看 <a href="https://github.com/casey/just/blob/master/justfile">这个项目的 <code>justfile</code></a>，或一些 <a href="https://github.com/search?o=desc&amp;q=filename%3Ajustfile&amp;s=indexed&amp;type=Code">在其他项目里</a> 的 <code>justfile</code>。</p>
 <p>总之，我想这个令人难以置信地啰嗦的 README 就到此为止了。</p>
 <p>我希望你喜欢使用 <code>just</code>，并在你所有的计算工作中找到巨大的成功和满足！</p>
 <p>😸</p>
