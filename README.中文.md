@@ -309,7 +309,7 @@ Kakoune 已经内置支持 `justfile` 语法高亮，这要感谢 TeddyDD。
 
 ### Sublime Text
 
-由 TonioGela 编写的 Sublime Text 的语法高亮文件在 [extras/just.sublim-syntax](extras/just.sublim-syntax) 中提供。
+由 TonioGela 编写的 Sublime Text 的语法高亮文件在 [extras/just.sublim-syntax](https://github.com/casey/just/blob/master/extras/just.sublime-syntax) 中提供。
 
 ### 其它编辑器
 
@@ -936,7 +936,7 @@ $ just system-info
 This is an x86_64 machine
 ```
 
-`os_family()` 函数可以用来创建跨平台的 `justfile`，使其可以在不同的操作系统上工作。一个例子，见 [cross-platform.just](examples/cross-platform.just) 文件。
+`os_family()` 函数可以用来创建跨平台的 `justfile`，使其可以在不同的操作系统上工作。一个例子，见 [cross-platform.just](https://github.com/casey/just/blob/master/examples/cross-platform.just) 文件。
 
 #### 环境变量
 
@@ -1941,7 +1941,7 @@ complete -F _just -o bashdefault -o default j
 
 ### Shell 自动补全脚本
 
-Bash、Zsh、Fish、PowerShell 和 Elvish 的 Shell 自动补全脚本可以在 [自动补全](completions) 目录下找到。关于如何安装它们，请参考你的 Shell 文档。
+Bash、Zsh、Fish、PowerShell 和 Elvish 的 Shell 自动补全脚本可以在 [自动补全](https://github.com/casey/just/tree/master/completions) 目录下找到。关于如何安装它们，请参考你的 Shell 文档。
 
 `just` 二进制文件也可以在运行时生成相同的自动补全脚本，使用 `--completions` 命令即可，如下：
 
@@ -1951,11 +1951,11 @@ $ just --completions zsh > just.zsh
 
 ### 语法
 
-在 [GRAMMAR.md](GRAMMAR.md) 中可以找到一个非正式的 `justfile` 语法说明。
+在 [GRAMMAR.md](https://github.com/casey/just/blob/master/GRAMMAR.md) 中可以找到一个非正式的 `justfile` 语法说明。
 
 ### just.sh
 
-在 `just` 成为一个精致的 Rust 程序之前，它是一个很小的 Shell 脚本，叫 `make`。你可以在 [extras/just.sh](extras/just.sh) 中找到旧版本。
+在 `just` 成为一个精致的 Rust 程序之前，它是一个很小的 Shell 脚本，叫 `make`。你可以在 [extras/just.sh](https://github.com/casey/just/blob/master/extras/just.sh) 中找到旧版本。
 
 ### 用户 `justfile`
 
@@ -2094,7 +2094,7 @@ make: `test' is up to date.
 
 即使是小型的个人项目，能够通过名字记住命令，而不是通过 ^Reverse 搜索你的 Shell 历史，这也是一个巨大的福音，能够进入一个用任意语言编写的旧项目，并知道你需要用到的所有命令都在 `justfile` 中，如果你输入 `just`，就可能会输出一些有用的（或至少是有趣的！）信息。
 
-关于配方的想法，请查看 [这个项目的 `justfile`](justfile)，或一些 [在其他项目里](https://github.com/search?o=desc&q=filename%3Ajustfile&s=indexed&type=Code) 的 `justfile`。
+关于配方的想法，请查看 [这个项目的 `justfile`](https://github.com/casey/just/blob/master/justfile)，或一些 [在其他项目里](https://github.com/search?o=desc&q=filename%3Ajustfile&s=indexed&type=Code) 的 `justfile`。
 
 总之，我想这个令人难以置信地啰嗦的 README 就到此为止了。
 

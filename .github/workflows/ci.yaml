@@ -80,6 +80,16 @@ jobs:
       with:
         mdbook-version: latest
 
+    - name: Install `mdbook-linkcheck`
+      if: ${{ matrix.os == 'ubuntu-latest' }}
+      run: |
+        mkdir -p mdbook-linkcheck
+        cd mdbook-linkcheck
+        wget https://github.com/Michael-F-Bryan/mdbook-linkcheck/releases/latest/download/mdbook-linkcheck.x86_64-unknown-linux-gnu.zip
+        unzip mdbook-linkcheck.x86_64-unknown-linux-gnu.zip
+        chmod +x mdbook-linkcheck
+        pwd >> $GITHUB_PATH
+
     - name: Build book
       if: ${{ matrix.os == 'ubuntu-latest' }}
       run: |

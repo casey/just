@@ -313,7 +313,7 @@ Kakoune supports `justfile` syntax highlighting out of the box, thanks to TeddyD
 
 ### Sublime Text
 
-A syntax file for Sublime Text written by TonioGela is available in [extras/just.sublime-syntax](extras/just.sublime-syntax).
+A syntax file for Sublime Text written by TonioGela is available in [extras/just.sublime-syntax](https://github.com/casey/just/blob/master/extras/just.sublime-syntax).
 
 ### Other Editors
 
@@ -940,7 +940,7 @@ $ just system-info
 This is an x86_64 machine
 ```
 
-The `os_family()` function can be used to create cross-platform `justfile`s that work on various operating systems. For an example, see [cross-platform.just](examples/cross-platform.just) file.
+The `os_family()` function can be used to create cross-platform `justfile`s that work on various operating systems. For an example, see [cross-platform.just](https://github.com/casey/just/blob/master/examples/cross-platform.just) file.
 
 #### Environment Variables
 
@@ -1946,7 +1946,7 @@ complete -F _just -o bashdefault -o default j
 
 ### Shell Completion Scripts
 
-Shell completion scripts for Bash, Zsh, Fish, PowerShell, and Elvish are available in the [completions](completions) directory. Please refer to your shell's documentation for how to install them.
+Shell completion scripts for Bash, Zsh, Fish, PowerShell, and Elvish are available in the [completions](https://github.com/casey/just/tree/master/completions) directory. Please refer to your shell's documentation for how to install them.
 
 The `just` binary can also generate the same completion scripts at runtime, using the `--completions` command:
 
@@ -1956,11 +1956,11 @@ $ just --completions zsh > just.zsh
 
 ### Grammar
 
-A non-normative grammar of `justfile`s can be found in [GRAMMAR.md](GRAMMAR.md).
+A non-normative grammar of `justfile`s can be found in [GRAMMAR.md](https://github.com/casey/just/blob/master/GRAMMAR.md).
 
 ### just.sh
 
-Before `just` was a fancy Rust program it was a tiny shell script that called `make`. You can find the old version in [extras/just.sh](extras/just.sh).
+Before `just` was a fancy Rust program it was a tiny shell script that called `make`. You can find the old version in [extras/just.sh](https://github.com/casey/just/blob/master/extras/just.sh).
 
 ### User `justfile`s
 
@@ -2099,7 +2099,7 @@ Some ideas for recipes:
 
 Even for small, personal projects it's nice to be able to remember commands by name instead of ^Reverse searching your shell history, and it's a huge boon to be able to go into an old project written in a random language with a mysterious build system and know that all the commands you need to do whatever you need to do are in the `justfile`, and that if you type `just` something useful (or at least interesting!) will probably happen.
 
-For ideas for recipes, check out [this project's `justfile`](justfile), or some of the `justfile`s [out in the wild](https://github.com/search?o=desc&q=filename%3Ajustfile&s=indexed&type=Code).
+For ideas for recipes, check out [this project's `justfile`](https://github.com/casey/just/blob/master/justfile), or some of the `justfile`s [out in the wild](https://github.com/search?o=desc&q=filename%3Ajustfile&s=indexed&type=Code).
 
 Anyways, I think that's about it for this incredibly long-winded README.
 

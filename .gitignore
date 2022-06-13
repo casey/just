@@ -1,6 +1,8 @@
 /.vagrant
 /README.html
+/book/en/build
 /book/en/src
+/book/zh/build
 /book/zh/src
 /fuzz/artifacts
 /fuzz/corpus
@@ -9,4 +11,3 @@
 /test-utilities/Cargo.lock
 /test-utilities/target
 /tmp
-/www/man
