@@ -80,6 +80,12 @@ jobs:
       with:
         mdbook-version: latest
 
+    - name: Install `mdbook-linkcheck`
+      if: ${{ matrix.os == 'ubuntu-latest' }}
+      run: |
+        curl -LSfs https://japaric.github.io/trust/install.sh | \
+          sh -s -- --git Michael-F-Bryan/mdbook-linkcheck
+
     - name: Build book
       if: ${{ matrix.os == 'ubuntu-latest' }}
       run: |
