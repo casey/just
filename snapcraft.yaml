@@ -5,8 +5,8 @@ summary: Just a command runner
 description: |
   just is a handy way to save and run project-specific commands.
 
-grade: stable # must be 'stable' to release into candidate/stable channels
-confinement: classic # use 'strict' once you have the right plugs and slots
+grade: stable
+confinement: classic
 
 apps:
   just:

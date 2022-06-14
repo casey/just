@@ -1,0 +1,31 @@
+name: Snap Release
+
+on:
+  push:
+    tags:
+    - '*'
+
+defaults:
+  run:
+    shell: bash
+
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+        - uses: actions/checkout@v2
+        - uses: snapcore/action-build@v1
+        
+        - name: Snapcraft Login
+          env:
+            SNAPCRAFT_LOGIN: ${{ secrets.SNAPCRAFT_LOGIN }}
+          run: |
+            snapcraft login -- with <(echo "$SNAPCRAFT_LOGIN")
+
+        - name: Snapcraft upload
+          run: |
+            snapcraft upload --release=stable just_${{github.ref_name}}_amd64.snap
+
