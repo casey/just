@@ -25,7 +25,7 @@
 
 This readme is also available as a [book](https://just.systems/man/en/);
 
-(中文文档在 [这里](README.中文.md), 快看过来!)
+(中文文档在 [这里](https://github.com/casey/just/blob/master/README.中文.md), 快看过来!)
 
 Commands, called recipes, are stored in a file called `justfile` with syntax inspired by `make`:
 
@@ -1592,6 +1592,22 @@ foo:
   set -euxo pipefail
   x=hello
   echo $x
+```
+
+### Sharing Environment Variables Between Recipes
+
+Each line of each recipe is executed by a fresh shell, so it is not possible to share environment variables between recipes.
+
+#### Using Python Virtual Environments
+
+Some tools, like [Python's venv](https://docs.python.org/3/library/venv.html), require loading environment variables in order to work, making them challenging to use with `just`. As a workaround, you can execute the virtual environment binaries directly:
+
+```make
+venv:
+  [ -d foo ] || python3 -m venv foo
+
+run: venv
+  ./foo/bin/python3 main.py
 ```
 
 ### Changing the Working Directory in a Recipe
