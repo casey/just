@@ -1600,7 +1600,7 @@ Each line of each recipe is executed by a fresh shell, so it is not possible to 
 
 #### Using Python Virtual Environments
 
-Some tools, like [Python's venv](https://docs.python.org/3/library/venv.html), require loading environment variables in order to work, making them challenging to use with `just`. As a workaround, you can execute the virtual environments directly:
+Some tools, like [Python's venv](https://docs.python.org/3/library/venv.html), require loading environment variables in order to work, making them challenging to use with `just`. As a workaround, you can execute the virtual environment binaries directly:
 
 ```make
 venv:
