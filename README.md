@@ -1968,7 +1968,7 @@ This preserves `just`'s ability to catch variable name typos before running, for
 
 #### Positional Arguments
 
-The `positional-arugments` setting causes all arguments to be passed as positional arguments, allowing them to be accessed with `$1`, `$2`, …, and `$@`, which can be then double-quoted to avoid further splitting by the shell:
+The `positional-arguments` setting causes all arguments to be passed as positional arguments, allowing them to be accessed with `$1`, `$2`, …, and `$@`, which can be then double-quoted to avoid further splitting by the shell:
 
 ```make
 set positional-arguments
