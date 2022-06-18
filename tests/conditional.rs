@@ -132,7 +132,7 @@ test! {
   ",
   stdout: "",
   stderr: "
-    error: Expected '!=', '==', '=~', or '+', but found identifier
+    error: Expected '!=', '==', '=~', '+', or '/', but found identifier
       |
     1 | a := if '' a '' { '' } else { b }
       |            ^

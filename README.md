@@ -790,11 +790,12 @@ Starting server with database localhost:6379 on port 1337…
 
 ### Variables and Substitution
 
-Variables, strings, concatenation, and substitution using `{{…}}` are supported:
+Variables, strings, concatenation, path joining, and substitution using `{{…}}` are supported:
 
 ```make
+tmpdir  := `mktemp`
 version := "0.2.7"
-tardir  := "awesomesauce-" + version
+tardir  := tmpdir / "awesomesauce-" + version
 tarball := tardir + ".tar.gz"
 
 publish:
@@ -805,6 +806,33 @@ publish:
   scp {{tarball}} me@server.com:release/
   rm -rf {{tarball}} {{tardir}}
 ```
+
+#### Joining Paths
+
+The `/` operator can be used to join two strings with a slash:
+
+```make
+foo := "a" / "b"
+```
+
+```
+$ just eval foo
+a/b
+```
+
+Note that a `/` is added even if one is already present:
+
+```make
+foo := "a/"
+bar := foo / "b"
+```
+
+```
+$ just eval bar
+a//b
+```
+
+The `/` operator uses the `/` character, even on Windows. Thus, using the `/` operator should be avoided with paths that use universal naming convention (UNC), i.e., those that start with `\?`, since forward slashes are not supported with UNC paths.
 
 #### Escaping `{{`
 
@@ -1051,7 +1079,7 @@ These functions can fail, for example if a path does not have an extension, whic
 
 ##### Infallible
 
-- `join(a, b…)` - Join path `a` with path `b`. `join("foo/bar", "baz")` is `foo/bar/baz`. Accepts two or more arguments.
+- `join(a, b…)` - *This function uses `/` on Unix and `\` on Windows, which can be lead to unwanted behavior. The `/` operator, e.g., `a / b`, which always uses `/`, should be considered as a replacement unless `\` are specifically desired on Windows.* Join path `a` with path `b`. `join("foo/bar", "baz")` is `foo/bar/baz`. Accepts two or more arguments.
 
 - `clean(path)` - Simplify `path` by removing extra path separators, intermediate `.` components, and `..` where possible. `clean("foo//bar")` is `foo/bar`, `clean("foo/..")` is `.`, `clean("foo/./bar")` is `foo/bar`.
 
@@ -1347,12 +1375,12 @@ Testing server:unit…
 ./test --tests unit server
 ```
 
-Default values may be arbitrary expressions, but concatenations must be parenthesized:
+Default values may be arbitrary expressions, but concatenations or path joins must be parenthesized:
 
 ```make
 arch := "wasm"
 
-test triple=(arch + "-unknown-unknown"):
+test triple=(arch + "-unknown-unknown") input=(arch / "input.dat"):
   ./test {{triple}}
 ```
 

@@ -196,6 +196,10 @@ pub enum Expression {
     otherwise: Box<Expression>,
     operator: ConditionalOperator,
   },
+  Join {
+    lhs: Box<Expression>,
+    rhs: Box<Expression>,
+  },
   String {
     text: String,
   },
@@ -250,6 +254,10 @@ impl Expression {
         },
       },
       Concatenation { lhs, rhs } => Expression::Concatenation {
+        lhs: Box::new(Expression::new(lhs)),
+        rhs: Box::new(Expression::new(rhs)),
+      },
+      Join { lhs, rhs } => Expression::Join {
         lhs: Box::new(Expression::new(lhs)),
         rhs: Box::new(Expression::new(rhs)),
       },
