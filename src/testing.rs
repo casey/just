@@ -1,4 +1,4 @@
-use crate::common::*;
+use super::*;
 
 use crate::compiler::Compiler;
 use pretty_assertions::assert_eq;

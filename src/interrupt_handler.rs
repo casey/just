@@ -1,4 +1,4 @@
-use crate::common::*;
+use super::*;
 
 pub(crate) struct InterruptHandler {
   blocks: u32,

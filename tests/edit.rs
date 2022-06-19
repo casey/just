@@ -1,4 +1,4 @@
-use crate::common::*;
+use super::*;
 
 const JUSTFILE: &str = "Yooooooo, hopefully this never becomes valid syntax.";
 

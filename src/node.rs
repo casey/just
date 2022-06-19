@@ -1,4 +1,4 @@
-use crate::common::*;
+use super::*;
 
 /// Methods common to all AST nodes. Currently only used in parser unit tests.
 pub(crate) trait Node<'src> {

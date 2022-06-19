@@ -1,7 +1,7 @@
 // `Self` cannot be used where type takes generic arguments
 #![allow(clippy::use_self)]
 
-use crate::common::*;
+use super::*;
 
 pub struct Enclosure<T: Display> {
   enclosure: &'static str,

@@ -1,4 +1,4 @@
-use crate::common::*;
+use super::*;
 
 pub(crate) trait Keyed<'key> {
   fn key(&self) -> &'key str;

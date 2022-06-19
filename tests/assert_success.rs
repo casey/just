@@ -1,4 +1,4 @@
-use crate::common::*;
+use super::*;
 
 pub(crate) fn assert_success(output: &Output) {
   if !output.status.success() {

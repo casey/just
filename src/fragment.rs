@@ -1,4 +1,4 @@
-use crate::common::*;
+use super::*;
 
 /// A line fragment consisting either of…
 #[derive(PartialEq, Debug, Clone)]

@@ -1,4 +1,4 @@
-use crate::common::*;
+use super::*;
 
 const INIT_JUSTFILE: &str = "default:\n    echo 'Hello, world!'\n";
 

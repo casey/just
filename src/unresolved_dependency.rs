@@ -1,4 +1,4 @@
-use crate::common::*;
+use super::*;
 
 #[derive(PartialEq, Debug, Clone)]
 pub(crate) struct UnresolvedDependency<'src> {

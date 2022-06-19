@@ -1,4 +1,4 @@
-use crate::common::*;
+use super::*;
 
 test! {
   name: unstable_not_passed,

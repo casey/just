@@ -1,4 +1,4 @@
-use crate::common::*;
+use super::*;
 
 /// An alias, e.g. `name := target`
 #[derive(Debug, PartialEq, Clone, Serialize)]

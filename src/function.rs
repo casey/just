@@ -1,7 +1,7 @@
 #![allow(unknown_lints)]
 #![allow(clippy::unnecessary_wraps)]
 
-use crate::common::*;
+use super::*;
 
 use Function::*;
 pub(crate) enum Function {

@@ -1,4 +1,4 @@
-use crate::common::*;
+use super::*;
 
 #[test]
 fn allow_duplicate_recipes() {

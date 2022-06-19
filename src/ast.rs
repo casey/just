@@ -1,4 +1,4 @@
-use crate::common::*;
+use super::*;
 
 /// The top-level type produced by the parser. Not all successful parses result
 /// in valid justfiles, so additional consistency checks and name resolution

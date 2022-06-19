@@ -1,4 +1,4 @@
-use crate::common::*;
+use super::*;
 
 test! {
   name: mismatched_delimiter,

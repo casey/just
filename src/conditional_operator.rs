@@ -1,4 +1,4 @@
-use crate::common::*;
+use super::*;
 
 /// A conditional expression operator.
 #[derive(PartialEq, Debug, Copy, Clone)]
