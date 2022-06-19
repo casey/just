@@ -1,4 +1,4 @@
-use crate::common::*;
+use super::*;
 
 fn test(justfile: &str, value: Value) {
   Test::new()

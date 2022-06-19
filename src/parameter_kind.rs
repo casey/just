@@ -1,4 +1,4 @@
-use crate::common::*;
+use super::*;
 
 /// Parameters can either be…
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Serialize)]

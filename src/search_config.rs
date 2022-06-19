@@ -1,4 +1,4 @@
-use crate::common::*;
+use super::*;
 
 /// Controls how `just` will search for the justfile.
 #[derive(Debug, PartialEq)]

@@ -1,4 +1,4 @@
-use crate::common::*;
+use super::*;
 
 pub(crate) const DEFAULT_SHELL: &str = "sh";
 pub(crate) const DEFAULT_SHELL_ARGS: &[&str] = &["-cu"];

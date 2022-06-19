@@ -1,4 +1,4 @@
-use crate::common::*;
+use super::*;
 
 pub(crate) fn compile(text: &str) {
   if let Err(error) = Parser::parse(text) {

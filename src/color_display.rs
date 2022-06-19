@@ -1,4 +1,4 @@
-use crate::common::*;
+use super::*;
 
 pub(crate) trait ColorDisplay {
   fn color_display<'a>(&'a self, color: Color) -> Wrapper<'a>

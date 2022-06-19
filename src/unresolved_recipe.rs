@@ -1,4 +1,4 @@
-use crate::common::*;
+use super::*;
 
 pub(crate) type UnresolvedRecipe<'src> = Recipe<'src, UnresolvedDependency<'src>>;
 

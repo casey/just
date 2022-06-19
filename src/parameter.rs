@@ -1,4 +1,4 @@
-use crate::common::*;
+use super::*;
 
 /// A single function parameter
 #[derive(PartialEq, Debug, Clone, Serialize)]

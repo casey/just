@@ -1,4 +1,4 @@
-use crate::common::*;
+use super::*;
 
 #[derive(Debug, Clone)]
 pub(crate) enum Setting<'src> {

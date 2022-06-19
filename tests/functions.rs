@@ -1,4 +1,4 @@
-use crate::common::*;
+use super::*;
 
 test! {
   name:     test_os_arch_functions_in_interpolation,

@@ -1,4 +1,4 @@
-use crate::common::*;
+use super::*;
 
 fn search_test<P: AsRef<Path>>(path: P, args: &[&str]) {
   let binary = executable_path("just");
