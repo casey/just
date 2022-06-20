@@ -120,7 +120,7 @@ You can also set the shell using command-line arguments. For example, to use Pow
 | [Gentoo Linux][gentoo linux]                         | [Portage][gentoo-portage] | [dm9pZCAq overlay: sys-devel/just][just-portage] | `eselect repository enable dm9pZCAq && emerge --sync dm9pZCAq && emerge sys-devel/just` |
 | [Various][conda-platforms]                           | [Conda][conda]            | [just][just-conda]                               | `conda install -c conda-forge just`                                                     |
 | [Microsoft Windows][windows]                         | [Chocolatey][chocolatey]  | [just][just-chocolatey]                          | `choco install just`                                                                    |
-| [Ubuntu][ubuntu]                                     | [Snap][snap]              | [just][just-snap]                                | `sudo snap install just --classic`                                                               |
+| [Ubuntu][ubuntu]                                     | [Snap][snap]              | [just][just-snap]                                | `sudo snap install just --classic`                                                      |
 
 [rust-platforms]: https://forge.rust-lang.org/release/platform-support.html
 [cargo]: https://www.rust-lang.org
@@ -167,7 +167,7 @@ You can also set the shell using command-line arguments. For example, to use Pow
 [just-chocolatey]: https://github.com/michidk/just-choco
 [ubuntu]: https://ubuntu.com/
 [snap]: https://snapcraft.io/
-[just-snap]: #
+[just-snap]: https://snapcraft.io/just
 
 ![package version table](https://repology.org/badge/vertical-allrepos/just.svg)
 

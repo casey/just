@@ -18,8 +18,8 @@ apps:
 
 parts:
   just:
-    source: https://github.com/casey/just
-    source-type: git
-    source-tag: '1.2.0'
-    source-depth: 1
     plugin: rust
+    source-depth: 1
+    source-tag: '1.2.0'
+    source-type: git
+    source: https://github.com/casey/just
