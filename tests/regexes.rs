@@ -1,4 +1,4 @@
-use crate::common::*;
+use super::*;
 
 #[test]
 fn match_succeeds_evaluates_to_first_branch() {

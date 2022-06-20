@@ -1,4 +1,4 @@
-use crate::common::*;
+use super::*;
 
 #[derive(Debug)]
 pub(crate) struct Scope<'src: 'run, 'run> {

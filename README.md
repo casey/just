@@ -23,7 +23,7 @@
 
 `just` is a handy way to save and run project-specific commands.
 
-This readme is also available as a [book](https://just.systems/man/en/);
+This readme is also available as a [book](https://just.systems/man/en/).
 
 (中文文档在 [这里](https://github.com/casey/just/blob/master/README.中文.md), 快看过来!)
 
@@ -62,7 +62,7 @@ Yay, all your tests passed!
 
 - `just` can be invoked from any subdirectory, not just the directory that contains the `justfile`.
 
-- And [much more](https://just.systems/man/)!
+- And [much more](https://just.systems/man/en/)!
 
 If you need help with `just` please feel free to open an issue or ping me on [Discord](https://discord.gg/ezYScXR). Feature requests and bug reports are always welcome!
 
@@ -214,6 +214,14 @@ Example usage:
 ### Release RSS Feed
 
 An [RSS feed](https://en.wikipedia.org/wiki/RSS) of `just` releases is available [here](https://github.com/casey/just/releases.atom).
+
+### Node.js Installation
+
+[just-install](https://npmjs.com/packages/just-install) can be used to automate installation of `just` in Node.js applications.
+
+`just` is a great, more robust alternative to npm scripts. If you want to include `just` in the dependencies of a Node.js application, `just-install` will install a local, platform-specific binary as part of the `npm install` command. This removes the need for every developer to install `just` independently using one of the processes mentioned above. After installation, the `just` command will work in npm scripts or with npx. It's great for teams who want to make the set up process for their project as easy as possible.
+
+For more information, see the [just-install README file](https://github.com/brombal/just-install#readme).
 
 Backwards Compatibility
 -----------------------
@@ -1939,6 +1947,69 @@ Trying ../justfile
 echo bar
 bar
 ```
+
+### Avoiding Argument Splitting
+
+Given this `justfile`:
+
+```make
+foo argument:
+  touch {{argument}}
+```
+
+The following command will create two files, `some` and `argument.txt`:
+
+```sh
+$ just foo "some argument.txt"
+```
+
+The users shell will parse `"some argument.txt`" as a single argument, but when `just` replaces `touch {{argument}}` with `touch some argument.txt`, the quotes are not preserved, and `touch` will receive two arguments.
+
+There are a few ways to avoid this: quoting, positional arguments, and exported arguments.
+
+#### Quoting
+
+Quotes can be added around the `{{argument}}` interpolation:
+
+```make
+foo argument:
+  touch '{{argument}}'
+```
+
+This preserves `just`'s ability to catch variable name typos before running, for example if you were to write `{{argumant}}`, but will not do what you want if the value of `argument` contains single quotes.
+
+#### Positional Arguments
+
+The `positional-arguments` setting causes all arguments to be passed as positional arguments, allowing them to be accessed with `$1`, `$2`, …, and `$@`, which can be then double-quoted to avoid further splitting by the shell:
+
+```make
+set positional-arguments
+
+foo argument:
+  touch "$1"
+```
+
+This defeats `just`'s ability to catch typos, for example if you type `$2`, but works for all possible values of `argument`, including those with double quotes.
+
+#### Exported Arguments
+
+All arguments are exported when the `export` setting is set:
+
+```make
+set export
+
+foo argument:
+  touch "$argument"
+```
+
+Or individual arguments may be exported by prefixing them with `$`:
+
+```make
+foo $argument:
+  touch "$argument"
+```
+
+This defeats `just`'s ability to catch typos, for example if you type `$argumant`, but works for all possible values of `argument`, including those with double quotes.
 
 Changelog
 ---------

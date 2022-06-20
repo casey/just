@@ -1,4 +1,4 @@
-use crate::common::*;
+use super::*;
 
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub(crate) struct Token<'src> {

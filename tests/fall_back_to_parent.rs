@@ -1,4 +1,4 @@
-use crate::common::*;
+use super::*;
 
 #[test]
 fn runs_recipe_in_parent_if_not_found_in_current() {

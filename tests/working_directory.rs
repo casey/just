@@ -1,4 +1,4 @@
-use crate::common::*;
+use super::*;
 
 const JUSTFILE: &str = r#"
 foo := `cat data`

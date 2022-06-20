@@ -1,4 +1,4 @@
-use crate::common::*;
+use super::*;
 
 /// An expression. Note that the Just language grammar has both an `expression`
 /// production of additions (`a + b`) and values, and a `value` production of

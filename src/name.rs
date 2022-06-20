@@ -1,4 +1,4 @@
-use crate::common::*;
+use super::*;
 
 /// A name. This is effectively just a `Token` of kind `Identifier`, but we give
 /// it its own type for clarity.
