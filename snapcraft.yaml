@@ -1,12 +1,16 @@
-name: just
 base: core20
-version: '1.2.0'
-summary: Just a command runner
-description: |
-  just is a handy way to save and run project-specific commands.
-
-grade: stable
 confinement: classic
+contact: casey@rodarmor.com
+description: Just is a handy way to save and run project-specific commands.
+grade: stable
+icon: icon.png
+issues: https://github.com/casey/just/issues
+license: CC0-1.0
+name: just-run
+source-code: https://github.com/casey/just
+summary: Just a command runner
+version: '1.2.0'
+website: https://just.systems
 
 apps:
   just:
@@ -14,5 +18,8 @@ apps:
 
 parts:
   just:
-    source: https://github.com/casey/just/archive/refs/tags/1.2.0.tar.gz
+    source: https://github.com/casey/just
+    source-type: git
+    source-tag: '1.2.0'
+    source-depth: 1
     plugin: rust
