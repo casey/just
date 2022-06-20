@@ -62,7 +62,7 @@ Yay, all your tests passed!
 
 - `just` can be invoked from any subdirectory, not just the directory that contains the `justfile`.
 
-- And [much more](https://just.systems/man/)!
+- And [much more](https://just.systems/man/en/)!
 
 If you need help with `just` please feel free to open an issue or ping me on [Discord](https://discord.gg/ezYScXR). Feature requests and bug reports are always welcome!
 
