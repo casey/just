@@ -62,6 +62,7 @@ mod positional_arguments;
 mod quiet;
 mod quote;
 mod readme;
+mod recursion_limit;
 mod regexes;
 mod run;
 mod search;

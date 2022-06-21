@@ -32,9 +32,13 @@ pub(crate) struct Parser<'tokens, 'src> {
   next: usize,
   /// Current expected tokens
   expected: BTreeSet<TokenKind>,
+  /// Current recursion depth
+  depth: u8,
 }
 
 impl<'tokens, 'src> Parser<'tokens, 'src> {
+  const RECURSION_LIMIT: u8 = u8::MAX;
+
   /// Parse `tokens` into an `Ast`
   pub(crate) fn parse(tokens: &'tokens [Token<'src>]) -> CompileResult<'src, Ast<'src>> {
     Self::new(tokens).parse_ast()
@@ -46,6 +50,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
       next: 0,
       expected: BTreeSet::new(),
       tokens,
+      depth: 0,
     }
   }
 
@@ -389,21 +394,42 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     })
   }
 
+  /// Bound recursion to self.depth
+  fn recurse<F>(&mut self, body: F) -> CompileResult<'src, Expression<'src>>
+  where
+    F: Fn(&mut Self) -> CompileResult<'src, Expression<'src>>,
+  {
+    if self.depth == Self::RECURSION_LIMIT {
+      return Err(CompileError {
+        token: self.next()?,
+        kind: CompileErrorKind::RecursionDepthExceeded,
+      });
+    }
+
+    self.depth += 1;
+    let result = body(self);
+    self.depth -= 1;
+
+    result
+  }
+
   /// Parse an expression, e.g. `1 + 2`
   fn parse_expression(&mut self) -> CompileResult<'src, Expression<'src>> {
-    if self.accepted_keyword(Keyword::If)? {
-      self.parse_conditional()
-    } else {
-      let value = self.parse_value()?;
-
-      if self.accepted(Plus)? {
-        let lhs = Box::new(value);
-        let rhs = Box::new(self.parse_expression()?);
-        Ok(Expression::Concatenation { lhs, rhs })
+    self.recurse(|slf| {
+      if slf.accepted_keyword(Keyword::If)? {
+        slf.parse_conditional()
       } else {
-        Ok(value)
+        let value = slf.parse_value()?;
+
+        if slf.accepted(Plus)? {
+          let lhs = Box::new(value);
+          let rhs = Box::new(slf.parse_expression()?);
+          Ok(Expression::Concatenation { lhs, rhs })
+        } else {
+          Ok(value)
+        }
       }
-    }
+    })
   }
 
   /// Parse a conditional, e.g. `if a == b { "foo" } else { "bar" }`
