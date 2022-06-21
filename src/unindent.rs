@@ -5,7 +5,7 @@ pub fn unindent(text: &str) -> String {
   let mut start = 0;
   for (i, c) in text.char_indices() {
     if c == '\n' || i == text.len() - c.len_utf8() {
-      let end = i + 1;
+      let end = i + c.len_utf8();
       lines.push(&text[start..end]);
       start = end;
     }
