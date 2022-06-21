@@ -120,7 +120,7 @@ You can also set the shell using command-line arguments. For example, to use Pow
 | [Gentoo Linux][gentoo linux]                         | [Portage][gentoo-portage] | [dm9pZCAq overlay: sys-devel/just][just-portage] | `eselect repository enable dm9pZCAq && emerge --sync dm9pZCAq && emerge sys-devel/just` |
 | [Various][conda-platforms]                           | [Conda][conda]            | [just][just-conda]                               | `conda install -c conda-forge just`                                                     |
 | [Microsoft Windows][windows]                         | [Chocolatey][chocolatey]  | [just][just-chocolatey]                          | `choco install just`                                                                    |
-| [Ubuntu][ubuntu]                                     | [Snap][snap]              | [just][just-snap]                                | `sudo snap install just --classic`                                                      |
+| [Various][snap-platforms]                            | [Snap][snap]              | [just][just-snap]                                | `sudo snap install just --classic`                                                      |
 
 [rust-platforms]: https://forge.rust-lang.org/release/platform-support.html
 [cargo]: https://www.rust-lang.org
@@ -142,22 +142,22 @@ You can also set the shell using command-line arguments. For example, to use Pow
 [nix-plat]: https://nixos.org/nix/manual/#ch-supported-platforms
 [nix]: https://nixos.org/nix/
 [just-nixpkg]: https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/tools/just/default.nix
-[solus]: https://getsol.us/
+[solus]: https://getsol.us
 [solus-eopkg]: https://getsol.us/articles/package-management/basics/en
 [just-solus]: https://dev.getsol.us/source/just/
 [void linux]: https://voidlinux.org
 [xbps]: https://wiki.voidlinux.org/XBPS
 [just-void]: https://github.com/void-linux/void-packages/blob/master/srcpkgs/just/template
-[freebsd]: https://www.freebsd.org/
+[freebsd]: https://www.freebsd.org
 [freebsd-pkg]: https://www.freebsd.org/doc/handbook/pkgng-intro.html
 [just-freebsd]: https://www.freshports.org/deskutils/just/
-[alpine linux]: https://alpinelinux.org/
+[alpine linux]: https://alpinelinux.org
 [apk-tools]: https://wiki.alpinelinux.org/wiki/Alpine_Linux_package_management
 [just-alpine]: https://pkgs.alpinelinux.org/package/edge/community/x86_64/just
-[fedora linux]: https://getfedora.org/
+[fedora linux]: https://getfedora.org
 [dnf]: https://dnf.readthedocs.io/en/latest/
 [just-fedora]: https://src.fedoraproject.org/rpms/rust-just
-[gentoo linux]: https://www.gentoo.org/
+[gentoo linux]: https://www.gentoo.org
 [gentoo-portage]: https://wiki.gentoo.org/wiki/Portage
 [just-portage]: https://github.com/gentoo-mirror/dm9pZCAq/tree/master/sys-devel/just
 [conda-platforms]: https://docs.conda.io/en/latest/miniconda.html#system-requirements
@@ -165,9 +165,10 @@ You can also set the shell using command-line arguments. For example, to use Pow
 [just-conda]: https://anaconda.org/conda-forge/just
 [chocolatey]: https://chocolatey.org
 [just-chocolatey]: https://github.com/michidk/just-choco
-[ubuntu]: https://ubuntu.com/
-[snap]: https://snapcraft.io/
+[ubuntu]: https://ubuntu.com
+[snap]: https://snapcraft.io
 [just-snap]: https://snapcraft.io/just
+[snap-platforms]: https://snapcraft.io/docs/installing-snapd
 
 ![package version table](https://repology.org/badge/vertical-allrepos/just.svg)
 
