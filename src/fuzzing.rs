@@ -1,9 +1,5 @@
 use super::*;
 
-pub(crate) fn compile(text: &str) {
-  if let Err(error) = Parser::parse(text) {
-    if let CompileErrorKind::Internal { .. } = error.kind {
-      panic!("{}", error)
-    }
-  }
+pub fn compile(text: &str) {
+  let _ = compiler::Compiler::compile(text);
 }
