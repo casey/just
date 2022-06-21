@@ -62,7 +62,7 @@ Yay, all your tests passed!
 
 - `just` can be invoked from any subdirectory, not just the directory that contains the `justfile`.
 
-- And [much more](https://just.systems/man/)!
+- And [much more](https://just.systems/man/en/)!
 
 If you need help with `just` please feel free to open an issue or ping me on [Discord](https://discord.gg/ezYScXR). Feature requests and bug reports are always welcome!
 
@@ -210,6 +210,14 @@ Example usage:
 ### Release RSS Feed
 
 An [RSS feed](https://en.wikipedia.org/wiki/RSS) of `just` releases is available [here](https://github.com/casey/just/releases.atom).
+
+### Node.js Installation
+
+[just-install](https://npmjs.com/packages/just-install) can be used to automate installation of `just` in Node.js applications.
+
+`just` is a great, more robust alternative to npm scripts. If you want to include `just` in the dependencies of a Node.js application, `just-install` will install a local, platform-specific binary as part of the `npm install` command. This removes the need for every developer to install `just` independently using one of the processes mentioned above. After installation, the `just` command will work in npm scripts or with npx. It's great for teams who want to make the set up process for their project as easy as possible.
+
+For more information, see the [just-install README file](https://github.com/brombal/just-install#readme).
 
 Backwards Compatibility
 -----------------------
