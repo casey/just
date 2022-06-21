@@ -103,15 +103,3 @@ jobs:
         prerelease: ${{ steps.ref-type.outputs.value != 'release' }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    - uses: snapcore/action-build@v1
-
-    - name: Snapcraft Login
-      if: ${{ steps.ref-type.outputs.value == 'release' }}
-      env:
-        SNAPCRAFT_LOGIN: ${{ secrets.SNAPCRAFT_LOGIN }}
-      run: snapcraft login -- with <(echo "$SNAPCRAFT_LOGIN")
-
-    - name: Snapcraft Upload
-      if: ${{ steps.ref-type.outputs.value == 'release' }}
-      run: snapcraft upload --release=stable just_${{github.ref_name}}_amd64.snap
