@@ -57,6 +57,7 @@ mod invocation_directory;
 mod json;
 mod line_prefixes;
 mod misc;
+mod multibyte_char;
 mod positional_arguments;
 mod quiet;
 mod quote;
