@@ -198,8 +198,8 @@ impl Display for CompileError<'_> {
           parameter
         )?;
       }
-      RecursionDepthExceeded => {
-        write!(f, "Recursion depth was exceeded")?;
+      ParsingRecursionDepthExceeded => {
+        write!(f, "Parsing recursion depth exceeded")?;
       }
       RequiredParameterFollowsDefaultParameter { parameter } => {
         write!(
