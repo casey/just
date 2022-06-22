@@ -120,7 +120,7 @@ You can also set the shell using command-line arguments. For example, to use Pow
 | [Gentoo Linux][gentoo linux]                         | [Portage][gentoo-portage] | [dm9pZCAq overlay: sys-devel/just][just-portage] | `eselect repository enable dm9pZCAq && emerge --sync dm9pZCAq && emerge sys-devel/just` |
 | [Various][conda-platforms]                           | [Conda][conda]            | [just][just-conda]                               | `conda install -c conda-forge just`                                                     |
 | [Microsoft Windows][windows]                         | [Chocolatey][chocolatey]  | [just][just-chocolatey]                          | `choco install just`                                                                    |
-| [Various][snap-platforms]                            | [Snap][snap]              | [just][just-snap]                                | `sudo snap install just --classic`                                                      |
+| [Various][snap-platforms]                            | [Snap][snap]              | [just][just-snap]                                | `snap install --edge --classic just`                                                    |
 
 [alpine linux]: https://alpinelinux.org
 [apk-tools]: https://wiki.alpinelinux.org/wiki/Alpine_Linux_package_management
