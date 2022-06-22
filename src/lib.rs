@@ -104,7 +104,7 @@ pub mod tree;
 pub mod node;
 
 #[cfg(fuzzing)]
-pub(crate) mod fuzzing;
+pub mod fuzzing;
 
 // Used by Janus, https://github.com/casey/janus, a tool
 // that analyses all public justfiles on GitHub to avoid
