@@ -74,6 +74,7 @@ pub(crate) enum CompileErrorKind<'src> {
   ParameterShadowsVariable {
     parameter: &'src str,
   },
+  ParsingRecursionDepthExceeded,
   RequiredParameterFollowsDefaultParameter {
     parameter: &'src str,
   },

@@ -32,6 +32,8 @@ pub(crate) struct Parser<'tokens, 'src> {
   next: usize,
   /// Current expected tokens
   expected: BTreeSet<TokenKind>,
+  /// Current recursion depth
+  depth: u8,
 }
 
 impl<'tokens, 'src> Parser<'tokens, 'src> {
@@ -46,6 +48,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
       next: 0,
       expected: BTreeSet::new(),
       tokens,
+      depth: 0,
     }
   }
 
@@ -391,19 +394,31 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
 
   /// Parse an expression, e.g. `1 + 2`
   fn parse_expression(&mut self) -> CompileResult<'src, Expression<'src>> {
-    if self.accepted_keyword(Keyword::If)? {
-      self.parse_conditional()
+    if self.depth == if cfg!(windows) { 64 } else { 255 } {
+      return Err(CompileError {
+        token: self.next()?,
+        kind: CompileErrorKind::ParsingRecursionDepthExceeded,
+      });
+    }
+
+    self.depth += 1;
+
+    let expression = if self.accepted_keyword(Keyword::If)? {
+      self.parse_conditional()?
     } else {
       let value = self.parse_value()?;
 
       if self.accepted(Plus)? {
         let lhs = Box::new(value);
         let rhs = Box::new(self.parse_expression()?);
-        Ok(Expression::Concatenation { lhs, rhs })
+        Expression::Concatenation { lhs, rhs }
       } else {
-        Ok(value)
+        value
       }
-    }
+    };
+
+    self.depth -= 1;
+    Ok(expression)
   }
 
   /// Parse a conditional, e.g. `if a == b { "foo" } else { "bar" }`
