@@ -169,10 +169,10 @@ Testing server:all…
 Testing server:unit…
 ./test --tests unit server
 </code></pre>
-<p>Default values may be arbitrary expressions, but concatenations must be parenthesized:</p>
+<p>Default values may be arbitrary expressions, but concatenations or path joins must be parenthesized:</p>
 <pre><code class="language-make">arch := &quot;wasm&quot;
 
-test triple=(arch + &quot;-unknown-unknown&quot;):
+test triple=(arch + &quot;-unknown-unknown&quot;) input=(arch / &quot;input.dat&quot;):
   ./test {{triple}}
 </code></pre>
 <p>The last parameter of a recipe may be variadic, indicated with either a <code>+</code> or a <code>*</code> before the argument name:</p>

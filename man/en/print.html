@@ -637,9 +637,10 @@ Starting server with database localhost:6379 on port 1337…
 ./server --database $DATABASE_ADDRESS --port $SERVER_PORT
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="variables-and-substitution"><a class="header" href="#variables-and-substitution">Variables and Substitution</a></h3>
-<p>Variables, strings, concatenation, and substitution using <code>{{…}}</code> are supported:</p>
-<pre><code class="language-make">version := &quot;0.2.7&quot;
-tardir  := &quot;awesomesauce-&quot; + version
+<p>Variables, strings, concatenation, path joining, and substitution using <code>{{…}}</code> are supported:</p>
+<pre><code class="language-make">tmpdir  := `mktemp`
+version := &quot;0.2.7&quot;
+tardir  := tmpdir / &quot;awesomesauce-&quot; + version
 tarball := tardir + &quot;.tar.gz&quot;
 
 publish:
@@ -650,6 +651,21 @@ publish:
   scp {{tarball}} me@server.com:release/
   rm -rf {{tarball}} {{tardir}}
 </code></pre>
+<h4 id="joining-paths"><a class="header" href="#joining-paths">Joining Paths</a></h4>
+<p>The <code>/</code> operator can be used to join two strings with a slash:</p>
+<pre><code class="language-make">foo := &quot;a&quot; / &quot;b&quot;
+</code></pre>
+<pre><code>$ just --evaluate foo
+a/b
+</code></pre>
+<p>Note that a <code>/</code> is added even if one is already present:</p>
+<pre><code class="language-make">foo := &quot;a/&quot;
+bar := foo / &quot;b&quot;
+</code></pre>
+<pre><code>$ just --evaluate bar
+a//b
+</code></pre>
+<p>The <code>/</code> operator uses the <code>/</code> character, even on Windows. Thus, using the <code>/</code> operator should be avoided with paths that use universal naming convention (UNC), i.e., those that start with <code>\?</code>, since forward slashes are not supported with UNC paths.</p>
 <h4 id="escaping-"><a class="header" href="#escaping-">Escaping <code>{{</code></a></h4>
 <p>To write a recipe containing <code>{{</code>, use <code>{{{{</code>:</p>
 <pre><code class="language-make">braces:
@@ -860,7 +876,7 @@ The executable is at: /bin/just
 <h5 id="infallible"><a class="header" href="#infallible">Infallible</a></h5>
 <ul>
 <li>
-<p><code>join(a, b…)</code> - Join path <code>a</code> with path <code>b</code>. <code>join(&quot;foo/bar&quot;, &quot;baz&quot;)</code> is <code>foo/bar/baz</code>. Accepts two or more arguments.</p>
+<p><code>join(a, b…)</code> - <em>This function uses <code>/</code> on Unix and <code>\</code> on Windows, which can be lead to unwanted behavior. The <code>/</code> operator, e.g., <code>a / b</code>, which always uses <code>/</code>, should be considered as a replacement unless <code>\</code>s are specifically desired on Windows.</em> Join path <code>a</code> with path <code>b</code>. <code>join(&quot;foo/bar&quot;, &quot;baz&quot;)</code> is <code>foo/bar/baz</code>. Accepts two or more arguments.</p>
 </li>
 <li>
 <p><code>clean(path)</code> - Simplify <code>path</code> by removing extra path separators, intermediate <code>.</code> components, and <code>..</code> where possible. <code>clean(&quot;foo//bar&quot;)</code> is <code>foo/bar</code>, <code>clean(&quot;foo/..&quot;)</code> is <code>.</code>, <code>clean(&quot;foo/./bar&quot;)</code> is <code>foo/bar</code>.</p>
@@ -1059,10 +1075,10 @@ Testing server:all…
 Testing server:unit…
 ./test --tests unit server
 </code></pre>
-<p>Default values may be arbitrary expressions, but concatenations must be parenthesized:</p>
+<p>Default values may be arbitrary expressions, but concatenations or path joins must be parenthesized:</p>
 <pre><code class="language-make">arch := &quot;wasm&quot;
 
-test triple=(arch + &quot;-unknown-unknown&quot;):
+test triple=(arch + &quot;-unknown-unknown&quot;) input=(arch / &quot;input.dat&quot;):
   ./test {{triple}}
 </code></pre>
 <p>The last parameter of a recipe may be variadic, indicated with either a <code>+</code> or a <code>*</code> before the argument name:</p>

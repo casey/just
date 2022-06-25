@@ -269,7 +269,7 @@ The executable is at: /bin/just
 <h5 id="infallible"><a class="header" href="#infallible">Infallible</a></h5>
 <ul>
 <li>
-<p><code>join(a, b…)</code> - Join path <code>a</code> with path <code>b</code>. <code>join(&quot;foo/bar&quot;, &quot;baz&quot;)</code> is <code>foo/bar/baz</code>. Accepts two or more arguments.</p>
+<p><code>join(a, b…)</code> - <em>This function uses <code>/</code> on Unix and <code>\</code> on Windows, which can be lead to unwanted behavior. The <code>/</code> operator, e.g., <code>a / b</code>, which always uses <code>/</code>, should be considered as a replacement unless <code>\</code>s are specifically desired on Windows.</em> Join path <code>a</code> with path <code>b</code>. <code>join(&quot;foo/bar&quot;, &quot;baz&quot;)</code> is <code>foo/bar/baz</code>. Accepts two or more arguments.</p>
 </li>
 <li>
 <p><code>clean(path)</code> - Simplify <code>path</code> by removing extra path separators, intermediate <code>.</code> components, and <code>..</code> where possible. <code>clean(&quot;foo//bar&quot;)</code> is <code>foo/bar</code>, <code>clean(&quot;foo/..&quot;)</code> is <code>.</code>, <code>clean(&quot;foo/./bar&quot;)</code> is <code>foo/bar</code>.</p>
