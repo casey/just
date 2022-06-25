@@ -21,7 +21,7 @@ contexts:
         2: variable.other.just
         3: keyword.operator.assignment.just
   comments:
-    - match: '^#[^!].*'
+    - match: '#[^!].*'
       scope: comment.line.just
   interpolate:
     - match: '(?<!\{)\{\{(?!\{)'
@@ -42,7 +42,7 @@ contexts:
         2: entity.name.function.just
         4: support.type.property-name.just
   scripts:
-    - match: \s#\!
+    - match: '\s#\!'
       comment: The #! lines within a recipe.
       push:
         - meta_scope: support.type.property-name.just
