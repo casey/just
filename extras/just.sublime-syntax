@@ -37,11 +37,15 @@ contexts:
     - match: \b(if|else|while)\b
       scope: keyword.control.just
   recipeDefinition:
-    - match: '^(@)?([a-zA-Z_][a-zA-Z0-9_-]*)([a-zA-Z0-9=\s_-`''"]*):([\sa-zA-Z0-9_-]*).*$'
+    - match: '^(@)?([a-zA-Z_][a-zA-Z0-9_-]*)\s*([\+\*])?([a-zA-Z0-9_]*)?\s*(=)?\s*([a-zA-Z0-9_-`''"]*):([\sa-zA-Z0-9_-]*).*$'
       captures:
-        1: entity.name.function.just
+        1: storage.modifier.just
         2: entity.name.function.just
-        4: support.type.property-name.just
+        3: keyword.operator.just
+        4: variable.parameter.just
+        5: keyword.operator.just
+        6: string.interpolated.just
+        7: support.type.property-name.just
   recipeContent:
     - match: '^\s+([-@]*)'
       captures:
