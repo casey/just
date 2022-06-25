@@ -411,7 +411,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
       if self.accepted(Slash)? {
         let lhs = Box::new(value);
         let rhs = Box::new(self.parse_expression()?);
-        Ok(Expression::Join { lhs, rhs })
+        Expression::Join { lhs, rhs }
       } else if self.accepted(Plus)? {
         let lhs = Box::new(value);
         let rhs = Box::new(self.parse_expression()?);
