@@ -12,6 +12,7 @@ contexts:
     - include: strings
     - include: assignments
     - include: recipeDefinition
+    - include: recipeContent
     - include: functions
     - include: keywords
   assignments:
@@ -41,6 +42,10 @@ contexts:
         1: entity.name.function.just
         2: entity.name.function.just
         4: support.type.property-name.just
+  recipeContent:
+    - match: '^\s+([-@]*)'
+      captures:
+        1: storage.modifier.just
   scripts:
     - match: '\s#\!'
       comment: The #! lines within a recipe.
