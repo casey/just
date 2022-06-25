@@ -58,9 +58,6 @@ check: fmt clippy test forbid
   git diff --no-ext-diff --quiet --exit-code
   VERSION=`sed -En 's/version[[:space:]]*=[[:space:]]*"([^"]+)"/\1/p' Cargo.toml | head -1`
   grep "^\[$VERSION\]" CHANGELOG.md
-  cargo +nightly generate-lockfile -Z minimal-versions
-  cargo test
-  git checkout Cargo.lock
 
 # publish current GitHub master branch
 publish:
