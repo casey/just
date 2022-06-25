@@ -485,6 +485,7 @@ impl<'src> Lexer<'src> {
       '*' => self.lex_single(Asterisk),
       '+' => self.lex_single(Plus),
       ',' => self.lex_single(Comma),
+      '/' => self.lex_single(Slash),
       ':' => self.lex_colon(),
       '=' => self.lex_choices('=', &[('=', EqualsEquals), ('~', EqualsTilde)], Equals),
       '@' => self.lex_single(At),
@@ -942,6 +943,7 @@ mod tests {
       ParenL => "(",
       ParenR => ")",
       Plus => "+",
+      Slash => "/",
       Whitespace => " ",
 
       // Empty lexemes

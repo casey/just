@@ -69,6 +69,7 @@ mod search;
 mod shebang;
 mod shell;
 mod show;
+mod slash_operator;
 mod string;
 mod sublime_syntax;
 mod subsequents;

@@ -118,6 +118,7 @@ impl<'src> Node<'src> for Expression<'src> {
       } => Tree::string(cooked),
       Expression::Backtick { contents, .. } => Tree::atom("backtick").push(Tree::string(contents)),
       Expression::Group { contents } => Tree::List(vec![contents.tree()]),
+      Expression::Join { lhs, rhs } => Tree::atom("/").push(lhs.tree()).push(rhs.tree()),
     }
   }
 }

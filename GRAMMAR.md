@@ -66,6 +66,7 @@ setting       : 'set' 'dotenv-load' boolean?
 boolean       : ':=' ('true' | 'false')
 
 expression    : 'if' condition '{' expression '}' 'else' '{' expression '}'
+              | value '/' expression
               | value '+' expression
               | value
 
