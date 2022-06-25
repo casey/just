@@ -829,7 +829,7 @@ foo := "a" / "b"
 ```
 
 ```
-$ just eval foo
+$ just --evaluate foo
 a/b
 ```
 
@@ -841,7 +841,7 @@ bar := foo / "b"
 ```
 
 ```
-$ just eval bar
+$ just --evaluate bar
 a//b
 ```
 
