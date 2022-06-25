@@ -22,7 +22,7 @@ contexts:
     - match: '^#[^!].*'
       scope: comment.line.just
   interpolate:
-    - match: '\{\{'
+    - match: '(?<!\{)\{\{(?!\{)'
       push:
         - meta_scope: string.interpolated.just
         - match: '\}\}'
