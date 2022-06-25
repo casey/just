@@ -1,4 +1,4 @@
-use crate::common::*;
+use super::*;
 
 test! {
   name: then_branch_unevaluated,

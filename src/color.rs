@@ -1,4 +1,4 @@
-use crate::common::*;
+use super::*;
 
 use ansi_term::{ANSIGenericString, Color::*, Prefix, Style, Suffix};
 use atty::Stream;

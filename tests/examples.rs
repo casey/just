@@ -1,4 +1,4 @@
-use crate::common::*;
+use super::*;
 
 #[test]
 fn examples() {

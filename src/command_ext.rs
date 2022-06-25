@@ -1,4 +1,4 @@
-use crate::common::*;
+use super::*;
 
 pub(crate) trait CommandExt {
   fn export(&mut self, settings: &Settings, dotenv: &BTreeMap<String, String>, scope: &Scope);

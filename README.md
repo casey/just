@@ -62,7 +62,7 @@ Yay, all your tests passed!
 
 - `just` can be invoked from any subdirectory, not just the directory that contains the `justfile`.
 
-- And [much more](https://just.systems/man/)!
+- And [much more](https://just.systems/man/en/)!
 
 If you need help with `just` please feel free to open an issue or ping me on [Discord](https://discord.gg/ezYScXR). Feature requests and bug reports are always welcome!
 
@@ -120,50 +120,55 @@ You can also set the shell using command-line arguments. For example, to use Pow
 | [Gentoo Linux][gentoo linux]                         | [Portage][gentoo-portage] | [dm9pZCAq overlay: sys-devel/just][just-portage] | `eselect repository enable dm9pZCAq && emerge --sync dm9pZCAq && emerge sys-devel/just` |
 | [Various][conda-platforms]                           | [Conda][conda]            | [just][just-conda]                               | `conda install -c conda-forge just`                                                     |
 | [Microsoft Windows][windows]                         | [Chocolatey][chocolatey]  | [just][just-chocolatey]                          | `choco install just`                                                                    |
+| [Various][snap-platforms]                            | [Snap][snap]              | [just][just-snap]                                | `snap install --edge --classic just`                                                    |
 
-[rust-platforms]: https://forge.rust-lang.org/release/platform-support.html
-[cargo]: https://www.rust-lang.org
-[just-crate]: https://crates.io/crates/just
-[windows]: https://en.wikipedia.org/wiki/Microsoft_Windows
-[scoop]: https://scoop.sh
-[just-scoop]: https://github.com/ScoopInstaller/Main/blob/master/bucket/just.json
-[homebrew-install]: https://docs.brew.sh/Installation
-[homebrew]: https://brew.sh
-[just-homebrew]: https://formulae.brew.sh/formula/just
-[macos]: https://en.wikipedia.org/wiki/MacOS
-[macports]: https://www.macports.org
-[just-macports]: https://ports.macports.org/port/just/summary
-[arch linux]: https://www.archlinux.org
-[nix-platforms]: https://nixos.org/download.html#download-nix
-[pacman]: https://wiki.archlinux.org/title/Pacman
-[just-pacman]: https://archlinux.org/packages/community/x86_64/just/
-[nixos]: https://nixos.org/nixos/
-[nix-plat]: https://nixos.org/nix/manual/#ch-supported-platforms
-[nix]: https://nixos.org/nix/
-[just-nixpkg]: https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/tools/just/default.nix
-[solus]: https://getsol.us/
-[solus-eopkg]: https://getsol.us/articles/package-management/basics/en
-[just-solus]: https://dev.getsol.us/source/just/
-[void linux]: https://voidlinux.org
-[xbps]: https://wiki.voidlinux.org/XBPS
-[just-void]: https://github.com/void-linux/void-packages/blob/master/srcpkgs/just/template
-[freebsd]: https://www.freebsd.org/
-[freebsd-pkg]: https://www.freebsd.org/doc/handbook/pkgng-intro.html
-[just-freebsd]: https://www.freshports.org/deskutils/just/
-[alpine linux]: https://alpinelinux.org/
+[alpine linux]: https://alpinelinux.org
 [apk-tools]: https://wiki.alpinelinux.org/wiki/Alpine_Linux_package_management
-[just-alpine]: https://pkgs.alpinelinux.org/package/edge/community/x86_64/just
-[fedora linux]: https://getfedora.org/
-[dnf]: https://dnf.readthedocs.io/en/latest/
-[just-fedora]: https://src.fedoraproject.org/rpms/rust-just
-[gentoo linux]: https://www.gentoo.org/
-[gentoo-portage]: https://wiki.gentoo.org/wiki/Portage
-[just-portage]: https://github.com/gentoo-mirror/dm9pZCAq/tree/master/sys-devel/just
+[arch linux]: https://www.archlinux.org
+[cargo]: https://www.rust-lang.org
+[chocolatey]: https://chocolatey.org
 [conda-platforms]: https://docs.conda.io/en/latest/miniconda.html#system-requirements
 [conda]: https://docs.conda.io/projects/conda/en/latest/index.html
-[just-conda]: https://anaconda.org/conda-forge/just
-[chocolatey]: https://chocolatey.org
+[dnf]: https://dnf.readthedocs.io/en/latest/
+[fedora linux]: https://getfedora.org
+[freebsd-pkg]: https://www.freebsd.org/doc/handbook/pkgng-intro.html
+[freebsd]: https://www.freebsd.org
+[gentoo linux]: https://www.gentoo.org
+[gentoo-portage]: https://wiki.gentoo.org/wiki/Portage
+[homebrew-install]: https://docs.brew.sh/Installation
+[homebrew]: https://brew.sh
+[just-alpine]: https://pkgs.alpinelinux.org/package/edge/community/x86_64/just
 [just-chocolatey]: https://github.com/michidk/just-choco
+[just-conda]: https://anaconda.org/conda-forge/just
+[just-crate]: https://crates.io/crates/just
+[just-fedora]: https://src.fedoraproject.org/rpms/rust-just
+[just-freebsd]: https://www.freshports.org/deskutils/just/
+[just-homebrew]: https://formulae.brew.sh/formula/just
+[just-macports]: https://ports.macports.org/port/just/summary
+[just-nixpkg]: https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/tools/just/default.nix
+[just-pacman]: https://archlinux.org/packages/community/x86_64/just/
+[just-portage]: https://github.com/gentoo-mirror/dm9pZCAq/tree/master/sys-devel/just
+[just-scoop]: https://github.com/ScoopInstaller/Main/blob/master/bucket/just.json
+[just-snap]: https://snapcraft.io/just
+[just-solus]: https://dev.getsol.us/source/just/
+[just-void]: https://github.com/void-linux/void-packages/blob/master/srcpkgs/just/template
+[macos]: https://en.wikipedia.org/wiki/MacOS
+[macports]: https://www.macports.org
+[nix-plat]: https://nixos.org/nix/manual/#ch-supported-platforms
+[nix-platforms]: https://nixos.org/download.html#download-nix
+[nix]: https://nixos.org/nix/
+[nixos]: https://nixos.org/nixos/
+[pacman]: https://wiki.archlinux.org/title/Pacman
+[rust-platforms]: https://forge.rust-lang.org/release/platform-support.html
+[scoop]: https://scoop.sh
+[snap-platforms]: https://snapcraft.io/docs/installing-snapd
+[snap]: https://snapcraft.io
+[solus-eopkg]: https://getsol.us/articles/package-management/basics/en
+[solus]: https://getsol.us
+[ubuntu]: https://ubuntu.com
+[void linux]: https://voidlinux.org
+[windows]: https://en.wikipedia.org/wiki/Microsoft_Windows
+[xbps]: https://wiki.voidlinux.org/XBPS
 
 ![package version table](https://repology.org/badge/vertical-allrepos/just.svg)
 
@@ -210,6 +215,14 @@ Example usage:
 ### Release RSS Feed
 
 An [RSS feed](https://en.wikipedia.org/wiki/RSS) of `just` releases is available [here](https://github.com/casey/just/releases.atom).
+
+### Node.js Installation
+
+[just-install](https://npmjs.com/packages/just-install) can be used to automate installation of `just` in Node.js applications.
+
+`just` is a great, more robust alternative to npm scripts. If you want to include `just` in the dependencies of a Node.js application, `just-install` will install a local, platform-specific binary as part of the `npm install` command. This removes the need for every developer to install `just` independently using one of the processes mentioned above. After installation, the `just` command will work in npm scripts or with npx. It's great for teams who want to make the set up process for their project as easy as possible.
+
+For more information, see the [just-install README file](https://github.com/brombal/just-install#readme).
 
 Backwards Compatibility
 -----------------------

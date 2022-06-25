@@ -1,4 +1,4 @@
-use crate::common::*;
+use super::*;
 
 #[derive(Debug, PartialEq)]
 pub(crate) struct CompileError<'src> {
@@ -197,6 +197,9 @@ impl Display for CompileError<'_> {
           "Parameter `{}` shadows variable of the same name",
           parameter
         )?;
+      }
+      ParsingRecursionDepthExceeded => {
+        write!(f, "Parsing recursion depth exceeded")?;
       }
       RequiredParameterFollowsDefaultParameter { parameter } => {
         write!(

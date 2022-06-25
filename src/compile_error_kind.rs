@@ -1,4 +1,4 @@
-use crate::common::*;
+use super::*;
 
 #[derive(Debug, PartialEq)]
 pub(crate) enum CompileErrorKind<'src> {
@@ -74,6 +74,7 @@ pub(crate) enum CompileErrorKind<'src> {
   ParameterShadowsVariable {
     parameter: &'src str,
   },
+  ParsingRecursionDepthExceeded,
   RequiredParameterFollowsDefaultParameter {
     parameter: &'src str,
   },

@@ -1,4 +1,4 @@
-use crate::common::*;
+use super::*;
 
 /// String wrapper that uses nonblank characters to display spaces and tabs
 pub struct ShowWhitespace<'str>(pub &'str str);

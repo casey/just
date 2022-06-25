@@ -1,4 +1,4 @@
-use crate::common::*;
+use super::*;
 
 /// A binding of `name` to `value`
 #[derive(Debug, Clone, PartialEq, Serialize)]

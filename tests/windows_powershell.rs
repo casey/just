@@ -1,4 +1,4 @@
-use crate::common::*;
+use super::*;
 
 #[test]
 fn windows_poweshell_setting_uses_powershell() {

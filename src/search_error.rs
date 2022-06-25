@@ -1,4 +1,4 @@
-use crate::common::*;
+use super::*;
 
 #[derive(Debug, Snafu)]
 #[snafu(visibility(pub(crate)))]

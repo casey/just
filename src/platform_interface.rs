@@ -1,4 +1,4 @@
-use crate::common::*;
+use super::*;
 
 pub(crate) trait PlatformInterface {
   /// Construct a command equivalent to running the script at `path` with the

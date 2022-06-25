@@ -1,4 +1,4 @@
-use crate::common::*;
+use super::*;
 
 /// An assignment, e.g `foo := bar`
 pub(crate) type Assignment<'src> = Binding<'src, Expression<'src>>;
