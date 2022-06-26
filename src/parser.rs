@@ -157,13 +157,13 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   }
 
   fn expect_keyword(&mut self, expected: Keyword) -> CompileResult<'src, ()> {
-    let identifier = self.expect(Identifier)?;
-    let found = identifier.lexeme();
+    let next = self.advance()?;
+    let found = next.lexeme();
 
-    if expected == found {
+    if next.kind == Identifier && expected == found {
       Ok(())
     } else {
-      Err(identifier.error(CompileErrorKind::ExpectedKeyword {
+      Err(next.error(CompileErrorKind::ExpectedKeyword {
         expected: vec![expected],
         found,
       }))
