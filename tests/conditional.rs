@@ -176,8 +176,7 @@ test! {
   ",
   stdout: "",
   stderr: "
-    error: Expected keyword `else` but found identifier `
-    `
+    error: Expected keyword `else` but found identifier `end of line`
       |
     1 | TEST := if path_exists('/bin/bash') == 'true' {'yes'}
       |                                                      ^

@@ -160,13 +160,19 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     let next = self.advance()?;
     let found = next.lexeme();
 
-    if next.kind == Identifier && expected == found {
-      Ok(())
-    } else {
+    if next.kind != Identifier {
+      let found_str = next.kind.to_string();
+      Err(next.error(CompileErrorKind::ExpectedKeyword {
+        expected: vec![expected],
+        found: Box::leak(found_str.into_boxed_str()),
+      }))
+    } else if expected != found {
       Err(next.error(CompileErrorKind::ExpectedKeyword {
         expected: vec![expected],
         found,
       }))
+    } else {
+      Ok(())
     }
   }
 
