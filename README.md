@@ -1362,6 +1362,16 @@ build target:
   cd {{target}} && make
 ```
 
+To pass command's arguments to a dependency, put the dependency in parentheses along with the arguments without curly braces:
+
+```make
+build target: 
+  @echo "Building {{target}}…"
+
+push target: (build target)
+  @echo 'Pushing {{target}}…'
+```
+
 Parameters may have default values:
 
 ```make
