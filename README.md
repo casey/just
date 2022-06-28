@@ -1992,7 +1992,7 @@ The following command will create two files, `some` and `argument.txt`:
 $ just foo "some argument.txt"
 ```
 
-The users shell will parse `"some argument.txt`" as a single argument, but when `just` replaces `touch {{argument}}` with `touch some argument.txt`, the quotes are not preserved, and `touch` will receive two arguments.
+The users shell will parse `"some argument.txt"` as a single argument, but when `just` replaces `touch {{argument}}` with `touch some argument.txt`, the quotes are not preserved, and `touch` will receive two arguments.
 
 There are a few ways to avoid this: quoting, positional arguments, and exported arguments.
 
