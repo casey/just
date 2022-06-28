@@ -1491,7 +1491,7 @@ bar
 <p>The following command will create two files, <code>some</code> and <code>argument.txt</code>:</p>
 <pre><code class="language-sh">$ just foo &quot;some argument.txt&quot;
 </code></pre>
-<p>The users shell will parse <code>&quot;some argument.txt</code>“ as a single argument, but when <code>just</code> replaces <code>touch {{argument}}</code> with <code>touch some argument.txt</code>, the quotes are not preserved, and <code>touch</code> will receive two arguments.</p>
+<p>The users shell will parse <code>&quot;some argument.txt&quot;</code> as a single argument, but when <code>just</code> replaces <code>touch {{argument}}</code> with <code>touch some argument.txt</code>, the quotes are not preserved, and <code>touch</code> will receive two arguments.</p>
 <p>There are a few ways to avoid this: quoting, positional arguments, and exported arguments.</p>
 <h4 id="quoting"><a class="header" href="#quoting">Quoting</a></h4>
 <p>Quotes can be added around the <code>{{argument}}</code> interpolation:</p>
