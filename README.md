@@ -1362,7 +1362,7 @@ build target:
   cd {{target}} && make
 ```
 
-To pass command's arguments to a dependency, put the dependency in parentheses along with the arguments without curly braces:
+A command's arguments can be passed to dependency by putting the dependency in parentheses along with the arguments:
 
 ```make
 build target: 
