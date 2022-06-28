@@ -23,7 +23,7 @@
 
 `just` 为您提供一种保存和运行项目特有命令的便捷方式。
 
-本指南同时也可以以 [书](https://just.systems/man/zh/) 的形式提供在线阅读；
+本指南同时也可以以 [书](https://just.systems/man/zh/) 的形式提供在线阅读。
 
 命令，在此也称为配方，存储在一个名为 `justfile` 的文件中，其语法受 `make` 启发：
 
@@ -60,7 +60,7 @@ Yay, all your tests passed!
 
 - `just` 可以从任何子目录中调用，而不仅仅是包含 `justfile` 的目录。
 
-- 不仅如此，还有 [更多](https://just.systems/man/)！
+- 不仅如此，还有 [更多](https://just.systems/man/zh/)！
 
 如果你在使用 `just` 方面需要帮助，请随时创建一个 Issue 或在 [Discord](https://discord.gg/ezYScXR) 上与我联系。我们随时欢迎功能请求和错误报告！
 
@@ -118,50 +118,55 @@ list:
 | [Gentoo Linux][gentoo linux]                         | [Portage][gentoo-portage] | [dm9pZCAq overlay: sys-devel/just][just-portage] | `eselect repository enable dm9pZCAq && emerge --sync dm9pZCAq && emerge sys-devel/just` |
 | [Various][conda-platforms]                           | [Conda][conda]            | [just][just-conda]                               | `conda install -c conda-forge just`                                                     |
 | [Microsoft Windows][windows]                         | [Chocolatey][chocolatey]  | [just][just-chocolatey]                          | `choco install just`                                                                    |
+| [Various][snap-platforms]                            | [Snap][snap]              | [just][just-snap]                                | `snap install --edge --classic just`                                                    |
 
-[rust-platforms]: https://forge.rust-lang.org/release/platform-support.html
-[cargo]: https://www.rust-lang.org
-[just-crate]: https://crates.io/crates/just
-[windows]: https://en.wikipedia.org/wiki/Microsoft_Windows
-[scoop]: https://scoop.sh
-[just-scoop]: https://github.com/ScoopInstaller/Main/blob/master/bucket/just.json
-[homebrew-install]: https://docs.brew.sh/Installation
-[homebrew]: https://brew.sh
-[just-homebrew]: https://formulae.brew.sh/formula/just
-[macos]: https://en.wikipedia.org/wiki/MacOS
-[macports]: https://www.macports.org
-[just-macports]: https://ports.macports.org/port/just/summary
-[arch linux]: https://www.archlinux.org
-[nix-platforms]: https://nixos.org/download.html#download-nix
-[pacman]: https://wiki.archlinux.org/title/Pacman
-[just-pacman]: https://archlinux.org/packages/community/x86_64/just/
-[nixos]: https://nixos.org/nixos/
-[nix-plat]: https://nixos.org/nix/manual/#ch-supported-platforms
-[nix]: https://nixos.org/nix/
-[just-nixpkg]: https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/tools/just/default.nix
-[solus]: https://getsol.us/
-[solus-eopkg]: https://getsol.us/articles/package-management/basics/en
-[just-solus]: https://dev.getsol.us/source/just/
-[void linux]: https://voidlinux.org
-[xbps]: https://wiki.voidlinux.org/XBPS
-[just-void]: https://github.com/void-linux/void-packages/blob/master/srcpkgs/just/template
-[freebsd]: https://www.freebsd.org/
-[freebsd-pkg]: https://www.freebsd.org/doc/handbook/pkgng-intro.html
-[just-freebsd]: https://www.freshports.org/deskutils/just/
-[alpine linux]: https://alpinelinux.org/
+[alpine linux]: https://alpinelinux.org
 [apk-tools]: https://wiki.alpinelinux.org/wiki/Alpine_Linux_package_management
-[just-alpine]: https://pkgs.alpinelinux.org/package/edge/community/x86_64/just
-[fedora linux]: https://getfedora.org/
-[dnf]: https://dnf.readthedocs.io/en/latest/
-[just-fedora]: https://src.fedoraproject.org/rpms/rust-just
-[gentoo linux]: https://www.gentoo.org/
-[gentoo-portage]: https://wiki.gentoo.org/wiki/Portage
-[just-portage]: https://github.com/gentoo-mirror/dm9pZCAq/tree/master/sys-devel/just
+[arch linux]: https://www.archlinux.org
+[cargo]: https://www.rust-lang.org
+[chocolatey]: https://chocolatey.org
 [conda-platforms]: https://docs.conda.io/en/latest/miniconda.html#system-requirements
 [conda]: https://docs.conda.io/projects/conda/en/latest/index.html
-[just-conda]: https://anaconda.org/conda-forge/just
-[chocolatey]: https://chocolatey.org
+[dnf]: https://dnf.readthedocs.io/en/latest/
+[fedora linux]: https://getfedora.org
+[freebsd-pkg]: https://www.freebsd.org/doc/handbook/pkgng-intro.html
+[freebsd]: https://www.freebsd.org
+[gentoo linux]: https://www.gentoo.org
+[gentoo-portage]: https://wiki.gentoo.org/wiki/Portage
+[homebrew-install]: https://docs.brew.sh/Installation
+[homebrew]: https://brew.sh
+[just-alpine]: https://pkgs.alpinelinux.org/package/edge/community/x86_64/just
 [just-chocolatey]: https://github.com/michidk/just-choco
+[just-conda]: https://anaconda.org/conda-forge/just
+[just-crate]: https://crates.io/crates/just
+[just-fedora]: https://src.fedoraproject.org/rpms/rust-just
+[just-freebsd]: https://www.freshports.org/deskutils/just/
+[just-homebrew]: https://formulae.brew.sh/formula/just
+[just-macports]: https://ports.macports.org/port/just/summary
+[just-nixpkg]: https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/tools/just/default.nix
+[just-pacman]: https://archlinux.org/packages/community/x86_64/just/
+[just-portage]: https://github.com/gentoo-mirror/dm9pZCAq/tree/master/sys-devel/just
+[just-scoop]: https://github.com/ScoopInstaller/Main/blob/master/bucket/just.json
+[just-snap]: https://snapcraft.io/just
+[just-solus]: https://dev.getsol.us/source/just/
+[just-void]: https://github.com/void-linux/void-packages/blob/master/srcpkgs/just/template
+[macos]: https://en.wikipedia.org/wiki/MacOS
+[macports]: https://www.macports.org
+[nix-plat]: https://nixos.org/nix/manual/#ch-supported-platforms
+[nix-platforms]: https://nixos.org/download.html#download-nix
+[nix]: https://nixos.org/nix/
+[nixos]: https://nixos.org/nixos/
+[pacman]: https://wiki.archlinux.org/title/Pacman
+[rust-platforms]: https://forge.rust-lang.org/release/platform-support.html
+[scoop]: https://scoop.sh
+[snap-platforms]: https://snapcraft.io/docs/installing-snapd
+[snap]: https://snapcraft.io
+[solus-eopkg]: https://getsol.us/articles/package-management/basics/en
+[solus]: https://getsol.us
+[ubuntu]: https://ubuntu.com
+[void linux]: https://voidlinux.org
+[windows]: https://en.wikipedia.org/wiki/Microsoft_Windows
+[xbps]: https://wiki.voidlinux.org/XBPS
 
 ![package version table](https://repology.org/badge/vertical-allrepos/just.svg)
 
@@ -207,6 +212,14 @@ just --help
 ### 发布 RSS 订阅
 
 `just` 的发布 [RSS 订阅](https://en.wikipedia.org/wiki/RSS) 可以在 [这里](https://github.com/casey/just/releases.atom) 找到。
+
+### Node.js 安装
+
+[just-install](https://npmjs.com/packages/just-install) 可用于在 Node.js 应用程序中自动安装 `just`。
+
+`just` 是一个很赞的比 npm 脚本更强大的替代品。如果你想在 Node.js 应用程序的依赖中包含 `just`，可以通过 `just-install`，它将在本机安装一个针对特定平台的二进制文件作为 `npm install` 安装结果的一部分。这样就不需要每个开发者使用上述提到的步骤独立安装 `just`。安装后，`just` 命令将在 npm 脚本或 npx 中工作。这对那些想让项目的设置过程尽可能简单的团队来说是很有用的。
+
+想了解更多信息, 请查看 [just-install 说明文件](https://github.com/brombal/just-install#readme)。
 
 向后兼容性
 -----------------------
@@ -786,11 +799,12 @@ Starting server with database localhost:6379 on port 1337…
 
 ### 变量和替换
 
-支持在变量、字符串、拼接和替换中使用 `{{…}}` ：
+支持在变量、字符串、拼接、路径连接和替换中使用 `{{…}}` ：
 
 ```make
+tmpdir  := `mktemp`
 version := "0.2.7"
-tardir  := "awesomesauce-" + version
+tardir  := tmpdir / "awesomesauce-" + version
 tarball := tardir + ".tar.gz"
 
 publish:
@@ -801,6 +815,33 @@ publish:
   scp {{tarball}} me@server.com:release/
   rm -rf {{tarball}} {{tardir}}
 ```
+
+#### 路径拼接
+
+`/` 操作符可用于通过斜线连接两个字符串：
+
+```make
+foo := "a" / "b"
+```
+
+```
+$ just --evaluate foo
+a/b
+```
+
+请注意，即使已经有一个 `/`，也会添加一个 `/`：
+
+```make
+foo := "a/"
+bar := foo / "b"
+```
+
+```
+$ just --evaluate bar
+a//b
+```
+
+`/` 操作符使用 `/` 字符，即使在 Windows 上也是如此。因此，在使用通用命名规则（UNC）的路径中应避免使用 `/` 操作符，即那些以 `\?` 开头的路径，因为 UNC 路径不支持正斜线。
 
 #### 转义 `{{`
 
@@ -1047,7 +1088,7 @@ The executable is at: /bin/just
 
 ##### 可靠的
 
-- `join(a, b…)` - 将路径 `a` 与路径 `b` 连接。`join("foo/bar", "baz")` 结果为 `foo/bar/baz`。接受两个或多个参数。
+- `join(a, b…)` - *这个函数在 Unix 上使用 `/`，在 Windows 上使用 `\`，这可能会导致非预期的行为。`/` 操作符，例如，`a / b`，总是使用 `/`，应该被考虑作为替代，除非在 Windows 上特别指定需要 `\`。* 将路径 `a` 和 路径 `b` 拼接在一起。`join("foo/bar", "baz")` 结果为 `foo/bar/baz`。它接受两个或多个参数。
 
 - `clean(path)` - 通过删除多余的路径分隔符、中间的 `.` 和 `..` 来简化 `path`。`clean("foo//bar")` 结果为 `foo/bar`，`clean("foo/..")` 为 `.`，`clean("foo/./bar")` 结果为 `foo/bar`。
 
@@ -1344,12 +1385,12 @@ Testing server:unit…
 ./test --tests unit server
 ```
 
-默认值可以是任意的表达式，但字符串拼接必须是放在括号内：
+默认值可以是任意的表达式，但字符串或路径拼接必须放在括号内：
 
 ```make
 arch := "wasm"
 
-test triple=(arch + "-unknown-unknown"):
+test triple=(arch + "-unknown-unknown") input=(arch / "input.dat"):
   ./test {{triple}}
 ```
 
@@ -1589,6 +1630,22 @@ foo:
   set -euxo pipefail
   x=hello
   echo $x
+```
+
+### 在配方之间共享环境变量
+
+每个配方的每一行都由一个新的shell执行，所以不可能在配方之间共享环境变量。
+
+#### 使用 Python 虚拟环境
+
+一些工具，像 [Python 的 venv](https://docs.python.org/3/library/venv.html)，需要加载环境变量才能工作，这使得它们在使用 `just` 时具有挑战性。作为一种变通方法，你可以直接执行虚拟环境二进制文件：
+
+```make
+venv:
+  [ -d foo ] || python3 -m venv foo
+
+run: venv
+  ./foo/bin/python3 main.py
 ```
 
 ### 改变配方中的工作目录
@@ -1914,6 +1971,69 @@ Trying ../justfile
 echo bar
 bar
 ```
+
+### 避免参数分割
+
+考虑这个 `justfile`:
+
+```make
+foo argument:
+  touch {{argument}}
+```
+
+下面的命令将创建两个文件，`some` 和 `argument.txt`：
+
+```sh
+$ just foo "some argument.txt"
+```
+
+用户 Shell 会把 `"some argument.txt"` 解析为一个参数，但当 `just` 把 `touch {{argument}}` 替换为`touch some argument.txt` 时，引号没有被保留，`touch` 会收到两个参数。
+
+有几种方法可以避免这种情况：引号包裹、位置参数和导出参数。
+
+#### 引号包裹
+
+可以在 `{{argument}}` 的周围加上引号，进行插值：
+
+```make
+foo argument:
+  touch '{{argument}}'
+```
+
+这保留了 `just` 在运行前捕捉变量名称拼写错误的能力，例如，如果你写成了 `{{argumant}}`，但如果 `argument` 的值包含单引号，则不会如你的预期那样工作。
+
+#### 位置参数
+
+设置 `positional-arguments` 使所有参数作为位置参数传递，允许用 `$1`, `$2`, …, 和 `$@` 访问这些参数，然后可以用双引号避免被 Shell 进一步分割：
+
+```make
+set positional-arguments
+
+foo argument:
+  touch "$1"
+```
+
+这就破坏了 `just` 捕捉拼写错误的能力，例如你输入了 `$2`，这对 `argument` 的所有可能的值都有效，包括那些带双引号的值。
+
+#### 导出参数
+
+当设置 `export` 时，所有参数都被导出：
+
+```make
+set export
+
+foo argument:
+  touch "$argument"
+```
+
+或者可以通过在参数前加上 `$` 来导出单个参数：
+
+```make
+foo $argument:
+  touch "$argument"
+```
+
+这就破坏了 `just` 捕捉拼写错误的能力，例如你输入 `$argumant`，但对 `argument` 的所有可能的值都有效，包括那些带双引号的。
 
 更新日志
 ---------
