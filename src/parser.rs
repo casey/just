@@ -157,22 +157,15 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   }
 
   fn expect_keyword(&mut self, expected: Keyword) -> CompileResult<'src, ()> {
-    let next = self.advance()?;
-    let found = next.lexeme();
+    let found = self.advance()?;
 
-    if next.kind != Identifier {
-      let found_str = next.kind.to_string();
-      Err(next.error(CompileErrorKind::ExpectedKeyword {
-        expected: vec![expected],
-        found: Box::leak(found_str.into_boxed_str()),
-      }))
-    } else if expected != found {
-      Err(next.error(CompileErrorKind::ExpectedKeyword {
+    if found.kind == Identifier && expected == found.lexeme() {
+      Ok(())
+    } else {
+      Err(found.error(CompileErrorKind::ExpectedKeyword {
         expected: vec![expected],
         found,
       }))
-    } else {
-      Ok(())
     }
   }
 
@@ -741,7 +734,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     } else {
       return Err(identifier.error(CompileErrorKind::ExpectedKeyword {
         expected: vec![Keyword::True, Keyword::False],
-        found: identifier.lexeme(),
+        found: identifier,
       }));
     };
 

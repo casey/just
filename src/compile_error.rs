@@ -117,12 +117,21 @@ impl Display for CompileError<'_> {
       DuplicateVariable { variable } => {
         write!(f, "Variable `{}` has multiple definitions", variable)?;
       }
-      ExpectedKeyword { expected, found } => write!(
-        f,
-        "Expected keyword {} but found identifier `{}`",
-        List::or_ticked(expected),
-        found
-      )?,
+      ExpectedKeyword { expected, found } => if found.kind == TokenKind::Identifier {
+        write!(
+          f,
+          "Expected keyword {} but found identifier `{}`",
+          List::or_ticked(expected),
+          found.lexeme()
+        )?;
+      } else {
+        write!(
+          f,
+          "Expected keyword {} but found `{}`",
+          List::or_ticked(expected),
+          found.kind
+        )?;
+      }
       ExtraLeadingWhitespace => {
         write!(f, "Recipe line has extra leading whitespace")?;
       }
