@@ -42,7 +42,7 @@ pub(crate) enum CompileErrorKind<'src> {
   },
   ExpectedKeyword {
     expected: Vec<Keyword>,
-    found: &'src str,
+    found: Token<'src>,
   },
   ExtraLeadingWhitespace,
   FunctionArgumentCountMismatch {

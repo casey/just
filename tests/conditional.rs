@@ -168,3 +168,33 @@ test! {
   stdout: "b\n",
   stderr: "echo b\n",
 }
+
+test! {
+  name: missing_else,
+  justfile: "
+  TEST := if path_exists('/bin/bash') == 'true' {'yes'}
+  ",
+  stdout: "",
+  stderr: "
+    error: Expected keyword `else` but found `end of line`
+      |
+    1 | TEST := if path_exists('/bin/bash') == 'true' {'yes'}
+      |                                                      ^
+  ",
+  status: EXIT_FAILURE,
+}
+
+test! {
+  name: incorrect_else_identifier,
+  justfile: "
+  TEST := if path_exists('/bin/bash') == 'true' {'yes'} els {'no'}
+  ",
+  stdout: "",
+  stderr: "
+    error: Expected keyword `else` but found identifier `els`
+      |
+    1 | TEST := if path_exists('/bin/bash') == 'true' {'yes'} els {'no'}
+      |                                                       ^^^
+  ",
+  status: EXIT_FAILURE,
+}
