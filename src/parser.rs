@@ -33,7 +33,7 @@ pub(crate) struct Parser<'tokens, 'src> {
   /// Current expected tokens
   expected: BTreeSet<TokenKind>,
   /// Current recursion depth
-  depth: u8,
+  depth: usize,
 }
 
 impl<'tokens, 'src> Parser<'tokens, 'src> {
@@ -393,7 +393,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
 
   /// Parse an expression, e.g. `1 + 2`
   fn parse_expression(&mut self) -> CompileResult<'src, Expression<'src>> {
-    if self.depth == if cfg!(windows) { 64 } else { 255 } {
+    if self.depth == if cfg!(windows) { 48 } else { 256 } {
       return Err(CompileError {
         token: self.next()?,
         kind: CompileErrorKind::ParsingRecursionDepthExceeded,
@@ -421,6 +421,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     };
 
     self.depth -= 1;
+
     Ok(expression)
   }
 
