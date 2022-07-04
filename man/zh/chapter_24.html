@@ -144,7 +144,7 @@ foo:
   ls **/*.txt
 </code></pre>
 <h4 id="设置一览表"><a class="header" href="#设置一览表">设置一览表</a></h4>
-<table><thead><tr><th>名称</th><th>值</th><th>描述</th></tr></thead><tbody>
+<div class="table-wrapper"><table><thead><tr><th>名称</th><th>值</th><th>描述</th></tr></thead><tbody>
 <tr><td><code>allow-duplicate-recipes</code></td><td>boolean</td><td>允许在 <code>justfile</code> 后面出现的配方覆盖之前的同名配方</td></tr>
 <tr><td><code>dotenv-load</code></td><td>boolean</td><td>加载 <code>.env</code> 环境变量文件, 如果有的话</td></tr>
 <tr><td><code>export</code></td><td>boolean</td><td>将所有变量导出为环境变量</td></tr>
@@ -152,6 +152,7 @@ foo:
 <tr><td><code>shell</code></td><td><code>[COMMAND, ARGS…]</code></td><td>设置用于调用配方和评估反引号内包裹内容的命令</td></tr>
 <tr><td><code>windows-powershell</code></td><td>boolean</td><td>在 Windows 上使用 PowerShell 作为默认 Shell</td></tr>
 </tbody></table>
+</div>
 <p>Bool 类型设置可以写成：</p>
 <pre><code class="language-mf">set NAME
 </code></pre>

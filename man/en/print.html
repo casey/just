@@ -224,7 +224,7 @@ list:
 <p>You can also set the shell using command-line arguments. For example, to use PowerShell, launch <code>just</code> with <code>--shell powershell.exe --shell-arg -c</code>.</p>
 <p>(PowerShell is installed by default on Windows 7 SP1 and Windows Server 2008 R2 S1 and later, and <code>cmd.exe</code> is quite fiddly, so PowerShell is recommended for most Windows users.)</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="packages"><a class="header" href="#packages">Packages</a></h3>
-<table><thead><tr><th>Operating System</th><th>Package Manager</th><th>Package</th><th>Command</th></tr></thead><tbody>
+<div class="table-wrapper"><table><thead><tr><th>Operating System</th><th>Package Manager</th><th>Package</th><th>Command</th></tr></thead><tbody>
 <tr><td><a href="https://forge.rust-lang.org/release/platform-support.html">Various</a></td><td><a href="https://www.rust-lang.org">Cargo</a></td><td><a href="https://crates.io/crates/just">just</a></td><td><code>cargo install just</code></td></tr>
 <tr><td><a href="https://en.wikipedia.org/wiki/Microsoft_Windows">Microsoft Windows</a></td><td><a href="https://scoop.sh">Scoop</a></td><td><a href="https://github.com/ScoopInstaller/Main/blob/master/bucket/just.json">just</a></td><td><code>scoop install just</code></td></tr>
 <tr><td><a href="https://docs.brew.sh/Installation">Various</a></td><td><a href="https://brew.sh">Homebrew</a></td><td><a href="https://formulae.brew.sh/formula/just">just</a></td><td><code>brew install just</code></td></tr>
@@ -242,6 +242,7 @@ list:
 <tr><td><a href="https://en.wikipedia.org/wiki/Microsoft_Windows">Microsoft Windows</a></td><td><a href="https://chocolatey.org">Chocolatey</a></td><td><a href="https://github.com/michidk/just-choco">just</a></td><td><code>choco install just</code></td></tr>
 <tr><td><a href="https://snapcraft.io/docs/installing-snapd">Various</a></td><td><a href="https://snapcraft.io">Snap</a></td><td><a href="https://snapcraft.io/just">just</a></td><td><code>snap install --edge --classic just</code></td></tr>
 </tbody></table>
+</div>
 <p><img src="https://repology.org/badge/vertical-allrepos/just.svg" alt="package version table" /></p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="pre-built-binaries"><a class="header" href="#pre-built-binaries">Pre-Built Binaries</a></h3>
 <p>Pre-built binaries for Linux, MacOS, and Windows can be found on <a href="https://github.com/casey/just/releases">the releases page</a>.</p>
@@ -486,7 +487,7 @@ foo:
   ls **/*.txt
 </code></pre>
 <h4 id="table-of-settings"><a class="header" href="#table-of-settings">Table of Settings</a></h4>
-<table><thead><tr><th>Name</th><th>Value</th><th>Description</th></tr></thead><tbody>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Value</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>allow-duplicate-recipes</code></td><td>boolean</td><td>Allow recipes appearing later in a <code>justfile</code> to override earlier recipes with the same name.</td></tr>
 <tr><td><code>dotenv-load</code></td><td>boolean</td><td>Load a <code>.env</code> file, if present.</td></tr>
 <tr><td><code>export</code></td><td>boolean</td><td>Export all variables as environment variables.</td></tr>
@@ -494,6 +495,7 @@ foo:
 <tr><td><code>shell</code></td><td><code>[COMMAND, ARGS…]</code></td><td>Set the command used to invoke recipes and evaluate backticks.</td></tr>
 <tr><td><code>windows-powershell</code></td><td>boolean</td><td>Use PowerShell on Windows as default shell.</td></tr>
 </tbody></table>
+</div>
 <p>Boolean settings can be written as:</p>
 <pre><code class="language-mf">set NAME
 </code></pre>
@@ -1505,7 +1507,7 @@ bar
 <pre><code class="language-make">foo argument:
   touch '{{argument}}'
 </code></pre>
-<p>This preserves <code>just</code>’s ability to catch variable name typos before running, for example if you were to write <code>{{argumant}}</code>, but will not do what you want if the value of <code>argument</code> contains single quotes.</p>
+<p>This preserves <code>just</code>’s ability to catch variable name typos before running, for example if you were to write <code>{{argument}}</code>, but will not do what you want if the value of <code>argument</code> contains single quotes.</p>
 <h4 id="positional-arguments-1"><a class="header" href="#positional-arguments-1">Positional Arguments</a></h4>
 <p>The <code>positional-arguments</code> setting causes all arguments to be passed as positional arguments, allowing them to be accessed with <code>$1</code>, <code>$2</code>, …, and <code>$@</code>, which can be then double-quoted to avoid further splitting by the shell:</p>
 <pre><code class="language-make">set positional-arguments

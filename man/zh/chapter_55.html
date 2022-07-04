@@ -149,7 +149,7 @@
 <pre><code class="language-make">foo argument:
   touch '{{argument}}'
 </code></pre>
-<p>这保留了 <code>just</code> 在运行前捕捉变量名称拼写错误的能力，例如，如果你写成了 <code>{{argumant}}</code>，但如果 <code>argument</code> 的值包含单引号，则不会如你的预期那样工作。</p>
+<p>这保留了 <code>just</code> 在运行前捕捉变量名称拼写错误的能力，例如，如果你写成了 <code>{{argument}}</code>，但如果 <code>argument</code> 的值包含单引号，则不会如你的预期那样工作。</p>
 <h4 id="位置参数"><a class="header" href="#位置参数">位置参数</a></h4>
 <p>设置 <code>positional-arguments</code> 使所有参数作为位置参数传递，允许用 <code>$1</code>, <code>$2</code>, …, 和 <code>$@</code> 访问这些参数，然后可以用双引号避免被 Shell 进一步分割：</p>
 <pre><code class="language-make">set positional-arguments

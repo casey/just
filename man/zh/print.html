@@ -223,7 +223,7 @@ list:
 <p>你也可以使用命令行参数来设置 Shell。例如，若要使用 PowerShell 也可以用 <code>--shell powershell.exe --shell-arg -c</code> 启动<code>just</code>。</p>
 <p>(PowerShell 默认安装在 Windows 7 SP1 和 Windows Server 2008 R2 S1 及更高版本上，而 <code>cmd.exe</code> 相当麻烦，所以 PowerShell 被推荐给大多数 Windows 用户)</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="安装包"><a class="header" href="#安装包">安装包</a></h3>
-<table><thead><tr><th>操作系统</th><th>包管理器</th><th>安装包</th><th>命令</th></tr></thead><tbody>
+<div class="table-wrapper"><table><thead><tr><th>操作系统</th><th>包管理器</th><th>安装包</th><th>命令</th></tr></thead><tbody>
 <tr><td><a href="https://forge.rust-lang.org/release/platform-support.html">Various</a></td><td><a href="https://www.rust-lang.org">Cargo</a></td><td><a href="https://crates.io/crates/just">just</a></td><td><code>cargo install just</code></td></tr>
 <tr><td><a href="https://en.wikipedia.org/wiki/Microsoft_Windows">Microsoft Windows</a></td><td><a href="https://scoop.sh">Scoop</a></td><td><a href="https://github.com/ScoopInstaller/Main/blob/master/bucket/just.json">just</a></td><td><code>scoop install just</code></td></tr>
 <tr><td><a href="https://docs.brew.sh/Installation">Various</a></td><td><a href="https://brew.sh">Homebrew</a></td><td><a href="https://formulae.brew.sh/formula/just">just</a></td><td><code>brew install just</code></td></tr>
@@ -241,6 +241,7 @@ list:
 <tr><td><a href="https://en.wikipedia.org/wiki/Microsoft_Windows">Microsoft Windows</a></td><td><a href="https://chocolatey.org">Chocolatey</a></td><td><a href="https://github.com/michidk/just-choco">just</a></td><td><code>choco install just</code></td></tr>
 <tr><td><a href="https://snapcraft.io/docs/installing-snapd">Various</a></td><td><a href="https://snapcraft.io">Snap</a></td><td><a href="https://snapcraft.io/just">just</a></td><td><code>snap install --edge --classic just</code></td></tr>
 </tbody></table>
+</div>
 <p><img src="https://repology.org/badge/vertical-allrepos/just.svg" alt="package version table" /></p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="预制二进制文件"><a class="header" href="#预制二进制文件">预制二进制文件</a></h3>
 <p>Linux、MacOS 和 Windows 的预制二进制文件可以在 <a href="https://github.com/casey/just/releases">发布页</a> 上找到。</p>
@@ -484,7 +485,7 @@ foo:
   ls **/*.txt
 </code></pre>
 <h4 id="设置一览表"><a class="header" href="#设置一览表">设置一览表</a></h4>
-<table><thead><tr><th>名称</th><th>值</th><th>描述</th></tr></thead><tbody>
+<div class="table-wrapper"><table><thead><tr><th>名称</th><th>值</th><th>描述</th></tr></thead><tbody>
 <tr><td><code>allow-duplicate-recipes</code></td><td>boolean</td><td>允许在 <code>justfile</code> 后面出现的配方覆盖之前的同名配方</td></tr>
 <tr><td><code>dotenv-load</code></td><td>boolean</td><td>加载 <code>.env</code> 环境变量文件, 如果有的话</td></tr>
 <tr><td><code>export</code></td><td>boolean</td><td>将所有变量导出为环境变量</td></tr>
@@ -492,6 +493,7 @@ foo:
 <tr><td><code>shell</code></td><td><code>[COMMAND, ARGS…]</code></td><td>设置用于调用配方和评估反引号内包裹内容的命令</td></tr>
 <tr><td><code>windows-powershell</code></td><td>boolean</td><td>在 Windows 上使用 PowerShell 作为默认 Shell</td></tr>
 </tbody></table>
+</div>
 <p>Bool 类型设置可以写成：</p>
 <pre><code class="language-mf">set NAME
 </code></pre>
@@ -1494,7 +1496,7 @@ bar
 <pre><code class="language-make">foo argument:
   touch '{{argument}}'
 </code></pre>
-<p>这保留了 <code>just</code> 在运行前捕捉变量名称拼写错误的能力，例如，如果你写成了 <code>{{argumant}}</code>，但如果 <code>argument</code> 的值包含单引号，则不会如你的预期那样工作。</p>
+<p>这保留了 <code>just</code> 在运行前捕捉变量名称拼写错误的能力，例如，如果你写成了 <code>{{argument}}</code>，但如果 <code>argument</code> 的值包含单引号，则不会如你的预期那样工作。</p>
 <h4 id="位置参数-1"><a class="header" href="#位置参数-1">位置参数</a></h4>
 <p>设置 <code>positional-arguments</code> 使所有参数作为位置参数传递，允许用 <code>$1</code>, <code>$2</code>, …, 和 <code>$@</code> 访问这些参数，然后可以用双引号避免被 Shell 进一步分割：</p>
 <pre><code class="language-make">set positional-arguments
