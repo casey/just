@@ -99,6 +99,7 @@ install-dev-deps:
   cargo +nightly install cargo-fuzz
   cargo install cargo-check
   cargo install cargo-watch
+  cargo install mdbook mdbook-linkcheck
 
 # install system development dependencies with homebrew
 install-dev-deps-homebrew:
