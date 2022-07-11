@@ -121,7 +121,7 @@ You can also set the shell using command-line arguments. For example, to use Pow
 | [Various][conda-platforms]                           | [Conda][conda]            | [just][just-conda]                               | `conda install -c conda-forge just`                                                     |
 | [Microsoft Windows][windows]                         | [Chocolatey][chocolatey]  | [just][just-chocolatey]                          | `choco install just`                                                                    |
 | [Various][snap-platforms]                            | [Snap][snap]              | [just][just-snap]                                | `snap install --edge --classic just`                                                    |
-| [Various][asdf-platforms]                            | [asdf][asdf]              | [just][just-asdf]                                | `asdf plugin add just && asdf install asdf <version>`                                   |
+| [Various][asdf-platforms]                            | [asdf][asdf]              | [just][just-asdf]                                | `asdf plugin add just && asdf install just <version>`                                   |
 
 [alpine linux]: https://alpinelinux.org
 [asdf]: https://asdf-vm.com
