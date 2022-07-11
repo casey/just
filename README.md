@@ -121,8 +121,11 @@ You can also set the shell using command-line arguments. For example, to use Pow
 | [Various][conda-platforms]                           | [Conda][conda]            | [just][just-conda]                               | `conda install -c conda-forge just`                                                     |
 | [Microsoft Windows][windows]                         | [Chocolatey][chocolatey]  | [just][just-chocolatey]                          | `choco install just`                                                                    |
 | [Various][snap-platforms]                            | [Snap][snap]              | [just][just-snap]                                | `snap install --edge --classic just`                                                    |
+| [Various][asdf-platforms]                            | [asdf][asdf]              | [just][just-asdf]                                | `asdf plugin add just && asdf install asdf <version>`                                   |
 
 [alpine linux]: https://alpinelinux.org
+[asdf]: https://asdf-vm.com
+[asdf-platforms]: https://github.com/casey/just/releases
 [apk-tools]: https://wiki.alpinelinux.org/wiki/Alpine_Linux_package_management
 [arch linux]: https://www.archlinux.org
 [cargo]: https://www.rust-lang.org
@@ -138,6 +141,7 @@ You can also set the shell using command-line arguments. For example, to use Pow
 [homebrew-install]: https://docs.brew.sh/Installation
 [homebrew]: https://brew.sh
 [just-alpine]: https://pkgs.alpinelinux.org/package/edge/community/x86_64/just
+[just-asdf]: https://github.com/ggilmore/asdf-just
 [just-chocolatey]: https://github.com/michidk/just-choco
 [just-conda]: https://anaconda.org/conda-forge/just
 [just-crate]: https://crates.io/crates/just
