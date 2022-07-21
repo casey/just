@@ -305,21 +305,20 @@ impl<'src, D> Recipe<'src, D> {
 
     // run it!
     match InterruptHandler::guard(|| command.status()) {
-      Ok(exit_status) => {
-        if let Some(code) = exit_status.code() {
-          if code != 0 {
+      Ok(exit_status) => exit_status.code().map_or_else(
+        || Err(error_from_signal(self.name(), None, exit_status)),
+        |code| {
+          if code == 0 {
+            Ok(())
+          } else {
             Err(Error::Code {
               recipe: self.name(),
               line_number: None,
               code,
             })
-          } else {
-            Ok(())
           }
-        } else {
-          Err(error_from_signal(self.name(), None, exit_status))
-        }
-      }
+        },
+      ),
       Err(io_error) => Err(Error::Shebang {
         recipe: self.name(),
         command: shebang.interpreter.to_owned(),
