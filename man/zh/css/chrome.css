@@ -252,7 +252,7 @@ pre > .buttons button {
         padding: 0.3rem 1rem;
     }
 }
-code {
+pre > code {
     padding: 1rem;
 }
 
