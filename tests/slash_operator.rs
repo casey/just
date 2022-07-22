@@ -29,7 +29,7 @@ fn default_un_parenthesized() {
     )
     .stderr(
       "
-      error: Expected '*', ':', '$', identifier, or '+', but found '/'
+      error: Expected '*', ':', '$', end of line, identifier, or '+', but found '/'
         |
       1 | foo x='a' / 'b':
         |           ^

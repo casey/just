@@ -1912,13 +1912,13 @@ mod tests {
   error! {
     name:   missing_colon,
     input:  "a b c\nd e f",
-    offset:  5,
-    line:   0,
+    offset:  11,
+    line:   1,
     column: 5,
-    width:  1,
+    width:  0,
     kind:   UnexpectedToken{
-      expected: vec![Asterisk, Colon, Dollar, Equals, Identifier, Plus],
-      found:    Eol
+      expected: vec![Asterisk, Colon, Dollar, Eol, Equals, Identifier, Plus],
+      found:    Eof
     },
   }
 
@@ -2050,7 +2050,7 @@ mod tests {
     column: 8,
     width:  0,
     kind:   UnexpectedToken {
-      expected: vec![Asterisk, Colon, Dollar, Equals, Identifier, Plus],
+      expected: vec![Asterisk, Colon, Dollar, Eol, Equals, Identifier, Plus],
       found:    Eof
     },
   }

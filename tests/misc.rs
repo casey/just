@@ -1253,7 +1253,7 @@ test! {
   justfile: "foo 'bar'",
   args:     ("foo"),
   stdout:   "",
-  stderr:   "error: Expected '*', ':', '$', identifier, or '+', but found string
+  stderr:   "error: Expected '*', ':', '$', end of line, identifier, or '+', but found string
   |
 1 | foo 'bar'
   |     ^^^^^
@@ -1428,7 +1428,7 @@ foo *a +b:
   echo {{a}} {{b}}
 ",
   stdout:   "",
-  stderr:   "error: Expected \':\' or \'=\', but found \'+\'
+  stderr:   "error: Expected \':\', end of line, or \'=\', but found \'+\'
   |
 1 | foo *a +b:
   |        ^
@@ -1443,7 +1443,7 @@ foo +a *b:
   echo {{a}} {{b}}
 ",
   stdout:   "",
-  stderr:   "error: Expected \':\' or \'=\', but found \'*\'
+  stderr:   "error: Expected \':\', end of line, or \'=\', but found \'*\'
   |
 1 | foo +a *b:
   |        ^
@@ -1844,7 +1844,7 @@ test! {
       echo {{foo}}
   ",
   stderr: "
-    error: Expected '*', ':', '$', identifier, or '+', but found '='
+    error: Expected '*', ':', '$', end of line, identifier, or '+', but found '='
       |
     1 | foo = 'bar'
       |     ^
