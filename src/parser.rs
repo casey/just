@@ -592,9 +592,14 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     let name = self.parse_name()?;
 
     let mut positional = Vec::new();
-
-    while self.next_is(Identifier) || self.next_is(Dollar) {
-      positional.push(self.parse_parameter(ParameterKind::Singular)?);
+    loop {
+        if self.next_is(Identifier) || self.next_is(Dollar) {
+            positional.push(self.parse_parameter(ParameterKind::Singular)?);
+        } else if self.next_is(Eol) {
+            self.accept(Eol)?;
+        } else {
+            break;
+        }
     }
 
     let kind = if self.accepted(Plus)? {
@@ -618,6 +623,9 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     } else {
       None
     };
+    while self.next_is(Eol) {
+        self.accept(Eol)?;
+    }
 
     self.expect(Colon)?;
 
