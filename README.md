@@ -2103,7 +2103,6 @@ fpath=($HOMEBREW_PREFIX/share/zsh/site-functions $fpath)
 # 2. Otherwise, run compinit yourself
 # autoload -U compinit
 # compinit
-
 ```
 
 ### Grammar
