@@ -1,4 +1,4 @@
-use crate::common::*;
+use super::*;
 
 #[derive(Derivative)]
 #[derivative(Debug, Clone, PartialEq = "feature_allow_slow_enum")]

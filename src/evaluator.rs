@@ -1,4 +1,4 @@
-use crate::common::*;
+use super::*;
 
 pub(crate) struct Evaluator<'src: 'run, 'run> {
   assignments: Option<&'run Table<'src, Assignment<'src>>>,
@@ -150,7 +150,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
           Ok(self.run_backtick(contents, token)?)
         }
       }
-      Expression::Concatination { lhs, rhs } => {
+      Expression::Concatenation { lhs, rhs } => {
         Ok(self.evaluate_expression(lhs)? + &self.evaluate_expression(rhs)?)
       }
       Expression::Conditional {
@@ -176,6 +176,9 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         }
       }
       Expression::Group { contents } => self.evaluate_expression(contents),
+      Expression::Join { lhs, rhs } => {
+        Ok(self.evaluate_expression(lhs)? + "/" + &self.evaluate_expression(rhs)?)
+      }
     }
   }
 

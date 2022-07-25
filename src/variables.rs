@@ -1,4 +1,4 @@
-use crate::common::*;
+use super::*;
 
 pub(crate) struct Variables<'expression, 'src> {
   stack: Vec<&'expression Expression<'src>>,
@@ -53,7 +53,7 @@ impl<'expression, 'src> Iterator for Variables<'expression, 'src> {
           self.stack.push(lhs);
         }
         Expression::Variable { name, .. } => return Some(name.token()),
-        Expression::Concatination { lhs, rhs } => {
+        Expression::Concatenation { lhs, rhs } | Expression::Join { lhs, rhs } => {
           self.stack.push(rhs);
           self.stack.push(lhs);
         }

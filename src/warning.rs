@@ -1,4 +1,4 @@
-use crate::common::*;
+use super::*;
 
 #[derive(Clone, Debug, PartialEq)]
 pub(crate) enum Warning {}

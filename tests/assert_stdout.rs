@@ -1,4 +1,4 @@
-use crate::common::*;
+use super::*;
 
 pub(crate) fn assert_stdout(output: &Output, stdout: &str) {
   assert_success(output);

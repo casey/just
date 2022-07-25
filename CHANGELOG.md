@@ -1,6 +1,49 @@
 Changelog
 =========
 
+[1.2.0](https://github.com/casey/just/releases/tag/1.2.0) - 2022-5-31
+---------------------------------------------------------------------
+
+### Added
+- Add `windows-shell` setting (#1198)
+- SHA-256 and UUID functions (#1170)
+
+### Misc
+- Translate editor support and quick start to Chinese (#1206)
+- Translate first section of readme into Chinese (#1205)
+- Fix a bunch of typos (#1204)
+- Remove cargo-limit usage from justfile (#1199)
+- Add nix package manager install instructions (#1194)
+- Fix broken link in readme (#1183)
+- Add screenshot to manual (#1181)
+- Style homepage (#1180)
+- Center readme (#1178)
+- Style and add links to homepage (#1177)
+- Fix readme badge links (#1176)
+- Generate book from readme (#1155)
+
+[1.1.3](https://github.com/casey/just/releases/tag/1.1.3) - 2022-5-3
+--------------------------------------------------------------------
+
+### Fixed
+- Skip duplicate recipe arguments (#1174)
+
+### Misc
+- Fix install script (#1172)
+- Document that `invocation_directory()` returns an absolute path (#1162)
+- Fix absolute_path documentation (#1160)
+- Add cross-platform justfile example (#1152)
+
+[1.1.2](https://github.com/casey/just/releases/tag/1.1.2) - 2022-3-30
+---------------------------------------------------------------------
+
+### Misc
+- Document indentation rules (#1142)
+- Remove stale link from readme (#1141)
+
+### Unstable
+- Search for missing recipes in parent directory justfiles (#1149)
+
 [1.1.1](https://github.com/casey/just/releases/tag/1.1.1) - 2022-3-22
 ---------------------------------------------------------------------
 
@@ -605,7 +648,7 @@ Changelog
 - Avoid fs::canonicalize (#539)
 
 ### Misc
-- Mention `set shell` as altenative to installing `sh` (#533)
+- Mention `set shell` as alternative to installing `sh` (#533)
 - Refactor Compilation error to contain a Token (#535)
 - Move lexer comment (#536)
 - Add missing `--init` test (#543)

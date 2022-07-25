@@ -15,7 +15,14 @@ log := "warn"
 export JUST_LOG := log
 
 test:
-  cargo ltest
+  cargo test
+
+ci: build-book
+  cargo test --all
+  cargo clippy --all --all-targets
+  cargo fmt --all -- --check
+  ./bin/forbid
+  cargo update --locked --package just
 
 fuzz:
   cargo +nightly fuzz run fuzz-compiler
@@ -25,15 +32,15 @@ run:
 
 # only run tests matching PATTERN
 filter PATTERN:
-  cargo ltest {{PATTERN}}
+  cargo test {{PATTERN}}
 
 build:
-  cargo lbuild
+  cargo build
 
 fmt:
   cargo fmt --all
 
-watch +COMMAND='ltest':
+watch +COMMAND='test':
   cargo watch --clear --exec "{{COMMAND}}"
 
 man:
@@ -58,9 +65,6 @@ check: fmt clippy test forbid
   git diff --no-ext-diff --quiet --exit-code
   VERSION=`sed -En 's/version[[:space:]]*=[[:space:]]*"([^"]+)"/\1/p' Cargo.toml | head -1`
   grep "^\[$VERSION\]" CHANGELOG.md
-  cargo +nightly generate-lockfile -Z minimal-versions
-  cargo ltest
-  git checkout Cargo.lock
 
 # publish current GitHub master branch
 publish:
@@ -101,8 +105,8 @@ install-dev-deps:
   rustup update nightly
   cargo +nightly install cargo-fuzz
   cargo install cargo-check
-  cargo install cargo-limit
   cargo install cargo-watch
+  cargo install mdbook mdbook-linkcheck
 
 # install system development dependencies with homebrew
 install-dev-deps-homebrew:
@@ -110,7 +114,7 @@ install-dev-deps-homebrew:
 
 # everyone's favorite animate paper clip
 clippy:
-  cargo lclippy --all --all-targets --all-features
+  cargo clippy --all --all-targets --all-features
 
 forbid:
   ./bin/forbid
@@ -165,6 +169,11 @@ watch-readme:
 
 generate-completions:
   ./bin/generate-completions
+
+build-book:
+  cargo run --package generate-book
+  mdbook build book/en
+  mdbook build book/zh
 
 # run all polyglot recipes
 polyglot: _python _js _perl _sh _ruby

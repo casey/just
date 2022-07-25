@@ -44,7 +44,7 @@ jobs:
       with:
         components: clippy, rustfmt
         override: true
-        toolchain: 1.47.0
+        toolchain: 1.53.0
 
     - uses: Swatinem/rust-cache@v1
 
@@ -73,3 +73,34 @@ jobs:
         sudo apt-get update
         sudo apt-get install ripgrep
         ./bin/forbid
+
+    - name: Install `mdbook`
+      if: ${{ matrix.os == 'ubuntu-latest' }}
+      uses: peaceiris/actions-mdbook@v1
+      with:
+        mdbook-version: latest
+
+    - name: Install `mdbook-linkcheck`
+      if: ${{ matrix.os == 'ubuntu-latest' }}
+      run: |
+        mkdir -p mdbook-linkcheck
+        cd mdbook-linkcheck
+        wget https://github.com/Michael-F-Bryan/mdbook-linkcheck/releases/latest/download/mdbook-linkcheck.x86_64-unknown-linux-gnu.zip
+        unzip mdbook-linkcheck.x86_64-unknown-linux-gnu.zip
+        chmod +x mdbook-linkcheck
+        pwd >> $GITHUB_PATH
+
+    - name: Build book
+      if: ${{ matrix.os == 'ubuntu-latest' }}
+      run: |
+        cargo run --package generate-book
+        mdbook build book/en
+        mdbook build book/zh
+
+    - name: Deploy Pages
+      uses: peaceiris/actions-gh-pages@v3
+      if: github.ref == 'refs/heads/master' && matrix.os == 'ubuntu-latest'
+      with:
+        github_token: ${{secrets.GITHUB_TOKEN}}
+        publish_branch: gh-pages
+        publish_dir: www

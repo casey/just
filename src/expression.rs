@@ -1,4 +1,4 @@
-use crate::common::*;
+use super::*;
 
 /// An expression. Note that the Just language grammar has both an `expression`
 /// production of additions (`a + b`) and values, and a `value` production of
@@ -16,7 +16,7 @@ pub(crate) enum Expression<'src> {
   /// `name(arguments)`
   Call { thunk: Thunk<'src> },
   /// `lhs + rhs`
-  Concatination {
+  Concatenation {
     lhs: Box<Expression<'src>>,
     rhs: Box<Expression<'src>>,
   },
@@ -30,6 +30,11 @@ pub(crate) enum Expression<'src> {
   },
   /// `(contents)`
   Group { contents: Box<Expression<'src>> },
+  /// `lhs / rhs`
+  Join {
+    lhs: Box<Expression<'src>>,
+    rhs: Box<Expression<'src>>,
+  },
   /// `"string_literal"` or `'string_literal'`
   StringLiteral { string_literal: StringLiteral<'src> },
   /// `variable`
@@ -46,7 +51,8 @@ impl<'src> Display for Expression<'src> {
   fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
     match self {
       Expression::Backtick { token, .. } => write!(f, "{}", token.lexeme()),
-      Expression::Concatination { lhs, rhs } => write!(f, "{} + {}", lhs, rhs),
+      Expression::Join { lhs, rhs } => write!(f, "{} / {}", lhs, rhs),
+      Expression::Concatenation { lhs, rhs } => write!(f, "{} + {}", lhs, rhs),
       Expression::Conditional {
         lhs,
         rhs,
@@ -79,9 +85,16 @@ impl<'src> Serialize for Expression<'src> {
         seq.end()
       }
       Self::Call { thunk } => thunk.serialize(serializer),
-      Self::Concatination { lhs, rhs } => {
+      Self::Concatenation { lhs, rhs } => {
         let mut seq = serializer.serialize_seq(None)?;
         seq.serialize_element("concatinate")?;
+        seq.serialize_element(lhs)?;
+        seq.serialize_element(rhs)?;
+        seq.end()
+      }
+      Self::Join { lhs, rhs } => {
+        let mut seq = serializer.serialize_seq(None)?;
+        seq.serialize_element("join")?;
         seq.serialize_element(lhs)?;
         seq.serialize_element(rhs)?;
         seq.end()

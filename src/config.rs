@@ -1,4 +1,4 @@
-use crate::common::*;
+use super::*;
 
 use clap::{App, AppSettings, Arg, ArgGroup, ArgMatches, ArgSettings};
 
@@ -606,7 +606,11 @@ impl Config {
   }
 
   pub(crate) fn run<'src>(self, loader: &'src Loader) -> Result<(), Error<'src>> {
-    self.subcommand.run(&self, loader)
+    if let Err(error) = InterruptHandler::install(self.verbosity) {
+      warn!("Failed to set CTRL-C handler: {}", error);
+    }
+
+    self.subcommand.execute(&self, loader)
   }
 }
 
@@ -661,7 +665,7 @@ mod tests {
     let app = Config::app();
     let matches = app
       .get_matches_from_safe(arguments)
-      .expect("agument parsing failed");
+      .expect("argument parsing failed");
     let have = Config::from_matches(&matches).expect("config parsing failed");
     assert_eq!(have, want);
   }
@@ -698,7 +702,7 @@ mod tests {
 
         let app = Config::app();
 
-        let matches = app.get_matches_from_safe(arguments).expect("Matching failes");
+        let matches = app.get_matches_from_safe(arguments).expect("Matching fails");
 
         match Config::from_matches(&matches).expect_err("config parsing succeeded") {
           $error => { $($check)? }

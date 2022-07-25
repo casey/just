@@ -1,4 +1,4 @@
-use crate::common::*;
+use super::*;
 
 #[test]
 fn dotenv() {
@@ -71,7 +71,6 @@ fn no_warning() {
     )
     .stdout("unset\n")
     .stderr("echo ${DOTENV_KEY:-unset}\n")
-    .suppress_dotenv_load_warning(false)
     .run();
 }
 

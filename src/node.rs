@@ -1,6 +1,6 @@
-use crate::common::*;
+use super::*;
 
-/// Methods commmon to all AST nodes. Currently only used in parser unit tests.
+/// Methods common to all AST nodes. Currently only used in parser unit tests.
 pub(crate) trait Node<'src> {
   /// Construct an untyped tree of atoms representing this Node. This function,
   /// and `Tree` type, are only used in parser unit tests.
@@ -52,7 +52,7 @@ impl<'src> Node<'src> for Assignment<'src> {
 impl<'src> Node<'src> for Expression<'src> {
   fn tree(&self) -> Tree<'src> {
     match self {
-      Expression::Concatination { lhs, rhs } => Tree::atom("+").push(lhs.tree()).push(rhs.tree()),
+      Expression::Concatenation { lhs, rhs } => Tree::atom("+").push(lhs.tree()).push(rhs.tree()),
       Expression::Conditional {
         lhs,
         rhs,
@@ -118,6 +118,7 @@ impl<'src> Node<'src> for Expression<'src> {
       } => Tree::string(cooked),
       Expression::Backtick { contents, .. } => Tree::atom("backtick").push(Tree::string(contents)),
       Expression::Group { contents } => Tree::List(vec![contents.tree()]),
+      Expression::Join { lhs, rhs } => Tree::atom("/").push(lhs.tree()).push(rhs.tree()),
     }
   }
 }
@@ -215,20 +216,19 @@ impl<'src> Node<'src> for Fragment<'src> {
 
 impl<'src> Node<'src> for Set<'src> {
   fn tree(&self) -> Tree<'src> {
-    use Setting::*;
-
     let mut set = Tree::atom(Keyword::Set.lexeme());
     set.push_mut(self.name.lexeme().replace('-', "_"));
 
     match &self.value {
-      AllowDuplicateRecipes(value)
-      | DotenvLoad(value)
-      | Export(value)
-      | PositionalArguments(value)
-      | WindowsPowerShell(value) => {
+      Setting::AllowDuplicateRecipes(value)
+      | Setting::DotenvLoad(value)
+      | Setting::Export(value)
+      | Setting::PositionalArguments(value)
+      | Setting::WindowsPowerShell(value) => {
         set.push_mut(value.to_string());
       }
-      Shell(setting::Shell { command, arguments }) => {
+      Setting::Shell(Shell { command, arguments })
+      | Setting::WindowsShell(Shell { command, arguments }) => {
         set.push_mut(Tree::string(&command.cooked));
         for argument in arguments {
           set.push_mut(Tree::string(&argument.cooked));

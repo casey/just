@@ -1,4 +1,4 @@
-use crate::common::*;
+use super::*;
 
 use CompileErrorKind::*;
 
@@ -57,11 +57,13 @@ impl<'src> Analyzer<'src> {
           settings.positional_arguments = positional_arguments;
         }
         Setting::Shell(shell) => {
-          assert!(settings.shell.is_none());
           settings.shell = Some(shell);
         }
         Setting::WindowsPowerShell(windows_powershell) => {
           settings.windows_powershell = windows_powershell;
+        }
+        Setting::WindowsShell(windows_shell) => {
+          settings.windows_shell = Some(windows_shell);
         }
       }
     }
@@ -295,7 +297,7 @@ mod tests {
   }
 
   analysis_error! {
-    name:   parameter_shadows_varible,
+    name:   parameter_shadows_variable,
     input:  "foo := \"h\"\na foo:",
     offset:  13,
     line:   1,

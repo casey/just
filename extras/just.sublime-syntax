@@ -12,32 +12,46 @@ contexts:
     - include: strings
     - include: assignments
     - include: recipeDefinition
+    - include: recipeContent
+    - include: functions
     - include: keywords
   assignments:
-    - match: '^(export[\s]?)?([a-zA-Z_][a-zA-Z0-9_-]*)='
+    - match: '^(export\s+)?([a-zA-Z_][a-zA-Z0-9_-]*)\s*(:=)'
       captures:
-        1: storage.type.just
-        2: variable.name.just
+        1: storage.modifier.just
+        2: variable.other.just
+        3: keyword.operator.assignment.just
   comments:
-    - match: '^#[^!].*'
+    - match: '#[^!].*'
       scope: comment.line.just
   interpolate:
-    - match: '\{\{'
+    - match: '(?<!\{)\{\{(?!\{)'
       push:
         - meta_scope: string.interpolated.just
         - match: '\}\}'
           pop: true
+  functions:
+    - match: \b(arch|os|os_family|env_var|env_var_or_default|invocation_directory|justfile|justfile_directory|just_executable|lowercase|quote|replace|trim|trim_end|trim_end_match|trim_end_matches|trim_start|trim_start_match|trim_start_matches|uppercase|absolute_path|extension|file_name|file_stem|parent_directory|without_extension|join|clean|path_exists|error|sha256|sha256_file|uuid)\b(?=\()
+      scope: entity.name.function.just
   keywords:
-    - match: \b(arch|os|os_family|env_var|env_var_or_default)\b
+    - match: \b(if|else|while)\b
       scope: keyword.control.just
   recipeDefinition:
-    - match: '^(@)?([a-zA-Z_][a-zA-Z0-9_-]*)([a-zA-Z0-9=\s_-`''"]*):([\sa-zA-Z0-9_-]*).*$'
+    - match: '^(@)?([a-zA-Z_][a-zA-Z0-9_-]*)\s*([\+\*])?([a-zA-Z0-9_]*)?\s*(=)?\s*([a-zA-Z0-9_-`''"]*):([\sa-zA-Z0-9_-]*).*$'
       captures:
-        1: entity.name.function.just
+        1: storage.modifier.just
         2: entity.name.function.just
-        4: support.type.property-name.just
+        3: keyword.operator.just
+        4: variable.parameter.just
+        5: keyword.operator.just
+        6: string.interpolated.just
+        7: support.type.property-name.just
+  recipeContent:
+    - match: '^\s+([-@]*)'
+      captures:
+        1: storage.modifier.just
   scripts:
-    - match: \s#\!
+    - match: '\s#\!'
       comment: The #! lines within a recipe.
       push:
         - meta_scope: support.type.property-name.just

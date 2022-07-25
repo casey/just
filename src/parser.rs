@@ -1,4 +1,4 @@
-use crate::common::*;
+use super::*;
 
 use TokenKind::*;
 
@@ -32,6 +32,8 @@ pub(crate) struct Parser<'tokens, 'src> {
   next: usize,
   /// Current expected tokens
   expected: BTreeSet<TokenKind>,
+  /// Current recursion depth
+  depth: usize,
 }
 
 impl<'tokens, 'src> Parser<'tokens, 'src> {
@@ -40,12 +42,13 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     Self::new(tokens).parse_ast()
   }
 
-  /// Construct a new Paser from a token stream
+  /// Construct a new Parser from a token stream
   fn new(tokens: &'tokens [Token<'src>]) -> Parser<'tokens, 'src> {
     Parser {
       next: 0,
       expected: BTreeSet::new(),
       tokens,
+      depth: 0,
     }
   }
 
@@ -154,13 +157,12 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   }
 
   fn expect_keyword(&mut self, expected: Keyword) -> CompileResult<'src, ()> {
-    let identifier = self.expect(Identifier)?;
-    let found = identifier.lexeme();
+    let found = self.advance()?;
 
-    if expected == found {
+    if found.kind == Identifier && expected == found.lexeme() {
       Ok(())
     } else {
-      Err(identifier.error(CompileErrorKind::ExpectedKeyword {
+      Err(found.error(CompileErrorKind::ExpectedKeyword {
         expected: vec![expected],
         found,
       }))
@@ -391,19 +393,36 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
 
   /// Parse an expression, e.g. `1 + 2`
   fn parse_expression(&mut self) -> CompileResult<'src, Expression<'src>> {
-    if self.accepted_keyword(Keyword::If)? {
-      self.parse_conditional()
+    if self.depth == if cfg!(windows) { 48 } else { 256 } {
+      return Err(CompileError {
+        token: self.next()?,
+        kind: CompileErrorKind::ParsingRecursionDepthExceeded,
+      });
+    }
+
+    self.depth += 1;
+
+    let expression = if self.accepted_keyword(Keyword::If)? {
+      self.parse_conditional()?
     } else {
       let value = self.parse_value()?;
 
-      if self.accepted(Plus)? {
+      if self.accepted(Slash)? {
         let lhs = Box::new(value);
         let rhs = Box::new(self.parse_expression()?);
-        Ok(Expression::Concatination { lhs, rhs })
+        Expression::Join { lhs, rhs }
+      } else if self.accepted(Plus)? {
+        let lhs = Box::new(value);
+        let rhs = Box::new(self.parse_expression()?);
+        Expression::Concatenation { lhs, rhs }
       } else {
-        Ok(value)
+        value
       }
-    }
+    };
+
+    self.depth -= 1;
+
+    Ok(expression)
   }
 
   /// Parse a conditional, e.g. `if a == b { "foo" } else { "bar" }`
@@ -716,7 +735,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     } else {
       return Err(identifier.error(CompileErrorKind::ExpectedKeyword {
         expected: vec![Keyword::True, Keyword::False],
-        found: identifier.lexeme(),
+        found: identifier,
       }));
     };
 
@@ -764,26 +783,13 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     self.expect(ColonEquals)?;
 
     if name.lexeme() == Keyword::Shell.lexeme() {
-      self.expect(BracketL)?;
-
-      let command = self.parse_string_literal()?;
-
-      let mut arguments = Vec::new();
-
-      if self.accepted(Comma)? {
-        while !self.next_is(BracketR) {
-          arguments.push(self.parse_string_literal()?);
-
-          if !self.accepted(Comma)? {
-            break;
-          }
-        }
-      }
-
-      self.expect(BracketR)?;
-
       Ok(Set {
-        value: Setting::Shell(setting::Shell { arguments, command }),
+        value: Setting::Shell(self.parse_shell()?),
+        name,
+      })
+    } else if name.lexeme() == Keyword::WindowsShell.lexeme() {
+      Ok(Set {
+        value: Setting::WindowsShell(self.parse_shell()?),
         name,
       })
     } else {
@@ -791,6 +797,29 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
         setting: name.lexeme(),
       }))
     }
+  }
+
+  /// Parse a shell setting value
+  fn parse_shell(&mut self) -> CompileResult<'src, Shell<'src>> {
+    self.expect(BracketL)?;
+
+    let command = self.parse_string_literal()?;
+
+    let mut arguments = Vec::new();
+
+    if self.accepted(Comma)? {
+      while !self.next_is(BracketR) {
+        arguments.push(self.parse_string_literal()?);
+
+        if !self.accepted(Comma)? {
+          break;
+        }
+      }
+    }
+
+    self.expect(BracketR)?;
+
+    Ok(Shell { arguments, command })
   }
 }
 
@@ -1107,7 +1136,7 @@ mod tests {
   }
 
   test! {
-    name: recipe_dependency_argument_concatination,
+    name: recipe_dependency_argument_concatenation,
     text: "foo: (bar 'a' + 'b' 'c' + 'd')",
     tree: (justfile (recipe foo (deps (bar (+ 'a' 'b') (+ 'c' 'd'))))),
   }
@@ -1341,7 +1370,7 @@ mod tests {
   }
 
   test! {
-    name: parameter_default_concatination_variable,
+    name: parameter_default_concatenation_variable,
     text: r#"
       x := "10"
 
@@ -1636,7 +1665,7 @@ mod tests {
   }
 
   test! {
-    name: parameter_default_concatination_string,
+    name: parameter_default_concatenation_string,
     text: r#"
       f x=(`echo hello` + "foo"):
     "#,
@@ -1644,7 +1673,7 @@ mod tests {
   }
 
   test! {
-    name: concatination_in_group,
+    name: concatenation_in_group,
     text: "x := ('0' + '1')",
     tree: (justfile (assignment x ((+ "0" "1")))),
   }
@@ -1823,7 +1852,7 @@ mod tests {
   }
 
   test! {
-    name: conditional_concatinations,
+    name: conditional_concatenations,
     text: "a := if b0 + b1 == c0 + c1 { d0 + d1 } else { e0 + e1 }",
     tree: (justfile (assignment a (if (+ b0 b1) == (+ c0 c1) (+ d0 d1) (+ e0 e1)))),
   }
@@ -2039,7 +2068,7 @@ mod tests {
   }
 
   error! {
-    name:   concatination_in_default,
+    name:   concatenation_in_default,
     input:  "foo a=c+d e:",
     offset: 10,
     line:   0,

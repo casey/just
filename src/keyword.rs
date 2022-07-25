@@ -1,4 +1,4 @@
-use crate::common::*;
+use super::*;
 
 #[derive(Debug, Eq, PartialEq, IntoStaticStr, Display, Copy, Clone, EnumString)]
 #[strum(serialize_all = "kebab_case")]
@@ -15,6 +15,7 @@ pub(crate) enum Keyword {
   Shell,
   True,
   WindowsPowershell,
+  WindowsShell,
 }
 
 impl Keyword {

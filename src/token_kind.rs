@@ -1,4 +1,4 @@
-use crate::common::*;
+use super::*;
 
 #[derive(Debug, PartialEq, Clone, Copy, Ord, PartialOrd, Eq)]
 pub(crate) enum TokenKind {
@@ -30,6 +30,7 @@ pub(crate) enum TokenKind {
   ParenL,
   ParenR,
   Plus,
+  Slash,
   StringToken,
   Text,
   Unspecified,
@@ -71,6 +72,7 @@ impl Display for TokenKind {
         ParenL => "'('",
         ParenR => "')'",
         Plus => "'+'",
+        Slash => "'/'",
         StringToken => "string",
         Text => "command text",
         Unspecified => "unspecified",

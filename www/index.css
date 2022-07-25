@@ -1,0 +1,68 @@
+:root {
+ --width-target: calc(100vw / 6);
+ --height-target: calc(100vh / 3);
+ --size: min(var(--width-target), var(--height-target));
+ --margin-vertical: calc((100vh - var(--size) * 2) / 2);
+ --margin-horizontal: calc((100vw - var(--size) * 5) / 2);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  background-color: black;
+  color: white;
+  overflow: hidden;
+  text-align: center;
+  font-family: monospace;
+  font-size: var(--size);
+  line-height: var(--size);
+}
+
+a {
+  color: white;
+  text-decoration: none;
+}
+
+a:hover {
+  text-shadow: 0 0 5px #fff;
+}
+
+body {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  margin-bottom: var(--margin-vertical);
+  margin-left: var(--margin-horizontal);
+  margin-right: var(--margin-horizontal);
+  margin-top: var(--margin-vertical);
+}
+
+body > * {
+  width: var(--size);
+}
+
+body > div {
+  height: var(--size);
+  text-shadow: 0 0 5px #fff;
+}
+
+body > a {
+  align-items: center;
+  display: flex;
+  font-size: calc(var(--size) / 9);
+  height: calc(var(--size) / 2);
+  justify-content: center;
+  line-height: calc(var(--size) / 9);
+}
+
+/* just is an isogram */
+#j:after       { content: 'j'; }
+#j:hover:after { content: ':'; }
+#u:after       { content: 'u'; }
+#u:hover:after { content: '~'; }
+#s:after       { content: 's'; }
+#s:hover:after { content: '$'; }
+#t:after       { content: 't'; }
+#t:hover:after { content: '='; }

@@ -1,4 +1,4 @@
-use crate::common::*;
+use super::*;
 
 test! {
   name: unstable_not_passed,
@@ -917,7 +917,7 @@ test! {
 }
 
 test! {
-  name: group_recipies,
+  name: group_recipes,
   justfile: "
     foo:
         echo foo

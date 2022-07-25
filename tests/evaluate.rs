@@ -1,4 +1,4 @@
-use crate::common::*;
+use super::*;
 
 test! {
   name:     evaluate,
@@ -43,7 +43,7 @@ test! {
 }
 
 test! {
-  name:     evaluate_single,
+  name:     evaluate_single_free,
   justfile: "
     a := 'x'
     b := 'y'

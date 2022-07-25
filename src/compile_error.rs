@@ -1,4 +1,4 @@
-use crate::common::*;
+use super::*;
 
 #[derive(Debug, PartialEq)]
 pub(crate) struct CompileError<'src> {
@@ -117,12 +117,23 @@ impl Display for CompileError<'_> {
       DuplicateVariable { variable } => {
         write!(f, "Variable `{}` has multiple definitions", variable)?;
       }
-      ExpectedKeyword { expected, found } => write!(
-        f,
-        "Expected keyword {} but found identifier `{}`",
-        List::or_ticked(expected),
-        found
-      )?,
+      ExpectedKeyword { expected, found } => {
+        if found.kind == TokenKind::Identifier {
+          write!(
+            f,
+            "Expected keyword {} but found identifier `{}`",
+            List::or_ticked(expected),
+            found.lexeme()
+          )?;
+        } else {
+          write!(
+            f,
+            "Expected keyword {} but found `{}`",
+            List::or_ticked(expected),
+            found.kind
+          )?;
+        }
+      }
       ExtraLeadingWhitespace => {
         write!(f, "Recipe line has extra leading whitespace")?;
       }
@@ -197,6 +208,9 @@ impl Display for CompileError<'_> {
           "Parameter `{}` shadows variable of the same name",
           parameter
         )?;
+      }
+      ParsingRecursionDepthExceeded => {
+        write!(f, "Parsing recursion depth exceeded")?;
       }
       RequiredParameterFollowsDefaultParameter { parameter } => {
         write!(

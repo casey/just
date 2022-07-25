@@ -1,4 +1,4 @@
-use crate::common::*;
+use super::*;
 
 use CompileErrorKind::*;
 
@@ -101,7 +101,7 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
           self.resolve_expression(c)
         }
       },
-      Expression::Concatination { lhs, rhs } => {
+      Expression::Concatenation { lhs, rhs } | Expression::Join { lhs, rhs } => {
         self.resolve_expression(lhs)?;
         self.resolve_expression(rhs)
       }

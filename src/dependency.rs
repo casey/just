@@ -1,4 +1,4 @@
-use crate::common::*;
+use super::*;
 
 #[derive(PartialEq, Debug, Serialize)]
 pub(crate) struct Dependency<'src> {

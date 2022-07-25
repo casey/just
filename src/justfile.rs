@@ -1,4 +1,4 @@
-use crate::common::*;
+use super::*;
 
 use serde::Serialize;
 
@@ -74,10 +74,6 @@ impl<'src> Justfile<'src> {
     overrides: &BTreeMap<String, String>,
     arguments: &[String],
   ) -> RunResult<'src, ()> {
-    if let Err(error) = InterruptHandler::install(config.verbosity) {
-      warn!("Failed to set CTRL-C handler: {}", error);
-    }
-
     let unknown_overrides = overrides
       .keys()
       .filter(|name| !self.assignments.contains_key(name.as_str()))
@@ -288,6 +284,15 @@ impl<'src> Justfile<'src> {
     search: &Search,
     ran: &mut BTreeSet<Vec<String>>,
   ) -> RunResult<'src, ()> {
+    let mut invocation = vec![recipe.name().to_owned()];
+    for argument in arguments {
+      invocation.push((*argument).to_string());
+    }
+
+    if ran.contains(&invocation) {
+      return Ok(());
+    }
+
     let (outer, positional) = Evaluator::evaluate_parameters(
       context.config,
       dotenv,
@@ -304,20 +309,19 @@ impl<'src> Justfile<'src> {
       Evaluator::recipe_evaluator(context.config, dotenv, &scope, context.settings, search);
 
     for Dependency { recipe, arguments } in recipe.dependencies.iter().take(recipe.priors) {
-      let mut invocation = vec![recipe.name().to_owned()];
+      let arguments = arguments
+        .iter()
+        .map(|argument| evaluator.evaluate_expression(argument))
+        .collect::<RunResult<Vec<String>>>()?;
 
-      for argument in arguments {
-        invocation.push(evaluator.evaluate_expression(argument)?);
-      }
-
-      if !ran.contains(&invocation) {
-        let arguments = invocation
-          .iter()
-          .skip(1)
-          .map(String::as_ref)
-          .collect::<Vec<&str>>();
-        self.run_recipe(context, recipe, &arguments, dotenv, search, ran)?;
-      }
+      self.run_recipe(
+        context,
+        recipe,
+        &arguments.iter().map(String::as_ref).collect::<Vec<&str>>(),
+        dotenv,
+        search,
+        ran,
+      )?;
     }
 
     recipe.run(context, dotenv, scope.child(), search, &positional)?;
@@ -341,11 +345,6 @@ impl<'src> Justfile<'src> {
           &mut ran,
         )?;
       }
-    }
-
-    let mut invocation = vec![recipe.name().to_owned()];
-    for argument in arguments.iter().copied() {
-      invocation.push(argument.to_owned());
     }
 
     ran.insert(invocation);
@@ -971,7 +970,7 @@ f x=`echo hello`:
   }
 
   test! {
-    parameter_default_concatination_string,
+    parameter_default_concatenation_string,
     r#"
 f x=(`echo hello` + "foo"):
 "#,
@@ -979,7 +978,7 @@ f x=(`echo hello` + "foo"):
   }
 
   test! {
-    parameter_default_concatination_variable,
+    parameter_default_concatenation_variable,
     r#"
 x := "10"
 f y=(`echo hello` + x) +z="foo":
@@ -1001,7 +1000,7 @@ f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
   }
 
   test! {
-    concatination_in_group,
+    concatenation_in_group,
     "x := ('0' + '1')",
     "x := ('0' + '1')",
   }
