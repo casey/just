@@ -1,6 +1,48 @@
 Changelog
 =========
 
+[1.3.0](https://github.com/casey/just/releases/tag/1.3.0) - 2022-7-25
+---------------------------------------------------------------------
+
+### Added
+- Add `/` operator (#1237)
+
+### Fixed
+- Fix multibyte codepoint crash (#1243)
+
+### Misc
+- Update just-install reference on README.md (#1275)
+- Split Recipe::run into Recipe::{run_shebang,run_linewise} (#1270)
+- Add asdf package to readme(#1264)
+- Add mdbook deps for build-book recipe (#1258) (#1259)
+- Fix typo: argumant -> argument (#1257)
+- Improve error message if `if` is missing the `else` (#1252)
+- Explain how to pass arguments of a command to a dependency (#1254)
+- Update Chinese translation of README.md (#1253)
+- Improvements to Sublime syntax file (#1250)
+- Prevent unbounded recursion when parsing expressions (#1248)
+- Publish to snap store (#1245)
+- Restore fuzz test harness (#1246)
+- Add just-install to README file (#1241)
+- Fix dead readme link (#1240)
+- Do `use super::*;` instead of `use crate::common::*;` (#1239)
+- Fix readme punctuation (#1235)
+- Add argument splitting section to readme (#1230)
+- Add notes about environment variables to readme (#1229)
+- Fix book links (#1227)
+- Add nushell README.md (#1224)
+- Use absolute links in readme (#1223)
+- Copy changelog into manual (#1222)
+- Translate Chinese manual introduction and title (#1220)
+- Build Chinese language user manual (#1219)
+- Update Chinese translation of README.md (#1218)
+- Translate all of README.md into Chinese (#1217)
+- Translate all of features in README into Chinese (#1215)
+- Make link to examples directory absolute (#1213)
+- Translate part of features in README into Chinese (#1211)
+- Add JetBrains IDE plugin to readme (#1209)
+- Translate features chapter of readme to Chinese (#1208)
+
 [1.2.0](https://github.com/casey/just/releases/tag/1.2.0) - 2022-5-31
 ---------------------------------------------------------------------
 
