@@ -189,16 +189,7 @@ You can also set the shell using command-line arguments. For example, to use Pow
     <td><a href="https://www.gentoo.org" rel="nofollow">Gentoo Linux</a></td>
     <td><a href="https://wiki.gentoo.org/wiki/Portage" rel="nofollow">Portage</a></td>
     <td><a href="https://github.com/gentoo-mirror/dm9pZCAq/tree/master/sys-devel/just">dm9pZCAq overlay: sys-devel/just</a></td>
-    <td>
-      <code>
-        eselect repository enable dm9pZCAq
-        <br>
-        <br>
-        <br>
-        <br>
-        emerge --sync dm9pZCAq &amp;&amp; emerge sys-devel/just
-      </code>
-    </td>
+    <td><code>eselect repository enable dm9pZCAq &amp;&amp; emerge --sync dm9pZCAq &amp;&amp; emerge sys-devel/just</code></td>
   </tr>
   <tr>
     <td><a href="https://docs.conda.io/en/latest/miniconda.html#system-requirements" rel="nofollow">Various</a></td>
