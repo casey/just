@@ -192,6 +192,7 @@ You can also set the shell using command-line arguments. For example, to use Pow
     <td>
       <code>
         eselect repository enable dm9pZCAq
+        <br>
         emerge --sync dm9pZCAq &amp;&amp; emerge sys-devel/just
       </code>
     </td>
