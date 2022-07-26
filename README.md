@@ -114,106 +114,106 @@ You can also set the shell using command-line arguments. For example, to use Pow
   </thead>
   <tbody>
   <tr>
-    <td><a href="https://forge.rust-lang.org/release/platform-support.html" rel="nofollow">Various</a></td>
-    <td><a href="https://www.rust-lang.org" rel="nofollow">Cargo</a></td>
-    <td><a href="https://crates.io/crates/just" rel="nofollow">just</a></td>
+    <td><a href="https://forge.rust-lang.org/release/platform-support.html">Various</a></td>
+    <td><a href="https://www.rust-lang.org">Cargo</a></td>
+    <td><a href="https://crates.io/crates/just">just</a></td>
     <td><code>cargo install just</code></td>
   </tr>
   <tr>
-    <td><a href="https://en.wikipedia.org/wiki/Microsoft_Windows" rel="nofollow">Microsoft Windows</a></td>
-    <td><a href="https://scoop.sh" rel="nofollow">Scoop</a></td>
+    <td><a href="https://en.wikipedia.org/wiki/Microsoft_Windows">Microsoft Windows</a></td>
+    <td><a href="https://scoop.sh">Scoop</a></td>
     <td><a href="https://github.com/ScoopInstaller/Main/blob/master/bucket/just.json">just</a></td>
     <td><code>scoop install just</code></td>
   </tr>
   <tr>
-    <td><a href="https://docs.brew.sh/Installation" rel="nofollow">Various</a></td>
-    <td><a href="https://brew.sh" rel="nofollow">Homebrew</a></td>
-    <td><a href="https://formulae.brew.sh/formula/just" rel="nofollow">just</a></td>
+    <td><a href="https://docs.brew.sh/Installation">Various</a></td>
+    <td><a href="https://brew.sh">Homebrew</a></td>
+    <td><a href="https://formulae.brew.sh/formula/just">just</a></td>
     <td><code>brew install just</code></td>
   </tr>
   <tr>
-    <td><a href="https://en.wikipedia.org/wiki/MacOS" rel="nofollow">macOS</a></td>
-    <td><a href="https://www.macports.org" rel="nofollow">MacPorts</a></td>
-    <td><a href="https://ports.macports.org/port/just/summary" rel="nofollow">just</a></td>
+    <td><a href="https://en.wikipedia.org/wiki/MacOS">macOS</a></td>
+    <td><a href="https://www.macports.org">MacPorts</a></td>
+    <td><a href="https://ports.macports.org/port/just/summary">just</a></td>
     <td><code>port install just</code></td>
   </tr>
   <tr>
-    <td><a href="https://www.archlinux.org" rel="nofollow">Arch Linux</a></td>
-    <td><a href="https://wiki.archlinux.org/title/Pacman" rel="nofollow">pacman</a></td>
-    <td><a href="https://archlinux.org/packages/community/x86_64/just/" rel="nofollow">just</a></td>
+    <td><a href="https://www.archlinux.org">Arch Linux</a></td>
+    <td><a href="https://wiki.archlinux.org/title/Pacman">pacman</a></td>
+    <td><a href="https://archlinux.org/packages/community/x86_64/just/">just</a></td>
     <td><code>pacman -S just</code></td>
   </tr>
   <tr>
-    <td><a href="https://nixos.org/download.html#download-nix" rel="nofollow">Various</a></td>
-    <td><a href="https://nixos.org/nix/" rel="nofollow">Nix</a></td>
+    <td><a href="https://nixos.org/download.html#download-nix">Various</a></td>
+    <td><a href="https://nixos.org/nix/">Nix</a></td>
     <td><a href="https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/tools/just/default.nix">just</a></td>
     <td><code>nix-env -iA nixpkgs.just</code></td>
   </tr>
   <tr>
-    <td><a href="https://nixos.org/nixos/" rel="nofollow">NixOS</a></td>
-    <td><a href="https://nixos.org/nix/" rel="nofollow">Nix</a></td>
+    <td><a href="https://nixos.org/nixos/">NixOS</a></td>
+    <td><a href="https://nixos.org/nix/">Nix</a></td>
     <td><a href="https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/tools/just/default.nix">just</a></td>
     <td><code>nix-env -iA nixos.just</code></td>
   </tr>
   <tr>
-    <td><a href="https://getsol.us" rel="nofollow">Solus</a></td>
-    <td><a href="https://getsol.us/articles/package-management/basics/en" rel="nofollow">eopkg</a></td>
-    <td><a href="https://dev.getsol.us/source/just/" rel="nofollow">just</a></td>
+    <td><a href="https://getsol.us">Solus</a></td>
+    <td><a href="https://getsol.us/articles/package-management/basics/en">eopkg</a></td>
+    <td><a href="https://dev.getsol.us/source/just/">just</a></td>
     <td><code>eopkg install just</code></td>
   </tr>
   <tr>
-    <td><a href="https://voidlinux.org" rel="nofollow">Void Linux</a></td>
-    <td><a href="https://wiki.voidlinux.org/XBPS" rel="nofollow">XBPS</a></td>
+    <td><a href="https://voidlinux.org">Void Linux</a></td>
+    <td><a href="https://wiki.voidlinux.org/XBPS">XBPS</a></td>
     <td><a href="https://github.com/void-linux/void-packages/blob/master/srcpkgs/just/template">just</a></td>
     <td><code>xbps-install -S just</code></td>
   </tr>
   <tr>
-    <td><a href="https://www.freebsd.org" rel="nofollow">FreeBSD</a></td>
-    <td><a href="https://www.freebsd.org/doc/handbook/pkgng-intro.html" rel="nofollow">pkg</a></td>
-    <td><a href="https://www.freshports.org/deskutils/just/" rel="nofollow">just</a></td>
+    <td><a href="https://www.freebsd.org">FreeBSD</a></td>
+    <td><a href="https://www.freebsd.org/doc/handbook/pkgng-intro.html">pkg</a></td>
+    <td><a href="https://www.freshports.org/deskutils/just/">just</a></td>
     <td><code>pkg install just</code></td>
   </tr>
   <tr>
-    <td><a href="https://alpinelinux.org" rel="nofollow">Alpine Linux</a></td>
-    <td><a href="https://wiki.alpinelinux.org/wiki/Alpine_Linux_package_management" rel="nofollow">apk-tools</a></td>
-    <td><a href="https://pkgs.alpinelinux.org/package/edge/community/x86_64/just" rel="nofollow">just</a></td>
+    <td><a href="https://alpinelinux.org">Alpine Linux</a></td>
+    <td><a href="https://wiki.alpinelinux.org/wiki/Alpine_Linux_package_management">apk-tools</a></td>
+    <td><a href="https://pkgs.alpinelinux.org/package/edge/community/x86_64/just">just</a></td>
     <td><code>apk add just</code></td>
   </tr>
   <tr>
-    <td><a href="https://getfedora.org" rel="nofollow">Fedora Linux</a></td>
-    <td><a href="https://dnf.readthedocs.io/en/latest/" rel="nofollow">DNF</a></td>
-    <td><a href="https://src.fedoraproject.org/rpms/rust-just" rel="nofollow">just</a></td>
+    <td><a href="https://getfedora.org">Fedora Linux</a></td>
+    <td><a href="https://dnf.readthedocs.io/en/latest/">DNF</a></td>
+    <td><a href="https://src.fedoraproject.org/rpms/rust-just">just</a></td>
     <td><code>dnf install just</code></td>
   </tr>
   <tr>
-    <td><a href="https://www.gentoo.org" rel="nofollow">Gentoo Linux</a></td>
-    <td><a href="https://wiki.gentoo.org/wiki/Portage" rel="nofollow">Portage</a></td>
+    <td><a href="https://www.gentoo.org">Gentoo Linux</a></td>
+    <td><a href="https://wiki.gentoo.org/wiki/Portage">Portage</a></td>
     <td><a href="https://github.com/gentoo-mirror/dm9pZCAq/tree/master/sys-devel/just">dm9pZCAq overlay: sys-devel/just</a></td>
     <td><code>eselect repository enable dm9pZCAq &amp;&amp; emerge --sync dm9pZCAq &amp;&amp; emerge sys-devel/just</code></td>
   </tr>
   <tr>
-    <td><a href="https://docs.conda.io/en/latest/miniconda.html#system-requirements" rel="nofollow">Various</a></td>
-    <td><a href="https://docs.conda.io/projects/conda/en/latest/index.html" rel="nofollow">Conda</a></td>
-    <td><a href="https://anaconda.org/conda-forge/just" rel="nofollow">just</a></td>
+    <td><a href="https://docs.conda.io/en/latest/miniconda.html#system-requirements">Various</a></td>
+    <td><a href="https://docs.conda.io/projects/conda/en/latest/index.html">Conda</a></td>
+    <td><a href="https://anaconda.org/conda-forge/just">just</a></td>
     <td><code>conda install -c conda-forge just</code></td>
   </tr>
   <tr>
-  <td><a href="https://en.wikipedia.org/wiki/Microsoft_Windows" rel="nofollow">Microsoft Windows</a></td>
-  <td><a href="https://chocolatey.org" rel="nofollow">Chocolatey</a></td>
-  <td><a href="https://github.com/michidk/just-choco">just</a></td>
-  <td><code>choco install just</code></td>
+    <td><a href="https://en.wikipedia.org/wiki/Microsoft_Windows">Microsoft Windows</a></td>
+    <td><a href="https://chocolatey.org">Chocolatey</a></td>
+    <td><a href="https://github.com/michidk/just-choco">just</a></td>
+    <td><code>choco install just</code></td>
   </tr>
   <tr>
-  <td><a href="https://snapcraft.io/docs/installing-snapd" rel="nofollow">Various</a></td>
-  <td><a href="https://snapcraft.io" rel="nofollow">Snap</a></td>
-  <td><a href="https://snapcraft.io/just" rel="nofollow">just</a></td>
-  <td><code>snap install --edge --classic just</code></td>
+    <td><a href="https://snapcraft.io/docs/installing-snapd">Various</a></td>
+    <td><a href="https://snapcraft.io">Snap</a></td>
+    <td><a href="https://snapcraft.io/just">just</a></td>
+    <td><code>snap install --edge --classic just</code></td>
   </tr>
   <tr>
-  <td><a href="https://github.com/casey/just/releases">Various</a></td>
-  <td><a href="https://asdf-vm.com" rel="nofollow">asdf</a></td>
-  <td><a href="https://github.com/ggilmore/asdf-just">just</a></td>
-  <td><code>asdf plugin add just &amp;&amp; asdf install just &lt;version&gt;</code></td>
+    <td><a href="https://github.com/casey/just/releases">Various</a></td>
+    <td><a href="https://asdf-vm.com">asdf</a></td>
+    <td><a href="https://github.com/ggilmore/asdf-just">just</a></td>
+    <td><code>asdf plugin add just &amp;&amp; asdf install just &lt;version&gt;</code></td>
   </tr>
   </tbody>
 </table>
