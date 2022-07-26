@@ -106,9 +106,9 @@ You can also set the shell using command-line arguments. For example, to use Pow
 | Operating System | Package Manager | Package | Command |
 | --- | --- | --- | --- |
 | [Various][rust-platforms]
-| [Cargo][cargo]
-| [just][just-crate]
-| `cargo install just` |
+  | [Cargo][cargo]
+  | [just][just-crate]
+  | `cargo install just` |
 | [Microsoft Windows][windows] | [Scoop][scoop] | [just][just-scoop] | `scoop install just` |
 | [Various][homebrew-install] | [Homebrew][homebrew] | [just][just-homebrew] | `brew install just` |
 | [macOS][macos] | [MacPorts][macports] | [just][just-macports] | `port install just` |
