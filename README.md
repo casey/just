@@ -190,8 +190,8 @@ You can also set the shell using command-line arguments. For example, to use Pow
     <td><a href="https://wiki.gentoo.org/wiki/Portage">Portage</a></td>
     <td><a href="https://github.com/gentoo-mirror/dm9pZCAq/tree/master/sys-devel/just">dm9pZCAq overlay: sys-devel/just</a></td>
     <td>
-      <code>eselect repository enable dm9pZCAq</code>
-      <code>emerge --sync dm9pZCAq</code>
+      <code>eselect repository enable dm9pZCAq</code><br>
+      <code>emerge --sync dm9pZCAq</code><br>
       <code>emerge sys-devel/just</code>
     </td>
   </tr>
