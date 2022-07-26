@@ -103,25 +103,25 @@ You can also set the shell using command-line arguments. For example, to use Pow
 
 ### Packages
 
-| Operating System                                     | Package Manager           | Package                                          | Command                                                                                 |
-| ---------------------------------------------------- | ------------------------- | ------------------------------------------------ | --------------------------------------------------------------------------------------- |
-| [Various][rust-platforms]                            | [Cargo][cargo]            | [just][just-crate]                               | `cargo install just`                                                                    |
-| [Microsoft Windows][windows]                         | [Scoop][scoop]            | [just][just-scoop]                               | `scoop install just`                                                                    |
-| [Various][homebrew-install]                          | [Homebrew][homebrew]      | [just][just-homebrew]                            | `brew install just`                                                                     |
-| [macOS][macos]                                       | [MacPorts][macports]      | [just][just-macports]                            | `port install just`                                                                     |
-| [Arch Linux][arch linux]                             | [pacman][pacman]          | [just][just-pacman]                              | `pacman -S just`                                                                        |
-| [Various][nix-platforms]                             | [Nix][nix]                | [just][just-nixpkg]                              | `nix-env -iA nixpkgs.just`                                                              |
-| [NixOS][nixos]                                       | [Nix][nix]                | [just][just-nixpkg]                              | `nix-env -iA nixos.just`                                                                |
-| [Solus][solus]                                       | [eopkg][solus-eopkg]      | [just][just-solus]                               | `eopkg install just`                                                                    |
-| [Void Linux][void linux]                             | [XBPS][xbps]              | [just][just-void]                                | `xbps-install -S just`                                                                  |
-| [FreeBSD][freebsd]                                   | [pkg][freebsd-pkg]        | [just][just-freebsd]                             | `pkg install just`                                                                      |
-| [Alpine Linux][alpine linux]                         | [apk-tools][apk-tools]    | [just][just-alpine]                              | `apk add just`                                                                          |
-| [Fedora Linux][fedora linux]                         | [DNF][dnf]                | [just][just-fedora]                              | `dnf install just`                                                                      |
-| [Gentoo Linux][gentoo linux]                         | [Portage][gentoo-portage] | [dm9pZCAq overlay: sys-devel/just][just-portage] | `eselect repository enable dm9pZCAq && emerge --sync dm9pZCAq && emerge sys-devel/just` |
-| [Various][conda-platforms]                           | [Conda][conda]            | [just][just-conda]                               | `conda install -c conda-forge just`                                                     |
-| [Microsoft Windows][windows]                         | [Chocolatey][chocolatey]  | [just][just-chocolatey]                          | `choco install just`                                                                    |
-| [Various][snap-platforms]                            | [Snap][snap]              | [just][just-snap]                                | `snap install --edge --classic just`                                                    |
-| [Various][asdf-platforms]                            | [asdf][asdf]              | [just][just-asdf]                                | `asdf plugin add just && asdf install just <version>`                                   |
+| Operating System | Package Manager | Package | Command |
+| --- | --- | --- | --- |
+| [Various][rust-platforms] | [Cargo][cargo] | [just][just-crate] | `cargo install just` |
+| [Microsoft Windows][windows] | [Scoop][scoop] | [just][just-scoop] | `scoop install just` |
+| [Various][homebrew-install] | [Homebrew][homebrew] | [just][just-homebrew] | `brew install just` |
+| [macOS][macos] | [MacPorts][macports] | [just][just-macports] | `port install just` |
+| [Arch Linux][arch linux] | [pacman][pacman] | [just][just-pacman] | `pacman -S just` |
+| [Various][nix-platforms] | [Nix][nix] | [just][just-nixpkg] | `nix-env -iA nixpkgs.just` |
+| [NixOS][nixos] | [Nix][nix] | [just][just-nixpkg] | `nix-env -iA nixos.just` |
+| [Solus][solus] | [eopkg][solus-eopkg] | [just][just-solus] | `eopkg install just` |
+| [Void Linux][void linux] | [XBPS][xbps] | [just][just-void] | `xbps-install -S just` |
+| [FreeBSD][freebsd] | [pkg][freebsd-pkg] | [just][just-freebsd] | `pkg install just` |
+| [Alpine Linux][alpine linux] | [apk-tools][apk-tools] | [just][just-alpine] | `apk add just` |
+| [Fedora Linux][fedora linux] | [DNF][dnf] | [just][just-fedora] | `dnf install just` |
+| [Gentoo Linux][gentoo linux] | [Portage][gentoo-portage] | [dm9pZCAq overlay: sys-devel/just][just-portage] | `eselect repository enable dm9pZCAq && emerge --sync dm9pZCAq && emerge sys-devel/just` |
+| [Various][conda-platforms] | [Conda][conda] | [just][just-conda] | `conda install -c conda-forge just` |
+| [Microsoft Windows][windows] | [Chocolatey][chocolatey] | [just][just-chocolatey] | `choco install just` |
+| [Various][snap-platforms] | [Snap][snap] | [just][just-snap] | `snap install --edge --classic just` |
+| [Various][asdf-platforms] | [asdf][asdf] | [just][just-asdf] | `asdf plugin add just && asdf install just <version>` |
 
 [alpine linux]: https://alpinelinux.org
 [asdf]: https://asdf-vm.com
@@ -1369,7 +1369,7 @@ build target:
 A command's arguments can be passed to dependency by putting the dependency in parentheses along with the arguments:
 
 ```make
-build target: 
+build target:
   @echo "Building {{target}}…"
 
 push target: (build target)
