@@ -254,7 +254,6 @@ impl Subcommand {
     let stdout = String::from_utf8_lossy(&output.stdout);
 
     let recipes = stdout
-      .trim()
       .split_whitespace()
       .map(str::to_owned)
       .collect::<Vec<String>>();

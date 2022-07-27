@@ -17,6 +17,13 @@ export JUST_LOG := log
 test:
   cargo test
 
+ci: build-book
+  cargo test --all
+  cargo clippy --all --all-targets
+  cargo fmt --all -- --check
+  ./bin/forbid
+  cargo update --locked --package just
+
 fuzz:
   cargo +nightly fuzz run fuzz-compiler
 
