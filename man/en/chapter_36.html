@@ -153,7 +153,7 @@ build target:
   cd {{target}} &amp;&amp; make
 </code></pre>
 <p>A command’s arguments can be passed to dependency by putting the dependency in parentheses along with the arguments:</p>
-<pre><code class="language-make">build target: 
+<pre><code class="language-make">build target:
   @echo &quot;Building {{target}}…&quot;
 
 push target: (build target)
