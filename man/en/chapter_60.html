@@ -139,6 +139,20 @@
 <p>The <code>just</code> binary can also generate the same completion scripts at runtime, using the <code>--completions</code> command:</p>
 <pre><code class="language-sh">$ just --completions zsh &gt; just.zsh
 </code></pre>
+<p><em>macOS Note:</em> Recent versions of macOS use zsh as the default shell. If you use Homebrew to install <code>just</code>, it will automatically install the most recent copy of the zsh completion script in the Homebrew zsh directory, which the built-in version of zsh doesn’t know about by default. It’s best to use this copy of the script if possible, since it will be updated whenever you update <code>just</code> via Homebrew. Also, many other Homebrew packages use the same location for completion scripts, and the built-in zsh doesn’t know about those either. To take advantage of <code>just</code> completion in zsh in this scenario, you can set <code>fpath</code> to the Homebrew location before calling <code>compinit</code>. Note also that Oh My Zsh runs <code>compinit</code> by default. So your <code>.zshrc</code> file could look like this:</p>
+<pre><code class="language-zsh"># Init Homebrew, which adds environment variables
+eval &quot;$(/opt/homebrew/bin/brew shellenv)&quot;
+
+fpath=($HOMEBREW_PREFIX/share/zsh/site-functions $fpath)
+
+# Then choose one of these options:
+# 1. If you're using Oh My Zsh, you can initialize it here
+# source $ZSH/oh-my-zsh.sh
+
+# 2. Otherwise, run compinit yourself
+# autoload -U compinit
+# compinit
+</code></pre>
 
                     </main>
 
