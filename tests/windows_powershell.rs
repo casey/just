@@ -6,6 +6,7 @@ fn windows_poweshell_setting_uses_powershell() {
     .justfile(
       r#"
       set windows-powershell
+      set shell := ["asdfasdfasdfasdf"]
 
       foo:
         Write-Output bar
