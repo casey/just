@@ -576,7 +576,7 @@ If you'd like `just` to default to listing the recipes in the `justfile`, you ca
 
 ```make
 default:
-  @just -f {{justfile()}} --list
+  @just --justfile {{justfile()}} --list
 ```
 
 Note that the `-f {{justfile()}}` above is needed to make sure the listed are from the current `justfile`. If you executed `just -f /path/to/justfile`, you could list recipes from somewhere else or get a `No justfile found` error.
