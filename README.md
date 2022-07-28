@@ -576,6 +576,7 @@ If you'd like `just` to default to listing the recipes in the `justfile`, you ca
 
 ```make
 default:
+  @# list recipes from the current justfile
   @just --justfile {{justfile()}} --list
 ```
 
