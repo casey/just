@@ -580,7 +580,7 @@ default:
   @just --justfile {{justfile()}} --list
 ```
 
-Note that the `-f {{justfile()}}` above is needed to make sure the listed are from the current `justfile`. If you executed `just -f /path/to/justfile`, you could list recipes from somewhere else or get a `No justfile found` error.
+Note that the `--justfile {{justfile()}}` above is needed to make sure the listed recipes are from the current `justfile`. Without it, if you executed `just -f /some/distant/justfile` or `just -f ./non-standard-justfile`, the plain `just --list` call in the `default` recipe would not use the file you provided. It would try to find a justfile in your current path, maybe even resulting in a `No justfile found` error.
 
 The heading text can be customized with `--list-heading`:
 
