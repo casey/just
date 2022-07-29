@@ -19,7 +19,7 @@ fn windows_shell_setting() {
 }
 
 #[test]
-fn windows_poweshell_setting_uses_powershell() {
+fn windows_powershell_setting_uses_powershell() {
   Test::new()
     .justfile(
       r#"
