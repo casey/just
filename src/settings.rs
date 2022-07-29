@@ -40,14 +40,14 @@ impl<'src> Settings<'src> {
   pub(crate) fn shell_binary<'a>(&'a self, config: &'a Config) -> &'a str {
     let shell_or_args_present = config.shell.is_some() || config.shell_args.is_some();
 
-    if let (Some(shell), false) = (&self.shell, shell_or_args_present) {
-      shell.command.cooked.as_ref()
-    } else if let Some(shell) = &config.shell {
-      shell
-    } else if let (true, Some(shell)) = (cfg!(windows), &self.windows_shell) {
+    if let (true, Some(shell)) = (cfg!(windows), &self.windows_shell) {
       shell.command.cooked.as_ref()
     } else if cfg!(windows) && self.windows_powershell {
       WINDOWS_POWERSHELL_SHELL
+    } else if let (Some(shell), false) = (&self.shell, shell_or_args_present) {
+      shell.command.cooked.as_ref()
+    } else if let Some(shell) = &config.shell {
+      shell
     } else {
       DEFAULT_SHELL
     }
@@ -56,15 +56,7 @@ impl<'src> Settings<'src> {
   pub(crate) fn shell_arguments<'a>(&'a self, config: &'a Config) -> Vec<&'a str> {
     let shell_or_args_present = config.shell.is_some() || config.shell_args.is_some();
 
-    if let (Some(shell), false) = (&self.shell, shell_or_args_present) {
-      shell
-        .arguments
-        .iter()
-        .map(|argument| argument.cooked.as_ref())
-        .collect()
-    } else if let Some(shell_args) = &config.shell_args {
-      shell_args.iter().map(String::as_ref).collect()
-    } else if let (true, Some(shell)) = (cfg!(windows), &self.windows_shell) {
+    if let (true, Some(shell)) = (cfg!(windows), &self.windows_shell) {
       shell
         .arguments
         .iter()
@@ -72,6 +64,14 @@ impl<'src> Settings<'src> {
         .collect()
     } else if cfg!(windows) && self.windows_powershell {
       WINDOWS_POWERSHELL_ARGS.to_vec()
+    } else if let (Some(shell), false) = (&self.shell, shell_or_args_present) {
+      shell
+        .arguments
+        .iter()
+        .map(|argument| argument.cooked.as_ref())
+        .collect()
+    } else if let Some(shell_args) = &config.shell_args {
+      shell_args.iter().map(String::as_ref).collect()
     } else {
       DEFAULT_SHELL_ARGS.to_vec()
     }
