@@ -38,6 +38,8 @@ impl<'src> Settings<'src> {
   }
 
   pub(crate) fn shell_binary<'a>(&'a self, config: &'a Config) -> &'a str {
+    #![allow(clippy::option_if_let_else)]
+
     let shell_or_args_present = config.shell.is_some() || config.shell_args.is_some();
 
     if let (true, Some(shell)) = (cfg!(windows), &self.windows_shell) {
@@ -54,6 +56,8 @@ impl<'src> Settings<'src> {
   }
 
   pub(crate) fn shell_arguments<'a>(&'a self, config: &'a Config) -> Vec<&'a str> {
+    #![allow(clippy::option_if_let_else)]
+
     let shell_or_args_present = config.shell.is_some() || config.shell_args.is_some();
 
     if let (true, Some(shell)) = (cfg!(windows), &self.windows_shell) {
