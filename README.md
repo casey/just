@@ -2218,8 +2218,9 @@ export PATH := "./node_modules/.bin:" + env_var('PATH')
 
 There is no shortage of command runners out there! Some more or less similar alternatives to `just` include:
 
+- [make](https://en.wikipedia.org/wiki/Make_(software)): The Unix build tool that inspired `just`.
+- [makesure](https://github.com/xonixx/makesure): A simple and portable command runner written in AWK and shell.
 - [mmake](https://github.com/tj/mmake): A wrapper around `make` with a number of improvements, including remote includes.
-
 - [robo](https://github.com/tj/robo): A YAML-based command runner written in Go.
 
 Contributing
