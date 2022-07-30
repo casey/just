@@ -223,7 +223,7 @@ You can also set the shell using command-line arguments. For example, to use Pow
     </td>
   </tr>
   <tr>
-    <td><a href="https://debian.org">Debian derivatives</td>
+    <td><a href="https://debian.org">Debian</a> and <a href="https://ubuntu.com">Ubuntu</a> derivatives</td>
     <td><a href="https://mpr.makedeb.org">MPR</a></td>
     <td><a href="https://mpr.makedeb.org/packages/just">just</a></td>
     <td>
@@ -233,7 +233,7 @@ You can also set the shell using command-line arguments. For example, to use Pow
     </td>
   </tr>
   <tr>
-    <td><a href="https://debian.org">Debian derivatives</a></td>
+    <td><a href="https://debian.org">Debian</a> and <a href="https://ubuntu.com">Ubuntu</a> derivatives</td>
     <td><a href="https://docs.makedeb.org/prebuilt-mpr">Prebuilt-MPR</a></td>
     <td><a href="https://mpr.makedeb.org/packages/just">just</a></td>
     <td>
