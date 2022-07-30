@@ -228,7 +228,7 @@ You can also set the shell using command-line arguments. For example, to use Pow
     <td><a href="https://mpr.makedeb.org/packages/just">just</a></td>
     <td>
       <code>git clone 'https://mpr.makedeb.org/just'</code><br>
-      <code>cd just/</code>
+      <code>cd just</code><br>
       <code>makedeb -si</code>
     </td>
   </tr>
