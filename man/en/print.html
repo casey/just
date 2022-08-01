@@ -569,6 +569,7 @@ test build
 <pre><code class="language-make">default:
   @just --list
 </code></pre>
+<p>Note that you may need to add <code>--justfile {{justfile()}}</code> to the line above above. Without it, if you executed <code>just -f /some/distant/justfile -d .</code> or <code>just -f ./non-standard-justfile</code>, the plain <code>just --list</code> inside the recipe would not necessarily use the file you provided. It would try to find a justfile in your current path, maybe even resulting in a <code>No justfile found</code> error.</p>
 <p>The heading text can be customized with <code>--list-heading</code>:</p>
 <pre><code class="language-sh">$ just --list --list-heading $'Cool stuff…\n'
 Cool stuff…
