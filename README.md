@@ -579,6 +579,8 @@ default:
   @just --list
 ```
 
+Note that you may need to add `--justfile {{justfile()}}` to the line above above. Without it, if you executed `just -f /some/distant/justfile -d .` or `just -f ./non-standard-justfile`, the plain `just --list` inside the recipe would not necessarily use the file you provided. It would try to find a justfile in your current path, maybe even resulting in a `No justfile found` error.
+
 The heading text can be customized with `--list-heading`:
 
 ```sh
