@@ -11,7 +11,7 @@ edition = "2018"
 autotests = false
 categories = ["command-line-utilities", "development-tools"]
 keywords = ["command-line", "task", "runner", "development", "utility"]
-exclude = ["/www"]
+include = ["/src"]
 
 [workspace]
 members = [".", "bin/ref-type", "bin/generate-book"]
