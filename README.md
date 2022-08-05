@@ -2164,7 +2164,7 @@ $ just --completions zsh > just.zsh
 
 ```zsh
 # Init Homebrew, which adds environment variables
-eval "$(/opt/homebrew/bin/brew shellenv)"
+eval "$(brew shellenv)"
 
 fpath=($HOMEBREW_PREFIX/share/zsh/site-functions $fpath)
 
