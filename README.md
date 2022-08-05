@@ -2163,8 +2163,10 @@ $ just --completions zsh > just.zsh
 *macOS Note:* Recent versions of macOS use zsh as the default shell. If you use Homebrew to install `just`, it will automatically install the most recent copy of the zsh completion script in the Homebrew zsh directory, which the built-in version of zsh doesn't know about by default. It's best to use this copy of the script if possible, since it will be updated whenever you update `just` via Homebrew. Also, many other Homebrew packages use the same location for completion scripts, and the built-in zsh doesn't know about those either. To take advantage of `just` completion in zsh in this scenario, you can set `fpath` to the Homebrew location before calling `compinit`. Note also that Oh My Zsh runs `compinit` by default. So your `.zshrc` file could look like this:
 
 ```zsh
-# Init Homebrew, which adds environment variables
-eval "$(/opt/homebrew/bin/brew shellenv)"
+# Init Homebrew, which adds environment variables. This should already be in either your .zshrc or .zprofile.
+# Choose based on your platform:
+# eval "$(/usr/local/bin/brew shellenv)"   # 1. Intel Macs
+eval "$(/opt/homebrew/bin/brew shellenv)"  # 2. Apple Silicon Macs
 
 fpath=($HOMEBREW_PREFIX/share/zsh/site-functions $fpath)
 
