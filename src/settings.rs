@@ -52,17 +52,9 @@ impl<'src> Settings<'src> {
       DEFAULT_SHELL
     };
 
-    (binary, self.shell_arguments(config))
-  }
-
-  pub(crate) fn shell_binary<'a>(&'a self, config: &'a Config) -> &'a str {
-    self.shell(config).0
-  }
-
-  pub(crate) fn shell_arguments<'a>(&'a self, config: &'a Config) -> Vec<&'a str> {
     let shell_or_args_present = config.shell.is_some() || config.shell_args.is_some();
 
-    if let (Some(shell), false) = (&self.shell, shell_or_args_present) {
+    let shell_arguments = if let (Some(shell), false) = (&self.shell, shell_or_args_present) {
       shell
         .arguments
         .iter()
@@ -80,7 +72,17 @@ impl<'src> Settings<'src> {
       WINDOWS_POWERSHELL_ARGS.to_vec()
     } else {
       DEFAULT_SHELL_ARGS.to_vec()
-    }
+    };
+
+    (binary, shell_arguments)
+  }
+
+  pub(crate) fn shell_binary<'a>(&'a self, config: &'a Config) -> &'a str {
+    self.shell(config).0
+  }
+
+  pub(crate) fn shell_arguments<'a>(&'a self, config: &'a Config) -> Vec<&'a str> {
+    self.shell(config).1
   }
 }
 
