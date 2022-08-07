@@ -38,13 +38,9 @@ impl<'src> Settings<'src> {
   }
 
   pub(crate) fn shell<'a>(&'a self, config: &'a Config) -> (&'a str, Vec<&'a str>) {
-    (self.shell_binary(config), self.shell_arguments(config))
-  }
-
-  pub(crate) fn shell_binary<'a>(&'a self, config: &'a Config) -> &'a str {
     let shell_or_args_present = config.shell.is_some() || config.shell_args.is_some();
 
-    if let (Some(shell), false) = (&self.shell, shell_or_args_present) {
+    let binary = if let (Some(shell), false) = (&self.shell, shell_or_args_present) {
       shell.command.cooked.as_ref()
     } else if let Some(shell) = &config.shell {
       shell
@@ -54,7 +50,13 @@ impl<'src> Settings<'src> {
       WINDOWS_POWERSHELL_SHELL
     } else {
       DEFAULT_SHELL
-    }
+    };
+
+    (binary, self.shell_arguments(config))
+  }
+
+  pub(crate) fn shell_binary<'a>(&'a self, config: &'a Config) -> &'a str {
+    self.shell(config).0
   }
 
   pub(crate) fn shell_arguments<'a>(&'a self, config: &'a Config) -> Vec<&'a str> {
