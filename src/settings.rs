@@ -41,35 +41,39 @@ impl<'src> Settings<'src> {
     let shell_or_args_present = config.shell.is_some() || config.shell_args.is_some();
 
     let binary = if let (Some(shell), false) = (&self.shell, shell_or_args_present) {
-      shell.command.cooked.as_ref()
+      return (
+        shell.command.cooked.as_ref(),
+        shell
+          .arguments
+          .iter()
+          .map(|argument| argument.cooked.as_ref())
+          .collect(),
+      );
     } else if let Some(shell) = &config.shell {
       shell
     } else if let (true, Some(shell)) = (cfg!(windows), &self.windows_shell) {
-      shell.command.cooked.as_ref()
+      return (
+        shell.command.cooked.as_ref(),
+        shell
+          .arguments
+          .iter()
+          .map(|argument| argument.cooked.as_ref())
+          .collect(),
+      );
     } else if cfg!(windows) && self.windows_powershell {
-      WINDOWS_POWERSHELL_SHELL
+      return (WINDOWS_POWERSHELL_SHELL, WINDOWS_POWERSHELL_ARGS.to_vec());
     } else {
       DEFAULT_SHELL
     };
 
-    let shell_or_args_present = config.shell.is_some() || config.shell_args.is_some();
-
     let shell_arguments = if let (Some(shell), false) = (&self.shell, shell_or_args_present) {
-      shell
-        .arguments
-        .iter()
-        .map(|argument| argument.cooked.as_ref())
-        .collect()
+      unreachable!();
     } else if let Some(shell_args) = &config.shell_args {
       shell_args.iter().map(String::as_ref).collect()
     } else if let (true, Some(shell)) = (cfg!(windows), &self.windows_shell) {
-      shell
-        .arguments
-        .iter()
-        .map(|argument| argument.cooked.as_ref())
-        .collect()
+      unreachable!();
     } else if cfg!(windows) && self.windows_powershell {
-      WINDOWS_POWERSHELL_ARGS.to_vec()
+      unreachable!();
     } else {
       DEFAULT_SHELL_ARGS.to_vec()
     };
