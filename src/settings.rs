@@ -37,6 +37,10 @@ impl<'src> Settings<'src> {
     cmd
   }
 
+  pub(crate) fn shell<'a>(&'a self, config: &'a Config) -> (&'a str, Vec<&'a str>) {
+    (self.shell_binary(config), self.shell_arguments(config))
+  }
+
   pub(crate) fn shell_binary<'a>(&'a self, config: &'a Config) -> &'a str {
     let shell_or_args_present = config.shell.is_some() || config.shell_args.is_some();
 
