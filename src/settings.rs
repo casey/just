@@ -66,14 +66,8 @@ impl<'src> Settings<'src> {
       DEFAULT_SHELL
     };
 
-    let shell_arguments = if let (Some(shell), false) = (&self.shell, shell_or_args_present) {
-      unreachable!();
-    } else if let Some(shell_args) = &config.shell_args {
+    let shell_arguments = if let Some(shell_args) = &config.shell_args {
       shell_args.iter().map(String::as_ref).collect()
-    } else if let (true, Some(shell)) = (cfg!(windows), &self.windows_shell) {
-      unreachable!();
-    } else if cfg!(windows) && self.windows_powershell {
-      unreachable!();
     } else {
       DEFAULT_SHELL_ARGS.to_vec()
     };
