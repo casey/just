@@ -30,9 +30,11 @@ impl<'src> Settings<'src> {
   }
 
   pub(crate) fn shell_command(&self, config: &Config) -> Command {
-    let mut cmd = Command::new(self.shell_binary(config));
+    let (command, args) = self.shell(config);
 
-    cmd.args(self.shell_arguments(config));
+    let mut cmd = Command::new(command);
+
+    cmd.args(args);
 
     cmd
   }
@@ -80,14 +82,6 @@ impl<'src> Settings<'src> {
       )
     }
   }
-
-  pub(crate) fn shell_binary<'a>(&'a self, config: &'a Config) -> &'a str {
-    self.shell(config).0
-  }
-
-  pub(crate) fn shell_arguments<'a>(&'a self, config: &'a Config) -> Vec<&'a str> {
-    self.shell(config).1
-  }
 }
 
 #[cfg(test)]
@@ -103,8 +97,7 @@ mod tests {
       ..testing::config(&[])
     };
 
-    assert_eq!(settings.shell_binary(&config), "sh");
-    assert_eq!(settings.shell_arguments(&config), vec!["-cu"]);
+    assert_eq!(settings.shell(&config), ("sh", vec!["-cu"]));
   }
 
   #[test]
@@ -118,14 +111,12 @@ mod tests {
     };
 
     if cfg!(windows) {
-      assert_eq!(settings.shell_binary(&config), "powershell.exe");
       assert_eq!(
-        settings.shell_arguments(&config),
-        vec!["-NoLogo", "-Command"]
+        settings.shell(&config),
+        ("powershell.exe", vec!["-NoLogo", "-Command"])
       );
     } else {
-      assert_eq!(settings.shell_binary(&config), "sh");
-      assert_eq!(settings.shell_arguments(&config), vec!["-cu"]);
+      assert_eq!(settings.shell(&config), ("sh", vec!["-cu"]));
     }
   }
 
@@ -140,8 +131,7 @@ mod tests {
       ..testing::config(&[])
     };
 
-    assert_eq!(settings.shell_binary(&config), "lol");
-    assert_eq!(settings.shell_arguments(&config), vec!["-nice"]);
+    assert_eq!(settings.shell(&config), ("lol", vec!["-nice"]));
   }
 
   #[test]
@@ -156,8 +146,7 @@ mod tests {
       ..testing::config(&[])
     };
 
-    assert_eq!(settings.shell_binary(&config), "lol");
-    assert_eq!(settings.shell_arguments(&config), vec!["-nice"]);
+    assert_eq!(settings.shell(&config), ("lol", vec!["-nice"]));
   }
 
   #[test]
@@ -182,8 +171,7 @@ mod tests {
       ..testing::config(&[])
     };
 
-    assert_eq!(settings.shell_binary(&config), "asdf.exe");
-    assert_eq!(settings.shell_arguments(&config), vec!["-nope"]);
+    assert_eq!(settings.shell(&config), ("asdf.exe", vec!["-nope"]));
   }
 
   #[test]
@@ -196,7 +184,7 @@ mod tests {
       ..testing::config(&[])
     };
 
-    assert_eq!(settings.shell_binary(&config), "lol");
+    assert_eq!(settings.shell(&config).0, "lol");
   }
 
   #[test]
@@ -211,11 +199,9 @@ mod tests {
     };
 
     if cfg!(windows) {
-      assert_eq!(settings.shell_binary(&config), "powershell.exe");
+      assert_eq!(settings.shell(&config), ("powershell.exe", vec!["-nice"]));
     } else {
-      assert_eq!(settings.shell_binary(&config), "sh");
+      assert_eq!(settings.shell(&config), ("sh", vec!["-nice"]));
     }
-
-    assert_eq!(settings.shell_arguments(&config), vec!["-nice"]);
   }
 }
