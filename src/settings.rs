@@ -39,11 +39,6 @@ impl<'src> Settings<'src> {
     cmd
   }
 
-  // Shell precedence rules:
-  // 1. `--shell` and/or `--shell-arg`
-  // 2. `set windows-shell := [...]`
-  // 3. `set windows-powershell`
-  // 4. `set shell := [...]`
   pub(crate) fn shell<'a>(&'a self, config: &'a Config) -> (&'a str, Vec<&'a str>) {
     match (&config.shell, &config.shell_args) {
       (Some(shell), Some(shell_args)) => {
@@ -69,7 +64,7 @@ impl<'src> Settings<'src> {
           .collect(),
       )
     } else if cfg!(windows) && self.windows_powershell {
-      return (WINDOWS_POWERSHELL_SHELL, WINDOWS_POWERSHELL_ARGS.to_vec());
+      (WINDOWS_POWERSHELL_SHELL, WINDOWS_POWERSHELL_ARGS.to_vec())
     } else if let Some(shell) = &self.shell {
       (
         shell.command.cooked.as_ref(),
