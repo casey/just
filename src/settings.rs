@@ -39,26 +39,27 @@ impl<'src> Settings<'src> {
     cmd
   }
 
+  // Shell precedence rules:
+  // 1. `--shell` and/or `--shell-arg`
+  // 2. `set windows-shell := [...]`
+  // 3. `set windows-powershell`
+  // 4. `set shell := [...]`
   pub(crate) fn shell<'a>(&'a self, config: &'a Config) -> (&'a str, Vec<&'a str>) {
-    if let Some(shell) = &config.shell {
-      (
-        shell,
-        if let Some(shell_args) = &config.shell_args {
-          shell_args.iter().map(String::as_ref).collect()
-        } else {
-          DEFAULT_SHELL_ARGS.to_vec()
-        },
-      )
-    } else if let (Some(shell), false) = (&self.shell, config.shell_args.is_some()) {
-      (
-        shell.command.cooked.as_ref(),
-        shell
-          .arguments
-          .iter()
-          .map(|argument| argument.cooked.as_ref())
-          .collect(),
-      )
-    } else if let (true, Some(shell)) = (cfg!(windows), &self.windows_shell) {
+    match (&config.shell, &config.shell_args) {
+      (Some(shell), Some(shell_args)) => {
+        return (shell, shell_args.iter().map(String::as_ref).collect())
+      }
+      (Some(shell), None) => return (shell, DEFAULT_SHELL_ARGS.to_vec()),
+      (None, Some(shell_args)) => {
+        return (
+          DEFAULT_SHELL,
+          shell_args.iter().map(String::as_ref).collect(),
+        )
+      }
+      (None, None) => {}
+    }
+
+    if let (true, Some(shell)) = (cfg!(windows), &self.windows_shell) {
       (
         shell.command.cooked.as_ref(),
         shell
@@ -69,24 +70,17 @@ impl<'src> Settings<'src> {
       )
     } else if cfg!(windows) && self.windows_powershell {
       return (WINDOWS_POWERSHELL_SHELL, WINDOWS_POWERSHELL_ARGS.to_vec());
-    } else if let Some(shell) = &config.shell {
+    } else if let Some(shell) = &self.shell {
       (
-        shell,
-        if let Some(shell_args) = &config.shell_args {
-          shell_args.iter().map(String::as_ref).collect()
-        } else {
-          DEFAULT_SHELL_ARGS.to_vec()
-        },
+        shell.command.cooked.as_ref(),
+        shell
+          .arguments
+          .iter()
+          .map(|argument| argument.cooked.as_ref())
+          .collect(),
       )
     } else {
-      (
-        DEFAULT_SHELL,
-        if let Some(shell_args) = &config.shell_args {
-          shell_args.iter().map(String::as_ref).collect()
-        } else {
-          DEFAULT_SHELL_ARGS.to_vec()
-        },
-      )
+      (DEFAULT_SHELL, DEFAULT_SHELL_ARGS.to_vec())
     }
   }
 }
