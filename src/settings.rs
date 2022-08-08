@@ -40,39 +40,45 @@ impl<'src> Settings<'src> {
   pub(crate) fn shell<'a>(&'a self, config: &'a Config) -> (&'a str, Vec<&'a str>) {
     let shell_or_args_present = config.shell.is_some() || config.shell_args.is_some();
 
-    let binary = if let (Some(shell), false) = (&self.shell, shell_or_args_present) {
-      return (
+    if let (Some(shell), false) = (&self.shell, shell_or_args_present) {
+      (
         shell.command.cooked.as_ref(),
         shell
           .arguments
           .iter()
           .map(|argument| argument.cooked.as_ref())
           .collect(),
-      );
+      )
     } else if let Some(shell) = &config.shell {
-      shell
+      (
+        shell,
+        if let Some(shell_args) = &config.shell_args {
+          shell_args.iter().map(String::as_ref).collect()
+        } else {
+          DEFAULT_SHELL_ARGS.to_vec()
+        },
+      )
     } else if let (true, Some(shell)) = (cfg!(windows), &self.windows_shell) {
-      return (
+      (
         shell.command.cooked.as_ref(),
         shell
           .arguments
           .iter()
           .map(|argument| argument.cooked.as_ref())
           .collect(),
-      );
+      )
     } else if cfg!(windows) && self.windows_powershell {
       return (WINDOWS_POWERSHELL_SHELL, WINDOWS_POWERSHELL_ARGS.to_vec());
     } else {
-      DEFAULT_SHELL
-    };
-
-    let shell_arguments = if let Some(shell_args) = &config.shell_args {
-      shell_args.iter().map(String::as_ref).collect()
-    } else {
-      DEFAULT_SHELL_ARGS.to_vec()
-    };
-
-    (binary, shell_arguments)
+      (
+        DEFAULT_SHELL,
+        if let Some(shell_args) = &config.shell_args {
+          shell_args.iter().map(String::as_ref).collect()
+        } else {
+          DEFAULT_SHELL_ARGS.to_vec()
+        },
+      )
+    }
   }
 
   pub(crate) fn shell_binary<'a>(&'a self, config: &'a Config) -> &'a str {
