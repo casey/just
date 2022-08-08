@@ -166,13 +166,12 @@ pub(crate) const BASH_COMPLETION_REPLACEMENTS: &[(&str, &str)] = &[
                     COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                     return 0
                 elif [[ ${COMP_CWORD} -eq 1 ]]; then
+                    local recipes=$(just --summary --color never 2> /dev/null)
+
                     if echo "${cur}" | grep -qF '/'; then
                         local path_prefix=$(echo "${cur}" | sed 's/[/][^/]*$/\//')
-                        # TODO: Replace tr and awk below with --list-prefix "${path_prefix}". Need to update the --summary option to respect that first.
-                        local recipes=$(just --summary --color never 2> /dev/null -- "${path_prefix}" \
-                                | tr '[:blank:]' '\n' | awk "{print \"${path_prefix}\"\$0}")
-                    else
-                        local recipes=$(just --summary --color never 2> /dev/null)
+                        local recipes=$(just --summary --color never 2> /dev/null -- "${path_prefix}")
+                        local recipes=$(printf "${path_prefix}%s" $recipes)
                     fi
 
                     if [[ $? -eq 0 ]]; then
