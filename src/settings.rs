@@ -42,6 +42,14 @@ impl<'src> Settings<'src> {
   pub(crate) fn shell<'a>(&'a self, config: &'a Config) -> (&'a str, Vec<&'a str>) {
     let shell_or_args_present = config.shell.is_some() || config.shell_args.is_some();
 
+    match (&config.shell, &config.shell_args) {
+      (Some(shell), Some(shell_args)) => {
+        return (shell, shell_args.iter().map(String::as_ref).collect())
+      }
+      (Some(shell), None) => return (shell, DEFAULT_SHELL_ARGS.to_vec()),
+      _ => {}
+    }
+
     if let (Some(shell), false) = (&self.shell, shell_or_args_present) {
       (
         shell.command.cooked.as_ref(),
