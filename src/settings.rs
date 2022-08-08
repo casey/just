@@ -58,15 +58,6 @@ impl<'src> Settings<'src> {
           .map(|argument| argument.cooked.as_ref())
           .collect(),
       )
-    } else if let Some(shell) = &config.shell {
-      (
-        shell,
-        if let Some(shell_args) = &config.shell_args {
-          shell_args.iter().map(String::as_ref).collect()
-        } else {
-          DEFAULT_SHELL_ARGS.to_vec()
-        },
-      )
     } else if let (true, Some(shell)) = (cfg!(windows), &self.windows_shell) {
       (
         shell.command.cooked.as_ref(),
@@ -78,6 +69,15 @@ impl<'src> Settings<'src> {
       )
     } else if cfg!(windows) && self.windows_powershell {
       return (WINDOWS_POWERSHELL_SHELL, WINDOWS_POWERSHELL_ARGS.to_vec());
+    } else if let Some(shell) = &config.shell {
+      (
+        shell,
+        if let Some(shell_args) = &config.shell_args {
+          shell_args.iter().map(String::as_ref).collect()
+        } else {
+          DEFAULT_SHELL_ARGS.to_vec()
+        },
+      )
     } else {
       (
         DEFAULT_SHELL,
