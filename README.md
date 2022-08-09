@@ -648,7 +648,8 @@ foo:
 | `export`                  | boolean            | Export all variables as environment variables.                                                |
 | `positional-arguments`    | boolean            | Pass positional arguments.                                                                    |
 | `shell`                   | `[COMMAND, ARGS…]` | Set the command used to invoke recipes and evaluate backticks.                                |
-| `windows-powershell`      | boolean            | Use PowerShell on Windows as default shell.                                                   |
+| `windows-shell`           | `[COMMAND, ARGS…]` | Set the command used to invoke recipes and evaluate backticks.                                |
+| `windows-powershell`      | boolean            | Use PowerShell on Windows as default shell. (Deprecated. Use `windows-shell` instead.         |
 
 Boolean settings can be written as:
 
