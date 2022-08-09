@@ -776,6 +776,8 @@ hello:
   Write-Host "Hello, world!"
 ```
 
+See [powershell.just](https://github.com/casey/just/blob/master/examples/powershell.just) for a justfile that uses PowerShell on all platforms.
+
 ##### Windows PowerShell
 
 *`set windows-powershell` uses the legacy `powershell.exe` binary, and is no longer recommended. See the `windows-shell` setting above for a more flexible way to control which shell is used on Windows.*
