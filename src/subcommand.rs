@@ -217,9 +217,10 @@ impl Subcommand {
     let mut child = match result {
       Ok(child) => child,
       Err(io_error) => {
+        let (shell_binary, shell_arguments) = justfile.settings.shell(config);
         return Err(Error::ChooserInvoke {
-          shell_binary: justfile.settings.shell_binary(config).to_owned(),
-          shell_arguments: justfile.settings.shell_arguments(config).join(" "),
+          shell_binary: shell_binary.to_owned(),
+          shell_arguments: shell_arguments.join(" "),
           chooser,
           io_error,
         });

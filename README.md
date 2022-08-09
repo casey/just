@@ -648,7 +648,8 @@ foo:
 | `export`                  | boolean            | Export all variables as environment variables.                                                |
 | `positional-arguments`    | boolean            | Pass positional arguments.                                                                    |
 | `shell`                   | `[COMMAND, ARGS…]` | Set the command used to invoke recipes and evaluate backticks.                                |
-| `windows-powershell`      | boolean            | Use PowerShell on Windows as default shell.                                                   |
+| `windows-shell`           | `[COMMAND, ARGS…]` | Set the command used to invoke recipes and evaluate backticks.                                |
+| `windows-powershell`      | boolean            | Use PowerShell on Windows as default shell. (Deprecated. Use `windows-shell` instead.         |
 
 Boolean settings can be written as:
 
@@ -774,6 +775,8 @@ set windows-shell := ["pwsh.exe", "-NoLogo", "-Command"]
 hello:
   Write-Host "Hello, world!"
 ```
+
+See [powershell.just](https://github.com/casey/just/blob/master/examples/powershell.just) for a justfile that uses PowerShell on all platforms.
 
 ##### Windows PowerShell
 
@@ -2125,6 +2128,17 @@ foo $argument:
 ```
 
 This defeats `just`'s ability to catch typos, for example if you type `$argumant`, but works for all possible values of `argument`, including those with double quotes.
+
+### Configuring the Shell
+
+There are a number of ways to configure the shell for linewise recipes, which are the default when a recipe does not start with a `#!` shebang. Their precedence, from highest to lowest, is:
+
+1. The `--shell` and `--shell-arg` command line options. Passing either of these will cause `just` to ignore any settings in the current justfile.
+2. `set windows-shell := [...]`
+3. `set windows-powershell` (deprecated)
+4. `set shell := [...]`
+
+Since `set windows-shell` has higher precedence than `set shell`, you can use `set windows-shell` to pick a shell on Windows, and `set shell` to pick a shell for all other platforms.
 
 Changelog
 ---------
