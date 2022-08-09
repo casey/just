@@ -191,7 +191,7 @@ mod tests {
     };
 
     if cfg!(windows) {
-      assert_eq!(settings.shell(&config), ("powershell.exe", vec!["-nice"]));
+      assert_eq!(settings.shell(&config), ("sh", vec!["-nice"]));
     } else {
       assert_eq!(settings.shell(&config), ("sh", vec!["-nice"]));
     }
