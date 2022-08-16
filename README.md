@@ -1441,7 +1441,7 @@ build target:
   cd {{target}} && make
 ```
 
-Passing a variable as an argument to a dependency, does not require interpolation:
+Variables can also be passed as arguments to dependencies:
 
 ```make
 target := "main"
