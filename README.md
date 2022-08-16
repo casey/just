@@ -1441,6 +1441,18 @@ build target:
   cd {{target}} && make
 ```
 
+Variables can also be passed as arguments to dependencies:
+
+```make
+target := "main"
+
+_build version:
+  @echo 'Building {{version}}…'
+  cd {{version}} && make
+
+build: (_build target)
+```
+
 A command's arguments can be passed to dependency by putting the dependency in parentheses along with the arguments:
 
 ```make
