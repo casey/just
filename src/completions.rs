@@ -171,7 +171,7 @@ pub(crate) const BASH_COMPLETION_REPLACEMENTS: &[(&str, &str)] = &[
                     if echo "${cur}" | grep -qF '/'; then
                         local path_prefix=$(echo "${cur}" | sed 's/[/][^/]*$/\//')
                         local recipes=$(just --summary 2> /dev/null -- "${path_prefix}")
-                        local recipes=$(printf "${path_prefix}%s" $recipes)
+                        local recipes=$(printf "${path_prefix}%s\t" $recipes)
                     fi
 
                     if [[ $? -eq 0 ]]; then
