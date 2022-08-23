@@ -404,7 +404,8 @@ A syntax file for Sublime Text written by TonioGela is available in [extras/just
 
 ### Micro
 
-Micro supports Justfile syntax highlighting out of the box.
+Micro supports Justfile syntax highlighting out of the box, thanks to [tomodachi94]
+(https://github.com/tomodachi94).
 
 ### Other Editors
 
