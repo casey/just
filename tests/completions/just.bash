@@ -26,6 +26,17 @@ reply_equals() {
   fi
 }
 
+test_just_is_accessible() {
+  if just --version > /dev/null; then
+    echo "${FUNCNAME[0]}: ok"
+  else
+    echo "${FUNCNAME[0]}: failed! Can't find just binary."
+    echo "  PATH=$PATH"
+    echo
+    exit_code='1'
+  fi
+}
+
 test_complete_all_recipes() {
   COMP_WORDS=(just)
   COMP_CWORD=1 _just just
@@ -44,6 +55,9 @@ test_complete_recipes_starting_with_r() {
   reply_equals 'declare -a COMPREPLY=([0]="render-readme" [1]="replace" [2]="run")'
 }
 
+PATH="./target/debug:$PATH"
+test_just_is_accessible
+
 cleanup
 test_complete_all_recipes
 
@@ -57,9 +71,5 @@ if [ "$exit_code" = '0' ]; then
   echo "All tests passed."
 else
   echo "Some test[s] failed."
-
-  set -x
-  bash --version
-  uname -a
 fi
 exit "$exit_code"
