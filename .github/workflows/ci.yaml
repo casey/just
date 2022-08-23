@@ -66,6 +66,7 @@ jobs:
       run: |
         ./bin/generate-completions
         git diff --no-ext-diff --quiet --exit-code
+        ./tests/completions/just.bash
 
     - name: Check for Forbidden Words
       if: ${{ matrix.os == 'ubuntu-latest' }}
