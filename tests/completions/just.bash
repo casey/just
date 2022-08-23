@@ -57,5 +57,9 @@ if [ "$exit_code" = '0' ]; then
   echo "All tests passed."
 else
   echo "Some test[s] failed."
+
+  set -x
+  bash --version
+  uname -a
 fi
 exit "$exit_code"
