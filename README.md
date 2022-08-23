@@ -402,6 +402,10 @@ Kakoune supports `justfile` syntax highlighting out of the box, thanks to TeddyD
 
 A syntax file for Sublime Text written by TonioGela is available in [extras/just.sublime-syntax](https://github.com/casey/just/blob/master/extras/just.sublime-syntax).
 
+### Micro
+
+Micro supports Justfile syntax highlighting out of the box.
+
 ### Other Editors
 
 Feel free to send me the commands necessary to get syntax highlighting working in your editor of choice so that I may include them here.
