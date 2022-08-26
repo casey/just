@@ -405,18 +405,27 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     let expression = if self.accepted_keyword(Keyword::If)? {
       self.parse_conditional()?
     } else {
-      let value = self.parse_value()?;
-
+      let value = self.parse_value();
       if self.accepted(Slash)? {
+        // Enables Slash operator to build absolute paths, like `/ "Users"`, by
+        // setting a default empty string on the lhs if the resulting expression
+        // is not Ok.
+        let value = value.unwrap_or(Expression::StringLiteral {
+          string_literal: StringLiteral {
+            kind: StringKind::new(string_kind::StringDelimiter::QuoteDouble, false),
+            raw: "",
+            cooked: "".to_string(),
+          },
+        });
         let lhs = Box::new(value);
         let rhs = Box::new(self.parse_expression()?);
         Expression::Join { lhs, rhs }
       } else if self.accepted(Plus)? {
-        let lhs = Box::new(value);
+        let lhs = Box::new(value?);
         let rhs = Box::new(self.parse_expression()?);
         Expression::Concatenation { lhs, rhs }
       } else {
-        value
+        value?
       }
     };
 
