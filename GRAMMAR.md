@@ -61,7 +61,10 @@ export        : 'export' assignment
 setting       : 'set' 'dotenv-load' boolean?
               | 'set' 'export' boolean?
               | 'set' 'positional-arguments' boolean?
+              | 'set' 'allow-duplicate-recipes' boolean?
+              | 'set' 'windows-powershell' boolean?
               | 'set' 'shell' ':=' '[' string (',' string)* ','? ']'
+              | 'set' 'windows-shell' ':=' '[' string (',' string)* ','? ']'
 
 boolean       : ':=' ('true' | 'false')
 
