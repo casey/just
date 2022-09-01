@@ -45,6 +45,16 @@ impl<'src> Expression<'src> {
   pub(crate) fn variables<'expression>(&'expression self) -> Variables<'expression, 'src> {
     Variables::new(self)
   }
+
+  pub(crate) fn empty_string_literal() -> Self {
+    Expression::StringLiteral {
+      string_literal: StringLiteral {
+        kind: StringKind::new(string_kind::StringDelimiter::QuoteDouble, false),
+        raw: "",
+        cooked: "".to_string(),
+      },
+    }
+  }
 }
 
 impl<'src> Display for Expression<'src> {

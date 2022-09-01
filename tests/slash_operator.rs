@@ -19,6 +19,15 @@ fn twice() {
 }
 
 #[test]
+fn no_lhs() {
+  Test::new()
+    .justfile("x := / 'a'")
+    .args(&["--evaluate", "x"])
+    .stdout("/a")
+    .run();
+}
+
+#[test]
 fn default_un_parenthesized() {
   Test::new()
     .justfile(

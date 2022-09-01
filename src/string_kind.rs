@@ -7,7 +7,7 @@ pub(crate) struct StringKind {
 }
 
 #[derive(Debug, PartialEq, Clone, Copy, Ord, PartialOrd, Eq)]
-enum StringDelimiter {
+pub(crate) enum StringDelimiter {
   Backtick,
   QuoteDouble,
   QuoteSingle,
@@ -26,7 +26,7 @@ impl StringKind {
     Self::new(StringDelimiter::QuoteSingle, false),
   ];
 
-  const fn new(delimiter: StringDelimiter, indented: bool) -> Self {
+  pub(crate) const fn new(delimiter: StringDelimiter, indented: bool) -> Self {
     Self {
       delimiter,
       indented,
