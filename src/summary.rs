@@ -197,7 +197,7 @@ pub enum Expression {
     operator: ConditionalOperator,
   },
   Join {
-    lhs: Box<Expression>,
+    lhs: Option<Box<Expression>>,
     rhs: Box<Expression>,
   },
   String {
@@ -258,7 +258,11 @@ impl Expression {
         rhs: Box::new(Expression::new(rhs)),
       },
       Join { lhs, rhs } => Expression::Join {
-        lhs: Box::new(Expression::new(lhs)),
+        lhs: if lhs.is_some() {
+          Some(Box::new(Expression::new(lhs.as_ref().unwrap())))
+        } else {
+          None
+        },
         rhs: Box::new(Expression::new(rhs)),
       },
       Conditional {

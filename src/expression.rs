@@ -32,7 +32,7 @@ pub(crate) enum Expression<'src> {
   Group { contents: Box<Expression<'src>> },
   /// `lhs / rhs`
   Join {
-    lhs: Box<Expression<'src>>,
+    lhs: Option<Box<Expression<'src>>>,
     rhs: Box<Expression<'src>>,
   },
   /// `"string_literal"` or `'string_literal'`
@@ -61,7 +61,14 @@ impl<'src> Display for Expression<'src> {
   fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
     match self {
       Expression::Backtick { token, .. } => write!(f, "{}", token.lexeme()),
-      Expression::Join { lhs, rhs } => write!(f, "{} / {}", lhs, rhs),
+      Expression::Join { lhs, rhs } => write!(
+        f,
+        "{} / {}",
+        lhs
+          .as_ref()
+          .unwrap_or(&Box::new(Expression::empty_string_literal())),
+        rhs
+      ),
       Expression::Concatenation { lhs, rhs } => write!(f, "{} + {}", lhs, rhs),
       Expression::Conditional {
         lhs,

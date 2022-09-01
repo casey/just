@@ -1,12 +1,16 @@
 use super::*;
 
 pub(crate) struct Variables<'expression, 'src> {
+  empty_string: &'expression Box<Expression<'expression>>,
   stack: Vec<&'expression Expression<'src>>,
 }
 
 impl<'expression, 'src> Variables<'expression, 'src> {
   pub(crate) fn new(root: &'expression Expression<'src>) -> Variables<'expression, 'src> {
-    Variables { stack: vec![root] }
+    Variables {
+      stack: vec![root],
+      empty_string: &Box::new(Expression::empty_string_literal()),
+    }
   }
 }
 
@@ -53,7 +57,12 @@ impl<'expression, 'src> Iterator for Variables<'expression, 'src> {
           self.stack.push(lhs);
         }
         Expression::Variable { name, .. } => return Some(name.token()),
-        Expression::Concatenation { lhs, rhs } | Expression::Join { lhs, rhs } => {
+        Expression::Concatenation { lhs, rhs } => {
+          self.stack.push(rhs);
+          self.stack.push(lhs);
+        }
+        Expression::Join { lhs, rhs } => {
+          let lhs = lhs.as_ref().unwrap_or(self.empty_string);
           self.stack.push(rhs);
           self.stack.push(lhs);
         }
