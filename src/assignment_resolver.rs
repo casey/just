@@ -106,9 +106,9 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
         self.resolve_expression(rhs)
       }
       Expression::Join { lhs, rhs } => {
-        let empty = Box::new(Expression::empty_string_literal());
-        let lhs = lhs.as_ref().unwrap_or(&empty);
-        self.resolve_expression(&lhs)?;
+        if let Some(lhs) = lhs {
+          self.resolve_expression(lhs)?;
+        }
         self.resolve_expression(rhs)
       }
       Expression::Conditional {
