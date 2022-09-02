@@ -177,10 +177,10 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       }
       Expression::Group { contents } => self.evaluate_expression(contents),
       Expression::Join { lhs, rhs } => {
-        let lhs = if lhs.is_some() {
-          self.evaluate_expression(lhs.as_ref().unwrap())?
+        let lhs = if let Some(lhs) = lhs {
+          self.evaluate_expression(lhs)?
         } else {
-          "".to_string()
+          String::new()
         };
         Ok(lhs + "/" + &self.evaluate_expression(rhs)?)
       }
