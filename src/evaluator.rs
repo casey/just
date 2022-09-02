@@ -177,10 +177,9 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       }
       Expression::Group { contents } => self.evaluate_expression(contents),
       Expression::Join { lhs, rhs } => {
-        let lhs = if let Some(lhs) = lhs {
-          self.evaluate_expression(lhs)?
-        } else {
-          String::new()
+        let lhs = match lhs {
+          Some(lhs) => self.evaluate_expression(lhs)?,
+          None => String::new(),
         };
         Ok(lhs + "/" + &self.evaluate_expression(rhs)?)
       }
