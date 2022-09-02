@@ -258,11 +258,7 @@ impl Expression {
         rhs: Box::new(Expression::new(rhs)),
       },
       Join { lhs, rhs } => Expression::Join {
-        lhs: if lhs.is_some() {
-          Some(Box::new(Expression::new(lhs.as_ref().unwrap())))
-        } else {
-          None
-        },
+        lhs: lhs.as_ref().map(|lhs| Box::new(Expression::new(lhs))),
         rhs: Box::new(Expression::new(rhs)),
       },
       Conditional {
