@@ -118,14 +118,11 @@ impl<'src> Node<'src> for Expression<'src> {
       } => Tree::string(cooked),
       Expression::Backtick { contents, .. } => Tree::atom("backtick").push(Tree::string(contents)),
       Expression::Group { contents } => Tree::List(vec![contents.tree()]),
-      Expression::Join { lhs, rhs } => Tree::atom("/")
-        .push(
-          lhs
-            .as_ref()
-            .unwrap_or(&Box::new(Expression::empty_string_literal()))
-            .tree(),
-        )
-        .push(rhs.tree()),
+      Expression::Join { lhs: None, rhs } => Tree::atom("/").push(rhs.tree()),
+      Expression::Join {
+        lhs: Some(lhs),
+        rhs,
+      } => Tree::atom("/").push(lhs.tree()).push(rhs.tree()),
     }
   }
 }

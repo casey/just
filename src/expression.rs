@@ -45,30 +45,17 @@ impl<'src> Expression<'src> {
   pub(crate) fn variables<'expression>(&'expression self) -> Variables<'expression, 'src> {
     Variables::new(self)
   }
-
-  pub(crate) fn empty_string_literal() -> Self {
-    Expression::StringLiteral {
-      string_literal: StringLiteral {
-        kind: StringKind::new(string_kind::StringDelimiter::QuoteDouble, false),
-        raw: "",
-        cooked: "".to_string(),
-      },
-    }
-  }
 }
 
 impl<'src> Display for Expression<'src> {
   fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
     match self {
       Expression::Backtick { token, .. } => write!(f, "{}", token.lexeme()),
-      Expression::Join { lhs, rhs } => write!(
-        f,
-        "{} / {}",
-        lhs
-          .as_ref()
-          .unwrap_or(&Box::new(Expression::empty_string_literal())),
-        rhs
-      ),
+      Expression::Join { lhs: None, rhs } => write!(f, "/ {}", rhs),
+      Expression::Join {
+        lhs: Some(lhs),
+        rhs,
+      } => write!(f, "{} / {}", lhs, rhs),
       Expression::Concatenation { lhs, rhs } => write!(f, "{} + {}", lhs, rhs),
       Expression::Conditional {
         lhs,

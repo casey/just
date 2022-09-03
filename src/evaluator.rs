@@ -176,13 +176,11 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         }
       }
       Expression::Group { contents } => self.evaluate_expression(contents),
-      Expression::Join { lhs, rhs } => {
-        let lhs = match lhs {
-          Some(lhs) => self.evaluate_expression(lhs)?,
-          None => String::new(),
-        };
-        Ok(lhs + "/" + &self.evaluate_expression(rhs)?)
-      }
+      Expression::Join { lhs: None, rhs } => Ok("/".to_string() + &self.evaluate_expression(rhs)?),
+      Expression::Join {
+        lhs: Some(lhs),
+        rhs,
+      } => Ok(self.evaluate_expression(lhs)? + "/" + &self.evaluate_expression(rhs)?),
     }
   }
 
