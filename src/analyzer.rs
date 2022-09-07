@@ -53,6 +53,9 @@ impl<'src> Analyzer<'src> {
         Setting::Export(export) => {
           settings.export = export;
         }
+        Setting::EchoComments(ignore) => {
+          settings.echo_comments = ignore;
+        }
         Setting::PositionalArguments(positional_arguments) => {
           settings.positional_arguments = positional_arguments;
         }

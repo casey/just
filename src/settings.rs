@@ -9,6 +9,7 @@ pub(crate) const WINDOWS_POWERSHELL_ARGS: &[&str] = &["-NoLogo", "-Command"];
 pub(crate) struct Settings<'src> {
   pub(crate) allow_duplicate_recipes: bool,
   pub(crate) dotenv_load: Option<bool>,
+  pub(crate) echo_comments: bool,
   pub(crate) export: bool,
   pub(crate) positional_arguments: bool,
   pub(crate) shell: Option<Shell<'src>>,
@@ -22,6 +23,7 @@ impl<'src> Settings<'src> {
       allow_duplicate_recipes: false,
       dotenv_load: None,
       export: false,
+      echo_comments: true,
       positional_arguments: false,
       shell: None,
       windows_powershell: false,

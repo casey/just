@@ -41,6 +41,7 @@ mod completions;
 mod conditional;
 mod delimiters;
 mod dotenv;
+mod echo_comments;
 mod edit;
 mod equals;
 mod error_messages;

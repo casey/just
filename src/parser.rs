@@ -755,36 +755,23 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     let name = Name::from_identifier(self.presume(Identifier)?);
     let lexeme = name.lexeme();
 
-    if Keyword::AllowDuplicateRecipes == lexeme {
-      let value = self.parse_set_bool()?;
-      return Ok(Set {
-        value: Setting::AllowDuplicateRecipes(value),
-        name,
-      });
-    } else if Keyword::DotenvLoad == lexeme {
-      let value = self.parse_set_bool()?;
-      return Ok(Set {
-        value: Setting::DotenvLoad(value),
-        name,
-      });
-    } else if Keyword::Export == lexeme {
-      let value = self.parse_set_bool()?;
-      return Ok(Set {
-        value: Setting::Export(value),
-        name,
-      });
-    } else if Keyword::PositionalArguments == lexeme {
-      let value = self.parse_set_bool()?;
-      return Ok(Set {
-        value: Setting::PositionalArguments(value),
-        name,
-      });
-    } else if Keyword::WindowsPowershell == lexeme {
-      let value = self.parse_set_bool()?;
-      return Ok(Set {
-        value: Setting::WindowsPowerShell(value),
-        name,
-      });
+    let set_bool: Option<Setting> = match Keyword::from_lexeme(lexeme) {
+      Some(kw) => match kw {
+        Keyword::AllowDuplicateRecipes => {
+          Some(Setting::AllowDuplicateRecipes(self.parse_set_bool()?))
+        }
+        Keyword::DotenvLoad => Some(Setting::DotenvLoad(self.parse_set_bool()?)),
+        Keyword::EchoComments => Some(Setting::EchoComments(self.parse_set_bool()?)),
+        Keyword::Export => Some(Setting::Export(self.parse_set_bool()?)),
+        Keyword::PositionalArguments => Some(Setting::PositionalArguments(self.parse_set_bool()?)),
+        Keyword::WindowsPowershell => Some(Setting::WindowsPowerShell(self.parse_set_bool()?)),
+        _ => None,
+      },
+      None => None,
+    };
+
+    if let Some(value) = set_bool {
+      return Ok(Set { name, value });
     }
 
     self.expect(ColonEquals)?;
