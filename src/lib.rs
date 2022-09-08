@@ -149,6 +149,7 @@ mod list;
 mod load_dotenv;
 mod loader;
 mod name;
+mod new_parser;
 mod ordinal;
 mod output;
 mod output_error;
