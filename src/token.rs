@@ -1,6 +1,6 @@
 use super::*;
 
-#[derive(Debug, PartialEq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Hash)]
 pub(crate) struct Token<'src> {
   pub(crate) offset: usize,
   pub(crate) length: usize,

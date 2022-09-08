@@ -1,6 +1,6 @@
 use super::*;
 
-#[derive(Debug, PartialEq, Clone, Copy, Ord, PartialOrd, Eq)]
+#[derive(Debug, PartialEq, Clone, Copy, Ord, PartialOrd, Eq, Hash)]
 pub(crate) enum TokenKind {
   AmpersandAmpersand,
   Asterisk,
