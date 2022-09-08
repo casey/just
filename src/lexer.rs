@@ -209,12 +209,12 @@ impl<'src> Lexer<'src> {
       length: 0,
       kind: Unspecified,
     };
-    CompileError {
-      kind: CompileErrorKind::Internal {
+    CompileError::new(
+      token,
+      CompileErrorKind::Internal {
         message: message.into(),
       },
-      token,
-    }
+    )
   }
 
   /// Create a compilation error with `kind`
@@ -245,14 +245,11 @@ impl<'src> Lexer<'src> {
       length,
     };
 
-    CompileError { token, kind }
+    CompileError::new(token, kind)
   }
 
   fn unterminated_interpolation_error(interpolation_start: Token<'src>) -> CompileError<'src> {
-    CompileError {
-      token: interpolation_start,
-      kind: UnterminatedInterpolation,
-    }
+    CompileError::new(interpolation_start, UnterminatedInterpolation)
   }
 
   /// True if `text` could be an identifier
@@ -993,7 +990,7 @@ mod tests {
             column,
             length,
           },
-          kind,
+          kind: Box::new(kind),
         };
         assert_eq!(have, want);
       }
@@ -2276,20 +2273,19 @@ mod tests {
   fn presume_error() {
     let compile_error = Lexer::new("!").presume('-').unwrap_err();
     assert_matches!(
-      compile_error,
-      CompileError {
-        token: Token {
-          offset: 0,
-          line:   0,
-          column: 0,
-          length: 0,
-          src:    "!",
-          kind:   Unspecified,
-        },
-        kind:  Internal {
-          ref message,
-        },
-      } if message == "Lexer presumed character `-`"
+      compile_error.token,
+      Token {
+        offset: 0,
+        line: 0,
+        column: 0,
+        length: 0,
+        src: "!",
+        kind: Unspecified,
+      }
+    );
+    assert_matches!(&*compile_error.kind,
+        Internal { ref message }
+        if message == "Lexer presumed character `-`"
     );
 
     assert_eq!(

@@ -79,7 +79,7 @@ pub(crate) fn analysis_error(
           column,
           length,
         },
-        kind,
+        kind: Box::new(kind),
       };
       assert_eq!(have, want);
     }

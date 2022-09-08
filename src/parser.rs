@@ -394,10 +394,11 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   /// Parse an expression, e.g. `1 + 2`
   fn parse_expression(&mut self) -> CompileResult<'src, Expression<'src>> {
     if self.depth == if cfg!(windows) { 48 } else { 256 } {
-      return Err(CompileError {
-        token: self.next()?,
-        kind: CompileErrorKind::ParsingRecursionDepthExceeded,
-      });
+      let token = self.next()?;
+      return Err(CompileError::new(
+        token,
+        CompileErrorKind::ParsingRecursionDepthExceeded,
+      ));
     }
 
     self.depth += 1;
@@ -898,7 +899,7 @@ mod tests {
             column,
             length,
           },
-          kind,
+          kind: Box::new(kind),
         };
         assert_eq!(have, want);
       }

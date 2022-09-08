@@ -3,12 +3,19 @@ use super::*;
 #[derive(Debug, PartialEq)]
 pub(crate) struct CompileError<'src> {
   pub(crate) token: Token<'src>,
-  pub(crate) kind: CompileErrorKind<'src>,
+  pub(crate) kind: Box<CompileErrorKind<'src>>,
 }
 
 impl<'src> CompileError<'src> {
   pub(crate) fn context(&self) -> Token<'src> {
     self.token
+  }
+
+  pub(crate) fn new(token: Token<'src>, kind: CompileErrorKind<'src>) -> CompileError<'src> {
+    Self {
+      token,
+      kind: Box::new(kind),
+    }
   }
 }
 
@@ -16,7 +23,7 @@ impl Display for CompileError<'_> {
   fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
     use CompileErrorKind::*;
 
-    match &self.kind {
+    match &*self.kind {
       AliasShadowsRecipe { alias, recipe_line } => {
         write!(
           f,
