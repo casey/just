@@ -21,14 +21,14 @@ impl PlatformInterface for Platform {
     use std::os::unix::fs::PermissionsExt;
 
     // get current permissions
-    let mut permissions = fs::metadata(&path)?.permissions();
+    let mut permissions = fs::metadata(path)?.permissions();
 
     // set the execute bit
     let current_mode = permissions.mode();
     permissions.set_mode(current_mode | 0o100);
 
     // set the new permissions
-    fs::set_permissions(&path, permissions)
+    fs::set_permissions(path, permissions)
   }
 
   fn signal_from_exit_status(exit_status: process::ExitStatus) -> Option<i32> {

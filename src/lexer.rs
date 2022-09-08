@@ -793,7 +793,7 @@ impl<'src> Lexer<'src> {
     let mut escape = false;
 
     loop {
-      if self.next == None {
+      if self.next.is_none() {
         return Err(self.error(kind.unterminated_error_kind()));
       } else if kind.processes_escape_sequences() && self.next_is('\\') && !escape {
         escape = true;
