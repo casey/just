@@ -74,11 +74,21 @@ fn parse_setting<'src>() -> impl Parser<Token<'src>, Item<'src>, Error = Simple<
       Name::from_identifier(token)
     })
     .then_ignore(kind(TokenKind::Whitespace))
-    .then(kind_lexeme(TokenKind::Identifier, "dotenv-load").to(Setting::DotenvLoad(true)))
+    .then(parse_setting_name())
     .then_ignore(kind(TokenKind::Whitespace).ignored().or_not().then(kind(TokenKind::Eol))) // TODO if this were instead .then_ignore(parse_eol()) it
                                        // would be possible to support comments at the end of a
                                        // line
     .map(|(name, value)| Item::Set(Set { name, value }))
+}
+
+fn parse_setting_name<'src>() -> impl Parser<Token<'src>, Setting<'src>, Error = Simple<Token<'src>>> {
+    choice((
+        kind_lexeme(TokenKind::Identifier, "allow-duplicate-recipes").to(Setting::AllowDuplicateRecipes(true)),
+        kind_lexeme(TokenKind::Identifier, "dotenv-load").to(Setting::DotenvLoad(true)),
+        kind_lexeme(TokenKind::Identifier, "export").to(Setting::Export(true)),
+        kind_lexeme(TokenKind::Identifier, "positional-arguments").to(Setting::PositionalArguments(true)),
+        kind_lexeme(TokenKind::Identifier, "windows-powershell").to(Setting::WindowsPowerShell(true)),
+    ))
 }
 
 fn parse_eol<'src>() -> impl Parser<Token<'src>, Option<Item<'src>>, Error = Simple<Token<'src>>> {
@@ -94,15 +104,17 @@ mod tests {
   use super::*;
   use crate::Lexer;
 
+  fn debug_tokens<'a>(tokens: Vec<Token<'a>>) {
+      for item in tokens.iter() {
+          println!("{} {}", item.kind, item.lexeme());
+      }
+  }
+
   #[test]
   fn new_parser_test2() {
-    let src = "set dotenv-load    \n# some stuff";
+    let src = "set dotenv-load    \nset windows-powershell\n# some stuff";
     let tokens = Lexer::lex(src).unwrap();
-    //println!("Tokens: {:?}", tokens);
-    let newtoks = tokens.clone();
-    for item in newtoks.iter() {
-      println!("{} {}", item.kind, item.lexeme());
-    }
+    debug_tokens(tokens.clone());
     let ast = parse_ast().parse(tokens).unwrap();
     assert_matches!(
       &ast.items[0],
@@ -111,7 +123,14 @@ mod tests {
         value: Setting::DotenvLoad(true)
       })
     );
-    assert_matches!(&ast.items[1], Item::Comment("# some stuff"));
+    assert_matches!(
+      &ast.items[1],
+      Item::Set(Set {
+        name: _,
+        value: Setting::WindowsPowerShell(true)
+      })
+    );
+    assert_matches!(&ast.items[2], Item::Comment("# some stuff"));
   }
 
   #[test]
