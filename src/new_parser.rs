@@ -82,8 +82,7 @@ fn parse_setting<'src>() -> impl Parser<Token<'src>, Item<'src>, Error = Simple<
 }
 
 fn parse_eol<'src>() -> impl Parser<Token<'src>, Option<Item<'src>>, Error = Simple<Token<'src>>> {
-  (parse_comment().then_ignore(kind(TokenKind::Eol)).map(Some))
-    .or(kind(TokenKind::Eol).map(|_| None))
+    parse_comment().or_not().then_ignore(kind(TokenKind::Eol))
 }
 
 fn parse_comment<'src>() -> impl Parser<Token<'src>, Item<'src>, Error = Simple<Token<'src>>> {
