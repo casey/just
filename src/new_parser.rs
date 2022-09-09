@@ -123,6 +123,11 @@ fn parse_setting_name<'src>() -> impl Parser<Token<'src>, Setting<'src>, Error =
   ))
 }
 
+// fn parse_alias<'src>() -> impl Parser<Token<'src>, Item<'src>, Error = Simple<Token<'src>>> {
+//   kind_lexeme(TokenKind::Identifier, "alias")
+
+// }
+
 fn parse_eol<'src>() -> impl Parser<Token<'src>, Option<Item<'src>>, Error = Simple<Token<'src>>> {
   parse_comment().or_not().then_ignore(kind(TokenKind::Eol))
 }
@@ -140,6 +145,15 @@ mod tests {
     for item in tokens.iter() {
       println!("{} {}", item.kind, item.lexeme());
     }
+  }
+
+  #[test]
+  fn new_parser_test3() {
+    let src = "alias b := build";
+    let tokens = Lexer::lex(src).unwrap();
+    debug_tokens(tokens.clone());
+    let ast = parse_ast().parse(tokens).unwrap();
+
   }
 
   #[test]
