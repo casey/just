@@ -1,4 +1,4 @@
-use super::{Ast, Item, Token, TokenKind};
+use super::{Ast, Item, Name, Set, Setting, Token, TokenKind};
 use chumsky::prelude::*;
 
 /// New parser
@@ -26,6 +26,13 @@ fn kind<'src>(
   token_kind: TokenKind,
 ) -> impl Parser<Token<'src>, Token<'src>, Error = Simple<Token<'src>>> {
   filter(move |tok: &Token| tok.kind == token_kind)
+}
+
+fn kind_lexeme<'src>(
+  token_kind: TokenKind,
+  lexeme: &'src str,
+) -> impl Parser<Token<'src>, Token<'src>, Error = Simple<Token<'src>>> {
+  filter(move |tok: &Token| tok.kind == token_kind && tok.lexeme() == lexeme)
 }
 
 fn parse_ast<'src>() -> impl Parser<Token<'src>, Ast<'src>, Error = Simple<Token<'src>>> {
@@ -57,7 +64,19 @@ fn parse_items<'src>() -> impl Parser<Token<'src>, Vec<Item<'src>>, Error = Simp
 }
 
 fn parse_item<'src>() -> impl Parser<Token<'src>, Option<Item<'src>>, Error = Simple<Token<'src>>> {
-  parse_eol()
+  choice((parse_setting().map(Some), parse_eol()))
+}
+
+fn parse_setting<'src>() -> impl Parser<Token<'src>, Item<'src>, Error = Simple<Token<'src>>> {
+  kind_lexeme(TokenKind::Identifier, "set")
+    .map(|token| {
+      assert_eq!(token.kind, TokenKind::Identifier);
+      Name::from_identifier(token)
+    })
+    .then_ignore(kind(TokenKind::Whitespace))
+    .then(kind_lexeme(TokenKind::Identifier, "dotenv-load").to(Setting::DotenvLoad(true)))
+    .then_ignore(kind(TokenKind::Eol))
+    .map(|(name, value)| Item::Set(Set { name, value }))
 }
 
 fn parse_eol<'src>() -> impl Parser<Token<'src>, Option<Item<'src>>, Error = Simple<Token<'src>>> {
@@ -73,6 +92,26 @@ fn parse_comment<'src>() -> impl Parser<Token<'src>, Item<'src>, Error = Simple<
 mod tests {
   use super::*;
   use crate::Lexer;
+
+  #[test]
+  fn new_parser_test2() {
+    let src = "set dotenv-load\n# some stuff";
+    let tokens = Lexer::lex(src).unwrap();
+    //println!("Tokens: {:?}", tokens);
+    let newtoks = tokens.clone();
+    for item in newtoks.iter() {
+      println!("{} {}", item.kind, item.lexeme());
+    }
+    let ast = parse_ast().parse(tokens).unwrap();
+    assert_matches!(
+      &ast.items[0],
+      Item::Set(Set {
+        name: _,
+        value: Setting::DotenvLoad(true)
+      })
+    );
+    assert_matches!(&ast.items[1], Item::Comment("# some stuff"));
+  }
 
   #[test]
   fn new_parser_test() {
