@@ -107,19 +107,19 @@ fn parse_setting_name<'src>() -> impl Parser<Token<'src>, Setting<'src>, Error =
   choice((
     kind_lexeme(TokenKind::Identifier, "allow-duplicate-recipes")
       .ignore_then(parse_set_bool())
-      .map(|value| Setting::AllowDuplicateRecipes(value)),
+      .map(Setting::AllowDuplicateRecipes),
     kind_lexeme(TokenKind::Identifier, "dotenv-load")
       .ignore_then(parse_set_bool())
-      .map(|value| Setting::DotenvLoad(value)),
+      .map(Setting::DotenvLoad),
     kind_lexeme(TokenKind::Identifier, "export")
       .ignore_then(parse_set_bool())
-      .map(|value| Setting::Export(value)),
+      .map(Setting::Export),
     kind_lexeme(TokenKind::Identifier, "positional-arguments")
       .ignore_then(parse_set_bool())
-      .map(|value| Setting::PositionalArguments(value)),
+      .map(Setting::PositionalArguments),
     kind_lexeme(TokenKind::Identifier, "windows-powershell")
       .ignore_then(parse_set_bool())
-      .map(|value| Setting::WindowsPowerShell(value)),
+      .map(Setting::WindowsPowerShell),
   ))
 }
 
@@ -153,7 +153,6 @@ mod tests {
     let tokens = Lexer::lex(src).unwrap();
     debug_tokens(tokens.clone());
     let ast = parse_ast().parse(tokens).unwrap();
-
   }
 
   #[test]
