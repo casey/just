@@ -75,7 +75,9 @@ fn parse_setting<'src>() -> impl Parser<Token<'src>, Item<'src>, Error = Simple<
     })
     .then_ignore(kind(TokenKind::Whitespace))
     .then(kind_lexeme(TokenKind::Identifier, "dotenv-load").to(Setting::DotenvLoad(true)))
-    .then_ignore(kind(TokenKind::Eol))
+    .then_ignore(kind(TokenKind::Whitespace).ignored().or_not().then(kind(TokenKind::Eol))) // TODO if this were instead .then_ignore(parse_eol()) it
+                                       // would be possible to support comments at the end of a
+                                       // line
     .map(|(name, value)| Item::Set(Set { name, value }))
 }
 
@@ -95,7 +97,7 @@ mod tests {
 
   #[test]
   fn new_parser_test2() {
-    let src = "set dotenv-load\n# some stuff";
+    let src = "set dotenv-load    \n# some stuff";
     let tokens = Lexer::lex(src).unwrap();
     //println!("Tokens: {:?}", tokens);
     let newtoks = tokens.clone();
