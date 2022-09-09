@@ -81,18 +81,34 @@ fn parse_setting<'src>() -> impl Parser<Token<'src>, Item<'src>, Error = Simple<
     .map(|(name, value)| Item::Set(Set { name, value }))
 }
 
-fn parse_setting_name<'src>() -> impl Parser<Token<'src>, Setting<'src>, Error = Simple<Token<'src>>> {
-    choice((
-        kind_lexeme(TokenKind::Identifier, "allow-duplicate-recipes").to(Setting::AllowDuplicateRecipes(true)),
-        kind_lexeme(TokenKind::Identifier, "dotenv-load").to(Setting::DotenvLoad(true)),
-        kind_lexeme(TokenKind::Identifier, "export").to(Setting::Export(true)),
-        kind_lexeme(TokenKind::Identifier, "positional-arguments").to(Setting::PositionalArguments(true)),
-        kind_lexeme(TokenKind::Identifier, "windows-powershell").to(Setting::WindowsPowerShell(true)),
-    ))
+fn parse_setting_name<'src>() -> impl Parser<Token<'src>, Setting<'src>, Error = Simple<Token<'src>>>
+{
+  let ws = kind(TokenKind::Whitespace);
+
+  choice((
+    kind_lexeme(TokenKind::Identifier, "allow-duplicate-recipes")
+      .to(Setting::AllowDuplicateRecipes(true)),
+    kind_lexeme(TokenKind::Identifier, "dotenv-load").to(Setting::DotenvLoad(true)),
+    kind_lexeme(TokenKind::Identifier, "export").to(Setting::Export(true)),
+    kind_lexeme(TokenKind::Identifier, "positional-arguments")
+      .to(Setting::PositionalArguments(true)),
+    kind_lexeme(TokenKind::Identifier, "windows-powershell").to(Setting::WindowsPowerShell(true)),
+  ))
+  .then(
+    kind(TokenKind::ColonEquals)
+      .padded_by(filter(|tok: &Token<'_>| tok.kind == TokenKind::Whitespace))
+      .ignore_then(
+        kind_lexeme(TokenKind::Identifier, "true")
+          .to(true)
+          .or(kind_lexeme(TokenKind::Identifier, "false").to(false)),
+      )
+      .or_not()
+  )
+  .map(|(setting, _value)| setting)
 }
 
 fn parse_eol<'src>() -> impl Parser<Token<'src>, Option<Item<'src>>, Error = Simple<Token<'src>>> {
-    parse_comment().or_not().then_ignore(kind(TokenKind::Eol))
+  parse_comment().or_not().then_ignore(kind(TokenKind::Eol))
 }
 
 fn parse_comment<'src>() -> impl Parser<Token<'src>, Item<'src>, Error = Simple<Token<'src>>> {
@@ -105,14 +121,14 @@ mod tests {
   use crate::Lexer;
 
   fn debug_tokens<'a>(tokens: Vec<Token<'a>>) {
-      for item in tokens.iter() {
-          println!("{} {}", item.kind, item.lexeme());
-      }
+    for item in tokens.iter() {
+      println!("{} {}", item.kind, item.lexeme());
+    }
   }
 
   #[test]
   fn new_parser_test2() {
-    let src = "set dotenv-load    \nset windows-powershell\n# some stuff";
+    let src = "set dotenv-load    \nset windows-powershell := true\n# some stuff";
     let tokens = Lexer::lex(src).unwrap();
     debug_tokens(tokens.clone());
     let ast = parse_ast().parse(tokens).unwrap();
