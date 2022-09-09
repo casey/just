@@ -81,16 +81,25 @@ fn parse_setting<'src>() -> impl Parser<Token<'src>, Item<'src>, Error = Simple<
     .map(|(name, value)| Item::Set(Set { name, value }))
 }
 
-fn parse_set_bool<'src>() -> impl Parser<Token<'src>, bool, Error = Simple<Token<'src>>> {
-  (kind(TokenKind::ColonEquals)
+fn parse_set_expr<'src, T>(
+  parser: impl Parser<Token<'src>, T, Error = Simple<Token<'src>>>,
+) -> impl Parser<Token<'src>, T, Error = Simple<Token<'src>>> {
+  kind(TokenKind::ColonEquals)
     .padded_by(filter(|tok: &Token<'_>| tok.kind == TokenKind::Whitespace))
-    .ignore_then(
-      kind_lexeme(TokenKind::Identifier, "true")
-        .to(true)
-        .or(kind_lexeme(TokenKind::Identifier, "false").to(false)),
-    ))
-  .or_not()
-  .map(|maybe_bool| maybe_bool.unwrap_or(true))
+    .ignore_then(parser)
+}
+
+fn parse_set_bool<'src>() -> impl Parser<Token<'src>, bool, Error = Simple<Token<'src>>> {
+  // (kind(TokenKind::ColonEquals)
+  //   .padded_by(filter(|tok: &Token<'_>| tok.kind == TokenKind::Whitespace))
+  //   .ignore_then(
+  //
+  let true_or_false = kind_lexeme(TokenKind::Identifier, "true")
+    .to(true)
+    .or(kind_lexeme(TokenKind::Identifier, "false").to(false));
+  parse_set_expr(true_or_false)
+    .or_not()
+    .map(|maybe_bool| maybe_bool.unwrap_or(true))
 }
 
 fn parse_setting_name<'src>() -> impl Parser<Token<'src>, Setting<'src>, Error = Simple<Token<'src>>>
@@ -112,7 +121,6 @@ fn parse_setting_name<'src>() -> impl Parser<Token<'src>, Setting<'src>, Error =
       .ignore_then(parse_set_bool())
       .map(|value| Setting::WindowsPowerShell(value)),
   ))
-  .then_ignore(parse_set_bool())
 }
 
 fn parse_eol<'src>() -> impl Parser<Token<'src>, Option<Item<'src>>, Error = Simple<Token<'src>>> {
