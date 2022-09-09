@@ -22,20 +22,22 @@ impl<'tokens, 'src> NewParser<'tokens, 'src> {
   }
 }
 
-fn kind<'src>(
-  token_kind: TokenKind,
-) -> impl Parser<Token<'src>, Token<'src>, Error = Simple<Token<'src>>> {
+trait JustParser<'src, T>: Parser<Token<'src>, T, Error = Simple<Token<'src>>> {}
+
+impl<'src, T, U> JustParser<'src, T> for U where
+  U: Parser<Token<'src>, T, Error = Simple<Token<'src>>>
+{
+}
+
+fn kind<'src>(token_kind: TokenKind) -> impl JustParser<'src, Token<'src>> {
   filter(move |tok: &Token| tok.kind == token_kind)
 }
 
-fn kind_lexeme<'src>(
-  token_kind: TokenKind,
-  lexeme: &'src str,
-) -> impl Parser<Token<'src>, Token<'src>, Error = Simple<Token<'src>>> {
+fn kind_lexeme<'src>(token_kind: TokenKind, lexeme: &'src str) -> impl JustParser<Token<'src>> {
   filter(move |tok: &Token| tok.kind == token_kind && tok.lexeme() == lexeme)
 }
 
-fn parse_ast<'src>() -> impl Parser<Token<'src>, Ast<'src>, Error = Simple<Token<'src>>> {
+fn parse_ast<'src>() -> impl JustParser<'src, Ast<'src>> {
   parse_items()
     .then(parse_eof())
     .map(|(mut items, maybe_final_comment)| {
@@ -57,7 +59,7 @@ fn parse_eof<'src>() -> impl Parser<Token<'src>, Option<Item<'src>>, Error = Sim
                                             //unnecessary
 }
 
-fn parse_items<'src>() -> impl Parser<Token<'src>, Vec<Item<'src>>, Error = Simple<Token<'src>>> {
+fn parse_items<'src>() -> impl JustParser<'src, Vec<Item<'src>>> {
   parse_item()
     .repeated()
     .map(|item_or_newline| item_or_newline.into_iter().flatten().collect())
@@ -67,7 +69,7 @@ fn parse_item<'src>() -> impl Parser<Token<'src>, Option<Item<'src>>, Error = Si
   choice((parse_setting().map(Some), parse_eol()))
 }
 
-fn parse_setting<'src>() -> impl Parser<Token<'src>, Item<'src>, Error = Simple<Token<'src>>> {
+fn parse_setting<'src>() -> impl JustParser<'src, Item<'src>> {
   kind_lexeme(TokenKind::Identifier, "set")
     .map(|token| {
       assert_eq!(token.kind, TokenKind::Identifier);
@@ -81,19 +83,13 @@ fn parse_setting<'src>() -> impl Parser<Token<'src>, Item<'src>, Error = Simple<
     .map(|(name, value)| Item::Set(Set { name, value }))
 }
 
-fn parse_set_expr<'src, T>(
-  parser: impl Parser<Token<'src>, T, Error = Simple<Token<'src>>>,
-) -> impl Parser<Token<'src>, T, Error = Simple<Token<'src>>> {
+fn parse_set_expr<'src, T>(parser: impl JustParser<'src, T>) -> impl JustParser<'src, T> {
   kind(TokenKind::ColonEquals)
     .padded_by(filter(|tok: &Token<'_>| tok.kind == TokenKind::Whitespace))
     .ignore_then(parser)
 }
 
-fn parse_set_bool<'src>() -> impl Parser<Token<'src>, bool, Error = Simple<Token<'src>>> {
-  // (kind(TokenKind::ColonEquals)
-  //   .padded_by(filter(|tok: &Token<'_>| tok.kind == TokenKind::Whitespace))
-  //   .ignore_then(
-  //
+fn parse_set_bool<'src>() -> impl JustParser<'src, bool> {
   let true_or_false = kind_lexeme(TokenKind::Identifier, "true")
     .to(true)
     .or(kind_lexeme(TokenKind::Identifier, "false").to(false));
@@ -102,8 +98,7 @@ fn parse_set_bool<'src>() -> impl Parser<Token<'src>, bool, Error = Simple<Token
     .map(|maybe_bool| maybe_bool.unwrap_or(true))
 }
 
-fn parse_setting_name<'src>() -> impl Parser<Token<'src>, Setting<'src>, Error = Simple<Token<'src>>>
-{
+fn parse_setting_name<'src>() -> impl JustParser<'src, Setting<'src>> {
   choice((
     kind_lexeme(TokenKind::Identifier, "allow-duplicate-recipes")
       .ignore_then(parse_set_bool())
@@ -128,11 +123,11 @@ fn parse_setting_name<'src>() -> impl Parser<Token<'src>, Setting<'src>, Error =
 
 // }
 
-fn parse_eol<'src>() -> impl Parser<Token<'src>, Option<Item<'src>>, Error = Simple<Token<'src>>> {
+fn parse_eol<'src>() -> impl JustParser<'src, Option<Item<'src>>> {
   parse_comment().or_not().then_ignore(kind(TokenKind::Eol))
 }
 
-fn parse_comment<'src>() -> impl Parser<Token<'src>, Item<'src>, Error = Simple<Token<'src>>> {
+fn parse_comment<'src>() -> impl JustParser<'src, Item<'src>> {
   kind(TokenKind::Comment).map(|tok| Item::Comment(tok.lexeme()))
 }
 
