@@ -45,7 +45,7 @@ impl<'src, T, U> JustParser<'src, T> for U where
 {
 }
 
-fn kind<'src>(token_kind: TokenKind) -> impl JustParser<'src, Token<'src>> {
+fn kind<'src>(token_kind: TokenKind) -> impl JustParser<'src, Token<'src>> + Clone {
   filter(move |tok: &Token| tok.kind == token_kind)
 }
 
@@ -57,17 +57,12 @@ fn parse_expression<'src>() -> impl JustParser<'src, Expression<'src>> {
   recursive(|parse_expression_rec| {
     let parse_group = parse_expression_rec
       .clone()
-      .delimited_by(
-        filter(|tok: &Token| tok.kind == TokenKind::ParenL),
-        filter(|tok: &Token| tok.kind == TokenKind::ParenR),
-      )
+      .delimited_by(kind(TokenKind::ParenL), kind(TokenKind::ParenR))
       .map(Box::new);
 
     let parse_sequence = parse_expression_rec
       .clone()
-      .separated_by(
-        kind(TokenKind::Comma).padded_by(filter(|tok: &Token| tok.kind == TokenKind::Whitespace)),
-      )
+      .separated_by(kind(TokenKind::Comma).padded_by(kind(TokenKind::Whitespace)))
       .or(
         parse_expression_rec
           .clone()
@@ -76,10 +71,7 @@ fn parse_expression<'src>() -> impl JustParser<'src, Expression<'src>> {
       );
 
     let parse_call = parse_name()
-      .then(parse_sequence.delimited_by(
-        filter(|tok: &Token| tok.kind == TokenKind::ParenL),
-        filter(|tok: &Token| tok.kind == TokenKind::ParenR),
-      ))
+      .then(parse_sequence.delimited_by(kind(TokenKind::ParenL), kind(TokenKind::ParenR)))
       .try_map(|(name, arguments), span| {
         Thunk::resolve(name, arguments).map_err(|err| Simple::custom(span, err))
       });
@@ -203,7 +195,7 @@ fn parse_setting<'src>() -> impl JustParser<'src, Item<'src>> {
 
 fn parse_colon_equals<'src, T>(parser: impl JustParser<'src, T>) -> impl JustParser<'src, T> {
   kind(TokenKind::ColonEquals)
-    .padded_by(filter(|tok: &Token<'_>| tok.kind == TokenKind::Whitespace))
+    .padded_by(kind(TokenKind::Whitespace))
     .ignore_then(parser)
 }
 
