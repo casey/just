@@ -1,7 +1,7 @@
 #![allow(dead_code)]
 use super::{
   Alias, Assignment, Ast, CompileError, CompileErrorKind, ConditionalOperator, Expression, Item,
-  Name, Set, Setting, StringKind, StringLiteral, Thunk, Token, TokenKind,
+  Name, Set, Setting, Shell, StringKind, StringLiteral, Thunk, Token, TokenKind,
 };
 use chumsky::prelude::*;
 
@@ -280,6 +280,23 @@ fn parse_set_bool<'src>() -> impl JustParser<'src, bool> {
     .map(|maybe_bool| maybe_bool.unwrap_or(true))
 }
 
+fn parse_set_shell<'src>() -> impl JustParser<'src, Shell<'src>> {
+  let string_list = parse_string()
+    .padded_by(ws().or_not())
+    .separated_by(kind(TokenKind::Comma))
+    .at_least(1)
+    .allow_trailing()
+    .delimited_by(kind(TokenKind::BracketL), kind(TokenKind::BracketR))
+    .map(|mut strings: Vec<StringLiteral<'src>>| {
+      //TODO strings should always have at least one element because of the .at_least(1) - but
+      //have some tests assert that
+      let arguments = strings.split_off(1);
+      let command = strings.pop().unwrap();
+      Shell { arguments, command }
+    });
+  parse_colon_equals(string_list)
+}
+
 fn parse_setting_name<'src>() -> impl JustParser<'src, Setting<'src>> {
   choice((
     keyword("allow-duplicate-recipes")
@@ -297,6 +314,12 @@ fn parse_setting_name<'src>() -> impl JustParser<'src, Setting<'src>> {
     keyword("windows-powershell")
       .ignore_then(parse_set_bool())
       .map(Setting::WindowsPowerShell),
+    keyword("shell")
+      .ignore_then(parse_set_shell())
+      .map(Setting::Shell),
+    keyword("windows-shell")
+      .ignore_then(parse_set_shell())
+      .map(Setting::WindowsShell),
   ))
 }
 
@@ -337,7 +360,7 @@ mod tests {
 
   #[test]
   fn new_parser_test2() {
-    let src = "set dotenv-load   \nset windows-powershell := false\n# some stuff";
+    let src = "set dotenv-load   \nset windows-powershell := false\n\n# some stuff";
     let tokens = Lexer::lex(src).unwrap();
     debug_tokens(tokens.clone());
     let ast = NewParser::parse(&tokens).unwrap();
@@ -355,7 +378,30 @@ mod tests {
         value: Setting::WindowsPowerShell(false)
       })
     );
-    // assert_matches!(&ast.items[2], Item::Comment("# some stuff"));
+  }
+
+  #[test]
+  fn new_parser_test_25() {
+    let src = "set windows-shell := ['a']\n";
+    let tokens = Lexer::lex(src).unwrap();
+    debug_tokens(tokens.clone());
+    let ast = NewParser::parse(&tokens).unwrap();
+    assert_matches!(
+      &ast.items[0],
+      Item::Set(Set {
+        name: _,
+        value: Setting::WindowsShell(Shell {
+            arguments, command
+        })
+      }) if arguments.len() == 0 &&
+      command.cooked == "a"
+    );
+
+    let src = "set windows-shell := []\n";
+    let tokens = Lexer::lex(src).unwrap();
+    debug_tokens(tokens.clone());
+    let ast = NewParser::parse(&tokens);
+    assert!(ast.is_err());
   }
 
   #[test]
