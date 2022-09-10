@@ -1,5 +1,7 @@
 #![allow(dead_code)]
-use super::{Alias, Assignment, Ast, Expression, Item, Name, Set, Setting, Token, TokenKind};
+use super::{
+  Alias, Assignment, Ast, Expression, Item, Name, Set, Setting, Thunk, Token, TokenKind,
+};
 use chumsky::prelude::*;
 
 // TODO - maybe we don't even need the NewParser struct to contain tokens?
@@ -50,12 +52,23 @@ fn kind_lexeme<'src>(token_kind: TokenKind, lexeme: &'src str) -> impl JustParse
   filter(move |tok: &Token| tok.kind == token_kind && tok.lexeme() == lexeme)
 }
 
-fn parse_name<'src>() -> impl JustParser<'src, Name<'src>> {
-  kind(TokenKind::Identifier).map(Name::from_identifier)
+fn parse_expression<'src>() -> impl JustParser<'src, Expression<'src>> {
+  parse_value()
 }
 
-fn parse_expression<'src>() -> impl JustParser<'src, Expression<'src>> {
-  parse_name().map(|name| Expression::Variable { name })
+fn parse_value<'src>() -> impl JustParser<'src, Expression<'src>> {
+  choice((
+    parse_name().map(|name| Expression::Variable { name }),
+    parse_call().map(|thunk| Expression::Call { thunk }),
+  ))
+}
+
+fn parse_call<'src>() -> impl JustParser<'src, Thunk<'src>> {
+  todo()
+}
+
+fn parse_name<'src>() -> impl JustParser<'src, Name<'src>> {
+  kind(TokenKind::Identifier).map(Name::from_identifier)
 }
 
 fn parse_eof<'src>() -> impl JustParser<'src, Option<Item<'src>>> {
@@ -180,7 +193,7 @@ mod tests {
   fn new_parser_test3() {
     let src = "alias b := build\n";
     let tokens = Lexer::lex(src).unwrap();
-    let ast = parse_ast().parse(tokens).unwrap();
+    let ast = NewParser::parse(&tokens).unwrap();
     assert_matches!(&ast.items[0], Item::Alias(..))
   }
 
@@ -189,7 +202,7 @@ mod tests {
     let src = "set dotenv-load   \nset windows-powershell := false\n# some stuff";
     let tokens = Lexer::lex(src).unwrap();
     debug_tokens(tokens.clone());
-    let ast = parse_ast().parse(tokens).unwrap();
+    let ast = NewParser::parse(&tokens).unwrap();
     assert_matches!(
       &ast.items[0],
       Item::Set(Set {
@@ -211,18 +224,18 @@ mod tests {
   fn new_parser_test() {
     let src = "\n# some stuff";
     let tokens = Lexer::lex(src).unwrap();
-    let ast = parse_ast().parse(tokens).unwrap();
+    let ast = NewParser::parse(&tokens).unwrap();
     assert_matches!(&ast.items[0], Item::Comment("# some stuff"));
 
     let src = "\n# some stuff\n";
     let tokens = Lexer::lex(src).unwrap();
-    let ast = parse_ast().parse(tokens).unwrap();
+    let ast = NewParser::parse(&tokens).unwrap();
     assert_matches!(&ast.items[0], Item::Comment("# some stuff"));
 
     let src = "#bongo\n#crayfis\n\n\n# some stuff\nexport tane := rabo\nrusi := kava\n";
     let tokens = Lexer::lex(src).unwrap();
     debug_tokens(tokens.clone());
-    let ast = parse_ast().parse(tokens).unwrap();
+    let ast = NewParser::parse(&tokens).unwrap();
     assert_matches!(&ast.items[0], Item::Comment("#bongo"));
     assert_matches!(&ast.items[2], Item::Comment("# some stuff"));
     assert_matches!(
