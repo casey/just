@@ -333,8 +333,10 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
           }
           Some(Keyword::Set)
             if self.next_are(&[Identifier, Identifier, ColonEquals])
-              || self.next_are(&[Identifier, Identifier, Eol])
-              || self.next_are(&[Identifier, Identifier, Eof]) =>
+              || self.next_are(&[Identifier, Identifier, Comment, Eof])
+              || self.next_are(&[Identifier, Identifier, Comment, Eol])
+              || self.next_are(&[Identifier, Identifier, Eof])
+              || self.next_are(&[Identifier, Identifier, Eol]) =>
           {
             items.push(Item::Set(self.parse_set()?));
           }
