@@ -1,6 +1,7 @@
 #![allow(dead_code)]
 use super::{
-  Alias, Assignment, Ast, Expression, Item, Name, Set, Setting, Thunk, Token, TokenKind,
+  Alias, Assignment, Ast, CompileError, CompileErrorKind, Expression, Item, Name, Set, Setting,
+  StringKind, StringLiteral, Thunk, Token, TokenKind,
 };
 use chumsky::prelude::*;
 
@@ -59,8 +60,53 @@ fn parse_expression<'src>() -> impl JustParser<'src, Expression<'src>> {
 fn parse_value<'src>() -> impl JustParser<'src, Expression<'src>> {
   choice((
     parse_name().map(|name| Expression::Variable { name }),
+    parse_string().map(|string_literal| Expression::StringLiteral { string_literal }),
     parse_call().map(|thunk| Expression::Call { thunk }),
   ))
+}
+
+fn validate_string<'src>(token: Token<'src>) -> Result<StringLiteral<'src>, CompileError<'src>> {
+  let kind = StringKind::from_string_or_backtick(token)?;
+  let delimiter_len = kind.delimiter_len();
+  let raw = &token.lexeme()[delimiter_len..token.lexeme().len() - delimiter_len];
+  let unindented = if kind.indented() {
+    crate::unindent::unindent(raw)
+  } else {
+    raw.to_owned()
+  };
+  let cooked = if kind.processes_escape_sequences() {
+    let mut cooked = String::new();
+    let mut escape = false;
+    for c in unindented.chars() {
+      if escape {
+        match c {
+          'n' => cooked.push('\n'),
+          'r' => cooked.push('\r'),
+          't' => cooked.push('\t'),
+          '\\' => cooked.push('\\'),
+          '\n' => {}
+          '"' => cooked.push('"'),
+          other => {
+            return Err(token.error(CompileErrorKind::InvalidEscapeSequence { character: other }));
+          }
+        }
+        escape = false;
+      } else if c == '\\' {
+        escape = true;
+      } else {
+        cooked.push(c);
+      }
+    }
+    cooked
+  } else {
+    unindented
+  };
+  Ok(StringLiteral { kind, raw, cooked })
+}
+
+fn parse_string<'src>() -> impl JustParser<'src, StringLiteral<'src>> {
+  kind(TokenKind::StringToken)
+    .try_map(|token, span| validate_string(token).map_err(|err| Simple::custom(span, err)))
 }
 
 fn parse_call<'src>() -> impl JustParser<'src, Thunk<'src>> {
@@ -218,6 +264,23 @@ mod tests {
       })
     );
     // assert_matches!(&ast.items[2], Item::Comment("# some stuff"));
+  }
+
+  #[test]
+  fn new_parser_test_expressions() {
+    let src = "alpha := \'a string\'\n# some stuff";
+    let tokens = Lexer::lex(src).unwrap();
+    debug_tokens(tokens.clone());
+    let ast = NewParser::parse(&tokens).unwrap();
+    assert_matches!(
+      &ast.items[0],
+      Item::Assignment(Assignment {
+        value: Expression::StringLiteral {
+          string_literal: StringLiteral { .. }
+        },
+        ..
+      })
+    )
   }
 
   #[test]
