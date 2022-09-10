@@ -54,15 +54,27 @@ fn kind_lexeme<'src>(token_kind: TokenKind, lexeme: &'src str) -> impl JustParse
 }
 
 fn parse_expression<'src>() -> impl JustParser<'src, Expression<'src>> {
-  parse_value()
-}
+  recursive(|parse_expression_rec| {
+    let parse_group = || {
+      parse_expression_rec
+        .delimited_by(
+          filter(|tok: &Token| tok.kind == TokenKind::ParenL),
+          filter(|tok: &Token| tok.kind == TokenKind::ParenR),
+        )
+        .map(Box::new)
+    };
 
-fn parse_value<'src>() -> impl JustParser<'src, Expression<'src>> {
-  choice((
-    parse_name().map(|name| Expression::Variable { name }),
-    parse_string().map(|string_literal| Expression::StringLiteral { string_literal }),
-    parse_call().map(|thunk| Expression::Call { thunk }),
-  ))
+    let parse_value = || {
+      choice((
+        parse_name().map(|name| Expression::Variable { name }),
+        parse_string().map(|string_literal| Expression::StringLiteral { string_literal }),
+        parse_group().map(|contents| Expression::Group { contents }),
+        parse_call().map(|thunk| Expression::Call { thunk }),
+      ))
+    };
+
+    parse_value()
+  })
 }
 
 fn validate_string<'src>(token: Token<'src>) -> Result<StringLiteral<'src>, CompileError<'src>> {
@@ -268,7 +280,7 @@ mod tests {
 
   #[test]
   fn new_parser_test_expressions() {
-    let src = "alpha := \'a string\'\n# some stuff";
+    let src = "alpha := \'a string\'\n# some stuff\na := ('str')\n";
     let tokens = Lexer::lex(src).unwrap();
     debug_tokens(tokens.clone());
     let ast = NewParser::parse(&tokens).unwrap();
@@ -280,7 +292,14 @@ mod tests {
         },
         ..
       })
-    )
+    );
+
+    assert_matches!(&ast.items[2],
+        Item::Assignment(Assignment {
+            value: Expression::Group { contents },
+            ..
+        }) if matches!(**contents, Expression::StringLiteral { .. })
+    );
   }
 
   #[test]
