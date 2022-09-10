@@ -1,4 +1,4 @@
-use super::{Ast, Item, Name, Set, Setting, Token, TokenKind};
+use super::{Alias, Ast, Item, Name, Set, Setting, Token, TokenKind};
 use chumsky::prelude::*;
 
 /// New parser
@@ -52,7 +52,11 @@ fn parse_ast<'src>() -> impl JustParser<'src, Ast<'src>> {
     })
 }
 
-fn parse_eof<'src>() -> impl Parser<Token<'src>, Option<Item<'src>>, Error = Simple<Token<'src>>> {
+fn parse_name<'src>() -> impl JustParser<'src, Name<'src>> {
+  kind(TokenKind::Identifier).map(Name::from_identifier)
+}
+
+fn parse_eof<'src>() -> impl JustParser<'src, Option<Item<'src>>> {
   parse_comment() // A comment might be the last thing in a file with no trailing newline
     .map(Some)
     .or(kind(TokenKind::Eof).map(|_| None)) //TODO the .end() parser makes an explicit Eof token
@@ -66,7 +70,18 @@ fn parse_items<'src>() -> impl JustParser<'src, Vec<Item<'src>>> {
 }
 
 fn parse_item<'src>() -> impl Parser<Token<'src>, Option<Item<'src>>, Error = Simple<Token<'src>>> {
-  choice((parse_setting().map(Some), parse_eol()))
+
+    // TODO if this were instead .then_ignore(parse_eol()) it would support comments at the end of
+    // a line, after a legit item
+    fn item_end<'src>() -> impl JustParser<'src, ()> {
+        kind(TokenKind::Whitespace).ignored().or_not().then(kind(TokenKind::Eol)).to(())
+    }
+
+    choice((
+            parse_setting().then_ignore(item_end()).map(Some),
+            parse_alias().then_ignore(item_end()).map(Some),
+            parse_eol(),
+    ))
 }
 
 fn parse_setting<'src>() -> impl JustParser<'src, Item<'src>> {
@@ -77,13 +92,10 @@ fn parse_setting<'src>() -> impl JustParser<'src, Item<'src>> {
     })
     .then_ignore(kind(TokenKind::Whitespace))
     .then(parse_setting_name())
-    .then_ignore(kind(TokenKind::Whitespace).ignored().or_not().then(kind(TokenKind::Eol))) // TODO if this were instead .then_ignore(parse_eol()) it
-                                       // would be possible to support comments at the end of a
-                                       // line
     .map(|(name, value)| Item::Set(Set { name, value }))
 }
 
-fn parse_set_expr<'src, T>(parser: impl JustParser<'src, T>) -> impl JustParser<'src, T> {
+fn parse_colon_equals<'src, T>(parser: impl JustParser<'src, T>) -> impl JustParser<'src, T> {
   kind(TokenKind::ColonEquals)
     .padded_by(filter(|tok: &Token<'_>| tok.kind == TokenKind::Whitespace))
     .ignore_then(parser)
@@ -93,7 +105,7 @@ fn parse_set_bool<'src>() -> impl JustParser<'src, bool> {
   let true_or_false = kind_lexeme(TokenKind::Identifier, "true")
     .to(true)
     .or(kind_lexeme(TokenKind::Identifier, "false").to(false));
-  parse_set_expr(true_or_false)
+  parse_colon_equals(true_or_false)
     .or_not()
     .map(|maybe_bool| maybe_bool.unwrap_or(true))
 }
@@ -118,10 +130,13 @@ fn parse_setting_name<'src>() -> impl JustParser<'src, Setting<'src>> {
   ))
 }
 
-// fn parse_alias<'src>() -> impl Parser<Token<'src>, Item<'src>, Error = Simple<Token<'src>>> {
-//   kind_lexeme(TokenKind::Identifier, "alias")
-
-// }
+fn parse_alias<'src>() -> impl Parser<Token<'src>, Item<'src>, Error = Simple<Token<'src>>> {
+  kind_lexeme(TokenKind::Identifier, "alias")
+    .ignore_then(kind(TokenKind::Whitespace))
+    .ignore_then(parse_name())
+    .then(parse_colon_equals(parse_name()))
+    .map(|(name, target)| Item::Alias(Alias { name, target }))
+}
 
 fn parse_eol<'src>() -> impl JustParser<'src, Option<Item<'src>>> {
   parse_comment().or_not().then_ignore(kind(TokenKind::Eol))
@@ -144,10 +159,14 @@ mod tests {
 
   #[test]
   fn new_parser_test3() {
-    let src = "alias b := build";
+    let src = "alias b := build\n";
     let tokens = Lexer::lex(src).unwrap();
     debug_tokens(tokens.clone());
     let ast = parse_ast().parse(tokens).unwrap();
+    assert_matches!(
+        &ast.items[0],
+        Item::Alias(..)
+    )
   }
 
   #[test]
