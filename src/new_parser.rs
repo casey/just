@@ -15,8 +15,23 @@ impl<'tokens, 'src> NewParser<'tokens, 'src> {
   }
 
   pub(crate) fn parse(tokens: &'tokens [Token<'src>]) -> Result<Ast<'src>, ()> {
-      let p = Self::new(tokens);
-      parse_ast().parse(p.tokens).map_err(|_ignoring| ())
+    let p = Self::new(tokens);
+    p.ast_parser().parse(tokens).map_err(|_ignoring| ())
+  }
+
+  fn ast_parser<'a>(&self) -> impl JustParser<'a, Ast<'a>> {
+    parse_items()
+      .then(parse_eof())
+      .map(|(mut items, maybe_final_comment)| {
+        if let Some(comment) = maybe_final_comment {
+          items.push(comment);
+        }
+
+        Ast {
+          items,
+          warnings: vec![],
+        }
+      })
   }
 }
 
@@ -33,21 +48,6 @@ fn kind<'src>(token_kind: TokenKind) -> impl JustParser<'src, Token<'src>> {
 
 fn kind_lexeme<'src>(token_kind: TokenKind, lexeme: &'src str) -> impl JustParser<Token<'src>> {
   filter(move |tok: &Token| tok.kind == token_kind && tok.lexeme() == lexeme)
-}
-
-fn parse_ast<'src>() -> impl JustParser<'src, Ast<'src>> {
-  parse_items()
-    .then(parse_eof())
-    .map(|(mut items, maybe_final_comment)| {
-      if let Some(comment) = maybe_final_comment {
-        items.push(comment);
-      }
-
-      Ast {
-        items,
-        warnings: vec![],
-      }
-    })
 }
 
 fn parse_name<'src>() -> impl JustParser<'src, Name<'src>> {
