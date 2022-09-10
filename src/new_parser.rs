@@ -56,7 +56,7 @@ fn ws<'src>() -> impl JustParser<'src, ()> + Clone {
   kind(TokenKind::Whitespace).map(|_| ())
 }
 
-fn keyword<'src>(lexeme: &'src str) -> impl JustParser<Token<'src>> {
+fn keyword<'src>(lexeme: &'src str) -> impl JustParser<Token<'src>> + Clone {
   filter(move |tok: &Token| tok.kind == TokenKind::Identifier && tok.lexeme() == lexeme)
 }
 
@@ -77,18 +77,28 @@ fn parse_expression<'src>() -> impl JustParser<'src, Expression<'src>> {
           .map(|expr| vec![expr]),
       );
 
-    let parse_call = parse_name()
-      .then(parse_sequence.delimited_by(kind(TokenKind::ParenL), kind(TokenKind::ParenR)))
-      .try_map(|(name, arguments), span| {
-        Thunk::resolve(name, arguments).map_err(|err| Simple::custom(span, err))
-      });
+    let parse_call = || {
+      parse_name()
+        .then(
+          parse_sequence
+            .clone()
+            .delimited_by(kind(TokenKind::ParenL), kind(TokenKind::ParenR)),
+        )
+        .try_map(|(name, arguments), span| {
+          Thunk::resolve(name, arguments).map_err(|err| Simple::custom(span, err))
+        })
+    };
 
-    let parse_value = choice((
-      parse_name().map(|name| Expression::Variable { name }),
-      parse_string().map(|string_literal| Expression::StringLiteral { string_literal }),
-      parse_group.map(|contents| Expression::Group { contents }),
-      parse_call.map(|thunk| Expression::Call { thunk }),
-    ));
+    let parse_value = || {
+      choice((
+        parse_name().map(|name| Expression::Variable { name }),
+        parse_string().map(|string_literal| Expression::StringLiteral { string_literal }),
+        parse_group
+          .clone()
+          .map(|contents| Expression::Group { contents }),
+        parse_call().map(|thunk| Expression::Call { thunk }),
+      ))
+    };
 
     let conditional_operator = choice((
       kind(TokenKind::BangEquals).to(ConditionalOperator::Inequality),
@@ -126,7 +136,24 @@ fn parse_expression<'src>() -> impl JustParser<'src, Expression<'src>> {
         operator: co.op,
       });
 
-    choice((conditional, parse_value))
+    let join_or_concat = parse_value()
+      .then_ignore(ws().or_not())
+      .then(kind(TokenKind::Slash).or(kind(TokenKind::Plus)))
+      .then_ignore(ws().or_not())
+      .then(parse_expression_rec.clone())
+      .map(|((lhs, op), rhs)| match op.kind {
+        TokenKind::Slash => Expression::Join {
+          lhs: Box::new(lhs),
+          rhs: Box::new(rhs),
+        },
+        TokenKind::Plus => Expression::Concatenation {
+          lhs: Box::new(lhs),
+          rhs: Box::new(rhs),
+        },
+        _ => unreachable!(),
+      });
+
+    choice((conditional, join_or_concat, parse_value()))
   })
 }
 
@@ -340,7 +367,7 @@ mod tests {
     let ast = output.unwrap();
     assert_matches!(&ast.items[0],
         Item::Assignment(Assignment {
-            value: Expression::Conditional { lhs, rhs, then, otherwise, operator },
+            value: Expression::Conditional { lhs, rhs, then: _, otherwise: _, operator },
             ..
         }) if matches!(**lhs, Expression::Variable { .. }) &&
               matches!(**rhs, Expression::StringLiteral { string_literal: StringLiteral { .. }}) &&
