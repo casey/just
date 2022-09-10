@@ -1,6 +1,8 @@
-use super::{Alias, Ast, Item, Name, Set, Setting, Token, TokenKind};
+#![allow(dead_code)]
+use super::{Alias, Assignment, Ast, Expression, Item, Name, Set, Setting, Token, TokenKind};
 use chumsky::prelude::*;
 
+// TODO - maybe we don't even need the NewParser struct to contain tokens?
 /// New parser
 /// This uses the chumsky library to do parsing
 pub(crate) struct NewParser<'tokens, 'src> {
@@ -13,12 +15,8 @@ impl<'tokens, 'src> NewParser<'tokens, 'src> {
   }
 
   pub(crate) fn parse(tokens: &'tokens [Token<'src>]) -> Result<Ast<'src>, ()> {
-    Self::new(tokens).parse_ast()
-  }
-
-  /// Parse a justfile, consumes self
-  fn parse_ast(mut self) -> Result<Ast<'src>, ()> {
-    Err(())
+      let p = Self::new(tokens);
+      parse_ast().parse(p.tokens).map_err(|_ignoring| ())
   }
 }
 
@@ -56,6 +54,10 @@ fn parse_name<'src>() -> impl JustParser<'src, Name<'src>> {
   kind(TokenKind::Identifier).map(Name::from_identifier)
 }
 
+fn parse_expression<'src>() -> impl JustParser<'src, Expression<'src>> {
+  parse_name().map(|name| Expression::Variable { name })
+}
+
 fn parse_eof<'src>() -> impl JustParser<'src, Option<Item<'src>>> {
   parse_comment() // A comment might be the last thing in a file with no trailing newline
     .map(Some)
@@ -70,18 +72,35 @@ fn parse_items<'src>() -> impl JustParser<'src, Vec<Item<'src>>> {
 }
 
 fn parse_item<'src>() -> impl Parser<Token<'src>, Option<Item<'src>>, Error = Simple<Token<'src>>> {
+  // TODO if this were instead .then_ignore(parse_eol()) it would support comments at the end of
+  // a line, after a legit item
+  fn item_end<'src>() -> impl JustParser<'src, ()> {
+    kind(TokenKind::Whitespace)
+      .ignored()
+      .or_not()
+      .then(kind(TokenKind::Eol))
+      .to(())
+  }
 
-    // TODO if this were instead .then_ignore(parse_eol()) it would support comments at the end of
-    // a line, after a legit item
-    fn item_end<'src>() -> impl JustParser<'src, ()> {
-        kind(TokenKind::Whitespace).ignored().or_not().then(kind(TokenKind::Eol)).to(())
-    }
+  choice((
+    parse_setting().then_ignore(item_end()).map(Some),
+    parse_alias().then_ignore(item_end()).map(Some),
+    parse_assignment().then_ignore(item_end()).map(Some),
+    parse_eol(),
+  ))
+}
 
-    choice((
-            parse_setting().then_ignore(item_end()).map(Some),
-            parse_alias().then_ignore(item_end()).map(Some),
-            parse_eol(),
-    ))
+fn parse_assignment<'src>() -> impl JustParser<'src, Item<'src>> {
+  (kind_lexeme(TokenKind::Identifier, "export").then_ignore(kind(TokenKind::Whitespace)))
+    .or_not()
+    .then(parse_name().then(parse_colon_equals(parse_expression())))
+    .map(|(maybe_export, (name, value))| {
+      Item::Assignment(Assignment {
+        export: maybe_export.is_some(),
+        name,
+        value,
+      })
+    })
 }
 
 fn parse_setting<'src>() -> impl JustParser<'src, Item<'src>> {
@@ -161,12 +180,8 @@ mod tests {
   fn new_parser_test3() {
     let src = "alias b := build\n";
     let tokens = Lexer::lex(src).unwrap();
-    debug_tokens(tokens.clone());
     let ast = parse_ast().parse(tokens).unwrap();
-    assert_matches!(
-        &ast.items[0],
-        Item::Alias(..)
-    )
+    assert_matches!(&ast.items[0], Item::Alias(..))
   }
 
   #[test]
@@ -204,10 +219,23 @@ mod tests {
     let ast = parse_ast().parse(tokens).unwrap();
     assert_matches!(&ast.items[0], Item::Comment("# some stuff"));
 
-    let src = "#bongo\n#crayfis\n\n\n# some stuff\n";
+    let src = "#bongo\n#crayfis\n\n\n# some stuff\nexport tane := rabo\nrusi := kava\n";
     let tokens = Lexer::lex(src).unwrap();
+    debug_tokens(tokens.clone());
     let ast = parse_ast().parse(tokens).unwrap();
     assert_matches!(&ast.items[0], Item::Comment("#bongo"));
     assert_matches!(&ast.items[2], Item::Comment("# some stuff"));
+    assert_matches!(
+      &ast.items[3],
+      Item::Assignment(Assignment { export: true, .. })
+    );
+    assert_matches!(
+      &ast.items[4],
+      Item::Assignment(Assignment {
+        export: false,
+        name: _,
+        value: Expression::Variable { .. }
+      })
+    );
   }
 }
