@@ -1,7 +1,7 @@
 #![allow(dead_code)]
 use super::{
-  Alias, Assignment, Ast, CompileError, CompileErrorKind, Expression, Item, Name, Set, Setting,
-  StringKind, StringLiteral, Thunk, Token, TokenKind,
+  Alias, Assignment, Ast, CompileError, CompileErrorKind, ConditionalOperator, Expression, Item,
+  Name, Set, Setting, StringKind, StringLiteral, Thunk, Token, TokenKind,
 };
 use chumsky::prelude::*;
 
@@ -19,7 +19,10 @@ impl<'tokens, 'src> NewParser<'tokens, 'src> {
 
   pub(crate) fn parse(tokens: &'tokens [Token<'src>]) -> Result<Ast<'src>, ()> {
     let p = Self::new(tokens);
-    p.ast_parser().parse(tokens).map_err(|_ignoring| ())
+    p.ast_parser().parse(tokens).map_err(|ignoring| {
+      println!("ERR: {:?}", ignoring);
+      ()
+    })
   }
 
   fn ast_parser<'a>(&self) -> impl JustParser<'a, Ast<'a>> {
@@ -49,6 +52,10 @@ fn kind<'src>(token_kind: TokenKind) -> impl JustParser<'src, Token<'src>> + Clo
   filter(move |tok: &Token| tok.kind == token_kind)
 }
 
+fn ws<'src>() -> impl JustParser<'src, ()> + Clone {
+  kind(TokenKind::Whitespace).map(|_| ())
+}
+
 fn kind_lexeme<'src>(token_kind: TokenKind, lexeme: &'src str) -> impl JustParser<Token<'src>> {
   filter(move |tok: &Token| tok.kind == token_kind && tok.lexeme() == lexeme)
 }
@@ -76,17 +83,57 @@ fn parse_expression<'src>() -> impl JustParser<'src, Expression<'src>> {
         Thunk::resolve(name, arguments).map_err(|err| Simple::custom(span, err))
       });
 
-    let parse_value = || {
-      choice((
-        parse_name().map(|name| Expression::Variable { name }),
-        parse_string().map(|string_literal| Expression::StringLiteral { string_literal }),
-        parse_group.map(|contents| Expression::Group { contents }),
-        parse_call.map(|thunk| Expression::Call { thunk }),
-      ))
-    };
+    let parse_value = choice((
+      parse_name().map(|name| Expression::Variable { name }),
+      parse_string().map(|string_literal| Expression::StringLiteral { string_literal }),
+      parse_group.map(|contents| Expression::Group { contents }),
+      parse_call.map(|thunk| Expression::Call { thunk }),
+    ));
 
-    parse_value()
+    let conditional_operator = choice((
+      kind(TokenKind::BangEquals).to(ConditionalOperator::Inequality),
+      kind(TokenKind::EqualsEquals).to(ConditionalOperator::Equality),
+      kind(TokenKind::EqualsTilde).to(ConditionalOperator::RegexMatch),
+    ));
+
+    let condition = parse_expression_rec
+      .clone()
+      .then(conditional_operator.padded_by(ws()))
+      .then(parse_expression_rec.clone())
+      .map(|((lhs, op), rhs)| CondOutput { lhs, op, rhs });
+
+    let conditional = kind_lexeme(TokenKind::Identifier, "if")
+      .ignored()
+      .then_ignore(ws())
+      .then(condition)
+      .then_ignore(ws())
+      .then(parse_expression_rec.clone().delimited_by(
+        kind(TokenKind::BraceL).then(ws().or_not()),
+        ws().or_not().then(kind(TokenKind::BraceR)),
+      ))
+      .then_ignore(ws())
+      .then_ignore(kind_lexeme(TokenKind::Identifier, "else"))
+      .then_ignore(ws())
+      .then(parse_expression_rec.clone().delimited_by(
+        kind(TokenKind::BraceL).then(ws().or_not()),
+        ws().or_not().then(kind(TokenKind::BraceR)),
+      ))
+      .map(|((((), co), then), otherwise)| Expression::Conditional {
+        lhs: Box::new(co.lhs),
+        rhs: Box::new(co.rhs),
+        then: Box::new(then),
+        otherwise: Box::new(otherwise),
+        operator: co.op,
+      });
+
+    choice((conditional, parse_value))
   })
+}
+
+struct CondOutput<'a> {
+  lhs: Expression<'a>,
+  op: ConditionalOperator,
+  rhs: Expression<'a>,
 }
 
 fn validate_string<'src>(token: Token<'src>) -> Result<StringLiteral<'src>, CompileError<'src>> {
@@ -287,11 +334,29 @@ mod tests {
   }
 
   #[test]
+  fn new_parser_test_expressions2() {
+    let src = "q := if a =~ 'f' { b } else { c }\n";
+    let tokens = Lexer::lex(src).unwrap();
+    debug_tokens(tokens.clone());
+    let output = NewParser::parse(&tokens);
+    let ast = output.unwrap();
+    assert_matches!(&ast.items[0],
+        Item::Assignment(Assignment {
+            value: Expression::Conditional { lhs, rhs, then, otherwise, operator },
+            ..
+        }) if matches!(**lhs, Expression::Variable { .. }) &&
+              matches!(**rhs, Expression::StringLiteral { string_literal: StringLiteral { .. }}) &&
+              *operator == ConditionalOperator::RegexMatch
+    );
+  }
+
+  #[test]
   fn new_parser_test_expressions() {
     let src = "alpha := \'a string\'\n# some stuff\na := ('str')\n";
     let tokens = Lexer::lex(src).unwrap();
     debug_tokens(tokens.clone());
-    let ast = NewParser::parse(&tokens).unwrap();
+    let output = NewParser::parse(&tokens);
+    let ast = output.unwrap();
     assert_matches!(
       &ast.items[0],
       Item::Assignment(Assignment {
