@@ -56,8 +56,8 @@ fn ws<'src>() -> impl JustParser<'src, ()> + Clone {
   kind(TokenKind::Whitespace).map(|_| ())
 }
 
-fn kind_lexeme<'src>(token_kind: TokenKind, lexeme: &'src str) -> impl JustParser<Token<'src>> {
-  filter(move |tok: &Token| tok.kind == token_kind && tok.lexeme() == lexeme)
+fn keyword<'src>(lexeme: &'src str) -> impl JustParser<Token<'src>> {
+  filter(move |tok: &Token| tok.kind == TokenKind::Identifier && tok.lexeme() == lexeme)
 }
 
 fn parse_expression<'src>() -> impl JustParser<'src, Expression<'src>> {
@@ -102,7 +102,7 @@ fn parse_expression<'src>() -> impl JustParser<'src, Expression<'src>> {
       .then(parse_expression_rec.clone())
       .map(|((lhs, op), rhs)| CondOutput { lhs, op, rhs });
 
-    let conditional = kind_lexeme(TokenKind::Identifier, "if")
+    let conditional = keyword("if")
       .ignored()
       .then_ignore(ws())
       .then(condition)
@@ -112,7 +112,7 @@ fn parse_expression<'src>() -> impl JustParser<'src, Expression<'src>> {
         ws().or_not().then(kind(TokenKind::BraceR)),
       ))
       .then_ignore(ws())
-      .then_ignore(kind_lexeme(TokenKind::Identifier, "else"))
+      .then_ignore(keyword("else"))
       .then_ignore(ws())
       .then(parse_expression_rec.clone().delimited_by(
         kind(TokenKind::BraceL).then(ws().or_not()),
@@ -217,7 +217,7 @@ fn parse_item<'src>() -> impl Parser<Token<'src>, Option<Item<'src>>, Error = Si
 }
 
 fn parse_assignment<'src>() -> impl JustParser<'src, Item<'src>> {
-  (kind_lexeme(TokenKind::Identifier, "export").then_ignore(kind(TokenKind::Whitespace)))
+  (keyword("export").then_ignore(kind(TokenKind::Whitespace)))
     .or_not()
     .then(parse_name().then(parse_colon_equals(parse_expression())))
     .map(|(maybe_export, (name, value))| {
@@ -230,7 +230,7 @@ fn parse_assignment<'src>() -> impl JustParser<'src, Item<'src>> {
 }
 
 fn parse_setting<'src>() -> impl JustParser<'src, Item<'src>> {
-  kind_lexeme(TokenKind::Identifier, "set")
+  keyword("set")
     .map(|token| {
       assert_eq!(token.kind, TokenKind::Identifier);
       Name::from_identifier(token)
@@ -247,9 +247,7 @@ fn parse_colon_equals<'src, T>(parser: impl JustParser<'src, T>) -> impl JustPar
 }
 
 fn parse_set_bool<'src>() -> impl JustParser<'src, bool> {
-  let true_or_false = kind_lexeme(TokenKind::Identifier, "true")
-    .to(true)
-    .or(kind_lexeme(TokenKind::Identifier, "false").to(false));
+  let true_or_false = keyword("true").to(true).or(keyword("false").to(false));
   parse_colon_equals(true_or_false)
     .or_not()
     .map(|maybe_bool| maybe_bool.unwrap_or(true))
@@ -257,26 +255,26 @@ fn parse_set_bool<'src>() -> impl JustParser<'src, bool> {
 
 fn parse_setting_name<'src>() -> impl JustParser<'src, Setting<'src>> {
   choice((
-    kind_lexeme(TokenKind::Identifier, "allow-duplicate-recipes")
+    keyword("allow-duplicate-recipes")
       .ignore_then(parse_set_bool())
       .map(Setting::AllowDuplicateRecipes),
-    kind_lexeme(TokenKind::Identifier, "dotenv-load")
+    keyword("dotenv-load")
       .ignore_then(parse_set_bool())
       .map(Setting::DotenvLoad),
-    kind_lexeme(TokenKind::Identifier, "export")
+    keyword("export")
       .ignore_then(parse_set_bool())
       .map(Setting::Export),
-    kind_lexeme(TokenKind::Identifier, "positional-arguments")
+    keyword("positional-arguments")
       .ignore_then(parse_set_bool())
       .map(Setting::PositionalArguments),
-    kind_lexeme(TokenKind::Identifier, "windows-powershell")
+    keyword("windows-powershell")
       .ignore_then(parse_set_bool())
       .map(Setting::WindowsPowerShell),
   ))
 }
 
 fn parse_alias<'src>() -> impl Parser<Token<'src>, Item<'src>, Error = Simple<Token<'src>>> {
-  kind_lexeme(TokenKind::Identifier, "alias")
+  keyword("alias")
     .ignore_then(kind(TokenKind::Whitespace))
     .ignore_then(parse_name())
     .then(parse_colon_equals(parse_name()))
