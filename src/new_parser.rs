@@ -55,21 +55,41 @@ fn kind_lexeme<'src>(token_kind: TokenKind, lexeme: &'src str) -> impl JustParse
 
 fn parse_expression<'src>() -> impl JustParser<'src, Expression<'src>> {
   recursive(|parse_expression_rec| {
-    let parse_group = || {
-      parse_expression_rec
-        .delimited_by(
-          filter(|tok: &Token| tok.kind == TokenKind::ParenL),
-          filter(|tok: &Token| tok.kind == TokenKind::ParenR),
-        )
-        .map(Box::new)
-    };
+    let parse_group = parse_expression_rec
+      .clone()
+      .delimited_by(
+        filter(|tok: &Token| tok.kind == TokenKind::ParenL),
+        filter(|tok: &Token| tok.kind == TokenKind::ParenR),
+      )
+      .map(Box::new);
+
+    let parse_sequence = parse_expression_rec
+      .clone()
+      .separated_by(
+        kind(TokenKind::Comma).padded_by(filter(|tok: &Token| tok.kind == TokenKind::Whitespace)),
+      )
+      .or(
+        parse_expression_rec
+          .clone()
+          .then_ignore(kind(TokenKind::Comma).or_not())
+          .map(|expr| vec![expr]),
+      );
+
+    let parse_call = parse_name()
+      .then(parse_sequence.delimited_by(
+        filter(|tok: &Token| tok.kind == TokenKind::ParenL),
+        filter(|tok: &Token| tok.kind == TokenKind::ParenR),
+      ))
+      .try_map(|(name, arguments), span| {
+        Thunk::resolve(name, arguments).map_err(|err| Simple::custom(span, err))
+      });
 
     let parse_value = || {
       choice((
         parse_name().map(|name| Expression::Variable { name }),
         parse_string().map(|string_literal| Expression::StringLiteral { string_literal }),
-        parse_group().map(|contents| Expression::Group { contents }),
-        parse_call().map(|thunk| Expression::Call { thunk }),
+        parse_group.map(|contents| Expression::Group { contents }),
+        parse_call.map(|thunk| Expression::Call { thunk }),
       ))
     };
 
@@ -119,10 +139,6 @@ fn validate_string<'src>(token: Token<'src>) -> Result<StringLiteral<'src>, Comp
 fn parse_string<'src>() -> impl JustParser<'src, StringLiteral<'src>> {
   kind(TokenKind::StringToken)
     .try_map(|token, span| validate_string(token).map_err(|err| Simple::custom(span, err)))
-}
-
-fn parse_call<'src>() -> impl JustParser<'src, Thunk<'src>> {
-  todo()
 }
 
 fn parse_name<'src>() -> impl JustParser<'src, Name<'src>> {
