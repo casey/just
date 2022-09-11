@@ -356,7 +356,9 @@ impl Subcommand {
     let formatted = ast.to_string();
 
     if config.check {
-      return if formatted != src {
+      return if formatted == src {
+        Ok(())
+      } else {
         use similar::{ChangeTag, TextDiff};
 
         let diff = TextDiff::configure()
@@ -376,8 +378,6 @@ impl Subcommand {
         }
 
         Err(Error::FormatCheckFoundDiff)
-      } else {
-        Ok(())
       };
     }
 
@@ -421,11 +421,11 @@ impl Subcommand {
         continue;
       }
 
-      if !recipe_aliases.contains_key(alias.target.name.lexeme()) {
-        recipe_aliases.insert(alias.target.name.lexeme(), vec![alias.name.lexeme()]);
-      } else {
+      if recipe_aliases.contains_key(alias.target.name.lexeme()) {
         let aliases = recipe_aliases.get_mut(alias.target.name.lexeme()).unwrap();
         aliases.push(alias.name.lexeme());
+      } else {
+        recipe_aliases.insert(alias.target.name.lexeme(), vec![alias.name.lexeme()]);
       }
     }
 
