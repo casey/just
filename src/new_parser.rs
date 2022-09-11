@@ -434,6 +434,7 @@ fn parse_comment<'src>() -> impl JustParser<'src, Item<'src>> {
 mod tests {
   use super::*;
   use crate::Lexer;
+  use pretty_assertions::assert_eq;
 
   fn debug_tokens<'a>(tokens: Vec<Token<'a>>) {
     for item in tokens.iter() {
@@ -446,6 +447,8 @@ mod tests {
     let src = "alias b := build\n";
     let tokens = Lexer::lex(src).unwrap();
     let ast = NewParser::parse(&tokens).unwrap();
+    let old_ast = crate::Parser::parse(&tokens).unwrap();
+    assert_eq!(ast, old_ast);
     assert_matches!(&ast.items[0], Item::Alias(..))
   }
 
@@ -502,6 +505,8 @@ mod tests {
     debug_tokens(tokens.clone());
     let output = NewParser::parse(&tokens);
     let ast = output.unwrap();
+    let old_ast = crate::Parser::parse(&tokens).unwrap();
+    assert_eq!(ast, old_ast);
     assert_matches!(&ast.items[0],
         Item::Assignment(Assignment {
             value: Expression::Conditional { lhs, rhs, then: _, otherwise: _, operator },
@@ -519,6 +524,8 @@ mod tests {
     debug_tokens(tokens.clone());
     let output = NewParser::parse(&tokens);
     let ast = output.unwrap();
+    let old_ast = crate::Parser::parse(&tokens).unwrap();
+    assert_eq!(ast, old_ast);
     assert_matches!(
       &ast.items[0],
       Item::Assignment(Assignment {
@@ -581,6 +588,8 @@ garbanzo:
     let tokens = Lexer::lex(src).unwrap();
     debug_tokens(tokens.clone());
     let ast = NewParser::parse(&tokens).unwrap();
+    // let old_ast = crate::Parser::parse(&tokens).unwrap();
+    // assert_eq!(ast.items, old_ast.items);
     assert_matches!(&ast.items[0], Item::Recipe(Recipe {
         body, quiet: true, ..
     }) if matches!(&body[0], Line { fragments } if matches!(fragments[0], Fragment::Text { token } if token.lexeme() == "echo \"hello\"")) &&

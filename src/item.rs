@@ -1,7 +1,7 @@
 use super::*;
 
 /// A single top-level item
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub(crate) enum Item<'src> {
   Alias(Alias<'src, Name<'src>>),
   Assignment(Assignment<'src>),

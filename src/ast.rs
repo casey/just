@@ -3,7 +3,7 @@ use super::*;
 /// The top-level type produced by the parser. Not all successful parses result
 /// in valid justfiles, so additional consistency checks and name resolution
 /// are performed by the `Analyzer`, which produces a `Justfile` from an `Ast`.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub(crate) struct Ast<'src> {
   /// Items in the justfile
   pub(crate) items: Vec<Item<'src>>,

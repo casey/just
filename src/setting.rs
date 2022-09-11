@@ -1,6 +1,6 @@
 use super::*;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub(crate) enum Setting<'src> {
   AllowDuplicateRecipes(bool),
   DotenvLoad(bool),
