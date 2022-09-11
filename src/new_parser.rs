@@ -400,7 +400,11 @@ fn parse_parameters<'src>() -> impl JustParser<'src, Vec<Parameter<'src>>> {
 fn parse_recipe<'src>() -> impl JustParser<'src, Item<'src>> {
   //TODO can this handle doc comments as part of the grammar?
 
-  kind(TokenKind::At)
+  let doc_comment = kind(TokenKind::Comment)
+    .map(|tok| tok.lexeme()[1..].trim_start())
+    .then_ignore(kind(TokenKind::Eol))
+    .or_not();
+  let rest = kind(TokenKind::At)
     .or_not()
     .then(parse_name())
     .then(parse_parameters())
@@ -411,7 +415,7 @@ fn parse_recipe<'src>() -> impl JustParser<'src, Item<'src>> {
     .map(
       |((((maybe_quiet, name), parameters), (dependencies, priors)), body)| {
         let shebang = body.first().map_or(false, Line::is_shebang);
-        Item::Recipe(Recipe {
+        Recipe {
           body,
           dependencies,
           doc: None,
@@ -421,9 +425,13 @@ fn parse_recipe<'src>() -> impl JustParser<'src, Item<'src>> {
           private: name.lexeme().starts_with('_'),
           quiet: maybe_quiet.is_some(),
           shebang,
-        })
+        }
       },
-    )
+    );
+
+  doc_comment
+    .then(rest)
+    .map(|(doc, recipe)| Item::Recipe(Recipe { doc, ..recipe }))
     .debug("parse-recipe")
 }
 
@@ -737,6 +745,8 @@ garbanzo:
   #[test]
   fn new_parser_test_recipe2() {
     let src = r#"
+#non-doc-comment
+#doc comment
 has-params a-param b-param="something" $c-param= "4" +d-param:
     echo "no"
 
@@ -749,7 +759,8 @@ has-params a-param b-param="something" $c-param= "4" +d-param:
     let old_ast = crate::Parser::parse(&tokens).unwrap();
     assert_eq!(ast.items, old_ast.items);
 
-    assert_matches!(&ast.items[0], Item::Recipe(Recipe {
+    assert_matches!(&ast.items[0], Item::Comment(..));
+    assert_matches!(&ast.items[1], Item::Recipe(Recipe {
         quiet: false, parameters, ..
     }) if parameters.len() == 4 &&
         matches!(parameters[0], Parameter { kind: ParameterKind::Singular, ..}) &&
