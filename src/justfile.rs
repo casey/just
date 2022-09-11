@@ -257,7 +257,7 @@ impl<'src> Justfile<'src> {
 
     let mut ran = BTreeSet::new();
     for (recipe, arguments) in grouped {
-      self.run_recipe(&context, recipe, arguments, &dotenv, search, &mut ran)?;
+      Self::run_recipe(&context, recipe, arguments, &dotenv, search, &mut ran)?;
     }
 
     Ok(())
@@ -276,7 +276,6 @@ impl<'src> Justfile<'src> {
   }
 
   fn run_recipe(
-    &self,
     context: &RecipeContext<'src, '_>,
     recipe: &Recipe<'src>,
     arguments: &[&str],
@@ -314,7 +313,7 @@ impl<'src> Justfile<'src> {
         .map(|argument| evaluator.evaluate_expression(argument))
         .collect::<RunResult<Vec<String>>>()?;
 
-      self.run_recipe(
+      Self::run_recipe(
         context,
         recipe,
         &arguments.iter().map(String::as_ref).collect::<Vec<&str>>(),
@@ -336,7 +335,7 @@ impl<'src> Justfile<'src> {
           evaluated.push(evaluator.evaluate_expression(argument)?);
         }
 
-        self.run_recipe(
+        Self::run_recipe(
           context,
           recipe,
           &evaluated.iter().map(String::as_ref).collect::<Vec<&str>>(),

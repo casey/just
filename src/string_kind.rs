@@ -84,12 +84,9 @@ impl StringKind {
   }
 
   pub(crate) fn from_token_start(token_start: &str) -> Option<Self> {
-    for &kind in Self::ALL {
-      if token_start.starts_with(kind.delimiter()) {
-        return Some(kind);
-      }
-    }
-
-    None
+    Self::ALL
+      .iter()
+      .find(|&&kind| token_start.starts_with(kind.delimiter()))
+      .copied()
   }
 }
