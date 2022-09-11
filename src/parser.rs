@@ -406,11 +406,15 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
 
     let expression = if self.accepted_keyword(Keyword::If)? {
       self.parse_conditional()?
+    } else if self.accepted(Slash)? {
+      let lhs = None;
+      let rhs = Box::new(self.parse_expression()?);
+      Expression::Join { lhs, rhs }
     } else {
       let value = self.parse_value()?;
 
       if self.accepted(Slash)? {
-        let lhs = Box::new(value);
+        let lhs = Some(Box::new(value));
         let rhs = Box::new(self.parse_expression()?);
         Expression::Join { lhs, rhs }
       } else if self.accepted(Plus)? {
@@ -1991,6 +1995,7 @@ mod tests {
         Identifier,
         ParenL,
         ParenR,
+        Slash,
         StringToken,
       ],
       found: Eof,
@@ -2010,6 +2015,7 @@ mod tests {
         Identifier,
         ParenL,
         ParenR,
+        Slash,
         StringToken,
       ],
       found: InterpolationEnd,
