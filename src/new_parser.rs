@@ -327,9 +327,20 @@ fn parse_dependencies<'src>() -> impl JustParser<'src, (Vec<UnresolvedDependency
     .separated_by(ws())
     .allow_leading()
     .allow_trailing()
-    .map(|deps| {
-      let priors = deps.len();
-      (deps, priors)
+    .then(
+      kind(TokenKind::AmpersandAmpersand)
+        .ignore_then(
+          parse_dependency()
+            .separated_by(ws())
+            .allow_leading()
+            .allow_trailing(),
+        )
+        .or_not(),
+    )
+    .map(|(mut dependencies, subsequent_dependencies)| {
+      let priors = dependencies.len();
+      dependencies.extend(subsequent_dependencies.unwrap_or(vec![]).into_iter());
+      (dependencies, priors)
     })
 }
 
@@ -621,6 +632,10 @@ mod tests {
 
     some-cmd
 
+
+another-recipe: alpha && beta gamma
+    echo "hi"
+
 garbanzo:
     echo no"#;
     let tokens = Lexer::lex(src).unwrap();
@@ -638,6 +653,11 @@ garbanzo:
     );
 
     assert_matches!(&ast.items[1], Item::Recipe(Recipe {
+        quiet: false, priors, dependencies, ..
+    }) if *priors == 1 && dependencies.len() == 3
+    );
+
+    assert_matches!(&ast.items[2], Item::Recipe(Recipe {
         body, quiet: false, ..
     }) if matches!(&body[0], Line { fragments } if matches!(fragments[0], Fragment::Text { token } if token.lexeme() == "echo no"))
     );
