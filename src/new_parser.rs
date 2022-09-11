@@ -279,7 +279,7 @@ fn parse_recipe_body<'src>() -> impl JustParser<'src, Vec<Line<'src>>> {
     .separated_by(kind(TokenKind::Eol))
     .delimited_by(kind(TokenKind::Indent), kind(TokenKind::Dedent))
     .map(|mut lines| {
-      // This map replicates some code in crate:;Parser::parse_body
+      // NOTE: This map replicates some code in crate:;Parser::parse_body
       // so that the new parser generates the same AST as the old parser
       // I think it might not be necessary for correctness to remove
       // trailing blank lines from the AST
@@ -327,7 +327,7 @@ fn parse_dependencies<'src>() -> impl JustParser<'src, (Vec<UnresolvedDependency
     })
 }
 
-fn parse_parameter<'src>() -> impl JustParser<'src, Parameter<'src>> {
+fn parse_parameter<'src>(param_kind: ParameterKind) -> impl JustParser<'src, Parameter<'src>> {
   kind(TokenKind::Dollar)
     .or_not()
     .then(parse_name())
@@ -341,19 +341,33 @@ fn parse_parameter<'src>() -> impl JustParser<'src, Parameter<'src>> {
                                          //allowed.
         .or_not(),
     )
-    .map(|((maybe_export, name), default)| Parameter {
+    .map(move |((maybe_export, name), default)| Parameter {
       export: maybe_export.is_some(),
       default,
-      kind: ParameterKind::Singular,
+      kind: param_kind.clone(),
       name,
     })
 }
 
+fn parse_variadic_parameter<'src>() -> impl JustParser<'src, Parameter<'src>> {
+  kind(TokenKind::Asterisk)
+    .ignore_then(parse_parameter(ParameterKind::Star))
+    .or(kind(TokenKind::Plus).ignore_then(parse_parameter(ParameterKind::Plus)))
+}
+
 fn parse_parameters<'src>() -> impl JustParser<'src, Vec<Parameter<'src>>> {
-  parse_parameter()
+  //NOTE need to make sure error-handling around variadic dependencies is good
+  parse_parameter(ParameterKind::Singular)
     .separated_by(ws())
     .allow_leading()
     .allow_trailing()
+    .then(
+      parse_variadic_parameter()
+        .separated_by(ws())
+        .allow_leading()
+        .allow_trailing(),
+    )
+    .map(|(positional, variadic)| positional.into_iter().chain(variadic).collect())
 }
 
 fn parse_recipe<'src>() -> impl JustParser<'src, Item<'src>> {
@@ -651,7 +665,7 @@ mod tests {
 another-recipe: alpha && beta gamma
     echo "hi"
 
-has-params a-param b-param="something" $c-param= "4":
+has-params a-param b-param="something" $c-param= "4" *d-param:
     echo "no"
 
 garbanzo:
@@ -679,15 +693,40 @@ garbanzo:
 
     assert_matches!(&ast.items[2], Item::Recipe(Recipe {
         quiet: false, parameters, ..
-    }) if parameters.len() == 3 &&
+    }) if parameters.len() == 4 &&
         matches!(parameters[0], Parameter { kind: ParameterKind::Singular, default: None, ..}) &&
         matches!(parameters[1], Parameter { kind: ParameterKind::Singular, default: Some(_), ..}) &&
-        matches!(parameters[2], Parameter { kind: ParameterKind::Singular, default: Some(_), export: true, ..})
+        matches!(parameters[2], Parameter { kind: ParameterKind::Singular, default: Some(_), export: true, ..}) &&
+        matches!(parameters[3], Parameter { kind: ParameterKind::Star, ..})
     );
 
     assert_matches!(&ast.items[3], Item::Recipe(Recipe {
         body, quiet: false, ..
     }) if matches!(&body[0], Line { fragments } if matches!(fragments[0], Fragment::Text { token } if token.lexeme() == "echo no"))
+    );
+  }
+
+  #[test]
+  fn new_parser_test_recipe2() {
+    let src = r#"
+has-params a-param b-param="something" $c-param= "4" +d-param:
+    echo "no"
+
+"#;
+
+    let tokens = Lexer::lex(src).unwrap();
+    debug_tokens(tokens.clone());
+    let ast = NewParser::parse(&tokens).unwrap();
+
+    let old_ast = crate::Parser::parse(&tokens).unwrap();
+    assert_eq!(ast.items, old_ast.items);
+
+    assert_matches!(&ast.items[0], Item::Recipe(Recipe {
+        quiet: false, parameters, ..
+    }) if parameters.len() == 4 &&
+        matches!(parameters[0], Parameter { kind: ParameterKind::Singular, ..}) &&
+        matches!(parameters[1], Parameter { kind: ParameterKind::Singular, ..}) &&
+        matches!(parameters[3], Parameter { kind: ParameterKind::Star, ..})
     );
   }
 }
