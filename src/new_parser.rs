@@ -137,25 +137,26 @@ fn parse_expression<'src>() -> impl JustParser<'src, Expression<'src>> {
         operator: co.op,
       });
 
-    let parse_join = 
-        parse_value().or_not()
-        .then_ignore(ws().or_not())
-        .then_ignore(kind(TokenKind::Slash))
-        .then_ignore(ws().or_not())
-        .then(parse_expression_rec.clone())
-        .map(|(lhs, rhs)| Expression::Join {
-            lhs: lhs.map(Box::new), rhs: Box::new(rhs)
-        });
+    let parse_join = parse_value()
+      .or_not()
+      .then_ignore(ws().or_not())
+      .then_ignore(kind(TokenKind::Slash))
+      .then_ignore(ws().or_not())
+      .then(parse_expression_rec.clone())
+      .map(|(lhs, rhs)| Expression::Join {
+        lhs: lhs.map(Box::new),
+        rhs: Box::new(rhs),
+      });
 
-    let parse_concat = 
-        parse_value()
-        .then_ignore(ws().or_not())
-        .then_ignore(kind(TokenKind::Plus))
-        .then_ignore(ws().or_not())
-        .then(parse_expression_rec.clone())
-        .map(|(lhs, rhs)| Expression::Concatenation {
-            lhs: Box::new(lhs), rhs: Box::new(rhs)
-        });
+    let parse_concat = parse_value()
+      .then_ignore(ws().or_not())
+      .then_ignore(kind(TokenKind::Plus))
+      .then_ignore(ws().or_not())
+      .then(parse_expression_rec.clone())
+      .map(|(lhs, rhs)| Expression::Concatenation {
+        lhs: Box::new(lhs),
+        rhs: Box::new(rhs),
+      });
 
     // let join_or_concat = parse_value()
     //   .then_ignore(ws().or_not())
@@ -246,14 +247,11 @@ fn parse_items<'src>() -> impl JustParser<'src, Vec<Item<'src>>> {
 }
 
 fn parse_item<'src>() -> impl Parser<Token<'src>, Option<Item<'src>>, Error = Simple<Token<'src>>> {
-  // TODO if this were instead .then_ignore(parse_eol()) it would support comments at the end of
-  // a line, after a legit item
   fn item_end<'src>() -> impl JustParser<'src, ()> {
     kind(TokenKind::Whitespace)
-      .ignored()
       .or_not()
-      .then(kind(TokenKind::Eol))
-      .to(())
+      .then(parse_eol())
+      .ignored()
   }
 
   choice((
@@ -426,7 +424,7 @@ mod tests {
 
   #[test]
   fn new_parser_test2() {
-    let src = "set dotenv-load   \nset windows-powershell := false\n\n# some stuff";
+    let src = "set dotenv-load   \nset windows-powershell := false\n\nset export  := true #comment after line\n\n# some stuff";
     let tokens = Lexer::lex(src).unwrap();
     debug_tokens(tokens.clone());
     let ast = NewParser::parse(&tokens).unwrap();
