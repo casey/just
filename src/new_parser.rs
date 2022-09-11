@@ -410,6 +410,7 @@ fn parse_recipe<'src>() -> impl JustParser<'src, Item<'src>> {
     .then(parse_recipe_body())
     .map(
       |((((maybe_quiet, name), parameters), (dependencies, priors)), body)| {
+        let shebang = body.first().map_or(false, Line::is_shebang);
         Item::Recipe(Recipe {
           body,
           dependencies,
@@ -417,9 +418,9 @@ fn parse_recipe<'src>() -> impl JustParser<'src, Item<'src>> {
           name,
           parameters,
           priors,
-          private: false,
+          private: name.lexeme().starts_with('_'),
           quiet: maybe_quiet.is_some(),
-          shebang: false,
+          shebang,
         })
       },
     )
