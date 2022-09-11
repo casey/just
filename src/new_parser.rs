@@ -559,14 +559,20 @@ mod tests {
     echo "hello"
 
     some-cmd
-#comment"#;
+garbanzo:
+    echo no"#;
     let tokens = Lexer::lex(src).unwrap();
     debug_tokens(tokens.clone());
     let ast = NewParser::parse(&tokens).unwrap();
     assert_matches!(&ast.items[0], Item::Recipe(Recipe {
-        body, ..
+        body, quiet: true, ..
     }) if matches!(&body[0], Line { fragments } if matches!(fragments[0], Fragment::Text { token } if token.lexeme() == "echo \"hello\"")) &&
     matches!(&body[1], Line { fragments } if matches!(fragments[0], Fragment::Text { token } if token.lexeme() == "some-cmd"))
+    );
+
+    assert_matches!(&ast.items[1], Item::Recipe(Recipe {
+        body, quiet: false, ..
+    }) if matches!(&body[0], Line { fragments } if matches!(fragments[0], Fragment::Text { token } if token.lexeme() == "echo no"))
     );
   }
 }
