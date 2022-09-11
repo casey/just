@@ -278,7 +278,6 @@ fn parse_line<'src>() -> impl JustParser<'src, Line<'src>> {
           .map(|expression| Fragment::Interpolation { expression }),
       ))
       .repeated()
-      .at_least(1)
       .map(|fragments| Line { fragments }),
     )
     .debug("parse_line")
@@ -286,9 +285,18 @@ fn parse_line<'src>() -> impl JustParser<'src, Line<'src>> {
 
 fn parse_recipe_body<'src>() -> impl JustParser<'src, Vec<Line<'src>>> {
   parse_line()
-    .separated_by(kind(TokenKind::Eol).repeated().at_least(1))
-    .allow_trailing()
+    .separated_by(kind(TokenKind::Eol))
     .delimited_by(kind(TokenKind::Indent), kind(TokenKind::Dedent))
+    .map(|mut lines| {
+      // This map replicates some code in crate:;Parser::parse_body
+      // so that the new parser generates the same AST as the old parser
+      // I think it might not be necessary for correctness to remove
+      // trailing blank lines from the AST
+      while lines.last().map_or(false, Line::is_empty) {
+        lines.pop();
+      }
+      lines
+    })
     .debug("parse_recipe_body")
 }
 
@@ -600,7 +608,9 @@ mod tests {
     let src = r#"
 @some-recipe: garbanzo
     echo "hello"
+
     some-cmd
+
 garbanzo:
     echo no"#;
     let tokens = Lexer::lex(src).unwrap();
@@ -611,8 +621,9 @@ garbanzo:
     assert_matches!(&ast.items[0], Item::Recipe(Recipe {
         body, quiet: true, ..
     }) if matches!(&body[0], Line { fragments } if matches!(fragments[0], Fragment::Text { token } if token.lexeme() == "echo \"hello\"")) &&
-    matches!(&body[1], Line { fragments } if matches!(fragments[0], Fragment::Text { token } if token.lexeme() == "some-cmd")) &&
-    body.len() == 2
+        matches!(&body[1], Line { fragments } if fragments.len() == 0) &&
+    matches!(&body[2], Line { fragments } if matches!(fragments[0], Fragment::Text { token } if token.lexeme() == "some-cmd")) &&
+    body.len() == 3
 
     );
 
