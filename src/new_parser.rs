@@ -1,8 +1,8 @@
 #![allow(dead_code)]
 use super::{
   Alias, Assignment, Ast, CompileError, CompileErrorKind, ConditionalOperator, Expression,
-  Fragment, Item, Line, Name, Recipe, Set, Setting, Shell, StringKind, StringLiteral, Thunk, Token,
-  TokenKind, UnresolvedDependency,
+  Fragment, Item, Line, Name, Parameter, ParameterKind, Recipe, Set, Setting, Shell, StringKind,
+  StringLiteral, Thunk, Token, TokenKind, UnresolvedDependency,
 };
 use chumsky::prelude::*;
 
@@ -162,23 +162,6 @@ fn parse_expression<'src>() -> impl JustParser<'src, Expression<'src>> {
         lhs: Box::new(lhs),
         rhs: Box::new(rhs),
       });
-
-    // let join_or_concat = parse_value()
-    //   .then_ignore(ws().or_not())
-    //   .then(kind(TokenKind::Slash).or(kind(TokenKind::Plus)))
-    //   .then_ignore(ws().or_not())
-    //   .then(parse_expression_rec.clone())
-    //   .map(|((lhs, op), rhs)| match op.kind {
-    //     TokenKind::Slash => Expression::Join {
-    //       lhs: Box::new(lhs),
-    //       rhs: Box::new(rhs),
-    //     },
-    //     TokenKind::Plus => Expression::Concatenation {
-    //       lhs: Box::new(lhs),
-    //       rhs: Box::new(rhs),
-    //     },
-    //     _ => unreachable!(),
-    //   });
 
     choice((conditional, parse_join, parse_concat, parse_value()))
   })
@@ -344,29 +327,61 @@ fn parse_dependencies<'src>() -> impl JustParser<'src, (Vec<UnresolvedDependency
     })
 }
 
+fn parse_parameter<'src>() -> impl JustParser<'src, Parameter<'src>> {
+  kind(TokenKind::Dollar)
+    .or_not()
+    .then(parse_name())
+    .then(
+      kind(TokenKind::Equals)
+        .padded_by(ws().or_not())
+        .ignore_then(parse_expression()) //NOTE: in the old parser / BNF grammar, this is a value,
+                                         //not an expression. But it would require some refactoring
+                                         //to make it possible to reference a value outside an
+                                         //expression, and I'm not sure anything breaks if this is
+                                         //allowed.
+        .or_not(),
+    )
+    .map(|((maybe_export, name), default)| Parameter {
+      export: maybe_export.is_some(),
+      default,
+      kind: ParameterKind::Singular,
+      name,
+    })
+}
+
+fn parse_parameters<'src>() -> impl JustParser<'src, Vec<Parameter<'src>>> {
+  parse_parameter()
+    .separated_by(ws())
+    .allow_leading()
+    .allow_trailing()
+}
+
 fn parse_recipe<'src>() -> impl JustParser<'src, Item<'src>> {
   //TODO can this handle doc comments as part of the grammar?
 
   kind(TokenKind::At)
     .or_not()
     .then(parse_name())
+    .then(parse_parameters())
     .then_ignore(kind(TokenKind::Colon))
     .then(parse_dependencies())
     .then_ignore(kind(TokenKind::Eol))
     .then(parse_recipe_body())
-    .map(|(((maybe_quiet, name), (dependencies, priors)), body)| {
-      Item::Recipe(Recipe {
-        body,
-        dependencies,
-        doc: None,
-        name,
-        parameters: vec![],
-        priors,
-        private: false,
-        quiet: maybe_quiet.is_some(),
-        shebang: false,
-      })
-    })
+    .map(
+      |((((maybe_quiet, name), parameters), (dependencies, priors)), body)| {
+        Item::Recipe(Recipe {
+          body,
+          dependencies,
+          doc: None,
+          name,
+          parameters,
+          priors,
+          private: false,
+          quiet: maybe_quiet.is_some(),
+          shebang: false,
+        })
+      },
+    )
     .debug("parse-recipe")
 }
 
@@ -636,13 +651,18 @@ mod tests {
 another-recipe: alpha && beta gamma
     echo "hi"
 
+has-params a-param b-param="something" $c-param= "4":
+    echo "no"
+
 garbanzo:
     echo no"#;
     let tokens = Lexer::lex(src).unwrap();
     debug_tokens(tokens.clone());
     let ast = NewParser::parse(&tokens).unwrap();
+
     let old_ast = crate::Parser::parse(&tokens).unwrap();
     assert_eq!(ast.items, old_ast.items);
+
     assert_matches!(&ast.items[0], Item::Recipe(Recipe {
         body, quiet: true, ..
     }) if matches!(&body[0], Line { fragments } if matches!(fragments[0], Fragment::Text { token } if token.lexeme() == "echo \"hello\"")) &&
@@ -658,6 +678,14 @@ garbanzo:
     );
 
     assert_matches!(&ast.items[2], Item::Recipe(Recipe {
+        quiet: false, parameters, ..
+    }) if parameters.len() == 3 &&
+        matches!(parameters[0], Parameter { kind: ParameterKind::Singular, default: None, ..}) &&
+        matches!(parameters[1], Parameter { kind: ParameterKind::Singular, default: Some(_), ..}) &&
+        matches!(parameters[2], Parameter { kind: ParameterKind::Singular, default: Some(_), export: true, ..})
+    );
+
+    assert_matches!(&ast.items[3], Item::Recipe(Recipe {
         body, quiet: false, ..
     }) if matches!(&body[0], Line { fragments } if matches!(fragments[0], Fragment::Text { token } if token.lexeme() == "echo no"))
     );
