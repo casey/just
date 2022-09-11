@@ -194,27 +194,27 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   fn presume(&mut self, kind: TokenKind) -> CompileResult<'src, Token<'src>> {
     let next = self.advance()?;
 
-    if next.kind != kind {
+    if next.kind == kind {
+      Ok(next)
+    } else {
       Err(self.internal_error(format!(
         "Presumed next token would have kind {:?}, but found {:?}",
         kind, next.kind
       ))?)
-    } else {
-      Ok(next)
     }
   }
 
   /// Return an internal error if the next token is not one of kinds `kinds`.
   fn presume_any(&mut self, kinds: &[TokenKind]) -> CompileResult<'src, Token<'src>> {
     let next = self.advance()?;
-    if !kinds.contains(&next.kind) {
+    if kinds.contains(&next.kind) {
+      Ok(next)
+    } else {
       Err(self.internal_error(format!(
         "Presumed next token would be {}, but found {}",
         List::or(kinds),
         next.kind
       ))?)
-    } else {
-      Ok(next)
     }
   }
 
@@ -357,16 +357,16 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
       }
     }
 
-    if self.next != self.tokens.len() {
-      Err(self.internal_error(format!(
-        "Parse completed with {} unparsed tokens",
-        self.tokens.len() - self.next,
-      ))?)
-    } else {
+    if self.next == self.tokens.len() {
       Ok(Ast {
         warnings: Vec::new(),
         items,
       })
+    } else {
+      Err(self.internal_error(format!(
+        "Parse completed with {} unparsed tokens",
+        self.tokens.len() - self.next,
+      ))?)
     }
   }
 
