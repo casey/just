@@ -137,24 +137,44 @@ fn parse_expression<'src>() -> impl JustParser<'src, Expression<'src>> {
         operator: co.op,
       });
 
-    let join_or_concat = parse_value()
-      .then_ignore(ws().or_not())
-      .then(kind(TokenKind::Slash).or(kind(TokenKind::Plus)))
-      .then_ignore(ws().or_not())
-      .then(parse_expression_rec.clone())
-      .map(|((lhs, op), rhs)| match op.kind {
-        TokenKind::Slash => Expression::Join {
-          lhs: Box::new(lhs),
-          rhs: Box::new(rhs),
-        },
-        TokenKind::Plus => Expression::Concatenation {
-          lhs: Box::new(lhs),
-          rhs: Box::new(rhs),
-        },
-        _ => unreachable!(),
-      });
+    let parse_join = 
+        parse_value().or_not()
+        .then_ignore(ws().or_not())
+        .then_ignore(kind(TokenKind::Slash))
+        .then_ignore(ws().or_not())
+        .then(parse_expression_rec.clone())
+        .map(|(lhs, rhs)| Expression::Join {
+            lhs: lhs.map(Box::new), rhs: Box::new(rhs)
+        });
 
-    choice((conditional, join_or_concat, parse_value()))
+    let parse_concat = 
+        parse_value()
+        .then_ignore(ws().or_not())
+        .then_ignore(kind(TokenKind::Plus))
+        .then_ignore(ws().or_not())
+        .then(parse_expression_rec.clone())
+        .map(|(lhs, rhs)| Expression::Concatenation {
+            lhs: Box::new(lhs), rhs: Box::new(rhs)
+        });
+
+    // let join_or_concat = parse_value()
+    //   .then_ignore(ws().or_not())
+    //   .then(kind(TokenKind::Slash).or(kind(TokenKind::Plus)))
+    //   .then_ignore(ws().or_not())
+    //   .then(parse_expression_rec.clone())
+    //   .map(|((lhs, op), rhs)| match op.kind {
+    //     TokenKind::Slash => Expression::Join {
+    //       lhs: Box::new(lhs),
+    //       rhs: Box::new(rhs),
+    //     },
+    //     TokenKind::Plus => Expression::Concatenation {
+    //       lhs: Box::new(lhs),
+    //       rhs: Box::new(rhs),
+    //     },
+    //     _ => unreachable!(),
+    //   });
+
+    choice((conditional, parse_join, parse_concat, parse_value()))
   })
 }
 
