@@ -458,6 +458,9 @@ mod tests {
     let tokens = Lexer::lex(src).unwrap();
     debug_tokens(tokens.clone());
     let ast = NewParser::parse(&tokens).unwrap();
+    //TODO - slight discrepency in how Name node is parsed
+    // let old_ast = crate::Parser::parse(&tokens).unwrap();
+    // assert_eq!(ast, old_ast);
     assert_matches!(
       &ast.items[0],
       Item::Set(Set {
@@ -480,6 +483,9 @@ mod tests {
     let tokens = Lexer::lex(src).unwrap();
     debug_tokens(tokens.clone());
     let ast = NewParser::parse(&tokens).unwrap();
+    //TODO another slight discrepency in Name node
+    // let old_ast = crate::Parser::parse(&tokens).unwrap();
+    // assert_eq!(ast, old_ast);
     assert_matches!(
       &ast.items[0],
       Item::Set(Set {
@@ -549,17 +555,23 @@ mod tests {
     let src = "\n# some stuff";
     let tokens = Lexer::lex(src).unwrap();
     let ast = NewParser::parse(&tokens).unwrap();
+    let old_ast = crate::Parser::parse(&tokens).unwrap();
+    assert_eq!(ast, old_ast);
     assert_matches!(&ast.items[0], Item::Comment("# some stuff"));
 
     let src = "\n# some stuff\n";
     let tokens = Lexer::lex(src).unwrap();
     let ast = NewParser::parse(&tokens).unwrap();
+    let old_ast = crate::Parser::parse(&tokens).unwrap();
+    assert_eq!(ast, old_ast);
     assert_matches!(&ast.items[0], Item::Comment("# some stuff"));
 
     let src = "#bongo\n#crayfis\n\n\n# some stuff\nexport tane := rabo\nrusi := kava\n";
     let tokens = Lexer::lex(src).unwrap();
     debug_tokens(tokens.clone());
     let ast = NewParser::parse(&tokens).unwrap();
+    let old_ast = crate::Parser::parse(&tokens).unwrap();
+    assert_eq!(ast, old_ast);
     assert_matches!(&ast.items[0], Item::Comment("#bongo"));
     assert_matches!(&ast.items[2], Item::Comment("# some stuff"));
     assert_matches!(
