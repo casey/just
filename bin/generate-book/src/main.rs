@@ -180,8 +180,7 @@ fn main() -> Result {
         " ".repeat(indent * 4),
         chapter.title(),
         chapter.number()
-      )
-      .ok();
+      )?;
     }
 
     fs::write(format!("{}/SUMMARY.md", src), summary).unwrap();
