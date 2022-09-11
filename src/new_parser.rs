@@ -1,7 +1,7 @@
 #![allow(dead_code)]
 use super::{
   Alias, Assignment, Ast, CompileError, CompileErrorKind, ConditionalOperator, Expression, Item,
-  Name, Set, Setting, Shell, StringKind, StringLiteral, Thunk, Token, TokenKind,
+  Name, Set, Setting, Shell, StringKind, StringLiteral, Thunk, Token, TokenKind, Recipe, Line
 };
 use chumsky::prelude::*;
 
@@ -53,7 +53,7 @@ fn kind<'src>(token_kind: TokenKind) -> impl JustParser<'src, Token<'src>> + Clo
 }
 
 fn ws<'src>() -> impl JustParser<'src, ()> + Clone {
-  kind(TokenKind::Whitespace).map(|_| ())
+  kind(TokenKind::Whitespace).to(())
 }
 
 fn keyword<'src>(lexeme: &'src str) -> impl JustParser<Token<'src>> + Clone {
@@ -239,9 +239,49 @@ fn parse_item<'src>() -> impl Parser<Token<'src>, Option<Item<'src>>, Error = Si
     parse_setting().then_ignore(item_end()).map(Some),
     parse_alias().then_ignore(item_end()).map(Some),
     parse_assignment().then_ignore(item_end()).map(Some),
+    //parse_recipe().then_ignore(item_end()).map(Some),
     parse_eol(),
   ))
 }
+
+/*
+fn parse_line<'src>() -> impl JustParser<'src, Line<'src>> {
+    empty()
+        .to(Line { })
+}
+
+fn parse_recipe_body<'src>() -> impl JustParser<'src, Vec<Line<'src>>> {
+    empty()
+        .ignore_then(kind(TokenKind::Eol))
+        .ignore_then(kind(TokenKind::Indent))
+        .then(parse_line()
+            .repeated()
+            .at_least(1)
+        )
+        .ignore_then(kind(TokenKind::Dedent))
+}
+
+fn parse_recipe<'src>() -> impl JustParser<'src, Item<'src>> {
+  //TODO can this handle doc comments as part of the grammar?
+
+  kind(TokenKind::At)
+    .or_not()
+    .then(parse_name())
+    .then_ignore(kind(TokenKind::Colon))
+    .then(parse_recipe_body())
+    .map(|((maybe_quiet, name), _body)| Item::Recipe(Recipe {
+      body: vec![],
+      dependencies: vec![],
+      doc: None,
+      name,
+      parameters: vec![],
+      priors: 0,
+      private: false,
+      quiet: maybe_quiet.is_some(),
+      shebang: false,
+    }))
+}
+*/
 
 fn parse_assignment<'src>() -> impl JustParser<'src, Item<'src>> {
   (keyword("export").then_ignore(kind(TokenKind::Whitespace)))
