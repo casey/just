@@ -66,6 +66,37 @@ fn keyword<'src>(lexeme: &'src str) -> impl JustParser<Token<'src>> + Clone {
   filter(move |tok: &Token| tok.kind == TokenKind::Identifier && tok.lexeme() == lexeme)
 }
 
+//Duplicate of the same parser defined within parse_expression... not sure if there's a better way
+//to do this
+fn parse_value<'src>() -> impl JustParser<'src, Expression<'src>> {
+  let parse_group = parse_expression()
+    .delimited_by(kind(TokenKind::ParenL), kind(TokenKind::ParenR))
+    .map(Box::new);
+
+  let parse_sequence = parse_expression()
+    .separated_by(kind(TokenKind::Comma).padded_by(ws()))
+    .or(
+      parse_expression()
+        .then_ignore(kind(TokenKind::Comma).or_not())
+        .map(|expr| vec![expr]),
+    );
+
+  let parse_call = || {
+    parse_name()
+      .then(parse_sequence.delimited_by(kind(TokenKind::ParenL), kind(TokenKind::ParenR)))
+      .try_map(|(name, arguments), span| {
+        Thunk::resolve(name, arguments).map_err(|err| Simple::custom(span, err))
+      })
+  };
+
+  choice((
+    parse_name().map(|name| Expression::Variable { name }),
+    parse_string().map(|string_literal| Expression::StringLiteral { string_literal }),
+    parse_group.map(|contents| Expression::Group { contents }),
+    parse_call().map(|thunk| Expression::Call { thunk }),
+  ))
+}
+
 fn parse_expression<'src>() -> impl JustParser<'src, Expression<'src>> {
   recursive(|parse_expression_rec| {
     let parse_group = parse_expression_rec
@@ -334,11 +365,7 @@ fn parse_parameter<'src>(param_kind: ParameterKind) -> impl JustParser<'src, Par
     .then(
       kind(TokenKind::Equals)
         .padded_by(ws().or_not())
-        .ignore_then(parse_expression()) //NOTE: in the old parser / BNF grammar, this is a value,
-                                         //not an expression. But it would require some refactoring
-                                         //to make it possible to reference a value outside an
-                                         //expression, and I'm not sure anything breaks if this is
-                                         //allowed.
+        .ignore_then(parse_value())
         .or_not(),
     )
     .map(move |((maybe_export, name), default)| Parameter {
@@ -726,7 +753,7 @@ has-params a-param b-param="something" $c-param= "4" +d-param:
     }) if parameters.len() == 4 &&
         matches!(parameters[0], Parameter { kind: ParameterKind::Singular, ..}) &&
         matches!(parameters[1], Parameter { kind: ParameterKind::Singular, ..}) &&
-        matches!(parameters[3], Parameter { kind: ParameterKind::Star, ..})
+        matches!(parameters[3], Parameter { kind: ParameterKind::Plus, ..})
     );
   }
 }
