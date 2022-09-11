@@ -20,10 +20,15 @@ impl<'tokens, 'src> NewParser<'tokens, 'src> {
 
   pub(crate) fn parse(tokens: &'tokens [Token<'src>]) -> Result<Ast<'src>, ()> {
     let p = Self::new(tokens);
-    p.ast_parser().parse(tokens).map_err(|ignoring| {
-      println!("ERR: {:?}", ignoring);
-      ()
-    })
+    let (output, errs) = p.ast_parser().parse_recovery_verbose(tokens);
+    for item in errs.iter() {
+      println!("ERR: {:#?}", item);
+    }
+    if let Some(output) = output {
+      Ok(output)
+    } else {
+      Err(())
+    }
   }
 
   fn ast_parser<'a>(&self) -> impl JustParser<'a, Ast<'a>> {
@@ -244,6 +249,7 @@ fn parse_items<'src>() -> impl JustParser<'src, Vec<Item<'src>>> {
   parse_item()
     .repeated()
     .map(|item_or_newline| item_or_newline.into_iter().flatten().collect())
+    .debug("parse_items")
 }
 
 fn parse_item<'src>() -> impl Parser<Token<'src>, Option<Item<'src>>, Error = Simple<Token<'src>>> {
@@ -264,24 +270,29 @@ fn parse_item<'src>() -> impl Parser<Token<'src>, Option<Item<'src>>, Error = Si
 }
 
 fn parse_line<'src>() -> impl JustParser<'src, Line<'src>> {
-  choice((
-    kind(TokenKind::Text).map(|token| Fragment::Text { token }),
-    kind(TokenKind::InterpolationStart)
-      .ignore_then(parse_expression())
-      .then_ignore(kind(TokenKind::InterpolationEnd))
-      .map(|expression| Fragment::Interpolation { expression }),
-  ))
-  .repeated()
-  .map(|fragments| Line { fragments })
+  ws()
+    .or_not()
+    .ignore_then(
+      choice((
+        kind(TokenKind::Text).map(|token| Fragment::Text { token }),
+        kind(TokenKind::InterpolationStart)
+          .ignore_then(parse_expression())
+          .then_ignore(kind(TokenKind::InterpolationEnd))
+          .map(|expression| Fragment::Interpolation { expression }),
+      ))
+      .repeated()
+      .at_least(1)
+      .map(|fragments| Line { fragments }),
+    )
+    .debug("parse_line")
 }
 
 fn parse_recipe_body<'src>() -> impl JustParser<'src, Vec<Line<'src>>> {
-  kind(TokenKind::Eol)
-    .to(())
-    .ignore_then(kind(TokenKind::Indent))
-    .then(parse_line().separated_by(kind(TokenKind::Eol).repeated().at_least(1)))
-    .then_ignore(kind(TokenKind::Dedent))
-    .map(|(_, lines)| lines)
+  parse_line()
+    .separated_by(kind(TokenKind::Eol).repeated().at_least(1))
+    .allow_trailing()
+    .delimited_by(kind(TokenKind::Indent), kind(TokenKind::Dedent))
+    .debug("parse_recipe_body")
 }
 
 fn parse_recipe<'src>() -> impl JustParser<'src, Item<'src>> {
@@ -291,10 +302,11 @@ fn parse_recipe<'src>() -> impl JustParser<'src, Item<'src>> {
     .or_not()
     .then(parse_name())
     .then_ignore(kind(TokenKind::Colon))
+    .then_ignore(kind(TokenKind::Eol))
     .then(parse_recipe_body())
-    .map(|((maybe_quiet, name), _body)| {
+    .map(|((maybe_quiet, name), body)| {
       Item::Recipe(Recipe {
-        body: vec![],
+        body,
         dependencies: vec![],
         doc: None,
         name,
@@ -305,6 +317,7 @@ fn parse_recipe<'src>() -> impl JustParser<'src, Item<'src>> {
         shebang: false,
       })
     })
+    .debug("parse-recipe")
 }
 
 fn parse_assignment<'src>() -> impl JustParser<'src, Item<'src>> {
@@ -542,14 +555,18 @@ mod tests {
   #[test]
   fn new_parser_test_recipe() {
     let src = r#"
-
-@fumble:
+@some-recipe:
     echo "hello"
 
-"#;
+    some-cmd
+#comment"#;
     let tokens = Lexer::lex(src).unwrap();
     debug_tokens(tokens.clone());
     let ast = NewParser::parse(&tokens).unwrap();
-    assert_matches!(&ast.items[0], Item::Recipe(..));
+    assert_matches!(&ast.items[0], Item::Recipe(Recipe {
+        body, ..
+    }) if matches!(&body[0], Line { fragments } if matches!(fragments[0], Fragment::Text { token } if token.lexeme() == "echo \"hello\"")) &&
+    matches!(&body[1], Line { fragments } if matches!(fragments[0], Fragment::Text { token } if token.lexeme() == "some-cmd"))
+    );
   }
 }
