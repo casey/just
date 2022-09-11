@@ -39,7 +39,7 @@ fn load_from_file(path: &Path) -> RunResult<'static, BTreeMap<String, String>> {
   // https://github.com/dotenv-rs/dotenv/issues/13
   #![allow(deprecated)]
 
-  let iter = dotenv::from_path_iter(&path)?;
+  let iter = dotenv::from_path_iter(path)?;
   let mut dotenv = BTreeMap::new();
   for result in iter {
     let (key, value) = result?;

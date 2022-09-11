@@ -45,10 +45,7 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
         length: 0,
         kind: TokenKind::Unspecified,
       };
-      return Err(CompileError {
-        kind: Internal { message },
-        token,
-      });
+      return Err(CompileError::new(token, Internal { message }));
     }
 
     self.stack.pop();
