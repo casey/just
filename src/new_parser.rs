@@ -400,8 +400,7 @@ fn parse_set_shell<'src>() -> impl JustParser<'src, Shell<'src>> {
     .allow_trailing()
     .delimited_by(kind(TokenKind::BracketL), kind(TokenKind::BracketR))
     .map(|mut strings: Vec<StringLiteral<'src>>| {
-      //TODO strings should always have at least one element because of the .at_least(1) - but
-      //have some tests assert that
+      //strings should always have at least one element because of the .at_least(1)
       let arguments = strings.split_off(1);
       let command = strings.pop().unwrap();
       Shell { arguments, command }
@@ -523,7 +522,7 @@ mod tests {
       command.cooked == "a"
     );
 
-    let src = "set windows-shell := []\n";
+    let src = "set shell := []\n";
     let tokens = Lexer::lex(src).unwrap();
     debug_tokens(tokens.clone());
     let ast = NewParser::parse(&tokens);
