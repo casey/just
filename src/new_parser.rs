@@ -366,9 +366,8 @@ fn parse_assignment<'src>() -> impl JustParser<'src, Item<'src>> {
 
 fn parse_setting<'src>() -> impl JustParser<'src, Item<'src>> {
   keyword("set")
-    .map(Name::from_identifier)
-    .then_ignore(ws())
-    .then(parse_setting_name())
+    .ignore_then(ws())
+    .ignore_then(parse_setting_name())
     .map(|(name, value)| Item::Set(Set { name, value }))
 }
 
@@ -402,29 +401,29 @@ fn parse_set_shell<'src>() -> impl JustParser<'src, Shell<'src>> {
   parse_colon_equals(string_list)
 }
 
-fn parse_setting_name<'src>() -> impl JustParser<'src, Setting<'src>> {
+fn parse_setting_name<'src>() -> impl JustParser<'src, (Name<'src>, Setting<'src>)> {
   choice((
     keyword("allow-duplicate-recipes")
-      .ignore_then(parse_set_bool())
-      .map(Setting::AllowDuplicateRecipes),
+      .map(Name::from_identifier)
+      .then(parse_set_bool().map(Setting::AllowDuplicateRecipes)),
     keyword("dotenv-load")
-      .ignore_then(parse_set_bool())
-      .map(Setting::DotenvLoad),
+      .map(Name::from_identifier)
+      .then(parse_set_bool().map(Setting::DotenvLoad)),
     keyword("export")
-      .ignore_then(parse_set_bool())
-      .map(Setting::Export),
+      .map(Name::from_identifier)
+      .then(parse_set_bool().map(Setting::Export)),
     keyword("positional-arguments")
-      .ignore_then(parse_set_bool())
-      .map(Setting::PositionalArguments),
+      .map(Name::from_identifier)
+      .then(parse_set_bool().map(Setting::PositionalArguments)),
     keyword("windows-powershell")
-      .ignore_then(parse_set_bool())
-      .map(Setting::WindowsPowerShell),
+      .map(Name::from_identifier)
+      .then(parse_set_bool().map(Setting::WindowsPowerShell)),
     keyword("shell")
-      .ignore_then(parse_set_shell())
-      .map(Setting::Shell),
+      .map(Name::from_identifier)
+      .then(parse_set_shell().map(Setting::Shell)),
     keyword("windows-shell")
-      .ignore_then(parse_set_shell())
-      .map(Setting::WindowsShell),
+      .map(Name::from_identifier)
+      .then(parse_set_shell().map(Setting::WindowsShell)),
   ))
 }
 
@@ -452,7 +451,14 @@ mod tests {
 
   fn debug_tokens<'a>(tokens: Vec<Token<'a>>) {
     for item in tokens.iter() {
-      println!("{} {}", item.kind, item.lexeme());
+      println!(
+        "{} {}       <offset: {} length: {} column: {}>",
+        item.kind,
+        item.lexeme(),
+        item.offset,
+        item.length,
+        item.column
+      );
     }
   }
 
@@ -498,8 +504,8 @@ mod tests {
     debug_tokens(tokens.clone());
     let ast = NewParser::parse(&tokens).unwrap();
     //TODO another slight discrepency in Name node
-    // let old_ast = crate::Parser::parse(&tokens).unwrap();
-    // assert_eq!(ast, old_ast);
+    let old_ast = crate::Parser::parse(&tokens).unwrap();
+    assert_eq!(ast, old_ast);
     assert_matches!(
       &ast.items[0],
       Item::Set(Set {
