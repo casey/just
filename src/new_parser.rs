@@ -596,6 +596,7 @@ mod tests {
 
   #[test]
   fn new_parser_test_recipe() {
+    //TODO this doesn't handle blank lines in a recipe correctly
     let src = r#"
 @some-recipe: garbanzo
     echo "hello"

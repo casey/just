@@ -167,9 +167,9 @@ impl Subcommand {
 
     let tokens = Lexer::lex(src)?;
     let ast = Parser::parse(&tokens)?;
-    eprintln!("Current AST: {:?}", ast);
-    let new_ast = crate::new_parser::NewParser::parse(&tokens);
-    eprintln!("New AST: {:?}", new_ast);
+    //eprintln!("Current AST: {:?}", ast);
+    // let new_ast = crate::new_parser::NewParser::parse(&tokens);
+    // eprintln!("New AST: {:?}", new_ast);
     let justfile = Analyzer::analyze(ast.clone())?;
 
     if config.verbosity.loud() {
