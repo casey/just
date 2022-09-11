@@ -75,7 +75,7 @@ fn parse_expression<'src>() -> impl JustParser<'src, Expression<'src>> {
 
     let parse_sequence = parse_expression_rec
       .clone()
-      .separated_by(kind(TokenKind::Comma).padded_by(kind(TokenKind::Whitespace)))
+      .separated_by(kind(TokenKind::Comma).padded_by(ws()))
       .or(
         parse_expression_rec
           .clone()
@@ -254,10 +254,7 @@ fn parse_items<'src>() -> impl JustParser<'src, Vec<Item<'src>>> {
 
 fn parse_item<'src>() -> impl Parser<Token<'src>, Option<Item<'src>>, Error = Simple<Token<'src>>> {
   fn item_end<'src>() -> impl JustParser<'src, ()> {
-    kind(TokenKind::Whitespace)
-      .or_not()
-      .then(parse_eol())
-      .ignored()
+    ws().or_not().then(parse_eol()).ignored()
   }
 
   choice((
@@ -341,7 +338,7 @@ fn parse_recipe<'src>() -> impl JustParser<'src, Item<'src>> {
 }
 
 fn parse_assignment<'src>() -> impl JustParser<'src, Item<'src>> {
-  (keyword("export").then_ignore(kind(TokenKind::Whitespace)))
+  (keyword("export").then_ignore(ws()))
     .or_not()
     .then(parse_name().then(parse_colon_equals(parse_expression())))
     .map(|(maybe_export, (name, value))| {
@@ -363,7 +360,7 @@ fn parse_setting<'src>() -> impl JustParser<'src, Item<'src>> {
 
 fn parse_colon_equals<'src, T>(parser: impl JustParser<'src, T>) -> impl JustParser<'src, T> {
   kind(TokenKind::ColonEquals)
-    .padded_by(kind(TokenKind::Whitespace))
+    .padded_by(ws())
     .ignore_then(parser)
 }
 
