@@ -1,7 +1,8 @@
 #![allow(dead_code)]
 use super::{
-  Alias, Assignment, Ast, CompileError, CompileErrorKind, ConditionalOperator, Expression, Item,
-  Name, Set, Setting, Shell, StringKind, StringLiteral, Thunk, Token, TokenKind, Recipe, Line
+  Alias, Assignment, Ast, CompileError, CompileErrorKind, ConditionalOperator, Expression,
+  Fragment, Item, Line, Name, Recipe, Set, Setting, Shell, StringKind, StringLiteral, Thunk, Token,
+  TokenKind,
 };
 use chumsky::prelude::*;
 
@@ -239,26 +240,30 @@ fn parse_item<'src>() -> impl Parser<Token<'src>, Option<Item<'src>>, Error = Si
     parse_setting().then_ignore(item_end()).map(Some),
     parse_alias().then_ignore(item_end()).map(Some),
     parse_assignment().then_ignore(item_end()).map(Some),
-    //parse_recipe().then_ignore(item_end()).map(Some),
+    parse_recipe().map(Some),
     parse_eol(),
   ))
 }
 
-/*
 fn parse_line<'src>() -> impl JustParser<'src, Line<'src>> {
-    empty()
-        .to(Line { })
+  choice((
+    kind(TokenKind::Text).map(|token| Fragment::Text { token }),
+    kind(TokenKind::InterpolationStart)
+      .ignore_then(parse_expression())
+      .then_ignore(kind(TokenKind::InterpolationEnd))
+      .map(|expression| Fragment::Interpolation { expression }),
+  ))
+  .repeated()
+  .map(|fragments| Line { fragments })
 }
 
 fn parse_recipe_body<'src>() -> impl JustParser<'src, Vec<Line<'src>>> {
-    empty()
-        .ignore_then(kind(TokenKind::Eol))
-        .ignore_then(kind(TokenKind::Indent))
-        .then(parse_line()
-            .repeated()
-            .at_least(1)
-        )
-        .ignore_then(kind(TokenKind::Dedent))
+  kind(TokenKind::Eol)
+    .to(())
+    .ignore_then(kind(TokenKind::Indent))
+    .then(parse_line().separated_by(kind(TokenKind::Eol).repeated().at_least(1)))
+    .then_ignore(kind(TokenKind::Dedent))
+    .map(|(_, lines)| lines)
 }
 
 fn parse_recipe<'src>() -> impl JustParser<'src, Item<'src>> {
@@ -269,19 +274,20 @@ fn parse_recipe<'src>() -> impl JustParser<'src, Item<'src>> {
     .then(parse_name())
     .then_ignore(kind(TokenKind::Colon))
     .then(parse_recipe_body())
-    .map(|((maybe_quiet, name), _body)| Item::Recipe(Recipe {
-      body: vec![],
-      dependencies: vec![],
-      doc: None,
-      name,
-      parameters: vec![],
-      priors: 0,
-      private: false,
-      quiet: maybe_quiet.is_some(),
-      shebang: false,
-    }))
+    .map(|((maybe_quiet, name), _body)| {
+      Item::Recipe(Recipe {
+        body: vec![],
+        dependencies: vec![],
+        doc: None,
+        name,
+        parameters: vec![],
+        priors: 0,
+        private: false,
+        quiet: maybe_quiet.is_some(),
+        shebang: false,
+      })
+    })
 }
-*/
 
 fn parse_assignment<'src>() -> impl JustParser<'src, Item<'src>> {
   (keyword("export").then_ignore(kind(TokenKind::Whitespace)))
@@ -516,5 +522,19 @@ mod tests {
         value: Expression::Variable { .. }
       })
     );
+  }
+
+  #[test]
+  fn new_parser_test_recipe() {
+    let src = r#"
+
+@fumble:
+    echo "hello"
+
+"#;
+    let tokens = Lexer::lex(src).unwrap();
+    debug_tokens(tokens.clone());
+    let ast = NewParser::parse(&tokens).unwrap();
+    assert_matches!(&ast.items[0], Item::Recipe(..));
   }
 }
