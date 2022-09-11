@@ -252,17 +252,25 @@ fn parse_items<'src>() -> impl JustParser<'src, Vec<Item<'src>>> {
     .debug("parse_items")
 }
 
-fn parse_item<'src>() -> impl Parser<Token<'src>, Option<Item<'src>>, Error = Simple<Token<'src>>> {
-  fn item_end<'src>() -> impl JustParser<'src, ()> {
-    ws().or_not().then(parse_eol()).ignored()
+fn parse_item<'src>() -> impl Parser<Token<'src>, Vec<Item<'src>>, Error = Simple<Token<'src>>> {
+  fn item_end<'src>() -> impl JustParser<'src, Option<Item<'src>>> {
+    ws().or_not().ignore_then(parse_eol())
   }
 
   choice((
-    parse_setting().then_ignore(item_end()).map(Some),
-    parse_alias().then_ignore(item_end()).map(Some),
-    parse_assignment().then_ignore(item_end()).map(Some),
-    parse_recipe().map(Some),
-    parse_eol(),
+    parse_setting()
+      .then(item_end())
+      .map(|(setting, maybe_comment)| {
+        let mut output = vec![setting];
+        output.extend(maybe_comment.into_iter());
+        output
+      }),
+    parse_alias().then_ignore(item_end()).map(|item| vec![item]),
+    parse_assignment()
+      .then_ignore(item_end())
+      .map(|item| vec![item]),
+    parse_recipe().map(|item| vec![item]),
+    parse_eol().map(Vec::from_iter),
   ))
 }
 
@@ -478,9 +486,8 @@ mod tests {
     let tokens = Lexer::lex(src).unwrap();
     debug_tokens(tokens.clone());
     let ast = NewParser::parse(&tokens).unwrap();
-    //TODO - slight discrepency in how Name node is parsed
-    // let old_ast = crate::Parser::parse(&tokens).unwrap();
-    // assert_eq!(ast, old_ast);
+    let old_ast = crate::Parser::parse(&tokens).unwrap();
+    assert_eq!(ast, old_ast);
     assert_matches!(
       &ast.items[0],
       Item::Set(Set {
@@ -503,7 +510,6 @@ mod tests {
     let tokens = Lexer::lex(src).unwrap();
     debug_tokens(tokens.clone());
     let ast = NewParser::parse(&tokens).unwrap();
-    //TODO another slight discrepency in Name node
     let old_ast = crate::Parser::parse(&tokens).unwrap();
     assert_eq!(ast, old_ast);
     assert_matches!(
@@ -610,7 +616,6 @@ mod tests {
 
   #[test]
   fn new_parser_test_recipe() {
-    //TODO this doesn't handle blank lines in a recipe correctly
     let src = r#"
 @some-recipe: garbanzo
     echo "hello"
