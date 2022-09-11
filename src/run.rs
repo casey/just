@@ -1,6 +1,6 @@
 use super::*;
 
-/// Main entry point into just.
+/// Main entry point into just binary.
 pub fn run() -> Result<(), i32> {
   #[cfg(windows)]
   ansi_term::enable_ansi_support().ok();
