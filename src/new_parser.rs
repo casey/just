@@ -322,11 +322,8 @@ fn parse_assignment<'src>() -> impl JustParser<'src, Item<'src>> {
 
 fn parse_setting<'src>() -> impl JustParser<'src, Item<'src>> {
   keyword("set")
-    .map(|token| {
-      assert_eq!(token.kind, TokenKind::Identifier);
-      Name::from_identifier(token)
-    })
-    .then_ignore(kind(TokenKind::Whitespace))
+    .map(Name::from_identifier)
+    .then_ignore(ws())
     .then(parse_setting_name())
     .map(|(name, value)| Item::Set(Set { name, value }))
 }
