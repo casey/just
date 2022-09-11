@@ -179,14 +179,14 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
         "Presumed next token would have kind {}, but found {}",
         Identifier, next.kind
       ))?)
-    } else if keyword != next.lexeme() {
+    } else if keyword == next.lexeme() {
+      Ok(())
+    } else {
       Err(self.internal_error(format!(
         "Presumed next token would have lexeme \"{}\", but found \"{}\"",
         keyword,
         next.lexeme(),
       ))?)
-    } else {
-      Ok(())
     }
   }
 
