@@ -58,6 +58,7 @@ mod json;
 mod line_prefixes;
 mod misc;
 mod multibyte_char;
+mod parser;
 mod positional_arguments;
 mod quiet;
 mod quote;

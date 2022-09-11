@@ -53,9 +53,15 @@ impl<'expression, 'src> Iterator for Variables<'expression, 'src> {
           self.stack.push(lhs);
         }
         Expression::Variable { name, .. } => return Some(name.token()),
-        Expression::Concatenation { lhs, rhs } | Expression::Join { lhs, rhs } => {
+        Expression::Concatenation { lhs, rhs } => {
           self.stack.push(rhs);
           self.stack.push(lhs);
+        }
+        Expression::Join { lhs, rhs } => {
+          self.stack.push(rhs);
+          if let Some(lhs) = lhs {
+            self.stack.push(lhs);
+          }
         }
         Expression::Group { contents } => {
           self.stack.push(contents);

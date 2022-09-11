@@ -924,6 +924,17 @@ $ just --evaluate bar
 a//b
 ```
 
+Absolute paths can also be constructed:
+
+```make
+foo := / "b"
+```
+
+```
+$ just --evaluate foo
+/b
+```
+
 The `/` operator uses the `/` character, even on Windows. Thus, using the `/` operator should be avoided with paths that use universal naming convention (UNC), i.e., those that start with `\?`, since forward slashes are not supported with UNC paths.
 
 #### Escaping `{{`
