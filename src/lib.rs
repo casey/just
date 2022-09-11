@@ -4,9 +4,10 @@
   clippy::enum_glob_use,
   clippy::missing_errors_doc,
   clippy::needless_pass_by_value,
+  clippy::non_ascii_literal,
+  clippy::shadow_unrelated,
   clippy::struct_excessive_bools,
   clippy::too_many_lines,
-  clippy::type_repetition_in_bounds,
   clippy::wildcard_imports
 )]
 
