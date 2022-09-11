@@ -2,7 +2,7 @@
 use super::{
   Alias, Assignment, Ast, CompileError, CompileErrorKind, ConditionalOperator, Expression,
   Fragment, Item, Line, Name, Recipe, Set, Setting, Shell, StringKind, StringLiteral, Thunk, Token,
-  TokenKind,
+  TokenKind, UnresolvedDependency,
 };
 use chumsky::prelude::*;
 
@@ -295,6 +295,20 @@ fn parse_recipe_body<'src>() -> impl JustParser<'src, Vec<Line<'src>>> {
     .debug("parse_recipe_body")
 }
 
+fn parse_dependency<'src>() -> impl JustParser<'src, UnresolvedDependency<'src>> {
+  parse_name()
+    .map(|recipe| UnresolvedDependency {
+      recipe,
+      arguments: vec![],
+    })
+    .or(
+      parse_name()
+        .then(parse_expression().separated_by(ws()))
+        .delimited_by(kind(TokenKind::ParenL), kind(TokenKind::ParenR))
+        .map(|(recipe, arguments)| UnresolvedDependency { recipe, arguments }),
+    )
+}
+
 fn parse_recipe<'src>() -> impl JustParser<'src, Item<'src>> {
   //TODO can this handle doc comments as part of the grammar?
 
@@ -302,12 +316,18 @@ fn parse_recipe<'src>() -> impl JustParser<'src, Item<'src>> {
     .or_not()
     .then(parse_name())
     .then_ignore(kind(TokenKind::Colon))
+    .then(
+      parse_dependency()
+        .separated_by(ws())
+        .allow_leading()
+        .allow_trailing(),
+    )
     .then_ignore(kind(TokenKind::Eol))
     .then(parse_recipe_body())
-    .map(|((maybe_quiet, name), body)| {
+    .map(|(((maybe_quiet, name), dependencies), body)| {
       Item::Recipe(Recipe {
         body,
-        dependencies: vec![],
+        dependencies,
         doc: None,
         name,
         parameters: vec![],
@@ -555,7 +575,7 @@ mod tests {
   #[test]
   fn new_parser_test_recipe() {
     let src = r#"
-@some-recipe:
+@some-recipe: garbanzo
     echo "hello"
 
     some-cmd
