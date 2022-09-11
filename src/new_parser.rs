@@ -306,6 +306,17 @@ fn parse_dependency<'src>() -> impl JustParser<'src, UnresolvedDependency<'src>>
     )
 }
 
+fn parse_dependencies<'src>() -> impl JustParser<'src, (Vec<UnresolvedDependency<'src>>, usize)> {
+  parse_dependency()
+    .separated_by(ws())
+    .allow_leading()
+    .allow_trailing()
+    .map(|deps| {
+      let priors = deps.len();
+      (deps, priors)
+    })
+}
+
 fn parse_recipe<'src>() -> impl JustParser<'src, Item<'src>> {
   //TODO can this handle doc comments as part of the grammar?
 
@@ -313,22 +324,17 @@ fn parse_recipe<'src>() -> impl JustParser<'src, Item<'src>> {
     .or_not()
     .then(parse_name())
     .then_ignore(kind(TokenKind::Colon))
-    .then(
-      parse_dependency()
-        .separated_by(ws())
-        .allow_leading()
-        .allow_trailing(),
-    )
+    .then(parse_dependencies())
     .then_ignore(kind(TokenKind::Eol))
     .then(parse_recipe_body())
-    .map(|(((maybe_quiet, name), dependencies), body)| {
+    .map(|(((maybe_quiet, name), (dependencies, priors)), body)| {
       Item::Recipe(Recipe {
         body,
         dependencies,
         doc: None,
         name,
         parameters: vec![],
-        priors: 0,
+        priors,
         private: false,
         quiet: maybe_quiet.is_some(),
         shebang: false,
@@ -593,19 +599,20 @@ mod tests {
     let src = r#"
 @some-recipe: garbanzo
     echo "hello"
-
     some-cmd
 garbanzo:
     echo no"#;
     let tokens = Lexer::lex(src).unwrap();
     debug_tokens(tokens.clone());
     let ast = NewParser::parse(&tokens).unwrap();
-    // let old_ast = crate::Parser::parse(&tokens).unwrap();
-    // assert_eq!(ast.items, old_ast.items);
+    let old_ast = crate::Parser::parse(&tokens).unwrap();
+    assert_eq!(ast.items, old_ast.items);
     assert_matches!(&ast.items[0], Item::Recipe(Recipe {
         body, quiet: true, ..
     }) if matches!(&body[0], Line { fragments } if matches!(fragments[0], Fragment::Text { token } if token.lexeme() == "echo \"hello\"")) &&
-    matches!(&body[1], Line { fragments } if matches!(fragments[0], Fragment::Text { token } if token.lexeme() == "some-cmd"))
+    matches!(&body[1], Line { fragments } if matches!(fragments[0], Fragment::Text { token } if token.lexeme() == "some-cmd")) &&
+    body.len() == 2
+
     );
 
     assert_matches!(&ast.items[1], Item::Recipe(Recipe {
