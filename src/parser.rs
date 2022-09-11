@@ -837,7 +837,7 @@ mod tests {
   use pretty_assertions::assert_eq;
   use CompileErrorKind::*;
 
-  const CHECKING_NEW_PARSER: bool = false;
+  const CHECKING_NEW_PARSER: bool = true;
 
   macro_rules! test {
     {
