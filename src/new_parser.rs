@@ -374,9 +374,17 @@ fn parse_dependency<'src>() -> impl JustParser<'src, UnresolvedDependency<'src>>
       arguments: vec![],
     })
     .or(
-      parse_name()
-        .then(parse_expression().separated_by(ws()))
-        .delimited_by(kind(TokenKind::ParenL), kind(TokenKind::ParenR))
+      kind(TokenKind::ParenL)
+        .ignore_then(ws().or_not())
+        .ignore_then(parse_name())
+        .then_ignore(ws().or_not())
+        .then(
+          parse_expression()
+            .separated_by(ws())
+            .allow_leading()
+            .allow_trailing(),
+        )
+        .then_ignore(kind(TokenKind::ParenR))
         .map(|(recipe, arguments)| UnresolvedDependency { recipe, arguments }),
     )
 }
