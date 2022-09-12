@@ -126,8 +126,8 @@ fn parse_expression<'src>() -> impl JustParser<'src, Expression<'src>> {
       choice((
         parse_call().map(|thunk| Expression::Call { thunk }),
         parse_name().map(|name| Expression::Variable { name }),
-        parse_string().map(|string_literal| Expression::StringLiteral { string_literal }),
         parse_backtick(),
+        parse_string().map(|string_literal| Expression::StringLiteral { string_literal }),
         parse_group
           .clone()
           .map(|contents| Expression::Group { contents }),
@@ -312,10 +312,15 @@ fn parse_item<'src>() -> impl Parser<Token<'src>, Vec<Item<'src>>, Error = Simpl
       .debug("item-end")
   }
 
+  //NOTE: parse_alias() and parse_assignment() should probably have the same behavior as parse_setting() wrt
+  //trailing comments. But for now it tries to exactly replicate the behavior of the old parser
+
   choice((
     parse_setting().chain(item_end()),
-    parse_alias().chain(item_end()),
-    parse_assignment().chain(item_end()),
+    parse_alias().then_ignore(item_end()).map(|item| vec![item]),
+    parse_assignment()
+      .then_ignore(item_end())
+      .map(|item| vec![item]),
     parse_recipe().map(|item| vec![item]),
     parse_eol().map(Vec::from_iter),
   ))
@@ -328,9 +333,12 @@ fn parse_line<'src>() -> impl JustParser<'src, Line<'src>> {
     .ignore_then(
       choice((
         kind(TokenKind::Text).map(|token| Fragment::Text { token }),
-        kind(TokenKind::InterpolationStart)
-          .ignore_then(parse_expression())
-          .then_ignore(kind(TokenKind::InterpolationEnd))
+        parse_expression()
+          .padded_by(ws().or_not())
+          .delimited_by(
+            kind(TokenKind::InterpolationStart),
+            kind(TokenKind::InterpolationEnd),
+          )
           .map(|expression| Fragment::Interpolation { expression }),
       ))
       .repeated()
@@ -342,7 +350,10 @@ fn parse_line<'src>() -> impl JustParser<'src, Line<'src>> {
 fn parse_recipe_body<'src>() -> impl JustParser<'src, Vec<Line<'src>>> {
   parse_line()
     .separated_by(kind(TokenKind::Eol))
-    .delimited_by(kind(TokenKind::Indent), kind(TokenKind::Dedent))
+    .delimited_by(
+      kind(TokenKind::Indent).padded_by(ws().or_not()),
+      kind(TokenKind::Dedent).padded_by(ws().or_not()),
+    )
     .map(|mut lines| {
       // NOTE: This map replicates some code in crate:;Parser::parse_body
       // so that the new parser generates the same AST as the old parser
@@ -446,7 +457,7 @@ fn parse_recipe<'src>() -> impl JustParser<'src, Item<'src>> {
       kind(TokenKind::Eol)
         .ignore_then(ws().or_not())
         .ignore_then(parse_recipe_body().or(kind(TokenKind::Eof).rewind().to(vec![])))
-        .or(empty().to(vec![])),
+        .or(parse_comment().or_not().to(vec![])),
     )
     .map(
       |((((maybe_quiet, name), parameters), (dependencies, priors)), body)| {
@@ -836,6 +847,29 @@ garbanzo:
         body, quiet: false, ..
     }) if matches!(&body[0], Line { fragments } if matches!(fragments[0], Fragment::Text { token } if token.lexeme() == "echo no"))
     );
+  }
+
+  #[test]
+  fn new_parser_test_expr() {
+    let src = r#"`echo hello` + "blarg""#;
+    let tokens = Lexer::lex(src).unwrap();
+    debug_tokens(tokens.clone());
+    let ast = parse_expression().parse(tokens).unwrap();
+    println!("{:?}", ast);
+
+    let src = r#"
+
+a:
+  echo {{ `echo hello`      + "blarg"   }} {{   `echo bob`   }}
+
+
+    "#;
+    let tokens = Lexer::lex(src).unwrap();
+    debug_tokens(tokens.clone());
+    let ast = NewParser::parse(&tokens).unwrap();
+
+    let old_ast = crate::Parser::parse(&tokens).unwrap();
+    assert_eq!(ast.items, old_ast.items);
   }
 
   #[test]
