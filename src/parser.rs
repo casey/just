@@ -859,8 +859,9 @@ mod tests {
     let tokens = Lexer::lex(&unindented).expect("lexing failed");
     let justfile = Parser::parse(&tokens).expect("parsing failed");
     if CHECKING_NEW_PARSER {
-        let new_ast = crate::new_parser::NewParser::parse(&tokens).expect("New parser failed when old succeeded");
-        assert_eq!(justfile, new_ast);
+      let new_ast =
+        crate::new_parser::NewParser::parse(&tokens).expect("New parser failed when old succeeded");
+      assert_eq!(justfile, new_ast);
     }
 
     let have = justfile.tree();

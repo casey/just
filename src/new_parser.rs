@@ -259,6 +259,14 @@ fn parse_eof<'src>() -> impl JustParser<'src, Option<Item<'src>>> {
                                             //unnecessary
 }
 
+fn parse_eol<'src>() -> impl JustParser<'src, Option<Item<'src>>> {
+  parse_comment().or_not().then_ignore(kind(TokenKind::Eol))
+}
+
+fn parse_comment<'src>() -> impl JustParser<'src, Item<'src>> {
+  kind(TokenKind::Comment).map(|tok| Item::Comment(tok.lexeme()))
+}
+
 fn parse_items<'src>() -> impl JustParser<'src, Vec<Item<'src>>> {
   parse_item()
     .repeated()
@@ -286,6 +294,7 @@ fn parse_item<'src>() -> impl Parser<Token<'src>, Vec<Item<'src>>, Error = Simpl
     parse_recipe().map(|item| vec![item]),
     parse_eol().map(Vec::from_iter),
   ))
+  .debug("parse-item")
 }
 
 fn parse_line<'src>() -> impl JustParser<'src, Line<'src>> {
@@ -518,14 +527,6 @@ fn parse_alias<'src>() -> impl Parser<Token<'src>, Item<'src>, Error = Simple<To
     .map(|(name, target)| Item::Alias(Alias { name, target }))
 }
 
-fn parse_eol<'src>() -> impl JustParser<'src, Option<Item<'src>>> {
-  parse_comment().or_not().then_ignore(kind(TokenKind::Eol))
-}
-
-fn parse_comment<'src>() -> impl JustParser<'src, Item<'src>> {
-  kind(TokenKind::Comment).map(|tok| Item::Comment(tok.lexeme()))
-}
-
 #[cfg(test)]
 mod tests {
   use super::*;
@@ -543,6 +544,15 @@ mod tests {
         item.column
       );
     }
+  }
+  #[test]
+  fn new_parser_test_standalone_item() {
+    let src = "b := y";
+    let tokens = Lexer::lex(src).unwrap();
+    let ast = NewParser::parse(&tokens).unwrap();
+    let old_ast = crate::Parser::parse(&tokens).unwrap();
+    assert_eq!(ast, old_ast);
+    assert_matches!(&ast.items[0], Item::Assignment(..))
   }
 
   #[test]
