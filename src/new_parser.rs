@@ -252,6 +252,7 @@ fn parse_eof<'src>() -> impl JustParser<'src, Option<Item<'src>>> {
 fn parse_eol<'src>() -> impl JustParser<'src, Option<Item<'src>>> {
   parse_comment()
     .or_not()
+    .then_ignore(ws().or_not())
     .then_ignore(kind(TokenKind::Eol))
     .debug("parse-eol")
 }
@@ -411,9 +412,14 @@ fn parse_recipe<'src>() -> impl JustParser<'src, Item<'src>> {
     .then(parse_dependencies())
     .then(
       kind(TokenKind::Eol)
-        .ignore_then(parse_recipe_body())
-        .or(kind(TokenKind::Eof).rewind().map(|_| vec![]))
-        .debug("gongo"),
+        .ignore_then(ws().or_not())
+        .ignore_then(parse_recipe_body().or(kind(TokenKind::Eof).rewind().to(vec![])))
+        .or(
+          ws()
+            .or_not()
+            .ignore_then(kind(TokenKind::Eof).rewind())
+            .to(vec![]),
+        ),
     )
     .map(
       |((((maybe_quiet, name), parameters), (dependencies, priors)), body)| {
@@ -578,6 +584,13 @@ a:
     let old_ast = crate::Parser::parse(&tokens).unwrap();
     assert_eq!(ast, old_ast);
     assert_matches!(&ast.items[0], Item::Assignment(..));
+
+    let src = "a:\n foo\n \n \n \nb:\n  ";
+    let tokens = Lexer::lex(src).unwrap();
+    debug_tokens(tokens.clone());
+    let ast = NewParser::parse(&tokens).unwrap();
+    let old_ast = crate::Parser::parse(&tokens).unwrap();
+    assert_eq!(ast, old_ast);
   }
 
   #[test]
