@@ -260,11 +260,16 @@ fn parse_eof<'src>() -> impl JustParser<'src, Option<Item<'src>>> {
 }
 
 fn parse_eol<'src>() -> impl JustParser<'src, Option<Item<'src>>> {
-  parse_comment().or_not().then_ignore(kind(TokenKind::Eol))
+  parse_comment()
+    .or_not()
+    .then_ignore(kind(TokenKind::Eol))
+    .debug("parse-eol")
 }
 
 fn parse_comment<'src>() -> impl JustParser<'src, Item<'src>> {
-  kind(TokenKind::Comment).map(|tok| Item::Comment(tok.lexeme()))
+  kind(TokenKind::Comment)
+    .map(|tok| Item::Comment(tok.lexeme()))
+    .debug("parse-comment")
 }
 
 fn parse_items<'src>() -> impl JustParser<'src, Vec<Item<'src>>> {
@@ -275,22 +280,19 @@ fn parse_items<'src>() -> impl JustParser<'src, Vec<Item<'src>>> {
 }
 
 fn parse_item<'src>() -> impl Parser<Token<'src>, Vec<Item<'src>>, Error = Simple<Token<'src>>> {
-  fn item_end<'src>() -> impl JustParser<'src, Option<Item<'src>>> {
-    ws().or_not().ignore_then(parse_eol())
+  // Parse a possible comment at the end of a line
+  fn item_end<'src>() -> impl JustParser<'src, Vec<Item<'src>>> {
+    ws()
+      .or_not()
+      .ignore_then(parse_comment().or_not())
+      .map(|item| item.into_iter().collect())
+      .debug("item-end")
   }
 
   choice((
-    parse_setting()
-      .then(item_end())
-      .map(|(setting, maybe_comment)| {
-        let mut output = vec![setting];
-        output.extend(maybe_comment.into_iter());
-        output
-      }),
-    parse_alias().then_ignore(item_end()).map(|item| vec![item]),
-    parse_assignment()
-      .then_ignore(item_end())
-      .map(|item| vec![item]),
+    parse_setting().chain(item_end()),
+    parse_alias().chain(item_end()),
+    parse_assignment().chain(item_end()),
     parse_recipe().map(|item| vec![item]),
     parse_eol().map(Vec::from_iter),
   ))
