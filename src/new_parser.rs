@@ -446,12 +446,7 @@ fn parse_recipe<'src>() -> impl JustParser<'src, Item<'src>> {
       kind(TokenKind::Eol)
         .ignore_then(ws().or_not())
         .ignore_then(parse_recipe_body().or(kind(TokenKind::Eof).rewind().to(vec![])))
-        .or(
-          ws()
-            .or_not()
-            .ignore_then(kind(TokenKind::Eof).rewind())
-            .to(vec![]),
-        ),
+        .or(empty().to(vec![])),
     )
     .map(
       |((((maybe_quiet, name), parameters), (dependencies, priors)), body)| {
