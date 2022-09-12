@@ -70,6 +70,7 @@ fn keyword<'src>(lexeme: &'src str) -> impl JustParser<Token<'src>> + Clone {
 //to do this
 fn parse_value<'src>() -> impl JustParser<'src, Expression<'src>> {
   let parse_group = parse_expression()
+    .padded_by(ws().or_not())
     .delimited_by(kind(TokenKind::ParenL), kind(TokenKind::ParenR))
     .map(Box::new);
 
@@ -79,6 +80,7 @@ fn parse_value<'src>() -> impl JustParser<'src, Expression<'src>> {
         parse_expression()
           .padded_by(ws().or_not())
           .separated_by(kind(TokenKind::Comma))
+          .allow_trailing()
           .delimited_by(kind(TokenKind::ParenL), kind(TokenKind::ParenR)),
       )
       .try_map(|(name, arguments), span| {
@@ -100,6 +102,7 @@ fn parse_expression<'src>() -> impl JustParser<'src, Expression<'src>> {
   recursive(|parse_expression_rec| {
     let parse_group = parse_expression_rec
       .clone()
+      .padded_by(ws().or_not())
       .delimited_by(kind(TokenKind::ParenL), kind(TokenKind::ParenR))
       .map(Box::new);
 
@@ -110,6 +113,7 @@ fn parse_expression<'src>() -> impl JustParser<'src, Expression<'src>> {
             .clone()
             .padded_by(ws().or_not())
             .separated_by(kind(TokenKind::Comma))
+            .allow_trailing()
             .delimited_by(kind(TokenKind::ParenL), kind(TokenKind::ParenR)),
         )
         .try_map(|(name, arguments), span| {
