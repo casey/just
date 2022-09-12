@@ -409,8 +409,6 @@ fn parse_parameters<'src>() -> impl JustParser<'src, Vec<Parameter<'src>>> {
 }
 
 fn parse_recipe<'src>() -> impl JustParser<'src, Item<'src>> {
-  //TODO can this handle doc comments as part of the grammar?
-
   let doc_comment = kind(TokenKind::Comment)
     .map(|tok| tok.lexeme()[1..].trim_start())
     .then_ignore(kind(TokenKind::Eol))
@@ -421,8 +419,12 @@ fn parse_recipe<'src>() -> impl JustParser<'src, Item<'src>> {
     .then(parse_parameters())
     .then_ignore(kind(TokenKind::Colon))
     .then(parse_dependencies())
-    .then_ignore(kind(TokenKind::Eol))
-    .then(parse_recipe_body())
+    .then(
+      kind(TokenKind::Eol)
+        .ignore_then(parse_recipe_body())
+        .or(kind(TokenKind::Eof).rewind().map(|_| vec![]))
+        .debug("gongo"),
+    )
     .map(
       |((((maybe_quiet, name), parameters), (dependencies, priors)), body)| {
         let shebang = body.first().map_or(false, Line::is_shebang);
@@ -555,6 +557,17 @@ mod tests {
     let old_ast = crate::Parser::parse(&tokens).unwrap();
     assert_eq!(ast, old_ast);
     assert_matches!(&ast.items[0], Item::Assignment(..))
+  }
+
+  #[test]
+  fn new_parser_test_standalone_item2() {
+    let src = "@foo:";
+    let tokens = Lexer::lex(src).unwrap();
+    debug_tokens(tokens.clone());
+    let ast = NewParser::parse(&tokens).unwrap();
+    let old_ast = crate::Parser::parse(&tokens).unwrap();
+    assert_eq!(ast, old_ast);
+    assert_matches!(&ast.items[0], Item::Recipe(..))
   }
 
   #[test]
