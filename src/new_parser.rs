@@ -77,6 +77,7 @@ fn parse_value<'src>() -> impl JustParser<'src, Expression<'src>> {
     parse_name()
       .then(
         parse_expression()
+          .padded_by(ws().or_not())
           .separated_by(kind(TokenKind::Comma))
           .delimited_by(kind(TokenKind::ParenL), kind(TokenKind::ParenR)),
       )
@@ -107,6 +108,7 @@ fn parse_expression<'src>() -> impl JustParser<'src, Expression<'src>> {
         .then(
           parse_expression_rec
             .clone()
+            .padded_by(ws().or_not())
             .separated_by(kind(TokenKind::Comma))
             .delimited_by(kind(TokenKind::ParenL), kind(TokenKind::ParenR)),
         )
@@ -688,6 +690,16 @@ a:
     debug_tokens(tokens.clone());
     let ast = NewParser::parse(&tokens);
     assert!(ast.is_err());
+  }
+
+  #[test]
+  fn new_parser_test_args() {
+    let src = "x := env_var_or_default(y, z)";
+    let tokens = Lexer::lex(src).unwrap();
+    debug_tokens(tokens.clone());
+    let ast = NewParser::parse(&tokens).unwrap();
+    let old_ast = crate::Parser::parse(&tokens).unwrap();
+    assert_eq!(ast, old_ast);
   }
 
   #[test]
