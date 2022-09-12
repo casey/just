@@ -90,6 +90,7 @@ fn parse_value<'src>() -> impl JustParser<'src, Expression<'src>> {
     parse_call().map(|thunk| Expression::Call { thunk }),
     parse_name().map(|name| Expression::Variable { name }),
     parse_string().map(|string_literal| Expression::StringLiteral { string_literal }),
+    parse_backtick(),
     parse_group.map(|contents| Expression::Group { contents }),
   ))
 }
@@ -120,6 +121,7 @@ fn parse_expression<'src>() -> impl JustParser<'src, Expression<'src>> {
         parse_call().map(|thunk| Expression::Call { thunk }),
         parse_name().map(|name| Expression::Variable { name }),
         parse_string().map(|string_literal| Expression::StringLiteral { string_literal }),
+        parse_backtick(),
         parse_group
           .clone()
           .map(|contents| Expression::Group { contents }),
@@ -231,6 +233,30 @@ fn validate_string<'src>(token: Token<'src>) -> Result<StringLiteral<'src>, Comp
     unindented
   };
   Ok(StringLiteral { kind, raw, cooked })
+}
+
+fn parse_backtick<'src>() -> impl JustParser<'src, Expression<'src>> {
+  kind(TokenKind::Backtick).try_map(|token, span| {
+    let kind = StringKind::from_string_or_backtick(token)
+      .map_err(|err| Simple::custom(span.clone(), err))?;
+
+    let contents =
+      &token.lexeme()[kind.delimiter_len()..token.lexeme().len() - kind.delimiter_len()];
+    let contents = if kind.indented() {
+      crate::unindent::unindent(contents)
+    } else {
+      contents.to_owned()
+    };
+
+    if contents.starts_with("#!") {
+      return Err(Simple::custom(
+        span,
+        token.error(CompileErrorKind::BacktickShebang),
+      ));
+    }
+
+    Ok(Expression::Backtick { contents, token })
+  })
 }
 
 fn parse_string<'src>() -> impl JustParser<'src, StringLiteral<'src>> {
@@ -538,9 +564,10 @@ mod tests {
   fn debug_tokens<'a>(tokens: Vec<Token<'a>>) {
     for item in tokens.iter() {
       println!(
-        "{} {}       <offset: {} length: {} column: {}>",
+        "{} {}   ({:?})    <offset: {} length: {} column: {}>",
         item.kind,
         item.lexeme(),
+        item.kind,
         item.offset,
         item.length,
         item.column
@@ -586,6 +613,16 @@ a:
     assert_matches!(&ast.items[0], Item::Assignment(..));
 
     let src = "a:\n foo\n \n \n \nb:\n  ";
+    let tokens = Lexer::lex(src).unwrap();
+    debug_tokens(tokens.clone());
+    let ast = NewParser::parse(&tokens).unwrap();
+    let old_ast = crate::Parser::parse(&tokens).unwrap();
+    assert_eq!(ast, old_ast);
+  }
+
+  #[test]
+  fn new_parser_test_backtick() {
+    let src = "x := `hello`";
     let tokens = Lexer::lex(src).unwrap();
     debug_tokens(tokens.clone());
     let ast = NewParser::parse(&tokens).unwrap();
