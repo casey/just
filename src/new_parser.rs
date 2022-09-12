@@ -73,27 +73,24 @@ fn parse_value<'src>() -> impl JustParser<'src, Expression<'src>> {
     .delimited_by(kind(TokenKind::ParenL), kind(TokenKind::ParenR))
     .map(Box::new);
 
-  let parse_sequence = parse_expression()
-    .separated_by(kind(TokenKind::Comma).padded_by(ws()))
-    .or(
-      parse_expression()
-        .then_ignore(kind(TokenKind::Comma).or_not())
-        .map(|expr| vec![expr]),
-    );
-
   let parse_call = || {
     parse_name()
-      .then(parse_sequence.delimited_by(kind(TokenKind::ParenL), kind(TokenKind::ParenR)))
+      .then(
+        parse_expression()
+          .separated_by(kind(TokenKind::Comma))
+          .delimited_by(kind(TokenKind::ParenL), kind(TokenKind::ParenR)),
+      )
       .try_map(|(name, arguments), span| {
         Thunk::resolve(name, arguments).map_err(|err| Simple::custom(span, err))
       })
+      .debug("parse-call-expr")
   };
 
   choice((
+    parse_call().map(|thunk| Expression::Call { thunk }),
     parse_name().map(|name| Expression::Variable { name }),
     parse_string().map(|string_literal| Expression::StringLiteral { string_literal }),
     parse_group.map(|contents| Expression::Group { contents }),
-    parse_call().map(|thunk| Expression::Call { thunk }),
   ))
 }
 
@@ -104,37 +101,30 @@ fn parse_expression<'src>() -> impl JustParser<'src, Expression<'src>> {
       .delimited_by(kind(TokenKind::ParenL), kind(TokenKind::ParenR))
       .map(Box::new);
 
-    let parse_sequence = parse_expression_rec
-      .clone()
-      .separated_by(kind(TokenKind::Comma).padded_by(ws()))
-      .or(
-        parse_expression_rec
-          .clone()
-          .then_ignore(kind(TokenKind::Comma).or_not())
-          .map(|expr| vec![expr]),
-      );
-
     let parse_call = || {
       parse_name()
         .then(
-          parse_sequence
+          parse_expression_rec
             .clone()
+            .separated_by(kind(TokenKind::Comma))
             .delimited_by(kind(TokenKind::ParenL), kind(TokenKind::ParenR)),
         )
         .try_map(|(name, arguments), span| {
           Thunk::resolve(name, arguments).map_err(|err| Simple::custom(span, err))
         })
+        .debug("parse-call")
     };
 
     let parse_value = || {
       choice((
+        parse_call().map(|thunk| Expression::Call { thunk }),
         parse_name().map(|name| Expression::Variable { name }),
         parse_string().map(|string_literal| Expression::StringLiteral { string_literal }),
         parse_group
           .clone()
           .map(|contents| Expression::Group { contents }),
-        parse_call().map(|thunk| Expression::Call { thunk }),
       ))
+      .debug("parse-value-in-expr")
     };
 
     let conditional_operator = choice((
@@ -194,7 +184,7 @@ fn parse_expression<'src>() -> impl JustParser<'src, Expression<'src>> {
         rhs: Box::new(rhs),
       });
 
-    choice((conditional, parse_join, parse_concat, parse_value()))
+    choice((conditional, parse_join, parse_concat, parse_value())).debug("parse-expression")
   })
 }
 
@@ -459,6 +449,7 @@ fn parse_assignment<'src>() -> impl JustParser<'src, Item<'src>> {
         value,
       })
     })
+    .debug("parse-assignment")
 }
 
 fn parse_setting<'src>() -> impl JustParser<'src, Item<'src>> {
@@ -470,8 +461,9 @@ fn parse_setting<'src>() -> impl JustParser<'src, Item<'src>> {
 
 fn parse_colon_equals<'src, T>(parser: impl JustParser<'src, T>) -> impl JustParser<'src, T> {
   kind(TokenKind::ColonEquals)
-    .padded_by(ws())
+    .padded_by(ws().or_not())
     .ignore_then(parser)
+    .debug("parse-colon-equals")
 }
 
 fn parse_set_bool<'src>() -> impl JustParser<'src, bool> {
@@ -568,6 +560,24 @@ mod tests {
     let old_ast = crate::Parser::parse(&tokens).unwrap();
     assert_eq!(ast, old_ast);
     assert_matches!(&ast.items[0], Item::Recipe(..))
+  }
+
+  #[test]
+  fn new_parser_test_another() {
+    let src = r#"
+
+
+x := arch()
+
+a:
+  {{os()}} {{os_family()}}
+    "#;
+    let tokens = Lexer::lex(src).unwrap();
+    debug_tokens(tokens.clone());
+    let ast = NewParser::parse(&tokens).unwrap();
+    let old_ast = crate::Parser::parse(&tokens).unwrap();
+    assert_eq!(ast, old_ast);
+    assert_matches!(&ast.items[0], Item::Assignment(..));
   }
 
   #[test]
