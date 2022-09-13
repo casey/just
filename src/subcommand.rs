@@ -166,8 +166,13 @@ impl Subcommand {
     let src = loader.load(&search.justfile)?;
 
     let tokens = Lexer::lex(src)?;
-    let ast = Parser::parse(&tokens)?;
-    // let new_ast = crate::new_parser::NewParser::parse(&tokens);
+    let ast = if config.new_parser {
+      config.require_unstable("The new parser is experimental")?;
+      crate::new_parser::NewParser::parse(&tokens)?
+    } else {
+      Parser::parse(&tokens)?
+    };
+
     let justfile = Analyzer::analyze(ast.clone())?;
 
     if config.verbosity.loud() {

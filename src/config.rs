@@ -22,6 +22,7 @@ pub(crate) struct Config {
   pub(crate) list_heading: String,
   pub(crate) list_prefix: String,
   pub(crate) load_dotenv: bool,
+  pub(crate) new_parser: bool,
   pub(crate) search_config: SearchConfig,
   pub(crate) shell: Option<String>,
   pub(crate) shell_args: Option<Vec<String>>,
@@ -111,6 +112,8 @@ mod arg {
   pub(crate) const DUMP_FORMAT_JSON: &str = "json";
   pub(crate) const DUMP_FORMAT_JUST: &str = "just";
   pub(crate) const DUMP_FORMAT_VALUES: &[&str] = &[DUMP_FORMAT_JUST, DUMP_FORMAT_JSON];
+
+  pub(crate) const NEW_PARSER: &str = "new-parser";
 }
 
 impl Config {
@@ -319,6 +322,11 @@ impl Config {
           .short("l")
           .long("list")
           .help("List available recipes and their arguments"),
+      )
+      .arg(
+        Arg::with_name(arg::NEW_PARSER)
+          .long("new-parser")
+          .help("Use the new, experimental parser")
       )
       .arg(
         Arg::with_name(cmd::SHOW)
@@ -592,6 +600,7 @@ impl Config {
       dotenv_filename: matches.value_of(arg::DOTENV_FILENAME).map(str::to_owned),
       dotenv_path: matches.value_of(arg::DOTENV_PATH).map(PathBuf::from),
       verbosity,
+      new_parser: matches.is_present(arg::NEW_PARSER),
     })
   }
 

@@ -9,12 +9,18 @@ use chumsky::prelude::*;
 pub(crate) struct NewParser {}
 
 impl NewParser {
-  pub(crate) fn parse<'tokens, 'src>(tokens: &'tokens [Token<'src>]) -> Result<Ast<'src>, ()> {
-    let (output, _errs) = ast_parser().parse_recovery_verbose(tokens);
+  pub(crate) fn parse<'tokens, 'src>(
+    tokens: &'tokens [Token<'src>],
+  ) -> Result<Ast<'src>, CompileError<'src>> {
+    let (output, _errs) = ast_parser().parse_recovery(tokens);
     if let Some(output) = output {
       Ok(output)
     } else {
-      Err(())
+      //TODO make this error message be meaningful
+      Err(CompileError::new(
+        tokens[0],
+        CompileErrorKind::UnterminatedBacktick,
+      ))
     }
   }
 }
