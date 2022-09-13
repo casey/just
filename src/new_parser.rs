@@ -6,44 +6,16 @@ use super::{
 };
 use chumsky::prelude::*;
 
-// TODO - maybe we don't even need the NewParser struct to contain tokens?
-/// New parser
-/// This uses the chumsky library to do parsing
-pub(crate) struct NewParser<'tokens, 'src> {
-  tokens: &'tokens [Token<'src>],
-}
+pub(crate) struct NewParser {}
 
-impl<'tokens, 'src> NewParser<'tokens, 'src> {
-  fn new(tokens: &'tokens [Token<'src>]) -> NewParser<'tokens, 'src> {
-    NewParser { tokens }
-  }
-
-  pub(crate) fn parse(tokens: &'tokens [Token<'src>]) -> Result<Ast<'src>, ()> {
-    let p = Self::new(tokens);
-    let (output, errs) = p.ast_parser().parse_recovery_verbose(tokens);
-    for item in errs.iter() {
-      println!("ERR: {:#?}", item);
-    }
+impl NewParser {
+  pub(crate) fn parse<'tokens, 'src>(tokens: &'tokens [Token<'src>]) -> Result<Ast<'src>, ()> {
+    let (output, _errs) = ast_parser().parse_recovery_verbose(tokens);
     if let Some(output) = output {
       Ok(output)
     } else {
       Err(())
     }
-  }
-
-  fn ast_parser<'a>(&self) -> impl JustParser<'a, Ast<'a>> {
-    parse_items()
-      .then(parse_eof())
-      .map(|(mut items, maybe_final_comment)| {
-        if let Some(comment) = maybe_final_comment {
-          items.push(comment);
-        }
-
-        Ast {
-          items,
-          warnings: vec![],
-        }
-      })
   }
 }
 
@@ -52,6 +24,21 @@ trait JustParser<'src, T>: Parser<Token<'src>, T, Error = Simple<Token<'src>>> {
 impl<'src, T, U> JustParser<'src, T> for U where
   U: Parser<Token<'src>, T, Error = Simple<Token<'src>>>
 {
+}
+
+fn ast_parser<'src>() -> impl JustParser<'src, Ast<'src>> {
+  parse_items()
+    .then(parse_eof())
+    .map(|(mut items, maybe_final_comment)| {
+      if let Some(comment) = maybe_final_comment {
+        items.push(comment);
+      }
+
+      Ast {
+        items,
+        warnings: vec![],
+      }
+    })
 }
 
 fn kind<'src>(token_kind: TokenKind) -> impl JustParser<'src, Token<'src>> + Clone {
@@ -202,7 +189,7 @@ struct CondOutput<'a> {
   rhs: Expression<'a>,
 }
 
-fn validate_string<'src>(token: Token<'src>) -> Result<StringLiteral<'src>, CompileError<'src>> {
+fn validate_string(token: Token) -> Result<StringLiteral, CompileError> {
   let kind = StringKind::from_string_or_backtick(token)?;
   let delimiter_len = kind.delimiter_len();
   let raw = &token.lexeme()[delimiter_len..token.lexeme().len() - delimiter_len];
@@ -406,7 +393,7 @@ fn parse_dependencies<'src>() -> impl JustParser<'src, (Vec<UnresolvedDependency
     )
     .map(|(mut dependencies, subsequent_dependencies)| {
       let priors = dependencies.len();
-      dependencies.extend(subsequent_dependencies.unwrap_or(vec![]).into_iter());
+      dependencies.extend(subsequent_dependencies.unwrap_or_default().into_iter());
       (dependencies, priors)
     })
 }
@@ -424,7 +411,7 @@ fn parse_parameter<'src>(param_kind: ParameterKind) -> impl JustParser<'src, Par
     .map(move |((maybe_export, name), default)| Parameter {
       export: maybe_export.is_some(),
       default,
-      kind: param_kind.clone(),
+      kind: param_kind,
       name,
     })
 }
@@ -860,12 +847,6 @@ garbanzo:
 
   #[test]
   fn new_parser_test_expr() {
-    let src = r#"`echo hello` + "blarg""#;
-    let tokens = Lexer::lex(src).unwrap();
-    debug_tokens(tokens.clone());
-    let ast = parse_expression().parse(tokens).unwrap();
-    println!("{:?}", ast);
-
     let src = r#"
 
 a:
