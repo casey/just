@@ -461,6 +461,7 @@ fn parse_recipe<'src>() -> impl JustParser<'src, Item<'src>> {
     .then(parse_parameters())
     .then_ignore(kind(TokenKind::Colon))
     .then(parse_dependencies())
+    .then_ignore(parse_comment().or_not())
     .then(
       kind(TokenKind::Eol)
         .ignore_then(ws().or_not())
