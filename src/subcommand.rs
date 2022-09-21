@@ -92,8 +92,19 @@ impl Subcommand {
     arguments: &[String],
     overrides: &BTreeMap<String, String>,
   ) -> Result<(), Error<'src>> {
-    if config.unstable && config.search_config == SearchConfig::FromInvocationDirectory {
-      let mut path = config.invocation_directory.clone();
+    if config.unstable
+      && matches!(
+        config.search_config,
+        SearchConfig::FromInvocationDirectory | SearchConfig::FromSearchDirectory { .. }
+      )
+    {
+      let mut path = match &config.search_config {
+        SearchConfig::FromInvocationDirectory => config.invocation_directory.clone(),
+        SearchConfig::FromSearchDirectory { search_directory } => std::env::current_dir()
+          .unwrap()
+          .join(search_directory.clone()),
+        _ => unreachable!(),
+      };
 
       let mut unknown_recipes_errors = None;
 
