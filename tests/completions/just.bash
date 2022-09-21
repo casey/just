@@ -1,13 +1,26 @@
 #!/usr/bin/env bash
 
-source ./completions/just.bash
+# --- Shared functions ---
 
-exit_code='0'
+cdroot() {
+  cd "$(git rev-parse --show-toplevel)" > /dev/null
+}
+
+setup() {
+  cdroot
+  mkdir -p ./tmp > /dev/null
+  echo 'install:' > tmp/justfile
+  echo 'test:' >> tmp/justfile
+  echo 'deploy:' >> tmp/justfile
+  echo 'push:' >> tmp/justfile
+  echo 'publish:' >> tmp/justfile
+}
 
 cleanup() {
   unset COMP_WORDS
   unset COMP_CWORD
   unset COMPREPLY
+  rm -f ./tmp/justfile
 }
 
 reply_equals() {
@@ -26,6 +39,14 @@ reply_equals() {
   fi
 }
 
+# --- Initial Setup ---
+cdroot
+source ./completions/just.bash
+PATH="$(git rev-parse --show-toplevel)/target/debug:$PATH"
+exit_code='0'
+
+# --- Tests ---
+
 test_just_is_accessible() {
   if just --version > /dev/null; then
     echo "${FUNCNAME[0]}: ok"
@@ -36,44 +57,51 @@ test_just_is_accessible() {
     exit_code='1'
   fi
 }
-PATH="./target/debug:$PATH"
+setup
 test_just_is_accessible
 
 test_complete_all_recipes() {
   COMP_WORDS=(just)
+  cd tmp > /dev/null
   COMP_CWORD=1 _just just
-  reply_equals 'declare -a COMPREPLY=([0]="build" [1]="build-book" [2]="changes" [3]="check" [4]="ci" [5]="clippy" [6]="done" [7]="filter" [8]="fmt" [9]="forbid" [10]="fuzz" [11]="generate-completions" [12]="install" [13]="install-dev-deps" [14]="install-dev-deps-homebrew" [15]="man" [16]="polyglot" [17]="pr" [18]="publish" [19]="push" [20]="pwd" [21]="quine" [22]="render-readme" [23]="replace" [24]="run" [25]="sloc" [26]="test" [27]="test-quine" [28]="view-man" [29]="watch" [30]="watch-readme")'
+  reply_equals 'declare -a COMPREPLY=([0]="deploy" [1]="install" [2]="publish" [3]="push" [4]="test")'
 }
 cleanup
+setup
 test_complete_all_recipes
 
 test_complete_recipes_starting_with_i() {
   COMP_WORDS=(just i)
+  cd tmp > /dev/null
   COMP_CWORD=1 _just just
-  reply_equals 'declare -a COMPREPLY=([0]="install" [1]="install-dev-deps" [2]="install-dev-deps-homebrew")'
+  reply_equals 'declare -a COMPREPLY=([0]="install")'
 }
 cleanup
+setup
 test_complete_recipes_starting_with_i
 
-test_complete_recipes_starting_with_r() {
-  COMP_WORDS=(just r)
+test_complete_recipes_starting_with_p() {
+  setup
+  COMP_WORDS=(just p)
+  cd tmp > /dev/null
   COMP_CWORD=1 _just just
-  reply_equals 'declare -a COMPREPLY=([0]="render-readme" [1]="replace" [2]="run")'
+  reply_equals 'declare -a COMPREPLY=([0]="publish" [1]="push")'
 }
 cleanup
-test_complete_recipes_starting_with_r
+setup
+test_complete_recipes_starting_with_p
 
 test_complete_recipes_from_subdirs() {
-  mkdir -p ./tmp
-  echo 'install:' > tmp/justfile
-  echo 'deploy:' >> tmp/justfile
   COMP_WORDS=(just tmp/)
   COMP_CWORD=1 _just just
-  reply_equals 'declare -a COMPREPLY=([0]="tmp/deploy" [1]="tmp/install")'
+  reply_equals 'declare -a COMPREPLY=([0]="tmp/deploy" [1]="tmp/install" [2]="tmp/publish" [3]="tmp/push" [4]="tmp/test")'
 }
 cleanup
+setup
 test_complete_recipes_from_subdirs
 cleanup
+
+# --- Conclusion ---
 
 if [ "$exit_code" = '0' ]; then
   echo "All tests passed."
