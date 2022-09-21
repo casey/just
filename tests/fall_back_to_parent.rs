@@ -83,7 +83,7 @@ fn requires_unstable() {
 }
 
 #[test]
-fn doesnt_work_with_search_directory() {
+fn works_with_provided_search_directory() {
   Test::new()
     .tree(tree! {
       bar: {
@@ -100,9 +100,15 @@ fn doesnt_work_with_search_directory() {
     ",
     )
     .args(&["--unstable", "./foo"])
+    .stdout("root\n")
+    .stderr(format!(
+      "
+      Trying ..{}justfile
+      echo root
+    ",
+      MAIN_SEPARATOR
+    ))
     .current_dir("bar")
-    .status(EXIT_FAILURE)
-    .stderr("error: Justfile does not contain recipe `foo`.\n")
     .run();
 }
 
