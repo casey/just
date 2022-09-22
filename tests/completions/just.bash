@@ -8,19 +8,13 @@ cdroot() {
 
 setup() {
   cdroot
-  mkdir -p ./tmp > /dev/null
-  echo 'install:' > tmp/justfile
-  echo 'test:' >> tmp/justfile
-  echo 'deploy:' >> tmp/justfile
-  echo 'push:' >> tmp/justfile
-  echo 'publish:' >> tmp/justfile
+  cd tests/completions > /dev/null
 }
 
 cleanup() {
   unset COMP_WORDS
   unset COMP_CWORD
   unset COMPREPLY
-  rm -f ./tmp/justfile
 }
 
 reply_equals() {
@@ -62,7 +56,6 @@ test_just_is_accessible
 
 test_complete_all_recipes() {
   COMP_WORDS=(just)
-  cd tmp > /dev/null
   COMP_CWORD=1 _just just
   reply_equals 'declare -a COMPREPLY=([0]="deploy" [1]="install" [2]="publish" [3]="push" [4]="test")'
 }
@@ -72,7 +65,6 @@ test_complete_all_recipes
 
 test_complete_recipes_starting_with_i() {
   COMP_WORDS=(just i)
-  cd tmp > /dev/null
   COMP_CWORD=1 _just just
   reply_equals 'declare -a COMPREPLY=([0]="install")'
 }
@@ -83,7 +75,6 @@ test_complete_recipes_starting_with_i
 test_complete_recipes_starting_with_p() {
   setup
   COMP_WORDS=(just p)
-  cd tmp > /dev/null
   COMP_CWORD=1 _just just
   reply_equals 'declare -a COMPREPLY=([0]="publish" [1]="push")'
 }
@@ -92,9 +83,9 @@ setup
 test_complete_recipes_starting_with_p
 
 test_complete_recipes_from_subdirs() {
-  COMP_WORDS=(just tmp/)
+  COMP_WORDS=(just subdir/)
   COMP_CWORD=1 _just just
-  reply_equals 'declare -a COMPREPLY=([0]="tmp/deploy" [1]="tmp/install" [2]="tmp/publish" [3]="tmp/push" [4]="tmp/test")'
+  reply_equals 'declare -a COMPREPLY=([0]="subdir/special" [1]="subdir/surprise")'
 }
 cleanup
 setup
