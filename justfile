@@ -170,6 +170,9 @@ watch-readme:
 generate-completions:
   ./bin/generate-completions
 
+test-completions:
+  ./tests/completions/just.bash
+
 build-book:
   cargo run --package generate-book
   mdbook build book/en
