@@ -1,5 +1,6 @@
 use super::*;
 
+/// Main entry point into just binary.
 pub fn run() -> Result<(), i32> {
   #[cfg(windows)]
   ansi_term::enable_ansi_support().ok();
@@ -18,16 +19,15 @@ pub fn run() -> Result<(), i32> {
 
   let loader = Loader::new();
 
-  let mut color = Color::auto();
-  let mut verbosity = Verbosity::default();
+  let config = Config::from_matches(&matches).map_err(Error::from);
 
-  Config::from_matches(&matches)
-    .map_err(Error::from)
-    .and_then(|config| {
-      color = config.color;
-      verbosity = config.verbosity;
-      config.run(&loader)
-    })
+  let (color, verbosity) = config
+    .as_ref()
+    .map(|config| (config.color, config.verbosity))
+    .unwrap_or((Color::auto(), Verbosity::default()));
+
+  config
+    .and_then(|config| config.run(&loader))
     .map_err(|error| {
       if !verbosity.quiet() {
         eprintln!("{}", error.color_display(color.stderr()));

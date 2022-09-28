@@ -26,7 +26,7 @@ use super::*;
 ///
 /// For modes that do take other arguments, the search argument is simply
 /// prepended to rest.
-#[cfg_attr(test, derive(PartialEq, Debug))]
+#[cfg_attr(test, derive(PartialEq, Eq, Debug))]
 pub struct Positional {
   /// Overrides from values of the form `[a-zA-Z_][a-zA-Z0-9_-]*=.*`
   pub overrides: Vec<(String, String)>,

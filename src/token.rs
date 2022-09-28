@@ -16,7 +16,7 @@ impl<'src> Token<'src> {
   }
 
   pub(crate) fn error(&self, kind: CompileErrorKind<'src>) -> CompileError<'src> {
-    CompileError { token: *self, kind }
+    CompileError::new(*self, kind)
   }
 }
 

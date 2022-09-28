@@ -92,8 +92,19 @@ impl Subcommand {
     arguments: &[String],
     overrides: &BTreeMap<String, String>,
   ) -> Result<(), Error<'src>> {
-    if config.unstable && config.search_config == SearchConfig::FromInvocationDirectory {
-      let mut path = config.invocation_directory.clone();
+    if config.unstable
+      && matches!(
+        config.search_config,
+        SearchConfig::FromInvocationDirectory | SearchConfig::FromSearchDirectory { .. }
+      )
+    {
+      let mut path = match &config.search_config {
+        SearchConfig::FromInvocationDirectory => config.invocation_directory.clone(),
+        SearchConfig::FromSearchDirectory { search_directory } => std::env::current_dir()
+          .unwrap()
+          .join(search_directory.clone()),
+        _ => unreachable!(),
+      };
 
       let mut unknown_recipes_errors = None;
 
@@ -217,9 +228,10 @@ impl Subcommand {
     let mut child = match result {
       Ok(child) => child,
       Err(io_error) => {
+        let (shell_binary, shell_arguments) = justfile.settings.shell(config);
         return Err(Error::ChooserInvoke {
-          shell_binary: justfile.settings.shell_binary(config).to_owned(),
-          shell_arguments: justfile.settings.shell_arguments(config).join(" "),
+          shell_binary: shell_binary.to_owned(),
+          shell_arguments: shell_arguments.join(" "),
           chooser,
           io_error,
         });
@@ -355,7 +367,9 @@ impl Subcommand {
     let formatted = ast.to_string();
 
     if config.check {
-      return if formatted != src {
+      return if formatted == src {
+        Ok(())
+      } else {
         use similar::{ChangeTag, TextDiff};
 
         let diff = TextDiff::configure()
@@ -375,8 +389,6 @@ impl Subcommand {
         }
 
         Err(Error::FormatCheckFoundDiff)
-      } else {
-        Ok(())
       };
     }
 
@@ -420,11 +432,11 @@ impl Subcommand {
         continue;
       }
 
-      if !recipe_aliases.contains_key(alias.target.name.lexeme()) {
-        recipe_aliases.insert(alias.target.name.lexeme(), vec![alias.name.lexeme()]);
-      } else {
+      if recipe_aliases.contains_key(alias.target.name.lexeme()) {
         let aliases = recipe_aliases.get_mut(alias.target.name.lexeme()).unwrap();
         aliases.push(alias.name.lexeme());
+      } else {
+        recipe_aliases.insert(alias.target.name.lexeme(), vec![alias.name.lexeme()]);
       }
     }
 

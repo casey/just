@@ -1,6 +1,37 @@
 Changelog
 =========
 
+[1.5.0](https://github.com/casey/just/releases/tag/1.5.0) - 2022-9-11
+---------------------------------------------------------------------
+
+### Changed
+- Allow constructing absolute paths with `/` operator (#1320)
+
+### Misc
+- Allow fewer lints (#1340)
+- Fix issues reported by nightly clippy (#1336)
+- Refactor run.rs (#1335)
+- Allow comments on same line as settings (#1339)
+- Fix justfile env shebang on Linux (#1330)
+- Update Chinese translation of README.md (#1325)
+- Add additional settings to grammar
+- Add an example of using a variable in a recipe parameter (#1311)
+
+[1.4.0](https://github.com/casey/just/releases/tag/1.4.0) - 2022-8-08
+---------------------------------------------------------------------
+
+### Fixed
+- Fix shell setting precedence (#1306)
+
+### Misc
+- Don't hardcode homebrew prefix (#1295)
+- Exclude files from cargo package (#1283)
+- Add usage note to default list recipe (#1296)
+- Add MPR/Prebuilt-MPR installation instructions to README.md (#1280)
+- Add make and makesure to readme (#1299)
+- Document how to configure zsh completions on MacOS (#1285)
+- Convert package table to HTML (#1291)
+
 [1.3.0](https://github.com/casey/just/releases/tag/1.3.0) - 2022-7-25
 ---------------------------------------------------------------------
 

@@ -179,14 +179,14 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
         "Presumed next token would have kind {}, but found {}",
         Identifier, next.kind
       ))?)
-    } else if keyword != next.lexeme() {
+    } else if keyword == next.lexeme() {
+      Ok(())
+    } else {
       Err(self.internal_error(format!(
         "Presumed next token would have lexeme \"{}\", but found \"{}\"",
         keyword,
         next.lexeme(),
       ))?)
-    } else {
-      Ok(())
     }
   }
 
@@ -194,27 +194,27 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   fn presume(&mut self, kind: TokenKind) -> CompileResult<'src, Token<'src>> {
     let next = self.advance()?;
 
-    if next.kind != kind {
+    if next.kind == kind {
+      Ok(next)
+    } else {
       Err(self.internal_error(format!(
         "Presumed next token would have kind {:?}, but found {:?}",
         kind, next.kind
       ))?)
-    } else {
-      Ok(next)
     }
   }
 
   /// Return an internal error if the next token is not one of kinds `kinds`.
   fn presume_any(&mut self, kinds: &[TokenKind]) -> CompileResult<'src, Token<'src>> {
     let next = self.advance()?;
-    if !kinds.contains(&next.kind) {
+    if kinds.contains(&next.kind) {
+      Ok(next)
+    } else {
       Err(self.internal_error(format!(
         "Presumed next token would be {}, but found {}",
         List::or(kinds),
         next.kind
       ))?)
-    } else {
-      Ok(next)
     }
   }
 
@@ -333,8 +333,10 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
           }
           Some(Keyword::Set)
             if self.next_are(&[Identifier, Identifier, ColonEquals])
-              || self.next_are(&[Identifier, Identifier, Eol])
-              || self.next_are(&[Identifier, Identifier, Eof]) =>
+              || self.next_are(&[Identifier, Identifier, Comment, Eof])
+              || self.next_are(&[Identifier, Identifier, Comment, Eol])
+              || self.next_are(&[Identifier, Identifier, Eof])
+              || self.next_are(&[Identifier, Identifier, Eol]) =>
           {
             items.push(Item::Set(self.parse_set()?));
           }
@@ -355,16 +357,16 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
       }
     }
 
-    if self.next != self.tokens.len() {
-      Err(self.internal_error(format!(
-        "Parse completed with {} unparsed tokens",
-        self.tokens.len() - self.next,
-      ))?)
-    } else {
+    if self.next == self.tokens.len() {
       Ok(Ast {
         warnings: Vec::new(),
         items,
       })
+    } else {
+      Err(self.internal_error(format!(
+        "Parse completed with {} unparsed tokens",
+        self.tokens.len() - self.next,
+      ))?)
     }
   }
 
@@ -394,21 +396,26 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   /// Parse an expression, e.g. `1 + 2`
   fn parse_expression(&mut self) -> CompileResult<'src, Expression<'src>> {
     if self.depth == if cfg!(windows) { 48 } else { 256 } {
-      return Err(CompileError {
-        token: self.next()?,
-        kind: CompileErrorKind::ParsingRecursionDepthExceeded,
-      });
+      let token = self.next()?;
+      return Err(CompileError::new(
+        token,
+        CompileErrorKind::ParsingRecursionDepthExceeded,
+      ));
     }
 
     self.depth += 1;
 
     let expression = if self.accepted_keyword(Keyword::If)? {
       self.parse_conditional()?
+    } else if self.accepted(Slash)? {
+      let lhs = None;
+      let rhs = Box::new(self.parse_expression()?);
+      Expression::Join { lhs, rhs }
     } else {
       let value = self.parse_value()?;
 
       if self.accepted(Slash)? {
-        let lhs = Box::new(value);
+        let lhs = Some(Box::new(value));
         let rhs = Box::new(self.parse_expression()?);
         Expression::Join { lhs, rhs }
       } else if self.accepted(Plus)? {
@@ -898,7 +905,7 @@ mod tests {
             column,
             length,
           },
-          kind,
+          kind: Box::new(kind),
         };
         assert_eq!(have, want);
       }
@@ -1989,6 +1996,7 @@ mod tests {
         Identifier,
         ParenL,
         ParenR,
+        Slash,
         StringToken,
       ],
       found: Eof,
@@ -2008,6 +2016,7 @@ mod tests {
         Identifier,
         ParenL,
         ParenR,
+        Slash,
         StringToken,
       ],
       found: InterpolationEnd,

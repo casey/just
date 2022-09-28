@@ -30,50 +30,48 @@ impl<'src> Settings<'src> {
   }
 
   pub(crate) fn shell_command(&self, config: &Config) -> Command {
-    let mut cmd = Command::new(self.shell_binary(config));
+    let (command, args) = self.shell(config);
 
-    cmd.args(self.shell_arguments(config));
+    let mut cmd = Command::new(command);
+
+    cmd.args(args);
 
     cmd
   }
 
-  pub(crate) fn shell_binary<'a>(&'a self, config: &'a Config) -> &'a str {
-    let shell_or_args_present = config.shell.is_some() || config.shell_args.is_some();
-
-    if let (Some(shell), false) = (&self.shell, shell_or_args_present) {
-      shell.command.cooked.as_ref()
-    } else if let Some(shell) = &config.shell {
-      shell
-    } else if let (true, Some(shell)) = (cfg!(windows), &self.windows_shell) {
-      shell.command.cooked.as_ref()
-    } else if cfg!(windows) && self.windows_powershell {
-      WINDOWS_POWERSHELL_SHELL
-    } else {
-      DEFAULT_SHELL
-    }
-  }
-
-  pub(crate) fn shell_arguments<'a>(&'a self, config: &'a Config) -> Vec<&'a str> {
-    let shell_or_args_present = config.shell.is_some() || config.shell_args.is_some();
-
-    if let (Some(shell), false) = (&self.shell, shell_or_args_present) {
-      shell
-        .arguments
-        .iter()
-        .map(|argument| argument.cooked.as_ref())
-        .collect()
-    } else if let Some(shell_args) = &config.shell_args {
-      shell_args.iter().map(String::as_ref).collect()
-    } else if let (true, Some(shell)) = (cfg!(windows), &self.windows_shell) {
-      shell
-        .arguments
-        .iter()
-        .map(|argument| argument.cooked.as_ref())
-        .collect()
-    } else if cfg!(windows) && self.windows_powershell {
-      WINDOWS_POWERSHELL_ARGS.to_vec()
-    } else {
-      DEFAULT_SHELL_ARGS.to_vec()
+  pub(crate) fn shell<'a>(&'a self, config: &'a Config) -> (&'a str, Vec<&'a str>) {
+    match (&config.shell, &config.shell_args) {
+      (Some(shell), Some(shell_args)) => (shell, shell_args.iter().map(String::as_ref).collect()),
+      (Some(shell), None) => (shell, DEFAULT_SHELL_ARGS.to_vec()),
+      (None, Some(shell_args)) => (
+        DEFAULT_SHELL,
+        shell_args.iter().map(String::as_ref).collect(),
+      ),
+      (None, None) => {
+        if let (true, Some(shell)) = (cfg!(windows), &self.windows_shell) {
+          (
+            shell.command.cooked.as_ref(),
+            shell
+              .arguments
+              .iter()
+              .map(|argument| argument.cooked.as_ref())
+              .collect(),
+          )
+        } else if cfg!(windows) && self.windows_powershell {
+          (WINDOWS_POWERSHELL_SHELL, WINDOWS_POWERSHELL_ARGS.to_vec())
+        } else if let Some(shell) = &self.shell {
+          (
+            shell.command.cooked.as_ref(),
+            shell
+              .arguments
+              .iter()
+              .map(|argument| argument.cooked.as_ref())
+              .collect(),
+          )
+        } else {
+          (DEFAULT_SHELL, DEFAULT_SHELL_ARGS.to_vec())
+        }
+      }
     }
   }
 }
@@ -91,8 +89,7 @@ mod tests {
       ..testing::config(&[])
     };
 
-    assert_eq!(settings.shell_binary(&config), "sh");
-    assert_eq!(settings.shell_arguments(&config), vec!["-cu"]);
+    assert_eq!(settings.shell(&config), ("sh", vec!["-cu"]));
   }
 
   #[test]
@@ -106,14 +103,12 @@ mod tests {
     };
 
     if cfg!(windows) {
-      assert_eq!(settings.shell_binary(&config), "powershell.exe");
       assert_eq!(
-        settings.shell_arguments(&config),
-        vec!["-NoLogo", "-Command"]
+        settings.shell(&config),
+        ("powershell.exe", vec!["-NoLogo", "-Command"])
       );
     } else {
-      assert_eq!(settings.shell_binary(&config), "sh");
-      assert_eq!(settings.shell_arguments(&config), vec!["-cu"]);
+      assert_eq!(settings.shell(&config), ("sh", vec!["-cu"]));
     }
   }
 
@@ -128,8 +123,7 @@ mod tests {
       ..testing::config(&[])
     };
 
-    assert_eq!(settings.shell_binary(&config), "lol");
-    assert_eq!(settings.shell_arguments(&config), vec!["-nice"]);
+    assert_eq!(settings.shell(&config), ("lol", vec!["-nice"]));
   }
 
   #[test]
@@ -144,8 +138,7 @@ mod tests {
       ..testing::config(&[])
     };
 
-    assert_eq!(settings.shell_binary(&config), "lol");
-    assert_eq!(settings.shell_arguments(&config), vec!["-nice"]);
+    assert_eq!(settings.shell(&config), ("lol", vec!["-nice"]));
   }
 
   #[test]
@@ -170,8 +163,7 @@ mod tests {
       ..testing::config(&[])
     };
 
-    assert_eq!(settings.shell_binary(&config), "asdf.exe");
-    assert_eq!(settings.shell_arguments(&config), vec!["-nope"]);
+    assert_eq!(settings.shell(&config), ("asdf.exe", vec!["-nope"]));
   }
 
   #[test]
@@ -184,7 +176,7 @@ mod tests {
       ..testing::config(&[])
     };
 
-    assert_eq!(settings.shell_binary(&config), "lol");
+    assert_eq!(settings.shell(&config).0, "lol");
   }
 
   #[test]
@@ -198,12 +190,6 @@ mod tests {
       ..testing::config(&[])
     };
 
-    if cfg!(windows) {
-      assert_eq!(settings.shell_binary(&config), "powershell.exe");
-    } else {
-      assert_eq!(settings.shell_binary(&config), "sh");
-    }
-
-    assert_eq!(settings.shell_arguments(&config), vec!["-nice"]);
+    assert_eq!(settings.shell(&config), ("sh", vec!["-nice"]));
   }
 }

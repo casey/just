@@ -45,10 +45,7 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
         length: 0,
         kind: TokenKind::Unspecified,
       };
-      return Err(CompileError {
-        kind: Internal { message },
-        token,
-      });
+      return Err(CompileError::new(token, Internal { message }));
     }
 
     self.stack.pop();
@@ -101,8 +98,14 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
           self.resolve_expression(c)
         }
       },
-      Expression::Concatenation { lhs, rhs } | Expression::Join { lhs, rhs } => {
+      Expression::Concatenation { lhs, rhs } => {
         self.resolve_expression(lhs)?;
+        self.resolve_expression(rhs)
+      }
+      Expression::Join { lhs, rhs } => {
+        if let Some(lhs) = lhs {
+          self.resolve_expression(lhs)?;
+        }
         self.resolve_expression(rhs)
       }
       Expression::Conditional {

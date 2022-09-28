@@ -58,6 +58,7 @@ mod json;
 mod line_prefixes;
 mod misc;
 mod multibyte_char;
+mod parser;
 mod positional_arguments;
 mod quiet;
 mod quote;
@@ -75,8 +76,6 @@ mod sublime_syntax;
 mod subsequents;
 mod tempdir;
 mod undefined_variables;
-#[cfg(target_family = "windows")]
-mod windows_powershell;
 #[cfg(target_family = "windows")]
 mod windows_shell;
 mod working_directory;

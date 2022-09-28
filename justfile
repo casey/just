@@ -1,4 +1,4 @@
-#!/usr/bin/env just --justfile
+#!/usr/bin/env -S just --justfile
 # ^ A shebang isn't required, but allows a justfile to be executed
 #   like a script, with `./justfile test`, for example.
 
@@ -169,6 +169,9 @@ watch-readme:
 
 generate-completions:
   ./bin/generate-completions
+
+test-completions:
+  ./tests/completions/just.bash
 
 build-book:
   cargo run --package generate-book

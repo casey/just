@@ -79,7 +79,7 @@ pub(crate) fn analysis_error(
           column,
           length,
         },
-        kind,
+        kind: Box::new(kind),
       };
       assert_eq!(have, want);
     }
@@ -121,7 +121,7 @@ macro_rules! run_error {
 }
 
 macro_rules! assert_matches {
-  ($expression:expr, $( $pattern:pat )|+ $( if $guard:expr )?) => {
+  ($expression:expr, $( $pattern:pat_param )|+ $( if $guard:expr )?) => {
     match $expression {
       $( $pattern )|+ $( if $guard )? => {}
       left => panic!(

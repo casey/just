@@ -101,72 +101,146 @@ list:
 
 ### 安装包
 
-| 操作系统                                     | 包管理器           | 安装包                                          | 命令                                                                                 |
-| ---------------------------------------------------- | ------------------------- | ------------------------------------------------ | --------------------------------------------------------------------------------------- |
-| [Various][rust-platforms]                            | [Cargo][cargo]            | [just][just-crate]                               | `cargo install just`                                                                    |
-| [Microsoft Windows][windows]                         | [Scoop][scoop]            | [just][just-scoop]                               | `scoop install just`                                                                    |
-| [Various][homebrew-install]                          | [Homebrew][homebrew]      | [just][just-homebrew]                            | `brew install just`                                                                     |
-| [macOS][macos]                                       | [MacPorts][macports]      | [just][just-macports]                            | `port install just`                                                                     |
-| [Arch Linux][arch linux]                             | [pacman][pacman]          | [just][just-pacman]                              | `pacman -S just`                                                                        |
-| [Various][nix-platforms]                             | [Nix][nix]                | [just][just-nixpkg]                              | `nix-env -iA nixpkgs.just`                                                              |
-| [NixOS][nixos]                                       | [Nix][nix]                | [just][just-nixpkg]                              | `nix-env -iA nixos.just`                                                                |
-| [Solus][solus]                                       | [eopkg][solus-eopkg]      | [just][just-solus]                               | `eopkg install just`                                                                    |
-| [Void Linux][void linux]                             | [XBPS][xbps]              | [just][just-void]                                | `xbps-install -S just`                                                                  |
-| [FreeBSD][freebsd]                                   | [pkg][freebsd-pkg]        | [just][just-freebsd]                             | `pkg install just`                                                                      |
-| [Alpine Linux][alpine linux]                         | [apk-tools][apk-tools]    | [just][just-alpine]                              | `apk add just`                                                                          |
-| [Fedora Linux][fedora linux]                         | [DNF][dnf]                | [just][just-fedora]                              | `dnf install just`                                                                      |
-| [Gentoo Linux][gentoo linux]                         | [Portage][gentoo-portage] | [dm9pZCAq overlay: sys-devel/just][just-portage] | `eselect repository enable dm9pZCAq && emerge --sync dm9pZCAq && emerge sys-devel/just` |
-| [Various][conda-platforms]                           | [Conda][conda]            | [just][just-conda]                               | `conda install -c conda-forge just`                                                     |
-| [Microsoft Windows][windows]                         | [Chocolatey][chocolatey]  | [just][just-chocolatey]                          | `choco install just`                                                                    |
-| [Various][snap-platforms]                            | [Snap][snap]              | [just][just-snap]                                | `snap install --edge --classic just`                                                    |
-
-[alpine linux]: https://alpinelinux.org
-[apk-tools]: https://wiki.alpinelinux.org/wiki/Alpine_Linux_package_management
-[arch linux]: https://www.archlinux.org
-[cargo]: https://www.rust-lang.org
-[chocolatey]: https://chocolatey.org
-[conda-platforms]: https://docs.conda.io/en/latest/miniconda.html#system-requirements
-[conda]: https://docs.conda.io/projects/conda/en/latest/index.html
-[dnf]: https://dnf.readthedocs.io/en/latest/
-[fedora linux]: https://getfedora.org
-[freebsd-pkg]: https://www.freebsd.org/doc/handbook/pkgng-intro.html
-[freebsd]: https://www.freebsd.org
-[gentoo linux]: https://www.gentoo.org
-[gentoo-portage]: https://wiki.gentoo.org/wiki/Portage
-[homebrew-install]: https://docs.brew.sh/Installation
-[homebrew]: https://brew.sh
-[just-alpine]: https://pkgs.alpinelinux.org/package/edge/community/x86_64/just
-[just-chocolatey]: https://github.com/michidk/just-choco
-[just-conda]: https://anaconda.org/conda-forge/just
-[just-crate]: https://crates.io/crates/just
-[just-fedora]: https://src.fedoraproject.org/rpms/rust-just
-[just-freebsd]: https://www.freshports.org/deskutils/just/
-[just-homebrew]: https://formulae.brew.sh/formula/just
-[just-macports]: https://ports.macports.org/port/just/summary
-[just-nixpkg]: https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/tools/just/default.nix
-[just-pacman]: https://archlinux.org/packages/community/x86_64/just/
-[just-portage]: https://github.com/gentoo-mirror/dm9pZCAq/tree/master/sys-devel/just
-[just-scoop]: https://github.com/ScoopInstaller/Main/blob/master/bucket/just.json
-[just-snap]: https://snapcraft.io/just
-[just-solus]: https://dev.getsol.us/source/just/
-[just-void]: https://github.com/void-linux/void-packages/blob/master/srcpkgs/just/template
-[macos]: https://en.wikipedia.org/wiki/MacOS
-[macports]: https://www.macports.org
-[nix-plat]: https://nixos.org/nix/manual/#ch-supported-platforms
-[nix-platforms]: https://nixos.org/download.html#download-nix
-[nix]: https://nixos.org/nix/
-[nixos]: https://nixos.org/nixos/
-[pacman]: https://wiki.archlinux.org/title/Pacman
-[rust-platforms]: https://forge.rust-lang.org/release/platform-support.html
-[scoop]: https://scoop.sh
-[snap-platforms]: https://snapcraft.io/docs/installing-snapd
-[snap]: https://snapcraft.io
-[solus-eopkg]: https://getsol.us/articles/package-management/basics/en
-[solus]: https://getsol.us
-[ubuntu]: https://ubuntu.com
-[void linux]: https://voidlinux.org
-[windows]: https://en.wikipedia.org/wiki/Microsoft_Windows
-[xbps]: https://wiki.voidlinux.org/XBPS
+<table>
+  <thead>
+    <tr>
+      <th>操作系统</th>
+      <th>包管理器</th>
+      <th>安装包</th>
+      <th>命令</th>
+    </tr>
+  </thead>
+  <tbody>
+  <tr>
+    <td><a href="https://forge.rust-lang.org/release/platform-support.html">Various</a></td>
+    <td><a href="https://www.rust-lang.org">Cargo</a></td>
+    <td><a href="https://crates.io/crates/just">just</a></td>
+    <td><code>cargo install just</code></td>
+  </tr>
+  <tr>
+    <td><a href="https://en.wikipedia.org/wiki/Microsoft_Windows">Microsoft Windows</a></td>
+    <td><a href="https://scoop.sh">Scoop</a></td>
+    <td><a href="https://github.com/ScoopInstaller/Main/blob/master/bucket/just.json">just</a></td>
+    <td><code>scoop install just</code></td>
+  </tr>
+  <tr>
+    <td><a href="https://docs.brew.sh/Installation">Various</a></td>
+    <td><a href="https://brew.sh">Homebrew</a></td>
+    <td><a href="https://formulae.brew.sh/formula/just">just</a></td>
+    <td><code>brew install just</code></td>
+  </tr>
+  <tr>
+    <td><a href="https://en.wikipedia.org/wiki/MacOS">macOS</a></td>
+    <td><a href="https://www.macports.org">MacPorts</a></td>
+    <td><a href="https://ports.macports.org/port/just/summary">just</a></td>
+    <td><code>port install just</code></td>
+  </tr>
+  <tr>
+    <td><a href="https://www.archlinux.org">Arch Linux</a></td>
+    <td><a href="https://wiki.archlinux.org/title/Pacman">pacman</a></td>
+    <td><a href="https://archlinux.org/packages/community/x86_64/just/">just</a></td>
+    <td><code>pacman -S just</code></td>
+  </tr>
+  <tr>
+    <td><a href="https://nixos.org/download.html#download-nix">Various</a></td>
+    <td><a href="https://nixos.org/nix/">Nix</a></td>
+    <td><a href="https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/tools/just/default.nix">just</a></td>
+    <td><code>nix-env -iA nixpkgs.just</code></td>
+  </tr>
+  <tr>
+    <td><a href="https://nixos.org/nixos/">NixOS</a></td>
+    <td><a href="https://nixos.org/nix/">Nix</a></td>
+    <td><a href="https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/tools/just/default.nix">just</a></td>
+    <td><code>nix-env -iA nixos.just</code></td>
+  </tr>
+  <tr>
+    <td><a href="https://getsol.us">Solus</a></td>
+    <td><a href="https://getsol.us/articles/package-management/basics/en">eopkg</a></td>
+    <td><a href="https://dev.getsol.us/source/just/">just</a></td>
+    <td><code>eopkg install just</code></td>
+  </tr>
+  <tr>
+    <td><a href="https://voidlinux.org">Void Linux</a></td>
+    <td><a href="https://wiki.voidlinux.org/XBPS">XBPS</a></td>
+    <td><a href="https://github.com/void-linux/void-packages/blob/master/srcpkgs/just/template">just</a></td>
+    <td><code>xbps-install -S just</code></td>
+  </tr>
+  <tr>
+    <td><a href="https://www.freebsd.org">FreeBSD</a></td>
+    <td><a href="https://www.freebsd.org/doc/handbook/pkgng-intro.html">pkg</a></td>
+    <td><a href="https://www.freshports.org/deskutils/just/">just</a></td>
+    <td><code>pkg install just</code></td>
+  </tr>
+  <tr>
+    <td><a href="https://alpinelinux.org">Alpine Linux</a></td>
+    <td><a href="https://wiki.alpinelinux.org/wiki/Alpine_Linux_package_management">apk-tools</a></td>
+    <td><a href="https://pkgs.alpinelinux.org/package/edge/community/x86_64/just">just</a></td>
+    <td><code>apk add just</code></td>
+  </tr>
+  <tr>
+    <td><a href="https://getfedora.org">Fedora Linux</a></td>
+    <td><a href="https://dnf.readthedocs.io/en/latest/">DNF</a></td>
+    <td><a href="https://src.fedoraproject.org/rpms/rust-just">just</a></td>
+    <td><code>dnf install just</code></td>
+  </tr>
+  <tr>
+    <td><a href="https://www.gentoo.org">Gentoo Linux</a></td>
+    <td><a href="https://wiki.gentoo.org/wiki/Portage">Portage</a></td>
+    <td><a href="https://github.com/gentoo-mirror/dm9pZCAq/tree/master/sys-devel/just">dm9pZCAq/sys-devel/just</a></td>
+    <td>
+      <code>eselect repository enable dm9pZCAq</code><br>
+      <code>emerge --sync dm9pZCAq</code><br>
+      <code>emerge sys-devel/just</code>
+    </td>
+  </tr>
+  <tr>
+    <td><a href="https://docs.conda.io/en/latest/miniconda.html#system-requirements">Various</a></td>
+    <td><a href="https://docs.conda.io/projects/conda/en/latest/index.html">Conda</a></td>
+    <td><a href="https://anaconda.org/conda-forge/just">just</a></td>
+    <td><code>conda install -c conda-forge just</code></td>
+  </tr>
+  <tr>
+    <td><a href="https://en.wikipedia.org/wiki/Microsoft_Windows">Microsoft Windows</a></td>
+    <td><a href="https://chocolatey.org">Chocolatey</a></td>
+    <td><a href="https://github.com/michidk/just-choco">just</a></td>
+    <td><code>choco install just</code></td>
+  </tr>
+  <tr>
+    <td><a href="https://snapcraft.io/docs/installing-snapd">Various</a></td>
+    <td><a href="https://snapcraft.io">Snap</a></td>
+    <td><a href="https://snapcraft.io/just">just</a></td>
+    <td><code>snap install --edge --classic just</code></td>
+  </tr>
+  <tr>
+    <td><a href="https://github.com/casey/just/releases">Various</a></td>
+    <td><a href="https://asdf-vm.com">asdf</a></td>
+    <td><a href="https://github.com/ggilmore/asdf-just">just</a></td>
+    <td>
+      <code>asdf plugin add just</code><br>
+      <code>asdf install just &lt;version&gt;</code>
+    </td>
+  </tr>
+  <tr>
+    <td><a href="https://debian.org">Debian</a> and <a href="https://ubuntu.com">Ubuntu</a> derivatives</td>
+    <td><a href="https://mpr.makedeb.org">MPR</a></td>
+    <td><a href="https://mpr.makedeb.org/packages/just">just</a></td>
+    <td>
+      <code>git clone 'https://mpr.makedeb.org/just'</code><br>
+      <code>cd just</code><br>
+      <code>makedeb -si</code>
+    </td>
+  </tr>
+  <tr>
+    <td><a href="https://debian.org">Debian</a> and <a href="https://ubuntu.com">Ubuntu</a> derivatives</td>
+    <td><a href="https://docs.makedeb.org/prebuilt-mpr">Prebuilt-MPR</a></td>
+    <td><a href="https://mpr.makedeb.org/packages/just">just</a></td>
+    <td>
+      <sup><b>You must have the <a href="https://docs.makedeb.org/prebuilt-mpr/getting-started/#setting-up-the-repository">Prebuilt-MPR set up</a> on your system in order to run this command.</b></sup><br>
+      <code>sudo apt install just</code>
+    </td>
+  </tr>
+  </tbody>
+</table>
 
 ![package version table](https://repology.org/badge/vertical-allrepos/just.svg)
 
@@ -215,7 +289,7 @@ just --help
 
 ### Node.js 安装
 
-[just-install](https://npmjs.com/packages/just-install) 可用于在 Node.js 应用程序中自动安装 `just`。
+[just-install](https://npmjs.com/package/just-install) 可用于在 Node.js 应用程序中自动安装 `just`。
 
 `just` 是一个很赞的比 npm 脚本更强大的替代品。如果你想在 Node.js 应用程序的依赖中包含 `just`，可以通过 `just-install`，它将在本机安装一个针对特定平台的二进制文件作为 `npm install` 安装结果的一部分。这样就不需要每个开发者使用上述提到的步骤独立安装 `just`。安装后，`just` 命令将在 npm 脚本或 npx 中工作。这对那些想让项目的设置过程尽可能简单的团队来说是很有用的。
 
@@ -501,6 +575,8 @@ default:
   @just --list
 ```
 
+请注意，你可能需要在上面这一行中添加 `--justfile {{justfile()}}`。没有它，如果你执行 `just -f /some/distant/justfile -d .` 或 `just -f ./non-standard-justfile` 配方中的普通 `just --list` 就不一定会使用你提供的文件，它将试图在你的当前路径中找到一个 `justfile`，甚至可能导致 `No justfile found` 的错误。
+
 标题文本可以用 `--list-heading` 来定制：
 
 ```sh
@@ -561,14 +637,15 @@ foo:
 
 #### 设置一览表
 
-| 名称                      | 值                 | 描述                                                   |
-| ------------------------- | ------------------ | ------------------------------------------------------ |
-| `allow-duplicate-recipes` | boolean            | 允许在 `justfile` 后面出现的配方覆盖之前的同名配方     |
-| `dotenv-load`             | boolean            | 加载 `.env` 环境变量文件, 如果有的话                   |
-| `export`                  | boolean            | 将所有变量导出为环境变量                               |
-| `positional-arguments`    | boolean            | 传递位置参数                                           |
-| `shell`                   | `[COMMAND, ARGS…]` | 设置用于调用配方和评估反引号内包裹内容的命令           |
-| `windows-powershell`      | boolean            | 在 Windows 上使用 PowerShell 作为默认 Shell            |
+| 名称                      | 值                 | 描述                                                                        |
+| ------------------------- | ------------------ | --------------------------------------------------------------------------- |
+| `allow-duplicate-recipes` | boolean            | 允许在 `justfile` 后面出现的配方覆盖之前的同名配方                          |
+| `dotenv-load`             | boolean            | 加载 `.env` 环境变量文件, 如果有的话                                        |
+| `export`                  | boolean            | 将所有变量导出为环境变量                                                    |
+| `positional-arguments`    | boolean            | 传递位置参数                                                                |
+| `shell`                   | `[COMMAND, ARGS…]` | 设置用于调用配方和评估反引号内包裹内容的命令                                |
+| `windows-shell`           | `[COMMAND, ARGS…]` | 设置用于调用配方和评估反引号内包裹内容的命令。                              |
+| `windows-powershell`      | boolean            | 在 Windows 上使用 PowerShell 作为默认 Shell(废弃，建议使用 `windows-shell`) |
 
 Bool 类型设置可以写成：
 
@@ -694,6 +771,8 @@ set windows-shell := ["pwsh.exe", "-NoLogo", "-Command"]
 hello:
   Write-Host "Hello, world!"
 ```
+
+参考 [powershell.just](https://github.com/casey/just/blob/master/examples/powershell.just) ，了解在所有平台上使用 PowerShell 的 justfile。
 
 ##### Windows PowerShell
 
@@ -1357,6 +1436,28 @@ default: (build "main")
 build target:
   @echo 'Building {{target}}…'
   cd {{target}} && make
+```
+
+变量也可以作为参数传递给依赖：
+
+```make
+target := "main"
+
+_build version:
+  @echo 'Building {{version}}…'
+  cd {{version}} && make
+
+build: (_build target)
+```
+
+命令的参数可以通过将依赖与参数一起放在括号中的方式传递给依赖：
+
+```make
+build target:
+  @echo "Building {{target}}…"
+
+push target: (build target)
+  @echo 'Pushing {{target}}…'
 ```
 
 参数可以有默认值：
@@ -2035,6 +2136,17 @@ foo $argument:
 
 这就破坏了 `just` 捕捉拼写错误的能力，例如你输入 `$argumant`，但对 `argument` 的所有可能的值都有效，包括那些带双引号的。
 
+### 配置 Shell
+
+有许多方法可以为行式配方配置 Shell，当配方不以 `#！` Shebang 开头时，这些配方的 Shell 为默认的。它们的优先级，从高到低为：
+
+1. `--shell` 和 `--shell-arg` 命令行选项。传入这两个选项中的任何一个，都会使 `just` 忽略当前 justfile 中的任何设置
+2. `set windows-shell := [...]`
+3. `set windows-powershell` (废弃)
+4. `set shell := [...]`
+
+由于 `set windows-shell` 比 `set shell` 有更高的优先级，你可以用 `set windows-shell` 在 Windows 上选择一个 Shell，而 `set shell` 则为所有其他平台选择一个 Shell。
+
 更新日志
 ---------
 
@@ -2067,6 +2179,23 @@ Bash、Zsh、Fish、PowerShell 和 Elvish 的 Shell 自动补全脚本可以在 
 
 ```sh
 $ just --completions zsh > just.zsh
+```
+
+*macOS 注意:* 最近版本的 macOS 使用 zsh 作为默认的 Shell。如果你使用 Homebrew 安装 `just`，它会自动安装 zsh 补全脚本的最新副本到 Homebrew zsh 目录下，而内置默认版本的 zsh 是不知道的。如果可能的话，最好使用这个脚本副本，因为当你通过 Homebrew 更新 `just` 时，它也会被更新。另外，许多其他的 Homebrew 软件包也使用相同位置的补全脚本，而内置的 zsh 也不知道这些。为了在这种情况下在 zsh 中使用 `just` 的补全，你可以在调用 `compinit` 之前将 `fpath` 设置为 Homebrew 的位置。还要注意，Oh My Zsh 默认会运行 `compinit`，所以你的 `.zshrc` 文件看起来像这样：
+
+```zsh
+# 启动Homebrew，添加环境变量
+eval "$(brew shellenv)"
+
+fpath=($HOMEBREW_PREFIX/share/zsh/site-functions $fpath)
+
+# 然后从这些选项中选择一个:
+# 1. 如果你使用的是 Oh My Zsh，你可以在这里初始化它
+# source $ZSH/oh-my-zsh.sh
+
+# 2. 否则就自己运行 compinit
+# autoload -U compinit
+# compinit
 ```
 
 ### 语法
@@ -2131,8 +2260,9 @@ export PATH := "./node_modules/.bin:" + env_var('PATH')
 
 现在并不缺少命令运行器！在这里，有一些或多或少比较类似于 `just` 的替代方案，包括：
 
+- [make](https://en.wikipedia.org/wiki/Make_(software)): 启发了 `just` 的 Unix 构建工具。
+- [makesure](https://github.com/xonixx/makesure): 一个用 AWK 和 Shell 编写的简单而便携的命令运行器。
 - [mmake](https://github.com/tj/mmake): 一个围绕 `make` 的包装器，有很多改进，包括远程引入。
-
 - [robo](https://github.com/tj/robo): 一个用 Go 编写的基于 YAML 的命令运行器。
 
 贡献
