@@ -117,8 +117,8 @@ impl<'src, D> Recipe<'src, D> {
 
       // Handle comment lines within a linewise recipe as ordinary just comments if and only if the
       // echo_comments setting is false
-      let comments_in_recipe = !context.settings.echo_comments;
-      let comment_line = comments_in_recipe && lines.peek().map_or(false, |line| line.is_comment());
+      let comment_line =
+        context.settings.skip_comments && lines.peek().map_or(false, |line| line.is_comment());
 
       loop {
         if lines.peek().is_none() {

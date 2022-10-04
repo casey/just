@@ -5,7 +5,7 @@ fn ignore_comments_in_recipe() {
   Test::new()
     .justfile(
       "
-      set echo-comments := false
+      set skip-comments
 
       some_recipe:
         # A recipe-internal comment
@@ -38,7 +38,7 @@ fn ignore_recipe_comments_with_shell_setting() {
     .justfile(
       "
       set shell := ['echo', '-n']
-      set echo-comments := false
+      set skip-comments
 
       some_recipe:
         # Alternate shells still ignore comments
@@ -55,7 +55,7 @@ fn continuations_iwth_echo_comments_false() {
   Test::new()
     .justfile(
       "
-      set echo-comments := false
+      set skip-comments
 
       some_recipe:
         # Comment lines ignore line continuations \\
@@ -72,7 +72,7 @@ fn continuations_with_echo_comments_true() {
   Test::new()
     .justfile(
       "
-      set echo-comments := true
+      set skip-comments := false
 
       some_recipe:
         # comment lines can be continued \\

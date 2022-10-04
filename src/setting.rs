@@ -4,7 +4,7 @@ use super::*;
 pub(crate) enum Setting<'src> {
   AllowDuplicateRecipes(bool),
   DotenvLoad(bool),
-  EchoComments(bool),
+  SkipComments(bool),
   Export(bool),
   PositionalArguments(bool),
   Shell(Shell<'src>),
@@ -17,7 +17,7 @@ impl<'src> Display for Setting<'src> {
     match self {
       Setting::AllowDuplicateRecipes(value)
       | Setting::DotenvLoad(value)
-      | Setting::EchoComments(value)
+      | Setting::SkipComments(value)
       | Setting::Export(value)
       | Setting::PositionalArguments(value)
       | Setting::WindowsPowerShell(value) => write!(f, "{}", value),

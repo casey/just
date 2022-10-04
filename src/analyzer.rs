@@ -40,7 +40,7 @@ impl<'src> Analyzer<'src> {
       }
     }
 
-    let mut settings = Settings::new();
+    let mut settings = Settings::default();
 
     for (_, set) in self.sets {
       match set.value {
@@ -53,8 +53,8 @@ impl<'src> Analyzer<'src> {
         Setting::Export(export) => {
           settings.export = export;
         }
-        Setting::EchoComments(ignore) => {
-          settings.echo_comments = ignore;
+        Setting::SkipComments(ignore) => {
+          settings.skip_comments = ignore;
         }
         Setting::PositionalArguments(positional_arguments) => {
           settings.positional_arguments = positional_arguments;

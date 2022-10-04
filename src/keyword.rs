@@ -10,7 +10,7 @@ pub(crate) enum Keyword {
   Export,
   False,
   If,
-  EchoComments,
+  SkipComments,
   PositionalArguments,
   Set,
   Shell,

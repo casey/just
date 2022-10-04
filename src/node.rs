@@ -229,7 +229,7 @@ impl<'src> Node<'src> for Set<'src> {
       | Setting::Export(value)
       | Setting::PositionalArguments(value)
       | Setting::WindowsPowerShell(value)
-      | Setting::EchoComments(value) => {
+      | Setting::SkipComments(value) => {
         set.push_mut(value.to_string());
       }
       Setting::Shell(Shell { command, arguments })
