@@ -609,14 +609,15 @@ foo:
   ls **/*.txt
 </code></pre>
 <h4 id="table-of-settings"><a class="header" href="#table-of-settings">Table of Settings</a></h4>
-<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Value</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>allow-duplicate-recipes</code></td><td>boolean</td><td>Allow recipes appearing later in a <code>justfile</code> to override earlier recipes with the same name.</td></tr>
-<tr><td><code>dotenv-load</code></td><td>boolean</td><td>Load a <code>.env</code> file, if present.</td></tr>
-<tr><td><code>export</code></td><td>boolean</td><td>Export all variables as environment variables.</td></tr>
-<tr><td><code>positional-arguments</code></td><td>boolean</td><td>Pass positional arguments.</td></tr>
-<tr><td><code>shell</code></td><td><code>[COMMAND, ARGS…]</code></td><td>Set the command used to invoke recipes and evaluate backticks.</td></tr>
-<tr><td><code>windows-shell</code></td><td><code>[COMMAND, ARGS…]</code></td><td>Set the command used to invoke recipes and evaluate backticks.</td></tr>
-<tr><td><code>windows-powershell</code></td><td>boolean</td><td>Use PowerShell on Windows as default shell. (Deprecated. Use <code>windows-shell</code> instead.</td></tr>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Value</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>allow-duplicate-recipes</code></td><td>boolean</td><td>False</td><td>Allow recipes appearing later in a <code>justfile</code> to override earlier recipes with the same name.</td></tr>
+<tr><td><code>dotenv-load</code></td><td>boolean</td><td>False</td><td>Load a <code>.env</code> file, if present.</td></tr>
+<tr><td><code>export</code></td><td>boolean</td><td>False</td><td>Export all variables as environment variables.</td></tr>
+<tr><td><code>ignore-comments</code></td><td>boolean</td><td>False</td><td>Ignore recipe lines beginning with <code>#</code>.</td></tr>
+<tr><td><code>positional-arguments</code></td><td>boolean</td><td>False</td><td>Pass positional arguments.</td></tr>
+<tr><td><code>shell</code></td><td><code>[COMMAND, ARGS…]</code></td><td>-</td><td>Set the command used to invoke recipes and evaluate backticks.</td></tr>
+<tr><td><code>windows-powershell</code></td><td>boolean</td><td>False</td><td>Use PowerShell on Windows as default shell. (Deprecated. Use <code>windows-shell</code> instead.</td></tr>
+<tr><td><code>windows-shell</code></td><td><code>[COMMAND, ARGS…]</code></td><td>-</td><td>Set the command used to invoke recipes and evaluate backticks.</td></tr>
 </tbody></table>
 </div>
 <p>Boolean settings can be written as:</p>
