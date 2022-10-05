@@ -59,7 +59,7 @@ assignment    : NAME ':=' expression eol
 export        : 'export' assignment
 
 setting       : 'set' 'dotenv-load' boolean?
-              | 'set' 'skip-comments' boolean?
+              | 'set' 'ignore-comments' boolean?
               | 'set' 'export' boolean?
               | 'set' 'positional-arguments' boolean?
               | 'set' 'allow-duplicate-recipes' boolean?

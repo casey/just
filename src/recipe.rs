@@ -116,7 +116,7 @@ impl<'src, D> Recipe<'src, D> {
       let infallible_command = lines.peek().map_or(false, |line| line.is_infallible());
 
       let comment_line =
-        context.settings.skip_comments && lines.peek().map_or(false, |line| line.is_comment());
+        context.settings.ignore_comments && lines.peek().map_or(false, |line| line.is_comment());
 
       loop {
         if lines.peek().is_none() {

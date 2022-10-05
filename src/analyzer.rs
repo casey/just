@@ -53,8 +53,8 @@ impl<'src> Analyzer<'src> {
         Setting::Export(export) => {
           settings.export = export;
         }
-        Setting::SkipComments(skip_comments) => {
-          settings.skip_comments = skip_comments;
+        Setting::IgnoreComments(ignore_comments) => {
+          settings.ignore_comments = ignore_comments;
         }
         Setting::PositionalArguments(positional_arguments) => {
           settings.positional_arguments = positional_arguments;

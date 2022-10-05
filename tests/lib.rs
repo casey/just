@@ -50,6 +50,7 @@ mod export;
 mod fall_back_to_parent;
 mod fmt;
 mod functions;
+mod ignore_comments;
 mod init;
 #[cfg(unix)]
 mod interrupts;
@@ -70,7 +71,6 @@ mod search;
 mod shebang;
 mod shell;
 mod show;
-mod skip_comments;
 mod slash_operator;
 mod string;
 mod sublime_syntax;

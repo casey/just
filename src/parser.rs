@@ -761,7 +761,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
           Some(Setting::AllowDuplicateRecipes(self.parse_set_bool()?))
         }
         Keyword::DotenvLoad => Some(Setting::DotenvLoad(self.parse_set_bool()?)),
-        Keyword::SkipComments => Some(Setting::SkipComments(self.parse_set_bool()?)),
+        Keyword::IgnoreComments => Some(Setting::IgnoreComments(self.parse_set_bool()?)),
         Keyword::Export => Some(Setting::Export(self.parse_set_bool()?)),
         Keyword::PositionalArguments => Some(Setting::PositionalArguments(self.parse_set_bool()?)),
         Keyword::WindowsPowershell => Some(Setting::WindowsPowerShell(self.parse_set_bool()?)),

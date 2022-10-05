@@ -646,11 +646,11 @@ foo:
 | `allow-duplicate-recipes` | boolean            | False   | Allow recipes appearing later in a `justfile` to override earlier recipes with the same name. |
 | `dotenv-load`             | boolean            | False   | Load a `.env` file, if present.                                                               |
 | `export`                  | boolean            | False   | Export all variables as environment variables.                                                |
-| `skip-comments`           | boolean            | False   | Skip recipe lines beginning with '#'.                                                         |
+| `ignore-comments`         | boolean            | False   | Ignore recipe lines beginning with `#`.                                                       |
 | `positional-arguments`    | boolean            | False   | Pass positional arguments.                                                                    |
 | `shell`                   | `[COMMAND, ARGS…]` | -       | Set the command used to invoke recipes and evaluate backticks.                                |
-| `windows-shell`           | `[COMMAND, ARGS…]` | -       | Set the command used to invoke recipes and evaluate backticks.                                |
 | `windows-powershell`      | boolean            | False   | Use PowerShell on Windows as default shell. (Deprecated. Use `windows-shell` instead.         |
+| `windows-shell`           | `[COMMAND, ARGS…]` | -       | Set the command used to invoke recipes and evaluate backticks.                                |
 
 Boolean settings can be written as:
 

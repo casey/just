@@ -10,9 +10,9 @@ pub(crate) struct Settings<'src> {
   pub(crate) allow_duplicate_recipes: bool,
   pub(crate) dotenv_load: Option<bool>,
   pub(crate) export: bool,
+  pub(crate) ignore_comments: bool,
   pub(crate) positional_arguments: bool,
   pub(crate) shell: Option<Shell<'src>>,
-  pub(crate) skip_comments: bool,
   pub(crate) windows_powershell: bool,
   pub(crate) windows_shell: Option<Shell<'src>>,
 }
