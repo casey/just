@@ -124,7 +124,9 @@ impl<'src, D> Recipe<'src, D> {
         }
         let line = lines.next().unwrap();
         line_number += 1;
-        evaluated += &evaluator.evaluate_line(line, continued)?;
+        if !comment_line {
+          evaluated += &evaluator.evaluate_line(line, continued)?;
+        }
         if line.is_continuation() && !comment_line {
           continued = true;
           evaluated.pop();
@@ -132,6 +134,11 @@ impl<'src, D> Recipe<'src, D> {
           break;
         }
       }
+
+      if comment_line {
+        continue;
+      }
+
       let mut command = evaluated.as_str();
 
       if quiet_command {
@@ -140,10 +147,6 @@ impl<'src, D> Recipe<'src, D> {
 
       if infallible_command {
         command = &command[1..];
-      }
-
-      if comment_line {
-        continue;
       }
 
       if command.is_empty() {
