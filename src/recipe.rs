@@ -115,8 +115,6 @@ impl<'src, D> Recipe<'src, D> {
       let quiet_command = lines.peek().map_or(false, |line| line.is_quiet());
       let infallible_command = lines.peek().map_or(false, |line| line.is_infallible());
 
-      // Handle comment lines within a linewise recipe as ordinary just comments if and only if the
-      // echo_comments setting is false
       let comment_line =
         context.settings.skip_comments && lines.peek().map_or(false, |line| line.is_comment());
 
