@@ -1,5 +1,6 @@
 #![deny(clippy::all, clippy::pedantic)]
 #![allow(
+  clippy::default_trait_access,
   clippy::doc_markdown,
   clippy::enum_glob_use,
   clippy::missing_errors_doc,
