@@ -83,8 +83,10 @@ mod tests {
 
   #[test]
   fn default_shell_powershell() {
-    let mut settings = Settings::default();
-    settings.windows_powershell = true;
+    let settings = Settings {
+      windows_powershell: true,
+      ..Default::default()
+    };
 
     let config = Config {
       shell_command: false,
@@ -117,8 +119,10 @@ mod tests {
 
   #[test]
   fn overwrite_shell_powershell() {
-    let mut settings = Settings::default();
-    settings.windows_powershell = true;
+    let settings = Settings {
+      windows_powershell: true,
+      ..Default::default()
+    };
 
     let config = Config {
       shell_command: true,
@@ -132,20 +136,21 @@ mod tests {
 
   #[test]
   fn shell_cooked() {
-    let mut settings = Settings::default();
-
-    settings.shell = Some(Shell {
-      command: StringLiteral {
-        kind: StringKind::from_token_start("\"").unwrap(),
-        raw: "asdf.exe",
-        cooked: "asdf.exe".to_string(),
-      },
-      arguments: vec![StringLiteral {
-        kind: StringKind::from_token_start("\"").unwrap(),
-        raw: "-nope",
-        cooked: "-nope".to_string(),
-      }],
-    });
+    let settings = Settings {
+      shell: Some(Shell {
+        command: StringLiteral {
+          kind: StringKind::from_token_start("\"").unwrap(),
+          raw: "asdf.exe",
+          cooked: "asdf.exe".to_string(),
+        },
+        arguments: vec![StringLiteral {
+          kind: StringKind::from_token_start("\"").unwrap(),
+          raw: "-nope",
+          cooked: "-nope".to_string(),
+        }],
+      }),
+      ..Default::default()
+    };
 
     let config = Config {
       shell_command: false,
@@ -157,8 +162,10 @@ mod tests {
 
   #[test]
   fn shell_present_but_not_shell_args() {
-    let mut settings = Settings::default();
-    settings.windows_powershell = true;
+    let settings = Settings {
+      windows_powershell: true,
+      ..Default::default()
+    };
 
     let config = Config {
       shell: Some("lol".to_string()),
@@ -170,8 +177,10 @@ mod tests {
 
   #[test]
   fn shell_args_present_but_not_shell() {
-    let mut settings = Settings::default();
-    settings.windows_powershell = true;
+    let settings = Settings {
+      windows_powershell: true,
+      ..Default::default()
+    };
 
     let config = Config {
       shell_command: false,
