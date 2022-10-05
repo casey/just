@@ -1,8 +1,5 @@
 use super::*;
 
-// TODO
-// - don't evaluate comments
-
 /// A single line in a recipe body, consisting of any number of `Fragment`s.
 #[derive(Debug, Clone, PartialEq, Serialize)]
 #[serde(transparent)]

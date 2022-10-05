@@ -83,3 +83,17 @@ fn continuations_with_echo_comments_true() {
     .stderr("# comment lines can be continued echo something-useful\n")
     .run();
 }
+
+#[test]
+fn dont_evalute_comments() {
+  Test::new()
+    .justfile(
+      "
+      set ignore-comments
+
+      some_recipe:
+        # {{ error('foo') }}
+    ",
+    )
+    .run();
+}
