@@ -5,11 +5,12 @@ pub(crate) const DEFAULT_SHELL_ARGS: &[&str] = &["-cu"];
 pub(crate) const WINDOWS_POWERSHELL_SHELL: &str = "powershell.exe";
 pub(crate) const WINDOWS_POWERSHELL_ARGS: &[&str] = &["-NoLogo", "-Command"];
 
-#[derive(Debug, PartialEq, Serialize)]
+#[derive(Debug, PartialEq, Serialize, Default)]
 pub(crate) struct Settings<'src> {
   pub(crate) allow_duplicate_recipes: bool,
   pub(crate) dotenv_load: Option<bool>,
   pub(crate) export: bool,
+  pub(crate) ignore_comments: bool,
   pub(crate) positional_arguments: bool,
   pub(crate) shell: Option<Shell<'src>>,
   pub(crate) windows_powershell: bool,
@@ -17,18 +18,6 @@ pub(crate) struct Settings<'src> {
 }
 
 impl<'src> Settings<'src> {
-  pub(crate) fn new() -> Settings<'src> {
-    Settings {
-      allow_duplicate_recipes: false,
-      dotenv_load: None,
-      export: false,
-      positional_arguments: false,
-      shell: None,
-      windows_powershell: false,
-      windows_shell: None,
-    }
-  }
-
   pub(crate) fn shell_command(&self, config: &Config) -> Command {
     let (command, args) = self.shell(config);
 
@@ -82,7 +71,7 @@ mod tests {
 
   #[test]
   fn default_shell() {
-    let settings = Settings::new();
+    let settings = Settings::default();
 
     let config = Config {
       shell_command: false,
@@ -94,8 +83,10 @@ mod tests {
 
   #[test]
   fn default_shell_powershell() {
-    let mut settings = Settings::new();
-    settings.windows_powershell = true;
+    let settings = Settings {
+      windows_powershell: true,
+      ..Default::default()
+    };
 
     let config = Config {
       shell_command: false,
@@ -114,7 +105,7 @@ mod tests {
 
   #[test]
   fn overwrite_shell() {
-    let settings = Settings::new();
+    let settings = Settings::default();
 
     let config = Config {
       shell_command: true,
@@ -128,8 +119,10 @@ mod tests {
 
   #[test]
   fn overwrite_shell_powershell() {
-    let mut settings = Settings::new();
-    settings.windows_powershell = true;
+    let settings = Settings {
+      windows_powershell: true,
+      ..Default::default()
+    };
 
     let config = Config {
       shell_command: true,
@@ -143,20 +136,21 @@ mod tests {
 
   #[test]
   fn shell_cooked() {
-    let mut settings = Settings::new();
-
-    settings.shell = Some(Shell {
-      command: StringLiteral {
-        kind: StringKind::from_token_start("\"").unwrap(),
-        raw: "asdf.exe",
-        cooked: "asdf.exe".to_string(),
-      },
-      arguments: vec![StringLiteral {
-        kind: StringKind::from_token_start("\"").unwrap(),
-        raw: "-nope",
-        cooked: "-nope".to_string(),
-      }],
-    });
+    let settings = Settings {
+      shell: Some(Shell {
+        command: StringLiteral {
+          kind: StringKind::from_token_start("\"").unwrap(),
+          raw: "asdf.exe",
+          cooked: "asdf.exe".to_string(),
+        },
+        arguments: vec![StringLiteral {
+          kind: StringKind::from_token_start("\"").unwrap(),
+          raw: "-nope",
+          cooked: "-nope".to_string(),
+        }],
+      }),
+      ..Default::default()
+    };
 
     let config = Config {
       shell_command: false,
@@ -168,8 +162,10 @@ mod tests {
 
   #[test]
   fn shell_present_but_not_shell_args() {
-    let mut settings = Settings::new();
-    settings.windows_powershell = true;
+    let settings = Settings {
+      windows_powershell: true,
+      ..Default::default()
+    };
 
     let config = Config {
       shell: Some("lol".to_string()),
@@ -181,8 +177,10 @@ mod tests {
 
   #[test]
   fn shell_args_present_but_not_shell() {
-    let mut settings = Settings::new();
-    settings.windows_powershell = true;
+    let settings = Settings {
+      windows_powershell: true,
+      ..Default::default()
+    };
 
     let config = Config {
       shell_command: false,

@@ -228,7 +228,8 @@ impl<'src> Node<'src> for Set<'src> {
       | Setting::DotenvLoad(value)
       | Setting::Export(value)
       | Setting::PositionalArguments(value)
-      | Setting::WindowsPowerShell(value) => {
+      | Setting::WindowsPowerShell(value)
+      | Setting::IgnoreComments(value) => {
         set.push_mut(value.to_string());
       }
       Setting::Shell(Shell { command, arguments })

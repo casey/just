@@ -95,7 +95,7 @@ impl<'src, D> Recipe<'src, D> {
     }
   }
 
-  pub(crate) fn run_linewise<'run>(
+  fn run_linewise<'run>(
     &self,
     context: &RecipeContext<'src, 'run>,
     dotenv: &BTreeMap<String, String>,
@@ -114,6 +114,10 @@ impl<'src, D> Recipe<'src, D> {
       let mut continued = false;
       let quiet_command = lines.peek().map_or(false, |line| line.is_quiet());
       let infallible_command = lines.peek().map_or(false, |line| line.is_infallible());
+
+      let comment_line =
+        context.settings.ignore_comments && lines.peek().map_or(false, |line| line.is_comment());
+
       loop {
         if lines.peek().is_none() {
           break;
@@ -121,7 +125,7 @@ impl<'src, D> Recipe<'src, D> {
         let line = lines.next().unwrap();
         line_number += 1;
         evaluated += &evaluator.evaluate_line(line, continued)?;
-        if line.is_continuation() {
+        if line.is_continuation() && !comment_line {
           continued = true;
           evaluated.pop();
         } else {
@@ -136,6 +140,10 @@ impl<'src, D> Recipe<'src, D> {
 
       if infallible_command {
         command = &command[1..];
+      }
+
+      if comment_line {
+        continue;
       }
 
       if command.is_empty() {

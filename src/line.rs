@@ -12,6 +12,13 @@ impl<'src> Line<'src> {
     self.fragments.is_empty()
   }
 
+  pub(crate) fn is_comment(&self) -> bool {
+    match self.fragments.first() {
+      Some(Fragment::Text { token }) => token.lexeme().starts_with('#'),
+      _ => false,
+    }
+  }
+
   pub(crate) fn is_continuation(&self) -> bool {
     match self.fragments.last() {
       Some(Fragment::Text { token }) => token.lexeme().ends_with('\\'),

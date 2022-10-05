@@ -50,6 +50,7 @@ mod export;
 mod fall_back_to_parent;
 mod fmt;
 mod functions;
+mod ignore_comments;
 mod init;
 #[cfg(unix)]
 mod interrupts;
