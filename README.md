@@ -925,7 +925,7 @@ $ just --evaluate bar
 a//b
 ```
 
-Absolute paths can also be constructed:
+Absolute paths can also be constructed<sup>1.5.0</sup>:
 
 ```make
 foo := / "b"
