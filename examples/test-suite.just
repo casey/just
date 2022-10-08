@@ -1,8 +1,19 @@
 set shell := ["sh", "-c"]
 set windows-shell := ["powershell.exe", "-NoLogo", "-Command"]
+set allow-duplicate-recipes
 set positional-arguments
 set dotenv-load
 set export
+
+alias s := serve
+
+bt := '0'
+
+export RUST_BACKTRACE_1 := bt
+
+log := "warn"
+
+export JUST_LOG := log
 
 tmpdir  := `mktemp`
 version := "0.2.7"
@@ -30,13 +41,6 @@ goodbye
 "
 escapes := '\t\n\r\"\\'
 
-
-shebang := if os() == 'windows' {
-  'powershell.exe'
-} else {
-  '/usr/bin/env pwsh'
-}
-
 # this string will evaluate to `foo\nbar\n`
 x := '''
   foo
@@ -49,6 +53,11 @@ y := """
     wuv
   xyz
 """
+
+for:
+  for file in `ls .`; do \
+    echo $file; \
+  done
 
 serve:
   touch {{tmpdir}}/file
@@ -68,6 +77,7 @@ smartphone := trim_end_match('blah.txt', 'txt')
 museum := trim_start_match(trim_start(trim_end_matches('   yep_blah.txt.txt', '.txt')), 'yep_')
 water := trim_start_matches('ssssssoup.txt', 's')
 congress := uppercase(os())
+fam := os_family()
 path_1 := absolute_path('test')
 path_2 := '/tmp/subcommittee.txt'
 ext_z := extension(path_2)
@@ -117,6 +127,13 @@ linewise:
 serve2:
   @echo "Starting server with database $DATABASE_ADDRESS on port $SERVER_PORT…"
 
+
+shebang := if os() == 'windows' {
+  'powershell.exe'
+} else {
+  '/usr/bin/env pwsh'
+}
+
 shebang:
 	#!{{shebang}}
 	$PSV = $PSVersionTable.PSVersion | % {"$_" -split "\." }
@@ -149,14 +166,14 @@ script2 *ARGS:
 braces:
   echo 'I {{{{LOVE}} curly braces!'
 
-braces2:
+_braces2:
   echo '{{'I {{LOVE}} curly braces!'}}'
 
-braces3:
+_braces3:
   echo 'I {{ "{{" }}LOVE}} curly braces!'
 
 foo2:
-  -cat foo
+  -@cat foo
   echo 'Done!'
 
 test3 target tests=path_1:
@@ -169,14 +186,20 @@ test4 triple=(an_arch + "-unknown-unknown") input=(an_arch / "input.dat"):
 variadic $VAR1_1 VAR2 VAR3 VAR4=("a") +$FLAGS='-q': foo2 braces
   cargo test {{FLAGS}}
 
+time:
+  @-date +"%H:%S"
+  @echo "finished"
 
 # Subsequent dependencies
 # https://just.systems/man/en/chapter_37.html
+# To test, run `$ just -f test-suite.just b`
 a:
   echo 'A!'
 
-b: a && c d
-  echo 'B!'
+b: a && d
+  echo 'B start!'
+  just -f {{justfile()}} c
+  echo 'B end!'
 
 c:
   echo 'C!'
