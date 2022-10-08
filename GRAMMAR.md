@@ -22,7 +22,7 @@ RAW_STRING          = '[^']*'
 INDENTED_RAW_STRING = '''[^(''')]*'''
 STRING              = "[^"]*" # also processes \n \r \t \" \\ escapes
 INDENTED_STRING     = """[^("""]*""" # also processes \n \r \t \" \\ escapes
-LINE_PREFIX         = `@|-|@-|-@`
+LINE_PREFIX         = @-|-@|@|-
 TEXT                = recipe text, only matches in a recipe body
 ```
 
