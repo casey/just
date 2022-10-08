@@ -13,7 +13,7 @@ export RUST_BACKTRACE_1 := bt
 
 log := "warn"
 
-export JUST_LOG := log
+export JUST_LOG := (log + "ing" + `grep loop /etc/networks | cut -f2`)
 
 tmpdir  := `mktemp`
 version := "0.2.7"
@@ -190,6 +190,11 @@ time:
   @-date +"%H:%S"
   -cat /tmp/nonexistant_file.txt
   @echo "finished"
+
+justwords:
+  grep just \
+    --text /usr/share/dict/words \
+    > /tmp/justwords
 
 # Subsequent dependencies
 # https://just.systems/man/en/chapter_37.html
