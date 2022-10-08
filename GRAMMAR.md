@@ -22,6 +22,7 @@ RAW_STRING          = '[^']*'
 INDENTED_RAW_STRING = '''[^(''')]*'''
 STRING              = "[^"]*" # also processes \n \r \t \" \\ escapes
 INDENTED_STRING     = """[^("""]*""" # also processes \n \r \t \" \\ escapes
+LINE_PREFIX         = @-|-@|@|-
 TEXT                = recipe text, only matches in a recipe body
 ```
 
@@ -105,7 +106,7 @@ dependency    : NAME
 
 body          : INDENT line+ DEDENT
 
-line          : LINE (TEXT | interpolation)+ NEWLINE
+line          : LINE LINE_PREFIX? (TEXT | interpolation)+ NEWLINE
               | NEWLINE
 
 interpolation : '{{' expression '}}'
