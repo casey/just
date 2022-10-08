@@ -106,7 +106,7 @@ dependency    : NAME
 
 body          : INDENT line+ DEDENT
 
-line          : LINE LINE_PREFIX (TEXT | interpolation)+ NEWLINE
+line          : LINE LINE_PREFIX? (TEXT | interpolation)+ NEWLINE
               | NEWLINE
 
 interpolation : '{{' expression '}}'
