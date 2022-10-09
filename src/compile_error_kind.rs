@@ -98,6 +98,9 @@ pub(crate) enum CompileErrorKind<'src> {
     alias: &'src str,
     target: &'src str,
   },
+  UnknownAttribute {
+    attribute: &'src str,
+  },
   UnknownDependency {
     recipe: &'src str,
     unknown: &'src str,

@@ -94,7 +94,9 @@ string        : STRING
 sequence      : expression ',' sequence
               | expression ','?
 
-recipe        : '@'? NAME parameter* variadic? ':' dependency* body?
+recipe        : attribute? '@'? NAME parameter* variadic? ':' dependency* body?
+
+attribute     : '[' NAME ']' eol
 
 parameter     : '$'? NAME
               | '$'? NAME '=' value
