@@ -1,5 +1,4 @@
 [book]
-authors = ["Casey Rodarmor"]
 language = "zh"
 src = "src"
 title = "Just 用户指南"
@@ -8,5 +7,8 @@ title = "Just 用户指南"
 build-dir = "build"
 
 [output.html]
+cname = "just.systems"
+git-repository-url = "https://github.com/casey/just"
+site-url = "/man/zh/"
 
 [output.linkcheck]
