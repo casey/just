@@ -240,6 +240,9 @@ impl<'src> Node<'src> for Set<'src> {
           set.push_mut(Tree::string(&argument.cooked));
         }
       }
+      Setting::Tempdir(value) => {
+        set.push_mut(Tree::string(value));
+      }
     }
 
     set

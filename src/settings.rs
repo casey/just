@@ -14,6 +14,7 @@ pub(crate) struct Settings<'src> {
   pub(crate) ignore_comments: bool,
   pub(crate) positional_arguments: bool,
   pub(crate) shell: Option<Shell<'src>>,
+  pub(crate) tempdir: Option<String>,
   pub(crate) windows_powershell: bool,
   pub(crate) windows_shell: Option<Shell<'src>>,
 }

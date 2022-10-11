@@ -71,6 +71,9 @@ impl<'src> Analyzer<'src> {
         Setting::WindowsShell(windows_shell) => {
           settings.windows_shell = Some(windows_shell);
         }
+        Setting::Tempdir(tempdir) => {
+          settings.tempdir = Some(tempdir);
+        }
       }
     }
 

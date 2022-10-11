@@ -247,15 +247,17 @@ impl<'src, D> Recipe<'src, D> {
       message: format!("bad shebang line: {}", shebang_line),
     })?;
 
-    let tmp = tempfile::Builder::new()
-      .prefix("just")
-      .tempdir()
-      .map_err(|error| Error::TmpdirIo {
-        recipe: self.name(),
-        io_error: error,
-      })?;
-    let mut path = tmp.path().to_path_buf();
-
+    let mut tempdir_builder = tempfile::Builder::new();
+    tempdir_builder.prefix("just");
+    let tempdir = match &context.settings.tempdir {
+      Some(tempdir) => tempdir_builder.tempdir_in(tempdir),
+      None => tempdir_builder.tempdir(),
+    }
+    .map_err(|error| Error::TmpdirIo {
+      recipe: self.name(),
+      io_error: error,
+    })?;
+    let mut path = tempdir.path().to_path_buf();
     path.push(shebang.script_filename(self.name()));
 
     {
