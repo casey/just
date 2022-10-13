@@ -100,6 +100,8 @@ fn requires_unstable() {
     .tree(tree! {
       bar: {
         justfile: "
+          set fallback
+
           baz:
             echo subdir
         "
@@ -112,6 +114,30 @@ fn requires_unstable() {
     ",
     )
     .args(&["foo"])
+    .current_dir("bar")
+    .status(EXIT_FAILURE)
+    .stderr("error: Justfile does not contain recipe `foo`.\n")
+    .run();
+}
+
+#[test]
+fn requires_setting() {
+  Test::new()
+    .tree(tree! {
+      bar: {
+        justfile: "
+          baz:
+            echo subdir
+        "
+      }
+    })
+    .justfile(
+      "
+      foo:
+        echo root
+    ",
+    )
+    .args(&["--unstable", "foo"])
     .current_dir("bar")
     .status(EXIT_FAILURE)
     .stderr("error: Justfile does not contain recipe `foo`.\n")
