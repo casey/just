@@ -274,7 +274,80 @@ fn prints_correct_error_message_when_recipe_not_found() {
 }
 
 #[test]
-#[ignore]
-fn stop_fallback_when_setting_is_reached() {
-  todo!()
+fn multiple_levels_of_fallback_work() {
+  Test::new()
+    .tree(tree! {
+      a: {
+        b: {
+          justfile: "
+            set fallback
+
+            foo:
+              echo subdir
+          "
+        },
+        justfile: "
+          set fallback
+
+          bar:
+            echo subdir
+        "
+      }
+    })
+    .justfile(
+      "
+      baz:
+        echo root
+    ",
+    )
+    .args(&["--unstable", "baz"])
+    .current_dir("a/b")
+    .stdout("root\n")
+    .stderr(format!(
+      "
+      Trying ..{}justfile
+      Trying ..{}..{}justfile
+      echo root
+    ",
+      MAIN_SEPARATOR, MAIN_SEPARATOR, MAIN_SEPARATOR
+    ))
+    .run();
+}
+
+#[test]
+fn stop_fallback_when_fallback_is_false() {
+  Test::new()
+    .tree(tree! {
+      a: {
+        b: {
+          justfile: "
+            set fallback
+            foo:
+              echo subdir
+          "
+        },
+        justfile: "
+          bar:
+            echo subdir
+        "
+      }
+    })
+    .justfile(
+      "
+      baz:
+        echo root
+    ",
+    )
+    .args(&["--unstable", "baz"])
+    .current_dir("a/b")
+    .stderr(format!(
+      "
+      Trying ..{}justfile
+      error: Justfile does not contain recipe `baz`.
+      Did you mean `bar`?
+    ",
+      MAIN_SEPARATOR
+    ))
+    .status(EXIT_FAILURE)
+    .run();
 }
