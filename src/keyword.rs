@@ -8,6 +8,7 @@ pub(crate) enum Keyword {
   DotenvLoad,
   Else,
   Export,
+  Fallback,
   False,
   If,
   IgnoreComments,

@@ -10,6 +10,7 @@ pub(crate) struct Settings<'src> {
   pub(crate) allow_duplicate_recipes: bool,
   pub(crate) dotenv_load: Option<bool>,
   pub(crate) export: bool,
+  pub(crate) fallback: bool,
   pub(crate) ignore_comments: bool,
   pub(crate) positional_arguments: bool,
   pub(crate) shell: Option<Shell<'src>>,
