@@ -53,6 +53,9 @@ impl<'src> Analyzer<'src> {
         Setting::Export(export) => {
           settings.export = export;
         }
+        Setting::Fallback(fallback) => {
+          settings.fallback = fallback;
+        }
         Setting::IgnoreComments(ignore_comments) => {
           settings.ignore_comments = ignore_comments;
         }

@@ -646,6 +646,7 @@ foo:
 | `allow-duplicate-recipes` | boolean            | False   | Allow recipes appearing later in a `justfile` to override earlier recipes with the same name. |
 | `dotenv-load`             | boolean            | False   | Load a `.env` file, if present.                                                               |
 | `export`                  | boolean            | False   | Export all variables as environment variables.                                                |
+| `fallback`                | boolean            | False   | Search `justfile` in parent directory if the first recipe on the command line is not found.   |
 | `ignore-comments`         | boolean            | False   | Ignore recipe lines beginning with `#`.                                                       |
 | `positional-arguments`    | boolean            | False   | Pass positional arguments.                                                                    |
 | `shell`                   | `[COMMAND, ARGS…]` | -       | Set the command used to invoke recipes and evaluate backticks.                                |
@@ -2063,8 +2064,10 @@ The `--dump` command can be used with `--dump-format json` to print a JSON repre
 
 ### Falling back to parent `justfile`s
 
-If a recipe is not found, `just` will look for `justfile`s in the parent
-directory and up, until it reaches the root directory.
+If a recipe is not found in a `justfile` and the `fallback` setting is set,
+`just` will look for `justfile`s in the parent directory and up, until it
+reaches the root directory. `just` will stop after it reaches a `justfile` in
+which the `fallback` setting is `false` or unset.
 
 This feature is currently unstable, and so must be enabled with the
 `--unstable` flag.
@@ -2072,6 +2075,7 @@ This feature is currently unstable, and so must be enabled with the
 As an example, suppose the current directory contains this `justfile`:
 
 ```make
+set fallback
 foo:
   echo foo
 ```

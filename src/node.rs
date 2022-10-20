@@ -227,6 +227,7 @@ impl<'src> Node<'src> for Set<'src> {
       Setting::AllowDuplicateRecipes(value)
       | Setting::DotenvLoad(value)
       | Setting::Export(value)
+      | Setting::Fallback(value)
       | Setting::PositionalArguments(value)
       | Setting::WindowsPowerShell(value)
       | Setting::IgnoreComments(value) => {

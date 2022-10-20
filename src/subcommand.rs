@@ -135,7 +135,7 @@ impl Subcommand {
         };
 
         match Self::run_inner(config, loader, arguments, overrides, &search) {
-          Err(err @ Error::UnknownRecipes { .. }) => {
+          Err((err @ Error::UnknownRecipes { .. }, true)) => {
             match search.justfile.parent().unwrap().parent() {
               Some(parent) => {
                 unknown_recipes_errors.get_or_insert(err);
@@ -144,7 +144,7 @@ impl Subcommand {
               None => return Err(err),
             }
           }
-          result => return result,
+          result => return result.map_err(|(err, _fallback)| err),
         }
       }
     } else {
@@ -155,6 +155,7 @@ impl Subcommand {
         overrides,
         &Search::find(&config.search_config, &config.invocation_directory)?,
       )
+      .map_err(|(err, _fallback)| err)
     }
   }
 
@@ -164,9 +165,12 @@ impl Subcommand {
     arguments: &[String],
     overrides: &BTreeMap<String, String>,
     search: &Search,
-  ) -> Result<(), Error<'src>> {
-    let (_src, _ast, justfile) = Self::compile(config, loader, search)?;
-    justfile.run(config, search, overrides, arguments)
+  ) -> Result<(), (Error<'src>, bool)> {
+    let (_src, _ast, justfile) =
+      Self::compile(config, loader, search).map_err(|err| (err, false))?;
+    justfile
+      .run(config, search, overrides, arguments)
+      .map_err(|err| (err, justfile.settings.fallback))
   }
 
   fn compile<'src>(
