@@ -138,12 +138,15 @@
                 <div id="content" class="content">
                     <main>
                         <h3 id="falling-back-to-parent-justfiles"><a class="header" href="#falling-back-to-parent-justfiles">Falling back to parent <code>justfile</code>s</a></h3>
-<p>If a recipe is not found, <code>just</code> will look for <code>justfile</code>s in the parent
-directory and up, until it reaches the root directory.</p>
+<p>If a recipe is not found in a <code>justfile</code> and the <code>fallback</code> setting is set,
+<code>just</code> will look for <code>justfile</code>s in the parent directory and up, until it
+reaches the root directory. <code>just</code> will stop after it reaches a <code>justfile</code> in
+which the <code>fallback</code> setting is <code>false</code> or unset.</p>
 <p>This feature is currently unstable, and so must be enabled with the
 <code>--unstable</code> flag.</p>
 <p>As an example, suppose the current directory contains this <code>justfile</code>:</p>
-<pre><code class="language-make">foo:
+<pre><code class="language-make">set fallback
+foo:
   echo foo
 </code></pre>
 <p>And the parent directory contains this <code>justfile</code>:</p>

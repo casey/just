@@ -616,6 +616,7 @@ foo:
 <tr><td><code>allow-duplicate-recipes</code></td><td>boolean</td><td>False</td><td>Allow recipes appearing later in a <code>justfile</code> to override earlier recipes with the same name.</td></tr>
 <tr><td><code>dotenv-load</code></td><td>boolean</td><td>False</td><td>Load a <code>.env</code> file, if present.</td></tr>
 <tr><td><code>export</code></td><td>boolean</td><td>False</td><td>Export all variables as environment variables.</td></tr>
+<tr><td><code>fallback</code></td><td>boolean</td><td>False</td><td>Search <code>justfile</code> in parent directory if the first recipe on the command line is not found.</td></tr>
 <tr><td><code>ignore-comments</code></td><td>boolean</td><td>False</td><td>Ignore recipe lines beginning with <code>#</code>.</td></tr>
 <tr><td><code>positional-arguments</code></td><td>boolean</td><td>False</td><td>Pass positional arguments.</td></tr>
 <tr><td><code>shell</code></td><td><code>[COMMAND, ARGS…]</code></td><td>-</td><td>Set the command used to invoke recipes and evaluate backticks.</td></tr>
@@ -1618,12 +1619,15 @@ default:
 <div style="break-before: page; page-break-before: always;"></div><h3 id="dumping-justfiles-as-json"><a class="header" href="#dumping-justfiles-as-json">Dumping <code>justfile</code>s as JSON</a></h3>
 <p>The <code>--dump</code> command can be used with <code>--dump-format json</code> to print a JSON representation of a <code>justfile</code>. The JSON format is currently unstable, so the <code>--unstable</code> flag is required.</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="falling-back-to-parent-justfiles"><a class="header" href="#falling-back-to-parent-justfiles">Falling back to parent <code>justfile</code>s</a></h3>
-<p>If a recipe is not found, <code>just</code> will look for <code>justfile</code>s in the parent
-directory and up, until it reaches the root directory.</p>
+<p>If a recipe is not found in a <code>justfile</code> and the <code>fallback</code> setting is set,
+<code>just</code> will look for <code>justfile</code>s in the parent directory and up, until it
+reaches the root directory. <code>just</code> will stop after it reaches a <code>justfile</code> in
+which the <code>fallback</code> setting is <code>false</code> or unset.</p>
 <p>This feature is currently unstable, and so must be enabled with the
 <code>--unstable</code> flag.</p>
 <p>As an example, suppose the current directory contains this <code>justfile</code>:</p>
-<pre><code class="language-make">foo:
+<pre><code class="language-make">set fallback
+foo:
   echo foo
 </code></pre>
 <p>And the parent directory contains this <code>justfile</code>:</p>
