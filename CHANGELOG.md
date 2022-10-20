@@ -1,6 +1,27 @@
 Changelog
 =========
 
+[1.6.0](https://github.com/casey/just/releases/tag/1.6.0) - 2022-10-19
+----------------------------------------------------------------------
+
+### Breaking Changes to Unstable Features
+- Require `set fallback := true` to enable recipe fallback (#1368)
+
+### Changed
+- Allow fallback with search directory (#1348)
+
+### Added
+- Don't evaluate comments (#1358)
+- Add skip-comments setting (#1333)
+- Allow bash completion to complete tasks in other directories (#1303)
+
+### Misc
+- Restore www/CNAME (#1364)
+- Improve book config (#1363)
+- Add kitchen sink justfile to test syntax highlighting (#1362)
+- Note version in which absolute path construction was added (#1361)
+- Inline setup and cleanup functions in completion script test (#1352)
+
 [1.5.0](https://github.com/casey/just/releases/tag/1.5.0) - 2022-9-11
 ---------------------------------------------------------------------
 
