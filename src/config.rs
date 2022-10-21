@@ -22,6 +22,7 @@ pub(crate) struct Config {
   pub(crate) list_heading: String,
   pub(crate) list_prefix: String,
   pub(crate) load_dotenv: bool,
+  pub(crate) only: bool,
   pub(crate) search_config: SearchConfig,
   pub(crate) shell: Option<String>,
   pub(crate) shell_args: Option<Vec<String>>,
@@ -91,6 +92,7 @@ mod arg {
   pub(crate) const JUSTFILE: &str = "JUSTFILE";
   pub(crate) const LIST_HEADING: &str = "LIST-HEADING";
   pub(crate) const LIST_PREFIX: &str = "LIST-PREFIX";
+  pub(crate) const ONLY: &str = "ONLY";
   pub(crate) const NO_DOTENV: &str = "NO-DOTENV";
   pub(crate) const NO_HIGHLIGHT: &str = "NO-HIGHLIGHT";
   pub(crate) const QUIET: &str = "QUIET";
@@ -175,6 +177,12 @@ impl Config {
           .value_name("TEXT")
           .takes_value(true),
       )
+        .arg(
+          Arg::with_name(arg::ONLY)
+              .long("only")
+              .help("Enable running only task")
+              .value_name("TASK")
+        )
       .arg(
         Arg::with_name(arg::NO_DOTENV)
           .long("no-dotenv")
@@ -592,6 +600,7 @@ impl Config {
       dotenv_filename: matches.value_of(arg::DOTENV_FILENAME).map(str::to_owned),
       dotenv_path: matches.value_of(arg::DOTENV_PATH).map(PathBuf::from),
       verbosity,
+      only: matches.is_present(arg::ONLY),
     })
   }
 

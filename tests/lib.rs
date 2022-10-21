@@ -71,6 +71,7 @@ mod search;
 mod shebang;
 mod shell;
 mod show;
+mod skip_dependencies;
 mod slash_operator;
 mod string;
 mod sublime_syntax;
