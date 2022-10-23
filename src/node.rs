@@ -140,7 +140,7 @@ impl<'src> Node<'src> for UnresolvedRecipe<'src> {
       t.push_mut(Tree::string(doc));
     }
 
-    t.push_mut(self.name.lexeme());
+    t.push_mut(self.name());
 
     if !self.parameters.is_empty() {
       let mut params = Tree::atom("params");

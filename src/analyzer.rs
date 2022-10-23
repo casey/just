@@ -79,9 +79,9 @@ impl<'src> Analyzer<'src> {
     AssignmentResolver::resolve_assignments(&assignments)?;
 
     for recipe in recipes {
-      if let Some(original) = self.recipes.get(recipe.name.lexeme()) {
+      if let Some(original) = self.recipes.get(recipe.name()) {
         if !settings.allow_duplicate_recipes {
-          return Err(recipe.name.token().error(DuplicateRecipe {
+          return Err(recipe.token().error(DuplicateRecipe {
             recipe: original.name(),
             first: original.line_number(),
           }));
@@ -133,7 +133,7 @@ impl<'src> Analyzer<'src> {
     for parameter in &recipe.parameters {
       if parameters.contains(parameter.name.lexeme()) {
         return Err(parameter.name.token().error(DuplicateParameter {
-          recipe: recipe.name.lexeme(),
+          recipe: recipe.name(),
           parameter: parameter.name.lexeme(),
         }));
       }

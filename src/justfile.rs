@@ -33,7 +33,7 @@ impl<'src> Justfile<'src> {
           edit_distance(name, input),
           Suggestion {
             name,
-            target: Some(alias.target.name.lexeme()),
+            target: Some(alias.target.name()),
           },
         )
       }))
@@ -196,7 +196,7 @@ impl<'src> Justfile<'src> {
       let min_arguments = recipe.min_arguments();
       if min_arguments > 0 {
         return Err(Error::DefaultRecipeRequiresArguments {
-          recipe: recipe.name.lexeme(),
+          recipe: recipe.name(),
           min_arguments,
         });
       }
@@ -370,7 +370,7 @@ impl<'src> Justfile<'src> {
       .collect::<Vec<&Recipe<Dependency>>>();
 
     if source_order {
-      recipes.sort_by_key(|recipe| recipe.name.offset);
+      recipes.sort_by_key(|recipe| recipe.token().offset);
     }
 
     recipes

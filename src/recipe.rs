@@ -24,7 +24,7 @@ pub(crate) struct Recipe<'src, D = Dependency<'src>> {
   pub(crate) body: Vec<Line<'src>>,
   pub(crate) dependencies: Vec<D>,
   pub(crate) doc: Option<&'src str>,
-  pub(crate) name: Name<'src>,
+  pub(crate) target: Target<'src>,
   pub(crate) parameters: Vec<Parameter<'src>>,
   pub(crate) priors: usize,
   pub(crate) private: bool,
@@ -53,16 +53,21 @@ impl<'src, D> Recipe<'src, D> {
     }
   }
 
-  pub(crate) fn name(&self) -> &'src str {
-    self.name.lexeme()
+  pub(crate) fn name(&self) -> &'static str {
+    // TODO: This is terrible
+    Box::leak(self.name.clone().into_boxed_str())
   }
 
   pub(crate) fn line_number(&self) -> usize {
-    self.name.line
+    self.name_token.line
   }
 
   pub(crate) fn public(&self) -> bool {
     !self.private
+  }
+
+  pub(crate) fn token(&self) -> Token<'src> {
+    self.target.token()
   }
 
   pub(crate) fn run<'run>(
@@ -176,7 +181,7 @@ impl<'src, D> Recipe<'src, D> {
       cmd.arg(command);
 
       if context.settings.positional_arguments {
-        cmd.arg(self.name.lexeme());
+        cmd.arg(self.name());
         cmd.args(positional);
       }
 
@@ -388,6 +393,6 @@ impl<'src, D: Display> ColorDisplay for Recipe<'src, D> {
 
 impl<'src, D> Keyed<'src> for Recipe<'src, D> {
   fn key(&self) -> &'src str {
-    self.name.lexeme()
+    self.name()
   }
 }

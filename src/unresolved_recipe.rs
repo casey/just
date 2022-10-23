@@ -16,7 +16,7 @@ impl<'src> UnresolvedRecipe<'src> {
     );
 
     for (unresolved, resolved) in self.dependencies.iter().zip(&resolved) {
-      assert_eq!(unresolved.recipe.lexeme(), resolved.name.lexeme());
+      assert_eq!(unresolved.recipe.lexeme(), resolved.name());
       if !resolved
         .argument_range()
         .contains(&unresolved.arguments.len())
@@ -46,14 +46,14 @@ impl<'src> UnresolvedRecipe<'src> {
 
     Ok(Recipe {
       body: self.body,
+      dependencies,
       doc: self.doc,
-      name: self.name,
       parameters: self.parameters,
+      priors: self.priors,
       private: self.private,
       quiet: self.quiet,
       shebang: self.shebang,
-      priors: self.priors,
-      dependencies,
+      target: self.target,
     })
   }
 }

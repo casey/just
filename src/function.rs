@@ -1,9 +1,8 @@
 #![allow(unknown_lints)]
 #![allow(clippy::unnecessary_wraps)]
 
-use super::*;
+use {super::*, ::target, Function::*};
 
-use Function::*;
 pub(crate) enum Function {
   Nullary(fn(&FunctionContext) -> Result<String, String>),
   Unary(fn(&FunctionContext, &str) -> Result<String, String>),

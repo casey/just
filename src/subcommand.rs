@@ -247,7 +247,7 @@ impl Subcommand {
         .stdin
         .as_mut()
         .expect("Child was created with piped stdio")
-        .write_all(format!("{}\n", recipe.name).as_bytes())
+        .write_all(format!("{}\n", recipe.name()).as_bytes())
       {
         return Err(Error::ChooserWrite { io_error, chooser });
       }
@@ -436,11 +436,11 @@ impl Subcommand {
         continue;
       }
 
-      if recipe_aliases.contains_key(alias.target.name.lexeme()) {
-        let aliases = recipe_aliases.get_mut(alias.target.name.lexeme()).unwrap();
+      if recipe_aliases.contains_key(alias.target.name()) {
+        let aliases = recipe_aliases.get_mut(alias.target.name()).unwrap();
         aliases.push(alias.name.lexeme());
       } else {
-        recipe_aliases.insert(alias.target.name.lexeme(), vec![alias.name.lexeme()]);
+        recipe_aliases.insert(alias.target.name(), vec![alias.name.lexeme()]);
       }
     }
 
@@ -501,7 +501,7 @@ impl Subcommand {
           (0, Some(doc)) => print_doc(doc),
           (0, None) => (),
           _ => {
-            let alias_doc = format!("alias for `{}`", recipe.name);
+            let alias_doc = format!("alias for `{}`", recipe.name());
             print_doc(&alias_doc);
           }
         }
@@ -512,7 +512,7 @@ impl Subcommand {
 
   fn show<'src>(config: &Config, name: &str, justfile: Justfile<'src>) -> Result<(), Error<'src>> {
     if let Some(alias) = justfile.get_alias(name) {
-      let recipe = justfile.get_recipe(alias.target.name.lexeme()).unwrap();
+      let recipe = justfile.get_recipe(alias.target.name()).unwrap();
       println!("{}", alias);
       println!("{}", recipe.color_display(config.color.stdout()));
       Ok(())

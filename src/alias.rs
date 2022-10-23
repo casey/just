@@ -17,7 +17,7 @@ impl<'src> Alias<'src, Name<'src>> {
   }
 
   pub(crate) fn resolve(self, target: Rc<Recipe<'src>>) -> Alias<'src> {
-    assert_eq!(self.target.lexeme(), target.name.lexeme());
+    assert_eq!(self.target.lexeme(), target.name());
 
     Alias {
       name: self.name,
@@ -51,11 +51,6 @@ impl<'src> Display for Alias<'src, Name<'src>> {
 
 impl<'src> Display for Alias<'src> {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-    write!(
-      f,
-      "alias {} := {}",
-      self.name.lexeme(),
-      self.target.name.lexeme()
-    )
+    write!(f, "alias {} := {}", self.name.lexeme(), self.target.name())
   }
 }

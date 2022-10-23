@@ -352,6 +352,9 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
       } else if self.accepted(At)? {
         let doc = pop_doc_comment(&mut items, eol_since_last_comment);
         items.push(Item::Recipe(self.parse_recipe(doc, true)?));
+      } else if self.next_is(StringToken) {
+        let doc = pop_doc_comment(&mut items, eol_since_last_comment);
+        items.push(Item::Recipe(self.parse_recipe(doc, true)?));
       } else {
         return Err(self.unexpected_token()?);
       }
@@ -596,7 +599,14 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     doc: Option<&'src str>,
     quiet: bool,
   ) -> CompileResult<'src, UnresolvedRecipe<'src>> {
-    let name = self.parse_name()?;
+    let target = if let Some(name) = self.accept_name()? {
+      Target::Name(name)
+    } else {
+      // TODO: check for unstable
+      let token = self.expect(StringToken)?;
+      let path = token.lexeme()[1..token.lexeme().len() - 1].to_string();
+      Target::Path { path, token }
+    };
 
     let mut positional = Vec::new();
 
@@ -656,13 +666,13 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
 
     Ok(Recipe {
       parameters: positional.into_iter().chain(variadic).collect(),
-      private: name.lexeme().starts_with('_'),
+      private: target.token().lexeme().starts_with('_'),
       shebang: body.first().map_or(false, Line::is_shebang),
       priors,
       body,
       dependencies,
       doc,
-      name,
+      target,
       quiet,
     })
   }

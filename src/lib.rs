@@ -33,9 +33,9 @@ pub(crate) use {
     search_error::SearchError, set::Set, setting::Setting, settings::Settings, shebang::Shebang,
     shell::Shell, show_whitespace::ShowWhitespace, string_kind::StringKind,
     string_literal::StringLiteral, subcommand::Subcommand, suggestion::Suggestion, table::Table,
-    thunk::Thunk, token::Token, token_kind::TokenKind, unresolved_dependency::UnresolvedDependency,
-    unresolved_recipe::UnresolvedRecipe, use_color::UseColor, variables::Variables,
-    verbosity::Verbosity, warning::Warning,
+    target::Target, thunk::Thunk, token::Token, token_kind::TokenKind,
+    unresolved_dependency::UnresolvedDependency, unresolved_recipe::UnresolvedRecipe,
+    use_color::UseColor, variables::Variables, verbosity::Verbosity, warning::Warning,
   },
   std::{
     cmp,
@@ -180,6 +180,7 @@ mod string_literal;
 mod subcommand;
 mod suggestion;
 mod table;
+mod target;
 mod thunk;
 mod token;
 mod token_kind;

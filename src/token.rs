@@ -20,6 +20,12 @@ impl<'src> Token<'src> {
   }
 }
 
+impl Display for Token<'_> {
+  fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+    write!(f, "{}", self.lexeme())
+  }
+}
+
 impl<'src> ColorDisplay for Token<'src> {
   fn fmt(&self, f: &mut Formatter, color: Color) -> fmt::Result {
     let width = if self.length == 0 { 1 } else { self.length };
@@ -78,5 +84,14 @@ impl<'src> ColorDisplay for Token<'src> {
     }
 
     Ok(())
+  }
+}
+
+impl<'src> Serialize for Token<'src> {
+  fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+  where
+    S: Serializer,
+  {
+    serializer.serialize_str(self.lexeme())
   }
 }
