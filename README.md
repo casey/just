@@ -1142,6 +1142,8 @@ The executable is at: /bin/just
 
 #### String Manipulation
 
+- `capitalize(s)`<sup>master</sup> - Convert first character of `s` to uppercase and the rest to lowercase.
+
 - `lowercase(s)` - Convert `s` to lowercase.
 
 - `quote(s)` - Replace all single quotes with `'\''` and prepend and append single quotes to `s`. This is sufficient to escape special characters for many shells, including most Bourne shell descendants.

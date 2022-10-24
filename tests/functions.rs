@@ -303,6 +303,16 @@ test! {
   stderr: "echo foofoofoo\n",
 }
 
+test! {
+    name: capitalize,
+    justfile: "
+      foo:
+        echo {{ capitalize('BAR') }}
+    ",
+    stdout: "Bar\n",
+    stderr: "echo Bar\n",
+}
+
 fn assert_eval_eq(expression: &str, result: &str) {
   Test::new()
     .justfile(format!("x := {}", expression))

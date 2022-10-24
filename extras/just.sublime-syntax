@@ -31,7 +31,7 @@ contexts:
         - match: '\}\}'
           pop: true
   functions:
-    - match: \b(arch|os|os_family|env_var|env_var_or_default|invocation_directory|justfile|justfile_directory|just_executable|lowercase|quote|replace|trim|trim_end|trim_end_match|trim_end_matches|trim_start|trim_start_match|trim_start_matches|uppercase|absolute_path|extension|file_name|file_stem|parent_directory|without_extension|join|clean|path_exists|error|sha256|sha256_file|uuid)\b(?=\()
+    - match: \b(arch|os|os_family|env_var|env_var_or_default|invocation_directory|justfile|justfile_directory|just_executable|lowercase|quote|replace|trim|trim_end|trim_end_match|trim_end_matches|trim_start|trim_start_match|trim_start_matches|uppercase|absolute_path|extension|file_name|file_stem|parent_directory|without_extension|join|clean|path_exists|error|sha256|sha256_file|uuid|capitalize)\b(?=\()
       scope: entity.name.function.just
   keywords:
     - match: \b(if|else|while)\b
