@@ -836,6 +836,7 @@ fn simple() {
         "ignore_comments": false,
         "positional_arguments": false,
         "shell": null,
+        "tempdir": null,
         "windows_powershell": false,
         "windows_shell": null,
       },
