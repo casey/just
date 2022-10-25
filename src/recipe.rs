@@ -30,6 +30,7 @@ pub(crate) struct Recipe<'src, D = Dependency<'src>> {
   pub(crate) private: bool,
   pub(crate) quiet: bool,
   pub(crate) shebang: bool,
+  pub(crate) suppress_exit_error_messages: bool,
 }
 
 impl<'src, D> Recipe<'src, D> {
@@ -191,10 +192,12 @@ impl<'src, D> Recipe<'src, D> {
         Ok(exit_status) => {
           if let Some(code) = exit_status.code() {
             if code != 0 && !infallible_command {
+              let suppress_message = self.suppress_exit_error_messages;
               return Err(Error::Code {
                 recipe: self.name(),
                 line_number: Some(line_number),
                 code,
+                suppress_message,
               });
             }
           } else {
@@ -322,10 +325,12 @@ impl<'src, D> Recipe<'src, D> {
           if code == 0 {
             Ok(())
           } else {
+            let suppress_message = self.suppress_exit_error_messages;
             Err(Error::Code {
               recipe: self.name(),
               line_number: None,
               code,
+              suppress_message,
             })
           }
         },

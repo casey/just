@@ -1987,6 +1987,35 @@ echo 'Bar!'
 Bar!
 ```
 
+`just` normally prints error messages when a recipe line fails. These error
+messages can be suppressed using the `[no-exit-message]` attribute. You may find
+this especially useful with a recipe that recipe wraps a tool:
+
+```make
+git *args:
+    @git {{args}}
+```
+
+```sh
+$ just git status
+fatal: not a git repository (or any of the parent directories): .git
+error: Recipe `git` failed on line 2 with exit code 128
+```
+
+Add the attribute to suppress the exit error message when the tool exits with a
+non-zero code:
+
+```make
+[no-exit-message]
+git *args:
+    @git {{args}}
+```
+
+```sh
+$ just git status
+fatal: not a git repository (or any of the parent directories): .git
+```
+
 ### Selecting Recipes to Run With an Interactive Chooser
 
 The `--choose` subcommand makes `just` invoke a chooser to select which recipes to run. Choosers should read lines containing recipe names from standard input and print one or more of those names separated by spaces to standard output.

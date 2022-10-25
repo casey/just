@@ -16,19 +16,19 @@
 pub(crate) use {
   crate::{
     alias::Alias, analyzer::Analyzer, assignment::Assignment,
-    assignment_resolver::AssignmentResolver, ast::Ast, binding::Binding, color::Color,
-    color_display::ColorDisplay, command_ext::CommandExt, compile_error::CompileError,
-    compile_error_kind::CompileErrorKind, conditional_operator::ConditionalOperator,
-    config::Config, config_error::ConfigError, count::Count, delimiter::Delimiter,
-    dependency::Dependency, dump_format::DumpFormat, enclosure::Enclosure, error::Error,
-    evaluator::Evaluator, expression::Expression, fragment::Fragment, function::Function,
-    function_context::FunctionContext, interrupt_guard::InterruptGuard,
-    interrupt_handler::InterruptHandler, item::Item, justfile::Justfile, keyed::Keyed,
-    keyword::Keyword, lexer::Lexer, line::Line, list::List, load_dotenv::load_dotenv,
-    loader::Loader, name::Name, ordinal::Ordinal, output::output, output_error::OutputError,
-    parameter::Parameter, parameter_kind::ParameterKind, parser::Parser, platform::Platform,
-    platform_interface::PlatformInterface, position::Position, positional::Positional,
-    range_ext::RangeExt, recipe::Recipe, recipe_context::RecipeContext,
+    assignment_resolver::AssignmentResolver, ast::Ast, attribute::Attribute, binding::Binding,
+    color::Color, color_display::ColorDisplay, command_ext::CommandExt,
+    compile_error::CompileError, compile_error_kind::CompileErrorKind,
+    conditional_operator::ConditionalOperator, config::Config, config_error::ConfigError,
+    count::Count, delimiter::Delimiter, dependency::Dependency, dump_format::DumpFormat,
+    enclosure::Enclosure, error::Error, evaluator::Evaluator, expression::Expression,
+    fragment::Fragment, function::Function, function_context::FunctionContext,
+    interrupt_guard::InterruptGuard, interrupt_handler::InterruptHandler, item::Item,
+    justfile::Justfile, keyed::Keyed, keyword::Keyword, lexer::Lexer, line::Line, list::List,
+    load_dotenv::load_dotenv, loader::Loader, name::Name, ordinal::Ordinal, output::output,
+    output_error::OutputError, parameter::Parameter, parameter_kind::ParameterKind, parser::Parser,
+    platform::Platform, platform_interface::PlatformInterface, position::Position,
+    positional::Positional, range_ext::RangeExt, recipe::Recipe, recipe_context::RecipeContext,
     recipe_resolver::RecipeResolver, scope::Scope, search::Search, search_config::SearchConfig,
     search_error::SearchError, set::Set, setting::Setting, settings::Settings, shebang::Shebang,
     shell::Shell, show_whitespace::ShowWhitespace, string_kind::StringKind,
@@ -116,6 +116,7 @@ mod analyzer;
 mod assignment;
 mod assignment_resolver;
 mod ast;
+mod attribute;
 mod binding;
 mod color;
 mod color_display;
