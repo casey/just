@@ -19,6 +19,11 @@ fn test_tempdir_is_set() {
       ",
     )
     .shell(false)
+    .tree(tree! {
+      foo: {
+      }
+    })
+    .current_dir("foo")
     .stdout(
       "
       #!/usr/bin/env bash
