@@ -168,6 +168,25 @@ Foo!
 echo 'Bar!'
 Bar!
 </code></pre>
+<p><code>just</code> normally prints error messages when a recipe line fails. These error
+messages can be suppressed using the <code>[no-exit-message]</code> attribute. You may find
+this especially useful with a recipe that recipe wraps a tool:</p>
+<pre><code class="language-make">git *args:
+    @git {{args}}
+</code></pre>
+<pre><code class="language-sh">$ just git status
+fatal: not a git repository (or any of the parent directories): .git
+error: Recipe `git` failed on line 2 with exit code 128
+</code></pre>
+<p>Add the attribute to suppress the exit error message when the tool exits with a
+non-zero code:</p>
+<pre><code class="language-make">[no-exit-message]
+git *args:
+    @git {{args}}
+</code></pre>
+<pre><code class="language-sh">$ just git status
+fatal: not a git repository (or any of the parent directories): .git
+</code></pre>
 
                     </main>
 
