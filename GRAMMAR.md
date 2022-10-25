@@ -59,14 +59,15 @@ assignment    : NAME ':=' expression eol
 
 export        : 'export' assignment
 
-setting       : 'set' 'dotenv-load' boolean?
-              | 'set' 'ignore-comments' boolean?
+setting       : 'set' 'allow-duplicate-recipes' boolean?
+              | 'set' 'dotenv-load' boolean?
               | 'set' 'export' boolean?
               | 'set' 'fallback' boolean?
+              | 'set' 'ignore-comments' boolean?
               | 'set' 'positional-arguments' boolean?
-              | 'set' 'allow-duplicate-recipes' boolean?
-              | 'set' 'windows-powershell' boolean?
               | 'set' 'shell' ':=' '[' string (',' string)* ','? ']'
+              | 'set' 'tempdir  string
+              | 'set' 'windows-powershell' boolean?
               | 'set' 'windows-shell' ':=' '[' string (',' string)* ','? ']'
 
 boolean       : ':=' ('true' | 'false')

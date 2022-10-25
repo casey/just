@@ -18,6 +18,7 @@ pub(crate) enum Keyword {
   True,
   WindowsPowershell,
   WindowsShell,
+  Tempdir,
 }
 
 impl Keyword {

@@ -796,6 +796,11 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
         value: Setting::WindowsShell(self.parse_shell()?),
         name,
       })
+    } else if name.lexeme() == Keyword::Tempdir.lexeme() {
+      Ok(Set {
+        value: Setting::Tempdir(self.parse_string_literal()?.cooked),
+        name,
+      })
     } else {
       Err(name.error(CompileErrorKind::UnknownSetting {
         setting: name.lexeme(),
