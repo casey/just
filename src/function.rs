@@ -16,6 +16,7 @@ lazy_static! {
   pub(crate) static ref TABLE: BTreeMap<&'static str, Function> = vec![
     ("absolute_path", Unary(absolute_path)),
     ("arch", Nullary(arch)),
+    ("capitalize", Unary(capitalize)),
     ("clean", Unary(clean)),
     ("env_var", Unary(env_var)),
     ("env_var_or_default", Binary(env_var_or_default)),
@@ -77,6 +78,21 @@ fn absolute_path(context: &FunctionContext, path: &str) -> Result<String, String
 
 fn arch(_context: &FunctionContext) -> Result<String, String> {
   Ok(target::arch().to_owned())
+}
+
+fn capitalize(_context: &FunctionContext, s: &str) -> Result<String, String> {
+  Ok(
+    s.chars()
+      .enumerate()
+      .flat_map(|(i, c)| {
+        if i == 0 {
+          c.to_uppercase().collect::<Vec<_>>()
+        } else {
+          c.to_lowercase().collect::<Vec<_>>()
+        }
+      })
+      .collect(),
+  )
 }
 
 fn clean(_context: &FunctionContext, path: &str) -> Result<String, String> {
