@@ -650,6 +650,7 @@ foo:
 | `ignore-comments`         | boolean            | False   | Ignore recipe lines beginning with `#`.                                                       |
 | `positional-arguments`    | boolean            | False   | Pass positional arguments.                                                                    |
 | `shell`                   | `[COMMAND, ARGS…]` | -       | Set the command used to invoke recipes and evaluate backticks.                                |
+| `tempdir`                 | string             | -       | Create temporary directories in `tempdir` instead of the system default temporary directory.  |
 | `windows-powershell`      | boolean            | False   | Use PowerShell on Windows as default shell. (Deprecated. Use `windows-shell` instead.         |
 | `windows-shell`           | `[COMMAND, ARGS…]` | -       | Set the command used to invoke recipes and evaluate backticks.                                |
 
