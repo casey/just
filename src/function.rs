@@ -81,18 +81,15 @@ fn arch(_context: &FunctionContext) -> Result<String, String> {
 }
 
 fn capitalize(_context: &FunctionContext, s: &str) -> Result<String, String> {
-  Ok(
-    s.chars()
-      .enumerate()
-      .flat_map(|(i, c)| {
-        if i == 0 {
-          c.to_uppercase().collect::<Vec<_>>()
-        } else {
-          c.to_lowercase().collect::<Vec<_>>()
-        }
-      })
-      .collect(),
-  )
+  let mut capitalized = String::new();
+  for (i, c) in s.chars().enumerate() {
+    if i == 0 {
+      capitalized.extend(c.to_uppercase())
+    } else {
+      capitalized.extend(c.to_lowercase())
+    }
+  }
+  Ok(capitalized)
 }
 
 fn clean(_context: &FunctionContext, path: &str) -> Result<String, String> {
