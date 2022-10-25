@@ -29,7 +29,7 @@ pub fn run() -> Result<(), i32> {
   config
     .and_then(|config| config.run(&loader))
     .map_err(|error| {
-      if !verbosity.quiet() {
+      if !verbosity.quiet() && !error.suppress_message() {
         eprintln!("{}", error.color_display(color.stderr()));
       }
       error.code().unwrap_or(EXIT_FAILURE)

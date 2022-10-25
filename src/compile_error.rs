@@ -247,6 +247,9 @@ impl Display for CompileError<'_> {
       UnknownAliasTarget { alias, target } => {
         write!(f, "Alias `{}` has an unknown target `{}`", alias, target)?;
       }
+      UnknownAttribute { attribute } => {
+        write!(f, "Unknown attribute `{}`", attribute)?;
+      }
       UnknownDependency { recipe, unknown } => {
         write!(
           f,

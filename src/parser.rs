@@ -345,13 +345,20 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
               items.push(Item::Assignment(self.parse_assignment(false)?));
             } else {
               let doc = pop_doc_comment(&mut items, eol_since_last_comment);
-              items.push(Item::Recipe(self.parse_recipe(doc, false)?));
+              items.push(Item::Recipe(self.parse_recipe(doc, false, false)?));
             }
           }
         }
       } else if self.accepted(At)? {
         let doc = pop_doc_comment(&mut items, eol_since_last_comment);
-        items.push(Item::Recipe(self.parse_recipe(doc, true)?));
+        items.push(Item::Recipe(self.parse_recipe(doc, true, false)?));
+      } else if self.accepted(BracketL)? {
+        let Attribute::NoExitMessage = self.parse_attribute_name()?;
+        self.expect(BracketR)?;
+        self.expect_eol()?;
+        let quiet = self.accepted(At)?;
+        let doc = pop_doc_comment(&mut items, eol_since_last_comment);
+        items.push(Item::Recipe(self.parse_recipe(doc, quiet, true)?));
       } else {
         return Err(self.unexpected_token()?);
       }
@@ -595,6 +602,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     &mut self,
     doc: Option<&'src str>,
     quiet: bool,
+    suppress_exit_error_messages: bool,
   ) -> CompileResult<'src, UnresolvedRecipe<'src>> {
     let name = self.parse_name()?;
 
@@ -658,6 +666,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
       parameters: positional.into_iter().chain(variadic).collect(),
       private: name.lexeme().starts_with('_'),
       shebang: body.first().map_or(false, Line::is_shebang),
+      suppress_exit_error_messages,
       priors,
       body,
       dependencies,
@@ -820,6 +829,16 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     self.expect(BracketR)?;
 
     Ok(Shell { arguments, command })
+  }
+
+  /// Parse a recipe attribute name
+  fn parse_attribute_name(&mut self) -> CompileResult<'src, Attribute> {
+    let name = self.parse_name()?;
+    Attribute::from_name(name).ok_or_else(|| {
+      name.error(CompileErrorKind::UnknownAttribute {
+        attribute: name.lexeme(),
+      })
+    })
   }
 }
 
@@ -1971,7 +1990,7 @@ mod tests {
     column: 0,
     width:  1,
     kind: UnexpectedToken {
-      expected: vec![At, Comment, Eof, Eol, Identifier],
+      expected: vec![At, BracketL, Comment, Eof, Eol, Identifier],
       found: BraceL,
     },
   }
@@ -2147,6 +2166,29 @@ mod tests {
       expected: vec![BracketR, Comma],
       found: Eof,
     },
+  }
+
+  error! {
+    name:   empty_attribute,
+    input:  "[]\nsome_recipe:\n @exit 3",
+    offset: 1,
+    line:   0,
+    column: 1,
+    width:  1,
+    kind:   UnexpectedToken {
+      expected: vec![Identifier],
+      found: BracketR,
+    },
+  }
+
+  error! {
+    name:   unknown_attribute,
+    input:  "[unknown]\nsome_recipe:\n @exit 3",
+    offset: 1,
+    line:   0,
+    column: 1,
+    width:  7,
+    kind:   UnknownAttribute { attribute: "unknown" },
   }
 
   error! {

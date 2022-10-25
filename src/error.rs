@@ -35,6 +35,7 @@ pub(crate) enum Error<'src> {
     recipe: &'src str,
     line_number: Option<usize>,
     code: i32,
+    suppress_message: bool,
   },
   CommandInvoke {
     binary: OsString,
@@ -166,6 +167,16 @@ impl<'src> Error<'src> {
     Self::Internal {
       message: message.into(),
     }
+  }
+
+  pub(crate) fn suppress_message(&self) -> bool {
+    matches!(
+      self,
+      Error::Code {
+        suppress_message: true,
+        ..
+      }
+    )
   }
 }
 
@@ -323,6 +334,7 @@ impl<'src> ColorDisplay for Error<'src> {
         recipe,
         line_number,
         code,
+        ..
       } => {
         if let Some(n) = line_number {
           write!(
