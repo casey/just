@@ -9,25 +9,23 @@ pub(crate) fn tempdir() -> tempfile::TempDir {
 
 #[test]
 fn test_tempdir_is_set() {
-  let foo_contents = r#"
+  Test::new()
+    .justfile(
+      "
+      set tempdir := '.'
+      foo:
+          #!/usr/bin/env bash
+          cat just*/foo
+      ",
+    )
+    .shell(false)
+    .stdout(
+      "
       #!/usr/bin/env bash
 
 
-      touch $(basename "$(dirname $0)")/foo
-      cat $(basename "$(dirname $0)")/foo
-      "#;
-  Test::new()
-    .justfile(
-      r#"
-      set tempdir := "."
-      foo:
-          #!/usr/bin/env bash
-          touch $(basename "$(dirname $0)")/foo
-          cat $(basename "$(dirname $0)")/foo
-    "#,
+      cat just*/foo
+      ",
     )
-    .shell(false)
-    .stdout(foo_contents)
-    .stderr("")
     .run();
 }
