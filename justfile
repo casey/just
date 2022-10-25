@@ -57,7 +57,7 @@ view-man: man
 
 # add git log messages to changelog
 update-changelog:
-  git log --pretty=format:'- %s' >> CHANGELOG.md
+  git log --pretty='format:- %s' >> CHANGELOG.md
 
 check: fmt clippy test forbid
   #!/usr/bin/env bash
