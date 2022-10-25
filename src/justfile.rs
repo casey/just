@@ -478,7 +478,7 @@ mod tests {
       assert_eq!(recipe, "a");
       assert_eq!(code, 200);
       assert_eq!(line_number, None);
-      assert_eq!(suppress_message, false);
+      assert!(!suppress_message);
     }
   }
 
@@ -499,7 +499,7 @@ mod tests {
       assert_eq!(recipe, "fail");
       assert_eq!(code, 100);
       assert_eq!(line_number, Some(2));
-      assert_eq!(suppress_message, false);
+      assert!(!suppress_message);
     }
   }
 
@@ -520,7 +520,7 @@ mod tests {
       assert_eq!(recipe, "a");
       assert_eq!(code, 150);
       assert_eq!(line_number, Some(2));
-      assert_eq!(suppress_message, false);
+      assert!(!suppress_message);
     }
   }
 
@@ -678,7 +678,7 @@ mod tests {
     check: {
       assert_eq!(recipe, "wut");
       assert_eq!(line_number, Some(7));
-      assert_eq!(suppress_message, false);
+      assert!(!suppress_message);
     }
   }
 
