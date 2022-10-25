@@ -84,9 +84,9 @@ fn capitalize(_context: &FunctionContext, s: &str) -> Result<String, String> {
   let mut capitalized = String::new();
   for (i, c) in s.chars().enumerate() {
     if i == 0 {
-      capitalized.extend(c.to_uppercase())
+      capitalized.extend(c.to_uppercase());
     } else {
-      capitalized.extend(c.to_lowercase())
+      capitalized.extend(c.to_lowercase());
     }
   }
   Ok(capitalized)
