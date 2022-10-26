@@ -216,7 +216,7 @@ You can also set the shell using command-line arguments. For example, to use Pow
   <tr>
     <td><a href="https://github.com/casey/just/releases">Various</a></td>
     <td><a href="https://asdf-vm.com">asdf</a></td>
-    <td><a href="https://github.com/ggilmore/asdf-just">just</a></td>
+    <td><a href="https://github.com/olofvndrhr/asdf-just">just</a></td>
     <td>
       <code>asdf plugin add just</code><br>
       <code>asdf install just &lt;version&gt;</code>
