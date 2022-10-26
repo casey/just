@@ -1,9 +1,13 @@
 use super::*;
 
-#[derive(EnumString)]
+#[derive(EnumString, PartialEq, Debug, Clone, Serialize)]
 #[strum(serialize_all = "kebab_case")]
 pub(crate) enum Attribute {
+  Linux,
+  Macos,
   NoExitMessage,
+  Unix,
+  Windows,
 }
 
 impl Attribute {

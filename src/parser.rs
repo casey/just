@@ -345,20 +345,24 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
               items.push(Item::Assignment(self.parse_assignment(false)?));
             } else {
               let doc = pop_doc_comment(&mut items, eol_since_last_comment);
-              items.push(Item::Recipe(self.parse_recipe(doc, false, false)?));
+              items.push(Item::Recipe(self.parse_recipe(doc, false, None)?));
             }
           }
         }
       } else if self.accepted(At)? {
         let doc = pop_doc_comment(&mut items, eol_since_last_comment);
-        items.push(Item::Recipe(self.parse_recipe(doc, true, false)?));
+        items.push(Item::Recipe(self.parse_recipe(doc, true, None)?));
       } else if self.accepted(BracketL)? {
-        let Attribute::NoExitMessage = self.parse_attribute_name()?;
+        let attribute = self.parse_attribute_name()?;
         self.expect(BracketR)?;
         self.expect_eol()?;
         let quiet = self.accepted(At)?;
         let doc = pop_doc_comment(&mut items, eol_since_last_comment);
-        items.push(Item::Recipe(self.parse_recipe(doc, quiet, true)?));
+        items.push(Item::Recipe(self.parse_recipe(
+          doc,
+          quiet,
+          Some(attribute),
+        )?));
       } else {
         return Err(self.unexpected_token()?);
       }
@@ -602,7 +606,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     &mut self,
     doc: Option<&'src str>,
     quiet: bool,
-    suppress_exit_error_messages: bool,
+    attribute: Option<Attribute>,
   ) -> CompileResult<'src, UnresolvedRecipe<'src>> {
     let name = self.parse_name()?;
 
@@ -666,7 +670,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
       parameters: positional.into_iter().chain(variadic).collect(),
       private: name.lexeme().starts_with('_'),
       shebang: body.first().map_or(false, Line::is_shebang),
-      suppress_exit_error_messages,
+      attribute,
       priors,
       body,
       dependencies,

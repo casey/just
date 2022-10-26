@@ -30,7 +30,7 @@ pub(crate) struct Recipe<'src, D = Dependency<'src>> {
   pub(crate) private: bool,
   pub(crate) quiet: bool,
   pub(crate) shebang: bool,
-  pub(crate) suppress_exit_error_messages: bool,
+  pub(crate) attribute: Option<Attribute>,
 }
 
 impl<'src, D> Recipe<'src, D> {
@@ -64,6 +64,21 @@ impl<'src, D> Recipe<'src, D> {
 
   pub(crate) fn public(&self) -> bool {
     !self.private
+  }
+
+  pub(crate) fn enabled(&self) -> bool {
+    match self.attribute {
+      Some(Attribute::Windows) => cfg!(target_os = "windows"),
+      Some(Attribute::Linux) => cfg!(target_os = "linux"),
+      Some(Attribute::Macos) => cfg!(target_os = "macos"),
+      Some(Attribute::Unix) => cfg!(unix),
+      Some(Attribute::NoExitMessage) => true,
+      None => true,
+    }
+  }
+
+  fn print_exit_message(&self) -> bool {
+    !matches!(self.attribute, Some(Attribute::NoExitMessage))
   }
 
   pub(crate) fn run<'run>(
@@ -192,12 +207,11 @@ impl<'src, D> Recipe<'src, D> {
         Ok(exit_status) => {
           if let Some(code) = exit_status.code() {
             if code != 0 && !infallible_command {
-              let suppress_message = self.suppress_exit_error_messages;
               return Err(Error::Code {
                 recipe: self.name(),
                 line_number: Some(line_number),
                 code,
-                suppress_message,
+                print_message: self.print_exit_message(),
               });
             }
           } else {
@@ -327,12 +341,11 @@ impl<'src, D> Recipe<'src, D> {
           if code == 0 {
             Ok(())
           } else {
-            let suppress_message = self.suppress_exit_error_messages;
             Err(Error::Code {
               recipe: self.name(),
               line_number: None,
               code,
-              suppress_message,
+              print_message: self.print_exit_message(),
             })
           }
         },
