@@ -1179,7 +1179,7 @@ The executable is at: /bin/just
 
 - `uppercase(s)` - Convert `s` to uppercase.
 
-- `uppercamelcase(s)`<sup>master</sup> - Convert `s` to upper camel case. (also known as Pascal case)
+- `uppercamelcase(s)`<sup>master</sup> - Convert `s` to `UpperCamelCase`.
 
 #### Path Manipulation
 
