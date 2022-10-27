@@ -59,6 +59,9 @@ view-man: man
 update-changelog:
   git log --pretty='format:- %s' >> CHANGELOG.md
 
+update-contributors:
+  cargo run --release --package update-contributors
+
 check: fmt clippy test forbid
   #!/usr/bin/env bash
   set -euxo pipefail

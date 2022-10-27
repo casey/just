@@ -14,7 +14,7 @@ keywords = ["command-line", "task", "runner", "development", "utility"]
 exclude = ["/book", "/icon.png", "/screenshot.png", "/www"]
 
 [workspace]
-members = [".", "bin/ref-type", "bin/generate-book"]
+members = [".", "bin/ref-type", "bin/generate-book", "bin/update-contributors"]
 
 [dependencies]
 ansi_term = "0.12.0"
