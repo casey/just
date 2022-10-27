@@ -1161,7 +1161,7 @@ The executable is at: /bin/just
 
 - `snakecase(s)`<sup>master</sup> - Convert `s` to `snake_case`.
 
-- `titlecase(s)`<sup>master</sup> - Convert `s` to title case.
+- `titlecase(s)`<sup>master</sup> - Convert `s` to `Title Case`.
 
 - `trim(s)` - Remove leading and trailing whitespace from `s`.
 
