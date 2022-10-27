@@ -1147,7 +1147,7 @@ The executable is at: /bin/just
 
 - `kebabcase(s)`<sup>master</sup> - Convert `s` to `kebab-case`.
 
-- `lowercamelcase(s)`<sup>master</sup> - Convert `s` to lower camel case. (also known simply as camel case)
+- `lowercamelcase(s)`<sup>master</sup> - Convert `s` to `lowerCamelCase`.
 
 - `lowercase(s)` - Convert `s` to lowercase.
 
