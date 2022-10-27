@@ -1159,7 +1159,7 @@ The executable is at: /bin/just
 
 - `shoutysnakecase(s)`<sup>master</sup> - Convert `s` to `SHOUTY_SNAKE_CASE`.
 
-- `snakecase(s)`<sup>master</sup> - Convert `s` to snake case.
+- `snakecase(s)`<sup>master</sup> - Convert `s` to `snake_case`.
 
 - `titlecase(s)`<sup>master</sup> - Convert `s` to title case.
 
