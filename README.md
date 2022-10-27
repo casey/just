@@ -1155,7 +1155,7 @@ The executable is at: /bin/just
 
 - `replace(s, from, to)` - Replace all occurrences of `from` in `s` to `to`.
 
-- `shoutykebabcase(s)`<sup>master</sup> - Convert `s` to kebab case in all capitals.
+- `shoutykebabcase(s)`<sup>master</sup> - Convert `s` to `SHOUTY-KEBAB-CASE`.
 
 - `shoutysnakecase(s)`<sup>master</sup> - Convert `s` to snake case in all capitals.
 
