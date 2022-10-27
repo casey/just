@@ -1145,7 +1145,7 @@ The executable is at: /bin/just
 
 - `capitalize(s)`<sup>master</sup> - Convert first character of `s` to uppercase and the rest to lowercase.
 
-- `kebabcase(s)`<sup>master</sup> - Convert `s` to kebab case.
+- `kebabcase(s)`<sup>master</sup> - Convert `s` to `kebab-case`.
 
 - `lowercamelcase(s)`<sup>master</sup> - Convert `s` to lower camel case. (also known simply as camel case)
 
