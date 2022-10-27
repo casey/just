@@ -284,6 +284,76 @@ test! {
 }
 
 test! {
+  name: uppercamelcase,
+  justfile: "
+    foo:
+      echo {{ uppercamelcase('foo bar') }}
+  ",
+  stdout: "FooBar\n",
+  stderr: "echo FooBar\n",
+}
+
+test! {
+  name: lowercamelcase,
+  justfile: "
+    foo:
+      echo {{ lowercamelcase('foo bar') }}
+  ",
+  stdout: "fooBar\n",
+  stderr: "echo fooBar\n",
+}
+
+test! {
+  name: snakecase,
+  justfile: "
+    foo:
+      echo {{ snakecase('foo bar') }}
+  ",
+  stdout: "foo_bar\n",
+  stderr: "echo foo_bar\n",
+}
+
+test! {
+  name: kebabcase,
+  justfile: "
+    foo:
+      echo {{ kebabcase('foo bar') }}
+  ",
+  stdout: "foo-bar\n",
+  stderr: "echo foo-bar\n",
+}
+
+test! {
+  name: shoutysnakecase,
+  justfile: "
+    foo:
+      echo {{ shoutysnakecase('foo bar') }}
+  ",
+  stdout: "FOO_BAR\n",
+  stderr: "echo FOO_BAR\n",
+}
+
+test! {
+  name: titlecase,
+  justfile: "
+    foo:
+      echo {{ titlecase('foo bar') }}
+  ",
+  stdout: "Foo Bar\n",
+  stderr: "echo Foo Bar\n",
+}
+
+test! {
+  name: shoutykebabcase,
+  justfile: "
+    foo:
+      echo {{ shoutykebabcase('foo bar') }}
+  ",
+  stdout: "FOO-BAR\n",
+  stderr: "echo FOO-BAR\n",
+}
+
+test! {
   name: trim,
   justfile: "
     foo:
