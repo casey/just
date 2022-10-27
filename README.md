@@ -1145,11 +1145,23 @@ The executable is at: /bin/just
 
 - `capitalize(s)`<sup>master</sup> - Convert first character of `s` to uppercase and the rest to lowercase.
 
+- `kebabcase(s)`<sup>master</sup> - Convert `s` to kebab case.
+
+- `lowercamelcase(s)`<sup>master</sup> - Convert `s` to lower camel case. (also known simply as camel case)
+
 - `lowercase(s)` - Convert `s` to lowercase.
 
 - `quote(s)` - Replace all single quotes with `'\''` and prepend and append single quotes to `s`. This is sufficient to escape special characters for many shells, including most Bourne shell descendants.
 
 - `replace(s, from, to)` - Replace all occurrences of `from` in `s` to `to`.
+
+- `shoutykebabcase(s)`<sup>master</sup> - Convert `s` to kebab case in all capitals.
+
+- `shoutysnakecase(s)`<sup>master</sup> - Convert `s` to snake case in all capitals.
+
+- `snakecase(s)`<sup>master</sup> - Convert `s` to snake case.
+
+- `titlecase(s)`<sup>master</sup> - Convert `s` to title case.
 
 - `trim(s)` - Remove leading and trailing whitespace from `s`.
 
@@ -1166,6 +1178,8 @@ The executable is at: /bin/just
 - `trim_start_matches(s, pat)` - Repeatedly remove prefixes of `s` matching `pat`.
 
 - `uppercase(s)` - Convert `s` to uppercase.
+
+- `uppercamelcase(s)`<sup>master</sup> - Convert `s` to upper camel case. (also known as Pascal case)
 
 #### Path Manipulation
 

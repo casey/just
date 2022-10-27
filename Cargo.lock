@@ -316,6 +316,7 @@ dependencies = [
  "edit-distance",
  "env_logger",
  "executable-path",
+ "heck",
  "lazy_static",
  "lexiclean",
  "libc",

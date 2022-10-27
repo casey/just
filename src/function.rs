@@ -3,6 +3,11 @@
 
 use super::*;
 
+use heck::{
+  ToKebabCase, ToLowerCamelCase, ToShoutyKebabCase, ToShoutySnakeCase, ToSnakeCase, ToTitleCase,
+  ToUpperCamelCase,
+};
+
 use Function::*;
 pub(crate) enum Function {
   Nullary(fn(&FunctionContext) -> Result<String, String>),
@@ -29,6 +34,8 @@ lazy_static! {
     ("just_executable", Nullary(just_executable)),
     ("justfile", Nullary(justfile)),
     ("justfile_directory", Nullary(justfile_directory)),
+    ("kebabcase", Unary(kebabcase)),
+    ("lowercamelcase", Unary(lowercamelcase)),
     ("lowercase", Unary(lowercase)),
     ("os", Nullary(os)),
     ("os_family", Nullary(os_family)),
@@ -38,6 +45,10 @@ lazy_static! {
     ("replace", Ternary(replace)),
     ("sha256", Unary(sha256)),
     ("sha256_file", Unary(sha256_file)),
+    ("shoutykebabcase", Unary(shoutykebabcase)),
+    ("shoutysnakecase", Unary(shoutysnakecase)),
+    ("snakecase", Unary(snakecase)),
+    ("titlecase", Unary(titlecase)),
     ("trim", Unary(trim)),
     ("trim_end", Unary(trim_end)),
     ("trim_end_match", Binary(trim_end_match)),
@@ -45,6 +56,7 @@ lazy_static! {
     ("trim_start", Unary(trim_start)),
     ("trim_start_match", Binary(trim_start_match)),
     ("trim_start_matches", Binary(trim_start_matches)),
+    ("uppercamelcase", Unary(uppercamelcase)),
     ("uppercase", Unary(uppercase)),
     ("uuid", Nullary(uuid)),
     ("without_extension", Unary(without_extension)),
@@ -225,6 +237,14 @@ fn justfile_directory(context: &FunctionContext) -> Result<String, String> {
     })
 }
 
+fn kebabcase(_context: &FunctionContext, s: &str) -> Result<String, String> {
+  Ok(s.to_kebab_case())
+}
+
+fn lowercamelcase(_context: &FunctionContext, s: &str) -> Result<String, String> {
+  Ok(s.to_lower_camel_case())
+}
+
 fn lowercase(_context: &FunctionContext, s: &str) -> Result<String, String> {
   Ok(s.to_lowercase())
 }
@@ -283,6 +303,22 @@ fn sha256_file(context: &FunctionContext, path: &str) -> Result<String, String> 
   Ok(format!("{:x}", hash))
 }
 
+fn shoutykebabcase(_context: &FunctionContext, s: &str) -> Result<String, String> {
+  Ok(s.to_shouty_kebab_case())
+}
+
+fn shoutysnakecase(_context: &FunctionContext, s: &str) -> Result<String, String> {
+  Ok(s.to_shouty_snake_case())
+}
+
+fn snakecase(_context: &FunctionContext, s: &str) -> Result<String, String> {
+  Ok(s.to_snake_case())
+}
+
+fn titlecase(_context: &FunctionContext, s: &str) -> Result<String, String> {
+  Ok(s.to_title_case())
+}
+
 fn trim(_context: &FunctionContext, s: &str) -> Result<String, String> {
   Ok(s.trim().to_owned())
 }
@@ -309,6 +345,10 @@ fn trim_start_match(_context: &FunctionContext, s: &str, pat: &str) -> Result<St
 
 fn trim_start_matches(_context: &FunctionContext, s: &str, pat: &str) -> Result<String, String> {
   Ok(s.trim_start_matches(pat).to_owned())
+}
+
+fn uppercamelcase(_context: &FunctionContext, s: &str) -> Result<String, String> {
+  Ok(s.to_upper_camel_case())
 }
 
 fn uppercase(_context: &FunctionContext, s: &str) -> Result<String, String> {
