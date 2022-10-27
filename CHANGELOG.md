@@ -1,6 +1,25 @@
 Changelog
 =========
 
+[1.7.0](https://github.com/casey/just/releases/tag/1.7.0) - 2022-10-26
+----------------------------------------------------------------------
+
+### Breaking Changes to Unstable Features
+- Make `fallback` setting default to true (#1384)
+
+### Added
+- Add more case-conversion functions (#1383 by @gVirtu)
+- Add `tempdir` setting (#1369 by @dmatos2012)
+- Add [no-exit-message] recipe annotation (#1354 by @gokhanettin)
+- Add `capitalize(s)` function (#1375 by @femnad)
+
+### Misc
+- Credit contributors in changelog (#1385)
+- Update asdf just plugin repository (#1380 by @kachick)
+- Prepend commit messages with `- ` in changelog (#1379)
+- Fail publish if `<sup>master</sup>` is found in README.md (#1378)
+- Use for loop in capitalize implementation (#1377)
+
 [1.6.0](https://github.com/casey/just/releases/tag/1.6.0) - 2022-10-19
 ----------------------------------------------------------------------
 
