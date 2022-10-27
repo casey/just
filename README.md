@@ -1143,11 +1143,11 @@ The executable is at: /bin/just
 
 #### String Manipulation
 
-- `capitalize(s)`<sup>master</sup> - Convert first character of `s` to uppercase and the rest to lowercase.
+- `capitalize(s)`<sup>1.7.0</sup> - Convert first character of `s` to uppercase and the rest to lowercase.
 
-- `kebabcase(s)`<sup>master</sup> - Convert `s` to `kebab-case`.
+- `kebabcase(s)`<sup>1.7.0</sup> - Convert `s` to `kebab-case`.
 
-- `lowercamelcase(s)`<sup>master</sup> - Convert `s` to `lowerCamelCase`.
+- `lowercamelcase(s)`<sup>1.7.0</sup> - Convert `s` to `lowerCamelCase`.
 
 - `lowercase(s)` - Convert `s` to lowercase.
 
@@ -1155,13 +1155,13 @@ The executable is at: /bin/just
 
 - `replace(s, from, to)` - Replace all occurrences of `from` in `s` to `to`.
 
-- `shoutykebabcase(s)`<sup>master</sup> - Convert `s` to `SHOUTY-KEBAB-CASE`.
+- `shoutykebabcase(s)`<sup>1.7.0</sup> - Convert `s` to `SHOUTY-KEBAB-CASE`.
 
-- `shoutysnakecase(s)`<sup>master</sup> - Convert `s` to `SHOUTY_SNAKE_CASE`.
+- `shoutysnakecase(s)`<sup>1.7.0</sup> - Convert `s` to `SHOUTY_SNAKE_CASE`.
 
-- `snakecase(s)`<sup>master</sup> - Convert `s` to `snake_case`.
+- `snakecase(s)`<sup>1.7.0</sup> - Convert `s` to `snake_case`.
 
-- `titlecase(s)`<sup>master</sup> - Convert `s` to `Title Case`.
+- `titlecase(s)`<sup>1.7.0</sup> - Convert `s` to `Title Case`.
 
 - `trim(s)` - Remove leading and trailing whitespace from `s`.
 
@@ -1179,7 +1179,7 @@ The executable is at: /bin/just
 
 - `uppercase(s)` - Convert `s` to uppercase.
 
-- `uppercamelcase(s)`<sup>master</sup> - Convert `s` to `UpperCamelCase`.
+- `uppercamelcase(s)`<sup>1.7.0</sup> - Convert `s` to `UpperCamelCase`.
 
 #### Path Manipulation
 
