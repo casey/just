@@ -1157,7 +1157,7 @@ The executable is at: /bin/just
 
 - `shoutykebabcase(s)`<sup>master</sup> - Convert `s` to `SHOUTY-KEBAB-CASE`.
 
-- `shoutysnakecase(s)`<sup>master</sup> - Convert `s` to snake case in all capitals.
+- `shoutysnakecase(s)`<sup>master</sup> - Convert `s` to `SHOUTY_SNAKE_CASE`.
 
 - `snakecase(s)`<sup>master</sup> - Convert `s` to snake case.
 
