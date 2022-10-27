@@ -4,7 +4,7 @@ use {
 };
 
 fn author(pr: u64) -> String {
-  eprintln!("#{pr}");
+  eprintln!("#{}", pr);
   let output = Command::new("sh")
     .args(&[
       "-c",
