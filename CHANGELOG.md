@@ -867,11 +867,11 @@ Changelog
 -----------------------------------------------------------------------
 
 ### Added
-- Add recipe aliases by @ryloric (#390 by @ryloric)
+- Add recipe aliases (#390 by @ryloric)
 - Allow arbitrary expressions as default arguments (#400)
 - Add justfile summaries (#399)
 - Allow outer shebang lines so justfiles can be used as scripts (#393)
-- Allow `--justfile` without `--working-directory` by @smonami (#392)
+- Allow `--justfile` without `--working-directory` (#392 by @smonami)
 - Add link to Chinese translation of readme by @chinanf-boy (#377)
 
 ### Changed
