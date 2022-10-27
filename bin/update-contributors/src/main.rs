@@ -8,7 +8,7 @@ fn author(pr: u64) -> String {
   let output = Command::new("sh")
     .args(&[
       "-c",
-      &format!("gh pr view {pr} --json author | jq -r .author.login"),
+      &format!("gh pr view {} --json author | jq -r .author.login", pr),
     ])
     .output()
     .unwrap();
@@ -30,8 +30,8 @@ fn main() {
       |captures: &Captures| {
         let pr = captures[1].parse().unwrap();
         match author(pr).as_str() {
-          "casey" => format!("(#{pr})"),
-          contributor => format!("(#{pr} by @{contributor})"),
+          "casey" => format!("(#{})", pr),
+          contributor => format!("(#{} by @{})", pr, contributor),
         }
       },
     ),
