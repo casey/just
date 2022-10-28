@@ -60,6 +60,7 @@ mod line_prefixes;
 mod misc;
 mod multibyte_char;
 mod no_exit_message;
+mod os_attributes;
 mod parser;
 mod positional_arguments;
 mod quiet;

@@ -27,6 +27,7 @@ fn alias() {
       "assignments": {},
       "recipes": {
         "foo": {
+          "attributes": [],
           "body": [],
           "dependencies": [],
           "doc": null,
@@ -36,7 +37,6 @@ fn alias() {
           "private": false,
           "quiet": false,
           "shebang": false,
-          "suppress_exit_error_messages": false,
         }
       },
       "settings": {
@@ -102,6 +102,7 @@ fn body() {
       "first": "foo",
       "recipes": {
         "foo": {
+          "attributes": [],
           "body": [
             ["bar"],
             ["abc", ["xyz"], "def"],
@@ -114,7 +115,6 @@ fn body() {
           "private": false,
           "quiet": false,
           "shebang": false,
-          "suppress_exit_error_messages": false,
         }
       },
       "settings": {
@@ -147,6 +147,7 @@ fn dependencies() {
       "first": "foo",
       "recipes": {
         "bar": {
+          "attributes": [],
           "doc": null,
           "name": "bar",
           "body": [],
@@ -159,7 +160,6 @@ fn dependencies() {
           "private": false,
           "quiet": false,
           "shebang": false,
-          "suppress_exit_error_messages": false,
         },
         "foo": {
           "body": [],
@@ -171,7 +171,7 @@ fn dependencies() {
           "private": false,
           "quiet": false,
           "shebang": false,
-          "suppress_exit_error_messages": false,
+          "attributes": [],
         }
       },
       "settings": {
@@ -246,7 +246,7 @@ fn dependency_argument() {
           "private": false,
           "quiet": false,
           "shebang": false,
-          "suppress_exit_error_messages": false,
+          "attributes": [],
         },
         "foo": {
           "body": [],
@@ -265,7 +265,7 @@ fn dependency_argument() {
           "private": false,
           "quiet": false,
           "shebang": false,
-          "suppress_exit_error_messages": false,
+          "attributes": [],
         }
       },
       "settings": {
@@ -322,7 +322,7 @@ fn duplicate_recipes() {
           "private": false,
           "quiet": false,
           "shebang": false,
-          "suppress_exit_error_messages": false,
+          "attributes": [],
         }
       },
       "settings": {
@@ -361,7 +361,7 @@ fn doc_comment() {
           "private": false,
           "quiet": false,
           "shebang": false,
-          "suppress_exit_error_messages": false,
+          "attributes": [],
         }
       },
       "settings": {
@@ -424,6 +424,7 @@ fn parameters() {
       "assignments": {},
       "recipes": {
         "a": {
+          "attributes": [],
           "body": [],
           "dependencies": [],
           "doc": null,
@@ -433,7 +434,6 @@ fn parameters() {
           "private": false,
           "quiet": false,
           "shebang": false,
-          "suppress_exit_error_messages": false,
         },
         "b": {
           "body": [],
@@ -452,7 +452,7 @@ fn parameters() {
           "private": false,
           "quiet": false,
           "shebang": false,
-          "suppress_exit_error_messages": false,
+          "attributes": [],
         },
         "c": {
           "body": [],
@@ -471,7 +471,7 @@ fn parameters() {
           "private": false,
           "quiet": false,
           "shebang": false,
-          "suppress_exit_error_messages": false,
+          "attributes": [],
         },
         "d": {
           "body": [],
@@ -490,7 +490,7 @@ fn parameters() {
           "private": false,
           "quiet": false,
           "shebang": false,
-          "suppress_exit_error_messages": false,
+          "attributes": [],
         },
         "e": {
           "body": [],
@@ -509,7 +509,7 @@ fn parameters() {
           "private": false,
           "quiet": false,
           "shebang": false,
-          "suppress_exit_error_messages": false,
+          "attributes": [],
         },
         "f": {
           "body": [],
@@ -528,7 +528,7 @@ fn parameters() {
           "private": false,
           "quiet": false,
           "shebang": false,
-          "suppress_exit_error_messages": false,
+          "attributes": [],
         },
       },
       "settings": {
@@ -571,7 +571,7 @@ fn priors() {
           "private": false,
           "quiet": false,
           "shebang": false,
-          "suppress_exit_error_messages": false,
+          "attributes": [],
         },
         "b": {
           "body": [],
@@ -590,7 +590,7 @@ fn priors() {
           "private": false,
           "quiet": false,
           "shebang": false,
-          "suppress_exit_error_messages": false,
+          "attributes": [],
           "parameters": [],
           "priors": 1,
         },
@@ -603,7 +603,7 @@ fn priors() {
           "private": false,
           "quiet": false,
           "shebang": false,
-          "suppress_exit_error_messages": false,
+          "attributes": [],
           "parameters": [],
           "priors": 0,
         },
@@ -644,7 +644,7 @@ fn private() {
           "private": true,
           "quiet": false,
           "shebang": false,
-          "suppress_exit_error_messages": false,
+          "attributes": [],
         }
       },
       "settings": {
@@ -683,7 +683,7 @@ fn quiet() {
           "private": false,
           "quiet": true,
           "shebang": false,
-          "suppress_exit_error_messages": false,
+          "attributes": [],
         }
       },
       "settings": {
@@ -741,7 +741,7 @@ fn settings() {
           "private": false,
           "quiet": false,
           "shebang": true,
-          "suppress_exit_error_messages": false,
+          "attributes": [],
         }
       },
       "settings": {
@@ -786,7 +786,7 @@ fn shebang() {
           "private": false,
           "quiet": false,
           "shebang": true,
-          "suppress_exit_error_messages": false,
+          "attributes": [],
         }
       },
       "settings": {
@@ -825,7 +825,7 @@ fn simple() {
           "private": false,
           "quiet": false,
           "shebang": false,
-          "suppress_exit_error_messages": false,
+          "attributes": [],
         }
       },
       "settings": {
@@ -858,6 +858,7 @@ fn attribute() {
       "first": "foo",
       "recipes": {
         "foo": {
+          "attributes": ["no-exit-message"],
           "body": [],
           "dependencies": [],
           "doc": null,
@@ -867,7 +868,6 @@ fn attribute() {
           "private": false,
           "quiet": false,
           "shebang": false,
-          "suppress_exit_error_messages": true,
         }
       },
       "settings": {

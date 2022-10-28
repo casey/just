@@ -21,6 +21,7 @@ fn error_from_signal(recipe: &str, line_number: Option<usize>, exit_status: Exit
 /// A recipe, e.g. `foo: bar baz`
 #[derive(PartialEq, Debug, Clone, Serialize)]
 pub(crate) struct Recipe<'src, D = Dependency<'src>> {
+  pub(crate) attributes: BTreeSet<Attribute>,
   pub(crate) body: Vec<Line<'src>>,
   pub(crate) dependencies: Vec<D>,
   pub(crate) doc: Option<&'src str>,
@@ -30,7 +31,6 @@ pub(crate) struct Recipe<'src, D = Dependency<'src>> {
   pub(crate) private: bool,
   pub(crate) quiet: bool,
   pub(crate) shebang: bool,
-  pub(crate) attribute: Option<Attribute>,
 }
 
 impl<'src, D> Recipe<'src, D> {
@@ -67,18 +67,30 @@ impl<'src, D> Recipe<'src, D> {
   }
 
   pub(crate) fn enabled(&self) -> bool {
-    match self.attribute {
-      Some(Attribute::Windows) => cfg!(target_os = "windows"),
-      Some(Attribute::Linux) => cfg!(target_os = "linux"),
-      Some(Attribute::Macos) => cfg!(target_os = "macos"),
-      Some(Attribute::Unix) => cfg!(unix),
-      Some(Attribute::NoExitMessage) => true,
-      None => true,
+    let windows = self.attributes.contains(&Attribute::Windows);
+    let linux = self.attributes.contains(&Attribute::Linux);
+    let macos = self.attributes.contains(&Attribute::Macos);
+    let unix = self.attributes.contains(&Attribute::Unix);
+
+    if !(windows || linux || macos || unix) {
+      true
+    } else if cfg!(target_os = "windows") {
+      windows
+    } else if cfg!(target_os = "linux") {
+      linux || unix
+    } else if cfg!(target_os = "macos") {
+      macos || unix
+    } else if cfg!(windows) {
+      windows
+    } else if cfg!(unix) {
+      unix
+    } else {
+      false
     }
   }
 
   fn print_exit_message(&self) -> bool {
-    !matches!(self.attribute, Some(Attribute::NoExitMessage))
+    !self.attributes.contains(&Attribute::NoExitMessage)
   }
 
   pub(crate) fn run<'run>(
@@ -364,6 +376,10 @@ impl<'src, D: Display> ColorDisplay for Recipe<'src, D> {
   fn fmt(&self, f: &mut Formatter, color: Color) -> Result<(), fmt::Error> {
     if let Some(doc) = self.doc {
       writeln!(f, "# {}", doc)?;
+    }
+
+    for attribute in &self.attributes {
+      writeln!(f, "[{}]", attribute.to_str())?;
     }
 
     if self.quiet {

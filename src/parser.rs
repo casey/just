@@ -670,7 +670,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
       parameters: positional.into_iter().chain(variadic).collect(),
       private: name.lexeme().starts_with('_'),
       shebang: body.first().map_or(false, Line::is_shebang),
-      attribute,
+      attributes: attribute.into_iter().collect(),
       priors,
       body,
       dependencies,

@@ -1,4 +1,4 @@
-use libc::EXIT_FAILURE;
+use super::*;
 
 test! {
   name: recipe_exit_message_suppressed,

@@ -53,7 +53,7 @@ impl<'src> UnresolvedRecipe<'src> {
       quiet: self.quiet,
       shebang: self.shebang,
       priors: self.priors,
-      attribute: self.attribute,
+      attributes: self.attributes,
       dependencies,
     })
   }
