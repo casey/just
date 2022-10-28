@@ -58,7 +58,7 @@ fn os() {
     } else {
       panic!("unexpected os family")
     })
-    .stderr(if cfg!(unix) {
+    .stderr(if cfg!(target_os = "macos") {
       "echo bar\n"
     } else if cfg!(windows) {
       "echo baz\n"
