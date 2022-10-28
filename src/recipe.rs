@@ -72,21 +72,12 @@ impl<'src, D> Recipe<'src, D> {
     let macos = self.attributes.contains(&Attribute::Macos);
     let unix = self.attributes.contains(&Attribute::Unix);
 
-    if !(windows || linux || macos || unix) {
-      true
-    } else if cfg!(target_os = "windows") {
-      windows
-    } else if cfg!(target_os = "linux") {
-      linux || unix
-    } else if cfg!(target_os = "macos") {
-      macos || unix
-    } else if cfg!(windows) {
-      windows
-    } else if cfg!(unix) {
-      unix
-    } else {
-      false
-    }
+    (!windows && !linux && !macos && !unix)
+      || (cfg!(target_os = "windows") && windows)
+      || (cfg!(target_os = "linux") && (linux || unix))
+      || (cfg!(target_os = "macos") && (macos || unix))
+      || (cfg!(windows) && windows)
+      || (cfg!(unix) && unix)
   }
 
   fn print_exit_message(&self) -> bool {
