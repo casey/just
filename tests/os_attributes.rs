@@ -53,7 +53,7 @@ fn os() {
       "bar\n"
     } else if cfg!(windows) {
       "baz\n"
-    } else if cfg!(linux) {
+    } else if cfg!(target_os = "linux") {
       "quxx\n"
     } else {
       panic!("unexpected os family")
@@ -62,7 +62,7 @@ fn os() {
       "echo bar\n"
     } else if cfg!(windows) {
       "echo baz\n"
-    } else if cfg!(linux) {
+    } else if cfg!(target_os = "linux") {
       "echo quxx\n"
     } else {
       panic!("unexpected os family")
