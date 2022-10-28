@@ -1,6 +1,7 @@
 use super::*;
 
 // TODO:
+// - test multiple attributes
 // - forbid duplicate attributes?
 
 #[test]
@@ -70,5 +71,37 @@ fn os() {
     } else {
       panic!("unexpected os family")
     })
+    .run();
+}
+
+#[test]
+fn all() {
+  Test::new()
+    .justfile(
+      "
+      [macos]
+      [windows]
+      [linux]
+      [unix]
+      foo:
+        echo bar
+    ",
+    )
+    .stdout("bar\n")
+    .stderr("echo bar\n")
+    .run();
+}
+
+#[test]
+fn none() {
+  Test::new()
+    .justfile(
+      "
+      foo:
+        echo bar
+    ",
+    )
+    .stdout("bar\n")
+    .stderr("echo bar\n")
     .run();
 }
