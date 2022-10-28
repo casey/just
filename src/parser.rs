@@ -345,17 +345,25 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
               items.push(Item::Assignment(self.parse_assignment(false)?));
             } else {
               let doc = pop_doc_comment(&mut items, eol_since_last_comment);
-              items.push(Item::Recipe(self.parse_recipe(doc, false, &[])?));
+              items.push(Item::Recipe(self.parse_recipe(
+                doc,
+                false,
+                BTreeSet::new(),
+              )?));
             }
           }
         }
       } else if self.accepted(At)? {
         let doc = pop_doc_comment(&mut items, eol_since_last_comment);
-        items.push(Item::Recipe(self.parse_recipe(doc, true, &[])?));
+        items.push(Item::Recipe(self.parse_recipe(
+          doc,
+          true,
+          BTreeSet::new(),
+        )?));
       } else if let Some(attributes) = self.parse_attributes()? {
         let quiet = self.accepted(At)?;
         let doc = pop_doc_comment(&mut items, eol_since_last_comment);
-        items.push(Item::Recipe(self.parse_recipe(doc, quiet, &attributes)?));
+        items.push(Item::Recipe(self.parse_recipe(doc, quiet, attributes)?));
       } else {
         return Err(self.unexpected_token()?);
       }
@@ -599,7 +607,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     &mut self,
     doc: Option<&'src str>,
     quiet: bool,
-    attributes: &[Attribute],
+    attributes: BTreeSet<Attribute>,
   ) -> CompileResult<'src, UnresolvedRecipe<'src>> {
     let name = self.parse_name()?;
 
@@ -663,7 +671,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
       parameters: positional.into_iter().chain(variadic).collect(),
       private: name.lexeme().starts_with('_'),
       shebang: body.first().map_or(false, Line::is_shebang),
-      attributes: attributes.iter().cloned().collect(),
+      attributes,
       priors,
       body,
       dependencies,
@@ -829,16 +837,23 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   }
 
   /// Parse recipe attributes
-  fn parse_attributes(&mut self) -> CompileResult<'src, Option<Vec<Attribute>>> {
-    let mut attributes = Vec::new();
+  fn parse_attributes(&mut self) -> CompileResult<'src, Option<BTreeSet<Attribute>>> {
+    let mut attributes = BTreeMap::new();
 
     while self.accepted(BracketL)? {
       let name = self.parse_name()?;
-      attributes.push(Attribute::from_name(name).ok_or_else(|| {
+      let attribute = Attribute::from_name(name).ok_or_else(|| {
         name.error(CompileErrorKind::UnknownAttribute {
           attribute: name.lexeme(),
         })
-      })?);
+      })?;
+      if let Some(line) = attributes.get(&attribute) {
+        return Err(name.error(CompileErrorKind::DuplicateAttribute {
+          attribute: name.lexeme(),
+          first: *line,
+        }));
+      }
+      attributes.insert(attribute, name.line);
       self.expect(BracketR)?;
       self.expect_eol()?;
     }
@@ -846,7 +861,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     if attributes.is_empty() {
       Ok(None)
     } else {
-      Ok(Some(attributes))
+      Ok(Some(attributes.into_keys().collect()))
     }
   }
 }
