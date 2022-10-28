@@ -345,24 +345,17 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
               items.push(Item::Assignment(self.parse_assignment(false)?));
             } else {
               let doc = pop_doc_comment(&mut items, eol_since_last_comment);
-              items.push(Item::Recipe(self.parse_recipe(doc, false, None)?));
+              items.push(Item::Recipe(self.parse_recipe(doc, false, &[])?));
             }
           }
         }
       } else if self.accepted(At)? {
         let doc = pop_doc_comment(&mut items, eol_since_last_comment);
-        items.push(Item::Recipe(self.parse_recipe(doc, true, None)?));
-      } else if self.accepted(BracketL)? {
-        let attribute = self.parse_attribute_name()?;
-        self.expect(BracketR)?;
-        self.expect_eol()?;
+        items.push(Item::Recipe(self.parse_recipe(doc, true, &[])?));
+      } else if let Some(attributes) = self.parse_attributes()? {
         let quiet = self.accepted(At)?;
         let doc = pop_doc_comment(&mut items, eol_since_last_comment);
-        items.push(Item::Recipe(self.parse_recipe(
-          doc,
-          quiet,
-          Some(attribute),
-        )?));
+        items.push(Item::Recipe(self.parse_recipe(doc, quiet, &attributes)?));
       } else {
         return Err(self.unexpected_token()?);
       }
@@ -606,7 +599,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     &mut self,
     doc: Option<&'src str>,
     quiet: bool,
-    attribute: Option<Attribute>,
+    attributes: &[Attribute],
   ) -> CompileResult<'src, UnresolvedRecipe<'src>> {
     let name = self.parse_name()?;
 
@@ -670,7 +663,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
       parameters: positional.into_iter().chain(variadic).collect(),
       private: name.lexeme().starts_with('_'),
       shebang: body.first().map_or(false, Line::is_shebang),
-      attributes: attribute.into_iter().collect(),
+      attributes: attributes.iter().cloned().collect(),
       priors,
       body,
       dependencies,
@@ -835,14 +828,26 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     Ok(Shell { arguments, command })
   }
 
-  /// Parse a recipe attribute name
-  fn parse_attribute_name(&mut self) -> CompileResult<'src, Attribute> {
-    let name = self.parse_name()?;
-    Attribute::from_name(name).ok_or_else(|| {
-      name.error(CompileErrorKind::UnknownAttribute {
-        attribute: name.lexeme(),
-      })
-    })
+  /// Parse recipe attributes
+  fn parse_attributes(&mut self) -> CompileResult<'src, Option<Vec<Attribute>>> {
+    let mut attributes = Vec::new();
+
+    while self.accepted(BracketL)? {
+      let name = self.parse_name()?;
+      attributes.push(Attribute::from_name(name).ok_or_else(|| {
+        name.error(CompileErrorKind::UnknownAttribute {
+          attribute: name.lexeme(),
+        })
+      })?);
+      self.expect(BracketR)?;
+      self.expect_eol()?;
+    }
+
+    if attributes.is_empty() {
+      Ok(None)
+    } else {
+      Ok(Some(attributes))
+    }
   }
 }
 

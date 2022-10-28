@@ -1,5 +1,8 @@
 use super::*;
 
+// TODO:
+// - forbid duplicate attributes?
+
 #[test]
 fn os_family() {
   Test::new()

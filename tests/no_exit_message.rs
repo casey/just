@@ -86,7 +86,7 @@ hello:
   @exit 100
 "#,
   stderr: r#"
-error: Expected '@' or identifier, but found comment
+error: Expected '@', '[', or identifier, but found comment
   |
 2 | # This is a doc comment
   | ^^^^^^^^^^^^^^^^^^^^^^^
@@ -103,7 +103,7 @@ test! {
 hello:
   @exit 100
 "#,
-  stderr: "error: Expected '@' or identifier, but found end of line\n  |\n2 | \n  | ^\n",
+  stderr: "error: Expected '@', '[', or identifier, but found end of line\n  |\n2 | \n  | ^\n",
   status: EXIT_FAILURE,
 }
 

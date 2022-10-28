@@ -68,7 +68,7 @@ pub(crate) use {
       Serialize, Serializer,
     },
     snafu::{ResultExt, Snafu},
-    strum::{Display, EnumString, IntoStaticStr, ToString},
+    strum::{Display, EnumString, IntoStaticStr},
     typed_arena::Arena,
     unicode_width::{UnicodeWidthChar, UnicodeWidthStr},
   },
