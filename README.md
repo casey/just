@@ -1697,6 +1697,8 @@ Yo from a shell script!
 Hello from ruby!
 ```
 
+Note: Just will execute this scripts by calling the command on the shebang line and a filename containing the script as the first argument, rather than passing the script to STDIN of the command on the shebang line, as would be the case with a shell script on e.g. Linux.
+
 ### Safer Bash Shebang Recipes
 
 If you're writing a `bash` shebang recipe, consider adding `set -euxo pipefail`:
