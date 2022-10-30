@@ -773,7 +773,7 @@ foo:
 `just` uses `sh` on Windows by default. To use a different shell on Windows, use `windows-shell`:
 
 ```make
-set windows-shell := ["pwsh.exe", "-NoLogo", "-Command"]
+set windows-shell := ["powershell.exe", "-NoLogo", "-Command"]
 
 hello:
   Write-Host "Hello, world!"
