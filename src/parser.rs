@@ -345,20 +345,25 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
               items.push(Item::Assignment(self.parse_assignment(false)?));
             } else {
               let doc = pop_doc_comment(&mut items, eol_since_last_comment);
-              items.push(Item::Recipe(self.parse_recipe(doc, false, false)?));
+              items.push(Item::Recipe(self.parse_recipe(
+                doc,
+                false,
+                BTreeSet::new(),
+              )?));
             }
           }
         }
       } else if self.accepted(At)? {
         let doc = pop_doc_comment(&mut items, eol_since_last_comment);
-        items.push(Item::Recipe(self.parse_recipe(doc, true, false)?));
-      } else if self.accepted(BracketL)? {
-        let Attribute::NoExitMessage = self.parse_attribute_name()?;
-        self.expect(BracketR)?;
-        self.expect_eol()?;
+        items.push(Item::Recipe(self.parse_recipe(
+          doc,
+          true,
+          BTreeSet::new(),
+        )?));
+      } else if let Some(attributes) = self.parse_attributes()? {
         let quiet = self.accepted(At)?;
         let doc = pop_doc_comment(&mut items, eol_since_last_comment);
-        items.push(Item::Recipe(self.parse_recipe(doc, quiet, true)?));
+        items.push(Item::Recipe(self.parse_recipe(doc, quiet, attributes)?));
       } else {
         return Err(self.unexpected_token()?);
       }
@@ -602,7 +607,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     &mut self,
     doc: Option<&'src str>,
     quiet: bool,
-    suppress_exit_error_messages: bool,
+    attributes: BTreeSet<Attribute>,
   ) -> CompileResult<'src, UnresolvedRecipe<'src>> {
     let name = self.parse_name()?;
 
@@ -666,7 +671,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
       parameters: positional.into_iter().chain(variadic).collect(),
       private: name.lexeme().starts_with('_'),
       shebang: body.first().map_or(false, Line::is_shebang),
-      suppress_exit_error_messages,
+      attributes,
       priors,
       body,
       dependencies,
@@ -831,14 +836,33 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     Ok(Shell { arguments, command })
   }
 
-  /// Parse a recipe attribute name
-  fn parse_attribute_name(&mut self) -> CompileResult<'src, Attribute> {
-    let name = self.parse_name()?;
-    Attribute::from_name(name).ok_or_else(|| {
-      name.error(CompileErrorKind::UnknownAttribute {
-        attribute: name.lexeme(),
-      })
-    })
+  /// Parse recipe attributes
+  fn parse_attributes(&mut self) -> CompileResult<'src, Option<BTreeSet<Attribute>>> {
+    let mut attributes = BTreeMap::new();
+
+    while self.accepted(BracketL)? {
+      let name = self.parse_name()?;
+      let attribute = Attribute::from_name(name).ok_or_else(|| {
+        name.error(CompileErrorKind::UnknownAttribute {
+          attribute: name.lexeme(),
+        })
+      })?;
+      if let Some(line) = attributes.get(&attribute) {
+        return Err(name.error(CompileErrorKind::DuplicateAttribute {
+          attribute: name.lexeme(),
+          first: *line,
+        }));
+      }
+      attributes.insert(attribute, name.line);
+      self.expect(BracketR)?;
+      self.expect_eol()?;
+    }
+
+    if attributes.is_empty() {
+      Ok(None)
+    } else {
+      Ok(Some(attributes.into_keys().collect()))
+    }
   }
 }
 

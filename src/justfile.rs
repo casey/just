@@ -472,13 +472,13 @@ mod tests {
       recipe,
       line_number,
       code,
-      suppress_message,
+      print_message,
     },
     check: {
       assert_eq!(recipe, "a");
       assert_eq!(code, 200);
       assert_eq!(line_number, None);
-      assert!(!suppress_message);
+      assert!(print_message);
     }
   }
 
@@ -493,13 +493,13 @@ mod tests {
       recipe,
       line_number,
       code,
-      suppress_message,
+      print_message,
     },
     check: {
       assert_eq!(recipe, "fail");
       assert_eq!(code, 100);
       assert_eq!(line_number, Some(2));
-      assert!(!suppress_message);
+      assert!(print_message);
     }
   }
 
@@ -514,13 +514,13 @@ mod tests {
       recipe,
       line_number,
       code,
-      suppress_message,
+      print_message,
     },
     check: {
       assert_eq!(recipe, "a");
       assert_eq!(code, 150);
       assert_eq!(line_number, Some(2));
-      assert!(!suppress_message);
+      assert!(print_message);
     }
   }
 
@@ -672,13 +672,13 @@ mod tests {
     error: Code {
       recipe,
       line_number,
-      suppress_message,
+      print_message,
       ..
     },
     check: {
       assert_eq!(recipe, "wut");
       assert_eq!(line_number, Some(7));
-      assert!(!suppress_message);
+      assert!(print_message);
     }
   }
 

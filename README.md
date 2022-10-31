@@ -1057,9 +1057,7 @@ Done!
 #### System Information
 
 - `arch()` — Instruction set architecture. Possible values are: `"aarch64"`, `"arm"`, `"asmjs"`, `"hexagon"`, `"mips"`, `"msp430"`, `"powerpc"`, `"powerpc64"`, `"s390x"`, `"sparc"`, `"wasm32"`, `"x86"`, `"x86_64"`, and `"xcore"`.
-
 - `os()` — Operating system. Possible values are: `"android"`, `"bitrig"`, `"dragonfly"`, `"emscripten"`, `"freebsd"`, `"haiku"`, `"ios"`, `"linux"`, `"macos"`, `"netbsd"`, `"openbsd"`, `"solaris"`, and `"windows"`.
-
 - `os_family()` — Operating system family; possible values are: `"unix"` and `"windows"`.
 
 For example:
@@ -1143,67 +1141,47 @@ The executable is at: /bin/just
 
 #### String Manipulation
 
-- `capitalize(s)`<sup>1.7.0</sup> - Convert first character of `s` to uppercase and the rest to lowercase.
-
-- `kebabcase(s)`<sup>1.7.0</sup> - Convert `s` to `kebab-case`.
-
-- `lowercamelcase(s)`<sup>1.7.0</sup> - Convert `s` to `lowerCamelCase`.
-
-- `lowercase(s)` - Convert `s` to lowercase.
-
 - `quote(s)` - Replace all single quotes with `'\''` and prepend and append single quotes to `s`. This is sufficient to escape special characters for many shells, including most Bourne shell descendants.
-
 - `replace(s, from, to)` - Replace all occurrences of `from` in `s` to `to`.
-
-- `shoutykebabcase(s)`<sup>1.7.0</sup> - Convert `s` to `SHOUTY-KEBAB-CASE`.
-
-- `shoutysnakecase(s)`<sup>1.7.0</sup> - Convert `s` to `SHOUTY_SNAKE_CASE`.
-
-- `snakecase(s)`<sup>1.7.0</sup> - Convert `s` to `snake_case`.
-
-- `titlecase(s)`<sup>1.7.0</sup> - Convert `s` to `Title Case`.
-
 - `trim(s)` - Remove leading and trailing whitespace from `s`.
-
 - `trim_end(s)` - Remove trailing whitespace from `s`.
-
 - `trim_end_match(s, pat)` - Remove suffix of `s` matching `pat`.
-
 - `trim_end_matches(s, pat)` - Repeatedly remove suffixes of `s` matching `pat`.
-
 - `trim_start(s)` - Remove leading whitespace from `s`.
-
 - `trim_start_match(s, pat)` - Remove prefix of `s` matching `pat`.
-
 - `trim_start_matches(s, pat)` - Repeatedly remove prefixes of `s` matching `pat`.
 
+#### Case Conversion
+
+- `capitalize(s)`<sup>1.7.0</sup> - Convert first character of `s` to uppercase and the rest to lowercase.
+- `kebabcase(s)`<sup>1.7.0</sup> - Convert `s` to `kebab-case`.
+- `lowercamelcase(s)`<sup>1.7.0</sup> - Convert `s` to `lowerCamelCase`.
+- `lowercase(s)` - Convert `s` to lowercase.
+- `shoutykebabcase(s)`<sup>1.7.0</sup> - Convert `s` to `SHOUTY-KEBAB-CASE`.
+- `shoutysnakecase(s)`<sup>1.7.0</sup> - Convert `s` to `SHOUTY_SNAKE_CASE`.
+- `snakecase(s)`<sup>1.7.0</sup> - Convert `s` to `snake_case`.
+- `titlecase(s)`<sup>1.7.0</sup> - Convert `s` to `Title Case`.
+- `uppercamelcase(s)`<sup>1.7.0</sup> - Convert `s` to `UpperCamelCase`.
 - `uppercase(s)` - Convert `s` to uppercase.
 
-- `uppercamelcase(s)`<sup>1.7.0</sup> - Convert `s` to `UpperCamelCase`.
 
 #### Path Manipulation
 
 ##### Fallible
 
 - `absolute_path(path)` - Absolute path to relative `path` in the working directory. `absolute_path("./bar.txt")` in directory `/foo` is `/foo/bar.txt`.
-
 - `extension(path)` - Extension of `path`. `extension("/foo/bar.txt")` is `txt`.
-
 - `file_name(path)` - File name of `path` with any leading directory components removed. `file_name("/foo/bar.txt")` is `bar.txt`.
-
 - `file_stem(path)` - File name of `path` without extension. `file_stem("/foo/bar.txt")` is `bar`.
-
 - `parent_directory(path)` - Parent directory of `path`. `parent_directory("/foo/bar.txt")` is `/foo`.
-
 - `without_extension(path)` - `path` without extension. `without_extension("/foo/bar.txt")` is `/foo/bar`.
 
 These functions can fail, for example if a path does not have an extension, which will halt execution.
 
 ##### Infallible
 
-- `join(a, b…)` - *This function uses `/` on Unix and `\` on Windows, which can be lead to unwanted behavior. The `/` operator, e.g., `a / b`, which always uses `/`, should be considered as a replacement unless `\`s are specifically desired on Windows.* Join path `a` with path `b`. `join("foo/bar", "baz")` is `foo/bar/baz`. Accepts two or more arguments.
-
 - `clean(path)` - Simplify `path` by removing extra path separators, intermediate `.` components, and `..` where possible. `clean("foo//bar")` is `foo/bar`, `clean("foo/..")` is `.`, `clean("foo/./bar")` is `foo/bar`.
+- `join(a, b…)` - *This function uses `/` on Unix and `\` on Windows, which can be lead to unwanted behavior. The `/` operator, e.g., `a / b`, which always uses `/`, should be considered as a replacement unless `\`s are specifically desired on Windows.* Join path `a` with path `b`. `join("foo/bar", "baz")` is `foo/bar/baz`. Accepts two or more arguments.
 
 #### Filesystem Access
 
@@ -1218,6 +1196,42 @@ These functions can fail, for example if a path does not have an extension, whic
 - `sha256(string)` - Return the SHA-256 hash of `string` as a hexadecimal string.
 - `sha256_file(path)` - Return the SHA-256 hash of the file at `path` as a hexadecimal string.
 - `uuid()` - Return a randomly generated UUID.
+
+### Recipe Attributes
+
+Recipes may be annotated with attributes that change their behavior.
+
+| Name                | Description                                       |
+| ------------------- | ------------------------------------------------- |
+| `[no-exit-message]` | Don't print an error message when a recipe fails. |
+| `[linux]`           | Enable recipe on Linux.                           |
+| `[macos]`           | Enable recipe on MacOS.                           |
+| `[unix]`            | Enable recipe on Unixes.                          |
+| `[windows]`         | Enable recipe on Windows.                         |
+
+#### Enabling and Disabling Recipes
+
+The `[linux]`, `[macos]`, `[unix]`, and `[windows]` attributes are
+configuration attributes. By default, recipes are always enabled. A recipe with
+one or more configuration attributes will only be enabled when one or more of
+those configurations is active.
+
+This can be used to write `justfile`s that behave differently depending on
+which operating system they run on. The `run` recipe in this `justfile` will
+compile and run `main.c`, using a different C compiler and using the correct
+output binary name for that compiler depending on the operating system:
+
+```make
+[unix]
+run:
+  cc main.c
+  ./a.out
+
+[windows]
+run:
+  cl main.c
+  main.exe
+```
 
 ### Command Evaluation Using Backticks
 

@@ -96,6 +96,15 @@ impl Display for CompileError<'_> {
           self.token.line.ordinal(),
         )?;
       }
+      DuplicateAttribute { attribute, first } => {
+        write!(
+          f,
+          "Recipe attribute `{}` first used on line {} is duplicated on line {}",
+          attribute,
+          first.ordinal(),
+          self.token.line.ordinal(),
+        )?;
+      }
       DuplicateParameter { recipe, parameter } => {
         write!(
           f,
