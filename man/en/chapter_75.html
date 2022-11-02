@@ -1,0 +1,207 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Further Ramblings - Just Programmer&#x27;s Manual</title>
+        <!-- Custom HTML head -->
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded "><a href="chapter_1.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="chapter_2.html"><strong aria-hidden="true">1.1.</strong> Installation</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="chapter_3.html"><strong aria-hidden="true">1.1.1.</strong> Prerequisites</a></li><li class="chapter-item expanded "><a href="chapter_4.html"><strong aria-hidden="true">1.1.2.</strong> Packages</a></li><li class="chapter-item expanded "><a href="chapter_5.html"><strong aria-hidden="true">1.1.3.</strong> Pre-Built Binaries</a></li><li class="chapter-item expanded "><a href="chapter_6.html"><strong aria-hidden="true">1.1.4.</strong> GitHub Actions</a></li><li class="chapter-item expanded "><a href="chapter_7.html"><strong aria-hidden="true">1.1.5.</strong> Release RSS Feed</a></li><li class="chapter-item expanded "><a href="chapter_8.html"><strong aria-hidden="true">1.1.6.</strong> Node.js Installation</a></li></ol></li><li class="chapter-item expanded "><a href="chapter_9.html"><strong aria-hidden="true">1.2.</strong> Backwards Compatibility</a></li><li class="chapter-item expanded "><a href="chapter_10.html"><strong aria-hidden="true">1.3.</strong> Editor Support</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="chapter_11.html"><strong aria-hidden="true">1.3.1.</strong> Vim and Neovim</a></li><li class="chapter-item expanded "><a href="chapter_12.html"><strong aria-hidden="true">1.3.2.</strong> Emacs</a></li><li class="chapter-item expanded "><a href="chapter_13.html"><strong aria-hidden="true">1.3.3.</strong> Visual Studio Code</a></li><li class="chapter-item expanded "><a href="chapter_14.html"><strong aria-hidden="true">1.3.4.</strong> JetBrains IDEs</a></li><li class="chapter-item expanded "><a href="chapter_15.html"><strong aria-hidden="true">1.3.5.</strong> Kakoune</a></li><li class="chapter-item expanded "><a href="chapter_16.html"><strong aria-hidden="true">1.3.6.</strong> Sublime Text</a></li><li class="chapter-item expanded "><a href="chapter_17.html"><strong aria-hidden="true">1.3.7.</strong> Other Editors</a></li></ol></li><li class="chapter-item expanded "><a href="chapter_18.html"><strong aria-hidden="true">1.4.</strong> Quick Start</a></li><li class="chapter-item expanded "><a href="chapter_19.html"><strong aria-hidden="true">1.5.</strong> Examples</a></li><li class="chapter-item expanded "><a href="chapter_20.html"><strong aria-hidden="true">1.6.</strong> Features</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="chapter_21.html"><strong aria-hidden="true">1.6.1.</strong> The Default Recipe</a></li><li class="chapter-item expanded "><a href="chapter_22.html"><strong aria-hidden="true">1.6.2.</strong> Listing Available Recipes</a></li><li class="chapter-item expanded "><a href="chapter_23.html"><strong aria-hidden="true">1.6.3.</strong> Aliases</a></li><li class="chapter-item expanded "><a href="chapter_24.html"><strong aria-hidden="true">1.6.4.</strong> Settings</a></li><li class="chapter-item expanded "><a href="chapter_25.html"><strong aria-hidden="true">1.6.5.</strong> Documentation Comments</a></li><li class="chapter-item expanded "><a href="chapter_26.html"><strong aria-hidden="true">1.6.6.</strong> Dotenv Integration</a></li><li class="chapter-item expanded "><a href="chapter_27.html"><strong aria-hidden="true">1.6.7.</strong> Variables and Substitution</a></li><li class="chapter-item expanded "><a href="chapter_28.html"><strong aria-hidden="true">1.6.8.</strong> Strings</a></li><li class="chapter-item expanded "><a href="chapter_29.html"><strong aria-hidden="true">1.6.9.</strong> Ignoring Errors</a></li><li class="chapter-item expanded "><a href="chapter_30.html"><strong aria-hidden="true">1.6.10.</strong> Functions</a></li><li class="chapter-item expanded "><a href="chapter_31.html"><strong aria-hidden="true">1.6.11.</strong> Recipe Attributes</a></li><li class="chapter-item expanded "><a href="chapter_32.html"><strong aria-hidden="true">1.6.12.</strong> Command Evaluation Using Backticks</a></li><li class="chapter-item expanded "><a href="chapter_33.html"><strong aria-hidden="true">1.6.13.</strong> Conditional Expressions</a></li><li class="chapter-item expanded "><a href="chapter_34.html"><strong aria-hidden="true">1.6.14.</strong> Stopping execution with error</a></li><li class="chapter-item expanded "><a href="chapter_35.html"><strong aria-hidden="true">1.6.15.</strong> Setting Variables from the Command Line</a></li><li class="chapter-item expanded "><a href="chapter_36.html"><strong aria-hidden="true">1.6.16.</strong> Getting and Setting Environment Variables</a></li><li class="chapter-item expanded "><a href="chapter_37.html"><strong aria-hidden="true">1.6.17.</strong> Recipe Parameters</a></li><li class="chapter-item expanded "><a href="chapter_38.html"><strong aria-hidden="true">1.6.18.</strong> Running Recipes at the End of a Recipe</a></li><li class="chapter-item expanded "><a href="chapter_39.html"><strong aria-hidden="true">1.6.19.</strong> Running Recipes in the Middle of a Recipe</a></li><li class="chapter-item expanded "><a href="chapter_40.html"><strong aria-hidden="true">1.6.20.</strong> Writing Recipes in Other Languages</a></li><li class="chapter-item expanded "><a href="chapter_41.html"><strong aria-hidden="true">1.6.21.</strong> Safer Bash Shebang Recipes</a></li><li class="chapter-item expanded "><a href="chapter_42.html"><strong aria-hidden="true">1.6.22.</strong> Setting Variables in a Recipe</a></li><li class="chapter-item expanded "><a href="chapter_43.html"><strong aria-hidden="true">1.6.23.</strong> Sharing Environment Variables Between Recipes</a></li><li class="chapter-item expanded "><a href="chapter_44.html"><strong aria-hidden="true">1.6.24.</strong> Changing the Working Directory in a Recipe</a></li><li class="chapter-item expanded "><a href="chapter_45.html"><strong aria-hidden="true">1.6.25.</strong> Indentation</a></li><li class="chapter-item expanded "><a href="chapter_46.html"><strong aria-hidden="true">1.6.26.</strong> Multi-Line Constructs</a></li><li class="chapter-item expanded "><a href="chapter_47.html"><strong aria-hidden="true">1.6.27.</strong> Command Line Options</a></li><li class="chapter-item expanded "><a href="chapter_48.html"><strong aria-hidden="true">1.6.28.</strong> Private Recipes</a></li><li class="chapter-item expanded "><a href="chapter_49.html"><strong aria-hidden="true">1.6.29.</strong> Quiet Recipes</a></li><li class="chapter-item expanded "><a href="chapter_50.html"><strong aria-hidden="true">1.6.30.</strong> Selecting Recipes to Run With an Interactive Chooser</a></li><li class="chapter-item expanded "><a href="chapter_51.html"><strong aria-hidden="true">1.6.31.</strong> Invoking justfiles in Other Directories</a></li><li class="chapter-item expanded "><a href="chapter_52.html"><strong aria-hidden="true">1.6.32.</strong> Hiding justfiles</a></li><li class="chapter-item expanded "><a href="chapter_53.html"><strong aria-hidden="true">1.6.33.</strong> Just Scripts</a></li><li class="chapter-item expanded "><a href="chapter_54.html"><strong aria-hidden="true">1.6.34.</strong> Dumping justfiles as JSON</a></li><li class="chapter-item expanded "><a href="chapter_55.html"><strong aria-hidden="true">1.6.35.</strong> Falling back to parent justfiles</a></li><li class="chapter-item expanded "><a href="chapter_56.html"><strong aria-hidden="true">1.6.36.</strong> Avoiding Argument Splitting</a></li><li class="chapter-item expanded "><a href="chapter_57.html"><strong aria-hidden="true">1.6.37.</strong> Configuring the Shell</a></li></ol></li><li class="chapter-item expanded "><a href="chapter_58.html"><strong aria-hidden="true">1.7.</strong> Changelog</a></li><li class="chapter-item expanded "><a href="chapter_59.html"><strong aria-hidden="true">1.8.</strong> Miscellanea</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="chapter_60.html"><strong aria-hidden="true">1.8.1.</strong> Companion Tools</a></li><li class="chapter-item expanded "><a href="chapter_61.html"><strong aria-hidden="true">1.8.2.</strong> Shell Alias</a></li><li class="chapter-item expanded "><a href="chapter_62.html"><strong aria-hidden="true">1.8.3.</strong> Shell Completion Scripts</a></li><li class="chapter-item expanded "><a href="chapter_63.html"><strong aria-hidden="true">1.8.4.</strong> Grammar</a></li><li class="chapter-item expanded "><a href="chapter_64.html"><strong aria-hidden="true">1.8.5.</strong> just.sh</a></li><li class="chapter-item expanded "><a href="chapter_65.html"><strong aria-hidden="true">1.8.6.</strong> User justfiles</a></li><li class="chapter-item expanded "><a href="chapter_66.html"><strong aria-hidden="true">1.8.7.</strong> Node.js package.json Script Compatibility</a></li><li class="chapter-item expanded "><a href="chapter_67.html"><strong aria-hidden="true">1.8.8.</strong> Alternatives and Prior Art</a></li></ol></li><li class="chapter-item expanded "><a href="chapter_68.html"><strong aria-hidden="true">1.9.</strong> Contributing</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="chapter_69.html"><strong aria-hidden="true">1.9.1.</strong> Janus</a></li><li class="chapter-item expanded "><a href="chapter_70.html"><strong aria-hidden="true">1.9.2.</strong> Minimum Supported Rust Version</a></li><li class="chapter-item expanded "><a href="chapter_71.html"><strong aria-hidden="true">1.9.3.</strong> New Releases</a></li></ol></li><li class="chapter-item expanded "><a href="chapter_72.html"><strong aria-hidden="true">1.10.</strong> Frequently Asked Questions</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="chapter_73.html"><strong aria-hidden="true">1.10.1.</strong> What are the idiosyncrasies of Make that Just avoids?</a></li><li class="chapter-item expanded "><a href="chapter_74.html"><strong aria-hidden="true">1.10.2.</strong> What’s the relationship between Just and Cargo build scripts?</a></li></ol></li><li class="chapter-item expanded "><a href="chapter_75.html" class="active"><strong aria-hidden="true">1.11.</strong> Further Ramblings</a></li></ol></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Just Programmer&#x27;s Manual</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/casey/just" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h2 id="further-ramblings"><a class="header" href="#further-ramblings">Further Ramblings</a></h2>
+<p>I personally find it very useful to write a <code>justfile</code> for almost every project, big or small.</p>
+<p>On a big project with multiple contributors, it’s very useful to have a file with all the commands needed to work on the project close at hand.</p>
+<p>There are probably different commands to test, build, lint, deploy, and the like, and having them all in one place is useful and cuts down on the time you have to spend telling people which commands to run and how to type them.</p>
+<p>And, with an easy place to put commands, it’s likely that you’ll come up with other useful things which are part of the project’s collective wisdom, but which aren’t written down anywhere, like the arcane commands needed for some part of your revision control workflow, install all your project’s dependencies, or all the random flags you might need to pass to the build system.</p>
+<p>Some ideas for recipes:</p>
+<ul>
+<li>
+<p>Deploying/publishing the project</p>
+</li>
+<li>
+<p>Building in release mode vs debug mode</p>
+</li>
+<li>
+<p>Running in debug mode or with logging enabled</p>
+</li>
+<li>
+<p>Complex git workflows</p>
+</li>
+<li>
+<p>Updating dependencies</p>
+</li>
+<li>
+<p>Running different sets of tests, for example fast tests vs slow tests, or running them with verbose output</p>
+</li>
+<li>
+<p>Any complex set of commands that you really should write down somewhere, if only to be able to remember them</p>
+</li>
+</ul>
+<p>Even for small, personal projects it’s nice to be able to remember commands by name instead of ^Reverse searching your shell history, and it’s a huge boon to be able to go into an old project written in a random language with a mysterious build system and know that all the commands you need to do whatever you need to do are in the <code>justfile</code>, and that if you type <code>just</code> something useful (or at least interesting!) will probably happen.</p>
+<p>For ideas for recipes, check out <a href="https://github.com/casey/just/blob/master/justfile">this project’s <code>justfile</code></a>, or some of the <code>justfile</code>s <a href="https://github.com/search?o=desc&amp;q=filename%3Ajustfile&amp;s=indexed&amp;type=Code">out in the wild</a>.</p>
+<p>Anyways, I think that’s about it for this incredibly long-winded README.</p>
+<p>I hope you enjoy using <code>just</code> and find great success and satisfaction in all your computational endeavors!</p>
+<p>😸</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="chapter_74.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="chapter_74.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+    </body>
+</html>
