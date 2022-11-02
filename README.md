@@ -382,13 +382,15 @@ You can add the following to an individual `justfile` to enable `make` mode on a
 
 ### Visual Studio Code
 
-An extension for VS Code by [skellock](https://github.com/skellock) is [available here](https://marketplace.visualstudio.com/items?itemName=skellock.just) ([repository](https://github.com/skellock/vscode-just)).
+An extension for VS Code by [skellock](https://github.com/skellock) is [available here](https://marketplace.visualstudio.com/items?itemName=skellock.just) ([repository](https://github.com/skellock/vscode-just)), but is no longer actively developed.
 
 You can install it from the command line by running:
 
 ```sh
 code --install-extension skellock.just
 ```
+
+An actively developed fork by [sclu1034](https://github.com/sclu1034) is available [here](https://github.com/sclu1034/vscode-just).
 
 ### JetBrains IDEs
 
