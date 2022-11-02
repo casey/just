@@ -390,7 +390,7 @@ You can install it from the command line by running:
 code --install-extension skellock.just
 ```
 
-An actively developed fork by [sclu1034](https://github.com/sclu1034) is available [here](https://github.com/sclu1034/vscode-just).
+An more recently active fork by [sclu1034](https://github.com/sclu1034) is available [here](https://github.com/sclu1034/vscode-just).
 
 ### JetBrains IDEs
 
