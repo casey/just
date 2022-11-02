@@ -1,6 +1,15 @@
 Changelog
 =========
 
+[1.8.0](https://github.com/casey/just/releases/tag/1.8.0) - 2022-11-02
+----------------------------------------------------------------------
+
+### Added
+- Add OS Configuration Attributes (#1387)
+
+### Misc
+- Link to sclu1034/vscode-just in readme (#1396)
+
 [1.7.0](https://github.com/casey/just/releases/tag/1.7.0) - 2022-10-26
 ----------------------------------------------------------------------
 
