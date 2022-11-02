@@ -84,6 +84,9 @@ publish:
   cd ../..
   rm -rf tmp/release
 
+readme-version-notes:
+  grep '<sup>master</sup>' README.md
+
 push: check
   ! git branch | grep '* master'
   git push github

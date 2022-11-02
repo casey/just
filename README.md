@@ -2363,6 +2363,23 @@ Before merging a particularly large or gruesome change, Janus should be run to m
 
 The minimum supported Rust version, or MSRV, is Rust 1.47.0.
 
+### New Releases
+
+New releases of `just` are made frequently so that users quickly get access to new features.
+
+Release commit messages use the following template:
+
+```
+Release x.y.z
+
+- Bump version: x.y.z → x.y.z
+- Update changelog
+- Update changelog contributor credits
+- Update dependencies
+- Update man page
+- Update version references in readme
+```
+
 Frequently Asked Questions
 --------------------------
 
