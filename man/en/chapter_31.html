@@ -140,7 +140,8 @@
                         <h3 id="recipe-attributes"><a class="header" href="#recipe-attributes">Recipe Attributes</a></h3>
 <p>Recipes may be annotated with attributes that change their behavior.</p>
 <div class="table-wrapper"><table><thead><tr><th>Name</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>[no-exit-message]</code></td><td>Don’t print an error message when a recipe fails.</td></tr>
+<tr><td><code>[no-cd]</code></td><td>Don’t change directory before executing recipe.</td></tr>
+<tr><td><code>[no-exit-message]</code></td><td>Don’t print an error message if recipe fails.</td></tr>
 <tr><td><code>[linux]</code></td><td>Enable recipe on Linux.</td></tr>
 <tr><td><code>[macos]</code></td><td>Enable recipe on MacOS.</td></tr>
 <tr><td><code>[unix]</code></td><td>Enable recipe on Unixes.</td></tr>
@@ -166,6 +167,21 @@ run:
   cl main.c
   main.exe
 </code></pre>
+<h4 id="disabling-changing-directorymaster"><a class="header" href="#disabling-changing-directorymaster">Disabling Changing Directory<sup>master</sup></a></h4>
+<p><code>just</code> normally executes recipes with the current directory set to the
+directory that contains the <code>justfile</code>. This can be disabled using the
+<code>[no-cd]</code> attribute. This can be used to create recipes which use paths
+relative to the invocation directory, or which operate on the current
+directory.</p>
+<p>For exmaple, this <code>commit</code> recipe:</p>
+<pre><code class="language-make">[no-cd]
+commit file:
+  git add {{file}}
+  git commit
+</code></pre>
+<p>Can be used with paths that are relative to the current directory, because
+<code>[no-cd]</code> prevents <code>just</code> from changing the current directory when executing
+<code>commit</code>.</p>
 
                     </main>
 
