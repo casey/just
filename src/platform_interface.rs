@@ -5,7 +5,7 @@ pub(crate) trait PlatformInterface {
   /// shebang line `shebang`
   fn make_shebang_command(
     path: &Path,
-    working_directory: &Path,
+    working_directory: Option<&Path>,
     shebang: Shebang,
   ) -> Result<Command, OutputError>;
 
