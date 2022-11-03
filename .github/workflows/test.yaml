@@ -1,0 +1,42 @@
+name: Test
+
+on:
+  pull_request:
+    branches:
+    - '*'
+  push:
+    branches:
+    - master
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        os:
+        - ubuntu-latest
+        - macos-latest
+        - windows-latest
+
+    runs-on: ${{matrix.os}}
+
+    env:
+      RUSTFLAGS: --deny warnings
+
+    steps:
+    - uses: actions/checkout@v2
+
+
+    - name: Install Rust Toolchain Components
+      uses: actions-rs/toolchain@v1
+      with:
+        profile: minimal
+        toolchain: 1.56.0
+
+    - uses: Swatinem/rust-cache@v1
+
+    - name: Test
+      run: cargo test --all

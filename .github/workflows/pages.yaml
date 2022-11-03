@@ -1,4 +1,4 @@
-name: CI
+name: Pages
 
 on:
   pull_request:
@@ -13,17 +13,8 @@ defaults:
     shell: bash
 
 jobs:
-  all:
-    name: All
-
-    strategy:
-      matrix:
-        os:
-        - ubuntu-latest
-        - macos-latest
-        - windows-latest
-
-    runs-on: ${{matrix.os}}
+  pages:
+    runs-on: ubuntu-latest
 
     env:
       RUSTFLAGS: --deny warnings
@@ -31,49 +22,13 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Remove Broken WSL bash executable
-      if: ${{ matrix.os == 'windows-latest' }}
-      shell: cmd
-      run: |
-        takeown /F C:\Windows\System32\bash.exe
-        icacls C:\Windows\System32\bash.exe /grant administrators:F
-        del C:\Windows\System32\bash.exe
-
     - name: Install Rust Toolchain Components
       uses: actions-rs/toolchain@v1
       with:
-        components: clippy, rustfmt
-        override: true
+        components: minimal
         toolchain: 1.56.0
 
     - uses: Swatinem/rust-cache@v1
-
-    - name: Check Lockfile
-      run: |
-        cargo update --locked --package just
-
-    - name: Test
-      run: cargo test --all
-
-    - name: Clippy
-      run: cargo clippy --all --all-targets
-
-    - name: Format
-      run: cargo fmt --all -- --check
-
-    - name: Completion Scripts
-      if: ${{ matrix.os == 'ubuntu-latest' }}
-      run: |
-        ./bin/generate-completions
-        git diff --no-ext-diff --quiet --exit-code
-        ./tests/completions/just.bash
-
-    - name: Check for Forbidden Words
-      if: ${{ matrix.os == 'ubuntu-latest' }}
-      run: |
-        sudo apt-get update
-        sudo apt-get install ripgrep
-        ./bin/forbid
 
     - name: Install `mdbook`
       if: ${{ matrix.os == 'ubuntu-latest' }}

@@ -1,0 +1,53 @@
+name: Lint
+
+on:
+  pull_request:
+    branches:
+    - '*'
+  push:
+    branches:
+    - master
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    env:
+      RUSTFLAGS: --deny warnings
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install Rust Toolchain Components
+      uses: actions-rs/toolchain@v1
+      with:
+        components: clippy, rustfmt
+        override: true
+        toolchain: 1.56.0
+
+    - uses: Swatinem/rust-cache@v1
+
+    - name: Check Lockfile
+      run: cargo update --locked --package just
+
+    - name: Clippy
+      run: cargo clippy --all --all-targets
+
+    - name: Format
+      run: cargo fmt --all -- --check
+
+    - name: Completion Scripts
+      run: |
+        ./bin/generate-completions
+        git diff --no-ext-diff --quiet --exit-code
+        ./tests/completions/just.bash
+
+    - name: Check for Forbidden Words
+      run: |
+        sudo apt-get update
+        sudo apt-get install ripgrep
+        ./bin/forbid

@@ -10,9 +10,7 @@ defaults:
     shell: bash
 
 jobs:
-  all:
-    name: All
-
+  release:
     strategy:
       matrix:
         target:
