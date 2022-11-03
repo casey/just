@@ -8,6 +8,7 @@ use super::*;
 pub(crate) enum Attribute {
   Linux,
   Macos,
+  NoCd,
   NoExitMessage,
   Unix,
   Windows,
