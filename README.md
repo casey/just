@@ -1203,14 +1203,14 @@ These functions can fail, for example if a path does not have an extension, whic
 
 Recipes may be annotated with attributes that change their behavior.
 
-| Name                | Description                                       |
-| ------------------- | ------------------------------------------------- |
-| `[no-cd]`           | Don't change directory before executing recipe.   |
-| `[no-exit-message]` | Don't print an error message if recipe fails.     |
-| `[linux]`           | Enable recipe on Linux.                           |
-| `[macos]`           | Enable recipe on MacOS.                           |
-| `[unix]`            | Enable recipe on Unixes.                          |
-| `[windows]`         | Enable recipe on Windows.                         |
+| Name                | Description                                     |
+| ------------------- | ----------------------------------------------- |
+| `[no-cd]`           | Don't change directory before executing recipe. |
+| `[no-exit-message]` | Don't print an error message if recipe fails.   |
+| `[linux]`           | Enable recipe on Linux.                         |
+| `[macos]`           | Enable recipe on MacOS.                         |
+| `[unix]`            | Enable recipe on Unixes.                        |
+| `[windows]`         | Enable recipe on Windows.                       |
 
 #### Enabling and Disabling Recipes
 
