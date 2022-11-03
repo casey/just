@@ -26,7 +26,6 @@ jobs:
       uses: actions-rs/toolchain@v1
       with:
         components: clippy, rustfmt
-        override: true
         toolchain: 1.56.0
 
     - uses: Swatinem/rust-cache@v1

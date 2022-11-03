@@ -48,7 +48,7 @@ jobs:
     - name: Install Rust Toolchain Components
       uses: actions-rs/toolchain@v1
       with:
-        override: true
+        profile: minimal
         target: ${{ matrix.target }}
         toolchain: stable
 
