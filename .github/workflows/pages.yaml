@@ -31,13 +31,11 @@ jobs:
     - uses: Swatinem/rust-cache@v1
 
     - name: Install `mdbook`
-      if: ${{ matrix.os == 'ubuntu-latest' }}
       uses: peaceiris/actions-mdbook@v1
       with:
         mdbook-version: latest
 
     - name: Install `mdbook-linkcheck`
-      if: ${{ matrix.os == 'ubuntu-latest' }}
       run: |
         mkdir -p mdbook-linkcheck
         cd mdbook-linkcheck
@@ -47,7 +45,6 @@ jobs:
         pwd >> $GITHUB_PATH
 
     - name: Build book
-      if: ${{ matrix.os == 'ubuntu-latest' }}
       run: |
         cargo run --package generate-book
         mdbook build book/en
@@ -55,7 +52,7 @@ jobs:
 
     - name: Deploy Pages
       uses: peaceiris/actions-gh-pages@v3
-      if: github.ref == 'refs/heads/master' && matrix.os == 'ubuntu-latest'
+      if: github.ref == 'refs/heads/master'
       with:
         github_token: ${{secrets.GITHUB_TOKEN}}
         publish_branch: gh-pages
