@@ -66,6 +66,10 @@ impl<'src, D> Recipe<'src, D> {
     !self.private
   }
 
+  pub(crate) fn change_directory(&self) -> bool {
+    !self.attributes.contains(&Attribute::NoCd)
+  }
+
   pub(crate) fn enabled(&self) -> bool {
     let windows = self.attributes.contains(&Attribute::Windows);
     let linux = self.attributes.contains(&Attribute::Linux);
@@ -190,7 +194,9 @@ impl<'src, D> Recipe<'src, D> {
 
       let mut cmd = context.settings.shell_command(config);
 
-      cmd.current_dir(&context.search.working_directory);
+      if self.change_directory() {
+        cmd.current_dir(&context.search.working_directory);
+      }
 
       cmd.arg(command);
 
@@ -322,13 +328,19 @@ impl<'src, D> Recipe<'src, D> {
     })?;
 
     // create a command to run the script
-    let mut command =
-      Platform::make_shebang_command(&path, &context.search.working_directory, shebang).map_err(
-        |output_error| Error::Cygpath {
-          recipe: self.name(),
-          output_error,
-        },
-      )?;
+    let mut command = Platform::make_shebang_command(
+      &path,
+      if self.change_directory() {
+        Some(&context.search.working_directory)
+      } else {
+        None
+      },
+      shebang,
+    )
+    .map_err(|output_error| Error::Cygpath {
+      recipe: self.name(),
+      output_error,
+    })?;
 
     if context.settings.positional_arguments {
       command.args(positional);

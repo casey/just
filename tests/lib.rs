@@ -60,6 +60,7 @@ mod json;
 mod line_prefixes;
 mod misc;
 mod multibyte_char;
+mod no_cd;
 mod no_exit_message;
 mod os_attributes;
 mod parser;
