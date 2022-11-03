@@ -1205,7 +1205,8 @@ Recipes may be annotated with attributes that change their behavior.
 
 | Name                | Description                                       |
 | ------------------- | ------------------------------------------------- |
-| `[no-exit-message]` | Don't print an error message when a recipe fails. |
+| `[no-cd]`           | Don't change directory before executing recipe.   |
+| `[no-exit-message]` | Don't print an error message if recipe fails.     |
 | `[linux]`           | Enable recipe on Linux.                           |
 | `[macos]`           | Enable recipe on MacOS.                           |
 | `[unix]`            | Enable recipe on Unixes.                          |
@@ -1234,6 +1235,27 @@ run:
   cl main.c
   main.exe
 ```
+
+#### Disabling Changing Directory<sup>master</sup>
+
+`just` normally executes recipes with the current directory set to the
+directory that contains the `justfile`. This can be disabled using the
+`[no-cd]` attribute. This can be used to create recipes which use paths
+relative to the invocation directory, or which operate on the current
+directory.
+
+For exmaple, this `commit` recipe:
+
+```make
+[no-cd]
+commit file:
+  git add {{file}}
+  git commit
+```
+
+Can be used with paths that are relative to the current directory, because
+`[no-cd]` prevents `just` from changing the current directory when executing
+`commit`.
 
 ### Command Evaluation Using Backticks
 
