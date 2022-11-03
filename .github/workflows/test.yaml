@@ -47,8 +47,7 @@ jobs:
     - uses: Swatinem/rust-cache@v1
 
     - name: Check Lockfile
-      run: |
-        cargo update --locked --package just
+      run: cargo update --locked --package just
 
     - name: Test
       run: cargo test --all
