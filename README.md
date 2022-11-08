@@ -382,13 +382,15 @@ You can add the following to an individual `justfile` to enable `make` mode on a
 
 ### Visual Studio Code
 
-An extension for VS Code by [skellock](https://github.com/skellock) is [available here](https://marketplace.visualstudio.com/items?itemName=skellock.just) ([repository](https://github.com/skellock/vscode-just)).
+An extension for VS Code by [skellock](https://github.com/skellock) is [available here](https://marketplace.visualstudio.com/items?itemName=skellock.just) ([repository](https://github.com/skellock/vscode-just)), but is no longer actively developed.
 
 You can install it from the command line by running:
 
 ```sh
 code --install-extension skellock.just
 ```
+
+An more recently active fork by [sclu1034](https://github.com/sclu1034) is available [here](https://github.com/sclu1034/vscode-just).
 
 ### JetBrains IDEs
 
@@ -1057,9 +1059,7 @@ Done!
 #### System Information
 
 - `arch()` — Instruction set architecture. Possible values are: `"aarch64"`, `"arm"`, `"asmjs"`, `"hexagon"`, `"mips"`, `"msp430"`, `"powerpc"`, `"powerpc64"`, `"s390x"`, `"sparc"`, `"wasm32"`, `"x86"`, `"x86_64"`, and `"xcore"`.
-
 - `os()` — Operating system. Possible values are: `"android"`, `"bitrig"`, `"dragonfly"`, `"emscripten"`, `"freebsd"`, `"haiku"`, `"ios"`, `"linux"`, `"macos"`, `"netbsd"`, `"openbsd"`, `"solaris"`, and `"windows"`.
-
 - `os_family()` — Operating system family; possible values are: `"unix"` and `"windows"`.
 
 For example:
@@ -1143,67 +1143,47 @@ The executable is at: /bin/just
 
 #### String Manipulation
 
-- `capitalize(s)`<sup>1.7.0</sup> - Convert first character of `s` to uppercase and the rest to lowercase.
-
-- `kebabcase(s)`<sup>1.7.0</sup> - Convert `s` to `kebab-case`.
-
-- `lowercamelcase(s)`<sup>1.7.0</sup> - Convert `s` to `lowerCamelCase`.
-
-- `lowercase(s)` - Convert `s` to lowercase.
-
 - `quote(s)` - Replace all single quotes with `'\''` and prepend and append single quotes to `s`. This is sufficient to escape special characters for many shells, including most Bourne shell descendants.
-
 - `replace(s, from, to)` - Replace all occurrences of `from` in `s` to `to`.
-
-- `shoutykebabcase(s)`<sup>1.7.0</sup> - Convert `s` to `SHOUTY-KEBAB-CASE`.
-
-- `shoutysnakecase(s)`<sup>1.7.0</sup> - Convert `s` to `SHOUTY_SNAKE_CASE`.
-
-- `snakecase(s)`<sup>1.7.0</sup> - Convert `s` to `snake_case`.
-
-- `titlecase(s)`<sup>1.7.0</sup> - Convert `s` to `Title Case`.
-
 - `trim(s)` - Remove leading and trailing whitespace from `s`.
-
 - `trim_end(s)` - Remove trailing whitespace from `s`.
-
 - `trim_end_match(s, pat)` - Remove suffix of `s` matching `pat`.
-
 - `trim_end_matches(s, pat)` - Repeatedly remove suffixes of `s` matching `pat`.
-
 - `trim_start(s)` - Remove leading whitespace from `s`.
-
 - `trim_start_match(s, pat)` - Remove prefix of `s` matching `pat`.
-
 - `trim_start_matches(s, pat)` - Repeatedly remove prefixes of `s` matching `pat`.
 
+#### Case Conversion
+
+- `capitalize(s)`<sup>1.7.0</sup> - Convert first character of `s` to uppercase and the rest to lowercase.
+- `kebabcase(s)`<sup>1.7.0</sup> - Convert `s` to `kebab-case`.
+- `lowercamelcase(s)`<sup>1.7.0</sup> - Convert `s` to `lowerCamelCase`.
+- `lowercase(s)` - Convert `s` to lowercase.
+- `shoutykebabcase(s)`<sup>1.7.0</sup> - Convert `s` to `SHOUTY-KEBAB-CASE`.
+- `shoutysnakecase(s)`<sup>1.7.0</sup> - Convert `s` to `SHOUTY_SNAKE_CASE`.
+- `snakecase(s)`<sup>1.7.0</sup> - Convert `s` to `snake_case`.
+- `titlecase(s)`<sup>1.7.0</sup> - Convert `s` to `Title Case`.
+- `uppercamelcase(s)`<sup>1.7.0</sup> - Convert `s` to `UpperCamelCase`.
 - `uppercase(s)` - Convert `s` to uppercase.
 
-- `uppercamelcase(s)`<sup>1.7.0</sup> - Convert `s` to `UpperCamelCase`.
 
 #### Path Manipulation
 
 ##### Fallible
 
 - `absolute_path(path)` - Absolute path to relative `path` in the working directory. `absolute_path("./bar.txt")` in directory `/foo` is `/foo/bar.txt`.
-
 - `extension(path)` - Extension of `path`. `extension("/foo/bar.txt")` is `txt`.
-
 - `file_name(path)` - File name of `path` with any leading directory components removed. `file_name("/foo/bar.txt")` is `bar.txt`.
-
 - `file_stem(path)` - File name of `path` without extension. `file_stem("/foo/bar.txt")` is `bar`.
-
 - `parent_directory(path)` - Parent directory of `path`. `parent_directory("/foo/bar.txt")` is `/foo`.
-
 - `without_extension(path)` - `path` without extension. `without_extension("/foo/bar.txt")` is `/foo/bar`.
 
 These functions can fail, for example if a path does not have an extension, which will halt execution.
 
 ##### Infallible
 
-- `join(a, b…)` - *This function uses `/` on Unix and `\` on Windows, which can be lead to unwanted behavior. The `/` operator, e.g., `a / b`, which always uses `/`, should be considered as a replacement unless `\`s are specifically desired on Windows.* Join path `a` with path `b`. `join("foo/bar", "baz")` is `foo/bar/baz`. Accepts two or more arguments.
-
 - `clean(path)` - Simplify `path` by removing extra path separators, intermediate `.` components, and `..` where possible. `clean("foo//bar")` is `foo/bar`, `clean("foo/..")` is `.`, `clean("foo/./bar")` is `foo/bar`.
+- `join(a, b…)` - *This function uses `/` on Unix and `\` on Windows, which can be lead to unwanted behavior. The `/` operator, e.g., `a / b`, which always uses `/`, should be considered as a replacement unless `\`s are specifically desired on Windows.* Join path `a` with path `b`. `join("foo/bar", "baz")` is `foo/bar/baz`. Accepts two or more arguments.
 
 #### Filesystem Access
 
@@ -1218,6 +1198,64 @@ These functions can fail, for example if a path does not have an extension, whic
 - `sha256(string)` - Return the SHA-256 hash of `string` as a hexadecimal string.
 - `sha256_file(path)` - Return the SHA-256 hash of the file at `path` as a hexadecimal string.
 - `uuid()` - Return a randomly generated UUID.
+
+### Recipe Attributes
+
+Recipes may be annotated with attributes that change their behavior.
+
+| Name                | Description                                     |
+| ------------------- | ----------------------------------------------- |
+| `[no-cd]`           | Don't change directory before executing recipe. |
+| `[no-exit-message]` | Don't print an error message if recipe fails.   |
+| `[linux]`           | Enable recipe on Linux.                         |
+| `[macos]`           | Enable recipe on MacOS.                         |
+| `[unix]`            | Enable recipe on Unixes.                        |
+| `[windows]`         | Enable recipe on Windows.                       |
+
+#### Enabling and Disabling Recipes
+
+The `[linux]`, `[macos]`, `[unix]`, and `[windows]` attributes are
+configuration attributes. By default, recipes are always enabled. A recipe with
+one or more configuration attributes will only be enabled when one or more of
+those configurations is active.
+
+This can be used to write `justfile`s that behave differently depending on
+which operating system they run on. The `run` recipe in this `justfile` will
+compile and run `main.c`, using a different C compiler and using the correct
+output binary name for that compiler depending on the operating system:
+
+```make
+[unix]
+run:
+  cc main.c
+  ./a.out
+
+[windows]
+run:
+  cl main.c
+  main.exe
+```
+
+#### Disabling Changing Directory<sup>master</sup>
+
+`just` normally executes recipes with the current directory set to the
+directory that contains the `justfile`. This can be disabled using the
+`[no-cd]` attribute. This can be used to create recipes which use paths
+relative to the invocation directory, or which operate on the current
+directory.
+
+For exmaple, this `commit` recipe:
+
+```make
+[no-cd]
+commit file:
+  git add {{file}}
+  git commit
+```
+
+Can be used with paths that are relative to the current directory, because
+`[no-cd]` prevents `just` from changing the current directory when executing
+`commit`.
 
 ### Command Evaluation Using Backticks
 
@@ -2325,12 +2363,18 @@ export PATH := "./node_modules/.bin:" + env_var('PATH')
 
 ### Alternatives and Prior Art
 
-There is no shortage of command runners out there! Some more or less similar alternatives to `just` include:
+There is no shortage of command runners! Some more or less similar alternatives to `just` include:
 
-- [make](https://en.wikipedia.org/wiki/Make_(software)): The Unix build tool that inspired `just`.
-- [makesure](https://github.com/xonixx/makesure): A simple and portable command runner written in AWK and shell.
+- [make](https://en.wikipedia.org/wiki/Make_(software)): The Unix build tool that inspired `just`. There are a few different modern day descendents of the original `make`, including [FreeBSD Make](https://www.freebsd.org/cgi/man.cgi?make(1)) and [GNU Make](https://www.gnu.org/software/make/).
+- [task](https://github.com/go-task/task): A YAML-based command runner written in Go.
+- [maid](https://github.com/egoist/maid): A Markdown-based command runner written in JavaScript.
+- [microsoft/just](https://github.com/microsoft/just): A JavasScript-based command runner written in JavaScript.
+- [cargo-make](https://github.com/sagiegurari/cargo-make): A command runner for Rust projects.
 - [mmake](https://github.com/tj/mmake): A wrapper around `make` with a number of improvements, including remote includes.
 - [robo](https://github.com/tj/robo): A YAML-based command runner written in Go.
+- [mask](https://github.com/jakedeichert/mask): A Markdown-based command runner written in Rust.
+- [makesure](https://github.com/xonixx/makesure): A simple and portable command runner written in AWK and shell.
+- [haku](https://github.com/VladimirMarkelov/haku): A make-like command runner written in Rust.
 
 Contributing
 ------------
@@ -2346,6 +2390,23 @@ Before merging a particularly large or gruesome change, Janus should be run to m
 ### Minimum Supported Rust Version
 
 The minimum supported Rust version, or MSRV, is Rust 1.47.0.
+
+### New Releases
+
+New releases of `just` are made frequently so that users quickly get access to new features.
+
+Release commit messages use the following template:
+
+```
+Release x.y.z
+
+- Bump version: x.y.z → x.y.z
+- Update changelog
+- Update changelog contributor credits
+- Update dependencies
+- Update man page
+- Update version references in readme
+```
 
 Frequently Asked Questions
 --------------------------

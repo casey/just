@@ -21,6 +21,7 @@ fn error_from_signal(recipe: &str, line_number: Option<usize>, exit_status: Exit
 /// A recipe, e.g. `foo: bar baz`
 #[derive(PartialEq, Debug, Clone, Serialize)]
 pub(crate) struct Recipe<'src, D = Dependency<'src>> {
+  pub(crate) attributes: BTreeSet<Attribute>,
   pub(crate) body: Vec<Line<'src>>,
   pub(crate) dependencies: Vec<D>,
   pub(crate) doc: Option<&'src str>,
@@ -30,7 +31,6 @@ pub(crate) struct Recipe<'src, D = Dependency<'src>> {
   pub(crate) private: bool,
   pub(crate) quiet: bool,
   pub(crate) shebang: bool,
-  pub(crate) suppress_exit_error_messages: bool,
 }
 
 impl<'src, D> Recipe<'src, D> {
@@ -64,6 +64,28 @@ impl<'src, D> Recipe<'src, D> {
 
   pub(crate) fn public(&self) -> bool {
     !self.private
+  }
+
+  pub(crate) fn change_directory(&self) -> bool {
+    !self.attributes.contains(&Attribute::NoCd)
+  }
+
+  pub(crate) fn enabled(&self) -> bool {
+    let windows = self.attributes.contains(&Attribute::Windows);
+    let linux = self.attributes.contains(&Attribute::Linux);
+    let macos = self.attributes.contains(&Attribute::Macos);
+    let unix = self.attributes.contains(&Attribute::Unix);
+
+    (!windows && !linux && !macos && !unix)
+      || (cfg!(target_os = "windows") && windows)
+      || (cfg!(target_os = "linux") && (linux || unix))
+      || (cfg!(target_os = "macos") && (macos || unix))
+      || (cfg!(windows) && windows)
+      || (cfg!(unix) && unix)
+  }
+
+  fn print_exit_message(&self) -> bool {
+    !self.attributes.contains(&Attribute::NoExitMessage)
   }
 
   pub(crate) fn run<'run>(
@@ -172,7 +194,9 @@ impl<'src, D> Recipe<'src, D> {
 
       let mut cmd = context.settings.shell_command(config);
 
-      cmd.current_dir(&context.search.working_directory);
+      if self.change_directory() {
+        cmd.current_dir(&context.search.working_directory);
+      }
 
       cmd.arg(command);
 
@@ -192,12 +216,11 @@ impl<'src, D> Recipe<'src, D> {
         Ok(exit_status) => {
           if let Some(code) = exit_status.code() {
             if code != 0 && !infallible_command {
-              let suppress_message = self.suppress_exit_error_messages;
               return Err(Error::Code {
                 recipe: self.name(),
                 line_number: Some(line_number),
                 code,
-                suppress_message,
+                print_message: self.print_exit_message(),
               });
             }
           } else {
@@ -305,13 +328,19 @@ impl<'src, D> Recipe<'src, D> {
     })?;
 
     // create a command to run the script
-    let mut command =
-      Platform::make_shebang_command(&path, &context.search.working_directory, shebang).map_err(
-        |output_error| Error::Cygpath {
-          recipe: self.name(),
-          output_error,
-        },
-      )?;
+    let mut command = Platform::make_shebang_command(
+      &path,
+      if self.change_directory() {
+        Some(&context.search.working_directory)
+      } else {
+        None
+      },
+      shebang,
+    )
+    .map_err(|output_error| Error::Cygpath {
+      recipe: self.name(),
+      output_error,
+    })?;
 
     if context.settings.positional_arguments {
       command.args(positional);
@@ -327,12 +356,11 @@ impl<'src, D> Recipe<'src, D> {
           if code == 0 {
             Ok(())
           } else {
-            let suppress_message = self.suppress_exit_error_messages;
             Err(Error::Code {
               recipe: self.name(),
               line_number: None,
               code,
-              suppress_message,
+              print_message: self.print_exit_message(),
             })
           }
         },
@@ -351,6 +379,10 @@ impl<'src, D: Display> ColorDisplay for Recipe<'src, D> {
   fn fmt(&self, f: &mut Formatter, color: Color) -> Result<(), fmt::Error> {
     if let Some(doc) = self.doc {
       writeln!(f, "# {}", doc)?;
+    }
+
+    for attribute in &self.attributes {
+      writeln!(f, "[{}]", attribute.to_str())?;
     }
 
     if self.quiet {

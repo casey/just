@@ -30,8 +30,10 @@ impl<'src> Analyzer<'src> {
         }
         Item::Comment(_) => (),
         Item::Recipe(recipe) => {
-          Self::analyze_recipe(&recipe)?;
-          recipes.push(recipe);
+          if recipe.enabled() {
+            Self::analyze_recipe(&recipe)?;
+            recipes.push(recipe);
+          }
         }
         Item::Set(set) => {
           self.analyze_set(&set)?;

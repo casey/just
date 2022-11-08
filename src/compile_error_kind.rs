@@ -25,6 +25,10 @@ pub(crate) enum CompileErrorKind<'src> {
     alias: &'src str,
     first: usize,
   },
+  DuplicateAttribute {
+    attribute: &'src str,
+    first: usize,
+  },
   DuplicateParameter {
     recipe: &'src str,
     parameter: &'src str,

@@ -53,7 +53,7 @@ impl<'src> UnresolvedRecipe<'src> {
       quiet: self.quiet,
       shebang: self.shebang,
       priors: self.priors,
-      suppress_exit_error_messages: self.suppress_exit_error_messages,
+      attributes: self.attributes,
       dependencies,
     })
   }

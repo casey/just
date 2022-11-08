@@ -35,7 +35,7 @@ pub(crate) enum Error<'src> {
     recipe: &'src str,
     line_number: Option<usize>,
     code: i32,
-    suppress_message: bool,
+    print_message: bool,
   },
   CommandInvoke {
     binary: OsString,
@@ -169,11 +169,11 @@ impl<'src> Error<'src> {
     }
   }
 
-  pub(crate) fn suppress_message(&self) -> bool {
-    matches!(
+  pub(crate) fn print_message(&self) -> bool {
+    !matches!(
       self,
       Error::Code {
-        suppress_message: true,
+        print_message: false,
         ..
       }
     )
