@@ -287,13 +287,15 @@ fn replace(_context: &FunctionContext, s: &str, from: &str, to: &str) -> Result<
 fn replace_regex(
   _context: &FunctionContext,
   s: &str,
-  from: &str,
-  to: &str,
+  regex: &str,
+  replacement: &str,
 ) -> Result<String, String> {
-  let re =
-    Regex::new(from).map_err(|err| format!("Failed to compile regular expression: {}", err))?;
-
-  Ok(re.replace_all(s, to).to_string())
+  Ok(
+    Regex::new(regex)
+      .map_err(|err| format!("Failed to compile regular expression: {}", err))?
+      .replace_all(s, replacement)
+      .to_string(),
+  )
 }
 
 fn sha256(_context: &FunctionContext, s: &str) -> Result<String, String> {
