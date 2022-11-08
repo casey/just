@@ -1145,7 +1145,7 @@ The executable is at: /bin/just
 
 - `quote(s)` - Replace all single quotes with `'\''` and prepend and append single quotes to `s`. This is sufficient to escape special characters for many shells, including most Bourne shell descendants.
 - `replace(s, from, to)` - Replace all occurrences of `from` in `s` to `to`.
-- `replace_regex(s, regex, replacement)` - Replace all occurrences of `regec` in `s` to `replacement`.
+- `replace_regex(s, regex, replacement)` - Replace all occurrences of `regex` in `s` to `replacement`.
 - `trim(s)` - Remove leading and trailing whitespace from `s`.
 - `trim_end(s)` - Remove trailing whitespace from `s`.
 - `trim_end_match(s, pat)` - Remove suffix of `s` matching `pat`.
