@@ -292,7 +292,7 @@ fn replace_regex(
 ) -> Result<String, String> {
   Ok(
     Regex::new(regex)
-      .map_err(|err| format!("Failed to compile regular expression: {}", err))?
+      .map_err(|err| err.to_string())?
       .replace_all(s, replacement)
       .to_string(),
   )

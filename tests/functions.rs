@@ -390,7 +390,7 @@ test! {
       echo {{ replace_regex('barbarbar', 'foo\\', 'foo') }}
   ",
   stderr:
-"error: Call to function `replace_regex` failed: Failed to compile regular expression: regex parse error:
+"error: Call to function `replace_regex` failed: regex parse error:
     foo\\
        ^
 error: incomplete escape sequence, reached end of pattern prematurely
