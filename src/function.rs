@@ -43,6 +43,7 @@ lazy_static! {
     ("path_exists", Unary(path_exists)),
     ("quote", Unary(quote)),
     ("replace", Ternary(replace)),
+    ("replace_regex", Ternary(replace_regex)),
     ("sha256", Unary(sha256)),
     ("sha256_file", Unary(sha256_file)),
     ("shoutykebabcase", Unary(shoutykebabcase)),
@@ -281,6 +282,20 @@ fn quote(_context: &FunctionContext, s: &str) -> Result<String, String> {
 
 fn replace(_context: &FunctionContext, s: &str, from: &str, to: &str) -> Result<String, String> {
   Ok(s.replace(from, to))
+}
+
+fn replace_regex(
+  _context: &FunctionContext,
+  s: &str,
+  regex: &str,
+  replacement: &str,
+) -> Result<String, String> {
+  Ok(
+    Regex::new(regex)
+      .map_err(|err| err.to_string())?
+      .replace_all(s, replacement)
+      .to_string(),
+  )
 }
 
 fn sha256(_context: &FunctionContext, s: &str) -> Result<String, String> {

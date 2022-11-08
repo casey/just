@@ -374,6 +374,34 @@ test! {
 }
 
 test! {
+  name: replace_regex,
+  justfile: "
+    foo:
+      echo {{ replace_regex('123bar123bar123bar', '\\d+bar', 'foo') }}
+  ",
+  stdout: "foofoofoo\n",
+  stderr: "echo foofoofoo\n",
+}
+
+test! {
+  name: invalid_replace_regex,
+  justfile: "
+    foo:
+      echo {{ replace_regex('barbarbar', 'foo\\', 'foo') }}
+  ",
+  stderr:
+"error: Call to function `replace_regex` failed: regex parse error:
+    foo\\
+       ^
+error: incomplete escape sequence, reached end of pattern prematurely
+  |
+2 |   echo {{ replace_regex('barbarbar', 'foo\\', 'foo') }}
+  |           ^^^^^^^^^^^^^
+",
+  status: EXIT_FAILURE,
+}
+
+test! {
     name: capitalize,
     justfile: "
       foo:
