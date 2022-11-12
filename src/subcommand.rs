@@ -25,13 +25,16 @@ pub(crate) enum Subcommand {
   },
   Format,
   Init,
-  List,
+  List {
+    evaluate: bool,
+  },
   Run {
     arguments: Vec<String>,
     overrides: BTreeMap<String, String>,
   },
   Show {
     name: String,
+    evaluate: bool,
   },
   Summary,
   Variables,
@@ -76,8 +79,8 @@ impl Subcommand {
       }
       Dump => Self::dump(config, ast, justfile)?,
       Format => Self::format(config, &search, src, ast)?,
-      List => Self::list(config, justfile),
-      Show { ref name } => Self::show(config, name, justfile)?,
+      List { .. } => Self::list(config, justfile),
+      Show { ref name, .. } => Self::show(config, name, justfile)?,
       Summary => Self::summary(config, justfile),
       Variables => Self::variables(justfile),
       Changelog | Completions { .. } | Edit | Init | Run { .. } => unreachable!(),

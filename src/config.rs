@@ -522,11 +522,16 @@ impl Config {
     } else if matches.is_present(cmd::INIT) {
       Subcommand::Init
     } else if matches.is_present(cmd::LIST) {
-      Subcommand::List
+      Subcommand::List {
+        evaluate: matches.is_present(cmd::EVALUATE),
+      }
     } else if let Some(name) = matches.value_of(cmd::SHOW) {
       Subcommand::Show {
         name: name.to_owned(),
+        evaluate: matches.is_present(cmd::EVALUATE),
       }
+    } else if matches.is_present(cmd::VARIABLES) {
+      Subcommand::Variables
     } else if matches.is_present(cmd::EVALUATE) {
       if positional.arguments.len() > 1 {
         return Err(ConfigError::SubcommandArguments {
@@ -543,8 +548,6 @@ impl Config {
         variable: positional.arguments.into_iter().next(),
         overrides,
       }
-    } else if matches.is_present(cmd::VARIABLES) {
-      Subcommand::Variables
     } else {
       Subcommand::Run {
         arguments: positional.arguments,
@@ -1076,25 +1079,33 @@ mod tests {
   test! {
     name: subcommand_list_long,
     args: ["--list"],
-    subcommand: Subcommand::List,
+    subcommand: Subcommand::List {
+      evaluate: false,
+    },
   }
 
   test! {
     name: subcommand_list_short,
     args: ["-l"],
-    subcommand: Subcommand::List,
+    subcommand: Subcommand::List {
+      evaluate: false,
+    },
   }
 
   test! {
     name: subcommand_show_long,
     args: ["--show", "build"],
-    subcommand: Subcommand::Show { name: String::from("build") },
+    subcommand: Subcommand::Show { name: String::from("build"),
+      evaluate: false,
+    },
   }
 
   test! {
     name: subcommand_show_short,
     args: ["-s", "build"],
-    subcommand: Subcommand::Show { name: String::from("build") },
+    subcommand: Subcommand::Show { name: String::from("build"),
+      evaluate: false,
+    },
   }
 
   error! {
