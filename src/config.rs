@@ -39,7 +39,6 @@ mod cmd {
   pub(crate) const COMPLETIONS: &str = "COMPLETIONS";
   pub(crate) const DUMP: &str = "DUMP";
   pub(crate) const EDIT: &str = "EDIT";
-  pub(crate) const EVALUATE: &str = "EVALUATE";
   pub(crate) const FORMAT: &str = "FORMAT";
   pub(crate) const INIT: &str = "INIT";
   pub(crate) const LIST: &str = "LIST";
@@ -54,7 +53,6 @@ mod cmd {
     COMPLETIONS,
     DUMP,
     EDIT,
-    EVALUATE,
     FORMAT,
     INIT,
     LIST,
@@ -111,6 +109,25 @@ mod arg {
   pub(crate) const DUMP_FORMAT_JSON: &str = "json";
   pub(crate) const DUMP_FORMAT_JUST: &str = "just";
   pub(crate) const DUMP_FORMAT_VALUES: &[&str] = &[DUMP_FORMAT_JUST, DUMP_FORMAT_JSON];
+}
+
+mod arg_or_cmd {
+  use super::*;
+
+  pub(crate) const EVALUATE: &str = "EVALUATE";
+
+  pub(crate) const CONFLICT_EVALUATE: &[&str] = &[
+    cmd::CHANGELOG,
+    cmd::CHOOSE,
+    cmd::COMMAND,
+    cmd::COMPLETIONS,
+    cmd::DUMP,
+    cmd::EDIT,
+    cmd::FORMAT,
+    cmd::INIT,
+    cmd::SUMMARY,
+    cmd::VARIABLES,
+  ];
 }
 
 impl Config {
@@ -263,6 +280,10 @@ impl Config {
           .help("Use <WORKING-DIRECTORY> as working directory. --justfile must also be set")
           .requires(arg::JUSTFILE),
       )
+      .arg(Arg::with_name(arg_or_cmd::EVALUATE).long("evaluate").help(
+        "Evaluate and print all variables, or evaluate all variables for another command. If a \
+         variable name is given as an argument, only print that variable's value.",
+      ).conflicts_with_all(arg_or_cmd::CONFLICT_EVALUATE))
       .arg(
         Arg::with_name(cmd::CHANGELOG)
           .long("changelog")
@@ -300,10 +321,6 @@ impl Config {
           .long("edit")
           .help("Edit justfile with editor given by $VISUAL or $EDITOR, falling back to `vim`"),
       )
-      .arg(Arg::with_name(cmd::EVALUATE).long("evaluate").help(
-        "Evaluate and print all variables. If a variable name is given as an argument, only print \
-         that variable's value.",
-      ))
       .arg(
         Arg::with_name(cmd::FORMAT)
           .long("fmt")
@@ -523,19 +540,19 @@ impl Config {
       Subcommand::Init
     } else if matches.is_present(cmd::LIST) {
       Subcommand::List {
-        evaluate: matches.is_present(cmd::EVALUATE),
+        evaluate: matches.is_present(arg_or_cmd::EVALUATE),
       }
     } else if let Some(name) = matches.value_of(cmd::SHOW) {
       Subcommand::Show {
         name: name.to_owned(),
-        evaluate: matches.is_present(cmd::EVALUATE),
+        evaluate: matches.is_present(arg_or_cmd::EVALUATE),
       }
     } else if matches.is_present(cmd::VARIABLES) {
       Subcommand::Variables
-    } else if matches.is_present(cmd::EVALUATE) {
+    } else if matches.is_present(arg_or_cmd::EVALUATE) {
       if positional.arguments.len() > 1 {
         return Err(ConfigError::SubcommandArguments {
-          subcommand: cmd::EVALUATE,
+          subcommand: arg_or_cmd::EVALUATE,
           arguments: positional
             .arguments
             .into_iter()
@@ -995,6 +1012,11 @@ mod tests {
   }
 
   error! {
+    name: subcommand_conflict_evaluate,
+    args: ["--summary", "--evaluate"],
+  }
+
+  error! {
     name: subcommand_conflict_show,
     args: ["--list", "--show"],
   }
@@ -1093,6 +1115,14 @@ mod tests {
   }
 
   test! {
+    name: subcommand_list_evaluate,
+    args: ["--list", "--evaluate"],
+    subcommand: Subcommand::List {
+      evaluate: true,
+    },
+  }
+
+  test! {
     name: subcommand_show_long,
     args: ["--show", "build"],
     subcommand: Subcommand::Show { name: String::from("build"),
@@ -1105,6 +1135,14 @@ mod tests {
     args: ["-s", "build"],
     subcommand: Subcommand::Show { name: String::from("build"),
       evaluate: false,
+    },
+  }
+
+  test! {
+    name: subcommand_show_evaluate,
+    args: ["--show", "build", "--evaluate"],
+    subcommand: Subcommand::Show { name: String::from("build"),
+      evaluate: true,
     },
   }
 
