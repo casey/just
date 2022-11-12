@@ -79,7 +79,7 @@ impl Subcommand {
       }
       Dump => Self::dump(config, ast, justfile)?,
       Format => Self::format(config, &search, src, ast)?,
-      List { .. } => Self::list(config, justfile),
+      List { evaluate } => Self::list(config, *evaluate, &search, justfile)?,
       Show { ref name, .. } => Self::show(config, name, justfile)?,
       Summary => Self::summary(config, justfile),
       Variables => Self::variables(justfile),
@@ -431,7 +431,43 @@ impl Subcommand {
     }
   }
 
-  fn list(config: &Config, justfile: Justfile) {
+  fn list<'src>(
+    config: &Config,
+    evaluate: bool,
+    search: &Search,
+    justfile: Justfile<'src>,
+  ) -> Result<(), Error<'src>> {
+    let dotenv = if config.load_dotenv {
+      load_dotenv(config, &justfile.settings, &search.working_directory)?
+    } else {
+      BTreeMap::new()
+    };
+
+    let scope = if evaluate {
+      Some(Evaluator::evaluate_assignments(
+        &justfile.assignments,
+        config,
+        &dotenv,
+        Scope::new(),
+        &justfile.settings,
+        search,
+      )?)
+    } else {
+      None
+    };
+
+    let mut evaluator = if let Some(scope) = &scope {
+      Some(std::cell::RefCell::new(Evaluator::recipe_evaluator(
+        config,
+        &dotenv,
+        scope,
+        &justfile.settings,
+        search,
+      )))
+    } else {
+      None
+    };
+
     // Construct a target to alias map.
     let mut recipe_aliases: BTreeMap<&str, Vec<&str>> = BTreeMap::new();
     for alias in justfile.aliases.values() {
@@ -458,9 +494,19 @@ impl Subcommand {
         let mut line_width = UnicodeWidthStr::width(*name);
 
         for parameter in &recipe.parameters {
-          line_width += UnicodeWidthStr::width(
-            format!(" {}", parameter.color_display(Color::never())).as_str(),
-          );
+          line_width += if let Some(evaluator) = &mut evaluator {
+            UnicodeWidthStr::width(
+              format!(
+                " {}",
+                parameter
+                  .format_eval(evaluator)
+                  .color_display(Color::never())
+              )
+              .as_str(),
+            )
+          } else {
+            UnicodeWidthStr::width(format!(" {}", parameter.color_display(Color::never())).as_str())
+          };
         }
 
         if line_width <= 30 {
@@ -483,7 +529,16 @@ impl Subcommand {
       {
         print!("{}{}", config.list_prefix, name);
         for parameter in &recipe.parameters {
-          print!(" {}", parameter.color_display(config.color.stdout()));
+          if let Some(evaluator) = &mut evaluator {
+            print!(
+              " {}",
+              parameter
+                .format_eval(evaluator)
+                .color_display(config.color.stdout())
+            )
+          } else {
+            print!(" {}", parameter.color_display(config.color.stdout()))
+          }
         }
 
         // Declaring this outside of the nested loops will probably be more efficient,
@@ -511,6 +566,8 @@ impl Subcommand {
         println!();
       }
     }
+
+    Ok(())
   }
 
   fn show<'src>(config: &Config, name: &str, justfile: Justfile<'src>) -> Result<(), Error<'src>> {
