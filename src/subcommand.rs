@@ -34,7 +34,6 @@ pub(crate) enum Subcommand {
   },
   Show {
     name: String,
-    evaluate: bool,
   },
   Summary,
   Variables,
@@ -80,7 +79,7 @@ impl Subcommand {
       Dump => Self::dump(config, ast, justfile)?,
       Format => Self::format(config, &search, src, ast)?,
       List { evaluate } => Self::list(config, *evaluate, &search, justfile)?,
-      Show { ref name, .. } => Self::show(config, name, justfile)?,
+      Show { ref name } => Self::show(config, name, justfile)?,
       Summary => Self::summary(config, justfile),
       Variables => Self::variables(justfile),
       Changelog | Completions { .. } | Edit | Init | Run { .. } => unreachable!(),

@@ -125,6 +125,7 @@ mod arg_or_cmd {
     cmd::EDIT,
     cmd::FORMAT,
     cmd::INIT,
+    cmd::SHOW,
     cmd::SUMMARY,
     cmd::VARIABLES,
   ];
@@ -545,7 +546,6 @@ impl Config {
     } else if let Some(name) = matches.value_of(cmd::SHOW) {
       Subcommand::Show {
         name: name.to_owned(),
-        evaluate: matches.is_present(arg_or_cmd::EVALUATE),
       }
     } else if matches.is_present(cmd::VARIABLES) {
       Subcommand::Variables
@@ -1125,25 +1125,19 @@ mod tests {
   test! {
     name: subcommand_show_long,
     args: ["--show", "build"],
-    subcommand: Subcommand::Show { name: String::from("build"),
-      evaluate: false,
-    },
+    subcommand: Subcommand::Show { name: String::from("build") },
   }
 
   test! {
     name: subcommand_show_short,
     args: ["-s", "build"],
-    subcommand: Subcommand::Show { name: String::from("build"),
-      evaluate: false,
-    },
+    subcommand: Subcommand::Show { name: String::from("build") },
   }
 
   test! {
     name: subcommand_show_evaluate,
-    args: ["--show", "build", "--evaluate"],
-    subcommand: Subcommand::Show { name: String::from("build"),
-      evaluate: true,
-    },
+    args: ["--show", "build"],
+    subcommand: Subcommand::Show { name: String::from("build") },
   }
 
   error! {
