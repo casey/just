@@ -992,11 +992,6 @@ mod tests {
   }
 
   error! {
-    name: subcommand_conflict_evaluate,
-    args: ["--list", "--evaluate"],
-  }
-
-  error! {
     name: subcommand_conflict_show,
     args: ["--list", "--show"],
   }
