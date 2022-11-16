@@ -1695,7 +1695,9 @@ This has limitations, since recipe `c` is run with an entirely new invocation of
 
 ### Writing Recipes in Other Languages
 
-Recipes that start with a `#!` are executed as scripts, so you can write recipes in other languages:
+Recipes that start with `#!` are called shebang recipes, and are executed by
+saving the recipe body to a file and running it. This lets you write recipes in
+different languages:
 
 ```make
 polyglot: python js perl sh ruby
@@ -1735,6 +1737,20 @@ Larry Wall says Hi!
 Yo from a shell script!
 Hello from ruby!
 ```
+
+On Unix-like operating systems, including Linux and MacOS, shebang recipes are
+executed by saving the recipe body to a file in a temporary directory, marking
+the file as executable, and executing it. The OS then parses the shebang line
+into a command line and invokes it, including the path to the file. For
+example, if a recipe starts with `#!/usr/bin/env bash`, the final command that
+the OS runs will be something like `/usr/bin/env bash
+/tmp/PATH_TO_SAVED_RECIPE_BODY`. Keep in mind that different operating systems
+split shebang lines differently.
+
+Windows does not support shebang lines. On Windows, `just` splits the shebang
+line into a command and arguments, saves the recipe body to a file, and invokes
+the split command and arguments, adding the path to the saved recipe body as
+the final argument.
 
 ### Safer Bash Shebang Recipes
 
