@@ -1335,7 +1335,9 @@ B end!
 </code></pre>
 <p>This has limitations, since recipe <code>c</code> is run with an entirely new invocation of <code>just</code>: Assignments will be recalculated, dependencies might run twice, and command line arguments will not be propagated to the child <code>just</code> process.</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="writing-recipes-in-other-languages"><a class="header" href="#writing-recipes-in-other-languages">Writing Recipes in Other Languages</a></h3>
-<p>Recipes that start with a <code>#!</code> are executed as scripts, so you can write recipes in other languages:</p>
+<p>Recipes that start with <code>#!</code> are called shebang recipes, and are executed by
+saving the recipe body to a file and running it. This lets you write recipes in
+different languages:</p>
 <pre><code class="language-make">polyglot: python js perl sh ruby
 
 python:
@@ -1371,6 +1373,17 @@ Larry Wall says Hi!
 Yo from a shell script!
 Hello from ruby!
 </code></pre>
+<p>On Unix-like operating systems, including Linux and MacOS, shebang recipes are
+executed by saving the recipe body to a file in a temporary directory, marking
+the file as executable, and executing it. The OS then parses the shebang line
+into a command line and invokes it, including the path to the file. For
+example, if a recipe starts with <code>#!/usr/bin/env bash</code>, the final command that
+the OS runs will be something like <code>/usr/bin/env bash /tmp/PATH_TO_SAVED_RECIPE_BODY</code>. Keep in mind that different operating systems
+split shebang lines differently.</p>
+<p>Windows does not support shebang lines. On Windows, <code>just</code> splits the shebang
+line into a command and arguments, saves the recipe body to a file, and invokes
+the split command and arguments, adding the path to the saved recipe body as
+the final argument.</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="safer-bash-shebang-recipes"><a class="header" href="#safer-bash-shebang-recipes">Safer Bash Shebang Recipes</a></h3>
 <p>If you’re writing a <code>bash</code> shebang recipe, consider adding <code>set -euxo pipefail</code>:</p>
 <pre><code class="language-make">foo:
