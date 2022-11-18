@@ -20,27 +20,25 @@ test! {
   stdout: "foo",
 }
 
-// TODO: it remains to be decided how to easily include --evaluate as a subcommand in the usage
-//       while also allowing it to be used with --show and --list, but not others
-// test! {
-//   name: no_binary,
-//   justfile: "
-//     x:
-//       echo XYZ
-//   ",
-//   args: ("--command"),
-//   stderr: &format!("
-//     error: The argument '--command <COMMAND>' requires a value but none was supplied
+test! {
+  name: no_binary,
+  justfile: "
+    x:
+      echo XYZ
+  ",
+  args: ("--command"),
+  stderr: &format!("
+    error: The argument '--command <COMMAND>' requires a value but none was supplied
 
-//     USAGE:
-//         just{} --color <COLOR> --dump-format <FORMAT> --shell <SHELL> \
-//         <--changelog|--choose|--command <COMMAND>|--completions <SHELL>|--dump|--edit|\
-//         --evaluate|--fmt|--init|--list|--show <RECIPE>|--summary|--variables>
+    USAGE:
+        just{} --color <COLOR> --dump-format <FORMAT> --shell <SHELL> \
+        <--changelog|--choose|--command <COMMAND>|--completions <SHELL>|--dump|--edit|\
+        --evaluate|--fmt|--init|--list|--show <RECIPE>|--summary|--variables>
 
-//     For more information try --help
-//   ", EXE_SUFFIX),
-//   status: EXIT_FAILURE,
-// }
+    For more information try --help
+  ", EXE_SUFFIX),
+  status: EXIT_FAILURE,
+}
 
 test! {
   name: env_is_loaded,

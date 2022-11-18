@@ -39,6 +39,7 @@ mod cmd {
   pub(crate) const COMPLETIONS: &str = "COMPLETIONS";
   pub(crate) const DUMP: &str = "DUMP";
   pub(crate) const EDIT: &str = "EDIT";
+  pub(crate) const EVALUATE: &str = "EVALUATE";
   pub(crate) const FORMAT: &str = "FORMAT";
   pub(crate) const INIT: &str = "INIT";
   pub(crate) const LIST: &str = "LIST";
@@ -53,6 +54,7 @@ mod cmd {
     COMPLETIONS,
     DUMP,
     EDIT,
+    EVALUATE,
     FORMAT,
     INIT,
     LIST,
@@ -85,6 +87,7 @@ mod arg {
   pub(crate) const DOTENV_PATH: &str = "DOTENV-PATH";
   pub(crate) const DRY_RUN: &str = "DRY-RUN";
   pub(crate) const DUMP_FORMAT: &str = "DUMP-FORMAT";
+  pub(crate) const EVAL: &str = "EVAL";
   pub(crate) const HIGHLIGHT: &str = "HIGHLIGHT";
   pub(crate) const JUSTFILE: &str = "JUSTFILE";
   pub(crate) const LIST_HEADING: &str = "LIST-HEADING";
@@ -109,26 +112,6 @@ mod arg {
   pub(crate) const DUMP_FORMAT_JSON: &str = "json";
   pub(crate) const DUMP_FORMAT_JUST: &str = "just";
   pub(crate) const DUMP_FORMAT_VALUES: &[&str] = &[DUMP_FORMAT_JUST, DUMP_FORMAT_JSON];
-}
-
-mod arg_or_cmd {
-  use super::*;
-
-  pub(crate) const EVALUATE: &str = "EVALUATE";
-
-  pub(crate) const CONFLICT_EVALUATE: &[&str] = &[
-    cmd::CHANGELOG,
-    cmd::CHOOSE,
-    cmd::COMMAND,
-    cmd::COMPLETIONS,
-    cmd::DUMP,
-    cmd::EDIT,
-    cmd::FORMAT,
-    cmd::INIT,
-    cmd::SHOW,
-    cmd::SUMMARY,
-    cmd::VARIABLES,
-  ];
 }
 
 impl Config {
@@ -172,6 +155,12 @@ impl Config {
           .default_value(arg::DUMP_FORMAT_JUST)
           .value_name("FORMAT")
           .help("Dump justfile as <FORMAT>"),
+      )
+      .arg(
+        Arg::with_name(arg::EVAL)
+          .long("eval")
+          .help("Evaluate parameter default expressions.")
+          .requires(cmd::LIST)
       )
       .arg(
         Arg::with_name(arg::HIGHLIGHT)
@@ -281,10 +270,6 @@ impl Config {
           .help("Use <WORKING-DIRECTORY> as working directory. --justfile must also be set")
           .requires(arg::JUSTFILE),
       )
-      .arg(Arg::with_name(arg_or_cmd::EVALUATE).long("evaluate").help(
-        "Evaluate and print all variables, or evaluate all variables for another command. If a \
-         variable name is given as an argument, only print that variable's value.",
-      ).conflicts_with_all(arg_or_cmd::CONFLICT_EVALUATE))
       .arg(
         Arg::with_name(cmd::CHANGELOG)
           .long("changelog")
@@ -322,6 +307,10 @@ impl Config {
           .long("edit")
           .help("Edit justfile with editor given by $VISUAL or $EDITOR, falling back to `vim`"),
       )
+      .arg(Arg::with_name(cmd::EVALUATE).long("evaluate").help(
+        "Evaluate and print all variables. If a variable name is given as an argument, only print \
+        that variable's value.",
+      ))
       .arg(
         Arg::with_name(cmd::FORMAT)
           .long("fmt")
@@ -541,7 +530,7 @@ impl Config {
       Subcommand::Init
     } else if matches.is_present(cmd::LIST) {
       Subcommand::List {
-        evaluate: matches.is_present(arg_or_cmd::EVALUATE),
+        evaluate: matches.is_present(arg::EVAL),
       }
     } else if let Some(name) = matches.value_of(cmd::SHOW) {
       Subcommand::Show {
@@ -549,10 +538,10 @@ impl Config {
       }
     } else if matches.is_present(cmd::VARIABLES) {
       Subcommand::Variables
-    } else if matches.is_present(arg_or_cmd::EVALUATE) {
+    } else if matches.is_present(cmd::EVALUATE) {
       if positional.arguments.len() > 1 {
         return Err(ConfigError::SubcommandArguments {
-          subcommand: arg_or_cmd::EVALUATE,
+          subcommand: cmd::EVALUATE,
           arguments: positional
             .arguments
             .into_iter()
@@ -1013,7 +1002,7 @@ mod tests {
 
   error! {
     name: subcommand_conflict_evaluate,
-    args: ["--summary", "--evaluate"],
+    args: ["--list", "--evaluate"],
   }
 
   error! {
@@ -1115,8 +1104,8 @@ mod tests {
   }
 
   test! {
-    name: subcommand_list_evaluate,
-    args: ["--list", "--evaluate"],
+    name: subcommand_list_eval,
+    args: ["--list", "--eval"],
     subcommand: Subcommand::List {
       evaluate: true,
     },
