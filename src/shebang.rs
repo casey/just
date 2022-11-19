@@ -47,7 +47,7 @@ impl<'line> Shebang<'line> {
   }
 
   pub(crate) fn include_shebang_line(&self) -> bool {
-    !cfg!(windows) && !matches!(self.interpreter_filename(), "cmd" | "cmd.exe")
+    !(cfg!(windows) || matches!(self.interpreter_filename(), "cmd" | "cmd.exe"))
   }
 }
 
