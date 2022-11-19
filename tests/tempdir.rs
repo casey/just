@@ -29,6 +29,7 @@ fn test_tempdir_is_set() {
 
 
 
+
       cat just*/foo
       "
     } else {
