@@ -47,7 +47,7 @@ impl<'line> Shebang<'line> {
   }
 
   pub(crate) fn include_shebang_line(&self) -> bool {
-    !matches!(self.interpreter_filename(), "cmd" | "cmd.exe")
+    !cfg!(windows) && !matches!(self.interpreter_filename(), "cmd" | "cmd.exe")
   }
 }
 
@@ -201,7 +201,14 @@ mod tests {
   }
 
   #[test]
-  fn include_shebang_line_other() {
+  #[cfg(not(windows))]
+  fn include_shebang_line_other_not_windows() {
     assert!(Shebang::new("#!foo -c").unwrap().include_shebang_line());
+  }
+
+  #[test]
+  #[cfg(windows)]
+  fn include_shebang_line_other_windows() {
+    assert!(!Shebang::new("#!foo -c").unwrap().include_shebang_line());
   }
 }

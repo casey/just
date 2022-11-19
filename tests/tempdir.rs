@@ -24,13 +24,21 @@ fn test_tempdir_is_set() {
       }
     })
     .current_dir("foo")
-    .stdout(
+    .stdout(if cfg!(windows) {
+      "
+
+
+
+
+      cat just*/foo
+      "
+    } else {
       "
       #!/usr/bin/env bash
 
 
       cat just*/foo
-      ",
-    )
+      "
+    })
     .run();
 }
