@@ -1081,6 +1081,7 @@ test! {
   stderr:   "#!/bin/sh\necho hello\n",
 }
 
+#[cfg(not(windows))]
 test! {
   name:     shebang_line_numbers,
   justfile: r#"
@@ -1098,6 +1099,35 @@ test! {
   "#,
   stdout:   "
     #!/usr/bin/env cat
+
+
+    a
+
+    b
+
+
+    c
+  ",
+}
+
+#[cfg(windows)]
+test! {
+  name:     shebang_line_numbers,
+  justfile: r#"
+    quiet:
+      #!/usr/bin/env cat
+
+      a
+
+      b
+
+
+      c
+
+
+  "#,
+  stdout:   "
+
 
 
     a
