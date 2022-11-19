@@ -99,7 +99,7 @@ if [ -z ${dest-} ]; then
 fi
 
 if [ -z ${tag-} ]; then
-  tag=$(curl -s "https://api.github.com/repos/casey/just/releases/latest" |
+  tag=$(curl --proto =https --tlsv1.2 -sSf https://api.github.com/repos/casey/just/releases/latest |
     grep tag_name |
     cut -d'"' -f4
   )
@@ -130,7 +130,7 @@ say_err "Destination: $dest"
 say_err "Archive:     $archive"
 
 td=$(mktemp -d || mktemp -d -t tmp)
-curl -sL $archive | tar -C $td -xz
+curl --proto =https --tlsv1.2 -sSfL $archive | tar -C $td -xz
 
 for f in $(ls $td); do
   test -x $td/$f || continue
