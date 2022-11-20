@@ -455,17 +455,9 @@ impl Subcommand {
       None
     };
 
-    let mut evaluator = if let Some(scope) = &scope {
-      Some(std::cell::RefCell::new(Evaluator::recipe_evaluator(
-        config,
-        &dotenv,
-        scope,
-        &justfile.settings,
-        search,
-      )))
-    } else {
-      None
-    };
+    let mut evaluator = scope
+      .as_ref()
+      .map(|scope| Evaluator::recipe_evaluator(config, &dotenv, scope, &justfile.settings, search));
 
     // Construct a target to alias map.
     let mut recipe_aliases: BTreeMap<&str, Vec<&str>> = BTreeMap::new();
@@ -493,19 +485,12 @@ impl Subcommand {
         let mut line_width = UnicodeWidthStr::width(*name);
 
         for parameter in &recipe.parameters {
-          line_width += if let Some(evaluator) = &mut evaluator {
-            UnicodeWidthStr::width(
-              format!(
-                " {}",
-                parameter
-                  .format_eval(evaluator)
-                  .color_display(Color::never())
-              )
-              .as_str(),
-            )
-          } else {
-            UnicodeWidthStr::width(format!(" {}", parameter.color_display(Color::never())).as_str())
+          if let Some(evaluator) = &mut evaluator {
+            let parameter = parameter.evaluate_default(evaluator)?;
           };
+          line_width += UnicodeWidthStr::width(
+            format!(" {}", parameter.color_display(Color::never())).as_str(),
+          );
         }
 
         if line_width <= 30 {
@@ -528,16 +513,7 @@ impl Subcommand {
       {
         print!("{}{}", config.list_prefix, name);
         for parameter in &recipe.parameters {
-          if let Some(evaluator) = &mut evaluator {
-            print!(
-              " {}",
-              parameter
-                .format_eval(evaluator)
-                .color_display(config.color.stdout())
-            )
-          } else {
-            print!(" {}", parameter.color_display(config.color.stdout()))
-          }
+          print!(" {}", parameter.color_display(config.color.stdout()))
         }
 
         // Declaring this outside of the nested loops will probably be more efficient,
