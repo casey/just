@@ -2022,7 +2022,6 @@ Available recipes:
     bar
 ```
 
-
 This is useful for helper recipes which are only meant to be used as dependencies of other recipes.
 
 ### Quiet Recipes
