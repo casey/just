@@ -2007,7 +2007,7 @@ $ just --summary
 test
 ```
 
-The `[private]` attribute may also be used to hide recipes without needing to change the name:
+The `[private]` attribute<sup>master</sup> may also be used to hide recipes without needing to change the name:
 
 ```make
 [private]
