@@ -475,6 +475,8 @@ impl Subcommand {
     }
 
     let mut line_widths: BTreeMap<&str, usize> = BTreeMap::new();
+    let mut evaluated_parameters: BTreeMap<&str, BTreeMap<&str, Parameter<String>>> =
+      BTreeMap::new();
 
     for (name, recipe) in &justfile.recipes {
       if recipe.private {
@@ -485,12 +487,37 @@ impl Subcommand {
         let mut line_width = UnicodeWidthStr::width(*name);
 
         for parameter in &recipe.parameters {
-          if let Some(evaluator) = &mut evaluator {
-            let parameter = parameter.evaluate_default(evaluator)?;
-          };
-          line_width += UnicodeWidthStr::width(
-            format!(" {}", parameter.color_display(Color::never())).as_str(),
-          );
+          // FIXME: unwrap -> ?
+          if let Some(evaluated) = evaluator
+            .as_mut()
+            .map(|evaluator| parameter.evaluate_default(evaluator))
+            .transpose()
+            .unwrap()
+            .flatten()
+          {
+            use std::collections::btree_map::Entry;
+
+            line_width += UnicodeWidthStr::width(
+              format!(" {}", evaluated.color_display(Color::never())).as_str(),
+            );
+
+            match evaluated_parameters.entry(name) {
+              Entry::Vacant(vacant) => {
+                let mut parameters = BTreeMap::new();
+                parameters.insert(evaluated.name.lexeme(), evaluated);
+                vacant.insert(parameters);
+              }
+              Entry::Occupied(mut occopied) => {
+                occopied
+                  .get_mut()
+                  .insert(evaluated.name.lexeme(), evaluated);
+              }
+            }
+          } else {
+            line_width += UnicodeWidthStr::width(
+              format!(" {}", parameter.color_display(Color::never())).as_str(),
+            );
+          }
         }
 
         if line_width <= 30 {
@@ -513,7 +540,14 @@ impl Subcommand {
       {
         print!("{}{}", config.list_prefix, name);
         for parameter in &recipe.parameters {
-          print!(" {}", parameter.color_display(config.color.stdout()))
+          if let Some(parameter) = evaluated_parameters
+            .get(name)
+            .and_then(|parameters| parameters.get(parameter.name.lexeme()))
+          {
+            print!(" {}", parameter.color_display(config.color.stdout()))
+          } else {
+            print!(" {}", parameter.color_display(config.color.stdout()))
+          }
         }
 
         // Declaring this outside of the nested loops will probably be more efficient,
