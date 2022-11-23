@@ -153,6 +153,16 @@ Available recipes:
 <pre><code class="language-sh">$ just --summary
 test
 </code></pre>
+<p>The <code>[private]</code> attribute<sup>master</sup> may also be used to hide recipes without needing to change the name:</p>
+<pre><code class="language-make">[private]
+foo:
+
+bar:
+</code></pre>
+<pre><code class="language-sh">$ just --list
+Available recipes:
+    bar
+</code></pre>
 <p>This is useful for helper recipes which are only meant to be used as dependencies of other recipes.</p>
 
                     </main>
