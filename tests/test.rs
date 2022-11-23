@@ -179,7 +179,7 @@ impl Test {
     let mut command = Command::new(&executable_path("just"));
 
     if self.shell {
-      command.args(&["--shell", "bash"]);
+      command.args(["--shell", "bash"]);
     }
 
     let mut child = command

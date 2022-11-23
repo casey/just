@@ -6,7 +6,7 @@ use {
 fn author(pr: u64) -> String {
   eprintln!("#{}", pr);
   let output = Command::new("sh")
-    .args(&[
+    .args([
       "-c",
       &format!("gh pr view {} --json author | jq -r .author.login", pr),
     ])

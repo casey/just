@@ -3,7 +3,7 @@ use std::{process::Command, str};
 
 fn stdout(reference: &str) -> String {
   let output = Command::new(executable_path("ref-type"))
-    .args(&["--reference", reference])
+    .args(["--reference", reference])
     .output()
     .unwrap();
 

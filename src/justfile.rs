@@ -257,15 +257,7 @@ impl<'src> Justfile<'src> {
 
     let mut ran = BTreeSet::new();
     for (recipe, arguments) in grouped {
-      Self::run_recipe(
-        &context,
-        recipe,
-        arguments,
-        &dotenv,
-        search,
-        &self.settings,
-        &mut ran,
-      )?;
+      Self::run_recipe(&context, recipe, arguments, &dotenv, search, &mut ran)?;
     }
 
     Ok(())
@@ -289,7 +281,6 @@ impl<'src> Justfile<'src> {
     arguments: &[&str],
     dotenv: &BTreeMap<String, String>,
     search: &Search,
-    settings: &Settings,
     ran: &mut BTreeSet<Vec<String>>,
   ) -> RunResult<'src, ()> {
     let mut invocation = vec![recipe.name().to_owned()];
@@ -328,7 +319,6 @@ impl<'src> Justfile<'src> {
         &arguments.iter().map(String::as_ref).collect::<Vec<&str>>(),
         dotenv,
         search,
-        settings,
         ran,
       )?;
     }
@@ -351,7 +341,6 @@ impl<'src> Justfile<'src> {
           &evaluated.iter().map(String::as_ref).collect::<Vec<&str>>(),
           dotenv,
           search,
-          settings,
           &mut ran,
         )?;
       }
