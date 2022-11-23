@@ -63,7 +63,7 @@ impl<'src, D> Recipe<'src, D> {
   }
 
   pub(crate) fn public(&self) -> bool {
-    !self.private
+    !self.private && !self.attributes.contains(&Attribute::Private)
   }
 
   pub(crate) fn change_directory(&self) -> bool {

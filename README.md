@@ -2007,6 +2007,21 @@ $ just --summary
 test
 ```
 
+The `[private]` attribute<sup>master</sup> may also be used to hide recipes without needing to change the name:
+
+```make
+[private]
+foo:
+
+bar:
+```
+
+```sh
+$ just --list
+Available recipes:
+    bar
+```
+
 This is useful for helper recipes which are only meant to be used as dependencies of other recipes.
 
 ### Quiet Recipes
