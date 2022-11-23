@@ -1,5 +1,7 @@
 use super::*;
 
+use std::collections::btree_map::Entry;
+
 const INIT_JUSTFILE: &str = "default:\n    echo 'Hello, world!'\n";
 
 #[derive(PartialEq, Clone, Debug)]
@@ -495,8 +497,6 @@ impl Subcommand {
             .unwrap()
             .flatten()
           {
-            use std::collections::btree_map::Entry;
-
             line_width += UnicodeWidthStr::width(
               format!(" {}", evaluated.color_display(Color::never())).as_str(),
             );
