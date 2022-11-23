@@ -65,6 +65,7 @@ mod no_exit_message;
 mod os_attributes;
 mod parser;
 mod positional_arguments;
+mod private;
 mod quiet;
 mod quote;
 mod readme;

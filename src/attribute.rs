@@ -10,6 +10,7 @@ pub(crate) enum Attribute {
   Macos,
   NoCd,
   NoExitMessage,
+  Private,
   Unix,
   Windows,
 }
