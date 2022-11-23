@@ -20,7 +20,7 @@ impl<'src> Parameter<'src> {
   ) -> RunResult<'src, Option<Parameter<'src, String>>> {
     if let Some(ref default) = self.default {
       Ok(Some(Parameter {
-        default: Some(evaluator.evaluate_expression(default)?),
+        default: Some(format!("'{}'", evaluator.evaluate_expression(default)?)),
         export: self.export,
         kind: self.kind,
         name: self.name,
