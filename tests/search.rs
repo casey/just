@@ -74,12 +74,12 @@ fn test_downwards_path_argument() {
 
   let path = tmp.path();
 
-  search_test(&path, &["a/"]);
-  search_test(&path, &["a/default"]);
-  search_test(&path, &["./a/"]);
-  search_test(&path, &["./a/default"]);
-  search_test(&path, &["./a/"]);
-  search_test(&path, &["./a/default"]);
+  search_test(path, &["a/"]);
+  search_test(path, &["a/default"]);
+  search_test(path, &["./a/"]);
+  search_test(path, &["./a/default"]);
+  search_test(path, &["./a/"]);
+  search_test(path, &["./a/default"]);
 }
 
 #[test]
@@ -111,12 +111,12 @@ fn test_downwards_multiple_path_argument() {
 
   let path = tmp.path();
 
-  search_test(&path, &["a/b/"]);
-  search_test(&path, &["a/b/default"]);
-  search_test(&path, &["./a/b/"]);
-  search_test(&path, &["./a/b/default"]);
-  search_test(&path, &["./a/b/"]);
-  search_test(&path, &["./a/b/default"]);
+  search_test(path, &["a/b/"]);
+  search_test(path, &["a/b/default"]);
+  search_test(path, &["./a/b/"]);
+  search_test(path, &["./a/b/default"]);
+  search_test(path, &["./a/b/"]);
+  search_test(path, &["./a/b/default"]);
 }
 
 #[test]
@@ -128,7 +128,7 @@ fn single_downards() {
 
   let path = tmp.path();
 
-  search_test(&path, &["child/"]);
+  search_test(path, &["child/"]);
 }
 
 #[test]
