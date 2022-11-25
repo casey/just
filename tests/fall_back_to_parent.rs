@@ -6,6 +6,8 @@ fn runs_recipe_in_parent_if_not_found_in_current() {
     .tree(tree! {
       bar: {
         justfile: "
+          set fallback := true
+
           baz:
             echo subdir
         "
@@ -68,6 +70,8 @@ fn print_error_from_parent_if_recipe_not_found_in_current() {
     .tree(tree! {
       bar: {
         justfile: "
+          set fallback := true
+
           baz:
             echo subdir
         "
@@ -145,6 +149,8 @@ fn works_with_provided_search_directory() {
     .tree(tree! {
       bar: {
         justfile: "
+          set fallback := true
+
           baz:
             echo subdir
         "
@@ -230,6 +236,8 @@ fn prints_correct_error_message_when_recipe_not_found() {
     .tree(tree! {
       bar: {
         justfile: "
+          set fallback := true
+
           bar:
             echo subdir
         "
@@ -261,11 +269,15 @@ fn multiple_levels_of_fallback_work() {
       a: {
         b: {
           justfile: "
+            set fallback := true
+
             foo:
               echo subdir
           "
         },
         justfile: "
+          set fallback := true
+
           bar:
             echo subdir
         "
@@ -298,12 +310,13 @@ fn stop_fallback_when_fallback_is_false() {
       a: {
         b: {
           justfile: "
+            set fallback := true
+
             foo:
               echo subdir
           "
         },
         justfile: "
-          set fallback := false
           bar:
             echo subdir
         "
