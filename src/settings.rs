@@ -5,7 +5,7 @@ pub(crate) const DEFAULT_SHELL_ARGS: &[&str] = &["-cu"];
 pub(crate) const WINDOWS_POWERSHELL_SHELL: &str = "powershell.exe";
 pub(crate) const WINDOWS_POWERSHELL_ARGS: &[&str] = &["-NoLogo", "-Command"];
 
-#[derive(Debug, PartialEq, Serialize)]
+#[derive(Debug, PartialEq, Serialize, Default)]
 pub(crate) struct Settings<'src> {
   pub(crate) allow_duplicate_recipes: bool,
   pub(crate) dotenv_load: Option<bool>,
@@ -63,23 +63,6 @@ impl<'src> Settings<'src> {
           (DEFAULT_SHELL, DEFAULT_SHELL_ARGS.to_vec())
         }
       }
-    }
-  }
-}
-
-impl<'src> Default for Settings<'src> {
-  fn default() -> Self {
-    Self {
-      allow_duplicate_recipes: false,
-      dotenv_load: None,
-      export: false,
-      fallback: true,
-      ignore_comments: false,
-      positional_arguments: false,
-      shell: None,
-      tempdir: None,
-      windows_powershell: false,
-      windows_shell: None,
     }
   }
 }
