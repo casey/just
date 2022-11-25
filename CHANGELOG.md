@@ -1,6 +1,30 @@
 Changelog
 =========
 
+[1.9.0](https://github.com/casey/just/releases/tag/1.9.0) - 2022-11-25
+----------------------------------------------------------------------
+
+### Breaking Changes to Unstable Features
+- Change `fallback` setting default to false (#1425)
+
+### Added
+- Hide recipes with `[private]` attribute (#1422)
+- Add replace_regex function (#1393 by @miles170)
+- Add [no-cd] attribute (#1400)
+
+### Changed
+- Omit shebang lines on Windows (#1417)
+
+### Misc
+- Placate clippy (#1423)
+- Make include_shebang_line clearer (#1418)
+- Use more secure cURL options in install.sh (#1416)
+- Document how shebang recipes are executed (#1412)
+- Fix typo: regec → regex (#1409)
+- Use powershell.exe instead of pwsh.exe in readme (#1394 by @asdf8dfafjk)
+- Expand alternatives and prior art in readme (#1401)
+- Split up CI workflow (#1399)
+
 [1.8.0](https://github.com/casey/just/releases/tag/1.8.0) - 2022-11-02
 ----------------------------------------------------------------------
 
