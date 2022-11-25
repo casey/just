@@ -1237,7 +1237,7 @@ run:
   main.exe
 ```
 
-#### Disabling Changing Directory<sup>master</sup>
+#### Disabling Changing Directory<sup>1.9.0</sup>
 
 `just` normally executes recipes with the current directory set to the
 directory that contains the `justfile`. This can be disabled using the
