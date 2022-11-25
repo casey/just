@@ -25,7 +25,7 @@ ctrlc = { version = "3.1.1", features = ["termination"] }
 derivative = "2.0.0"
 dotenv = "0.15.0"
 edit-distance = "2.0.0"
-env_logger = "0.10.0"
+env_logger = "0.9.3"
 heck = "0.4.0"
 lazy_static = "1.0.0"
 lexiclean = "0.0.1"
