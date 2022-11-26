@@ -1,15 +1,15 @@
 # This file gets included.
 
 # ANSI color escapes.
-BOLD := '\e[1m'
-RESET := '\e[0m'
-RED := '\e[31m'
-GREEN := '\e[32m'
-BROWN := '\e[34m'
 BLUE := '\e[34m'
-PURPLE := '\e[35m'
+BOLD := '\e[1m'
+BROWN := '\e[34m'
 CYAN := '\e[36m'
 GRAY := '\e[37m'
+GREEN := '\e[32m'
+PURPLE := '\e[35m'
+RED := '\e[31m'
+RESET := '\e[0m'
 
 # Report the animal with the best blep.
 blep:
