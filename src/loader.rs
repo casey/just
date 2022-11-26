@@ -19,8 +19,8 @@ impl Loader {
 
     // Parse include directives.
     // Include directives are lines that look like:
-    // #include "relative/path/to/file"
-    let include_regexp = Regex::new(r#"^#include "([^"]+)"$"#).unwrap();
+    // @include "relative/path/to/file"
+    let include_regexp = Regex::new(r#"^@include "([^"]+)"$"#).unwrap();
 
     let parent = path.parent().map_or_else(|| Path::new(""), |p| p);
 

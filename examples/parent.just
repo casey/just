@@ -1,4 +1,4 @@
-#include "included.just"
+@include "included.just"
 
 # The recipes in this file rely on variables defined in the
 # included file!
