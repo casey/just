@@ -1648,7 +1648,7 @@ sh:
 nu:
   #!/usr/bin/env nu
   let hello = 'Yo'
-  echo $"($hello) from a shell script!"
+  echo $"($hello) from a nushell script!"
 
 ruby:
   #!/usr/bin/env ruby
