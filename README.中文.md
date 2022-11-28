@@ -1154,8 +1154,8 @@ The executable is at: /bin/just
 
 - `capitalize(s)`<sup>1.7.0</sup> - 将 `s` 的第一个字符转换成大写字母，其余的转换成小写字母。
 - `kebabcase(s)`<sup>1.7.0</sup> - 将 `s` 转换为 `kebab-case`。
-- `lowercamelcase(s)`<sup>1.7.0</sup> - 将 `s` 转换为小写形式。
-- `lowercase(s)` - 将 `s` 转换为 lowercase。
+- `lowercamelcase(s)`<sup>1.7.0</sup> - 将 `s` 转换为小驼峰形式：`lowerCamelCase`。
+- `lowercase(s)` - 将 `s` 转换为全小写形式。
 - `shoutykebabcase(s)`<sup>1.7.0</sup> - 将 `s` 转换为 `SHOUTY-KEBAB-CASE`。
 - `shoutysnakecase(s)`<sup>1.7.0</sup> - 将 `s` 转换为 `SHOUTY_SNAKE_CASE`。
 - `snakecase(s)`<sup>1.7.0</sup> - 将 `s` 转换为 `snake_case`。
