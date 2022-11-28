@@ -378,13 +378,15 @@ augroup END
 
 ### Visual Studio Code
 
-由 [skellock](https://github.com/skellock) 为 VS Code 提供的扩展 [可在此获得](https://marketplace.visualstudio.com/items?itemName=skellock.just)（[仓库](https://github.com/skellock/vscode-just)）。
+由 [skellock](https://github.com/skellock) 为 VS Code 提供的扩展 [可在此获得](https://marketplace.visualstudio.com/items?itemName=skellock.just)（[仓库](https://github.com/skellock/vscode-just)），但是开发已经不活跃了。
 
 你可以通过运行以下命令来安装它：
 
 ```sh
 code --install-extension skellock.just
 ```
+
+最近由 [sclu1034](https://github.com/sclu1034) 提供的一个更活跃的分叉可以在 [这里](https://github.com/sclu1034/vscode-just) 找到。
 
 ### JetBrains IDEs
 
@@ -637,15 +639,18 @@ foo:
 
 #### 设置一览表
 
-| 名称                      | 值                 | 描述                                                                        |
-| ------------------------- | ------------------ | --------------------------------------------------------------------------- |
-| `allow-duplicate-recipes` | boolean            | 允许在 `justfile` 后面出现的配方覆盖之前的同名配方                          |
-| `dotenv-load`             | boolean            | 加载 `.env` 环境变量文件, 如果有的话                                        |
-| `export`                  | boolean            | 将所有变量导出为环境变量                                                    |
-| `positional-arguments`    | boolean            | 传递位置参数                                                                |
-| `shell`                   | `[COMMAND, ARGS…]` | 设置用于调用配方和评估反引号内包裹内容的命令                                |
-| `windows-shell`           | `[COMMAND, ARGS…]` | 设置用于调用配方和评估反引号内包裹内容的命令。                              |
-| `windows-powershell`      | boolean            | 在 Windows 上使用 PowerShell 作为默认 Shell(废弃，建议使用 `windows-shell`) |
+| 名称                      | 值                 | 默认    | 描述                                                                           |
+| ------------------------- | ------------------ | --------|------------------------------------------------------------------------------- |
+| `allow-duplicate-recipes` | boolean            | False   | 允许在 `justfile` 后面出现的配方覆盖之前的同名配方                             |
+| `dotenv-load`             | boolean            | False   | 如果有`.env` 环境变量文件的话，则将其加载                                      |
+| `export`                  | boolean            | False   | 将所有变量导出为环境变量                                                       |
+| `fallback`                | boolean            | False   | 如果命令行中的第一个配方没有找到，则在父目录中搜索 `justfile`                  |
+| `ignore-comments`         | boolean            | False   | 忽略以`#`开头的配方行                                                          |
+| `positional-arguments`    | boolean            | False   | 传递位置参数                                                                   |
+| `shell`                   | `[COMMAND, ARGS…]` | -       | 设置用于调用配方和评估反引号内包裹内容的命令                                   |
+| `tempdir`                 | string             | -       | 在 `tempdir` 位置创建临时目录，而不是系统默认的临时目录                        |
+| `windows-powershell`      | boolean            | False   | 在 Windows 上使用 PowerShell 作为默认 Shell(废弃，建议使用 `windows-shell`)    |
+| `windows-shell`           | `[COMMAND, ARGS…]` | -       | 设置用于调用配方和评估反引号内包裹内容的命令                                   |
 
 Bool 类型设置可以写成：
 
@@ -766,7 +771,7 @@ foo:
 `just` 在 Windows 上默认使用 `sh`。要在 Windows 上使用不同的 Shell，请使用`windows-shell`：
 
 ```make
-set windows-shell := ["pwsh.exe", "-NoLogo", "-Command"]
+set windows-shell := ["powershell.exe", "-NoLogo", "-Command"]
 
 hello:
   Write-Host "Hello, world!"
@@ -920,6 +925,17 @@ $ just --evaluate bar
 a//b
 ```
 
+也可以构建绝对路径<sup>1.5.0</sup>:
+
+```make
+foo := / "b"
+```
+
+```
+$ just --evaluate foo
+/b
+```
+
 `/` 操作符使用 `/` 字符，即使在 Windows 上也是如此。因此，在使用通用命名规则（UNC）的路径中应避免使用 `/` 操作符，即那些以 `\?` 开头的路径，因为 UNC 路径不支持正斜线。
 
 #### 转义 `{{`
@@ -1039,9 +1055,7 @@ Done!
 #### 系统信息
 
 - `arch()` — 指令集结构。可能的值是：`"aarch64"`, `"arm"`, `"asmjs"`, `"hexagon"`, `"mips"`, `"msp430"`, `"powerpc"`, `"powerpc64"`, `"s390x"`, `"sparc"`, `"wasm32"`, `"x86"`, `"x86_64"`, 和 `"xcore"`。
-
 - `os()` — 操作系统，可能的值是: `"android"`, `"bitrig"`, `"dragonfly"`, `"emscripten"`, `"freebsd"`, `"haiku"`, `"ios"`, `"linux"`, `"macos"`, `"netbsd"`, `"openbsd"`, `"solaris"`, 和 `"windows"`。
-
 - `os_family()` — 操作系统系列；可能的值是：`"unix"` 和 `"windows"`。
 
 例如：
@@ -1125,26 +1139,28 @@ The executable is at: /bin/just
 
 #### 字符串处理
 
-- `lowercase(s)` - 将 `s` 转换为小写形式。
-
 - `quote(s)` - 用 `'\''` 替换所有的单引号，并在 `s` 的首尾添加单引号。这足以为许多 Shell 转义特殊字符，包括大多数 Bourne Shell 的后代。
-
 - `replace(s, from, to)` - 将 `s` 中的所有 `from` 替换为 `to`。
-
+- `replace_regex(s, regex, replacement)` - 将 `s` 中所有的 `regex` 替换为 `replacement`。
 - `trim(s)` - 去掉 `s` 的首尾空格。
-
 - `trim_end(s)` - 去掉 `s` 的尾部空格。
-
 - `trim_end_match(s, pat)` - 删除与 `pat` 匹配的 `s` 的后缀。
-
 - `trim_end_matches(s, pat)` - 反复删除与 `pat` 匹配的 `s` 的后缀。
-
 - `trim_start(s)` - 去掉 `s` 的首部空格。
-
 - `trim_start_match(s, pat)` - 删除与 `pat` 匹配的 `s` 的前缀。
-
 - `trim_start_matches(s, pat)` - 反复删除与 `pat` 匹配的 `s` 的前缀。
 
+#### 大小写转换
+
+- `capitalize(s)`<sup>1.7.0</sup> - 将 `s` 的第一个字符转换成大写字母，其余的转换成小写字母。
+- `kebabcase(s)`<sup>1.7.0</sup> - 将 `s` 转换为 `kebab-case`。
+- `lowercamelcase(s)`<sup>1.7.0</sup> - 将 `s` 转换为小写形式。
+- `lowercase(s)` - 将 `s` 转换为 lowercase。
+- `shoutykebabcase(s)`<sup>1.7.0</sup> - 将 `s` 转换为 `SHOUTY-KEBAB-CASE`。
+- `shoutysnakecase(s)`<sup>1.7.0</sup> - 将 `s` 转换为 `SHOUTY_SNAKE_CASE`。
+- `snakecase(s)`<sup>1.7.0</sup> - 将 `s` 转换为 `snake_case`。
+- `titlecase(s)`<sup>1.7.0</sup> - 将 `s` 转换为 `Title Case`。
+- `uppercamelcase(s)`<sup>1.7.0</sup> - 将 `s` 转换为 `UpperCamelCase`。
 - `uppercase(s)` - 将 `s` 转换为大写形式。
 
 #### 路径操作
@@ -1152,24 +1168,18 @@ The executable is at: /bin/just
 ##### 非可靠的
 
 - `absolute_path(path)` - 将当前工作目录中到相对路径 `path` 的路径转换为绝对路径。在 `/foo` 目录通过 `absolute_path("./bar.txt")` 可以得到 `/foo/bar.txt`。
-
 - `extension(path)` - 获取 `path` 的扩展名。`extension("/foo/bar.txt")` 结果为 `txt`。
-
 - `file_name(path)` - 获取 `path` 的文件名，去掉任何前面的目录部分。`file_name("/foo/bar.txt")` 的结果为 `bar.txt`。
-
 - `file_stem(path)` - 获取 `path` 的文件名，不含扩展名。`file_stem("/foo/bar.txt")` 的结果为 `bar`。
-
 - `parent_directory(path)` - 获取 `path` 的父目录。`parent_directory("/foo/bar.txt")` 的结果为 `/foo`。
-
 - `without_extension(path)` - 获取 `path` 不含扩展名部分。`without_extension("/foo/bar.txt")` 的结果为 `/foo/bar`。
 
 这些函数可能会失败，例如，如果一个路径没有扩展名，则将停止执行。
 
 ##### 可靠的
 
-- `join(a, b…)` - *这个函数在 Unix 上使用 `/`，在 Windows 上使用 `\`，这可能会导致非预期的行为。`/` 操作符，例如，`a / b`，总是使用 `/`，应该被考虑作为替代，除非在 Windows 上特别指定需要 `\`。* 将路径 `a` 和 路径 `b` 拼接在一起。`join("foo/bar", "baz")` 结果为 `foo/bar/baz`。它接受两个或多个参数。
-
 - `clean(path)` - 通过删除多余的路径分隔符、中间的 `.` 和 `..` 来简化 `path`。`clean("foo//bar")` 结果为 `foo/bar`，`clean("foo/..")` 为 `.`，`clean("foo/./bar")` 结果为 `foo/bar`。
+- `join(a, b…)` - *这个函数在 Unix 上使用 `/`，在 Windows 上使用 `\`，这可能会导致非预期的行为。`/` 操作符，例如，`a / b`，总是使用 `/`，应该被考虑作为替代，除非在 Windows 上特别指定需要 `\`。* 将路径 `a` 和 路径 `b` 拼接在一起。`join("foo/bar", "baz")` 结果为 `foo/bar/baz`。它接受两个或多个参数。
 
 #### 文件系统访问
 
@@ -1184,6 +1194,52 @@ The executable is at: /bin/just
 - `sha256(string)` - 以十六进制字符串形式返回 `string` 的 SHA-256 哈希值。
 - `sha256_file(path)` - 以十六进制字符串形式返回 `path` 处的文件的 SHA-256 哈希值。
 - `uuid()` - 返回一个随机生成的 UUID。
+
+### 配方属性
+
+配方可以通过添加属性注释来改变其行为。
+
+| 名称                | 描述                                   |
+| ------------------- | -------------------------------------- |
+| `[no-cd]`           | 在执行配方之前不要改变目录。           |
+| `[no-exit-message]` | 如果配方执行失败，不要打印错误信息。   |
+| `[linux]`           | 在Linux上启用配方。                    |
+| `[macos]`           | 在MacOS上启用配方。                    |
+| `[unix]`            | 在Unixes上启用配方。                   |
+| `[windows]`         | 在Windows上启用配方。                  |
+
+#### 启用和禁用配方
+
+`[linux]`, `[macos]`, `[unix]` 和 `[windows]` 属性是配置属性。默认情况下，配方总是被启用。一个带有一个或多个配置属性的配方只有在其中一个或多个配置处于激活状态时才会被启用。
+
+这可以用来编写因运行的操作系统不同，其行为也不同的 `justfile`。以下 `justfile` 中的 `run` 配方将编译和运行 `main.c`，并且根据操作系统的不同而使用不同的C编译器，同时使用正确的二进制产物名称：
+
+```make
+[unix]
+run:
+  cc main.c
+  ./a.out
+
+[windows]
+run:
+  cl main.c
+  main.exe
+```
+
+#### 禁用变更目录<sup>1.9.0</sup>
+
+`just` 通常在执行配方时将当前目录设置为包含 `justfile` 的目录，你可以通过 `[no-cd]` 属性来禁用此行为。这可以用来创建使用调用目录相对路径或者对当前目录进行操作的配方。
+
+例如这个 `commit` 配方：
+
+```make
+[no-cd]
+commit file:
+  git add {{file}}
+  git commit
+```
+
+可以使用相对于当前目录的路径，因为 `[no-cd]` 可以防止 `just` 在执行 `commit` 配方时改变当前目录。
 
 ### 使用反引号的命令求值
 
@@ -1623,7 +1679,7 @@ B end!
 
 ### 用其他语言书写配方
 
-以 `#!` 开头的配方将作为脚本执行，因此你可以用其他语言编写配方：
+以 `#!` 开头的配方被称为 Shebang 配方，它通过将配方主体保存到文件中并运行它来执行。这让你可以用不同的语言来编写配方：
 
 ```make
 polyglot: python js perl sh ruby
@@ -1663,6 +1719,10 @@ Larry Wall says Hi!
 Yo from a shell script!
 Hello from ruby!
 ```
+
+在类似 Unix 的操作系统中，包括 Linux 和 MacOS，Shebang 配方的执行方式是将配方主体保存到临时目录下的一个文件中，将该文件标记为可执行文件，然后执行它。操作系统将 Shebang 行解析为一个命令行并调用它，包括文件的路径。例如，如果一个配方以 `#!/usr/bin/env bash` 开头，操作系统运行的最终命令将是 `/usr/bin/env bash /tmp/PATH_TO_SAVED_RECIPE_BODY` 之类。请记住，不同的操作系统对 Shebang 行的分割方式不同。
+
+Windows 不支持 Shebang 行。在 Windows 上，`just` 将 Shebang 行分割成命令和参数，将配方主体保存到一个文件中，并调用分割后的命令和参数，同时将保存的配方主体的路径作为最后一个参数。
 
 ### 更加安全的 Bash Shebang 配方
 
@@ -1919,6 +1979,21 @@ $ just --summary
 test
 ```
 
+`[private]` 属性<sup>master</sup>也可用于隐藏配方，而不需要改变名称：
+
+```make
+[private]
+foo:
+
+bar:
+```
+
+```sh
+$ just --list
+Available recipes:
+    bar
+```
+
 这对那些只作为其他配方的依赖使用的辅助配方很有用。
 
 ### 安静配方
@@ -1967,6 +2042,32 @@ $ just bar
 #!/usr/bin/env bash
 echo 'Bar!'
 Bar!
+```
+
+`just` 在配方行失败时通常会打印错误信息，这些错误信息可以通过 `[no-exit-message]` 属性来抑制。你可能会发现这在包装工具的配方中特别有用：
+
+```make
+git *args:
+    @git {{args}}
+```
+
+```sh
+$ just git status
+fatal: not a git repository (or any of the parent directories): .git
+error: Recipe `git` failed on line 2 with exit code 128
+```
+
+添加属性，当工具以非零代码退出时抑制退出错误信息：
+
+```make
+[no-exit-message]
+git *args:
+    @git {{args}}
+```
+
+```sh
+$ just git status
+fatal: not a git repository (or any of the parent directories): .git
 ```
 
 ### 通过交互式选择器选择要运行的配方
@@ -2048,13 +2149,14 @@ default:
 
 ### 回退到父 `justfile`
 
-如果没有找到配方，`just` 将在父目录和递归地在其上级目录里寻找 `justfile`，直到到达根目录。
+如果在 `justfile` 中没有找到配方，并且设置了 `fallback`，`just` 将在父目录及其上级目录寻找`justfile`，直到到达根目录。`just` 在找到其中的 `fallback` 设置为`false` 或未设置的 `justfile` 时将停止。
 
 这个功能目前是不稳定的，所以必须用 `--unstable` 标志启用。
 
 举个例子，假设当前目录包含这个 `justfile`：
 
 ```make
+set fallback
 foo:
   echo foo
 ```
@@ -2260,10 +2362,16 @@ export PATH := "./node_modules/.bin:" + env_var('PATH')
 
 现在并不缺少命令运行器！在这里，有一些或多或少比较类似于 `just` 的替代方案，包括：
 
-- [make](https://en.wikipedia.org/wiki/Make_(software)): 启发了 `just` 的 Unix 构建工具。
-- [makesure](https://github.com/xonixx/makesure): 一个用 AWK 和 Shell 编写的简单而便携的命令运行器。
-- [mmake](https://github.com/tj/mmake): 一个围绕 `make` 的包装器，有很多改进，包括远程引入。
+- [make](https://en.wikipedia.org/wiki/Make_(software)): 启发了 `just` 的 Unix 构建工具。最初的 `make` 有几个不同的现代后裔, 包括 [FreeBSD Make](https://www.freebsd.org/cgi/man.cgi?make(1)) 和 [GNU Make](https://www.gnu.org/software/make/)。
+- [task](https://github.com/go-task/task): 一个用 Go 编写的基于 YAML 的命令运行器。
+- [maid](https://github.com/egoist/maid): 一个用 JavaScript 编写的基于 Markdown 的命令运行器。
+- [microsoft/just](https://github.com/microsoft/just): 一个用 JavaScript 编写的基于 JavasScript 的命令运行器。
+- [cargo-make](https://github.com/sagiegurari/cargo-make): 一个用于 Rust 项目的命令运行器。
+- [mmake](https://github.com/tj/mmake): 一个针对 `make` 的包装器，有很多改进，包括远程包含。
 - [robo](https://github.com/tj/robo): 一个用 Go 编写的基于 YAML 的命令运行器。
+- [mask](https://github.com/jakedeichert/mask): 一个用 Rust 编写的基于 Markdown 的命令运行器。
+- [makesure](https://github.com/xonixx/makesure): 一个用 AWK 和 Shell 编写的简单而便携的命令运行器。
+- [haku](https://github.com/VladimirMarkelov/haku): 一个用 Rust 编写的类似 make 的命令运行器。
 
 贡献
 ------------
@@ -2279,6 +2387,23 @@ export PATH := "./node_modules/.bin:" + env_var('PATH')
 ### 最小支持的 Rust 版本
 
 最低支持的 Rust 版本，即 MSRV，是 Rust 1.47.0。
+
+### 新版本
+
+`just` 会经常发布新版本，以便用户快速获得新功能。
+
+发布的提交信息使用如下模板：
+
+```
+Release x.y.z
+
+- Bump version: x.y.z → x.y.z
+- Update changelog
+- Update changelog contributor credits
+- Update dependencies
+- Update man page
+- Update version references in readme
+```
 
 常见问题
 --------------------------
