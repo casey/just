@@ -6,7 +6,6 @@
         <title>Just 用户指南</title>
         <meta name="robots" content="noindex" />
         <!-- Custom HTML head -->
-        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff" />
@@ -29,13 +28,13 @@
     </head>
     <body>
         <!-- Provide site root to javascript -->
-        <script type="text/javascript">
+        <script>
             var path_to_root = "";
             var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
         </script>
 
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
-        <script type="text/javascript">
+        <script>
             try {
                 var theme = localStorage.getItem('mdbook-theme');
                 var sidebar = localStorage.getItem('mdbook-sidebar');
@@ -51,7 +50,7 @@
         </script>
 
         <!-- Set the theme before any content is loaded, prevents flash -->
-        <script type="text/javascript">
+        <script>
             var theme;
             try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
             if (theme === null || theme === undefined) { theme = default_theme; }
@@ -63,7 +62,7 @@
         </script>
 
         <!-- Hide / unhide sidebar before it is displayed -->
-        <script type="text/javascript">
+        <script>
             var html = document.querySelector('html');
             var sidebar = 'hidden';
             if (document.body.clientWidth >= 1080) {
@@ -76,7 +75,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="chapter_1.html"><strong aria-hidden="true">1.</strong> 说明</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="chapter_2.html"><strong aria-hidden="true">1.1.</strong> 安装</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="chapter_3.html"><strong aria-hidden="true">1.1.1.</strong> 预备知识</a></li><li class="chapter-item expanded "><a href="chapter_4.html"><strong aria-hidden="true">1.1.2.</strong> 安装包</a></li><li class="chapter-item expanded "><a href="chapter_5.html"><strong aria-hidden="true">1.1.3.</strong> 预制二进制文件</a></li><li class="chapter-item expanded "><a href="chapter_6.html"><strong aria-hidden="true">1.1.4.</strong> GitHub Actions</a></li><li class="chapter-item expanded "><a href="chapter_7.html"><strong aria-hidden="true">1.1.5.</strong> 发布 RSS 订阅</a></li><li class="chapter-item expanded "><a href="chapter_8.html"><strong aria-hidden="true">1.1.6.</strong> Node.js 安装</a></li></ol></li><li class="chapter-item expanded "><a href="chapter_9.html"><strong aria-hidden="true">1.2.</strong> 向后兼容性</a></li><li class="chapter-item expanded "><a href="chapter_10.html"><strong aria-hidden="true">1.3.</strong> 编辑器支持</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="chapter_11.html"><strong aria-hidden="true">1.3.1.</strong> Vim 和 Neovim</a></li><li class="chapter-item expanded "><a href="chapter_12.html"><strong aria-hidden="true">1.3.2.</strong> Emacs</a></li><li class="chapter-item expanded "><a href="chapter_13.html"><strong aria-hidden="true">1.3.3.</strong> Visual Studio Code</a></li><li class="chapter-item expanded "><a href="chapter_14.html"><strong aria-hidden="true">1.3.4.</strong> JetBrains IDEs</a></li><li class="chapter-item expanded "><a href="chapter_15.html"><strong aria-hidden="true">1.3.5.</strong> Kakoune</a></li><li class="chapter-item expanded "><a href="chapter_16.html"><strong aria-hidden="true">1.3.6.</strong> Sublime Text</a></li><li class="chapter-item expanded "><a href="chapter_17.html"><strong aria-hidden="true">1.3.7.</strong> 其它编辑器</a></li></ol></li><li class="chapter-item expanded "><a href="chapter_18.html"><strong aria-hidden="true">1.4.</strong> 快速开始</a></li><li class="chapter-item expanded "><a href="chapter_19.html"><strong aria-hidden="true">1.5.</strong> 示例</a></li><li class="chapter-item expanded "><a href="chapter_20.html"><strong aria-hidden="true">1.6.</strong> 特性介绍</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="chapter_21.html"><strong aria-hidden="true">1.6.1.</strong> 默认配方</a></li><li class="chapter-item expanded "><a href="chapter_22.html"><strong aria-hidden="true">1.6.2.</strong> 列出可用的配方</a></li><li class="chapter-item expanded "><a href="chapter_23.html"><strong aria-hidden="true">1.6.3.</strong> 别名</a></li><li class="chapter-item expanded "><a href="chapter_24.html"><strong aria-hidden="true">1.6.4.</strong> 设置</a></li><li class="chapter-item expanded "><a href="chapter_25.html"><strong aria-hidden="true">1.6.5.</strong> 文档注释</a></li><li class="chapter-item expanded "><a href="chapter_26.html"><strong aria-hidden="true">1.6.6.</strong> .env 集成</a></li><li class="chapter-item expanded "><a href="chapter_27.html"><strong aria-hidden="true">1.6.7.</strong> 变量和替换</a></li><li class="chapter-item expanded "><a href="chapter_28.html"><strong aria-hidden="true">1.6.8.</strong> 字符串</a></li><li class="chapter-item expanded "><a href="chapter_29.html"><strong aria-hidden="true">1.6.9.</strong> 错误忽略</a></li><li class="chapter-item expanded "><a href="chapter_30.html"><strong aria-hidden="true">1.6.10.</strong> 函数</a></li><li class="chapter-item expanded "><a href="chapter_31.html"><strong aria-hidden="true">1.6.11.</strong> 使用反引号的命令求值</a></li><li class="chapter-item expanded "><a href="chapter_32.html"><strong aria-hidden="true">1.6.12.</strong> 条件表达式</a></li><li class="chapter-item expanded "><a href="chapter_33.html"><strong aria-hidden="true">1.6.13.</strong> 出现错误停止执行</a></li><li class="chapter-item expanded "><a href="chapter_34.html"><strong aria-hidden="true">1.6.14.</strong> 从命令行设置变量</a></li><li class="chapter-item expanded "><a href="chapter_35.html"><strong aria-hidden="true">1.6.15.</strong> 获取和设置环境变量</a></li><li class="chapter-item expanded "><a href="chapter_36.html"><strong aria-hidden="true">1.6.16.</strong> 配方参数</a></li><li class="chapter-item expanded "><a href="chapter_37.html"><strong aria-hidden="true">1.6.17.</strong> 在配方的末尾运行配方</a></li><li class="chapter-item expanded "><a href="chapter_38.html"><strong aria-hidden="true">1.6.18.</strong> 在配方中间运行配方</a></li><li class="chapter-item expanded "><a href="chapter_39.html"><strong aria-hidden="true">1.6.19.</strong> 用其他语言书写配方</a></li><li class="chapter-item expanded "><a href="chapter_40.html"><strong aria-hidden="true">1.6.20.</strong> 更加安全的 Bash Shebang 配方</a></li><li class="chapter-item expanded "><a href="chapter_41.html"><strong aria-hidden="true">1.6.21.</strong> 在配方中设置变量</a></li><li class="chapter-item expanded "><a href="chapter_42.html"><strong aria-hidden="true">1.6.22.</strong> 在配方之间共享环境变量</a></li><li class="chapter-item expanded "><a href="chapter_43.html"><strong aria-hidden="true">1.6.23.</strong> 改变配方中的工作目录</a></li><li class="chapter-item expanded "><a href="chapter_44.html"><strong aria-hidden="true">1.6.24.</strong> 缩进</a></li><li class="chapter-item expanded "><a href="chapter_45.html"><strong aria-hidden="true">1.6.25.</strong> 多行结构</a></li><li class="chapter-item expanded "><a href="chapter_46.html"><strong aria-hidden="true">1.6.26.</strong> 命令行选项</a></li><li class="chapter-item expanded "><a href="chapter_47.html"><strong aria-hidden="true">1.6.27.</strong> 私有配方</a></li><li class="chapter-item expanded "><a href="chapter_48.html"><strong aria-hidden="true">1.6.28.</strong> 安静配方</a></li><li class="chapter-item expanded "><a href="chapter_49.html"><strong aria-hidden="true">1.6.29.</strong> 通过交互式选择器选择要运行的配方</a></li><li class="chapter-item expanded "><a href="chapter_50.html"><strong aria-hidden="true">1.6.30.</strong> 在其他目录下调用 justfile</a></li><li class="chapter-item expanded "><a href="chapter_51.html"><strong aria-hidden="true">1.6.31.</strong> 隐藏 justfile</a></li><li class="chapter-item expanded "><a href="chapter_52.html"><strong aria-hidden="true">1.6.32.</strong> Just 脚本</a></li><li class="chapter-item expanded "><a href="chapter_53.html"><strong aria-hidden="true">1.6.33.</strong> 将 justfile 转为JSON文件</a></li><li class="chapter-item expanded "><a href="chapter_54.html"><strong aria-hidden="true">1.6.34.</strong> 回退到父 justfile</a></li><li class="chapter-item expanded "><a href="chapter_55.html"><strong aria-hidden="true">1.6.35.</strong> 避免参数分割</a></li><li class="chapter-item expanded "><a href="chapter_56.html"><strong aria-hidden="true">1.6.36.</strong> 配置 Shell</a></li></ol></li><li class="chapter-item expanded "><a href="chapter_57.html"><strong aria-hidden="true">1.7.</strong> 更新日志</a></li><li class="chapter-item expanded "><a href="chapter_58.html"><strong aria-hidden="true">1.8.</strong> 杂项</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="chapter_59.html"><strong aria-hidden="true">1.8.1.</strong> 配套工具</a></li><li class="chapter-item expanded "><a href="chapter_60.html"><strong aria-hidden="true">1.8.2.</strong> Shell 别名</a></li><li class="chapter-item expanded "><a href="chapter_61.html"><strong aria-hidden="true">1.8.3.</strong> Shell 自动补全脚本</a></li><li class="chapter-item expanded "><a href="chapter_62.html"><strong aria-hidden="true">1.8.4.</strong> 语法</a></li><li class="chapter-item expanded "><a href="chapter_63.html"><strong aria-hidden="true">1.8.5.</strong> just.sh</a></li><li class="chapter-item expanded "><a href="chapter_64.html"><strong aria-hidden="true">1.8.6.</strong> 用户 justfile</a></li><li class="chapter-item expanded "><a href="chapter_65.html"><strong aria-hidden="true">1.8.7.</strong> Node.js package.json 脚本兼容性</a></li><li class="chapter-item expanded "><a href="chapter_66.html"><strong aria-hidden="true">1.8.8.</strong> 替代方案</a></li></ol></li><li class="chapter-item expanded "><a href="chapter_67.html"><strong aria-hidden="true">1.9.</strong> 贡献</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="chapter_68.html"><strong aria-hidden="true">1.9.1.</strong> Janus</a></li><li class="chapter-item expanded "><a href="chapter_69.html"><strong aria-hidden="true">1.9.2.</strong> 最小支持的 Rust 版本</a></li></ol></li><li class="chapter-item expanded "><a href="chapter_70.html"><strong aria-hidden="true">1.10.</strong> 常见问题</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="chapter_71.html"><strong aria-hidden="true">1.10.1.</strong> Just 避免了 Make 的哪些特异性？</a></li><li class="chapter-item expanded "><a href="chapter_72.html"><strong aria-hidden="true">1.10.2.</strong> Just 和 Cargo 构建脚本之间有什么关系？</a></li></ol></li><li class="chapter-item expanded "><a href="chapter_73.html"><strong aria-hidden="true">1.11.</strong> 进一步漫谈</a></li></ol></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="chapter_1.html"><strong aria-hidden="true">1.</strong> 说明</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="chapter_2.html"><strong aria-hidden="true">1.1.</strong> 安装</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="chapter_3.html"><strong aria-hidden="true">1.1.1.</strong> 预备知识</a></li><li class="chapter-item expanded "><a href="chapter_4.html"><strong aria-hidden="true">1.1.2.</strong> 安装包</a></li><li class="chapter-item expanded "><a href="chapter_5.html"><strong aria-hidden="true">1.1.3.</strong> 预制二进制文件</a></li><li class="chapter-item expanded "><a href="chapter_6.html"><strong aria-hidden="true">1.1.4.</strong> GitHub Actions</a></li><li class="chapter-item expanded "><a href="chapter_7.html"><strong aria-hidden="true">1.1.5.</strong> 发布 RSS 订阅</a></li><li class="chapter-item expanded "><a href="chapter_8.html"><strong aria-hidden="true">1.1.6.</strong> Node.js 安装</a></li></ol></li><li class="chapter-item expanded "><a href="chapter_9.html"><strong aria-hidden="true">1.2.</strong> 向后兼容性</a></li><li class="chapter-item expanded "><a href="chapter_10.html"><strong aria-hidden="true">1.3.</strong> 编辑器支持</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="chapter_11.html"><strong aria-hidden="true">1.3.1.</strong> Vim 和 Neovim</a></li><li class="chapter-item expanded "><a href="chapter_12.html"><strong aria-hidden="true">1.3.2.</strong> Emacs</a></li><li class="chapter-item expanded "><a href="chapter_13.html"><strong aria-hidden="true">1.3.3.</strong> Visual Studio Code</a></li><li class="chapter-item expanded "><a href="chapter_14.html"><strong aria-hidden="true">1.3.4.</strong> JetBrains IDEs</a></li><li class="chapter-item expanded "><a href="chapter_15.html"><strong aria-hidden="true">1.3.5.</strong> Kakoune</a></li><li class="chapter-item expanded "><a href="chapter_16.html"><strong aria-hidden="true">1.3.6.</strong> Sublime Text</a></li><li class="chapter-item expanded "><a href="chapter_17.html"><strong aria-hidden="true">1.3.7.</strong> 其它编辑器</a></li></ol></li><li class="chapter-item expanded "><a href="chapter_18.html"><strong aria-hidden="true">1.4.</strong> 快速开始</a></li><li class="chapter-item expanded "><a href="chapter_19.html"><strong aria-hidden="true">1.5.</strong> 示例</a></li><li class="chapter-item expanded "><a href="chapter_20.html"><strong aria-hidden="true">1.6.</strong> 特性介绍</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="chapter_21.html"><strong aria-hidden="true">1.6.1.</strong> 默认配方</a></li><li class="chapter-item expanded "><a href="chapter_22.html"><strong aria-hidden="true">1.6.2.</strong> 列出可用的配方</a></li><li class="chapter-item expanded "><a href="chapter_23.html"><strong aria-hidden="true">1.6.3.</strong> 别名</a></li><li class="chapter-item expanded "><a href="chapter_24.html"><strong aria-hidden="true">1.6.4.</strong> 设置</a></li><li class="chapter-item expanded "><a href="chapter_25.html"><strong aria-hidden="true">1.6.5.</strong> 文档注释</a></li><li class="chapter-item expanded "><a href="chapter_26.html"><strong aria-hidden="true">1.6.6.</strong> .env 集成</a></li><li class="chapter-item expanded "><a href="chapter_27.html"><strong aria-hidden="true">1.6.7.</strong> 变量和替换</a></li><li class="chapter-item expanded "><a href="chapter_28.html"><strong aria-hidden="true">1.6.8.</strong> 字符串</a></li><li class="chapter-item expanded "><a href="chapter_29.html"><strong aria-hidden="true">1.6.9.</strong> 错误忽略</a></li><li class="chapter-item expanded "><a href="chapter_30.html"><strong aria-hidden="true">1.6.10.</strong> 函数</a></li><li class="chapter-item expanded "><a href="chapter_31.html"><strong aria-hidden="true">1.6.11.</strong> 配方属性</a></li><li class="chapter-item expanded "><a href="chapter_32.html"><strong aria-hidden="true">1.6.12.</strong> 使用反引号的命令求值</a></li><li class="chapter-item expanded "><a href="chapter_33.html"><strong aria-hidden="true">1.6.13.</strong> 条件表达式</a></li><li class="chapter-item expanded "><a href="chapter_34.html"><strong aria-hidden="true">1.6.14.</strong> 出现错误停止执行</a></li><li class="chapter-item expanded "><a href="chapter_35.html"><strong aria-hidden="true">1.6.15.</strong> 从命令行设置变量</a></li><li class="chapter-item expanded "><a href="chapter_36.html"><strong aria-hidden="true">1.6.16.</strong> 获取和设置环境变量</a></li><li class="chapter-item expanded "><a href="chapter_37.html"><strong aria-hidden="true">1.6.17.</strong> 配方参数</a></li><li class="chapter-item expanded "><a href="chapter_38.html"><strong aria-hidden="true">1.6.18.</strong> 在配方的末尾运行配方</a></li><li class="chapter-item expanded "><a href="chapter_39.html"><strong aria-hidden="true">1.6.19.</strong> 在配方中间运行配方</a></li><li class="chapter-item expanded "><a href="chapter_40.html"><strong aria-hidden="true">1.6.20.</strong> 用其他语言书写配方</a></li><li class="chapter-item expanded "><a href="chapter_41.html"><strong aria-hidden="true">1.6.21.</strong> 更加安全的 Bash Shebang 配方</a></li><li class="chapter-item expanded "><a href="chapter_42.html"><strong aria-hidden="true">1.6.22.</strong> 在配方中设置变量</a></li><li class="chapter-item expanded "><a href="chapter_43.html"><strong aria-hidden="true">1.6.23.</strong> 在配方之间共享环境变量</a></li><li class="chapter-item expanded "><a href="chapter_44.html"><strong aria-hidden="true">1.6.24.</strong> 改变配方中的工作目录</a></li><li class="chapter-item expanded "><a href="chapter_45.html"><strong aria-hidden="true">1.6.25.</strong> 缩进</a></li><li class="chapter-item expanded "><a href="chapter_46.html"><strong aria-hidden="true">1.6.26.</strong> 多行结构</a></li><li class="chapter-item expanded "><a href="chapter_47.html"><strong aria-hidden="true">1.6.27.</strong> 命令行选项</a></li><li class="chapter-item expanded "><a href="chapter_48.html"><strong aria-hidden="true">1.6.28.</strong> 私有配方</a></li><li class="chapter-item expanded "><a href="chapter_49.html"><strong aria-hidden="true">1.6.29.</strong> 安静配方</a></li><li class="chapter-item expanded "><a href="chapter_50.html"><strong aria-hidden="true">1.6.30.</strong> 通过交互式选择器选择要运行的配方</a></li><li class="chapter-item expanded "><a href="chapter_51.html"><strong aria-hidden="true">1.6.31.</strong> 在其他目录下调用 justfile</a></li><li class="chapter-item expanded "><a href="chapter_52.html"><strong aria-hidden="true">1.6.32.</strong> 隐藏 justfile</a></li><li class="chapter-item expanded "><a href="chapter_53.html"><strong aria-hidden="true">1.6.33.</strong> Just 脚本</a></li><li class="chapter-item expanded "><a href="chapter_54.html"><strong aria-hidden="true">1.6.34.</strong> 将 justfile 转为JSON文件</a></li><li class="chapter-item expanded "><a href="chapter_55.html"><strong aria-hidden="true">1.6.35.</strong> 回退到父 justfile</a></li><li class="chapter-item expanded "><a href="chapter_56.html"><strong aria-hidden="true">1.6.36.</strong> 避免参数分割</a></li><li class="chapter-item expanded "><a href="chapter_57.html"><strong aria-hidden="true">1.6.37.</strong> 配置 Shell</a></li></ol></li><li class="chapter-item expanded "><a href="chapter_58.html"><strong aria-hidden="true">1.7.</strong> 更新日志</a></li><li class="chapter-item expanded "><a href="chapter_59.html"><strong aria-hidden="true">1.8.</strong> 杂项</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="chapter_60.html"><strong aria-hidden="true">1.8.1.</strong> 配套工具</a></li><li class="chapter-item expanded "><a href="chapter_61.html"><strong aria-hidden="true">1.8.2.</strong> Shell 别名</a></li><li class="chapter-item expanded "><a href="chapter_62.html"><strong aria-hidden="true">1.8.3.</strong> Shell 自动补全脚本</a></li><li class="chapter-item expanded "><a href="chapter_63.html"><strong aria-hidden="true">1.8.4.</strong> 语法</a></li><li class="chapter-item expanded "><a href="chapter_64.html"><strong aria-hidden="true">1.8.5.</strong> just.sh</a></li><li class="chapter-item expanded "><a href="chapter_65.html"><strong aria-hidden="true">1.8.6.</strong> 用户 justfile</a></li><li class="chapter-item expanded "><a href="chapter_66.html"><strong aria-hidden="true">1.8.7.</strong> Node.js package.json 脚本兼容性</a></li><li class="chapter-item expanded "><a href="chapter_67.html"><strong aria-hidden="true">1.8.8.</strong> 替代方案</a></li></ol></li><li class="chapter-item expanded "><a href="chapter_68.html"><strong aria-hidden="true">1.9.</strong> 贡献</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="chapter_69.html"><strong aria-hidden="true">1.9.1.</strong> Janus</a></li><li class="chapter-item expanded "><a href="chapter_70.html"><strong aria-hidden="true">1.9.2.</strong> 最小支持的 Rust 版本</a></li><li class="chapter-item expanded "><a href="chapter_71.html"><strong aria-hidden="true">1.9.3.</strong> 新版本</a></li></ol></li><li class="chapter-item expanded "><a href="chapter_72.html"><strong aria-hidden="true">1.10.</strong> 常见问题</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="chapter_73.html"><strong aria-hidden="true">1.10.1.</strong> Just 避免了 Make 的哪些特异性？</a></li><li class="chapter-item expanded "><a href="chapter_74.html"><strong aria-hidden="true">1.10.2.</strong> Just 和 Cargo 构建脚本之间有什么关系？</a></li></ol></li><li class="chapter-item expanded "><a href="chapter_75.html"><strong aria-hidden="true">1.11.</strong> 进一步漫谈</a></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -94,7 +93,7 @@
                             <i class="fa fa-paint-brush"></i>
                         </button>
                         <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
-                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
@@ -128,7 +127,7 @@
                     </div>
                 </div>
                 <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
-                <script type="text/javascript">
+                <script>
                     document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
                     document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
                     Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
@@ -170,7 +169,7 @@ Yay, all your tests passed!
 <p><code>just</code> 有很多很棒的特性，而且相比 <code>make</code> 有很多改进：</p>
 <ul>
 <li>
-<p><code>just</code> 是一个命令运行器，而不是一个构建系统，所以它避免了许多 <a href="chapter_71.html"><code>make</code> 的复杂性和特异性</a>。不需要 <code>.PHONY</code> 配方!</p>
+<p><code>just</code> 是一个命令运行器，而不是一个构建系统，所以它避免了许多 <a href="chapter_73.html"><code>make</code> 的复杂性和特异性</a>。不需要 <code>.PHONY</code> 配方!</p>
 </li>
 <li>
 <p>支持 Linux、MacOS 和 Windows，而且无需额外的依赖。(尽管如果你的系统没有 <code>sh</code>，你需要 <a href="chapter_24.html#shell">选择一个不同的 Shell</a>)。</p>
@@ -179,7 +178,7 @@ Yay, all your tests passed!
 <p>错误具体且富有参考价值，语法错误将会与产生它们的上下文一起被报告。</p>
 </li>
 <li>
-<p>配方可以接受 <a href="chapter_36.html">命令行参数</a>。</p>
+<p>配方可以接受 <a href="chapter_37.html">命令行参数</a>。</p>
 </li>
 <li>
 <p>错误会尽可能被静态地解决。未知的配方和循环依赖关系会在运行之前被报告。</p>
@@ -191,10 +190,10 @@ Yay, all your tests passed!
 <p>配方可以在 <a href="chapter_22.html">命令行中列出</a>。</p>
 </li>
 <li>
-<p>命令行自动补全脚本 <a href="chapter_61.html">支持大多数流行的 Shell</a>。</p>
+<p>命令行自动补全脚本 <a href="chapter_62.html">支持大多数流行的 Shell</a>。</p>
 </li>
 <li>
-<p>配方可以用 <a href="chapter_39.html">任意语言</a> 编写，如 Python 或 NodeJS。</p>
+<p>配方可以用 <a href="chapter_40.html">任意语言</a> 编写，如 Python 或 NodeJS。</p>
 </li>
 <li>
 <p><code>just</code> 可以从任何子目录中调用，而不仅仅是包含 <code>justfile</code> 的目录。</p>
@@ -447,10 +446,11 @@ augroup END
 # End:
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="visual-studio-code"><a class="header" href="#visual-studio-code">Visual Studio Code</a></h3>
-<p>由 <a href="https://github.com/skellock">skellock</a> 为 VS Code 提供的扩展 <a href="https://marketplace.visualstudio.com/items?itemName=skellock.just">可在此获得</a>（<a href="https://github.com/skellock/vscode-just">仓库</a>）。</p>
+<p>由 <a href="https://github.com/skellock">skellock</a> 为 VS Code 提供的扩展 <a href="https://marketplace.visualstudio.com/items?itemName=skellock.just">可在此获得</a>（<a href="https://github.com/skellock/vscode-just">仓库</a>），但是开发已经不活跃了。</p>
 <p>你可以通过运行以下命令来安装它：</p>
 <pre><code class="language-sh">code --install-extension skellock.just
 </code></pre>
+<p>最近由 <a href="https://github.com/sclu1034">sclu1034</a> 提供的一个更活跃的分叉可以在 <a href="https://github.com/sclu1034/vscode-just">这里</a> 找到。</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="jetbrains-ides"><a class="header" href="#jetbrains-ides">JetBrains IDEs</a></h3>
 <p>由 <a href="https://github.com/linux-china">linux_china</a> 为 JetBrains IDEs 提供的插件可 <a href="https://plugins.jetbrains.com/plugin/18658-just">由此获得</a>。</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="kakoune"><a class="header" href="#kakoune">Kakoune</a></h3>
@@ -610,14 +610,17 @@ foo:
   ls **/*.txt
 </code></pre>
 <h4 id="设置一览表"><a class="header" href="#设置一览表">设置一览表</a></h4>
-<div class="table-wrapper"><table><thead><tr><th>名称</th><th>值</th><th>描述</th></tr></thead><tbody>
-<tr><td><code>allow-duplicate-recipes</code></td><td>boolean</td><td>允许在 <code>justfile</code> 后面出现的配方覆盖之前的同名配方</td></tr>
-<tr><td><code>dotenv-load</code></td><td>boolean</td><td>加载 <code>.env</code> 环境变量文件, 如果有的话</td></tr>
-<tr><td><code>export</code></td><td>boolean</td><td>将所有变量导出为环境变量</td></tr>
-<tr><td><code>positional-arguments</code></td><td>boolean</td><td>传递位置参数</td></tr>
-<tr><td><code>shell</code></td><td><code>[COMMAND, ARGS…]</code></td><td>设置用于调用配方和评估反引号内包裹内容的命令</td></tr>
-<tr><td><code>windows-shell</code></td><td><code>[COMMAND, ARGS…]</code></td><td>设置用于调用配方和评估反引号内包裹内容的命令。</td></tr>
-<tr><td><code>windows-powershell</code></td><td>boolean</td><td>在 Windows 上使用 PowerShell 作为默认 Shell(废弃，建议使用 <code>windows-shell</code>)</td></tr>
+<div class="table-wrapper"><table><thead><tr><th>名称</th><th>值</th><th>默认</th><th>描述</th></tr></thead><tbody>
+<tr><td><code>allow-duplicate-recipes</code></td><td>boolean</td><td>False</td><td>允许在 <code>justfile</code> 后面出现的配方覆盖之前的同名配方</td></tr>
+<tr><td><code>dotenv-load</code></td><td>boolean</td><td>False</td><td>如果有<code>.env</code> 环境变量文件的话，则将其加载</td></tr>
+<tr><td><code>export</code></td><td>boolean</td><td>False</td><td>将所有变量导出为环境变量</td></tr>
+<tr><td><code>fallback</code></td><td>boolean</td><td>False</td><td>如果命令行中的第一个配方没有找到，则在父目录中搜索 <code>justfile</code></td></tr>
+<tr><td><code>ignore-comments</code></td><td>boolean</td><td>False</td><td>忽略以<code>#</code>开头的配方行</td></tr>
+<tr><td><code>positional-arguments</code></td><td>boolean</td><td>False</td><td>传递位置参数</td></tr>
+<tr><td><code>shell</code></td><td><code>[COMMAND, ARGS…]</code></td><td>-</td><td>设置用于调用配方和评估反引号内包裹内容的命令</td></tr>
+<tr><td><code>tempdir</code></td><td>string</td><td>-</td><td>在 <code>tempdir</code> 位置创建临时目录，而不是系统默认的临时目录</td></tr>
+<tr><td><code>windows-powershell</code></td><td>boolean</td><td>False</td><td>在 Windows 上使用 PowerShell 作为默认 Shell(废弃，建议使用 <code>windows-shell</code>)</td></tr>
+<tr><td><code>windows-shell</code></td><td><code>[COMMAND, ARGS…]</code></td><td>-</td><td>设置用于调用配方和评估反引号内包裹内容的命令</td></tr>
 </tbody></table>
 </div>
 <p>Bool 类型设置可以写成：</p>
@@ -696,7 +699,7 @@ foo:
 <p><code>just</code> 把要执行的命令作为一个参数进行传递。许多 Shell 需要一个额外的标志，通常是 <code>-c</code>，以使它们评估执行第一个参数。</p>
 <h5 id="windows-shell"><a class="header" href="#windows-shell">Windows Shell</a></h5>
 <p><code>just</code> 在 Windows 上默认使用 <code>sh</code>。要在 Windows 上使用不同的 Shell，请使用<code>windows-shell</code>：</p>
-<pre><code class="language-make">set windows-shell := [&quot;pwsh.exe&quot;, &quot;-NoLogo&quot;, &quot;-Command&quot;]
+<pre><code class="language-make">set windows-shell := [&quot;powershell.exe&quot;, &quot;-NoLogo&quot;, &quot;-Command&quot;]
 
 hello:
   Write-Host &quot;Hello, world!&quot;
@@ -792,6 +795,12 @@ bar := foo / &quot;b&quot;
 <pre><code>$ just --evaluate bar
 a//b
 </code></pre>
+<p>也可以构建绝对路径<sup>1.5.0</sup>:</p>
+<pre><code class="language-make">foo := / &quot;b&quot;
+</code></pre>
+<pre><code>$ just --evaluate foo
+/b
+</code></pre>
 <p><code>/</code> 操作符使用 <code>/</code> 字符，即使在 Windows 上也是如此。因此，在使用通用命名规则（UNC）的路径中应避免使用 <code>/</code> 操作符，即那些以 <code>\?</code> 开头的路径，因为 UNC 路径不支持正斜线。</p>
 <h4 id="转义-"><a class="header" href="#转义-">转义 <code>{{</code></a></h4>
 <p>想要写一个包含  <code>{{</code> 的配方，可以使用 <code>{{{{</code>：</p>
@@ -872,15 +881,9 @@ Done!
 <p><code>just</code> 提供了一些内置函数，在编写配方时可能很有用。</p>
 <h4 id="系统信息"><a class="header" href="#系统信息">系统信息</a></h4>
 <ul>
-<li>
-<p><code>arch()</code> — 指令集结构。可能的值是：<code>&quot;aarch64&quot;</code>, <code>&quot;arm&quot;</code>, <code>&quot;asmjs&quot;</code>, <code>&quot;hexagon&quot;</code>, <code>&quot;mips&quot;</code>, <code>&quot;msp430&quot;</code>, <code>&quot;powerpc&quot;</code>, <code>&quot;powerpc64&quot;</code>, <code>&quot;s390x&quot;</code>, <code>&quot;sparc&quot;</code>, <code>&quot;wasm32&quot;</code>, <code>&quot;x86&quot;</code>, <code>&quot;x86_64&quot;</code>, 和 <code>&quot;xcore&quot;</code>。</p>
-</li>
-<li>
-<p><code>os()</code> — 操作系统，可能的值是: <code>&quot;android&quot;</code>, <code>&quot;bitrig&quot;</code>, <code>&quot;dragonfly&quot;</code>, <code>&quot;emscripten&quot;</code>, <code>&quot;freebsd&quot;</code>, <code>&quot;haiku&quot;</code>, <code>&quot;ios&quot;</code>, <code>&quot;linux&quot;</code>, <code>&quot;macos&quot;</code>, <code>&quot;netbsd&quot;</code>, <code>&quot;openbsd&quot;</code>, <code>&quot;solaris&quot;</code>, 和 <code>&quot;windows&quot;</code>。</p>
-</li>
-<li>
-<p><code>os_family()</code> — 操作系统系列；可能的值是：<code>&quot;unix&quot;</code> 和 <code>&quot;windows&quot;</code>。</p>
-</li>
+<li><code>arch()</code> — 指令集结构。可能的值是：<code>&quot;aarch64&quot;</code>, <code>&quot;arm&quot;</code>, <code>&quot;asmjs&quot;</code>, <code>&quot;hexagon&quot;</code>, <code>&quot;mips&quot;</code>, <code>&quot;msp430&quot;</code>, <code>&quot;powerpc&quot;</code>, <code>&quot;powerpc64&quot;</code>, <code>&quot;s390x&quot;</code>, <code>&quot;sparc&quot;</code>, <code>&quot;wasm32&quot;</code>, <code>&quot;x86&quot;</code>, <code>&quot;x86_64&quot;</code>, 和 <code>&quot;xcore&quot;</code>。</li>
+<li><code>os()</code> — 操作系统，可能的值是: <code>&quot;android&quot;</code>, <code>&quot;bitrig&quot;</code>, <code>&quot;dragonfly&quot;</code>, <code>&quot;emscripten&quot;</code>, <code>&quot;freebsd&quot;</code>, <code>&quot;haiku&quot;</code>, <code>&quot;ios&quot;</code>, <code>&quot;linux&quot;</code>, <code>&quot;macos&quot;</code>, <code>&quot;netbsd&quot;</code>, <code>&quot;openbsd&quot;</code>, <code>&quot;solaris&quot;</code>, 和 <code>&quot;windows&quot;</code>。</li>
+<li><code>os_family()</code> — 操作系统系列；可能的值是：<code>&quot;unix&quot;</code> 和 <code>&quot;windows&quot;</code>。</li>
 </ul>
 <p>例如：</p>
 <pre><code class="language-make">system-info:
@@ -943,71 +946,45 @@ The executable is at: /bin/just
 </code></pre>
 <h4 id="字符串处理"><a class="header" href="#字符串处理">字符串处理</a></h4>
 <ul>
-<li>
-<p><code>lowercase(s)</code> - 将 <code>s</code> 转换为小写形式。</p>
-</li>
-<li>
-<p><code>quote(s)</code> - 用 <code>'\''</code> 替换所有的单引号，并在 <code>s</code> 的首尾添加单引号。这足以为许多 Shell 转义特殊字符，包括大多数 Bourne Shell 的后代。</p>
-</li>
-<li>
-<p><code>replace(s, from, to)</code> - 将 <code>s</code> 中的所有 <code>from</code> 替换为 <code>to</code>。</p>
-</li>
-<li>
-<p><code>trim(s)</code> - 去掉 <code>s</code> 的首尾空格。</p>
-</li>
-<li>
-<p><code>trim_end(s)</code> - 去掉 <code>s</code> 的尾部空格。</p>
-</li>
-<li>
-<p><code>trim_end_match(s, pat)</code> - 删除与 <code>pat</code> 匹配的 <code>s</code> 的后缀。</p>
-</li>
-<li>
-<p><code>trim_end_matches(s, pat)</code> - 反复删除与 <code>pat</code> 匹配的 <code>s</code> 的后缀。</p>
-</li>
-<li>
-<p><code>trim_start(s)</code> - 去掉 <code>s</code> 的首部空格。</p>
-</li>
-<li>
-<p><code>trim_start_match(s, pat)</code> - 删除与 <code>pat</code> 匹配的 <code>s</code> 的前缀。</p>
-</li>
-<li>
-<p><code>trim_start_matches(s, pat)</code> - 反复删除与 <code>pat</code> 匹配的 <code>s</code> 的前缀。</p>
-</li>
-<li>
-<p><code>uppercase(s)</code> - 将 <code>s</code> 转换为大写形式。</p>
-</li>
+<li><code>quote(s)</code> - 用 <code>'\''</code> 替换所有的单引号，并在 <code>s</code> 的首尾添加单引号。这足以为许多 Shell 转义特殊字符，包括大多数 Bourne Shell 的后代。</li>
+<li><code>replace(s, from, to)</code> - 将 <code>s</code> 中的所有 <code>from</code> 替换为 <code>to</code>。</li>
+<li><code>replace_regex(s, regex, replacement)</code> - 将 <code>s</code> 中所有的 <code>regex</code> 替换为 <code>replacement</code>。</li>
+<li><code>trim(s)</code> - 去掉 <code>s</code> 的首尾空格。</li>
+<li><code>trim_end(s)</code> - 去掉 <code>s</code> 的尾部空格。</li>
+<li><code>trim_end_match(s, pat)</code> - 删除与 <code>pat</code> 匹配的 <code>s</code> 的后缀。</li>
+<li><code>trim_end_matches(s, pat)</code> - 反复删除与 <code>pat</code> 匹配的 <code>s</code> 的后缀。</li>
+<li><code>trim_start(s)</code> - 去掉 <code>s</code> 的首部空格。</li>
+<li><code>trim_start_match(s, pat)</code> - 删除与 <code>pat</code> 匹配的 <code>s</code> 的前缀。</li>
+<li><code>trim_start_matches(s, pat)</code> - 反复删除与 <code>pat</code> 匹配的 <code>s</code> 的前缀。</li>
+</ul>
+<h4 id="大小写转换"><a class="header" href="#大小写转换">大小写转换</a></h4>
+<ul>
+<li><code>capitalize(s)</code><sup>1.7.0</sup> - 将 <code>s</code> 的第一个字符转换成大写字母，其余的转换成小写字母。</li>
+<li><code>kebabcase(s)</code><sup>1.7.0</sup> - 将 <code>s</code> 转换为 <code>kebab-case</code>。</li>
+<li><code>lowercamelcase(s)</code><sup>1.7.0</sup> - 将 <code>s</code> 转换为小驼峰形式：<code>lowerCamelCase</code>。</li>
+<li><code>lowercase(s)</code> - 将 <code>s</code> 转换为全小写形式。</li>
+<li><code>shoutykebabcase(s)</code><sup>1.7.0</sup> - 将 <code>s</code> 转换为 <code>SHOUTY-KEBAB-CASE</code>。</li>
+<li><code>shoutysnakecase(s)</code><sup>1.7.0</sup> - 将 <code>s</code> 转换为 <code>SHOUTY_SNAKE_CASE</code>。</li>
+<li><code>snakecase(s)</code><sup>1.7.0</sup> - 将 <code>s</code> 转换为 <code>snake_case</code>。</li>
+<li><code>titlecase(s)</code><sup>1.7.0</sup> - 将 <code>s</code> 转换为 <code>Title Case</code>。</li>
+<li><code>uppercamelcase(s)</code><sup>1.7.0</sup> - 将 <code>s</code> 转换为 <code>UpperCamelCase</code>。</li>
+<li><code>uppercase(s)</code> - 将 <code>s</code> 转换为大写形式。</li>
 </ul>
 <h4 id="路径操作"><a class="header" href="#路径操作">路径操作</a></h4>
 <h5 id="非可靠的"><a class="header" href="#非可靠的">非可靠的</a></h5>
 <ul>
-<li>
-<p><code>absolute_path(path)</code> - 将当前工作目录中到相对路径 <code>path</code> 的路径转换为绝对路径。在 <code>/foo</code> 目录通过 <code>absolute_path(&quot;./bar.txt&quot;)</code> 可以得到 <code>/foo/bar.txt</code>。</p>
-</li>
-<li>
-<p><code>extension(path)</code> - 获取 <code>path</code> 的扩展名。<code>extension(&quot;/foo/bar.txt&quot;)</code> 结果为 <code>txt</code>。</p>
-</li>
-<li>
-<p><code>file_name(path)</code> - 获取 <code>path</code> 的文件名，去掉任何前面的目录部分。<code>file_name(&quot;/foo/bar.txt&quot;)</code> 的结果为 <code>bar.txt</code>。</p>
-</li>
-<li>
-<p><code>file_stem(path)</code> - 获取 <code>path</code> 的文件名，不含扩展名。<code>file_stem(&quot;/foo/bar.txt&quot;)</code> 的结果为 <code>bar</code>。</p>
-</li>
-<li>
-<p><code>parent_directory(path)</code> - 获取 <code>path</code> 的父目录。<code>parent_directory(&quot;/foo/bar.txt&quot;)</code> 的结果为 <code>/foo</code>。</p>
-</li>
-<li>
-<p><code>without_extension(path)</code> - 获取 <code>path</code> 不含扩展名部分。<code>without_extension(&quot;/foo/bar.txt&quot;)</code> 的结果为 <code>/foo/bar</code>。</p>
-</li>
+<li><code>absolute_path(path)</code> - 将当前工作目录中到相对路径 <code>path</code> 的路径转换为绝对路径。在 <code>/foo</code> 目录通过 <code>absolute_path(&quot;./bar.txt&quot;)</code> 可以得到 <code>/foo/bar.txt</code>。</li>
+<li><code>extension(path)</code> - 获取 <code>path</code> 的扩展名。<code>extension(&quot;/foo/bar.txt&quot;)</code> 结果为 <code>txt</code>。</li>
+<li><code>file_name(path)</code> - 获取 <code>path</code> 的文件名，去掉任何前面的目录部分。<code>file_name(&quot;/foo/bar.txt&quot;)</code> 的结果为 <code>bar.txt</code>。</li>
+<li><code>file_stem(path)</code> - 获取 <code>path</code> 的文件名，不含扩展名。<code>file_stem(&quot;/foo/bar.txt&quot;)</code> 的结果为 <code>bar</code>。</li>
+<li><code>parent_directory(path)</code> - 获取 <code>path</code> 的父目录。<code>parent_directory(&quot;/foo/bar.txt&quot;)</code> 的结果为 <code>/foo</code>。</li>
+<li><code>without_extension(path)</code> - 获取 <code>path</code> 不含扩展名部分。<code>without_extension(&quot;/foo/bar.txt&quot;)</code> 的结果为 <code>/foo/bar</code>。</li>
 </ul>
 <p>这些函数可能会失败，例如，如果一个路径没有扩展名，则将停止执行。</p>
 <h5 id="可靠的"><a class="header" href="#可靠的">可靠的</a></h5>
 <ul>
-<li>
-<p><code>join(a, b…)</code> - <em>这个函数在 Unix 上使用 <code>/</code>，在 Windows 上使用 <code>\</code>，这可能会导致非预期的行为。<code>/</code> 操作符，例如，<code>a / b</code>，总是使用 <code>/</code>，应该被考虑作为替代，除非在 Windows 上特别指定需要 <code>\</code>。</em> 将路径 <code>a</code> 和 路径 <code>b</code> 拼接在一起。<code>join(&quot;foo/bar&quot;, &quot;baz&quot;)</code> 结果为 <code>foo/bar/baz</code>。它接受两个或多个参数。</p>
-</li>
-<li>
-<p><code>clean(path)</code> - 通过删除多余的路径分隔符、中间的 <code>.</code> 和 <code>..</code> 来简化 <code>path</code>。<code>clean(&quot;foo//bar&quot;)</code> 结果为 <code>foo/bar</code>，<code>clean(&quot;foo/..&quot;)</code> 为 <code>.</code>，<code>clean(&quot;foo/./bar&quot;)</code> 结果为 <code>foo/bar</code>。</p>
-</li>
+<li><code>clean(path)</code> - 通过删除多余的路径分隔符、中间的 <code>.</code> 和 <code>..</code> 来简化 <code>path</code>。<code>clean(&quot;foo//bar&quot;)</code> 结果为 <code>foo/bar</code>，<code>clean(&quot;foo/..&quot;)</code> 为 <code>.</code>，<code>clean(&quot;foo/./bar&quot;)</code> 结果为 <code>foo/bar</code>。</li>
+<li><code>join(a, b…)</code> - <em>这个函数在 Unix 上使用 <code>/</code>，在 Windows 上使用 <code>\</code>，这可能会导致非预期的行为。<code>/</code> 操作符，例如，<code>a / b</code>，总是使用 <code>/</code>，应该被考虑作为替代，除非在 Windows 上特别指定需要 <code>\</code>。</em> 将路径 <code>a</code> 和 路径 <code>b</code> 拼接在一起。<code>join(&quot;foo/bar&quot;, &quot;baz&quot;)</code> 结果为 <code>foo/bar/baz</code>。它接受两个或多个参数。</li>
 </ul>
 <h4 id="文件系统访问"><a class="header" href="#文件系统访问">文件系统访问</a></h4>
 <ul>
@@ -1023,6 +1000,39 @@ The executable is at: /bin/just
 <li><code>sha256_file(path)</code> - 以十六进制字符串形式返回 <code>path</code> 处的文件的 SHA-256 哈希值。</li>
 <li><code>uuid()</code> - 返回一个随机生成的 UUID。</li>
 </ul>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="配方属性"><a class="header" href="#配方属性">配方属性</a></h3>
+<p>配方可以通过添加属性注释来改变其行为。</p>
+<div class="table-wrapper"><table><thead><tr><th>名称</th><th>描述</th></tr></thead><tbody>
+<tr><td><code>[no-cd]</code></td><td>在执行配方之前不要改变目录。</td></tr>
+<tr><td><code>[no-exit-message]</code></td><td>如果配方执行失败，不要打印错误信息。</td></tr>
+<tr><td><code>[linux]</code></td><td>在Linux上启用配方。</td></tr>
+<tr><td><code>[macos]</code></td><td>在MacOS上启用配方。</td></tr>
+<tr><td><code>[unix]</code></td><td>在Unixes上启用配方。</td></tr>
+<tr><td><code>[windows]</code></td><td>在Windows上启用配方。</td></tr>
+</tbody></table>
+</div>
+<h4 id="启用和禁用配方"><a class="header" href="#启用和禁用配方">启用和禁用配方</a></h4>
+<p><code>[linux]</code>, <code>[macos]</code>, <code>[unix]</code> 和 <code>[windows]</code> 属性是配置属性。默认情况下，配方总是被启用。一个带有一个或多个配置属性的配方只有在其中一个或多个配置处于激活状态时才会被启用。</p>
+<p>这可以用来编写因运行的操作系统不同，其行为也不同的 <code>justfile</code>。以下 <code>justfile</code> 中的 <code>run</code> 配方将编译和运行 <code>main.c</code>，并且根据操作系统的不同而使用不同的C编译器，同时使用正确的二进制产物名称：</p>
+<pre><code class="language-make">[unix]
+run:
+  cc main.c
+  ./a.out
+
+[windows]
+run:
+  cl main.c
+  main.exe
+</code></pre>
+<h4 id="禁用变更目录190"><a class="header" href="#禁用变更目录190">禁用变更目录<sup>1.9.0</sup></a></h4>
+<p><code>just</code> 通常在执行配方时将当前目录设置为包含 <code>justfile</code> 的目录，你可以通过 <code>[no-cd]</code> 属性来禁用此行为。这可以用来创建使用调用目录相对路径或者对当前目录进行操作的配方。</p>
+<p>例如这个 <code>commit</code> 配方：</p>
+<pre><code class="language-make">[no-cd]
+commit file:
+  git add {{file}}
+  git commit
+</code></pre>
+<p>可以使用相对于当前目录的路径，因为 <code>[no-cd]</code> 可以防止 <code>just</code> 在执行 <code>commit</code> 配方时改变当前目录。</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="使用反引号的命令求值"><a class="header" href="#使用反引号的命令求值">使用反引号的命令求值</a></h3>
 <p>反引号可以用来存储命令的求值结果：</p>
 <pre><code class="language-make">localhost := `dumpinterfaces | cut -d: -f2 | sed 's/\/.*//' | sed 's/ //g'`
@@ -1310,7 +1320,7 @@ B end!
 </code></pre>
 <p>这有局限性，因为配方 <code>c</code> 是以一个全新的 <code>just</code> 调用来运行的，赋值将被重新计算，依赖可能会运行两次，命令行参数不会被传入到子 <code>just</code> 进程。</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="用其他语言书写配方"><a class="header" href="#用其他语言书写配方">用其他语言书写配方</a></h3>
-<p>以 <code>#!</code> 开头的配方将作为脚本执行，因此你可以用其他语言编写配方：</p>
+<p>以 <code>#!</code> 开头的配方被称为 Shebang 配方，它通过将配方主体保存到文件中并运行它来执行。这让你可以用不同的语言来编写配方：</p>
 <pre><code class="language-make">polyglot: python js perl sh ruby
 
 python:
@@ -1346,6 +1356,8 @@ Larry Wall says Hi!
 Yo from a shell script!
 Hello from ruby!
 </code></pre>
+<p>在类似 Unix 的操作系统中，包括 Linux 和 MacOS，Shebang 配方的执行方式是将配方主体保存到临时目录下的一个文件中，将该文件标记为可执行文件，然后执行它。操作系统将 Shebang 行解析为一个命令行并调用它，包括文件的路径。例如，如果一个配方以 <code>#!/usr/bin/env bash</code> 开头，操作系统运行的最终命令将是 <code>/usr/bin/env bash /tmp/PATH_TO_SAVED_RECIPE_BODY</code> 之类。请记住，不同的操作系统对 Shebang 行的分割方式不同。</p>
+<p>Windows 不支持 Shebang 行。在 Windows 上，<code>just</code> 将 Shebang 行分割成命令和参数，将配方主体保存到一个文件中，并调用分割后的命令和参数，同时将保存的配方主体的路径作为最后一个参数。</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="更加安全的-bash-shebang-配方"><a class="header" href="#更加安全的-bash-shebang-配方">更加安全的 Bash Shebang 配方</a></h3>
 <p>如果你正在写一个 <code>bash</code> Shebang 配方，考虑加入 <code>set -euxo pipefail</code>：</p>
 <pre><code class="language-make">foo:
@@ -1522,6 +1534,16 @@ Available recipes:
 <pre><code class="language-sh">$ just --summary
 test
 </code></pre>
+<p><code>[private]</code> 属性<sup>master</sup>也可用于隐藏配方，而不需要改变名称：</p>
+<pre><code class="language-make">[private]
+foo:
+
+bar:
+</code></pre>
+<pre><code class="language-sh">$ just --list
+Available recipes:
+    bar
+</code></pre>
 <p>这对那些只作为其他配方的依赖使用的辅助配方很有用。</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="安静配方"><a class="header" href="#安静配方">安静配方</a></h3>
 <p>配方名称可在前面加上 <code>@</code>，可以在每行反转行首 <code>@</code> 的含义：</p>
@@ -1553,6 +1575,22 @@ Foo!
 #!/usr/bin/env bash
 echo 'Bar!'
 Bar!
+</code></pre>
+<p><code>just</code> 在配方行失败时通常会打印错误信息，这些错误信息可以通过 <code>[no-exit-message]</code> 属性来抑制。你可能会发现这在包装工具的配方中特别有用：</p>
+<pre><code class="language-make">git *args:
+    @git {{args}}
+</code></pre>
+<pre><code class="language-sh">$ just git status
+fatal: not a git repository (or any of the parent directories): .git
+error: Recipe `git` failed on line 2 with exit code 128
+</code></pre>
+<p>添加属性，当工具以非零代码退出时抑制退出错误信息：</p>
+<pre><code class="language-make">[no-exit-message]
+git *args:
+    @git {{args}}
+</code></pre>
+<pre><code class="language-sh">$ just git status
+fatal: not a git repository (or any of the parent directories): .git
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="通过交互式选择器选择要运行的配方"><a class="header" href="#通过交互式选择器选择要运行的配方">通过交互式选择器选择要运行的配方</a></h3>
 <p><code>--choose</code> 子命令可以使 <code>just</code> 唤起一个选择器来让您选择要运行的配方。选择器应该从标准输入中读取包含配方名称的行，并将其中一个或多个用空格分隔的名称打印到标准输出。</p>
@@ -1609,10 +1647,11 @@ default:
 <div style="break-before: page; page-break-before: always;"></div><h3 id="将-justfile-转为json文件"><a class="header" href="#将-justfile-转为json文件">将 <code>justfile</code> 转为JSON文件</a></h3>
 <p><code>--dump</code> 命令可以和 <code>--dump-format json</code> 一起使用，以打印一个 <code>justfile</code> 的JSON表示。JSON格式目前还不稳定，所以需要添加 <code>--unstable</code> 标志。</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="回退到父-justfile"><a class="header" href="#回退到父-justfile">回退到父 <code>justfile</code></a></h3>
-<p>如果没有找到配方，<code>just</code> 将在父目录和递归地在其上级目录里寻找 <code>justfile</code>，直到到达根目录。</p>
+<p>如果在 <code>justfile</code> 中没有找到配方，并且设置了 <code>fallback</code>，<code>just</code> 将在父目录及其上级目录寻找<code>justfile</code>，直到到达根目录。<code>just</code> 在找到其中的 <code>fallback</code> 设置为<code>false</code> 或未设置的 <code>justfile</code> 时将停止。</p>
 <p>这个功能目前是不稳定的，所以必须用 <code>--unstable</code> 标志启用。</p>
 <p>举个例子，假设当前目录包含这个 <code>justfile</code>：</p>
-<pre><code class="language-make">foo:
+<pre><code class="language-make">set fallback
+foo:
   echo foo
 </code></pre>
 <p>而父目录包含这个 <code>justfile</code>：</p>
@@ -1734,10 +1773,16 @@ done
 <div style="break-before: page; page-break-before: always;"></div><h3 id="替代方案"><a class="header" href="#替代方案">替代方案</a></h3>
 <p>现在并不缺少命令运行器！在这里，有一些或多或少比较类似于 <code>just</code> 的替代方案，包括：</p>
 <ul>
-<li><a href="https://en.wikipedia.org/wiki/Make_(software)">make</a>: 启发了 <code>just</code> 的 Unix 构建工具。</li>
-<li><a href="https://github.com/xonixx/makesure">makesure</a>: 一个用 AWK 和 Shell 编写的简单而便携的命令运行器。</li>
-<li><a href="https://github.com/tj/mmake">mmake</a>: 一个围绕 <code>make</code> 的包装器，有很多改进，包括远程引入。</li>
+<li><a href="https://en.wikipedia.org/wiki/Make_(software)">make</a>: 启发了 <code>just</code> 的 Unix 构建工具。最初的 <code>make</code> 有几个不同的现代后裔, 包括 <a href="https://www.freebsd.org/cgi/man.cgi?make(1)">FreeBSD Make</a> 和 <a href="https://www.gnu.org/software/make/">GNU Make</a>。</li>
+<li><a href="https://github.com/go-task/task">task</a>: 一个用 Go 编写的基于 YAML 的命令运行器。</li>
+<li><a href="https://github.com/egoist/maid">maid</a>: 一个用 JavaScript 编写的基于 Markdown 的命令运行器。</li>
+<li><a href="https://github.com/microsoft/just">microsoft/just</a>: 一个用 JavaScript 编写的基于 JavasScript 的命令运行器。</li>
+<li><a href="https://github.com/sagiegurari/cargo-make">cargo-make</a>: 一个用于 Rust 项目的命令运行器。</li>
+<li><a href="https://github.com/tj/mmake">mmake</a>: 一个针对 <code>make</code> 的包装器，有很多改进，包括远程包含。</li>
 <li><a href="https://github.com/tj/robo">robo</a>: 一个用 Go 编写的基于 YAML 的命令运行器。</li>
+<li><a href="https://github.com/jakedeichert/mask">mask</a>: 一个用 Rust 编写的基于 Markdown 的命令运行器。</li>
+<li><a href="https://github.com/xonixx/makesure">makesure</a>: 一个用 AWK 和 Shell 编写的简单而便携的命令运行器。</li>
+<li><a href="https://github.com/VladimirMarkelov/haku">haku</a>: 一个用 Rust 编写的类似 make 的命令运行器。</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="贡献"><a class="header" href="#贡献">贡献</a></h2>
 <p><code>just</code> 欢迎你的贡献! <code>just</code> 是在最大许可的 <a href="https://creativecommons.org/publicdomain/zero/1.0/legalcode.txt">CC0</a> 公共领域奉献和后备许可下发布的，所以你的修改也必须在这个许可下发布。</p>
@@ -1746,6 +1791,18 @@ done
 <p>在合并一个特别大的或可怕的变化之前，应该运行 <code>Janus</code> 以确保没有任何破坏。不要担心自己运行 <code>Janus</code>，Casey 会很乐意在需要时为你运行它。</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="最小支持的-rust-版本"><a class="header" href="#最小支持的-rust-版本">最小支持的 Rust 版本</a></h3>
 <p>最低支持的 Rust 版本，即 MSRV，是 Rust 1.47.0。</p>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="新版本"><a class="header" href="#新版本">新版本</a></h3>
+<p><code>just</code> 会经常发布新版本，以便用户快速获得新功能。</p>
+<p>发布的提交信息使用如下模板：</p>
+<pre><code>Release x.y.z
+
+- Bump version: x.y.z → x.y.z
+- Update changelog
+- Update changelog contributor credits
+- Update dependencies
+- Update man page
+- Update version references in readme
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="常见问题"><a class="header" href="#常见问题">常见问题</a></h2>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="just-避免了-make-的哪些特异性"><a class="header" href="#just-避免了-make-的哪些特异性">Just 避免了 Make 的哪些特异性？</a></h3>
 <p><code>make</code> 有一些行为令人感到困惑、复杂，或者使它不适合作为通用的命令运行器。</p>
@@ -1813,18 +1870,18 @@ make: `test' is up to date.
 
         </div>
 
-        <script type="text/javascript">
+        <script>
             window.playground_copyable = true;
         </script>
-        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
-        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
-        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
 
         <!-- Custom JS scripts -->
-        <script type="text/javascript">
+        <script>
         window.addEventListener('load', function() {
             window.setTimeout(window.print, 100);
         });
