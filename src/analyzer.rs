@@ -2,6 +2,8 @@ use super::*;
 
 use CompileErrorKind::*;
 
+const VALID_ALIAS_ATTRIBUTES: [Attribute; 1] = [Attribute::Private];
+
 #[derive(Default)]
 pub(crate) struct Analyzer<'src> {
   recipes: Table<'src, UnresolvedRecipe<'src>>,
@@ -193,6 +195,15 @@ impl<'src> Analyzer<'src> {
         alias: name,
         first: original.line_number(),
       }));
+    }
+
+    for attr in &alias.attributes {
+      if !VALID_ALIAS_ATTRIBUTES.contains(attr) {
+        return Err(alias.name.token().error(AliasInvalidAttribute {
+          alias: name,
+          attr: *attr,
+        }));
+      }
     }
 
     Ok(())

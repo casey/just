@@ -22,6 +22,7 @@ fn alias() {
         "f": {
           "name": "f",
           "target": "foo",
+          "attributes": [],
         }
       },
       "assignments": {},
@@ -299,6 +300,7 @@ fn duplicate_recipes() {
       "first": "foo",
       "aliases": {
         "f": {
+          "attributes": [],
           "name": "f",
           "target": "foo",
         }

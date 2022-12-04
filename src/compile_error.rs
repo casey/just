@@ -24,6 +24,14 @@ impl Display for CompileError<'_> {
     use CompileErrorKind::*;
 
     match &*self.kind {
+      AliasInvalidAttribute { alias, attr } => {
+        write!(
+          f,
+          "Alias {} has an invalid attribute `{}`",
+          alias,
+          attr.to_str()
+        )?;
+      }
       AliasShadowsRecipe { alias, recipe_line } => {
         write!(
           f,

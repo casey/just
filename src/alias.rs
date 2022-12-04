@@ -3,6 +3,7 @@ use super::*;
 /// An alias, e.g. `name := target`
 #[derive(Debug, PartialEq, Clone, Serialize)]
 pub(crate) struct Alias<'src, T = Rc<Recipe<'src>>> {
+  pub(crate) attributes: BTreeSet<Attribute>,
   pub(crate) name: Name<'src>,
   #[serde(
     bound(serialize = "T: Keyed<'src>"),
@@ -20,6 +21,7 @@ impl<'src> Alias<'src, Name<'src>> {
     assert_eq!(self.target.lexeme(), target.name.lexeme());
 
     Alias {
+      attributes: self.attributes,
       name: self.name,
       target,
     }
@@ -28,7 +30,7 @@ impl<'src> Alias<'src, Name<'src>> {
 
 impl Alias<'_> {
   pub(crate) fn is_private(&self) -> bool {
-    self.name.lexeme().starts_with('_')
+    self.name.lexeme().starts_with('_') || self.attributes.contains(&Attribute::Private)
   }
 }
 
