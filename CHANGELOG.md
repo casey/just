@@ -5,12 +5,12 @@ Changelog
 ----------------------------------------------------------------------
 
 ### Breaking Changes to Unstable Features
-- Change `fallback` setting default to false (#1425)
+- Change `fallback` setting default to false [#1425]
 
 ### Added
-- Hide recipes with `[private]` attribute (#1422)
-- Add replace_regex function (#1393 by @miles170)
-- Add [no-cd] attribute (#1400)
+- Hide recipes with `[private]` attribute #1422
+- Add replace_regex function {#1393 by @miles170}
+- Add [no-cd] attribute <#1400>
 
 ### Changed
 - Omit shebang lines on Windows (#1417)
