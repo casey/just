@@ -49,17 +49,14 @@ impl<'src> Thunk<'src> {
     name: Name<'src>,
     mut arguments: Vec<Expression<'src>>,
   ) -> CompileResult<'src, Thunk<'src>> {
-    crate::function::TABLE.get(&name.lexeme()).map_or(
+    crate::function::get(name.lexeme()).map_or(
       Err(name.error(CompileErrorKind::UnknownFunction {
         function: name.lexeme(),
       })),
       |function| match (function, arguments.len()) {
-        (Function::Nullary(function), 0) => Ok(Thunk::Nullary {
-          function: *function,
-          name,
-        }),
+        (Function::Nullary(function), 0) => Ok(Thunk::Nullary { function, name }),
         (Function::Unary(function), 1) => Ok(Thunk::Unary {
-          function: *function,
+          function,
           arg: Box::new(arguments.pop().unwrap()),
           name,
         }),
@@ -67,7 +64,7 @@ impl<'src> Thunk<'src> {
           let b = Box::new(arguments.pop().unwrap());
           let a = Box::new(arguments.pop().unwrap());
           Ok(Thunk::Binary {
-            function: *function,
+            function,
             args: [a, b],
             name,
           })
@@ -77,7 +74,7 @@ impl<'src> Thunk<'src> {
           let b = Box::new(arguments.pop().unwrap());
           let a = Box::new(arguments.pop().unwrap());
           Ok(Thunk::BinaryPlus {
-            function: *function,
+            function,
             args: ([a, b], rest),
             name,
           })
@@ -87,12 +84,12 @@ impl<'src> Thunk<'src> {
           let b = Box::new(arguments.pop().unwrap());
           let a = Box::new(arguments.pop().unwrap());
           Ok(Thunk::Ternary {
-            function: *function,
+            function,
             args: [a, b, c],
             name,
           })
         }
-        _ => Err(name.error(CompileErrorKind::FunctionArgumentCountMismatch {
+        (function, _) => Err(name.error(CompileErrorKind::FunctionArgumentCountMismatch {
           function: name.lexeme(),
           found: arguments.len(),
           expected: function.argc(),

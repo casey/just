@@ -9,6 +9,7 @@ use heck::{
 };
 
 use Function::*;
+
 pub(crate) enum Function {
   Nullary(fn(&FunctionContext) -> Result<String, String>),
   Unary(fn(&FunctionContext, &str) -> Result<String, String>),
@@ -17,53 +18,53 @@ pub(crate) enum Function {
   Ternary(fn(&FunctionContext, &str, &str, &str) -> Result<String, String>),
 }
 
-lazy_static! {
-  pub(crate) static ref TABLE: BTreeMap<&'static str, Function> = vec![
-    ("absolute_path", Unary(absolute_path)),
-    ("arch", Nullary(arch)),
-    ("capitalize", Unary(capitalize)),
-    ("clean", Unary(clean)),
-    ("env_var", Unary(env_var)),
-    ("env_var_or_default", Binary(env_var_or_default)),
-    ("error", Unary(error)),
-    ("extension", Unary(extension)),
-    ("file_name", Unary(file_name)),
-    ("file_stem", Unary(file_stem)),
-    ("invocation_directory", Nullary(invocation_directory)),
-    ("join", BinaryPlus(join)),
-    ("just_executable", Nullary(just_executable)),
-    ("justfile", Nullary(justfile)),
-    ("justfile_directory", Nullary(justfile_directory)),
-    ("kebabcase", Unary(kebabcase)),
-    ("lowercamelcase", Unary(lowercamelcase)),
-    ("lowercase", Unary(lowercase)),
-    ("os", Nullary(os)),
-    ("os_family", Nullary(os_family)),
-    ("parent_directory", Unary(parent_directory)),
-    ("path_exists", Unary(path_exists)),
-    ("quote", Unary(quote)),
-    ("replace", Ternary(replace)),
-    ("replace_regex", Ternary(replace_regex)),
-    ("sha256", Unary(sha256)),
-    ("sha256_file", Unary(sha256_file)),
-    ("shoutykebabcase", Unary(shoutykebabcase)),
-    ("shoutysnakecase", Unary(shoutysnakecase)),
-    ("snakecase", Unary(snakecase)),
-    ("titlecase", Unary(titlecase)),
-    ("trim", Unary(trim)),
-    ("trim_end", Unary(trim_end)),
-    ("trim_end_match", Binary(trim_end_match)),
-    ("trim_end_matches", Binary(trim_end_matches)),
-    ("trim_start", Unary(trim_start)),
-    ("trim_start_match", Binary(trim_start_match)),
-    ("trim_start_matches", Binary(trim_start_matches)),
-    ("uppercamelcase", Unary(uppercamelcase)),
-    ("uppercase", Unary(uppercase)),
-    ("uuid", Nullary(uuid)),
-    ("without_extension", Unary(without_extension)),
-  ]
-  .into_iter()
-  .collect();
+pub(crate) fn get(name: &str) -> Option<Function> {
+  let function = match name {
+    "absolute_path" => Unary(absolute_path),
+    "arch" => Nullary(arch),
+    "capitalize" => Unary(capitalize),
+    "clean" => Unary(clean),
+    "env_var" => Unary(env_var),
+    "env_var_or_default" => Binary(env_var_or_default),
+    "error" => Unary(error),
+    "extension" => Unary(extension),
+    "file_name" => Unary(file_name),
+    "file_stem" => Unary(file_stem),
+    "invocation_directory" => Nullary(invocation_directory),
+    "join" => BinaryPlus(join),
+    "just_executable" => Nullary(just_executable),
+    "justfile" => Nullary(justfile),
+    "justfile_directory" => Nullary(justfile_directory),
+    "kebabcase" => Unary(kebabcase),
+    "lowercamelcase" => Unary(lowercamelcase),
+    "lowercase" => Unary(lowercase),
+    "os" => Nullary(os),
+    "os_family" => Nullary(os_family),
+    "parent_directory" => Unary(parent_directory),
+    "path_exists" => Unary(path_exists),
+    "quote" => Unary(quote),
+    "replace" => Ternary(replace),
+    "replace_regex" => Ternary(replace_regex),
+    "sha256" => Unary(sha256),
+    "sha256_file" => Unary(sha256_file),
+    "shoutykebabcase" => Unary(shoutykebabcase),
+    "shoutysnakecase" => Unary(shoutysnakecase),
+    "snakecase" => Unary(snakecase),
+    "titlecase" => Unary(titlecase),
+    "trim" => Unary(trim),
+    "trim_end" => Unary(trim_end),
+    "trim_end_match" => Binary(trim_end_match),
+    "trim_end_matches" => Binary(trim_end_matches),
+    "trim_start" => Unary(trim_start),
+    "trim_start_match" => Binary(trim_start_match),
+    "trim_start_matches" => Binary(trim_start_matches),
+    "uppercamelcase" => Unary(uppercamelcase),
+    "uppercase" => Unary(uppercase),
+    "uuid" => Nullary(uuid),
+    "without_extension" => Unary(without_extension),
+    _ => return None,
+  };
+  Some(function)
 }
 
 impl Function {

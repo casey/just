@@ -317,7 +317,6 @@ dependencies = [
  "env_logger",
  "executable-path",
  "heck 0.4.0",
- "lazy_static",
  "lexiclean",
  "libc",
  "log",

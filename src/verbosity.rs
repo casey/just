@@ -40,8 +40,8 @@ impl Verbosity {
   }
 }
 
-impl Default for Verbosity {
-  fn default() -> Self {
+impl Verbosity {
+  pub const fn default() -> Self {
     Self::Taciturn
   }
 }
