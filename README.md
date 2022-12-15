@@ -2421,7 +2421,7 @@ Before merging a particularly large or gruesome change, Janus should be run to m
 
 ### Minimum Supported Rust Version
 
-The minimum supported Rust version, or MSRV, is Rust 1.56.0.
+The minimum supported Rust version, or MSRV, is Rust 1.65.0.
 
 ### New Releases
 
