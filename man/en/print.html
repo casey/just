@@ -218,14 +218,14 @@ Yay, all your tests passed!
 <p>On Windows, <code>just</code> works with the <code>sh</code> provided by <a href="https://git-scm.com">Git for Windows</a>, <a href="https://desktop.github.com">GitHub Desktop</a>, or <a href="http://www.cygwin.com">Cygwin</a>.</p>
 <p>If you’d rather not install <code>sh</code>, you can use the <code>shell</code> setting to use the shell of your choice.</p>
 <p>Like PowerShell:</p>
-<pre><code class="language-make"># use PowerShell instead of sh:
+<pre><code class="language-just"># use PowerShell instead of sh:
 set shell := [&quot;powershell.exe&quot;, &quot;-c&quot;]
 
 hello:
   Write-Host &quot;Hello, world!&quot;
 </code></pre>
 <p>…or <code>cmd.exe</code>:</p>
-<pre><code class="language-make"># use cmd.exe instead of sh:
+<pre><code class="language-just"># use cmd.exe instead of sh:
 set shell := [&quot;cmd.exe&quot;, &quot;/c&quot;]
 
 list:
@@ -473,7 +473,7 @@ augroup END
 <p>See <a href="chapter_2.html">the installation section</a> for how to install <code>just</code> on your computer. Try running <code>just --version</code> to make sure that it’s installed correctly.</p>
 <p>For an overview of the syntax, check out <a href="https://cheatography.com/linux-china/cheat-sheets/justfile/">this cheatsheet</a>.</p>
 <p>Once <code>just</code> is installed and working, create a file named <code>justfile</code> in the root of your project with the following contents:</p>
-<pre><code class="language-make">recipe-name:
+<pre><code class="language-just">recipe-name:
   echo 'This is a recipe!'
 
 # this is a comment
@@ -493,13 +493,13 @@ This is another recipe.
 </code></pre>
 <p><code>just</code> prints each command to standard error before running it, which is why <code>echo 'This is a recipe!'</code> was printed. This is suppressed for lines starting with <code>@</code>, which is why <code>echo 'This is another recipe.'</code> was not printed.</p>
 <p>Recipes stop running if a command fails. Here <code>cargo publish</code> will only run if <code>cargo test</code> succeeds:</p>
-<pre><code class="language-make">publish:
+<pre><code class="language-just">publish:
   cargo test
   # tests passed, time to publish!
   cargo publish
 </code></pre>
 <p>Recipes can depend on other recipes. Here the <code>test</code> recipe depends on the <code>build</code> recipe, so <code>build</code> will run before <code>test</code>:</p>
-<pre><code class="language-make">build:
+<pre><code class="language-just">build:
   cc main.c foo.c bar.c -o main
 
 test: build
@@ -529,11 +529,11 @@ testing… all tests passed!
 <div style="break-before: page; page-break-before: always;"></div><h2 id="features"><a class="header" href="#features">Features</a></h2>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="the-default-recipe"><a class="header" href="#the-default-recipe">The Default Recipe</a></h3>
 <p>When <code>just</code> is invoked without a recipe, it runs the first recipe in the <code>justfile</code>. This recipe might be the most frequently run command in the project, like running the tests:</p>
-<pre><code class="language-make">test:
+<pre><code class="language-just">test:
   cargo test
 </code></pre>
 <p>You can also use dependencies to run multiple recipes by default:</p>
-<pre><code class="language-make">default: lint build test
+<pre><code class="language-just">default: lint build test
 
 build:
   echo Building…
@@ -545,7 +545,7 @@ lint:
   echo Linting…
 </code></pre>
 <p>If no recipe makes sense as the default recipe, you can add a recipe to the beginning of your <code>justfile</code> that lists the available recipes:</p>
-<pre><code class="language-make">default:
+<pre><code class="language-just">default:
   just --list
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="listing-available-recipes"><a class="header" href="#listing-available-recipes">Listing Available Recipes</a></h3>
@@ -562,7 +562,7 @@ Available recipes:
 build test deploy lint
 </code></pre>
 <p>Pass <code>--unsorted</code> to print recipes in the order they appear in the <code>justfile</code>:</p>
-<pre><code class="language-make">test:
+<pre><code class="language-just">test:
   echo 'Testing!'
 
 build:
@@ -577,7 +577,7 @@ Available recipes:
 test build
 </code></pre>
 <p>If you’d like <code>just</code> to default to listing the recipes in the <code>justfile</code>, you can use this as your default recipe:</p>
-<pre><code class="language-make">default:
+<pre><code class="language-just">default:
   @just --list
 </code></pre>
 <p>Note that you may need to add <code>--justfile {{justfile()}}</code> to the line above above. Without it, if you executed <code>just -f /some/distant/justfile -d .</code> or <code>just -f ./non-standard-justfile</code>, the plain <code>just --list</code> inside the recipe would not necessarily use the file you provided. It would try to find a justfile in your current path, maybe even resulting in a <code>No justfile found</code> error.</p>
@@ -600,7 +600,7 @@ Available recipes:
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="aliases"><a class="header" href="#aliases">Aliases</a></h3>
 <p>Aliases allow recipes to be invoked with alternative names:</p>
-<pre><code class="language-make">alias b := build
+<pre><code class="language-just">alias b := build
 
 build:
   echo 'Building!'
@@ -613,7 +613,7 @@ Building!
 <div style="break-before: page; page-break-before: always;"></div><h3 id="settings"><a class="header" href="#settings">Settings</a></h3>
 <p>Settings control interpretation and execution. Each setting may be specified at most once, anywhere in the <code>justfile</code>.</p>
 <p>For example:</p>
-<pre><code class="language-make">set shell := [&quot;zsh&quot;, &quot;-cu&quot;]
+<pre><code class="language-just">set shell := [&quot;zsh&quot;, &quot;-cu&quot;]
 
 foo:
   # this line will be run as `zsh -cu 'ls **/*.txt'`
@@ -634,14 +634,14 @@ foo:
 </tbody></table>
 </div>
 <p>Boolean settings can be written as:</p>
-<pre><code class="language-mf">set NAME
+<pre><code class="language-justfile">set NAME
 </code></pre>
 <p>Which is equivalent to:</p>
-<pre><code class="language-mf">set NAME := true
+<pre><code class="language-justfile">set NAME := true
 </code></pre>
 <h4 id="allow-duplicate-recipes"><a class="header" href="#allow-duplicate-recipes">Allow Duplicate Recipes</a></h4>
 <p>If <code>allow-duplicate-recipes</code> is set to <code>true</code>, defining multiple recipes with the same name is not an error and the last definition is used. Defaults to <code>false</code>.</p>
-<pre><code class="language-make">set allow-duplicate-recipes
+<pre><code class="language-just">set allow-duplicate-recipes
 
 @foo:
   echo foo
@@ -656,7 +656,7 @@ bar
 <p>If <code>dotenv-load</code> is <code>true</code>, a <code>.env</code> file will be loaded if present. Defaults to <code>false</code>.</p>
 <h4 id="export"><a class="header" href="#export">Export</a></h4>
 <p>The <code>export</code> setting causes all <code>just</code> variables to be exported as environment variables. Defaults to <code>false</code>.</p>
-<pre><code class="language-make">set export
+<pre><code class="language-just">set export
 
 a := &quot;hello&quot;
 
@@ -671,7 +671,7 @@ goodbye
 <h4 id="positional-arguments"><a class="header" href="#positional-arguments">Positional Arguments</a></h4>
 <p>If <code>positional-arguments</code> is <code>true</code>, recipe arguments will be passed as positional arguments to commands. For linewise recipes, argument <code>$0</code> will be the name of the recipe.</p>
 <p>For example, running this recipe:</p>
-<pre><code class="language-make">set positional-arguments
+<pre><code class="language-just">set positional-arguments
 
 @foo bar:
   echo $0
@@ -684,7 +684,7 @@ hello
 </code></pre>
 <p>When using an <code>sh</code>-compatible shell, such as <code>bash</code> or <code>zsh</code>, <code>$@</code> expands to the positional arguments given to the recipe, starting from one. When used within double quotes as <code>&quot;$@&quot;</code>, arguments including whitespace will be passed on as if they were double-quoted. That is, <code>&quot;$@&quot;</code> is equivalent to <code>&quot;$1&quot; &quot;$2&quot;</code>… When there are no positional parameters, <code>&quot;$@&quot;</code> and <code>$@</code> expand to nothing (i.e., they are removed).</p>
 <p>This example recipe will print arguments one by one on separate lines:</p>
-<pre><code class="language-make">set positional-arguments
+<pre><code class="language-just">set positional-arguments
 
 @test *args='':
   bash -c 'while (( &quot;$#&quot; )); do echo - $1; shift; done' -- &quot;$@&quot;
@@ -696,7 +696,7 @@ hello
 </code></pre>
 <h4 id="shell"><a class="header" href="#shell">Shell</a></h4>
 <p>The <code>shell</code> setting controls the command used to invoke recipe lines and backticks. Shebang recipes are unaffected.</p>
-<pre><code class="language-make"># use python3 to execute recipe lines and backticks
+<pre><code class="language-just"># use python3 to execute recipe lines and backticks
 set shell := [&quot;python3&quot;, &quot;-c&quot;]
 
 # use print to capture result of evaluation
@@ -709,7 +709,7 @@ foo:
 <p><code>just</code> passes the command to be executed as an argument. Many shells will need an additional flag, often <code>-c</code>, to make them evaluate the first argument.</p>
 <h5 id="windows-shell"><a class="header" href="#windows-shell">Windows Shell</a></h5>
 <p><code>just</code> uses <code>sh</code> on Windows by default. To use a different shell on Windows, use <code>windows-shell</code>:</p>
-<pre><code class="language-make">set windows-shell := [&quot;powershell.exe&quot;, &quot;-NoLogo&quot;, &quot;-Command&quot;]
+<pre><code class="language-just">set windows-shell := [&quot;powershell.exe&quot;, &quot;-NoLogo&quot;, &quot;-Command&quot;]
 
 hello:
   Write-Host &quot;Hello, world!&quot;
@@ -718,33 +718,33 @@ hello:
 <h5 id="windows-powershell"><a class="header" href="#windows-powershell">Windows PowerShell</a></h5>
 <p><em><code>set windows-powershell</code> uses the legacy <code>powershell.exe</code> binary, and is no longer recommended. See the <code>windows-shell</code> setting above for a more flexible way to control which shell is used on Windows.</em></p>
 <p><code>just</code> uses <code>sh</code> on Windows by default. To use <code>powershell.exe</code> instead, set <code>windows-powershell</code> to true.</p>
-<pre><code class="language-make">set windows-powershell := true
+<pre><code class="language-just">set windows-powershell := true
 
 hello:
   Write-Host &quot;Hello, world!&quot;
 </code></pre>
 <h5 id="python-3"><a class="header" href="#python-3">Python 3</a></h5>
-<pre><code class="language-make">set shell := [&quot;python3&quot;, &quot;-c&quot;]
+<pre><code class="language-just">set shell := [&quot;python3&quot;, &quot;-c&quot;]
 </code></pre>
 <h5 id="bash"><a class="header" href="#bash">Bash</a></h5>
-<pre><code class="language-make">set shell := [&quot;bash&quot;, &quot;-uc&quot;]
+<pre><code class="language-just">set shell := [&quot;bash&quot;, &quot;-uc&quot;]
 </code></pre>
 <h5 id="z-shell"><a class="header" href="#z-shell">Z Shell</a></h5>
-<pre><code class="language-make">set shell := [&quot;zsh&quot;, &quot;-uc&quot;]
+<pre><code class="language-just">set shell := [&quot;zsh&quot;, &quot;-uc&quot;]
 </code></pre>
 <h5 id="fish"><a class="header" href="#fish">Fish</a></h5>
-<pre><code class="language-make">set shell := [&quot;fish&quot;, &quot;-c&quot;]
+<pre><code class="language-just">set shell := [&quot;fish&quot;, &quot;-c&quot;]
 </code></pre>
 <h5 id="nushell"><a class="header" href="#nushell">Nushell</a></h5>
-<pre><code class="language-make">set shell := [&quot;nu&quot;, &quot;-c&quot;]
+<pre><code class="language-just">set shell := [&quot;nu&quot;, &quot;-c&quot;]
 </code></pre>
 <p>If you want to change the default table mode to <code>light</code>:</p>
-<pre><code class="language-make">set shell := ['nu', '-m', 'light', '-c']
+<pre><code class="language-just">set shell := ['nu', '-m', 'light', '-c']
 </code></pre>
 <p><em><a href="https://github.com/nushell/nushell">Nushell</a> was written in Rust, and <strong>has cross-platform support for Windows / macOS and Linux</strong>.</em></p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="documentation-comments"><a class="header" href="#documentation-comments">Documentation Comments</a></h3>
 <p>Comments immediately preceding a recipe will appear in <code>just --list</code>:</p>
-<pre><code class="language-make"># build stuff
+<pre><code class="language-just"># build stuff
 build:
   ./bin/build
 
@@ -765,7 +765,7 @@ DATABASE_ADDRESS=localhost:6379
 SERVER_PORT=1337
 </code></pre>
 <p>And your <code>justfile</code> contains:</p>
-<pre><code class="language-make">set dotenv-load
+<pre><code class="language-just">set dotenv-load
 
 serve:
   @echo &quot;Starting server with database $DATABASE_ADDRESS on port $SERVER_PORT…&quot;
@@ -778,7 +778,7 @@ Starting server with database localhost:6379 on port 1337…
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="variables-and-substitution"><a class="header" href="#variables-and-substitution">Variables and Substitution</a></h3>
 <p>Variables, strings, concatenation, path joining, and substitution using <code>{{…}}</code> are supported:</p>
-<pre><code class="language-make">tmpdir  := `mktemp`
+<pre><code class="language-just">tmpdir  := `mktemp`
 version := &quot;0.2.7&quot;
 tardir  := tmpdir / &quot;awesomesauce-&quot; + version
 tarball := tardir + &quot;.tar.gz&quot;
@@ -793,20 +793,20 @@ publish:
 </code></pre>
 <h4 id="joining-paths"><a class="header" href="#joining-paths">Joining Paths</a></h4>
 <p>The <code>/</code> operator can be used to join two strings with a slash:</p>
-<pre><code class="language-make">foo := &quot;a&quot; / &quot;b&quot;
+<pre><code class="language-just">foo := &quot;a&quot; / &quot;b&quot;
 </code></pre>
 <pre><code>$ just --evaluate foo
 a/b
 </code></pre>
 <p>Note that a <code>/</code> is added even if one is already present:</p>
-<pre><code class="language-make">foo := &quot;a/&quot;
+<pre><code class="language-just">foo := &quot;a/&quot;
 bar := foo / &quot;b&quot;
 </code></pre>
 <pre><code>$ just --evaluate bar
 a//b
 </code></pre>
 <p>Absolute paths can also be constructed<sup>1.5.0</sup>:</p>
-<pre><code class="language-make">foo := / &quot;b&quot;
+<pre><code class="language-just">foo := / &quot;b&quot;
 </code></pre>
 <pre><code>$ just --evaluate foo
 /b
@@ -814,21 +814,21 @@ a//b
 <p>The <code>/</code> operator uses the <code>/</code> character, even on Windows. Thus, using the <code>/</code> operator should be avoided with paths that use universal naming convention (UNC), i.e., those that start with <code>\?</code>, since forward slashes are not supported with UNC paths.</p>
 <h4 id="escaping-"><a class="header" href="#escaping-">Escaping <code>{{</code></a></h4>
 <p>To write a recipe containing <code>{{</code>, use <code>{{{{</code>:</p>
-<pre><code class="language-make">braces:
+<pre><code class="language-just">braces:
   echo 'I {{{{LOVE}} curly braces!'
 </code></pre>
 <p>(An unmatched <code>}}</code> is ignored, so it doesn’t need to be escaped.)</p>
 <p>Another option is to put all the text you’d like to escape inside of an interpolation:</p>
-<pre><code class="language-make">braces:
+<pre><code class="language-just">braces:
   echo '{{'I {{LOVE}} curly braces!'}}'
 </code></pre>
 <p>Yet another option is to use <code>{{ &quot;{{&quot; }}</code>:</p>
-<pre><code class="language-make">braces:
+<pre><code class="language-just">braces:
   echo 'I {{ &quot;{{&quot; }}LOVE}} curly braces!'
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="strings"><a class="header" href="#strings">Strings</a></h3>
 <p>Double-quoted strings support escape sequences:</p>
-<pre><code class="language-make">string-with-tab             := &quot;\t&quot;
+<pre><code class="language-just">string-with-tab             := &quot;\t&quot;
 string-with-newline         := &quot;\n&quot;
 string-with-carriage-return := &quot;\r&quot;
 string-with-double-quote    := &quot;\&quot;&quot;
@@ -846,7 +846,7 @@ string-with-slash           := &quot;\&quot;
 string-with-tab             := &quot;     &quot;
 </code></pre>
 <p>Strings may contain line breaks:</p>
-<pre><code class="language-make">single := '
+<pre><code class="language-just">single := '
 hello
 '
 
@@ -855,13 +855,13 @@ goodbye
 &quot;
 </code></pre>
 <p>Single-quoted strings do not recognize escape sequences:</p>
-<pre><code class="language-make">escapes := '\t\n\r\&quot;\\'
+<pre><code class="language-just">escapes := '\t\n\r\&quot;\\'
 </code></pre>
 <pre><code class="language-sh">$ just --evaluate
 escapes := &quot;\t\n\r\&quot;\\&quot;
 </code></pre>
 <p>Indented versions of both single- and double-quoted strings, delimited by triple single- or triple double-quotes, are supported. Indented string lines are stripped of leading whitespace common to all non-blank lines:</p>
-<pre><code class="language-make"># this string will evaluate to `foo\nbar\n`
+<pre><code class="language-just"># this string will evaluate to `foo\nbar\n`
 x := '''
   foo
   bar
@@ -877,7 +877,7 @@ y := &quot;&quot;&quot;
 <p>Similar to unindented strings, indented double-quoted strings process escape sequences, and indented single-quoted strings ignore escape sequences. Escape sequence processing takes place after unindentation. The unindention algorithm does not take escape-sequence produced whitespace or newlines into account.</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="ignoring-errors"><a class="header" href="#ignoring-errors">Ignoring Errors</a></h3>
 <p>Normally, if a command returns a non-zero exit status, execution will stop. To continue execution after a command, even if it fails, prefix the command with <code>-</code>:</p>
-<pre><code class="language-make">foo:
+<pre><code class="language-just">foo:
   -cat foo
   echo 'Done!'
 </code></pre>
@@ -896,7 +896,7 @@ Done!
 <li><code>os_family()</code> — Operating system family; possible values are: <code>&quot;unix&quot;</code> and <code>&quot;windows&quot;</code>.</li>
 </ul>
 <p>For example:</p>
-<pre><code class="language-make">system-info:
+<pre><code class="language-just">system-info:
   @echo &quot;This is an {{arch()}} machine&quot;.
 </code></pre>
 <pre><code class="language-sh">$ just system-info
@@ -907,7 +907,7 @@ This is an x86_64 machine
 <ul>
 <li><code>env_var(key)</code> — Retrieves the environment variable with name <code>key</code>, aborting if it is not present.</li>
 </ul>
-<pre><code class="language-make">home_dir := env_var('HOME')
+<pre><code class="language-just">home_dir := env_var('HOME')
 
 test:
   echo &quot;{{home_dir}}&quot;
@@ -923,11 +923,11 @@ test:
 <li><code>invocation_directory()</code> - Retrieves the absolute path to the current directory when <code>just</code> was invoked, before  <code>just</code> changed it (chdir’d) prior to executing commands.</li>
 </ul>
 <p>For example, to call <code>rustfmt</code> on files just under the “current directory” (from the user/invoker’s perspective), use the following rule:</p>
-<pre><code class="language-make">rustfmt:
+<pre><code class="language-just">rustfmt:
   find {{invocation_directory()}} -name \*.rs -exec rustfmt {} \;
 </code></pre>
 <p>Alternatively, if your command needs to be run from the current directory, you could use (e.g.):</p>
-<pre><code class="language-make">build:
+<pre><code class="language-just">build:
   cd {{invocation_directory()}}; ./some_script_that_needs_to_be_run_from_here
 </code></pre>
 <h4 id="justfile-and-justfile-directory"><a class="header" href="#justfile-and-justfile-directory">Justfile and Justfile Directory</a></h4>
@@ -940,7 +940,7 @@ test:
 </li>
 </ul>
 <p>For example, to run a command relative to the location of the current <code>justfile</code>:</p>
-<pre><code class="language-make">script:
+<pre><code class="language-just">script:
   ./{{justfile_directory()}}/scripts/some_script
 </code></pre>
 <h4 id="just-executable"><a class="header" href="#just-executable">Just Executable</a></h4>
@@ -948,7 +948,7 @@ test:
 <li><code>just_executable()</code> - Absolute path to the <code>just</code> executable.</li>
 </ul>
 <p>For example:</p>
-<pre><code class="language-make">executable:
+<pre><code class="language-just">executable:
   @echo The executable is at: {{just_executable()}}
 </code></pre>
 <pre><code class="language-sh">$ just
@@ -1030,7 +1030,7 @@ those configurations is active.</p>
 which operating system they run on. The <code>run</code> recipe in this <code>justfile</code> will
 compile and run <code>main.c</code>, using a different C compiler and using the correct
 output binary name for that compiler depending on the operating system:</p>
-<pre><code class="language-make">[unix]
+<pre><code class="language-just">[unix]
 run:
   cc main.c
   ./a.out
@@ -1047,7 +1047,7 @@ directory that contains the <code>justfile</code>. This can be disabled using th
 relative to the invocation directory, or which operate on the current
 directory.</p>
 <p>For exmaple, this <code>commit</code> recipe:</p>
-<pre><code class="language-make">[no-cd]
+<pre><code class="language-just">[no-cd]
 commit file:
   git add {{file}}
   git commit
@@ -1057,13 +1057,13 @@ commit file:
 <code>commit</code>.</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="command-evaluation-using-backticks"><a class="header" href="#command-evaluation-using-backticks">Command Evaluation Using Backticks</a></h3>
 <p>Backticks can be used to store the result of commands:</p>
-<pre><code class="language-make">localhost := `dumpinterfaces | cut -d: -f2 | sed 's/\/.*//' | sed 's/ //g'`
+<pre><code class="language-just">localhost := `dumpinterfaces | cut -d: -f2 | sed 's/\/.*//' | sed 's/ //g'`
 
 serve:
   ./serve {{localhost}} 8080
 </code></pre>
 <p>Indented backticks, delimited by three backticks, are de-indented in the same manner as indented strings:</p>
-<pre><code class="language-make"># This backtick evaluates the command `echo foo\necho bar\n`, which produces the value `foo\nbar\n`.
+<pre><code class="language-just"># This backtick evaluates the command `echo foo\necho bar\n`, which produces the value `foo\nbar\n`.
 stuff := ```
     echo foo
     echo bar
@@ -1073,7 +1073,7 @@ stuff := ```
 <p>Backticks may not start with <code>#!</code>. This syntax is reserved for a future upgrade.</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="conditional-expressions"><a class="header" href="#conditional-expressions">Conditional Expressions</a></h3>
 <p><code>if</code>/<code>else</code> expressions evaluate different branches depending on if two expressions evaluate to the same value:</p>
-<pre><code class="language-make">foo := if &quot;2&quot; == &quot;2&quot; { &quot;Good!&quot; } else { &quot;1984&quot; }
+<pre><code class="language-just">foo := if &quot;2&quot; == &quot;2&quot; { &quot;Good!&quot; } else { &quot;1984&quot; }
 
 bar:
   @echo &quot;{{foo}}&quot;
@@ -1082,7 +1082,7 @@ bar:
 Good!
 </code></pre>
 <p>It is also possible to test for inequality:</p>
-<pre><code class="language-make">foo := if &quot;hello&quot; != &quot;goodbye&quot; { &quot;xyz&quot; } else { &quot;abc&quot; }
+<pre><code class="language-just">foo := if &quot;hello&quot; != &quot;goodbye&quot; { &quot;xyz&quot; } else { &quot;abc&quot; }
 
 bar:
   @echo {{foo}}
@@ -1091,7 +1091,7 @@ bar:
 xyz
 </code></pre>
 <p>And match against regular expressions:</p>
-<pre><code class="language-make">foo := if &quot;hello&quot; =~ 'hel+o' { &quot;match&quot; } else { &quot;mismatch&quot; }
+<pre><code class="language-just">foo := if &quot;hello&quot; =~ 'hel+o' { &quot;match&quot; } else { &quot;mismatch&quot; }
 
 bar:
   @echo {{foo}}
@@ -1101,15 +1101,15 @@ match
 </code></pre>
 <p>Regular expressions are provided by the <a href="https://github.com/rust-lang/regex">regex crate</a>, whose syntax is documented on <a href="https://docs.rs/regex/1.5.4/regex/#syntax">docs.rs</a>. Since regular expressions commonly use backslash escape sequences, consider using single-quoted string literals, which will pass slashes to the regex parser unmolested.</p>
 <p>Conditional expressions short-circuit, which means they only evaluate one of their branches. This can be used to make sure that backtick expressions don’t run when they shouldn’t.</p>
-<pre><code class="language-make">foo := if env_var(&quot;RELEASE&quot;) == &quot;true&quot; { `get-something-from-release-database` } else { &quot;dummy-value&quot; }
+<pre><code class="language-just">foo := if env_var(&quot;RELEASE&quot;) == &quot;true&quot; { `get-something-from-release-database` } else { &quot;dummy-value&quot; }
 </code></pre>
 <p>Conditionals can be used inside of recipes:</p>
-<pre><code class="language-make">bar foo:
+<pre><code class="language-just">bar foo:
   echo {{ if foo == &quot;bar&quot; { &quot;hello&quot; } else { &quot;goodbye&quot; } }}
 </code></pre>
 <p>Note the space after the final <code>}</code>! Without the space, the interpolation will be prematurely closed.</p>
 <p>Multiple conditionals can be chained:</p>
-<pre><code class="language-make">foo := if &quot;hello&quot; == &quot;goodbye&quot; {
+<pre><code class="language-just">foo := if &quot;hello&quot; == &quot;goodbye&quot; {
   &quot;xyz&quot;
 } else if &quot;a&quot; == &quot;a&quot; {
   &quot;abc&quot;
@@ -1125,7 +1125,7 @@ abc
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="stopping-execution-with-error"><a class="header" href="#stopping-execution-with-error">Stopping execution with error</a></h3>
 <p>Execution can be halted with the <code>error</code> function. For example:</p>
-<pre><code>foo := if &quot;hello&quot; == &quot;goodbye&quot; {
+<pre><code class="language-just">foo := if &quot;hello&quot; == &quot;goodbye&quot; {
   &quot;xyz&quot;
 } else if &quot;a&quot; == &quot;b&quot; {
   &quot;abc&quot;
@@ -1140,7 +1140,7 @@ abc
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="setting-variables-from-the-command-line"><a class="header" href="#setting-variables-from-the-command-line">Setting Variables from the Command Line</a></h3>
 <p>Variables can be overridden from the command line.</p>
-<pre><code class="language-make">os := &quot;linux&quot;
+<pre><code class="language-just">os := &quot;linux&quot;
 
 test: build
   ./test --test {{os}}
@@ -1165,30 +1165,30 @@ build:
 <div style="break-before: page; page-break-before: always;"></div><h3 id="getting-and-setting-environment-variables"><a class="header" href="#getting-and-setting-environment-variables">Getting and Setting Environment Variables</a></h3>
 <h4 id="exporting-just-variables"><a class="header" href="#exporting-just-variables">Exporting <code>just</code> Variables</a></h4>
 <p>Assignments prefixed with the <code>export</code> keyword will be exported to recipes as environment variables:</p>
-<pre><code class="language-make">export RUST_BACKTRACE := &quot;1&quot;
+<pre><code class="language-just">export RUST_BACKTRACE := &quot;1&quot;
 
 test:
   # will print a stack trace if it crashes
   cargo test
 </code></pre>
 <p>Parameters prefixed with a <code>$</code> will be exported as environment variables:</p>
-<pre><code class="language-make">test $RUST_BACKTRACE=&quot;1&quot;:
+<pre><code class="language-just">test $RUST_BACKTRACE=&quot;1&quot;:
   # will print a stack trace if it crashes
   cargo test
 </code></pre>
 <p>Exported variables and parameters are not exported to backticks in the same scope.</p>
-<pre><code class="language-make">export WORLD := &quot;world&quot;
+<pre><code class="language-just">export WORLD := &quot;world&quot;
 # This backtick will fail with &quot;WORLD: unbound variable&quot;
 BAR := `echo hello $WORLD`
 </code></pre>
-<pre><code class="language-make"># Running `just a foo` will fail with &quot;A: unbound variable&quot;
+<pre><code class="language-just"># Running `just a foo` will fail with &quot;A: unbound variable&quot;
 a $A $B=`echo $A`:
   echo $A $B
 </code></pre>
 <p>When <a href="chapter_24.html#export">export</a> is set, all <code>just</code> variables are exported as environment variables.</p>
 <h4 id="getting-environment-variables-from-the-environment"><a class="header" href="#getting-environment-variables-from-the-environment">Getting Environment Variables from the environment</a></h4>
 <p>Environment variables from the environment are passed automatically to the recipes.</p>
-<pre><code class="language-make">print_home_folder:
+<pre><code class="language-just">print_home_folder:
   echo &quot;HOME is: '${HOME}'&quot;
 </code></pre>
 <pre><code class="language-sh">$ just
@@ -1201,7 +1201,7 @@ HOME is '/home/myuser'
 See <a href="chapter_30.html#environment-variables">environment-variables</a>.</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="recipe-parameters"><a class="header" href="#recipe-parameters">Recipe Parameters</a></h3>
 <p>Recipes may have parameters. Here recipe <code>build</code> has a parameter called <code>target</code>:</p>
-<pre><code class="language-make">build target:
+<pre><code class="language-just">build target:
   @echo 'Building {{target}}…'
   cd {{target}} &amp;&amp; make
 </code></pre>
@@ -1211,14 +1211,14 @@ Building my-awesome-project…
 cd my-awesome-project &amp;&amp; make
 </code></pre>
 <p>To pass arguments to a dependency, put the dependency in parentheses along with the arguments:</p>
-<pre><code class="language-make">default: (build &quot;main&quot;)
+<pre><code class="language-just">default: (build &quot;main&quot;)
 
 build target:
   @echo 'Building {{target}}…'
   cd {{target}} &amp;&amp; make
 </code></pre>
 <p>Variables can also be passed as arguments to dependencies:</p>
-<pre><code class="language-make">target := &quot;main&quot;
+<pre><code class="language-just">target := &quot;main&quot;
 
 _build version:
   @echo 'Building {{version}}…'
@@ -1227,14 +1227,14 @@ _build version:
 build: (_build target)
 </code></pre>
 <p>A command’s arguments can be passed to dependency by putting the dependency in parentheses along with the arguments:</p>
-<pre><code class="language-make">build target:
+<pre><code class="language-just">build target:
   @echo &quot;Building {{target}}…&quot;
 
 push target: (build target)
   @echo 'Pushing {{target}}…'
 </code></pre>
 <p>Parameters may have default values:</p>
-<pre><code class="language-make">default := 'all'
+<pre><code class="language-just">default := 'all'
 
 test target tests=default:
   @echo 'Testing {{target}}:{{tests}}…'
@@ -1251,13 +1251,13 @@ Testing server:unit…
 ./test --tests unit server
 </code></pre>
 <p>Default values may be arbitrary expressions, but concatenations or path joins must be parenthesized:</p>
-<pre><code class="language-make">arch := &quot;wasm&quot;
+<pre><code class="language-just">arch := &quot;wasm&quot;
 
 test triple=(arch + &quot;-unknown-unknown&quot;) input=(arch / &quot;input.dat&quot;):
   ./test {{triple}}
 </code></pre>
 <p>The last parameter of a recipe may be variadic, indicated with either a <code>+</code> or a <code>*</code> before the argument name:</p>
-<pre><code class="language-make">backup +FILES:
+<pre><code class="language-just">backup +FILES:
   scp {{FILES}} me@server.com:
 </code></pre>
 <p>Variadic parameters prefixed with <code>+</code> accept <em>one or more</em> arguments and expand to a string containing those arguments separated by spaces:</p>
@@ -1267,15 +1267,15 @@ FAQ.md                  100% 1831     1.8KB/s   00:00
 GRAMMAR.md              100% 1666     1.6KB/s   00:00
 </code></pre>
 <p>Variadic parameters prefixed with <code>*</code> accept <em>zero or more</em> arguments and expand to a string containing those arguments separated by spaces, or an empty string if no arguments are present:</p>
-<pre><code class="language-make">commit MESSAGE *FLAGS:
+<pre><code class="language-just">commit MESSAGE *FLAGS:
   git commit {{FLAGS}} -m &quot;{{MESSAGE}}&quot;
 </code></pre>
 <p>Variadic parameters can be assigned default values. These are overridden by arguments passed on the command line:</p>
-<pre><code class="language-make">test +FLAGS='-q':
+<pre><code class="language-just">test +FLAGS='-q':
   cargo test {{FLAGS}}
 </code></pre>
 <p><code>{{…}}</code> substitutions may need to be quoted if they contain spaces. For example, if you have the following recipe:</p>
-<pre><code class="language-make">search QUERY:
+<pre><code class="language-just">search QUERY:
   lynx https://www.google.com/?q={{QUERY}}
 </code></pre>
 <p>And you type:</p>
@@ -1283,17 +1283,17 @@ GRAMMAR.md              100% 1666     1.6KB/s   00:00
 </code></pre>
 <p><code>just</code> will run the command <code>lynx https://www.google.com/?q=cat toupee</code>, which will get parsed by <code>sh</code> as <code>lynx</code>, <code>https://www.google.com/?q=cat</code>, and <code>toupee</code>, and not the intended <code>lynx</code> and <code>https://www.google.com/?q=cat toupee</code>.</p>
 <p>You can fix this by adding quotes:</p>
-<pre><code class="language-make">search QUERY:
+<pre><code class="language-just">search QUERY:
   lynx 'https://www.google.com/?q={{QUERY}}'
 </code></pre>
 <p>Parameters prefixed with a <code>$</code> will be exported as environment variables:</p>
-<pre><code class="language-make">foo $bar:
+<pre><code class="language-just">foo $bar:
   echo $bar
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="running-recipes-at-the-end-of-a-recipe"><a class="header" href="#running-recipes-at-the-end-of-a-recipe">Running Recipes at the End of a Recipe</a></h3>
 <p>Normal dependencies of a recipes always run before a recipe starts. That is to say, the dependee always runs before the depender. These dependencies are called “prior dependencies”.</p>
 <p>A recipe can also have subsequent dependencies, which run after the recipe and are introduced with an <code>&amp;&amp;</code>:</p>
-<pre><code class="language-make">a:
+<pre><code class="language-just">a:
   echo 'A!'
 
 b: a &amp;&amp; c d
@@ -1318,7 +1318,7 @@ D!
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="running-recipes-in-the-middle-of-a-recipe"><a class="header" href="#running-recipes-in-the-middle-of-a-recipe">Running Recipes in the Middle of a Recipe</a></h3>
 <p><code>just</code> doesn’t support running recipes in the middle of another recipe, but you can call <code>just</code> recursively in the middle of a recipe. Given the following <code>justfile</code>:</p>
-<pre><code class="language-make">a:
+<pre><code class="language-just">a:
   echo 'A!'
 
 b: a
@@ -1345,7 +1345,7 @@ B end!
 <p>Recipes that start with <code>#!</code> are called shebang recipes, and are executed by
 saving the recipe body to a file and running it. This lets you write recipes in
 different languages:</p>
-<pre><code class="language-make">polyglot: python js perl sh ruby
+<pre><code class="language-just">polyglot: python js perl sh ruby
 
 python:
   #!/usr/bin/env python3
@@ -1393,7 +1393,7 @@ the split command and arguments, adding the path to the saved recipe body as
 the final argument.</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="safer-bash-shebang-recipes"><a class="header" href="#safer-bash-shebang-recipes">Safer Bash Shebang Recipes</a></h3>
 <p>If you’re writing a <code>bash</code> shebang recipe, consider adding <code>set -euxo pipefail</code>:</p>
-<pre><code class="language-make">foo:
+<pre><code class="language-just">foo:
   #!/usr/bin/env bash
   set -euxo pipefail
   hello='Yo'
@@ -1418,7 +1418,7 @@ the final argument.</p>
 <h4 id="shebang-recipe-execution-on-windows"><a class="header" href="#shebang-recipe-execution-on-windows">Shebang Recipe Execution on Windows</a></h4>
 <p>On Windows, shebang interpreter paths containing a <code>/</code> are translated from Unix-style paths to Windows-style paths using <code>cygpath</code>, a utility that ships with <a href="http://www.cygwin.com">Cygwin</a>.</p>
 <p>For example, to execute this recipe on Windows:</p>
-<pre><code class="language-make">echo:
+<pre><code class="language-just">echo:
   #!/bin/sh
   echo &quot;Hello!&quot;
 </code></pre>
@@ -1431,13 +1431,13 @@ the final argument.</p>
   echo {{x}}
 </code></pre>
 <p>It is possible to use shell variables, but there’s another problem. Every recipe line is run by a new shell instance, so variables set in one line won’t be set in the next:</p>
-<pre><code class="language-make">foo:
+<pre><code class="language-just">foo:
   x=hello &amp;&amp; echo $x # This works!
   y=bye
   echo $y            # This doesn't, `y` is undefined here!
 </code></pre>
 <p>The best way to work around this is to use a shebang recipe. Shebang recipe bodies are extracted and run as scripts, so a single shell instance will run the whole thing:</p>
-<pre><code class="language-make">foo:
+<pre><code class="language-just">foo:
   #!/usr/bin/env bash
   set -euxo pipefail
   x=hello
@@ -1447,7 +1447,7 @@ the final argument.</p>
 <p>Each line of each recipe is executed by a fresh shell, so it is not possible to share environment variables between recipes.</p>
 <h4 id="using-python-virtual-environments"><a class="header" href="#using-python-virtual-environments">Using Python Virtual Environments</a></h4>
 <p>Some tools, like <a href="https://docs.python.org/3/library/venv.html">Python’s venv</a>, require loading environment variables in order to work, making them challenging to use with <code>just</code>. As a workaround, you can execute the virtual environment binaries directly:</p>
-<pre><code class="language-make">venv:
+<pre><code class="language-just">venv:
   [ -d foo ] || python3 -m venv foo
 
 run: venv
@@ -1455,17 +1455,17 @@ run: venv
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="changing-the-working-directory-in-a-recipe"><a class="header" href="#changing-the-working-directory-in-a-recipe">Changing the Working Directory in a Recipe</a></h3>
 <p>Each recipe line is executed by a new shell, so if you change the working directory on one line, it won’t have an effect on later lines:</p>
-<pre><code class="language-make">foo:
+<pre><code class="language-just">foo:
   pwd    # This `pwd` will print the same directory…
   cd bar
   pwd    # …as this `pwd`!
 </code></pre>
 <p>There are a couple ways around this. One is to call <code>cd</code> on the same line as the command you want to run:</p>
-<pre><code class="language-make">foo:
+<pre><code class="language-just">foo:
   cd bar &amp;&amp; pwd
 </code></pre>
 <p>The other is to use a shebang recipe. Shebang recipe bodies are extracted and run as scripts, so a single shell instance will run the whole thing, and thus a <code>pwd</code> on one line will affect later lines, just like a shell script:</p>
-<pre><code class="language-make">foo:
+<pre><code class="language-just">foo:
   #!/usr/bin/env bash
   set -euxo pipefail
   cd bar
@@ -1490,45 +1490,45 @@ error: Recipe line has extra leading whitespace
 </code></pre>
 <p>To work around this, you can write conditionals on one line, escape newlines with slashes, or add a shebang to your recipe. Some examples of multi-line constructs are provided for reference.</p>
 <h4 id="if-statements"><a class="header" href="#if-statements"><code>if</code> statements</a></h4>
-<pre><code class="language-make">conditional:
+<pre><code class="language-just">conditional:
   if true; then echo 'True!'; fi
 </code></pre>
-<pre><code class="language-make">conditional:
+<pre><code class="language-just">conditional:
   if true; then \
     echo 'True!'; \
   fi
 </code></pre>
-<pre><code class="language-make">conditional:
+<pre><code class="language-just">conditional:
   #!/usr/bin/env sh
   if true; then
     echo 'True!'
   fi
 </code></pre>
 <h4 id="for-loops"><a class="header" href="#for-loops"><code>for</code> loops</a></h4>
-<pre><code class="language-make">for:
+<pre><code class="language-just">for:
   for file in `ls .`; do echo $file; done
 </code></pre>
-<pre><code class="language-make">for:
+<pre><code class="language-just">for:
   for file in `ls .`; do \
     echo $file; \
   done
 </code></pre>
-<pre><code class="language-make">for:
+<pre><code class="language-just">for:
   #!/usr/bin/env sh
   for file in `ls .`; do
     echo $file
   done
 </code></pre>
 <h4 id="while-loops"><a class="header" href="#while-loops"><code>while</code> loops</a></h4>
-<pre><code class="language-make">while:
+<pre><code class="language-just">while:
   while `server-is-dead`; do ping -c 1 server; done
 </code></pre>
-<pre><code class="language-make">while:
+<pre><code class="language-just">while:
   while `server-is-dead`; do \
     ping -c 1 server; \
   done
 </code></pre>
-<pre><code class="language-make">while:
+<pre><code class="language-just">while:
   #!/usr/bin/env sh
   while `server-is-dead`; do
     ping -c 1 server
@@ -1553,7 +1553,7 @@ polyglot: python js perl sh ruby
 <p>Run <code>just --help</code> to see all the options.</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="private-recipes"><a class="header" href="#private-recipes">Private Recipes</a></h3>
 <p>Recipes and aliases whose name starts with a <code>_</code> are omitted from <code>just --list</code>:</p>
-<pre><code class="language-make">test: _test-helper
+<pre><code class="language-just">test: _test-helper
   ./bin/test
 
 _test-helper:
@@ -1568,7 +1568,7 @@ Available recipes:
 test
 </code></pre>
 <p>The <code>[private]</code> attribute<sup>master</sup> may also be used to hide recipes without needing to change the name:</p>
-<pre><code class="language-make">[private]
+<pre><code class="language-just">[private]
 foo:
 
 bar:
@@ -1580,7 +1580,7 @@ Available recipes:
 <p>This is useful for helper recipes which are only meant to be used as dependencies of other recipes.</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="quiet-recipes"><a class="header" href="#quiet-recipes">Quiet Recipes</a></h3>
 <p>A recipe name may be prefixed with <code>@</code> to invert the meaning of <code>@</code> before each line:</p>
-<pre><code class="language-make">@quiet:
+<pre><code class="language-just">@quiet:
   echo hello
   echo goodbye
   @# all done!
@@ -1592,7 +1592,7 @@ goodbye
 # all done!
 </code></pre>
 <p>Shebang recipes are quiet by default:</p>
-<pre><code class="language-make">foo:
+<pre><code class="language-just">foo:
   #!/usr/bin/env bash
   echo 'Foo!'
 </code></pre>
@@ -1600,7 +1600,7 @@ goodbye
 Foo!
 </code></pre>
 <p>Adding <code>@</code> to a shebang recipe name makes <code>just</code> print the recipe before executing it:</p>
-<pre><code class="language-make">@bar:
+<pre><code class="language-just">@bar:
   #!/usr/bin/env bash
   echo 'Bar!'
 </code></pre>
@@ -1612,7 +1612,7 @@ Bar!
 <p><code>just</code> normally prints error messages when a recipe line fails. These error
 messages can be suppressed using the <code>[no-exit-message]</code> attribute. You may find
 this especially useful with a recipe that recipe wraps a tool:</p>
-<pre><code class="language-make">git *args:
+<pre><code class="language-just">git *args:
     @git {{args}}
 </code></pre>
 <pre><code class="language-sh">$ just git status
@@ -1621,7 +1621,7 @@ error: Recipe `git` failed on line 2 with exit code 128
 </code></pre>
 <p>Add the attribute to suppress the exit error message when the tool exits with a
 non-zero code:</p>
-<pre><code class="language-make">[no-exit-message]
+<pre><code class="language-just">[no-exit-message]
 git *args:
     @git {{args}}
 </code></pre>
@@ -1635,7 +1635,7 @@ fatal: not a git repository (or any of the parent directories): .git
 <p>Arguments can be included in the chooser, i.e. <code>fzf --exact</code>.</p>
 <p>The chooser is invoked in the same way as recipe lines. For example, if the chooser is <code>fzf</code>, it will be invoked with <code>sh -cu 'fzf'</code>, and if the shell, or the shell arguments are overridden, the chooser invocation will respect those overrides.</p>
 <p>If you’d like <code>just</code> to default to selecting recipes with a chooser, you can use this as your default recipe:</p>
-<pre><code class="language-make">default:
+<pre><code class="language-just">default:
   @just --choose
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="invoking-justfiles-in-other-directories"><a class="header" href="#invoking-justfiles-in-other-directories">Invoking <code>justfile</code>s in Other Directories</a></h3>
@@ -1675,7 +1675,7 @@ foo
 <p>When a script with a shebang is executed, the system supplies the path to the script as an argument to the command in the shebang. So, with a shebang of <code>#!/usr/bin/env just --justfile</code>, the command will be <code>/usr/bin/env just --justfile PATH_TO_SCRIPT</code>.</p>
 <p>With the above shebang, <code>just</code> will change its working directory to the location of the script. If you’d rather leave the working directory unchanged, use <code>#!/usr/bin/env just --working-directory . --justfile</code>.</p>
 <p>Note: Shebang line splitting is not consistent across operating systems. The previous examples have only been tested on macOS. On Linux, you may need to pass the <code>-S</code> flag to <code>env</code>:</p>
-<pre><code class="language-make">#!/usr/bin/env -S just --justfile
+<pre><code class="language-just">#!/usr/bin/env -S just --justfile
 
 default:
   echo foo
@@ -1690,12 +1690,12 @@ which the <code>fallback</code> setting is <code>false</code> or unset.</p>
 <p>This feature is currently unstable, and so must be enabled with the
 <code>--unstable</code> flag.</p>
 <p>As an example, suppose the current directory contains this <code>justfile</code>:</p>
-<pre><code class="language-make">set fallback
+<pre><code class="language-just">set fallback
 foo:
   echo foo
 </code></pre>
 <p>And the parent directory contains this <code>justfile</code>:</p>
-<pre><code class="language-make">bar:
+<pre><code class="language-just">bar:
   echo bar
 </code></pre>
 <pre><code class="language-sh">$ just --unstable bar
@@ -1705,7 +1705,7 @@ bar
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="avoiding-argument-splitting"><a class="header" href="#avoiding-argument-splitting">Avoiding Argument Splitting</a></h3>
 <p>Given this <code>justfile</code>:</p>
-<pre><code class="language-make">foo argument:
+<pre><code class="language-just">foo argument:
   touch {{argument}}
 </code></pre>
 <p>The following command will create two files, <code>some</code> and <code>argument.txt</code>:</p>
@@ -1715,13 +1715,13 @@ bar
 <p>There are a few ways to avoid this: quoting, positional arguments, and exported arguments.</p>
 <h4 id="quoting"><a class="header" href="#quoting">Quoting</a></h4>
 <p>Quotes can be added around the <code>{{argument}}</code> interpolation:</p>
-<pre><code class="language-make">foo argument:
+<pre><code class="language-just">foo argument:
   touch '{{argument}}'
 </code></pre>
 <p>This preserves <code>just</code>’s ability to catch variable name typos before running, for example if you were to write <code>{{argument}}</code>, but will not do what you want if the value of <code>argument</code> contains single quotes.</p>
 <h4 id="positional-arguments-1"><a class="header" href="#positional-arguments-1">Positional Arguments</a></h4>
 <p>The <code>positional-arguments</code> setting causes all arguments to be passed as positional arguments, allowing them to be accessed with <code>$1</code>, <code>$2</code>, …, and <code>$@</code>, which can be then double-quoted to avoid further splitting by the shell:</p>
-<pre><code class="language-make">set positional-arguments
+<pre><code class="language-just">set positional-arguments
 
 foo argument:
   touch &quot;$1&quot;
@@ -1729,13 +1729,13 @@ foo argument:
 <p>This defeats <code>just</code>’s ability to catch typos, for example if you type <code>$2</code>, but works for all possible values of <code>argument</code>, including those with double quotes.</p>
 <h4 id="exported-arguments"><a class="header" href="#exported-arguments">Exported Arguments</a></h4>
 <p>All arguments are exported when the <code>export</code> setting is set:</p>
-<pre><code class="language-make">set export
+<pre><code class="language-just">set export
 
 foo argument:
   touch &quot;$argument&quot;
 </code></pre>
 <p>Or individual arguments may be exported by prefixing them with <code>$</code>:</p>
-<pre><code class="language-make">foo $argument:
+<pre><code class="language-just">foo $argument:
   touch &quot;$argument&quot;
 </code></pre>
 <p>This defeats <code>just</code>’s ability to catch typos, for example if you type <code>$argumant</code>, but works for all possible values of <code>argument</code>, including those with double quotes.</p>
@@ -1808,7 +1808,7 @@ done
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="nodejs-packagejson-script-compatibility"><a class="header" href="#nodejs-packagejson-script-compatibility">Node.js <code>package.json</code> Script Compatibility</a></h3>
 <p>The following export statement gives <code>just</code> recipes access to local Node module binaries, and makes <code>just</code> recipe commands behave more like <code>script</code> entries in Node.js <code>package.json</code> files:</p>
-<pre><code class="language-make">export PATH := &quot;./node_modules/.bin:&quot; + env_var('PATH')
+<pre><code class="language-just">export PATH := &quot;./node_modules/.bin:&quot; + env_var('PATH')
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="alternatives-and-prior-art"><a class="header" href="#alternatives-and-prior-art">Alternatives and Prior Art</a></h3>
 <p>There is no shortage of command runners! Some more or less similar alternatives to <code>just</code> include:</p>
@@ -1847,7 +1847,7 @@ done
 <div style="break-before: page; page-break-before: always;"></div><h3 id="what-are-the-idiosyncrasies-of-make-that-just-avoids"><a class="header" href="#what-are-the-idiosyncrasies-of-make-that-just-avoids">What are the idiosyncrasies of Make that Just avoids?</a></h3>
 <p><code>make</code> has some behaviors which are confusing, complicated, or make it unsuitable for use as a general command runner.</p>
 <p>One example is that under some circumstances, <code>make</code> won’t actually run the commands in a recipe. For example, if you have a file called <code>test</code> and the following makefile:</p>
-<pre><code class="language-make">test:
+<pre><code class="language-just">test:
   ./test
 </code></pre>
 <p><code>make</code> will refuse to run your tests:</p>

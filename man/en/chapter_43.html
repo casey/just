@@ -148,7 +148,7 @@
 <p>Each line of each recipe is executed by a fresh shell, so it is not possible to share environment variables between recipes.</p>
 <h4 id="using-python-virtual-environments"><a class="header" href="#using-python-virtual-environments">Using Python Virtual Environments</a></h4>
 <p>Some tools, like <a href="https://docs.python.org/3/library/venv.html">Python’s venv</a>, require loading environment variables in order to work, making them challenging to use with <code>just</code>. As a workaround, you can execute the virtual environment binaries directly:</p>
-<pre><code class="language-make">venv:
+<pre><code class="language-just">venv:
   [ -d foo ] || python3 -m venv foo
 
 run: venv

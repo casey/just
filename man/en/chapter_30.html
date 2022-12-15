@@ -153,7 +153,7 @@
 <li><code>os_family()</code> — Operating system family; possible values are: <code>&quot;unix&quot;</code> and <code>&quot;windows&quot;</code>.</li>
 </ul>
 <p>For example:</p>
-<pre><code class="language-make">system-info:
+<pre><code class="language-just">system-info:
   @echo &quot;This is an {{arch()}} machine&quot;.
 </code></pre>
 <pre><code class="language-sh">$ just system-info
@@ -164,7 +164,7 @@ This is an x86_64 machine
 <ul>
 <li><code>env_var(key)</code> — Retrieves the environment variable with name <code>key</code>, aborting if it is not present.</li>
 </ul>
-<pre><code class="language-make">home_dir := env_var('HOME')
+<pre><code class="language-just">home_dir := env_var('HOME')
 
 test:
   echo &quot;{{home_dir}}&quot;
@@ -180,11 +180,11 @@ test:
 <li><code>invocation_directory()</code> - Retrieves the absolute path to the current directory when <code>just</code> was invoked, before  <code>just</code> changed it (chdir’d) prior to executing commands.</li>
 </ul>
 <p>For example, to call <code>rustfmt</code> on files just under the “current directory” (from the user/invoker’s perspective), use the following rule:</p>
-<pre><code class="language-make">rustfmt:
+<pre><code class="language-just">rustfmt:
   find {{invocation_directory()}} -name \*.rs -exec rustfmt {} \;
 </code></pre>
 <p>Alternatively, if your command needs to be run from the current directory, you could use (e.g.):</p>
-<pre><code class="language-make">build:
+<pre><code class="language-just">build:
   cd {{invocation_directory()}}; ./some_script_that_needs_to_be_run_from_here
 </code></pre>
 <h4 id="justfile-and-justfile-directory"><a class="header" href="#justfile-and-justfile-directory">Justfile and Justfile Directory</a></h4>
@@ -197,7 +197,7 @@ test:
 </li>
 </ul>
 <p>For example, to run a command relative to the location of the current <code>justfile</code>:</p>
-<pre><code class="language-make">script:
+<pre><code class="language-just">script:
   ./{{justfile_directory()}}/scripts/some_script
 </code></pre>
 <h4 id="just-executable"><a class="header" href="#just-executable">Just Executable</a></h4>
@@ -205,7 +205,7 @@ test:
 <li><code>just_executable()</code> - Absolute path to the <code>just</code> executable.</li>
 </ul>
 <p>For example:</p>
-<pre><code class="language-make">executable:
+<pre><code class="language-just">executable:
   @echo The executable is at: {{just_executable()}}
 </code></pre>
 <pre><code class="language-sh">$ just

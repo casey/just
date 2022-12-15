@@ -158,7 +158,7 @@ Available recipes:
 build test deploy lint
 </code></pre>
 <p>传入 <code>--unsorted</code> 选项可以按照它们在 <code>justfile</code> 中出现的顺序打印配方：</p>
-<pre><code class="language-make">test:
+<pre><code class="language-just">test:
   echo 'Testing!'
 
 build:
@@ -173,7 +173,7 @@ Available recipes:
 test build
 </code></pre>
 <p>如果你想让 <code>just</code> 默认列出 <code>justfile</code> 中的配方，你可以使用这个作为默认配方：</p>
-<pre><code class="language-make">default:
+<pre><code class="language-just">default:
   @just --list
 </code></pre>
 <p>请注意，你可能需要在上面这一行中添加 <code>--justfile {{justfile()}}</code>。没有它，如果你执行 <code>just -f /some/distant/justfile -d .</code> 或 <code>just -f ./non-standard-justfile</code> 配方中的普通 <code>just --list</code> 就不一定会使用你提供的文件，它将试图在你的当前路径中找到一个 <code>justfile</code>，甚至可能导致 <code>No justfile found</code> 的错误。</p>

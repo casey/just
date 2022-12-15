@@ -152,12 +152,12 @@ which the <code>fallback</code> setting is <code>false</code> or unset.</p>
 <p>This feature is currently unstable, and so must be enabled with the
 <code>--unstable</code> flag.</p>
 <p>As an example, suppose the current directory contains this <code>justfile</code>:</p>
-<pre><code class="language-make">set fallback
+<pre><code class="language-just">set fallback
 foo:
   echo foo
 </code></pre>
 <p>And the parent directory contains this <code>justfile</code>:</p>
-<pre><code class="language-make">bar:
+<pre><code class="language-just">bar:
   echo bar
 </code></pre>
 <pre><code class="language-sh">$ just --unstable bar

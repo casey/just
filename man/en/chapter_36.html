@@ -147,30 +147,30 @@
                         <h3 id="getting-and-setting-environment-variables"><a class="header" href="#getting-and-setting-environment-variables">Getting and Setting Environment Variables</a></h3>
 <h4 id="exporting-just-variables"><a class="header" href="#exporting-just-variables">Exporting <code>just</code> Variables</a></h4>
 <p>Assignments prefixed with the <code>export</code> keyword will be exported to recipes as environment variables:</p>
-<pre><code class="language-make">export RUST_BACKTRACE := &quot;1&quot;
+<pre><code class="language-just">export RUST_BACKTRACE := &quot;1&quot;
 
 test:
   # will print a stack trace if it crashes
   cargo test
 </code></pre>
 <p>Parameters prefixed with a <code>$</code> will be exported as environment variables:</p>
-<pre><code class="language-make">test $RUST_BACKTRACE=&quot;1&quot;:
+<pre><code class="language-just">test $RUST_BACKTRACE=&quot;1&quot;:
   # will print a stack trace if it crashes
   cargo test
 </code></pre>
 <p>Exported variables and parameters are not exported to backticks in the same scope.</p>
-<pre><code class="language-make">export WORLD := &quot;world&quot;
+<pre><code class="language-just">export WORLD := &quot;world&quot;
 # This backtick will fail with &quot;WORLD: unbound variable&quot;
 BAR := `echo hello $WORLD`
 </code></pre>
-<pre><code class="language-make"># Running `just a foo` will fail with &quot;A: unbound variable&quot;
+<pre><code class="language-just"># Running `just a foo` will fail with &quot;A: unbound variable&quot;
 a $A $B=`echo $A`:
   echo $A $B
 </code></pre>
 <p>When <a href="chapter_24.html#export">export</a> is set, all <code>just</code> variables are exported as environment variables.</p>
 <h4 id="getting-environment-variables-from-the-environment"><a class="header" href="#getting-environment-variables-from-the-environment">Getting Environment Variables from the environment</a></h4>
 <p>Environment variables from the environment are passed automatically to the recipes.</p>
-<pre><code class="language-make">print_home_folder:
+<pre><code class="language-just">print_home_folder:
   echo &quot;HOME is: '${HOME}'&quot;
 </code></pre>
 <pre><code class="language-sh">$ just

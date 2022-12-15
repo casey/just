@@ -151,7 +151,7 @@
 <p>参数可以包含在选择器中，例如：<code>fzf --exact</code>。</p>
 <p>选择器的调用方式与配方行的调用方式相同。例如，如果选择器是 <code>fzf</code>，它将被通过 <code>sh -cu 'fzf'</code> 调用，如果 Shell 或 Shell 参数被覆写，选择器的调用将尊重这些覆写。</p>
 <p>如果你希望 <code>just</code> 默认用选择器来选择配方，你可以用这个作为你的默认配方：</p>
-<pre><code class="language-make">default:
+<pre><code class="language-just">default:
   @just --choose
 </code></pre>
 

@@ -151,13 +151,13 @@
   echo {{x}}
 </code></pre>
 <p>使用 Shell 变量是可能的，但还有一个问题：每一行配方都由一个新的 Shell 实例运行，所以在一行中设置的变量不会在下一行中生效：</p>
-<pre><code class="language-make">foo:
+<pre><code class="language-just">foo:
   x=hello &amp;&amp; echo $x # 这个没问题！
   y=bye
   echo $y            # 这个是有问题的, `y` 在此处未定义!
 </code></pre>
 <p>解决这个问题的最好方法是使用 Shebang 配方。Shebang 配方体被提取出来并作为脚本运行，所以一个 Shell 实例就可以运行整个配方体：</p>
-<pre><code class="language-make">foo:
+<pre><code class="language-just">foo:
   #!/usr/bin/env bash
   set -euxo pipefail
   x=hello

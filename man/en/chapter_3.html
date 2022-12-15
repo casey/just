@@ -149,14 +149,14 @@
 <p>On Windows, <code>just</code> works with the <code>sh</code> provided by <a href="https://git-scm.com">Git for Windows</a>, <a href="https://desktop.github.com">GitHub Desktop</a>, or <a href="http://www.cygwin.com">Cygwin</a>.</p>
 <p>If you’d rather not install <code>sh</code>, you can use the <code>shell</code> setting to use the shell of your choice.</p>
 <p>Like PowerShell:</p>
-<pre><code class="language-make"># use PowerShell instead of sh:
+<pre><code class="language-just"># use PowerShell instead of sh:
 set shell := [&quot;powershell.exe&quot;, &quot;-c&quot;]
 
 hello:
   Write-Host &quot;Hello, world!&quot;
 </code></pre>
 <p>…or <code>cmd.exe</code>:</p>
-<pre><code class="language-make"># use cmd.exe instead of sh:
+<pre><code class="language-just"># use cmd.exe instead of sh:
 set shell := [&quot;cmd.exe&quot;, &quot;/c&quot;]
 
 list:

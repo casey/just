@@ -146,7 +146,7 @@
                     <main>
                         <h3 id="variables-and-substitution"><a class="header" href="#variables-and-substitution">Variables and Substitution</a></h3>
 <p>Variables, strings, concatenation, path joining, and substitution using <code>{{…}}</code> are supported:</p>
-<pre><code class="language-make">tmpdir  := `mktemp`
+<pre><code class="language-just">tmpdir  := `mktemp`
 version := &quot;0.2.7&quot;
 tardir  := tmpdir / &quot;awesomesauce-&quot; + version
 tarball := tardir + &quot;.tar.gz&quot;
@@ -161,20 +161,20 @@ publish:
 </code></pre>
 <h4 id="joining-paths"><a class="header" href="#joining-paths">Joining Paths</a></h4>
 <p>The <code>/</code> operator can be used to join two strings with a slash:</p>
-<pre><code class="language-make">foo := &quot;a&quot; / &quot;b&quot;
+<pre><code class="language-just">foo := &quot;a&quot; / &quot;b&quot;
 </code></pre>
 <pre><code>$ just --evaluate foo
 a/b
 </code></pre>
 <p>Note that a <code>/</code> is added even if one is already present:</p>
-<pre><code class="language-make">foo := &quot;a/&quot;
+<pre><code class="language-just">foo := &quot;a/&quot;
 bar := foo / &quot;b&quot;
 </code></pre>
 <pre><code>$ just --evaluate bar
 a//b
 </code></pre>
 <p>Absolute paths can also be constructed<sup>1.5.0</sup>:</p>
-<pre><code class="language-make">foo := / &quot;b&quot;
+<pre><code class="language-just">foo := / &quot;b&quot;
 </code></pre>
 <pre><code>$ just --evaluate foo
 /b
@@ -182,16 +182,16 @@ a//b
 <p>The <code>/</code> operator uses the <code>/</code> character, even on Windows. Thus, using the <code>/</code> operator should be avoided with paths that use universal naming convention (UNC), i.e., those that start with <code>\?</code>, since forward slashes are not supported with UNC paths.</p>
 <h4 id="escaping-"><a class="header" href="#escaping-">Escaping <code>{{</code></a></h4>
 <p>To write a recipe containing <code>{{</code>, use <code>{{{{</code>:</p>
-<pre><code class="language-make">braces:
+<pre><code class="language-just">braces:
   echo 'I {{{{LOVE}} curly braces!'
 </code></pre>
 <p>(An unmatched <code>}}</code> is ignored, so it doesn’t need to be escaped.)</p>
 <p>Another option is to put all the text you’d like to escape inside of an interpolation:</p>
-<pre><code class="language-make">braces:
+<pre><code class="language-just">braces:
   echo '{{'I {{LOVE}} curly braces!'}}'
 </code></pre>
 <p>Yet another option is to use <code>{{ &quot;{{&quot; }}</code>:</p>
-<pre><code class="language-make">braces:
+<pre><code class="language-just">braces:
   echo 'I {{ &quot;{{&quot; }}LOVE}} curly braces!'
 </code></pre>
 

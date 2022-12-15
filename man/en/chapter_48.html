@@ -146,7 +146,7 @@
                     <main>
                         <h3 id="private-recipes"><a class="header" href="#private-recipes">Private Recipes</a></h3>
 <p>Recipes and aliases whose name starts with a <code>_</code> are omitted from <code>just --list</code>:</p>
-<pre><code class="language-make">test: _test-helper
+<pre><code class="language-just">test: _test-helper
   ./bin/test
 
 _test-helper:
@@ -161,7 +161,7 @@ Available recipes:
 test
 </code></pre>
 <p>The <code>[private]</code> attribute<sup>master</sup> may also be used to hide recipes without needing to change the name:</p>
-<pre><code class="language-make">[private]
+<pre><code class="language-just">[private]
 foo:
 
 bar:

@@ -153,7 +153,7 @@
 <li><code>os_family()</code> — 操作系统系列；可能的值是：<code>&quot;unix&quot;</code> 和 <code>&quot;windows&quot;</code>。</li>
 </ul>
 <p>例如：</p>
-<pre><code class="language-make">system-info:
+<pre><code class="language-just">system-info:
   @echo &quot;This is an {{arch()}} machine&quot;.
 </code></pre>
 <pre><code class="language-sh">$ just system-info
@@ -164,7 +164,7 @@ This is an x86_64 machine
 <ul>
 <li><code>env_var(key)</code> — 获取名称为 <code>key</code> 的环境变量，如果不存在则终止。</li>
 </ul>
-<pre><code class="language-make">home_dir := env_var('HOME')
+<pre><code class="language-just">home_dir := env_var('HOME')
 
 test:
   echo &quot;{{home_dir}}&quot;
@@ -180,11 +180,11 @@ test:
 <li><code>invocation_directory()</code> - 获取 <code>just</code> 被调用时当前目录所对应的绝对路径，在 <code>just</code> 改变路径并执行相应命令前。</li>
 </ul>
 <p>例如，要对 “当前目录” 下的文件调用 <code>rustfmt</code>（从用户/调用者的角度看），使用以下规则：</p>
-<pre><code class="language-make">rustfmt:
+<pre><code class="language-just">rustfmt:
   find {{invocation_directory()}} -name \*.rs -exec rustfmt {} \;
 </code></pre>
 <p>另外，如果你的命令需要从当前目录运行，你可以使用如下方式：</p>
-<pre><code class="language-make">build:
+<pre><code class="language-just">build:
   cd {{invocation_directory()}}; ./some_script_that_needs_to_be_run_from_here
 </code></pre>
 <h4 id="justfile-和-justfile-目录"><a class="header" href="#justfile-和-justfile-目录">Justfile 和 Justfile 目录</a></h4>
@@ -197,7 +197,7 @@ test:
 </li>
 </ul>
 <p>例如，运行一个相对于当前 <code>justfile</code> 位置的命令：</p>
-<pre><code class="language-make">script:
+<pre><code class="language-just">script:
   ./{{justfile_directory()}}/scripts/some_script
 </code></pre>
 <h4 id="just-可执行程序"><a class="header" href="#just-可执行程序">Just 可执行程序</a></h4>
@@ -205,7 +205,7 @@ test:
 <li><code>just_executable()</code> - <code>just</code> 可执行文件的绝对路径。</li>
 </ul>
 <p>例如：</p>
-<pre><code class="language-make">executable:
+<pre><code class="language-just">executable:
   @echo The executable is at: {{just_executable()}}
 </code></pre>
 <pre><code class="language-sh">$ just

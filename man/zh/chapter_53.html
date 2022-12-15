@@ -160,7 +160,7 @@ foo
 <p>当一个带有 Shebang 的脚本被执行时，系统会提供该脚本的路径作为 Shebang 中命令的参数。因此，如果 Shebang 是 <code>#!/usr/bin/env just --justfile</code>，对应的命令将是 <code>/usr/bin/env just --justfile PATH_TO_SCRIPT</code>。</p>
 <p>对于上面的命令，<code>just</code> 会把它的工作目录改为脚本的位置。如果你想让工作目录保持不变，可以使用 <code>#!/usr/bin/env just --working-directory . --justfile</code>。</p>
 <p>注意：Shebang 的行分隔在不同的操作系统中并不一致。前面的例子只在 macOS 上进行了测试。在 Linux 上，你可能需要向 <code>env</code> 传递 <code>-S</code> 标志：</p>
-<pre><code class="language-make">#!/usr/bin/env -S just --justfile
+<pre><code class="language-just">#!/usr/bin/env -S just --justfile
 
 default:
   echo foo

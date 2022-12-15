@@ -146,7 +146,7 @@
                     <main>
                         <h3 id="避免参数分割"><a class="header" href="#避免参数分割">避免参数分割</a></h3>
 <p>考虑这个 <code>justfile</code>:</p>
-<pre><code class="language-make">foo argument:
+<pre><code class="language-just">foo argument:
   touch {{argument}}
 </code></pre>
 <p>下面的命令将创建两个文件，<code>some</code> 和 <code>argument.txt</code>：</p>
@@ -156,13 +156,13 @@
 <p>有几种方法可以避免这种情况：引号包裹、位置参数和导出参数。</p>
 <h4 id="引号包裹"><a class="header" href="#引号包裹">引号包裹</a></h4>
 <p>可以在 <code>{{argument}}</code> 的周围加上引号，进行插值：</p>
-<pre><code class="language-make">foo argument:
+<pre><code class="language-just">foo argument:
   touch '{{argument}}'
 </code></pre>
 <p>这保留了 <code>just</code> 在运行前捕捉变量名称拼写错误的能力，例如，如果你写成了 <code>{{argument}}</code>，但如果 <code>argument</code> 的值包含单引号，则不会如你的预期那样工作。</p>
 <h4 id="位置参数"><a class="header" href="#位置参数">位置参数</a></h4>
 <p>设置 <code>positional-arguments</code> 使所有参数作为位置参数传递，允许用 <code>$1</code>, <code>$2</code>, …, 和 <code>$@</code> 访问这些参数，然后可以用双引号避免被 Shell 进一步分割：</p>
-<pre><code class="language-make">set positional-arguments
+<pre><code class="language-just">set positional-arguments
 
 foo argument:
   touch &quot;$1&quot;
@@ -170,13 +170,13 @@ foo argument:
 <p>这就破坏了 <code>just</code> 捕捉拼写错误的能力，例如你输入了 <code>$2</code>，这对 <code>argument</code> 的所有可能的值都有效，包括那些带双引号的值。</p>
 <h4 id="导出参数"><a class="header" href="#导出参数">导出参数</a></h4>
 <p>当设置 <code>export</code> 时，所有参数都被导出：</p>
-<pre><code class="language-make">set export
+<pre><code class="language-just">set export
 
 foo argument:
   touch &quot;$argument&quot;
 </code></pre>
 <p>或者可以通过在参数前加上 <code>$</code> 来导出单个参数：</p>
-<pre><code class="language-make">foo $argument:
+<pre><code class="language-just">foo $argument:
   touch &quot;$argument&quot;
 </code></pre>
 <p>这就破坏了 <code>just</code> 捕捉拼写错误的能力，例如你输入 <code>$argumant</code>，但对 <code>argument</code> 的所有可能的值都有效，包括那些带双引号的。</p>

@@ -161,45 +161,45 @@ error: Recipe line has extra leading whitespace
 </code></pre>
 <p>To work around this, you can write conditionals on one line, escape newlines with slashes, or add a shebang to your recipe. Some examples of multi-line constructs are provided for reference.</p>
 <h4 id="if-statements"><a class="header" href="#if-statements"><code>if</code> statements</a></h4>
-<pre><code class="language-make">conditional:
+<pre><code class="language-just">conditional:
   if true; then echo 'True!'; fi
 </code></pre>
-<pre><code class="language-make">conditional:
+<pre><code class="language-just">conditional:
   if true; then \
     echo 'True!'; \
   fi
 </code></pre>
-<pre><code class="language-make">conditional:
+<pre><code class="language-just">conditional:
   #!/usr/bin/env sh
   if true; then
     echo 'True!'
   fi
 </code></pre>
 <h4 id="for-loops"><a class="header" href="#for-loops"><code>for</code> loops</a></h4>
-<pre><code class="language-make">for:
+<pre><code class="language-just">for:
   for file in `ls .`; do echo $file; done
 </code></pre>
-<pre><code class="language-make">for:
+<pre><code class="language-just">for:
   for file in `ls .`; do \
     echo $file; \
   done
 </code></pre>
-<pre><code class="language-make">for:
+<pre><code class="language-just">for:
   #!/usr/bin/env sh
   for file in `ls .`; do
     echo $file
   done
 </code></pre>
 <h4 id="while-loops"><a class="header" href="#while-loops"><code>while</code> loops</a></h4>
-<pre><code class="language-make">while:
+<pre><code class="language-just">while:
   while `server-is-dead`; do ping -c 1 server; done
 </code></pre>
-<pre><code class="language-make">while:
+<pre><code class="language-just">while:
   while `server-is-dead`; do \
     ping -c 1 server; \
   done
 </code></pre>
-<pre><code class="language-make">while:
+<pre><code class="language-just">while:
   #!/usr/bin/env sh
   while `server-is-dead`; do
     ping -c 1 server

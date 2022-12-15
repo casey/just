@@ -146,7 +146,7 @@
                     <main>
                         <h3 id="配方参数"><a class="header" href="#配方参数">配方参数</a></h3>
 <p>配方可以有参数。这里的配方 <code>build</code> 有一个参数叫 <code>target</code>:</p>
-<pre><code class="language-make">build target:
+<pre><code class="language-just">build target:
   @echo 'Building {{target}}…'
   cd {{target}} &amp;&amp; make
 </code></pre>
@@ -156,14 +156,14 @@ Building my-awesome-project…
 cd my-awesome-project &amp;&amp; make
 </code></pre>
 <p>要向依赖配方传递参数，请将依赖配方和参数一起放在括号里：</p>
-<pre><code class="language-make">default: (build &quot;main&quot;)
+<pre><code class="language-just">default: (build &quot;main&quot;)
 
 build target:
   @echo 'Building {{target}}…'
   cd {{target}} &amp;&amp; make
 </code></pre>
 <p>变量也可以作为参数传递给依赖：</p>
-<pre><code class="language-make">target := &quot;main&quot;
+<pre><code class="language-just">target := &quot;main&quot;
 
 _build version:
   @echo 'Building {{version}}…'
@@ -172,14 +172,14 @@ _build version:
 build: (_build target)
 </code></pre>
 <p>命令的参数可以通过将依赖与参数一起放在括号中的方式传递给依赖：</p>
-<pre><code class="language-make">build target:
+<pre><code class="language-just">build target:
   @echo &quot;Building {{target}}…&quot;
 
 push target: (build target)
   @echo 'Pushing {{target}}…'
 </code></pre>
 <p>参数可以有默认值：</p>
-<pre><code class="language-make">default := 'all'
+<pre><code class="language-just">default := 'all'
 
 test target tests=default:
   @echo 'Testing {{target}}:{{tests}}…'
@@ -196,13 +196,13 @@ Testing server:unit…
 ./test --tests unit server
 </code></pre>
 <p>默认值可以是任意的表达式，但字符串或路径拼接必须放在括号内：</p>
-<pre><code class="language-make">arch := &quot;wasm&quot;
+<pre><code class="language-just">arch := &quot;wasm&quot;
 
 test triple=(arch + &quot;-unknown-unknown&quot;) input=(arch / &quot;input.dat&quot;):
   ./test {{triple}}
 </code></pre>
 <p>配方的最后一个参数可以是变长的，在参数名称前用 <code>+</code> 或 <code>*</code> 表示：</p>
-<pre><code class="language-make">backup +FILES:
+<pre><code class="language-just">backup +FILES:
   scp {{FILES}} me@server.com:
 </code></pre>
 <p>以 <code>+</code> 为前缀的变长参数接受 <em>一个或多个</em> 参数，并展开为一个包含这些参数的字符串，以空格分隔：</p>
@@ -212,15 +212,15 @@ FAQ.md                  100% 1831     1.8KB/s   00:00
 GRAMMAR.md              100% 1666     1.6KB/s   00:00
 </code></pre>
 <p>以 <code>*</code> 为前缀的变长参数接受 <em>0个或更多</em> 参数，并展开为一个包含这些参数的字符串，以空格分隔，如果没有参数，则为空字符串：</p>
-<pre><code class="language-make">commit MESSAGE *FLAGS:
+<pre><code class="language-just">commit MESSAGE *FLAGS:
   git commit {{FLAGS}} -m &quot;{{MESSAGE}}&quot;
 </code></pre>
 <p>变长参数可以被分配默认值。这些参数被命令行上传递的参数所覆盖：</p>
-<pre><code class="language-make">test +FLAGS='-q':
+<pre><code class="language-just">test +FLAGS='-q':
   cargo test {{FLAGS}}
 </code></pre>
 <p><code>{{…}}</code> 的替换可能需要加引号，如果它们包含空格。例如，如果你有以下配方：</p>
-<pre><code class="language-make">search QUERY:
+<pre><code class="language-just">search QUERY:
   lynx https://www.google.com/?q={{QUERY}}
 </code></pre>
 <p>然后你输入：</p>
@@ -228,11 +228,11 @@ GRAMMAR.md              100% 1666     1.6KB/s   00:00
 </code></pre>
 <p><code>just</code> 将运行 <code>lynx https://www.google.com/?q=cat toupee</code> 命令，这将被 <code>sh</code> 解析为<code>lynx</code>、<code>https://www.google.com/?q=cat</code> 和 <code>toupee</code>，而不是原来的 <code>lynx</code> 和 <code>https://www.google.com/?q=cat toupee</code>。</p>
 <p>你可以通过添加引号来解决这个问题：</p>
-<pre><code class="language-make">search QUERY:
+<pre><code class="language-just">search QUERY:
   lynx 'https://www.google.com/?q={{QUERY}}'
 </code></pre>
 <p>以 <code>$</code> 为前缀的参数将被作为环境变量导出：</p>
-<pre><code class="language-make">foo $bar:
+<pre><code class="language-just">foo $bar:
   echo $bar
 </code></pre>
 

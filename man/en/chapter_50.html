@@ -151,7 +151,7 @@
 <p>Arguments can be included in the chooser, i.e. <code>fzf --exact</code>.</p>
 <p>The chooser is invoked in the same way as recipe lines. For example, if the chooser is <code>fzf</code>, it will be invoked with <code>sh -cu 'fzf'</code>, and if the shell, or the shell arguments are overridden, the chooser invocation will respect those overrides.</p>
 <p>If you’d like <code>just</code> to default to selecting recipes with a chooser, you can use this as your default recipe:</p>
-<pre><code class="language-make">default:
+<pre><code class="language-just">default:
   @just --choose
 </code></pre>
 

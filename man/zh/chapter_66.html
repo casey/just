@@ -146,7 +146,7 @@
                     <main>
                         <h3 id="nodejs-packagejson-脚本兼容性"><a class="header" href="#nodejs-packagejson-脚本兼容性">Node.js <code>package.json</code> 脚本兼容性</a></h3>
 <p>下面的导出语句使 <code>just</code> 配方能够访问本地 Node 模块二进制文件，并使 <code>just</code> 配方命令的行为更像 Node.js <code>package.json</code> 文件中的 <code>script</code> 条目：</p>
-<pre><code class="language-make">export PATH := &quot;./node_modules/.bin:&quot; + env_var('PATH')
+<pre><code class="language-just">export PATH := &quot;./node_modules/.bin:&quot; + env_var('PATH')
 </code></pre>
 
                     </main>

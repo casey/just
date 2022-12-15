@@ -146,17 +146,17 @@
                     <main>
                         <h3 id="改变配方中的工作目录"><a class="header" href="#改变配方中的工作目录">改变配方中的工作目录</a></h3>
 <p>每一行配方都由一个新的 Shell 执行，所以如果你在某一行改变了工作目录，对后面的行不会有影响：</p>
-<pre><code class="language-make">foo:
+<pre><code class="language-just">foo:
   pwd    # This `pwd` will print the same directory…
   cd bar
   pwd    # …as this `pwd`!
 </code></pre>
 <p>有几个方法可以解决这个问题。一个是在你想运行的命令的同一行调用 <code>cd</code>：</p>
-<pre><code class="language-make">foo:
+<pre><code class="language-just">foo:
   cd bar &amp;&amp; pwd
 </code></pre>
 <p>另一种方法是使用 Shebang 配方。Shebang 配方体被提取并作为脚本运行，因此一个 Shell 实例将运行整个配方体，所以一行的 <code>pwd</code> 改变将影响后面的行，就像一个 Shell 脚本：</p>
-<pre><code class="language-make">foo:
+<pre><code class="language-just">foo:
   #!/usr/bin/env bash
   set -euxo pipefail
   cd bar

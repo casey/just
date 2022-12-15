@@ -146,7 +146,7 @@
                     <main>
                         <h3 id="strings"><a class="header" href="#strings">Strings</a></h3>
 <p>Double-quoted strings support escape sequences:</p>
-<pre><code class="language-make">string-with-tab             := &quot;\t&quot;
+<pre><code class="language-just">string-with-tab             := &quot;\t&quot;
 string-with-newline         := &quot;\n&quot;
 string-with-carriage-return := &quot;\r&quot;
 string-with-double-quote    := &quot;\&quot;&quot;
@@ -164,7 +164,7 @@ string-with-slash           := &quot;\&quot;
 string-with-tab             := &quot;     &quot;
 </code></pre>
 <p>Strings may contain line breaks:</p>
-<pre><code class="language-make">single := '
+<pre><code class="language-just">single := '
 hello
 '
 
@@ -173,13 +173,13 @@ goodbye
 &quot;
 </code></pre>
 <p>Single-quoted strings do not recognize escape sequences:</p>
-<pre><code class="language-make">escapes := '\t\n\r\&quot;\\'
+<pre><code class="language-just">escapes := '\t\n\r\&quot;\\'
 </code></pre>
 <pre><code class="language-sh">$ just --evaluate
 escapes := &quot;\t\n\r\&quot;\\&quot;
 </code></pre>
 <p>Indented versions of both single- and double-quoted strings, delimited by triple single- or triple double-quotes, are supported. Indented string lines are stripped of leading whitespace common to all non-blank lines:</p>
-<pre><code class="language-make"># this string will evaluate to `foo\nbar\n`
+<pre><code class="language-just"># this string will evaluate to `foo\nbar\n`
 x := '''
   foo
   bar

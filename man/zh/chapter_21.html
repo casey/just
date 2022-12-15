@@ -146,11 +146,11 @@
                     <main>
                         <h3 id="默认配方"><a class="header" href="#默认配方">默认配方</a></h3>
 <p>当 <code>just</code> 被调用而没有传入任何配方时，它会运行 <code>justfile</code> 中的第一个配方。这个配方可能是项目中最常运行的命令，比如运行测试：</p>
-<pre><code class="language-make">test:
+<pre><code class="language-just">test:
   cargo test
 </code></pre>
 <p>你也可以使用依赖关系来默认运行多个配方：</p>
-<pre><code class="language-make">default: lint build test
+<pre><code class="language-just">default: lint build test
 
 build:
   echo Building…
@@ -162,7 +162,7 @@ lint:
   echo Linting…
 </code></pre>
 <p>在没有合适配方作为默认配方的情况下，你也可以在 <code>justfile</code> 的开头添加一个配方，用于列出可用的配方：</p>
-<pre><code class="language-make">default:
+<pre><code class="language-just">default:
   just --list
 </code></pre>
 

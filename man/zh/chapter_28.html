@@ -146,7 +146,7 @@
                     <main>
                         <h3 id="字符串"><a class="header" href="#字符串">字符串</a></h3>
 <p>双引号字符串支持转义序列：</p>
-<pre><code class="language-make">string-with-tab             := &quot;\t&quot;
+<pre><code class="language-just">string-with-tab             := &quot;\t&quot;
 string-with-newline         := &quot;\n&quot;
 string-with-carriage-return := &quot;\r&quot;
 string-with-double-quote    := &quot;\&quot;&quot;
@@ -164,7 +164,7 @@ string-with-slash           := &quot;\&quot;
 string-with-tab             := &quot;     &quot;
 </code></pre>
 <p>字符串可以包含换行符：</p>
-<pre><code class="language-make">single := '
+<pre><code class="language-just">single := '
 hello
 '
 
@@ -173,13 +173,13 @@ goodbye
 &quot;
 </code></pre>
 <p>单引号字符串不支持转义序列：</p>
-<pre><code class="language-make">escapes := '\t\n\r\&quot;\\'
+<pre><code class="language-just">escapes := '\t\n\r\&quot;\\'
 </code></pre>
 <pre><code class="language-sh">$ just --evaluate
 escapes := &quot;\t\n\r\&quot;\\&quot;
 </code></pre>
 <p>支持单引号和双引号字符串的缩进版本，以三个单引号或三个双引号为界。缩进的字符串行被删除了所有非空行所共有的前导空白：</p>
-<pre><code class="language-make"># 这个字符串执行结果为 `foo\nbar\n`
+<pre><code class="language-just"># 这个字符串执行结果为 `foo\nbar\n`
 x := '''
   foo
   bar

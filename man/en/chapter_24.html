@@ -147,7 +147,7 @@
                         <h3 id="settings"><a class="header" href="#settings">Settings</a></h3>
 <p>Settings control interpretation and execution. Each setting may be specified at most once, anywhere in the <code>justfile</code>.</p>
 <p>For example:</p>
-<pre><code class="language-make">set shell := [&quot;zsh&quot;, &quot;-cu&quot;]
+<pre><code class="language-just">set shell := [&quot;zsh&quot;, &quot;-cu&quot;]
 
 foo:
   # this line will be run as `zsh -cu 'ls **/*.txt'`
@@ -168,14 +168,14 @@ foo:
 </tbody></table>
 </div>
 <p>Boolean settings can be written as:</p>
-<pre><code class="language-mf">set NAME
+<pre><code class="language-justfile">set NAME
 </code></pre>
 <p>Which is equivalent to:</p>
-<pre><code class="language-mf">set NAME := true
+<pre><code class="language-justfile">set NAME := true
 </code></pre>
 <h4 id="allow-duplicate-recipes"><a class="header" href="#allow-duplicate-recipes">Allow Duplicate Recipes</a></h4>
 <p>If <code>allow-duplicate-recipes</code> is set to <code>true</code>, defining multiple recipes with the same name is not an error and the last definition is used. Defaults to <code>false</code>.</p>
-<pre><code class="language-make">set allow-duplicate-recipes
+<pre><code class="language-just">set allow-duplicate-recipes
 
 @foo:
   echo foo
@@ -190,7 +190,7 @@ bar
 <p>If <code>dotenv-load</code> is <code>true</code>, a <code>.env</code> file will be loaded if present. Defaults to <code>false</code>.</p>
 <h4 id="export"><a class="header" href="#export">Export</a></h4>
 <p>The <code>export</code> setting causes all <code>just</code> variables to be exported as environment variables. Defaults to <code>false</code>.</p>
-<pre><code class="language-make">set export
+<pre><code class="language-just">set export
 
 a := &quot;hello&quot;
 
@@ -205,7 +205,7 @@ goodbye
 <h4 id="positional-arguments"><a class="header" href="#positional-arguments">Positional Arguments</a></h4>
 <p>If <code>positional-arguments</code> is <code>true</code>, recipe arguments will be passed as positional arguments to commands. For linewise recipes, argument <code>$0</code> will be the name of the recipe.</p>
 <p>For example, running this recipe:</p>
-<pre><code class="language-make">set positional-arguments
+<pre><code class="language-just">set positional-arguments
 
 @foo bar:
   echo $0
@@ -218,7 +218,7 @@ hello
 </code></pre>
 <p>When using an <code>sh</code>-compatible shell, such as <code>bash</code> or <code>zsh</code>, <code>$@</code> expands to the positional arguments given to the recipe, starting from one. When used within double quotes as <code>&quot;$@&quot;</code>, arguments including whitespace will be passed on as if they were double-quoted. That is, <code>&quot;$@&quot;</code> is equivalent to <code>&quot;$1&quot; &quot;$2&quot;</code>… When there are no positional parameters, <code>&quot;$@&quot;</code> and <code>$@</code> expand to nothing (i.e., they are removed).</p>
 <p>This example recipe will print arguments one by one on separate lines:</p>
-<pre><code class="language-make">set positional-arguments
+<pre><code class="language-just">set positional-arguments
 
 @test *args='':
   bash -c 'while (( &quot;$#&quot; )); do echo - $1; shift; done' -- &quot;$@&quot;
@@ -230,7 +230,7 @@ hello
 </code></pre>
 <h4 id="shell"><a class="header" href="#shell">Shell</a></h4>
 <p>The <code>shell</code> setting controls the command used to invoke recipe lines and backticks. Shebang recipes are unaffected.</p>
-<pre><code class="language-make"># use python3 to execute recipe lines and backticks
+<pre><code class="language-just"># use python3 to execute recipe lines and backticks
 set shell := [&quot;python3&quot;, &quot;-c&quot;]
 
 # use print to capture result of evaluation
@@ -243,7 +243,7 @@ foo:
 <p><code>just</code> passes the command to be executed as an argument. Many shells will need an additional flag, often <code>-c</code>, to make them evaluate the first argument.</p>
 <h5 id="windows-shell"><a class="header" href="#windows-shell">Windows Shell</a></h5>
 <p><code>just</code> uses <code>sh</code> on Windows by default. To use a different shell on Windows, use <code>windows-shell</code>:</p>
-<pre><code class="language-make">set windows-shell := [&quot;powershell.exe&quot;, &quot;-NoLogo&quot;, &quot;-Command&quot;]
+<pre><code class="language-just">set windows-shell := [&quot;powershell.exe&quot;, &quot;-NoLogo&quot;, &quot;-Command&quot;]
 
 hello:
   Write-Host &quot;Hello, world!&quot;
@@ -252,28 +252,28 @@ hello:
 <h5 id="windows-powershell"><a class="header" href="#windows-powershell">Windows PowerShell</a></h5>
 <p><em><code>set windows-powershell</code> uses the legacy <code>powershell.exe</code> binary, and is no longer recommended. See the <code>windows-shell</code> setting above for a more flexible way to control which shell is used on Windows.</em></p>
 <p><code>just</code> uses <code>sh</code> on Windows by default. To use <code>powershell.exe</code> instead, set <code>windows-powershell</code> to true.</p>
-<pre><code class="language-make">set windows-powershell := true
+<pre><code class="language-just">set windows-powershell := true
 
 hello:
   Write-Host &quot;Hello, world!&quot;
 </code></pre>
 <h5 id="python-3"><a class="header" href="#python-3">Python 3</a></h5>
-<pre><code class="language-make">set shell := [&quot;python3&quot;, &quot;-c&quot;]
+<pre><code class="language-just">set shell := [&quot;python3&quot;, &quot;-c&quot;]
 </code></pre>
 <h5 id="bash"><a class="header" href="#bash">Bash</a></h5>
-<pre><code class="language-make">set shell := [&quot;bash&quot;, &quot;-uc&quot;]
+<pre><code class="language-just">set shell := [&quot;bash&quot;, &quot;-uc&quot;]
 </code></pre>
 <h5 id="z-shell"><a class="header" href="#z-shell">Z Shell</a></h5>
-<pre><code class="language-make">set shell := [&quot;zsh&quot;, &quot;-uc&quot;]
+<pre><code class="language-just">set shell := [&quot;zsh&quot;, &quot;-uc&quot;]
 </code></pre>
 <h5 id="fish"><a class="header" href="#fish">Fish</a></h5>
-<pre><code class="language-make">set shell := [&quot;fish&quot;, &quot;-c&quot;]
+<pre><code class="language-just">set shell := [&quot;fish&quot;, &quot;-c&quot;]
 </code></pre>
 <h5 id="nushell"><a class="header" href="#nushell">Nushell</a></h5>
-<pre><code class="language-make">set shell := [&quot;nu&quot;, &quot;-c&quot;]
+<pre><code class="language-just">set shell := [&quot;nu&quot;, &quot;-c&quot;]
 </code></pre>
 <p>If you want to change the default table mode to <code>light</code>:</p>
-<pre><code class="language-make">set shell := ['nu', '-m', 'light', '-c']
+<pre><code class="language-just">set shell := ['nu', '-m', 'light', '-c']
 </code></pre>
 <p><em><a href="https://github.com/nushell/nushell">Nushell</a> was written in Rust, and <strong>has cross-platform support for Windows / macOS and Linux</strong>.</em></p>
 

@@ -146,13 +146,13 @@
                     <main>
                         <h3 id="command-evaluation-using-backticks"><a class="header" href="#command-evaluation-using-backticks">Command Evaluation Using Backticks</a></h3>
 <p>Backticks can be used to store the result of commands:</p>
-<pre><code class="language-make">localhost := `dumpinterfaces | cut -d: -f2 | sed 's/\/.*//' | sed 's/ //g'`
+<pre><code class="language-just">localhost := `dumpinterfaces | cut -d: -f2 | sed 's/\/.*//' | sed 's/ //g'`
 
 serve:
   ./serve {{localhost}} 8080
 </code></pre>
 <p>Indented backticks, delimited by three backticks, are de-indented in the same manner as indented strings:</p>
-<pre><code class="language-make"># This backtick evaluates the command `echo foo\necho bar\n`, which produces the value `foo\nbar\n`.
+<pre><code class="language-just"># This backtick evaluates the command `echo foo\necho bar\n`, which produces the value `foo\nbar\n`.
 stuff := ```
     echo foo
     echo bar

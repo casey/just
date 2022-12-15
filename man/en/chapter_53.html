@@ -160,7 +160,7 @@ foo
 <p>When a script with a shebang is executed, the system supplies the path to the script as an argument to the command in the shebang. So, with a shebang of <code>#!/usr/bin/env just --justfile</code>, the command will be <code>/usr/bin/env just --justfile PATH_TO_SCRIPT</code>.</p>
 <p>With the above shebang, <code>just</code> will change its working directory to the location of the script. If you’d rather leave the working directory unchanged, use <code>#!/usr/bin/env just --working-directory . --justfile</code>.</p>
 <p>Note: Shebang line splitting is not consistent across operating systems. The previous examples have only been tested on macOS. On Linux, you may need to pass the <code>-S</code> flag to <code>env</code>:</p>
-<pre><code class="language-make">#!/usr/bin/env -S just --justfile
+<pre><code class="language-just">#!/usr/bin/env -S just --justfile
 
 default:
   echo foo

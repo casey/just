@@ -146,7 +146,7 @@
                     <main>
                         <h3 id="条件表达式"><a class="header" href="#条件表达式">条件表达式</a></h3>
 <p><code>if</code> / <code>else</code> 表达式评估不同的分支，取决于两个表达式是否评估为相同的值：</p>
-<pre><code class="language-make">foo := if &quot;2&quot; == &quot;2&quot; { &quot;Good!&quot; } else { &quot;1984&quot; }
+<pre><code class="language-just">foo := if &quot;2&quot; == &quot;2&quot; { &quot;Good!&quot; } else { &quot;1984&quot; }
 
 bar:
   @echo &quot;{{foo}}&quot;
@@ -155,7 +155,7 @@ bar:
 Good!
 </code></pre>
 <p>也可以用于测试不相等：</p>
-<pre><code class="language-make">foo := if &quot;hello&quot; != &quot;goodbye&quot; { &quot;xyz&quot; } else { &quot;abc&quot; }
+<pre><code class="language-just">foo := if &quot;hello&quot; != &quot;goodbye&quot; { &quot;xyz&quot; } else { &quot;abc&quot; }
 
 bar:
   @echo {{foo}}
@@ -164,7 +164,7 @@ bar:
 xyz
 </code></pre>
 <p>还支持与正则表达式进行匹配：</p>
-<pre><code class="language-make">foo := if &quot;hello&quot; =~ 'hel+o' { &quot;match&quot; } else { &quot;mismatch&quot; }
+<pre><code class="language-just">foo := if &quot;hello&quot; =~ 'hel+o' { &quot;match&quot; } else { &quot;mismatch&quot; }
 
 bar:
   @echo {{foo}}
@@ -174,15 +174,15 @@ match
 </code></pre>
 <p>正则表达式由 <a href="https://github.com/rust-lang/regex">Regex 包</a> 提供，其语法在 <a href="https://docs.rs/regex/1.5.4/regex/#syntax">docs.rs</a> 上有对应文档。由于正则表达式通常使用反斜线转义序列，请考虑使用单引号的字符串字面值，这将使斜线不受干扰地传递给正则分析器。</p>
 <p>条件表达式是短路的，这意味着它们只评估其中的一个分支。这可以用来确保反引号内的表达式在不应该运行的时候不会运行。</p>
-<pre><code class="language-make">foo := if env_var(&quot;RELEASE&quot;) == &quot;true&quot; { `get-something-from-release-database` } else { &quot;dummy-value&quot; }
+<pre><code class="language-just">foo := if env_var(&quot;RELEASE&quot;) == &quot;true&quot; { `get-something-from-release-database` } else { &quot;dummy-value&quot; }
 </code></pre>
 <p>条件语句也可以在配方中使用：</p>
-<pre><code class="language-make">bar foo:
+<pre><code class="language-just">bar foo:
   echo {{ if foo == &quot;bar&quot; { &quot;hello&quot; } else { &quot;goodbye&quot; } }}
 </code></pre>
 <p>注意最后的 <code>}</code> 后面的空格! 没有这个空格，插值将被提前结束。</p>
 <p>多个条件语句可以被连起来：</p>
-<pre><code class="language-make">foo := if &quot;hello&quot; == &quot;goodbye&quot; {
+<pre><code class="language-just">foo := if &quot;hello&quot; == &quot;goodbye&quot; {
   &quot;xyz&quot;
 } else if &quot;a&quot; == &quot;a&quot; {
   &quot;abc&quot;

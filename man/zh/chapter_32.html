@@ -146,13 +146,13 @@
                     <main>
                         <h3 id="使用反引号的命令求值"><a class="header" href="#使用反引号的命令求值">使用反引号的命令求值</a></h3>
 <p>反引号可以用来存储命令的求值结果：</p>
-<pre><code class="language-make">localhost := `dumpinterfaces | cut -d: -f2 | sed 's/\/.*//' | sed 's/ //g'`
+<pre><code class="language-just">localhost := `dumpinterfaces | cut -d: -f2 | sed 's/\/.*//' | sed 's/ //g'`
 
 serve:
   ./serve {{localhost}} 8080
 </code></pre>
 <p>缩进的反引号，以三个反引号为界，与字符串缩进的方式一样，会被去掉缩进：</p>
-<pre><code class="language-make"># This backtick evaluates the command `echo foo\necho bar\n`, which produces the value `foo\nbar\n`.
+<pre><code class="language-just"># This backtick evaluates the command `echo foo\necho bar\n`, which produces the value `foo\nbar\n`.
 stuff := ```
     echo foo
     echo bar

@@ -146,7 +146,7 @@
                     <main>
                         <h3 id="更加安全的-bash-shebang-配方"><a class="header" href="#更加安全的-bash-shebang-配方">更加安全的 Bash Shebang 配方</a></h3>
 <p>如果你正在写一个 <code>bash</code> Shebang 配方，考虑加入 <code>set -euxo pipefail</code>：</p>
-<pre><code class="language-make">foo:
+<pre><code class="language-just">foo:
   #!/usr/bin/env bash
   set -euxo pipefail
   hello='Yo'
@@ -171,7 +171,7 @@
 <h4 id="在-windows-上执行-shebang-配方"><a class="header" href="#在-windows-上执行-shebang-配方">在 Windows 上执行 Shebang 配方</a></h4>
 <p>在 Windows 上，包含 <code>/</code> 的 Shebang 解释器路径通过 <code>cygpath</code> 从 Unix 风格的路径转换为 Windows 风格的路径，该工具随 <a href="http://www.cygwin.com">Cygwin</a> 一起提供。</p>
 <p>例如，要在 Windows 上执行这个配方：</p>
-<pre><code class="language-make">echo:
+<pre><code class="language-just">echo:
   #!/bin/sh
   echo &quot;Hello!&quot;
 </code></pre>

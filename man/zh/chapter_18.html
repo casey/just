@@ -148,7 +148,7 @@
 <p>参见 <a href="chapter_2.html">安装部分</a> 了解如何在你的电脑上安装 <code>just</code>。试着运行 <code>just --version</code> 以确保它被正确安装。</p>
 <p>关于语法的概述，请查看这个 <a href="https://cheatography.com/linux-china/cheat-sheets/justfile/">速查表</a>。</p>
 <p>一旦 <code>just</code> 安装完毕并开始工作，在你的项目根目录创建一个名为 <code>justfile</code> 的文件，内容如下：</p>
-<pre><code class="language-make">recipe-name:
+<pre><code class="language-just">recipe-name:
   echo 'This is a recipe!'
 
 # 这是一行注释
@@ -168,13 +168,13 @@ This is another recipe.
 </code></pre>
 <p><code>just</code> 在运行每条命令前都会将其打印到标准错误中，这就是为什么 <code>echo 'This is a recipe!'</code> 被打印出来。对于以 <code>@</code> 开头的行，这将被抑制，这就是为什么 <code>echo 'This is another recipe.'</code> 没有被打印。</p>
 <p>如果一个命令失败，配方就会停止运行。这里 <code>cargo publish</code> 只有在 <code>cargo test</code> 成功后才会运行：</p>
-<pre><code class="language-make">publish:
+<pre><code class="language-just">publish:
   cargo test
   # 前面的测试通过才会执行 publish!
   cargo publish
 </code></pre>
 <p>配方可以依赖其他配方。在这里，<code>test</code> 配方依赖于 <code>build</code> 配方，所以 <code>build</code> 将在 <code>test</code> 之前运行：</p>
-<pre><code class="language-make">build:
+<pre><code class="language-just">build:
   cc main.c foo.c bar.c -o main
 
 test: build

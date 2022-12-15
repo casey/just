@@ -147,7 +147,7 @@
                         <h3 id="just-避免了-make-的哪些特异性"><a class="header" href="#just-避免了-make-的哪些特异性">Just 避免了 Make 的哪些特异性？</a></h3>
 <p><code>make</code> 有一些行为令人感到困惑、复杂，或者使它不适合作为通用的命令运行器。</p>
 <p>一个例子是，在某些情况下，<code>make</code> 不会实际运行配方中的命令。例如，如果你有一个名为 <code>test</code> 的文件和以下 makefile：</p>
-<pre><code class="language-make">test:
+<pre><code class="language-just">test:
   ./test
 </code></pre>
 <p><code>make</code> 将会拒绝运行你的测试：</p>

@@ -151,13 +151,13 @@
   echo {{x}}
 </code></pre>
 <p>It is possible to use shell variables, but there’s another problem. Every recipe line is run by a new shell instance, so variables set in one line won’t be set in the next:</p>
-<pre><code class="language-make">foo:
+<pre><code class="language-just">foo:
   x=hello &amp;&amp; echo $x # This works!
   y=bye
   echo $y            # This doesn't, `y` is undefined here!
 </code></pre>
 <p>The best way to work around this is to use a shebang recipe. Shebang recipe bodies are extracted and run as scripts, so a single shell instance will run the whole thing:</p>
-<pre><code class="language-make">foo:
+<pre><code class="language-just">foo:
   #!/usr/bin/env bash
   set -euxo pipefail
   x=hello

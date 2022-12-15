@@ -146,7 +146,7 @@
                     <main>
                         <h3 id="safer-bash-shebang-recipes"><a class="header" href="#safer-bash-shebang-recipes">Safer Bash Shebang Recipes</a></h3>
 <p>If you’re writing a <code>bash</code> shebang recipe, consider adding <code>set -euxo pipefail</code>:</p>
-<pre><code class="language-make">foo:
+<pre><code class="language-just">foo:
   #!/usr/bin/env bash
   set -euxo pipefail
   hello='Yo'
@@ -171,7 +171,7 @@
 <h4 id="shebang-recipe-execution-on-windows"><a class="header" href="#shebang-recipe-execution-on-windows">Shebang Recipe Execution on Windows</a></h4>
 <p>On Windows, shebang interpreter paths containing a <code>/</code> are translated from Unix-style paths to Windows-style paths using <code>cygpath</code>, a utility that ships with <a href="http://www.cygwin.com">Cygwin</a>.</p>
 <p>For example, to execute this recipe on Windows:</p>
-<pre><code class="language-make">echo:
+<pre><code class="language-just">echo:
   #!/bin/sh
   echo &quot;Hello!&quot;
 </code></pre>

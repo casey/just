@@ -146,7 +146,7 @@
                     <main>
                         <h3 id="私有配方"><a class="header" href="#私有配方">私有配方</a></h3>
 <p>名字以 <code>_</code> 开头的配方和别名将在 <code>just --list</code> 中被忽略：</p>
-<pre><code class="language-make">test: _test-helper
+<pre><code class="language-just">test: _test-helper
   ./bin/test
 
 _test-helper:
@@ -161,7 +161,7 @@ Available recipes:
 test
 </code></pre>
 <p><code>[private]</code> 属性<sup>master</sup>也可用于隐藏配方，而不需要改变名称：</p>
-<pre><code class="language-make">[private]
+<pre><code class="language-just">[private]
 foo:
 
 bar:

@@ -148,7 +148,7 @@
 <p>每个配方的每一行都由一个新的shell执行，所以不可能在配方之间共享环境变量。</p>
 <h4 id="使用-python-虚拟环境"><a class="header" href="#使用-python-虚拟环境">使用 Python 虚拟环境</a></h4>
 <p>一些工具，像 <a href="https://docs.python.org/3/library/venv.html">Python 的 venv</a>，需要加载环境变量才能工作，这使得它们在使用 <code>just</code> 时具有挑战性。作为一种变通方法，你可以直接执行虚拟环境二进制文件：</p>
-<pre><code class="language-make">venv:
+<pre><code class="language-just">venv:
   [ -d foo ] || python3 -m venv foo
 
 run: venv

@@ -146,7 +146,7 @@
                     <main>
                         <h3 id="变量和替换"><a class="header" href="#变量和替换">变量和替换</a></h3>
 <p>支持在变量、字符串、拼接、路径连接和替换中使用 <code>{{…}}</code> ：</p>
-<pre><code class="language-make">tmpdir  := `mktemp`
+<pre><code class="language-just">tmpdir  := `mktemp`
 version := &quot;0.2.7&quot;
 tardir  := tmpdir / &quot;awesomesauce-&quot; + version
 tarball := tardir + &quot;.tar.gz&quot;
@@ -161,20 +161,20 @@ publish:
 </code></pre>
 <h4 id="路径拼接"><a class="header" href="#路径拼接">路径拼接</a></h4>
 <p><code>/</code> 操作符可用于通过斜线连接两个字符串：</p>
-<pre><code class="language-make">foo := &quot;a&quot; / &quot;b&quot;
+<pre><code class="language-just">foo := &quot;a&quot; / &quot;b&quot;
 </code></pre>
 <pre><code>$ just --evaluate foo
 a/b
 </code></pre>
 <p>请注意，即使已经有一个 <code>/</code>，也会添加一个 <code>/</code>：</p>
-<pre><code class="language-make">foo := &quot;a/&quot;
+<pre><code class="language-just">foo := &quot;a/&quot;
 bar := foo / &quot;b&quot;
 </code></pre>
 <pre><code>$ just --evaluate bar
 a//b
 </code></pre>
 <p>也可以构建绝对路径<sup>1.5.0</sup>:</p>
-<pre><code class="language-make">foo := / &quot;b&quot;
+<pre><code class="language-just">foo := / &quot;b&quot;
 </code></pre>
 <pre><code>$ just --evaluate foo
 /b
@@ -182,16 +182,16 @@ a//b
 <p><code>/</code> 操作符使用 <code>/</code> 字符，即使在 Windows 上也是如此。因此，在使用通用命名规则（UNC）的路径中应避免使用 <code>/</code> 操作符，即那些以 <code>\?</code> 开头的路径，因为 UNC 路径不支持正斜线。</p>
 <h4 id="转义-"><a class="header" href="#转义-">转义 <code>{{</code></a></h4>
 <p>想要写一个包含  <code>{{</code> 的配方，可以使用 <code>{{{{</code>：</p>
-<pre><code class="language-make">braces:
+<pre><code class="language-just">braces:
   echo 'I {{{{LOVE}} curly braces!'
 </code></pre>
 <p>(未匹配的 <code>}}</code> 会被忽略，所以不需要转义)</p>
 <p>另一个选择是把所有你想转义的文本都放在插值里面：</p>
-<pre><code class="language-make">braces:
+<pre><code class="language-just">braces:
   echo '{{'I {{LOVE}} curly braces!'}}'
 </code></pre>
 <p>然而，另一个选择是使用  <code>{{ &quot;{{&quot; }}</code>：</p>
-<pre><code class="language-make">braces:
+<pre><code class="language-just">braces:
   echo 'I {{ &quot;{{&quot; }}LOVE}} curly braces!'
 </code></pre>
 

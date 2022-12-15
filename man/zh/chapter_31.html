@@ -158,7 +158,7 @@
 <h4 id="启用和禁用配方"><a class="header" href="#启用和禁用配方">启用和禁用配方</a></h4>
 <p><code>[linux]</code>, <code>[macos]</code>, <code>[unix]</code> 和 <code>[windows]</code> 属性是配置属性。默认情况下，配方总是被启用。一个带有一个或多个配置属性的配方只有在其中一个或多个配置处于激活状态时才会被启用。</p>
 <p>这可以用来编写因运行的操作系统不同，其行为也不同的 <code>justfile</code>。以下 <code>justfile</code> 中的 <code>run</code> 配方将编译和运行 <code>main.c</code>，并且根据操作系统的不同而使用不同的C编译器，同时使用正确的二进制产物名称：</p>
-<pre><code class="language-make">[unix]
+<pre><code class="language-just">[unix]
 run:
   cc main.c
   ./a.out
@@ -171,7 +171,7 @@ run:
 <h4 id="禁用变更目录190"><a class="header" href="#禁用变更目录190">禁用变更目录<sup>1.9.0</sup></a></h4>
 <p><code>just</code> 通常在执行配方时将当前目录设置为包含 <code>justfile</code> 的目录，你可以通过 <code>[no-cd]</code> 属性来禁用此行为。这可以用来创建使用调用目录相对路径或者对当前目录进行操作的配方。</p>
 <p>例如这个 <code>commit</code> 配方：</p>
-<pre><code class="language-make">[no-cd]
+<pre><code class="language-just">[no-cd]
 commit file:
   git add {{file}}
   git commit

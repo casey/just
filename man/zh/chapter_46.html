@@ -161,45 +161,45 @@ error: Recipe line has extra leading whitespace
 </code></pre>
 <p>为了解决这个问题，你可以在一行上写条件，用斜线转义换行，或者在你的配方中添加一个 Shebang。我们提供了一些多行结构的例子可供参考。</p>
 <h4 id="if-语句"><a class="header" href="#if-语句"><code>if</code> 语句</a></h4>
-<pre><code class="language-make">conditional:
+<pre><code class="language-just">conditional:
   if true; then echo 'True!'; fi
 </code></pre>
-<pre><code class="language-make">conditional:
+<pre><code class="language-just">conditional:
   if true; then \
     echo 'True!'; \
   fi
 </code></pre>
-<pre><code class="language-make">conditional:
+<pre><code class="language-just">conditional:
   #!/usr/bin/env sh
   if true; then
     echo 'True!'
   fi
 </code></pre>
 <h4 id="for-循环"><a class="header" href="#for-循环"><code>for</code> 循环</a></h4>
-<pre><code class="language-make">for:
+<pre><code class="language-just">for:
   for file in `ls .`; do echo $file; done
 </code></pre>
-<pre><code class="language-make">for:
+<pre><code class="language-just">for:
   for file in `ls .`; do \
     echo $file; \
   done
 </code></pre>
-<pre><code class="language-make">for:
+<pre><code class="language-just">for:
   #!/usr/bin/env sh
   for file in `ls .`; do
     echo $file
   done
 </code></pre>
 <h4 id="while-循环"><a class="header" href="#while-循环"><code>while</code> 循环</a></h4>
-<pre><code class="language-make">while:
+<pre><code class="language-just">while:
   while `server-is-dead`; do ping -c 1 server; done
 </code></pre>
-<pre><code class="language-make">while:
+<pre><code class="language-just">while:
   while `server-is-dead`; do \
     ping -c 1 server; \
   done
 </code></pre>
-<pre><code class="language-make">while:
+<pre><code class="language-just">while:
   #!/usr/bin/env sh
   while `server-is-dead`; do
     ping -c 1 server

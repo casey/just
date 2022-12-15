@@ -147,30 +147,30 @@
                         <h3 id="获取和设置环境变量"><a class="header" href="#获取和设置环境变量">获取和设置环境变量</a></h3>
 <h4 id="导出-just-变量"><a class="header" href="#导出-just-变量">导出 <code>just</code> 变量</a></h4>
 <p>以 <code>export</code> 关键字为前缀的赋值将作为环境变量导出到配方中：</p>
-<pre><code class="language-make">export RUST_BACKTRACE := &quot;1&quot;
+<pre><code class="language-just">export RUST_BACKTRACE := &quot;1&quot;
 
 test:
   # 如果它崩溃了，将打印一个堆栈追踪
   cargo test
 </code></pre>
 <p>以 <code>$</code> 为前缀的参数将被作为环境变量导出：</p>
-<pre><code class="language-make">test $RUST_BACKTRACE=&quot;1&quot;:
+<pre><code class="language-just">test $RUST_BACKTRACE=&quot;1&quot;:
   # 如果它崩溃了，将打印一个堆栈追踪
   cargo test
 </code></pre>
 <p>导出的变量和参数不会被导出到同一作用域内反引号包裹的表达式里。</p>
-<pre><code class="language-make">export WORLD := &quot;world&quot;
+<pre><code class="language-just">export WORLD := &quot;world&quot;
 # This backtick will fail with &quot;WORLD: unbound variable&quot;
 BAR := `echo hello $WORLD`
 </code></pre>
-<pre><code class="language-make"># Running `just a foo` will fail with &quot;A: unbound variable&quot;
+<pre><code class="language-just"># Running `just a foo` will fail with &quot;A: unbound variable&quot;
 a $A $B=`echo $A`:
   echo $A $B
 </code></pre>
 <p>当 <a href="chapter_24.html#%E5%AF%BC%E5%87%BA">export</a> 被设置时，所有的 <code>just</code> 变量都将作为环境变量被导出。</p>
 <h4 id="从环境中获取环境变量"><a class="header" href="#从环境中获取环境变量">从环境中获取环境变量</a></h4>
 <p>来自环境的环境变量会自动传递给配方：</p>
-<pre><code class="language-make">print_home_folder:
+<pre><code class="language-just">print_home_folder:
   echo &quot;HOME is: '${HOME}'&quot;
 </code></pre>
 <pre><code class="language-sh">$ just

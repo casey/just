@@ -147,7 +147,7 @@
                         <h3 id="what-are-the-idiosyncrasies-of-make-that-just-avoids"><a class="header" href="#what-are-the-idiosyncrasies-of-make-that-just-avoids">What are the idiosyncrasies of Make that Just avoids?</a></h3>
 <p><code>make</code> has some behaviors which are confusing, complicated, or make it unsuitable for use as a general command runner.</p>
 <p>One example is that under some circumstances, <code>make</code> won’t actually run the commands in a recipe. For example, if you have a file called <code>test</code> and the following makefile:</p>
-<pre><code class="language-make">test:
+<pre><code class="language-just">test:
   ./test
 </code></pre>
 <p><code>make</code> will refuse to run your tests:</p>

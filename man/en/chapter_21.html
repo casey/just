@@ -146,11 +146,11 @@
                     <main>
                         <h3 id="the-default-recipe"><a class="header" href="#the-default-recipe">The Default Recipe</a></h3>
 <p>When <code>just</code> is invoked without a recipe, it runs the first recipe in the <code>justfile</code>. This recipe might be the most frequently run command in the project, like running the tests:</p>
-<pre><code class="language-make">test:
+<pre><code class="language-just">test:
   cargo test
 </code></pre>
 <p>You can also use dependencies to run multiple recipes by default:</p>
-<pre><code class="language-make">default: lint build test
+<pre><code class="language-just">default: lint build test
 
 build:
   echo Building…
@@ -162,7 +162,7 @@ lint:
   echo Linting…
 </code></pre>
 <p>If no recipe makes sense as the default recipe, you can add a recipe to the beginning of your <code>justfile</code> that lists the available recipes:</p>
-<pre><code class="language-make">default:
+<pre><code class="language-just">default:
   just --list
 </code></pre>
 

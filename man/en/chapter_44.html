@@ -146,17 +146,17 @@
                     <main>
                         <h3 id="changing-the-working-directory-in-a-recipe"><a class="header" href="#changing-the-working-directory-in-a-recipe">Changing the Working Directory in a Recipe</a></h3>
 <p>Each recipe line is executed by a new shell, so if you change the working directory on one line, it won’t have an effect on later lines:</p>
-<pre><code class="language-make">foo:
+<pre><code class="language-just">foo:
   pwd    # This `pwd` will print the same directory…
   cd bar
   pwd    # …as this `pwd`!
 </code></pre>
 <p>There are a couple ways around this. One is to call <code>cd</code> on the same line as the command you want to run:</p>
-<pre><code class="language-make">foo:
+<pre><code class="language-just">foo:
   cd bar &amp;&amp; pwd
 </code></pre>
 <p>The other is to use a shebang recipe. Shebang recipe bodies are extracted and run as scripts, so a single shell instance will run the whole thing, and thus a <code>pwd</code> on one line will affect later lines, just like a shell script:</p>
-<pre><code class="language-make">foo:
+<pre><code class="language-just">foo:
   #!/usr/bin/env bash
   set -euxo pipefail
   cd bar

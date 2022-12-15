@@ -146,7 +146,7 @@
                     <main>
                         <h3 id="avoiding-argument-splitting"><a class="header" href="#avoiding-argument-splitting">Avoiding Argument Splitting</a></h3>
 <p>Given this <code>justfile</code>:</p>
-<pre><code class="language-make">foo argument:
+<pre><code class="language-just">foo argument:
   touch {{argument}}
 </code></pre>
 <p>The following command will create two files, <code>some</code> and <code>argument.txt</code>:</p>
@@ -156,13 +156,13 @@
 <p>There are a few ways to avoid this: quoting, positional arguments, and exported arguments.</p>
 <h4 id="quoting"><a class="header" href="#quoting">Quoting</a></h4>
 <p>Quotes can be added around the <code>{{argument}}</code> interpolation:</p>
-<pre><code class="language-make">foo argument:
+<pre><code class="language-just">foo argument:
   touch '{{argument}}'
 </code></pre>
 <p>This preserves <code>just</code>’s ability to catch variable name typos before running, for example if you were to write <code>{{argument}}</code>, but will not do what you want if the value of <code>argument</code> contains single quotes.</p>
 <h4 id="positional-arguments"><a class="header" href="#positional-arguments">Positional Arguments</a></h4>
 <p>The <code>positional-arguments</code> setting causes all arguments to be passed as positional arguments, allowing them to be accessed with <code>$1</code>, <code>$2</code>, …, and <code>$@</code>, which can be then double-quoted to avoid further splitting by the shell:</p>
-<pre><code class="language-make">set positional-arguments
+<pre><code class="language-just">set positional-arguments
 
 foo argument:
   touch &quot;$1&quot;
@@ -170,13 +170,13 @@ foo argument:
 <p>This defeats <code>just</code>’s ability to catch typos, for example if you type <code>$2</code>, but works for all possible values of <code>argument</code>, including those with double quotes.</p>
 <h4 id="exported-arguments"><a class="header" href="#exported-arguments">Exported Arguments</a></h4>
 <p>All arguments are exported when the <code>export</code> setting is set:</p>
-<pre><code class="language-make">set export
+<pre><code class="language-just">set export
 
 foo argument:
   touch &quot;$argument&quot;
 </code></pre>
 <p>Or individual arguments may be exported by prefixing them with <code>$</code>:</p>
-<pre><code class="language-make">foo $argument:
+<pre><code class="language-just">foo $argument:
   touch &quot;$argument&quot;
 </code></pre>
 <p>This defeats <code>just</code>’s ability to catch typos, for example if you type <code>$argumant</code>, but works for all possible values of <code>argument</code>, including those with double quotes.</p>

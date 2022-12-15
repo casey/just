@@ -147,7 +147,7 @@
                         <h3 id="在配方的末尾运行配方"><a class="header" href="#在配方的末尾运行配方">在配方的末尾运行配方</a></h3>
 <p>一个配方的正常依赖总是在配方开始之前运行。也就是说，被依赖方总是在依赖方之前运行。这些依赖被称为 “前期依赖”。</p>
 <p>一个配方也可以有后续的依赖，它们在配方之后运行，用 <code>&amp;&amp;</code> 表示：</p>
-<pre><code class="language-make">a:
+<pre><code class="language-just">a:
   echo 'A!'
 
 b: a &amp;&amp; c d

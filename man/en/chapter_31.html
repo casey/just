@@ -164,7 +164,7 @@ those configurations is active.</p>
 which operating system they run on. The <code>run</code> recipe in this <code>justfile</code> will
 compile and run <code>main.c</code>, using a different C compiler and using the correct
 output binary name for that compiler depending on the operating system:</p>
-<pre><code class="language-make">[unix]
+<pre><code class="language-just">[unix]
 run:
   cc main.c
   ./a.out
@@ -181,7 +181,7 @@ directory that contains the <code>justfile</code>. This can be disabled using th
 relative to the invocation directory, or which operate on the current
 directory.</p>
 <p>For exmaple, this <code>commit</code> recipe:</p>
-<pre><code class="language-make">[no-cd]
+<pre><code class="language-just">[no-cd]
 commit file:
   git add {{file}}
   git commit

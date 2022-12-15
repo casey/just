@@ -152,7 +152,7 @@ DATABASE_ADDRESS=localhost:6379
 SERVER_PORT=1337
 </code></pre>
 <p>而你的 <code>justfile</code> 包含：</p>
-<pre><code class="language-make">set dotenv-load
+<pre><code class="language-just">set dotenv-load
 
 serve:
   @echo &quot;Starting server with database $DATABASE_ADDRESS on port $SERVER_PORT…&quot;

@@ -148,7 +148,7 @@
 <p>See <a href="chapter_2.html">the installation section</a> for how to install <code>just</code> on your computer. Try running <code>just --version</code> to make sure that it’s installed correctly.</p>
 <p>For an overview of the syntax, check out <a href="https://cheatography.com/linux-china/cheat-sheets/justfile/">this cheatsheet</a>.</p>
 <p>Once <code>just</code> is installed and working, create a file named <code>justfile</code> in the root of your project with the following contents:</p>
-<pre><code class="language-make">recipe-name:
+<pre><code class="language-just">recipe-name:
   echo 'This is a recipe!'
 
 # this is a comment
@@ -168,13 +168,13 @@ This is another recipe.
 </code></pre>
 <p><code>just</code> prints each command to standard error before running it, which is why <code>echo 'This is a recipe!'</code> was printed. This is suppressed for lines starting with <code>@</code>, which is why <code>echo 'This is another recipe.'</code> was not printed.</p>
 <p>Recipes stop running if a command fails. Here <code>cargo publish</code> will only run if <code>cargo test</code> succeeds:</p>
-<pre><code class="language-make">publish:
+<pre><code class="language-just">publish:
   cargo test
   # tests passed, time to publish!
   cargo publish
 </code></pre>
 <p>Recipes can depend on other recipes. Here the <code>test</code> recipe depends on the <code>build</code> recipe, so <code>build</code> will run before <code>test</code>:</p>
-<pre><code class="language-make">build:
+<pre><code class="language-just">build:
   cc main.c foo.c bar.c -o main
 
 test: build

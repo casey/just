@@ -146,7 +146,7 @@
                     <main>
                         <h3 id="recipe-parameters"><a class="header" href="#recipe-parameters">Recipe Parameters</a></h3>
 <p>Recipes may have parameters. Here recipe <code>build</code> has a parameter called <code>target</code>:</p>
-<pre><code class="language-make">build target:
+<pre><code class="language-just">build target:
   @echo 'Building {{target}}…'
   cd {{target}} &amp;&amp; make
 </code></pre>
@@ -156,14 +156,14 @@ Building my-awesome-project…
 cd my-awesome-project &amp;&amp; make
 </code></pre>
 <p>To pass arguments to a dependency, put the dependency in parentheses along with the arguments:</p>
-<pre><code class="language-make">default: (build &quot;main&quot;)
+<pre><code class="language-just">default: (build &quot;main&quot;)
 
 build target:
   @echo 'Building {{target}}…'
   cd {{target}} &amp;&amp; make
 </code></pre>
 <p>Variables can also be passed as arguments to dependencies:</p>
-<pre><code class="language-make">target := &quot;main&quot;
+<pre><code class="language-just">target := &quot;main&quot;
 
 _build version:
   @echo 'Building {{version}}…'
@@ -172,14 +172,14 @@ _build version:
 build: (_build target)
 </code></pre>
 <p>A command’s arguments can be passed to dependency by putting the dependency in parentheses along with the arguments:</p>
-<pre><code class="language-make">build target:
+<pre><code class="language-just">build target:
   @echo &quot;Building {{target}}…&quot;
 
 push target: (build target)
   @echo 'Pushing {{target}}…'
 </code></pre>
 <p>Parameters may have default values:</p>
-<pre><code class="language-make">default := 'all'
+<pre><code class="language-just">default := 'all'
 
 test target tests=default:
   @echo 'Testing {{target}}:{{tests}}…'
@@ -196,13 +196,13 @@ Testing server:unit…
 ./test --tests unit server
 </code></pre>
 <p>Default values may be arbitrary expressions, but concatenations or path joins must be parenthesized:</p>
-<pre><code class="language-make">arch := &quot;wasm&quot;
+<pre><code class="language-just">arch := &quot;wasm&quot;
 
 test triple=(arch + &quot;-unknown-unknown&quot;) input=(arch / &quot;input.dat&quot;):
   ./test {{triple}}
 </code></pre>
 <p>The last parameter of a recipe may be variadic, indicated with either a <code>+</code> or a <code>*</code> before the argument name:</p>
-<pre><code class="language-make">backup +FILES:
+<pre><code class="language-just">backup +FILES:
   scp {{FILES}} me@server.com:
 </code></pre>
 <p>Variadic parameters prefixed with <code>+</code> accept <em>one or more</em> arguments and expand to a string containing those arguments separated by spaces:</p>
@@ -212,15 +212,15 @@ FAQ.md                  100% 1831     1.8KB/s   00:00
 GRAMMAR.md              100% 1666     1.6KB/s   00:00
 </code></pre>
 <p>Variadic parameters prefixed with <code>*</code> accept <em>zero or more</em> arguments and expand to a string containing those arguments separated by spaces, or an empty string if no arguments are present:</p>
-<pre><code class="language-make">commit MESSAGE *FLAGS:
+<pre><code class="language-just">commit MESSAGE *FLAGS:
   git commit {{FLAGS}} -m &quot;{{MESSAGE}}&quot;
 </code></pre>
 <p>Variadic parameters can be assigned default values. These are overridden by arguments passed on the command line:</p>
-<pre><code class="language-make">test +FLAGS='-q':
+<pre><code class="language-just">test +FLAGS='-q':
   cargo test {{FLAGS}}
 </code></pre>
 <p><code>{{…}}</code> substitutions may need to be quoted if they contain spaces. For example, if you have the following recipe:</p>
-<pre><code class="language-make">search QUERY:
+<pre><code class="language-just">search QUERY:
   lynx https://www.google.com/?q={{QUERY}}
 </code></pre>
 <p>And you type:</p>
@@ -228,11 +228,11 @@ GRAMMAR.md              100% 1666     1.6KB/s   00:00
 </code></pre>
 <p><code>just</code> will run the command <code>lynx https://www.google.com/?q=cat toupee</code>, which will get parsed by <code>sh</code> as <code>lynx</code>, <code>https://www.google.com/?q=cat</code>, and <code>toupee</code>, and not the intended <code>lynx</code> and <code>https://www.google.com/?q=cat toupee</code>.</p>
 <p>You can fix this by adding quotes:</p>
-<pre><code class="language-make">search QUERY:
+<pre><code class="language-just">search QUERY:
   lynx 'https://www.google.com/?q={{QUERY}}'
 </code></pre>
 <p>Parameters prefixed with a <code>$</code> will be exported as environment variables:</p>
-<pre><code class="language-make">foo $bar:
+<pre><code class="language-just">foo $bar:
   echo $bar
 </code></pre>
 
