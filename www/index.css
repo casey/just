@@ -48,7 +48,7 @@ body > div {
   text-shadow: 0 0 5px #fff;
 }
 
-body > a {
+body > a:nth-child(n+5) {
   align-items: center;
   display: flex;
   font-size: calc(var(--size) / 9);
