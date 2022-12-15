@@ -15,7 +15,7 @@ fn readme() {
         justfile += "\n";
         current = Some(justfile);
       }
-    } else if line == "```make" {
+    } else if line == "```just" {
       current = Some(String::new());
     }
   }

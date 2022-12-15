@@ -658,13 +658,13 @@ foo:
 
 Boolean settings can be written as:
 
-```just
+```justfile
 set NAME
 ```
 
 Which is equivalent to:
 
-```just
+```justfile
 set NAME := true
 ```
 
