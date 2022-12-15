@@ -79,7 +79,7 @@ If you'd rather not install `sh`, you can use the `shell` setting to use the she
 
 Like PowerShell:
 
-```make
+```just
 # use PowerShell instead of sh:
 set shell := ["powershell.exe", "-c"]
 
@@ -89,7 +89,7 @@ hello:
 
 …or `cmd.exe`:
 
-```make
+```just
 # use cmd.exe instead of sh:
 set shell := ["cmd.exe", "/c"]
 
@@ -417,7 +417,7 @@ For an overview of the syntax, check out [this cheatsheet](https://cheatography.
 
 Once `just` is installed and working, create a file named `justfile` in the root of your project with the following contents:
 
-```make
+```just
 recipe-name:
   echo 'This is a recipe!'
 
@@ -449,7 +449,7 @@ This is another recipe.
 
 Recipes stop running if a command fails. Here `cargo publish` will only run if `cargo test` succeeds:
 
-```make
+```just
 publish:
   cargo test
   # tests passed, time to publish!
@@ -458,7 +458,7 @@ publish:
 
 Recipes can depend on other recipes. Here the `test` recipe depends on the `build` recipe, so `build` will run before `test`:
 
-```make
+```just
 build:
   cc main.c foo.c bar.c -o main
 
@@ -505,14 +505,14 @@ Features
 
 When `just` is invoked without a recipe, it runs the first recipe in the `justfile`. This recipe might be the most frequently run command in the project, like running the tests:
 
-```make
+```just
 test:
   cargo test
 ```
 
 You can also use dependencies to run multiple recipes by default:
 
-```make
+```just
 default: lint build test
 
 build:
@@ -527,7 +527,7 @@ lint:
 
 If no recipe makes sense as the default recipe, you can add a recipe to the beginning of your `justfile` that lists the available recipes:
 
-```make
+```just
 default:
   just --list
 ```
@@ -554,7 +554,7 @@ build test deploy lint
 
 Pass `--unsorted` to print recipes in the order they appear in the `justfile`:
 
-```make
+```just
 test:
   echo 'Testing!'
 
@@ -576,7 +576,7 @@ test build
 
 If you'd like `just` to default to listing the recipes in the `justfile`, you can use this as your default recipe:
 
-```make
+```just
 default:
   @just --list
 ```
@@ -613,7 +613,7 @@ $ just --list --list-heading ''
 
 Aliases allow recipes to be invoked with alternative names:
 
-```make
+```just
 alias b := build
 
 build:
@@ -633,7 +633,7 @@ Settings control interpretation and execution. Each setting may be specified at 
 
 For example:
 
-```make
+```just
 set shell := ["zsh", "-cu"]
 
 foo:
@@ -672,7 +672,7 @@ set NAME := true
 
 If `allow-duplicate-recipes` is set to `true`, defining multiple recipes with the same name is not an error and the last definition is used. Defaults to `false`.
 
-```make
+```just
 set allow-duplicate-recipes
 
 @foo:
@@ -695,7 +695,7 @@ If `dotenv-load` is `true`, a `.env` file will be loaded if present. Defaults to
 
 The `export` setting causes all `just` variables to be exported as environment variables. Defaults to `false`.
 
-```make
+```just
 set export
 
 a := "hello"
@@ -717,7 +717,7 @@ If `positional-arguments` is `true`, recipe arguments will be passed as position
 
 For example, running this recipe:
 
-```make
+```just
 set positional-arguments
 
 @foo bar:
@@ -737,7 +737,7 @@ When using an `sh`-compatible shell, such as `bash` or `zsh`, `$@` expands to th
 
 This example recipe will print arguments one by one on separate lines:
 
-```make
+```just
 set positional-arguments
 
 @test *args='':
@@ -756,7 +756,7 @@ $ just test foo "bar baz"
 
 The `shell` setting controls the command used to invoke recipe lines and backticks. Shebang recipes are unaffected.
 
-```make
+```just
 # use python3 to execute recipe lines and backticks
 set shell := ["python3", "-c"]
 
@@ -774,7 +774,7 @@ foo:
 
 `just` uses `sh` on Windows by default. To use a different shell on Windows, use `windows-shell`:
 
-```make
+```just
 set windows-shell := ["powershell.exe", "-NoLogo", "-Command"]
 
 hello:
@@ -789,7 +789,7 @@ See [powershell.just](https://github.com/casey/just/blob/master/examples/powersh
 
 `just` uses `sh` on Windows by default. To use `powershell.exe` instead, set `windows-powershell` to true.
 
-```make
+```just
 set windows-powershell := true
 
 hello:
@@ -798,37 +798,37 @@ hello:
 
 ##### Python 3
 
-```make
+```just
 set shell := ["python3", "-c"]
 ```
 
 ##### Bash
 
-```make
+```just
 set shell := ["bash", "-uc"]
 ```
 
 ##### Z Shell
 
-```make
+```just
 set shell := ["zsh", "-uc"]
 ```
 
 ##### Fish
 
-```make
+```just
 set shell := ["fish", "-c"]
 ```
 
 ##### Nushell
 
-```make
+```just
 set shell := ["nu", "-c"]
 ```
 
 If you want to change the default table mode to `light`:
 
-```make
+```just
 set shell := ['nu', '-m', 'light', '-c']
 ```
 
@@ -838,7 +838,7 @@ set shell := ['nu', '-m', 'light', '-c']
 
 Comments immediately preceding a recipe will appear in `just --list`:
 
-```make
+```just
 # build stuff
 build:
   ./bin/build
@@ -869,7 +869,7 @@ SERVER_PORT=1337
 
 And your `justfile` contains:
 
-```make
+```just
 set dotenv-load
 
 serve:
@@ -889,7 +889,7 @@ Starting server with database localhost:6379 on port 1337…
 
 Variables, strings, concatenation, path joining, and substitution using `{{…}}` are supported:
 
-```make
+```just
 tmpdir  := `mktemp`
 version := "0.2.7"
 tardir  := tmpdir / "awesomesauce-" + version
@@ -908,7 +908,7 @@ publish:
 
 The `/` operator can be used to join two strings with a slash:
 
-```make
+```just
 foo := "a" / "b"
 ```
 
@@ -919,7 +919,7 @@ a/b
 
 Note that a `/` is added even if one is already present:
 
-```make
+```just
 foo := "a/"
 bar := foo / "b"
 ```
@@ -931,7 +931,7 @@ a//b
 
 Absolute paths can also be constructed<sup>1.5.0</sup>:
 
-```make
+```just
 foo := / "b"
 ```
 
@@ -946,7 +946,7 @@ The `/` operator uses the `/` character, even on Windows. Thus, using the `/` op
 
 To write a recipe containing `{{`, use `{{{{`:
 
-```make
+```just
 braces:
   echo 'I {{{{LOVE}} curly braces!'
 ```
@@ -955,14 +955,14 @@ braces:
 
 Another option is to put all the text you'd like to escape inside of an interpolation:
 
-```make
+```just
 braces:
   echo '{{'I {{LOVE}} curly braces!'}}'
 ```
 
 Yet another option is to use `{{ "{{" }}`:
 
-```make
+```just
 braces:
   echo 'I {{ "{{" }}LOVE}} curly braces!'
 ```
@@ -971,7 +971,7 @@ braces:
 
 Double-quoted strings support escape sequences:
 
-```make
+```just
 string-with-tab             := "\t"
 string-with-newline         := "\n"
 string-with-carriage-return := "\r"
@@ -994,7 +994,7 @@ string-with-tab             := "     "
 
 Strings may contain line breaks:
 
-```make
+```just
 single := '
 hello
 '
@@ -1006,7 +1006,7 @@ goodbye
 
 Single-quoted strings do not recognize escape sequences:
 
-```make
+```just
 escapes := '\t\n\r\"\\'
 ```
 
@@ -1017,7 +1017,7 @@ escapes := "\t\n\r\"\\"
 
 Indented versions of both single- and double-quoted strings, delimited by triple single- or triple double-quotes, are supported. Indented string lines are stripped of leading whitespace common to all non-blank lines:
 
-```make
+```just
 # this string will evaluate to `foo\nbar\n`
 x := '''
   foo
@@ -1038,7 +1038,7 @@ Similar to unindented strings, indented double-quoted strings process escape seq
 
 Normally, if a command returns a non-zero exit status, execution will stop. To continue execution after a command, even if it fails, prefix the command with `-`:
 
-```make
+```just
 foo:
   -cat foo
   echo 'Done!'
@@ -1064,7 +1064,7 @@ Done!
 
 For example:
 
-```make
+```just
 system-info:
   @echo "This is an {{arch()}} machine".
 ```
@@ -1080,7 +1080,7 @@ The `os_family()` function can be used to create cross-platform `justfile`s that
 
 - `env_var(key)` — Retrieves the environment variable with name `key`, aborting if it is not present.
 
-```make
+```just
 home_dir := env_var('HOME')
 
 test:
@@ -1100,14 +1100,14 @@ $ just
 
 For example, to call `rustfmt` on files just under the "current directory" (from the user/invoker's perspective), use the following rule:
 
-```make
+```just
 rustfmt:
   find {{invocation_directory()}} -name \*.rs -exec rustfmt {} \;
 ```
 
 Alternatively, if your command needs to be run from the current directory, you could use (e.g.):
 
-```make
+```just
 build:
   cd {{invocation_directory()}}; ./some_script_that_needs_to_be_run_from_here
 ```
@@ -1120,7 +1120,7 @@ build:
 
 For example, to run a command relative to the location of the current `justfile`:
 
-```make
+```just
 script:
   ./{{justfile_directory()}}/scripts/some_script
 ```
@@ -1131,7 +1131,7 @@ script:
 
 For example:
 
-```make
+```just
 executable:
   @echo The executable is at: {{just_executable()}}
 ```
@@ -1225,7 +1225,7 @@ which operating system they run on. The `run` recipe in this `justfile` will
 compile and run `main.c`, using a different C compiler and using the correct
 output binary name for that compiler depending on the operating system:
 
-```make
+```just
 [unix]
 run:
   cc main.c
@@ -1247,7 +1247,7 @@ directory.
 
 For exmaple, this `commit` recipe:
 
-```make
+```just
 [no-cd]
 commit file:
   git add {{file}}
@@ -1262,7 +1262,7 @@ Can be used with paths that are relative to the current directory, because
 
 Backticks can be used to store the result of commands:
 
-```make
+```just
 localhost := `dumpinterfaces | cut -d: -f2 | sed 's/\/.*//' | sed 's/ //g'`
 
 serve:
@@ -1271,7 +1271,7 @@ serve:
 
 Indented backticks, delimited by three backticks, are de-indented in the same manner as indented strings:
 
-````make
+````just
 # This backtick evaluates the command `echo foo\necho bar\n`, which produces the value `foo\nbar\n`.
 stuff := ```
     echo foo
@@ -1287,7 +1287,7 @@ Backticks may not start with `#!`. This syntax is reserved for a future upgrade.
 
 `if`/`else` expressions evaluate different branches depending on if two expressions evaluate to the same value:
 
-```make
+```just
 foo := if "2" == "2" { "Good!" } else { "1984" }
 
 bar:
@@ -1301,7 +1301,7 @@ Good!
 
 It is also possible to test for inequality:
 
-```make
+```just
 foo := if "hello" != "goodbye" { "xyz" } else { "abc" }
 
 bar:
@@ -1315,7 +1315,7 @@ xyz
 
 And match against regular expressions:
 
-```make
+```just
 foo := if "hello" =~ 'hel+o' { "match" } else { "mismatch" }
 
 bar:
@@ -1331,13 +1331,13 @@ Regular expressions are provided by the [regex crate](https://github.com/rust-la
 
 Conditional expressions short-circuit, which means they only evaluate one of their branches. This can be used to make sure that backtick expressions don't run when they shouldn't.
 
-```make
+```just
 foo := if env_var("RELEASE") == "true" { `get-something-from-release-database` } else { "dummy-value" }
 ```
 
 Conditionals can be used inside of recipes:
 
-```make
+```just
 bar foo:
   echo {{ if foo == "bar" { "hello" } else { "goodbye" } }}
 ```
@@ -1346,7 +1346,7 @@ Note the space after the final `}`! Without the space, the interpolation will be
 
 Multiple conditionals can be chained:
 
-```make
+```just
 foo := if "hello" == "goodbye" {
   "xyz"
 } else if "a" == "a" {
@@ -1390,7 +1390,7 @@ error: Call to function `error` failed: 123
 
 Variables can be overridden from the command line.
 
-```make
+```just
 os := "linux"
 
 test: build
@@ -1428,7 +1428,7 @@ $ just --set os bsd
 
 Assignments prefixed with the `export` keyword will be exported to recipes as environment variables:
 
-```make
+```just
 export RUST_BACKTRACE := "1"
 
 test:
@@ -1438,7 +1438,7 @@ test:
 
 Parameters prefixed with a `$` will be exported as environment variables:
 
-```make
+```just
 test $RUST_BACKTRACE="1":
   # will print a stack trace if it crashes
   cargo test
@@ -1446,13 +1446,13 @@ test $RUST_BACKTRACE="1":
 
 Exported variables and parameters are not exported to backticks in the same scope.
 
-```make
+```just
 export WORLD := "world"
 # This backtick will fail with "WORLD: unbound variable"
 BAR := `echo hello $WORLD`
 ```
 
-```make
+```just
 # Running `just a foo` will fail with "A: unbound variable"
 a $A $B=`echo $A`:
   echo $A $B
@@ -1464,7 +1464,7 @@ When [export](#export) is set, all `just` variables are exported as environment 
 
 Environment variables from the environment are passed automatically to the recipes.
 
-```make
+```just
 print_home_folder:
   echo "HOME is: '${HOME}'"
 ```
@@ -1486,7 +1486,7 @@ See [environment-variables](#environment-variables).
 
 Recipes may have parameters. Here recipe `build` has a parameter called `target`:
 
-```make
+```just
 build target:
   @echo 'Building {{target}}…'
   cd {{target}} && make
@@ -1502,7 +1502,7 @@ cd my-awesome-project && make
 
 To pass arguments to a dependency, put the dependency in parentheses along with the arguments:
 
-```make
+```just
 default: (build "main")
 
 build target:
@@ -1512,7 +1512,7 @@ build target:
 
 Variables can also be passed as arguments to dependencies:
 
-```make
+```just
 target := "main"
 
 _build version:
@@ -1524,7 +1524,7 @@ build: (_build target)
 
 A command's arguments can be passed to dependency by putting the dependency in parentheses along with the arguments:
 
-```make
+```just
 build target:
   @echo "Building {{target}}…"
 
@@ -1534,7 +1534,7 @@ push target: (build target)
 
 Parameters may have default values:
 
-```make
+```just
 default := 'all'
 
 test target tests=default:
@@ -1560,7 +1560,7 @@ Testing server:unit…
 
 Default values may be arbitrary expressions, but concatenations or path joins must be parenthesized:
 
-```make
+```just
 arch := "wasm"
 
 test triple=(arch + "-unknown-unknown") input=(arch / "input.dat"):
@@ -1569,7 +1569,7 @@ test triple=(arch + "-unknown-unknown") input=(arch / "input.dat"):
 
 The last parameter of a recipe may be variadic, indicated with either a `+` or a `*` before the argument name:
 
-```make
+```just
 backup +FILES:
   scp {{FILES}} me@server.com:
 ```
@@ -1585,21 +1585,21 @@ GRAMMAR.md              100% 1666     1.6KB/s   00:00
 
 Variadic parameters prefixed with `*` accept _zero or more_ arguments and expand to a string containing those arguments separated by spaces, or an empty string if no arguments are present:
 
-```make
+```just
 commit MESSAGE *FLAGS:
   git commit {{FLAGS}} -m "{{MESSAGE}}"
 ```
 
 Variadic parameters can be assigned default values. These are overridden by arguments passed on the command line:
 
-```make
+```just
 test +FLAGS='-q':
   cargo test {{FLAGS}}
 ```
 
 `{{…}}` substitutions may need to be quoted if they contain spaces. For example, if you have the following recipe:
 
-```make
+```just
 search QUERY:
   lynx https://www.google.com/?q={{QUERY}}
 ```
@@ -1614,14 +1614,14 @@ $ just search "cat toupee"
 
 You can fix this by adding quotes:
 
-```make
+```just
 search QUERY:
   lynx 'https://www.google.com/?q={{QUERY}}'
 ```
 
 Parameters prefixed with a `$` will be exported as environment variables:
 
-```make
+```just
 foo $bar:
   echo $bar
 ```
@@ -1632,7 +1632,7 @@ Normal dependencies of a recipes always run before a recipe starts. That is to s
 
 A recipe can also have subsequent dependencies, which run after the recipe and are introduced with an `&&`:
 
-```make
+```just
 a:
   echo 'A!'
 
@@ -1664,7 +1664,7 @@ D!
 
 `just` doesn't support running recipes in the middle of another recipe, but you can call `just` recursively in the middle of a recipe. Given the following `justfile`:
 
-```make
+```just
 a:
   echo 'A!'
 
@@ -1699,7 +1699,7 @@ Recipes that start with `#!` are called shebang recipes, and are executed by
 saving the recipe body to a file and running it. This lets you write recipes in
 different languages:
 
-```make
+```just
 polyglot: python js perl sh ruby
 
 python:
@@ -1756,7 +1756,7 @@ the final argument.
 
 If you're writing a `bash` shebang recipe, consider adding `set -euxo pipefail`:
 
-```make
+```just
 foo:
   #!/usr/bin/env bash
   set -euxo pipefail
@@ -1782,7 +1782,7 @@ On Windows, shebang interpreter paths containing a `/` are translated from Unix-
 
 For example, to execute this recipe on Windows:
 
-```make
+```just
 echo:
   #!/bin/sh
   echo "Hello!"
@@ -1804,7 +1804,7 @@ foo:
 
 It is possible to use shell variables, but there's another problem. Every recipe line is run by a new shell instance, so variables set in one line won't be set in the next:
 
-```make
+```just
 foo:
   x=hello && echo $x # This works!
   y=bye
@@ -1813,7 +1813,7 @@ foo:
 
 The best way to work around this is to use a shebang recipe. Shebang recipe bodies are extracted and run as scripts, so a single shell instance will run the whole thing:
 
-```make
+```just
 foo:
   #!/usr/bin/env bash
   set -euxo pipefail
@@ -1829,7 +1829,7 @@ Each line of each recipe is executed by a fresh shell, so it is not possible to 
 
 Some tools, like [Python's venv](https://docs.python.org/3/library/venv.html), require loading environment variables in order to work, making them challenging to use with `just`. As a workaround, you can execute the virtual environment binaries directly:
 
-```make
+```just
 venv:
   [ -d foo ] || python3 -m venv foo
 
@@ -1841,7 +1841,7 @@ run: venv
 
 Each recipe line is executed by a new shell, so if you change the working directory on one line, it won't have an effect on later lines:
 
-```make
+```just
 foo:
   pwd    # This `pwd` will print the same directory…
   cd bar
@@ -1850,14 +1850,14 @@ foo:
 
 There are a couple ways around this. One is to call `cd` on the same line as the command you want to run:
 
-```make
+```just
 foo:
   cd bar && pwd
 ```
 
 The other is to use a shebang recipe. Shebang recipe bodies are extracted and run as scripts, so a single shell instance will run the whole thing, and thus a `pwd` on one line will affect later lines, just like a shell script:
 
-```make
+```just
 foo:
   #!/usr/bin/env bash
   set -euxo pipefail
@@ -1896,19 +1896,19 @@ To work around this, you can write conditionals on one line, escape newlines wit
 
 #### `if` statements
 
-```make
+```just
 conditional:
   if true; then echo 'True!'; fi
 ```
 
-```make
+```just
 conditional:
   if true; then \
     echo 'True!'; \
   fi
 ```
 
-```make
+```just
 conditional:
   #!/usr/bin/env sh
   if true; then
@@ -1918,19 +1918,19 @@ conditional:
 
 #### `for` loops
 
-```make
+```just
 for:
   for file in `ls .`; do echo $file; done
 ```
 
-```make
+```just
 for:
   for file in `ls .`; do \
     echo $file; \
   done
 ```
 
-```make
+```just
 for:
   #!/usr/bin/env sh
   for file in `ls .`; do
@@ -1940,19 +1940,19 @@ for:
 
 #### `while` loops
 
-```make
+```just
 while:
   while `server-is-dead`; do ping -c 1 server; done
 ```
 
-```make
+```just
 while:
   while `server-is-dead`; do \
     ping -c 1 server; \
   done
 ```
 
-```make
+```just
 while:
   #!/usr/bin/env sh
   while `server-is-dead`; do
@@ -1986,7 +1986,7 @@ Run `just --help` to see all the options.
 
 Recipes and aliases whose name starts with a `_` are omitted from `just --list`:
 
-```make
+```just
 test: _test-helper
   ./bin/test
 
@@ -2009,7 +2009,7 @@ test
 
 The `[private]` attribute<sup>master</sup> may also be used to hide recipes without needing to change the name:
 
-```make
+```just
 [private]
 foo:
 
@@ -2028,7 +2028,7 @@ This is useful for helper recipes which are only meant to be used as dependencie
 
 A recipe name may be prefixed with `@` to invert the meaning of `@` before each line:
 
-```make
+```just
 @quiet:
   echo hello
   echo goodbye
@@ -2046,7 +2046,7 @@ goodbye
 
 Shebang recipes are quiet by default:
 
-```make
+```just
 foo:
   #!/usr/bin/env bash
   echo 'Foo!'
@@ -2059,7 +2059,7 @@ Foo!
 
 Adding `@` to a shebang recipe name makes `just` print the recipe before executing it:
 
-```make
+```just
 @bar:
   #!/usr/bin/env bash
   echo 'Bar!'
@@ -2076,7 +2076,7 @@ Bar!
 messages can be suppressed using the `[no-exit-message]` attribute. You may find
 this especially useful with a recipe that recipe wraps a tool:
 
-```make
+```just
 git *args:
     @git {{args}}
 ```
@@ -2090,7 +2090,7 @@ error: Recipe `git` failed on line 2 with exit code 128
 Add the attribute to suppress the exit error message when the tool exits with a
 non-zero code:
 
-```make
+```just
 [no-exit-message]
 git *args:
     @git {{args}}
@@ -2115,7 +2115,7 @@ The chooser is invoked in the same way as recipe lines. For example, if the choo
 
 If you'd like `just` to default to selecting recipes with a chooser, you can use this as your default recipe:
 
-```make
+```just
 default:
   @just --choose
 ```
@@ -2167,7 +2167,7 @@ With the above shebang, `just` will change its working directory to the location
 
 Note: Shebang line splitting is not consistent across operating systems. The previous examples have only been tested on macOS. On Linux, you may need to pass the `-S` flag to `env`:
 
-```make
+```just
 #!/usr/bin/env -S just --justfile
 
 default:
@@ -2190,7 +2190,7 @@ This feature is currently unstable, and so must be enabled with the
 
 As an example, suppose the current directory contains this `justfile`:
 
-```make
+```just
 set fallback
 foo:
   echo foo
@@ -2198,7 +2198,7 @@ foo:
 
 And the parent directory contains this `justfile`:
 
-```make
+```just
 bar:
   echo bar
 ```
@@ -2214,7 +2214,7 @@ bar
 
 Given this `justfile`:
 
-```make
+```just
 foo argument:
   touch {{argument}}
 ```
@@ -2233,7 +2233,7 @@ There are a few ways to avoid this: quoting, positional arguments, and exported 
 
 Quotes can be added around the `{{argument}}` interpolation:
 
-```make
+```just
 foo argument:
   touch '{{argument}}'
 ```
@@ -2244,7 +2244,7 @@ This preserves `just`'s ability to catch variable name typos before running, for
 
 The `positional-arguments` setting causes all arguments to be passed as positional arguments, allowing them to be accessed with `$1`, `$2`, …, and `$@`, which can be then double-quoted to avoid further splitting by the shell:
 
-```make
+```just
 set positional-arguments
 
 foo argument:
@@ -2257,7 +2257,7 @@ This defeats `just`'s ability to catch typos, for example if you type `$2`, but 
 
 All arguments are exported when the `export` setting is set:
 
-```make
+```just
 set export
 
 foo argument:
@@ -2266,7 +2266,7 @@ foo argument:
 
 Or individual arguments may be exported by prefixing them with `$`:
 
-```make
+```just
 foo $argument:
   touch "$argument"
 ```
@@ -2389,7 +2389,7 @@ alias .j='just --justfile ~/.user.justfile --working-directory ~'
 
 The following export statement gives `just` recipes access to local Node module binaries, and makes `just` recipe commands behave more like `script` entries in Node.js `package.json` files:
 
-```make
+```just
 export PATH := "./node_modules/.bin:" + env_var('PATH')
 ```
 
@@ -2449,7 +2449,7 @@ Frequently Asked Questions
 
 One example is that under some circumstances, `make` won't actually run the commands in a recipe. For example, if you have a file called `test` and the following makefile:
 
-```make
+```just
 test:
   ./test
 ```
