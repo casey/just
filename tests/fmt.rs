@@ -1042,3 +1042,12 @@ test! {
         echo foo
   ",
 }
+
+#[test]
+fn exported_parameter() {
+  Test::new()
+    .justfile("foo +$f:")
+    .args(&["--dump"])
+    .stdout("foo +$f:\n")
+    .run();
+}
