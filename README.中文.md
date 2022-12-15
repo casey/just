@@ -654,13 +654,13 @@ foo:
 
 Bool 类型设置可以写成：
 
-```mf
+```just
 set NAME
 ```
 
 这就相当于：
 
-```mf
+```just
 set NAME := true
 ```
 
@@ -1351,7 +1351,7 @@ abc
 
 可以用 `error` 函数停止执行。比如：
 
-```
+```just
 foo := if "hello" == "goodbye" {
   "xyz"
 } else if "a" == "b" {

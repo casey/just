@@ -658,13 +658,13 @@ foo:
 
 Boolean settings can be written as:
 
-```mf
+```just
 set NAME
 ```
 
 Which is equivalent to:
 
-```mf
+```just
 set NAME := true
 ```
 
@@ -1368,7 +1368,7 @@ abc
 
 Execution can be halted with the `error` function. For example:
 
-```
+```just
 foo := if "hello" == "goodbye" {
   "xyz"
 } else if "a" == "b" {
