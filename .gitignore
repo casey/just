@@ -11,3 +11,5 @@
 /test-utilities/Cargo.lock
 /test-utilities/target
 /tmp
+
+.DS_Store
