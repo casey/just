@@ -62,7 +62,7 @@ pub(crate) enum Error<'src> {
     min_arguments: usize,
   },
   Dotenv {
-    dotenv_error: dotenv::Error,
+    dotenv_error: dotenvy::Error,
   },
   DumpJson {
     serde_json_error: serde_json::Error,
@@ -192,8 +192,8 @@ impl<'src> From<ConfigError> for Error<'src> {
   }
 }
 
-impl<'src> From<dotenv::Error> for Error<'src> {
-  fn from(dotenv_error: dotenv::Error) -> Error<'src> {
+impl<'src> From<dotenvy::Error> for Error<'src> {
+  fn from(dotenv_error: dotenvy::Error) -> Error<'src> {
     Self::Dotenv { dotenv_error }
   }
 }
