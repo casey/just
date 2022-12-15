@@ -77,7 +77,7 @@ Yay, all your tests passed!
 
 比如 PowerShell：
 
-```make
+```just
 # 使用 PowerShell 替代 sh:
 set shell := ["powershell.exe", "-c"]
 
@@ -87,7 +87,7 @@ hello:
 
 …或者 `cmd.exe`:
 
-```make
+```just
 # 使用 cmd.exe 替代 sh:
 set shell := ["cmd.exe", "/c"]
 
@@ -413,7 +413,7 @@ Kakoune 已经内置支持 `justfile` 语法高亮，这要感谢 TeddyDD。
 
 一旦 `just` 安装完毕并开始工作，在你的项目根目录创建一个名为 `justfile` 的文件，内容如下：
 
-```make
+```just
 recipe-name:
   echo 'This is a recipe!'
 
@@ -445,7 +445,7 @@ This is another recipe.
 
 如果一个命令失败，配方就会停止运行。这里 `cargo publish` 只有在 `cargo test` 成功后才会运行：
 
-```make
+```just
 publish:
   cargo test
   # 前面的测试通过才会执行 publish!
@@ -454,7 +454,7 @@ publish:
 
 配方可以依赖其他配方。在这里，`test` 配方依赖于 `build` 配方，所以 `build` 将在 `test` 之前运行：
 
-```make
+```just
 build:
   cc main.c foo.c bar.c -o main
 
@@ -501,14 +501,14 @@ testing… all tests passed!
 
 当 `just` 被调用而没有传入任何配方时，它会运行 `justfile` 中的第一个配方。这个配方可能是项目中最常运行的命令，比如运行测试：
 
-```make
+```just
 test:
   cargo test
 ```
 
 你也可以使用依赖关系来默认运行多个配方：
 
-```make
+```just
 default: lint build test
 
 build:
@@ -523,7 +523,7 @@ lint:
 
 在没有合适配方作为默认配方的情况下，你也可以在 `justfile` 的开头添加一个配方，用于列出可用的配方：
 
-```make
+```just
 default:
   just --list
 ```
@@ -550,7 +550,7 @@ build test deploy lint
 
 传入 `--unsorted` 选项可以按照它们在 `justfile` 中出现的顺序打印配方：
 
-```make
+```just
 test:
   echo 'Testing!'
 
@@ -572,7 +572,7 @@ test build
 
 如果你想让 `just` 默认列出 `justfile` 中的配方，你可以使用这个作为默认配方：
 
-```make
+```just
 default:
   @just --list
 ```
@@ -609,7 +609,7 @@ $ just --list --list-heading ''
 
 别名允许你用其他名称来调用配方：
 
-```make
+```just
 alias b := build
 
 build:
@@ -629,7 +629,7 @@ Building!
 
 例如：
 
-```make
+```just
 set shell := ["zsh", "-cu"]
 
 foo:
@@ -654,13 +654,13 @@ foo:
 
 Bool 类型设置可以写成：
 
-```mf
+```just
 set NAME
 ```
 
 这就相当于：
 
-```mf
+```just
 set NAME := true
 ```
 
@@ -668,7 +668,7 @@ set NAME := true
 
 如果 `allow-duplicate-recipes` 被设置为 `true`，那么定义多个同名的配方就不会出错，而会使用最后的定义。默认为 `false`。
 
-```make
+```just
 set allow-duplicate-recipes
 
 @foo:
@@ -691,7 +691,7 @@ bar
 
 `export` 设置使所有 `just` 变量作为环境变量被导出。默认值为 `false`。
 
-```make
+```just
 set export
 
 a := "hello"
@@ -713,7 +713,7 @@ goodbye
 
 例如，运行这个配方：
 
-```make
+```just
 set positional-arguments
 
 @foo bar:
@@ -733,7 +733,7 @@ hello
 
 这个例子的配方将逐行打印参数：
 
-```make
+```just
 set positional-arguments
 
 @test *args='':
@@ -752,7 +752,7 @@ $ just test foo "bar baz"
 
 `shell` 设置控制用于调用执行配方代码行和反引号内指令的命令。Shebang 配方不受影响。
 
-```make
+```just
 # use python3 to execute recipe lines and backticks
 set shell := ["python3", "-c"]
 
@@ -770,7 +770,7 @@ foo:
 
 `just` 在 Windows 上默认使用 `sh`。要在 Windows 上使用不同的 Shell，请使用`windows-shell`：
 
-```make
+```just
 set windows-shell := ["powershell.exe", "-NoLogo", "-Command"]
 
 hello:
@@ -785,7 +785,7 @@ hello:
 
 `just` 在 Windows 上默认使用 `sh`。要使用 `powershell.exe` 作为替代，请将 `windows-powershell` 设置为 `true`。
 
-```make
+```just
 set windows-powershell := true
 
 hello:
@@ -794,37 +794,37 @@ hello:
 
 ##### Python 3
 
-```make
+```just
 set shell := ["python3", "-c"]
 ```
 
 ##### Bash
 
-```make
+```just
 set shell := ["bash", "-uc"]
 ```
 
 ##### Z Shell
 
-```make
+```just
 set shell := ["zsh", "-uc"]
 ```
 
 ##### Fish
 
-```make
+```just
 set shell := ["fish", "-c"]
 ```
 
 ##### Nushell
 
-```make
+```just
 set shell := ["nu", "-c"]
 ```
 
 如果你想设置默认的表格显示模式为 `light`:
 
-```make
+```just
 set shell := ['nu', '-m', 'light', '-c']
 ```
 
@@ -834,7 +834,7 @@ set shell := ['nu', '-m', 'light', '-c']
 
 紧接着配方前面的注释将出现在 `just --list` 中：
 
-```make
+```just
 # build stuff
 build:
   ./bin/build
@@ -865,7 +865,7 @@ SERVER_PORT=1337
 
 而你的 `justfile` 包含：
 
-```make
+```just
 set dotenv-load
 
 serve:
@@ -885,7 +885,7 @@ Starting server with database localhost:6379 on port 1337…
 
 支持在变量、字符串、拼接、路径连接和替换中使用 `{{…}}` ：
 
-```make
+```just
 tmpdir  := `mktemp`
 version := "0.2.7"
 tardir  := tmpdir / "awesomesauce-" + version
@@ -904,7 +904,7 @@ publish:
 
 `/` 操作符可用于通过斜线连接两个字符串：
 
-```make
+```just
 foo := "a" / "b"
 ```
 
@@ -915,7 +915,7 @@ a/b
 
 请注意，即使已经有一个 `/`，也会添加一个 `/`：
 
-```make
+```just
 foo := "a/"
 bar := foo / "b"
 ```
@@ -927,7 +927,7 @@ a//b
 
 也可以构建绝对路径<sup>1.5.0</sup>:
 
-```make
+```just
 foo := / "b"
 ```
 
@@ -942,7 +942,7 @@ $ just --evaluate foo
 
 想要写一个包含  `{{` 的配方，可以使用 `{{{{`：
 
-```make
+```just
 braces:
   echo 'I {{{{LOVE}} curly braces!'
 ```
@@ -951,14 +951,14 @@ braces:
 
 另一个选择是把所有你想转义的文本都放在插值里面：
 
-```make
+```just
 braces:
   echo '{{'I {{LOVE}} curly braces!'}}'
 ```
 
 然而，另一个选择是使用  `{{ "{{" }}`：
 
-```make
+```just
 braces:
   echo 'I {{ "{{" }}LOVE}} curly braces!'
 ```
@@ -967,7 +967,7 @@ braces:
 
 双引号字符串支持转义序列：
 
-```make
+```just
 string-with-tab             := "\t"
 string-with-newline         := "\n"
 string-with-carriage-return := "\r"
@@ -990,7 +990,7 @@ string-with-tab             := "     "
 
 字符串可以包含换行符：
 
-```make
+```just
 single := '
 hello
 '
@@ -1002,7 +1002,7 @@ goodbye
 
 单引号字符串不支持转义序列：
 
-```make
+```just
 escapes := '\t\n\r\"\\'
 ```
 
@@ -1013,7 +1013,7 @@ escapes := "\t\n\r\"\\"
 
 支持单引号和双引号字符串的缩进版本，以三个单引号或三个双引号为界。缩进的字符串行被删除了所有非空行所共有的前导空白：
 
-```make
+```just
 # 这个字符串执行结果为 `foo\nbar\n`
 x := '''
   foo
@@ -1034,7 +1034,7 @@ y := """
 
 通常情况下，如果一个命令返回一个非零的退出状态，将停止执行。要想在一个命令之后继续执行，即使它失败了，需要在命令前加上 `-`：
 
-```make
+```just
 foo:
   -cat foo
   echo 'Done!'
@@ -1060,7 +1060,7 @@ Done!
 
 例如：
 
-```make
+```just
 system-info:
   @echo "This is an {{arch()}} machine".
 ```
@@ -1076,7 +1076,7 @@ This is an x86_64 machine
 
 - `env_var(key)` — 获取名称为 `key` 的环境变量，如果不存在则终止。
 
-```make
+```just
 home_dir := env_var('HOME')
 
 test:
@@ -1096,14 +1096,14 @@ $ just
 
 例如，要对 "当前目录" 下的文件调用 `rustfmt`（从用户/调用者的角度看），使用以下规则：
 
-```make
+```just
 rustfmt:
   find {{invocation_directory()}} -name \*.rs -exec rustfmt {} \;
 ```
 
 另外，如果你的命令需要从当前目录运行，你可以使用如下方式：
 
-```make
+```just
 build:
   cd {{invocation_directory()}}; ./some_script_that_needs_to_be_run_from_here
 ```
@@ -1116,7 +1116,7 @@ build:
 
 例如，运行一个相对于当前 `justfile` 位置的命令：
 
-```make
+```just
 script:
   ./{{justfile_directory()}}/scripts/some_script
 ```
@@ -1127,7 +1127,7 @@ script:
 
 例如：
 
-```make
+```just
 executable:
   @echo The executable is at: {{just_executable()}}
 ```
@@ -1214,7 +1214,7 @@ The executable is at: /bin/just
 
 这可以用来编写因运行的操作系统不同，其行为也不同的 `justfile`。以下 `justfile` 中的 `run` 配方将编译和运行 `main.c`，并且根据操作系统的不同而使用不同的C编译器，同时使用正确的二进制产物名称：
 
-```make
+```just
 [unix]
 run:
   cc main.c
@@ -1232,7 +1232,7 @@ run:
 
 例如这个 `commit` 配方：
 
-```make
+```just
 [no-cd]
 commit file:
   git add {{file}}
@@ -1245,7 +1245,7 @@ commit file:
 
 反引号可以用来存储命令的求值结果：
 
-```make
+```just
 localhost := `dumpinterfaces | cut -d: -f2 | sed 's/\/.*//' | sed 's/ //g'`
 
 serve:
@@ -1254,7 +1254,7 @@ serve:
 
 缩进的反引号，以三个反引号为界，与字符串缩进的方式一样，会被去掉缩进：
 
-````make
+````just
 # This backtick evaluates the command `echo foo\necho bar\n`, which produces the value `foo\nbar\n`.
 stuff := ```
     echo foo
@@ -1270,7 +1270,7 @@ stuff := ```
 
 `if` / `else` 表达式评估不同的分支，取决于两个表达式是否评估为相同的值：
 
-```make
+```just
 foo := if "2" == "2" { "Good!" } else { "1984" }
 
 bar:
@@ -1284,7 +1284,7 @@ Good!
 
 也可以用于测试不相等：
 
-```make
+```just
 foo := if "hello" != "goodbye" { "xyz" } else { "abc" }
 
 bar:
@@ -1298,7 +1298,7 @@ xyz
 
 还支持与正则表达式进行匹配：
 
-```make
+```just
 foo := if "hello" =~ 'hel+o' { "match" } else { "mismatch" }
 
 bar:
@@ -1314,13 +1314,13 @@ match
 
 条件表达式是短路的，这意味着它们只评估其中的一个分支。这可以用来确保反引号内的表达式在不应该运行的时候不会运行。
 
-```make
+```just
 foo := if env_var("RELEASE") == "true" { `get-something-from-release-database` } else { "dummy-value" }
 ```
 
 条件语句也可以在配方中使用：
 
-```make
+```just
 bar foo:
   echo {{ if foo == "bar" { "hello" } else { "goodbye" } }}
 ```
@@ -1329,7 +1329,7 @@ bar foo:
 
 多个条件语句可以被连起来：
 
-```make
+```just
 foo := if "hello" == "goodbye" {
   "xyz"
 } else if "a" == "a" {
@@ -1351,7 +1351,7 @@ abc
 
 可以用 `error` 函数停止执行。比如：
 
-```
+```just
 foo := if "hello" == "goodbye" {
   "xyz"
 } else if "a" == "b" {
@@ -1373,7 +1373,7 @@ error: Call to function `error` failed: 123
 
 变量可以从命令行进行覆盖。
 
-```make
+```just
 os := "linux"
 
 test: build
@@ -1411,7 +1411,7 @@ $ just --set os bsd
 
 以 `export` 关键字为前缀的赋值将作为环境变量导出到配方中：
 
-```make
+```just
 export RUST_BACKTRACE := "1"
 
 test:
@@ -1421,7 +1421,7 @@ test:
 
 以 `$` 为前缀的参数将被作为环境变量导出：
 
-```make
+```just
 test $RUST_BACKTRACE="1":
   # 如果它崩溃了，将打印一个堆栈追踪
   cargo test
@@ -1429,13 +1429,13 @@ test $RUST_BACKTRACE="1":
 
 导出的变量和参数不会被导出到同一作用域内反引号包裹的表达式里。
 
-```make
+```just
 export WORLD := "world"
 # This backtick will fail with "WORLD: unbound variable"
 BAR := `echo hello $WORLD`
 ```
 
-```make
+```just
 # Running `just a foo` will fail with "A: unbound variable"
 a $A $B=`echo $A`:
   echo $A $B
@@ -1447,7 +1447,7 @@ a $A $B=`echo $A`:
 
 来自环境的环境变量会自动传递给配方：
 
-```make
+```just
 print_home_folder:
   echo "HOME is: '${HOME}'"
 ```
@@ -1470,7 +1470,7 @@ HOME is '/home/myuser'
 
 配方可以有参数。这里的配方 `build` 有一个参数叫 `target`:
 
-```make
+```just
 build target:
   @echo 'Building {{target}}…'
   cd {{target}} && make
@@ -1486,7 +1486,7 @@ cd my-awesome-project && make
 
 要向依赖配方传递参数，请将依赖配方和参数一起放在括号里：
 
-```make
+```just
 default: (build "main")
 
 build target:
@@ -1496,7 +1496,7 @@ build target:
 
 变量也可以作为参数传递给依赖：
 
-```make
+```just
 target := "main"
 
 _build version:
@@ -1508,7 +1508,7 @@ build: (_build target)
 
 命令的参数可以通过将依赖与参数一起放在括号中的方式传递给依赖：
 
-```make
+```just
 build target:
   @echo "Building {{target}}…"
 
@@ -1518,7 +1518,7 @@ push target: (build target)
 
 参数可以有默认值：
 
-```make
+```just
 default := 'all'
 
 test target tests=default:
@@ -1544,7 +1544,7 @@ Testing server:unit…
 
 默认值可以是任意的表达式，但字符串或路径拼接必须放在括号内：
 
-```make
+```just
 arch := "wasm"
 
 test triple=(arch + "-unknown-unknown") input=(arch / "input.dat"):
@@ -1553,7 +1553,7 @@ test triple=(arch + "-unknown-unknown") input=(arch / "input.dat"):
 
 配方的最后一个参数可以是变长的，在参数名称前用 `+` 或 `*` 表示：
 
-```make
+```just
 backup +FILES:
   scp {{FILES}} me@server.com:
 ```
@@ -1569,21 +1569,21 @@ GRAMMAR.md              100% 1666     1.6KB/s   00:00
 
 以 `*` 为前缀的变长参数接受 _0个或更多_ 参数，并展开为一个包含这些参数的字符串，以空格分隔，如果没有参数，则为空字符串：
 
-```make
+```just
 commit MESSAGE *FLAGS:
   git commit {{FLAGS}} -m "{{MESSAGE}}"
 ```
 
 变长参数可以被分配默认值。这些参数被命令行上传递的参数所覆盖：
 
-```make
+```just
 test +FLAGS='-q':
   cargo test {{FLAGS}}
 ```
 
 `{{…}}` 的替换可能需要加引号，如果它们包含空格。例如，如果你有以下配方：
 
-```make
+```just
 search QUERY:
   lynx https://www.google.com/?q={{QUERY}}
 ```
@@ -1598,14 +1598,14 @@ $ just search "cat toupee"
 
 你可以通过添加引号来解决这个问题：
 
-```make
+```just
 search QUERY:
   lynx 'https://www.google.com/?q={{QUERY}}'
 ```
 
 以 `$` 为前缀的参数将被作为环境变量导出：
 
-```make
+```just
 foo $bar:
   echo $bar
 ```
@@ -1616,7 +1616,7 @@ foo $bar:
 
 一个配方也可以有后续的依赖，它们在配方之后运行，用 `&&` 表示：
 
-```make
+```just
 a:
   echo 'A!'
 
@@ -1648,7 +1648,7 @@ D!
 
 `just` 不支持在配方的中间运行另一个配方，但你可以在一个配方的中间递归调用 `just`。例如以下 `justfile`：
 
-```make
+```just
 a:
   echo 'A!'
 
@@ -1681,7 +1681,7 @@ B end!
 
 以 `#!` 开头的配方被称为 Shebang 配方，它通过将配方主体保存到文件中并运行它来执行。这让你可以用不同的语言来编写配方：
 
-```make
+```just
 polyglot: python js perl sh ruby
 
 python:
@@ -1728,7 +1728,7 @@ Windows 不支持 Shebang 行。在 Windows 上，`just` 将 Shebang 行分割�
 
 如果你正在写一个 `bash` Shebang 配方，考虑加入 `set -euxo pipefail`：
 
-```make
+```just
 foo:
   #!/usr/bin/env bash
   set -euxo pipefail
@@ -1754,7 +1754,7 @@ foo:
 
 例如，要在 Windows 上执行这个配方：
 
-```make
+```just
 echo:
   #!/bin/sh
   echo "Hello!"
@@ -1776,7 +1776,7 @@ foo:
 
 使用 Shell 变量是可能的，但还有一个问题：每一行配方都由一个新的 Shell 实例运行，所以在一行中设置的变量不会在下一行中生效：
 
-```make
+```just
 foo:
   x=hello && echo $x # 这个没问题！
   y=bye
@@ -1785,7 +1785,7 @@ foo:
 
 解决这个问题的最好方法是使用 Shebang 配方。Shebang 配方体被提取出来并作为脚本运行，所以一个 Shell 实例就可以运行整个配方体：
 
-```make
+```just
 foo:
   #!/usr/bin/env bash
   set -euxo pipefail
@@ -1801,7 +1801,7 @@ foo:
 
 一些工具，像 [Python 的 venv](https://docs.python.org/3/library/venv.html)，需要加载环境变量才能工作，这使得它们在使用 `just` 时具有挑战性。作为一种变通方法，你可以直接执行虚拟环境二进制文件：
 
-```make
+```just
 venv:
   [ -d foo ] || python3 -m venv foo
 
@@ -1813,7 +1813,7 @@ run: venv
 
 每一行配方都由一个新的 Shell 执行，所以如果你在某一行改变了工作目录，对后面的行不会有影响：
 
-```make
+```just
 foo:
   pwd    # This `pwd` will print the same directory…
   cd bar
@@ -1822,14 +1822,14 @@ foo:
 
 有几个方法可以解决这个问题。一个是在你想运行的命令的同一行调用 `cd`：
 
-```make
+```just
 foo:
   cd bar && pwd
 ```
 
 另一种方法是使用 Shebang 配方。Shebang 配方体被提取并作为脚本运行，因此一个 Shell 实例将运行整个配方体，所以一行的 `pwd` 改变将影响后面的行，就像一个 Shell 脚本：
 
-```make
+```just
 foo:
   #!/usr/bin/env bash
   set -euxo pipefail
@@ -1868,19 +1868,19 @@ error: Recipe line has extra leading whitespace
 
 #### `if` 语句
 
-```make
+```just
 conditional:
   if true; then echo 'True!'; fi
 ```
 
-```make
+```just
 conditional:
   if true; then \
     echo 'True!'; \
   fi
 ```
 
-```make
+```just
 conditional:
   #!/usr/bin/env sh
   if true; then
@@ -1890,19 +1890,19 @@ conditional:
 
 #### `for` 循环
 
-```make
+```just
 for:
   for file in `ls .`; do echo $file; done
 ```
 
-```make
+```just
 for:
   for file in `ls .`; do \
     echo $file; \
   done
 ```
 
-```make
+```just
 for:
   #!/usr/bin/env sh
   for file in `ls .`; do
@@ -1912,19 +1912,19 @@ for:
 
 #### `while` 循环
 
-```make
+```just
 while:
   while `server-is-dead`; do ping -c 1 server; done
 ```
 
-```make
+```just
 while:
   while `server-is-dead`; do \
     ping -c 1 server; \
   done
 ```
 
-```make
+```just
 while:
   #!/usr/bin/env sh
   while `server-is-dead`; do
@@ -1958,7 +1958,7 @@ polyglot: python js perl sh ruby
 
 名字以 `_` 开头的配方和别名将在 `just --list` 中被忽略：
 
-```make
+```just
 test: _test-helper
   ./bin/test
 
@@ -1981,7 +1981,7 @@ test
 
 `[private]` 属性<sup>master</sup>也可用于隐藏配方，而不需要改变名称：
 
-```make
+```just
 [private]
 foo:
 
@@ -2000,7 +2000,7 @@ Available recipes:
 
 配方名称可在前面加上 `@`，可以在每行反转行首 `@` 的含义：
 
-```make
+```just
 @quiet:
   echo hello
   echo goodbye
@@ -2018,7 +2018,7 @@ goodbye
 
 Shebang 配方默认是安静的：
 
-```make
+```just
 foo:
   #!/usr/bin/env bash
   echo 'Foo!'
@@ -2031,7 +2031,7 @@ Foo!
 
 在 Shebang 配方名称前面添加 `@`，使 `just` 在执行配方前打印该配方：
 
-```make
+```just
 @bar:
   #!/usr/bin/env bash
   echo 'Bar!'
@@ -2046,7 +2046,7 @@ Bar!
 
 `just` 在配方行失败时通常会打印错误信息，这些错误信息可以通过 `[no-exit-message]` 属性来抑制。你可能会发现这在包装工具的配方中特别有用：
 
-```make
+```just
 git *args:
     @git {{args}}
 ```
@@ -2059,7 +2059,7 @@ error: Recipe `git` failed on line 2 with exit code 128
 
 添加属性，当工具以非零代码退出时抑制退出错误信息：
 
-```make
+```just
 [no-exit-message]
 git *args:
     @git {{args}}
@@ -2084,7 +2084,7 @@ fatal: not a git repository (or any of the parent directories): .git
 
 如果你希望 `just` 默认用选择器来选择配方，你可以用这个作为你的默认配方：
 
-```make
+```just
 default:
   @just --choose
 ```
@@ -2136,7 +2136,7 @@ foo
 
 注意：Shebang 的行分隔在不同的操作系统中并不一致。前面的例子只在 macOS 上进行了测试。在 Linux 上，你可能需要向 `env` 传递 `-S` 标志：
 
-```make
+```just
 #!/usr/bin/env -S just --justfile
 
 default:
@@ -2155,7 +2155,7 @@ default:
 
 举个例子，假设当前目录包含这个 `justfile`：
 
-```make
+```just
 set fallback
 foo:
   echo foo
@@ -2163,7 +2163,7 @@ foo:
 
 而父目录包含这个 `justfile`：
 
-```make
+```just
 bar:
   echo bar
 ```
@@ -2179,7 +2179,7 @@ bar
 
 考虑这个 `justfile`:
 
-```make
+```just
 foo argument:
   touch {{argument}}
 ```
@@ -2198,7 +2198,7 @@ $ just foo "some argument.txt"
 
 可以在 `{{argument}}` 的周围加上引号，进行插值：
 
-```make
+```just
 foo argument:
   touch '{{argument}}'
 ```
@@ -2209,7 +2209,7 @@ foo argument:
 
 设置 `positional-arguments` 使所有参数作为位置参数传递，允许用 `$1`, `$2`, …, 和 `$@` 访问这些参数，然后可以用双引号避免被 Shell 进一步分割：
 
-```make
+```just
 set positional-arguments
 
 foo argument:
@@ -2222,7 +2222,7 @@ foo argument:
 
 当设置 `export` 时，所有参数都被导出：
 
-```make
+```just
 set export
 
 foo argument:
@@ -2231,7 +2231,7 @@ foo argument:
 
 或者可以通过在参数前加上 `$` 来导出单个参数：
 
-```make
+```just
 foo $argument:
   touch "$argument"
 ```
@@ -2354,7 +2354,7 @@ alias .j='just --justfile ~/.user.justfile --working-directory ~'
 
 下面的导出语句使 `just` 配方能够访问本地 Node 模块二进制文件，并使 `just` 配方命令的行为更像 Node.js `package.json` 文件中的 `script` 条目：
 
-```make
+```just
 export PATH := "./node_modules/.bin:" + env_var('PATH')
 ```
 
@@ -2414,7 +2414,7 @@ Release x.y.z
 
 一个例子是，在某些情况下，`make` 不会实际运行配方中的命令。例如，如果你有一个名为 `test` 的文件和以下 makefile：
 
-```make
+```just
 test:
   ./test
 ```
