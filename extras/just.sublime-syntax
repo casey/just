@@ -15,6 +15,7 @@ contexts:
     - include: recipeContent
     - include: functions
     - include: keywords
+    - include: attributes
   assignments:
     - match: '^(export\s+)?([a-zA-Z_][a-zA-Z0-9_-]*)\s*(:=)'
       captures:
@@ -73,3 +74,6 @@ contexts:
         - meta_scope: string.quoted.single.just
         - match: "'"
           pop: true
+  attributes:
+    - match: '^\[.*?]'
+      scope: meta.annotation.identifier.just
