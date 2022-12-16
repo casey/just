@@ -336,7 +336,7 @@ mod tests {
       ("/", "foo", "/foo"),
       ("/bar", "/foo", "/foo"),
       #[cfg(windows)]
-      ("//foo", "bar//baz", "/foo\\bar\\baz"),
+      ("//foo", "bar//baz", "//foo\\bar\\baz"),
       #[cfg(not(windows))]
       ("/", "..", "/"),
       ("/", "/..", "/"),
