@@ -22,7 +22,7 @@ impl InterruptHandler {
         eprintln!(
           "{}",
           Error::Internal {
-            message: format!("interrupt handler mutex poisoned: {}", poison_error),
+            message: format!("interrupt handler mutex poisoned: {poison_error}"),
           }
           .color_display(Color::auto().stderr())
         );

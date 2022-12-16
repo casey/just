@@ -238,7 +238,7 @@ mod tests {
     fs::write(&path, "default:\n\techo ok").unwrap();
     path.pop();
     if let Err(err) = Search::justfile(path.as_path()) {
-      panic!("No errors were expected: {}", err);
+      panic!("No errors were expected: {err}");
     }
   }
 
@@ -261,7 +261,7 @@ mod tests {
     fs::write(&path, "default:\n\techo ok").unwrap();
     path.pop();
     if let Err(err) = Search::justfile(path.as_path()) {
-      panic!("No errors were expected: {}", err);
+      panic!("No errors were expected: {err}");
     }
   }
 
@@ -277,7 +277,7 @@ mod tests {
     path.push("b");
     fs::create_dir(&path).expect("test justfile search: failed to create intermediary directory");
     if let Err(err) = Search::justfile(path.as_path()) {
-      panic!("No errors were expected: {}", err);
+      panic!("No errors were expected: {err}");
     }
   }
 
@@ -301,7 +301,7 @@ mod tests {
         path.push(DEFAULT_JUSTFILE_NAME);
         assert_eq!(found_path, path);
       }
-      Err(err) => panic!("No errors were expected: {}", err),
+      Err(err) => panic!("No errors were expected: {err}"),
     }
   }
 
@@ -317,7 +317,7 @@ mod tests {
     let justfile = sub.join("justfile");
 
     #[cfg(unix)]
-    std::os::unix::fs::symlink(&src, &justfile).unwrap();
+    std::os::unix::fs::symlink(src, &justfile).unwrap();
 
     #[cfg(windows)]
     std::os::windows::fs::symlink_file(&src, &justfile).unwrap();

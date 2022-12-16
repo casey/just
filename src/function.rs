@@ -118,7 +118,7 @@ fn env_var(context: &FunctionContext, key: &str) -> Result<String, String> {
   }
 
   match env::var(key) {
-    Err(NotPresent) => Err(format!("environment variable `{}` not present", key)),
+    Err(NotPresent) => Err(format!("environment variable `{key}` not present")),
     Err(NotUnicode(os_string)) => Err(format!(
       "environment variable `{}` not unicode: {:?}",
       key, os_string
@@ -156,21 +156,21 @@ fn extension(_context: &FunctionContext, path: &str) -> Result<String, String> {
   Utf8Path::new(path)
     .extension()
     .map(str::to_owned)
-    .ok_or_else(|| format!("Could not extract extension from `{}`", path))
+    .ok_or_else(|| format!("Could not extract extension from `{path}`"))
 }
 
 fn file_name(_context: &FunctionContext, path: &str) -> Result<String, String> {
   Utf8Path::new(path)
     .file_name()
     .map(str::to_owned)
-    .ok_or_else(|| format!("Could not extract file name from `{}`", path))
+    .ok_or_else(|| format!("Could not extract file name from `{path}`"))
 }
 
 fn file_stem(_context: &FunctionContext, path: &str) -> Result<String, String> {
   Utf8Path::new(path)
     .file_stem()
     .map(str::to_owned)
-    .ok_or_else(|| format!("Could not extract file stem from `{}`", path))
+    .ok_or_else(|| format!("Could not extract file stem from `{path}`"))
 }
 
 fn invocation_directory(context: &FunctionContext) -> Result<String, String> {
@@ -178,7 +178,7 @@ fn invocation_directory(context: &FunctionContext) -> Result<String, String> {
     &context.search.working_directory,
     context.invocation_directory,
   )
-  .map_err(|e| format!("Error getting shell path: {}", e))
+  .map_err(|e| format!("Error getting shell path: {e}"))
 }
 
 fn join(
@@ -196,7 +196,7 @@ fn join(
 
 fn just_executable(_context: &FunctionContext) -> Result<String, String> {
   let exe_path =
-    std::env::current_exe().map_err(|e| format!("Error getting current executable: {}", e))?;
+    std::env::current_exe().map_err(|e| format!("Error getting current executable: {e}"))?;
 
   exe_path.to_str().map(str::to_owned).ok_or_else(|| {
     format!(
@@ -263,7 +263,7 @@ fn parent_directory(_context: &FunctionContext, path: &str) -> Result<String, St
   Utf8Path::new(path)
     .parent()
     .map(Utf8Path::to_string)
-    .ok_or_else(|| format!("Could not extract parent directory from `{}`", path))
+    .ok_or_else(|| format!("Could not extract parent directory from `{path}`"))
 }
 
 fn path_exists(context: &FunctionContext, path: &str) -> Result<String, String> {
@@ -304,7 +304,7 @@ fn sha256(_context: &FunctionContext, s: &str) -> Result<String, String> {
   let mut hasher = Sha256::new();
   hasher.update(s);
   let hash = hasher.finalize();
-  Ok(format!("{:x}", hash))
+  Ok(format!("{hash:x}"))
 }
 
 fn sha256_file(context: &FunctionContext, path: &str) -> Result<String, String> {
@@ -312,11 +312,11 @@ fn sha256_file(context: &FunctionContext, path: &str) -> Result<String, String> 
   let justpath = context.search.working_directory.join(path);
   let mut hasher = Sha256::new();
   let mut file = std::fs::File::open(&justpath)
-    .map_err(|err| format!("Failed to open file at `{:?}`: {}", &justpath.to_str(), err))?;
+    .map_err(|err| format!("Failed to open file at `{:?}`: {err}", &justpath.to_str()))?;
   std::io::copy(&mut file, &mut hasher)
-    .map_err(|err| format!("Failed to read file at `{:?}`: {}", &justpath.to_str(), err))?;
+    .map_err(|err| format!("Failed to read file at `{:?}`: {err}", &justpath.to_str()))?;
   let hash = hasher.finalize();
-  Ok(format!("{:x}", hash))
+  Ok(format!("{hash:x}"))
 }
 
 fn shoutykebabcase(_context: &FunctionContext, s: &str) -> Result<String, String> {
@@ -378,11 +378,11 @@ fn uuid(_context: &FunctionContext) -> Result<String, String> {
 fn without_extension(_context: &FunctionContext, path: &str) -> Result<String, String> {
   let parent = Utf8Path::new(path)
     .parent()
-    .ok_or_else(|| format!("Could not extract parent from `{}`", path))?;
+    .ok_or_else(|| format!("Could not extract parent from `{path}`"))?;
 
   let file_stem = Utf8Path::new(path)
     .file_stem()
-    .ok_or_else(|| format!("Could not extract file stem from `{}`", path))?;
+    .ok_or_else(|| format!("Could not extract file stem from `{path}`"))?;
 
   Ok(parent.join(file_stem).to_string())
 }

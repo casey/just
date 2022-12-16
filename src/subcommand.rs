@@ -338,7 +338,7 @@ impl Subcommand {
           .map_err(|serde_json_error| Error::DumpJson { serde_json_error })?;
         println!();
       }
-      DumpFormat::Just => print!("{}", ast),
+      DumpFormat::Just => print!("{ast}"),
     }
     Ok(())
   }
@@ -388,7 +388,7 @@ impl Subcommand {
               ChangeTag::Insert => ("+", config.color.stderr().diff_added()),
             };
 
-            eprint!("{}{}{}{}", color.prefix(), symbol, change, color.suffix());
+            eprint!("{}{symbol}{change}{}", color.prefix(), color.suffix());
           }
         }
 
@@ -478,7 +478,7 @@ impl Subcommand {
         .chain(recipe_aliases.get(name).unwrap_or(&Vec::new()))
         .enumerate()
       {
-        print!("{}{}", config.list_prefix, name);
+        print!("{}{name}", config.list_prefix);
         for parameter in &recipe.parameters {
           print!(" {}", parameter.color_display(config.color.stdout()));
         }
@@ -513,7 +513,7 @@ impl Subcommand {
   fn show<'src>(config: &Config, name: &str, justfile: Justfile<'src>) -> Result<(), Error<'src>> {
     if let Some(alias) = justfile.get_alias(name) {
       let recipe = justfile.get_recipe(alias.target.name.lexeme()).unwrap();
-      println!("{}", alias);
+      println!("{alias}");
       println!("{}", recipe.color_display(config.color.stdout()));
       Ok(())
     } else if let Some(recipe) = justfile.get_recipe(name) {
@@ -539,7 +539,7 @@ impl Subcommand {
         .map(|recipe| recipe.name())
         .collect::<Vec<&str>>()
         .join(" ");
-      println!("{}", summary);
+      println!("{summary}");
     }
   }
 

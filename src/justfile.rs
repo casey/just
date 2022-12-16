@@ -161,7 +161,7 @@ impl<'src> Justfile<'src> {
       Subcommand::Evaluate { variable, .. } => {
         if let Some(variable) = variable {
           if let Some(value) = scope.value(variable) {
-            print!("{}", value);
+            print!("{value}");
           } else {
             return Err(Error::EvalUnknownVariable {
               suggestion: self.suggest_variable(variable),
@@ -373,14 +373,14 @@ impl<'src> ColorDisplay for Justfile<'src> {
       if assignment.export {
         write!(f, "export ")?;
       }
-      write!(f, "{} := {}", name, assignment.value)?;
+      write!(f, "{name} := {}", assignment.value)?;
       items -= 1;
       if items != 0 {
         write!(f, "\n\n")?;
       }
     }
     for alias in self.aliases.values() {
-      write!(f, "{}", alias)?;
+      write!(f, "{alias}")?;
       items -= 1;
       if items != 0 {
         write!(f, "\n\n")?;

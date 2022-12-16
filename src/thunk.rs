@@ -104,18 +104,18 @@ impl Display for Thunk<'_> {
     use Thunk::*;
     match self {
       Nullary { name, .. } => write!(f, "{}()", name.lexeme()),
-      Unary { name, arg, .. } => write!(f, "{}({})", name.lexeme(), arg),
+      Unary { name, arg, .. } => write!(f, "{}({arg})", name.lexeme()),
       Binary {
         name, args: [a, b], ..
-      } => write!(f, "{}({}, {})", name.lexeme(), a, b),
+      } => write!(f, "{}({a}, {b})", name.lexeme()),
       BinaryPlus {
         name,
         args: ([a, b], rest),
         ..
       } => {
-        write!(f, "{}({}, {}", name.lexeme(), a, b)?;
+        write!(f, "{}({a}, {b}", name.lexeme())?;
         for arg in rest {
-          write!(f, ", {}", arg)?;
+          write!(f, ", {arg}")?;
         }
         write!(f, ")")
       }
@@ -123,7 +123,7 @@ impl Display for Thunk<'_> {
         name,
         args: [a, b, c],
         ..
-      } => write!(f, "{}({}, {}, {})", name.lexeme(), a, b, c),
+      } => write!(f, "{}({a}, {b}, {c})", name.lexeme()),
     }
   }
 }

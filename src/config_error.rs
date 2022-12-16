@@ -28,7 +28,7 @@ pub(crate) enum ConfigError {
   #[snafu(display(
       "`--{}` used with unexpected overrides: {}",
       subcommand.to_lowercase(),
-      List::and_ticked(overrides.iter().map(|(key, value)| format!("{}={}", key, value))),
+      List::and_ticked(overrides.iter().map(|(key, value)| format!("{key}={value}"))),
   ))]
   SubcommandOverrides {
     subcommand: &'static str,
@@ -37,7 +37,7 @@ pub(crate) enum ConfigError {
   #[snafu(display(
       "`--{}` used with unexpected overrides: {}; and arguments: {}",
       subcommand.to_lowercase(),
-      List::and_ticked(overrides.iter().map(|(key, value)| format!("{}={}", key, value))),
+      List::and_ticked(overrides.iter().map(|(key, value)| format!("{key}={value}"))),
       List::and_ticked(arguments)))
   ]
   SubcommandOverridesAndArguments {
