@@ -25,7 +25,7 @@ pub(crate) fn load_dotenv(
     .to_owned();
 
   for directory in working_directory.ancestors() {
-    let path = directory.join(&filename);
+    let path = directory.join(filename.as_str());
     if path.is_file() {
       return load_from_file(&path);
     }

@@ -88,9 +88,6 @@ pub(crate) type ConfigResult<T> = Result<T, ConfigError>;
 pub(crate) type RunResult<'a, T> = Result<T, Error<'a>>;
 pub(crate) type SearchResult<T> = Result<T, SearchError>;
 
-#[macro_use]
-extern crate lazy_static;
-
 #[cfg(test)]
 #[macro_use]
 pub mod testing;

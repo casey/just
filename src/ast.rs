@@ -16,7 +16,7 @@ impl<'src> Display for Ast<'src> {
     let mut iter = self.items.iter().peekable();
 
     while let Some(item) = iter.next() {
-      writeln!(f, "{}", item)?;
+      writeln!(f, "{item}")?;
 
       if let Some(next_item) = iter.peek() {
         if matches!(item, Item::Recipe(_))

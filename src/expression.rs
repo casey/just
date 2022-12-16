@@ -51,12 +51,12 @@ impl<'src> Display for Expression<'src> {
   fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
     match self {
       Expression::Backtick { token, .. } => write!(f, "{}", token.lexeme()),
-      Expression::Join { lhs: None, rhs } => write!(f, "/ {}", rhs),
+      Expression::Join { lhs: None, rhs } => write!(f, "/ {rhs}"),
       Expression::Join {
         lhs: Some(lhs),
         rhs,
-      } => write!(f, "{} / {}", lhs, rhs),
-      Expression::Concatenation { lhs, rhs } => write!(f, "{} + {}", lhs, rhs),
+      } => write!(f, "{lhs} / {rhs}"),
+      Expression::Concatenation { lhs, rhs } => write!(f, "{lhs} + {rhs}"),
       Expression::Conditional {
         lhs,
         rhs,
@@ -68,10 +68,10 @@ impl<'src> Display for Expression<'src> {
         "if {} {} {} {{ {} }} else {{ {} }}",
         lhs, operator, rhs, then, otherwise
       ),
-      Expression::StringLiteral { string_literal } => write!(f, "{}", string_literal),
+      Expression::StringLiteral { string_literal } => write!(f, "{string_literal}"),
       Expression::Variable { name } => write!(f, "{}", name.lexeme()),
-      Expression::Call { thunk } => write!(f, "{}", thunk),
-      Expression::Group { contents } => write!(f, "({})", contents),
+      Expression::Call { thunk } => write!(f, "{thunk}"),
+      Expression::Group { contents } => write!(f, "({contents})"),
     }
   }
 }

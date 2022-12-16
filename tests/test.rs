@@ -176,7 +176,7 @@ impl Test {
     dotenv_path.push(".env");
     fs::write(dotenv_path, "DOTENV_KEY=dotenv-value").unwrap();
 
-    let mut command = Command::new(&executable_path("just"));
+    let mut command = Command::new(executable_path("just"));
 
     if self.shell {
       command.args(["--shell", "bash"]);
@@ -258,7 +258,7 @@ struct Output<'a> {
 fn test_round_trip(tmpdir: &Path) {
   println!("Reparsing...");
 
-  let output = Command::new(&executable_path("just"))
+  let output = Command::new(executable_path("just"))
     .current_dir(tmpdir)
     .arg("--dump")
     .output()
@@ -274,7 +274,7 @@ fn test_round_trip(tmpdir: &Path) {
 
   fs::write(&reparsed_path, &dumped).unwrap();
 
-  let output = Command::new(&executable_path("just"))
+  let output = Command::new(executable_path("just"))
     .current_dir(tmpdir)
     .arg("--justfile")
     .arg(&reparsed_path)

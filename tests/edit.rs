@@ -49,7 +49,7 @@ fn invoke_error() {
   assert_eq!(
     String::from_utf8_lossy(&output.stderr),
     if cfg!(windows) {
-      "error: Editor `/` invocation failed: Access is denied. (os error 5)\n"
+      "error: Editor `/` invocation failed: program path has no file name\n"
     } else {
       "error: Editor `/` invocation failed: Permission denied (os error 13)\n"
     }

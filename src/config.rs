@@ -388,7 +388,7 @@ impl Config {
       arg::COLOR_ALWAYS => Ok(Color::always()),
       arg::COLOR_NEVER => Ok(Color::never()),
       _ => Err(ConfigError::Internal {
-        message: format!("Invalid argument `{}` to --color.", value),
+        message: format!("Invalid argument `{value}` to --color."),
       }),
     }
   }
@@ -404,7 +404,7 @@ impl Config {
       arg::DUMP_FORMAT_JSON => Ok(DumpFormat::Json),
       arg::DUMP_FORMAT_JUST => Ok(DumpFormat::Just),
       _ => Err(ConfigError::Internal {
-        message: format!("Invalid argument `{}` to --dump-format.", value),
+        message: format!("Invalid argument `{value}` to --dump-format."),
       }),
     }
   }
