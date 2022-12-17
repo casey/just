@@ -9,7 +9,7 @@ Changelog
 
 ### Added
 - Hide recipes with `[private]` attribute ([#1422](https://github.com/casey/just/issues/1422))
-- Add replace_regex function ([#1393](https://github.com/casey/just/issues/1393) by [@miles170](https://github.com/miles170/))
+- Add replace_regex function ([#1393](https://github.com/casey/just/issues/1393) by [miles170](https://github.com/miles170/))
 - Add [no-cd] attribute ([#1400](https://github.com/casey/just/issues/1400))
 
 ### Changed
@@ -21,7 +21,7 @@ Changelog
 - Use more secure cURL options in install.sh ([#1416](https://github.com/casey/just/issues/1416))
 - Document how shebang recipes are executed ([#1412](https://github.com/casey/just/issues/1412))
 - Fix typo: regec → regex ([#1409](https://github.com/casey/just/issues/1409))
-- Use powershell.exe instead of pwsh.exe in readme ([#1394](https://github.com/casey/just/issues/1394) by [@asdf8dfafjk](https://github.com/asdf8dfafjk/))
+- Use powershell.exe instead of pwsh.exe in readme ([#1394](https://github.com/casey/just/issues/1394) by [asdf8dfafjk](https://github.com/asdf8dfafjk/))
 - Expand alternatives and prior art in readme ([#1401](https://github.com/casey/just/issues/1401))
 - Split up CI workflow ([#1399](https://github.com/casey/just/issues/1399))
 
@@ -41,14 +41,14 @@ Changelog
 - Make `fallback` setting default to true ([#1384](https://github.com/casey/just/issues/1384))
 
 ### Added
-- Add more case-conversion functions ([#1383](https://github.com/casey/just/issues/1383) by [@gVirtu](https://github.com/gVirtu/))
-- Add `tempdir` setting ([#1369](https://github.com/casey/just/issues/1369) by [@dmatos2012](https://github.com/dmatos2012/))
-- Add [no-exit-message] recipe annotation ([#1354](https://github.com/casey/just/issues/1354) by [@gokhanettin](https://github.com/gokhanettin/))
-- Add `capitalize(s)` function ([#1375](https://github.com/casey/just/issues/1375) by [@femnad](https://github.com/femnad/))
+- Add more case-conversion functions ([#1383](https://github.com/casey/just/issues/1383) by [gVirtu](https://github.com/gVirtu/))
+- Add `tempdir` setting ([#1369](https://github.com/casey/just/issues/1369) by [dmatos2012](https://github.com/dmatos2012/))
+- Add [no-exit-message] recipe annotation ([#1354](https://github.com/casey/just/issues/1354) by [gokhanettin](https://github.com/gokhanettin/))
+- Add `capitalize(s)` function ([#1375](https://github.com/casey/just/issues/1375) by [femnad](https://github.com/femnad/))
 
 ### Misc
 - Credit contributors in changelog ([#1385](https://github.com/casey/just/issues/1385))
-- Update asdf just plugin repository ([#1380](https://github.com/casey/just/issues/1380) by [@kachick](https://github.com/kachick/))
+- Update asdf just plugin repository ([#1380](https://github.com/casey/just/issues/1380) by [kachick](https://github.com/kachick/))
 - Prepend commit messages with `- ` in changelog ([#1379](https://github.com/casey/just/issues/1379))
 - Fail publish if `<sup>master</sup>` is found in README.md ([#1378](https://github.com/casey/just/issues/1378))
 - Use for loop in capitalize implementation ([#1377](https://github.com/casey/just/issues/1377))
@@ -64,13 +64,13 @@ Changelog
 
 ### Added
 - Don't evaluate comments ([#1358](https://github.com/casey/just/issues/1358))
-- Add skip-comments setting ([#1333](https://github.com/casey/just/issues/1333) by [@neunenak](https://github.com/neunenak/))
-- Allow bash completion to complete tasks in other directories ([#1303](https://github.com/casey/just/issues/1303) by [@jpbochi](https://github.com/jpbochi/))
+- Add skip-comments setting ([#1333](https://github.com/casey/just/issues/1333) by [neunenak](https://github.com/neunenak/))
+- Allow bash completion to complete tasks in other directories ([#1303](https://github.com/casey/just/issues/1303) by [jpbochi](https://github.com/jpbochi/))
 
 ### Misc
 - Restore www/CNAME ([#1364](https://github.com/casey/just/issues/1364))
 - Improve book config ([#1363](https://github.com/casey/just/issues/1363))
-- Add kitchen sink justfile to test syntax highlighting ([#1362](https://github.com/casey/just/issues/1362) by [@nk9](https://github.com/nk9/))
+- Add kitchen sink justfile to test syntax highlighting ([#1362](https://github.com/casey/just/issues/1362) by [nk9](https://github.com/nk9/))
 - Note version in which absolute path construction was added ([#1361](https://github.com/casey/just/issues/1361))
 - Inline setup and cleanup functions in completion script test ([#1352](https://github.com/casey/just/issues/1352))
 
@@ -78,17 +78,17 @@ Changelog
 ---------------------------------------------------------------------
 
 ### Changed
-- Allow constructing absolute paths with `/` operator ([#1320](https://github.com/casey/just/issues/1320) by [@erikkrieg](https://github.com/erikkrieg/))
+- Allow constructing absolute paths with `/` operator ([#1320](https://github.com/casey/just/issues/1320) by [erikkrieg](https://github.com/erikkrieg/))
 
 ### Misc
 - Allow fewer lints ([#1340](https://github.com/casey/just/issues/1340))
-- Fix issues reported by nightly clippy ([#1336](https://github.com/casey/just/issues/1336) by [@neunenak](https://github.com/neunenak/))
-- Refactor run.rs ([#1335](https://github.com/casey/just/issues/1335) by [@neunenak](https://github.com/neunenak/))
+- Fix issues reported by nightly clippy ([#1336](https://github.com/casey/just/issues/1336) by [neunenak](https://github.com/neunenak/))
+- Refactor run.rs ([#1335](https://github.com/casey/just/issues/1335) by [neunenak](https://github.com/neunenak/))
 - Allow comments on same line as settings ([#1339](https://github.com/casey/just/issues/1339))
 - Fix justfile env shebang on Linux ([#1330](https://github.com/casey/just/issues/1330))
-- Update Chinese translation of README.md ([#1325](https://github.com/casey/just/issues/1325) by [@hustcer](https://github.com/hustcer/))
+- Update Chinese translation of README.md ([#1325](https://github.com/casey/just/issues/1325) by [hustcer](https://github.com/hustcer/))
 - Add additional settings to grammar
-- Add an example of using a variable in a recipe parameter ([#1311](https://github.com/casey/just/issues/1311) by [@papertigers](https://github.com/papertigers/))
+- Add an example of using a variable in a recipe parameter ([#1311](https://github.com/casey/just/issues/1311) by [papertigers](https://github.com/papertigers/))
 
 [1.4.0](https://github.com/casey/just/releases/tag/1.4.0) - 2022-8-08
 ---------------------------------------------------------------------
@@ -99,10 +99,10 @@ Changelog
 ### Misc
 - Don't hardcode homebrew prefix ([#1295](https://github.com/casey/just/issues/1295))
 - Exclude files from cargo package ([#1283](https://github.com/casey/just/issues/1283))
-- Add usage note to default list recipe ([#1296](https://github.com/casey/just/issues/1296) by [@jpbochi](https://github.com/jpbochi/))
-- Add MPR/Prebuilt-MPR installation instructions to README.md ([#1280](https://github.com/casey/just/issues/1280) by [@hwittenborn](https://github.com/hwittenborn/))
+- Add usage note to default list recipe ([#1296](https://github.com/casey/just/issues/1296) by [jpbochi](https://github.com/jpbochi/))
+- Add MPR/Prebuilt-MPR installation instructions to README.md ([#1280](https://github.com/casey/just/issues/1280) by [hwittenborn](https://github.com/hwittenborn/))
 - Add make and makesure to readme ([#1299](https://github.com/casey/just/issues/1299))
-- Document how to configure zsh completions on MacOS ([#1285](https://github.com/casey/just/issues/1285) by [@nk9](https://github.com/nk9/))
+- Document how to configure zsh completions on MacOS ([#1285](https://github.com/casey/just/issues/1285) by [nk9](https://github.com/nk9/))
 - Convert package table to HTML ([#1291](https://github.com/casey/just/issues/1291))
 
 [1.3.0](https://github.com/casey/just/releases/tag/1.3.0) - 2022-7-25
@@ -115,52 +115,52 @@ Changelog
 - Fix multibyte codepoint crash ([#1243](https://github.com/casey/just/issues/1243))
 
 ### Misc
-- Update just-install reference on README.md ([#1275](https://github.com/casey/just/issues/1275) by [@0xradical](https://github.com/0xradical/))
+- Update just-install reference on README.md ([#1275](https://github.com/casey/just/issues/1275) by [0xradical](https://github.com/0xradical/))
 - Split Recipe::run into Recipe::{run_shebang,run_linewise} ([#1270](https://github.com/casey/just/issues/1270))
-- Add asdf package to readme([#1264](https://github.com/casey/just/issues/1264) by [@jaacko-torus](https://github.com/jaacko-torus/))
-- Add mdbook deps for build-book recipe ([#1258](https://github.com/casey/just/issues/1258) by @) ([#1259](https://github.com/casey/just/issues/1259) by [@TopherIsSwell](https://github.com/TopherIsSwell/))
-- Fix typo: argumant -> argument ([#1257](https://github.com/casey/just/issues/1257) by [@kianmeng](https://github.com/kianmeng/))
-- Improve error message if `if` is missing the `else` ([#1252](https://github.com/casey/just/issues/1252) by [@nk9](https://github.com/nk9/))
-- Explain how to pass arguments of a command to a dependency ([#1254](https://github.com/casey/just/issues/1254) by [@heavelock](https://github.com/heavelock/))
-- Update Chinese translation of README.md ([#1253](https://github.com/casey/just/issues/1253) by [@hustcer](https://github.com/hustcer/))
-- Improvements to Sublime syntax file ([#1250](https://github.com/casey/just/issues/1250) by [@nk9](https://github.com/nk9/))
-- Prevent unbounded recursion when parsing expressions ([#1248](https://github.com/casey/just/issues/1248) by [@evanrichter](https://github.com/evanrichter/))
+- Add asdf package to readme([#1264](https://github.com/casey/just/issues/1264) by [jaacko-torus](https://github.com/jaacko-torus/))
+- Add mdbook deps for build-book recipe ([#1258](https://github.com/casey/just/issues/1258) by @) ([#1259](https://github.com/casey/just/issues/1259) by [TopherIsSwell](https://github.com/TopherIsSwell/))
+- Fix typo: argumant -> argument ([#1257](https://github.com/casey/just/issues/1257) by [kianmeng](https://github.com/kianmeng/))
+- Improve error message if `if` is missing the `else` ([#1252](https://github.com/casey/just/issues/1252) by [nk9](https://github.com/nk9/))
+- Explain how to pass arguments of a command to a dependency ([#1254](https://github.com/casey/just/issues/1254) by [heavelock](https://github.com/heavelock/))
+- Update Chinese translation of README.md ([#1253](https://github.com/casey/just/issues/1253) by [hustcer](https://github.com/hustcer/))
+- Improvements to Sublime syntax file ([#1250](https://github.com/casey/just/issues/1250) by [nk9](https://github.com/nk9/))
+- Prevent unbounded recursion when parsing expressions ([#1248](https://github.com/casey/just/issues/1248) by [evanrichter](https://github.com/evanrichter/))
 - Publish to snap store ([#1245](https://github.com/casey/just/issues/1245))
-- Restore fuzz test harness ([#1246](https://github.com/casey/just/issues/1246) by [@evanrichter](https://github.com/evanrichter/))
-- Add just-install to README file ([#1241](https://github.com/casey/just/issues/1241) by [@brombal](https://github.com/brombal/))
-- Fix dead readme link ([#1240](https://github.com/casey/just/issues/1240) by [@wdroz](https://github.com/wdroz/))
+- Restore fuzz test harness ([#1246](https://github.com/casey/just/issues/1246) by [evanrichter](https://github.com/evanrichter/))
+- Add just-install to README file ([#1241](https://github.com/casey/just/issues/1241) by [brombal](https://github.com/brombal/))
+- Fix dead readme link ([#1240](https://github.com/casey/just/issues/1240) by [wdroz](https://github.com/wdroz/))
 - Do `use super::*;` instead of `use crate::common::*;` ([#1239](https://github.com/casey/just/issues/1239))
 - Fix readme punctuation ([#1235](https://github.com/casey/just/issues/1235))
 - Add argument splitting section to readme ([#1230](https://github.com/casey/just/issues/1230))
 - Add notes about environment variables to readme ([#1229](https://github.com/casey/just/issues/1229))
 - Fix book links ([#1227](https://github.com/casey/just/issues/1227))
-- Add nushell README.md ([#1224](https://github.com/casey/just/issues/1224) by [@hustcer](https://github.com/hustcer/))
+- Add nushell README.md ([#1224](https://github.com/casey/just/issues/1224) by [hustcer](https://github.com/hustcer/))
 - Use absolute links in readme ([#1223](https://github.com/casey/just/issues/1223))
 - Copy changelog into manual ([#1222](https://github.com/casey/just/issues/1222))
-- Translate Chinese manual introduction and title ([#1220](https://github.com/casey/just/issues/1220) by [@hustcer](https://github.com/hustcer/))
+- Translate Chinese manual introduction and title ([#1220](https://github.com/casey/just/issues/1220) by [hustcer](https://github.com/hustcer/))
 - Build Chinese language user manual ([#1219](https://github.com/casey/just/issues/1219))
-- Update Chinese translation of README.md ([#1218](https://github.com/casey/just/issues/1218) by [@hustcer](https://github.com/hustcer/))
-- Translate all of README.md into Chinese ([#1217](https://github.com/casey/just/issues/1217) by [@hustcer](https://github.com/hustcer/))
-- Translate all of features in README into Chinese ([#1215](https://github.com/casey/just/issues/1215) by [@hustcer](https://github.com/hustcer/))
+- Update Chinese translation of README.md ([#1218](https://github.com/casey/just/issues/1218) by [hustcer](https://github.com/hustcer/))
+- Translate all of README.md into Chinese ([#1217](https://github.com/casey/just/issues/1217) by [hustcer](https://github.com/hustcer/))
+- Translate all of features in README into Chinese ([#1215](https://github.com/casey/just/issues/1215) by [hustcer](https://github.com/hustcer/))
 - Make link to examples directory absolute ([#1213](https://github.com/casey/just/issues/1213))
-- Translate part of features in README into Chinese ([#1211](https://github.com/casey/just/issues/1211) by [@hustcer](https://github.com/hustcer/))
-- Add JetBrains IDE plugin to readme ([#1209](https://github.com/casey/just/issues/1209) by [@linux-china](https://github.com/linux-china/))
-- Translate features chapter of readme to Chinese ([#1208](https://github.com/casey/just/issues/1208) by [@hustcer](https://github.com/hustcer/))
+- Translate part of features in README into Chinese ([#1211](https://github.com/casey/just/issues/1211) by [hustcer](https://github.com/hustcer/))
+- Add JetBrains IDE plugin to readme ([#1209](https://github.com/casey/just/issues/1209) by [linux-china](https://github.com/linux-china/))
+- Translate features chapter of readme to Chinese ([#1208](https://github.com/casey/just/issues/1208) by [hustcer](https://github.com/hustcer/))
 
 [1.2.0](https://github.com/casey/just/releases/tag/1.2.0) - 2022-5-31
 ---------------------------------------------------------------------
 
 ### Added
 - Add `windows-shell` setting ([#1198](https://github.com/casey/just/issues/1198))
-- SHA-256 and UUID functions ([#1170](https://github.com/casey/just/issues/1170) by [@mbodmer](https://github.com/mbodmer/))
+- SHA-256 and UUID functions ([#1170](https://github.com/casey/just/issues/1170) by [mbodmer](https://github.com/mbodmer/))
 
 ### Misc
-- Translate editor support and quick start to Chinese ([#1206](https://github.com/casey/just/issues/1206) by [@hustcer](https://github.com/hustcer/))
-- Translate first section of readme into Chinese ([#1205](https://github.com/casey/just/issues/1205) by [@hustcer](https://github.com/hustcer/))
+- Translate editor support and quick start to Chinese ([#1206](https://github.com/casey/just/issues/1206) by [hustcer](https://github.com/hustcer/))
+- Translate first section of readme into Chinese ([#1205](https://github.com/casey/just/issues/1205) by [hustcer](https://github.com/hustcer/))
 - Fix a bunch of typos ([#1204](https://github.com/casey/just/issues/1204))
 - Remove cargo-limit usage from justfile ([#1199](https://github.com/casey/just/issues/1199))
-- Add nix package manager install instructions ([#1194](https://github.com/casey/just/issues/1194) by [@risingBirdSong](https://github.com/risingBirdSong/))
-- Fix broken link in readme ([#1183](https://github.com/casey/just/issues/1183) by [@Vlad-Shcherbina](https://github.com/Vlad-Shcherbina/))
+- Add nix package manager install instructions ([#1194](https://github.com/casey/just/issues/1194) by [risingBirdSong](https://github.com/risingBirdSong/))
+- Fix broken link in readme ([#1183](https://github.com/casey/just/issues/1183) by [Vlad-Shcherbina](https://github.com/Vlad-Shcherbina/))
 - Add screenshot to manual ([#1181](https://github.com/casey/just/issues/1181))
 - Style homepage ([#1180](https://github.com/casey/just/issues/1180))
 - Center readme ([#1178](https://github.com/casey/just/issues/1178))
@@ -178,7 +178,7 @@ Changelog
 - Fix install script ([#1172](https://github.com/casey/just/issues/1172))
 - Document that `invocation_directory()` returns an absolute path ([#1162](https://github.com/casey/just/issues/1162))
 - Fix absolute_path documentation ([#1160](https://github.com/casey/just/issues/1160))
-- Add cross-platform justfile example ([#1152](https://github.com/casey/just/issues/1152) by [@presidento](https://github.com/presidento/))
+- Add cross-platform justfile example ([#1152](https://github.com/casey/just/issues/1152) by [presidento](https://github.com/presidento/))
 
 [1.1.2](https://github.com/casey/just/releases/tag/1.1.2) - 2022-3-30
 ---------------------------------------------------------------------
@@ -201,8 +201,8 @@ Changelog
 ---------------------------------------------------------------------
 
 ### Added
-- Add `error()` function ([#1118](https://github.com/casey/just/issues/1118) by [@chamons](https://github.com/chamons/))
-- Add `absolute_path` function ([#1121](https://github.com/casey/just/issues/1121) by [@Laura7089](https://github.com/Laura7089/))
+- Add `error()` function ([#1118](https://github.com/casey/just/issues/1118) by [chamons](https://github.com/chamons/))
+- Add `absolute_path` function ([#1121](https://github.com/casey/just/issues/1121) by [Laura7089](https://github.com/Laura7089/))
 
 [1.0.1](https://github.com/casey/just/releases/tag/1.0.1) - 2022-2-28
 ---------------------------------------------------------------------
@@ -211,15 +211,15 @@ Changelog
 - Make path_exists() relative to current directory ([#1122](https://github.com/casey/just/issues/1122))
 
 ### Misc
-- Detail environment variable usage in readme ([#1086](https://github.com/casey/just/issues/1086) by [@kenden](https://github.com/kenden/))
-- Format --init justfile ([#1116](https://github.com/casey/just/issues/1116) by [@TheLocehiliosan](https://github.com/TheLocehiliosan/))
+- Detail environment variable usage in readme ([#1086](https://github.com/casey/just/issues/1086) by [kenden](https://github.com/kenden/))
+- Format --init justfile ([#1116](https://github.com/casey/just/issues/1116) by [TheLocehiliosan](https://github.com/TheLocehiliosan/))
 - Add hint for Node.js script compatibility ([#1113](https://github.com/casey/just/issues/1113))
 
 [1.0.0](https://github.com/casey/just/releases/tag/1.0.0) - 2022-2-22
 ---------------------------------------------------------------------
 
 ### Added
-- Add path_exists() function ([#1106](https://github.com/casey/just/issues/1106) by [@heavelock](https://github.com/heavelock/))
+- Add path_exists() function ([#1106](https://github.com/casey/just/issues/1106) by [heavelock](https://github.com/heavelock/))
 
 ### Misc
 - Note that `pipefail` isn't normally set ([#1108](https://github.com/casey/just/issues/1108))
@@ -229,20 +229,20 @@ Changelog
 
 ### Misc
 - Fix dotenv-load documentation ([#1104](https://github.com/casey/just/issues/1104))
-- Fixup broken release package script ([#1100](https://github.com/casey/just/issues/1100) by [@lutostag](https://github.com/lutostag/))
+- Fixup broken release package script ([#1100](https://github.com/casey/just/issues/1100) by [lutostag](https://github.com/lutostag/))
 
 [0.11.1](https://github.com/casey/just/releases/tag/0.11.1) - 2022-2-14
 -----------------------------------------------------------------------
 
 ### Added
-- Allow duplicate recipes ([#1095](https://github.com/casey/just/issues/1095) by [@lutostag](https://github.com/lutostag/))
+- Allow duplicate recipes ([#1095](https://github.com/casey/just/issues/1095) by [lutostag](https://github.com/lutostag/))
 
 ### Misc
 - Add arrow pointing to table of contents button ([#1096](https://github.com/casey/just/issues/1096))
-- Improve readme ([#1093](https://github.com/casey/just/issues/1093) by [@halostatue](https://github.com/halostatue/))
+- Improve readme ([#1093](https://github.com/casey/just/issues/1093) by [halostatue](https://github.com/halostatue/))
 - Remove asciidoc readme ([#1092](https://github.com/casey/just/issues/1092))
 - Convert README.adoc to markdown ([#1091](https://github.com/casey/just/issues/1091))
-- Add choco package to README ([#1090](https://github.com/casey/just/issues/1090) by [@michidk](https://github.com/michidk/))
+- Add choco package to README ([#1090](https://github.com/casey/just/issues/1090) by [michidk](https://github.com/michidk/))
 
 [0.11.0](https://github.com/casey/just/releases/tag/0.11.0) - 2022-2-3
 ----------------------------------------------------------------------
@@ -262,18 +262,18 @@ Changelog
 -----------------------------------------------------------------------
 
 ### Added
-- Add windows-powershell setting ([#1057](https://github.com/casey/just/issues/1057) by [@michidk](https://github.com/michidk/))
+- Add windows-powershell setting ([#1057](https://github.com/casey/just/issues/1057) by [michidk](https://github.com/michidk/))
 
 ### Changed
 - Allow using `-` and `@` in any order ([#1063](https://github.com/casey/just/issues/1063))
 
 ### Misc
 - Use `Context` suffix for snafu error contexts ([#1068](https://github.com/casey/just/issues/1068))
-- Upgrade snafu to 0.7 ([#1067](https://github.com/casey/just/issues/1067) by [@shepmaster](https://github.com/shepmaster/))
-- Mention "$@" in the README ([#1064](https://github.com/casey/just/issues/1064) by [@mpdude](https://github.com/mpdude/))
-- Note how to use PowerShell with CLI in readme ([#1056](https://github.com/casey/just/issues/1056) by [@michidk](https://github.com/michidk/))
+- Upgrade snafu to 0.7 ([#1067](https://github.com/casey/just/issues/1067) by [shepmaster](https://github.com/shepmaster/))
+- Mention "$@" in the README ([#1064](https://github.com/casey/just/issues/1064) by [mpdude](https://github.com/mpdude/))
+- Note how to use PowerShell with CLI in readme ([#1056](https://github.com/casey/just/issues/1056) by [michidk](https://github.com/michidk/))
 - Link to cheatsheet from readme ([#1053](https://github.com/casey/just/issues/1053))
-- Link to Homebrew installation docs in readme ([#1049](https://github.com/casey/just/issues/1049) by [@michidk](https://github.com/michidk/))
+- Link to Homebrew installation docs in readme ([#1049](https://github.com/casey/just/issues/1049) by [michidk](https://github.com/michidk/))
 - Workflow tweaks ([#1045](https://github.com/casey/just/issues/1045))
 - Push to correct origin in publish recipe ([#1044](https://github.com/casey/just/issues/1044))
 
@@ -284,7 +284,7 @@ Changelog
 - Use musl libc for ARM binaries ([#1037](https://github.com/casey/just/issues/1037))
 
 ### Misc
-- Make completions work with Bash alias ([#1035](https://github.com/casey/just/issues/1035) by [@kurtbuilds](https://github.com/kurtbuilds/))
+- Make completions work with Bash alias ([#1035](https://github.com/casey/just/issues/1035) by [kurtbuilds](https://github.com/kurtbuilds/))
 - Run tests on PRs ([#1040](https://github.com/casey/just/issues/1040))
 - Improve GitHub Actions workflow triggers ([#1033](https://github.com/casey/just/issues/1033))
 - Publish from GitHub master branch instead of local master ([#1032](https://github.com/casey/just/issues/1032))
@@ -295,12 +295,12 @@ Changelog
 ### Added
 - Add `--dump-format json` ([#992](https://github.com/casey/just/issues/992))
 - Add `quote(s)` function for escaping strings ([#1022](https://github.com/casey/just/issues/1022))
-- fmt: check formatting with `--check` ([#1001](https://github.com/casey/just/issues/1001) by [@hdhoang](https://github.com/hdhoang/))
+- fmt: check formatting with `--check` ([#1001](https://github.com/casey/just/issues/1001) by [hdhoang](https://github.com/hdhoang/))
 
 ### Misc
 - Refactor github actions ([#1028](https://github.com/casey/just/issues/1028))
-- Fix readme formatting ([#1030](https://github.com/casey/just/issues/1030) by [@soenkehahn](https://github.com/soenkehahn/))
-- Use ps1 extension for pwsh shebangs ([#1027](https://github.com/casey/just/issues/1027) by [@dmringo](https://github.com/dmringo/))
+- Fix readme formatting ([#1030](https://github.com/casey/just/issues/1030) by [soenkehahn](https://github.com/soenkehahn/))
+- Use ps1 extension for pwsh shebangs ([#1027](https://github.com/casey/just/issues/1027) by [dmringo](https://github.com/dmringo/))
 - Ignore leading byte order mark in source files ([#1021](https://github.com/casey/just/issues/1021))
 - Add color to `just --fmt --check` diff ([#1015](https://github.com/casey/just/issues/1015))
 
@@ -316,12 +316,12 @@ Changelog
 
 ### Misc
 - Add alternatives and prior art section to readme ([#1008](https://github.com/casey/just/issues/1008))
-- Fix readme `make`'s not correctly displayed ([#1007](https://github.com/casey/just/issues/1007) by [@peter50216](https://github.com/peter50216/))
+- Fix readme `make`'s not correctly displayed ([#1007](https://github.com/casey/just/issues/1007) by [peter50216](https://github.com/peter50216/))
 - Document the default recipe ([#1006](https://github.com/casey/just/issues/1006))
 - Document creating user justfile recipe aliases ([#1005](https://github.com/casey/just/issues/1005))
-- Fix readme typo ([#1004](https://github.com/casey/just/issues/1004) by [@0xflotus](https://github.com/0xflotus/))
+- Fix readme typo ([#1004](https://github.com/casey/just/issues/1004) by [0xflotus](https://github.com/0xflotus/))
 - Add packaging status table to readme ([#1003](https://github.com/casey/just/issues/1003))
-- Reword `sh` not found error messages ([#1002](https://github.com/casey/just/issues/1002) by [@hdhoang](https://github.com/hdhoang/))
+- Reword `sh` not found error messages ([#1002](https://github.com/casey/just/issues/1002) by [hdhoang](https://github.com/hdhoang/))
 - Only pass +crt-static to cargo build ([#997](https://github.com/casey/just/issues/997))
 - Stop using tabs in justfile in editorconfig ([#996](https://github.com/casey/just/issues/996))
 - Use consistent rustflags formatting ([#994](https://github.com/casey/just/issues/994))
@@ -338,25 +338,25 @@ Changelog
 ### Misc
 - Add detailed instructions for installing prebuilt binaries ([#978](https://github.com/casey/just/issues/978))
 - Improve readme package table formatting ([#977](https://github.com/casey/just/issues/977))
-- Add conda package to README ([#976](https://github.com/casey/just/issues/976) by [@kellpossible](https://github.com/kellpossible/))
+- Add conda package to README ([#976](https://github.com/casey/just/issues/976) by [kellpossible](https://github.com/kellpossible/))
 - Change MSRV to 1.46.0 ([#968](https://github.com/casey/just/issues/968))
 - Use stable rustfmt instead of nightly ([#967](https://github.com/casey/just/issues/967))
 - Fix readme typo: FOO → WORLD ([#964](https://github.com/casey/just/issues/964))
 - Reword Emacs section in readme ([#962](https://github.com/casey/just/issues/962))
-- Mention justl mode for Emacs ([#961](https://github.com/casey/just/issues/961) by [@psibi](https://github.com/psibi/))
+- Mention justl mode for Emacs ([#961](https://github.com/casey/just/issues/961) by [psibi](https://github.com/psibi/))
 
 [0.10.1](https://github.com/casey/just/releases/tag/0.10.1) - 2021-8-27
 -----------------------------------------------------------------------
 
 ### Added
-- Add flags for specifying name and path to environment file ([#941](https://github.com/casey/just/issues/941) by [@Celeo](https://github.com/Celeo/))
+- Add flags for specifying name and path to environment file ([#941](https://github.com/casey/just/issues/941) by [Celeo](https://github.com/Celeo/))
 
 ### Misc
 - Fix error message tests for Alpine Linux ([#956](https://github.com/casey/just/issues/956))
 - Bump `target` version to 2.0 ([#957](https://github.com/casey/just/issues/957))
 - Mention `tree-sitter-just` in readme ([#951](https://github.com/casey/just/issues/951))
 - Document release RSS feed in readme ([#950](https://github.com/casey/just/issues/950))
-- Add installation instructions for Gentoo Linux ([#946](https://github.com/casey/just/issues/946) by [@dm9pZCAq](https://github.com/dm9pZCAq/))
+- Add installation instructions for Gentoo Linux ([#946](https://github.com/casey/just/issues/946) by [dm9pZCAq](https://github.com/dm9pZCAq/))
 - Make GitHub Actions instructions more prominent ([#944](https://github.com/casey/just/issues/944))
 - Wrap `--help` text to terminal width ([#940](https://github.com/casey/just/issues/940))
 - Add `.justfile` to sublime syntax file_extensions ([#938](https://github.com/casey/just/issues/938))
@@ -394,10 +394,10 @@ Changelog
 - Fix circular variable dependency error message ([#909](https://github.com/casey/just/issues/909))
 
 ### Misc
-- Improve readme ([#904](https://github.com/casey/just/issues/904) by [@mtsknn](https://github.com/mtsknn/))
+- Improve readme ([#904](https://github.com/casey/just/issues/904) by [mtsknn](https://github.com/mtsknn/))
 - Add screenshot to readme ([#911](https://github.com/casey/just/issues/911))
-- Add install instructions for Fedora Linux ([#898](https://github.com/casey/just/issues/898) by [@olivierlemasle](https://github.com/olivierlemasle/))
-- Fix readme typos ([#903](https://github.com/casey/just/issues/903) by [@rokf](https://github.com/rokf/))
+- Add install instructions for Fedora Linux ([#898](https://github.com/casey/just/issues/898) by [olivierlemasle](https://github.com/olivierlemasle/))
+- Fix readme typos ([#903](https://github.com/casey/just/issues/903) by [rokf](https://github.com/rokf/))
 - Actually fix release tagging and publish changelog with releases ([#901](https://github.com/casey/just/issues/901))
 - Fix broken prerelease tagging ([#900](https://github.com/casey/just/issues/900))
 - Use string value for ref-type check ([#897](https://github.com/casey/just/issues/897))
@@ -413,7 +413,7 @@ Changelog
 --------------------------------------------------------------------
 
 ### Added
-- Add string manipulation functions ([#888](https://github.com/casey/just/issues/888) by [@terror](https://github.com/terror/))
+- Add string manipulation functions ([#888](https://github.com/casey/just/issues/888) by [terror](https://github.com/terror/))
 
 ### Misc
 - Remove test-utilities crate ([#892](https://github.com/casey/just/issues/892))
@@ -426,10 +426,10 @@ Changelog
 ### Added
 - Add `clean` function for simplifying paths ([#883](https://github.com/casey/just/issues/883))
 - Add `join` function for joining paths ([#882](https://github.com/casey/just/issues/882))
-- Add path manipulation functions ([#872](https://github.com/casey/just/issues/872) by [@TonioGela](https://github.com/TonioGela/))
+- Add path manipulation functions ([#872](https://github.com/casey/just/issues/872) by [TonioGela](https://github.com/TonioGela/))
 
 ### Misc
-- Add `file_extensions` to Sublime syntax file ([#878](https://github.com/casey/just/issues/878) by [@Frederick888](https://github.com/Frederick888/))
+- Add `file_extensions` to Sublime syntax file ([#878](https://github.com/casey/just/issues/878) by [Frederick888](https://github.com/Frederick888/))
 - Document path manipulation functions in readme ([#877](https://github.com/casey/just/issues/877))
 
 [0.9.5](https://github.com/casey/just/releases/tag/0.9.5) - 2021-6-12
@@ -438,7 +438,7 @@ Changelog
 ### Added
 - Add `--unstable` flag ([#869](https://github.com/casey/just/issues/869))
 - Add Sublime Text syntax file ([#864](https://github.com/casey/just/issues/864))
-- Add `--fmt` subcommand ([#837](https://github.com/casey/just/issues/837) by [@vglfr](https://github.com/vglfr/))
+- Add `--fmt` subcommand ([#837](https://github.com/casey/just/issues/837) by [vglfr](https://github.com/vglfr/))
 
 ### Misc
 - Mention doniogela.dev/just/ in readme ([#866](https://github.com/casey/just/issues/866))
@@ -458,7 +458,7 @@ Changelog
 ### Misc
 - Release `aarch64-unknown-linux-gnu` binaries ([#843](https://github.com/casey/just/issues/843))
 - Add `$` to non-default parameter grammar ([#839](https://github.com/casey/just/issues/839))
-- Add `$` to parameter grammar ([#838](https://github.com/casey/just/issues/838) by [@NoahTheDuke](https://github.com/NoahTheDuke/))
+- Add `$` to parameter grammar ([#838](https://github.com/casey/just/issues/838) by [NoahTheDuke](https://github.com/NoahTheDuke/))
 - Fix readme links ([#836](https://github.com/casey/just/issues/836))
 - Add `vim-just` installation instructions to readme ([#835](https://github.com/casey/just/issues/835))
 - Refactor shebang handling ([#833](https://github.com/casey/just/issues/833))
@@ -467,19 +467,19 @@ Changelog
 ----------------------------------------------------------------------
 
 ### Added
-- Add shebang support for 'cmd.exe' ([#828](https://github.com/casey/just/issues/828) by [@pansila](https://github.com/pansila/))
-- Add `.exe` to powershell scripts ([#826](https://github.com/casey/just/issues/826) by [@sigoden](https://github.com/sigoden/))
+- Add shebang support for 'cmd.exe' ([#828](https://github.com/casey/just/issues/828) by [pansila](https://github.com/pansila/))
+- Add `.exe` to powershell scripts ([#826](https://github.com/casey/just/issues/826) by [sigoden](https://github.com/sigoden/))
 - Add the `--command` subcommand ([#824](https://github.com/casey/just/issues/824))
 
 ### Fixed
 - Fix bang lexing and placate clippy ([#821](https://github.com/casey/just/issues/821))
 
 ### Misc
-- Fixed missing close apostrophe in GRAMMAR.md ([#830](https://github.com/casey/just/issues/830) by [@SOF3](https://github.com/SOF3/))
-- Make 'else' keyword in grammar ([#829](https://github.com/casey/just/issues/829) by [@SOF3](https://github.com/SOF3/))
+- Fixed missing close apostrophe in GRAMMAR.md ([#830](https://github.com/casey/just/issues/830) by [SOF3](https://github.com/SOF3/))
+- Make 'else' keyword in grammar ([#829](https://github.com/casey/just/issues/829) by [SOF3](https://github.com/SOF3/))
 - Add forbid script ([#827](https://github.com/casey/just/issues/827))
 - Remove `summary` feature ([#823](https://github.com/casey/just/issues/823))
-- Document that just is now in Arch official repo ([#814](https://github.com/casey/just/issues/814) by [@svenstaro](https://github.com/svenstaro/))
+- Document that just is now in Arch official repo ([#814](https://github.com/casey/just/issues/814) by [svenstaro](https://github.com/svenstaro/))
 - Fix changelog years ([#813](https://github.com/casey/just/issues/813))
 
 [0.9.2](https://github.com/casey/just/releases/tag/v0.9.2) - 2021-5-02
@@ -526,7 +526,7 @@ Changelog
 ----------------------------------------------------------------------
 
 ### Added
-- Add just_executable() function ([#775](https://github.com/casey/just/issues/775) by [@bew](https://github.com/bew/))
+- Add just_executable() function ([#775](https://github.com/casey/just/issues/775) by [bew](https://github.com/bew/))
 - Prefix parameters with `$` to export to environment ([#773](https://github.com/casey/just/issues/773))
 - Add `set export` to export all variables as environment variables ([#767](https://github.com/casey/just/issues/767))
 
@@ -547,8 +547,8 @@ Changelog
 ### Misc
 - Reorganize readme to highlight editor support ([#764](https://github.com/casey/just/issues/764))
 - Add categories and keywords to Cargo manifest ([#763](https://github.com/casey/just/issues/763))
-- Fix command output in readme ([#760](https://github.com/casey/just/issues/760) by [@vvv](https://github.com/vvv/))
-- Note Emacs package `just-mode` in readme ([#759](https://github.com/casey/just/issues/759) by [@leon-barrett](https://github.com/leon-barrett/))
+- Fix command output in readme ([#760](https://github.com/casey/just/issues/760) by [vvv](https://github.com/vvv/))
+- Note Emacs package `just-mode` in readme ([#759](https://github.com/casey/just/issues/759) by [leon-barrett](https://github.com/leon-barrett/))
 - Note shebang line splitting inconsistency in readme ([#757](https://github.com/casey/just/issues/757))
 
 [0.8.4](https://github.com/casey/just/releases/tag/v0.8.4) - 2021-2-9
@@ -560,10 +560,10 @@ Changelog
 ### Misc
 - Document how to change the working directory in a recipe ([#752](https://github.com/casey/just/issues/752))
 - Implement `Default` for `Table` ([#748](https://github.com/casey/just/issues/748))
-- Add Alpine Linux package to readme ([#736](https://github.com/casey/just/issues/736) by [@jirutka](https://github.com/jirutka/))
-- Update to actions/cache@v2 ([#742](https://github.com/casey/just/issues/742) by [@zyctree](https://github.com/zyctree/))
-- Add link in readme to GitHub Action ([#729](https://github.com/casey/just/issues/729) by [@rossmacarthur](https://github.com/rossmacarthur/))
-- Add docs for justfile() and justfile_directory() ([#726](https://github.com/casey/just/issues/726) by [@rminderhoud](https://github.com/rminderhoud/))
+- Add Alpine Linux package to readme ([#736](https://github.com/casey/just/issues/736) by [jirutka](https://github.com/jirutka/))
+- Update to actions/cache@v2 ([#742](https://github.com/casey/just/issues/742) by [zyctree](https://github.com/zyctree/))
+- Add link in readme to GitHub Action ([#729](https://github.com/casey/just/issues/729) by [rossmacarthur](https://github.com/rossmacarthur/))
+- Add docs for justfile() and justfile_directory() ([#726](https://github.com/casey/just/issues/726) by [rminderhoud](https://github.com/rminderhoud/))
 - Fix CI ([#727](https://github.com/casey/just/issues/727))
 - Improve readme ([#725](https://github.com/casey/just/issues/725))
 - Replace saythanks.io link with malto: link ([#723](https://github.com/casey/just/issues/723))
@@ -582,7 +582,7 @@ Changelog
 - Add conditional expressions ([#714](https://github.com/casey/just/issues/714))
 
 ### Fixed
-- Allow completing variables and recipes after `--set` in zsh completion script ([#697](https://github.com/casey/just/issues/697) by [@heyrict](https://github.com/heyrict/))
+- Allow completing variables and recipes after `--set` in zsh completion script ([#697](https://github.com/casey/just/issues/697) by [heyrict](https://github.com/heyrict/))
 
 ### Misc
 - Add Parser::forbid ([#712](https://github.com/casey/just/issues/712))
@@ -594,25 +594,25 @@ Changelog
 
 ### Changed
 - Allow choosing multiple recipes to run ([#700](https://github.com/casey/just/issues/700))
-- Complete recipes in bash completion script ([#685](https://github.com/casey/just/issues/685) by [@vikesh-raj](https://github.com/vikesh-raj/))
-- Complete recipes names in PowerShell completion script ([#651](https://github.com/casey/just/issues/651) by [@Insomniak47](https://github.com/Insomniak47/))
+- Complete recipes in bash completion script ([#685](https://github.com/casey/just/issues/685) by [vikesh-raj](https://github.com/vikesh-raj/))
+- Complete recipes names in PowerShell completion script ([#651](https://github.com/casey/just/issues/651) by [Insomniak47](https://github.com/Insomniak47/))
 
 ### Misc
 - Add FreeBSD port to readme ([#705](https://github.com/casey/just/issues/705))
 - Placate clippy ([#698](https://github.com/casey/just/issues/698))
 - Fix build fix ([#693](https://github.com/casey/just/issues/693))
-- Fix readme documentation for ignoring errors ([#692](https://github.com/casey/just/issues/692) by [@kenden](https://github.com/kenden/))
+- Fix readme documentation for ignoring errors ([#692](https://github.com/casey/just/issues/692) by [kenden](https://github.com/kenden/))
 
 [0.8.0](https://github.com/casey/just/releases/tag/v0.8.0) - 2020-10-3
 ----------------------------------------------------------------------
 
 ### Breaking
-- Allow suppressing failures with `-` prefix ([#687](https://github.com/casey/just/issues/687) by [@iwillspeak](https://github.com/iwillspeak/))
+- Allow suppressing failures with `-` prefix ([#687](https://github.com/casey/just/issues/687) by [iwillspeak](https://github.com/iwillspeak/))
 
 ### Misc
 - Document how to ignore errors with `-` in readme ([#690](https://github.com/casey/just/issues/690))
 - Install BSD Tar on GitHub Actions to fix CI errors ([#689](https://github.com/casey/just/issues/689))
-- Move separate quiet config value to verbosity ([#686](https://github.com/casey/just/issues/686) by [@Celeo](https://github.com/Celeo/))
+- Move separate quiet config value to verbosity ([#686](https://github.com/casey/just/issues/686) by [Celeo](https://github.com/Celeo/))
 
 [0.7.3](https://github.com/casey/just/releases/tag/v0.7.3) - 2020-9-17
 ----------------------------------------------------------------------
@@ -662,19 +662,19 @@ Changelog
 ----------------------------------------------------------------------
 
 ### Changed
-- Ignore '@' returned from interpolation evaluation ([#636](https://github.com/casey/just/issues/636) by [@rjsberry](https://github.com/rjsberry/))
+- Ignore '@' returned from interpolation evaluation ([#636](https://github.com/casey/just/issues/636) by [rjsberry](https://github.com/rjsberry/))
 - Strip leading spaces after line continuation ([#635](https://github.com/casey/just/issues/635))
 
 ### Added
-- Add variadic parameters that accept zero or more arguments ([#645](https://github.com/casey/just/issues/645) by [@rjsberry](https://github.com/rjsberry/))
+- Add variadic parameters that accept zero or more arguments ([#645](https://github.com/casey/just/issues/645) by [rjsberry](https://github.com/rjsberry/))
 
 ### Misc
-- Clarify variadic parameter default values ([#646](https://github.com/casey/just/issues/646) by [@rjsberry](https://github.com/rjsberry/))
-- Add keybase example justfile  ([#640](https://github.com/casey/just/issues/640) by [@blaggacao](https://github.com/blaggacao/))
+- Clarify variadic parameter default values ([#646](https://github.com/casey/just/issues/646) by [rjsberry](https://github.com/rjsberry/))
+- Add keybase example justfile  ([#640](https://github.com/casey/just/issues/640) by [blaggacao](https://github.com/blaggacao/))
 - Strip trailing whitespace in `examples/pre-commit.just` ([#644](https://github.com/casey/just/issues/644))
 - Test that example justfiles successfully parse ([#643](https://github.com/casey/just/issues/643))
 - Link example justfiles in readme ([#641](https://github.com/casey/just/issues/641))
-- Add example justfile ([#639](https://github.com/casey/just/issues/639) by [@blaggacao](https://github.com/blaggacao/))
+- Add example justfile ([#639](https://github.com/casey/just/issues/639) by [blaggacao](https://github.com/blaggacao/))
 - Document how to run recipes after another recipe ([#630](https://github.com/casey/just/issues/630))
 
 [0.5.11](https://github.com/casey/just/releases/tag/v0.5.11) - 2020-5-23
@@ -684,8 +684,8 @@ Changelog
 - Don't load `.env` file when `--no-dotenv` is passed ([#627](https://github.com/casey/just/issues/627))
 
 ### Changed
-- Complete recipe names in fish completion script ([#625](https://github.com/casey/just/issues/625) by [@tyehle](https://github.com/tyehle/))
-- Suggest aliases for unknown recipes ([#624](https://github.com/casey/just/issues/624) by [@Celeo](https://github.com/Celeo/))
+- Complete recipe names in fish completion script ([#625](https://github.com/casey/just/issues/625) by [tyehle](https://github.com/tyehle/))
+- Suggest aliases for unknown recipes ([#624](https://github.com/casey/just/issues/624) by [Celeo](https://github.com/Celeo/))
 
 [0.5.10](https://github.com/casey/just/releases/tag/v0.5.10) - 2020-3-18
 ------------------------------------------------------------------------
@@ -694,7 +694,7 @@ Changelog
 ----------------------------------------------------------------------
 
 ### Added
-- Update zsh completion file ([#606](https://github.com/casey/just/issues/606) by [@heyrict](https://github.com/heyrict/))
+- Update zsh completion file ([#606](https://github.com/casey/just/issues/606) by [heyrict](https://github.com/heyrict/))
 - Add `--variables` subcommand that prints variable names ([#608](https://github.com/casey/just/issues/608))
 - Add github pages site with improved install script ([#597](https://github.com/casey/just/issues/597))
 
@@ -736,7 +736,7 @@ Changelog
 - Build and upload release artifacts from GitHub Actions ([#581](https://github.com/casey/just/issues/581))
 - List solus package in readme ([#579](https://github.com/casey/just/issues/579))
 - Expand use of Github Actions ([#580](https://github.com/casey/just/issues/580))
-- Fix readme typo: interpetation -> interpretation ([#578](https://github.com/casey/just/issues/578) by [@Plommonsorbet](https://github.com/Plommonsorbet/))
+- Fix readme typo: interpetation -> interpretation ([#578](https://github.com/casey/just/issues/578) by [Plommonsorbet](https://github.com/Plommonsorbet/))
 
 [0.5.5](https://github.com/casey/just/releases/tag/v0.5.5) - 2020-1-15
 ----------------------------------------------------------------------
@@ -756,7 +756,7 @@ Changelog
 
 ### Misc
 - Add table of package managers that include just to readme ([#568](https://github.com/casey/just/issues/568))
-- Remove yaourt AUR helper from readme ([#567](https://github.com/casey/just/issues/567) by [@ky0n](https://github.com/ky0n/))
+- Remove yaourt AUR helper from readme ([#567](https://github.com/casey/just/issues/567) by [ky0n](https://github.com/ky0n/))
 - Fix regression in error message color printing ([#566](https://github.com/casey/just/issues/566))
 - Reform indentation handling ([#565](https://github.com/casey/just/issues/565))
 - Update Cargo.lock with new version ([#564](https://github.com/casey/just/issues/564))
@@ -838,7 +838,7 @@ Changelog
 ### Misc
 
 ### Cleanup
-- Update deprecated rust range patterns and clippy config ([#450](https://github.com/casey/just/issues/450) by [@light4](https://github.com/light4/))
+- Update deprecated rust range patterns and clippy config ([#450](https://github.com/casey/just/issues/450) by [light4](https://github.com/light4/))
 - Make comments in common.rs lowercase ([#470](https://github.com/casey/just/issues/470))
 - Use `pub(crate)` instead of `pub` ([#471](https://github.com/casey/just/issues/471))
 - Hide summary functionality behind feature flag ([#472](https://github.com/casey/just/issues/472))
@@ -856,7 +856,7 @@ Changelog
 - Use constants instead of literals in arg parser ([#504](https://github.com/casey/just/issues/504))
 
 ### Infrastructure
-- Add repository attribute to Cargo.toml ([#493](https://github.com/casey/just/issues/493) by [@SOF3](https://github.com/SOF3/))
+- Add repository attribute to Cargo.toml ([#493](https://github.com/casey/just/issues/493) by [SOF3](https://github.com/SOF3/))
 - Check minimal version compatibility before publishing ([#487](https://github.com/casey/just/issues/487))
 
 ### Continuous Integration
@@ -865,8 +865,8 @@ Changelog
 - Don't install `dash` on Travis ([#482](https://github.com/casey/just/issues/482))
 
 ### Dependencies
-- Use `tempfile` crate instead of `tempdir` ([#455](https://github.com/casey/just/issues/455) by [@NickeZ](https://github.com/NickeZ/))
-- Bump clap dependency to 2.33.0 ([#458](https://github.com/casey/just/issues/458) by [@NickeZ](https://github.com/NickeZ/))
+- Use `tempfile` crate instead of `tempdir` ([#455](https://github.com/casey/just/issues/455) by [NickeZ](https://github.com/NickeZ/))
+- Bump clap dependency to 2.33.0 ([#458](https://github.com/casey/just/issues/458) by [NickeZ](https://github.com/NickeZ/))
 - Minimize dependency version requirements ([#461](https://github.com/casey/just/issues/461))
 - Remove dependency on brev ([#462](https://github.com/casey/just/issues/462))
 - Update dependencies ([#501](https://github.com/casey/just/issues/501))
@@ -875,7 +875,7 @@ Changelog
 -----------------------------------------------------------------------
 
 ### Changed
-- Ignore file name case while searching for justfile ([#436](https://github.com/casey/just/issues/436) by [@shevtsiv](https://github.com/shevtsiv/))
+- Ignore file name case while searching for justfile ([#436](https://github.com/casey/just/issues/436) by [shevtsiv](https://github.com/shevtsiv/))
 
 ### Added
 - Display alias target with `--show` ([#443](https://github.com/casey/just/issues/443))
@@ -892,7 +892,7 @@ Changelog
 ### Documented
 - Fix readme command line ([#411](https://github.com/casey/just/issues/411))
 - Typo: "command equivelant" -> "command equivalent" ([#418](https://github.com/casey/just/issues/418))
-- Mention Make’s “phony target” workaround in the comparison ([#421](https://github.com/casey/just/issues/421) by [@roryokane](https://github.com/roryokane/))
+- Mention Make’s “phony target” workaround in the comparison ([#421](https://github.com/casey/just/issues/421) by [roryokane](https://github.com/roryokane/))
 - Add Void Linux install instructions to readme ([#423](https://github.com/casey/just/issues/423))
 
 ### Cleaned up or Refactored
@@ -919,11 +919,11 @@ Changelog
 -----------------------------------------------------------------------
 
 ### Added
-- Add recipe aliases ([#390](https://github.com/casey/just/issues/390) by [@ryloric](https://github.com/ryloric/))
+- Add recipe aliases ([#390](https://github.com/casey/just/issues/390) by [ryloric](https://github.com/ryloric/))
 - Allow arbitrary expressions as default arguments ([#400](https://github.com/casey/just/issues/400))
 - Add justfile summaries ([#399](https://github.com/casey/just/issues/399))
 - Allow outer shebang lines so justfiles can be used as scripts ([#393](https://github.com/casey/just/issues/393))
-- Allow `--justfile` without `--working-directory` ([#392](https://github.com/casey/just/issues/392) by [@smonami](https://github.com/smonami/))
+- Allow `--justfile` without `--working-directory` ([#392](https://github.com/casey/just/issues/392) by [smonami](https://github.com/smonami/))
 - Add link to Chinese translation of readme by @chinanf-boy ([#377](https://github.com/casey/just/issues/377))
 
 ### Changed
@@ -934,7 +934,7 @@ Changelog
 -------------------------------------------------------------------------
 
 ### Added
-- Print recipe signature if missing arguments ([#369](https://github.com/casey/just/issues/369) by [@ladysamantha](https://github.com/ladysamantha/))
+- Print recipe signature if missing arguments ([#369](https://github.com/casey/just/issues/369) by [ladysamantha](https://github.com/ladysamantha/))
 - Add grandiloquent verbosity level that echos shebang recipes ([#348](https://github.com/casey/just/issues/348))
 - Wait for child processes to finish ([#345](https://github.com/casey/just/issues/345))
 - Improve invalid escape sequence error messages ([#328](https://github.com/casey/just/issues/328))
@@ -990,7 +990,7 @@ Changelog
 -----------------------------------------------------------------------
 
 ### Added
-- Do not evaluate backticks in assignments during dry runs ([#253](https://github.com/casey/just/issues/253) by [@aoeu](https://github.com/aoeu/))
+- Do not evaluate backticks in assignments during dry runs ([#253](https://github.com/casey/just/issues/253) by [aoeu](https://github.com/aoeu/))
 
 ### Changed
 - Change license to CC0 going forward ([#270](https://github.com/casey/just/issues/270))
