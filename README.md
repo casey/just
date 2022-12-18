@@ -1699,7 +1699,7 @@ saving the recipe body to a file and running it. This lets you write recipes in
 different languages:
 
 ```just
-polyglot: python js perl sh ruby nushell
+polyglot: python js perl sh ruby nu
 
 python:
   #!/usr/bin/env python3
