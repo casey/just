@@ -59,8 +59,8 @@ fn test_upwards_path_argument() {
     },
   };
 
-  search_test(&tmp.path().join("a"), &["../"]);
-  search_test(&tmp.path().join("a"), &["../default"]);
+  search_test(tmp.path().join("a"), &["../"]);
+  search_test(tmp.path().join("a"), &["../default"]);
 }
 
 #[test]
@@ -140,7 +140,7 @@ fn single_upwards() {
 
   let path = tmp.path().join("child");
 
-  search_test(&path, &["../"]);
+  search_test(path, &["../"]);
 }
 
 #[test]

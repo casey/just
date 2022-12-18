@@ -11,7 +11,7 @@ impl<'src> Display for Shell<'src> {
     write!(f, "[{}", self.command)?;
 
     for argument in &self.arguments {
-      write!(f, ", {}", argument)?;
+      write!(f, ", {argument}")?;
     }
 
     write!(f, "]")

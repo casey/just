@@ -53,7 +53,7 @@ impl<'src> ColorDisplay for Token<'src> {
         }
         let line_number_width = line_number.to_string().len();
         writeln!(f, "{0:1$} |", "", line_number_width)?;
-        writeln!(f, "{} | {}", line_number, space_line)?;
+        writeln!(f, "{line_number} | {space_line}")?;
         write!(f, "{0:1$} |", "", line_number_width)?;
         write!(
           f,

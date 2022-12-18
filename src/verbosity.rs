@@ -38,10 +38,8 @@ impl Verbosity {
       Grandiloquent => true,
     }
   }
-}
 
-impl Default for Verbosity {
-  fn default() -> Self {
+  pub const fn default() -> Self {
     Self::Taciturn
   }
 }

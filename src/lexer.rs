@@ -121,7 +121,7 @@ impl<'src> Lexer<'src> {
 
   fn presume(&mut self, c: char) -> CompileResult<'src, ()> {
     if !self.next_is(c) {
-      return Err(self.internal_error(format!("Lexer presumed character `{}`", c)));
+      return Err(self.internal_error(format!("Lexer presumed character `{c}`")));
     }
 
     self.advance()?;
@@ -948,7 +948,7 @@ mod tests {
 
       // Variable lexemes
       Text | StringToken | Backtick | Identifier | Comment | Unspecified => {
-        panic!("Token {:?} has no default lexeme", kind)
+        panic!("Token {kind:?} has no default lexeme")
       }
     }
   }

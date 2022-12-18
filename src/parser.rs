@@ -894,10 +894,10 @@ mod tests {
     let justfile = Parser::parse(&tokens).expect("parsing failed");
     let have = justfile.tree();
     if have != want {
-      println!("parsed text: {}", unindented);
-      println!("expected:    {}", want);
-      println!("but got:     {}", have);
-      println!("tokens:      {:?}", tokens);
+      println!("parsed text: {unindented}");
+      println!("expected:    {want}");
+      println!("but got:     {have}");
+      println!("tokens:      {tokens:?}");
       panic!();
     }
   }

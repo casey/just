@@ -256,10 +256,10 @@ impl<'src> ColorDisplay for Error<'src> {
       }
       Backtick { output_error, .. } => match output_error {
         OutputError::Code(code) => {
-          write!(f, "Backtick failed with exit code {}", code)?;
+          write!(f, "Backtick failed with exit code {code}")?;
         }
         OutputError::Signal(signal) => {
-          write!(f, "Backtick was terminated by signal {}", signal)?;
+          write!(f, "Backtick was terminated by signal {signal}")?;
         }
         OutputError::Unknown => {
           write!(f, "Backtick failed for an unknown reason")?;
@@ -343,7 +343,7 @@ impl<'src> ColorDisplay for Error<'src> {
             recipe, n, code
           )?;
         } else {
-          write!(f, "Recipe `{}` failed with exit code {}", recipe, code)?;
+          write!(f, "Recipe `{recipe}` failed with exit code {code}")?;
         }
       }
       CommandInvoke {
@@ -422,7 +422,7 @@ impl<'src> ColorDisplay for Error<'src> {
                path:\n{}",
               recipe, io_error
             ),
-            _ => write!(f, "Could not run `cygpath` executable:\n{}", io_error),
+            _ => write!(f, "Could not run `cygpath` executable:\n{io_error}"),
           }?;
         }
         OutputError::Utf8(utf8_error) => {
@@ -447,34 +447,28 @@ impl<'src> ColorDisplay for Error<'src> {
         )?;
       }
       Dotenv { dotenv_error } => {
-        write!(f, "Failed to load environment file: {}", dotenv_error)?;
+        write!(f, "Failed to load environment file: {dotenv_error}")?;
       }
       DumpJson { serde_json_error } => {
-        write!(f, "Failed to dump JSON to stdout: {}", serde_json_error)?;
+        write!(f, "Failed to dump JSON to stdout: {serde_json_error}")?;
       }
       EditorInvoke { editor, io_error } => {
         write!(
           f,
-          "Editor `{}` invocation failed: {}",
+          "Editor `{}` invocation failed: {io_error}",
           editor.to_string_lossy(),
-          io_error
         )?;
       }
       EditorStatus { editor, status } => {
-        write!(
-          f,
-          "Editor `{}` failed: {}",
-          editor.to_string_lossy(),
-          status
-        )?;
+        write!(f, "Editor `{}` failed: {status}", editor.to_string_lossy(),)?;
       }
       EvalUnknownVariable {
         variable,
         suggestion,
       } => {
-        write!(f, "Justfile does not contain variable `{}`.", variable,)?;
+        write!(f, "Justfile does not contain variable `{variable}`.")?;
         if let Some(suggestion) = *suggestion {
-          write!(f, "\n{}", suggestion)?;
+          write!(f, "\n{suggestion}")?;
         }
       }
       FormatCheckFoundDiff => {
@@ -533,7 +527,7 @@ impl<'src> ColorDisplay for Error<'src> {
         write!(f, "Justfile contains no recipes.")?;
       }
       RegexCompile { source } => {
-        write!(f, "{}", source)?;
+        write!(f, "{source}")?;
       }
       Search { search_error } => Display::fmt(search_error, f)?,
       Shebang {
@@ -545,14 +539,12 @@ impl<'src> ColorDisplay for Error<'src> {
         if let Some(argument) = argument {
           write!(
             f,
-            "Recipe `{}` with shebang `#!{} {}` execution error: {}",
-            recipe, command, argument, io_error
+            "Recipe `{recipe}` with shebang `#!{command} {argument}` execution error: {io_error}",
           )?;
         } else {
           write!(
             f,
-            "Recipe `{}` with shebang `#!{}` execution error: {}",
-            recipe, command, io_error
+            "Recipe `{recipe}` with shebang `#!{command}` execution error: {io_error}",
           )?;
         }
       }
@@ -564,18 +556,16 @@ impl<'src> ColorDisplay for Error<'src> {
         if let Some(n) = line_number {
           write!(
             f,
-            "Recipe `{}` was terminated on line {} by signal {}",
-            recipe, n, signal
+            "Recipe `{recipe}` was terminated on line {n} by signal {signal}",
           )?;
         } else {
-          write!(f, "Recipe `{}` was terminated by signal {}", recipe, signal)?;
+          write!(f, "Recipe `{recipe}` was terminated by signal {signal}")?;
         }
       }
       TmpdirIo { recipe, io_error } => write!(
         f,
-        "Recipe `{}` could not be run because of an IO error while trying to create a temporary \
-         directory or write a file to that directory`:{}",
-        recipe, io_error
+        "Recipe `{recipe}` could not be run because of an IO error while trying to create a temporary \
+         directory or write a file to that directory`:{io_error}",
       )?,
       Unknown {
         recipe,
@@ -584,11 +574,10 @@ impl<'src> ColorDisplay for Error<'src> {
         if let Some(n) = line_number {
           write!(
             f,
-            "Recipe `{}` failed on line {} for an unknown reason",
-            recipe, n
+            "Recipe `{recipe}` failed on line {n} for an unknown reason",
           )?;
         } else {
-          write!(f, "Recipe `{}` failed for an unknown reason", recipe)?;
+          write!(f, "Recipe `{recipe}` failed for an unknown reason")?;
         }
       }
       UnknownOverrides { overrides } => {
@@ -610,7 +599,7 @@ impl<'src> ColorDisplay for Error<'src> {
           List::or_ticked(recipes),
         )?;
         if let Some(suggestion) = *suggestion {
-          write!(f, "\n{}", suggestion)?;
+          write!(f, "\n{suggestion}")?;
         }
       }
       Unstable { message } => {

@@ -16,8 +16,8 @@ fn interrupt_test(arguments: &[&str], justfile: &str) {
 
   let start = Instant::now();
 
-  let mut child = Command::new(&executable_path("just"))
-    .current_dir(&tmp)
+  let mut child = Command::new(executable_path("just"))
+    .current_dir(tmp)
     .args(arguments)
     .spawn()
     .expect("just invocation failed");

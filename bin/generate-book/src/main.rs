@@ -165,7 +165,7 @@ fn main() -> Result {
 
     for chapter in chapters {
       let path = format!("{}/chapter_{}.md", src, chapter.number());
-      fs::write(&path, &chapter.markdown()?)?;
+      fs::write(path, chapter.markdown()?)?;
       let indent = match chapter.level {
         HeadingLevel::H1 => 0,
         HeadingLevel::H2 => 1,

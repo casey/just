@@ -61,7 +61,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
           Ok(self.evaluate_assignment(assignment)?.to_owned())
         } else {
           Err(Error::Internal {
-            message: format!("attempted to evaluate undefined variable `{}`", variable),
+            message: format!("attempted to evaluate undefined variable `{variable}`"),
           })
         }
       }
@@ -145,7 +145,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       Expression::StringLiteral { string_literal } => Ok(string_literal.cooked.clone()),
       Expression::Backtick { contents, token } => {
         if self.config.dry_run {
-          Ok(format!("`{}`", contents))
+          Ok(format!("`{contents}`"))
         } else {
           Ok(self.run_backtick(contents, token)?)
         }

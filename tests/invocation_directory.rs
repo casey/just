@@ -48,7 +48,7 @@ fn test_invocation_directory() {
   subdir.push("subdir");
   fs::create_dir(&subdir).unwrap();
 
-  let output = Command::new(&executable_path("just"))
+  let output = Command::new(executable_path("just"))
     .current_dir(&subdir)
     .args(["--shell", "sh"])
     .output()
