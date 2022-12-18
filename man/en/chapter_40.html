@@ -148,7 +148,7 @@
 <p>Recipes that start with <code>#!</code> are called shebang recipes, and are executed by
 saving the recipe body to a file and running it. This lets you write recipes in
 different languages:</p>
-<pre><code class="language-just">polyglot: python js perl sh ruby
+<pre><code class="language-just">polyglot: python js perl sh ruby nu
 
 python:
   #!/usr/bin/env python3
@@ -169,8 +169,8 @@ sh:
 
 nu:
   #!/usr/bin/env nu
-  let hello = 'Yo'
-  echo $&quot;($hello) from a shell script!&quot;
+  let hello = 'Hola'
+  echo $&quot;($hello) from a nushell script!&quot;
 
 ruby:
   #!/usr/bin/env ruby
@@ -182,6 +182,7 @@ Greetings from JavaScript!
 Larry Wall says Hi!
 Yo from a shell script!
 Hello from ruby!
+Hola from a nushell script!
 </code></pre>
 <p>On Unix-like operating systems, including Linux and MacOS, shebang recipes are
 executed by saving the recipe body to a file in a temporary directory, marking
