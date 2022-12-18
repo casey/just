@@ -118,7 +118,7 @@ Changelog
 - Update just-install reference on README.md ([#1275](https://github.com/casey/just/pull/1275) by [0xradical](https://github.com/0xradical))
 - Split Recipe::run into Recipe::{run_shebang,run_linewise} ([#1270](https://github.com/casey/just/pull/1270))
 - Add asdf package to readme([#1264](https://github.com/casey/just/pull/1264) by [jaacko-torus](https://github.com/jaacko-torus))
-- Add mdbook deps for build-book recipe ([#1258](https://github.com/casey/just/pull/1258) by @) ([#1259](https://github.com/casey/just/pull/1259) by [TopherIsSwell](https://github.com/TopherIsSwell))
+- Add mdbook deps for build-book recipe ([#1259](https://github.com/casey/just/pull/1259) by [TopherIsSwell](https://github.com/TopherIsSwell))
 - Fix typo: argumant -> argument ([#1257](https://github.com/casey/just/pull/1257) by [kianmeng](https://github.com/kianmeng))
 - Improve error message if `if` is missing the `else` ([#1252](https://github.com/casey/just/pull/1252) by [nk9](https://github.com/nk9))
 - Explain how to pass arguments of a command to a dependency ([#1254](https://github.com/casey/just/pull/1254) by [heavelock](https://github.com/heavelock))
@@ -924,7 +924,7 @@ Changelog
 - Add justfile summaries ([#399](https://github.com/casey/just/pull/399))
 - Allow outer shebang lines so justfiles can be used as scripts ([#393](https://github.com/casey/just/pull/393))
 - Allow `--justfile` without `--working-directory` ([#392](https://github.com/casey/just/pull/392) by [smonami](https://github.com/smonami))
-- Add link to Chinese translation of readme by @chinanf-boy ([#377](https://github.com/casey/just/pull/377))
+- Add link to Chinese translation of readme by chinanf-boy ([#377](https://github.com/casey/just/pull/377))
 
 ### Changed
 - Upgrade to Rust 2018 ([#394](https://github.com/casey/just/pull/394))
