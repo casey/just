@@ -36,7 +36,7 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
       self.resolve_expression(&assignment.value)?;
       self.evaluated.insert(name);
     } else {
-      let message = format!("attempted to resolve unknown assignment `{}`", name);
+      let message = format!("attempted to resolve unknown assignment `{name}`");
       let token = Token {
         src: "",
         offset: 0,

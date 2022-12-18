@@ -105,7 +105,7 @@ fn working_directory_is_correct() {
   fs::write(tmp.path().join("bar"), "baz").unwrap();
   fs::create_dir(tmp.path().join("foo")).unwrap();
 
-  let output = Command::new(&executable_path("just"))
+  let output = Command::new(executable_path("just"))
     .args(["--command", "cat", "bar"])
     .current_dir(tmp.path().join("foo"))
     .output()
@@ -124,7 +124,7 @@ fn command_not_found() {
 
   fs::write(tmp.path().join("justfile"), "").unwrap();
 
-  let output = Command::new(&executable_path("just"))
+  let output = Command::new(executable_path("just"))
     .args(["--command", "asdfasdfasdfasdfadfsadsfadsf", "bar"])
     .output()
     .unwrap();

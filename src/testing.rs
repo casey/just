@@ -6,7 +6,7 @@ use pretty_assertions::assert_eq;
 pub(crate) fn compile(text: &str) -> Justfile {
   match Compiler::compile(text) {
     Ok(justfile) => justfile,
-    Err(error) => panic!("Expected successful compilation but got error:\n {}", error),
+    Err(error) => panic!("Expected successful compilation but got error:\n {error}"),
   }
 }
 

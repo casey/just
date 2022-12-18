@@ -1,0 +1,131 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+    - '*'
+  push:
+    branches:
+    - master
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    env:
+      RUSTFLAGS: --deny warnings
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install Rust Toolchain Components
+      uses: actions-rs/toolchain@v1
+      with:
+        components: clippy, rustfmt
+        toolchain: stable
+
+    - uses: Swatinem/rust-cache@v1
+
+    - name: Check Lockfile
+      run: cargo update --locked --package just
+
+    - name: Clippy
+      run: cargo clippy --all --all-targets
+
+    - name: Format
+      run: cargo fmt --all -- --check
+
+    - name: Completion Scripts
+      run: |
+        ./bin/generate-completions
+        git diff --no-ext-diff --quiet --exit-code
+        ./tests/completions/just.bash
+
+    - name: Check for Forbidden Words
+      run: |
+        sudo apt-get update
+        sudo apt-get install ripgrep
+        ./bin/forbid
+  pages:
+    runs-on: ubuntu-latest
+
+    env:
+      RUSTFLAGS: --deny warnings
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install Rust Toolchain Components
+      uses: actions-rs/toolchain@v1
+      with:
+        profile: minimal
+        toolchain: stable
+
+    - uses: Swatinem/rust-cache@v1
+
+    - name: Install `mdbook`
+      uses: peaceiris/actions-mdbook@v1
+      with:
+        mdbook-version: latest
+
+    - name: Install `mdbook-linkcheck`
+      run: |
+        mkdir -p mdbook-linkcheck
+        cd mdbook-linkcheck
+        wget https://github.com/Michael-F-Bryan/mdbook-linkcheck/releases/latest/download/mdbook-linkcheck.x86_64-unknown-linux-gnu.zip
+        unzip mdbook-linkcheck.x86_64-unknown-linux-gnu.zip
+        chmod +x mdbook-linkcheck
+        pwd >> $GITHUB_PATH
+
+    - name: Build book
+      run: |
+        cargo run --package generate-book
+        mdbook build book/en
+        mdbook build book/zh
+
+    - name: Deploy Pages
+      uses: peaceiris/actions-gh-pages@v3
+      if: github.ref == 'refs/heads/master'
+      with:
+        github_token: ${{secrets.GITHUB_TOKEN}}
+        publish_branch: gh-pages
+        publish_dir: www
+  test:
+    strategy:
+      matrix:
+        os:
+        - ubuntu-latest
+        - macos-latest
+        - windows-latest
+
+    runs-on: ${{matrix.os}}
+
+    env:
+      RUSTFLAGS: --deny warnings
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Remove Broken WSL bash executable
+      if: ${{ matrix.os == 'windows-latest' }}
+      shell: cmd
+      run: |
+        takeown /F C:\Windows\System32\bash.exe
+        icacls C:\Windows\System32\bash.exe /grant administrators:F
+        del C:\Windows\System32\bash.exe
+
+    - name: Install Rust Toolchain Components
+      uses: actions-rs/toolchain@v1
+      with:
+        components: clippy, rustfmt
+        override: true
+        toolchain: stable
+
+    - uses: Swatinem/rust-cache@v1
+
+    - name: Test
+      run: cargo test --all

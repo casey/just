@@ -42,7 +42,7 @@ fn write_error() {
 
   let justfile_path = test.justfile_path();
 
-  fs::create_dir(&justfile_path).unwrap();
+  fs::create_dir(justfile_path).unwrap();
 
   test
     .no_justfile()

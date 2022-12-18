@@ -15,11 +15,11 @@ pub(crate) struct Parameter<'src> {
 
 impl<'src> ColorDisplay for Parameter<'src> {
   fn fmt(&self, f: &mut Formatter, color: Color) -> Result<(), fmt::Error> {
-    if self.export {
-      write!(f, "$")?;
-    }
     if let Some(prefix) = self.kind.prefix() {
       write!(f, "{}", color.annotation().paint(prefix))?;
+    }
+    if self.export {
+      write!(f, "$")?;
     }
     write!(f, "{}", color.parameter().paint(self.name.lexeme()))?;
     if let Some(ref default) = self.default {

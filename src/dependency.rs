@@ -15,7 +15,7 @@ impl<'src> Display for Dependency<'src> {
       write!(f, "({}", self.recipe.name())?;
 
       for argument in &self.arguments {
-        write!(f, " {}", argument)?;
+        write!(f, " {argument}")?;
       }
 
       write!(f, ")")

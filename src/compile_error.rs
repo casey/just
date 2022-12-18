@@ -39,7 +39,7 @@ impl Display for CompileError<'_> {
       }
       CircularRecipeDependency { recipe, ref circle } => {
         if circle.len() == 2 {
-          write!(f, "Recipe `{}` depends on itself", recipe)?;
+          write!(f, "Recipe `{recipe}` depends on itself")?;
         } else {
           write!(
             f,
@@ -54,7 +54,7 @@ impl Display for CompileError<'_> {
         ref circle,
       } => {
         if circle.len() == 2 {
-          write!(f, "Variable `{}` is defined in terms of itself", variable)?;
+          write!(f, "Variable `{variable}` is defined in terms of itself")?;
         } else {
           write!(
             f,
@@ -80,11 +80,11 @@ impl Display for CompileError<'_> {
 
         if min == max {
           let expected = min;
-          write!(f, "{} {}", expected, Count("argument", *expected))?;
+          write!(f, "{expected} {}", Count("argument", *expected))?;
         } else if found < min {
-          write!(f, "at least {} {}", min, Count("argument", *min))?;
+          write!(f, "at least {min} {}", Count("argument", *min))?;
         } else {
-          write!(f, "at most {} {}", max, Count("argument", *max))?;
+          write!(f, "at most {max} {}", Count("argument", *max))?;
         }
       }
       DuplicateAlias { alias, first } => {
@@ -131,7 +131,7 @@ impl Display for CompileError<'_> {
         )?;
       }
       DuplicateVariable { variable } => {
-        write!(f, "Variable `{}` has multiple definitions", variable)?;
+        write!(f, "Variable `{variable}` has multiple definitions")?;
       }
       ExpectedKeyword { expected, found } => {
         if found.kind == TokenKind::Identifier {
@@ -192,7 +192,7 @@ impl Display for CompileError<'_> {
           '"' => r#"""#.to_owned(),
           _ => character.escape_default().collect(),
         };
-        write!(f, "`\\{}` is not a valid escape sequence", representation)?;
+        write!(f, "`\\{representation}` is not a valid escape sequence")?;
       }
       MismatchedClosingDelimiter {
         open,
@@ -216,13 +216,12 @@ impl Display for CompileError<'_> {
         )?;
       }
       ParameterFollowsVariadicParameter { parameter } => {
-        write!(f, "Parameter `{}` follows variadic parameter", parameter)?;
+        write!(f, "Parameter `{parameter}` follows variadic parameter")?;
       }
       ParameterShadowsVariable { parameter } => {
         write!(
           f,
-          "Parameter `{}` shadows variable of the same name",
-          parameter
+          "Parameter `{parameter}` shadows variable of the same name",
         )?;
       }
       ParsingRecursionDepthExceeded => {
@@ -236,41 +235,37 @@ impl Display for CompileError<'_> {
         )?;
       }
       UndefinedVariable { variable } => {
-        write!(f, "Variable `{}` not defined", variable)?;
+        write!(f, "Variable `{variable}` not defined")?;
       }
       UnexpectedCharacter { expected } => {
-        write!(f, "Expected character `{}`", expected)?;
+        write!(f, "Expected character `{expected}`")?;
       }
       UnexpectedClosingDelimiter { close } => {
         write!(f, "Unexpected closing delimiter `{}`", close.close())?;
       }
       UnexpectedEndOfToken { expected } => {
-        write!(f, "Expected character `{}` but found end-of-file", expected)?;
+        write!(f, "Expected character `{expected}` but found end-of-file")?;
       }
       UnexpectedToken {
         ref expected,
         found,
       } => {
-        write!(f, "Expected {}, but found {}", List::or(expected), found)?;
+        write!(f, "Expected {}, but found {found}", List::or(expected))?;
       }
       UnknownAliasTarget { alias, target } => {
-        write!(f, "Alias `{}` has an unknown target `{}`", alias, target)?;
+        write!(f, "Alias `{alias}` has an unknown target `{target}`")?;
       }
       UnknownAttribute { attribute } => {
-        write!(f, "Unknown attribute `{}`", attribute)?;
+        write!(f, "Unknown attribute `{attribute}`")?;
       }
       UnknownDependency { recipe, unknown } => {
-        write!(
-          f,
-          "Recipe `{}` has unknown dependency `{}`",
-          recipe, unknown
-        )?;
+        write!(f, "Recipe `{recipe}` has unknown dependency `{unknown}`",)?;
       }
       UnknownFunction { function } => {
-        write!(f, "Call to unknown function `{}`", function)?;
+        write!(f, "Call to unknown function `{function}`")?;
       }
       UnknownSetting { setting } => {
-        write!(f, "Unknown setting `{}`", setting)?;
+        write!(f, "Unknown setting `{setting}`")?;
       }
       UnknownStartOfToken => {
         write!(f, "Unknown start of token:")?;

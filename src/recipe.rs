@@ -257,7 +257,7 @@ impl<'src, D> Recipe<'src, D> {
 
     if config.verbosity.loud() && (config.dry_run || self.quiet) {
       for line in &evaluated_lines {
-        eprintln!("{}", line);
+        eprintln!("{line}");
       }
     }
 
@@ -270,7 +270,7 @@ impl<'src, D> Recipe<'src, D> {
     })?;
 
     let shebang = Shebang::new(shebang_line).ok_or_else(|| Error::Internal {
-      message: format!("bad shebang line: {}", shebang_line),
+      message: format!("bad shebang line: {shebang_line}"),
     })?;
 
     let mut tempdir_builder = tempfile::Builder::new();
@@ -378,7 +378,7 @@ impl<'src, D> Recipe<'src, D> {
 impl<'src, D: Display> ColorDisplay for Recipe<'src, D> {
   fn fmt(&self, f: &mut Formatter, color: Color) -> Result<(), fmt::Error> {
     if let Some(doc) = self.doc {
-      writeln!(f, "# {}", doc)?;
+      writeln!(f, "# {doc}")?;
     }
 
     for attribute in &self.attributes {
@@ -401,7 +401,7 @@ impl<'src, D: Display> ColorDisplay for Recipe<'src, D> {
         write!(f, " &&")?;
       }
 
-      write!(f, " {}", dependency)?;
+      write!(f, " {dependency}")?;
     }
 
     for (i, line) in self.body.iter().enumerate() {
@@ -414,7 +414,7 @@ impl<'src, D: Display> ColorDisplay for Recipe<'src, D> {
         }
         match fragment {
           Fragment::Text { token } => write!(f, "{}", token.lexeme())?,
-          Fragment::Interpolation { expression, .. } => write!(f, "{{{{ {} }}}}", expression)?,
+          Fragment::Interpolation { expression, .. } => write!(f, "{{{{ {expression} }}}}")?,
         }
       }
       if i + 1 < self.body.len() {

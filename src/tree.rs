@@ -133,12 +133,12 @@ impl Display for Tree<'_> {
           if i > 0 {
             write!(f, " ")?;
           }
-          write!(f, "{}", child)?;
+          write!(f, "{child}")?;
         }
 
         write!(f, ")")
       }
-      Tree::Atom(text) => write!(f, "{}", text),
+      Tree::Atom(text) => write!(f, "{text}"),
     }
   }
 }
