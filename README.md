@@ -1700,7 +1700,7 @@ saving the recipe body to a file and running it. This lets you write recipes in
 different languages:
 
 ```make
-polyglot: python js perl sh ruby
+polyglot: python js perl sh ruby nushell
 
 python:
   #!/usr/bin/env python3
@@ -1721,7 +1721,7 @@ sh:
 
 nu:
   #!/usr/bin/env nu
-  let hello = 'Yo'
+  let hello = 'Hola'
   echo $"($hello) from a nushell script!"
 
 ruby:
@@ -1736,6 +1736,7 @@ Greetings from JavaScript!
 Larry Wall says Hi!
 Yo from a shell script!
 Hello from ruby!
+Hola from a nushell script!
 ```
 
 On Unix-like operating systems, including Linux and MacOS, shebang recipes are
