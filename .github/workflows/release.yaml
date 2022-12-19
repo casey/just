@@ -83,7 +83,9 @@ jobs:
       if: ${{ startsWith(github.ref, 'refs/tags/') }}
       with:
         draft: false
-        files: ${{ steps.package.outputs.archive }}
+        files: |
+          ${{ steps.package.outputs.archive }}
+          ${{ steps.package.outputs.deb }}
         prerelease: ${{ steps.ref-type.outputs.value != 'release' }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
