@@ -361,12 +361,16 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
           BTreeSet::new(),
         )?));
       } else if let Some(attributes) = self.parse_attributes()? {
-        if let Some(Keyword::Alias) = Keyword::from_lexeme(self.next()?.lexeme()) {
-          items.push(Item::Alias(self.parse_alias(attributes)?));
-        } else {
-          let quiet = self.accepted(At)?;
-          let doc = pop_doc_comment(&mut items, eol_since_last_comment);
-          items.push(Item::Recipe(self.parse_recipe(doc, quiet, attributes)?));
+        let next_keyword = Keyword::from_lexeme(self.next()?.lexeme());
+        match next_keyword {
+          Some(Keyword::Alias) if self.next_are(&[Identifier, Identifier, ColonEquals]) => {
+            items.push(Item::Alias(self.parse_alias(attributes)?));
+          }
+          _ => {
+            let quiet = self.accepted(At)?;
+            let doc = pop_doc_comment(&mut items, eol_since_last_comment);
+            items.push(Item::Recipe(self.parse_recipe(doc, quiet, attributes)?));
+          }
         }
       } else {
         return Err(self.unexpected_token()?);
@@ -1010,6 +1014,18 @@ mod tests {
     text: "alias t := test",
     tree: (justfile
       (alias t test)
+    ),
+  }
+
+  test! {
+      name: recipe_named_alias,
+      text: r#"
+      [private]
+      alias:
+        echo 'echoing alias'
+          "#,
+    tree: (justfile
+      (recipe alias (body ("echo 'echoing alias'")))
     ),
   }
 
