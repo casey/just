@@ -402,7 +402,7 @@ Kakoune supports `justfile` syntax highlighting out of the box, thanks to TeddyD
 
 ### Sublime Text
 
-A syntax file for Sublime Text written by TonioGela is available in [extras/just.sublime-syntax](https://github.com/casey/just/blob/master/extras/just.sublime-syntax).
+The Just package by [nk9](https://github.com/nk9) with `just` syntax and some other tools is available on [PackageControl](https://packagecontrol.io/packages/Just).
 
 ### Other Editors
 
