@@ -1568,9 +1568,12 @@ Available recipes:
 <pre><code class="language-sh">$ just --summary
 test
 </code></pre>
-<p>The <code>[private]</code> attribute<sup>master</sup> may also be used to hide recipes without needing to change the name:</p>
+<p>The <code>[private]</code> attribute<sup>master</sup> may also be used to hide recipes or aliases without needing to change the name:</p>
 <pre><code class="language-just">[private]
 foo:
+
+[private]
+alias b := bar
 
 bar:
 </code></pre>
