@@ -2007,11 +2007,14 @@ $ just --summary
 test
 ```
 
-The `[private]` attribute<sup>master</sup> may also be used to hide recipes without needing to change the name:
+The `[private]` attribute<sup>master</sup> may also be used to hide recipes or aliases without needing to change the name:
 
 ```just
 [private]
 foo:
+
+[private]
+alias b := bar
 
 bar:
 ```

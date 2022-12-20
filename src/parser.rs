@@ -325,7 +325,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
       } else if self.next_is(Identifier) {
         match Keyword::from_lexeme(next.lexeme()) {
           Some(Keyword::Alias) if self.next_are(&[Identifier, Identifier, ColonEquals]) => {
-            items.push(Item::Alias(self.parse_alias()?));
+            items.push(Item::Alias(self.parse_alias(BTreeSet::new())?));
           }
           Some(Keyword::Export) if self.next_are(&[Identifier, Identifier, ColonEquals]) => {
             self.presume_keyword(Keyword::Export)?;
@@ -361,9 +361,17 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
           BTreeSet::new(),
         )?));
       } else if let Some(attributes) = self.parse_attributes()? {
-        let quiet = self.accepted(At)?;
-        let doc = pop_doc_comment(&mut items, eol_since_last_comment);
-        items.push(Item::Recipe(self.parse_recipe(doc, quiet, attributes)?));
+        let next_keyword = Keyword::from_lexeme(self.next()?.lexeme());
+        match next_keyword {
+          Some(Keyword::Alias) if self.next_are(&[Identifier, Identifier, ColonEquals]) => {
+            items.push(Item::Alias(self.parse_alias(attributes)?));
+          }
+          _ => {
+            let quiet = self.accepted(At)?;
+            let doc = pop_doc_comment(&mut items, eol_since_last_comment);
+            items.push(Item::Recipe(self.parse_recipe(doc, quiet, attributes)?));
+          }
+        }
       } else {
         return Err(self.unexpected_token()?);
       }
@@ -383,13 +391,20 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   }
 
   /// Parse an alias, e.g `alias name := target`
-  fn parse_alias(&mut self) -> CompileResult<'src, Alias<'src, Name<'src>>> {
+  fn parse_alias(
+    &mut self,
+    attributes: BTreeSet<Attribute>,
+  ) -> CompileResult<'src, Alias<'src, Name<'src>>> {
     self.presume_keyword(Keyword::Alias)?;
     let name = self.parse_name()?;
     self.presume_any(&[Equals, ColonEquals])?;
     let target = self.parse_name()?;
     self.expect_eol()?;
-    Ok(Alias { name, target })
+    Ok(Alias {
+      attributes,
+      name,
+      target,
+    })
   }
 
   /// Parse an assignment, e.g. `foo := bar`
@@ -979,6 +994,12 @@ mod tests {
   }
 
   test! {
+    name: alias_with_attributee,
+    text: "[private]\nalias t := test",
+    tree: (justfile (alias t test)),
+  }
+
+  test! {
     name: aliases_multiple,
     text: "alias t := test\nalias b := build",
     tree: (
@@ -993,6 +1014,18 @@ mod tests {
     text: "alias t := test",
     tree: (justfile
       (alias t test)
+    ),
+  }
+
+  test! {
+      name: recipe_named_alias,
+      text: r#"
+      [private]
+      alias:
+        echo 'echoing alias'
+          "#,
+    tree: (justfile
+      (recipe alias (body ("echo 'echoing alias'")))
     ),
   }
 
