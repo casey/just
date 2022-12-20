@@ -24,7 +24,6 @@ pub(crate) use {
   tempfile::TempDir,
   temptree::{temptree, tree, Tree},
   which::which,
-  yaml_rust::YamlLoader,
 };
 
 #[macro_use]
