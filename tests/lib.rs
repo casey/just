@@ -78,7 +78,6 @@ mod shell;
 mod show;
 mod slash_operator;
 mod string;
-mod sublime_syntax;
 mod subsequents;
 mod tempdir;
 mod undefined_variables;
