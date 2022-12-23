@@ -54,6 +54,14 @@ test! {
 }
 
 test! {
+  name: check_found_diff_quiet,
+  justfile: "x:=``\n",
+  args: ("--unstable", "--fmt", "--check", "--quiet"),
+  stderr: "",
+  status: EXIT_FAILURE,
+}
+
+test! {
   name: check_diff_color,
   justfile: "x:=``\n",
   args: ("--unstable", "--fmt", "--check", "--color", "always"),

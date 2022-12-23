@@ -374,21 +374,23 @@ impl Subcommand {
       return if formatted == src {
         Ok(())
       } else {
-        use similar::{ChangeTag, TextDiff};
+        if !config.verbosity.quiet() {
+          use similar::{ChangeTag, TextDiff};
 
-        let diff = TextDiff::configure()
-          .algorithm(similar::Algorithm::Patience)
-          .diff_lines(src, &formatted);
+          let diff = TextDiff::configure()
+            .algorithm(similar::Algorithm::Patience)
+            .diff_lines(src, &formatted);
 
-        for op in diff.ops() {
-          for change in diff.iter_changes(op) {
-            let (symbol, color) = match change.tag() {
-              ChangeTag::Delete => ("-", config.color.stderr().diff_deleted()),
-              ChangeTag::Equal => (" ", config.color.stderr()),
-              ChangeTag::Insert => ("+", config.color.stderr().diff_added()),
-            };
+          for op in diff.ops() {
+            for change in diff.iter_changes(op) {
+              let (symbol, color) = match change.tag() {
+                ChangeTag::Delete => ("-", config.color.stderr().diff_deleted()),
+                ChangeTag::Equal => (" ", config.color.stderr()),
+                ChangeTag::Insert => ("+", config.color.stderr().diff_added()),
+              };
 
-            eprint!("{}{symbol}{change}{}", color.prefix(), color.suffix());
+              eprint!("{}{symbol}{change}{}", color.prefix(), color.suffix());
+            }
           }
         }
 
