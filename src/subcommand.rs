@@ -480,7 +480,7 @@ impl Subcommand {
     let mut evaluated_parameters: BTreeMap<&str, BTreeMap<&str, Parameter<String>>> =
       BTreeMap::new();
 
-    for (name, recipe) in &justfile.recipes {
+    for (name, recipe) in justfile.recipes.iter() {
       if recipe.private {
         continue;
       }
@@ -489,12 +489,10 @@ impl Subcommand {
         let mut line_width = UnicodeWidthStr::width(*name);
 
         for parameter in &recipe.parameters {
-          // FIXME: unwrap -> ?
           if let Some(evaluated) = evaluator
             .as_mut()
             .map(|evaluator| parameter.evaluate_default(evaluator))
-            .transpose()
-            .unwrap()
+            .transpose()?
             .flatten()
           {
             line_width += UnicodeWidthStr::width(
