@@ -276,14 +276,18 @@ just --help
 
 ### GitHub Actions
 
-[extractions/setup-just](https://github.com/extractions/setup-just) can be used to install `just` in a GitHub Actions workflow.
-
-Example usage:
+With [extractions/setup-just](https://github.com/extractions/setup-just):
 
 ```yaml
 - uses: extractions/setup-just@v1
   with:
     just-version: 0.8 # optional semver specification, otherwise latest
+```
+
+With [taiki-e/install-action](https://github.com/taiki-e/install-action):
+
+```yaml
+- uses: taiki-e/install-action@just
 ```
 
 ### Release RSS Feed
