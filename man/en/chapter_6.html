@@ -145,11 +145,13 @@
                 <div id="content" class="content">
                     <main>
                         <h3 id="github-actions"><a class="header" href="#github-actions">GitHub Actions</a></h3>
-<p><a href="https://github.com/extractions/setup-just">extractions/setup-just</a> can be used to install <code>just</code> in a GitHub Actions workflow.</p>
-<p>Example usage:</p>
+<p>With <a href="https://github.com/extractions/setup-just">extractions/setup-just</a>:</p>
 <pre><code class="language-yaml">- uses: extractions/setup-just@v1
   with:
     just-version: 0.8 # optional semver specification, otherwise latest
+</code></pre>
+<p>With <a href="https://github.com/taiki-e/install-action">taiki-e/install-action</a>:</p>
+<pre><code class="language-yaml">- uses: taiki-e/install-action@just
 </code></pre>
 
                     </main>
