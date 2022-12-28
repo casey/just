@@ -1,5 +1,4 @@
-use regex::Regex;
-use structopt::StructOpt;
+use {regex::Regex, structopt::StructOpt};
 
 #[derive(StructOpt)]
 struct Arguments {

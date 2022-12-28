@@ -1,7 +1,4 @@
-use super::*;
-
-use CompileErrorKind::*;
-use TokenKind::*;
+use {super::*, CompileErrorKind::*, TokenKind::*};
 
 /// Just language lexer
 ///

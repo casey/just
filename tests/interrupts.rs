@@ -1,6 +1,7 @@
-use super::*;
-
-use std::time::{Duration, Instant};
+use {
+  super::*,
+  std::time::{Duration, Instant},
+};
 
 fn kill(process_id: u32) {
   unsafe {

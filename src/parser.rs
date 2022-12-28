@@ -1,6 +1,4 @@
-use super::*;
-
-use TokenKind::*;
+use {super::*, TokenKind::*};
 
 /// Just language parser
 ///
