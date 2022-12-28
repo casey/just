@@ -1,6 +1,4 @@
-use super::*;
-
-use serde::Serialize;
+use {super::*, serde::Serialize};
 
 #[derive(Debug, PartialEq, Serialize)]
 pub(crate) struct Justfile<'src> {

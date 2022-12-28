@@ -1,6 +1,4 @@
-use super::*;
-
-use std::collections::btree_map;
+use {super::*, std::collections::btree_map};
 
 #[derive(Debug, PartialEq, Serialize)]
 #[serde(transparent)]

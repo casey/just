@@ -1,6 +1,4 @@
-use super::*;
-
-use CompileErrorKind::*;
+use {super::*, CompileErrorKind::*};
 
 pub(crate) struct AssignmentResolver<'src: 'run, 'run> {
   assignments: &'run Table<'src, Assignment<'src>>,

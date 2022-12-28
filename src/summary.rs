@@ -12,9 +12,10 @@
 //! that changes to just do not inadvertently break or change the interpretation
 //! of existing justfiles.
 
-use std::{collections::BTreeMap, fs, io, path::Path};
-
-use crate::compiler::Compiler;
+use {
+  crate::compiler::Compiler,
+  std::{collections::BTreeMap, fs, io, path::Path},
+};
 
 mod full {
   pub(crate) use crate::{

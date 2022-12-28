@@ -1,14 +1,14 @@
 #![allow(unknown_lints)]
 #![allow(clippy::unnecessary_wraps)]
 
-use super::*;
-
-use heck::{
-  ToKebabCase, ToLowerCamelCase, ToShoutyKebabCase, ToShoutySnakeCase, ToSnakeCase, ToTitleCase,
-  ToUpperCamelCase,
+use {
+  super::*,
+  heck::{
+    ToKebabCase, ToLowerCamelCase, ToShoutyKebabCase, ToShoutySnakeCase, ToSnakeCase, ToTitleCase,
+    ToUpperCamelCase,
+  },
+  Function::*,
 };
-
-use Function::*;
 
 pub(crate) enum Function {
   Nullary(fn(&FunctionContext) -> Result<String, String>),

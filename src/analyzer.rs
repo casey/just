@@ -1,6 +1,4 @@
-use super::*;
-
-use CompileErrorKind::*;
+use {super::*, CompileErrorKind::*};
 
 const VALID_ALIAS_ATTRIBUTES: [Attribute; 1] = [Attribute::Private];
 

@@ -1,6 +1,4 @@
-use super::*;
-
-use pretty_assertions::assert_eq;
+use {super::*, pretty_assertions::assert_eq};
 
 macro_rules! test {
   {

@@ -1,6 +1,4 @@
-use super::*;
-
-use CompileErrorKind::*;
+use {super::*, CompileErrorKind::*};
 
 pub(crate) struct RecipeResolver<'src: 'run, 'run> {
   unresolved_recipes: Table<'src, UnresolvedRecipe<'src>>,
