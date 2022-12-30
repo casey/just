@@ -438,7 +438,7 @@ impl Subcommand {
     search: &Search,
     justfile: Justfile<'src>,
   ) -> Result<(), Error<'src>> {
-    let dotenv = if config.load_dotenv {
+    let dotenv = if evaluate && config.load_dotenv {
       load_dotenv(config, &justfile.settings, &search.working_directory)?
     } else {
       BTreeMap::new()
