@@ -470,8 +470,7 @@ impl Subcommand {
       let mut evaluator =
         Evaluator::recipe_evaluator(config, &dotenv, &scope, &justfile.settings, search);
 
-      let mut evaluated_parameters: BTreeMap<&str, BTreeMap<&str, Parameter<String>>> =
-        BTreeMap::new();
+      let mut evaluated_parameters: BTreeMap<&str, BTreeMap<_, _>> = BTreeMap::new();
 
       for (name, recipe) in justfile.recipes.iter() {
         if recipe.private {
