@@ -91,7 +91,7 @@ impl<'src> Serialize for Expression<'src> {
       Self::Call { thunk } => thunk.serialize(serializer),
       Self::Concatenation { lhs, rhs } => {
         let mut seq = serializer.serialize_seq(None)?;
-        seq.serialize_element("concatinate")?;
+        seq.serialize_element("concatenate")?;
         seq.serialize_element(lhs)?;
         seq.serialize_element(rhs)?;
         seq.end()

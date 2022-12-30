@@ -992,7 +992,7 @@ mod tests {
   }
 
   test! {
-    name: alias_with_attributee,
+    name: alias_with_attribute,
     text: "[private]\nalias t := test",
     tree: (justfile (alias t test)),
   }
