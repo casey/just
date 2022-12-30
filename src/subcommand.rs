@@ -452,7 +452,7 @@ impl Subcommand {
     }
 
     if evaluate {
-      let dotenv = if evaluate && config.load_dotenv {
+      let dotenv = if config.load_dotenv {
         load_dotenv(config, &justfile.settings, &search.working_directory)?
       } else {
         BTreeMap::new()
