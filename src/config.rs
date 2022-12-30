@@ -159,7 +159,7 @@ impl Config {
       .arg(
         Arg::with_name(arg::EVAL)
           .long("eval")
-          .help("Evaluate parameter default expressions.")
+          .help("Evaluate parameter defaults.")
           .requires(cmd::LIST)
       )
       .arg(
