@@ -499,18 +499,10 @@ impl Subcommand {
               format!(" {}", evaluated.color_display(Color::never())).as_str(),
             );
 
-            match evaluated_parameters.entry(name) {
-              Entry::Vacant(vacant) => {
-                let mut parameters = BTreeMap::new();
-                parameters.insert(evaluated.name.lexeme(), evaluated);
-                vacant.insert(parameters);
-              }
-              Entry::Occupied(mut occopied) => {
-                occopied
-                  .get_mut()
-                  .insert(evaluated.name.lexeme(), evaluated);
-              }
-            }
+            evaluated_parameters
+              .entry(name)
+              .or_default()
+              .insert(evaluated.name.lexeme(), evaluated);
           } else {
             line_width += UnicodeWidthStr::width(
               format!(" {}", parameter.color_display(Color::never())).as_str(),
