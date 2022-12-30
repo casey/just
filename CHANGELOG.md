@@ -735,7 +735,7 @@ Changelog
 ### Misc
 - Build and upload release artifacts from GitHub Actions ([#581](https://github.com/casey/just/pull/581))
 - List solus package in readme ([#579](https://github.com/casey/just/pull/579))
-- Expand use of Github Actions ([#580](https://github.com/casey/just/pull/580))
+- Expand use of GitHub Actions ([#580](https://github.com/casey/just/pull/580))
 - Fix readme typo: interpetation -> interpretation ([#578](https://github.com/casey/just/pull/578) by [Plommonsorbet](https://github.com/Plommonsorbet))
 
 [0.5.5](https://github.com/casey/just/releases/tag/v0.5.5) - 2020-1-15

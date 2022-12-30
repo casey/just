@@ -1036,7 +1036,7 @@ y := """
 """
 ```
 
-Similar to unindented strings, indented double-quoted strings process escape sequences, and indented single-quoted strings ignore escape sequences. Escape sequence processing takes place after unindentation. The unindention algorithm does not take escape-sequence produced whitespace or newlines into account.
+Similar to unindented strings, indented double-quoted strings process escape sequences, and indented single-quoted strings ignore escape sequences. Escape sequence processing takes place after unindentation. The unindentation algorithm does not take escape-sequence produced whitespace or newlines into account.
 
 ### Ignoring Errors
 
@@ -1248,7 +1248,7 @@ directory that contains the `justfile`. This can be disabled using the
 relative to the invocation directory, or which operate on the current
 directory.
 
-For exmaple, this `commit` recipe:
+For example, this `commit` recipe:
 
 ```just
 [no-cd]

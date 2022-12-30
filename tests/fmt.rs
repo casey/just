@@ -251,7 +251,7 @@ test! {
 }
 
 test! {
-  name: assignment_parenthized_expression,
+  name: assignment_parenthesized_expression,
   justfile: "
     foo := ('foo')
   ",
