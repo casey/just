@@ -1248,7 +1248,7 @@ directory that contains the `justfile`. This can be disabled using the
 relative to the invocation directory, or which operate on the current
 directory.
 
-For exmaple, this `commit` recipe:
+For example, this `commit` recipe:
 
 ```just
 [no-cd]
