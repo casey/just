@@ -180,7 +180,7 @@ directory that contains the <code>justfile</code>. This can be disabled using th
 <code>[no-cd]</code> attribute. This can be used to create recipes which use paths
 relative to the invocation directory, or which operate on the current
 directory.</p>
-<p>For exmaple, this <code>commit</code> recipe:</p>
+<p>For example, this <code>commit</code> recipe:</p>
 <pre><code class="language-just">[no-cd]
 commit file:
   git add {{file}}

@@ -876,7 +876,7 @@ y := &quot;&quot;&quot;
   xyz
 &quot;&quot;&quot;
 </code></pre>
-<p>Similar to unindented strings, indented double-quoted strings process escape sequences, and indented single-quoted strings ignore escape sequences. Escape sequence processing takes place after unindentation. The unindention algorithm does not take escape-sequence produced whitespace or newlines into account.</p>
+<p>Similar to unindented strings, indented double-quoted strings process escape sequences, and indented single-quoted strings ignore escape sequences. Escape sequence processing takes place after unindentation. The unindentation algorithm does not take escape-sequence produced whitespace or newlines into account.</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="ignoring-errors"><a class="header" href="#ignoring-errors">Ignoring Errors</a></h3>
 <p>Normally, if a command returns a non-zero exit status, execution will stop. To continue execution after a command, even if it fails, prefix the command with <code>-</code>:</p>
 <pre><code class="language-just">foo:
@@ -1048,7 +1048,7 @@ directory that contains the <code>justfile</code>. This can be disabled using th
 <code>[no-cd]</code> attribute. This can be used to create recipes which use paths
 relative to the invocation directory, or which operate on the current
 directory.</p>
-<p>For exmaple, this <code>commit</code> recipe:</p>
+<p>For example, this <code>commit</code> recipe:</p>
 <pre><code class="language-just">[no-cd]
 commit file:
   git add {{file}}
