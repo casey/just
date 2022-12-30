@@ -536,8 +536,6 @@ impl Config {
       Subcommand::Show {
         name: name.to_owned(),
       }
-    } else if matches.is_present(cmd::VARIABLES) {
-      Subcommand::Variables
     } else if matches.is_present(cmd::EVALUATE) {
       if positional.arguments.len() > 1 {
         return Err(ConfigError::SubcommandArguments {
@@ -554,6 +552,8 @@ impl Config {
         variable: positional.arguments.into_iter().next(),
         overrides,
       }
+    } else if matches.is_present(cmd::VARIABLES) {
+      Subcommand::Variables
     } else {
       Subcommand::Run {
         arguments: positional.arguments,
