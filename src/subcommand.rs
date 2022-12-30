@@ -438,29 +438,6 @@ impl Subcommand {
     search: &Search,
     justfile: Justfile<'src>,
   ) -> Result<(), Error<'src>> {
-    let dotenv = if evaluate && config.load_dotenv {
-      load_dotenv(config, &justfile.settings, &search.working_directory)?
-    } else {
-      BTreeMap::new()
-    };
-
-    let scope = if evaluate {
-      Some(Evaluator::evaluate_assignments(
-        &justfile.assignments,
-        config,
-        &dotenv,
-        Scope::new(),
-        &justfile.settings,
-        search,
-      )?)
-    } else {
-      None
-    };
-
-    let mut evaluator = scope
-      .as_ref()
-      .map(|scope| Evaluator::recipe_evaluator(config, &dotenv, scope, &justfile.settings, search));
-
     // Construct a target to alias map.
     let mut recipe_aliases: BTreeMap<&str, Vec<&str>> = BTreeMap::new();
     for alias in justfile.aliases.values() {
@@ -476,38 +453,91 @@ impl Subcommand {
       }
     }
 
-    let mut line_widths: BTreeMap<&str, usize> = BTreeMap::new();
-    let mut evaluated_parameters: BTreeMap<&str, BTreeMap<&str, Parameter<String>>> =
-      BTreeMap::new();
+    if evaluate {
+      let dotenv = if evaluate && config.load_dotenv {
+        load_dotenv(config, &justfile.settings, &search.working_directory)?
+      } else {
+        BTreeMap::new()
+      };
 
-    for (name, recipe) in justfile.recipes.iter() {
-      if recipe.private {
-        continue;
+      let scope = Evaluator::evaluate_assignments(
+        &justfile.assignments,
+        config,
+        &dotenv,
+        Scope::new(),
+        &justfile.settings,
+        search,
+      )?;
+
+      let mut evaluator =
+        Evaluator::recipe_evaluator(config, &dotenv, &scope, &justfile.settings, search);
+
+      let mut evaluated_parameters: BTreeMap<&str, BTreeMap<&str, Parameter<String>>> =
+        BTreeMap::new();
+
+      for (name, recipe) in justfile.recipes.iter() {
+        if recipe.private {
+          continue;
+        }
+
+        for name in iter::once(name).chain(recipe_aliases.get(name).unwrap_or(&Vec::new())) {
+          for parameter in &recipe.parameters {
+            if let Some(evaluated) = parameter.evaluate_default(&mut evaluator)? {
+              evaluated_parameters
+                .entry(name)
+                .or_default()
+                .insert(evaluated.name.lexeme(), evaluated);
+            }
+          }
+        }
       }
 
+      Self::list_inner(
+        config,
+        justfile
+          .public_recipes(config.unsorted)
+          .iter()
+          .map(|recipe| {
+            (
+              recipe.name(),
+              evaluated_parameters
+                .get(recipe.name())
+                .map(|parameters| parameters.values().cloned().collect())
+                .unwrap_or_default(),
+              recipe.doc,
+            )
+          })
+          .collect(),
+        recipe_aliases,
+      )
+    } else {
+      Self::list_inner(
+        config,
+        justfile
+          .public_recipes(config.unsorted)
+          .iter()
+          .map(|recipe| (recipe.name(), recipe.parameters.clone(), recipe.doc))
+          .collect(),
+        recipe_aliases,
+      )
+    }
+  }
+
+  fn list_inner<'src, T: Display>(
+    config: &Config,
+    recipes: Vec<(&str, Vec<Parameter<T>>, Option<&str>)>,
+    recipe_aliases: BTreeMap<&str, Vec<&str>>,
+  ) -> Result<(), Error<'src>> {
+    let mut line_widths: BTreeMap<&str, usize> = BTreeMap::new();
+
+    for (name, parameters, _doc) in &recipes {
       for name in iter::once(name).chain(recipe_aliases.get(name).unwrap_or(&Vec::new())) {
         let mut line_width = UnicodeWidthStr::width(*name);
 
-        for parameter in &recipe.parameters {
-          if let Some(evaluated) = evaluator
-            .as_mut()
-            .map(|evaluator| parameter.evaluate_default(evaluator))
-            .transpose()?
-            .flatten()
-          {
-            line_width += UnicodeWidthStr::width(
-              format!(" {}", evaluated.color_display(Color::never())).as_str(),
-            );
-
-            evaluated_parameters
-              .entry(name)
-              .or_default()
-              .insert(evaluated.name.lexeme(), evaluated);
-          } else {
-            line_width += UnicodeWidthStr::width(
-              format!(" {}", parameter.color_display(Color::never())).as_str(),
-            );
-          }
+        for parameter in parameters {
+          line_width += UnicodeWidthStr::width(
+            format!(" {}", parameter.color_display(Color::never())).as_str(),
+          );
         }
 
         if line_width <= 30 {
@@ -521,23 +551,14 @@ impl Subcommand {
     let doc_color = config.color.stdout().doc();
     print!("{}", config.list_heading);
 
-    for recipe in justfile.public_recipes(config.unsorted) {
-      let name = recipe.name();
-
-      for (i, name) in iter::once(&name)
-        .chain(recipe_aliases.get(name).unwrap_or(&Vec::new()))
+    for (recipe_name, parameters, doc) in recipes {
+      for (i, name) in iter::once(&recipe_name)
+        .chain(recipe_aliases.get(recipe_name).unwrap_or(&Vec::new()))
         .enumerate()
       {
         print!("{}{}", config.list_prefix, name);
-        for parameter in &recipe.parameters {
-          if let Some(parameter) = evaluated_parameters
-            .get(name)
-            .and_then(|parameters| parameters.get(parameter.name.lexeme()))
-          {
-            print!(" {}", parameter.color_display(config.color.stdout()))
-          } else {
-            print!(" {}", parameter.color_display(config.color.stdout()))
-          }
+        for parameter in &parameters {
+          print!(" {}", parameter.color_display(config.color.stdout()))
         }
 
         // Declaring this outside of the nested loops will probably be more efficient,
@@ -554,11 +575,11 @@ impl Subcommand {
           );
         };
 
-        match (i, recipe.doc) {
+        match (i, doc) {
           (0, Some(doc)) => print_doc(doc),
           (0, None) => (),
           _ => {
-            let alias_doc = format!("alias for `{}`", recipe.name);
+            let alias_doc = format!("alias for `{}`", recipe_name);
             print_doc(&alias_doc);
           }
         }
