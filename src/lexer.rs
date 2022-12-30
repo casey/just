@@ -269,7 +269,7 @@ impl<'src> Lexer<'src> {
     matches!(c, 'a'..='z' | 'A'..='Z' | '_')
   }
 
-  /// True if `c` can be a continuation character of an idenitifier
+  /// True if `c` can be a continuation character of an identifier
   fn is_identifier_continue(c: char) -> bool {
     if Self::is_identifier_start(c) {
       return true;
