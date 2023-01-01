@@ -1480,7 +1480,7 @@ HOME is '/home/myuser'
 
 `just` will load environment variables from a `.env` file if [dotenv-load](#dotenv-load) is set. The variables in the file will be available as environment variables to the recipes. See [dotenv-integration](#dotenv-integration) for more information.
 
-#### Setting `just` Variables from Environments Variables
+#### Setting `just` Variables from Environment Variables
 
 Environment variables can be propagated to `just` variables using the functions `env_var()` and `env_var_or_default()`.
 See [environment-variables](#environment-variables).
