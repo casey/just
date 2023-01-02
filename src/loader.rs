@@ -22,11 +22,6 @@ impl Loader {
   }
 
   fn perform_load(&self, path: &Path, seen_paths: HashSet<PathBuf>) -> RunResult<String> {
-    println!(
-      "Perform load on {}, seen_paths {:?}",
-      path.display(),
-      seen_paths
-    );
     let src = fs::read_to_string(path).map_err(|io_error| Error::Load {
       path: path.to_owned(),
       io_error,
