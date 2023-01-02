@@ -98,6 +98,9 @@ pub(crate) enum Error<'src> {
   Internal {
     message: String,
   },
+  InvalidInclude {
+    line_number: usize,
+  },
   Io {
     recipe: &'src str,
     io_error: io::Error,
@@ -513,6 +516,13 @@ impl<'src> ColorDisplay for Error<'src> {
           "Internal runtime error, this may indicate a bug in just: {} \
            consider filing an issue: https://github.com/casey/just/issues/new",
           message
+        )?;
+      }
+      InvalidInclude { line_number } => {
+        write!(
+          f,
+          "!include statement at line {} occurs after the first non-blank, non-comment line",
+          line_number
         )?;
       }
       Io { recipe, io_error } => {

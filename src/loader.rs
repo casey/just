@@ -31,11 +31,17 @@ impl Loader {
   }
 
   /// Given the original contents of a Justfile (with include directives), load all the included
-  /// paths to produce one String with the contents of all the files concatenate!d. Note that
-  /// this does not do any parsing yet (i.e. nothing stops a justfile from including a file
-  /// that is not a valid justfile), and that (currently) line numbers in error messages
-  /// will reference lines in this concatenated String rather than probably-more-useful
-  /// information about the original file an error came from.
+  /// paths to produce one String with the contents of all the files concatenated.
+  ///
+  /// Note that this does not do any parsing yet (i.e. nothing stops a justfile from including a
+  /// file that is not a valid justfile), and that (currently) line numbers in error messages will
+  /// reference lines in this concatenated String rather than probably-more-useful information
+  /// about the original file an error came from.
+  ///
+  /// !include directives are allowed to appear in a justfile only before the first non-blank,
+  /// non-comment line. This is because this processing step occurs before parsing, and we don't
+  /// want to accidentally process the string "!include" when it happens to occur within a string
+  /// or in another post-parsing syntactic context where it shouldn't be.
   fn process_includes(
     &self,
     original: String,
@@ -50,10 +56,17 @@ impl Loader {
     //API is stabilized (https://doc.rust-lang.org/std/iter/struct.Intersperse.html)
 
     let mut buf = String::new();
-    let mut lines = original.lines().peekable();
+    let mut lines = original.lines().enumerate().peekable();
 
-    while let Some(line) = lines.next() {
+    let mut seen_first_contentful_line = false;
+
+    while let Some((line_num, line)) = lines.next() {
       match include_regexp.captures(line) {
+        Some(_) if seen_first_contentful_line => {
+          return Err(Error::InvalidInclude {
+            line_number: line_num + 1,
+          });
+        }
         Some(captures) => {
           let path_match = captures.get(1).unwrap();
           let include_path = Path::new(path_match.as_str());
@@ -62,6 +75,9 @@ impl Loader {
           buf.push_str(&included_contents);
         }
         None => {
+          if !(line.is_empty() || line.starts_with('#')) {
+            seen_first_contentful_line = true;
+          }
           buf.push_str(line);
         }
       };
@@ -207,5 +223,38 @@ recipe_b:
         if cur_path == tmp.path().join("subdir").join("justfile_b").canonicalize().unwrap() &&
         recursively_included_path == tmp.path().join("justfile").canonicalize().unwrap()
     );
+  }
+
+  #[test]
+  fn invalid_includes() {
+    let justfile_a = r#"
+# A comment at the top of the file
+!include ./subdir/justfile_b
+
+some_recipe: recipe_b
+    echo "some recipe"
+"#;
+
+    let justfile_b = r#"
+
+alias b := recipe_b
+!include ../justfile
+
+recipe_b:
+    echo "recipe b"
+"#;
+    let tmp = temptree! {
+        justfile: justfile_a,
+        subdir: {
+            justfile_b: justfile_b
+        }
+    };
+
+    let loader = Loader::new();
+
+    let justfile_a_path = tmp.path().join("justfile");
+    let loader_output = loader.load(&justfile_a_path).unwrap_err();
+
+    assert_matches!(loader_output, Error::InvalidInclude { line_number } if line_number == 4);
   }
 }
