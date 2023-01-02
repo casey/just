@@ -24,7 +24,6 @@ pub(crate) use {
   tempfile::TempDir,
   temptree::{temptree, tree, Tree},
   which::which,
-  yaml_rust::YamlLoader,
 };
 
 #[macro_use]
@@ -78,7 +77,6 @@ mod shell;
 mod show;
 mod slash_operator;
 mod string;
-mod sublime_syntax;
 mod subsequents;
 mod tempdir;
 mod undefined_variables;
