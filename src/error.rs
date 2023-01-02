@@ -87,10 +87,6 @@ pub(crate) enum Error<'src> {
   InitExists {
     justfile: PathBuf,
   },
-  Include {
-    path: PathBuf,
-    io_error: io::Error,
-  },
   IncludeRecursive {
     cur_path: PathBuf,
     recursively_included_path: PathBuf,
@@ -496,14 +492,6 @@ impl<'src> ColorDisplay for Error<'src> {
       InitExists { justfile } => {
         write!(f, "Justfile `{}` already exists", justfile.display())?;
       }
-      Include { path, io_error } => {
-        write!(
-          f,
-          "Failed to read included justfile at `{}`: {}",
-          path.display(),
-          io_error
-        )?;
-      },
       IncludeRecursive { cur_path, recursively_included_path } => {
         write!(
           f,
