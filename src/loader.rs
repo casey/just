@@ -89,17 +89,17 @@ impl Loader {
           include_path.display()
         ),
       })?;
-
-      current_dir
-        .join(include_path)
-        .canonicalize()
-        .map_err(|io_error| Error::Include {
-          path: include_path.to_owned(),
-          io_error,
-        })?
+      current_dir.join(include_path)
     } else {
       include_path.to_owned()
     };
+
+    let canonical_path = canonical_path
+      .canonicalize()
+      .map_err(|io_error| Error::Include {
+        path: include_path.to_owned(),
+        io_error,
+      })?;
 
     if seen_paths.contains(&canonical_path) {
       return Err(Error::IncludeRecursive {
@@ -109,7 +109,12 @@ impl Loader {
     }
 
     let mut seen_paths = seen_paths.clone();
-    seen_paths.insert(cur_path.to_owned());
+
+    let cur_path_canonical = cur_path.canonicalize().map_err(|io_error| Error::Include {
+      path: include_path.to_owned(),
+      io_error,
+    })?;
+    seen_paths.insert(cur_path_canonical);
 
     self.perform_load(&canonical_path, seen_paths)
   }
@@ -199,8 +204,8 @@ recipe_b:
     let loader_output = loader.load(&justfile_a_path).unwrap_err();
 
     assert_matches!(loader_output, Error::IncludeRecursive { cur_path, recursively_included_path }
-        if cur_path == tmp.path().join("subdir").join("justfile_b") &&
-        recursively_included_path == tmp.path().join("justfile")
+        if cur_path == tmp.path().join("subdir").join("justfile_b").canonicalize().unwrap() &&
+        recursively_included_path == tmp.path().join("justfile").canonicalize().unwrap()
     );
   }
 }
