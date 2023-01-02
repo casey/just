@@ -1,6 +1,4 @@
-use super::*;
-
-use std::path::Component;
+use {super::*, std::path::Component};
 
 const DEFAULT_JUSTFILE_NAME: &str = JUSTFILE_NAMES[0];
 const JUSTFILE_NAMES: &[&str] = &["justfile", ".justfile"];

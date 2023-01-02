@@ -1,6 +1,7 @@
-use super::*;
-
-use std::{borrow::Cow, mem};
+use {
+  super::*,
+  std::{borrow::Cow, mem},
+};
 
 /// Construct a `Tree` from a symbolic expression literal. This macro, and the
 /// Tree type, are only used in the Parser unit tests, providing a concise

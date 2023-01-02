@@ -52,6 +52,8 @@ jobs:
         ./bin/forbid
   pages:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     env:
       RUSTFLAGS: --deny warnings

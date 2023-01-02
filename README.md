@@ -276,14 +276,18 @@ just --help
 
 ### GitHub Actions
 
-[extractions/setup-just](https://github.com/extractions/setup-just) can be used to install `just` in a GitHub Actions workflow.
-
-Example usage:
+With [extractions/setup-just](https://github.com/extractions/setup-just):
 
 ```yaml
 - uses: extractions/setup-just@v1
   with:
     just-version: 0.8 # optional semver specification, otherwise latest
+```
+
+With [taiki-e/install-action](https://github.com/taiki-e/install-action):
+
+```yaml
+- uses: taiki-e/install-action@just
 ```
 
 ### Release RSS Feed
@@ -1032,7 +1036,7 @@ y := """
 """
 ```
 
-Similar to unindented strings, indented double-quoted strings process escape sequences, and indented single-quoted strings ignore escape sequences. Escape sequence processing takes place after unindentation. The unindention algorithm does not take escape-sequence produced whitespace or newlines into account.
+Similar to unindented strings, indented double-quoted strings process escape sequences, and indented single-quoted strings ignore escape sequences. Escape sequence processing takes place after unindentation. The unindentation algorithm does not take escape-sequence produced whitespace or newlines into account.
 
 ### Ignoring Errors
 
@@ -1244,7 +1248,7 @@ directory that contains the `justfile`. This can be disabled using the
 relative to the invocation directory, or which operate on the current
 directory.
 
-For exmaple, this `commit` recipe:
+For example, this `commit` recipe:
 
 ```just
 [no-cd]
@@ -1476,7 +1480,7 @@ HOME is '/home/myuser'
 
 `just` will load environment variables from a `.env` file if [dotenv-load](#dotenv-load) is set. The variables in the file will be available as environment variables to the recipes. See [dotenv-integration](#dotenv-integration) for more information.
 
-#### Setting `just` Variables from Environments Variables
+#### Setting `just` Variables from Environment Variables
 
 Environment variables can be propagated to `just` variables using the functions `env_var()` and `env_var_or_default()`.
 See [environment-variables](#environment-variables).
@@ -2007,7 +2011,7 @@ $ just --summary
 test
 ```
 
-The `[private]` attribute<sup>master</sup> may also be used to hide recipes or aliases without needing to change the name:
+The `[private]` attribute<sup>1.10.0</sup> may also be used to hide recipes or aliases without needing to change the name:
 
 ```just
 [private]

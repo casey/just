@@ -1,6 +1,7 @@
-use super::*;
-
-use clap::{App, AppSettings, Arg, ArgGroup, ArgMatches, ArgSettings};
+use {
+  super::*,
+  clap::{App, AppSettings, Arg, ArgGroup, ArgMatches, ArgSettings},
+};
 
 // These three strings should be kept in sync:
 pub(crate) const CHOOSER_DEFAULT: &str = "fzf";

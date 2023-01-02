@@ -1,7 +1,4 @@
-use super::*;
-
-use crate::compiler::Compiler;
-use pretty_assertions::assert_eq;
+use {super::*, crate::compiler::Compiler, pretty_assertions::assert_eq};
 
 pub(crate) fn compile(text: &str) -> Justfile {
   match Compiler::compile(text) {

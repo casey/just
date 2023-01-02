@@ -85,7 +85,7 @@ fn continuations_with_echo_comments_true() {
 }
 
 #[test]
-fn dont_evalute_comments() {
+fn dont_evaluate_comments() {
   Test::new()
     .justfile(
       "
