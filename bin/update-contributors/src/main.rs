@@ -23,8 +23,6 @@ fn author(pr: u64) -> String {
 }
 
 fn main() {
-  let mut done = false;
-
   fs::write(
     "CHANGELOG.md",
     &*Regex::new(r"\(#(\d+)( by @[a-z]+)?\)")
@@ -32,18 +30,13 @@ fn main() {
       .replace_all(
         &fs::read_to_string("CHANGELOG.md").unwrap(),
         |captures: &Captures| {
-          if captures.get(2).is_some() {
-            done = true;
-          }
-          if done {
-            captures[0].to_owned()
-          } else {
             let pr = captures[1].parse().unwrap();
             match author(pr).as_str() {
-              "casey" => format!("(#{})", pr),
-              contributor => format!("(#{} by @{})", pr, contributor),
+              "casey" => format!("([#{pr}](https://github.com/casey/just/pull/{pr}))"),
+              contributor => {
+                format!("([#{pr}](https://github.com/casey/just/pull/{pr}) by [{contributor}](https://github.com/{contributor}))")
+              }
             }
-          }
         },
       ),
   )

@@ -1,6 +1,37 @@
 Changelog
 =========
 
+[1.10.0](https://github.com/casey/just/releases/tag/1.10.0) - 2023-01-01
+------------------------------------------------------------------------
+
+### Added
+- Allow private attribute on aliases ([#1434](https://github.com/casey/just/pull/1434) by [neunenak](https://github.com/neunenak))
+
+### Changed
+- Suppress --fmt --check diff if --quiet is passed ([#1457](https://github.com/casey/just/pull/1457))
+
+### Fixed
+- Format exported variadic parameters correctly ([#1451](https://github.com/casey/just/pull/1451))
+
+### Misc
+- Fix section title grammar ([#1466](https://github.com/casey/just/pull/1466) by [brettcannon](https://github.com/brettcannon))
+- Give pages job write permissions([#1464](https://github.com/casey/just/pull/1464) by [jsoref](https://github.com/jsoref))
+- Fix spelling ([#1463](https://github.com/casey/just/pull/1463) by [jsoref](https://github.com/jsoref))
+- Merge imports ([#1462](https://github.com/casey/just/pull/1462))
+- Add instructions for taiki-e/install-action ([#1459](https://github.com/casey/just/pull/1459) by [azzamsa](https://github.com/azzamsa))
+- Differentiate between shell and nushell example ([#1427](https://github.com/casey/just/pull/1427) by [Dialga](https://github.com/Dialga))
+- Link regex docs in readme ([#1454](https://github.com/casey/just/pull/1454))
+- Linkify changelog PRs and usernames ([#1440](https://github.com/casey/just/pull/1440) by [nk9](https://github.com/nk9))
+- Eliminate lazy_static ([#1442](https://github.com/casey/just/pull/1442) by [camsteffen](https://github.com/camsteffen))
+- Add attributes to sublime syntax file ([#1452](https://github.com/casey/just/pull/1452) by [crdx](https://github.com/crdx))
+- Fix homepage style ([#1453](https://github.com/casey/just/pull/1453))
+- Linkify homepage letters ([#1448](https://github.com/casey/just/pull/1448) by [nk9](https://github.com/nk9))
+- Use `just` in readme codeblocks ([#1447](https://github.com/casey/just/pull/1447) by [nicochatzi](https://github.com/nicochatzi))
+- Update MSRV in readme ([#1446](https://github.com/casey/just/pull/1446))
+- Merge CI workflows ([#1444](https://github.com/casey/just/pull/1444))
+- Use dotenvy instead of dotenv ([#1443](https://github.com/casey/just/pull/1443) by [mike-burns](https://github.com/mike-burns))
+- Update Chinese translation of readme ([#1428](https://github.com/casey/just/pull/1428) by [hustcer](https://github.com/hustcer))
+
 [1.9.0](https://github.com/casey/just/releases/tag/1.9.0) - 2022-11-25
 ----------------------------------------------------------------------
 
