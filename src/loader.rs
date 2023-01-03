@@ -16,7 +16,15 @@ impl Loader {
     }
   }
 
-  pub(crate) fn load<'src>(&'src self, path: &Path) -> RunResult<&'src str> {
+  pub(crate) fn load_without_includes<'src>(&'src self, path: &Path) -> RunResult<&'src str> {
+    let src = fs::read_to_string(path).map_err(|io_error| Error::Load {
+      path: path.to_owned(),
+      io_error,
+    })?;
+    Ok(self.arena.alloc(src))
+  }
+
+  pub(crate) fn load_with_includes<'src>(&'src self, path: &Path) -> RunResult<&'src str> {
     let src = self.perform_load(path, HashSet::new())?;
     Ok(self.arena.alloc(src))
   }
@@ -176,7 +184,7 @@ some_recipe: recipe_b
     let loader = Loader::new();
 
     let justfile_a_path = tmp.path().join("justfile");
-    let loader_output = loader.load(&justfile_a_path).unwrap();
+    let loader_output = loader.load_with_includes(&justfile_a_path).unwrap();
 
     assert_eq!(loader_output, full_concatenated_output);
   }
@@ -207,7 +215,7 @@ recipe_b:
     let loader = Loader::new();
 
     let justfile_a_path = tmp.path().join("justfile");
-    let loader_output = loader.load(&justfile_a_path).unwrap_err();
+    let loader_output = loader.load_with_includes(&justfile_a_path).unwrap_err();
 
     assert_matches!(loader_output, Error::IncludeRecursive { cur_path, recursively_included_path }
         if cur_path == tmp.path().join("subdir").join("justfile_b").lexiclean() &&
@@ -243,7 +251,7 @@ recipe_b:
     let loader = Loader::new();
 
     let justfile_a_path = tmp.path().join("justfile");
-    let loader_output = loader.load(&justfile_a_path).unwrap_err();
+    let loader_output = loader.load_with_includes(&justfile_a_path).unwrap_err();
 
     assert_matches!(loader_output, Error::InvalidInclude { line_number } if line_number == 4);
   }

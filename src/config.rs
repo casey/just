@@ -19,6 +19,7 @@ pub(crate) struct Config {
   pub(crate) dry_run: bool,
   pub(crate) dump_format: DumpFormat,
   pub(crate) highlight: bool,
+  pub(crate) includes: bool,
   pub(crate) invocation_directory: PathBuf,
   pub(crate) list_heading: String,
   pub(crate) list_prefix: String,
@@ -89,6 +90,7 @@ mod arg {
   pub(crate) const DRY_RUN: &str = "DRY-RUN";
   pub(crate) const DUMP_FORMAT: &str = "DUMP-FORMAT";
   pub(crate) const HIGHLIGHT: &str = "HIGHLIGHT";
+  pub(crate) const INCLUDES: &str = "INCLUDES";
   pub(crate) const JUSTFILE: &str = "JUSTFILE";
   pub(crate) const LIST_HEADING: &str = "LIST-HEADING";
   pub(crate) const LIST_PREFIX: &str = "LIST-PREFIX";
@@ -161,6 +163,11 @@ impl Config {
           .long("highlight")
           .help("Highlight echoed recipe lines in bold")
           .overrides_with(arg::NO_HIGHLIGHT),
+      )
+      .arg(
+          Arg::with_name(arg::INCLUDES)
+          .long("includes")
+          .help("Enable the !include directive to include the contents of other justfiles")
       )
       .arg(
         Arg::with_name(arg::LIST_HEADING)
@@ -572,6 +579,7 @@ impl Config {
       dry_run: matches.is_present(arg::DRY_RUN),
       dump_format: Self::dump_format_from_matches(matches)?,
       highlight: !matches.is_present(arg::NO_HIGHLIGHT),
+      includes: matches.is_present(arg::INCLUDES),
       shell: matches.value_of(arg::SHELL).map(str::to_owned),
       load_dotenv: !matches.is_present(arg::NO_DOTENV),
       shell_command: matches.is_present(arg::SHELL_COMMAND),
