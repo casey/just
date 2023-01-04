@@ -19,6 +19,14 @@ fn fallback_from_subdir_bugfix() {
     .run();
 }
 
+fn path(s: &str) -> String {
+  if cfg!(windows) {
+    s.replace('/', "\\")
+  } else {
+    s.into()
+  }
+}
+
 #[test]
 fn fallback_from_subdir_message() {
   Test::new()
@@ -35,7 +43,7 @@ fn fallback_from_subdir_message() {
       ),
     )
     .args(["sub/bar"])
-    .stderr("Trying ../justfile\necho bar\n")
+    .stderr(path("Trying ../justfile\necho bar\n"))
     .stdout("bar\n")
     .run();
 }

@@ -83,3 +83,11 @@ mod undefined_variables;
 #[cfg(target_family = "windows")]
 mod windows_shell;
 mod working_directory;
+
+fn fix_path(s: &str) -> String {
+  if cfg!(windows) {
+    s.replace('/', "\\")
+  } else {
+    s.into()
+  }
+}
