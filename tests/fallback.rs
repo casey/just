@@ -20,6 +20,27 @@ fn fallback_from_subdir_bugfix() {
 }
 
 #[test]
+fn fallback_from_subdir_message() {
+  Test::new()
+    .justfile("bar:\n echo bar")
+    .write(
+      "sub/justfile",
+      unindent(
+        "
+        set fallback
+
+        @foo:
+          echo foo
+      ",
+      ),
+    )
+    .args(["sub/bar"])
+    .stderr("Trying ../justfile\necho bar\n")
+    .stdout("bar\n")
+    .run();
+}
+
+#[test]
 fn runs_recipe_in_parent_if_not_found_in_current() {
   Test::new()
     .tree(tree! {
