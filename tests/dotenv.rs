@@ -2,26 +2,14 @@ use super::*;
 
 #[test]
 fn dotenv() {
-  let tmp = temptree! {
-    ".env": "KEY=ROOT",
-    sub: {
-      ".env": "KEY=SUB",
-      justfile: "default:\n\techo KEY=${KEY:-unset}",
-    },
-  };
-
-  let binary = executable_path("just");
-
-  let output = Command::new(binary)
-    .current_dir(tmp.path())
-    .arg("sub/default")
-    .output()
-    .expect("just invocation failed");
-
-  assert_eq!(output.status.code().unwrap(), 0);
-
-  let stdout = str::from_utf8(&output.stdout).unwrap();
-  assert_eq!(stdout, "KEY=unset\n");
+  Test::new()
+    .write(".env", "KEY=ROOT")
+    .write("sub/.env", "KEY=SUB")
+    .write("sub/justfile", "default:\n\techo KEY=${KEY:-unset}")
+    .args(["sub/default"])
+    .stdout("KEY=unset\n")
+    .stderr("echo KEY=${KEY:-unset}\n")
+    .run();
 }
 
 test! {
@@ -83,7 +71,7 @@ fn path_not_found() {
         echo $NAME
     ",
     )
-    .args(&["--dotenv-path", ".env.prod"])
+    .args(["--dotenv-path", ".env.prod"])
     .stderr(if cfg!(windows) {
       "error: Failed to load environment file: The system cannot find the file specified. (os \
        error 2)\n"
@@ -108,7 +96,7 @@ fn path_resolves() {
         ".env": "NAME=bar"
       }
     })
-    .args(&["--dotenv-path", "subdir/.env"])
+    .args(["--dotenv-path", "subdir/.env"])
     .stdout("bar\n")
     .status(EXIT_SUCCESS)
     .run();
@@ -126,7 +114,7 @@ fn filename_resolves() {
     .tree(tree! {
       ".env.special": "NAME=bar"
     })
-    .args(&["--dotenv-filename", ".env.special"])
+    .args(["--dotenv-filename", ".env.special"])
     .stdout("bar\n")
     .status(EXIT_SUCCESS)
     .run();
@@ -146,7 +134,7 @@ fn filename_flag_overwrites_no_load() {
     .tree(tree! {
       ".env.special": "NAME=bar"
     })
-    .args(&["--dotenv-filename", ".env.special"])
+    .args(["--dotenv-filename", ".env.special"])
     .stdout("bar\n")
     .status(EXIT_SUCCESS)
     .run();
@@ -168,7 +156,7 @@ fn path_flag_overwrites_no_load() {
         ".env": "NAME=bar"
       }
     })
-    .args(&["--dotenv-path", "subdir/.env"])
+    .args(["--dotenv-path", "subdir/.env"])
     .stdout("bar\n")
     .status(EXIT_SUCCESS)
     .run();

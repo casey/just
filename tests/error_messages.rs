@@ -40,7 +40,7 @@ test! {
 fn argument_count_mismatch() {
   Test::new()
     .justfile("foo a b:")
-    .args(&["foo"])
+    .args(["foo"])
     .stderr(
       "
       error: Recipe `foo` got 0 arguments but takes 2

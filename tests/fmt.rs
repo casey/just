@@ -105,7 +105,7 @@ fn write_error() {
 
   let test = Test::with_tempdir(tempdir)
     .no_justfile()
-    .args(&["--fmt", "--unstable"])
+    .args(["--fmt", "--unstable"])
     .status(EXIT_FAILURE)
     .stderr_regex(if cfg!(windows) {
       r"error: Failed to write justfile to `.*`: Access is denied. \(os error 5\)\n"
@@ -1055,7 +1055,7 @@ test! {
 fn exported_parameter() {
   Test::new()
     .justfile("foo +$f:")
-    .args(&["--dump"])
+    .args(["--dump"])
     .stdout("foo +$f:\n")
     .run();
 }

@@ -414,7 +414,7 @@ test! {
 fn assert_eval_eq(expression: &str, result: &str) {
   Test::new()
     .justfile(format!("x := {}", expression))
-    .args(&["--evaluate", "x"])
+    .args(["--evaluate", "x"])
     .stdout(result)
     .unindent_stdout(false)
     .run();
@@ -478,7 +478,7 @@ fn join() {
 fn join_argument_count_error() {
   Test::new()
     .justfile("x := join('a')")
-    .args(&["--evaluate"])
+    .args(["--evaluate"])
     .stderr(
       "
       error: Function `join` called with 1 argument but takes 2 or more
@@ -498,7 +498,7 @@ fn test_path_exists_filepath_exist() {
       testfile: ""
     })
     .justfile("x := path_exists('testfile')")
-    .args(&["--evaluate", "x"])
+    .args(["--evaluate", "x"])
     .stdout("true")
     .run();
 }
@@ -507,7 +507,7 @@ fn test_path_exists_filepath_exist() {
 fn test_path_exists_filepath_doesnt_exist() {
   Test::new()
     .justfile("x := path_exists('testfile')")
-    .args(&["--evaluate", "x"])
+    .args(["--evaluate", "x"])
     .stdout("false")
     .run();
 }
@@ -516,7 +516,7 @@ fn test_path_exists_filepath_doesnt_exist() {
 fn error_errors_with_message() {
   Test::new()
     .justfile("x := error ('Thing Not Supported')")
-    .args(&["--evaluate"])
+    .args(["--evaluate"])
     .status(1)
     .stderr("error: Call to function `error` failed: Thing Not Supported\n  |\n1 | x := error ('Thing Not Supported')\n  |      ^^^^^\n")
     .run();
@@ -526,7 +526,7 @@ fn error_errors_with_message() {
 fn test_absolute_path_resolves() {
   let test_object = Test::new()
     .justfile("path := absolute_path('./test_file')")
-    .args(&["--evaluate", "path"]);
+    .args(["--evaluate", "path"]);
 
   let mut tempdir = test_object.tempdir.path().to_owned();
 
@@ -546,7 +546,7 @@ fn test_absolute_path_resolves() {
 fn test_absolute_path_resolves_parent() {
   let test_object = Test::new()
     .justfile("path := absolute_path('../test_file')")
-    .args(&["--evaluate", "path"]);
+    .args(["--evaluate", "path"]);
 
   let mut tempdir = test_object.tempdir.path().to_owned();
 
@@ -580,7 +580,7 @@ fn path_exists_subdir() {
     })
     .justfile("x := path_exists('foo')")
     .current_dir("bar")
-    .args(&["--evaluate", "x"])
+    .args(["--evaluate", "x"])
     .stdout("true")
     .run();
 }
@@ -589,7 +589,7 @@ fn path_exists_subdir() {
 fn uuid() {
   Test::new()
     .justfile("x := uuid()")
-    .args(&["--evaluate", "x"])
+    .args(["--evaluate", "x"])
     .stdout_regex("........-....-....-....-............")
     .run();
 }
@@ -598,7 +598,7 @@ fn uuid() {
 fn sha256() {
   Test::new()
     .justfile("x := sha256('5943ee37-0000-1000-8000-010203040506')")
-    .args(&["--evaluate", "x"])
+    .args(["--evaluate", "x"])
     .stdout("2330d7f5eb94a820b54fed59a8eced236f80b633a504289c030b6a65aef58871")
     .run();
 }
@@ -613,7 +613,7 @@ fn sha256_file() {
       }
     })
     .current_dir("sub")
-    .args(&["--evaluate", "x"])
+    .args(["--evaluate", "x"])
     .stdout("177b3d79aaafb53a7a4d7aaba99a82f27c73370e8cb0295571aade1e4fea1cd2")
     .run();
 }

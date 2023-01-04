@@ -31,7 +31,7 @@ fn allow_duplicate_recipes_with_args() {
       set allow-duplicate-recipes
     ",
     )
-    .args(&["b", "one", "two"])
+    .args(["b", "one", "two"])
     .stdout("bar one two\n")
     .stderr("echo bar one two\n")
     .run();
