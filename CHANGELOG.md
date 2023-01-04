@@ -1,6 +1,15 @@
 Changelog
 =========
 
+[1.11.0](https://github.com/casey/just/releases/tag/1.11.0) - 2023-01-03
+------------------------------------------------------------------------
+
+### Added
+- Stabilize fallback ([#1471](https://github.com/casey/just/pull/1471))
+
+### Misc
+- Update Sublime syntax instructions ([#1455](https://github.com/casey/just/pull/1455) by [nk9](https://github.com/nk9))
+
 [1.10.0](https://github.com/casey/just/releases/tag/1.10.0) - 2023-01-01
 ------------------------------------------------------------------------
 
