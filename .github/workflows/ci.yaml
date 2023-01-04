@@ -131,3 +131,12 @@ jobs:
 
     - name: Test
       run: cargo test --all
+
+    - name: Run install.sh
+      shell: bash
+      run: |
+        bash www/install.sh --to /tmp
+
+    - name: Test installed just works
+      shell: bash
+      run: /tmp/just --help
