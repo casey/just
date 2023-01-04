@@ -36,6 +36,7 @@ edit:completion:arg-completer[just] = [@words]{
             cand --check 'Run `--fmt` in ''check'' mode. Exits with 0 if justfile is formatted correctly. Exits with 1 and prints a diff if formatting is required.'
             cand --dry-run 'Print what just would do without doing it'
             cand --highlight 'Highlight echoed recipe lines in bold'
+            cand --includes 'Enable the !include directive to include the contents of other justfiles'
             cand --no-dotenv 'Don''t load `.env` file'
             cand --no-highlight 'Don''t highlight echoed recipe lines in bold'
             cand -q 'Suppress all output'
