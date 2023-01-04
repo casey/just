@@ -2192,9 +2192,6 @@ If a recipe is not found in a `justfile` and the `fallback` setting is set,
 reaches the root directory. `just` will stop after it reaches a `justfile` in
 which the `fallback` setting is `false` or unset.
 
-This feature is currently unstable, and so must be enabled with the
-`--unstable` flag.
-
 As an example, suppose the current directory contains this `justfile`:
 
 ```just
