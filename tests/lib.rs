@@ -84,7 +84,7 @@ mod undefined_variables;
 mod windows_shell;
 mod working_directory;
 
-fn fix_path(s: &str) -> String {
+fn path(s: &str) -> String {
   if cfg!(windows) {
     s.replace('/', "\\")
   } else {
