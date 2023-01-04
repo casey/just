@@ -131,3 +131,8 @@ jobs:
 
     - name: Test
       run: cargo test --all
+
+    - name: Test install.sh
+      run: |
+        bash www/install.sh --to /tmp
+        /tmp/just --version
