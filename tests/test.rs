@@ -161,11 +161,6 @@ impl Test {
     std::fs::write(path, content).unwrap();
     self
   }
-
-  pub(crate) fn mkdir(self, path: impl AsRef<Path>) -> Self {
-    std::fs::create_dir_all(self.tempdir.path().join(path)).unwrap();
-    self
-  }
 }
 
 impl Test {
