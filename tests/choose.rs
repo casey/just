@@ -128,7 +128,7 @@ fn invoke_error_function() {
     .stderr_regex("error: Chooser `/ -cu fzf` invocation failed: .*")
     .status(EXIT_FAILURE)
     .shell(false)
-    .args(&["--shell", "/", "--choose"])
+    .args(["--shell", "/", "--choose"])
     .run();
 }
 

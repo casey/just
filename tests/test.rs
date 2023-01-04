@@ -78,8 +78,8 @@ impl Test {
     self
   }
 
-  pub(crate) fn args(mut self, args: &[&str]) -> Self {
-    for arg in args {
+  pub(crate) fn args<'a>(mut self, args: impl AsRef<[&'a str]>) -> Self {
+    for arg in args.as_ref() {
       self = self.arg(arg);
     }
     self
@@ -152,6 +152,13 @@ impl Test {
 
   pub(crate) fn unindent_stdout(mut self, unindent_stdout: bool) -> Self {
     self.unindent_stdout = unindent_stdout;
+    self
+  }
+
+  pub(crate) fn write(self, path: impl AsRef<Path>, content: impl AsRef<[u8]>) -> Self {
+    let path = self.tempdir.path().join(path);
+    std::fs::create_dir_all(path.parent().unwrap()).unwrap();
+    std::fs::write(path, content).unwrap();
     self
   }
 }

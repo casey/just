@@ -9,7 +9,7 @@ fn private_attribute_for_recipe() {
       foo:
       ",
     )
-    .args(&["--list"])
+    .args(["--list"])
     .stdout(
       "
       Available recipes:
@@ -29,7 +29,7 @@ fn private_attribute_for_alias() {
       foo:
       ",
     )
-    .args(&["--list"])
+    .args(["--list"])
     .stdout(
       "
       Available recipes:

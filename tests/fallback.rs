@@ -1,6 +1,46 @@
 use super::*;
 
 #[test]
+fn fallback_from_subdir_bugfix() {
+  Test::new()
+    .write(
+      "sub/justfile",
+      unindent(
+        "
+        set fallback
+
+        @default:
+          echo foo
+      ",
+      ),
+    )
+    .args(["sub/default"])
+    .stdout("foo\n")
+    .run();
+}
+
+#[test]
+fn fallback_from_subdir_message() {
+  Test::new()
+    .justfile("bar:\n echo bar")
+    .write(
+      "sub/justfile",
+      unindent(
+        "
+        set fallback
+
+        @foo:
+          echo foo
+      ",
+      ),
+    )
+    .args(["sub/bar"])
+    .stderr(path("Trying ../justfile\necho bar\n"))
+    .stdout("bar\n")
+    .run();
+}
+
+#[test]
 fn runs_recipe_in_parent_if_not_found_in_current() {
   Test::new()
     .tree(tree! {
@@ -19,7 +59,7 @@ fn runs_recipe_in_parent_if_not_found_in_current() {
         echo root
     ",
     )
-    .args(&["--unstable", "foo"])
+    .args(["foo"])
     .current_dir("bar")
     .stderr(format!(
       "
@@ -51,7 +91,7 @@ fn setting_accepts_value() {
         echo root
     ",
     )
-    .args(&["--unstable", "foo"])
+    .args(["foo"])
     .current_dir("bar")
     .stderr(format!(
       "
@@ -78,7 +118,7 @@ fn print_error_from_parent_if_recipe_not_found_in_current() {
       }
     })
     .justfile("foo:\n echo {{bar}}")
-    .args(&["--unstable", "foo"])
+    .args(["foo"])
     .current_dir("bar")
     .stderr(format!(
       "
@@ -95,31 +135,6 @@ fn print_error_from_parent_if_recipe_not_found_in_current() {
 }
 
 #[test]
-fn requires_unstable() {
-  Test::new()
-    .tree(tree! {
-      bar: {
-        justfile: "
-          baz:
-            echo subdir
-        "
-      }
-    })
-    .justfile(
-      "
-      foo:
-        echo root
-    ",
-    )
-    .args(&["foo"])
-    .current_dir("bar")
-    .status(EXIT_FAILURE)
-    .stderr("error: Justfile does not contain recipe `foo`.\n")
-    .run();
-}
-
-#[test]
-#[ignore]
 fn requires_setting() {
   Test::new()
     .tree(tree! {
@@ -136,7 +151,7 @@ fn requires_setting() {
         echo root
     ",
     )
-    .args(&["--unstable", "foo"])
+    .args(["foo"])
     .current_dir("bar")
     .status(EXIT_FAILURE)
     .stderr("error: Justfile does not contain recipe `foo`.\n")
@@ -162,7 +177,7 @@ fn works_with_provided_search_directory() {
         echo root
     ",
     )
-    .args(&["--unstable", "./foo"])
+    .args(["./foo"])
     .stdout("root\n")
     .stderr(format!(
       "
@@ -192,7 +207,7 @@ fn doesnt_work_with_justfile() {
         echo root
     ",
     )
-    .args(&["--unstable", "--justfile", "justfile", "foo"])
+    .args(["--justfile", "justfile", "foo"])
     .current_dir("bar")
     .status(EXIT_FAILURE)
     .stderr("error: Justfile does not contain recipe `foo`.\n")
@@ -216,14 +231,7 @@ fn doesnt_work_with_justfile_and_working_directory() {
         echo root
     ",
     )
-    .args(&[
-      "--unstable",
-      "--justfile",
-      "justfile",
-      "--working-directory",
-      ".",
-      "foo",
-    ])
+    .args(["--justfile", "justfile", "--working-directory", ".", "foo"])
     .current_dir("bar")
     .status(EXIT_FAILURE)
     .stderr("error: Justfile does not contain recipe `foo`.\n")
@@ -249,7 +257,7 @@ fn prints_correct_error_message_when_recipe_not_found() {
         echo root
     ",
     )
-    .args(&["--unstable", "foo"])
+    .args(["foo"])
     .current_dir("bar")
     .status(EXIT_FAILURE)
     .stderr(format!(
@@ -289,7 +297,7 @@ fn multiple_levels_of_fallback_work() {
         echo root
     ",
     )
-    .args(&["--unstable", "baz"])
+    .args(["baz"])
     .current_dir("a/b")
     .stdout("root\n")
     .stderr(format!(
@@ -328,7 +336,7 @@ fn stop_fallback_when_fallback_is_false() {
         echo root
     ",
     )
-    .args(&["--unstable", "baz"])
+    .args(["baz"])
     .current_dir("a/b")
     .stderr(format!(
       "

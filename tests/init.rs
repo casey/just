@@ -46,7 +46,7 @@ fn write_error() {
 
   test
     .no_justfile()
-    .args(&["--init"])
+    .args(["--init"])
     .status(EXIT_FAILURE)
     .stderr_regex(if cfg!(windows) {
       r"error: Failed to write justfile to `.*`: Access is denied. \(os error 5\)\n"

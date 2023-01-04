@@ -4,7 +4,7 @@ use super::*;
 fn once() {
   Test::new()
     .justfile("x := 'a' / 'b'")
-    .args(&["--evaluate", "x"])
+    .args(["--evaluate", "x"])
     .stdout("a/b")
     .run();
 }
@@ -13,7 +13,7 @@ fn once() {
 fn twice() {
   Test::new()
     .justfile("x := 'a' / 'b' / 'c'")
-    .args(&["--evaluate", "x"])
+    .args(["--evaluate", "x"])
     .stdout("a/b/c")
     .run();
 }
@@ -22,7 +22,7 @@ fn twice() {
 fn no_lhs_once() {
   Test::new()
     .justfile("x := / 'a'")
-    .args(&["--evaluate", "x"])
+    .args(["--evaluate", "x"])
     .stdout("/a")
     .run();
 }
@@ -31,12 +31,12 @@ fn no_lhs_once() {
 fn no_lhs_twice() {
   Test::new()
     .justfile("x := / 'a' / 'b'")
-    .args(&["--evaluate", "x"])
+    .args(["--evaluate", "x"])
     .stdout("/a/b")
     .run();
   Test::new()
     .justfile("x := // 'a'")
-    .args(&["--evaluate", "x"])
+    .args(["--evaluate", "x"])
     .stdout("//a")
     .run();
 }

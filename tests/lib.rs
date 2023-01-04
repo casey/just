@@ -47,7 +47,7 @@ mod error_messages;
 mod evaluate;
 mod examples;
 mod export;
-mod fall_back_to_parent;
+mod fallback;
 mod fmt;
 mod functions;
 mod ignore_comments;
@@ -83,3 +83,11 @@ mod undefined_variables;
 #[cfg(target_family = "windows")]
 mod windows_shell;
 mod working_directory;
+
+fn path(s: &str) -> String {
+  if cfg!(windows) {
+    s.replace('/', "\\")
+  } else {
+    s.into()
+  }
+}

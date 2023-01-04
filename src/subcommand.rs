@@ -92,19 +92,19 @@ impl Subcommand {
     arguments: &[String],
     overrides: &BTreeMap<String, String>,
   ) -> Result<(), Error<'src>> {
-    if config.unstable
-      && matches!(
-        config.search_config,
-        SearchConfig::FromInvocationDirectory | SearchConfig::FromSearchDirectory { .. }
-      )
-    {
-      let mut path = match &config.search_config {
+    if matches!(
+      config.search_config,
+      SearchConfig::FromInvocationDirectory | SearchConfig::FromSearchDirectory { .. }
+    ) {
+      let starting_path = match &config.search_config {
         SearchConfig::FromInvocationDirectory => config.invocation_directory.clone(),
-        SearchConfig::FromSearchDirectory { search_directory } => std::env::current_dir()
-          .unwrap()
-          .join(search_directory.clone()),
+        SearchConfig::FromSearchDirectory { search_directory } => {
+          std::env::current_dir().unwrap().join(search_directory)
+        }
         _ => unreachable!(),
       };
+
+      let mut path = starting_path.clone();
 
       let mut unknown_recipes_errors = None;
 
@@ -116,11 +116,10 @@ impl Subcommand {
           },
           Err(err) => return Err(err.into()),
           Ok(search) => {
-            if config.verbosity.loud() && path != config.invocation_directory {
+            if config.verbosity.loud() && path != starting_path {
               eprintln!(
                 "Trying {}",
-                config
-                  .invocation_directory
+                starting_path
                   .strip_prefix(path)
                   .unwrap()
                   .components()
