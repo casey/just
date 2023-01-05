@@ -54,42 +54,49 @@ impl Positional {
     let mut processing_step = ProcessingStep::Overrides;
 
     if let Some(values) = values {
-      for value in values {
-        if let ProcessingStep::Overrides = processing_step {
-          if let Some(o) = Self::override_from_value(value) {
-            overrides.push(o);
-            continue;
-          }
-          processing_step = ProcessingStep::SearchDir;
-        }
-
-        if let ProcessingStep::SearchDir = processing_step {
-          if value == "." || value == ".." {
-            search_directory = Some(value.to_owned());
-            continue;
-          } else if let Some(i) = value.rfind('/') {
-            let (dir, tail) = value.split_at(i + 1);
-
-            if let Some(ref seen) = search_directory {
-              if seen != dir {
-                return Err(ConfigError::ConflictingSearchDirArgs {
-                  seen: seen.clone(),
-                  conflicting: dir.to_string(),
-                });
-              }
+      let mut values = values.into_iter().peekable();
+      while let Some(value) = values.peek() {
+        let value = *value;
+        match processing_step {
+          ProcessingStep::Overrides => {
+            if let Some(o) = Self::override_from_value(value) {
+              overrides.push(o);
+              values.next();
             } else {
-              search_directory = Some(dir.to_owned());
+              processing_step = ProcessingStep::SearchDir;
             }
-
-            if !tail.is_empty() {
-              arguments.push(tail.to_owned());
-            }
-            continue;
           }
-          processing_step = ProcessingStep::Arguments;
-        }
+          ProcessingStep::SearchDir => {
+            if value == "." || value == ".." {
+              search_directory = Some(value.to_owned());
+              values.next();
+            } else if let Some(i) = value.rfind('/') {
+              let (dir, tail) = value.split_at(i + 1);
 
-        arguments.push(value.to_owned());
+              if let Some(ref seen) = search_directory {
+                if seen != dir {
+                  return Err(ConfigError::ConflictingSearchDirArgs {
+                    seen: seen.clone(),
+                    conflicting: dir.to_string(),
+                  });
+                }
+              } else {
+                search_directory = Some(dir.to_owned());
+              }
+
+              if !tail.is_empty() {
+                arguments.push(tail.to_owned());
+              }
+              values.next();
+            } else {
+              processing_step = ProcessingStep::Arguments;
+            }
+          }
+          ProcessingStep::Arguments => {
+            arguments.push(value.to_owned());
+            values.next();
+          }
+        }
       }
     }
 
