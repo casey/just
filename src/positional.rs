@@ -73,7 +73,7 @@ impl Positional {
             if let Some(ref seen) = search_directory {
               if sdir != dir {
                 return Err(ConfigError::MultipleSearchDir {
-                  seen: sdir.clone(),
+                  seen: seen.clone(),
                   conflicting: dir.to_string(),
                 });
               }
