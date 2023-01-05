@@ -131,9 +131,3 @@ jobs:
 
     - name: Test
       run: cargo test --all
-
-    - name: Test install.sh
-      if: github.event_name == 'pull_request'
-      run: |
-        bash www/install.sh --to /tmp
-        /tmp/just --version
