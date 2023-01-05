@@ -72,7 +72,7 @@ impl Positional {
 
             if let Some(ref seen) = search_directory {
               if seen != dir {
-                return Err(ConfigError::MultipleSearchDir {
+                return Err(ConfigError::ConflictingSearchDirArgs {
                   seen: seen.clone(),
                   conflicting: dir.to_string(),
                 });
@@ -281,6 +281,6 @@ mod tests {
       .copied(),
     ))
     .unwrap_err();
-    assert_matches!(err, ConfigError::MultipleSearchDir { seen, conflicting } if seen == "some/path/" && conflicting == "other/path/");
+    assert_matches!(err, ConfigError::ConflictingSearchDirArgs { seen, conflicting } if seen == "some/path/" && conflicting == "other/path/");
   }
 }
