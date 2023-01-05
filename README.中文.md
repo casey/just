@@ -273,14 +273,18 @@ just --help
 
 ### GitHub Actions
 
-[extractions/setup-just](https://github.com/extractions/setup-just) 可以用来在 GitHub Actions 的工作流程中安装 `just`。
-
-使用举例：
+使用 [extractions/setup-just](https://github.com/extractions/setup-just):
 
 ```yaml
 - uses: extractions/setup-just@v1
   with:
     just-version: 0.8 # optional semver specification, otherwise latest
+```
+
+使用 [taiki-e/install-action](https://github.com/taiki-e/install-action):
+
+```yaml
+- uses: taiki-e/install-action@just
 ```
 
 ### 发布 RSS 订阅
@@ -398,7 +402,7 @@ Kakoune 已经内置支持 `justfile` 语法高亮，这要感谢 TeddyDD。
 
 ### Sublime Text
 
-由 TonioGela 编写的 Sublime Text 的语法高亮文件在 [extras/just.sublim-syntax](https://github.com/casey/just/blob/master/extras/just.sublime-syntax) 中提供。
+由 [nk9](https://github.com/nk9) 提供的 [Just 包](https://github.com/nk9/just_sublime) 支持 `just` 语法高亮，同时还有其它工具，这些可以在 [PackageControl](https://packagecontrol.io/packages/Just) 上找到。
 
 ### 其它编辑器
 
@@ -654,13 +658,13 @@ foo:
 
 Bool 类型设置可以写成：
 
-```just
+```justfile
 set NAME
 ```
 
 这就相当于：
 
-```just
+```justfile
 set NAME := true
 ```
 
@@ -1141,7 +1145,7 @@ The executable is at: /bin/just
 
 - `quote(s)` - 用 `'\''` 替换所有的单引号，并在 `s` 的首尾添加单引号。这足以为许多 Shell 转义特殊字符，包括大多数 Bourne Shell 的后代。
 - `replace(s, from, to)` - 将 `s` 中的所有 `from` 替换为 `to`。
-- `replace_regex(s, regex, replacement)` - 将 `s` 中所有的 `regex` 替换为 `replacement`。
+- `replace_regex(s, regex, replacement)` - 将 `s` 中所有的 `regex` 替换为 `replacement`。正则表达式由 [Rust `regex` 包](https://docs.rs/regex/latest/regex/) 提供。参见 [语法文档](https://docs.rs/regex/latest/regex/#syntax) 以了解使用示例。
 - `trim(s)` - 去掉 `s` 的首尾空格。
 - `trim_end(s)` - 去掉 `s` 的尾部空格。
 - `trim_end_match(s, pat)` - 删除与 `pat` 匹配的 `s` 的后缀。
@@ -1682,7 +1686,7 @@ B end!
 以 `#!` 开头的配方被称为 Shebang 配方，它通过将配方主体保存到文件中并运行它来执行。这让你可以用不同的语言来编写配方：
 
 ```just
-polyglot: python js perl sh ruby
+polyglot: python js perl sh ruby nu
 
 python:
   #!/usr/bin/env python3
@@ -1703,7 +1707,7 @@ sh:
 
 nu:
   #!/usr/bin/env nu
-  let hello = 'Yo'
+  let hello = 'Hola'
   echo $"($hello) from a nushell script!"
 
 ruby:
@@ -1717,6 +1721,7 @@ Hello from python!
 Greetings from JavaScript!
 Larry Wall says Hi!
 Yo from a shell script!
+Hola from a nushell script!
 Hello from ruby!
 ```
 
@@ -1979,11 +1984,14 @@ $ just --summary
 test
 ```
 
-`[private]` 属性<sup>master</sup>也可用于隐藏配方，而不需要改变名称：
+`[private]` 属性<sup>1.10.0</sup>也可用于隐藏配方，而不需要改变名称：
 
 ```just
 [private]
 foo:
+
+[private]
+alias b := bar
 
 bar:
 ```
@@ -2150,8 +2158,6 @@ default:
 ### 回退到父 `justfile`
 
 如果在 `justfile` 中没有找到配方，并且设置了 `fallback`，`just` 将在父目录及其上级目录寻找`justfile`，直到到达根目录。`just` 在找到其中的 `fallback` 设置为`false` 或未设置的 `justfile` 时将停止。
-
-这个功能目前是不稳定的，所以必须用 `--unstable` 标志启用。
 
 举个例子，假设当前目录包含这个 `justfile`：
 
@@ -2386,7 +2392,7 @@ export PATH := "./node_modules/.bin:" + env_var('PATH')
 
 ### 最小支持的 Rust 版本
 
-最低支持的 Rust 版本，即 MSRV，是 Rust 1.47.0。
+最低支持的 Rust 版本，或 MSRV，是当前稳定的(current stable) Rust。它可能可以在旧版本的 Rust 上构建，但这并不保证。
 
 ### 新版本
 
