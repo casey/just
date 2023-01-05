@@ -70,7 +70,7 @@ impl Positional {
           } else if let Some(i) = value.rfind('/') {
             let (dir, tail) = value.split_at(i + 1);
 
-            if let Some(ref sdir) = search_directory {
+            if let Some(ref seen) = search_directory {
               if sdir != dir {
                 return Err(ConfigError::MultipleSearchDir {
                   seen: sdir.clone(),
