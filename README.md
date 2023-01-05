@@ -1738,8 +1738,8 @@ Hello from python!
 Greetings from JavaScript!
 Larry Wall says Hi!
 Yo from a shell script!
-Hello from ruby!
 Hola from a nushell script!
+Hello from ruby!
 ```
 
 On Unix-like operating systems, including Linux and MacOS, shebang recipes are
