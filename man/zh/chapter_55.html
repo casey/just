@@ -146,7 +146,6 @@
                     <main>
                         <h3 id="回退到父-justfile"><a class="header" href="#回退到父-justfile">回退到父 <code>justfile</code></a></h3>
 <p>如果在 <code>justfile</code> 中没有找到配方，并且设置了 <code>fallback</code>，<code>just</code> 将在父目录及其上级目录寻找<code>justfile</code>，直到到达根目录。<code>just</code> 在找到其中的 <code>fallback</code> 设置为<code>false</code> 或未设置的 <code>justfile</code> 时将停止。</p>
-<p>这个功能目前是不稳定的，所以必须用 <code>--unstable</code> 标志启用。</p>
 <p>举个例子，假设当前目录包含这个 <code>justfile</code>：</p>
 <pre><code class="language-just">set fallback
 foo:

@@ -215,7 +215,7 @@ The executable is at: /bin/just
 <ul>
 <li><code>quote(s)</code> - 用 <code>'\''</code> 替换所有的单引号，并在 <code>s</code> 的首尾添加单引号。这足以为许多 Shell 转义特殊字符，包括大多数 Bourne Shell 的后代。</li>
 <li><code>replace(s, from, to)</code> - 将 <code>s</code> 中的所有 <code>from</code> 替换为 <code>to</code>。</li>
-<li><code>replace_regex(s, regex, replacement)</code> - 将 <code>s</code> 中所有的 <code>regex</code> 替换为 <code>replacement</code>。</li>
+<li><code>replace_regex(s, regex, replacement)</code> - 将 <code>s</code> 中所有的 <code>regex</code> 替换为 <code>replacement</code>。正则表达式由 <a href="https://docs.rs/regex/latest/regex/">Rust <code>regex</code> 包</a> 提供。参见 <a href="https://docs.rs/regex/latest/regex/#syntax">语法文档</a> 以了解使用示例。</li>
 <li><code>trim(s)</code> - 去掉 <code>s</code> 的首尾空格。</li>
 <li><code>trim_end(s)</code> - 去掉 <code>s</code> 的尾部空格。</li>
 <li><code>trim_end_match(s, pat)</code> - 删除与 <code>pat</code> 匹配的 <code>s</code> 的后缀。</li>

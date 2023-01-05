@@ -160,9 +160,12 @@ Available recipes:
 <pre><code class="language-sh">$ just --summary
 test
 </code></pre>
-<p><code>[private]</code> 属性<sup>master</sup>也可用于隐藏配方，而不需要改变名称：</p>
+<p><code>[private]</code> 属性<sup>1.10.0</sup>也可用于隐藏配方，而不需要改变名称：</p>
 <pre><code class="language-just">[private]
 foo:
+
+[private]
+alias b := bar
 
 bar:
 </code></pre>

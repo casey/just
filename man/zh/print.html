@@ -394,11 +394,13 @@ export PATH=&quot;$PATH:$HOME/bin&quot;
 just --help
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="github-actions"><a class="header" href="#github-actions">GitHub Actions</a></h3>
-<p><a href="https://github.com/extractions/setup-just">extractions/setup-just</a> 可以用来在 GitHub Actions 的工作流程中安装 <code>just</code>。</p>
-<p>使用举例：</p>
+<p>使用 <a href="https://github.com/extractions/setup-just">extractions/setup-just</a>:</p>
 <pre><code class="language-yaml">- uses: extractions/setup-just@v1
   with:
     just-version: 0.8 # optional semver specification, otherwise latest
+</code></pre>
+<p>使用 <a href="https://github.com/taiki-e/install-action">taiki-e/install-action</a>:</p>
+<pre><code class="language-yaml">- uses: taiki-e/install-action@just
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="发布-rss-订阅"><a class="header" href="#发布-rss-订阅">发布 RSS 订阅</a></h3>
 <p><code>just</code> 的发布 <a href="https://en.wikipedia.org/wiki/RSS">RSS 订阅</a> 可以在 <a href="https://github.com/casey/just/releases.atom">这里</a> 找到。</p>
@@ -464,7 +466,7 @@ augroup END
 <div style="break-before: page; page-break-before: always;"></div><h3 id="kakoune"><a class="header" href="#kakoune">Kakoune</a></h3>
 <p>Kakoune 已经内置支持 <code>justfile</code> 语法高亮，这要感谢 TeddyDD。</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="sublime-text"><a class="header" href="#sublime-text">Sublime Text</a></h3>
-<p>由 TonioGela 编写的 Sublime Text 的语法高亮文件在 <a href="https://github.com/casey/just/blob/master/extras/just.sublime-syntax">extras/just.sublim-syntax</a> 中提供。</p>
+<p>由 <a href="https://github.com/nk9">nk9</a> 提供的 <a href="https://github.com/nk9/just_sublime">Just 包</a> 支持 <code>just</code> 语法高亮，同时还有其它工具，这些可以在 <a href="https://packagecontrol.io/packages/Just">PackageControl</a> 上找到。</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="其它编辑器"><a class="header" href="#其它编辑器">其它编辑器</a></h3>
 <p>欢迎给我发送必要的命令，以便在你选择的编辑器中实现语法高亮，这样我就可以把它们放在这里。</p>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="快速开始"><a class="header" href="#快速开始">快速开始</a></h2>
@@ -632,10 +634,10 @@ foo:
 </tbody></table>
 </div>
 <p>Bool 类型设置可以写成：</p>
-<pre><code class="language-just">set NAME
+<pre><code class="language-justfile">set NAME
 </code></pre>
 <p>这就相当于：</p>
-<pre><code class="language-just">set NAME := true
+<pre><code class="language-justfile">set NAME := true
 </code></pre>
 <h4 id="允许重复的配方"><a class="header" href="#允许重复的配方">允许重复的配方</a></h4>
 <p>如果 <code>allow-duplicate-recipes</code> 被设置为 <code>true</code>，那么定义多个同名的配方就不会出错，而会使用最后的定义。默认为 <code>false</code>。</p>
@@ -956,7 +958,7 @@ The executable is at: /bin/just
 <ul>
 <li><code>quote(s)</code> - 用 <code>'\''</code> 替换所有的单引号，并在 <code>s</code> 的首尾添加单引号。这足以为许多 Shell 转义特殊字符，包括大多数 Bourne Shell 的后代。</li>
 <li><code>replace(s, from, to)</code> - 将 <code>s</code> 中的所有 <code>from</code> 替换为 <code>to</code>。</li>
-<li><code>replace_regex(s, regex, replacement)</code> - 将 <code>s</code> 中所有的 <code>regex</code> 替换为 <code>replacement</code>。</li>
+<li><code>replace_regex(s, regex, replacement)</code> - 将 <code>s</code> 中所有的 <code>regex</code> 替换为 <code>replacement</code>。正则表达式由 <a href="https://docs.rs/regex/latest/regex/">Rust <code>regex</code> 包</a> 提供。参见 <a href="https://docs.rs/regex/latest/regex/#syntax">语法文档</a> 以了解使用示例。</li>
 <li><code>trim(s)</code> - 去掉 <code>s</code> 的首尾空格。</li>
 <li><code>trim_end(s)</code> - 去掉 <code>s</code> 的尾部空格。</li>
 <li><code>trim_end_match(s, pat)</code> - 删除与 <code>pat</code> 匹配的 <code>s</code> 的后缀。</li>
@@ -1329,7 +1331,7 @@ B end!
 <p>这有局限性，因为配方 <code>c</code> 是以一个全新的 <code>just</code> 调用来运行的，赋值将被重新计算，依赖可能会运行两次，命令行参数不会被传入到子 <code>just</code> 进程。</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="用其他语言书写配方"><a class="header" href="#用其他语言书写配方">用其他语言书写配方</a></h3>
 <p>以 <code>#!</code> 开头的配方被称为 Shebang 配方，它通过将配方主体保存到文件中并运行它来执行。这让你可以用不同的语言来编写配方：</p>
-<pre><code class="language-just">polyglot: python js perl sh ruby
+<pre><code class="language-just">polyglot: python js perl sh ruby nu
 
 python:
   #!/usr/bin/env python3
@@ -1350,7 +1352,7 @@ sh:
 
 nu:
   #!/usr/bin/env nu
-  let hello = 'Yo'
+  let hello = 'Hola'
   echo $&quot;($hello) from a nushell script!&quot;
 
 ruby:
@@ -1362,6 +1364,7 @@ Hello from python!
 Greetings from JavaScript!
 Larry Wall says Hi!
 Yo from a shell script!
+Hola from a nushell script!
 Hello from ruby!
 </code></pre>
 <p>在类似 Unix 的操作系统中，包括 Linux 和 MacOS，Shebang 配方的执行方式是将配方主体保存到临时目录下的一个文件中，将该文件标记为可执行文件，然后执行它。操作系统将 Shebang 行解析为一个命令行并调用它，包括文件的路径。例如，如果一个配方以 <code>#!/usr/bin/env bash</code> 开头，操作系统运行的最终命令将是 <code>/usr/bin/env bash /tmp/PATH_TO_SAVED_RECIPE_BODY</code> 之类。请记住，不同的操作系统对 Shebang 行的分割方式不同。</p>
@@ -1542,9 +1545,12 @@ Available recipes:
 <pre><code class="language-sh">$ just --summary
 test
 </code></pre>
-<p><code>[private]</code> 属性<sup>master</sup>也可用于隐藏配方，而不需要改变名称：</p>
+<p><code>[private]</code> 属性<sup>1.10.0</sup>也可用于隐藏配方，而不需要改变名称：</p>
 <pre><code class="language-just">[private]
 foo:
+
+[private]
+alias b := bar
 
 bar:
 </code></pre>
@@ -1656,7 +1662,6 @@ default:
 <p><code>--dump</code> 命令可以和 <code>--dump-format json</code> 一起使用，以打印一个 <code>justfile</code> 的JSON表示。JSON格式目前还不稳定，所以需要添加 <code>--unstable</code> 标志。</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="回退到父-justfile"><a class="header" href="#回退到父-justfile">回退到父 <code>justfile</code></a></h3>
 <p>如果在 <code>justfile</code> 中没有找到配方，并且设置了 <code>fallback</code>，<code>just</code> 将在父目录及其上级目录寻找<code>justfile</code>，直到到达根目录。<code>just</code> 在找到其中的 <code>fallback</code> 设置为<code>false</code> 或未设置的 <code>justfile</code> 时将停止。</p>
-<p>这个功能目前是不稳定的，所以必须用 <code>--unstable</code> 标志启用。</p>
 <p>举个例子，假设当前目录包含这个 <code>justfile</code>：</p>
 <pre><code class="language-just">set fallback
 foo:
@@ -1798,7 +1803,7 @@ done
 <p><a href="https://github.com/casey/janus">Janus</a> 是一个收集和分析 <code>justfile</code> 的工具，可以确定新版本的 <code>just</code> 是否会破坏或改变现有 <code>justfile</code> 的解析。</p>
 <p>在合并一个特别大的或可怕的变化之前，应该运行 <code>Janus</code> 以确保没有任何破坏。不要担心自己运行 <code>Janus</code>，Casey 会很乐意在需要时为你运行它。</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="最小支持的-rust-版本"><a class="header" href="#最小支持的-rust-版本">最小支持的 Rust 版本</a></h3>
-<p>最低支持的 Rust 版本，即 MSRV，是 Rust 1.47.0。</p>
+<p>最低支持的 Rust 版本，或 MSRV，是当前稳定的(current stable) Rust。它可能可以在旧版本的 Rust 上构建，但这并不保证。</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="新版本"><a class="header" href="#新版本">新版本</a></h3>
 <p><code>just</code> 会经常发布新版本，以便用户快速获得新功能。</p>
 <p>发布的提交信息使用如下模板：</p>
