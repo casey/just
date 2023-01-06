@@ -1,5 +1,3 @@
-use super::*;
-
 test! {
   name:     parameter_may_shadow_variable,
   justfile: "FOO := 'hello'\na FOO:\n echo {{FOO}}\n",
