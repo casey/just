@@ -226,12 +226,6 @@ impl Display for CompileError<'_> {
       ParameterFollowsVariadicParameter { parameter } => {
         write!(f, "Parameter `{parameter}` follows variadic parameter")?;
       }
-      ParameterShadowsVariable { parameter } => {
-        write!(
-          f,
-          "Parameter `{parameter}` shadows variable of the same name",
-        )?;
-      }
       ParsingRecursionDepthExceeded => {
         write!(f, "Parsing recursion depth exceeded")?;
       }

@@ -97,16 +97,6 @@ impl<'src> Analyzer<'src> {
 
     let recipes = RecipeResolver::resolve_recipes(self.recipes, &assignments)?;
 
-    for recipe in recipes.values() {
-      for parameter in &recipe.parameters {
-        if assignments.contains_key(parameter.name.lexeme()) {
-          return Err(parameter.name.token().error(ParameterShadowsVariable {
-            parameter: parameter.name.lexeme(),
-          }));
-        }
-      }
-    }
-
     let mut aliases = Table::new();
     while let Some(alias) = self.aliases.pop() {
       aliases.insert(Self::resolve_alias(&recipes, alias)?);
@@ -314,16 +304,6 @@ mod tests {
     column: 5,
     width:  1,
     kind:   DuplicateParameter{recipe: "a", parameter: "b"},
-  }
-
-  analysis_error! {
-    name:   parameter_shadows_variable,
-    input:  "foo := \"h\"\na foo:",
-    offset:  13,
-    line:   1,
-    column: 2,
-    width:  3,
-    kind:   ParameterShadowsVariable{parameter: "foo"},
   }
 
   analysis_error! {
