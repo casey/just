@@ -147,14 +147,14 @@
                         <h3 id="预制二进制文件"><a class="header" href="#预制二进制文件">预制二进制文件</a></h3>
 <p>Linux、MacOS 和 Windows 的预制二进制文件可以在 <a href="https://github.com/casey/just/releases">发布页</a> 上找到。</p>
 <p>你也可以在 Linux、MacOS 或 Windows 上使用下面的命令来下载最新的版本，只需将 <code>DEST</code> 替换为你想安装 <code>just</code> 的目录即可：</p>
-<pre><code class="language-sh">curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to DEST
+<pre><code class="language-sh">curl --proto '=https' --tlsv1.3 -sSf https://just.systems/install.sh | bash -s -- --to DEST
 </code></pre>
 <p>例如，安装 <code>just</code> 到 <code>~/bin</code> 目录：</p>
 <pre><code class="language-sh"># 创建 ~/bin
 mkdir -p ~/bin
 
 # 下载并解压 just 到 ~/bin/just
-curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to ~/bin
+curl --proto '=https' --tlsv1.3 -sSf https://just.systems/install.sh | bash -s -- --to ~/bin
 
 # 在 Shell 搜索可执行文件的路径中添加`~/bin`
 # 这一行应该被添加到你的 Shell 初始化文件中，e.g. `~/.bashrc` 或者 `~/.zshrc`：

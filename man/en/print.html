@@ -378,14 +378,14 @@ list:
 <div style="break-before: page; page-break-before: always;"></div><h3 id="pre-built-binaries"><a class="header" href="#pre-built-binaries">Pre-Built Binaries</a></h3>
 <p>Pre-built binaries for Linux, MacOS, and Windows can be found on <a href="https://github.com/casey/just/releases">the releases page</a>.</p>
 <p>You can use the following command on Linux, MacOS, or Windows to download the latest release, just replace <code>DEST</code> with the directory where you’d like to put <code>just</code>:</p>
-<pre><code class="language-sh">curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to DEST
+<pre><code class="language-sh">curl --proto '=https' --tlsv1.3 -sSf https://just.systems/install.sh | bash -s -- --to DEST
 </code></pre>
 <p>For example, to install <code>just</code> to <code>~/bin</code>:</p>
 <pre><code class="language-sh"># create ~/bin
 mkdir -p ~/bin
 
 # download and extract just to ~/bin/just
-curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to ~/bin
+curl --proto '=https' --tlsv1.3 -sSf https://just.systems/install.sh | bash -s -- --to ~/bin
 
 # add `~/bin` to the paths that your shell searches for executables
 # this line should be added to your shells initialization file,
