@@ -17,39 +17,33 @@ impl Loader {
   }
 
   pub(crate) fn load<'src>(&'src self, path: &Path) -> RunResult<&'src str> {
-    let src = fs::read_to_string(path).map_err(|io_error| Error::Load {
-      path: path.to_owned(),
-      io_error,
-    })?;
+    let src = Self::load_file(path)?;
     Ok(self.arena.alloc(src))
   }
 
   pub(crate) fn load_with_includes<'src>(&'src self, path: &Path) -> RunResult<&'src str> {
-    let src = self.perform_load(path, HashSet::new())?;
+    let src = self.load_with_includes_recursive(path, HashSet::new())?;
     Ok(self.arena.alloc(src))
   }
 
-  fn perform_load(&self, path: &Path, seen_paths: HashSet<PathBuf>) -> RunResult<String> {
-    let src = fs::read_to_string(path).map_err(|io_error| Error::Load {
+  fn load_file<'a>(path: &Path) -> RunResult<'a, String> {
+    fs::read_to_string(path).map_err(|io_error| Error::Load {
       path: path.to_owned(),
       io_error,
-    })?;
+    })
+  }
 
+  fn load_with_includes_recursive(
+    &self,
+    path: &Path,
+    seen_paths: HashSet<PathBuf>,
+  ) -> RunResult<String> {
+    let src = Self::load_file(path)?;
     self.process_includes(src, path, seen_paths)
   }
 
   /// Given the original contents of a Justfile (with include directives), load all the included
   /// paths to produce one String with the contents of all the files concatenated.
-  ///
-  /// Note that this does not do any parsing yet (i.e. nothing stops a justfile from including a
-  /// file that is not a valid justfile), and that (currently) line numbers in error messages will
-  /// reference lines in this concatenated String rather than probably-more-useful information
-  /// about the original file an error came from.
-  ///
-  /// !include directives are allowed to appear in a justfile only before the first non-blank,
-  /// non-comment line. This is because this processing step occurs before parsing, and we don't
-  /// want to accidentally process the string "!include" when it happens to occur within a string
-  /// or in another post-parsing syntactic context where it shouldn't be.
   fn process_includes(
     &self,
     original: String,
@@ -59,9 +53,6 @@ impl Loader {
     let has_final_newline = original.ends_with('\n');
 
     let include_regexp = Regex::new(INCLUDE_REGEX).unwrap();
-
-    //NOTE this string-processing code can be made a bit cleaner once the Rust std lib Intersperse
-    //API is stabilized (https://doc.rust-lang.org/std/iter/struct.Intersperse.html)
 
     let mut buf = String::new();
     let mut lines = original.lines().enumerate().peekable();
@@ -130,7 +121,7 @@ impl Loader {
     let mut seen_paths = seen_paths.clone();
     seen_paths.insert(cur_path.lexiclean());
 
-    self.perform_load(&canonical_path, seen_paths)
+    self.load_with_includes_recursive(&canonical_path, seen_paths)
   }
 }
 
