@@ -31,6 +31,10 @@ pub(crate) enum Error<'src> {
     chooser: OsString,
     io_error: io::Error,
   },
+  CircularInclude {
+    cur_path: PathBuf,
+    recursively_included_path: PathBuf,
+  },
   Code {
     recipe: &'src str,
     line_number: Option<usize>,
@@ -87,15 +91,8 @@ pub(crate) enum Error<'src> {
   InitExists {
     justfile: PathBuf,
   },
-  IncludeRecursive {
-    cur_path: PathBuf,
-    recursively_included_path: PathBuf,
-  },
   Internal {
     message: String,
-  },
-  InvalidInclude {
-    line_number: usize,
   },
   Io {
     recipe: &'src str,
@@ -127,6 +124,9 @@ pub(crate) enum Error<'src> {
   TmpdirIo {
     recipe: &'src str,
     io_error: io::Error,
+  },
+  TrailingInclude {
+    line_number: usize,
   },
   Unknown {
     recipe: &'src str,
@@ -337,6 +337,12 @@ impl<'src> ColorDisplay for Error<'src> {
           io_error
         )?;
       }
+      CircularInclude { cur_path, recursively_included_path } => {
+        write!(
+          f,
+          "Justfile at {} tries to recursively include {}", cur_path.display(), recursively_included_path.display()
+        )?;
+      },
       Code {
         recipe,
         line_number,
@@ -492,25 +498,12 @@ impl<'src> ColorDisplay for Error<'src> {
       InitExists { justfile } => {
         write!(f, "Justfile `{}` already exists", justfile.display())?;
       }
-      IncludeRecursive { cur_path, recursively_included_path } => {
-        write!(
-          f,
-          "Justfile at {} tries to recursively include {}", cur_path.display(), recursively_included_path.display()
-        )?;
-      },
       Internal { message } => {
         write!(
           f,
           "Internal runtime error, this may indicate a bug in just: {} \
            consider filing an issue: https://github.com/casey/just/issues/new",
           message
-        )?;
-      }
-      InvalidInclude { line_number } => {
-        write!(
-          f,
-          "!include statement at line {} occurs after the first non-blank, non-comment line",
-          line_number
         )?;
       }
       Io { recipe, io_error } => {
@@ -587,6 +580,13 @@ impl<'src> ColorDisplay for Error<'src> {
         "Recipe `{recipe}` could not be run because of an IO error while trying to create a temporary \
          directory or write a file to that directory`:{io_error}",
       )?,
+      TrailingInclude { line_number } => {
+        write!(
+          f,
+          "!include statement at line {} occurs after the first non-blank, non-comment line",
+          line_number
+        )?;
+      }
       Unknown {
         recipe,
         line_number,

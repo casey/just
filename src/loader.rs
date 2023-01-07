@@ -35,34 +35,24 @@ impl Loader {
 
   fn load_with_includes_recursive(
     &self,
-    path: &Path,
-    seen_paths: HashSet<PathBuf>,
-  ) -> RunResult<String> {
-    let src = Self::load_file(path)?;
-    self.process_includes(src, path, seen_paths)
-  }
-
-  /// Given the original contents of a Justfile (with include directives), load all the included
-  /// paths to produce one String with the contents of all the files concatenated.
-  fn process_includes(
-    &self,
-    original: String,
     current_justfile_path: &Path,
     seen_paths: HashSet<PathBuf>,
   ) -> RunResult<String> {
-    let has_final_newline = original.ends_with('\n');
+    let original_src = Self::load_file(current_justfile_path)?;
+
+    let has_final_newline = original_src.ends_with('\n');
 
     let include_regexp = Regex::new(INCLUDE_REGEX).unwrap();
 
     let mut buf = String::new();
-    let mut lines = original.lines().enumerate().peekable();
+    let mut lines = original_src.lines().enumerate().peekable();
 
     let mut seen_first_contentful_line = false;
 
     while let Some((line_num, line)) = lines.next() {
       match include_regexp.captures(line) {
         Some(_) if seen_first_contentful_line => {
-          return Err(Error::InvalidInclude {
+          return Err(Error::TrailingInclude {
             line_number: line_num + 1,
           });
         }
@@ -112,7 +102,7 @@ impl Loader {
     let canonical_path = canonical_path.lexiclean();
 
     if seen_paths.contains(&canonical_path) {
-      return Err(Error::IncludeRecursive {
+      return Err(Error::CircularInclude {
         cur_path: cur_path.to_owned(),
         recursively_included_path: canonical_path,
       });
@@ -208,14 +198,14 @@ recipe_b:
     let justfile_a_path = tmp.path().join("justfile");
     let loader_output = loader.load_with_includes(&justfile_a_path).unwrap_err();
 
-    assert_matches!(loader_output, Error::IncludeRecursive { cur_path, recursively_included_path }
+    assert_matches!(loader_output, Error::CircularInclude { cur_path, recursively_included_path }
         if cur_path == tmp.path().join("subdir").join("justfile_b").lexiclean() &&
         recursively_included_path == tmp.path().join("justfile").lexiclean()
     );
   }
 
   #[test]
-  fn invalid_includes() {
+  fn trailing_includes() {
     let justfile_a = r#"
 # A comment at the top of the file
 !include ./subdir/justfile_b
@@ -244,6 +234,6 @@ recipe_b:
     let justfile_a_path = tmp.path().join("justfile");
     let loader_output = loader.load_with_includes(&justfile_a_path).unwrap_err();
 
-    assert_matches!(loader_output, Error::InvalidInclude { line_number } if line_number == 4);
+    assert_matches!(loader_output, Error::TrailingInclude { line_number } if line_number == 4);
   }
 }
