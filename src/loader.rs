@@ -16,7 +16,7 @@ impl Loader {
     }
   }
 
-  pub(crate) fn load_without_includes<'src>(&'src self, path: &Path) -> RunResult<&'src str> {
+  pub(crate) fn load<'src>(&'src self, path: &Path) -> RunResult<&'src str> {
     let src = fs::read_to_string(path).map_err(|io_error| Error::Load {
       path: path.to_owned(),
       io_error,

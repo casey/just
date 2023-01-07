@@ -180,7 +180,7 @@ impl Subcommand {
     let src = if config.unstable {
       loader.load_with_includes(&search.justfile)?
     } else {
-      loader.load_without_includes(&search.justfile)?
+      loader.load(&search.justfile)?
     };
 
     let tokens = Lexer::lex(src)?;
