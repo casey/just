@@ -27,7 +27,6 @@ complete -c just -n "__fish_use_subcommand" -l dotenv-path -d 'Load environment 
 complete -c just -n "__fish_use_subcommand" -l check -d 'Run `--fmt` in \'check\' mode. Exits with 0 if justfile is formatted correctly. Exits with 1 and prints a diff if formatting is required.'
 complete -c just -n "__fish_use_subcommand" -l dry-run -d 'Print what just would do without doing it'
 complete -c just -n "__fish_use_subcommand" -l highlight -d 'Highlight echoed recipe lines in bold'
-complete -c just -n "__fish_use_subcommand" -l includes -d 'Enable the !include directive to include the contents of other justfiles'
 complete -c just -n "__fish_use_subcommand" -l no-dotenv -d 'Don\'t load `.env` file'
 complete -c just -n "__fish_use_subcommand" -l no-highlight -d 'Don\'t highlight echoed recipe lines in bold'
 complete -c just -n "__fish_use_subcommand" -s q -l quiet -d 'Suppress all output'

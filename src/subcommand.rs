@@ -177,8 +177,7 @@ impl Subcommand {
     loader: &'src Loader,
     search: &Search,
   ) -> Result<(&'src str, Ast<'src>, Justfile<'src>), Error<'src>> {
-    let src = if config.includes {
-      config.require_unstable("--includes is currently an unstable option")?;
+    let src = if config.unstable {
       loader.load_with_includes(&search.justfile)?
     } else {
       loader.load_without_includes(&search.justfile)?

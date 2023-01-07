@@ -41,7 +41,6 @@ Register-ArgumentCompleter -Native -CommandName 'just' -ScriptBlock {
             [CompletionResult]::new('--check', 'check', [CompletionResultType]::ParameterName, 'Run `--fmt` in ''check'' mode. Exits with 0 if justfile is formatted correctly. Exits with 1 and prints a diff if formatting is required.')
             [CompletionResult]::new('--dry-run', 'dry-run', [CompletionResultType]::ParameterName, 'Print what just would do without doing it')
             [CompletionResult]::new('--highlight', 'highlight', [CompletionResultType]::ParameterName, 'Highlight echoed recipe lines in bold')
-            [CompletionResult]::new('--includes', 'includes', [CompletionResultType]::ParameterName, 'Enable the !include directive to include the contents of other justfiles')
             [CompletionResult]::new('--no-dotenv', 'no-dotenv', [CompletionResultType]::ParameterName, 'Don''t load `.env` file')
             [CompletionResult]::new('--no-highlight', 'no-highlight', [CompletionResultType]::ParameterName, 'Don''t highlight echoed recipe lines in bold')
             [CompletionResult]::new('-q', 'q', [CompletionResultType]::ParameterName, 'Suppress all output')
