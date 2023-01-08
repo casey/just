@@ -165,6 +165,8 @@ impl Test {
 
 impl Test {
   pub(crate) fn run(self) -> TempDir {
+    let unstable = self.args.iter().any(|item| item.as_str() == "--unstable");
+
     if let Some(justfile) = &self.justfile {
       let justfile = unindent(justfile);
       fs::write(self.justfile_path(), justfile).unwrap();
@@ -246,7 +248,7 @@ impl Test {
     }
 
     if self.status == EXIT_SUCCESS {
-      test_round_trip(self.tempdir.path());
+      test_round_trip(self.tempdir.path(), unstable);
     }
 
     self.tempdir
@@ -260,14 +262,17 @@ struct Output<'a> {
   status: i32,
 }
 
-fn test_round_trip(tmpdir: &Path) {
+fn test_round_trip(tmpdir: &Path, unstable: bool) {
   println!("Reparsing...");
 
-  let output = Command::new(executable_path("just"))
-    .current_dir(tmpdir)
-    .arg("--dump")
-    .output()
-    .expect("just invocation failed");
+  let mut command = Command::new(executable_path("just"));
+  command.current_dir(tmpdir).arg("--dump");
+
+  if unstable {
+    command.arg("--unstable");
+  }
+
+  let output = command.output().expect("just invocation failed");
 
   if !output.status.success() {
     panic!("dump failed: {}", output.status);

@@ -88,6 +88,10 @@ pub(crate) enum Error<'src> {
     function: Name<'src>,
     message: String,
   },
+  IncludeMissingPath {
+    justfile: PathBuf,
+    line: usize,
+  },
   InitExists {
     justfile: PathBuf,
   },
@@ -126,7 +130,8 @@ pub(crate) enum Error<'src> {
     io_error: io::Error,
   },
   TrailingInclude {
-    line_number: usize,
+    justfile: PathBuf,
+    line: usize,
   },
   Unknown {
     recipe: &'src str,
@@ -495,6 +500,18 @@ impl<'src> ColorDisplay for Error<'src> {
           message
         )?;
       }
+      IncludeMissingPath {
+          justfile, line
+      } => {
+
+        write!(
+          f,
+          "!include statement in {} line {} has no argument",
+          justfile.display(),
+          line
+        )?;
+
+      },
       InitExists { justfile } => {
         write!(f, "Justfile `{}` already exists", justfile.display())?;
       }
@@ -580,11 +597,12 @@ impl<'src> ColorDisplay for Error<'src> {
         "Recipe `{recipe}` could not be run because of an IO error while trying to create a temporary \
          directory or write a file to that directory`:{io_error}",
       )?,
-      TrailingInclude { line_number } => {
+      TrailingInclude { justfile, line } => {
         write!(
           f,
-          "!include statement at line {} occurs after the first non-blank, non-comment line",
-          line_number
+          "!include statement in {} line {} occurs after the first non-blank, non-comment line",
+          justfile.display(),
+          line
         )?;
       }
       Unknown {

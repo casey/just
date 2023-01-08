@@ -51,6 +51,7 @@ mod fallback;
 mod fmt;
 mod functions;
 mod ignore_comments;
+mod includes;
 mod init;
 #[cfg(unix)]
 mod interrupts;

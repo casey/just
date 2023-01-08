@@ -3,7 +3,7 @@ use std::collections::HashSet;
 
 // This regex defines the syntax for a Justfile include statement as `!include <file-path>`
 // occurring at the start of a line, and as the only contents of that line
-const INCLUDE_REGEX: &str = "^!include\\s+(.+)$";
+const INCLUDE_REGEX: &str = "^!include(\\s+.+\\s*)$";
 
 pub(crate) struct Loader {
   arena: Arena<String>,
@@ -50,26 +50,35 @@ impl Loader {
     let mut seen_first_contentful_line = false;
 
     while let Some((line_num, line)) = lines.next() {
-      match include_regexp.captures(line) {
-        Some(_) if seen_first_contentful_line => {
+      if line.starts_with("!include") {
+        if seen_first_contentful_line {
           return Err(Error::TrailingInclude {
-            line_number: line_num + 1,
+            justfile: current_justfile_path.to_owned(),
+            line: line_num + 1,
           });
         }
-        Some(captures) => {
-          let path_match = captures.get(1).unwrap();
-          let include_path = Path::new(path_match.as_str());
-          let included_contents =
-            self.process_single_include(current_justfile_path, include_path, &seen_paths)?;
-          buf.push_str(&included_contents);
-        }
-        None => {
-          if !(line.is_empty() || line.starts_with('#')) {
-            seen_first_contentful_line = true;
+
+        match include_regexp.captures(line) {
+          Some(captures) => {
+            let path_match = captures.get(1).unwrap().as_str();
+            let include_path = Path::new(path_match.trim());
+            let included_contents =
+              self.process_single_include(current_justfile_path, include_path, &seen_paths)?;
+            buf.push_str(&included_contents);
           }
-          buf.push_str(line);
+          None => {
+            return Err(Error::IncludeMissingPath {
+              justfile: current_justfile_path.to_owned(),
+              line: line_num + 1,
+            })
+          }
         }
-      };
+      } else if line.trim().is_empty() || line.starts_with('#') {
+        buf.push_str(line);
+      } else {
+        seen_first_contentful_line = true;
+        buf.push_str(line);
+      }
       if lines.peek().is_some() {
         buf.push('\n');
       }
@@ -178,6 +187,7 @@ some_recipe: recipe_b
 
 some_recipe: recipe_b
     echo "some recipe"
+
 "#;
 
     let justfile_b = r#"
@@ -234,6 +244,6 @@ recipe_b:
     let justfile_a_path = tmp.path().join("justfile");
     let loader_output = loader.load_with_includes(&justfile_a_path).unwrap_err();
 
-    assert_matches!(loader_output, Error::TrailingInclude { line_number } if line_number == 4);
+    assert_matches!(loader_output, Error::TrailingInclude { line, .. } if line == 4);
   }
 }
