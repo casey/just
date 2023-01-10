@@ -1152,19 +1152,6 @@ c: b a
 }
 
 test! {
-  name:     parameter_shadows_variable,
-  justfile: "FOO := 'hello'\na FOO:",
-  args:     ("a"),
-  stdout:   "",
-  stderr:   "error: Parameter `FOO` shadows variable of the same name
-  |
-2 | a FOO:
-  |   ^^^
-",
-  status:   EXIT_FAILURE,
-}
-
-test! {
   name:     unknown_function_in_assignment,
   justfile: r#"foo := foo() + "hello"
 bar:"#,
