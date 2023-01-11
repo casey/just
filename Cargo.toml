@@ -12,6 +12,7 @@ autotests = false
 categories = ["command-line-utilities", "development-tools"]
 keywords = ["command-line", "task", "runner", "development", "utility"]
 exclude = ["/book", "/icon.png", "/screenshot.png", "/www"]
+rust-version = "1.63"
 
 [workspace]
 members = [".", "bin/ref-type", "bin/generate-book", "bin/update-contributors"]
