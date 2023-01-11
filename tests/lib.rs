@@ -59,6 +59,7 @@ mod json;
 mod line_prefixes;
 mod misc;
 mod multibyte_char;
+mod multiple_justfiles;
 mod no_cd;
 mod no_exit_message;
 mod os_attributes;

@@ -2167,6 +2167,7 @@ $ just foo/recipe_a foo/recipe_b
 Trying to specify an additional justfile in this way will fail with an error message:
 ```sh
 $ just foo/recipe_a bar/recipe_b
+error: Conflicting path arguments: `foo/` and `bar/`
 ```
 
 ### Hiding `justfile`s
