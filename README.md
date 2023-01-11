@@ -2147,6 +2147,28 @@ $ just foo/build
 $ just foo/
 ```
 
+With the first argument specified in this format, additional arguments will be
+invoked against the `justfile` computed for the first argument. For example, the following:
+
+```sh
+$ just foo/recipe_a recipe_b
+```
+
+Will invoke `recipe_a` and `recipe_b` against `foo/justfile`.
+
+For consistency, it is also possible to use arguments with `/`s after the first
+one, as long as the justfile path they point to is the same as the path
+specified by the first argument:
+
+```sh
+$ just foo/recipe_a foo/recipe_b
+```
+
+Trying to specify an additional justfile in this way will fail with an error message:
+```sh
+$ just foo/recipe_a bar/recipe_b
+```
+
 ### Hiding `justfile`s
 
 `just` looks for `justfile`s named `justfile` and `.justfile`, which can be used to keep a `justfile` hidden.
