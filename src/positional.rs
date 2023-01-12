@@ -77,7 +77,7 @@ impl Positional {
                 if seen != dir {
                   return Err(ConfigError::ConflictingSearchDirArgs {
                     seen: seen.clone(),
-                    conflicting: dir.to_string(),
+                    conflicting: dir.into(),
                   });
                 }
               } else {

@@ -1,7 +1,7 @@
 use super::*;
 
 #[test]
-fn single_justfile_with_slash_syntax() {
+fn same_path_argument() {
   let justfile_contents = unindent(
     r#"
     recipe_a:
@@ -38,7 +38,7 @@ fn single_justfile_with_slash_syntax() {
 }
 
 #[test]
-fn multiple_justfiles_with_slash_syntax() {
+fn different_path_arguments() {
   let justfile_contents1 = unindent(
     r#"
     recipe_a:
