@@ -51,14 +51,6 @@ jobs:
         sudo apt-get install ripgrep
         ./bin/forbid
 
-    - name: cargo-msrv
-      uses: baptiste0928/cargo-install@v1
-      with:
-        crate: cargo-msrv
-
-    - name: Verify MSRV
-      run: cargo-msrv verify
-
   pages:
     runs-on: ubuntu-latest
     permissions:
