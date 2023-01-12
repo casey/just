@@ -50,6 +50,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install ripgrep
         ./bin/forbid
+
   pages:
     runs-on: ubuntu-latest
     permissions:
