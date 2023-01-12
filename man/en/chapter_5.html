@@ -164,6 +164,11 @@ export PATH=&quot;$PATH:$HOME/bin&quot;
 # just should now be executable
 just --help
 </code></pre>
+<p>Note that <code>install.sh</code> may fail on GitHub actions, or in other environments
+where many machines share IP addresses. <code>install.sh</code> calls GitHub APIs in order
+to determine the latest version of <code>just</code> to install, and those API calls are
+rate-limited on a per-IP basis. To make <code>install.sh</code> more reliable in such
+circumstances, pass a specific tag to install with <code>--tag</code>.</p>
 
                     </main>
 
