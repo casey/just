@@ -2147,26 +2147,26 @@ $ just foo/build
 $ just foo/
 ```
 
-With the first argument specified in this format, additional arguments will be
-invoked against the `justfile` computed for the first argument. For example, the following:
+Additional recipes after the first are sought in the same `justfile`. For
+example, the following are both equivalent:
 
 ```sh
-$ just foo/recipe_a recipe_b
+$ just foo/a b
+$ (cd foo && just a b)
 ```
 
-Will invoke `recipe_a` and `recipe_b` against `foo/justfile`.
+And will both invoke recipes `a` and `b` in `foo/justfile`.
 
-For consistency, it is also possible to use arguments with `/`s after the first
-one, as long as the justfile path they point to is the same as the path
-specified by the first argument:
+For consistency, it possible to use path prefixes for all recipes:
 
 ```sh
-$ just foo/recipe_a foo/recipe_b
+$ just foo/a foo/b
 ```
 
-Trying to specify an additional justfile in this way will fail with an error message:
+But they must match:
+
 ```sh
-$ just foo/recipe_a bar/recipe_b
+$ just foo/a bar/b
 error: Conflicting path arguments: `foo/` and `bar/`
 ```
 
