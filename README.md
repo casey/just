@@ -274,6 +274,12 @@ export PATH="$PATH:$HOME/bin"
 just --help
 ```
 
+Note that `install.sh` may fail on GitHub actions, or in other environments
+where many machines share IP addresses. `install.sh` calls GitHub APIs in order
+to determine the latest version of `just` to install, and those API calls are
+rate-limited on a per-IP basis. To make `install.sh` more reliable in such
+circumstances, pass a specific tag to install with `--tag`.
+
 ### GitHub Actions
 
 With [extractions/setup-just](https://github.com/extractions/setup-just):
