@@ -1668,6 +1668,19 @@ fatal: not a git repository (or any of the parent directories): .git
 $ just foo/build
 $ just foo/
 </code></pre>
+<p>Additional recipes after the first are sought in the same <code>justfile</code>. For
+example, the following are both equivalent:</p>
+<pre><code class="language-sh">$ just foo/a b
+$ (cd foo &amp;&amp; just a b)
+</code></pre>
+<p>And will both invoke recipes <code>a</code> and <code>b</code> in <code>foo/justfile</code>.</p>
+<p>For consistency, it possible to use path prefixes for all recipes:</p>
+<pre><code class="language-sh">$ just foo/a foo/b
+</code></pre>
+<p>But they must match:</p>
+<pre><code class="language-sh">$ just foo/a bar/b
+error: Conflicting path arguments: `foo/` and `bar/`
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="hiding-justfiles"><a class="header" href="#hiding-justfiles">Hiding <code>justfile</code>s</a></h3>
 <p><code>just</code> looks for <code>justfile</code>s named <code>justfile</code> and <code>.justfile</code>, which can be used to keep a <code>justfile</code> hidden.</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="just-scripts"><a class="header" href="#just-scripts">Just Scripts</a></h3>
