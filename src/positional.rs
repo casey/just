@@ -36,41 +36,75 @@ pub struct Positional {
   pub arguments: Vec<String>,
 }
 
+#[derive(Copy, Clone)]
+enum ProcessingStep {
+  Overrides,
+  SearchDir,
+  Arguments,
+}
+
 impl Positional {
-  pub fn from_values<'values>(values: Option<impl IntoIterator<Item = &'values str>>) -> Self {
+  pub(crate) fn from_values<'values>(
+    values: Option<impl IntoIterator<Item = &'values str>>,
+  ) -> Result<Self, ConfigError> {
     let mut overrides = Vec::new();
     let mut search_directory = None;
     let mut arguments = Vec::new();
 
+    let mut processing_step = ProcessingStep::Overrides;
+
     if let Some(values) = values {
-      for value in values {
-        if search_directory.is_none() && arguments.is_empty() {
-          if let Some(o) = Self::override_from_value(value) {
-            overrides.push(o);
-          } else if value == "." || value == ".." {
-            search_directory = Some(value.to_owned());
-          } else if let Some(i) = value.rfind('/') {
-            let (dir, tail) = value.split_at(i + 1);
-
-            search_directory = Some(dir.to_owned());
-
-            if !tail.is_empty() {
-              arguments.push(tail.to_owned());
+      let mut values = values.into_iter().peekable();
+      while let Some(value) = values.peek() {
+        let value = *value;
+        match processing_step {
+          ProcessingStep::Overrides => {
+            if let Some(o) = Self::override_from_value(value) {
+              overrides.push(o);
+              values.next();
+            } else {
+              processing_step = ProcessingStep::SearchDir;
             }
-          } else {
-            arguments.push(value.to_owned());
           }
-        } else {
-          arguments.push(value.to_owned());
+          ProcessingStep::SearchDir => {
+            if value == "." || value == ".." {
+              search_directory = Some(value.to_owned());
+              values.next();
+            } else if let Some(i) = value.rfind('/') {
+              let (dir, tail) = value.split_at(i + 1);
+
+              if let Some(ref seen) = search_directory {
+                if seen != dir {
+                  return Err(ConfigError::ConflictingSearchDirArgs {
+                    seen: seen.clone(),
+                    conflicting: dir.into(),
+                  });
+                }
+              } else {
+                search_directory = Some(dir.to_owned());
+              }
+
+              if !tail.is_empty() {
+                arguments.push(tail.to_owned());
+              }
+              values.next();
+            } else {
+              processing_step = ProcessingStep::Arguments;
+            }
+          }
+          ProcessingStep::Arguments => {
+            arguments.push(value.to_owned());
+            values.next();
+          }
         }
       }
     }
 
-    Self {
+    Ok(Self {
       overrides,
       search_directory,
       arguments,
-    }
+    })
   }
 
   /// Parse an override from a value of the form `NAME=.*`.
@@ -107,7 +141,7 @@ mod tests {
       #[test]
       fn $name() {
         assert_eq! (
-          Positional::from_values(Some($vals.iter().cloned())),
+          Positional::from_values(Some($vals.iter().cloned())).unwrap(),
           Positional {
             overrides: $overrides
               .iter()
@@ -224,5 +258,36 @@ mod tests {
     overrides: [],
     search_directory: None,
     arguments: ["a", "a=b"],
+  }
+
+  test! {
+    name: search_dir_and_recipe_only,
+    values: ["some/path/recipe_a"],
+    overrides: [],
+    search_directory: Some("some/path/"),
+    arguments: ["recipe_a"],
+  }
+
+  test! {
+    name: multiple_same_valued_search_directories,
+    values: ["some/path/recipe_a", "some/path/recipe_b"],
+    overrides: [],
+    search_directory: Some("some/path/"),
+    arguments: ["recipe_a", "recipe_b"],
+  }
+
+  #[test]
+  fn invalid_multiple_search_paths() {
+    let err = Positional::from_values(Some(
+      [
+        "some/path/recipe_a",
+        "some/path/recipe_b",
+        "other/path/recipe_c",
+      ]
+      .iter()
+      .copied(),
+    ))
+    .unwrap_err();
+    assert_matches!(err, ConfigError::ConflictingSearchDirArgs { seen, conflicting } if seen == "some/path/" && conflicting == "other/path/");
   }
 }

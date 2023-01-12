@@ -433,7 +433,7 @@ impl Config {
       }
     }
 
-    let positional = Positional::from_values(matches.values_of(arg::ARGUMENTS));
+    let positional = Positional::from_values(matches.values_of(arg::ARGUMENTS))?;
 
     for (name, value) in positional.overrides {
       overrides.insert(name.clone(), value.clone());

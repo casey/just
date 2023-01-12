@@ -72,6 +72,7 @@ mod recursion_limit;
 mod regexes;
 mod run;
 mod search;
+mod search_arguments;
 mod shadowing_parameters;
 mod shebang;
 mod shell;
