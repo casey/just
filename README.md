@@ -2214,7 +2214,7 @@ default:
 
 The `--dump` command can be used with `--dump-format json` to print a JSON representation of a `justfile`. The JSON format is currently unstable, so the `--unstable` flag is required.
 
-### Falling back to parent `justfile`s
+### Fallback to parent `justfile`s
 
 If a recipe is not found in a `justfile` and the `fallback` setting is set,
 `just` will look for `justfile`s in the parent directory and up, until it
@@ -2237,7 +2237,7 @@ bar:
 ```
 
 ```sh
-$ just --unstable bar
+$ just bar
 Trying ../justfile
 echo bar
 bar
