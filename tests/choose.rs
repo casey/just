@@ -125,7 +125,7 @@ fn invoke_error_function() {
           echo bar
       ",
     )
-    .stderr_regex("error: Chooser `/ -cu fzf` invocation failed: .*")
+    .stderr_regex("error: Chooser `/ -cu fzf` invocation failed: .*\n")
     .status(EXIT_FAILURE)
     .shell(false)
     .args(["--shell", "/", "--choose"])
