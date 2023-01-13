@@ -1106,21 +1106,32 @@ $ just
 
 #### Invocation Directory
 
-- `invocation_directory()` - Retrieves the absolute path to the current directory when `just` was invoked, before  `just` changed it (chdir'd) prior to executing commands.
+- `invocation_directory()` - Retrieves the absolute path to the current
+  directory when `just` was invoked, before  `just` changed it (chdir'd) prior
+  to executing commands. On Windows, `invocation_directory()` uses `cygpath` to
+  convert the invocation directory to a Cygwin-compatible `/`-separated path.
+  Use `invocation_directory_native()` to return the verbatim invocation
+  directory on all platforms.
 
-For example, to call `rustfmt` on files just under the "current directory" (from the user/invoker's perspective), use the following rule:
+For example, to call `rustfmt` on files just under the "current directory"
+(from the user/invoker's perspective), use the following rule:
 
 ```just
 rustfmt:
   find {{invocation_directory()}} -name \*.rs -exec rustfmt {} \;
 ```
 
-Alternatively, if your command needs to be run from the current directory, you could use (e.g.):
+Alternatively, if your command needs to be run from the current directory, you
+could use (e.g.):
 
 ```just
 build:
   cd {{invocation_directory()}}; ./some_script_that_needs_to_be_run_from_here
 ```
+
+- `invocation_directory_native()` - Retrieves the absolute path to the current
+  directory when `just` was invoked, before  `just` changed it (chdir'd) prior
+  to executing commands.
 
 #### Justfile and Justfile Directory
 
