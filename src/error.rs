@@ -523,7 +523,7 @@ impl<'src> ColorDisplay for Error<'src> {
         )?;
       }
       InvalidDirective { line } => {
-          write!(f, "Invalid directive: {}", line)?;
+          write!(f, "Invalid directive: {}", line.ordinal())?;
       }
       Io { recipe, io_error } => {
         match io_error.kind() {
