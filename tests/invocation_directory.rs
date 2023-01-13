@@ -97,5 +97,9 @@ fn invocation_directory_native() {
     .stdout_regex(".*")
     .run();
 
-  assert_eq!(Path::new(&stdout), tempdir.path().canonicalize().unwrap());
+  if cfg!(windows) {
+    assert_eq!(Path::new(&stdout), tempdir.path());
+  } else {
+    assert_eq!(Path::new(&stdout), tempdir.path().canonicalize().unwrap());
+  }
 }
