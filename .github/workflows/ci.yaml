@@ -28,7 +28,7 @@ jobs:
         components: clippy, rustfmt
         toolchain: stable
 
-    - uses: Swatinem/rust-cache@v1
+    - uses: Swatinem/rust-cache@v2
 
     - name: Clippy
       run: cargo clippy --all --all-targets
@@ -65,7 +65,7 @@ jobs:
         profile: minimal
         toolchain: stable
 
-    - uses: Swatinem/rust-cache@v1
+    - uses: Swatinem/rust-cache@v2
 
     - name: Install `mdbook`
       uses: peaceiris/actions-mdbook@v1
@@ -125,7 +125,7 @@ jobs:
         override: true
         toolchain: stable
 
-    - uses: Swatinem/rust-cache@v1
+    - uses: Swatinem/rust-cache@v2
 
     - name: Test
       run: cargo test --all

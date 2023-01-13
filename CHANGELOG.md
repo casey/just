@@ -1,6 +1,27 @@
 Changelog
 =========
 
+[1.12.0](https://github.com/casey/just/releases/tag/1.12.0) - 2023-01-12
+------------------------------------------------------------------------
+
+### Added
+- Add `!include` directives ([#1470](https://github.com/casey/just/pull/1470) by [neunenak](https://github.com/neunenak))
+
+### Changed
+- Allow matching search path arguments ([#1475](https://github.com/casey/just/pull/1475) by [neunenak](https://github.com/neunenak))
+- Allow recipe parameters to shadow variables ([#1480](https://github.com/casey/just/pull/1480))
+
+### Misc
+- Remove --unstable from fallback example in readme ([#1502](https://github.com/casey/just/pull/1502))
+- Specify minimum rust version ([#1496](https://github.com/casey/just/pull/1496) by [benmoss](https://github.com/benmoss))
+- Note that install.sh may fail on GitHub actions ([#1499](https://github.com/casey/just/pull/1499))
+- Fix readme typo ([#1489](https://github.com/casey/just/pull/1489) by [auberisky](https://github.com/auberisky))
+- Update install script and readmes to use tls v1.3 ([#1481](https://github.com/casey/just/pull/1481))
+- Renable install.sh test on CI([#1478](https://github.com/casey/just/pull/1478))
+- Don't test install.sh on CI ([#1477](https://github.com/casey/just/pull/1477))
+- Update Chinese translation of readme ([#1476](https://github.com/casey/just/pull/1476) by [hustcer](https://github.com/hustcer))
+- Fix install.sh for Windows ([#1474](https://github.com/casey/just/pull/1474) by [bloodearnest](https://github.com/bloodearnest))
+
 [1.11.0](https://github.com/casey/just/releases/tag/1.11.0) - 2023-01-03
 ------------------------------------------------------------------------
 
