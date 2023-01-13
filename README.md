@@ -2175,6 +2175,47 @@ But they must match:
 $ just foo/a bar/b
 error: Conflicting path arguments: `foo/` and `bar/`
 ```
+### Include Directives
+
+The `!include` directive, currently unstable, can be used to include the
+verbatim text of another file.
+
+If you have the following `justfile`:
+
+```mf
+!include foo/bar.just
+
+a: b
+  @echo A
+
+```
+
+And the following text in `foo/bar.just`:
+
+```mf
+b:
+  @echo B
+```
+
+`foo/bar.just` will be included in `justfile` and recipe `b` will be defined:
+
+```sh
+$ just --unstable b
+B
+$ just --unstable a
+B
+A
+```
+
+The `!include` directive path can be absolute or relative to the location of
+the justfile containing it. `!include` directives must appear at the beginning
+of a line. line.
+
+`!include` directives are only processed before the first non-blank,
+non-comment line.
+
+Included files can themselves contain `!include` directives, which are
+processed recursively.
 
 ### Hiding `justfile`s
 

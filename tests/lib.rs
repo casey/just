@@ -51,6 +51,7 @@ mod fallback;
 mod fmt;
 mod functions;
 mod ignore_comments;
+mod includes;
 mod init;
 #[cfg(unix)]
 mod interrupts;
@@ -89,6 +90,14 @@ mod working_directory;
 fn path(s: &str) -> String {
   if cfg!(windows) {
     s.replace('/', "\\")
+  } else {
+    s.into()
+  }
+}
+
+fn path_for_regex(s: &str) -> String {
+  if cfg!(windows) {
+    s.replace('/', "\\\\")
   } else {
     s.into()
   }

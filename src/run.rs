@@ -17,14 +17,14 @@ pub fn run() -> Result<(), i32> {
   info!("Parsing command line arguments…");
   let matches = app.get_matches();
 
-  let loader = Loader::new();
-
   let config = Config::from_matches(&matches).map_err(Error::from);
 
-  let (color, verbosity) = config
+  let (color, verbosity, unstable) = config
     .as_ref()
-    .map(|config| (config.color, config.verbosity))
-    .unwrap_or((Color::auto(), Verbosity::default()));
+    .map(|config| (config.color, config.verbosity, config.unstable))
+    .unwrap_or((Color::auto(), Verbosity::default(), false));
+
+  let loader = Loader::new(unstable);
 
   config
     .and_then(|config| config.run(&loader))

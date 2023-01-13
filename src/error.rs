@@ -31,6 +31,10 @@ pub(crate) enum Error<'src> {
     chooser: OsString,
     io_error: io::Error,
   },
+  CircularInclude {
+    current: PathBuf,
+    include: PathBuf,
+  },
   Code {
     recipe: &'src str,
     line_number: Option<usize>,
@@ -84,11 +88,18 @@ pub(crate) enum Error<'src> {
     function: Name<'src>,
     message: String,
   },
+  IncludeMissingPath {
+    file: PathBuf,
+    line: usize,
+  },
   InitExists {
     justfile: PathBuf,
   },
   Internal {
     message: String,
+  },
+  InvalidDirective {
+    line: String,
   },
   Io {
     recipe: &'src str,
@@ -330,6 +341,12 @@ impl<'src> ColorDisplay for Error<'src> {
           io_error
         )?;
       }
+      CircularInclude { current, include } => {
+        write!(
+          f,
+          "Include `{}` in `{}` is a circular include", include.display(), current.display()
+        )?;
+      },
       Code {
         recipe,
         line_number,
@@ -482,6 +499,18 @@ impl<'src> ColorDisplay for Error<'src> {
           message
         )?;
       }
+      IncludeMissingPath {
+        file: justfile, line
+      } => {
+
+        write!(
+          f,
+          "!include directive on line {} of `{}` has no argument",
+          line.ordinal(),
+          justfile.display(),
+        )?;
+
+      },
       InitExists { justfile } => {
         write!(f, "Justfile `{}` already exists", justfile.display())?;
       }
@@ -492,6 +521,9 @@ impl<'src> ColorDisplay for Error<'src> {
            consider filing an issue: https://github.com/casey/just/issues/new",
           message
         )?;
+      }
+      InvalidDirective { line } => {
+        write!(f, "Invalid directive: {line}")?;
       }
       Io { recipe, io_error } => {
         match io_error.kind() {
