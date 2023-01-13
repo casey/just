@@ -500,14 +500,14 @@ impl<'src> ColorDisplay for Error<'src> {
         )?;
       }
       IncludeMissingPath {
-          justfile, line
+        justfile, line
       } => {
 
         write!(
           f,
-          "!include statement in {} line {} has no argument",
+          "!include directive on line {} of `{}` has no argument",
+          line.ordinal(),
           justfile.display(),
-          line
         )?;
 
       },

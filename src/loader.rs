@@ -57,7 +57,7 @@ impl Loader {
 
     let mut seen_content = false;
 
-    for (line_num, line) in LinesWithEndings::new(&src).enumerate() {
+    for (i, line) in LinesWithEndings::new(&src).enumerate() {
       if !seen_content && line.starts_with('!') {
         let include = line
           .strip_prefix("!include")
@@ -74,7 +74,7 @@ impl Loader {
         if argument.is_empty() {
           return Err(Error::IncludeMissingPath {
             justfile: file.to_owned(),
-            line: line_num + 1,
+            line: i,
           });
         }
 
