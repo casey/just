@@ -116,7 +116,7 @@ impl Subcommand {
           },
           Err(err) => return Err(err.into()),
           Ok(search) => {
-            if config.verbosity.loud() && path != starting_path {
+            if config.verbosity.loquacious() && path != starting_path {
               eprintln!(
                 "Trying {}",
                 starting_path

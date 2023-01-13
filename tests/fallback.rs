@@ -35,7 +35,34 @@ fn fallback_from_subdir_message() {
       ),
     )
     .args(["sub/bar"])
-    .stderr(path("Trying ../justfile\necho bar\n"))
+    .stderr(path("echo bar\n"))
+    .stdout("bar\n")
+    .run();
+}
+
+#[test]
+fn fallback_from_subdir_verbose_message() {
+  Test::new()
+    .justfile("bar:\n echo bar")
+    .write(
+      "sub/justfile",
+      unindent(
+        "
+        set fallback
+
+        @foo:
+          echo foo
+      ",
+      ),
+    )
+    .args(["--verbose", "sub/bar"])
+    .stderr(path(
+      "
+      Trying ../justfile
+      ===> Running recipe `bar`...
+      echo bar
+      ",
+    ))
     .stdout("bar\n")
     .run();
 }
@@ -61,13 +88,11 @@ fn runs_recipe_in_parent_if_not_found_in_current() {
     )
     .args(["foo"])
     .current_dir("bar")
-    .stderr(format!(
+    .stderr(
       "
-      Trying ..{}justfile
       echo root
     ",
-      MAIN_SEPARATOR
-    ))
+    )
     .stdout("root\n")
     .run();
 }
@@ -93,13 +118,11 @@ fn setting_accepts_value() {
     )
     .args(["foo"])
     .current_dir("bar")
-    .stderr(format!(
+    .stderr(
       "
-      Trying ..{}justfile
       echo root
     ",
-      MAIN_SEPARATOR
-    ))
+    )
     .stdout("root\n")
     .run();
 }
@@ -120,16 +143,14 @@ fn print_error_from_parent_if_recipe_not_found_in_current() {
     .justfile("foo:\n echo {{bar}}")
     .args(["foo"])
     .current_dir("bar")
-    .stderr(format!(
+    .stderr(
       "
-      Trying ..{}justfile
       error: Variable `bar` not defined
         |
-      2 |  echo {{{{bar}}}}
+      2 |  echo {{bar}}
         |         ^^^
     ",
-      MAIN_SEPARATOR
-    ))
+    )
     .status(EXIT_FAILURE)
     .run();
 }
@@ -179,13 +200,11 @@ fn works_with_provided_search_directory() {
     )
     .args(["./foo"])
     .stdout("root\n")
-    .stderr(format!(
+    .stderr(
       "
-      Trying ..{}justfile
       echo root
     ",
-      MAIN_SEPARATOR
-    ))
+    )
     .current_dir("bar")
     .run();
 }
@@ -260,13 +279,11 @@ fn prints_correct_error_message_when_recipe_not_found() {
     .args(["foo"])
     .current_dir("bar")
     .status(EXIT_FAILURE)
-    .stderr(format!(
+    .stderr(
       "
-      Trying ..{}justfile
       error: Justfile does not contain recipe `foo`.
     ",
-      MAIN_SEPARATOR,
-    ))
+    )
     .run();
 }
 
@@ -300,14 +317,11 @@ fn multiple_levels_of_fallback_work() {
     .args(["baz"])
     .current_dir("a/b")
     .stdout("root\n")
-    .stderr(format!(
+    .stderr(
       "
-      Trying ..{}justfile
-      Trying ..{}..{}justfile
       echo root
     ",
-      MAIN_SEPARATOR, MAIN_SEPARATOR, MAIN_SEPARATOR
-    ))
+    )
     .run();
 }
 
@@ -338,14 +352,12 @@ fn stop_fallback_when_fallback_is_false() {
     )
     .args(["baz"])
     .current_dir("a/b")
-    .stderr(format!(
+    .stderr(
       "
-      Trying ..{}justfile
       error: Justfile does not contain recipe `baz`.
       Did you mean `bar`?
     ",
-      MAIN_SEPARATOR
-    ))
+    )
     .status(EXIT_FAILURE)
     .run();
 }

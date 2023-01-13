@@ -20,7 +20,7 @@ pub(crate) use {
     fs,
     io::Write,
     iter,
-    path::{Path, PathBuf, MAIN_SEPARATOR},
+    path::{Path, PathBuf},
     process::{Command, Stdio},
     str,
   },
