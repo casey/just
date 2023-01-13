@@ -34,6 +34,11 @@ macro_rules! test {
   }
 }
 
+pub(crate) struct Output {
+  pub(crate) stdout: String,
+  pub(crate) tempdir: TempDir,
+}
+
 pub(crate) struct Test {
   pub(crate) args: Vec<String>,
   pub(crate) current_dir: PathBuf,
@@ -171,7 +176,7 @@ impl Test {
 }
 
 impl Test {
-  pub(crate) fn run(self) -> TempDir {
+  pub(crate) fn run(self) -> Output {
     if let Some(justfile) = &self.justfile {
       let justfile = unindent(justfile);
       fs::write(self.justfile_path(), justfile).unwrap();
@@ -256,15 +261,11 @@ impl Test {
       test_round_trip(self.tempdir.path());
     }
 
-    self.tempdir
+    Output {
+      tempdir: self.tempdir,
+      stdout: output_stdout.into(),
+    }
   }
-}
-
-#[derive(PartialEq, Debug)]
-struct Output<'a> {
-  stdout: &'a str,
-  stderr: &'a str,
-  status: i32,
 }
 
 fn test_round_trip(tmpdir: &Path) {

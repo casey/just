@@ -31,6 +31,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "file_name" => Unary(file_name),
     "file_stem" => Unary(file_stem),
     "invocation_directory" => Nullary(invocation_directory),
+    "invocation_directory_native" => Nullary(invocation_directory_native),
     "join" => BinaryPlus(join),
     "just_executable" => Nullary(just_executable),
     "justfile" => Nullary(justfile),
@@ -179,6 +180,19 @@ fn invocation_directory(context: &FunctionContext) -> Result<String, String> {
     context.invocation_directory,
   )
   .map_err(|e| format!("Error getting shell path: {e}"))
+}
+
+fn invocation_directory_native(context: &FunctionContext) -> Result<String, String> {
+  context
+    .invocation_directory
+    .to_str()
+    .map(str::to_owned)
+    .ok_or_else(|| {
+      format!(
+        "Invocation directory is not valid unicode: {}",
+        context.invocation_directory.display()
+      )
+    })
 }
 
 fn join(

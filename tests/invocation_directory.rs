@@ -88,3 +88,18 @@ fn test_invocation_directory() {
     panic!("test failed");
   }
 }
+
+#[test]
+fn invocation_directory_native() {
+  let Output { stdout, tempdir } = Test::new()
+    .justfile("x := invocation_directory_native()")
+    .args(["--evaluate", "x"])
+    .stdout_regex(".*")
+    .run();
+
+  if cfg!(windows) {
+    assert_eq!(Path::new(&stdout), tempdir.path());
+  } else {
+    assert_eq!(Path::new(&stdout), tempdir.path().canonicalize().unwrap());
+  }
+}
