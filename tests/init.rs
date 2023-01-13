@@ -22,13 +22,13 @@ fn current_dir() {
 
 #[test]
 fn exists() {
-  let tempdir = Test::new()
+  let output = Test::new()
     .no_justfile()
     .arg("--init")
     .stderr_regex("Wrote justfile to `.*`\n")
     .run();
 
-  Test::with_tempdir(tempdir)
+  Test::with_tempdir(output.tempdir)
     .no_justfile()
     .arg("--init")
     .status(EXIT_FAILURE)
@@ -191,12 +191,12 @@ fn justfile_and_working_directory() {
 
 #[test]
 fn fmt_compatibility() {
-  let tempdir = Test::new()
+  let output = Test::new()
     .no_justfile()
     .arg("--init")
     .stderr_regex("Wrote justfile to `.*`\n")
     .run();
-  Test::with_tempdir(tempdir)
+  Test::with_tempdir(output.tempdir)
     .no_justfile()
     .arg("--unstable")
     .arg("--check")

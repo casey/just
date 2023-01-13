@@ -1,6 +1,9 @@
 pub(crate) use {
   crate::{
-    assert_stdout::assert_stdout, assert_success::assert_success, tempdir::tempdir, test::Test,
+    assert_stdout::assert_stdout,
+    assert_success::assert_success,
+    tempdir::tempdir,
+    test::{Output, Test},
   },
   cradle::input::Input,
   executable_path::executable_path,
@@ -18,7 +21,7 @@ pub(crate) use {
     io::Write,
     iter,
     path::{Path, PathBuf, MAIN_SEPARATOR},
-    process::{Command, Output, Stdio},
+    process::{Command, Stdio},
     str,
   },
   tempfile::TempDir,
