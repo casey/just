@@ -1,5 +1,4 @@
 use super::*;
-use temptree::temptree;
 
 #[test]
 fn include_fails_without_unstable() {
