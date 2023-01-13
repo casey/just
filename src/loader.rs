@@ -73,7 +73,7 @@ impl Loader {
 
         if argument.is_empty() {
           return Err(Error::IncludeMissingPath {
-            justfile: file.to_owned(),
+            file: file.to_owned(),
             line: i,
           });
         }

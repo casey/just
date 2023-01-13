@@ -89,7 +89,7 @@ pub(crate) enum Error<'src> {
     message: String,
   },
   IncludeMissingPath {
-    justfile: PathBuf,
+    file: PathBuf,
     line: usize,
   },
   InitExists {
@@ -500,7 +500,7 @@ impl<'src> ColorDisplay for Error<'src> {
         )?;
       }
       IncludeMissingPath {
-        justfile, line
+        file: justfile, line
       } => {
 
         write!(
