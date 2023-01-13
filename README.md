@@ -2175,53 +2175,47 @@ But they must match:
 $ just foo/a bar/b
 error: Conflicting path arguments: `foo/` and `bar/`
 ```
-### Including `justfile`s
+### Include Directives
 
-Just currently has (unstable) support for including the verbatim text of
-another justfile using the `!include <file-path>` directive:
+The `!include` directive, currently unstable, can be used to include the
+verbatim text of another file.
 
-```
-# ./justfile
+If you have the following `justfile`:
 
-!include foo/justfile
+```mf
+!include foo/bar.just
 
-recipe_a: recipe_b
-    echo "A"
-
-```
-
-```
-# `./foo/justfile`:
-
-recipe_b:
-    echo "B"
+a: b
+  @echo A
 
 ```
 
-You can run `just` against the main justfile as if the contents of
-`foo/justfile` were pasted into the file at the location where the `!include`
-directive is.
+And the following text in `foo/bar.just`:
 
-The path specified in an `!include` can be relative to the location of the
-justfile that contains it, or absolute, and `.` and `..` are allowed. `!include
-<path>` must appear at the start of a line, and be the only contents of that
-line.
+```mf
+b:
+  @echo B
+```
 
-Currently, `!include` directives are allowed to appear in a justfile only
-before the first non-blank, non-comment line. This is because this processing
-step occurs before parsing, and we don't want to accidentally process the
-string "!include" when it happens to occur within a string or in another
-post-parsing syntactic context where it shouldn't be. This restriction may
-be lifted in future versions.
+`foo/bar.just` will be included in `justfile` and recipe `b` will be defined:
 
-Also note that nothing stops a justfile from including a path to a file
-that is not a valid `justfile` - it will simply include the contents of
-that file, attempt to parse the justfile with all includes, and then fail
-with a parse error.
+```sh
+$ just --unstable b
+B
+$ just --unstable a
+B
+A
+```
 
-An included `justfile` can itself have includes, which will be processed
-recursively. However, `just` checks to make sure that no file is circularly
-included and will fail an error message if it detects this.
+The `!include` directive path can be absolute or relative to the location of
+the justfile containing it. `!include` directives must appear at the beginning
+of a line. line.
+
+`!include` directives are only processed before the first non-blank,
+non-comment line.
+
+Included files can themselves contain `!include` directives, which are
+processed recursively.
 
 ### Hiding `justfile`s
 
