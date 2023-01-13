@@ -1,10 +1,6 @@
 use super::*;
 use std::collections::HashSet;
 
-// This regex defines the syntax for a Justfile include statement as `!include <file-path>`
-// occurring at the start of a line, and as the only contents of that line
-const INCLUDE_REGEX: &str = "^!include(\\s+.+\\s*)$";
-
 pub(crate) struct Loader {
   arena: Arena<String>,
 }
@@ -40,51 +36,66 @@ impl Loader {
   ) -> RunResult<String> {
     let original_src = Self::load_file(current_justfile_path)?;
 
-    let has_final_newline = original_src.ends_with('\n');
-
-    let include_regexp = Regex::new(INCLUDE_REGEX).unwrap();
-
     let mut buf = String::new();
-    let mut lines = original_src.lines().enumerate().peekable();
 
     let mut seen_first_contentful_line = false;
 
-    while let Some((line_num, line)) = lines.next() {
-      if line.starts_with("!include") {
-        if seen_first_contentful_line {
-          return Err(Error::TrailingInclude {
+    /// Iterator yielding every line in a string. The line includes newline character(s).
+    struct LinesWithEndings<'a> {
+      input: &'a str,
+    }
+
+    impl<'a> LinesWithEndings<'a> {
+      fn from(input: &'a str) -> LinesWithEndings<'a> {
+        LinesWithEndings { input }
+      }
+    }
+
+    impl<'a> Iterator for LinesWithEndings<'a> {
+      type Item = &'a str;
+
+      #[inline]
+      fn next(&mut self) -> Option<&'a str> {
+        if self.input.is_empty() {
+          return None;
+        }
+        let split = self
+          .input
+          .find('\n')
+          .map(|i| i + 1)
+          .unwrap_or(self.input.len());
+        let (line, rest) = self.input.split_at(split);
+        self.input = rest;
+        Some(line)
+      }
+    }
+
+    let iter = LinesWithEndings::from(&original_src);
+
+    for (line_num, line) in iter.enumerate() {
+      if !seen_first_contentful_line && line.starts_with("!") {
+        let include = line
+          .strip_prefix("!include")
+          .ok_or_else(|| Error::InvalidDirective { line: line.into() })?;
+
+        let include_path_str = include.trim();
+
+        if include_path_str.is_empty() {
+          return Err(Error::IncludeMissingPath {
             justfile: current_justfile_path.to_owned(),
             line: line_num + 1,
           });
         }
-
-        match include_regexp.captures(line) {
-          Some(captures) => {
-            let path_match = captures.get(1).unwrap().as_str();
-            let include_path = Path::new(path_match.trim());
-            let included_contents =
-              self.process_single_include(current_justfile_path, include_path, &seen_paths)?;
-            buf.push_str(&included_contents);
-          }
-          None => {
-            return Err(Error::IncludeMissingPath {
-              justfile: current_justfile_path.to_owned(),
-              line: line_num + 1,
-            })
-          }
-        }
-      } else if line.trim().is_empty() || line.starts_with('#') {
-        buf.push_str(line);
+        let include_path = Path::new(include_path_str);
+        let included_contents =
+          self.process_single_include(current_justfile_path, include_path, &seen_paths)?;
+        buf.push_str(&included_contents);
       } else {
-        seen_first_contentful_line = true;
+        if !(line.trim().is_empty() || line.trim().starts_with('#')) {
+          seen_first_contentful_line = true;
+        }
         buf.push_str(line);
       }
-      if lines.peek().is_some() {
-        buf.push('\n');
-      }
-    }
-    if has_final_newline {
-      buf.push('\n');
     }
 
     Ok(buf)
@@ -162,10 +173,8 @@ recipe_b: recipe_c
 recipe_c:
     echo "recipe c"
 
-
 recipe_b: recipe_c
     echo "recipe b"
-
 
 some_recipe: recipe_b
     echo "some recipe"
@@ -212,38 +221,5 @@ recipe_b:
         if cur_path == tmp.path().join("subdir").join("justfile_b").lexiclean() &&
         recursively_included_path == tmp.path().join("justfile").lexiclean()
     );
-  }
-
-  #[test]
-  fn trailing_includes() {
-    let justfile_a = r#"
-# A comment at the top of the file
-!include ./subdir/justfile_b
-
-some_recipe: recipe_b
-    echo "some recipe"
-"#;
-
-    let justfile_b = r#"
-
-alias b := recipe_b
-!include ../justfile
-
-recipe_b:
-    echo "recipe b"
-"#;
-    let tmp = temptree! {
-        justfile: justfile_a,
-        subdir: {
-            justfile_b: justfile_b
-        }
-    };
-
-    let loader = Loader::new();
-
-    let justfile_a_path = tmp.path().join("justfile");
-    let loader_output = loader.load_with_includes(&justfile_a_path).unwrap_err();
-
-    assert_matches!(loader_output, Error::TrailingInclude { line, .. } if line == 4);
   }
 }

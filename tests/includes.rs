@@ -112,8 +112,7 @@ fn trailing_include() {
     .arg("--unstable")
     .status(EXIT_FAILURE)
     .stderr(format!(
-      "error: !include statement in {} line 5 occurs after the first non-blank, non-comment line\n",
-      path.display()
+      "error: Expected character `=`\n  |\n5 | !include ./include.justfile\n  |  ^\n",
     ))
     .run();
 }

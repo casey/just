@@ -98,6 +98,9 @@ pub(crate) enum Error<'src> {
   Internal {
     message: String,
   },
+  InvalidDirective {
+    line: String,
+  },
   Io {
     recipe: &'src str,
     io_error: io::Error,
@@ -128,10 +131,6 @@ pub(crate) enum Error<'src> {
   TmpdirIo {
     recipe: &'src str,
     io_error: io::Error,
-  },
-  TrailingInclude {
-    justfile: PathBuf,
-    line: usize,
   },
   Unknown {
     recipe: &'src str,
@@ -523,6 +522,9 @@ impl<'src> ColorDisplay for Error<'src> {
           message
         )?;
       }
+      InvalidDirective { line } => {
+          write!(f, "Invalid directive: {}", line)?;
+      }
       Io { recipe, io_error } => {
         match io_error.kind() {
           io::ErrorKind::NotFound => write!(
@@ -597,14 +599,6 @@ impl<'src> ColorDisplay for Error<'src> {
         "Recipe `{recipe}` could not be run because of an IO error while trying to create a temporary \
          directory or write a file to that directory`:{io_error}",
       )?,
-      TrailingInclude { justfile, line } => {
-        write!(
-          f,
-          "!include statement in {} line {} occurs after the first non-blank, non-comment line",
-          justfile.display(),
-          line
-        )?;
-      }
       Unknown {
         recipe,
         line_number,
