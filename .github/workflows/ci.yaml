@@ -125,7 +125,7 @@ jobs:
         override: true
         toolchain: stable
 
-    - uses: Swatinem/rust-cache@v1
+    - uses: Swatinem/rust-cache@v2
 
     - name: Test
       run: cargo test --all
