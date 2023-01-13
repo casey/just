@@ -6,7 +6,7 @@ fn include_fails_without_unstable() {
   Test::new()
     .justfile("!include ./include.justfile")
     .status(EXIT_FAILURE)
-    .stderr("error: The !include directive is currently unstable.  Invoke `just` with the `--unstable` flag to enable unstable features.\n")
+    .stderr("error: The !include directive is currently unstable. Invoke `just` with the `--unstable` flag to enable unstable features.\n")
     .run();
 }
 
@@ -72,5 +72,19 @@ fn trailing_include() {
     .arg("--unstable")
     .status(EXIT_FAILURE)
     .stderr("error: Expected character `=`\n  |\n2 | !include ./include.justfile\n  |  ^\n")
+    .run();
+}
+
+#[test]
+fn circular_include() {
+  Test::new()
+    .justfile("!include a")
+    .tree(tree! {
+      a: "!include b",
+      b: "!include a",
+    })
+    .arg("--unstable")
+    .status(EXIT_FAILURE)
+    .stderr_regex("error: Include `.*/a` in `.*/b` is a circular include")
     .run();
 }

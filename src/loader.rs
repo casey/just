@@ -39,7 +39,7 @@ impl Loader {
   }
 
   pub(crate) fn load<'src>(&'src self, path: &Path) -> RunResult<&'src str> {
-    let src = self.load_with_includes_recursive(path, HashSet::new())?;
+    let src = self.load_recursive(path, HashSet::new())?;
     Ok(self.arena.alloc(src))
   }
 
@@ -50,85 +50,79 @@ impl Loader {
     })
   }
 
-  fn load_with_includes_recursive(
-    &self,
-    current_justfile_path: &Path,
-    seen_paths: HashSet<PathBuf>,
-  ) -> RunResult<String> {
-    let original_src = Self::load_file(current_justfile_path)?;
+  fn load_recursive(&self, file: &Path, seen: HashSet<PathBuf>) -> RunResult<String> {
+    let src = Self::load_file(file)?;
 
-    let mut buf = String::new();
+    let mut output = String::new();
 
-    let mut seen_first_contentful_line = false;
+    let mut seen_content = false;
 
-    let iter = LinesWithEndings::new(&original_src);
-
-    for (line_num, line) in iter.enumerate() {
-      if !seen_first_contentful_line && line.starts_with('!') {
+    for (line_num, line) in LinesWithEndings::new(&src).enumerate() {
+      if !seen_content && line.starts_with('!') {
         let include = line
           .strip_prefix("!include")
           .ok_or_else(|| Error::InvalidDirective { line: line.into() })?;
 
         if !self.unstable {
           return Err(Error::Unstable {
-            message: "The !include directive is currently unstable. ".into(),
+            message: "The !include directive is currently unstable.".into(),
           });
         }
 
-        let include_path_str = include.trim();
+        let argument = include.trim();
 
-        if include_path_str.is_empty() {
+        if argument.is_empty() {
           return Err(Error::IncludeMissingPath {
-            justfile: current_justfile_path.to_owned(),
+            justfile: file.to_owned(),
             line: line_num + 1,
           });
         }
-        let include_path = Path::new(include_path_str);
-        let included_contents =
-          self.process_single_include(current_justfile_path, include_path, &seen_paths)?;
-        buf.push_str(&included_contents);
+
+        let contents = self.process_include(file, Path::new(argument), &seen)?;
+
+        output.push_str(&contents);
       } else {
         if !(line.trim().is_empty() || line.trim().starts_with('#')) {
-          seen_first_contentful_line = true;
+          seen_content = true;
         }
-        buf.push_str(line);
+        output.push_str(line);
       }
     }
 
-    Ok(buf)
+    Ok(output)
   }
 
-  fn process_single_include(
+  fn process_include(
     &self,
-    cur_path: &Path,
-    include_path: &Path,
-    seen_paths: &HashSet<PathBuf>,
+    file: &Path,
+    include: &Path,
+    seen: &HashSet<PathBuf>,
   ) -> RunResult<String> {
-    let canonical_path = if include_path.is_relative() {
-      let current_dir = cur_path.parent().ok_or(Error::Internal {
+    let canonical_path = if include.is_relative() {
+      let current_dir = file.parent().ok_or(Error::Internal {
         message: format!(
           "Justfile path `{}` has no parent directory",
-          include_path.display()
+          include.display()
         ),
       })?;
-      current_dir.join(include_path)
+      current_dir.join(include)
     } else {
-      include_path.to_owned()
+      include.to_owned()
     };
 
     let canonical_path = canonical_path.lexiclean();
 
-    if seen_paths.contains(&canonical_path) {
+    if seen.contains(&canonical_path) {
       return Err(Error::CircularInclude {
-        cur_path: cur_path.to_owned(),
-        recursively_included_path: canonical_path,
+        current: file.to_owned(),
+        include: canonical_path,
       });
     }
 
-    let mut seen_paths = seen_paths.clone();
-    seen_paths.insert(cur_path.lexiclean());
+    let mut seen_paths = seen.clone();
+    seen_paths.insert(file.lexiclean());
 
-    self.load_with_includes_recursive(&canonical_path, seen_paths)
+    self.load_recursive(&canonical_path, seen_paths)
   }
 }
 
@@ -214,9 +208,9 @@ recipe_b:
     let justfile_a_path = tmp.path().join("justfile");
     let loader_output = loader.load(&justfile_a_path).unwrap_err();
 
-    assert_matches!(loader_output, Error::CircularInclude { cur_path, recursively_included_path }
-        if cur_path == tmp.path().join("subdir").join("justfile_b").lexiclean() &&
-        recursively_included_path == tmp.path().join("justfile").lexiclean()
+    assert_matches!(loader_output, Error::CircularInclude { current, include }
+        if current == tmp.path().join("subdir").join("justfile_b").lexiclean() &&
+        include == tmp.path().join("justfile").lexiclean()
     );
   }
 }

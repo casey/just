@@ -32,8 +32,8 @@ pub(crate) enum Error<'src> {
     io_error: io::Error,
   },
   CircularInclude {
-    cur_path: PathBuf,
-    recursively_included_path: PathBuf,
+    current: PathBuf,
+    include: PathBuf,
   },
   Code {
     recipe: &'src str,
@@ -341,10 +341,10 @@ impl<'src> ColorDisplay for Error<'src> {
           io_error
         )?;
       }
-      CircularInclude { cur_path, recursively_included_path } => {
+      CircularInclude { current, include } => {
         write!(
           f,
-          "Justfile at {} tries to recursively include {}", cur_path.display(), recursively_included_path.display()
+          "Include `{}` in `{}` is a circular include", include.display(), current.display()
         )?;
       },
       Code {
