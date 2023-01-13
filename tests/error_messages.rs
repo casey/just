@@ -26,11 +26,11 @@ test! {
 
 test! {
   name: unexpected_character,
-  justfile: "!~",
+  justfile: "&~",
   stderr: "
-    error: Expected character `=`
+    error: Expected character `&`
       |
-    1 | !~
+    1 | &~
       |  ^
   ",
   status: EXIT_FAILURE,

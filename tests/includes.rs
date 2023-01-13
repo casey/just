@@ -25,7 +25,7 @@ fn include_fails_without_unstable() {
   Test::with_tempdir(tmp)
     .justfile(justfile_contents)
     .status(EXIT_FAILURE)
-    .stderr("error: Expected character `=`\n  |\n2 | !include ./include.justfile\n  |  ^\n")
+    .stderr("error: The !include directive is currently unstable.  Invoke `just` with the `--unstable` flag to enable unstable features.\n")
     .run();
 }
 
@@ -111,8 +111,6 @@ fn trailing_include() {
     .justfile(justfile_contents)
     .arg("--unstable")
     .status(EXIT_FAILURE)
-    .stderr(format!(
-      "error: Expected character `=`\n  |\n5 | !include ./include.justfile\n  |  ^\n",
-    ))
+    .stderr("error: Expected character `=`\n  |\n5 | !include ./include.justfile\n  |  ^\n")
     .run();
 }

@@ -177,11 +177,7 @@ impl Subcommand {
     loader: &'src Loader,
     search: &Search,
   ) -> Result<(&'src str, Ast<'src>, Justfile<'src>), Error<'src>> {
-    let src = if config.unstable {
-      loader.load_with_includes(&search.justfile)?
-    } else {
-      loader.load(&search.justfile)?
-    };
+    let src = loader.load(&search.justfile)?;
 
     let tokens = Lexer::lex(src)?;
     let ast = Parser::parse(&tokens)?;

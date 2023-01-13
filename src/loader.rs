@@ -1,23 +1,44 @@
 use super::*;
 use std::collections::HashSet;
 
+struct LinesWithEndings<'a> {
+  input: &'a str,
+}
+
+impl<'a> LinesWithEndings<'a> {
+  fn new(input: &'a str) -> Self {
+    Self { input }
+  }
+}
+
+impl<'a> Iterator for LinesWithEndings<'a> {
+  type Item = &'a str;
+
+  fn next(&mut self) -> Option<&'a str> {
+    if self.input.is_empty() {
+      return None;
+    }
+    let split = self.input.find('\n').map_or(self.input.len(), |i| i + 1);
+    let (line, rest) = self.input.split_at(split);
+    self.input = rest;
+    Some(line)
+  }
+}
+
 pub(crate) struct Loader {
   arena: Arena<String>,
+  unstable: bool,
 }
 
 impl Loader {
-  pub(crate) fn new() -> Self {
+  pub(crate) fn new(unstable: bool) -> Self {
     Loader {
       arena: Arena::new(),
+      unstable,
     }
   }
 
   pub(crate) fn load<'src>(&'src self, path: &Path) -> RunResult<&'src str> {
-    let src = Self::load_file(path)?;
-    Ok(self.arena.alloc(src))
-  }
-
-  pub(crate) fn load_with_includes<'src>(&'src self, path: &Path) -> RunResult<&'src str> {
     let src = self.load_with_includes_recursive(path, HashSet::new())?;
     Ok(self.arena.alloc(src))
   }
@@ -40,43 +61,19 @@ impl Loader {
 
     let mut seen_first_contentful_line = false;
 
-    /// Iterator yielding every line in a string. The line includes newline character(s).
-    struct LinesWithEndings<'a> {
-      input: &'a str,
-    }
-
-    impl<'a> LinesWithEndings<'a> {
-      fn from(input: &'a str) -> LinesWithEndings<'a> {
-        LinesWithEndings { input }
-      }
-    }
-
-    impl<'a> Iterator for LinesWithEndings<'a> {
-      type Item = &'a str;
-
-      #[inline]
-      fn next(&mut self) -> Option<&'a str> {
-        if self.input.is_empty() {
-          return None;
-        }
-        let split = self
-          .input
-          .find('\n')
-          .map(|i| i + 1)
-          .unwrap_or(self.input.len());
-        let (line, rest) = self.input.split_at(split);
-        self.input = rest;
-        Some(line)
-      }
-    }
-
-    let iter = LinesWithEndings::from(&original_src);
+    let iter = LinesWithEndings::new(&original_src);
 
     for (line_num, line) in iter.enumerate() {
-      if !seen_first_contentful_line && line.starts_with("!") {
+      if !seen_first_contentful_line && line.starts_with('!') {
         let include = line
           .strip_prefix("!include")
           .ok_or_else(|| Error::InvalidDirective { line: line.into() })?;
+
+        if !self.unstable {
+          return Err(Error::Unstable {
+            message: "The !include directive is currently unstable. ".into(),
+          });
+        }
 
         let include_path_str = include.trim();
 
@@ -180,10 +177,10 @@ some_recipe: recipe_b
     echo "some recipe"
 "#;
 
-    let loader = Loader::new();
+    let loader = Loader::new(true);
 
     let justfile_a_path = tmp.path().join("justfile");
-    let loader_output = loader.load_with_includes(&justfile_a_path).unwrap();
+    let loader_output = loader.load(&justfile_a_path).unwrap();
 
     assert_eq!(loader_output, full_concatenated_output);
   }
@@ -212,10 +209,10 @@ recipe_b:
         }
     };
 
-    let loader = Loader::new();
+    let loader = Loader::new(true);
 
     let justfile_a_path = tmp.path().join("justfile");
-    let loader_output = loader.load_with_includes(&justfile_a_path).unwrap_err();
+    let loader_output = loader.load(&justfile_a_path).unwrap_err();
 
     assert_matches!(loader_output, Error::CircularInclude { cur_path, recursively_included_path }
         if cur_path == tmp.path().join("subdir").join("justfile_b").lexiclean() &&
