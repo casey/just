@@ -142,7 +142,7 @@ impl Test {
   }
 
   pub(crate) fn stdout_regex(mut self, stdout_regex: impl AsRef<str>) -> Self {
-    self.stdout_regex = Some(Regex::new(&format!("(?m)^{}$", stdout_regex.as_ref())).unwrap());
+    self.stdout_regex = Some(Regex::new(&format!("^{}$", stdout_regex.as_ref())).unwrap());
     self
   }
 
