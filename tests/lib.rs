@@ -94,3 +94,11 @@ fn path(s: &str) -> String {
     s.into()
   }
 }
+
+fn path_for_regex(s: &str) -> String {
+  if cfg!(windows) {
+    s.replace('/', "\\\\")
+  } else {
+    s.into()
+  }
+}
