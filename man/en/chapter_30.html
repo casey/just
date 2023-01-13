@@ -177,16 +177,28 @@ test:
 </ul>
 <h4 id="invocation-directory"><a class="header" href="#invocation-directory">Invocation Directory</a></h4>
 <ul>
-<li><code>invocation_directory()</code> - Retrieves the absolute path to the current directory when <code>just</code> was invoked, before  <code>just</code> changed it (chdir’d) prior to executing commands.</li>
+<li><code>invocation_directory()</code> - Retrieves the absolute path to the current
+directory when <code>just</code> was invoked, before  <code>just</code> changed it (chdir’d) prior
+to executing commands. On Windows, <code>invocation_directory()</code> uses <code>cygpath</code> to
+convert the invocation directory to a Cygwin-compatible <code>/</code>-separated path.
+Use <code>invocation_directory_native()</code> to return the verbatim invocation
+directory on all platforms.</li>
 </ul>
-<p>For example, to call <code>rustfmt</code> on files just under the “current directory” (from the user/invoker’s perspective), use the following rule:</p>
+<p>For example, to call <code>rustfmt</code> on files just under the “current directory”
+(from the user/invoker’s perspective), use the following rule:</p>
 <pre><code class="language-just">rustfmt:
   find {{invocation_directory()}} -name \*.rs -exec rustfmt {} \;
 </code></pre>
-<p>Alternatively, if your command needs to be run from the current directory, you could use (e.g.):</p>
+<p>Alternatively, if your command needs to be run from the current directory, you
+could use (e.g.):</p>
 <pre><code class="language-just">build:
   cd {{invocation_directory()}}; ./some_script_that_needs_to_be_run_from_here
 </code></pre>
+<ul>
+<li><code>invocation_directory_native()</code> - Retrieves the absolute path to the current
+directory when <code>just</code> was invoked, before  <code>just</code> changed it (chdir’d) prior
+to executing commands.</li>
+</ul>
 <h4 id="justfile-and-justfile-directory"><a class="header" href="#justfile-and-justfile-directory">Justfile and Justfile Directory</a></h4>
 <ul>
 <li>
