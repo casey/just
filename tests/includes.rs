@@ -84,6 +84,8 @@ fn circular_include() {
     })
     .arg("--unstable")
     .status(EXIT_FAILURE)
-    .stderr_regex("error: Include `.*/a` in `.*/b` is a circular include")
+    .stderr_regex(path(
+      "error: Include `.*/a` in `.*/b` is a circular include",
+    ))
     .run();
 }
