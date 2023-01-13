@@ -45,9 +45,11 @@ test! {
   name: check_found_diff,
   justfile: "x:=``\n",
   args: ("--unstable", "--fmt", "--check"),
-  stderr: "
+  stdout: "
     -x:=``
     +x := ``
+  ",
+  stderr: "
     error: Formatted justfile differs from original.
   ",
   status: EXIT_FAILURE,
@@ -65,10 +67,12 @@ test! {
   name: check_diff_color,
   justfile: "x:=``\n",
   args: ("--unstable", "--fmt", "--check", "--color", "always"),
-  stderr: "
+  stdout: "
     \u{1b}[31m-x:=``
     \u{1b}[0m\u{1b}[32m+x := ``
-    \u{1b}[0m\u{1b}[1;31merror\u{1b}[0m: \u{1b}[1mFormatted justfile differs from original.\u{1b}[0m
+    \u{1b}[0m",
+  stderr: "
+    \u{1b}[1;31merror\u{1b}[0m: \u{1b}[1mFormatted justfile differs from original.\u{1b}[0m
   ",
   status: EXIT_FAILURE,
 }

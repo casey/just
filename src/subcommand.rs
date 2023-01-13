@@ -383,12 +383,12 @@ impl Subcommand {
           for op in diff.ops() {
             for change in diff.iter_changes(op) {
               let (symbol, color) = match change.tag() {
-                ChangeTag::Delete => ("-", config.color.stderr().diff_deleted()),
-                ChangeTag::Equal => (" ", config.color.stderr()),
-                ChangeTag::Insert => ("+", config.color.stderr().diff_added()),
+                ChangeTag::Delete => ("-", config.color.stdout().diff_deleted()),
+                ChangeTag::Equal => (" ", config.color.stdout()),
+                ChangeTag::Insert => ("+", config.color.stdout().diff_added()),
               };
 
-              eprint!("{}{symbol}{change}{}", color.prefix(), color.suffix());
+              print!("{}{symbol}{change}{}", color.prefix(), color.suffix());
             }
           }
         }
