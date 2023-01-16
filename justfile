@@ -185,6 +185,9 @@ build-book:
   mdbook build book/en
   mdbook build book/zh
 
+expand-integration-test test:
+  cargo expand --test integration {{test}}
+
 # run all polyglot recipes
 polyglot: _python _js _perl _sh _ruby
 # (recipes that start with `_` are hidden from --list)

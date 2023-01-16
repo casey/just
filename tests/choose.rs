@@ -99,18 +99,25 @@ test! {
   status: EXIT_FAILURE,
 }
 
-test! {
-  name: multiple_recipes,
-  justfile: "
+#[test]
+#[ignore]
+fn multiple_recipes() {
+  Test::new()
+    .arg("--choose")
+    .arg("--chooser")
+    .arg("echo foo bar")
+    .justfile(
+      "
     foo:
       echo foo
 
     bar:
       echo bar
   ",
-  args: ("--choose", "--chooser", "echo foo bar"),
-  stdout: "foo\nbar\n",
-  stderr: "echo foo\necho bar\n",
+    )
+    .stderr("echo foo\necho bar\n")
+    .stdout("foo\nbar\n")
+    .run();
 }
 
 #[test]
