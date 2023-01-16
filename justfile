@@ -185,6 +185,17 @@ build-book:
   mdbook build book/en
   mdbook build book/zh
 
+convert-integration-test test:
+  cargo expand --test integration {{test}} | \
+    sed \
+    -E \
+    -e 's/#\[cfg\(test\)\]/#\[test\]/' \
+    -e 's/^ *let test = //' \
+    -e 's/^ *test[.]/./' \
+    -e 's/;$//' \
+    -e 's/crate::test::Test/Test/' \
+    -e 's/\.run\(\)/.run();/'
+
 # run all polyglot recipes
 polyglot: _python _js _perl _sh _ruby
 # (recipes that start with `_` are hidden from --list)
