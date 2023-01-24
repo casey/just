@@ -143,6 +143,7 @@ impl Config {
       )
       .arg(
         Arg::with_name(arg::DRY_RUN)
+          .short("n")
           .long("dry-run")
           .help("Print what just would do without doing it")
           .conflicts_with(arg::QUIET),
@@ -771,8 +772,14 @@ mod tests {
   }
 
   test! {
-    name: dry_run_true,
+    name: dry_run_long,
     args: ["--dry-run"],
+    dry_run: true,
+  }
+
+  test! {
+    name: dry_run_short,
+    args: ["-n"],
     dry_run: true,
   }
 
