@@ -35,12 +35,13 @@ _just() {
 '(--dotenv-path)--dotenv-filename=[Search for environment file named <DOTENV-FILENAME> instead of `.env`]' \
 '--dotenv-path=[Load environment file at <DOTENV-PATH> instead of searching for one]' \
 '--check[Run `--fmt` in '\''check'\'' mode. Exits with 0 if justfile is formatted correctly. Exits with 1 and prints a diff if formatting is required.]' \
+'(-q --quiet)-n[Print what just would do without doing it]' \
 '(-q --quiet)--dry-run[Print what just would do without doing it]' \
 '--highlight[Highlight echoed recipe lines in bold]' \
 '--no-dotenv[Don'\''t load `.env` file]' \
 '--no-highlight[Don'\''t highlight echoed recipe lines in bold]' \
-'(--dry-run)-q[Suppress all output]' \
-'(--dry-run)--quiet[Suppress all output]' \
+'(-n --dry-run)-q[Suppress all output]' \
+'(-n --dry-run)--quiet[Suppress all output]' \
 '--shell-command[Invoke <COMMAND> with the shell used to run recipe lines and backticks]' \
 '--clear-shell-args[Clear shell arguments]' \
 '-u[Return list and summary entries in source order]' \
