@@ -167,7 +167,9 @@ A
 </code></pre>
 <p>The <code>!include</code> directive path can be absolute or relative to the location of
 the justfile containing it. <code>!include</code> directives must appear at the beginning
-of a line. line.</p>
+of a line.</p>
+<p>Justfiles are insensitive to order, so included files can reference variables
+and recipes defined after the <code>!include</code> directive.</p>
 <p><code>!include</code> directives are only processed before the first non-blank,
 non-comment line.</p>
 <p>Included files can themselves contain <code>!include</code> directives, which are
