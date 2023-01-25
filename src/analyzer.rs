@@ -4,7 +4,6 @@ const VALID_ALIAS_ATTRIBUTES: [Attribute; 1] = [Attribute::Private];
 
 #[derive(Default)]
 pub(crate) struct Analyzer<'src> {
-  recipes: Table<'src, UnresolvedRecipe<'src>>,
   assignments: Table<'src, Assignment<'src>>,
   aliases: Table<'src, Alias<'src, Name<'src>>>,
   sets: Table<'src, Set<'src>>,
@@ -81,10 +80,12 @@ impl<'src, 'a> Analyzer<'src> {
 
     let assignments = self.assignments;
 
+    let mut recipes_table: Table<'src, UnresolvedRecipe<'src>> = Default::default();
+
     AssignmentResolver::resolve_assignments(&assignments)?;
 
     for recipe in recipes {
-      if let Some(original) = self.recipes.get(recipe.name.lexeme()) {
+      if let Some(original) = recipes_table.get(recipe.name.lexeme()) {
         if !settings.allow_duplicate_recipes {
           return Err(recipe.name.token().error(DuplicateRecipe {
             recipe: original.name(),
@@ -92,10 +93,10 @@ impl<'src, 'a> Analyzer<'src> {
           }));
         }
       }
-      self.recipes.insert(recipe.clone());
+      recipes_table.insert(recipe.clone());
     }
 
-    let recipes = RecipeResolver::resolve_recipes(self.recipes, &assignments)?;
+    let recipes = RecipeResolver::resolve_recipes(recipes_table, &assignments)?;
 
     let mut aliases = Table::new();
     while let Some(alias) = self.aliases.pop() {
