@@ -1686,13 +1686,6 @@ example, the following are both equivalent:</p>
 $ (cd foo &amp;&amp; just a b)
 </code></pre>
 <p>And will both invoke recipes <code>a</code> and <code>b</code> in <code>foo/justfile</code>.</p>
-<p>For consistency, it possible to use path prefixes for all recipes:</p>
-<pre><code class="language-sh">$ just foo/a foo/b
-</code></pre>
-<p>But they must match:</p>
-<pre><code class="language-sh">$ just foo/a bar/b
-error: Conflicting path arguments: `foo/` and `bar/`
-</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="include-directives"><a class="header" href="#include-directives">Include Directives</a></h3>
 <p>The <code>!include</code> directive, currently unstable, can be used to include the
 verbatim text of another file.</p>
