@@ -14,7 +14,7 @@ impl<'src, 'a> Analyzer<'src> {
     Analyzer::default().justfile(ast)
   }
 
-  pub(crate) fn justfile(mut self, ast: &'a Ast<'src>) -> CompileResult<'src, Justfile<'src>> {
+  fn justfile(mut self, ast: &'a Ast<'src>) -> CompileResult<'src, Justfile<'src>> {
     let mut recipes = Vec::new();
 
     for item in &ast.items {
