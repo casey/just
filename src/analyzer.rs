@@ -80,12 +80,12 @@ impl<'src, 'a> Analyzer<'src> {
 
     let assignments = self.assignments;
 
-    let mut recipes_table: Table<'src, UnresolvedRecipe<'src>> = Default::default();
+    let mut recipe_table: Table<'src, UnresolvedRecipe<'src>> = Default::default();
 
     AssignmentResolver::resolve_assignments(&assignments)?;
 
     for recipe in recipes {
-      if let Some(original) = recipes_table.get(recipe.name.lexeme()) {
+      if let Some(original) = recipe_table.get(recipe.name.lexeme()) {
         if !settings.allow_duplicate_recipes {
           return Err(recipe.name.token().error(DuplicateRecipe {
             recipe: original.name(),
@@ -93,10 +93,10 @@ impl<'src, 'a> Analyzer<'src> {
           }));
         }
       }
-      recipes_table.insert(recipe.clone());
+      recipe_table.insert(recipe.clone());
     }
 
-    let recipes = RecipeResolver::resolve_recipes(recipes_table, &assignments)?;
+    let recipes = RecipeResolver::resolve_recipes(recipe_table, &assignments)?;
 
     let mut aliases = Table::new();
     while let Some(alias) = self.aliases.pop() {
