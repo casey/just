@@ -1,6 +1,31 @@
 Changelog
 =========
 
+[1.13.0](https://github.com/casey/just/releases/tag/1.13.0) - 2023-01-24
+------------------------------------------------------------------------
+
+### Added
+- Add -n as a short flag for --for dry-run ([#1524](https://github.com/casey/just/pull/1524) by [maiha](https://github.com/maiha))
+- Add invocation_directory_native() ([#1507](https://github.com/casey/just/pull/1507))
+
+### Changed
+- Ignore additional search path arguments ([#1528](https://github.com/casey/just/pull/1528) by [neunenak](https://github.com/neunenak))
+- Only print fallback message when verbose ([#1510](https://github.com/casey/just/pull/1510))
+- Print format diff to stdout ([#1506](https://github.com/casey/just/pull/1506))
+
+### Fixed
+- Test passing dot as argument between justfiles ([#1530](https://github.com/casey/just/pull/1530))
+- Fix install script default directory ([#1525](https://github.com/casey/just/pull/1525))
+
+### Misc
+- Note that justfiles are order-insensitive ([#1529](https://github.com/casey/just/pull/1529))
+- Borrow Ast in Analyser ([#1527](https://github.com/casey/just/pull/1527) by [neunenak](https://github.com/neunenak))
+- Ignore chooser tests ([#1513](https://github.com/casey/just/pull/1513))
+- Put default setting values in backticks ([#1512](https://github.com/casey/just/pull/1512) by [s1ck](https://github.com/s1ck))
+- Use lowercase boolean literals in readme ([#1511](https://github.com/casey/just/pull/1511) by [s1ck](https://github.com/s1ck))
+- Document invocation_directory_native() ([#1508](https://github.com/casey/just/pull/1508))
+- Fix interrupt tests ([#1505](https://github.com/casey/just/pull/1505))
+
 [1.12.0](https://github.com/casey/just/releases/tag/1.12.0) - 2023-01-12
 ------------------------------------------------------------------------
 
