@@ -11,8 +11,6 @@ pub(crate) enum ConfigError {
     message
   ))]
   Internal { message: String },
-  #[snafu(display("Conflicting path arguments: `{}` and `{}`", seen, conflicting))]
-  ConflictingSearchDirArgs { seen: String, conflicting: String },
   #[snafu(display(
     "Path-prefixed recipes may not be used with `--working-directory` or `--justfile`."
   ))]
