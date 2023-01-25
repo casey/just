@@ -2174,18 +2174,6 @@ $ (cd foo && just a b)
 
 And will both invoke recipes `a` and `b` in `foo/justfile`.
 
-For consistency, it possible to use path prefixes for all recipes:
-
-```sh
-$ just foo/a foo/b
-```
-
-But they must match:
-
-```sh
-$ just foo/a bar/b
-error: Conflicting path arguments: `foo/` and `bar/`
-```
 ### Include Directives
 
 The `!include` directive, currently unstable, can be used to include the
