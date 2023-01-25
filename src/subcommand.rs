@@ -181,7 +181,7 @@ impl Subcommand {
 
     let tokens = Lexer::lex(src)?;
     let ast = Parser::parse(&tokens)?;
-    let justfile = Analyzer::analyze(ast.clone())?;
+    let justfile = Analyzer::analyze(&ast)?;
 
     if config.verbosity.loud() {
       for warning in &justfile.warnings {

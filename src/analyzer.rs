@@ -10,34 +10,34 @@ pub(crate) struct Analyzer<'src> {
   sets: Table<'src, Set<'src>>,
 }
 
-impl<'src> Analyzer<'src> {
-  pub(crate) fn analyze(ast: Ast<'src>) -> CompileResult<'src, Justfile> {
+impl<'src, 'a> Analyzer<'src> {
+  pub(crate) fn analyze(ast: &'a Ast<'src>) -> CompileResult<'src, Justfile<'src>> {
     Analyzer::default().justfile(ast)
   }
 
-  pub(crate) fn justfile(mut self, ast: Ast<'src>) -> CompileResult<'src, Justfile<'src>> {
+  pub(crate) fn justfile(mut self, ast: &'a Ast<'src>) -> CompileResult<'src, Justfile<'src>> {
     let mut recipes = Vec::new();
 
-    for item in ast.items {
+    for item in &ast.items {
       match item {
         Item::Alias(alias) => {
-          self.analyze_alias(&alias)?;
-          self.aliases.insert(alias);
+          self.analyze_alias(alias)?;
+          self.aliases.insert(alias.clone());
         }
         Item::Assignment(assignment) => {
-          self.analyze_assignment(&assignment)?;
-          self.assignments.insert(assignment);
+          self.analyze_assignment(assignment)?;
+          self.assignments.insert(assignment.clone());
         }
         Item::Comment(_) => (),
         Item::Recipe(recipe) => {
           if recipe.enabled() {
-            Self::analyze_recipe(&recipe)?;
+            Self::analyze_recipe(recipe)?;
             recipes.push(recipe);
           }
         }
         Item::Set(set) => {
-          self.analyze_set(&set)?;
-          self.sets.insert(set);
+          self.analyze_set(set)?;
+          self.sets.insert(set.clone());
         }
       }
     }
@@ -92,7 +92,7 @@ impl<'src> Analyzer<'src> {
           }));
         }
       }
-      self.recipes.insert(recipe);
+      self.recipes.insert(recipe.clone());
     }
 
     let recipes = RecipeResolver::resolve_recipes(self.recipes, &assignments)?;
@@ -103,7 +103,7 @@ impl<'src> Analyzer<'src> {
     }
 
     Ok(Justfile {
-      warnings: ast.warnings,
+      warnings: ast.warnings.clone(),
       first: recipes
         .values()
         .fold(None, |accumulator, next| match accumulator {
