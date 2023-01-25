@@ -2208,7 +2208,10 @@ A
 
 The `!include` directive path can be absolute or relative to the location of
 the justfile containing it. `!include` directives must appear at the beginning
-of a line. line.
+of a line.
+
+Justfiles are insensitive to order, so included files can reference variables
+and recipes defined after the `!include` directive.
 
 `!include` directives are only processed before the first non-blank,
 non-comment line.
