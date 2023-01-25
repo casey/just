@@ -8,6 +8,6 @@ impl Compiler {
 
     let ast = Parser::parse(&tokens)?;
 
-    Analyzer::analyze(ast)
+    Analyzer::analyze(&ast)
   }
 }

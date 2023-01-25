@@ -64,7 +64,7 @@ pub(crate) fn analysis_error(
 
   let ast = Parser::parse(&tokens).expect("Parsing failed in analysis test...");
 
-  match Analyzer::analyze(ast) {
+  match Analyzer::analyze(&ast) {
     Ok(_) => panic!("Analysis unexpectedly succeeded"),
     Err(have) => {
       let want = CompileError {
