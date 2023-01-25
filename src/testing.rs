@@ -2,7 +2,7 @@ use {super::*, crate::compiler::Compiler, pretty_assertions::assert_eq};
 
 pub(crate) fn compile(text: &str) -> Justfile {
   match Compiler::compile(text) {
-    Ok(justfile) => justfile,
+    Ok((_, justfile)) => justfile,
     Err(error) => panic!("Expected successful compilation but got error:\n {error}"),
   }
 }
@@ -99,6 +99,7 @@ macro_rules! run_error {
       if let Subcommand::Run{ overrides, arguments } = &config.subcommand {
         match $crate::compiler::Compiler::compile(&$crate::unindent::unindent($src))
           .expect("Expected successful compilation")
+          .1
           .run(
             &config,
             &search,

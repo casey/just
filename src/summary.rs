@@ -29,7 +29,7 @@ pub fn summary(path: &Path) -> Result<Result<Summary, String>, io::Error> {
   let text = fs::read_to_string(path)?;
 
   match Compiler::compile(&text) {
-    Ok(justfile) => Ok(Ok(Summary::new(justfile))),
+    Ok((_, justfile)) => Ok(Ok(Summary::new(justfile))),
     Err(compilation_error) => Ok(Err(compilation_error.to_string())),
   }
 }

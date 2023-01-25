@@ -18,7 +18,7 @@ pub(crate) use {
     alias::Alias, analyzer::Analyzer, assignment::Assignment,
     assignment_resolver::AssignmentResolver, ast::Ast, attribute::Attribute, binding::Binding,
     color::Color, color_display::ColorDisplay, command_ext::CommandExt,
-    compile_error::CompileError, compile_error_kind::CompileErrorKind,
+    compile_error::CompileError, compile_error_kind::CompileErrorKind, compiler::Compiler,
     conditional_operator::ConditionalOperator, config::Config, config_error::ConfigError,
     count::Count, delimiter::Delimiter, dependency::Dependency, dump_format::DumpFormat,
     enclosure::Enclosure, error::Error, evaluator::Evaluator, expression::Expression,
