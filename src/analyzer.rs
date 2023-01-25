@@ -41,48 +41,11 @@ impl<'src> Analyzer<'src> {
       }
     }
 
-    let mut settings = Settings::default();
-
-    for (_, set) in self.sets {
-      match set.value {
-        Setting::AllowDuplicateRecipes(allow_duplicate_recipes) => {
-          settings.allow_duplicate_recipes = allow_duplicate_recipes;
-        }
-        Setting::DotenvLoad(dotenv_load) => {
-          settings.dotenv_load = Some(dotenv_load);
-        }
-        Setting::Export(export) => {
-          settings.export = export;
-        }
-        Setting::Fallback(fallback) => {
-          settings.fallback = fallback;
-        }
-        Setting::IgnoreComments(ignore_comments) => {
-          settings.ignore_comments = ignore_comments;
-        }
-        Setting::PositionalArguments(positional_arguments) => {
-          settings.positional_arguments = positional_arguments;
-        }
-        Setting::Shell(shell) => {
-          settings.shell = Some(shell);
-        }
-        Setting::WindowsPowerShell(windows_powershell) => {
-          settings.windows_powershell = windows_powershell;
-        }
-        Setting::WindowsShell(windows_shell) => {
-          settings.windows_shell = Some(windows_shell);
-        }
-        Setting::Tempdir(tempdir) => {
-          settings.tempdir = Some(tempdir);
-        }
-      }
-    }
-
-    let assignments = self.assignments;
+    let settings = Settings::from_setting_iter(self.sets.into_iter().map(|(_, set)| set.value));
 
     let mut recipe_table: Table<'src, UnresolvedRecipe<'src>> = Default::default();
 
-    AssignmentResolver::resolve_assignments(&assignments)?;
+    AssignmentResolver::resolve_assignments(&self.assignments)?;
 
     for recipe in recipes {
       if let Some(original) = recipe_table.get(recipe.name.lexeme()) {
@@ -96,7 +59,7 @@ impl<'src> Analyzer<'src> {
       recipe_table.insert(recipe.clone());
     }
 
-    let recipes = RecipeResolver::resolve_recipes(recipe_table, &assignments)?;
+    let recipes = RecipeResolver::resolve_recipes(recipe_table, &self.assignments)?;
 
     let mut aliases = Table::new();
     while let Some(alias) = self.aliases.pop() {
@@ -116,7 +79,7 @@ impl<'src> Analyzer<'src> {
           }),
         }),
       aliases,
-      assignments,
+      assignments: self.assignments,
       recipes,
       settings,
     })
