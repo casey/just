@@ -2216,30 +2216,6 @@ non-comment line.
 Included files can themselves contain `!include` directives, which are
 processed recursively.
 
-||||||| d499227 (Allow matching search path arguments (#1475))
-Additional recipes after the first are sought in the same `justfile`. For
-example, the following are both equivalent:
-
-```sh
-$ just foo/a b
-$ (cd foo && just a b)
-```
-
-And will both invoke recipes `a` and `b` in `foo/justfile`.
-
-For consistency, it possible to use path prefixes for all recipes:
-
-```sh
-$ just foo/a foo/b
-```
-
-But they must match:
-
-```sh
-$ just foo/a bar/b
-error: Conflicting path arguments: `foo/` and `bar/`
-```
-
 ### Hiding `justfile`s
 
 `just` looks for `justfile`s named `justfile` and `.justfile`, which can be used to keep a `justfile` hidden.
