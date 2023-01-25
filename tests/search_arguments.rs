@@ -24,6 +24,6 @@ fn passing_dot_as_argument_is_allowed() {
     .current_dir("child")
     .args(["say", "."])
     .stdout(".\n")
-    .stderr_regex("'.*just' ../say .\necho .\n")
+    .stderr_regex("'.*' ../say .\necho .\n")
     .run();
 }
