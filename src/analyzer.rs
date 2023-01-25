@@ -9,12 +9,12 @@ pub(crate) struct Analyzer<'src> {
   sets: Table<'src, Set<'src>>,
 }
 
-impl<'src, 'a> Analyzer<'src> {
-  pub(crate) fn analyze(ast: &'a Ast<'src>) -> CompileResult<'src, Justfile<'src>> {
+impl<'src> Analyzer<'src> {
+  pub(crate) fn analyze(ast: &Ast<'src>) -> CompileResult<'src, Justfile<'src>> {
     Analyzer::default().justfile(ast)
   }
 
-  fn justfile(mut self, ast: &'a Ast<'src>) -> CompileResult<'src, Justfile<'src>> {
+  fn justfile(mut self, ast: &Ast<'src>) -> CompileResult<'src, Justfile<'src>> {
     let mut recipes = Vec::new();
 
     for item in &ast.items {
