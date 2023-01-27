@@ -114,10 +114,7 @@ impl Display for CompileError<'_> {
         )?;
       }
       DuplicateParameter { recipe, parameter } => {
-        write!(
-          f,
-          "Recipe `{recipe}` has duplicate parameter `{parameter}`"
-        )?;
+        write!(f, "Recipe `{recipe}` has duplicate parameter `{parameter}`")?;
       }
       DuplicateRecipe { recipe, first } => {
         write!(
