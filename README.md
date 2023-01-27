@@ -1234,9 +1234,7 @@ Recipes may be annotated with attributes that change their behavior.
 | `[windows]`         | Enable recipe on Windows.                       |
 | `[private]`         | See "Private Recipes".                          |
 
-Multiple comma-separated attributes can be specified on a single line, and
-a recipe can have multiple attributes. The following two justfiles have equivalent
-behavior:
+A recipe can have multiple attributes, either on multiple lines:
 
 ```just
 [no-cd]
@@ -1244,6 +1242,8 @@ behavior:
 foo:
     echo "foo"
 ```
+
+Or separated by commas on a single line:
 
 ```just
 [no-cd, private]
