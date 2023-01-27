@@ -854,19 +854,25 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     let mut attributes = BTreeMap::new();
 
     while self.accepted(BracketL)? {
-      let name = self.parse_name()?;
-      let attribute = Attribute::from_name(name).ok_or_else(|| {
-        name.error(CompileErrorKind::UnknownAttribute {
-          attribute: name.lexeme(),
-        })
-      })?;
-      if let Some(line) = attributes.get(&attribute) {
-        return Err(name.error(CompileErrorKind::DuplicateAttribute {
-          attribute: name.lexeme(),
-          first: *line,
-        }));
+      loop {
+        let name = self.parse_name()?;
+        let attribute = Attribute::from_name(name).ok_or_else(|| {
+          name.error(CompileErrorKind::UnknownAttribute {
+            attribute: name.lexeme(),
+          })
+        })?;
+        if let Some(line) = attributes.get(&attribute) {
+          return Err(name.error(CompileErrorKind::DuplicateAttribute {
+            attribute: name.lexeme(),
+            first: *line,
+          }));
+        }
+        attributes.insert(attribute, name.line);
+
+        if !self.accepted(TokenKind::Comma)? {
+          break;
+        }
       }
-      attributes.insert(attribute, name.line);
       self.expect(BracketR)?;
       self.expect_eol()?;
     }
