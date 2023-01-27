@@ -4,11 +4,11 @@ use {
 };
 
 fn author(pr: u64) -> String {
-  eprintln!("#{}", pr);
+  eprintln!("#{pr}");
   let output = Command::new("sh")
     .args([
       "-c",
-      &format!("gh pr view {} --json author | jq -r .author.login", pr),
+      &format!("gh pr view {pr} --json author | jq -r .author.login"),
     ])
     .output()
     .unwrap();

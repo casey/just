@@ -639,8 +639,7 @@ impl<'src> Lexer<'src> {
       ParenR => self.close_delimiter(Paren)?,
       _ => {
         return Err(self.internal_error(format!(
-          "Lexer::lex_delimiter called with non-delimiter token: `{}`",
-          kind,
+          "Lexer::lex_delimiter called with non-delimiter token: `{kind}`",
         )))
       }
     }

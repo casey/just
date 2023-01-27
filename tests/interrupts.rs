@@ -32,11 +32,11 @@ fn interrupt_test(arguments: &[&str], justfile: &str) {
   let elapsed = start.elapsed();
 
   if elapsed > Duration::from_secs(2) {
-    panic!("process returned too late: {:?}", elapsed);
+    panic!("process returned too late: {elapsed:?}");
   }
 
   if elapsed < Duration::from_millis(100) {
-    panic!("process returned too early : {:?}", elapsed);
+    panic!("process returned too early : {elapsed:?}");
   }
 
   assert_eq!(status.code(), Some(130));

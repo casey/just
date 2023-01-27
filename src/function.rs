@@ -121,8 +121,7 @@ fn env_var(context: &FunctionContext, key: &str) -> Result<String, String> {
   match env::var(key) {
     Err(NotPresent) => Err(format!("environment variable `{key}` not present")),
     Err(NotUnicode(os_string)) => Err(format!(
-      "environment variable `{}` not unicode: {:?}",
-      key, os_string
+      "environment variable `{key}` not unicode: {os_string:?}"
     )),
     Ok(value) => Ok(value),
   }
@@ -142,8 +141,7 @@ fn env_var_or_default(
   match env::var(key) {
     Err(NotPresent) => Ok(default.to_owned()),
     Err(NotUnicode(os_string)) => Err(format!(
-      "environment variable `{}` not unicode: {:?}",
-      key, os_string
+      "environment variable `{key}` not unicode: {os_string:?}"
     )),
     Ok(value) => Ok(value),
   }
