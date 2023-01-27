@@ -1232,6 +1232,24 @@ Recipes may be annotated with attributes that change their behavior.
 | `[macos]`           | Enable recipe on MacOS.                         |
 | `[unix]`            | Enable recipe on Unixes.                        |
 | `[windows]`         | Enable recipe on Windows.                       |
+| `[private]`         | See "Private Recipes".                          |
+
+Multiple comma-separated attributes can be specified on a single line, and
+a recipe can have multiple attributes. The following two justfiles have equivalent
+behavior:
+
+```just
+[no-cd]
+[private]
+foo:
+    echo "foo"
+```
+
+```just
+[no-cd, private]
+foo:
+    echo "foo"
+```
 
 #### Enabling and Disabling Recipes
 
