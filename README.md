@@ -1232,6 +1232,24 @@ Recipes may be annotated with attributes that change their behavior.
 | `[macos]`           | Enable recipe on MacOS.                         |
 | `[unix]`            | Enable recipe on Unixes.                        |
 | `[windows]`         | Enable recipe on Windows.                       |
+| `[private]`         | See "Private Recipes".                          |
+
+A recipe can have multiple attributes, either on multiple lines:
+
+```just
+[no-cd]
+[private]
+foo:
+    echo "foo"
+```
+
+Or separated by commas on a single line:
+
+```just
+[no-cd, private]
+foo:
+    echo "foo"
+```
 
 #### Enabling and Disabling Recipes
 
