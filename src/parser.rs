@@ -869,9 +869,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
         }
         attributes.insert(attribute, name.line);
 
-        if self.next_is(TokenKind::Comma) {
-          self.advance()?;
-        } else {
+        if !self.accepted(TokenKind::Comma)? {
           break;
         }
       }
