@@ -36,7 +36,7 @@ complete -c just -n "__fish_use_subcommand" -s u -l unsorted -d 'Return list and
 complete -c just -n "__fish_use_subcommand" -l unstable -d 'Enable unstable features'
 complete -c just -n "__fish_use_subcommand" -s v -l verbose -d 'Use verbose output'
 complete -c just -n "__fish_use_subcommand" -l changelog -d 'Print changelog'
-complete -c just -n "__fish_use_subcommand" -l choose -d 'Select one or more recipes to run using a binary. If `--chooser` is not passed the chooser defaults to the value of $JUST_CHOOSER, falling back to `fzf --preview 'just --show {}'`'
+complete -c just -n "__fish_use_subcommand" -l choose -d 'Select one or more recipes to run using a binary. If `--chooser` is not passed the chooser defaults to the value of $JUST_CHOOSER, falling back to `fzf`'
 complete -c just -n "__fish_use_subcommand" -l dump -d 'Print justfile'
 complete -c just -n "__fish_use_subcommand" -s e -l edit -d 'Edit justfile with editor given by $VISUAL or $EDITOR, falling back to `vim`'
 complete -c just -n "__fish_use_subcommand" -l evaluate -d 'Evaluate and print all variables. If a variable name is given as an argument, only print that variable\'s value.'

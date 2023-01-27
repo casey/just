@@ -49,7 +49,7 @@ edit:completion:arg-completer[just] = [@words]{
             cand -v 'Use verbose output'
             cand --verbose 'Use verbose output'
             cand --changelog 'Print changelog'
-            cand --choose 'Select one or more recipes to run using a binary. If `--chooser` is not passed the chooser defaults to the value of $JUST_CHOOSER, falling back to `fzf --preview 'just --show {}'`'
+            cand --choose 'Select one or more recipes to run using a binary. If `--chooser` is not passed the chooser defaults to the value of $JUST_CHOOSER, falling back to `fzf`'
             cand --dump 'Print justfile'
             cand -e 'Edit justfile with editor given by $VISUAL or $EDITOR, falling back to `vim`'
             cand --edit 'Edit justfile with editor given by $VISUAL or $EDITOR, falling back to `vim`'
