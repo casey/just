@@ -179,9 +179,7 @@ impl Subcommand {
   ) -> Result<(&'src str, Ast<'src>, Justfile<'src>), Error<'src>> {
     let src = loader.load(&search.justfile)?;
 
-    let tokens = Lexer::lex(src)?;
-    let ast = Parser::parse(&tokens)?;
-    let justfile = Analyzer::analyze(&ast)?;
+    let (ast, justfile) = Compiler::compile(src)?;
 
     if config.verbosity.loud() {
       for warning in &justfile.warnings {

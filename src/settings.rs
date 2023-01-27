@@ -20,6 +20,47 @@ pub(crate) struct Settings<'src> {
 }
 
 impl<'src> Settings<'src> {
+  pub(crate) fn from_setting_iter(iter: impl Iterator<Item = Setting<'src>>) -> Self {
+    let mut settings = Self::default();
+
+    for set in iter {
+      match set {
+        Setting::AllowDuplicateRecipes(allow_duplicate_recipes) => {
+          settings.allow_duplicate_recipes = allow_duplicate_recipes;
+        }
+        Setting::DotenvLoad(dotenv_load) => {
+          settings.dotenv_load = Some(dotenv_load);
+        }
+        Setting::Export(export) => {
+          settings.export = export;
+        }
+        Setting::Fallback(fallback) => {
+          settings.fallback = fallback;
+        }
+        Setting::IgnoreComments(ignore_comments) => {
+          settings.ignore_comments = ignore_comments;
+        }
+        Setting::PositionalArguments(positional_arguments) => {
+          settings.positional_arguments = positional_arguments;
+        }
+        Setting::Shell(shell) => {
+          settings.shell = Some(shell);
+        }
+        Setting::WindowsPowerShell(windows_powershell) => {
+          settings.windows_powershell = windows_powershell;
+        }
+        Setting::WindowsShell(windows_shell) => {
+          settings.windows_shell = Some(windows_shell);
+        }
+        Setting::Tempdir(tempdir) => {
+          settings.tempdir = Some(tempdir);
+        }
+      }
+    }
+
+    settings
+  }
+
   pub(crate) fn shell_command(&self, config: &Config) -> Command {
     let (command, args) = self.shell(config);
 
