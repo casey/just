@@ -3,11 +3,46 @@ use super::*;
 pub(crate) struct Compiler;
 
 impl Compiler {
-  pub(crate) fn compile(src: &str) -> CompileResult<(Ast, Justfile)> {
-    let tokens = Lexer::lex(src)?;
-    let ast = Parser::parse(&tokens)?;
-    let justfile = Analyzer::analyze(&ast)?;
+  pub(crate) fn compile(src: &str) -> CompileResult<Compilation> {
+    let root_ast = Self::parse(src)?;
+    let root_justfile = Analyzer::analyze(&root_ast)?;
 
-    Ok((ast, justfile))
+    Ok(Compilation {
+      root_ast,
+      root_justfile,
+      root_source: src,
+    })
+  }
+
+  pub(crate) fn parse(src: &str) -> CompileResult<Ast> {
+    let tokens = Lexer::lex(src)?;
+    Parser::parse(&tokens)
+  }
+}
+
+/// This type represents everything necessary to perform any operation on a justfile - the raw
+/// source, the compiled justfile and ast, and references to any included justfiles.
+pub(crate) struct Compilation<'src> {
+  root_ast: Ast<'src>,
+  root_justfile: Justfile<'src>,
+  root_source: &'src str,
+}
+
+impl<'src> Compilation<'src> {
+  pub(crate) fn justfile(&self) -> &Justfile<'src> {
+    &self.root_justfile
+  }
+
+  #[cfg(test)]
+  pub(crate) fn into_justfile(self) -> Justfile<'src> {
+    self.root_justfile
+  }
+
+  pub(crate) fn ast(&self) -> &Ast<'src> {
+    &self.root_ast
+  }
+
+  pub(crate) fn src(&self) -> &'src str {
+    self.root_source
   }
 }

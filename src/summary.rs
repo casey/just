@@ -29,7 +29,7 @@ pub fn summary(path: &Path) -> Result<Result<Summary, String>, io::Error> {
   let text = fs::read_to_string(path)?;
 
   match Compiler::compile(&text) {
-    Ok((_, justfile)) => Ok(Ok(Summary::new(justfile))),
+    Ok(compilation) => Ok(Ok(Summary::new(compilation.justfile()))),
     Err(compilation_error) => Ok(Err(compilation_error.to_string())),
   }
 }
@@ -41,7 +41,7 @@ pub struct Summary {
 }
 
 impl Summary {
-  fn new(justfile: full::Justfile) -> Summary {
+  fn new(justfile: &full::Justfile) -> Summary {
     let mut aliases = BTreeMap::new();
 
     for alias in justfile.aliases.values() {
@@ -54,11 +54,11 @@ impl Summary {
     Summary {
       recipes: justfile
         .recipes
-        .into_iter()
+        .iter()
         .map(|(name, recipe)| {
           (
-            name.to_owned(),
-            Recipe::new(&recipe, aliases.remove(name).unwrap_or_default()),
+            name.to_string(),
+            Recipe::new(recipe, aliases.remove(name).unwrap_or_default()),
           )
         })
         .collect(),
