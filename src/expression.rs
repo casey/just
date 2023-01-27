@@ -65,8 +65,7 @@ impl<'src> Display for Expression<'src> {
         operator,
       } => write!(
         f,
-        "if {} {} {} {{ {} }} else {{ {} }}",
-        lhs, operator, rhs, then, otherwise
+        "if {lhs} {operator} {rhs} {{ {then} }} else {{ {otherwise} }}"
       ),
       Expression::StringLiteral { string_literal } => write!(f, "{string_literal}"),
       Expression::Variable { name } => write!(f, "{}", name.lexeme()),

@@ -235,8 +235,7 @@ impl Test {
     if let Some(ref stdout_regex) = self.stdout_regex {
       if !stdout_regex.is_match(output_stdout) {
         panic!(
-          "Stdout regex mismatch:\n{:?}\n!~=\n/{:?}/",
-          output_stderr, stdout_regex
+          "Stdout regex mismatch:\n{output_stderr:?}\n!~=\n/{stdout_regex:?}/"
         );
       }
     }
@@ -244,8 +243,7 @@ impl Test {
     if let Some(ref stderr_regex) = self.stderr_regex {
       if !stderr_regex.is_match(output_stderr) {
         panic!(
-          "Stderr regex mismatch:\n{:?}\n!~=\n/{:?}/",
-          output_stderr, stderr_regex
+          "Stderr regex mismatch:\n{output_stderr:?}\n!~=\n/{stderr_regex:?}/"
         );
       }
     }

@@ -183,7 +183,7 @@ fn main() -> Result {
       )?;
     }
 
-    fs::write(format!("{}/SUMMARY.md", src), summary).unwrap();
+    fs::write(format!("{src}/SUMMARY.md"), summary).unwrap();
   }
 
   Ok(())
