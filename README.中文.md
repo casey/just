@@ -251,7 +251,7 @@ Linux、MacOS 和 Windows 的预制二进制文件可以在 [发布页](https://
 你也可以在 Linux、MacOS 或 Windows 上使用下面的命令来下载最新的版本，只需将 `DEST` 替换为你想安装 `just` 的目录即可：
 
 ```sh
-curl --proto '=https' --tlsv1.3 -sSf https://just.systems/install.sh | bash -s -- --to DEST
+curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to DEST
 ```
 
 例如，安装 `just` 到 `~/bin` 目录：
@@ -261,7 +261,7 @@ curl --proto '=https' --tlsv1.3 -sSf https://just.systems/install.sh | bash -s -
 mkdir -p ~/bin
 
 # 下载并解压 just 到 ~/bin/just
-curl --proto '=https' --tlsv1.3 -sSf https://just.systems/install.sh | bash -s -- --to ~/bin
+curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to ~/bin
 
 # 在 Shell 搜索可执行文件的路径中添加`~/bin`
 # 这一行应该被添加到你的 Shell 初始化文件中，e.g. `~/.bashrc` 或者 `~/.zshrc`：

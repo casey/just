@@ -285,8 +285,7 @@ impl Subcommand {
         Ok(())
       } else {
         Err(Error::internal(format!(
-          "Failed to find text:\n{}\n…in completion script:\n{}",
-          needle, haystack
+          "Failed to find text:\n{needle}\n…in completion script:\n{haystack}"
         )))
       }
     }

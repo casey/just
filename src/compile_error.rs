@@ -114,11 +114,7 @@ impl Display for CompileError<'_> {
         )?;
       }
       DuplicateParameter { recipe, parameter } => {
-        write!(
-          f,
-          "Recipe `{}` has duplicate parameter `{}`",
-          recipe, parameter
-        )?;
+        write!(f, "Recipe `{recipe}` has duplicate parameter `{parameter}`")?;
       }
       DuplicateRecipe { recipe, first } => {
         write!(
@@ -187,9 +183,8 @@ impl Display for CompileError<'_> {
       Internal { ref message } => {
         write!(
           f,
-          "Internal error, this may indicate a bug in just: {}\n\
-           consider filing an issue: https://github.com/casey/just/issues/new",
-          message
+          "Internal error, this may indicate a bug in just: {message}\n\
+           consider filing an issue: https://github.com/casey/just/issues/new"
         )?;
       }
       InvalidEscapeSequence { character } => {
@@ -232,8 +227,7 @@ impl Display for CompileError<'_> {
       RequiredParameterFollowsDefaultParameter { parameter } => {
         write!(
           f,
-          "Non-default parameter `{}` follows default parameter",
-          parameter
+          "Non-default parameter `{parameter}` follows default parameter"
         )?;
       }
       UndefinedVariable { variable } => {

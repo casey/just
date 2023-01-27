@@ -62,25 +62,19 @@ fn test_invocation_directory() {
 
   let status = output.status.code().unwrap();
   if status != expected_status {
-    println!("bad status: {} != {}", status, expected_status);
+    println!("bad status: {status} != {expected_status}");
     failure = true;
   }
 
   let stdout = str::from_utf8(&output.stdout).unwrap();
   if stdout != expected_stdout {
-    println!(
-      "bad stdout:\ngot:\n{:?}\n\nexpected:\n{:?}",
-      stdout, expected_stdout
-    );
+    println!("bad stdout:\ngot:\n{stdout:?}\n\nexpected:\n{expected_stdout:?}");
     failure = true;
   }
 
   let stderr = str::from_utf8(&output.stderr).unwrap();
   if stderr != expected_stderr {
-    println!(
-      "bad stderr:\ngot:\n{:?}\n\nexpected:\n{:?}",
-      stderr, expected_stderr
-    );
+    println!("bad stderr:\ngot:\n{stderr:?}\n\nexpected:\n{expected_stderr:?}");
     failure = true;
   }
 

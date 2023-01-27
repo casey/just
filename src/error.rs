@@ -279,26 +279,22 @@ impl<'src> ColorDisplay for Error<'src> {
           match io_error.kind() {
             io::ErrorKind::NotFound => write!(
               f,
-              "Backtick could not be run because just could not find the shell:\n{}",
-              io_error
+              "Backtick could not be run because just could not find the shell:\n{io_error}"
             ),
             io::ErrorKind::PermissionDenied => write!(
               f,
-              "Backtick could not be run because just could not run the shell:\n{}",
-              io_error
+              "Backtick could not be run because just could not run the shell:\n{io_error}"
             ),
             _ => write!(
               f,
-              "Backtick could not be run because of an IO error while launching the shell:\n{}",
-              io_error
+              "Backtick could not be run because of an IO error while launching the shell:\n{io_error}"
             ),
           }?;
         }
         OutputError::Utf8(utf8_error) => {
           write!(
             f,
-            "Backtick succeeded but stdout was not utf8: {}",
-            utf8_error
+            "Backtick succeeded but stdout was not utf8: {utf8_error}"
           )?;
         }
       },
@@ -356,8 +352,7 @@ impl<'src> ColorDisplay for Error<'src> {
         if let Some(n) = line_number {
           write!(
             f,
-            "Recipe `{}` failed on line {} with exit code {}",
-            recipe, n, code
+            "Recipe `{recipe}` failed on line {n} with exit code {code}"
           )?;
         } else {
           write!(f, "Recipe `{recipe}` failed with exit code {code}")?;
@@ -404,40 +399,35 @@ impl<'src> ColorDisplay for Error<'src> {
         OutputError::Code(code) => {
           write!(
             f,
-            "Cygpath failed with exit code {} while translating recipe `{}` shebang interpreter \
-             path",
-            code, recipe
+            "Cygpath failed with exit code {code} while translating recipe `{recipe}` shebang interpreter \
+             path"
           )?;
         }
         OutputError::Signal(signal) => {
           write!(
             f,
-            "Cygpath terminated by signal {} while translating recipe `{}` shebang interpreter \
-             path",
-            signal, recipe
+            "Cygpath terminated by signal {signal} while translating recipe `{recipe}` shebang interpreter \
+             path"
           )?;
         }
         OutputError::Unknown => {
           write!(
             f,
-            "Cygpath experienced an unknown failure while translating recipe `{}` shebang \
-             interpreter path",
-            recipe
+            "Cygpath experienced an unknown failure while translating recipe `{recipe}` shebang \
+             interpreter path"
           )?;
         }
         OutputError::Io(io_error) => {
           match io_error.kind() {
             io::ErrorKind::NotFound => write!(
               f,
-              "Could not find `cygpath` executable to translate recipe `{}` shebang interpreter \
-               path:\n{}",
-              recipe, io_error
+              "Could not find `cygpath` executable to translate recipe `{recipe}` shebang interpreter \
+               path:\n{io_error}"
             ),
             io::ErrorKind::PermissionDenied => write!(
               f,
-              "Could not run `cygpath` executable to translate recipe `{}` shebang interpreter \
-               path:\n{}",
-              recipe, io_error
+              "Could not run `cygpath` executable to translate recipe `{recipe}` shebang interpreter \
+               path:\n{io_error}"
             ),
             _ => write!(f, "Could not run `cygpath` executable:\n{io_error}"),
           }?;
@@ -445,9 +435,8 @@ impl<'src> ColorDisplay for Error<'src> {
         OutputError::Utf8(utf8_error) => {
           write!(
             f,
-            "Cygpath successfully translated recipe `{}` shebang interpreter path, but output was \
-             not utf8: {}",
-            recipe, utf8_error
+            "Cygpath successfully translated recipe `{recipe}` shebang interpreter path, but output was \
+             not utf8: {utf8_error}"
           )?;
         }
       },
@@ -517,9 +506,8 @@ impl<'src> ColorDisplay for Error<'src> {
       Internal { message } => {
         write!(
           f,
-          "Internal runtime error, this may indicate a bug in just: {} \
-           consider filing an issue: https://github.com/casey/just/issues/new",
-          message
+          "Internal runtime error, this may indicate a bug in just: {message} \
+           consider filing an issue: https://github.com/casey/just/issues/new"
         )?;
       }
       InvalidDirective { line } => {
@@ -529,18 +517,15 @@ impl<'src> ColorDisplay for Error<'src> {
         match io_error.kind() {
           io::ErrorKind::NotFound => write!(
             f,
-            "Recipe `{}` could not be run because just could not find the shell: {}",
-            recipe, io_error
+            "Recipe `{recipe}` could not be run because just could not find the shell: {io_error}"
           ),
           io::ErrorKind::PermissionDenied => write!(
             f,
-            "Recipe `{}` could not be run because just could not run the shell: {}",
-            recipe, io_error
+            "Recipe `{recipe}` could not be run because just could not run the shell: {io_error}"
           ),
           _ => write!(
             f,
-            "Recipe `{}` could not be run because of an IO error while launching the shell: {}",
-            recipe, io_error
+            "Recipe `{recipe}` could not be run because of an IO error while launching the shell: {io_error}"
           ),
         }?;
       }
@@ -637,8 +622,7 @@ impl<'src> ColorDisplay for Error<'src> {
       Unstable { message } => {
         write!(
           f,
-          "{} Invoke `just` with the `--unstable` flag to enable unstable features.",
-          message
+          "{message} Invoke `just` with the `--unstable` flag to enable unstable features."
         )?;
       }
       WriteJustfile { justfile, io_error } => {
