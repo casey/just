@@ -153,8 +153,20 @@
 <tr><td><code>[macos]</code></td><td>Enable recipe on MacOS.</td></tr>
 <tr><td><code>[unix]</code></td><td>Enable recipe on Unixes.</td></tr>
 <tr><td><code>[windows]</code></td><td>Enable recipe on Windows.</td></tr>
+<tr><td><code>[private]</code></td><td>See “Private Recipes”.</td></tr>
 </tbody></table>
 </div>
+<p>A recipe can have multiple attributes, either on multiple lines:</p>
+<pre><code class="language-just">[no-cd]
+[private]
+foo:
+    echo &quot;foo&quot;
+</code></pre>
+<p>Or separated by commas on a single line:</p>
+<pre><code class="language-just">[no-cd, private]
+foo:
+    echo &quot;foo&quot;
+</code></pre>
 <h4 id="enabling-and-disabling-recipes"><a class="header" href="#enabling-and-disabling-recipes">Enabling and Disabling Recipes</a></h4>
 <p>The <code>[linux]</code>, <code>[macos]</code>, <code>[unix]</code>, and <code>[windows]</code> attributes are
 configuration attributes. By default, recipes are always enabled. A recipe with
