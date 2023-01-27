@@ -86,7 +86,7 @@ impl Subcommand {
     Ok(())
   }
 
-  pub(crate) fn run<'src>(
+  fn run<'src>(
     config: &Config,
     loader: &'src Loader,
     arguments: &[String],
