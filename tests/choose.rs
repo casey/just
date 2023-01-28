@@ -215,7 +215,7 @@ fn default() {
 
   let output = Command::new(executable_path("just"))
     .arg("--choose")
-    .arg("--chooser=fzf") // `cat` doesn't support --preview
+    .arg("--chooser=fzf")
     .current_dir(tmp.path())
     .env("PATH", path)
     .output()
