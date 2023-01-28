@@ -151,7 +151,8 @@ fn invoke_error_function() {
           echo bar
       ",
     )
-    .stderr_regex("error: Chooser `/ -cu fzf` invocation failed: .*\n")
+     // use new regex syntax `fzf --preview 'just --show {}'`
+    .stderr_regex("error: Chooser `/ -cu fzf --preview 'just --show .*'` invocation failed: .*\n")
     .status(EXIT_FAILURE)
     .shell(false)
     .args(["--shell", "/", "--choose"])
@@ -213,6 +214,7 @@ fn default() {
 
   let output = Command::new(executable_path("just"))
     .arg("--choose")
+    .arg("--chooser=fzf") // `cat` doesn't support --preview
     .current_dir(tmp.path())
     .env("PATH", path)
     .output()
