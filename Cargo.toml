@@ -52,6 +52,14 @@ temptree = "0.2.0"
 which = "4.0.0"
 yaml-rust = "0.4.5"
 
+[lib]
+doctest = false
+
+[[bin]]
+path = "src/main.rs"
+name = "just"
+test = false
+
 [features]
 # No features are active by default.
 default = []

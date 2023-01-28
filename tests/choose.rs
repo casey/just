@@ -151,8 +151,9 @@ fn invoke_error_function() {
           echo bar
       ",
     )
-     // use new regex syntax `fzf --preview 'just --show {}'`
-    .stderr_regex("error: Chooser `/ -cu fzf --preview 'just --show .*'` invocation failed: .*\n")
+    .stderr_regex(
+      r"error: Chooser `/ -cu fzf --preview 'just --show \{\}'` invocation failed: .*\n",
+    )
     .status(EXIT_FAILURE)
     .shell(false)
     .args(["--shell", "/", "--choose"])
