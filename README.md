@@ -1232,7 +1232,7 @@ Recipes may be annotated with attributes that change their behavior.
 | `[macos]`           | Enable recipe on MacOS.                         |
 | `[unix]`            | Enable recipe on Unixes.                        |
 | `[windows]`         | Enable recipe on Windows.                       |
-| `[private]`         | See "Private Recipes".                          |
+| `[private]`         | See [Private Recipes](#private-recipes).        |
 
 A recipe can have multiple attributes, either on multiple lines:
 
