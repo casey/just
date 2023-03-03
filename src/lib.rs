@@ -50,7 +50,6 @@ pub(crate) use {
     ops::{Index, Range, RangeInclusive},
     path::{self, Path, PathBuf},
     process::{self, Command, ExitStatus, Stdio},
-    rc::Rc,
     str::{self, Chars},
     sync::{Mutex, MutexGuard},
     usize, vec,

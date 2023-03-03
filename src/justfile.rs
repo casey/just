@@ -1,3 +1,4 @@
+use std::sync::Arc;
 use {super::*, serde::Serialize};
 
 #[derive(Debug, PartialEq, Serialize)]
@@ -5,8 +6,8 @@ pub(crate) struct Justfile<'src> {
   pub(crate) aliases: Table<'src, Alias<'src>>,
   pub(crate) assignments: Table<'src, Assignment<'src>>,
   #[serde(serialize_with = "keyed::serialize_option")]
-  pub(crate) first: Option<Rc<Recipe<'src>>>,
-  pub(crate) recipes: Table<'src, Rc<Recipe<'src>>>,
+  pub(crate) first: Option<Arc<Recipe<'src>>>,
+  pub(crate) recipes: Table<'src, Arc<Recipe<'src>>>,
   pub(crate) settings: Settings<'src>,
   pub(crate) warnings: Vec<Warning>,
 }
@@ -253,10 +254,21 @@ impl<'src> Justfile<'src> {
       search,
     };
 
-    let mut ran = BTreeSet::new();
-    for (recipe, arguments) in grouped {
-      Self::run_recipe(&context, recipe, arguments, &dotenv, search, &mut ran)?;
-    }
+    // let mut ran = BTreeSet::new();
+    std::thread::scope(|scope| -> RunResult<'src, ()> {
+      let mut threads = Vec::new();
+      for (recipe, arguments) in grouped {
+        threads.push(scope.spawn(|| {
+          Self::run_recipe(
+            &context, recipe, arguments, &dotenv, search, /*&mut ran*/
+          )
+        }));
+      }
+      for thread in threads {
+        thread.join().unwrap()?;
+      }
+      Ok(())
+    })?;
 
     Ok(())
   }
@@ -269,7 +281,7 @@ impl<'src> Justfile<'src> {
     self
       .recipes
       .get(name)
-      .map(Rc::as_ref)
+      .map(Arc::as_ref)
       .or_else(|| self.aliases.get(name).map(|alias| alias.target.as_ref()))
   }
 
@@ -279,16 +291,16 @@ impl<'src> Justfile<'src> {
     arguments: &[&str],
     dotenv: &BTreeMap<String, String>,
     search: &Search,
-    ran: &mut BTreeSet<Vec<String>>,
+    // ran: &mut BTreeSet<Vec<String>>,
   ) -> RunResult<'src, ()> {
     let mut invocation = vec![recipe.name().to_owned()];
     for argument in arguments {
       invocation.push((*argument).to_string());
     }
 
-    if ran.contains(&invocation) {
-      return Ok(());
-    }
+    // if ran.contains(&invocation) {
+    //   return Ok(());
+    // }
 
     let (outer, positional) = Evaluator::evaluate_parameters(
       context.config,
@@ -305,46 +317,70 @@ impl<'src> Justfile<'src> {
     let mut evaluator =
       Evaluator::recipe_evaluator(context.config, dotenv, &scope, context.settings, search);
 
-    for Dependency { recipe, arguments } in recipe.dependencies.iter().take(recipe.priors) {
-      let arguments = arguments
-        .iter()
-        .map(|argument| evaluator.evaluate_expression(argument))
-        .collect::<RunResult<Vec<String>>>()?;
+    std::thread::scope(|scope| -> RunResult<'src, ()> {
+      let mut threads = Vec::new();
+      for Dependency { recipe, arguments } in recipe.dependencies.iter().take(recipe.priors) {
+        let arguments = arguments
+          .iter()
+          .map(|argument| evaluator.evaluate_expression(argument))
+          .collect::<RunResult<Vec<String>>>()?;
 
-      Self::run_recipe(
-        context,
-        recipe,
-        &arguments.iter().map(String::as_ref).collect::<Vec<&str>>(),
-        dotenv,
-        search,
-        ran,
-      )?;
-    }
+        threads.push(scope.spawn(move || {
+          Self::run_recipe(
+            context,
+            recipe,
+            &arguments.iter().map(String::as_ref).collect::<Vec<&str>>(),
+            dotenv,
+            search,
+            // ran,
+          )
+        }));
+      }
+
+      for thread in threads {
+        thread.join().unwrap()?;
+      }
+      Ok(())
+    })?;
 
     recipe.run(context, dotenv, scope.child(), search, &positional)?;
 
     {
-      let mut ran = BTreeSet::new();
+      // let mut ran = BTreeSet::new();
 
-      for Dependency { recipe, arguments } in recipe.dependencies.iter().skip(recipe.priors) {
-        let mut evaluated = Vec::new();
+      std::thread::scope(|scope| -> RunResult<'src, ()> {
+        let mut threads = Vec::new();
+        for Dependency { recipe, arguments } in recipe.dependencies.iter().skip(recipe.priors) {
+          let mut evaluated = Vec::new();
 
-        for argument in arguments {
-          evaluated.push(evaluator.evaluate_expression(argument)?);
+          for argument in arguments {
+            evaluated.push(
+              evaluator
+                .evaluate_expression(argument)
+                .expect("error evaluating expression"),
+            );
+          }
+
+          threads.push(scope.spawn(move || {
+            Self::run_recipe(
+              context,
+              recipe,
+              &evaluated.iter().map(String::as_ref).collect::<Vec<&str>>(),
+              dotenv,
+              search,
+              // &mut ran,
+            )
+          }));
         }
 
-        Self::run_recipe(
-          context,
-          recipe,
-          &evaluated.iter().map(String::as_ref).collect::<Vec<&str>>(),
-          dotenv,
-          search,
-          &mut ran,
-        )?;
-      }
+        for thread in threads {
+          thread.join().unwrap()?;
+        }
+        Ok(())
+      })?;
     }
 
-    ran.insert(invocation);
+    // ran.insert(invocation);
     Ok(())
   }
 
