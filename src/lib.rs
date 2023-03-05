@@ -150,6 +150,7 @@ mod name;
 mod ordinal;
 mod output;
 mod output_error;
+mod parallel;
 mod parameter;
 mod parameter_kind;
 mod parser;

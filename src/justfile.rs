@@ -255,17 +255,13 @@ impl<'src> Justfile<'src> {
     };
 
     // let mut ran = BTreeSet::new();
-    std::thread::scope(|scope| -> RunResult<'src, ()> {
-      let mut threads = Vec::new();
+    parallel::task_scope(|scope| {
       for (recipe, arguments) in grouped {
-        threads.push(scope.spawn(|| {
+        scope.spawn(|| {
           Self::run_recipe(
             &context, recipe, arguments, &dotenv, search, /*&mut ran*/
           )
-        }));
-      }
-      for thread in threads {
-        thread.join().unwrap()?;
+        });
       }
       Ok(())
     })?;
@@ -317,15 +313,14 @@ impl<'src> Justfile<'src> {
     let mut evaluator =
       Evaluator::recipe_evaluator(context.config, dotenv, &scope, context.settings, search);
 
-    std::thread::scope(|scope| -> RunResult<'src, ()> {
-      let mut threads = Vec::new();
+    parallel::task_scope(|scope| {
       for Dependency { recipe, arguments } in recipe.dependencies.iter().take(recipe.priors) {
         let arguments = arguments
           .iter()
           .map(|argument| evaluator.evaluate_expression(argument))
           .collect::<RunResult<Vec<String>>>()?;
 
-        threads.push(scope.spawn(move || {
+        scope.spawn(move || {
           Self::run_recipe(
             context,
             recipe,
@@ -334,11 +329,7 @@ impl<'src> Justfile<'src> {
             search,
             // ran,
           )
-        }));
-      }
-
-      for thread in threads {
-        thread.join().unwrap()?;
+        });
       }
       Ok(())
     })?;
@@ -348,8 +339,7 @@ impl<'src> Justfile<'src> {
     {
       // let mut ran = BTreeSet::new();
 
-      std::thread::scope(|scope| -> RunResult<'src, ()> {
-        let mut threads = Vec::new();
+      parallel::task_scope(|scope| {
         for Dependency { recipe, arguments } in recipe.dependencies.iter().skip(recipe.priors) {
           let mut evaluated = Vec::new();
 
@@ -361,7 +351,7 @@ impl<'src> Justfile<'src> {
             );
           }
 
-          threads.push(scope.spawn(move || {
+          scope.spawn(move || {
             Self::run_recipe(
               context,
               recipe,
@@ -370,11 +360,7 @@ impl<'src> Justfile<'src> {
               search,
               // &mut ran,
             )
-          }));
-        }
-
-        for thread in threads {
-          thread.join().unwrap()?;
+          });
         }
         Ok(())
       })?;
