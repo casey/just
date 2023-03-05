@@ -6,16 +6,22 @@ type ScopeResult<'src> = RunResult<'src, ()>;
 pub(crate) struct TaskScope<'env, 'src, 'inner_scope> {
   inner: &'inner_scope thread::Scope<'env>,
   join_handles: Vec<thread::ScopedJoinHandle<'inner_scope, ScopeResult<'src>>>,
+  parallel: bool,
 }
 
 impl<'env, 'src, 'inner_scope> TaskScope<'env, 'src, 'inner_scope> {
-  pub(crate) fn spawn<'scope, F>(&'scope mut self, f: F)
+  pub(crate) fn run<'scope, F>(&'scope mut self, f: F) -> ScopeResult<'src>
   where
     'src: 'env,
     F: FnOnce() -> ScopeResult<'src>,
     F: Send + 'env,
   {
-    self.join_handles.push(self.inner.spawn(|_scope| f()));
+    if self.parallel {
+      self.join_handles.push(self.inner.spawn(|_scope| f()));
+      Ok(())
+    } else {
+      f()
+    }
   }
 }
 
@@ -25,12 +31,13 @@ impl<'env, 'src, 'inner_scope> TaskScope<'env, 'src, 'inner_scope> {
 /// run. The first error will be returned as result of this `task_scope`.
 ///
 /// Only works for tasks with an `RunResult<'src, ()>` result type.
-pub(crate) fn task_scope<'env, 'src, F>(f: F) -> ScopeResult<'src>
+pub(crate) fn task_scope<'env, 'src, F>(parallel: bool, f: F) -> ScopeResult<'src>
 where
   F: for<'inner_scope> FnOnce(&mut TaskScope<'env, 'src, 'inner_scope>) -> ScopeResult<'src>,
 {
   thread::scope(|scope| {
     let mut task_scope = TaskScope {
+      parallel,
       inner: scope,
       join_handles: Vec::new(),
     };

@@ -255,13 +255,13 @@ impl<'src> Justfile<'src> {
     };
 
     // let mut ran = BTreeSet::new();
-    parallel::task_scope(|scope| {
+    parallel::task_scope(config.parallel, |scope| {
       for (recipe, arguments) in grouped {
-        scope.spawn(|| {
+        scope.run(|| {
           Self::run_recipe(
             &context, recipe, arguments, &dotenv, search, /*&mut ran*/
           )
-        });
+        })?;
       }
       Ok(())
     })?;
@@ -313,14 +313,14 @@ impl<'src> Justfile<'src> {
     let mut evaluator =
       Evaluator::recipe_evaluator(context.config, dotenv, &scope, context.settings, search);
 
-    parallel::task_scope(|scope| {
+    parallel::task_scope(context.config.parallel, |scope| {
       for Dependency { recipe, arguments } in recipe.dependencies.iter().take(recipe.priors) {
         let arguments = arguments
           .iter()
           .map(|argument| evaluator.evaluate_expression(argument))
           .collect::<RunResult<Vec<String>>>()?;
 
-        scope.spawn(move || {
+        scope.run(move || {
           Self::run_recipe(
             context,
             recipe,
@@ -329,7 +329,7 @@ impl<'src> Justfile<'src> {
             search,
             // ran,
           )
-        });
+        })?;
       }
       Ok(())
     })?;
@@ -339,7 +339,7 @@ impl<'src> Justfile<'src> {
     {
       // let mut ran = BTreeSet::new();
 
-      parallel::task_scope(|scope| {
+      parallel::task_scope(context.config.parallel, |scope| {
         for Dependency { recipe, arguments } in recipe.dependencies.iter().skip(recipe.priors) {
           let mut evaluated = Vec::new();
 
@@ -351,7 +351,7 @@ impl<'src> Justfile<'src> {
             );
           }
 
-          scope.spawn(move || {
+          scope.run(move || {
             Self::run_recipe(
               context,
               recipe,
@@ -360,7 +360,7 @@ impl<'src> Justfile<'src> {
               search,
               // &mut ran,
             )
-          });
+          })?;
         }
         Ok(())
       })?;
