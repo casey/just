@@ -1,3 +1,4 @@
+use parallel::Ran;
 use std::sync::Arc;
 use {super::*, serde::Serialize};
 
@@ -254,14 +255,10 @@ impl<'src> Justfile<'src> {
       search,
     };
 
-    // let mut ran = BTreeSet::new();
+    let ran = Ran::new();
     parallel::task_scope(config.parallel, |scope| {
       for (recipe, arguments) in grouped {
-        scope.run(|| {
-          Self::run_recipe(
-            &context, recipe, arguments, &dotenv, search, /*&mut ran*/
-          )
-        })?;
+        scope.run(|| Self::run_recipe(&context, recipe, arguments, &dotenv, search, &ran))?;
       }
       Ok(())
     })?;
@@ -287,16 +284,16 @@ impl<'src> Justfile<'src> {
     arguments: &[&str],
     dotenv: &BTreeMap<String, String>,
     search: &Search,
-    // ran: &mut BTreeSet<Vec<String>>,
+    ran: &Ran,
   ) -> RunResult<'src, ()> {
     let mut invocation = vec![recipe.name().to_owned()];
     for argument in arguments {
       invocation.push((*argument).to_string());
     }
 
-    // if ran.contains(&invocation) {
-    //   return Ok(());
-    // }
+    if ran.contains(&invocation) {
+      return Ok(());
+    }
 
     let (outer, positional) = Evaluator::evaluate_parameters(
       context.config,
@@ -327,7 +324,7 @@ impl<'src> Justfile<'src> {
             &arguments.iter().map(String::as_ref).collect::<Vec<&str>>(),
             dotenv,
             search,
-            // ran,
+            ran,
           )
         })?;
       }
@@ -337,7 +334,7 @@ impl<'src> Justfile<'src> {
     recipe.run(context, dotenv, scope.child(), search, &positional)?;
 
     {
-      // let mut ran = BTreeSet::new();
+      let ran = Ran::new();
 
       parallel::task_scope(context.config.parallel, |scope| {
         for Dependency { recipe, arguments } in recipe.dependencies.iter().skip(recipe.priors) {
@@ -351,22 +348,25 @@ impl<'src> Justfile<'src> {
             );
           }
 
-          scope.run(move || {
-            Self::run_recipe(
-              context,
-              recipe,
-              &evaluated.iter().map(String::as_ref).collect::<Vec<&str>>(),
-              dotenv,
-              search,
-              // &mut ran,
-            )
+          scope.run({
+            let ran = ran.clone();
+            move || {
+              Self::run_recipe(
+                context,
+                recipe,
+                &evaluated.iter().map(String::as_ref).collect::<Vec<&str>>(),
+                dotenv,
+                search,
+                &ran,
+              )
+            }
           })?;
         }
         Ok(())
       })?;
     }
 
-    // ran.insert(invocation);
+    ran.insert(invocation);
     Ok(())
   }
 
