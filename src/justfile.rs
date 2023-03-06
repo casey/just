@@ -310,7 +310,8 @@ impl<'src> Justfile<'src> {
     let mut evaluator =
       Evaluator::recipe_evaluator(context.config, dotenv, &scope, context.settings, search);
 
-    parallel::task_scope(context.config.parallel, |scope| {
+    let run_dependencies_in_parallel = recipe.attributes.contains(&Attribute::Parallel);
+    parallel::task_scope(run_dependencies_in_parallel, |scope| {
       for Dependency { recipe, arguments } in recipe.dependencies.iter().take(recipe.priors) {
         let arguments = arguments
           .iter()
@@ -336,7 +337,7 @@ impl<'src> Justfile<'src> {
     {
       let ran = Ran::new();
 
-      parallel::task_scope(context.config.parallel, |scope| {
+      parallel::task_scope(run_dependencies_in_parallel, |scope| {
         for Dependency { recipe, arguments } in recipe.dependencies.iter().skip(recipe.priors) {
           let mut evaluated = Vec::new();
 

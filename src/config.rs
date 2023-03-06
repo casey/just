@@ -201,7 +201,7 @@ impl Config {
         Arg::with_name(arg::PARALLEL)
           .short("p")
           .long("parallel")
-          .help("run task dependencies & given tasks in parallel")
+          .help("run given tasks in parallel")
       )
       .arg(
         Arg::with_name(arg::QUIET)
