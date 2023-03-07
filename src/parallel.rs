@@ -30,13 +30,13 @@ impl<'env, 'src, 'inner_scope> TaskScope<'env, 'src, 'inner_scope> {
 
 /// task runner scope, based on `crossbeam::thread::scope`.
 ///
-/// The `scope` object can be used to `.spawn` new tasks to be
-/// run. The first error will be returned as result of this `task_scope`.
+/// The `scope` object can be used to `.run` new tasks to be
+/// executed. Depending on the `parallel` parameter, these are
+/// directly run, or spawned in a background thread.
+///
+/// The first error will be returned as result of this `task_scope`.
 ///
 /// Only works for tasks with an `RunResult<'src, ()>` result type.
-///
-/// When `parallel` is set to `false`, the tasks are directly executed
-/// when calling `run`.
 pub(crate) fn task_scope<'env, 'src, F>(parallel: bool, f: F) -> ScopeResult<'src>
 where
   F: for<'inner_scope> FnOnce(&mut TaskScope<'env, 'src, 'inner_scope>) -> ScopeResult<'src>,
