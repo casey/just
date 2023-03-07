@@ -1233,7 +1233,7 @@ Recipes may be annotated with attributes that change their behavior.
 | `[unix]`            | Enable recipe on Unixes.                        |
 | `[windows]`         | Enable recipe on Windows.                       |
 | `[private]`         | See [Private Recipes](#private-recipes).        |
-| `[parallel]`        | execute dependencies in parallel.               |
+| `[parallel]`        | See [Parallel execution](#parallel-execution).  |
 
 A recipe can have multiple attributes, either on multiple lines:
 
@@ -2066,6 +2066,32 @@ Available recipes:
 ```
 
 This is useful for helper recipes which are only meant to be used as dependencies of other recipes.
+
+### Parallel execution
+
+`just` has two separate ways to enable parallel execution of tasks.
+
+Run the given recipes on the command line in parallel:
+
+```sh
+$ just --parallel recipe_1 recipe_2 recipe_3
+[...]
+```
+
+And using the `[parallel]` attribute, task dependencies are allowed to run in
+parallel:
+
+```just
+recipe_1:
+  sleep 1
+
+recipe_2:
+  sleep 2
+
+[parallel]
+foo: recipe_1 recipe_2
+  echo hello
+```
 
 ### Quiet Recipes
 
