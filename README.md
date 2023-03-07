@@ -1233,6 +1233,7 @@ Recipes may be annotated with attributes that change their behavior.
 | `[unix]`            | Enable recipe on Unixes.                        |
 | `[windows]`         | Enable recipe on Windows.                       |
 | `[private]`         | See [Private Recipes](#private-recipes).        |
+| `[parallel]`        | execute dependencies in parallel.               |
 
 A recipe can have multiple attributes, either on multiple lines:
 
