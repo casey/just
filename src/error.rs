@@ -238,30 +238,21 @@ impl<'src> ColorDisplay for Error<'src> {
           let expected = min;
           write!(
             f,
-            "Recipe `{}` got {} {} but {}takes {}",
-            recipe,
-            found,
+            "Recipe `{recipe}` got {found} {} but {}takes {expected}",
             Count("argument", *found),
-            if expected < found { "only " } else { "" },
-            expected
+            if expected < found { "only " } else { "" }
           )?;
         } else if found < min {
           write!(
             f,
-            "Recipe `{}` got {} {} but takes at least {}",
-            recipe,
-            found,
-            Count("argument", *found),
-            min
+            "Recipe `{recipe}` got {found} {} but takes at least {min}",
+            Count("argument", *found)
           )?;
         } else if found > max {
           write!(
             f,
-            "Recipe `{}` got {} {} but takes at most {}",
-            recipe,
-            found,
-            Count("argument", *found),
-            max
+            "Recipe `{recipe}` got {found} {} but takes at most {max}",
+            Count("argument", *found)
           )?;
         }
       }
@@ -306,35 +297,29 @@ impl<'src> ColorDisplay for Error<'src> {
       } => {
         write!(
           f,
-          "Chooser `{} {} {}` invocation failed: {}",
-          shell_binary,
-          shell_arguments,
+          "Chooser `{shell_binary} {shell_arguments} {}` invocation failed: {io_error}",
           chooser.to_string_lossy(),
-          io_error,
         )?;
       }
       ChooserRead { chooser, io_error } => {
         write!(
           f,
-          "Failed to read output from chooser `{}`: {}",
-          chooser.to_string_lossy(),
-          io_error
+          "Failed to read output from chooser `{}`: {io_error}",
+          chooser.to_string_lossy()
         )?;
       }
       ChooserStatus { chooser, status } => {
         write!(
           f,
-          "Chooser `{}` failed: {}",
-          chooser.to_string_lossy(),
-          status
+          "Chooser `{}` failed: {status}",
+          chooser.to_string_lossy()
         )?;
       }
       ChooserWrite { chooser, io_error } => {
         write!(
           f,
-          "Failed to write to chooser `{}`: {}",
-          chooser.to_string_lossy(),
-          io_error
+          "Failed to write to chooser `{}`: {io_error}",
+          chooser.to_string_lossy()
         )?;
       }
       CircularInclude { current, include } => {
@@ -365,13 +350,12 @@ impl<'src> ColorDisplay for Error<'src> {
       } => {
         write!(
           f,
-          "Failed to invoke {}: {}",
+          "Failed to invoke {}: {io_error}",
           iter::once(binary)
             .chain(arguments)
             .map(|value| Enclosure::tick(value.to_string_lossy()).to_string())
             .collect::<Vec<String>>()
             .join(" "),
-          io_error,
         )?;
       }
       CommandStatus {
@@ -381,13 +365,12 @@ impl<'src> ColorDisplay for Error<'src> {
       } => {
         write!(
           f,
-          "Command {} failed: {}",
+          "Command {} failed: {status}",
           iter::once(binary)
             .chain(arguments)
             .map(|value| Enclosure::tick(value.to_string_lossy()).to_string())
             .collect::<Vec<String>>()
             .join(" "),
-          status,
         )?;
       }
       Compile { compile_error } => Display::fmt(compile_error, f)?,
@@ -446,9 +429,7 @@ impl<'src> ColorDisplay for Error<'src> {
       } => {
         write!(
           f,
-          "Recipe `{}` cannot be used as default recipe since it requires at least {} {}.",
-          recipe,
-          min_arguments,
+          "Recipe `{recipe}` cannot be used as default recipe since it requires at least {min_arguments} {}.",
           Count("argument", *min_arguments),
         )?;
       }
@@ -483,9 +464,8 @@ impl<'src> ColorDisplay for Error<'src> {
       FunctionCall { function, message } => {
         write!(
           f,
-          "Call to function `{}` failed: {}",
-          function.lexeme(),
-          message
+          "Call to function `{}` failed: {message}",
+          function.lexeme()
         )?;
       }
       IncludeMissingPath {
@@ -532,9 +512,8 @@ impl<'src> ColorDisplay for Error<'src> {
       Load { io_error, path } => {
         write!(
           f,
-          "Failed to read justfile at `{}`: {}",
-          path.display(),
-          io_error
+          "Failed to read justfile at `{}`: {io_error}",
+          path.display()
         )?;
       }
       NoChoosableRecipes => {
@@ -628,9 +607,8 @@ impl<'src> ColorDisplay for Error<'src> {
       WriteJustfile { justfile, io_error } => {
         write!(
           f,
-          "Failed to write justfile to `{}`: {}",
-          justfile.display(),
-          io_error
+          "Failed to write justfile to `{}`: {io_error}",
+          justfile.display()
         )?;
       }
     }
@@ -644,9 +622,8 @@ impl<'src> ColorDisplay for Error<'src> {
       writeln!(f)?;
       write!(
         f,
-        "{}:\n    just {}",
-        color.message().paint("usage"),
-        recipe
+        "{}:\n    just {recipe}",
+        color.message().paint("usage")
       )?;
       for param in parameters {
         write!(f, " {}", param.color_display(color))?;

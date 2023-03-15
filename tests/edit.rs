@@ -116,7 +116,7 @@ fn editor_precedence() {
   assert_stdout(&output, JUSTFILE);
 
   let cat = which("cat").unwrap();
-  let vim = tmp.path().join(format!("vim{}", env::consts::EXE_SUFFIX));
+  let vim = tmp.path().join(format!("vim{}", EXE_SUFFIX));
 
   #[cfg(unix)]
   std::os::unix::fs::symlink(cat, vim).unwrap();
@@ -154,7 +154,7 @@ fn editor_working_directory() {
   let editor = tmp.path().join("editor");
 
   let permissions = std::os::unix::fs::PermissionsExt::from_mode(0o700);
-  std::fs::set_permissions(&editor, permissions).unwrap();
+  fs::set_permissions(&editor, permissions).unwrap();
 
   let output = Command::new(executable_path("just"))
     .current_dir(tmp.path().join("child"))
@@ -164,8 +164,7 @@ fn editor_working_directory() {
     .unwrap();
 
   let want = format!(
-    "{}{}\n",
-    JUSTFILE,
+    "{JUSTFILE}{}\n",
     tmp.path().canonicalize().unwrap().display()
   );
 
