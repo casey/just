@@ -38,6 +38,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "kebabcase" => Unary(kebabcase),
     "lowercamelcase" => Unary(lowercamelcase),
     "lowercase" => Unary(lowercase),
+    "num_cpus" =>Nullary(num_cpus),
     "os" => Nullary(os),
     "os_family" => Nullary(os_family),
     "parent_directory" => Unary(parent_directory),
@@ -268,6 +269,11 @@ fn lowercamelcase(_context: &FunctionContext, s: &str) -> Result<String, String>
 
 fn lowercase(_context: &FunctionContext, s: &str) -> Result<String, String> {
   Ok(s.to_lowercase())
+}
+
+fn num_cpus(_context: &FunctionContext) -> Result<String, String> {
+  let num = num_cpus::get();
+  Ok(num.to_string())
 }
 
 fn os(_context: &FunctionContext) -> Result<String, String> {
