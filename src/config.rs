@@ -3,6 +3,8 @@ use {
   clap::{App, AppSettings, Arg, ArgGroup, ArgMatches, ArgSettings},
 };
 
+pub(crate) const UNSTABLE_KEY: &str = "JUST_ALLOW_UNSTABLE";
+
 // These three strings should be kept in sync:
 pub(crate) const CHOOSER_DEFAULT: &str = "fzf --multi --preview 'just --show {}'";
 pub(crate) const CHOOSER_ENVIRONMENT_KEY: &str = "JUST_CHOOSER";
@@ -569,6 +571,9 @@ impl Config {
       None
     };
 
+    let unstable = matches.is_present(arg::UNSTABLE)
+      || std::env::var_os(UNSTABLE_KEY).map_or(false, |val| val.to_string_lossy() == "true");
+
     Ok(Self {
       check: matches.is_present(arg::CHECK),
       dry_run: matches.is_present(arg::DRY_RUN),
@@ -578,7 +583,7 @@ impl Config {
       load_dotenv: !matches.is_present(arg::NO_DOTENV),
       shell_command: matches.is_present(arg::SHELL_COMMAND),
       unsorted: matches.is_present(arg::UNSORTED),
-      unstable: matches.is_present(arg::UNSTABLE),
+      unstable,
       list_heading: matches
         .value_of(arg::LIST_HEADING)
         .unwrap_or("Available recipes:\n")

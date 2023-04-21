@@ -234,7 +234,7 @@ impl Test {
 
     if let Some(ref stdout_regex) = self.stdout_regex {
       if !stdout_regex.is_match(output_stdout) {
-        panic!("Stdout regex mismatch:\n{output_stderr:?}\n!~=\n/{stdout_regex:?}/");
+        panic!("Stdout regex mismatch:\n{output_stdout:?}\n!~=\n/{stdout_regex:?}/");
       }
     }
 
