@@ -1,3 +1,4 @@
+#![allow(clippy::let_underscore_untyped)]
 use super::*;
 
 #[derive(Derivative)]
