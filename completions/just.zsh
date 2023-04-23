@@ -121,6 +121,13 @@ _just_commands() {
     local commands; commands=(
         ${${${(M)"${(f)$(_call_program commands just --list)}":#    *}/ ##/}/ ##/:Args: }
     )
+    local files
+    for jf in **/*/justfile; do
+        dname=$(dirname ${jf})
+        files=(
+            ${dname}/${${${(M)"${(f)$(_call_program commands just --list --justfile=$jf)}":#    *}/ ##/}/ ##/:Args: }
+        )
+    done
 
     if compset -P '*='; then
         case "${${words[-1]%=*}#*=}" in
@@ -129,6 +136,7 @@ _just_commands() {
     else
         _describe -t variables 'variables' variables -qS "=" && ret=0
         _describe -t commands 'just commands' commands "$@"
+        _describe -t files 'the files' files "$@"
     fi
 
 }
