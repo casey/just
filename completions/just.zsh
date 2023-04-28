@@ -121,10 +121,10 @@ _just_commands() {
     local commands; commands=(
         ${${${(M)"${(f)$(_call_program commands just --list)}":#    *}/ ##/}/ ##/:Args: }
     )
-    local files
+    local files=()
     for jf in **/*/justfile; do
         dname=$(dirname ${jf})
-        files=(
+        files+=(
             ${dname}/${${${(M)"${(f)$(_call_program commands just --list --justfile=$jf)}":#    *}/ ##/}/ ##/:Args: }
         )
     done
