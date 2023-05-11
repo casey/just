@@ -30,6 +30,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "extension" => Unary(extension),
     "file_name" => Unary(file_name),
     "file_stem" => Unary(file_stem),
+    "go_arch" => Nullary(go_arch),
     "invocation_directory" => Nullary(invocation_directory),
     "invocation_directory_native" => Nullary(invocation_directory_native),
     "join" => BinaryPlus(join),
@@ -170,6 +171,29 @@ fn file_stem(_context: &FunctionContext, path: &str) -> Result<String, String> {
     .file_stem()
     .map(str::to_owned)
     .ok_or_else(|| format!("Could not extract file stem from `{path}`"))
+}
+
+/// go_arch maps the values of `target::arch()` to common Go-based architectures.
+/// This is a best-effort mapping against the internal known architectures in
+/// [syscall.go](https://github.com/golang/go/blob/3e9876cd3a5a83be9bb0f5cbc600aadf9b599558/src/go/build/syslist.go#L56).
+fn go_arch(_context: &FunctionContext) -> Result<String, String> {
+  Ok(match target::arch() {
+    "aarch64" => "arm64".to_string(),
+    "arm" => "arm".to_string(),
+    /* "asmjs" => */
+    /* "hexagon" => */
+    "mips" => "mips".to_string(),
+    /* "msp430" => */
+    /* "powerpc" => */
+    /* "powerpc64" => */
+    "s390x" => "s390x".to_string(),
+    "sparc" => "sparc".to_string(),
+    "wasm32" => "wasm".to_string(),
+    "x86" => "386".to_string(),
+    "x86_64" => "amd64".to_string(),
+    /* "xcore" => */
+    _ => "".to_string(), /* todo: fallback to target::arch()? */
+  })
 }
 
 fn invocation_directory(context: &FunctionContext) -> Result<String, String> {
