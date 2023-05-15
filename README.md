@@ -1906,7 +1906,65 @@ foo:
 
 ### Indentation
 
-Recipe lines can be indented with spaces or tabs, but not a mix of both. All of a recipe's lines must have the same indentation, but different recipes in the same `justfile` may use different indentation.
+Recipe lines can be indented with spaces or tabs, but not a mix of both. All of a recipe's lines must have the same type of indentation, but different recipes in the same `justfile` may use different indentation.
+
+Each recipe must be indented at least one level from the `recipe-name` but after that may be further indented.
+
+```just
+# justfile
+# both recipes are in the same JustFile
+set windows-shell := ["pwsh", "-NoLogo", "-NoProfileLoadTime", "-Command"]
+set ignore-comments
+
+foo directory:
+··#!pwsh
+··foreach ($item in $(Get-ChildItem {{directory}} )) {
+····echo $item.Name
+··}
+··echo ""
+
+# indentation nesting works even when newlines are escaped
+tab-foo directory:
+→ foreach ($item in $(Get-ChildItem {{directory}} )) { \
+→ → echo $item.Name \
+→ }
+→ @echo ""
+```
+
+```pwsh
+# results
+Microsoft Powershell 7.0.0
+
+PS > just foo ~
+Contacts
+Desktop
+Documents
+Downloads
+Favorites
+Links
+Music
+OneDrive
+Pictures
+Saved Games
+Searches
+Videos
+
+PS > just tab-foo ~
+foreach ($item in $(get-childitem ~ )) {echo $item.Name}
+Contacts
+Desktop
+Documents
+Downloads
+Favorites
+Links
+Music
+OneDrive
+Pictures
+Saved Games
+Searches
+Videos
+
+```
 
 ### Multi-Line Constructs
 
