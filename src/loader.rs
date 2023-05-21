@@ -38,9 +38,10 @@ impl Loader {
     }
   }
 
-  pub(crate) fn load<'src>(&'src self, path: &Path) -> RunResult<&'src str> {
+  pub(crate) fn load<'src>(&'src self, path: &Path) -> RunResult<Compilation> {
     let src = self.load_recursive(path, HashSet::new())?;
-    Ok(self.arena.alloc(src))
+    let src = self.arena.alloc(src);
+    Ok(Compiler::compile(src)?)
   }
 
   fn load_file<'a>(path: &Path) -> RunResult<'a, String> {
@@ -176,7 +177,7 @@ some_recipe: recipe_b
     let justfile_a_path = tmp.path().join("justfile");
     let loader_output = loader.load(&justfile_a_path).unwrap();
 
-    assert_eq!(loader_output, full_concatenated_output);
+    assert_eq!(loader_output.src(), full_concatenated_output);
   }
 
   #[test]

@@ -22,6 +22,7 @@ impl Compiler {
 
 /// This type represents everything necessary to perform any operation on a justfile - the raw
 /// source, the compiled justfile and ast, and references to any included justfiles.
+#[derive(Debug)]
 pub(crate) struct Compilation<'src> {
   root_ast: Ast<'src>,
   root_justfile: Justfile<'src>,
