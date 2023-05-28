@@ -2,12 +2,6 @@
 
 @import 'variables.css';
 
-::-webkit-scrollbar {
-    background: var(--bg);
-}
-::-webkit-scrollbar-thumb {
-    background: var(--scrollbar);
-}
 html {
     scrollbar-color: var(--scrollbar) var(--bg);
 }
@@ -16,6 +10,19 @@ html {
 a:visited,
 a > .hljs {
     color: var(--links);
+}
+
+/*
+    body-container is necessary because mobile browsers don't seem to like
+    overflow-x on the body tag when there is a <meta name="viewport"> tag.
+*/
+#body-container {
+    /*
+        This is used when the sidebar pushes the body content off the side of
+        the screen on small screens. Without it, dragging on mobile Safari
+        will want to reposition the viewport in a weird way.
+    */
+    overflow-x: clip;
 }
 
 /* Menu Bar */
