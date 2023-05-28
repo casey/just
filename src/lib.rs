@@ -3,6 +3,7 @@
   clippy::default_trait_access,
   clippy::doc_markdown,
   clippy::enum_glob_use,
+  clippy::let_underscore_untyped,
   clippy::missing_errors_doc,
   clippy::needless_pass_by_value,
   clippy::non_ascii_literal,
