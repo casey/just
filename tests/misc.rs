@@ -1915,7 +1915,22 @@ test! {
 }
 
 test! {
-  name: dependency_argument_function_foo,
+  name: env_function_as_env_var,
+  justfile: "
+    foo: (bar env('x'))
+
+    bar arg:
+      echo {{arg}}
+  ",
+  args: (),
+  env: { "x": "z", },
+  stdout: "z\n",
+  stderr: "echo z\n",
+  shell: false,
+}
+
+test! {
+  name: env_function_as_env_var_or_default,
   justfile: "
     foo: (bar env('x', 'y'))
 
@@ -1923,8 +1938,39 @@ test! {
       echo {{arg}}
   ",
   args: (),
-  stdout: "y\n",
-  stderr: "echo y\n",
+  env: { "x": "z", },
+  stdout: "z\n",
+  stderr: "echo z\n",
+  shell: false,
+}
+
+test! {
+  name: env_function_as_env_var_with_existing_env_var,
+  justfile: "
+    foo: (bar env('x'))
+
+    bar arg:
+      echo {{arg}}
+  ",
+  args: (),
+  env: { "x": "z", },
+  stdout: "z\n",
+  stderr: "echo z\n",
+  shell: false,
+}
+
+test! {
+  name: env_function_as_env_var_or_default_with_existing_env_var,
+  justfile: "
+    foo: (bar env('x', 'y'))
+
+    bar arg:
+      echo {{arg}}
+  ",
+  args: (),
+  env: { "x": "z", },
+  stdout: "z\n",
+  stderr: "echo z\n",
   shell: false,
 }
 
