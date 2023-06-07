@@ -13,6 +13,7 @@ use {
 pub(crate) enum Function {
   Nullary(fn(&FunctionContext) -> Result<String, String>),
   Unary(fn(&FunctionContext, &str) -> Result<String, String>),
+  UnaryPlus(fn(&FunctionContext, &str, &[String]) -> Result<String, String>),
   Binary(fn(&FunctionContext, &str, &str) -> Result<String, String>),
   BinaryPlus(fn(&FunctionContext, &str, &str, &[String]) -> Result<String, String>),
   Ternary(fn(&FunctionContext, &str, &str, &str) -> Result<String, String>),
@@ -25,8 +26,8 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "capitalize" => Unary(capitalize),
     "clean" => Unary(clean),
     "env_var" => Unary(env_var),
-    "env" => Unary(env),
     "env_var_or_default" => Binary(env_var_or_default),
+    "env" => UnaryPlus(env),
     "error" => Unary(error),
     "extension" => Unary(extension),
     "file_name" => Unary(file_name),
@@ -74,6 +75,7 @@ impl Function {
     match *self {
       Nullary(_) => 0..0,
       Unary(_) => 1..1,
+      UnaryPlus(_) => 2..usize::MAX,
       Binary(_) => 2..2,
       BinaryPlus(_) => 2..usize::MAX,
       Ternary(_) => 3..3,
@@ -148,10 +150,13 @@ fn env_var_or_default(
   }
 }
 
-fn env(context: &FunctionContext, key: &str, default: Option<&str>) -> Result<String, String> {
-  match default {
-    Some(default) => env_var_or_default(context, key, default),
-    None => env_var(context, key),
+fn env(context: &FunctionContext, key: &str, default: &[String]) -> Result<String, String> {
+  // Is an "" env var the same as a None env var?
+  // Other option here would be to use an Opton<&str>
+  if !default.is_empty() {
+    env_var_or_default(context, key, &default[0])
+  } else {
+    env_var(context, key)
   }
 }
 

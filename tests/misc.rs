@@ -1915,6 +1915,20 @@ test! {
 }
 
 test! {
+  name: dependency_argument_function_foo,
+  justfile: "
+    foo: (bar env('x', 'y'))
+
+    bar arg:
+      echo {{arg}}
+  ",
+  args: (),
+  stdout: "y\n",
+  stderr: "echo y\n",
+  shell: false,
+}
+
+test! {
   name: dependency_argument_backtick,
   justfile: "
     export X := 'X'
