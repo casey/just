@@ -73,6 +73,15 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
       Expression::Call { thunk } => match thunk {
         Thunk::Nullary { .. } => Ok(()),
         Thunk::Unary { arg, .. } => self.resolve_expression(arg),
+        Thunk::UnaryPlus {
+          args: (a, rest), ..
+        } => {
+          self.resolve_expression(a)?;
+          for arg in rest {
+            self.resolve_expression(arg)?;
+          }
+          Ok(())
+        }
         Thunk::Binary { args: [a, b], .. } => {
           self.resolve_expression(a)?;
           self.resolve_expression(b)

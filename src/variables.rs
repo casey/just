@@ -20,6 +20,14 @@ impl<'expression, 'src> Iterator for Variables<'expression, 'src> {
         Expression::Call { thunk } => match thunk {
           Thunk::Nullary { .. } => {}
           Thunk::Unary { arg, .. } => self.stack.push(arg),
+          Thunk::UnaryPlus {
+            args: (a, rest), ..
+          } => {
+            let first: &[&Expression] = &[a];
+            for arg in first.iter().copied().chain(rest).rev() {
+              self.stack.push(arg);
+            }
+          }
           Thunk::Binary { args, .. } => {
             for arg in args.iter().rev() {
               self.stack.push(arg);

@@ -225,6 +225,20 @@ impl Expression {
           name: name.lexeme().to_owned(),
           arguments: vec![Expression::new(arg)],
         },
+        full::Thunk::UnaryPlus {
+          name,
+          args: (a, rest),
+          ..
+        } => {
+          let mut arguments = vec![Expression::new(a)];
+          for arg in rest {
+            arguments.push(Expression::new(arg));
+          }
+          Expression::Call {
+            name: name.lexeme().to_owned(),
+            arguments,
+          }
+        }
         full::Thunk::Binary {
           name, args: [a, b], ..
         } => Expression::Call {
