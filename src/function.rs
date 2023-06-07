@@ -25,6 +25,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "capitalize" => Unary(capitalize),
     "clean" => Unary(clean),
     "env_var" => Unary(env_var),
+    "env" => Unary(env),
     "env_var_or_default" => Binary(env_var_or_default),
     "error" => Unary(error),
     "extension" => Unary(extension),
@@ -144,6 +145,13 @@ fn env_var_or_default(
       "environment variable `{key}` not unicode: {os_string:?}"
     )),
     Ok(value) => Ok(value),
+  }
+}
+
+fn env(context: &FunctionContext, key: &str, default: Option<&str>) -> Result<String, String> {
+  match default {
+    Some(default) => env_var_or_default(context, key, default),
+    None => env_var(context, key),
   }
 }
 
