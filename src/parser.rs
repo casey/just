@@ -2335,6 +2335,20 @@ mod tests {
   }
 
   error! {
+    name: function_argument_count_unary_plus,
+    input: "x := env()",
+    offset: 5,
+    line: 0,
+    column: 5,
+    width: 3,
+    kind: FunctionArgumentCountMismatch {
+      function: "env",
+      found: 0,
+      expected: 1..usize::MAX,
+    },
+  }
+
+  error! {
     name: function_argument_count_binary,
     input: "x := env_var_or_default('foo')",
     offset: 5,
