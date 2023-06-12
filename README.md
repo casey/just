@@ -412,7 +412,7 @@ Kakoune supports `justfile` syntax highlighting out of the box, thanks to TeddyD
 
 ### Helix
 
-[Helix](https://helix-editor.com/) supports `justfile` syntax highlighting out of the box since version 23.05.
+[Helix](https://helix-editor.com/) supports `justfile` syntax highlighting out-of-the-box since version 23.05.
 
 ### Sublime Text
 
