@@ -208,7 +208,7 @@ impl<'src> Lexer<'src> {
     };
     CompileError::new(
       token,
-      CompileErrorKind::Internal {
+      Internal {
         message: message.into(),
       },
     )
@@ -773,7 +773,7 @@ impl<'src> Lexer<'src> {
 
   /// Lex a backtick, cooked string, or raw string.
   ///
-  /// Backtick:      `[^`]*`
+  /// Backtick:      ``[^`]*``
   /// Cooked string: "[^"]*" # also processes escape sequences
   /// Raw string:    '[^']*'
   fn lex_string(&mut self) -> CompileResult<'src, ()> {
