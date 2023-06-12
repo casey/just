@@ -1,6 +1,7 @@
 #![deny(clippy::all, clippy::pedantic)]
 #![allow(
   clippy::enum_glob_use,
+  clippy::let_underscore_untyped,
   clippy::needless_pass_by_value,
   clippy::too_many_lines,
   clippy::unnecessary_wraps,

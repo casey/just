@@ -1,6 +1,21 @@
 Changelog
 =========
 
+[1.14.0](https://github.com/casey/just/releases/tag/1.14.0) - 2023-06-02
+------------------------------------------------------------------------
+
+### Changed
+- Use `just --show` in default chooser ([#1539](https://github.com/casey/just/pull/1539) by [fzdwx](https://github.com/fzdwx))
+
+### Misc
+- Fix justfile search link ([#1607](https://github.com/casey/just/pull/1607) by [jbaber](https://github.com/jbaber))
+- Ignore clippy::let_underscore_untyped ([#1609](https://github.com/casey/just/pull/1609))
+- Link to private recipes section in readme ([#1542](https://github.com/casey/just/pull/1542) by [quad](https://github.com/quad))
+- Update README to reflect new attribute syntax ([#1538](https://github.com/casey/just/pull/1538) by [neunenak](https://github.com/neunenak))
+- Allow multiple attributes on one line ([#1537](https://github.com/casey/just/pull/1537) by [neunenak](https://github.com/neunenak))
+- Analyze and Compiler tweaks ([#1534](https://github.com/casey/just/pull/1534) by [neunenak](https://github.com/neunenak))
+- Downgrade to TLS 1.2 in install script ([#1536](https://github.com/casey/just/pull/1536))
+
 [1.13.0](https://github.com/casey/just/releases/tag/1.13.0) - 2023-01-24
 ------------------------------------------------------------------------
 
