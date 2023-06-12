@@ -11,6 +11,7 @@ pub(crate) const CHOOSE_HELP: &str = "Select one or more recipes to run using a 
                                       of $JUST_CHOOSER, falling back to `fzf`";
 
 #[derive(Debug, PartialEq)]
+#[allow(clippy::struct_excessive_bools)]
 pub(crate) struct Config {
   pub(crate) check: bool,
   pub(crate) color: Color,

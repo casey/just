@@ -1,6 +1,3 @@
-// `Self` cannot be used where type takes generic arguments
-#![allow(clippy::use_self)]
-
 use super::*;
 
 pub struct List<T: Display, I: Iterator<Item = T> + Clone> {

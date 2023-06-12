@@ -43,7 +43,7 @@ impl<'src> Analyzer<'src> {
 
     let settings = Settings::from_setting_iter(self.sets.into_iter().map(|(_, set)| set.value));
 
-    let mut recipe_table: Table<'src, UnresolvedRecipe<'src>> = Default::default();
+    let mut recipe_table: Table<'src, UnresolvedRecipe<'src>> = Table::default();
 
     AssignmentResolver::resolve_assignments(&self.assignments)?;
 
