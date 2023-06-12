@@ -6,6 +6,7 @@ pub(crate) const WINDOWS_POWERSHELL_SHELL: &str = "powershell.exe";
 pub(crate) const WINDOWS_POWERSHELL_ARGS: &[&str] = &["-NoLogo", "-Command"];
 
 #[derive(Debug, PartialEq, Serialize, Default)]
+#[allow(clippy::struct_excessive_bools)]
 pub(crate) struct Settings<'src> {
   pub(crate) allow_duplicate_recipes: bool,
   pub(crate) dotenv_load: Option<bool>,
