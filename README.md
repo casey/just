@@ -2602,7 +2602,7 @@ Some ideas for recipes:
 
 Even for small, personal projects it's nice to be able to remember commands by name instead of ^Reverse searching your shell history, and it's a huge boon to be able to go into an old project written in a random language with a mysterious build system and know that all the commands you need to do whatever you need to do are in the `justfile`, and that if you type `just` something useful (or at least interesting!) will probably happen.
 
-For ideas for recipes, check out [this project's `justfile`](https://github.com/casey/just/blob/master/justfile), or some of the `justfile`s [out in the wild](https://github.com/search?o=desc&q=filename%3Ajustfile&s=indexed&type=Code).
+For ideas for recipes, check out [this project's `justfile`](https://github.com/casey/just/blob/master/justfile), or some of the `justfile`s [out in the wild](https://github.com/search?q=path%3A**%2Fjustfile&type=code).
 
 Anyways, I think that's about it for this incredibly long-winded README.
 
