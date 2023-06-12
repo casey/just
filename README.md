@@ -410,6 +410,10 @@ A plugin for JetBrains IDEs by [linux_china](https://github.com/linux-china) is 
 
 Kakoune supports `justfile` syntax highlighting out of the box, thanks to TeddyDD.
 
+### Helix
+
+[Helix](https://helix-editor.com/) supports `justfile` syntax highlighting out-of-the-box since version 23.05.
+
 ### Sublime Text
 
 The [Just package](https://github.com/nk9/just_sublime) by [nk9](https://github.com/nk9) with `just` syntax and some other tools is available on [PackageControl](https://packagecontrol.io/packages/Just).
