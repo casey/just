@@ -40,8 +40,11 @@ impl Display for CompileError<'_> {
         if circle.len() == 2 {
           write!(f, "Recipe `{recipe}` depends on itself")
         } else {
-          let circle = circle.join(" -> ");
-          write!(f, "Recipe `{recipe}` has circular dependency `{circle}`")
+          write!(
+            f,
+            "Recipe `{recipe}` has circular dependency `{}`",
+            circle.join(" -> ")
+          )
         }
       }
       CircularVariableDependency {
