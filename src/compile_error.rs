@@ -113,12 +113,15 @@ impl Display for CompileError<'_> {
         write!(f, "Variable `{variable}` has multiple definitions")
       }
       ExpectedKeyword { expected, found } => {
-        let word = List::or_ticked(expected);
+        let expected = List::or_ticked(expected);
         if found.kind == TokenKind::Identifier {
           let found = found.lexeme();
-          write!(f, "Expected keyword {word} but found identifier `{found}`")
+          write!(
+            f,
+            "Expected keyword {expected} but found identifier `{found}`"
+          )
         } else {
-          write!(f, "Expected keyword {word} but found `{}`", found.kind)
+          write!(f, "Expected keyword {expected} but found `{}`", found.kind)
         }
       }
       ExtraLeadingWhitespace => write!(f, "Recipe line has extra leading whitespace"),
