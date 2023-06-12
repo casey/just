@@ -115,10 +115,10 @@ impl Display for CompileError<'_> {
       ExpectedKeyword { expected, found } => {
         let expected = List::or_ticked(expected);
         if found.kind == TokenKind::Identifier {
-          let found = found.lexeme();
           write!(
             f,
-            "Expected keyword {expected} but found identifier `{found}`"
+            "Expected keyword {expected} but found identifier `{}`",
+            found.lexeme()
           )
         } else {
           write!(f, "Expected keyword {expected} but found `{}`", found.kind)
