@@ -8,7 +8,7 @@ pub(crate) const CHOOSER_DEFAULT: &str = "fzf -m --preview 'just --show {}'";
 pub(crate) const CHOOSER_ENVIRONMENT_KEY: &str = "JUST_CHOOSER";
 pub(crate) const CHOOSE_HELP: &str = "Select one or more recipes to run using a binary. If \
                                       `--chooser` is not passed the chooser defaults to the value \
-                                      of $JUST_CHOOSER, falling back to `fzf`()";
+                                      of $JUST_CHOOSER, falling back to `fzf`";
 
 #[derive(Debug, PartialEq)]
 pub(crate) struct Config {
