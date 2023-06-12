@@ -1,15 +1,10 @@
 #![deny(clippy::all, clippy::pedantic)]
 #![allow(
-  clippy::default_trait_access,
-  clippy::doc_markdown,
   clippy::enum_glob_use,
-  clippy::missing_errors_doc,
+  clippy::let_underscore_untyped,
   clippy::needless_pass_by_value,
-  clippy::non_ascii_literal,
-  clippy::shadow_unrelated,
-  clippy::struct_excessive_bools,
   clippy::too_many_lines,
-  clippy::type_repetition_in_bounds,
+  clippy::unnecessary_wraps,
   clippy::wildcard_imports
 )]
 
