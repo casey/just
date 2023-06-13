@@ -2,6 +2,18 @@ use {super::*, CompileErrorKind::*};
 
 const VALID_ALIAS_ATTRIBUTES: [Attribute; 1] = [Attribute::Private];
 
+pub(crate) struct Import {
+  path: PathBuf,
+  optional: bool,
+  line: usize,
+}
+
+impl Import {
+  pub(crate) fn path(&self) -> &Path {
+    self.path.as_ref()
+  }
+}
+
 #[derive(Default)]
 pub(crate) struct Analyzer<'src> {
   assignments: Table<'src, Assignment<'src>>,
@@ -12,6 +24,27 @@ pub(crate) struct Analyzer<'src> {
 impl<'src> Analyzer<'src> {
   pub(crate) fn analyze(ast: &Ast<'src>) -> CompileResult<'src, Justfile<'src>> {
     Analyzer::default().justfile(ast)
+  }
+
+  /// Inspect an AST for nodes representing an import of another justfile and collect them
+  pub(crate) fn get_imports(ast: &Ast<'src>) -> Vec<Import> {
+    let mut output = vec![];
+    for item in &ast.items {
+      if let Item::Include { path } = item {
+        let import = Import {
+          path: Path::new(path).to_owned(),
+          optional: false,
+          line: 0, //TODO
+        };
+        output.push(import);
+      }
+    }
+
+    output
+  }
+
+  pub(crate) fn analyze_newversion(root_ast: &Ast<'src>, child_asts: &[Ast<'src>]) -> CompileResult<'src, Justfile<'src>> {
+    unimplemented!()
   }
 
   fn justfile(mut self, ast: &Ast<'src>) -> CompileResult<'src, Justfile<'src>> {
@@ -27,7 +60,7 @@ impl<'src> Analyzer<'src> {
           self.analyze_assignment(assignment)?;
           self.assignments.insert(assignment.clone());
         }
-        Item::Comment(_) => (),
+        Item::Comment(_) | Item::Include { ..} => (),
         Item::Recipe(recipe) => {
           if recipe.enabled() {
             Self::analyze_recipe(recipe)?;

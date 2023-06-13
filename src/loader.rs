@@ -1,5 +1,5 @@
 use super::*;
-use std::collections::HashSet;
+use std::collections::{VecDeque, HashSet};
 
 struct LinesWithEndings<'a> {
   input: &'a str,
@@ -36,6 +36,51 @@ impl Loader {
       arena: Arena::new(),
       unstable,
     }
+  }
+
+  pub(crate) fn load_and_compile<'src>(&'src self, path: &Path) -> RunResult<Compilation> {
+    let root_src = self.load_and_alloc(path)?;
+    let root_ast = Compiler::parse(root_src)?;
+
+    let mut child_asts = vec![];
+
+    let mut seen: HashSet<PathBuf> = HashSet::new();
+    let mut queue: VecDeque<(PathBuf, Vec<Import>)> = VecDeque::new();
+    queue.push_back((path.to_owned(), Analyzer::get_imports(&root_ast)));
+
+    loop {
+      let (cur_path, imports) = match queue.pop_front() {
+        Some(item) => item,
+        None => break,
+      };
+
+      for import in imports {
+        let given_path = import.path();
+        let canonical_path = given_path.lexiclean();
+        if seen.contains(&canonical_path) {
+          return Err(Error::CircularInclude {
+            current: cur_path.to_owned(),
+            include: canonical_path,
+          });
+        } else {
+          seen.insert(canonical_path.clone());
+        }
+
+        let src = self.load_and_alloc(&canonical_path)?;
+        let ast = Compiler::parse(src)?;
+        queue.push_back((given_path.to_owned(), Analyzer::get_imports(&ast)));
+        child_asts.push(ast);
+      }
+    }
+
+    let justfile = Analyzer::analyze_newversion(&root_ast, &child_asts)?;
+
+    unimplemented!()
+  }
+
+  fn load_and_alloc<'src>(&'src self, path: &Path) -> RunResult<&'src mut String> {
+    let src = Self::load_file(path)?;
+    Ok(self.arena.alloc(src))
   }
 
   pub(crate) fn load<'src>(&'src self, path: &Path) -> RunResult<Compilation> {
