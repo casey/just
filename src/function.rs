@@ -1,6 +1,3 @@
-#![allow(unknown_lints)]
-#![allow(clippy::unnecessary_wraps)]
-
 use {
   super::*,
   heck::{
@@ -218,7 +215,7 @@ fn join(
 
 fn just_executable(_context: &FunctionContext) -> Result<String, String> {
   let exe_path =
-    std::env::current_exe().map_err(|e| format!("Error getting current executable: {e}"))?;
+    env::current_exe().map_err(|e| format!("Error getting current executable: {e}"))?;
 
   exe_path.to_str().map(str::to_owned).ok_or_else(|| {
     format!(
@@ -333,7 +330,7 @@ fn sha256_file(context: &FunctionContext, path: &str) -> Result<String, String> 
   use sha2::{Digest, Sha256};
   let justpath = context.search.working_directory.join(path);
   let mut hasher = Sha256::new();
-  let mut file = std::fs::File::open(&justpath)
+  let mut file = fs::File::open(&justpath)
     .map_err(|err| format!("Failed to open file at `{:?}`: {err}", &justpath.to_str()))?;
   std::io::copy(&mut file, &mut hasher)
     .map_err(|err| format!("Failed to read file at `{:?}`: {err}", &justpath.to_str()))?;

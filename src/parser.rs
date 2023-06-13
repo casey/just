@@ -174,15 +174,14 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
 
     if next.kind != Identifier {
       Err(self.internal_error(format!(
-        "Presumed next token would have kind {}, but found {}",
-        Identifier, next.kind
+        "Presumed next token would have kind {Identifier}, but found {}",
+        next.kind
       ))?)
     } else if keyword == next.lexeme() {
       Ok(())
     } else {
       Err(self.internal_error(format!(
-        "Presumed next token would have lexeme \"{}\", but found \"{}\"",
-        keyword,
+        "Presumed next token would have lexeme \"{keyword}\", but found \"{}\"",
         next.lexeme(),
       ))?)
     }
@@ -196,8 +195,8 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
       Ok(next)
     } else {
       Err(self.internal_error(format!(
-        "Presumed next token would have kind {:?}, but found {:?}",
-        kind, next.kind
+        "Presumed next token would have kind {kind:?}, but found {:?}",
+        next.kind
       ))?)
     }
   }
@@ -869,7 +868,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
         }
         attributes.insert(attribute, name.line);
 
-        if !self.accepted(TokenKind::Comma)? {
+        if !self.accepted(Comma)? {
           break;
         }
       }

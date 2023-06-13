@@ -1,5 +1,5 @@
 pub(crate) const FISH_RECIPE_COMPLETIONS: &str = r#"function __fish_just_complete_recipes
-    just --summary 2> /dev/null | tr " " "\n" || echo ""
+    just --list 2> /dev/null | sed -e '1d; s/^\s*\([^[:space:]]*\)[^#]*$/\1/' -e 's/^\s*\([^[:space:]]*\)[^#]*# \(.*\)$/\1\t\2/'
 end
 
 # don't suggest files right off

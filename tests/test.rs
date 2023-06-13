@@ -169,8 +169,8 @@ impl Test {
 
   pub(crate) fn write(self, path: impl AsRef<Path>, content: impl AsRef<[u8]>) -> Self {
     let path = self.tempdir.path().join(path);
-    std::fs::create_dir_all(path.parent().unwrap()).unwrap();
-    std::fs::write(path, content).unwrap();
+    fs::create_dir_all(path.parent().unwrap()).unwrap();
+    fs::write(path, content).unwrap();
     self
   }
 }
@@ -224,7 +224,7 @@ impl Test {
     fn compare<T: PartialEq + Debug>(name: &str, have: T, want: T) -> bool {
       let equal = have == want;
       if !equal {
-        eprintln!("Bad {}: {}", name, Comparison::new(&have, &want));
+        eprintln!("Bad {name}: {}", Comparison::new(&have, &want));
       }
       equal
     }
