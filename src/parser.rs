@@ -2335,7 +2335,7 @@ mod tests {
   }
 
   error! {
-    name: function_argument_count_unary_plus,
+    name: function_argument_count_unary_opt,
     input: "x := env()",
     offset: 5,
     line: 0,
@@ -2344,7 +2344,7 @@ mod tests {
     kind: FunctionArgumentCountMismatch {
       function: "env",
       found: 0,
-      expected: 1..usize::MAX,
+      expected: 1..2,
     },
   }
 

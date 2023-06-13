@@ -14,11 +14,11 @@ pub(crate) enum Thunk<'src> {
     function: fn(&FunctionContext, &str) -> Result<String, String>,
     arg: Box<Expression<'src>>,
   },
-  UnaryPlus {
+  UnaryOpt {
     name: Name<'src>,
     #[derivative(Debug = "ignore", PartialEq = "ignore")]
-    function: fn(&FunctionContext, &str, &[String]) -> Result<String, String>,
-    args: (Box<Expression<'src>>, Vec<Expression<'src>>),
+    function: fn(&FunctionContext, &str, Option<&str>) -> Result<String, String>,
+    args: (Box<Expression<'src>>, Box<Option<Expression<'src>>>),
   },
   Binary {
     name: Name<'src>,
@@ -45,7 +45,7 @@ impl<'src> Thunk<'src> {
     match self {
       Self::Nullary { name, .. }
       | Self::Unary { name, .. }
-      | Self::UnaryPlus { name, .. }
+      | Self::UnaryOpt { name, .. }
       | Self::Binary { name, .. }
       | Self::BinaryPlus { name, .. }
       | Self::Ternary { name, .. } => name,
@@ -67,12 +67,15 @@ impl<'src> Thunk<'src> {
           arg: Box::new(arguments.pop().unwrap()),
           name,
         }),
-        (Function::UnaryPlus(function), 1..=usize::MAX) => {
-          let rest = arguments.drain(1..).collect();
-          let a = Box::new(arguments.pop().unwrap());
-          Ok(Thunk::UnaryPlus {
+        (Function::UnaryOpt(function), 1..=2) => {
+          let a = Box::new(arguments.remove(0));
+          let opt_b = match arguments.pop() {
+            Some(value) => Box::new(Some(value)),
+            None => Box::new(None),
+          };
+          Ok(Thunk::UnaryOpt {
             function,
-            args: (a, rest),
+            args: (a, opt_b),
             name,
           })
         }
@@ -121,16 +124,16 @@ impl Display for Thunk<'_> {
     match self {
       Nullary { name, .. } => write!(f, "{}()", name.lexeme()),
       Unary { name, arg, .. } => write!(f, "{}({arg})", name.lexeme()),
-      UnaryPlus {
+      UnaryOpt {
         name,
-        args: (a, rest),
+        args: (a, opt_b),
         ..
       } => {
-        write!(f, "{}({a}", name.lexeme())?;
-        for arg in rest {
-          write!(f, ", {arg}")?;
+        if let Some(b) = opt_b.as_ref() {
+          write!(f, "{}({a}, {b})", name.lexeme())
+        } else {
+          write!(f, "{}({a})", name.lexeme())
         }
-        write!(f, ")")
       }
       Binary {
         name, args: [a, b], ..
@@ -166,10 +169,12 @@ impl<'src> Serialize for Thunk<'src> {
     match self {
       Self::Nullary { .. } => {}
       Self::Unary { arg, .. } => seq.serialize_element(&arg)?,
-      Self::UnaryPlus { args, .. } => {
-        seq.serialize_element(&args.0)?;
-        for additional_arg in &args.1 {
-          seq.serialize_element(additional_arg)?;
+      Self::UnaryOpt {
+        args: (a, opt_b), ..
+      } => {
+        seq.serialize_element(a)?;
+        if let Some(b) = opt_b.as_ref() {
+          seq.serialize_element(b)?;
         }
       }
       Self::Binary { args, .. } => {

@@ -92,20 +92,20 @@ impl<'src, 'run> Evaluator<'src, 'run> {
               message,
             }
           }),
-          UnaryPlus {
+          UnaryOpt {
             name,
             function,
-            args: (a, rest),
+            args: (a, opt_b),
             ..
           } => {
-            let a = self.evaluate_expression(a)?;
+            let a_val = self.evaluate_expression(a)?;
+            let mut b_val: Option<String> = None;
 
-            let mut rest_evaluated = Vec::new();
-            for arg in rest {
-              rest_evaluated.push(self.evaluate_expression(arg)?);
+            if let Some(b) = opt_b.as_ref() {
+              b_val = Some(self.evaluate_expression(b)?);
             }
 
-            function(&context, &a, &rest_evaluated).map_err(|message| Error::FunctionCall {
+            function(&context, &a_val, b_val.as_deref()).map_err(|message| Error::FunctionCall {
               function: *name,
               message,
             })
