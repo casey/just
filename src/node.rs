@@ -80,13 +80,11 @@ impl<'src> Node<'src> for Expression<'src> {
             tree.push_mut(arg.tree());
           }
           UnaryOpt {
-            name,
-            args: (a, opt_b),
-            ..
+            name, args: (a, b), ..
           } => {
             tree.push_mut(name.lexeme());
             tree.push_mut(a.tree());
-            if let Some(b) = opt_b.as_ref() {
+            if let Some(b) = b.as_ref() {
               tree.push_mut(b.tree());
             }
           }

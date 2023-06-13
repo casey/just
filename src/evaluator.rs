@@ -95,17 +95,16 @@ impl<'src, 'run> Evaluator<'src, 'run> {
           UnaryOpt {
             name,
             function,
-            args: (a, opt_b),
+            args: (a, b),
             ..
           } => {
-            let a_val = self.evaluate_expression(a)?;
-            let mut b_val: Option<String> = None;
+            let a = self.evaluate_expression(a)?;
+            let b = match b.as_ref() {
+              Some(b) => Some(self.evaluate_expression(b)?),
+              None => None,
+            };
 
-            if let Some(b) = opt_b.as_ref() {
-              b_val = Some(self.evaluate_expression(b)?);
-            }
-
-            function(&context, &a_val, b_val.as_deref()).map_err(|message| Error::FunctionCall {
+            function(&context, &a, b.as_deref()).map_err(|message| Error::FunctionCall {
               function: *name,
               message,
             })

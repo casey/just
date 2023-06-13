@@ -69,13 +69,13 @@ impl<'src> Thunk<'src> {
         }),
         (Function::UnaryOpt(function), 1..=2) => {
           let a = Box::new(arguments.remove(0));
-          let opt_b = match arguments.pop() {
+          let b = match arguments.pop() {
             Some(value) => Box::new(Some(value)),
             None => Box::new(None),
           };
           Ok(Thunk::UnaryOpt {
             function,
-            args: (a, opt_b),
+            args: (a, b),
             name,
           })
         }
@@ -125,11 +125,9 @@ impl Display for Thunk<'_> {
       Nullary { name, .. } => write!(f, "{}()", name.lexeme()),
       Unary { name, arg, .. } => write!(f, "{}({arg})", name.lexeme()),
       UnaryOpt {
-        name,
-        args: (a, opt_b),
-        ..
+        name, args: (a, b), ..
       } => {
-        if let Some(b) = opt_b.as_ref() {
+        if let Some(b) = b.as_ref() {
           write!(f, "{}({a}, {b})", name.lexeme())
         } else {
           write!(f, "{}({a})", name.lexeme())
