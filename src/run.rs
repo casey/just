@@ -1,6 +1,7 @@
 use super::*;
 
 /// Main entry point into just binary.
+#[allow(clippy::missing_errors_doc)]
 pub fn run() -> Result<(), i32> {
   #[cfg(windows)]
   ansi_term::enable_ansi_support().ok();

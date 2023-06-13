@@ -410,6 +410,10 @@ A plugin for JetBrains IDEs by [linux_china](https://github.com/linux-china) is 
 
 Kakoune supports `justfile` syntax highlighting out of the box, thanks to TeddyDD.
 
+### Helix
+
+[Helix](https://helix-editor.com/) supports `justfile` syntax highlighting out-of-the-box since version 23.05.
+
 ### Sublime Text
 
 The [Just package](https://github.com/nk9/just_sublime) by [nk9](https://github.com/nk9) with `just` syntax and some other tools is available on [PackageControl](https://packagecontrol.io/packages/Just).
@@ -2329,9 +2333,46 @@ default:
   echo foo
 ```
 
-### Dumping `justfile`s as JSON
+### Formatting and dumping `justfile`s
 
-The `--dump` command can be used with `--dump-format json` to print a JSON representation of a `justfile`. The JSON format is currently unstable, so the `--unstable` flag is required.
+Each `justfile` has a canonical formatting with respect to whitespace and
+newlines.
+
+You can overwrite the current justfile with a canonically-formatted version
+using the currently-unstable `--fmt` flag:
+
+```sh
+$ cat justfile
+# A lot of blank lines
+
+
+
+
+
+some-recipe:
+  echo "foo"
+$ just --fmt --unstable
+$ cat justfile
+# A lot of blank lines
+
+some-recipe:
+    echo "foo"
+```
+
+Invoking `just --fmt --check --unstable` runs `--fmt` in check mode. Instead of
+overwriting the `justfile`, `just` will exit with an exit code of 0 if it is
+formatted correctly, and will exit with 1 and print a diff if it is not.
+
+You can use the `--dump` command to output a formatted version of the
+`justfile` to stdout:
+
+```sh
+$ just --dump > formatted-justfile
+```
+
+The `--dump` command can be used with `--dump-format json` to print a JSON
+representation of a `justfile`. The JSON format is currently unstable, so the
+`--unstable` flag is required.
 
 ### Fallback to parent `justfile`s
 
@@ -2656,7 +2697,7 @@ Some ideas for recipes:
 
 Even for small, personal projects it's nice to be able to remember commands by name instead of ^Reverse searching your shell history, and it's a huge boon to be able to go into an old project written in a random language with a mysterious build system and know that all the commands you need to do whatever you need to do are in the `justfile`, and that if you type `just` something useful (or at least interesting!) will probably happen.
 
-For ideas for recipes, check out [this project's `justfile`](https://github.com/casey/just/blob/master/justfile), or some of the `justfile`s [out in the wild](https://github.com/search?o=desc&q=filename%3Ajustfile&s=indexed&type=Code).
+For ideas for recipes, check out [this project's `justfile`](https://github.com/casey/just/blob/master/justfile), or some of the `justfile`s [out in the wild](https://github.com/search?q=path%3A**%2Fjustfile&type=code).
 
 Anyways, I think that's about it for this incredibly long-winded README.
 
