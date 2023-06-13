@@ -225,6 +225,23 @@ impl Expression {
           name: name.lexeme().to_owned(),
           arguments: vec![Expression::new(arg)],
         },
+        full::Thunk::UnaryOpt {
+          name,
+          args: (a, opt_b),
+          ..
+        } => {
+          let mut arguments = vec![];
+
+          if let Some(b) = opt_b.as_ref() {
+            arguments.push(Expression::new(b));
+          }
+
+          arguments.push(Expression::new(a));
+          Expression::Call {
+            name: name.lexeme().to_owned(),
+            arguments,
+          }
+        }
         full::Thunk::Binary {
           name, args: [a, b], ..
         } => Expression::Call {

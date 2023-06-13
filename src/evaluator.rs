@@ -92,6 +92,23 @@ impl<'src, 'run> Evaluator<'src, 'run> {
               message,
             }
           }),
+          UnaryOpt {
+            name,
+            function,
+            args: (a, b),
+            ..
+          } => {
+            let a = self.evaluate_expression(a)?;
+            let b = match b.as_ref() {
+              Some(b) => Some(self.evaluate_expression(b)?),
+              None => None,
+            };
+
+            function(&context, &a, b.as_deref()).map_err(|message| Error::FunctionCall {
+              function: *name,
+              message,
+            })
+          }
           Binary {
             name,
             function,

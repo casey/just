@@ -2334,6 +2334,34 @@ mod tests {
   }
 
   error! {
+    name: function_argument_count_too_high_unary_opt,
+    input: "x := env('foo', 'foo', 'foo')",
+    offset: 5,
+    line: 0,
+    column: 5,
+    width: 3,
+    kind: FunctionArgumentCountMismatch {
+      function: "env",
+      found: 3,
+      expected: 1..2,
+    },
+  }
+
+  error! {
+    name: function_argument_count_too_low_unary_opt,
+    input: "x := env()",
+    offset: 5,
+    line: 0,
+    column: 5,
+    width: 3,
+    kind: FunctionArgumentCountMismatch {
+      function: "env",
+      found: 0,
+      expected: 1..2,
+    },
+  }
+
+  error! {
     name: function_argument_count_binary,
     input: "x := env_var_or_default('foo')",
     offset: 5,
