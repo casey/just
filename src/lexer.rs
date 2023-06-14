@@ -470,7 +470,7 @@ impl<'src> Lexer<'src> {
   fn lex_normal(&mut self, start: char) -> CompileResult<'src, ()> {
     match start {
       ' ' | '\t' => self.lex_whitespace(),
-      '!' => self.lex_possible_digraph('!', Bang, '=', BangEquals),
+      '!' => self.lex_bang_expression(),
       '#' => self.lex_comment(),
       '$' => self.lex_single(Dollar),
       '&' => self.lex_digraph('&', '&', AmpersandAmpersand),
@@ -674,21 +674,28 @@ impl<'src> Lexer<'src> {
     !self.open_delimiters.is_empty()
   }
 
-  fn lex_possible_digraph(
-    &mut self,
-    left: char,
-    left_only_token: TokenKind,
-    right: char,
-    full_token: TokenKind,
-  ) -> CompileResult<'src, ()> {
-    self.presume(left)?;
-    if self.accepted(right)? {
-      self.token(full_token);
-      Ok(())
-    } else {
-      self.token(left_only_token);
-      Ok(())
+  fn lex_bang_expression(&mut self) -> CompileResult<'src, ()> {
+    self.presume('!')?;
+
+    // First, see if this is a `!=` literal
+    if self.accepted('=')? {
+      self.token(BangEquals);
+      return Ok(());
     }
+
+    //Otherwise, try to lex an identifier
+    let identifier = self.lex_identifier()?;
+
+    while let Some(c) = self.next {
+      if !Self::is_identifier_continue(c) {
+        break;
+      }
+
+      self.advance()?;
+    }
+
+
+    Ok(())
   }
 
   /// Lex a two-character digraph

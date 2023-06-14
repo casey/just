@@ -1976,6 +1976,12 @@ mod tests {
     tree: (justfile (assignment a (if b == c d (if b == c d e)))),
   }
 
+  test! {
+    name: include_directive,
+    text: "!include some/file/path.txt     \n",
+    tree: (justfile (assignment a (if b == c d (if b == c d e)))),
+  }
+
   error! {
     name:   alias_syntax_multiple_rhs,
     input:  "alias foo := bar baz",
