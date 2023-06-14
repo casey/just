@@ -2081,6 +2081,12 @@ mod tests {
     tokens: (Bang, BraceL)
   }
 
+  test! {
+    name: identifier_after_bang,
+    text: "!include",
+    tokens: (Bang, Identifier:"include")
+  }
+
   error! {
     name:  tokenize_space_then_tab,
     input: "a:
