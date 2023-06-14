@@ -30,6 +30,13 @@ pub(crate) struct Compilation<'src> {
 }
 
 impl<'src> Compilation<'src> {
+
+  pub(crate) fn new(root_ast: Ast<'src>, root_justfile: Justfile<'src>, root_source: &'src str) -> Self {
+    Self {
+      root_ast, root_justfile, root_source
+    }
+  }
+
   pub(crate) fn justfile(&self) -> &Justfile<'src> {
     &self.root_justfile
   }

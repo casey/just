@@ -74,8 +74,8 @@ impl Loader {
     }
 
     let justfile = Analyzer::analyze_newversion(&root_ast, &child_asts)?;
-
-    unimplemented!()
+    let compilation = Compilation::new(root_ast, justfile, root_src);
+    Ok(compilation)
   }
 
   fn load_and_alloc<'src>(&'src self, path: &Path) -> RunResult<&'src mut String> {
