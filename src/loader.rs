@@ -1,5 +1,5 @@
 use super::*;
-use std::collections::{VecDeque, HashSet};
+use std::collections::{HashSet, VecDeque};
 
 struct LinesWithEndings<'a> {
   input: &'a str,

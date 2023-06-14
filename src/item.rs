@@ -8,9 +8,7 @@ pub(crate) enum Item<'src> {
   Comment(&'src str),
   Recipe(UnresolvedRecipe<'src>),
   Set(Set<'src>),
-  Include {
-    path: &'src str,
-  }
+  Include { path: &'src str },
 }
 
 impl<'src> Display for Item<'src> {

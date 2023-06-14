@@ -43,7 +43,10 @@ impl<'src> Analyzer<'src> {
     output
   }
 
-  pub(crate) fn analyze_newversion(root_ast: &Ast<'src>, child_asts: &[Ast<'src>]) -> CompileResult<'src, Justfile<'src>> {
+  pub(crate) fn analyze_newversion(
+    root_ast: &Ast<'src>,
+    child_asts: &[Ast<'src>],
+  ) -> CompileResult<'src, Justfile<'src>> {
     unimplemented!()
   }
 
@@ -60,7 +63,7 @@ impl<'src> Analyzer<'src> {
           self.analyze_assignment(assignment)?;
           self.assignments.insert(assignment.clone());
         }
-        Item::Comment(_) | Item::Include { ..} => (),
+        Item::Comment(_) | Item::Include { .. } => (),
         Item::Recipe(recipe) => {
           if recipe.enabled() {
             Self::analyze_recipe(recipe)?;

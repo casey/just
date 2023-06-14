@@ -319,6 +319,9 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
         eol_since_last_comment = true;
       } else if self.accepted(Eof)? {
         break;
+      } else if self.next_is(Bang) {
+        //TODO parse_directive() method
+        todo!()
       } else if self.next_is(Identifier) {
         match Keyword::from_lexeme(next.lexeme()) {
           Some(Keyword::Alias) if self.next_are(&[Identifier, Identifier, ColonEquals]) => {
@@ -2048,7 +2051,7 @@ mod tests {
     column: 0,
     width:  1,
     kind: UnexpectedToken {
-      expected: vec![At, BracketL, Comment, Eof, Eol, Identifier],
+      expected: vec![At, Bang, BracketL, Comment, Eof, Eol, Identifier],
       found: BraceL,
     },
   }
