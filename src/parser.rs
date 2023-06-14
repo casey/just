@@ -319,9 +319,6 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
         eol_since_last_comment = true;
       } else if self.accepted(Eof)? {
         break;
-      } else if self.next_is(Bang) {
-        //TODO parse_directive() method
-        todo!()
       } else if self.next_is(Identifier) {
         match Keyword::from_lexeme(next.lexeme()) {
           Some(Keyword::Alias) if self.next_are(&[Identifier, Identifier, ColonEquals]) => {
@@ -353,6 +350,9 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
             }
           }
         }
+      } else if self.accepted(Bang)? {
+        let directive = self.parse_directive()?;
+        items.push(directive);
       } else if self.accepted(At)? {
         let doc = pop_doc_comment(&mut items, eol_since_last_comment);
         items.push(Item::Recipe(self.parse_recipe(
@@ -776,6 +776,21 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     };
 
     Ok(value)
+  }
+
+  fn parse_directive(&mut self) -> CompileResult<'src, Item<'src>> {
+    self.presume(Bang)?;
+    let directive_name = Name::from_identifier(self.expect(Identifier)?).lexeme();
+    match directive_name {
+      "include" => {
+        //TODO need to get path
+        let path: &str = todo!();
+        Ok(Item::Include { path })
+      }
+      otherwise => {
+        todo!()
+      }
+    }
   }
 
   /// Parse a setting
