@@ -3,8 +3,6 @@ use {
   clap::{App, AppSettings, Arg, ArgGroup, ArgMatches, ArgSettings},
 };
 
-pub(crate) const UNSTABLE_KEY: &str = "JUST_ALLOW_UNSTABLE";
-
 // These three strings should be kept in sync:
 pub(crate) const CHOOSER_DEFAULT: &str = "fzf --multi --preview 'just --show {}'";
 pub(crate) const CHOOSER_ENVIRONMENT_KEY: &str = "JUST_CHOOSER";
@@ -572,7 +570,9 @@ impl Config {
     };
 
     let unstable = matches.is_present(arg::UNSTABLE)
-      || std::env::var_os(UNSTABLE_KEY).map_or(false, |val| val.to_string_lossy() == "true");
+      || std::env::var_os("JUST_UNSTABLE").map_or(false, |val| {
+        !["false", "0", ""].contains(&val.to_string_lossy().as_ref())
+      });
 
     Ok(Self {
       check: matches.is_present(arg::CHECK),
