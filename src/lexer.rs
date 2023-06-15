@@ -683,17 +683,32 @@ impl<'src> Lexer<'src> {
       return Ok(());
     }
 
-    //Otherwise, try to lex an identifier
-    let identifier = self.lex_identifier()?;
+    //Otherwise, lex a Bang token
+    self.token(Bang);
 
-    while let Some(c) = self.next {
-      if !Self::is_identifier_continue(c) {
-        break;
-      }
+    // Then try to lex an identifier and then arbitrary text
+    match self.next {
+      Some(ch) if Self::is_identifier_start(ch) => {
+        self.lex_identifier()?;
+        loop {
+          if self.rest_starts_with("\n")
+            || self.rest_starts_with("\r\n")
+              || self.rest_starts_with("{{")
+              || self.at_eof()
+              {
+                break;
+              }
 
-      self.advance()?;
-    }
+          self.advance()?;
+        }
 
+        if self.current_token_length() > 0 {
+          self.token(Text);
+        }
+
+      },
+      _ => (),
+    };
 
     Ok(())
   }
@@ -2092,6 +2107,12 @@ mod tests {
     name: identifier_after_bang,
     text: "!include",
     tokens: (Bang, Identifier:"include")
+  }
+
+  test! {
+    name: identifier_after_bang_with_more_stuff,
+    text: "!include some/stuff",
+    tokens: (Bang, Identifier:"include", Text:" some/stuff")
   }
 
   error! {
