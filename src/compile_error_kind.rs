@@ -110,6 +110,9 @@ pub(crate) enum CompileErrorKind<'src> {
     recipe: &'src str,
     unknown: &'src str,
   },
+  UnknownDirective {
+    directive: &'src str
+  },
   UnknownFunction {
     function: &'src str,
   },

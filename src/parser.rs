@@ -780,7 +780,8 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
 
   fn parse_directive(&mut self) -> CompileResult<'src, Item<'src>> {
     self.presume(Bang)?;
-    let directive_name = Name::from_identifier(self.expect(Identifier)?).lexeme();
+    let token = self.expect(Identifier)?;
+    let directive_name = Name::from_identifier(token).lexeme();
     match directive_name {
       "include" => {
         if let Some(include_line) = self.accept(Text)? {
@@ -790,9 +791,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
           Err(self.unexpected_token()?)
         }
       }
-      otherwise => {
-        todo!()
-      }
+      directive => Err(token.error(CompileErrorKind::UnknownDirective { directive }))
     }
   }
 
@@ -2426,5 +2425,19 @@ mod tests {
       found: 1,
       expected: 3..3,
     },
+  }
+
+  error! {
+    name: unknown_directive,
+    input: "!inclood",
+    offset: 1,
+    line: 0,
+    column: 1,
+    width: 7,
+    kind: UnknownDirective {
+      directive: "inclood"
+    },
+
+
   }
 }

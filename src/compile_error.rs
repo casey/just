@@ -202,6 +202,7 @@ impl Display for CompileError<'_> {
       UnknownDependency { recipe, unknown } => {
         write!(f, "Recipe `{recipe}` has unknown dependency `{unknown}`")
       }
+      UnknownDirective { directive } => write!(f, "Unknown directive `!{directive}`"),
       UnknownFunction { function } => write!(f, "Call to unknown function `{function}`"),
       UnknownSetting { setting } => write!(f, "Unknown setting `{setting}`"),
       UnknownStartOfToken => write!(f, "Unknown start of token:"),
