@@ -1234,7 +1234,7 @@ Recipes may be annotated with attributes that change their behavior.
 | `[no-exit-message]` | Don't print an error message if recipe fails.   |
 | `[linux]`           | Enable recipe on Linux.                         |
 | `[macos]`           | Enable recipe on MacOS.                         |
-| `[unix]`            | Enable recipe on Unixes (including MacOS).      |
+| `[unix]`            | Enable recipe on Unixes. (Includes MacOS).      |
 | `[windows]`         | Enable recipe on Windows.                       |
 | `[private]`         | See [Private Recipes](#private-recipes).        |
 
