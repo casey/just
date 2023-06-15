@@ -101,6 +101,7 @@ pub(crate) enum Error<'src> {
   Internal {
     message: String,
   },
+  //TODO remove this, it's replaced by a compiler error
   InvalidDirective {
     line: String,
   },

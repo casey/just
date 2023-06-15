@@ -28,19 +28,21 @@ impl<'src> Analyzer<'src> {
 
   /// Inspect an AST for nodes representing an import of another justfile and collect them
   pub(crate) fn get_imports(ast: &Ast<'src>) -> Vec<Import> {
-    let mut output = vec![];
-    for item in &ast.items {
-      if let Item::Include { path } = item {
-        let import = Import {
-          path: Path::new(path).to_owned(),
-          optional: false,
-          line: 0, //TODO
-        };
-        output.push(import);
-      }
-    }
-
-    output
+    ast
+      .items
+      .iter()
+      .filter_map(|item| {
+        if let Item::Include { name, path } = item {
+          Some(Import {
+            path: Path::new(path).to_owned(),
+            optional: false,
+            line: name.line,
+          })
+        } else {
+          None
+        }
+      })
+      .collect()
   }
 
   pub(crate) fn analyze_newversion(

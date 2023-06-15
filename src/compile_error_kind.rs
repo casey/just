@@ -111,7 +111,7 @@ pub(crate) enum CompileErrorKind<'src> {
     unknown: &'src str,
   },
   UnknownDirective {
-    directive: &'src str
+    directive: &'src str,
   },
   UnknownFunction {
     function: &'src str,

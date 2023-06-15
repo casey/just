@@ -38,15 +38,30 @@ impl Loader {
     }
   }
 
+  #[allow(dead_code)]
   pub(crate) fn load_and_compile<'src>(&'src self, path: &Path) -> RunResult<Compilation> {
     let root_src = self.load_and_alloc(path)?;
     let root_ast = Compiler::parse(root_src)?;
+
+    let root_imports = Analyzer::get_imports(&root_ast);
+
+    if !self.unstable {
+      if !root_imports.is_empty() {
+        return Err(Error::Unstable {
+          message: "The !include directive is currently unstable.".into(),
+        });
+      } 
+
+      let justfile = Analyzer::analyze_newversion(&root_ast, &[])?;
+      let compilation = Compilation::new(root_ast, justfile, root_src);
+      return Ok(compilation)
+    }
 
     let mut child_asts = vec![];
 
     let mut seen: HashSet<PathBuf> = HashSet::new();
     let mut queue: VecDeque<(PathBuf, Vec<Import>)> = VecDeque::new();
-    queue.push_back((path.to_owned(), Analyzer::get_imports(&root_ast)));
+    queue.push_back((path.to_owned(), root_imports));
 
     loop {
       let (cur_path, imports) = match queue.pop_front() {
@@ -77,6 +92,42 @@ impl Loader {
     let compilation = Compilation::new(root_ast, justfile, root_src);
     Ok(compilation)
   }
+
+
+  fn process_include_new(
+    &self,
+    file: &Path,
+    include: &Path,
+    seen: &HashSet<PathBuf>,
+  ) -> RunResult<String> {
+    let canonical_path = if include.is_relative() {
+      let current_dir = file.parent().ok_or(Error::Internal {
+        message: format!(
+          "Justfile path `{}` has no parent directory",
+          include.display()
+        ),
+      })?;
+      current_dir.join(include)
+    } else {
+      include.to_owned()
+    };
+
+    let canonical_path = canonical_path.lexiclean();
+
+    if seen.contains(&canonical_path) {
+      return Err(Error::CircularInclude {
+        current: file.to_owned(),
+        include: canonical_path,
+      });
+    }
+
+    let mut seen_paths = seen.clone();
+    seen_paths.insert(file.lexiclean());
+
+    self.load_recursive(&canonical_path, seen_paths)
+  }
+
+
 
   fn load_and_alloc<'src>(&'src self, path: &Path) -> RunResult<&'src mut String> {
     let src = Self::load_file(path)?;
