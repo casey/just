@@ -1029,7 +1029,7 @@ $ just --evaluate
 escapes := "\t\n\r\"\\"
 ```
 
-Indented versions of both single- and double-quoted strings, delimited by triple single- or triple double-quotes, are supported. Indented string lines are stripped of leading whitespace common to all non-blank lines:
+Indented versions of both single- and double-quoted strings, delimited by triple single- or triple double-quotes, are supported. Indented string lines are stripped of leading whitespace common to all non-blank lines. Note that while the leading line break is stripped, the trailing line break is still included:
 
 ```just
 # this string will evaluate to `foo\nbar\n`
@@ -1038,7 +1038,7 @@ x := '''
   bar
 '''
 
-# this string will evaluate to `abc\n  wuv\nbar\n`
+# this string will evaluate to `abc\n  wuv\nxyz\n`
 y := """
   abc
     wuv
