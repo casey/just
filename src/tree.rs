@@ -8,6 +8,11 @@ use {
 /// notation for representing the expected results of parsing a given string.
 macro_rules! tree {
   {
+    [ $stringliteral:expr ]
+  } => { $crate::tree::Tree::atom($stringliteral)
+  };
+
+  {
     ($($child:tt)*)
   } => {
     $crate::tree::Tree::List(vec![$(tree!($child),)*])
@@ -24,6 +29,7 @@ macro_rules! tree {
   } => {
     $crate::tree::Tree::atom(format!("\"{}\"", $atom))
   };
+
 
   {
     #

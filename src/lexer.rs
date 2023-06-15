@@ -693,11 +693,11 @@ impl<'src> Lexer<'src> {
         loop {
           if self.rest_starts_with("\n")
             || self.rest_starts_with("\r\n")
-              || self.rest_starts_with("{{")
-              || self.at_eof()
-              {
-                break;
-              }
+            || self.rest_starts_with("{{")
+            || self.at_eof()
+          {
+            break;
+          }
 
           self.advance()?;
         }
@@ -705,8 +705,7 @@ impl<'src> Lexer<'src> {
         if self.current_token_length() > 0 {
           self.token(Text);
         }
-
-      },
+      }
       _ => (),
     };
 

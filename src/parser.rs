@@ -350,7 +350,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
             }
           }
         }
-      } else if self.accepted(Bang)? {
+      } else if self.next_is(Bang) {
         let directive = self.parse_directive()?;
         items.push(directive);
       } else if self.accepted(At)? {
@@ -783,9 +783,12 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     let directive_name = Name::from_identifier(self.expect(Identifier)?).lexeme();
     match directive_name {
       "include" => {
-        //TODO need to get path
-        let path: &str = todo!();
-        Ok(Item::Include { path })
+        if let Some(include_line) = self.accept(Text)? {
+          let path = include_line.lexeme().trim();
+          Ok(Item::Include { path })
+        } else {
+          Err(self.unexpected_token()?)
+        }
       }
       otherwise => {
         todo!()
@@ -1978,8 +1981,8 @@ mod tests {
 
   test! {
     name: include_directive,
-    text: "!include some/file/path.txt     \n",
-    tree: (justfile (assignment a (if b == c d (if b == c d e)))),
+    text: "!include      some/file/path.txt     \n",
+    tree: (justfile (include ["some/file/path.txt"])),
   }
 
   error! {
