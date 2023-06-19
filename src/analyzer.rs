@@ -2,6 +2,7 @@ use {super::*, CompileErrorKind::*};
 
 const VALID_ALIAS_ATTRIBUTES: [Attribute; 1] = [Attribute::Private];
 
+#[derive(Debug)]
 pub(crate) struct Import {
   path: PathBuf,
   optional: bool,
