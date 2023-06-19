@@ -50,11 +50,11 @@ impl Loader {
         return Err(Error::Unstable {
           message: "The !include directive is currently unstable.".into(),
         });
-      } 
+      }
 
       let justfile = Analyzer::analyze_newversion(&root_ast, &[])?;
       let compilation = Compilation::new(root_ast, justfile, root_src);
-      return Ok(compilation)
+      return Ok(compilation);
     }
 
     let mut child_asts = vec![];
@@ -84,7 +84,8 @@ impl Loader {
         let src = self.load_and_alloc(&canonical_path)?;
         let ast = Compiler::parse(src)?;
         queue.push_back((given_path.to_owned(), Analyzer::get_imports(&ast)));
-        child_asts.push(ast);
+        let ast_meta = AstMeta::new(ast, canonical_path);
+        child_asts.push(ast_meta);
       }
     }
 
@@ -92,10 +93,6 @@ impl Loader {
     let compilation = Compilation::new(root_ast, justfile, root_src);
     Ok(compilation)
   }
-
-
-
-
 
   fn load_and_alloc<'src>(&'src self, path: &Path) -> RunResult<&'src mut String> {
     let src = Self::load_file(path)?;

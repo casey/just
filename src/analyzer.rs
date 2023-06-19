@@ -47,9 +47,10 @@ impl<'src> Analyzer<'src> {
 
   pub(crate) fn analyze_newversion(
     root_ast: &Ast<'src>,
-    child_asts: &[Ast<'src>],
+    _child_asts: &[AstMeta<'src>],
   ) -> CompileResult<'src, Justfile<'src>> {
-    unimplemented!()
+    //TODO implement this correctly
+    Analyzer::analyze(root_ast)
   }
 
   fn justfile(mut self, ast: &Ast<'src>) -> CompileResult<'src, Justfile<'src>> {

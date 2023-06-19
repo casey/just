@@ -20,6 +20,22 @@ impl Compiler {
   }
 }
 
+/// Wrapper type for an `Ast<'src>` + metadata about where it was parsed from
+#[derive(Debug)]
+pub(crate) struct AstMeta<'src> {
+  ast: Ast<'src>,
+  canonical_path: PathBuf,
+}
+
+impl<'src> AstMeta<'src> {
+  pub(crate) fn new(ast: Ast<'src>, canonical_path: PathBuf) -> Self {
+    Self {
+      ast,
+      canonical_path,
+    }
+  }
+}
+
 /// This type represents everything necessary to perform any operation on a justfile - the raw
 /// source, the compiled justfile and ast, and references to any included justfiles.
 #[derive(Debug)]
