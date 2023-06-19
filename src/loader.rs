@@ -94,38 +94,6 @@ impl Loader {
   }
 
 
-  fn process_include_new(
-    &self,
-    file: &Path,
-    include: &Path,
-    seen: &HashSet<PathBuf>,
-  ) -> RunResult<String> {
-    let canonical_path = if include.is_relative() {
-      let current_dir = file.parent().ok_or(Error::Internal {
-        message: format!(
-          "Justfile path `{}` has no parent directory",
-          include.display()
-        ),
-      })?;
-      current_dir.join(include)
-    } else {
-      include.to_owned()
-    };
-
-    let canonical_path = canonical_path.lexiclean();
-
-    if seen.contains(&canonical_path) {
-      return Err(Error::CircularInclude {
-        current: file.to_owned(),
-        include: canonical_path,
-      });
-    }
-
-    let mut seen_paths = seen.clone();
-    seen_paths.insert(file.lexiclean());
-
-    self.load_recursive(&canonical_path, seen_paths)
-  }
 
 
 
