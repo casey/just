@@ -11,6 +11,7 @@ impl Compiler {
       root_ast,
       root_justfile,
       root_source: src,
+      imported_asts: vec![],
     })
   }
 
@@ -41,8 +42,9 @@ impl<'src> AstMeta<'src> {
 #[derive(Debug)]
 pub(crate) struct Compilation<'src> {
   root_ast: Ast<'src>,
-  root_justfile: Justfile<'src>,
   root_source: &'src str,
+  pub(crate) imported_asts: Vec<AstMeta<'src>>,
+  root_justfile: Justfile<'src>,
 }
 
 impl<'src> Compilation<'src> {
@@ -55,6 +57,14 @@ impl<'src> Compilation<'src> {
       root_ast,
       root_justfile,
       root_source,
+      imported_asts: vec![],
+    }
+  }
+
+  pub(crate) fn with_imports(self, imported_asts: Vec<AstMeta<'src>>) -> Self {
+    Self {
+      imported_asts,
+      ..self
     }
   }
 
