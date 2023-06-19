@@ -64,14 +64,31 @@ impl Loader {
     queue.push_back((path.to_owned(), root_imports));
 
     loop {
+      println!("Entering loop");
       let (cur_path, imports) = match queue.pop_front() {
         Some(item) => item,
         None => break,
       };
+      dbg!(&cur_path);
 
       for import in imports {
-        let given_path = import.path();
-        let canonical_path = given_path.lexiclean();
+        let given_path = dbg!(import.path());
+
+        let canonical_path = if dbg!(given_path.is_relative()) {
+            let current_dir = cur_path.parent().ok_or(Error::Internal {
+                message: format!(
+                             "Justfile path `{}` has no parent directory",
+                             given_path.display()
+                             ),
+            })?;
+            current_dir.join(given_path)
+        } else {
+            given_path.to_owned()
+        };
+        dbg!(&canonical_path);
+        let canonical_path = canonical_path.lexiclean();
+        dbg!(&canonical_path);
+
         if seen.contains(&canonical_path) {
           return Err(Error::CircularInclude {
             current: cur_path.to_owned(),
@@ -83,7 +100,7 @@ impl Loader {
 
         let src = self.load_and_alloc(&canonical_path)?;
         let ast = Compiler::parse(src)?;
-        queue.push_back((given_path.to_owned(), Analyzer::get_imports(&ast)));
+        queue.push_back((canonical_path.clone(), Analyzer::get_imports(&ast)));
         let ast_meta = AstMeta::new(ast, canonical_path);
         child_asts.push(ast_meta);
       }
@@ -236,7 +253,7 @@ some_recipe: recipe_b
     let loader = Loader::new(true);
 
     let justfile_a_path = tmp.path().join("justfile");
-    let loader_output = loader.load(&justfile_a_path).unwrap();
+    let loader_output = loader.load_and_compile(&justfile_a_path).unwrap();
 
     assert_eq!(loader_output.src(), full_concatenated_output);
   }
