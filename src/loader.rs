@@ -60,11 +60,13 @@ impl Loader {
     let mut child_asts = vec![];
 
     let mut seen: HashSet<PathBuf> = HashSet::new();
+    seen.insert(Self::canonicalize_path(&path, &path)?);
+
     let mut queue: VecDeque<(PathBuf, Vec<Import>)> = VecDeque::new();
     queue.push_back((path.to_owned(), root_imports));
 
     loop {
-      println!("Entering loop");
+      println!("Entering loop, seen is {:?}", seen);
       let (cur_path, imports) = match queue.pop_front() {
         Some(item) => item,
         None => break,
@@ -73,21 +75,7 @@ impl Loader {
 
       for import in imports {
         let given_path = dbg!(import.path());
-
-        let canonical_path = if dbg!(given_path.is_relative()) {
-          let current_dir = cur_path.parent().ok_or(Error::Internal {
-            message: format!(
-              "Justfile path `{}` has no parent directory",
-              given_path.display()
-            ),
-          })?;
-          current_dir.join(given_path)
-        } else {
-          given_path.to_owned()
-        };
-        dbg!(&canonical_path);
-        let canonical_path = canonical_path.lexiclean();
-        dbg!(&canonical_path);
+        let canonical_path = dbg!(Self::canonicalize_path(&given_path, &cur_path)?);
 
         if seen.contains(&canonical_path) {
           return Err(Error::CircularInclude {
@@ -109,6 +97,24 @@ impl Loader {
     let justfile = Analyzer::analyze_newversion(&root_ast, &child_asts)?;
     let compilation = Compilation::new(root_ast, justfile, root_src).with_imports(child_asts);
     Ok(compilation)
+  }
+
+  fn canonicalize_path<'src, 'a>(
+    import_path: &'a Path,
+    current_file_path: &'a Path,
+  ) -> RunResult<'src, PathBuf> {
+    let canonical_path = if import_path.is_relative() {
+      let current_dir = current_file_path.parent().ok_or(Error::Internal {
+        message: format!(
+          "Justfile path `{}` has no parent directory",
+          import_path.display()
+        ),
+      })?;
+      current_dir.join(import_path)
+    } else {
+      import_path.to_owned()
+    };
+    Ok(canonical_path.lexiclean())
   }
 
   fn load_and_alloc<'src>(&'src self, path: &Path) -> RunResult<&'src mut String> {
@@ -288,11 +294,11 @@ recipe_b:
     let loader = Loader::new(true);
 
     let justfile_a_path = tmp.path().join("justfile");
-    let loader_output = loader.load(&justfile_a_path).unwrap_err();
+    let loader_output = loader.load_and_compile(&justfile_a_path).unwrap_err();
 
     assert_matches!(loader_output, Error::CircularInclude { current, include }
-        if current == tmp.path().join("subdir").join("justfile_b").lexiclean() &&
-        include == tmp.path().join("justfile").lexiclean()
+        if current == dbg!(tmp.path().join("subdir").join("justfile_b").lexiclean()) &&
+        include == dbg!(tmp.path().join("justfile").lexiclean())
     );
   }
 }
