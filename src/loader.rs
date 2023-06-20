@@ -17,28 +17,39 @@ impl Loader {
   pub(crate) fn load_and_compile<'src>(&'src self, path: &Path) -> RunResult<Compilation> {
     let root_src = self.load_and_alloc(path)?;
     let root_ast = Compiler::parse(root_src)?;
-
     let root_imports = Analyzer::get_imports(&root_ast);
 
-    if !self.unstable {
-      if !root_imports.is_empty() {
-        return Err(Error::Unstable {
-          message: "The !include directive is currently unstable.".into(),
-        });
-      }
-
+    if root_imports.is_empty() {
       let justfile = Analyzer::analyze_newversion(&root_ast, &[])?;
       let compilation = Compilation::new(root_ast, justfile, root_src);
       return Ok(compilation);
     }
 
+    if !self.unstable {
+      return Err(Error::Unstable {
+        message: "The !include directive is currently unstable.".into(),
+      });
+    }
+
+    let imported_asts = self.load_imported_justfiles(path, root_imports)?;
+
+    let justfile = Analyzer::analyze_newversion(&root_ast, &imported_asts)?;
+    let compilation = Compilation::new(root_ast, justfile, root_src).with_imports(imported_asts);
+    Ok(compilation)
+  }
+
+  fn load_imported_justfiles<'src>(
+    &'src self,
+    root_path: &Path,
+    root_imports: Vec<Import>,
+  ) -> RunResult<Vec<AstImport<'src>>> {
     let mut imported_asts = vec![];
 
     let mut seen: HashSet<PathBuf> = HashSet::new();
-    seen.insert(Self::canonicalize_path(&path, &path)?);
+    seen.insert(Self::canonicalize_path(&root_path, &root_path)?);
 
     let mut queue: VecDeque<(PathBuf, Vec<Import>)> = VecDeque::new();
-    queue.push_back((path.to_owned(), root_imports));
+    queue.push_back((root_path.to_owned(), root_imports));
 
     loop {
       let (cur_path, imports) = match queue.pop_front() {
@@ -66,10 +77,7 @@ impl Loader {
         imported_asts.push(ast_meta);
       }
     }
-
-    let justfile = Analyzer::analyze_newversion(&root_ast, &imported_asts)?;
-    let compilation = Compilation::new(root_ast, justfile, root_src).with_imports(imported_asts);
-    Ok(compilation)
+    Ok(imported_asts)
   }
 
   fn canonicalize_path<'src, 'a>(
