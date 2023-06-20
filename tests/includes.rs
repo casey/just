@@ -66,23 +66,26 @@ error: !include directive has no argument
     .run();
 }
 
-/*
- * TODO: reenable this test
 #[test]
-fn trailing_include() {
+fn include_after_recipe() {
   Test::new()
+    .tree(tree! {
+      "include.justfile": "
+        a:
+          @echo A
+      ",
+    })
     .justfile(
       "
-      b:
+      b: a
       !include ./include.justfile
       ",
     )
     .arg("--unstable")
-    .status(EXIT_FAILURE)
-    .stderr("error: Expected character `=`\n  |\n2 | !include ./include.justfile\n  |  ^\n")
+    .test_round_trip(false)
+    .stdout("A\n")
     .run();
 }
-*/
 
 #[test]
 fn circular_include() {

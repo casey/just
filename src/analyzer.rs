@@ -206,6 +206,7 @@ impl<'src> Analyzer<'src> {
 
     Ok(Justfile {
       warnings: ast.warnings.clone(),
+      //TODO make sure this still works in a multi-justfile world
       first: recipes
         .values()
         .fold(None, |accumulator, next| match accumulator {

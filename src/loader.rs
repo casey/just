@@ -242,26 +242,13 @@ recipe_b: recipe_c
         }
     };
 
-    let full_concatenated_output = r#"
-# A comment at the top of the file
-recipe_c:
-    echo "recipe c"
-
-recipe_b: recipe_c
-    echo "recipe b"
-
-some_recipe: recipe_b
-    echo "some recipe"
-"#;
-
     let loader = Loader::new(true);
 
     let justfile_a_path = tmp.path().join("justfile");
-    let loader_output = loader.load_and_compile(&justfile_a_path).unwrap();
+    let compilation = loader.load_and_compile(&justfile_a_path).unwrap();
 
-    assert_eq!(loader_output.imported_asts.len(), 2);
-    //TODO restore this
-    //assert_eq!(loader_output.src(), full_concatenated_output);
+    assert_eq!(compilation.imported_asts.len(), 2);
+    assert_eq!(compilation.src(), justfile_a);
   }
 
   #[test]
