@@ -38,7 +38,6 @@ impl Loader {
     }
   }
 
-  #[allow(dead_code)]
   pub(crate) fn load_and_compile<'src>(&'src self, path: &Path) -> RunResult<Compilation> {
     let root_src = self.load_and_alloc(path)?;
     let root_ast = Compiler::parse(root_src)?;
@@ -66,16 +65,14 @@ impl Loader {
     queue.push_back((path.to_owned(), root_imports));
 
     loop {
-      println!("Entering loop, seen is {:?}", seen);
       let (cur_path, imports) = match queue.pop_front() {
         Some(item) => item,
         None => break,
       };
-      dbg!(&cur_path);
 
       for import in imports {
-        let given_path = dbg!(import.path());
-        let canonical_path = dbg!(Self::canonicalize_path(&given_path, &cur_path)?);
+        let given_path = import.path();
+        let canonical_path = Self::canonicalize_path(&given_path, &cur_path)?;
 
         if seen.contains(&canonical_path) {
           return Err(Error::CircularInclude {
@@ -122,7 +119,7 @@ impl Loader {
     Ok(self.arena.alloc(src))
   }
 
-  pub(crate) fn load<'src>(&'src self, path: &Path) -> RunResult<Compilation> {
+  fn load<'src>(&'src self, path: &Path) -> RunResult<Compilation> {
     let src = self.load_recursive(path, HashSet::new())?;
     let src = self.arena.alloc(src);
     Ok(Compiler::compile(src)?)
@@ -297,8 +294,8 @@ recipe_b:
     let loader_output = loader.load_and_compile(&justfile_a_path).unwrap_err();
 
     assert_matches!(loader_output, Error::CircularInclude { current, include }
-        if current == dbg!(tmp.path().join("subdir").join("justfile_b").lexiclean()) &&
-        include == dbg!(tmp.path().join("justfile").lexiclean())
+        if current == tmp.path().join("subdir").join("justfile_b").lexiclean() &&
+        include == tmp.path().join("justfile").lexiclean()
     );
   }
 }

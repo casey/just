@@ -177,7 +177,7 @@ impl Subcommand {
     loader: &'src Loader,
     search: &Search,
   ) -> Result<Compilation<'src>, Error<'src>> {
-    let compilation = loader.load(&search.justfile)?;
+    let compilation = loader.load_and_compile(&search.justfile)?;
 
     if config.verbosity.loud() {
       for warning in &compilation.justfile().warnings {
