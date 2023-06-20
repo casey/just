@@ -23,12 +23,12 @@ impl Compiler {
 
 /// Wrapper type for an `Ast<'src>` + metadata about where it was parsed from
 #[derive(Debug)]
-pub(crate) struct AstMeta<'src> {
+pub(crate) struct AstImport<'src> {
   ast: Ast<'src>,
   canonical_path: PathBuf,
 }
 
-impl<'src> AstMeta<'src> {
+impl<'src> AstImport<'src> {
   pub(crate) fn new(ast: Ast<'src>, canonical_path: PathBuf) -> Self {
     Self {
       ast,
@@ -43,7 +43,7 @@ impl<'src> AstMeta<'src> {
 pub(crate) struct Compilation<'src> {
   root_ast: Ast<'src>,
   root_source: &'src str,
-  pub(crate) imported_asts: Vec<AstMeta<'src>>,
+  pub(crate) imported_asts: Vec<AstImport<'src>>,
   root_justfile: Justfile<'src>,
 }
 
@@ -61,7 +61,7 @@ impl<'src> Compilation<'src> {
     }
   }
 
-  pub(crate) fn with_imports(self, imported_asts: Vec<AstMeta<'src>>) -> Self {
+  pub(crate) fn with_imports(self, imported_asts: Vec<AstImport<'src>>) -> Self {
     Self {
       imported_asts,
       ..self

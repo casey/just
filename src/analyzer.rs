@@ -48,7 +48,7 @@ impl<'src> Analyzer<'src> {
 
   pub(crate) fn analyze_newversion(
     root_ast: &Ast<'src>,
-    _child_asts: &[AstMeta<'src>],
+    _child_asts: &[AstImport<'src>],
   ) -> CompileResult<'src, Justfile<'src>> {
     //TODO implement this correctly
     Analyzer::analyze(root_ast)
