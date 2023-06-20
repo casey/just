@@ -5,7 +5,6 @@ const VALID_ALIAS_ATTRIBUTES: [Attribute; 1] = [Attribute::Private];
 #[derive(Debug)]
 pub(crate) struct Import {
   path: PathBuf,
-  optional: bool,
   line: usize,
 }
 
@@ -32,7 +31,6 @@ impl<'src> Analyzer<'src> {
         if let Item::Include { name, path } = item {
           Some(Import {
             path: Path::new(path).to_owned(),
-            optional: false,
             line: name.line,
           })
         } else {
