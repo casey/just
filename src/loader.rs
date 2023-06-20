@@ -57,7 +57,7 @@ impl Loader {
       return Ok(compilation);
     }
 
-    let mut child_asts = vec![];
+    let mut imported_asts = vec![];
 
     let mut seen: HashSet<PathBuf> = HashSet::new();
     seen.insert(Self::canonicalize_path(&path, &path)?);
@@ -90,12 +90,12 @@ impl Loader {
         let ast = Compiler::parse(src)?;
         queue.push_back((canonical_path.clone(), Analyzer::get_imports(&ast)));
         let ast_meta = AstImport::new(ast, canonical_path);
-        child_asts.push(ast_meta);
+        imported_asts.push(ast_meta);
       }
     }
 
-    let justfile = Analyzer::analyze_newversion(&root_ast, &child_asts)?;
-    let compilation = Compilation::new(root_ast, justfile, root_src).with_imports(child_asts);
+    let justfile = Analyzer::analyze_newversion(&root_ast, &imported_asts)?;
+    let compilation = Compilation::new(root_ast, justfile, root_src).with_imports(imported_asts);
     Ok(compilation)
   }
 

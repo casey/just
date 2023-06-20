@@ -24,7 +24,7 @@ impl Compiler {
 /// Wrapper type for an `Ast<'src>` + metadata about where it was parsed from
 #[derive(Debug)]
 pub(crate) struct AstImport<'src> {
-  ast: Ast<'src>,
+  pub(crate) ast: Ast<'src>,
   canonical_path: PathBuf,
 }
 

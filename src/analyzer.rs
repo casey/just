@@ -46,12 +46,110 @@ impl<'src> Analyzer<'src> {
       .collect()
   }
 
-  pub(crate) fn analyze_newversion(
-    root_ast: &Ast<'src>,
-    _child_asts: &[AstImport<'src>],
+  pub(crate) fn analyze_newversion<'a>(
+    root_ast: &'a Ast<'src>,
+    imported_asts: &'a [AstImport<'src>],
   ) -> CompileResult<'src, Justfile<'src>> {
-    //TODO implement this correctly
-    Analyzer::analyze(root_ast)
+    let mut analyzer = Analyzer::default();
+    let unresolved_recipes = analyzer.build_tables(root_ast, imported_asts)?;
+
+    let settings = Settings::from_setting_iter(analyzer.sets.into_iter().map(|(_, set)| set.value));
+    AssignmentResolver::resolve_assignments(&analyzer.assignments)?;
+
+    let recipes = Analyzer::resolve_recipes(unresolved_recipes, &settings, &analyzer.assignments)?;
+
+    let mut aliases = Table::new();
+    while let Some(alias) = analyzer.aliases.pop() {
+      aliases.insert(Self::resolve_alias(&recipes, alias)?);
+    }
+
+    Ok(Justfile {
+      warnings: root_ast.warnings.clone(),
+      first: recipes
+        .values()
+        .fold(None, |accumulator, next| match accumulator {
+          None => Some(Rc::clone(next)),
+          Some(previous) => Some(if previous.line_number() < next.line_number() {
+            previous
+          } else {
+            Rc::clone(next)
+          }),
+        }),
+      aliases,
+      assignments: analyzer.assignments,
+      recipes,
+      settings,
+    })
+  }
+
+  fn build_tables<'a>(
+    &mut self,
+    root_ast: &'a Ast<'src>,
+    imported_asts: &'a [AstImport<'src>],
+  ) -> CompileResult<'src, Vec<&'a Recipe<'src, UnresolvedDependency<'src>>>> {
+    let mut recipes = Vec::new();
+    recipes.extend(self.build_table_from_items(&root_ast.items)?.into_iter());
+
+    for import in imported_asts {
+      recipes.extend(self.build_table_from_items(&import.ast.items)?.into_iter());
+    }
+    Ok(recipes)
+  }
+
+  fn build_table_from_items<'a>(
+    &mut self,
+    items: &'a [Item<'src>],
+  ) -> CompileResult<'src, Vec<&'a Recipe<'src, UnresolvedDependency<'src>>>> {
+    let mut recipes = Vec::new();
+
+    for item in items {
+      match item {
+        Item::Alias(alias) => {
+          self.analyze_alias(alias)?;
+          self.aliases.insert(alias.clone());
+        }
+        Item::Assignment(assignment) => {
+          self.analyze_assignment(assignment)?;
+          self.assignments.insert(assignment.clone());
+        }
+        Item::Comment(_) | Item::Include { .. } => (),
+        Item::Recipe(recipe) => {
+          if recipe.enabled() {
+            Self::analyze_recipe(recipe)?;
+            recipes.push(recipe);
+          }
+        }
+        Item::Set(set) => {
+          self.analyze_set(set)?;
+          self.sets.insert(set.clone());
+        }
+      }
+    }
+
+    Ok(recipes)
+  }
+
+  fn resolve_recipes<'a>(
+    recipes: Vec<&'a Recipe<'src, UnresolvedDependency<'src>>>,
+    settings: &Settings<'src>,
+    assignments: &Table<'src, Assignment<'src>>,
+  ) -> CompileResult<'src, Table<'src, Rc<Recipe<'src>>>> {
+    let mut recipe_table: Table<'src, UnresolvedRecipe<'src>> = Table::default();
+
+    for recipe in recipes {
+      if let Some(original) = recipe_table.get(recipe.name.lexeme()) {
+        if !settings.allow_duplicate_recipes {
+          return Err(recipe.name.token().error(DuplicateRecipe {
+            recipe: original.name(),
+            first: original.line_number(),
+          }));
+        }
+      }
+      recipe_table.insert(recipe.clone());
+    }
+
+    let recipes = RecipeResolver::resolve_recipes(recipe_table, assignments)?;
+    Ok(recipes)
   }
 
   fn justfile(mut self, ast: &Ast<'src>) -> CompileResult<'src, Justfile<'src>> {
