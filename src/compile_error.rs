@@ -158,6 +158,7 @@ impl Display for CompileError<'_> {
           _ => character.escape_default().collect(),
         }
       ),
+      IncludeMissingPath => write!(f, "!include directive has no argument",),
       MismatchedClosingDelimiter {
         open,
         open_line,

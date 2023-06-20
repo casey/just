@@ -55,7 +55,14 @@ fn include_directive_with_no_path() {
     .justfile("!include")
     .arg("--unstable")
     .status(EXIT_FAILURE)
-    .stderr_regex("error: !include directive on line 1 of `.*` has no argument\n")
+    .stderr(
+      "
+error: !include directive has no argument
+  |
+1 | !include
+  |         ^
+     ",
+    )
     .run();
 }
 

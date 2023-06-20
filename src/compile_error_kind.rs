@@ -68,6 +68,7 @@ pub(crate) enum CompileErrorKind<'src> {
   InvalidEscapeSequence {
     character: char,
   },
+  IncludeMissingPath,
   MismatchedClosingDelimiter {
     close: Delimiter,
     open: Delimiter,

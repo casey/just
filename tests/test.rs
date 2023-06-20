@@ -240,6 +240,8 @@ impl Test {
     }
 
     if let Some(ref stderr_regex) = self.stderr_regex {
+      println!("AAAA:\n{}", output_stderr);
+      println!("{:?}", stderr_regex);
       if !stderr_regex.is_match(output_stderr) {
         panic!("Stderr regex mismatch:\n{output_stderr:?}\n!~=\n/{stderr_regex:?}/");
       }

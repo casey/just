@@ -788,7 +788,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
           let path = include_line.lexeme().trim();
           Ok(Item::Include { name, path })
         } else {
-          Err(self.unexpected_token()?)
+          Err(self.error(CompileErrorKind::IncludeMissingPath)?)
         }
       }
       directive => Err(token.error(CompileErrorKind::UnknownDirective { directive })),
