@@ -1,30 +1,6 @@
 use super::*;
 use std::collections::{HashSet, VecDeque};
 
-struct LinesWithEndings<'a> {
-  input: &'a str,
-}
-
-impl<'a> LinesWithEndings<'a> {
-  fn new(input: &'a str) -> Self {
-    Self { input }
-  }
-}
-
-impl<'a> Iterator for LinesWithEndings<'a> {
-  type Item = &'a str;
-
-  fn next(&mut self) -> Option<&'a str> {
-    if self.input.is_empty() {
-      return None;
-    }
-    let split = self.input.find('\n').map_or(self.input.len(), |i| i + 1);
-    let (line, rest) = self.input.split_at(split);
-    self.input = rest;
-    Some(line)
-  }
-}
-
 pub(crate) struct Loader {
   arena: Arena<String>,
   unstable: bool,
@@ -119,92 +95,11 @@ impl Loader {
     Ok(self.arena.alloc(src))
   }
 
-  fn load<'src>(&'src self, path: &Path) -> RunResult<Compilation> {
-    let src = self.load_recursive(path, HashSet::new())?;
-    let src = self.arena.alloc(src);
-    Ok(Compiler::compile(src)?)
-  }
-
   fn load_file<'a>(path: &Path) -> RunResult<'a, String> {
     fs::read_to_string(path).map_err(|io_error| Error::Load {
       path: path.to_owned(),
       io_error,
     })
-  }
-
-  fn load_recursive(&self, file: &Path, seen: HashSet<PathBuf>) -> RunResult<String> {
-    let src = Self::load_file(file)?;
-
-    let mut output = String::new();
-
-    let mut seen_content = false;
-
-    for (i, line) in LinesWithEndings::new(&src).enumerate() {
-      if !seen_content && line.starts_with('!') {
-        let include = line
-          .strip_prefix("!include")
-          .ok_or_else(|| Error::InvalidDirective { line: line.into() })?;
-
-        if !self.unstable {
-          return Err(Error::Unstable {
-            message: "The !include directive is currently unstable.".into(),
-          });
-        }
-
-        let argument = include.trim();
-
-        if argument.is_empty() {
-          return Err(Error::IncludeMissingPath {
-            file: file.to_owned(),
-            line: i,
-          });
-        }
-
-        let contents = self.process_include(file, Path::new(argument), &seen)?;
-
-        output.push_str(&contents);
-      } else {
-        if !(line.trim().is_empty() || line.trim().starts_with('#')) {
-          seen_content = true;
-        }
-        output.push_str(line);
-      }
-    }
-
-    Ok(output)
-  }
-
-  fn process_include(
-    &self,
-    file: &Path,
-    include: &Path,
-    seen: &HashSet<PathBuf>,
-  ) -> RunResult<String> {
-    let canonical_path = if include.is_relative() {
-      let current_dir = file.parent().ok_or(Error::Internal {
-        message: format!(
-          "Justfile path `{}` has no parent directory",
-          include.display()
-        ),
-      })?;
-      current_dir.join(include)
-    } else {
-      include.to_owned()
-    };
-
-    let canonical_path = canonical_path.lexiclean();
-
-    if seen.contains(&canonical_path) {
-      return Err(Error::CircularInclude {
-        current: file.to_owned(),
-        include: canonical_path,
-      });
-    }
-
-    let mut seen_paths = seen.clone();
-    seen_paths.insert(file.lexiclean());
-
-    self.load_recursive(&canonical_path, seen_paths)
   }
 }
 
