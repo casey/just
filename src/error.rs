@@ -101,10 +101,6 @@ pub(crate) enum Error<'src> {
   Internal {
     message: String,
   },
-  //TODO remove this, it's replaced by a compiler error
-  InvalidDirective {
-    line: String,
-  },
   Io {
     recipe: &'src str,
     io_error: io::Error,
@@ -350,9 +346,6 @@ impl<'src> ColorDisplay for Error<'src> {
       Internal { message } => {
         write!(f, "Internal runtime error, this may indicate a bug in just: {message} \
                    consider filing an issue: https://github.com/casey/just/issues/new")?;
-      }
-      InvalidDirective { line } => {
-        write!(f, "Invalid directive: {line}")?;
       }
       Io { recipe, io_error } => {
         match io_error.kind() {
