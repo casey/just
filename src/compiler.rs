@@ -5,7 +5,7 @@ pub(crate) struct Compiler;
 impl Compiler {
   pub(crate) fn compile(src: &str) -> CompileResult<Compilation> {
     let root_ast = Self::parse(src)?;
-    let root_justfile = Analyzer::analyze(&root_ast)?;
+    let root_justfile = Analyzer::analyze(&root_ast, &[])?;
 
     Ok(Compilation {
       root_ast,

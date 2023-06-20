@@ -23,10 +23,6 @@ pub(crate) struct Analyzer<'src> {
 }
 
 impl<'src> Analyzer<'src> {
-  pub(crate) fn analyze(ast: &Ast<'src>) -> CompileResult<'src, Justfile<'src>> {
-    Analyzer::default().justfile(ast)
-  }
-
   /// Inspect an AST for nodes representing an import of another justfile and collect them
   pub(crate) fn get_imports(ast: &Ast<'src>) -> Vec<Import> {
     ast
@@ -46,7 +42,9 @@ impl<'src> Analyzer<'src> {
       .collect()
   }
 
-  pub(crate) fn analyze_newversion<'a>(
+  /// Peform analysis on a root Ast, which may have imported other justfiles provided in
+  /// `imported_asts`
+  pub(crate) fn analyze<'a>(
     root_ast: &'a Ast<'src>,
     imported_asts: &'a [AstImport<'src>],
   ) -> CompileResult<'src, Justfile<'src>> {

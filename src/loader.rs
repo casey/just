@@ -20,7 +20,7 @@ impl Loader {
     let root_imports = Analyzer::get_imports(&root_ast);
 
     if root_imports.is_empty() {
-      let justfile = Analyzer::analyze_newversion(&root_ast, &[])?;
+      let justfile = Analyzer::analyze(&root_ast, &[])?;
       let compilation = Compilation::new(root_ast, justfile, root_src);
       return Ok(compilation);
     }
@@ -33,7 +33,7 @@ impl Loader {
 
     let imported_asts = self.load_imported_justfiles(path, root_imports)?;
 
-    let justfile = Analyzer::analyze_newversion(&root_ast, &imported_asts)?;
+    let justfile = Analyzer::analyze(&root_ast, &imported_asts)?;
     let compilation = Compilation::new(root_ast, justfile, root_src).with_imports(imported_asts);
     Ok(compilation)
   }
