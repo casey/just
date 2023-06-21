@@ -25,14 +25,14 @@ impl Compiler {
 #[derive(Debug)]
 pub(crate) struct AstImport<'src> {
   pub(crate) ast: Ast<'src>,
-  canonical_path: PathBuf,
+  import: Import,
 }
 
 impl<'src> AstImport<'src> {
-  pub(crate) fn new(ast: Ast<'src>, canonical_path: PathBuf) -> Self {
+  pub(crate) fn new(ast: Ast<'src>, import: Import) -> Self {
     Self {
       ast,
-      canonical_path,
+      import,
     }
   }
 }

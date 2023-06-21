@@ -4,13 +4,23 @@ const VALID_ALIAS_ATTRIBUTES: [Attribute; 1] = [Attribute::Private];
 
 #[derive(Debug)]
 pub(crate) struct Import {
+  /// Path of the import as literally given within the `!include` directive
   path: PathBuf,
+
+  // Canonicalized version of the above path
+  canonical_path: Option<PathBuf>,
+
+  /// The line on which the `!include` directive appears in the original file
   line: usize,
 }
 
 impl Import {
   pub(crate) fn path(&self) -> &Path {
     self.path.as_ref()
+  }
+
+  pub(crate) fn add_canonical_path(&mut self, canonical_path: PathBuf) {
+    self.canonical_path = Some(canonical_path);
   }
 }
 
@@ -31,6 +41,7 @@ impl<'src> Analyzer<'src> {
         if let Item::Include { name, path } = item {
           Some(Import {
             path: Path::new(path).to_owned(),
+            canonical_path: None,
             line: name.line,
           })
         } else {

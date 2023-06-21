@@ -57,7 +57,7 @@ impl Loader {
         None => break,
       };
 
-      for import in imports {
+      for mut import in imports.into_iter() {
         let given_path = import.path();
         let canonical_path = Self::canonicalize_path(&given_path, &cur_path)?;
 
@@ -73,7 +73,8 @@ impl Loader {
         let src = self.load_and_alloc(&canonical_path)?;
         let ast = Compiler::parse(src)?;
         queue.push_back((canonical_path.clone(), Analyzer::get_imports(&ast)));
-        let ast_meta = AstImport::new(ast, canonical_path);
+        import.add_canonical_path(canonical_path);
+        let ast_meta = AstImport::new(ast, import);
         imported_asts.push(ast_meta);
       }
     }
