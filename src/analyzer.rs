@@ -74,6 +74,7 @@ impl<'src> Analyzer<'src> {
       warnings: root_ast.warnings.clone(),
       first: recipes
         .values()
+        .filter(|_recipe| true)
         .fold(None, |accumulator, next| match accumulator {
           None => Some(Rc::clone(next)),
           Some(previous) => Some(if previous.line_number() < next.line_number() {
@@ -137,7 +138,7 @@ impl<'src> Analyzer<'src> {
   }
 
   fn resolve_recipes<'a>(
-    recipes: Vec<&'a Recipe<'src, UnresolvedDependency<'src>>>,
+    recipes: Vec<&'a UnresolvedRecipe<'src>>,
     settings: &Settings<'src>,
     assignments: &Table<'src, Assignment<'src>>,
   ) -> CompileResult<'src, Table<'src, Rc<Recipe<'src>>>> {
