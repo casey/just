@@ -13,8 +13,9 @@
 //! of existing justfiles.
 
 use {
-  crate::compiler::Compiler,
-  std::{collections::BTreeMap, fs, io, path::Path},
+  crate::error::Error,
+  crate::loader::Loader,
+  std::{collections::BTreeMap, io, path::Path},
 };
 
 mod full {
@@ -26,11 +27,14 @@ mod full {
 }
 
 pub fn summary(path: &Path) -> Result<Result<Summary, String>, io::Error> {
-  let text = fs::read_to_string(path)?;
+  let loader = Loader::new(false);
 
-  match Compiler::compile(&text) {
+  match loader.load_and_compile(path) {
     Ok(compilation) => Ok(Ok(Summary::new(compilation.justfile()))),
-    Err(compilation_error) => Ok(Err(compilation_error.to_string())),
+    Err(error) => Ok(Err(match error {
+      Error::Compile { compile_error } => compile_error.to_string(),
+      _ => format!("{:?}", error),
+    })),
   }
 }
 
