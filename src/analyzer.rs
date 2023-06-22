@@ -70,19 +70,21 @@ impl<'src> Analyzer<'src> {
       aliases.insert(Self::resolve_alias(&recipes, alias)?);
     }
 
+    let first = recipes
+      .values()
+      .filter(|_recipe| true)
+      .fold(None, |accumulator, next| match accumulator {
+        None => Some(Rc::clone(next)),
+        Some(previous) => Some(if previous.line_number() < next.line_number() {
+          previous
+        } else {
+          Rc::clone(next)
+        }),
+      });
+
     Ok(Justfile {
       warnings: root_ast.warnings.clone(),
-      first: recipes
-        .values()
-        .filter(|_recipe| true)
-        .fold(None, |accumulator, next| match accumulator {
-          None => Some(Rc::clone(next)),
-          Some(previous) => Some(if previous.line_number() < next.line_number() {
-            previous
-          } else {
-            Rc::clone(next)
-          }),
-        }),
+      first,
       aliases,
       assignments: analyzer.assignments,
       recipes,
@@ -94,7 +96,7 @@ impl<'src> Analyzer<'src> {
     &mut self,
     root_ast: &'a Ast<'src>,
     imported_asts: &'a [AstImport<'src>],
-  ) -> CompileResult<'src, Vec<&'a Recipe<'src, UnresolvedDependency<'src>>>> {
+  ) -> CompileResult<'src, Vec<&'a UnresolvedRecipe<'src>>> {
     let mut recipes = Vec::new();
     recipes.extend(self.build_table_from_items(&root_ast.items)?.into_iter());
 
