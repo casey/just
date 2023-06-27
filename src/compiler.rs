@@ -3,6 +3,19 @@ use super::*;
 pub(crate) struct Compiler;
 
 impl Compiler {
+  #[cfg(test)]
+  pub(crate) fn compile(src: &str) -> CompileResult<Compilation> {
+    let root_ast = Self::parse(src)?;
+    let root_justfile = Analyzer::analyze(&root_ast, &[])?;
+
+    Ok(Compilation {
+      root_ast,
+      root_justfile,
+      root_source: src,
+      imported_asts: vec![],
+    })
+  }
+
   pub(crate) fn parse(src: &str) -> CompileResult<Ast> {
     let tokens = Lexer::lex(src)?;
     Parser::parse(&tokens)
