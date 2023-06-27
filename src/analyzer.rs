@@ -108,7 +108,7 @@ impl<'src> Analyzer<'src> {
     &mut self,
     root_ast: &'a Ast<'src>,
     imported_asts: &'a [AstImport<'src>],
-  ) -> CompileResult<'src, Vec<&'a UnresolvedRecipe<'src>>> {
+  ) -> CompileResult<'src, Vec<UnresolvedRecipe<'src>>> {
     let mut recipes = Vec::new();
     recipes.extend(self.build_table_from_items(&root_ast.items)?.into_iter());
 
@@ -121,7 +121,7 @@ impl<'src> Analyzer<'src> {
   fn build_table_from_items<'a>(
     &mut self,
     items: &'a [Item<'src>],
-  ) -> CompileResult<'src, Vec<&'a Recipe<'src, UnresolvedDependency<'src>>>> {
+  ) -> CompileResult<'src, Vec<Recipe<'src, UnresolvedDependency<'src>>>> {
     let mut recipes = Vec::new();
 
     for item in items {
@@ -138,7 +138,7 @@ impl<'src> Analyzer<'src> {
         Item::Recipe(recipe) => {
           if recipe.enabled() {
             Self::analyze_recipe(recipe)?;
-            recipes.push(recipe);
+            recipes.push(recipe.clone());
           }
         }
         Item::Set(set) => {
@@ -151,8 +151,8 @@ impl<'src> Analyzer<'src> {
     Ok(recipes)
   }
 
-  fn resolve_recipes<'a>(
-    recipes: Vec<&'a UnresolvedRecipe<'src>>,
+  fn resolve_recipes(
+    recipes: Vec<UnresolvedRecipe<'src>>,
     settings: &Settings<'src>,
     assignments: &Table<'src, Assignment<'src>>,
   ) -> CompileResult<'src, Table<'src, Rc<Recipe<'src>>>> {
@@ -167,7 +167,7 @@ impl<'src> Analyzer<'src> {
           }));
         }
       }
-      recipe_table.insert(recipe.clone());
+      recipe_table.insert(recipe);
     }
 
     let recipes = RecipeResolver::resolve_recipes(recipe_table, assignments)?;
