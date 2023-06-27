@@ -14,7 +14,7 @@ impl Loader {
     }
   }
 
-  pub(crate) fn load_and_compile<'src>(&'src self, path: &Path) -> RunResult<Compilation> {
+  pub(crate) fn load_and_compile(&self, path: &Path) -> RunResult<Compilation> {
     let root_src = self.load_and_alloc(path)?;
     let root_ast = Compiler::parse(root_src)?;
     let root_imports = Analyzer::get_imports(&root_ast);
@@ -46,29 +46,23 @@ impl Loader {
     let mut imported_asts = vec![];
 
     let mut seen: HashSet<PathBuf> = HashSet::new();
-    seen.insert(Self::canonicalize_path(&root_path, &root_path)?);
+    seen.insert(Self::canonicalize_path(root_path, root_path)?);
 
     let mut queue: VecDeque<(PathBuf, Vec<Import>)> = VecDeque::new();
     queue.push_back((root_path.to_owned(), root_imports));
 
-    loop {
-      let (cur_path, imports) = match queue.pop_front() {
-        Some(item) => item,
-        None => break,
-      };
-
-      for mut import in imports.into_iter() {
+    while let Some((cur_path, imports)) = queue.pop_front() {
+      for mut import in imports {
         let given_path = import.path();
-        let canonical_path = Self::canonicalize_path(&given_path, &cur_path)?;
+        let canonical_path = Self::canonicalize_path(given_path, &cur_path)?;
 
         if seen.contains(&canonical_path) {
           return Err(Error::CircularInclude {
-            current: cur_path.to_owned(),
+            current: cur_path,
             include: canonical_path,
           });
-        } else {
-          seen.insert(canonical_path.clone());
         }
+        seen.insert(canonical_path.clone());
 
         let src = self.load_and_alloc(&canonical_path)?;
         let ast = Compiler::parse(src)?;

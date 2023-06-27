@@ -31,9 +31,10 @@ pub fn summary(path: &Path) -> Result<Result<Summary, String>, io::Error> {
 
   match loader.load_and_compile(path) {
     Ok(compilation) => Ok(Ok(Summary::new(compilation.justfile()))),
-    Err(error) => Ok(Err(match error {
-      Error::Compile { compile_error } => compile_error.to_string(),
-      _ => format!("{:?}", error),
+    Err(error) => Ok(Err(if let Error::Compile { compile_error } = error {
+      compile_error.to_string()
+    } else {
+      format!("{error:?}")
     })),
   }
 }
@@ -61,7 +62,7 @@ impl Summary {
         .iter()
         .map(|(name, recipe)| {
           (
-            name.to_string(),
+            (*name).to_string(),
             Recipe::new(recipe, aliases.remove(name).unwrap_or_default()),
           )
         })
