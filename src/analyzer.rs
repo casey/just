@@ -10,7 +10,9 @@ pub(crate) struct Import {
   // Canonicalized version of the above path
   canonical_path: Option<PathBuf>,
 
-  /// The line on which the `!include` directive appears in the original file
+  //line on which this import occurs in the importing file. Not currently being used, but could
+  //allow for better error messages
+  #[allow(dead_code)]
   line: usize,
 }
 

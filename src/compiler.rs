@@ -3,18 +3,6 @@ use super::*;
 pub(crate) struct Compiler;
 
 impl Compiler {
-  pub(crate) fn compile(src: &str) -> CompileResult<Compilation> {
-    let root_ast = Self::parse(src)?;
-    let root_justfile = Analyzer::analyze(&root_ast, &[])?;
-
-    Ok(Compilation {
-      root_ast,
-      root_justfile,
-      root_source: src,
-      imported_asts: vec![],
-    })
-  }
-
   pub(crate) fn parse(src: &str) -> CompileResult<Ast> {
     let tokens = Lexer::lex(src)?;
     Parser::parse(&tokens)
@@ -25,6 +13,8 @@ impl Compiler {
 #[derive(Debug)]
 pub(crate) struct AstImport<'src> {
   pub(crate) ast: Ast<'src>,
+  //Not currently being used, but could allow for better error messages later
+  #[allow(dead_code)]
   import: Import,
 }
 
@@ -40,6 +30,8 @@ impl<'src> AstImport<'src> {
 pub(crate) struct Compilation<'src> {
   root_ast: Ast<'src>,
   root_source: &'src str,
+  //Not currently being used, but could allow for better error messages later
+  #[allow(dead_code)]
   pub(crate) imported_asts: Vec<AstImport<'src>>,
   root_justfile: Justfile<'src>,
 }
