@@ -30,10 +30,7 @@ pub(crate) struct AstImport<'src> {
 
 impl<'src> AstImport<'src> {
   pub(crate) fn new(ast: Ast<'src>, import: Import) -> Self {
-    Self {
-      ast,
-      import,
-    }
+    Self { ast, import }
   }
 }
 

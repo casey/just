@@ -3,18 +3,6 @@ use {super::*, CompileErrorKind::*};
 const VALID_ALIAS_ATTRIBUTES: [Attribute; 1] = [Attribute::Private];
 
 #[derive(Debug)]
-struct RecipeWithProvenance<'src, D> {
-  recipe: Recipe<'src, D>,
-  provenance: Option<Import>,
-}
-
-impl<'src, D> RecipeWithProvenance<'src, D> {
-  fn in_root_justfile(&self) -> bool {
-    self.provenance.is_none()
-  }
-}
-
-#[derive(Debug)]
 pub(crate) struct Import {
   /// Path of the import as literally given within the `!include` directive
   path: PathBuf,
