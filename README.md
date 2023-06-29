@@ -2313,8 +2313,7 @@ $ just --dump > formatted-justfile
 ```
 
 The `--dump` command can be used with `--dump-format json` to print a JSON
-representation of a `justfile`. The JSON format is currently unstable, so the
-`--unstable` flag is required.
+representation of a `justfile`.
 
 ### Fallback to parent `justfile`s
 
