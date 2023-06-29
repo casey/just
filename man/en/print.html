@@ -1785,8 +1785,7 @@ formatted correctly, and will exit with 1 and print a diff if it is not.</p>
 <pre><code class="language-sh">$ just --dump &gt; formatted-justfile
 </code></pre>
 <p>The <code>--dump</code> command can be used with <code>--dump-format json</code> to print a JSON
-representation of a <code>justfile</code>. The JSON format is currently unstable, so the
-<code>--unstable</code> flag is required.</p>
+representation of a <code>justfile</code>.</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="fallback-to-parent-justfiles"><a class="header" href="#fallback-to-parent-justfiles">Fallback to parent <code>justfile</code>s</a></h3>
 <p>If a recipe is not found in a <code>justfile</code> and the <code>fallback</code> setting is set,
 <code>just</code> will look for <code>justfile</code>s in the parent directory and up, until it
