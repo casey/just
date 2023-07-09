@@ -1234,7 +1234,7 @@ Recipes may be annotated with attributes that change their behavior.
 | `[no-exit-message]` | Don't print an error message if recipe fails.   |
 | `[linux]`           | Enable recipe on Linux.                         |
 | `[macos]`           | Enable recipe on MacOS.                         |
-| `[unix]`            | Enable recipe on Unixes.                        |
+| `[unix]`            | Enable recipe on Unixes. (Includes MacOS).      |
 | `[windows]`         | Enable recipe on Windows.                       |
 | `[private]`         | See [Private Recipes](#private-recipes).        |
 
@@ -2371,8 +2371,7 @@ $ just --dump > formatted-justfile
 ```
 
 The `--dump` command can be used with `--dump-format json` to print a JSON
-representation of a `justfile`. The JSON format is currently unstable, so the
-`--unstable` flag is required.
+representation of a `justfile`.
 
 ### Fallback to parent `justfile`s
 

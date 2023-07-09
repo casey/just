@@ -10,6 +10,7 @@ use {
 pub(crate) enum Function {
   Nullary(fn(&FunctionContext) -> Result<String, String>),
   Unary(fn(&FunctionContext, &str) -> Result<String, String>),
+  UnaryOpt(fn(&FunctionContext, &str, Option<&str>) -> Result<String, String>),
   Binary(fn(&FunctionContext, &str, &str) -> Result<String, String>),
   BinaryPlus(fn(&FunctionContext, &str, &str, &[String]) -> Result<String, String>),
   Ternary(fn(&FunctionContext, &str, &str, &str) -> Result<String, String>),
@@ -21,6 +22,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "arch" => Nullary(arch),
     "capitalize" => Unary(capitalize),
     "clean" => Unary(clean),
+    "env" => UnaryOpt(env),
     "env_var" => Unary(env_var),
     "env_var_or_default" => Binary(env_var_or_default),
     "error" => Unary(error),
@@ -70,6 +72,7 @@ impl Function {
     match *self {
       Nullary(_) => 0..0,
       Unary(_) => 1..1,
+      UnaryOpt(_) => 1..2,
       Binary(_) => 2..2,
       BinaryPlus(_) => 2..usize::MAX,
       Ternary(_) => 3..3,
@@ -141,6 +144,13 @@ fn env_var_or_default(
       "environment variable `{key}` not unicode: {os_string:?}"
     )),
     Ok(value) => Ok(value),
+  }
+}
+
+fn env(context: &FunctionContext, key: &str, default: Option<&str>) -> Result<String, String> {
+  match default {
+    Some(val) => env_var_or_default(context, key, val),
+    None => env_var(context, key),
   }
 }
 

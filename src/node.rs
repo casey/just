@@ -79,6 +79,15 @@ impl<'src> Node<'src> for Expression<'src> {
             tree.push_mut(name.lexeme());
             tree.push_mut(arg.tree());
           }
+          UnaryOpt {
+            name, args: (a, b), ..
+          } => {
+            tree.push_mut(name.lexeme());
+            tree.push_mut(a.tree());
+            if let Some(b) = b.as_ref() {
+              tree.push_mut(b.tree());
+            }
+          }
           Binary {
             name, args: [a, b], ..
           } => {
