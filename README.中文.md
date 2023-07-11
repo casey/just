@@ -646,7 +646,7 @@ foo:
 | 名称                      | 值                 | 默认    | 描述                                                                           |
 | ------------------------- | ------------------ | --------|------------------------------------------------------------------------------- |
 | `allow-duplicate-recipes` | boolean            | False   | 允许在 `justfile` 后面出现的配方覆盖之前的同名配方                             |
-| `dotenv-load`             | boolean | string   | False   | 如果有`.env` 环境变量文件的话，则将其加载. 使用字符串指定路径                             |
+| `dotenv-load`             | boolean | string   | False   | 如果有`.env` 环境变量文件的话，则将其加载。 使用字符串指定路径。                            |
 | `export`                  | boolean            | False   | 将所有变量导出为环境变量                                                       |
 | `fallback`                | boolean            | False   | 如果命令行中的第一个配方没有找到，则在父目录中搜索 `justfile`                  |
 | `ignore-comments`         | boolean            | False   | 忽略以`#`开头的配方行                                                          |
