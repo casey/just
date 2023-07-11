@@ -689,7 +689,7 @@ bar
 
 #### 环境变量加载
 
-如果将 `dotenv-load` 设置为 `true`，并且存在 `.env` 文件，则该环境配置文件将被加载。默认为 `false`。如果`dotenv-load`是字符串，将使用`.env`文件的路径。如果`dotenv-load`是字符串，将使用`.env`文件的路径。
+如果将 `dotenv-load` 设置为 `true`，并且存在 `.env` 文件，则该环境配置文件将被加载。默认为 `false`。如果`dotenv-load`是字符串，将使用`.env`文件的路径。如果`dotenv-load`是字符串，
 
 #### 导出
 
