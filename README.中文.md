@@ -646,7 +646,7 @@ foo:
 | 名称                      | 值                 | 默认    | 描述                                                                           |
 | ------------------------- | ------------------ | --------|------------------------------------------------------------------------------- |
 | `allow-duplicate-recipes` | boolean            | False   | 允许在 `justfile` 后面出现的配方覆盖之前的同名配方                             |
-| `dotenv-load`             | boolean            | False   | 如果有`.env` 环境变量文件的话，则将其加载                                      |
+| `dotenv-load`             | boolean | string   | False   | 如果有`.env` 环境变量文件的话，则将其加载. 使用字符串指定路径                             |
 | `export`                  | boolean            | False   | 将所有变量导出为环境变量                                                       |
 | `fallback`                | boolean            | False   | 如果命令行中的第一个配方没有找到，则在父目录中搜索 `justfile`                  |
 | `ignore-comments`         | boolean            | False   | 忽略以`#`开头的配方行                                                          |
@@ -689,7 +689,7 @@ bar
 
 #### 环境变量加载
 
-如果将 `dotenv-load` 设置为 `true`，并且存在 `.env` 文件，则该环境配置文件将被加载。默认为 `false`。
+如果将 `dotenv-load` 设置为 `true`，并且存在 `.env` 文件，则该环境配置文件将被加载。默认为 `false`。如果`dotenv-load`是字符串，将使用`.env`文件的路径。如果`dotenv-load`是字符串，将使用`.env`文件的路径。
 
 #### 导出
 
@@ -883,6 +883,16 @@ serve:
 $ just serve
 Starting server with database localhost:6379 on port 1337…
 ./server --database $DATABASE_ADDRESS --port $SERVER_PORT
+```
+
+指定路径字符串：
+
+```just
+set dotenv-load = "path/to/.env"
+
+serve:
+  @echo "Starting server with database $DATABASE_ADDRESS on port $SERVER_PORT…"
+  ./server --database $DATABASE_ADDRESS --port $SERVER_PORT
 ```
 
 ### 变量和替换

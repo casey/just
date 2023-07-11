@@ -60,7 +60,7 @@ assignment    : NAME ':=' expression eol
 export        : 'export' assignment
 
 setting       : 'set' 'allow-duplicate-recipes' boolean?
-              | 'set' 'dotenv-load' boolean?
+              | 'set' 'dotenv-load' boolean? | string?
               | 'set' 'export' boolean?
               | 'set' 'fallback' boolean?
               | 'set' 'ignore-comments' boolean?
