@@ -660,7 +660,7 @@ foo:
 | Name                      | Value              | Default | Description                                                                                   |
 | ------------------------- | ------------------ | ------- |---------------------------------------------------------------------------------------------- |
 | `allow-duplicate-recipes` | boolean            | `false` | Allow recipes appearing later in a `justfile` to override earlier recipes with the same name. |
-| `dotenv-load`             | boolean | string   | `false` | Load a `.env` file, if present. Optionally specify the path with a string                     |
+| `dotenv-load`             | boolean | string   | `false` | Load a `.env` file, if present. Optionally specify the path with a string.                    |
 | `export`                  | boolean            | `false` | Export all variables as environment variables.                                                |
 | `fallback`                | boolean            | `false` | Search `justfile` in parent directory if the first recipe on the command line is not found.   |
 | `ignore-comments`         | boolean            | `false` | Ignore recipe lines beginning with `#`.                                                       |
