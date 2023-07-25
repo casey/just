@@ -47,13 +47,13 @@ fn newline_escape_deps_linefeed() {
   Test::new()
     .justfile(
       "
-      default: a\\\r
-               b
-      a:
-        echo a
-      b:
-        echo b
-    ",
+        default: a\\\r
+                b
+        a:
+          echo a
+        b:
+          echo b
+      ",
     )
     .stdout("a\nb\n")
     .stderr("echo a\necho b\n")
@@ -70,7 +70,32 @@ fn newline_escape_deps_invalid_esc() {
     )
     .stdout("")
     .stderr(
-      "error: `\\ ` is not a valid escape sequence\n  |\n1 | default: a\\ b\n  |           ^\n",
+      "
+        error: `\\ ` is not a valid escape sequence
+          |
+        1 | default: a\\ b
+          |           ^
+      ",
+    )
+    .status(EXIT_FAILURE)
+    .run();
+}
+
+#[test]
+fn newline_escape_unpaired_linefeed() {
+  Test::new()
+    .justfile(
+      "
+      default:\\\ra",
+    )
+    .stdout("")
+    .stderr(
+      "
+        error: Unpaired carriage return
+          |
+        1 | default:\\\ra
+          |         ^
+      ",
     )
     .status(EXIT_FAILURE)
     .run();
