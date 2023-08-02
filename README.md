@@ -241,6 +241,12 @@ You can also set the shell using command-line arguments. For example, to use Pow
         <code>sudo apt install just</code>
       </td>
     </tr>
+    <tr>
+      <td><a href="https://en.wikipedia.org/wiki/Microsoft_Windows">Microsoft Windows</a></td>
+      <td><a href="https://learn.microsoft.com/en-us/windows/package-manager/">windows Package Manager</a></td>
+      <td><a href="https://github.com/microsoft/winget-pkgs/tree/master/manifests/c/Casey/Just">Casey/Just</a></td>
+      <td><code>winget install --id Casey.Just --exact</code></td>
+    </tr>
   </tbody>
 </table>
 
