@@ -930,11 +930,11 @@ c := a + b + a + b",
 x := arch()
 
 a:
-  {{os()}} {{os_family()}}",
+  {{os()}} {{os_family()}} {{num_cpus()}}",
     "x := arch()
 
 a:
-    {{ os() }} {{ os_family() }}",
+    {{ os() }} {{ os_family() }} {{ num_cpus() }}",
   }
 
   test! {
