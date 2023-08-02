@@ -1079,7 +1079,7 @@ Done!
 #### System Information
 
 - `arch()` — Instruction set architecture. Possible values are: `"aarch64"`, `"arm"`, `"asmjs"`, `"hexagon"`, `"mips"`, `"msp430"`, `"powerpc"`, `"powerpc64"`, `"s390x"`, `"sparc"`, `"wasm32"`, `"x86"`, `"x86_64"`, and `"xcore"`.
-- `num_cpus()` - Number of logical cores this process could try to use.
+- `num_cpus()` - Number of logical CPUs.
 - `os()` — Operating system. Possible values are: `"android"`, `"bitrig"`, `"dragonfly"`, `"emscripten"`, `"freebsd"`, `"haiku"`, `"ios"`, `"linux"`, `"macos"`, `"netbsd"`, `"openbsd"`, `"solaris"`, and `"windows"`.
 - `os_family()` — Operating system family; possible values are: `"unix"` and `"windows"`.
 
