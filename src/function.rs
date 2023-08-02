@@ -38,7 +38,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "kebabcase" => Unary(kebabcase),
     "lowercamelcase" => Unary(lowercamelcase),
     "lowercase" => Unary(lowercase),
-    "num_cpus" =>Nullary(num_cpus),
+    "num_cpus" => Nullary(num_cpus),
     "os" => Nullary(os),
     "os_family" => Nullary(os_family),
     "parent_directory" => Unary(parent_directory),
