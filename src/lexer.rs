@@ -481,6 +481,7 @@ impl<'src> Lexer<'src> {
       ',' => self.lex_single(Comma),
       '/' => self.lex_single(Slash),
       ':' => self.lex_colon(),
+      '\\' => self.lex_escape(),
       '=' => self.lex_choices('=', &[('=', EqualsEquals), ('~', EqualsTilde)], Equals),
       '@' => self.lex_single(At),
       '[' => self.lex_delimiter(BracketL),
@@ -704,6 +705,31 @@ impl<'src> Lexer<'src> {
     } else {
       self.token(Colon);
       self.recipe_body_pending = true;
+    }
+
+    Ok(())
+  }
+
+  /// Lex an token starting with '\' escape
+  fn lex_escape(&mut self) -> CompileResult<'src, ()> {
+    self.presume('\\')?;
+
+    // Treat newline escaped with \ as whitespace
+    if self.accepted('\n')? {
+      while self.next_is_whitespace() {
+        self.advance()?;
+      }
+      self.token(Whitespace);
+    } else if self.accepted('\r')? {
+      if !self.accepted('\n')? {
+        return Err(self.error(UnpairedCarriageReturn));
+      }
+      while self.next_is_whitespace() {
+        self.advance()?;
+      }
+      self.token(Whitespace);
+    } else if let Some(character) = self.next {
+      return Err(self.error(CompileErrorKind::InvalidEscapeSequence { character }));
     }
 
     Ok(())
