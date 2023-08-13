@@ -2012,7 +2012,7 @@ while:
 
 ### Command Line Options
 
-`just` supports a number of useful command line options for listing, dumping, and debugging recipes and variable:
+`just` supports a number of useful command line options for listing, dumping, and debugging recipes and variables:
 
 ```sh
 $ just --list
