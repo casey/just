@@ -17,14 +17,14 @@ pub(crate) const ZSH_COMPLETION_REPLACEMENTS: &[(&str, &str)] = &[
     r#"    local common=("#,
   ),
   (
-    r#"'*--set=[Override <VARIABLE> with <VALUE>]' \"#,
-    r#"'*--set[Override <VARIABLE> with <VALUE>]: :_just_variables' \"#,
+    r"'*--set=[Override <VARIABLE> with <VALUE>]' \",
+    r"'*--set[Override <VARIABLE> with <VALUE>]: :_just_variables' \",
   ),
   (
-    r#"'-s+[Show information about <RECIPE>]' \
-'--show=[Show information about <RECIPE>]' \"#,
-    r#"'-s+[Show information about <RECIPE>]: :_just_commands' \
-'--show=[Show information about <RECIPE>]: :_just_commands' \"#,
+    r"'-s+[Show information about <RECIPE>]' \
+'--show=[Show information about <RECIPE>]' \",
+    r"'-s+[Show information about <RECIPE>]: :_just_commands' \
+'--show=[Show information about <RECIPE>]: :_just_commands' \",
   ),
   (
     "'::ARGUMENTS -- Overrides and recipe(s) to run, defaulting to the first recipe in the \
