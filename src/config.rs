@@ -145,11 +145,11 @@ impl Config {
       )
       .arg(
         Arg::with_name(arg::COLOR)
-            .long("color")
-            .takes_value(true)
-            .possible_values(arg::COLOR_VALUES)
-            .default_value(arg::COLOR_AUTO)
-            .help("Print colorful output"),
+          .long("color")
+          .takes_value(true)
+          .possible_values(arg::COLOR_VALUES)
+          .default_value(arg::COLOR_AUTO)
+          .help("Print colorful output"),
       )
       .arg(
         Arg::with_name(arg::COMMAND_COLOR)
