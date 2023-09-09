@@ -417,7 +417,7 @@ impl Config {
     let value = matches
       .value_of(arg::COMMAND_COLOR)
       .ok_or_else(|| ConfigError::Internal {
-        message: "`--command_color` had no value".to_string(),
+        message: "`--command-color` had no value".to_string(),
       })?;
 
     match value {
@@ -425,7 +425,7 @@ impl Config {
       arg::COMMAND_COLOR_CYAN => Ok(Some(Colour::Cyan)),
       arg::COMMAND_COLOR_PURPLE => Ok(Some(Colour::Purple)),
       _ => Err(ConfigError::Internal {
-        message: format!("Invalid argument `{value}` to --command_color."),
+        message: format!("Invalid argument `{value}` to --command-color."),
       }),
     }
   }
