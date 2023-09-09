@@ -78,10 +78,10 @@ impl Color {
   }
 
   pub(crate) fn command(self, foreground_color: Option<Colour>) -> Self {
-    let new_style = if let Some(fg) = foreground_color {
-      Style::new().fg(fg).bold()
-    } else {
-      Style::new().bold()
+    let new_style = Style {
+      foreground: foreground_color,
+      is_bold: true,
+      ..Style::default()
     };
     self.restyle(new_style)
   }
@@ -91,7 +91,7 @@ impl Color {
   }
 
   pub(crate) fn message(self) -> Self {
-    self.restyle(Style::new().fg(Purple).bold())
+    self.restyle(Style::new().bold())
   }
 
   pub(crate) fn annotation(self) -> Self {
