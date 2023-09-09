@@ -31,7 +31,7 @@ test! {
     error: The argument '--command <COMMAND>' requires a value but none was supplied
 
     USAGE:
-        just{EXE_SUFFIX} --color <COLOR> --dump-format <FORMAT> --shell <SHELL> \
+        just{EXE_SUFFIX} --color <COLOR> --command-color <COMMAND-COLOR> --dump-format <FORMAT> --shell <SHELL> \
         <--changelog|--choose|--command <COMMAND>|--completions <SHELL>|--dump|--edit|\
         --evaluate|--fmt|--init|--list|--show <RECIPE>|--summary|--variables>
 

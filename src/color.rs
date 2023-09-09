@@ -1,3 +1,4 @@
+use ansi_term::Colour;
 use {
   super::*,
   ansi_term::{ANSIGenericString, Color::*, Prefix, Style, Suffix},
@@ -76,8 +77,13 @@ impl Color {
     self.restyle(Style::new().fg(Cyan).bold())
   }
 
-  pub(crate) fn command(self) -> Self {
-    self.restyle(Style::new().bold())
+  pub(crate) fn command(self, foreground_color: Option<Colour>) -> Self {
+    let new_style = if let Some(fg) = foreground_color {
+      Style::new().fg(fg).bold()
+    } else {
+      Style::new().bold()
+    };
+    self.restyle(new_style)
   }
 
   pub(crate) fn parameter(self) -> Self {
@@ -85,7 +91,7 @@ impl Color {
   }
 
   pub(crate) fn message(self) -> Self {
-    self.restyle(Style::new().bold())
+    self.restyle(Style::new().fg(Purple).bold())
   }
 
   pub(crate) fn annotation(self) -> Self {
