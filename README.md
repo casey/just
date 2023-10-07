@@ -910,7 +910,7 @@ Starting server with database localhost:6379 on port 1337…
 Variables, strings, concatenation, path joining, and substitution using `{{…}}` are supported:
 
 ```just
-tmpdir  := `mktemp`
+tmpdir  := `mktemp -d`
 version := "0.2.7"
 tardir  := tmpdir / "awesomesauce-" + version
 tarball := tardir + ".tar.gz"
