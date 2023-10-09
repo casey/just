@@ -4,5 +4,8 @@ set -euxo pipefail
 
 for script in completions/*; do
   shell=${script##*.}
+  if [ $shell == nu ]; then
+    continue
+  fi
   cargo run -- --completions $shell > $script
 done
