@@ -1,55 +1,71 @@
-#![allow(unknown_lints)]
-#![allow(clippy::unnecessary_wraps)]
+use {
+  super::*,
+  heck::{
+    ToKebabCase, ToLowerCamelCase, ToShoutyKebabCase, ToShoutySnakeCase, ToSnakeCase, ToTitleCase,
+    ToUpperCamelCase,
+  },
+  Function::*,
+};
 
-use super::*;
-
-use Function::*;
 pub(crate) enum Function {
   Nullary(fn(&FunctionContext) -> Result<String, String>),
   Unary(fn(&FunctionContext, &str) -> Result<String, String>),
+  UnaryOpt(fn(&FunctionContext, &str, Option<&str>) -> Result<String, String>),
   Binary(fn(&FunctionContext, &str, &str) -> Result<String, String>),
   BinaryPlus(fn(&FunctionContext, &str, &str, &[String]) -> Result<String, String>),
   Ternary(fn(&FunctionContext, &str, &str, &str) -> Result<String, String>),
 }
 
-lazy_static! {
-  pub(crate) static ref TABLE: BTreeMap<&'static str, Function> = vec![
-    ("absolute_path", Unary(absolute_path)),
-    ("arch", Nullary(arch)),
-    ("clean", Unary(clean)),
-    ("env_var", Unary(env_var)),
-    ("env_var_or_default", Binary(env_var_or_default)),
-    ("error", Unary(error)),
-    ("extension", Unary(extension)),
-    ("file_name", Unary(file_name)),
-    ("file_stem", Unary(file_stem)),
-    ("invocation_directory", Nullary(invocation_directory)),
-    ("join", BinaryPlus(join)),
-    ("just_executable", Nullary(just_executable)),
-    ("justfile", Nullary(justfile)),
-    ("justfile_directory", Nullary(justfile_directory)),
-    ("lowercase", Unary(lowercase)),
-    ("os", Nullary(os)),
-    ("os_family", Nullary(os_family)),
-    ("parent_directory", Unary(parent_directory)),
-    ("path_exists", Unary(path_exists)),
-    ("quote", Unary(quote)),
-    ("replace", Ternary(replace)),
-    ("sha256", Unary(sha256)),
-    ("sha256_file", Unary(sha256_file)),
-    ("trim", Unary(trim)),
-    ("trim_end", Unary(trim_end)),
-    ("trim_end_match", Binary(trim_end_match)),
-    ("trim_end_matches", Binary(trim_end_matches)),
-    ("trim_start", Unary(trim_start)),
-    ("trim_start_match", Binary(trim_start_match)),
-    ("trim_start_matches", Binary(trim_start_matches)),
-    ("uppercase", Unary(uppercase)),
-    ("uuid", Nullary(uuid)),
-    ("without_extension", Unary(without_extension)),
-  ]
-  .into_iter()
-  .collect();
+pub(crate) fn get(name: &str) -> Option<Function> {
+  let function = match name {
+    "absolute_path" => Unary(absolute_path),
+    "arch" => Nullary(arch),
+    "capitalize" => Unary(capitalize),
+    "clean" => Unary(clean),
+    "env" => UnaryOpt(env),
+    "env_var" => Unary(env_var),
+    "env_var_or_default" => Binary(env_var_or_default),
+    "error" => Unary(error),
+    "extension" => Unary(extension),
+    "file_name" => Unary(file_name),
+    "file_stem" => Unary(file_stem),
+    "invocation_directory" => Nullary(invocation_directory),
+    "invocation_directory_native" => Nullary(invocation_directory_native),
+    "join" => BinaryPlus(join),
+    "just_executable" => Nullary(just_executable),
+    "justfile" => Nullary(justfile),
+    "justfile_directory" => Nullary(justfile_directory),
+    "kebabcase" => Unary(kebabcase),
+    "lowercamelcase" => Unary(lowercamelcase),
+    "lowercase" => Unary(lowercase),
+    "num_cpus" => Nullary(num_cpus),
+    "os" => Nullary(os),
+    "os_family" => Nullary(os_family),
+    "parent_directory" => Unary(parent_directory),
+    "path_exists" => Unary(path_exists),
+    "quote" => Unary(quote),
+    "replace" => Ternary(replace),
+    "replace_regex" => Ternary(replace_regex),
+    "sha256" => Unary(sha256),
+    "sha256_file" => Unary(sha256_file),
+    "shoutykebabcase" => Unary(shoutykebabcase),
+    "shoutysnakecase" => Unary(shoutysnakecase),
+    "snakecase" => Unary(snakecase),
+    "titlecase" => Unary(titlecase),
+    "trim" => Unary(trim),
+    "trim_end" => Unary(trim_end),
+    "trim_end_match" => Binary(trim_end_match),
+    "trim_end_matches" => Binary(trim_end_matches),
+    "trim_start" => Unary(trim_start),
+    "trim_start_match" => Binary(trim_start_match),
+    "trim_start_matches" => Binary(trim_start_matches),
+    "uppercamelcase" => Unary(uppercamelcase),
+    "uppercase" => Unary(uppercase),
+    "uuid" => Nullary(uuid),
+    "without_extension" => Unary(without_extension),
+    _ => return None,
+  };
+  Some(function)
 }
 
 impl Function {
@@ -57,6 +73,7 @@ impl Function {
     match *self {
       Nullary(_) => 0..0,
       Unary(_) => 1..1,
+      UnaryOpt(_) => 1..2,
       Binary(_) => 2..2,
       BinaryPlus(_) => 2..usize::MAX,
       Ternary(_) => 3..3,
@@ -79,6 +96,18 @@ fn arch(_context: &FunctionContext) -> Result<String, String> {
   Ok(target::arch().to_owned())
 }
 
+fn capitalize(_context: &FunctionContext, s: &str) -> Result<String, String> {
+  let mut capitalized = String::new();
+  for (i, c) in s.chars().enumerate() {
+    if i == 0 {
+      capitalized.extend(c.to_uppercase());
+    } else {
+      capitalized.extend(c.to_lowercase());
+    }
+  }
+  Ok(capitalized)
+}
+
 fn clean(_context: &FunctionContext, path: &str) -> Result<String, String> {
   Ok(Path::new(path).lexiclean().to_str().unwrap().to_owned())
 }
@@ -91,10 +120,9 @@ fn env_var(context: &FunctionContext, key: &str) -> Result<String, String> {
   }
 
   match env::var(key) {
-    Err(NotPresent) => Err(format!("environment variable `{}` not present", key)),
+    Err(NotPresent) => Err(format!("environment variable `{key}` not present")),
     Err(NotUnicode(os_string)) => Err(format!(
-      "environment variable `{}` not unicode: {:?}",
-      key, os_string
+      "environment variable `{key}` not unicode: {os_string:?}"
     )),
     Ok(value) => Ok(value),
   }
@@ -114,10 +142,16 @@ fn env_var_or_default(
   match env::var(key) {
     Err(NotPresent) => Ok(default.to_owned()),
     Err(NotUnicode(os_string)) => Err(format!(
-      "environment variable `{}` not unicode: {:?}",
-      key, os_string
+      "environment variable `{key}` not unicode: {os_string:?}"
     )),
     Ok(value) => Ok(value),
+  }
+}
+
+fn env(context: &FunctionContext, key: &str, default: Option<&str>) -> Result<String, String> {
+  match default {
+    Some(val) => env_var_or_default(context, key, val),
+    None => env_var(context, key),
   }
 }
 
@@ -129,21 +163,21 @@ fn extension(_context: &FunctionContext, path: &str) -> Result<String, String> {
   Utf8Path::new(path)
     .extension()
     .map(str::to_owned)
-    .ok_or_else(|| format!("Could not extract extension from `{}`", path))
+    .ok_or_else(|| format!("Could not extract extension from `{path}`"))
 }
 
 fn file_name(_context: &FunctionContext, path: &str) -> Result<String, String> {
   Utf8Path::new(path)
     .file_name()
     .map(str::to_owned)
-    .ok_or_else(|| format!("Could not extract file name from `{}`", path))
+    .ok_or_else(|| format!("Could not extract file name from `{path}`"))
 }
 
 fn file_stem(_context: &FunctionContext, path: &str) -> Result<String, String> {
   Utf8Path::new(path)
     .file_stem()
     .map(str::to_owned)
-    .ok_or_else(|| format!("Could not extract file stem from `{}`", path))
+    .ok_or_else(|| format!("Could not extract file stem from `{path}`"))
 }
 
 fn invocation_directory(context: &FunctionContext) -> Result<String, String> {
@@ -151,7 +185,20 @@ fn invocation_directory(context: &FunctionContext) -> Result<String, String> {
     &context.search.working_directory,
     context.invocation_directory,
   )
-  .map_err(|e| format!("Error getting shell path: {}", e))
+  .map_err(|e| format!("Error getting shell path: {e}"))
+}
+
+fn invocation_directory_native(context: &FunctionContext) -> Result<String, String> {
+  context
+    .invocation_directory
+    .to_str()
+    .map(str::to_owned)
+    .ok_or_else(|| {
+      format!(
+        "Invocation directory is not valid unicode: {}",
+        context.invocation_directory.display()
+      )
+    })
 }
 
 fn join(
@@ -169,7 +216,7 @@ fn join(
 
 fn just_executable(_context: &FunctionContext) -> Result<String, String> {
   let exe_path =
-    std::env::current_exe().map_err(|e| format!("Error getting current executable: {}", e))?;
+    env::current_exe().map_err(|e| format!("Error getting current executable: {e}"))?;
 
   exe_path.to_str().map(str::to_owned).ok_or_else(|| {
     format!(
@@ -212,8 +259,21 @@ fn justfile_directory(context: &FunctionContext) -> Result<String, String> {
     })
 }
 
+fn kebabcase(_context: &FunctionContext, s: &str) -> Result<String, String> {
+  Ok(s.to_kebab_case())
+}
+
+fn lowercamelcase(_context: &FunctionContext, s: &str) -> Result<String, String> {
+  Ok(s.to_lower_camel_case())
+}
+
 fn lowercase(_context: &FunctionContext, s: &str) -> Result<String, String> {
   Ok(s.to_lowercase())
+}
+
+fn num_cpus(_context: &FunctionContext) -> Result<String, String> {
+  let num = num_cpus::get();
+  Ok(num.to_string())
 }
 
 fn os(_context: &FunctionContext) -> Result<String, String> {
@@ -228,7 +288,7 @@ fn parent_directory(_context: &FunctionContext, path: &str) -> Result<String, St
   Utf8Path::new(path)
     .parent()
     .map(Utf8Path::to_string)
-    .ok_or_else(|| format!("Could not extract parent directory from `{}`", path))
+    .ok_or_else(|| format!("Could not extract parent directory from `{path}`"))
 }
 
 fn path_exists(context: &FunctionContext, path: &str) -> Result<String, String> {
@@ -250,24 +310,54 @@ fn replace(_context: &FunctionContext, s: &str, from: &str, to: &str) -> Result<
   Ok(s.replace(from, to))
 }
 
+fn replace_regex(
+  _context: &FunctionContext,
+  s: &str,
+  regex: &str,
+  replacement: &str,
+) -> Result<String, String> {
+  Ok(
+    Regex::new(regex)
+      .map_err(|err| err.to_string())?
+      .replace_all(s, replacement)
+      .to_string(),
+  )
+}
+
 fn sha256(_context: &FunctionContext, s: &str) -> Result<String, String> {
   use sha2::{Digest, Sha256};
   let mut hasher = Sha256::new();
   hasher.update(s);
   let hash = hasher.finalize();
-  Ok(format!("{:x}", hash))
+  Ok(format!("{hash:x}"))
 }
 
 fn sha256_file(context: &FunctionContext, path: &str) -> Result<String, String> {
   use sha2::{Digest, Sha256};
   let justpath = context.search.working_directory.join(path);
   let mut hasher = Sha256::new();
-  let mut file = std::fs::File::open(&justpath)
-    .map_err(|err| format!("Failed to open file at `{:?}`: {}", &justpath.to_str(), err))?;
+  let mut file = fs::File::open(&justpath)
+    .map_err(|err| format!("Failed to open file at `{:?}`: {err}", &justpath.to_str()))?;
   std::io::copy(&mut file, &mut hasher)
-    .map_err(|err| format!("Failed to read file at `{:?}`: {}", &justpath.to_str(), err))?;
+    .map_err(|err| format!("Failed to read file at `{:?}`: {err}", &justpath.to_str()))?;
   let hash = hasher.finalize();
-  Ok(format!("{:x}", hash))
+  Ok(format!("{hash:x}"))
+}
+
+fn shoutykebabcase(_context: &FunctionContext, s: &str) -> Result<String, String> {
+  Ok(s.to_shouty_kebab_case())
+}
+
+fn shoutysnakecase(_context: &FunctionContext, s: &str) -> Result<String, String> {
+  Ok(s.to_shouty_snake_case())
+}
+
+fn snakecase(_context: &FunctionContext, s: &str) -> Result<String, String> {
+  Ok(s.to_snake_case())
+}
+
+fn titlecase(_context: &FunctionContext, s: &str) -> Result<String, String> {
+  Ok(s.to_title_case())
 }
 
 fn trim(_context: &FunctionContext, s: &str) -> Result<String, String> {
@@ -298,6 +388,10 @@ fn trim_start_matches(_context: &FunctionContext, s: &str, pat: &str) -> Result<
   Ok(s.trim_start_matches(pat).to_owned())
 }
 
+fn uppercamelcase(_context: &FunctionContext, s: &str) -> Result<String, String> {
+  Ok(s.to_upper_camel_case())
+}
+
 fn uppercase(_context: &FunctionContext, s: &str) -> Result<String, String> {
   Ok(s.to_uppercase())
 }
@@ -309,11 +403,11 @@ fn uuid(_context: &FunctionContext) -> Result<String, String> {
 fn without_extension(_context: &FunctionContext, path: &str) -> Result<String, String> {
   let parent = Utf8Path::new(path)
     .parent()
-    .ok_or_else(|| format!("Could not extract parent from `{}`", path))?;
+    .ok_or_else(|| format!("Could not extract parent from `{path}`"))?;
 
   let file_stem = Utf8Path::new(path)
     .file_stem()
-    .ok_or_else(|| format!("Could not extract file stem from `{}`", path))?;
+    .ok_or_else(|| format!("Could not extract file stem from `{path}`"))?;
 
   Ok(parent.join(file_stem).to_string())
 }

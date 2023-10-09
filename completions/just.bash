@@ -20,12 +20,19 @@ _just() {
 
     case "${cmd}" in
         just)
-            opts=" -q -u -v -e -l -h -V -f -d -c -s  --check --dry-run --highlight --no-dotenv --no-highlight --quiet --shell-command --clear-shell-args --unsorted --unstable --verbose --changelog --choose --dump --edit --evaluate --fmt --init --list --summary --variables --help --version --chooser --color --dump-format --list-heading --list-prefix --justfile --set --shell --shell-arg --working-directory --command --completions --show --dotenv-filename --dotenv-path  <ARGUMENTS>... "
+            opts=" -n -q -u -v -e -l -h -V -f -d -c -s  --check --dry-run --highlight --no-dotenv --no-highlight --quiet --shell-command --clear-shell-args --unsorted --unstable --verbose --changelog --choose --dump --edit --evaluate --fmt --init --list --summary --variables --help --version --chooser --color --dump-format --list-heading --list-prefix --justfile --set --shell --shell-arg --working-directory --command --completions --show --dotenv-filename --dotenv-path  <ARGUMENTS>... "
                 if [[ ${cur} == -* ]] ; then
                     COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                     return 0
                 elif [[ ${COMP_CWORD} -eq 1 ]]; then
-                    local recipes=$(just --summary --color never 2> /dev/null)
+                    local recipes=$(just --summary 2> /dev/null)
+
+                    if echo "${cur}" | \grep -qF '/'; then
+                        local path_prefix=$(echo "${cur}" | sed 's/[/][^/]*$/\//')
+                        local recipes=$(just --summary 2> /dev/null -- "${path_prefix}")
+                        local recipes=$(printf "${path_prefix}%s\t" $recipes)
+                    fi
+
                     if [[ $? -eq 0 ]]; then
                         COMPREPLY=( $(compgen -W "${recipes}" -- "${cur}") )
                         return 0

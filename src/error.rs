@@ -31,10 +31,15 @@ pub(crate) enum Error<'src> {
     chooser: OsString,
     io_error: io::Error,
   },
+  CircularInclude {
+    current: PathBuf,
+    include: PathBuf,
+  },
   Code {
     recipe: &'src str,
     line_number: Option<usize>,
     code: i32,
+    print_message: bool,
   },
   CommandInvoke {
     binary: OsString,
@@ -61,7 +66,7 @@ pub(crate) enum Error<'src> {
     min_arguments: usize,
   },
   Dotenv {
-    dotenv_error: dotenv::Error,
+    dotenv_error: dotenvy::Error,
   },
   DumpJson {
     serde_json_error: serde_json::Error,
@@ -83,11 +88,18 @@ pub(crate) enum Error<'src> {
     function: Name<'src>,
     message: String,
   },
+  IncludeMissingPath {
+    file: PathBuf,
+    line: usize,
+  },
   InitExists {
     justfile: PathBuf,
   },
   Internal {
     message: String,
+  },
+  InvalidDirective {
+    line: String,
   },
   Io {
     recipe: &'src str,
@@ -167,6 +179,16 @@ impl<'src> Error<'src> {
       message: message.into(),
     }
   }
+
+  pub(crate) fn print_message(&self) -> bool {
+    !matches!(
+      self,
+      Error::Code {
+        print_message: false,
+        ..
+      }
+    )
+  }
 }
 
 impl<'src> From<CompileError<'src>> for Error<'src> {
@@ -181,8 +203,8 @@ impl<'src> From<ConfigError> for Error<'src> {
   }
 }
 
-impl<'src> From<dotenv::Error> for Error<'src> {
-  fn from(dotenv_error: dotenv::Error) -> Error<'src> {
+impl<'src> From<dotenvy::Error> for Error<'src> {
+  fn from(dotenv_error: dotenvy::Error) -> Error<'src> {
     Self::Dotenv { dotenv_error }
   }
 }
@@ -216,39 +238,30 @@ impl<'src> ColorDisplay for Error<'src> {
           let expected = min;
           write!(
             f,
-            "Recipe `{}` got {} {} but {}takes {}",
-            recipe,
-            found,
+            "Recipe `{recipe}` got {found} {} but {}takes {expected}",
             Count("argument", *found),
-            if expected < found { "only " } else { "" },
-            expected
+            if expected < found { "only " } else { "" }
           )?;
         } else if found < min {
           write!(
             f,
-            "Recipe `{}` got {} {} but takes at least {}",
-            recipe,
-            found,
-            Count("argument", *found),
-            min
+            "Recipe `{recipe}` got {found} {} but takes at least {min}",
+            Count("argument", *found)
           )?;
         } else if found > max {
           write!(
             f,
-            "Recipe `{}` got {} {} but takes at most {}",
-            recipe,
-            found,
-            Count("argument", *found),
-            max
+            "Recipe `{recipe}` got {found} {} but takes at most {max}",
+            Count("argument", *found)
           )?;
         }
       }
       Backtick { output_error, .. } => match output_error {
         OutputError::Code(code) => {
-          write!(f, "Backtick failed with exit code {}", code)?;
+          write!(f, "Backtick failed with exit code {code}")?;
         }
         OutputError::Signal(signal) => {
-          write!(f, "Backtick was terminated by signal {}", signal)?;
+          write!(f, "Backtick was terminated by signal {signal}")?;
         }
         OutputError::Unknown => {
           write!(f, "Backtick failed for an unknown reason")?;
@@ -257,26 +270,22 @@ impl<'src> ColorDisplay for Error<'src> {
           match io_error.kind() {
             io::ErrorKind::NotFound => write!(
               f,
-              "Backtick could not be run because just could not find the shell:\n{}",
-              io_error
+              "Backtick could not be run because just could not find the shell:\n{io_error}"
             ),
             io::ErrorKind::PermissionDenied => write!(
               f,
-              "Backtick could not be run because just could not run the shell:\n{}",
-              io_error
+              "Backtick could not be run because just could not run the shell:\n{io_error}"
             ),
             _ => write!(
               f,
-              "Backtick could not be run because of an IO error while launching the shell:\n{}",
-              io_error
+              "Backtick could not be run because of an IO error while launching the shell:\n{io_error}"
             ),
           }?;
         }
         OutputError::Utf8(utf8_error) => {
           write!(
             f,
-            "Backtick succeeded but stdout was not utf8: {}",
-            utf8_error
+            "Backtick succeeded but stdout was not utf8: {utf8_error}"
           )?;
         }
       },
@@ -288,50 +297,50 @@ impl<'src> ColorDisplay for Error<'src> {
       } => {
         write!(
           f,
-          "Chooser `{} {} {}` invocation failed: {}",
-          shell_binary,
-          shell_arguments,
+          "Chooser `{shell_binary} {shell_arguments} {}` invocation failed: {io_error}",
           chooser.to_string_lossy(),
-          io_error,
         )?;
       }
       ChooserRead { chooser, io_error } => {
         write!(
           f,
-          "Failed to read output from chooser `{}`: {}",
-          chooser.to_string_lossy(),
-          io_error
+          "Failed to read output from chooser `{}`: {io_error}",
+          chooser.to_string_lossy()
         )?;
       }
       ChooserStatus { chooser, status } => {
         write!(
           f,
-          "Chooser `{}` failed: {}",
-          chooser.to_string_lossy(),
-          status
+          "Chooser `{}` failed: {status}",
+          chooser.to_string_lossy()
         )?;
       }
       ChooserWrite { chooser, io_error } => {
         write!(
           f,
-          "Failed to write to chooser `{}`: {}",
-          chooser.to_string_lossy(),
-          io_error
+          "Failed to write to chooser `{}`: {io_error}",
+          chooser.to_string_lossy()
         )?;
       }
+      CircularInclude { current, include } => {
+        write!(
+          f,
+          "Include `{}` in `{}` is a circular include", include.display(), current.display()
+        )?;
+      },
       Code {
         recipe,
         line_number,
         code,
+        ..
       } => {
         if let Some(n) = line_number {
           write!(
             f,
-            "Recipe `{}` failed on line {} with exit code {}",
-            recipe, n, code
+            "Recipe `{recipe}` failed on line {n} with exit code {code}"
           )?;
         } else {
-          write!(f, "Recipe `{}` failed with exit code {}", recipe, code)?;
+          write!(f, "Recipe `{recipe}` failed with exit code {code}")?;
         }
       }
       CommandInvoke {
@@ -341,13 +350,12 @@ impl<'src> ColorDisplay for Error<'src> {
       } => {
         write!(
           f,
-          "Failed to invoke {}: {}",
+          "Failed to invoke {}: {io_error}",
           iter::once(binary)
             .chain(arguments)
             .map(|value| Enclosure::tick(value.to_string_lossy()).to_string())
             .collect::<Vec<String>>()
             .join(" "),
-          io_error,
         )?;
       }
       CommandStatus {
@@ -357,13 +365,12 @@ impl<'src> ColorDisplay for Error<'src> {
       } => {
         write!(
           f,
-          "Command {} failed: {}",
+          "Command {} failed: {status}",
           iter::once(binary)
             .chain(arguments)
             .map(|value| Enclosure::tick(value.to_string_lossy()).to_string())
             .collect::<Vec<String>>()
             .join(" "),
-          status,
         )?;
       }
       Compile { compile_error } => Display::fmt(compile_error, f)?,
@@ -375,50 +382,44 @@ impl<'src> ColorDisplay for Error<'src> {
         OutputError::Code(code) => {
           write!(
             f,
-            "Cygpath failed with exit code {} while translating recipe `{}` shebang interpreter \
-             path",
-            code, recipe
+            "Cygpath failed with exit code {code} while translating recipe `{recipe}` shebang interpreter \
+             path"
           )?;
         }
         OutputError::Signal(signal) => {
           write!(
             f,
-            "Cygpath terminated by signal {} while translating recipe `{}` shebang interpreter \
-             path",
-            signal, recipe
+            "Cygpath terminated by signal {signal} while translating recipe `{recipe}` shebang interpreter \
+             path"
           )?;
         }
         OutputError::Unknown => {
           write!(
             f,
-            "Cygpath experienced an unknown failure while translating recipe `{}` shebang \
-             interpreter path",
-            recipe
+            "Cygpath experienced an unknown failure while translating recipe `{recipe}` shebang \
+             interpreter path"
           )?;
         }
         OutputError::Io(io_error) => {
           match io_error.kind() {
             io::ErrorKind::NotFound => write!(
               f,
-              "Could not find `cygpath` executable to translate recipe `{}` shebang interpreter \
-               path:\n{}",
-              recipe, io_error
+              "Could not find `cygpath` executable to translate recipe `{recipe}` shebang interpreter \
+               path:\n{io_error}"
             ),
             io::ErrorKind::PermissionDenied => write!(
               f,
-              "Could not run `cygpath` executable to translate recipe `{}` shebang interpreter \
-               path:\n{}",
-              recipe, io_error
+              "Could not run `cygpath` executable to translate recipe `{recipe}` shebang interpreter \
+               path:\n{io_error}"
             ),
-            _ => write!(f, "Could not run `cygpath` executable:\n{}", io_error),
+            _ => write!(f, "Could not run `cygpath` executable:\n{io_error}"),
           }?;
         }
         OutputError::Utf8(utf8_error) => {
           write!(
             f,
-            "Cygpath successfully translated recipe `{}` shebang interpreter path, but output was \
-             not utf8: {}",
-            recipe, utf8_error
+            "Cygpath successfully translated recipe `{recipe}` shebang interpreter path, but output was \
+             not utf8: {utf8_error}"
           )?;
         }
       },
@@ -428,41 +429,33 @@ impl<'src> ColorDisplay for Error<'src> {
       } => {
         write!(
           f,
-          "Recipe `{}` cannot be used as default recipe since it requires at least {} {}.",
-          recipe,
-          min_arguments,
+          "Recipe `{recipe}` cannot be used as default recipe since it requires at least {min_arguments} {}.",
           Count("argument", *min_arguments),
         )?;
       }
       Dotenv { dotenv_error } => {
-        write!(f, "Failed to load environment file: {}", dotenv_error)?;
+        write!(f, "Failed to load environment file: {dotenv_error}")?;
       }
       DumpJson { serde_json_error } => {
-        write!(f, "Failed to dump JSON to stdout: {}", serde_json_error)?;
+        write!(f, "Failed to dump JSON to stdout: {serde_json_error}")?;
       }
       EditorInvoke { editor, io_error } => {
         write!(
           f,
-          "Editor `{}` invocation failed: {}",
+          "Editor `{}` invocation failed: {io_error}",
           editor.to_string_lossy(),
-          io_error
         )?;
       }
       EditorStatus { editor, status } => {
-        write!(
-          f,
-          "Editor `{}` failed: {}",
-          editor.to_string_lossy(),
-          status
-        )?;
+        write!(f, "Editor `{}` failed: {status}", editor.to_string_lossy(),)?;
       }
       EvalUnknownVariable {
         variable,
         suggestion,
       } => {
-        write!(f, "Justfile does not contain variable `{}`.", variable,)?;
+        write!(f, "Justfile does not contain variable `{variable}`.")?;
         if let Some(suggestion) = *suggestion {
-          write!(f, "\n{}", suggestion)?;
+          write!(f, "\n{suggestion}")?;
         }
       }
       FormatCheckFoundDiff => {
@@ -471,47 +464,56 @@ impl<'src> ColorDisplay for Error<'src> {
       FunctionCall { function, message } => {
         write!(
           f,
-          "Call to function `{}` failed: {}",
-          function.lexeme(),
-          message
+          "Call to function `{}` failed: {message}",
+          function.lexeme()
         )?;
       }
+      IncludeMissingPath {
+        file: justfile, line
+      } => {
+
+        write!(
+          f,
+          "!include directive on line {} of `{}` has no argument",
+          line.ordinal(),
+          justfile.display(),
+        )?;
+
+      },
       InitExists { justfile } => {
         write!(f, "Justfile `{}` already exists", justfile.display())?;
       }
       Internal { message } => {
         write!(
           f,
-          "Internal runtime error, this may indicate a bug in just: {} \
-           consider filing an issue: https://github.com/casey/just/issues/new",
-          message
+          "Internal runtime error, this may indicate a bug in just: {message} \
+           consider filing an issue: https://github.com/casey/just/issues/new"
         )?;
+      }
+      InvalidDirective { line } => {
+        write!(f, "Invalid directive: {line}")?;
       }
       Io { recipe, io_error } => {
         match io_error.kind() {
           io::ErrorKind::NotFound => write!(
             f,
-            "Recipe `{}` could not be run because just could not find the shell: {}",
-            recipe, io_error
+            "Recipe `{recipe}` could not be run because just could not find the shell: {io_error}"
           ),
           io::ErrorKind::PermissionDenied => write!(
             f,
-            "Recipe `{}` could not be run because just could not run the shell: {}",
-            recipe, io_error
+            "Recipe `{recipe}` could not be run because just could not run the shell: {io_error}"
           ),
           _ => write!(
             f,
-            "Recipe `{}` could not be run because of an IO error while launching the shell: {}",
-            recipe, io_error
+            "Recipe `{recipe}` could not be run because of an IO error while launching the shell: {io_error}"
           ),
         }?;
       }
       Load { io_error, path } => {
         write!(
           f,
-          "Failed to read justfile at `{}`: {}",
-          path.display(),
-          io_error
+          "Failed to read justfile at `{}`: {io_error}",
+          path.display()
         )?;
       }
       NoChoosableRecipes => {
@@ -521,7 +523,7 @@ impl<'src> ColorDisplay for Error<'src> {
         write!(f, "Justfile contains no recipes.")?;
       }
       RegexCompile { source } => {
-        write!(f, "{}", source)?;
+        write!(f, "{source}")?;
       }
       Search { search_error } => Display::fmt(search_error, f)?,
       Shebang {
@@ -533,14 +535,12 @@ impl<'src> ColorDisplay for Error<'src> {
         if let Some(argument) = argument {
           write!(
             f,
-            "Recipe `{}` with shebang `#!{} {}` execution error: {}",
-            recipe, command, argument, io_error
+            "Recipe `{recipe}` with shebang `#!{command} {argument}` execution error: {io_error}",
           )?;
         } else {
           write!(
             f,
-            "Recipe `{}` with shebang `#!{}` execution error: {}",
-            recipe, command, io_error
+            "Recipe `{recipe}` with shebang `#!{command}` execution error: {io_error}",
           )?;
         }
       }
@@ -552,18 +552,16 @@ impl<'src> ColorDisplay for Error<'src> {
         if let Some(n) = line_number {
           write!(
             f,
-            "Recipe `{}` was terminated on line {} by signal {}",
-            recipe, n, signal
+            "Recipe `{recipe}` was terminated on line {n} by signal {signal}",
           )?;
         } else {
-          write!(f, "Recipe `{}` was terminated by signal {}", recipe, signal)?;
+          write!(f, "Recipe `{recipe}` was terminated by signal {signal}")?;
         }
       }
       TmpdirIo { recipe, io_error } => write!(
         f,
-        "Recipe `{}` could not be run because of an IO error while trying to create a temporary \
-         directory or write a file to that directory`:{}",
-        recipe, io_error
+        "Recipe `{recipe}` could not be run because of an IO error while trying to create a temporary \
+         directory or write a file to that directory`:{io_error}",
       )?,
       Unknown {
         recipe,
@@ -572,11 +570,10 @@ impl<'src> ColorDisplay for Error<'src> {
         if let Some(n) = line_number {
           write!(
             f,
-            "Recipe `{}` failed on line {} for an unknown reason",
-            recipe, n
+            "Recipe `{recipe}` failed on line {n} for an unknown reason",
           )?;
         } else {
-          write!(f, "Recipe `{}` failed for an unknown reason", recipe)?;
+          write!(f, "Recipe `{recipe}` failed for an unknown reason")?;
         }
       }
       UnknownOverrides { overrides } => {
@@ -598,22 +595,20 @@ impl<'src> ColorDisplay for Error<'src> {
           List::or_ticked(recipes),
         )?;
         if let Some(suggestion) = *suggestion {
-          write!(f, "\n{}", suggestion)?;
+          write!(f, "\n{suggestion}")?;
         }
       }
       Unstable { message } => {
         write!(
           f,
-          "{} Invoke `just` with the `--unstable` flag to enable unstable features.",
-          message
+          "{message} Invoke `just` with the `--unstable` flag to enable unstable features."
         )?;
       }
       WriteJustfile { justfile, io_error } => {
         write!(
           f,
-          "Failed to write justfile to `{}`: {}",
-          justfile.display(),
-          io_error
+          "Failed to write justfile to `{}`: {io_error}",
+          justfile.display()
         )?;
       }
     }
@@ -625,12 +620,7 @@ impl<'src> ColorDisplay for Error<'src> {
     } = self
     {
       writeln!(f)?;
-      write!(
-        f,
-        "{}:\n    just {}",
-        color.message().paint("usage"),
-        recipe
-      )?;
+      write!(f, "{}:\n    just {recipe}", color.message().paint("usage"))?;
       for param in parameters {
         write!(f, " {}", param.color_display(color))?;
       }

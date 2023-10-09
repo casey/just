@@ -14,9 +14,7 @@ impl InterruptHandler {
   }
 
   pub(crate) fn instance() -> MutexGuard<'static, Self> {
-    lazy_static! {
-      static ref INSTANCE: Mutex<InterruptHandler> = Mutex::new(InterruptHandler::new());
-    }
+    static INSTANCE: Mutex<InterruptHandler> = Mutex::new(InterruptHandler::new());
 
     match INSTANCE.lock() {
       Ok(guard) => guard,
@@ -24,7 +22,7 @@ impl InterruptHandler {
         eprintln!(
           "{}",
           Error::Internal {
-            message: format!("interrupt handler mutex poisoned: {}", poison_error),
+            message: format!("interrupt handler mutex poisoned: {poison_error}"),
           }
           .color_display(Color::auto().stderr())
         );
@@ -33,7 +31,7 @@ impl InterruptHandler {
     }
   }
 
-  fn new() -> Self {
+  const fn new() -> Self {
     Self {
       blocks: 0,
       interrupted: false,

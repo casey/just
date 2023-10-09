@@ -16,7 +16,7 @@ impl<'src> Token<'src> {
   }
 
   pub(crate) fn error(&self, kind: CompileErrorKind<'src>) -> CompileError<'src> {
-    CompileError { token: *self, kind }
+    CompileError::new(*self, kind)
   }
 }
 
@@ -53,7 +53,7 @@ impl<'src> ColorDisplay for Token<'src> {
         }
         let line_number_width = line_number.to_string().len();
         writeln!(f, "{0:1$} |", "", line_number_width)?;
-        writeln!(f, "{} | {}", line_number, space_line)?;
+        writeln!(f, "{line_number} | {space_line}")?;
         write!(f, "{0:1$} |", "", line_number_width)?;
         write!(
           f,
@@ -70,8 +70,7 @@ impl<'src> ColorDisplay for Token<'src> {
         if self.offset != self.src.len() {
           write!(
             f,
-            "internal error: Error has invalid line number: {}",
-            line_number
+            "internal error: Error has invalid line number: {line_number}"
           )?;
         }
       }

@@ -12,9 +12,10 @@
 //! that changes to just do not inadvertently break or change the interpretation
 //! of existing justfiles.
 
-use std::{collections::BTreeMap, fs, io, path::Path};
-
-use crate::compiler::Compiler;
+use {
+  crate::compiler::Compiler,
+  std::{collections::BTreeMap, fs, io, path::Path},
+};
 
 mod full {
   pub(crate) use crate::{
@@ -28,7 +29,7 @@ pub fn summary(path: &Path) -> Result<Result<Summary, String>, io::Error> {
   let text = fs::read_to_string(path)?;
 
   match Compiler::compile(&text) {
-    Ok(justfile) => Ok(Ok(Summary::new(justfile))),
+    Ok((_, justfile)) => Ok(Ok(Summary::new(justfile))),
     Err(compilation_error) => Ok(Err(compilation_error.to_string())),
   }
 }
@@ -197,7 +198,7 @@ pub enum Expression {
     operator: ConditionalOperator,
   },
   Join {
-    lhs: Box<Expression>,
+    lhs: Option<Box<Expression>>,
     rhs: Box<Expression>,
   },
   String {
@@ -224,6 +225,23 @@ impl Expression {
           name: name.lexeme().to_owned(),
           arguments: vec![Expression::new(arg)],
         },
+        full::Thunk::UnaryOpt {
+          name,
+          args: (a, opt_b),
+          ..
+        } => {
+          let mut arguments = vec![];
+
+          if let Some(b) = opt_b.as_ref() {
+            arguments.push(Expression::new(b));
+          }
+
+          arguments.push(Expression::new(a));
+          Expression::Call {
+            name: name.lexeme().to_owned(),
+            arguments,
+          }
+        }
         full::Thunk::Binary {
           name, args: [a, b], ..
         } => Expression::Call {
@@ -258,7 +276,7 @@ impl Expression {
         rhs: Box::new(Expression::new(rhs)),
       },
       Join { lhs, rhs } => Expression::Join {
-        lhs: Box::new(Expression::new(lhs)),
+        lhs: lhs.as_ref().map(|lhs| Box::new(Expression::new(lhs))),
         rhs: Box::new(Expression::new(rhs)),
       },
       Conditional {

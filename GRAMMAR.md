@@ -22,6 +22,7 @@ RAW_STRING          = '[^']*'
 INDENTED_RAW_STRING = '''[^(''')]*'''
 STRING              = "[^"]*" # also processes \n \r \t \" \\ escapes
 INDENTED_STRING     = """[^("""]*""" # also processes \n \r \t \" \\ escapes
+LINE_PREFIX         = @-|-@|@|-
 TEXT                = recipe text, only matches in a recipe body
 ```
 
@@ -58,10 +59,16 @@ assignment    : NAME ':=' expression eol
 
 export        : 'export' assignment
 
-setting       : 'set' 'dotenv-load' boolean?
+setting       : 'set' 'allow-duplicate-recipes' boolean?
+              | 'set' 'dotenv-load' boolean?
               | 'set' 'export' boolean?
+              | 'set' 'fallback' boolean?
+              | 'set' 'ignore-comments' boolean?
               | 'set' 'positional-arguments' boolean?
               | 'set' 'shell' ':=' '[' string (',' string)* ','? ']'
+              | 'set' 'tempdir  string
+              | 'set' 'windows-powershell' boolean?
+              | 'set' 'windows-shell' ':=' '[' string (',' string)* ','? ']'
 
 boolean       : ':=' ('true' | 'false')
 
@@ -88,7 +95,9 @@ string        : STRING
 sequence      : expression ',' sequence
               | expression ','?
 
-recipe        : '@'? NAME parameter* variadic? ':' dependency* body?
+recipe        : attribute? '@'? NAME parameter* variadic? ':' dependency* body?
+
+attribute     : '[' NAME ']' eol
 
 parameter     : '$'? NAME
               | '$'? NAME '=' value
@@ -101,7 +110,7 @@ dependency    : NAME
 
 body          : INDENT line+ DEDENT
 
-line          : LINE (TEXT | interpolation)+ NEWLINE
+line          : LINE LINE_PREFIX? (TEXT | interpolation)+ NEWLINE
               | NEWLINE
 
 interpolation : '{{' expression '}}'

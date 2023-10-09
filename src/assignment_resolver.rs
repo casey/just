@@ -1,6 +1,4 @@
-use super::*;
-
-use CompileErrorKind::*;
+use {super::*, CompileErrorKind::*};
 
 pub(crate) struct AssignmentResolver<'src: 'run, 'run> {
   assignments: &'run Table<'src, Assignment<'src>>,
@@ -36,7 +34,7 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
       self.resolve_expression(&assignment.value)?;
       self.evaluated.insert(name);
     } else {
-      let message = format!("attempted to resolve unknown assignment `{}`", name);
+      let message = format!("attempted to resolve unknown assignment `{name}`");
       let token = Token {
         src: "",
         offset: 0,
@@ -45,10 +43,7 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
         length: 0,
         kind: TokenKind::Unspecified,
       };
-      return Err(CompileError {
-        kind: Internal { message },
-        token,
-      });
+      return Err(CompileError::new(token, Internal { message }));
     }
 
     self.stack.pop();
@@ -78,6 +73,13 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
       Expression::Call { thunk } => match thunk {
         Thunk::Nullary { .. } => Ok(()),
         Thunk::Unary { arg, .. } => self.resolve_expression(arg),
+        Thunk::UnaryOpt { args: (a, b), .. } => {
+          self.resolve_expression(a)?;
+          if let Some(b) = b.as_ref() {
+            self.resolve_expression(b)?;
+          }
+          Ok(())
+        }
         Thunk::Binary { args: [a, b], .. } => {
           self.resolve_expression(a)?;
           self.resolve_expression(b)
@@ -101,8 +103,14 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
           self.resolve_expression(c)
         }
       },
-      Expression::Concatenation { lhs, rhs } | Expression::Join { lhs, rhs } => {
+      Expression::Concatenation { lhs, rhs } => {
         self.resolve_expression(lhs)?;
+        self.resolve_expression(rhs)
+      }
+      Expression::Join { lhs, rhs } => {
+        if let Some(lhs) = lhs {
+          self.resolve_expression(lhs)?;
+        }
         self.resolve_expression(rhs)
       }
       Expression::Conditional {

@@ -1,12 +1,9 @@
-use super::*;
-
-use crate::compiler::Compiler;
-use pretty_assertions::assert_eq;
+use {super::*, crate::compiler::Compiler, pretty_assertions::assert_eq};
 
 pub(crate) fn compile(text: &str) -> Justfile {
   match Compiler::compile(text) {
-    Ok(justfile) => justfile,
-    Err(error) => panic!("Expected successful compilation but got error:\n {}", error),
+    Ok((_, justfile)) => justfile,
+    Err(error) => panic!("Expected successful compilation but got error:\n {error}"),
   }
 }
 
@@ -67,7 +64,7 @@ pub(crate) fn analysis_error(
 
   let ast = Parser::parse(&tokens).expect("Parsing failed in analysis test...");
 
-  match Analyzer::analyze(ast) {
+  match Analyzer::analyze(&ast) {
     Ok(_) => panic!("Analysis unexpectedly succeeded"),
     Err(have) => {
       let want = CompileError {
@@ -79,7 +76,7 @@ pub(crate) fn analysis_error(
           column,
           length,
         },
-        kind,
+        kind: Box::new(kind),
       };
       assert_eq!(have, want);
     }
@@ -102,6 +99,7 @@ macro_rules! run_error {
       if let Subcommand::Run{ overrides, arguments } = &config.subcommand {
         match $crate::compiler::Compiler::compile(&$crate::unindent::unindent($src))
           .expect("Expected successful compilation")
+          .1
           .run(
             &config,
             &search,
@@ -121,7 +119,7 @@ macro_rules! run_error {
 }
 
 macro_rules! assert_matches {
-  ($expression:expr, $( $pattern:pat )|+ $( if $guard:expr )?) => {
+  ($expression:expr, $( $pattern:pat_param )|+ $( if $guard:expr )?) => {
     match $expression {
       $( $pattern )|+ $( if $guard )? => {}
       left => panic!(

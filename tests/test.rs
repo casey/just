@@ -1,6 +1,4 @@
-use super::*;
-
-use pretty_assertions::assert_eq;
+use {super::*, pretty_assertions::assert_eq};
 
 macro_rules! test {
   {
@@ -36,6 +34,11 @@ macro_rules! test {
   }
 }
 
+pub(crate) struct Output {
+  pub(crate) stdout: String,
+  pub(crate) tempdir: TempDir,
+}
+
 pub(crate) struct Test {
   pub(crate) args: Vec<String>,
   pub(crate) current_dir: PathBuf,
@@ -49,6 +52,7 @@ pub(crate) struct Test {
   pub(crate) stdout: String,
   pub(crate) stdout_regex: Option<Regex>,
   pub(crate) tempdir: TempDir,
+  pub(crate) test_round_trip: bool,
   pub(crate) unindent_stdout: bool,
 }
 
@@ -71,6 +75,7 @@ impl Test {
       stdout: String::new(),
       stdout_regex: None,
       tempdir,
+      test_round_trip: true,
       unindent_stdout: true,
     }
   }
@@ -80,8 +85,8 @@ impl Test {
     self
   }
 
-  pub(crate) fn args(mut self, args: &[&str]) -> Self {
-    for arg in args {
+  pub(crate) fn args<'a>(mut self, args: impl AsRef<[&'a str]>) -> Self {
+    for arg in args.as_ref() {
       self = self.arg(arg);
     }
     self
@@ -127,7 +132,7 @@ impl Test {
   }
 
   pub(crate) fn stderr_regex(mut self, stderr_regex: impl AsRef<str>) -> Self {
-    self.stderr_regex = Some(Regex::new(&format!("(?m)^{}$", stderr_regex.as_ref())).unwrap());
+    self.stderr_regex = Some(Regex::new(&format!("^{}$", stderr_regex.as_ref())).unwrap());
     self
   }
 
@@ -142,7 +147,12 @@ impl Test {
   }
 
   pub(crate) fn stdout_regex(mut self, stdout_regex: impl AsRef<str>) -> Self {
-    self.stdout_regex = Some(Regex::new(&format!("(?m)^{}$", stdout_regex.as_ref())).unwrap());
+    self.stdout_regex = Some(Regex::new(&format!("^{}$", stdout_regex.as_ref())).unwrap());
+    self
+  }
+
+  pub(crate) fn test_round_trip(mut self, test_round_trip: bool) -> Self {
+    self.test_round_trip = test_round_trip;
     self
   }
 
@@ -156,10 +166,17 @@ impl Test {
     self.unindent_stdout = unindent_stdout;
     self
   }
+
+  pub(crate) fn write(self, path: impl AsRef<Path>, content: impl AsRef<[u8]>) -> Self {
+    let path = self.tempdir.path().join(path);
+    fs::create_dir_all(path.parent().unwrap()).unwrap();
+    fs::write(path, content).unwrap();
+    self
+  }
 }
 
 impl Test {
-  pub(crate) fn run(self) -> TempDir {
+  pub(crate) fn run(self) -> Output {
     if let Some(justfile) = &self.justfile {
       let justfile = unindent(justfile);
       fs::write(self.justfile_path(), justfile).unwrap();
@@ -176,10 +193,10 @@ impl Test {
     dotenv_path.push(".env");
     fs::write(dotenv_path, "DOTENV_KEY=dotenv-value").unwrap();
 
-    let mut command = Command::new(&executable_path("just"));
+    let mut command = Command::new(executable_path("just"));
 
     if self.shell {
-      command.args(&["--shell", "bash"]);
+      command.args(["--shell", "bash"]);
     }
 
     let mut child = command
@@ -207,7 +224,7 @@ impl Test {
     fn compare<T: PartialEq + Debug>(name: &str, have: T, want: T) -> bool {
       let equal = have == want;
       if !equal {
-        eprintln!("Bad {}: {}", name, Comparison::new(&have, &want));
+        eprintln!("Bad {name}: {}", Comparison::new(&have, &want));
       }
       equal
     }
@@ -217,19 +234,13 @@ impl Test {
 
     if let Some(ref stdout_regex) = self.stdout_regex {
       if !stdout_regex.is_match(output_stdout) {
-        panic!(
-          "Stdout regex mismatch:\n{:?}\n!~=\n/{:?}/",
-          output_stderr, stdout_regex
-        );
+        panic!("Stdout regex mismatch:\n{output_stdout:?}\n!~=\n/{stdout_regex:?}/");
       }
     }
 
     if let Some(ref stderr_regex) = self.stderr_regex {
       if !stderr_regex.is_match(output_stderr) {
-        panic!(
-          "Stderr regex mismatch:\n{:?}\n!~=\n/{:?}/",
-          output_stderr, stderr_regex
-        );
+        panic!("Stderr regex mismatch:\n{output_stderr:?}\n!~=\n/{stderr_regex:?}/");
       }
     }
 
@@ -240,25 +251,21 @@ impl Test {
       panic!("Output mismatch.");
     }
 
-    if self.status == EXIT_SUCCESS {
+    if self.test_round_trip && self.status == EXIT_SUCCESS {
       test_round_trip(self.tempdir.path());
     }
 
-    self.tempdir
+    Output {
+      tempdir: self.tempdir,
+      stdout: output_stdout.into(),
+    }
   }
-}
-
-#[derive(PartialEq, Debug)]
-struct Output<'a> {
-  stdout: &'a str,
-  stderr: &'a str,
-  status: i32,
 }
 
 fn test_round_trip(tmpdir: &Path) {
   println!("Reparsing...");
 
-  let output = Command::new(&executable_path("just"))
+  let output = Command::new(executable_path("just"))
     .current_dir(tmpdir)
     .arg("--dump")
     .output()
@@ -274,7 +281,7 @@ fn test_round_trip(tmpdir: &Path) {
 
   fs::write(&reparsed_path, &dumped).unwrap();
 
-  let output = Command::new(&executable_path("just"))
+  let output = Command::new(executable_path("just"))
     .current_dir(tmpdir)
     .arg("--justfile")
     .arg(&reparsed_path)

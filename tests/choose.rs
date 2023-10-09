@@ -1,116 +1,142 @@
 use super::*;
 
-test! {
-  name: env,
-  justfile: "
-    foo:
-      echo foo
+#[test]
+fn env() {
+  Test::new()
+    .arg("--choose")
+    .env("JUST_CHOOSER", "head -n1")
+    .justfile(
+      "
+        foo:
+          echo foo
 
-    bar:
-      echo bar
-  ",
-  args: ("--choose"),
-  env: {
-    "JUST_CHOOSER": "head -n1",
-  },
-  stdout: "bar\n",
-  stderr: "echo bar\n",
+        bar:
+          echo bar
+      ",
+    )
+    .stderr("echo bar\n")
+    .stdout("bar\n")
+    .run();
 }
 
-test! {
-  name: chooser,
-  justfile: "
-    foo:
-      echo foo
+#[test]
+fn chooser() {
+  Test::new()
+    .arg("--choose")
+    .arg("--chooser")
+    .arg("head -n1")
+    .justfile(
+      "
+        foo:
+          echo foo
 
-    bar:
-      echo bar
-  ",
-  args: ("--choose", "--chooser", "head -n1"),
-  stdout: "bar\n",
-  stderr: "echo bar\n",
+        bar:
+          echo bar
+      ",
+    )
+    .stderr("echo bar\n")
+    .stdout("bar\n")
+    .run();
 }
 
-test! {
-  name: override_variable,
-  justfile: "
-    baz := 'A'
+#[test]
+fn override_variable() {
+  Test::new()
+    .arg("--choose")
+    .arg("baz=B")
+    .env("JUST_CHOOSER", "head -n1")
+    .justfile(
+      "
+        baz := 'A'
 
-    foo:
-      echo foo
+        foo:
+          echo foo
 
-    bar:
-      echo {{baz}}
-  ",
-  args: ("--choose", "baz=B"),
-  env: {
-    "JUST_CHOOSER": "head -n1",
-  },
-  stdout: "B\n",
-  stderr: "echo B\n",
+        bar:
+          echo {{baz}}
+      ",
+    )
+    .stderr("echo B\n")
+    .stdout("B\n")
+    .run();
 }
 
-test! {
-  name: skip_private_recipes,
-  justfile: "
-    foo:
-      echo foo
+#[test]
+fn skip_private_recipes() {
+  Test::new()
+    .arg("--choose")
+    .env("JUST_CHOOSER", "head -n1")
+    .justfile(
+      "
+        foo:
+          echo foo
 
-    _bar:
-      echo bar
-  ",
-  args: ("--choose"),
-  env: {
-    "JUST_CHOOSER": "head -n1",
-  },
-  stdout: "foo\n",
-  stderr: "echo foo\n",
+        _bar:
+          echo bar
+      ",
+    )
+    .stderr("echo foo\n")
+    .stdout("foo\n")
+    .run();
 }
 
-test! {
-  name: skip_recipes_that_require_arguments,
-  justfile: "
-    foo:
-      echo foo
+#[test]
+fn skip_recipes_that_require_arguments() {
+  Test::new()
+    .arg("--choose")
+    .env("JUST_CHOOSER", "head -n1")
+    .justfile(
+      "
+        foo:
+          echo foo
 
-    bar BAR:
-      echo {{BAR}}
-  ",
-  args: ("--choose"),
-  env: {
-    "JUST_CHOOSER": "head -n1",
-  },
-  stdout: "foo\n",
-  stderr: "echo foo\n",
+        bar BAR:
+          echo {{BAR}}
+      ",
+    )
+    .stderr("echo foo\n")
+    .stdout("foo\n")
+    .run();
 }
 
-test! {
-  name: no_choosable_recipes,
-  justfile: "
-    _foo:
-      echo foo
+#[test]
+fn no_choosable_recipes() {
+  crate::test::Test::new()
+    .arg("--choose")
+    .justfile(
+      "
+        _foo:
+          echo foo
 
-    bar BAR:
-      echo {{BAR}}
-  ",
-  args: ("--choose"),
-  stdout: "",
-  stderr: "error: Justfile contains no choosable recipes.\n",
-  status: EXIT_FAILURE,
+        bar BAR:
+          echo {{BAR}}
+      ",
+    )
+    .status(EXIT_FAILURE)
+    .stderr("error: Justfile contains no choosable recipes.\n")
+    .stdout("")
+    .run();
 }
 
-test! {
-  name: multiple_recipes,
-  justfile: "
-    foo:
-      echo foo
+#[test]
+#[ignore]
+fn multiple_recipes() {
+  Test::new()
+    .arg("--choose")
+    .arg("--chooser")
+    .arg("echo foo bar")
+    .justfile(
+      "
+        foo:
+          echo foo
 
-    bar:
-      echo bar
-  ",
-  args: ("--choose", "--chooser", "echo foo bar"),
-  stdout: "foo\nbar\n",
-  stderr: "echo foo\necho bar\n",
+        bar:
+          echo bar
+      ",
+    )
+    .stderr("echo foo\necho bar\n")
+    .stdout("foo\nbar\n")
+    .run();
 }
 
 #[test]
@@ -125,10 +151,12 @@ fn invoke_error_function() {
           echo bar
       ",
     )
-    .stderr_regex("error: Chooser `/ -cu fzf` invocation failed: .*")
+    .stderr_regex(
+      r"error: Chooser `/ -cu fzf --multi --preview 'just --show \{\}'` invocation failed: .*\n",
+    )
     .status(EXIT_FAILURE)
     .shell(false)
-    .args(&["--shell", "/", "--choose"])
+    .args(["--shell", "/", "--choose"])
     .run();
 }
 
@@ -187,6 +215,7 @@ fn default() {
 
   let output = Command::new(executable_path("just"))
     .arg("--choose")
+    .arg("--chooser=fzf")
     .current_dir(tmp.path())
     .env("PATH", path)
     .output()

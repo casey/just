@@ -22,13 +22,13 @@ fn current_dir() {
 
 #[test]
 fn exists() {
-  let tempdir = Test::new()
+  let output = Test::new()
     .no_justfile()
     .arg("--init")
     .stderr_regex("Wrote justfile to `.*`\n")
     .run();
 
-  Test::with_tempdir(tempdir)
+  Test::with_tempdir(output.tempdir)
     .no_justfile()
     .arg("--init")
     .status(EXIT_FAILURE)
@@ -42,11 +42,11 @@ fn write_error() {
 
   let justfile_path = test.justfile_path();
 
-  fs::create_dir(&justfile_path).unwrap();
+  fs::create_dir(justfile_path).unwrap();
 
   test
     .no_justfile()
-    .args(&["--init"])
+    .args(["--init"])
     .status(EXIT_FAILURE)
     .stderr_regex(if cfg!(windows) {
       r"error: Failed to write justfile to `.*`: Access is denied. \(os error 5\)\n"
@@ -191,12 +191,12 @@ fn justfile_and_working_directory() {
 
 #[test]
 fn fmt_compatibility() {
-  let tempdir = Test::new()
+  let output = Test::new()
     .no_justfile()
     .arg("--init")
     .stderr_regex("Wrote justfile to `.*`\n")
     .run();
-  Test::with_tempdir(tempdir)
+  Test::with_tempdir(output.tempdir)
     .no_justfile()
     .arg("--unstable")
     .arg("--check")

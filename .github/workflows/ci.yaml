@@ -13,9 +13,88 @@ defaults:
     shell: bash
 
 jobs:
-  all:
-    name: All
+  lint:
+    runs-on: ubuntu-latest
 
+    env:
+      RUSTFLAGS: --deny warnings
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install Rust Toolchain Components
+      uses: actions-rs/toolchain@v1
+      with:
+        components: clippy, rustfmt
+        toolchain: stable
+
+    - uses: Swatinem/rust-cache@v2
+
+    - name: Clippy
+      run: cargo clippy --all --all-targets
+
+    - name: Format
+      run: cargo fmt --all -- --check
+
+    - name: Completion Scripts
+      run: |
+        ./bin/generate-completions
+        git diff --no-ext-diff --quiet --exit-code
+        ./tests/completions/just.bash
+
+    - name: Check for Forbidden Words
+      run: |
+        sudo apt-get update
+        sudo apt-get install ripgrep
+        ./bin/forbid
+
+  pages:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    env:
+      RUSTFLAGS: --deny warnings
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install Rust Toolchain Components
+      uses: actions-rs/toolchain@v1
+      with:
+        profile: minimal
+        toolchain: stable
+
+    - uses: Swatinem/rust-cache@v2
+
+    - name: Install `mdbook`
+      uses: peaceiris/actions-mdbook@v1
+      with:
+        mdbook-version: latest
+
+    - name: Install `mdbook-linkcheck`
+      run: |
+        mkdir -p mdbook-linkcheck
+        cd mdbook-linkcheck
+        wget https://github.com/Michael-F-Bryan/mdbook-linkcheck/releases/latest/download/mdbook-linkcheck.x86_64-unknown-linux-gnu.zip
+        unzip mdbook-linkcheck.x86_64-unknown-linux-gnu.zip
+        chmod +x mdbook-linkcheck
+        pwd >> $GITHUB_PATH
+
+    - name: Build book
+      run: |
+        cargo run --package generate-book
+        mdbook build book/en
+        mdbook build book/zh
+
+    - name: Deploy Pages
+      uses: peaceiris/actions-gh-pages@v3
+      if: github.ref == 'refs/heads/master'
+      with:
+        github_token: ${{secrets.GITHUB_TOKEN}}
+        publish_branch: gh-pages
+        publish_dir: www
+  test:
     strategy:
       matrix:
         os:
@@ -44,63 +123,14 @@ jobs:
       with:
         components: clippy, rustfmt
         override: true
-        toolchain: 1.53.0
+        toolchain: stable
 
-    - uses: Swatinem/rust-cache@v1
-
-    - name: Check Lockfile
-      run: |
-        cargo update --locked --package just
+    - uses: Swatinem/rust-cache@v2
 
     - name: Test
       run: cargo test --all
 
-    - name: Clippy
-      run: cargo clippy --all --all-targets
-
-    - name: Format
-      run: cargo fmt --all -- --check
-
-    - name: Completion Scripts
-      if: ${{ matrix.os == 'ubuntu-latest' }}
+    - name: Test install.sh
       run: |
-        ./bin/generate-completions
-        git diff --no-ext-diff --quiet --exit-code
-
-    - name: Check for Forbidden Words
-      if: ${{ matrix.os == 'ubuntu-latest' }}
-      run: |
-        sudo apt-get update
-        sudo apt-get install ripgrep
-        ./bin/forbid
-
-    - name: Install `mdbook`
-      if: ${{ matrix.os == 'ubuntu-latest' }}
-      uses: peaceiris/actions-mdbook@v1
-      with:
-        mdbook-version: latest
-
-    - name: Install `mdbook-linkcheck`
-      if: ${{ matrix.os == 'ubuntu-latest' }}
-      run: |
-        mkdir -p mdbook-linkcheck
-        cd mdbook-linkcheck
-        wget https://github.com/Michael-F-Bryan/mdbook-linkcheck/releases/latest/download/mdbook-linkcheck.x86_64-unknown-linux-gnu.zip
-        unzip mdbook-linkcheck.x86_64-unknown-linux-gnu.zip
-        chmod +x mdbook-linkcheck
-        pwd >> $GITHUB_PATH
-
-    - name: Build book
-      if: ${{ matrix.os == 'ubuntu-latest' }}
-      run: |
-        cargo run --package generate-book
-        mdbook build book/en
-        mdbook build book/zh
-
-    - name: Deploy Pages
-      uses: peaceiris/actions-gh-pages@v3
-      if: github.ref == 'refs/heads/master' && matrix.os == 'ubuntu-latest'
-      with:
-        github_token: ${{secrets.GITHUB_TOKEN}}
-        publish_branch: gh-pages
-        publish_dir: www
+        bash www/install.sh --to /tmp --tag 1.0.0
+        /tmp/just --version

@@ -79,7 +79,7 @@ If you'd rather not install `sh`, you can use the `shell` setting to use the she
 
 Like PowerShell:
 
-```make
+```just
 # use PowerShell instead of sh:
 set shell := ["powershell.exe", "-c"]
 
@@ -89,7 +89,7 @@ hello:
 
 …or `cmd.exe`:
 
-```make
+```just
 # use cmd.exe instead of sh:
 set shell := ["cmd.exe", "/c"]
 
@@ -103,76 +103,152 @@ You can also set the shell using command-line arguments. For example, to use Pow
 
 ### Packages
 
-| Operating System                                     | Package Manager           | Package                                          | Command                                                                                 |
-| ---------------------------------------------------- | ------------------------- | ------------------------------------------------ | --------------------------------------------------------------------------------------- |
-| [Various][rust-platforms]                            | [Cargo][cargo]            | [just][just-crate]                               | `cargo install just`                                                                    |
-| [Microsoft Windows][windows]                         | [Scoop][scoop]            | [just][just-scoop]                               | `scoop install just`                                                                    |
-| [Various][homebrew-install]                          | [Homebrew][homebrew]      | [just][just-homebrew]                            | `brew install just`                                                                     |
-| [macOS][macos]                                       | [MacPorts][macports]      | [just][just-macports]                            | `port install just`                                                                     |
-| [Arch Linux][arch linux]                             | [pacman][pacman]          | [just][just-pacman]                              | `pacman -S just`                                                                        |
-| [Various][nix-platforms]                             | [Nix][nix]                | [just][just-nixpkg]                              | `nix-env -iA nixpkgs.just`                                                              |
-| [NixOS][nixos]                                       | [Nix][nix]                | [just][just-nixpkg]                              | `nix-env -iA nixos.just`                                                                |
-| [Solus][solus]                                       | [eopkg][solus-eopkg]      | [just][just-solus]                               | `eopkg install just`                                                                    |
-| [Void Linux][void linux]                             | [XBPS][xbps]              | [just][just-void]                                | `xbps-install -S just`                                                                  |
-| [FreeBSD][freebsd]                                   | [pkg][freebsd-pkg]        | [just][just-freebsd]                             | `pkg install just`                                                                      |
-| [Alpine Linux][alpine linux]                         | [apk-tools][apk-tools]    | [just][just-alpine]                              | `apk add just`                                                                          |
-| [Fedora Linux][fedora linux]                         | [DNF][dnf]                | [just][just-fedora]                              | `dnf install just`                                                                      |
-| [Gentoo Linux][gentoo linux]                         | [Portage][gentoo-portage] | [dm9pZCAq overlay: sys-devel/just][just-portage] | `eselect repository enable dm9pZCAq && emerge --sync dm9pZCAq && emerge sys-devel/just` |
-| [Various][conda-platforms]                           | [Conda][conda]            | [just][just-conda]                               | `conda install -c conda-forge just`                                                     |
-| [Microsoft Windows][windows]                         | [Chocolatey][chocolatey]  | [just][just-chocolatey]                          | `choco install just`                                                                    |
-| [Various][snap-platforms]                            | [Snap][snap]              | [just][just-snap]                                | `snap install --edge --classic just`                                                    |
-| [Various][asdf-platforms]                            | [asdf][asdf]              | [just][just-asdf]                                | `asdf plugin add just && asdf install just <version>`                                   |
-
-[alpine linux]: https://alpinelinux.org
-[asdf]: https://asdf-vm.com
-[asdf-platforms]: https://github.com/casey/just/releases
-[apk-tools]: https://wiki.alpinelinux.org/wiki/Alpine_Linux_package_management
-[arch linux]: https://www.archlinux.org
-[cargo]: https://www.rust-lang.org
-[chocolatey]: https://chocolatey.org
-[conda-platforms]: https://docs.conda.io/en/latest/miniconda.html#system-requirements
-[conda]: https://docs.conda.io/projects/conda/en/latest/index.html
-[dnf]: https://dnf.readthedocs.io/en/latest/
-[fedora linux]: https://getfedora.org
-[freebsd-pkg]: https://www.freebsd.org/doc/handbook/pkgng-intro.html
-[freebsd]: https://www.freebsd.org
-[gentoo linux]: https://www.gentoo.org
-[gentoo-portage]: https://wiki.gentoo.org/wiki/Portage
-[homebrew-install]: https://docs.brew.sh/Installation
-[homebrew]: https://brew.sh
-[just-alpine]: https://pkgs.alpinelinux.org/package/edge/community/x86_64/just
-[just-asdf]: https://github.com/ggilmore/asdf-just
-[just-chocolatey]: https://github.com/michidk/just-choco
-[just-conda]: https://anaconda.org/conda-forge/just
-[just-crate]: https://crates.io/crates/just
-[just-fedora]: https://src.fedoraproject.org/rpms/rust-just
-[just-freebsd]: https://www.freshports.org/deskutils/just/
-[just-homebrew]: https://formulae.brew.sh/formula/just
-[just-macports]: https://ports.macports.org/port/just/summary
-[just-nixpkg]: https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/tools/just/default.nix
-[just-pacman]: https://archlinux.org/packages/community/x86_64/just/
-[just-portage]: https://github.com/gentoo-mirror/dm9pZCAq/tree/master/sys-devel/just
-[just-scoop]: https://github.com/ScoopInstaller/Main/blob/master/bucket/just.json
-[just-snap]: https://snapcraft.io/just
-[just-solus]: https://dev.getsol.us/source/just/
-[just-void]: https://github.com/void-linux/void-packages/blob/master/srcpkgs/just/template
-[macos]: https://en.wikipedia.org/wiki/MacOS
-[macports]: https://www.macports.org
-[nix-plat]: https://nixos.org/nix/manual/#ch-supported-platforms
-[nix-platforms]: https://nixos.org/download.html#download-nix
-[nix]: https://nixos.org/nix/
-[nixos]: https://nixos.org/nixos/
-[pacman]: https://wiki.archlinux.org/title/Pacman
-[rust-platforms]: https://forge.rust-lang.org/release/platform-support.html
-[scoop]: https://scoop.sh
-[snap-platforms]: https://snapcraft.io/docs/installing-snapd
-[snap]: https://snapcraft.io
-[solus-eopkg]: https://getsol.us/articles/package-management/basics/en
-[solus]: https://getsol.us
-[ubuntu]: https://ubuntu.com
-[void linux]: https://voidlinux.org
-[windows]: https://en.wikipedia.org/wiki/Microsoft_Windows
-[xbps]: https://wiki.voidlinux.org/XBPS
+<table>
+  <thead>
+    <tr>
+      <th>Operating System</th>
+      <th>Package Manager</th>
+      <th>Package</th>
+      <th>Command</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><a href="https://forge.rust-lang.org/release/platform-support.html">Various</a></td>
+      <td><a href="https://www.rust-lang.org">Cargo</a></td>
+      <td><a href="https://crates.io/crates/just">just</a></td>
+      <td><code>cargo install just</code></td>
+    </tr>
+    <tr>
+      <td><a href="https://en.wikipedia.org/wiki/Microsoft_Windows">Microsoft Windows</a></td>
+      <td><a href="https://scoop.sh">Scoop</a></td>
+      <td><a href="https://github.com/ScoopInstaller/Main/blob/master/bucket/just.json">just</a></td>
+      <td><code>scoop install just</code></td>
+    </tr>
+    <tr>
+      <td><a href="https://docs.brew.sh/Installation">Various</a></td>
+      <td><a href="https://brew.sh">Homebrew</a></td>
+      <td><a href="https://formulae.brew.sh/formula/just">just</a></td>
+      <td><code>brew install just</code></td>
+    </tr>
+    <tr>
+      <td><a href="https://en.wikipedia.org/wiki/MacOS">macOS</a></td>
+      <td><a href="https://www.macports.org">MacPorts</a></td>
+      <td><a href="https://ports.macports.org/port/just/summary">just</a></td>
+      <td><code>port install just</code></td>
+    </tr>
+    <tr>
+      <td><a href="https://www.archlinux.org">Arch Linux</a></td>
+      <td><a href="https://wiki.archlinux.org/title/Pacman">pacman</a></td>
+      <td><a href="https://archlinux.org/packages/community/x86_64/just/">just</a></td>
+      <td><code>pacman -S just</code></td>
+    </tr>
+    <tr>
+      <td><a href="https://nixos.org/download.html#download-nix">Various</a></td>
+      <td><a href="https://nixos.org/nix/">Nix</a></td>
+      <td><a href="https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/tools/just/default.nix">just</a></td>
+      <td><code>nix-env -iA nixpkgs.just</code></td>
+    </tr>
+    <tr>
+      <td><a href="https://nixos.org/nixos/">NixOS</a></td>
+      <td><a href="https://nixos.org/nix/">Nix</a></td>
+      <td><a href="https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/tools/just/default.nix">just</a></td>
+      <td><code>nix-env -iA nixos.just</code></td>
+    </tr>
+    <tr>
+      <td><a href="https://getsol.us">Solus</a></td>
+      <td><a href="https://getsol.us/articles/package-management/basics/en">eopkg</a></td>
+      <td><a href="https://dev.getsol.us/source/just/">just</a></td>
+      <td><code>eopkg install just</code></td>
+    </tr>
+    <tr>
+      <td><a href="https://voidlinux.org">Void Linux</a></td>
+      <td><a href="https://wiki.voidlinux.org/XBPS">XBPS</a></td>
+      <td><a href="https://github.com/void-linux/void-packages/blob/master/srcpkgs/just/template">just</a></td>
+      <td><code>xbps-install -S just</code></td>
+    </tr>
+    <tr>
+      <td><a href="https://www.freebsd.org">FreeBSD</a></td>
+      <td><a href="https://www.freebsd.org/doc/handbook/pkgng-intro.html">pkg</a></td>
+      <td><a href="https://www.freshports.org/deskutils/just/">just</a></td>
+      <td><code>pkg install just</code></td>
+    </tr>
+    <tr>
+      <td><a href="https://alpinelinux.org">Alpine Linux</a></td>
+      <td><a href="https://wiki.alpinelinux.org/wiki/Alpine_Linux_package_management">apk-tools</a></td>
+      <td><a href="https://pkgs.alpinelinux.org/package/edge/community/x86_64/just">just</a></td>
+      <td><code>apk add just</code></td>
+    </tr>
+    <tr>
+      <td><a href="https://getfedora.org">Fedora Linux</a></td>
+      <td><a href="https://dnf.readthedocs.io/en/latest/">DNF</a></td>
+      <td><a href="https://src.fedoraproject.org/rpms/rust-just">just</a></td>
+      <td><code>dnf install just</code></td>
+    </tr>
+    <tr>
+      <td><a href="https://www.gentoo.org">Gentoo Linux</a></td>
+      <td><a href="https://wiki.gentoo.org/wiki/Portage">Portage</a></td>
+      <td><a href="https://github.com/gentoo-mirror/dm9pZCAq/tree/master/sys-devel/just">dm9pZCAq/sys-devel/just</a></td>
+      <td>
+        <code>eselect repository enable dm9pZCAq</code><br>
+        <code>emerge --sync dm9pZCAq</code><br>
+        <code>emerge sys-devel/just</code>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="https://docs.conda.io/en/latest/miniconda.html#system-requirements">Various</a></td>
+      <td><a href="https://docs.conda.io/projects/conda/en/latest/index.html">Conda</a></td>
+      <td><a href="https://anaconda.org/conda-forge/just">just</a></td>
+      <td><code>conda install -c conda-forge just</code></td>
+    </tr>
+    <tr>
+      <td><a href="https://en.wikipedia.org/wiki/Microsoft_Windows">Microsoft Windows</a></td>
+      <td><a href="https://chocolatey.org">Chocolatey</a></td>
+      <td><a href="https://github.com/michidk/just-choco">just</a></td>
+      <td><code>choco install just</code></td>
+    </tr>
+    <tr>
+      <td><a href="https://snapcraft.io/docs/installing-snapd">Various</a></td>
+      <td><a href="https://snapcraft.io">Snap</a></td>
+      <td><a href="https://snapcraft.io/just">just</a></td>
+      <td><code>snap install --edge --classic just</code></td>
+    </tr>
+    <tr>
+      <td><a href="https://github.com/casey/just/releases">Various</a></td>
+      <td><a href="https://asdf-vm.com">asdf</a></td>
+      <td><a href="https://github.com/olofvndrhr/asdf-just">just</a></td>
+      <td>
+        <code>asdf plugin add just</code><br>
+        <code>asdf install just &lt;version&gt;</code>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="https://debian.org">Debian</a> and <a href="https://ubuntu.com">Ubuntu</a> derivatives</td>
+      <td><a href="https://mpr.makedeb.org">MPR</a></td>
+      <td><a href="https://mpr.makedeb.org/packages/just">just</a></td>
+      <td>
+        <code>git clone 'https://mpr.makedeb.org/just'</code><br>
+        <code>cd just</code><br>
+        <code>makedeb -si</code>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="https://debian.org">Debian</a> and <a href="https://ubuntu.com">Ubuntu</a> derivatives</td>
+      <td><a href="https://docs.makedeb.org/prebuilt-mpr">Prebuilt-MPR</a></td>
+      <td><a href="https://mpr.makedeb.org/packages/just">just</a></td>
+      <td>
+        <sup><b>You must have the <a href="https://docs.makedeb.org/prebuilt-mpr/getting-started/#setting-up-the-repository">Prebuilt-MPR set up</a> on your system in order to run this command.</b></sup><br>
+        <code>sudo apt install just</code>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="https://en.wikipedia.org/wiki/Microsoft_Windows">Microsoft Windows</a></td>
+      <td><a href="https://learn.microsoft.com/en-us/windows/package-manager/">Windows Package Manager</a></td>
+      <td><a href="https://github.com/microsoft/winget-pkgs/tree/master/manifests/c/Casey/Just">Casey/Just</a></td>
+      <td><code>winget install --id Casey.Just --exact</code></td>
+    </tr>
+  </tbody>
+</table>
 
 ![package version table](https://repology.org/badge/vertical-allrepos/just.svg)
 
@@ -204,16 +280,26 @@ export PATH="$PATH:$HOME/bin"
 just --help
 ```
 
+Note that `install.sh` may fail on GitHub actions, or in other environments
+where many machines share IP addresses. `install.sh` calls GitHub APIs in order
+to determine the latest version of `just` to install, and those API calls are
+rate-limited on a per-IP basis. To make `install.sh` more reliable in such
+circumstances, pass a specific tag to install with `--tag`.
+
 ### GitHub Actions
 
-[extractions/setup-just](https://github.com/extractions/setup-just) can be used to install `just` in a GitHub Actions workflow.
-
-Example usage:
+With [extractions/setup-just](https://github.com/extractions/setup-just):
 
 ```yaml
 - uses: extractions/setup-just@v1
   with:
     just-version: 0.8 # optional semver specification, otherwise latest
+```
+
+With [taiki-e/install-action](https://github.com/taiki-e/install-action):
+
+```yaml
+- uses: taiki-e/install-action@just
 ```
 
 ### Release RSS Feed
@@ -222,7 +308,7 @@ An [RSS feed](https://en.wikipedia.org/wiki/RSS) of `just` releases is available
 
 ### Node.js Installation
 
-[just-install](https://npmjs.com/packages/just-install) can be used to automate installation of `just` in Node.js applications.
+[just-install](https://npmjs.com/package/just-install) can be used to automate installation of `just` in Node.js applications.
 
 `just` is a great, more robust alternative to npm scripts. If you want to include `just` in the dependencies of a Node.js application, `just-install` will install a local, platform-specific binary as part of the `npm install` command. This removes the need for every developer to install `just` independently using one of the processes mentioned above. After installation, the `just` command will work in npm scripts or with npx. It's great for teams who want to make the set up process for their project as easy as possible.
 
@@ -239,7 +325,8 @@ This does not, however, preclude fixing outright bugs, even if doing so might br
 
 There will never be a `just` 2.0. Any desirable backwards-incompatible changes will be opt-in on a per-`justfile` basis, so users may migrate at their leisure.
 
-Features that aren't yet ready for stabilization are gated behind the `--unstable` flag. Features enabled by `--unstable` may change in backwards incompatible ways at any time.
+Features that aren't yet ready for stabilization are gated behind the `--unstable` flag. Features enabled by `--unstable` may change in backwards incompatible ways at any time. Unstable features can also be enabled by setting the environment variable `JUST_UNSTABLE` to any value other than `false`, `0`, or the empty string.
+
 
 Editor Support
 --------------
@@ -269,8 +356,6 @@ mkdir -p ~/.vim/pack/vendor/start
 cd ~/.vim/pack/vendor/start
 git clone https://github.com/NoahTheDuke/vim-just.git
 ```
-
-`vim-just` is also available from [vim-polyglot](https://github.com/sheerun/vim-polyglot), a multi-language Vim plugin.
 
 #### `tree-sitter-just`
 
@@ -312,13 +397,15 @@ You can add the following to an individual `justfile` to enable `make` mode on a
 
 ### Visual Studio Code
 
-An extension for VS Code by [skellock](https://github.com/skellock) is [available here](https://marketplace.visualstudio.com/items?itemName=skellock.just) ([repository](https://github.com/skellock/vscode-just)).
+An extension for VS Code by [skellock](https://github.com/skellock) is [available here](https://marketplace.visualstudio.com/items?itemName=skellock.just) ([repository](https://github.com/skellock/vscode-just)), but is no longer actively developed.
 
 You can install it from the command line by running:
 
 ```sh
 code --install-extension skellock.just
 ```
+
+An more recently active fork by [sclu1034](https://github.com/sclu1034) is available [here](https://github.com/sclu1034/vscode-just).
 
 ### JetBrains IDEs
 
@@ -328,9 +415,17 @@ A plugin for JetBrains IDEs by [linux_china](https://github.com/linux-china) is 
 
 Kakoune supports `justfile` syntax highlighting out of the box, thanks to TeddyDD.
 
+### Helix
+
+[Helix](https://helix-editor.com/) supports `justfile` syntax highlighting out-of-the-box since version 23.05.
+
 ### Sublime Text
 
-A syntax file for Sublime Text written by TonioGela is available in [extras/just.sublime-syntax](https://github.com/casey/just/blob/master/extras/just.sublime-syntax).
+The [Just package](https://github.com/nk9/just_sublime) by [nk9](https://github.com/nk9) with `just` syntax and some other tools is available on [PackageControl](https://packagecontrol.io/packages/Just).
+
+### Micro
+
+[Micro](https://micro-editor.github.io/) supports Justfile syntax highlighting out of the box, thanks to [tomodachi94](https://github.com/tomodachi94).
 
 ### Other Editors
 
@@ -345,7 +440,7 @@ For an overview of the syntax, check out [this cheatsheet](https://cheatography.
 
 Once `just` is installed and working, create a file named `justfile` in the root of your project with the following contents:
 
-```make
+```just
 recipe-name:
   echo 'This is a recipe!'
 
@@ -377,7 +472,7 @@ This is another recipe.
 
 Recipes stop running if a command fails. Here `cargo publish` will only run if `cargo test` succeeds:
 
-```make
+```just
 publish:
   cargo test
   # tests passed, time to publish!
@@ -386,7 +481,7 @@ publish:
 
 Recipes can depend on other recipes. Here the `test` recipe depends on the `build` recipe, so `build` will run before `test`:
 
-```make
+```just
 build:
   cc main.c foo.c bar.c -o main
 
@@ -433,14 +528,14 @@ Features
 
 When `just` is invoked without a recipe, it runs the first recipe in the `justfile`. This recipe might be the most frequently run command in the project, like running the tests:
 
-```make
+```just
 test:
   cargo test
 ```
 
 You can also use dependencies to run multiple recipes by default:
 
-```make
+```just
 default: lint build test
 
 build:
@@ -455,7 +550,7 @@ lint:
 
 If no recipe makes sense as the default recipe, you can add a recipe to the beginning of your `justfile` that lists the available recipes:
 
-```make
+```just
 default:
   just --list
 ```
@@ -482,7 +577,7 @@ build test deploy lint
 
 Pass `--unsorted` to print recipes in the order they appear in the `justfile`:
 
-```make
+```just
 test:
   echo 'Testing!'
 
@@ -504,10 +599,12 @@ test build
 
 If you'd like `just` to default to listing the recipes in the `justfile`, you can use this as your default recipe:
 
-```make
+```just
 default:
   @just --list
 ```
+
+Note that you may need to add `--justfile {{justfile()}}` to the line above above. Without it, if you executed `just -f /some/distant/justfile -d .` or `just -f ./non-standard-justfile`, the plain `just --list` inside the recipe would not necessarily use the file you provided. It would try to find a justfile in your current path, maybe even resulting in a `No justfile found` error.
 
 The heading text can be customized with `--list-heading`:
 
@@ -539,7 +636,7 @@ $ just --list --list-heading ''
 
 Aliases allow recipes to be invoked with alternative names:
 
-```make
+```just
 alias b := build
 
 build:
@@ -559,7 +656,7 @@ Settings control interpretation and execution. Each setting may be specified at 
 
 For example:
 
-```make
+```just
 set shell := ["zsh", "-cu"]
 
 foo:
@@ -569,24 +666,28 @@ foo:
 
 #### Table of Settings
 
-| Name                      | Value              | Description                                                                                   |
-| ------------------------- | ------------------ | --------------------------------------------------------------------------------------------- |
-| `allow-duplicate-recipes` | boolean            | Allow recipes appearing later in a `justfile` to override earlier recipes with the same name. |
-| `dotenv-load`             | boolean            | Load a `.env` file, if present.                                                               |
-| `export`                  | boolean            | Export all variables as environment variables.                                                |
-| `positional-arguments`    | boolean            | Pass positional arguments.                                                                    |
-| `shell`                   | `[COMMAND, ARGS…]` | Set the command used to invoke recipes and evaluate backticks.                                |
-| `windows-powershell`      | boolean            | Use PowerShell on Windows as default shell.                                                   |
+| Name                      | Value              | Default | Description                                                                                   |
+| ------------------------- | ------------------ | ------- |---------------------------------------------------------------------------------------------- |
+| `allow-duplicate-recipes` | boolean            | `false` | Allow recipes appearing later in a `justfile` to override earlier recipes with the same name. |
+| `dotenv-load`             | boolean            | `false` | Load a `.env` file, if present.                                                               |
+| `export`                  | boolean            | `false` | Export all variables as environment variables.                                                |
+| `fallback`                | boolean            | `false` | Search `justfile` in parent directory if the first recipe on the command line is not found.   |
+| `ignore-comments`         | boolean            | `false` | Ignore recipe lines beginning with `#`.                                                       |
+| `positional-arguments`    | boolean            | `false` | Pass positional arguments.                                                                    |
+| `shell`                   | `[COMMAND, ARGS…]` | -       | Set the command used to invoke recipes and evaluate backticks.                                |
+| `tempdir`                 | string             | -       | Create temporary directories in `tempdir` instead of the system default temporary directory.  |
+| `windows-powershell`      | boolean            | `false` | Use PowerShell on Windows as default shell. (Deprecated. Use `windows-shell` instead.         |
+| `windows-shell`           | `[COMMAND, ARGS…]` | -       | Set the command used to invoke recipes and evaluate backticks.                                |
 
 Boolean settings can be written as:
 
-```mf
+```justfile
 set NAME
 ```
 
 Which is equivalent to:
 
-```mf
+```justfile
 set NAME := true
 ```
 
@@ -594,7 +695,7 @@ set NAME := true
 
 If `allow-duplicate-recipes` is set to `true`, defining multiple recipes with the same name is not an error and the last definition is used. Defaults to `false`.
 
-```make
+```just
 set allow-duplicate-recipes
 
 @foo:
@@ -617,7 +718,7 @@ If `dotenv-load` is `true`, a `.env` file will be loaded if present. Defaults to
 
 The `export` setting causes all `just` variables to be exported as environment variables. Defaults to `false`.
 
-```make
+```just
 set export
 
 a := "hello"
@@ -639,7 +740,7 @@ If `positional-arguments` is `true`, recipe arguments will be passed as position
 
 For example, running this recipe:
 
-```make
+```just
 set positional-arguments
 
 @foo bar:
@@ -659,7 +760,7 @@ When using an `sh`-compatible shell, such as `bash` or `zsh`, `$@` expands to th
 
 This example recipe will print arguments one by one on separate lines:
 
-```make
+```just
 set positional-arguments
 
 @test *args='':
@@ -678,7 +779,7 @@ $ just test foo "bar baz"
 
 The `shell` setting controls the command used to invoke recipe lines and backticks. Shebang recipes are unaffected.
 
-```make
+```just
 # use python3 to execute recipe lines and backticks
 set shell := ["python3", "-c"]
 
@@ -696,12 +797,14 @@ foo:
 
 `just` uses `sh` on Windows by default. To use a different shell on Windows, use `windows-shell`:
 
-```make
-set windows-shell := ["pwsh.exe", "-NoLogo", "-Command"]
+```just
+set windows-shell := ["powershell.exe", "-NoLogo", "-Command"]
 
 hello:
   Write-Host "Hello, world!"
 ```
+
+See [powershell.just](https://github.com/casey/just/blob/master/examples/powershell.just) for a justfile that uses PowerShell on all platforms.
 
 ##### Windows PowerShell
 
@@ -709,7 +812,7 @@ hello:
 
 `just` uses `sh` on Windows by default. To use `powershell.exe` instead, set `windows-powershell` to true.
 
-```make
+```just
 set windows-powershell := true
 
 hello:
@@ -718,37 +821,37 @@ hello:
 
 ##### Python 3
 
-```make
+```just
 set shell := ["python3", "-c"]
 ```
 
 ##### Bash
 
-```make
+```just
 set shell := ["bash", "-uc"]
 ```
 
 ##### Z Shell
 
-```make
+```just
 set shell := ["zsh", "-uc"]
 ```
 
 ##### Fish
 
-```make
+```just
 set shell := ["fish", "-c"]
 ```
 
 ##### Nushell
 
-```make
+```just
 set shell := ["nu", "-c"]
 ```
 
 If you want to change the default table mode to `light`:
 
-```make
+```just
 set shell := ['nu', '-m', 'light', '-c']
 ```
 
@@ -758,7 +861,7 @@ set shell := ['nu', '-m', 'light', '-c']
 
 Comments immediately preceding a recipe will appear in `just --list`:
 
-```make
+```just
 # build stuff
 build:
   ./bin/build
@@ -789,7 +892,7 @@ SERVER_PORT=1337
 
 And your `justfile` contains:
 
-```make
+```just
 set dotenv-load
 
 serve:
@@ -809,8 +912,8 @@ Starting server with database localhost:6379 on port 1337…
 
 Variables, strings, concatenation, path joining, and substitution using `{{…}}` are supported:
 
-```make
-tmpdir  := `mktemp`
+```just
+tmpdir  := `mktemp -d`
 version := "0.2.7"
 tardir  := tmpdir / "awesomesauce-" + version
 tarball := tardir + ".tar.gz"
@@ -828,7 +931,7 @@ publish:
 
 The `/` operator can be used to join two strings with a slash:
 
-```make
+```just
 foo := "a" / "b"
 ```
 
@@ -839,7 +942,7 @@ a/b
 
 Note that a `/` is added even if one is already present:
 
-```make
+```just
 foo := "a/"
 bar := foo / "b"
 ```
@@ -849,13 +952,24 @@ $ just --evaluate bar
 a//b
 ```
 
+Absolute paths can also be constructed<sup>1.5.0</sup>:
+
+```just
+foo := / "b"
+```
+
+```
+$ just --evaluate foo
+/b
+```
+
 The `/` operator uses the `/` character, even on Windows. Thus, using the `/` operator should be avoided with paths that use universal naming convention (UNC), i.e., those that start with `\?`, since forward slashes are not supported with UNC paths.
 
 #### Escaping `{{`
 
 To write a recipe containing `{{`, use `{{{{`:
 
-```make
+```just
 braces:
   echo 'I {{{{LOVE}} curly braces!'
 ```
@@ -864,14 +978,14 @@ braces:
 
 Another option is to put all the text you'd like to escape inside of an interpolation:
 
-```make
+```just
 braces:
   echo '{{'I {{LOVE}} curly braces!'}}'
 ```
 
 Yet another option is to use `{{ "{{" }}`:
 
-```make
+```just
 braces:
   echo 'I {{ "{{" }}LOVE}} curly braces!'
 ```
@@ -880,7 +994,7 @@ braces:
 
 Double-quoted strings support escape sequences:
 
-```make
+```just
 string-with-tab             := "\t"
 string-with-newline         := "\n"
 string-with-carriage-return := "\r"
@@ -903,7 +1017,7 @@ string-with-tab             := "     "
 
 Strings may contain line breaks:
 
-```make
+```just
 single := '
 hello
 '
@@ -915,7 +1029,7 @@ goodbye
 
 Single-quoted strings do not recognize escape sequences:
 
-```make
+```just
 escapes := '\t\n\r\"\\'
 ```
 
@@ -924,16 +1038,16 @@ $ just --evaluate
 escapes := "\t\n\r\"\\"
 ```
 
-Indented versions of both single- and double-quoted strings, delimited by triple single- or triple double-quotes, are supported. Indented string lines are stripped of leading whitespace common to all non-blank lines:
+Indented versions of both single- and double-quoted strings, delimited by triple single- or triple double-quotes, are supported. Indented string lines are stripped of a leading line break, and leading whitespace common to all non-blank lines:
 
-```make
+```just
 # this string will evaluate to `foo\nbar\n`
 x := '''
   foo
   bar
 '''
 
-# this string will evaluate to `abc\n  wuv\nbar\n`
+# this string will evaluate to `abc\n  wuv\nxyz\n`
 y := """
   abc
     wuv
@@ -941,13 +1055,13 @@ y := """
 """
 ```
 
-Similar to unindented strings, indented double-quoted strings process escape sequences, and indented single-quoted strings ignore escape sequences. Escape sequence processing takes place after unindentation. The unindention algorithm does not take escape-sequence produced whitespace or newlines into account.
+Similar to unindented strings, indented double-quoted strings process escape sequences, and indented single-quoted strings ignore escape sequences. Escape sequence processing takes place after unindentation. The unindentation algorithm does not take escape-sequence produced whitespace or newlines into account.
 
 ### Ignoring Errors
 
 Normally, if a command returns a non-zero exit status, execution will stop. To continue execution after a command, even if it fails, prefix the command with `-`:
 
-```make
+```just
 foo:
   -cat foo
   echo 'Done!'
@@ -968,14 +1082,13 @@ Done!
 #### System Information
 
 - `arch()` — Instruction set architecture. Possible values are: `"aarch64"`, `"arm"`, `"asmjs"`, `"hexagon"`, `"mips"`, `"msp430"`, `"powerpc"`, `"powerpc64"`, `"s390x"`, `"sparc"`, `"wasm32"`, `"x86"`, `"x86_64"`, and `"xcore"`.
-
+- `num_cpus()` - Number of logical CPUs.
 - `os()` — Operating system. Possible values are: `"android"`, `"bitrig"`, `"dragonfly"`, `"emscripten"`, `"freebsd"`, `"haiku"`, `"ios"`, `"linux"`, `"macos"`, `"netbsd"`, `"openbsd"`, `"solaris"`, and `"windows"`.
-
 - `os_family()` — Operating system family; possible values are: `"unix"` and `"windows"`.
 
 For example:
 
-```make
+```just
 system-info:
   @echo "This is an {{arch()}} machine".
 ```
@@ -991,7 +1104,7 @@ The `os_family()` function can be used to create cross-platform `justfile`s that
 
 - `env_var(key)` — Retrieves the environment variable with name `key`, aborting if it is not present.
 
-```make
+```just
 home_dir := env_var('HOME')
 
 test:
@@ -1007,21 +1120,32 @@ $ just
 
 #### Invocation Directory
 
-- `invocation_directory()` - Retrieves the absolute path to the current directory when `just` was invoked, before  `just` changed it (chdir'd) prior to executing commands.
+- `invocation_directory()` - Retrieves the absolute path to the current
+  directory when `just` was invoked, before  `just` changed it (chdir'd) prior
+  to executing commands. On Windows, `invocation_directory()` uses `cygpath` to
+  convert the invocation directory to a Cygwin-compatible `/`-separated path.
+  Use `invocation_directory_native()` to return the verbatim invocation
+  directory on all platforms.
 
-For example, to call `rustfmt` on files just under the "current directory" (from the user/invoker's perspective), use the following rule:
+For example, to call `rustfmt` on files just under the "current directory"
+(from the user/invoker's perspective), use the following rule:
 
-```make
+```just
 rustfmt:
   find {{invocation_directory()}} -name \*.rs -exec rustfmt {} \;
 ```
 
-Alternatively, if your command needs to be run from the current directory, you could use (e.g.):
+Alternatively, if your command needs to be run from the current directory, you
+could use (e.g.):
 
-```make
+```just
 build:
   cd {{invocation_directory()}}; ./some_script_that_needs_to_be_run_from_here
 ```
+
+- `invocation_directory_native()` - Retrieves the absolute path to the current
+  directory when `just` was invoked, before  `just` changed it (chdir'd) prior
+  to executing commands.
 
 #### Justfile and Justfile Directory
 
@@ -1031,7 +1155,7 @@ build:
 
 For example, to run a command relative to the location of the current `justfile`:
 
-```make
+```just
 script:
   ./{{justfile_directory()}}/scripts/some_script
 ```
@@ -1042,7 +1166,7 @@ script:
 
 For example:
 
-```make
+```just
 executable:
   @echo The executable is at: {{just_executable()}}
 ```
@@ -1054,26 +1178,28 @@ The executable is at: /bin/just
 
 #### String Manipulation
 
-- `lowercase(s)` - Convert `s` to lowercase.
-
 - `quote(s)` - Replace all single quotes with `'\''` and prepend and append single quotes to `s`. This is sufficient to escape special characters for many shells, including most Bourne shell descendants.
-
 - `replace(s, from, to)` - Replace all occurrences of `from` in `s` to `to`.
-
+- `replace_regex(s, regex, replacement)` - Replace all occurrences of `regex` in `s` to `replacement`. Regular expressions are provided by the [Rust `regex` crate](https://docs.rs/regex/latest/regex/). See the [syntax documentation](https://docs.rs/regex/latest/regex/#syntax) for usage examples.
 - `trim(s)` - Remove leading and trailing whitespace from `s`.
-
 - `trim_end(s)` - Remove trailing whitespace from `s`.
-
 - `trim_end_match(s, pat)` - Remove suffix of `s` matching `pat`.
-
 - `trim_end_matches(s, pat)` - Repeatedly remove suffixes of `s` matching `pat`.
-
 - `trim_start(s)` - Remove leading whitespace from `s`.
-
 - `trim_start_match(s, pat)` - Remove prefix of `s` matching `pat`.
-
 - `trim_start_matches(s, pat)` - Repeatedly remove prefixes of `s` matching `pat`.
 
+#### Case Conversion
+
+- `capitalize(s)`<sup>1.7.0</sup> - Convert first character of `s` to uppercase and the rest to lowercase.
+- `kebabcase(s)`<sup>1.7.0</sup> - Convert `s` to `kebab-case`.
+- `lowercamelcase(s)`<sup>1.7.0</sup> - Convert `s` to `lowerCamelCase`.
+- `lowercase(s)` - Convert `s` to lowercase.
+- `shoutykebabcase(s)`<sup>1.7.0</sup> - Convert `s` to `SHOUTY-KEBAB-CASE`.
+- `shoutysnakecase(s)`<sup>1.7.0</sup> - Convert `s` to `SHOUTY_SNAKE_CASE`.
+- `snakecase(s)`<sup>1.7.0</sup> - Convert `s` to `snake_case`.
+- `titlecase(s)`<sup>1.7.0</sup> - Convert `s` to `Title Case`.
+- `uppercamelcase(s)`<sup>1.7.0</sup> - Convert `s` to `UpperCamelCase`.
 - `uppercase(s)` - Convert `s` to uppercase.
 
 #### Path Manipulation
@@ -1081,24 +1207,18 @@ The executable is at: /bin/just
 ##### Fallible
 
 - `absolute_path(path)` - Absolute path to relative `path` in the working directory. `absolute_path("./bar.txt")` in directory `/foo` is `/foo/bar.txt`.
-
 - `extension(path)` - Extension of `path`. `extension("/foo/bar.txt")` is `txt`.
-
 - `file_name(path)` - File name of `path` with any leading directory components removed. `file_name("/foo/bar.txt")` is `bar.txt`.
-
 - `file_stem(path)` - File name of `path` without extension. `file_stem("/foo/bar.txt")` is `bar`.
-
 - `parent_directory(path)` - Parent directory of `path`. `parent_directory("/foo/bar.txt")` is `/foo`.
-
 - `without_extension(path)` - `path` without extension. `without_extension("/foo/bar.txt")` is `/foo/bar`.
 
 These functions can fail, for example if a path does not have an extension, which will halt execution.
 
 ##### Infallible
 
-- `join(a, b…)` - *This function uses `/` on Unix and `\` on Windows, which can be lead to unwanted behavior. The `/` operator, e.g., `a / b`, which always uses `/`, should be considered as a replacement unless `\`s are specifically desired on Windows.* Join path `a` with path `b`. `join("foo/bar", "baz")` is `foo/bar/baz`. Accepts two or more arguments.
-
 - `clean(path)` - Simplify `path` by removing extra path separators, intermediate `.` components, and `..` where possible. `clean("foo//bar")` is `foo/bar`, `clean("foo/..")` is `.`, `clean("foo/./bar")` is `foo/bar`.
+- `join(a, b…)` - *This function uses `/` on Unix and `\` on Windows, which can be lead to unwanted behavior. The `/` operator, e.g., `a / b`, which always uses `/`, should be considered as a replacement unless `\`s are specifically desired on Windows.* Join path `a` with path `b`. `join("foo/bar", "baz")` is `foo/bar/baz`. Accepts two or more arguments.
 
 #### Filesystem Access
 
@@ -1114,11 +1234,87 @@ These functions can fail, for example if a path does not have an extension, whic
 - `sha256_file(path)` - Return the SHA-256 hash of the file at `path` as a hexadecimal string.
 - `uuid()` - Return a randomly generated UUID.
 
+### Recipe Attributes
+
+Recipes may be annotated with attributes that change their behavior.
+
+| Name                | Description                                     |
+| ------------------- | ----------------------------------------------- |
+| `[no-cd]`           | Don't change directory before executing recipe. |
+| `[no-exit-message]` | Don't print an error message if recipe fails.   |
+| `[linux]`           | Enable recipe on Linux.                         |
+| `[macos]`           | Enable recipe on MacOS.                         |
+| `[unix]`            | Enable recipe on Unixes. (Includes MacOS).      |
+| `[windows]`         | Enable recipe on Windows.                       |
+| `[private]`         | See [Private Recipes](#private-recipes).        |
+
+A recipe can have multiple attributes, either on multiple lines:
+
+```just
+[no-cd]
+[private]
+foo:
+    echo "foo"
+```
+
+Or separated by commas on a single line:
+
+```just
+[no-cd, private]
+foo:
+    echo "foo"
+```
+
+#### Enabling and Disabling Recipes
+
+The `[linux]`, `[macos]`, `[unix]`, and `[windows]` attributes are
+configuration attributes. By default, recipes are always enabled. A recipe with
+one or more configuration attributes will only be enabled when one or more of
+those configurations is active.
+
+This can be used to write `justfile`s that behave differently depending on
+which operating system they run on. The `run` recipe in this `justfile` will
+compile and run `main.c`, using a different C compiler and using the correct
+output binary name for that compiler depending on the operating system:
+
+```just
+[unix]
+run:
+  cc main.c
+  ./a.out
+
+[windows]
+run:
+  cl main.c
+  main.exe
+```
+
+#### Disabling Changing Directory<sup>1.9.0</sup>
+
+`just` normally executes recipes with the current directory set to the
+directory that contains the `justfile`. This can be disabled using the
+`[no-cd]` attribute. This can be used to create recipes which use paths
+relative to the invocation directory, or which operate on the current
+directory.
+
+For example, this `commit` recipe:
+
+```just
+[no-cd]
+commit file:
+  git add {{file}}
+  git commit
+```
+
+Can be used with paths that are relative to the current directory, because
+`[no-cd]` prevents `just` from changing the current directory when executing
+`commit`.
+
 ### Command Evaluation Using Backticks
 
 Backticks can be used to store the result of commands:
 
-```make
+```just
 localhost := `dumpinterfaces | cut -d: -f2 | sed 's/\/.*//' | sed 's/ //g'`
 
 serve:
@@ -1127,7 +1323,7 @@ serve:
 
 Indented backticks, delimited by three backticks, are de-indented in the same manner as indented strings:
 
-````make
+````just
 # This backtick evaluates the command `echo foo\necho bar\n`, which produces the value `foo\nbar\n`.
 stuff := ```
     echo foo
@@ -1143,7 +1339,7 @@ Backticks may not start with `#!`. This syntax is reserved for a future upgrade.
 
 `if`/`else` expressions evaluate different branches depending on if two expressions evaluate to the same value:
 
-```make
+```just
 foo := if "2" == "2" { "Good!" } else { "1984" }
 
 bar:
@@ -1157,7 +1353,7 @@ Good!
 
 It is also possible to test for inequality:
 
-```make
+```just
 foo := if "hello" != "goodbye" { "xyz" } else { "abc" }
 
 bar:
@@ -1171,7 +1367,7 @@ xyz
 
 And match against regular expressions:
 
-```make
+```just
 foo := if "hello" =~ 'hel+o' { "match" } else { "mismatch" }
 
 bar:
@@ -1187,13 +1383,13 @@ Regular expressions are provided by the [regex crate](https://github.com/rust-la
 
 Conditional expressions short-circuit, which means they only evaluate one of their branches. This can be used to make sure that backtick expressions don't run when they shouldn't.
 
-```make
+```just
 foo := if env_var("RELEASE") == "true" { `get-something-from-release-database` } else { "dummy-value" }
 ```
 
 Conditionals can be used inside of recipes:
 
-```make
+```just
 bar foo:
   echo {{ if foo == "bar" { "hello" } else { "goodbye" } }}
 ```
@@ -1202,7 +1398,7 @@ Note the space after the final `}`! Without the space, the interpolation will be
 
 Multiple conditionals can be chained:
 
-```make
+```just
 foo := if "hello" == "goodbye" {
   "xyz"
 } else if "a" == "a" {
@@ -1224,7 +1420,7 @@ abc
 
 Execution can be halted with the `error` function. For example:
 
-```
+```just
 foo := if "hello" == "goodbye" {
   "xyz"
 } else if "a" == "b" {
@@ -1246,7 +1442,7 @@ error: Call to function `error` failed: 123
 
 Variables can be overridden from the command line.
 
-```make
+```just
 os := "linux"
 
 test: build
@@ -1284,7 +1480,7 @@ $ just --set os bsd
 
 Assignments prefixed with the `export` keyword will be exported to recipes as environment variables:
 
-```make
+```just
 export RUST_BACKTRACE := "1"
 
 test:
@@ -1294,7 +1490,7 @@ test:
 
 Parameters prefixed with a `$` will be exported as environment variables:
 
-```make
+```just
 test $RUST_BACKTRACE="1":
   # will print a stack trace if it crashes
   cargo test
@@ -1302,13 +1498,13 @@ test $RUST_BACKTRACE="1":
 
 Exported variables and parameters are not exported to backticks in the same scope.
 
-```make
+```just
 export WORLD := "world"
 # This backtick will fail with "WORLD: unbound variable"
 BAR := `echo hello $WORLD`
 ```
 
-```make
+```just
 # Running `just a foo` will fail with "A: unbound variable"
 a $A $B=`echo $A`:
   echo $A $B
@@ -1320,7 +1516,7 @@ When [export](#export) is set, all `just` variables are exported as environment 
 
 Environment variables from the environment are passed automatically to the recipes.
 
-```make
+```just
 print_home_folder:
   echo "HOME is: '${HOME}'"
 ```
@@ -1333,7 +1529,7 @@ HOME is '/home/myuser'
 
 `just` will load environment variables from a `.env` file if [dotenv-load](#dotenv-load) is set. The variables in the file will be available as environment variables to the recipes. See [dotenv-integration](#dotenv-integration) for more information.
 
-#### Setting `just` Variables from Environments Variables
+#### Setting `just` Variables from Environment Variables
 
 Environment variables can be propagated to `just` variables using the functions `env_var()` and `env_var_or_default()`.
 See [environment-variables](#environment-variables).
@@ -1342,7 +1538,7 @@ See [environment-variables](#environment-variables).
 
 Recipes may have parameters. Here recipe `build` has a parameter called `target`:
 
-```make
+```just
 build target:
   @echo 'Building {{target}}…'
   cd {{target}} && make
@@ -1358,7 +1554,7 @@ cd my-awesome-project && make
 
 To pass arguments to a dependency, put the dependency in parentheses along with the arguments:
 
-```make
+```just
 default: (build "main")
 
 build target:
@@ -1366,10 +1562,22 @@ build target:
   cd {{target}} && make
 ```
 
+Variables can also be passed as arguments to dependencies:
+
+```just
+target := "main"
+
+_build version:
+  @echo 'Building {{version}}…'
+  cd {{version}} && make
+
+build: (_build target)
+```
+
 A command's arguments can be passed to dependency by putting the dependency in parentheses along with the arguments:
 
-```make
-build target: 
+```just
+build target:
   @echo "Building {{target}}…"
 
 push target: (build target)
@@ -1378,7 +1586,7 @@ push target: (build target)
 
 Parameters may have default values:
 
-```make
+```just
 default := 'all'
 
 test target tests=default:
@@ -1404,7 +1612,7 @@ Testing server:unit…
 
 Default values may be arbitrary expressions, but concatenations or path joins must be parenthesized:
 
-```make
+```just
 arch := "wasm"
 
 test triple=(arch + "-unknown-unknown") input=(arch / "input.dat"):
@@ -1413,7 +1621,7 @@ test triple=(arch + "-unknown-unknown") input=(arch / "input.dat"):
 
 The last parameter of a recipe may be variadic, indicated with either a `+` or a `*` before the argument name:
 
-```make
+```just
 backup +FILES:
   scp {{FILES}} me@server.com:
 ```
@@ -1429,21 +1637,21 @@ GRAMMAR.md              100% 1666     1.6KB/s   00:00
 
 Variadic parameters prefixed with `*` accept _zero or more_ arguments and expand to a string containing those arguments separated by spaces, or an empty string if no arguments are present:
 
-```make
+```just
 commit MESSAGE *FLAGS:
   git commit {{FLAGS}} -m "{{MESSAGE}}"
 ```
 
 Variadic parameters can be assigned default values. These are overridden by arguments passed on the command line:
 
-```make
+```just
 test +FLAGS='-q':
   cargo test {{FLAGS}}
 ```
 
 `{{…}}` substitutions may need to be quoted if they contain spaces. For example, if you have the following recipe:
 
-```make
+```just
 search QUERY:
   lynx https://www.google.com/?q={{QUERY}}
 ```
@@ -1458,14 +1666,14 @@ $ just search "cat toupee"
 
 You can fix this by adding quotes:
 
-```make
+```just
 search QUERY:
   lynx 'https://www.google.com/?q={{QUERY}}'
 ```
 
 Parameters prefixed with a `$` will be exported as environment variables:
 
-```make
+```just
 foo $bar:
   echo $bar
 ```
@@ -1476,7 +1684,7 @@ Normal dependencies of a recipes always run before a recipe starts. That is to s
 
 A recipe can also have subsequent dependencies, which run after the recipe and are introduced with an `&&`:
 
-```make
+```just
 a:
   echo 'A!'
 
@@ -1508,7 +1716,7 @@ D!
 
 `just` doesn't support running recipes in the middle of another recipe, but you can call `just` recursively in the middle of a recipe. Given the following `justfile`:
 
-```make
+```just
 a:
   echo 'A!'
 
@@ -1539,10 +1747,12 @@ This has limitations, since recipe `c` is run with an entirely new invocation of
 
 ### Writing Recipes in Other Languages
 
-Recipes that start with a `#!` are executed as scripts, so you can write recipes in other languages:
+Recipes that start with `#!` are called shebang recipes, and are executed by
+saving the recipe body to a file and running it. This lets you write recipes in
+different languages:
 
-```make
-polyglot: python js perl sh ruby
+```just
+polyglot: python js perl sh ruby nu
 
 python:
   #!/usr/bin/env python3
@@ -1563,8 +1773,8 @@ sh:
 
 nu:
   #!/usr/bin/env nu
-  let hello = 'Yo'
-  echo $"($hello) from a shell script!"
+  let hello = 'Hola'
+  echo $"($hello) from a nushell script!"
 
 ruby:
   #!/usr/bin/env ruby
@@ -1577,14 +1787,29 @@ Hello from python!
 Greetings from JavaScript!
 Larry Wall says Hi!
 Yo from a shell script!
+Hola from a nushell script!
 Hello from ruby!
 ```
+
+On Unix-like operating systems, including Linux and MacOS, shebang recipes are
+executed by saving the recipe body to a file in a temporary directory, marking
+the file as executable, and executing it. The OS then parses the shebang line
+into a command line and invokes it, including the path to the file. For
+example, if a recipe starts with `#!/usr/bin/env bash`, the final command that
+the OS runs will be something like `/usr/bin/env bash
+/tmp/PATH_TO_SAVED_RECIPE_BODY`. Keep in mind that different operating systems
+split shebang lines differently.
+
+Windows does not support shebang lines. On Windows, `just` splits the shebang
+line into a command and arguments, saves the recipe body to a file, and invokes
+the split command and arguments, adding the path to the saved recipe body as
+the final argument.
 
 ### Safer Bash Shebang Recipes
 
 If you're writing a `bash` shebang recipe, consider adding `set -euxo pipefail`:
 
-```make
+```just
 foo:
   #!/usr/bin/env bash
   set -euxo pipefail
@@ -1610,7 +1835,7 @@ On Windows, shebang interpreter paths containing a `/` are translated from Unix-
 
 For example, to execute this recipe on Windows:
 
-```make
+```just
 echo:
   #!/bin/sh
   echo "Hello!"
@@ -1632,7 +1857,7 @@ foo:
 
 It is possible to use shell variables, but there's another problem. Every recipe line is run by a new shell instance, so variables set in one line won't be set in the next:
 
-```make
+```just
 foo:
   x=hello && echo $x # This works!
   y=bye
@@ -1641,7 +1866,7 @@ foo:
 
 The best way to work around this is to use a shebang recipe. Shebang recipe bodies are extracted and run as scripts, so a single shell instance will run the whole thing:
 
-```make
+```just
 foo:
   #!/usr/bin/env bash
   set -euxo pipefail
@@ -1657,7 +1882,7 @@ Each line of each recipe is executed by a fresh shell, so it is not possible to 
 
 Some tools, like [Python's venv](https://docs.python.org/3/library/venv.html), require loading environment variables in order to work, making them challenging to use with `just`. As a workaround, you can execute the virtual environment binaries directly:
 
-```make
+```just
 venv:
   [ -d foo ] || python3 -m venv foo
 
@@ -1669,7 +1894,7 @@ run: venv
 
 Each recipe line is executed by a new shell, so if you change the working directory on one line, it won't have an effect on later lines:
 
-```make
+```just
 foo:
   pwd    # This `pwd` will print the same directory…
   cd bar
@@ -1678,14 +1903,14 @@ foo:
 
 There are a couple ways around this. One is to call `cd` on the same line as the command you want to run:
 
-```make
+```just
 foo:
   cd bar && pwd
 ```
 
 The other is to use a shebang recipe. Shebang recipe bodies are extracted and run as scripts, so a single shell instance will run the whole thing, and thus a `pwd` on one line will affect later lines, just like a shell script:
 
-```make
+```just
 foo:
   #!/usr/bin/env bash
   set -euxo pipefail
@@ -1695,7 +1920,43 @@ foo:
 
 ### Indentation
 
-Recipe lines can be indented with spaces or tabs, but not a mix of both. All of a recipe's lines must have the same indentation, but different recipes in the same `justfile` may use different indentation.
+Recipe lines can be indented with spaces or tabs, but not a mix of both. All of a recipe's lines must have the same type of indentation, but different recipes in the same `justfile` may use different indentation.
+
+Each recipe must be indented at least one level from the `recipe-name` but after that may be further indented.
+
+Here's a justfile with a recipe indented with spaces, represented as `·`, and tabs, represented as `→`.
+
+```justfile
+set windows-shell := ["pwsh", "-NoLogo", "-NoProfileLoadTime", "-Command"]
+
+set ignore-comments
+
+list-space directory:
+··#!pwsh
+··foreach ($item in $(Get-ChildItem {{directory}} )) {
+····echo $item.Name
+··}
+··echo ""
+
+# indentation nesting works even when newlines are escaped
+list-tab directory:
+→ @foreach ($item in $(Get-ChildItem {{directory}} )) { \
+→ → echo $item.Name \
+→ }
+→ @echo ""
+```
+
+```pwsh
+PS > just list-space ~
+Desktop
+Documents
+Downloads
+
+PS > just list-tab ~
+Desktop
+Documents
+Downloads
+```
 
 ### Multi-Line Constructs
 
@@ -1724,19 +1985,19 @@ To work around this, you can write conditionals on one line, escape newlines wit
 
 #### `if` statements
 
-```make
+```just
 conditional:
   if true; then echo 'True!'; fi
 ```
 
-```make
+```just
 conditional:
   if true; then \
     echo 'True!'; \
   fi
 ```
 
-```make
+```just
 conditional:
   #!/usr/bin/env sh
   if true; then
@@ -1746,19 +2007,19 @@ conditional:
 
 #### `for` loops
 
-```make
+```just
 for:
   for file in `ls .`; do echo $file; done
 ```
 
-```make
+```just
 for:
   for file in `ls .`; do \
     echo $file; \
   done
 ```
 
-```make
+```just
 for:
   #!/usr/bin/env sh
   for file in `ls .`; do
@@ -1768,19 +2029,19 @@ for:
 
 #### `while` loops
 
-```make
+```just
 while:
   while `server-is-dead`; do ping -c 1 server; done
 ```
 
-```make
+```just
 while:
   while `server-is-dead`; do \
     ping -c 1 server; \
   done
 ```
 
-```make
+```just
 while:
   #!/usr/bin/env sh
   while `server-is-dead`; do
@@ -1790,7 +2051,7 @@ while:
 
 ### Command Line Options
 
-`just` supports a number of useful command line options for listing, dumping, and debugging recipes and variable:
+`just` supports a number of useful command line options for listing, dumping, and debugging recipes and variables:
 
 ```sh
 $ just --list
@@ -1814,7 +2075,7 @@ Run `just --help` to see all the options.
 
 Recipes and aliases whose name starts with a `_` are omitted from `just --list`:
 
-```make
+```just
 test: _test-helper
   ./bin/test
 
@@ -1835,13 +2096,31 @@ $ just --summary
 test
 ```
 
+The `[private]` attribute<sup>1.10.0</sup> may also be used to hide recipes or aliases without needing to change the name:
+
+```just
+[private]
+foo:
+
+[private]
+alias b := bar
+
+bar:
+```
+
+```sh
+$ just --list
+Available recipes:
+    bar
+```
+
 This is useful for helper recipes which are only meant to be used as dependencies of other recipes.
 
 ### Quiet Recipes
 
 A recipe name may be prefixed with `@` to invert the meaning of `@` before each line:
 
-```make
+```just
 @quiet:
   echo hello
   echo goodbye
@@ -1859,7 +2138,7 @@ goodbye
 
 Shebang recipes are quiet by default:
 
-```make
+```just
 foo:
   #!/usr/bin/env bash
   echo 'Foo!'
@@ -1872,7 +2151,7 @@ Foo!
 
 Adding `@` to a shebang recipe name makes `just` print the recipe before executing it:
 
-```make
+```just
 @bar:
   #!/usr/bin/env bash
   echo 'Bar!'
@@ -1883,6 +2162,35 @@ $ just bar
 #!/usr/bin/env bash
 echo 'Bar!'
 Bar!
+```
+
+`just` normally prints error messages when a recipe line fails. These error
+messages can be suppressed using the `[no-exit-message]` attribute. You may find
+this especially useful with a recipe that recipe wraps a tool:
+
+```just
+git *args:
+    @git {{args}}
+```
+
+```sh
+$ just git status
+fatal: not a git repository (or any of the parent directories): .git
+error: Recipe `git` failed on line 2 with exit code 128
+```
+
+Add the attribute to suppress the exit error message when the tool exits with a
+non-zero code:
+
+```just
+[no-exit-message]
+git *args:
+    @git {{args}}
+```
+
+```sh
+$ just git status
+fatal: not a git repository (or any of the parent directories): .git
 ```
 
 ### Selecting Recipes to Run With an Interactive Chooser
@@ -1899,7 +2207,7 @@ The chooser is invoked in the same way as recipe lines. For example, if the choo
 
 If you'd like `just` to default to selecting recipes with a chooser, you can use this as your default recipe:
 
-```make
+```just
 default:
   @just --choose
 ```
@@ -1923,6 +2231,61 @@ $ (cd foo && just build)
 $ just foo/build
 $ just foo/
 ```
+
+Additional recipes after the first are sought in the same `justfile`. For
+example, the following are both equivalent:
+
+```sh
+$ just foo/a b
+$ (cd foo && just a b)
+```
+
+And will both invoke recipes `a` and `b` in `foo/justfile`.
+
+### Include Directives
+
+The `!include` directive, currently unstable, can be used to include the
+verbatim text of another file.
+
+If you have the following `justfile`:
+
+```mf
+!include foo/bar.just
+
+a: b
+  @echo A
+
+```
+
+And the following text in `foo/bar.just`:
+
+```mf
+b:
+  @echo B
+```
+
+`foo/bar.just` will be included in `justfile` and recipe `b` will be defined:
+
+```sh
+$ just --unstable b
+B
+$ just --unstable a
+B
+A
+```
+
+The `!include` directive path can be absolute or relative to the location of
+the justfile containing it. `!include` directives must appear at the beginning
+of a line.
+
+Justfiles are insensitive to order, so included files can reference variables
+and recipes defined after the `!include` directive.
+
+`!include` directives are only processed before the first non-blank,
+non-comment line.
+
+Included files can themselves contain `!include` directives, which are
+processed recursively.
 
 ### Hiding `justfile`s
 
@@ -1951,41 +2314,77 @@ With the above shebang, `just` will change its working directory to the location
 
 Note: Shebang line splitting is not consistent across operating systems. The previous examples have only been tested on macOS. On Linux, you may need to pass the `-S` flag to `env`:
 
-```make
+```just
 #!/usr/bin/env -S just --justfile
 
 default:
   echo foo
 ```
 
-### Dumping `justfile`s as JSON
+### Formatting and dumping `justfile`s
 
-The `--dump` command can be used with `--dump-format json` to print a JSON representation of a `justfile`. The JSON format is currently unstable, so the `--unstable` flag is required.
+Each `justfile` has a canonical formatting with respect to whitespace and
+newlines.
 
-### Falling back to parent `justfile`s
+You can overwrite the current justfile with a canonically-formatted version
+using the currently-unstable `--fmt` flag:
 
-If a recipe is not found, `just` will look for `justfile`s in the parent
-directory and up, until it reaches the root directory.
+```sh
+$ cat justfile
+# A lot of blank lines
 
-This feature is currently unstable, and so must be enabled with the
-`--unstable` flag.
+
+
+
+
+some-recipe:
+  echo "foo"
+$ just --fmt --unstable
+$ cat justfile
+# A lot of blank lines
+
+some-recipe:
+    echo "foo"
+```
+
+Invoking `just --fmt --check --unstable` runs `--fmt` in check mode. Instead of
+overwriting the `justfile`, `just` will exit with an exit code of 0 if it is
+formatted correctly, and will exit with 1 and print a diff if it is not.
+
+You can use the `--dump` command to output a formatted version of the
+`justfile` to stdout:
+
+```sh
+$ just --dump > formatted-justfile
+```
+
+The `--dump` command can be used with `--dump-format json` to print a JSON
+representation of a `justfile`.
+
+### Fallback to parent `justfile`s
+
+If a recipe is not found in a `justfile` and the `fallback` setting is set,
+`just` will look for `justfile`s in the parent directory and up, until it
+reaches the root directory. `just` will stop after it reaches a `justfile` in
+which the `fallback` setting is `false` or unset.
 
 As an example, suppose the current directory contains this `justfile`:
 
-```make
+```just
+set fallback
 foo:
   echo foo
 ```
 
 And the parent directory contains this `justfile`:
 
-```make
+```just
 bar:
   echo bar
 ```
 
 ```sh
-$ just --unstable bar
+$ just bar
 Trying ../justfile
 echo bar
 bar
@@ -1995,7 +2394,7 @@ bar
 
 Given this `justfile`:
 
-```make
+```just
 foo argument:
   touch {{argument}}
 ```
@@ -2014,18 +2413,18 @@ There are a few ways to avoid this: quoting, positional arguments, and exported 
 
 Quotes can be added around the `{{argument}}` interpolation:
 
-```make
+```just
 foo argument:
   touch '{{argument}}'
 ```
 
-This preserves `just`'s ability to catch variable name typos before running, for example if you were to write `{{argument}}`, but will not do what you want if the value of `argument` contains single quotes.
+This preserves `just`'s ability to catch variable name typos before running, for example if you were to write `{{arument}}`, but will not do what you want if the value of `argument` contains single quotes.
 
 #### Positional Arguments
 
 The `positional-arguments` setting causes all arguments to be passed as positional arguments, allowing them to be accessed with `$1`, `$2`, …, and `$@`, which can be then double-quoted to avoid further splitting by the shell:
 
-```make
+```just
 set positional-arguments
 
 foo argument:
@@ -2038,7 +2437,7 @@ This defeats `just`'s ability to catch typos, for example if you type `$2`, but 
 
 All arguments are exported when the `export` setting is set:
 
-```make
+```just
 set export
 
 foo argument:
@@ -2047,12 +2446,23 @@ foo argument:
 
 Or individual arguments may be exported by prefixing them with `$`:
 
-```make
+```just
 foo $argument:
   touch "$argument"
 ```
 
 This defeats `just`'s ability to catch typos, for example if you type `$argumant`, but works for all possible values of `argument`, including those with double quotes.
+
+### Configuring the Shell
+
+There are a number of ways to configure the shell for linewise recipes, which are the default when a recipe does not start with a `#!` shebang. Their precedence, from highest to lowest, is:
+
+1. The `--shell` and `--shell-arg` command line options. Passing either of these will cause `just` to ignore any settings in the current justfile.
+2. `set windows-shell := [...]`
+3. `set windows-powershell` (deprecated)
+4. `set shell := [...]`
+
+Since `set windows-shell` has higher precedence than `set shell`, you can use `set windows-shell` to pick a shell on Windows, and `set shell` to pick a shell for all other platforms.
 
 Changelog
 ---------
@@ -2086,6 +2496,23 @@ The `just` binary can also generate the same completion scripts at runtime, usin
 
 ```sh
 $ just --completions zsh > just.zsh
+```
+
+*macOS Note:* Recent versions of macOS use zsh as the default shell. If you use Homebrew to install `just`, it will automatically install the most recent copy of the zsh completion script in the Homebrew zsh directory, which the built-in version of zsh doesn't know about by default. It's best to use this copy of the script if possible, since it will be updated whenever you update `just` via Homebrew. Also, many other Homebrew packages use the same location for completion scripts, and the built-in zsh doesn't know about those either. To take advantage of `just` completion in zsh in this scenario, you can set `fpath` to the Homebrew location before calling `compinit`. Note also that Oh My Zsh runs `compinit` by default. So your `.zshrc` file could look like this:
+
+```zsh
+# Init Homebrew, which adds environment variables
+eval "$(brew shellenv)"
+
+fpath=($HOMEBREW_PREFIX/share/zsh/site-functions $fpath)
+
+# Then choose one of these options:
+# 1. If you're using Oh My Zsh, you can initialize it here
+# source $ZSH/oh-my-zsh.sh
+
+# 2. Otherwise, run compinit yourself
+# autoload -U compinit
+# compinit
 ```
 
 ### Grammar
@@ -2142,17 +2569,24 @@ alias .j='just --justfile ~/.user.justfile --working-directory ~'
 
 The following export statement gives `just` recipes access to local Node module binaries, and makes `just` recipe commands behave more like `script` entries in Node.js `package.json` files:
 
-```make
+```just
 export PATH := "./node_modules/.bin:" + env_var('PATH')
 ```
 
 ### Alternatives and Prior Art
 
-There is no shortage of command runners out there! Some more or less similar alternatives to `just` include:
+There is no shortage of command runners! Some more or less similar alternatives to `just` include:
 
+- [make](https://en.wikipedia.org/wiki/Make_(software)): The Unix build tool that inspired `just`. There are a few different modern day descendents of the original `make`, including [FreeBSD Make](https://www.freebsd.org/cgi/man.cgi?make(1)) and [GNU Make](https://www.gnu.org/software/make/).
+- [task](https://github.com/go-task/task): A YAML-based command runner written in Go.
+- [maid](https://github.com/egoist/maid): A Markdown-based command runner written in JavaScript.
+- [microsoft/just](https://github.com/microsoft/just): A JavaScript-based command runner written in JavaScript.
+- [cargo-make](https://github.com/sagiegurari/cargo-make): A command runner for Rust projects.
 - [mmake](https://github.com/tj/mmake): A wrapper around `make` with a number of improvements, including remote includes.
-
 - [robo](https://github.com/tj/robo): A YAML-based command runner written in Go.
+- [mask](https://github.com/jakedeichert/mask): A Markdown-based command runner written in Rust.
+- [makesure](https://github.com/xonixx/makesure): A simple and portable command runner written in AWK and shell.
+- [haku](https://github.com/VladimirMarkelov/haku): A make-like command runner written in Rust.
 
 Contributing
 ------------
@@ -2167,7 +2601,24 @@ Before merging a particularly large or gruesome change, Janus should be run to m
 
 ### Minimum Supported Rust Version
 
-The minimum supported Rust version, or MSRV, is Rust 1.47.0.
+The minimum supported Rust version, or MSRV, is current stable Rust. It may build on older versions of Rust, but this is not guaranteed.
+
+### New Releases
+
+New releases of `just` are made frequently so that users quickly get access to new features.
+
+Release commit messages use the following template:
+
+```
+Release x.y.z
+
+- Bump version: x.y.z → x.y.z
+- Update changelog
+- Update changelog contributor credits
+- Update dependencies
+- Update man page
+- Update version references in readme
+```
 
 Frequently Asked Questions
 --------------------------
@@ -2178,7 +2629,7 @@ Frequently Asked Questions
 
 One example is that under some circumstances, `make` won't actually run the commands in a recipe. For example, if you have a file called `test` and the following makefile:
 
-```make
+```just
 test:
   ./test
 ```
@@ -2233,7 +2684,7 @@ Some ideas for recipes:
 
 Even for small, personal projects it's nice to be able to remember commands by name instead of ^Reverse searching your shell history, and it's a huge boon to be able to go into an old project written in a random language with a mysterious build system and know that all the commands you need to do whatever you need to do are in the `justfile`, and that if you type `just` something useful (or at least interesting!) will probably happen.
 
-For ideas for recipes, check out [this project's `justfile`](https://github.com/casey/just/blob/master/justfile), or some of the `justfile`s [out in the wild](https://github.com/search?o=desc&q=filename%3Ajustfile&s=indexed&type=Code).
+For ideas for recipes, check out [this project's `justfile`](https://github.com/casey/just/blob/master/justfile), or some of the `justfile`s [out in the wild](https://github.com/search?q=path%3A**%2Fjustfile&type=code).
 
 Anyways, I think that's about it for this incredibly long-winded README.
 

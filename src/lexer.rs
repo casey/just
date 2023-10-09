@@ -1,7 +1,4 @@
-use super::*;
-
-use CompileErrorKind::*;
-use TokenKind::*;
+use {super::*, CompileErrorKind::*, TokenKind::*};
 
 /// Just language lexer
 ///
@@ -121,7 +118,7 @@ impl<'src> Lexer<'src> {
 
   fn presume(&mut self, c: char) -> CompileResult<'src, ()> {
     if !self.next_is(c) {
-      return Err(self.internal_error(format!("Lexer presumed character `{}`", c)));
+      return Err(self.internal_error(format!("Lexer presumed character `{c}`")));
     }
 
     self.advance()?;
@@ -209,12 +206,12 @@ impl<'src> Lexer<'src> {
       length: 0,
       kind: Unspecified,
     };
-    CompileError {
-      kind: CompileErrorKind::Internal {
+    CompileError::new(
+      token,
+      Internal {
         message: message.into(),
       },
-      token,
-    }
+    )
   }
 
   /// Create a compilation error with `kind`
@@ -245,14 +242,11 @@ impl<'src> Lexer<'src> {
       length,
     };
 
-    CompileError { token, kind }
+    CompileError::new(token, kind)
   }
 
   fn unterminated_interpolation_error(interpolation_start: Token<'src>) -> CompileError<'src> {
-    CompileError {
-      token: interpolation_start,
-      kind: UnterminatedInterpolation,
-    }
+    CompileError::new(interpolation_start, UnterminatedInterpolation)
   }
 
   /// True if `text` could be an identifier
@@ -275,7 +269,7 @@ impl<'src> Lexer<'src> {
     matches!(c, 'a'..='z' | 'A'..='Z' | '_')
   }
 
-  /// True if `c` can be a continuation character of an idenitifier
+  /// True if `c` can be a continuation character of an identifier
   fn is_identifier_continue(c: char) -> bool {
     if Self::is_identifier_start(c) {
       return true;
@@ -487,6 +481,7 @@ impl<'src> Lexer<'src> {
       ',' => self.lex_single(Comma),
       '/' => self.lex_single(Slash),
       ':' => self.lex_colon(),
+      '\\' => self.lex_escape(),
       '=' => self.lex_choices('=', &[('=', EqualsEquals), ('~', EqualsTilde)], Equals),
       '@' => self.lex_single(At),
       '[' => self.lex_delimiter(BracketL),
@@ -645,8 +640,7 @@ impl<'src> Lexer<'src> {
       ParenR => self.close_delimiter(Paren)?,
       _ => {
         return Err(self.internal_error(format!(
-          "Lexer::lex_delimiter called with non-delimiter token: `{}`",
-          kind,
+          "Lexer::lex_delimiter called with non-delimiter token: `{kind}`",
         )))
       }
     }
@@ -716,6 +710,31 @@ impl<'src> Lexer<'src> {
     Ok(())
   }
 
+  /// Lex an token starting with '\' escape
+  fn lex_escape(&mut self) -> CompileResult<'src, ()> {
+    self.presume('\\')?;
+
+    // Treat newline escaped with \ as whitespace
+    if self.accepted('\n')? {
+      while self.next_is_whitespace() {
+        self.advance()?;
+      }
+      self.token(Whitespace);
+    } else if self.accepted('\r')? {
+      if !self.accepted('\n')? {
+        return Err(self.error(UnpairedCarriageReturn));
+      }
+      while self.next_is_whitespace() {
+        self.advance()?;
+      }
+      self.token(Whitespace);
+    } else if let Some(character) = self.next {
+      return Err(self.error(CompileErrorKind::InvalidEscapeSequence { character }));
+    }
+
+    Ok(())
+  }
+
   /// Lex a carriage return and line feed
   fn lex_eol(&mut self) -> CompileResult<'src, ()> {
     if self.accepted('\r')? {
@@ -780,7 +799,7 @@ impl<'src> Lexer<'src> {
 
   /// Lex a backtick, cooked string, or raw string.
   ///
-  /// Backtick:      `[^`]*`
+  /// Backtick:      ``[^`]*``
   /// Cooked string: "[^"]*" # also processes escape sequences
   /// Raw string:    '[^']*'
   fn lex_string(&mut self) -> CompileResult<'src, ()> {
@@ -796,7 +815,7 @@ impl<'src> Lexer<'src> {
     let mut escape = false;
 
     loop {
-      if self.next == None {
+      if self.next.is_none() {
         return Err(self.error(kind.unterminated_error_kind()));
       } else if kind.processes_escape_sequences() && self.next_is('\\') && !escape {
         escape = true;
@@ -951,7 +970,7 @@ mod tests {
 
       // Variable lexemes
       Text | StringToken | Backtick | Identifier | Comment | Unspecified => {
-        panic!("Token {:?} has no default lexeme", kind)
+        panic!("Token {kind:?} has no default lexeme")
       }
     }
   }
@@ -993,7 +1012,7 @@ mod tests {
             column,
             length,
           },
-          kind,
+          kind: Box::new(kind),
         };
         assert_eq!(have, want);
       }
@@ -2276,20 +2295,19 @@ mod tests {
   fn presume_error() {
     let compile_error = Lexer::new("!").presume('-').unwrap_err();
     assert_matches!(
-      compile_error,
-      CompileError {
-        token: Token {
-          offset: 0,
-          line:   0,
-          column: 0,
-          length: 0,
-          src:    "!",
-          kind:   Unspecified,
-        },
-        kind:  Internal {
-          ref message,
-        },
-      } if message == "Lexer presumed character `-`"
+      compile_error.token,
+      Token {
+        offset: 0,
+        line: 0,
+        column: 0,
+        length: 0,
+        src: "!",
+        kind: Unspecified,
+      }
+    );
+    assert_matches!(&*compile_error.kind,
+        Internal { ref message }
+        if message == "Lexer presumed character `-`"
     );
 
     assert_eq!(

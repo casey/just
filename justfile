@@ -1,4 +1,4 @@
-#!/usr/bin/env just --justfile
+#!/usr/bin/env -S just --justfile
 # ^ A shebang isn't required, but allows a justfile to be executed
 #   like a script, with `./justfile test`, for example.
 
@@ -56,8 +56,11 @@ view-man: man
   man man/just.1
 
 # add git log messages to changelog
-changes:
-  git log --pretty=format:%s >> CHANGELOG.md
+update-changelog:
+  git log --pretty='format:- %s' >> CHANGELOG.md
+
+update-contributors:
+  cargo run --release --package update-contributors
 
 check: fmt clippy test forbid
   #!/usr/bin/env bash
@@ -72,13 +75,17 @@ publish:
   set -euxo pipefail
   rm -rf tmp/release
   git clone git@github.com:casey/just.git tmp/release
-  VERSION=`sed -En 's/version[[:space:]]*=[[:space:]]*"([^"]+)"/\1/p' Cargo.toml | head -1`
   cd tmp/release
+  ! grep '<sup>master</sup>' README.md
+  VERSION=`sed -En 's/version[[:space:]]*=[[:space:]]*"([^"]+)"/\1/p' Cargo.toml | head -1`
   git tag -a $VERSION -m "Release $VERSION"
   git push origin $VERSION
   cargo publish
   cd ../..
   rm -rf tmp/release
+
+readme-version-notes:
+  grep '<sup>master</sup>' README.md
 
 push: check
   ! git branch | grep '* master'
@@ -170,10 +177,24 @@ watch-readme:
 generate-completions:
   ./bin/generate-completions
 
+test-completions:
+  ./tests/completions/just.bash
+
 build-book:
   cargo run --package generate-book
   mdbook build book/en
   mdbook build book/zh
+
+convert-integration-test test:
+  cargo expand --test integration {{test}} | \
+    sed \
+    -E \
+    -e 's/#\[cfg\(test\)\]/#\[test\]/' \
+    -e 's/^ *let test = //' \
+    -e 's/^ *test[.]/./' \
+    -e 's/;$//' \
+    -e 's/crate::test::Test/Test/' \
+    -e 's/\.run\(\)/.run();/'
 
 # run all polyglot recipes
 polyglot: _python _js _perl _sh _ruby

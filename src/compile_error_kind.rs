@@ -2,6 +2,10 @@ use super::*;
 
 #[derive(Debug, PartialEq)]
 pub(crate) enum CompileErrorKind<'src> {
+  AliasInvalidAttribute {
+    alias: &'src str,
+    attr: Attribute,
+  },
   AliasShadowsRecipe {
     alias: &'src str,
     recipe_line: usize,
@@ -23,6 +27,10 @@ pub(crate) enum CompileErrorKind<'src> {
   },
   DuplicateAlias {
     alias: &'src str,
+    first: usize,
+  },
+  DuplicateAttribute {
+    attribute: &'src str,
     first: usize,
   },
   DuplicateParameter {
@@ -71,9 +79,6 @@ pub(crate) enum CompileErrorKind<'src> {
   ParameterFollowsVariadicParameter {
     parameter: &'src str,
   },
-  ParameterShadowsVariable {
-    parameter: &'src str,
-  },
   ParsingRecursionDepthExceeded,
   RequiredParameterFollowsDefaultParameter {
     parameter: &'src str,
@@ -97,6 +102,9 @@ pub(crate) enum CompileErrorKind<'src> {
   UnknownAliasTarget {
     alias: &'src str,
     target: &'src str,
+  },
+  UnknownAttribute {
+    attribute: &'src str,
   },
   UnknownDependency {
     recipe: &'src str,

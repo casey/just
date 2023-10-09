@@ -1,6 +1,7 @@
-use super::*;
-
-use std::process::{ExitStatus, Stdio};
+use {
+  super::*,
+  std::process::{ExitStatus, Stdio},
+};
 
 /// Return a `Error::Signal` if the process was terminated by a signal,
 /// otherwise return an `Error::UnknownFailure`
@@ -21,6 +22,7 @@ fn error_from_signal(recipe: &str, line_number: Option<usize>, exit_status: Exit
 /// A recipe, e.g. `foo: bar baz`
 #[derive(PartialEq, Debug, Clone, Serialize)]
 pub(crate) struct Recipe<'src, D = Dependency<'src>> {
+  pub(crate) attributes: BTreeSet<Attribute>,
   pub(crate) body: Vec<Line<'src>>,
   pub(crate) dependencies: Vec<D>,
   pub(crate) doc: Option<&'src str>,
@@ -62,7 +64,29 @@ impl<'src, D> Recipe<'src, D> {
   }
 
   pub(crate) fn public(&self) -> bool {
-    !self.private
+    !self.private && !self.attributes.contains(&Attribute::Private)
+  }
+
+  pub(crate) fn change_directory(&self) -> bool {
+    !self.attributes.contains(&Attribute::NoCd)
+  }
+
+  pub(crate) fn enabled(&self) -> bool {
+    let windows = self.attributes.contains(&Attribute::Windows);
+    let linux = self.attributes.contains(&Attribute::Linux);
+    let macos = self.attributes.contains(&Attribute::Macos);
+    let unix = self.attributes.contains(&Attribute::Unix);
+
+    (!windows && !linux && !macos && !unix)
+      || (cfg!(target_os = "windows") && windows)
+      || (cfg!(target_os = "linux") && (linux || unix))
+      || (cfg!(target_os = "macos") && (macos || unix))
+      || (cfg!(windows) && windows)
+      || (cfg!(unix) && unix)
+  }
+
+  fn print_exit_message(&self) -> bool {
+    !self.attributes.contains(&Attribute::NoExitMessage)
   }
 
   pub(crate) fn run<'run>(
@@ -95,7 +119,7 @@ impl<'src, D> Recipe<'src, D> {
     }
   }
 
-  pub(crate) fn run_linewise<'run>(
+  fn run_linewise<'run>(
     &self,
     context: &RecipeContext<'src, 'run>,
     dotenv: &BTreeMap<String, String>,
@@ -114,20 +138,31 @@ impl<'src, D> Recipe<'src, D> {
       let mut continued = false;
       let quiet_command = lines.peek().map_or(false, |line| line.is_quiet());
       let infallible_command = lines.peek().map_or(false, |line| line.is_infallible());
+
+      let comment_line =
+        context.settings.ignore_comments && lines.peek().map_or(false, |line| line.is_comment());
+
       loop {
         if lines.peek().is_none() {
           break;
         }
         let line = lines.next().unwrap();
         line_number += 1;
-        evaluated += &evaluator.evaluate_line(line, continued)?;
-        if line.is_continuation() {
+        if !comment_line {
+          evaluated += &evaluator.evaluate_line(line, continued)?;
+        }
+        if line.is_continuation() && !comment_line {
           continued = true;
           evaluated.pop();
         } else {
           break;
         }
       }
+
+      if comment_line {
+        continue;
+      }
+
       let mut command = evaluated.as_str();
 
       if quiet_command {
@@ -160,7 +195,9 @@ impl<'src, D> Recipe<'src, D> {
 
       let mut cmd = context.settings.shell_command(config);
 
-      cmd.current_dir(&context.search.working_directory);
+      if self.change_directory() {
+        cmd.current_dir(&context.search.working_directory);
+      }
 
       cmd.arg(command);
 
@@ -184,6 +221,7 @@ impl<'src, D> Recipe<'src, D> {
                 recipe: self.name(),
                 line_number: Some(line_number),
                 code,
+                print_message: self.print_exit_message(),
               });
             }
           } else {
@@ -220,7 +258,7 @@ impl<'src, D> Recipe<'src, D> {
 
     if config.verbosity.loud() && (config.dry_run || self.quiet) {
       for line in &evaluated_lines {
-        eprintln!("{}", line);
+        eprintln!("{line}");
       }
     }
 
@@ -233,18 +271,20 @@ impl<'src, D> Recipe<'src, D> {
     })?;
 
     let shebang = Shebang::new(shebang_line).ok_or_else(|| Error::Internal {
-      message: format!("bad shebang line: {}", shebang_line),
+      message: format!("bad shebang line: {shebang_line}"),
     })?;
 
-    let tmp = tempfile::Builder::new()
-      .prefix("just")
-      .tempdir()
-      .map_err(|error| Error::TmpdirIo {
-        recipe: self.name(),
-        io_error: error,
-      })?;
-    let mut path = tmp.path().to_path_buf();
-
+    let mut tempdir_builder = tempfile::Builder::new();
+    tempdir_builder.prefix("just");
+    let tempdir = match &context.settings.tempdir {
+      Some(tempdir) => tempdir_builder.tempdir_in(context.search.working_directory.join(tempdir)),
+      None => tempdir_builder.tempdir(),
+    }
+    .map_err(|error| Error::TmpdirIo {
+      recipe: self.name(),
+      io_error: error,
+    })?;
+    let mut path = tempdir.path().to_path_buf();
     path.push(shebang.script_filename(self.name()));
 
     {
@@ -289,13 +329,19 @@ impl<'src, D> Recipe<'src, D> {
     })?;
 
     // create a command to run the script
-    let mut command =
-      Platform::make_shebang_command(&path, &context.search.working_directory, shebang).map_err(
-        |output_error| Error::Cygpath {
-          recipe: self.name(),
-          output_error,
-        },
-      )?;
+    let mut command = Platform::make_shebang_command(
+      &path,
+      if self.change_directory() {
+        Some(&context.search.working_directory)
+      } else {
+        None
+      },
+      shebang,
+    )
+    .map_err(|output_error| Error::Cygpath {
+      recipe: self.name(),
+      output_error,
+    })?;
 
     if context.settings.positional_arguments {
       command.args(positional);
@@ -315,6 +361,7 @@ impl<'src, D> Recipe<'src, D> {
               recipe: self.name(),
               line_number: None,
               code,
+              print_message: self.print_exit_message(),
             })
           }
         },
@@ -332,7 +379,11 @@ impl<'src, D> Recipe<'src, D> {
 impl<'src, D: Display> ColorDisplay for Recipe<'src, D> {
   fn fmt(&self, f: &mut Formatter, color: Color) -> Result<(), fmt::Error> {
     if let Some(doc) = self.doc {
-      writeln!(f, "# {}", doc)?;
+      writeln!(f, "# {doc}")?;
+    }
+
+    for attribute in &self.attributes {
+      writeln!(f, "[{}]", attribute.to_str())?;
     }
 
     if self.quiet {
@@ -351,7 +402,7 @@ impl<'src, D: Display> ColorDisplay for Recipe<'src, D> {
         write!(f, " &&")?;
       }
 
-      write!(f, " {}", dependency)?;
+      write!(f, " {dependency}")?;
     }
 
     for (i, line) in self.body.iter().enumerate() {
@@ -364,7 +415,7 @@ impl<'src, D: Display> ColorDisplay for Recipe<'src, D> {
         }
         match fragment {
           Fragment::Text { token } => write!(f, "{}", token.lexeme())?,
-          Fragment::Interpolation { expression, .. } => write!(f, "{{{{ {} }}}}", expression)?,
+          Fragment::Interpolation { expression, .. } => write!(f, "{{{{ {expression} }}}}")?,
         }
       }
       if i + 1 < self.body.len() {

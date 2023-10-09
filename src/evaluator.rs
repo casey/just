@@ -61,7 +61,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
           Ok(self.evaluate_assignment(assignment)?.to_owned())
         } else {
           Err(Error::Internal {
-            message: format!("attempted to evaluate undefined variable `{}`", variable),
+            message: format!("attempted to evaluate undefined variable `{variable}`"),
           })
         }
       }
@@ -92,6 +92,23 @@ impl<'src, 'run> Evaluator<'src, 'run> {
               message,
             }
           }),
+          UnaryOpt {
+            name,
+            function,
+            args: (a, b),
+            ..
+          } => {
+            let a = self.evaluate_expression(a)?;
+            let b = match b.as_ref() {
+              Some(b) => Some(self.evaluate_expression(b)?),
+              None => None,
+            };
+
+            function(&context, &a, b.as_deref()).map_err(|message| Error::FunctionCall {
+              function: *name,
+              message,
+            })
+          }
           Binary {
             name,
             function,
@@ -145,7 +162,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       Expression::StringLiteral { string_literal } => Ok(string_literal.cooked.clone()),
       Expression::Backtick { contents, token } => {
         if self.config.dry_run {
-          Ok(format!("`{}`", contents))
+          Ok(format!("`{contents}`"))
         } else {
           Ok(self.run_backtick(contents, token)?)
         }
@@ -176,9 +193,11 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         }
       }
       Expression::Group { contents } => self.evaluate_expression(contents),
-      Expression::Join { lhs, rhs } => {
-        Ok(self.evaluate_expression(lhs)? + "/" + &self.evaluate_expression(rhs)?)
-      }
+      Expression::Join { lhs: None, rhs } => Ok("/".to_string() + &self.evaluate_expression(rhs)?),
+      Expression::Join {
+        lhs: Some(lhs),
+        rhs,
+      } => Ok(self.evaluate_expression(lhs)? + "/" + &self.evaluate_expression(rhs)?),
     }
   }
 

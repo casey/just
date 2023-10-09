@@ -5,75 +5,106 @@ pub(crate) const DEFAULT_SHELL_ARGS: &[&str] = &["-cu"];
 pub(crate) const WINDOWS_POWERSHELL_SHELL: &str = "powershell.exe";
 pub(crate) const WINDOWS_POWERSHELL_ARGS: &[&str] = &["-NoLogo", "-Command"];
 
-#[derive(Debug, PartialEq, Serialize)]
+#[derive(Debug, PartialEq, Serialize, Default)]
+#[allow(clippy::struct_excessive_bools)]
 pub(crate) struct Settings<'src> {
   pub(crate) allow_duplicate_recipes: bool,
   pub(crate) dotenv_load: Option<bool>,
   pub(crate) export: bool,
+  pub(crate) fallback: bool,
+  pub(crate) ignore_comments: bool,
   pub(crate) positional_arguments: bool,
   pub(crate) shell: Option<Shell<'src>>,
+  pub(crate) tempdir: Option<String>,
   pub(crate) windows_powershell: bool,
   pub(crate) windows_shell: Option<Shell<'src>>,
 }
 
 impl<'src> Settings<'src> {
-  pub(crate) fn new() -> Settings<'src> {
-    Settings {
-      allow_duplicate_recipes: false,
-      dotenv_load: None,
-      export: false,
-      positional_arguments: false,
-      shell: None,
-      windows_powershell: false,
-      windows_shell: None,
+  pub(crate) fn from_setting_iter(iter: impl Iterator<Item = Setting<'src>>) -> Self {
+    let mut settings = Self::default();
+
+    for set in iter {
+      match set {
+        Setting::AllowDuplicateRecipes(allow_duplicate_recipes) => {
+          settings.allow_duplicate_recipes = allow_duplicate_recipes;
+        }
+        Setting::DotenvLoad(dotenv_load) => {
+          settings.dotenv_load = Some(dotenv_load);
+        }
+        Setting::Export(export) => {
+          settings.export = export;
+        }
+        Setting::Fallback(fallback) => {
+          settings.fallback = fallback;
+        }
+        Setting::IgnoreComments(ignore_comments) => {
+          settings.ignore_comments = ignore_comments;
+        }
+        Setting::PositionalArguments(positional_arguments) => {
+          settings.positional_arguments = positional_arguments;
+        }
+        Setting::Shell(shell) => {
+          settings.shell = Some(shell);
+        }
+        Setting::WindowsPowerShell(windows_powershell) => {
+          settings.windows_powershell = windows_powershell;
+        }
+        Setting::WindowsShell(windows_shell) => {
+          settings.windows_shell = Some(windows_shell);
+        }
+        Setting::Tempdir(tempdir) => {
+          settings.tempdir = Some(tempdir);
+        }
+      }
     }
+
+    settings
   }
 
   pub(crate) fn shell_command(&self, config: &Config) -> Command {
-    let mut cmd = Command::new(self.shell_binary(config));
+    let (command, args) = self.shell(config);
 
-    cmd.args(self.shell_arguments(config));
+    let mut cmd = Command::new(command);
+
+    cmd.args(args);
 
     cmd
   }
 
-  pub(crate) fn shell_binary<'a>(&'a self, config: &'a Config) -> &'a str {
-    let shell_or_args_present = config.shell.is_some() || config.shell_args.is_some();
-
-    if let (Some(shell), false) = (&self.shell, shell_or_args_present) {
-      shell.command.cooked.as_ref()
-    } else if let Some(shell) = &config.shell {
-      shell
-    } else if let (true, Some(shell)) = (cfg!(windows), &self.windows_shell) {
-      shell.command.cooked.as_ref()
-    } else if cfg!(windows) && self.windows_powershell {
-      WINDOWS_POWERSHELL_SHELL
-    } else {
-      DEFAULT_SHELL
-    }
-  }
-
-  pub(crate) fn shell_arguments<'a>(&'a self, config: &'a Config) -> Vec<&'a str> {
-    let shell_or_args_present = config.shell.is_some() || config.shell_args.is_some();
-
-    if let (Some(shell), false) = (&self.shell, shell_or_args_present) {
-      shell
-        .arguments
-        .iter()
-        .map(|argument| argument.cooked.as_ref())
-        .collect()
-    } else if let Some(shell_args) = &config.shell_args {
-      shell_args.iter().map(String::as_ref).collect()
-    } else if let (true, Some(shell)) = (cfg!(windows), &self.windows_shell) {
-      shell
-        .arguments
-        .iter()
-        .map(|argument| argument.cooked.as_ref())
-        .collect()
-    } else if cfg!(windows) && self.windows_powershell {
-      WINDOWS_POWERSHELL_ARGS.to_vec()
-    } else {
-      DEFAULT_SHELL_ARGS.to_vec()
+  pub(crate) fn shell<'a>(&'a self, config: &'a Config) -> (&'a str, Vec<&'a str>) {
+    match (&config.shell, &config.shell_args) {
+      (Some(shell), Some(shell_args)) => (shell, shell_args.iter().map(String::as_ref).collect()),
+      (Some(shell), None) => (shell, DEFAULT_SHELL_ARGS.to_vec()),
+      (None, Some(shell_args)) => (
+        DEFAULT_SHELL,
+        shell_args.iter().map(String::as_ref).collect(),
+      ),
+      (None, None) => {
+        if let (true, Some(shell)) = (cfg!(windows), &self.windows_shell) {
+          (
+            shell.command.cooked.as_ref(),
+            shell
+              .arguments
+              .iter()
+              .map(|argument| argument.cooked.as_ref())
+              .collect(),
+          )
+        } else if cfg!(windows) && self.windows_powershell {
+          (WINDOWS_POWERSHELL_SHELL, WINDOWS_POWERSHELL_ARGS.to_vec())
+        } else if let Some(shell) = &self.shell {
+          (
+            shell.command.cooked.as_ref(),
+            shell
+              .arguments
+              .iter()
+              .map(|argument| argument.cooked.as_ref())
+              .collect(),
+          )
+        } else {
+          (DEFAULT_SHELL, DEFAULT_SHELL_ARGS.to_vec())
+        }
+      }
     }
   }
 }
@@ -84,21 +115,22 @@ mod tests {
 
   #[test]
   fn default_shell() {
-    let settings = Settings::new();
+    let settings = Settings::default();
 
     let config = Config {
       shell_command: false,
       ..testing::config(&[])
     };
 
-    assert_eq!(settings.shell_binary(&config), "sh");
-    assert_eq!(settings.shell_arguments(&config), vec!["-cu"]);
+    assert_eq!(settings.shell(&config), ("sh", vec!["-cu"]));
   }
 
   #[test]
   fn default_shell_powershell() {
-    let mut settings = Settings::new();
-    settings.windows_powershell = true;
+    let settings = Settings {
+      windows_powershell: true,
+      ..Default::default()
+    };
 
     let config = Config {
       shell_command: false,
@@ -106,20 +138,18 @@ mod tests {
     };
 
     if cfg!(windows) {
-      assert_eq!(settings.shell_binary(&config), "powershell.exe");
       assert_eq!(
-        settings.shell_arguments(&config),
-        vec!["-NoLogo", "-Command"]
+        settings.shell(&config),
+        ("powershell.exe", vec!["-NoLogo", "-Command"])
       );
     } else {
-      assert_eq!(settings.shell_binary(&config), "sh");
-      assert_eq!(settings.shell_arguments(&config), vec!["-cu"]);
+      assert_eq!(settings.shell(&config), ("sh", vec!["-cu"]));
     }
   }
 
   #[test]
   fn overwrite_shell() {
-    let settings = Settings::new();
+    let settings = Settings::default();
 
     let config = Config {
       shell_command: true,
@@ -128,14 +158,15 @@ mod tests {
       ..testing::config(&[])
     };
 
-    assert_eq!(settings.shell_binary(&config), "lol");
-    assert_eq!(settings.shell_arguments(&config), vec!["-nice"]);
+    assert_eq!(settings.shell(&config), ("lol", vec!["-nice"]));
   }
 
   #[test]
   fn overwrite_shell_powershell() {
-    let mut settings = Settings::new();
-    settings.windows_powershell = true;
+    let settings = Settings {
+      windows_powershell: true,
+      ..Default::default()
+    };
 
     let config = Config {
       shell_command: true,
@@ -144,53 +175,56 @@ mod tests {
       ..testing::config(&[])
     };
 
-    assert_eq!(settings.shell_binary(&config), "lol");
-    assert_eq!(settings.shell_arguments(&config), vec!["-nice"]);
+    assert_eq!(settings.shell(&config), ("lol", vec!["-nice"]));
   }
 
   #[test]
   fn shell_cooked() {
-    let mut settings = Settings::new();
-
-    settings.shell = Some(Shell {
-      command: StringLiteral {
-        kind: StringKind::from_token_start("\"").unwrap(),
-        raw: "asdf.exe",
-        cooked: "asdf.exe".to_string(),
-      },
-      arguments: vec![StringLiteral {
-        kind: StringKind::from_token_start("\"").unwrap(),
-        raw: "-nope",
-        cooked: "-nope".to_string(),
-      }],
-    });
+    let settings = Settings {
+      shell: Some(Shell {
+        command: StringLiteral {
+          kind: StringKind::from_token_start("\"").unwrap(),
+          raw: "asdf.exe",
+          cooked: "asdf.exe".to_string(),
+        },
+        arguments: vec![StringLiteral {
+          kind: StringKind::from_token_start("\"").unwrap(),
+          raw: "-nope",
+          cooked: "-nope".to_string(),
+        }],
+      }),
+      ..Default::default()
+    };
 
     let config = Config {
       shell_command: false,
       ..testing::config(&[])
     };
 
-    assert_eq!(settings.shell_binary(&config), "asdf.exe");
-    assert_eq!(settings.shell_arguments(&config), vec!["-nope"]);
+    assert_eq!(settings.shell(&config), ("asdf.exe", vec!["-nope"]));
   }
 
   #[test]
   fn shell_present_but_not_shell_args() {
-    let mut settings = Settings::new();
-    settings.windows_powershell = true;
+    let settings = Settings {
+      windows_powershell: true,
+      ..Default::default()
+    };
 
     let config = Config {
       shell: Some("lol".to_string()),
       ..testing::config(&[])
     };
 
-    assert_eq!(settings.shell_binary(&config), "lol");
+    assert_eq!(settings.shell(&config).0, "lol");
   }
 
   #[test]
   fn shell_args_present_but_not_shell() {
-    let mut settings = Settings::new();
-    settings.windows_powershell = true;
+    let settings = Settings {
+      windows_powershell: true,
+      ..Default::default()
+    };
 
     let config = Config {
       shell_command: false,
@@ -198,12 +232,6 @@ mod tests {
       ..testing::config(&[])
     };
 
-    if cfg!(windows) {
-      assert_eq!(settings.shell_binary(&config), "powershell.exe");
-    } else {
-      assert_eq!(settings.shell_binary(&config), "sh");
-    }
-
-    assert_eq!(settings.shell_arguments(&config), vec!["-nice"]);
+    assert_eq!(settings.shell(&config), ("sh", vec!["-nice"]));
   }
 }

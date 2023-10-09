@@ -13,11 +13,11 @@ pub(crate) enum Item<'src> {
 impl<'src> Display for Item<'src> {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
     match self {
-      Item::Alias(alias) => write!(f, "{}", alias),
-      Item::Assignment(assignment) => write!(f, "{}", assignment),
-      Item::Comment(comment) => write!(f, "{}", comment),
+      Item::Alias(alias) => write!(f, "{alias}"),
+      Item::Assignment(assignment) => write!(f, "{assignment}"),
+      Item::Comment(comment) => write!(f, "{comment}"),
       Item::Recipe(recipe) => write!(f, "{}", recipe.color_display(Color::never())),
-      Item::Set(set) => write!(f, "{}", set),
+      Item::Set(set) => write!(f, "{set}"),
     }
   }
 }

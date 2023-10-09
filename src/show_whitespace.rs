@@ -9,7 +9,7 @@ impl<'str> Display for ShowWhitespace<'str> {
       match c {
         '\t' => write!(f, "␉")?,
         ' ' => write!(f, "␠")?,
-        _ => write!(f, "{}", c)?,
+        _ => write!(f, "{c}")?,
       };
     }
 

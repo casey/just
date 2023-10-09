@@ -8,7 +8,7 @@ fn single_quotes_are_prepended_and_appended() {
       x := quote('abc')
     ",
     )
-    .args(&["--evaluate", "x"])
+    .args(["--evaluate", "x"])
     .stdout("'abc'")
     .run();
 }
@@ -21,7 +21,7 @@ fn quotes_are_escaped() {
       x := quote("'")
     "#,
     )
-    .args(&["--evaluate", "x"])
+    .args(["--evaluate", "x"])
     .stdout(r"''\'''")
     .run();
 }

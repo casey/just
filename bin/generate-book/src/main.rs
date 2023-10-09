@@ -1,7 +1,7 @@
 use {
   pulldown_cmark::{CowStr, Event, HeadingLevel, Options, Parser, Tag},
   pulldown_cmark_to_cmark::cmark,
-  std::{collections::BTreeMap, error::Error, fs, ops::Deref},
+  std::{collections::BTreeMap, error::Error, fmt::Write, fs, ops::Deref},
 };
 
 type Result<T = ()> = std::result::Result<T, Box<dyn Error>>;
@@ -165,7 +165,7 @@ fn main() -> Result {
 
     for chapter in chapters {
       let path = format!("{}/chapter_{}.md", src, chapter.number());
-      fs::write(&path, &chapter.markdown()?)?;
+      fs::write(path, chapter.markdown()?)?;
       let indent = match chapter.level {
         HeadingLevel::H1 => 0,
         HeadingLevel::H2 => 1,
@@ -174,15 +174,16 @@ fn main() -> Result {
         HeadingLevel::H5 => 4,
         HeadingLevel::H6 => 5,
       };
-      summary.push_str(&format!(
-        "{}- [{}](chapter_{}.md)\n",
+      writeln!(
+        summary,
+        "{}- [{}](chapter_{}.md)",
         " ".repeat(indent * 4),
         chapter.title(),
         chapter.number()
-      ));
+      )?;
     }
 
-    fs::write(format!("{}/SUMMARY.md", src), summary).unwrap();
+    fs::write(format!("{src}/SUMMARY.md"), summary).unwrap();
   }
 
   Ok(())

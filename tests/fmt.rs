@@ -45,11 +45,21 @@ test! {
   name: check_found_diff,
   justfile: "x:=``\n",
   args: ("--unstable", "--fmt", "--check"),
-  stderr: "
+  stdout: "
     -x:=``
     +x := ``
+  ",
+  stderr: "
     error: Formatted justfile differs from original.
   ",
+  status: EXIT_FAILURE,
+}
+
+test! {
+  name: check_found_diff_quiet,
+  justfile: "x:=``\n",
+  args: ("--unstable", "--fmt", "--check", "--quiet"),
+  stderr: "",
   status: EXIT_FAILURE,
 }
 
@@ -57,10 +67,12 @@ test! {
   name: check_diff_color,
   justfile: "x:=``\n",
   args: ("--unstable", "--fmt", "--check", "--color", "always"),
-  stderr: "
+  stdout: "
     \u{1b}[31m-x:=``
     \u{1b}[0m\u{1b}[32m+x := ``
-    \u{1b}[0m\u{1b}[1;31merror\u{1b}[0m: \u{1b}[1mFormatted justfile differs from original.\u{1b}[0m
+    \u{1b}[0m",
+  stderr: "
+    \u{1b}[1;31merror\u{1b}[0m: \u{1b}[1mFormatted justfile differs from original.\u{1b}[0m
   ",
   status: EXIT_FAILURE,
 }
@@ -97,7 +109,7 @@ fn write_error() {
 
   let test = Test::with_tempdir(tempdir)
     .no_justfile()
-    .args(&["--fmt", "--unstable"])
+    .args(["--fmt", "--unstable"])
     .status(EXIT_FAILURE)
     .stderr_regex(if cfg!(windows) {
       r"error: Failed to write justfile to `.*`: Access is denied. \(os error 5\)\n"
@@ -243,7 +255,7 @@ test! {
 }
 
 test! {
-  name: assignment_parenthized_expression,
+  name: assignment_parenthesized_expression,
   justfile: "
     foo := ('foo')
   ",
@@ -1041,4 +1053,13 @@ test! {
     foo: && bar
         echo foo
   ",
+}
+
+#[test]
+fn exported_parameter() {
+  Test::new()
+    .justfile("foo +$f:")
+    .args(["--dump"])
+    .stdout("foo +$f:\n")
+    .run();
 }
