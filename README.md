@@ -425,6 +425,10 @@ Kakoune supports `justfile` syntax highlighting out of the box, thanks to TeddyD
 
 The [Just package](https://github.com/nk9/just_sublime) by [nk9](https://github.com/nk9) with `just` syntax and some other tools is available on [PackageControl](https://packagecontrol.io/packages/Just).
 
+### Micro
+
+[Micro](https://micro-editor.github.io/) supports Justfile syntax highlighting out of the box, thanks to [tomodachi94](https://github.com/tomodachi94).
+
 ### Other Editors
 
 Feel free to send me the commands necessary to get syntax highlighting working in your editor of choice so that I may include them here.
