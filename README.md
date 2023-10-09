@@ -1082,7 +1082,7 @@ Done!
 #### System Information
 
 - `arch()` — Instruction set architecture. Possible values are: `"aarch64"`, `"arm"`, `"asmjs"`, `"hexagon"`, `"mips"`, `"msp430"`, `"powerpc"`, `"powerpc64"`, `"s390x"`, `"sparc"`, `"wasm32"`, `"x86"`, `"x86_64"`, and `"xcore"`.
-- `num_cpus()` - Number of logical CPUs.
+- `num_cpus()`<sup>1.15.0</sup> - Number of logical CPUs.
 - `os()` — Operating system. Possible values are: `"android"`, `"bitrig"`, `"dragonfly"`, `"emscripten"`, `"freebsd"`, `"haiku"`, `"ios"`, `"linux"`, `"macos"`, `"netbsd"`, `"openbsd"`, `"solaris"`, and `"windows"`.
 - `os_family()` — Operating system family; possible values are: `"unix"` and `"windows"`.
 
@@ -1117,6 +1117,9 @@ $ just
 ```
 
 - `env_var_or_default(key, default)` — Retrieves the environment variable with name `key`, returning `default` if it is not present.
+
+- `env(key)`<sup>1.15.0</sup> — Alias for `env_var(key)`.
+- `env(key, default)`<sup>1.15.0</sup> — Alias for `env_var_or_default(key, default)`.
 
 #### Invocation Directory
 
