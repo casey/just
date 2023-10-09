@@ -1082,7 +1082,7 @@ Done!
 #### System Information
 
 - `arch()` — Instruction set architecture. Possible values are: `"aarch64"`, `"arm"`, `"asmjs"`, `"hexagon"`, `"mips"`, `"msp430"`, `"powerpc"`, `"powerpc64"`, `"s390x"`, `"sparc"`, `"wasm32"`, `"x86"`, `"x86_64"`, and `"xcore"`.
-- `num_cpus()` - Number of logical CPUs.
+- `num_cpus()`<sup>1.15.0</sup> - Number of logical CPUs.
 - `os()` — Operating system. Possible values are: `"android"`, `"bitrig"`, `"dragonfly"`, `"emscripten"`, `"freebsd"`, `"haiku"`, `"ios"`, `"linux"`, `"macos"`, `"netbsd"`, `"openbsd"`, `"solaris"`, and `"windows"`.
 - `os_family()` — Operating system family; possible values are: `"unix"` and `"windows"`.
 
@@ -1117,6 +1117,9 @@ $ just
 ```
 
 - `env_var_or_default(key, default)` — Retrieves the environment variable with name `key`, returning `default` if it is not present.
+
+- `env(key)`<sup>1.15.0</sup> — Alias for `env_var(key)`.
+- `env(key, default)`<sup>1.15.0</sup> — Alias for `env_var_or_default(key, default)`.
 
 #### Invocation Directory
 
@@ -1180,7 +1183,7 @@ The executable is at: /bin/just
 
 - `quote(s)` - Replace all single quotes with `'\''` and prepend and append single quotes to `s`. This is sufficient to escape special characters for many shells, including most Bourne shell descendants.
 - `replace(s, from, to)` - Replace all occurrences of `from` in `s` to `to`.
-- `replace_regex(s, regex, replacement)` - Replace all occurrences of `regex` in `s` to `replacement`. Regular expressions are provided by the [Rust `regex` crate](https://docs.rs/regex/latest/regex/). See the [syntax documentation](https://docs.rs/regex/latest/regex/#syntax) for usage examples.
+- `replace_regex(s, regex, replacement)` - Replace all occurrences of `regex` in `s` to `replacement`. Regular expressions are provided by the [Rust `regex` crate](https://docs.rs/regex/latest/regex/). See the [syntax documentation](https://docs.rs/regex/latest/regex/#syntax) for usage examples. Capture groups are supported. The `replacement` string uses [Replacement string syntax](https://docs.rs/regex/latest/regex/struct.Regex.html#replacement-string-syntax).
 - `trim(s)` - Remove leading and trailing whitespace from `s`.
 - `trim_end(s)` - Remove trailing whitespace from `s`.
 - `trim_end_match(s, pat)` - Remove suffix of `s` matching `pat`.
@@ -1257,7 +1260,7 @@ foo:
     echo "foo"
 ```
 
-Or separated by commas on a single line:
+Or separated by commas on a single line<sup>1.14.0</sup>:
 
 ```just
 [no-cd, private]
