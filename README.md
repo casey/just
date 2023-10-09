@@ -325,7 +325,7 @@ This does not, however, preclude fixing outright bugs, even if doing so might br
 
 There will never be a `just` 2.0. Any desirable backwards-incompatible changes will be opt-in on a per-`justfile` basis, so users may migrate at their leisure.
 
-Features that aren't yet ready for stabilization are gated behind the `--unstable` flag. Features enabled by `--unstable` may change in backwards incompatible ways at any time. Unstable features also be enabled by setting the environment variable `JUST_UNSTABLE` to any value other than `false`, `0`, or the empty string.
+Features that aren't yet ready for stabilization are gated behind the `--unstable` flag. Features enabled by `--unstable` may change in backwards incompatible ways at any time. Unstable features can also be enabled by setting the environment variable `JUST_UNSTABLE` to any value other than `false`, `0`, or the empty string.
 
 
 Editor Support
