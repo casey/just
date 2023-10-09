@@ -179,7 +179,7 @@
 <h4 id="system-information"><a class="header" href="#system-information">System Information</a></h4>
 <ul>
 <li><code>arch()</code> — Instruction set architecture. Possible values are: <code>&quot;aarch64&quot;</code>, <code>&quot;arm&quot;</code>, <code>&quot;asmjs&quot;</code>, <code>&quot;hexagon&quot;</code>, <code>&quot;mips&quot;</code>, <code>&quot;msp430&quot;</code>, <code>&quot;powerpc&quot;</code>, <code>&quot;powerpc64&quot;</code>, <code>&quot;s390x&quot;</code>, <code>&quot;sparc&quot;</code>, <code>&quot;wasm32&quot;</code>, <code>&quot;x86&quot;</code>, <code>&quot;x86_64&quot;</code>, and <code>&quot;xcore&quot;</code>.</li>
-<li><code>num_cpus()</code> - Number of logical CPUs.</li>
+<li><code>num_cpus()</code><sup>1.15.0</sup> - Number of logical CPUs.</li>
 <li><code>os()</code> — Operating system. Possible values are: <code>&quot;android&quot;</code>, <code>&quot;bitrig&quot;</code>, <code>&quot;dragonfly&quot;</code>, <code>&quot;emscripten&quot;</code>, <code>&quot;freebsd&quot;</code>, <code>&quot;haiku&quot;</code>, <code>&quot;ios&quot;</code>, <code>&quot;linux&quot;</code>, <code>&quot;macos&quot;</code>, <code>&quot;netbsd&quot;</code>, <code>&quot;openbsd&quot;</code>, <code>&quot;solaris&quot;</code>, and <code>&quot;windows&quot;</code>.</li>
 <li><code>os_family()</code> — Operating system family; possible values are: <code>&quot;unix&quot;</code> and <code>&quot;windows&quot;</code>.</li>
 </ul>
@@ -204,7 +204,15 @@ test:
 /home/user1
 </code></pre>
 <ul>
-<li><code>env_var_or_default(key, default)</code> — Retrieves the environment variable with name <code>key</code>, returning <code>default</code> if it is not present.</li>
+<li>
+<p><code>env_var_or_default(key, default)</code> — Retrieves the environment variable with name <code>key</code>, returning <code>default</code> if it is not present.</p>
+</li>
+<li>
+<p><code>env(key)</code><sup>1.15.0</sup> — Alias for <code>env_var(key)</code>.</p>
+</li>
+<li>
+<p><code>env(key, default)</code><sup>1.15.0</sup> — Alias for <code>env_var_or_default(key, default)</code>.</p>
+</li>
 </ul>
 <h4 id="invocation-directory"><a class="header" href="#invocation-directory">Invocation Directory</a></h4>
 <ul>
@@ -258,7 +266,7 @@ The executable is at: /bin/just
 <ul>
 <li><code>quote(s)</code> - Replace all single quotes with <code>'\''</code> and prepend and append single quotes to <code>s</code>. This is sufficient to escape special characters for many shells, including most Bourne shell descendants.</li>
 <li><code>replace(s, from, to)</code> - Replace all occurrences of <code>from</code> in <code>s</code> to <code>to</code>.</li>
-<li><code>replace_regex(s, regex, replacement)</code> - Replace all occurrences of <code>regex</code> in <code>s</code> to <code>replacement</code>. Regular expressions are provided by the <a href="https://docs.rs/regex/latest/regex/">Rust <code>regex</code> crate</a>. See the <a href="https://docs.rs/regex/latest/regex/#syntax">syntax documentation</a> for usage examples.</li>
+<li><code>replace_regex(s, regex, replacement)</code> - Replace all occurrences of <code>regex</code> in <code>s</code> to <code>replacement</code>. Regular expressions are provided by the <a href="https://docs.rs/regex/latest/regex/">Rust <code>regex</code> crate</a>. See the <a href="https://docs.rs/regex/latest/regex/#syntax">syntax documentation</a> for usage examples. Capture groups are supported. The <code>replacement</code> string uses <a href="https://docs.rs/regex/latest/regex/struct.Regex.html#replacement-string-syntax">Replacement string syntax</a>.</li>
 <li><code>trim(s)</code> - Remove leading and trailing whitespace from <code>s</code>.</li>
 <li><code>trim_end(s)</code> - Remove trailing whitespace from <code>s</code>.</li>
 <li><code>trim_end_match(s, pat)</code> - Remove suffix of <code>s</code> matching <code>pat</code>.</li>
