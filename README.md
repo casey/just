@@ -1257,7 +1257,7 @@ foo:
     echo "foo"
 ```
 
-Or separated by commas on a single line:
+Or separated by commas on a single line<sup>1.14.0</sup>:
 
 ```just
 [no-cd, private]
