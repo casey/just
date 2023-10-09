@@ -10,10 +10,10 @@ default:
   for val in ["true", "some-arbitrary-string"] {
     Test::new()
       .justfile(justfile)
-      .args(["--dump", "--dump-format", "json"])
+      .args(["--fmt"])
       .env("JUST_UNSTABLE", val)
       .status(EXIT_SUCCESS)
-      .stdout_regex("*")
+      .stderr_regex("Wrote justfile to `.*`\n")
       .run();
   }
 }
@@ -27,10 +27,10 @@ default:
   for val in ["0", "", "false"] {
     Test::new()
     .justfile(justfile)
-    .args(["--dump", "--dump-format", "json"])
+    .args(["--fmt"])
     .env("JUST_UNSTABLE", val)
     .status(EXIT_FAILURE)
-    .stderr("error: The JSON dump format is currently unstable. Invoke `just` with the `--unstable` flag to enable unstable features.\n")
+    .stderr("error: The `--fmt` command is currently unstable. Invoke `just` with the `--unstable` flag to enable unstable features.\n")
     .run();
   }
 }
@@ -43,8 +43,8 @@ default:
   "#;
   Test::new()
     .justfile(justfile)
-    .args(["--dump", "--dump-format", "json"])
+    .args(["--fmt"])
     .status(EXIT_FAILURE)
-    .stderr("error: The JSON dump format is currently unstable. Invoke `just` with the `--unstable` flag to enable unstable features.\n")
+    .stderr("error: The `--fmt` command is currently unstable. Invoke `just` with the `--unstable` flag to enable unstable features.\n")
     .run();
 }
