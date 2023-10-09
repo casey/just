@@ -357,8 +357,6 @@ cd ~/.vim/pack/vendor/start
 git clone https://github.com/NoahTheDuke/vim-just.git
 ```
 
-`vim-just` is also available from [vim-polyglot](https://github.com/sheerun/vim-polyglot), a multi-language Vim plugin.
-
 #### `tree-sitter-just`
 
 [tree-sitter-just](https://github.com/IndianBoy42/tree-sitter-just) is an [Nvim Treesitter](https://github.com/nvim-treesitter/nvim-treesitter) plugin for Neovim.
