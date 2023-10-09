@@ -179,7 +179,7 @@
 <p>Future releases will not introduce backwards incompatible changes that make existing <code>justfile</code>s stop working, or break working invocations of the command-line interface.</p>
 <p>This does not, however, preclude fixing outright bugs, even if doing so might break <code>justfiles</code> that rely on their behavior.</p>
 <p>There will never be a <code>just</code> 2.0. Any desirable backwards-incompatible changes will be opt-in on a per-<code>justfile</code> basis, so users may migrate at their leisure.</p>
-<p>Features that aren’t yet ready for stabilization are gated behind the <code>--unstable</code> flag. Features enabled by <code>--unstable</code> may change in backwards incompatible ways at any time.</p>
+<p>Features that aren’t yet ready for stabilization are gated behind the <code>--unstable</code> flag. Features enabled by <code>--unstable</code> may change in backwards incompatible ways at any time. Unstable features can also be enabled by setting the environment variable <code>JUST_UNSTABLE</code> to any value other than <code>false</code>, <code>0</code>, or the empty string.</p>
 
                     </main>
 
