@@ -1420,23 +1420,23 @@ mod tests {
 
   test! {
     name: indented_backtick,
-    text: r#"
+    text: r"
       x := ```
         \tfoo\t
         \tbar\n
       ```
-    "#,
+    ",
     tree: (justfile (assignment x (backtick "\\tfoo\\t\n\\tbar\\n\n"))),
   }
 
   test! {
     name: indented_backtick_no_dedent,
-    text: r#"
+    text: r"
       x := ```
       \tfoo\t
         \tbar\n
       ```
-    "#,
+    ",
     tree: (justfile (assignment x (backtick "\\tfoo\\t\n  \\tbar\\n\n"))),
   }
 
@@ -1475,12 +1475,12 @@ mod tests {
 
   test! {
     name: parse_raw_string_default,
-    text: r#"
+    text: r"
 
       foo a='b\t':
 
 
-    "#,
+    ",
     tree: (justfile (recipe foo (params (a "b\\t")))),
   }
 
