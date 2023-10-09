@@ -745,13 +745,13 @@ foo +a="Hello":
 
   test! {
     parse_raw_string_default,
-    r#"
+    r"
 
 foo a='b\t':
 
 
-  "#,
-    r#"foo a='b\t':"#,
+  ",
+    r"foo a='b\t':",
   }
 
   test! {
@@ -930,11 +930,11 @@ c := a + b + a + b",
 x := arch()
 
 a:
-  {{os()}} {{os_family()}}",
+  {{os()}} {{os_family()}} {{num_cpus()}}",
     "x := arch()
 
 a:
-    {{ os() }} {{ os_family() }}",
+    {{ os() }} {{ os_family() }} {{ num_cpus() }}",
   }
 
   test! {

@@ -20,6 +20,14 @@ impl<'expression, 'src> Iterator for Variables<'expression, 'src> {
         Expression::Call { thunk } => match thunk {
           Thunk::Nullary { .. } => {}
           Thunk::Unary { arg, .. } => self.stack.push(arg),
+          Thunk::UnaryOpt {
+            args: (a, opt_b), ..
+          } => {
+            self.stack.push(a);
+            if let Some(b) = opt_b.as_ref() {
+              self.stack.push(b);
+            }
+          }
           Thunk::Binary { args, .. } => {
             for arg in args.iter().rev() {
               self.stack.push(arg);

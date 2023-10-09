@@ -890,7 +890,7 @@ Starting server with database localhost:6379 on port 1337…
 支持在变量、字符串、拼接、路径连接和替换中使用 `{{…}}` ：
 
 ```just
-tmpdir  := `mktemp`
+tmpdir  := `mktemp -d`
 version := "0.2.7"
 tardir  := tmpdir / "awesomesauce-" + version
 tarball := tardir + ".tar.gz"

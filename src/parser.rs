@@ -174,15 +174,14 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
 
     if next.kind != Identifier {
       Err(self.internal_error(format!(
-        "Presumed next token would have kind {}, but found {}",
-        Identifier, next.kind
+        "Presumed next token would have kind {Identifier}, but found {}",
+        next.kind
       ))?)
     } else if keyword == next.lexeme() {
       Ok(())
     } else {
       Err(self.internal_error(format!(
-        "Presumed next token would have lexeme \"{}\", but found \"{}\"",
-        keyword,
+        "Presumed next token would have lexeme \"{keyword}\", but found \"{}\"",
         next.lexeme(),
       ))?)
     }
@@ -196,8 +195,8 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
       Ok(next)
     } else {
       Err(self.internal_error(format!(
-        "Presumed next token would have kind {:?}, but found {:?}",
-        kind, next.kind
+        "Presumed next token would have kind {kind:?}, but found {:?}",
+        next.kind
       ))?)
     }
   }
@@ -869,7 +868,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
         }
         attributes.insert(attribute, name.line);
 
-        if !self.accepted(TokenKind::Comma)? {
+        if !self.accepted(Comma)? {
           break;
         }
       }
@@ -1421,23 +1420,23 @@ mod tests {
 
   test! {
     name: indented_backtick,
-    text: r#"
+    text: r"
       x := ```
         \tfoo\t
         \tbar\n
       ```
-    "#,
+    ",
     tree: (justfile (assignment x (backtick "\\tfoo\\t\n\\tbar\\n\n"))),
   }
 
   test! {
     name: indented_backtick_no_dedent,
-    text: r#"
+    text: r"
       x := ```
       \tfoo\t
         \tbar\n
       ```
-    "#,
+    ",
     tree: (justfile (assignment x (backtick "\\tfoo\\t\n  \\tbar\\n\n"))),
   }
 
@@ -1476,12 +1475,12 @@ mod tests {
 
   test! {
     name: parse_raw_string_default,
-    text: r#"
+    text: r"
 
       foo a='b\t':
 
 
-    "#,
+    ",
     tree: (justfile (recipe foo (params (a "b\\t")))),
   }
 
@@ -2331,6 +2330,34 @@ mod tests {
       function: "env_var",
       found: 0,
       expected: 1..1,
+    },
+  }
+
+  error! {
+    name: function_argument_count_too_high_unary_opt,
+    input: "x := env('foo', 'foo', 'foo')",
+    offset: 5,
+    line: 0,
+    column: 5,
+    width: 3,
+    kind: FunctionArgumentCountMismatch {
+      function: "env",
+      found: 3,
+      expected: 1..2,
+    },
+  }
+
+  error! {
+    name: function_argument_count_too_low_unary_opt,
+    input: "x := env()",
+    offset: 5,
+    line: 0,
+    column: 5,
+    width: 3,
+    kind: FunctionArgumentCountMismatch {
+      function: "env",
+      found: 0,
+      expected: 1..2,
     },
   }
 

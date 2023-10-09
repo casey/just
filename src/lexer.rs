@@ -208,7 +208,7 @@ impl<'src> Lexer<'src> {
     };
     CompileError::new(
       token,
-      CompileErrorKind::Internal {
+      Internal {
         message: message.into(),
       },
     )
@@ -481,6 +481,7 @@ impl<'src> Lexer<'src> {
       ',' => self.lex_single(Comma),
       '/' => self.lex_single(Slash),
       ':' => self.lex_colon(),
+      '\\' => self.lex_escape(),
       '=' => self.lex_choices('=', &[('=', EqualsEquals), ('~', EqualsTilde)], Equals),
       '@' => self.lex_single(At),
       '[' => self.lex_delimiter(BracketL),
@@ -709,6 +710,31 @@ impl<'src> Lexer<'src> {
     Ok(())
   }
 
+  /// Lex an token starting with '\' escape
+  fn lex_escape(&mut self) -> CompileResult<'src, ()> {
+    self.presume('\\')?;
+
+    // Treat newline escaped with \ as whitespace
+    if self.accepted('\n')? {
+      while self.next_is_whitespace() {
+        self.advance()?;
+      }
+      self.token(Whitespace);
+    } else if self.accepted('\r')? {
+      if !self.accepted('\n')? {
+        return Err(self.error(UnpairedCarriageReturn));
+      }
+      while self.next_is_whitespace() {
+        self.advance()?;
+      }
+      self.token(Whitespace);
+    } else if let Some(character) = self.next {
+      return Err(self.error(CompileErrorKind::InvalidEscapeSequence { character }));
+    }
+
+    Ok(())
+  }
+
   /// Lex a carriage return and line feed
   fn lex_eol(&mut self) -> CompileResult<'src, ()> {
     if self.accepted('\r')? {
@@ -773,7 +799,7 @@ impl<'src> Lexer<'src> {
 
   /// Lex a backtick, cooked string, or raw string.
   ///
-  /// Backtick:      `[^`]*`
+  /// Backtick:      ``[^`]*``
   /// Cooked string: "[^"]*" # also processes escape sequences
   /// Raw string:    '[^']*'
   fn lex_string(&mut self) -> CompileResult<'src, ()> {

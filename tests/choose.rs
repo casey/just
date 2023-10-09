@@ -152,7 +152,7 @@ fn invoke_error_function() {
       ",
     )
     .stderr_regex(
-      r"error: Chooser `/ -cu fzf --preview 'just --show \{\}'` invocation failed: .*\n",
+      r"error: Chooser `/ -cu fzf --multi --preview 'just --show \{\}'` invocation failed: .*\n",
     )
     .status(EXIT_FAILURE)
     .shell(false)

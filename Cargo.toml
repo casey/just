@@ -1,6 +1,6 @@
 [package]
 name = "just"
-version = "1.13.0"
+version = "1.14.0"
 authors = ["Casey Rodarmor <casey@rodarmor.com>"]
 autotests = false
 categories = ["command-line-utilities", "development-tools"]
@@ -31,6 +31,7 @@ heck = "0.4.0"
 lexiclean = "0.0.1"
 libc = "0.2.0"
 log = "0.4.4"
+num_cpus = "1.15.0"
 regex = "1.5.4"
 serde = { version = "1.0.130", features = ["derive", "rc"] }
 serde_json = "1.0.68"

@@ -63,6 +63,7 @@ mod json;
 mod line_prefixes;
 mod misc;
 mod multibyte_char;
+mod newline_escape;
 mod no_cd;
 mod no_exit_message;
 mod os_attributes;
@@ -86,6 +87,7 @@ mod string;
 mod subsequents;
 mod tempdir;
 mod undefined_variables;
+mod unstable;
 #[cfg(target_family = "windows")]
 mod windows_shell;
 mod working_directory;
