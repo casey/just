@@ -100,7 +100,7 @@ impl<'src> Analyzer<'src> {
     imported_asts: &'a [AstImport<'src>],
   ) -> CompileResult<'src, Vec<UnresolvedRecipe<'src>>> {
     let mut recipes = Vec::new();
-    recipes.extend(self.build_table_from_items(&root_ast.items)?.into_iter());
+    recipes.extend(self.build_table_from_items(&root_ast.items)?);
 
     for import in imported_asts {
       recipes.extend(self.build_table_from_items(&import.ast.items)?.into_iter());
