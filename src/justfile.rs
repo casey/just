@@ -745,13 +745,13 @@ foo +a="Hello":
 
   test! {
     parse_raw_string_default,
-    r#"
+    r"
 
 foo a='b\t':
 
 
-  "#,
-    r#"foo a='b\t':"#,
+  ",
+    r"foo a='b\t':",
   }
 
   test! {
