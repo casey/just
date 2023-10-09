@@ -1,6 +1,3 @@
-// `Self` cannot be used where type takes generic arguments
-#![allow(clippy::use_self)]
-
 use super::*;
 
 pub struct List<T: Display, I: Iterator<Item = T> + Clone> {
@@ -41,7 +38,7 @@ impl<T: Display, I: Iterator<Item = T> + Clone> Display for List<T, I> {
     let mut values = self.values.clone().fuse();
 
     if let Some(first) = values.next() {
-      write!(f, "{}", first)?;
+      write!(f, "{first}")?;
     } else {
       return Ok(());
     }
@@ -55,7 +52,7 @@ impl<T: Display, I: Iterator<Item = T> + Clone> Display for List<T, I> {
     let third = values.next();
 
     if let (Some(second), None) = (second.as_ref(), third.as_ref()) {
-      write!(f, " {} {}", self.conjunction, second)?;
+      write!(f, " {} {second}", self.conjunction)?;
       return Ok(());
     }
 
@@ -65,12 +62,12 @@ impl<T: Display, I: Iterator<Item = T> + Clone> Display for List<T, I> {
     loop {
       match (current, next) {
         (Some(c), Some(n)) => {
-          write!(f, ", {}", c)?;
+          write!(f, ", {c}")?;
           current = Some(n);
           next = values.next();
         }
         (Some(c), None) => {
-          write!(f, ", {} {}", self.conjunction, c)?;
+          write!(f, ", {} {c}", self.conjunction)?;
           return Ok(());
         }
         _ => unreachable!("Iterator was fused, but returned Some after None"),

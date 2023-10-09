@@ -6,13 +6,15 @@ pub(crate) struct Platform;
 impl PlatformInterface for Platform {
   fn make_shebang_command(
     path: &Path,
-    working_directory: &Path,
+    working_directory: Option<&Path>,
     _shebang: Shebang,
   ) -> Result<Command, OutputError> {
     // shebang scripts can be executed directly on unix
     let mut cmd = Command::new(path);
 
-    cmd.current_dir(working_directory);
+    if let Some(working_directory) = working_directory {
+      cmd.current_dir(working_directory);
+    }
 
     Ok(cmd)
   }
@@ -21,14 +23,14 @@ impl PlatformInterface for Platform {
     use std::os::unix::fs::PermissionsExt;
 
     // get current permissions
-    let mut permissions = fs::metadata(&path)?.permissions();
+    let mut permissions = fs::metadata(path)?.permissions();
 
     // set the execute bit
     let current_mode = permissions.mode();
     permissions.set_mode(current_mode | 0o100);
 
     // set the new permissions
-    fs::set_permissions(&path, permissions)
+    fs::set_permissions(path, permissions)
   }
 
   fn signal_from_exit_status(exit_status: process::ExitStatus) -> Option<i32> {
@@ -48,7 +50,7 @@ impl PlatformInterface for Platform {
 impl PlatformInterface for Platform {
   fn make_shebang_command(
     path: &Path,
-    working_directory: &Path,
+    working_directory: Option<&Path>,
     shebang: Shebang,
   ) -> Result<Command, OutputError> {
     use std::borrow::Cow;
@@ -57,7 +59,9 @@ impl PlatformInterface for Platform {
     let command = if shebang.interpreter.contains('/') {
       // …translate path to the interpreter from unix style to windows style.
       let mut cygpath = Command::new("cygpath");
-      cygpath.current_dir(working_directory);
+      if let Some(working_directory) = working_directory {
+        cygpath.current_dir(working_directory);
+      }
       cygpath.arg("--windows");
       cygpath.arg(shebang.interpreter);
 
@@ -69,7 +73,9 @@ impl PlatformInterface for Platform {
 
     let mut cmd = Command::new(command.as_ref());
 
-    cmd.current_dir(working_directory);
+    if let Some(working_directory) = working_directory {
+      cmd.current_dir(working_directory);
+    }
 
     if let Some(argument) = shebang.argument {
       cmd.arg(argument);

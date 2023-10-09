@@ -1,5 +1,4 @@
-use regex::Regex;
-use structopt::StructOpt;
+use {regex::Regex, structopt::StructOpt};
 
 #[derive(StructOpt)]
 struct Arguments {
@@ -20,7 +19,7 @@ fn main() {
   };
 
   eprintln!("ref: {}", arguments.reference);
-  eprintln!("value: {}", value);
+  eprintln!("value: {value}");
 
-  println!("::set-output name=value::{}", value);
+  println!("::set-output name=value::{value}");
 }

@@ -1,7 +1,8 @@
-use super::*;
-
-use ansi_term::{ANSIGenericString, Color::*, Prefix, Style, Suffix};
-use atty::Stream;
+use {
+  super::*,
+  ansi_term::{ANSIGenericString, Color::*, Prefix, Style, Suffix},
+  atty::Stream,
+};
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub(crate) struct Color {

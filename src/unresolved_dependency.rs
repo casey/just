@@ -14,7 +14,7 @@ impl<'src> Display for UnresolvedDependency<'src> {
       write!(f, "({}", self.recipe)?;
 
       for argument in &self.arguments {
-        write!(f, " {}", argument)?;
+        write!(f, " {argument}")?;
       }
 
       write!(f, ")")

@@ -19,7 +19,7 @@ fn windows_shell_setting() {
 }
 
 #[test]
-fn windows_powershell_setting_uses_powershell() {
+fn windows_powershell_setting_uses_powershell_set_shell() {
   Test::new()
     .justfile(
       r#"
@@ -37,7 +37,7 @@ fn windows_powershell_setting_uses_powershell() {
 }
 
 #[test]
-fn windows_poweshell_setting_uses_powershell() {
+fn windows_powershell_setting_uses_powershell() {
   Test::new()
     .justfile(
       r#"

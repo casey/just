@@ -15,7 +15,7 @@ fn readme() {
         justfile += "\n";
         current = Some(justfile);
       }
-    } else if line == "```make" {
+    } else if line == "```just" {
       current = Some(String::new());
     }
   }
@@ -25,7 +25,7 @@ fn readme() {
 
     let path = tmp.path().join("justfile");
 
-    fs::write(&path, &justfile).unwrap();
+    fs::write(path, justfile).unwrap();
 
     let output = Command::new(executable_path("just"))
       .current_dir(tmp.path())

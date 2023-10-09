@@ -1,36 +1,29 @@
 #![deny(clippy::all, clippy::pedantic)]
 #![allow(
-  clippy::doc_markdown,
-  clippy::empty_enum,
   clippy::enum_glob_use,
-  clippy::if_not_else,
-  clippy::missing_errors_doc,
-  clippy::needless_lifetimes,
+  clippy::let_underscore_untyped,
   clippy::needless_pass_by_value,
-  clippy::non_ascii_literal,
-  clippy::shadow_unrelated,
-  clippy::struct_excessive_bools,
   clippy::too_many_lines,
-  clippy::type_repetition_in_bounds,
+  clippy::unnecessary_wraps,
   clippy::wildcard_imports
 )]
 
 pub(crate) use {
   crate::{
     alias::Alias, analyzer::Analyzer, assignment::Assignment,
-    assignment_resolver::AssignmentResolver, ast::Ast, binding::Binding, color::Color,
-    color_display::ColorDisplay, command_ext::CommandExt, compile_error::CompileError,
-    compile_error_kind::CompileErrorKind, conditional_operator::ConditionalOperator,
-    config::Config, config_error::ConfigError, count::Count, delimiter::Delimiter,
-    dependency::Dependency, dump_format::DumpFormat, enclosure::Enclosure, error::Error,
-    evaluator::Evaluator, expression::Expression, fragment::Fragment, function::Function,
-    function_context::FunctionContext, interrupt_guard::InterruptGuard,
-    interrupt_handler::InterruptHandler, item::Item, justfile::Justfile, keyed::Keyed,
-    keyword::Keyword, lexer::Lexer, line::Line, list::List, load_dotenv::load_dotenv,
-    loader::Loader, name::Name, ordinal::Ordinal, output::output, output_error::OutputError,
-    parameter::Parameter, parameter_kind::ParameterKind, parser::Parser, platform::Platform,
-    platform_interface::PlatformInterface, position::Position, positional::Positional,
-    range_ext::RangeExt, recipe::Recipe, recipe_context::RecipeContext,
+    assignment_resolver::AssignmentResolver, ast::Ast, attribute::Attribute, binding::Binding,
+    color::Color, color_display::ColorDisplay, command_ext::CommandExt,
+    compile_error::CompileError, compile_error_kind::CompileErrorKind, compiler::Compiler,
+    conditional_operator::ConditionalOperator, config::Config, config_error::ConfigError,
+    count::Count, delimiter::Delimiter, dependency::Dependency, dump_format::DumpFormat,
+    enclosure::Enclosure, error::Error, evaluator::Evaluator, expression::Expression,
+    fragment::Fragment, function::Function, function_context::FunctionContext,
+    interrupt_guard::InterruptGuard, interrupt_handler::InterruptHandler, item::Item,
+    justfile::Justfile, keyed::Keyed, keyword::Keyword, lexer::Lexer, line::Line, list::List,
+    load_dotenv::load_dotenv, loader::Loader, name::Name, ordinal::Ordinal, output::output,
+    output_error::OutputError, parameter::Parameter, parameter_kind::ParameterKind, parser::Parser,
+    platform::Platform, platform_interface::PlatformInterface, position::Position,
+    positional::Positional, range_ext::RangeExt, recipe::Recipe, recipe_context::RecipeContext,
     recipe_resolver::RecipeResolver, scope::Scope, search::Search, search_config::SearchConfig,
     search_error::SearchError, set::Set, setting::Setting, settings::Settings, shebang::Shebang,
     shell::Shell, show_whitespace::ShowWhitespace, string_kind::StringKind,
@@ -90,9 +83,6 @@ pub(crate) type ConfigResult<T> = Result<T, ConfigError>;
 pub(crate) type RunResult<'a, T> = Result<T, Error<'a>>;
 pub(crate) type SearchResult<T> = Result<T, SearchError>;
 
-#[macro_use]
-extern crate lazy_static;
-
 #[cfg(test)]
 #[macro_use]
 pub mod testing;
@@ -118,6 +108,7 @@ mod analyzer;
 mod assignment;
 mod assignment_resolver;
 mod ast;
+mod attribute;
 mod binding;
 mod color;
 mod color_display;

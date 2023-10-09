@@ -1,6 +1,4 @@
-use super::*;
-
-use serde::Serialize;
+use {super::*, serde::Serialize};
 
 #[derive(Debug, PartialEq, Serialize)]
 pub(crate) struct Justfile<'src> {
@@ -161,7 +159,7 @@ impl<'src> Justfile<'src> {
       Subcommand::Evaluate { variable, .. } => {
         if let Some(variable) = variable {
           if let Some(value) = scope.value(variable) {
-            print!("{}", value);
+            print!("{value}");
           } else {
             return Err(Error::EvalUnknownVariable {
               suggestion: self.suggest_variable(variable),
@@ -257,7 +255,7 @@ impl<'src> Justfile<'src> {
 
     let mut ran = BTreeSet::new();
     for (recipe, arguments) in grouped {
-      self.run_recipe(&context, recipe, arguments, &dotenv, search, &mut ran)?;
+      Self::run_recipe(&context, recipe, arguments, &dotenv, search, &mut ran)?;
     }
 
     Ok(())
@@ -276,7 +274,6 @@ impl<'src> Justfile<'src> {
   }
 
   fn run_recipe(
-    &self,
     context: &RecipeContext<'src, '_>,
     recipe: &Recipe<'src>,
     arguments: &[&str],
@@ -314,7 +311,7 @@ impl<'src> Justfile<'src> {
         .map(|argument| evaluator.evaluate_expression(argument))
         .collect::<RunResult<Vec<String>>>()?;
 
-      self.run_recipe(
+      Self::run_recipe(
         context,
         recipe,
         &arguments.iter().map(String::as_ref).collect::<Vec<&str>>(),
@@ -336,7 +333,7 @@ impl<'src> Justfile<'src> {
           evaluated.push(evaluator.evaluate_expression(argument)?);
         }
 
-        self.run_recipe(
+        Self::run_recipe(
           context,
           recipe,
           &evaluated.iter().map(String::as_ref).collect::<Vec<&str>>(),
@@ -374,14 +371,14 @@ impl<'src> ColorDisplay for Justfile<'src> {
       if assignment.export {
         write!(f, "export ")?;
       }
-      write!(f, "{} := {}", name, assignment.value)?;
+      write!(f, "{name} := {}", assignment.value)?;
       items -= 1;
       if items != 0 {
         write!(f, "\n\n")?;
       }
     }
     for alias in self.aliases.values() {
-      write!(f, "{}", alias)?;
+      write!(f, "{alias}")?;
       items -= 1;
       if items != 0 {
         write!(f, "\n\n")?;
@@ -462,11 +459,13 @@ mod tests {
       recipe,
       line_number,
       code,
+      print_message,
     },
     check: {
       assert_eq!(recipe, "a");
       assert_eq!(code, 200);
       assert_eq!(line_number, None);
+      assert!(print_message);
     }
   }
 
@@ -481,11 +480,13 @@ mod tests {
       recipe,
       line_number,
       code,
+      print_message,
     },
     check: {
       assert_eq!(recipe, "fail");
       assert_eq!(code, 100);
       assert_eq!(line_number, Some(2));
+      assert!(print_message);
     }
   }
 
@@ -500,11 +501,13 @@ mod tests {
       recipe,
       line_number,
       code,
+      print_message,
     },
     check: {
       assert_eq!(recipe, "a");
       assert_eq!(code, 150);
       assert_eq!(line_number, Some(2));
+      assert!(print_message);
     }
   }
 
@@ -654,13 +657,15 @@ mod tests {
     "#,
     args: ["--quiet", "wut"],
     error: Code {
-      line_number,
       recipe,
+      line_number,
+      print_message,
       ..
     },
     check: {
       assert_eq!(recipe, "wut");
       assert_eq!(line_number, Some(7));
+      assert!(print_message);
     }
   }
 
@@ -740,13 +745,13 @@ foo +a="Hello":
 
   test! {
     parse_raw_string_default,
-    r#"
+    r"
 
 foo a='b\t':
 
 
-  "#,
-    r#"foo a='b\t':"#,
+  ",
+    r"foo a='b\t':",
   }
 
   test! {
@@ -925,11 +930,11 @@ c := a + b + a + b",
 x := arch()
 
 a:
-  {{os()}} {{os_family()}}",
+  {{os()}} {{os_family()}} {{num_cpus()}}",
     "x := arch()
 
 a:
-    {{ os() }} {{ os_family() }}",
+    {{ os() }} {{ os_family() }} {{ num_cpus() }}",
   }
 
   test! {

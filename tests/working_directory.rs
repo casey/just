@@ -53,7 +53,7 @@ fn justfile_without_working_directory_relative() -> Result<(), Box<dyn Error>> {
   };
 
   let output = Command::new(executable_path("just"))
-    .current_dir(&tmp.path())
+    .current_dir(tmp.path())
     .arg("--justfile")
     .arg("justfile")
     .output()?;
@@ -138,7 +138,7 @@ fn search_dir_child() -> Result<(), Box<dyn Error>> {
   };
 
   let output = Command::new(executable_path("just"))
-    .current_dir(&tmp.path())
+    .current_dir(tmp.path())
     .arg("child/")
     .output()?;
 

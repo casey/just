@@ -3,7 +3,7 @@ use super::*;
 fn test(justfile: &str, value: Value) {
   Test::new()
     .justfile(justfile)
-    .args(&["--dump", "--dump-format", "json", "--unstable"])
+    .args(["--dump", "--dump-format", "json", "--unstable"])
     .stdout(format!("{}\n", serde_json::to_string(&value).unwrap()))
     .run();
 }
@@ -22,11 +22,13 @@ fn alias() {
         "f": {
           "name": "f",
           "target": "foo",
+          "attributes": [],
         }
       },
       "assignments": {},
       "recipes": {
         "foo": {
+          "attributes": [],
           "body": [],
           "dependencies": [],
           "doc": null,
@@ -42,8 +44,11 @@ fn alias() {
         "allow_duplicate_recipes": false,
         "dotenv_load": null,
         "export": false,
+        "fallback": false,
         "positional_arguments": false,
         "shell": null,
+        "tempdir" : null,
+        "ignore_comments": false,
         "windows_powershell": false,
         "windows_shell": null,
       },
@@ -71,8 +76,11 @@ fn assignment() {
         "allow_duplicate_recipes": false,
         "dotenv_load": null,
         "export": false,
+        "fallback": false,
+        "ignore_comments": false,
         "positional_arguments": false,
         "shell": null,
+        "tempdir" : null,
         "windows_powershell": false,
         "windows_shell": null,
       },
@@ -95,6 +103,7 @@ fn body() {
       "first": "foo",
       "recipes": {
         "foo": {
+          "attributes": [],
           "body": [
             ["bar"],
             ["abc", ["xyz"], "def"],
@@ -113,8 +122,11 @@ fn body() {
         "allow_duplicate_recipes": false,
         "dotenv_load": null,
         "export": false,
+        "fallback": false,
+        "ignore_comments": false,
         "positional_arguments": false,
         "shell": null,
+        "tempdir" : null,
         "windows_powershell": false,
         "windows_shell": null,
       },
@@ -136,6 +148,7 @@ fn dependencies() {
       "first": "foo",
       "recipes": {
         "bar": {
+          "attributes": [],
           "doc": null,
           "name": "bar",
           "body": [],
@@ -159,14 +172,18 @@ fn dependencies() {
           "private": false,
           "quiet": false,
           "shebang": false,
+          "attributes": [],
         }
       },
       "settings": {
         "allow_duplicate_recipes": false,
         "dotenv_load": null,
         "export": false,
+        "fallback": false,
+        "ignore_comments": false,
         "positional_arguments": false,
         "shell": null,
+        "tempdir" : null,
         "windows_powershell": false,
         "windows_shell": null,
       },
@@ -214,7 +231,7 @@ fn dependency_argument() {
             "arguments": [
               "baz",
               "baz",
-              ["concatinate", "a", "b"],
+              ["concatenate", "a", "b"],
               ["evaluate", "echo"],
               ["variable", "x"],
               ["if", "==", "a", "b", "c", "d"],
@@ -230,6 +247,7 @@ fn dependency_argument() {
           "private": false,
           "quiet": false,
           "shebang": false,
+          "attributes": [],
         },
         "foo": {
           "body": [],
@@ -248,14 +266,18 @@ fn dependency_argument() {
           "private": false,
           "quiet": false,
           "shebang": false,
+          "attributes": [],
         }
       },
       "settings": {
         "allow_duplicate_recipes": false,
         "dotenv_load": null,
         "export": false,
+        "fallback": false,
+        "ignore_comments": false,
         "positional_arguments": false,
         "shell": null,
+        "tempdir" : null,
         "windows_powershell": false,
         "windows_shell": null,
       },
@@ -278,6 +300,7 @@ fn duplicate_recipes() {
       "first": "foo",
       "aliases": {
         "f": {
+          "attributes": [],
           "name": "f",
           "target": "foo",
         }
@@ -301,14 +324,18 @@ fn duplicate_recipes() {
           "private": false,
           "quiet": false,
           "shebang": false,
+          "attributes": [],
         }
       },
       "settings": {
         "allow_duplicate_recipes": true,
         "dotenv_load": null,
         "export": false,
+        "fallback": false,
+        "ignore_comments": false,
         "positional_arguments": false,
         "shell": null,
+        "tempdir" : null,
         "windows_powershell": false,
         "windows_shell": null,
       },
@@ -336,14 +363,18 @@ fn doc_comment() {
           "private": false,
           "quiet": false,
           "shebang": false,
+          "attributes": [],
         }
       },
       "settings": {
         "allow_duplicate_recipes": false,
         "dotenv_load": null,
         "export": false,
+        "fallback": false,
+        "ignore_comments": false,
         "positional_arguments": false,
         "shell": null,
+        "tempdir" : null,
         "windows_powershell": false,
         "windows_shell": null,
       },
@@ -365,8 +396,11 @@ fn empty_justfile() {
         "allow_duplicate_recipes": false,
         "dotenv_load": null,
         "export": false,
+        "fallback": false,
+        "ignore_comments": false,
         "positional_arguments": false,
         "shell": null,
+        "tempdir" : null,
         "windows_powershell": false,
         "windows_shell": null,
       },
@@ -392,6 +426,7 @@ fn parameters() {
       "assignments": {},
       "recipes": {
         "a": {
+          "attributes": [],
           "body": [],
           "dependencies": [],
           "doc": null,
@@ -419,6 +454,7 @@ fn parameters() {
           "private": false,
           "quiet": false,
           "shebang": false,
+          "attributes": [],
         },
         "c": {
           "body": [],
@@ -437,6 +473,7 @@ fn parameters() {
           "private": false,
           "quiet": false,
           "shebang": false,
+          "attributes": [],
         },
         "d": {
           "body": [],
@@ -455,6 +492,7 @@ fn parameters() {
           "private": false,
           "quiet": false,
           "shebang": false,
+          "attributes": [],
         },
         "e": {
           "body": [],
@@ -473,6 +511,7 @@ fn parameters() {
           "private": false,
           "quiet": false,
           "shebang": false,
+          "attributes": [],
         },
         "f": {
           "body": [],
@@ -491,14 +530,18 @@ fn parameters() {
           "private": false,
           "quiet": false,
           "shebang": false,
+          "attributes": [],
         },
       },
       "settings": {
         "allow_duplicate_recipes": false,
         "dotenv_load": null,
         "export": false,
+        "fallback": false,
+        "ignore_comments": false,
         "positional_arguments": false,
         "shell": null,
+        "tempdir" : null,
         "windows_powershell": false,
         "windows_shell": null,
       },
@@ -530,6 +573,7 @@ fn priors() {
           "private": false,
           "quiet": false,
           "shebang": false,
+          "attributes": [],
         },
         "b": {
           "body": [],
@@ -548,6 +592,7 @@ fn priors() {
           "private": false,
           "quiet": false,
           "shebang": false,
+          "attributes": [],
           "parameters": [],
           "priors": 1,
         },
@@ -560,6 +605,7 @@ fn priors() {
           "private": false,
           "quiet": false,
           "shebang": false,
+          "attributes": [],
           "parameters": [],
           "priors": 0,
         },
@@ -568,8 +614,11 @@ fn priors() {
         "allow_duplicate_recipes": false,
         "dotenv_load": null,
         "export": false,
+        "fallback": false,
+        "ignore_comments": false,
         "positional_arguments": false,
         "shell": null,
+        "tempdir" : null,
         "windows_powershell": false,
         "windows_shell": null,
       },
@@ -597,14 +646,18 @@ fn private() {
           "private": true,
           "quiet": false,
           "shebang": false,
+          "attributes": [],
         }
       },
       "settings": {
         "allow_duplicate_recipes": false,
         "dotenv_load": null,
         "export": false,
+        "fallback": false,
+        "ignore_comments": false,
         "positional_arguments": false,
         "shell": null,
+        "tempdir" : null,
         "windows_powershell": false,
         "windows_shell": null,
       },
@@ -632,14 +685,18 @@ fn quiet() {
           "private": false,
           "quiet": true,
           "shebang": false,
+          "attributes": [],
         }
       },
       "settings": {
         "allow_duplicate_recipes": false,
         "dotenv_load": null,
         "export": false,
+        "fallback": false,
+        "ignore_comments": false,
         "positional_arguments": false,
         "shell": null,
+        "tempdir" : null,
         "windows_powershell": false,
         "windows_shell": null,
       },
@@ -649,24 +706,15 @@ fn quiet() {
 }
 
 #[test]
-fn requires_unstable() {
-  Test::new()
-    .justfile("foo:")
-    .args(&["--dump", "--dump-format", "json"])
-    .stderr("error: The JSON dump format is currently unstable. Invoke `just` with the `--unstable` flag to enable unstable features.\n")
-    .status(EXIT_FAILURE)
-    .run();
-}
-
-#[test]
 fn settings() {
   test(
     "
       set dotenv-load
       set export
+      set fallback
       set positional-arguments
+      set ignore-comments
       set shell := ['a', 'b', 'c']
-
       foo:
         #!bar
     ",
@@ -685,17 +733,21 @@ fn settings() {
           "private": false,
           "quiet": false,
           "shebang": true,
+          "attributes": [],
         }
       },
       "settings": {
         "allow_duplicate_recipes": false,
         "dotenv_load": true,
         "export": true,
+        "fallback": true,
+        "ignore_comments": true,
         "positional_arguments": true,
         "shell": {
           "arguments": ["b", "c"],
           "command": "a",
         },
+        "tempdir": null,
         "windows_powershell": false,
         "windows_shell": null,
       },
@@ -726,14 +778,18 @@ fn shebang() {
           "private": false,
           "quiet": false,
           "shebang": true,
+          "attributes": [],
         }
       },
       "settings": {
         "allow_duplicate_recipes": false,
         "dotenv_load": null,
         "export": false,
+        "fallback": false,
+        "ignore_comments": false,
         "positional_arguments": false,
         "shell": null,
+        "tempdir": null,
         "windows_powershell": false,
         "windows_shell": null,
       },
@@ -761,14 +817,60 @@ fn simple() {
           "private": false,
           "quiet": false,
           "shebang": false,
+          "attributes": [],
         }
       },
       "settings": {
         "allow_duplicate_recipes": false,
         "dotenv_load": null,
         "export": false,
+        "fallback": false,
+        "ignore_comments": false,
         "positional_arguments": false,
         "shell": null,
+        "tempdir": null,
+        "windows_powershell": false,
+        "windows_shell": null,
+      },
+      "warnings": [],
+    }),
+  );
+}
+
+#[test]
+fn attribute() {
+  test(
+    "
+      [no-exit-message]
+      foo:
+    ",
+    json!({
+      "aliases": {},
+      "assignments": {},
+      "first": "foo",
+      "recipes": {
+        "foo": {
+          "attributes": ["no-exit-message"],
+          "body": [],
+          "dependencies": [],
+          "doc": null,
+          "name": "foo",
+          "parameters": [],
+          "priors": 0,
+          "private": false,
+          "quiet": false,
+          "shebang": false,
+        }
+      },
+      "settings": {
+        "allow_duplicate_recipes": false,
+        "dotenv_load": null,
+        "export": false,
+        "fallback": false,
+        "positional_arguments": false,
+        "shell": null,
+        "tempdir" : null,
+        "ignore_comments": false,
         "windows_powershell": false,
         "windows_shell": null,
       },

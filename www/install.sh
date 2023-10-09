@@ -19,7 +19,7 @@ FLAGS:
 
 OPTIONS:
     --tag TAG       Tag (version) of the crate to install, defaults to latest release
-    --to LOCATION   Where to install the binary [default: ~/.cargo/bin]
+    --to LOCATION   Where to install the binary [default: ~/bin]
     --target TARGET
 EOF
 }
@@ -81,7 +81,6 @@ while test $# -gt 0; do
 done
 
 # Dependencies
-need basename
 need curl
 need install
 need mkdir
@@ -90,23 +89,31 @@ need tar
 
 # Optional dependencies
 if [ -z ${tag-} ]; then
-  need cut
-  need rev
+    need grep
+    need cut
+fi
+
+if [ -z ${target-} ]; then
+    need cut
 fi
 
 if [ -z ${dest-} ]; then
-  dest="$HOME/.cargo/bin"
+  dest="$HOME/bin"
 fi
 
 if [ -z ${tag-} ]; then
-  tag=$(curl -s "https://api.github.com/repos/casey/just/releases/latest" |
+  tag=$(curl --proto =https --tlsv1.2 -sSf https://api.github.com/repos/casey/just/releases/latest |
     grep tag_name |
     cut -d'"' -f4
   )
 fi
 
 if [ -z ${target-} ]; then
-  uname_target=`uname -m`-`uname -s`
+  # bash compiled with MINGW (e.g. git-bash, used in github windows runnners),
+  # unhelpfully includes a version suffix in `uname -s` output, so handle that.
+  # e.g. MINGW64_NT-10-0.19044
+  kernel=$(uname -s | cut -d- -f1)
+  uname_target="`uname -m`-$kernel"
 
   case $uname_target in
     aarch64-Linux)     target=aarch64-unknown-linux-musl;;
@@ -114,13 +121,20 @@ if [ -z ${target-} ]; then
     x86_64-Darwin)     target=x86_64-apple-darwin;;
     x86_64-Linux)      target=x86_64-unknown-linux-musl;;
     x86_64-Windows_NT) target=x86_64-pc-windows-msvc;;
+    x86_64-MINGW64_NT) target=x86_64-pc-windows-msvc;;
     *)
       err 'Could not determine target from output of `uname -m`-`uname -s`, please use `--target`:' $uname_target
     ;;
   esac
 fi
 
-archive="$releases/download/$tag/$crate-$tag-$target.tar.gz"
+# windows archives are zips, not tarballs
+case $target in
+    x86_64-pc-windows-msvc) extension=zip; need unzip;;
+    *)                      extension=tar.gz;;
+esac
+
+archive="$releases/download/$tag/$crate-$tag-$target.$extension"
 
 say_err "Repository:  $url"
 say_err "Crate:       $crate"
@@ -130,7 +144,14 @@ say_err "Destination: $dest"
 say_err "Archive:     $archive"
 
 td=$(mktemp -d || mktemp -d -t tmp)
-curl -sL $archive | tar -C $td -xz
+
+if [ "$extension" = "zip" ]; then
+    # unzip on windows cannot always handle stdin, so download first.
+    curl --proto =https --tlsv1.2 -sSfL $archive > $td/just.zip
+    unzip -d $td $td/just.zip
+else
+    curl --proto =https --tlsv1.2 -sSfL $archive | tar -C $td -xz
+fi
 
 for f in $(ls $td); do
   test -x $td/$f || continue

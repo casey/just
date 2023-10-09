@@ -1,15 +1,17 @@
-use super::*;
-
-use clap::{App, AppSettings, Arg, ArgGroup, ArgMatches, ArgSettings};
+use {
+  super::*,
+  clap::{App, AppSettings, Arg, ArgGroup, ArgMatches, ArgSettings},
+};
 
 // These three strings should be kept in sync:
-pub(crate) const CHOOSER_DEFAULT: &str = "fzf";
+pub(crate) const CHOOSER_DEFAULT: &str = "fzf --multi --preview 'just --show {}'";
 pub(crate) const CHOOSER_ENVIRONMENT_KEY: &str = "JUST_CHOOSER";
 pub(crate) const CHOOSE_HELP: &str = "Select one or more recipes to run using a binary. If \
                                       `--chooser` is not passed the chooser defaults to the value \
                                       of $JUST_CHOOSER, falling back to `fzf`";
 
 #[derive(Debug, PartialEq)]
+#[allow(clippy::struct_excessive_bools)]
 pub(crate) struct Config {
   pub(crate) check: bool,
   pub(crate) color: Color,
@@ -142,6 +144,7 @@ impl Config {
       )
       .arg(
         Arg::with_name(arg::DRY_RUN)
+          .short("n")
           .long("dry-run")
           .help("Print what just would do without doing it")
           .conflicts_with(arg::QUIET),
@@ -388,7 +391,7 @@ impl Config {
       arg::COLOR_ALWAYS => Ok(Color::always()),
       arg::COLOR_NEVER => Ok(Color::never()),
       _ => Err(ConfigError::Internal {
-        message: format!("Invalid argument `{}` to --color.", value),
+        message: format!("Invalid argument `{value}` to --color."),
       }),
     }
   }
@@ -404,7 +407,7 @@ impl Config {
       arg::DUMP_FORMAT_JSON => Ok(DumpFormat::Json),
       arg::DUMP_FORMAT_JUST => Ok(DumpFormat::Just),
       _ => Err(ConfigError::Internal {
-        message: format!("Invalid argument `{}` to --dump-format.", value),
+        message: format!("Invalid argument `{value}` to --dump-format."),
       }),
     }
   }
@@ -566,6 +569,11 @@ impl Config {
       None
     };
 
+    let unstable = matches.is_present(arg::UNSTABLE)
+      || std::env::var_os("JUST_UNSTABLE")
+        .map(|val| !(val == "false" || val == "0" || val.is_empty()))
+        .unwrap_or_default();
+
     Ok(Self {
       check: matches.is_present(arg::CHECK),
       dry_run: matches.is_present(arg::DRY_RUN),
@@ -575,7 +583,7 @@ impl Config {
       load_dotenv: !matches.is_present(arg::NO_DOTENV),
       shell_command: matches.is_present(arg::SHELL_COMMAND),
       unsorted: matches.is_present(arg::UNSORTED),
-      unstable: matches.is_present(arg::UNSTABLE),
+      unstable,
       list_heading: matches
         .value_of(arg::LIST_HEADING)
         .unwrap_or("Available recipes:\n")
@@ -605,7 +613,7 @@ impl Config {
     }
   }
 
-  pub(crate) fn run<'src>(self, loader: &'src Loader) -> Result<(), Error<'src>> {
+  pub(crate) fn run(self, loader: &Loader) -> Result<(), Error> {
     if let Err(error) = InterruptHandler::install(self.verbosity) {
       warn!("Failed to set CTRL-C handler: {}", error);
     }
@@ -770,8 +778,14 @@ mod tests {
   }
 
   test! {
-    name: dry_run_true,
+    name: dry_run_long,
     args: ["--dry-run"],
+    dry_run: true,
+  }
+
+  test! {
+    name: dry_run_short,
+    args: ["-n"],
     dry_run: true,
   }
 

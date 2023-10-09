@@ -1000,36 +1000,36 @@ a Z="\t z":
 
 test! {
   name:     line_continuation_with_space,
-  justfile: r#"
+  justfile: r"
 foo:
   echo a\
          b  \
              c
-"#,
+",
   stdout:   "ab c\n",
   stderr:   "echo ab  c\n",
 }
 
 test! {
   name:     line_continuation_with_quoted_space,
-  justfile: r#"
+  justfile: r"
 foo:
   echo 'a\
          b  \
              c'
-"#,
+",
   stdout:   "ab  c\n",
   stderr:   "echo 'ab  c'\n",
 }
 
 test! {
   name:     line_continuation_no_space,
-  justfile: r#"
+  justfile: r"
 foo:
   echo a\
   b\
   c
-"#,
+",
   stdout:   "abc\n",
   stderr:   "echo abc\n",
 }
@@ -1081,6 +1081,7 @@ test! {
   stderr:   "#!/bin/sh\necho hello\n",
 }
 
+#[cfg(not(windows))]
 test! {
   name:     shebang_line_numbers,
   justfile: r#"
@@ -1109,6 +1110,36 @@ test! {
   ",
 }
 
+#[cfg(windows)]
+test! {
+  name:     shebang_line_numbers,
+  justfile: r#"
+    quiet:
+      #!/usr/bin/env cat
+
+      a
+
+      b
+
+
+      c
+
+
+  "#,
+  stdout:   "
+
+
+
+
+    a
+
+    b
+
+
+    c
+  ",
+}
+
 test! {
   name:     complex_dependencies,
   justfile: r#"
@@ -1118,19 +1149,6 @@ c: b a
 "#,
   args:     ("b"),
   stdout:   "",
-}
-
-test! {
-  name:     parameter_shadows_variable,
-  justfile: "FOO := 'hello'\na FOO:",
-  args:     ("a"),
-  stdout:   "",
-  stderr:   "error: Parameter `FOO` shadows variable of the same name
-  |
-2 | a FOO:
-  |   ^^^
-",
-  status:   EXIT_FAILURE,
 }
 
 test! {
@@ -1893,6 +1911,66 @@ test! {
   args: (),
   stdout: "y\n",
   stderr: "echo y\n",
+  shell: false,
+}
+
+test! {
+  name: env_function_as_env_var,
+  justfile: "
+    foo: (bar env('x'))
+
+    bar arg:
+      echo {{arg}}
+  ",
+  args: (),
+  env: { "x": "z", },
+  stdout: "z\n",
+  stderr: "echo z\n",
+  shell: false,
+}
+
+test! {
+  name: env_function_as_env_var_or_default,
+  justfile: "
+    foo: (bar env('x', 'y'))
+
+    bar arg:
+      echo {{arg}}
+  ",
+  args: (),
+  env: { "x": "z", },
+  stdout: "z\n",
+  stderr: "echo z\n",
+  shell: false,
+}
+
+test! {
+  name: env_function_as_env_var_with_existing_env_var,
+  justfile: "
+    foo: (bar env('x'))
+
+    bar arg:
+      echo {{arg}}
+  ",
+  args: (),
+  env: { "x": "z", },
+  stdout: "z\n",
+  stderr: "echo z\n",
+  shell: false,
+}
+
+test! {
+  name: env_function_as_env_var_or_default_with_existing_env_var,
+  justfile: "
+    foo: (bar env('x', 'y'))
+
+    bar arg:
+      echo {{arg}}
+  ",
+  args: (),
+  env: { "x": "z", },
+  stdout: "z\n",
+  stderr: "echo z\n",
   shell: false,
 }
 

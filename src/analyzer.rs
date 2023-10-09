@@ -1,79 +1,54 @@
-use super::*;
+use {super::*, CompileErrorKind::*};
 
-use CompileErrorKind::*;
+const VALID_ALIAS_ATTRIBUTES: [Attribute; 1] = [Attribute::Private];
 
 #[derive(Default)]
 pub(crate) struct Analyzer<'src> {
-  recipes: Table<'src, UnresolvedRecipe<'src>>,
   assignments: Table<'src, Assignment<'src>>,
   aliases: Table<'src, Alias<'src, Name<'src>>>,
   sets: Table<'src, Set<'src>>,
 }
 
 impl<'src> Analyzer<'src> {
-  pub(crate) fn analyze(ast: Ast<'src>) -> CompileResult<'src, Justfile> {
+  pub(crate) fn analyze(ast: &Ast<'src>) -> CompileResult<'src, Justfile<'src>> {
     Analyzer::default().justfile(ast)
   }
 
-  pub(crate) fn justfile(mut self, ast: Ast<'src>) -> CompileResult<'src, Justfile<'src>> {
+  fn justfile(mut self, ast: &Ast<'src>) -> CompileResult<'src, Justfile<'src>> {
     let mut recipes = Vec::new();
 
-    for item in ast.items {
+    for item in &ast.items {
       match item {
         Item::Alias(alias) => {
-          self.analyze_alias(&alias)?;
-          self.aliases.insert(alias);
+          self.analyze_alias(alias)?;
+          self.aliases.insert(alias.clone());
         }
         Item::Assignment(assignment) => {
-          self.analyze_assignment(&assignment)?;
-          self.assignments.insert(assignment);
+          self.analyze_assignment(assignment)?;
+          self.assignments.insert(assignment.clone());
         }
         Item::Comment(_) => (),
         Item::Recipe(recipe) => {
-          Self::analyze_recipe(&recipe)?;
-          recipes.push(recipe);
+          if recipe.enabled() {
+            Self::analyze_recipe(recipe)?;
+            recipes.push(recipe);
+          }
         }
         Item::Set(set) => {
-          self.analyze_set(&set)?;
-          self.sets.insert(set);
+          self.analyze_set(set)?;
+          self.sets.insert(set.clone());
         }
       }
     }
 
-    let mut settings = Settings::new();
+    let settings = Settings::from_setting_iter(self.sets.into_iter().map(|(_, set)| set.value));
 
-    for (_, set) in self.sets {
-      match set.value {
-        Setting::AllowDuplicateRecipes(allow_duplicate_recipes) => {
-          settings.allow_duplicate_recipes = allow_duplicate_recipes;
-        }
-        Setting::DotenvLoad(dotenv_load) => {
-          settings.dotenv_load = Some(dotenv_load);
-        }
-        Setting::Export(export) => {
-          settings.export = export;
-        }
-        Setting::PositionalArguments(positional_arguments) => {
-          settings.positional_arguments = positional_arguments;
-        }
-        Setting::Shell(shell) => {
-          settings.shell = Some(shell);
-        }
-        Setting::WindowsPowerShell(windows_powershell) => {
-          settings.windows_powershell = windows_powershell;
-        }
-        Setting::WindowsShell(windows_shell) => {
-          settings.windows_shell = Some(windows_shell);
-        }
-      }
-    }
+    let mut recipe_table: Table<'src, UnresolvedRecipe<'src>> = Table::default();
 
-    let assignments = self.assignments;
-
-    AssignmentResolver::resolve_assignments(&assignments)?;
+    AssignmentResolver::resolve_assignments(&self.assignments)?;
 
     for recipe in recipes {
-      if let Some(original) = self.recipes.get(recipe.name.lexeme()) {
+      if let Some(original) = recipe_table.get(recipe.name.lexeme()) {
         if !settings.allow_duplicate_recipes {
           return Err(recipe.name.token().error(DuplicateRecipe {
             recipe: original.name(),
@@ -81,20 +56,10 @@ impl<'src> Analyzer<'src> {
           }));
         }
       }
-      self.recipes.insert(recipe);
+      recipe_table.insert(recipe.clone());
     }
 
-    let recipes = RecipeResolver::resolve_recipes(self.recipes, &assignments)?;
-
-    for recipe in recipes.values() {
-      for parameter in &recipe.parameters {
-        if assignments.contains_key(parameter.name.lexeme()) {
-          return Err(parameter.name.token().error(ParameterShadowsVariable {
-            parameter: parameter.name.lexeme(),
-          }));
-        }
-      }
-    }
+    let recipes = RecipeResolver::resolve_recipes(recipe_table, &self.assignments)?;
 
     let mut aliases = Table::new();
     while let Some(alias) = self.aliases.pop() {
@@ -102,7 +67,7 @@ impl<'src> Analyzer<'src> {
     }
 
     Ok(Justfile {
-      warnings: ast.warnings,
+      warnings: ast.warnings.clone(),
       first: recipes
         .values()
         .fold(None, |accumulator, next| match accumulator {
@@ -114,7 +79,7 @@ impl<'src> Analyzer<'src> {
           }),
         }),
       aliases,
-      assignments,
+      assignments: self.assignments,
       recipes,
       settings,
     })
@@ -182,6 +147,15 @@ impl<'src> Analyzer<'src> {
         alias: name,
         first: original.line_number(),
       }));
+    }
+
+    for attr in &alias.attributes {
+      if !VALID_ALIAS_ATTRIBUTES.contains(attr) {
+        return Err(alias.name.token().error(AliasInvalidAttribute {
+          alias: name,
+          attr: *attr,
+        }));
+      }
     }
 
     Ok(())
@@ -294,16 +268,6 @@ mod tests {
     column: 5,
     width:  1,
     kind:   DuplicateParameter{recipe: "a", parameter: "b"},
-  }
-
-  analysis_error! {
-    name:   parameter_shadows_variable,
-    input:  "foo := \"h\"\na foo:",
-    offset:  13,
-    line:   1,
-    column: 2,
-    width:  3,
-    kind:   ParameterShadowsVariable{parameter: "foo"},
   }
 
   analysis_error! {

@@ -1,6 +1,18 @@
 use super::*;
 
 test! {
+    name: invalid_alias_attribute,
+    justfile: "[private]\n[linux]\nalias t := test\n\ntest:\n",
+    stderr: "
+      error: Alias t has an invalid attribute `linux`
+        |
+      3 | alias t := test
+        |       ^
+    ",
+    status: EXIT_FAILURE,
+}
+
+test! {
   name: expected_keyword,
   justfile: "foo := if '' == '' { '' } arlo { '' }",
   stderr: "
@@ -14,11 +26,11 @@ test! {
 
 test! {
   name: unexpected_character,
-  justfile: "!~",
+  justfile: "&~",
   stderr: "
-    error: Expected character `=`
+    error: Expected character `&`
       |
-    1 | !~
+    1 | &~
       |  ^
   ",
   status: EXIT_FAILURE,
@@ -28,7 +40,7 @@ test! {
 fn argument_count_mismatch() {
   Test::new()
     .justfile("foo a b:")
-    .args(&["foo"])
+    .args(["foo"])
     .stderr(
       "
       error: Recipe `foo` got 0 arguments but takes 2

@@ -31,12 +31,12 @@ test! {
     error: The argument '--command <COMMAND>' requires a value but none was supplied
 
     USAGE:
-        just{} --color <COLOR> --dump-format <FORMAT> --shell <SHELL> \
+        just{EXE_SUFFIX} --color <COLOR> --dump-format <FORMAT> --shell <SHELL> \
         <--changelog|--choose|--command <COMMAND>|--completions <SHELL>|--dump|--edit|\
         --evaluate|--fmt|--init|--list|--show <RECIPE>|--summary|--variables>
 
     For more information try --help
-  ", EXE_SUFFIX),
+  "),
   status: EXIT_FAILURE,
 }
 
@@ -105,8 +105,8 @@ fn working_directory_is_correct() {
   fs::write(tmp.path().join("bar"), "baz").unwrap();
   fs::create_dir(tmp.path().join("foo")).unwrap();
 
-  let output = Command::new(&executable_path("just"))
-    .args(&["--command", "cat", "bar"])
+  let output = Command::new(executable_path("just"))
+    .args(["--command", "cat", "bar"])
     .current_dir(tmp.path().join("foo"))
     .output()
     .unwrap();
@@ -124,8 +124,8 @@ fn command_not_found() {
 
   fs::write(tmp.path().join("justfile"), "").unwrap();
 
-  let output = Command::new(&executable_path("just"))
-    .args(&["--command", "asdfasdfasdfasdfadfsadsfadsf", "bar"])
+  let output = Command::new(executable_path("just"))
+    .args(["--command", "asdfasdfasdfasdfadfsadsfadsf", "bar"])
     .output()
     .unwrap();
 

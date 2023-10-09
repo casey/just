@@ -79,6 +79,15 @@ impl<'src> Node<'src> for Expression<'src> {
             tree.push_mut(name.lexeme());
             tree.push_mut(arg.tree());
           }
+          UnaryOpt {
+            name, args: (a, b), ..
+          } => {
+            tree.push_mut(name.lexeme());
+            tree.push_mut(a.tree());
+            if let Some(b) = b.as_ref() {
+              tree.push_mut(b.tree());
+            }
+          }
           Binary {
             name, args: [a, b], ..
           } => {
@@ -118,7 +127,11 @@ impl<'src> Node<'src> for Expression<'src> {
       } => Tree::string(cooked),
       Expression::Backtick { contents, .. } => Tree::atom("backtick").push(Tree::string(contents)),
       Expression::Group { contents } => Tree::List(vec![contents.tree()]),
-      Expression::Join { lhs, rhs } => Tree::atom("/").push(lhs.tree()).push(rhs.tree()),
+      Expression::Join { lhs: None, rhs } => Tree::atom("/").push(rhs.tree()),
+      Expression::Join {
+        lhs: Some(lhs),
+        rhs,
+      } => Tree::atom("/").push(lhs.tree()).push(rhs.tree()),
     }
   }
 }
@@ -223,8 +236,10 @@ impl<'src> Node<'src> for Set<'src> {
       Setting::AllowDuplicateRecipes(value)
       | Setting::DotenvLoad(value)
       | Setting::Export(value)
+      | Setting::Fallback(value)
       | Setting::PositionalArguments(value)
-      | Setting::WindowsPowerShell(value) => {
+      | Setting::WindowsPowerShell(value)
+      | Setting::IgnoreComments(value) => {
         set.push_mut(value.to_string());
       }
       Setting::Shell(Shell { command, arguments })
@@ -233,6 +248,9 @@ impl<'src> Node<'src> for Set<'src> {
         for argument in arguments {
           set.push_mut(Tree::string(&argument.cooked));
         }
+      }
+      Setting::Tempdir(value) => {
+        set.push_mut(Tree::string(value));
       }
     }
 

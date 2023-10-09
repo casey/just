@@ -92,8 +92,19 @@ impl Subcommand {
     arguments: &[String],
     overrides: &BTreeMap<String, String>,
   ) -> Result<(), Error<'src>> {
-    if config.unstable && config.search_config == SearchConfig::FromInvocationDirectory {
-      let mut path = config.invocation_directory.clone();
+    if matches!(
+      config.search_config,
+      SearchConfig::FromInvocationDirectory | SearchConfig::FromSearchDirectory { .. }
+    ) {
+      let starting_path = match &config.search_config {
+        SearchConfig::FromInvocationDirectory => config.invocation_directory.clone(),
+        SearchConfig::FromSearchDirectory { search_directory } => {
+          std::env::current_dir().unwrap().join(search_directory)
+        }
+        _ => unreachable!(),
+      };
+
+      let mut path = starting_path.clone();
 
       let mut unknown_recipes_errors = None;
 
@@ -105,11 +116,10 @@ impl Subcommand {
           },
           Err(err) => return Err(err.into()),
           Ok(search) => {
-            if config.verbosity.loud() && path != config.invocation_directory {
+            if config.verbosity.loquacious() && path != starting_path {
               eprintln!(
                 "Trying {}",
-                config
-                  .invocation_directory
+                starting_path
                   .strip_prefix(path)
                   .unwrap()
                   .components()
@@ -124,7 +134,7 @@ impl Subcommand {
         };
 
         match Self::run_inner(config, loader, arguments, overrides, &search) {
-          Err(err @ Error::UnknownRecipes { .. }) => {
+          Err((err @ Error::UnknownRecipes { .. }, true)) => {
             match search.justfile.parent().unwrap().parent() {
               Some(parent) => {
                 unknown_recipes_errors.get_or_insert(err);
@@ -133,7 +143,7 @@ impl Subcommand {
               None => return Err(err),
             }
           }
-          result => return result,
+          result => return result.map_err(|(err, _fallback)| err),
         }
       }
     } else {
@@ -144,6 +154,7 @@ impl Subcommand {
         overrides,
         &Search::find(&config.search_config, &config.invocation_directory)?,
       )
+      .map_err(|(err, _fallback)| err)
     }
   }
 
@@ -153,9 +164,12 @@ impl Subcommand {
     arguments: &[String],
     overrides: &BTreeMap<String, String>,
     search: &Search,
-  ) -> Result<(), Error<'src>> {
-    let (_src, _ast, justfile) = Self::compile(config, loader, search)?;
-    justfile.run(config, search, overrides, arguments)
+  ) -> Result<(), (Error<'src>, bool)> {
+    let (_src, _ast, justfile) =
+      Self::compile(config, loader, search).map_err(|err| (err, false))?;
+    justfile
+      .run(config, search, overrides, arguments)
+      .map_err(|err| (err, justfile.settings.fallback))
   }
 
   fn compile<'src>(
@@ -165,9 +179,7 @@ impl Subcommand {
   ) -> Result<(&'src str, Ast<'src>, Justfile<'src>), Error<'src>> {
     let src = loader.load(&search.justfile)?;
 
-    let tokens = Lexer::lex(src)?;
-    let ast = Parser::parse(&tokens)?;
-    let justfile = Analyzer::analyze(ast.clone())?;
+    let (ast, justfile) = Compiler::compile(src)?;
 
     if config.verbosity.loud() {
       for warning in &justfile.warnings {
@@ -271,8 +283,7 @@ impl Subcommand {
         Ok(())
       } else {
         Err(Error::internal(format!(
-          "Failed to find text:\n{}\n…in completion script:\n{}",
-          needle, haystack
+          "Failed to find text:\n{needle}\n…in completion script:\n{haystack}"
         )))
       }
     }
@@ -318,12 +329,11 @@ impl Subcommand {
   fn dump(config: &Config, ast: Ast, justfile: Justfile) -> Result<(), Error<'static>> {
     match config.dump_format {
       DumpFormat::Json => {
-        config.require_unstable("The JSON dump format is currently unstable.")?;
         serde_json::to_writer(io::stdout(), &justfile)
           .map_err(|serde_json_error| Error::DumpJson { serde_json_error })?;
         println!();
       }
-      DumpFormat::Just => print!("{}", ast),
+      DumpFormat::Just => print!("{ast}"),
     }
     Ok(())
   }
@@ -356,28 +366,30 @@ impl Subcommand {
     let formatted = ast.to_string();
 
     if config.check {
-      return if formatted != src {
-        use similar::{ChangeTag, TextDiff};
+      return if formatted == src {
+        Ok(())
+      } else {
+        if !config.verbosity.quiet() {
+          use similar::{ChangeTag, TextDiff};
 
-        let diff = TextDiff::configure()
-          .algorithm(similar::Algorithm::Patience)
-          .diff_lines(src, &formatted);
+          let diff = TextDiff::configure()
+            .algorithm(similar::Algorithm::Patience)
+            .diff_lines(src, &formatted);
 
-        for op in diff.ops() {
-          for change in diff.iter_changes(op) {
-            let (symbol, color) = match change.tag() {
-              ChangeTag::Delete => ("-", config.color.stderr().diff_deleted()),
-              ChangeTag::Equal => (" ", config.color.stderr()),
-              ChangeTag::Insert => ("+", config.color.stderr().diff_added()),
-            };
+          for op in diff.ops() {
+            for change in diff.iter_changes(op) {
+              let (symbol, color) = match change.tag() {
+                ChangeTag::Delete => ("-", config.color.stdout().diff_deleted()),
+                ChangeTag::Equal => (" ", config.color.stdout()),
+                ChangeTag::Insert => ("+", config.color.stdout().diff_added()),
+              };
 
-            eprint!("{}{}{}{}", color.prefix(), symbol, change, color.suffix());
+              print!("{}{symbol}{change}{}", color.prefix(), color.suffix());
+            }
           }
         }
 
         Err(Error::FormatCheckFoundDiff)
-      } else {
-        Ok(())
       };
     }
 
@@ -421,11 +433,11 @@ impl Subcommand {
         continue;
       }
 
-      if !recipe_aliases.contains_key(alias.target.name.lexeme()) {
-        recipe_aliases.insert(alias.target.name.lexeme(), vec![alias.name.lexeme()]);
-      } else {
+      if recipe_aliases.contains_key(alias.target.name.lexeme()) {
         let aliases = recipe_aliases.get_mut(alias.target.name.lexeme()).unwrap();
         aliases.push(alias.name.lexeme());
+      } else {
+        recipe_aliases.insert(alias.target.name.lexeme(), vec![alias.name.lexeme()]);
       }
     }
 
@@ -463,7 +475,7 @@ impl Subcommand {
         .chain(recipe_aliases.get(name).unwrap_or(&Vec::new()))
         .enumerate()
       {
-        print!("{}{}", config.list_prefix, name);
+        print!("{}{name}", config.list_prefix);
         for parameter in &recipe.parameters {
           print!(" {}", parameter.color_display(config.color.stdout()));
         }
@@ -498,7 +510,7 @@ impl Subcommand {
   fn show<'src>(config: &Config, name: &str, justfile: Justfile<'src>) -> Result<(), Error<'src>> {
     if let Some(alias) = justfile.get_alias(name) {
       let recipe = justfile.get_recipe(alias.target.name.lexeme()).unwrap();
-      println!("{}", alias);
+      println!("{alias}");
       println!("{}", recipe.color_display(config.color.stdout()));
       Ok(())
     } else if let Some(recipe) = justfile.get_recipe(name) {
@@ -524,7 +536,7 @@ impl Subcommand {
         .map(|recipe| recipe.name())
         .collect::<Vec<&str>>()
         .join(" ");
-      println!("{}", summary);
+      println!("{summary}");
     }
   }
 

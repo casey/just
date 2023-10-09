@@ -9,7 +9,7 @@ fn dont_run_duplicate_recipes() {
         # foo
     ",
     )
-    .args(&["foo", "foo"])
+    .args(["foo", "foo"])
     .stderr(
       "
       # foo

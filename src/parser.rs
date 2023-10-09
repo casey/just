@@ -1,6 +1,4 @@
-use super::*;
-
-use TokenKind::*;
+use {super::*, TokenKind::*};
 
 /// Just language parser
 ///
@@ -176,17 +174,16 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
 
     if next.kind != Identifier {
       Err(self.internal_error(format!(
-        "Presumed next token would have kind {}, but found {}",
-        Identifier, next.kind
+        "Presumed next token would have kind {Identifier}, but found {}",
+        next.kind
       ))?)
-    } else if keyword != next.lexeme() {
+    } else if keyword == next.lexeme() {
+      Ok(())
+    } else {
       Err(self.internal_error(format!(
-        "Presumed next token would have lexeme \"{}\", but found \"{}\"",
-        keyword,
+        "Presumed next token would have lexeme \"{keyword}\", but found \"{}\"",
         next.lexeme(),
       ))?)
-    } else {
-      Ok(())
     }
   }
 
@@ -194,27 +191,27 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   fn presume(&mut self, kind: TokenKind) -> CompileResult<'src, Token<'src>> {
     let next = self.advance()?;
 
-    if next.kind != kind {
-      Err(self.internal_error(format!(
-        "Presumed next token would have kind {:?}, but found {:?}",
-        kind, next.kind
-      ))?)
-    } else {
+    if next.kind == kind {
       Ok(next)
+    } else {
+      Err(self.internal_error(format!(
+        "Presumed next token would have kind {kind:?}, but found {:?}",
+        next.kind
+      ))?)
     }
   }
 
   /// Return an internal error if the next token is not one of kinds `kinds`.
   fn presume_any(&mut self, kinds: &[TokenKind]) -> CompileResult<'src, Token<'src>> {
     let next = self.advance()?;
-    if !kinds.contains(&next.kind) {
+    if kinds.contains(&next.kind) {
+      Ok(next)
+    } else {
       Err(self.internal_error(format!(
         "Presumed next token would be {}, but found {}",
         List::or(kinds),
         next.kind
       ))?)
-    } else {
-      Ok(next)
     }
   }
 
@@ -325,7 +322,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
       } else if self.next_is(Identifier) {
         match Keyword::from_lexeme(next.lexeme()) {
           Some(Keyword::Alias) if self.next_are(&[Identifier, Identifier, ColonEquals]) => {
-            items.push(Item::Alias(self.parse_alias()?));
+            items.push(Item::Alias(self.parse_alias(BTreeSet::new())?));
           }
           Some(Keyword::Export) if self.next_are(&[Identifier, Identifier, ColonEquals]) => {
             self.presume_keyword(Keyword::Export)?;
@@ -333,8 +330,10 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
           }
           Some(Keyword::Set)
             if self.next_are(&[Identifier, Identifier, ColonEquals])
-              || self.next_are(&[Identifier, Identifier, Eol])
-              || self.next_are(&[Identifier, Identifier, Eof]) =>
+              || self.next_are(&[Identifier, Identifier, Comment, Eof])
+              || self.next_are(&[Identifier, Identifier, Comment, Eol])
+              || self.next_are(&[Identifier, Identifier, Eof])
+              || self.next_are(&[Identifier, Identifier, Eol]) =>
           {
             items.push(Item::Set(self.parse_set()?));
           }
@@ -343,39 +342,66 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
               items.push(Item::Assignment(self.parse_assignment(false)?));
             } else {
               let doc = pop_doc_comment(&mut items, eol_since_last_comment);
-              items.push(Item::Recipe(self.parse_recipe(doc, false)?));
+              items.push(Item::Recipe(self.parse_recipe(
+                doc,
+                false,
+                BTreeSet::new(),
+              )?));
             }
           }
         }
       } else if self.accepted(At)? {
         let doc = pop_doc_comment(&mut items, eol_since_last_comment);
-        items.push(Item::Recipe(self.parse_recipe(doc, true)?));
+        items.push(Item::Recipe(self.parse_recipe(
+          doc,
+          true,
+          BTreeSet::new(),
+        )?));
+      } else if let Some(attributes) = self.parse_attributes()? {
+        let next_keyword = Keyword::from_lexeme(self.next()?.lexeme());
+        match next_keyword {
+          Some(Keyword::Alias) if self.next_are(&[Identifier, Identifier, ColonEquals]) => {
+            items.push(Item::Alias(self.parse_alias(attributes)?));
+          }
+          _ => {
+            let quiet = self.accepted(At)?;
+            let doc = pop_doc_comment(&mut items, eol_since_last_comment);
+            items.push(Item::Recipe(self.parse_recipe(doc, quiet, attributes)?));
+          }
+        }
       } else {
         return Err(self.unexpected_token()?);
       }
     }
 
-    if self.next != self.tokens.len() {
-      Err(self.internal_error(format!(
-        "Parse completed with {} unparsed tokens",
-        self.tokens.len() - self.next,
-      ))?)
-    } else {
+    if self.next == self.tokens.len() {
       Ok(Ast {
         warnings: Vec::new(),
         items,
       })
+    } else {
+      Err(self.internal_error(format!(
+        "Parse completed with {} unparsed tokens",
+        self.tokens.len() - self.next,
+      ))?)
     }
   }
 
   /// Parse an alias, e.g `alias name := target`
-  fn parse_alias(&mut self) -> CompileResult<'src, Alias<'src, Name<'src>>> {
+  fn parse_alias(
+    &mut self,
+    attributes: BTreeSet<Attribute>,
+  ) -> CompileResult<'src, Alias<'src, Name<'src>>> {
     self.presume_keyword(Keyword::Alias)?;
     let name = self.parse_name()?;
     self.presume_any(&[Equals, ColonEquals])?;
     let target = self.parse_name()?;
     self.expect_eol()?;
-    Ok(Alias { name, target })
+    Ok(Alias {
+      attributes,
+      name,
+      target,
+    })
   }
 
   /// Parse an assignment, e.g. `foo := bar`
@@ -394,21 +420,26 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   /// Parse an expression, e.g. `1 + 2`
   fn parse_expression(&mut self) -> CompileResult<'src, Expression<'src>> {
     if self.depth == if cfg!(windows) { 48 } else { 256 } {
-      return Err(CompileError {
-        token: self.next()?,
-        kind: CompileErrorKind::ParsingRecursionDepthExceeded,
-      });
+      let token = self.next()?;
+      return Err(CompileError::new(
+        token,
+        CompileErrorKind::ParsingRecursionDepthExceeded,
+      ));
     }
 
     self.depth += 1;
 
     let expression = if self.accepted_keyword(Keyword::If)? {
       self.parse_conditional()?
+    } else if self.accepted(Slash)? {
+      let lhs = None;
+      let rhs = Box::new(self.parse_expression()?);
+      Expression::Join { lhs, rhs }
     } else {
       let value = self.parse_value()?;
 
       if self.accepted(Slash)? {
-        let lhs = Box::new(value);
+        let lhs = Some(Box::new(value));
         let rhs = Box::new(self.parse_expression()?);
         Expression::Join { lhs, rhs }
       } else if self.accepted(Plus)? {
@@ -588,6 +619,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     &mut self,
     doc: Option<&'src str>,
     quiet: bool,
+    attributes: BTreeSet<Attribute>,
   ) -> CompileResult<'src, UnresolvedRecipe<'src>> {
     let name = self.parse_name()?;
 
@@ -651,6 +683,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
       parameters: positional.into_iter().chain(variadic).collect(),
       private: name.lexeme().starts_with('_'),
       shebang: body.first().map_or(false, Line::is_shebang),
+      attributes,
       priors,
       body,
       dependencies,
@@ -748,36 +781,24 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     let name = Name::from_identifier(self.presume(Identifier)?);
     let lexeme = name.lexeme();
 
-    if Keyword::AllowDuplicateRecipes == lexeme {
-      let value = self.parse_set_bool()?;
-      return Ok(Set {
-        value: Setting::AllowDuplicateRecipes(value),
-        name,
-      });
-    } else if Keyword::DotenvLoad == lexeme {
-      let value = self.parse_set_bool()?;
-      return Ok(Set {
-        value: Setting::DotenvLoad(value),
-        name,
-      });
-    } else if Keyword::Export == lexeme {
-      let value = self.parse_set_bool()?;
-      return Ok(Set {
-        value: Setting::Export(value),
-        name,
-      });
-    } else if Keyword::PositionalArguments == lexeme {
-      let value = self.parse_set_bool()?;
-      return Ok(Set {
-        value: Setting::PositionalArguments(value),
-        name,
-      });
-    } else if Keyword::WindowsPowershell == lexeme {
-      let value = self.parse_set_bool()?;
-      return Ok(Set {
-        value: Setting::WindowsPowerShell(value),
-        name,
-      });
+    let set_bool: Option<Setting> = match Keyword::from_lexeme(lexeme) {
+      Some(kw) => match kw {
+        Keyword::AllowDuplicateRecipes => {
+          Some(Setting::AllowDuplicateRecipes(self.parse_set_bool()?))
+        }
+        Keyword::DotenvLoad => Some(Setting::DotenvLoad(self.parse_set_bool()?)),
+        Keyword::Export => Some(Setting::Export(self.parse_set_bool()?)),
+        Keyword::Fallback => Some(Setting::Fallback(self.parse_set_bool()?)),
+        Keyword::IgnoreComments => Some(Setting::IgnoreComments(self.parse_set_bool()?)),
+        Keyword::PositionalArguments => Some(Setting::PositionalArguments(self.parse_set_bool()?)),
+        Keyword::WindowsPowershell => Some(Setting::WindowsPowerShell(self.parse_set_bool()?)),
+        _ => None,
+      },
+      None => None,
+    };
+
+    if let Some(value) = set_bool {
+      return Ok(Set { name, value });
     }
 
     self.expect(ColonEquals)?;
@@ -790,6 +811,11 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     } else if name.lexeme() == Keyword::WindowsShell.lexeme() {
       Ok(Set {
         value: Setting::WindowsShell(self.parse_shell()?),
+        name,
+      })
+    } else if name.lexeme() == Keyword::Tempdir.lexeme() {
+      Ok(Set {
+        value: Setting::Tempdir(self.parse_string_literal()?.cooked),
         name,
       })
     } else {
@@ -821,6 +847,41 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
 
     Ok(Shell { arguments, command })
   }
+
+  /// Parse recipe attributes
+  fn parse_attributes(&mut self) -> CompileResult<'src, Option<BTreeSet<Attribute>>> {
+    let mut attributes = BTreeMap::new();
+
+    while self.accepted(BracketL)? {
+      loop {
+        let name = self.parse_name()?;
+        let attribute = Attribute::from_name(name).ok_or_else(|| {
+          name.error(CompileErrorKind::UnknownAttribute {
+            attribute: name.lexeme(),
+          })
+        })?;
+        if let Some(line) = attributes.get(&attribute) {
+          return Err(name.error(CompileErrorKind::DuplicateAttribute {
+            attribute: name.lexeme(),
+            first: *line,
+          }));
+        }
+        attributes.insert(attribute, name.line);
+
+        if !self.accepted(Comma)? {
+          break;
+        }
+      }
+      self.expect(BracketR)?;
+      self.expect_eol()?;
+    }
+
+    if attributes.is_empty() {
+      Ok(None)
+    } else {
+      Ok(Some(attributes.into_keys().collect()))
+    }
+  }
 }
 
 #[cfg(test)]
@@ -851,10 +912,10 @@ mod tests {
     let justfile = Parser::parse(&tokens).expect("parsing failed");
     let have = justfile.tree();
     if have != want {
-      println!("parsed text: {}", unindented);
-      println!("expected:    {}", want);
-      println!("but got:     {}", have);
-      println!("tokens:      {:?}", tokens);
+      println!("parsed text: {unindented}");
+      println!("expected:    {want}");
+      println!("but got:     {have}");
+      println!("tokens:      {tokens:?}");
       panic!();
     }
   }
@@ -898,7 +959,7 @@ mod tests {
             column,
             length,
           },
-          kind,
+          kind: Box::new(kind),
         };
         assert_eq!(have, want);
       }
@@ -936,6 +997,12 @@ mod tests {
   }
 
   test! {
+    name: alias_with_attribute,
+    text: "[private]\nalias t := test",
+    tree: (justfile (alias t test)),
+  }
+
+  test! {
     name: aliases_multiple,
     text: "alias t := test\nalias b := build",
     tree: (
@@ -950,6 +1017,18 @@ mod tests {
     text: "alias t := test",
     tree: (justfile
       (alias t test)
+    ),
+  }
+
+  test! {
+      name: recipe_named_alias,
+      text: r#"
+      [private]
+      alias:
+        echo 'echoing alias'
+          "#,
+    tree: (justfile
+      (recipe alias (body ("echo 'echoing alias'")))
     ),
   }
 
@@ -1341,23 +1420,23 @@ mod tests {
 
   test! {
     name: indented_backtick,
-    text: r#"
+    text: r"
       x := ```
         \tfoo\t
         \tbar\n
       ```
-    "#,
+    ",
     tree: (justfile (assignment x (backtick "\\tfoo\\t\n\\tbar\\n\n"))),
   }
 
   test! {
     name: indented_backtick_no_dedent,
-    text: r#"
+    text: r"
       x := ```
       \tfoo\t
         \tbar\n
       ```
-    "#,
+    ",
     tree: (justfile (assignment x (backtick "\\tfoo\\t\n  \\tbar\\n\n"))),
   }
 
@@ -1396,12 +1475,12 @@ mod tests {
 
   test! {
     name: parse_raw_string_default,
-    text: r#"
+    text: r"
 
       foo a='b\t':
 
 
-    "#,
+    ",
     tree: (justfile (recipe foo (params (a "b\\t")))),
   }
 
@@ -1971,7 +2050,7 @@ mod tests {
     column: 0,
     width:  1,
     kind: UnexpectedToken {
-      expected: vec![At, Comment, Eof, Eol, Identifier],
+      expected: vec![At, BracketL, Comment, Eof, Eol, Identifier],
       found: BraceL,
     },
   }
@@ -1989,6 +2068,7 @@ mod tests {
         Identifier,
         ParenL,
         ParenR,
+        Slash,
         StringToken,
       ],
       found: Eof,
@@ -2008,6 +2088,7 @@ mod tests {
         Identifier,
         ParenL,
         ParenR,
+        Slash,
         StringToken,
       ],
       found: InterpolationEnd,
@@ -2148,6 +2229,29 @@ mod tests {
   }
 
   error! {
+    name:   empty_attribute,
+    input:  "[]\nsome_recipe:\n @exit 3",
+    offset: 1,
+    line:   0,
+    column: 1,
+    width:  1,
+    kind:   UnexpectedToken {
+      expected: vec![Identifier],
+      found: BracketR,
+    },
+  }
+
+  error! {
+    name:   unknown_attribute,
+    input:  "[unknown]\nsome_recipe:\n @exit 3",
+    offset: 1,
+    line:   0,
+    column: 1,
+    width:  7,
+    kind:   UnknownAttribute { attribute: "unknown" },
+  }
+
+  error! {
     name:   set_unknown,
     input:  "set shall := []",
     offset: 4,
@@ -2226,6 +2330,34 @@ mod tests {
       function: "env_var",
       found: 0,
       expected: 1..1,
+    },
+  }
+
+  error! {
+    name: function_argument_count_too_high_unary_opt,
+    input: "x := env('foo', 'foo', 'foo')",
+    offset: 5,
+    line: 0,
+    column: 5,
+    width: 3,
+    kind: FunctionArgumentCountMismatch {
+      function: "env",
+      found: 3,
+      expected: 1..2,
+    },
+  }
+
+  error! {
+    name: function_argument_count_too_low_unary_opt,
+    input: "x := env()",
+    offset: 5,
+    line: 0,
+    column: 5,
+    width: 3,
+    kind: FunctionArgumentCountMismatch {
+      function: "env",
+      found: 0,
+      expected: 1..2,
     },
   }
 

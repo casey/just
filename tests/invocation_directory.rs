@@ -48,9 +48,9 @@ fn test_invocation_directory() {
   subdir.push("subdir");
   fs::create_dir(&subdir).unwrap();
 
-  let output = Command::new(&executable_path("just"))
+  let output = Command::new(executable_path("just"))
     .current_dir(&subdir)
-    .args(&["--shell", "sh"])
+    .args(["--shell", "sh"])
     .output()
     .expect("just invocation failed");
 
@@ -62,29 +62,38 @@ fn test_invocation_directory() {
 
   let status = output.status.code().unwrap();
   if status != expected_status {
-    println!("bad status: {} != {}", status, expected_status);
+    println!("bad status: {status} != {expected_status}");
     failure = true;
   }
 
   let stdout = str::from_utf8(&output.stdout).unwrap();
   if stdout != expected_stdout {
-    println!(
-      "bad stdout:\ngot:\n{:?}\n\nexpected:\n{:?}",
-      stdout, expected_stdout
-    );
+    println!("bad stdout:\ngot:\n{stdout:?}\n\nexpected:\n{expected_stdout:?}");
     failure = true;
   }
 
   let stderr = str::from_utf8(&output.stderr).unwrap();
   if stderr != expected_stderr {
-    println!(
-      "bad stderr:\ngot:\n{:?}\n\nexpected:\n{:?}",
-      stderr, expected_stderr
-    );
+    println!("bad stderr:\ngot:\n{stderr:?}\n\nexpected:\n{expected_stderr:?}");
     failure = true;
   }
 
   if failure {
     panic!("test failed");
+  }
+}
+
+#[test]
+fn invocation_directory_native() {
+  let Output { stdout, tempdir } = Test::new()
+    .justfile("x := invocation_directory_native()")
+    .args(["--evaluate", "x"])
+    .stdout_regex(".*")
+    .run();
+
+  if cfg!(windows) {
+    assert_eq!(Path::new(&stdout), tempdir.path());
+  } else {
+    assert_eq!(Path::new(&stdout), tempdir.path().canonicalize().unwrap());
   }
 }

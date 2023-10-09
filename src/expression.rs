@@ -32,7 +32,7 @@ pub(crate) enum Expression<'src> {
   Group { contents: Box<Expression<'src>> },
   /// `lhs / rhs`
   Join {
-    lhs: Box<Expression<'src>>,
+    lhs: Option<Box<Expression<'src>>>,
     rhs: Box<Expression<'src>>,
   },
   /// `"string_literal"` or `'string_literal'`
@@ -51,8 +51,12 @@ impl<'src> Display for Expression<'src> {
   fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
     match self {
       Expression::Backtick { token, .. } => write!(f, "{}", token.lexeme()),
-      Expression::Join { lhs, rhs } => write!(f, "{} / {}", lhs, rhs),
-      Expression::Concatenation { lhs, rhs } => write!(f, "{} + {}", lhs, rhs),
+      Expression::Join { lhs: None, rhs } => write!(f, "/ {rhs}"),
+      Expression::Join {
+        lhs: Some(lhs),
+        rhs,
+      } => write!(f, "{lhs} / {rhs}"),
+      Expression::Concatenation { lhs, rhs } => write!(f, "{lhs} + {rhs}"),
       Expression::Conditional {
         lhs,
         rhs,
@@ -61,13 +65,12 @@ impl<'src> Display for Expression<'src> {
         operator,
       } => write!(
         f,
-        "if {} {} {} {{ {} }} else {{ {} }}",
-        lhs, operator, rhs, then, otherwise
+        "if {lhs} {operator} {rhs} {{ {then} }} else {{ {otherwise} }}"
       ),
-      Expression::StringLiteral { string_literal } => write!(f, "{}", string_literal),
+      Expression::StringLiteral { string_literal } => write!(f, "{string_literal}"),
       Expression::Variable { name } => write!(f, "{}", name.lexeme()),
-      Expression::Call { thunk } => write!(f, "{}", thunk),
-      Expression::Group { contents } => write!(f, "({})", contents),
+      Expression::Call { thunk } => write!(f, "{thunk}"),
+      Expression::Group { contents } => write!(f, "({contents})"),
     }
   }
 }
@@ -87,7 +90,7 @@ impl<'src> Serialize for Expression<'src> {
       Self::Call { thunk } => thunk.serialize(serializer),
       Self::Concatenation { lhs, rhs } => {
         let mut seq = serializer.serialize_seq(None)?;
-        seq.serialize_element("concatinate")?;
+        seq.serialize_element("concatenate")?;
         seq.serialize_element(lhs)?;
         seq.serialize_element(rhs)?;
         seq.end()

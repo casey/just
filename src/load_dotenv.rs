@@ -25,7 +25,7 @@ pub(crate) fn load_dotenv(
     .to_owned();
 
   for directory in working_directory.ancestors() {
-    let path = directory.join(&filename);
+    let path = directory.join(filename.as_str());
     if path.is_file() {
       return load_from_file(&path);
     }
@@ -35,11 +35,7 @@ pub(crate) fn load_dotenv(
 }
 
 fn load_from_file(path: &Path) -> RunResult<'static, BTreeMap<String, String>> {
-  // `dotenv::from_path_iter` should eventually be un-deprecated, see:
-  // https://github.com/dotenv-rs/dotenv/issues/13
-  #![allow(deprecated)]
-
-  let iter = dotenv::from_path_iter(&path)?;
+  let iter = dotenvy::from_path_iter(path)?;
   let mut dotenv = BTreeMap::new();
   for result in iter {
     let (key, value) = result?;

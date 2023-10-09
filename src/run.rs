@@ -1,5 +1,7 @@
 use super::*;
 
+/// Main entry point into just binary.
+#[allow(clippy::missing_errors_doc)]
 pub fn run() -> Result<(), i32> {
   #[cfg(windows)]
   ansi_term::enable_ansi_support().ok();
@@ -16,20 +18,19 @@ pub fn run() -> Result<(), i32> {
   info!("Parsing command line arguments…");
   let matches = app.get_matches();
 
-  let loader = Loader::new();
+  let config = Config::from_matches(&matches).map_err(Error::from);
 
-  let mut color = Color::auto();
-  let mut verbosity = Verbosity::default();
+  let (color, verbosity, unstable) = config
+    .as_ref()
+    .map(|config| (config.color, config.verbosity, config.unstable))
+    .unwrap_or((Color::auto(), Verbosity::default(), false));
 
-  Config::from_matches(&matches)
-    .map_err(Error::from)
-    .and_then(|config| {
-      color = config.color;
-      verbosity = config.verbosity;
-      config.run(&loader)
-    })
+  let loader = Loader::new(unstable);
+
+  config
+    .and_then(|config| config.run(&loader))
     .map_err(|error| {
-      if !verbosity.quiet() {
+      if !verbosity.quiet() && error.print_message() {
         eprintln!("{}", error.color_display(color.stderr()));
       }
       error.code().unwrap_or(EXIT_FAILURE)

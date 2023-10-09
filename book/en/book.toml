@@ -1,5 +1,4 @@
 [book]
-authors = ["Casey Rodarmor"]
 language = "en"
 src = "src"
 title = "Just Programmer's Manual"
@@ -8,5 +7,7 @@ title = "Just Programmer's Manual"
 build-dir = "build"
 
 [output.html]
+git-repository-url = "https://github.com/casey/just"
+site-url = "/man/en/"
 
 [output.linkcheck]

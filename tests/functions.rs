@@ -4,10 +4,10 @@ test! {
   name:     test_os_arch_functions_in_interpolation,
   justfile: r#"
 foo:
-  echo {{arch()}} {{os()}} {{os_family()}}
+  echo {{arch()}} {{os()}} {{os_family()}} {{num_cpus()}}
 "#,
-  stdout:   format!("{} {} {}\n", target::arch(), target::os(), target::family()).as_str(),
-  stderr:   format!("echo {} {} {}\n", target::arch(), target::os(), target::family()).as_str(),
+  stdout:   format!("{} {} {} {}\n", target::arch(), target::os(), target::family(), num_cpus::get()).as_str(),
+  stderr:   format!("echo {} {} {} {}\n", target::arch(), target::os(), target::family(), num_cpus::get()).as_str(),
 }
 
 test! {
@@ -16,12 +16,13 @@ test! {
 a := arch()
 o := os()
 f := os_family()
+n := num_cpus()
 
 foo:
-  echo {{a}} {{o}} {{f}}
+  echo {{a}} {{o}} {{f}} {{n}}
 "#,
-  stdout:   format!("{} {} {}\n", target::arch(), target::os(), target::family()).as_str(),
-  stderr:   format!("echo {} {} {}\n", target::arch(), target::os(), target::family()).as_str(),
+  stdout:   format!("{} {} {} {}\n", target::arch(), target::os(), target::family(), num_cpus::get()).as_str(),
+  stderr:   format!("echo {} {} {} {}\n", target::arch(), target::os(), target::family(), num_cpus::get()).as_str(),
 }
 
 #[cfg(not(windows))]
@@ -246,11 +247,11 @@ test! {
 test! {
   name:     test_os_arch_functions_in_default,
   justfile: r#"
-foo a=arch() o=os() f=os_family():
-  echo {{a}} {{o}} {{f}}
+foo a=arch() o=os() f=os_family() n=num_cpus():
+  echo {{a}} {{o}} {{f}} {{n}}
 "#,
-  stdout:   format!("{} {} {}\n", target::arch(), target::os(), target::family()).as_str(),
-  stderr:   format!("echo {} {} {}\n", target::arch(), target::os(), target::family()).as_str(),
+  stdout:   format!("{} {} {} {}\n", target::arch(), target::os(), target::family(), num_cpus::get()).as_str(),
+  stderr:   format!("echo {} {} {} {}\n", target::arch(), target::os(), target::family(), num_cpus::get()).as_str(),
 }
 
 test! {
@@ -284,6 +285,76 @@ test! {
 }
 
 test! {
+  name: uppercamelcase,
+  justfile: "
+    foo:
+      echo {{ uppercamelcase('foo bar') }}
+  ",
+  stdout: "FooBar\n",
+  stderr: "echo FooBar\n",
+}
+
+test! {
+  name: lowercamelcase,
+  justfile: "
+    foo:
+      echo {{ lowercamelcase('foo bar') }}
+  ",
+  stdout: "fooBar\n",
+  stderr: "echo fooBar\n",
+}
+
+test! {
+  name: snakecase,
+  justfile: "
+    foo:
+      echo {{ snakecase('foo bar') }}
+  ",
+  stdout: "foo_bar\n",
+  stderr: "echo foo_bar\n",
+}
+
+test! {
+  name: kebabcase,
+  justfile: "
+    foo:
+      echo {{ kebabcase('foo bar') }}
+  ",
+  stdout: "foo-bar\n",
+  stderr: "echo foo-bar\n",
+}
+
+test! {
+  name: shoutysnakecase,
+  justfile: "
+    foo:
+      echo {{ shoutysnakecase('foo bar') }}
+  ",
+  stdout: "FOO_BAR\n",
+  stderr: "echo FOO_BAR\n",
+}
+
+test! {
+  name: titlecase,
+  justfile: "
+    foo:
+      echo {{ titlecase('foo bar') }}
+  ",
+  stdout: "Foo Bar\n",
+  stderr: "echo Foo Bar\n",
+}
+
+test! {
+  name: shoutykebabcase,
+  justfile: "
+    foo:
+      echo {{ shoutykebabcase('foo bar') }}
+  ",
+  stdout: "FOO-BAR\n",
+  stderr: "echo FOO-BAR\n",
+}
+
+test! {
   name: trim,
   justfile: "
     foo:
@@ -303,10 +374,48 @@ test! {
   stderr: "echo foofoofoo\n",
 }
 
+test! {
+  name: replace_regex,
+  justfile: "
+    foo:
+      echo {{ replace_regex('123bar123bar123bar', '\\d+bar', 'foo') }}
+  ",
+  stdout: "foofoofoo\n",
+  stderr: "echo foofoofoo\n",
+}
+
+test! {
+  name: invalid_replace_regex,
+  justfile: "
+    foo:
+      echo {{ replace_regex('barbarbar', 'foo\\', 'foo') }}
+  ",
+  stderr:
+"error: Call to function `replace_regex` failed: regex parse error:
+    foo\\
+       ^
+error: incomplete escape sequence, reached end of pattern prematurely
+  |
+2 |   echo {{ replace_regex('barbarbar', 'foo\\', 'foo') }}
+  |           ^^^^^^^^^^^^^
+",
+  status: EXIT_FAILURE,
+}
+
+test! {
+    name: capitalize,
+    justfile: "
+      foo:
+        echo {{ capitalize('BAR') }}
+    ",
+    stdout: "Bar\n",
+    stderr: "echo Bar\n",
+}
+
 fn assert_eval_eq(expression: &str, result: &str) {
   Test::new()
-    .justfile(format!("x := {}", expression))
-    .args(&["--evaluate", "x"])
+    .justfile(format!("x := {expression}"))
+    .args(["--evaluate", "x"])
     .stdout(result)
     .unindent_stdout(false)
     .run();
@@ -370,7 +479,7 @@ fn join() {
 fn join_argument_count_error() {
   Test::new()
     .justfile("x := join('a')")
-    .args(&["--evaluate"])
+    .args(["--evaluate"])
     .stderr(
       "
       error: Function `join` called with 1 argument but takes 2 or more
@@ -390,7 +499,7 @@ fn test_path_exists_filepath_exist() {
       testfile: ""
     })
     .justfile("x := path_exists('testfile')")
-    .args(&["--evaluate", "x"])
+    .args(["--evaluate", "x"])
     .stdout("true")
     .run();
 }
@@ -399,7 +508,7 @@ fn test_path_exists_filepath_exist() {
 fn test_path_exists_filepath_doesnt_exist() {
   Test::new()
     .justfile("x := path_exists('testfile')")
-    .args(&["--evaluate", "x"])
+    .args(["--evaluate", "x"])
     .stdout("false")
     .run();
 }
@@ -408,7 +517,7 @@ fn test_path_exists_filepath_doesnt_exist() {
 fn error_errors_with_message() {
   Test::new()
     .justfile("x := error ('Thing Not Supported')")
-    .args(&["--evaluate"])
+    .args(["--evaluate"])
     .status(1)
     .stderr("error: Call to function `error` failed: Thing Not Supported\n  |\n1 | x := error ('Thing Not Supported')\n  |      ^^^^^\n")
     .run();
@@ -418,7 +527,7 @@ fn error_errors_with_message() {
 fn test_absolute_path_resolves() {
   let test_object = Test::new()
     .justfile("path := absolute_path('./test_file')")
-    .args(&["--evaluate", "path"]);
+    .args(["--evaluate", "path"]);
 
   let mut tempdir = test_object.tempdir.path().to_owned();
 
@@ -438,7 +547,7 @@ fn test_absolute_path_resolves() {
 fn test_absolute_path_resolves_parent() {
   let test_object = Test::new()
     .justfile("path := absolute_path('../test_file')")
-    .args(&["--evaluate", "path"]);
+    .args(["--evaluate", "path"]);
 
   let mut tempdir = test_object.tempdir.path().to_owned();
 
@@ -472,7 +581,7 @@ fn path_exists_subdir() {
     })
     .justfile("x := path_exists('foo')")
     .current_dir("bar")
-    .args(&["--evaluate", "x"])
+    .args(["--evaluate", "x"])
     .stdout("true")
     .run();
 }
@@ -481,7 +590,7 @@ fn path_exists_subdir() {
 fn uuid() {
   Test::new()
     .justfile("x := uuid()")
-    .args(&["--evaluate", "x"])
+    .args(["--evaluate", "x"])
     .stdout_regex("........-....-....-....-............")
     .run();
 }
@@ -490,7 +599,7 @@ fn uuid() {
 fn sha256() {
   Test::new()
     .justfile("x := sha256('5943ee37-0000-1000-8000-010203040506')")
-    .args(&["--evaluate", "x"])
+    .args(["--evaluate", "x"])
     .stdout("2330d7f5eb94a820b54fed59a8eced236f80b633a504289c030b6a65aef58871")
     .run();
 }
@@ -505,7 +614,7 @@ fn sha256_file() {
       }
     })
     .current_dir("sub")
-    .args(&["--evaluate", "x"])
+    .args(["--evaluate", "x"])
     .stdout("177b3d79aaafb53a7a4d7aaba99a82f27c73370e8cb0295571aade1e4fea1cd2")
     .run();
 }

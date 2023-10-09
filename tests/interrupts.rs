@@ -1,6 +1,7 @@
-use super::*;
-
-use std::time::{Duration, Instant};
+use {
+  super::*,
+  std::time::{Duration, Instant},
+};
 
 fn kill(process_id: u32) {
   unsafe {
@@ -16,7 +17,7 @@ fn interrupt_test(arguments: &[&str], justfile: &str) {
 
   let start = Instant::now();
 
-  let mut child = Command::new(&executable_path("just"))
+  let mut child = Command::new(executable_path("just"))
     .current_dir(&tmp)
     .args(arguments)
     .spawn()
@@ -31,11 +32,11 @@ fn interrupt_test(arguments: &[&str], justfile: &str) {
   let elapsed = start.elapsed();
 
   if elapsed > Duration::from_secs(2) {
-    panic!("process returned too late: {:?}", elapsed);
+    panic!("process returned too late: {elapsed:?}");
   }
 
   if elapsed < Duration::from_millis(100) {
-    panic!("process returned too early : {:?}", elapsed);
+    panic!("process returned too early : {elapsed:?}");
   }
 
   assert_eq!(status.code(), Some(130));

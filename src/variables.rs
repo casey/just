@@ -20,6 +20,14 @@ impl<'expression, 'src> Iterator for Variables<'expression, 'src> {
         Expression::Call { thunk } => match thunk {
           Thunk::Nullary { .. } => {}
           Thunk::Unary { arg, .. } => self.stack.push(arg),
+          Thunk::UnaryOpt {
+            args: (a, opt_b), ..
+          } => {
+            self.stack.push(a);
+            if let Some(b) = opt_b.as_ref() {
+              self.stack.push(b);
+            }
+          }
           Thunk::Binary { args, .. } => {
             for arg in args.iter().rev() {
               self.stack.push(arg);
@@ -53,9 +61,15 @@ impl<'expression, 'src> Iterator for Variables<'expression, 'src> {
           self.stack.push(lhs);
         }
         Expression::Variable { name, .. } => return Some(name.token()),
-        Expression::Concatenation { lhs, rhs } | Expression::Join { lhs, rhs } => {
+        Expression::Concatenation { lhs, rhs } => {
           self.stack.push(rhs);
           self.stack.push(lhs);
+        }
+        Expression::Join { lhs, rhs } => {
+          self.stack.push(rhs);
+          if let Some(lhs) = lhs {
+            self.stack.push(lhs);
+          }
         }
         Expression::Group { contents } => {
           self.stack.push(contents);

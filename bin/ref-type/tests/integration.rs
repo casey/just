@@ -1,9 +1,11 @@
-use executable_path::executable_path;
-use std::{process::Command, str};
+use {
+  executable_path::executable_path,
+  std::{process::Command, str},
+};
 
 fn stdout(reference: &str) -> String {
   let output = Command::new(executable_path("ref-type"))
-    .args(&["--reference", reference])
+    .args(["--reference", reference])
     .output()
     .unwrap();
 

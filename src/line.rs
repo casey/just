@@ -12,35 +12,40 @@ impl<'src> Line<'src> {
     self.fragments.is_empty()
   }
 
+  pub(crate) fn is_comment(&self) -> bool {
+    matches!(
+      self.fragments.first(),
+      Some(Fragment::Text { token }) if token.lexeme().starts_with('#'),
+    )
+  }
+
   pub(crate) fn is_continuation(&self) -> bool {
-    match self.fragments.last() {
-      Some(Fragment::Text { token }) => token.lexeme().ends_with('\\'),
-      _ => false,
-    }
+    matches!(
+      self.fragments.last(),
+      Some(Fragment::Text { token }) if token.lexeme().ends_with('\\'),
+    )
   }
 
   pub(crate) fn is_shebang(&self) -> bool {
-    match self.fragments.first() {
-      Some(Fragment::Text { token }) => token.lexeme().starts_with("#!"),
-      _ => false,
-    }
+    matches!(
+      self.fragments.first(),
+      Some(Fragment::Text { token }) if token.lexeme().starts_with("#!"),
+    )
   }
 
   pub(crate) fn is_quiet(&self) -> bool {
-    match self.fragments.first() {
-      Some(Fragment::Text { token }) => {
-        token.lexeme().starts_with('@') || token.lexeme().starts_with("-@")
-      }
-      _ => false,
-    }
+    matches!(
+      self.fragments.first(),
+      Some(Fragment::Text { token })
+        if token.lexeme().starts_with('@') || token.lexeme().starts_with("-@"),
+    )
   }
 
   pub(crate) fn is_infallible(&self) -> bool {
-    match self.fragments.first() {
-      Some(Fragment::Text { token }) => {
-        token.lexeme().starts_with('-') || token.lexeme().starts_with("@-")
-      }
-      _ => false,
-    }
+    matches!(
+      self.fragments.first(),
+      Some(Fragment::Text { token })
+        if token.lexeme().starts_with('-') || token.lexeme().starts_with("@-"),
+    )
   }
 }
