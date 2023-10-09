@@ -1543,7 +1543,37 @@ run: venv
   pwd
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="indentation"><a class="header" href="#indentation">Indentation</a></h3>
-<p>Recipe lines can be indented with spaces or tabs, but not a mix of both. All of a recipe’s lines must have the same indentation, but different recipes in the same <code>justfile</code> may use different indentation.</p>
+<p>Recipe lines can be indented with spaces or tabs, but not a mix of both. All of a recipe’s lines must have the same type of indentation, but different recipes in the same <code>justfile</code> may use different indentation.</p>
+<p>Each recipe must be indented at least one level from the <code>recipe-name</code> but after that may be further indented.</p>
+<p>Here’s a justfile with a recipe indented with spaces, represented as <code>·</code>, and tabs, represented as <code>→</code>.</p>
+<pre><code class="language-justfile">set windows-shell := [&quot;pwsh&quot;, &quot;-NoLogo&quot;, &quot;-NoProfileLoadTime&quot;, &quot;-Command&quot;]
+
+set ignore-comments
+
+list-space directory:
+··#!pwsh
+··foreach ($item in $(Get-ChildItem {{directory}} )) {
+····echo $item.Name
+··}
+··echo &quot;&quot;
+
+# indentation nesting works even when newlines are escaped
+list-tab directory:
+→ @foreach ($item in $(Get-ChildItem {{directory}} )) { \
+→ → echo $item.Name \
+→ }
+→ @echo &quot;&quot;
+</code></pre>
+<pre><code class="language-pwsh">PS &gt; just list-space ~
+Desktop
+Documents
+Downloads
+
+PS &gt; just list-tab ~
+Desktop
+Documents
+Downloads
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="multi-line-constructs"><a class="header" href="#multi-line-constructs">Multi-Line Constructs</a></h3>
 <p>Recipes without an initial shebang are evaluated and run line-by-line, which means that multi-line constructs probably won’t do what you want.</p>
 <p>For example, with the following <code>justfile</code>:</p>
