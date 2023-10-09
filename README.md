@@ -1924,7 +1924,7 @@ Each recipe must be indented at least one level from the `recipe-name` but after
 
 Here's a justfile with a recipe indented with spaces, represented as `·`, and tabs, represented as `→`.
 
-```just
+```justfile
 set windows-shell := ["pwsh", "-NoLogo", "-NoProfileLoadTime", "-Command"]
 
 set ignore-comments
