@@ -1000,36 +1000,36 @@ a Z="\t z":
 
 test! {
   name:     line_continuation_with_space,
-  justfile: r#"
+  justfile: r"
 foo:
   echo a\
          b  \
              c
-"#,
+",
   stdout:   "ab c\n",
   stderr:   "echo ab  c\n",
 }
 
 test! {
   name:     line_continuation_with_quoted_space,
-  justfile: r#"
+  justfile: r"
 foo:
   echo 'a\
          b  \
              c'
-"#,
+",
   stdout:   "ab  c\n",
   stderr:   "echo 'ab  c'\n",
 }
 
 test! {
   name:     line_continuation_no_space,
-  justfile: r#"
+  justfile: r"
 foo:
   echo a\
   b\
   c
-"#,
+",
   stdout:   "abc\n",
   stderr:   "echo abc\n",
 }

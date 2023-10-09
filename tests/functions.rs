@@ -4,10 +4,10 @@ test! {
   name:     test_os_arch_functions_in_interpolation,
   justfile: r#"
 foo:
-  echo {{arch()}} {{os()}} {{os_family()}}
+  echo {{arch()}} {{os()}} {{os_family()}} {{num_cpus()}}
 "#,
-  stdout:   format!("{} {} {}\n", target::arch(), target::os(), target::family()).as_str(),
-  stderr:   format!("echo {} {} {}\n", target::arch(), target::os(), target::family()).as_str(),
+  stdout:   format!("{} {} {} {}\n", target::arch(), target::os(), target::family(), num_cpus::get()).as_str(),
+  stderr:   format!("echo {} {} {} {}\n", target::arch(), target::os(), target::family(), num_cpus::get()).as_str(),
 }
 
 test! {
@@ -16,12 +16,13 @@ test! {
 a := arch()
 o := os()
 f := os_family()
+n := num_cpus()
 
 foo:
-  echo {{a}} {{o}} {{f}}
+  echo {{a}} {{o}} {{f}} {{n}}
 "#,
-  stdout:   format!("{} {} {}\n", target::arch(), target::os(), target::family()).as_str(),
-  stderr:   format!("echo {} {} {}\n", target::arch(), target::os(), target::family()).as_str(),
+  stdout:   format!("{} {} {} {}\n", target::arch(), target::os(), target::family(), num_cpus::get()).as_str(),
+  stderr:   format!("echo {} {} {} {}\n", target::arch(), target::os(), target::family(), num_cpus::get()).as_str(),
 }
 
 #[cfg(not(windows))]
@@ -246,11 +247,11 @@ test! {
 test! {
   name:     test_os_arch_functions_in_default,
   justfile: r#"
-foo a=arch() o=os() f=os_family():
-  echo {{a}} {{o}} {{f}}
+foo a=arch() o=os() f=os_family() n=num_cpus():
+  echo {{a}} {{o}} {{f}} {{n}}
 "#,
-  stdout:   format!("{} {} {}\n", target::arch(), target::os(), target::family()).as_str(),
-  stderr:   format!("echo {} {} {}\n", target::arch(), target::os(), target::family()).as_str(),
+  stdout:   format!("{} {} {} {}\n", target::arch(), target::os(), target::family(), num_cpus::get()).as_str(),
+  stderr:   format!("echo {} {} {} {}\n", target::arch(), target::os(), target::family(), num_cpus::get()).as_str(),
 }
 
 test! {
