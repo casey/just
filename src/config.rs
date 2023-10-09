@@ -570,9 +570,9 @@ impl Config {
     };
 
     let unstable = matches.is_present(arg::UNSTABLE)
-      || std::env::var_os("JUST_UNSTABLE").map_or(false, |val| {
-        !["false", "0", ""].contains(&val.to_string_lossy().as_ref())
-      });
+      || std::env::var_os("JUST_UNSTABLE")
+        .map(|val| !["false", "0", ""].contains(&val.to_string_lossy().as_ref()))
+        .unwrap_or_default();
 
     Ok(Self {
       check: matches.is_present(arg::CHECK),
