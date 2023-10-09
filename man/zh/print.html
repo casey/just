@@ -808,7 +808,7 @@ Starting server with database localhost:6379 on port 1337…
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="变量和替换"><a class="header" href="#变量和替换">变量和替换</a></h3>
 <p>支持在变量、字符串、拼接、路径连接和替换中使用 <code>{{…}}</code> ：</p>
-<pre><code class="language-just">tmpdir  := `mktemp`
+<pre><code class="language-just">tmpdir  := `mktemp -d`
 version := &quot;0.2.7&quot;
 tardir  := tmpdir / &quot;awesomesauce-&quot; + version
 tarball := tardir + &quot;.tar.gz&quot;

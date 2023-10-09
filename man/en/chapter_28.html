@@ -176,7 +176,7 @@
                     <main>
                         <h3 id="variables-and-substitution"><a class="header" href="#variables-and-substitution">Variables and Substitution</a></h3>
 <p>Variables, strings, concatenation, path joining, and substitution using <code>{{…}}</code> are supported:</p>
-<pre><code class="language-just">tmpdir  := `mktemp`
+<pre><code class="language-just">tmpdir  := `mktemp -d`
 version := &quot;0.2.7&quot;
 tardir  := tmpdir / &quot;awesomesauce-&quot; + version
 tarball := tardir + &quot;.tar.gz&quot;
