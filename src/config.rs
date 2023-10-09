@@ -571,7 +571,7 @@ impl Config {
 
     let unstable = matches.is_present(arg::UNSTABLE)
       || std::env::var_os("JUST_UNSTABLE")
-        .map(|val| !["false", "0", ""].contains(&val.to_string_lossy().as_ref()))
+        .map(|val| !(val == "false" || val == "0" || val.is_empty()))
         .unwrap_or_default();
 
     Ok(Self {
