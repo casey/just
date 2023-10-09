@@ -318,7 +318,7 @@ test! {
 
 test! {
   name:     indented_raw_string_escapes,
-  justfile: r#"
+  justfile: r"
     a := '''
       foo\n
       bar
@@ -326,11 +326,11 @@ test! {
 
     @default:
       printf %s '{{a}}'
-  "#,
-  stdout: r#"
+  ",
+  stdout: r"
     foo\n
     bar
-  "#,
+  ",
 }
 
 test! {
@@ -353,7 +353,7 @@ test! {
 
 test! {
   name:     indented_backtick_string_escapes,
-  justfile: r#"
+  justfile: r"
     a := ```
       printf %s '
       foo\n
@@ -363,7 +363,7 @@ test! {
 
     @default:
       printf %s '{{a}}'
-  "#,
+  ",
   stdout: "\n\nfoo\\n\nbar",
 }
 

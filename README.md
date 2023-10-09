@@ -912,7 +912,7 @@ Starting server with database localhost:6379 on port 1337…
 Variables, strings, concatenation, path joining, and substitution using `{{…}}` are supported:
 
 ```just
-tmpdir  := `mktemp`
+tmpdir  := `mktemp -d`
 version := "0.2.7"
 tardir  := tmpdir / "awesomesauce-" + version
 tarball := tardir + ".tar.gz"
@@ -1037,7 +1037,7 @@ $ just --evaluate
 escapes := "\t\n\r\"\\"
 ```
 
-Indented versions of both single- and double-quoted strings, delimited by triple single- or triple double-quotes, are supported. Indented string lines are stripped of leading whitespace common to all non-blank lines:
+Indented versions of both single- and double-quoted strings, delimited by triple single- or triple double-quotes, are supported. Indented string lines are stripped of a leading line break, and leading whitespace common to all non-blank lines:
 
 ```just
 # this string will evaluate to `foo\nbar\n`
@@ -1046,7 +1046,7 @@ x := '''
   bar
 '''
 
-# this string will evaluate to `abc\n  wuv\nbar\n`
+# this string will evaluate to `abc\n  wuv\nxyz\n`
 y := """
   abc
     wuv
@@ -2014,7 +2014,7 @@ while:
 
 ### Command Line Options
 
-`just` supports a number of useful command line options for listing, dumping, and debugging recipes and variable:
+`just` supports a number of useful command line options for listing, dumping, and debugging recipes and variables:
 
 ```sh
 $ just --list
@@ -2381,7 +2381,7 @@ foo argument:
   touch '{{argument}}'
 ```
 
-This preserves `just`'s ability to catch variable name typos before running, for example if you were to write `{{argument}}`, but will not do what you want if the value of `argument` contains single quotes.
+This preserves `just`'s ability to catch variable name typos before running, for example if you were to write `{{arument}}`, but will not do what you want if the value of `argument` contains single quotes.
 
 #### Positional Arguments
 
