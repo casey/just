@@ -357,8 +357,6 @@ cd ~/.vim/pack/vendor/start
 git clone https://github.com/NoahTheDuke/vim-just.git
 ```
 
-`vim-just` is also available from [vim-polyglot](https://github.com/sheerun/vim-polyglot), a multi-language Vim plugin.
-
 #### `tree-sitter-just`
 
 [tree-sitter-just](https://github.com/IndianBoy42/tree-sitter-just) is an [Nvim Treesitter](https://github.com/nvim-treesitter/nvim-treesitter) plugin for Neovim.
@@ -424,6 +422,10 @@ Kakoune supports `justfile` syntax highlighting out of the box, thanks to TeddyD
 ### Sublime Text
 
 The [Just package](https://github.com/nk9/just_sublime) by [nk9](https://github.com/nk9) with `just` syntax and some other tools is available on [PackageControl](https://packagecontrol.io/packages/Just).
+
+### Micro
+
+[Micro](https://micro-editor.github.io/) supports Justfile syntax highlighting out of the box, thanks to [tomodachi94](https://github.com/tomodachi94).
 
 ### Other Editors
 
