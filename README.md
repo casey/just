@@ -1921,13 +1921,14 @@ Recipe lines can be indented with spaces or tabs, but not a mix of both. All of 
 
 Each recipe must be indented at least one level from the `recipe-name` but after that may be further indented.
 
+Here's a justfile with a recipe indented with spaces, represented as `·`, and tabs, represented as `→`.
+
 ```just
-# justfile
-# both recipes are in the same JustFile
 set windows-shell := ["pwsh", "-NoLogo", "-NoProfileLoadTime", "-Command"]
+
 set ignore-comments
 
-foo directory:
+list-space directory:
 ··#!pwsh
 ··foreach ($item in $(Get-ChildItem {{directory}} )) {
 ····echo $item.Name
@@ -1935,46 +1936,23 @@ foo directory:
 ··echo ""
 
 # indentation nesting works even when newlines are escaped
-tab-foo directory:
-→ foreach ($item in $(Get-ChildItem {{directory}} )) { \
+list-tab directory:
+→ @foreach ($item in $(Get-ChildItem {{directory}} )) { \
 → → echo $item.Name \
 → }
 → @echo ""
 ```
 
 ```pwsh
-# results
-Microsoft Powershell 7.0.0
-
-PS > just foo ~
-Contacts
+PS > just list-space ~
 Desktop
 Documents
 Downloads
-Favorites
-Links
-Music
-OneDrive
-Pictures
-Saved Games
-Searches
-Videos
 
-PS > just tab-foo ~
-foreach ($item in $(get-childitem ~ )) {echo $item.Name}
-Contacts
+PS > just list-tab ~
 Desktop
 Documents
 Downloads
-Favorites
-Links
-Music
-OneDrive
-Pictures
-Saved Games
-Searches
-Videos
-
 ```
 
 ### Multi-Line Constructs
