@@ -154,7 +154,6 @@ impl Config {
           .long("command-color")
           .takes_value(true)
           .possible_values(arg::COMMAND_COLOR_VALUES)
-          .default_value(arg::COMMAND_COLOR_NONE)
           .help("Color to use when echoing recipe lines"),
       )
       .arg(
