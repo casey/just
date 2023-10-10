@@ -411,16 +411,9 @@ impl Config {
   }
 
   fn command_color_from_matches(matches: &ArgMatches) -> ConfigResult<Option<Colour>> {
-    let value = matches
-      .value_of(arg::COMMAND_COLOR)
-      .ok_or_else(|| ConfigError::Internal {
-        message: "`--command-color` had no value".to_string(),
-      })?;
-
-    match value {
-      arg::COMMAND_COLOR_NONE => Ok(None),
-      arg::COMMAND_COLOR_CYAN => Ok(Some(Colour::Cyan)),
-      arg::COMMAND_COLOR_PURPLE => Ok(Some(Colour::Purple)),
+    match matches.value_of(arg::COMMAND_COLOR)? {
+      arg::COMMAND_COLOR_CYAN => Ok(Some(ansi_term::Color::Cyan)),
+      arg::COMMAND_COLOR_PURPLE => Ok(Some(ansi_term::Color::Purple)),
       _ => Err(ConfigError::Internal {
         message: format!("Invalid argument `{value}` to --command-color."),
       }),
