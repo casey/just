@@ -115,7 +115,7 @@ mod arg {
   pub(crate) const COMMAND_COLOR_CYAN: &str = "cyan";
   pub(crate) const COMMAND_COLOR_PURPLE: &str = "purple";
   pub(crate) const COMMAND_COLOR_VALUES: &[&str] =
-    &[COMMAND_COLOR_NONE, COMMAND_COLOR_CYAN, COMMAND_COLOR_PURPLE];
+    &[COMMAND_COLOR_CYAN, COMMAND_COLOR_PURPLE];
 
   pub(crate) const DUMP_FORMAT_JSON: &str = "json";
   pub(crate) const DUMP_FORMAT_JUST: &str = "just";
