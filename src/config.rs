@@ -15,7 +15,7 @@ pub(crate) const CHOOSE_HELP: &str = "Select one or more recipes to run using a 
 pub(crate) struct Config {
   pub(crate) check: bool,
   pub(crate) color: Color,
-  pub(crate) command_color: Option<Colour>,
+  pub(crate) command_color: Option<ansi_term::Color>,
   pub(crate) dotenv_filename: Option<String>,
   pub(crate) dotenv_path: Option<PathBuf>,
   pub(crate) dry_run: bool,
