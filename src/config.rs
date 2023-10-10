@@ -1,4 +1,3 @@
-use ansi_term::Colour;
 use {
   super::*,
   clap::{App, AppSettings, Arg, ArgGroup, ArgMatches, ArgSettings},
