@@ -669,7 +669,9 @@ foo:
 | Name                      | Value              | Default | Description                                                                                   |
 | ------------------------- | ------------------ | ------- |---------------------------------------------------------------------------------------------- |
 | `allow-duplicate-recipes` | boolean            | `false` | Allow recipes appearing later in a `justfile` to override earlier recipes with the same name. |
+| `dotenv-filename`         | string             | -       | Load a `.env` file with a custom name, if present.                                            |
 | `dotenv-load`             | boolean            | `false` | Load a `.env` file, if present.                                                               |
+| `dotenv-path`             | string             | -       | Load a `.env` file from a custom path, if present. Overrides `dotenv-filename`.               |
 | `export`                  | boolean            | `false` | Export all variables as environment variables.                                                |
 | `fallback`                | boolean            | `false` | Search `justfile` in parent directory if the first recipe on the command line is not found.   |
 | `ignore-comments`         | boolean            | `false` | Ignore recipe lines beginning with `#`.                                                       |
@@ -710,9 +712,14 @@ $ just foo
 bar
 ```
 
-#### Dotenv Load
+#### Dotenv Settings
 
 If `dotenv-load` is `true`, a `.env` file will be loaded if present. Defaults to `false`.
+
+`dotenv-filename` and `dotenv-path` can also be used to load a `.env` file:
+
+- `dotenv-filename` will look for a file with the given name in the current directory and all of its parents.
+- `dotenv-path` will directly load the file at the given path.
 
 #### Export
 
@@ -880,7 +887,11 @@ Available recipes:
 
 ### Dotenv Integration
 
-If [`dotenv-load`](#dotenv-load) is set, `just` will load environment variables from a file named `.env`. This file can be located in the same directory as your `justfile` or in a parent directory. These variables are environment variables, not `just` variables, and so must be accessed using `$VARIABLE_NAME` in recipes and backticks.
+If one of [`dotenv-load`, `dotenv-filename` or `dotenv-path`](#dotenv-settings) is set, `just` will load environment variables from a file.
+
+This file is named `.env` by default, unless `dotenv-filename` is used to change the name of the file that `just` will look for.
+This file can be located in the same directory as your `justfile` or in a parent directory, unless this behavior is changed to point to a file in an arbitrary directory using `dotenv-path`.
+These variables are environment variables, not `just` variables, and so must be accessed using `$VARIABLE_NAME` in recipes and backticks.
 
 For example, if your `.env` file contains:
 
