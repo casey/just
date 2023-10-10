@@ -1,4 +1,3 @@
-use ansi_term::Colour;
 use {
   super::*,
   ansi_term::{ANSIGenericString, Color::*, Prefix, Style, Suffix},
