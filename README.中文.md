@@ -341,8 +341,6 @@ cd ~/.vim/pack/vendor/start
 git clone https://github.com/NoahTheDuke/vim-just.git
 ```
 
-`vim-just` 也可以从 [vim-polyglot](https://github.com/sheerun/vim-polyglot) 获得，这是一个多语言的 Vim 插件。
-
 #### `tree-sitter-just`
 
 [tree-sitter-just](https://github.com/IndianBoy42/tree-sitter-just) 是一个针对 Neovim 的 [Nvim Treesitter](https://github.com/nvim-treesitter/nvim-treesitter) 插件。
@@ -890,7 +888,7 @@ Starting server with database localhost:6379 on port 1337…
 支持在变量、字符串、拼接、路径连接和替换中使用 `{{…}}` ：
 
 ```just
-tmpdir  := `mktemp`
+tmpdir  := `mktemp -d`
 version := "0.2.7"
 tardir  := tmpdir / "awesomesauce-" + version
 tarball := tardir + ".tar.gz"

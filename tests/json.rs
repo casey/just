@@ -706,16 +706,6 @@ fn quiet() {
 }
 
 #[test]
-fn requires_unstable() {
-  Test::new()
-    .justfile("foo:")
-    .args(["--dump", "--dump-format", "json"])
-    .stderr("error: The JSON dump format is currently unstable. Invoke `just` with the `--unstable` flag to enable unstable features.\n")
-    .status(EXIT_FAILURE)
-    .run();
-}
-
-#[test]
 fn settings() {
   test(
     "

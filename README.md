@@ -113,134 +113,140 @@ You can also set the shell using command-line arguments. For example, to use Pow
     </tr>
   </thead>
   <tbody>
-  <tr>
-    <td><a href="https://forge.rust-lang.org/release/platform-support.html">Various</a></td>
-    <td><a href="https://www.rust-lang.org">Cargo</a></td>
-    <td><a href="https://crates.io/crates/just">just</a></td>
-    <td><code>cargo install just</code></td>
-  </tr>
-  <tr>
-    <td><a href="https://en.wikipedia.org/wiki/Microsoft_Windows">Microsoft Windows</a></td>
-    <td><a href="https://scoop.sh">Scoop</a></td>
-    <td><a href="https://github.com/ScoopInstaller/Main/blob/master/bucket/just.json">just</a></td>
-    <td><code>scoop install just</code></td>
-  </tr>
-  <tr>
-    <td><a href="https://docs.brew.sh/Installation">Various</a></td>
-    <td><a href="https://brew.sh">Homebrew</a></td>
-    <td><a href="https://formulae.brew.sh/formula/just">just</a></td>
-    <td><code>brew install just</code></td>
-  </tr>
-  <tr>
-    <td><a href="https://en.wikipedia.org/wiki/MacOS">macOS</a></td>
-    <td><a href="https://www.macports.org">MacPorts</a></td>
-    <td><a href="https://ports.macports.org/port/just/summary">just</a></td>
-    <td><code>port install just</code></td>
-  </tr>
-  <tr>
-    <td><a href="https://www.archlinux.org">Arch Linux</a></td>
-    <td><a href="https://wiki.archlinux.org/title/Pacman">pacman</a></td>
-    <td><a href="https://archlinux.org/packages/community/x86_64/just/">just</a></td>
-    <td><code>pacman -S just</code></td>
-  </tr>
-  <tr>
-    <td><a href="https://nixos.org/download.html#download-nix">Various</a></td>
-    <td><a href="https://nixos.org/nix/">Nix</a></td>
-    <td><a href="https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/tools/just/default.nix">just</a></td>
-    <td><code>nix-env -iA nixpkgs.just</code></td>
-  </tr>
-  <tr>
-    <td><a href="https://nixos.org/nixos/">NixOS</a></td>
-    <td><a href="https://nixos.org/nix/">Nix</a></td>
-    <td><a href="https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/tools/just/default.nix">just</a></td>
-    <td><code>nix-env -iA nixos.just</code></td>
-  </tr>
-  <tr>
-    <td><a href="https://getsol.us">Solus</a></td>
-    <td><a href="https://getsol.us/articles/package-management/basics/en">eopkg</a></td>
-    <td><a href="https://dev.getsol.us/source/just/">just</a></td>
-    <td><code>eopkg install just</code></td>
-  </tr>
-  <tr>
-    <td><a href="https://voidlinux.org">Void Linux</a></td>
-    <td><a href="https://wiki.voidlinux.org/XBPS">XBPS</a></td>
-    <td><a href="https://github.com/void-linux/void-packages/blob/master/srcpkgs/just/template">just</a></td>
-    <td><code>xbps-install -S just</code></td>
-  </tr>
-  <tr>
-    <td><a href="https://www.freebsd.org">FreeBSD</a></td>
-    <td><a href="https://www.freebsd.org/doc/handbook/pkgng-intro.html">pkg</a></td>
-    <td><a href="https://www.freshports.org/deskutils/just/">just</a></td>
-    <td><code>pkg install just</code></td>
-  </tr>
-  <tr>
-    <td><a href="https://alpinelinux.org">Alpine Linux</a></td>
-    <td><a href="https://wiki.alpinelinux.org/wiki/Alpine_Linux_package_management">apk-tools</a></td>
-    <td><a href="https://pkgs.alpinelinux.org/package/edge/community/x86_64/just">just</a></td>
-    <td><code>apk add just</code></td>
-  </tr>
-  <tr>
-    <td><a href="https://getfedora.org">Fedora Linux</a></td>
-    <td><a href="https://dnf.readthedocs.io/en/latest/">DNF</a></td>
-    <td><a href="https://src.fedoraproject.org/rpms/rust-just">just</a></td>
-    <td><code>dnf install just</code></td>
-  </tr>
-  <tr>
-    <td><a href="https://www.gentoo.org">Gentoo Linux</a></td>
-    <td><a href="https://wiki.gentoo.org/wiki/Portage">Portage</a></td>
-    <td><a href="https://github.com/gentoo-mirror/dm9pZCAq/tree/master/sys-devel/just">dm9pZCAq/sys-devel/just</a></td>
-    <td>
-      <code>eselect repository enable dm9pZCAq</code><br>
-      <code>emerge --sync dm9pZCAq</code><br>
-      <code>emerge sys-devel/just</code>
-    </td>
-  </tr>
-  <tr>
-    <td><a href="https://docs.conda.io/en/latest/miniconda.html#system-requirements">Various</a></td>
-    <td><a href="https://docs.conda.io/projects/conda/en/latest/index.html">Conda</a></td>
-    <td><a href="https://anaconda.org/conda-forge/just">just</a></td>
-    <td><code>conda install -c conda-forge just</code></td>
-  </tr>
-  <tr>
-    <td><a href="https://en.wikipedia.org/wiki/Microsoft_Windows">Microsoft Windows</a></td>
-    <td><a href="https://chocolatey.org">Chocolatey</a></td>
-    <td><a href="https://github.com/michidk/just-choco">just</a></td>
-    <td><code>choco install just</code></td>
-  </tr>
-  <tr>
-    <td><a href="https://snapcraft.io/docs/installing-snapd">Various</a></td>
-    <td><a href="https://snapcraft.io">Snap</a></td>
-    <td><a href="https://snapcraft.io/just">just</a></td>
-    <td><code>snap install --edge --classic just</code></td>
-  </tr>
-  <tr>
-    <td><a href="https://github.com/casey/just/releases">Various</a></td>
-    <td><a href="https://asdf-vm.com">asdf</a></td>
-    <td><a href="https://github.com/olofvndrhr/asdf-just">just</a></td>
-    <td>
-      <code>asdf plugin add just</code><br>
-      <code>asdf install just &lt;version&gt;</code>
-    </td>
-  </tr>
-  <tr>
-    <td><a href="https://debian.org">Debian</a> and <a href="https://ubuntu.com">Ubuntu</a> derivatives</td>
-    <td><a href="https://mpr.makedeb.org">MPR</a></td>
-    <td><a href="https://mpr.makedeb.org/packages/just">just</a></td>
-    <td>
-      <code>git clone 'https://mpr.makedeb.org/just'</code><br>
-      <code>cd just</code><br>
-      <code>makedeb -si</code>
-    </td>
-  </tr>
-  <tr>
-    <td><a href="https://debian.org">Debian</a> and <a href="https://ubuntu.com">Ubuntu</a> derivatives</td>
-    <td><a href="https://docs.makedeb.org/prebuilt-mpr">Prebuilt-MPR</a></td>
-    <td><a href="https://mpr.makedeb.org/packages/just">just</a></td>
-    <td>
-      <sup><b>You must have the <a href="https://docs.makedeb.org/prebuilt-mpr/getting-started/#setting-up-the-repository">Prebuilt-MPR set up</a> on your system in order to run this command.</b></sup><br>
-      <code>sudo apt install just</code>
-    </td>
-  </tr>
+    <tr>
+      <td><a href="https://forge.rust-lang.org/release/platform-support.html">Various</a></td>
+      <td><a href="https://www.rust-lang.org">Cargo</a></td>
+      <td><a href="https://crates.io/crates/just">just</a></td>
+      <td><code>cargo install just</code></td>
+    </tr>
+    <tr>
+      <td><a href="https://en.wikipedia.org/wiki/Microsoft_Windows">Microsoft Windows</a></td>
+      <td><a href="https://scoop.sh">Scoop</a></td>
+      <td><a href="https://github.com/ScoopInstaller/Main/blob/master/bucket/just.json">just</a></td>
+      <td><code>scoop install just</code></td>
+    </tr>
+    <tr>
+      <td><a href="https://docs.brew.sh/Installation">Various</a></td>
+      <td><a href="https://brew.sh">Homebrew</a></td>
+      <td><a href="https://formulae.brew.sh/formula/just">just</a></td>
+      <td><code>brew install just</code></td>
+    </tr>
+    <tr>
+      <td><a href="https://en.wikipedia.org/wiki/MacOS">macOS</a></td>
+      <td><a href="https://www.macports.org">MacPorts</a></td>
+      <td><a href="https://ports.macports.org/port/just/summary">just</a></td>
+      <td><code>port install just</code></td>
+    </tr>
+    <tr>
+      <td><a href="https://www.archlinux.org">Arch Linux</a></td>
+      <td><a href="https://wiki.archlinux.org/title/Pacman">pacman</a></td>
+      <td><a href="https://archlinux.org/packages/community/x86_64/just/">just</a></td>
+      <td><code>pacman -S just</code></td>
+    </tr>
+    <tr>
+      <td><a href="https://nixos.org/download.html#download-nix">Various</a></td>
+      <td><a href="https://nixos.org/nix/">Nix</a></td>
+      <td><a href="https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/tools/just/default.nix">just</a></td>
+      <td><code>nix-env -iA nixpkgs.just</code></td>
+    </tr>
+    <tr>
+      <td><a href="https://nixos.org/nixos/">NixOS</a></td>
+      <td><a href="https://nixos.org/nix/">Nix</a></td>
+      <td><a href="https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/tools/just/default.nix">just</a></td>
+      <td><code>nix-env -iA nixos.just</code></td>
+    </tr>
+    <tr>
+      <td><a href="https://getsol.us">Solus</a></td>
+      <td><a href="https://getsol.us/articles/package-management/basics/en">eopkg</a></td>
+      <td><a href="https://dev.getsol.us/source/just/">just</a></td>
+      <td><code>eopkg install just</code></td>
+    </tr>
+    <tr>
+      <td><a href="https://voidlinux.org">Void Linux</a></td>
+      <td><a href="https://wiki.voidlinux.org/XBPS">XBPS</a></td>
+      <td><a href="https://github.com/void-linux/void-packages/blob/master/srcpkgs/just/template">just</a></td>
+      <td><code>xbps-install -S just</code></td>
+    </tr>
+    <tr>
+      <td><a href="https://www.freebsd.org">FreeBSD</a></td>
+      <td><a href="https://www.freebsd.org/doc/handbook/pkgng-intro.html">pkg</a></td>
+      <td><a href="https://www.freshports.org/deskutils/just/">just</a></td>
+      <td><code>pkg install just</code></td>
+    </tr>
+    <tr>
+      <td><a href="https://alpinelinux.org">Alpine Linux</a></td>
+      <td><a href="https://wiki.alpinelinux.org/wiki/Alpine_Linux_package_management">apk-tools</a></td>
+      <td><a href="https://pkgs.alpinelinux.org/package/edge/community/x86_64/just">just</a></td>
+      <td><code>apk add just</code></td>
+    </tr>
+    <tr>
+      <td><a href="https://getfedora.org">Fedora Linux</a></td>
+      <td><a href="https://dnf.readthedocs.io/en/latest/">DNF</a></td>
+      <td><a href="https://src.fedoraproject.org/rpms/rust-just">just</a></td>
+      <td><code>dnf install just</code></td>
+    </tr>
+    <tr>
+      <td><a href="https://www.gentoo.org">Gentoo Linux</a></td>
+      <td><a href="https://wiki.gentoo.org/wiki/Portage">Portage</a></td>
+      <td><a href="https://github.com/gentoo-mirror/dm9pZCAq/tree/master/sys-devel/just">dm9pZCAq/sys-devel/just</a></td>
+      <td>
+        <code>eselect repository enable dm9pZCAq</code><br>
+        <code>emerge --sync dm9pZCAq</code><br>
+        <code>emerge sys-devel/just</code>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="https://docs.conda.io/en/latest/miniconda.html#system-requirements">Various</a></td>
+      <td><a href="https://docs.conda.io/projects/conda/en/latest/index.html">Conda</a></td>
+      <td><a href="https://anaconda.org/conda-forge/just">just</a></td>
+      <td><code>conda install -c conda-forge just</code></td>
+    </tr>
+    <tr>
+      <td><a href="https://en.wikipedia.org/wiki/Microsoft_Windows">Microsoft Windows</a></td>
+      <td><a href="https://chocolatey.org">Chocolatey</a></td>
+      <td><a href="https://github.com/michidk/just-choco">just</a></td>
+      <td><code>choco install just</code></td>
+    </tr>
+    <tr>
+      <td><a href="https://snapcraft.io/docs/installing-snapd">Various</a></td>
+      <td><a href="https://snapcraft.io">Snap</a></td>
+      <td><a href="https://snapcraft.io/just">just</a></td>
+      <td><code>snap install --edge --classic just</code></td>
+    </tr>
+    <tr>
+      <td><a href="https://github.com/casey/just/releases">Various</a></td>
+      <td><a href="https://asdf-vm.com">asdf</a></td>
+      <td><a href="https://github.com/olofvndrhr/asdf-just">just</a></td>
+      <td>
+        <code>asdf plugin add just</code><br>
+        <code>asdf install just &lt;version&gt;</code>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="https://debian.org">Debian</a> and <a href="https://ubuntu.com">Ubuntu</a> derivatives</td>
+      <td><a href="https://mpr.makedeb.org">MPR</a></td>
+      <td><a href="https://mpr.makedeb.org/packages/just">just</a></td>
+      <td>
+        <code>git clone 'https://mpr.makedeb.org/just'</code><br>
+        <code>cd just</code><br>
+        <code>makedeb -si</code>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="https://debian.org">Debian</a> and <a href="https://ubuntu.com">Ubuntu</a> derivatives</td>
+      <td><a href="https://docs.makedeb.org/prebuilt-mpr">Prebuilt-MPR</a></td>
+      <td><a href="https://mpr.makedeb.org/packages/just">just</a></td>
+      <td>
+        <sup><b>You must have the <a href="https://docs.makedeb.org/prebuilt-mpr/getting-started/#setting-up-the-repository">Prebuilt-MPR set up</a> on your system in order to run this command.</b></sup><br>
+        <code>sudo apt install just</code>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="https://en.wikipedia.org/wiki/Microsoft_Windows">Microsoft Windows</a></td>
+      <td><a href="https://learn.microsoft.com/en-us/windows/package-manager/">Windows Package Manager</a></td>
+      <td><a href="https://github.com/microsoft/winget-pkgs/tree/master/manifests/c/Casey/Just">Casey/Just</a></td>
+      <td><code>winget install --id Casey.Just --exact</code></td>
+    </tr>
   </tbody>
 </table>
 
@@ -319,7 +325,8 @@ This does not, however, preclude fixing outright bugs, even if doing so might br
 
 There will never be a `just` 2.0. Any desirable backwards-incompatible changes will be opt-in on a per-`justfile` basis, so users may migrate at their leisure.
 
-Features that aren't yet ready for stabilization are gated behind the `--unstable` flag. Features enabled by `--unstable` may change in backwards incompatible ways at any time.
+Features that aren't yet ready for stabilization are gated behind the `--unstable` flag. Features enabled by `--unstable` may change in backwards incompatible ways at any time. Unstable features can also be enabled by setting the environment variable `JUST_UNSTABLE` to any value other than `false`, `0`, or the empty string.
+
 
 Editor Support
 --------------
@@ -349,8 +356,6 @@ mkdir -p ~/.vim/pack/vendor/start
 cd ~/.vim/pack/vendor/start
 git clone https://github.com/NoahTheDuke/vim-just.git
 ```
-
-`vim-just` is also available from [vim-polyglot](https://github.com/sheerun/vim-polyglot), a multi-language Vim plugin.
 
 #### `tree-sitter-just`
 
@@ -417,6 +422,10 @@ Kakoune supports `justfile` syntax highlighting out of the box, thanks to TeddyD
 ### Sublime Text
 
 The [Just package](https://github.com/nk9/just_sublime) by [nk9](https://github.com/nk9) with `just` syntax and some other tools is available on [PackageControl](https://packagecontrol.io/packages/Just).
+
+### Micro
+
+[Micro](https://micro-editor.github.io/) supports Justfile syntax highlighting out of the box, thanks to [tomodachi94](https://github.com/tomodachi94).
 
 ### Other Editors
 
@@ -904,7 +913,7 @@ Starting server with database localhost:6379 on port 1337…
 Variables, strings, concatenation, path joining, and substitution using `{{…}}` are supported:
 
 ```just
-tmpdir  := `mktemp`
+tmpdir  := `mktemp -d`
 version := "0.2.7"
 tardir  := tmpdir / "awesomesauce-" + version
 tarball := tardir + ".tar.gz"
@@ -1029,7 +1038,7 @@ $ just --evaluate
 escapes := "\t\n\r\"\\"
 ```
 
-Indented versions of both single- and double-quoted strings, delimited by triple single- or triple double-quotes, are supported. Indented string lines are stripped of leading whitespace common to all non-blank lines:
+Indented versions of both single- and double-quoted strings, delimited by triple single- or triple double-quotes, are supported. Indented string lines are stripped of a leading line break, and leading whitespace common to all non-blank lines:
 
 ```just
 # this string will evaluate to `foo\nbar\n`
@@ -1038,7 +1047,7 @@ x := '''
   bar
 '''
 
-# this string will evaluate to `abc\n  wuv\nbar\n`
+# this string will evaluate to `abc\n  wuv\nxyz\n`
 y := """
   abc
     wuv
@@ -1073,6 +1082,7 @@ Done!
 #### System Information
 
 - `arch()` — Instruction set architecture. Possible values are: `"aarch64"`, `"arm"`, `"asmjs"`, `"hexagon"`, `"mips"`, `"msp430"`, `"powerpc"`, `"powerpc64"`, `"s390x"`, `"sparc"`, `"wasm32"`, `"x86"`, `"x86_64"`, and `"xcore"`.
+- `num_cpus()`<sup>1.15.0</sup> - Number of logical CPUs.
 - `os()` — Operating system. Possible values are: `"android"`, `"bitrig"`, `"dragonfly"`, `"emscripten"`, `"freebsd"`, `"haiku"`, `"ios"`, `"linux"`, `"macos"`, `"netbsd"`, `"openbsd"`, `"solaris"`, and `"windows"`.
 - `os_family()` — Operating system family; possible values are: `"unix"` and `"windows"`.
 
@@ -1107,6 +1117,9 @@ $ just
 ```
 
 - `env_var_or_default(key, default)` — Retrieves the environment variable with name `key`, returning `default` if it is not present.
+
+- `env(key)`<sup>1.15.0</sup> — Alias for `env_var(key)`.
+- `env(key, default)`<sup>1.15.0</sup> — Alias for `env_var_or_default(key, default)`.
 
 #### Invocation Directory
 
@@ -1170,7 +1183,7 @@ The executable is at: /bin/just
 
 - `quote(s)` - Replace all single quotes with `'\''` and prepend and append single quotes to `s`. This is sufficient to escape special characters for many shells, including most Bourne shell descendants.
 - `replace(s, from, to)` - Replace all occurrences of `from` in `s` to `to`.
-- `replace_regex(s, regex, replacement)` - Replace all occurrences of `regex` in `s` to `replacement`. Regular expressions are provided by the [Rust `regex` crate](https://docs.rs/regex/latest/regex/). See the [syntax documentation](https://docs.rs/regex/latest/regex/#syntax) for usage examples.
+- `replace_regex(s, regex, replacement)` - Replace all occurrences of `regex` in `s` to `replacement`. Regular expressions are provided by the [Rust `regex` crate](https://docs.rs/regex/latest/regex/). See the [syntax documentation](https://docs.rs/regex/latest/regex/#syntax) for usage examples. Capture groups are supported. The `replacement` string uses [Replacement string syntax](https://docs.rs/regex/latest/regex/struct.Regex.html#replacement-string-syntax).
 - `trim(s)` - Remove leading and trailing whitespace from `s`.
 - `trim_end(s)` - Remove trailing whitespace from `s`.
 - `trim_end_match(s, pat)` - Remove suffix of `s` matching `pat`.
@@ -1247,7 +1260,7 @@ foo:
     echo "foo"
 ```
 
-Or separated by commas on a single line:
+Or separated by commas on a single line<sup>1.14.0</sup>:
 
 ```just
 [no-cd, private]
@@ -1910,7 +1923,43 @@ foo:
 
 ### Indentation
 
-Recipe lines can be indented with spaces or tabs, but not a mix of both. All of a recipe's lines must have the same indentation, but different recipes in the same `justfile` may use different indentation.
+Recipe lines can be indented with spaces or tabs, but not a mix of both. All of a recipe's lines must have the same type of indentation, but different recipes in the same `justfile` may use different indentation.
+
+Each recipe must be indented at least one level from the `recipe-name` but after that may be further indented.
+
+Here's a justfile with a recipe indented with spaces, represented as `·`, and tabs, represented as `→`.
+
+```justfile
+set windows-shell := ["pwsh", "-NoLogo", "-NoProfileLoadTime", "-Command"]
+
+set ignore-comments
+
+list-space directory:
+··#!pwsh
+··foreach ($item in $(Get-ChildItem {{directory}} )) {
+····echo $item.Name
+··}
+··echo ""
+
+# indentation nesting works even when newlines are escaped
+list-tab directory:
+→ @foreach ($item in $(Get-ChildItem {{directory}} )) { \
+→ → echo $item.Name \
+→ }
+→ @echo ""
+```
+
+```pwsh
+PS > just list-space ~
+Desktop
+Documents
+Downloads
+
+PS > just list-tab ~
+Desktop
+Documents
+Downloads
+```
 
 ### Multi-Line Constructs
 
@@ -2005,7 +2054,7 @@ while:
 
 ### Command Line Options
 
-`just` supports a number of useful command line options for listing, dumping, and debugging recipes and variable:
+`just` supports a number of useful command line options for listing, dumping, and debugging recipes and variables:
 
 ```sh
 $ just --list
@@ -2313,8 +2362,7 @@ $ just --dump > formatted-justfile
 ```
 
 The `--dump` command can be used with `--dump-format json` to print a JSON
-representation of a `justfile`. The JSON format is currently unstable, so the
-`--unstable` flag is required.
+representation of a `justfile`.
 
 ### Fallback to parent `justfile`s
 
@@ -2373,7 +2421,7 @@ foo argument:
   touch '{{argument}}'
 ```
 
-This preserves `just`'s ability to catch variable name typos before running, for example if you were to write `{{argument}}`, but will not do what you want if the value of `argument` contains single quotes.
+This preserves `just`'s ability to catch variable name typos before running, for example if you were to write `{{arument}}`, but will not do what you want if the value of `argument` contains single quotes.
 
 #### Positional Arguments
 
