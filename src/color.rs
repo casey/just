@@ -76,13 +76,12 @@ impl Color {
     self.restyle(Style::new().fg(Cyan).bold())
   }
 
-  pub(crate) fn command(self, foreground_color: Option<Colour>) -> Self {
-    let new_style = Style {
-      foreground: foreground_color,
+  pub(crate) fn command(self, foreground: Option<ansi_term::Color>) -> Self {
+    self.restyle(Style {
+      foreground,
       is_bold: true,
       ..Style::default()
-    };
-    self.restyle(new_style)
+    })
   }
 
   pub(crate) fn parameter(self) -> Self {
