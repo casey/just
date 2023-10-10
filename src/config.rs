@@ -112,10 +112,22 @@ mod arg {
   pub(crate) const COLOR_NEVER: &str = "never";
   pub(crate) const COLOR_VALUES: &[&str] = &[COLOR_AUTO, COLOR_ALWAYS, COLOR_NEVER];
 
-  pub(crate) const COMMAND_COLOR_CYAN: &str = "cyan";
+  pub(crate) const COMMAND_COLOR_BLACK: &str = "black";
+  pub(crate) const COMMAND_COLOR_RED: &str = "red";
+  pub(crate) const COMMAND_COLOR_GREEN: &str = "green";
+  pub(crate) const COMMAND_COLOR_YELLOW: &str = "yellow";
+  pub(crate) const COMMAND_COLOR_BLUE: &str = "blue";
   pub(crate) const COMMAND_COLOR_PURPLE: &str = "purple";
-  pub(crate) const COMMAND_COLOR_VALUES: &[&str] =
-    &[COMMAND_COLOR_CYAN, COMMAND_COLOR_PURPLE];
+  pub(crate) const COMMAND_COLOR_CYAN: &str = "cyan";
+  pub(crate) const COMMAND_COLOR_VALUES: &[&str] = &[
+    COMMAND_COLOR_BLACK,
+    COMMAND_COLOR_RED,
+    COMMAND_COLOR_GREEN,
+    COMMAND_COLOR_YELLOW,
+    COMMAND_COLOR_BLUE,
+    COMMAND_COLOR_PURPLE,
+    COMMAND_COLOR_CYAN,
+  ];
 
   pub(crate) const DUMP_FORMAT_JSON: &str = "json";
   pub(crate) const DUMP_FORMAT_JUST: &str = "just";
@@ -410,13 +422,22 @@ impl Config {
     }
   }
 
-  fn command_color_from_matches(matches: &ArgMatches) -> ConfigResult<Option<Colour>> {
-    match matches.value_of(arg::COMMAND_COLOR)? {
-      arg::COMMAND_COLOR_CYAN => Ok(Some(ansi_term::Color::Cyan)),
-      arg::COMMAND_COLOR_PURPLE => Ok(Some(ansi_term::Color::Purple)),
-      _ => Err(ConfigError::Internal {
-        message: format!("Invalid argument `{value}` to --command-color."),
-      }),
+  fn command_color_from_matches(matches: &ArgMatches) -> ConfigResult<Option<ansi_term::Color>> {
+    if let Some(value) = matches.value_of(arg::COMMAND_COLOR) {
+      match value {
+        arg::COMMAND_COLOR_BLACK => Ok(Some(ansi_term::Color::Black)),
+        arg::COMMAND_COLOR_RED => Ok(Some(ansi_term::Color::Red)),
+        arg::COMMAND_COLOR_GREEN => Ok(Some(ansi_term::Color::Green)),
+        arg::COMMAND_COLOR_YELLOW => Ok(Some(ansi_term::Color::Yellow)),
+        arg::COMMAND_COLOR_BLUE => Ok(Some(ansi_term::Color::Blue)),
+        arg::COMMAND_COLOR_PURPLE => Ok(Some(ansi_term::Color::Purple)),
+        arg::COMMAND_COLOR_CYAN => Ok(Some(ansi_term::Color::Cyan)),
+        value => Err(ConfigError::Internal {
+          message: format!("Invalid argument `{value}` to --command-color."),
+        }),
+      }
+    } else {
+      Ok(None)
     }
   }
 
