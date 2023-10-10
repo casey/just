@@ -780,8 +780,9 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     self.presume_keyword(Keyword::Set)?;
     let name = Name::from_identifier(self.presume(Identifier)?);
     let lexeme = name.lexeme();
+    let keyword = Keyword::from_lexeme(lexeme);
 
-    let set_bool: Option<Setting> = match Keyword::from_lexeme(lexeme) {
+    let set_bool: Option<Setting> = match keyword {
       Some(kw) => match kw {
         Keyword::AllowDuplicateRecipes => {
           Some(Setting::AllowDuplicateRecipes(self.parse_set_bool()?))
@@ -803,21 +804,22 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
 
     self.expect(ColonEquals)?;
 
-    if name.lexeme() == Keyword::Shell.lexeme() {
-      Ok(Set {
-        value: Setting::Shell(self.parse_shell()?),
-        name,
-      })
-    } else if name.lexeme() == Keyword::WindowsShell.lexeme() {
-      Ok(Set {
-        value: Setting::WindowsShell(self.parse_shell()?),
-        name,
-      })
-    } else if name.lexeme() == Keyword::Tempdir.lexeme() {
-      Ok(Set {
-        value: Setting::Tempdir(self.parse_string_literal()?.cooked),
-        name,
-      })
+    let set_value: Option<Setting> = match keyword {
+      Some(kw) => match kw {
+        Keyword::DotenvFilename => {
+          Some(Setting::DotenvFilename(self.parse_string_literal()?.cooked))
+        }
+        Keyword::DotenvPath => Some(Setting::DotenvPath(self.parse_string_literal()?.cooked)),
+        Keyword::Shell => Some(Setting::Shell(self.parse_shell()?)),
+        Keyword::Tempdir => Some(Setting::Tempdir(self.parse_string_literal()?.cooked)),
+        Keyword::WindowsShell => Some(Setting::WindowsShell(self.parse_shell()?)),
+        _ => None,
+      },
+      None => None,
+    };
+
+    if let Some(value) = set_value {
+      Ok(Set { name, value })
     } else {
       Err(name.error(CompileErrorKind::UnknownSetting {
         setting: name.lexeme(),
