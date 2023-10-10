@@ -21,6 +21,18 @@ test! {
 }
 
 test! {
+  name: command_color,
+  justfile: "
+    x:
+      echo XYZ
+  ",
+  args: ("--color", "always", "--command-color", "cyan"),
+  stdout: "XYZ\n",
+  stderr: "\u{1b}[1;36mecho XYZ\u{1b}[0m\n",
+  status: EXIT_SUCCESS,
+}
+
+test! {
   name: no_binary,
   justfile: "
     x:
@@ -31,7 +43,7 @@ test! {
     error: The argument '--command <COMMAND>' requires a value but none was supplied
 
     USAGE:
-        just{EXE_SUFFIX} --color <COLOR> --command-color <COMMAND-COLOR> --dump-format <FORMAT> --shell <SHELL> \
+        just{EXE_SUFFIX} --color <COLOR> --dump-format <FORMAT> --shell <SHELL> \
         <--changelog|--choose|--command <COMMAND>|--completions <SHELL>|--dump|--edit|\
         --evaluate|--fmt|--init|--list|--show <RECIPE>|--summary|--variables>
 
