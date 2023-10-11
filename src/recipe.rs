@@ -182,7 +182,7 @@ impl<'src, D> Recipe<'src, D> {
         || !((quiet_command ^ self.quiet) || config.verbosity.quiet())
       {
         let color = if config.highlight {
-          config.color.command()
+          config.color.command(config.command_color)
         } else {
           config.color
         };

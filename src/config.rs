@@ -15,6 +15,7 @@ pub(crate) const CHOOSE_HELP: &str = "Select one or more recipes to run using a 
 pub(crate) struct Config {
   pub(crate) check: bool,
   pub(crate) color: Color,
+  pub(crate) command_color: Option<ansi_term::Color>,
   pub(crate) dotenv_filename: Option<String>,
   pub(crate) dotenv_path: Option<PathBuf>,
   pub(crate) dry_run: bool,
@@ -85,6 +86,7 @@ mod arg {
   pub(crate) const CHOOSER: &str = "CHOOSER";
   pub(crate) const CLEAR_SHELL_ARGS: &str = "CLEAR-SHELL-ARGS";
   pub(crate) const COLOR: &str = "COLOR";
+  pub(crate) const COMMAND_COLOR: &str = "COMMAND-COLOR";
   pub(crate) const DOTENV_FILENAME: &str = "DOTENV-FILENAME";
   pub(crate) const DOTENV_PATH: &str = "DOTENV-PATH";
   pub(crate) const DRY_RUN: &str = "DRY-RUN";
@@ -109,6 +111,23 @@ mod arg {
   pub(crate) const COLOR_AUTO: &str = "auto";
   pub(crate) const COLOR_NEVER: &str = "never";
   pub(crate) const COLOR_VALUES: &[&str] = &[COLOR_AUTO, COLOR_ALWAYS, COLOR_NEVER];
+
+  pub(crate) const COMMAND_COLOR_BLACK: &str = "black";
+  pub(crate) const COMMAND_COLOR_BLUE: &str = "blue";
+  pub(crate) const COMMAND_COLOR_CYAN: &str = "cyan";
+  pub(crate) const COMMAND_COLOR_GREEN: &str = "green";
+  pub(crate) const COMMAND_COLOR_PURPLE: &str = "purple";
+  pub(crate) const COMMAND_COLOR_RED: &str = "red";
+  pub(crate) const COMMAND_COLOR_YELLOW: &str = "yellow";
+  pub(crate) const COMMAND_COLOR_VALUES: &[&str] = &[
+    COMMAND_COLOR_BLACK,
+    COMMAND_COLOR_BLUE,
+    COMMAND_COLOR_CYAN,
+    COMMAND_COLOR_GREEN,
+    COMMAND_COLOR_PURPLE,
+    COMMAND_COLOR_RED,
+    COMMAND_COLOR_YELLOW,
+  ];
 
   pub(crate) const DUMP_FORMAT_JSON: &str = "json";
   pub(crate) const DUMP_FORMAT_JUST: &str = "just";
@@ -141,6 +160,13 @@ impl Config {
           .possible_values(arg::COLOR_VALUES)
           .default_value(arg::COLOR_AUTO)
           .help("Print colorful output"),
+      )
+      .arg(
+        Arg::with_name(arg::COMMAND_COLOR)
+          .long("command-color")
+          .takes_value(true)
+          .possible_values(arg::COMMAND_COLOR_VALUES)
+          .help("Echo recipe lines in <COMMAND-COLOR>"),
       )
       .arg(
         Arg::with_name(arg::DRY_RUN)
@@ -396,6 +422,25 @@ impl Config {
     }
   }
 
+  fn command_color_from_matches(matches: &ArgMatches) -> ConfigResult<Option<ansi_term::Color>> {
+    if let Some(value) = matches.value_of(arg::COMMAND_COLOR) {
+      match value {
+        arg::COMMAND_COLOR_BLACK => Ok(Some(ansi_term::Color::Black)),
+        arg::COMMAND_COLOR_BLUE => Ok(Some(ansi_term::Color::Blue)),
+        arg::COMMAND_COLOR_CYAN => Ok(Some(ansi_term::Color::Cyan)),
+        arg::COMMAND_COLOR_GREEN => Ok(Some(ansi_term::Color::Green)),
+        arg::COMMAND_COLOR_PURPLE => Ok(Some(ansi_term::Color::Purple)),
+        arg::COMMAND_COLOR_RED => Ok(Some(ansi_term::Color::Red)),
+        arg::COMMAND_COLOR_YELLOW => Ok(Some(ansi_term::Color::Yellow)),
+        value => Err(ConfigError::Internal {
+          message: format!("Invalid argument `{value}` to --command-color."),
+        }),
+      }
+    } else {
+      Ok(None)
+    }
+  }
+
   fn dump_format_from_matches(matches: &ArgMatches) -> ConfigResult<DumpFormat> {
     let value = matches
       .value_of(arg::DUMP_FORMAT)
@@ -422,6 +467,7 @@ impl Config {
     };
 
     let color = Self::color_from_matches(matches)?;
+    let command_color = Self::command_color_from_matches(matches)?;
 
     let set_count = matches.occurrences_of(arg::SET);
     let mut overrides = BTreeMap::new();
@@ -593,6 +639,7 @@ impl Config {
         .unwrap_or("    ")
         .to_owned(),
       color,
+      command_color,
       invocation_directory,
       search_config,
       shell_args,
