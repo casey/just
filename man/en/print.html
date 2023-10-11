@@ -1080,13 +1080,13 @@ The executable is at: /bin/just
 <div style="break-before: page; page-break-before: always;"></div><h3 id="recipe-attributes"><a class="header" href="#recipe-attributes">Recipe Attributes</a></h3>
 <p>Recipes may be annotated with attributes that change their behavior.</p>
 <div class="table-wrapper"><table><thead><tr><th>Name</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>[no-cd]</code></td><td>Don’t change directory before executing recipe.</td></tr>
-<tr><td><code>[no-exit-message]</code></td><td>Don’t print an error message if recipe fails.</td></tr>
-<tr><td><code>[linux]</code></td><td>Enable recipe on Linux.</td></tr>
-<tr><td><code>[macos]</code></td><td>Enable recipe on MacOS.</td></tr>
-<tr><td><code>[unix]</code></td><td>Enable recipe on Unixes. (Includes MacOS).</td></tr>
-<tr><td><code>[windows]</code></td><td>Enable recipe on Windows.</td></tr>
-<tr><td><code>[private]</code></td><td>See <a href="chapter_50.html">Private Recipes</a>.</td></tr>
+<tr><td><code>[no-cd]</code><sup>1.9.0</sup></td><td>Don’t change directory before executing recipe.</td></tr>
+<tr><td><code>[no-exit-message]</code><sup>1.7.0</sup></td><td>Don’t print an error message if recipe fails.</td></tr>
+<tr><td><code>[linux]</code><sup>1.8.0</sup></td><td>Enable recipe on Linux.</td></tr>
+<tr><td><code>[macos]</code><sup>1.8.0</sup></td><td>Enable recipe on MacOS.</td></tr>
+<tr><td><code>[unix]</code><sup>1.8.0</sup></td><td>Enable recipe on Unixes. (Includes MacOS).</td></tr>
+<tr><td><code>[windows]</code><sup>1.8.0</sup></td><td>Enable recipe on Windows.</td></tr>
+<tr><td><code>[private]</code><sup>1.10.0</sup></td><td>See <a href="chapter_50.html">Private Recipes</a>.</td></tr>
 </tbody></table>
 </div>
 <p>A recipe can have multiple attributes, either on multiple lines:</p>
@@ -1100,7 +1100,7 @@ foo:
 foo:
     echo &quot;foo&quot;
 </code></pre>
-<h4 id="enabling-and-disabling-recipes"><a class="header" href="#enabling-and-disabling-recipes">Enabling and Disabling Recipes</a></h4>
+<h4 id="enabling-and-disabling-recipes180"><a class="header" href="#enabling-and-disabling-recipes180">Enabling and Disabling Recipes<sup>1.8.0</sup></a></h4>
 <p>The <code>[linux]</code>, <code>[macos]</code>, <code>[unix]</code>, and <code>[windows]</code> attributes are
 configuration attributes. By default, recipes are always enabled. A recipe with
 one or more configuration attributes will only be enabled when one or more of
@@ -1723,7 +1723,7 @@ echo 'Bar!'
 Bar!
 </code></pre>
 <p><code>just</code> normally prints error messages when a recipe line fails. These error
-messages can be suppressed using the <code>[no-exit-message]</code> attribute. You may find
+messages can be suppressed using the <code>[no-exit-message]</code><sup>1.7.0</sup> attribute. You may find
 this especially useful with a recipe that recipe wraps a tool:</p>
 <pre><code class="language-just">git *args:
     @git {{args}}

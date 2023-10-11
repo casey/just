@@ -177,15 +177,16 @@
                         <h3 id="配方属性"><a class="header" href="#配方属性">配方属性</a></h3>
 <p>配方可以通过添加属性注释来改变其行为。</p>
 <div class="table-wrapper"><table><thead><tr><th>名称</th><th>描述</th></tr></thead><tbody>
-<tr><td><code>[no-cd]</code></td><td>在执行配方之前不要改变目录。</td></tr>
-<tr><td><code>[no-exit-message]</code></td><td>如果配方执行失败，不要打印错误信息。</td></tr>
-<tr><td><code>[linux]</code></td><td>在Linux上启用配方。</td></tr>
-<tr><td><code>[macos]</code></td><td>在MacOS上启用配方。</td></tr>
-<tr><td><code>[unix]</code></td><td>在Unixes上启用配方。</td></tr>
-<tr><td><code>[windows]</code></td><td>在Windows上启用配方。</td></tr>
+<tr><td><code>[no-cd]</code><sup>1.9.0</sup></td><td>在执行配方之前不要改变目录。</td></tr>
+<tr><td><code>[no-exit-message]</code><sup>1.7.0</sup></td><td>如果配方执行失败，不要打印错误信息。</td></tr>
+<tr><td><code>[linux]</code><sup>1.8.0</sup></td><td>在Linux上启用配方。</td></tr>
+<tr><td><code>[macos]</code><sup>1.8.0</sup></td><td>在MacOS上启用配方。</td></tr>
+<tr><td><code>[unix]</code><sup>1.8.0</sup></td><td>在Unixes上启用配方。</td></tr>
+<tr><td><code>[windows]</code><sup>1.8.0</sup></td><td>在Windows上启用配方。</td></tr>
+<tr><td><code>[private]</code><sup>1.10.0</sup></td><td>参见 <a href="chapter_48.html">私有配方</a>.</td></tr>
 </tbody></table>
 </div>
-<h4 id="启用和禁用配方"><a class="header" href="#启用和禁用配方">启用和禁用配方</a></h4>
+<h4 id="启用和禁用配方180"><a class="header" href="#启用和禁用配方180">启用和禁用配方<sup>1.8.0</sup></a></h4>
 <p><code>[linux]</code>, <code>[macos]</code>, <code>[unix]</code> 和 <code>[windows]</code> 属性是配置属性。默认情况下，配方总是被启用。一个带有一个或多个配置属性的配方只有在其中一个或多个配置处于激活状态时才会被启用。</p>
 <p>这可以用来编写因运行的操作系统不同，其行为也不同的 <code>justfile</code>。以下 <code>justfile</code> 中的 <code>run</code> 配方将编译和运行 <code>main.c</code>，并且根据操作系统的不同而使用不同的C编译器，同时使用正确的二进制产物名称：</p>
 <pre><code class="language-just">[unix]

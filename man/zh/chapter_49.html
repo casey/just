@@ -205,7 +205,7 @@ Foo!
 echo 'Bar!'
 Bar!
 </code></pre>
-<p><code>just</code> 在配方行失败时通常会打印错误信息，这些错误信息可以通过 <code>[no-exit-message]</code> 属性来抑制。你可能会发现这在包装工具的配方中特别有用：</p>
+<p><code>just</code> 在配方行失败时通常会打印错误信息，这些错误信息可以通过 <code>[no-exit-message]</code><sup>1.7.0</sup> 属性来抑制。你可能会发现这在包装工具的配方中特别有用：</p>
 <pre><code class="language-just">git *args:
     @git {{args}}
 </code></pre>
