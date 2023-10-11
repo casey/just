@@ -1,4 +1,5 @@
 .DS_Store
+.idea
 /.vagrant
 /README.html
 /book/en/build
