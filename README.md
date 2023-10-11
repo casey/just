@@ -1241,15 +1241,15 @@ These functions can fail, for example if a path does not have an extension, whic
 
 Recipes may be annotated with attributes that change their behavior.
 
-| Name                | Description                                     |
-| ------------------- | ----------------------------------------------- |
-| `[no-cd]`           | Don't change directory before executing recipe. |
-| `[no-exit-message]` | Don't print an error message if recipe fails.   |
-| `[linux]`           | Enable recipe on Linux.                         |
-| `[macos]`           | Enable recipe on MacOS.                         |
-| `[unix]`            | Enable recipe on Unixes. (Includes MacOS).      |
-| `[windows]`         | Enable recipe on Windows.                       |
-| `[private]`         | See [Private Recipes](#private-recipes).        |
+| Name                                | Description                                     |
+| ----------------------------------- | ----------------------------------------------- |
+| `[no-cd]`<sup>1.9.0</sup>           | Don't change directory before executing recipe. |
+| `[no-exit-message]`<sup>1.7.0</sup> | Don't print an error message if recipe fails.   |
+| `[linux]`<sup>1.8.0</sup>           | Enable recipe on Linux.                         |
+| `[macos]`<sup>1.8.0</sup>           | Enable recipe on MacOS.                         |
+| `[unix]`<sup>1.8.0</sup>            | Enable recipe on Unixes. (Includes MacOS).      |
+| `[windows]`<sup>1.8.0</sup>         | Enable recipe on Windows.                       |
+| `[private]`<sup>1.10.0</sup>         | See [Private Recipes](#private-recipes).        |
 
 A recipe can have multiple attributes, either on multiple lines:
 
@@ -1268,7 +1268,7 @@ foo:
     echo "foo"
 ```
 
-#### Enabling and Disabling Recipes
+#### Enabling and Disabling Recipes<sup>1.8.0</sup>
 
 The `[linux]`, `[macos]`, `[unix]`, and `[windows]` attributes are
 configuration attributes. By default, recipes are always enabled. A recipe with
@@ -2168,7 +2168,7 @@ Bar!
 ```
 
 `just` normally prints error messages when a recipe line fails. These error
-messages can be suppressed using the `[no-exit-message]` attribute. You may find
+messages can be suppressed using the `[no-exit-message]`<sup>1.7.0</sup> attribute. You may find
 this especially useful with a recipe that recipe wraps a tool:
 
 ```just
