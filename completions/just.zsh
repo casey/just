@@ -17,7 +17,7 @@ _just() {
     local common=(
 '--chooser=[Override binary invoked by `--choose`]' \
 '--color=[Print colorful output]: :(auto always never)' \
-'--command-color=[Color to use when echoing recipe lines]: :(black red green yellow blue purple cyan)' \
+'--command-color=[Echo recipe lines in <COMMAND-COLOR>]: :(black blue cyan green purple red yellow)' \
 '--dump-format=[Dump justfile as <FORMAT>]: :(just json)' \
 '--list-heading=[Print <TEXT> before list]' \
 '--list-prefix=[Print <TEXT> before each list item]' \

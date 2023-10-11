@@ -16,7 +16,7 @@ edit:completion:arg-completer[just] = [@words]{
         &'just'= {
             cand --chooser 'Override binary invoked by `--choose`'
             cand --color 'Print colorful output'
-            cand --command-color 'Color to use when echoing recipe lines'
+            cand --command-color 'Echo recipe lines in <COMMAND-COLOR>'
             cand --dump-format 'Dump justfile as <FORMAT>'
             cand --list-heading 'Print <TEXT> before list'
             cand --list-prefix 'Print <TEXT> before each list item'

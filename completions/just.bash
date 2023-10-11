@@ -49,7 +49,7 @@ _just() {
                     return 0
                     ;;
                 --command-color)
-                    COMPREPLY=($(compgen -W "black red green yellow blue purple cyan" -- "${cur}"))
+                    COMPREPLY=($(compgen -W "black blue cyan green purple red yellow" -- "${cur}"))
                     return 0
                     ;;
                 --dump-format)
