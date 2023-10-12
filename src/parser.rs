@@ -816,11 +816,11 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
 
     if let Some(value) = set_value {
       return Ok(Set { name, value });
-    } else {
-      Err(name.error(CompileErrorKind::UnknownSetting {
-        setting: name.lexeme(),
-      }))
     }
+
+    Err(name.error(CompileErrorKind::UnknownSetting {
+      setting: name.lexeme(),
+    }))
   }
 
   /// Parse a shell setting value

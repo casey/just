@@ -52,7 +52,7 @@ Yay, all your tests passed!
 
 - Wherever possible, errors are resolved statically. Unknown recipes and circular dependencies are reported before anything runs.
 
-- `just` [loads `.env` files](#dotenv-integration), making it easy to populate environment variables.
+- `just` [loads `.env` files](#dotenv-settings), making it easy to populate environment variables.
 
 - Recipes can be [listed from the command line](#listing-available-recipes).
 
@@ -712,7 +712,7 @@ $ just foo
 bar
 ```
 
-#### Dotenv
+#### Dotenv Settings
 
 If `dotenv-load`, `dotenv-filename` or `dotenv-path` is set, `just` will load environment variables from a file.
 
@@ -1532,9 +1532,6 @@ print_home_folder:
 $ just
 HOME is '/home/myuser'
 ```
-#### Loading Environment Variables from a `.env` File
-
-`just` will load environment variables from a `.env` file if [dotenv-load](#dotenv-load) is set. The variables in the file will be available as environment variables to the recipes. See [dotenv-integration](#dotenv-integration) for more information.
 
 #### Setting `just` Variables from Environment Variables
 
