@@ -889,9 +889,7 @@ Available recipes:
 
 If one of [`dotenv-load`, `dotenv-filename` or `dotenv-path`](#dotenv-settings) is set, `just` will load environment variables from a file.
 
-This file is named `.env` by default, unless `dotenv-filename` is used to change the name of the file that `just` will look for.
-This file can be located in the same directory as your `justfile` or in a parent directory, unless this behavior is changed to point to a file in an arbitrary directory using `dotenv-path`.
-These variables are environment variables, not `just` variables, and so must be accessed using `$VARIABLE_NAME` in recipes and backticks.
+This file is named `.env` by default, unless `dotenv-filename` is used to change the name of the file that `just` will look for. This file can be located in the same directory as your `justfile` or in a parent directory, unless this behavior is changed to point to a file in an arbitrary directory using `dotenv-path`. These variables are environment variables, not `just` variables, and so must be accessed using `$VARIABLE_NAME` in recipes and backticks.
 
 For example, if your `.env` file contains:
 
