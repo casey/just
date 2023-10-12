@@ -11,6 +11,7 @@ pub(crate) fn load_dotenv(
     .dotenv_filename
     .as_ref()
     .or(settings.dotenv_filename.as_ref());
+
   let dotenv_path = config
     .dotenv_path
     .as_ref()

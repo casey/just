@@ -780,22 +780,23 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     self.presume_keyword(Keyword::Set)?;
     let name = Name::from_identifier(self.presume(Identifier)?);
     let lexeme = name.lexeme();
-    let keyword = Keyword::from_lexeme(lexeme);
+    let Some(keyword) = Keyword::from_lexeme(lexeme) else {
+      return Err(name.error(CompileErrorKind::UnknownSetting {
+        setting: name.lexeme(),
+      }));
+    };
 
-    let set_bool: Option<Setting> = match keyword {
-      Some(kw) => match kw {
-        Keyword::AllowDuplicateRecipes => {
-          Some(Setting::AllowDuplicateRecipes(self.parse_set_bool()?))
-        }
-        Keyword::DotenvLoad => Some(Setting::DotenvLoad(self.parse_set_bool()?)),
-        Keyword::Export => Some(Setting::Export(self.parse_set_bool()?)),
-        Keyword::Fallback => Some(Setting::Fallback(self.parse_set_bool()?)),
-        Keyword::IgnoreComments => Some(Setting::IgnoreComments(self.parse_set_bool()?)),
-        Keyword::PositionalArguments => Some(Setting::PositionalArguments(self.parse_set_bool()?)),
-        Keyword::WindowsPowershell => Some(Setting::WindowsPowerShell(self.parse_set_bool()?)),
-        _ => None,
-      },
-      None => None,
+    let set_bool = match keyword {
+      Keyword::AllowDuplicateRecipes => {
+        Some(Setting::AllowDuplicateRecipes(self.parse_set_bool()?))
+      }
+      Keyword::DotenvLoad => Some(Setting::DotenvLoad(self.parse_set_bool()?)),
+      Keyword::Export => Some(Setting::Export(self.parse_set_bool()?)),
+      Keyword::Fallback => Some(Setting::Fallback(self.parse_set_bool()?)),
+      Keyword::IgnoreComments => Some(Setting::IgnoreComments(self.parse_set_bool()?)),
+      Keyword::PositionalArguments => Some(Setting::PositionalArguments(self.parse_set_bool()?)),
+      Keyword::WindowsPowershell => Some(Setting::WindowsPowerShell(self.parse_set_bool()?)),
+      _ => None,
     };
 
     if let Some(value) = set_bool {
@@ -804,22 +805,17 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
 
     self.expect(ColonEquals)?;
 
-    let set_value: Option<Setting> = match keyword {
-      Some(kw) => match kw {
-        Keyword::DotenvFilename => {
-          Some(Setting::DotenvFilename(self.parse_string_literal()?.cooked))
-        }
-        Keyword::DotenvPath => Some(Setting::DotenvPath(self.parse_string_literal()?.cooked)),
-        Keyword::Shell => Some(Setting::Shell(self.parse_shell()?)),
-        Keyword::Tempdir => Some(Setting::Tempdir(self.parse_string_literal()?.cooked)),
-        Keyword::WindowsShell => Some(Setting::WindowsShell(self.parse_shell()?)),
-        _ => None,
-      },
-      None => None,
+    let set_value = match keyword {
+      Keyword::DotenvFilename => Some(Setting::DotenvFilename(self.parse_string_literal()?.cooked)),
+      Keyword::DotenvPath => Some(Setting::DotenvPath(self.parse_string_literal()?.cooked)),
+      Keyword::Shell => Some(Setting::Shell(self.parse_shell()?)),
+      Keyword::Tempdir => Some(Setting::Tempdir(self.parse_string_literal()?.cooked)),
+      Keyword::WindowsShell => Some(Setting::WindowsShell(self.parse_shell()?)),
+      _ => None,
     };
 
     if let Some(value) = set_value {
-      Ok(Set { name, value })
+      return Ok(Set { name, value });
     } else {
       Err(name.error(CompileErrorKind::UnknownSetting {
         setting: name.lexeme(),
