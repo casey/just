@@ -9,7 +9,9 @@ pub(crate) const WINDOWS_POWERSHELL_ARGS: &[&str] = &["-NoLogo", "-Command"];
 #[allow(clippy::struct_excessive_bools)]
 pub(crate) struct Settings<'src> {
   pub(crate) allow_duplicate_recipes: bool,
+  pub(crate) dotenv_filename: Option<String>,
   pub(crate) dotenv_load: Option<bool>,
+  pub(crate) dotenv_path: Option<PathBuf>,
   pub(crate) export: bool,
   pub(crate) fallback: bool,
   pub(crate) ignore_comments: bool,
@@ -29,8 +31,14 @@ impl<'src> Settings<'src> {
         Setting::AllowDuplicateRecipes(allow_duplicate_recipes) => {
           settings.allow_duplicate_recipes = allow_duplicate_recipes;
         }
+        Setting::DotenvFilename(filename) => {
+          settings.dotenv_filename = Some(filename);
+        }
         Setting::DotenvLoad(dotenv_load) => {
           settings.dotenv_load = Some(dotenv_load);
+        }
+        Setting::DotenvPath(path) => {
+          settings.dotenv_path = Some(PathBuf::from(path));
         }
         Setting::Export(export) => {
           settings.export = export;

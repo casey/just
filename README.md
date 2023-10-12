@@ -52,7 +52,7 @@ Yay, all your tests passed!
 
 - Wherever possible, errors are resolved statically. Unknown recipes and circular dependencies are reported before anything runs.
 
-- `just` [loads `.env` files](#dotenv-integration), making it easy to populate environment variables.
+- `just` [loads `.env` files](#dotenv-settings), making it easy to populate environment variables.
 
 - Recipes can be [listed from the command line](#listing-available-recipes).
 
@@ -669,7 +669,9 @@ foo:
 | Name                      | Value              | Default | Description                                                                                   |
 | ------------------------- | ------------------ | ------- |---------------------------------------------------------------------------------------------- |
 | `allow-duplicate-recipes` | boolean            | `false` | Allow recipes appearing later in a `justfile` to override earlier recipes with the same name. |
+| `dotenv-filename`         | string             | -       | Load a `.env` file with a custom name, if present.                                            |
 | `dotenv-load`             | boolean            | `false` | Load a `.env` file, if present.                                                               |
+| `dotenv-path`             | string             | -       | Load a `.env` file from a custom path, if present. Overrides `dotenv-filename`.               |
 | `export`                  | boolean            | `false` | Export all variables as environment variables.                                                |
 | `fallback`                | boolean            | `false` | Search `justfile` in parent directory if the first recipe on the command line is not found.   |
 | `ignore-comments`         | boolean            | `false` | Ignore recipe lines beginning with `#`.                                                       |
@@ -710,9 +712,41 @@ $ just foo
 bar
 ```
 
-#### Dotenv Load
+#### Dotenv Settings
 
-If `dotenv-load` is `true`, a `.env` file will be loaded if present. Defaults to `false`.
+If `dotenv-load`, `dotenv-filename` or `dotenv-path` is set, `just` will load environment variables from a file.
+
+If `dotenv-path` is set, `just` will look for a file at the given path.
+
+Otherwise, `just` looks for a file named `.env` by default, unless `dotenv-filename` set, in which case the value of `dotenv-filename` is used. This file can be located in the same directory as your `justfile` or in a parent directory.
+
+The loaded variables are environment variables, not `just` variables, and so must be accessed using `$VARIABLE_NAME` in recipes and backticks.
+
+For example, if your `.env` file contains:
+
+```sh
+# a comment, will be ignored
+DATABASE_ADDRESS=localhost:6379
+SERVER_PORT=1337
+```
+
+And your `justfile` contains:
+
+```just
+set dotenv-load
+
+serve:
+  @echo "Starting server with database $DATABASE_ADDRESS on port $SERVER_PORT…"
+  ./server --database $DATABASE_ADDRESS --port $SERVER_PORT
+```
+
+`just serve` will output:
+
+```sh
+$ just serve
+Starting server with database localhost:6379 on port 1337…
+./server --database $DATABASE_ADDRESS --port $SERVER_PORT
+```
 
 #### Export
 
@@ -876,36 +910,6 @@ $ just --list
 Available recipes:
     build # build stuff
     test # test stuff
-```
-
-### Dotenv Integration
-
-If [`dotenv-load`](#dotenv-load) is set, `just` will load environment variables from a file named `.env`. This file can be located in the same directory as your `justfile` or in a parent directory. These variables are environment variables, not `just` variables, and so must be accessed using `$VARIABLE_NAME` in recipes and backticks.
-
-For example, if your `.env` file contains:
-
-```sh
-# a comment, will be ignored
-DATABASE_ADDRESS=localhost:6379
-SERVER_PORT=1337
-```
-
-And your `justfile` contains:
-
-```just
-set dotenv-load
-
-serve:
-  @echo "Starting server with database $DATABASE_ADDRESS on port $SERVER_PORT…"
-  ./server --database $DATABASE_ADDRESS --port $SERVER_PORT
-```
-
-`just serve` will output:
-
-```sh
-$ just serve
-Starting server with database localhost:6379 on port 1337…
-./server --database $DATABASE_ADDRESS --port $SERVER_PORT
 ```
 
 ### Variables and Substitution
@@ -1528,9 +1532,6 @@ print_home_folder:
 $ just
 HOME is '/home/myuser'
 ```
-#### Loading Environment Variables from a `.env` File
-
-`just` will load environment variables from a `.env` file if [dotenv-load](#dotenv-load) is set. The variables in the file will be available as environment variables to the recipes. See [dotenv-integration](#dotenv-integration) for more information.
 
 #### Setting `just` Variables from Environment Variables
 

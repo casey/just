@@ -6,10 +6,6 @@ alias t := test
 
 alias c := check
 
-bt := '0'
-
-export RUST_BACKTRACE := bt
-
 log := "warn"
 
 export JUST_LOG := log

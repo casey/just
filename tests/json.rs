@@ -42,7 +42,9 @@ fn alias() {
       },
       "settings": {
         "allow_duplicate_recipes": false,
+        "dotenv_filename": null,
         "dotenv_load": null,
+        "dotenv_path": null,
         "export": false,
         "fallback": false,
         "positional_arguments": false,
@@ -74,7 +76,9 @@ fn assignment() {
       "recipes": {},
       "settings": {
         "allow_duplicate_recipes": false,
+        "dotenv_filename": null,
         "dotenv_load": null,
+        "dotenv_path": null,
         "export": false,
         "fallback": false,
         "ignore_comments": false,
@@ -120,7 +124,9 @@ fn body() {
       },
       "settings": {
         "allow_duplicate_recipes": false,
+        "dotenv_filename": null,
         "dotenv_load": null,
+        "dotenv_path": null,
         "export": false,
         "fallback": false,
         "ignore_comments": false,
@@ -177,7 +183,9 @@ fn dependencies() {
       },
       "settings": {
         "allow_duplicate_recipes": false,
+        "dotenv_filename": null,
         "dotenv_load": null,
+        "dotenv_path": null,
         "export": false,
         "fallback": false,
         "ignore_comments": false,
@@ -271,7 +279,9 @@ fn dependency_argument() {
       },
       "settings": {
         "allow_duplicate_recipes": false,
+        "dotenv_filename": null,
         "dotenv_load": null,
+        "dotenv_path": null,
         "export": false,
         "fallback": false,
         "ignore_comments": false,
@@ -329,7 +339,9 @@ fn duplicate_recipes() {
       },
       "settings": {
         "allow_duplicate_recipes": true,
+        "dotenv_filename": null,
         "dotenv_load": null,
+        "dotenv_path": null,
         "export": false,
         "fallback": false,
         "ignore_comments": false,
@@ -368,7 +380,9 @@ fn doc_comment() {
       },
       "settings": {
         "allow_duplicate_recipes": false,
+        "dotenv_filename": null,
         "dotenv_load": null,
+        "dotenv_path": null,
         "export": false,
         "fallback": false,
         "ignore_comments": false,
@@ -394,7 +408,9 @@ fn empty_justfile() {
       "recipes": {},
       "settings": {
         "allow_duplicate_recipes": false,
+        "dotenv_filename": null,
         "dotenv_load": null,
+        "dotenv_path": null,
         "export": false,
         "fallback": false,
         "ignore_comments": false,
@@ -535,7 +551,9 @@ fn parameters() {
       },
       "settings": {
         "allow_duplicate_recipes": false,
+        "dotenv_filename": null,
         "dotenv_load": null,
+        "dotenv_path": null,
         "export": false,
         "fallback": false,
         "ignore_comments": false,
@@ -612,7 +630,9 @@ fn priors() {
       },
       "settings": {
         "allow_duplicate_recipes": false,
+        "dotenv_filename": null,
         "dotenv_load": null,
+        "dotenv_path": null,
         "export": false,
         "fallback": false,
         "ignore_comments": false,
@@ -651,7 +671,9 @@ fn private() {
       },
       "settings": {
         "allow_duplicate_recipes": false,
+        "dotenv_filename": null,
         "dotenv_load": null,
+        "dotenv_path": null,
         "export": false,
         "fallback": false,
         "ignore_comments": false,
@@ -690,7 +712,9 @@ fn quiet() {
       },
       "settings": {
         "allow_duplicate_recipes": false,
+        "dotenv_filename": null,
         "dotenv_load": null,
+        "dotenv_path": null,
         "export": false,
         "fallback": false,
         "ignore_comments": false,
@@ -710,6 +734,8 @@ fn settings() {
   test(
     "
       set dotenv-load
+      set dotenv-filename := \"filename\"
+      set dotenv-path := \"path\"
       set export
       set fallback
       set positional-arguments
@@ -738,7 +764,9 @@ fn settings() {
       },
       "settings": {
         "allow_duplicate_recipes": false,
+        "dotenv_filename": "filename",
         "dotenv_load": true,
+        "dotenv_path": "path",
         "export": true,
         "fallback": true,
         "ignore_comments": true,
@@ -783,7 +811,9 @@ fn shebang() {
       },
       "settings": {
         "allow_duplicate_recipes": false,
+        "dotenv_filename": null,
         "dotenv_load": null,
+        "dotenv_path": null,
         "export": false,
         "fallback": false,
         "ignore_comments": false,
@@ -822,7 +852,9 @@ fn simple() {
       },
       "settings": {
         "allow_duplicate_recipes": false,
+        "dotenv_filename": null,
         "dotenv_load": null,
+        "dotenv_path": null,
         "export": false,
         "fallback": false,
         "ignore_comments": false,
@@ -864,7 +896,9 @@ fn attribute() {
       },
       "settings": {
         "allow_duplicate_recipes": false,
+        "dotenv_filename": null,
         "dotenv_load": null,
+        "dotenv_path": null,
         "export": false,
         "fallback": false,
         "positional_arguments": false,

@@ -71,10 +71,24 @@ test! {
     set foo
   ",
   stderr: "
-  error: Expected ':=', but found end of line
+  error: Unknown setting `foo`
     |
   1 | set foo
-    |        ^
+    |     ^^^
+  ",
+  status: EXIT_FAILURE,
+}
+
+test! {
+  name: bad_setting_with_keyword_name,
+  justfile: "
+    set if := 'foo'
+  ",
+  stderr: "
+  error: Unknown setting `if`
+    |
+  1 | set if := 'foo'
+    |     ^^
   ",
   status: EXIT_FAILURE,
 }

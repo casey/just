@@ -7,25 +7,28 @@ pub(crate) fn load_dotenv(
   settings: &Settings,
   working_directory: &Path,
 ) -> RunResult<'static, BTreeMap<String, String>> {
-  if !settings.dotenv_load.unwrap_or(false)
-    && config.dotenv_filename.is_none()
-    && config.dotenv_path.is_none()
-  {
+  let dotenv_filename = config
+    .dotenv_filename
+    .as_ref()
+    .or(settings.dotenv_filename.as_ref());
+
+  let dotenv_path = config
+    .dotenv_path
+    .as_ref()
+    .or(settings.dotenv_path.as_ref());
+
+  if !settings.dotenv_load.unwrap_or(false) && dotenv_filename.is_none() && dotenv_path.is_none() {
     return Ok(BTreeMap::new());
   }
 
-  if let Some(path) = &config.dotenv_path {
+  if let Some(path) = dotenv_path {
     return load_from_file(path);
   }
 
-  let filename = config
-    .dotenv_filename
-    .as_deref()
-    .unwrap_or(DEFAULT_DOTENV_FILENAME)
-    .to_owned();
+  let filename = dotenv_filename.map_or(DEFAULT_DOTENV_FILENAME, |s| s.as_str());
 
   for directory in working_directory.ancestors() {
-    let path = directory.join(filename.as_str());
+    let path = directory.join(filename);
     if path.is_file() {
       return load_from_file(&path);
     }
