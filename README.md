@@ -712,14 +712,41 @@ $ just foo
 bar
 ```
 
-#### Dotenv Settings
+#### Dotenv
 
-If `dotenv-load` is `true`, a `.env` file will be loaded if present. Defaults to `false`.
+If `dotenv-load`, `dotenv-filename` or `dotenv-path` is set, `just` will load environment variables from a file.
 
-`dotenv-filename` and `dotenv-path` can also be used to load a `.env` file:
+If `dotenv-path` is set, `just` will look for a file at the given path.
 
-- `dotenv-filename` will look for a file with the given name in the current directory and all of its parents.
-- `dotenv-path` will directly load the file at the given path.
+Otherwise, `just` looks for a file named `.env` by default, unless `dotenv-filename` set, in which case the value of `dotenv-filename` is used. This file can be located in the same directory as your `justfile` or in a parent directory.
+
+The loaded variables are environment variables, not `just` variables, and so must be accessed using `$VARIABLE_NAME` in recipes and backticks.
+
+For example, if your `.env` file contains:
+
+```sh
+# a comment, will be ignored
+DATABASE_ADDRESS=localhost:6379
+SERVER_PORT=1337
+```
+
+And your `justfile` contains:
+
+```just
+set dotenv-load
+
+serve:
+  @echo "Starting server with database $DATABASE_ADDRESS on port $SERVER_PORT…"
+  ./server --database $DATABASE_ADDRESS --port $SERVER_PORT
+```
+
+`just serve` will output:
+
+```sh
+$ just serve
+Starting server with database localhost:6379 on port 1337…
+./server --database $DATABASE_ADDRESS --port $SERVER_PORT
+```
 
 #### Export
 
@@ -883,38 +910,6 @@ $ just --list
 Available recipes:
     build # build stuff
     test # test stuff
-```
-
-### Dotenv Integration
-
-If one of [`dotenv-load`, `dotenv-filename` or `dotenv-path`](#dotenv-settings) is set, `just` will load environment variables from a file.
-
-This file is named `.env` by default, unless `dotenv-filename` is used to change the name of the file that `just` will look for. This file can be located in the same directory as your `justfile` or in a parent directory, unless this behavior is changed to point to a file in an arbitrary directory using `dotenv-path`. These variables are environment variables, not `just` variables, and so must be accessed using `$VARIABLE_NAME` in recipes and backticks.
-
-For example, if your `.env` file contains:
-
-```sh
-# a comment, will be ignored
-DATABASE_ADDRESS=localhost:6379
-SERVER_PORT=1337
-```
-
-And your `justfile` contains:
-
-```just
-set dotenv-load
-
-serve:
-  @echo "Starting server with database $DATABASE_ADDRESS on port $SERVER_PORT…"
-  ./server --database $DATABASE_ADDRESS --port $SERVER_PORT
-```
-
-`just serve` will output:
-
-```sh
-$ just serve
-Starting server with database localhost:6379 on port 1337…
-./server --database $DATABASE_ADDRESS --port $SERVER_PORT
 ```
 
 ### Variables and Substitution
