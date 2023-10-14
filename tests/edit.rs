@@ -82,7 +82,7 @@ fn status_error() {
   assert!(
     Regex::new("^error: Editor `exit-2` failed: exit (code|status): 2\n$")
       .unwrap()
-      .is_match(str::from_utf8(&output.stderr).unwrap(),)
+      .is_match(str::from_utf8(&output.stderr).unwrap())
   );
 
   assert_eq!(output.status.code().unwrap(), 2);
