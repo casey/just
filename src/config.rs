@@ -616,7 +616,7 @@ impl Config {
     };
 
     let unstable = matches.is_present(arg::UNSTABLE)
-      || std::env::var_os("JUST_UNSTABLE")
+      || env::var_os("JUST_UNSTABLE")
         .map(|val| !(val == "false" || val == "0" || val.is_empty()))
         .unwrap_or_default();
 
@@ -662,7 +662,7 @@ impl Config {
 
   pub(crate) fn run(self, loader: &Loader) -> Result<(), Error> {
     if let Err(error) = InterruptHandler::install(self.verbosity) {
-      warn!("Failed to set CTRL-C handler: {}", error);
+      warn!("Failed to set CTRL-C handler: {error}");
     }
 
     self.subcommand.execute(&self, loader)
@@ -761,7 +761,7 @@ mod tests {
 
         match Config::from_matches(&matches).expect_err("config parsing succeeded") {
           $error => { $($check)? }
-          other => panic!("Unexpected config error: {}", other),
+          other => panic!("Unexpected config error: {other}"),
         }
       }
     }

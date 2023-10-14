@@ -337,9 +337,9 @@ fn sha256_file(context: &FunctionContext, path: &str) -> Result<String, String> 
   let justpath = context.search.working_directory.join(path);
   let mut hasher = Sha256::new();
   let mut file = fs::File::open(&justpath)
-    .map_err(|err| format!("Failed to open file at `{:?}`: {err}", &justpath.to_str()))?;
+    .map_err(|err| format!("Failed to open file at `{:?}`: {err}", justpath.to_str()))?;
   std::io::copy(&mut file, &mut hasher)
-    .map_err(|err| format!("Failed to read file at `{:?}`: {err}", &justpath.to_str()))?;
+    .map_err(|err| format!("Failed to read file at `{:?}`: {err}", justpath.to_str()))?;
   let hash = hasher.finalize();
   Ok(format!("{hash:x}"))
 }

@@ -15,7 +15,7 @@ pub(crate) fn output(mut command: Command) -> Result<String, OutputError> {
           None => OutputError::Unknown,
         });
       }
-      match std::str::from_utf8(&output.stdout) {
+      match str::from_utf8(&output.stdout) {
         Err(error) => Err(OutputError::Utf8(error)),
         Ok(utf8) => Ok(
           if utf8.ends_with('\n') {

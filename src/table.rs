@@ -75,8 +75,8 @@ impl<'key, V: Keyed<'key>> Index<&'key str> for Table<'key, V> {
 }
 
 impl<'key, V: Keyed<'key>> IntoIterator for Table<'key, V> {
-  type IntoIter = btree_map::IntoIter<&'key str, V>;
   type Item = (&'key str, V);
+  type IntoIter = btree_map::IntoIter<&'key str, V>;
 
   fn into_iter(self) -> btree_map::IntoIter<&'key str, V> {
     self.map.into_iter()
@@ -84,8 +84,8 @@ impl<'key, V: Keyed<'key>> IntoIterator for Table<'key, V> {
 }
 
 impl<'table, V: Keyed<'table> + 'table> IntoIterator for &'table Table<'table, V> {
-  type IntoIter = btree_map::Iter<'table, &'table str, V>;
   type Item = (&'table &'table str, &'table V);
+  type IntoIter = btree_map::Iter<'table, &'table str, V>;
 
   fn into_iter(self) -> btree_map::Iter<'table, &'table str, V> {
     self.map.iter()

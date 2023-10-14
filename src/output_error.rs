@@ -11,11 +11,11 @@ pub(crate) enum OutputError {
   /// Unknown failure
   Unknown,
   /// Stdout not UTF-8
-  Utf8(std::str::Utf8Error),
+  Utf8(str::Utf8Error),
 }
 
 impl Display for OutputError {
-  fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+  fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
     match *self {
       Self::Code(code) => write!(f, "Process exited with status code {code}"),
       Self::Io(ref io_error) => write!(f, "Error executing process: {io_error}"),

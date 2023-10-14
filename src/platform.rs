@@ -33,7 +33,7 @@ impl PlatformInterface for Platform {
     fs::set_permissions(path, permissions)
   }
 
-  fn signal_from_exit_status(exit_status: process::ExitStatus) -> Option<i32> {
+  fn signal_from_exit_status(exit_status: ExitStatus) -> Option<i32> {
     use std::os::unix::process::ExitStatusExt;
     exit_status.signal()
   }
