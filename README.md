@@ -2484,7 +2484,17 @@ Tools that pair nicely with `just` include:
 
 ### Shell Alias
 
-For lightning-fast command running, put `alias j=just` in your shell's configuration file.
+For superfast command running, put `alias j=just` in your shell's configuration file. In case this isn't fast enough for you, take a look at this alias:
+
+```sh
+# js - just shell
+# Add aliases only for recipes themselves:
+alias js='just --summary | tr " " "\n" | while read -r recipe; do alias "$recipe"="just $recipe"; done'
+# Add aliases for recipes and their aliases:
+alias js='just --list | tail -n +2 | awk "{print \$1}" | while read -r recipe; do alias "$recipe"="just $recipe"; done'
+```
+
+After executing the `js` alias, it will add all the recipes (including their aliases) directly as shell aliases, so you can execute them at the speed of light! You can change `js` to `J` or whichever feels the best for you.
 
 In `bash`, the aliased command may not keep the shell completion functionality described in the next section. Add the following line to your `.bashrc` to use the same completion function as `just` for your aliased command:
 
@@ -2538,12 +2548,29 @@ First, create a `justfile` in `~/.user.justfile` with some recipes.
 If you want to call the recipes in `~/.user.justfile` by name, and don't mind creating an alias for every recipe, add the following to your shell's initialization script:
 
 ```sh
-for recipe in `just --justfile ~/.user.justfile --summary`; do
-  alias $recipe="just --justfile ~/.user.justfile --working-directory . $recipe"
+just --justfile ~/.user.justfile --summary | tr ' ' '\n' | while read -r recipe; do
+  alias "$recipe"="just --justfile ~/.user.justfile --working-directory . $recipe"
 done
 ```
 
-Now, if you have a recipe called `foo` in `~/.user.justfile`, you can just type `foo` at the command line to run it.
+If you want to also access recipe aliases, then use this instead:
+
+```sh
+just --justfile ~/.user.justfile --list | tail -n +2 | awk '{print \$1}' | while read -r recipe; do
+  alias "$recipe"="just --justfile ~/.user.justfile --working-directory . $recipe"
+done
+```
+
+Or if you want to keep it as an on-demand command, then put the next alias in your shell's configuration file:
+
+```sh
+# js - just shell
+alias .js='just --justfile ~/.user.justfile --summary | tr " " "\n" | while read -r recipe; do alias "$recipe"="just --justfile ~/.user.justfile --working-directory . $recipe"; done'
+# or
+alias .js='just --justfile ~/.user.justfile --list | tail -n +2 | awk "{print \$1}" | while read -r recipe; do alias "$recipe"="just --justfile ~/.user.justfile --working-directory . $recipe"; done'
+```
+
+Now, if you have a recipe called `foo` in `~/.user.justfile`, you can just type `foo` at the command line to run it. And if `foo` has an alias `f`, then you can simply press `f` and that's it!
 
 It took me way too long to realize that you could create recipe aliases like this. Notwithstanding my tardiness, I am very pleased to bring you this major advance in `justfile` technology.
 
