@@ -210,12 +210,12 @@ impl<'src, 'run> Evaluator<'src, 'run> {
 
     cmd.export(self.settings, self.dotenv, &self.scope);
 
-    cmd.stdin(process::Stdio::inherit());
+    cmd.stdin(Stdio::inherit());
 
     cmd.stderr(if self.config.verbosity.quiet() {
-      process::Stdio::null()
+      Stdio::null()
     } else {
-      process::Stdio::inherit()
+      Stdio::inherit()
     });
 
     InterruptHandler::guard(|| {

@@ -116,7 +116,7 @@ fn editor_precedence() {
   assert_stdout(&output, JUSTFILE);
 
   let cat = which("cat").unwrap();
-  let vim = tmp.path().join(format!("vim{}", EXE_SUFFIX));
+  let vim = tmp.path().join(format!("vim{EXE_SUFFIX}"));
 
   #[cfg(unix)]
   std::os::unix::fs::symlink(cat, vim).unwrap();

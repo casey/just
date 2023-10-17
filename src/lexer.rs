@@ -729,7 +729,7 @@ impl<'src> Lexer<'src> {
       }
       self.token(Whitespace);
     } else if let Some(character) = self.next {
-      return Err(self.error(CompileErrorKind::InvalidEscapeSequence { character }));
+      return Err(self.error(InvalidEscapeSequence { character }));
     }
 
     Ok(())

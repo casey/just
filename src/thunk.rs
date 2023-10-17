@@ -56,7 +56,7 @@ impl<'src> Thunk<'src> {
     name: Name<'src>,
     mut arguments: Vec<Expression<'src>>,
   ) -> CompileResult<'src, Thunk<'src>> {
-    crate::function::get(name.lexeme()).map_or(
+    function::get(name.lexeme()).map_or(
       Err(name.error(CompileErrorKind::UnknownFunction {
         function: name.lexeme(),
       })),
