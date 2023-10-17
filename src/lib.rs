@@ -48,7 +48,7 @@ pub(crate) use {
     rc::Rc,
     str::{self, Chars},
     sync::{Mutex, MutexGuard},
-    usize, vec,
+    vec,
   },
   {
     camino::Utf8Path,

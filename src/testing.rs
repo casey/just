@@ -108,7 +108,7 @@ macro_rules! run_error {
           ).expect_err("Expected runtime error") {
             $error => $check
             other => {
-              panic!("Unexpected run error: {:?}", other);
+              panic!("Unexpected run error: {other:?}");
             }
           }
       } else {

@@ -15,7 +15,7 @@ test:
 
 ci: build-book
   cargo test --all
-  cargo clippy --all --all-targets
+  cargo clippy --all --all-targets -- --deny warnings
   cargo fmt --all -- --check
   ./bin/forbid
   cargo update --locked --package just
