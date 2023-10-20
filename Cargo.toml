@@ -24,6 +24,7 @@ camino = "1.0.4"
 clap = { version = "2.33.0", features = ["wrap_help"] }
 ctrlc = { version = "3.1.1", features = ["termination"] }
 derivative = "2.0.0"
+dirs = "5.0.1"
 dotenvy = "0.15"
 edit-distance = "2.0.0"
 env_logger = "0.10.0"
@@ -31,6 +32,7 @@ heck = "0.4.0"
 lexiclean = "0.0.1"
 libc = "0.2.0"
 log = "0.4.4"
+mnt = "0.3.1"
 num_cpus = "1.15.0"
 regex = "1.5.4"
 serde = { version = "1.0.130", features = ["derive", "rc"] }

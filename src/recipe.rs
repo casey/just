@@ -274,6 +274,14 @@ impl<'src, D> Recipe<'src, D> {
       message: format!("bad shebang line: {shebang_line}"),
     })?;
 
+    if cfg!(unix) {
+      let mnt_point = mnt::get_mount(env::temp_dir()).unwrap();
+      if mnt_point.clone().unwrap().mntops.contains(&mnt::MntOps::Exec(false)) {
+        let cache_dir = dirs::cache_dir().unwrap();
+        env::set_var("TMPDIR", cache_dir);
+      }
+    }
+
     let mut tempdir_builder = tempfile::Builder::new();
     tempdir_builder.prefix("just");
     let tempdir = match &context.settings.tempdir {
