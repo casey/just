@@ -1,5 +1,5 @@
 function __fish_just_complete_recipes
-    just --list 2> /dev/null | sed -e '1d; s/^\s*\([^[:space:]]*\)[^#]*$/\1/' -e 's/^\s*\([^[:space:]]*\)[^#]*# \(.*\)$/\1\t\2/'
+    just --list 2> /dev/null | sed -E -e '1d; s/^[[:space:]]*([^[:space:]]+)[[:space:]]*#[[:space:]]*(.*)$/\1\t\2/' -e 's/^[[:space:]]*([^[:space:]]+)[[:space:]]*$/\1/'
 end
 
 # don't suggest files right off
