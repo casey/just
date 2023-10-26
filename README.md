@@ -1241,6 +1241,10 @@ These functions can fail, for example if a path does not have an extension, whic
 - `sha256_file(path)` - Return the SHA-256 hash of the file at `path` as a hexadecimal string.
 - `uuid()` - Return a randomly generated UUID.
 
+#### Semantic Versions
+
+- `semver_matches(version, requirement)`<sup>master</sup> - Check whether a [semantic version](https://semver.org) `version`, e.g., `"0.1.0"` matches requirement `requirement`, e.g., `">=0.1.0"`, returning `"true"` if so and `"false"` otherwise. 
+
 ### Recipe Attributes
 
 Recipes may be annotated with attributes that change their behavior.

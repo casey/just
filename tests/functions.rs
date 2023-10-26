@@ -412,6 +412,17 @@ test! {
     stderr: "echo Bar\n",
 }
 
+test! {
+    name: semver_matches_gte,
+    justfile: "
+      foo:
+        echo {{ semver_matches('0.1.0', '>=0.1.0') }}
+        echo {{ semver_matches('0.1.0', '>=0.0.1') }}
+    ",
+    stdout: "true\ntrue\n",
+    stderr: "echo true\necho true\n",
+}
+
 fn assert_eval_eq(expression: &str, result: &str) {
   Test::new()
     .justfile(format!("x := {expression}"))
