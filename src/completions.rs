@@ -8,20 +8,20 @@ pub(crate) const FISH_RECIPE_COMPLETIONS: &str = r#"function __fish_just_complet
         gsub(/^[[:space:]]+|[[:space:]]+$/, "", args);
 
         if (match(args, /#.*/)) {
-          desc = substr(args, RSTART+2, RLENGTH)
-          args = substr(args, 0, RSTART-1)
+          desc = substr(args, RSTART+2, RLENGTH);
+          args = substr(args, 0, RSTART-1);
           gsub(/^[[:space:]]+|[[:space:]]+$/, "", args);
         }
 
-        gsub(/\+|=[`\'"][^`\'"]*[`\'"]/, "", args)
-        gsub(/ /, ",", args)
+        gsub(/\+|=[`\'"][^`\'"]*[`\'"]/, "", args);
+        gsub(/ /, ",", args);
 
         if (args != ""){
-          args = "Args: " args
+          args = "Args: " args;
         }
 
         if (args != "" && desc != "") {
-          delim = "; "
+          delim = "; ";
         }
 
         print command "\t" args delim desc
