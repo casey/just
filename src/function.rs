@@ -4,6 +4,7 @@ use {
     ToKebabCase, ToLowerCamelCase, ToShoutyKebabCase, ToShoutySnakeCase, ToSnakeCase, ToTitleCase,
     ToUpperCamelCase,
   },
+  semver::{Version, VersionReq},
   Function::*,
 };
 
@@ -46,6 +47,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "quote" => Unary(quote),
     "replace" => Ternary(replace),
     "replace_regex" => Ternary(replace_regex),
+    "semver_matches" => Binary(semver_matches),
     "sha256" => Unary(sha256),
     "sha256_file" => Unary(sha256_file),
     "shoutykebabcase" => Unary(shoutykebabcase),
@@ -410,4 +412,24 @@ fn without_extension(_context: &FunctionContext, path: &str) -> Result<String, S
     .ok_or_else(|| format!("Could not extract file stem from `{path}`"))?;
 
   Ok(parent.join(file_stem).to_string())
+}
+
+/// Check whether a string processes properly as semver (e.x. "0.1.0")
+/// and matches a given semver requirement (e.x. ">=0.1.0")
+fn semver_matches(
+  _context: &FunctionContext,
+  version: &str,
+  requirement: &str,
+) -> Result<String, String> {
+  Ok(
+    requirement
+      .parse::<VersionReq>()
+      .map_err(|err| format!("invalid semver requirement: {err}"))?
+      .matches(
+        &version
+          .parse::<Version>()
+          .map_err(|err| format!("invalid semver version: {err}"))?,
+      )
+      .to_string(),
+  )
 }
