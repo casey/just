@@ -1080,6 +1080,10 @@ The executable is at: /bin/just
 <li><code>sha256_file(path)</code> - Return the SHA-256 hash of the file at <code>path</code> as a hexadecimal string.</li>
 <li><code>uuid()</code> - Return a randomly generated UUID.</li>
 </ul>
+<h4 id="semantic-versions"><a class="header" href="#semantic-versions">Semantic Versions</a></h4>
+<ul>
+<li><code>semver_matches(version, requirement)</code><sup>master</sup> - Check whether a <a href="https://semver.org">semantic <code>version</code></a>, e.g., <code>&quot;0.1.0&quot;</code> matches a <code>requirement</code>, e.g., <code>&quot;&gt;=0.1.0&quot;</code>, returning <code>&quot;true&quot;</code> if so and <code>&quot;false&quot;</code> otherwise.</li>
+</ul>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="recipe-attributes"><a class="header" href="#recipe-attributes">Recipe Attributes</a></h3>
 <p>Recipes may be annotated with attributes that change their behavior.</p>
 <div class="table-wrapper"><table><thead><tr><th>Name</th><th>Description</th></tr></thead><tbody>
