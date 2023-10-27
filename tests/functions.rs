@@ -412,15 +412,19 @@ test! {
     stderr: "echo Bar\n",
 }
 
-test! {
-    name: semver_matches_gte,
-    justfile: "
+#[test]
+fn semver_matches() {
+  Test::new()
+    .justfile(
+      "
       foo:
         echo {{ semver_matches('0.1.0', '>=0.1.0') }}
-        echo {{ semver_matches('0.1.0', '>=0.0.1') }}
+        echo {{ semver_matches('0.1.0', '=0.0.1') }}
     ",
-    stdout: "true\ntrue\n",
-    stderr: "echo true\necho true\n",
+    )
+    .stdout("true\nfalse\n")
+    .stderr("echo true\necho false\n")
+    .run();
 }
 
 fn assert_eval_eq(expression: &str, result: &str) {
