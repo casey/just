@@ -424,7 +424,7 @@ fn semver_matches(
   Ok(
     requirement
       .parse::<VersionReq>()
-      .map_err(|err| format!("invalid semver version requirement: {err}"))?
+      .map_err(|err| format!("invalid semver requirement: {err}"))?
       .matches(
         &version
           .parse::<Version>()
