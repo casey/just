@@ -33,6 +33,7 @@ libc = "0.2.0"
 log = "0.4.4"
 num_cpus = "1.15.0"
 regex = "1.5.4"
+semver = "1.0.20"
 serde = { version = "1.0.130", features = ["derive", "rc"] }
 serde_json = "1.0.68"
 sha2 = "0.10"

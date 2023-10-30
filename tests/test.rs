@@ -39,6 +39,7 @@ pub(crate) struct Output {
   pub(crate) tempdir: TempDir,
 }
 
+#[must_use]
 pub(crate) struct Test {
   pub(crate) args: Vec<String>,
   pub(crate) current_dir: PathBuf,
