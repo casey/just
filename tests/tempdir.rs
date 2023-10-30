@@ -1,6 +1,19 @@
 use super::*;
 
 pub(crate) fn tempdir() -> TempDir {
+  if cfg!(unix) {
+    let mnt_point = mnt::get_mount(env::temp_dir()).unwrap();
+    if mnt_point
+      .clone()
+      .unwrap()
+      .mntops
+      .contains(&mnt::MntOps::Exec(false))
+    {
+      let cache_dir = dirs::cache_dir().unwrap();
+      env::set_var("TMPDIR", cache_dir);
+    }
+  }
+
   tempfile::Builder::new()
     .prefix("just-test-tempdir")
     .tempdir()
