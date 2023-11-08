@@ -1,6 +1,28 @@
 Changelog
 =========
 
+[1.16.0](https://github.com/casey/just/releases/tag/1.16.0) - 2023-11-08
+------------------------------------------------------------------------
+
+### Added
+- Add ARMv6 release target ([#1715](https://github.com/casey/just/pull/1715) by [ragazenta](https://github.com/ragazenta))
+- Add `semver_matches` function ([#1713](https://github.com/casey/just/pull/1713) by [t3hmrman](https://github.com/t3hmrman))
+- Add `dotenv-filename` and `dotenv-path` settings ([#1692](https://github.com/casey/just/pull/1692) by [ltfourrier](https://github.com/ltfourrier))
+- Allow setting echoed recipe line color ([#1670](https://github.com/casey/just/pull/1670) by [avi-cenna](https://github.com/avi-cenna))
+
+### Fixed
+- Fix Fish completion script ([#1710](https://github.com/casey/just/pull/1710) by [l4zygreed](https://github.com/l4zygreed))
+
+### Misc
+- Fix readme typo ([#1717](https://github.com/casey/just/pull/1717) by [barraponto](https://github.com/barraponto))
+- Clean up error display ([#1699](https://github.com/casey/just/pull/1699) by [nyurik](https://github.com/nyurik))
+- Misc fixes ([#1700](https://github.com/casey/just/pull/1700) by [nyurik](https://github.com/nyurik))
+- Fix readme build badge ([#1697](https://github.com/casey/just/pull/1697))
+- Fix set tempdir grammar ([#1695](https://github.com/casey/just/pull/1695))
+- Add version to attributes ([#1694](https://github.com/casey/just/pull/1694) by [JoeyTeng](https://github.com/JoeyTeng))
+- Update README.md ([#1691](https://github.com/casey/just/pull/1691) by [laniakea64](https://github.com/laniakea64))
+
+
 [1.15.0](https://github.com/casey/just/releases/tag/1.15.0) - 2023-10-09
 ------------------------------------------------------------------------
 
