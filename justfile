@@ -53,6 +53,7 @@ view-man: man
 
 # add git log messages to changelog
 update-changelog:
+  echo >> CHANGELOG.md
   git log --pretty='format:- %s' >> CHANGELOG.md
 
 update-contributors:

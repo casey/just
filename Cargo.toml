@@ -1,6 +1,6 @@
 [package]
 name = "just"
-version = "1.15.0"
+version = "1.16.0"
 authors = ["Casey Rodarmor <casey@rodarmor.com>"]
 autotests = false
 categories = ["command-line-utilities", "development-tools"]
@@ -51,7 +51,7 @@ cradle = "0.2.0"
 executable-path = "1.0.0"
 pretty_assertions = "1.0.0"
 temptree = "0.2.0"
-which = "4.0.0"
+which = "5.0.0"
 yaml-rust = "0.4.5"
 
 [lib]
