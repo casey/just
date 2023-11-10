@@ -63,6 +63,16 @@ impl<'src, D> Recipe<'src, D> {
     self.name.line
   }
 
+  pub(crate) fn confirm(&self) -> bool {
+    if self.attributes.contains(&Attribute::Confirm) {
+      eprint!("Confirm running {} (y/N): ", self.name);
+      let mut buf = String::new();
+      std::io::stdin().read_line(&mut buf).is_ok() && buf.trim_end().eq_ignore_ascii_case("y")
+    } else {
+      true
+    }
+  }
+
   pub(crate) fn public(&self) -> bool {
     !self.private && !self.attributes.contains(&Attribute::Private)
   }
@@ -98,6 +108,12 @@ impl<'src, D> Recipe<'src, D> {
     positional: &[String],
   ) -> RunResult<'src, ()> {
     let config = &context.config;
+
+    // Check if confirmation is required prior to running
+    if !self.confirm() {
+      // Nothing is wrong if someone doesn't confirm so don't error out
+      return Ok(());
+    }
 
     if config.verbosity.loquacious() {
       let color = config.color.stderr().banner();
@@ -158,6 +174,8 @@ impl<'src, D> Recipe<'src, D> {
           break;
         }
       }
+
+      
 
       if comment_line {
         continue;

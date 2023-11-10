@@ -13,6 +13,7 @@ pub(crate) enum Attribute {
   Private,
   Unix,
   Windows,
+  Confirm
 }
 
 impl Attribute {
