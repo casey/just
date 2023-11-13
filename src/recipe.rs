@@ -175,8 +175,6 @@ impl<'src, D> Recipe<'src, D> {
         }
       }
 
-      
-
       if comment_line {
         continue;
       }
