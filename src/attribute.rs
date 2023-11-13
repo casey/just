@@ -6,6 +6,7 @@ use super::*;
 #[strum(serialize_all = "kebab-case")]
 #[serde(rename_all = "kebab-case")]
 pub(crate) enum Attribute {
+  Confirm,
   Linux,
   Macos,
   NoCd,
@@ -13,7 +14,6 @@ pub(crate) enum Attribute {
   Private,
   Unix,
   Windows,
-  Confirm
 }
 
 impl Attribute {
