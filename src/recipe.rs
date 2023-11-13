@@ -63,15 +63,20 @@ impl<'src, D> Recipe<'src, D> {
     self.name.line
   }
 
-  pub(crate) fn confirm(&self) -> bool {
+  pub(crate) fn confirm(&self) -> RunResult<'src, bool> {
     if self.attributes.contains(&Attribute::Confirm) {
       eprint!("Confirm running {} (y/N): ", self.name);
       let mut line = String::new();
-      std::io::stdin().read_line(&mut line)?;
+      if let Err(e) = std::io::stdin().read_line(&mut line) {
+        return Err(Error::Io {
+          recipe: self.name(),
+          io_error: e,
+        });
+      }
       let line = line.trim().to_lowercase();
-      line == "y" || line == "yes"
+      Ok(line == "y" || line == "yes")
     } else {
-      true
+      Ok(true)
     }
   }
 
@@ -112,7 +117,7 @@ impl<'src, D> Recipe<'src, D> {
     let config = &context.config;
 
     // Check if confirmation is required prior to running
-    if !self.confirm() {
+    if !self.confirm()? {
       // Nothing is wrong if someone doesn't confirm so don't error out
       return Ok(());
     }
