@@ -65,6 +65,9 @@ pub(crate) enum Error<'src> {
     recipe: &'src str,
     min_arguments: usize,
   },
+  DependencyNotConfirmed {
+    dependency: &'src str
+  },
   Dotenv {
     dotenv_error: dotenvy::Error,
   },
@@ -301,6 +304,9 @@ impl<'src> ColorDisplay for Error<'src> {
       DefaultRecipeRequiresArguments { recipe, min_arguments} => {
         let count = Count("argument", *min_arguments);
         write!(f, "Recipe `{recipe}` cannot be used as default recipe since it requires at least {min_arguments} {count}.")?;
+      }
+      DependencyNotConfirmed { dependency } => {
+        write!(f, "the required dependency {dependency} was not confirmed, therefore the dependent recipe has not run")?;
       }
       Dotenv { dotenv_error } => {
         write!(f, "Failed to load environment file: {dotenv_error}")?;
