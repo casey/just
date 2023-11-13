@@ -66,8 +66,10 @@ impl<'src, D> Recipe<'src, D> {
   pub(crate) fn confirm(&self) -> bool {
     if self.attributes.contains(&Attribute::Confirm) {
       eprint!("Confirm running {} (y/N): ", self.name);
-      let mut buf = String::new();
-      std::io::stdin().read_line(&mut buf).is_ok() && buf.trim_end().eq_ignore_ascii_case("y")
+      let mut line = String::new();
+      std::io::stdin().read_line(&mut line)?;
+      let line = line.trim().to_lowercase();
+      line == "y" || line == "yes"
     } else {
       true
     }
