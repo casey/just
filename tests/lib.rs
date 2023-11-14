@@ -42,6 +42,7 @@ mod choose;
 mod command;
 mod completions;
 mod conditional;
+mod confirm;
 mod delimiters;
 mod dotenv;
 mod edit;

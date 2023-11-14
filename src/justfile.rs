@@ -290,10 +290,10 @@ impl<'src> Justfile<'src> {
       return Ok(());
     }
 
-    if !recipe.confirm()? {
-      // If a dependency requires confirmation and does not receive it, we should error
-      // out, as the main recipe should not run.
-      return Err(Error::DependencyNotConfirmed { dependency: recipe.name() });
+    if context.config.confirm_recipes && !recipe.confirm()? {
+      return Err(Error::NotConfirmed {
+        recipe: recipe.name(),
+      });
     }
 
     let (outer, positional) = Evaluator::evaluate_parameters(

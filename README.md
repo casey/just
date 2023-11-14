@@ -66,6 +66,18 @@ Yay, all your tests passed!
 
 If you need help with `just` please feel free to open an issue or ping me on [Discord](https://discord.gg/ezYScXR). Feature requests and bug reports are always welcome!
 
+Table of Contents
+-----------------
+- [Installation](#installation)
+- [Backwards Comptability](#backwards-compatibility)
+- [Editor Support](#editor-support)
+- [Quick Start](#quick-start)
+- [Examples](#examples)
+- [Features](#features)
+- [Changelog](#changelog)
+- [Miscellanea](#miscellanea)
+- [Frequently Asked Questions](#frequently-asked-questions)
+
 Installation
 ------------
 
@@ -1251,6 +1263,7 @@ Recipes may be annotated with attributes that change their behavior.
 
 | Name                                | Description                                     |
 | ----------------------------------- | ----------------------------------------------- |
+| `[confirm]`<sup>?</sup>             | Require confirmation prior to executing recipe. |
 | `[no-cd]`<sup>1.9.0</sup>           | Don't change directory before executing recipe. |
 | `[no-exit-message]`<sup>1.7.0</sup> | Don't print an error message if recipe fails.   |
 | `[linux]`<sup>1.8.0</sup>           | Enable recipe on Linux.                         |
@@ -1320,6 +1333,23 @@ commit file:
 Can be used with paths that are relative to the current directory, because
 `[no-cd]` prevents `just` from changing the current directory when executing
 `commit`.
+
+### Requiring Confirmation for Recipes<sup>?</sup>
+
+`just` normally executes all recipes unless there is an error. The `[confirm]`
+attribute allows recipes to be marked as requiring confirmation in the
+terminal prior to running. This can be overridden by passing `--yes`, which
+will automatically confirm any recipes marked by this attribute.
+
+Recipes dependent on a recipe that requires confirmation will not be run if the
+relied upon recipe is not confirmed, as well as recipes passed after any recipe that
+requires confirmation.
+
+```just
+[confirm]
+delete all:
+  rm -rf *
+```
 
 ### Command Evaluation Using Backticks
 

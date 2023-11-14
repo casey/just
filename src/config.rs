@@ -16,6 +16,7 @@ pub(crate) struct Config {
   pub(crate) check: bool,
   pub(crate) color: Color,
   pub(crate) command_color: Option<ansi_term::Color>,
+  pub(crate) confirm_recipes: bool,
   pub(crate) dotenv_filename: Option<String>,
   pub(crate) dotenv_path: Option<PathBuf>,
   pub(crate) dry_run: bool,
@@ -87,6 +88,7 @@ mod arg {
   pub(crate) const CLEAR_SHELL_ARGS: &str = "CLEAR-SHELL-ARGS";
   pub(crate) const COLOR: &str = "COLOR";
   pub(crate) const COMMAND_COLOR: &str = "COMMAND-COLOR";
+  pub(crate) const CONFIRM: &str = "CONFIRM";
   pub(crate) const DOTENV_FILENAME: &str = "DOTENV-FILENAME";
   pub(crate) const DOTENV_PATH: &str = "DOTENV-PATH";
   pub(crate) const DRY_RUN: &str = "DRY-RUN";
@@ -168,6 +170,7 @@ impl Config {
           .possible_values(arg::COMMAND_COLOR_VALUES)
           .help("Echo recipe lines in <COMMAND-COLOR>"),
       )
+      .arg(Arg::with_name(arg::CONFIRM).long("force-confirm").help("Automatically confirm all recipes that require confirmation."))
       .arg(
         Arg::with_name(arg::DRY_RUN)
           .short("n")
@@ -622,6 +625,7 @@ impl Config {
 
     Ok(Self {
       check: matches.is_present(arg::CHECK),
+      confirm_recipes: !matches.is_present(arg::CONFIRM),
       dry_run: matches.is_present(arg::DRY_RUN),
       dump_format: Self::dump_format_from_matches(matches)?,
       highlight: !matches.is_present(arg::NO_HIGHLIGHT),

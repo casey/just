@@ -65,14 +65,18 @@ impl<'src, D> Recipe<'src, D> {
 
   pub(crate) fn confirm(&self) -> RunResult<'src, bool> {
     if self.attributes.contains(&Attribute::Confirm) {
-      eprint!("Confirm running {} (y/N): ", self.name);
+      print!("Confirm running {} (y/N): ", self.name);
       let mut line = String::new();
-      if let Err(e) = std::io::stdin().read_line(&mut line) {
-        return Err(Error::Io {
+      std::io::stdout().flush().map_err(|e| Error::Io {
+        recipe: self.name(),
+        io_error: e,
+      })?;
+      std::io::stdin()
+        .read_line(&mut line)
+        .map_err(|e| Error::Io {
           recipe: self.name(),
           io_error: e,
-        });
-      }
+        })?;
       let line = line.trim().to_lowercase();
       Ok(line == "y" || line == "yes")
     } else {
@@ -115,12 +119,6 @@ impl<'src, D> Recipe<'src, D> {
     positional: &[String],
   ) -> RunResult<'src, ()> {
     let config = &context.config;
-
-    // Check if confirmation is required prior to running
-    if !self.confirm()? {
-      // Nothing is wrong if someone doesn't confirm so don't error out
-      return Ok(());
-    }
 
     if config.verbosity.loquacious() {
       let color = config.color.stderr().banner();
