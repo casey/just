@@ -290,7 +290,7 @@ impl<'src> Justfile<'src> {
       return Ok(());
     }
 
-    if context.config.confirm_recipes && !recipe.confirm()? {
+    if !context.config.yes && !recipe.confirm()? {
       return Err(Error::NotConfirmed {
         recipe: recipe.name(),
       });
