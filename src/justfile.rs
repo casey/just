@@ -712,24 +712,24 @@ foo a="b\t":
 
   test! {
   parse_multiple,
-    r#"
+    r"
 a:
 b:
-"#,
-    r#"a:
+",
+    r"a:
 
-b:"#,
+b:",
   }
 
   test! {
     parse_variadic,
-    r#"
+    r"
 
 foo +a:
 
 
-  "#,
-    r#"foo +a:"#,
+  ",
+    r"foo +a:",
   }
 
   test! {
@@ -765,41 +765,41 @@ export a := "hello"
 
   test! {
   parse_alias_after_target,
-    r#"
+    r"
 foo:
   echo a
 alias f := foo
-"#,
-r#"alias f := foo
+",
+r"alias f := foo
 
 foo:
-    echo a"#
+    echo a"
   }
 
   test! {
   parse_alias_before_target,
-    r#"
+    r"
 alias f := foo
 foo:
   echo a
-"#,
-r#"alias f := foo
+",
+r"alias f := foo
 
 foo:
-    echo a"#
+    echo a"
   }
 
   test! {
   parse_alias_with_comment,
-    r#"
+    r"
 alias f := foo #comment
 foo:
   echo a
-"#,
-r#"alias f := foo
+",
+r"alias f := foo
 
 foo:
-    echo a"#
+    echo a"
   }
 
   test! {
@@ -960,18 +960,18 @@ f x="abc":
 
   test! {
     parameter_default_raw_string,
-    r#"
+    r"
 f x='abc':
-"#,
-    r#"f x='abc':"#,
+",
+    r"f x='abc':",
   }
 
   test! {
     parameter_default_backtick,
-    r#"
+    r"
 f x=`echo hello`:
-"#,
-    r#"f x=`echo hello`:"#,
+",
+    r"f x=`echo hello`:",
   }
 
   test! {

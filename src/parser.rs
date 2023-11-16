@@ -1020,11 +1020,11 @@ mod tests {
 
   test! {
       name: recipe_named_alias,
-      text: r#"
+      text: r"
       [private]
       alias:
         echo 'echoing alias'
-          "#,
+          ",
     tree: (justfile
       (recipe alias (body ("echo 'echoing alias'")))
     ),
@@ -1154,13 +1154,13 @@ mod tests {
 
   test! {
     name: recipe_plus_variadic,
-    text: r#"foo +bar:"#,
+    text: r"foo +bar:",
     tree: (justfile (recipe foo (params +(bar)))),
   }
 
   test! {
     name: recipe_star_variadic,
-    text: r#"foo *bar:"#,
+    text: r"foo *bar:",
     tree: (justfile (recipe foo (params *(bar)))),
   }
 
@@ -1172,13 +1172,13 @@ mod tests {
 
   test! {
     name: recipe_variadic_variable_default,
-    text: r#"foo +bar=baz:"#,
+    text: r"foo +bar=baz:",
     tree: (justfile (recipe foo (params +(bar baz)))),
   }
 
   test! {
     name: recipe_variadic_addition_group_default,
-    text: r#"foo +bar=(baz + bob):"#,
+    text: r"foo +bar=(baz + bob):",
     tree: (justfile (recipe foo (params +(bar ((+ baz bob)))))),
   }
 
@@ -1440,9 +1440,9 @@ mod tests {
 
   test! {
     name: recipe_variadic_with_default_after_default,
-    text: r#"
+    text: r"
       f a=b +c=d:
-    "#,
+    ",
     tree: (justfile (recipe f (params (a b) +(c d)))),
   }
 
