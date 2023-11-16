@@ -65,12 +65,8 @@ impl<'src, D> Recipe<'src, D> {
 
   pub(crate) fn confirm(&self) -> RunResult<'src, bool> {
     if self.attributes.contains(&Attribute::Confirm) {
-      print!("Run recipe `{}`? ", self.name);
+      eprint!("Run recipe `{}`? ", self.name);
       let mut line = String::new();
-      std::io::stdout().flush().map_err(|e| Error::Io {
-        recipe: self.name(),
-        io_error: e,
-      })?;
       std::io::stdin()
         .read_line(&mut line)
         .map_err(|e| Error::Io {

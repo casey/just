@@ -45,8 +45,8 @@ fn confirm_recipe() {
             echo confirmed
         ",
     )
-    .stderr("echo confirmed\n")
-    .stdout("Run recipe `requires_confirmation`? confirmed\n")
+    .stderr("Run recipe `requires_confirmation`? echo confirmed\n")
+    .stdout("confirmed\n")
     .stdin("y")
     .run();
 }
@@ -64,8 +64,8 @@ fn recipe_with_confirm_recipe_dependency() {
             echo confirmed
         ",
     )
-    .stderr("echo confirmed\necho confirmed2\n")
-    .stdout("Run recipe `requires_confirmation`? confirmed\nconfirmed2\n")
+    .stderr("Run recipe `requires_confirmation`? echo confirmed\necho confirmed2\n")
+    .stdout("confirmed\nconfirmed2\n")
     .stdin("y")
     .run();
 }
@@ -80,8 +80,8 @@ fn do_not_confirm_recipe() {
             echo confirmed
         ",
     )
-    .stderr("error: Recipe `requires_confirmation` was not confirmed\n")
-    .stdout("Run recipe `requires_confirmation`? ")
+    .stderr("Run recipe `requires_confirmation`? error: Recipe `requires_confirmation` was not confirmed\n")
+    .stdout("")
     .status(1)
     .run();
 }
@@ -99,8 +99,7 @@ fn do_not_confirm_recipe_with_confirm_recipe_dependency() {
             echo confirmed
         ",
     )
-    .stderr("error: Recipe `requires_confirmation` was not confirmed\n")
-    .stdout("Run recipe `requires_confirmation`? ")
+    .stderr("Run recipe `requires_confirmation`? error: Recipe `requires_confirmation` was not confirmed\n")
     .status(1)
     .run();
 }
