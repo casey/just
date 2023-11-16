@@ -669,16 +669,7 @@ mod tests {
     }
   }
 
-  macro_rules! test {
-    ($name:ident, $input:expr, $expected:expr $(,)*) => {
-      #[test]
-      fn $name() {
-        test($input, $expected);
-      }
-    };
-  }
-
-  fn test(input: &str, expected: &str) {
+  fn case(input: &str, expected: &str) {
     let justfile = compile(input);
     let actual = format!("{}", justfile.color_display(Color::never()));
     assert_eq!(actual, expected);
@@ -688,123 +679,143 @@ mod tests {
     assert_eq!(redumped, actual);
   }
 
-  test! {
-    parse_empty,
-    "
+  #[test]
+  fn parse_empty() {
+    case(
+      "
 
 # hello
 
 
     ",
-    "",
+      "",
+    );
   }
 
-  test! {
-    parse_string_default,
-    r#"
+  #[test]
+  fn parse_string_default() {
+    case(
+      r#"
 
 foo a="b\t":
 
 
   "#,
-    r#"foo a="b\t":"#,
+      r#"foo a="b\t":"#,
+    );
   }
 
-  test! {
-  parse_multiple,
-    r#"
+  #[test]
+  fn parse_multiple() {
+    case(
+      r"
 a:
 b:
-"#,
-    r#"a:
+", r"a:
 
-b:"#,
+b:",
+    );
   }
 
-  test! {
-    parse_variadic,
-    r#"
+  #[test]
+  fn parse_variadic() {
+    case(
+      r"
 
 foo +a:
 
 
-  "#,
-    r#"foo +a:"#,
+  ",
+      r"foo +a:",
+    );
   }
 
-  test! {
-    parse_variadic_string_default,
-    r#"
+  #[test]
+  fn parse_variadic_string_default() {
+    case(
+      r#"
 
 foo +a="Hello":
 
 
   "#,
-    r#"foo +a="Hello":"#,
+      r#"foo +a="Hello":"#,
+    );
   }
 
-  test! {
-    parse_raw_string_default,
-    r"
+  #[test]
+  fn parse_raw_string_default() {
+    case(
+      r"
 
 foo a='b\t':
 
 
   ",
-    r"foo a='b\t':",
+      r"foo a='b\t':",
+    );
   }
 
-  test! {
-    parse_export,
-    r#"
+  #[test]
+  fn parse_export() {
+    case(
+      r#"
 export a := "hello"
 
   "#,
-    r#"export a := "hello""#,
+      r#"export a := "hello""#,
+    );
   }
 
-  test! {
-  parse_alias_after_target,
-    r#"
+  #[test]
+  fn parse_alias_after_target() {
+    case(
+      r"
 foo:
   echo a
 alias f := foo
-"#,
-r#"alias f := foo
+",
+      r"alias f := foo
 
 foo:
-    echo a"#
+    echo a",
+    );
   }
 
-  test! {
-  parse_alias_before_target,
-    r#"
+  #[test]
+  fn parse_alias_before_target() {
+    case(
+      r"
 alias f := foo
 foo:
   echo a
-"#,
-r#"alias f := foo
+",
+      r"alias f := foo
 
 foo:
-    echo a"#
+    echo a",
+    );
   }
 
-  test! {
-  parse_alias_with_comment,
-    r#"
+  #[test]
+  fn parse_alias_with_comment() {
+    case(
+      r"
 alias f := foo #comment
 foo:
   echo a
-"#,
-r#"alias f := foo
+",
+      r"alias f := foo
 
 foo:
-    echo a"#
+    echo a",
+    );
   }
 
-  test! {
-  parse_complex,
-    "
+  #[test]
+  fn parse_complex() {
+    case(
+      "
 x:
 y:
 z:
@@ -819,7 +830,7 @@ hello a b    c   : x y    z #hello
   2
   3
 ",
-    "bar := foo
+      "bar := foo
 
 foo := \"xx\"
 
@@ -837,12 +848,14 @@ x:
 
 y:
 
-z:"
+z:",
+    );
   }
 
-  test! {
-  parse_shebang,
-    "
+  #[test]
+  fn parse_shebang() {
+    case(
+      "
 practicum := 'hello'
 install:
 \t#!/bin/sh
@@ -850,176 +863,195 @@ install:
 \t\treturn
 \tfi
 ",
-    "practicum := 'hello'
+      "practicum := 'hello'
 
 install:
     #!/bin/sh
     if [[ -f {{ practicum }} ]]; then
     \treturn
     fi",
+    );
   }
 
-  test! {
-    parse_simple_shebang,
-    "a:\n #!\n  print(1)",
-    "a:\n    #!\n     print(1)",
+  #[test]
+  fn parse_simple_shebang() {
+    case("a:\n #!\n  print(1)", "a:\n    #!\n     print(1)");
   }
 
-  test! {
-  parse_assignments,
-    r#"a := "0"
+  #[test]
+  fn parse_assignments() {
+    case(
+      r#"a := "0"
 c := a + b + a + b
 b := "1"
 "#,
-    r#"a := "0"
+      r#"a := "0"
 
 b := "1"
 
 c := a + b + a + b"#,
+    );
   }
 
-  test! {
-  parse_assignment_backticks,
-    "a := `echo hello`
+  #[test]
+  fn parse_assignment_backticks() {
+    case(
+      "a := `echo hello`
 c := a + b + a + b
 b := `echo goodbye`",
-    "a := `echo hello`
+      "a := `echo hello`
 
 b := `echo goodbye`
 
 c := a + b + a + b",
+    );
   }
 
-  test! {
-  parse_interpolation_backticks,
-    r#"a:
+  #[test]
+  fn parse_interpolation_backticks() {
+    case(
+      r#"a:
   echo {{  `echo hello` + "blarg"   }} {{   `echo bob`   }}"#,
-    r#"a:
+      r#"a:
     echo {{ `echo hello` + "blarg" }} {{ `echo bob` }}"#,
+    );
   }
 
-  test! {
-    eof_test,
-    "x:\ny:\nz:\na b c: x y z",
-    "a b c: x y z\n\nx:\n\ny:\n\nz:",
+  #[test]
+  fn eof_test() {
+    case("x:\ny:\nz:\na b c: x y z", "a b c: x y z\n\nx:\n\ny:\n\nz:");
   }
 
-  test! {
-    string_quote_escape,
-    r#"a := "hello\"""#,
-    r#"a := "hello\"""#,
+  #[test]
+  fn string_quote_escape() {
+    case(r#"a := "hello\"""#, r#"a := "hello\"""#);
   }
 
-  test! {
-    string_escapes,
-    r#"a := "\n\t\r\"\\""#,
-    r#"a := "\n\t\r\"\\""#,
+  #[test]
+  fn string_escapes() {
+    case(r#"a := "\n\t\r\"\\""#, r#"a := "\n\t\r\"\\""#);
   }
 
-  test! {
-  parameters,
-    "a b c:
+  #[test]
+  fn parameters() {
+    case(
+      "a b c:
   {{b}} {{c}}",
-    "a b c:
+      "a b c:
     {{ b }} {{ c }}",
+    );
   }
 
-  test! {
-  unary_functions,
-    "
+  #[test]
+  fn unary_functions() {
+    case(
+      "
 x := arch()
 
 a:
   {{os()}} {{os_family()}} {{num_cpus()}}",
-    "x := arch()
+      "x := arch()
 
 a:
     {{ os() }} {{ os_family() }} {{ num_cpus() }}",
+    );
   }
 
-  test! {
-  env_functions,
-    r#"
+  #[test]
+  fn env_functions() {
+    case(
+      r#"
 x := env_var('foo',)
 
 a:
   {{env_var_or_default('foo' + 'bar', 'baz',)}} {{env_var(env_var("baz"))}}"#,
-    r#"x := env_var('foo')
+      r#"x := env_var('foo')
 
 a:
     {{ env_var_or_default('foo' + 'bar', 'baz') }} {{ env_var(env_var("baz")) }}"#,
+    );
   }
 
-  test! {
-    parameter_default_string,
-    r#"
+  #[test]
+  fn parameter_default_string() {
+    case(
+      r#"
 f x="abc":
 "#,
-    r#"f x="abc":"#,
+      r#"f x="abc":"#,
+    );
   }
 
-  test! {
-    parameter_default_raw_string,
-    r#"
+  #[test]
+  fn parameter_default_raw_string() {
+    case(
+      r"
 f x='abc':
-"#,
-    r#"f x='abc':"#,
+",
+      r"f x='abc':",
+    );
   }
 
-  test! {
-    parameter_default_backtick,
-    r#"
+  #[test]
+  fn parameter_default_backtick() {
+    case(
+      r"
 f x=`echo hello`:
-"#,
-    r#"f x=`echo hello`:"#,
+",
+      r"f x=`echo hello`:",
+    );
   }
 
-  test! {
-    parameter_default_concatenation_string,
-    r#"
+  #[test]
+  fn parameter_default_concatenation_string() {
+    case(
+      r#"
 f x=(`echo hello` + "foo"):
 "#,
-    r#"f x=(`echo hello` + "foo"):"#,
+      r#"f x=(`echo hello` + "foo"):"#,
+    );
   }
 
-  test! {
-    parameter_default_concatenation_variable,
-    r#"
+  #[test]
+  fn parameter_default_concatenation_variable() {
+    case(
+      r#"
 x := "10"
 f y=(`echo hello` + x) +z="foo":
 "#,
-    r#"x := "10"
+      r#"x := "10"
 
 f y=(`echo hello` + x) +z="foo":"#,
+    );
   }
 
-  test! {
-    parameter_default_multiple,
-    r#"
+  #[test]
+  fn parameter_default_multiple() {
+    case(
+      r#"
 x := "10"
 f y=(`echo hello` + x) +z=("foo" + "bar"):
 "#,
-    r#"x := "10"
+      r#"x := "10"
 
 f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
+    );
   }
 
-  test! {
-    concatenation_in_group,
-    "x := ('0' + '1')",
-    "x := ('0' + '1')",
+  #[test]
+  fn concatenation_in_group() {
+    case("x := ('0' + '1')", "x := ('0' + '1')");
   }
 
-  test! {
-    string_in_group,
-    "x := ('0'   )",
-    "x := ('0')",
+  #[test]
+  fn string_in_group() {
+    case("x := ('0'   )", "x := ('0')");
   }
 
   #[rustfmt::skip]
-  test! {
-    escaped_dos_newlines,
-    "@spam:\r
+  #[test]
+  fn escaped_dos_newlines() {
+    case("@spam:\r
 \t{ \\\r
 \t\tfiglet test; \\\r
 \t\tcargo build --color always 2>&1; \\\r
@@ -1031,6 +1063,6 @@ f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
     \tfiglet test; \\
     \tcargo build --color always 2>&1; \\
     \tcargo test  --color always -- --color always 2>&1; \\
-    } | less",
+    } | less");
   }
 }
