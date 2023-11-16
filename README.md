@@ -1251,14 +1251,14 @@ Recipes may be annotated with attributes that change their behavior.
 
 | Name                                | Description                                     |
 | ----------------------------------- | ----------------------------------------------- |
-| `[confirm]`<sup>?</sup>             | Require confirmation prior to executing recipe. |
-| `[no-cd]`<sup>1.9.0</sup>           | Don't change directory before executing recipe. |
-| `[no-exit-message]`<sup>1.7.0</sup> | Don't print an error message if recipe fails.   |
+| `[confirm]`<sup>master</sup>        | Require confirmation prior to executing recipe. |
 | `[linux]`<sup>1.8.0</sup>           | Enable recipe on Linux.                         |
 | `[macos]`<sup>1.8.0</sup>           | Enable recipe on MacOS.                         |
+| `[no-cd]`<sup>1.9.0</sup>           | Don't change directory before executing recipe. |
+| `[no-exit-message]`<sup>1.7.0</sup> | Don't print an error message if recipe fails.   |
+| `[private]`<sup>1.10.0</sup>        | See [Private Recipes](#private-recipes).        |
 | `[unix]`<sup>1.8.0</sup>            | Enable recipe on Unixes. (Includes MacOS).      |
 | `[windows]`<sup>1.8.0</sup>         | Enable recipe on Windows.                       |
-| `[private]`<sup>1.10.0</sup>         | See [Private Recipes](#private-recipes).        |
 
 A recipe can have multiple attributes, either on multiple lines:
 
