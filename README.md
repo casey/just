@@ -1811,7 +1811,9 @@ split shebang lines differently.
 Windows does not support shebang lines. On Windows, `just` splits the shebang
 line into a command and arguments, saves the recipe body to a file, and invokes
 the split command and arguments, adding the path to the saved recipe body as
-the final argument.
+the final argument. For example, on Windows, if a recipe starts with `#! py`,
+the final command the OS runs will be something like `py
+C:\Temp\PATH_TO_SAVED_RECIPE_BODY`.
 
 ### Safer Bash Shebang Recipes
 
