@@ -66,18 +66,6 @@ Yay, all your tests passed!
 
 If you need help with `just` please feel free to open an issue or ping me on [Discord](https://discord.gg/ezYScXR). Feature requests and bug reports are always welcome!
 
-Table of Contents
------------------
-- [Installation](#installation)
-- [Backwards Comptability](#backwards-compatibility)
-- [Editor Support](#editor-support)
-- [Quick Start](#quick-start)
-- [Examples](#examples)
-- [Features](#features)
-- [Changelog](#changelog)
-- [Miscellanea](#miscellanea)
-- [Frequently Asked Questions](#frequently-asked-questions)
-
 Installation
 ------------
 
