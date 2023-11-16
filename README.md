@@ -1322,16 +1322,16 @@ Can be used with paths that are relative to the current directory, because
 `[no-cd]` prevents `just` from changing the current directory when executing
 `commit`.
 
-### Requiring Confirmation for Recipes<sup>?</sup>
+### Requiring Confirmation for Recipes<sup>master</sup>
 
 `just` normally executes all recipes unless there is an error. The `[confirm]`
-attribute allows recipes to be marked as requiring confirmation in the
-terminal prior to running. This can be overridden by passing `--yes`, which
-will automatically confirm any recipes marked by this attribute.
+attribute allows recipes require confirmation in the terminal prior to running.
+This can be overridden by passing `--yes` to `just`, which will automatically
+confirm any recipes marked by this attribute.
 
 Recipes dependent on a recipe that requires confirmation will not be run if the
-relied upon recipe is not confirmed, as well as recipes passed after any recipe that
-requires confirmation.
+relied upon recipe is not confirmed, as well as recipes passed after any recipe
+that requires confirmation.
 
 ```just
 [confirm]
