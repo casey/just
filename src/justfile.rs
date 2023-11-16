@@ -290,6 +290,12 @@ impl<'src> Justfile<'src> {
       return Ok(());
     }
 
+    if !context.config.yes && !recipe.confirm()? {
+      return Err(Error::NotConfirmed {
+        recipe: recipe.name(),
+      });
+    }
+
     let (outer, positional) = Evaluator::evaluate_parameters(
       context.config,
       dotenv,

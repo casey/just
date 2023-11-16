@@ -33,6 +33,7 @@ pub(crate) struct Config {
   pub(crate) unsorted: bool,
   pub(crate) unstable: bool,
   pub(crate) verbosity: Verbosity,
+  pub(crate) yes: bool,
 }
 
 mod cmd {
@@ -106,6 +107,7 @@ mod arg {
   pub(crate) const UNSTABLE: &str = "UNSTABLE";
   pub(crate) const VERBOSE: &str = "VERBOSE";
   pub(crate) const WORKING_DIRECTORY: &str = "WORKING-DIRECTORY";
+  pub(crate) const YES: &str = "YES";
 
   pub(crate) const COLOR_ALWAYS: &str = "always";
   pub(crate) const COLOR_AUTO: &str = "auto";
@@ -168,6 +170,7 @@ impl Config {
           .possible_values(arg::COMMAND_COLOR_VALUES)
           .help("Echo recipe lines in <COMMAND-COLOR>"),
       )
+      .arg(Arg::with_name(arg::YES).long("yes").help("Automatically confirm all recipes."))
       .arg(
         Arg::with_name(arg::DRY_RUN)
           .short("n")
@@ -622,14 +625,14 @@ impl Config {
 
     Ok(Self {
       check: matches.is_present(arg::CHECK),
+      color,
+      command_color,
+      dotenv_filename: matches.value_of(arg::DOTENV_FILENAME).map(str::to_owned),
+      dotenv_path: matches.value_of(arg::DOTENV_PATH).map(PathBuf::from),
       dry_run: matches.is_present(arg::DRY_RUN),
       dump_format: Self::dump_format_from_matches(matches)?,
       highlight: !matches.is_present(arg::NO_HIGHLIGHT),
-      shell: matches.value_of(arg::SHELL).map(str::to_owned),
-      load_dotenv: !matches.is_present(arg::NO_DOTENV),
-      shell_command: matches.is_present(arg::SHELL_COMMAND),
-      unsorted: matches.is_present(arg::UNSORTED),
-      unstable,
+      invocation_directory,
       list_heading: matches
         .value_of(arg::LIST_HEADING)
         .unwrap_or("Available recipes:\n")
@@ -638,15 +641,16 @@ impl Config {
         .value_of(arg::LIST_PREFIX)
         .unwrap_or("    ")
         .to_owned(),
-      color,
-      command_color,
-      invocation_directory,
+      load_dotenv: !matches.is_present(arg::NO_DOTENV),
       search_config,
+      shell: matches.value_of(arg::SHELL).map(str::to_owned),
       shell_args,
+      shell_command: matches.is_present(arg::SHELL_COMMAND),
       subcommand,
-      dotenv_filename: matches.value_of(arg::DOTENV_FILENAME).map(str::to_owned),
-      dotenv_path: matches.value_of(arg::DOTENV_PATH).map(PathBuf::from),
+      unsorted: matches.is_present(arg::UNSORTED),
+      unstable,
       verbosity,
+      yes: matches.is_present(arg::YES),
     })
   }
 

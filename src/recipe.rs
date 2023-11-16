@@ -63,6 +63,20 @@ impl<'src, D> Recipe<'src, D> {
     self.name.line
   }
 
+  pub(crate) fn confirm(&self) -> RunResult<'src, bool> {
+    if self.attributes.contains(&Attribute::Confirm) {
+      eprint!("Run recipe `{}`? ", self.name);
+      let mut line = String::new();
+      std::io::stdin()
+        .read_line(&mut line)
+        .map_err(|io_error| Error::GetConfirmation { io_error })?;
+      let line = line.trim().to_lowercase();
+      Ok(line == "y" || line == "yes")
+    } else {
+      Ok(true)
+    }
+  }
+
   pub(crate) fn public(&self) -> bool {
     !self.private && !self.attributes.contains(&Attribute::Private)
   }

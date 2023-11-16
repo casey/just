@@ -1251,13 +1251,14 @@ Recipes may be annotated with attributes that change their behavior.
 
 | Name                                | Description                                     |
 | ----------------------------------- | ----------------------------------------------- |
-| `[no-cd]`<sup>1.9.0</sup>           | Don't change directory before executing recipe. |
-| `[no-exit-message]`<sup>1.7.0</sup> | Don't print an error message if recipe fails.   |
+| `[confirm]`<sup>master</sup>        | Require confirmation prior to executing recipe. |
 | `[linux]`<sup>1.8.0</sup>           | Enable recipe on Linux.                         |
 | `[macos]`<sup>1.8.0</sup>           | Enable recipe on MacOS.                         |
+| `[no-cd]`<sup>1.9.0</sup>           | Don't change directory before executing recipe. |
+| `[no-exit-message]`<sup>1.7.0</sup> | Don't print an error message if recipe fails.   |
+| `[private]`<sup>1.10.0</sup>        | See [Private Recipes](#private-recipes).        |
 | `[unix]`<sup>1.8.0</sup>            | Enable recipe on Unixes. (Includes MacOS).      |
 | `[windows]`<sup>1.8.0</sup>         | Enable recipe on Windows.                       |
-| `[private]`<sup>1.10.0</sup>         | See [Private Recipes](#private-recipes).        |
 
 A recipe can have multiple attributes, either on multiple lines:
 
@@ -1320,6 +1321,23 @@ commit file:
 Can be used with paths that are relative to the current directory, because
 `[no-cd]` prevents `just` from changing the current directory when executing
 `commit`.
+
+### Requiring Confirmation for Recipes<sup>master</sup>
+
+`just` normally executes all recipes unless there is an error. The `[confirm]`
+attribute allows recipes require confirmation in the terminal prior to running.
+This can be overridden by passing `--yes` to `just`, which will automatically
+confirm any recipes marked by this attribute.
+
+Recipes dependent on a recipe that requires confirmation will not be run if the
+relied upon recipe is not confirmed, as well as recipes passed after any recipe
+that requires confirmation.
+
+```just
+[confirm]
+delete all:
+  rm -rf *
+```
 
 ### Command Evaluation Using Backticks
 

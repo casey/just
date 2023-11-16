@@ -88,6 +88,9 @@ pub(crate) enum Error<'src> {
     function: Name<'src>,
     message: String,
   },
+  GetConfirmation {
+    io_error: io::Error,
+  },
   IncludeMissingPath {
     file: PathBuf,
     line: usize,
@@ -111,6 +114,9 @@ pub(crate) enum Error<'src> {
   },
   NoChoosableRecipes,
   NoRecipes,
+  NotConfirmed {
+    recipe: &'src str,
+  },
   RegexCompile {
     source: regex::Error,
   },
@@ -329,6 +335,9 @@ impl<'src> ColorDisplay for Error<'src> {
         let function = function.lexeme();
         write!(f, "Call to function `{function}` failed: {message}")?;
       }
+      GetConfirmation { io_error } => {
+        write!(f, "Failed to read confirmation from stdin: {io_error}")?;
+      }
       IncludeMissingPath { file: justfile, line } => {
         let line = line.ordinal();
         let justfile = justfile.display();
@@ -357,6 +366,9 @@ impl<'src> ColorDisplay for Error<'src> {
       }
       NoChoosableRecipes => write!(f, "Justfile contains no choosable recipes.")?,
       NoRecipes => write!(f, "Justfile contains no recipes.")?,
+      NotConfirmed { recipe } => {
+        write!(f, "Recipe `{recipe}` was not confirmed")?;
+      }
       RegexCompile { source } => write!(f, "{source}")?,
       Search { search_error } => Display::fmt(search_error, f)?,
       Shebang { recipe, command, argument, io_error} => {

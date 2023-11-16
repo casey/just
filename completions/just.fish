@@ -52,6 +52,7 @@ complete -c just -n "__fish_use_subcommand" -s s -l show -d 'Show information ab
 complete -c just -n "__fish_use_subcommand" -l dotenv-filename -d 'Search for environment file named <DOTENV-FILENAME> instead of `.env`'
 complete -c just -n "__fish_use_subcommand" -l dotenv-path -d 'Load environment file at <DOTENV-PATH> instead of searching for one'
 complete -c just -n "__fish_use_subcommand" -l check -d 'Run `--fmt` in \'check\' mode. Exits with 0 if justfile is formatted correctly. Exits with 1 and prints a diff if formatting is required.'
+complete -c just -n "__fish_use_subcommand" -l yes -d 'Automatically confirm all recipes.'
 complete -c just -n "__fish_use_subcommand" -s n -l dry-run -d 'Print what just would do without doing it'
 complete -c just -n "__fish_use_subcommand" -l highlight -d 'Highlight echoed recipe lines in bold'
 complete -c just -n "__fish_use_subcommand" -l no-dotenv -d 'Don\'t load `.env` file'
