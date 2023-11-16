@@ -681,121 +681,141 @@ mod tests {
 
   #[test]
   fn parse_empty() {
-    case("
+    case(
+      "
 
 # hello
 
 
     ",
-    "",);
+      "",
+    );
   }
 
   #[test]
   fn parse_string_default() {
-    case(r#"
+    case(
+      r#"
 
 foo a="b\t":
 
 
   "#,
-    r#"foo a="b\t":"#,);
+      r#"foo a="b\t":"#,
+    );
   }
 
   #[test]
   fn parse_multiple() {
-    case(r"
+    case(
+      r"
 a:
 b:
-",
-    r"a:
+", r"a:
 
-b:",);
+b:",
+    );
   }
 
   #[test]
   fn parse_variadic() {
-    case(r"
+    case(
+      r"
 
 foo +a:
 
 
   ",
-    r"foo +a:");
+      r"foo +a:",
+    );
   }
 
   #[test]
   fn parse_variadic_string_default() {
-    case(r#"
+    case(
+      r#"
 
 foo +a="Hello":
 
 
   "#,
-    r#"foo +a="Hello":"#,);
+      r#"foo +a="Hello":"#,
+    );
   }
 
   #[test]
   fn parse_raw_string_default() {
-    case(r"
+    case(
+      r"
 
 foo a='b\t':
 
 
   ",
-    r"foo a='b\t':",);
+      r"foo a='b\t':",
+    );
   }
 
   #[test]
   fn parse_export() {
-    case(r#"
+    case(
+      r#"
 export a := "hello"
 
   "#,
-    r#"export a := "hello""#,);
+      r#"export a := "hello""#,
+    );
   }
 
   #[test]
   fn parse_alias_after_target() {
-    case(r"
+    case(
+      r"
 foo:
   echo a
 alias f := foo
 ",
-r"alias f := foo
+      r"alias f := foo
 
 foo:
-    echo a");
+    echo a",
+    );
   }
 
   #[test]
   fn parse_alias_before_target() {
-    case(r"
+    case(
+      r"
 alias f := foo
 foo:
   echo a
 ",
-r"alias f := foo
+      r"alias f := foo
 
 foo:
-    echo a");
+    echo a",
+    );
   }
 
   #[test]
   fn parse_alias_with_comment() {
-    case(r"
+    case(
+      r"
 alias f := foo #comment
 foo:
   echo a
 ",
-r"alias f := foo
+      r"alias f := foo
 
 foo:
-    echo a");
+    echo a",
+    );
   }
 
   #[test]
   fn parse_complex() {
-    case("
+    case(
+      "
 x:
 y:
 z:
@@ -810,7 +830,7 @@ hello a b    c   : x y    z #hello
   2
   3
 ",
-    "bar := foo
+      "bar := foo
 
 foo := \"xx\"
 
@@ -828,12 +848,14 @@ x:
 
 y:
 
-z:");
+z:",
+    );
   }
 
   #[test]
   fn parse_shebang() {
-    case("
+    case(
+      "
 practicum := 'hello'
 install:
 \t#!/bin/sh
@@ -841,170 +863,189 @@ install:
 \t\treturn
 \tfi
 ",
-    "practicum := 'hello'
+      "practicum := 'hello'
 
 install:
     #!/bin/sh
     if [[ -f {{ practicum }} ]]; then
     \treturn
-    fi",);
+    fi",
+    );
   }
 
   #[test]
   fn parse_simple_shebang() {
-    case("a:\n #!\n  print(1)",
-    "a:\n    #!\n     print(1)");
+    case("a:\n #!\n  print(1)", "a:\n    #!\n     print(1)");
   }
 
   #[test]
   fn parse_assignments() {
-    case(r#"a := "0"
+    case(
+      r#"a := "0"
 c := a + b + a + b
 b := "1"
 "#,
-    r#"a := "0"
+      r#"a := "0"
 
 b := "1"
 
-c := a + b + a + b"#,);
+c := a + b + a + b"#,
+    );
   }
 
   #[test]
   fn parse_assignment_backticks() {
-    case("a := `echo hello`
+    case(
+      "a := `echo hello`
 c := a + b + a + b
 b := `echo goodbye`",
-    "a := `echo hello`
+      "a := `echo hello`
 
 b := `echo goodbye`
 
-c := a + b + a + b",);
+c := a + b + a + b",
+    );
   }
 
   #[test]
   fn parse_interpolation_backticks() {
-    case(r#"a:
+    case(
+      r#"a:
   echo {{  `echo hello` + "blarg"   }} {{   `echo bob`   }}"#,
-    r#"a:
-    echo {{ `echo hello` + "blarg" }} {{ `echo bob` }}"#,);
+      r#"a:
+    echo {{ `echo hello` + "blarg" }} {{ `echo bob` }}"#,
+    );
   }
 
   #[test]
   fn eof_test() {
-    case("x:\ny:\nz:\na b c: x y z",
-    "a b c: x y z\n\nx:\n\ny:\n\nz:",);
+    case("x:\ny:\nz:\na b c: x y z", "a b c: x y z\n\nx:\n\ny:\n\nz:");
   }
 
   #[test]
   fn string_quote_escape() {
-    case(r#"a := "hello\"""#,
-    r#"a := "hello\"""#,);
+    case(r#"a := "hello\"""#, r#"a := "hello\"""#);
   }
 
   #[test]
   fn string_escapes() {
-    case(r#"a := "\n\t\r\"\\""#,
-    r#"a := "\n\t\r\"\\""#,);
+    case(r#"a := "\n\t\r\"\\""#, r#"a := "\n\t\r\"\\""#);
   }
 
   #[test]
   fn parameters() {
-    case("a b c:
+    case(
+      "a b c:
   {{b}} {{c}}",
-    "a b c:
-    {{ b }} {{ c }}");
+      "a b c:
+    {{ b }} {{ c }}",
+    );
   }
 
   #[test]
   fn unary_functions() {
-    case("
+    case(
+      "
 x := arch()
 
 a:
   {{os()}} {{os_family()}} {{num_cpus()}}",
-    "x := arch()
+      "x := arch()
 
 a:
-    {{ os() }} {{ os_family() }} {{ num_cpus() }}",);
+    {{ os() }} {{ os_family() }} {{ num_cpus() }}",
+    );
   }
 
   #[test]
   fn env_functions() {
-    case(r#"
+    case(
+      r#"
 x := env_var('foo',)
 
 a:
   {{env_var_or_default('foo' + 'bar', 'baz',)}} {{env_var(env_var("baz"))}}"#,
-    r#"x := env_var('foo')
+      r#"x := env_var('foo')
 
 a:
-    {{ env_var_or_default('foo' + 'bar', 'baz') }} {{ env_var(env_var("baz")) }}"#,);
+    {{ env_var_or_default('foo' + 'bar', 'baz') }} {{ env_var(env_var("baz")) }}"#,
+    );
   }
 
   #[test]
   fn parameter_default_string() {
-    case(r#"
+    case(
+      r#"
 f x="abc":
 "#,
-    r#"f x="abc":"#,);
+      r#"f x="abc":"#,
+    );
   }
 
   #[test]
   fn parameter_default_raw_string() {
-    case(r"
+    case(
+      r"
 f x='abc':
 ",
-    r"f x='abc':",);
+      r"f x='abc':",
+    );
   }
 
   #[test]
   fn parameter_default_backtick() {
-    case(r"
+    case(
+      r"
 f x=`echo hello`:
 ",
-    r"f x=`echo hello`:",);
+      r"f x=`echo hello`:",
+    );
   }
 
   #[test]
   fn parameter_default_concatenation_string() {
-    case(r#"
+    case(
+      r#"
 f x=(`echo hello` + "foo"):
 "#,
-    r#"f x=(`echo hello` + "foo"):"#);
+      r#"f x=(`echo hello` + "foo"):"#,
+    );
   }
 
   #[test]
   fn parameter_default_concatenation_variable() {
-    case(r#"
+    case(
+      r#"
 x := "10"
 f y=(`echo hello` + x) +z="foo":
 "#,
-    r#"x := "10"
+      r#"x := "10"
 
-f y=(`echo hello` + x) +z="foo":"#);
+f y=(`echo hello` + x) +z="foo":"#,
+    );
   }
 
   #[test]
   fn parameter_default_multiple() {
-    case(r#"
+    case(
+      r#"
 x := "10"
 f y=(`echo hello` + x) +z=("foo" + "bar"):
 "#,
-    r#"x := "10"
+      r#"x := "10"
 
-f y=(`echo hello` + x) +z=("foo" + "bar"):"#);
+f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
+    );
   }
 
   #[test]
   fn concatenation_in_group() {
-    case("x := ('0' + '1')",
-    "x := ('0' + '1')");
+    case("x := ('0' + '1')", "x := ('0' + '1')");
   }
 
   #[test]
-    fn string_in_group() {
-    case("x := ('0'   )",
-    "x := ('0')");
+  fn string_in_group() {
+    case("x := ('0'   )", "x := ('0')");
   }
 
   #[rustfmt::skip]
