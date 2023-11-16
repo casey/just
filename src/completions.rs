@@ -40,7 +40,7 @@ complete -c just -a '(__fish_just_complete_recipes)'
 pub(crate) const ZSH_COMPLETION_REPLACEMENTS: &[(&str, &str)] = &[
   (
     r#"    _arguments "${_arguments_options[@]}" \"#,
-    r#"    local common=("#,
+    r"    local common=(",
   ),
   (
     r"'*--set=[Override <VARIABLE> with <VALUE>]' \",
@@ -206,5 +206,5 @@ pub(crate) const BASH_COMPLETION_REPLACEMENTS: &[(&str, &str)] = &[
                     fi
                 fi"#,
   ),
-  (r#"            just)"#, r#"            "$1")"#),
+  (r"            just)", r#"            "$1")"#),
 ];
