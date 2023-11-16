@@ -69,10 +69,7 @@ impl<'src, D> Recipe<'src, D> {
       let mut line = String::new();
       std::io::stdin()
         .read_line(&mut line)
-        .map_err(|e| Error::Io {
-          recipe: self.name(),
-          io_error: e,
-        })?;
+        .map_err(|io_error| Error::GetConfirmation { io_error })?;
       let line = line.trim().to_lowercase();
       Ok(line == "y" || line == "yes")
     } else {

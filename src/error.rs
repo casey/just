@@ -65,9 +65,6 @@ pub(crate) enum Error<'src> {
     recipe: &'src str,
     min_arguments: usize,
   },
-  NotConfirmed {
-    recipe: &'src str,
-  },
   Dotenv {
     dotenv_error: dotenvy::Error,
   },
@@ -90,6 +87,9 @@ pub(crate) enum Error<'src> {
   FunctionCall {
     function: Name<'src>,
     message: String,
+  },
+  GetConfirmation {
+    io_error: io::Error,
   },
   IncludeMissingPath {
     file: PathBuf,
@@ -114,6 +114,9 @@ pub(crate) enum Error<'src> {
   },
   NoChoosableRecipes,
   NoRecipes,
+  NotConfirmed {
+    recipe: &'src str,
+  },
   RegexCompile {
     source: regex::Error,
   },
@@ -305,9 +308,6 @@ impl<'src> ColorDisplay for Error<'src> {
         let count = Count("argument", *min_arguments);
         write!(f, "Recipe `{recipe}` cannot be used as default recipe since it requires at least {min_arguments} {count}.")?;
       }
-      NotConfirmed { recipe } => {
-        write!(f, "Recipe `{recipe}` was not confirmed")?;
-      }
       Dotenv { dotenv_error } => {
         write!(f, "Failed to load environment file: {dotenv_error}")?;
       }
@@ -334,6 +334,9 @@ impl<'src> ColorDisplay for Error<'src> {
       FunctionCall { function, message } => {
         let function = function.lexeme();
         write!(f, "Call to function `{function}` failed: {message}")?;
+      }
+      GetConfirmation { io_error } => {
+        write!(f, "Failed to read confirmation from stdin: {io_error}")?;
       }
       IncludeMissingPath { file: justfile, line } => {
         let line = line.ordinal();
@@ -363,6 +366,9 @@ impl<'src> ColorDisplay for Error<'src> {
       }
       NoChoosableRecipes => write!(f, "Justfile contains no choosable recipes.")?,
       NoRecipes => write!(f, "Justfile contains no recipes.")?,
+      NotConfirmed { recipe } => {
+        write!(f, "Recipe `{recipe}` was not confirmed")?;
+      }
       RegexCompile { source } => write!(f, "{source}")?,
       Search { search_error } => Display::fmt(search_error, f)?,
       Shebang { recipe, command, argument, io_error} => {
