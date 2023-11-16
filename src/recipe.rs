@@ -65,7 +65,7 @@ impl<'src, D> Recipe<'src, D> {
 
   pub(crate) fn confirm(&self) -> RunResult<'src, bool> {
     if self.attributes.contains(&Attribute::Confirm) {
-      print!("Confirm running {} (y/N): ", self.name);
+      print!("Run recipe `{}`? ", self.name);
       let mut line = String::new();
       std::io::stdout().flush().map_err(|e| Error::Io {
         recipe: self.name(),
