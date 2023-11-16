@@ -80,7 +80,7 @@ fn do_not_confirm_recipe() {
             echo confirmed
         ",
     )
-    .stderr("error: the recipe requires_confirmation was not confirmed, therefore has not run\n")
+    .stderr("error: Recipe `requires_confirmation` was not confirmed\n")
     .stdout("Confirm running requires_confirmation (y/N): ")
     .status(1)
     .run();
@@ -99,7 +99,7 @@ fn do_not_confirm_recipe_with_confirm_recipe_dependency() {
             echo confirmed
         ",
     )
-    .stderr("error: the recipe requires_confirmation was not confirmed, therefore has not run\n")
+    .stderr("error: Recipe `requires_confirmation` was not confirmed\n")
     .stdout("Confirm running requires_confirmation (y/N): ")
     .status(1)
     .run();
