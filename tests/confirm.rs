@@ -3,7 +3,7 @@ use super::*;
 #[test]
 fn confirm_recipe_arg() {
   Test::new()
-    .arg("--force-confirm")
+    .arg("--yes")
     .justfile(
       "
         [confirm]
@@ -19,7 +19,7 @@ fn confirm_recipe_arg() {
 #[test]
 fn recipe_with_confirm_recipe_dependency_arg() {
   Test::new()
-    .arg("--force-confirm")
+    .arg("--yes")
     .justfile(
       "
         dep_confirmation: requires_confirmation
@@ -93,7 +93,7 @@ fn do_not_confirm_recipe_with_confirm_recipe_dependency() {
       "
         dep_confirmation: requires_confirmation
             echo mistake
-            
+
         [confirm]
         requires_confirmation:
             echo confirmed
