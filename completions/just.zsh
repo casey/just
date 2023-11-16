@@ -36,6 +36,7 @@ _just() {
 '(--dotenv-path)--dotenv-filename=[Search for environment file named <DOTENV-FILENAME> instead of `.env`]' \
 '--dotenv-path=[Load environment file at <DOTENV-PATH> instead of searching for one]' \
 '--check[Run `--fmt` in '\''check'\'' mode. Exits with 0 if justfile is formatted correctly. Exits with 1 and prints a diff if formatting is required.]' \
+'--yes[Automatically confirm all recipes.]' \
 '(-q --quiet)-n[Print what just would do without doing it]' \
 '(-q --quiet)--dry-run[Print what just would do without doing it]' \
 '--highlight[Highlight echoed recipe lines in bold]' \
