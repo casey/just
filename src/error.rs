@@ -91,10 +91,6 @@ pub(crate) enum Error<'src> {
   GetConfirmation {
     io_error: io::Error,
   },
-  IncludeMissingPath {
-    file: PathBuf,
-    line: usize,
-  },
   InitExists {
     justfile: PathBuf,
   },
@@ -334,11 +330,6 @@ impl<'src> ColorDisplay for Error<'src> {
       }
       GetConfirmation { io_error } => {
         write!(f, "Failed to read confirmation from stdin: {io_error}")?;
-      }
-      IncludeMissingPath { file: justfile, line } => {
-        let line = line.ordinal();
-        let justfile = justfile.display();
-        write!(f, "!include directive on line {line} of `{justfile}` has no argument")?;
       }
       InitExists { justfile } => {
         write!(f, "Justfile `{}` already exists", justfile.display())?;
