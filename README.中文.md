@@ -2475,7 +2475,7 @@ make: `test' is up to date.
 
 即使是小型的个人项目，能够通过名字记住命令，而不是通过 ^Reverse 搜索你的 Shell 历史，这也是一个巨大的福音，能够进入一个用任意语言编写的旧项目，并知道你需要用到的所有命令都在 `justfile` 中，如果你输入 `just`，就可能会输出一些有用的（或至少是有趣的！）信息。
 
-关于配方的想法，请查看 [这个项目的 `justfile`](https://github.com/casey/just/blob/master/justfile)，或一些 [在其他项目里](https://github.com/search?o=desc&q=filename%3Ajustfile&s=indexed&type=Code) 的 `justfile`。
+关于配方的想法，请查看 [这个项目的 `justfile`](https://github.com/casey/just/blob/master/justfile)，或一些 [在其他项目里](https://github.com/search?q=path%3A**%2Fjustfile&type=code) 的 `justfile`。
 
 总之，我想这个令人难以置信地啰嗦的 README 就到此为止了。
 
