@@ -634,7 +634,7 @@ $ just --list --list-heading ''
 
 ### Aliases
 
-Aliases allow recipes to be invoked with alternative names:
+Aliases allow using alternative names for recipes when invoking them on the command line:
 
 ```just
 alias b := build
@@ -645,7 +645,6 @@ build:
 
 ```sh
 $ just b
-build
 echo 'Building!'
 Building!
 ```
