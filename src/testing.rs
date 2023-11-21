@@ -1,10 +1,7 @@
-use {super::*, crate::compiler::Compiler, pretty_assertions::assert_eq};
+use {super::*, pretty_assertions::assert_eq};
 
-pub(crate) fn compile(text: &str) -> Justfile {
-  match Compiler::compile(text) {
-    Ok(compilation) => compilation.into_justfile(),
-    Err(error) => panic!("Expected successful compilation but got error:\n {error}"),
-  }
+pub(crate) fn compile(src: &str) -> Justfile {
+  Compiler::test_compile(src).expect("expected successful compilation")
 }
 
 pub(crate) fn config(args: &[&str]) -> Config {
@@ -64,7 +61,11 @@ pub(crate) fn analysis_error(
 
   let ast = Parser::parse(&tokens).expect("Parsing failed in analysis test...");
 
-  match Analyzer::analyze(&ast, &[]) {
+  let root = PathBuf::from("<ROOT>");
+  let mut asts: HashMap<PathBuf, Ast> = HashMap::new();
+  asts.insert(root.clone(), ast);
+
+  match Analyzer::analyze(&asts, &root) {
     Ok(_) => panic!("Analysis unexpectedly succeeded"),
     Err(have) => {
       let want = CompileError {
@@ -97,9 +98,7 @@ macro_rules! run_error {
       let search = $crate::testing::search(&config);
 
       if let Subcommand::Run{ overrides, arguments } = &config.subcommand {
-        match $crate::compiler::Compiler::compile(&$crate::unindent::unindent($src))
-          .expect("Expected successful compilation")
-          .justfile()
+        match $crate::testing::compile(&$crate::unindent::unindent($src))
           .run(
             &config,
             &search,

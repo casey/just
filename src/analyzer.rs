@@ -8,114 +8,61 @@ pub(crate) struct Analyzer<'src> {
 }
 
 impl<'src> Analyzer<'src> {
-  /// Inspect an AST for nodes representing an import of another justfile and collect them
-  pub(crate) fn get_imports(ast: &Ast<'src>) -> Vec<String> {
-    ast
-      .items
-      .iter()
-      .filter_map(|item| {
-        if let Item::Include { path, .. } = item {
-          Some((*path).into())
-        } else {
-          None
-        }
-      })
-      .collect()
-  }
-
-  /// Peform analysis on a root Ast, which may have imported other justfiles provided in
-  /// `imported_asts`
-  pub(crate) fn analyze<'a>(
-    root_ast: &'a Ast<'src>,
-    imported_asts: &'a [Ast<'src>],
+  pub(crate) fn analyze(
+    asts: &HashMap<PathBuf, Ast<'src>>,
+    root: &Path,
   ) -> CompileResult<'src, Justfile<'src>> {
-    let mut analyzer = Analyzer::default();
-    let unresolved_recipes = analyzer.build_tables(root_ast, imported_asts)?;
-
-    let settings = Settings::from_setting_iter(analyzer.sets.into_iter().map(|(_, set)| set.value));
-    AssignmentResolver::resolve_assignments(&analyzer.assignments)?;
-
-    let recipes = Analyzer::resolve_recipes(unresolved_recipes, &settings, &analyzer.assignments)?;
-
-    let mut aliases = Table::new();
-    while let Some(alias) = analyzer.aliases.pop() {
-      aliases.insert(Self::resolve_alias(&recipes, alias)?);
-    }
-
-    let first = recipes
-      .values()
-      .fold(None, |accumulator, next| match accumulator {
-        None => Some(Rc::clone(next)),
-        Some(previous) => Some(if previous.line_number() < next.line_number() {
-          previous
-        } else {
-          Rc::clone(next)
-        }),
-      });
-
-    Ok(Justfile {
-      warnings: root_ast.warnings.clone(),
-      first,
-      aliases,
-      assignments: analyzer.assignments,
-      recipes,
-      settings,
-    })
+    Analyzer::default().justfile(asts, root)
   }
 
-  fn build_tables<'a>(
-    &mut self,
-    root_ast: &'a Ast<'src>,
-    imported_asts: &'a [Ast<'src>],
-  ) -> CompileResult<'src, Vec<UnresolvedRecipe<'src>>> {
-    let mut recipes = Vec::new();
-    recipes.extend(self.build_table_from_items(&root_ast.items)?);
-
-    for import in imported_asts {
-      recipes.extend(self.build_table_from_items(&import.items)?.into_iter());
-    }
-    Ok(recipes)
-  }
-
-  fn build_table_from_items<'a>(
-    &mut self,
-    items: &'a [Item<'src>],
-  ) -> CompileResult<'src, Vec<Recipe<'src, UnresolvedDependency<'src>>>> {
+  fn justfile(
+    mut self,
+    asts: &HashMap<PathBuf, Ast<'src>>,
+    root: &Path,
+  ) -> CompileResult<'src, Justfile<'src>> {
     let mut recipes = Vec::new();
 
-    for item in items {
-      match item {
-        Item::Alias(alias) => {
-          self.analyze_alias(alias)?;
-          self.aliases.insert(alias.clone());
-        }
-        Item::Assignment(assignment) => {
-          self.analyze_assignment(assignment)?;
-          self.assignments.insert(assignment.clone());
-        }
-        Item::Comment(_) | Item::Include { .. } => (),
-        Item::Recipe(recipe) => {
-          if recipe.enabled() {
-            Self::analyze_recipe(recipe)?;
-            recipes.push(recipe.clone());
+    let mut stack = Vec::new();
+    stack.push(asts.get(root).unwrap());
+
+    let mut warnings = Vec::new();
+
+    while let Some(ast) = stack.pop() {
+      for item in &ast.items {
+        match item {
+          Item::Alias(alias) => {
+            self.analyze_alias(alias)?;
+            self.aliases.insert(alias.clone());
+          }
+          Item::Assignment(assignment) => {
+            self.analyze_assignment(assignment)?;
+            self.assignments.insert(assignment.clone());
+          }
+          Item::Comment(_) => (),
+          Item::Recipe(recipe) => {
+            if recipe.enabled() {
+              Self::analyze_recipe(recipe)?;
+              recipes.push(recipe);
+            }
+          }
+          Item::Set(set) => {
+            self.analyze_set(set)?;
+            self.sets.insert(set.clone());
+          }
+          Item::Include { absolute, .. } => {
+            stack.push(asts.get(absolute.as_ref().unwrap()).unwrap());
           }
         }
-        Item::Set(set) => {
-          self.analyze_set(set)?;
-          self.sets.insert(set.clone());
-        }
       }
+
+      warnings.extend(ast.warnings.iter().cloned());
     }
 
-    Ok(recipes)
-  }
+    let settings = Settings::from_setting_iter(self.sets.into_iter().map(|(_, set)| set.value));
 
-  fn resolve_recipes(
-    recipes: Vec<UnresolvedRecipe<'src>>,
-    settings: &Settings<'src>,
-    assignments: &Table<'src, Assignment<'src>>,
-  ) -> CompileResult<'src, Table<'src, Rc<Recipe<'src>>>> {
     let mut recipe_table: Table<'src, UnresolvedRecipe<'src>> = Table::default();
+
+    AssignmentResolver::resolve_assignments(&self.assignments)?;
 
     for recipe in recipes {
       if let Some(original) = recipe_table.get(recipe.name.lexeme()) {
@@ -126,11 +73,33 @@ impl<'src> Analyzer<'src> {
           }));
         }
       }
-      recipe_table.insert(recipe);
+      recipe_table.insert(recipe.clone());
     }
 
-    let recipes = RecipeResolver::resolve_recipes(recipe_table, assignments)?;
-    Ok(recipes)
+    let recipes = RecipeResolver::resolve_recipes(recipe_table, &self.assignments)?;
+
+    let mut aliases = Table::new();
+    while let Some(alias) = self.aliases.pop() {
+      aliases.insert(Self::resolve_alias(&recipes, alias)?);
+    }
+
+    Ok(Justfile {
+      warnings,
+      first: recipes
+        .values()
+        .fold(None, |accumulator, next| match accumulator {
+          None => Some(Rc::clone(next)),
+          Some(previous) => Some(if previous.line_number() < next.line_number() {
+            previous
+          } else {
+            Rc::clone(next)
+          }),
+        }),
+      aliases,
+      assignments: self.assignments,
+      recipes,
+      settings,
+    })
   }
 
   fn analyze_recipe(recipe: &UnresolvedRecipe<'src>) -> CompileResult<'src, ()> {

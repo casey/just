@@ -64,8 +64,26 @@ impl Subcommand {
     if let Edit = self {
       return Self::edit(&search);
     }
+
     let compilation = Self::compile(config, loader, &search)?;
     let justfile = compilation.justfile();
+    let ast = compilation.ast();
+    let src = compilation.src();
+
+    // todo:
+    // - what is the final behavior of dump and format?
+    // - we could say: dump dumps the entire justfile, with all modules inlined
+    // - but what if we have a mod statement which isn't included inline. is it weird to dump it? it is.
+    // - we could include the ast in the module, unresolved
+    //
+    // - or we could have a map of path -> ast which the analyzer uses to look up modules
+
+    // dump is weird. if you want json, it dumps the json serialized justfile, if you want
+    // just, it dumps the ast converted to a string
+    // format takes the original source, and compares it to the original AST
+    // format will eventually operate recursively, so it will need original asts and srcs
+    //
+    // justfile could include source map, path -> src, and ast map, path -> ast
 
     match self {
       Choose { overrides, chooser } => {
@@ -74,8 +92,8 @@ impl Subcommand {
       Command { overrides, .. } | Evaluate { overrides, .. } => {
         justfile.run(config, &search, overrides, &[])?;
       }
-      Dump => Self::dump(config, compilation.ast(), justfile)?,
-      Format => Self::format(config, &search, compilation.src(), compilation.ast())?,
+      Dump => Self::dump(config, ast, justfile)?,
+      Format => Self::format(config, &search, src, ast)?,
       List => Self::list(config, justfile),
       Show { ref name } => Self::show(config, name, justfile)?,
       Summary => Self::summary(config, justfile),
@@ -176,8 +194,8 @@ impl Subcommand {
     config: &Config,
     loader: &'src Loader,
     search: &Search,
-  ) -> Result<Compilation<'src>, Error<'src>> {
-    let compilation = loader.load_and_compile(&search.justfile)?;
+  ) -> Result<Foo<'src>, Error<'src>> {
+    let compilation = Compiler::compile(config.unstable, loader, &search.justfile)?;
 
     if config.verbosity.loud() {
       for warning in &compilation.justfile().warnings {

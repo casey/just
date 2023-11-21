@@ -1,96 +1,17 @@
 use super::*;
-use std::collections::{HashSet, VecDeque};
 
 pub(crate) struct Loader {
   arena: Arena<String>,
-  unstable: bool,
 }
 
 impl Loader {
-  pub(crate) fn new(unstable: bool) -> Self {
+  pub(crate) fn new() -> Self {
     Loader {
       arena: Arena::new(),
-      unstable,
     }
   }
 
-  pub(crate) fn load_and_compile(&self, path: &Path) -> RunResult<Compilation> {
-    let root_src = self.load_and_alloc(path)?;
-    let root_ast = Compiler::parse(root_src)?;
-    let root_imports = Analyzer::get_imports(&root_ast);
-
-    if root_imports.is_empty() {
-      let justfile = Analyzer::analyze(&root_ast, &[])?;
-      let compilation = Compilation::new(root_ast, justfile, root_src);
-      return Ok(compilation);
-    }
-
-    if !self.unstable {
-      return Err(Error::Unstable {
-        message: "The !include directive is currently unstable.".into(),
-      });
-    }
-
-    let imported_asts = self.load_imported_justfiles(path, root_imports)?;
-
-    let justfile = Analyzer::analyze(&root_ast, &imported_asts)?;
-    let compilation = Compilation::new(root_ast, justfile, root_src);
-    Ok(compilation)
-  }
-
-  fn load_imported_justfiles<'src>(
-    &'src self,
-    root_path: &Path,
-    root_imports: Vec<String>,
-  ) -> RunResult<Vec<Ast<'src>>> {
-    let mut imported_asts = vec![];
-
-    let mut seen: HashSet<PathBuf> = HashSet::new();
-    seen.insert(Self::canonicalize_path(root_path, root_path)?);
-
-    let mut queue: VecDeque<(PathBuf, Vec<String>)> = VecDeque::new();
-    queue.push_back((root_path.to_owned(), root_imports));
-
-    while let Some((cur_path, imports)) = queue.pop_front() {
-      for import in imports {
-        let canonical_path = Self::canonicalize_path(import.as_ref(), &cur_path)?;
-
-        if seen.contains(&canonical_path) {
-          return Err(Error::CircularInclude {
-            current: cur_path,
-            include: canonical_path,
-          });
-        }
-        seen.insert(canonical_path.clone());
-
-        let src = self.load_and_alloc(&canonical_path)?;
-        let ast = Compiler::parse(src)?;
-        queue.push_back((canonical_path.clone(), Analyzer::get_imports(&ast)));
-        imported_asts.push(ast);
-      }
-    }
-    Ok(imported_asts)
-  }
-
-  fn canonicalize_path<'src, 'a>(
-    import_path: &'a Path,
-    current_file_path: &'a Path,
-  ) -> RunResult<'src, PathBuf> {
-    let canonical_path = if import_path.is_relative() {
-      let current_dir = current_file_path.parent().ok_or(Error::Internal {
-        message: format!(
-          "Justfile path `{}` has no parent directory",
-          import_path.display()
-        ),
-      })?;
-      current_dir.join(import_path)
-    } else {
-      import_path.to_owned()
-    };
-    Ok(canonical_path.lexiclean())
-  }
-
-  fn load_and_alloc<'src>(&'src self, path: &Path) -> RunResult<&'src mut String> {
+  pub(crate) fn load_and_alloc<'src>(&'src self, path: &Path) -> RunResult<&'src mut String> {
     let src = Self::load_file(path)?;
     Ok(self.arena.alloc(src))
   }
@@ -101,12 +22,15 @@ impl Loader {
       io_error,
     })
   }
+
+  pub(crate) fn load<'src>(&'src self, path: &Path) -> RunResult<&'src str> {
+    Ok(self.load_and_alloc(path)?)
+  }
 }
 
 #[cfg(test)]
 mod tests {
-  use super::{Error, Lexiclean, Loader};
-  use temptree::temptree;
+  use {super::*, temptree::temptree};
 
   #[test]
   fn include_justfile() {
@@ -137,10 +61,10 @@ recipe_b: recipe_c
         }
     };
 
-    let loader = Loader::new(true);
+    let loader = Loader::new();
 
     let justfile_a_path = tmp.path().join("justfile");
-    let compilation = loader.load_and_compile(&justfile_a_path).unwrap();
+    let compilation = Compiler::compile(true, &loader, &justfile_a_path).unwrap();
 
     assert_eq!(compilation.src(), justfile_a);
   }
@@ -169,10 +93,10 @@ recipe_b:
         }
     };
 
-    let loader = Loader::new(true);
+    let loader = Loader::new();
 
     let justfile_a_path = tmp.path().join("justfile");
-    let loader_output = loader.load_and_compile(&justfile_a_path).unwrap_err();
+    let loader_output = Compiler::compile(true, &loader, &justfile_a_path).unwrap_err();
 
     assert_matches!(loader_output, Error::CircularInclude { current, include }
         if current == tmp.path().join("subdir").join("justfile_b").lexiclean() &&

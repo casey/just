@@ -22,7 +22,7 @@ pub(crate) use {
     command_ext::CommandExt,
     compile_error::CompileError,
     compile_error_kind::CompileErrorKind,
-    compiler::{Compilation, Compiler},
+    compiler::{Compiler, Foo},
     conditional_operator::ConditionalOperator,
     config::Config,
     config_error::ConfigError,
@@ -90,7 +90,7 @@ pub(crate) use {
   },
   std::{
     cmp,
-    collections::{BTreeMap, BTreeSet},
+    collections::{BTreeMap, BTreeSet, HashMap},
     env,
     ffi::{OsStr, OsString},
     fmt::{self, Debug, Display, Formatter},

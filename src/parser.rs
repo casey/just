@@ -784,8 +784,10 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     match name.lexeme() {
       "include" => {
         if let Some(include_line) = self.accept(Text)? {
-          let path = include_line.lexeme().trim();
-          Ok(Item::Include { path })
+          Ok(Item::Include {
+            relative: include_line.lexeme().trim(),
+            absolute: None,
+          })
         } else {
           Err(self.error(CompileErrorKind::IncludeMissingPath)?)
         }

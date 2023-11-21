@@ -3,60 +3,86 @@ use super::*;
 pub(crate) struct Compiler;
 
 impl Compiler {
-  #[cfg(test)]
-  pub(crate) fn compile(src: &str) -> CompileResult<Compilation> {
-    let root_ast = Self::parse(src)?;
-    let root_justfile = Analyzer::analyze(&root_ast, &[])?;
+  pub(crate) fn compile<'src>(
+    unstable: bool,
+    loader: &'src Loader,
+    root: &Path,
+  ) -> RunResult<'src, Foo<'src>> {
+    let mut srcs: HashMap<PathBuf, &str> = HashMap::new();
+    let mut asts: HashMap<PathBuf, Ast> = HashMap::new();
 
-    Ok(Compilation {
-      root_ast,
-      root_justfile,
-      root_source: src,
+    let mut paths: Vec<PathBuf> = Vec::new();
+    paths.push(root.into());
+
+    while let Some(current) = paths.pop() {
+      let src = loader.load(&current)?;
+      let tokens = Lexer::lex(src)?;
+      let mut ast = Parser::parse(&tokens)?;
+
+      srcs.insert(current.clone(), src);
+
+      for item in &mut ast.items {
+        if let Item::Include { relative, absolute } = item {
+          if !unstable {
+            return Err(Error::Unstable {
+              message: "The !include directive is currently unstable.".into(),
+            });
+          }
+
+          let include = current.parent().unwrap().join(relative).lexiclean();
+
+          if srcs.contains_key(&include) {
+            return Err(Error::CircularInclude { current, include });
+          }
+
+          *absolute = Some(include.clone());
+
+          paths.push(include);
+        }
+      }
+
+      asts.insert(current.clone(), ast.clone());
+    }
+
+    let justfile = Analyzer::analyze(&asts, root)?;
+
+    Ok(Foo {
+      asts,
+      srcs,
+      justfile,
+      root: root.into(),
     })
   }
 
-  pub(crate) fn parse(src: &str) -> CompileResult<Ast> {
-    let tokens = Lexer::lex(src)?;
-    Parser::parse(&tokens)
-  }
-}
-
-/// This type represents everything necessary to perform any operation on a justfile - the raw
-/// source, the compiled justfile and ast, and references to any included justfiles.
-#[derive(Debug)]
-pub(crate) struct Compilation<'src> {
-  root_ast: Ast<'src>,
-  root_justfile: Justfile<'src>,
-  root_source: &'src str,
-}
-
-impl<'src> Compilation<'src> {
-  pub(crate) fn new(
-    root_ast: Ast<'src>,
-    root_justfile: Justfile<'src>,
-    root_source: &'src str,
-  ) -> Self {
-    Self {
-      root_ast,
-      root_justfile,
-      root_source,
-    }
-  }
-
-  pub(crate) fn justfile(&self) -> &Justfile<'src> {
-    &self.root_justfile
-  }
-
   #[cfg(test)]
-  pub(crate) fn into_justfile(self) -> Justfile<'src> {
-    self.root_justfile
+  pub(crate) fn test_compile(src: &str) -> CompileResult<Justfile> {
+    let tokens = Lexer::lex(src)?;
+    let ast = Parser::parse(&tokens)?;
+    let root = PathBuf::from("<ROOT>");
+    let mut asts: HashMap<PathBuf, Ast> = HashMap::new();
+    asts.insert(root.clone(), ast);
+    Analyzer::analyze(&asts, &root)
+  }
+}
+
+#[derive(Debug)]
+pub(crate) struct Foo<'src> {
+  asts: HashMap<PathBuf, Ast<'src>>,
+  justfile: Justfile<'src>,
+  root: PathBuf,
+  srcs: HashMap<PathBuf, &'src str>,
+}
+
+impl<'src> Foo<'src> {
+  pub(crate) fn justfile(&self) -> &Justfile<'src> {
+    &self.justfile
   }
 
   pub(crate) fn ast(&self) -> &Ast<'src> {
-    &self.root_ast
+    self.asts.get(&self.root).unwrap()
   }
 
   pub(crate) fn src(&self) -> &'src str {
-    self.root_source
+    self.srcs.get(&self.root).unwrap()
   }
 }
