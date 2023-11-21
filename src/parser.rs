@@ -780,8 +780,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
 
   fn parse_directive(&mut self) -> CompileResult<'src, Item<'src>> {
     self.presume(Bang)?;
-    let token = self.expect(Identifier)?;
-    let name = Name::from_identifier(token);
+    let name = self.expect(Identifier)?;
     match name.lexeme() {
       "include" => {
         if let Some(include_line) = self.accept(Text)? {
@@ -791,7 +790,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
           Err(self.error(CompileErrorKind::IncludeMissingPath)?)
         }
       }
-      directive => Err(token.error(CompileErrorKind::UnknownDirective { directive })),
+      directive => Err(name.error(CompileErrorKind::UnknownDirective { directive })),
     }
   }
 
