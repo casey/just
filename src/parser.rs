@@ -786,7 +786,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
       "include" => {
         if let Some(include_line) = self.accept(Text)? {
           let path = include_line.lexeme().trim();
-          Ok(Item::Include { name, path })
+          Ok(Item::Include { path })
         } else {
           Err(self.error(CompileErrorKind::IncludeMissingPath)?)
         }

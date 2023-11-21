@@ -8,7 +8,7 @@ pub(crate) enum Item<'src> {
   Comment(&'src str),
   Recipe(UnresolvedRecipe<'src>),
   Set(Set<'src>),
-  Include { name: Name<'src>, path: &'src str },
+  Include { path: &'src str },
 }
 
 impl<'src> Display for Item<'src> {
@@ -19,7 +19,7 @@ impl<'src> Display for Item<'src> {
       Item::Comment(comment) => write!(f, "{comment}"),
       Item::Recipe(recipe) => write!(f, "{}", recipe.color_display(Color::never())),
       Item::Set(set) => write!(f, "{set}"),
-      Item::Include { name: _, path } => write!(f, "!include {path}"),
+      Item::Include { path } => write!(f, "!include {path}"),
     }
   }
 }

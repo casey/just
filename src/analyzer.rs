@@ -2,21 +2,13 @@ use {super::*, CompileErrorKind::*};
 
 #[derive(Debug)]
 pub(crate) struct Import {
-  /// Path of the import as literally given within the `!include` directive
-  path: PathBuf,
-
-  // Canonicalized version of the above path
   canonical_path: Option<PathBuf>,
-
-  //line on which this import occurs in the importing file. Not currently being used, but could
-  //allow for better error messages
-  #[allow(dead_code)]
-  line: usize,
+  literal_path: PathBuf,
 }
 
 impl Import {
   pub(crate) fn path(&self) -> &Path {
-    self.path.as_ref()
+    self.literal_path.as_ref()
   }
 
   pub(crate) fn add_canonical_path(&mut self, canonical_path: PathBuf) {
@@ -38,11 +30,10 @@ impl<'src> Analyzer<'src> {
       .items
       .iter()
       .filter_map(|item| {
-        if let Item::Include { name, path } = item {
+        if let Item::Include { path, .. } = item {
           Some(Import {
-            path: Path::new(path).to_owned(),
             canonical_path: None,
-            line: name.line,
+            literal_path: Path::new(path).to_owned(),
           })
         } else {
           None
