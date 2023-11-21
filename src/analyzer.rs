@@ -1,7 +1,5 @@
 use {super::*, CompileErrorKind::*};
 
-const VALID_ALIAS_ATTRIBUTES: [Attribute; 1] = [Attribute::Private];
-
 #[derive(Debug)]
 pub(crate) struct Import {
   /// Path of the import as literally given within the `!include` directive
@@ -229,7 +227,7 @@ impl<'src> Analyzer<'src> {
     }
 
     for attr in &alias.attributes {
-      if !VALID_ALIAS_ATTRIBUTES.contains(attr) {
+      if *attr != Attribute::Private {
         return Err(alias.name.token().error(AliasInvalidAttribute {
           alias: name,
           attr: *attr,
