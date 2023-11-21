@@ -26,8 +26,8 @@ impl Compiler {
 #[derive(Debug)]
 pub(crate) struct Compilation<'src> {
   root_ast: Ast<'src>,
-  root_source: &'src str,
   root_justfile: Justfile<'src>,
+  root_source: &'src str,
 }
 
 impl<'src> Compilation<'src> {
