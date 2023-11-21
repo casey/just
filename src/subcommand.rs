@@ -70,21 +70,6 @@ impl Subcommand {
     let ast = compilation.ast();
     let src = compilation.src();
 
-    // todo:
-    // - what is the final behavior of dump and format?
-    // - we could say: dump dumps the entire justfile, with all modules inlined
-    // - but what if we have a mod statement which isn't included inline. is it weird to dump it? it is.
-    // - we could include the ast in the module, unresolved
-    //
-    // - or we could have a map of path -> ast which the analyzer uses to look up modules
-
-    // dump is weird. if you want json, it dumps the json serialized justfile, if you want
-    // just, it dumps the ast converted to a string
-    // format takes the original source, and compares it to the original AST
-    // format will eventually operate recursively, so it will need original asts and srcs
-    //
-    // justfile could include source map, path -> src, and ast map, path -> ast
-
     match self {
       Choose { overrides, chooser } => {
         Self::choose(config, justfile, &search, overrides, chooser.as_deref())?;
