@@ -1,7 +1,5 @@
 use {super::*, serde::Serialize};
 
-///The `Justfile` type represents a single compiled justfile. A justfile with includes may
-///reference other `Justfile` values in the same `Compilation`.
 #[derive(Debug, PartialEq, Serialize)]
 pub(crate) struct Justfile<'src> {
   pub(crate) aliases: Table<'src, Alias<'src>>,
