@@ -135,6 +135,7 @@ impl Display for CompileError<'_> {
         Count("argument", *found),
         expected.display(),
       ),
+      IncludeMissingPath => write!(f, "!include directive has no argument",),
       InconsistentLeadingWhitespace { expected, found } => write!(
         f,
         "Recipe line has inconsistent leading whitespace. Recipe started with `{}` but found \
@@ -158,7 +159,6 @@ impl Display for CompileError<'_> {
           _ => character.escape_default().collect(),
         }
       ),
-      IncludeMissingPath => write!(f, "!include directive has no argument",),
       MismatchedClosingDelimiter {
         open,
         open_line,
