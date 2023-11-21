@@ -63,7 +63,6 @@ impl<'src> Analyzer<'src> {
 
     let first = recipes
       .values()
-      .filter(|_recipe| true)
       .fold(None, |accumulator, next| match accumulator {
         None => Some(Rc::clone(next)),
         Some(previous) => Some(if previous.line_number() < next.line_number() {
