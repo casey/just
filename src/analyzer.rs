@@ -1,21 +1,5 @@
 use {super::*, CompileErrorKind::*};
 
-#[derive(Debug)]
-pub(crate) struct Import {
-  canonical_path: Option<PathBuf>,
-  literal_path: String,
-}
-
-impl Import {
-  pub(crate) fn path(&self) -> &Path {
-    self.literal_path.as_ref()
-  }
-
-  pub(crate) fn add_canonical_path(&mut self, canonical_path: PathBuf) {
-    self.canonical_path = Some(canonical_path);
-  }
-}
-
 #[derive(Default)]
 pub(crate) struct Analyzer<'src> {
   assignments: Table<'src, Assignment<'src>>,
@@ -25,16 +9,13 @@ pub(crate) struct Analyzer<'src> {
 
 impl<'src> Analyzer<'src> {
   /// Inspect an AST for nodes representing an import of another justfile and collect them
-  pub(crate) fn get_imports(ast: &Ast<'src>) -> Vec<Import> {
+  pub(crate) fn get_imports(ast: &Ast<'src>) -> Vec<String> {
     ast
       .items
       .iter()
       .filter_map(|item| {
         if let Item::Include { path, .. } = item {
-          Some(Import {
-            canonical_path: None,
-            literal_path: (*path).into(),
-          })
+          Some((*path).into())
         } else {
           None
         }

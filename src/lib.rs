@@ -11,7 +11,7 @@
 pub(crate) use {
   crate::{
     alias::Alias,
-    analyzer::{Analyzer, Import},
+    analyzer::Analyzer,
     assignment::Assignment,
     assignment_resolver::AssignmentResolver,
     ast::Ast,

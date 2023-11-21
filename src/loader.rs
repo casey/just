@@ -41,20 +41,19 @@ impl Loader {
   fn load_imported_justfiles<'src>(
     &'src self,
     root_path: &Path,
-    root_imports: Vec<Import>,
+    root_imports: Vec<String>,
   ) -> RunResult<Vec<Ast<'src>>> {
     let mut imported_asts = vec![];
 
     let mut seen: HashSet<PathBuf> = HashSet::new();
     seen.insert(Self::canonicalize_path(root_path, root_path)?);
 
-    let mut queue: VecDeque<(PathBuf, Vec<Import>)> = VecDeque::new();
+    let mut queue: VecDeque<(PathBuf, Vec<String>)> = VecDeque::new();
     queue.push_back((root_path.to_owned(), root_imports));
 
     while let Some((cur_path, imports)) = queue.pop_front() {
-      for mut import in imports {
-        let given_path = import.path();
-        let canonical_path = Self::canonicalize_path(given_path, &cur_path)?;
+      for import in imports {
+        let canonical_path = Self::canonicalize_path(import.as_ref(), &cur_path)?;
 
         if seen.contains(&canonical_path) {
           return Err(Error::CircularInclude {
@@ -67,7 +66,6 @@ impl Loader {
         let src = self.load_and_alloc(&canonical_path)?;
         let ast = Compiler::parse(src)?;
         queue.push_back((canonical_path.clone(), Analyzer::get_imports(&ast)));
-        import.add_canonical_path(canonical_path);
         imported_asts.push(ast);
       }
     }
