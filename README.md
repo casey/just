@@ -140,7 +140,7 @@ You can also set the shell using command-line arguments. For example, to use Pow
     <tr>
       <td><a href="https://www.archlinux.org">Arch Linux</a></td>
       <td><a href="https://wiki.archlinux.org/title/Pacman">pacman</a></td>
-      <td><a href="https://archlinux.org/packages/community/x86_64/just/">just</a></td>
+      <td><a href="https://archlinux.org/packages/extra/x86_64/just/">just</a></td>
       <td><code>pacman -S just</code></td>
     </tr>
     <tr>
