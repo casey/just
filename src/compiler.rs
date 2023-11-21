@@ -12,7 +12,6 @@ impl Compiler {
       root_ast,
       root_justfile,
       root_source: src,
-      imported_asts: vec![],
     })
   }
 
@@ -22,30 +21,12 @@ impl Compiler {
   }
 }
 
-/// Wrapper type for an `Ast<'src>` + metadata about where it was parsed from
-#[derive(Debug)]
-pub(crate) struct AstImport<'src> {
-  pub(crate) ast: Ast<'src>,
-  //Not currently being used, but could allow for better error messages later
-  #[allow(dead_code)]
-  import: Import,
-}
-
-impl<'src> AstImport<'src> {
-  pub(crate) fn new(ast: Ast<'src>, import: Import) -> Self {
-    Self { ast, import }
-  }
-}
-
 /// This type represents everything necessary to perform any operation on a justfile - the raw
 /// source, the compiled justfile and ast, and references to any included justfiles.
 #[derive(Debug)]
 pub(crate) struct Compilation<'src> {
   root_ast: Ast<'src>,
   root_source: &'src str,
-  //Not currently being used, but could allow for better error messages later
-  #[allow(dead_code)]
-  pub(crate) imported_asts: Vec<AstImport<'src>>,
   root_justfile: Justfile<'src>,
 }
 
@@ -59,14 +40,6 @@ impl<'src> Compilation<'src> {
       root_ast,
       root_justfile,
       root_source,
-      imported_asts: vec![],
-    }
-  }
-
-  pub(crate) fn with_imports(self, imported_asts: Vec<AstImport<'src>>) -> Self {
-    Self {
-      imported_asts,
-      ..self
     }
   }
 

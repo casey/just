@@ -46,7 +46,7 @@ impl<'src> Analyzer<'src> {
   /// `imported_asts`
   pub(crate) fn analyze<'a>(
     root_ast: &'a Ast<'src>,
-    imported_asts: &'a [AstImport<'src>],
+    imported_asts: &'a [Ast<'src>],
   ) -> CompileResult<'src, Justfile<'src>> {
     let mut analyzer = Analyzer::default();
     let unresolved_recipes = analyzer.build_tables(root_ast, imported_asts)?;
@@ -85,13 +85,13 @@ impl<'src> Analyzer<'src> {
   fn build_tables<'a>(
     &mut self,
     root_ast: &'a Ast<'src>,
-    imported_asts: &'a [AstImport<'src>],
+    imported_asts: &'a [Ast<'src>],
   ) -> CompileResult<'src, Vec<UnresolvedRecipe<'src>>> {
     let mut recipes = Vec::new();
     recipes.extend(self.build_table_from_items(&root_ast.items)?);
 
     for import in imported_asts {
-      recipes.extend(self.build_table_from_items(&import.ast.items)?.into_iter());
+      recipes.extend(self.build_table_from_items(&import.items)?.into_iter());
     }
     Ok(recipes)
   }

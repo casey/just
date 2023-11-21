@@ -22,7 +22,7 @@ pub(crate) use {
     command_ext::CommandExt,
     compile_error::CompileError,
     compile_error_kind::CompileErrorKind,
-    compiler::{AstImport, Compilation, Compiler},
+    compiler::{Compilation, Compiler},
     conditional_operator::ConditionalOperator,
     config::Config,
     config_error::ConfigError,

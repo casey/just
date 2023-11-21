@@ -34,7 +34,7 @@ impl Loader {
     let imported_asts = self.load_imported_justfiles(path, root_imports)?;
 
     let justfile = Analyzer::analyze(&root_ast, &imported_asts)?;
-    let compilation = Compilation::new(root_ast, justfile, root_src).with_imports(imported_asts);
+    let compilation = Compilation::new(root_ast, justfile, root_src);
     Ok(compilation)
   }
 
@@ -42,7 +42,7 @@ impl Loader {
     &'src self,
     root_path: &Path,
     root_imports: Vec<Import>,
-  ) -> RunResult<Vec<AstImport<'src>>> {
+  ) -> RunResult<Vec<Ast<'src>>> {
     let mut imported_asts = vec![];
 
     let mut seen: HashSet<PathBuf> = HashSet::new();
@@ -68,8 +68,7 @@ impl Loader {
         let ast = Compiler::parse(src)?;
         queue.push_back((canonical_path.clone(), Analyzer::get_imports(&ast)));
         import.add_canonical_path(canonical_path);
-        let ast_meta = AstImport::new(ast, import);
-        imported_asts.push(ast_meta);
+        imported_asts.push(ast);
       }
     }
     Ok(imported_asts)
@@ -145,7 +144,6 @@ recipe_b: recipe_c
     let justfile_a_path = tmp.path().join("justfile");
     let compilation = loader.load_and_compile(&justfile_a_path).unwrap();
 
-    assert_eq!(compilation.imported_asts.len(), 2);
     assert_eq!(compilation.src(), justfile_a);
   }
 
