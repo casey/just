@@ -7,7 +7,7 @@ impl Compiler {
     unstable: bool,
     loader: &'src Loader,
     root: &Path,
-  ) -> RunResult<'src, Foo<'src>> {
+  ) -> RunResult<'src, Compilation<'src>> {
     let mut srcs: HashMap<PathBuf, &str> = HashMap::new();
     let mut asts: HashMap<PathBuf, Ast> = HashMap::new();
 
@@ -46,7 +46,7 @@ impl Compiler {
 
     let justfile = Analyzer::analyze(&asts, root)?;
 
-    Ok(Foo {
+    Ok(Compilation {
       asts,
       srcs,
       justfile,
@@ -66,14 +66,14 @@ impl Compiler {
 }
 
 #[derive(Debug)]
-pub(crate) struct Foo<'src> {
+pub(crate) struct Compilation<'src> {
   asts: HashMap<PathBuf, Ast<'src>>,
   justfile: Justfile<'src>,
   root: PathBuf,
   srcs: HashMap<PathBuf, &'src str>,
 }
 
-impl<'src> Foo<'src> {
+impl<'src> Compilation<'src> {
   pub(crate) fn justfile(&self) -> &Justfile<'src> {
     &self.justfile
   }

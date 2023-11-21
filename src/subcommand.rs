@@ -194,7 +194,7 @@ impl Subcommand {
     config: &Config,
     loader: &'src Loader,
     search: &Search,
-  ) -> Result<Foo<'src>, Error<'src>> {
+  ) -> Result<Compilation<'src>, Error<'src>> {
     let compilation = Compiler::compile(config.unstable, loader, &search.justfile)?;
 
     if config.verbosity.loud() {
