@@ -23,7 +23,7 @@ impl<'src> Node<'src> for Item<'src> {
       Item::Comment(comment) => comment.tree(),
       Item::Recipe(recipe) => recipe.tree(),
       Item::Set(set) => set.tree(),
-      Item::Include { path, .. } => Tree::atom("include").push(*path),
+      Item::Include { path, .. } => Tree::atom("include").push(format!("\"{path}\"")),
     }
   }
 }

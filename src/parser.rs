@@ -1981,7 +1981,7 @@ mod tests {
   test! {
     name: include_directive,
     text: "!include      some/file/path.txt     \n",
-    tree: (justfile (include ["some/file/path.txt"])),
+    tree: (justfile (include "some/file/path.txt")),
   }
 
   error! {
