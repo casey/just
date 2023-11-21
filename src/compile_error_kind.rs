@@ -58,6 +58,7 @@ pub(crate) enum CompileErrorKind<'src> {
     found: usize,
     expected: Range<usize>,
   },
+  IncludeMissingPath,
   InconsistentLeadingWhitespace {
     expected: &'src str,
     found: &'src str,
@@ -68,7 +69,6 @@ pub(crate) enum CompileErrorKind<'src> {
   InvalidEscapeSequence {
     character: char,
   },
-  IncludeMissingPath,
   MismatchedClosingDelimiter {
     close: Delimiter,
     open: Delimiter,
