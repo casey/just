@@ -470,7 +470,7 @@ impl<'src> Lexer<'src> {
   fn lex_normal(&mut self, start: char) -> CompileResult<'src, ()> {
     match start {
       ' ' | '\t' => self.lex_whitespace(),
-      '!' => self.lex_digraph('!', '=', BangEquals),
+      '!' => self.lex_bang(),
       '#' => self.lex_comment(),
       '$' => self.lex_single(Dollar),
       '&' => self.lex_digraph('&', '&', AmpersandAmpersand),
@@ -672,6 +672,33 @@ impl<'src> Lexer<'src> {
   /// Return true if there are any unclosed delimiters
   fn open_delimiters(&self) -> bool {
     !self.open_delimiters.is_empty()
+  }
+
+  fn lex_bang(&mut self) -> CompileResult<'src, ()> {
+    self.presume('!')?;
+
+    // Try to lex a `!=`
+    if self.accepted('=')? {
+      self.token(BangEquals);
+      return Ok(());
+    }
+
+    // Otherwise, lex a `!`
+    self.token(Bang);
+
+    if self.next.map(Self::is_identifier_start).unwrap_or_default() {
+      self.lex_identifier()?;
+
+      while !self.at_eol_or_eof() {
+        self.advance()?;
+      }
+
+      if self.current_token_length() > 0 {
+        self.token(Text);
+      }
+    }
+
+    Ok(())
   }
 
   /// Lex a two-character digraph
@@ -942,6 +969,7 @@ mod tests {
       AmpersandAmpersand => "&&",
       Asterisk => "*",
       At => "@",
+      Bang => "!",
       BangEquals => "!=",
       BraceL => "{",
       BraceR => "}",
@@ -2051,6 +2079,30 @@ mod tests {
     ),
   }
 
+  test! {
+    name:   bang_eof,
+    text:  "!",
+    tokens: (Bang),
+  }
+
+  test! {
+    name:   character_after_bang,
+    text:  "!{",
+    tokens: (Bang, BraceL)
+  }
+
+  test! {
+    name: identifier_after_bang,
+    text: "!include",
+    tokens: (Bang, Identifier:"include")
+  }
+
+  test! {
+    name: identifier_after_bang_with_more_stuff,
+    text: "!include some/stuff",
+    tokens: (Bang, Identifier:"include", Text:" some/stuff")
+  }
+
   error! {
     name:  tokenize_space_then_tab,
     input: "a:
@@ -2222,12 +2274,12 @@ mod tests {
 
   error! {
     name:   unexpected_character_after_bang,
-    input:  "!{",
+    input:  "!%",
     offset: 1,
     line:   0,
     column: 1,
     width:  1,
-    kind:   UnexpectedCharacter { expected: '=' },
+    kind:   UnknownStartOfToken,
   }
 
   error! {
@@ -2241,30 +2293,6 @@ mod tests {
       open:      Delimiter::Paren,
       close:     Delimiter::Bracket,
       open_line: 0,
-    },
-  }
-
-  error! {
-    name:   bang_eof,
-    input:  "!",
-    offset: 1,
-    line:   0,
-    column: 1,
-    width:  0,
-    kind:   UnexpectedEndOfToken {
-      expected: '=',
-    },
-  }
-
-  error! {
-    name:   bang_unexpected,
-    input:  "!%",
-    offset: 1,
-    line:   0,
-    column: 1,
-    width:  1,
-    kind:   UnexpectedCharacter {
-      expected: '=',
     },
   }
 

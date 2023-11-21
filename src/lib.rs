@@ -12,7 +12,7 @@ pub(crate) use {
   crate::{
     alias::Alias, analyzer::Analyzer, assignment::Assignment,
     assignment_resolver::AssignmentResolver, ast::Ast, attribute::Attribute, binding::Binding,
-    color::Color, color_display::ColorDisplay, command_ext::CommandExt,
+    color::Color, color_display::ColorDisplay, command_ext::CommandExt, compilation::Compilation,
     compile_error::CompileError, compile_error_kind::CompileErrorKind, compiler::Compiler,
     conditional_operator::ConditionalOperator, config::Config, config_error::ConfigError,
     count::Count, delimiter::Delimiter, dependency::Dependency, dump_format::DumpFormat,
@@ -34,7 +34,7 @@ pub(crate) use {
   },
   std::{
     cmp,
-    collections::{BTreeMap, BTreeSet},
+    collections::{BTreeMap, BTreeSet, HashMap},
     env,
     ffi::{OsStr, OsString},
     fmt::{self, Debug, Display, Formatter},
@@ -113,6 +113,7 @@ mod binding;
 mod color;
 mod color_display;
 mod command_ext;
+mod compilation;
 mod compile_error;
 mod compile_error_kind;
 mod compiler;

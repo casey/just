@@ -350,6 +350,9 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
             }
           }
         }
+      } else if self.next_is(Bang) {
+        let directive = self.parse_directive()?;
+        items.push(directive);
       } else if self.accepted(At)? {
         let doc = pop_doc_comment(&mut items, eol_since_last_comment);
         items.push(Item::Recipe(self.parse_recipe(
@@ -773,6 +776,24 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     };
 
     Ok(value)
+  }
+
+  fn parse_directive(&mut self) -> CompileResult<'src, Item<'src>> {
+    self.presume(Bang)?;
+    let name = self.expect(Identifier)?;
+    match name.lexeme() {
+      "include" => {
+        if let Some(include_line) = self.accept(Text)? {
+          Ok(Item::Include {
+            relative: include_line.lexeme().trim(),
+            absolute: None,
+          })
+        } else {
+          Err(self.error(CompileErrorKind::IncludeMissingPath)?)
+        }
+      }
+      directive => Err(name.error(CompileErrorKind::UnknownDirective { directive })),
+    }
   }
 
   /// Parse a setting
@@ -1958,6 +1979,12 @@ mod tests {
     tree: (justfile (assignment a (if b == c d (if b == c d e)))),
   }
 
+  test! {
+    name: include_directive,
+    text: "!include      some/file/path.txt     \n",
+    tree: (justfile (include "some/file/path.txt")),
+  }
+
   error! {
     name:   alias_syntax_multiple_rhs,
     input:  "alias foo := bar baz",
@@ -2048,7 +2075,7 @@ mod tests {
     column: 0,
     width:  1,
     kind: UnexpectedToken {
-      expected: vec![At, BracketL, Comment, Eof, Eol, Identifier],
+      expected: vec![At, Bang, BracketL, Comment, Eof, Eol, Identifier],
       found: BraceL,
     },
   }
@@ -2398,6 +2425,18 @@ mod tests {
       function: "replace",
       found: 1,
       expected: 3..3,
+    },
+  }
+
+  error! {
+    name: unknown_directive,
+    input: "!inclood",
+    offset: 1,
+    line: 0,
+    column: 1,
+    width: 7,
+    kind: UnknownDirective {
+      directive: "inclood"
     },
   }
 }
