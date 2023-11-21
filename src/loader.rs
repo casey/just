@@ -11,20 +11,13 @@ impl Loader {
     }
   }
 
-  pub(crate) fn load_and_alloc<'src>(&'src self, path: &Path) -> RunResult<&'src mut String> {
-    let src = Self::load_file(path)?;
-    Ok(self.arena.alloc(src))
-  }
-
-  fn load_file<'a>(path: &Path) -> RunResult<'a, String> {
-    fs::read_to_string(path).map_err(|io_error| Error::Load {
+  pub(crate) fn load<'src>(&'src self, path: &Path) -> RunResult<&'src str> {
+    let src = fs::read_to_string(path).map_err(|io_error| Error::Load {
       path: path.to_owned(),
       io_error,
-    })
-  }
+    })?;
 
-  pub(crate) fn load<'src>(&'src self, path: &Path) -> RunResult<&'src str> {
-    Ok(self.load_and_alloc(path)?)
+    Ok(self.arena.alloc(src))
   }
 }
 
