@@ -3,7 +3,7 @@ use {super::*, CompileErrorKind::*};
 #[derive(Debug)]
 pub(crate) struct Import {
   canonical_path: Option<PathBuf>,
-  literal_path: PathBuf,
+  literal_path: String,
 }
 
 impl Import {
@@ -33,7 +33,7 @@ impl<'src> Analyzer<'src> {
         if let Item::Include { path, .. } = item {
           Some(Import {
             canonical_path: None,
-            literal_path: Path::new(path).to_owned(),
+            literal_path: (*path).into(),
           })
         } else {
           None
