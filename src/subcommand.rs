@@ -66,9 +66,9 @@ impl Subcommand {
     }
 
     let compilation = Self::compile(config, loader, &search)?;
-    let justfile = compilation.justfile();
-    let ast = compilation.ast();
-    let src = compilation.src();
+    let justfile = &compilation.justfile;
+    let ast = compilation.root_ast();
+    let src = compilation.root_src();
 
     match self {
       Choose { overrides, chooser } => {
@@ -169,7 +169,7 @@ impl Subcommand {
     search: &Search,
   ) -> Result<(), (Error<'src>, bool)> {
     let compilation = Self::compile(config, loader, search).map_err(|err| (err, false))?;
-    let justfile = compilation.justfile();
+    let justfile = &compilation.justfile;
     justfile
       .run(config, search, overrides, arguments)
       .map_err(|err| (err, justfile.settings.fallback))
@@ -183,7 +183,7 @@ impl Subcommand {
     let compilation = Compiler::compile(config.unstable, loader, &search.justfile)?;
 
     if config.verbosity.loud() {
-      for warning in &compilation.justfile().warnings {
+      for warning in &compilation.justfile.warnings {
         eprintln!("{}", warning.color_display(config.color.stderr()));
       }
     }

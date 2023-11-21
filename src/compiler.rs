@@ -65,28 +65,6 @@ impl Compiler {
   }
 }
 
-#[derive(Debug)]
-pub(crate) struct Compilation<'src> {
-  asts: HashMap<PathBuf, Ast<'src>>,
-  justfile: Justfile<'src>,
-  root: PathBuf,
-  srcs: HashMap<PathBuf, &'src str>,
-}
-
-impl<'src> Compilation<'src> {
-  pub(crate) fn justfile(&self) -> &Justfile<'src> {
-    &self.justfile
-  }
-
-  pub(crate) fn ast(&self) -> &Ast<'src> {
-    self.asts.get(&self.root).unwrap()
-  }
-
-  pub(crate) fn src(&self) -> &'src str {
-    self.srcs.get(&self.root).unwrap()
-  }
-}
-
 #[cfg(test)]
 mod tests {
   use {super::*, temptree::temptree};
@@ -125,7 +103,7 @@ recipe_b: recipe_c
     let justfile_a_path = tmp.path().join("justfile");
     let compilation = Compiler::compile(true, &loader, &justfile_a_path).unwrap();
 
-    assert_eq!(compilation.src(), justfile_a);
+    assert_eq!(compilation.root_src(), justfile_a);
   }
 
   #[test]
