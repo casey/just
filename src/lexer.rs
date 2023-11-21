@@ -470,7 +470,7 @@ impl<'src> Lexer<'src> {
   fn lex_normal(&mut self, start: char) -> CompileResult<'src, ()> {
     match start {
       ' ' | '\t' => self.lex_whitespace(),
-      '!' => self.lex_bang_expression(),
+      '!' => self.lex_bang(),
       '#' => self.lex_comment(),
       '$' => self.lex_single(Dollar),
       '&' => self.lex_digraph('&', '&', AmpersandAmpersand),
@@ -674,7 +674,7 @@ impl<'src> Lexer<'src> {
     !self.open_delimiters.is_empty()
   }
 
-  fn lex_bang_expression(&mut self) -> CompileResult<'src, ()> {
+  fn lex_bang(&mut self) -> CompileResult<'src, ()> {
     self.presume('!')?;
 
     // First, see if this is a `!=` literal
@@ -686,28 +686,17 @@ impl<'src> Lexer<'src> {
     //Otherwise, lex a Bang token
     self.token(Bang);
 
-    // Then try to lex an identifier and then arbitrary text
-    match self.next {
-      Some(ch) if Self::is_identifier_start(ch) => {
-        self.lex_identifier()?;
-        loop {
-          if self.rest_starts_with("\n")
-            || self.rest_starts_with("\r\n")
-            || self.rest_starts_with("{{")
-            || self.at_eof()
-          {
-            break;
-          }
+    if self.next.map(Self::is_identifier_start).unwrap_or_default() {
+      self.lex_identifier()?;
 
-          self.advance()?;
-        }
-
-        if self.current_token_length() > 0 {
-          self.token(Text);
-        }
+      while !self.at_eol_or_eof() {
+        self.advance()?;
       }
-      _ => (),
-    };
+
+      if self.current_token_length() > 0 {
+        self.token(Text);
+      }
+    }
 
     Ok(())
   }
