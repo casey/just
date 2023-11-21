@@ -677,13 +677,13 @@ impl<'src> Lexer<'src> {
   fn lex_bang(&mut self) -> CompileResult<'src, ()> {
     self.presume('!')?;
 
-    // First, see if this is a `!=` literal
+    // Try to lex a `!=`
     if self.accepted('=')? {
       self.token(BangEquals);
       return Ok(());
     }
 
-    //Otherwise, lex a Bang token
+    // Otherwise, lex a `!`
     self.token(Bang);
 
     if self.next.map(Self::is_identifier_start).unwrap_or_default() {
