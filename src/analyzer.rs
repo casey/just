@@ -84,7 +84,6 @@ impl<'src> Analyzer<'src> {
     }
 
     Ok(Justfile {
-      warnings,
       first: recipes
         .values()
         .fold(None, |accumulator, next| match accumulator {
@@ -99,6 +98,7 @@ impl<'src> Analyzer<'src> {
       assignments: self.assignments,
       recipes,
       settings,
+      warnings,
     })
   }
 
