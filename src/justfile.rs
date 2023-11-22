@@ -363,7 +363,13 @@ impl<'src> Justfile<'src> {
       .collect::<Vec<&Recipe<Dependency>>>();
 
     if source_order {
-      recipes.sort_by_key(|recipe| recipe.name.offset);
+      recipes.sort_by_key(|recipe| {
+        recipe
+          .provenance
+          .as_ref()
+          .map(|p| p.global_order)
+          .unwrap_or_default()
+      });
     }
 
     recipes
