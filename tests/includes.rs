@@ -37,12 +37,15 @@ fn include_succeeds_with_unstable() {
 fn trailing_spaces_after_include_are_ignored() {
   Test::new()
     .tree(tree! {
-      "include.justfile": "
-        a:
-          @echo A
-      ",
+      "include.justfile": "",
     })
-    .justfile("!include ./include.justfile\x20")
+    .justfile(
+      "
+      !include ./include.justfile\x20
+      a:
+        @echo A
+    ",
+    )
     .arg("--unstable")
     .test_round_trip(false)
     .stdout("A\n")
@@ -101,5 +104,19 @@ fn circular_include() {
     .stderr_regex(path_for_regex(
       "error: Include `.*/a` in `.*/b` is a circular include\n",
     ))
+    .run();
+}
+
+#[test]
+fn include_recipes_are_not_default() {
+  Test::new()
+    .tree(tree! {
+      "include.justfile": "bar:",
+    })
+    .justfile("!include ./include.justfile")
+    .arg("--unstable")
+    .test_round_trip(false)
+    .status(EXIT_FAILURE)
+    .stderr("error: Justfile contains no default recipe.\n")
     .run();
 }

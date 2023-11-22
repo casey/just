@@ -199,8 +199,10 @@ impl<'src> Justfile<'src> {
         });
       }
       vec![recipe.name()]
-    } else {
+    } else if self.recipes.is_empty() {
       return Err(Error::NoRecipes);
+    } else {
+      return Err(Error::NoDefaultRecipe);
     };
 
     let arguments = argvec.as_slice();

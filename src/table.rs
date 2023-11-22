@@ -25,6 +25,10 @@ impl<'key, V: Keyed<'key>> Table<'key, V> {
     self.map.get(key)
   }
 
+  pub(crate) fn is_empty(&self) -> bool {
+    self.map.is_empty()
+  }
+
   pub(crate) fn values(&self) -> btree_map::Values<&'key str, V> {
     self.map.values()
   }
