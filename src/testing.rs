@@ -57,11 +57,11 @@ pub(crate) fn analysis_error(
   length: usize,
   kind: CompileErrorKind,
 ) {
-  let tokens = Lexer::lex(src).expect("Lexing failed in parse test...");
+  let tokens = Lexer::test_lex(src).expect("Lexing failed in parse test...");
 
   let ast = Parser::parse(&tokens).expect("Parsing failed in analysis test...");
 
-  let root = PathBuf::from("<ROOT>");
+  let root = PathBuf::from("justfile");
   let mut asts: HashMap<PathBuf, Ast> = HashMap::new();
   asts.insert(root.clone(), ast);
 
@@ -76,6 +76,7 @@ pub(crate) fn analysis_error(
           line,
           column,
           length,
+          path: "justfile".as_ref(),
         },
         kind: Box::new(kind),
       };

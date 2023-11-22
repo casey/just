@@ -927,7 +927,7 @@ mod tests {
 
   fn test(text: &str, want: Tree) {
     let unindented = unindent(text);
-    let tokens = Lexer::lex(&unindented).expect("lexing failed");
+    let tokens = Lexer::test_lex(&unindented).expect("lexing failed");
     let justfile = Parser::parse(&tokens).expect("parsing failed");
     let have = justfile.tree();
     if have != want {
@@ -964,7 +964,7 @@ mod tests {
     length: usize,
     kind: CompileErrorKind,
   ) {
-    let tokens = Lexer::lex(src).expect("Lexing failed in parse test...");
+    let tokens = Lexer::test_lex(src).expect("Lexing failed in parse test...");
 
     match Parser::parse(&tokens) {
       Ok(_) => panic!("Parsing unexpectedly succeeded"),
@@ -977,6 +977,7 @@ mod tests {
             line,
             column,
             length,
+            path: "justfile".as_ref(),
           },
           kind: Box::new(kind),
         };

@@ -1,15 +1,16 @@
 use super::*;
 
 test! {
-    name: invalid_alias_attribute,
-    justfile: "[private]\n[linux]\nalias t := test\n\ntest:\n",
-    stderr: "
-      error: Alias t has an invalid attribute `linux`
-        |
-      3 | alias t := test
-        |       ^
-    ",
-    status: EXIT_FAILURE,
+  name: invalid_alias_attribute,
+  justfile: "[private]\n[linux]\nalias t := test\n\ntest:\n",
+  stderr: "
+    error: Alias t has an invalid attribute `linux`
+     --> justfile:3:7
+      |
+    3 | alias t := test
+      |       ^
+  ",
+  status: EXIT_FAILURE,
 }
 
 test! {
@@ -17,6 +18,7 @@ test! {
   justfile: "foo := if '' == '' { '' } arlo { '' }",
   stderr: "
     error: Expected keyword `else` but found identifier `arlo`
+     --> justfile:1:27
       |
     1 | foo := if '' == '' { '' } arlo { '' }
       |                           ^^^^
@@ -29,6 +31,7 @@ test! {
   justfile: "&~",
   stderr: "
     error: Expected character `&`
+     --> justfile:1:2
       |
     1 | &~
       |  ^

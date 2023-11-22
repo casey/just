@@ -58,6 +58,7 @@ fn include_directive_with_no_path() {
     .stderr(
       "
 error: !include directive has no argument
+ --> justfile:1:9
   |
 1 | !include
   |         ^

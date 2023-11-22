@@ -9,6 +9,7 @@ pub(crate) struct Name<'src> {
   pub(crate) line: usize,
   pub(crate) column: usize,
   pub(crate) src: &'src str,
+  pub(crate) path: &'src Path,
 }
 
 impl<'src> Name<'src> {
@@ -26,6 +27,7 @@ impl<'src> Name<'src> {
       line: self.line,
       column: self.column,
       src: self.src,
+      path: self.path,
     }
   }
 
@@ -37,6 +39,7 @@ impl<'src> Name<'src> {
       line: token.line,
       column: token.column,
       src: token.src,
+      path: token.path,
     }
   }
 

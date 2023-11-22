@@ -88,6 +88,7 @@ a:"#,
   args:     ("a"),
   stdout:   "",
   stderr:   "error: `\\q` is not a valid escape sequence
+ --> justfile:1:6
   |
 1 | x := \"\\q\"
   |      ^^^^
@@ -108,6 +109,7 @@ a:
   args:     ("a"),
   stdout:   "",
   stderr:   "error: Variable `foo` not defined
+ --> justfile:6:11
   |
 6 |   echo '{{foo}}'
   |           ^^^
@@ -128,6 +130,7 @@ a:
   args:     ("a"),
   stdout:   "",
   stderr:   "error: Variable `bar` not defined
+ --> justfile:3:13
   |
 3 | whatever' + bar
   |             ^^^
@@ -165,6 +168,7 @@ a:
   args:     ("a"),
   stdout:   "",
   stderr:   "error: Variable `b` not defined
+ --> justfile:5:10
   |
 5 |   echo {{b}}
   |          ^
@@ -181,6 +185,7 @@ test! {
   stdout:   "",
   stderr:   "
     error: Unterminated string
+     --> justfile:1:6
       |
     1 | a b= ':
       |      ^
@@ -197,6 +202,7 @@ test! {
   stdout:   "",
   stderr:   r#"
     error: Unterminated string
+     --> justfile:1:6
       |
     1 | a b= ":
       |      ^
@@ -212,6 +218,7 @@ test! {
   ",
   stderr:   r#"
     error: Unterminated backtick
+     --> justfile:1:8
       |
     1 | foo a=    `echo blaaaaaah:
       |           ^
@@ -228,6 +235,7 @@ test! {
   stdout:   "",
   stderr:   "
     error: Unterminated string
+     --> justfile:1:6
       |
     1 | a b= ''':
       |      ^^^
@@ -244,6 +252,7 @@ test! {
   stdout:   "",
   stderr:   r#"
     error: Unterminated string
+     --> justfile:1:6
       |
     1 | a b= """:
       |      ^^^
@@ -259,6 +268,7 @@ test! {
   ",
   stderr:   r#"
     error: Unterminated backtick
+     --> justfile:1:8
       |
     1 | foo a=    ```echo blaaaaaah:
       |           ^^^
@@ -374,6 +384,7 @@ test! {
   ",
   stderr:   "
     error: Backticks may not start with `#!`
+     --> justfile:1:6
       |
     1 | x := `#!/usr/bin/env sh`
       |      ^^^^^^^^^^^^^^^^^^^

@@ -7,6 +7,7 @@ fn parameter_default_unknown_variable_in_expression() {
     .stderr(
       "
       error: Variable `b` not defined
+       --> justfile:1:8
         |
       1 | foo a=(b+''):
         |        ^
@@ -27,6 +28,7 @@ fn unknown_variable_in_unary_call() {
     .stderr(
       "
       error: Variable `a` not defined
+       --> justfile:1:15
         |
       1 | foo x=env_var(a):
         |               ^
@@ -47,6 +49,7 @@ fn unknown_first_variable_in_binary_call() {
     .stderr(
       "
       error: Variable `a` not defined
+       --> justfile:1:26
         |
       1 | foo x=env_var_or_default(a, b):
         |                          ^
@@ -67,6 +70,7 @@ fn unknown_second_variable_in_binary_call() {
     .stderr(
       "
       error: Variable `b` not defined
+       --> justfile:1:30
         |
       1 | foo x=env_var_or_default('', b):
         |                              ^
@@ -87,6 +91,7 @@ fn unknown_variable_in_ternary_call() {
     .stderr(
       "
       error: Variable `a` not defined
+       --> justfile:1:15
         |
       1 | foo x=replace(a, b, c):
         |               ^

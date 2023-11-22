@@ -61,6 +61,7 @@ test! {
   stdout: "",
   stderr: "
     error: Variable `b` not defined
+     --> justfile:1:9
       |
     1 | a := if b == '' { '' } else { '' }
       |         ^
@@ -79,6 +80,7 @@ test! {
   stdout: "",
   stderr: "
     error: Variable `b` not defined
+     --> justfile:1:15
       |
     1 | a := if '' == b { '' } else { '' }
       |               ^
@@ -97,6 +99,7 @@ test! {
   stdout: "",
   stderr: "
     error: Variable `b` not defined
+     --> justfile:1:20
       |
     1 | a := if '' == '' { b } else { '' }
       |                    ^
@@ -115,6 +118,7 @@ test! {
   stdout: "",
   stderr: "
     error: Variable `b` not defined
+     --> justfile:1:32
       |
     1 | a := if '' == '' { '' } else { b }
       |                                ^
@@ -133,6 +137,7 @@ test! {
   stdout: "",
   stderr: "
     error: Expected '!=', '==', '=~', '+', or '/', but found identifier
+     --> justfile:1:12
       |
     1 | a := if '' a '' { '' } else { b }
       |            ^
@@ -177,6 +182,7 @@ test! {
   stdout: "",
   stderr: "
     error: Expected keyword `else` but found `end of line`
+     --> justfile:1:54
       |
     1 | TEST := if path_exists('/bin/bash') == 'true' {'yes'}
       |                                                      ^
@@ -192,6 +198,7 @@ test! {
   stdout: "",
   stderr: "
     error: Expected keyword `else` but found identifier `els`
+     --> justfile:1:55
       |
     1 | TEST := if path_exists('/bin/bash') == 'true' {'yes'} els {'no'}
       |                                                       ^^^
