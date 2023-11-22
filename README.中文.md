@@ -341,8 +341,6 @@ cd ~/.vim/pack/vendor/start
 git clone https://github.com/NoahTheDuke/vim-just.git
 ```
 
-`vim-just` 也可以从 [vim-polyglot](https://github.com/sheerun/vim-polyglot) 获得，这是一个多语言的 Vim 插件。
-
 #### `tree-sitter-just`
 
 [tree-sitter-just](https://github.com/IndianBoy42/tree-sitter-just) 是一个针对 Neovim 的 [Nvim Treesitter](https://github.com/nvim-treesitter/nvim-treesitter) 插件。
@@ -890,7 +888,7 @@ Starting server with database localhost:6379 on port 1337…
 支持在变量、字符串、拼接、路径连接和替换中使用 `{{…}}` ：
 
 ```just
-tmpdir  := `mktemp`
+tmpdir  := `mktemp -d`
 version := "0.2.7"
 tardir  := tmpdir / "awesomesauce-" + version
 tarball := tardir + ".tar.gz"
@@ -1203,16 +1201,18 @@ The executable is at: /bin/just
 
 配方可以通过添加属性注释来改变其行为。
 
-| 名称                | 描述                                   |
-| ------------------- | -------------------------------------- |
-| `[no-cd]`           | 在执行配方之前不要改变目录。           |
-| `[no-exit-message]` | 如果配方执行失败，不要打印错误信息。   |
-| `[linux]`           | 在Linux上启用配方。                    |
-| `[macos]`           | 在MacOS上启用配方。                    |
-| `[unix]`            | 在Unixes上启用配方。                   |
-| `[windows]`         | 在Windows上启用配方。                  |
 
-#### 启用和禁用配方
+| 名称                                | 描述                                   |
+| ----------------------------------- | -------------------------------------- |
+| `[no-cd]`<sup>1.9.0</sup>           | 在执行配方之前不要改变目录。           |
+| `[no-exit-message]`<sup>1.7.0</sup> | 如果配方执行失败，不要打印错误信息。   |
+| `[linux]`<sup>1.8.0</sup>           | 在Linux上启用配方。                    |
+| `[macos]`<sup>1.8.0</sup>           | 在MacOS上启用配方。                    |
+| `[unix]`<sup>1.8.0</sup>            | 在Unixes上启用配方。                   |
+| `[windows]`<sup>1.8.0</sup>         | 在Windows上启用配方。                  |
+| `[private]`<sup>1.10.0</sup>        | 参见 [私有配方](#私有配方). |
+
+#### 启用和禁用配方<sup>1.8.0</sup>
 
 `[linux]`, `[macos]`, `[unix]` 和 `[windows]` 属性是配置属性。默认情况下，配方总是被启用。一个带有一个或多个配置属性的配方只有在其中一个或多个配置处于激活状态时才会被启用。
 
@@ -2052,7 +2052,7 @@ echo 'Bar!'
 Bar!
 ```
 
-`just` 在配方行失败时通常会打印错误信息，这些错误信息可以通过 `[no-exit-message]` 属性来抑制。你可能会发现这在包装工具的配方中特别有用：
+`just` 在配方行失败时通常会打印错误信息，这些错误信息可以通过 `[no-exit-message]`<sup>1.7.0</sup> 属性来抑制。你可能会发现这在包装工具的配方中特别有用：
 
 ```just
 git *args:
@@ -2475,7 +2475,7 @@ make: `test' is up to date.
 
 即使是小型的个人项目，能够通过名字记住命令，而不是通过 ^Reverse 搜索你的 Shell 历史，这也是一个巨大的福音，能够进入一个用任意语言编写的旧项目，并知道你需要用到的所有命令都在 `justfile` 中，如果你输入 `just`，就可能会输出一些有用的（或至少是有趣的！）信息。
 
-关于配方的想法，请查看 [这个项目的 `justfile`](https://github.com/casey/just/blob/master/justfile)，或一些 [在其他项目里](https://github.com/search?o=desc&q=filename%3Ajustfile&s=indexed&type=Code) 的 `justfile`。
+关于配方的想法，请查看 [这个项目的 `justfile`](https://github.com/casey/just/blob/master/justfile)，或一些 [在其他项目里](https://github.com/search?q=path%3A**%2Fjustfile&type=code) 的 `justfile`。
 
 总之，我想这个令人难以置信地啰嗦的 README 就到此为止了。
 

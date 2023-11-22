@@ -1,18 +1,17 @@
-#![allow(unknown_lints)]
-#![allow(clippy::unnecessary_wraps)]
-
 use {
   super::*,
   heck::{
     ToKebabCase, ToLowerCamelCase, ToShoutyKebabCase, ToShoutySnakeCase, ToSnakeCase, ToTitleCase,
     ToUpperCamelCase,
   },
+  semver::{Version, VersionReq},
   Function::*,
 };
 
 pub(crate) enum Function {
   Nullary(fn(&FunctionContext) -> Result<String, String>),
   Unary(fn(&FunctionContext, &str) -> Result<String, String>),
+  UnaryOpt(fn(&FunctionContext, &str, Option<&str>) -> Result<String, String>),
   Binary(fn(&FunctionContext, &str, &str) -> Result<String, String>),
   BinaryPlus(fn(&FunctionContext, &str, &str, &[String]) -> Result<String, String>),
   Ternary(fn(&FunctionContext, &str, &str, &str) -> Result<String, String>),
@@ -24,6 +23,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "arch" => Nullary(arch),
     "capitalize" => Unary(capitalize),
     "clean" => Unary(clean),
+    "env" => UnaryOpt(env),
     "env_var" => Unary(env_var),
     "env_var_or_default" => Binary(env_var_or_default),
     "error" => Unary(error),
@@ -39,6 +39,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "kebabcase" => Unary(kebabcase),
     "lowercamelcase" => Unary(lowercamelcase),
     "lowercase" => Unary(lowercase),
+    "num_cpus" => Nullary(num_cpus),
     "os" => Nullary(os),
     "os_family" => Nullary(os_family),
     "parent_directory" => Unary(parent_directory),
@@ -46,6 +47,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "quote" => Unary(quote),
     "replace" => Ternary(replace),
     "replace_regex" => Ternary(replace_regex),
+    "semver_matches" => Binary(semver_matches),
     "sha256" => Unary(sha256),
     "sha256_file" => Unary(sha256_file),
     "shoutykebabcase" => Unary(shoutykebabcase),
@@ -73,6 +75,7 @@ impl Function {
     match *self {
       Nullary(_) => 0..0,
       Unary(_) => 1..1,
+      UnaryOpt(_) => 1..2,
       Binary(_) => 2..2,
       BinaryPlus(_) => 2..usize::MAX,
       Ternary(_) => 3..3,
@@ -147,6 +150,13 @@ fn env_var_or_default(
   }
 }
 
+fn env(context: &FunctionContext, key: &str, default: Option<&str>) -> Result<String, String> {
+  match default {
+    Some(val) => env_var_or_default(context, key, val),
+    None => env_var(context, key),
+  }
+}
+
 fn error(_context: &FunctionContext, message: &str) -> Result<String, String> {
   Err(message.to_owned())
 }
@@ -208,7 +218,7 @@ fn join(
 
 fn just_executable(_context: &FunctionContext) -> Result<String, String> {
   let exe_path =
-    std::env::current_exe().map_err(|e| format!("Error getting current executable: {e}"))?;
+    env::current_exe().map_err(|e| format!("Error getting current executable: {e}"))?;
 
   exe_path.to_str().map(str::to_owned).ok_or_else(|| {
     format!(
@@ -261,6 +271,11 @@ fn lowercamelcase(_context: &FunctionContext, s: &str) -> Result<String, String>
 
 fn lowercase(_context: &FunctionContext, s: &str) -> Result<String, String> {
   Ok(s.to_lowercase())
+}
+
+fn num_cpus(_context: &FunctionContext) -> Result<String, String> {
+  let num = num_cpus::get();
+  Ok(num.to_string())
 }
 
 fn os(_context: &FunctionContext) -> Result<String, String> {
@@ -323,10 +338,10 @@ fn sha256_file(context: &FunctionContext, path: &str) -> Result<String, String> 
   use sha2::{Digest, Sha256};
   let justpath = context.search.working_directory.join(path);
   let mut hasher = Sha256::new();
-  let mut file = std::fs::File::open(&justpath)
-    .map_err(|err| format!("Failed to open file at `{:?}`: {err}", &justpath.to_str()))?;
+  let mut file = fs::File::open(&justpath)
+    .map_err(|err| format!("Failed to open file at `{:?}`: {err}", justpath.to_str()))?;
   std::io::copy(&mut file, &mut hasher)
-    .map_err(|err| format!("Failed to read file at `{:?}`: {err}", &justpath.to_str()))?;
+    .map_err(|err| format!("Failed to read file at `{:?}`: {err}", justpath.to_str()))?;
   let hash = hasher.finalize();
   Ok(format!("{hash:x}"))
 }
@@ -397,4 +412,24 @@ fn without_extension(_context: &FunctionContext, path: &str) -> Result<String, S
     .ok_or_else(|| format!("Could not extract file stem from `{path}`"))?;
 
   Ok(parent.join(file_stem).to_string())
+}
+
+/// Check whether a string processes properly as semver (e.x. "0.1.0")
+/// and matches a given semver requirement (e.x. ">=0.1.0")
+fn semver_matches(
+  _context: &FunctionContext,
+  version: &str,
+  requirement: &str,
+) -> Result<String, String> {
+  Ok(
+    requirement
+      .parse::<VersionReq>()
+      .map_err(|err| format!("invalid semver requirement: {err}"))?
+      .matches(
+        &version
+          .parse::<Version>()
+          .map_err(|err| format!("invalid semver version: {err}"))?,
+      )
+      .to_string(),
+  )
 }

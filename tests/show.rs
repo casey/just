@@ -30,6 +30,7 @@ test! {
   args: ("--show", "f"),
   stderr: "
     error: Alias `f` has an unknown target `foo`
+     --> justfile:1:7
       |
     1 | alias f := foo
       |       ^

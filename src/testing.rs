@@ -1,10 +1,7 @@
-use {super::*, crate::compiler::Compiler, pretty_assertions::assert_eq};
+use {super::*, pretty_assertions::assert_eq};
 
-pub(crate) fn compile(text: &str) -> Justfile {
-  match Compiler::compile(text) {
-    Ok((_, justfile)) => justfile,
-    Err(error) => panic!("Expected successful compilation but got error:\n {error}"),
-  }
+pub(crate) fn compile(src: &str) -> Justfile {
+  Compiler::test_compile(src).expect("expected successful compilation")
 }
 
 pub(crate) fn config(args: &[&str]) -> Config {
@@ -60,11 +57,15 @@ pub(crate) fn analysis_error(
   length: usize,
   kind: CompileErrorKind,
 ) {
-  let tokens = Lexer::lex(src).expect("Lexing failed in parse test...");
+  let tokens = Lexer::test_lex(src).expect("Lexing failed in parse test...");
 
   let ast = Parser::parse(&tokens).expect("Parsing failed in analysis test...");
 
-  match Analyzer::analyze(&ast) {
+  let root = PathBuf::from("justfile");
+  let mut asts: HashMap<PathBuf, Ast> = HashMap::new();
+  asts.insert(root.clone(), ast);
+
+  match Analyzer::analyze(&asts, &root) {
     Ok(_) => panic!("Analysis unexpectedly succeeded"),
     Err(have) => {
       let want = CompileError {
@@ -75,6 +76,7 @@ pub(crate) fn analysis_error(
           line,
           column,
           length,
+          path: "justfile".as_ref(),
         },
         kind: Box::new(kind),
       };
@@ -97,9 +99,7 @@ macro_rules! run_error {
       let search = $crate::testing::search(&config);
 
       if let Subcommand::Run{ overrides, arguments } = &config.subcommand {
-        match $crate::compiler::Compiler::compile(&$crate::unindent::unindent($src))
-          .expect("Expected successful compilation")
-          .1
+        match $crate::testing::compile(&$crate::unindent::unindent($src))
           .run(
             &config,
             &search,
@@ -108,7 +108,7 @@ macro_rules! run_error {
           ).expect_err("Expected runtime error") {
             $error => $check
             other => {
-              panic!("Unexpected run error: {:?}", other);
+              panic!("Unexpected run error: {other:?}");
             }
           }
       } else {

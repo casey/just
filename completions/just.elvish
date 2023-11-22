@@ -16,6 +16,7 @@ edit:completion:arg-completer[just] = [@words]{
         &'just'= {
             cand --chooser 'Override binary invoked by `--choose`'
             cand --color 'Print colorful output'
+            cand --command-color 'Echo recipe lines in <COMMAND-COLOR>'
             cand --dump-format 'Dump justfile as <FORMAT>'
             cand --list-heading 'Print <TEXT> before list'
             cand --list-prefix 'Print <TEXT> before each list item'
@@ -34,6 +35,7 @@ edit:completion:arg-completer[just] = [@words]{
             cand --dotenv-filename 'Search for environment file named <DOTENV-FILENAME> instead of `.env`'
             cand --dotenv-path 'Load environment file at <DOTENV-PATH> instead of searching for one'
             cand --check 'Run `--fmt` in ''check'' mode. Exits with 0 if justfile is formatted correctly. Exits with 1 and prints a diff if formatting is required.'
+            cand --yes 'Automatically confirm all recipes.'
             cand -n 'Print what just would do without doing it'
             cand --dry-run 'Print what just would do without doing it'
             cand --highlight 'Highlight echoed recipe lines in bold'

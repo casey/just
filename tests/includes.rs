@@ -55,22 +55,36 @@ fn include_directive_with_no_path() {
     .justfile("!include")
     .arg("--unstable")
     .status(EXIT_FAILURE)
-    .stderr_regex("error: !include directive on line 1 of `.*` has no argument\n")
+    .stderr(
+      "
+error: !include directive has no argument
+ --> justfile:1:9
+  |
+1 | !include
+  |         ^
+     ",
+    )
     .run();
 }
 
 #[test]
-fn trailing_include() {
+fn include_after_recipe() {
   Test::new()
+    .tree(tree! {
+      "include.justfile": "
+        a:
+          @echo A
+      ",
+    })
     .justfile(
       "
-      b:
+      b: a
       !include ./include.justfile
       ",
     )
     .arg("--unstable")
-    .status(EXIT_FAILURE)
-    .stderr("error: Expected character `=`\n  |\n2 | !include ./include.justfile\n  |  ^\n")
+    .test_round_trip(false)
+    .stdout("A\n")
     .run();
 }
 

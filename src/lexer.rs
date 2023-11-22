@@ -9,38 +9,45 @@ use {super::*, CompileErrorKind::*, TokenKind::*};
 /// slight against regular expressions, the lexer was just idiosyncratically
 /// bad.
 pub(crate) struct Lexer<'src> {
-  /// Source text
-  src: &'src str,
   /// Char iterator
   chars: Chars<'src>,
-  /// Tokens
-  tokens: Vec<Token<'src>>,
-  /// Current token start
-  token_start: Position,
-  /// Current token end
-  token_end: Position,
-  /// Next character to be lexed
-  next: Option<char>,
-  /// Next indent will start a recipe body
-  recipe_body_pending: bool,
-  /// Inside recipe body
-  recipe_body: bool,
   /// Indentation stack
   indentation: Vec<&'src str>,
   /// Interpolation token start stack
   interpolation_stack: Vec<Token<'src>>,
+  /// Next character to be lexed
+  next: Option<char>,
   /// Current open delimiters
   open_delimiters: Vec<(Delimiter, usize)>,
+  /// Path to source file
+  path: &'src Path,
+  /// Inside recipe body
+  recipe_body: bool,
+  /// Next indent will start a recipe body
+  recipe_body_pending: bool,
+  /// Source text
+  src: &'src str,
+  /// Tokens
+  tokens: Vec<Token<'src>>,
+  /// Current token end
+  token_end: Position,
+  /// Current token start
+  token_start: Position,
 }
 
 impl<'src> Lexer<'src> {
-  /// Lex `text`
-  pub(crate) fn lex(src: &'src str) -> CompileResult<Vec<Token<'src>>> {
-    Lexer::new(src).tokenize()
+  /// Lex `src`
+  pub(crate) fn lex(path: &'src Path, src: &'src str) -> CompileResult<'src, Vec<Token<'src>>> {
+    Lexer::new(path, src).tokenize()
   }
 
-  /// Create a new Lexer to lex `text`
-  fn new(src: &'src str) -> Lexer<'src> {
+  #[cfg(test)]
+  pub(crate) fn test_lex(src: &'src str) -> CompileResult<'src, Vec<Token<'src>>> {
+    Lexer::new("justfile".as_ref(), src).tokenize()
+  }
+
+  /// Create a new Lexer to lex `src`
+  fn new(path: &'src Path, src: &'src str) -> Lexer<'src> {
     let mut chars = src.chars();
     let next = chars.next();
 
@@ -62,6 +69,7 @@ impl<'src> Lexer<'src> {
       chars,
       next,
       src,
+      path,
     }
   }
 
@@ -189,6 +197,7 @@ impl<'src> Lexer<'src> {
       src: self.src,
       length: self.token_end.offset - self.token_start.offset,
       kind,
+      path: self.path,
     });
 
     // Set `token_start` to point after the lexed token
@@ -205,10 +214,11 @@ impl<'src> Lexer<'src> {
       column: self.token_end.column,
       length: 0,
       kind: Unspecified,
+      path: self.path,
     };
     CompileError::new(
       token,
-      CompileErrorKind::Internal {
+      Internal {
         message: message.into(),
       },
     )
@@ -240,6 +250,7 @@ impl<'src> Lexer<'src> {
       line: self.token_start.line,
       column: self.token_start.column,
       length,
+      path: self.path,
     };
 
     CompileError::new(token, kind)
@@ -470,7 +481,7 @@ impl<'src> Lexer<'src> {
   fn lex_normal(&mut self, start: char) -> CompileResult<'src, ()> {
     match start {
       ' ' | '\t' => self.lex_whitespace(),
-      '!' => self.lex_digraph('!', '=', BangEquals),
+      '!' => self.lex_bang(),
       '#' => self.lex_comment(),
       '$' => self.lex_single(Dollar),
       '&' => self.lex_digraph('&', '&', AmpersandAmpersand),
@@ -481,6 +492,7 @@ impl<'src> Lexer<'src> {
       ',' => self.lex_single(Comma),
       '/' => self.lex_single(Slash),
       ':' => self.lex_colon(),
+      '\\' => self.lex_escape(),
       '=' => self.lex_choices('=', &[('=', EqualsEquals), ('~', EqualsTilde)], Equals),
       '@' => self.lex_single(At),
       '[' => self.lex_delimiter(BracketL),
@@ -673,6 +685,33 @@ impl<'src> Lexer<'src> {
     !self.open_delimiters.is_empty()
   }
 
+  fn lex_bang(&mut self) -> CompileResult<'src, ()> {
+    self.presume('!')?;
+
+    // Try to lex a `!=`
+    if self.accepted('=')? {
+      self.token(BangEquals);
+      return Ok(());
+    }
+
+    // Otherwise, lex a `!`
+    self.token(Bang);
+
+    if self.next.map(Self::is_identifier_start).unwrap_or_default() {
+      self.lex_identifier()?;
+
+      while !self.at_eol_or_eof() {
+        self.advance()?;
+      }
+
+      if self.current_token_length() > 0 {
+        self.token(Text);
+      }
+    }
+
+    Ok(())
+  }
+
   /// Lex a two-character digraph
   fn lex_digraph(&mut self, left: char, right: char, token: TokenKind) -> CompileResult<'src, ()> {
     self.presume(left)?;
@@ -704,6 +743,31 @@ impl<'src> Lexer<'src> {
     } else {
       self.token(Colon);
       self.recipe_body_pending = true;
+    }
+
+    Ok(())
+  }
+
+  /// Lex an token starting with '\' escape
+  fn lex_escape(&mut self) -> CompileResult<'src, ()> {
+    self.presume('\\')?;
+
+    // Treat newline escaped with \ as whitespace
+    if self.accepted('\n')? {
+      while self.next_is_whitespace() {
+        self.advance()?;
+      }
+      self.token(Whitespace);
+    } else if self.accepted('\r')? {
+      if !self.accepted('\n')? {
+        return Err(self.error(UnpairedCarriageReturn));
+      }
+      while self.next_is_whitespace() {
+        self.advance()?;
+      }
+      self.token(Whitespace);
+    } else if let Some(character) = self.next {
+      return Err(self.error(InvalidEscapeSequence { character }));
     }
 
     Ok(())
@@ -773,7 +837,7 @@ impl<'src> Lexer<'src> {
 
   /// Lex a backtick, cooked string, or raw string.
   ///
-  /// Backtick:      `[^`]*`
+  /// Backtick:      ``[^`]*``
   /// Cooked string: "[^"]*" # also processes escape sequences
   /// Raw string:    '[^']*'
   fn lex_string(&mut self) -> CompileResult<'src, ()> {
@@ -867,7 +931,7 @@ mod tests {
       text.to_owned()
     };
 
-    let have = Lexer::lex(&text).unwrap();
+    let have = Lexer::test_lex(&text).unwrap();
 
     let have_kinds = have
       .iter()
@@ -916,6 +980,7 @@ mod tests {
       AmpersandAmpersand => "&&",
       Asterisk => "*",
       At => "@",
+      Bang => "!",
       BangEquals => "!=",
       BraceL => "{",
       BraceR => "}",
@@ -974,7 +1039,7 @@ mod tests {
     length: usize,
     kind: CompileErrorKind,
   ) {
-    match Lexer::lex(src) {
+    match Lexer::test_lex(src) {
       Ok(_) => panic!("Lexing succeeded but expected"),
       Err(have) => {
         let want = CompileError {
@@ -985,6 +1050,7 @@ mod tests {
             line,
             column,
             length,
+            path: "justfile".as_ref(),
           },
           kind: Box::new(kind),
         };
@@ -2025,6 +2091,30 @@ mod tests {
     ),
   }
 
+  test! {
+    name:   bang_eof,
+    text:  "!",
+    tokens: (Bang),
+  }
+
+  test! {
+    name:   character_after_bang,
+    text:  "!{",
+    tokens: (Bang, BraceL)
+  }
+
+  test! {
+    name: identifier_after_bang,
+    text: "!include",
+    tokens: (Bang, Identifier:"include")
+  }
+
+  test! {
+    name: identifier_after_bang_with_more_stuff,
+    text: "!include some/stuff",
+    tokens: (Bang, Identifier:"include", Text:" some/stuff")
+  }
+
   error! {
     name:  tokenize_space_then_tab,
     input: "a:
@@ -2196,12 +2286,12 @@ mod tests {
 
   error! {
     name:   unexpected_character_after_bang,
-    input:  "!{",
+    input:  "!%",
     offset: 1,
     line:   0,
     column: 1,
     width:  1,
-    kind:   UnexpectedCharacter { expected: '=' },
+    kind:   UnknownStartOfToken,
   }
 
   error! {
@@ -2215,30 +2305,6 @@ mod tests {
       open:      Delimiter::Paren,
       close:     Delimiter::Bracket,
       open_line: 0,
-    },
-  }
-
-  error! {
-    name:   bang_eof,
-    input:  "!",
-    offset: 1,
-    line:   0,
-    column: 1,
-    width:  0,
-    kind:   UnexpectedEndOfToken {
-      expected: '=',
-    },
-  }
-
-  error! {
-    name:   bang_unexpected,
-    input:  "!%",
-    offset: 1,
-    line:   0,
-    column: 1,
-    width:  1,
-    kind:   UnexpectedCharacter {
-      expected: '=',
     },
   }
 
@@ -2267,7 +2333,9 @@ mod tests {
 
   #[test]
   fn presume_error() {
-    let compile_error = Lexer::new("!").presume('-').unwrap_err();
+    let compile_error = Lexer::new("justfile".as_ref(), "!")
+      .presume('-')
+      .unwrap_err();
     assert_matches!(
       compile_error.token,
       Token {
@@ -2277,6 +2345,7 @@ mod tests {
         length: 0,
         src: "!",
         kind: Unspecified,
+        path: _,
       }
     );
     assert_matches!(&*compile_error.kind,
@@ -2288,9 +2357,12 @@ mod tests {
       Error::Compile { compile_error }
         .color_display(Color::never())
         .to_string(),
-      "error: Internal error, this may indicate a bug in just: \
-      Lexer presumed character `-`\nconsider filing an issue: \
-      https://github.com/casey/just/issues/new\n  |\n1 | !\n  | ^"
+      "error: Internal error, this may indicate a bug in just: Lexer presumed character `-`
+consider filing an issue: https://github.com/casey/just/issues/new
+ --> justfile:1:1
+  |
+1 | !
+  | ^"
     );
   }
 }

@@ -53,6 +53,7 @@ hello:
 "#,
   stderr: r#"
 error: Unknown attribute `unknown-attribute`
+ --> justfile:2:2
   |
 2 | [unknown-attribute]
   |  ^^^^^^^^^^^^^^^^^
@@ -70,6 +71,7 @@ hello:
 "#,
   stderr: r#"
 error: Expected identifier, but found ']'
+ --> justfile:2:2
   |
 2 | []
   |  ^
@@ -87,6 +89,7 @@ hello:
 "#,
   stderr: r#"
 error: Expected '@', '[', or identifier, but found comment
+ --> justfile:2:1
   |
 2 | # This is a doc comment
   | ^^^^^^^^^^^^^^^^^^^^^^^
@@ -103,7 +106,7 @@ test! {
 hello:
   @exit 100
 "#,
-  stderr: "error: Expected '@', '[', or identifier, but found end of line\n  |\n2 | \n  | ^\n",
+  stderr: "error: Expected '@', '[', or identifier, but found end of line\n --> justfile:2:1\n  |\n2 | \n  | ^\n",
   status: EXIT_FAILURE,
 }
 

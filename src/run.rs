@@ -1,6 +1,7 @@
 use super::*;
 
 /// Main entry point into just binary.
+#[allow(clippy::missing_errors_doc)]
 pub fn run() -> Result<(), i32> {
   #[cfg(windows)]
   ansi_term::enable_ansi_support().ok();
@@ -19,12 +20,12 @@ pub fn run() -> Result<(), i32> {
 
   let config = Config::from_matches(&matches).map_err(Error::from);
 
-  let (color, verbosity, unstable) = config
+  let (color, verbosity) = config
     .as_ref()
-    .map(|config| (config.color, config.verbosity, config.unstable))
-    .unwrap_or((Color::auto(), Verbosity::default(), false));
+    .map(|config| (config.color, config.verbosity))
+    .unwrap_or((Color::auto(), Verbosity::default()));
 
-  let loader = Loader::new(unstable);
+  let loader = Loader::new();
 
   config
     .and_then(|config| config.run(&loader))

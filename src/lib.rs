@@ -1,15 +1,10 @@
 #![deny(clippy::all, clippy::pedantic)]
 #![allow(
-  clippy::default_trait_access,
-  clippy::doc_markdown,
   clippy::enum_glob_use,
-  clippy::missing_errors_doc,
+  clippy::let_underscore_untyped,
   clippy::needless_pass_by_value,
-  clippy::non_ascii_literal,
-  clippy::shadow_unrelated,
-  clippy::struct_excessive_bools,
   clippy::too_many_lines,
-  clippy::type_repetition_in_bounds,
+  clippy::unnecessary_wraps,
   clippy::wildcard_imports
 )]
 
@@ -17,7 +12,7 @@ pub(crate) use {
   crate::{
     alias::Alias, analyzer::Analyzer, assignment::Assignment,
     assignment_resolver::AssignmentResolver, ast::Ast, attribute::Attribute, binding::Binding,
-    color::Color, color_display::ColorDisplay, command_ext::CommandExt,
+    color::Color, color_display::ColorDisplay, command_ext::CommandExt, compilation::Compilation,
     compile_error::CompileError, compile_error_kind::CompileErrorKind, compiler::Compiler,
     conditional_operator::ConditionalOperator, config::Config, config_error::ConfigError,
     count::Count, delimiter::Delimiter, dependency::Dependency, dump_format::DumpFormat,
@@ -39,7 +34,7 @@ pub(crate) use {
   },
   std::{
     cmp,
-    collections::{BTreeMap, BTreeSet},
+    collections::{BTreeMap, BTreeSet, HashMap},
     env,
     ffi::{OsStr, OsString},
     fmt::{self, Debug, Display, Formatter},
@@ -52,7 +47,7 @@ pub(crate) use {
     process::{self, Command, ExitStatus, Stdio},
     str::{self, Chars},
     sync::{Mutex, MutexGuard},
-    usize, vec,
+    vec,
   },
   {
     camino::Utf8Path,
@@ -117,6 +112,7 @@ mod binding;
 mod color;
 mod color_display;
 mod command_ext;
+mod compilation;
 mod compile_error;
 mod compile_error_kind;
 mod compiler;

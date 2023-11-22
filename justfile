@@ -6,10 +6,6 @@ alias t := test
 
 alias c := check
 
-bt := '0'
-
-export RUST_BACKTRACE := bt
-
 log := "warn"
 
 export JUST_LOG := log
@@ -19,7 +15,7 @@ test:
 
 ci: build-book
   cargo test --all
-  cargo clippy --all --all-targets
+  cargo clippy --all --all-targets -- --deny warnings
   cargo fmt --all -- --check
   ./bin/forbid
   cargo update --locked --package just
@@ -57,6 +53,7 @@ view-man: man
 
 # add git log messages to changelog
 update-changelog:
+  echo >> CHANGELOG.md
   git log --pretty='format:- %s' >> CHANGELOG.md
 
 update-contributors:

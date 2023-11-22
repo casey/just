@@ -1,6 +1,74 @@
 Changelog
 =========
 
+[1.16.0](https://github.com/casey/just/releases/tag/1.16.0) - 2023-11-08
+------------------------------------------------------------------------
+
+### Added
+- Add ARMv6 release target ([#1715](https://github.com/casey/just/pull/1715) by [ragazenta](https://github.com/ragazenta))
+- Add `semver_matches` function ([#1713](https://github.com/casey/just/pull/1713) by [t3hmrman](https://github.com/t3hmrman))
+- Add `dotenv-filename` and `dotenv-path` settings ([#1692](https://github.com/casey/just/pull/1692) by [ltfourrier](https://github.com/ltfourrier))
+- Allow setting echoed recipe line color ([#1670](https://github.com/casey/just/pull/1670) by [avi-cenna](https://github.com/avi-cenna))
+
+### Fixed
+- Fix Fish completion script ([#1710](https://github.com/casey/just/pull/1710) by [l4zygreed](https://github.com/l4zygreed))
+
+### Misc
+- Fix readme typo ([#1717](https://github.com/casey/just/pull/1717) by [barraponto](https://github.com/barraponto))
+- Clean up error display ([#1699](https://github.com/casey/just/pull/1699) by [nyurik](https://github.com/nyurik))
+- Misc fixes ([#1700](https://github.com/casey/just/pull/1700) by [nyurik](https://github.com/nyurik))
+- Fix readme build badge ([#1697](https://github.com/casey/just/pull/1697))
+- Fix set tempdir grammar ([#1695](https://github.com/casey/just/pull/1695))
+- Add version to attributes ([#1694](https://github.com/casey/just/pull/1694) by [JoeyTeng](https://github.com/JoeyTeng))
+- Update README.md ([#1691](https://github.com/casey/just/pull/1691) by [laniakea64](https://github.com/laniakea64))
+
+
+[1.15.0](https://github.com/casey/just/releases/tag/1.15.0) - 2023-10-09
+------------------------------------------------------------------------
+
+### Added
+- Add Nushell completion script ([#1571](https://github.com/casey/just/pull/1571) by [presidento](https://github.com/presidento))
+- Allow unstable features to be enabled with environment variable ([#1588](https://github.com/casey/just/pull/1588) by [neunenak](https://github.com/neunenak))
+- Add num_cpus() function ([#1568](https://github.com/casey/just/pull/1568) by [schultetwin1](https://github.com/schultetwin1))
+- Allow escaping newlines ([#1551](https://github.com/casey/just/pull/1551) by [ids1024](https://github.com/ids1024))
+- Stabilize JSON dump format ([#1633](https://github.com/casey/just/pull/1633))
+- Add env() function ([#1613](https://github.com/casey/just/pull/1613) by [kykyi](https://github.com/kykyi))
+
+### Changed
+- Allow selecting multiple recipes with default chooser ([#1547](https://github.com/casey/just/pull/1547) by [fzdwx](https://github.com/fzdwx))
+
+### Misc
+- Don't recommend `vim-polyglot` in readme ([#1644](https://github.com/casey/just/pull/1644) by [laniakea64](https://github.com/laniakea64))
+- Note Micro support in readme ([#1316](https://github.com/casey/just/pull/1316) by [tomodachi94](https://github.com/tomodachi94))
+- Update Indentation Documentation ([#1600](https://github.com/casey/just/pull/1600) by [GinoMan](https://github.com/GinoMan))
+- Fix triple-quoted string example in readme ([#1620](https://github.com/casey/just/pull/1620) by [avi-cenna](https://github.com/avi-cenna))
+- README fix: the -d in `mktemp -d` is required to created folders. ([#1688](https://github.com/casey/just/pull/1688) by [gl-yziquel](https://github.com/gl-yziquel))
+- Placate clippy ([#1689](https://github.com/casey/just/pull/1689))
+- Fix README typos ([#1660](https://github.com/casey/just/pull/1660) by [akuhnregnier](https://github.com/akuhnregnier))
+- Document Windows Package Manager install instructions ([#1656](https://github.com/casey/just/pull/1656))
+- Test unpaired escaped carriage return error ([#1650](https://github.com/casey/just/pull/1650))
+- Avoid grep aliases in bash completions ([#1622](https://github.com/casey/just/pull/1622) by [BojanStipic](https://github.com/BojanStipic))
+- Clarify [unix] attribute in readme ([#1619](https://github.com/casey/just/pull/1619) by [neunenak](https://github.com/neunenak))
+- Add descriptions to fish recipe completions ([#1578](https://github.com/casey/just/pull/1578) by [patricksjackson](https://github.com/patricksjackson))
+- Add better documentation for --dump and --fmt ([#1603](https://github.com/casey/just/pull/1603) by [neunenak](https://github.com/neunenak))
+- Cleanup ([#1566](https://github.com/casey/just/pull/1566) by [nyurik](https://github.com/nyurik))
+- Document Helix editor support in readme ([#1604](https://github.com/casey/just/pull/1604) by [kenden](https://github.com/kenden))
+
+[1.14.0](https://github.com/casey/just/releases/tag/1.14.0) - 2023-06-02
+------------------------------------------------------------------------
+
+### Changed
+- Use `just --show` in default chooser ([#1539](https://github.com/casey/just/pull/1539) by [fzdwx](https://github.com/fzdwx))
+
+### Misc
+- Fix justfile search link ([#1607](https://github.com/casey/just/pull/1607) by [jbaber](https://github.com/jbaber))
+- Ignore clippy::let_underscore_untyped ([#1609](https://github.com/casey/just/pull/1609))
+- Link to private recipes section in readme ([#1542](https://github.com/casey/just/pull/1542) by [quad](https://github.com/quad))
+- Update README to reflect new attribute syntax ([#1538](https://github.com/casey/just/pull/1538) by [neunenak](https://github.com/neunenak))
+- Allow multiple attributes on one line ([#1537](https://github.com/casey/just/pull/1537) by [neunenak](https://github.com/neunenak))
+- Analyze and Compiler tweaks ([#1534](https://github.com/casey/just/pull/1534) by [neunenak](https://github.com/neunenak))
+- Downgrade to TLS 1.2 in install script ([#1536](https://github.com/casey/just/pull/1536))
+
 [1.13.0](https://github.com/casey/just/releases/tag/1.13.0) - 2023-01-24
 ------------------------------------------------------------------------
 

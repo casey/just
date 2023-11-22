@@ -39,6 +39,7 @@ pub(crate) struct Output {
   pub(crate) tempdir: TempDir,
 }
 
+#[must_use]
 pub(crate) struct Test {
   pub(crate) args: Vec<String>,
   pub(crate) current_dir: PathBuf,
@@ -169,8 +170,8 @@ impl Test {
 
   pub(crate) fn write(self, path: impl AsRef<Path>, content: impl AsRef<[u8]>) -> Self {
     let path = self.tempdir.path().join(path);
-    std::fs::create_dir_all(path.parent().unwrap()).unwrap();
-    std::fs::write(path, content).unwrap();
+    fs::create_dir_all(path.parent().unwrap()).unwrap();
+    fs::write(path, content).unwrap();
     self
   }
 }
@@ -224,7 +225,7 @@ impl Test {
     fn compare<T: PartialEq + Debug>(name: &str, have: T, want: T) -> bool {
       let equal = have == want;
       if !equal {
-        eprintln!("Bad {}: {}", name, Comparison::new(&have, &want));
+        eprintln!("Bad {name}: {}", Comparison::new(&have, &want));
       }
       equal
     }
@@ -234,7 +235,7 @@ impl Test {
 
     if let Some(ref stdout_regex) = self.stdout_regex {
       if !stdout_regex.is_match(output_stdout) {
-        panic!("Stdout regex mismatch:\n{output_stderr:?}\n!~=\n/{stdout_regex:?}/");
+        panic!("Stdout regex mismatch:\n{output_stdout:?}\n!~=\n/{stdout_regex:?}/");
       }
     }
 

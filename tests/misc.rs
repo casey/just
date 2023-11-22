@@ -71,10 +71,26 @@ test! {
     set foo
   ",
   stderr: "
-  error: Expected ':=', but found end of line
+  error: Unknown setting `foo`
+   --> justfile:1:5
     |
   1 | set foo
-    |        ^
+    |     ^^^
+  ",
+  status: EXIT_FAILURE,
+}
+
+test! {
+  name: bad_setting_with_keyword_name,
+  justfile: "
+    set if := 'foo'
+  ",
+  stderr: "
+  error: Unknown setting `if`
+   --> justfile:1:5
+    |
+  1 | set if := 'foo'
+    |     ^^
   ",
   status: EXIT_FAILURE,
 }
@@ -92,6 +108,7 @@ test! {
   justfile: "alias foo := bar\nalias foo := baz\n",
   stderr: "
     error: Alias `foo` first defined on line 1 is redefined on line 2
+     --> justfile:2:7
       |
     2 | alias foo := baz
       |       ^^^
@@ -104,6 +121,7 @@ test! {
   justfile: "alias foo := bar\n",
   stderr: "
     error: Alias `foo` has an unknown target `bar`
+     --> justfile:1:7
       |
     1 | alias foo := bar
       |       ^^^
@@ -116,6 +134,7 @@ test! {
   justfile: "bar:\n  echo bar\nalias foo := bar\nfoo:\n  echo foo",
   stderr: "
     error: Alias `foo` defined on line 3 shadows recipe `foo` defined on line 4
+     --> justfile:3:7
       |
     3 | alias foo := bar
       |       ^^^
@@ -250,6 +269,7 @@ test! {
   justfile: "bar:\nhello:\nfoo: bar baaaaaaaz hello",
   stderr:   "
     error: Recipe `foo` has unknown dependency `baaaaaaaz`
+     --> justfile:3:10
       |
     3 | foo: bar baaaaaaaz hello
       |          ^^^^^^^^^
@@ -276,6 +296,7 @@ test! {
   justfile: "b := a\na := `exit 100`\nbar:\n echo '{{`exit 200`}}'",
   stderr:   "
     error: Backtick failed with exit code 100
+     --> justfile:2:6
       |
     2 | a := `exit 100`
       |      ^^^^^^^^^^
@@ -288,6 +309,7 @@ test! {
   justfile: "b := a\na := `echo hello`\nbar:\n echo '{{`exit 200`}}'",
   stderr:   "
     error: Backtick failed with exit code 200
+     --> justfile:4:10
       |
     4 |  echo '{{`exit 200`}}'
       |          ^^^^^^^^^^
@@ -300,6 +322,7 @@ test! {
   justfile: "f:\n 無{{`exit 200`}}",
   stderr:   "
     error: Backtick failed with exit code 200
+     --> justfile:2:7
       |
     2 |  無{{`exit 200`}}
       |      ^^^^^^^^^^
@@ -314,6 +337,7 @@ test! {
     \techo {{`exit 200`}}
   ",
   stderr:   "    error: Backtick failed with exit code 200
+     --> justfile:2:9
       |
     2 |     echo {{`exit 200`}}
       |            ^^^^^^^^^^
@@ -328,6 +352,7 @@ test! {
     \techo {{\t`exit 200`}}
   ",
   stderr:   "error: Backtick failed with exit code 200
+ --> justfile:2:10
   |
 2 |     echo {{    `exit 200`}}
   |                ^^^^^^^^^^
@@ -343,6 +368,7 @@ test! {
   ",
   stderr:   "
     error: Backtick failed with exit code 200
+     --> justfile:2:10
       |
     2 |     echo {{    `exit        200`}}
       |                ^^^^^^^^^^^^^^^^^
@@ -358,6 +384,7 @@ test! {
   ",
   stderr: "
     error: Backtick failed with exit code 200
+     --> justfile:2:13
       |
     2 |     echo 😬{{`exit 200`}}
       |              ^^^^^^^^^^
@@ -373,6 +400,7 @@ test! {
   ",
   stderr: "
     error: Backtick failed with exit code 200
+     --> justfile:2:24
       |
     2 |     echo             😬鎌鼬{{        `exit 200 #             abc`}}            😬鎌鼬
       |                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -396,6 +424,7 @@ test! {
   ",
   stderr:   "
     error: Backtick failed with exit code 200
+      --> justfile:10:10
        |
     10 |  echo '{{`exit 200`}}'
        |          ^^^^^^^^^^
@@ -412,6 +441,7 @@ test! {
   stdout:   "",
   stderr:   "
     error: Backtick failed with exit code 123
+     --> justfile:4:9
       |
     4 |  echo {{`exit 123`}}
       |         ^^^^^^^^^^
@@ -428,6 +458,7 @@ test! {
   stderr:   "
     echo hello
     error: Backtick failed with exit code 123
+     --> justfile:3:9
       |
     3 |  echo {{`exit 123`}}
       |         ^^^^^^^^^^
@@ -444,6 +475,7 @@ a := `exit 222`",
   stdout:   "",
   stderr:   "
     error: Backtick failed with exit code 222
+     --> justfile:4:6
       |
     4 | a := `exit 222`
       |      ^^^^^^^^^^
@@ -559,6 +591,7 @@ test! {
 "#,
   stdout:   "",
   stderr:   "error: Unknown start of token:
+  --> justfile:10:1
    |
 10 | ???
    | ^
@@ -663,8 +696,7 @@ test! {
   justfile: "b := a\na := `exit 100`\nbar:\n echo '{{`exit 200`}}'",
   args:     ("--color", "always"),
   stdout:   "",
-  stderr:   "\u{1b}[1;31merror\u{1b}[0m: \u{1b}[1mBacktick failed with exit code 100\u{1b}[0m
-  |\n2 | a := `exit 100`\n  |      \u{1b}[1;31m^^^^^^^^^^\u{1b}[0m\n",
+  stderr:   "\u{1b}[1;31merror\u{1b}[0m: \u{1b}[1mBacktick failed with exit code 100\u{1b}[0m\n \u{1b}[1;34m-->\u{1b}[0m justfile:2:6\n  \u{1b}[1;34m|\u{1b}[0m\n\u{1b}[1;34m2 |\u{1b}[0m a := `exit 100`\n  \u{1b}[1;34m|\u{1b}[0m      \u{1b}[1;31m^^^^^^^^^^\u{1b}[0m\n",
   status:   100,
 }
 
@@ -674,6 +706,7 @@ test! {
   args:     ("--color", "never"),
   stdout:   "",
   stderr:   "error: Backtick failed with exit code 100
+ --> justfile:2:6
   |
 2 | a := `exit 100`
   |      ^^^^^^^^^^
@@ -687,6 +720,7 @@ test! {
   args:     ("--color", "auto"),
   stdout:   "",
   stderr:   "error: Backtick failed with exit code 100
+ --> justfile:2:6
   |
 2 | a := `exit 100`
   |      ^^^^^^^^^^
@@ -725,6 +759,7 @@ test! {
   stdout:   "",
   stderr:   "error: Found a mix of tabs and spaces in leading whitespace: `␉␠`
 Leading whitespace may consist of tabs or spaces, but not both
+ --> justfile:2:1
   |
 2 |      echo hello
   | ^^^^^
@@ -737,6 +772,7 @@ test! {
   justfile: "bar:\n\t\techo hello\n\t\t\techo goodbye",
   stdout:   "",
   stderr:   "error: Recipe line has extra leading whitespace
+ --> justfile:3:3
   |
 3 |             echo goodbye
   |         ^^^^^^^^^^^^^^^^
@@ -750,6 +786,7 @@ test! {
   stdout:   "",
   stderr:   "error: Recipe line has inconsistent leading whitespace. \
             Recipe started with `␉␉` but found line with `␉␠`
+ --> justfile:3:1
   |
 3 |      echo goodbye
   | ^^^^^
@@ -762,6 +799,7 @@ test! {
   justfile: "bar:\nhello baz arg='foo' bar:",
   stdout:   "",
   stderr:   "error: Non-default parameter `bar` follows default parameter
+ --> justfile:2:21
   |
 2 | hello baz arg='foo' bar:
   |                     ^^^
@@ -774,6 +812,7 @@ test! {
   justfile: "bar:\nhello baz +arg bar:",
   stdout:   "",
   stderr:   "error: Parameter `bar` follows variadic parameter
+ --> justfile:2:16
   |
 2 | hello baz +arg bar:
   |                ^^^
@@ -786,6 +825,7 @@ test! {
   justfile: "bar:\nhello baz *arg bar:",
   stdout:   "",
   stderr:   "error: Parameter `bar` follows variadic parameter
+ --> justfile:2:16
   |
 2 | hello baz *arg bar:
   |                ^^^
@@ -1000,36 +1040,36 @@ a Z="\t z":
 
 test! {
   name:     line_continuation_with_space,
-  justfile: r#"
+  justfile: r"
 foo:
   echo a\
          b  \
              c
-"#,
+",
   stdout:   "ab c\n",
   stderr:   "echo ab  c\n",
 }
 
 test! {
   name:     line_continuation_with_quoted_space,
-  justfile: r#"
+  justfile: r"
 foo:
   echo 'a\
          b  \
              c'
-"#,
+",
   stdout:   "ab  c\n",
   stderr:   "echo 'ab  c'\n",
 }
 
 test! {
   name:     line_continuation_no_space,
-  justfile: r#"
+  justfile: r"
 foo:
   echo a\
   b\
   c
-"#,
+",
   stdout:   "abc\n",
   stderr:   "echo abc\n",
 }
@@ -1158,6 +1198,7 @@ bar:"#,
   args:     ("bar"),
   stdout:   "",
   stderr:   r#"error: Call to unknown function `foo`
+ --> justfile:1:8
   |
 1 | foo := foo() + "hello"
   |        ^^^
@@ -1174,6 +1215,7 @@ test! {
   args:     ("b"),
   stdout:   "",
   stderr:   "error: Dependency `a` got 0 arguments but takes 1 argument
+ --> justfile:2:4
   |
 2 | b: a
   |    ^
@@ -1190,6 +1232,7 @@ test! {
   args:     ("b"),
   stdout:   "",
   stderr:   "error: Dependency `a` got 0 arguments but takes at least 1 argument
+ --> justfile:2:4
   |
 2 | b: a
   |    ^
@@ -1206,6 +1249,7 @@ test! {
   args:     ("b"),
   stdout:   "",
   stderr:   "error: Dependency `a` got 3 arguments but takes at most 2 arguments
+ --> justfile:2:5
   |
 2 | b: (a '0' '1' '2')
   |     ^
@@ -1219,6 +1263,7 @@ test! {
   args:     ("a"),
   stdout:   "",
   stderr:   "error: Recipe `a` has duplicate parameter `foo`
+ --> justfile:1:7
   |
 1 | a foo foo:
   |       ^^^
@@ -1232,6 +1277,7 @@ test! {
   args:     ("b"),
   stdout:   "",
   stderr:   "error: Recipe `b` first defined on line 1 is redefined on line 2
+ --> justfile:2:1
   |
 2 | b:
   | ^
@@ -1245,6 +1291,7 @@ test! {
   args:     ("foo"),
   stdout:   "",
   stderr:   "error: Variable `a` has multiple definitions
+ --> justfile:2:1
   |
 2 | a := 'hello'
   | ^
@@ -1259,6 +1306,7 @@ test! {
   stdout:   "",
   stderr:   "error: Expected '&&', comment, end of file, end of line, \
     identifier, or '(', but found string
+ --> justfile:1:6
   |
 1 | foo: 'bar'
   |      ^^^^^
@@ -1272,6 +1320,7 @@ test! {
   args:     ("foo"),
   stdout:   "",
   stderr:   "error: Expected '*', ':', '$', identifier, or '+', but found string
+ --> justfile:1:5
   |
 1 | foo 'bar'
   |     ^^^^^
@@ -1285,6 +1334,7 @@ test! {
   args:     ("a"),
   stdout:   "",
   stderr:   "error: Recipe `a` depends on itself
+ --> justfile:1:4
   |
 1 | a: a
   |    ^
@@ -1298,6 +1348,7 @@ test! {
   args:     ("a"),
   stdout:   "",
   stderr:   "error: Recipe `d` has circular dependency `a -> b -> c -> d -> a`
+ --> justfile:4:4
   |
 4 | d: a
   |    ^
@@ -1311,6 +1362,7 @@ test! {
   args:     ("a"),
   stdout:   "",
   stderr:   "error: Variable `z` is defined in terms of itself
+ --> justfile:1:1
   |
 1 | z := z
   | ^
@@ -1324,6 +1376,7 @@ test! {
   args:     ("a"),
   stdout:   "",
   stderr:   "error: Variable `x` depends on its own value: `x -> y -> z -> x`
+ --> justfile:1:1
   |
 1 | x := y
   | ^
@@ -1343,6 +1396,7 @@ test! {
   args:     ("a"),
   stdout:   "",
   stderr:   "error: Variable `x` depends on its own value: `x -> y -> x`
+ --> justfile:2:1
   |
 2 | x := y
   | ^
@@ -1447,6 +1501,7 @@ foo *a +b:
 ",
   stdout:   "",
   stderr:   "error: Expected \':\' or \'=\', but found \'+\'
+ --> justfile:1:8
   |
 1 | foo *a +b:
   |        ^
@@ -1462,6 +1517,7 @@ foo +a *b:
 ",
   stdout:   "",
   stderr:   "error: Expected \':\' or \'=\', but found \'*\'
+ --> justfile:1:8
   |
 1 | foo +a *b:
   |        ^
@@ -1495,6 +1551,7 @@ a: x y
 ",
   stdout:   "",
   stderr:   "error: Recipe `a` has unknown dependency `y`
+ --> justfile:3:6
   |
 3 | a: x y
   |      ^
@@ -1652,6 +1709,7 @@ X := "\'"
 "#,
    stdout:   "",
    stderr:   r#"error: `\'` is not a valid escape sequence
+ --> justfile:1:6
   |
 1 | X := "\'"
   |      ^^^^
@@ -1666,6 +1724,7 @@ test! {
    ",
    stdout:   "",
    stderr:   r#"error: Variable `bar` not defined
+ --> justfile:1:7
   |
 1 | foo x=bar:
   |       ^^^
@@ -1680,6 +1739,7 @@ foo x=bar():
 ",
    stdout:   "",
    stderr:   r#"error: Call to unknown function `bar`
+ --> justfile:1:7
   |
 1 | foo x=bar():
   |       ^^^
@@ -1736,6 +1796,7 @@ test! {
   ",
   stderr:   r#"
     error: Unterminated interpolation
+     --> justfile:2:8
       |
     2 |   echo {{
       |        ^^
@@ -1751,6 +1812,7 @@ test! {
   ",
   stderr:   r#"
     error: Unterminated interpolation
+     --> justfile:2:8
       |
     2 |   echo {{
       |        ^^
@@ -1765,6 +1827,7 @@ assembly_source_files = %(wildcard src/arch/$(arch)/*.s)
 ",
   stderr:   r#"
     error: Unknown start of token:
+     --> justfile:1:25
       |
     1 | assembly_source_files = %(wildcard src/arch/$(arch)/*.s)
       |                         ^
@@ -1863,6 +1926,7 @@ test! {
   ",
   stderr: "
     error: Expected '*', ':', '$', identifier, or '+', but found '='
+     --> justfile:1:5
       |
     1 | foo = 'bar'
       |     ^
@@ -1911,6 +1975,66 @@ test! {
   args: (),
   stdout: "y\n",
   stderr: "echo y\n",
+  shell: false,
+}
+
+test! {
+  name: env_function_as_env_var,
+  justfile: "
+    foo: (bar env('x'))
+
+    bar arg:
+      echo {{arg}}
+  ",
+  args: (),
+  env: { "x": "z", },
+  stdout: "z\n",
+  stderr: "echo z\n",
+  shell: false,
+}
+
+test! {
+  name: env_function_as_env_var_or_default,
+  justfile: "
+    foo: (bar env('x', 'y'))
+
+    bar arg:
+      echo {{arg}}
+  ",
+  args: (),
+  env: { "x": "z", },
+  stdout: "z\n",
+  stderr: "echo z\n",
+  shell: false,
+}
+
+test! {
+  name: env_function_as_env_var_with_existing_env_var,
+  justfile: "
+    foo: (bar env('x'))
+
+    bar arg:
+      echo {{arg}}
+  ",
+  args: (),
+  env: { "x": "z", },
+  stdout: "z\n",
+  stderr: "echo z\n",
+  shell: false,
+}
+
+test! {
+  name: env_function_as_env_var_or_default_with_existing_env_var,
+  justfile: "
+    foo: (bar env('x', 'y'))
+
+    bar arg:
+      echo {{arg}}
+  ",
+  args: (),
+  env: { "x": "z", },
+  stdout: "z\n",
+  stderr: "echo z\n",
   shell: false,
 }
 
@@ -2000,6 +2124,7 @@ test! {
   stdout: "",
   stderr: "
     error: Variable `a` not defined
+     --> justfile:3:9
       |
     3 | bar a b=a:
       |         ^

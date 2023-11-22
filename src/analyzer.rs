@@ -1,8 +1,6 @@
 use std::sync::Arc;
 use {super::*, CompileErrorKind::*};
 
-const VALID_ALIAS_ATTRIBUTES: [Attribute; 1] = [Attribute::Private];
-
 #[derive(Default)]
 pub(crate) struct Analyzer<'src> {
   assignments: Table<'src, Assignment<'src>>,
@@ -11,40 +9,59 @@ pub(crate) struct Analyzer<'src> {
 }
 
 impl<'src> Analyzer<'src> {
-  pub(crate) fn analyze(ast: &Ast<'src>) -> CompileResult<'src, Justfile<'src>> {
-    Analyzer::default().justfile(ast)
+  pub(crate) fn analyze(
+    asts: &HashMap<PathBuf, Ast<'src>>,
+    root: &Path,
+  ) -> CompileResult<'src, Justfile<'src>> {
+    Analyzer::default().justfile(asts, root)
   }
 
-  fn justfile(mut self, ast: &Ast<'src>) -> CompileResult<'src, Justfile<'src>> {
+  fn justfile(
+    mut self,
+    asts: &HashMap<PathBuf, Ast<'src>>,
+    root: &Path,
+  ) -> CompileResult<'src, Justfile<'src>> {
     let mut recipes = Vec::new();
 
-    for item in &ast.items {
-      match item {
-        Item::Alias(alias) => {
-          self.analyze_alias(alias)?;
-          self.aliases.insert(alias.clone());
-        }
-        Item::Assignment(assignment) => {
-          self.analyze_assignment(assignment)?;
-          self.assignments.insert(assignment.clone());
-        }
-        Item::Comment(_) => (),
-        Item::Recipe(recipe) => {
-          if recipe.enabled() {
-            Self::analyze_recipe(recipe)?;
-            recipes.push(recipe);
+    let mut stack = Vec::new();
+    stack.push(asts.get(root).unwrap());
+
+    let mut warnings = Vec::new();
+
+    while let Some(ast) = stack.pop() {
+      for item in &ast.items {
+        match item {
+          Item::Alias(alias) => {
+            self.analyze_alias(alias)?;
+            self.aliases.insert(alias.clone());
+          }
+          Item::Assignment(assignment) => {
+            self.analyze_assignment(assignment)?;
+            self.assignments.insert(assignment.clone());
+          }
+          Item::Comment(_) => (),
+          Item::Recipe(recipe) => {
+            if recipe.enabled() {
+              Self::analyze_recipe(recipe)?;
+              recipes.push(recipe);
+            }
+          }
+          Item::Set(set) => {
+            self.analyze_set(set)?;
+            self.sets.insert(set.clone());
+          }
+          Item::Include { absolute, .. } => {
+            stack.push(asts.get(absolute.as_ref().unwrap()).unwrap());
           }
         }
-        Item::Set(set) => {
-          self.analyze_set(set)?;
-          self.sets.insert(set.clone());
-        }
       }
+
+      warnings.extend(ast.warnings.iter().cloned());
     }
 
     let settings = Settings::from_setting_iter(self.sets.into_iter().map(|(_, set)| set.value));
 
-    let mut recipe_table: Table<'src, UnresolvedRecipe<'src>> = Default::default();
+    let mut recipe_table: Table<'src, UnresolvedRecipe<'src>> = Table::default();
 
     AssignmentResolver::resolve_assignments(&self.assignments)?;
 
@@ -68,7 +85,6 @@ impl<'src> Analyzer<'src> {
     }
 
     Ok(Justfile {
-      warnings: ast.warnings.clone(),
       first: recipes
         .values()
         .fold(None, |accumulator, next| match accumulator {
@@ -83,6 +99,7 @@ impl<'src> Analyzer<'src> {
       assignments: self.assignments,
       recipes,
       settings,
+      warnings,
     })
   }
 
@@ -151,7 +168,7 @@ impl<'src> Analyzer<'src> {
     }
 
     for attr in &alias.attributes {
-      if !VALID_ALIAS_ATTRIBUTES.contains(attr) {
+      if *attr != Attribute::Private {
         return Err(alias.name.token().error(AliasInvalidAttribute {
           alias: name,
           attr: *attr,

@@ -13,8 +13,8 @@
 //! of existing justfiles.
 
 use {
-  crate::compiler::Compiler,
-  std::{collections::BTreeMap, fs, io, path::Path},
+  crate::{compiler::Compiler, error::Error, loader::Loader},
+  std::{collections::BTreeMap, io, path::Path},
 };
 
 mod full {
@@ -26,11 +26,15 @@ mod full {
 }
 
 pub fn summary(path: &Path) -> Result<Result<Summary, String>, io::Error> {
-  let text = fs::read_to_string(path)?;
+  let loader = Loader::new();
 
-  match Compiler::compile(&text) {
-    Ok((_, justfile)) => Ok(Ok(Summary::new(justfile))),
-    Err(compilation_error) => Ok(Err(compilation_error.to_string())),
+  match Compiler::compile(false, &loader, path) {
+    Ok(compilation) => Ok(Ok(Summary::new(&compilation.justfile))),
+    Err(error) => Ok(Err(if let Error::Compile { compile_error } = error {
+      compile_error.to_string()
+    } else {
+      format!("{error:?}")
+    })),
   }
 }
 
@@ -41,7 +45,7 @@ pub struct Summary {
 }
 
 impl Summary {
-  fn new(justfile: full::Justfile) -> Summary {
+  fn new(justfile: &full::Justfile) -> Summary {
     let mut aliases = BTreeMap::new();
 
     for alias in justfile.aliases.values() {
@@ -54,11 +58,11 @@ impl Summary {
     Summary {
       recipes: justfile
         .recipes
-        .into_iter()
+        .iter()
         .map(|(name, recipe)| {
           (
-            name.to_owned(),
-            Recipe::new(&recipe, aliases.remove(name).unwrap_or_default()),
+            (*name).to_string(),
+            Recipe::new(recipe, aliases.remove(name).unwrap_or_default()),
           )
         })
         .collect(),
@@ -225,6 +229,23 @@ impl Expression {
           name: name.lexeme().to_owned(),
           arguments: vec![Expression::new(arg)],
         },
+        full::Thunk::UnaryOpt {
+          name,
+          args: (a, opt_b),
+          ..
+        } => {
+          let mut arguments = vec![];
+
+          if let Some(b) = opt_b.as_ref() {
+            arguments.push(Expression::new(b));
+          }
+
+          arguments.push(Expression::new(a));
+          Expression::Call {
+            name: name.lexeme().to_owned(),
+            arguments,
+          }
+        }
         full::Thunk::Binary {
           name, args: [a, b], ..
         } => Expression::Call {

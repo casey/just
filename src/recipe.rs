@@ -49,7 +49,7 @@ impl<'src, D> Recipe<'src, D> {
 
   pub(crate) fn max_arguments(&self) -> usize {
     if self.parameters.iter().any(|p| p.kind.is_variadic()) {
-      usize::max_value() - 1
+      usize::MAX - 1
     } else {
       self.parameters.len()
     }
@@ -61,6 +61,20 @@ impl<'src, D> Recipe<'src, D> {
 
   pub(crate) fn line_number(&self) -> usize {
     self.name.line
+  }
+
+  pub(crate) fn confirm(&self) -> RunResult<'src, bool> {
+    if self.attributes.contains(&Attribute::Confirm) {
+      eprint!("Run recipe `{}`? ", self.name);
+      let mut line = String::new();
+      std::io::stdin()
+        .read_line(&mut line)
+        .map_err(|io_error| Error::GetConfirmation { io_error })?;
+      let line = line.trim().to_lowercase();
+      Ok(line == "y" || line == "yes")
+    } else {
+      Ok(true)
+    }
   }
 
   pub(crate) fn public(&self) -> bool {
@@ -182,7 +196,7 @@ impl<'src, D> Recipe<'src, D> {
         || !((quiet_command ^ self.quiet) || config.verbosity.quiet())
       {
         let color = if config.highlight {
-          config.color.command()
+          config.color.command(config.command_color)
         } else {
           config.color
         };

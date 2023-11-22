@@ -174,15 +174,14 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
 
     if next.kind != Identifier {
       Err(self.internal_error(format!(
-        "Presumed next token would have kind {}, but found {}",
-        Identifier, next.kind
+        "Presumed next token would have kind {Identifier}, but found {}",
+        next.kind
       ))?)
     } else if keyword == next.lexeme() {
       Ok(())
     } else {
       Err(self.internal_error(format!(
-        "Presumed next token would have lexeme \"{}\", but found \"{}\"",
-        keyword,
+        "Presumed next token would have lexeme \"{keyword}\", but found \"{}\"",
         next.lexeme(),
       ))?)
     }
@@ -196,8 +195,8 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
       Ok(next)
     } else {
       Err(self.internal_error(format!(
-        "Presumed next token would have kind {:?}, but found {:?}",
-        kind, next.kind
+        "Presumed next token would have kind {kind:?}, but found {:?}",
+        next.kind
       ))?)
     }
   }
@@ -351,6 +350,9 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
             }
           }
         }
+      } else if self.next_is(Bang) {
+        let directive = self.parse_directive()?;
+        items.push(directive);
       } else if self.accepted(At)? {
         let doc = pop_doc_comment(&mut items, eol_since_last_comment);
         items.push(Item::Recipe(self.parse_recipe(
@@ -776,26 +778,46 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     Ok(value)
   }
 
+  fn parse_directive(&mut self) -> CompileResult<'src, Item<'src>> {
+    self.presume(Bang)?;
+    let name = self.expect(Identifier)?;
+    match name.lexeme() {
+      "include" => {
+        if let Some(include_line) = self.accept(Text)? {
+          Ok(Item::Include {
+            relative: include_line.lexeme().trim(),
+            absolute: None,
+          })
+        } else {
+          Err(self.error(CompileErrorKind::IncludeMissingPath)?)
+        }
+      }
+      directive => Err(name.error(CompileErrorKind::UnknownDirective { directive })),
+    }
+  }
+
   /// Parse a setting
   fn parse_set(&mut self) -> CompileResult<'src, Set<'src>> {
     self.presume_keyword(Keyword::Set)?;
     let name = Name::from_identifier(self.presume(Identifier)?);
     let lexeme = name.lexeme();
+    let Some(keyword) = Keyword::from_lexeme(lexeme) else {
+      return Err(name.error(CompileErrorKind::UnknownSetting {
+        setting: name.lexeme(),
+      }));
+    };
 
-    let set_bool: Option<Setting> = match Keyword::from_lexeme(lexeme) {
-      Some(kw) => match kw {
-        Keyword::AllowDuplicateRecipes => {
-          Some(Setting::AllowDuplicateRecipes(self.parse_set_bool()?))
-        }
-        Keyword::DotenvLoad => Some(Setting::DotenvLoad(self.parse_set_bool()?)),
-        Keyword::Export => Some(Setting::Export(self.parse_set_bool()?)),
-        Keyword::Fallback => Some(Setting::Fallback(self.parse_set_bool()?)),
-        Keyword::IgnoreComments => Some(Setting::IgnoreComments(self.parse_set_bool()?)),
-        Keyword::PositionalArguments => Some(Setting::PositionalArguments(self.parse_set_bool()?)),
-        Keyword::WindowsPowershell => Some(Setting::WindowsPowerShell(self.parse_set_bool()?)),
-        _ => None,
-      },
-      None => None,
+    let set_bool = match keyword {
+      Keyword::AllowDuplicateRecipes => {
+        Some(Setting::AllowDuplicateRecipes(self.parse_set_bool()?))
+      }
+      Keyword::DotenvLoad => Some(Setting::DotenvLoad(self.parse_set_bool()?)),
+      Keyword::Export => Some(Setting::Export(self.parse_set_bool()?)),
+      Keyword::Fallback => Some(Setting::Fallback(self.parse_set_bool()?)),
+      Keyword::IgnoreComments => Some(Setting::IgnoreComments(self.parse_set_bool()?)),
+      Keyword::PositionalArguments => Some(Setting::PositionalArguments(self.parse_set_bool()?)),
+      Keyword::WindowsPowershell => Some(Setting::WindowsPowerShell(self.parse_set_bool()?)),
+      _ => None,
     };
 
     if let Some(value) = set_bool {
@@ -804,26 +826,22 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
 
     self.expect(ColonEquals)?;
 
-    if name.lexeme() == Keyword::Shell.lexeme() {
-      Ok(Set {
-        value: Setting::Shell(self.parse_shell()?),
-        name,
-      })
-    } else if name.lexeme() == Keyword::WindowsShell.lexeme() {
-      Ok(Set {
-        value: Setting::WindowsShell(self.parse_shell()?),
-        name,
-      })
-    } else if name.lexeme() == Keyword::Tempdir.lexeme() {
-      Ok(Set {
-        value: Setting::Tempdir(self.parse_string_literal()?.cooked),
-        name,
-      })
-    } else {
-      Err(name.error(CompileErrorKind::UnknownSetting {
-        setting: name.lexeme(),
-      }))
+    let set_value = match keyword {
+      Keyword::DotenvFilename => Some(Setting::DotenvFilename(self.parse_string_literal()?.cooked)),
+      Keyword::DotenvPath => Some(Setting::DotenvPath(self.parse_string_literal()?.cooked)),
+      Keyword::Shell => Some(Setting::Shell(self.parse_shell()?)),
+      Keyword::Tempdir => Some(Setting::Tempdir(self.parse_string_literal()?.cooked)),
+      Keyword::WindowsShell => Some(Setting::WindowsShell(self.parse_shell()?)),
+      _ => None,
+    };
+
+    if let Some(value) = set_value {
+      return Ok(Set { name, value });
     }
+
+    Err(name.error(CompileErrorKind::UnknownSetting {
+      setting: name.lexeme(),
+    }))
   }
 
   /// Parse a shell setting value
@@ -869,7 +887,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
         }
         attributes.insert(attribute, name.line);
 
-        if !self.accepted(TokenKind::Comma)? {
+        if !self.accepted(Comma)? {
           break;
         }
       }
@@ -909,7 +927,7 @@ mod tests {
 
   fn test(text: &str, want: Tree) {
     let unindented = unindent(text);
-    let tokens = Lexer::lex(&unindented).expect("lexing failed");
+    let tokens = Lexer::test_lex(&unindented).expect("lexing failed");
     let justfile = Parser::parse(&tokens).expect("parsing failed");
     let have = justfile.tree();
     if have != want {
@@ -946,7 +964,7 @@ mod tests {
     length: usize,
     kind: CompileErrorKind,
   ) {
-    let tokens = Lexer::lex(src).expect("Lexing failed in parse test...");
+    let tokens = Lexer::test_lex(src).expect("Lexing failed in parse test...");
 
     match Parser::parse(&tokens) {
       Ok(_) => panic!("Parsing unexpectedly succeeded"),
@@ -959,6 +977,7 @@ mod tests {
             line,
             column,
             length,
+            path: "justfile".as_ref(),
           },
           kind: Box::new(kind),
         };
@@ -1023,11 +1042,11 @@ mod tests {
 
   test! {
       name: recipe_named_alias,
-      text: r#"
+      text: r"
       [private]
       alias:
         echo 'echoing alias'
-          "#,
+          ",
     tree: (justfile
       (recipe alias (body ("echo 'echoing alias'")))
     ),
@@ -1157,13 +1176,13 @@ mod tests {
 
   test! {
     name: recipe_plus_variadic,
-    text: r#"foo +bar:"#,
+    text: r"foo +bar:",
     tree: (justfile (recipe foo (params +(bar)))),
   }
 
   test! {
     name: recipe_star_variadic,
-    text: r#"foo *bar:"#,
+    text: r"foo *bar:",
     tree: (justfile (recipe foo (params *(bar)))),
   }
 
@@ -1175,13 +1194,13 @@ mod tests {
 
   test! {
     name: recipe_variadic_variable_default,
-    text: r#"foo +bar=baz:"#,
+    text: r"foo +bar=baz:",
     tree: (justfile (recipe foo (params +(bar baz)))),
   }
 
   test! {
     name: recipe_variadic_addition_group_default,
-    text: r#"foo +bar=(baz + bob):"#,
+    text: r"foo +bar=(baz + bob):",
     tree: (justfile (recipe foo (params +(bar ((+ baz bob)))))),
   }
 
@@ -1421,31 +1440,31 @@ mod tests {
 
   test! {
     name: indented_backtick,
-    text: r#"
+    text: r"
       x := ```
         \tfoo\t
         \tbar\n
       ```
-    "#,
+    ",
     tree: (justfile (assignment x (backtick "\\tfoo\\t\n\\tbar\\n\n"))),
   }
 
   test! {
     name: indented_backtick_no_dedent,
-    text: r#"
+    text: r"
       x := ```
       \tfoo\t
         \tbar\n
       ```
-    "#,
+    ",
     tree: (justfile (assignment x (backtick "\\tfoo\\t\n  \\tbar\\n\n"))),
   }
 
   test! {
     name: recipe_variadic_with_default_after_default,
-    text: r#"
+    text: r"
       f a=b +c=d:
-    "#,
+    ",
     tree: (justfile (recipe f (params (a b) +(c d)))),
   }
 
@@ -1476,12 +1495,12 @@ mod tests {
 
   test! {
     name: parse_raw_string_default,
-    text: r#"
+    text: r"
 
       foo a='b\t':
 
 
-    "#,
+    ",
     tree: (justfile (recipe foo (params (a "b\\t")))),
   }
 
@@ -1961,6 +1980,12 @@ mod tests {
     tree: (justfile (assignment a (if b == c d (if b == c d e)))),
   }
 
+  test! {
+    name: include_directive,
+    text: "!include      some/file/path.txt     \n",
+    tree: (justfile (include "some/file/path.txt")),
+  }
+
   error! {
     name:   alias_syntax_multiple_rhs,
     input:  "alias foo := bar baz",
@@ -2051,7 +2076,7 @@ mod tests {
     column: 0,
     width:  1,
     kind: UnexpectedToken {
-      expected: vec![At, BracketL, Comment, Eof, Eol, Identifier],
+      expected: vec![At, Bang, BracketL, Comment, Eof, Eol, Identifier],
       found: BraceL,
     },
   }
@@ -2335,6 +2360,34 @@ mod tests {
   }
 
   error! {
+    name: function_argument_count_too_high_unary_opt,
+    input: "x := env('foo', 'foo', 'foo')",
+    offset: 5,
+    line: 0,
+    column: 5,
+    width: 3,
+    kind: FunctionArgumentCountMismatch {
+      function: "env",
+      found: 3,
+      expected: 1..2,
+    },
+  }
+
+  error! {
+    name: function_argument_count_too_low_unary_opt,
+    input: "x := env()",
+    offset: 5,
+    line: 0,
+    column: 5,
+    width: 3,
+    kind: FunctionArgumentCountMismatch {
+      function: "env",
+      found: 0,
+      expected: 1..2,
+    },
+  }
+
+  error! {
     name: function_argument_count_binary,
     input: "x := env_var_or_default('foo')",
     offset: 5,
@@ -2373,6 +2426,18 @@ mod tests {
       function: "replace",
       found: 1,
       expected: 3..3,
+    },
+  }
+
+  error! {
+    name: unknown_directive,
+    input: "!inclood",
+    offset: 1,
+    line: 0,
+    column: 1,
+    width: 7,
+    kind: UnknownDirective {
+      directive: "inclood"
     },
   }
 }

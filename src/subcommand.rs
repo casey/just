@@ -65,7 +65,10 @@ impl Subcommand {
       return Self::edit(&search);
     }
 
-    let (src, ast, justfile) = Self::compile(config, loader, &search)?;
+    let compilation = Self::compile(config, loader, &search)?;
+    let justfile = &compilation.justfile;
+    let ast = compilation.root_ast();
+    let src = compilation.root_src();
 
     match self {
       Choose { overrides, chooser } => {
@@ -86,7 +89,7 @@ impl Subcommand {
     Ok(())
   }
 
-  pub(crate) fn run<'src>(
+  fn run<'src>(
     config: &Config,
     loader: &'src Loader,
     arguments: &[String],
@@ -99,7 +102,7 @@ impl Subcommand {
       let starting_path = match &config.search_config {
         SearchConfig::FromInvocationDirectory => config.invocation_directory.clone(),
         SearchConfig::FromSearchDirectory { search_directory } => {
-          std::env::current_dir().unwrap().join(search_directory)
+          env::current_dir().unwrap().join(search_directory)
         }
         _ => unreachable!(),
       };
@@ -165,8 +168,8 @@ impl Subcommand {
     overrides: &BTreeMap<String, String>,
     search: &Search,
   ) -> Result<(), (Error<'src>, bool)> {
-    let (_src, _ast, justfile) =
-      Self::compile(config, loader, search).map_err(|err| (err, false))?;
+    let compilation = Self::compile(config, loader, search).map_err(|err| (err, false))?;
+    let justfile = &compilation.justfile;
     justfile
       .run(config, search, overrides, arguments)
       .map_err(|err| (err, justfile.settings.fallback))
@@ -176,18 +179,16 @@ impl Subcommand {
     config: &Config,
     loader: &'src Loader,
     search: &Search,
-  ) -> Result<(&'src str, Ast<'src>, Justfile<'src>), Error<'src>> {
-    let src = loader.load(&search.justfile)?;
-
-    let (ast, justfile) = Compiler::compile(src)?;
+  ) -> Result<Compilation<'src>, Error<'src>> {
+    let compilation = Compiler::compile(config.unstable, loader, &search.justfile)?;
 
     if config.verbosity.loud() {
-      for warning in &justfile.warnings {
+      for warning in &compilation.justfile.warnings {
         eprintln!("{}", warning.color_display(config.color.stderr()));
       }
     }
 
-    Ok((src, ast, justfile))
+    Ok(compilation)
   }
 
   fn changelog() {
@@ -196,7 +197,7 @@ impl Subcommand {
 
   fn choose<'src>(
     config: &Config,
-    justfile: Justfile<'src>,
+    justfile: &Justfile<'src>,
     search: &Search,
     overrides: &BTreeMap<String, String>,
     chooser: Option<&str>,
@@ -326,11 +327,10 @@ impl Subcommand {
     Ok(())
   }
 
-  fn dump(config: &Config, ast: Ast, justfile: Justfile) -> Result<(), Error<'static>> {
+  fn dump(config: &Config, ast: &Ast, justfile: &Justfile) -> Result<(), Error<'static>> {
     match config.dump_format {
       DumpFormat::Json => {
-        config.require_unstable("The JSON dump format is currently unstable.")?;
-        serde_json::to_writer(io::stdout(), &justfile)
+        serde_json::to_writer(io::stdout(), justfile)
           .map_err(|serde_json_error| Error::DumpJson { serde_json_error })?;
         println!();
       }
@@ -361,7 +361,7 @@ impl Subcommand {
     Ok(())
   }
 
-  fn format(config: &Config, search: &Search, src: &str, ast: Ast) -> Result<(), Error<'static>> {
+  fn format(config: &Config, search: &Search, src: &str, ast: &Ast) -> Result<(), Error<'static>> {
     config.require_unstable("The `--fmt` command is currently unstable.")?;
 
     let formatted = ast.to_string();
@@ -426,7 +426,7 @@ impl Subcommand {
     }
   }
 
-  fn list(config: &Config, justfile: Justfile) {
+  fn list(config: &Config, justfile: &Justfile) {
     // Construct a target to alias map.
     let mut recipe_aliases: BTreeMap<&str, Vec<&str>> = BTreeMap::new();
     for alias in justfile.aliases.values() {
@@ -508,7 +508,7 @@ impl Subcommand {
     }
   }
 
-  fn show<'src>(config: &Config, name: &str, justfile: Justfile<'src>) -> Result<(), Error<'src>> {
+  fn show<'src>(config: &Config, name: &str, justfile: &Justfile<'src>) -> Result<(), Error<'src>> {
     if let Some(alias) = justfile.get_alias(name) {
       let recipe = justfile.get_recipe(alias.target.name.lexeme()).unwrap();
       println!("{alias}");
@@ -525,7 +525,7 @@ impl Subcommand {
     }
   }
 
-  fn summary(config: &Config, justfile: Justfile) {
+  fn summary(config: &Config, justfile: &Justfile) {
     if justfile.count() == 0 {
       if config.verbosity.loud() {
         eprintln!("Justfile contains no recipes.");
@@ -541,7 +541,7 @@ impl Subcommand {
     }
   }
 
-  fn variables(justfile: Justfile) {
+  fn variables(justfile: &Justfile) {
     for (i, (_, assignment)) in justfile.assignments.iter().enumerate() {
       if i > 0 {
         print!(" ");

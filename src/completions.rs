@@ -1,5 +1,31 @@
 pub(crate) const FISH_RECIPE_COMPLETIONS: &str = r#"function __fish_just_complete_recipes
-    just --summary 2> /dev/null | tr " " "\n" || echo ""
+        just --list 2> /dev/null | tail -n +2 | awk '{
+        command = $1;
+        args = $0;
+        desc = "";
+        delim = "";
+        sub(/^[[:space:]]*[^[:space:]]*/, "", args);
+        gsub(/^[[:space:]]+|[[:space:]]+$/, "", args);
+
+        if (match(args, /#.*/)) {
+          desc = substr(args, RSTART+2, RLENGTH);
+          args = substr(args, 0, RSTART-1);
+          gsub(/^[[:space:]]+|[[:space:]]+$/, "", args);
+        }
+
+        gsub(/\+|=[`\'"][^`\'"]*[`\'"]/, "", args);
+        gsub(/ /, ",", args);
+
+        if (args != ""){
+          args = "Args: " args;
+        }
+
+        if (args != "" && desc != "") {
+          delim = "; ";
+        }
+
+        print command "\t" args delim desc
+  }'
 end
 
 # don't suggest files right off
@@ -14,17 +40,17 @@ complete -c just -a '(__fish_just_complete_recipes)'
 pub(crate) const ZSH_COMPLETION_REPLACEMENTS: &[(&str, &str)] = &[
   (
     r#"    _arguments "${_arguments_options[@]}" \"#,
-    r#"    local common=("#,
+    r"    local common=(",
   ),
   (
-    r#"'*--set=[Override <VARIABLE> with <VALUE>]' \"#,
-    r#"'*--set[Override <VARIABLE> with <VALUE>]: :_just_variables' \"#,
+    r"'*--set=[Override <VARIABLE> with <VALUE>]' \",
+    r"'*--set[Override <VARIABLE> with <VALUE>]: :_just_variables' \",
   ),
   (
-    r#"'-s+[Show information about <RECIPE>]' \
-'--show=[Show information about <RECIPE>]' \"#,
-    r#"'-s+[Show information about <RECIPE>]: :_just_commands' \
-'--show=[Show information about <RECIPE>]: :_just_commands' \"#,
+    r"'-s+[Show information about <RECIPE>]' \
+'--show=[Show information about <RECIPE>]' \",
+    r"'-s+[Show information about <RECIPE>]: :_just_commands' \
+'--show=[Show information about <RECIPE>]: :_just_commands' \",
   ),
   (
     "'::ARGUMENTS -- Overrides and recipe(s) to run, defaulting to the first recipe in the \
@@ -168,7 +194,7 @@ pub(crate) const BASH_COMPLETION_REPLACEMENTS: &[(&str, &str)] = &[
                 elif [[ ${COMP_CWORD} -eq 1 ]]; then
                     local recipes=$(just --summary 2> /dev/null)
 
-                    if echo "${cur}" | grep -qF '/'; then
+                    if echo "${cur}" | \grep -qF '/'; then
                         local path_prefix=$(echo "${cur}" | sed 's/[/][^/]*$/\//')
                         local recipes=$(just --summary 2> /dev/null -- "${path_prefix}")
                         local recipes=$(printf "${path_prefix}%s\t" $recipes)
@@ -180,5 +206,5 @@ pub(crate) const BASH_COMPLETION_REPLACEMENTS: &[(&str, &str)] = &[
                     fi
                 fi"#,
   ),
-  (r#"            just)"#, r#"            "$1")"#),
+  (r"            just)", r#"            "$1")"#),
 ];

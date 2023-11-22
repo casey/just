@@ -23,6 +23,7 @@ impl<'src> Node<'src> for Item<'src> {
       Item::Comment(comment) => comment.tree(),
       Item::Recipe(recipe) => recipe.tree(),
       Item::Set(set) => set.tree(),
+      Item::Include { relative, .. } => Tree::atom("include").push(format!("\"{relative}\"")),
     }
   }
 }
@@ -78,6 +79,15 @@ impl<'src> Node<'src> for Expression<'src> {
           Unary { name, arg, .. } => {
             tree.push_mut(name.lexeme());
             tree.push_mut(arg.tree());
+          }
+          UnaryOpt {
+            name, args: (a, b), ..
+          } => {
+            tree.push_mut(name.lexeme());
+            tree.push_mut(a.tree());
+            if let Some(b) = b.as_ref() {
+              tree.push_mut(b.tree());
+            }
           }
           Binary {
             name, args: [a, b], ..
@@ -240,7 +250,7 @@ impl<'src> Node<'src> for Set<'src> {
           set.push_mut(Tree::string(&argument.cooked));
         }
       }
-      Setting::Tempdir(value) => {
+      Setting::DotenvFilename(value) | Setting::DotenvPath(value) | Setting::Tempdir(value) => {
         set.push_mut(Tree::string(value));
       }
     }

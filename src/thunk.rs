@@ -14,6 +14,12 @@ pub(crate) enum Thunk<'src> {
     function: fn(&FunctionContext, &str) -> Result<String, String>,
     arg: Box<Expression<'src>>,
   },
+  UnaryOpt {
+    name: Name<'src>,
+    #[derivative(Debug = "ignore", PartialEq = "ignore")]
+    function: fn(&FunctionContext, &str, Option<&str>) -> Result<String, String>,
+    args: (Box<Expression<'src>>, Box<Option<Expression<'src>>>),
+  },
   Binary {
     name: Name<'src>,
     #[derivative(Debug = "ignore", PartialEq = "ignore")]
@@ -39,6 +45,7 @@ impl<'src> Thunk<'src> {
     match self {
       Self::Nullary { name, .. }
       | Self::Unary { name, .. }
+      | Self::UnaryOpt { name, .. }
       | Self::Binary { name, .. }
       | Self::BinaryPlus { name, .. }
       | Self::Ternary { name, .. } => name,
@@ -49,7 +56,7 @@ impl<'src> Thunk<'src> {
     name: Name<'src>,
     mut arguments: Vec<Expression<'src>>,
   ) -> CompileResult<'src, Thunk<'src>> {
-    crate::function::get(name.lexeme()).map_or(
+    function::get(name.lexeme()).map_or(
       Err(name.error(CompileErrorKind::UnknownFunction {
         function: name.lexeme(),
       })),
@@ -60,6 +67,18 @@ impl<'src> Thunk<'src> {
           arg: Box::new(arguments.pop().unwrap()),
           name,
         }),
+        (Function::UnaryOpt(function), 1..=2) => {
+          let a = Box::new(arguments.remove(0));
+          let b = match arguments.pop() {
+            Some(value) => Box::new(Some(value)),
+            None => Box::new(None),
+          };
+          Ok(Thunk::UnaryOpt {
+            function,
+            args: (a, b),
+            name,
+          })
+        }
         (Function::Binary(function), 2) => {
           let b = Box::new(arguments.pop().unwrap());
           let a = Box::new(arguments.pop().unwrap());
@@ -105,6 +124,15 @@ impl Display for Thunk<'_> {
     match self {
       Nullary { name, .. } => write!(f, "{}()", name.lexeme()),
       Unary { name, arg, .. } => write!(f, "{}({arg})", name.lexeme()),
+      UnaryOpt {
+        name, args: (a, b), ..
+      } => {
+        if let Some(b) = b.as_ref() {
+          write!(f, "{}({a}, {b})", name.lexeme())
+        } else {
+          write!(f, "{}({a})", name.lexeme())
+        }
+      }
       Binary {
         name, args: [a, b], ..
       } => write!(f, "{}({a}, {b})", name.lexeme()),
@@ -139,6 +167,14 @@ impl<'src> Serialize for Thunk<'src> {
     match self {
       Self::Nullary { .. } => {}
       Self::Unary { arg, .. } => seq.serialize_element(&arg)?,
+      Self::UnaryOpt {
+        args: (a, opt_b), ..
+      } => {
+        seq.serialize_element(a)?;
+        if let Some(b) = opt_b.as_ref() {
+          seq.serialize_element(b)?;
+        }
+      }
       Self::Binary { args, .. } => {
         for arg in args {
           seq.serialize_element(arg)?;
