@@ -36,7 +36,7 @@ pub(crate) struct Lexer<'src> {
 }
 
 impl<'src> Lexer<'src> {
-  /// Lex `text`
+  /// Lex `src`
   pub(crate) fn lex(path: &'src Path, src: &'src str) -> CompileResult<'src, Vec<Token<'src>>> {
     Lexer::new(path, src).tokenize()
   }
@@ -46,7 +46,7 @@ impl<'src> Lexer<'src> {
     Lexer::new("justfile".as_ref(), src).tokenize()
   }
 
-  /// Create a new Lexer to lex `text`
+  /// Create a new Lexer to lex `src`
   fn new(path: &'src Path, src: &'src str) -> Lexer<'src> {
     let mut chars = src.chars();
     let next = chars.next();
