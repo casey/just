@@ -56,7 +56,7 @@ fn argument_count_mismatch() {
 }
 
 #[test]
-fn file_name_is_indented_if_justfile_is_long() {
+fn file_path_is_indented_if_justfile_is_long() {
   Test::new()
     .justfile("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nfoo")
     .status(EXIT_FAILURE)
@@ -73,7 +73,7 @@ error: Expected '*', ':', '$', identifier, or '+', but found end of file
 }
 
 #[test]
-fn filenames_are_relative() {
+fn file_paths_are_relative() {
   Test::new()
     .justfile("!include foo/bar.just")
     .write("foo/bar.just", "baz")
@@ -83,6 +83,26 @@ fn filenames_are_relative() {
       "
 error: Expected '*', ':', '$', identifier, or '+', but found end of file
  --> foo/bar.just:1:4
+  |
+1 | baz
+  |    ^
+",
+    )
+    .run();
+}
+
+#[test]
+fn file_paths_not_in_subdir_are_absolute() {
+  Test::new()
+    .write("foo/justfile", "!include ../bar.just")
+    .write("bar.just", "baz")
+    .no_justfile()
+    .args(["--unstable", "--justfile", "foo/justfile"])
+    .status(EXIT_FAILURE)
+    .stderr_regex(
+      "
+error: Expected '*', ':', '$', identifier, or '+', but found end of file
+ --> /.*/bar.just:1:4
   |
 1 | baz
   |    ^
