@@ -60,6 +60,10 @@ impl Color {
     self.redirect(Stream::Stdout)
   }
 
+  pub(crate) fn context(self) -> Self {
+    self.restyle(Style::new().fg(Blue).bold())
+  }
+
   pub(crate) fn doc(self) -> Self {
     self.restyle(Style::new().fg(Blue))
   }

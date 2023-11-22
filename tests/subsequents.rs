@@ -47,6 +47,7 @@ test! {
   ",
   stderr: "
     error: Recipe `foo` depends on itself
+     --> justfile:1:9
       |
     1 | foo: && foo
       |         ^^^
@@ -61,6 +62,7 @@ test! {
   ",
   stderr: "
     error: Recipe `foo` has unknown dependency `bar`
+     --> justfile:1:9
       |
     1 | foo: && bar
       |         ^^^
@@ -77,6 +79,7 @@ test! {
   ",
   stderr: "
     error: Variable `y` not defined
+     --> justfile:3:14
       |
     3 | foo: && (bar y)
       |              ^

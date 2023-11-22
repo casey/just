@@ -9,38 +9,45 @@ use {super::*, CompileErrorKind::*, TokenKind::*};
 /// slight against regular expressions, the lexer was just idiosyncratically
 /// bad.
 pub(crate) struct Lexer<'src> {
-  /// Source text
-  src: &'src str,
   /// Char iterator
   chars: Chars<'src>,
-  /// Tokens
-  tokens: Vec<Token<'src>>,
-  /// Current token start
-  token_start: Position,
-  /// Current token end
-  token_end: Position,
-  /// Next character to be lexed
-  next: Option<char>,
-  /// Next indent will start a recipe body
-  recipe_body_pending: bool,
-  /// Inside recipe body
-  recipe_body: bool,
   /// Indentation stack
   indentation: Vec<&'src str>,
   /// Interpolation token start stack
   interpolation_stack: Vec<Token<'src>>,
+  /// Next character to be lexed
+  next: Option<char>,
   /// Current open delimiters
   open_delimiters: Vec<(Delimiter, usize)>,
+  /// Path to source file
+  path: &'src Path,
+  /// Inside recipe body
+  recipe_body: bool,
+  /// Next indent will start a recipe body
+  recipe_body_pending: bool,
+  /// Source text
+  src: &'src str,
+  /// Tokens
+  tokens: Vec<Token<'src>>,
+  /// Current token end
+  token_end: Position,
+  /// Current token start
+  token_start: Position,
 }
 
 impl<'src> Lexer<'src> {
-  /// Lex `text`
-  pub(crate) fn lex(src: &'src str) -> CompileResult<Vec<Token<'src>>> {
-    Lexer::new(src).tokenize()
+  /// Lex `src`
+  pub(crate) fn lex(path: &'src Path, src: &'src str) -> CompileResult<'src, Vec<Token<'src>>> {
+    Lexer::new(path, src).tokenize()
   }
 
-  /// Create a new Lexer to lex `text`
-  fn new(src: &'src str) -> Lexer<'src> {
+  #[cfg(test)]
+  pub(crate) fn test_lex(src: &'src str) -> CompileResult<'src, Vec<Token<'src>>> {
+    Lexer::new("justfile".as_ref(), src).tokenize()
+  }
+
+  /// Create a new Lexer to lex `src`
+  fn new(path: &'src Path, src: &'src str) -> Lexer<'src> {
     let mut chars = src.chars();
     let next = chars.next();
 
@@ -62,6 +69,7 @@ impl<'src> Lexer<'src> {
       chars,
       next,
       src,
+      path,
     }
   }
 
@@ -189,6 +197,7 @@ impl<'src> Lexer<'src> {
       src: self.src,
       length: self.token_end.offset - self.token_start.offset,
       kind,
+      path: self.path,
     });
 
     // Set `token_start` to point after the lexed token
@@ -205,6 +214,7 @@ impl<'src> Lexer<'src> {
       column: self.token_end.column,
       length: 0,
       kind: Unspecified,
+      path: self.path,
     };
     CompileError::new(
       token,
@@ -240,6 +250,7 @@ impl<'src> Lexer<'src> {
       line: self.token_start.line,
       column: self.token_start.column,
       length,
+      path: self.path,
     };
 
     CompileError::new(token, kind)
@@ -920,7 +931,7 @@ mod tests {
       text.to_owned()
     };
 
-    let have = Lexer::lex(&text).unwrap();
+    let have = Lexer::test_lex(&text).unwrap();
 
     let have_kinds = have
       .iter()
@@ -1028,7 +1039,7 @@ mod tests {
     length: usize,
     kind: CompileErrorKind,
   ) {
-    match Lexer::lex(src) {
+    match Lexer::test_lex(src) {
       Ok(_) => panic!("Lexing succeeded but expected"),
       Err(have) => {
         let want = CompileError {
@@ -1039,6 +1050,7 @@ mod tests {
             line,
             column,
             length,
+            path: "justfile".as_ref(),
           },
           kind: Box::new(kind),
         };
@@ -2321,7 +2333,9 @@ mod tests {
 
   #[test]
   fn presume_error() {
-    let compile_error = Lexer::new("!").presume('-').unwrap_err();
+    let compile_error = Lexer::new("justfile".as_ref(), "!")
+      .presume('-')
+      .unwrap_err();
     assert_matches!(
       compile_error.token,
       Token {
@@ -2331,6 +2345,7 @@ mod tests {
         length: 0,
         src: "!",
         kind: Unspecified,
+        path: _,
       }
     );
     assert_matches!(&*compile_error.kind,
@@ -2342,9 +2357,12 @@ mod tests {
       Error::Compile { compile_error }
         .color_display(Color::never())
         .to_string(),
-      "error: Internal error, this may indicate a bug in just: \
-      Lexer presumed character `-`\nconsider filing an issue: \
-      https://github.com/casey/just/issues/new\n  |\n1 | !\n  | ^"
+      "error: Internal error, this may indicate a bug in just: Lexer presumed character `-`
+consider filing an issue: https://github.com/casey/just/issues/new
+ --> justfile:1:1
+  |
+1 | !
+  | ^"
     );
   }
 }

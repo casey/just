@@ -85,9 +85,10 @@ foo:
   /bin/echo '{{we}}'
 "#,
   stdout:   "",
-  stderr:   format!("{} {}\n{}\n{}\n{}\n",
+  stderr:   format!("{} {}\n{}\n{}\n{}\n{}\n",
     "error: Call to function `without_extension` failed:",
     "Could not extract parent from ``",
+    " --> justfile:1:8",
     "  |",
     "1 | we  := without_extension(\'\')",
     "  |        ^^^^^^^^^^^^^^^^^").as_str(),
@@ -104,8 +105,9 @@ foo:
   /bin/echo '{{we}}'
 "#,
   stdout:   "",
-  stderr:   format!("{}\n{}\n{}\n{}\n",
+  stderr:   format!("{}\n{}\n{}\n{}\n{}\n",
     "error: Call to function `extension` failed: Could not extract extension from ``",
+    " --> justfile:1:8",
     "  |",
     "1 | we  := extension(\'\')",
     "  |        ^^^^^^^^^").as_str(),
@@ -122,8 +124,9 @@ foo:
   /bin/echo '{{we}}'
 "#,
   stdout:   "",
-  stderr:   format!("{}\n{}\n{}\n{}\n",
+  stderr:   format!("{}\n{}\n{}\n{}\n{}\n",
     "error: Call to function `extension` failed: Could not extract extension from `foo`",
+    " --> justfile:1:8",
     "  |",
     "1 | we  := extension(\'foo\')",
     "  |        ^^^^^^^^^").as_str(),
@@ -140,8 +143,9 @@ foo:
   /bin/echo '{{we}}'
 "#,
   stdout:   "",
-  stderr:   format!("{}\n{}\n{}\n{}\n",
+  stderr:   format!("{}\n{}\n{}\n{}\n{}\n",
     "error: Call to function `file_stem` failed: Could not extract file stem from ``",
+    " --> justfile:1:8",
     "  |",
     "1 | we  := file_stem(\'\')",
     "  |        ^^^^^^^^^").as_str(),
@@ -158,8 +162,9 @@ foo:
   /bin/echo '{{we}}'
 "#,
   stdout:   "",
-  stderr:   format!("{}\n{}\n{}\n{}\n",
+  stderr:   format!("{}\n{}\n{}\n{}\n{}\n",
     "error: Call to function `file_name` failed: Could not extract file name from ``",
+    " --> justfile:1:8",
     "  |",
     "1 | we  := file_name(\'\')",
     "  |        ^^^^^^^^^").as_str(),
@@ -176,9 +181,10 @@ foo:
   /bin/echo '{{we}}'
 "#,
   stdout:   "",
-  stderr:   format!("{} {}\n{}\n{}\n{}\n",
+  stderr:   format!("{} {}\n{}\n{}\n{}\n{}\n",
     "error: Call to function `parent_directory` failed:",
     "Could not extract parent directory from ``",
+    " --> justfile:1:8",
     "  |",
     "1 | we  := parent_directory(\'\')",
     "  |        ^^^^^^^^^^^^^^^^").as_str(),
@@ -195,9 +201,10 @@ foo:
   /bin/echo '{{we}}'
 "#,
   stdout:   "",
-  stderr:   format!("{} {}\n{}\n{}\n{}\n",
+  stderr:   format!("{} {}\n{}\n{}\n{}\n{}\n",
     "error: Call to function `parent_directory` failed:",
     "Could not extract parent directory from `/`",
+    " --> justfile:1:8",
     "  |",
     "1 | we  := parent_directory(\'/\')",
     "  |        ^^^^^^^^^^^^^^^^").as_str(),
@@ -225,6 +232,7 @@ test! {
   args:     ("a"),
   stdout:   "",
   stderr:   "error: Call to function `env_var` failed: environment variable `ZADDY` not present
+ --> justfile:2:10
   |
 2 |   echo {{env_var('ZADDY')}}
   |          ^^^^^^^
@@ -395,6 +403,7 @@ test! {
     foo\\
        ^
 error: incomplete escape sequence, reached end of pattern prematurely
+ --> justfile:2:11
   |
 2 |   echo {{ replace_regex('barbarbar', 'foo\\', 'foo') }}
   |           ^^^^^^^^^^^^^
@@ -498,6 +507,7 @@ fn join_argument_count_error() {
     .stderr(
       "
       error: Function `join` called with 1 argument but takes 2 or more
+       --> justfile:1:6
         |
       1 | x := join(\'a\')
         |      ^^^^
@@ -534,7 +544,15 @@ fn error_errors_with_message() {
     .justfile("x := error ('Thing Not Supported')")
     .args(["--evaluate"])
     .status(1)
-    .stderr("error: Call to function `error` failed: Thing Not Supported\n  |\n1 | x := error ('Thing Not Supported')\n  |      ^^^^^\n")
+    .stderr(
+      "
+      error: Call to function `error` failed: Thing Not Supported
+       --> justfile:1:6
+        |
+      1 | x := error ('Thing Not Supported')
+        |      ^^^^^
+    ",
+    )
     .run();
 }
 

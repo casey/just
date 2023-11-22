@@ -42,6 +42,7 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
         column: 0,
         length: 0,
         kind: TokenKind::Unspecified,
+        path: "".as_ref(),
       };
       return Err(CompileError::new(token, Internal { message }));
     }
