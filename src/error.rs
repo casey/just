@@ -106,6 +106,7 @@ pub(crate) enum Error<'src> {
     io_error: io::Error,
   },
   NoChoosableRecipes,
+  NoDefaultRecipe,
   NoRecipes,
   NotConfirmed {
     recipe: &'src str,
@@ -350,6 +351,7 @@ impl<'src> ColorDisplay for Error<'src> {
         write!(f, "Failed to read justfile at `{path}`: {io_error}")?;
       }
       NoChoosableRecipes => write!(f, "Justfile contains no choosable recipes.")?,
+      NoDefaultRecipe => write!(f, "Justfile contains no default recipe.")?,
       NoRecipes => write!(f, "Justfile contains no recipes.")?,
       NotConfirmed { recipe } => {
         write!(f, "Recipe `{recipe}` was not confirmed")?;

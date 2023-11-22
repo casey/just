@@ -9,14 +9,16 @@ pub(crate) struct Analyzer<'src> {
 
 impl<'src> Analyzer<'src> {
   pub(crate) fn analyze(
+    paths: &HashMap<PathBuf, PathBuf>,
     asts: &HashMap<PathBuf, Ast<'src>>,
     root: &Path,
   ) -> CompileResult<'src, Justfile<'src>> {
-    Analyzer::default().justfile(asts, root)
+    Analyzer::default().justfile(paths, asts, root)
   }
 
   fn justfile(
     mut self,
+    paths: &HashMap<PathBuf, PathBuf>,
     asts: &HashMap<PathBuf, Ast<'src>>,
     root: &Path,
   ) -> CompileResult<'src, Justfile<'src>> {
@@ -83,9 +85,12 @@ impl<'src> Analyzer<'src> {
       aliases.insert(Self::resolve_alias(&recipes, alias)?);
     }
 
+    let root = paths.get(root).unwrap();
+
     Ok(Justfile {
       first: recipes
         .values()
+        .filter(|recipe| recipe.name.path == root)
         .fold(None, |accumulator, next| match accumulator {
           None => Some(Rc::clone(next)),
           Some(previous) => Some(if previous.line_number() < next.line_number() {
