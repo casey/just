@@ -1,3 +1,5 @@
+use crate::recipe::RecipeProvenance;
+
 use {super::*, CompileErrorKind::*};
 
 #[derive(Default)]
@@ -106,12 +108,14 @@ impl<'src> Analyzer<'src> {
 
     let settings = Settings::from_setting_iter(self.sets.into_iter().map(|(_, set)| set.value));
 
-    let mut recipe_table: Table<'src, UnresolvedRecipe<'src>> = Table::default();
+    let mut recipe_table: BTreeMap<&'src str, (UnresolvedRecipe<'src>, RecipeProvenance)> =
+      BTreeMap::new();
 
     AssignmentResolver::resolve_assignments(&self.assignments)?;
 
-    for recipe in recipes {
-      if let Some(original) = recipe_table.get(recipe.name.lexeme()) {
+    for (n, recipe) in recipes.into_iter().enumerate() {
+      let name = recipe.name.lexeme();
+      if let Some((original, _)) = recipe_table.get(name) {
         if !settings.allow_duplicate_recipes {
           return Err(recipe.name.token().error(DuplicateRecipe {
             recipe: original.name(),
@@ -119,7 +123,8 @@ impl<'src> Analyzer<'src> {
           }));
         }
       }
-      recipe_table.insert(recipe.clone());
+      let provenance = RecipeProvenance { global_order: n };
+      recipe_table.insert(name, (recipe.clone(), provenance));
     }
 
     let recipes = RecipeResolver::resolve_recipes(recipe_table, &self.assignments)?;

@@ -45,10 +45,6 @@ impl<'key, V: Keyed<'key>> Table<'key, V> {
     let key = self.map.keys().next().copied()?;
     self.map.remove(key)
   }
-
-  pub(crate) fn remove(&mut self, key: &str) -> Option<V> {
-    self.map.remove(key)
-  }
 }
 
 impl<'key, V: Keyed<'key>> Default for Table<'key, V> {

@@ -1,14 +1,16 @@
+use crate::recipe::RecipeProvenance;
+
 use {super::*, CompileErrorKind::*};
 
 pub(crate) struct RecipeResolver<'src: 'run, 'run> {
-  unresolved_recipes: Table<'src, UnresolvedRecipe<'src>>,
+  unresolved_recipes: BTreeMap<&'src str, (UnresolvedRecipe<'src>, RecipeProvenance)>,
   resolved_recipes: Table<'src, Rc<Recipe<'src>>>,
   assignments: &'run Table<'src, Assignment<'src>>,
 }
 
 impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
   pub(crate) fn resolve_recipes(
-    unresolved_recipes: Table<'src, UnresolvedRecipe<'src>>,
+    unresolved_recipes: BTreeMap<&'src str, (UnresolvedRecipe<'src>, RecipeProvenance)>,
     assignments: &Table<'src, Assignment<'src>>,
   ) -> CompileResult<'src, Table<'src, Rc<Recipe<'src>>>> {
     let mut resolver = RecipeResolver {
@@ -17,7 +19,7 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
       assignments,
     };
 
-    while let Some(unresolved) = resolver.unresolved_recipes.pop() {
+    while let Some((_key, (unresolved, _provenance))) = resolver.unresolved_recipes.pop_first() {
       resolver.resolve_recipe(&mut Vec::new(), unresolved)?;
     }
 
@@ -99,7 +101,7 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
               .collect(),
           }),
         );
-      } else if let Some(unresolved) = self.unresolved_recipes.remove(name) {
+      } else if let Some((unresolved, _provenance)) = self.unresolved_recipes.remove(name) {
         // resolve unresolved dependency
         dependencies.push(self.resolve_recipe(stack, unresolved)?);
       } else {
