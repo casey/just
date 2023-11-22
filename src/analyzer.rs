@@ -21,8 +21,6 @@ impl<'src> Analyzer<'src> {
     root: &Path,
     ast_table: &'a HashMap<PathBuf, Ast<'src>>,
   ) -> Vec<&'a Item<'src>> {
-    let root_ast = ast_table.get(root).unwrap();
-
     fn rec<'a, 'src>(
       ast: &'a Ast<'src>,
       table: &'a HashMap<PathBuf, Ast<'src>>,
@@ -38,6 +36,7 @@ impl<'src> Analyzer<'src> {
       }
     }
 
+    let root_ast = ast_table.get(root).unwrap();
     let mut items = Vec::new();
     rec(root_ast, ast_table, &mut items);
 
