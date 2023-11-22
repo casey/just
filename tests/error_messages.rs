@@ -87,7 +87,7 @@ error: Expected '*', ':', '$', identifier, or '+', but found end of file
 1 | baz
   |    ^
 ",
-      std::path::MAIN_SEPARATOR
+      MAIN_SEPARATOR
     ))
     .run();
 }
@@ -100,14 +100,15 @@ fn file_paths_not_in_subdir_are_absolute() {
     .no_justfile()
     .args(["--unstable", "--justfile", "foo/justfile"])
     .status(EXIT_FAILURE)
-    .stderr_regex(
+    .stderr_regex(format!(
       "
 error: Expected '*', ':', '$', identifier, or '+', but found end of file
- --> /.*/bar.just:1:4
+ --> {}.*{}bar.just:1:4
   |
 1 | baz
   |    ^
 ",
-    )
+      MAIN_SEPARATOR, MAIN_SEPARATOR
+    ))
     .run();
 }
