@@ -55,6 +55,7 @@ impl<'src> UnresolvedRecipe<'src> {
       priors: self.priors,
       attributes: self.attributes,
       dependencies,
+      provenance: None, //TODO
     })
   }
 }

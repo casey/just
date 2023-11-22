@@ -32,6 +32,12 @@ pub(crate) struct Recipe<'src, D = Dependency<'src>> {
   pub(crate) private: bool,
   pub(crate) quiet: bool,
   pub(crate) shebang: bool,
+  pub(crate) provenance: Option<RecipeProvenance>,
+}
+
+#[derive(Clone, Serialize, Debug, PartialEq)]
+pub(crate) struct RecipeProvenance {
+  pub(crate) global_order: usize,
 }
 
 impl<'src, D> Recipe<'src, D> {
