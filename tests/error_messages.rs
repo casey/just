@@ -54,3 +54,20 @@ fn argument_count_mismatch() {
     .status(EXIT_FAILURE)
     .run();
 }
+
+#[test]
+fn file_name_is_indented_if_justfile_is_long() {
+  Test::new()
+    .justfile("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nfoo")
+    .status(EXIT_FAILURE)
+    .stderr(
+      "
+error: Expected '*', ':', '$', identifier, or '+', but found end of file
+  --> justfile:20:4
+   |
+20 | foo
+   |    ^
+",
+    )
+    .run();
+}
