@@ -15,6 +15,47 @@ impl<'src> Analyzer<'src> {
     Analyzer::default().justfile(asts, root)
   }
 
+  fn process_item_list<'a>(
+    root: &Path,
+    ast_table: &'a HashMap<PathBuf, Ast<'src>>,
+  ) -> Vec<&'a Item<'src>> {
+    let root_ast = ast_table.get(root).unwrap();
+
+    fn rec<'a, 'src>(
+      ast: &'a Ast<'src>,
+      table: &'a HashMap<PathBuf, Ast<'src>>,
+      items: &mut Vec<&'a Item<'src>>,
+    ) {
+      for item in &ast.items {
+        if let Item::Include { absolute, .. } = item {
+          let ast = table.get(absolute.as_ref().unwrap()).unwrap();
+          rec(ast, table, items);
+        } else {
+          items.push(item);
+        }
+      }
+    }
+
+    let mut items = Vec::new();
+    rec(root_ast, ast_table, &mut items);
+
+    items
+  }
+
+  fn process_warnings(
+    root_ast: &Ast,
+    ast_table: &HashMap<PathBuf, Ast<'src>>,
+    warnings: &mut Vec<Warning>,
+  ) {
+    warnings.extend(root_ast.warnings.iter().cloned());
+    for item in &root_ast.items {
+      if let Item::Include { absolute, .. } = item {
+        let ast = ast_table.get(absolute.as_ref().unwrap()).unwrap();
+        Self::process_warnings(ast, ast_table, warnings);
+      }
+    }
+  }
+
   fn justfile(
     mut self,
     asts: &HashMap<PathBuf, Ast<'src>>,
@@ -27,36 +68,35 @@ impl<'src> Analyzer<'src> {
     stack.push(root_ast);
 
     let mut warnings = Vec::new();
+    Self::process_warnings(root_ast, asts, &mut warnings);
 
-    while let Some(ast) = stack.pop() {
-      for item in &ast.items {
-        match item {
-          Item::Alias(alias) => {
-            self.analyze_alias(alias)?;
-            self.aliases.insert(alias.clone());
-          }
-          Item::Assignment(assignment) => {
-            self.analyze_assignment(assignment)?;
-            self.assignments.insert(assignment.clone());
-          }
-          Item::Comment(_) => (),
-          Item::Recipe(recipe) => {
-            if recipe.enabled() {
-              Self::analyze_recipe(recipe)?;
-              recipes.push(recipe);
-            }
-          }
-          Item::Set(set) => {
-            self.analyze_set(set)?;
-            self.sets.insert(set.clone());
-          }
-          Item::Include { absolute, .. } => {
-            stack.push(asts.get(absolute.as_ref().unwrap()).unwrap());
+    let items = Self::process_item_list(root, asts);
+
+    for item in &items {
+      match item {
+        Item::Alias(alias) => {
+          self.analyze_alias(alias)?;
+          self.aliases.insert(alias.clone());
+        }
+        Item::Assignment(assignment) => {
+          self.analyze_assignment(assignment)?;
+          self.assignments.insert(assignment.clone());
+        }
+        Item::Comment(_) => (),
+        Item::Recipe(recipe) => {
+          if recipe.enabled() {
+            Self::analyze_recipe(recipe)?;
+            recipes.push(recipe);
           }
         }
+        Item::Set(set) => {
+          self.analyze_set(set)?;
+          self.sets.insert(set.clone());
+        }
+        Item::Include { absolute, .. } => {
+          stack.push(asts.get(absolute.as_ref().unwrap()).unwrap());
+        }
       }
-
-      warnings.extend(ast.warnings.iter().cloned());
     }
 
     let settings = Settings::from_setting_iter(self.sets.into_iter().map(|(_, set)| set.value));
