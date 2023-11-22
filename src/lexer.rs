@@ -9,30 +9,30 @@ use {super::*, CompileErrorKind::*, TokenKind::*};
 /// slight against regular expressions, the lexer was just idiosyncratically
 /// bad.
 pub(crate) struct Lexer<'src> {
-  /// Source text
-  src: &'src str,
   /// Char iterator
   chars: Chars<'src>,
-  /// Tokens
-  tokens: Vec<Token<'src>>,
-  /// Current token start
-  token_start: Position,
-  /// Current token end
-  token_end: Position,
-  /// Next character to be lexed
-  next: Option<char>,
-  /// Next indent will start a recipe body
-  recipe_body_pending: bool,
-  /// Inside recipe body
-  recipe_body: bool,
   /// Indentation stack
   indentation: Vec<&'src str>,
   /// Interpolation token start stack
   interpolation_stack: Vec<Token<'src>>,
+  /// Next character to be lexed
+  next: Option<char>,
   /// Current open delimiters
   open_delimiters: Vec<(Delimiter, usize)>,
   /// Path to source file
   path: &'src Path,
+  /// Inside recipe body
+  recipe_body: bool,
+  /// Next indent will start a recipe body
+  recipe_body_pending: bool,
+  /// Source text
+  src: &'src str,
+  /// Tokens
+  tokens: Vec<Token<'src>>,
+  /// Current token end
+  token_end: Position,
+  /// Current token start
+  token_start: Position,
 }
 
 impl<'src> Lexer<'src> {
