@@ -79,15 +79,16 @@ fn file_paths_are_relative() {
     .write("foo/bar.just", "baz")
     .args(["--unstable"])
     .status(EXIT_FAILURE)
-    .stderr(
+    .stderr(format!(
       "
 error: Expected '*', ':', '$', identifier, or '+', but found end of file
- --> foo/bar.just:1:4
+ --> foo{}bar.just:1:4
   |
 1 | baz
   |    ^
 ",
-    )
+      std::path::MAIN_SEPARATOR
+    ))
     .run();
 }
 
