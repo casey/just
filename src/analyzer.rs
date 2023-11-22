@@ -22,8 +22,9 @@ impl<'src> Analyzer<'src> {
   ) -> CompileResult<'src, Justfile<'src>> {
     let mut recipes = Vec::new();
 
+    let root_ast = asts.get(root).unwrap();
     let mut stack = Vec::new();
-    stack.push(asts.get(root).unwrap());
+    stack.push(root_ast);
 
     let mut warnings = Vec::new();
 
