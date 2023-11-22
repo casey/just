@@ -72,8 +72,6 @@ impl<'src> Analyzer<'src> {
     let mut recipes = Vec::new();
 
     let root_ast = asts.get(root).unwrap();
-    let mut stack = Vec::new();
-    stack.push(root_ast);
 
     let mut warnings = Vec::new();
     Self::process_warnings(root_ast, asts, &mut warnings);
@@ -90,7 +88,9 @@ impl<'src> Analyzer<'src> {
           self.analyze_assignment(assignment)?;
           self.assignments.insert(assignment.clone());
         }
-        Item::Comment(_) => (),
+        // We should never encounter an `Include` here because they should've been filtered away by
+        // `process_item_list`
+        Item::Comment(_) | Item::Include { .. } => (),
         Item::Recipe(recipe) => {
           if recipe.enabled() {
             Self::analyze_recipe(recipe)?;
@@ -101,9 +101,6 @@ impl<'src> Analyzer<'src> {
           self.analyze_set(set)?;
           self.sets.insert(set.clone());
         }
-        // We should never encounter an `Include` here because they should've been filtered away by
-        // `process_item_list`
-        Item::Include { .. } => (),
       }
     }
 
