@@ -15,7 +15,7 @@ impl Compiler {
     paths.push(root.into());
 
     while let Some(current) = paths.pop() {
-      let (relative, src) = loader.load(&root, &current)?;
+      let (relative, src) = loader.load(root, &current)?;
       let tokens = Lexer::lex(relative, src)?;
       let mut ast = Parser::parse(&tokens)?;
 
