@@ -101,9 +101,9 @@ impl<'src> Analyzer<'src> {
           self.analyze_set(set)?;
           self.sets.insert(set.clone());
         }
-        Item::Include { absolute, .. } => {
-          stack.push(asts.get(absolute.as_ref().unwrap()).unwrap());
-        }
+        // We should never encounter an `Include` here because they should've been filtered away by
+        // `process_item_list`
+        Item::Include { .. } => (),
       }
     }
 
