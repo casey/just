@@ -1,3 +1,5 @@
+use crate::recipe::RecipeProvenance;
+
 use super::*;
 
 pub(crate) type UnresolvedRecipe<'src> = Recipe<'src, UnresolvedDependency<'src>>;
@@ -6,6 +8,7 @@ impl<'src> UnresolvedRecipe<'src> {
   pub(crate) fn resolve(
     self,
     resolved: Vec<Rc<Recipe<'src>>>,
+    provenance: RecipeProvenance,
   ) -> CompileResult<'src, Recipe<'src>> {
     assert_eq!(
       self.dependencies.len(),
@@ -55,7 +58,7 @@ impl<'src> UnresolvedRecipe<'src> {
       priors: self.priors,
       attributes: self.attributes,
       dependencies,
-      provenance: None, //TODO
+      provenance: Some(provenance),
     })
   }
 }

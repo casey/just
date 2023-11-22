@@ -19,8 +19,8 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
       assignments,
     };
 
-    while let Some((_key, (unresolved, _provenance))) = resolver.unresolved_recipes.pop_first() {
-      resolver.resolve_recipe(&mut Vec::new(), unresolved)?;
+    while let Some((_key, (unresolved, provenance))) = resolver.unresolved_recipes.pop_first() {
+      resolver.resolve_recipe(&mut Vec::new(), unresolved, provenance)?;
     }
 
     for recipe in resolver.resolved_recipes.values() {
@@ -74,6 +74,7 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
     &mut self,
     stack: &mut Vec<&'src str>,
     recipe: UnresolvedRecipe<'src>,
+    provenance: RecipeProvenance,
   ) -> CompileResult<'src, Rc<Recipe<'src>>> {
     if let Some(resolved) = self.resolved_recipes.get(recipe.name()) {
       return Ok(Rc::clone(resolved));
@@ -101,9 +102,9 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
               .collect(),
           }),
         );
-      } else if let Some((unresolved, _provenance)) = self.unresolved_recipes.remove(name) {
+      } else if let Some((unresolved, provenance)) = self.unresolved_recipes.remove(name) {
         // resolve unresolved dependency
-        dependencies.push(self.resolve_recipe(stack, unresolved)?);
+        dependencies.push(self.resolve_recipe(stack, unresolved, provenance)?);
       } else {
         // dependency is unknown
         return Err(dependency.recipe.error(UnknownDependency {
@@ -115,7 +116,7 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
 
     stack.pop();
 
-    let resolved = Rc::new(recipe.resolve(dependencies)?);
+    let resolved = Rc::new(recipe.resolve(dependencies, provenance)?);
     self.resolved_recipes.insert(Rc::clone(&resolved));
     Ok(resolved)
   }
