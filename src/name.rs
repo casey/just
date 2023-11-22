@@ -4,12 +4,12 @@ use super::*;
 /// it its own type for clarity.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Ord, PartialOrd)]
 pub(crate) struct Name<'src> {
-  pub(crate) offset: usize,
+  pub(crate) column: usize,
   pub(crate) length: usize,
   pub(crate) line: usize,
-  pub(crate) column: usize,
-  pub(crate) src: &'src str,
+  pub(crate) offset: usize,
   pub(crate) path: &'src Path,
+  pub(crate) src: &'src str,
 }
 
 impl<'src> Name<'src> {
@@ -21,25 +21,25 @@ impl<'src> Name<'src> {
   /// Turn this name back into a token
   pub(crate) fn token(&self) -> Token<'src> {
     Token {
+      column: self.column,
       kind: TokenKind::Identifier,
-      offset: self.offset,
       length: self.length,
       line: self.line,
-      column: self.column,
-      src: self.src,
+      offset: self.offset,
       path: self.path,
+      src: self.src,
     }
   }
 
   pub(crate) fn from_identifier(token: Token<'src>) -> Name {
     assert_eq!(token.kind, TokenKind::Identifier);
     Name {
-      offset: token.offset,
+      column: token.column,
       length: token.length,
       line: token.line,
-      column: token.column,
-      src: token.src,
+      offset: token.offset,
       path: token.path,
+      src: token.src,
     }
   }
 

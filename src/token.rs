@@ -2,13 +2,13 @@ use super::*;
 
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub(crate) struct Token<'src> {
-  pub(crate) offset: usize,
+  pub(crate) column: usize,
+  pub(crate) kind: TokenKind,
   pub(crate) length: usize,
   pub(crate) line: usize,
-  pub(crate) column: usize,
-  pub(crate) src: &'src str,
+  pub(crate) offset: usize,
   pub(crate) path: &'src Path,
-  pub(crate) kind: TokenKind,
+  pub(crate) src: &'src str,
 }
 
 impl<'src> Token<'src> {
