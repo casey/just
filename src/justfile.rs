@@ -1,4 +1,3 @@
-use parallel::Ran;
 use std::sync::Arc;
 use {super::*, serde::Serialize};
 
@@ -255,13 +254,33 @@ impl<'src> Justfile<'src> {
       search,
     };
 
-    let ran = Ran::new();
-    parallel::task_scope(config.parallel, |scope| {
+    let ran = Arc::new(Mutex::new(BTreeSet::new()));
+
+    let (tx, rx) = std::sync::mpsc::channel();
+
+    std::thread::scope(|scope| {
       for (recipe, arguments) in grouped {
-        scope.run(|| Self::run_recipe(&context, recipe, arguments, &dotenv, search, &ran))?;
+        let run = || {
+          if let Err(err) = Self::run_recipe(&context, recipe, arguments, &dotenv, search, &ran) {
+            let _ = tx.send(err);
+            true
+          } else {
+            false
+          }
+        };
+        if config.parallel {
+          scope.spawn(run);
+        } else if run() {
+          break;
+        }
       }
-      Ok(())
-    })?;
+    });
+
+    drop(tx);
+
+    if let Ok(err) = rx.recv() {
+      return Err(err);
+    }
 
     Ok(())
   }
@@ -284,14 +303,14 @@ impl<'src> Justfile<'src> {
     arguments: &[&str],
     dotenv: &BTreeMap<String, String>,
     search: &Search,
-    ran: &Ran,
+    ran: &Arc<Mutex<BTreeSet<Vec<String>>>>,
   ) -> RunResult<'src, ()> {
     let mut invocation = vec![recipe.name().to_owned()];
     for argument in arguments {
       invocation.push((*argument).to_string());
     }
 
-    if ran.contains(&invocation) {
+    if ran.lock().unwrap().contains(&invocation) {
       return Ok(());
     }
 
@@ -316,64 +335,111 @@ impl<'src> Justfile<'src> {
     let mut evaluator =
       Evaluator::recipe_evaluator(context.config, dotenv, &scope, context.settings, search);
 
-    let run_dependencies_in_parallel = recipe.attributes.contains(&Attribute::Parallel);
-    parallel::task_scope(run_dependencies_in_parallel, |scope| {
+    let (tx, rx) = std::sync::mpsc::channel();
+
+    let parallel = recipe.attributes.contains(&Attribute::Parallel);
+    std::thread::scope(|scope| {
       for Dependency { recipe, arguments } in recipe.dependencies.iter().take(recipe.priors) {
-        let arguments = arguments
+        let arguments = match arguments
           .iter()
           .map(|argument| evaluator.evaluate_expression(argument))
-          .collect::<RunResult<Vec<String>>>()?;
+          .collect::<RunResult<Vec<String>>>()
+        {
+          Ok(arguments) => arguments,
+          Err(err) => {
+            let _ = tx.send(err);
+            break;
+          }
+        };
 
-        scope.run(move || {
-          Self::run_recipe(
+        let tx = tx.clone();
+
+        let run = move || {
+          if let Err(err) = Self::run_recipe(
             context,
             recipe,
             &arguments.iter().map(String::as_ref).collect::<Vec<&str>>(),
             dotenv,
             search,
             ran,
-          )
-        })?;
+          ) {
+            let _ = tx.send(err);
+            true
+          } else {
+            false
+          }
+        };
+
+        if parallel {
+          scope.spawn(run);
+        } else if run() {
+          break;
+        }
       }
-      Ok(())
-    })?;
+    });
+
+    drop(tx);
+
+    if let Ok(err) = rx.recv() {
+      return Err(err);
+    }
 
     recipe.run(context, dotenv, scope.child(), search, &positional)?;
 
     {
-      let ran = Ran::new();
+      let ran = Arc::new(Mutex::new(BTreeSet::new()));
+      let ran = &ran;
 
-      parallel::task_scope(run_dependencies_in_parallel, |scope| {
+      let (tx, rx) = std::sync::mpsc::channel();
+
+      std::thread::scope(|scope| {
         for Dependency { recipe, arguments } in recipe.dependencies.iter().skip(recipe.priors) {
-          let mut evaluated = Vec::new();
-
-          for argument in arguments {
-            evaluated.push(
-              evaluator
-                .evaluate_expression(argument)
-                .expect("error evaluating expression"),
-            );
-          }
-
-          scope.run({
-            let ran = ran.clone();
-            move || {
-              Self::run_recipe(
-                context,
-                recipe,
-                &evaluated.iter().map(String::as_ref).collect::<Vec<&str>>(),
-                dotenv,
-                search,
-                &ran,
-              )
+          let arguments = match arguments
+            .iter()
+            .map(|argument| evaluator.evaluate_expression(argument))
+            .collect::<RunResult<Vec<String>>>()
+          {
+            Ok(arguments) => arguments,
+            Err(err) => {
+              let _ = tx.send(err);
+              break;
             }
-          })?;
+          };
+
+          let tx = tx.clone();
+
+          let run = move || {
+            if let Err(err) = Self::run_recipe(
+              context,
+              recipe,
+              &arguments.iter().map(String::as_ref).collect::<Vec<&str>>(),
+              dotenv,
+              search,
+              ran,
+            ) {
+              let _ = tx.send(err);
+              true
+            } else {
+              false
+            }
+          };
+
+          if parallel {
+            scope.spawn(run);
+          } else if run() {
+            break;
+          }
         }
-        Ok(())
-      })?;
+      });
+
+      drop(tx);
+
+      if let Ok(err) = rx.recv() {
+        return Err(err);
+      }
     }
 
-    ran.insert(invocation);
+    ran.lock().unwrap().insert(invocation);
     Ok(())
   }
 
