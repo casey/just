@@ -71,3 +71,22 @@ error: Expected '*', ':', '$', identifier, or '+', but found end of file
     )
     .run();
 }
+
+#[test]
+fn filenames_are_relative() {
+  Test::new()
+    .justfile("!include foo/bar.just")
+    .write("foo/bar.just", "baz")
+    .args(["--unstable"])
+    .status(EXIT_FAILURE)
+    .stderr(
+      "
+error: Expected '*', ':', '$', identifier, or '+', but found end of file
+ --> foo/bar.just:1:4
+  |
+1 | baz
+  |    ^
+",
+    )
+    .run();
+}
