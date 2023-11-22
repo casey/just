@@ -39,15 +39,6 @@ impl<'src> Analyzer<'src> {
     let root_ast = ast_table.get(root).unwrap();
     let mut items = Vec::new();
     rec(root_ast, ast_table, &mut items);
-
-    /*
-    for item in &items {
-        if let Item::Recipe(recipe) = item {
-            println!("Recipe: {}", recipe.name.lexeme());
-        }
-    }
-    */
-
     items
   }
 
