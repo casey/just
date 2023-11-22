@@ -88,7 +88,7 @@ impl<'src> Analyzer<'src> {
     let root = paths.get(root).unwrap();
 
     Ok(Justfile {
-      first: recipes
+      default: recipes
         .values()
         .filter(|recipe| recipe.name.path == root)
         .fold(None, |accumulator, next| match accumulator {

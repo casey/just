@@ -4,8 +4,8 @@ use {super::*, serde::Serialize};
 pub(crate) struct Justfile<'src> {
   pub(crate) aliases: Table<'src, Alias<'src>>,
   pub(crate) assignments: Table<'src, Assignment<'src>>,
-  #[serde(serialize_with = "keyed::serialize_option")]
-  pub(crate) first: Option<Rc<Recipe<'src>>>,
+  #[serde(rename = "first", serialize_with = "keyed::serialize_option")]
+  pub(crate) default: Option<Rc<Recipe<'src>>>,
   pub(crate) recipes: Table<'src, Rc<Recipe<'src>>>,
   pub(crate) settings: Settings<'src>,
   pub(crate) warnings: Vec<Warning>,
@@ -190,7 +190,7 @@ impl<'src> Justfile<'src> {
 
     let argvec: Vec<&str> = if !arguments.is_empty() {
       arguments.iter().map(String::as_str).collect()
-    } else if let Some(recipe) = &self.first {
+    } else if let Some(recipe) = &self.default {
       let min_arguments = recipe.min_arguments();
       if min_arguments > 0 {
         return Err(Error::DefaultRecipeRequiresArguments {

@@ -8,20 +8,19 @@ impl Compiler {
     loader: &'src Loader,
     root: &Path,
   ) -> RunResult<'src, Compilation<'src>> {
-    let mut srcs: HashMap<PathBuf, &str> = HashMap::new();
     let mut asts: HashMap<PathBuf, Ast> = HashMap::new();
     let mut paths: HashMap<PathBuf, PathBuf> = HashMap::new();
+    let mut srcs: HashMap<PathBuf, &str> = HashMap::new();
 
     let mut stack: Vec<PathBuf> = Vec::new();
     stack.push(root.into());
 
     while let Some(current) = stack.pop() {
       let (relative, src) = loader.load(root, &current)?;
-      paths.insert(current.clone(), relative.into());
-
       let tokens = Lexer::lex(relative, src)?;
       let mut ast = Parser::parse(&tokens)?;
 
+      paths.insert(current.clone(), relative.into());
       srcs.insert(current.clone(), src);
 
       for item in &mut ast.items {
@@ -31,15 +30,11 @@ impl Compiler {
               message: "The !include directive is currently unstable.".into(),
             });
           }
-
           let include = current.parent().unwrap().join(relative).lexiclean();
-
           if srcs.contains_key(&include) {
             return Err(Error::CircularInclude { current, include });
           }
-
           *absolute = Some(include.clone());
-
           stack.push(include);
         }
       }
