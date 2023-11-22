@@ -134,17 +134,31 @@ impl<'src> Analyzer<'src> {
       aliases.insert(Self::resolve_alias(&recipes, alias)?);
     }
 
-    Ok(Justfile {
-      first: recipes
-        .values()
-        .fold(None, |accumulator, next| match accumulator {
-          None => Some(Rc::clone(next)),
-          Some(previous) => Some(if previous.line_number() < next.line_number() {
+    let first = recipes
+      .values()
+      .fold(None, |accumulator, next| match accumulator {
+        None => Some(Rc::clone(next)),
+        Some(previous) => {
+          let previous_global = previous
+            .provenance
+            .as_ref()
+            .map(|p| p.global_order)
+            .unwrap_or_default();
+          let next_global = next
+            .provenance
+            .as_ref()
+            .map(|p| p.global_order)
+            .unwrap_or_default();
+          Some(if previous_global < next_global {
             previous
           } else {
             Rc::clone(next)
-          }),
-        }),
+          })
+        }
+      });
+
+    Ok(Justfile {
+      first,
       aliases,
       assignments: self.assignments,
       recipes,
