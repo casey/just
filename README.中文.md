@@ -7,7 +7,7 @@
     <img src="https://img.shields.io/crates/v/just.svg" alt="crates.io version">
   </a>
   <a href="https://github.com/casey/just/actions">
-    <img src="https://github.com/casey/just/workflows/Build/badge.svg" alt="build status">
+    <img src="https://github.com/casey/just/actions/workflows/ci.yaml/badge.svg" alt="build status">
   </a>
   <a href="https://github.com/casey/just/releases">
     <img src="https://img.shields.io/github/downloads/casey/just/total.svg" alt="downloads">
