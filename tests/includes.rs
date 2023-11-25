@@ -122,7 +122,7 @@ fn include_recipes_are_not_default() {
 }
 
 #[test]
-fn listed_recipes_in_includes_is_in_load_order() {
+fn listed_recipes_in_includes_are_in_load_order() {
   Test::new()
     .justfile(
       "
