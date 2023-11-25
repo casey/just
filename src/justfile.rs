@@ -6,6 +6,8 @@ pub(crate) struct Justfile<'src> {
   pub(crate) assignments: Table<'src, Assignment<'src>>,
   #[serde(rename = "first", serialize_with = "keyed::serialize_option")]
   pub(crate) default: Option<Rc<Recipe<'src>>>,
+  #[serde(skip)]
+  pub(crate) loaded: Vec<PathBuf>,
   pub(crate) recipes: Table<'src, Rc<Recipe<'src>>>,
   pub(crate) settings: Settings<'src>,
   pub(crate) warnings: Vec<Warning>,
@@ -365,7 +367,16 @@ impl<'src> Justfile<'src> {
       .collect::<Vec<&Recipe<Dependency>>>();
 
     if source_order {
-      recipes.sort_by_key(|recipe| recipe.name.offset);
+      recipes.sort_by_key(|recipe| {
+        (
+          self
+            .loaded
+            .iter()
+            .position(|path| path == recipe.name.path)
+            .unwrap(),
+          recipe.name.offset,
+        )
+      });
     }
 
     recipes

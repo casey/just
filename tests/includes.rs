@@ -120,3 +120,25 @@ fn include_recipes_are_not_default() {
     .stderr("error: Justfile contains no default recipe.\n")
     .run();
 }
+
+#[test]
+fn listed_recipes_in_includes_are_in_load_order() {
+  Test::new()
+    .justfile(
+      "
+      !include ./include.justfile
+      foo:
+    ",
+    )
+    .write("include.justfile", "bar:")
+    .args(["--list", "--unstable", "--unsorted"])
+    .test_round_trip(false)
+    .stdout(
+      "
+      Available recipes:
+          foo
+          bar
+    ",
+    )
+    .run();
+}

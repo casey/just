@@ -3,6 +3,7 @@
   clippy::enum_glob_use,
   clippy::let_underscore_untyped,
   clippy::needless_pass_by_value,
+  clippy::similar_names,
   clippy::too_many_lines,
   clippy::unnecessary_wraps,
   clippy::wildcard_imports

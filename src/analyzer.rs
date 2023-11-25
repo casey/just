@@ -9,15 +9,17 @@ pub(crate) struct Analyzer<'src> {
 
 impl<'src> Analyzer<'src> {
   pub(crate) fn analyze(
+    loaded: Vec<PathBuf>,
     paths: &HashMap<PathBuf, PathBuf>,
     asts: &HashMap<PathBuf, Ast<'src>>,
     root: &Path,
   ) -> CompileResult<'src, Justfile<'src>> {
-    Analyzer::default().justfile(paths, asts, root)
+    Analyzer::default().justfile(loaded, paths, asts, root)
   }
 
   fn justfile(
     mut self,
+    loaded: Vec<PathBuf>,
     paths: &HashMap<PathBuf, PathBuf>,
     asts: &HashMap<PathBuf, Ast<'src>>,
     root: &Path,
@@ -101,6 +103,7 @@ impl<'src> Analyzer<'src> {
         }),
       aliases,
       assignments: self.assignments,
+      loaded,
       recipes,
       settings,
       warnings,

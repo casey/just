@@ -11,12 +11,14 @@ impl Compiler {
     let mut asts: HashMap<PathBuf, Ast> = HashMap::new();
     let mut paths: HashMap<PathBuf, PathBuf> = HashMap::new();
     let mut srcs: HashMap<PathBuf, &str> = HashMap::new();
+    let mut loaded = Vec::new();
 
     let mut stack: Vec<PathBuf> = Vec::new();
     stack.push(root.into());
 
     while let Some(current) = stack.pop() {
       let (relative, src) = loader.load(root, &current)?;
+      loaded.push(relative.into());
       let tokens = Lexer::lex(relative, src)?;
       let mut ast = Parser::parse(&tokens)?;
 
@@ -42,7 +44,7 @@ impl Compiler {
       asts.insert(current.clone(), ast.clone());
     }
 
-    let justfile = Analyzer::analyze(&paths, &asts, root)?;
+    let justfile = Analyzer::analyze(loaded, &paths, &asts, root)?;
 
     Ok(Compilation {
       asts,
@@ -61,7 +63,7 @@ impl Compiler {
     asts.insert(root.clone(), ast);
     let mut paths: HashMap<PathBuf, PathBuf> = HashMap::new();
     paths.insert(root.clone(), root.clone());
-    Analyzer::analyze(&paths, &asts, &root)
+    Analyzer::analyze(Vec::new(), &paths, &asts, &root)
   }
 }
 
