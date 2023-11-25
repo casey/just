@@ -627,9 +627,16 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     let name = self.parse_name()?;
 
     let mut positional = Vec::new();
+    let mut opts = Vec::new();
 
-    while self.next_is(Identifier) || self.next_is(Dollar) {
-      positional.push(self.parse_parameter(ParameterKind::Singular)?);
+    loop {
+      if self.next_is(Identifier) || self.next_is(Dollar) {
+        positional.push(self.parse_parameter(ParameterKind::Singular)?);
+      } else if self.next_is(DashDash) {
+        opts.push(self.parse_opt()?);
+      } else {
+        break;
+      }
     }
 
     let kind = if self.accepted(Plus)? {
@@ -687,11 +694,12 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
       private: name.lexeme().starts_with('_'),
       shebang: body.first().map_or(false, Line::is_shebang),
       attributes,
-      priors,
       body,
       dependencies,
       doc,
       name,
+      opts,
+      priors,
       quiet,
     })
   }
@@ -713,6 +721,27 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
       export,
       kind,
       name,
+    })
+  }
+
+  /// Parse a recipe option --foo foo
+  fn parse_opt(&mut self) -> CompileResult<'src, Opt<'src>> {
+    self.presume(DashDash)?;
+
+    let key = self.parse_name()?;
+
+    let variable = self.parse_name()?;
+
+    let default = if self.accepted(Equals)? {
+      Some(self.parse_value()?)
+    } else {
+      None
+    };
+
+    Ok(Opt {
+      default,
+      key,
+      variable,
     })
   }
 
@@ -2014,7 +2043,7 @@ mod tests {
     column: 5,
     width:  1,
     kind:   UnexpectedToken{
-      expected: vec![Asterisk, Colon, Dollar, Equals, Identifier, Plus],
+      expected: vec![Asterisk, Colon, DashDash, Dollar, Equals, Identifier, Plus],
       found:    Eol
     },
   }
@@ -2149,7 +2178,7 @@ mod tests {
     column: 8,
     width:  0,
     kind:   UnexpectedToken {
-      expected: vec![Asterisk, Colon, Dollar, Equals, Identifier, Plus],
+      expected: vec![Asterisk, Colon, DashDash, Dollar, Equals, Identifier, Plus],
       found:    Eof
     },
   }

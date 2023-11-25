@@ -69,7 +69,7 @@ fn default_un_parenthesized() {
     )
     .stderr(
       "
-      error: Expected '*', ':', '$', identifier, or '+', but found '/'
+      error: Expected '*', ':', '--', '$', identifier, or '+', but found '/'
        --> justfile:1:11
         |
       1 | foo x='a' / 'b':

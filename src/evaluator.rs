@@ -255,6 +255,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     config: &'run Config,
     dotenv: &'run BTreeMap<String, String>,
     parameters: &[Parameter<'src>],
+    opts: BTreeMap<Name<'src>, &str>,
     arguments: &[&str],
     scope: &'run Scope<'src, 'run>,
     settings: &'run Settings,
@@ -270,6 +271,10 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     };
 
     let mut scope = scope.child();
+
+    for (name, value) in opts {
+      scope.bind(false, name, value.into());
+    }
 
     let mut positional = Vec::new();
 

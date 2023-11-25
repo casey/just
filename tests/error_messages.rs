@@ -62,7 +62,7 @@ fn file_path_is_indented_if_justfile_is_long() {
     .status(EXIT_FAILURE)
     .stderr(
       "
-error: Expected '*', ':', '$', identifier, or '+', but found end of file
+error: Expected '*', ':', '--', '$', identifier, or '+', but found end of file
   --> justfile:20:4
    |
 20 | foo
@@ -81,7 +81,7 @@ fn file_paths_are_relative() {
     .status(EXIT_FAILURE)
     .stderr(format!(
       "
-error: Expected '*', ':', '$', identifier, or '+', but found end of file
+error: Expected '*', ':', '--', '$', identifier, or '+', but found end of file
  --> foo{}bar.just:1:4
   |
 1 | baz

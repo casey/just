@@ -32,6 +32,8 @@ pub(crate) struct Recipe<'src, D = Dependency<'src>> {
   pub(crate) private: bool,
   pub(crate) quiet: bool,
   pub(crate) shebang: bool,
+  #[serde(skip)]
+  pub(crate) opts: Vec<Opt<'src>>,
 }
 
 impl<'src, D> Recipe<'src, D> {
@@ -404,6 +406,10 @@ impl<'src, D: Display> ColorDisplay for Recipe<'src, D> {
       write!(f, "@{}", self.name)?;
     } else {
       write!(f, "{}", self.name)?;
+    }
+
+    for opt in &self.opts {
+      write!(f, " {}", opt.color_display(color))?;
     }
 
     for parameter in &self.parameters {

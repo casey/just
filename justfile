@@ -182,8 +182,8 @@ build-book:
   mdbook build book/en
   mdbook build book/zh
 
-convert-integration-test test:
-  cargo expand --test integration {{test}} | \
+convert-integration-test TEST:
+  cargo expand --test integration {{ TEST }} | \
     sed \
     -E \
     -e 's/#\[cfg\(test\)\]/#\[test\]/' \
