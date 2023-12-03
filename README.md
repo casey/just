@@ -2076,6 +2076,64 @@ while:
   done
 ```
 
+#### Outside Recipe Bodies
+
+Parenthesized expressions can span multiple lines:
+
+```just
+abc := ('a' +
+        'b'
+         + 'c')
+
+abc2 := (
+  'a' +
+  'b' +
+  'c'
+)
+
+foo param=('foo'
+      + 'bar'
+    ):
+  echo {{param}}
+
+bar: (foo
+        'Foo'
+     )
+  echo 'Bar!'
+```
+
+Lines ending with a backslash continue on to the next line as if the lines were joined by whitespace<sup>1.15.0</sup>:
+
+```just
+a := 'foo' + \
+     'bar'
+
+foo param1 \
+  param2='foo' \
+  *varparam='': dep1 \
+                (dep2 'foo')
+  echo {{param1}} {{param2}} {{varparam}}
+
+dep1: \
+    # this comment is not part of the recipe body
+  echo 'dep1'
+
+dep2 \
+  param:
+    echo 'Dependency with parameter {{param}}'
+```
+
+Backslash line continuations can also be used in interpolations. The line following the backslash must start with the same indentation as the recipe body, although additional indentation is accepted.
+
+```just
+recipe:
+  echo '{{ \
+  "This interpolation " + \
+    "has a lot of text." \
+  }}'
+  echo 'back to recipe body'
+```
+
 ### Command Line Options
 
 `just` supports a number of useful command line options for listing, dumping, and debugging recipes and variables:
