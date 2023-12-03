@@ -2123,7 +2123,7 @@ dep2 \
     echo 'Dependency with parameter {{param}}'
 ```
 
-Backslash line continuations can also be used in interpolations.  The line following the backslash must start with the same indentation as the recipe body, though additional indentation can be appended.
+Backslash line continuations can also be used in interpolations. The line following the backslash must start with the same indentation as the recipe body, although additional indentation is accepted.
 
 ```just
 recipe:
