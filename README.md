@@ -2076,7 +2076,7 @@ while:
   done
 ```
 
-#### Outside recipe bodies
+#### Outside Recipe Bodies
 
 Parenthesized expressions can span multiple lines:
 
