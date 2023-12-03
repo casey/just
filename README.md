@@ -1321,7 +1321,7 @@ Can be used with paths that are relative to the current directory, because
 `[no-cd]` prevents `just` from changing the current directory when executing
 `commit`.
 
-### Requiring Confirmation for Recipes<sup>master</sup>
+#### Requiring Confirmation for Recipes<sup>master</sup>
 
 `just` normally executes all recipes unless there is an error. The `[confirm]`
 attribute allows recipes require confirmation in the terminal prior to running.
