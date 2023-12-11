@@ -4,7 +4,7 @@ use {
 };
 
 // These three strings should be kept in sync:
-pub(crate) const CHOOSER_DEFAULT: &str = "fzf --multi --preview 'just --unstable --show {}'";
+pub(crate) const CHOOSER_DEFAULT: &str = "fzf --multi --preview 'just --unstable --color always --show {}'";
 pub(crate) const CHOOSER_ENVIRONMENT_KEY: &str = "JUST_CHOOSER";
 pub(crate) const CHOOSE_HELP: &str = "Select one or more recipes to run using a binary. If \
                                       `--chooser` is not passed the chooser defaults to the value \
