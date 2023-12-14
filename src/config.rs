@@ -3,13 +3,19 @@ use {
   clap::{App, AppSettings, Arg, ArgGroup, ArgMatches, ArgSettings},
 };
 
-// These three strings should be kept in sync:
-pub(crate) const CHOOSER_DEFAULT: &str =
-  "fzf --multi --preview 'just --unstable --color always --show {}'";
 pub(crate) const CHOOSER_ENVIRONMENT_KEY: &str = "JUST_CHOOSER";
-pub(crate) const CHOOSE_HELP: &str = "Select one or more recipes to run using a binary. If \
-                                      `--chooser` is not passed the chooser defaults to the value \
-                                      of $JUST_CHOOSER, falling back to `fzf`";
+
+pub(crate) const CHOOSE_HELP: &str = "Select one or more recipes to run using a binary chooser. \
+                                      If `--chooser` is not passed the chooser defaults to the \
+                                      value of $JUST_CHOOSER, falling back to `fzf`";
+
+pub(crate) fn chooser_default(justfile: &Path) -> OsString {
+  let mut chooser = OsString::new();
+  chooser.push("fzf --multi --preview 'just --unstable --color always --justfile \"");
+  chooser.push(justfile);
+  chooser.push("\" --show {}'");
+  chooser
+}
 
 #[derive(Debug, PartialEq)]
 #[allow(clippy::struct_excessive_bools)]
