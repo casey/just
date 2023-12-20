@@ -31,9 +31,9 @@ pub(crate) enum Error<'src> {
     chooser: OsString,
     io_error: io::Error,
   },
-  CircularInclude {
+  CircularImport {
     current: PathBuf,
-    include: PathBuf,
+    import: PathBuf,
   },
   Code {
     recipe: &'src str,
@@ -263,10 +263,10 @@ impl<'src> ColorDisplay for Error<'src> {
         let chooser = chooser.to_string_lossy();
         write!(f, "Failed to write to chooser `{chooser}`: {io_error}")?;
       }
-      CircularInclude { current, include } => {
-        let include = include.display();
+      CircularImport { current, import } => {
+        let import = import.display();
         let current = current.display();
-        write!(f, "Include `{include}` in `{current}` is a circular include")?;
+        write!(f, "Import `{import}` in `{current}` is circular")?;
       }
       Code { recipe, line_number, code, .. } => {
         if let Some(n) = line_number {

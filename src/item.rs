@@ -8,8 +8,8 @@ pub(crate) enum Item<'src> {
   Comment(&'src str),
   Recipe(UnresolvedRecipe<'src>),
   Set(Set<'src>),
-  Include {
-    relative: &'src str,
+  Import {
+    relative: StringLiteral<'src>,
     absolute: Option<PathBuf>,
   },
 }
@@ -22,7 +22,7 @@ impl<'src> Display for Item<'src> {
       Item::Comment(comment) => write!(f, "{comment}"),
       Item::Recipe(recipe) => write!(f, "{}", recipe.color_display(Color::never())),
       Item::Set(set) => write!(f, "{set}"),
-      Item::Include { relative, .. } => write!(f, "!include {relative}"),
+      Item::Import { relative, .. } => write!(f, "import {relative}"),
     }
   }
 }

@@ -14,13 +14,14 @@ pub(crate) enum Keyword {
   False,
   If,
   IgnoreComments,
+  Import,
   PositionalArguments,
   Set,
   Shell,
+  Tempdir,
   True,
   WindowsPowershell,
   WindowsShell,
-  Tempdir,
 }
 
 impl Keyword {

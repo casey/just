@@ -58,7 +58,6 @@ pub(crate) enum CompileErrorKind<'src> {
     found: usize,
     expected: Range<usize>,
   },
-  IncludeMissingPath,
   InconsistentLeadingWhitespace {
     expected: &'src str,
     found: &'src str,
@@ -110,9 +109,6 @@ pub(crate) enum CompileErrorKind<'src> {
   UnknownDependency {
     recipe: &'src str,
     unknown: &'src str,
-  },
-  UnknownDirective {
-    directive: &'src str,
   },
   UnknownFunction {
     function: &'src str,
