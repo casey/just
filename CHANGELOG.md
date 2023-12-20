@@ -1,6 +1,35 @@
 Changelog
 =========
 
+[1.17.0](https://github.com/casey/just/releases/tag/1.17.0) - 2023-12-20
+------------------------------------------------------------------------
+
+### Added
+- Add `[confirm]` attribute ([#1723](https://github.com/casey/just/pull/1723) by [Hwatwasthat](https://github.com/Hwatwasthat))
+
+### Changed
+- Don't default to included recipes ([#1740](https://github.com/casey/just/pull/1740))
+
+### Fixed
+- Pass justfile path to default chooser ([#1759](https://github.com/casey/just/pull/1759) by [Qeole](https://github.com/Qeole))
+- Pass `--unstable` and `--color always` to default chooser ([#1758](https://github.com/casey/just/pull/1758) by [Qeole](https://github.com/Qeole))
+
+### Misc
+- Update Gentoo package repository ([#1757](https://github.com/casey/just/pull/1757) by [paul-jewell](https://github.com/paul-jewell))
+- Fix readme header level ([#1752](https://github.com/casey/just/pull/1752) by [laniakea64](https://github.com/laniakea64))
+- Document line continuations ([#1751](https://github.com/casey/just/pull/1751) by [laniakea64](https://github.com/laniakea64))
+- List included recipes in load order ([#1745](https://github.com/casey/just/pull/1745))
+- Fix build badge in zh readme ([#1743](https://github.com/casey/just/pull/1743) by [chenrui333](https://github.com/chenrui333))
+- Rename Justfile::first → Justfile::default ([#1741](https://github.com/casey/just/pull/1741))
+- Add file paths to error messages ([#1737](https://github.com/casey/just/pull/1737))
+- Move !include processing into compiler ([#1618](https://github.com/casey/just/pull/1618) by [neunenak](https://github.com/neunenak))
+- Update Arch Linux package URL in readme ([#1733](https://github.com/casey/just/pull/1733) by [felixonmars](https://github.com/felixonmars))
+- Clarify that aliases can only be used on the command line ([#1726](https://github.com/casey/just/pull/1726) by [laniakea64](https://github.com/laniakea64))
+- Remove VALID_ALIAS_ATTRIBUTES array ([#1731](https://github.com/casey/just/pull/1731))
+- Fix justfile search link in Chinese docs ([#1730](https://github.com/casey/just/pull/1730) by [oluceps](https://github.com/oluceps))
+- Add example of Windows shebang handling ([#1709](https://github.com/casey/just/pull/1709) by [pfmoore](https://github.com/pfmoore))
+- Fix CI ([#1728](https://github.com/casey/just/pull/1728))
+
 [1.16.0](https://github.com/casey/just/releases/tag/1.16.0) - 2023-11-08
 ------------------------------------------------------------------------
 

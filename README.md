@@ -1250,7 +1250,7 @@ Recipes may be annotated with attributes that change their behavior.
 
 | Name                                | Description                                     |
 | ----------------------------------- | ----------------------------------------------- |
-| `[confirm]`<sup>master</sup>        | Require confirmation prior to executing recipe. |
+| `[confirm]`<sup>1.17.0</sup>        | Require confirmation prior to executing recipe. |
 | `[linux]`<sup>1.8.0</sup>           | Enable recipe on Linux.                         |
 | `[macos]`<sup>1.8.0</sup>           | Enable recipe on MacOS.                         |
 | `[no-cd]`<sup>1.9.0</sup>           | Don't change directory before executing recipe. |
@@ -1321,7 +1321,7 @@ Can be used with paths that are relative to the current directory, because
 `[no-cd]` prevents `just` from changing the current directory when executing
 `commit`.
 
-#### Requiring Confirmation for Recipes<sup>master</sup>
+#### Requiring Confirmation for Recipes<sup>1.17.0</sup>
 
 `just` normally executes all recipes unless there is an error. The `[confirm]`
 attribute allows recipes require confirmation in the terminal prior to running.
