@@ -215,8 +215,25 @@ impl<'src> Justfile<'src> {
 
     while let Some((argument, mut tail)) = rest.split_first() {
       if let Some(recipe) = self.get_recipe(argument) {
+        let mut opts = BTreeMap::new();
+
+        for opt in &recipe.opts {
+          if let Some(arg) = tail.first() {
+            if opt.accepts(arg) {
+              if let Some(value) = tail.get(1) {
+                opts.insert(opt.variable, *value);
+              } else {
+                panic!("opt with no value");
+              }
+              tail = &tail[2..];
+              continue;
+            }
+          }
+          panic!("opt not found");
+        }
+
         if recipe.parameters.is_empty() {
-          grouped.push((recipe, &[][..]));
+          grouped.push((recipe, opts, &[][..]));
         } else {
           let argument_range = recipe.argument_range();
           let argument_count = cmp::min(tail.len(), recipe.max_arguments());
@@ -229,7 +246,7 @@ impl<'src> Justfile<'src> {
               max: recipe.max_arguments(),
             });
           }
-          grouped.push((recipe, &tail[0..argument_count]));
+          grouped.push((recipe, opts, &tail[0..argument_count]));
           tail = &tail[argument_count..];
         }
       } else {
@@ -258,8 +275,8 @@ impl<'src> Justfile<'src> {
     };
 
     let mut ran = BTreeSet::new();
-    for (recipe, arguments) in grouped {
-      Self::run_recipe(&context, recipe, arguments, &dotenv, search, &mut ran)?;
+    for (recipe, opts, arguments) in grouped {
+      Self::run_recipe(&context, recipe, opts, arguments, &dotenv, search, &mut ran)?;
     }
 
     Ok(())
@@ -280,6 +297,7 @@ impl<'src> Justfile<'src> {
   fn run_recipe(
     context: &RecipeContext<'src, '_>,
     recipe: &Recipe<'src>,
+    opts: BTreeMap<Name<'src>, &str>,
     arguments: &[&str],
     dotenv: &BTreeMap<String, String>,
     search: &Search,
@@ -304,6 +322,7 @@ impl<'src> Justfile<'src> {
       context.config,
       dotenv,
       &recipe.parameters,
+      opts,
       arguments,
       &context.scope,
       context.settings,
@@ -324,6 +343,7 @@ impl<'src> Justfile<'src> {
       Self::run_recipe(
         context,
         recipe,
+        BTreeMap::new(),
         &arguments.iter().map(String::as_ref).collect::<Vec<&str>>(),
         dotenv,
         search,
@@ -346,6 +366,7 @@ impl<'src> Justfile<'src> {
         Self::run_recipe(
           context,
           recipe,
+          BTreeMap::new(),
           &evaluated.iter().map(String::as_ref).collect::<Vec<&str>>(),
           dotenv,
           search,

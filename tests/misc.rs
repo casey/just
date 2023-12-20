@@ -1319,7 +1319,7 @@ test! {
   justfile: "foo 'bar'",
   args:     ("foo"),
   stdout:   "",
-  stderr:   "error: Expected '*', ':', '$', identifier, or '+', but found string
+  stderr:   "error: Expected '*', ':', '--', '$', identifier, or '+', but found string
  --> justfile:1:5
   |
 1 | foo 'bar'
@@ -1563,8 +1563,8 @@ test! {
   name:     list_colors,
   justfile: "
 # comment
-a B C +D='hello':
-  echo {{B}} {{C}} {{D}}
+a --b C D E +F='hello':
+  echo {{C}} {{D}} {{E}} {{F}}
 ",
   args:     ("--color", "always", "--list"),
   stdout:   "
@@ -1925,7 +1925,7 @@ test! {
       echo {{foo}}
   ",
   stderr: "
-    error: Expected '*', ':', '$', identifier, or '+', but found '='
+    error: Expected '*', ':', '--', '$', identifier, or '+', but found '='
      --> justfile:1:5
       |
     1 | foo = 'bar'

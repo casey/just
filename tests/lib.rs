@@ -67,6 +67,7 @@ mod multibyte_char;
 mod newline_escape;
 mod no_cd;
 mod no_exit_message;
+mod opts;
 mod os_attributes;
 mod parser;
 mod positional_arguments;

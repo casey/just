@@ -282,11 +282,7 @@ impl<'src> Lexer<'src> {
 
   /// True if `c` can be a continuation character of an identifier
   fn is_identifier_continue(c: char) -> bool {
-    if Self::is_identifier_start(c) {
-      return true;
-    }
-
-    matches!(c, '0'..='9' | '-')
+    Self::is_identifier_start(c) | matches!(c, '0'..='9' | '-')
   }
 
   /// Consume the text and produce a series of tokens
@@ -490,6 +486,7 @@ impl<'src> Lexer<'src> {
       '*' => self.lex_single(Asterisk),
       '+' => self.lex_single(Plus),
       ',' => self.lex_single(Comma),
+      '-' => self.lex_digraph('-', '-', DashDash),
       '/' => self.lex_single(Slash),
       ':' => self.lex_colon(),
       '\\' => self.lex_escape(),
@@ -963,6 +960,7 @@ mod tests {
       Colon => ":",
       ColonEquals => ":=",
       Comma => ",",
+      DashDash => "--",
       Dollar => "$",
       Eol => "\n",
       Equals => "=",
@@ -2154,8 +2152,8 @@ mod tests {
   }
 
   error! {
-    name:   invalid_name_start_dash,
-    input:  "-foo",
+    name:   invalid_name_start_caret,
+    input:  "^foo",
     offset: 0,
     line:   0,
     column: 0,

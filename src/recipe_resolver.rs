@@ -25,7 +25,7 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
       for parameter in &recipe.parameters {
         if let Some(expression) = &parameter.default {
           for variable in expression.variables() {
-            resolver.resolve_variable(&variable, &[])?;
+            resolver.resolve_variable(&variable, &Vec::new(), &[])?;
           }
         }
       }
@@ -33,7 +33,7 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
       for dependency in &recipe.dependencies {
         for argument in &dependency.arguments {
           for variable in argument.variables() {
-            resolver.resolve_variable(&variable, &recipe.parameters)?;
+            resolver.resolve_variable(&variable, &recipe.opts, &recipe.parameters)?;
           }
         }
       }
@@ -42,7 +42,7 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
         for fragment in &line.fragments {
           if let Fragment::Interpolation { expression, .. } = fragment {
             for variable in expression.variables() {
-              resolver.resolve_variable(&variable, &recipe.parameters)?;
+              resolver.resolve_variable(&variable, &recipe.opts, &recipe.parameters)?;
             }
           }
         }
@@ -55,11 +55,15 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
   fn resolve_variable(
     &self,
     variable: &Token<'src>,
+    opts: &Vec<Opt<'src>>,
     parameters: &[Parameter],
   ) -> CompileResult<'src, ()> {
     let name = variable.lexeme();
-    let undefined =
-      !self.assignments.contains_key(name) && !parameters.iter().any(|p| p.name.lexeme() == name);
+    let undefined = !self.assignments.contains_key(name)
+      && !opts.iter().any(|opt| opt.variable.lexeme() == name)
+      && !parameters
+        .iter()
+        .any(|parameter| parameter.name.lexeme() == name);
 
     if undefined {
       return Err(variable.error(UndefinedVariable { variable: name }));

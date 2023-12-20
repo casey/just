@@ -21,9 +21,9 @@ pub(crate) use {
     fragment::Fragment, function::Function, function_context::FunctionContext,
     interrupt_guard::InterruptGuard, interrupt_handler::InterruptHandler, item::Item,
     justfile::Justfile, keyed::Keyed, keyword::Keyword, lexer::Lexer, line::Line, list::List,
-    load_dotenv::load_dotenv, loader::Loader, name::Name, ordinal::Ordinal, output::output,
-    output_error::OutputError, parameter::Parameter, parameter_kind::ParameterKind, parser::Parser,
-    platform::Platform, platform_interface::PlatformInterface, position::Position,
+    load_dotenv::load_dotenv, loader::Loader, name::Name, opt::Opt, ordinal::Ordinal,
+    output::output, output_error::OutputError, parameter::Parameter, parameter_kind::ParameterKind,
+    parser::Parser, platform::Platform, platform_interface::PlatformInterface, position::Position,
     positional::Positional, range_ext::RangeExt, recipe::Recipe, recipe_context::RecipeContext,
     recipe_resolver::RecipeResolver, scope::Scope, search::Search, search_config::SearchConfig,
     search_error::SearchError, set::Set, setting::Setting, settings::Settings, shebang::Shebang,
@@ -145,6 +145,7 @@ mod list;
 mod load_dotenv;
 mod loader;
 mod name;
+mod opt;
 mod ordinal;
 mod output;
 mod output_error;
