@@ -2327,24 +2327,22 @@ $ (cd foo && just a b)
 
 And will both invoke recipes `a` and `b` in `foo/justfile`.
 
-### Include Directives
+### Imports
 
-The `!include` directive, currently unstable, can be used to include the
-verbatim text of another file.
+One `justfile` can include the contents of another using an `import` statement.
 
 If you have the following `justfile`:
 
 ```mf
-!include foo/bar.just
+import 'foo/bar.just'
 
 a: b
   @echo A
-
 ```
 
 And the following text in `foo/bar.just`:
 
-```mf
+```just
 b:
   @echo B
 ```
@@ -2352,25 +2350,21 @@ b:
 `foo/bar.just` will be included in `justfile` and recipe `b` will be defined:
 
 ```sh
-$ just --unstable b
+$ just b
 B
-$ just --unstable a
+$ just a
 B
 A
 ```
 
-The `!include` directive path can be absolute or relative to the location of
-the justfile containing it. `!include` directives must appear at the beginning
-of a line.
+The `import` path can be absolute or relative to the location of the justfile
+containing it.
 
 Justfiles are insensitive to order, so included files can reference variables
-and recipes defined after the `!include` directive.
+and recipes defined after the `import` statement.
 
-`!include` directives are only processed before the first non-blank,
-non-comment line.
-
-Included files can themselves contain `!include` directives, which are
-processed recursively.
+Imported files can themselves contain `import`s, which are processed
+recursively.
 
 ### Hiding `justfile`s
 

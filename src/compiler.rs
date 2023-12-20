@@ -4,7 +4,6 @@ pub(crate) struct Compiler;
 
 impl Compiler {
   pub(crate) fn compile<'src>(
-    unstable: bool,
     loader: &'src Loader,
     root: &Path,
   ) -> RunResult<'src, Compilation<'src>> {
@@ -26,18 +25,13 @@ impl Compiler {
       srcs.insert(current.clone(), src);
 
       for item in &mut ast.items {
-        if let Item::Include { relative, absolute } = item {
-          if !unstable {
-            return Err(Error::Unstable {
-              message: "The !include directive is currently unstable.".into(),
-            });
+        if let Item::Import { relative, absolute } = item {
+          let import = current.parent().unwrap().join(&relative.cooked).lexiclean();
+          if srcs.contains_key(&import) {
+            return Err(Error::CircularImport { current, import });
           }
-          let include = current.parent().unwrap().join(relative).lexiclean();
-          if srcs.contains_key(&include) {
-            return Err(Error::CircularInclude { current, include });
-          }
-          *absolute = Some(include.clone());
-          stack.push(include);
+          *absolute = Some(import.clone());
+          stack.push(import);
         }
       }
 
@@ -75,14 +69,14 @@ mod tests {
   fn include_justfile() {
     let justfile_a = r#"
 # A comment at the top of the file
-!include ./justfile_b
+import "./justfile_b"
 
 #some_recipe: recipe_b
 some_recipe:
     echo "some recipe"
 "#;
 
-    let justfile_b = r#"!include ./subdir/justfile_c
+    let justfile_b = r#"import "./subdir/justfile_c"
 
 recipe_b: recipe_c
     echo "recipe b"
@@ -103,7 +97,7 @@ recipe_b: recipe_c
     let loader = Loader::new();
 
     let justfile_a_path = tmp.path().join("justfile");
-    let compilation = Compiler::compile(true, &loader, &justfile_a_path).unwrap();
+    let compilation = Compiler::compile(&loader, &justfile_a_path).unwrap();
 
     assert_eq!(compilation.root_src(), justfile_a);
   }
@@ -112,7 +106,7 @@ recipe_b: recipe_c
   fn recursive_includes_fail() {
     let justfile_a = r#"
 # A comment at the top of the file
-!include ./subdir/justfile_b
+import "./subdir/justfile_b"
 
 some_recipe: recipe_b
     echo "some recipe"
@@ -120,7 +114,7 @@ some_recipe: recipe_b
 "#;
 
     let justfile_b = r#"
-!include ../justfile
+import "../justfile"
 
 recipe_b:
     echo "recipe b"
@@ -135,11 +129,11 @@ recipe_b:
     let loader = Loader::new();
 
     let justfile_a_path = tmp.path().join("justfile");
-    let loader_output = Compiler::compile(true, &loader, &justfile_a_path).unwrap_err();
+    let loader_output = Compiler::compile(&loader, &justfile_a_path).unwrap_err();
 
-    assert_matches!(loader_output, Error::CircularInclude { current, include }
+    assert_matches!(loader_output, Error::CircularImport { current, import }
         if current == tmp.path().join("subdir").join("justfile_b").lexiclean() &&
-        include == tmp.path().join("justfile").lexiclean()
+        import == tmp.path().join("justfile").lexiclean()
     );
   }
 }

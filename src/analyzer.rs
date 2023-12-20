@@ -53,7 +53,7 @@ impl<'src> Analyzer<'src> {
             self.analyze_set(set)?;
             self.sets.insert(set.clone());
           }
-          Item::Include { absolute, .. } => {
+          Item::Import { absolute, .. } => {
             stack.push(asts.get(absolute.as_ref().unwrap()).unwrap());
           }
         }
