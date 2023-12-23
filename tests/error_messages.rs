@@ -75,9 +75,8 @@ error: Expected '*', ':', '$', identifier, or '+', but found end of file
 #[test]
 fn file_paths_are_relative() {
   Test::new()
-    .justfile("!include foo/bar.just")
+    .justfile("import 'foo/bar.just'")
     .write("foo/bar.just", "baz")
-    .args(["--unstable"])
     .status(EXIT_FAILURE)
     .stderr(format!(
       "
@@ -95,10 +94,10 @@ error: Expected '*', ':', '$', identifier, or '+', but found end of file
 #[test]
 fn file_paths_not_in_subdir_are_absolute() {
   Test::new()
-    .write("foo/justfile", "!include ../bar.just")
+    .write("foo/justfile", "import '../bar.just'")
     .write("bar.just", "baz")
     .no_justfile()
-    .args(["--unstable", "--justfile", "foo/justfile"])
+    .args(["--justfile", "foo/justfile"])
     .status(EXIT_FAILURE)
     .stderr_regex(format!(
       "

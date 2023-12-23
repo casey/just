@@ -195,7 +195,6 @@ convert-integration-test test:
 
 # run all polyglot recipes
 polyglot: _python _js _perl _sh _ruby
-# (recipes that start with `_` are hidden from --list)
 
 _python:
   #!/usr/bin/env python3

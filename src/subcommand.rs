@@ -180,7 +180,7 @@ impl Subcommand {
     loader: &'src Loader,
     search: &Search,
   ) -> Result<Compilation<'src>, Error<'src>> {
-    let compilation = Compiler::compile(config.unstable, loader, &search.justfile)?;
+    let compilation = Compiler::compile(loader, &search.justfile)?;
 
     if config.verbosity.loud() {
       for warning in &compilation.justfile.warnings {
@@ -216,7 +216,7 @@ impl Subcommand {
     let chooser = chooser
       .map(OsString::from)
       .or_else(|| env::var_os(config::CHOOSER_ENVIRONMENT_KEY))
-      .unwrap_or_else(|| OsString::from(config::CHOOSER_DEFAULT));
+      .unwrap_or_else(|| config::chooser_default(&search.justfile));
 
     let result = justfile
       .settings

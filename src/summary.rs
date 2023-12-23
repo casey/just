@@ -28,7 +28,7 @@ mod full {
 pub fn summary(path: &Path) -> Result<Result<Summary, String>, io::Error> {
   let loader = Loader::new();
 
-  match Compiler::compile(false, &loader, path) {
+  match Compiler::compile(&loader, path) {
     Ok(compilation) => Ok(Ok(Summary::new(&compilation.justfile))),
     Err(error) => Ok(Err(if let Error::Compile { compile_error } = error {
       compile_error.to_string()

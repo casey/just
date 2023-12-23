@@ -26,7 +26,7 @@ fn non_leading_byte_order_mark_produces_error() {
     )
     .stderr(
       "
-      error: Expected \'@\', '!', \'[\', comment, end of file, end of line, or identifier, but found byte order mark
+      error: Expected \'@\', \'[\', comment, end of file, end of line, or identifier, but found byte order mark
        --> justfile:3:1
         |
       3 | \u{feff}
@@ -42,7 +42,7 @@ fn dont_mention_byte_order_mark_in_errors() {
     .justfile("{")
     .stderr(
       "
-      error: Expected '@', '!', '[', comment, end of file, end of line, or identifier, but found '{'
+      error: Expected '@', '[', comment, end of file, end of line, or identifier, but found '{'
        --> justfile:1:1
         |
       1 | {
