@@ -481,6 +481,7 @@ impl<'src> Lexer<'src> {
   fn lex_normal(&mut self, start: char) -> CompileResult<'src, ()> {
     match start {
       ' ' | '\t' => self.lex_whitespace(),
+      '!' if self.rest().starts_with("!include") => Err(self.error(Include)),
       '!' => self.lex_digraph('!', '=', BangEquals),
       '#' => self.lex_comment(),
       '$' => self.lex_single(Dollar),

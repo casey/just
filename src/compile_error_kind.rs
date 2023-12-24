@@ -58,6 +58,7 @@ pub(crate) enum CompileErrorKind<'src> {
     found: usize,
     expected: Range<usize>,
   },
+  Include,
   InconsistentLeadingWhitespace {
     expected: &'src str,
     found: &'src str,
