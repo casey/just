@@ -1,6 +1,12 @@
 Changelog
 =========
 
+[1.18.1](https://github.com/casey/just/releases/tag/1.18.1) - 2023-12-24
+------------------------------------------------------------------------
+
+### Added
+- Display a descriptive error for `!include` directives ([#1779](https://github.com/casey/just/pull/1779))
+
 [1.18.0](https://github.com/casey/just/releases/tag/1.18.0) - 2023-12-24
 ------------------------------------------------------------------------
 
