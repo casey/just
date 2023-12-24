@@ -135,6 +135,10 @@ impl Display for CompileError<'_> {
         Count("argument", *found),
         expected.display(),
       ),
+      Include => write!(
+        f,
+        "The `!include` directive has been stabilized as `import`"
+      ),
       InconsistentLeadingWhitespace { expected, found } => write!(
         f,
         "Recipe line has inconsistent leading whitespace. Recipe started with `{}` but found \
