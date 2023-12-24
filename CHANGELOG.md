@@ -1,6 +1,15 @@
 Changelog
 =========
 
+[1.18.0](https://github.com/casey/just/releases/tag/1.18.0) - 2023-12-24
+------------------------------------------------------------------------
+
+### Added
+- Stabilize `!include path` as `import 'path'` ([#1771](https://github.com/casey/just/pull/1771))
+
+### Misc
+- Tweak readme ([#1775](https://github.com/casey/just/pull/1775))
+
 [1.17.0](https://github.com/casey/just/releases/tag/1.17.0) - 2023-12-20
 ------------------------------------------------------------------------
 
