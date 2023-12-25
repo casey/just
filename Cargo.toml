@@ -22,7 +22,7 @@ ansi_term = "0.12.0"
 atty = "0.2.0"
 camino = "1.0.4"
 clap = { version = "2.33.0", features = ["wrap_help"] }
-ctrlc = { version = "3.1.1", features = ["termination"] }
+command-group = "5.0.1"
 derivative = "2.0.0"
 dirs = "5.0.1"
 dotenvy = "0.15"
@@ -38,6 +38,7 @@ semver = "1.0.20"
 serde = { version = "1.0.130", features = ["derive", "rc"] }
 serde_json = "1.0.68"
 sha2 = "0.10"
+signal-hook = {version = "0.3.17", features = ["extended-siginfo"]}
 similar = { version = "2.1.0", features = ["unicode"] }
 snafu = "0.8.0"
 strum = { version = "0.25.0", features = ["derive"] }

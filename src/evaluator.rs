@@ -218,11 +218,9 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       Stdio::inherit()
     });
 
-    InterruptHandler::guard(|| {
-      output(cmd).map_err(|output_error| Error::Backtick {
-        token: *token,
-        output_error,
-      })
+    SignalHandler::guard_output(cmd).map_err(|output_error| Error::Backtick {
+      token: *token,
+      output_error,
     })
   }
 

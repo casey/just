@@ -254,7 +254,7 @@ impl<'src, D> Recipe<'src, D> {
 
       cmd.export(context.settings, dotenv, scope);
 
-      match InterruptHandler::guard(|| cmd.status()) {
+      match SignalHandler::guard(cmd) {
         Ok(exit_status) => {
           if let Some(code) = exit_status.code() {
             if code != 0 && !infallible_command {
@@ -384,7 +384,7 @@ impl<'src, D> Recipe<'src, D> {
     command.export(context.settings, dotenv, scope);
 
     // run it!
-    match InterruptHandler::guard(|| command.status()) {
+    match SignalHandler::guard(command) {
       Ok(exit_status) => exit_status.code().map_or_else(
         || Err(error_from_signal(self.name(), None, exit_status)),
         |code| {

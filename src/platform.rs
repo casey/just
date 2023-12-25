@@ -38,6 +38,10 @@ impl PlatformInterface for Platform {
     exit_status.signal()
   }
 
+  fn exit_code_from_signal(signal: i32) -> i32 {
+    signal + 128
+  }
+
   fn convert_native_path(_working_directory: &Path, path: &Path) -> Result<String, String> {
     path
       .to_str()

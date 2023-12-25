@@ -33,6 +33,22 @@ pub fn run() -> Result<(), i32> {
       if !verbosity.quiet() && error.print_message() {
         eprintln!("{}", error.color_display(color.stderr()));
       }
-      error.code().unwrap_or(EXIT_FAILURE)
+      match error.code() {
+        Some(code) => code,
+        None => match error {
+          Error::Signal { signal, .. }
+          | Error::Backtick {
+            output_error: OutputError::Signal(signal),
+            ..
+          } => Platform::exit_code_from_signal(signal),
+          Error::CommandStatus { status, .. } => match status.code() {
+            Some(code) => code,
+            None => Platform::signal_from_exit_status(status)
+              .map(Platform::exit_code_from_signal)
+              .unwrap_or(EXIT_FAILURE),
+          },
+          _ => EXIT_FAILURE,
+        },
+      }
     })
 }
