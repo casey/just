@@ -1,6 +1,6 @@
 use super::*;
 
-fn test(justfile: &str, value: Value) {
+fn case(justfile: &str, value: Value) {
   Test::new()
     .justfile(justfile)
     .args(["--dump", "--dump-format", "json", "--unstable"])
@@ -10,7 +10,7 @@ fn test(justfile: &str, value: Value) {
 
 #[test]
 fn alias() {
-  test(
+  case(
     "
       alias f := foo
 
@@ -62,7 +62,7 @@ fn alias() {
 
 #[test]
 fn assignment() {
-  test(
+  case(
     "foo := 'bar'",
     json!({
       "aliases": {},
@@ -97,7 +97,7 @@ fn assignment() {
 
 #[test]
 fn body() {
-  test(
+  case(
     "
       foo:
         bar
@@ -146,7 +146,7 @@ fn body() {
 
 #[test]
 fn dependencies() {
-  test(
+  case(
     "
       foo:
       bar: foo
@@ -206,7 +206,7 @@ fn dependencies() {
 
 #[test]
 fn dependency_argument() {
-  test(
+  case(
     "
       x := 'foo'
       foo *args:
@@ -303,7 +303,7 @@ fn dependency_argument() {
 
 #[test]
 fn duplicate_recipes() {
-  test(
+  case(
     "
       set allow-duplicate-recipes
       alias f := foo
@@ -364,7 +364,7 @@ fn duplicate_recipes() {
 
 #[test]
 fn doc_comment() {
-  test(
+  case(
     "# hello\nfoo:",
     json!({
       "aliases": {},
@@ -406,7 +406,7 @@ fn doc_comment() {
 
 #[test]
 fn empty_justfile() {
-  test(
+  case(
     "",
     json!({
       "aliases": {},
@@ -435,7 +435,7 @@ fn empty_justfile() {
 
 #[test]
 fn parameters() {
-  test(
+  case(
     "
       a:
       b x:
@@ -579,7 +579,7 @@ fn parameters() {
 
 #[test]
 fn priors() {
-  test(
+  case(
     "
       a:
       b: a && c
@@ -659,7 +659,7 @@ fn priors() {
 
 #[test]
 fn private() {
-  test(
+  case(
     "_foo:",
     json!({
       "aliases": {},
@@ -701,7 +701,7 @@ fn private() {
 
 #[test]
 fn quiet() {
-  test(
+  case(
     "@foo:",
     json!({
       "aliases": {},
@@ -743,7 +743,7 @@ fn quiet() {
 
 #[test]
 fn settings() {
-  test(
+  case(
     "
       set dotenv-load
       set dotenv-filename := \"filename\"
@@ -799,7 +799,7 @@ fn settings() {
 
 #[test]
 fn shebang() {
-  test(
+  case(
     "
       foo:
         #!bar
@@ -844,7 +844,7 @@ fn shebang() {
 
 #[test]
 fn simple() {
-  test(
+  case(
     "foo:",
     json!({
       "aliases": {},
@@ -886,7 +886,7 @@ fn simple() {
 
 #[test]
 fn attribute() {
-  test(
+  case(
     "
       [no-exit-message]
       foo:
