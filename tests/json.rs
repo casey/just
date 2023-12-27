@@ -26,6 +26,7 @@ fn alias() {
         }
       },
       "assignments": {},
+      "modules": {},
       "recipes": {
         "foo": {
           "attributes": [],
@@ -73,6 +74,7 @@ fn assignment() {
         }
       },
       "first": null,
+      "modules": {},
       "recipes": {},
       "settings": {
         "allow_duplicate_recipes": false,
@@ -105,6 +107,7 @@ fn body() {
       "aliases": {},
       "assignments": {},
       "first": "foo",
+      "modules": {},
       "recipes": {
         "foo": {
           "attributes": [],
@@ -152,6 +155,7 @@ fn dependencies() {
       "aliases": {},
       "assignments": {},
       "first": "foo",
+      "modules": {},
       "recipes": {
         "bar": {
           "attributes": [],
@@ -230,6 +234,7 @@ fn dependency_argument() {
           "value": "foo",
         },
       },
+      "modules": {},
       "recipes": {
         "bar": {
           "doc": null,
@@ -316,6 +321,7 @@ fn duplicate_recipes() {
         }
       },
       "assignments": {},
+      "modules": {},
       "recipes": {
         "foo": {
           "body": [],
@@ -364,6 +370,7 @@ fn doc_comment() {
       "aliases": {},
       "first": "foo",
       "assignments": {},
+      "modules": {},
       "recipes": {
         "foo": {
           "body": [],
@@ -405,6 +412,7 @@ fn empty_justfile() {
       "aliases": {},
       "assignments": {},
       "first": null,
+      "modules": {},
       "recipes": {},
       "settings": {
         "allow_duplicate_recipes": false,
@@ -440,6 +448,7 @@ fn parameters() {
       "aliases": {},
       "first": "a",
       "assignments": {},
+      "modules": {},
       "recipes": {
         "a": {
           "attributes": [],
@@ -580,6 +589,7 @@ fn priors() {
       "aliases": {},
       "assignments": {},
       "first": "a",
+      "modules": {},
       "recipes": {
         "a": {
           "body": [],
@@ -655,6 +665,7 @@ fn private() {
       "aliases": {},
       "assignments": {},
       "first": "_foo",
+      "modules": {},
       "recipes": {
         "_foo": {
           "body": [],
@@ -696,6 +707,7 @@ fn quiet() {
       "aliases": {},
       "assignments": {},
       "first": "foo",
+      "modules": {},
       "recipes": {
         "foo": {
           "body": [],
@@ -748,6 +760,7 @@ fn settings() {
       "aliases": {},
       "assignments": {},
       "first": "foo",
+      "modules": {},
       "recipes": {
         "foo": {
           "body": [["#!bar"]],
@@ -795,6 +808,7 @@ fn shebang() {
       "aliases": {},
       "assignments": {},
       "first": "foo",
+      "modules": {},
       "recipes": {
         "foo": {
           "body": [["#!bar"]],
@@ -836,6 +850,7 @@ fn simple() {
       "aliases": {},
       "assignments": {},
       "first": "foo",
+      "modules": {},
       "recipes": {
         "foo": {
           "body": [],
@@ -880,6 +895,7 @@ fn attribute() {
       "aliases": {},
       "assignments": {},
       "first": "foo",
+      "modules": {},
       "recipes": {
         "foo": {
           "attributes": ["no-exit-message"],

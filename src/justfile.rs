@@ -8,6 +8,7 @@ pub(crate) struct Justfile<'src> {
   pub(crate) default: Option<Rc<Recipe<'src>>>,
   #[serde(skip)]
   pub(crate) loaded: Vec<PathBuf>,
+  pub(crate) modules: BTreeMap<String, Justfile<'src>>,
   pub(crate) recipes: Table<'src, Rc<Recipe<'src>>>,
   pub(crate) settings: Settings<'src>,
   pub(crate) warnings: Vec<Warning>,
@@ -211,31 +212,16 @@ impl<'src> Justfile<'src> {
 
     let mut missing = vec![];
     let mut grouped = vec![];
-    let mut rest = arguments;
+    let mut remaining = arguments;
 
-    while let Some((argument, mut tail)) = rest.split_first() {
-      if let Some(recipe) = self.get_recipe(argument) {
-        if recipe.parameters.is_empty() {
-          grouped.push((recipe, &[][..]));
-        } else {
-          let argument_range = recipe.argument_range();
-          let argument_count = cmp::min(tail.len(), recipe.max_arguments());
-          if !argument_range.range_contains(&argument_count) {
-            return Err(Error::ArgumentCountMismatch {
-              recipe: recipe.name(),
-              parameters: recipe.parameters.clone(),
-              found: tail.len(),
-              min: recipe.min_arguments(),
-              max: recipe.max_arguments(),
-            });
-          }
-          grouped.push((recipe, &tail[0..argument_count]));
-          tail = &tail[argument_count..];
-        }
+    while let Some((first, mut rest)) = remaining.split_first() {
+      if let Some((recipe, arguments, consumed)) = self.group(0, first, rest)? {
+        rest = &rest[consumed..];
+        grouped.push((recipe, arguments));
       } else {
-        missing.push((*argument).to_owned());
+        missing.push((*first).to_owned());
       }
-      rest = tail;
+      remaining = rest;
     }
 
     if !missing.is_empty() {
@@ -275,6 +261,54 @@ impl<'src> Justfile<'src> {
       .get(name)
       .map(Rc::as_ref)
       .or_else(|| self.aliases.get(name).map(|alias| alias.target.as_ref()))
+  }
+
+  fn group<'a, 'b>(
+    &self,
+    depth: usize,
+    first: &str,
+    rest: &'a [&'b str],
+  ) -> RunResult<'src, Option<(&Recipe<'src>, &'a [&'b str], usize)>> {
+    if let Some(module) = self.modules.get(first) {
+      if rest.is_empty() {
+        if let Some(recipe) = &module.default {
+          let min_arguments = recipe.min_arguments();
+          if min_arguments > 0 {
+            return Err(Error::DefaultRecipeRequiresArguments {
+              recipe: recipe.name.lexeme(),
+              min_arguments,
+            });
+          }
+          return Ok(Some((recipe, &[], depth)));
+        }
+        Err(Error::NoDefaultRecipe)
+      } else {
+        module.group(depth + 1, rest[0], &rest[1..])
+      }
+    } else if let Some(recipe) = self.get_recipe(first) {
+      if recipe.parameters.is_empty() {
+        Ok(Some((recipe, &[], depth)))
+      } else {
+        let argument_range = recipe.argument_range();
+        let argument_count = cmp::min(rest.len(), recipe.max_arguments());
+        if !argument_range.range_contains(&argument_count) {
+          return Err(Error::ArgumentCountMismatch {
+            recipe: recipe.name(),
+            parameters: recipe.parameters.clone(),
+            found: rest.len(),
+            min: recipe.min_arguments(),
+            max: recipe.max_arguments(),
+          });
+        }
+        Ok(Some((
+          recipe,
+          &rest[..argument_count],
+          depth + argument_count,
+        )))
+      }
+    } else {
+      Ok(None)
+    }
   }
 
   fn run_recipe(

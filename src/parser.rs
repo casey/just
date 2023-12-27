@@ -335,6 +335,13 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
               absolute: None,
             });
           }
+          Some(Keyword::Mod) if self.next_are(&[Identifier, Identifier]) => {
+            self.presume_keyword(Keyword::Mod)?;
+            items.push(Item::Mod {
+              name: self.parse_name()?,
+              absolute: None,
+            });
+          }
           Some(Keyword::Set)
             if self.next_are(&[Identifier, Identifier, ColonEquals])
               || self.next_are(&[Identifier, Identifier, Comment, Eof])

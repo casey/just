@@ -4,6 +4,7 @@ pub(crate) struct Compiler;
 
 impl Compiler {
   pub(crate) fn compile<'src>(
+    unstable: bool,
     loader: &'src Loader,
     root: &Path,
   ) -> RunResult<'src, Compilation<'src>> {
@@ -25,20 +26,40 @@ impl Compiler {
       srcs.insert(current.clone(), src);
 
       for item in &mut ast.items {
-        if let Item::Import { relative, absolute } = item {
-          let import = current.parent().unwrap().join(&relative.cooked).lexiclean();
-          if srcs.contains_key(&import) {
-            return Err(Error::CircularImport { current, import });
+        match item {
+          Item::Mod { name, absolute } => {
+            if !unstable {
+              return Err(Error::Unstable {
+                message: "Modules are currently unstable.".into(),
+              });
+            }
+            let import = current
+              .parent()
+              .unwrap()
+              .join(format!("{name}.just"))
+              .lexiclean();
+            if srcs.contains_key(&import) {
+              return Err(Error::CircularImport { current, import });
+            }
+            *absolute = Some(import.clone());
+            stack.push(import);
           }
-          *absolute = Some(import.clone());
-          stack.push(import);
+          Item::Import { relative, absolute } => {
+            let import = current.parent().unwrap().join(&relative.cooked).lexiclean();
+            if srcs.contains_key(&import) {
+              return Err(Error::CircularImport { current, import });
+            }
+            *absolute = Some(import.clone());
+            stack.push(import);
+          }
+          _ => {}
         }
       }
 
       asts.insert(current.clone(), ast.clone());
     }
 
-    let justfile = Analyzer::analyze(loaded, &paths, &asts, root)?;
+    let justfile = Analyzer::analyze(&loaded, &paths, &asts, root)?;
 
     Ok(Compilation {
       asts,
@@ -57,7 +78,7 @@ impl Compiler {
     asts.insert(root.clone(), ast);
     let mut paths: HashMap<PathBuf, PathBuf> = HashMap::new();
     paths.insert(root.clone(), root.clone());
-    Analyzer::analyze(Vec::new(), &paths, &asts, &root)
+    Analyzer::analyze(&[], &paths, &asts, &root)
   }
 }
 
@@ -97,7 +118,7 @@ recipe_b: recipe_c
     let loader = Loader::new();
 
     let justfile_a_path = tmp.path().join("justfile");
-    let compilation = Compiler::compile(&loader, &justfile_a_path).unwrap();
+    let compilation = Compiler::compile(false, &loader, &justfile_a_path).unwrap();
 
     assert_eq!(compilation.root_src(), justfile_a);
   }
@@ -129,7 +150,7 @@ recipe_b:
     let loader = Loader::new();
 
     let justfile_a_path = tmp.path().join("justfile");
-    let loader_output = Compiler::compile(&loader, &justfile_a_path).unwrap_err();
+    let loader_output = Compiler::compile(false, &loader, &justfile_a_path).unwrap_err();
 
     assert_matches!(loader_output, Error::CircularImport { current, import }
         if current == tmp.path().join("subdir").join("justfile_b").lexiclean() &&

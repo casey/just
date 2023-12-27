@@ -9,7 +9,7 @@ pub(crate) struct Analyzer<'src> {
 
 impl<'src> Analyzer<'src> {
   pub(crate) fn analyze(
-    loaded: Vec<PathBuf>,
+    loaded: &[PathBuf],
     paths: &HashMap<PathBuf, PathBuf>,
     asts: &HashMap<PathBuf, Ast<'src>>,
     root: &Path,
@@ -19,7 +19,7 @@ impl<'src> Analyzer<'src> {
 
   fn justfile(
     mut self,
-    loaded: Vec<PathBuf>,
+    loaded: &[PathBuf],
     paths: &HashMap<PathBuf, PathBuf>,
     asts: &HashMap<PathBuf, Ast<'src>>,
     root: &Path,
@@ -30,6 +30,8 @@ impl<'src> Analyzer<'src> {
     stack.push(asts.get(root).unwrap());
 
     let mut warnings = Vec::new();
+
+    let mut modules: BTreeMap<String, Justfile> = BTreeMap::new();
 
     while let Some(ast) = stack.pop() {
       for item in &ast.items {
@@ -43,6 +45,15 @@ impl<'src> Analyzer<'src> {
             self.assignments.insert(assignment.clone());
           }
           Item::Comment(_) => (),
+          Item::Import { absolute, .. } => {
+            stack.push(asts.get(absolute.as_ref().unwrap()).unwrap());
+          }
+          Item::Mod { absolute, name } => {
+            modules.insert(
+              name.to_string(),
+              Self::analyze(loaded, paths, asts, absolute.as_ref().unwrap())?,
+            );
+          }
           Item::Recipe(recipe) => {
             if recipe.enabled() {
               Self::analyze_recipe(recipe)?;
@@ -52,9 +63,6 @@ impl<'src> Analyzer<'src> {
           Item::Set(set) => {
             self.analyze_set(set)?;
             self.sets.insert(set.clone());
-          }
-          Item::Import { absolute, .. } => {
-            stack.push(asts.get(absolute.as_ref().unwrap()).unwrap());
           }
         }
       }
@@ -103,10 +111,11 @@ impl<'src> Analyzer<'src> {
         }),
       aliases,
       assignments: self.assignments,
-      loaded,
+      loaded: loaded.into(),
       recipes,
       settings,
       warnings,
+      modules,
     })
   }
 
