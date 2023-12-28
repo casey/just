@@ -444,3 +444,52 @@ fn dotenv_settings_in_submodule_are_ignored() {
     .stdout("dotenv-value\n")
     .run();
 }
+
+#[test]
+fn modules_may_specify_path() {
+  Test::new()
+    .write("commands/foo.just", "foo:\n @echo FOO")
+    .justfile(
+      "
+        mod foo 'commands/foo.just'
+      ",
+    )
+    .test_round_trip(false)
+    .arg("--unstable")
+    .arg("foo")
+    .arg("foo")
+    .stdout("FOO\n")
+    .run();
+}
+
+#[test]
+fn modules_with_paths_are_dumped_correctly() {
+  Test::new()
+    .write("commands/foo.just", "foo:\n @echo FOO")
+    .justfile(
+      "
+        mod foo 'commands/foo.just'
+      ",
+    )
+    .test_round_trip(false)
+    .arg("--unstable")
+    .arg("--dump")
+    .stdout("mod foo 'commands/foo.just'\n")
+    .run();
+}
+
+#[test]
+fn recipes_may_be_named_mod() {
+  Test::new()
+    .justfile(
+      "
+        mod foo:
+          @echo FOO
+      ",
+    )
+    .test_round_trip(false)
+    .arg("mod")
+    .arg("bar")
+    .stdout("FOO\n")
+    .run();
+}

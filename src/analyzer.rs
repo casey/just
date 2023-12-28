@@ -77,7 +77,7 @@ impl<'src> Analyzer<'src> {
           Item::Import { absolute, .. } => {
             stack.push(asts.get(absolute.as_ref().unwrap()).unwrap());
           }
-          Item::Mod { absolute, name } => {
+          Item::Mod { absolute, name, .. } => {
             define(*name, "module", false)?;
             modules.insert(
               name.to_string(),

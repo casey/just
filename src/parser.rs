@@ -335,11 +335,24 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
               absolute: None,
             });
           }
-          Some(Keyword::Mod) if self.next_are(&[Identifier, Identifier]) => {
+          Some(Keyword::Mod)
+            if self.next_are(&[Identifier, Identifier, StringToken])
+              || self.next_are(&[Identifier, Identifier, Eof])
+              || self.next_are(&[Identifier, Identifier, Eol]) =>
+          {
             self.presume_keyword(Keyword::Mod)?;
+            let name = self.parse_name()?;
+
+            let path = if self.next_is(StringToken) {
+              Some(self.parse_string_literal()?)
+            } else {
+              None
+            };
+
             items.push(Item::Mod {
-              name: self.parse_name()?,
+              name,
               absolute: None,
+              path,
             });
           }
           Some(Keyword::Set)

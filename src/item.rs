@@ -13,6 +13,7 @@ pub(crate) enum Item<'src> {
   Mod {
     name: Name<'src>,
     absolute: Option<PathBuf>,
+    path: Option<StringLiteral<'src>>,
   },
   Recipe(UnresolvedRecipe<'src>),
   Set(Set<'src>),
@@ -25,7 +26,15 @@ impl<'src> Display for Item<'src> {
       Item::Assignment(assignment) => write!(f, "{assignment}"),
       Item::Comment(comment) => write!(f, "{comment}"),
       Item::Import { relative, .. } => write!(f, "import {relative}"),
-      Item::Mod { name, .. } => write!(f, "mod {name}"),
+      Item::Mod { name, path, .. } => {
+        write!(f, "mod {name}")?;
+
+        if let Some(path) = path {
+          write!(f, " {path}")?;
+        }
+
+        Ok(())
+      }
       Item::Recipe(recipe) => write!(f, "{}", recipe.color_display(Color::never())),
       Item::Set(set) => write!(f, "{set}"),
     }
