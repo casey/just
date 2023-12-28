@@ -1,9 +1,5 @@
 use super::*;
 
-// todo:
-// - test modules in JSON
-// - update module tracking issue
-
 #[test]
 fn modules_are_unstable() {
   todo!()
