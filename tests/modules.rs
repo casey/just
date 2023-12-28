@@ -19,43 +19,20 @@ fn modules_are_unstable() {
 }
 
 #[test]
-fn modules_are_formatted_correctly() {
-  todo!()
-}
-
-#[test]
-fn circular_module_imports_are_detected() {
-  todo!()
-}
-
-#[test]
-fn modules_conflict_with_recipes() {
-  todo!()
-}
-
-#[test]
-fn modules_conflict_with_aliases() {
-  todo!()
-}
-
-#[test]
-fn modules_conflict_with_other_modules() {
-  todo!()
-}
-
-#[test]
 fn default_recipe_in_submodule_must_have_no_arguments() {
-  todo!()
-}
-
-#[test]
-fn justfile_function_returns_submodule_path() {
-  todo!()
-}
-
-#[test]
-fn justfile_directory_function_returns_submodule_directory() {
-  todo!()
+  Test::new()
+    .write("foo.just", "foo bar:\n @echo FOO")
+    .justfile(
+      "
+        mod foo
+      ",
+    )
+    .test_round_trip(false)
+    .arg("--unstable")
+    .arg("foo")
+    .stderr("error: Recipe `foo` cannot be used as default recipe since it requires at least 1 argument.\n")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 #[test]
@@ -73,11 +50,6 @@ fn module_recipes_can_be_run_as_subcommands() {
     .arg("foo")
     .stdout("FOO\n")
     .run();
-}
-
-#[test]
-fn modules_can_contain_other_modules() {
-  todo!()
 }
 
 #[test]
@@ -99,21 +71,6 @@ fn assignments_are_evaluated_in_modules() {
 }
 
 #[test]
-fn modules_can_be_in_subdirectory() {
-  todo!()
-}
-
-#[test]
-fn modules_in_subdirectory_can_be_named_justfile() {
-  todo!()
-}
-
-#[test]
-fn modules_require_unambiguous_file() {
-  todo!()
-}
-
-#[test]
 fn module_subcommand_runs_default_recipe() {
   Test::new()
     .write("foo.just", "foo:\n @echo FOO")
@@ -130,6 +87,127 @@ fn module_subcommand_runs_default_recipe() {
 }
 
 #[test]
+fn modules_can_contain_other_modules() {
+  Test::new()
+    .write("bar.just", "baz:\n @echo BAZ")
+    .write("foo.just", "mod bar")
+    .justfile(
+      "
+        mod foo
+      ",
+    )
+    .test_round_trip(false)
+    .arg("--unstable")
+    .arg("foo")
+    .arg("bar")
+    .arg("baz")
+    .stdout("BAZ\n")
+    .run();
+}
+
+#[test]
+fn circular_module_imports_are_detected() {
+  Test::new()
+    .write("bar.just", "mod foo")
+    .write("foo.just", "mod bar")
+    .justfile(
+      "
+        mod foo
+      ",
+    )
+    .test_round_trip(false)
+    .arg("--unstable")
+    .arg("foo")
+    .arg("bar")
+    .arg("baz")
+    .stderr_regex(path_for_regex(
+      "error: Import `.*/foo.just` in `.*/bar.just` is circular\n",
+    ))
+    .status(EXIT_FAILURE)
+    .run();
+}
+
+#[test]
+fn modules_use_module_settings() {
+  Test::new()
+    .write(
+      "foo.just",
+      "set allow-duplicate-recipes\nfoo:\nfoo:\n @echo FOO\n",
+    )
+    .justfile(
+      "
+        mod foo
+      ",
+    )
+    .test_round_trip(false)
+    .arg("--unstable")
+    .arg("foo")
+    .arg("foo")
+    .stdout("FOO\n")
+    .run();
+
+  Test::new()
+    .write("foo.just", "\nfoo:\nfoo:\n @echo FOO\n")
+    .justfile(
+      "
+        mod foo
+
+        set allow-duplicate-recipes
+      ",
+    )
+    .test_round_trip(false)
+    .status(EXIT_FAILURE)
+    .arg("--unstable")
+    .arg("foo")
+    .arg("foo")
+    .stderr(
+      "
+      error: Recipe `foo` first defined on line 2 is redefined on line 3
+       --> foo.just:3:1
+        |
+      3 | foo:
+        | ^^^
+    ",
+    )
+    .run();
+}
+
+#[test]
+fn modules_conflict_with_recipes() {
+  todo!()
+}
+
+#[test]
+fn modules_conflict_with_aliases() {
+  todo!()
+}
+
+#[test]
+fn modules_conflict_with_other_modules() {
+  todo!()
+}
+
+#[test]
+fn modules_are_formatted_correctly() {
+  todo!()
+}
+
+#[test]
+fn modules_can_be_in_subdirectory() {
+  todo!()
+}
+
+#[test]
+fn modules_in_subdirectory_can_be_named_justfile() {
+  todo!()
+}
+
+#[test]
+fn modules_require_unambiguous_file() {
+  todo!()
+}
+
+#[test]
 fn list_displays_recipes_in_submodules() {
   todo!()
 }
@@ -140,11 +218,16 @@ fn module_recipes_run_in_module_directory() {
 }
 
 #[test]
-fn modules_use_module_settings() {
+fn dotenv_files_are_loaded_on_a_per_module_basis() {
   todo!()
 }
 
 #[test]
-fn dotenv_files_are_loaded_on_a_per_module_basis() {
+fn justfile_function_returns_submodule_path() {
+  todo!()
+}
+
+#[test]
+fn justfile_directory_function_returns_submodule_directory() {
   todo!()
 }
