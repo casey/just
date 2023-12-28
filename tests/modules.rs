@@ -174,17 +174,80 @@ fn modules_use_module_settings() {
 
 #[test]
 fn modules_conflict_with_recipes() {
-  todo!()
+  Test::new()
+    .write("foo.just", "")
+    .justfile(
+      "
+        mod foo
+        foo:
+      ",
+    )
+    .stderr(
+      "
+      error: Module `foo` defined on line 1 is redefined as a recipe on line 2
+       --> justfile:2:1
+        |
+      2 | foo:
+        | ^^^
+    ",
+    )
+    .test_round_trip(false)
+    .status(EXIT_FAILURE)
+    .arg("--unstable")
+    .run();
 }
 
 #[test]
 fn modules_conflict_with_aliases() {
-  todo!()
+  Test::new()
+    .write("foo.just", "")
+    .justfile(
+      "
+        mod foo
+        bar:
+        alias foo := bar
+      ",
+    )
+    .stderr(
+      "
+      error: Module `foo` defined on line 1 is redefined as an alias on line 3
+       --> justfile:3:7
+        |
+      3 | alias foo := bar
+        |       ^^^
+    ",
+    )
+    .test_round_trip(false)
+    .status(EXIT_FAILURE)
+    .arg("--unstable")
+    .run();
 }
 
 #[test]
 fn modules_conflict_with_other_modules() {
-  todo!()
+  Test::new()
+    .write("foo.just", "")
+    .justfile(
+      "
+        mod foo
+        mod foo
+
+        bar:
+      ",
+    )
+    .test_round_trip(false)
+    .status(EXIT_FAILURE)
+    .stderr(
+      "
+      error: Module `foo` first defined on line 1 is redefined on line 2
+       --> justfile:2:5
+        |
+      2 | mod foo
+        |     ^^^
+    ",
+    )
+    .arg("--unstable")
+    .run();
 }
 
 #[test]

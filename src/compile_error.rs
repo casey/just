@@ -19,6 +19,14 @@ impl<'src> CompileError<'src> {
   }
 }
 
+fn capitalize(s: &str) -> String {
+  let mut chars = s.chars();
+  match chars.next() {
+    None => String::new(),
+    Some(first) => first.to_uppercase().collect::<String>() + chars.as_str(),
+  }
+}
+
 impl Display for CompileError<'_> {
   fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
     use CompileErrorKind::*;
@@ -183,6 +191,31 @@ impl Display for CompileError<'_> {
         write!(f, "Parameter `{parameter}` follows variadic parameter")
       }
       ParsingRecursionDepthExceeded => write!(f, "Parsing recursion depth exceeded"),
+      Redefinition {
+        first,
+        first_type,
+        name,
+        second_type,
+      } => {
+        if first_type == second_type {
+          write!(
+            f,
+            "{} `{name}` first defined on line {} is redefined on line {}",
+            capitalize(first_type),
+            first.ordinal(),
+            self.token.line.ordinal(),
+          )
+        } else {
+          write!(
+            f,
+            "{} `{name}` defined on line {} is redefined as {} {second_type} on line {}",
+            capitalize(first_type),
+            first.ordinal(),
+            if *second_type == "alias" { "an" } else { "a" },
+            self.token.line.ordinal(),
+          )
+        }
+      }
       RequiredParameterFollowsDefaultParameter { parameter } => write!(
         f,
         "Non-default parameter `{parameter}` follows default parameter"

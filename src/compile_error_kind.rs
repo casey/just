@@ -25,6 +25,12 @@ pub(crate) enum CompileErrorKind<'src> {
     min: usize,
     max: usize,
   },
+  Redefinition {
+    first: usize,
+    first_type: &'static str,
+    name: &'src str,
+    second_type: &'static str,
+  },
   DuplicateAlias {
     alias: &'src str,
     first: usize,
