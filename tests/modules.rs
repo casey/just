@@ -251,8 +251,19 @@ fn modules_conflict_with_other_modules() {
 }
 
 #[test]
-fn modules_are_formatted_correctly() {
-  todo!()
+fn modules_are_dumped_correctly() {
+  Test::new()
+    .write("foo.just", "foo:\n @echo FOO")
+    .justfile(
+      "
+        mod foo
+      ",
+    )
+    .test_round_trip(false)
+    .arg("--unstable")
+    .arg("--dump")
+    .stdout("mod foo\n")
+    .run();
 }
 
 #[test]

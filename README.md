@@ -2329,7 +2329,7 @@ And will both invoke recipes `a` and `b` in `foo/justfile`.
 
 ### Imports
 
-One `justfile` can include the contents of another using an `import` statement.
+One `justfile` can include the contents of another using `import` statements.
 
 If you have the following `justfile`:
 
@@ -2365,6 +2365,37 @@ and recipes defined after the `import` statement.
 
 Imported files can themselves contain `import`s, which are processed
 recursively.
+
+### Modules
+
+A `justfile` can declare modules using `mod` statements:
+
+If you have the following `justfile`:
+
+```mf
+mod bar
+
+a:
+  @echo A
+```
+
+And the following text in `bar.just`:
+
+```just
+b:
+  @echo B
+```
+
+`bar.just` will be included in `justfile` as a submodule. Contrasting with
+`import`s, submodules are independent, and variables, recipes, and other items
+defined in one submodule cannot be used in another.
+
+Recipes in submodules can be invoked as subcommands:
+
+```sh
+$ just bar b
+B
+```
 
 ### Hiding `justfile`s
 
