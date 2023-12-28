@@ -216,13 +216,7 @@ impl<'src> Justfile<'src> {
     let argvec: Vec<&str> = if !arguments.is_empty() {
       arguments.iter().map(String::as_str).collect()
     } else if let Some(recipe) = &self.default {
-      let min_arguments = recipe.min_arguments();
-      if min_arguments > 0 {
-        return Err(Error::DefaultRecipeRequiresArguments {
-          recipe: recipe.name.lexeme(),
-          min_arguments,
-        });
-      }
+      recipe.check_can_be_default_recipe()?;
       vec![recipe.name()]
     } else if self.recipes.is_empty() {
       return Err(Error::NoRecipes);
@@ -333,13 +327,7 @@ impl<'src> Justfile<'src> {
 
       if rest.is_empty() {
         if let Some(recipe) = &module.default {
-          let min_arguments = recipe.min_arguments();
-          if min_arguments > 0 {
-            return Err(Error::DefaultRecipeRequiresArguments {
-              recipe: recipe.name.lexeme(),
-              min_arguments,
-            });
-          }
+          recipe.check_can_be_default_recipe()?;
           return Ok(Some((
             Invocation {
               settings: &module.settings,

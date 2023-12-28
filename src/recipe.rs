@@ -77,6 +77,18 @@ impl<'src, D> Recipe<'src, D> {
     }
   }
 
+  pub(crate) fn check_can_be_default_recipe(&self) -> RunResult<'src, ()> {
+    let min_arguments = self.min_arguments();
+    if min_arguments > 0 {
+      return Err(Error::DefaultRecipeRequiresArguments {
+        recipe: self.name.lexeme(),
+        min_arguments,
+      });
+    }
+
+    Ok(())
+  }
+
   pub(crate) fn public(&self) -> bool {
     !self.private && !self.attributes.contains(&Attribute::Private)
   }

@@ -362,7 +362,7 @@ impl Subcommand {
   }
 
   fn format(config: &Config, search: &Search, src: &str, ast: &Ast) -> Result<(), Error<'static>> {
-    config.require_unstable("the `--fmt` command is currently unstable")?;
+    config.require_unstable("The `--fmt` command is currently unstable.")?;
 
     let formatted = ast.to_string();
 

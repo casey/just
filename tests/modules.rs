@@ -19,6 +19,16 @@ fn modules_are_unstable() {
 }
 
 #[test]
+fn modules_are_formatted_correctly() {
+  todo!()
+}
+
+#[test]
+fn circular_module_imports_are_detected() {
+  todo!()
+}
+
+#[test]
 fn modules_conflict_with_recipes() {
   todo!()
 }
@@ -30,6 +40,21 @@ fn modules_conflict_with_aliases() {
 
 #[test]
 fn modules_conflict_with_other_modules() {
+  todo!()
+}
+
+#[test]
+fn default_recipe_in_submodule_must_have_no_arguments() {
+  todo!()
+}
+
+#[test]
+fn justfile_function_returns_submodule_path() {
+  todo!()
+}
+
+#[test]
+fn justfile_directory_function_returns_submodule_directory() {
   todo!()
 }
 
@@ -48,6 +73,11 @@ fn module_recipes_can_be_run_as_subcommands() {
     .arg("foo")
     .stdout("FOO\n")
     .run();
+}
+
+#[test]
+fn modules_can_contain_other_modules() {
+  todo!()
 }
 
 #[test]
