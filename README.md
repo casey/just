@@ -2366,7 +2366,7 @@ and recipes defined after the `import` statement.
 Imported files can themselves contain `import`s, which are processed
 recursively.
 
-### Modules<sup>master</sup>
+### Modules<sup>1.19.0</sup>
 
 A `justfile` can declare modules using `mod` statements. `mod` statements are
 currently unstable, so you'll need to use the `--unstable` flag, or set the
