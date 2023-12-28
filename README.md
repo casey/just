@@ -2386,9 +2386,9 @@ b:
   @echo B
 ```
 
-`bar.just` will be included in `justfile` as a submodule. Contrasting with
-`import`s, submodules are independent, and variables, recipes, and other items
-defined in one submodule cannot be used in another.
+`bar.just` will be included in `justfile` as a submodule. Recipes, aliases, and
+variables defined in one submodule cannot be used in another, and each module
+uses its own settings.
 
 Recipes in submodules can be invoked as subcommands:
 
