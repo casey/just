@@ -928,3 +928,81 @@ fn attribute() {
     }),
   );
 }
+
+#[test]
+fn module() {
+  Test::new()
+    .justfile(
+      "
+      mod foo
+    ",
+    )
+    .tree(tree! {
+      "foo.just": "bar:",
+    })
+    .args(["--dump", "--dump-format", "json", "--unstable"])
+    .test_round_trip(false)
+    .stdout(format!(
+      "{}\n",
+      serde_json::to_string(&json!({
+        "aliases": {},
+        "assignments": {},
+        "first": null,
+        "modules": {
+          "foo": {
+            "aliases": {},
+            "assignments": {},
+            "first": "bar",
+            "modules": {},
+            "recipes": {
+              "bar": {
+                "attributes": [],
+                "body": [],
+                "dependencies": [],
+                "doc": null,
+                "name": "bar",
+                "parameters": [],
+                "priors": 0,
+                "private": false,
+                "quiet": false,
+                "shebang": false,
+              }
+            },
+            "settings": {
+              "allow_duplicate_recipes": false,
+              "dotenv_filename": null,
+              "dotenv_load": null,
+              "dotenv_path": null,
+              "export": false,
+              "fallback": false,
+              "positional_arguments": false,
+              "shell": null,
+              "tempdir" : null,
+              "ignore_comments": false,
+              "windows_powershell": false,
+              "windows_shell": null,
+            },
+            "warnings": [],
+          },
+        },
+        "recipes": {},
+        "settings": {
+          "allow_duplicate_recipes": false,
+          "dotenv_filename": null,
+          "dotenv_load": null,
+          "dotenv_path": null,
+          "export": false,
+          "fallback": false,
+          "positional_arguments": false,
+          "shell": null,
+          "tempdir" : null,
+          "ignore_comments": false,
+          "windows_powershell": false,
+          "windows_shell": null,
+        },
+        "warnings": [],
+      }))
+      .unwrap()
+    ))
+    .run();
+}

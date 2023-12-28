@@ -30,7 +30,7 @@ impl Compiler {
           Item::Mod { name, absolute } => {
             if !unstable {
               return Err(Error::Unstable {
-                message: "Modules are currently unstable.".into(),
+                message: "modules are currently unstable".into(),
               });
             }
             let import = current
