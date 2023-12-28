@@ -20,6 +20,6 @@ fn import_succeeds() {
     .test_round_trip(false)
     .arg("--unstable")
     .arg("foo")
-    .stdout("B\nA\n")
+    .stdout("baz\n")
     .run();
 }
