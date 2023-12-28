@@ -27,7 +27,11 @@ impl Compiler {
 
       for item in &mut ast.items {
         match item {
-          Item::Mod { name, absolute } => {
+          Item::Mod {
+            name,
+            absolute,
+            path,
+          } => {
             if !unstable {
               return Err(Error::Unstable {
                 message: "Modules are currently unstable.".into(),
@@ -36,7 +40,11 @@ impl Compiler {
 
             let parent = current.parent().unwrap();
 
-            let import = Self::find_module_file(parent, *name)?;
+            let import = if let Some(path) = path {
+              parent.join(&path.cooked)
+            } else {
+              Self::find_module_file(parent, *name)?
+            };
 
             if srcs.contains_key(&import) {
               return Err(Error::CircularImport { current, import });
