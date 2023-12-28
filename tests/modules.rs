@@ -301,6 +301,40 @@ fn modules_in_subdirectory_can_be_named_justfile() {
 }
 
 #[test]
+fn modules_in_subdirectory_can_be_named_justfile_with_any_case() {
+  Test::new()
+    .write("foo/JUSTFILE", "foo:\n @echo FOO")
+    .justfile(
+      "
+        mod foo
+      ",
+    )
+    .test_round_trip(false)
+    .arg("--unstable")
+    .arg("foo")
+    .arg("foo")
+    .stdout("FOO\n")
+    .run();
+}
+
+#[test]
+fn modules_in_subdirectory_can_have_leading_dot() {
+  Test::new()
+    .write("foo/.justfile", "foo:\n @echo FOO")
+    .justfile(
+      "
+        mod foo
+      ",
+    )
+    .test_round_trip(false)
+    .arg("--unstable")
+    .arg("foo")
+    .arg("foo")
+    .stdout("FOO\n")
+    .run();
+}
+
+#[test]
 fn modules_require_unambiguous_file() {
   Test::new()
     .write("foo/justfile", "foo:\n @echo FOO")
@@ -315,7 +349,7 @@ fn modules_require_unambiguous_file() {
     .status(EXIT_FAILURE)
     .stderr(
       "
-      error: Found multiple files for module `foo`: `foo.just` and `foo/justfile`
+      error: Found multiple source files for module `foo`: `foo.just` and `foo/justfile`
        --> justfile:1:5
         |
       1 | mod foo
@@ -338,7 +372,7 @@ fn missing_module_file_error() {
     .status(EXIT_FAILURE)
     .stderr(
       "
-      error: Could not find module `foo`.
+      error: Could not find source file for module `foo`.
        --> justfile:1:5
         |
       1 | mod foo

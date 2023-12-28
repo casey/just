@@ -2398,7 +2398,8 @@ B
 ```
 
 If a module is named `foo`, just will search for the module file in `foo.just`,
-`foo/mod.just`, and `foo/justfile`.
+`foo/mod.just`, `foo/justfile`, and `foo/.justfile`. In the latter two cases,
+the module file may have any capitalization.
 
 ### Hiding `justfile`s
 

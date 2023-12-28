@@ -2,26 +2,6 @@ use super::*;
 
 pub(crate) struct Compiler;
 
-fn find_module<'src>(parent: &Path, module: Name<'src>) -> RunResult<'src, PathBuf> {
-  let modules = vec![
-    format!("{module}.just"),
-    format!("{module}/mod.just"),
-    format!("{module}/justfile"),
-  ]
-  .into_iter()
-  .filter(|path| parent.join(path).is_file())
-  .collect::<Vec<String>>();
-
-  match modules.as_slice() {
-    [] => Err(Error::MissingModuleFile { module }),
-    [file] => Ok(parent.join(file).lexiclean()),
-    found => Err(Error::AmbiguousModuleFile {
-      found: found.into(),
-      module,
-    }),
-  }
-}
-
 impl Compiler {
   pub(crate) fn compile<'src>(
     unstable: bool,
@@ -56,7 +36,7 @@ impl Compiler {
 
             let parent = current.parent().unwrap();
 
-            let import = find_module(parent, *name)?;
+            let import = Self::find_module_file(parent, *name)?;
 
             if srcs.contains_key(&import) {
               return Err(Error::CircularImport { current, import });
@@ -87,6 +67,46 @@ impl Compiler {
       justfile,
       root: root.into(),
     })
+  }
+
+  fn find_module_file<'src>(parent: &Path, module: Name<'src>) -> RunResult<'src, PathBuf> {
+    let mut candidates = vec![format!("{module}.just"), format!("{module}/mod.just")]
+      .into_iter()
+      .filter(|path| parent.join(path).is_file())
+      .collect::<Vec<String>>();
+
+    let directory = parent.join(module.lexeme());
+
+    if directory.exists() {
+      let entries = fs::read_dir(&directory).map_err(|io_error| SearchError::Io {
+        io_error,
+        directory: directory.clone(),
+      })?;
+
+      for entry in entries {
+        let entry = entry.map_err(|io_error| SearchError::Io {
+          io_error,
+          directory: directory.clone(),
+        })?;
+
+        if let Some(name) = entry.file_name().to_str() {
+          for justfile_name in search::JUSTFILE_NAMES {
+            if name.eq_ignore_ascii_case(justfile_name) {
+              candidates.push(format!("{module}/{name}"));
+            }
+          }
+        }
+      }
+    }
+
+    match candidates.as_slice() {
+      [] => Err(Error::MissingModuleFile { module }),
+      [file] => Ok(parent.join(file).lexiclean()),
+      found => Err(Error::AmbiguousModuleFile {
+        found: found.into(),
+        module,
+      }),
+    }
   }
 
   #[cfg(test)]

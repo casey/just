@@ -235,7 +235,7 @@ impl<'src> ColorDisplay for Error<'src> {
     match self {
       AmbiguousModuleFile { module, found } =>
         write!(f,
-          "Found multiple files for module `{module}`: {}",
+          "Found multiple source files for module `{module}`: {}",
           List::and_ticked(found),
         )?,
       ArgumentCountMismatch { recipe, found, min, max, .. } => {
@@ -364,7 +364,7 @@ impl<'src> ColorDisplay for Error<'src> {
         let path = path.display();
         write!(f, "Failed to read justfile at `{path}`: {io_error}")?;
       }
-      MissingModuleFile { module } => write!(f, "Could not find module `{module}`.")?,
+      MissingModuleFile { module } => write!(f, "Could not find source file for module `{module}`.")?,
       NoChoosableRecipes => write!(f, "Justfile contains no choosable recipes.")?,
       NoDefaultRecipe => write!(f, "Justfile contains no default recipe.")?,
       NoRecipes => write!(f, "Justfile contains no recipes.")?,
