@@ -107,7 +107,7 @@ impl<'src> Justfile<'src> {
     Evaluator::evaluate_assignments(
       &self.assignments,
       config,
-      &dotenv,
+      dotenv,
       scope,
       &self.settings,
       search,
@@ -233,13 +233,13 @@ impl<'src> Justfile<'src> {
     let arguments = argvec.as_slice();
 
     let mut missing = Vec::new();
-    let mut grouped = Vec::new();
+    let mut invocations = Vec::new();
     let mut remaining = arguments;
     let mut scopes = BTreeMap::new();
     let arena: Arena<Scope> = Arena::new();
 
     while let Some((first, mut rest)) = remaining.split_first() {
-      if let Some((invocation, consumed)) = self.group(
+      if let Some((invocation, consumed)) = self.invocation(
         0,
         &mut Vec::new(),
         &arena,
@@ -252,7 +252,7 @@ impl<'src> Justfile<'src> {
         rest,
       )? {
         rest = &rest[consumed..];
-        grouped.push(invocation);
+        invocations.push(invocation);
       } else {
         missing.push((*first).to_owned());
       }
@@ -271,12 +271,8 @@ impl<'src> Justfile<'src> {
       });
     }
 
-    // todo:
-    // - settings
-    // - scope
-
     let mut ran = BTreeSet::new();
-    for invocation in grouped {
+    for invocation in invocations {
       let context = RecipeContext {
         settings: invocation.settings,
         config,
@@ -309,7 +305,8 @@ impl<'src> Justfile<'src> {
       .or_else(|| self.aliases.get(name).map(|alias| alias.target.as_ref()))
   }
 
-  fn group<'run>(
+  #[allow(clippy::too_many_arguments)]
+  fn invocation<'run>(
     &'run self,
     depth: usize,
     path: &mut Vec<&'run str>,
@@ -355,7 +352,7 @@ impl<'src> Justfile<'src> {
         }
         Err(Error::NoDefaultRecipe)
       } else {
-        module.group(
+        module.invocation(
           depth + 1,
           path,
           arena,
@@ -434,7 +431,7 @@ impl<'src> Justfile<'src> {
       dotenv,
       &recipe.parameters,
       arguments,
-      &context.scope,
+      context.scope,
       context.settings,
       search,
     )?;
