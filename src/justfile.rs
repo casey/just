@@ -1,5 +1,13 @@
 use {super::*, serde::Serialize};
 
+#[derive(Debug)]
+struct Invocation<'src: 'run, 'run> {
+  arguments: &'run [&'run str],
+  recipe: &'run Recipe<'src>,
+  settings: &'run Settings<'src>,
+  scope: &'run Scope<'src, 'run>,
+}
+
 #[derive(Debug, PartialEq, Serialize)]
 pub(crate) struct Justfile<'src> {
   pub(crate) aliases: Table<'src, Alias<'src>>,
@@ -68,6 +76,44 @@ impl<'src> Justfile<'src> {
       .next()
   }
 
+  fn scope<'run>(
+    &'run self,
+    config: &'run Config,
+    dotenv: &'run BTreeMap<String, String>,
+    search: &'run Search,
+    overrides: &BTreeMap<String, String>,
+    parent: &'run Scope<'src, 'run>,
+  ) -> RunResult<'src, Scope<'src, 'run>>
+  where
+    'src: 'run,
+  {
+    let mut scope = parent.child();
+    let mut unknown_overrides = Vec::new();
+
+    for (name, value) in overrides {
+      if let Some(assignment) = self.assignments.get(name) {
+        scope.bind(assignment.export, assignment.name, value.clone());
+      } else {
+        unknown_overrides.push(name.clone());
+      }
+    }
+
+    if !unknown_overrides.is_empty() {
+      return Err(Error::UnknownOverrides {
+        overrides: unknown_overrides,
+      });
+    }
+
+    Evaluator::evaluate_assignments(
+      &self.assignments,
+      config,
+      &dotenv,
+      scope,
+      &self.settings,
+      search,
+    )
+  }
+
   pub(crate) fn run(
     &self,
     config: &Config,
@@ -93,33 +139,9 @@ impl<'src> Justfile<'src> {
       BTreeMap::new()
     };
 
-    let scope = {
-      let mut scope = Scope::new();
-      let mut unknown_overrides = Vec::new();
+    let root = Scope::new();
 
-      for (name, value) in overrides {
-        if let Some(assignment) = self.assignments.get(name) {
-          scope.bind(assignment.export, assignment.name, value.clone());
-        } else {
-          unknown_overrides.push(name.clone());
-        }
-      }
-
-      if !unknown_overrides.is_empty() {
-        return Err(Error::UnknownOverrides {
-          overrides: unknown_overrides,
-        });
-      }
-
-      Evaluator::evaluate_assignments(
-        &self.assignments,
-        config,
-        &dotenv,
-        scope,
-        &self.settings,
-        search,
-      )?
-    };
+    let scope = self.scope(config, &dotenv, search, overrides, &root)?;
 
     match &config.subcommand {
       Subcommand::Command {
@@ -210,14 +232,27 @@ impl<'src> Justfile<'src> {
 
     let arguments = argvec.as_slice();
 
-    let mut missing = vec![];
-    let mut grouped = vec![];
+    let mut missing = Vec::new();
+    let mut grouped = Vec::new();
     let mut remaining = arguments;
+    let mut scopes = BTreeMap::new();
+    let arena: Arena<Scope> = Arena::new();
 
     while let Some((first, mut rest)) = remaining.split_first() {
-      if let Some((recipe, arguments, consumed)) = self.group(0, first, rest)? {
+      if let Some((invocation, consumed)) = self.group(
+        0,
+        &mut Vec::new(),
+        &arena,
+        &mut scopes,
+        config,
+        &dotenv,
+        search,
+        &scope,
+        first,
+        rest,
+      )? {
         rest = &rest[consumed..];
-        grouped.push((recipe, arguments));
+        grouped.push(invocation);
       } else {
         missing.push((*first).to_owned());
       }
@@ -236,16 +271,27 @@ impl<'src> Justfile<'src> {
       });
     }
 
-    let context = RecipeContext {
-      settings: &self.settings,
-      config,
-      scope,
-      search,
-    };
+    // todo:
+    // - settings
+    // - scope
 
     let mut ran = BTreeSet::new();
-    for (recipe, arguments) in grouped {
-      Self::run_recipe(&context, recipe, arguments, &dotenv, search, &mut ran)?;
+    for invocation in grouped {
+      let context = RecipeContext {
+        settings: invocation.settings,
+        config,
+        scope: invocation.scope,
+        search,
+      };
+
+      Self::run_recipe(
+        &context,
+        invocation.recipe,
+        invocation.arguments,
+        &dotenv,
+        search,
+        &mut ran,
+      )?;
     }
 
     Ok(())
@@ -263,13 +309,31 @@ impl<'src> Justfile<'src> {
       .or_else(|| self.aliases.get(name).map(|alias| alias.target.as_ref()))
   }
 
-  fn group<'a, 'b>(
-    &self,
+  fn group<'run>(
+    &'run self,
     depth: usize,
-    first: &str,
-    rest: &'a [&'b str],
-  ) -> RunResult<'src, Option<(&Recipe<'src>, &'a [&'b str], usize)>> {
+    path: &mut Vec<&'run str>,
+    arena: &'run Arena<Scope<'src, 'run>>,
+    scopes: &mut BTreeMap<Vec<&'run str>, &'run Scope<'src, 'run>>,
+    config: &'run Config,
+    dotenv: &'run BTreeMap<String, String>,
+    search: &'run Search,
+    parent: &'run Scope<'src, 'run>,
+    first: &'run str,
+    rest: &'run [&'run str],
+  ) -> RunResult<'src, Option<(Invocation<'src, 'run>, usize)>> {
     if let Some(module) = self.modules.get(first) {
+      path.push(first);
+
+      let scope = if let Some(scope) = scopes.get(path) {
+        scope
+      } else {
+        let scope = module.scope(config, dotenv, search, &BTreeMap::new(), parent)?;
+        let scope = arena.alloc(scope);
+        scopes.insert(path.clone(), scope);
+        scopes.get(path).unwrap()
+      };
+
       if rest.is_empty() {
         if let Some(recipe) = &module.default {
           let min_arguments = recipe.min_arguments();
@@ -279,15 +343,42 @@ impl<'src> Justfile<'src> {
               min_arguments,
             });
           }
-          return Ok(Some((recipe, &[], depth)));
+          return Ok(Some((
+            Invocation {
+              settings: &module.settings,
+              recipe,
+              arguments: &[],
+              scope,
+            },
+            depth,
+          )));
         }
         Err(Error::NoDefaultRecipe)
       } else {
-        module.group(depth + 1, rest[0], &rest[1..])
+        module.group(
+          depth + 1,
+          path,
+          arena,
+          scopes,
+          config,
+          dotenv,
+          search,
+          scope,
+          rest[0],
+          &rest[1..],
+        )
       }
     } else if let Some(recipe) = self.get_recipe(first) {
       if recipe.parameters.is_empty() {
-        Ok(Some((recipe, &[], depth)))
+        Ok(Some((
+          Invocation {
+            arguments: &[],
+            recipe,
+            scope: parent,
+            settings: &self.settings,
+          },
+          depth,
+        )))
       } else {
         let argument_range = recipe.argument_range();
         let argument_count = cmp::min(rest.len(), recipe.max_arguments());
@@ -301,8 +392,12 @@ impl<'src> Justfile<'src> {
           });
         }
         Ok(Some((
-          recipe,
-          &rest[..argument_count],
+          Invocation {
+            arguments: &rest[..argument_count],
+            recipe,
+            scope: parent,
+            settings: &self.settings,
+          },
           depth + argument_count,
         )))
       }
