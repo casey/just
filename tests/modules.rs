@@ -385,7 +385,7 @@ fn missing_module_file_error() {
 #[test]
 fn list_displays_recipes_in_submodules() {
   Test::new()
-    .write("foo.just", "foo:\n @echo FOO")
+    .write("foo.just", "bar:\n @echo FOO")
     .justfile(
       "
         mod foo
@@ -398,28 +398,49 @@ fn list_displays_recipes_in_submodules() {
       "
       Available recipes:
           foo:
-              foo
+              bar
     ",
     )
     .run();
 }
 
 #[test]
-fn module_recipes_run_in_module_directory() {
-  todo!()
+fn root_dotenv_is_available_to_submodules() {
+  Test::new()
+    .write("foo.just", "foo:\n @echo $DOTENV_KEY")
+    .justfile(
+      "
+        set dotenv-load
+
+        mod foo
+      ",
+    )
+    .test_round_trip(false)
+    .arg("--unstable")
+    .arg("foo")
+    .arg("foo")
+    .stdout("dotenv-value\n")
+    .run();
 }
 
 #[test]
-fn dotenv_files_are_loaded_on_a_per_module_basis() {
-  todo!()
-}
+fn dotenv_settings_in_submodule_are_ignored() {
+  Test::new()
+    .write(
+      "foo.just",
+      "set dotenv-load := false\nfoo:\n @echo $DOTENV_KEY",
+    )
+    .justfile(
+      "
+        set dotenv-load
 
-#[test]
-fn justfile_function_returns_submodule_path() {
-  todo!()
-}
-
-#[test]
-fn justfile_directory_function_returns_submodule_directory() {
-  todo!()
+        mod foo
+      ",
+    )
+    .test_round_trip(false)
+    .arg("--unstable")
+    .arg("foo")
+    .arg("foo")
+    .stdout("dotenv-value\n")
+    .run();
 }
