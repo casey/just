@@ -2397,6 +2397,9 @@ $ just bar b
 B
 ```
 
+If a module is named `foo`, just will search for the module file in `foo.just`,
+`foo/mod.just`, and `foo/justfile`.
+
 ### Hiding `justfile`s
 
 `just` looks for `justfile`s named `justfile` and `.justfile`, which can be used to keep a `justfile` hidden.

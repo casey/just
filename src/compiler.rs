@@ -2,6 +2,26 @@ use super::*;
 
 pub(crate) struct Compiler;
 
+fn find_module<'src>(parent: &Path, module: Name<'src>) -> RunResult<'src, PathBuf> {
+  let modules = vec![
+    format!("{module}.just"),
+    format!("{module}/mod.just"),
+    format!("{module}/justfile"),
+  ]
+  .into_iter()
+  .filter(|path| parent.join(path).is_file())
+  .collect::<Vec<String>>();
+
+  match modules.as_slice() {
+    [] => Err(Error::MissingModuleFile { module }),
+    [file] => Ok(parent.join(file).lexiclean()),
+    found => Err(Error::AmbiguousModuleFile {
+      found: found.into(),
+      module,
+    }),
+  }
+}
+
 impl Compiler {
   pub(crate) fn compile<'src>(
     unstable: bool,
@@ -33,11 +53,11 @@ impl Compiler {
                 message: "Modules are currently unstable.".into(),
               });
             }
-            let import = current
-              .parent()
-              .unwrap()
-              .join(format!("{name}.just"))
-              .lexiclean();
+
+            let parent = current.parent().unwrap();
+
+            let import = find_module(parent, *name)?;
+
             if srcs.contains_key(&import) {
               return Err(Error::CircularImport { current, import });
             }

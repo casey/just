@@ -268,17 +268,84 @@ fn modules_are_dumped_correctly() {
 
 #[test]
 fn modules_can_be_in_subdirectory() {
-  todo!()
+  Test::new()
+    .write("foo/mod.just", "foo:\n @echo FOO")
+    .justfile(
+      "
+        mod foo
+      ",
+    )
+    .test_round_trip(false)
+    .arg("--unstable")
+    .arg("foo")
+    .arg("foo")
+    .stdout("FOO\n")
+    .run();
 }
 
 #[test]
 fn modules_in_subdirectory_can_be_named_justfile() {
-  todo!()
+  Test::new()
+    .write("foo/justfile", "foo:\n @echo FOO")
+    .justfile(
+      "
+        mod foo
+      ",
+    )
+    .test_round_trip(false)
+    .arg("--unstable")
+    .arg("foo")
+    .arg("foo")
+    .stdout("FOO\n")
+    .run();
 }
 
 #[test]
 fn modules_require_unambiguous_file() {
-  todo!()
+  Test::new()
+    .write("foo/justfile", "foo:\n @echo FOO")
+    .write("foo.just", "foo:\n @echo FOO")
+    .justfile(
+      "
+        mod foo
+      ",
+    )
+    .test_round_trip(false)
+    .arg("--unstable")
+    .status(EXIT_FAILURE)
+    .stderr(
+      "
+      error: Found multiple files for module `foo`: `foo.just` and `foo/justfile`
+       --> justfile:1:5
+        |
+      1 | mod foo
+        |     ^^^
+      ",
+    )
+    .run();
+}
+
+#[test]
+fn missing_module_file_error() {
+  Test::new()
+    .justfile(
+      "
+        mod foo
+      ",
+    )
+    .test_round_trip(false)
+    .arg("--unstable")
+    .status(EXIT_FAILURE)
+    .stderr(
+      "
+      error: Could not find module `foo`.
+       --> justfile:1:5
+        |
+      1 | mod foo
+        |     ^^^
+      ",
+    )
+    .run();
 }
 
 #[test]
