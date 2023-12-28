@@ -2329,7 +2329,7 @@ And will both invoke recipes `a` and `b` in `foo/justfile`.
 
 ### Imports
 
-One `justfile` can include the contents of another using an `import` statement.
+One `justfile` can include the contents of another using `import` statements.
 
 If you have the following `justfile`:
 
@@ -2365,6 +2365,51 @@ and recipes defined after the `import` statement.
 
 Imported files can themselves contain `import`s, which are processed
 recursively.
+
+### Modules<sup>master</sup>
+
+A `justfile` can declare modules using `mod` statements. `mod` statements are
+currently unstable, so you'll need to use the `--unstable` flag, or set the
+`JUST_UNSTABLE` environment variable to use them.
+
+If you have the following `justfile`:
+
+```mf
+mod bar
+
+a:
+  @echo A
+```
+
+And the following text in `bar.just`:
+
+```just
+b:
+  @echo B
+```
+
+`bar.just` will be included in `justfile` as a submodule. Recipes, aliases, and
+variables defined in one submodule cannot be used in another, and each module
+uses its own settings.
+
+Recipes in submodules can be invoked as subcommands:
+
+```sh
+$ just --unstable bar b
+B
+```
+
+If a module is named `foo`, just will search for the module file in `foo.just`,
+`foo/mod.just`, `foo/justfile`, and `foo/.justfile`. In the latter two cases,
+the module file may have any capitalization.
+
+Environment files are loaded for the root justfile.
+
+Currently, recipes in submodules run with the same working directory as the
+root `justfile`, and the `justfile()` and `justfile_directory()` functions
+return the path to the root `justfile` and its parent directory.
+
+See the [module stabilization tracking issue](https://github.com/casey/just/issues/929) for more information.
 
 ### Hiding `justfile`s
 

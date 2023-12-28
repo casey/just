@@ -4,6 +4,7 @@ pub(crate) struct Compiler;
 
 impl Compiler {
   pub(crate) fn compile<'src>(
+    unstable: bool,
     loader: &'src Loader,
     root: &Path,
   ) -> RunResult<'src, Compilation<'src>> {
@@ -25,20 +26,40 @@ impl Compiler {
       srcs.insert(current.clone(), src);
 
       for item in &mut ast.items {
-        if let Item::Import { relative, absolute } = item {
-          let import = current.parent().unwrap().join(&relative.cooked).lexiclean();
-          if srcs.contains_key(&import) {
-            return Err(Error::CircularImport { current, import });
+        match item {
+          Item::Mod { name, absolute } => {
+            if !unstable {
+              return Err(Error::Unstable {
+                message: "Modules are currently unstable.".into(),
+              });
+            }
+
+            let parent = current.parent().unwrap();
+
+            let import = Self::find_module_file(parent, *name)?;
+
+            if srcs.contains_key(&import) {
+              return Err(Error::CircularImport { current, import });
+            }
+            *absolute = Some(import.clone());
+            stack.push(import);
           }
-          *absolute = Some(import.clone());
-          stack.push(import);
+          Item::Import { relative, absolute } => {
+            let import = current.parent().unwrap().join(&relative.cooked).lexiclean();
+            if srcs.contains_key(&import) {
+              return Err(Error::CircularImport { current, import });
+            }
+            *absolute = Some(import.clone());
+            stack.push(import);
+          }
+          _ => {}
         }
       }
 
       asts.insert(current.clone(), ast.clone());
     }
 
-    let justfile = Analyzer::analyze(loaded, &paths, &asts, root)?;
+    let justfile = Analyzer::analyze(&loaded, &paths, &asts, root)?;
 
     Ok(Compilation {
       asts,
@@ -46,6 +67,46 @@ impl Compiler {
       justfile,
       root: root.into(),
     })
+  }
+
+  fn find_module_file<'src>(parent: &Path, module: Name<'src>) -> RunResult<'src, PathBuf> {
+    let mut candidates = vec![format!("{module}.just"), format!("{module}/mod.just")]
+      .into_iter()
+      .filter(|path| parent.join(path).is_file())
+      .collect::<Vec<String>>();
+
+    let directory = parent.join(module.lexeme());
+
+    if directory.exists() {
+      let entries = fs::read_dir(&directory).map_err(|io_error| SearchError::Io {
+        io_error,
+        directory: directory.clone(),
+      })?;
+
+      for entry in entries {
+        let entry = entry.map_err(|io_error| SearchError::Io {
+          io_error,
+          directory: directory.clone(),
+        })?;
+
+        if let Some(name) = entry.file_name().to_str() {
+          for justfile_name in search::JUSTFILE_NAMES {
+            if name.eq_ignore_ascii_case(justfile_name) {
+              candidates.push(format!("{module}/{name}"));
+            }
+          }
+        }
+      }
+    }
+
+    match candidates.as_slice() {
+      [] => Err(Error::MissingModuleFile { module }),
+      [file] => Ok(parent.join(file).lexiclean()),
+      found => Err(Error::AmbiguousModuleFile {
+        found: found.into(),
+        module,
+      }),
+    }
   }
 
   #[cfg(test)]
@@ -57,7 +118,7 @@ impl Compiler {
     asts.insert(root.clone(), ast);
     let mut paths: HashMap<PathBuf, PathBuf> = HashMap::new();
     paths.insert(root.clone(), root.clone());
-    Analyzer::analyze(Vec::new(), &paths, &asts, &root)
+    Analyzer::analyze(&[], &paths, &asts, &root)
   }
 }
 
@@ -97,7 +158,7 @@ recipe_b: recipe_c
     let loader = Loader::new();
 
     let justfile_a_path = tmp.path().join("justfile");
-    let compilation = Compiler::compile(&loader, &justfile_a_path).unwrap();
+    let compilation = Compiler::compile(false, &loader, &justfile_a_path).unwrap();
 
     assert_eq!(compilation.root_src(), justfile_a);
   }
@@ -129,7 +190,7 @@ recipe_b:
     let loader = Loader::new();
 
     let justfile_a_path = tmp.path().join("justfile");
-    let loader_output = Compiler::compile(&loader, &justfile_a_path).unwrap_err();
+    let loader_output = Compiler::compile(false, &loader, &justfile_a_path).unwrap_err();
 
     assert_matches!(loader_output, Error::CircularImport { current, import }
         if current == tmp.path().join("subdir").join("justfile_b").lexiclean() &&

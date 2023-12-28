@@ -1,7 +1,7 @@
 use {super::*, std::path::Component};
 
 const DEFAULT_JUSTFILE_NAME: &str = JUSTFILE_NAMES[0];
-const JUSTFILE_NAMES: &[&str] = &["justfile", ".justfile"];
+pub(crate) const JUSTFILE_NAMES: &[&str] = &["justfile", ".justfile"];
 const PROJECT_ROOT_CHILDREN: &[&str] = &[".bzr", ".git", ".hg", ".svn", "_darcs"];
 
 pub(crate) struct Search {
@@ -109,7 +109,7 @@ impl Search {
     }
   }
 
-  fn justfile(directory: &Path) -> SearchResult<PathBuf> {
+  pub(crate) fn justfile(directory: &Path) -> SearchResult<PathBuf> {
     for directory in directory.ancestors() {
       let mut candidates = BTreeSet::new();
 

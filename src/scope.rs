@@ -8,14 +8,14 @@ pub(crate) struct Scope<'src: 'run, 'run> {
 
 impl<'src, 'run> Scope<'src, 'run> {
   pub(crate) fn child(&'run self) -> Scope<'src, 'run> {
-    Scope {
+    Self {
       parent: Some(self),
       bindings: Table::new(),
     }
   }
 
   pub(crate) fn new() -> Scope<'src, 'run> {
-    Scope {
+    Self {
       parent: None,
       bindings: Table::new(),
     }

@@ -1,6 +1,6 @@
 use super::*;
 
-fn test(justfile: &str, value: Value) {
+fn case(justfile: &str, value: Value) {
   Test::new()
     .justfile(justfile)
     .args(["--dump", "--dump-format", "json", "--unstable"])
@@ -10,7 +10,7 @@ fn test(justfile: &str, value: Value) {
 
 #[test]
 fn alias() {
-  test(
+  case(
     "
       alias f := foo
 
@@ -26,6 +26,7 @@ fn alias() {
         }
       },
       "assignments": {},
+      "modules": {},
       "recipes": {
         "foo": {
           "attributes": [],
@@ -61,7 +62,7 @@ fn alias() {
 
 #[test]
 fn assignment() {
-  test(
+  case(
     "foo := 'bar'",
     json!({
       "aliases": {},
@@ -73,6 +74,7 @@ fn assignment() {
         }
       },
       "first": null,
+      "modules": {},
       "recipes": {},
       "settings": {
         "allow_duplicate_recipes": false,
@@ -95,7 +97,7 @@ fn assignment() {
 
 #[test]
 fn body() {
-  test(
+  case(
     "
       foo:
         bar
@@ -105,6 +107,7 @@ fn body() {
       "aliases": {},
       "assignments": {},
       "first": "foo",
+      "modules": {},
       "recipes": {
         "foo": {
           "attributes": [],
@@ -143,7 +146,7 @@ fn body() {
 
 #[test]
 fn dependencies() {
-  test(
+  case(
     "
       foo:
       bar: foo
@@ -152,6 +155,7 @@ fn dependencies() {
       "aliases": {},
       "assignments": {},
       "first": "foo",
+      "modules": {},
       "recipes": {
         "bar": {
           "attributes": [],
@@ -202,7 +206,7 @@ fn dependencies() {
 
 #[test]
 fn dependency_argument() {
-  test(
+  case(
     "
       x := 'foo'
       foo *args:
@@ -230,6 +234,7 @@ fn dependency_argument() {
           "value": "foo",
         },
       },
+      "modules": {},
       "recipes": {
         "bar": {
           "doc": null,
@@ -298,7 +303,7 @@ fn dependency_argument() {
 
 #[test]
 fn duplicate_recipes() {
-  test(
+  case(
     "
       set allow-duplicate-recipes
       alias f := foo
@@ -316,6 +321,7 @@ fn duplicate_recipes() {
         }
       },
       "assignments": {},
+      "modules": {},
       "recipes": {
         "foo": {
           "body": [],
@@ -358,12 +364,13 @@ fn duplicate_recipes() {
 
 #[test]
 fn doc_comment() {
-  test(
+  case(
     "# hello\nfoo:",
     json!({
       "aliases": {},
       "first": "foo",
       "assignments": {},
+      "modules": {},
       "recipes": {
         "foo": {
           "body": [],
@@ -399,12 +406,13 @@ fn doc_comment() {
 
 #[test]
 fn empty_justfile() {
-  test(
+  case(
     "",
     json!({
       "aliases": {},
       "assignments": {},
       "first": null,
+      "modules": {},
       "recipes": {},
       "settings": {
         "allow_duplicate_recipes": false,
@@ -427,7 +435,7 @@ fn empty_justfile() {
 
 #[test]
 fn parameters() {
-  test(
+  case(
     "
       a:
       b x:
@@ -440,6 +448,7 @@ fn parameters() {
       "aliases": {},
       "first": "a",
       "assignments": {},
+      "modules": {},
       "recipes": {
         "a": {
           "attributes": [],
@@ -570,7 +579,7 @@ fn parameters() {
 
 #[test]
 fn priors() {
-  test(
+  case(
     "
       a:
       b: a && c
@@ -580,6 +589,7 @@ fn priors() {
       "aliases": {},
       "assignments": {},
       "first": "a",
+      "modules": {},
       "recipes": {
         "a": {
           "body": [],
@@ -649,12 +659,13 @@ fn priors() {
 
 #[test]
 fn private() {
-  test(
+  case(
     "_foo:",
     json!({
       "aliases": {},
       "assignments": {},
       "first": "_foo",
+      "modules": {},
       "recipes": {
         "_foo": {
           "body": [],
@@ -690,12 +701,13 @@ fn private() {
 
 #[test]
 fn quiet() {
-  test(
+  case(
     "@foo:",
     json!({
       "aliases": {},
       "assignments": {},
       "first": "foo",
+      "modules": {},
       "recipes": {
         "foo": {
           "body": [],
@@ -731,7 +743,7 @@ fn quiet() {
 
 #[test]
 fn settings() {
-  test(
+  case(
     "
       set dotenv-load
       set dotenv-filename := \"filename\"
@@ -748,6 +760,7 @@ fn settings() {
       "aliases": {},
       "assignments": {},
       "first": "foo",
+      "modules": {},
       "recipes": {
         "foo": {
           "body": [["#!bar"]],
@@ -786,7 +799,7 @@ fn settings() {
 
 #[test]
 fn shebang() {
-  test(
+  case(
     "
       foo:
         #!bar
@@ -795,6 +808,7 @@ fn shebang() {
       "aliases": {},
       "assignments": {},
       "first": "foo",
+      "modules": {},
       "recipes": {
         "foo": {
           "body": [["#!bar"]],
@@ -830,12 +844,13 @@ fn shebang() {
 
 #[test]
 fn simple() {
-  test(
+  case(
     "foo:",
     json!({
       "aliases": {},
       "assignments": {},
       "first": "foo",
+      "modules": {},
       "recipes": {
         "foo": {
           "body": [],
@@ -871,7 +886,7 @@ fn simple() {
 
 #[test]
 fn attribute() {
-  test(
+  case(
     "
       [no-exit-message]
       foo:
@@ -880,6 +895,7 @@ fn attribute() {
       "aliases": {},
       "assignments": {},
       "first": "foo",
+      "modules": {},
       "recipes": {
         "foo": {
           "attributes": ["no-exit-message"],
@@ -911,4 +927,82 @@ fn attribute() {
       "warnings": [],
     }),
   );
+}
+
+#[test]
+fn module() {
+  Test::new()
+    .justfile(
+      "
+      mod foo
+    ",
+    )
+    .tree(tree! {
+      "foo.just": "bar:",
+    })
+    .args(["--dump", "--dump-format", "json", "--unstable"])
+    .test_round_trip(false)
+    .stdout(format!(
+      "{}\n",
+      serde_json::to_string(&json!({
+        "aliases": {},
+        "assignments": {},
+        "first": null,
+        "modules": {
+          "foo": {
+            "aliases": {},
+            "assignments": {},
+            "first": "bar",
+            "modules": {},
+            "recipes": {
+              "bar": {
+                "attributes": [],
+                "body": [],
+                "dependencies": [],
+                "doc": null,
+                "name": "bar",
+                "parameters": [],
+                "priors": 0,
+                "private": false,
+                "quiet": false,
+                "shebang": false,
+              }
+            },
+            "settings": {
+              "allow_duplicate_recipes": false,
+              "dotenv_filename": null,
+              "dotenv_load": null,
+              "dotenv_path": null,
+              "export": false,
+              "fallback": false,
+              "positional_arguments": false,
+              "shell": null,
+              "tempdir" : null,
+              "ignore_comments": false,
+              "windows_powershell": false,
+              "windows_shell": null,
+            },
+            "warnings": [],
+          },
+        },
+        "recipes": {},
+        "settings": {
+          "allow_duplicate_recipes": false,
+          "dotenv_filename": null,
+          "dotenv_load": null,
+          "dotenv_path": null,
+          "export": false,
+          "fallback": false,
+          "positional_arguments": false,
+          "shell": null,
+          "tempdir" : null,
+          "ignore_comments": false,
+          "windows_powershell": false,
+          "windows_shell": null,
+        },
+        "warnings": [],
+      }))
+      .unwrap()
+    ))
+    .run();
 }

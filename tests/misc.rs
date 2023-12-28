@@ -133,11 +133,11 @@ test! {
   name: alias_shadows_recipe,
   justfile: "bar:\n  echo bar\nalias foo := bar\nfoo:\n  echo foo",
   stderr: "
-    error: Alias `foo` defined on line 3 shadows recipe `foo` defined on line 4
-     --> justfile:3:7
+    error: Alias `foo` defined on line 3 is redefined as a recipe on line 4
+     --> justfile:4:1
       |
-    3 | alias foo := bar
-      |       ^^^
+    4 | foo:
+      | ^^^
   ",
   status: EXIT_FAILURE,
 }

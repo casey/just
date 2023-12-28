@@ -79,7 +79,7 @@ impl Subcommand {
       }
       Dump => Self::dump(config, ast, justfile)?,
       Format => Self::format(config, &search, src, ast)?,
-      List => Self::list(config, justfile),
+      List => Self::list(config, 0, justfile),
       Show { ref name } => Self::show(config, name, justfile)?,
       Summary => Self::summary(config, justfile),
       Variables => Self::variables(justfile),
@@ -180,7 +180,7 @@ impl Subcommand {
     loader: &'src Loader,
     search: &Search,
   ) -> Result<Compilation<'src>, Error<'src>> {
-    let compilation = Compiler::compile(loader, &search.justfile)?;
+    let compilation = Compiler::compile(config.unstable, loader, &search.justfile)?;
 
     if config.verbosity.loud() {
       for warning in &compilation.justfile.warnings {
@@ -426,7 +426,7 @@ impl Subcommand {
     }
   }
 
-  fn list(config: &Config, justfile: &Justfile) {
+  fn list(config: &Config, level: usize, justfile: &Justfile) {
     // Construct a target to alias map.
     let mut recipe_aliases: BTreeMap<&str, Vec<&str>> = BTreeMap::new();
     for alias in justfile.aliases.values() {
@@ -465,9 +465,11 @@ impl Subcommand {
     }
 
     let max_line_width = cmp::min(line_widths.values().copied().max().unwrap_or(0), 30);
-
     let doc_color = config.color.stdout().doc();
-    print!("{}", config.list_heading);
+
+    if level == 0 {
+      print!("{}", config.list_heading);
+    }
 
     for recipe in justfile.public_recipes(config.unsorted) {
       let name = recipe.name();
@@ -476,7 +478,7 @@ impl Subcommand {
         .chain(recipe_aliases.get(name).unwrap_or(&Vec::new()))
         .enumerate()
       {
-        print!("{}{name}", config.list_prefix);
+        print!("{}{name}", config.list_prefix.repeat(level + 1));
         for parameter in &recipe.parameters {
           print!(" {}", parameter.color_display(config.color.stdout()));
         }
@@ -505,6 +507,11 @@ impl Subcommand {
         }
         println!();
       }
+    }
+
+    for (name, module) in &justfile.modules {
+      println!("    {name}:");
+      Self::list(config, level + 1, module);
     }
   }
 

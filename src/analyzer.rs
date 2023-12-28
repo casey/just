@@ -9,7 +9,7 @@ pub(crate) struct Analyzer<'src> {
 
 impl<'src> Analyzer<'src> {
   pub(crate) fn analyze(
-    loaded: Vec<PathBuf>,
+    loaded: &[PathBuf],
     paths: &HashMap<PathBuf, PathBuf>,
     asts: &HashMap<PathBuf, Ast<'src>>,
     root: &Path,
@@ -19,7 +19,7 @@ impl<'src> Analyzer<'src> {
 
   fn justfile(
     mut self,
-    loaded: Vec<PathBuf>,
+    loaded: &[PathBuf],
     paths: &HashMap<PathBuf, PathBuf>,
     asts: &HashMap<PathBuf, Ast<'src>>,
     root: &Path,
@@ -31,11 +31,42 @@ impl<'src> Analyzer<'src> {
 
     let mut warnings = Vec::new();
 
+    let mut modules: BTreeMap<String, (Name, Justfile)> = BTreeMap::new();
+
+    let mut definitions: HashMap<&str, (&'static str, Name)> = HashMap::new();
+
+    let mut define = |name: Name<'src>,
+                      second_type: &'static str,
+                      duplicates_allowed: bool|
+     -> CompileResult<'src, ()> {
+      if let Some((first_type, original)) = definitions.get(name.lexeme()) {
+        if !(*first_type == second_type && duplicates_allowed) {
+          let (original, redefinition) = if name.line < original.line {
+            (name, *original)
+          } else {
+            (*original, name)
+          };
+
+          return Err(redefinition.token().error(Redefinition {
+            first_type,
+            second_type,
+            name: name.lexeme(),
+            first: original.line,
+          }));
+        }
+      }
+
+      definitions.insert(name.lexeme(), (second_type, name));
+
+      Ok(())
+    };
+
     while let Some(ast) = stack.pop() {
       for item in &ast.items {
         match item {
           Item::Alias(alias) => {
-            self.analyze_alias(alias)?;
+            define(alias.name, "alias", false)?;
+            Self::analyze_alias(alias)?;
             self.aliases.insert(alias.clone());
           }
           Item::Assignment(assignment) => {
@@ -43,6 +74,19 @@ impl<'src> Analyzer<'src> {
             self.assignments.insert(assignment.clone());
           }
           Item::Comment(_) => (),
+          Item::Import { absolute, .. } => {
+            stack.push(asts.get(absolute.as_ref().unwrap()).unwrap());
+          }
+          Item::Mod { absolute, name } => {
+            define(*name, "module", false)?;
+            modules.insert(
+              name.to_string(),
+              (
+                *name,
+                Self::analyze(loaded, paths, asts, absolute.as_ref().unwrap())?,
+              ),
+            );
+          }
           Item::Recipe(recipe) => {
             if recipe.enabled() {
               Self::analyze_recipe(recipe)?;
@@ -52,9 +96,6 @@ impl<'src> Analyzer<'src> {
           Item::Set(set) => {
             self.analyze_set(set)?;
             self.sets.insert(set.clone());
-          }
-          Item::Import { absolute, .. } => {
-            stack.push(asts.get(absolute.as_ref().unwrap()).unwrap());
           }
         }
       }
@@ -69,14 +110,7 @@ impl<'src> Analyzer<'src> {
     AssignmentResolver::resolve_assignments(&self.assignments)?;
 
     for recipe in recipes {
-      if let Some(original) = recipe_table.get(recipe.name.lexeme()) {
-        if !settings.allow_duplicate_recipes {
-          return Err(recipe.name.token().error(DuplicateRecipe {
-            recipe: original.name(),
-            first: original.line_number(),
-          }));
-        }
-      }
+      define(recipe.name, "recipe", settings.allow_duplicate_recipes)?;
       recipe_table.insert(recipe.clone());
     }
 
@@ -103,10 +137,14 @@ impl<'src> Analyzer<'src> {
         }),
       aliases,
       assignments: self.assignments,
-      loaded,
+      loaded: loaded.into(),
       recipes,
       settings,
       warnings,
+      modules: modules
+        .into_iter()
+        .map(|(name, (_name, justfile))| (name, justfile))
+        .collect(),
     })
   }
 
@@ -164,15 +202,8 @@ impl<'src> Analyzer<'src> {
     Ok(())
   }
 
-  fn analyze_alias(&self, alias: &Alias<'src, Name<'src>>) -> CompileResult<'src, ()> {
+  fn analyze_alias(alias: &Alias<'src, Name<'src>>) -> CompileResult<'src, ()> {
     let name = alias.name.lexeme();
-
-    if let Some(original) = self.aliases.get(name) {
-      return Err(alias.name.token().error(DuplicateAlias {
-        alias: name,
-        first: original.line_number(),
-      }));
-    }
 
     for attr in &alias.attributes {
       if *attr != Attribute::Private {
@@ -232,7 +263,7 @@ mod tests {
     line: 1,
     column: 6,
     width: 3,
-    kind: DuplicateAlias { alias: "foo", first: 0 },
+    kind: Redefinition { first_type: "alias", second_type: "alias", name: "foo", first: 0 },
   }
 
   analysis_error! {
@@ -248,11 +279,11 @@ mod tests {
   analysis_error! {
     name: alias_shadows_recipe_before,
     input: "bar: \n  echo bar\nalias foo := bar\nfoo:\n  echo foo",
-    offset: 23,
-    line: 2,
-    column: 6,
+    offset: 34,
+    line: 3,
+    column: 0,
     width: 3,
-    kind: AliasShadowsRecipe {alias: "foo", recipe_line: 3},
+    kind: Redefinition { first_type: "alias", second_type: "recipe", name: "foo", first: 2 },
   }
 
   analysis_error! {
@@ -262,7 +293,7 @@ mod tests {
     line: 2,
     column: 6,
     width: 3,
-    kind: AliasShadowsRecipe { alias: "foo", recipe_line: 0 },
+    kind: Redefinition { first_type: "alias", second_type: "recipe", name: "foo", first: 0 },
   }
 
   analysis_error! {
@@ -302,7 +333,7 @@ mod tests {
     line:   2,
     column: 0,
     width:  1,
-    kind:   DuplicateRecipe{recipe: "a", first: 0},
+    kind:   Redefinition { first_type: "recipe", second_type: "recipe", name: "a", first: 0 },
   }
 
   analysis_error! {

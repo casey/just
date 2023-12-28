@@ -2,6 +2,10 @@ use super::*;
 
 #[derive(Debug)]
 pub(crate) enum Error<'src> {
+  AmbiguousModuleFile {
+    module: Name<'src>,
+    found: Vec<String>,
+  },
   ArgumentCountMismatch {
     recipe: &'src str,
     parameters: Vec<Parameter<'src>>,
@@ -105,6 +109,9 @@ pub(crate) enum Error<'src> {
     path: PathBuf,
     io_error: io::Error,
   },
+  MissingModuleFile {
+    module: Name<'src>,
+  },
   NoChoosableRecipes,
   NoDefaultRecipe,
   NoRecipes,
@@ -167,6 +174,9 @@ impl<'src> Error<'src> {
 
   fn context(&self) -> Option<Token<'src>> {
     match self {
+      Self::AmbiguousModuleFile { module, .. } | Self::MissingModuleFile { module, .. } => {
+        Some(module.token())
+      }
       Self::Backtick { token, .. } => Some(*token),
       Self::Compile { compile_error } => Some(compile_error.context()),
       Self::FunctionCall { function, .. } => Some(function.token()),
@@ -224,6 +234,11 @@ impl<'src> ColorDisplay for Error<'src> {
     write!(f, "{error}: {message}")?;
 
     match self {
+      AmbiguousModuleFile { module, found } =>
+        write!(f,
+          "Found multiple source files for module `{module}`: {}",
+          List::and_ticked(found),
+        )?,
       ArgumentCountMismatch { recipe, found, min, max, .. } => {
         let count = Count("argument", *found);
         if min == max {
@@ -350,6 +365,7 @@ impl<'src> ColorDisplay for Error<'src> {
         let path = path.display();
         write!(f, "Failed to read justfile at `{path}`: {io_error}")?;
       }
+      MissingModuleFile { module } => write!(f, "Could not find source file for module `{module}`.")?,
       NoChoosableRecipes => write!(f, "Justfile contains no choosable recipes.")?,
       NoDefaultRecipe => write!(f, "Justfile contains no default recipe.")?,
       NoRecipes => write!(f, "Justfile contains no recipes.")?,
