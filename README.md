@@ -2409,6 +2409,8 @@ Currently, recipes in submodules run with the same working directory as the
 root `justfile`, and the `justfile()` and `justfile_directory()` functions
 return the path to the root `justfile` and its parent directory.
 
+See the [module stabilization tracking issue](https://github.com/casey/just/issues/929) for more information.
+
 ### Hiding `justfile`s
 
 `just` looks for `justfile`s named `justfile` and `.justfile`, which can be used to keep a `justfile` hidden.
