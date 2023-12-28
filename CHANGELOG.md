@@ -1,6 +1,12 @@
 Changelog
 =========
 
+[1.19.0](https://github.com/casey/just/releases/tag/1.19.0) - 2023-12-27
+------------------------------------------------------------------------
+
+### Added
+- Add modules ([#1782](https://github.com/casey/just/pull/1782))
+
 [1.18.1](https://github.com/casey/just/releases/tag/1.18.1) - 2023-12-24
 ------------------------------------------------------------------------
 
