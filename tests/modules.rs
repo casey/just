@@ -384,7 +384,24 @@ fn missing_module_file_error() {
 
 #[test]
 fn list_displays_recipes_in_submodules() {
-  todo!()
+  Test::new()
+    .write("foo.just", "foo:\n @echo FOO")
+    .justfile(
+      "
+        mod foo
+      ",
+    )
+    .test_round_trip(false)
+    .arg("--unstable")
+    .arg("--list")
+    .stdout(
+      "
+      Available recipes:
+          foo:
+              foo
+    ",
+    )
+    .run();
 }
 
 #[test]
