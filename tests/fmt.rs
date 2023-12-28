@@ -5,7 +5,7 @@ test! {
   justfile: "",
   args: ("--fmt"),
   stderr: "
-    error: the `--fmt` command is currently unstable. \
+    error: The `--fmt` command is currently unstable. \
     Invoke `just` with the `--unstable` flag to enable unstable features.
   ",
   status: EXIT_FAILURE,
