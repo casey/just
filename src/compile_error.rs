@@ -90,12 +90,6 @@ impl Display for CompileError<'_> {
           write!(f, "at most {max} {}", Count("argument", *max))
         }
       }
-      DuplicateAlias { alias, first } => write!(
-        f,
-        "Alias `{alias}` first defined on line {} is redefined on line {}",
-        first.ordinal(),
-        self.token.line.ordinal(),
-      ),
       DuplicateAttribute { attribute, first } => write!(
         f,
         "Recipe attribute `{attribute}` first used on line {} is duplicated on line {}",
@@ -105,12 +99,6 @@ impl Display for CompileError<'_> {
       DuplicateParameter { recipe, parameter } => {
         write!(f, "Recipe `{recipe}` has duplicate parameter `{parameter}`")
       }
-      DuplicateRecipe { recipe, first } => write!(
-        f,
-        "Recipe `{recipe}` first defined on line {} is redefined on line {}",
-        first.ordinal(),
-        self.token.line.ordinal(),
-      ),
       DuplicateSet { setting, first } => write!(
         f,
         "Setting `{setting}` first set on line {} is redefined on line {}",

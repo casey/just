@@ -111,15 +111,6 @@ impl<'src> Analyzer<'src> {
 
     for recipe in recipes {
       define(recipe.name, "recipe", settings.allow_duplicate_recipes)?;
-
-      if let Some(original) = recipe_table.get(recipe.name.lexeme()) {
-        if !settings.allow_duplicate_recipes {
-          return Err(recipe.name.token().error(DuplicateRecipe {
-            recipe: original.name(),
-            first: original.line_number(),
-          }));
-        }
-      }
       recipe_table.insert(recipe.clone());
     }
 
@@ -213,13 +204,6 @@ impl<'src> Analyzer<'src> {
 
   fn analyze_alias(&self, alias: &Alias<'src, Name<'src>>) -> CompileResult<'src, ()> {
     let name = alias.name.lexeme();
-
-    if let Some(original) = self.aliases.get(name) {
-      return Err(alias.name.token().error(DuplicateAlias {
-        alias: name,
-        first: original.line_number(),
-      }));
-    }
 
     for attr in &alias.attributes {
       if *attr != Attribute::Private {

@@ -31,10 +31,6 @@ pub(crate) enum CompileErrorKind<'src> {
     name: &'src str,
     second_type: &'static str,
   },
-  DuplicateAlias {
-    alias: &'src str,
-    first: usize,
-  },
   DuplicateAttribute {
     attribute: &'src str,
     first: usize,
@@ -42,10 +38,6 @@ pub(crate) enum CompileErrorKind<'src> {
   DuplicateParameter {
     recipe: &'src str,
     parameter: &'src str,
-  },
-  DuplicateRecipe {
-    recipe: &'src str,
-    first: usize,
   },
   DuplicateSet {
     setting: &'src str,
