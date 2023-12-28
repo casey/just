@@ -66,7 +66,7 @@ impl<'src> Analyzer<'src> {
         match item {
           Item::Alias(alias) => {
             define(alias.name, "alias", false)?;
-            self.analyze_alias(alias)?;
+            Self::analyze_alias(alias)?;
             self.aliases.insert(alias.clone());
           }
           Item::Assignment(assignment) => {
@@ -202,7 +202,7 @@ impl<'src> Analyzer<'src> {
     Ok(())
   }
 
-  fn analyze_alias(&self, alias: &Alias<'src, Name<'src>>) -> CompileResult<'src, ()> {
+  fn analyze_alias(alias: &Alias<'src, Name<'src>>) -> CompileResult<'src, ()> {
     let name = alias.name.lexeme();
 
     for attr in &alias.attributes {
