@@ -30,7 +30,7 @@ impl<'src> Display for Item<'src> {
         write!(f, "mod {name}")?;
 
         if let Some(path) = path {
-          write!(f, " {path}")?
+          write!(f, " {path}")?;
         }
 
         Ok(())
