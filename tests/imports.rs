@@ -40,10 +40,10 @@ fn missing_import_file_error() {
     .stderr(
       "
       error: Could not find source file for import.
-       --> justfile:1:8
-        |
-      1 | import './import.justfile'
-        |        ^^^^^^^^^^^^^^^^^^^
+       ——▶ justfile:1:8
+        │
+      1 │ import './import.justfile'
+        │        ^^^^^^^^^^^^^^^^^^^
       ",
     )
     .run();
@@ -162,10 +162,10 @@ fn include_error() {
     .stderr(
       "
       error: The `!include` directive has been stabilized as `import`
-       --> justfile:1:1
-        |
-      1 | !include foo
-        | ^
+       ——▶ justfile:1:1
+        │
+      1 │ !include foo
+        │ ^
       ",
     )
     .run();

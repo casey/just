@@ -88,10 +88,10 @@ foo:
   stderr:   format!("{} {}\n{}\n{}\n{}\n{}\n",
     "error: Call to function `without_extension` failed:",
     "Could not extract parent from ``",
-    " --> justfile:1:8",
-    "  |",
-    "1 | we  := without_extension(\'\')",
-    "  |        ^^^^^^^^^^^^^^^^^").as_str(),
+    " ——▶ justfile:1:8",
+    "  │",
+    "1 │ we  := without_extension(\'\')",
+    "  │        ^^^^^^^^^^^^^^^^^").as_str(),
   status:   EXIT_FAILURE,
 }
 
@@ -107,10 +107,10 @@ foo:
   stdout:   "",
   stderr:   format!("{}\n{}\n{}\n{}\n{}\n",
     "error: Call to function `extension` failed: Could not extract extension from ``",
-    " --> justfile:1:8",
-    "  |",
-    "1 | we  := extension(\'\')",
-    "  |        ^^^^^^^^^").as_str(),
+    " ——▶ justfile:1:8",
+    "  │",
+    "1 │ we  := extension(\'\')",
+    "  │        ^^^^^^^^^").as_str(),
   status:   EXIT_FAILURE,
 }
 
@@ -126,10 +126,10 @@ foo:
   stdout:   "",
   stderr:   format!("{}\n{}\n{}\n{}\n{}\n",
     "error: Call to function `extension` failed: Could not extract extension from `foo`",
-    " --> justfile:1:8",
-    "  |",
-    "1 | we  := extension(\'foo\')",
-    "  |        ^^^^^^^^^").as_str(),
+    " ——▶ justfile:1:8",
+    "  │",
+    "1 │ we  := extension(\'foo\')",
+    "  │        ^^^^^^^^^").as_str(),
   status:   EXIT_FAILURE,
 }
 
@@ -145,10 +145,10 @@ foo:
   stdout:   "",
   stderr:   format!("{}\n{}\n{}\n{}\n{}\n",
     "error: Call to function `file_stem` failed: Could not extract file stem from ``",
-    " --> justfile:1:8",
-    "  |",
-    "1 | we  := file_stem(\'\')",
-    "  |        ^^^^^^^^^").as_str(),
+    " ——▶ justfile:1:8",
+    "  │",
+    "1 │ we  := file_stem(\'\')",
+    "  │        ^^^^^^^^^").as_str(),
   status:   EXIT_FAILURE,
 }
 
@@ -164,10 +164,10 @@ foo:
   stdout:   "",
   stderr:   format!("{}\n{}\n{}\n{}\n{}\n",
     "error: Call to function `file_name` failed: Could not extract file name from ``",
-    " --> justfile:1:8",
-    "  |",
-    "1 | we  := file_name(\'\')",
-    "  |        ^^^^^^^^^").as_str(),
+    " ——▶ justfile:1:8",
+    "  │",
+    "1 │ we  := file_name(\'\')",
+    "  │        ^^^^^^^^^").as_str(),
   status:   EXIT_FAILURE,
 }
 
@@ -184,10 +184,10 @@ foo:
   stderr:   format!("{} {}\n{}\n{}\n{}\n{}\n",
     "error: Call to function `parent_directory` failed:",
     "Could not extract parent directory from ``",
-    " --> justfile:1:8",
-    "  |",
-    "1 | we  := parent_directory(\'\')",
-    "  |        ^^^^^^^^^^^^^^^^").as_str(),
+    " ——▶ justfile:1:8",
+    "  │",
+    "1 │ we  := parent_directory(\'\')",
+    "  │        ^^^^^^^^^^^^^^^^").as_str(),
   status:   EXIT_FAILURE,
 }
 
@@ -204,10 +204,10 @@ foo:
   stderr:   format!("{} {}\n{}\n{}\n{}\n{}\n",
     "error: Call to function `parent_directory` failed:",
     "Could not extract parent directory from `/`",
-    " --> justfile:1:8",
-    "  |",
-    "1 | we  := parent_directory(\'/\')",
-    "  |        ^^^^^^^^^^^^^^^^").as_str(),
+    " ——▶ justfile:1:8",
+    "  │",
+    "1 │ we  := parent_directory(\'/\')",
+    "  │        ^^^^^^^^^^^^^^^^").as_str(),
   status:   EXIT_FAILURE,
 }
 
@@ -232,10 +232,10 @@ test! {
   args:     ("a"),
   stdout:   "",
   stderr:   "error: Call to function `env_var` failed: environment variable `ZADDY` not present
- --> justfile:2:10
-  |
-2 |   echo {{env_var('ZADDY')}}
-  |          ^^^^^^^
+ ——▶ justfile:2:10
+  │
+2 │   echo {{env_var('ZADDY')}}
+  │          ^^^^^^^
 ",
   status:   EXIT_FAILURE,
 }
@@ -403,10 +403,10 @@ test! {
     foo\\
        ^
 error: incomplete escape sequence, reached end of pattern prematurely
- --> justfile:2:11
-  |
-2 |   echo {{ replace_regex('barbarbar', 'foo\\', 'foo') }}
-  |           ^^^^^^^^^^^^^
+ ——▶ justfile:2:11
+  │
+2 │   echo {{ replace_regex('barbarbar', 'foo\\', 'foo') }}
+  │           ^^^^^^^^^^^^^
 ",
   status: EXIT_FAILURE,
 }
@@ -507,10 +507,10 @@ fn join_argument_count_error() {
     .stderr(
       "
       error: Function `join` called with 1 argument but takes 2 or more
-       --> justfile:1:6
-        |
-      1 | x := join(\'a\')
-        |      ^^^^
+       ——▶ justfile:1:6
+        │
+      1 │ x := join(\'a\')
+        │      ^^^^
       ",
     )
     .status(EXIT_FAILURE)
@@ -547,10 +547,10 @@ fn error_errors_with_message() {
     .stderr(
       "
       error: Call to function `error` failed: Thing Not Supported
-       --> justfile:1:6
-        |
-      1 | x := error ('Thing Not Supported')
-        |      ^^^^^
+       ——▶ justfile:1:6
+        │
+      1 │ x := error ('Thing Not Supported')
+        │      ^^^^^
     ",
     )
     .run();

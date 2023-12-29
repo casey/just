@@ -1,14 +1,19 @@
 use super::*;
 
+// ——▶
+//  │
+//  │
+//  │
+
 test! {
   name: invalid_alias_attribute,
   justfile: "[private]\n[linux]\nalias t := test\n\ntest:\n",
   stderr: "
     error: Alias t has an invalid attribute `linux`
-     --> justfile:3:7
-      |
-    3 | alias t := test
-      |       ^
+     ——▶ justfile:3:7
+      │
+    3 │ alias t := test
+      │       ^
   ",
   status: EXIT_FAILURE,
 }
@@ -18,10 +23,10 @@ test! {
   justfile: "foo := if '' == '' { '' } arlo { '' }",
   stderr: "
     error: Expected keyword `else` but found identifier `arlo`
-     --> justfile:1:27
-      |
-    1 | foo := if '' == '' { '' } arlo { '' }
-      |                           ^^^^
+     ——▶ justfile:1:27
+      │
+    1 │ foo := if '' == '' { '' } arlo { '' }
+      │                           ^^^^
   ",
   status: EXIT_FAILURE,
 }
@@ -31,10 +36,10 @@ test! {
   justfile: "&~",
   stderr: "
     error: Expected character `&`
-     --> justfile:1:2
-      |
-    1 | &~
-      |  ^
+     ——▶ justfile:1:2
+      │
+    1 │ &~
+      │  ^
   ",
   status: EXIT_FAILURE,
 }
@@ -63,10 +68,10 @@ fn file_path_is_indented_if_justfile_is_long() {
     .stderr(
       "
 error: Expected '*', ':', '$', identifier, or '+', but found end of file
-  --> justfile:20:4
-   |
-20 | foo
-   |    ^
+  ——▶ justfile:20:4
+   │
+20 │ foo
+   │    ^
 ",
     )
     .run();
@@ -81,10 +86,10 @@ fn file_paths_are_relative() {
     .stderr(format!(
       "
 error: Expected '*', ':', '$', identifier, or '+', but found end of file
- --> foo{}bar.just:1:4
-  |
-1 | baz
-  |    ^
+ ——▶ foo{}bar.just:1:4
+  │
+1 │ baz
+  │    ^
 ",
       MAIN_SEPARATOR
     ))
@@ -100,12 +105,11 @@ fn file_paths_not_in_subdir_are_absolute() {
     .args(["--justfile", "foo/justfile"])
     .status(EXIT_FAILURE)
     .stderr_regex(format!(
-      "
-error: Expected '*', ':', '$', identifier, or '+', but found end of file
- --> {}.*{}bar.just:1:4
-  |
-1 | baz
-  |    ^
+      r"error: Expected .*'\*', ':', '\$', identifier, or '\+', but found end of file
+ ——▶ {}.*{}bar.just:1:4
+  │
+1 │ baz
+  │    \^
 ",
       MAIN_SEPARATOR, MAIN_SEPARATOR
     ))
