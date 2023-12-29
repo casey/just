@@ -345,11 +345,13 @@ impl Config {
       .arg(
         Arg::with_name(cmd::FORMAT)
           .long("fmt")
+          .alias("format")
           .help("Format and overwrite justfile"),
       )
       .arg(
         Arg::with_name(cmd::INIT)
           .long("init")
+          .alias("initialize")
           .help("Initialize new justfile in project root"),
       )
       .arg(
