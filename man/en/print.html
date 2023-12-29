@@ -1869,6 +1869,8 @@ containing it.</p>
 and recipes defined after the <code>import</code> statement.</p>
 <p>Imported files can themselves contain <code>import</code>s, which are processed
 recursively.</p>
+<p>When <code>allow-duplicate-recipes</code> is set, recipes in parent modules override
+recipes in imports.</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="modules1190"><a class="header" href="#modules1190">Modules<sup>1.19.0</sup></a></h3>
 <p>A <code>justfile</code> can declare modules using <code>mod</code> statements. <code>mod</code> statements are
 currently unstable, so you’ll need to use the <code>--unstable</code> flag, or set the
