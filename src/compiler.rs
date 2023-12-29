@@ -75,16 +75,14 @@ impl Compiler {
               .join(Self::expand_tilde(&relative.cooked)?)
               .lexiclean();
 
-            if !import.is_file() {
-              if !*optional {
-                return Err(Error::MissingImportFile { path: *path });
-              }
-            } else {
+            if import.is_file() {
               if srcs.contains_key(&import) {
                 return Err(Error::CircularImport { current, import });
               }
               *absolute = Some(import.clone());
               stack.push((import, depth + 1));
+            } else if !*optional {
+              return Err(Error::MissingImportFile { path: *path });
             }
           }
           _ => {}
