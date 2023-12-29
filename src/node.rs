@@ -32,14 +32,25 @@ impl<'src> Node<'src> for Item<'src> {
 
         tree.push(format!("{relative}"))
       }
-      Item::Module { name, optional, .. } => {
+      Item::Module {
+        name,
+        optional,
+        relative,
+        ..
+      } => {
         let mut tree = Tree::atom("mod");
 
         if *optional {
           tree = tree.push("?");
         }
 
-        tree.push(name.lexeme())
+        tree = tree.push(name.lexeme());
+
+        if let Some(relative) = relative {
+          tree = tree.push(format!("{relative}"));
+        }
+
+        tree
       }
       Item::Recipe(recipe) => recipe.tree(),
       Item::Set(set) => set.tree(),

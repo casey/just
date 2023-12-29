@@ -16,7 +16,7 @@ pub(crate) enum Item<'src> {
     absolute: Option<PathBuf>,
     name: Name<'src>,
     optional: bool,
-    path: Option<StringLiteral<'src>>,
+    relative: Option<StringLiteral<'src>>,
   },
   Recipe(UnresolvedRecipe<'src>),
   Set(Set<'src>),
@@ -41,7 +41,7 @@ impl<'src> Display for Item<'src> {
       }
       Item::Module {
         name,
-        path,
+        relative,
         optional,
         ..
       } => {
@@ -53,7 +53,7 @@ impl<'src> Display for Item<'src> {
 
         write!(f, " {name}")?;
 
-        if let Some(path) = path {
+        if let Some(path) = relative {
           write!(f, " {path}")?;
         }
 

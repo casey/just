@@ -360,7 +360,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
 
             let name = self.parse_name()?;
 
-            let path = if self.next_is(StringToken) {
+            let relative = if self.next_is(StringToken) {
               Some(self.parse_string_literal()?)
             } else {
               None
@@ -370,7 +370,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
               absolute: None,
               name,
               optional,
-              path,
+              relative,
             });
           }
           Some(Keyword::Set)
@@ -2018,6 +2018,36 @@ mod tests {
     name: import,
     text: "import \"some/file/path.txt\"     \n",
     tree: (justfile (import "some/file/path.txt")),
+  }
+
+  test! {
+    name: optional_import,
+    text: "import? \"some/file/path.txt\"     \n",
+    tree: (justfile (import ? "some/file/path.txt")),
+  }
+
+  test! {
+    name: module_with,
+    text: "mod foo",
+    tree: (justfile (mod foo )),
+  }
+
+  test! {
+    name: optional_module,
+    text: "mod? foo",
+    tree: (justfile (mod ? foo)),
+  }
+
+  test! {
+    name: module_with_path,
+    text: "mod foo \"some/file/path.txt\"     \n",
+    tree: (justfile (mod foo "some/file/path.txt")),
+  }
+
+  test! {
+    name: optional_module_with_path,
+    text: "mod? foo \"some/file/path.txt\"     \n",
+    tree: (justfile (mod ? foo "some/file/path.txt")),
   }
 
   error! {

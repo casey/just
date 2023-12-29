@@ -31,7 +31,7 @@ impl Compiler {
             absolute,
             name,
             optional,
-            path,
+            relative,
           } => {
             if !unstable {
               return Err(Error::Unstable {
@@ -41,8 +41,8 @@ impl Compiler {
 
             let parent = current.parent().unwrap();
 
-            let import = if let Some(path) = path {
-              let path = parent.join(Self::expand_tilde(&path.cooked)?);
+            let import = if let Some(relative) = relative {
+              let path = parent.join(Self::expand_tilde(&relative.cooked)?);
 
               if path.is_file() {
                 Some(path)

@@ -43,12 +43,14 @@ grammar
 ```
 justfile      : item* EOF
 
-item          : recipe
-              | alias
+item          : alias
               | assignment
-              | export
-              | setting
               | eol
+              | export
+              | import
+              | module
+              | recipe
+              | setting
 
 eol           : NEWLINE
               | COMMENT NEWLINE
@@ -71,6 +73,10 @@ setting       : 'set' 'allow-duplicate-recipes' boolean?
               | 'set' 'tempdir ':=' string
               | 'set' 'windows-powershell' boolean?
               | 'set' 'windows-shell' ':=' '[' string (',' string)* ','? ']'
+
+import        : 'import' '?'? string?
+
+module        : 'mod' '?'? NAME string?
 
 boolean       : ':=' ('true' | 'false')
 
