@@ -516,7 +516,7 @@ fn submodule_linewise_recipes_run_in_submodule_directory() {
 fn submodule_shebang_recipes_run_in_submodule_directory() {
   Test::new()
     .write("foo/bar", "BAR")
-    .write("foo/mod.just", "foo:\n #!/bin/sh\n @cat bar")
+    .write("foo/mod.just", "foo:\n #!/bin/sh\n cat bar")
     .justfile(
       "
         mod foo
