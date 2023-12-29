@@ -100,7 +100,7 @@ fn file_paths_not_in_subdir_are_absolute() {
     .args(["--justfile", "foo/justfile"])
     .status(EXIT_FAILURE)
     .stderr_regex(format!(
-      r"error: Expected .*'\*', ':', '\$', identifier, or '\+', but found end of file
+      r"error: Expected '\*', ':', '\$', identifier, or '\+', but found end of file
  ——▶ {}.*{}bar.just:1:4
   │
 1 │ baz
