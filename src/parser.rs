@@ -34,14 +34,14 @@ pub(crate) struct Parser<'tokens, 'src> {
   depth: usize,
   /// Path to the file being parsed
   path: PathBuf,
-  /// Parsing a submodule
-  submodule: bool,
+  /// Depth of submodule being parsed
+  submodule: u32,
 }
 
 impl<'tokens, 'src> Parser<'tokens, 'src> {
   /// Parse `tokens` into an `Ast`
   pub(crate) fn parse(
-    submodule: bool,
+    submodule: u32,
     path: &Path,
     tokens: &'tokens [Token<'src>],
   ) -> CompileResult<'src, Ast<'src>> {
@@ -724,7 +724,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
       priors,
       private: name.lexeme().starts_with('_'),
       quiet,
-      submodule: self.submodule,
+      depth: self.submodule,
     })
   }
 
@@ -942,7 +942,7 @@ mod tests {
   fn test(text: &str, want: Tree) {
     let unindented = unindent(text);
     let tokens = Lexer::test_lex(&unindented).expect("lexing failed");
-    let justfile = Parser::parse(false, &PathBuf::new(), &tokens).expect("parsing failed");
+    let justfile = Parser::parse(0, &PathBuf::new(), &tokens).expect("parsing failed");
     let have = justfile.tree();
     if have != want {
       println!("parsed text: {unindented}");
@@ -980,7 +980,7 @@ mod tests {
   ) {
     let tokens = Lexer::test_lex(src).expect("Lexing failed in parse test...");
 
-    match Parser::parse(false, &PathBuf::new(), &tokens) {
+    match Parser::parse(0, &PathBuf::new(), &tokens) {
       Ok(_) => panic!("Parsing unexpectedly succeeded"),
       Err(have) => {
         let want = CompileError {

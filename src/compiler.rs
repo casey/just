@@ -13,14 +13,14 @@ impl Compiler {
     let mut srcs: HashMap<PathBuf, &str> = HashMap::new();
     let mut loaded = Vec::new();
 
-    let mut stack: Vec<PathBuf> = Vec::new();
-    stack.push(root.into());
+    let mut stack: Vec<(PathBuf, u32)> = Vec::new();
+    stack.push((root.into(), 0));
 
-    while let Some(current) = stack.pop() {
+    while let Some((current, depth)) = stack.pop() {
       let (relative, src) = loader.load(root, &current)?;
       loaded.push(relative.into());
       let tokens = Lexer::lex(relative, src)?;
-      let mut ast = Parser::parse(current != root, &current, &tokens)?;
+      let mut ast = Parser::parse(depth, &current, &tokens)?;
 
       paths.insert(current.clone(), relative.into());
       srcs.insert(current.clone(), src);
@@ -50,7 +50,7 @@ impl Compiler {
               return Err(Error::CircularImport { current, import });
             }
             *absolute = Some(import.clone());
-            stack.push(import);
+            stack.push((import, depth + 1));
           }
           Item::Import { relative, absolute } => {
             let import = current.parent().unwrap().join(&relative.cooked).lexiclean();
@@ -58,7 +58,7 @@ impl Compiler {
               return Err(Error::CircularImport { current, import });
             }
             *absolute = Some(import.clone());
-            stack.push(import);
+            stack.push((import, depth + 1));
           }
           _ => {}
         }
@@ -120,7 +120,7 @@ impl Compiler {
   #[cfg(test)]
   pub(crate) fn test_compile(src: &str) -> CompileResult<Justfile> {
     let tokens = Lexer::test_lex(src)?;
-    let ast = Parser::parse(false, &PathBuf::new(), &tokens)?;
+    let ast = Parser::parse(0, &PathBuf::new(), &tokens)?;
     let root = PathBuf::from("justfile");
     let mut asts: HashMap<PathBuf, Ast> = HashMap::new();
     asts.insert(root.clone(), ast);
