@@ -2409,8 +2409,8 @@ Recipes in submodules without the `[no-cd]` attribute run with the working
 directory set to the directory containing the submodule source file.
 
 `justfile()` and `justfile_directory()` always return the path to the root
-justfile, and the directory that contains it, respectively, even when called
-from submodule recipes.
+justfile and the directory that contains it, even when called from submodule
+recipes.
 
 See the [module stabilization tracking issue](https://github.com/casey/just/issues/929)
 for more information.
