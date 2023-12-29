@@ -18,7 +18,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     settings: &'run Settings<'run>,
     search: &'run Search,
   ) -> RunResult<'src, Scope<'src, 'run>> {
-    let mut evaluator = Evaluator {
+    let mut evaluator = Self {
       scope: overrides,
       assignments: Some(assignments),
       config,
@@ -260,7 +260,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     settings: &'run Settings,
     search: &'run Search,
   ) -> RunResult<'src, (Scope<'src, 'run>, Vec<String>)> {
-    let mut evaluator = Evaluator {
+    let mut evaluator = Self {
       assignments: None,
       scope: scope.child(),
       search,
@@ -313,7 +313,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     settings: &'run Settings,
     search: &'run Search,
   ) -> Evaluator<'src, 'run> {
-    Evaluator {
+    Self {
       assignments: None,
       scope: Scope::child(scope),
       search,

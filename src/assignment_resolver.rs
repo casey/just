@@ -8,9 +8,9 @@ pub(crate) struct AssignmentResolver<'src: 'run, 'run> {
 
 impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
   pub(crate) fn resolve_assignments(
-    assignments: &Table<'src, Assignment<'src>>,
+    assignments: &'run Table<'src, Assignment<'src>>,
   ) -> CompileResult<'src, ()> {
-    let mut resolver = AssignmentResolver {
+    let mut resolver = Self {
       stack: Vec::new(),
       evaluated: BTreeSet::new(),
       assignments,
