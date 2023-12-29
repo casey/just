@@ -196,7 +196,8 @@ B
 A
 </code></pre>
 <p>The <code>import</code> path can be absolute or relative to the location of the justfile
-containing it.</p>
+containing it. A leading <code>~/</code> in the import path is replaced with the current
+users home directory.</p>
 <p>Justfiles are insensitive to order, so included files can reference variables
 and recipes defined after the <code>import</code> statement.</p>
 <p>Imported files can themselves contain <code>import</code>s, which are processed

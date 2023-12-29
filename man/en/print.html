@@ -1864,7 +1864,8 @@ B
 A
 </code></pre>
 <p>The <code>import</code> path can be absolute or relative to the location of the justfile
-containing it.</p>
+containing it. A leading <code>~/</code> in the import path is replaced with the current
+users home directory.</p>
 <p>Justfiles are insensitive to order, so included files can reference variables
 and recipes defined after the <code>import</code> statement.</p>
 <p>Imported files can themselves contain <code>import</code>s, which are processed
@@ -1895,7 +1896,15 @@ B
 <p>If a module is named <code>foo</code>, just will search for the module file in <code>foo.just</code>,
 <code>foo/mod.just</code>, <code>foo/justfile</code>, and <code>foo/.justfile</code>. In the latter two cases,
 the module file may have any capitalization.</p>
-<p>Environment files are loaded for the root justfile.</p>
+<p>Module statements may be of the form:</p>
+<pre><code class="language-mf">mod foo 'PATH'
+</code></pre>
+<p>Which loads the module’s source file from <code>PATH</code>, instead of from the usual
+locations. A leading <code>~/</code> in <code>PATH</code> is replaced with the current user’s home
+directory.</p>
+<p>Environment files are only loaded for the root justfile, and loaded environment
+variables are available in submodules. Settings in submodules that affect
+enviroment file loading are ignored.</p>
 <p>Recipes in submodules without the <code>[no-cd]</code> attribute run with the working
 directory set to the directory containing the submodule source file.</p>
 <p><code>justfile()</code> and <code>justfile_directory()</code> always return the path to the root
