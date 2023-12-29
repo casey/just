@@ -28,10 +28,14 @@ pub(crate) struct Recipe<'src, D = Dependency<'src>> {
   pub(crate) doc: Option<&'src str>,
   pub(crate) name: Name<'src>,
   pub(crate) parameters: Vec<Parameter<'src>>,
+  #[serde(skip)]
+  pub(crate) path: PathBuf,
   pub(crate) priors: usize,
   pub(crate) private: bool,
   pub(crate) quiet: bool,
   pub(crate) shebang: bool,
+  #[serde(skip)]
+  pub(crate) submodule: bool,
 }
 
 impl<'src, D> Recipe<'src, D> {
@@ -222,7 +226,11 @@ impl<'src, D> Recipe<'src, D> {
       let mut cmd = context.settings.shell_command(config);
 
       if self.change_directory() {
-        cmd.current_dir(&context.search.working_directory);
+        cmd.current_dir(if self.submodule {
+          self.path.parent().unwrap()
+        } else {
+          &context.search.working_directory
+        });
       }
 
       cmd.arg(command);
@@ -358,7 +366,11 @@ impl<'src, D> Recipe<'src, D> {
     let mut command = Platform::make_shebang_command(
       &path,
       if self.change_directory() {
-        Some(&context.search.working_directory)
+        if self.submodule {
+          Some(self.path.parent().unwrap())
+        } else {
+          Some(&context.search.working_directory)
+        }
       } else {
         None
       },

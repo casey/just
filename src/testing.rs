@@ -59,7 +59,8 @@ pub(crate) fn analysis_error(
 ) {
   let tokens = Lexer::test_lex(src).expect("Lexing failed in parse test...");
 
-  let ast = Parser::parse(&tokens).expect("Parsing failed in analysis test...");
+  let ast =
+    Parser::parse(false, &PathBuf::new(), &tokens).expect("Parsing failed in analysis test...");
 
   let root = PathBuf::from("justfile");
   let mut asts: HashMap<PathBuf, Ast> = HashMap::new();

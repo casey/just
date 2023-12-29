@@ -20,7 +20,7 @@ impl Compiler {
       let (relative, src) = loader.load(root, &current)?;
       loaded.push(relative.into());
       let tokens = Lexer::lex(relative, src)?;
-      let mut ast = Parser::parse(&tokens)?;
+      let mut ast = Parser::parse(current != root, &current, &tokens)?;
 
       paths.insert(current.clone(), relative.into());
       srcs.insert(current.clone(), src);
@@ -120,7 +120,7 @@ impl Compiler {
   #[cfg(test)]
   pub(crate) fn test_compile(src: &str) -> CompileResult<Justfile> {
     let tokens = Lexer::test_lex(src)?;
-    let ast = Parser::parse(&tokens)?;
+    let ast = Parser::parse(false, &PathBuf::new(), &tokens)?;
     let root = PathBuf::from("justfile");
     let mut asts: HashMap<PathBuf, Ast> = HashMap::new();
     asts.insert(root.clone(), ast);
