@@ -3,9 +3,7 @@ use super::*;
 // todo:
 // - use nice box characters for error messages
 // - use default unit for result types
-// - document optional imports
-// - document optional modules
-//   - missing optional modules do not conflict
+// - tree tests
 
 #[test]
 fn import_succeeds() {
