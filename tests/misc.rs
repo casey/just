@@ -552,13 +552,13 @@ test! {
 
 
 
-???
+^^^
 "#,
   stdout:   "",
   stderr:   "error: Unknown start of token:
   --> justfile:10:1
    |
-10 | ???
+10 | ^^^
    | ^
 ",
   status:   EXIT_FAILURE,

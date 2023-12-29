@@ -383,6 +383,42 @@ fn missing_module_file_error() {
 }
 
 #[test]
+fn missing_optional_modules_do_not_trigger_error() {
+  Test::new()
+    .justfile(
+      "
+        mod? foo
+
+        bar:
+          @echo BAR
+      ",
+    )
+    .test_round_trip(false)
+    .arg("--unstable")
+    .stdout("BAR\n")
+    .run();
+}
+
+#[test]
+fn missing_optional_modules_do_not_conflict() {
+  Test::new()
+    .justfile(
+      "
+        mod? foo
+        mod? foo
+        mod foo 'baz.just'
+      ",
+    )
+    .write("baz.just", "baz:\n @echo BAZ")
+    .test_round_trip(false)
+    .arg("--unstable")
+    .arg("foo")
+    .arg("baz")
+    .stdout("BAZ\n")
+    .run();
+}
+
+#[test]
 fn list_displays_recipes_in_submodules() {
   Test::new()
     .write("foo.just", "bar:\n @echo FOO")

@@ -175,7 +175,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
 
   /// Return an internal error if the next token is not of kind `Identifier`
   /// with lexeme `lexeme`.
-  fn presume_keyword(&mut self, keyword: Keyword) -> CompileResult<'src, ()> {
+  fn presume_keyword(&mut self, keyword: Keyword) -> CompileResult<'src, Token<'src>> {
     let next = self.advance()?;
 
     if next.kind != Identifier {
@@ -184,7 +184,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
         next.kind
       ))?)
     } else if keyword == next.lexeme() {
-      Ok(())
+      Ok(next)
     } else {
       Err(self.internal_error(format!(
         "Presumed next token would have lexeme \"{keyword}\", but found \"{}\"",
@@ -334,17 +334,24 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
             self.presume_keyword(Keyword::Export)?;
             items.push(Item::Assignment(self.parse_assignment(true)?));
           }
-          Some(Keyword::Import) if self.next_are(&[Identifier, StringToken]) => {
-            self.presume_keyword(Keyword::Import)?;
+          Some(Keyword::Import)
+            if self.next_are(&[Identifier, StringToken])
+              || self.next_are(&[Identifier, QuestionMark]) =>
+          {
+            let keyword = self.presume_keyword(Keyword::Import)?;
+            let optional = self.accepted(QuestionMark)?;
             items.push(Item::Import {
-              relative: self.parse_string_literal()?,
               absolute: None,
+              keyword,
+              optional,
+              relative: self.parse_string_literal()?,
             });
           }
           Some(Keyword::Mod)
             if self.next_are(&[Identifier, Identifier, StringToken])
               || self.next_are(&[Identifier, Identifier, Eof])
-              || self.next_are(&[Identifier, Identifier, Eol]) =>
+              || self.next_are(&[Identifier, Identifier, Eol])
+              || self.next_are(&[Identifier, QuestionMark]) =>
           {
             self.presume_keyword(Keyword::Mod)?;
 
@@ -359,8 +366,9 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
             };
 
             items.push(Item::Module {
-              name,
               absolute: None,
+              name,
+              optional,
               path,
             });
           }

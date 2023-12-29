@@ -75,17 +75,18 @@ impl<'src> Analyzer<'src> {
           }
           Item::Comment(_) => (),
           Item::Import { absolute, .. } => {
-            stack.push(asts.get(absolute.as_ref().unwrap()).unwrap());
+            if let Some(absolute) = absolute {
+              stack.push(asts.get(absolute).unwrap());
+            }
           }
           Item::Module { absolute, name, .. } => {
-            define(*name, "module", false)?;
-            modules.insert(
-              name.to_string(),
-              (
-                *name,
-                Self::analyze(loaded, paths, asts, absolute.as_ref().unwrap())?,
-              ),
-            );
+            if let Some(absolute) = absolute {
+              define(*name, "module", false)?;
+              modules.insert(
+                name.to_string(),
+                (*name, Self::analyze(loaded, paths, asts, absolute)?),
+              );
+            }
           }
           Item::Recipe(recipe) => {
             if recipe.enabled() {
