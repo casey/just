@@ -347,6 +347,9 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
               || self.next_are(&[Identifier, Identifier, Eol]) =>
           {
             self.presume_keyword(Keyword::Mod)?;
+
+            let optional = self.accepted(QuestionMark)?;
+
             let name = self.parse_name()?;
 
             let path = if self.next_is(StringToken) {
@@ -355,7 +358,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
               None
             };
 
-            items.push(Item::Mod {
+            items.push(Item::Module {
               name,
               absolute: None,
               path,

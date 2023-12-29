@@ -975,6 +975,7 @@ mod tests {
       ParenL => "(",
       ParenR => ")",
       Plus => "+",
+      QuestionMark => "?",
       Slash => "/",
       Whitespace => " ",
 

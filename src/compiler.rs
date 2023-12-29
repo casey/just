@@ -27,7 +27,7 @@ impl Compiler {
 
       for item in &mut ast.items {
         match item {
-          Item::Mod {
+          Item::Module {
             name,
             absolute,
             path,

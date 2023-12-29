@@ -7,12 +7,12 @@ pub(crate) enum Item<'src> {
   Assignment(Assignment<'src>),
   Comment(&'src str),
   Import {
+    absolute: Option<PathBuf>,
     relative: StringLiteral<'src>,
-    absolute: Option<PathBuf>,
   },
-  Mod {
-    name: Name<'src>,
+  Module {
     absolute: Option<PathBuf>,
+    name: Name<'src>,
     path: Option<StringLiteral<'src>>,
   },
   Recipe(UnresolvedRecipe<'src>),
@@ -26,7 +26,7 @@ impl<'src> Display for Item<'src> {
       Item::Assignment(assignment) => write!(f, "{assignment}"),
       Item::Comment(comment) => write!(f, "{comment}"),
       Item::Import { relative, .. } => write!(f, "import {relative}"),
-      Item::Mod { name, path, .. } => {
+      Item::Module { name, path, .. } => {
         write!(f, "mod {name}")?;
 
         if let Some(path) = path {
