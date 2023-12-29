@@ -2366,6 +2366,9 @@ and recipes defined after the `import` statement.
 Imported files can themselves contain `import`s, which are processed
 recursively.
 
+When `allow-duplicate-recipes` is set, recipes in parent modules override
+recipes in imports.
+
 ### Modules<sup>1.19.0</sup>
 
 A `justfile` can declare modules using `mod` statements. `mod` statements are
