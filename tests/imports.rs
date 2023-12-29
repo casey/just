@@ -1,5 +1,12 @@
 use super::*;
 
+// todo:
+// - use nice box characters for error messages
+// - use default unit for result types
+// - document optional imports
+// - document optional modules
+//   - missing optional modules do not conflict
+
 #[test]
 fn import_succeeds() {
   Test::new()
@@ -22,10 +29,6 @@ fn import_succeeds() {
     .stdout("B\nA\n")
     .run();
 }
-
-// todo:
-// - use nice box characters for error messages
-// - use default unit for result types
 
 #[test]
 fn missing_import_file_error() {
