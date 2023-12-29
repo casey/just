@@ -2406,7 +2406,7 @@ the module file may have any capitalization.
 Environment files are loaded for the root justfile.
 
 Recipes in submodules without the `[no-cd]` attribute run with the working
-directory set to the directory containing the submodule sourcefile.
+directory set to the directory containing the submodule source file.
 
 `justfile()` and `justfile_directory()` always return the path to the root
 justfile, and the directory that contains it, respectively, even when called
