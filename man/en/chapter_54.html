@@ -201,10 +201,13 @@ B
 <code>foo/mod.just</code>, <code>foo/justfile</code>, and <code>foo/.justfile</code>. In the latter two cases,
 the module file may have any capitalization.</p>
 <p>Environment files are loaded for the root justfile.</p>
-<p>Currently, recipes in submodules run with the same working directory as the
-root <code>justfile</code>, and the <code>justfile()</code> and <code>justfile_directory()</code> functions
-return the path to the root <code>justfile</code> and its parent directory.</p>
-<p>See the <a href="https://github.com/casey/just/issues/929">module stabilization tracking issue</a> for more information.</p>
+<p>Recipes in submodules without the <code>[no-cd]</code> attribute run with the working
+directory set to the directory containing the submodule source file.</p>
+<p><code>justfile()</code> and <code>justfile_directory()</code> always return the path to the root
+justfile and the directory that contains it, even when called from submodule
+recipes.</p>
+<p>See the <a href="https://github.com/casey/just/issues/929">module stabilization tracking issue</a>
+for more information.</p>
 
                     </main>
 
