@@ -177,9 +177,16 @@
                 <div id="content" class="content">
                     <main>
                         <h3 id="whats-the-relationship-between-just-and-cargo-build-scripts"><a class="header" href="#whats-the-relationship-between-just-and-cargo-build-scripts">What’s the relationship between Just and Cargo build scripts?</a></h3>
-<p><a href="http://doc.crates.io/build-script.html"><code>cargo</code> build scripts</a> have a pretty specific use, which is to control how <code>cargo</code> builds your Rust project. This might include adding flags to <code>rustc</code> invocations, building an external dependency, or running some kind of codegen step.</p>
-<p><code>just</code>, on the other hand, is for all the other miscellaneous commands you might run as part of development. Things like running tests in different configurations, linting your code, pushing build artifacts to a server, removing temporary files, and the like.</p>
-<p>Also, although <code>just</code> is written in Rust, it can be used regardless of the language or build system your project uses.</p>
+<p><a href="http://doc.crates.io/build-script.html"><code>cargo</code> build scripts</a> have a pretty
+specific use, which is to control how <code>cargo</code> builds your Rust project. This
+might include adding flags to <code>rustc</code> invocations, building an external
+dependency, or running some kind of codegen step.</p>
+<p><code>just</code>, on the other hand, is for all the other miscellaneous commands you
+might run as part of development. Things like running tests in different
+configurations, linting your code, pushing build artifacts to a server,
+removing temporary files, and the like.</p>
+<p>Also, although <code>just</code> is written in Rust, it can be used regardless of the
+language or build system your project uses.</p>
 
                     </main>
 

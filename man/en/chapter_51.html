@@ -177,12 +177,22 @@
                 <div id="content" class="content">
                     <main>
                         <h3 id="selecting-recipes-to-run-with-an-interactive-chooser"><a class="header" href="#selecting-recipes-to-run-with-an-interactive-chooser">Selecting Recipes to Run With an Interactive Chooser</a></h3>
-<p>The <code>--choose</code> subcommand makes <code>just</code> invoke a chooser to select which recipes to run. Choosers should read lines containing recipe names from standard input and print one or more of those names separated by spaces to standard output.</p>
-<p>Because there is currently no way to run a recipe that requires arguments with <code>--choose</code>, such recipes will not be given to the chooser. Private recipes and aliases are also skipped.</p>
-<p>The chooser can be overridden with the <code>--chooser</code> flag. If <code>--chooser</code> is not given, then <code>just</code> first checks if <code>$JUST_CHOOSER</code> is set. If it isn’t, then the chooser defaults to <code>fzf</code>, a popular fuzzy finder.</p>
+<p>The <code>--choose</code> subcommand makes <code>just</code> invoke a chooser to select which recipes
+to run. Choosers should read lines containing recipe names from standard input
+and print one or more of those names separated by spaces to standard output.</p>
+<p>Because there is currently no way to run a recipe that requires arguments with
+<code>--choose</code>, such recipes will not be given to the chooser. Private recipes and
+aliases are also skipped.</p>
+<p>The chooser can be overridden with the <code>--chooser</code> flag. If <code>--chooser</code> is not
+given, then <code>just</code> first checks if <code>$JUST_CHOOSER</code> is set. If it isn’t, then
+the chooser defaults to <code>fzf</code>, a popular fuzzy finder.</p>
 <p>Arguments can be included in the chooser, i.e. <code>fzf --exact</code>.</p>
-<p>The chooser is invoked in the same way as recipe lines. For example, if the chooser is <code>fzf</code>, it will be invoked with <code>sh -cu 'fzf'</code>, and if the shell, or the shell arguments are overridden, the chooser invocation will respect those overrides.</p>
-<p>If you’d like <code>just</code> to default to selecting recipes with a chooser, you can use this as your default recipe:</p>
+<p>The chooser is invoked in the same way as recipe lines. For example, if the
+chooser is <code>fzf</code>, it will be invoked with <code>sh -cu 'fzf'</code>, and if the shell, or
+the shell arguments are overridden, the chooser invocation will respect those
+overrides.</p>
+<p>If you’d like <code>just</code> to default to selecting recipes with a chooser, you can
+use this as your default recipe:</p>
 <pre><code class="language-just">default:
   @just --choose
 </code></pre>

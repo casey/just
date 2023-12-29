@@ -210,7 +210,10 @@ goodbye
 <pre><code class="language-sh">$ just --evaluate
 escapes := &quot;\t\n\r\&quot;\\&quot;
 </code></pre>
-<p>Indented versions of both single- and double-quoted strings, delimited by triple single- or triple double-quotes, are supported. Indented string lines are stripped of a leading line break, and leading whitespace common to all non-blank lines:</p>
+<p>Indented versions of both single- and double-quoted strings, delimited by
+triple single- or triple double-quotes, are supported. Indented string lines
+are stripped of a leading line break, and leading whitespace common to all
+non-blank lines:</p>
 <pre><code class="language-just"># this string will evaluate to `foo\nbar\n`
 x := '''
   foo
@@ -224,7 +227,11 @@ y := &quot;&quot;&quot;
   xyz
 &quot;&quot;&quot;
 </code></pre>
-<p>Similar to unindented strings, indented double-quoted strings process escape sequences, and indented single-quoted strings ignore escape sequences. Escape sequence processing takes place after unindentation. The unindentation algorithm does not take escape-sequence produced whitespace or newlines into account.</p>
+<p>Similar to unindented strings, indented double-quoted strings process escape
+sequences, and indented single-quoted strings ignore escape sequences. Escape
+sequence processing takes place after unindentation. The unindentation
+algorithm does not take escape-sequence produced whitespace or newlines into
+account.</p>
 
                     </main>
 

@@ -204,6 +204,10 @@ and recipes defined after the <code>import</code> statement.</p>
 recursively.</p>
 <p>When <code>allow-duplicate-recipes</code> is set, recipes in parent modules override
 recipes in imports.</p>
+<p>Imports may be made optional by putting a <code>?</code> after the <code>import</code> keyword:</p>
+<pre><code class="language-mf">import? 'foo/bar.just'
+</code></pre>
+<p>Missing source files for optional imports do not produce an error.</p>
 
                     </main>
 

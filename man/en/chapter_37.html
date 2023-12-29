@@ -178,7 +178,8 @@
                     <main>
                         <h3 id="getting-and-setting-environment-variables"><a class="header" href="#getting-and-setting-environment-variables">Getting and Setting Environment Variables</a></h3>
 <h4 id="exporting-just-variables"><a class="header" href="#exporting-just-variables">Exporting <code>just</code> Variables</a></h4>
-<p>Assignments prefixed with the <code>export</code> keyword will be exported to recipes as environment variables:</p>
+<p>Assignments prefixed with the <code>export</code> keyword will be exported to recipes as
+environment variables:</p>
 <pre><code class="language-just">export RUST_BACKTRACE := &quot;1&quot;
 
 test:
@@ -199,9 +200,11 @@ BAR := `echo hello $WORLD`
 a $A $B=`echo $A`:
   echo $A $B
 </code></pre>
-<p>When <a href="chapter_26.html#export">export</a> is set, all <code>just</code> variables are exported as environment variables.</p>
+<p>When <a href="chapter_26.html#export">export</a> is set, all <code>just</code> variables are exported as environment
+variables.</p>
 <h4 id="getting-environment-variables-from-the-environment"><a class="header" href="#getting-environment-variables-from-the-environment">Getting Environment Variables from the environment</a></h4>
-<p>Environment variables from the environment are passed automatically to the recipes.</p>
+<p>Environment variables from the environment are passed automatically to the
+recipes.</p>
 <pre><code class="language-just">print_home_folder:
   echo &quot;HOME is: '${HOME}'&quot;
 </code></pre>
@@ -209,8 +212,9 @@ a $A $B=`echo $A`:
 HOME is '/home/myuser'
 </code></pre>
 <h4 id="setting-just-variables-from-environment-variables"><a class="header" href="#setting-just-variables-from-environment-variables">Setting <code>just</code> Variables from Environment Variables</a></h4>
-<p>Environment variables can be propagated to <code>just</code> variables using the functions <code>env_var()</code> and <code>env_var_or_default()</code>.
-See <a href="chapter_31.html#environment-variables">environment-variables</a>.</p>
+<p>Environment variables can be propagated to <code>just</code> variables using the functions
+<code>env_var()</code> and <code>env_var_or_default()</code>. See
+<a href="chapter_31.html#environment-variables">environment-variables</a>.</p>
 
                     </main>
 

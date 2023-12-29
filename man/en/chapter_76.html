@@ -177,8 +177,11 @@
                 <div id="content" class="content">
                     <main>
                         <h3 id="what-are-the-idiosyncrasies-of-make-that-just-avoids"><a class="header" href="#what-are-the-idiosyncrasies-of-make-that-just-avoids">What are the idiosyncrasies of Make that Just avoids?</a></h3>
-<p><code>make</code> has some behaviors which are confusing, complicated, or make it unsuitable for use as a general command runner.</p>
-<p>One example is that under some circumstances, <code>make</code> won’t actually run the commands in a recipe. For example, if you have a file called <code>test</code> and the following makefile:</p>
+<p><code>make</code> has some behaviors which are confusing, complicated, or make it
+unsuitable for use as a general command runner.</p>
+<p>One example is that under some circumstances, <code>make</code> won’t actually run the
+commands in a recipe. For example, if you have a file called <code>test</code> and the
+following makefile:</p>
 <pre><code class="language-just">test:
   ./test
 </code></pre>
@@ -186,9 +189,21 @@
 <pre><code class="language-sh">$ make test
 make: `test' is up to date.
 </code></pre>
-<p><code>make</code> assumes that the <code>test</code> recipe produces a file called <code>test</code>. Since this file exists and the recipe has no other dependencies, <code>make</code> thinks that it doesn’t have anything to do and exits.</p>
-<p>To be fair, this behavior is desirable when using <code>make</code> as a build system, but not when using it as a command runner. You can disable this behavior for specific targets using <code>make</code>’s built-in <a href="https://www.gnu.org/software/make/manual/html_node/Phony-Targets.html"><code>.PHONY</code> target name</a>, but the syntax is verbose and can be hard to remember. The explicit list of phony targets, written separately from the recipe definitions, also introduces the risk of accidentally defining a new non-phony target. In <code>just</code>, all recipes are treated as if they were phony.</p>
-<p>Other examples of <code>make</code>’s idiosyncrasies include the difference between <code>=</code> and <code>:=</code> in assignments, the confusing error messages that are produced if you mess up your makefile, needing <code>$$</code> to use environment variables in recipes, and incompatibilities between different flavors of <code>make</code>.</p>
+<p><code>make</code> assumes that the <code>test</code> recipe produces a file called <code>test</code>. Since this
+file exists and the recipe has no other dependencies, <code>make</code> thinks that it
+doesn’t have anything to do and exits.</p>
+<p>To be fair, this behavior is desirable when using <code>make</code> as a build system, but
+not when using it as a command runner. You can disable this behavior for
+specific targets using <code>make</code>’s built-in
+<a href="https://www.gnu.org/software/make/manual/html_node/Phony-Targets.html"><code>.PHONY</code> target name</a>,
+but the syntax is verbose and can be hard to remember. The explicit list of
+phony targets, written separately from the recipe definitions, also introduces
+the risk of accidentally defining a new non-phony target. In <code>just</code>, all
+recipes are treated as if they were phony.</p>
+<p>Other examples of <code>make</code>’s idiosyncrasies include the difference between <code>=</code>
+and <code>:=</code> in assignments, the confusing error messages that are produced if you
+mess up your makefile, needing <code>$$</code> to use environment variables in recipes,
+and incompatibilities between different flavors of <code>make</code>.</p>
 
                     </main>
 

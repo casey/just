@@ -177,7 +177,8 @@
                 <div id="content" class="content">
                     <main>
                         <h3 id="conditional-expressions"><a class="header" href="#conditional-expressions">Conditional Expressions</a></h3>
-<p><code>if</code>/<code>else</code> expressions evaluate different branches depending on if two expressions evaluate to the same value:</p>
+<p><code>if</code>/<code>else</code> expressions evaluate different branches depending on if two
+expressions evaluate to the same value:</p>
 <pre><code class="language-just">foo := if &quot;2&quot; == &quot;2&quot; { &quot;Good!&quot; } else { &quot;1984&quot; }
 
 bar:
@@ -204,15 +205,22 @@ bar:
 <pre><code class="language-sh">$ just bar
 match
 </code></pre>
-<p>Regular expressions are provided by the <a href="https://github.com/rust-lang/regex">regex crate</a>, whose syntax is documented on <a href="https://docs.rs/regex/1.5.4/regex/#syntax">docs.rs</a>. Since regular expressions commonly use backslash escape sequences, consider using single-quoted string literals, which will pass slashes to the regex parser unmolested.</p>
-<p>Conditional expressions short-circuit, which means they only evaluate one of their branches. This can be used to make sure that backtick expressions don’t run when they shouldn’t.</p>
+<p>Regular expressions are provided by the
+<a href="https://github.com/rust-lang/regex">regex crate</a>, whose syntax is documented on
+<a href="https://docs.rs/regex/1.5.4/regex/#syntax">docs.rs</a>. Since regular expressions
+commonly use backslash escape sequences, consider using single-quoted string
+literals, which will pass slashes to the regex parser unmolested.</p>
+<p>Conditional expressions short-circuit, which means they only evaluate one of
+their branches. This can be used to make sure that backtick expressions don’t
+run when they shouldn’t.</p>
 <pre><code class="language-just">foo := if env_var(&quot;RELEASE&quot;) == &quot;true&quot; { `get-something-from-release-database` } else { &quot;dummy-value&quot; }
 </code></pre>
 <p>Conditionals can be used inside of recipes:</p>
 <pre><code class="language-just">bar foo:
   echo {{ if foo == &quot;bar&quot; { &quot;hello&quot; } else { &quot;goodbye&quot; } }}
 </code></pre>
-<p>Note the space after the final <code>}</code>! Without the space, the interpolation will be prematurely closed.</p>
+<p>Note the space after the final <code>}</code>! Without the space, the interpolation will
+be prematurely closed.</p>
 <p>Multiple conditionals can be chained:</p>
 <pre><code class="language-just">foo := if &quot;hello&quot; == &quot;goodbye&quot; {
   &quot;xyz&quot;

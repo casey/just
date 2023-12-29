@@ -177,21 +177,25 @@
                 <div id="content" class="content">
                     <main>
                         <h3 id="multi-line-constructs"><a class="header" href="#multi-line-constructs">Multi-Line Constructs</a></h3>
-<p>Recipes without an initial shebang are evaluated and run line-by-line, which means that multi-line constructs probably won’t do what you want.</p>
+<p>Recipes without an initial shebang are evaluated and run line-by-line, which
+means that multi-line constructs probably won’t do what you want.</p>
 <p>For example, with the following <code>justfile</code>:</p>
 <pre><code class="language-mf">conditional:
   if true; then
     echo 'True!'
   fi
 </code></pre>
-<p>The extra leading whitespace before the second line of the <code>conditional</code> recipe will produce a parse error:</p>
+<p>The extra leading whitespace before the second line of the <code>conditional</code> recipe
+will produce a parse error:</p>
 <pre><code class="language-sh">$ just conditional
 error: Recipe line has extra leading whitespace
   |
 3 |         echo 'True!'
   |     ^^^^^^^^^^^^^^^^
 </code></pre>
-<p>To work around this, you can write conditionals on one line, escape newlines with slashes, or add a shebang to your recipe. Some examples of multi-line constructs are provided for reference.</p>
+<p>To work around this, you can write conditionals on one line, escape newlines
+with slashes, or add a shebang to your recipe. Some examples of multi-line
+constructs are provided for reference.</p>
 <h4 id="if-statements"><a class="header" href="#if-statements"><code>if</code> statements</a></h4>
 <pre><code class="language-just">conditional:
   if true; then echo 'True!'; fi
@@ -259,7 +263,8 @@ bar: (foo
      )
   echo 'Bar!'
 </code></pre>
-<p>Lines ending with a backslash continue on to the next line as if the lines were joined by whitespace<sup>1.15.0</sup>:</p>
+<p>Lines ending with a backslash continue on to the next line as if the lines were
+joined by whitespace<sup>1.15.0</sup>:</p>
 <pre><code class="language-just">a := 'foo' + \
      'bar'
 
@@ -277,7 +282,9 @@ dep2 \
   param:
     echo 'Dependency with parameter {{param}}'
 </code></pre>
-<p>Backslash line continuations can also be used in interpolations. The line following the backslash must start with the same indentation as the recipe body, although additional indentation is accepted.</p>
+<p>Backslash line continuations can also be used in interpolations. The line
+following the backslash must start with the same indentation as the recipe
+body, although additional indentation is accepted.</p>
 <pre><code class="language-just">recipe:
   echo '{{ \
   &quot;This interpolation &quot; + \

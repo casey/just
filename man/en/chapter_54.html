@@ -214,7 +214,18 @@ directory set to the directory containing the submodule source file.</p>
 <p><code>justfile()</code> and <code>justfile_directory()</code> always return the path to the root
 justfile and the directory that contains it, even when called from submodule
 recipes.</p>
-<p>See the <a href="https://github.com/casey/just/issues/929">module stabilization tracking issue</a>
+<p>Modules may be made optional by putting a <code>?</code> after the <code>mod</code> keyword:</p>
+<pre><code class="language-mf">mod? foo
+</code></pre>
+<p>Missing source files for optional modules do not produce an error.</p>
+<p>Optional modules with no source file do not conflict, so you can have multiple
+mod statements with the same name, but with different source file paths, as
+long as at most one source file exists:</p>
+<pre><code class="language-mf">mod? foo 'bar.just'
+mod? foo 'baz.just'
+</code></pre>
+<p>See the
+<a href="https://github.com/casey/just/issues/929">module stabilization tracking issue</a>
 for more information.</p>
 
                     </main>

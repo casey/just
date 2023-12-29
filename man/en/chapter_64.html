@@ -177,8 +177,11 @@
                 <div id="content" class="content">
                     <main>
                         <h3 id="shell-alias"><a class="header" href="#shell-alias">Shell Alias</a></h3>
-<p>For lightning-fast command running, put <code>alias j=just</code> in your shell’s configuration file.</p>
-<p>In <code>bash</code>, the aliased command may not keep the shell completion functionality described in the next section. Add the following line to your <code>.bashrc</code> to use the same completion function as <code>just</code> for your aliased command:</p>
+<p>For lightning-fast command running, put <code>alias j=just</code> in your shell’s
+configuration file.</p>
+<p>In <code>bash</code>, the aliased command may not keep the shell completion functionality
+described in the next section. Add the following line to your <code>.bashrc</code> to use
+the same completion function as <code>just</code> for your aliased command:</p>
 <pre><code class="language-sh">complete -F _just -o bashdefault -o default j
 </code></pre>
 

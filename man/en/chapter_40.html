@@ -177,7 +177,9 @@
                 <div id="content" class="content">
                     <main>
                         <h3 id="running-recipes-in-the-middle-of-a-recipe"><a class="header" href="#running-recipes-in-the-middle-of-a-recipe">Running Recipes in the Middle of a Recipe</a></h3>
-<p><code>just</code> doesn’t support running recipes in the middle of another recipe, but you can call <code>just</code> recursively in the middle of a recipe. Given the following <code>justfile</code>:</p>
+<p><code>just</code> doesn’t support running recipes in the middle of another recipe, but you
+can call <code>just</code> recursively in the middle of a recipe. Given the following
+<code>justfile</code>:</p>
 <pre><code class="language-just">a:
   echo 'A!'
 
@@ -200,7 +202,9 @@ C!
 echo 'B end!'
 B end!
 </code></pre>
-<p>This has limitations, since recipe <code>c</code> is run with an entirely new invocation of <code>just</code>: Assignments will be recalculated, dependencies might run twice, and command line arguments will not be propagated to the child <code>just</code> process.</p>
+<p>This has limitations, since recipe <code>c</code> is run with an entirely new invocation
+of <code>just</code>: Assignments will be recalculated, dependencies might run twice, and
+command line arguments will not be propagated to the child <code>just</code> process.</p>
 
                     </main>
 

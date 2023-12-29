@@ -177,7 +177,8 @@
                 <div id="content" class="content">
                     <main>
                         <h3 id="variables-and-substitution"><a class="header" href="#variables-and-substitution">Variables and Substitution</a></h3>
-<p>Variables, strings, concatenation, path joining, and substitution using <code>{{…}}</code> are supported:</p>
+<p>Variables, strings, concatenation, path joining, and substitution using <code>{{…}}</code>
+are supported:</p>
 <pre><code class="language-just">tmpdir  := `mktemp -d`
 version := &quot;0.2.7&quot;
 tardir  := tmpdir / &quot;awesomesauce-&quot; + version
@@ -211,14 +212,18 @@ a//b
 <pre><code>$ just --evaluate foo
 /b
 </code></pre>
-<p>The <code>/</code> operator uses the <code>/</code> character, even on Windows. Thus, using the <code>/</code> operator should be avoided with paths that use universal naming convention (UNC), i.e., those that start with <code>\?</code>, since forward slashes are not supported with UNC paths.</p>
+<p>The <code>/</code> operator uses the <code>/</code> character, even on Windows. Thus, using the <code>/</code>
+operator should be avoided with paths that use universal naming convention
+(UNC), i.e., those that start with <code>\?</code>, since forward slashes are not
+supported with UNC paths.</p>
 <h4 id="escaping-"><a class="header" href="#escaping-">Escaping <code>{{</code></a></h4>
 <p>To write a recipe containing <code>{{</code>, use <code>{{{{</code>:</p>
 <pre><code class="language-just">braces:
   echo 'I {{{{LOVE}} curly braces!'
 </code></pre>
 <p>(An unmatched <code>}}</code> is ignored, so it doesn’t need to be escaped.)</p>
-<p>Another option is to put all the text you’d like to escape inside of an interpolation:</p>
+<p>Another option is to put all the text you’d like to escape inside of an
+interpolation:</p>
 <pre><code class="language-just">braces:
   echo '{{'I {{LOVE}} curly braces!'}}'
 </code></pre>

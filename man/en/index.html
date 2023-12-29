@@ -197,8 +197,10 @@
 <br>
 <p><code>just</code> is a handy way to save and run project-specific commands.</p>
 <p>This readme is also available as a <a href="https://just.systems/man/en/">book</a>.</p>
-<p>(中文文档在 <a href="https://github.com/casey/just/blob/master/README.%E4%B8%AD%E6%96%87.md">这里</a>, 快看过来!)</p>
-<p>Commands, called recipes, are stored in a file called <code>justfile</code> with syntax inspired by <code>make</code>:</p>
+<p>(中文文档在 <a href="https://github.com/casey/just/blob/master/README.%E4%B8%AD%E6%96%87.md">这里</a>,
+快看过来!)</p>
+<p>Commands, called recipes, are stored in a file called <code>justfile</code> with syntax
+inspired by <code>make</code>:</p>
 <p><img src="https://raw.githubusercontent.com/casey/just/master/screenshot.png" alt="screenshot" /></p>
 <p>You can then run them with <code>just RECIPE</code>:</p>
 <pre><code class="language-sh">$ just test-all
@@ -209,40 +211,52 @@ Yay, all your tests passed!
 <p><code>just</code> has a ton of useful features, and many improvements over <code>make</code>:</p>
 <ul>
 <li>
-<p><code>just</code> is a command runner, not a build system, so it avoids much of <a href="chapter_76.html"><code>make</code>’s complexity and idiosyncrasies</a>. No need for <code>.PHONY</code> recipes!</p>
+<p><code>just</code> is a command runner, not a build system, so it avoids much of
+<a href="chapter_76.html"><code>make</code>’s complexity and idiosyncrasies</a>.
+No need for <code>.PHONY</code> recipes!</p>
 </li>
 <li>
-<p>Linux, MacOS, and Windows are supported with no additional dependencies. (Although if your system doesn’t have an <code>sh</code>, you’ll need to <a href="chapter_26.html#shell">choose a different shell</a>.)</p>
+<p>Linux, MacOS, and Windows are supported with no additional dependencies.
+(Although if your system doesn’t have an <code>sh</code>, you’ll need to
+<a href="chapter_26.html#shell">choose a different shell</a>.)</p>
 </li>
 <li>
-<p>Errors are specific and informative, and syntax errors are reported along with their source context.</p>
+<p>Errors are specific and informative, and syntax errors are reported along
+with their source context.</p>
 </li>
 <li>
 <p>Recipes can accept <a href="chapter_38.html">command line arguments</a>.</p>
 </li>
 <li>
-<p>Wherever possible, errors are resolved statically. Unknown recipes and circular dependencies are reported before anything runs.</p>
+<p>Wherever possible, errors are resolved statically. Unknown recipes and
+circular dependencies are reported before anything runs.</p>
 </li>
 <li>
-<p><code>just</code> <a href="chapter_26.html#dotenv-settings">loads <code>.env</code> files</a>, making it easy to populate environment variables.</p>
+<p><code>just</code> <a href="chapter_26.html#dotenv-settings">loads <code>.env</code> files</a>, making it easy to populate
+environment variables.</p>
 </li>
 <li>
 <p>Recipes can be <a href="chapter_24.html">listed from the command line</a>.</p>
 </li>
 <li>
-<p>Command line completion scripts are <a href="chapter_65.html">available for most popular shells</a>.</p>
+<p>Command line completion scripts are
+<a href="chapter_65.html">available for most popular shells</a>.</p>
 </li>
 <li>
-<p>Recipes can be written in <a href="chapter_41.html">arbitrary languages</a>, like Python or NodeJS.</p>
+<p>Recipes can be written in
+<a href="chapter_41.html">arbitrary languages</a>, like Python or NodeJS.</p>
 </li>
 <li>
-<p><code>just</code> can be invoked from any subdirectory, not just the directory that contains the <code>justfile</code>.</p>
+<p><code>just</code> can be invoked from any subdirectory, not just the directory that
+contains the <code>justfile</code>.</p>
 </li>
 <li>
 <p>And <a href="https://just.systems/man/en/">much more</a>!</p>
 </li>
 </ul>
-<p>If you need help with <code>just</code> please feel free to open an issue or ping me on <a href="https://discord.gg/ezYScXR">Discord</a>. Feature requests and bug reports are always welcome!</p>
+<p>If you need help with <code>just</code> please feel free to open an issue or ping me on
+<a href="https://discord.gg/ezYScXR">Discord</a>. Feature requests and bug reports are
+always welcome!</p>
 
                     </main>
 

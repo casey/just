@@ -178,8 +178,10 @@
                     <main>
                         <h3 id="vim-and-neovim"><a class="header" href="#vim-and-neovim">Vim and Neovim</a></h3>
 <h4 id="vim-just"><a class="header" href="#vim-just"><code>vim-just</code></a></h4>
-<p>The <a href="https://github.com/NoahTheDuke/vim-just">vim-just</a> plugin provides syntax highlighting for <code>justfile</code>s.</p>
-<p>Install it with your favorite package manager, like <a href="https://github.com/junegunn/vim-plug">Plug</a>:</p>
+<p>The <a href="https://github.com/NoahTheDuke/vim-just">vim-just</a> plugin provides syntax
+highlighting for <code>justfile</code>s.</p>
+<p>Install it with your favorite package manager, like
+<a href="https://github.com/junegunn/vim-plug">Plug</a>:</p>
 <pre><code class="language-vim">call plug#begin()
 
 Plug 'NoahTheDuke/vim-just'
@@ -192,9 +194,12 @@ cd ~/.vim/pack/vendor/start
 git clone https://github.com/NoahTheDuke/vim-just.git
 </code></pre>
 <h4 id="tree-sitter-just"><a class="header" href="#tree-sitter-just"><code>tree-sitter-just</code></a></h4>
-<p><a href="https://github.com/IndianBoy42/tree-sitter-just">tree-sitter-just</a> is an <a href="https://github.com/nvim-treesitter/nvim-treesitter">Nvim Treesitter</a> plugin for Neovim.</p>
+<p><a href="https://github.com/IndianBoy42/tree-sitter-just">tree-sitter-just</a> is an
+<a href="https://github.com/nvim-treesitter/nvim-treesitter">Nvim Treesitter</a> plugin
+for Neovim.</p>
 <h4 id="makefile-syntax-highlighting"><a class="header" href="#makefile-syntax-highlighting">Makefile Syntax Highlighting</a></h4>
-<p>Vim’s built-in makefile syntax highlighting isn’t perfect for <code>justfile</code>s, but it’s better than nothing. You can put the following in <code>~/.vim/filetype.vim</code>:</p>
+<p>Vim’s built-in makefile syntax highlighting isn’t perfect for <code>justfile</code>s, but
+it’s better than nothing. You can put the following in <code>~/.vim/filetype.vim</code>:</p>
 <pre><code class="language-vimscript">if exists(&quot;did_load_filetypes&quot;)
   finish
 endif
@@ -203,7 +208,8 @@ augroup filetypedetect
   au BufNewFile,BufRead justfile setf make
 augroup END
 </code></pre>
-<p>Or add the following to an individual <code>justfile</code> to enable <code>make</code> mode on a per-file basis:</p>
+<p>Or add the following to an individual <code>justfile</code> to enable <code>make</code> mode on a
+per-file basis:</p>
 <pre><code class="language-text"># vim: set ft=make :
 </code></pre>
 

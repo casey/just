@@ -204,11 +204,17 @@ Available recipes:
 <pre><code class="language-sh">$ just --summary --unsorted
 test build
 </code></pre>
-<p>If you’d like <code>just</code> to default to listing the recipes in the <code>justfile</code>, you can use this as your default recipe:</p>
+<p>If you’d like <code>just</code> to default to listing the recipes in the <code>justfile</code>, you
+can use this as your default recipe:</p>
 <pre><code class="language-just">default:
   @just --list
 </code></pre>
-<p>Note that you may need to add <code>--justfile {{justfile()}}</code> to the line above above. Without it, if you executed <code>just -f /some/distant/justfile -d .</code> or <code>just -f ./non-standard-justfile</code>, the plain <code>just --list</code> inside the recipe would not necessarily use the file you provided. It would try to find a justfile in your current path, maybe even resulting in a <code>No justfile found</code> error.</p>
+<p>Note that you may need to add <code>--justfile {{justfile()}}</code> to the line above
+above. Without it, if you executed <code>just -f /some/distant/justfile -d .</code> or
+<code>just -f ./non-standard-justfile</code>, the plain <code>just --list</code> inside the recipe
+would not necessarily use the file you provided. It would try to find a
+justfile in your current path, maybe even resulting in a <code>No justfile found</code>
+error.</p>
 <p>The heading text can be customized with <code>--list-heading</code>:</p>
 <pre><code class="language-sh">$ just --list --list-heading $'Cool stuff…\n'
 Cool stuff…
@@ -221,7 +227,9 @@ Available recipes:
 ····test
 ····build
 </code></pre>
-<p>The argument to <code>--list-heading</code> replaces both the heading and the newline following it, so it should contain a newline if non-empty. It works this way so you can suppress the heading line entirely by passing the empty string:</p>
+<p>The argument to <code>--list-heading</code> replaces both the heading and the newline
+following it, so it should contain a newline if non-empty. It works this way so
+you can suppress the heading line entirely by passing the empty string:</p>
 <pre><code class="language-sh">$ just --list --list-heading ''
     test
     build

@@ -177,7 +177,8 @@
                 <div id="content" class="content">
                     <main>
                         <h3 id="settings"><a class="header" href="#settings">Settings</a></h3>
-<p>Settings control interpretation and execution. Each setting may be specified at most once, anywhere in the <code>justfile</code>.</p>
+<p>Settings control interpretation and execution. Each setting may be specified at
+most once, anywhere in the <code>justfile</code>.</p>
 <p>For example:</p>
 <pre><code class="language-just">set shell := [&quot;zsh&quot;, &quot;-cu&quot;]
 
@@ -208,7 +209,9 @@ foo:
 <pre><code class="language-justfile">set NAME := true
 </code></pre>
 <h4 id="allow-duplicate-recipes"><a class="header" href="#allow-duplicate-recipes">Allow Duplicate Recipes</a></h4>
-<p>If <code>allow-duplicate-recipes</code> is set to <code>true</code>, defining multiple recipes with the same name is not an error and the last definition is used. Defaults to <code>false</code>.</p>
+<p>If <code>allow-duplicate-recipes</code> is set to <code>true</code>, defining multiple recipes with
+the same name is not an error and the last definition is used. Defaults to
+<code>false</code>.</p>
 <pre><code class="language-just">set allow-duplicate-recipes
 
 @foo:
@@ -221,10 +224,15 @@ foo:
 bar
 </code></pre>
 <h4 id="dotenv-settings"><a class="header" href="#dotenv-settings">Dotenv Settings</a></h4>
-<p>If <code>dotenv-load</code>, <code>dotenv-filename</code> or <code>dotenv-path</code> is set, <code>just</code> will load environment variables from a file.</p>
+<p>If <code>dotenv-load</code>, <code>dotenv-filename</code> or <code>dotenv-path</code> is set, <code>just</code> will load
+environment variables from a file.</p>
 <p>If <code>dotenv-path</code> is set, <code>just</code> will look for a file at the given path.</p>
-<p>Otherwise, <code>just</code> looks for a file named <code>.env</code> by default, unless <code>dotenv-filename</code> set, in which case the value of <code>dotenv-filename</code> is used. This file can be located in the same directory as your <code>justfile</code> or in a parent directory.</p>
-<p>The loaded variables are environment variables, not <code>just</code> variables, and so must be accessed using <code>$VARIABLE_NAME</code> in recipes and backticks.</p>
+<p>Otherwise, <code>just</code> looks for a file named <code>.env</code> by default, unless
+<code>dotenv-filename</code> set, in which case the value of <code>dotenv-filename</code> is used.
+This file can be located in the same directory as your <code>justfile</code> or in a
+parent directory.</p>
+<p>The loaded variables are environment variables, not <code>just</code> variables, and so
+must be accessed using <code>$VARIABLE_NAME</code> in recipes and backticks.</p>
 <p>For example, if your <code>.env</code> file contains:</p>
 <pre><code class="language-sh"># a comment, will be ignored
 DATABASE_ADDRESS=localhost:6379
@@ -243,7 +251,8 @@ Starting server with database localhost:6379 on port 1337…
 ./server --database $DATABASE_ADDRESS --port $SERVER_PORT
 </code></pre>
 <h4 id="export"><a class="header" href="#export">Export</a></h4>
-<p>The <code>export</code> setting causes all <code>just</code> variables to be exported as environment variables. Defaults to <code>false</code>.</p>
+<p>The <code>export</code> setting causes all <code>just</code> variables to be exported as environment
+variables. Defaults to <code>false</code>.</p>
 <pre><code class="language-just">set export
 
 a := &quot;hello&quot;
@@ -257,7 +266,9 @@ hello
 goodbye
 </code></pre>
 <h4 id="positional-arguments"><a class="header" href="#positional-arguments">Positional Arguments</a></h4>
-<p>If <code>positional-arguments</code> is <code>true</code>, recipe arguments will be passed as positional arguments to commands. For linewise recipes, argument <code>$0</code> will be the name of the recipe.</p>
+<p>If <code>positional-arguments</code> is <code>true</code>, recipe arguments will be passed as
+positional arguments to commands. For linewise recipes, argument <code>$0</code> will be
+the name of the recipe.</p>
 <p>For example, running this recipe:</p>
 <pre><code class="language-just">set positional-arguments
 
@@ -270,7 +281,12 @@ goodbye
 foo
 hello
 </code></pre>
-<p>When using an <code>sh</code>-compatible shell, such as <code>bash</code> or <code>zsh</code>, <code>$@</code> expands to the positional arguments given to the recipe, starting from one. When used within double quotes as <code>&quot;$@&quot;</code>, arguments including whitespace will be passed on as if they were double-quoted. That is, <code>&quot;$@&quot;</code> is equivalent to <code>&quot;$1&quot; &quot;$2&quot;</code>… When there are no positional parameters, <code>&quot;$@&quot;</code> and <code>$@</code> expand to nothing (i.e., they are removed).</p>
+<p>When using an <code>sh</code>-compatible shell, such as <code>bash</code> or <code>zsh</code>, <code>$@</code> expands to
+the positional arguments given to the recipe, starting from one. When used
+within double quotes as <code>&quot;$@&quot;</code>, arguments including whitespace will be passed
+on as if they were double-quoted. That is, <code>&quot;$@&quot;</code> is equivalent to <code>&quot;$1&quot; &quot;$2&quot;</code>…
+When there are no positional parameters, <code>&quot;$@&quot;</code> and <code>$@</code> expand to nothing
+(i.e., they are removed).</p>
 <p>This example recipe will print arguments one by one on separate lines:</p>
 <pre><code class="language-just">set positional-arguments
 
@@ -283,7 +299,8 @@ hello
 - bar baz
 </code></pre>
 <h4 id="shell"><a class="header" href="#shell">Shell</a></h4>
-<p>The <code>shell</code> setting controls the command used to invoke recipe lines and backticks. Shebang recipes are unaffected.</p>
+<p>The <code>shell</code> setting controls the command used to invoke recipe lines and
+backticks. Shebang recipes are unaffected.</p>
 <pre><code class="language-just"># use python3 to execute recipe lines and backticks
 set shell := [&quot;python3&quot;, &quot;-c&quot;]
 
@@ -294,18 +311,25 @@ foo:
   print(&quot;Snake snake snake snake.&quot;)
   print(&quot;{{foos}}&quot;)
 </code></pre>
-<p><code>just</code> passes the command to be executed as an argument. Many shells will need an additional flag, often <code>-c</code>, to make them evaluate the first argument.</p>
+<p><code>just</code> passes the command to be executed as an argument. Many shells will need
+an additional flag, often <code>-c</code>, to make them evaluate the first argument.</p>
 <h5 id="windows-shell"><a class="header" href="#windows-shell">Windows Shell</a></h5>
-<p><code>just</code> uses <code>sh</code> on Windows by default. To use a different shell on Windows, use <code>windows-shell</code>:</p>
+<p><code>just</code> uses <code>sh</code> on Windows by default. To use a different shell on Windows,
+use <code>windows-shell</code>:</p>
 <pre><code class="language-just">set windows-shell := [&quot;powershell.exe&quot;, &quot;-NoLogo&quot;, &quot;-Command&quot;]
 
 hello:
   Write-Host &quot;Hello, world!&quot;
 </code></pre>
-<p>See <a href="https://github.com/casey/just/blob/master/examples/powershell.just">powershell.just</a> for a justfile that uses PowerShell on all platforms.</p>
+<p>See
+<a href="https://github.com/casey/just/blob/master/examples/powershell.just">powershell.just</a>
+for a justfile that uses PowerShell on all platforms.</p>
 <h5 id="windows-powershell"><a class="header" href="#windows-powershell">Windows PowerShell</a></h5>
-<p><em><code>set windows-powershell</code> uses the legacy <code>powershell.exe</code> binary, and is no longer recommended. See the <code>windows-shell</code> setting above for a more flexible way to control which shell is used on Windows.</em></p>
-<p><code>just</code> uses <code>sh</code> on Windows by default. To use <code>powershell.exe</code> instead, set <code>windows-powershell</code> to true.</p>
+<p><em><code>set windows-powershell</code> uses the legacy <code>powershell.exe</code> binary, and is no
+longer recommended. See the <code>windows-shell</code> setting above for a more flexible
+way to control which shell is used on Windows.</em></p>
+<p><code>just</code> uses <code>sh</code> on Windows by default. To use <code>powershell.exe</code> instead, set
+<code>windows-powershell</code> to true.</p>
 <pre><code class="language-just">set windows-powershell := true
 
 hello:
@@ -329,7 +353,8 @@ hello:
 <p>If you want to change the default table mode to <code>light</code>:</p>
 <pre><code class="language-just">set shell := ['nu', '-m', 'light', '-c']
 </code></pre>
-<p><em><a href="https://github.com/nushell/nushell">Nushell</a> was written in Rust, and <strong>has cross-platform support for Windows / macOS and Linux</strong>.</em></p>
+<p><em><a href="https://github.com/nushell/nushell">Nushell</a> was written in Rust, and <strong>has
+cross-platform support for Windows / macOS and Linux</strong>.</em></p>
 
                     </main>
 

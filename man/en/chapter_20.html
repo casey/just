@@ -177,9 +177,13 @@
                 <div id="content" class="content">
                     <main>
                         <h2 id="quick-start"><a class="header" href="#quick-start">Quick Start</a></h2>
-<p>See <a href="chapter_2.html">the installation section</a> for how to install <code>just</code> on your computer. Try running <code>just --version</code> to make sure that it’s installed correctly.</p>
-<p>For an overview of the syntax, check out <a href="https://cheatography.com/linux-china/cheat-sheets/justfile/">this cheatsheet</a>.</p>
-<p>Once <code>just</code> is installed and working, create a file named <code>justfile</code> in the root of your project with the following contents:</p>
+<p>See <a href="chapter_2.html">the installation section</a> for how to install <code>just</code> on your
+computer. Try running <code>just --version</code> to make sure that it’s installed
+correctly.</p>
+<p>For an overview of the syntax, check out
+<a href="https://cheatography.com/linux-china/cheat-sheets/justfile/">this cheatsheet</a>.</p>
+<p>Once <code>just</code> is installed and working, create a file named <code>justfile</code> in the
+root of your project with the following contents:</p>
 <pre><code class="language-just">recipe-name:
   echo 'This is a recipe!'
 
@@ -187,8 +191,11 @@
 another-recipe:
   @echo 'This is another recipe.'
 </code></pre>
-<p>When you invoke <code>just</code> it looks for file <code>justfile</code> in the current directory and upwards, so you can invoke it from any subdirectory of your project.</p>
-<p>The search for a <code>justfile</code> is case insensitive, so any case, like <code>Justfile</code>, <code>JUSTFILE</code>, or <code>JuStFiLe</code>, will work. <code>just</code> will also look for files with the name <code>.justfile</code>, in case you’d like to hide a <code>justfile</code>.</p>
+<p>When you invoke <code>just</code> it looks for file <code>justfile</code> in the current directory
+and upwards, so you can invoke it from any subdirectory of your project.</p>
+<p>The search for a <code>justfile</code> is case insensitive, so any case, like <code>Justfile</code>,
+<code>JUSTFILE</code>, or <code>JuStFiLe</code>, will work. <code>just</code> will also look for files with the
+name <code>.justfile</code>, in case you’d like to hide a <code>justfile</code>.</p>
 <p>Running <code>just</code> with no arguments runs the first recipe in the <code>justfile</code>:</p>
 <pre><code class="language-sh">$ just
 echo 'This is a recipe!'
@@ -198,14 +205,18 @@ This is a recipe!
 <pre><code class="language-sh">$ just another-recipe
 This is another recipe.
 </code></pre>
-<p><code>just</code> prints each command to standard error before running it, which is why <code>echo 'This is a recipe!'</code> was printed. This is suppressed for lines starting with <code>@</code>, which is why <code>echo 'This is another recipe.'</code> was not printed.</p>
-<p>Recipes stop running if a command fails. Here <code>cargo publish</code> will only run if <code>cargo test</code> succeeds:</p>
+<p><code>just</code> prints each command to standard error before running it, which is why
+<code>echo 'This is a recipe!'</code> was printed. This is suppressed for lines starting
+with <code>@</code>, which is why <code>echo 'This is another recipe.'</code> was not printed.</p>
+<p>Recipes stop running if a command fails. Here <code>cargo publish</code> will only run if
+<code>cargo test</code> succeeds:</p>
 <pre><code class="language-just">publish:
   cargo test
   # tests passed, time to publish!
   cargo publish
 </code></pre>
-<p>Recipes can depend on other recipes. Here the <code>test</code> recipe depends on the <code>build</code> recipe, so <code>build</code> will run before <code>test</code>:</p>
+<p>Recipes can depend on other recipes. Here the <code>test</code> recipe depends on the
+<code>build</code> recipe, so <code>build</code> will run before <code>test</code>:</p>
 <pre><code class="language-just">build:
   cc main.c foo.c bar.c -o main
 
@@ -220,12 +231,14 @@ cc main.c foo.c bar.c -o main
 ./test
 testing… all tests passed!
 </code></pre>
-<p>Recipes without dependencies will run in the order they’re given on the command line:</p>
+<p>Recipes without dependencies will run in the order they’re given on the command
+line:</p>
 <pre><code class="language-sh">$ just build sloc
 cc main.c foo.c bar.c -o main
 1337 lines of code
 </code></pre>
-<p>Dependencies will always run first, even if they are passed after a recipe that depends on them:</p>
+<p>Dependencies will always run first, even if they are passed after a recipe that
+depends on them:</p>
 <pre><code class="language-sh">$ just test build
 cc main.c foo.c bar.c -o main
 ./test

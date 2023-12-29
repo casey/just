@@ -177,18 +177,23 @@
                 <div id="content" class="content">
                     <main>
                         <h3 id="setting-variables-in-a-recipe"><a class="header" href="#setting-variables-in-a-recipe">Setting Variables in a Recipe</a></h3>
-<p>Recipe lines are interpreted by the shell, not <code>just</code>, so it’s not possible to set <code>just</code> variables in the middle of a recipe:</p>
+<p>Recipe lines are interpreted by the shell, not <code>just</code>, so it’s not possible to
+set <code>just</code> variables in the middle of a recipe:</p>
 <pre><code class="language-mf">foo:
   x := &quot;hello&quot; # This doesn't work!
   echo {{x}}
 </code></pre>
-<p>It is possible to use shell variables, but there’s another problem. Every recipe line is run by a new shell instance, so variables set in one line won’t be set in the next:</p>
+<p>It is possible to use shell variables, but there’s another problem. Every
+recipe line is run by a new shell instance, so variables set in one line won’t
+be set in the next:</p>
 <pre><code class="language-just">foo:
   x=hello &amp;&amp; echo $x # This works!
   y=bye
   echo $y            # This doesn't, `y` is undefined here!
 </code></pre>
-<p>The best way to work around this is to use a shebang recipe. Shebang recipe bodies are extracted and run as scripts, so a single shell instance will run the whole thing:</p>
+<p>The best way to work around this is to use a shebang recipe. Shebang recipe
+bodies are extracted and run as scripts, so a single shell instance will run
+the whole thing:</p>
 <pre><code class="language-just">foo:
   #!/usr/bin/env bash
   set -euxo pipefail

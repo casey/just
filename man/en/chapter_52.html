@@ -177,20 +177,26 @@
                 <div id="content" class="content">
                     <main>
                         <h3 id="invoking-justfiles-in-other-directories"><a class="header" href="#invoking-justfiles-in-other-directories">Invoking <code>justfile</code>s in Other Directories</a></h3>
-<p>If the first argument passed to <code>just</code> contains a <code>/</code>, then the following occurs:</p>
+<p>If the first argument passed to <code>just</code> contains a <code>/</code>, then the following
+occurs:</p>
 <ol>
 <li>
 <p>The argument is split at the last <code>/</code>.</p>
 </li>
 <li>
-<p>The part before the last <code>/</code> is treated as a directory. <code>just</code> will start its search for the <code>justfile</code> there, instead of in the current directory.</p>
+<p>The part before the last <code>/</code> is treated as a directory. <code>just</code> will start
+its search for the <code>justfile</code> there, instead of in the current directory.</p>
 </li>
 <li>
-<p>The part after the last slash is treated as a normal argument, or ignored if it is empty.</p>
+<p>The part after the last slash is treated as a normal argument, or ignored
+if it is empty.</p>
 </li>
 </ol>
-<p>This may seem a little strange, but it’s useful if you wish to run a command in a <code>justfile</code> that is in a subdirectory.</p>
-<p>For example, if you are in a directory which contains a subdirectory named <code>foo</code>, which contains a <code>justfile</code> with the recipe <code>build</code>, which is also the default recipe, the following are all equivalent:</p>
+<p>This may seem a little strange, but it’s useful if you wish to run a command in
+a <code>justfile</code> that is in a subdirectory.</p>
+<p>For example, if you are in a directory which contains a subdirectory named
+<code>foo</code>, which contains a <code>justfile</code> with the recipe <code>build</code>, which is also the
+default recipe, the following are all equivalent:</p>
 <pre><code class="language-sh">$ (cd foo &amp;&amp; just build)
 $ just foo/build
 $ just foo/

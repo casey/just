@@ -177,14 +177,19 @@
                 <div id="content" class="content">
                     <main>
                         <h3 id="configuring-the-shell"><a class="header" href="#configuring-the-shell">Configuring the Shell</a></h3>
-<p>There are a number of ways to configure the shell for linewise recipes, which are the default when a recipe does not start with a <code>#!</code> shebang. Their precedence, from highest to lowest, is:</p>
+<p>There are a number of ways to configure the shell for linewise recipes, which
+are the default when a recipe does not start with a <code>#!</code> shebang. Their
+precedence, from highest to lowest, is:</p>
 <ol>
-<li>The <code>--shell</code> and <code>--shell-arg</code> command line options. Passing either of these will cause <code>just</code> to ignore any settings in the current justfile.</li>
+<li>The <code>--shell</code> and <code>--shell-arg</code> command line options. Passing either of
+these will cause <code>just</code> to ignore any settings in the current justfile.</li>
 <li><code>set windows-shell := [...]</code></li>
 <li><code>set windows-powershell</code> (deprecated)</li>
 <li><code>set shell := [...]</code></li>
 </ol>
-<p>Since <code>set windows-shell</code> has higher precedence than <code>set shell</code>, you can use <code>set windows-shell</code> to pick a shell on Windows, and <code>set shell</code> to pick a shell for all other platforms.</p>
+<p>Since <code>set windows-shell</code> has higher precedence than <code>set shell</code>, you can use
+<code>set windows-shell</code> to pick a shell on Windows, and <code>set shell</code> to pick a shell
+for all other platforms.</p>
 
                     </main>
 

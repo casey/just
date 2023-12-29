@@ -184,7 +184,9 @@
   hello='Yo'
   echo &quot;$hello from Bash!&quot;
 </code></pre>
-<p>It isn’t strictly necessary, but <code>set -euxo pipefail</code> turns on a few useful features that make <code>bash</code> shebang recipes behave more like normal, linewise <code>just</code> recipe:</p>
+<p>It isn’t strictly necessary, but <code>set -euxo pipefail</code> turns on a few useful
+features that make <code>bash</code> shebang recipes behave more like normal, linewise
+<code>just</code> recipe:</p>
 <ul>
 <li>
 <p><code>set -e</code> makes <code>bash</code> exit if a command fails.</p>
@@ -196,19 +198,25 @@
 <p><code>set -x</code> makes <code>bash</code> print each script line before it’s run.</p>
 </li>
 <li>
-<p><code>set -o pipefail</code> makes <code>bash</code> exit if a command in a pipeline fails. This is <code>bash</code>-specific, so isn’t turned on in normal linewise <code>just</code> recipes.</p>
+<p><code>set -o pipefail</code> makes <code>bash</code> exit if a command in a pipeline fails. This is
+<code>bash</code>-specific, so isn’t turned on in normal linewise <code>just</code> recipes.</p>
 </li>
 </ul>
 <p>Together, these avoid a lot of shell scripting gotchas.</p>
 <h4 id="shebang-recipe-execution-on-windows"><a class="header" href="#shebang-recipe-execution-on-windows">Shebang Recipe Execution on Windows</a></h4>
-<p>On Windows, shebang interpreter paths containing a <code>/</code> are translated from Unix-style paths to Windows-style paths using <code>cygpath</code>, a utility that ships with <a href="http://www.cygwin.com">Cygwin</a>.</p>
+<p>On Windows, shebang interpreter paths containing a <code>/</code> are translated from
+Unix-style paths to Windows-style paths using <code>cygpath</code>, a utility that ships
+with <a href="http://www.cygwin.com">Cygwin</a>.</p>
 <p>For example, to execute this recipe on Windows:</p>
 <pre><code class="language-just">echo:
   #!/bin/sh
   echo &quot;Hello!&quot;
 </code></pre>
-<p>The interpreter path <code>/bin/sh</code> will be translated to a Windows-style path using <code>cygpath</code> before being executed.</p>
-<p>If the interpreter path does not contain a <code>/</code> it will be executed without being translated. This is useful if <code>cygpath</code> is not available, or you wish to pass a Windows-style path to the interpreter.</p>
+<p>The interpreter path <code>/bin/sh</code> will be translated to a Windows-style path using
+<code>cygpath</code> before being executed.</p>
+<p>If the interpreter path does not contain a <code>/</code> it will be executed without
+being translated. This is useful if <code>cygpath</code> is not available, or you wish to
+pass a Windows-style path to the interpreter.</p>
 
                     </main>
 

@@ -177,7 +177,8 @@
                 <div id="content" class="content">
                     <main>
                         <h3 id="quiet-recipes"><a class="header" href="#quiet-recipes">Quiet Recipes</a></h3>
-<p>A recipe name may be prefixed with <code>@</code> to invert the meaning of <code>@</code> before each line:</p>
+<p>A recipe name may be prefixed with <code>@</code> to invert the meaning of <code>@</code> before each
+line:</p>
 <pre><code class="language-just">@quiet:
   echo hello
   echo goodbye
@@ -197,7 +198,8 @@ goodbye
 <pre><code class="language-sh">$ just foo
 Foo!
 </code></pre>
-<p>Adding <code>@</code> to a shebang recipe name makes <code>just</code> print the recipe before executing it:</p>
+<p>Adding <code>@</code> to a shebang recipe name makes <code>just</code> print the recipe before
+executing it:</p>
 <pre><code class="language-just">@bar:
   #!/usr/bin/env bash
   echo 'Bar!'
@@ -208,8 +210,8 @@ echo 'Bar!'
 Bar!
 </code></pre>
 <p><code>just</code> normally prints error messages when a recipe line fails. These error
-messages can be suppressed using the <code>[no-exit-message]</code><sup>1.7.0</sup> attribute. You may find
-this especially useful with a recipe that wraps a tool:</p>
+messages can be suppressed using the <code>[no-exit-message]</code><sup>1.7.0</sup>
+attribute. You may find this especially useful with a recipe that wraps a tool:</p>
 <pre><code class="language-just">git *args:
     @git {{args}}
 </code></pre>
