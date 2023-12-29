@@ -1,9 +1,5 @@
 use super::*;
 
-// todo:
-// - use nice box characters for error messages
-// - use default unit for result types
-
 #[test]
 fn import_succeeds() {
   Test::new()
