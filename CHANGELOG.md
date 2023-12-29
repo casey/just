@@ -1,6 +1,17 @@
 Changelog
 =========
 
+[1.21.0](https://github.com/casey/just/releases/tag/1.21.0) - 2023-12-29
+------------------------------------------------------------------------
+
+### Added
+- Optional modules and imports ([#1797](https://github.com/casey/just/pull/1797))
+- Print submodule recipes in --summary ([#1794](https://github.com/casey/just/pull/1794))
+
+### Misc
+- Use box-drawing characters in error messages ([#1798](https://github.com/casey/just/pull/1798))
+- Use Self ([#1795](https://github.com/casey/just/pull/1795))
+
 [1.20.0](https://github.com/casey/just/releases/tag/1.20.0) - 2023-12-28
 ------------------------------------------------------------------------
 
