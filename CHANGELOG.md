@@ -1,6 +1,21 @@
 Changelog
 =========
 
+[1.20.0](https://github.com/casey/just/releases/tag/1.20.0) - 2023-12-28
+------------------------------------------------------------------------
+
+### Added
+- Allow mod statements with path to source file ([#1786](https://github.com/casey/just/pull/1786))
+
+### Changed
+- Expand tilde in import and module paths ([#1792](https://github.com/casey/just/pull/1792))
+- Override imported recipes ([#1790](https://github.com/casey/just/pull/1790))
+- Run recipes with working directory set to submodule directory ([#1788](https://github.com/casey/just/pull/1788))
+
+### Misc
+- Document import override behavior ([#1791](https://github.com/casey/just/pull/1791))
+- Document submodule working directory ([#1789](https://github.com/casey/just/pull/1789))
+
 [1.19.0](https://github.com/casey/just/releases/tag/1.19.0) - 2023-12-27
 ------------------------------------------------------------------------
 
