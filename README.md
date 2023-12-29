@@ -2405,11 +2405,15 @@ the module file may have any capitalization.
 
 Environment files are loaded for the root justfile.
 
-Currently, recipes in submodules run with the same working directory as the
-root `justfile`, and the `justfile()` and `justfile_directory()` functions
-return the path to the root `justfile` and its parent directory.
+Recipes in submodules without the `[no-cd]` attribute run with the working
+directory set to the directory containing the submodule source file.
 
-See the [module stabilization tracking issue](https://github.com/casey/just/issues/929) for more information.
+`justfile()` and `justfile_directory()` always return the path to the root
+justfile and the directory that contains it, even when called from submodule
+recipes.
+
+See the [module stabilization tracking issue](https://github.com/casey/just/issues/929)
+for more information.
 
 ### Hiding `justfile`s
 
