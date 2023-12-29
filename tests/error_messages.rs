@@ -92,6 +92,7 @@ error: Expected '*', ':', '$', identifier, or '+', but found end of file
 }
 
 #[test]
+#[cfg(not(windows))]
 fn file_paths_not_in_subdir_are_absolute() {
   Test::new()
     .write("foo/justfile", "import '../bar.just'")
@@ -99,14 +100,13 @@ fn file_paths_not_in_subdir_are_absolute() {
     .no_justfile()
     .args(["--justfile", "foo/justfile"])
     .status(EXIT_FAILURE)
-    .stderr_regex(format!(
+    .stderr_regex(
       r"error: Expected '\*', ':', '\$', identifier, or '\+', but found end of file
- ——▶ {}.*{}bar.just:1:4
+ ——▶ /.*/bar.just:1:4
   │
 1 │ baz
   │    \^
 ",
-      MAIN_SEPARATOR, MAIN_SEPARATOR
-    ))
+    )
     .run();
 }
