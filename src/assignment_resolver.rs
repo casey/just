@@ -9,7 +9,7 @@ pub(crate) struct AssignmentResolver<'src: 'run, 'run> {
 impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
   pub(crate) fn resolve_assignments(
     assignments: &'run Table<'src, Assignment<'src>>,
-  ) -> CompileResult<'src, ()> {
+  ) -> CompileResult<'src> {
     let mut resolver = Self {
       stack: Vec::new(),
       evaluated: BTreeSet::new(),
@@ -23,7 +23,7 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
     Ok(())
   }
 
-  fn resolve_assignment(&mut self, name: &'src str) -> CompileResult<'src, ()> {
+  fn resolve_assignment(&mut self, name: &'src str) -> CompileResult<'src> {
     if self.evaluated.contains(name) {
       return Ok(());
     }
@@ -52,7 +52,7 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
     Ok(())
   }
 
-  fn resolve_expression(&mut self, expression: &Expression<'src>) -> CompileResult<'src, ()> {
+  fn resolve_expression(&mut self, expression: &Expression<'src>) -> CompileResult<'src> {
     match expression {
       Expression::Variable { name } => {
         let variable = name.lexeme();

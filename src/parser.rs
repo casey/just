@@ -150,7 +150,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   }
 
   /// Return an unexpected token error if the next token is not an EOL
-  fn expect_eol(&mut self) -> CompileResult<'src, ()> {
+  fn expect_eol(&mut self) -> CompileResult<'src> {
     self.accept(Comment)?;
 
     if self.next_is(Eof) {
@@ -160,7 +160,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     self.expect(Eol).map(|_| ())
   }
 
-  fn expect_keyword(&mut self, expected: Keyword) -> CompileResult<'src, ()> {
+  fn expect_keyword(&mut self, expected: Keyword) -> CompileResult<'src> {
     let found = self.advance()?;
 
     if found.kind == Identifier && expected == found.lexeme() {
@@ -175,7 +175,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
 
   /// Return an internal error if the next token is not of kind `Identifier`
   /// with lexeme `lexeme`.
-  fn presume_keyword(&mut self, keyword: Keyword) -> CompileResult<'src, ()> {
+  fn presume_keyword(&mut self, keyword: Keyword) -> CompileResult<'src> {
     let next = self.advance()?;
 
     if next.kind != Identifier {
@@ -231,7 +231,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   }
 
   /// Return an error if the next token is of kind `forbidden`
-  fn forbid<F>(&self, forbidden: TokenKind, error: F) -> CompileResult<'src, ()>
+  fn forbid<F>(&self, forbidden: TokenKind, error: F) -> CompileResult<'src>
   where
     F: FnOnce(Token) -> CompileError,
   {

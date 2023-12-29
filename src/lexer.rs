@@ -75,7 +75,7 @@ impl<'src> Lexer<'src> {
 
   /// Advance over the character in `self.next`, updating `self.token_end`
   /// accordingly.
-  fn advance(&mut self) -> CompileResult<'src, ()> {
+  fn advance(&mut self) -> CompileResult<'src> {
     match self.next {
       Some(c) => {
         let len_utf8 = c.len_utf8();
@@ -97,7 +97,7 @@ impl<'src> Lexer<'src> {
   }
 
   /// Advance over N characters.
-  fn skip(&mut self, n: usize) -> CompileResult<'src, ()> {
+  fn skip(&mut self, n: usize) -> CompileResult<'src> {
     for _ in 0..n {
       self.advance()?;
     }
@@ -124,7 +124,7 @@ impl<'src> Lexer<'src> {
     }
   }
 
-  fn presume(&mut self, c: char) -> CompileResult<'src, ()> {
+  fn presume(&mut self, c: char) -> CompileResult<'src> {
     if !self.next_is(c) {
       return Err(self.internal_error(format!("Lexer presumed character `{c}`")));
     }
@@ -134,7 +134,7 @@ impl<'src> Lexer<'src> {
     Ok(())
   }
 
-  fn presume_str(&mut self, s: &str) -> CompileResult<'src, ()> {
+  fn presume_str(&mut self, s: &str) -> CompileResult<'src> {
     for c in s.chars() {
       self.presume(c)?;
     }
@@ -328,7 +328,7 @@ impl<'src> Lexer<'src> {
   }
 
   /// Handle blank lines and indentation
-  fn lex_line_start(&mut self) -> CompileResult<'src, ()> {
+  fn lex_line_start(&mut self) -> CompileResult<'src> {
     enum Indentation<'src> {
       // Line only contains whitespace
       Blank,
@@ -478,7 +478,7 @@ impl<'src> Lexer<'src> {
   }
 
   /// Lex token beginning with `start` outside of a recipe body
-  fn lex_normal(&mut self, start: char) -> CompileResult<'src, ()> {
+  fn lex_normal(&mut self, start: char) -> CompileResult<'src> {
     match start {
       ' ' | '\t' => self.lex_whitespace(),
       '!' if self.rest().starts_with("!include") => Err(self.error(Include)),
@@ -517,7 +517,7 @@ impl<'src> Lexer<'src> {
     &mut self,
     interpolation_start: Token<'src>,
     start: char,
-  ) -> CompileResult<'src, ()> {
+  ) -> CompileResult<'src> {
     if self.rest_starts_with("}}") {
       // end current interpolation
       if self.interpolation_stack.pop().is_none() {
@@ -540,7 +540,7 @@ impl<'src> Lexer<'src> {
   }
 
   /// Lex token while in recipe body
-  fn lex_body(&mut self) -> CompileResult<'src, ()> {
+  fn lex_body(&mut self) -> CompileResult<'src> {
     enum Terminator {
       Newline,
       NewlineCarriageReturn,
@@ -603,14 +603,14 @@ impl<'src> Lexer<'src> {
   }
 
   /// Lex a single-character token
-  fn lex_single(&mut self, kind: TokenKind) -> CompileResult<'src, ()> {
+  fn lex_single(&mut self, kind: TokenKind) -> CompileResult<'src> {
     self.advance()?;
     self.token(kind);
     Ok(())
   }
 
   /// Lex a double-character token
-  fn lex_double(&mut self, kind: TokenKind) -> CompileResult<'src, ()> {
+  fn lex_double(&mut self, kind: TokenKind) -> CompileResult<'src> {
     self.advance()?;
     self.advance()?;
     self.token(kind);
@@ -625,7 +625,7 @@ impl<'src> Lexer<'src> {
     first: char,
     choices: &[(char, TokenKind)],
     otherwise: TokenKind,
-  ) -> CompileResult<'src, ()> {
+  ) -> CompileResult<'src> {
     self.presume(first)?;
 
     for (second, then) in choices {
@@ -641,7 +641,7 @@ impl<'src> Lexer<'src> {
   }
 
   /// Lex an opening or closing delimiter
-  fn lex_delimiter(&mut self, kind: TokenKind) -> CompileResult<'src, ()> {
+  fn lex_delimiter(&mut self, kind: TokenKind) -> CompileResult<'src> {
     use Delimiter::*;
 
     match kind {
@@ -670,7 +670,7 @@ impl<'src> Lexer<'src> {
   }
 
   /// Pop a delimiter from the open delimiter stack and error if incorrect type
-  fn close_delimiter(&mut self, close: Delimiter) -> CompileResult<'src, ()> {
+  fn close_delimiter(&mut self, close: Delimiter) -> CompileResult<'src> {
     match self.open_delimiters.pop() {
       Some((open, _)) if open == close => Ok(()),
       Some((open, open_line)) => Err(self.error(MismatchedClosingDelimiter {
@@ -688,7 +688,7 @@ impl<'src> Lexer<'src> {
   }
 
   /// Lex a two-character digraph
-  fn lex_digraph(&mut self, left: char, right: char, token: TokenKind) -> CompileResult<'src, ()> {
+  fn lex_digraph(&mut self, left: char, right: char, token: TokenKind) -> CompileResult<'src> {
     self.presume(left)?;
 
     if self.accepted(right)? {
@@ -711,7 +711,7 @@ impl<'src> Lexer<'src> {
   }
 
   /// Lex a token starting with ':'
-  fn lex_colon(&mut self) -> CompileResult<'src, ()> {
+  fn lex_colon(&mut self) -> CompileResult<'src> {
     self.presume(':')?;
 
     if self.accepted('=')? {
@@ -725,7 +725,7 @@ impl<'src> Lexer<'src> {
   }
 
   /// Lex an token starting with '\' escape
-  fn lex_escape(&mut self) -> CompileResult<'src, ()> {
+  fn lex_escape(&mut self) -> CompileResult<'src> {
     self.presume('\\')?;
 
     // Treat newline escaped with \ as whitespace
@@ -750,7 +750,7 @@ impl<'src> Lexer<'src> {
   }
 
   /// Lex a carriage return and line feed
-  fn lex_eol(&mut self) -> CompileResult<'src, ()> {
+  fn lex_eol(&mut self) -> CompileResult<'src> {
     if self.accepted('\r')? {
       if !self.accepted('\n')? {
         return Err(self.error(UnpairedCarriageReturn));
@@ -771,7 +771,7 @@ impl<'src> Lexer<'src> {
   }
 
   /// Lex name: [a-zA-Z_][a-zA-Z0-9_]*
-  fn lex_identifier(&mut self) -> CompileResult<'src, ()> {
+  fn lex_identifier(&mut self) -> CompileResult<'src> {
     self.advance()?;
 
     while let Some(c) = self.next {
@@ -788,7 +788,7 @@ impl<'src> Lexer<'src> {
   }
 
   /// Lex comment: #[^\r\n]
-  fn lex_comment(&mut self) -> CompileResult<'src, ()> {
+  fn lex_comment(&mut self) -> CompileResult<'src> {
     self.presume('#')?;
 
     while !self.at_eol_or_eof() {
@@ -801,7 +801,7 @@ impl<'src> Lexer<'src> {
   }
 
   /// Lex whitespace: [ \t]+
-  fn lex_whitespace(&mut self) -> CompileResult<'src, ()> {
+  fn lex_whitespace(&mut self) -> CompileResult<'src> {
     while self.next_is_whitespace() {
       self.advance()?;
     }
@@ -816,7 +816,7 @@ impl<'src> Lexer<'src> {
   /// Backtick:      ``[^`]*``
   /// Cooked string: "[^"]*" # also processes escape sequences
   /// Raw string:    '[^']*'
-  fn lex_string(&mut self) -> CompileResult<'src, ()> {
+  fn lex_string(&mut self) -> CompileResult<'src> {
     let kind = if let Some(kind) = StringKind::from_token_start(self.rest()) {
       kind
     } else {

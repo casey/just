@@ -38,7 +38,7 @@ impl<'src> Analyzer<'src> {
     let mut define = |name: Name<'src>,
                       second_type: &'static str,
                       duplicates_allowed: bool|
-     -> CompileResult<'src, ()> {
+     -> CompileResult<'src> {
       if let Some((first_type, original)) = definitions.get(name.lexeme()) {
         if !(*first_type == second_type && duplicates_allowed) {
           let (original, redefinition) = if name.line < original.line {
@@ -154,7 +154,7 @@ impl<'src> Analyzer<'src> {
     })
   }
 
-  fn analyze_recipe(recipe: &UnresolvedRecipe<'src>) -> CompileResult<'src, ()> {
+  fn analyze_recipe(recipe: &UnresolvedRecipe<'src>) -> CompileResult<'src> {
     let mut parameters = BTreeSet::new();
     let mut passed_default = false;
 
@@ -199,7 +199,7 @@ impl<'src> Analyzer<'src> {
     Ok(())
   }
 
-  fn analyze_assignment(&self, assignment: &Assignment<'src>) -> CompileResult<'src, ()> {
+  fn analyze_assignment(&self, assignment: &Assignment<'src>) -> CompileResult<'src> {
     if self.assignments.contains_key(assignment.name.lexeme()) {
       return Err(assignment.name.token().error(DuplicateVariable {
         variable: assignment.name.lexeme(),
@@ -208,7 +208,7 @@ impl<'src> Analyzer<'src> {
     Ok(())
   }
 
-  fn analyze_alias(alias: &Alias<'src, Name<'src>>) -> CompileResult<'src, ()> {
+  fn analyze_alias(alias: &Alias<'src, Name<'src>>) -> CompileResult<'src> {
     let name = alias.name.lexeme();
 
     for attr in &alias.attributes {
@@ -223,7 +223,7 @@ impl<'src> Analyzer<'src> {
     Ok(())
   }
 
-  fn analyze_set(&self, set: &Set<'src>) -> CompileResult<'src, ()> {
+  fn analyze_set(&self, set: &Set<'src>) -> CompileResult<'src> {
     if let Some(original) = self.sets.get(set.name.lexeme()) {
       return Err(set.name.error(DuplicateSet {
         setting: original.name.lexeme(),

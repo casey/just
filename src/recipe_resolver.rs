@@ -56,7 +56,7 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
     &self,
     variable: &Token<'src>,
     parameters: &[Parameter],
-  ) -> CompileResult<'src, ()> {
+  ) -> CompileResult<'src> {
     let name = variable.lexeme();
     let undefined =
       !self.assignments.contains_key(name) && !parameters.iter().any(|p| p.name.lexeme() == name);
