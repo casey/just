@@ -2414,7 +2414,7 @@ mod foo 'PATH'
 ```
 
 Which loads the module's source file from `PATH`, instead of from the usual
-locations. A leading `~/` in `PATH` is replaced with the current users home
+locations. A leading `~/` in `PATH` is replaced with the current user's home
 directory.
 
 Environment files are only loaded for the root justfile, and loaded environment
