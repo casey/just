@@ -493,3 +493,39 @@ fn recipes_may_be_named_mod() {
     .stdout("FOO\n")
     .run();
 }
+
+#[test]
+fn submodule_linewise_recipes_run_in_submodule_directory() {
+  Test::new()
+    .write("foo/bar", "BAR")
+    .write("foo/mod.just", "foo:\n @cat bar")
+    .justfile(
+      "
+        mod foo
+      ",
+    )
+    .test_round_trip(false)
+    .arg("--unstable")
+    .arg("foo")
+    .arg("foo")
+    .stdout("BAR")
+    .run();
+}
+
+#[test]
+fn submodule_shebang_recipes_run_in_submodule_directory() {
+  Test::new()
+    .write("foo/bar", "BAR")
+    .write("foo/mod.just", "foo:\n #!/bin/sh\n cat bar")
+    .justfile(
+      "
+        mod foo
+      ",
+    )
+    .test_round_trip(false)
+    .arg("--unstable")
+    .arg("foo")
+    .arg("foo")
+    .stdout("BAR")
+    .run();
+}

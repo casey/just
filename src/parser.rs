@@ -32,22 +32,28 @@ pub(crate) struct Parser<'tokens, 'src> {
   expected: BTreeSet<TokenKind>,
   /// Current recursion depth
   depth: usize,
+  /// Path to the file being parsed
+  path: PathBuf,
+  /// Parsing a submodule
+  submodule: bool,
 }
 
 impl<'tokens, 'src> Parser<'tokens, 'src> {
   /// Parse `tokens` into an `Ast`
-  pub(crate) fn parse(tokens: &'tokens [Token<'src>]) -> CompileResult<'src, Ast<'src>> {
-    Self::new(tokens).parse_ast()
-  }
-
-  /// Construct a new Parser from a token stream
-  fn new(tokens: &'tokens [Token<'src>]) -> Parser<'tokens, 'src> {
+  pub(crate) fn parse(
+    submodule: bool,
+    path: &Path,
+    tokens: &'tokens [Token<'src>],
+  ) -> CompileResult<'src, Ast<'src>> {
     Parser {
-      next: 0,
-      expected: BTreeSet::new(),
-      tokens,
       depth: 0,
+      expected: BTreeSet::new(),
+      next: 0,
+      path: path.into(),
+      submodule,
+      tokens,
     }
+    .parse_ast()
   }
 
   fn error(&self, kind: CompileErrorKind<'src>) -> CompileResult<'src, CompileError<'src>> {
@@ -707,16 +713,18 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     let body = self.parse_body()?;
 
     Ok(Recipe {
-      parameters: positional.into_iter().chain(variadic).collect(),
-      private: name.lexeme().starts_with('_'),
       shebang: body.first().map_or(false, Line::is_shebang),
       attributes,
-      priors,
       body,
       dependencies,
       doc,
       name,
+      parameters: positional.into_iter().chain(variadic).collect(),
+      path: self.path.clone(),
+      priors,
+      private: name.lexeme().starts_with('_'),
       quiet,
+      submodule: self.submodule,
     })
   }
 
@@ -934,7 +942,7 @@ mod tests {
   fn test(text: &str, want: Tree) {
     let unindented = unindent(text);
     let tokens = Lexer::test_lex(&unindented).expect("lexing failed");
-    let justfile = Parser::parse(&tokens).expect("parsing failed");
+    let justfile = Parser::parse(false, &PathBuf::new(), &tokens).expect("parsing failed");
     let have = justfile.tree();
     if have != want {
       println!("parsed text: {unindented}");
@@ -972,7 +980,7 @@ mod tests {
   ) {
     let tokens = Lexer::test_lex(src).expect("Lexing failed in parse test...");
 
-    match Parser::parse(&tokens) {
+    match Parser::parse(false, &PathBuf::new(), &tokens) {
       Ok(_) => panic!("Parsing unexpectedly succeeded"),
       Err(have) => {
         let want = CompileError {

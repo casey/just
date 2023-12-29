@@ -1,3 +1,5 @@
+use super::*;
+
 #[cfg(windows)]
 test! {
   name:     powershell,
@@ -40,4 +42,18 @@ default:
   @echo Hello-World
 "#,
   stdout: "Hello-World\r\n",
+}
+
+#[test]
+fn simple() {
+  Test::new()
+    .justfile(
+      "
+        foo:
+          #!/bin/sh
+          echo bar
+      ",
+    )
+    .stdout("bar\n")
+    .run();
 }
