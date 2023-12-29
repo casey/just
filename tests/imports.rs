@@ -127,3 +127,28 @@ fn include_error() {
     )
     .run();
 }
+
+#[test]
+fn recipes_in_import_are_overridden_by_recipes_in_parent() {
+  Test::new()
+    .tree(tree! {
+      "import.justfile": "
+        a:
+          @echo IMPORT
+      ",
+    })
+    .justfile(
+      "
+        import './import.justfile'
+
+        set allow-duplicate-recipes
+
+        a:
+          @echo ROOT
+      ",
+    )
+    .test_round_trip(false)
+    .arg("a")
+    .stdout("ROOT\n")
+    .run();
+}

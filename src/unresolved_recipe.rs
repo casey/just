@@ -48,6 +48,7 @@ impl<'src> UnresolvedRecipe<'src> {
       attributes: self.attributes,
       body: self.body,
       dependencies,
+      depth: self.depth,
       doc: self.doc,
       name: self.name,
       parameters: self.parameters,
@@ -56,7 +57,6 @@ impl<'src> UnresolvedRecipe<'src> {
       private: self.private,
       quiet: self.quiet,
       shebang: self.shebang,
-      submodule: self.submodule,
     })
   }
 }

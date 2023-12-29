@@ -35,7 +35,7 @@ pub(crate) struct Recipe<'src, D = Dependency<'src>> {
   pub(crate) quiet: bool,
   pub(crate) shebang: bool,
   #[serde(skip)]
-  pub(crate) submodule: bool,
+  pub(crate) depth: u32,
 }
 
 impl<'src, D> Recipe<'src, D> {
@@ -226,7 +226,7 @@ impl<'src, D> Recipe<'src, D> {
       let mut cmd = context.settings.shell_command(config);
 
       if self.change_directory() {
-        cmd.current_dir(if self.submodule {
+        cmd.current_dir(if self.depth > 0 {
           self.path.parent().unwrap()
         } else {
           &context.search.working_directory
@@ -366,7 +366,7 @@ impl<'src, D> Recipe<'src, D> {
     let mut command = Platform::make_shebang_command(
       &path,
       if self.change_directory() {
-        if self.submodule {
+        if self.depth > 0 {
           Some(self.path.parent().unwrap())
         } else {
           Some(&context.search.working_directory)

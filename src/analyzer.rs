@@ -111,7 +111,13 @@ impl<'src> Analyzer<'src> {
 
     for recipe in recipes {
       define(recipe.name, "recipe", settings.allow_duplicate_recipes)?;
-      recipe_table.insert(recipe.clone());
+      if recipe_table
+        .get(recipe.name.lexeme())
+        .map(|original| recipe.depth <= original.depth)
+        .unwrap_or(true)
+      {
+        recipe_table.insert(recipe.clone());
+      }
     }
 
     let recipes = RecipeResolver::resolve_recipes(recipe_table, &self.assignments)?;
