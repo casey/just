@@ -299,7 +299,6 @@ impl<'src> Justfile<'src> {
       .or_else(|| self.aliases.get(name).map(|alias| alias.target.as_ref()))
   }
 
-  #[allow(clippy::too_many_arguments)]
   fn invocation<'run>(
     &'run self,
     depth: usize,

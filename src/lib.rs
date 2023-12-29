@@ -4,6 +4,8 @@
   clippy::let_underscore_untyped,
   clippy::needless_pass_by_value,
   clippy::similar_names,
+  clippy::struct_excessive_bools,
+  clippy::too_many_arguments,
   clippy::too_many_lines,
   clippy::unnecessary_wraps,
   clippy::wildcard_imports

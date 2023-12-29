@@ -18,7 +18,6 @@ pub(crate) fn chooser_default(justfile: &Path) -> OsString {
 }
 
 #[derive(Debug, PartialEq)]
-#[allow(clippy::struct_excessive_bools)]
 pub(crate) struct Config {
   pub(crate) check: bool,
   pub(crate) color: Color,
