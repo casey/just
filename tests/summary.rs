@@ -54,7 +54,10 @@ fn no_recipes() {
 #[test]
 fn submodule_recipes() {
   Test::new()
-    .write("foo.just", "foo:")
+    .write("foo.just", "mod bar\nfoo:")
+    .write("bar.just", "mod baz\nbar:")
+    .write("baz.just", "mod biz\nbaz:")
+    .write("biz.just", "biz:")
     .justfile(
       "
         mod foo
@@ -65,6 +68,6 @@ fn submodule_recipes() {
     .test_round_trip(false)
     .arg("--unstable")
     .arg("--summary")
-    .stdout("bar foo::foo\n")
+    .stdout("bar foo::foo foo::bar::bar foo::bar::baz::baz foo::bar::baz::biz::biz\n")
     .run();
 }
