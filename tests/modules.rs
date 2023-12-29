@@ -529,3 +529,21 @@ fn submodule_shebang_recipes_run_in_submodule_directory() {
     .stdout("BAR")
     .run();
 }
+
+#[test]
+fn module_paths_beginning_with_tilde_are_expanded_to_homdir() {
+  Test::new()
+    .write("foobar/mod.just", "foo:\n @echo FOOBAR")
+    .justfile(
+      "
+        mod foo '~/mod.just'
+      ",
+    )
+    .test_round_trip(false)
+    .arg("--unstable")
+    .arg("foo")
+    .arg("foo")
+    .stdout("FOOBAR\n")
+    .env("HOME", "foobar")
+    .run();
+}
