@@ -267,6 +267,22 @@ fn modules_are_dumped_correctly() {
 }
 
 #[test]
+fn optional_modules_are_dumped_correctly() {
+  Test::new()
+    .write("foo.just", "foo:\n @echo FOO")
+    .justfile(
+      "
+        mod? foo
+      ",
+    )
+    .test_round_trip(false)
+    .arg("--unstable")
+    .arg("--dump")
+    .stdout("mod? foo\n")
+    .run();
+}
+
+#[test]
 fn modules_can_be_in_subdirectory() {
   Test::new()
     .write("foo/mod.just", "foo:\n @echo FOO")
@@ -511,6 +527,22 @@ fn modules_with_paths_are_dumped_correctly() {
     .arg("--unstable")
     .arg("--dump")
     .stdout("mod foo 'commands/foo.just'\n")
+    .run();
+}
+
+#[test]
+fn optional_modules_with_paths_are_dumped_correctly() {
+  Test::new()
+    .write("commands/foo.just", "foo:\n @echo FOO")
+    .justfile(
+      "
+        mod? foo 'commands/foo.just'
+      ",
+    )
+    .test_round_trip(false)
+    .arg("--unstable")
+    .arg("--dump")
+    .stdout("mod? foo 'commands/foo.just'\n")
     .run();
 }
 

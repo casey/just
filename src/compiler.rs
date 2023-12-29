@@ -67,7 +67,7 @@ impl Compiler {
             relative,
             absolute,
             optional,
-            keyword,
+            path,
           } => {
             let import = current
               .parent()
@@ -75,8 +75,10 @@ impl Compiler {
               .join(Self::expand_tilde(&relative.cooked)?)
               .lexiclean();
 
-            if !import.is_file() && !*optional {
-              return Err(Error::MissingImportFile { keyword: *keyword });
+            if !import.is_file() {
+              if !*optional {
+                return Err(Error::MissingImportFile { path: *path });
+              }
             } else {
               if srcs.contains_key(&import) {
                 return Err(Error::CircularImport { current, import });

@@ -8,8 +8,8 @@ pub(crate) enum Item<'src> {
   Comment(&'src str),
   Import {
     absolute: Option<PathBuf>,
-    keyword: Token<'src>,
     optional: bool,
+    path: Token<'src>,
     relative: StringLiteral<'src>,
   },
   Module {

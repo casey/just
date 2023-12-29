@@ -111,7 +111,7 @@ pub(crate) enum Error<'src> {
     io_error: io::Error,
   },
   MissingImportFile {
-    keyword: Token<'src>,
+    path: Token<'src>,
   },
   MissingModuleFile {
     module: Name<'src>,
@@ -184,7 +184,7 @@ impl<'src> Error<'src> {
       Self::Backtick { token, .. } => Some(*token),
       Self::Compile { compile_error } => Some(compile_error.context()),
       Self::FunctionCall { function, .. } => Some(function.token()),
-      Self::MissingImportFile { keyword } => Some(*keyword),
+      Self::MissingImportFile { path } => Some(*path),
       _ => None,
     }
   }

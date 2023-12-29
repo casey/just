@@ -175,7 +175,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
 
   /// Return an internal error if the next token is not of kind `Identifier`
   /// with lexeme `lexeme`.
-  fn presume_keyword(&mut self, keyword: Keyword) -> CompileResult<'src, Token<'src>> {
+  fn presume_keyword(&mut self, keyword: Keyword) -> CompileResult<'src, ()> {
     let next = self.advance()?;
 
     if next.kind != Identifier {
@@ -184,7 +184,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
         next.kind
       ))?)
     } else if keyword == next.lexeme() {
-      Ok(next)
+      Ok(())
     } else {
       Err(self.internal_error(format!(
         "Presumed next token would have lexeme \"{keyword}\", but found \"{}\"",
@@ -338,13 +338,14 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
             if self.next_are(&[Identifier, StringToken])
               || self.next_are(&[Identifier, QuestionMark]) =>
           {
-            let keyword = self.presume_keyword(Keyword::Import)?;
+            self.presume_keyword(Keyword::Import)?;
             let optional = self.accepted(QuestionMark)?;
+            let (path, relative) = self.parse_string_literal_token()?;
             items.push(Item::Import {
               absolute: None,
-              keyword,
               optional,
-              relative: self.parse_string_literal()?,
+              path,
+              relative,
             });
           }
           Some(Keyword::Mod)
@@ -585,8 +586,10 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     }
   }
 
-  /// Parse a string literal, e.g. `"FOO"`
-  fn parse_string_literal(&mut self) -> CompileResult<'src, StringLiteral<'src>> {
+  /// Parse a string literal, e.g. `"FOO"`, returning the string literal and the string token
+  fn parse_string_literal_token(
+    &mut self,
+  ) -> CompileResult<'src, (Token<'src>, StringLiteral<'src>)> {
     let token = self.expect(StringToken)?;
 
     let kind = StringKind::from_string_or_backtick(token)?;
@@ -631,7 +634,13 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
       unindented
     };
 
-    Ok(StringLiteral { kind, raw, cooked })
+    Ok((token, StringLiteral { kind, raw, cooked }))
+  }
+
+  /// Parse a string literal, e.g. `"FOO"`
+  fn parse_string_literal(&mut self) -> CompileResult<'src, StringLiteral<'src>> {
+    let (_token, string_literal) = self.parse_string_literal_token()?;
+    Ok(string_literal)
   }
 
   /// Parse a name from an identifier token

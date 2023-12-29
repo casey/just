@@ -23,6 +23,53 @@ fn import_succeeds() {
     .run();
 }
 
+// todo:
+// - use nice box characters for error messages
+// - use default unit for result types
+
+#[test]
+fn missing_import_file_error() {
+  Test::new()
+    .justfile(
+      "
+        import './import.justfile'
+
+        a:
+          @echo A
+      ",
+    )
+    .test_round_trip(false)
+    .arg("a")
+    .status(EXIT_FAILURE)
+    .stderr(
+      "
+      error: Could not find source file for import.
+       --> justfile:1:8
+        |
+      1 | import './import.justfile'
+        |        ^^^^^^^^^^^^^^^^^^^
+      ",
+    )
+    .run();
+}
+
+#[test]
+fn missing_optional_imports_are_ignored() {
+  Test::new()
+    .justfile(
+      "
+        import? './import.justfile'
+
+        a:
+          @echo A
+      ",
+    )
+    .test_round_trip(false)
+    .arg("a")
+    .stdout("A\n")
+    .run();
+}
+
 #[test]
 fn trailing_spaces_after_import_are_ignored() {
   Test::new()
@@ -167,5 +214,35 @@ fn import_paths_beginning_with_tilde_are_expanded_to_homdir() {
     .arg("foo")
     .stdout("FOOBAR\n")
     .env("HOME", "foobar")
+    .run();
+}
+
+#[test]
+fn imports_dump_correctly() {
+  Test::new()
+    .write("import.justfile", "")
+    .justfile(
+      "
+        import './import.justfile'
+      ",
+    )
+    .test_round_trip(false)
+    .arg("--dump")
+    .stdout("import './import.justfile'\n")
+    .run();
+}
+
+#[test]
+fn optional_imports_dump_correctly() {
+  Test::new()
+    .write("import.justfile", "")
+    .justfile(
+      "
+        import? './import.justfile'
+      ",
+    )
+    .test_round_trip(false)
+    .arg("--dump")
+    .stdout("import? './import.justfile'\n")
     .run();
 }
