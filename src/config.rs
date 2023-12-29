@@ -345,11 +345,13 @@ impl Config {
       .arg(
         Arg::with_name(cmd::FORMAT)
           .long("fmt")
+          .alias("format")
           .help("Format and overwrite justfile"),
       )
       .arg(
         Arg::with_name(cmd::INIT)
           .long("init")
+          .alias("initialize")
           .help("Initialize new justfile in project root"),
       )
       .arg(
@@ -1427,8 +1429,28 @@ mod tests {
   }
 
   error! {
+    name: fmt_alias,
+    args: ["--format", "bar"],
+    error: ConfigError::SubcommandArguments { subcommand, arguments },
+    check: {
+      assert_eq!(subcommand, cmd::FORMAT);
+      assert_eq!(arguments, &["bar"]);
+    },
+  }
+
+  error! {
     name: init_arguments,
     args: ["--init", "bar"],
+    error: ConfigError::SubcommandArguments { subcommand, arguments },
+    check: {
+      assert_eq!(subcommand, cmd::INIT);
+      assert_eq!(arguments, &["bar"]);
+    },
+  }
+
+  error! {
+    name: init_alias,
+    args: ["--initialize", "bar"],
     error: ConfigError::SubcommandArguments { subcommand, arguments },
     check: {
       assert_eq!(subcommand, cmd::INIT);
