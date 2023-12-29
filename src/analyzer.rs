@@ -113,8 +113,7 @@ impl<'src> Analyzer<'src> {
       define(recipe.name, "recipe", settings.allow_duplicate_recipes)?;
       if recipe_table
         .get(recipe.name.lexeme())
-        .map(|original| recipe.depth <= original.depth)
-        .unwrap_or(true)
+        .map_or(true, |original| recipe.depth <= original.depth)
       {
         recipe_table.insert(recipe.clone());
       }
