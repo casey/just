@@ -23,10 +23,6 @@ pub(crate) struct Justfile<'src> {
 }
 
 impl<'src> Justfile<'src> {
-  pub(crate) fn count(&self) -> usize {
-    self.recipes.len()
-  }
-
   pub(crate) fn suggest_recipe(&self, input: &str) -> Option<Suggestion<'src>> {
     let mut suggestions = self
       .recipes
