@@ -530,6 +530,7 @@ fn submodule_shebang_recipes_run_in_submodule_directory() {
     .run();
 }
 
+#[cfg(not(windows))]
 #[test]
 fn module_paths_beginning_with_tilde_are_expanded_to_homdir() {
   Test::new()

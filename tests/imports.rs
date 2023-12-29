@@ -153,6 +153,7 @@ fn recipes_in_import_are_overridden_by_recipes_in_parent() {
     .run();
 }
 
+#[cfg(not(windows))]
 #[test]
 fn import_paths_beginning_with_tilde_are_expanded_to_homdir() {
   Test::new()
