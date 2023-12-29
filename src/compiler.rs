@@ -41,7 +41,7 @@ impl Compiler {
             let parent = current.parent().unwrap();
 
             let import = if let Some(path) = path {
-              parent.join(&path.cooked)
+              parent.join(Self::expand_tilde(&path.cooked)?)
             } else {
               Self::find_module_file(parent, *name)?
             };
@@ -53,7 +53,11 @@ impl Compiler {
             stack.push((import, depth + 1));
           }
           Item::Import { relative, absolute } => {
-            let import = current.parent().unwrap().join(&relative.cooked).lexiclean();
+            let import = current
+              .parent()
+              .unwrap()
+              .join(Self::expand_tilde(&relative.cooked)?)
+              .lexiclean();
             if srcs.contains_key(&import) {
               return Err(Error::CircularImport { current, import });
             }
@@ -115,6 +119,16 @@ impl Compiler {
         module,
       }),
     }
+  }
+
+  fn expand_tilde(path: &str) -> RunResult<'static, PathBuf> {
+    Ok(if let Some(path) = path.strip_prefix("~/") {
+      dirs::home_dir()
+        .ok_or(Error::Homedir)?
+        .join(path.trim_start_matches('/'))
+    } else {
+      PathBuf::from(path)
+    })
   }
 
   #[cfg(test)]
