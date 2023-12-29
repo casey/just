@@ -2311,10 +2311,10 @@ mod tests {
         .to_string(),
       "error: Internal error, this may indicate a bug in just: Lexer presumed character `-`
 consider filing an issue: https://github.com/casey/just/issues/new
- --> justfile:1:1
-  |
-1 | !
-  | ^"
+ ——▶ justfile:1:1
+  │
+1 │ !
+  │ ^"
     );
   }
 }

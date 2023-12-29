@@ -163,10 +163,10 @@ fn modules_use_module_settings() {
     .stderr(
       "
       error: Recipe `foo` first defined on line 2 is redefined on line 3
-       --> foo.just:3:1
-        |
-      3 | foo:
-        | ^^^
+       ——▶ foo.just:3:1
+        │
+      3 │ foo:
+        │ ^^^
     ",
     )
     .run();
@@ -185,10 +185,10 @@ fn modules_conflict_with_recipes() {
     .stderr(
       "
       error: Module `foo` defined on line 1 is redefined as a recipe on line 2
-       --> justfile:2:1
-        |
-      2 | foo:
-        | ^^^
+       ——▶ justfile:2:1
+        │
+      2 │ foo:
+        │ ^^^
     ",
     )
     .test_round_trip(false)
@@ -211,10 +211,10 @@ fn modules_conflict_with_aliases() {
     .stderr(
       "
       error: Module `foo` defined on line 1 is redefined as an alias on line 3
-       --> justfile:3:7
-        |
-      3 | alias foo := bar
-        |       ^^^
+       ——▶ justfile:3:7
+        │
+      3 │ alias foo := bar
+        │       ^^^
     ",
     )
     .test_round_trip(false)
@@ -240,10 +240,10 @@ fn modules_conflict_with_other_modules() {
     .stderr(
       "
       error: Module `foo` first defined on line 1 is redefined on line 2
-       --> justfile:2:5
-        |
-      2 | mod foo
-        |     ^^^
+       ——▶ justfile:2:5
+        │
+      2 │ mod foo
+        │     ^^^
     ",
     )
     .arg("--unstable")
@@ -366,10 +366,10 @@ fn modules_require_unambiguous_file() {
     .stderr(
       "
       error: Found multiple source files for module `foo`: `foo.just` and `foo/justfile`
-       --> justfile:1:5
-        |
-      1 | mod foo
-        |     ^^^
+       ——▶ justfile:1:5
+        │
+      1 │ mod foo
+        │     ^^^
       ",
     )
     .run();
@@ -389,10 +389,10 @@ fn missing_module_file_error() {
     .stderr(
       "
       error: Could not find source file for module `foo`.
-       --> justfile:1:5
-        |
-      1 | mod foo
-        |     ^^^
+       ——▶ justfile:1:5
+        │
+      1 │ mod foo
+        │     ^^^
       ",
     )
     .run();

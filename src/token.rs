@@ -57,7 +57,7 @@ impl<'src> ColorDisplay for Token<'src> {
           f,
           "{:width$}{} {}:{}:{}",
           "",
-          color.context().paint("-->"),
+          color.context().paint("——▶"),
           self.path.display(),
           line_number,
           self.column.ordinal(),
@@ -67,19 +67,19 @@ impl<'src> ColorDisplay for Token<'src> {
           f,
           "{:width$} {}",
           "",
-          color.context().paint("|"),
+          color.context().paint("│"),
           width = line_number_width
         )?;
         writeln!(
           f,
           "{} {space_line}",
-          color.context().paint(&format!("{line_number} |"))
+          color.context().paint(&format!("{line_number} │"))
         )?;
         write!(
           f,
           "{:width$} {}",
           "",
-          color.context().paint("|"),
+          color.context().paint("│"),
           width = line_number_width
         )?;
         write!(

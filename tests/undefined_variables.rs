@@ -7,10 +7,10 @@ fn parameter_default_unknown_variable_in_expression() {
     .stderr(
       "
       error: Variable `b` not defined
-       --> justfile:1:8
-        |
-      1 | foo a=(b+''):
-        |        ^
+       ——▶ justfile:1:8
+        │
+      1 │ foo a=(b+''):
+        │        ^
     ",
     )
     .status(EXIT_FAILURE)
@@ -28,10 +28,10 @@ fn unknown_variable_in_unary_call() {
     .stderr(
       "
       error: Variable `a` not defined
-       --> justfile:1:15
-        |
-      1 | foo x=env_var(a):
-        |               ^
+       ——▶ justfile:1:15
+        │
+      1 │ foo x=env_var(a):
+        │               ^
       ",
     )
     .status(EXIT_FAILURE)
@@ -49,10 +49,10 @@ fn unknown_first_variable_in_binary_call() {
     .stderr(
       "
       error: Variable `a` not defined
-       --> justfile:1:26
-        |
-      1 | foo x=env_var_or_default(a, b):
-        |                          ^
+       ——▶ justfile:1:26
+        │
+      1 │ foo x=env_var_or_default(a, b):
+        │                          ^
       ",
     )
     .status(EXIT_FAILURE)
@@ -70,10 +70,10 @@ fn unknown_second_variable_in_binary_call() {
     .stderr(
       "
       error: Variable `b` not defined
-       --> justfile:1:30
-        |
-      1 | foo x=env_var_or_default('', b):
-        |                              ^
+       ——▶ justfile:1:30
+        │
+      1 │ foo x=env_var_or_default('', b):
+        │                              ^
       ",
     )
     .status(EXIT_FAILURE)
@@ -91,10 +91,10 @@ fn unknown_variable_in_ternary_call() {
     .stderr(
       "
       error: Variable `a` not defined
-       --> justfile:1:15
-        |
-      1 | foo x=replace(a, b, c):
-        |               ^
+       ——▶ justfile:1:15
+        │
+      1 │ foo x=replace(a, b, c):
+        │               ^
       ",
     )
     .status(EXIT_FAILURE)
