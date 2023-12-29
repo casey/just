@@ -559,7 +559,7 @@ impl Subcommand {
       } else {
         print!("{}::{}", path, recipe.name());
       }
-      *printed += 1
+      *printed += 1;
     }
 
     for (name, module) in &justfile.modules {
