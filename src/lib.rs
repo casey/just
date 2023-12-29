@@ -83,9 +83,9 @@ pub use crate::run::run;
 #[doc(hidden)]
 pub use unindent::unindent;
 
-pub(crate) type CompileResult<'a, T> = Result<T, CompileError<'a>>;
+pub(crate) type CompileResult<'a, T = ()> = Result<T, CompileError<'a>>;
 pub(crate) type ConfigResult<T> = Result<T, ConfigError>;
-pub(crate) type RunResult<'a, T> = Result<T, Error<'a>>;
+pub(crate) type RunResult<'a, T = ()> = Result<T, Error<'a>>;
 pub(crate) type SearchResult<T> = Result<T, SearchError>;
 
 #[cfg(test)]

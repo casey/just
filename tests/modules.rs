@@ -267,6 +267,22 @@ fn modules_are_dumped_correctly() {
 }
 
 #[test]
+fn optional_modules_are_dumped_correctly() {
+  Test::new()
+    .write("foo.just", "foo:\n @echo FOO")
+    .justfile(
+      "
+        mod? foo
+      ",
+    )
+    .test_round_trip(false)
+    .arg("--unstable")
+    .arg("--dump")
+    .stdout("mod? foo\n")
+    .run();
+}
+
+#[test]
 fn modules_can_be_in_subdirectory() {
   Test::new()
     .write("foo/mod.just", "foo:\n @echo FOO")
@@ -383,6 +399,42 @@ fn missing_module_file_error() {
 }
 
 #[test]
+fn missing_optional_modules_do_not_trigger_error() {
+  Test::new()
+    .justfile(
+      "
+        mod? foo
+
+        bar:
+          @echo BAR
+      ",
+    )
+    .test_round_trip(false)
+    .arg("--unstable")
+    .stdout("BAR\n")
+    .run();
+}
+
+#[test]
+fn missing_optional_modules_do_not_conflict() {
+  Test::new()
+    .justfile(
+      "
+        mod? foo
+        mod? foo
+        mod foo 'baz.just'
+      ",
+    )
+    .write("baz.just", "baz:\n @echo BAZ")
+    .test_round_trip(false)
+    .arg("--unstable")
+    .arg("foo")
+    .arg("baz")
+    .stdout("BAZ\n")
+    .run();
+}
+
+#[test]
 fn list_displays_recipes_in_submodules() {
   Test::new()
     .write("foo.just", "bar:\n @echo FOO")
@@ -475,6 +527,22 @@ fn modules_with_paths_are_dumped_correctly() {
     .arg("--unstable")
     .arg("--dump")
     .stdout("mod foo 'commands/foo.just'\n")
+    .run();
+}
+
+#[test]
+fn optional_modules_with_paths_are_dumped_correctly() {
+  Test::new()
+    .write("commands/foo.just", "foo:\n @echo FOO")
+    .justfile(
+      "
+        mod? foo 'commands/foo.just'
+      ",
+    )
+    .test_round_trip(false)
+    .arg("--unstable")
+    .arg("--dump")
+    .stdout("mod? foo 'commands/foo.just'\n")
     .run();
 }
 

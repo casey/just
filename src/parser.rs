@@ -150,7 +150,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   }
 
   /// Return an unexpected token error if the next token is not an EOL
-  fn expect_eol(&mut self) -> CompileResult<'src, ()> {
+  fn expect_eol(&mut self) -> CompileResult<'src> {
     self.accept(Comment)?;
 
     if self.next_is(Eof) {
@@ -160,7 +160,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     self.expect(Eol).map(|_| ())
   }
 
-  fn expect_keyword(&mut self, expected: Keyword) -> CompileResult<'src, ()> {
+  fn expect_keyword(&mut self, expected: Keyword) -> CompileResult<'src> {
     let found = self.advance()?;
 
     if found.kind == Identifier && expected == found.lexeme() {
@@ -175,7 +175,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
 
   /// Return an internal error if the next token is not of kind `Identifier`
   /// with lexeme `lexeme`.
-  fn presume_keyword(&mut self, keyword: Keyword) -> CompileResult<'src, ()> {
+  fn presume_keyword(&mut self, keyword: Keyword) -> CompileResult<'src> {
     let next = self.advance()?;
 
     if next.kind != Identifier {
@@ -231,7 +231,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   }
 
   /// Return an error if the next token is of kind `forbidden`
-  fn forbid<F>(&self, forbidden: TokenKind, error: F) -> CompileResult<'src, ()>
+  fn forbid<F>(&self, forbidden: TokenKind, error: F) -> CompileResult<'src>
   where
     F: FnOnce(Token) -> CompileError,
   {
@@ -334,31 +334,43 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
             self.presume_keyword(Keyword::Export)?;
             items.push(Item::Assignment(self.parse_assignment(true)?));
           }
-          Some(Keyword::Import) if self.next_are(&[Identifier, StringToken]) => {
+          Some(Keyword::Import)
+            if self.next_are(&[Identifier, StringToken])
+              || self.next_are(&[Identifier, QuestionMark]) =>
+          {
             self.presume_keyword(Keyword::Import)?;
+            let optional = self.accepted(QuestionMark)?;
+            let (path, relative) = self.parse_string_literal_token()?;
             items.push(Item::Import {
-              relative: self.parse_string_literal()?,
               absolute: None,
+              optional,
+              path,
+              relative,
             });
           }
           Some(Keyword::Mod)
             if self.next_are(&[Identifier, Identifier, StringToken])
               || self.next_are(&[Identifier, Identifier, Eof])
-              || self.next_are(&[Identifier, Identifier, Eol]) =>
+              || self.next_are(&[Identifier, Identifier, Eol])
+              || self.next_are(&[Identifier, QuestionMark]) =>
           {
             self.presume_keyword(Keyword::Mod)?;
+
+            let optional = self.accepted(QuestionMark)?;
+
             let name = self.parse_name()?;
 
-            let path = if self.next_is(StringToken) {
+            let relative = if self.next_is(StringToken) {
               Some(self.parse_string_literal()?)
             } else {
               None
             };
 
-            items.push(Item::Mod {
-              name,
+            items.push(Item::Module {
               absolute: None,
-              path,
+              name,
+              optional,
+              relative,
             });
           }
           Some(Keyword::Set)
@@ -574,8 +586,10 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     }
   }
 
-  /// Parse a string literal, e.g. `"FOO"`
-  fn parse_string_literal(&mut self) -> CompileResult<'src, StringLiteral<'src>> {
+  /// Parse a string literal, e.g. `"FOO"`, returning the string literal and the string token
+  fn parse_string_literal_token(
+    &mut self,
+  ) -> CompileResult<'src, (Token<'src>, StringLiteral<'src>)> {
     let token = self.expect(StringToken)?;
 
     let kind = StringKind::from_string_or_backtick(token)?;
@@ -620,7 +634,13 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
       unindented
     };
 
-    Ok(StringLiteral { kind, raw, cooked })
+    Ok((token, StringLiteral { kind, raw, cooked }))
+  }
+
+  /// Parse a string literal, e.g. `"FOO"`
+  fn parse_string_literal(&mut self) -> CompileResult<'src, StringLiteral<'src>> {
+    let (_token, string_literal) = self.parse_string_literal_token()?;
+    Ok(string_literal)
   }
 
   /// Parse a name from an identifier token
@@ -1998,6 +2018,36 @@ mod tests {
     name: import,
     text: "import \"some/file/path.txt\"     \n",
     tree: (justfile (import "some/file/path.txt")),
+  }
+
+  test! {
+    name: optional_import,
+    text: "import? \"some/file/path.txt\"     \n",
+    tree: (justfile (import ? "some/file/path.txt")),
+  }
+
+  test! {
+    name: module_with,
+    text: "mod foo",
+    tree: (justfile (mod foo )),
+  }
+
+  test! {
+    name: optional_module,
+    text: "mod? foo",
+    tree: (justfile (mod ? foo)),
+  }
+
+  test! {
+    name: module_with_path,
+    text: "mod foo \"some/file/path.txt\"     \n",
+    tree: (justfile (mod foo "some/file/path.txt")),
+  }
+
+  test! {
+    name: optional_module_with_path,
+    text: "mod? foo \"some/file/path.txt\"     \n",
+    tree: (justfile (mod ? foo "some/file/path.txt")),
   }
 
   error! {

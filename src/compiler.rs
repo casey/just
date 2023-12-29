@@ -27,10 +27,11 @@ impl Compiler {
 
       for item in &mut ast.items {
         match item {
-          Item::Mod {
-            name,
+          Item::Module {
             absolute,
-            path,
+            name,
+            optional,
+            relative,
           } => {
             if !unstable {
               return Err(Error::Unstable {
@@ -40,29 +41,49 @@ impl Compiler {
 
             let parent = current.parent().unwrap();
 
-            let import = if let Some(path) = path {
-              parent.join(Self::expand_tilde(&path.cooked)?)
+            let import = if let Some(relative) = relative {
+              let path = parent.join(Self::expand_tilde(&relative.cooked)?);
+
+              if path.is_file() {
+                Some(path)
+              } else {
+                None
+              }
             } else {
               Self::find_module_file(parent, *name)?
             };
 
-            if srcs.contains_key(&import) {
-              return Err(Error::CircularImport { current, import });
+            if let Some(import) = import {
+              if srcs.contains_key(&import) {
+                return Err(Error::CircularImport { current, import });
+              }
+              *absolute = Some(import.clone());
+              stack.push((import, depth + 1));
+            } else if !*optional {
+              return Err(Error::MissingModuleFile { module: *name });
             }
-            *absolute = Some(import.clone());
-            stack.push((import, depth + 1));
           }
-          Item::Import { relative, absolute } => {
+          Item::Import {
+            relative,
+            absolute,
+            optional,
+            path,
+          } => {
             let import = current
               .parent()
               .unwrap()
               .join(Self::expand_tilde(&relative.cooked)?)
               .lexiclean();
-            if srcs.contains_key(&import) {
-              return Err(Error::CircularImport { current, import });
+
+            if import.is_file() {
+              if srcs.contains_key(&import) {
+                return Err(Error::CircularImport { current, import });
+              }
+              *absolute = Some(import.clone());
+              stack.push((import, depth + 1));
+            } else if !*optional {
+              return Err(Error::MissingImportFile { path: *path });
             }
-            *absolute = Some(import.clone());
-            stack.push((import, depth + 1));
           }
           _ => {}
         }
@@ -81,7 +102,7 @@ impl Compiler {
     })
   }
 
-  fn find_module_file<'src>(parent: &Path, module: Name<'src>) -> RunResult<'src, PathBuf> {
+  fn find_module_file<'src>(parent: &Path, module: Name<'src>) -> RunResult<'src, Option<PathBuf>> {
     let mut candidates = vec![format!("{module}.just"), format!("{module}/mod.just")]
       .into_iter()
       .filter(|path| parent.join(path).is_file())
@@ -112,8 +133,8 @@ impl Compiler {
     }
 
     match candidates.as_slice() {
-      [] => Err(Error::MissingModuleFile { module }),
-      [file] => Ok(parent.join(file).lexiclean()),
+      [] => Ok(None),
+      [file] => Ok(Some(parent.join(file).lexiclean())),
       found => Err(Error::AmbiguousModuleFile {
         found: found.into(),
         module,

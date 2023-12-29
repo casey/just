@@ -116,7 +116,7 @@ impl<'src> Justfile<'src> {
     search: &Search,
     overrides: &BTreeMap<String, String>,
     arguments: &[String],
-  ) -> RunResult<'src, ()> {
+  ) -> RunResult<'src> {
     let unknown_overrides = overrides
       .keys()
       .filter(|name| !self.assignments.contains_key(name.as_str()))
@@ -393,7 +393,7 @@ impl<'src> Justfile<'src> {
     dotenv: &BTreeMap<String, String>,
     search: &Search,
     ran: &mut BTreeSet<Vec<String>>,
-  ) -> RunResult<'src, ()> {
+  ) -> RunResult<'src> {
     let mut invocation = vec![recipe.name().to_owned()];
     for argument in arguments {
       invocation.push((*argument).to_string());

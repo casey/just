@@ -110,6 +110,9 @@ pub(crate) enum Error<'src> {
     path: PathBuf,
     io_error: io::Error,
   },
+  MissingImportFile {
+    path: Token<'src>,
+  },
   MissingModuleFile {
     module: Name<'src>,
   },
@@ -181,6 +184,7 @@ impl<'src> Error<'src> {
       Self::Backtick { token, .. } => Some(*token),
       Self::Compile { compile_error } => Some(compile_error.context()),
       Self::FunctionCall { function, .. } => Some(function.token()),
+      Self::MissingImportFile { path } => Some(*path),
       _ => None,
     }
   }
@@ -369,6 +373,7 @@ impl<'src> ColorDisplay for Error<'src> {
         let path = path.display();
         write!(f, "Failed to read justfile at `{path}`: {io_error}")?;
       }
+      MissingImportFile { .. } => write!(f, "Could not find source file for import.")?,
       MissingModuleFile { module } => write!(f, "Could not find source file for module `{module}`.")?,
       NoChoosableRecipes => write!(f, "Justfile contains no choosable recipes.")?,
       NoDefaultRecipe => write!(f, "Justfile contains no default recipe.")?,
