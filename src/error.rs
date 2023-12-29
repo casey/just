@@ -95,6 +95,7 @@ pub(crate) enum Error<'src> {
   GetConfirmation {
     io_error: io::Error,
   },
+  Homedir,
   InitExists {
     justfile: PathBuf,
   },
@@ -346,6 +347,9 @@ impl<'src> ColorDisplay for Error<'src> {
       }
       GetConfirmation { io_error } => {
         write!(f, "Failed to read confirmation from stdin: {io_error}")?;
+      }
+      Homedir => {
+        write!(f, "Failed to get homedir")?;
       }
       InitExists { justfile } => {
         write!(f, "Justfile `{}` already exists", justfile.display())?;

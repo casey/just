@@ -152,3 +152,20 @@ fn recipes_in_import_are_overridden_by_recipes_in_parent() {
     .stdout("ROOT\n")
     .run();
 }
+
+#[cfg(not(windows))]
+#[test]
+fn import_paths_beginning_with_tilde_are_expanded_to_homdir() {
+  Test::new()
+    .write("foobar/mod.just", "foo:\n @echo FOOBAR")
+    .justfile(
+      "
+        import '~/mod.just'
+      ",
+    )
+    .test_round_trip(false)
+    .arg("foo")
+    .stdout("FOOBAR\n")
+    .env("HOME", "foobar")
+    .run();
+}

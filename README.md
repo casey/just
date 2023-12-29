@@ -2358,7 +2358,8 @@ A
 ```
 
 The `import` path can be absolute or relative to the location of the justfile
-containing it.
+containing it. A leading `~/` in the import path is replaced with the current
+users home directory.
 
 Justfiles are insensitive to order, so included files can reference variables
 and recipes defined after the `import` statement.
@@ -2406,7 +2407,19 @@ If a module is named `foo`, just will search for the module file in `foo.just`,
 `foo/mod.just`, `foo/justfile`, and `foo/.justfile`. In the latter two cases,
 the module file may have any capitalization.
 
-Environment files are loaded for the root justfile.
+Module statements may be of the form:
+
+```mf
+mod foo 'PATH'
+```
+
+Which loads the module's source file from `PATH`, instead of from the usual
+locations. A leading `~/` in `PATH` is replaced with the current user's home
+directory.
+
+Environment files are only loaded for the root justfile, and loaded environment
+variables are available in submodules. Settings in submodules that affect
+enviroment file loading are ignored.
 
 Recipes in submodules without the `[no-cd]` attribute run with the working
 directory set to the directory containing the submodule source file.

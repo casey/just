@@ -24,6 +24,7 @@ camino = "1.0.4"
 clap = { version = "2.33.0", features = ["wrap_help"] }
 ctrlc = { version = "3.1.1", features = ["termination"] }
 derivative = "2.0.0"
+dirs = "5.0.1"
 dotenvy = "0.15"
 edit-distance = "2.0.0"
 env_logger = "0.10.0"
