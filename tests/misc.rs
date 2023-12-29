@@ -188,41 +188,6 @@ c: b
 }
 
 test! {
-  name:     summary,
-  justfile: "b: a
-a:
-d: c
-c: b
-_z: _y
-_y:
-",
-  args:     ("--summary"),
-  stdout:   "a b c d\n",
-}
-
-test! {
-  name:     summary_sorted,
-  justfile: "
-b:
-c:
-a:
-",
-  args:     ("--summary"),
-  stdout:   "a b c\n",
-}
-
-test! {
-  name:     summary_unsorted,
-  justfile: "
-b:
-c:
-a:
-",
-  args:     ("--summary", "--unsorted"),
-  stdout:   "b c a\n",
-}
-
-test! {
   name:     select,
   justfile: "b:
   @echo b

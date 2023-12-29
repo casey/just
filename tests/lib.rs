@@ -87,6 +87,7 @@ mod show;
 mod slash_operator;
 mod string;
 mod subsequents;
+mod summary;
 mod tempdir;
 mod undefined_variables;
 mod unstable;

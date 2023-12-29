@@ -533,18 +533,39 @@ impl Subcommand {
   }
 
   fn summary(config: &Config, justfile: &Justfile) {
-    if justfile.count() == 0 {
-      if config.verbosity.loud() {
-        eprintln!("Justfile contains no recipes.");
+    let mut printed = 0;
+    Self::summary_recursive(config, &mut Vec::new(), &mut printed, justfile);
+    println!();
+
+    if printed == 0 && config.verbosity.loud() {
+      eprintln!("Justfile contains no recipes.");
+    }
+  }
+
+  fn summary_recursive<'a>(
+    config: &Config,
+    components: &mut Vec<&'a str>,
+    printed: &mut usize,
+    justfile: &'a Justfile,
+  ) {
+    let path = components.join("::");
+
+    for recipe in justfile.public_recipes(config.unsorted) {
+      if *printed > 0 {
+        print!(" ");
       }
-    } else {
-      let summary = justfile
-        .public_recipes(config.unsorted)
-        .iter()
-        .map(|recipe| recipe.name())
-        .collect::<Vec<&str>>()
-        .join(" ");
-      println!("{summary}");
+      if path.is_empty() {
+        print!("{}", recipe.name());
+      } else {
+        print!("{}::{}", path, recipe.name());
+      }
+      *printed += 1;
+    }
+
+    for (name, module) in &justfile.modules {
+      components.push(name);
+      Self::summary_recursive(config, components, printed, module);
+      components.pop();
     }
   }
 

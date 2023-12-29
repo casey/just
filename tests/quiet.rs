@@ -122,12 +122,6 @@ test! {
 }
 
 test! {
-  name: summary_none,
-  justfile: "",
-  args: ("--summary", "--quiet"),
-}
-
-test! {
   name: quiet_shebang,
   justfile: "
     @foo:
