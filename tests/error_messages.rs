@@ -1,10 +1,5 @@
 use super::*;
 
-// ——▶
-//  │
-//  │
-//  │
-
 test! {
   name: invalid_alias_attribute,
   justfile: "[private]\n[linux]\nalias t := test\n\ntest:\n",
