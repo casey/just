@@ -1,4 +1,4 @@
-<div align=right>Table of Contents</div>
+<div align=right>Table of Contents↗️</div>
 
 <h1 align=center><code>just</code></h1>
 
