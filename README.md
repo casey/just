@@ -1,5 +1,3 @@
-↖️ Table of Contents
-
 <h1 align="center"><code>just</code></h1>
 
 <div align="center">
