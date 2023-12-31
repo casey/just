@@ -2,7 +2,7 @@ use {super::*, serde::Serialize};
 
 #[derive(Debug)]
 struct Invocation<'src: 'run, 'run> {
-  arguments: &'run [&'run str],
+  arguments: Vec<&'run str>,
   recipe: &'run Recipe<'src>,
   settings: &'run Settings<'src>,
   scope: &'run Scope<'src, 'run>,
@@ -209,7 +209,7 @@ impl<'src> Justfile<'src> {
       _ => {}
     }
 
-    let argvec: Vec<&str> = if !arguments.is_empty() {
+    let mut remaining: Vec<&str> = if !arguments.is_empty() {
       arguments.iter().map(String::as_str).collect()
     } else if let Some(recipe) = &self.default {
       recipe.check_can_be_default_recipe()?;
@@ -220,15 +220,29 @@ impl<'src> Justfile<'src> {
       return Err(Error::NoDefaultRecipe);
     };
 
-    let arguments = argvec.as_slice();
-
     let mut missing = Vec::new();
     let mut invocations = Vec::new();
-    let mut remaining = arguments;
     let mut scopes = BTreeMap::new();
     let arena: Arena<Scope> = Arena::new();
 
-    while let Some((first, mut rest)) = remaining.split_first() {
+    while let Some(first) = remaining.first().copied() {
+      if first.contains("::") {
+        if first.starts_with(':') || first.ends_with(':') || first.contains(":::") {
+          missing.push(first.to_string());
+          remaining = remaining[1..].to_vec();
+          continue;
+        }
+
+        remaining = first
+          .split("::")
+          .chain(remaining[1..].iter().copied())
+          .collect::<Vec<&str>>();
+
+        continue;
+      }
+
+      let rest = &remaining[1..];
+
       if let Some((invocation, consumed)) = self.invocation(
         0,
         &mut Vec::new(),
@@ -241,12 +255,12 @@ impl<'src> Justfile<'src> {
         first,
         rest,
       )? {
-        rest = &rest[consumed..];
+        remaining = rest[consumed..].to_vec();
         invocations.push(invocation);
       } else {
-        missing.push((*first).to_owned());
+        missing.push(first.to_string());
+        remaining = rest.to_vec();
       }
-      remaining = rest;
     }
 
     if !missing.is_empty() {
@@ -273,7 +287,7 @@ impl<'src> Justfile<'src> {
       Self::run_recipe(
         &context,
         invocation.recipe,
-        invocation.arguments,
+        &invocation.arguments,
         &dotenv,
         search,
         &mut ran,
@@ -306,7 +320,7 @@ impl<'src> Justfile<'src> {
     search: &'run Search,
     parent: &'run Scope<'src, 'run>,
     first: &'run str,
-    rest: &'run [&'run str],
+    rest: &[&'run str],
   ) -> RunResult<'src, Option<(Invocation<'src, 'run>, usize)>> {
     if let Some(module) = self.modules.get(first) {
       path.push(first);
@@ -327,7 +341,7 @@ impl<'src> Justfile<'src> {
             Invocation {
               settings: &module.settings,
               recipe,
-              arguments: &[],
+              arguments: Vec::new(),
               scope,
             },
             depth,
@@ -352,7 +366,7 @@ impl<'src> Justfile<'src> {
       if recipe.parameters.is_empty() {
         Ok(Some((
           Invocation {
-            arguments: &[],
+            arguments: Vec::new(),
             recipe,
             scope: parent,
             settings: &self.settings,
@@ -373,7 +387,7 @@ impl<'src> Justfile<'src> {
         }
         Ok(Some((
           Invocation {
-            arguments: &rest[..argument_count],
+            arguments: rest[..argument_count].to_vec(),
             recipe,
             scope: parent,
             settings: &self.settings,
