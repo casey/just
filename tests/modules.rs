@@ -110,6 +110,17 @@ fn invalid_path_syntax() {
 }
 
 #[test]
+fn missing_recipe_after_invalid_path() {
+  Test::new()
+    .test_round_trip(false)
+    .arg(":foo::foo")
+    .arg("bar")
+    .stderr("error: Justfile does not contain recipes `:foo::foo` or `bar`.\n")
+    .status(EXIT_FAILURE)
+    .run();
+}
+
+#[test]
 fn assignments_are_evaluated_in_modules() {
   Test::new()
     .write("foo.just", "bar := 'CHILD'\nfoo:\n @echo {{bar}}")
