@@ -2150,6 +2150,10 @@ uses its own settings.</p>
 <pre><code class="language-sh">$ just --unstable bar b
 B
 </code></pre>
+<p>Or with path syntax:</p>
+<pre><code class="language-sh">$ just --unstable bar::b
+B
+</code></pre>
 <p>If a module is named <code>foo</code>, just will search for the module file in <code>foo.just</code>,
 <code>foo/mod.just</code>, <code>foo/justfile</code>, and <code>foo/.justfile</code>. In the latter two cases,
 the module file may have any capitalization.</p>
