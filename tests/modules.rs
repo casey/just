@@ -53,7 +53,7 @@ fn module_recipes_can_be_run_as_subcommands() {
 }
 
 #[test]
-fn module_recipes_can_be_run_using_path_syntax() {
+fn module_recipes_can_be_run_with_path_syntax() {
   Test::new()
     .write("foo.just", "foo:\n @echo FOO")
     .justfile(
@@ -69,7 +69,7 @@ fn module_recipes_can_be_run_using_path_syntax() {
 }
 
 #[test]
-fn nested_module_recipes_can_be_run_using_path_syntax() {
+fn nested_module_recipes_can_be_run_with_path_syntax() {
   Test::new()
     .write("foo.just", "mod bar")
     .write("bar.just", "baz:\n @echo BAZ")
