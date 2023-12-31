@@ -1,6 +1,16 @@
 Changelog
 =========
 
+[1.22.0](https://github.com/casey/just/releases/tag/1.22.0) - 2023-12-31
+------------------------------------------------------------------------
+
+### Added
+- Recipes can be invoked with path syntax ([#1809](https://github.com/casey/just/pull/1809))
+- Add `--format` and `--initialize` as aliases for `--fmt` and `--init` ([#1802](https://github.com/casey/just/pull/1802))
+
+### Misc
+- Move table of contents pointer to right ([#1806](https://github.com/casey/just/pull/1806))
+
 [1.21.0](https://github.com/casey/just/releases/tag/1.21.0) - 2023-12-29
 ------------------------------------------------------------------------
 
