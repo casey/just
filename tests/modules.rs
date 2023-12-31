@@ -53,6 +53,74 @@ fn module_recipes_can_be_run_as_subcommands() {
 }
 
 #[test]
+fn module_recipes_can_be_run_with_path_syntax() {
+  Test::new()
+    .write("foo.just", "foo:\n @echo FOO")
+    .justfile(
+      "
+        mod foo
+      ",
+    )
+    .test_round_trip(false)
+    .arg("--unstable")
+    .arg("foo::foo")
+    .stdout("FOO\n")
+    .run();
+}
+
+#[test]
+fn nested_module_recipes_can_be_run_with_path_syntax() {
+  Test::new()
+    .write("foo.just", "mod bar")
+    .write("bar.just", "baz:\n @echo BAZ")
+    .justfile(
+      "
+        mod foo
+      ",
+    )
+    .test_round_trip(false)
+    .arg("--unstable")
+    .arg("foo::bar::baz")
+    .stdout("BAZ\n")
+    .run();
+}
+
+#[test]
+fn invalid_path_syntax() {
+  Test::new()
+    .test_round_trip(false)
+    .arg(":foo::foo")
+    .stderr("error: Justfile does not contain recipe `:foo::foo`.\n")
+    .status(EXIT_FAILURE)
+    .run();
+
+  Test::new()
+    .test_round_trip(false)
+    .arg("foo::foo:")
+    .stderr("error: Justfile does not contain recipe `foo::foo:`.\n")
+    .status(EXIT_FAILURE)
+    .run();
+
+  Test::new()
+    .test_round_trip(false)
+    .arg("foo:::foo")
+    .stderr("error: Justfile does not contain recipe `foo:::foo`.\n")
+    .status(EXIT_FAILURE)
+    .run();
+}
+
+#[test]
+fn missing_recipe_after_invalid_path() {
+  Test::new()
+    .test_round_trip(false)
+    .arg(":foo::foo")
+    .arg("bar")
+    .stderr("error: Justfile does not contain recipes `:foo::foo` or `bar`.\n")
+    .status(EXIT_FAILURE)
+    .run();
+}
+
+#[test]
 fn assignments_are_evaluated_in_modules() {
   Test::new()
     .write("foo.just", "bar := 'CHILD'\nfoo:\n @echo {{bar}}")

@@ -2669,6 +2669,13 @@ $ just --unstable bar b
 B
 ```
 
+Or with path syntax:
+
+```sh
+$ just --unstable bar::b
+B
+```
+
 If a module is named `foo`, just will search for the module file in `foo.just`,
 `foo/mod.just`, `foo/justfile`, and `foo/.justfile`. In the latter two cases,
 the module file may have any capitalization.
