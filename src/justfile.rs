@@ -236,7 +236,7 @@ impl<'src> Justfile<'src> {
         remaining = first
           .split("::")
           .chain(remaining[1..].iter().copied())
-          .collect::<Vec<&str>>();
+          .collect();
 
         continue;
       }
