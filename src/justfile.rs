@@ -226,13 +226,9 @@ impl<'src> Justfile<'src> {
     let arena: Arena<Scope> = Arena::new();
 
     while let Some(first) = remaining.first().copied() {
-      if first.contains("::") {
-        if first.starts_with(':') || first.ends_with(':') || first.contains(":::") {
-          missing.push(first.to_string());
-          remaining = remaining[1..].to_vec();
-          continue;
-        }
-
+      if first.contains("::")
+        && !(first.starts_with(':') || first.ends_with(':') || first.contains(":::"))
+      {
         remaining = first
           .split("::")
           .chain(remaining[1..].iter().copied())
