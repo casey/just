@@ -195,13 +195,9 @@ impl<'src, D> Recipe<'src, D> {
 
       let mut command = evaluated.as_str();
 
-      if quiet_command {
-        command = &command[1..];
-      }
+      let sigils = usize::from(infallible_command) + usize::from(quiet_command);
 
-      if infallible_command {
-        command = &command[1..];
-      }
+      command = &command[sigils..];
 
       if command.is_empty() {
         continue;
