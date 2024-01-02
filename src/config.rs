@@ -683,7 +683,7 @@ impl Config {
 
   pub(crate) fn run(self, loader: &Loader) -> Result<(), Error> {
     if let Err(error) = SignalHandler::install(self.verbosity) {
-      warn!("Failed to set CTRL-C handler: {error}");
+      warn!("Failed to set signal handler: {error}");
     }
 
     self.subcommand.execute(&self, loader)

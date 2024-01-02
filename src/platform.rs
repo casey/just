@@ -38,6 +38,7 @@ impl PlatformInterface for Platform {
     exit_status.signal()
   }
 
+  /// See [Exit Codes With Special Meanings](https://tldp.org/LDP/abs/html/exitcodes.html)
   fn exit_code_from_signal(signal: i32) -> i32 {
     signal + 128
   }
@@ -99,6 +100,10 @@ impl PlatformInterface for Platform {
     // The rust standard library does not expose a way to extract a signal from a
     // windows process exit status, so just return None
     None
+  }
+
+  fn exit_code_from_signal(signal: i32) -> i32 {
+    signal
   }
 
   fn convert_native_path(working_directory: &Path, path: &Path) -> Result<String, String> {

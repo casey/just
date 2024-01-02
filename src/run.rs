@@ -44,8 +44,7 @@ pub fn run() -> Result<(), i32> {
           Error::CommandStatus { status, .. } => match status.code() {
             Some(code) => code,
             None => Platform::signal_from_exit_status(status)
-              .map(Platform::exit_code_from_signal)
-              .unwrap_or(EXIT_FAILURE),
+              .map_or(EXIT_FAILURE, Platform::exit_code_from_signal),
           },
           _ => EXIT_FAILURE,
         },

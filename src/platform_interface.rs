@@ -16,9 +16,7 @@ pub(crate) trait PlatformInterface {
   /// signal
   fn signal_from_exit_status(exit_status: ExitStatus) -> Option<i32>;
 
-  /// Convert a signal into an exit code, for the case where a process was
-  /// terminated by a signal
-  /// See https://tldp.org/LDP/abs/html/exitcodes.html
+  /// Convert a signal number into an exit code
   fn exit_code_from_signal(signal: i32) -> i32;
 
   /// Translate a path from a "native" path to a path the interpreter expects
