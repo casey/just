@@ -134,6 +134,10 @@ impl<'src, D> Recipe<'src, D> {
     }
   }
 
+  fn no_quiet(&self) -> bool {
+    self.attributes.contains(&Attribute::NoQuiet)
+  }
+
   pub(crate) fn run<'run>(
     &self,
     context: &RecipeContext<'src, 'run>,
@@ -181,7 +185,8 @@ impl<'src, D> Recipe<'src, D> {
       }
       let mut evaluated = String::new();
       let mut continued = false;
-      let quiet_command = lines.peek().map_or(false, |line| line.is_quiet());
+      let quiet_command = self.no_quiet() && context.settings.quiet;
+      let quiet_line = lines.peek().map_or(false, |line| line.is_quiet());
       let infallible_command = lines.peek().map_or(false, |line| line.is_infallible());
 
       let comment_line =
@@ -210,7 +215,11 @@ impl<'src, D> Recipe<'src, D> {
 
       let mut command = evaluated.as_str();
 
-      let sigils = usize::from(infallible_command) + usize::from(quiet_command);
+      if quiet_command && !context.settings.quiet {
+        command = &command[1..];
+      }
+
+      let sigils = usize::from(infallible_command) + usize::from(quiet_line);
 
       command = &command[sigils..];
 
@@ -220,7 +229,9 @@ impl<'src, D> Recipe<'src, D> {
 
       if config.dry_run
         || config.verbosity.loquacious()
-        || !((quiet_command ^ self.quiet) || config.verbosity.quiet())
+        || !((quiet_line ^ self.quiet)
+          || (context.settings.quiet && !self.no_quiet())
+          || config.verbosity.quiet())
       {
         let color = if config.highlight {
           config.color.command(config.command_color)

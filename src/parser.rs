@@ -852,6 +852,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       Keyword::Fallback => Some(Setting::Fallback(self.parse_set_bool()?)),
       Keyword::IgnoreComments => Some(Setting::IgnoreComments(self.parse_set_bool()?)),
       Keyword::PositionalArguments => Some(Setting::PositionalArguments(self.parse_set_bool()?)),
+      Keyword::Quiet => Some(Setting::Quiet(self.parse_set_bool()?)),
       Keyword::WindowsPowershell => Some(Setting::WindowsPowerShell(self.parse_set_bool()?)),
       _ => None,
     };
@@ -1925,6 +1926,24 @@ mod tests {
     name: set_positional_arguments_true,
     text: "set positional-arguments := true",
     tree: (justfile (set positional_arguments true)),
+  }
+
+  test! {
+    name: set_quiet_implicit,
+    text: "set quiet",
+    tree: (justfile (set quiet true)),
+  }
+
+  test! {
+    name: set_quiet_true,
+    text: "set quiet := true",
+    tree: (justfile (set quiet true)),
+  }
+
+  test! {
+    name: set_quiet_false,
+    text: "set quiet := false",
+    tree: (justfile (set quiet false)),
   }
 
   test! {

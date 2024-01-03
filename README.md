@@ -1460,6 +1460,7 @@ Recipes may be annotated with attributes that change their behavior.
 | `[macos]`<sup>1.8.0</sup> | Enable recipe on MacOS. |
 | `[no-cd]`<sup>1.9.0</sup> | Don't change directory before executing recipe. |
 | `[no-exit-message]`<sup>1.7.0</sup> | Don't print an error message if recipe fails. |
+| `[no-quiet]`<sup>?</sup> | Override globally quiet recipes and always echo out the recipe. |
 | `[private]`<sup>1.10.0</sup> | See [Private Recipes](#private-recipes). |
 | `[unix]`<sup>1.8.0</sup> | Enable recipe on Unixes. (Includes MacOS). |
 | `[windows]`<sup>1.8.0</sup> | Enable recipe on Windows. |
@@ -2494,6 +2495,31 @@ $ just quiet
 hello
 goodbye
 # all done!
+```
+
+All recipes in a Justfile can be made quiet with `set quiet`:
+
+```just
+set quiet
+
+foo:
+  echo "This is quiet"
+
+@foo2:
+  echo "This is also quiet"
+```
+
+If the recipe has `[no-quiet]`, then the setting is ignored:
+
+```just
+set quiet
+
+foo:
+  echo "This is quiet"
+
+[no-quiet]
+foo2:
+  echo "This is not quiet"
 ```
 
 Shebang recipes are quiet by default:

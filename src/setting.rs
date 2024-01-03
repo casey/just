@@ -10,6 +10,7 @@ pub(crate) enum Setting<'src> {
   Fallback(bool),
   IgnoreComments(bool),
   PositionalArguments(bool),
+  Quiet(bool),
   Shell(Shell<'src>),
   Tempdir(String),
   WindowsPowerShell(bool),
@@ -25,6 +26,7 @@ impl<'src> Display for Setting<'src> {
       | Setting::Fallback(value)
       | Setting::IgnoreComments(value)
       | Setting::PositionalArguments(value)
+      | Setting::Quiet(value)
       | Setting::WindowsPowerShell(value) => write!(f, "{value}"),
       Setting::Shell(shell) | Setting::WindowsShell(shell) => write!(f, "{shell}"),
       Setting::DotenvFilename(value) | Setting::DotenvPath(value) | Setting::Tempdir(value) => {

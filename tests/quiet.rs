@@ -129,3 +129,116 @@ test! {
   ",
   args: ("--quiet"),
 }
+
+#[test]
+fn no_quiet_setting() {
+  Test::new()
+    .justfile(
+      "
+      foo:
+        echo 'Hello World'
+      ",
+    )
+    .stdout("Hello World\n")
+    .stderr("echo 'Hello World'\n")
+    .run();
+}
+
+#[test]
+fn quiet_setting() {
+  Test::new()
+    .justfile(
+      "
+      set quiet
+
+      foo:
+        echo 'Hello World'
+      ",
+    )
+    .stdout("Hello World\n")
+    .stderr("")
+    .run();
+}
+
+#[test]
+fn quiet_setting_with_no_quiet_attribute() {
+  Test::new()
+    .justfile(
+      "
+      set quiet
+
+      [no-quiet]
+      foo:
+        echo 'Hello World'
+      ",
+    )
+    .stdout("Hello World\n")
+    .stderr("echo 'Hello World'\n")
+    .run();
+}
+
+#[test]
+fn quiet_setting_with_quiet_recipe() {
+  Test::new()
+    .justfile(
+      "
+      set quiet
+
+      @foo:
+        echo 'Hello World'
+      ",
+    )
+    .stdout("Hello World\n")
+    .stderr("")
+    .run();
+}
+
+#[test]
+fn quiet_setting_with_quiet_line() {
+  Test::new()
+    .justfile(
+      "
+      set quiet
+
+      foo:
+        @echo 'Hello World'
+      ",
+    )
+    .stdout("Hello World\n")
+    .stderr("")
+    .run();
+}
+
+#[test]
+fn quiet_setting_with_no_quiet_attribute_and_quiet_recipe() {
+  Test::new()
+    .justfile(
+      "
+      set quiet
+
+      [no-quiet]
+      @foo:
+        echo 'Hello World'
+      ",
+    )
+    .stdout("Hello World\n")
+    .stderr("")
+    .run();
+}
+
+#[test]
+fn quiet_setting_with_no_quiet_attribute_and_quiet_line() {
+  Test::new()
+    .justfile(
+      "
+      set quiet
+
+      [no-quiet]
+      foo:
+        @echo 'Hello World'
+      ",
+    )
+    .stdout("Hello World\n")
+    .stderr("")
+    .run();
+}
