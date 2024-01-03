@@ -242,3 +242,46 @@ fn optional_imports_dump_correctly() {
     .stdout("import? './import.justfile'\n")
     .run();
 }
+
+#[test]
+fn imports_in_root_run_in_justfile_directory() {
+  Test::new()
+    .write("foo/import.justfile", "bar:\n @cat baz")
+    .write("baz", "BAZ")
+    .justfile(
+      "
+        import 'foo/import.justfile'
+      ",
+    )
+    .test_round_trip(false)
+    .arg("bar")
+    .stdout("BAZ")
+    .run();
+}
+
+#[test]
+fn imports_in_submodules_run_in_submodule_directory() {
+  Test::new()
+    .justfile("mod foo")
+    .write("foo/mod.just", "import 'import.just'")
+    .write("foo/import.just", "bar:\n @cat baz")
+    .write("foo/baz", "BAZ")
+    .test_round_trip(false)
+    .arg("--unstable")
+    .arg("foo")
+    .arg("bar")
+    .stdout("BAZ")
+    .run();
+}
+
+#[test]
+fn nested_import_paths_are_relative_to_containing_submodule() {
+  Test::new()
+    .justfile("import 'foo/import.just'")
+    .write("foo/import.just", "import 'bar.just'")
+    .write("bar.just", "bar:\n @echo BAR")
+    .test_round_trip(false)
+    .arg("bar")
+    .stdout("BAR\n")
+    .run();
+}
