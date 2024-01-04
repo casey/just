@@ -684,3 +684,29 @@ fn module_paths_beginning_with_tilde_are_expanded_to_homdir() {
     .env("HOME", "foobar")
     .run();
 }
+
+#[test]
+fn module_recipe_list_alignment_ignores_private_recipes() {
+  Test::new()
+    .write(
+      "foo.just",
+      "
+# foos
+foo:
+ @echo FOO
+
+[private]
+barbarbar:
+ @echo BAR
+
+@_bazbazbaz:
+ @echo BAZ
+      ",
+    )
+    .justfile("mod foo")
+    .test_round_trip(false)
+    .arg("--unstable")
+    .arg("--list")
+    .stdout("Available recipes:\n    foo:\n        foo # foos\n")
+    .run();
+}
