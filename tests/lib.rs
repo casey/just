@@ -84,6 +84,7 @@ mod shadowing_parameters;
 mod shebang;
 mod shell;
 mod show;
+mod skip_dependencies;
 mod slash_operator;
 mod string;
 mod subsequents;
