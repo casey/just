@@ -11,7 +11,7 @@ fn ignore_normal_dependency() {
           @echo 'b'
         ",
     )
-    .args(&["--no-dep", "b"])
+    .args(["--no-dep", "b"])
     .stdout("b\n")
     .run();
 }
@@ -27,7 +27,23 @@ fn ignore_prior_dependency() {
             @echo 'b'
         ",
     )
-    .args(&["--no-dep", "b"])
+    .args(["--no-dep", "b"])
     .stdout("b\n")
     .run();
 }
+
+#[test]
+fn ignore_dependency_multi() {
+    Test::new()
+      .justfile(
+        "
+          a:
+              @echo 'a'
+          b: && a
+              @echo 'b'
+          ",
+      )
+      .args(["--no-dep", "b", "a"])
+      .stdout("b\na\n")
+      .run();
+  }

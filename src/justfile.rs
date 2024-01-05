@@ -436,7 +436,10 @@ impl<'src> Justfile<'src> {
     let mut evaluator =
       Evaluator::recipe_evaluator(context.config, dotenv, &scope, context.settings, search);
 
-      if !no_dependencies {
+      if no_dependencies {
+        recipe.run(context, dotenv, scope.child(), search, &positional)?;
+      }
+      else {
         for Dependency { recipe, arguments } in recipe.dependencies.iter().take(recipe.priors) {
           let arguments = arguments
             .iter()
@@ -478,9 +481,6 @@ impl<'src> Justfile<'src> {
           }
         }
       }
-    else {
-      recipe.run(context, dotenv, scope.child(), search, &positional)?;
-    }
 
     ran.insert(invocation);
     Ok(())
