@@ -436,51 +436,50 @@ impl<'src> Justfile<'src> {
     let mut evaluator =
       Evaluator::recipe_evaluator(context.config, dotenv, &scope, context.settings, search);
 
-      if no_dependencies {
-        recipe.run(context, dotenv, scope.child(), search, &positional)?;
+    if no_dependencies {
+      recipe.run(context, dotenv, scope.child(), search, &positional)?;
+    } else {
+      for Dependency { recipe, arguments } in recipe.dependencies.iter().take(recipe.priors) {
+        let arguments = arguments
+          .iter()
+          .map(|argument| evaluator.evaluate_expression(argument))
+          .collect::<RunResult<Vec<String>>>()?;
+
+        Self::run_recipe(
+          context,
+          recipe,
+          &arguments.iter().map(String::as_ref).collect::<Vec<&str>>(),
+          dotenv,
+          search,
+          ran,
+          false,
+        )?;
       }
-      else {
-        for Dependency { recipe, arguments } in recipe.dependencies.iter().take(recipe.priors) {
-          let arguments = arguments
-            .iter()
-            .map(|argument| evaluator.evaluate_expression(argument))
-            .collect::<RunResult<Vec<String>>>()?;
+
+      recipe.run(context, dotenv, scope.child(), search, &positional)?;
+
+      {
+        let mut ran = BTreeSet::new();
+
+        for Dependency { recipe, arguments } in recipe.dependencies.iter().skip(recipe.priors) {
+          let mut evaluated = Vec::new();
+
+          for argument in arguments {
+            evaluated.push(evaluator.evaluate_expression(argument)?);
+          }
 
           Self::run_recipe(
             context,
             recipe,
-            &arguments.iter().map(String::as_ref).collect::<Vec<&str>>(),
+            &evaluated.iter().map(String::as_ref).collect::<Vec<&str>>(),
             dotenv,
             search,
-            ran,
+            &mut ran,
             false,
           )?;
         }
-
-        recipe.run(context, dotenv, scope.child(), search, &positional)?;
-
-        {
-          let mut ran = BTreeSet::new();
-
-          for Dependency { recipe, arguments } in recipe.dependencies.iter().skip(recipe.priors) {
-            let mut evaluated = Vec::new();
-
-            for argument in arguments {
-              evaluated.push(evaluator.evaluate_expression(argument)?);
-            }
-
-            Self::run_recipe(
-              context,
-              recipe,
-              &evaluated.iter().map(String::as_ref).collect::<Vec<&str>>(),
-              dotenv,
-              search,
-              &mut ran,
-              false,
-            )?;
-          }
-        }
       }
+    }
 
     ran.insert(invocation);
     Ok(())

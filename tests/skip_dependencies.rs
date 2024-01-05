@@ -34,16 +34,16 @@ fn ignore_prior_dependency() {
 
 #[test]
 fn ignore_dependency_multi() {
-    Test::new()
-      .justfile(
-        "
+  Test::new()
+    .justfile(
+      "
           a:
               @echo 'a'
           b: && a
               @echo 'b'
           ",
-      )
-      .args(["--no-dep", "b", "a"])
-      .stdout("b\na\n")
-      .run();
-  }
+    )
+    .args(["--no-dep", "b", "a"])
+    .stdout("b\na\n")
+    .run();
+}
