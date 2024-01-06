@@ -1406,7 +1406,7 @@ which will halt execution.
   string.
 - `sha256_file(path)` - Return the SHA-256 hash of the file at `path` as a
   hexadecimal string.
-- `uuid()` - Generate a random UUID (UUIDv4).
+- `uuid()` - Generate a random version 4 UUID.
 
 #### Semantic Versions
 
