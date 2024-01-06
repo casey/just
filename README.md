@@ -1422,11 +1422,17 @@ which will halt execution.
 
 #### UUID and Hash Generation
 
+- `blake3(string)` - Return the [BLAKE3] hash of `string` as a hexadecimal
+  string.
+- `blake3_file(path)` - Return the [BLAKE3] hash of the file at `path` as a
+  hexadecimal string.
 - `sha256(string)` - Return the SHA-256 hash of `string` as a hexadecimal
   string.
 - `sha256_file(path)` - Return the SHA-256 hash of the file at `path` as a
   hexadecimal string.
 - `uuid()` - Generate a random version 4 UUID.
+
+[BLAKE3]: https://github.com/BLAKE3-team/BLAKE3/
 
 #### Semantic Versions
 

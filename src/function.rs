@@ -21,6 +21,8 @@ pub(crate) fn get(name: &str) -> Option<Function> {
   let function = match name {
     "absolute_path" => Unary(absolute_path),
     "arch" => Nullary(arch),
+    "blake3" => Unary(blake3),
+    "blake3_file" => Unary(blake3_file),
     "canonicalize" => Unary(canonicalize),
     "cache_directory" => Nullary(|_| dir("cache", dirs::cache_dir)),
     "capitalize" => Unary(capitalize),
@@ -105,6 +107,21 @@ fn absolute_path(context: &FunctionContext, path: &str) -> Result<String, String
 
 fn arch(_context: &FunctionContext) -> Result<String, String> {
   Ok(target::arch().to_owned())
+}
+
+fn blake3(_context: &FunctionContext, s: &str) -> Result<String, String> {
+  let mut hasher = blake3::Hasher::new();
+  hasher.update(s.as_bytes());
+  Ok(hasher.finalize().to_string())
+}
+
+fn blake3_file(context: &FunctionContext, path: &str) -> Result<String, String> {
+  let justpath = context.search.working_directory.join(path);
+  let mut hasher = blake3::Hasher::new();
+  hasher
+    .update_mmap_rayon(&justpath)
+    .map_err(|err| format!("Failed to read file at `{:?}`: {err}", justpath.to_str()))?;
+  Ok(hasher.finalize().to_string())
 }
 
 fn canonicalize(_context: &FunctionContext, path: &str) -> Result<String, String> {
