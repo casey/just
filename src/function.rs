@@ -21,15 +21,22 @@ pub(crate) fn get(name: &str) -> Option<Function> {
   let function = match name {
     "absolute_path" => Unary(absolute_path),
     "arch" => Nullary(arch),
+    "cache_directory" => Nullary(|_| dir(dirs::cache_dir, "cache")),
     "capitalize" => Unary(capitalize),
+    "config_directory" => Nullary(|_| dir(dirs::config_dir, "config")),
+    "config_local_directory" => Nullary(|_| dir(dirs::config_local_dir, "local config")),
     "clean" => Unary(clean),
+    "data_directory" => Nullary(|_| dir(dirs::data_dir, "data")),
+    "data_local_directory" => Nullary(|_| dir(dirs::data_local_dir, "local data")),
     "env" => UnaryOpt(env),
     "env_var" => Unary(env_var),
     "env_var_or_default" => Binary(env_var_or_default),
     "error" => Unary(error),
+    "executable_directory" => Nullary(|_| dir(dirs::executable_dir, "executable")),
     "extension" => Unary(extension),
     "file_name" => Unary(file_name),
     "file_stem" => Unary(file_stem),
+    "home_directory" => Nullary(|_| dir(dirs::home_dir, "home")),
     "invocation_directory" => Nullary(invocation_directory),
     "invocation_directory_native" => Nullary(invocation_directory_native),
     "join" => BinaryPlus(join),
@@ -112,6 +119,19 @@ fn capitalize(_context: &FunctionContext, s: &str) -> Result<String, String> {
 
 fn clean(_context: &FunctionContext, path: &str) -> Result<String, String> {
   Ok(Path::new(path).lexiclean().to_str().unwrap().to_owned())
+}
+
+fn dir(f: fn() -> Option<PathBuf>, name: &'static str) -> Result<String, String> {
+  let res = match f() {
+    Some(p) => p.into_os_string().into_string().map_err(|err_p| {
+      format!(
+        "unable to convert {name} directory path to a string: {}",
+        err_p.to_string_lossy()
+      )
+    })?,
+    None => String::new(),
+  };
+  Ok(res)
 }
 
 fn env_var(context: &FunctionContext, key: &str) -> Result<String, String> {

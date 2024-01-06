@@ -44,6 +44,7 @@ mod completions;
 mod conditional;
 mod confirm;
 mod delimiters;
+mod directories;
 mod dotenv;
 mod edit;
 mod equals;

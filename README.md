@@ -1415,6 +1415,30 @@ which will halt execution.
   `requirement`, e.g., `">=0.1.0"`, returning `"true"` if so and `"false"`
   otherwise.
 
+##### Directory Locaters
+
+- `cache_directory()` - Locate the user-specific cache directory. Returns an
+   empty string if it could not be found.
+- `config_directory()` - Locate the user-specific config directory. Returns an
+   empty string if it could not be found.
+- `config_local_directory()` - Locate the user-specific config_local directory.
+   Returns an empty string if it could not be found.
+- `data_directory()` - Locate the user-specific data directory. Returns an empty
+   string if it could not be found.
+- `data_local_directory()` - Locate the user-specific data_local directory.
+   Returns an empty string if it could not be found.
+- `executable_directory()` - Locate the user-specific executable directory.
+   Returns an empty string if it could not be found.
+- `home_directory()` - Locate the user-specific home directory. Returns an empty
+   string if it could not be found.
+
+The output for these commands is produced by the
+[`dirs`](https://docs.rs/dirs/latest/dirs/index.html) crate, which first checks
+for `XDG_*` environment variables then falls back to platform defaults.
+
+The XDG specification is available here:
+<https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html>
+
 ### Recipe Attributes
 
 Recipes may be annotated with attributes that change their behavior.
