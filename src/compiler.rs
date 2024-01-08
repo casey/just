@@ -13,7 +13,7 @@ impl Compiler {
     let mut srcs: HashMap<PathBuf, &str> = HashMap::new();
     let mut loaded = Vec::new();
 
-    let mut stack: Vec<Source> = Vec::new();
+    let mut stack = Vec::new();
     stack.push(Source::root(root));
 
     while let Some(current) = stack.pop() {
