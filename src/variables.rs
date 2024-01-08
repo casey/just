@@ -60,7 +60,7 @@ impl<'expression, 'src> Iterator for Variables<'expression, 'src> {
           self.stack.push(rhs);
           self.stack.push(lhs);
         }
-        Expression::Variable { name, .. } => return Some(name.token()),
+        Expression::Variable { name, .. } => return Some(name.token),
         Expression::Concatenation { lhs, rhs } => {
           self.stack.push(rhs);
           self.stack.push(lhs);

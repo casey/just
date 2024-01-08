@@ -271,7 +271,7 @@ impl<'src> Justfile<'src> {
       });
     }
 
-    let mut ran = BTreeSet::new();
+    let mut ran = Ran::default();
     for invocation in invocations {
       let context = RecipeContext {
         settings: invocation.settings,
@@ -283,7 +283,12 @@ impl<'src> Justfile<'src> {
       Self::run_recipe(
         &context,
         invocation.recipe,
-        &invocation.arguments,
+        &invocation
+          .arguments
+          .iter()
+          .copied()
+          .map(str::to_string)
+          .collect::<Vec<String>>(),
         &dotenv,
         search,
         &mut ran,
@@ -399,17 +404,12 @@ impl<'src> Justfile<'src> {
   fn run_recipe(
     context: &RecipeContext<'src, '_>,
     recipe: &Recipe<'src>,
-    arguments: &[&str],
+    arguments: &[String],
     dotenv: &BTreeMap<String, String>,
     search: &Search,
-    ran: &mut BTreeSet<Vec<String>>,
+    ran: &mut Ran<'src>,
   ) -> RunResult<'src> {
-    let mut invocation = vec![recipe.name().to_owned()];
-    for argument in arguments {
-      invocation.push((*argument).to_string());
-    }
-
-    if ran.contains(&invocation) {
+    if ran.has_run(&recipe.namepath, arguments) {
       return Ok(());
     }
 
@@ -440,20 +440,13 @@ impl<'src> Justfile<'src> {
         .map(|argument| evaluator.evaluate_expression(argument))
         .collect::<RunResult<Vec<String>>>()?;
 
-      Self::run_recipe(
-        context,
-        recipe,
-        &arguments.iter().map(String::as_ref).collect::<Vec<&str>>(),
-        dotenv,
-        search,
-        ran,
-      )?;
+      Self::run_recipe(context, recipe, &arguments, dotenv, search, ran)?;
     }
 
     recipe.run(context, dotenv, scope.child(), search, &positional)?;
 
     {
-      let mut ran = BTreeSet::new();
+      let mut ran = Ran::default();
 
       for Dependency { recipe, arguments } in recipe.dependencies.iter().skip(recipe.priors) {
         let mut evaluated = Vec::new();
@@ -462,18 +455,11 @@ impl<'src> Justfile<'src> {
           evaluated.push(evaluator.evaluate_expression(argument)?);
         }
 
-        Self::run_recipe(
-          context,
-          recipe,
-          &evaluated.iter().map(String::as_ref).collect::<Vec<&str>>(),
-          dotenv,
-          search,
-          &mut ran,
-        )?;
+        Self::run_recipe(context, recipe, &evaluated, dotenv, search, &mut ran)?;
       }
     }
 
-    ran.insert(invocation);
+    ran.ran(&recipe.namepath, arguments.to_vec());
     Ok(())
   }
 
