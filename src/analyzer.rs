@@ -83,7 +83,7 @@ impl<'src> Analyzer<'src> {
             if let Some(absolute) = absolute {
               define(*name, "module", false)?;
               modules.insert(
-                name.to_string(),
+                name.lexeme().into(),
                 (*name, Self::analyze(loaded, paths, asts, absolute)?),
               );
             }

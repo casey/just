@@ -30,7 +30,6 @@ pub(crate) struct Recipe<'src, D = Dependency<'src>> {
   pub(crate) doc: Option<&'src str>,
   #[serde(skip)]
   pub(crate) file_path: PathBuf,
-  // todo: remove name
   pub(crate) name: Name<'src>,
   pub(crate) namepath: Namepath<'src>,
   pub(crate) parameters: Vec<Parameter<'src>>,
