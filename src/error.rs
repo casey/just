@@ -179,11 +179,11 @@ impl<'src> Error<'src> {
   fn context(&self) -> Option<Token<'src>> {
     match self {
       Self::AmbiguousModuleFile { module, .. } | Self::MissingModuleFile { module, .. } => {
-        Some(module.token())
+        Some(module.token)
       }
       Self::Backtick { token, .. } => Some(*token),
       Self::Compile { compile_error } => Some(compile_error.context()),
-      Self::FunctionCall { function, .. } => Some(function.token()),
+      Self::FunctionCall { function, .. } => Some(function.token),
       Self::MissingImportFile { path } => Some(*path),
       _ => None,
     }

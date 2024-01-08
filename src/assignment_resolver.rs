@@ -59,7 +59,7 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
         if self.evaluated.contains(variable) {
           Ok(())
         } else if self.stack.contains(&variable) {
-          let token = self.assignments[variable].name.token();
+          let token = self.assignments[variable].name.token;
           self.stack.push(variable);
           Err(token.error(CircularVariableDependency {
             variable,
@@ -68,7 +68,7 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
         } else if self.assignments.contains_key(variable) {
           self.resolve_assignment(variable)
         } else {
-          Err(name.token().error(UndefinedVariable { variable }))
+          Err(name.token.error(UndefinedVariable { variable }))
         }
       }
       Expression::Call { thunk } => match thunk {

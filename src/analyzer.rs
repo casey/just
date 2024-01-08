@@ -47,7 +47,7 @@ impl<'src> Analyzer<'src> {
             (*original, name)
           };
 
-          return Err(redefinition.token().error(Redefinition {
+          return Err(redefinition.token.error(Redefinition {
             first_type,
             second_type,
             name: name.lexeme(),
@@ -160,7 +160,7 @@ impl<'src> Analyzer<'src> {
 
     for parameter in &recipe.parameters {
       if parameters.contains(parameter.name.lexeme()) {
-        return Err(parameter.name.token().error(DuplicateParameter {
+        return Err(parameter.name.token.error(DuplicateParameter {
           recipe: recipe.name.lexeme(),
           parameter: parameter.name.lexeme(),
         }));
@@ -173,7 +173,7 @@ impl<'src> Analyzer<'src> {
         return Err(
           parameter
             .name
-            .token()
+            .token
             .error(RequiredParameterFollowsDefaultParameter {
               parameter: parameter.name.lexeme(),
             }),
@@ -201,7 +201,7 @@ impl<'src> Analyzer<'src> {
 
   fn analyze_assignment(&self, assignment: &Assignment<'src>) -> CompileResult<'src> {
     if self.assignments.contains_key(assignment.name.lexeme()) {
-      return Err(assignment.name.token().error(DuplicateVariable {
+      return Err(assignment.name.token.error(DuplicateVariable {
         variable: assignment.name.lexeme(),
       }));
     }
@@ -213,7 +213,7 @@ impl<'src> Analyzer<'src> {
 
     for attr in &alias.attributes {
       if *attr != Attribute::Private {
-        return Err(alias.name.token().error(AliasInvalidAttribute {
+        return Err(alias.name.token.error(AliasInvalidAttribute {
           alias: name,
           attr: *attr,
         }));
@@ -238,7 +238,7 @@ impl<'src> Analyzer<'src> {
     recipes: &Table<'src, Rc<Recipe<'src>>>,
     alias: Alias<'src, Name<'src>>,
   ) -> CompileResult<'src, Alias<'src>> {
-    let token = alias.name.token();
+    let token = alias.name.token;
     // Make sure the alias doesn't conflict with any recipe
     if let Some(recipe) = recipes.get(alias.name.lexeme()) {
       return Err(token.error(AliasShadowsRecipe {

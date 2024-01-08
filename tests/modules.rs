@@ -684,3 +684,23 @@ fn module_paths_beginning_with_tilde_are_expanded_to_homdir() {
     .env("HOME", "foobar")
     .run();
 }
+
+#[test]
+fn recipes_with_same_name_are_both_run() {
+  Test::new()
+    .write("foo.just", "bar:\n @echo MODULE")
+    .justfile(
+      "
+        mod foo
+
+        bar:
+          @echo ROOT
+      ",
+    )
+    .test_round_trip(false)
+    .arg("--unstable")
+    .arg("foo::bar")
+    .arg("bar")
+    .stdout("MODULE\nROOT\n")
+    .run();
+}

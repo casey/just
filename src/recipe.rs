@@ -26,16 +26,18 @@ pub(crate) struct Recipe<'src, D = Dependency<'src>> {
   pub(crate) body: Vec<Line<'src>>,
   pub(crate) dependencies: Vec<D>,
   pub(crate) doc: Option<&'src str>,
+  pub(crate) file_path: PathBuf,
   pub(crate) name: Name<'src>,
   pub(crate) parameters: Vec<Parameter<'src>>,
   #[serde(skip)]
-  pub(crate) path: PathBuf,
   pub(crate) priors: usize,
   pub(crate) private: bool,
   pub(crate) quiet: bool,
   pub(crate) shebang: bool,
   #[serde(skip)]
   pub(crate) depth: u32,
+  #[serde(skip)]
+  pub(crate) namepath: Namepath<'src>,
 }
 
 impl<'src, D> Recipe<'src, D> {
@@ -223,7 +225,7 @@ impl<'src, D> Recipe<'src, D> {
 
       if self.change_directory() {
         cmd.current_dir(if self.depth > 0 {
-          self.path.parent().unwrap()
+          self.file_path.parent().unwrap()
         } else {
           &context.search.working_directory
         });
@@ -363,7 +365,7 @@ impl<'src, D> Recipe<'src, D> {
       &path,
       if self.change_directory() {
         if self.depth > 0 {
-          Some(self.path.parent().unwrap())
+          Some(self.file_path.parent().unwrap())
         } else {
           Some(&context.search.working_directory)
         }
