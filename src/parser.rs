@@ -1,10 +1,5 @@
 use {super::*, TokenKind::*};
 
-// todo:
-// - depth -> recursion_depth
-// - submodule -> submodule_depth
-// - sort fields
-
 /// Just language parser
 ///
 /// The parser is a (hopefully) straightforward recursive descent parser.
