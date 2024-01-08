@@ -26,10 +26,10 @@ pub(crate) struct Recipe<'src, D = Dependency<'src>> {
   pub(crate) body: Vec<Line<'src>>,
   pub(crate) dependencies: Vec<D>,
   pub(crate) doc: Option<&'src str>,
+  #[serde(skip)]
   pub(crate) file_path: PathBuf,
   pub(crate) name: Name<'src>,
   pub(crate) parameters: Vec<Parameter<'src>>,
-  #[serde(skip)]
   pub(crate) priors: usize,
   pub(crate) private: bool,
   pub(crate) quiet: bool,

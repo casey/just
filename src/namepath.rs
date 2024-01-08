@@ -1,6 +1,6 @@
 use super::*;
 
-#[derive(Default, Clone, Debug, PartialEq)]
+#[derive(Default, Clone, Debug, Eq, PartialEq, Ord, PartialOrd)]
 pub(crate) struct Namepath<'src>(Vec<Name<'src>>);
 
 impl<'src> Namepath<'src> {

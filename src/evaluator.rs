@@ -255,7 +255,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     config: &'run Config,
     dotenv: &'run BTreeMap<String, String>,
     parameters: &[Parameter<'src>],
-    arguments: &[&str],
+    arguments: &[String],
     scope: &'run Scope<'src, 'run>,
     settings: &'run Settings,
     search: &'run Search,
