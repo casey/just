@@ -59,12 +59,15 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
         if self.evaluated.contains(variable) {
           Ok(())
         } else if self.stack.contains(&variable) {
-          let token = self.assignments[variable].name.token;
           self.stack.push(variable);
-          Err(token.error(CircularVariableDependency {
-            variable,
-            circle: self.stack.clone(),
-          }))
+          Err(
+            self.assignments[variable]
+              .name
+              .error(CircularVariableDependency {
+                variable,
+                circle: self.stack.clone(),
+              }),
+          )
         } else if self.assignments.contains_key(variable) {
           self.resolve_assignment(variable)
         } else {

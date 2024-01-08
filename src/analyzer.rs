@@ -238,10 +238,9 @@ impl<'src> Analyzer<'src> {
     recipes: &Table<'src, Rc<Recipe<'src>>>,
     alias: Alias<'src, Name<'src>>,
   ) -> CompileResult<'src, Alias<'src>> {
-    let token = alias.name.token;
     // Make sure the alias doesn't conflict with any recipe
     if let Some(recipe) = recipes.get(alias.name.lexeme()) {
-      return Err(token.error(AliasShadowsRecipe {
+      return Err(alias.name.token.error(AliasShadowsRecipe {
         alias: alias.name.lexeme(),
         recipe_line: recipe.line_number(),
       }));
@@ -250,7 +249,7 @@ impl<'src> Analyzer<'src> {
     // Make sure the target recipe exists
     match recipes.get(alias.target.lexeme()) {
       Some(target) => Ok(alias.resolve(Rc::clone(target))),
-      None => Err(token.error(UnknownAliasTarget {
+      None => Err(alias.name.token.error(UnknownAliasTarget {
         alias: alias.name.lexeme(),
         target: alias.target.lexeme(),
       })),
