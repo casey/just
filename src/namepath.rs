@@ -5,7 +5,7 @@ pub(crate) struct Namepath<'src>(Vec<Name<'src>>);
 
 impl<'src> Namepath<'src> {
   pub(crate) fn join(&self, name: Name<'src>) -> Self {
-    Self(self.0.iter().cloned().chain(iter::once(name)).collect())
+    Self(self.0.iter().copied().chain(iter::once(name)).collect())
   }
 }
 
@@ -20,7 +20,7 @@ impl<'str> Serialize for Namepath<'str> {
       if i > 0 {
         path.push_str("::");
       }
-      path.push_str(&name.lexeme());
+      path.push_str(name.lexeme());
     }
 
     serializer.serialize_str(&path)

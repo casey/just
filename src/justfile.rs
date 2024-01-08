@@ -286,7 +286,8 @@ impl<'src> Justfile<'src> {
         &invocation
           .arguments
           .iter()
-          .map(|argument| argument.to_string())
+          .copied()
+          .map(str::to_string)
           .collect::<Vec<String>>(),
         &dotenv,
         search,

@@ -56,7 +56,7 @@ impl Compiler {
             if let Some(import) = import {
               if srcs.contains_key(&import) {
                 return Err(Error::CircularImport {
-                  current: current.path.into(),
+                  current: current.path,
                   import,
                 });
               }
@@ -82,7 +82,7 @@ impl Compiler {
             if import.is_file() {
               if srcs.contains_key(&import) {
                 return Err(Error::CircularImport {
-                  current: current.path.into(),
+                  current: current.path,
                   import,
                 });
               }
@@ -96,7 +96,7 @@ impl Compiler {
         }
       }
 
-      asts.insert(current.path.into(), ast.clone());
+      asts.insert(current.path, ast.clone());
     }
 
     let justfile = Analyzer::analyze(&loaded, &paths, &asts, root)?;
