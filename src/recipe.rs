@@ -25,19 +25,19 @@ pub(crate) struct Recipe<'src, D = Dependency<'src>> {
   pub(crate) attributes: BTreeSet<Attribute>,
   pub(crate) body: Vec<Line<'src>>,
   pub(crate) dependencies: Vec<D>,
+  #[serde(skip)]
+  pub(crate) depth: u32,
   pub(crate) doc: Option<&'src str>,
   #[serde(skip)]
   pub(crate) file_path: PathBuf,
+  // todo: remove name
   pub(crate) name: Name<'src>,
+  pub(crate) namepath: Namepath<'src>,
   pub(crate) parameters: Vec<Parameter<'src>>,
   pub(crate) priors: usize,
   pub(crate) private: bool,
   pub(crate) quiet: bool,
   pub(crate) shebang: bool,
-  #[serde(skip)]
-  pub(crate) depth: u32,
-  #[serde(skip)]
-  pub(crate) namepath: Namepath<'src>,
 }
 
 impl<'src, D> Recipe<'src, D> {

@@ -8,3 +8,21 @@ impl<'src> Namepath<'src> {
     Self(self.0.iter().cloned().chain(iter::once(name)).collect())
   }
 }
+
+impl<'str> Serialize for Namepath<'str> {
+  fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+  where
+    S: Serializer,
+  {
+    let mut path = String::new();
+
+    for (i, name) in self.0.iter().enumerate() {
+      if i > 0 {
+        path.push_str("::");
+      }
+      path.push_str(&name.lexeme());
+    }
+
+    serializer.serialize_str(&path)
+  }
+}
