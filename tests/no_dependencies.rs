@@ -1,7 +1,7 @@
 use super::*;
 
 #[test]
-fn ignore_normal_dependency() {
+fn skip_normal_dependency() {
   Test::new()
     .justfile(
       "
@@ -17,7 +17,7 @@ fn ignore_normal_dependency() {
 }
 
 #[test]
-fn ignore_prior_dependency() {
+fn skip_prior_dependency() {
   Test::new()
     .justfile(
       "
@@ -33,7 +33,7 @@ fn ignore_prior_dependency() {
 }
 
 #[test]
-fn ignore_dependency_multi() {
+fn skip_dependency_multi() {
   Test::new()
     .justfile(
       "
