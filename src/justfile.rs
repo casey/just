@@ -281,13 +281,12 @@ impl<'src> Justfile<'src> {
       };
 
       Self::run_recipe(
-        &context,
-        invocation.recipe,
         &invocation.arguments,
+        &context,
         &dotenv,
-        search,
         &mut ran,
-        config.no_dependencies,
+        invocation.recipe,
+        search,
       )?;
     }
 
@@ -398,13 +397,12 @@ impl<'src> Justfile<'src> {
   }
 
   fn run_recipe(
-    context: &RecipeContext<'src, '_>,
-    recipe: &Recipe<'src>,
     arguments: &[&str],
+    context: &RecipeContext<'src, '_>,
     dotenv: &BTreeMap<String, String>,
-    search: &Search,
     ran: &mut BTreeSet<Vec<String>>,
-    no_dependencies: bool,
+    recipe: &Recipe<'src>,
+    search: &Search,
   ) -> RunResult<'src> {
     let mut invocation = vec![recipe.name().to_owned()];
     for argument in arguments {
@@ -436,7 +434,7 @@ impl<'src> Justfile<'src> {
     let mut evaluator =
       Evaluator::recipe_evaluator(context.config, dotenv, &scope, context.settings, search);
 
-    if !no_dependencies {
+    if !context.config.no_dependencies {
       for Dependency { recipe, arguments } in recipe.dependencies.iter().take(recipe.priors) {
         let arguments = arguments
           .iter()
@@ -444,20 +442,19 @@ impl<'src> Justfile<'src> {
           .collect::<RunResult<Vec<String>>>()?;
 
         Self::run_recipe(
-          context,
-          recipe,
           &arguments.iter().map(String::as_ref).collect::<Vec<&str>>(),
+          context,
           dotenv,
-          search,
           ran,
-          false,
+          recipe,
+          search,
         )?;
       }
     }
 
     recipe.run(context, dotenv, scope.child(), search, &positional)?;
 
-    if !no_dependencies {
+    if !context.config.no_dependencies {
       let mut ran = BTreeSet::new();
 
       for Dependency { recipe, arguments } in recipe.dependencies.iter().skip(recipe.priors) {
@@ -468,13 +465,12 @@ impl<'src> Justfile<'src> {
         }
 
         Self::run_recipe(
-          context,
-          recipe,
           &evaluated.iter().map(String::as_ref).collect::<Vec<&str>>(),
+          context,
           dotenv,
-          search,
           &mut ran,
-          false,
+          recipe,
+          search,
         )?;
       }
     }
