@@ -13,17 +13,17 @@ impl Compiler {
     let mut srcs: HashMap<PathBuf, &str> = HashMap::new();
     let mut loaded = Vec::new();
 
-    let mut stack: Vec<(PathBuf, u32)> = Vec::new();
-    stack.push((root.into(), 0));
+    let mut stack = Vec::new();
+    stack.push(Source::root(root));
 
-    while let Some((current, depth)) = stack.pop() {
-      let (relative, src) = loader.load(root, &current)?;
+    while let Some(current) = stack.pop() {
+      let (relative, src) = loader.load(root, &current.path)?;
       loaded.push(relative.into());
       let tokens = Lexer::lex(relative, src)?;
-      let mut ast = Parser::parse(depth, &current, &tokens)?;
+      let mut ast = Parser::parse(&current.path, &current.namepath, current.depth, &tokens)?;
 
-      paths.insert(current.clone(), relative.into());
-      srcs.insert(current.clone(), src);
+      paths.insert(current.path.clone(), relative.into());
+      srcs.insert(current.path.clone(), src);
 
       for item in &mut ast.items {
         match item {
@@ -39,7 +39,7 @@ impl Compiler {
               });
             }
 
-            let parent = current.parent().unwrap();
+            let parent = current.path.parent().unwrap();
 
             let import = if let Some(relative) = relative {
               let path = parent.join(Self::expand_tilde(&relative.cooked)?);
@@ -55,10 +55,13 @@ impl Compiler {
 
             if let Some(import) = import {
               if srcs.contains_key(&import) {
-                return Err(Error::CircularImport { current, import });
+                return Err(Error::CircularImport {
+                  current: current.path,
+                  import,
+                });
               }
               *absolute = Some(import.clone());
-              stack.push((import, depth + 1));
+              stack.push(current.module(*name, import));
             } else if !*optional {
               return Err(Error::MissingModuleFile { module: *name });
             }
@@ -70,6 +73,7 @@ impl Compiler {
             path,
           } => {
             let import = current
+              .path
               .parent()
               .unwrap()
               .join(Self::expand_tilde(&relative.cooked)?)
@@ -77,10 +81,13 @@ impl Compiler {
 
             if import.is_file() {
               if srcs.contains_key(&import) {
-                return Err(Error::CircularImport { current, import });
+                return Err(Error::CircularImport {
+                  current: current.path,
+                  import,
+                });
               }
               *absolute = Some(import.clone());
-              stack.push((import, depth + 1));
+              stack.push(current.import(import));
             } else if !*optional {
               return Err(Error::MissingImportFile { path: *path });
             }
@@ -89,7 +96,7 @@ impl Compiler {
         }
       }
 
-      asts.insert(current.clone(), ast.clone());
+      asts.insert(current.path, ast.clone());
     }
 
     let justfile = Analyzer::analyze(&loaded, &paths, &asts, root)?;
@@ -155,7 +162,7 @@ impl Compiler {
   #[cfg(test)]
   pub(crate) fn test_compile(src: &str) -> CompileResult<Justfile> {
     let tokens = Lexer::test_lex(src)?;
-    let ast = Parser::parse(0, &PathBuf::new(), &tokens)?;
+    let ast = Parser::parse(&PathBuf::new(), &Namepath::default(), 0, &tokens)?;
     let root = PathBuf::from("justfile");
     let mut asts: HashMap<PathBuf, Ast> = HashMap::new();
     asts.insert(root.clone(), ast);

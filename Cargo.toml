@@ -1,6 +1,6 @@
 [package]
 name = "just"
-version = "1.22.0"
+version = "1.22.1"
 authors = ["Casey Rodarmor <casey@rodarmor.com>"]
 autotests = false
 categories = ["command-line-utilities", "development-tools"]
@@ -39,7 +39,7 @@ serde = { version = "1.0.130", features = ["derive", "rc"] }
 serde_json = "1.0.68"
 sha2 = "0.10"
 similar = { version = "2.1.0", features = ["unicode"] }
-snafu = "0.7.0"
+snafu = "0.8.0"
 strum = { version = "0.25.0", features = ["derive"] }
 target = "2.0.0"
 tempfile = "3.0.0"
