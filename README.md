@@ -2456,7 +2456,7 @@ line:
 Now only the lines starting with `@` will be echoed:
 
 ```sh
-$ j quiet
+$ just quiet
 hello
 goodbye
 # all done!
