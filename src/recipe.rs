@@ -25,17 +25,18 @@ pub(crate) struct Recipe<'src, D = Dependency<'src>> {
   pub(crate) attributes: BTreeSet<Attribute>,
   pub(crate) body: Vec<Line<'src>>,
   pub(crate) dependencies: Vec<D>,
-  pub(crate) doc: Option<&'src str>,
-  pub(crate) name: Name<'src>,
-  pub(crate) parameters: Vec<Parameter<'src>>,
   #[serde(skip)]
-  pub(crate) path: PathBuf,
+  pub(crate) depth: u32,
+  pub(crate) doc: Option<&'src str>,
+  #[serde(skip)]
+  pub(crate) file_path: PathBuf,
+  pub(crate) name: Name<'src>,
+  pub(crate) namepath: Namepath<'src>,
+  pub(crate) parameters: Vec<Parameter<'src>>,
   pub(crate) priors: usize,
   pub(crate) private: bool,
   pub(crate) quiet: bool,
   pub(crate) shebang: bool,
-  #[serde(skip)]
-  pub(crate) depth: u32,
 }
 
 impl<'src, D> Recipe<'src, D> {
@@ -93,7 +94,7 @@ impl<'src, D> Recipe<'src, D> {
     Ok(())
   }
 
-  pub(crate) fn public(&self) -> bool {
+  pub(crate) fn is_public(&self) -> bool {
     !self.private && !self.attributes.contains(&Attribute::Private)
   }
 
@@ -223,7 +224,7 @@ impl<'src, D> Recipe<'src, D> {
 
       if self.change_directory() {
         cmd.current_dir(if self.depth > 0 {
-          self.path.parent().unwrap()
+          self.file_path.parent().unwrap()
         } else {
           &context.search.working_directory
         });
@@ -305,7 +306,7 @@ impl<'src, D> Recipe<'src, D> {
     })?;
 
     let mut tempdir_builder = tempfile::Builder::new();
-    tempdir_builder.prefix("just");
+    tempdir_builder.prefix("just-");
     let tempdir = match &context.settings.tempdir {
       Some(tempdir) => tempdir_builder.tempdir_in(context.search.working_directory.join(tempdir)),
       None => tempdir_builder.tempdir(),
@@ -363,7 +364,7 @@ impl<'src, D> Recipe<'src, D> {
       &path,
       if self.change_directory() {
         if self.depth > 0 {
-          Some(self.path.parent().unwrap())
+          Some(self.file_path.parent().unwrap())
         } else {
           Some(&context.search.working_directory)
         }

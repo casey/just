@@ -445,7 +445,7 @@ impl Subcommand {
     let mut line_widths: BTreeMap<&str, usize> = BTreeMap::new();
 
     for (name, recipe) in &justfile.recipes {
-      if recipe.private {
+      if !recipe.is_public() {
         continue;
       }
 

@@ -271,7 +271,7 @@ impl<'src> Justfile<'src> {
       });
     }
 
-    let mut ran = BTreeSet::new();
+    let mut ran = Ran::default();
     for invocation in invocations {
       let context = RecipeContext {
         settings: invocation.settings,
@@ -281,7 +281,12 @@ impl<'src> Justfile<'src> {
       };
 
       Self::run_recipe(
-        &invocation.arguments,
+        &invocation
+          .arguments
+          .iter()
+          .copied()
+          .map(str::to_string)
+          .collect::<Vec<String>>(),
         &context,
         &dotenv,
         &mut ran,
@@ -397,19 +402,14 @@ impl<'src> Justfile<'src> {
   }
 
   fn run_recipe(
-    arguments: &[&str],
+    arguments: &[String],
     context: &RecipeContext<'src, '_>,
     dotenv: &BTreeMap<String, String>,
-    ran: &mut BTreeSet<Vec<String>>,
+    ran: &mut Ran<'src>,
     recipe: &Recipe<'src>,
     search: &Search,
   ) -> RunResult<'src> {
-    let mut invocation = vec![recipe.name().to_owned()];
-    for argument in arguments {
-      invocation.push((*argument).to_string());
-    }
-
-    if ran.contains(&invocation) {
+    if ran.has_run(&recipe.namepath, arguments) {
       return Ok(());
     }
 
@@ -441,21 +441,14 @@ impl<'src> Justfile<'src> {
           .map(|argument| evaluator.evaluate_expression(argument))
           .collect::<RunResult<Vec<String>>>()?;
 
-        Self::run_recipe(
-          &arguments.iter().map(String::as_ref).collect::<Vec<&str>>(),
-          context,
-          dotenv,
-          ran,
-          recipe,
-          search,
-        )?;
+        Self::run_recipe(&arguments, context, dotenv, ran, recipe, search)?;
       }
     }
 
     recipe.run(context, dotenv, scope.child(), search, &positional)?;
 
     if !context.config.no_dependencies {
-      let mut ran = BTreeSet::new();
+      let mut ran = Ran::default();
 
       for Dependency { recipe, arguments } in recipe.dependencies.iter().skip(recipe.priors) {
         let mut evaluated = Vec::new();
@@ -464,18 +457,11 @@ impl<'src> Justfile<'src> {
           evaluated.push(evaluator.evaluate_expression(argument)?);
         }
 
-        Self::run_recipe(
-          &evaluated.iter().map(String::as_ref).collect::<Vec<&str>>(),
-          context,
-          dotenv,
-          &mut ran,
-          recipe,
-          search,
-        )?;
+        Self::run_recipe(&evaluated, context, dotenv, &mut ran, recipe, search)?;
       }
     }
 
-    ran.insert(invocation);
+    ran.ran(&recipe.namepath, arguments.to_vec());
     Ok(())
   }
 
@@ -484,7 +470,7 @@ impl<'src> Justfile<'src> {
       .recipes
       .values()
       .map(AsRef::as_ref)
-      .filter(|recipe| recipe.public())
+      .filter(|recipe| recipe.is_public())
       .collect::<Vec<&Recipe<Dependency>>>();
 
     if source_order {
