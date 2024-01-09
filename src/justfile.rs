@@ -281,17 +281,17 @@ impl<'src> Justfile<'src> {
       };
 
       Self::run_recipe(
-        &context,
-        invocation.recipe,
         &invocation
           .arguments
           .iter()
           .copied()
           .map(str::to_string)
           .collect::<Vec<String>>(),
+        &context,
         &dotenv,
-        search,
         &mut ran,
+        invocation.recipe,
+        search,
       )?;
     }
 
@@ -402,12 +402,12 @@ impl<'src> Justfile<'src> {
   }
 
   fn run_recipe(
-    context: &RecipeContext<'src, '_>,
-    recipe: &Recipe<'src>,
     arguments: &[String],
+    context: &RecipeContext<'src, '_>,
     dotenv: &BTreeMap<String, String>,
-    search: &Search,
     ran: &mut Ran<'src>,
+    recipe: &Recipe<'src>,
+    search: &Search,
   ) -> RunResult<'src> {
     if ran.has_run(&recipe.namepath, arguments) {
       return Ok(());
@@ -434,18 +434,20 @@ impl<'src> Justfile<'src> {
     let mut evaluator =
       Evaluator::recipe_evaluator(context.config, dotenv, &scope, context.settings, search);
 
-    for Dependency { recipe, arguments } in recipe.dependencies.iter().take(recipe.priors) {
-      let arguments = arguments
-        .iter()
-        .map(|argument| evaluator.evaluate_expression(argument))
-        .collect::<RunResult<Vec<String>>>()?;
+    if !context.config.no_dependencies {
+      for Dependency { recipe, arguments } in recipe.dependencies.iter().take(recipe.priors) {
+        let arguments = arguments
+          .iter()
+          .map(|argument| evaluator.evaluate_expression(argument))
+          .collect::<RunResult<Vec<String>>>()?;
 
-      Self::run_recipe(context, recipe, &arguments, dotenv, search, ran)?;
+        Self::run_recipe(&arguments, context, dotenv, ran, recipe, search)?;
+      }
     }
 
     recipe.run(context, dotenv, scope.child(), search, &positional)?;
 
-    {
+    if !context.config.no_dependencies {
       let mut ran = Ran::default();
 
       for Dependency { recipe, arguments } in recipe.dependencies.iter().skip(recipe.priors) {
@@ -455,7 +457,7 @@ impl<'src> Justfile<'src> {
           evaluated.push(evaluator.evaluate_expression(argument)?);
         }
 
-        Self::run_recipe(context, recipe, &evaluated, dotenv, search, &mut ran)?;
+        Self::run_recipe(&evaluated, context, dotenv, &mut ran, recipe, search)?;
       }
     }
 
