@@ -218,6 +218,7 @@ impl Config {
       .arg (
         Arg::with_name(arg::NO_DEPS)
           .long("no-deps")
+          .alias("no-dependencies")
           .help("Don't run recipe dependencies")
       )
       .arg(
@@ -900,8 +901,14 @@ mod tests {
   }
 
   test! {
-    name: no_dependencies,
+    name: no_deps,
     args: ["--no-deps"],
+    no_dependencies: true,
+  }
+
+  test! {
+    name: no_dependencies,
+    args: ["--no-dependencies"],
     no_dependencies: true,
   }
 
