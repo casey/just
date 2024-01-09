@@ -103,7 +103,7 @@ mod arg {
   pub(crate) const JUSTFILE: &str = "JUSTFILE";
   pub(crate) const LIST_HEADING: &str = "LIST-HEADING";
   pub(crate) const LIST_PREFIX: &str = "LIST-PREFIX";
-  pub(crate) const NO_DEP: &str = "NO-DEP";
+  pub(crate) const NO_DEPS: &str = "NO-DEPS";
   pub(crate) const NO_DOTENV: &str = "NO-DOTENV";
   pub(crate) const NO_HIGHLIGHT: &str = "NO-HIGHLIGHT";
   pub(crate) const QUIET: &str = "QUIET";
@@ -216,9 +216,9 @@ impl Config {
           .takes_value(true),
       )
       .arg (
-        Arg::with_name(arg::NO_DEP)
-          .long("no-dep")
-          .help("Don't run dependencies of the selected recipes")
+        Arg::with_name(arg::NO_DEPS)
+          .long("no-deps")
+          .help("Don't run recipe dependencies")
       )
       .arg(
         Arg::with_name(arg::NO_DOTENV)
@@ -657,7 +657,7 @@ impl Config {
         .unwrap_or("    ")
         .to_owned(),
       load_dotenv: !matches.is_present(arg::NO_DOTENV),
-      no_dependencies: matches.is_present(arg::NO_DEP),
+      no_dependencies: matches.is_present(arg::NO_DEPS),
       search_config,
       shell: matches.value_of(arg::SHELL).map(str::to_owned),
       shell_args,
@@ -901,7 +901,7 @@ mod tests {
 
   test! {
     name: no_dependencies,
-    args: ["--no-dep"],
+    args: ["--no-deps"],
     no_dependencies: true,
   }
 

@@ -11,7 +11,7 @@ fn ignore_normal_dependency() {
           @echo 'b'
         ",
     )
-    .args(["--no-dep", "b"])
+    .args(["--no-deps", "b"])
     .stdout("b\n")
     .run();
 }
@@ -27,7 +27,7 @@ fn ignore_prior_dependency() {
             @echo 'b'
         ",
     )
-    .args(["--no-dep", "b"])
+    .args(["--no-deps", "b"])
     .stdout("b\n")
     .run();
 }
@@ -43,7 +43,7 @@ fn ignore_dependency_multi() {
               @echo 'b'
           ",
     )
-    .args(["--no-dep", "b", "a"])
+    .args(["--no-deps", "b", "a"])
     .stdout("b\na\n")
     .run();
 }
