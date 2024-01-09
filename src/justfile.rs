@@ -468,7 +468,7 @@ impl<'src> Justfile<'src> {
       .recipes
       .values()
       .map(AsRef::as_ref)
-      .filter(|recipe| recipe.public())
+      .filter(|recipe| recipe.is_public())
       .collect::<Vec<&Recipe<Dependency>>>();
 
     if source_order {

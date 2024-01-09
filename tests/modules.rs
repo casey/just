@@ -686,6 +686,37 @@ fn module_paths_beginning_with_tilde_are_expanded_to_homdir() {
 }
 
 #[test]
+fn module_recipe_list_alignment_ignores_private_recipes() {
+  Test::new()
+    .write(
+      "foo.just",
+      "
+# foos
+foo:
+ @echo FOO
+
+[private]
+barbarbar:
+ @echo BAR
+
+@_bazbazbaz:
+ @echo BAZ
+      ",
+    )
+    .justfile("mod foo")
+    .test_round_trip(false)
+    .arg("--unstable")
+    .arg("--list")
+    .stdout(
+      "Available recipes:
+    foo:
+        foo # foos
+",
+    )
+    .run();
+}
+
+#[test]
 fn recipes_with_same_name_are_both_run() {
   Test::new()
     .write("foo.just", "bar:\n @echo MODULE")
