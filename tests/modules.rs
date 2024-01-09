@@ -707,6 +707,11 @@ barbarbar:
     .test_round_trip(false)
     .arg("--unstable")
     .arg("--list")
-    .stdout("Available recipes:\n    foo:\n        foo # foos\n")
+    .stdout(
+      "Available recipes:
+    foo:
+        foo # foos
+",
+    )
     .run();
 }

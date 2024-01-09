@@ -93,7 +93,7 @@ impl<'src, D> Recipe<'src, D> {
     Ok(())
   }
 
-  pub(crate) fn public(&self) -> bool {
+  pub(crate) fn is_public(&self) -> bool {
     !self.private && !self.attributes.contains(&Attribute::Private)
   }
 
