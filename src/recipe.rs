@@ -306,7 +306,7 @@ impl<'src, D> Recipe<'src, D> {
     })?;
 
     let mut tempdir_builder = tempfile::Builder::new();
-    tempdir_builder.prefix("just");
+    tempdir_builder.prefix("just-");
     let tempdir = match &context.settings.tempdir {
       Some(tempdir) => tempdir_builder.tempdir_in(context.search.working_directory.join(tempdir)),
       None => tempdir_builder.tempdir(),
