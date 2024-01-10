@@ -35,7 +35,7 @@ impl Display for CompileError<'_> {
       AliasInvalidAttribute { alias, attr } => write!(
         f,
         "Alias {alias} has an invalid attribute `{}`",
-        attr.to_str(),
+        attr.clone().to_str(),
       ),
       AliasShadowsRecipe { alias, recipe_line } => write!(
         f,

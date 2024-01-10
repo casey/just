@@ -1,12 +1,10 @@
 use super::*;
 
-#[derive(
-  EnumString, PartialEq, Debug, Copy, Clone, Serialize, Ord, PartialOrd, Eq, IntoStaticStr,
-)]
+#[derive(EnumString, PartialEq, Debug, Clone, Serialize, Ord, PartialOrd, Eq, IntoStaticStr)]
 #[strum(serialize_all = "kebab-case")]
 #[serde(rename_all = "kebab-case")]
 pub(crate) enum Attribute {
-  Confirm,
+  Confirm(Option<Box<str>>),
   Linux,
   Macos,
   NoCd,
@@ -21,7 +19,7 @@ impl Attribute {
     name.lexeme().parse().ok()
   }
 
-  pub(crate) fn to_str(self) -> &'static str {
+  pub(crate) fn to_str(&self) -> &'static str {
     self.into()
   }
 }

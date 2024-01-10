@@ -215,7 +215,7 @@ impl<'src> Analyzer<'src> {
       if *attr != Attribute::Private {
         return Err(alias.name.token.error(AliasInvalidAttribute {
           alias: name,
-          attr: *attr,
+          attr: attr.clone(),
         }));
       }
     }
