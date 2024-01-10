@@ -651,3 +651,12 @@ fn sha256_file() {
     .stdout("177b3d79aaafb53a7a4d7aaba99a82f27c73370e8cb0295571aade1e4fea1cd2")
     .run();
 }
+
+#[test]
+fn just_pid() {
+  let mut test = Test::new()
+    .args(["--evaluate", "x"])
+    .justfile("x := just_pid()");
+  let child = test.spawn();
+  test.stdout(child.id().to_string()).check_output(child);
+}
