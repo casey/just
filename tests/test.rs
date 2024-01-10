@@ -179,6 +179,11 @@ impl Test {
 }
 
 impl Test {
+  pub(crate) fn run(mut self) -> Output {
+    let child = self.spawn();
+    self.check_output(child)
+  }
+
   pub(crate) fn spawn(&mut self) -> Child {
     if let Some(justfile) = &self.justfile {
       let justfile = unindent(justfile);
@@ -264,11 +269,6 @@ impl Test {
       tempdir: self.tempdir,
       stdout: output_stdout.into(),
     }
-  }
-
-  pub(crate) fn run(mut self) -> Output {
-    let child = self.spawn();
-    self.check_output(child)
   }
 }
 
