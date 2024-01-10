@@ -103,3 +103,35 @@ fn do_not_confirm_recipe_with_confirm_recipe_dependency() {
     .status(1)
     .run();
 }
+
+#[test]
+fn confirm_recipe_with_prompt() {
+  Test::new()
+    .justfile(
+      "
+        [confirm(\"This is dangerous\")]
+        requires_confirmation:
+            echo confirmed
+        ",
+    )
+    .stderr("This is dangerous - Run recipe `requires_confirmation`? echo confirmed\n")
+    .stdout("confirmed\n")
+    .stdin("y")
+    .run();
+}
+
+#[test]
+fn confirm_recipe_arg_with_prompt() {
+  Test::new()
+    .arg("--yes")
+    .justfile(
+      "
+        [confirm(\"this is dangerous!\")]
+        requires_confirmation:
+            echo confirmed
+        ",
+    )
+    .stderr("echo confirmed\n")
+    .stdout("confirmed\n")
+    .run();
+}
