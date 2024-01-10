@@ -1,3 +1,5 @@
+use std::process::Child;
+
 use {super::*, pretty_assertions::assert_eq};
 
 macro_rules! test {
@@ -177,18 +179,11 @@ impl Test {
 }
 
 impl Test {
-  pub(crate) fn run(self) -> Output {
+  pub(crate) fn spawn(&mut self) -> Child {
     if let Some(justfile) = &self.justfile {
       let justfile = unindent(justfile);
       fs::write(self.justfile_path(), justfile).unwrap();
     }
-
-    let stdout = if self.unindent_stdout {
-      unindent(&self.stdout)
-    } else {
-      self.stdout
-    };
-    let stderr = unindent(&self.stderr);
 
     let mut dotenv_path = self.tempdir.path().to_path_buf();
     dotenv_path.push(".env");
@@ -200,15 +195,24 @@ impl Test {
       command.args(["--shell", "bash"]);
     }
 
-    let mut child = command
-      .args(self.args)
+    command
+      .args(self.args.drain(..))
       .envs(&self.env)
-      .current_dir(self.tempdir.path().join(self.current_dir))
+      .current_dir(self.tempdir.path().join(&self.current_dir))
       .stdin(Stdio::piped())
       .stdout(Stdio::piped())
       .stderr(Stdio::piped())
       .spawn()
-      .expect("just invocation failed");
+      .expect("just invocation failed")
+  }
+
+  pub(crate) fn check_output(self, mut child: Child) -> Output {
+    let stdout = if self.unindent_stdout {
+      unindent(&self.stdout)
+    } else {
+      self.stdout
+    };
+    let stderr = unindent(&self.stderr);
 
     {
       let mut stdin_handle = child.stdin.take().expect("failed to unwrap stdin handle");
@@ -260,6 +264,11 @@ impl Test {
       tempdir: self.tempdir,
       stdout: output_stdout.into(),
     }
+  }
+
+  pub(crate) fn run(mut self) -> Output {
+    let child = self.spawn();
+    self.check_output(child)
   }
 }
 
