@@ -917,7 +917,26 @@ impl<'run, 'src> Parser<'run, 'src> {
             first: *line,
           }));
         }
-        attributes.insert(attribute, name.line);
+        match attribute {
+          // Check if attribute is `confirm` and a prompt is specified
+          Attribute::Confirm(_) if self.next_is(ParenL) => {
+            self.expect(ParenL)?;
+
+            if self.next_is(StringToken) {
+              // Parse string literal
+              let prompt = self.parse_string_literal()?;
+
+              attributes.insert(
+                Attribute::Confirm(Some(prompt.cooked.into_boxed_str())),
+                name.line,
+              );
+            }
+            self.expect(ParenR)?;
+          }
+          _ => {
+            attributes.insert(attribute, name.line);
+          }
+        };
 
         if !self.accepted(Comma)? {
           break;

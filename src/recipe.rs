@@ -69,8 +69,15 @@ impl<'src, D> Recipe<'src, D> {
   }
 
   pub(crate) fn confirm(&self) -> RunResult<'src, bool> {
-    if self.attributes.contains(&Attribute::Confirm) {
-      eprint!("Run recipe `{}`? ", self.name);
+    if let Some(Attribute::Confirm(prompt_text)) = self
+      .attributes
+      .iter()
+      .find(|attr| matches!(attr, Attribute::Confirm(_)))
+    {
+      let optional_prompt_text: Box<str> = prompt_text
+        .as_ref()
+        .map_or(String::new().into_boxed_str(), |s| format!("{s} - ").into());
+      eprint!("{optional_prompt_text}Run recipe `{}`? ", self.name,);
       let mut line = String::new();
       std::io::stdin()
         .read_line(&mut line)
