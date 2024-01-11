@@ -69,24 +69,24 @@ impl<'src, D> Recipe<'src, D> {
   }
 
   pub(crate) fn confirm(&self) -> RunResult<'src, bool> {
-    if let Some(Attribute::Confirm(prompt_text)) = self
-      .attributes
-      .iter()
-      .find(|attr| matches!(attr, Attribute::Confirm(_)))
-    {
-      let optional_prompt_text: Box<str> = prompt_text
-        .as_ref()
-        .map_or(String::new().into_boxed_str(), |s| format!("{s} - ").into());
-      eprint!("{optional_prompt_text}Run recipe `{}`? ", self.name,);
-      let mut line = String::new();
-      std::io::stdin()
-        .read_line(&mut line)
-        .map_err(|io_error| Error::GetConfirmation { io_error })?;
-      let line = line.trim().to_lowercase();
-      Ok(line == "y" || line == "yes")
-    } else {
-      Ok(true)
+    // Iterate through the attributes and check if any of them are a confirm
+    // If a `confirm` attribute is found, print a prompt and wait for user input
+    // else return true
+    for attribute in &self.attributes {
+      if let Attribute::Confirm(prompt) = attribute {
+        let prompt: String = prompt
+          .as_ref()
+          .map_or_else(|| format!("Run recipe `{}`?", self.name), std::borrow::ToOwned::to_owned);
+        eprint!("{prompt} ");
+        let mut line = String::new();
+        std::io::stdin()
+          .read_line(&mut line)
+          .map_err(|io_error| Error::GetConfirmation { io_error })?;
+        let line = line.trim().to_lowercase();
+        return Ok(line == "y" || line == "yes");
+      }
     }
+    Ok(true)
   }
 
   pub(crate) fn check_can_be_default_recipe(&self) -> RunResult<'src, ()> {
