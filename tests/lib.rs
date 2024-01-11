@@ -21,7 +21,7 @@ pub(crate) use {
     io::Write,
     iter,
     path::{Path, PathBuf, MAIN_SEPARATOR},
-    process::{Command, Stdio},
+    process::{Command, Child, Stdio},
     str,
   },
   tempfile::TempDir,

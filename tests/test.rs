@@ -1,5 +1,3 @@
-use std::process::Child;
-
 use {super::*, pretty_assertions::assert_eq};
 
 macro_rules! test {
