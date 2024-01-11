@@ -1424,20 +1424,13 @@ functions follow the
 and use implementation provided by the
 [`dirs`](https://docs.rs/dirs/latest/dirs/index.html) crate.
 
-- `cache_directory()` - Locate the user-specific cache directory. Returns an
-   empty string if it could not be found.
-- `config_directory()` - Locate the user-specific config directory. Returns an
-   empty string if it could not be found.
-- `config_local_directory()` - Locate the user-specific config_local directory.
-   Returns an empty string if it could not be found.
-- `data_directory()` - Locate the user-specific data directory. Returns an empty
-   string if it could not be found.
-- `data_local_directory()` - Locate the user-specific data_local directory.
-   Returns an empty string if it could not be found.
-- `executable_directory()` - Locate the user-specific executable directory.
-   Returns an empty string if it could not be found.
-- `home_directory()` - Locate the user-specific home directory. Returns an empty
-   string if it could not be found.
+- `cache_directory()` - The user-specific cache directory.
+- `config_directory()` - The user-specific configuration directory.
+- `config_local_directory()` - The local user-specific configuration directory.
+- `data_directory()` - The user-specific data directory.
+- `data_local_directory()` - The local user-specific data directory.
+- `executable_directory()` - The user-specific executable directory.
+- `home_directory()` - The user's home directory.
 
 ### Recipe Attributes
 
