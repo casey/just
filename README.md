@@ -1418,7 +1418,8 @@ which will halt execution.
 ##### XDG Directories
 
 These functions return paths to user-specific directories for things like
-configuration, data, and caches. These functions follow the
+configuration, data, caches, executables, and the user's home directory. These
+functions follow the
 [XDG Base Directory Specification](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html),
 and use implementation provided by the
 [`dirs`](https://docs.rs/dirs/latest/dirs/index.html) crate.
