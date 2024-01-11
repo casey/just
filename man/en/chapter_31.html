@@ -362,6 +362,22 @@ hexadecimal string.</li>
 <code>requirement</code>, e.g., <code>&quot;&gt;=0.1.0&quot;</code>, returning <code>&quot;true&quot;</code> if so and <code>&quot;false&quot;</code>
 otherwise.</li>
 </ul>
+<h5 id="xdg-directories"><a class="header" href="#xdg-directories">XDG Directories</a></h5>
+<p>These functions return paths to user-specific directories for things like
+configuration, data, caches, executables, and the user’s home directory. These
+functions follow the
+<a href="https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html">XDG Base Directory Specification</a>,
+and are implemented with the
+<a href="https://docs.rs/dirs/latest/dirs/index.html"><code>dirs</code></a> crate.</p>
+<ul>
+<li><code>cache_directory()</code> - The user-specific cache directory.</li>
+<li><code>config_directory()</code> - The user-specific configuration directory.</li>
+<li><code>config_local_directory()</code> - The local user-specific configuration directory.</li>
+<li><code>data_directory()</code> - The user-specific data directory.</li>
+<li><code>data_local_directory()</code> - The local user-specific data directory.</li>
+<li><code>executable_directory()</code> - The user-specific executable directory.</li>
+<li><code>home_directory()</code> - The user’s home directory.</li>
+</ul>
 
                     </main>
 
