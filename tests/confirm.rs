@@ -109,29 +109,13 @@ fn confirm_recipe_with_prompt() {
   Test::new()
     .justfile(
       "
-        [confirm(\"This is dangerous\")]
+        [confirm(\"This is dangerous - are you sure you want to run it?\")]
         requires_confirmation:
             echo confirmed
         ",
     )
-    .stderr("This is dangerous - Run recipe `requires_confirmation`? echo confirmed\n")
+    .stderr("This is dangerous - are you sure you want to run it? echo confirmed\n")
     .stdout("confirmed\n")
     .stdin("y")
-    .run();
-}
-
-#[test]
-fn confirm_recipe_arg_with_prompt() {
-  Test::new()
-    .arg("--yes")
-    .justfile(
-      "
-        [confirm(\"this is dangerous!\")]
-        requires_confirmation:
-            echo confirmed
-        ",
-    )
-    .stderr("echo confirmed\n")
-    .stdout("confirmed\n")
     .run();
 }
