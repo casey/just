@@ -503,18 +503,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
 
   /// Parse a conditional, e.g. `if a == b { "foo" } else { "bar" }`
   fn parse_conditional(&mut self) -> CompileResult<'src, Expression<'src>> {
-    let lhs = self.parse_expression()?;
-
-    let operator = if self.accepted(BangEquals)? {
-      ConditionalOperator::Inequality
-    } else if self.accepted(EqualsTilde)? {
-      ConditionalOperator::RegexMatch
-    } else {
-      self.expect(EqualsEquals)?;
-      ConditionalOperator::Equality
-    };
-
-    let rhs = self.parse_expression()?;
+    let condition = self.parse_condition()?;
 
     self.expect(BraceL)?;
 
@@ -534,10 +523,26 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     };
 
     Ok(Expression::Conditional {
-      lhs: Box::new(lhs),
-      rhs: Box::new(rhs),
+      condition,
       then: Box::new(then),
       otherwise: Box::new(otherwise),
+    })
+  }
+
+  fn parse_condition(&mut self) -> CompileResult<'src, Condition<'src>> {
+    let lhs = self.parse_expression()?;
+    let operator = if self.accepted(BangEquals)? {
+      ConditionalOperator::Inequality
+    } else if self.accepted(EqualsTilde)? {
+      ConditionalOperator::RegexMatch
+    } else {
+      self.expect(EqualsEquals)?;
+      ConditionalOperator::Equality
+    };
+    let rhs = self.parse_expression()?;
+    Ok(Condition {
+      lhs: Box::new(lhs),
+      rhs: Box::new(rhs),
       operator,
     })
   }
@@ -563,18 +568,26 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
       if contents.starts_with("#!") {
         return Err(next.error(CompileErrorKind::BacktickShebang));
       }
-
       Ok(Expression::Backtick { contents, token })
     } else if self.next_is(Identifier) {
-      let name = self.parse_name()?;
-
-      if self.next_is(ParenL) {
-        let arguments = self.parse_sequence()?;
-        Ok(Expression::Call {
-          thunk: Thunk::resolve(name, arguments)?,
-        })
+      if self.accepted_keyword(Keyword::Assert)? {
+        self.expect(ParenL)?;
+        let condition = self.parse_condition()?;
+        self.expect(Comma)?;
+        let error = Box::new(self.parse_expression()?);
+        self.expect(ParenR)?;
+        Ok(Expression::Assert { condition, error })
       } else {
-        Ok(Expression::Variable { name })
+        let name = self.parse_name()?;
+
+        if self.next_is(ParenL) {
+          let arguments = self.parse_sequence()?;
+          Ok(Expression::Call {
+            thunk: Thunk::resolve(name, arguments)?,
+          })
+        } else {
+          Ok(Expression::Variable { name })
+        }
       }
     } else if self.next_is(ParenL) {
       self.presume(ParenL)?;
@@ -2048,6 +2061,18 @@ mod tests {
     name: optional_module_with_path,
     text: "mod? foo \"some/file/path.txt\"     \n",
     tree: (justfile (mod ? foo "some/file/path.txt")),
+  }
+
+  test! {
+    name: assert,
+    text: "a := assert(foo == \"bar\", \"error\")",
+    tree: (justfile (assignment a (assert foo == "bar" "error"))),
+  }
+
+  test! {
+    name: assert_conditional_condition,
+    text: "foo := assert(if a != b { c } else { d } == \"abc\", \"error\")",
+    tree: (justfile (assignment foo (assert (if a != b c d) == "abc" "error"))),
   }
 
   error! {

@@ -171,22 +171,11 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         Ok(self.evaluate_expression(lhs)? + &self.evaluate_expression(rhs)?)
       }
       Expression::Conditional {
-        lhs,
-        rhs,
+        condition,
         then,
         otherwise,
-        operator,
       } => {
-        let lhs_value = self.evaluate_expression(lhs)?;
-        let rhs_value = self.evaluate_expression(rhs)?;
-        let condition = match operator {
-          ConditionalOperator::Equality => lhs_value == rhs_value,
-          ConditionalOperator::Inequality => lhs_value != rhs_value,
-          ConditionalOperator::RegexMatch => Regex::new(&rhs_value)
-            .map_err(|source| Error::RegexCompile { source })?
-            .is_match(&lhs_value),
-        };
-        if condition {
+        if self.evaluate_condition(condition)? {
           self.evaluate_expression(then)
         } else {
           self.evaluate_expression(otherwise)
@@ -198,7 +187,29 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         lhs: Some(lhs),
         rhs,
       } => Ok(self.evaluate_expression(lhs)? + "/" + &self.evaluate_expression(rhs)?),
+      Expression::Assert { condition, error } => {
+        if self.evaluate_condition(condition)? {
+          Ok(String::new())
+        } else {
+          Err(Error::Assert {
+            message: self.evaluate_expression(error)?,
+          })
+        }
+      }
     }
+  }
+
+  fn evaluate_condition(&mut self, condition: &Condition<'src>) -> RunResult<'src, bool> {
+    let lhs_value = self.evaluate_expression(&condition.lhs)?;
+    let rhs_value = self.evaluate_expression(&condition.rhs)?;
+    let condition = match condition.operator {
+      ConditionalOperator::Equality => lhs_value == rhs_value,
+      ConditionalOperator::Inequality => lhs_value != rhs_value,
+      ConditionalOperator::RegexMatch => Regex::new(&rhs_value)
+        .map_err(|source| Error::RegexCompile { source })?
+        .is_match(&lhs_value),
+    };
+    Ok(condition)
   }
 
   fn run_backtick(&self, raw: &str, token: &Token<'src>) -> RunResult<'src, String> {
