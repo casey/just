@@ -756,7 +756,7 @@ foo:
 #### Table of Settings
 
 | Name | Value | Default | Description |
-| -----| ------| ------- |-------------|
+|------|-------|---------|-------------|
 | `allow-duplicate-recipes` | boolean | `false` | Allow recipes appearing later in a `justfile` to override earlier recipes with the same name. |
 | `dotenv-filename` | string | - | Load a `.env` file with a custom name, if present. |
 | `dotenv-load` | boolean | `false` | Load a `.env` file, if present. |
@@ -1437,7 +1437,7 @@ and are implemented with the
 Recipes may be annotated with attributes that change their behavior.
 
 | Name | Description |
-| -----| ------------|
+|------|-------------|
 | `[confirm]`<sup>1.17.0</sup> | Require confirmation prior to executing recipe. |
 | `[linux]`<sup>1.8.0</sup> | Enable recipe on Linux. |
 | `[macos]`<sup>1.8.0</sup> | Enable recipe on MacOS. |
