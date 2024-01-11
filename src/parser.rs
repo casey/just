@@ -927,7 +927,7 @@ impl<'run, 'src> Parser<'run, 'src> {
               let prompt = self.parse_string_literal()?;
 
               attributes.insert(
-                Attribute::Confirm(Some(prompt.cooked.into_boxed_str())),
+                Attribute::Confirm(Some(prompt.cooked)),
                 name.line,
               );
             }
