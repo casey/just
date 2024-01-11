@@ -10,6 +10,9 @@ log := "warn"
 
 export JUST_LOG := log
 
+watch +args='test':
+  cargo watch --clear --exec '{{ args }}'
+
 test:
   cargo test
 
@@ -35,9 +38,6 @@ build:
 
 fmt:
   cargo fmt --all
-
-watch +COMMAND='test':
-  cargo watch --clear --exec "{{COMMAND}}"
 
 man:
   cargo build --features help4help2man

@@ -1,6 +1,17 @@
 Changelog
 =========
 
+[1.22.1](https://github.com/casey/just/releases/tag/1.22.1) - 2024-01-08
+------------------------------------------------------------------------
+
+### Fixed
+- Don't conflate recipes with the same name in different modules ([#1825](https://github.com/casey/just/pull/1825))
+
+### Misc
+- Clarify that UUID is version 4 ([#1821](https://github.com/casey/just/pull/1821) by [tgross35](https://github.com/tgross35))
+- Make sigil stripping from recipe lines less incomprehensible ([#1812](https://github.com/casey/just/pull/1812))
+- Refactor invalid path argument check ([#1811](https://github.com/casey/just/pull/1811))
+
 [1.22.0](https://github.com/casey/just/releases/tag/1.22.0) - 2023-12-31
 ------------------------------------------------------------------------
 

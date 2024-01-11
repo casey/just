@@ -31,6 +31,7 @@ pub(crate) struct Config {
   pub(crate) list_heading: String,
   pub(crate) list_prefix: String,
   pub(crate) load_dotenv: bool,
+  pub(crate) no_dependencies: bool,
   pub(crate) search_config: SearchConfig,
   pub(crate) shell: Option<String>,
   pub(crate) shell_args: Option<Vec<String>>,
@@ -102,6 +103,7 @@ mod arg {
   pub(crate) const JUSTFILE: &str = "JUSTFILE";
   pub(crate) const LIST_HEADING: &str = "LIST-HEADING";
   pub(crate) const LIST_PREFIX: &str = "LIST-PREFIX";
+  pub(crate) const NO_DEPS: &str = "NO-DEPS";
   pub(crate) const NO_DOTENV: &str = "NO-DOTENV";
   pub(crate) const NO_HIGHLIGHT: &str = "NO-HIGHLIGHT";
   pub(crate) const QUIET: &str = "QUIET";
@@ -212,6 +214,12 @@ impl Config {
           .help("Print <TEXT> before each list item")
           .value_name("TEXT")
           .takes_value(true),
+      )
+      .arg (
+        Arg::with_name(arg::NO_DEPS)
+          .long("no-deps")
+          .alias("no-dependencies")
+          .help("Don't run recipe dependencies")
       )
       .arg(
         Arg::with_name(arg::NO_DOTENV)
@@ -650,6 +658,7 @@ impl Config {
         .unwrap_or("    ")
         .to_owned(),
       load_dotenv: !matches.is_present(arg::NO_DOTENV),
+      no_dependencies: matches.is_present(arg::NO_DEPS),
       search_config,
       shell: matches.value_of(arg::SHELL).map(str::to_owned),
       shell_args,
@@ -695,6 +704,7 @@ mod tests {
       $(dry_run: $dry_run:expr,)?
       $(dump_format: $dump_format:expr,)?
       $(highlight: $highlight:expr,)?
+      $(no_dependencies: $no_dependencies:expr,)?
       $(search_config: $search_config:expr,)?
       $(shell: $shell:expr,)?
       $(shell_args: $shell_args:expr,)?
@@ -714,6 +724,7 @@ mod tests {
           $(dry_run: $dry_run,)?
           $(dump_format: $dump_format,)?
           $(highlight: $highlight,)?
+          $(no_dependencies: $no_dependencies,)?
           $(search_config: $search_config,)?
           $(shell: $shell,)?
           $(shell_args: $shell_args,)?
@@ -887,6 +898,18 @@ mod tests {
     name: highlight_yes_no,
     args: ["--highlight", "--no-highlight"],
     highlight: false,
+  }
+
+  test! {
+    name: no_deps,
+    args: ["--no-deps"],
+    no_dependencies: true,
+  }
+
+  test! {
+    name: no_dependencies,
+    args: ["--no-dependencies"],
+    no_dependencies: true,
   }
 
   test! {

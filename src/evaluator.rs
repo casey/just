@@ -266,7 +266,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     config: &'run Config,
     dotenv: &'run BTreeMap<String, String>,
     parameters: &[Parameter<'src>],
-    arguments: &[&str],
+    arguments: &[String],
     scope: &'run Scope<'src, 'run>,
     settings: &'run Settings,
     search: &'run Search,
@@ -300,13 +300,13 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         }
       } else if parameter.kind.is_variadic() {
         for value in rest {
-          positional.push((*value).to_owned());
+          positional.push(value.clone());
         }
         let value = rest.to_vec().join(" ");
         rest = &[];
         value
       } else {
-        let value = rest[0].to_owned();
+        let value = rest[0].clone();
         positional.push(value.clone());
         rest = &rest[1..];
         value

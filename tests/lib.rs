@@ -68,6 +68,7 @@ mod modules;
 mod multibyte_char;
 mod newline_escape;
 mod no_cd;
+mod no_dependencies;
 mod no_exit_message;
 mod os_attributes;
 mod parser;

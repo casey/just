@@ -34,6 +34,7 @@ fn alias() {
           "dependencies": [],
           "doc": null,
           "name": "foo",
+          "namepath": "foo",
           "parameters": [],
           "priors": 0,
           "private": false,
@@ -118,6 +119,7 @@ fn body() {
           "dependencies": [],
           "doc": null,
           "name": "foo",
+          "namepath": "foo",
           "parameters": [],
           "priors": 0,
           "private": false,
@@ -161,6 +163,7 @@ fn dependencies() {
           "attributes": [],
           "doc": null,
           "name": "bar",
+          "namepath": "bar",
           "body": [],
           "dependencies": [{
             "arguments": [],
@@ -177,6 +180,7 @@ fn dependencies() {
           "dependencies": [],
           "doc": null,
           "name": "foo",
+          "namepath": "foo",
           "parameters": [],
           "priors": 0,
           "private": false,
@@ -239,6 +243,7 @@ fn dependency_argument() {
         "bar": {
           "doc": null,
           "name": "bar",
+          "namepath": "bar",
           "body": [],
           "dependencies": [{
             "arguments": [
@@ -267,6 +272,7 @@ fn dependency_argument() {
           "dependencies": [],
           "doc": null,
           "name": "foo",
+          "namepath": "foo",
           "parameters": [
             {
               "name": "args",
@@ -328,6 +334,7 @@ fn duplicate_recipes() {
           "dependencies": [],
           "doc": null,
           "name": "foo",
+          "namepath": "foo",
           "parameters": [
             {
               "name": "bar",
@@ -377,6 +384,7 @@ fn doc_comment() {
           "dependencies": [],
           "doc": "hello",
           "name": "foo",
+          "namepath": "foo",
           "parameters": [],
           "priors": 0,
           "private": false,
@@ -456,6 +464,7 @@ fn parameters() {
           "dependencies": [],
           "doc": null,
           "name": "a",
+          "namepath": "a",
           "parameters": [],
           "priors": 0,
           "private": false,
@@ -467,6 +476,7 @@ fn parameters() {
           "dependencies": [],
           "doc": null,
           "name": "b",
+          "namepath": "b",
           "parameters": [
             {
               "name": "x",
@@ -486,6 +496,7 @@ fn parameters() {
           "dependencies": [],
           "doc": null,
           "name": "c",
+          "namepath": "c",
           "parameters": [
             {
               "name": "x",
@@ -505,6 +516,7 @@ fn parameters() {
           "dependencies": [],
           "doc": null,
           "name": "d",
+          "namepath": "d",
           "parameters": [
             {
               "name": "x",
@@ -524,6 +536,7 @@ fn parameters() {
           "dependencies": [],
           "doc": null,
           "name": "e",
+          "namepath": "e",
           "parameters": [
             {
               "name": "x",
@@ -543,6 +556,7 @@ fn parameters() {
           "dependencies": [],
           "doc": null,
           "name": "f",
+          "namepath": "f",
           "parameters": [
             {
               "name": "x",
@@ -596,6 +610,7 @@ fn priors() {
           "dependencies": [],
           "doc": null,
           "name": "a",
+          "namepath": "a",
           "parameters": [],
           "priors": 0,
           "private": false,
@@ -617,6 +632,7 @@ fn priors() {
           ],
           "doc": null,
           "name": "b",
+          "namepath": "b",
           "private": false,
           "quiet": false,
           "shebang": false,
@@ -629,6 +645,7 @@ fn priors() {
           "dependencies": [],
           "doc": null,
           "name": "c",
+          "namepath": "c",
           "parameters": [],
           "private": false,
           "quiet": false,
@@ -672,6 +689,7 @@ fn private() {
           "dependencies": [],
           "doc": null,
           "name": "_foo",
+          "namepath": "_foo",
           "parameters": [],
           "priors": 0,
           "private": true,
@@ -714,6 +732,7 @@ fn quiet() {
           "dependencies": [],
           "doc": null,
           "name": "foo",
+          "namepath": "foo",
           "parameters": [],
           "priors": 0,
           "private": false,
@@ -767,6 +786,7 @@ fn settings() {
           "dependencies": [],
           "doc": null,
           "name": "foo",
+          "namepath": "foo",
           "parameters": [],
           "priors": 0,
           "private": false,
@@ -815,6 +835,7 @@ fn shebang() {
           "dependencies": [],
           "doc": null,
           "name": "foo",
+          "namepath": "foo",
           "parameters": [],
           "priors": 0,
           "private": false,
@@ -857,6 +878,7 @@ fn simple() {
           "dependencies": [],
           "doc": null,
           "name": "foo",
+          "namepath": "foo",
           "parameters": [],
           "priors": 0,
           "private": false,
@@ -903,6 +925,7 @@ fn attribute() {
           "dependencies": [],
           "doc": null,
           "name": "foo",
+          "namepath": "foo",
           "parameters": [],
           "priors": 0,
           "private": false,
@@ -961,6 +984,7 @@ fn module() {
                 "dependencies": [],
                 "doc": null,
                 "name": "bar",
+                "namepath": "foo::bar",
                 "parameters": [],
                 "priors": 0,
                 "private": false,
