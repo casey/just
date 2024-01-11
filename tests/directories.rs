@@ -51,11 +51,28 @@ fn data_local_directory() {
 
 #[test]
 fn executable_directory() {
-  Test::new()
-    .justfile("x := executable_directory()")
-    .args(["--evaluate", "x"])
-    .stdout(dirs::executable_dir().unwrap_or_default().to_string_lossy())
-    .run();
+  if let Some(executable_dir) = dirs::executable_dir() {
+    Test::new()
+      .justfile("x := executable_directory()")
+      .args(["--evaluate", "x"])
+      .stdout(executable_dir.to_string_lossy())
+      .run();
+  } else {
+    Test::new()
+      .justfile("x := executable_directory()")
+      .args(["--evaluate", "x"])
+      .stderr(
+        "
+          error: Call to function `executable_directory` failed: executable directory not found
+           ——▶ justfile:1:6
+            │
+          1 │ x := executable_directory()
+            │      ^^^^^^^^^^^^^^^^^^^^
+        ",
+      )
+      .status(EXIT_FAILURE)
+      .run();
+  }
 }
 
 #[test]
