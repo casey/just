@@ -654,9 +654,11 @@ fn sha256_file() {
 
 #[test]
 fn just_pid() {
-  let mut test = Test::new()
+  let Output { stdout, child_pid , ..} = Test::new()
     .args(["--evaluate", "x"])
-    .justfile("x := just_pid()");
-  let child = test.spawn();
-  test.stdout(child.id().to_string()).check_output(child);
+    .justfile("x := just_pid()")
+    .stdout_regex("\\d*").run();
+
+  let pid_str = child_pid.to_string();
+  assert_eq!(stdout, pid_str, "bad stdout: {}", Comparison::new(&stdout, &pid_str));
 }

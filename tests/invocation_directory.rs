@@ -85,7 +85,7 @@ fn test_invocation_directory() {
 
 #[test]
 fn invocation_directory_native() {
-  let Output { stdout, tempdir } = Test::new()
+  let Output { stdout, tempdir, ..} = Test::new()
     .justfile("x := invocation_directory_native()")
     .args(["--evaluate", "x"])
     .stdout_regex(".*")
