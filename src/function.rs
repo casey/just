@@ -21,22 +21,22 @@ pub(crate) fn get(name: &str) -> Option<Function> {
   let function = match name {
     "absolute_path" => Unary(absolute_path),
     "arch" => Nullary(arch),
-    "cache_directory" => Nullary(|_| dir(dirs::cache_dir, "cache")),
+    "cache_directory" => Nullary(|_| dir("cache", dirs::cache_dir)),
     "capitalize" => Unary(capitalize),
-    "config_directory" => Nullary(|_| dir(dirs::config_dir, "config")),
-    "config_local_directory" => Nullary(|_| dir(dirs::config_local_dir, "local config")),
     "clean" => Unary(clean),
-    "data_directory" => Nullary(|_| dir(dirs::data_dir, "data")),
-    "data_local_directory" => Nullary(|_| dir(dirs::data_local_dir, "local data")),
+    "config_directory" => Nullary(|_| dir("config", dirs::config_dir)),
+    "config_local_directory" => Nullary(|_| dir("local config", dirs::config_local_dir)),
+    "data_directory" => Nullary(|_| dir("data", dirs::data_dir)),
+    "data_local_directory" => Nullary(|_| dir("local data", dirs::data_local_dir)),
     "env" => UnaryOpt(env),
     "env_var" => Unary(env_var),
     "env_var_or_default" => Binary(env_var_or_default),
     "error" => Unary(error),
-    "executable_directory" => Nullary(|_| dir(dirs::executable_dir, "executable")),
+    "executable_directory" => Nullary(|_| dir("executable", dirs::executable_dir)),
     "extension" => Unary(extension),
     "file_name" => Unary(file_name),
     "file_stem" => Unary(file_stem),
-    "home_directory" => Nullary(|_| dir(dirs::home_dir, "home")),
+    "home_directory" => Nullary(|_| dir("home", dirs::home_dir)),
     "invocation_directory" => Nullary(invocation_directory),
     "invocation_directory_native" => Nullary(invocation_directory_native),
     "join" => BinaryPlus(join),
@@ -121,17 +121,20 @@ fn clean(_context: &FunctionContext, path: &str) -> Result<String, String> {
   Ok(Path::new(path).lexiclean().to_str().unwrap().to_owned())
 }
 
-fn dir(f: fn() -> Option<PathBuf>, name: &'static str) -> Result<String, String> {
-  let res = match f() {
-    Some(p) => p.into_os_string().into_string().map_err(|err_p| {
-      format!(
-        "unable to convert {name} directory path to a string: {}",
-        err_p.to_string_lossy()
-      )
-    })?,
-    None => String::new(),
-  };
-  Ok(res)
+fn dir(name: &'static str, f: fn() -> Option<PathBuf>) -> Result<String, String> {
+  match f() {
+    Some(path) => path
+      .as_os_str()
+      .to_str()
+      .map(str::to_string)
+      .ok_or_else(|| {
+        format!(
+          "unable to convert {name} directory path to string: {}",
+          path.display(),
+        )
+      }),
+    None => Err(format!("{name} directory not found")),
+  }
 }
 
 fn env_var(context: &FunctionContext, key: &str) -> Result<String, String> {
@@ -452,4 +455,25 @@ fn semver_matches(
       )
       .to_string(),
   )
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn dir_not_found() {
+    assert_eq!(dir("foo", || None).unwrap_err(), "foo directory not found");
+  }
+
+  #[cfg(unix)]
+  #[test]
+  fn dir_not_unicode() {
+    use std::os::unix::ffi::OsStrExt;
+
+    assert_eq!(
+      dir("foo", || Some(OsStr::from_bytes(b"\xe0\x80\x80").into())).unwrap_err(),
+      "unable to convert foo directory path to string: ���",
+    );
+  }
 }

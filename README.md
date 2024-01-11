@@ -1415,7 +1415,13 @@ which will halt execution.
   `requirement`, e.g., `">=0.1.0"`, returning `"true"` if so and `"false"`
   otherwise.
 
-##### Directory Locaters
+##### XDG Directories
+
+These functions return paths to user-specific directories for things like
+configuration, data, and caches. These functions follow the
+[XDG Base Directory Specification](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html),
+and use implementation provided by the
+[`dirs`](https://docs.rs/dirs/latest/dirs/index.html) crate.
 
 - `cache_directory()` - Locate the user-specific cache directory. Returns an
    empty string if it could not be found.
@@ -1431,13 +1437,6 @@ which will halt execution.
    Returns an empty string if it could not be found.
 - `home_directory()` - Locate the user-specific home directory. Returns an empty
    string if it could not be found.
-
-The output for these commands is produced by the
-[`dirs`](https://docs.rs/dirs/latest/dirs/index.html) crate, which first checks
-for `XDG_*` environment variables then falls back to platform defaults.
-
-The XDG specification is available here:
-<https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html>
 
 ### Recipe Attributes
 
