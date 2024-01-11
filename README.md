@@ -755,20 +755,20 @@ foo:
 
 #### Table of Settings
 
-| Name | Value | Default | Description |
-| -----| ------| ------- |-------------|
-| `allow-duplicate-recipes` | boolean | `false` | Allow recipes appearing later in a `justfile` to override earlier recipes with the same name. |
-| `dotenv-filename` | string | - | Load a `.env` file with a custom name, if present. |
-| `dotenv-load` | boolean | `false` | Load a `.env` file, if present. |
-| `dotenv-path` | string | - | Load a `.env` file from a custom path, if present. Overrides `dotenv-filename`. |
-| `export` | boolean | `false` | Export all variables as environment variables. |
-| `fallback` | boolean | `false` | Search `justfile` in parent directory if the first recipe on the command line is not found. |
-| `ignore-comments` | boolean | `false` | Ignore recipe lines beginning with `#`. |
-| `positional-arguments` | boolean | `false` | Pass positional arguments. |
-| `shell` | `[COMMAND, ARGS…]` | - | Set the command used to invoke recipes and evaluate backticks. |
-| `tempdir` | string | - | Create temporary directories in `tempdir` instead of the system default temporary directory. |
-| `windows-powershell` | boolean | `false` | Use PowerShell on Windows as default shell. (Deprecated. Use `windows-shell` instead. |
-| `windows-shell` | `[COMMAND, ARGS…]` | - | Set the command used to invoke recipes and evaluate backticks. |
+| Name                      | Value              | Default | Description                                                                                   |
+| ------------------------- | ------------------ | ------- | --------------------------------------------------------------------------------------------- |
+| `allow-duplicate-recipes` | boolean            | `false` | Allow recipes appearing later in a `justfile` to override earlier recipes with the same name. |
+| `dotenv-filename`         | string             | -       | Load a `.env` file with a custom name, if present.                                            |
+| `dotenv-load`             | boolean            | `false` | Load a `.env` file, if present.                                                               |
+| `dotenv-path`             | string             | -       | Load a `.env` file from a custom path, if present. Overrides `dotenv-filename`.               |
+| `export`                  | boolean            | `false` | Export all variables as environment variables.                                                |
+| `fallback`                | boolean            | `false` | Search `justfile` in parent directory if the first recipe on the command line is not found.   |
+| `ignore-comments`         | boolean            | `false` | Ignore recipe lines beginning with `#`.                                                       |
+| `positional-arguments`    | boolean            | `false` | Pass positional arguments.                                                                    |
+| `shell`                   | `[COMMAND, ARGS…]` | -       | Set the command used to invoke recipes and evaluate backticks.                                |
+| `tempdir`                 | string             | -       | Create temporary directories in `tempdir` instead of the system default temporary directory.  |
+| `windows-powershell`      | boolean            | `false` | Use PowerShell on Windows as default shell. (Deprecated. Use `windows-shell` instead.         |
+| `windows-shell`           | `[COMMAND, ARGS…]` | -       | Set the command used to invoke recipes and evaluate backticks.                                |
 
 Boolean settings can be written as:
 
@@ -1419,16 +1419,17 @@ which will halt execution.
 
 Recipes may be annotated with attributes that change their behavior.
 
-| Name | Description |
-| -----| ------------|
-| `[confirm]`<sup>1.17.0</sup> | Require confirmation prior to executing recipe. |
-| `[linux]`<sup>1.8.0</sup> | Enable recipe on Linux. |
-| `[macos]`<sup>1.8.0</sup> | Enable recipe on MacOS. |
-| `[no-cd]`<sup>1.9.0</sup> | Don't change directory before executing recipe. |
-| `[no-exit-message]`<sup>1.7.0</sup> | Don't print an error message if recipe fails. |
-| `[private]`<sup>1.10.0</sup> | See [Private Recipes](#private-recipes). |
-| `[unix]`<sup>1.8.0</sup> | Enable recipe on Unixes. (Includes MacOS). |
-| `[windows]`<sup>1.8.0</sup> | Enable recipe on Windows. |
+| Name                                              | Description                                     |
+| ------------------------------------------------- | ----------------------------------------------- |
+| `[confirm]`<sup>1.17.0</sup>                      | Require confirmation prior to executing recipe. |
+| `[confirm("custom prompt")]`<sup>unreleased</sup> | Same as above but with a user-defined prompt    |
+| `[linux]`<sup>1.8.0</sup>                         | Enable recipe on Linux.                         |
+| `[macos]`<sup>1.8.0</sup>                         | Enable recipe on MacOS.                         |
+| `[no-cd]`<sup>1.9.0</sup>                         | Don't change directory before executing recipe. |
+| `[no-exit-message]`<sup>1.7.0</sup>               | Don't print an error message if recipe fails.   |
+| `[private]`<sup>1.10.0</sup>                      | See [Private Recipes](#private-recipes).        |
+| `[unix]`<sup>1.8.0</sup>                          | Enable recipe on Unixes. (Includes MacOS).      |
+| `[windows]`<sup>1.8.0</sup>                       | Enable recipe on Windows.                       |
 
 A recipe can have multiple attributes, either on multiple lines:
 
@@ -1505,6 +1506,16 @@ that requires confirmation.
 
 ```just
 [confirm]
+delete all:
+  rm -rf *
+```
+
+#### Customize recipe confirmation prompt <sup>unreleased</sup>
+
+The default prompt: ``Run recipe `foo`?`` can be overwritten with the `[confirm("custom prompt")]` syntax.
+
+```just
+[confirm("Are you sure you want to delete all? It is not reversible")]
 delete all:
   rm -rf *
 ```
