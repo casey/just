@@ -2,7 +2,7 @@ use {
   super::*,
   command_group::{CommandGroup, GroupChild},
   signal_hook::{
-    consts::{signal::*, TERM_SIGNALS},
+    consts::{signal::SIGHUP, TERM_SIGNALS},
     iterator::SignalsInfo,
   },
   std::{io::Read, process::Command},
