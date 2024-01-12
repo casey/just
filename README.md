@@ -1323,6 +1323,23 @@ $ just
 The executable is at: /bin/just
 ```
 
+#### Just Process ID
+
+- `just_pid()` - Process ID of the `just` executable.
+
+For example:
+
+```just
+pid:
+  @echo The process ID is: {{ just_pid() }}
+```
+
+```sh
+$ just
+The process ID is: 420
+```
+
+
 #### String Manipulation
 
 - `quote(s)` - Replace all single quotes with `'\''` and prepend and append

@@ -41,6 +41,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "invocation_directory_native" => Nullary(invocation_directory_native),
     "join" => BinaryPlus(join),
     "just_executable" => Nullary(just_executable),
+    "just_pid" => Nullary(just_pid),
     "justfile" => Nullary(justfile),
     "justfile_directory" => Nullary(justfile_directory),
     "kebabcase" => Unary(kebabcase),
@@ -249,6 +250,10 @@ fn just_executable(_context: &FunctionContext) -> Result<String, String> {
       exe_path.display()
     )
   })
+}
+
+fn just_pid(_context: &FunctionContext) -> Result<String, String> {
+  Ok(std::process::id().to_string())
 }
 
 fn justfile(context: &FunctionContext) -> Result<String, String> {
