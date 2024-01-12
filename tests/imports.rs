@@ -299,3 +299,22 @@ fn recipes_in_nested_imports_run_in_parent_module() {
     .stdout("BAZ")
     .run();
 }
+
+#[test]
+fn shebang_recipes_in_imports_in_root_run_in_justfile_directory() {
+  Test::new()
+    .write(
+      "foo/import.justfile",
+      "bar:\n #!/usr/bin/env bash\n cat baz",
+    )
+    .write("baz", "BAZ")
+    .justfile(
+      "
+        import 'foo/import.justfile'
+      ",
+    )
+    .test_round_trip(false)
+    .arg("bar")
+    .stdout("BAZ")
+    .run();
+}

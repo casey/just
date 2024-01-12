@@ -363,13 +363,13 @@ impl<'src, D> Recipe<'src, D> {
         })?;
     }
 
-    // make the script executable
+    // make script executable
     Platform::set_execute_permission(&path).map_err(|error| Error::TmpdirIo {
       recipe: self.name(),
       io_error: error,
     })?;
 
-    // create a command to run the script
+    // create command to run script
     let mut command =
       Platform::make_shebang_command(&path, self.working_directory(&context.search), shebang)
         .map_err(|output_error| Error::Cygpath {
