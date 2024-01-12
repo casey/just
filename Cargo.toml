@@ -38,7 +38,7 @@ semver = "1.0.20"
 serde = { version = "1.0.130", features = ["derive", "rc"] }
 serde_json = "1.0.68"
 sha2 = "0.10"
-signal-hook = {version = "0.3.17", features = ["extended-siginfo"]}
+signal-hook = {version = "0.3.17"}
 similar = { version = "2.1.0", features = ["unicode"] }
 snafu = "0.8.0"
 strum = { version = "0.25.0", features = ["derive"] }

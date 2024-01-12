@@ -3,19 +3,19 @@ use {
   command_group::{CommandGroup, GroupChild},
   signal_hook::{
     consts::{signal::*, TERM_SIGNALS},
-    iterator::{exfiltrator::WithOrigin, SignalsInfo},
+    iterator::SignalsInfo,
   },
   std::{io::Read, process::Command},
 };
 
 pub(crate) struct SignalHandler {
-  signals_info: Option<SignalsInfo<WithOrigin>>,
+  signals_info: Option<SignalsInfo>,
 }
 
 impl SignalHandler {
   pub(crate) fn install() -> Result<(), std::io::Error> {
     *Self::instance() = Self {
-      signals_info: Some(SignalsInfo::<WithOrigin>::new(
+      signals_info: Some(SignalsInfo::new(
         iter::once(SIGHUP)
           .chain(TERM_SIGNALS.iter().copied())
           .collect::<Vec<i32>>(),
@@ -47,12 +47,12 @@ impl SignalHandler {
     let mut instance = Self::instance();
     loop {
       if let Some(signals_info) = instance.signals_info.as_mut() {
-        for info in signals_info.pending() {
+        for signal in signals_info.pending() {
           let child_pid = child.id();
           if let Ok(pid) = i32::try_from(child_pid) {
             unsafe {
               // Forward signal to the process group using negative pid
-              libc::kill(-pid, info.signal);
+              libc::kill(-pid, signal);
             }
           } else {
             eprintln!(
