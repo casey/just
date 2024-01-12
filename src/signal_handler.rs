@@ -87,7 +87,9 @@ impl SignalHandler {
 
         #[cfg(windows)]
         unsafe {
-          windows::Win32::System::Console::GenerateConsoleCtrlEvent(signal as u32, child_pid);
+          let res =
+            windows::Win32::System::Console::GenerateConsoleCtrlEvent(signal as u32, child_pid);
+          println!("Windows kill: {res:?}")
         }
       }
       match child.try_wait() {
