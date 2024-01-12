@@ -87,7 +87,7 @@ impl SignalHandler {
 
         #[cfg(windows)]
         unsafe {
-          windows_sys::Win32::System::Console::GenerateConsoleCtrlEvent(signal as u32, child_pid);
+          windows::Win32::System::Console::GenerateConsoleCtrlEvent(signal as u32, child_pid);
         }
       }
       match child.try_wait() {
