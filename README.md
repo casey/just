@@ -1419,17 +1419,17 @@ which will halt execution.
 
 Recipes may be annotated with attributes that change their behavior.
 
-| Name                                              | Description                                     |
-| ------------------------------------------------- | ----------------------------------------------- |
-| `[confirm]`<sup>1.17.0</sup>                      | Require confirmation prior to executing recipe. |
-| `[confirm("custom prompt")]`<sup>unreleased</sup> | Same as above but with a user-defined prompt    |
-| `[linux]`<sup>1.8.0</sup>                         | Enable recipe on Linux.                         |
-| `[macos]`<sup>1.8.0</sup>                         | Enable recipe on MacOS.                         |
-| `[no-cd]`<sup>1.9.0</sup>                         | Don't change directory before executing recipe. |
-| `[no-exit-message]`<sup>1.7.0</sup>               | Don't print an error message if recipe fails.   |
-| `[private]`<sup>1.10.0</sup>                      | See [Private Recipes](#private-recipes).        |
-| `[unix]`<sup>1.8.0</sup>                          | Enable recipe on Unixes. (Includes MacOS).      |
-| `[windows]`<sup>1.8.0</sup>                       | Enable recipe on Windows.                       |
+| Name | Description |
+|------|-------------|
+| `[confirm]`<sup>1.17.0</sup> | Require confirmation prior to executing recipe. |
+| `[confirm("custom prompt")]`<sup>unreleased</sup> | Same as above but with a user-defined prompt |
+| `[linux]`<sup>1.8.0</sup> | Enable recipe on Linux. |
+| `[macos]`<sup>1.8.0</sup> | Enable recipe on MacOS. |
+| `[no-cd]`<sup>1.9.0</sup> | Don't change directory before executing recipe. |
+| `[no-exit-message]`<sup>1.7.0</sup> | Don't print an error message if recipe fails. |
+| `[private]`<sup>1.10.0</sup> | See [Private Recipes](#private-recipes). |
+| `[unix]`<sup>1.8.0</sup> | Enable recipe on Unixes. (Includes MacOS). |
+| `[windows]`<sup>1.8.0</sup> | Enable recipe on Windows. |
 
 A recipe can have multiple attributes, either on multiple lines:
 
@@ -1512,11 +1512,11 @@ delete all:
 
 #### Customize recipe confirmation prompt <sup>unreleased</sup>
 
-The default prompt: ``Run recipe `foo`?`` can be overwritten with the `[confirm("custom prompt")]` syntax.
+The default prompt: ``Run recipe `foo`?`` can be overwritten with `[confirm(PROMPT)]`:
 
 ```just
-[confirm("Are you sure you want to delete all? It is not reversible")]
-delete all:
+[confirm("Are you sure you want to delete everything?")]
+delete-everything:
   rm -rf *
 ```
 
