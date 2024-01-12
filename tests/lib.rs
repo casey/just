@@ -65,6 +65,7 @@ mod json;
 mod line_prefixes;
 mod misc;
 mod modules;
+mod multi_line_recipe_signatures;
 mod multibyte_char;
 mod newline_escape;
 mod no_cd;
