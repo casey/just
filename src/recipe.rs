@@ -185,7 +185,6 @@ impl<'src, D> Recipe<'src, D> {
       }
       let mut evaluated = String::new();
       let mut continued = false;
-      let quiet_command = self.no_quiet() && context.settings.quiet;
       let quiet_line = lines.peek().map_or(false, |line| line.is_quiet());
       let infallible_command = lines.peek().map_or(false, |line| line.is_infallible());
 
