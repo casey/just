@@ -234,6 +234,7 @@ impl Display for CompileError<'_> {
       UnterminatedBacktick => write!(f, "Unterminated backtick"),
       UnterminatedInterpolation => write!(f, "Unterminated interpolation"),
       UnterminatedString => write!(f, "Unterminated string"),
+      AttributeArgumentCountMismatch { attribute, found, expected } => todo!(),
     }
   }
 }
