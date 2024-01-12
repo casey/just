@@ -69,6 +69,7 @@ setting       : 'set' 'allow-duplicate-recipes' boolean?
               | 'set' 'fallback' boolean?
               | 'set' 'ignore-comments' boolean?
               | 'set' 'positional-arguments' boolean?
+              | 'set' 'quiet' boolean?
               | 'set' 'shell' ':=' '[' string (',' string)* ','? ']'
               | 'set' 'tempdir ':=' string
               | 'set' 'windows-powershell' boolean?
