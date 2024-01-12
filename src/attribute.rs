@@ -25,12 +25,12 @@ impl Attribute {
   }
 
   /// Returns a range from the min to max expected arguments of a given attribute
-  pub(crate) fn expect_args(&self) -> Range<usize> {
+  pub(crate) fn expect_args(&self) -> RangeInclusive<usize> {
     use Attribute::*;
 
     match self {
-      Confirm(_) => 1..2,
-      _ => 0..0,
+      Confirm(_) => 1..=1,
+      _ => 0..=0,
     }
   }
 
@@ -40,7 +40,7 @@ impl Attribute {
   ) -> Result<Attribute, CompileErrorKind<'_>> {
     use Attribute::*;
 
-    if !self.expect_args().range_contains(&arguments.len()) {
+    if !self.expect_args().contains(&arguments.len()) {
       return Err(CompileErrorKind::AttributeArgumentCountMismatch {
         attribute: self.to_str(),
         found: arguments.len(),

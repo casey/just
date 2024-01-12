@@ -13,7 +13,7 @@ pub(crate) enum CompileErrorKind<'src> {
   AttributeArgumentCountMismatch {
     attribute: &'src str,
     found: usize,
-    expected: Range<usize>,
+    expected: RangeInclusive<usize>,
   },
   BacktickShebang,
   CircularRecipeDependency {
