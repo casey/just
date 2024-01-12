@@ -263,7 +263,7 @@ impl<'src, D> Recipe<'src, D> {
       match InterruptHandler::guard(|| cmd.status()) {
         Ok(exit_status) => {
           if let Some(code) = exit_status.code() {
-            if code != 0 && !infallible_command {
+            if code != 0 && !infallible_line {
               return Err(Error::Code {
                 recipe: self.name(),
                 line_number: Some(line_number),
