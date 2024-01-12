@@ -72,7 +72,7 @@ fn multiple_attributes_one_line_error_message() {
     )
     .stderr(
       "
-        error: Expected ']' or ',', but found identifier
+        error: Expected ']', ',', or '(', but found identifier
          ——▶ justfile:1:17
           │
         1 │ [macos, windows linux]
