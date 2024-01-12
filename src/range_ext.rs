@@ -48,14 +48,10 @@ mod tests {
   #[test]
   fn exclusive() {
     assert!(!(0..0).range_contains(&0));
-    assert!(!(0..0).range_contains(&0));
     assert!(!(1..10).range_contains(&0));
     assert!(!(1..10).range_contains(&10));
     assert!(!(1..10).range_contains(&0));
-    assert!(!(1..10).range_contains(&10));
     assert!((0..1).range_contains(&0));
-    assert!((0..1).range_contains(&0));
-    assert!((10..20).range_contains(&15));
     assert!((10..20).range_contains(&15));
   }
 
