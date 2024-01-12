@@ -755,20 +755,20 @@ foo:
 
 #### Table of Settings
 
-| Name                      | Value              | Default | Description                                                                                   |
-| ------------------------- | ------------------ | ------- | --------------------------------------------------------------------------------------------- |
-| `allow-duplicate-recipes` | boolean            | `false` | Allow recipes appearing later in a `justfile` to override earlier recipes with the same name. |
-| `dotenv-filename`         | string             | -       | Load a `.env` file with a custom name, if present.                                            |
-| `dotenv-load`             | boolean            | `false` | Load a `.env` file, if present.                                                               |
-| `dotenv-path`             | string             | -       | Load a `.env` file from a custom path, if present. Overrides `dotenv-filename`.               |
-| `export`                  | boolean            | `false` | Export all variables as environment variables.                                                |
-| `fallback`                | boolean            | `false` | Search `justfile` in parent directory if the first recipe on the command line is not found.   |
-| `ignore-comments`         | boolean            | `false` | Ignore recipe lines beginning with `#`.                                                       |
-| `positional-arguments`    | boolean            | `false` | Pass positional arguments.                                                                    |
-| `shell`                   | `[COMMAND, ARGS…]` | -       | Set the command used to invoke recipes and evaluate backticks.                                |
-| `tempdir`                 | string             | -       | Create temporary directories in `tempdir` instead of the system default temporary directory.  |
-| `windows-powershell`      | boolean            | `false` | Use PowerShell on Windows as default shell. (Deprecated. Use `windows-shell` instead.         |
-| `windows-shell`           | `[COMMAND, ARGS…]` | -       | Set the command used to invoke recipes and evaluate backticks.                                |
+| Name | Value | Default | Description |
+|------|-------|---------|-------------|
+| `allow-duplicate-recipes` | boolean | `false` | Allow recipes appearing later in a `justfile` to override earlier recipes with the same name. |
+| `dotenv-filename` | string | - | Load a `.env` file with a custom name, if present. |
+| `dotenv-load` | boolean | `false` | Load a `.env` file, if present. |
+| `dotenv-path` | string | - | Load a `.env` file from a custom path, if present. Overrides `dotenv-filename`. |
+| `export` | boolean | `false` | Export all variables as environment variables. |
+| `fallback` | boolean | `false` | Search `justfile` in parent directory if the first recipe on the command line is not found. |
+| `ignore-comments` | boolean | `false` | Ignore recipe lines beginning with `#`. |
+| `positional-arguments` | boolean | `false` | Pass positional arguments. |
+| `shell` | `[COMMAND, ARGS…]` | - | Set the command used to invoke recipes and evaluate backticks. |
+| `tempdir` | string | - | Create temporary directories in `tempdir` instead of the system default temporary directory. |
+| `windows-powershell` | boolean | `false` | Use PowerShell on Windows as default shell. (Deprecated. Use `windows-shell` instead. |
+| `windows-shell` | `[COMMAND, ARGS…]` | - | Set the command used to invoke recipes and evaluate backticks. |
 
 Boolean settings can be written as:
 
