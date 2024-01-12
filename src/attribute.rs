@@ -28,7 +28,7 @@ impl Attribute {
     use Attribute::*;
 
     match self {
-      Confirm(_) => 1..2,
+      Confirm(_) => 1..1,
       _ => 0..0,
     }
   }
@@ -39,7 +39,7 @@ impl Attribute {
   ) -> Result<Attribute, CompileErrorKind<'_>> {
     use Attribute::*;
 
-    if !self.expect_args().contains(&arguments.len()) {
+    if !self.expect_args().range_contains(&arguments.len()) {
       return Err(CompileErrorKind::AttributeArgumentCountMismatch {
         attribute: self.to_str(),
         found: arguments.len(),
