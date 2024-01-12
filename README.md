@@ -756,7 +756,7 @@ foo:
 #### Table of Settings
 
 | Name | Value | Default | Description |
-| -----| ------| ------- |-------------|
+|------|-------|---------|-------------|
 | `allow-duplicate-recipes` | boolean | `false` | Allow recipes appearing later in a `justfile` to override earlier recipes with the same name. |
 | `dotenv-filename` | string | - | Load a `.env` file with a custom name, if present. |
 | `dotenv-load` | boolean | `false` | Load a `.env` file, if present. |
@@ -1406,7 +1406,7 @@ which will halt execution.
   string.
 - `sha256_file(path)` - Return the SHA-256 hash of the file at `path` as a
   hexadecimal string.
-- `uuid()` - Return a randomly generated UUID.
+- `uuid()` - Generate a random version 4 UUID.
 
 #### Semantic Versions
 
@@ -1415,12 +1415,29 @@ which will halt execution.
   `requirement`, e.g., `">=0.1.0"`, returning `"true"` if so and `"false"`
   otherwise.
 
+##### XDG Directories
+
+These functions return paths to user-specific directories for things like
+configuration, data, caches, executables, and the user's home directory. These
+functions follow the
+[XDG Base Directory Specification](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html),
+and are implemented with the
+[`dirs`](https://docs.rs/dirs/latest/dirs/index.html) crate.
+
+- `cache_directory()` - The user-specific cache directory.
+- `config_directory()` - The user-specific configuration directory.
+- `config_local_directory()` - The local user-specific configuration directory.
+- `data_directory()` - The user-specific data directory.
+- `data_local_directory()` - The local user-specific data directory.
+- `executable_directory()` - The user-specific executable directory.
+- `home_directory()` - The user's home directory.
+
 ### Recipe Attributes
 
 Recipes may be annotated with attributes that change their behavior.
 
 | Name | Description |
-| -----| ------------|
+|------|-------------|
 | `[confirm]`<sup>1.17.0</sup> | Require confirmation prior to executing recipe. |
 | `[linux]`<sup>1.8.0</sup> | Enable recipe on Linux. |
 | `[macos]`<sup>1.8.0</sup> | Enable recipe on MacOS. |
@@ -2456,7 +2473,7 @@ line:
 Now only the lines starting with `@` will be echoed:
 
 ```sh
-$ j quiet
+$ just quiet
 hello
 goodbye
 # all done!

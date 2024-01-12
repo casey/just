@@ -25,17 +25,20 @@ pub(crate) struct Recipe<'src, D = Dependency<'src>> {
   pub(crate) attributes: BTreeSet<Attribute>,
   pub(crate) body: Vec<Line<'src>>,
   pub(crate) dependencies: Vec<D>,
-  pub(crate) doc: Option<&'src str>,
-  pub(crate) name: Name<'src>,
-  pub(crate) parameters: Vec<Parameter<'src>>,
   #[serde(skip)]
-  pub(crate) path: PathBuf,
+  pub(crate) depth: u32,
+  pub(crate) doc: Option<&'src str>,
+  #[serde(skip)]
+  pub(crate) file_path: PathBuf,
+  pub(crate) name: Name<'src>,
+  pub(crate) namepath: Namepath<'src>,
+  pub(crate) parameters: Vec<Parameter<'src>>,
   pub(crate) priors: usize,
   pub(crate) private: bool,
   pub(crate) quiet: bool,
   pub(crate) shebang: bool,
   #[serde(skip)]
-  pub(crate) depth: u32,
+  pub(crate) working_directory: PathBuf,
 }
 
 impl<'src, D> Recipe<'src, D> {
@@ -93,7 +96,7 @@ impl<'src, D> Recipe<'src, D> {
     Ok(())
   }
 
-  pub(crate) fn public(&self) -> bool {
+  pub(crate) fn is_public(&self) -> bool {
     !self.private && !self.attributes.contains(&Attribute::Private)
   }
 
@@ -117,6 +120,18 @@ impl<'src, D> Recipe<'src, D> {
 
   fn print_exit_message(&self) -> bool {
     !self.attributes.contains(&Attribute::NoExitMessage)
+  }
+
+  fn working_directory<'a>(&'a self, search: &'a Search) -> Option<&Path> {
+    if self.change_directory() {
+      Some(if self.depth > 0 {
+        &self.working_directory
+      } else {
+        &search.working_directory
+      })
+    } else {
+      None
+    }
   }
 
   pub(crate) fn run<'run>(
@@ -221,12 +236,8 @@ impl<'src, D> Recipe<'src, D> {
 
       let mut cmd = context.settings.shell_command(config);
 
-      if self.change_directory() {
-        cmd.current_dir(if self.depth > 0 {
-          self.path.parent().unwrap()
-        } else {
-          &context.search.working_directory
-        });
+      if let Some(working_directory) = self.working_directory(context.search) {
+        cmd.current_dir(working_directory);
       }
 
       cmd.arg(command);
@@ -305,7 +316,7 @@ impl<'src, D> Recipe<'src, D> {
     })?;
 
     let mut tempdir_builder = tempfile::Builder::new();
-    tempdir_builder.prefix("just");
+    tempdir_builder.prefix("just-");
     let tempdir = match &context.settings.tempdir {
       Some(tempdir) => tempdir_builder.tempdir_in(context.search.working_directory.join(tempdir)),
       None => tempdir_builder.tempdir(),
@@ -352,30 +363,19 @@ impl<'src, D> Recipe<'src, D> {
         })?;
     }
 
-    // make the script executable
+    // make script executable
     Platform::set_execute_permission(&path).map_err(|error| Error::TmpdirIo {
       recipe: self.name(),
       io_error: error,
     })?;
 
-    // create a command to run the script
-    let mut command = Platform::make_shebang_command(
-      &path,
-      if self.change_directory() {
-        if self.depth > 0 {
-          Some(self.path.parent().unwrap())
-        } else {
-          Some(&context.search.working_directory)
-        }
-      } else {
-        None
-      },
-      shebang,
-    )
-    .map_err(|output_error| Error::Cygpath {
-      recipe: self.name(),
-      output_error,
-    })?;
+    // create command to run script
+    let mut command =
+      Platform::make_shebang_command(&path, self.working_directory(context.search), shebang)
+        .map_err(|output_error| Error::Cygpath {
+          recipe: self.name(),
+          output_error,
+        })?;
 
     if context.settings.positional_arguments {
       command.args(positional);

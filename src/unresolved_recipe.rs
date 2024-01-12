@@ -50,13 +50,15 @@ impl<'src> UnresolvedRecipe<'src> {
       dependencies,
       depth: self.depth,
       doc: self.doc,
+      file_path: self.file_path,
       name: self.name,
+      namepath: self.namepath,
       parameters: self.parameters,
-      path: self.path,
       priors: self.priors,
       private: self.private,
       quiet: self.quiet,
       shebang: self.shebang,
+      working_directory: self.working_directory,
     })
   }
 }

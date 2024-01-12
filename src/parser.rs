@@ -23,35 +23,35 @@ use {super::*, TokenKind::*};
 /// find it, it adds that token to the set. When the parser accepts a token, the
 /// set is cleared. If the parser finds a token which is unexpected, the
 /// contents of the set is printed in the resultant error message.
-pub(crate) struct Parser<'tokens, 'src> {
-  /// Source tokens
-  tokens: &'tokens [Token<'src>],
-  /// Index of the next un-parsed token
-  next: usize,
-  /// Current expected tokens
-  expected: BTreeSet<TokenKind>,
-  /// Current recursion depth
-  depth: usize,
-  /// Path to the file being parsed
-  path: PathBuf,
-  /// Depth of submodule being parsed
-  submodule: u32,
+pub(crate) struct Parser<'run, 'src> {
+  expected_tokens: BTreeSet<TokenKind>,
+  file_path: &'run Path,
+  module_namepath: &'run Namepath<'src>,
+  next_token: usize,
+  recursion_depth: usize,
+  submodule_depth: u32,
+  tokens: &'run [Token<'src>],
+  working_directory: &'run Path,
 }
 
-impl<'tokens, 'src> Parser<'tokens, 'src> {
+impl<'run, 'src> Parser<'run, 'src> {
   /// Parse `tokens` into an `Ast`
   pub(crate) fn parse(
-    submodule: u32,
-    path: &Path,
-    tokens: &'tokens [Token<'src>],
+    file_path: &'run Path,
+    module_namepath: &'run Namepath<'src>,
+    submodule_depth: u32,
+    tokens: &'run [Token<'src>],
+    working_directory: &'run Path,
   ) -> CompileResult<'src, Ast<'src>> {
-    Parser {
-      depth: 0,
-      expected: BTreeSet::new(),
-      next: 0,
-      path: path.into(),
-      submodule,
+    Self {
+      expected_tokens: BTreeSet::new(),
+      file_path,
+      module_namepath,
+      next_token: 0,
+      recursion_depth: 0,
+      submodule_depth,
       tokens,
+      working_directory,
     }
     .parse_ast()
   }
@@ -65,7 +65,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   fn unexpected_token(&self) -> CompileResult<'src, CompileError<'src>> {
     self.error(CompileErrorKind::UnexpectedToken {
       expected: self
-        .expected
+        .expected_tokens
         .iter()
         .copied()
         .filter(|kind| *kind != ByteOrderMark)
@@ -81,8 +81,8 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   }
 
   /// An iterator over the remaining significant tokens
-  fn rest(&self) -> impl Iterator<Item = Token<'src>> + 'tokens {
-    self.tokens[self.next..]
+  fn rest(&self) -> impl Iterator<Item = Token<'src>> + 'run {
+    self.tokens[self.next_token..]
       .iter()
       .copied()
       .filter(|token| token.kind != Whitespace)
@@ -107,7 +107,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   /// The first token in `kinds` will be added to the expected token set.
   fn next_are(&mut self, kinds: &[TokenKind]) -> bool {
     if let Some(&kind) = kinds.first() {
-      self.expected.insert(kind);
+      self.expected_tokens.insert(kind);
     }
 
     let mut rest = self.rest();
@@ -126,10 +126,10 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
 
   /// Advance past one significant token, clearing the expected token set.
   fn advance(&mut self) -> CompileResult<'src, Token<'src>> {
-    self.expected.clear();
+    self.expected_tokens.clear();
 
-    for skipped in &self.tokens[self.next..] {
-      self.next += 1;
+    for skipped in &self.tokens[self.next_token..] {
+      self.next_token += 1;
 
       if skipped.kind != Whitespace {
         return Ok(*skipped);
@@ -419,7 +419,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
       }
     }
 
-    if self.next == self.tokens.len() {
+    if self.next_token == self.tokens.len() {
       Ok(Ast {
         warnings: Vec::new(),
         items,
@@ -427,7 +427,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     } else {
       Err(self.internal_error(format!(
         "Parse completed with {} unparsed tokens",
-        self.tokens.len() - self.next,
+        self.tokens.len() - self.next_token,
       ))?)
     }
   }
@@ -464,7 +464,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
 
   /// Parse an expression, e.g. `1 + 2`
   fn parse_expression(&mut self) -> CompileResult<'src, Expression<'src>> {
-    if self.depth == if cfg!(windows) { 48 } else { 256 } {
+    if self.recursion_depth == if cfg!(windows) { 48 } else { 256 } {
       let token = self.next()?;
       return Err(CompileError::new(
         token,
@@ -472,7 +472,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
       ));
     }
 
-    self.depth += 1;
+    self.recursion_depth += 1;
 
     let expression = if self.accepted_keyword(Keyword::If)? {
       self.parse_conditional()?
@@ -496,7 +496,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
       }
     };
 
-    self.depth -= 1;
+    self.recursion_depth -= 1;
 
     Ok(expression)
   }
@@ -737,14 +737,16 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
       attributes,
       body,
       dependencies,
+      depth: self.submodule_depth,
       doc,
+      file_path: self.file_path.into(),
       name,
+      namepath: self.module_namepath.join(name),
       parameters: positional.into_iter().chain(variadic).collect(),
-      path: self.path.clone(),
       priors,
       private: name.lexeme().starts_with('_'),
       quiet,
-      depth: self.submodule,
+      working_directory: self.working_directory.into(),
     })
   }
 
@@ -962,7 +964,14 @@ mod tests {
   fn test(text: &str, want: Tree) {
     let unindented = unindent(text);
     let tokens = Lexer::test_lex(&unindented).expect("lexing failed");
-    let justfile = Parser::parse(0, &PathBuf::new(), &tokens).expect("parsing failed");
+    let justfile = Parser::parse(
+      &PathBuf::new(),
+      &Namepath::default(),
+      0,
+      &tokens,
+      &PathBuf::new(),
+    )
+    .expect("parsing failed");
     let have = justfile.tree();
     if have != want {
       println!("parsed text: {unindented}");
@@ -1000,7 +1009,13 @@ mod tests {
   ) {
     let tokens = Lexer::test_lex(src).expect("Lexing failed in parse test...");
 
-    match Parser::parse(0, &PathBuf::new(), &tokens) {
+    match Parser::parse(
+      &PathBuf::new(),
+      &Namepath::default(),
+      0,
+      &tokens,
+      &PathBuf::new(),
+    ) {
       Ok(_) => panic!("Parsing unexpectedly succeeded"),
       Err(have) => {
         let want = CompileError {
