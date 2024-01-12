@@ -926,8 +926,18 @@ impl<'run, 'src> Parser<'run, 'src> {
         let arguments = if self.accepted(ParenL)? {
           let mut arguments = Vec::new();
 
-          while self.next_is(StringToken) {
+          // Parse arguments as long as they are in the form:
+          // "ARG0","ARG1", .. ,"ARGN"
+          loop {
+            if !self.next_is(StringToken) {
+              break;
+            }
             arguments.push(self.parse_string_literal()?);
+            if !self.next_is(Comma) {
+              break;
+            } else {
+              self.accept(Comma)?;
+            }
           }
           self.expect(ParenR)?;
           Some(arguments)
@@ -938,16 +948,15 @@ impl<'run, 'src> Parser<'run, 'src> {
         let attribute = if let Some(arguments) = arguments {
           match attribute.with_arguments(arguments) {
             Ok(attribute) => attribute,
-            Err(kind) =>  {
+            Err(kind) => {
               return Err(name.error(kind));
-            },
+            }
           }
         } else {
           attribute
         };
 
         attributes.insert(attribute, name.line);
-
 
         if !self.accepted(Comma)? {
           break;
