@@ -236,7 +236,7 @@ impl<'src, D> Recipe<'src, D> {
 
       let mut cmd = context.settings.shell_command(config);
 
-      if let Some(working_directory) = self.working_directory(&context.search) {
+      if let Some(working_directory) = self.working_directory(context.search) {
         cmd.current_dir(working_directory);
       }
 
@@ -371,7 +371,7 @@ impl<'src, D> Recipe<'src, D> {
 
     // create command to run script
     let mut command =
-      Platform::make_shebang_command(&path, self.working_directory(&context.search), shebang)
+      Platform::make_shebang_command(&path, self.working_directory(context.search), shebang)
         .map_err(|output_error| Error::Cygpath {
           recipe: self.name(),
           output_error,
