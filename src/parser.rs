@@ -31,6 +31,7 @@ pub(crate) struct Parser<'run, 'src> {
   recursion_depth: usize,
   submodule_depth: u32,
   tokens: &'run [Token<'src>],
+  working_directory: &'run Path,
 }
 
 impl<'run, 'src> Parser<'run, 'src> {
@@ -40,6 +41,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     module_namepath: &'run Namepath<'src>,
     submodule_depth: u32,
     tokens: &'run [Token<'src>],
+    working_directory: &'run Path,
   ) -> CompileResult<'src, Ast<'src>> {
     Self {
       expected_tokens: BTreeSet::new(),
@@ -49,6 +51,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       recursion_depth: 0,
       submodule_depth,
       tokens,
+      working_directory,
     }
     .parse_ast()
   }
@@ -734,15 +737,16 @@ impl<'run, 'src> Parser<'run, 'src> {
       attributes,
       body,
       dependencies,
+      depth: self.submodule_depth,
       doc,
-      name,
-      parameters: positional.into_iter().chain(variadic).collect(),
       file_path: self.file_path.into(),
+      name,
+      namepath: self.module_namepath.join(name),
+      parameters: positional.into_iter().chain(variadic).collect(),
       priors,
       private: name.lexeme().starts_with('_'),
       quiet,
-      depth: self.submodule_depth,
-      namepath: self.module_namepath.join(name),
+      working_directory: self.working_directory.into(),
     })
   }
 
@@ -960,8 +964,14 @@ mod tests {
   fn test(text: &str, want: Tree) {
     let unindented = unindent(text);
     let tokens = Lexer::test_lex(&unindented).expect("lexing failed");
-    let justfile =
-      Parser::parse(&PathBuf::new(), &Namepath::default(), 0, &tokens).expect("parsing failed");
+    let justfile = Parser::parse(
+      &PathBuf::new(),
+      &Namepath::default(),
+      0,
+      &tokens,
+      &PathBuf::new(),
+    )
+    .expect("parsing failed");
     let have = justfile.tree();
     if have != want {
       println!("parsed text: {unindented}");
@@ -999,7 +1009,13 @@ mod tests {
   ) {
     let tokens = Lexer::test_lex(src).expect("Lexing failed in parse test...");
 
-    match Parser::parse(&PathBuf::new(), &Namepath::default(), 0, &tokens) {
+    match Parser::parse(
+      &PathBuf::new(),
+      &Namepath::default(),
+      0,
+      &tokens,
+      &PathBuf::new(),
+    ) {
       Ok(_) => panic!("Parsing unexpectedly succeeded"),
       Err(have) => {
         let want = CompileError {

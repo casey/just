@@ -279,9 +279,23 @@ fn nested_import_paths_are_relative_to_containing_submodule() {
   Test::new()
     .justfile("import 'foo/import.just'")
     .write("foo/import.just", "import 'bar.just'")
-    .write("bar.just", "bar:\n @echo BAR")
+    .write("foo/bar.just", "bar:\n @echo BAR")
     .test_round_trip(false)
     .arg("bar")
     .stdout("BAR\n")
+    .run();
+}
+
+#[test]
+fn recipes_in_nested_imports_run_in_parent_module() {
+  Test::new()
+    .justfile("import 'foo/import.just'")
+    .write("foo/import.just", "import 'bar/import.just'")
+    .write("foo/bar/import.just", "bar:\n @cat baz")
+    .write("baz", "BAZ")
+    .test_round_trip(false)
+    .arg("--unstable")
+    .arg("bar")
+    .stdout("BAZ")
     .run();
 }
