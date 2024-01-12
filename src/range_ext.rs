@@ -26,6 +26,19 @@ impl Display for DisplayRange<&Range<usize>> {
   }
 }
 
+impl Display for DisplayRange<&RangeInclusive<usize>> {
+  fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+    if self.0.start() == self.0.end() {
+      write!(f, "{}", self.0.start())?
+    } else if *self.0.end() == usize::MAX {
+      write!(f, "{} or more", self.0.start())?
+    } else {
+      write!(f, "{} to {}", self.0.start(), self.0.end())?
+    }
+    Ok(())
+  }
+}
+
 impl<T> RangeExt<T> for Range<T>
 where
   T: PartialOrd,
@@ -80,5 +93,12 @@ mod tests {
     assert_eq!((1..1).display().to_string(), "0");
     assert_eq!((1..2).display().to_string(), "1");
     assert_eq!((1..usize::MAX).display().to_string(), "1 or more");
+  }
+
+  #[test]
+  fn display_inclusive() {
+    assert_eq!((1..=1).display().to_string(), "1");
+    assert_eq!((2..=10).display().to_string(), "2 to 10");
+    assert_eq!((3..=usize::MAX).display().to_string(), "3 or more");
   }
 }
