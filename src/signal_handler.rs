@@ -9,31 +9,24 @@ use {
 };
 
 pub(crate) struct SignalHandler {
-  verbosity: Verbosity,
   signals_info: Option<SignalsInfo<WithOrigin>>,
 }
 
 impl SignalHandler {
-  pub(crate) fn install(verbosity: Verbosity) -> Result<(), std::io::Error> {
-    const MISC_SIGNALS: &[i32] = &[SIGHUP];
-
-    let mut instance = Self::instance();
-    instance.verbosity = verbosity;
-
-    let mut signals = MISC_SIGNALS.to_vec();
-    signals.extend(TERM_SIGNALS);
-
-    let signals_info = SignalsInfo::<WithOrigin>::new(&signals)?;
-    instance.signals_info = Some(signals_info);
+  pub(crate) fn install() -> Result<(), std::io::Error> {
+    *Self::instance() = Self {
+      signals_info: Some(SignalsInfo::<WithOrigin>::new(
+        &iter::once(SIGHUP)
+          .chain(TERM_SIGNALS.iter().copied())
+          .collect::<Vec<i32>>(),
+      )?),
+    };
 
     Ok(())
   }
 
   fn instance() -> MutexGuard<'static, Self> {
-    static INSTANCE: Mutex<SignalHandler> = Mutex::new(SignalHandler {
-      verbosity: Verbosity::default(),
-      signals_info: None,
-    });
+    static INSTANCE: Mutex<SignalHandler> = Mutex::new(SignalHandler { signals_info: None });
 
     match INSTANCE.lock() {
       Ok(guard) => guard,

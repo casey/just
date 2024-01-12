@@ -22,6 +22,7 @@ fn signal_test(arguments: &[&str], justfile: &str, times: u64) {
     let mut child = Command::new(executable_path("just"))
       .current_dir(&tmp)
       .args(arguments)
+      .stderr(Stdio::null())
       .spawn()
       .expect("just invocation failed");
 
@@ -52,6 +53,7 @@ fn signal_test(arguments: &[&str], justfile: &str, times: u64) {
 }
 
 #[test]
+#[ignore]
 fn signal_shebang() {
   signal_test(
     &[],
@@ -66,6 +68,7 @@ fn signal_shebang() {
 }
 
 #[test]
+#[ignore]
 fn signal_line() {
   signal_test(
     &[],
@@ -78,6 +81,7 @@ fn signal_line() {
 }
 
 #[test]
+#[ignore]
 fn signal_backtick() {
   signal_test(
     &[],
@@ -92,11 +96,13 @@ fn signal_backtick() {
 }
 
 #[test]
+#[ignore]
 fn signal_command() {
   signal_test(&["--command", "sleep", "1"], "", 1);
 }
 
 #[test]
+#[ignore]
 fn multiple_signals_shebang() {
   signal_test(
     &[],

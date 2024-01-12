@@ -10,8 +10,8 @@ recipe default=`DEFAULT`:
 ";
 
 /// Test that --shell correctly sets the shell
+#[cfg(not(windows))]
 #[test]
-#[cfg_attr(windows, ignore)]
 fn flag() {
   let tmp = temptree! {
     justfile: JUSTFILE,
@@ -49,8 +49,8 @@ recipe:
 "#;
 
 /// Test that we can use `set shell` to use cmd.exe on windows
+#[cfg(windows)]
 #[test]
-#[cfg_attr(unix, ignore)]
 fn cmd() {
   let tmp = temptree! {
     justfile: JUSTFILE_CMD,
@@ -78,8 +78,8 @@ recipe:
 "#;
 
 /// Test that we can use `set shell` to use cmd.exe on windows
+#[cfg(windows)]
 #[test]
-#[cfg_attr(unix, ignore)]
 fn powershell() {
   let tmp = temptree! {
     justfile: JUSTFILE_POWERSHELL,

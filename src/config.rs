@@ -682,7 +682,7 @@ impl Config {
   }
 
   pub(crate) fn run(self, loader: &Loader) -> Result<(), Error> {
-    if let Err(error) = SignalHandler::install(self.verbosity) {
+    if let Err(error) = SignalHandler::install() {
       warn!("Failed to set signal handler: {error}");
     }
 
