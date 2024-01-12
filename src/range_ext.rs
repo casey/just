@@ -13,11 +13,14 @@ pub(crate) struct DisplayRange<T>(T);
 impl Display for DisplayRange<&Range<usize>> {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
     if self.0.start == self.0.end {
+      write!(f, "0")?;
+    } else if self.0.start == self.0.end - 1 {
       write!(f, "{}", self.0.start)?;
     } else if self.0.end == usize::MAX {
       write!(f, "{} or more", self.0.start)?;
     } else {
-      write!(f, "{} to {}", self.0.start, self.0.end)?;
+      // the range is exclusive from above so it is "start to end-1"
+      write!(f, "{} to {}", self.0.start, self.0.end - 1)?;
     }
     Ok(())
   }
@@ -71,8 +74,11 @@ mod tests {
 
   #[test]
   fn display() {
-    assert_eq!((1..1).display().to_string(), "1");
-    assert_eq!((1..2).display().to_string(), "1 to 2");
+    assert!(!(1..1).contains(&1));
+    assert!((1..1).len() == 0);
+    assert!((5..5).len() == 0);
+    assert_eq!((1..1).display().to_string(), "0");
+    assert_eq!((1..2).display().to_string(), "1");
     assert_eq!((1..usize::MAX).display().to_string(), "1 or more");
   }
 }

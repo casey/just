@@ -28,7 +28,7 @@ impl Attribute {
     use Attribute::*;
 
     match self {
-      Confirm(_) => 1..1,
+      Confirm(_) => 1..2,
       _ => 0..0,
     }
   }
