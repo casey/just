@@ -135,12 +135,12 @@ fn no_quiet_setting() {
   Test::new()
     .justfile(
       "
-      foo:
-        echo 'Hello World'
+        foo:
+          echo FOO
       ",
     )
-    .stdout("Hello World\n")
-    .stderr("echo 'Hello World'\n")
+    .stdout("FOO\n")
+    .stderr("echo FOO\n")
     .run();
 }
 
@@ -152,11 +152,10 @@ fn quiet_setting() {
       set quiet
 
       foo:
-        echo 'Hello World'
+        echo FOO
       ",
     )
-    .stdout("Hello World\n")
-    .stderr("")
+    .stdout("FOO\n")
     .run();
 }
 
@@ -169,11 +168,11 @@ fn quiet_setting_with_no_quiet_attribute() {
 
       [no-quiet]
       foo:
-        echo 'Hello World'
+        echo FOO
       ",
     )
-    .stdout("Hello World\n")
-    .stderr("echo 'Hello World'\n")
+    .stdout("FOO\n")
+    .stderr("echo FOO\n")
     .run();
 }
 
@@ -185,11 +184,10 @@ fn quiet_setting_with_quiet_recipe() {
       set quiet
 
       @foo:
-        echo 'Hello World'
+        echo FOO
       ",
     )
-    .stdout("Hello World\n")
-    .stderr("")
+    .stdout("FOO\n")
     .run();
 }
 
@@ -201,11 +199,10 @@ fn quiet_setting_with_quiet_line() {
       set quiet
 
       foo:
-        @echo 'Hello World'
+        @echo FOO
       ",
     )
-    .stdout("Hello World\n")
-    .stderr("")
+    .stdout("FOO\n")
     .run();
 }
 
@@ -218,11 +215,10 @@ fn quiet_setting_with_no_quiet_attribute_and_quiet_recipe() {
 
       [no-quiet]
       @foo:
-        echo 'Hello World'
+        echo FOO
       ",
     )
-    .stdout("Hello World\n")
-    .stderr("")
+    .stdout("FOO\n")
     .run();
 }
 
@@ -235,10 +231,9 @@ fn quiet_setting_with_no_quiet_attribute_and_quiet_line() {
 
       [no-quiet]
       foo:
-        @echo 'Hello World'
+        @echo FOO
       ",
     )
-    .stdout("Hello World\n")
-    .stderr("")
+    .stdout("FOO\n")
     .run();
 }
