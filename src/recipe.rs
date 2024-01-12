@@ -186,7 +186,7 @@ impl<'src, D> Recipe<'src, D> {
       let mut evaluated = String::new();
       let mut continued = false;
       let quiet_line = lines.peek().map_or(false, |line| line.is_quiet());
-      let infallible_command = lines.peek().map_or(false, |line| line.is_infallible());
+      let infallible_line = lines.peek().map_or(false, |line| line.is_infallible());
 
       let comment_line =
         context.settings.ignore_comments && lines.peek().map_or(false, |line| line.is_comment());
@@ -214,7 +214,7 @@ impl<'src, D> Recipe<'src, D> {
 
       let mut command = evaluated.as_str();
 
-      let sigils = usize::from(infallible_command) + usize::from(quiet_line);
+      let sigils = usize::from(infallible_line) + usize::from(quiet_line);
 
       command = &command[sigils..];
 
