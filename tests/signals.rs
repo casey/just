@@ -5,13 +5,18 @@ use {
 };
 
 fn send_signal(process_id: u32, signal: i32) {
+  eprintln!("Sending signal {signal:?} to process {process_id:?}");
   #[cfg(unix)]
   unsafe {
     libc::kill(process_id as i32, signal);
   }
   #[cfg(windows)]
   unsafe {
-    windows_sys::Win32::System::Console::GenerateConsoleCtrlEvent(signal as u32, process_id as u32);
+    let res = windows_sys::Win32::System::Console::GenerateConsoleCtrlEvent(
+      signal as u32,
+      process_id as u32,
+    );
+    println!("res: {:#?}", res)
   }
 }
 
@@ -33,7 +38,7 @@ fn signal_test(arguments: &[&str], justfile: &str, times: u64) {
     let mut child = Command::new(executable_path("just"))
       .current_dir(&tmp)
       .args(arguments)
-      .stderr(Stdio::null())
+      // .stderr(Stdio::null())
       .spawn()
       .expect("just invocation failed");
 

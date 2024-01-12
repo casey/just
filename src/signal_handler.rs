@@ -24,6 +24,7 @@ impl SignalHandler {
     signals.iter().copied().for_each(|signal| {
       let res = unsafe {
         signal_hook::low_level::register(signal, move || {
+          println!("Enqueuing signal {signal:?}");
           Self::instance().signals.push(signal);
         })
       };
@@ -65,6 +66,7 @@ impl SignalHandler {
   fn wait_child(mut child: GroupChild) -> std::io::Result<(GroupChild, ExitStatus)> {
     loop {
       if let Some(signal) = Self::instance().signals.pop() {
+        println!("Popping signal {signal:?}");
         let child_pid = child.id();
         #[cfg(unix)]
         if let Ok(pid) = i32::try_from(child_pid) {
