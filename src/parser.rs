@@ -917,26 +917,32 @@ impl<'run, 'src> Parser<'run, 'src> {
             first: *line,
           }));
         }
-        match attribute {
-          // Check if attribute is `confirm` and a prompt is specified
-          Attribute::Confirm(_) if self.next_is(ParenL) => {
-            self.expect(ParenL)?;
 
-            if self.next_is(StringToken) {
-              // Parse string literal
-              let prompt = self.parse_string_literal()?;
+        let arguments = if self.accepted(ParenL)? {
+          let mut arguments = Vec::new();
 
-              attributes.insert(
-                Attribute::Confirm(Some(prompt.cooked)),
-                name.line,
-              );
-            }
-            self.expect(ParenR)?;
+          while self.next_is(StringToken) {
+            arguments.push(self.parse_string_literal()?);
           }
-          _ => {
-            attributes.insert(attribute, name.line);
-          }
+          self.expect(ParenR)?;
+          Some(arguments)
+        } else {
+          None
         };
+
+        let attribute = if let Some(arguments) = arguments {
+          match attribute.with_arguments(arguments) {
+            Ok(attribute) => attribute,
+            Err(kind) =>  {
+              return Err(name.error(kind));
+            },
+          }
+        } else {
+          attribute
+        };
+
+        attributes.insert(attribute, name.line);
+
 
         if !self.accepted(Comma)? {
           break;
