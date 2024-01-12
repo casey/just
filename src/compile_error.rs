@@ -43,6 +43,16 @@ impl Display for CompileError<'_> {
         self.token.line.ordinal(),
         recipe_line.ordinal(),
       ),
+      AttributeArgumentCountMismatch {
+        attribute,
+        found,
+        expected,
+      } => write!(
+        f,
+        "Attribute `{attribute}` called with {found} {} but takes {}",
+        Count("argument", *found),
+        expected.display(),
+      ),
       BacktickShebang => write!(f, "Backticks may not start with `#!`"),
       CircularRecipeDependency { recipe, ref circle } => {
         if circle.len() == 2 {
@@ -234,7 +244,6 @@ impl Display for CompileError<'_> {
       UnterminatedBacktick => write!(f, "Unterminated backtick"),
       UnterminatedInterpolation => write!(f, "Unterminated interpolation"),
       UnterminatedString => write!(f, "Unterminated string"),
-      AttributeArgumentCountMismatch { attribute, found, expected } => todo!(),
     }
   }
 }
