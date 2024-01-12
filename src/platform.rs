@@ -70,7 +70,7 @@ impl PlatformInterface for Platform {
       cygpath.arg("--windows");
       cygpath.arg(shebang.interpreter);
 
-      Cow::Owned(output(cygpath)?)
+      Cow::Owned(SignalHandler::guard_output(cygpath)?)
     } else {
       // …otherwise use it as-is.
       Cow::Borrowed(shebang.interpreter)
@@ -113,7 +113,7 @@ impl PlatformInterface for Platform {
     cygpath.arg("--unix");
     cygpath.arg(path);
 
-    match output(cygpath) {
+    match SignalHandler::guard_output(cygpath) {
       Ok(shell_path) => Ok(shell_path),
       Err(_) => path
         .to_str()

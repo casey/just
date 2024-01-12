@@ -1,10 +1,7 @@
 use {
   super::*,
   command_group::{CommandGroup, GroupChild},
-  signal_hook::{
-    consts::{signal::SIGHUP, TERM_SIGNALS},
-    iterator::SignalsInfo,
-  },
+  signal_hook::{consts::TERM_SIGNALS, iterator::SignalsInfo},
   std::{io::Read, process::Command},
 };
 
@@ -14,12 +11,16 @@ pub(crate) struct SignalHandler {
 
 impl SignalHandler {
   pub(crate) fn install() -> Result<(), std::io::Error> {
+    #[cfg(unix)]
+    let signals = iter::once(signal_hook::consts::signal::SIGHUP)
+      .chain(TERM_SIGNALS.iter().copied())
+      .collect::<Vec<i32>>();
+
+    #[cfg(windows)]
+    let signals = TERM_SIGNALS;
+
     *Self::instance() = Self {
-      signals_info: Some(SignalsInfo::new(
-        iter::once(SIGHUP)
-          .chain(TERM_SIGNALS.iter().copied())
-          .collect::<Vec<i32>>(),
-      )?),
+      signals_info: Some(SignalsInfo::new(signals)?),
     };
 
     Ok(())
@@ -52,7 +53,11 @@ impl SignalHandler {
           if let Ok(pid) = i32::try_from(child_pid) {
             unsafe {
               // Forward signal to the process group using negative pid
+              #[cfg(unix)]
               libc::kill(-pid, signal);
+
+              #[cfg(windows)]
+              winapi::um::processthreadsapi::GenerateConsoleCtrlEvent(signal, pid);
             }
           } else {
             eprintln!(
