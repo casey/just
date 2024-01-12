@@ -12,10 +12,8 @@ fn send_signal(process_id: u32, signal: i32) {
   }
   #[cfg(windows)]
   unsafe {
-    let res = windows::Win32::System::Console::GenerateConsoleCtrlEvent(
-      signal as u32,
-      process_id as u32,
-    );
+    let res =
+      windows::Win32::System::Console::GenerateConsoleCtrlEvent(signal as u32, process_id as u32);
     println!("res: {:#?}", res)
   }
 }
