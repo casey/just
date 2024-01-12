@@ -37,7 +37,12 @@ fn flag() {
   assert_stdout(&output, stdout);
 }
 
-const JUSTFILE_CMD: &str = r#"
+/// Test that we can use `set shell` to use cmd.exe on windows
+#[cfg(windows)]
+#[test]
+fn cmd() {
+  let tmp = temptree! {
+    justfile: r#"
 
 set shell := ["cmd.exe", "/C"]
 
@@ -46,14 +51,7 @@ x := `Echo`
 recipe:
   REM foo
   Echo "{{x}}"
-"#;
-
-/// Test that we can use `set shell` to use cmd.exe on windows
-#[cfg(windows)]
-#[test]
-fn cmd() {
-  let tmp = temptree! {
-    justfile: JUSTFILE_CMD,
+"#,
   };
 
   let output = Command::new(executable_path("just"))
@@ -66,7 +64,12 @@ fn cmd() {
   assert_stdout(&output, stdout);
 }
 
-const JUSTFILE_POWERSHELL: &str = r#"
+/// Test that we can use `set shell` to use cmd.exe on windows
+#[cfg(windows)]
+#[test]
+fn powershell() {
+  let tmp = temptree! {
+    justfile: r#"
 
 set shell := ["powershell.exe", "-c"]
 
@@ -75,14 +78,7 @@ x := `Write-Host "Hello, world!"`
 recipe:
   For ($i=0; $i -le 10; $i++) { Write-Host $i }
   Write-Host "{{x}}"
-"#;
-
-/// Test that we can use `set shell` to use cmd.exe on windows
-#[cfg(windows)]
-#[test]
-fn powershell() {
-  let tmp = temptree! {
-    justfile: JUSTFILE_POWERSHELL,
+"#,
   };
 
   let output = Command::new(executable_path("just"))

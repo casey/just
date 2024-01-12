@@ -683,7 +683,7 @@ impl Config {
 
   pub(crate) fn run(self, loader: &Loader) -> Result<(), Error> {
     if let Err(error) = SignalHandler::install() {
-      warn!("Failed to set signal handler: {error}");
+      warn!("Failed to install signal handler: {error}");
     }
 
     self.subcommand.execute(&self, loader)

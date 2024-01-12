@@ -16,7 +16,7 @@ impl SignalHandler {
   pub(crate) fn install() -> Result<(), std::io::Error> {
     *Self::instance() = Self {
       signals_info: Some(SignalsInfo::<WithOrigin>::new(
-        &iter::once(SIGHUP)
+        iter::once(SIGHUP)
           .chain(TERM_SIGNALS.iter().copied())
           .collect::<Vec<i32>>(),
       )?),
