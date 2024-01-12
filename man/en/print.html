@@ -1162,6 +1162,17 @@ current <code>justfile</code>.</p>
 <pre><code class="language-sh">$ just
 The executable is at: /bin/just
 </code></pre>
+<h4 id="just-process-id"><a class="header" href="#just-process-id">Just Process ID</a></h4>
+<ul>
+<li><code>just_pid()</code> - Process ID of the <code>just</code> executable.</li>
+</ul>
+<p>For example:</p>
+<pre><code class="language-just">pid:
+  @echo The process ID is: {{ just_pid() }}
+</code></pre>
+<pre><code class="language-sh">$ just
+The process ID is: 420
+</code></pre>
 <h4 id="string-manipulation"><a class="header" href="#string-manipulation">String Manipulation</a></h4>
 <ul>
 <li><code>quote(s)</code> - Replace all single quotes with <code>'\''</code> and prepend and append
