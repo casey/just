@@ -23,26 +23,38 @@ impl Attribute {
     self.into()
   }
 
+  /// Returns a range from the min to max expected arguments of a given attribute
   pub(crate) fn expect_args(&self) -> Range<usize> {
     use Attribute::*;
 
     match self {
-      Confirm(_) => 1..1,
+      Confirm(_) => 1..2,
       _ => 0..0,
     }
   }
 
-  pub(crate) fn with_arguments(self, arguments: Vec<StringLiteral<'_>>) -> Result<Attribute, CompileErrorKind<'_>> {
+  pub(crate) fn with_arguments(
+    self,
+    arguments: Vec<StringLiteral<'_>>,
+  ) -> Result<Attribute, CompileErrorKind<'_>> {
     use Attribute::*;
 
+    if !self.expect_args().contains(&arguments.len()) {
+      return Err(CompileErrorKind::AttributeArgumentCountMismatch {
+        attribute: self.to_str(),
+        found: arguments.len(),
+        expected: self.expect_args(),
+      });
+    }
+
     match self {
-      Confirm(_) if arguments.len() == 1 => Ok(Attribute::Confirm(arguments.first().map(|s| s.cooked.clone()))),
-      _ => Err(CompileErrorKind::AttributeArgumentCountMismatch { attribute: self.to_str(), found: arguments.len(), expected: self.expect_args() }),
+      Confirm(_) => Ok(Attribute::Confirm(
+        arguments.first().map(|s| s.cooked.clone()),
+      )),
+      _ => unreachable!("Missing implementation for attribute that accepts arguments"),
     }
   }
-
 }
-
 
 #[cfg(test)]
 mod tests {
