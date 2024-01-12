@@ -2509,7 +2509,7 @@ foo:
   echo "This is also quiet"
 ```
 
-If the recipe has `[no-quiet]`, then the setting is ignored:
+The `[no-quiet]` attribute overrides this setting:
 
 ```just
 set quiet
