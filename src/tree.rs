@@ -7,57 +7,43 @@ use {
 /// Tree type, are only used in the Parser unit tests, providing a concise
 /// notation for representing the expected results of parsing a given string.
 macro_rules! tree {
-  {
-    ($($child:tt)*)
-  } => {
+  { ($($child:tt)*) } => {
     $crate::tree::Tree::List(vec![$(tree!($child),)*])
   };
 
-  {
-    $atom:ident
-  } => {
+  { $atom:ident } => {
     $crate::tree::Tree::atom(stringify!($atom))
   };
 
-  {
-    $atom:literal
-  } => {
+  { $atom:literal } => {
     $crate::tree::Tree::atom(format!("\"{}\"", $atom))
   };
 
-  {
-    #
-  } => {
+  { # } => {
     $crate::tree::Tree::atom("#")
   };
 
-  {
-    +
-  } => {
+  { ? } => {
+    $crate::tree::Tree::atom("?")
+  };
+
+  { + } => {
     $crate::tree::Tree::atom("+")
   };
 
-  {
-    *
-  } => {
+  { * } => {
     $crate::tree::Tree::atom("*")
   };
 
-  {
-    &&
-  } => {
+  { && } => {
     $crate::tree::Tree::atom("&&")
   };
 
-  {
-    ==
-  } => {
+  { == } => {
     $crate::tree::Tree::atom("==")
   };
 
-  {
-    !=
-  } => {
+  { != } => {
     $crate::tree::Tree::atom("!=")
   };
 }

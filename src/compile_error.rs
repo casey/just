@@ -19,6 +19,14 @@ impl<'src> CompileError<'src> {
   }
 }
 
+fn capitalize(s: &str) -> String {
+  let mut chars = s.chars();
+  match chars.next() {
+    None => String::new(),
+    Some(first) => first.to_uppercase().collect::<String>() + chars.as_str(),
+  }
+}
+
 impl Display for CompileError<'_> {
   fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
     use CompileErrorKind::*;
@@ -82,12 +90,6 @@ impl Display for CompileError<'_> {
           write!(f, "at most {max} {}", Count("argument", *max))
         }
       }
-      DuplicateAlias { alias, first } => write!(
-        f,
-        "Alias `{alias}` first defined on line {} is redefined on line {}",
-        first.ordinal(),
-        self.token.line.ordinal(),
-      ),
       DuplicateAttribute { attribute, first } => write!(
         f,
         "Recipe attribute `{attribute}` first used on line {} is duplicated on line {}",
@@ -97,12 +99,6 @@ impl Display for CompileError<'_> {
       DuplicateParameter { recipe, parameter } => {
         write!(f, "Recipe `{recipe}` has duplicate parameter `{parameter}`")
       }
-      DuplicateRecipe { recipe, first } => write!(
-        f,
-        "Recipe `{recipe}` first defined on line {} is redefined on line {}",
-        first.ordinal(),
-        self.token.line.ordinal(),
-      ),
       DuplicateSet { setting, first } => write!(
         f,
         "Setting `{setting}` first set on line {} is redefined on line {}",
@@ -134,6 +130,10 @@ impl Display for CompileError<'_> {
         "Function `{function}` called with {found} {} but takes {}",
         Count("argument", *found),
         expected.display(),
+      ),
+      Include => write!(
+        f,
+        "The `!include` directive has been stabilized as `import`"
       ),
       InconsistentLeadingWhitespace { expected, found } => write!(
         f,
@@ -179,6 +179,31 @@ impl Display for CompileError<'_> {
         write!(f, "Parameter `{parameter}` follows variadic parameter")
       }
       ParsingRecursionDepthExceeded => write!(f, "Parsing recursion depth exceeded"),
+      Redefinition {
+        first,
+        first_type,
+        name,
+        second_type,
+      } => {
+        if first_type == second_type {
+          write!(
+            f,
+            "{} `{name}` first defined on line {} is redefined on line {}",
+            capitalize(first_type),
+            first.ordinal(),
+            self.token.line.ordinal(),
+          )
+        } else {
+          write!(
+            f,
+            "{} `{name}` defined on line {} is redefined as {} {second_type} on line {}",
+            capitalize(first_type),
+            first.ordinal(),
+            if *second_type == "alias" { "an" } else { "a" },
+            self.token.line.ordinal(),
+          )
+        }
+      }
       RequiredParameterFollowsDefaultParameter { parameter } => write!(
         f,
         "Non-default parameter `{parameter}` follows default parameter"

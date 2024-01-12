@@ -1,21 +1,28 @@
 use {super::*, serde::Serialize};
 
+#[derive(Debug)]
+struct Invocation<'src: 'run, 'run> {
+  arguments: Vec<&'run str>,
+  recipe: &'run Recipe<'src>,
+  settings: &'run Settings<'src>,
+  scope: &'run Scope<'src, 'run>,
+}
+
 #[derive(Debug, PartialEq, Serialize)]
 pub(crate) struct Justfile<'src> {
   pub(crate) aliases: Table<'src, Alias<'src>>,
   pub(crate) assignments: Table<'src, Assignment<'src>>,
-  #[serde(serialize_with = "keyed::serialize_option")]
-  pub(crate) first: Option<Rc<Recipe<'src>>>,
+  #[serde(rename = "first", serialize_with = "keyed::serialize_option")]
+  pub(crate) default: Option<Rc<Recipe<'src>>>,
+  #[serde(skip)]
+  pub(crate) loaded: Vec<PathBuf>,
+  pub(crate) modules: BTreeMap<String, Justfile<'src>>,
   pub(crate) recipes: Table<'src, Rc<Recipe<'src>>>,
   pub(crate) settings: Settings<'src>,
   pub(crate) warnings: Vec<Warning>,
 }
 
 impl<'src> Justfile<'src> {
-  pub(crate) fn count(&self) -> usize {
-    self.recipes.len()
-  }
-
   pub(crate) fn suggest_recipe(&self, input: &str) -> Option<Suggestion<'src>> {
     let mut suggestions = self
       .recipes
@@ -65,13 +72,51 @@ impl<'src> Justfile<'src> {
       .next()
   }
 
+  fn scope<'run>(
+    &'run self,
+    config: &'run Config,
+    dotenv: &'run BTreeMap<String, String>,
+    search: &'run Search,
+    overrides: &BTreeMap<String, String>,
+    parent: &'run Scope<'src, 'run>,
+  ) -> RunResult<'src, Scope<'src, 'run>>
+  where
+    'src: 'run,
+  {
+    let mut scope = parent.child();
+    let mut unknown_overrides = Vec::new();
+
+    for (name, value) in overrides {
+      if let Some(assignment) = self.assignments.get(name) {
+        scope.bind(assignment.export, assignment.name, value.clone());
+      } else {
+        unknown_overrides.push(name.clone());
+      }
+    }
+
+    if !unknown_overrides.is_empty() {
+      return Err(Error::UnknownOverrides {
+        overrides: unknown_overrides,
+      });
+    }
+
+    Evaluator::evaluate_assignments(
+      &self.assignments,
+      config,
+      dotenv,
+      scope,
+      &self.settings,
+      search,
+    )
+  }
+
   pub(crate) fn run(
     &self,
     config: &Config,
     search: &Search,
     overrides: &BTreeMap<String, String>,
     arguments: &[String],
-  ) -> RunResult<'src, ()> {
+  ) -> RunResult<'src> {
     let unknown_overrides = overrides
       .keys()
       .filter(|name| !self.assignments.contains_key(name.as_str()))
@@ -90,33 +135,9 @@ impl<'src> Justfile<'src> {
       BTreeMap::new()
     };
 
-    let scope = {
-      let mut scope = Scope::new();
-      let mut unknown_overrides = Vec::new();
+    let root = Scope::new();
 
-      for (name, value) in overrides {
-        if let Some(assignment) = self.assignments.get(name) {
-          scope.bind(assignment.export, assignment.name, value.clone());
-        } else {
-          unknown_overrides.push(name.clone());
-        }
-      }
-
-      if !unknown_overrides.is_empty() {
-        return Err(Error::UnknownOverrides {
-          overrides: unknown_overrides,
-        });
-      }
-
-      Evaluator::evaluate_assignments(
-        &self.assignments,
-        config,
-        &dotenv,
-        scope,
-        &self.settings,
-        search,
-      )?
-    };
+    let scope = self.scope(config, &dotenv, search, overrides, &root)?;
 
     match &config.subcommand {
       Subcommand::Command {
@@ -188,50 +209,54 @@ impl<'src> Justfile<'src> {
       _ => {}
     }
 
-    let argvec: Vec<&str> = if !arguments.is_empty() {
+    let mut remaining: Vec<&str> = if !arguments.is_empty() {
       arguments.iter().map(String::as_str).collect()
-    } else if let Some(recipe) = &self.first {
-      let min_arguments = recipe.min_arguments();
-      if min_arguments > 0 {
-        return Err(Error::DefaultRecipeRequiresArguments {
-          recipe: recipe.name.lexeme(),
-          min_arguments,
-        });
-      }
+    } else if let Some(recipe) = &self.default {
+      recipe.check_can_be_default_recipe()?;
       vec![recipe.name()]
-    } else {
+    } else if self.recipes.is_empty() {
       return Err(Error::NoRecipes);
+    } else {
+      return Err(Error::NoDefaultRecipe);
     };
 
-    let arguments = argvec.as_slice();
+    let mut missing = Vec::new();
+    let mut invocations = Vec::new();
+    let mut scopes = BTreeMap::new();
+    let arena: Arena<Scope> = Arena::new();
 
-    let mut missing = vec![];
-    let mut grouped = vec![];
-    let mut rest = arguments;
+    while let Some(first) = remaining.first().copied() {
+      if first.contains("::")
+        && !(first.starts_with(':') || first.ends_with(':') || first.contains(":::"))
+      {
+        remaining = first
+          .split("::")
+          .chain(remaining[1..].iter().copied())
+          .collect();
 
-    while let Some((argument, mut tail)) = rest.split_first() {
-      if let Some(recipe) = self.get_recipe(argument) {
-        if recipe.parameters.is_empty() {
-          grouped.push((recipe, &[][..]));
-        } else {
-          let argument_range = recipe.argument_range();
-          let argument_count = cmp::min(tail.len(), recipe.max_arguments());
-          if !argument_range.range_contains(&argument_count) {
-            return Err(Error::ArgumentCountMismatch {
-              recipe: recipe.name(),
-              parameters: recipe.parameters.clone(),
-              found: tail.len(),
-              min: recipe.min_arguments(),
-              max: recipe.max_arguments(),
-            });
-          }
-          grouped.push((recipe, &tail[0..argument_count]));
-          tail = &tail[argument_count..];
-        }
-      } else {
-        missing.push((*argument).to_owned());
+        continue;
       }
-      rest = tail;
+
+      let rest = &remaining[1..];
+
+      if let Some((invocation, consumed)) = self.invocation(
+        0,
+        &mut Vec::new(),
+        &arena,
+        &mut scopes,
+        config,
+        &dotenv,
+        search,
+        &scope,
+        first,
+        rest,
+      )? {
+        remaining = rest[consumed..].to_vec();
+        invocations.push(invocation);
+      } else {
+        missing.push(first.to_string());
+        remaining = rest.to_vec();
+      }
     }
 
     if !missing.is_empty() {
@@ -246,16 +271,28 @@ impl<'src> Justfile<'src> {
       });
     }
 
-    let context = RecipeContext {
-      settings: &self.settings,
-      config,
-      scope,
-      search,
-    };
+    let mut ran = Ran::default();
+    for invocation in invocations {
+      let context = RecipeContext {
+        settings: invocation.settings,
+        config,
+        scope: invocation.scope,
+        search,
+      };
 
-    let mut ran = BTreeSet::new();
-    for (recipe, arguments) in grouped {
-      Self::run_recipe(&context, recipe, arguments, &dotenv, search, &mut ran)?;
+      Self::run_recipe(
+        &invocation
+          .arguments
+          .iter()
+          .copied()
+          .map(str::to_string)
+          .collect::<Vec<String>>(),
+        &context,
+        &dotenv,
+        &mut ran,
+        invocation.recipe,
+        search,
+      )?;
     }
 
     Ok(())
@@ -273,21 +310,113 @@ impl<'src> Justfile<'src> {
       .or_else(|| self.aliases.get(name).map(|alias| alias.target.as_ref()))
   }
 
+  fn invocation<'run>(
+    &'run self,
+    depth: usize,
+    path: &mut Vec<&'run str>,
+    arena: &'run Arena<Scope<'src, 'run>>,
+    scopes: &mut BTreeMap<Vec<&'run str>, &'run Scope<'src, 'run>>,
+    config: &'run Config,
+    dotenv: &'run BTreeMap<String, String>,
+    search: &'run Search,
+    parent: &'run Scope<'src, 'run>,
+    first: &'run str,
+    rest: &[&'run str],
+  ) -> RunResult<'src, Option<(Invocation<'src, 'run>, usize)>> {
+    if let Some(module) = self.modules.get(first) {
+      path.push(first);
+
+      let scope = if let Some(scope) = scopes.get(path) {
+        scope
+      } else {
+        let scope = module.scope(config, dotenv, search, &BTreeMap::new(), parent)?;
+        let scope = arena.alloc(scope);
+        scopes.insert(path.clone(), scope);
+        scopes.get(path).unwrap()
+      };
+
+      if rest.is_empty() {
+        if let Some(recipe) = &module.default {
+          recipe.check_can_be_default_recipe()?;
+          return Ok(Some((
+            Invocation {
+              settings: &module.settings,
+              recipe,
+              arguments: Vec::new(),
+              scope,
+            },
+            depth,
+          )));
+        }
+        Err(Error::NoDefaultRecipe)
+      } else {
+        module.invocation(
+          depth + 1,
+          path,
+          arena,
+          scopes,
+          config,
+          dotenv,
+          search,
+          scope,
+          rest[0],
+          &rest[1..],
+        )
+      }
+    } else if let Some(recipe) = self.get_recipe(first) {
+      if recipe.parameters.is_empty() {
+        Ok(Some((
+          Invocation {
+            arguments: Vec::new(),
+            recipe,
+            scope: parent,
+            settings: &self.settings,
+          },
+          depth,
+        )))
+      } else {
+        let argument_range = recipe.argument_range();
+        let argument_count = cmp::min(rest.len(), recipe.max_arguments());
+        if !argument_range.range_contains(&argument_count) {
+          return Err(Error::ArgumentCountMismatch {
+            recipe: recipe.name(),
+            parameters: recipe.parameters.clone(),
+            found: rest.len(),
+            min: recipe.min_arguments(),
+            max: recipe.max_arguments(),
+          });
+        }
+        Ok(Some((
+          Invocation {
+            arguments: rest[..argument_count].to_vec(),
+            recipe,
+            scope: parent,
+            settings: &self.settings,
+          },
+          depth + argument_count,
+        )))
+      }
+    } else {
+      Ok(None)
+    }
+  }
+
   fn run_recipe(
+    arguments: &[String],
     context: &RecipeContext<'src, '_>,
-    recipe: &Recipe<'src>,
-    arguments: &[&str],
     dotenv: &BTreeMap<String, String>,
+    ran: &mut Ran<'src>,
+    recipe: &Recipe<'src>,
     search: &Search,
-    ran: &mut BTreeSet<Vec<String>>,
-  ) -> RunResult<'src, ()> {
-    let mut invocation = vec![recipe.name().to_owned()];
-    for argument in arguments {
-      invocation.push((*argument).to_string());
+  ) -> RunResult<'src> {
+    if ran.has_run(&recipe.namepath, arguments) {
+      return Ok(());
     }
 
-    if ran.contains(&invocation) {
-      return Ok(());
+    if !context.config.yes && !recipe.confirm()? {
+      return Err(Error::NotConfirmed {
+        recipe: recipe.name(),
+      });
     }
 
     let (outer, positional) = Evaluator::evaluate_parameters(
@@ -295,7 +424,7 @@ impl<'src> Justfile<'src> {
       dotenv,
       &recipe.parameters,
       arguments,
-      &context.scope,
+      context.scope,
       context.settings,
       search,
     )?;
@@ -305,26 +434,21 @@ impl<'src> Justfile<'src> {
     let mut evaluator =
       Evaluator::recipe_evaluator(context.config, dotenv, &scope, context.settings, search);
 
-    for Dependency { recipe, arguments } in recipe.dependencies.iter().take(recipe.priors) {
-      let arguments = arguments
-        .iter()
-        .map(|argument| evaluator.evaluate_expression(argument))
-        .collect::<RunResult<Vec<String>>>()?;
+    if !context.config.no_dependencies {
+      for Dependency { recipe, arguments } in recipe.dependencies.iter().take(recipe.priors) {
+        let arguments = arguments
+          .iter()
+          .map(|argument| evaluator.evaluate_expression(argument))
+          .collect::<RunResult<Vec<String>>>()?;
 
-      Self::run_recipe(
-        context,
-        recipe,
-        &arguments.iter().map(String::as_ref).collect::<Vec<&str>>(),
-        dotenv,
-        search,
-        ran,
-      )?;
+        Self::run_recipe(&arguments, context, dotenv, ran, recipe, search)?;
+      }
     }
 
     recipe.run(context, dotenv, scope.child(), search, &positional)?;
 
-    {
-      let mut ran = BTreeSet::new();
+    if !context.config.no_dependencies {
+      let mut ran = Ran::default();
 
       for Dependency { recipe, arguments } in recipe.dependencies.iter().skip(recipe.priors) {
         let mut evaluated = Vec::new();
@@ -333,18 +457,11 @@ impl<'src> Justfile<'src> {
           evaluated.push(evaluator.evaluate_expression(argument)?);
         }
 
-        Self::run_recipe(
-          context,
-          recipe,
-          &evaluated.iter().map(String::as_ref).collect::<Vec<&str>>(),
-          dotenv,
-          search,
-          &mut ran,
-        )?;
+        Self::run_recipe(&evaluated, context, dotenv, &mut ran, recipe, search)?;
       }
     }
 
-    ran.insert(invocation);
+    ran.ran(&recipe.namepath, arguments.to_vec());
     Ok(())
   }
 
@@ -353,11 +470,20 @@ impl<'src> Justfile<'src> {
       .recipes
       .values()
       .map(AsRef::as_ref)
-      .filter(|recipe| recipe.public())
+      .filter(|recipe| recipe.is_public())
       .collect::<Vec<&Recipe<Dependency>>>();
 
     if source_order {
-      recipes.sort_by_key(|recipe| recipe.name.offset);
+      recipes.sort_by_key(|recipe| {
+        (
+          self
+            .loaded
+            .iter()
+            .position(|path| path == recipe.name.path)
+            .unwrap(),
+          recipe.name.offset,
+        )
+      });
     }
 
     recipes
@@ -669,16 +795,7 @@ mod tests {
     }
   }
 
-  macro_rules! test {
-    ($name:ident, $input:expr, $expected:expr $(,)*) => {
-      #[test]
-      fn $name() {
-        test($input, $expected);
-      }
-    };
-  }
-
-  fn test(input: &str, expected: &str) {
+  fn case(input: &str, expected: &str) {
     let justfile = compile(input);
     let actual = format!("{}", justfile.color_display(Color::never()));
     assert_eq!(actual, expected);
@@ -688,123 +805,143 @@ mod tests {
     assert_eq!(redumped, actual);
   }
 
-  test! {
-    parse_empty,
-    "
+  #[test]
+  fn parse_empty() {
+    case(
+      "
 
 # hello
 
 
     ",
-    "",
+      "",
+    );
   }
 
-  test! {
-    parse_string_default,
-    r#"
+  #[test]
+  fn parse_string_default() {
+    case(
+      r#"
 
 foo a="b\t":
 
 
   "#,
-    r#"foo a="b\t":"#,
+      r#"foo a="b\t":"#,
+    );
   }
 
-  test! {
-  parse_multiple,
-    r#"
+  #[test]
+  fn parse_multiple() {
+    case(
+      r"
 a:
 b:
-"#,
-    r#"a:
+", r"a:
 
-b:"#,
+b:",
+    );
   }
 
-  test! {
-    parse_variadic,
-    r#"
+  #[test]
+  fn parse_variadic() {
+    case(
+      r"
 
 foo +a:
 
 
-  "#,
-    r#"foo +a:"#,
+  ",
+      r"foo +a:",
+    );
   }
 
-  test! {
-    parse_variadic_string_default,
-    r#"
+  #[test]
+  fn parse_variadic_string_default() {
+    case(
+      r#"
 
 foo +a="Hello":
 
 
   "#,
-    r#"foo +a="Hello":"#,
+      r#"foo +a="Hello":"#,
+    );
   }
 
-  test! {
-    parse_raw_string_default,
-    r"
+  #[test]
+  fn parse_raw_string_default() {
+    case(
+      r"
 
 foo a='b\t':
 
 
   ",
-    r"foo a='b\t':",
+      r"foo a='b\t':",
+    );
   }
 
-  test! {
-    parse_export,
-    r#"
+  #[test]
+  fn parse_export() {
+    case(
+      r#"
 export a := "hello"
 
   "#,
-    r#"export a := "hello""#,
+      r#"export a := "hello""#,
+    );
   }
 
-  test! {
-  parse_alias_after_target,
-    r#"
+  #[test]
+  fn parse_alias_after_target() {
+    case(
+      r"
 foo:
   echo a
 alias f := foo
-"#,
-r#"alias f := foo
+",
+      r"alias f := foo
 
 foo:
-    echo a"#
+    echo a",
+    );
   }
 
-  test! {
-  parse_alias_before_target,
-    r#"
+  #[test]
+  fn parse_alias_before_target() {
+    case(
+      r"
 alias f := foo
 foo:
   echo a
-"#,
-r#"alias f := foo
+",
+      r"alias f := foo
 
 foo:
-    echo a"#
+    echo a",
+    );
   }
 
-  test! {
-  parse_alias_with_comment,
-    r#"
+  #[test]
+  fn parse_alias_with_comment() {
+    case(
+      r"
 alias f := foo #comment
 foo:
   echo a
-"#,
-r#"alias f := foo
+",
+      r"alias f := foo
 
 foo:
-    echo a"#
+    echo a",
+    );
   }
 
-  test! {
-  parse_complex,
-    "
+  #[test]
+  fn parse_complex() {
+    case(
+      "
 x:
 y:
 z:
@@ -819,7 +956,7 @@ hello a b    c   : x y    z #hello
   2
   3
 ",
-    "bar := foo
+      "bar := foo
 
 foo := \"xx\"
 
@@ -837,12 +974,14 @@ x:
 
 y:
 
-z:"
+z:",
+    );
   }
 
-  test! {
-  parse_shebang,
-    "
+  #[test]
+  fn parse_shebang() {
+    case(
+      "
 practicum := 'hello'
 install:
 \t#!/bin/sh
@@ -850,176 +989,195 @@ install:
 \t\treturn
 \tfi
 ",
-    "practicum := 'hello'
+      "practicum := 'hello'
 
 install:
     #!/bin/sh
     if [[ -f {{ practicum }} ]]; then
     \treturn
     fi",
+    );
   }
 
-  test! {
-    parse_simple_shebang,
-    "a:\n #!\n  print(1)",
-    "a:\n    #!\n     print(1)",
+  #[test]
+  fn parse_simple_shebang() {
+    case("a:\n #!\n  print(1)", "a:\n    #!\n     print(1)");
   }
 
-  test! {
-  parse_assignments,
-    r#"a := "0"
+  #[test]
+  fn parse_assignments() {
+    case(
+      r#"a := "0"
 c := a + b + a + b
 b := "1"
 "#,
-    r#"a := "0"
+      r#"a := "0"
 
 b := "1"
 
 c := a + b + a + b"#,
+    );
   }
 
-  test! {
-  parse_assignment_backticks,
-    "a := `echo hello`
+  #[test]
+  fn parse_assignment_backticks() {
+    case(
+      "a := `echo hello`
 c := a + b + a + b
 b := `echo goodbye`",
-    "a := `echo hello`
+      "a := `echo hello`
 
 b := `echo goodbye`
 
 c := a + b + a + b",
+    );
   }
 
-  test! {
-  parse_interpolation_backticks,
-    r#"a:
+  #[test]
+  fn parse_interpolation_backticks() {
+    case(
+      r#"a:
   echo {{  `echo hello` + "blarg"   }} {{   `echo bob`   }}"#,
-    r#"a:
+      r#"a:
     echo {{ `echo hello` + "blarg" }} {{ `echo bob` }}"#,
+    );
   }
 
-  test! {
-    eof_test,
-    "x:\ny:\nz:\na b c: x y z",
-    "a b c: x y z\n\nx:\n\ny:\n\nz:",
+  #[test]
+  fn eof_test() {
+    case("x:\ny:\nz:\na b c: x y z", "a b c: x y z\n\nx:\n\ny:\n\nz:");
   }
 
-  test! {
-    string_quote_escape,
-    r#"a := "hello\"""#,
-    r#"a := "hello\"""#,
+  #[test]
+  fn string_quote_escape() {
+    case(r#"a := "hello\"""#, r#"a := "hello\"""#);
   }
 
-  test! {
-    string_escapes,
-    r#"a := "\n\t\r\"\\""#,
-    r#"a := "\n\t\r\"\\""#,
+  #[test]
+  fn string_escapes() {
+    case(r#"a := "\n\t\r\"\\""#, r#"a := "\n\t\r\"\\""#);
   }
 
-  test! {
-  parameters,
-    "a b c:
+  #[test]
+  fn parameters() {
+    case(
+      "a b c:
   {{b}} {{c}}",
-    "a b c:
+      "a b c:
     {{ b }} {{ c }}",
+    );
   }
 
-  test! {
-  unary_functions,
-    "
+  #[test]
+  fn unary_functions() {
+    case(
+      "
 x := arch()
 
 a:
   {{os()}} {{os_family()}} {{num_cpus()}}",
-    "x := arch()
+      "x := arch()
 
 a:
     {{ os() }} {{ os_family() }} {{ num_cpus() }}",
+    );
   }
 
-  test! {
-  env_functions,
-    r#"
+  #[test]
+  fn env_functions() {
+    case(
+      r#"
 x := env_var('foo',)
 
 a:
   {{env_var_or_default('foo' + 'bar', 'baz',)}} {{env_var(env_var("baz"))}}"#,
-    r#"x := env_var('foo')
+      r#"x := env_var('foo')
 
 a:
     {{ env_var_or_default('foo' + 'bar', 'baz') }} {{ env_var(env_var("baz")) }}"#,
+    );
   }
 
-  test! {
-    parameter_default_string,
-    r#"
+  #[test]
+  fn parameter_default_string() {
+    case(
+      r#"
 f x="abc":
 "#,
-    r#"f x="abc":"#,
+      r#"f x="abc":"#,
+    );
   }
 
-  test! {
-    parameter_default_raw_string,
-    r#"
+  #[test]
+  fn parameter_default_raw_string() {
+    case(
+      r"
 f x='abc':
-"#,
-    r#"f x='abc':"#,
+",
+      r"f x='abc':",
+    );
   }
 
-  test! {
-    parameter_default_backtick,
-    r#"
+  #[test]
+  fn parameter_default_backtick() {
+    case(
+      r"
 f x=`echo hello`:
-"#,
-    r#"f x=`echo hello`:"#,
+",
+      r"f x=`echo hello`:",
+    );
   }
 
-  test! {
-    parameter_default_concatenation_string,
-    r#"
+  #[test]
+  fn parameter_default_concatenation_string() {
+    case(
+      r#"
 f x=(`echo hello` + "foo"):
 "#,
-    r#"f x=(`echo hello` + "foo"):"#,
+      r#"f x=(`echo hello` + "foo"):"#,
+    );
   }
 
-  test! {
-    parameter_default_concatenation_variable,
-    r#"
+  #[test]
+  fn parameter_default_concatenation_variable() {
+    case(
+      r#"
 x := "10"
 f y=(`echo hello` + x) +z="foo":
 "#,
-    r#"x := "10"
+      r#"x := "10"
 
 f y=(`echo hello` + x) +z="foo":"#,
+    );
   }
 
-  test! {
-    parameter_default_multiple,
-    r#"
+  #[test]
+  fn parameter_default_multiple() {
+    case(
+      r#"
 x := "10"
 f y=(`echo hello` + x) +z=("foo" + "bar"):
 "#,
-    r#"x := "10"
+      r#"x := "10"
 
 f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
+    );
   }
 
-  test! {
-    concatenation_in_group,
-    "x := ('0' + '1')",
-    "x := ('0' + '1')",
+  #[test]
+  fn concatenation_in_group() {
+    case("x := ('0' + '1')", "x := ('0' + '1')");
   }
 
-  test! {
-    string_in_group,
-    "x := ('0'   )",
-    "x := ('0')",
+  #[test]
+  fn string_in_group() {
+    case("x := ('0'   )", "x := ('0')");
   }
 
   #[rustfmt::skip]
-  test! {
-    escaped_dos_newlines,
-    "@spam:\r
+  #[test]
+  fn escaped_dos_newlines() {
+    case("@spam:\r
 \t{ \\\r
 \t\tfiglet test; \\\r
 \t\tcargo build --color always 2>&1; \\\r
@@ -1031,6 +1189,6 @@ f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
     \tfiglet test; \\
     \tcargo build --color always 2>&1; \\
     \tcargo test  --color always -- --color always 2>&1; \\
-    } | less",
+    } | less");
   }
 }

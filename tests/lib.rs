@@ -20,7 +20,7 @@ pub(crate) use {
     fs,
     io::Write,
     iter,
-    path::{Path, PathBuf},
+    path::{Path, PathBuf, MAIN_SEPARATOR},
     process::{Command, Stdio},
     str,
   },
@@ -42,7 +42,9 @@ mod choose;
 mod command;
 mod completions;
 mod conditional;
+mod confirm;
 mod delimiters;
+mod directories;
 mod dotenv;
 mod edit;
 mod equals;
@@ -54,7 +56,7 @@ mod fallback;
 mod fmt;
 mod functions;
 mod ignore_comments;
-mod includes;
+mod imports;
 mod init;
 #[cfg(unix)]
 mod interrupts;
@@ -62,9 +64,11 @@ mod invocation_directory;
 mod json;
 mod line_prefixes;
 mod misc;
+mod modules;
 mod multibyte_char;
 mod newline_escape;
 mod no_cd;
+mod no_dependencies;
 mod no_exit_message;
 mod os_attributes;
 mod parser;
@@ -85,6 +89,7 @@ mod show;
 mod slash_operator;
 mod string;
 mod subsequents;
+mod summary;
 mod tempdir;
 mod undefined_variables;
 mod unstable;

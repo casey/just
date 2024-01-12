@@ -4,6 +4,7 @@ use {
     ToKebabCase, ToLowerCamelCase, ToShoutyKebabCase, ToShoutySnakeCase, ToSnakeCase, ToTitleCase,
     ToUpperCamelCase,
   },
+  semver::{Version, VersionReq},
   Function::*,
 };
 
@@ -20,19 +21,27 @@ pub(crate) fn get(name: &str) -> Option<Function> {
   let function = match name {
     "absolute_path" => Unary(absolute_path),
     "arch" => Nullary(arch),
+    "cache_directory" => Nullary(|_| dir("cache", dirs::cache_dir)),
     "capitalize" => Unary(capitalize),
     "clean" => Unary(clean),
+    "config_directory" => Nullary(|_| dir("config", dirs::config_dir)),
+    "config_local_directory" => Nullary(|_| dir("local config", dirs::config_local_dir)),
+    "data_directory" => Nullary(|_| dir("data", dirs::data_dir)),
+    "data_local_directory" => Nullary(|_| dir("local data", dirs::data_local_dir)),
     "env" => UnaryOpt(env),
     "env_var" => Unary(env_var),
     "env_var_or_default" => Binary(env_var_or_default),
     "error" => Unary(error),
+    "executable_directory" => Nullary(|_| dir("executable", dirs::executable_dir)),
     "extension" => Unary(extension),
     "file_name" => Unary(file_name),
     "file_stem" => Unary(file_stem),
+    "home_directory" => Nullary(|_| dir("home", dirs::home_dir)),
     "invocation_directory" => Nullary(invocation_directory),
     "invocation_directory_native" => Nullary(invocation_directory_native),
     "join" => BinaryPlus(join),
     "just_executable" => Nullary(just_executable),
+    "just_pid" => Nullary(just_pid),
     "justfile" => Nullary(justfile),
     "justfile_directory" => Nullary(justfile_directory),
     "kebabcase" => Unary(kebabcase),
@@ -46,6 +55,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "quote" => Unary(quote),
     "replace" => Ternary(replace),
     "replace_regex" => Ternary(replace_regex),
+    "semver_matches" => Binary(semver_matches),
     "sha256" => Unary(sha256),
     "sha256_file" => Unary(sha256_file),
     "shoutykebabcase" => Unary(shoutykebabcase),
@@ -110,6 +120,22 @@ fn capitalize(_context: &FunctionContext, s: &str) -> Result<String, String> {
 
 fn clean(_context: &FunctionContext, path: &str) -> Result<String, String> {
   Ok(Path::new(path).lexiclean().to_str().unwrap().to_owned())
+}
+
+fn dir(name: &'static str, f: fn() -> Option<PathBuf>) -> Result<String, String> {
+  match f() {
+    Some(path) => path
+      .as_os_str()
+      .to_str()
+      .map(str::to_string)
+      .ok_or_else(|| {
+        format!(
+          "unable to convert {name} directory path to string: {}",
+          path.display(),
+        )
+      }),
+    None => Err(format!("{name} directory not found")),
+  }
 }
 
 fn env_var(context: &FunctionContext, key: &str) -> Result<String, String> {
@@ -226,6 +252,10 @@ fn just_executable(_context: &FunctionContext) -> Result<String, String> {
   })
 }
 
+fn just_pid(_context: &FunctionContext) -> Result<String, String> {
+  Ok(std::process::id().to_string())
+}
+
 fn justfile(context: &FunctionContext) -> Result<String, String> {
   context
     .search
@@ -337,9 +367,9 @@ fn sha256_file(context: &FunctionContext, path: &str) -> Result<String, String> 
   let justpath = context.search.working_directory.join(path);
   let mut hasher = Sha256::new();
   let mut file = fs::File::open(&justpath)
-    .map_err(|err| format!("Failed to open file at `{:?}`: {err}", &justpath.to_str()))?;
+    .map_err(|err| format!("Failed to open file at `{:?}`: {err}", justpath.to_str()))?;
   std::io::copy(&mut file, &mut hasher)
-    .map_err(|err| format!("Failed to read file at `{:?}`: {err}", &justpath.to_str()))?;
+    .map_err(|err| format!("Failed to read file at `{:?}`: {err}", justpath.to_str()))?;
   let hash = hasher.finalize();
   Ok(format!("{hash:x}"))
 }
@@ -410,4 +440,44 @@ fn without_extension(_context: &FunctionContext, path: &str) -> Result<String, S
     .ok_or_else(|| format!("Could not extract file stem from `{path}`"))?;
 
   Ok(parent.join(file_stem).to_string())
+}
+
+/// Check whether a string processes properly as semver (e.x. "0.1.0")
+/// and matches a given semver requirement (e.x. ">=0.1.0")
+fn semver_matches(
+  _context: &FunctionContext,
+  version: &str,
+  requirement: &str,
+) -> Result<String, String> {
+  Ok(
+    requirement
+      .parse::<VersionReq>()
+      .map_err(|err| format!("invalid semver requirement: {err}"))?
+      .matches(
+        &version
+          .parse::<Version>()
+          .map_err(|err| format!("invalid semver version: {err}"))?,
+      )
+      .to_string(),
+  )
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn dir_not_found() {
+    assert_eq!(dir("foo", || None).unwrap_err(), "foo directory not found");
+  }
+
+  #[cfg(unix)]
+  #[test]
+  fn dir_not_unicode() {
+    use std::os::unix::ffi::OsStrExt;
+    assert_eq!(
+      dir("foo", || Some(OsStr::from_bytes(b"\xe0\x80\x80").into())).unwrap_err(),
+      "unable to convert foo directory path to string: ���",
+    );
+  }
 }

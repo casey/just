@@ -9,9 +9,9 @@ pub(crate) struct RecipeResolver<'src: 'run, 'run> {
 impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
   pub(crate) fn resolve_recipes(
     unresolved_recipes: Table<'src, UnresolvedRecipe<'src>>,
-    assignments: &Table<'src, Assignment<'src>>,
+    assignments: &'run Table<'src, Assignment<'src>>,
   ) -> CompileResult<'src, Table<'src, Rc<Recipe<'src>>>> {
-    let mut resolver = RecipeResolver {
+    let mut resolver = Self {
       resolved_recipes: Table::new(),
       unresolved_recipes,
       assignments,
@@ -56,7 +56,7 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
     &self,
     variable: &Token<'src>,
     parameters: &[Parameter],
-  ) -> CompileResult<'src, ()> {
+  ) -> CompileResult<'src> {
     let name = variable.lexeme();
     let undefined =
       !self.assignments.contains_key(name) && !parameters.iter().any(|p| p.name.lexeme() == name);

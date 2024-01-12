@@ -65,7 +65,10 @@ impl Subcommand {
       return Self::edit(&search);
     }
 
-    let (src, ast, justfile) = Self::compile(config, loader, &search)?;
+    let compilation = Self::compile(config, loader, &search)?;
+    let justfile = &compilation.justfile;
+    let ast = compilation.root_ast();
+    let src = compilation.root_src();
 
     match self {
       Choose { overrides, chooser } => {
@@ -76,7 +79,7 @@ impl Subcommand {
       }
       Dump => Self::dump(config, ast, justfile)?,
       Format => Self::format(config, &search, src, ast)?,
-      List => Self::list(config, justfile),
+      List => Self::list(config, 0, justfile),
       Show { ref name } => Self::show(config, name, justfile)?,
       Summary => Self::summary(config, justfile),
       Variables => Self::variables(justfile),
@@ -86,7 +89,7 @@ impl Subcommand {
     Ok(())
   }
 
-  pub(crate) fn run<'src>(
+  fn run<'src>(
     config: &Config,
     loader: &'src Loader,
     arguments: &[String],
@@ -99,7 +102,7 @@ impl Subcommand {
       let starting_path = match &config.search_config {
         SearchConfig::FromInvocationDirectory => config.invocation_directory.clone(),
         SearchConfig::FromSearchDirectory { search_directory } => {
-          std::env::current_dir().unwrap().join(search_directory)
+          env::current_dir().unwrap().join(search_directory)
         }
         _ => unreachable!(),
       };
@@ -165,8 +168,8 @@ impl Subcommand {
     overrides: &BTreeMap<String, String>,
     search: &Search,
   ) -> Result<(), (Error<'src>, bool)> {
-    let (_src, _ast, justfile) =
-      Self::compile(config, loader, search).map_err(|err| (err, false))?;
+    let compilation = Self::compile(config, loader, search).map_err(|err| (err, false))?;
+    let justfile = &compilation.justfile;
     justfile
       .run(config, search, overrides, arguments)
       .map_err(|err| (err, justfile.settings.fallback))
@@ -176,18 +179,16 @@ impl Subcommand {
     config: &Config,
     loader: &'src Loader,
     search: &Search,
-  ) -> Result<(&'src str, Ast<'src>, Justfile<'src>), Error<'src>> {
-    let src = loader.load(&search.justfile)?;
-
-    let (ast, justfile) = Compiler::compile(src)?;
+  ) -> Result<Compilation<'src>, Error<'src>> {
+    let compilation = Compiler::compile(config.unstable, loader, &search.justfile)?;
 
     if config.verbosity.loud() {
-      for warning in &justfile.warnings {
+      for warning in &compilation.justfile.warnings {
         eprintln!("{}", warning.color_display(config.color.stderr()));
       }
     }
 
-    Ok((src, ast, justfile))
+    Ok(compilation)
   }
 
   fn changelog() {
@@ -196,7 +197,7 @@ impl Subcommand {
 
   fn choose<'src>(
     config: &Config,
-    justfile: Justfile<'src>,
+    justfile: &Justfile<'src>,
     search: &Search,
     overrides: &BTreeMap<String, String>,
     chooser: Option<&str>,
@@ -215,7 +216,7 @@ impl Subcommand {
     let chooser = chooser
       .map(OsString::from)
       .or_else(|| env::var_os(config::CHOOSER_ENVIRONMENT_KEY))
-      .unwrap_or_else(|| OsString::from(config::CHOOSER_DEFAULT));
+      .unwrap_or_else(|| config::chooser_default(&search.justfile));
 
     let result = justfile
       .settings
@@ -326,10 +327,10 @@ impl Subcommand {
     Ok(())
   }
 
-  fn dump(config: &Config, ast: Ast, justfile: Justfile) -> Result<(), Error<'static>> {
+  fn dump(config: &Config, ast: &Ast, justfile: &Justfile) -> Result<(), Error<'static>> {
     match config.dump_format {
       DumpFormat::Json => {
-        serde_json::to_writer(io::stdout(), &justfile)
+        serde_json::to_writer(io::stdout(), justfile)
           .map_err(|serde_json_error| Error::DumpJson { serde_json_error })?;
         println!();
       }
@@ -360,7 +361,7 @@ impl Subcommand {
     Ok(())
   }
 
-  fn format(config: &Config, search: &Search, src: &str, ast: Ast) -> Result<(), Error<'static>> {
+  fn format(config: &Config, search: &Search, src: &str, ast: &Ast) -> Result<(), Error<'static>> {
     config.require_unstable("The `--fmt` command is currently unstable.")?;
 
     let formatted = ast.to_string();
@@ -425,7 +426,7 @@ impl Subcommand {
     }
   }
 
-  fn list(config: &Config, justfile: Justfile) {
+  fn list(config: &Config, level: usize, justfile: &Justfile) {
     // Construct a target to alias map.
     let mut recipe_aliases: BTreeMap<&str, Vec<&str>> = BTreeMap::new();
     for alias in justfile.aliases.values() {
@@ -444,7 +445,7 @@ impl Subcommand {
     let mut line_widths: BTreeMap<&str, usize> = BTreeMap::new();
 
     for (name, recipe) in &justfile.recipes {
-      if recipe.private {
+      if !recipe.is_public() {
         continue;
       }
 
@@ -464,9 +465,11 @@ impl Subcommand {
     }
 
     let max_line_width = cmp::min(line_widths.values().copied().max().unwrap_or(0), 30);
-
     let doc_color = config.color.stdout().doc();
-    print!("{}", config.list_heading);
+
+    if level == 0 {
+      print!("{}", config.list_heading);
+    }
 
     for recipe in justfile.public_recipes(config.unsorted) {
       let name = recipe.name();
@@ -475,7 +478,7 @@ impl Subcommand {
         .chain(recipe_aliases.get(name).unwrap_or(&Vec::new()))
         .enumerate()
       {
-        print!("{}{name}", config.list_prefix);
+        print!("{}{name}", config.list_prefix.repeat(level + 1));
         for parameter in &recipe.parameters {
           print!(" {}", parameter.color_display(config.color.stdout()));
         }
@@ -505,9 +508,14 @@ impl Subcommand {
         println!();
       }
     }
+
+    for (name, module) in &justfile.modules {
+      println!("    {name}:");
+      Self::list(config, level + 1, module);
+    }
   }
 
-  fn show<'src>(config: &Config, name: &str, justfile: Justfile<'src>) -> Result<(), Error<'src>> {
+  fn show<'src>(config: &Config, name: &str, justfile: &Justfile<'src>) -> Result<(), Error<'src>> {
     if let Some(alias) = justfile.get_alias(name) {
       let recipe = justfile.get_recipe(alias.target.name.lexeme()).unwrap();
       println!("{alias}");
@@ -524,23 +532,44 @@ impl Subcommand {
     }
   }
 
-  fn summary(config: &Config, justfile: Justfile) {
-    if justfile.count() == 0 {
-      if config.verbosity.loud() {
-        eprintln!("Justfile contains no recipes.");
-      }
-    } else {
-      let summary = justfile
-        .public_recipes(config.unsorted)
-        .iter()
-        .map(|recipe| recipe.name())
-        .collect::<Vec<&str>>()
-        .join(" ");
-      println!("{summary}");
+  fn summary(config: &Config, justfile: &Justfile) {
+    let mut printed = 0;
+    Self::summary_recursive(config, &mut Vec::new(), &mut printed, justfile);
+    println!();
+
+    if printed == 0 && config.verbosity.loud() {
+      eprintln!("Justfile contains no recipes.");
     }
   }
 
-  fn variables(justfile: Justfile) {
+  fn summary_recursive<'a>(
+    config: &Config,
+    components: &mut Vec<&'a str>,
+    printed: &mut usize,
+    justfile: &'a Justfile,
+  ) {
+    let path = components.join("::");
+
+    for recipe in justfile.public_recipes(config.unsorted) {
+      if *printed > 0 {
+        print!(" ");
+      }
+      if path.is_empty() {
+        print!("{}", recipe.name());
+      } else {
+        print!("{}::{}", path, recipe.name());
+      }
+      *printed += 1;
+    }
+
+    for (name, module) in &justfile.modules {
+      components.push(name);
+      Self::summary_recursive(config, components, printed, module);
+      components.pop();
+    }
+  }
+
+  fn variables(justfile: &Justfile) {
     for (i, (_, assignment)) in justfile.assignments.iter().enumerate() {
       if i > 0 {
         print!(" ");

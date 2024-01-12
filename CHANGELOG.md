@@ -1,6 +1,156 @@
 Changelog
 =========
 
+[1.22.1](https://github.com/casey/just/releases/tag/1.22.1) - 2024-01-08
+------------------------------------------------------------------------
+
+### Fixed
+- Don't conflate recipes with the same name in different modules ([#1825](https://github.com/casey/just/pull/1825))
+
+### Misc
+- Clarify that UUID is version 4 ([#1821](https://github.com/casey/just/pull/1821) by [tgross35](https://github.com/tgross35))
+- Make sigil stripping from recipe lines less incomprehensible ([#1812](https://github.com/casey/just/pull/1812))
+- Refactor invalid path argument check ([#1811](https://github.com/casey/just/pull/1811))
+
+[1.22.0](https://github.com/casey/just/releases/tag/1.22.0) - 2023-12-31
+------------------------------------------------------------------------
+
+### Added
+- Recipes can be invoked with path syntax ([#1809](https://github.com/casey/just/pull/1809))
+- Add `--format` and `--initialize` as aliases for `--fmt` and `--init` ([#1802](https://github.com/casey/just/pull/1802))
+
+### Misc
+- Move table of contents pointer to right ([#1806](https://github.com/casey/just/pull/1806))
+
+[1.21.0](https://github.com/casey/just/releases/tag/1.21.0) - 2023-12-29
+------------------------------------------------------------------------
+
+### Added
+- Optional modules and imports ([#1797](https://github.com/casey/just/pull/1797))
+- Print submodule recipes in --summary ([#1794](https://github.com/casey/just/pull/1794))
+
+### Misc
+- Use box-drawing characters in error messages ([#1798](https://github.com/casey/just/pull/1798))
+- Use Self ([#1795](https://github.com/casey/just/pull/1795))
+
+[1.20.0](https://github.com/casey/just/releases/tag/1.20.0) - 2023-12-28
+------------------------------------------------------------------------
+
+### Added
+- Allow mod statements with path to source file ([#1786](https://github.com/casey/just/pull/1786))
+
+### Changed
+- Expand tilde in import and module paths ([#1792](https://github.com/casey/just/pull/1792))
+- Override imported recipes ([#1790](https://github.com/casey/just/pull/1790))
+- Run recipes with working directory set to submodule directory ([#1788](https://github.com/casey/just/pull/1788))
+
+### Misc
+- Document import override behavior ([#1791](https://github.com/casey/just/pull/1791))
+- Document submodule working directory ([#1789](https://github.com/casey/just/pull/1789))
+
+[1.19.0](https://github.com/casey/just/releases/tag/1.19.0) - 2023-12-27
+------------------------------------------------------------------------
+
+### Added
+- Add modules ([#1782](https://github.com/casey/just/pull/1782))
+
+[1.18.1](https://github.com/casey/just/releases/tag/1.18.1) - 2023-12-24
+------------------------------------------------------------------------
+
+### Added
+- Display a descriptive error for `!include` directives ([#1779](https://github.com/casey/just/pull/1779))
+
+[1.18.0](https://github.com/casey/just/releases/tag/1.18.0) - 2023-12-24
+------------------------------------------------------------------------
+
+### Added
+- Stabilize `!include path` as `import 'path'` ([#1771](https://github.com/casey/just/pull/1771))
+
+### Misc
+- Tweak readme ([#1775](https://github.com/casey/just/pull/1775))
+
+[1.17.0](https://github.com/casey/just/releases/tag/1.17.0) - 2023-12-20
+------------------------------------------------------------------------
+
+### Added
+- Add `[confirm]` attribute ([#1723](https://github.com/casey/just/pull/1723) by [Hwatwasthat](https://github.com/Hwatwasthat))
+
+### Changed
+- Don't default to included recipes ([#1740](https://github.com/casey/just/pull/1740))
+
+### Fixed
+- Pass justfile path to default chooser ([#1759](https://github.com/casey/just/pull/1759) by [Qeole](https://github.com/Qeole))
+- Pass `--unstable` and `--color always` to default chooser ([#1758](https://github.com/casey/just/pull/1758) by [Qeole](https://github.com/Qeole))
+
+### Misc
+- Update Gentoo package repository ([#1757](https://github.com/casey/just/pull/1757) by [paul-jewell](https://github.com/paul-jewell))
+- Fix readme header level ([#1752](https://github.com/casey/just/pull/1752) by [laniakea64](https://github.com/laniakea64))
+- Document line continuations ([#1751](https://github.com/casey/just/pull/1751) by [laniakea64](https://github.com/laniakea64))
+- List included recipes in load order ([#1745](https://github.com/casey/just/pull/1745))
+- Fix build badge in zh readme ([#1743](https://github.com/casey/just/pull/1743) by [chenrui333](https://github.com/chenrui333))
+- Rename Justfile::first → Justfile::default ([#1741](https://github.com/casey/just/pull/1741))
+- Add file paths to error messages ([#1737](https://github.com/casey/just/pull/1737))
+- Move !include processing into compiler ([#1618](https://github.com/casey/just/pull/1618) by [neunenak](https://github.com/neunenak))
+- Update Arch Linux package URL in readme ([#1733](https://github.com/casey/just/pull/1733) by [felixonmars](https://github.com/felixonmars))
+- Clarify that aliases can only be used on the command line ([#1726](https://github.com/casey/just/pull/1726) by [laniakea64](https://github.com/laniakea64))
+- Remove VALID_ALIAS_ATTRIBUTES array ([#1731](https://github.com/casey/just/pull/1731))
+- Fix justfile search link in Chinese docs ([#1730](https://github.com/casey/just/pull/1730) by [oluceps](https://github.com/oluceps))
+- Add example of Windows shebang handling ([#1709](https://github.com/casey/just/pull/1709) by [pfmoore](https://github.com/pfmoore))
+- Fix CI ([#1728](https://github.com/casey/just/pull/1728))
+
+[1.16.0](https://github.com/casey/just/releases/tag/1.16.0) - 2023-11-08
+------------------------------------------------------------------------
+
+### Added
+- Add ARMv6 release target ([#1715](https://github.com/casey/just/pull/1715) by [ragazenta](https://github.com/ragazenta))
+- Add `semver_matches` function ([#1713](https://github.com/casey/just/pull/1713) by [t3hmrman](https://github.com/t3hmrman))
+- Add `dotenv-filename` and `dotenv-path` settings ([#1692](https://github.com/casey/just/pull/1692) by [ltfourrier](https://github.com/ltfourrier))
+- Allow setting echoed recipe line color ([#1670](https://github.com/casey/just/pull/1670) by [avi-cenna](https://github.com/avi-cenna))
+
+### Fixed
+- Fix Fish completion script ([#1710](https://github.com/casey/just/pull/1710) by [l4zygreed](https://github.com/l4zygreed))
+
+### Misc
+- Fix readme typo ([#1717](https://github.com/casey/just/pull/1717) by [barraponto](https://github.com/barraponto))
+- Clean up error display ([#1699](https://github.com/casey/just/pull/1699) by [nyurik](https://github.com/nyurik))
+- Misc fixes ([#1700](https://github.com/casey/just/pull/1700) by [nyurik](https://github.com/nyurik))
+- Fix readme build badge ([#1697](https://github.com/casey/just/pull/1697))
+- Fix set tempdir grammar ([#1695](https://github.com/casey/just/pull/1695))
+- Add version to attributes ([#1694](https://github.com/casey/just/pull/1694) by [JoeyTeng](https://github.com/JoeyTeng))
+- Update README.md ([#1691](https://github.com/casey/just/pull/1691) by [laniakea64](https://github.com/laniakea64))
+
+
+[1.15.0](https://github.com/casey/just/releases/tag/1.15.0) - 2023-10-09
+------------------------------------------------------------------------
+
+### Added
+- Add Nushell completion script ([#1571](https://github.com/casey/just/pull/1571) by [presidento](https://github.com/presidento))
+- Allow unstable features to be enabled with environment variable ([#1588](https://github.com/casey/just/pull/1588) by [neunenak](https://github.com/neunenak))
+- Add num_cpus() function ([#1568](https://github.com/casey/just/pull/1568) by [schultetwin1](https://github.com/schultetwin1))
+- Allow escaping newlines ([#1551](https://github.com/casey/just/pull/1551) by [ids1024](https://github.com/ids1024))
+- Stabilize JSON dump format ([#1633](https://github.com/casey/just/pull/1633))
+- Add env() function ([#1613](https://github.com/casey/just/pull/1613) by [kykyi](https://github.com/kykyi))
+
+### Changed
+- Allow selecting multiple recipes with default chooser ([#1547](https://github.com/casey/just/pull/1547) by [fzdwx](https://github.com/fzdwx))
+
+### Misc
+- Don't recommend `vim-polyglot` in readme ([#1644](https://github.com/casey/just/pull/1644) by [laniakea64](https://github.com/laniakea64))
+- Note Micro support in readme ([#1316](https://github.com/casey/just/pull/1316) by [tomodachi94](https://github.com/tomodachi94))
+- Update Indentation Documentation ([#1600](https://github.com/casey/just/pull/1600) by [GinoMan](https://github.com/GinoMan))
+- Fix triple-quoted string example in readme ([#1620](https://github.com/casey/just/pull/1620) by [avi-cenna](https://github.com/avi-cenna))
+- README fix: the -d in `mktemp -d` is required to created folders. ([#1688](https://github.com/casey/just/pull/1688) by [gl-yziquel](https://github.com/gl-yziquel))
+- Placate clippy ([#1689](https://github.com/casey/just/pull/1689))
+- Fix README typos ([#1660](https://github.com/casey/just/pull/1660) by [akuhnregnier](https://github.com/akuhnregnier))
+- Document Windows Package Manager install instructions ([#1656](https://github.com/casey/just/pull/1656))
+- Test unpaired escaped carriage return error ([#1650](https://github.com/casey/just/pull/1650))
+- Avoid grep aliases in bash completions ([#1622](https://github.com/casey/just/pull/1622) by [BojanStipic](https://github.com/BojanStipic))
+- Clarify [unix] attribute in readme ([#1619](https://github.com/casey/just/pull/1619) by [neunenak](https://github.com/neunenak))
+- Add descriptions to fish recipe completions ([#1578](https://github.com/casey/just/pull/1578) by [patricksjackson](https://github.com/patricksjackson))
+- Add better documentation for --dump and --fmt ([#1603](https://github.com/casey/just/pull/1603) by [neunenak](https://github.com/neunenak))
+- Cleanup ([#1566](https://github.com/casey/just/pull/1566) by [nyurik](https://github.com/nyurik))
+- Document Helix editor support in readme ([#1604](https://github.com/casey/just/pull/1604) by [kenden](https://github.com/kenden))
+
 [1.14.0](https://github.com/casey/just/releases/tag/1.14.0) - 2023-06-02
 ------------------------------------------------------------------------
 

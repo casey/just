@@ -3,18 +3,25 @@ use {
   clap::{App, AppSettings, Arg, ArgGroup, ArgMatches, ArgSettings},
 };
 
-// These three strings should be kept in sync:
-pub(crate) const CHOOSER_DEFAULT: &str = "fzf --multi --preview 'just --show {}'";
 pub(crate) const CHOOSER_ENVIRONMENT_KEY: &str = "JUST_CHOOSER";
-pub(crate) const CHOOSE_HELP: &str = "Select one or more recipes to run using a binary. If \
-                                      `--chooser` is not passed the chooser defaults to the value \
-                                      of $JUST_CHOOSER, falling back to `fzf`";
+
+pub(crate) const CHOOSE_HELP: &str = "Select one or more recipes to run using a binary chooser. \
+                                      If `--chooser` is not passed the chooser defaults to the \
+                                      value of $JUST_CHOOSER, falling back to `fzf`";
+
+pub(crate) fn chooser_default(justfile: &Path) -> OsString {
+  let mut chooser = OsString::new();
+  chooser.push("fzf --multi --preview 'just --unstable --color always --justfile \"");
+  chooser.push(justfile);
+  chooser.push("\" --show {}'");
+  chooser
+}
 
 #[derive(Debug, PartialEq)]
-#[allow(clippy::struct_excessive_bools)]
 pub(crate) struct Config {
   pub(crate) check: bool,
   pub(crate) color: Color,
+  pub(crate) command_color: Option<ansi_term::Color>,
   pub(crate) dotenv_filename: Option<String>,
   pub(crate) dotenv_path: Option<PathBuf>,
   pub(crate) dry_run: bool,
@@ -24,6 +31,7 @@ pub(crate) struct Config {
   pub(crate) list_heading: String,
   pub(crate) list_prefix: String,
   pub(crate) load_dotenv: bool,
+  pub(crate) no_dependencies: bool,
   pub(crate) search_config: SearchConfig,
   pub(crate) shell: Option<String>,
   pub(crate) shell_args: Option<Vec<String>>,
@@ -32,6 +40,7 @@ pub(crate) struct Config {
   pub(crate) unsorted: bool,
   pub(crate) unstable: bool,
   pub(crate) verbosity: Verbosity,
+  pub(crate) yes: bool,
 }
 
 mod cmd {
@@ -85,6 +94,7 @@ mod arg {
   pub(crate) const CHOOSER: &str = "CHOOSER";
   pub(crate) const CLEAR_SHELL_ARGS: &str = "CLEAR-SHELL-ARGS";
   pub(crate) const COLOR: &str = "COLOR";
+  pub(crate) const COMMAND_COLOR: &str = "COMMAND-COLOR";
   pub(crate) const DOTENV_FILENAME: &str = "DOTENV-FILENAME";
   pub(crate) const DOTENV_PATH: &str = "DOTENV-PATH";
   pub(crate) const DRY_RUN: &str = "DRY-RUN";
@@ -93,6 +103,7 @@ mod arg {
   pub(crate) const JUSTFILE: &str = "JUSTFILE";
   pub(crate) const LIST_HEADING: &str = "LIST-HEADING";
   pub(crate) const LIST_PREFIX: &str = "LIST-PREFIX";
+  pub(crate) const NO_DEPS: &str = "NO-DEPS";
   pub(crate) const NO_DOTENV: &str = "NO-DOTENV";
   pub(crate) const NO_HIGHLIGHT: &str = "NO-HIGHLIGHT";
   pub(crate) const QUIET: &str = "QUIET";
@@ -104,11 +115,29 @@ mod arg {
   pub(crate) const UNSTABLE: &str = "UNSTABLE";
   pub(crate) const VERBOSE: &str = "VERBOSE";
   pub(crate) const WORKING_DIRECTORY: &str = "WORKING-DIRECTORY";
+  pub(crate) const YES: &str = "YES";
 
   pub(crate) const COLOR_ALWAYS: &str = "always";
   pub(crate) const COLOR_AUTO: &str = "auto";
   pub(crate) const COLOR_NEVER: &str = "never";
   pub(crate) const COLOR_VALUES: &[&str] = &[COLOR_AUTO, COLOR_ALWAYS, COLOR_NEVER];
+
+  pub(crate) const COMMAND_COLOR_BLACK: &str = "black";
+  pub(crate) const COMMAND_COLOR_BLUE: &str = "blue";
+  pub(crate) const COMMAND_COLOR_CYAN: &str = "cyan";
+  pub(crate) const COMMAND_COLOR_GREEN: &str = "green";
+  pub(crate) const COMMAND_COLOR_PURPLE: &str = "purple";
+  pub(crate) const COMMAND_COLOR_RED: &str = "red";
+  pub(crate) const COMMAND_COLOR_YELLOW: &str = "yellow";
+  pub(crate) const COMMAND_COLOR_VALUES: &[&str] = &[
+    COMMAND_COLOR_BLACK,
+    COMMAND_COLOR_BLUE,
+    COMMAND_COLOR_CYAN,
+    COMMAND_COLOR_GREEN,
+    COMMAND_COLOR_PURPLE,
+    COMMAND_COLOR_RED,
+    COMMAND_COLOR_YELLOW,
+  ];
 
   pub(crate) const DUMP_FORMAT_JSON: &str = "json";
   pub(crate) const DUMP_FORMAT_JUST: &str = "just";
@@ -142,6 +171,14 @@ impl Config {
           .default_value(arg::COLOR_AUTO)
           .help("Print colorful output"),
       )
+      .arg(
+        Arg::with_name(arg::COMMAND_COLOR)
+          .long("command-color")
+          .takes_value(true)
+          .possible_values(arg::COMMAND_COLOR_VALUES)
+          .help("Echo recipe lines in <COMMAND-COLOR>"),
+      )
+      .arg(Arg::with_name(arg::YES).long("yes").help("Automatically confirm all recipes."))
       .arg(
         Arg::with_name(arg::DRY_RUN)
           .short("n")
@@ -177,6 +214,12 @@ impl Config {
           .help("Print <TEXT> before each list item")
           .value_name("TEXT")
           .takes_value(true),
+      )
+      .arg (
+        Arg::with_name(arg::NO_DEPS)
+          .long("no-deps")
+          .alias("no-dependencies")
+          .help("Don't run recipe dependencies")
       )
       .arg(
         Arg::with_name(arg::NO_DOTENV)
@@ -310,11 +353,13 @@ impl Config {
       .arg(
         Arg::with_name(cmd::FORMAT)
           .long("fmt")
+          .alias("format")
           .help("Format and overwrite justfile"),
       )
       .arg(
         Arg::with_name(cmd::INIT)
           .long("init")
+          .alias("initialize")
           .help("Initialize new justfile in project root"),
       )
       .arg(
@@ -396,6 +441,25 @@ impl Config {
     }
   }
 
+  fn command_color_from_matches(matches: &ArgMatches) -> ConfigResult<Option<ansi_term::Color>> {
+    if let Some(value) = matches.value_of(arg::COMMAND_COLOR) {
+      match value {
+        arg::COMMAND_COLOR_BLACK => Ok(Some(ansi_term::Color::Black)),
+        arg::COMMAND_COLOR_BLUE => Ok(Some(ansi_term::Color::Blue)),
+        arg::COMMAND_COLOR_CYAN => Ok(Some(ansi_term::Color::Cyan)),
+        arg::COMMAND_COLOR_GREEN => Ok(Some(ansi_term::Color::Green)),
+        arg::COMMAND_COLOR_PURPLE => Ok(Some(ansi_term::Color::Purple)),
+        arg::COMMAND_COLOR_RED => Ok(Some(ansi_term::Color::Red)),
+        arg::COMMAND_COLOR_YELLOW => Ok(Some(ansi_term::Color::Yellow)),
+        value => Err(ConfigError::Internal {
+          message: format!("Invalid argument `{value}` to --command-color."),
+        }),
+      }
+    } else {
+      Ok(None)
+    }
+  }
+
   fn dump_format_from_matches(matches: &ArgMatches) -> ConfigResult<DumpFormat> {
     let value = matches
       .value_of(arg::DUMP_FORMAT)
@@ -422,6 +486,7 @@ impl Config {
     };
 
     let color = Self::color_from_matches(matches)?;
+    let command_color = Self::command_color_from_matches(matches)?;
 
     let set_count = matches.occurrences_of(arg::SET);
     let mut overrides = BTreeMap::new();
@@ -570,20 +635,20 @@ impl Config {
     };
 
     let unstable = matches.is_present(arg::UNSTABLE)
-      || std::env::var_os("JUST_UNSTABLE")
+      || env::var_os("JUST_UNSTABLE")
         .map(|val| !(val == "false" || val == "0" || val.is_empty()))
         .unwrap_or_default();
 
     Ok(Self {
       check: matches.is_present(arg::CHECK),
+      color,
+      command_color,
+      dotenv_filename: matches.value_of(arg::DOTENV_FILENAME).map(str::to_owned),
+      dotenv_path: matches.value_of(arg::DOTENV_PATH).map(PathBuf::from),
       dry_run: matches.is_present(arg::DRY_RUN),
       dump_format: Self::dump_format_from_matches(matches)?,
       highlight: !matches.is_present(arg::NO_HIGHLIGHT),
-      shell: matches.value_of(arg::SHELL).map(str::to_owned),
-      load_dotenv: !matches.is_present(arg::NO_DOTENV),
-      shell_command: matches.is_present(arg::SHELL_COMMAND),
-      unsorted: matches.is_present(arg::UNSORTED),
-      unstable,
+      invocation_directory,
       list_heading: matches
         .value_of(arg::LIST_HEADING)
         .unwrap_or("Available recipes:\n")
@@ -592,14 +657,17 @@ impl Config {
         .value_of(arg::LIST_PREFIX)
         .unwrap_or("    ")
         .to_owned(),
-      color,
-      invocation_directory,
+      load_dotenv: !matches.is_present(arg::NO_DOTENV),
+      no_dependencies: matches.is_present(arg::NO_DEPS),
       search_config,
+      shell: matches.value_of(arg::SHELL).map(str::to_owned),
       shell_args,
+      shell_command: matches.is_present(arg::SHELL_COMMAND),
       subcommand,
-      dotenv_filename: matches.value_of(arg::DOTENV_FILENAME).map(str::to_owned),
-      dotenv_path: matches.value_of(arg::DOTENV_PATH).map(PathBuf::from),
+      unsorted: matches.is_present(arg::UNSORTED),
+      unstable,
       verbosity,
+      yes: matches.is_present(arg::YES),
     })
   }
 
@@ -615,7 +683,7 @@ impl Config {
 
   pub(crate) fn run(self, loader: &Loader) -> Result<(), Error> {
     if let Err(error) = InterruptHandler::install(self.verbosity) {
-      warn!("Failed to set CTRL-C handler: {}", error);
+      warn!("Failed to set CTRL-C handler: {error}");
     }
 
     self.subcommand.execute(&self, loader)
@@ -636,6 +704,7 @@ mod tests {
       $(dry_run: $dry_run:expr,)?
       $(dump_format: $dump_format:expr,)?
       $(highlight: $highlight:expr,)?
+      $(no_dependencies: $no_dependencies:expr,)?
       $(search_config: $search_config:expr,)?
       $(shell: $shell:expr,)?
       $(shell_args: $shell_args:expr,)?
@@ -655,6 +724,7 @@ mod tests {
           $(dry_run: $dry_run,)?
           $(dump_format: $dump_format,)?
           $(highlight: $highlight,)?
+          $(no_dependencies: $no_dependencies,)?
           $(search_config: $search_config,)?
           $(shell: $shell,)?
           $(shell_args: $shell_args,)?
@@ -714,7 +784,7 @@ mod tests {
 
         match Config::from_matches(&matches).expect_err("config parsing succeeded") {
           $error => { $($check)? }
-          other => panic!("Unexpected config error: {}", other),
+          other => panic!("Unexpected config error: {other}"),
         }
       }
     }
@@ -828,6 +898,18 @@ mod tests {
     name: highlight_yes_no,
     args: ["--highlight", "--no-highlight"],
     highlight: false,
+  }
+
+  test! {
+    name: no_deps,
+    args: ["--no-deps"],
+    no_dependencies: true,
+  }
+
+  test! {
+    name: no_dependencies,
+    args: ["--no-dependencies"],
+    no_dependencies: true,
   }
 
   test! {
@@ -1370,8 +1452,28 @@ mod tests {
   }
 
   error! {
+    name: fmt_alias,
+    args: ["--format", "bar"],
+    error: ConfigError::SubcommandArguments { subcommand, arguments },
+    check: {
+      assert_eq!(subcommand, cmd::FORMAT);
+      assert_eq!(arguments, &["bar"]);
+    },
+  }
+
+  error! {
     name: init_arguments,
     args: ["--init", "bar"],
+    error: ConfigError::SubcommandArguments { subcommand, arguments },
+    check: {
+      assert_eq!(subcommand, cmd::INIT);
+      assert_eq!(arguments, &["bar"]);
+    },
+  }
+
+  error! {
+    name: init_alias,
+    args: ["--initialize", "bar"],
     error: ConfigError::SubcommandArguments { subcommand, arguments },
     check: {
       assert_eq!(subcommand, cmd::INIT);

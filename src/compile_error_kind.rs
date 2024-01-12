@@ -25,9 +25,11 @@ pub(crate) enum CompileErrorKind<'src> {
     min: usize,
     max: usize,
   },
-  DuplicateAlias {
-    alias: &'src str,
+  Redefinition {
     first: usize,
+    first_type: &'static str,
+    name: &'src str,
+    second_type: &'static str,
   },
   DuplicateAttribute {
     attribute: &'src str,
@@ -36,10 +38,6 @@ pub(crate) enum CompileErrorKind<'src> {
   DuplicateParameter {
     recipe: &'src str,
     parameter: &'src str,
-  },
-  DuplicateRecipe {
-    recipe: &'src str,
-    first: usize,
   },
   DuplicateSet {
     setting: &'src str,
@@ -58,6 +56,7 @@ pub(crate) enum CompileErrorKind<'src> {
     found: usize,
     expected: Range<usize>,
   },
+  Include,
   InconsistentLeadingWhitespace {
     expected: &'src str,
     found: &'src str,

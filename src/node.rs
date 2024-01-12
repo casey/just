@@ -21,6 +21,37 @@ impl<'src> Node<'src> for Item<'src> {
       Item::Alias(alias) => alias.tree(),
       Item::Assignment(assignment) => assignment.tree(),
       Item::Comment(comment) => comment.tree(),
+      Item::Import {
+        relative, optional, ..
+      } => {
+        let mut tree = Tree::atom("import");
+
+        if *optional {
+          tree = tree.push("?");
+        }
+
+        tree.push(format!("{relative}"))
+      }
+      Item::Module {
+        name,
+        optional,
+        relative,
+        ..
+      } => {
+        let mut tree = Tree::atom("mod");
+
+        if *optional {
+          tree = tree.push("?");
+        }
+
+        tree = tree.push(name.lexeme());
+
+        if let Some(relative) = relative {
+          tree = tree.push(format!("{relative}"));
+        }
+
+        tree
+      }
       Item::Recipe(recipe) => recipe.tree(),
       Item::Set(set) => set.tree(),
     }
@@ -249,7 +280,7 @@ impl<'src> Node<'src> for Set<'src> {
           set.push_mut(Tree::string(&argument.cooked));
         }
       }
-      Setting::Tempdir(value) => {
+      Setting::DotenvFilename(value) | Setting::DotenvPath(value) | Setting::Tempdir(value) => {
         set.push_mut(Tree::string(value));
       }
     }

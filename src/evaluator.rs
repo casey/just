@@ -18,7 +18,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     settings: &'run Settings<'run>,
     search: &'run Search,
   ) -> RunResult<'src, Scope<'src, 'run>> {
-    let mut evaluator = Evaluator {
+    let mut evaluator = Self {
       scope: overrides,
       assignments: Some(assignments),
       config,
@@ -210,12 +210,12 @@ impl<'src, 'run> Evaluator<'src, 'run> {
 
     cmd.export(self.settings, self.dotenv, &self.scope);
 
-    cmd.stdin(process::Stdio::inherit());
+    cmd.stdin(Stdio::inherit());
 
     cmd.stderr(if self.config.verbosity.quiet() {
-      process::Stdio::null()
+      Stdio::null()
     } else {
-      process::Stdio::inherit()
+      Stdio::inherit()
     });
 
     InterruptHandler::guard(|| {
@@ -255,12 +255,12 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     config: &'run Config,
     dotenv: &'run BTreeMap<String, String>,
     parameters: &[Parameter<'src>],
-    arguments: &[&str],
+    arguments: &[String],
     scope: &'run Scope<'src, 'run>,
     settings: &'run Settings,
     search: &'run Search,
   ) -> RunResult<'src, (Scope<'src, 'run>, Vec<String>)> {
-    let mut evaluator = Evaluator {
+    let mut evaluator = Self {
       assignments: None,
       scope: scope.child(),
       search,
@@ -289,13 +289,13 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         }
       } else if parameter.kind.is_variadic() {
         for value in rest {
-          positional.push((*value).to_owned());
+          positional.push(value.clone());
         }
         let value = rest.to_vec().join(" ");
         rest = &[];
         value
       } else {
-        let value = rest[0].to_owned();
+        let value = rest[0].clone();
         positional.push(value.clone());
         rest = &rest[1..];
         value
@@ -313,7 +313,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     settings: &'run Settings,
     search: &'run Search,
   ) -> Evaluator<'src, 'run> {
-    Evaluator {
+    Self {
       assignments: None,
       scope: Scope::child(scope),
       search,

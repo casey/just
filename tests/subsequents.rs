@@ -47,9 +47,10 @@ test! {
   ",
   stderr: "
     error: Recipe `foo` depends on itself
-      |
-    1 | foo: && foo
-      |         ^^^
+     ——▶ justfile:1:9
+      │
+    1 │ foo: && foo
+      │         ^^^
   ",
   status: EXIT_FAILURE,
 }
@@ -61,9 +62,10 @@ test! {
   ",
   stderr: "
     error: Recipe `foo` has unknown dependency `bar`
-      |
-    1 | foo: && bar
-      |         ^^^
+     ——▶ justfile:1:9
+      │
+    1 │ foo: && bar
+      │         ^^^
   ",
   status: EXIT_FAILURE,
 }
@@ -77,9 +79,10 @@ test! {
   ",
   stderr: "
     error: Variable `y` not defined
-      |
-    3 | foo: && (bar y)
-      |              ^
+     ——▶ justfile:3:14
+      │
+    3 │ foo: && (bar y)
+      │              ^
   ",
   status: EXIT_FAILURE,
 }

@@ -17,6 +17,7 @@ _just() {
     local common=(
 '--chooser=[Override binary invoked by `--choose`]' \
 '--color=[Print colorful output]: :(auto always never)' \
+'--command-color=[Echo recipe lines in <COMMAND-COLOR>]: :(black blue cyan green purple red yellow)' \
 '--dump-format=[Dump justfile as <FORMAT>]: :(just json)' \
 '--list-heading=[Print <TEXT> before list]' \
 '--list-prefix=[Print <TEXT> before each list item]' \
@@ -35,9 +36,11 @@ _just() {
 '(--dotenv-path)--dotenv-filename=[Search for environment file named <DOTENV-FILENAME> instead of `.env`]' \
 '--dotenv-path=[Load environment file at <DOTENV-PATH> instead of searching for one]' \
 '--check[Run `--fmt` in '\''check'\'' mode. Exits with 0 if justfile is formatted correctly. Exits with 1 and prints a diff if formatting is required.]' \
+'--yes[Automatically confirm all recipes.]' \
 '(-q --quiet)-n[Print what just would do without doing it]' \
 '(-q --quiet)--dry-run[Print what just would do without doing it]' \
 '--highlight[Highlight echoed recipe lines in bold]' \
+'--no-deps[Don'\''t run recipe dependencies]' \
 '--no-dotenv[Don'\''t load `.env` file]' \
 '--no-highlight[Don'\''t highlight echoed recipe lines in bold]' \
 '(-n --dry-run)-q[Suppress all output]' \
@@ -50,7 +53,7 @@ _just() {
 '*-v[Use verbose output]' \
 '*--verbose[Use verbose output]' \
 '--changelog[Print changelog]' \
-'--choose[Select one or more recipes to run using a binary. If `--chooser` is not passed the chooser defaults to the value of $JUST_CHOOSER, falling back to `fzf`]' \
+'--choose[Select one or more recipes to run using a binary chooser. If `--chooser` is not passed the chooser defaults to the value of $JUST_CHOOSER, falling back to `fzf`]' \
 '--dump[Print justfile]' \
 '-e[Edit justfile with editor given by $VISUAL or $EDITOR, falling back to `vim`]' \
 '--edit[Edit justfile with editor given by $VISUAL or $EDITOR, falling back to `vim`]' \

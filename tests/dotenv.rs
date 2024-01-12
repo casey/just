@@ -161,3 +161,87 @@ fn path_flag_overwrites_no_load() {
     .status(EXIT_SUCCESS)
     .run();
 }
+
+#[test]
+fn can_set_dotenv_filename_from_justfile() {
+  Test::new()
+    .justfile(
+      r#"
+        set dotenv-filename := ".env.special"
+
+        foo:
+          @echo $NAME
+      "#,
+    )
+    .tree(tree! {
+      ".env.special": "NAME=bar"
+    })
+    .stdout("bar\n")
+    .status(EXIT_SUCCESS)
+    .run();
+}
+
+#[test]
+fn can_set_dotenv_path_from_justfile() {
+  Test::new()
+    .justfile(
+      r#"
+        set dotenv-path:= "subdir/.env"
+
+        foo:
+          @echo $NAME
+      "#,
+    )
+    .tree(tree! {
+      subdir: {
+        ".env": "NAME=bar"
+      }
+    })
+    .stdout("bar\n")
+    .status(EXIT_SUCCESS)
+    .run();
+}
+
+#[test]
+fn program_argument_has_priority_for_dotenv_filename() {
+  Test::new()
+    .justfile(
+      r#"
+        set dotenv-filename := ".env.special"
+
+        foo:
+          @echo $NAME
+      "#,
+    )
+    .tree(tree! {
+      ".env.special": "NAME=bar",
+      ".env.superspecial": "NAME=baz"
+    })
+    .args(["--dotenv-filename", ".env.superspecial"])
+    .stdout("baz\n")
+    .status(EXIT_SUCCESS)
+    .run();
+}
+
+#[test]
+fn program_argument_has_priority_for_dotenv_path() {
+  Test::new()
+    .justfile(
+      r#"
+        set dotenv-path:= "subdir/.env"
+
+        foo:
+          @echo $NAME
+      "#,
+    )
+    .tree(tree! {
+      subdir: {
+        ".env": "NAME=bar",
+        ".env.special": "NAME=baz"
+      }
+    })
+    .args(["--dotenv-path", "subdir/.env.special"])
+    .stdout("baz\n")
+    .status(EXIT_SUCCESS)
+    .run();
+}

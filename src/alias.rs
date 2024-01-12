@@ -13,10 +13,6 @@ pub(crate) struct Alias<'src, T = Rc<Recipe<'src>>> {
 }
 
 impl<'src> Alias<'src, Name<'src>> {
-  pub(crate) fn line_number(&self) -> usize {
-    self.name.line
-  }
-
   pub(crate) fn resolve(self, target: Rc<Recipe<'src>>) -> Alias<'src> {
     assert_eq!(self.target.lexeme(), target.name.lexeme());
 

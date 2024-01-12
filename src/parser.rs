@@ -23,31 +23,37 @@ use {super::*, TokenKind::*};
 /// find it, it adds that token to the set. When the parser accepts a token, the
 /// set is cleared. If the parser finds a token which is unexpected, the
 /// contents of the set is printed in the resultant error message.
-pub(crate) struct Parser<'tokens, 'src> {
-  /// Source tokens
-  tokens: &'tokens [Token<'src>],
-  /// Index of the next un-parsed token
-  next: usize,
-  /// Current expected tokens
-  expected: BTreeSet<TokenKind>,
-  /// Current recursion depth
-  depth: usize,
+pub(crate) struct Parser<'run, 'src> {
+  expected_tokens: BTreeSet<TokenKind>,
+  file_path: &'run Path,
+  module_namepath: &'run Namepath<'src>,
+  next_token: usize,
+  recursion_depth: usize,
+  submodule_depth: u32,
+  tokens: &'run [Token<'src>],
+  working_directory: &'run Path,
 }
 
-impl<'tokens, 'src> Parser<'tokens, 'src> {
+impl<'run, 'src> Parser<'run, 'src> {
   /// Parse `tokens` into an `Ast`
-  pub(crate) fn parse(tokens: &'tokens [Token<'src>]) -> CompileResult<'src, Ast<'src>> {
-    Self::new(tokens).parse_ast()
-  }
-
-  /// Construct a new Parser from a token stream
-  fn new(tokens: &'tokens [Token<'src>]) -> Parser<'tokens, 'src> {
-    Parser {
-      next: 0,
-      expected: BTreeSet::new(),
+  pub(crate) fn parse(
+    file_path: &'run Path,
+    module_namepath: &'run Namepath<'src>,
+    submodule_depth: u32,
+    tokens: &'run [Token<'src>],
+    working_directory: &'run Path,
+  ) -> CompileResult<'src, Ast<'src>> {
+    Self {
+      expected_tokens: BTreeSet::new(),
+      file_path,
+      module_namepath,
+      next_token: 0,
+      recursion_depth: 0,
+      submodule_depth,
       tokens,
-      depth: 0,
+      working_directory,
     }
+    .parse_ast()
   }
 
   fn error(&self, kind: CompileErrorKind<'src>) -> CompileResult<'src, CompileError<'src>> {
@@ -59,7 +65,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   fn unexpected_token(&self) -> CompileResult<'src, CompileError<'src>> {
     self.error(CompileErrorKind::UnexpectedToken {
       expected: self
-        .expected
+        .expected_tokens
         .iter()
         .copied()
         .filter(|kind| *kind != ByteOrderMark)
@@ -75,8 +81,8 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   }
 
   /// An iterator over the remaining significant tokens
-  fn rest(&self) -> impl Iterator<Item = Token<'src>> + 'tokens {
-    self.tokens[self.next..]
+  fn rest(&self) -> impl Iterator<Item = Token<'src>> + 'run {
+    self.tokens[self.next_token..]
       .iter()
       .copied()
       .filter(|token| token.kind != Whitespace)
@@ -101,7 +107,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   /// The first token in `kinds` will be added to the expected token set.
   fn next_are(&mut self, kinds: &[TokenKind]) -> bool {
     if let Some(&kind) = kinds.first() {
-      self.expected.insert(kind);
+      self.expected_tokens.insert(kind);
     }
 
     let mut rest = self.rest();
@@ -120,10 +126,10 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
 
   /// Advance past one significant token, clearing the expected token set.
   fn advance(&mut self) -> CompileResult<'src, Token<'src>> {
-    self.expected.clear();
+    self.expected_tokens.clear();
 
-    for skipped in &self.tokens[self.next..] {
-      self.next += 1;
+    for skipped in &self.tokens[self.next_token..] {
+      self.next_token += 1;
 
       if skipped.kind != Whitespace {
         return Ok(*skipped);
@@ -144,7 +150,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   }
 
   /// Return an unexpected token error if the next token is not an EOL
-  fn expect_eol(&mut self) -> CompileResult<'src, ()> {
+  fn expect_eol(&mut self) -> CompileResult<'src> {
     self.accept(Comment)?;
 
     if self.next_is(Eof) {
@@ -154,7 +160,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     self.expect(Eol).map(|_| ())
   }
 
-  fn expect_keyword(&mut self, expected: Keyword) -> CompileResult<'src, ()> {
+  fn expect_keyword(&mut self, expected: Keyword) -> CompileResult<'src> {
     let found = self.advance()?;
 
     if found.kind == Identifier && expected == found.lexeme() {
@@ -169,7 +175,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
 
   /// Return an internal error if the next token is not of kind `Identifier`
   /// with lexeme `lexeme`.
-  fn presume_keyword(&mut self, keyword: Keyword) -> CompileResult<'src, ()> {
+  fn presume_keyword(&mut self, keyword: Keyword) -> CompileResult<'src> {
     let next = self.advance()?;
 
     if next.kind != Identifier {
@@ -225,7 +231,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
   }
 
   /// Return an error if the next token is of kind `forbidden`
-  fn forbid<F>(&self, forbidden: TokenKind, error: F) -> CompileResult<'src, ()>
+  fn forbid<F>(&self, forbidden: TokenKind, error: F) -> CompileResult<'src>
   where
     F: FnOnce(Token) -> CompileError,
   {
@@ -328,6 +334,45 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
             self.presume_keyword(Keyword::Export)?;
             items.push(Item::Assignment(self.parse_assignment(true)?));
           }
+          Some(Keyword::Import)
+            if self.next_are(&[Identifier, StringToken])
+              || self.next_are(&[Identifier, QuestionMark]) =>
+          {
+            self.presume_keyword(Keyword::Import)?;
+            let optional = self.accepted(QuestionMark)?;
+            let (path, relative) = self.parse_string_literal_token()?;
+            items.push(Item::Import {
+              absolute: None,
+              optional,
+              path,
+              relative,
+            });
+          }
+          Some(Keyword::Mod)
+            if self.next_are(&[Identifier, Identifier, StringToken])
+              || self.next_are(&[Identifier, Identifier, Eof])
+              || self.next_are(&[Identifier, Identifier, Eol])
+              || self.next_are(&[Identifier, QuestionMark]) =>
+          {
+            self.presume_keyword(Keyword::Mod)?;
+
+            let optional = self.accepted(QuestionMark)?;
+
+            let name = self.parse_name()?;
+
+            let relative = if self.next_is(StringToken) {
+              Some(self.parse_string_literal()?)
+            } else {
+              None
+            };
+
+            items.push(Item::Module {
+              absolute: None,
+              name,
+              optional,
+              relative,
+            });
+          }
           Some(Keyword::Set)
             if self.next_are(&[Identifier, Identifier, ColonEquals])
               || self.next_are(&[Identifier, Identifier, Comment, Eof])
@@ -374,7 +419,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
       }
     }
 
-    if self.next == self.tokens.len() {
+    if self.next_token == self.tokens.len() {
       Ok(Ast {
         warnings: Vec::new(),
         items,
@@ -382,7 +427,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     } else {
       Err(self.internal_error(format!(
         "Parse completed with {} unparsed tokens",
-        self.tokens.len() - self.next,
+        self.tokens.len() - self.next_token,
       ))?)
     }
   }
@@ -419,7 +464,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
 
   /// Parse an expression, e.g. `1 + 2`
   fn parse_expression(&mut self) -> CompileResult<'src, Expression<'src>> {
-    if self.depth == if cfg!(windows) { 48 } else { 256 } {
+    if self.recursion_depth == if cfg!(windows) { 48 } else { 256 } {
       let token = self.next()?;
       return Err(CompileError::new(
         token,
@@ -427,7 +472,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
       ));
     }
 
-    self.depth += 1;
+    self.recursion_depth += 1;
 
     let expression = if self.accepted_keyword(Keyword::If)? {
       self.parse_conditional()?
@@ -451,7 +496,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
       }
     };
 
-    self.depth -= 1;
+    self.recursion_depth -= 1;
 
     Ok(expression)
   }
@@ -541,8 +586,10 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     }
   }
 
-  /// Parse a string literal, e.g. `"FOO"`
-  fn parse_string_literal(&mut self) -> CompileResult<'src, StringLiteral<'src>> {
+  /// Parse a string literal, e.g. `"FOO"`, returning the string literal and the string token
+  fn parse_string_literal_token(
+    &mut self,
+  ) -> CompileResult<'src, (Token<'src>, StringLiteral<'src>)> {
     let token = self.expect(StringToken)?;
 
     let kind = StringKind::from_string_or_backtick(token)?;
@@ -587,7 +634,13 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
       unindented
     };
 
-    Ok(StringLiteral { kind, raw, cooked })
+    Ok((token, StringLiteral { kind, raw, cooked }))
+  }
+
+  /// Parse a string literal, e.g. `"FOO"`
+  fn parse_string_literal(&mut self) -> CompileResult<'src, StringLiteral<'src>> {
+    let (_token, string_literal) = self.parse_string_literal_token()?;
+    Ok(string_literal)
   }
 
   /// Parse a name from an identifier token
@@ -625,13 +678,13 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
 
     let mut positional = Vec::new();
     loop {
-        if self.next_is(Identifier) || self.next_is(Dollar) {
-            positional.push(self.parse_parameter(ParameterKind::Singular)?);
-        } else if self.next_is(Eol) {
-            self.accept(Eol)?;
-        } else {
-            break;
-        }
+      if self.next_is(Identifier) || self.next_is(Dollar) {
+        positional.push(self.parse_parameter(ParameterKind::Singular)?);
+      } else if self.next_is(Eol) {
+        self.accept(Eol)?;
+      } else {
+        break;
+      }
     }
 
     let kind = if self.accepted(Plus)? {
@@ -656,7 +709,7 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
       None
     };
     while self.next_is(Eol) {
-        self.accept(Eol)?;
+      self.accept(Eol)?;
     }
 
     self.expect(Colon)?;
@@ -688,16 +741,20 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     let body = self.parse_body()?;
 
     Ok(Recipe {
-      parameters: positional.into_iter().chain(variadic).collect(),
-      private: name.lexeme().starts_with('_'),
       shebang: body.first().map_or(false, Line::is_shebang),
       attributes,
-      priors,
       body,
       dependencies,
+      depth: self.submodule_depth,
       doc,
+      file_path: self.file_path.into(),
       name,
+      namepath: self.module_namepath.join(name),
+      parameters: positional.into_iter().chain(variadic).collect(),
+      priors,
+      private: name.lexeme().starts_with('_'),
       quiet,
+      working_directory: self.working_directory.into(),
     })
   }
 
@@ -788,21 +845,23 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
     self.presume_keyword(Keyword::Set)?;
     let name = Name::from_identifier(self.presume(Identifier)?);
     let lexeme = name.lexeme();
+    let Some(keyword) = Keyword::from_lexeme(lexeme) else {
+      return Err(name.error(CompileErrorKind::UnknownSetting {
+        setting: name.lexeme(),
+      }));
+    };
 
-    let set_bool: Option<Setting> = match Keyword::from_lexeme(lexeme) {
-      Some(kw) => match kw {
-        Keyword::AllowDuplicateRecipes => {
-          Some(Setting::AllowDuplicateRecipes(self.parse_set_bool()?))
-        }
-        Keyword::DotenvLoad => Some(Setting::DotenvLoad(self.parse_set_bool()?)),
-        Keyword::Export => Some(Setting::Export(self.parse_set_bool()?)),
-        Keyword::Fallback => Some(Setting::Fallback(self.parse_set_bool()?)),
-        Keyword::IgnoreComments => Some(Setting::IgnoreComments(self.parse_set_bool()?)),
-        Keyword::PositionalArguments => Some(Setting::PositionalArguments(self.parse_set_bool()?)),
-        Keyword::WindowsPowershell => Some(Setting::WindowsPowerShell(self.parse_set_bool()?)),
-        _ => None,
-      },
-      None => None,
+    let set_bool = match keyword {
+      Keyword::AllowDuplicateRecipes => {
+        Some(Setting::AllowDuplicateRecipes(self.parse_set_bool()?))
+      }
+      Keyword::DotenvLoad => Some(Setting::DotenvLoad(self.parse_set_bool()?)),
+      Keyword::Export => Some(Setting::Export(self.parse_set_bool()?)),
+      Keyword::Fallback => Some(Setting::Fallback(self.parse_set_bool()?)),
+      Keyword::IgnoreComments => Some(Setting::IgnoreComments(self.parse_set_bool()?)),
+      Keyword::PositionalArguments => Some(Setting::PositionalArguments(self.parse_set_bool()?)),
+      Keyword::WindowsPowershell => Some(Setting::WindowsPowerShell(self.parse_set_bool()?)),
+      _ => None,
     };
 
     if let Some(value) = set_bool {
@@ -811,26 +870,22 @@ impl<'tokens, 'src> Parser<'tokens, 'src> {
 
     self.expect(ColonEquals)?;
 
-    if name.lexeme() == Keyword::Shell.lexeme() {
-      Ok(Set {
-        value: Setting::Shell(self.parse_shell()?),
-        name,
-      })
-    } else if name.lexeme() == Keyword::WindowsShell.lexeme() {
-      Ok(Set {
-        value: Setting::WindowsShell(self.parse_shell()?),
-        name,
-      })
-    } else if name.lexeme() == Keyword::Tempdir.lexeme() {
-      Ok(Set {
-        value: Setting::Tempdir(self.parse_string_literal()?.cooked),
-        name,
-      })
-    } else {
-      Err(name.error(CompileErrorKind::UnknownSetting {
-        setting: name.lexeme(),
-      }))
+    let set_value = match keyword {
+      Keyword::DotenvFilename => Some(Setting::DotenvFilename(self.parse_string_literal()?.cooked)),
+      Keyword::DotenvPath => Some(Setting::DotenvPath(self.parse_string_literal()?.cooked)),
+      Keyword::Shell => Some(Setting::Shell(self.parse_shell()?)),
+      Keyword::Tempdir => Some(Setting::Tempdir(self.parse_string_literal()?.cooked)),
+      Keyword::WindowsShell => Some(Setting::WindowsShell(self.parse_shell()?)),
+      _ => None,
+    };
+
+    if let Some(value) = set_value {
+      return Ok(Set { name, value });
     }
+
+    Err(name.error(CompileErrorKind::UnknownSetting {
+      setting: name.lexeme(),
+    }))
   }
 
   /// Parse a shell setting value
@@ -916,8 +971,15 @@ mod tests {
 
   fn test(text: &str, want: Tree) {
     let unindented = unindent(text);
-    let tokens = Lexer::lex(&unindented).expect("lexing failed");
-    let justfile = Parser::parse(&tokens).expect("parsing failed");
+    let tokens = Lexer::test_lex(&unindented).expect("lexing failed");
+    let justfile = Parser::parse(
+      &PathBuf::new(),
+      &Namepath::default(),
+      0,
+      &tokens,
+      &PathBuf::new(),
+    )
+    .expect("parsing failed");
     let have = justfile.tree();
     if have != want {
       println!("parsed text: {unindented}");
@@ -953,9 +1015,15 @@ mod tests {
     length: usize,
     kind: CompileErrorKind,
   ) {
-    let tokens = Lexer::lex(src).expect("Lexing failed in parse test...");
+    let tokens = Lexer::test_lex(src).expect("Lexing failed in parse test...");
 
-    match Parser::parse(&tokens) {
+    match Parser::parse(
+      &PathBuf::new(),
+      &Namepath::default(),
+      0,
+      &tokens,
+      &PathBuf::new(),
+    ) {
       Ok(_) => panic!("Parsing unexpectedly succeeded"),
       Err(have) => {
         let want = CompileError {
@@ -966,6 +1034,7 @@ mod tests {
             line,
             column,
             length,
+            path: "justfile".as_ref(),
           },
           kind: Box::new(kind),
         };
@@ -1030,11 +1099,11 @@ mod tests {
 
   test! {
       name: recipe_named_alias,
-      text: r#"
+      text: r"
       [private]
       alias:
         echo 'echoing alias'
-          "#,
+          ",
     tree: (justfile
       (recipe alias (body ("echo 'echoing alias'")))
     ),
@@ -1164,13 +1233,13 @@ mod tests {
 
   test! {
     name: recipe_plus_variadic,
-    text: r#"foo +bar:"#,
+    text: r"foo +bar:",
     tree: (justfile (recipe foo (params +(bar)))),
   }
 
   test! {
     name: recipe_star_variadic,
-    text: r#"foo *bar:"#,
+    text: r"foo *bar:",
     tree: (justfile (recipe foo (params *(bar)))),
   }
 
@@ -1182,13 +1251,13 @@ mod tests {
 
   test! {
     name: recipe_variadic_variable_default,
-    text: r#"foo +bar=baz:"#,
+    text: r"foo +bar=baz:",
     tree: (justfile (recipe foo (params +(bar baz)))),
   }
 
   test! {
     name: recipe_variadic_addition_group_default,
-    text: r#"foo +bar=(baz + bob):"#,
+    text: r"foo +bar=(baz + bob):",
     tree: (justfile (recipe foo (params +(bar ((+ baz bob)))))),
   }
 
@@ -1450,9 +1519,9 @@ mod tests {
 
   test! {
     name: recipe_variadic_with_default_after_default,
-    text: r#"
+    text: r"
       f a=b +c=d:
-    "#,
+    ",
     tree: (justfile (recipe f (params (a b) +(c d)))),
   }
 
@@ -1966,6 +2035,42 @@ mod tests {
     name: conditional_nested_otherwise,
     text: "a := if b == c { d } else { if b == c { d } else { e } }",
     tree: (justfile (assignment a (if b == c d (if b == c d e)))),
+  }
+
+  test! {
+    name: import,
+    text: "import \"some/file/path.txt\"     \n",
+    tree: (justfile (import "some/file/path.txt")),
+  }
+
+  test! {
+    name: optional_import,
+    text: "import? \"some/file/path.txt\"     \n",
+    tree: (justfile (import ? "some/file/path.txt")),
+  }
+
+  test! {
+    name: module_with,
+    text: "mod foo",
+    tree: (justfile (mod foo )),
+  }
+
+  test! {
+    name: optional_module,
+    text: "mod? foo",
+    tree: (justfile (mod ? foo)),
+  }
+
+  test! {
+    name: module_with_path,
+    text: "mod foo \"some/file/path.txt\"     \n",
+    tree: (justfile (mod foo "some/file/path.txt")),
+  }
+
+  test! {
+    name: optional_module_with_path,
+    text: "mod? foo \"some/file/path.txt\"     \n",
+    tree: (justfile (mod ? foo "some/file/path.txt")),
   }
 
   error! {

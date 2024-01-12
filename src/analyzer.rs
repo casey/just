@@ -1,7 +1,5 @@
 use {super::*, CompileErrorKind::*};
 
-const VALID_ALIAS_ATTRIBUTES: [Attribute; 1] = [Attribute::Private];
-
 #[derive(Default)]
 pub(crate) struct Analyzer<'src> {
   assignments: Table<'src, Assignment<'src>>,
@@ -10,35 +8,100 @@ pub(crate) struct Analyzer<'src> {
 }
 
 impl<'src> Analyzer<'src> {
-  pub(crate) fn analyze(ast: &Ast<'src>) -> CompileResult<'src, Justfile<'src>> {
-    Analyzer::default().justfile(ast)
+  pub(crate) fn analyze(
+    loaded: &[PathBuf],
+    paths: &HashMap<PathBuf, PathBuf>,
+    asts: &HashMap<PathBuf, Ast<'src>>,
+    root: &Path,
+  ) -> CompileResult<'src, Justfile<'src>> {
+    Analyzer::default().justfile(loaded, paths, asts, root)
   }
 
-  fn justfile(mut self, ast: &Ast<'src>) -> CompileResult<'src, Justfile<'src>> {
+  fn justfile(
+    mut self,
+    loaded: &[PathBuf],
+    paths: &HashMap<PathBuf, PathBuf>,
+    asts: &HashMap<PathBuf, Ast<'src>>,
+    root: &Path,
+  ) -> CompileResult<'src, Justfile<'src>> {
     let mut recipes = Vec::new();
 
-    for item in &ast.items {
-      match item {
-        Item::Alias(alias) => {
-          self.analyze_alias(alias)?;
-          self.aliases.insert(alias.clone());
-        }
-        Item::Assignment(assignment) => {
-          self.analyze_assignment(assignment)?;
-          self.assignments.insert(assignment.clone());
-        }
-        Item::Comment(_) => (),
-        Item::Recipe(recipe) => {
-          if recipe.enabled() {
-            Self::analyze_recipe(recipe)?;
-            recipes.push(recipe);
-          }
-        }
-        Item::Set(set) => {
-          self.analyze_set(set)?;
-          self.sets.insert(set.clone());
+    let mut stack = Vec::new();
+    stack.push(asts.get(root).unwrap());
+
+    let mut warnings = Vec::new();
+
+    let mut modules: BTreeMap<String, (Name, Justfile)> = BTreeMap::new();
+
+    let mut definitions: HashMap<&str, (&'static str, Name)> = HashMap::new();
+
+    let mut define = |name: Name<'src>,
+                      second_type: &'static str,
+                      duplicates_allowed: bool|
+     -> CompileResult<'src> {
+      if let Some((first_type, original)) = definitions.get(name.lexeme()) {
+        if !(*first_type == second_type && duplicates_allowed) {
+          let (original, redefinition) = if name.line < original.line {
+            (name, *original)
+          } else {
+            (*original, name)
+          };
+
+          return Err(redefinition.token.error(Redefinition {
+            first_type,
+            second_type,
+            name: name.lexeme(),
+            first: original.line,
+          }));
         }
       }
+
+      definitions.insert(name.lexeme(), (second_type, name));
+
+      Ok(())
+    };
+
+    while let Some(ast) = stack.pop() {
+      for item in &ast.items {
+        match item {
+          Item::Alias(alias) => {
+            define(alias.name, "alias", false)?;
+            Self::analyze_alias(alias)?;
+            self.aliases.insert(alias.clone());
+          }
+          Item::Assignment(assignment) => {
+            self.analyze_assignment(assignment)?;
+            self.assignments.insert(assignment.clone());
+          }
+          Item::Comment(_) => (),
+          Item::Import { absolute, .. } => {
+            if let Some(absolute) = absolute {
+              stack.push(asts.get(absolute).unwrap());
+            }
+          }
+          Item::Module { absolute, name, .. } => {
+            if let Some(absolute) = absolute {
+              define(*name, "module", false)?;
+              modules.insert(
+                name.lexeme().into(),
+                (*name, Self::analyze(loaded, paths, asts, absolute)?),
+              );
+            }
+          }
+          Item::Recipe(recipe) => {
+            if recipe.enabled() {
+              Self::analyze_recipe(recipe)?;
+              recipes.push(recipe);
+            }
+          }
+          Item::Set(set) => {
+            self.analyze_set(set)?;
+            self.sets.insert(set.clone());
+          }
+        }
+      }
+
+      warnings.extend(ast.warnings.iter().cloned());
     }
 
     let settings = Settings::from_setting_iter(self.sets.into_iter().map(|(_, set)| set.value));
@@ -48,15 +111,13 @@ impl<'src> Analyzer<'src> {
     AssignmentResolver::resolve_assignments(&self.assignments)?;
 
     for recipe in recipes {
-      if let Some(original) = recipe_table.get(recipe.name.lexeme()) {
-        if !settings.allow_duplicate_recipes {
-          return Err(recipe.name.token().error(DuplicateRecipe {
-            recipe: original.name(),
-            first: original.line_number(),
-          }));
-        }
+      define(recipe.name, "recipe", settings.allow_duplicate_recipes)?;
+      if recipe_table
+        .get(recipe.name.lexeme())
+        .map_or(true, |original| recipe.depth <= original.depth)
+      {
+        recipe_table.insert(recipe.clone());
       }
-      recipe_table.insert(recipe.clone());
     }
 
     let recipes = RecipeResolver::resolve_recipes(recipe_table, &self.assignments)?;
@@ -66,10 +127,12 @@ impl<'src> Analyzer<'src> {
       aliases.insert(Self::resolve_alias(&recipes, alias)?);
     }
 
+    let root = paths.get(root).unwrap();
+
     Ok(Justfile {
-      warnings: ast.warnings.clone(),
-      first: recipes
+      default: recipes
         .values()
+        .filter(|recipe| recipe.name.path == root)
         .fold(None, |accumulator, next| match accumulator {
           None => Some(Rc::clone(next)),
           Some(previous) => Some(if previous.line_number() < next.line_number() {
@@ -80,18 +143,24 @@ impl<'src> Analyzer<'src> {
         }),
       aliases,
       assignments: self.assignments,
+      loaded: loaded.into(),
       recipes,
       settings,
+      warnings,
+      modules: modules
+        .into_iter()
+        .map(|(name, (_name, justfile))| (name, justfile))
+        .collect(),
     })
   }
 
-  fn analyze_recipe(recipe: &UnresolvedRecipe<'src>) -> CompileResult<'src, ()> {
+  fn analyze_recipe(recipe: &UnresolvedRecipe<'src>) -> CompileResult<'src> {
     let mut parameters = BTreeSet::new();
     let mut passed_default = false;
 
     for parameter in &recipe.parameters {
       if parameters.contains(parameter.name.lexeme()) {
-        return Err(parameter.name.token().error(DuplicateParameter {
+        return Err(parameter.name.token.error(DuplicateParameter {
           recipe: recipe.name.lexeme(),
           parameter: parameter.name.lexeme(),
         }));
@@ -104,7 +173,7 @@ impl<'src> Analyzer<'src> {
         return Err(
           parameter
             .name
-            .token()
+            .token
             .error(RequiredParameterFollowsDefaultParameter {
               parameter: parameter.name.lexeme(),
             }),
@@ -130,28 +199,21 @@ impl<'src> Analyzer<'src> {
     Ok(())
   }
 
-  fn analyze_assignment(&self, assignment: &Assignment<'src>) -> CompileResult<'src, ()> {
+  fn analyze_assignment(&self, assignment: &Assignment<'src>) -> CompileResult<'src> {
     if self.assignments.contains_key(assignment.name.lexeme()) {
-      return Err(assignment.name.token().error(DuplicateVariable {
+      return Err(assignment.name.token.error(DuplicateVariable {
         variable: assignment.name.lexeme(),
       }));
     }
     Ok(())
   }
 
-  fn analyze_alias(&self, alias: &Alias<'src, Name<'src>>) -> CompileResult<'src, ()> {
+  fn analyze_alias(alias: &Alias<'src, Name<'src>>) -> CompileResult<'src> {
     let name = alias.name.lexeme();
 
-    if let Some(original) = self.aliases.get(name) {
-      return Err(alias.name.token().error(DuplicateAlias {
-        alias: name,
-        first: original.line_number(),
-      }));
-    }
-
     for attr in &alias.attributes {
-      if !VALID_ALIAS_ATTRIBUTES.contains(attr) {
-        return Err(alias.name.token().error(AliasInvalidAttribute {
+      if *attr != Attribute::Private {
+        return Err(alias.name.token.error(AliasInvalidAttribute {
           alias: name,
           attr: *attr,
         }));
@@ -161,7 +223,7 @@ impl<'src> Analyzer<'src> {
     Ok(())
   }
 
-  fn analyze_set(&self, set: &Set<'src>) -> CompileResult<'src, ()> {
+  fn analyze_set(&self, set: &Set<'src>) -> CompileResult<'src> {
     if let Some(original) = self.sets.get(set.name.lexeme()) {
       return Err(set.name.error(DuplicateSet {
         setting: original.name.lexeme(),
@@ -176,10 +238,9 @@ impl<'src> Analyzer<'src> {
     recipes: &Table<'src, Rc<Recipe<'src>>>,
     alias: Alias<'src, Name<'src>>,
   ) -> CompileResult<'src, Alias<'src>> {
-    let token = alias.name.token();
     // Make sure the alias doesn't conflict with any recipe
     if let Some(recipe) = recipes.get(alias.name.lexeme()) {
-      return Err(token.error(AliasShadowsRecipe {
+      return Err(alias.name.token.error(AliasShadowsRecipe {
         alias: alias.name.lexeme(),
         recipe_line: recipe.line_number(),
       }));
@@ -188,7 +249,7 @@ impl<'src> Analyzer<'src> {
     // Make sure the target recipe exists
     match recipes.get(alias.target.lexeme()) {
       Some(target) => Ok(alias.resolve(Rc::clone(target))),
-      None => Err(token.error(UnknownAliasTarget {
+      None => Err(alias.name.token.error(UnknownAliasTarget {
         alias: alias.name.lexeme(),
         target: alias.target.lexeme(),
       })),
@@ -207,7 +268,7 @@ mod tests {
     line: 1,
     column: 6,
     width: 3,
-    kind: DuplicateAlias { alias: "foo", first: 0 },
+    kind: Redefinition { first_type: "alias", second_type: "alias", name: "foo", first: 0 },
   }
 
   analysis_error! {
@@ -223,11 +284,11 @@ mod tests {
   analysis_error! {
     name: alias_shadows_recipe_before,
     input: "bar: \n  echo bar\nalias foo := bar\nfoo:\n  echo foo",
-    offset: 23,
-    line: 2,
-    column: 6,
+    offset: 34,
+    line: 3,
+    column: 0,
     width: 3,
-    kind: AliasShadowsRecipe {alias: "foo", recipe_line: 3},
+    kind: Redefinition { first_type: "alias", second_type: "recipe", name: "foo", first: 2 },
   }
 
   analysis_error! {
@@ -237,7 +298,7 @@ mod tests {
     line: 2,
     column: 6,
     width: 3,
-    kind: AliasShadowsRecipe { alias: "foo", recipe_line: 0 },
+    kind: Redefinition { first_type: "alias", second_type: "recipe", name: "foo", first: 0 },
   }
 
   analysis_error! {
@@ -277,7 +338,7 @@ mod tests {
     line:   2,
     column: 0,
     width:  1,
-    kind:   DuplicateRecipe{recipe: "a", first: 0},
+    kind:   Redefinition { first_type: "recipe", second_type: "recipe", name: "a", first: 0 },
   }
 
   analysis_error! {

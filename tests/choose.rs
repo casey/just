@@ -101,7 +101,7 @@ fn skip_recipes_that_require_arguments() {
 
 #[test]
 fn no_choosable_recipes() {
-  crate::test::Test::new()
+  Test::new()
     .arg("--choose")
     .justfile(
       "
@@ -152,7 +152,7 @@ fn invoke_error_function() {
       ",
     )
     .stderr_regex(
-      r"error: Chooser `/ -cu fzf --multi --preview 'just --show \{\}'` invocation failed: .*\n",
+      r#"error: Chooser `/ -cu fzf --multi --preview 'just --unstable --color always --justfile ".*justfile" --show \{\}'` invocation failed: .*\n"#,
     )
     .status(EXIT_FAILURE)
     .shell(false)
@@ -200,7 +200,7 @@ fn default() {
   };
 
   let cat = which("cat").unwrap();
-  let fzf = tmp.path().join(format!("fzf{}", env::consts::EXE_SUFFIX));
+  let fzf = tmp.path().join(format!("fzf{EXE_SUFFIX}"));
 
   #[cfg(unix)]
   std::os::unix::fs::symlink(cat, fzf).unwrap();

@@ -16,6 +16,7 @@ jobs:
         target:
         - aarch64-apple-darwin
         - aarch64-unknown-linux-musl
+        - arm-unknown-linux-musleabihf
         - armv7-unknown-linux-musleabihf
         - x86_64-apple-darwin
         - x86_64-pc-windows-msvc
@@ -27,6 +28,9 @@ jobs:
         - target: aarch64-unknown-linux-musl
           os: ubuntu-latest
           target_rustflags: '--codegen linker=aarch64-linux-gnu-gcc'
+        - target: arm-unknown-linux-musleabihf
+          os: ubuntu-latest
+          target_rustflags: '--codegen linker=arm-linux-gnueabihf-gcc'
         - target: armv7-unknown-linux-musleabihf
           os: ubuntu-latest
           target_rustflags: '--codegen linker=arm-linux-gnueabihf-gcc'
@@ -58,8 +62,8 @@ jobs:
         sudo apt-get update
         sudo apt-get install gcc-aarch64-linux-gnu
 
-    - name: Install ARM7 Toolchain
-      if: ${{ matrix.target == 'armv7-unknown-linux-musleabihf' }}
+    - name: Install ARM Toolchain
+      if: ${{ matrix.target == 'arm-unknown-linux-musleabihf' || matrix.target == 'armv7-unknown-linux-musleabihf' }}
       run: |
         sudo apt-get update
         sudo apt-get install gcc-arm-linux-gnueabihf

@@ -146,9 +146,10 @@ fn print_error_from_parent_if_recipe_not_found_in_current() {
     .stderr(
       "
       error: Variable `bar` not defined
-        |
-      2 |  echo {{bar}}
-        |         ^^^
+       ——▶ justfile:2:9
+        │
+      2 │  echo {{bar}}
+        │         ^^^
     ",
     )
     .status(EXIT_FAILURE)

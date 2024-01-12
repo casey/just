@@ -6,20 +6,19 @@ alias t := test
 
 alias c := check
 
-bt := '0'
-
-export RUST_BACKTRACE := bt
-
 log := "warn"
 
 export JUST_LOG := log
+
+watch +args='test':
+  cargo watch --clear --exec '{{ args }}'
 
 test:
   cargo test
 
 ci: build-book
   cargo test --all
-  cargo clippy --all --all-targets
+  cargo clippy --all --all-targets -- --deny warnings
   cargo fmt --all -- --check
   ./bin/forbid
   cargo update --locked --package just
@@ -40,9 +39,6 @@ build:
 fmt:
   cargo fmt --all
 
-watch +COMMAND='test':
-  cargo watch --clear --exec "{{COMMAND}}"
-
 man:
   cargo build --features help4help2man
   help2man \
@@ -57,6 +53,7 @@ view-man: man
 
 # add git log messages to changelog
 update-changelog:
+  echo >> CHANGELOG.md
   git log --pretty='format:- %s' >> CHANGELOG.md
 
 update-contributors:
@@ -198,7 +195,6 @@ convert-integration-test test:
 
 # run all polyglot recipes
 polyglot: _python _js _perl _sh _ruby
-# (recipes that start with `_` are hidden from --list)
 
 _python:
   #!/usr/bin/env python3

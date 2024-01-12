@@ -88,9 +88,10 @@ a:"#,
   args:     ("a"),
   stdout:   "",
   stderr:   "error: `\\q` is not a valid escape sequence
-  |
-1 | x := \"\\q\"
-  |      ^^^^
+ ——▶ justfile:1:6
+  │
+1 │ x := \"\\q\"
+  │      ^^^^
 ",
   status:   EXIT_FAILURE,
 }
@@ -108,9 +109,10 @@ a:
   args:     ("a"),
   stdout:   "",
   stderr:   "error: Variable `foo` not defined
-  |
-6 |   echo '{{foo}}'
-  |           ^^^
+ ——▶ justfile:6:11
+  │
+6 │   echo '{{foo}}'
+  │           ^^^
 ",
   status:   EXIT_FAILURE,
 }
@@ -128,9 +130,10 @@ a:
   args:     ("a"),
   stdout:   "",
   stderr:   "error: Variable `bar` not defined
-  |
-3 | whatever' + bar
-  |             ^^^
+ ——▶ justfile:3:13
+  │
+3 │ whatever' + bar
+  │             ^^^
 ",
   status:   EXIT_FAILURE,
 }
@@ -165,9 +168,10 @@ a:
   args:     ("a"),
   stdout:   "",
   stderr:   "error: Variable `b` not defined
-  |
-5 |   echo {{b}}
-  |          ^
+ ——▶ justfile:5:10
+  │
+5 │   echo {{b}}
+  │          ^
 ",
   status:   EXIT_FAILURE,
 }
@@ -181,9 +185,10 @@ test! {
   stdout:   "",
   stderr:   "
     error: Unterminated string
-      |
-    1 | a b= ':
-      |      ^
+     ——▶ justfile:1:6
+      │
+    1 │ a b= ':
+      │      ^
   ",
   status:   EXIT_FAILURE,
 }
@@ -197,9 +202,10 @@ test! {
   stdout:   "",
   stderr:   r#"
     error: Unterminated string
-      |
-    1 | a b= ":
-      |      ^
+     ——▶ justfile:1:6
+      │
+    1 │ a b= ":
+      │      ^
   "#,
   status:   EXIT_FAILURE,
 }
@@ -212,9 +218,10 @@ test! {
   ",
   stderr:   r#"
     error: Unterminated backtick
-      |
-    1 | foo a=    `echo blaaaaaah:
-      |           ^
+     ——▶ justfile:1:8
+      │
+    1 │ foo a=    `echo blaaaaaah:
+      │           ^
   "#,
   status:   EXIT_FAILURE,
 }
@@ -228,9 +235,10 @@ test! {
   stdout:   "",
   stderr:   "
     error: Unterminated string
-      |
-    1 | a b= ''':
-      |      ^^^
+     ——▶ justfile:1:6
+      │
+    1 │ a b= ''':
+      │      ^^^
   ",
   status:   EXIT_FAILURE,
 }
@@ -244,9 +252,10 @@ test! {
   stdout:   "",
   stderr:   r#"
     error: Unterminated string
-      |
-    1 | a b= """:
-      |      ^^^
+     ——▶ justfile:1:6
+      │
+    1 │ a b= """:
+      │      ^^^
   "#,
   status:   EXIT_FAILURE,
 }
@@ -259,9 +268,10 @@ test! {
   ",
   stderr:   r#"
     error: Unterminated backtick
-      |
-    1 | foo a=    ```echo blaaaaaah:
-      |           ^^^
+     ——▶ justfile:1:8
+      │
+    1 │ foo a=    ```echo blaaaaaah:
+      │           ^^^
   "#,
   status:   EXIT_FAILURE,
 }
@@ -374,9 +384,10 @@ test! {
   ",
   stderr:   "
     error: Backticks may not start with `#!`
-      |
-    1 | x := `#!/usr/bin/env sh`
-      |      ^^^^^^^^^^^^^^^^^^^
+     ——▶ justfile:1:6
+      │
+    1 │ x := `#!/usr/bin/env sh`
+      │      ^^^^^^^^^^^^^^^^^^^
   ",
   status:   EXIT_FAILURE,
 }

@@ -5,9 +5,10 @@ test! {
   justfile: "(]",
   stderr: "
     error: Mismatched closing delimiter `]`. (Did you mean to close the `(` on line 1?)
-      |
-    1 | (]
-      |  ^
+     ——▶ justfile:1:2
+      │
+    1 │ (]
+      │  ^
   ",
   status: EXIT_FAILURE,
 }
@@ -17,9 +18,10 @@ test! {
   justfile: "]",
   stderr: "
     error: Unexpected closing delimiter `]`
-      |
-    1 | ]
-      | ^
+     ——▶ justfile:1:1
+      │
+    1 │ ]
+      │ ^
   ",
   status: EXIT_FAILURE,
 }
@@ -96,9 +98,10 @@ test! {
   stdout: "",
   stderr: "
     error: Unterminated interpolation
-      |
-    2 |   echo {{ (
-      |        ^^
+     ——▶ justfile:2:8
+      │
+    2 │   echo {{ (
+      │        ^^
   ",
   status: EXIT_FAILURE,
 }

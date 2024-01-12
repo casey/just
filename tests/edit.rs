@@ -82,7 +82,7 @@ fn status_error() {
   assert!(
     Regex::new("^error: Editor `exit-2` failed: exit (code|status): 2\n$")
       .unwrap()
-      .is_match(str::from_utf8(&output.stderr).unwrap(),)
+      .is_match(str::from_utf8(&output.stderr).unwrap())
   );
 
   assert_eq!(output.status.code().unwrap(), 2);
@@ -116,7 +116,7 @@ fn editor_precedence() {
   assert_stdout(&output, JUSTFILE);
 
   let cat = which("cat").unwrap();
-  let vim = tmp.path().join(format!("vim{}", EXE_SUFFIX));
+  let vim = tmp.path().join(format!("vim{EXE_SUFFIX}"));
 
   #[cfg(unix)]
   std::os::unix::fs::symlink(cat, vim).unwrap();

@@ -5,20 +5,24 @@ use super::*;
 pub(crate) enum Keyword {
   Alias,
   AllowDuplicateRecipes,
+  DotenvFilename,
   DotenvLoad,
+  DotenvPath,
   Else,
   Export,
   Fallback,
   False,
   If,
   IgnoreComments,
+  Import,
+  Mod,
   PositionalArguments,
   Set,
   Shell,
+  Tempdir,
   True,
   WindowsPowershell,
   WindowsShell,
-  Tempdir,
 }
 
 impl Keyword {

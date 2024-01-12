@@ -120,7 +120,7 @@ fn test_downwards_multiple_path_argument() {
 }
 
 #[test]
-fn single_downards() {
+fn single_downwards() {
   let tmp = temptree! {
     justfile: "default:\n\techo ok",
     child: {},

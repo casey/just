@@ -98,7 +98,7 @@ fn unstable_passed() {
     panic!("justfile failed with status: {}", output.status);
   }
 
-  assert_eq!(fs::read_to_string(&justfile).unwrap(), "x := 'hello'\n",);
+  assert_eq!(fs::read_to_string(&justfile).unwrap(), "x := 'hello'\n");
 }
 
 #[test]

@@ -43,12 +43,14 @@ grammar
 ```
 justfile      : item* EOF
 
-item          : recipe
-              | alias
+item          : alias
               | assignment
-              | export
-              | setting
               | eol
+              | export
+              | import
+              | module
+              | recipe
+              | setting
 
 eol           : NEWLINE
               | COMMENT NEWLINE
@@ -60,15 +62,21 @@ assignment    : NAME ':=' expression eol
 export        : 'export' assignment
 
 setting       : 'set' 'allow-duplicate-recipes' boolean?
+              | 'set' 'dotenv-filename' ':=' string
               | 'set' 'dotenv-load' boolean?
+              | 'set' 'dotenv-path' ':=' string
               | 'set' 'export' boolean?
               | 'set' 'fallback' boolean?
               | 'set' 'ignore-comments' boolean?
               | 'set' 'positional-arguments' boolean?
               | 'set' 'shell' ':=' '[' string (',' string)* ','? ']'
-              | 'set' 'tempdir  string
+              | 'set' 'tempdir ':=' string
               | 'set' 'windows-powershell' boolean?
               | 'set' 'windows-shell' ':=' '[' string (',' string)* ','? ']'
+
+import        : 'import' '?'? string?
+
+module        : 'mod' '?'? NAME string?
 
 boolean       : ':=' ('true' | 'false')
 

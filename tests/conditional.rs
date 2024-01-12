@@ -61,9 +61,10 @@ test! {
   stdout: "",
   stderr: "
     error: Variable `b` not defined
-      |
-    1 | a := if b == '' { '' } else { '' }
-      |         ^
+     ——▶ justfile:1:9
+      │
+    1 │ a := if b == '' { '' } else { '' }
+      │         ^
   ",
   status: EXIT_FAILURE,
 }
@@ -79,9 +80,10 @@ test! {
   stdout: "",
   stderr: "
     error: Variable `b` not defined
-      |
-    1 | a := if '' == b { '' } else { '' }
-      |               ^
+     ——▶ justfile:1:15
+      │
+    1 │ a := if '' == b { '' } else { '' }
+      │               ^
   ",
   status: EXIT_FAILURE,
 }
@@ -97,9 +99,10 @@ test! {
   stdout: "",
   stderr: "
     error: Variable `b` not defined
-      |
-    1 | a := if '' == '' { b } else { '' }
-      |                    ^
+     ——▶ justfile:1:20
+      │
+    1 │ a := if '' == '' { b } else { '' }
+      │                    ^
   ",
   status: EXIT_FAILURE,
 }
@@ -115,9 +118,10 @@ test! {
   stdout: "",
   stderr: "
     error: Variable `b` not defined
-      |
-    1 | a := if '' == '' { '' } else { b }
-      |                                ^
+     ——▶ justfile:1:32
+      │
+    1 │ a := if '' == '' { '' } else { b }
+      │                                ^
   ",
   status: EXIT_FAILURE,
 }
@@ -133,9 +137,10 @@ test! {
   stdout: "",
   stderr: "
     error: Expected '!=', '==', '=~', '+', or '/', but found identifier
-      |
-    1 | a := if '' a '' { '' } else { b }
-      |            ^
+     ——▶ justfile:1:12
+      │
+    1 │ a := if '' a '' { '' } else { b }
+      │            ^
   ",
   status: EXIT_FAILURE,
 }
@@ -177,9 +182,10 @@ test! {
   stdout: "",
   stderr: "
     error: Expected keyword `else` but found `end of line`
-      |
-    1 | TEST := if path_exists('/bin/bash') == 'true' {'yes'}
-      |                                                      ^
+     ——▶ justfile:1:54
+      │
+    1 │ TEST := if path_exists('/bin/bash') == 'true' {'yes'}
+      │                                                      ^
   ",
   status: EXIT_FAILURE,
 }
@@ -192,9 +198,10 @@ test! {
   stdout: "",
   stderr: "
     error: Expected keyword `else` but found identifier `els`
-      |
-    1 | TEST := if path_exists('/bin/bash') == 'true' {'yes'} els {'no'}
-      |                                                       ^^^
+     ——▶ justfile:1:55
+      │
+    1 │ TEST := if path_exists('/bin/bash') == 'true' {'yes'} els {'no'}
+      │                                                       ^^^
   ",
   status: EXIT_FAILURE,
 }

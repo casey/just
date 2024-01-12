@@ -1,6 +1,6 @@
 use super::*;
 
-fn test(justfile: &str, value: Value) {
+fn case(justfile: &str, value: Value) {
   Test::new()
     .justfile(justfile)
     .args(["--dump", "--dump-format", "json", "--unstable"])
@@ -10,7 +10,7 @@ fn test(justfile: &str, value: Value) {
 
 #[test]
 fn alias() {
-  test(
+  case(
     "
       alias f := foo
 
@@ -26,6 +26,7 @@ fn alias() {
         }
       },
       "assignments": {},
+      "modules": {},
       "recipes": {
         "foo": {
           "attributes": [],
@@ -33,6 +34,7 @@ fn alias() {
           "dependencies": [],
           "doc": null,
           "name": "foo",
+          "namepath": "foo",
           "parameters": [],
           "priors": 0,
           "private": false,
@@ -42,7 +44,9 @@ fn alias() {
       },
       "settings": {
         "allow_duplicate_recipes": false,
+        "dotenv_filename": null,
         "dotenv_load": null,
+        "dotenv_path": null,
         "export": false,
         "fallback": false,
         "positional_arguments": false,
@@ -59,7 +63,7 @@ fn alias() {
 
 #[test]
 fn assignment() {
-  test(
+  case(
     "foo := 'bar'",
     json!({
       "aliases": {},
@@ -71,10 +75,13 @@ fn assignment() {
         }
       },
       "first": null,
+      "modules": {},
       "recipes": {},
       "settings": {
         "allow_duplicate_recipes": false,
+        "dotenv_filename": null,
         "dotenv_load": null,
+        "dotenv_path": null,
         "export": false,
         "fallback": false,
         "ignore_comments": false,
@@ -91,7 +98,7 @@ fn assignment() {
 
 #[test]
 fn body() {
-  test(
+  case(
     "
       foo:
         bar
@@ -101,6 +108,7 @@ fn body() {
       "aliases": {},
       "assignments": {},
       "first": "foo",
+      "modules": {},
       "recipes": {
         "foo": {
           "attributes": [],
@@ -111,6 +119,7 @@ fn body() {
           "dependencies": [],
           "doc": null,
           "name": "foo",
+          "namepath": "foo",
           "parameters": [],
           "priors": 0,
           "private": false,
@@ -120,7 +129,9 @@ fn body() {
       },
       "settings": {
         "allow_duplicate_recipes": false,
+        "dotenv_filename": null,
         "dotenv_load": null,
+        "dotenv_path": null,
         "export": false,
         "fallback": false,
         "ignore_comments": false,
@@ -137,7 +148,7 @@ fn body() {
 
 #[test]
 fn dependencies() {
-  test(
+  case(
     "
       foo:
       bar: foo
@@ -146,11 +157,13 @@ fn dependencies() {
       "aliases": {},
       "assignments": {},
       "first": "foo",
+      "modules": {},
       "recipes": {
         "bar": {
           "attributes": [],
           "doc": null,
           "name": "bar",
+          "namepath": "bar",
           "body": [],
           "dependencies": [{
             "arguments": [],
@@ -167,6 +180,7 @@ fn dependencies() {
           "dependencies": [],
           "doc": null,
           "name": "foo",
+          "namepath": "foo",
           "parameters": [],
           "priors": 0,
           "private": false,
@@ -177,7 +191,9 @@ fn dependencies() {
       },
       "settings": {
         "allow_duplicate_recipes": false,
+        "dotenv_filename": null,
         "dotenv_load": null,
+        "dotenv_path": null,
         "export": false,
         "fallback": false,
         "ignore_comments": false,
@@ -194,7 +210,7 @@ fn dependencies() {
 
 #[test]
 fn dependency_argument() {
-  test(
+  case(
     "
       x := 'foo'
       foo *args:
@@ -222,10 +238,12 @@ fn dependency_argument() {
           "value": "foo",
         },
       },
+      "modules": {},
       "recipes": {
         "bar": {
           "doc": null,
           "name": "bar",
+          "namepath": "bar",
           "body": [],
           "dependencies": [{
             "arguments": [
@@ -254,6 +272,7 @@ fn dependency_argument() {
           "dependencies": [],
           "doc": null,
           "name": "foo",
+          "namepath": "foo",
           "parameters": [
             {
               "name": "args",
@@ -271,7 +290,9 @@ fn dependency_argument() {
       },
       "settings": {
         "allow_duplicate_recipes": false,
+        "dotenv_filename": null,
         "dotenv_load": null,
+        "dotenv_path": null,
         "export": false,
         "fallback": false,
         "ignore_comments": false,
@@ -288,7 +309,7 @@ fn dependency_argument() {
 
 #[test]
 fn duplicate_recipes() {
-  test(
+  case(
     "
       set allow-duplicate-recipes
       alias f := foo
@@ -306,12 +327,14 @@ fn duplicate_recipes() {
         }
       },
       "assignments": {},
+      "modules": {},
       "recipes": {
         "foo": {
           "body": [],
           "dependencies": [],
           "doc": null,
           "name": "foo",
+          "namepath": "foo",
           "parameters": [
             {
               "name": "bar",
@@ -329,7 +352,9 @@ fn duplicate_recipes() {
       },
       "settings": {
         "allow_duplicate_recipes": true,
+        "dotenv_filename": null,
         "dotenv_load": null,
+        "dotenv_path": null,
         "export": false,
         "fallback": false,
         "ignore_comments": false,
@@ -346,18 +371,20 @@ fn duplicate_recipes() {
 
 #[test]
 fn doc_comment() {
-  test(
+  case(
     "# hello\nfoo:",
     json!({
       "aliases": {},
       "first": "foo",
       "assignments": {},
+      "modules": {},
       "recipes": {
         "foo": {
           "body": [],
           "dependencies": [],
           "doc": "hello",
           "name": "foo",
+          "namepath": "foo",
           "parameters": [],
           "priors": 0,
           "private": false,
@@ -368,7 +395,9 @@ fn doc_comment() {
       },
       "settings": {
         "allow_duplicate_recipes": false,
+        "dotenv_filename": null,
         "dotenv_load": null,
+        "dotenv_path": null,
         "export": false,
         "fallback": false,
         "ignore_comments": false,
@@ -385,16 +414,19 @@ fn doc_comment() {
 
 #[test]
 fn empty_justfile() {
-  test(
+  case(
     "",
     json!({
       "aliases": {},
       "assignments": {},
       "first": null,
+      "modules": {},
       "recipes": {},
       "settings": {
         "allow_duplicate_recipes": false,
+        "dotenv_filename": null,
         "dotenv_load": null,
+        "dotenv_path": null,
         "export": false,
         "fallback": false,
         "ignore_comments": false,
@@ -411,7 +443,7 @@ fn empty_justfile() {
 
 #[test]
 fn parameters() {
-  test(
+  case(
     "
       a:
       b x:
@@ -424,6 +456,7 @@ fn parameters() {
       "aliases": {},
       "first": "a",
       "assignments": {},
+      "modules": {},
       "recipes": {
         "a": {
           "attributes": [],
@@ -431,6 +464,7 @@ fn parameters() {
           "dependencies": [],
           "doc": null,
           "name": "a",
+          "namepath": "a",
           "parameters": [],
           "priors": 0,
           "private": false,
@@ -442,6 +476,7 @@ fn parameters() {
           "dependencies": [],
           "doc": null,
           "name": "b",
+          "namepath": "b",
           "parameters": [
             {
               "name": "x",
@@ -461,6 +496,7 @@ fn parameters() {
           "dependencies": [],
           "doc": null,
           "name": "c",
+          "namepath": "c",
           "parameters": [
             {
               "name": "x",
@@ -480,6 +516,7 @@ fn parameters() {
           "dependencies": [],
           "doc": null,
           "name": "d",
+          "namepath": "d",
           "parameters": [
             {
               "name": "x",
@@ -499,6 +536,7 @@ fn parameters() {
           "dependencies": [],
           "doc": null,
           "name": "e",
+          "namepath": "e",
           "parameters": [
             {
               "name": "x",
@@ -518,6 +556,7 @@ fn parameters() {
           "dependencies": [],
           "doc": null,
           "name": "f",
+          "namepath": "f",
           "parameters": [
             {
               "name": "x",
@@ -535,7 +574,9 @@ fn parameters() {
       },
       "settings": {
         "allow_duplicate_recipes": false,
+        "dotenv_filename": null,
         "dotenv_load": null,
+        "dotenv_path": null,
         "export": false,
         "fallback": false,
         "ignore_comments": false,
@@ -552,7 +593,7 @@ fn parameters() {
 
 #[test]
 fn priors() {
-  test(
+  case(
     "
       a:
       b: a && c
@@ -562,12 +603,14 @@ fn priors() {
       "aliases": {},
       "assignments": {},
       "first": "a",
+      "modules": {},
       "recipes": {
         "a": {
           "body": [],
           "dependencies": [],
           "doc": null,
           "name": "a",
+          "namepath": "a",
           "parameters": [],
           "priors": 0,
           "private": false,
@@ -589,6 +632,7 @@ fn priors() {
           ],
           "doc": null,
           "name": "b",
+          "namepath": "b",
           "private": false,
           "quiet": false,
           "shebang": false,
@@ -601,6 +645,7 @@ fn priors() {
           "dependencies": [],
           "doc": null,
           "name": "c",
+          "namepath": "c",
           "parameters": [],
           "private": false,
           "quiet": false,
@@ -612,7 +657,9 @@ fn priors() {
       },
       "settings": {
         "allow_duplicate_recipes": false,
+        "dotenv_filename": null,
         "dotenv_load": null,
+        "dotenv_path": null,
         "export": false,
         "fallback": false,
         "ignore_comments": false,
@@ -629,18 +676,20 @@ fn priors() {
 
 #[test]
 fn private() {
-  test(
+  case(
     "_foo:",
     json!({
       "aliases": {},
       "assignments": {},
       "first": "_foo",
+      "modules": {},
       "recipes": {
         "_foo": {
           "body": [],
           "dependencies": [],
           "doc": null,
           "name": "_foo",
+          "namepath": "_foo",
           "parameters": [],
           "priors": 0,
           "private": true,
@@ -651,7 +700,9 @@ fn private() {
       },
       "settings": {
         "allow_duplicate_recipes": false,
+        "dotenv_filename": null,
         "dotenv_load": null,
+        "dotenv_path": null,
         "export": false,
         "fallback": false,
         "ignore_comments": false,
@@ -668,18 +719,20 @@ fn private() {
 
 #[test]
 fn quiet() {
-  test(
+  case(
     "@foo:",
     json!({
       "aliases": {},
       "assignments": {},
       "first": "foo",
+      "modules": {},
       "recipes": {
         "foo": {
           "body": [],
           "dependencies": [],
           "doc": null,
           "name": "foo",
+          "namepath": "foo",
           "parameters": [],
           "priors": 0,
           "private": false,
@@ -690,7 +743,9 @@ fn quiet() {
       },
       "settings": {
         "allow_duplicate_recipes": false,
+        "dotenv_filename": null,
         "dotenv_load": null,
+        "dotenv_path": null,
         "export": false,
         "fallback": false,
         "ignore_comments": false,
@@ -707,9 +762,11 @@ fn quiet() {
 
 #[test]
 fn settings() {
-  test(
+  case(
     "
       set dotenv-load
+      set dotenv-filename := \"filename\"
+      set dotenv-path := \"path\"
       set export
       set fallback
       set positional-arguments
@@ -722,12 +779,14 @@ fn settings() {
       "aliases": {},
       "assignments": {},
       "first": "foo",
+      "modules": {},
       "recipes": {
         "foo": {
           "body": [["#!bar"]],
           "dependencies": [],
           "doc": null,
           "name": "foo",
+          "namepath": "foo",
           "parameters": [],
           "priors": 0,
           "private": false,
@@ -738,7 +797,9 @@ fn settings() {
       },
       "settings": {
         "allow_duplicate_recipes": false,
+        "dotenv_filename": "filename",
         "dotenv_load": true,
+        "dotenv_path": "path",
         "export": true,
         "fallback": true,
         "ignore_comments": true,
@@ -758,7 +819,7 @@ fn settings() {
 
 #[test]
 fn shebang() {
-  test(
+  case(
     "
       foo:
         #!bar
@@ -767,12 +828,14 @@ fn shebang() {
       "aliases": {},
       "assignments": {},
       "first": "foo",
+      "modules": {},
       "recipes": {
         "foo": {
           "body": [["#!bar"]],
           "dependencies": [],
           "doc": null,
           "name": "foo",
+          "namepath": "foo",
           "parameters": [],
           "priors": 0,
           "private": false,
@@ -783,7 +846,9 @@ fn shebang() {
       },
       "settings": {
         "allow_duplicate_recipes": false,
+        "dotenv_filename": null,
         "dotenv_load": null,
+        "dotenv_path": null,
         "export": false,
         "fallback": false,
         "ignore_comments": false,
@@ -800,18 +865,20 @@ fn shebang() {
 
 #[test]
 fn simple() {
-  test(
+  case(
     "foo:",
     json!({
       "aliases": {},
       "assignments": {},
       "first": "foo",
+      "modules": {},
       "recipes": {
         "foo": {
           "body": [],
           "dependencies": [],
           "doc": null,
           "name": "foo",
+          "namepath": "foo",
           "parameters": [],
           "priors": 0,
           "private": false,
@@ -822,7 +889,9 @@ fn simple() {
       },
       "settings": {
         "allow_duplicate_recipes": false,
+        "dotenv_filename": null,
         "dotenv_load": null,
+        "dotenv_path": null,
         "export": false,
         "fallback": false,
         "ignore_comments": false,
@@ -839,7 +908,7 @@ fn simple() {
 
 #[test]
 fn attribute() {
-  test(
+  case(
     "
       [no-exit-message]
       foo:
@@ -848,6 +917,7 @@ fn attribute() {
       "aliases": {},
       "assignments": {},
       "first": "foo",
+      "modules": {},
       "recipes": {
         "foo": {
           "attributes": ["no-exit-message"],
@@ -855,6 +925,7 @@ fn attribute() {
           "dependencies": [],
           "doc": null,
           "name": "foo",
+          "namepath": "foo",
           "parameters": [],
           "priors": 0,
           "private": false,
@@ -864,7 +935,9 @@ fn attribute() {
       },
       "settings": {
         "allow_duplicate_recipes": false,
+        "dotenv_filename": null,
         "dotenv_load": null,
+        "dotenv_path": null,
         "export": false,
         "fallback": false,
         "positional_arguments": false,
@@ -877,4 +950,83 @@ fn attribute() {
       "warnings": [],
     }),
   );
+}
+
+#[test]
+fn module() {
+  Test::new()
+    .justfile(
+      "
+      mod foo
+    ",
+    )
+    .tree(tree! {
+      "foo.just": "bar:",
+    })
+    .args(["--dump", "--dump-format", "json", "--unstable"])
+    .test_round_trip(false)
+    .stdout(format!(
+      "{}\n",
+      serde_json::to_string(&json!({
+        "aliases": {},
+        "assignments": {},
+        "first": null,
+        "modules": {
+          "foo": {
+            "aliases": {},
+            "assignments": {},
+            "first": "bar",
+            "modules": {},
+            "recipes": {
+              "bar": {
+                "attributes": [],
+                "body": [],
+                "dependencies": [],
+                "doc": null,
+                "name": "bar",
+                "namepath": "foo::bar",
+                "parameters": [],
+                "priors": 0,
+                "private": false,
+                "quiet": false,
+                "shebang": false,
+              }
+            },
+            "settings": {
+              "allow_duplicate_recipes": false,
+              "dotenv_filename": null,
+              "dotenv_load": null,
+              "dotenv_path": null,
+              "export": false,
+              "fallback": false,
+              "positional_arguments": false,
+              "shell": null,
+              "tempdir" : null,
+              "ignore_comments": false,
+              "windows_powershell": false,
+              "windows_shell": null,
+            },
+            "warnings": [],
+          },
+        },
+        "recipes": {},
+        "settings": {
+          "allow_duplicate_recipes": false,
+          "dotenv_filename": null,
+          "dotenv_load": null,
+          "dotenv_path": null,
+          "export": false,
+          "fallback": false,
+          "positional_arguments": false,
+          "shell": null,
+          "tempdir" : null,
+          "ignore_comments": false,
+          "windows_powershell": false,
+          "windows_shell": null,
+        },
+        "warnings": [],
+      }))
+      .unwrap()
+    ))
+    .run();
 }

@@ -45,16 +45,20 @@ impl<'src> UnresolvedRecipe<'src> {
       .collect();
 
     Ok(Recipe {
+      attributes: self.attributes,
       body: self.body,
+      dependencies,
+      depth: self.depth,
       doc: self.doc,
+      file_path: self.file_path,
       name: self.name,
+      namepath: self.namepath,
       parameters: self.parameters,
+      priors: self.priors,
       private: self.private,
       quiet: self.quiet,
       shebang: self.shebang,
-      priors: self.priors,
-      attributes: self.attributes,
-      dependencies,
+      working_directory: self.working_directory,
     })
   }
 }

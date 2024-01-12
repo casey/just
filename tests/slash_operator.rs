@@ -48,9 +48,10 @@ fn no_rhs_once() {
     .stderr(
       "
       error: Expected backtick, identifier, '(', '/', or string, but found end of file
-        |
-      1 | x := 'a' /
-        |           ^
+       ——▶ justfile:1:11
+        │
+      1 │ x := 'a' /
+        │           ^
     ",
     )
     .status(EXIT_FAILURE)
@@ -69,9 +70,10 @@ fn default_un_parenthesized() {
     .stderr(
       "
       error: Expected '*', ':', '$', end of line, identifier, or '+', but found '/'
-        |
-      1 | foo x='a' / 'b':
-        |           ^
+       ——▶ justfile:1:11
+        │
+      1 │ foo x='a' / 'b':
+        │           ^
     ",
     )
     .status(EXIT_FAILURE)
@@ -90,9 +92,10 @@ fn no_lhs_un_parenthesized() {
     .stderr(
       "
       error: Expected backtick, identifier, '(', or string, but found '/'
-        |
-      1 | foo x=/ 'a' / 'b':
-        |       ^
+       ——▶ justfile:1:7
+        │
+      1 │ foo x=/ 'a' / 'b':
+        │       ^
     ",
     )
     .status(EXIT_FAILURE)

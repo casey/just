@@ -1,13 +1,14 @@
 use super::*;
 
-#[derive(Debug, PartialEq, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Ord, PartialOrd)]
 pub(crate) struct Token<'src> {
-  pub(crate) offset: usize,
+  pub(crate) column: usize,
+  pub(crate) kind: TokenKind,
   pub(crate) length: usize,
   pub(crate) line: usize,
-  pub(crate) column: usize,
+  pub(crate) offset: usize,
+  pub(crate) path: &'src Path,
   pub(crate) src: &'src str,
-  pub(crate) kind: TokenKind,
 }
 
 impl<'src> Token<'src> {
@@ -52,9 +53,35 @@ impl<'src> ColorDisplay for Token<'src> {
           i += c.len_utf8();
         }
         let line_number_width = line_number.to_string().len();
-        writeln!(f, "{0:1$} |", "", line_number_width)?;
-        writeln!(f, "{line_number} | {space_line}")?;
-        write!(f, "{0:1$} |", "", line_number_width)?;
+        writeln!(
+          f,
+          "{:width$}{} {}:{}:{}",
+          "",
+          color.context().paint("——▶"),
+          self.path.display(),
+          line_number,
+          self.column.ordinal(),
+          width = line_number_width
+        )?;
+        writeln!(
+          f,
+          "{:width$} {}",
+          "",
+          color.context().paint("│"),
+          width = line_number_width
+        )?;
+        writeln!(
+          f,
+          "{} {space_line}",
+          color.context().paint(&format!("{line_number} │"))
+        )?;
+        write!(
+          f,
+          "{:width$} {}",
+          "",
+          color.context().paint("│"),
+          width = line_number_width
+        )?;
         write!(
           f,
           " {0:1$}{2}{3:^<4$}{5}",
