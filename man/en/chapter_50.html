@@ -190,6 +190,25 @@ hello
 goodbye
 # all done!
 </code></pre>
+<p>All recipes in a Justfile can be made quiet with <code>set quiet</code>:</p>
+<pre><code class="language-just">set quiet
+
+foo:
+  echo &quot;This is quiet&quot;
+
+@foo2:
+  echo &quot;This is also quiet&quot;
+</code></pre>
+<p>The <code>[no-quiet]</code> attribute overrides this setting:</p>
+<pre><code class="language-just">set quiet
+
+foo:
+  echo &quot;This is quiet&quot;
+
+[no-quiet]
+foo2:
+  echo &quot;This is not quiet&quot;
+</code></pre>
 <p>Shebang recipes are quiet by default:</p>
 <pre><code class="language-just">foo:
   #!/usr/bin/env bash
