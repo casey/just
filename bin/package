@@ -20,13 +20,14 @@ fi
 
 echo "Copying release files..."
 mkdir dist
-cp \
+cp -r \
   $EXECUTABLE \
   Cargo.lock \
   Cargo.toml \
   GRAMMAR.md \
   LICENSE \
   README.md \
+  completions \
   man/just.1 \
   $DIST
 
