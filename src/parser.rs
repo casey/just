@@ -923,34 +923,18 @@ impl<'run, 'src> Parser<'run, 'src> {
           }));
         }
 
-        let arguments = if self.accepted(ParenL)? {
-          let mut arguments = Vec::new();
-
-          // Parse arguments as long as they are in the form:
-          // "ARG0","ARG1", .. ,"ARGN"
-          loop {
-            if !self.next_is(StringToken) {
-              break;
-            }
-            arguments.push(self.parse_string_literal()?);
-            if !self.next_is(Comma) {
-              break;
-            } else {
-              self.accept(Comma)?;
-            }
-          }
+        let argument = if self.accepted(ParenL)? {
+          let argument = self.parse_string_literal()?;
           self.expect(ParenR)?;
-          Some(arguments)
+          Some(argument)
         } else {
           None
         };
 
-        let attribute = if let Some(arguments) = arguments {
-          match attribute.with_arguments(arguments) {
-            Ok(attribute) => attribute,
-            Err(kind) => {
-              return Err(name.error(kind));
-            }
+        let attribute = if let Some(argument) = argument {
+          match attribute.with_argument(argument) {
+            Ok(attr_with_arg) => attr_with_arg,
+            Err(e) => return Err(name.error(e)),
           }
         } else {
           attribute
