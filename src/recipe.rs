@@ -215,10 +215,6 @@ impl<'src, D> Recipe<'src, D> {
 
       let mut command = evaluated.as_str();
 
-      if quiet_command && !context.settings.quiet {
-        command = &command[1..];
-      }
-
       let sigils = usize::from(infallible_command) + usize::from(quiet_line);
 
       command = &command[sigils..];
