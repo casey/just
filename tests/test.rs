@@ -35,9 +35,9 @@ macro_rules! test {
 }
 
 pub(crate) struct Output {
+  pub(crate) pid: u32,
   pub(crate) stdout: String,
   pub(crate) tempdir: TempDir,
-  pub(crate) child_pid: u32,
 }
 
 #[must_use]
@@ -211,7 +211,7 @@ impl Test {
       .spawn()
       .expect("just invocation failed");
 
-    let child_pid = child.id();
+    let pid = child.id();
 
     {
       let mut stdin_handle = child.stdin.take().expect("failed to unwrap stdin handle");
@@ -260,9 +260,9 @@ impl Test {
     }
 
     Output {
-      tempdir: self.tempdir,
+      pid,
       stdout: output_stdout.into(),
-      child_pid,
+      tempdir: self.tempdir,
     }
   }
 }
