@@ -125,12 +125,12 @@ fn confirm_recipe_with_prompt_too_many_args() {
   Test::new()
     .justfile(
       "
-        [confirm(\"This is dangerous - are you sure you want to run it?\" \"this second argument is not supported\")]
+        [confirm(\"This is dangerous - are you sure you want to run it?\",\"this second argument is not supported\")]
         requires_confirmation:
             echo confirmed
         ",
     )
-    .stderr("error: Attribute `confirm` called with 2 arguments but takes 1\n ——▶ justfile:1:2\n  │\n1 │ [confirm(\"This is dangerous - are you sure you want to run it?\" \"this second argument is not supported\")]\n  │  ^^^^^^^\n")
+    .stderr("error: Attribute `confirm` called with 2 arguments but takes 1\n ——▶ justfile:1:2\n  │\n1 │ [confirm(\"This is dangerous - are you sure you want to run it?\",\"this second argument is not supported\")]\n  │  ^^^^^^^\n")
     .stdout("")
     .status(1)
     .run();
