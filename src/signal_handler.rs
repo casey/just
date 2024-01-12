@@ -1,12 +1,12 @@
 use {
   super::*,
   command_group::{CommandGroup, GroupChild},
-  signal_hook::{consts::TERM_SIGNALS, iterator::SignalsInfo},
+  signal_hook::{consts::TERM_SIGNALS, iterator::Signals},
   std::{io::Read, process::Command},
 };
 
 pub(crate) struct SignalHandler {
-  signals_info: Option<SignalsInfo>,
+  signals: Option<Signals>,
 }
 
 impl SignalHandler {
@@ -20,14 +20,14 @@ impl SignalHandler {
     let signals = TERM_SIGNALS;
 
     *Self::instance() = Self {
-      signals_info: Some(SignalsInfo::new(signals)?),
+      signals: Some(Signals::new(signals)?),
     };
 
     Ok(())
   }
 
   fn instance() -> MutexGuard<'static, Self> {
-    static INSTANCE: Mutex<SignalHandler> = Mutex::new(SignalHandler { signals_info: None });
+    static INSTANCE: Mutex<SignalHandler> = Mutex::new(SignalHandler { signals: None });
 
     match INSTANCE.lock() {
       Ok(guard) => guard,
@@ -47,8 +47,8 @@ impl SignalHandler {
   fn wait_child(mut child: GroupChild) -> std::io::Result<(GroupChild, ExitStatus)> {
     let mut instance = Self::instance();
     loop {
-      if let Some(signals_info) = instance.signals_info.as_mut() {
-        for signal in signals_info.pending() {
+      if let Some(signals) = instance.signals.as_mut() {
+        for signal in signals.pending() {
           let child_pid = child.id();
           if let Ok(pid) = i32::try_from(child_pid) {
             unsafe {

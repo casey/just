@@ -368,6 +368,7 @@ dependencies = [
  "unicode-width",
  "uuid",
  "which",
+ "winapi",
  "yaml-rust",
 ]
 
