@@ -1,20 +1,19 @@
 use super::*;
 
-const JUSTFILE: &str = "
+/// Test that --shell correctly sets the shell
+#[cfg(not(windows))]
+#[test]
+fn flag() {
+  let tmp = temptree! {
+    justfile: r#"
+
 expression := `EXPRESSION`
 
 recipe default=`DEFAULT`:
   {{expression}}
   {{default}}
   RECIPE
-";
-
-/// Test that --shell correctly sets the shell
-#[cfg(not(windows))]
-#[test]
-fn flag() {
-  let tmp = temptree! {
-    justfile: JUSTFILE,
+"#,
     shell: "#!/usr/bin/env bash\necho \"$@\"",
   };
 

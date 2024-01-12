@@ -84,7 +84,6 @@ mod shadowing_parameters;
 mod shebang;
 mod shell;
 mod show;
-#[cfg(unix)]
 mod signals;
 mod slash_operator;
 mod string;

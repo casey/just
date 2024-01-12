@@ -1,22 +1,33 @@
 use {
   super::*,
-  libc::{SIGHUP, SIGINT},
+  libc::SIGINT,
   std::time::{Duration, Instant},
 };
 
 fn send_signal(process_id: u32, signal: i32) {
+  #[cfg(unix)]
   unsafe {
     libc::kill(process_id as i32, signal);
+  }
+  #[cfg(windows)]
+  unsafe {
+    windows_sys::Win32::System::Console::GenerateConsoleCtrlEvent(signal as u32, process_id as u32);
   }
 }
 
 fn signal_test(arguments: &[&str], justfile: &str, times: u64) {
+  log::error!("signal_test");
   let tmp = tempdir();
   let mut justfile_path = tmp.path().to_path_buf();
   justfile_path.push("justfile");
   fs::write(justfile_path, unindent(justfile)).unwrap();
 
-  let signals = [SIGINT, SIGHUP];
+  #[cfg(unix)]
+  let signals = [SIGINT, libc::SIGHUP];
+
+  #[cfg(windows)]
+  let signals = [SIGINT];
+
   for signal in signals {
     let start = Instant::now();
     let mut child = Command::new(executable_path("just"))
@@ -118,6 +129,33 @@ fn multiple_signals_shebang() {
             fi
           }
 
+          trap 'handle_signal 130' SIGINT
+
+          sleep 1
+      ",
+    5,
+  );
+}
+
+#[cfg(unix)]
+#[test]
+#[ignore]
+fn multiple_signals_shebang_unix() {
+  signal_test(
+    &[],
+    "
+        default:
+          #!/usr/bin/env sh
+
+          counter=0
+          handle_signal() {
+            ((counter++))
+            if ((counter > 5)); then
+              exit $1
+            fi
+          }
+
+          # In unix we can trap SIGHUP
           trap 'handle_signal 129' SIGHUP
           trap 'handle_signal 130' SIGINT
 

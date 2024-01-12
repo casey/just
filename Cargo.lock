@@ -120,6 +120,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "crossbeam-queue"
+version = "0.3.11"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "df0346b5d5e76ac2fe4e327c5fd1118d6be7c51dfb18f9b7922923f287471e35"
+dependencies = [
+ "crossbeam-utils",
+]
+
+[[package]]
+name = "crossbeam-utils"
+version = "0.8.19"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "248e3bacc7dc6baa3b21e405ee045c3047101a49145e7e9eca583ab4c2ca5345"
+
+[[package]]
 name = "crypto-common"
 version = "0.1.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -340,6 +355,7 @@ dependencies = [
  "clap",
  "command-group",
  "cradle",
+ "crossbeam-queue",
  "derivative",
  "dirs",
  "dotenvy",
@@ -368,7 +384,7 @@ dependencies = [
  "unicode-width",
  "uuid",
  "which",
- "winapi",
+ "windows-sys 0.52.0",
  "yaml-rust",
 ]
 

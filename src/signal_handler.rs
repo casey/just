@@ -1,12 +1,14 @@
 use {
   super::*,
   command_group::{CommandGroup, GroupChild},
-  signal_hook::{consts::TERM_SIGNALS, iterator::Signals},
+  crossbeam_queue::SegQueue,
+  libc::c_int,
+  signal_hook::consts::TERM_SIGNALS,
   std::{io::Read, process::Command},
 };
 
 pub(crate) struct SignalHandler {
-  signals: Option<Signals>,
+  signals: SegQueue<c_int>,
 }
 
 impl SignalHandler {
@@ -14,20 +16,36 @@ impl SignalHandler {
     #[cfg(unix)]
     let signals = iter::once(signal_hook::consts::signal::SIGHUP)
       .chain(TERM_SIGNALS.iter().copied())
-      .collect::<Vec<i32>>();
+      .collect::<Vec<c_int>>();
 
     #[cfg(windows)]
     let signals = TERM_SIGNALS;
 
-    *Self::instance() = Self {
-      signals: Some(Signals::new(signals)?),
-    };
+    signals.iter().copied().for_each(|signal| {
+      let res = unsafe {
+        signal_hook::low_level::register(signal, move || {
+          Self::instance().signals.push(signal);
+        })
+      };
+      if let Err(error) = res {
+        eprintln!(
+          "{}",
+          Error::Internal {
+            message: format!("Could not register signal handler: {error}"),
+          }
+          .color_display(Color::auto().stderr())
+        );
+        process::exit(EXIT_FAILURE);
+      }
+    });
 
     Ok(())
   }
 
   fn instance() -> MutexGuard<'static, Self> {
-    static INSTANCE: Mutex<SignalHandler> = Mutex::new(SignalHandler { signals: None });
+    static INSTANCE: Mutex<SignalHandler> = Mutex::new(SignalHandler {
+      signals: SegQueue::<c_int>::new(),
+    });
 
     match INSTANCE.lock() {
       Ok(guard) => guard,
@@ -45,30 +63,29 @@ impl SignalHandler {
   }
 
   fn wait_child(mut child: GroupChild) -> std::io::Result<(GroupChild, ExitStatus)> {
-    let mut instance = Self::instance();
     loop {
-      if let Some(signals) = instance.signals.as_mut() {
-        for signal in signals.pending() {
-          let child_pid = child.id();
-          if let Ok(pid) = i32::try_from(child_pid) {
-            unsafe {
-              // Forward signal to the process group using negative pid
-              #[cfg(unix)]
-              libc::kill(-pid, signal);
-
-              #[cfg(windows)]
-              winapi::um::processthreadsapi::GenerateConsoleCtrlEvent(signal, pid);
-            }
-          } else {
-            eprintln!(
-              "{}",
-              Error::Internal {
-                message: format!("Could not convert child pid to i32: {child_pid}"),
-              }
-              .color_display(Color::auto().stderr())
-            );
-            process::exit(EXIT_FAILURE);
+      if let Some(signal) = Self::instance().signals.pop() {
+        let child_pid = child.id();
+        #[cfg(unix)]
+        if let Ok(pid) = i32::try_from(child_pid) {
+          unsafe {
+            // Forward signal to the process group using negative pid
+            libc::kill(-pid, signal);
           }
+        } else {
+          eprintln!(
+            "{}",
+            Error::Internal {
+              message: format!("Could not convert child pid to i32: {child_pid}"),
+            }
+            .color_display(Color::auto().stderr())
+          );
+          process::exit(EXIT_FAILURE);
+        }
+
+        #[cfg(windows)]
+        unsafe {
+          windows_sys::Win32::System::Console::GenerateConsoleCtrlEvent(signal as u32, child_pid);
         }
       }
       match child.try_wait() {
