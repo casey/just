@@ -15,6 +15,7 @@ pub(crate) struct Settings<'src> {
   pub(crate) fallback: bool,
   pub(crate) ignore_comments: bool,
   pub(crate) positional_arguments: bool,
+  pub(crate) quiet: bool,
   pub(crate) shell: Option<Shell<'src>>,
   pub(crate) tempdir: Option<String>,
   pub(crate) windows_powershell: bool,
@@ -50,6 +51,9 @@ impl<'src> Settings<'src> {
         }
         Setting::PositionalArguments(positional_arguments) => {
           settings.positional_arguments = positional_arguments;
+        }
+        Setting::Quiet(quiet) => {
+          settings.quiet = quiet;
         }
         Setting::Shell(shell) => {
           settings.shell = Some(shell);

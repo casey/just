@@ -269,6 +269,7 @@ impl<'src> Node<'src> for Set<'src> {
       | Setting::Export(value)
       | Setting::Fallback(value)
       | Setting::PositionalArguments(value)
+      | Setting::Quiet(value)
       | Setting::WindowsPowerShell(value)
       | Setting::IgnoreComments(value) => {
         set.push_mut(value.to_string());
