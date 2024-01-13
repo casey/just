@@ -1545,9 +1545,9 @@ delete all:
   rm -rf *
 ```
 
-#### Customize recipe confirmation prompt <sup>master</sup>
+#### Custom Confirmation Prompt<sup>master</sup>
 
-The default prompt: ``Run recipe `foo`?`` can be overwritten with `[confirm(PROMPT)]`:
+The default confirmation prompt can be overridden with `[confirm(PROMPT)]`:
 
 ```just
 [confirm("Are you sure you want to delete everything?")]

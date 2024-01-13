@@ -135,3 +135,17 @@ fn confirm_recipe_with_prompt_too_many_args() {
     .status(1)
     .run();
 }
+
+#[test]
+fn confirm_attribute_is_formatted_correctly() {
+  Test::new()
+    .justfile(
+      "
+        [confirm('prompt')]
+        foo:
+      ",
+    )
+    .arg("--dump")
+    .stdout("[confirm('prompt')]\nfoo:\n")
+    .run();
+}

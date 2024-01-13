@@ -106,3 +106,26 @@ fn multiple_attributes_one_line_duplicate_check() {
     .status(1)
     .run();
 }
+
+#[test]
+fn unexpected_attribute_argument() {
+  Test::new()
+    .justfile(
+      "
+      [private('foo')]
+      foo:
+        exit 1
+    ",
+    )
+    .stderr(
+      "
+        error: Attribute `private` specified with argument but takes no arguments
+         ——▶ justfile:1:2
+          │
+        1 │ [private('foo')]
+          │  ^^^^^^^
+          ",
+    )
+    .status(1)
+    .run();
+}

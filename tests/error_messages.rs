@@ -4,7 +4,7 @@ test! {
   name: invalid_alias_attribute,
   justfile: "[private]\n[linux]\nalias t := test\n\ntest:\n",
   stderr: "
-    error: Alias t has an invalid attribute `linux`
+    error: Alias `t` has invalid attribute `linux`
      ——▶ justfile:3:7
       │
     3 │ alias t := test

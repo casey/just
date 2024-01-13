@@ -4,16 +4,11 @@ use super::*;
 pub(crate) enum CompileErrorKind<'src> {
   AliasInvalidAttribute {
     alias: &'src str,
-    attr: Attribute,
+    attribute: Attribute<'src>,
   },
   AliasShadowsRecipe {
     alias: &'src str,
     recipe_line: usize,
-  },
-  AttributeArgumentCountMismatch {
-    attribute: &'src str,
-    found: usize,
-    expected: RangeInclusive<usize>,
   },
   BacktickShebang,
   CircularRecipeDependency {
@@ -89,6 +84,9 @@ pub(crate) enum CompileErrorKind<'src> {
   },
   UndefinedVariable {
     variable: &'src str,
+  },
+  UnexpectedAttributeArgument {
+    attribute: Attribute<'src>,
   },
   UnexpectedCharacter {
     expected: char,

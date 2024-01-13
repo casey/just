@@ -435,7 +435,7 @@ impl<'run, 'src> Parser<'run, 'src> {
   /// Parse an alias, e.g `alias name := target`
   fn parse_alias(
     &mut self,
-    attributes: BTreeSet<Attribute>,
+    attributes: BTreeSet<Attribute<'src>>,
   ) -> CompileResult<'src, Alias<'src, Name<'src>>> {
     self.presume_keyword(Keyword::Alias)?;
     let name = self.parse_name()?;
@@ -672,7 +672,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     &mut self,
     doc: Option<&'src str>,
     quiet: bool,
-    attributes: BTreeSet<Attribute>,
+    attributes: BTreeSet<Attribute<'src>>,
   ) -> CompileResult<'src, UnresolvedRecipe<'src>> {
     let name = self.parse_name()?;
 
@@ -905,7 +905,7 @@ impl<'run, 'src> Parser<'run, 'src> {
   }
 
   /// Parse recipe attributes
-  fn parse_attributes(&mut self) -> CompileResult<'src, Option<BTreeSet<Attribute>>> {
+  fn parse_attributes(&mut self) -> CompileResult<'src, Option<BTreeSet<Attribute<'src>>>> {
     let mut attributes = BTreeMap::new();
 
     while self.accepted(BracketL)? {

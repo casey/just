@@ -3,7 +3,7 @@ use super::*;
 /// An alias, e.g. `name := target`
 #[derive(Debug, PartialEq, Clone, Serialize)]
 pub(crate) struct Alias<'src, T = Rc<Recipe<'src>>> {
-  pub(crate) attributes: BTreeSet<Attribute>,
+  pub(crate) attributes: BTreeSet<Attribute<'src>>,
   pub(crate) name: Name<'src>,
   #[serde(
     bound(serialize = "T: Keyed<'src>"),

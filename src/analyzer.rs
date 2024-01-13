@@ -211,11 +211,11 @@ impl<'src> Analyzer<'src> {
   fn analyze_alias(alias: &Alias<'src, Name<'src>>) -> CompileResult<'src> {
     let name = alias.name.lexeme();
 
-    for attr in &alias.attributes {
-      if *attr != Attribute::Private {
+    for attribute in &alias.attributes {
+      if *attribute != Attribute::Private {
         return Err(alias.name.token.error(AliasInvalidAttribute {
           alias: name,
-          attr: attr.clone(),
+          attribute: attribute.clone(),
         }));
       }
     }
