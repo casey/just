@@ -49,7 +49,7 @@ impl<'src> Display for Attribute<'src> {
     write!(f, "{}", self.name())?;
 
     if let Some(argument) = self.argument() {
-      write!(f, "({})", argument)?;
+      write!(f, "({argument})")?;
     }
 
     Ok(())

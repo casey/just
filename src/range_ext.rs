@@ -29,11 +29,11 @@ impl Display for DisplayRange<&Range<usize>> {
 impl Display for DisplayRange<&RangeInclusive<usize>> {
   fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
     if self.0.start() == self.0.end() {
-      write!(f, "{}", self.0.start())?
+      write!(f, "{}", self.0.start())?;
     } else if *self.0.end() == usize::MAX {
-      write!(f, "{} or more", self.0.start())?
+      write!(f, "{} or more", self.0.start())?;
     } else {
-      write!(f, "{} to {}", self.0.start(), self.0.end())?
+      write!(f, "{} to {}", self.0.start(), self.0.end())?;
     }
     Ok(())
   }
