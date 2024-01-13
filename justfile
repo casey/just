@@ -16,6 +16,7 @@ watch +args='test':
 test:
   cargo test
 
+
 ci: build-book
   cargo test --all
   cargo clippy --all --all-targets -- --deny warnings

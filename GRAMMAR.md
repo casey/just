@@ -104,9 +104,11 @@ string        : STRING
 sequence      : expression ',' sequence
               | expression ','?
 
-recipe        : attribute? '@'? NAME parameter* variadic? ':' dependency* body?
+recipe        : attributes* '@'? NAME parameter* variadic? ':' dependency* body?
 
-attribute     : '[' NAME ']' eol
+attributes    : '[' attribute* ']' eol
+
+attribute     : NAME ( '(' string ')' )?
 
 parameter     : '$'? NAME
               | '$'? NAME '=' value
