@@ -30,7 +30,6 @@ impl<'src> Attribute<'src> {
   ) -> Result<Self, CompileErrorKind<'src>> {
     match self {
       Self::Confirm(_) => Ok(Self::Confirm(Some(argument))),
-      // Return error for all attributes that don't accept arguments
       _ => Err(CompileErrorKind::UnexpectedAttributeArgument { attribute: self }),
     }
   }

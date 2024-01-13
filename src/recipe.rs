@@ -71,9 +71,6 @@ impl<'src, D> Recipe<'src, D> {
   }
 
   pub(crate) fn confirm(&self) -> RunResult<'src, bool> {
-    // Iterate through the attributes and check if any of them are a confirm
-    // If a `confirm` attribute is found, print a prompt and wait for user input
-    // else return true
     for attribute in &self.attributes {
       if let Attribute::Confirm(prompt) = attribute {
         if let Some(prompt) = prompt {
