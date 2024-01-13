@@ -32,11 +32,13 @@ impl Display for CompileError<'_> {
     use CompileErrorKind::*;
 
     match &*self.kind {
-      AliasInvalidAttribute { alias, attr } => write!(
-        f,
-        "Alias {alias} has an invalid attribute `{}`",
-        attr.to_str(),
-      ),
+      AliasInvalidAttribute { alias, attribute } => {
+        write!(
+          f,
+          "Alias `{alias}` has invalid attribute `{}`",
+          attribute.name(),
+        )
+      }
       AliasShadowsRecipe { alias, recipe_line } => write!(
         f,
         "Alias `{alias}` defined on line {} shadows recipe `{alias}` defined on line {}",
@@ -209,6 +211,13 @@ impl Display for CompileError<'_> {
         "Non-default parameter `{parameter}` follows default parameter"
       ),
       UndefinedVariable { variable } => write!(f, "Variable `{variable}` not defined"),
+      UnexpectedAttributeArgument { attribute } => {
+        write!(
+          f,
+          "Attribute `{}` specified with argument but takes no arguments",
+          attribute.name(),
+        )
+      }
       UnexpectedCharacter { expected } => write!(f, "Expected character `{expected}`"),
       UnexpectedClosingDelimiter { close } => {
         write!(f, "Unexpected closing delimiter `{}`", close.close())

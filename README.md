@@ -1456,6 +1456,7 @@ Recipes may be annotated with attributes that change their behavior.
 | Name | Description |
 |------|-------------|
 | `[confirm]`<sup>1.17.0</sup> | Require confirmation prior to executing recipe. |
+| `[confirm("prompt")]`<sup>master</sup> | Require confirmation prior to executing recipe with a custom prompt. |
 | `[linux]`<sup>1.8.0</sup> | Enable recipe on Linux. |
 | `[macos]`<sup>1.8.0</sup> | Enable recipe on MacOS. |
 | `[no-cd]`<sup>1.9.0</sup> | Don't change directory before executing recipe. |
@@ -1541,6 +1542,16 @@ that requires confirmation.
 ```just
 [confirm]
 delete all:
+  rm -rf *
+```
+
+#### Custom Confirmation Prompt<sup>master</sup>
+
+The default confirmation prompt can be overridden with `[confirm(PROMPT)]`:
+
+```just
+[confirm("Are you sure you want to delete everything?")]
+delete-everything:
   rm -rf *
 ```
 

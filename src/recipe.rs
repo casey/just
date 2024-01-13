@@ -22,7 +22,7 @@ fn error_from_signal(recipe: &str, line_number: Option<usize>, exit_status: Exit
 /// A recipe, e.g. `foo: bar baz`
 #[derive(PartialEq, Debug, Clone, Serialize)]
 pub(crate) struct Recipe<'src, D = Dependency<'src>> {
-  pub(crate) attributes: BTreeSet<Attribute>,
+  pub(crate) attributes: BTreeSet<Attribute<'src>>,
   pub(crate) body: Vec<Line<'src>>,
   pub(crate) dependencies: Vec<D>,
   #[serde(skip)]
@@ -71,17 +71,22 @@ impl<'src, D> Recipe<'src, D> {
   }
 
   pub(crate) fn confirm(&self) -> RunResult<'src, bool> {
-    if self.attributes.contains(&Attribute::Confirm) {
-      eprint!("Run recipe `{}`? ", self.name);
-      let mut line = String::new();
-      std::io::stdin()
-        .read_line(&mut line)
-        .map_err(|io_error| Error::GetConfirmation { io_error })?;
-      let line = line.trim().to_lowercase();
-      Ok(line == "y" || line == "yes")
-    } else {
-      Ok(true)
+    for attribute in &self.attributes {
+      if let Attribute::Confirm(prompt) = attribute {
+        if let Some(prompt) = prompt {
+          eprint!("{} ", prompt.cooked);
+        } else {
+          eprint!("Run recipe `{}`? ", self.name);
+        }
+        let mut line = String::new();
+        std::io::stdin()
+          .read_line(&mut line)
+          .map_err(|io_error| Error::GetConfirmation { io_error })?;
+        let line = line.trim().to_lowercase();
+        return Ok(line == "y" || line == "yes");
+      }
     }
+    Ok(true)
   }
 
   pub(crate) fn check_can_be_default_recipe(&self) -> RunResult<'src, ()> {
@@ -423,7 +428,7 @@ impl<'src, D: Display> ColorDisplay for Recipe<'src, D> {
     }
 
     for attribute in &self.attributes {
-      writeln!(f, "[{}]", attribute.to_str())?;
+      writeln!(f, "[{attribute}]")?;
     }
 
     if self.quiet {

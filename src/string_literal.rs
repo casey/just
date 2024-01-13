@@ -1,6 +1,6 @@
 use super::*;
 
-#[derive(PartialEq, Debug, Clone)]
+#[derive(PartialEq, Debug, Clone, Ord, Eq, PartialOrd)]
 pub(crate) struct StringLiteral<'src> {
   pub(crate) kind: StringKind,
   pub(crate) raw: &'src str,

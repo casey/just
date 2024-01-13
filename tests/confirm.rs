@@ -103,3 +103,49 @@ fn do_not_confirm_recipe_with_confirm_recipe_dependency() {
     .status(1)
     .run();
 }
+
+#[test]
+fn confirm_recipe_with_prompt() {
+  Test::new()
+    .justfile(
+      "
+        [confirm(\"This is dangerous - are you sure you want to run it?\")]
+        requires_confirmation:
+            echo confirmed
+        ",
+    )
+    .stderr("This is dangerous - are you sure you want to run it? echo confirmed\n")
+    .stdout("confirmed\n")
+    .stdin("y")
+    .run();
+}
+
+#[test]
+fn confirm_recipe_with_prompt_too_many_args() {
+  Test::new()
+    .justfile(
+      "
+        [confirm(\"This is dangerous - are you sure you want to run it?\",\"this second argument is not supported\")]
+        requires_confirmation:
+            echo confirmed
+        ",
+    )
+    .stderr("error: Expected ')', but found ','\n ——▶ justfile:1:64\n  │\n1 │ [confirm(\"This is dangerous - are you sure you want to run it?\",\"this second argument is not supported\")]\n  │                                                                ^\n")
+    .stdout("")
+    .status(1)
+    .run();
+}
+
+#[test]
+fn confirm_attribute_is_formatted_correctly() {
+  Test::new()
+    .justfile(
+      "
+        [confirm('prompt')]
+        foo:
+      ",
+    )
+    .arg("--dump")
+    .stdout("[confirm('prompt')]\nfoo:\n")
+    .run();
+}

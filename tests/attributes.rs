@@ -72,7 +72,7 @@ fn multiple_attributes_one_line_error_message() {
     )
     .stderr(
       "
-        error: Expected ']' or ',', but found identifier
+        error: Expected ']', ',', or '(', but found identifier
          ——▶ justfile:1:17
           │
         1 │ [macos, windows linux]
@@ -102,6 +102,29 @@ fn multiple_attributes_one_line_duplicate_check() {
       2 │ [linux]
         │  ^^^^^
         ",
+    )
+    .status(1)
+    .run();
+}
+
+#[test]
+fn unexpected_attribute_argument() {
+  Test::new()
+    .justfile(
+      "
+      [private('foo')]
+      foo:
+        exit 1
+    ",
+    )
+    .stderr(
+      "
+        error: Attribute `private` specified with argument but takes no arguments
+         ——▶ justfile:1:2
+          │
+        1 │ [private('foo')]
+          │  ^^^^^^^
+          ",
     )
     .status(1)
     .run();
