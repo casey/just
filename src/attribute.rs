@@ -5,6 +5,7 @@ use super::*;
 #[serde(rename_all = "kebab-case")]
 pub(crate) enum Attribute<'src> {
   Confirm(Option<StringLiteral<'src>>),
+  Group { name: String },
   Linux,
   Macos,
   NoCd,
@@ -34,25 +35,16 @@ impl<'src> Attribute<'src> {
       _ => Err(name.error(CompileErrorKind::UnexpectedAttributeArgument { attribute: self })),
     }
   }
-
-  fn argument(&self) -> Option<&StringLiteral> {
-    if let Self::Confirm(prompt) = self {
-      prompt.as_ref()
-    } else {
-      None
-    }
-  }
 }
 
 impl<'src> Display for Attribute<'src> {
   fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
-    write!(f, "{}", self.name())?;
-
-    if let Some(argument) = self.argument() {
-      write!(f, "({argument})")?;
+    let attr_name = self.name();
+    match self {
+      Self::Confirm(Some(prompt)) => write!(f, "{attr_name}({prompt})"),
+      Self::Group { name } => write!(f, "{attr_name}({name})"),
+      _other => write!(f, "{attr_name}"),
     }
-
-    Ok(())
   }
 }
 
@@ -63,5 +55,16 @@ mod tests {
   #[test]
   fn name() {
     assert_eq!(Attribute::NoExitMessage.name(), "no-exit-message");
+  }
+
+  #[test]
+  fn group() {
+    assert_eq!(
+      Attribute::Group {
+        name: "linter".to_string()
+      }
+      .to_string(),
+      "group(linter)"
+    );
   }
 }
