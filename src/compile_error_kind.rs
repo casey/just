@@ -89,7 +89,7 @@ pub(crate) enum CompileErrorKind<'src> {
     variable: &'src str,
   },
   UnexpectedAttributeArgument {
-    attribute: Attribute<'src>,
+    attribute: &'src str,
   },
   UnexpectedCharacter {
     expected: char,

@@ -74,7 +74,7 @@ impl<'src, D> Recipe<'src, D> {
     for attribute in &self.attributes {
       if let Attribute::Confirm(prompt) = attribute {
         if let Some(prompt) = prompt {
-          eprint!("{} ", prompt.cooked);
+          eprint!("{} ", prompt);
         } else {
           eprint!("Run recipe `{}`? ", self.name);
         }

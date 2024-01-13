@@ -648,15 +648,14 @@ impl<'run, 'src> Parser<'run, 'src> {
     self.expect(Identifier).map(Name::from_identifier)
   }
 
-
   /// Parse a bareword or a quoted argument
-  fn parse_name_or_string(&mut self) -> CompileResult<'src, String> {
-      if self.next_is(StringToken) {
-          Ok(self.parse_string_literal()?.cooked)
-      } else {
-          let name = self.parse_name()?;
-          Ok(name.lexeme().to_string())
-      }
+  fn parse_name_or_string(&mut self) -> CompileResult<'src, &'src str> {
+    if self.next_is(StringToken) {
+      Ok(self.parse_string_literal()?.raw)
+    } else {
+      let name = self.parse_name()?;
+      Ok(name.lexeme())
+    }
   }
 
   /// Parse sequence of comma-separated expressions
@@ -923,20 +922,19 @@ impl<'run, 'src> Parser<'run, 'src> {
       loop {
         let name = self.parse_name()?;
 
-        let maybe_argument: Option<String> = if self.next_is(Colon) {
-            self.presume(Colon)?;
-            Some(self.parse_name_or_string()?)
+        let maybe_argument: Option<&'src str> = if self.next_is(Colon) {
+          self.presume(Colon)?;
+          Some(self.parse_name_or_string()?)
         } else if self.next_is(ParenL) {
-            self.presume(ParenL)?;
-            let arg = self.parse_name_or_string()?;
-            self.expect(ParenR)?;
-            Some(arg)
+          self.presume(ParenL)?;
+          let arg = self.parse_name_or_string()?;
+          self.expect(ParenR)?;
+          Some(arg)
         } else {
-            None
+          None
         };
 
-        let attribute = Attribute::parse(&name, maybe_argument)?;
-
+        let attribute = Attribute::parse(name, maybe_argument)?;
 
         /*
         let attribute = Attribute::from_name(name).ok_or_else(|| {
@@ -945,7 +943,6 @@ impl<'run, 'src> Parser<'run, 'src> {
           })
         })?;
         */
-
 
         if let Some(line) = attributes.get(&attribute) {
           return Err(name.error(CompileErrorKind::DuplicateAttribute {
