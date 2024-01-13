@@ -4,7 +4,7 @@ use super::*;
 #[strum(serialize_all = "kebab-case")]
 #[serde(rename_all = "kebab-case")]
 pub(crate) enum Attribute<'src> {
-  Confirm(Option<StringLiteral<'src>>),
+  Confirm(Option<String>),
   Group { name: String },
   Linux,
   Macos,
@@ -17,6 +17,36 @@ pub(crate) enum Attribute<'src> {
 }
 
 impl<'src> Attribute<'src> {
+
+  pub(crate) fn parse(name: &Name, maybe_argument: Option<String>) -> CompileResult<'src, Self> {
+    let name_str = name.lexeme();
+    Ok(match (name_str, maybe_argument) {
+      ("group", Some(name)) => Self::Group { name},
+      ("confirm", Some(argument)) => Self::Comfirm
+
+      _ => todo!()
+    })
+    /*
+    match (name, maybe_argument) {
+      ("group", Some(name)) => Ok(Attribute::Group { name }),
+      ("group", None) => Err(CompileErrorKind::InvalidAttributeArgument {
+        name: name.to_string(),
+        expected: true,
+      }),
+      (other, None) => other
+        .parse()
+        .map_err(|_| CompileErrorKind::UnknownAttribute { attribute: name }),
+      (_other, Some(_)) => Err(CompileErrorKind::InvalidAttributeArgument {
+        name: name.to_string(),
+        expected: false,
+      }),
+    }
+    */
+
+    todo!()
+  }
+
+
   pub(crate) fn from_name(name: Name) -> Option<Self> {
     name.lexeme().parse().ok()
   }
