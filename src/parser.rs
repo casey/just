@@ -923,15 +923,9 @@ impl<'run, 'src> Parser<'run, 'src> {
           }));
         }
 
-        let argument = if self.accepted(ParenL)? {
+        let attribute = if self.accepted(ParenL)? {
           let argument = self.parse_string_literal()?;
           self.expect(ParenR)?;
-          Some(argument)
-        } else {
-          None
-        };
-
-        let attribute = if let Some(argument) = argument {
           attribute.with_argument(name, argument)?
         } else {
           attribute
