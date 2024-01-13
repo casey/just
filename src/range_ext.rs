@@ -74,8 +74,8 @@ mod tests {
   #[test]
   fn display() {
     assert!(!(1..1).contains(&1));
-    assert!((1..1).len() == 0);
-    assert!((5..5).len() == 0);
+    assert!((1..1).is_empty());
+    assert!((5..5).is_empty());
     assert_eq!((1..1).display().to_string(), "0");
     assert_eq!((1..2).display().to_string(), "1");
     assert_eq!((5..6).display().to_string(), "5");
