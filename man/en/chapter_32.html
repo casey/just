@@ -180,6 +180,7 @@
 <p>Recipes may be annotated with attributes that change their behavior.</p>
 <div class="table-wrapper"><table><thead><tr><th>Name</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>[confirm]</code><sup>1.17.0</sup></td><td>Require confirmation prior to executing recipe.</td></tr>
+<tr><td><code>[confirm(&quot;prompt&quot;)]</code><sup>master</sup></td><td>Require confirmation prior to executing recipe with a custom prompt.</td></tr>
 <tr><td><code>[linux]</code><sup>1.8.0</sup></td><td>Enable recipe on Linux.</td></tr>
 <tr><td><code>[macos]</code><sup>1.8.0</sup></td><td>Enable recipe on MacOS.</td></tr>
 <tr><td><code>[no-cd]</code><sup>1.9.0</sup></td><td>Don’t change directory before executing recipe.</td></tr>
@@ -245,6 +246,12 @@ relied upon recipe is not confirmed, as well as recipes passed after any recipe
 that requires confirmation.</p>
 <pre><code class="language-just">[confirm]
 delete all:
+  rm -rf *
+</code></pre>
+<h4 id="custom-confirmation-promptmaster"><a class="header" href="#custom-confirmation-promptmaster">Custom Confirmation Prompt<sup>master</sup></a></h4>
+<p>The default confirmation prompt can be overridden with <code>[confirm(PROMPT)]</code>:</p>
+<pre><code class="language-just">[confirm(&quot;Are you sure you want to delete everything?&quot;)]
+delete-everything:
   rm -rf *
 </code></pre>
 
