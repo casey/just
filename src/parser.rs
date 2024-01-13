@@ -932,10 +932,7 @@ impl<'run, 'src> Parser<'run, 'src> {
         };
 
         let attribute = if let Some(argument) = argument {
-          match attribute.with_argument(argument) {
-            Ok(attribute) => attribute,
-            Err(e) => return Err(name.error(e)),
-          }
+          attribute.with_argument(name, argument)?
         } else {
           attribute
         };

@@ -26,11 +26,12 @@ impl<'src> Attribute<'src> {
 
   pub(crate) fn with_argument(
     self,
+    name: Name<'src>,
     argument: StringLiteral<'src>,
-  ) -> Result<Self, CompileErrorKind<'src>> {
+  ) -> CompileResult<'src, Self> {
     match self {
       Self::Confirm(_) => Ok(Self::Confirm(Some(argument))),
-      _ => Err(CompileErrorKind::UnexpectedAttributeArgument { attribute: self }),
+      _ => Err(name.error(CompileErrorKind::UnexpectedAttributeArgument { attribute: self })),
     }
   }
 
