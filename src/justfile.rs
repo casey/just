@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use {super::*, serde::Serialize};
 
 #[derive(Debug)]
@@ -487,6 +489,25 @@ impl<'src> Justfile<'src> {
     }
 
     recipes
+  }
+
+  pub(crate) fn public_groups(&self) -> HashSet<&str> {
+    self
+      .recipes
+      .values()
+      .map(AsRef::as_ref)
+      .filter(|recipe| recipe.is_public())
+      .flat_map(|recipe| {
+        let groups = recipe.attributes.iter().filter_map(|attr| {
+          if let Attribute::Group { ref name } = attr {
+            Some(name.as_ref())
+          } else {
+            None
+          }
+        });
+        groups
+      })
+      .collect()
   }
 }
 

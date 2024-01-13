@@ -57,6 +57,7 @@ mod cmd {
   pub(crate) const SHOW: &str = "SHOW";
   pub(crate) const SUMMARY: &str = "SUMMARY";
   pub(crate) const VARIABLES: &str = "VARIABLES";
+  pub(crate) const GROUPS: &str = "GROUPS";
 
   pub(crate) const ALL: &[&str] = &[
     CHANGELOG,
@@ -368,6 +369,12 @@ impl Config {
           .long("list")
           .help("List available recipes and their arguments"),
       )
+            .arg(
+        Arg::with_name(cmd::GROUPS)
+        .short("g")
+        .long("groups")
+        .help("List recipe groups")
+      )
       .arg(
         Arg::with_name(cmd::SHOW)
           .short("s")
@@ -591,6 +598,8 @@ impl Config {
       Subcommand::Init
     } else if matches.is_present(cmd::LIST) {
       Subcommand::List
+    } else if matches.is_present(cmd::GROUPS) {
+      Subcommand::Groups
     } else if let Some(name) = matches.value_of(cmd::SHOW) {
       Subcommand::Show {
         name: name.to_owned(),
