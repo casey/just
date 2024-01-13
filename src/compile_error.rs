@@ -160,6 +160,8 @@ impl Display for CompileError<'_> {
           _ => character.escape_default().collect(),
         }
       ),
+      MissingAttributeArgument { attribute_name } =>
+        write!(f, "Attribute {attribute_name} requires an argument"),
       MismatchedClosingDelimiter {
         open,
         open_line,
