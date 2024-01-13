@@ -1432,7 +1432,7 @@ which will halt execution.
   `requirement`, e.g., `">=0.1.0"`, returning `"true"` if so and `"false"`
   otherwise.
 
-##### XDG Directories
+##### XDG Directories<sup>1.23.0</sup>
 
 These functions return paths to user-specific directories for things like
 configuration, data, caches, executables, and the user's home directory. These
@@ -1456,12 +1456,12 @@ Recipes may be annotated with attributes that change their behavior.
 | Name | Description |
 |------|-------------|
 | `[confirm]`<sup>1.17.0</sup> | Require confirmation prior to executing recipe. |
-| `[confirm("prompt")]`<sup>master</sup> | Require confirmation prior to executing recipe with a custom prompt. |
+| `[confirm("prompt")]`<sup>1.23.0</sup> | Require confirmation prior to executing recipe with a custom prompt. |
 | `[linux]`<sup>1.8.0</sup> | Enable recipe on Linux. |
 | `[macos]`<sup>1.8.0</sup> | Enable recipe on MacOS. |
 | `[no-cd]`<sup>1.9.0</sup> | Don't change directory before executing recipe. |
 | `[no-exit-message]`<sup>1.7.0</sup> | Don't print an error message if recipe fails. |
-| `[no-quiet]`<sup>master</sup> | Override globally quiet recipes and always echo out the recipe. |
+| `[no-quiet]`<sup>1.23.0</sup> | Override globally quiet recipes and always echo out the recipe. |
 | `[private]`<sup>1.10.0</sup> | See [Private Recipes](#private-recipes). |
 | `[unix]`<sup>1.8.0</sup> | Enable recipe on Unixes. (Includes MacOS). |
 | `[windows]`<sup>1.8.0</sup> | Enable recipe on Windows. |
@@ -1545,7 +1545,7 @@ delete all:
   rm -rf *
 ```
 
-#### Custom Confirmation Prompt<sup>master</sup>
+#### Custom Confirmation Prompt<sup>1.23.0</sup>
 
 The default confirmation prompt can be overridden with `[confirm(PROMPT)]`:
 
