@@ -1,6 +1,26 @@
 Changelog
 =========
 
+[1.23.0](https://github.com/casey/just/releases/tag/1.23.0) - 2024-01-12
+------------------------------------------------------------------------
+
+### Added
+- Allow setting custom confirm prompt ([#1834](https://github.com/casey/just/pull/1834) by [CramBL](https://github.com/CramBL))
+- Add `set quiet` and `[no-quiet]` ([#1704](https://github.com/casey/just/pull/1704) by [dharrigan](https://github.com/dharrigan))
+- Add `just_pid` function ([#1833](https://github.com/casey/just/pull/1833) by [Swordelf2](https://github.com/Swordelf2))
+- Add functions to return XDG base directories ([#1822](https://github.com/casey/just/pull/1822) by [tgross35](https://github.com/tgross35))
+- Add `--no-deps` to skip running recipe dependencies ([#1819](https://github.com/casey/just/pull/1819) by [ngharrington](https://github.com/ngharrington))
+
+### Fixed
+- Run imports in working directory of importer ([#1817](https://github.com/casey/just/pull/1817))
+
+### Misc
+- Include completion scripts in releases ([#1837](https://github.com/casey/just/pull/1837))
+- Tweak readme table formatting ([#1836](https://github.com/casey/just/pull/1836))
+- Don't abbreviate just in README ([#1831](https://github.com/casey/just/pull/1831) by [thled](https://github.com/thled))
+- Ignore [private] recipes in just --list ([#1816](https://github.com/casey/just/pull/1816) by [crdx](https://github.com/crdx))
+- Add a dash to tempdir prefix ([#1828](https://github.com/casey/just/pull/1828))
+
 [1.22.1](https://github.com/casey/just/releases/tag/1.22.1) - 2024-01-08
 ------------------------------------------------------------------------
 
