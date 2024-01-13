@@ -16,7 +16,7 @@ pub(crate) enum Attribute<'src> {
 }
 
 impl<'src> Attribute<'src> {
-  pub(crate) fn from_name(name: Name) -> Option<Attribute> {
+  pub(crate) fn from_name(name: Name) -> Option<Self> {
     name.lexeme().parse().ok()
   }
 
@@ -28,10 +28,8 @@ impl<'src> Attribute<'src> {
     self,
     argument: StringLiteral<'src>,
   ) -> Result<Self, CompileErrorKind<'src>> {
-    use Attribute::*;
-
     match self {
-      Confirm(_) => Ok(Attribute::Confirm(Some(argument))),
+      Self::Confirm(_) => Ok(Self::Confirm(Some(argument))),
       // Return error for all attributes that don't accept arguments
       _ => Err(CompileErrorKind::UnexpectedAttributeArgument { attribute: self }),
     }
