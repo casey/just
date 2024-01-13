@@ -78,6 +78,8 @@ mod tests {
     assert!((5..5).len() == 0);
     assert_eq!((1..1).display().to_string(), "0");
     assert_eq!((1..2).display().to_string(), "1");
+    assert_eq!((5..6).display().to_string(), "5");
+    assert_eq!((5..10).display().to_string(), "5 to 9");
     assert_eq!((1..usize::MAX).display().to_string(), "1 or more");
   }
 }
