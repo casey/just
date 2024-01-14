@@ -499,8 +499,8 @@ impl<'src> Justfile<'src> {
       .filter(|recipe| recipe.is_public())
       .flat_map(|recipe| {
         let groups = recipe.attributes.iter().filter_map(|attr| {
-          if let Attribute::Group { ref name } = attr {
-            Some(name.as_ref())
+          if let Attribute::Group { name } = attr {
+            Some(*name)
           } else {
             None
           }

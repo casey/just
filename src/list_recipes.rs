@@ -3,7 +3,7 @@ const MAX_LINE_WIDTH: usize = 30;
 
 pub(crate) fn list_groups(_config: &Config, justfile: &Justfile) {
   let mut group_names: Vec<&str> = justfile.public_groups().into_iter().collect();
-  group_names.sort();
+  group_names.sort_unstable();
   for group in group_names {
     println!("{group}");
   }
@@ -50,7 +50,7 @@ fn get_line_widths<'a>(
   line_widths
 }
 
-fn print_recipe(recipe: &Recipe, aliases: &Vec<&str>) {}
+fn print_recipe(recipe: &Recipe, aliases: &[&str]) {}
 
 fn print_doc_comment(doc: &str, padding: usize, doc_color: Color) {
   print!(
@@ -90,7 +90,7 @@ pub(crate) fn list(config: &Config, level: usize, justfile: &Justfile) {
       let padding =
         max_line_width.saturating_sub(line_widths.get(name).copied().unwrap_or(max_line_width));
       match (i, recipe.doc) {
-        (0, Some(doc)) => print_doc_comment(&doc, padding, doc_color),
+        (0, Some(doc)) => print_doc_comment(doc, padding, doc_color),
         (0, None) => (),
         _ => {
           let alias_doc = format!("alias for `{}`", recipe.name);
