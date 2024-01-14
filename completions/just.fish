@@ -72,6 +72,7 @@ complete -c just -n "__fish_use_subcommand" -l evaluate -d 'Evaluate and print a
 complete -c just -n "__fish_use_subcommand" -l fmt -d 'Format and overwrite justfile'
 complete -c just -n "__fish_use_subcommand" -l init -d 'Initialize new justfile in project root'
 complete -c just -n "__fish_use_subcommand" -s l -l list -d 'List available recipes and their arguments'
+complete -c just -n "__fish_use_subcommand" -l groups -d 'List recipe groups'
 complete -c just -n "__fish_use_subcommand" -l summary -d 'List names of available recipes'
 complete -c just -n "__fish_use_subcommand" -l variables -d 'List names of variables'
 complete -c just -n "__fish_use_subcommand" -s h -l help -d 'Print help information'
