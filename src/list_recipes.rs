@@ -136,7 +136,7 @@ pub(crate) fn list(config: &Config, level: usize, justfile: &Justfile) {
       if let Some(group_name) = group {
         println!("[group: {group_name}]");
       } else {
-        println!("(no group)")
+        println!("(no group)");
       }
     }
     for recipe in recipes {
