@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use {
   super::*,
   std::process::{ExitStatus, Stdio},
@@ -418,6 +420,16 @@ impl<'src, D> Recipe<'src, D> {
         io_error,
       }),
     }
+  }
+
+  pub(crate) fn groups(&self) -> HashSet<&str> {
+    let mut groups = HashSet::new();
+    for attr in self.attributes.iter() {
+      if let Attribute::Group { name } = attr {
+        groups.insert(name.as_ref());
+      }
+    }
+    groups
   }
 }
 

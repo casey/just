@@ -103,7 +103,15 @@ pub(crate) fn list(config: &Config, level: usize, justfile: &Justfile) {
     print!("{}", config.list_heading);
   }
 
-  for recipe in justfile.public_recipes(config.unsorted) {
+  let public_recipes = justfile.public_recipes(config.unsorted);
+  /*
+  let mut by_groups = HashMap::new();
+  for recipe in public_recipes {
+
+  }
+  */
+
+  for recipe in public_recipes {
     let aliases: &[&str] = recipe_aliases
       .get(recipe.name())
       .map_or(&[], |v| v.as_slice());
