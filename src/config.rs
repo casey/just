@@ -371,7 +371,6 @@ impl Config {
       )
             .arg(
         Arg::with_name(cmd::GROUPS)
-        .short("g")
         .long("groups")
         .help("List recipe groups")
       )
