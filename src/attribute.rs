@@ -53,7 +53,11 @@ impl<'src> Display for Attribute<'src> {
     let attr_name = self.name();
     match self {
       Self::Confirm(Some(prompt)) => write!(f, "{attr_name}('{prompt}')"),
-      Self::Group { name } => write!(f, "{attr_name}({name})"),
+      Self::Group { name } => {
+        let use_quotes = name.contains(char::is_whitespace);
+        let mq = if use_quotes { "\"" } else { "" };
+        write!(f, "{attr_name}({mq}{name}{mq})")
+      }
       _other => write!(f, "{attr_name}"),
     }
   }

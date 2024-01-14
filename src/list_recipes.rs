@@ -91,6 +91,31 @@ fn print_doc_comment(doc: &str, padding: usize, doc_color: Color) {
   );
 }
 
+fn recipes_by_group<'a>(
+  justfile: &'a Justfile,
+  sort_order: bool,
+) -> BTreeMap<Option<&'a str>, Vec<&'a Recipe<'a>>> {
+  let mut by_groups: BTreeMap<Option<&str>, Vec<&Recipe<'_>>> = BTreeMap::new();
+
+  for recipe in justfile.public_recipes(sort_order) {
+    let groups = recipe.groups();
+    if groups.is_empty() {
+      by_groups
+        .entry(None)
+        .and_modify(|e| e.push(recipe))
+        .or_insert(vec![recipe]);
+    } else {
+      for group in groups {
+        by_groups
+          .entry(Some(group))
+          .and_modify(|e| e.push(recipe))
+          .or_insert(vec![recipe]);
+      }
+    }
+  }
+  by_groups
+}
+
 pub(crate) fn list(config: &Config, level: usize, justfile: &Justfile) {
   let recipe_aliases = get_recipe_aliases(justfile);
   let line_widths = get_line_widths(config, justfile, &recipe_aliases);
@@ -103,32 +128,23 @@ pub(crate) fn list(config: &Config, level: usize, justfile: &Justfile) {
     print!("{}", config.list_heading);
   }
 
-  let public_recipes = justfile.public_recipes(config.unsorted);
-  let mut by_groups: HashMap<Option<&str>, Vec<&str>> = HashMap::new();
+  let by_groups = recipes_by_group(justfile, config.unsorted);
+  let no_recipes_in_group = by_groups.contains_key(&None) && by_groups.len() == 1;
 
-  for recipe in &public_recipes {
-    let recipe_name = recipe.name();
-    let groups = recipe.groups();
-    if groups.is_empty() {
-      by_groups
-        .entry(None)
-        .and_modify(|e| e.push(recipe_name))
-        .or_insert(vec![recipe_name]);
-    } else {
-      for group in groups {
-        by_groups
-          .entry(Some(group))
-          .and_modify(|e| e.push(recipe_name))
-          .or_insert(vec![recipe_name]);
+  for (group, recipes) in &by_groups {
+    if !no_recipes_in_group {
+      if let Some(group_name) = group {
+        println!("[group: {group_name}]");
+      } else {
+        println!("(no group)")
       }
     }
-  }
-
-  for recipe in public_recipes {
-    let aliases: &[&str] = recipe_aliases
-      .get(recipe.name())
-      .map_or(&[], |v| v.as_slice());
-    print_recipe(recipe, aliases, level, config, &line_widths, max_line_width);
+    for recipe in recipes {
+      let aliases: &[&str] = recipe_aliases
+        .get(recipe.name())
+        .map_or(&[], |v| v.as_slice());
+      print_recipe(recipe, aliases, level, config, &line_widths, max_line_width);
+    }
   }
 
   for (name, module) in &justfile.modules {
