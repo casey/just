@@ -497,20 +497,7 @@ impl<'src> Justfile<'src> {
       .values()
       .map(AsRef::as_ref)
       .filter(|recipe| recipe.is_public())
-      .flat_map(|recipe| {
-          recipe.groups()
-              /*
-          //TODO this should use a .groups() method
-        let groups = recipe.attributes.iter().filter_map(|attr| {
-          if let Attribute::Group { name } = attr {
-            Some(*name)
-          } else {
-            None
-          }
-        });
-        groups
-        */
-      })
+      .flat_map(|recipe| recipe.groups())
       .collect()
   }
 }

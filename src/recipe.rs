@@ -424,7 +424,7 @@ impl<'src, D> Recipe<'src, D> {
 
   pub(crate) fn groups(&self) -> HashSet<&str> {
     let mut groups = HashSet::new();
-    for attr in self.attributes.iter() {
+    for attr in &self.attributes {
       if let Attribute::Group { name } = attr {
         groups.insert(name.as_ref());
       }

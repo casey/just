@@ -104,12 +104,25 @@ pub(crate) fn list(config: &Config, level: usize, justfile: &Justfile) {
   }
 
   let public_recipes = justfile.public_recipes(config.unsorted);
-  /*
-  let mut by_groups = HashMap::new();
-  for recipe in public_recipes {
+  let mut by_groups: HashMap<Option<&str>, Vec<&str>> = HashMap::new();
 
+  for recipe in &public_recipes {
+    let recipe_name = recipe.name();
+    let groups = recipe.groups();
+    if groups.is_empty() {
+      by_groups
+        .entry(None)
+        .and_modify(|e| e.push(recipe_name))
+        .or_insert(vec![recipe_name]);
+    } else {
+      for group in groups {
+        by_groups
+          .entry(Some(group))
+          .and_modify(|e| e.push(recipe_name))
+          .or_insert(vec![recipe_name]);
+      }
+    }
   }
-  */
 
   for recipe in public_recipes {
     let aliases: &[&str] = recipe_aliases
