@@ -294,8 +294,6 @@ fn test_round_trip(tmpdir: &Path) {
     .output()
     .expect("just invocation failed");
 
-  println!("{:?}", output);
-
   if !output.status.success() {
     panic!("reparse failed: {}", output.status);
   }
