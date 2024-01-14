@@ -50,7 +50,36 @@ fn get_line_widths<'a>(
   line_widths
 }
 
-fn print_recipe(recipe: &Recipe, aliases: &[&str]) {}
+fn print_recipe(
+  recipe: &Recipe,
+  aliases: &[&str],
+  level: usize,
+  config: &Config,
+  line_widths: &BTreeMap<&str, usize>,
+  max_line_width: usize,
+) {
+  let name = recipe.name();
+  let doc_color = config.color.stdout().doc();
+
+  for (i, name) in iter::once(&name).chain(aliases).enumerate() {
+    print!("{}{name}", config.list_prefix.repeat(level + 1));
+    for parameter in &recipe.parameters {
+      print!(" {}", parameter.color_display(config.color.stdout()));
+    }
+
+    let padding =
+      max_line_width.saturating_sub(line_widths.get(name).copied().unwrap_or(max_line_width));
+    match (i, recipe.doc) {
+      (0, Some(doc)) => print_doc_comment(doc, padding, doc_color),
+      (0, None) => (),
+      _ => {
+        let alias_doc = format!("alias for `{}`", recipe.name);
+        print_doc_comment(&alias_doc, padding, doc_color);
+      }
+    }
+    println!();
+  }
+}
 
 fn print_doc_comment(doc: &str, padding: usize, doc_color: Color) {
   print!(
@@ -69,36 +98,16 @@ pub(crate) fn list(config: &Config, level: usize, justfile: &Justfile) {
     line_widths.values().copied().max().unwrap_or(0),
     MAX_LINE_WIDTH,
   );
-  let doc_color = config.color.stdout().doc();
 
   if level == 0 {
     print!("{}", config.list_heading);
   }
 
   for recipe in justfile.public_recipes(config.unsorted) {
-    let name = recipe.name();
-
-    for (i, name) in iter::once(&name)
-      .chain(recipe_aliases.get(name).unwrap_or(&Vec::new()))
-      .enumerate()
-    {
-      print!("{}{name}", config.list_prefix.repeat(level + 1));
-      for parameter in &recipe.parameters {
-        print!(" {}", parameter.color_display(config.color.stdout()));
-      }
-
-      let padding =
-        max_line_width.saturating_sub(line_widths.get(name).copied().unwrap_or(max_line_width));
-      match (i, recipe.doc) {
-        (0, Some(doc)) => print_doc_comment(doc, padding, doc_color),
-        (0, None) => (),
-        _ => {
-          let alias_doc = format!("alias for `{}`", recipe.name);
-          print_doc_comment(&alias_doc, padding, doc_color);
-        }
-      }
-      println!();
-    }
+    let aliases: &[&str] = recipe_aliases
+      .get(recipe.name())
+      .map_or(&[], |v| v.as_slice());
+    print_recipe(recipe, aliases, level, config, &line_widths, max_line_width);
   }
 
   for (name, module) in &justfile.modules {
