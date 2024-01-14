@@ -14,43 +14,50 @@ impl Search {
     search_config: &SearchConfig,
     invocation_directory: &Path,
   ) -> SearchResult<Self> {
-    match search_config {
-      SearchConfig::FromInvocationDirectory => Self::find_next(invocation_directory),
-      SearchConfig::FromSearchDirectory { search_directory } => {
+    use SearchConfig::*;
+
+    Ok(match search_config {
+      FromInvocationDirectory => Self::find_next(invocation_directory)?,
+      FromSearchDirectory { search_directory } => {
         let search_directory = Self::clean(invocation_directory, search_directory);
-
         let justfile = Self::justfile(&search_directory)?;
-
         let working_directory = Self::working_directory_from_justfile(&justfile)?;
 
-        Ok(Self {
+        Self {
           justfile,
           working_directory,
-        })
+        }
       }
-      SearchConfig::WithJustfile { justfile } => {
+      Global => {
+        let working_directory = Self::project_root(invocation_directory)?;
+        let home_dir = dirs::home_dir().ok_or(SearchError::MissingHomeDirectory)?;
+        let justfile = home_dir.join(DEFAULT_JUSTFILE_NAME);
+        Self {
+          justfile,
+          working_directory,
+        }
+      }
+      WithJustfile { justfile } => {
         let justfile = Self::clean(invocation_directory, justfile);
-
         let working_directory = Self::working_directory_from_justfile(&justfile)?;
 
-        Ok(Self {
+        Self {
           justfile,
           working_directory,
-        })
+        }
       }
-      SearchConfig::WithJustfileAndWorkingDirectory {
+      WithJustfileAndWorkingDirectory {
         justfile,
         working_directory,
-      } => Ok(Self {
+      } => Self {
         justfile: Self::clean(invocation_directory, justfile),
         working_directory: Self::clean(invocation_directory, working_directory),
-      }),
-    }
+      },
+    })
   }
 
   pub(crate) fn find_next(starting_dir: &Path) -> SearchResult<Self> {
     let justfile = Self::justfile(starting_dir)?;
-
     let working_directory = Self::working_directory_from_justfile(&justfile)?;
 
     Ok(Self {
@@ -63,50 +70,59 @@ impl Search {
     search_config: &SearchConfig,
     invocation_directory: &Path,
   ) -> SearchResult<Self> {
-    match search_config {
-      SearchConfig::FromInvocationDirectory => {
+    use SearchConfig::*;
+
+    Ok(match search_config {
+      FromInvocationDirectory => {
         let working_directory = Self::project_root(invocation_directory)?;
-
         let justfile = working_directory.join(DEFAULT_JUSTFILE_NAME);
 
-        Ok(Self {
+        Self {
           justfile,
           working_directory,
-        })
+        }
       }
 
-      SearchConfig::FromSearchDirectory { search_directory } => {
+      FromSearchDirectory { search_directory } => {
         let search_directory = Self::clean(invocation_directory, search_directory);
-
         let working_directory = Self::project_root(&search_directory)?;
-
         let justfile = working_directory.join(DEFAULT_JUSTFILE_NAME);
 
-        Ok(Self {
+        Self {
           justfile,
           working_directory,
-        })
+        }
       }
 
-      SearchConfig::WithJustfile { justfile } => {
-        let justfile = Self::clean(invocation_directory, justfile);
+      Global => {
+        let working_directory = Self::project_root(invocation_directory)?;
+        let home_dir = dirs::home_dir().ok_or(SearchError::MissingHomeDirectory)?;
+        let justfile = home_dir.join(DEFAULT_JUSTFILE_NAME);
 
+        Self {
+          justfile,
+          working_directory,
+        }
+      }
+
+      WithJustfile { justfile } => {
+        let justfile = Self::clean(invocation_directory, justfile);
         let working_directory = Self::working_directory_from_justfile(&justfile)?;
 
-        Ok(Self {
+        Self {
           justfile,
           working_directory,
-        })
+        }
       }
 
-      SearchConfig::WithJustfileAndWorkingDirectory {
+      WithJustfileAndWorkingDirectory {
         justfile,
         working_directory,
-      } => Ok(Self {
+      } => Self {
         justfile: Self::clean(invocation_directory, justfile),
         working_directory: Self::clean(invocation_directory, working_directory),
-      }),
-    }
+      },
+    })
   }
 
   pub(crate) fn justfile(directory: &Path) -> SearchResult<PathBuf> {
