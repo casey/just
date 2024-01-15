@@ -1,11 +1,12 @@
 use super::*;
 
 /// Controls how `just` will search for the justfile.
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Default)]
 pub(crate) enum SearchConfig {
   /// Recursively search for the justfile upwards from the invocation directory
   /// to the root, setting the working directory to the directory in which the
   /// justfile is found.
+  #[default]
   FromInvocationDirectory,
   /// As in `Invocation`, but start from `search_directory`.
   FromSearchDirectory { search_directory: PathBuf },

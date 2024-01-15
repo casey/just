@@ -2,8 +2,9 @@ use super::*;
 
 const INIT_JUSTFILE: &str = "default:\n    echo 'Hello, world!'\n";
 
-#[derive(PartialEq, Clone, Debug)]
+#[derive(PartialEq, Clone, Debug, Default)]
 pub(crate) enum Subcommand {
+  #[default]
   Changelog,
   Choose {
     overrides: BTreeMap<String, String>,

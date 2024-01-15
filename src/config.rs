@@ -17,7 +17,7 @@ pub(crate) fn chooser_default(justfile: &Path) -> OsString {
   chooser
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Default)]
 pub(crate) struct Config {
   pub(crate) check: bool,
   pub(crate) color: Color,

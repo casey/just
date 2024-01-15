@@ -1,7 +1,8 @@
 use Verbosity::*;
 
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq, Default)]
 pub(crate) enum Verbosity {
+  #[default]
   Quiet,
   Taciturn,
   Loquacious,
