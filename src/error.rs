@@ -154,6 +154,10 @@ pub(crate) enum Error<'src> {
     recipes: Vec<String>,
     suggestion: Option<Suggestion<'src>>,
   },
+  UnresolvedVariableInImport {
+    variable: String,
+    path: Token<'src>,
+  },
   Unstable {
     message: String,
   },
@@ -185,6 +189,7 @@ impl<'src> Error<'src> {
       Self::Compile { compile_error } => Some(compile_error.context()),
       Self::FunctionCall { function, .. } => Some(function.token),
       Self::MissingImportFile { path } => Some(*path),
+      Self::UnresolvedVariableInImport { variable: _, path } => Some(*path),
       _ => None,
     }
   }
@@ -421,6 +426,7 @@ impl<'src> ColorDisplay for Error<'src> {
           write!(f, "\n{suggestion}")?;
         }
       }
+      UnresolvedVariableInImport { variable, .. } => write!(f, "Path to file contains unresolved variable {variable}.")?,
       Unstable { message } => {
         write!(f, "{message} Invoke `just` with the `--unstable` flag to enable unstable features.")?;
       }

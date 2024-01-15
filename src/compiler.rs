@@ -1,4 +1,7 @@
-use super::*;
+use {
+  super::*,
+  shellexpand::full,
+};
 
 pub(crate) struct Compiler;
 
@@ -78,11 +81,13 @@ impl Compiler {
             optional,
             path,
           } => {
+            let expanded_path = full(&relative.cooked).map_err(|error| Error::UnresolvedVariableInImport { variable: error.var_name, path: *path })?;
+
             let import = current
               .path
               .parent()
               .unwrap()
-              .join(Self::expand_tilde(&relative.cooked)?)
+              .join(&*expanded_path)
               .lexiclean();
 
             if import.is_file() {
