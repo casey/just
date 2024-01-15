@@ -50,6 +50,7 @@ pub(crate) struct Config {
   pub(crate) yes: bool,
 }
 
+/*
 mod cmd {
   pub(crate) const CHANGELOG: &str = "CHANGELOG";
   pub(crate) const CHOOSE: &str = "CHOOSE";
@@ -94,8 +95,10 @@ mod cmd {
     VARIABLES,
   ];
 }
+*/
 
 mod arg {
+  /*
   pub(crate) const ARGUMENTS: &str = "ARGUMENTS";
   pub(crate) const CHECK: &str = "CHECK";
   pub(crate) const CHOOSER: &str = "CHOOSER";
@@ -123,6 +126,7 @@ mod arg {
   pub(crate) const VERBOSE: &str = "VERBOSE";
   pub(crate) const WORKING_DIRECTORY: &str = "WORKING-DIRECTORY";
   pub(crate) const YES: &str = "YES";
+  */
 
   pub(crate) const COLOR_ALWAYS: &str = "always";
   pub(crate) const COLOR_AUTO: &str = "auto";
@@ -399,11 +403,11 @@ struct CliArgs {
   list: bool,
 
   ///Don't run recipe dependencies
-  #[arg(long="no-deps", alias="no-dependencies")]
+  #[arg(long = "no-deps", alias = "no-dependencies")]
   no_deps: bool,
 
   ///Don't load `.env` file"
-  #[arg(long="no-dotenv")]
+  #[arg(long = "no-dotenv")]
   no_dotenv: bool,
 
   ///Don't highlight echoed recipe lines in bold
@@ -469,14 +473,13 @@ impl Config {
   }
 
   pub(crate) fn generate_completions_script(shell: clap_complete::Shell) -> String {
-      let command = Self::command();
-      let mut command = CliArgs::augment_args(command);
-
+    let command = Self::command();
+    let mut command = CliArgs::augment_args(command);
 
     let buffer = Vec::new();
     let mut cursor = Cursor::new(buffer);
 
-    clap_complete::generate(shell, &mut command,"just", &mut cursor);
+    clap_complete::generate(shell, &mut command, "just", &mut cursor);
     //Config::app().gen_completions_to(env!("CARGO_PKG_NAME"), shell, &mut cursor);
 
     let buffer = cursor.into_inner();
@@ -928,7 +931,7 @@ impl Config {
     } else if matches.get_flag("evaluate") {
       if positional.arguments.len() > 1 {
         return Err(ConfigError::SubcommandArguments {
-          subcommand: cmd::EVALUATE,
+          subcommand: "evaluate",
           arguments: positional
             .arguments
             .into_iter()
