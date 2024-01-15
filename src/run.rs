@@ -13,12 +13,8 @@ pub fn run() -> Result<(), i32> {
   )
   .init();
 
-  let app = Config::app();
-
-  info!("Parsing command line arguments…");
-  let matches = app.get_matches();
-
-  let config = Config::from_matches(&matches).map_err(Error::from);
+  let args = std::env::args_os();
+  let config = Config::from_command_line_arguments(args).map_err(Error::from);
 
   let (color, verbosity) = config
     .as_ref()
