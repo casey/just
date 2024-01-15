@@ -145,7 +145,24 @@ mod arg {
 }
 
 impl Config {
-  pub(crate) fn app() -> App<'static, 'static> {
+  pub(crate) fn from_command_line_arguments(
+    args: impl Iterator<Item = OsString>,
+  ) -> ConfigResult<Self> {
+    info!("Parsing command line arguments…");
+    let app = Self::app();
+    let matches = app.get_matches_from(args);
+    Config::from_matches(&matches)
+  }
+
+  pub(crate) fn generate_completions_script(shell: clap::Shell) -> String {
+    let buffer = Vec::new();
+    let mut cursor = Cursor::new(buffer);
+    Config::app().gen_completions_to(env!("CARGO_PKG_NAME"), shell, &mut cursor);
+    let buffer = cursor.into_inner();
+    String::from_utf8(buffer).expect("Clap completion not UTF-8")
+  }
+
+  fn app() -> App<'static, 'static> {
     let app = App::new(env!("CARGO_PKG_NAME"))
       .help_message("Print help information")
       .version_message("Print version information")
@@ -476,7 +493,7 @@ impl Config {
     }
   }
 
-  pub(crate) fn from_matches(matches: &ArgMatches) -> ConfigResult<Self> {
+  fn from_matches(matches: &ArgMatches) -> ConfigResult<Self> {
     let invocation_directory = env::current_dir().context(config_error::CurrentDirContext)?;
 
     let verbosity = if matches.is_present(arg::QUIET) {

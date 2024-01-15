@@ -293,11 +293,7 @@ impl Subcommand {
       .parse::<Shell>()
       .expect("Invalid value for clap::Shell");
 
-    let buffer = Vec::new();
-    let mut cursor = Cursor::new(buffer);
-    Config::app().gen_completions_to(env!("CARGO_PKG_NAME"), shell, &mut cursor);
-    let buffer = cursor.into_inner();
-    let mut script = String::from_utf8(buffer).expect("Clap completion not UTF-8");
+    let mut script = Config::generate_completions_script(shell);
 
     match shell {
       Shell::Bash => {
