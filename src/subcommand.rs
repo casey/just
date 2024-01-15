@@ -277,7 +277,7 @@ impl Subcommand {
   }
 
   fn completions(shell: &str) -> RunResult<'static, ()> {
-    use clap::Shell;
+    use clap_complete::shells::Shell;
 
     fn replace(haystack: &mut String, needle: &str, replacement: &str) -> RunResult<'static, ()> {
       if let Some(index) = haystack.find(needle) {
@@ -317,6 +317,9 @@ impl Subcommand {
         }
       }
       Shell::Elvish => {}
+      other => {
+          panic!("Shell {other} not supported!");
+      }
     }
 
     println!("{}", script.trim());

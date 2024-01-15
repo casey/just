@@ -1,6 +1,6 @@
 use {
   super::*,
-  clap::{App, AppSettings, Arg, ArgGroup, ArgMatches, ArgSettings},
+  //clap::{App, AppSettings, Arg, ArgGroup, ArgMatches, ArgSettings},
 };
 
 pub(crate) const CHOOSER_ENVIRONMENT_KEY: &str = "JUST_CHOOSER";
@@ -149,19 +149,27 @@ impl Config {
     args: impl Iterator<Item = OsString>,
   ) -> ConfigResult<Self> {
     info!("Parsing command line arguments…");
+
+    /*
     let app = Self::app();
     let matches = app.get_matches_from(args);
     Config::from_matches(&matches)
+    */
+    Ok(Config::default())
   }
 
-  pub(crate) fn generate_completions_script(shell: clap::Shell) -> String {
+  pub(crate) fn generate_completions_script(shell: clap_complete::Shell) -> String {
+      /*
     let buffer = Vec::new();
     let mut cursor = Cursor::new(buffer);
     Config::app().gen_completions_to(env!("CARGO_PKG_NAME"), shell, &mut cursor);
     let buffer = cursor.into_inner();
     String::from_utf8(buffer).expect("Clap completion not UTF-8")
+    */
+    "FOO".into()
   }
 
+  /*
   fn app() -> App<'static, 'static> {
     let app = App::new(env!("CARGO_PKG_NAME"))
       .help_message("Print help information")
@@ -440,59 +448,61 @@ impl Config {
         ))
     }
   }
+*/
 
-  fn color_from_matches(matches: &ArgMatches) -> ConfigResult<Color> {
-    let value = matches
-      .value_of(arg::COLOR)
-      .ok_or_else(|| ConfigError::Internal {
-        message: "`--color` had no value".to_string(),
-      })?;
+  // fn color_from_matches(matches: &ArgMatches) -> ConfigResult<Color> {
+  //   let value = matches
+  //     .value_of(arg::COLOR)
+  //     .ok_or_else(|| ConfigError::Internal {
+  //       message: "`--color` had no value".to_string(),
+  //     })?;
 
-    match value {
-      arg::COLOR_AUTO => Ok(Color::auto()),
-      arg::COLOR_ALWAYS => Ok(Color::always()),
-      arg::COLOR_NEVER => Ok(Color::never()),
-      _ => Err(ConfigError::Internal {
-        message: format!("Invalid argument `{value}` to --color."),
-      }),
-    }
-  }
+  //   match value {
+  //     arg::COLOR_AUTO => Ok(Color::auto()),
+  //     arg::COLOR_ALWAYS => Ok(Color::always()),
+  //     arg::COLOR_NEVER => Ok(Color::never()),
+  //     _ => Err(ConfigError::Internal {
+  //       message: format!("Invalid argument `{value}` to --color."),
+  //     }),
+  //   }
+  // }
 
-  fn command_color_from_matches(matches: &ArgMatches) -> ConfigResult<Option<ansi_term::Color>> {
-    if let Some(value) = matches.value_of(arg::COMMAND_COLOR) {
-      match value {
-        arg::COMMAND_COLOR_BLACK => Ok(Some(ansi_term::Color::Black)),
-        arg::COMMAND_COLOR_BLUE => Ok(Some(ansi_term::Color::Blue)),
-        arg::COMMAND_COLOR_CYAN => Ok(Some(ansi_term::Color::Cyan)),
-        arg::COMMAND_COLOR_GREEN => Ok(Some(ansi_term::Color::Green)),
-        arg::COMMAND_COLOR_PURPLE => Ok(Some(ansi_term::Color::Purple)),
-        arg::COMMAND_COLOR_RED => Ok(Some(ansi_term::Color::Red)),
-        arg::COMMAND_COLOR_YELLOW => Ok(Some(ansi_term::Color::Yellow)),
-        value => Err(ConfigError::Internal {
-          message: format!("Invalid argument `{value}` to --command-color."),
-        }),
-      }
-    } else {
-      Ok(None)
-    }
-  }
+  // fn command_color_from_matches(matches: &ArgMatches) -> ConfigResult<Option<ansi_term::Color>> {
+  //   if let Some(value) = matches.value_of(arg::COMMAND_COLOR) {
+  //     match value {
+  //       arg::COMMAND_COLOR_BLACK => Ok(Some(ansi_term::Color::Black)),
+  //       arg::COMMAND_COLOR_BLUE => Ok(Some(ansi_term::Color::Blue)),
+  //       arg::COMMAND_COLOR_CYAN => Ok(Some(ansi_term::Color::Cyan)),
+  //       arg::COMMAND_COLOR_GREEN => Ok(Some(ansi_term::Color::Green)),
+  //       arg::COMMAND_COLOR_PURPLE => Ok(Some(ansi_term::Color::Purple)),
+  //       arg::COMMAND_COLOR_RED => Ok(Some(ansi_term::Color::Red)),
+  //       arg::COMMAND_COLOR_YELLOW => Ok(Some(ansi_term::Color::Yellow)),
+  //       value => Err(ConfigError::Internal {
+  //         message: format!("Invalid argument `{value}` to --command-color."),
+  //       }),
+  //     }
+  //   } else {
+  //     Ok(None)
+  //   }
+  // }
 
-  fn dump_format_from_matches(matches: &ArgMatches) -> ConfigResult<DumpFormat> {
-    let value = matches
-      .value_of(arg::DUMP_FORMAT)
-      .ok_or_else(|| ConfigError::Internal {
-        message: "`--dump-format` had no value".to_string(),
-      })?;
+  // fn dump_format_from_matches(matches: &ArgMatches) -> ConfigResult<DumpFormat> {
+  //   let value = matches
+  //     .value_of(arg::DUMP_FORMAT)
+  //     .ok_or_else(|| ConfigError::Internal {
+  //       message: "`--dump-format` had no value".to_string(),
+  //     })?;
 
-    match value {
-      arg::DUMP_FORMAT_JSON => Ok(DumpFormat::Json),
-      arg::DUMP_FORMAT_JUST => Ok(DumpFormat::Just),
-      _ => Err(ConfigError::Internal {
-        message: format!("Invalid argument `{value}` to --dump-format."),
-      }),
-    }
-  }
+  //   match value {
+  //     arg::DUMP_FORMAT_JSON => Ok(DumpFormat::Json),
+  //     arg::DUMP_FORMAT_JUST => Ok(DumpFormat::Just),
+  //     _ => Err(ConfigError::Internal {
+  //       message: format!("Invalid argument `{value}` to --dump-format."),
+  //     }),
+  //   }
+  // }
 
+    /*
   fn from_matches(matches: &ArgMatches) -> ConfigResult<Self> {
     let invocation_directory = env::current_dir().context(config_error::CurrentDirContext)?;
 
@@ -687,6 +697,7 @@ impl Config {
       yes: matches.is_present(arg::YES),
     })
   }
+*/
 
   pub(crate) fn require_unstable(&self, message: &str) -> Result<(), Error<'static>> {
     if self.unstable {
