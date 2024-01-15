@@ -156,15 +156,6 @@ mod arg {
   pub(crate) const DUMP_FORMAT_VALUES: &[&str] = &[DUMP_FORMAT_JUST, DUMP_FORMAT_JSON];
 }
 
-#[derive(Debug, Clone, Copy, clap::ValueEnum, serde::Serialize, Default)]
-#[serde(rename_all = "kebab-case")]
-enum ColorValue {
-  #[default]
-  Auto,
-  Always,
-  Never,
-}
-
 const HELP_TEMPLATE: &str = r#"
 {name} {version}
 {author}
