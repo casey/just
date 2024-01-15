@@ -337,7 +337,7 @@ struct CliArgs {
     num_args = 1,
     overrides_with = "clear_shell_args"
   )]
-  shell_arg: Vec<String>,
+  shell_arg: Option<Vec<String>>,
 
   ///Clear shell arguments
   #[arg(long = "clear-shell-args", overrides_with = "shell_arg")]
@@ -899,8 +899,8 @@ impl Config {
     }
 
     let shell_arg_count = matches
-      .get_occurrences::<Vec<String>>("shell_arg")
-      .map(|occ| occ.count())
+      .get_occurrences::<String>("shell_arg")
+      .and_then(|occ| Some(occ.count()))
       .unwrap_or(0);
 
     let clear_shell_args = matches.get_flag("clear_shell_args");
@@ -909,9 +909,7 @@ impl Config {
       Some(
         matches
           .remove_many("shell_arg")
-          .map_or(Vec::new(), |shell_args| {
-            shell_args.map(str::to_owned).collect()
-          }),
+          .map_or(Vec::new(), |shell_args| shell_args.collect()),
       )
     } else {
       None
