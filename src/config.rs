@@ -1,5 +1,6 @@
 use clap::{
   builder::{PossibleValue, TypedValueParser},
+  parser::ValueSource,
   Arg, ArgAction, Args,
 };
 
@@ -331,15 +332,15 @@ struct CliArgs {
 
   ///Invoke shell with <SHELL-ARG> as an argument
   #[arg(
-    long = "shell-args",
+    long = "shell-arg",
     allow_hyphen_values = true,
     num_args = 1,
     overrides_with = "clear_shell_args"
   )]
-  shell_args: Vec<String>,
+  shell_arg: Vec<String>,
 
   ///Clear shell arguments
-  #[arg(long = "clear-shell-args", overrides_with = "shell_args")]
+  #[arg(long = "clear-shell-args", overrides_with = "shell_arg")]
   clear_shell_args: bool,
 
   ///Print colorful output
@@ -402,6 +403,14 @@ struct CliArgs {
   #[arg(short, long)]
   list: bool,
 
+  ///Print <TEXT> before list
+  #[arg(long = "list-heading", value_name = "TEXT")]
+  list_heading: Option<String>,
+
+  ///Print <TEXT> before each list item
+  #[arg(long = "list-prefix", value_name = "TEXT")]
+  list_prefix: Option<String>,
+
   ///Don't run recipe dependencies
   #[arg(long = "no-deps", alias = "no-dependencies")]
   no_deps: bool,
@@ -417,6 +426,14 @@ struct CliArgs {
   ///Suppress all output
   #[arg(short = 'q', long, conflicts_with = "dry_run")]
   quiet: bool,
+
+  ///Invoke <SHELL> to run recipes
+  #[arg(long)]
+  shell: Option<String>,
+
+  ///Invoke <COMMAND> with the shell used to run recipe lines and backticks
+  #[arg(long = "shell-command")]
+  shell_command: bool,
 
   ///Show information about <RECIPE>
   #[arg(short = 's', long)]
@@ -783,7 +800,7 @@ impl Config {
   fn from_matches(mut matches: ArgMatches) -> ConfigResult<Self> {
     let invocation_directory = env::current_dir().context(config_error::CurrentDirContext)?;
 
-    let verbosity = if matches.contains_id("quiet") {
+    let verbosity = if matches.get_flag("quiet") {
       Verbosity::Quiet
     } else {
       Verbosity::from_flag_occurrences(matches.get_count("verbose"))
@@ -844,7 +861,7 @@ impl Config {
       "completions",
       "dump",
       "edit",
-      "format",
+      "fmt",
       "init",
       "list",
       "show",
@@ -853,46 +870,45 @@ impl Config {
     ];
 
     for subcommand in argless {
-      if matches.contains_id(subcommand) {
-        match (!overrides.is_empty(), !positional.arguments.is_empty()) {
-          (false, false) => {}
-          (true, false) => {
-            return Err(ConfigError::SubcommandOverrides {
-              subcommand,
-              overrides,
-            });
-          }
-          (false, true) => {
-            return Err(ConfigError::SubcommandArguments {
-              arguments: positional.arguments,
-              subcommand,
-            });
-          }
-          (true, true) => {
-            return Err(ConfigError::SubcommandOverridesAndArguments {
-              arguments: positional.arguments,
-              subcommand,
-              overrides,
-            });
-          }
+      let value_source = matches.value_source(subcommand);
+      if value_source == Some(ValueSource::DefaultValue) || value_source == None {
+        continue;
+      }
+      match (!overrides.is_empty(), !positional.arguments.is_empty()) {
+        (false, false) => {}
+        (true, false) => {
+          return Err(ConfigError::SubcommandOverrides {
+            subcommand,
+            overrides,
+          });
+        }
+        (false, true) => {
+          return Err(ConfigError::SubcommandArguments {
+            arguments: positional.arguments,
+            subcommand,
+          });
+        }
+        (true, true) => {
+          return Err(ConfigError::SubcommandOverridesAndArguments {
+            arguments: positional.arguments,
+            subcommand,
+            overrides,
+          });
         }
       }
     }
 
     let shell_arg_count = matches
-      .get_occurrences::<Vec<String>>("shell_args")
+      .get_occurrences::<Vec<String>>("shell_arg")
       .map(|occ| occ.count())
       .unwrap_or(0);
 
-    let clear_shell_arg_count = matches
-      .get_occurrences::<Vec<String>>("clear_shell_args")
-      .map(|occ| occ.count())
-      .unwrap_or(0);
+    let clear_shell_args = matches.get_flag("clear_shell_args");
 
-    let shell_args = if shell_arg_count > 0 || clear_shell_arg_count > 0 {
+    let shell_args = if shell_arg_count > 0 || clear_shell_args {
       Some(
         matches
-          .remove_many("shell_args")
+          .remove_many("shell_arg")
           .map_or(Vec::new(), |shell_args| {
             shell_args.map(str::to_owned).collect()
           }),
@@ -967,30 +983,25 @@ impl Config {
       dump_format: matches.remove_one("dump_format").unwrap(),
       highlight: !matches.get_flag("no_highlight"),
       invocation_directory,
-      /*
       list_heading: matches
-        .value_of(arg::LIST_HEADING)
+        .remove_one("list_heading")
         .unwrap_or("Available recipes:\n")
         .to_owned(),
       list_prefix: matches
-        .value_of(arg::LIST_PREFIX)
+        .remove_one("list_prefix")
         .unwrap_or("    ")
         .to_owned(),
-        */
       load_dotenv: !matches.get_flag("no_dotenv"),
       no_dependencies: matches.get_flag("no_deps"),
       search_config,
-      //shell: matches.value_of(arg::SHELL).map(str::to_owned),
+      shell: matches.remove_one("shell"),
       shell_args,
-      /*
-      shell_command: matches.is_present(arg::SHELL_COMMAND),
-      */
+      shell_command: matches.get_flag("shell_command"),
       subcommand,
       unsorted: matches.get_flag("unsorted"),
       unstable,
       verbosity,
       yes: matches.get_flag("yes"),
-      ..Default::default()
     })
   }
 
@@ -1062,12 +1073,11 @@ mod tests {
     }
   }
 
-  fn test(arguments: &[&str], want: Config) {
-    let app = Config::app();
-    let matches = app
-      .get_matches_from_safe(arguments)
-      .expect("argument parsing failed");
-    let have = Config::from_matches(matches).expect("config parsing failed");
+  fn test(args: &[&str], want: Config) {
+    let command = Config::command();
+    let command = CliArgs::augment_args(command);
+    let matches = command.get_matches_from(args);
+    let have = Config::from_matches(matches).expect("Config parsing failed");
     assert_eq!(have, want);
   }
 
@@ -1078,14 +1088,14 @@ mod tests {
     } => {
       #[test]
       fn $name() {
-        let arguments = &[
+        let args = &[
           "just",
           $($arg,)*
         ];
 
-        let app = Config::app();
-
-        app.get_matches_from_safe(arguments).expect_err("Expected clap error");
+        let command = Config::command();
+        let command = CliArgs::augment_args(command);
+        command.try_get_matches_from(args).expect_err("Expected clap error");
       }
     };
     {
@@ -1096,14 +1106,14 @@ mod tests {
     } => {
       #[test]
       fn $name() {
-        let arguments = &[
+        let args = &[
           "just",
           $($arg,)*
         ];
 
-        let app = Config::app();
-
-        let matches = app.get_matches_from_safe(arguments).expect("Matching fails");
+        let command = Config::command();
+        let command = CliArgs::augment_args(command);
+        let matches = command.try_get_matches_from(args).expect("Matching fails");
 
         match Config::from_matches(matches).expect_err("config parsing succeeded") {
           $error => { $($check)? }
@@ -1719,7 +1729,7 @@ mod tests {
     args: ["--completions", "zsh", "foo"],
     error: ConfigError::SubcommandArguments { subcommand, arguments },
     check: {
-      assert_eq!(subcommand, cmd::COMPLETIONS);
+      assert_eq!(subcommand, "completions");
       assert_eq!(arguments, &["foo"]);
     },
   }
@@ -1729,7 +1739,7 @@ mod tests {
     args: ["--changelog", "bar"],
     error: ConfigError::SubcommandArguments { subcommand, arguments },
     check: {
-      assert_eq!(subcommand, cmd::CHANGELOG);
+      assert_eq!(subcommand, "changelog");
       assert_eq!(arguments, &["bar"]);
     },
   }
@@ -1739,7 +1749,7 @@ mod tests {
     args: ["--list", "bar"],
     error: ConfigError::SubcommandArguments { subcommand, arguments },
     check: {
-      assert_eq!(subcommand, cmd::LIST);
+      assert_eq!(subcommand, "list");
       assert_eq!(arguments, &["bar"]);
     },
   }
@@ -1749,7 +1759,7 @@ mod tests {
     args: ["--dump", "bar"],
     error: ConfigError::SubcommandArguments { subcommand, arguments },
     check: {
-      assert_eq!(subcommand, cmd::DUMP);
+      assert_eq!(subcommand, "dump");
       assert_eq!(arguments, &["bar"]);
     },
   }
@@ -1759,7 +1769,7 @@ mod tests {
     args: ["--edit", "bar"],
     error: ConfigError::SubcommandArguments { subcommand, arguments },
     check: {
-      assert_eq!(subcommand, cmd::EDIT);
+      assert_eq!(subcommand, "edit");
       assert_eq!(arguments, &["bar"]);
     },
   }
@@ -1769,7 +1779,7 @@ mod tests {
     args: ["--fmt", "bar"],
     error: ConfigError::SubcommandArguments { subcommand, arguments },
     check: {
-      assert_eq!(subcommand, cmd::FORMAT);
+      assert_eq!(subcommand, "fmt");
       assert_eq!(arguments, &["bar"]);
     },
   }
@@ -1779,7 +1789,7 @@ mod tests {
     args: ["--format", "bar"],
     error: ConfigError::SubcommandArguments { subcommand, arguments },
     check: {
-      assert_eq!(subcommand, cmd::FORMAT);
+      assert_eq!(subcommand, "fmt");
       assert_eq!(arguments, &["bar"]);
     },
   }
@@ -1789,7 +1799,7 @@ mod tests {
     args: ["--init", "bar"],
     error: ConfigError::SubcommandArguments { subcommand, arguments },
     check: {
-      assert_eq!(subcommand, cmd::INIT);
+      assert_eq!(subcommand, "init");
       assert_eq!(arguments, &["bar"]);
     },
   }
@@ -1799,7 +1809,7 @@ mod tests {
     args: ["--initialize", "bar"],
     error: ConfigError::SubcommandArguments { subcommand, arguments },
     check: {
-      assert_eq!(subcommand, cmd::INIT);
+      assert_eq!(subcommand, "init");
       assert_eq!(arguments, &["bar"]);
     },
   }
@@ -1809,7 +1819,7 @@ mod tests {
     args: ["--show", "foo", "bar"],
     error: ConfigError::SubcommandArguments { subcommand, arguments },
     check: {
-      assert_eq!(subcommand, cmd::SHOW);
+      assert_eq!(subcommand, "show");
       assert_eq!(arguments, &["bar"]);
     },
   }
@@ -1819,7 +1829,7 @@ mod tests {
     args: ["--summary", "bar"],
     error: ConfigError::SubcommandArguments { subcommand, arguments },
     check: {
-      assert_eq!(subcommand, cmd::SUMMARY);
+      assert_eq!(subcommand, "summary");
       assert_eq!(arguments, &["bar"]);
     },
   }
@@ -1829,7 +1839,7 @@ mod tests {
     args: ["--summary", "bar=baz", "bar"],
     error: ConfigError::SubcommandOverridesAndArguments { subcommand, arguments, overrides },
     check: {
-      assert_eq!(subcommand, cmd::SUMMARY);
+      assert_eq!(subcommand, "summary");
       assert_eq!(overrides, map!{"bar": "baz"});
       assert_eq!(arguments, &["bar"]);
     },
@@ -1840,7 +1850,7 @@ mod tests {
     args: ["--summary", "bar=baz"],
     error: ConfigError::SubcommandOverrides { subcommand, overrides },
     check: {
-      assert_eq!(subcommand, cmd::SUMMARY);
+      assert_eq!(subcommand, "summary");
       assert_eq!(overrides, map!{"bar": "baz"});
     },
   }
