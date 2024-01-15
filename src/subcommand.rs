@@ -318,7 +318,7 @@ impl Subcommand {
       }
       Shell::Elvish => {}
       other => {
-          panic!("Shell {other} not supported!");
+        panic!("Shell {other} not supported!");
       }
     }
 
