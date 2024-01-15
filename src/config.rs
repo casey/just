@@ -1,5 +1,8 @@
+use clap::{Arg, ArgAction};
+
 use {
   super::*,
+  clap::{ArgMatches, Command}
   //clap::{App, AppSettings, Arg, ArgGroup, ArgMatches, ArgSettings},
 };
 
@@ -150,12 +153,14 @@ impl Config {
   ) -> ConfigResult<Self> {
     info!("Parsing command line arguments…");
 
+    let command = Self::command();
+    let matches = command.get_matches_from(args);
+    Config::from_matches(&matches)
     /*
     let app = Self::app();
     let matches = app.get_matches_from(args);
     Config::from_matches(&matches)
     */
-    Ok(Config::default())
   }
 
   pub(crate) fn generate_completions_script(shell: clap_complete::Shell) -> String {
@@ -167,6 +172,46 @@ impl Config {
     String::from_utf8(buffer).expect("Clap completion not UTF-8")
     */
     "FOO".into()
+  }
+
+  fn help_template() -> &'static str {
+    r#"
+{name} {version}
+{author}
+{about}
+
+{usage}
+{all-args}
+
+    "#
+  }
+
+  fn command() -> clap::Command {
+    Command::new(env!("CARGO_PKG_NAME"))
+      .help_template(Self::help_template())
+      .about(clap::crate_description!())
+      .author(clap::crate_authors!())
+      .version(clap::crate_version!())
+      .color(clap::ColorChoice::Always)
+      .disable_colored_help(false)
+      .arg(
+        Arg::new(arg::CHOOSER)
+          .long("chooser")
+          .help("Override binary invoked by `--choose`"),
+      )
+      .arg(
+        Arg::new(cmd::CHANGELOG)
+          .long("changelog")
+          .action(ArgAction::SetTrue)
+          .help("Print changelog"),
+      )
+      .arg(
+        Arg::new(cmd::LIST)
+          .short('l')
+          .long("list")
+          .action(ArgAction::SetTrue)
+          .help("List available recipes and their arguments"),
+      )
   }
 
   /*
@@ -502,8 +547,8 @@ impl Config {
   //   }
   // }
 
-    /*
   fn from_matches(matches: &ArgMatches) -> ConfigResult<Self> {
+    /*
     let invocation_directory = env::current_dir().context(config_error::CurrentDirContext)?;
 
     let verbosity = if matches.is_present(arg::QUIET) {
@@ -696,8 +741,21 @@ impl Config {
       verbosity,
       yes: matches.is_present(arg::YES),
     })
+    */
+
+    let subcommand = if matches.get_flag(cmd::CHANGELOG) {
+      Subcommand::Changelog
+    } else if matches.get_flag(cmd::LIST) {
+      Subcommand::List
+    } else {
+      Subcommand::Summary
+    };
+
+      Ok(Self {
+        subcommand,
+        ..Self::default()
+      })
   }
-*/
 
   pub(crate) fn require_unstable(&self, message: &str) -> Result<(), Error<'static>> {
     if self.unstable {
