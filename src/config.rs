@@ -2,7 +2,7 @@ use clap::{Arg, ArgAction};
 
 use {
   super::*,
-  clap::{ArgMatches, Command}
+  clap::{ArgMatches, Command, Parser}
   //clap::{App, AppSettings, Arg, ArgGroup, ArgMatches, ArgSettings},
 };
 
@@ -145,6 +145,14 @@ mod arg {
   pub(crate) const DUMP_FORMAT_JSON: &str = "json";
   pub(crate) const DUMP_FORMAT_JUST: &str = "just";
   pub(crate) const DUMP_FORMAT_VALUES: &[&str] = &[DUMP_FORMAT_JUST, DUMP_FORMAT_JSON];
+}
+
+#[derive(Parser)]
+struct CliArgs {
+
+  /// Print justfile
+  #[arg(long)]
+  dump: bool
 }
 
 impl Config {
