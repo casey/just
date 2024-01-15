@@ -398,6 +398,14 @@ struct CliArgs {
   #[arg(short, long)]
   list: bool,
 
+  ///Don't run recipe dependencies
+  #[arg(long="no-deps", alias="no-dependencies")]
+  no_deps: bool,
+
+  ///Don't load `.env` file"
+  #[arg(long="no-dotenv")]
+  no_dotenv: bool,
+
   ///Don't highlight echoed recipe lines in bold
   #[arg(long = "no-highlight")]
   no_highlight: bool,
@@ -460,15 +468,19 @@ impl Config {
     */
   }
 
-  pub(crate) fn generate_completions_script(_shell: clap_complete::Shell) -> String {
-    /*
+  pub(crate) fn generate_completions_script(shell: clap_complete::Shell) -> String {
+      let command = Self::command();
+      let mut command = CliArgs::augment_args(command);
+
+
     let buffer = Vec::new();
     let mut cursor = Cursor::new(buffer);
-    Config::app().gen_completions_to(env!("CARGO_PKG_NAME"), shell, &mut cursor);
+
+    clap_complete::generate(shell, &mut command,"just", &mut cursor);
+    //Config::app().gen_completions_to(env!("CARGO_PKG_NAME"), shell, &mut cursor);
+
     let buffer = cursor.into_inner();
     String::from_utf8(buffer).expect("Clap completion not UTF-8")
-    */
-    "FOO".into()
   }
 
   fn command() -> clap::Command {
@@ -962,8 +974,8 @@ impl Config {
         .unwrap_or("    ")
         .to_owned(),
         */
-      //load_dotenv: !matches.is_present(arg::NO_DOTENV),
-      //no_dependencies: matches.is_present(arg::NO_DEPS),
+      load_dotenv: !matches.get_flag("no_dotenv"),
+      no_dependencies: matches.get_flag("no_deps"),
       search_config,
       //shell: matches.value_of(arg::SHELL).map(str::to_owned),
       shell_args,
