@@ -1,7 +1,8 @@
 use {super::*, std::path::Component};
 
 const DEFAULT_JUSTFILE_NAME: &str = JUSTFILE_NAMES[0];
-pub(crate) const JUSTFILE_NAMES: &[&str] = &["justfile", ".justfile"];
+pub(crate) const JUSTFILE_NAMES: [&str; 2] = ["justfile", ".justfile"];
+const DEFAULT_GLOBAL_JUSTFILE_NAME: &str = "global.just";
 const PROJECT_ROOT_CHILDREN: &[&str] = &[".bzr", ".git", ".hg", ".svn", "_darcs"];
 
 pub(crate) struct Search {
@@ -10,6 +11,30 @@ pub(crate) struct Search {
 }
 
 impl Search {
+  fn candidate_global_justfiles() -> Vec<PathBuf> {
+    // Just will search for a global justfile in `$XDG_CONFIG_HOME/just/global.just`,
+    // `$HOME/.justfile`, `$HOME/justfile`, in that order.
+    let mut global_candidate_paths = vec![];
+
+    // See https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html#variables
+    let xdg_config_home = if let Ok(config_dir) = std::env::var("XDG_CONFIG_HOME") {
+      Some(PathBuf::from(config_dir))
+    } else {
+      dirs::home_dir().map(|home_dir| home_dir.join(".config"))
+    };
+
+    if let Some(config_dir) = xdg_config_home {
+      global_candidate_paths.push(config_dir.join("just").join(DEFAULT_GLOBAL_JUSTFILE_NAME));
+    }
+
+    if let Some(home_dir) = dirs::home_dir() {
+      global_candidate_paths.push(home_dir.join(JUSTFILE_NAMES[1]));
+      global_candidate_paths.push(home_dir.join(JUSTFILE_NAMES[0]));
+    }
+
+    global_candidate_paths
+  }
+
   pub(crate) fn find(
     search_config: &SearchConfig,
     invocation_directory: &Path,
@@ -30,8 +55,14 @@ impl Search {
       }
       Global => {
         let working_directory = Self::project_root(invocation_directory)?;
-        let home_dir = dirs::home_dir().ok_or(SearchError::MissingHomeDirectory)?;
-        let justfile = home_dir.join(DEFAULT_JUSTFILE_NAME);
+
+        let global_candidate_paths = Self::candidate_global_justfiles();
+        let justfile = global_candidate_paths
+          .iter()
+          .find(|path| path.try_exists().unwrap_or(false))
+          .cloned()
+          .ok_or(SearchError::MissingGlobalJustfile)?;
+
         Self {
           justfile,
           working_directory,
@@ -96,8 +127,12 @@ impl Search {
 
       Global => {
         let working_directory = Self::project_root(invocation_directory)?;
-        let home_dir = dirs::home_dir().ok_or(SearchError::MissingHomeDirectory)?;
-        let justfile = home_dir.join(DEFAULT_JUSTFILE_NAME);
+
+        let global_candidate_paths = Self::candidate_global_justfiles();
+        let justfile = global_candidate_paths
+          .first()
+          .cloned()
+          .ok_or(SearchError::MissingGlobalJustfile)?;
 
         Self {
           justfile,
