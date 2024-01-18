@@ -360,6 +360,9 @@ command-line interface.
 This does not, however, preclude fixing outright bugs, even if doing so might
 break `justfiles` that rely on their behavior.
 
+Also, output of `just` which is human readable, such as error messages and the
+output of `--list`, is not bound by the backwards compatibility guarantee.
+
 There will never be a `just` 2.0. Any desirable backwards-incompatible changes
 will be opt-in on a per-`justfile` basis, so users may migrate at their
 leisure.

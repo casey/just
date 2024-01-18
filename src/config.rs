@@ -56,6 +56,7 @@ mod cmd {
   pub(crate) const LIST: &str = "LIST";
   pub(crate) const SHOW: &str = "SHOW";
   pub(crate) const SUMMARY: &str = "SUMMARY";
+  pub(crate) const TREE: &str = "TREE";
   pub(crate) const VARIABLES: &str = "VARIABLES";
 
   pub(crate) const ALL: &[&str] = &[
@@ -71,6 +72,7 @@ mod cmd {
     LIST,
     SHOW,
     SUMMARY,
+    TREE,
     VARIABLES,
   ];
 
@@ -84,6 +86,7 @@ mod cmd {
     LIST,
     SHOW,
     SUMMARY,
+    TREE,
     VARIABLES,
   ];
 }
@@ -382,6 +385,11 @@ impl Config {
           .help("List names of available recipes"),
       )
       .arg(
+        Arg::with_name(cmd::TREE)
+          .long("tree")
+          .help("Show tree of available recipes"),
+      )
+      .arg(
         Arg::with_name(cmd::VARIABLES)
           .long("variables")
           .help("List names of variables"),
@@ -611,6 +619,8 @@ impl Config {
         variable: positional.arguments.into_iter().next(),
         overrides,
       }
+    } else if matches.is_present(cmd::TREE) {
+      Subcommand::Tree
     } else if matches.is_present(cmd::VARIABLES) {
       Subcommand::Variables
     } else {

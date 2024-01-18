@@ -34,6 +34,7 @@ pub(crate) enum Subcommand {
     name: String,
   },
   Summary,
+  Tree,
   Variables,
 }
 
@@ -82,6 +83,7 @@ impl Subcommand {
       List => Self::list(config, 0, justfile),
       Show { ref name } => Self::show(config, name, justfile)?,
       Summary => Self::summary(config, justfile),
+      Tree => Self::tree(justfile),
       Variables => Self::variables(justfile),
       Changelog | Completions { .. } | Edit | Init | Run { .. } => unreachable!(),
     }
@@ -566,6 +568,30 @@ impl Subcommand {
       components.push(name);
       Self::summary_recursive(config, components, printed, module);
       components.pop();
+    }
+  }
+
+  fn tree(justfile: &Justfile) {
+    for (i, (name, recipe)) in justfile.recipes.iter().enumerate() {
+      if recipe.is_public() {
+        if i == justfile.recipes.len() - 1 {
+          print!("└── ");
+        } else {
+          print!("├── ");
+        }
+
+        println!("{name}");
+
+        for (i, dependency) in recipe.dependencies.iter().enumerate() {
+          if i == recipe.dependencies.len() - 1 {
+            print!("│   └── ");
+          } else {
+            print!("│   ├── ");
+          }
+
+          println!("{}", dependency.recipe.name());
+        }
+      }
     }
   }
 
