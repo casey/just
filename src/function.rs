@@ -21,6 +21,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
   let function = match name {
     "absolute_path" => Unary(absolute_path),
     "arch" => Nullary(arch),
+    "canonicalize" => Unary(canonicalize),
     "cache_directory" => Nullary(|_| dir("cache", dirs::cache_dir)),
     "capitalize" => Unary(capitalize),
     "clean" => Unary(clean),
@@ -104,6 +105,18 @@ fn absolute_path(context: &FunctionContext, path: &str) -> Result<String, String
 
 fn arch(_context: &FunctionContext) -> Result<String, String> {
   Ok(target::arch().to_owned())
+}
+
+fn canonicalize(_context: &FunctionContext, path: &str) -> Result<String, String> {
+  let canonical =
+    std::fs::canonicalize(path).map_err(|err| format!("I/O error canonicalizing path: {err}"))?;
+
+  canonical.to_str().map(str::to_string).ok_or_else(|| {
+    format!(
+      "Canonical path is not valid unicode: {}",
+      canonical.display(),
+    )
+  })
 }
 
 fn capitalize(_context: &FunctionContext, s: &str) -> Result<String, String> {
