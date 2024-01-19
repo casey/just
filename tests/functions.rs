@@ -662,3 +662,14 @@ fn just_pid() {
 
   assert_eq!(stdout.parse::<u32>().unwrap(), pid);
 }
+
+#[cfg(unix)]
+#[test]
+fn canonicalize() {
+  Test::new()
+    .args(["--evaluate", "x"])
+    .justfile("x := canonicalize('foo')")
+    .symlink("justfile", "foo")
+    .stdout_regex(".*/justfile")
+    .run();
+}

@@ -113,6 +113,17 @@ impl Test {
     self.tempdir.path().join("justfile")
   }
 
+  #[cfg(unix)]
+  #[track_caller]
+  pub(crate) fn symlink(self, original: &str, link: &str) -> Self {
+    std::os::unix::fs::symlink(
+      self.tempdir.path().join(original),
+      self.tempdir.path().join(link),
+    )
+    .unwrap();
+    self
+  }
+
   pub(crate) fn no_justfile(mut self) -> Self {
     self.justfile = None;
     self
