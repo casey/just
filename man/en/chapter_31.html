@@ -323,7 +323,10 @@ and the rest to lowercase.</li>
 <h5 id="fallible"><a class="header" href="#fallible">Fallible</a></h5>
 <ul>
 <li><code>absolute_path(path)</code> - Absolute path to relative <code>path</code> in the working
-directory. <code>absolute_path(&quot;./bar.txt&quot;)</code> in directory <code>/foo</code> is <code>/foo/bar.txt</code>.</li>
+directory. <code>absolute_path(&quot;./bar.txt&quot;)</code> in directory <code>/foo</code> is
+<code>/foo/bar.txt</code>.</li>
+<li><code>canonicalize(path)</code> - Canonicalize <code>path</code> by resolving symlinks and removing
+<code>.</code>, <code>..</code>, and extra <code>/</code>s where possible.</li>
 <li><code>extension(path)</code> - Extension of <code>path</code>. <code>extension(&quot;/foo/bar.txt&quot;)</code> is
 <code>txt</code>.</li>
 <li><code>file_name(path)</code> - File name of <code>path</code> with any leading directory components
