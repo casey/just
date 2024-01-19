@@ -83,7 +83,7 @@ impl Subcommand {
       List => Self::list(config, 0, justfile),
       Show { ref name } => Self::show(config, name, justfile)?,
       Summary => Self::summary(config, justfile),
-      Tree => Self::tree(justfile),
+      Tree => Self::tree(0, justfile),
       Variables => Self::variables(justfile),
       Changelog | Completions { .. } | Edit | Init | Run { .. } => unreachable!(),
     }
@@ -571,27 +571,57 @@ impl Subcommand {
     }
   }
 
-  fn tree(justfile: &Justfile) {
-    for (i, (name, recipe)) in justfile.recipes.iter().enumerate() {
-      if recipe.is_public() {
-        if i == justfile.recipes.len() - 1 {
+  fn tree(depth: usize, justfile: &Justfile) {
+    let recipes = justfile
+      .recipes
+      .values()
+      .filter(|recipe| recipe.is_public())
+      .map(|recipe| recipe.as_ref())
+      .collect::<Vec<&Recipe>>();
+
+    for (i, recipe) in recipes.iter().enumerate() {
+      let last_recipe = i == recipes.len() - 1;
+
+      print!("{}", "    ".repeat(depth));
+
+      if last_recipe {
+        print!("└── ");
+      } else {
+        print!("├── ");
+      }
+
+      println!("{}", recipe.name());
+
+      for (i, dependency) in recipe.dependencies.iter().enumerate() {
+        let last_dependency = i == recipe.dependencies.len() - 1;
+
+        if last_recipe {
+          print!("    ");
+        } else {
+          print!("│   ");
+        }
+
+        if last_dependency {
           print!("└── ");
         } else {
           print!("├── ");
         }
 
-        println!("{name}");
-
-        for (i, dependency) in recipe.dependencies.iter().enumerate() {
-          if i == recipe.dependencies.len() - 1 {
-            print!("│   └── ");
-          } else {
-            print!("│   ├── ");
-          }
-
-          println!("{}", dependency.recipe.name());
-        }
+        println!("{}", dependency.recipe.name());
       }
+    }
+
+    for (i, (name, module)) in justfile.modules.iter().enumerate() {
+      let last_module = i == justfile.modules.len() - 1;
+
+      if last_module {
+        print!("└── ");
+      } else {
+        print!("├── ");
+      }
+
+      println!("{name}");
+      Self::tree(depth + 1, module);
     }
   }
 
