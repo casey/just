@@ -41,7 +41,7 @@ pub(crate) use {
     cmp,
     collections::{BTreeMap, BTreeSet, HashMap},
     env,
-    ffi::{OsStr, OsString},
+    ffi::OsString,
     fmt::{self, Debug, Display, Formatter},
     fs,
     io::{self, Cursor, Write},

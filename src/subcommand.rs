@@ -276,7 +276,7 @@ impl Subcommand {
   }
 
   fn completions(shell: &str) -> RunResult<'static, ()> {
-    use clap::Shell;
+    use clap_complete::Shell;
 
     fn replace(haystack: &mut String, needle: &str, replacement: &str) -> RunResult<'static, ()> {
       if let Some(index) = haystack.find(needle) {
@@ -316,6 +316,7 @@ impl Subcommand {
         }
       }
       Shell::Elvish => {}
+      _ => todo!(),
     }
 
     println!("{}", script.trim());
