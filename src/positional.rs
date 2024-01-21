@@ -107,7 +107,7 @@ mod tests {
       #[test]
       fn $name() {
         assert_eq! (
-          Positional::from_values(Some($vals.iter().cloned())),
+          Positional::from_values(Some($vals.into_iter().map(String::to_string))),
           Positional {
             overrides: $overrides
               .iter()

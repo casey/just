@@ -772,9 +772,9 @@ mod tests {
   fn test(arguments: &[&str], want: Config) {
     let app = Config::app();
     let matches = app
-      .get_matches_from_safe(arguments)
+      .try_get_matches_from(arguments)
       .expect("argument parsing failed");
-    let have = Config::from_matches(&matches).expect("config parsing failed");
+    let have = Config::from_matches(matches).expect("config parsing failed");
     assert_eq!(have, want);
   }
 
@@ -792,7 +792,7 @@ mod tests {
 
         let app = Config::app();
 
-        app.get_matches_from_safe(arguments).expect_err("Expected clap error");
+        app.try_get_matches_from(arguments).expect_err("Expected clap error");
       }
     };
     {
@@ -810,9 +810,9 @@ mod tests {
 
         let app = Config::app();
 
-        let matches = app.get_matches_from_safe(arguments).expect("Matching fails");
+        let matches = app.try_get_matches_from(arguments).expect("Matching fails");
 
-        match Config::from_matches(&matches).expect_err("config parsing succeeded") {
+        match Config::from_matches(matches).expect_err("config parsing succeeded") {
           $error => { $($check)? }
           other => panic!("Unexpected config error: {other}"),
         }
