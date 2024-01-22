@@ -375,7 +375,9 @@ impl Config {
           .action(ArgAction::SetTrue)
           .help("Edit justfile with editor given by $VISUAL or $EDITOR, falling back to `vim`"),
       )
-      .arg(Arg::new(cmd::EVALUATE).long("evaluate").help(
+      .arg(Arg::new(cmd::EVALUATE).long("evaluate")
+           .action(ArgAction::SetTrue)
+           .help(
         "Evaluate and print all variables. If a variable name is given as an argument, only print \
          that variable's value.",
       ))
@@ -457,13 +459,13 @@ impl Config {
   }
 
   fn color_from_matches(matches: &mut ArgMatches) -> ConfigResult<Color> {
-    let value = matches
+    let value: String = matches
       .remove_one(arg::COLOR)
       .ok_or_else(|| ConfigError::Internal {
         message: "`--color` had no value".to_string(),
       })?;
 
-    match value {
+    match value.as_ref() {
       arg::COLOR_AUTO => Ok(Color::auto()),
       arg::COLOR_ALWAYS => Ok(Color::always()),
       arg::COLOR_NEVER => Ok(Color::never()),
@@ -495,13 +497,14 @@ impl Config {
   }
 
   fn dump_format_from_matches(matches: &mut ArgMatches) -> ConfigResult<DumpFormat> {
-    let value = matches
-      .remove_one(arg::DUMP_FORMAT)
-      .ok_or_else(|| ConfigError::Internal {
-        message: "`--dump-format` had no value".to_string(),
-      })?;
+    let value: String =
+      matches
+        .remove_one(arg::DUMP_FORMAT)
+        .ok_or_else(|| ConfigError::Internal {
+          message: "`--dump-format` had no value".to_string(),
+        })?;
 
-    match value {
+    match value.as_ref() {
       arg::DUMP_FORMAT_JSON => Ok(DumpFormat::Json),
       arg::DUMP_FORMAT_JUST => Ok(DumpFormat::Just),
       _ => Err(ConfigError::Internal {
