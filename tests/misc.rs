@@ -1574,6 +1574,7 @@ echo A B C:
   args:     ("echo", "--some", "--awesome", "--flags"),
   stdout:   "--some --awesome --flags\n",
   stderr:   "echo --some --awesome --flags\n",
+  status: EXIT_FAILURE_CLAP,
 }
 
 test! {

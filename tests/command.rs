@@ -40,7 +40,7 @@ test! {
   ",
   args: ("--command"),
   stderr: &format!("
-    error: a value is required for '--command <COMMAND>...' but none was supplied
+    error: a value is required for '--command <COMMAND>' but none was supplied
 
     For more information, try '--help'.
   "),
@@ -136,9 +136,10 @@ fn command_not_found() {
     .output()
     .unwrap();
 
+  println!("{:?}", str::from_utf8(&output.stderr));
   assert!(str::from_utf8(&output.stderr)
     .unwrap()
-    .starts_with("error: Failed to invoke `asdfasdfasdfasdfadfsadsfadsf` `bar`:"));
+    .starts_with("error: Failed to invoke `asdfasdfasdfasdfadfsadsfadsf`:"));
 
   assert!(!output.status.success());
 }

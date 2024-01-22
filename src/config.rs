@@ -1,8 +1,4 @@
-use clap::{
-  builder::{EnumValueParser, NonEmptyStringValueParser},
-  parser::ValueSource,
-  value_parser, ArgAction,
-};
+use clap::{builder::EnumValueParser, parser::ValueSource, value_parser, ArgAction};
 use clap_complete::Shell;
 
 use {
@@ -481,8 +477,8 @@ impl Config {
   fn command_color_from_matches(
     matches: &mut ArgMatches,
   ) -> ConfigResult<Option<ansi_term::Color>> {
-    if let Some(value) = matches.remove_one(arg::COMMAND_COLOR) {
-      match value {
+    if let Some(value) = matches.remove_one::<String>(arg::COMMAND_COLOR) {
+      match value.as_ref() {
         arg::COMMAND_COLOR_BLACK => Ok(Some(ansi_term::Color::Black)),
         arg::COMMAND_COLOR_BLUE => Ok(Some(ansi_term::Color::Blue)),
         arg::COMMAND_COLOR_CYAN => Ok(Some(ansi_term::Color::Cyan)),
