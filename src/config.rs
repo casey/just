@@ -262,6 +262,7 @@ impl Config {
         Arg::new(arg::JUSTFILE)
           .short('f')
           .long("justfile")
+          .value_parser(value_parser!(PathBuf))
           .help("Use <JUSTFILE> as justfile"),
       )
       .arg(
