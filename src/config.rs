@@ -126,7 +126,7 @@ mod arg {
   pub(crate) const COLOR_ALWAYS: &str = "always";
   pub(crate) const COLOR_AUTO: &str = "auto";
   pub(crate) const COLOR_NEVER: &str = "never";
-  pub(crate) const COLOR_VALUES: &[&str] = &[COLOR_AUTO, COLOR_ALWAYS, COLOR_NEVER];
+  pub(crate) const COLOR_VALUES: [&str; 3] = [COLOR_AUTO, COLOR_ALWAYS, COLOR_NEVER];
 
   pub(crate) const COMMAND_COLOR_BLACK: &str = "black";
   pub(crate) const COMMAND_COLOR_BLUE: &str = "blue";
@@ -135,7 +135,7 @@ mod arg {
   pub(crate) const COMMAND_COLOR_PURPLE: &str = "purple";
   pub(crate) const COMMAND_COLOR_RED: &str = "red";
   pub(crate) const COMMAND_COLOR_YELLOW: &str = "yellow";
-  pub(crate) const COMMAND_COLOR_VALUES: &[&str] = &[
+  pub(crate) const COMMAND_COLOR_VALUES: [&str; 7] = [
     COMMAND_COLOR_BLACK,
     COMMAND_COLOR_BLUE,
     COMMAND_COLOR_CYAN,
@@ -192,14 +192,14 @@ impl Config {
       .arg(
         Arg::new(arg::COLOR)
           .long("color")
-          .value_names(arg::COLOR_VALUES)
+          .value_parser(arg::COLOR_VALUES)
           .default_value(arg::COLOR_AUTO)
           .help("Print colorful output"),
       )
       .arg(
         Arg::new(arg::COMMAND_COLOR)
           .long("command-color")
-          .value_names(arg::COMMAND_COLOR_VALUES)
+          .value_parser(arg::COMMAND_COLOR_VALUES)
           .help("Echo recipe lines in <COMMAND-COLOR>"),
       )
       .arg(Arg::new(arg::YES).long("yes").action(ArgAction::SetTrue).help("Automatically confirm all recipes."))
