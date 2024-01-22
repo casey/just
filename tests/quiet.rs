@@ -76,7 +76,12 @@ test! {
   name: choose_invocation,
   justfile: "foo:",
   args: ("--choose", "--quiet", "--shell", "asdfasdfasfdasdfasdfadsf"),
-  status: EXIT_FAILURE,
+  stderr: r#"
+    error: a value is required for '--choose <CHOOSE>' but none was supplied
+
+    For more information, try '--help'.
+  "#,
+  status: EXIT_FAILURE_CLAP,
   shell: false,
 }
 
@@ -84,7 +89,7 @@ test! {
   name: choose_status,
   justfile: "foo:",
   args: ("--choose", "--quiet", "--chooser", "/usr/bin/env false"),
-  status: EXIT_FAILURE,
+  status: EXIT_FAILURE_CLAP,
 }
 
 test! {

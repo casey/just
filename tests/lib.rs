@@ -29,6 +29,8 @@ pub(crate) use {
   which::which,
 };
 
+pub(crate) const EXIT_FAILURE_CLAP: i32 = 2;
+
 #[macro_use]
 mod test;
 
