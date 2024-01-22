@@ -1,4 +1,5 @@
 use super::*;
+use clap_complete::Shell;
 
 const INIT_JUSTFILE: &str = "default:\n    echo 'Hello, world!'\n";
 
@@ -15,7 +16,7 @@ pub(crate) enum Subcommand {
     overrides: BTreeMap<String, String>,
   },
   Completions {
-    shell: String,
+    shell: clap_complete::Shell,
   },
   Dump,
   Edit,
@@ -50,7 +51,7 @@ impl Subcommand {
         Self::changelog();
         return Ok(());
       }
-      Completions { shell } => return Self::completions(shell),
+      Completions { shell } => return Self::completions(*shell),
       Init => return Self::init(config),
       Run {
         arguments,
@@ -275,9 +276,7 @@ impl Subcommand {
     justfile.run(config, search, overrides, &recipes)
   }
 
-  fn completions(shell: &str) -> RunResult<'static, ()> {
-    use clap_complete::Shell;
-
+  fn completions(shell: Shell) -> RunResult<'static, ()> {
     fn replace(haystack: &mut String, needle: &str, replacement: &str) -> RunResult<'static, ()> {
       if let Some(index) = haystack.find(needle) {
         haystack.replace_range(index..index + needle.len(), replacement);
@@ -288,10 +287,6 @@ impl Subcommand {
         )))
       }
     }
-
-    let shell = shell
-      .parse::<Shell>()
-      .expect("Invalid value for clap::Shell");
 
     let mut script = Config::generate_completions_script(shell);
 

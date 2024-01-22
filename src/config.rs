@@ -3,6 +3,7 @@ use clap::{
   parser::ValueSource,
   value_parser, ArgAction,
 };
+use clap_complete::Shell;
 
 use {
   super::*,
@@ -160,7 +161,7 @@ impl Config {
     Config::from_matches(matches)
   }
 
-  pub(crate) fn generate_completions_script(shell: clap_complete::Shell) -> String {
+  pub(crate) fn generate_completions_script(shell: Shell) -> String {
     let buffer = Vec::new();
     let mut cursor = Cursor::new(buffer);
 
@@ -360,7 +361,7 @@ impl Config {
         Arg::new(cmd::COMPLETIONS)
           .long("completions")
           .value_name("SHELL")
-          .value_parser(EnumValueParser::<clap_complete::Shell>::new())
+          .value_parser(EnumValueParser::<Shell>::new())
           .ignore_case(true)
           .help("Print shell completion script for <SHELL>"),
       )
@@ -1154,13 +1155,13 @@ mod tests {
   test! {
     name: subcommand_completions,
     args: ["--completions", "bash"],
-    subcommand: Subcommand::Completions{shell: "bash".to_owned()},
+    subcommand: Subcommand::Completions{shell: Shell::Bash },
   }
 
   test! {
     name: subcommand_completions_uppercase,
     args: ["--completions", "BASH"],
-    subcommand: Subcommand::Completions{shell: "BASH".to_owned()},
+    subcommand: Subcommand::Completions{shell: Shell::Bash},
   }
 
   error! {
