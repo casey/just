@@ -344,7 +344,7 @@ impl Config {
           .action(ArgAction::SetTrue)
           .help("Print changelog"),
       )
-      .arg(Arg::new(cmd::CHOOSE).long("choose").help(CHOOSE_HELP))
+      .arg(Arg::new(cmd::CHOOSE).long("choose").action(ArgAction::SetTrue).help(CHOOSE_HELP))
       .arg(
         Arg::new(cmd::COMMAND)
           .long("command")
@@ -609,7 +609,8 @@ impl Config {
 
     let subcommand = if matches.get_flag(cmd::CHANGELOG) {
       Subcommand::Changelog
-    } else if let Some(chooser) = matches.remove_one(cmd::CHOOSE) {
+    } else if matches.get_flag(cmd::CHOOSE) {
+      let chooser = matches.remove_one(arg::CHOOSER);
       Subcommand::Choose { chooser, overrides }
     } else if let Some(values) = matches.remove_occurrences::<OsString>(cmd::COMMAND) {
       //let mut arguments = values.map(OsStr::to_owned).collect::<Vec<OsString>>();
