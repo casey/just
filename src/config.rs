@@ -1,5 +1,6 @@
 use clap::{
   builder::{EnumValueParser, NonEmptyStringValueParser},
+  parser::ValueSource,
   value_parser, ArgAction,
 };
 
@@ -574,7 +575,11 @@ impl Config {
     };
 
     for subcommand in cmd::ARGLESS {
-      if matches.contains_id(subcommand) {
+      let present = matches!(
+        matches.value_source(subcommand),
+        Some(ValueSource::CommandLine)
+      );
+      if present {
         match (!overrides.is_empty(), !positional.arguments.is_empty()) {
           (false, false) => {}
           (true, false) => {
