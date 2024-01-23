@@ -349,9 +349,9 @@ impl Config {
         Arg::new(cmd::COMMAND)
           .long("command")
           .short('c')
-          .num_args(1..)
+          .num_args(1)
           .allow_hyphen_values(true)
-          .value_parser(NonEmptyStringValueParser::new())
+          .value_parser(value_parser!(OsString))
           .help(
             "Run an arbitrary command with the working directory, `.env`, overrides, and exports \
              set",
@@ -613,7 +613,6 @@ impl Config {
       let chooser = matches.remove_one(arg::CHOOSER);
       Subcommand::Choose { chooser, overrides }
     } else if let Some(values) = matches.remove_occurrences::<OsString>(cmd::COMMAND) {
-      //let mut arguments = values.map(OsStr::to_owned).collect::<Vec<OsString>>();
       let mut arguments = values.map(Iterator::collect).collect::<Vec<OsString>>();
       Subcommand::Command {
         binary: arguments.remove(0),
@@ -691,12 +690,12 @@ impl Config {
       highlight: !matches.get_flag(arg::NO_HIGHLIGHT),
       invocation_directory,
       list_heading: matches
-        .remove_one(arg::LIST_HEADING)
-        .unwrap_or("Available recipes:\n")
+        .remove_one::<String>(arg::LIST_HEADING)
+        .unwrap_or("Available recipes:\n".to_string())
         .to_owned(),
       list_prefix: matches
         .remove_one(arg::LIST_PREFIX)
-        .unwrap_or("    ")
+        .unwrap_or("    ".to_string())
         .to_owned(),
       load_dotenv: !matches.get_flag(arg::NO_DOTENV),
       no_dependencies: matches.get_flag(arg::NO_DEPS),
