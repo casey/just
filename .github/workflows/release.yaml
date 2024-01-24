@@ -70,7 +70,7 @@ jobs:
 
     - name: Ref Type
       id: ref-type
-      run: cargo run --package ref-type -- --reference ${{ github.ref }}
+      run: cargo run --package ref-type -- --reference ${{ github.ref }}  # Please provide a suggestion
 
     - name: Package
       id: package
