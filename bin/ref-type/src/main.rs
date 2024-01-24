@@ -21,5 +21,5 @@ fn main() {
   eprintln!("ref: {}", arguments.reference);
   eprintln!("value: {value}");
 
-  println!("::set-output name=value::{value}");
+  println!("value={value}");
 }
