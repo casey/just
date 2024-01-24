@@ -20,7 +20,7 @@ jobs:
       RUSTFLAGS: --deny warnings
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Install Rust Toolchain Components
       uses: actions-rs/toolchain@v1
@@ -57,7 +57,7 @@ jobs:
       RUSTFLAGS: --deny warnings
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Install Rust Toolchain Components
       uses: actions-rs/toolchain@v1
@@ -108,7 +108,7 @@ jobs:
       RUSTFLAGS: --deny warnings
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Remove Broken WSL bash executable
       if: ${{ matrix.os == 'windows-latest' }}
