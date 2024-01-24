@@ -227,7 +227,7 @@ Changelog
 - Note that install.sh may fail on GitHub actions ([#1499](https://github.com/casey/just/pull/1499))
 - Fix readme typo ([#1489](https://github.com/casey/just/pull/1489) by [auberisky](https://github.com/auberisky))
 - Update install script and readmes to use tls v1.3 ([#1481](https://github.com/casey/just/pull/1481))
-- Renable install.sh test on CI([#1478](https://github.com/casey/just/pull/1478))
+- Re-enable install.sh test on CI([#1478](https://github.com/casey/just/pull/1478))
 - Don't test install.sh on CI ([#1477](https://github.com/casey/just/pull/1477))
 - Update Chinese translation of readme ([#1476](https://github.com/casey/just/pull/1476) by [hustcer](https://github.com/hustcer))
 - Fix install.sh for Windows ([#1474](https://github.com/casey/just/pull/1474) by [bloodearnest](https://github.com/bloodearnest))
@@ -390,7 +390,7 @@ Changelog
 - Split Recipe::run into Recipe::{run_shebang,run_linewise} ([#1270](https://github.com/casey/just/pull/1270))
 - Add asdf package to readme([#1264](https://github.com/casey/just/pull/1264) by [jaacko-torus](https://github.com/jaacko-torus))
 - Add mdbook deps for build-book recipe ([#1259](https://github.com/casey/just/pull/1259) by [TopherIsSwell](https://github.com/TopherIsSwell))
-- Fix typo: argumant -> argument ([#1257](https://github.com/casey/just/pull/1257) by [kianmeng](https://github.com/kianmeng))
+- Fix typo: argument -> argument ([#1257](https://github.com/casey/just/pull/1257) by [kianmeng](https://github.com/kianmeng))
 - Improve error message if `if` is missing the `else` ([#1252](https://github.com/casey/just/pull/1252) by [nk9](https://github.com/nk9))
 - Explain how to pass arguments of a command to a dependency ([#1254](https://github.com/casey/just/pull/1254) by [heavelock](https://github.com/heavelock))
 - Update Chinese translation of README.md ([#1253](https://github.com/casey/just/pull/1253) by [hustcer](https://github.com/hustcer))
@@ -1007,7 +1007,7 @@ Changelog
 - Build and upload release artifacts from GitHub Actions ([#581](https://github.com/casey/just/pull/581))
 - List solus package in readme ([#579](https://github.com/casey/just/pull/579))
 - Expand use of GitHub Actions ([#580](https://github.com/casey/just/pull/580))
-- Fix readme typo: interpetation -> interpretation ([#578](https://github.com/casey/just/pull/578) by [Plommonsorbet](https://github.com/Plommonsorbet))
+- Fix readme typo: interpretation -> interpretation ([#578](https://github.com/casey/just/pull/578) by [Plommonsorbet](https://github.com/Plommonsorbet))
 
 [0.5.5](https://github.com/casey/just/releases/tag/v0.5.5) - 2020-1-15
 ----------------------------------------------------------------------
@@ -1037,7 +1037,7 @@ Changelog
 
 ### Misc
 - Assert that lexer advances over entire input ([#560](https://github.com/casey/just/pull/560))
-- Fix typo: `chracter` -> `character` ([#561](https://github.com/casey/just/pull/561))
+- Fix typo: `character` -> `character` ([#561](https://github.com/casey/just/pull/561))
 - Improve pre-publish check ([#562](https://github.com/casey/just/pull/562))
 
 [0.5.2](https://github.com/casey/just/releases/tag/v0.5.2) - 2019-12-7
@@ -1162,7 +1162,7 @@ Changelog
 
 ### Documented
 - Fix readme command line ([#411](https://github.com/casey/just/pull/411))
-- Typo: "command equivelant" -> "command equivalent" ([#418](https://github.com/casey/just/pull/418))
+- Typo: "command equivalent" -> "command equivalent" ([#418](https://github.com/casey/just/pull/418))
 - Mention Make’s “phony target” workaround in the comparison ([#421](https://github.com/casey/just/pull/421) by [roryokane](https://github.com/roryokane))
 - Add Void Linux install instructions to readme ([#423](https://github.com/casey/just/pull/423))
 
