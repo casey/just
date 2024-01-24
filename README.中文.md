@@ -2312,7 +2312,7 @@ fpath=($HOMEBREW_PREFIX/share/zsh/site-functions $fpath)
 
 ### just.sh
 
-在 `just` 成为一个精致的 Rust 程序之前，它是一个很小的 Shell 脚本，叫 `make`。你可以在 [extras/just.sh](https://github.com/casey/just/blob/master/extras/just.sh) 中找到旧版本。
+在 `just` 成为一个精致的 Rust 程序之前，它是一个很小的 Shell 脚本，叫 `make`。你可以在 [contrib/just.sh](https://github.com/casey/just/blob/master/contrib/just.sh) 中找到旧版本。
 
 ### 用户 `justfile`
 
