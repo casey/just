@@ -305,7 +305,7 @@ export PATH="$PATH:$HOME/bin"
 just --help
 ```
 
-Note that `install.sh` may fail on GitHub actions, or in other environments
+Note that `install.sh` may fail on GitHub Actions, or in other environments
 where many machines share IP addresses. `install.sh` calls GitHub APIs in order
 to determine the latest version of `just` to install, and those API calls are
 rate-limited on a per-IP basis. To make `install.sh` more reliable in such
@@ -313,15 +313,49 @@ circumstances, pass a specific tag to install with `--tag`.
 
 ### GitHub Actions
 
-With [extractions/setup-just](https://github.com/extractions/setup-just):
+Developers may be interested in running the same `just` commands that they use
+locally on continuous integration platforms such as GitHub Actions. For example,
+every time that a contributor creates a pull request, a GitHub Action could run
+`just test` on the three major operating systems to provide feedback to both the
+contributor and reviewers that tests are passing.
+
+Demonstrate how to install and use just in GitHub Actions on the three major
+operating systems without needing third-party GitHub Actions. Put the following
+code into a `.github/workflows/just_test.yml` file.
+
+```yaml
+name: just_test
+on: [pull_request, push]
+jobs:
+  ubuntu:
+    runs-on: ubuntu-latest
+    steps:
+    - run: sudo snap install --edge --classic just
+    - uses: actions/checkout@v4
+    - run: just test
+  macos:
+    runs-on: macos-latest
+    steps:
+    - run: brew install just
+    - uses: actions/checkout@v4
+    - run: just test
+  windows:
+    runs-on: windows-latest
+    steps:
+    - run: choco install just
+    - uses: actions/checkout@v4
+    - run: just test
+```
+
+Or with [extractions/setup-just](https://github.com/extractions/setup-just):
 
 ```yaml
 - uses: extractions/setup-just@v1
   with:
-    just-version: 0.8 # optional semver specification, otherwise latest
+    just-version: 1.5.0  # optional semver specification, otherwise latest
 ```
 
-With [taiki-e/install-action](https://github.com/taiki-e/install-action):
+Or with [taiki-e/install-action](https://github.com/taiki-e/install-action):
 
 ```yaml
 - uses: taiki-e/install-action@just
