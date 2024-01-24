@@ -2242,7 +2242,7 @@ foo $argument:
   touch "$argument"
 ```
 
-这就破坏了 `just` 捕捉拼写错误的能力，例如你输入 `$argument`，但对 `argument` 的所有可能的值都有效，包括那些带双引号的。
+这就破坏了 `just` 捕捉拼写错误的能力，例如你输入 `$argumant`，但对 `argument` 的所有可能的值都有效，包括那些带双引号的。
 
 ### 配置 Shell
 

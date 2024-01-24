@@ -2978,7 +2978,7 @@ foo $argument:
 ```
 
 This defeats `just`'s ability to catch typos, for example if you type
-`$argument`, but works for all possible values of `argument`, including those
+`$argumant`, but works for all possible values of `argument`, including those
 with double quotes.
 
 ### Configuring the Shell

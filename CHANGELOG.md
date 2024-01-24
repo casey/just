@@ -390,7 +390,7 @@ Changelog
 - Split Recipe::run into Recipe::{run_shebang,run_linewise} ([#1270](https://github.com/casey/just/pull/1270))
 - Add asdf package to readme([#1264](https://github.com/casey/just/pull/1264) by [jaacko-torus](https://github.com/jaacko-torus))
 - Add mdbook deps for build-book recipe ([#1259](https://github.com/casey/just/pull/1259) by [TopherIsSwell](https://github.com/TopherIsSwell))
-- Fix typo: argument -> argument ([#1257](https://github.com/casey/just/pull/1257) by [kianmeng](https://github.com/kianmeng))
+- Fix typo: argumant -> argument ([#1257](https://github.com/casey/just/pull/1257) by [kianmeng](https://github.com/kianmeng))
 - Improve error message if `if` is missing the `else` ([#1252](https://github.com/casey/just/pull/1252) by [nk9](https://github.com/nk9))
 - Explain how to pass arguments of a command to a dependency ([#1254](https://github.com/casey/just/pull/1254) by [heavelock](https://github.com/heavelock))
 - Update Chinese translation of README.md ([#1253](https://github.com/casey/just/pull/1253) by [hustcer](https://github.com/hustcer))
@@ -1037,7 +1037,7 @@ Changelog
 
 ### Misc
 - Assert that lexer advances over entire input ([#560](https://github.com/casey/just/pull/560))
-- Fix typo: `character` -> `character` ([#561](https://github.com/casey/just/pull/561))
+- Fix typo: `chracter` -> `character` ([#561](https://github.com/casey/just/pull/561))
 - Improve pre-publish check ([#562](https://github.com/casey/just/pull/562))
 
 [0.5.2](https://github.com/casey/just/releases/tag/v0.5.2) - 2019-12-7
@@ -1162,7 +1162,7 @@ Changelog
 
 ### Documented
 - Fix readme command line ([#411](https://github.com/casey/just/pull/411))
-- Typo: "command equivalent" -> "command equivalent" ([#418](https://github.com/casey/just/pull/418))
+- Typo: "command equivelant" -> "command equivalent" ([#418](https://github.com/casey/just/pull/418))
 - Mention Make’s “phony target” workaround in the comparison ([#421](https://github.com/casey/just/pull/421) by [roryokane](https://github.com/roryokane))
 - Add Void Linux install instructions to readme ([#423](https://github.com/casey/just/pull/423))
 
