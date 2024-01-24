@@ -21,18 +21,12 @@ fn junk_is_other() {
 
 #[test]
 fn valid_version_is_release() {
-  assert_eq!(
-    stdout("refs/tags/0.0.0"),
-    "value=release\n"
-  );
+  assert_eq!(stdout("refs/tags/0.0.0"), "value=release\n");
 }
 
 #[test]
 fn valid_version_with_trailing_characters_is_other() {
-  assert_eq!(
-    stdout("refs/tags/0.0.0-rc1"),
-    "value=other\n"
-  );
+  assert_eq!(stdout("refs/tags/0.0.0-rc1"), "value=other\n");
 }
 
 #[test]
