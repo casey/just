@@ -16,14 +16,14 @@ fn stdout(reference: &str) -> String {
 
 #[test]
 fn junk_is_other() {
-  assert_eq!(stdout("refs/tags/asdf"), "::set-output name=value::other\n");
+  assert_eq!(stdout("refs/tags/asdf"), "value=other\n");
 }
 
 #[test]
 fn valid_version_is_release() {
   assert_eq!(
     stdout("refs/tags/0.0.0"),
-    "::set-output name=value::release\n"
+    "value=release\n"
   );
 }
 
@@ -31,7 +31,7 @@ fn valid_version_is_release() {
 fn valid_version_with_trailing_characters_is_other() {
   assert_eq!(
     stdout("refs/tags/0.0.0-rc1"),
-    "::set-output name=value::other\n"
+    "value=other\n"
   );
 }
 
@@ -39,6 +39,6 @@ fn valid_version_with_trailing_characters_is_other() {
 fn valid_version_with_lots_of_digits_is_release() {
   assert_eq!(
     stdout("refs/tags/01232132.098327498374.43268473849734"),
-    "::set-output name=value::release\n"
+    "value=release\n"
   );
 }
