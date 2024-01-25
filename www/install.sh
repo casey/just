@@ -105,7 +105,7 @@ if [ -z ${tag-} ]; then
 fi
 
 if [ -z ${target-} ]; then
-  # bash compiled with MINGW (e.g. git-bash, used in github windows runnners),
+  # bash compiled with MINGW (e.g. git-bash, used in github windows runners),
   # unhelpfully includes a version suffix in `uname -s` output, so handle that.
   # e.g. MINGW64_NT-10-0.19044
   kernel=$(uname -s | cut -d- -f1)
