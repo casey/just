@@ -22,12 +22,6 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Install Rust Toolchain Components
-      uses: actions-rs/toolchain@v1
-      with:
-        components: clippy, rustfmt
-        toolchain: stable
-
     - uses: Swatinem/rust-cache@v2
 
     - name: Clippy
@@ -58,12 +52,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-
-    - name: Install Rust Toolchain Components
-      uses: actions-rs/toolchain@v1
-      with:
-        profile: minimal
-        toolchain: stable
 
     - uses: Swatinem/rust-cache@v2
 
@@ -117,13 +105,6 @@ jobs:
         takeown /F C:\Windows\System32\bash.exe
         icacls C:\Windows\System32\bash.exe /grant administrators:F
         del C:\Windows\System32\bash.exe
-
-    - name: Install Rust Toolchain Components
-      uses: actions-rs/toolchain@v1
-      with:
-        components: clippy, rustfmt
-        override: true
-        toolchain: stable
 
     - uses: Swatinem/rust-cache@v2
 
