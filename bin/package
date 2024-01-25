@@ -10,7 +10,7 @@ echo "Packaging just $VERSION for $TARGET…"
 test -f Cargo.lock || cargo generate-lockfile
 
 echo "Install rust toolchain for $TARGET…"
-rustup toolchain add --profile minimal $TARGET
+rustup target add $TARGET
 
 echo "Building just…"
 RUSTFLAGS="--deny warnings --codegen target-feature=+crt-static $TARGET_RUSTFLAGS" \
