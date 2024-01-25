@@ -2766,7 +2766,7 @@ directory.
 
 Environment files are only loaded for the root justfile, and loaded environment
 variables are available in submodules. Settings in submodules that affect
-enviroment file loading are ignored.
+environment file loading are ignored.
 
 Recipes in submodules without the `[no-cd]` attribute run with the working
 directory set to the directory containing the submodule source file.
@@ -2939,7 +2939,7 @@ foo argument:
 ```
 
 This preserves `just`'s ability to catch variable name typos before running,
-for example if you were to write `{{arument}}`, but will not do what you want
+for example if you were to write `{{argument}}`, but will not do what you want
 if the value of `argument` contains single quotes.
 
 #### Positional Arguments
