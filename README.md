@@ -210,11 +210,11 @@ most Windows users.)
     <tr>
       <td><a href=https://www.gentoo.org>Gentoo Linux</a></td>
       <td><a href=https://wiki.gentoo.org/wiki/Portage>Portage</a></td>
-      <td><a href=https://github.com/gentoo-mirror/guru/tree/master/sys-devel/just>guru/sys-devel/just</a></td>
+      <td><a href=https://github.com/gentoo-mirror/guru/tree/master/dev-build/just>guru/dev-build/just</a></td>
       <td>
         <code>eselect repository enable guru</code><br>
         <code>emerge --sync guru</code><br>
-        <code>emerge sys-devel/just</code>
+        <code>emerge dev-build/just</code>
       </td>
     </tr>
     <tr>
