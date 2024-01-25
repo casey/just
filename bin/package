@@ -9,7 +9,7 @@ echo "Packaging just $VERSION for $TARGET..."
 
 test -f Cargo.lock || cargo generate-lockfile
 
-echo "Install rust toolchain for $TARGET..."
+echo "Installing rust toolchain for $TARGET..."
 rustup target add $TARGET
 
 echo "Building just..."
