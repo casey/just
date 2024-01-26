@@ -103,6 +103,10 @@ fn unstable_passed() {
 
 #[test]
 fn write_error() {
+  if unsafe { libc::getuid() } == 0 {
+    return;
+  }
+
   let tempdir = temptree! {
     justfile: "x    :=    'hello'   ",
   };
