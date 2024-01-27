@@ -47,14 +47,7 @@ jobs:
     runs-on: ${{matrix.os}}
 
     steps:
-    - uses: actions/checkout@v2
-
-    - name: Install Rust Toolchain Components
-      uses: actions-rs/toolchain@v1
-      with:
-        profile: minimal
-        target: ${{ matrix.target }}
-        toolchain: stable
+    - uses: actions/checkout@v4
 
     - name: Install AArch64 Toolchain
       if: ${{ matrix.target == 'aarch64-unknown-linux-musl' }}
@@ -70,7 +63,7 @@ jobs:
 
     - name: Ref Type
       id: ref-type
-      run: cargo run --package ref-type -- --reference ${{ github.ref }}
+      run: cargo run --package ref-type -- --reference ${{ github.ref }} >> $GITHUB_OUTPUT
 
     - name: Package
       id: package
@@ -83,7 +76,7 @@ jobs:
       shell: bash
 
     - name: Publish Archive
-      uses: softprops/action-gh-release@v0.1.5
+      uses: softprops/action-gh-release@v0.1.15
       if: ${{ startsWith(github.ref, 'refs/tags/') }}
       with:
         draft: false
@@ -93,7 +86,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Publish Changelog
-      uses: softprops/action-gh-release@v0.1.5
+      uses: softprops/action-gh-release@v0.1.15
       if: >-
         ${{
           startsWith(github.ref, 'refs/tags/')

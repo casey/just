@@ -9,6 +9,9 @@ echo "Packaging just $VERSION for $TARGET..."
 
 test -f Cargo.lock || cargo generate-lockfile
 
+echo "Installing rust toolchain for $TARGET..."
+rustup target add $TARGET
+
 echo "Building just..."
 RUSTFLAGS="--deny warnings --codegen target-feature=+crt-static $TARGET_RUSTFLAGS" \
   cargo build --bin just --target $TARGET --release
@@ -37,11 +40,11 @@ case $OS in
   ubuntu-latest | macos-latest)
     ARCHIVE=$DIST/just-$VERSION-$TARGET.tar.gz
     tar czf $ARCHIVE *
-    echo "::set-output name=archive::$ARCHIVE"
+    echo "archive=$ARCHIVE" >> $GITHUB_OUTPUT
     ;;
   windows-latest)
     ARCHIVE=$DIST/just-$VERSION-$TARGET.zip
     7z a $ARCHIVE *
-    echo "::set-output name=archive::`pwd -W`/just-$VERSION-$TARGET.zip"
+    echo "archive=`pwd -W`/just-$VERSION-$TARGET.zip" >> $GITHUB_OUTPUT
     ;;
 esac

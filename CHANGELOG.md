@@ -227,7 +227,7 @@ Changelog
 - Note that install.sh may fail on GitHub actions ([#1499](https://github.com/casey/just/pull/1499))
 - Fix readme typo ([#1489](https://github.com/casey/just/pull/1489) by [auberisky](https://github.com/auberisky))
 - Update install script and readmes to use tls v1.3 ([#1481](https://github.com/casey/just/pull/1481))
-- Renable install.sh test on CI([#1478](https://github.com/casey/just/pull/1478))
+- Re-enable install.sh test on CI([#1478](https://github.com/casey/just/pull/1478))
 - Don't test install.sh on CI ([#1477](https://github.com/casey/just/pull/1477))
 - Update Chinese translation of readme ([#1476](https://github.com/casey/just/pull/1476) by [hustcer](https://github.com/hustcer))
 - Fix install.sh for Windows ([#1474](https://github.com/casey/just/pull/1474) by [bloodearnest](https://github.com/bloodearnest))

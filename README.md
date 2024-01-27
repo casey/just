@@ -210,11 +210,11 @@ most Windows users.)
     <tr>
       <td><a href=https://www.gentoo.org>Gentoo Linux</a></td>
       <td><a href=https://wiki.gentoo.org/wiki/Portage>Portage</a></td>
-      <td><a href=https://github.com/gentoo-mirror/guru/tree/master/sys-devel/just>guru/sys-devel/just</a></td>
+      <td><a href=https://github.com/gentoo-mirror/guru/tree/master/dev-build/just>guru/dev-build/just</a></td>
       <td>
         <code>eselect repository enable guru</code><br>
         <code>emerge --sync guru</code><br>
-        <code>emerge sys-devel/just</code>
+        <code>emerge dev-build/just</code>
       </td>
     </tr>
     <tr>
@@ -305,7 +305,7 @@ export PATH="$PATH:$HOME/bin"
 just --help
 ```
 
-Note that `install.sh` may fail on GitHub actions, or in other environments
+Note that `install.sh` may fail on GitHub Actions, or in other environments
 where many machines share IP addresses. `install.sh` calls GitHub APIs in order
 to determine the latest version of `just` to install, and those API calls are
 rate-limited on a per-IP basis. To make `install.sh` more reliable in such
@@ -313,15 +313,49 @@ circumstances, pass a specific tag to install with `--tag`.
 
 ### GitHub Actions
 
-With [extractions/setup-just](https://github.com/extractions/setup-just):
+Developers may be interested in running the same `just` commands that they use
+locally on continuous integration platforms such as GitHub Actions. For example,
+every time that a contributor creates a pull request, a GitHub Action could run
+`just test` on the three major operating systems to provide feedback to both the
+contributor and reviewers that tests are passing.
+
+Demonstrate how to install and use just in GitHub Actions on the three major
+operating systems without needing third-party GitHub Actions. Put the following
+code into a `.github/workflows/just_test.yml` file.
+
+```yaml
+name: just_test
+on: [pull_request, push]
+jobs:
+  ubuntu:
+    runs-on: ubuntu-latest
+    steps:
+    - run: sudo snap install --edge --classic just
+    - uses: actions/checkout@v4
+    - run: just test
+  macos:
+    runs-on: macos-latest
+    steps:
+    - run: brew install just
+    - uses: actions/checkout@v4
+    - run: just test
+  windows:
+    runs-on: windows-latest
+    steps:
+    - run: choco install just
+    - uses: actions/checkout@v4
+    - run: just test
+```
+
+Or with [extractions/setup-just](https://github.com/extractions/setup-just):
 
 ```yaml
 - uses: extractions/setup-just@v1
   with:
-    just-version: 0.8 # optional semver specification, otherwise latest
+    just-version: 1.5.0  # optional semver specification, otherwise latest
 ```
 
-With [taiki-e/install-action](https://github.com/taiki-e/install-action):
+Or with [taiki-e/install-action](https://github.com/taiki-e/install-action):
 
 ```yaml
 - uses: taiki-e/install-action@just
@@ -2766,7 +2800,7 @@ directory.
 
 Environment files are only loaded for the root justfile, and loaded environment
 variables are available in submodules. Settings in submodules that affect
-enviroment file loading are ignored.
+environment file loading are ignored.
 
 Recipes in submodules without the `[no-cd]` attribute run with the working
 directory set to the directory containing the submodule source file.
@@ -2939,7 +2973,7 @@ foo argument:
 ```
 
 This preserves `just`'s ability to catch variable name typos before running,
-for example if you were to write `{{arument}}`, but will not do what you want
+for example if you were to write `{{argument}}`, but will not do what you want
 if the value of `argument` contains single quotes.
 
 #### Positional Arguments
@@ -3078,7 +3112,7 @@ A non-normative grammar of `justfile`s can be found in
 
 Before `just` was a fancy Rust program it was a tiny shell script that called
 `make`. You can find the old version in
-[extras/just.sh](https://github.com/casey/just/blob/master/extras/just.sh).
+[contrib/just.sh](https://github.com/casey/just/blob/master/contrib/just.sh).
 
 ### User `justfile`s
 
