@@ -177,12 +177,42 @@
                 <div id="content" class="content">
                     <main>
                         <h3 id="github-actions"><a class="header" href="#github-actions">GitHub Actions</a></h3>
-<p>With <a href="https://github.com/extractions/setup-just">extractions/setup-just</a>:</p>
+<p>Developers may be interested in running the same <code>just</code> commands that they use
+locally on continuous integration platforms such as GitHub Actions. For example,
+every time that a contributor creates a pull request, a GitHub Action could run
+<code>just test</code> on the three major operating systems to provide feedback to both the
+contributor and reviewers that tests are passing.</p>
+<p>Demonstrate how to install and use just in GitHub Actions on the three major
+operating systems without needing third-party GitHub Actions. Put the following
+code into a <code>.github/workflows/just_test.yml</code> file.</p>
+<pre><code class="language-yaml">name: just_test
+on: [pull_request, push]
+jobs:
+  ubuntu:
+    runs-on: ubuntu-latest
+    steps:
+    - run: sudo snap install --edge --classic just
+    - uses: actions/checkout@v4
+    - run: just test
+  macos:
+    runs-on: macos-latest
+    steps:
+    - run: brew install just
+    - uses: actions/checkout@v4
+    - run: just test
+  windows:
+    runs-on: windows-latest
+    steps:
+    - run: choco install just
+    - uses: actions/checkout@v4
+    - run: just test
+</code></pre>
+<p>Or with <a href="https://github.com/extractions/setup-just">extractions/setup-just</a>:</p>
 <pre><code class="language-yaml">- uses: extractions/setup-just@v1
   with:
-    just-version: 0.8 # optional semver specification, otherwise latest
+    just-version: 1.5.0  # optional semver specification, otherwise latest
 </code></pre>
-<p>With <a href="https://github.com/taiki-e/install-action">taiki-e/install-action</a>:</p>
+<p>Or with <a href="https://github.com/taiki-e/install-action">taiki-e/install-action</a>:</p>
 <pre><code class="language-yaml">- uses: taiki-e/install-action@just
 </code></pre>
 
