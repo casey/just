@@ -1,4 +1,5 @@
 use super::*;
+use clap_complete::Shell;
 
 const INIT_JUSTFILE: &str = "default:\n    echo 'Hello, world!'\n";
 
@@ -15,7 +16,7 @@ pub(crate) enum Subcommand {
     overrides: BTreeMap<String, String>,
   },
   Completions {
-    shell: String,
+    shell: clap_complete::Shell,
   },
   Dump,
   Edit,
@@ -50,7 +51,7 @@ impl Subcommand {
         Self::changelog();
         return Ok(());
       }
-      Completions { shell } => return Self::completions(shell),
+      Completions { shell } => return Self::completions(*shell),
       Init => return Self::init(config),
       Run {
         arguments,
@@ -275,9 +276,7 @@ impl Subcommand {
     justfile.run(config, search, overrides, &recipes)
   }
 
-  fn completions(shell: &str) -> RunResult<'static, ()> {
-    use clap::Shell;
-
+  fn completions(shell: Shell) -> RunResult<'static, ()> {
     fn replace(haystack: &mut String, needle: &str, replacement: &str) -> RunResult<'static, ()> {
       if let Some(index) = haystack.find(needle) {
         haystack.replace_range(index..index + needle.len(), replacement);
@@ -289,15 +288,7 @@ impl Subcommand {
       }
     }
 
-    let shell = shell
-      .parse::<Shell>()
-      .expect("Invalid value for clap::Shell");
-
-    let buffer = Vec::new();
-    let mut cursor = Cursor::new(buffer);
-    Config::app().gen_completions_to(env!("CARGO_PKG_NAME"), shell, &mut cursor);
-    let buffer = cursor.into_inner();
-    let mut script = String::from_utf8(buffer).expect("Clap completion not UTF-8");
+    let mut script = Config::generate_completions_script(shell);
 
     match shell {
       Shell::Bash => {
@@ -320,6 +311,7 @@ impl Subcommand {
         }
       }
       Shell::Elvish => {}
+      _ => todo!(),
     }
 
     println!("{}", script.trim());

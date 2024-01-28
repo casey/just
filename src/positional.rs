@@ -37,7 +37,7 @@ pub struct Positional {
 }
 
 impl Positional {
-  pub fn from_values<'values>(values: Option<impl IntoIterator<Item = &'values str>>) -> Self {
+  pub fn from_values<'values>(values: Option<impl IntoIterator<Item = String>>) -> Self {
     let mut overrides = Vec::new();
     let mut search_directory = None;
     let mut arguments = Vec::new();
@@ -45,7 +45,7 @@ impl Positional {
     if let Some(values) = values {
       for value in values {
         if search_directory.is_none() && arguments.is_empty() {
-          if let Some(o) = Self::override_from_value(value) {
+          if let Some(o) = Self::override_from_value(&value) {
             overrides.push(o);
           } else if value == "." || value == ".." {
             search_directory = Some(value.to_owned());
@@ -107,7 +107,7 @@ mod tests {
       #[test]
       fn $name() {
         assert_eq! (
-          Positional::from_values(Some($vals.iter().cloned())),
+          Positional::from_values(Some($vals.into_iter().map(|s: &str| s.to_owned()))),
           Positional {
             overrides: $overrides
               .iter()

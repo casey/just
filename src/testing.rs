@@ -5,14 +5,12 @@ pub(crate) fn compile(src: &str) -> Justfile {
 }
 
 pub(crate) fn config(args: &[&str]) -> Config {
-  let mut args = Vec::from(args);
-  args.insert(0, "just");
-
-  let app = Config::app();
-
-  let matches = app.get_matches_from_safe(args).unwrap();
-
-  Config::from_matches(&matches).unwrap()
+  let args: Vec<OsString> = {
+    let mut v = vec!["just".into()];
+    v.extend(args.iter().map(Into::into));
+    v
+  };
+  Config::from_command_line_arguments(args.into_iter()).unwrap()
 }
 
 pub(crate) fn search(config: &Config) -> Search {
