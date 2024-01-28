@@ -22,7 +22,8 @@ ansi_term = "0.12.0"
 atty = "0.2.0"
 camino = "1.0.4"
 clap = { version = "2.33.0", features = ["wrap_help"] }
-ctrlc = { version = "3.1.1", features = ["termination"] }
+command-group = "5.0.1"
+crossbeam-queue = "0.3.11"
 derivative = "2.0.0"
 dirs = "5.0.1"
 dotenvy = "0.15"
@@ -38,6 +39,7 @@ semver = "1.0.20"
 serde = { version = "1.0.130", features = ["derive", "rc"] }
 serde_json = "1.0.68"
 sha2 = "0.10"
+signal-hook = {version = "0.3.17"}
 similar = { version = "2.1.0", features = ["unicode"] }
 snafu = "0.8.0"
 strum = { version = "0.25.0", features = ["derive"] }
@@ -46,6 +48,9 @@ tempfile = "3.0.0"
 typed-arena = "2.0.1"
 unicode-width = "0.1.0"
 uuid = { version = "1.0.0", features = ["v4"] }
+
+[target.'cfg(windows)'.dependencies]
+windows = {version = "0.52.0",  features = ["Win32_Foundation", "Win32_System_Threading", "Win32_System_Console"] }
 
 [dev-dependencies]
 cradle = "0.2.0"

@@ -1,20 +1,19 @@
 use super::*;
 
-const JUSTFILE: &str = "
+/// Test that --shell correctly sets the shell
+#[cfg(not(windows))]
+#[test]
+fn flag() {
+  let tmp = temptree! {
+    justfile: r#"
+
 expression := `EXPRESSION`
 
 recipe default=`DEFAULT`:
   {{expression}}
   {{default}}
   RECIPE
-";
-
-/// Test that --shell correctly sets the shell
-#[test]
-#[cfg_attr(windows, ignore)]
-fn flag() {
-  let tmp = temptree! {
-    justfile: JUSTFILE,
+"#,
     shell: "#!/usr/bin/env bash\necho \"$@\"",
   };
 
@@ -37,7 +36,12 @@ fn flag() {
   assert_stdout(&output, stdout);
 }
 
-const JUSTFILE_CMD: &str = r#"
+/// Test that we can use `set shell` to use cmd.exe on windows
+#[cfg(windows)]
+#[test]
+fn cmd() {
+  let tmp = temptree! {
+    justfile: r#"
 
 set shell := ["cmd.exe", "/C"]
 
@@ -46,14 +50,7 @@ x := `Echo`
 recipe:
   REM foo
   Echo "{{x}}"
-"#;
-
-/// Test that we can use `set shell` to use cmd.exe on windows
-#[test]
-#[cfg_attr(unix, ignore)]
-fn cmd() {
-  let tmp = temptree! {
-    justfile: JUSTFILE_CMD,
+"#,
   };
 
   let output = Command::new(executable_path("just"))
@@ -66,7 +63,12 @@ fn cmd() {
   assert_stdout(&output, stdout);
 }
 
-const JUSTFILE_POWERSHELL: &str = r#"
+/// Test that we can use `set shell` to use cmd.exe on windows
+#[cfg(windows)]
+#[test]
+fn powershell() {
+  let tmp = temptree! {
+    justfile: r#"
 
 set shell := ["powershell.exe", "-c"]
 
@@ -75,14 +77,7 @@ x := `Write-Host "Hello, world!"`
 recipe:
   For ($i=0; $i -le 10; $i++) { Write-Host $i }
   Write-Host "{{x}}"
-"#;
-
-/// Test that we can use `set shell` to use cmd.exe on windows
-#[test]
-#[cfg_attr(unix, ignore)]
-fn powershell() {
-  let tmp = temptree! {
-    justfile: JUSTFILE_POWERSHELL,
+"#,
   };
 
   let output = Command::new(executable_path("just"))

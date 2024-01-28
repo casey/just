@@ -58,8 +58,6 @@ mod functions;
 mod ignore_comments;
 mod imports;
 mod init;
-#[cfg(unix)]
-mod interrupts;
 mod invocation_directory;
 mod json;
 mod line_prefixes;
@@ -86,6 +84,7 @@ mod shadowing_parameters;
 mod shebang;
 mod shell;
 mod show;
+mod signals;
 mod slash_operator;
 mod string;
 mod subsequents;

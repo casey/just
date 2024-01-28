@@ -38,6 +38,11 @@ impl PlatformInterface for Platform {
     exit_status.signal()
   }
 
+  /// See [Exit Codes With Special Meanings](https://tldp.org/LDP/abs/html/exitcodes.html)
+  fn exit_code_from_signal(signal: i32) -> i32 {
+    signal + 128
+  }
+
   fn convert_native_path(_working_directory: &Path, path: &Path) -> Result<String, String> {
     path
       .to_str()
@@ -65,7 +70,7 @@ impl PlatformInterface for Platform {
       cygpath.arg("--windows");
       cygpath.arg(shebang.interpreter);
 
-      Cow::Owned(output(cygpath)?)
+      Cow::Owned(SignalHandler::guard_output(cygpath)?)
     } else {
       // …otherwise use it as-is.
       Cow::Borrowed(shebang.interpreter)
@@ -97,6 +102,10 @@ impl PlatformInterface for Platform {
     None
   }
 
+  fn exit_code_from_signal(signal: i32) -> i32 {
+    signal
+  }
+
   fn convert_native_path(working_directory: &Path, path: &Path) -> Result<String, String> {
     // Translate path from windows style to unix style
     let mut cygpath = Command::new("cygpath");
@@ -104,7 +113,7 @@ impl PlatformInterface for Platform {
     cygpath.arg("--unix");
     cygpath.arg(path);
 
-    match output(cygpath) {
+    match SignalHandler::guard_output(cygpath) {
       Ok(shell_path) => Ok(shell_path),
       Err(_) => path
         .to_str()
