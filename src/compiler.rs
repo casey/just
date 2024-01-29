@@ -162,16 +162,6 @@ impl Compiler {
     }
   }
 
-  fn expand_tilde(path: &str) -> RunResult<'static, PathBuf> {
-    Ok(if let Some(path) = path.strip_prefix("~/") {
-      dirs::home_dir()
-        .ok_or(Error::Homedir)?
-        .join(path.trim_start_matches('/'))
-    } else {
-      PathBuf::from(path)
-    })
-  }
-
   #[cfg(test)]
   pub(crate) fn test_compile(src: &str) -> CompileResult<Justfile> {
     let tokens = Lexer::test_lex(src)?;
