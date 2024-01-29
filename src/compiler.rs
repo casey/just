@@ -51,7 +51,9 @@ impl Compiler {
             let parent = current.path.parent().unwrap();
 
             let import = if let Some(relative) = relative {
-              let path = parent.join(Self::expand_tilde(&relative.cooked)?);
+              let expanded_path = full(&relative.cooked).map_err(|error| Error::UnresolvedVariableInModule { variable: error.var_name, module: *name })?;
+
+              let path = parent.join(&*expanded_path);
 
               if path.is_file() {
                 Some(path)

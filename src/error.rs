@@ -158,6 +158,10 @@ pub(crate) enum Error<'src> {
     variable: String,
     path: Token<'src>,
   },
+  UnresolvedVariableInModule {
+    variable: String,
+    module: Name<'src>,
+  },
   Unstable {
     message: String,
   },
@@ -190,6 +194,7 @@ impl<'src> Error<'src> {
       Self::FunctionCall { function, .. } => Some(function.token),
       Self::MissingImportFile { path } => Some(*path),
       Self::UnresolvedVariableInImport { variable: _, path } => Some(*path),
+      Self::UnresolvedVariableInModule { variable: _, module } => Some(module.token),
       _ => None,
     }
   }
@@ -427,6 +432,7 @@ impl<'src> ColorDisplay for Error<'src> {
         }
       }
       UnresolvedVariableInImport { variable, .. } => write!(f, "Path to file contains unresolved variable {variable}.")?,
+      UnresolvedVariableInModule { variable, module } => write!(f, "Source path for {module} contains unresolved variable {variable}.")?,
       Unstable { message } => {
         write!(f, "{message} Invoke `just` with the `--unstable` flag to enable unstable features.")?;
       }
