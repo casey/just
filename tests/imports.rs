@@ -198,7 +198,7 @@ fn recipes_in_import_are_overridden_by_recipes_in_parent() {
 
 #[cfg(not(windows))]
 #[test]
-fn import_paths_beginning_with_tilde_are_expanded_to_homdir() {
+fn import_paths_beginning_with_tilde_are_expanded_to_homedir() {
   Test::new()
     .write("foobar/mod.just", "foo:\n @echo FOOBAR")
     .justfile(
@@ -210,6 +210,48 @@ fn import_paths_beginning_with_tilde_are_expanded_to_homdir() {
     .arg("foo")
     .stdout("FOOBAR\n")
     .env("HOME", "foobar")
+    .run();
+}
+
+#[test]
+fn import_paths_with_variables_are_expanded() {
+  Test::new()
+    .write("foobar/mod.just", "foo:\n @echo FOOBAR")
+    .justfile(
+      "
+        import '$FOO/mod.just'
+      ",
+    )
+    .test_round_trip(false)
+    .arg("foo")
+    .stdout("FOOBAR\n")
+    .env("FOO", "foobar")
+    .run();
+}
+
+#[test]
+fn unresolved_variable_in_import_error() {
+  Test::new()
+    .justfile(
+      "
+        import '$FOO/import.justfile'
+
+        a:
+          @echo A
+      ",
+    )
+    .test_round_trip(false)
+    .arg("a")
+    .status(EXIT_FAILURE)
+    .stderr(
+      "
+      error: Path to file contains unresolved variable FOO.
+       ——▶ justfile:1:8
+        │
+      1 │ import '$FOO/import.justfile'
+        │        ^^^^^^^^^^^^^^^^^^^^^^
+      ",
+    )
     .run();
 }
 
