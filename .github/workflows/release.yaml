@@ -49,13 +49,6 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Install Rust Toolchain Components
-      uses: actions-rs/toolchain@v1
-      with:
-        profile: minimal
-        target: ${{ matrix.target }}
-        toolchain: stable
-
     - name: Install AArch64 Toolchain
       if: ${{ matrix.target == 'aarch64-unknown-linux-musl' }}
       run: |

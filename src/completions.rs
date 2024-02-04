@@ -207,4 +207,37 @@ pub(crate) const BASH_COMPLETION_REPLACEMENTS: &[(&str, &str)] = &[
                 fi"#,
   ),
   (r"            just)", r#"            "$1")"#),
+  (
+    r"local i cur prev opts cmds",
+    r"local i cur prev words cword opts cmds",
+  ),
+  (
+    r#"    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}""#,
+    r#"
+    # Modules use "::" as the separator, which is considered a wordbreak character in bash.
+    # The _get_comp_words_by_ref function is a hack to allow for exceptions to this rule without
+    # modifying the global COMP_WORDBREAKS environment variable.
+    if type _get_comp_words_by_ref &>/dev/null; then
+        _get_comp_words_by_ref -n : cur prev words cword
+    else
+        cur="${COMP_WORDS[COMP_CWORD]}"
+        prev="${COMP_WORDS[COMP_CWORD-1]}"
+        words=$COMP_WORDS
+        cword=$COMP_CWORD
+    fi
+"#,
+  ),
+  (r"for i in ${COMP_WORDS[@]}", r"for i in ${words[@]}"),
+  (
+    r"elif [[ ${COMP_CWORD} -eq 1 ]]; then",
+    r"elif [[ ${cword} -eq 1 ]]; then",
+  ),
+  (
+    r#"COMPREPLY=( $(compgen -W "${recipes}" -- "${cur}") )"#,
+    r#"COMPREPLY=( $(compgen -W "${recipes}" -- "${cur}") )
+                        if type __ltrim_colon_completions &>/dev/null; then
+                            __ltrim_colon_completions "$cur"
+                        fi"#,
+  ),
 ];
