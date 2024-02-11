@@ -118,7 +118,7 @@ fn blake3_file(context: &FunctionContext, path: &str) -> Result<String, String> 
   let mut hasher = blake3::Hasher::new();
   hasher
     .update_mmap_rayon(&path)
-    .map_err(|err| format!("Failed to hash file at `{}`: {err}", path.display()))?;
+    .map_err(|err| format!("BLAKE3 hashing file at `{}` failed: {err}", path.display()))?;
   Ok(hasher.finalize().to_string())
 }
 
