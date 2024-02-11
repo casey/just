@@ -187,7 +187,7 @@ SERVER_PORT=1337
 <pre><code class="language-just">set dotenv-load
 
 serve:
-  @echo &quot;Starting server with database $DATABASE_ADDRESS on port $SERVER_PORT…&quot;
+  @echo "Starting server with database $DATABASE_ADDRESS on port $SERVER_PORT…"
   ./server --database $DATABASE_ADDRESS --port $SERVER_PORT
 </code></pre>
 <p><code>just serve</code> 将会输出：</p>

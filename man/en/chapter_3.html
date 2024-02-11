@@ -187,14 +187,14 @@ and the BSDs.</p>
 shell of your choice.</p>
 <p>Like PowerShell:</p>
 <pre><code class="language-just"># use PowerShell instead of sh:
-set shell := [&quot;powershell.exe&quot;, &quot;-c&quot;]
+set shell := ["powershell.exe", "-c"]
 
 hello:
-  Write-Host &quot;Hello, world!&quot;
+  Write-Host "Hello, world!"
 </code></pre>
 <p>…or <code>cmd.exe</code>:</p>
 <pre><code class="language-just"># use cmd.exe instead of sh:
-set shell := [&quot;cmd.exe&quot;, &quot;/c&quot;]
+set shell := ["cmd.exe", "/c"]
 
 list:
   dir

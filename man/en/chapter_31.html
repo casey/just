@@ -181,20 +181,20 @@
 recipes.</p>
 <h4 id="system-information"><a class="header" href="#system-information">System Information</a></h4>
 <ul>
-<li><code>arch()</code> — Instruction set architecture. Possible values are: <code>&quot;aarch64&quot;</code>,
-<code>&quot;arm&quot;</code>, <code>&quot;asmjs&quot;</code>, <code>&quot;hexagon&quot;</code>, <code>&quot;mips&quot;</code>, <code>&quot;msp430&quot;</code>, <code>&quot;powerpc&quot;</code>,
-<code>&quot;powerpc64&quot;</code>, <code>&quot;s390x&quot;</code>, <code>&quot;sparc&quot;</code>, <code>&quot;wasm32&quot;</code>, <code>&quot;x86&quot;</code>, <code>&quot;x86_64&quot;</code>, and
-<code>&quot;xcore&quot;</code>.</li>
+<li><code>arch()</code> — Instruction set architecture. Possible values are: <code>"aarch64"</code>,
+<code>"arm"</code>, <code>"asmjs"</code>, <code>"hexagon"</code>, <code>"mips"</code>, <code>"msp430"</code>, <code>"powerpc"</code>,
+<code>"powerpc64"</code>, <code>"s390x"</code>, <code>"sparc"</code>, <code>"wasm32"</code>, <code>"x86"</code>, <code>"x86_64"</code>, and
+<code>"xcore"</code>.</li>
 <li><code>num_cpus()</code><sup>1.15.0</sup> - Number of logical CPUs.</li>
-<li><code>os()</code> — Operating system. Possible values are: <code>&quot;android&quot;</code>, <code>&quot;bitrig&quot;</code>,
-<code>&quot;dragonfly&quot;</code>, <code>&quot;emscripten&quot;</code>, <code>&quot;freebsd&quot;</code>, <code>&quot;haiku&quot;</code>, <code>&quot;ios&quot;</code>, <code>&quot;linux&quot;</code>,
-<code>&quot;macos&quot;</code>, <code>&quot;netbsd&quot;</code>, <code>&quot;openbsd&quot;</code>, <code>&quot;solaris&quot;</code>, and <code>&quot;windows&quot;</code>.</li>
-<li><code>os_family()</code> — Operating system family; possible values are: <code>&quot;unix&quot;</code> and
-<code>&quot;windows&quot;</code>.</li>
+<li><code>os()</code> — Operating system. Possible values are: <code>"android"</code>, <code>"bitrig"</code>,
+<code>"dragonfly"</code>, <code>"emscripten"</code>, <code>"freebsd"</code>, <code>"haiku"</code>, <code>"ios"</code>, <code>"linux"</code>,
+<code>"macos"</code>, <code>"netbsd"</code>, <code>"openbsd"</code>, <code>"solaris"</code>, and <code>"windows"</code>.</li>
+<li><code>os_family()</code> — Operating system family; possible values are: <code>"unix"</code> and
+<code>"windows"</code>.</li>
 </ul>
 <p>For example:</p>
 <pre><code class="language-just">system-info:
-  @echo &quot;This is an {{arch()}} machine&quot;.
+  @echo "This is an {{arch()}} machine".
 </code></pre>
 <pre><code class="language-sh">$ just system-info
 This is an x86_64 machine
@@ -211,7 +211,7 @@ if it is not present.</li>
 <pre><code class="language-just">home_dir := env_var('HOME')
 
 test:
-  echo &quot;{{home_dir}}&quot;
+  echo "{{home_dir}}"
 </code></pre>
 <pre><code class="language-sh">$ just
 /home/user1
@@ -323,32 +323,32 @@ and the rest to lowercase.</li>
 <h5 id="fallible"><a class="header" href="#fallible">Fallible</a></h5>
 <ul>
 <li><code>absolute_path(path)</code> - Absolute path to relative <code>path</code> in the working
-directory. <code>absolute_path(&quot;./bar.txt&quot;)</code> in directory <code>/foo</code> is
+directory. <code>absolute_path("./bar.txt")</code> in directory <code>/foo</code> is
 <code>/foo/bar.txt</code>.</li>
-<li><code>canonicalize(path)</code> - Canonicalize <code>path</code> by resolving symlinks and removing
+<li><code>canonicalize(path)</code><sup>1.24.0</sup> - Canonicalize <code>path</code> by resolving symlinks and removing
 <code>.</code>, <code>..</code>, and extra <code>/</code>s where possible.</li>
-<li><code>extension(path)</code> - Extension of <code>path</code>. <code>extension(&quot;/foo/bar.txt&quot;)</code> is
+<li><code>extension(path)</code> - Extension of <code>path</code>. <code>extension("/foo/bar.txt")</code> is
 <code>txt</code>.</li>
 <li><code>file_name(path)</code> - File name of <code>path</code> with any leading directory components
-removed. <code>file_name(&quot;/foo/bar.txt&quot;)</code> is <code>bar.txt</code>.</li>
+removed. <code>file_name("/foo/bar.txt")</code> is <code>bar.txt</code>.</li>
 <li><code>file_stem(path)</code> - File name of <code>path</code> without extension.
-<code>file_stem(&quot;/foo/bar.txt&quot;)</code> is <code>bar</code>.</li>
+<code>file_stem("/foo/bar.txt")</code> is <code>bar</code>.</li>
 <li><code>parent_directory(path)</code> - Parent directory of <code>path</code>.
-<code>parent_directory(&quot;/foo/bar.txt&quot;)</code> is <code>/foo</code>.</li>
+<code>parent_directory("/foo/bar.txt")</code> is <code>/foo</code>.</li>
 <li><code>without_extension(path)</code> - <code>path</code> without extension.
-<code>without_extension(&quot;/foo/bar.txt&quot;)</code> is <code>/foo/bar</code>.</li>
+<code>without_extension("/foo/bar.txt")</code> is <code>/foo/bar</code>.</li>
 </ul>
 <p>These functions can fail, for example if a path does not have an extension,
 which will halt execution.</p>
 <h5 id="infallible"><a class="header" href="#infallible">Infallible</a></h5>
 <ul>
 <li><code>clean(path)</code> - Simplify <code>path</code> by removing extra path separators,
-intermediate <code>.</code> components, and <code>..</code> where possible. <code>clean(&quot;foo//bar&quot;)</code> is
-<code>foo/bar</code>, <code>clean(&quot;foo/..&quot;)</code> is <code>.</code>, <code>clean(&quot;foo/./bar&quot;)</code> is <code>foo/bar</code>.</li>
+intermediate <code>.</code> components, and <code>..</code> where possible. <code>clean("foo//bar")</code> is
+<code>foo/bar</code>, <code>clean("foo/..")</code> is <code>.</code>, <code>clean("foo/./bar")</code> is <code>foo/bar</code>.</li>
 <li><code>join(a, b…)</code> - <em>This function uses <code>/</code> on Unix and <code>\</code> on Windows, which can
 be lead to unwanted behavior. The <code>/</code> operator, e.g., <code>a / b</code>, which always
 uses <code>/</code>, should be considered as a replacement unless <code>\</code>s are specifically
-desired on Windows.</em> Join path <code>a</code> with path <code>b</code>. <code>join(&quot;foo/bar&quot;, &quot;baz&quot;)</code> is
+desired on Windows.</em> Join path <code>a</code> with path <code>b</code>. <code>join("foo/bar", "baz")</code> is
 <code>foo/bar/baz</code>. Accepts two or more arguments.</li>
 </ul>
 <h4 id="filesystem-access"><a class="header" href="#filesystem-access">Filesystem Access</a></h4>
@@ -372,8 +372,8 @@ hexadecimal string.</li>
 <h4 id="semantic-versions"><a class="header" href="#semantic-versions">Semantic Versions</a></h4>
 <ul>
 <li><code>semver_matches(version, requirement)</code><sup>1.16.0</sup> - Check whether a
-<a href="https://semver.org">semantic <code>version</code></a>, e.g., <code>&quot;0.1.0&quot;</code> matches a
-<code>requirement</code>, e.g., <code>&quot;&gt;=0.1.0&quot;</code>, returning <code>&quot;true&quot;</code> if so and <code>&quot;false&quot;</code>
+<a href="https://semver.org">semantic <code>version</code></a>, e.g., <code>"0.1.0"</code> matches a
+<code>requirement</code>, e.g., <code>"&gt;=0.1.0"</code>, returning <code>"true"</code> if so and <code>"false"</code>
 otherwise.</li>
 </ul>
 <h5 id="xdg-directories1230"><a class="header" href="#xdg-directories1230">XDG Directories<sup>1.23.0</sup></a></h5>

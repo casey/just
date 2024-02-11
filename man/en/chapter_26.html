@@ -180,7 +180,7 @@
 <p>Settings control interpretation and execution. Each setting may be specified at
 most once, anywhere in the <code>justfile</code>.</p>
 <p>For example:</p>
-<pre><code class="language-just">set shell := [&quot;zsh&quot;, &quot;-cu&quot;]
+<pre><code class="language-just">set shell := ["zsh", "-cu"]
 
 foo:
   # this line will be run as `zsh -cu 'ls **/*.txt'`
@@ -242,7 +242,7 @@ SERVER_PORT=1337
 <pre><code class="language-just">set dotenv-load
 
 serve:
-  @echo &quot;Starting server with database $DATABASE_ADDRESS on port $SERVER_PORT…&quot;
+  @echo "Starting server with database $DATABASE_ADDRESS on port $SERVER_PORT…"
   ./server --database $DATABASE_ADDRESS --port $SERVER_PORT
 </code></pre>
 <p><code>just serve</code> will output:</p>
@@ -255,7 +255,7 @@ Starting server with database localhost:6379 on port 1337…
 variables. Defaults to <code>false</code>.</p>
 <pre><code class="language-just">set export
 
-a := &quot;hello&quot;
+a := "hello"
 
 @foo b:
   echo $a
@@ -283,18 +283,18 @@ hello
 </code></pre>
 <p>When using an <code>sh</code>-compatible shell, such as <code>bash</code> or <code>zsh</code>, <code>$@</code> expands to
 the positional arguments given to the recipe, starting from one. When used
-within double quotes as <code>&quot;$@&quot;</code>, arguments including whitespace will be passed
-on as if they were double-quoted. That is, <code>&quot;$@&quot;</code> is equivalent to <code>&quot;$1&quot; &quot;$2&quot;</code>…
-When there are no positional parameters, <code>&quot;$@&quot;</code> and <code>$@</code> expand to nothing
+within double quotes as <code>"$@"</code>, arguments including whitespace will be passed
+on as if they were double-quoted. That is, <code>"$@"</code> is equivalent to <code>"$1" "$2"</code>…
+When there are no positional parameters, <code>"$@"</code> and <code>$@</code> expand to nothing
 (i.e., they are removed).</p>
 <p>This example recipe will print arguments one by one on separate lines:</p>
 <pre><code class="language-just">set positional-arguments
 
 @test *args='':
-  bash -c 'while (( &quot;$#&quot; )); do echo - $1; shift; done' -- &quot;$@&quot;
+  bash -c 'while (( "$#" )); do echo - $1; shift; done' -- "$@"
 </code></pre>
 <p>Running it with <em>two</em> arguments:</p>
-<pre><code class="language-sh">$ just test foo &quot;bar baz&quot;
+<pre><code class="language-sh">$ just test foo "bar baz"
 - foo
 - bar baz
 </code></pre>
@@ -302,24 +302,24 @@ When there are no positional parameters, <code>&quot;$@&quot;</code> and <code>$
 <p>The <code>shell</code> setting controls the command used to invoke recipe lines and
 backticks. Shebang recipes are unaffected.</p>
 <pre><code class="language-just"># use python3 to execute recipe lines and backticks
-set shell := [&quot;python3&quot;, &quot;-c&quot;]
+set shell := ["python3", "-c"]
 
 # use print to capture result of evaluation
-foos := `print(&quot;foo&quot; * 4)`
+foos := `print("foo" * 4)`
 
 foo:
-  print(&quot;Snake snake snake snake.&quot;)
-  print(&quot;{{foos}}&quot;)
+  print("Snake snake snake snake.")
+  print("{{foos}}")
 </code></pre>
 <p><code>just</code> passes the command to be executed as an argument. Many shells will need
 an additional flag, often <code>-c</code>, to make them evaluate the first argument.</p>
 <h5 id="windows-shell"><a class="header" href="#windows-shell">Windows Shell</a></h5>
 <p><code>just</code> uses <code>sh</code> on Windows by default. To use a different shell on Windows,
 use <code>windows-shell</code>:</p>
-<pre><code class="language-just">set windows-shell := [&quot;powershell.exe&quot;, &quot;-NoLogo&quot;, &quot;-Command&quot;]
+<pre><code class="language-just">set windows-shell := ["powershell.exe", "-NoLogo", "-Command"]
 
 hello:
-  Write-Host &quot;Hello, world!&quot;
+  Write-Host "Hello, world!"
 </code></pre>
 <p>See
 <a href="https://github.com/casey/just/blob/master/examples/powershell.just">powershell.just</a>
@@ -333,22 +333,22 @@ way to control which shell is used on Windows.</em></p>
 <pre><code class="language-just">set windows-powershell := true
 
 hello:
-  Write-Host &quot;Hello, world!&quot;
+  Write-Host "Hello, world!"
 </code></pre>
 <h5 id="python-3"><a class="header" href="#python-3">Python 3</a></h5>
-<pre><code class="language-just">set shell := [&quot;python3&quot;, &quot;-c&quot;]
+<pre><code class="language-just">set shell := ["python3", "-c"]
 </code></pre>
 <h5 id="bash"><a class="header" href="#bash">Bash</a></h5>
-<pre><code class="language-just">set shell := [&quot;bash&quot;, &quot;-uc&quot;]
+<pre><code class="language-just">set shell := ["bash", "-uc"]
 </code></pre>
 <h5 id="z-shell"><a class="header" href="#z-shell">Z Shell</a></h5>
-<pre><code class="language-just">set shell := [&quot;zsh&quot;, &quot;-uc&quot;]
+<pre><code class="language-just">set shell := ["zsh", "-uc"]
 </code></pre>
 <h5 id="fish"><a class="header" href="#fish">Fish</a></h5>
-<pre><code class="language-just">set shell := [&quot;fish&quot;, &quot;-c&quot;]
+<pre><code class="language-just">set shell := ["fish", "-c"]
 </code></pre>
 <h5 id="nushell"><a class="header" href="#nushell">Nushell</a></h5>
-<pre><code class="language-just">set shell := [&quot;nu&quot;, &quot;-c&quot;]
+<pre><code class="language-just">set shell := ["nu", "-c"]
 </code></pre>
 <p>If you want to change the default table mode to <code>light</code>:</p>
 <pre><code class="language-just">set shell := ['nu', '-m', 'light', '-c']

@@ -183,7 +183,7 @@
 </code></pre>
 <p><em>macOS 注意:</em> 最近版本的 macOS 使用 zsh 作为默认的 Shell。如果你使用 Homebrew 安装 <code>just</code>，它会自动安装 zsh 补全脚本的最新副本到 Homebrew zsh 目录下，而内置默认版本的 zsh 是不知道的。如果可能的话，最好使用这个脚本副本，因为当你通过 Homebrew 更新 <code>just</code> 时，它也会被更新。另外，许多其他的 Homebrew 软件包也使用相同位置的补全脚本，而内置的 zsh 也不知道这些。为了在这种情况下在 zsh 中使用 <code>just</code> 的补全，你可以在调用 <code>compinit</code> 之前将 <code>fpath</code> 设置为 Homebrew 的位置。还要注意，Oh My Zsh 默认会运行 <code>compinit</code>，所以你的 <code>.zshrc</code> 文件看起来像这样：</p>
 <pre><code class="language-zsh"># 启动Homebrew，添加环境变量
-eval &quot;$(brew shellenv)&quot;
+eval "$(brew shellenv)"
 
 fpath=($HOMEBREW_PREFIX/share/zsh/site-functions $fpath)
 

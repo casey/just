@@ -178,37 +178,37 @@
                     <main>
                         <h3 id="字符串"><a class="header" href="#字符串">字符串</a></h3>
 <p>双引号字符串支持转义序列：</p>
-<pre><code class="language-just">string-with-tab             := &quot;\t&quot;
-string-with-newline         := &quot;\n&quot;
-string-with-carriage-return := &quot;\r&quot;
-string-with-double-quote    := &quot;\&quot;&quot;
-string-with-slash           := &quot;\\&quot;
-string-with-no-newline      := &quot;\
-&quot;
+<pre><code class="language-just">string-with-tab             := "\t"
+string-with-newline         := "\n"
+string-with-carriage-return := "\r"
+string-with-double-quote    := "\""
+string-with-slash           := "\\"
+string-with-no-newline      := "\
+"
 </code></pre>
 <pre><code class="language-sh">$ just --evaluate
-&quot;tring-with-carriage-return := &quot;
-string-with-double-quote    := &quot;&quot;&quot;
-string-with-newline         := &quot;
-&quot;
-string-with-no-newline      := &quot;&quot;
-string-with-slash           := &quot;\&quot;
-string-with-tab             := &quot;     &quot;
+"tring-with-carriage-return := "
+string-with-double-quote    := """
+string-with-newline         := "
+"
+string-with-no-newline      := ""
+string-with-slash           := "\"
+string-with-tab             := "     "
 </code></pre>
 <p>字符串可以包含换行符：</p>
 <pre><code class="language-just">single := '
 hello
 '
 
-double := &quot;
+double := "
 goodbye
-&quot;
+"
 </code></pre>
 <p>单引号字符串不支持转义序列：</p>
-<pre><code class="language-just">escapes := '\t\n\r\&quot;\\'
+<pre><code class="language-just">escapes := '\t\n\r\"\\'
 </code></pre>
 <pre><code class="language-sh">$ just --evaluate
-escapes := &quot;\t\n\r\&quot;\\&quot;
+escapes := "\t\n\r\"\\"
 </code></pre>
 <p>支持单引号和双引号字符串的缩进版本，以三个单引号或三个双引号为界。缩进的字符串行被删除了所有非空行所共有的前导空白：</p>
 <pre><code class="language-just"># 这个字符串执行结果为 `foo\nbar\n`
@@ -218,11 +218,11 @@ x := '''
 '''
 
 # 这个字符串执行结果为 `abc\n  wuv\nbar\n`
-y := &quot;&quot;&quot;
+y := """
   abc
     wuv
   xyz
-&quot;&quot;&quot;
+"""
 </code></pre>
 <p>与未缩进的字符串类似，缩进的双引号字符串处理转义序列，而缩进的单引号字符串则忽略转义序列。转义序列的处理是在取消缩进后进行的。取消缩进的算法不考虑转义序列产生的空白或换行。</p>
 

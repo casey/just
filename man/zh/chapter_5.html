@@ -190,7 +190,7 @@ curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -
 
 # 在 Shell 搜索可执行文件的路径中添加`~/bin`
 # 这一行应该被添加到你的 Shell 初始化文件中，e.g. `~/.bashrc` 或者 `~/.zshrc`：
-export PATH=&quot;$PATH:$HOME/bin&quot;
+export PATH="$PATH:$HOME/bin"
 
 # 现在 just 应该就可以执行了
 just --help

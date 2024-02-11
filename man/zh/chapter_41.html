@@ -182,7 +182,7 @@
   #!/usr/bin/env bash
   set -euxo pipefail
   hello='Yo'
-  echo &quot;$hello from Bash!&quot;
+  echo "$hello from Bash!"
 </code></pre>
 <p>严格意义上说这不是必须的，但是 <code>set -euxo pipefail</code> 开启了一些有用的功能，使 <code>bash</code> Shebang 配方的行为更像正常的、行式的 <code>just</code> 配方:</p>
 <ul>
@@ -205,7 +205,7 @@
 <p>例如，要在 Windows 上执行这个配方：</p>
 <pre><code class="language-just">echo:
   #!/bin/sh
-  echo &quot;Hello!&quot;
+  echo "Hello!"
 </code></pre>
 <p>解释器路径 <code>/bin/sh</code> 在执行前将被 <code>cygpath</code> 翻译成 Windows 风格的路径。</p>
 <p>如果解释器路径不包含 <code>/</code>，它将被执行而不被翻译。这主要用于 <code>cygpath</code> 不可用或者你希望向解释器传递一个 Windows 风格的路径的情况下。</p>

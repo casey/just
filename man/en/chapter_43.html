@@ -180,7 +180,7 @@
 <p>Recipe lines are interpreted by the shell, not <code>just</code>, so it’s not possible to
 set <code>just</code> variables in the middle of a recipe:</p>
 <pre><code class="language-mf">foo:
-  x := &quot;hello&quot; # This doesn't work!
+  x := "hello" # This doesn't work!
   echo {{x}}
 </code></pre>
 <p>It is possible to use shell variables, but there’s another problem. Every

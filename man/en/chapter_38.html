@@ -190,14 +190,14 @@ cd my-awesome-project &amp;&amp; make
 </code></pre>
 <p>To pass arguments to a dependency, put the dependency in parentheses along with
 the arguments:</p>
-<pre><code class="language-just">default: (build &quot;main&quot;)
+<pre><code class="language-just">default: (build "main")
 
 build target:
   @echo 'Building {{target}}…'
   cd {{target}} &amp;&amp; make
 </code></pre>
 <p>Variables can also be passed as arguments to dependencies:</p>
-<pre><code class="language-just">target := &quot;main&quot;
+<pre><code class="language-just">target := "main"
 
 _build version:
   @echo 'Building {{version}}…'
@@ -208,7 +208,7 @@ build: (_build target)
 <p>A command’s arguments can be passed to dependency by putting the dependency in
 parentheses along with the arguments:</p>
 <pre><code class="language-just">build target:
-  @echo &quot;Building {{target}}…&quot;
+  @echo "Building {{target}}…"
 
 push target: (build target)
   @echo 'Pushing {{target}}…'
@@ -232,9 +232,9 @@ Testing server:unit…
 </code></pre>
 <p>Default values may be arbitrary expressions, but concatenations or path joins
 must be parenthesized:</p>
-<pre><code class="language-just">arch := &quot;wasm&quot;
+<pre><code class="language-just">arch := "wasm"
 
-test triple=(arch + &quot;-unknown-unknown&quot;) input=(arch / &quot;input.dat&quot;):
+test triple=(arch + "-unknown-unknown") input=(arch / "input.dat"):
   ./test {{triple}}
 </code></pre>
 <p>The last parameter of a recipe may be variadic, indicated with either a <code>+</code> or
@@ -253,7 +253,7 @@ GRAMMAR.md              100% 1666     1.6KB/s   00:00
 expand to a string containing those arguments separated by spaces, or an empty
 string if no arguments are present:</p>
 <pre><code class="language-just">commit MESSAGE *FLAGS:
-  git commit {{FLAGS}} -m &quot;{{MESSAGE}}&quot;
+  git commit {{FLAGS}} -m "{{MESSAGE}}"
 </code></pre>
 <p>Variadic parameters can be assigned default values. These are overridden by
 arguments passed on the command line:</p>
@@ -266,7 +266,7 @@ example, if you have the following recipe:</p>
   lynx https://www.google.com/?q={{QUERY}}
 </code></pre>
 <p>And you type:</p>
-<pre><code class="language-sh">$ just search &quot;cat toupee&quot;
+<pre><code class="language-sh">$ just search "cat toupee"
 </code></pre>
 <p><code>just</code> will run the command <code>lynx https://www.google.com/?q=cat toupee</code>, which
 will get parsed by <code>sh</code> as <code>lynx</code>, <code>https://www.google.com/?q=cat</code>, and

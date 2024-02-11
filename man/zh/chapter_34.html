@@ -178,18 +178,18 @@
                     <main>
                         <h3 id="出现错误停止执行"><a class="header" href="#出现错误停止执行">出现错误停止执行</a></h3>
 <p>可以用 <code>error</code> 函数停止执行。比如：</p>
-<pre><code class="language-just">foo := if &quot;hello&quot; == &quot;goodbye&quot; {
-  &quot;xyz&quot;
-} else if &quot;a&quot; == &quot;b&quot; {
-  &quot;abc&quot;
+<pre><code class="language-just">foo := if "hello" == "goodbye" {
+  "xyz"
+} else if "a" == "b" {
+  "abc"
 } else {
-  error(&quot;123&quot;)
+  error("123")
 }
 </code></pre>
 <p>在运行时产生以下错误：</p>
 <pre><code>error: Call to function `error` failed: 123
    |
-16 |   error(&quot;123&quot;)
+16 |   error("123")
 </code></pre>
 
                     </main>

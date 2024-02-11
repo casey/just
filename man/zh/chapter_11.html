@@ -195,7 +195,7 @@ git clone https://github.com/NoahTheDuke/vim-just.git
 <p><a href="https://github.com/IndianBoy42/tree-sitter-just">tree-sitter-just</a> 是一个针对 Neovim 的 <a href="https://github.com/nvim-treesitter/nvim-treesitter">Nvim Treesitter</a> 插件。</p>
 <h4 id="makefile-语法高亮"><a class="header" href="#makefile-语法高亮">Makefile 语法高亮</a></h4>
 <p>Vim 内置的 makefile 语法高亮对 <code>justfile</code> 来说并不完美，但总比没有好。你可以把以下内容放在 <code>~/.vim/filetype.vim</code> 中：</p>
-<pre><code class="language-vimscript">if exists(&quot;did_load_filetypes&quot;)
+<pre><code class="language-vimscript">if exists("did_load_filetypes")
   finish
 endif
 

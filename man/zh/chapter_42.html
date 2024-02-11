@@ -179,7 +179,7 @@
                         <h3 id="在配方中设置变量"><a class="header" href="#在配方中设置变量">在配方中设置变量</a></h3>
 <p>配方代码行是由 Shell 解释的，而不是 <code>just</code>，所以不可能在配方中设置 <code>just</code> 变量：</p>
 <pre><code class="language-mf">foo:
-  x := &quot;hello&quot; # This doesn't work!
+  x := "hello" # This doesn't work!
   echo {{x}}
 </code></pre>
 <p>使用 Shell 变量是可能的，但还有一个问题：每一行配方都由一个新的 Shell 实例运行，所以在一行中设置的变量不会在下一行中生效：</p>

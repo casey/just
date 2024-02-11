@@ -180,9 +180,9 @@
 <p>Variables, strings, concatenation, path joining, and substitution using <code>{{…}}</code>
 are supported:</p>
 <pre><code class="language-just">tmpdir  := `mktemp -d`
-version := &quot;0.2.7&quot;
-tardir  := tmpdir / &quot;awesomesauce-&quot; + version
-tarball := tardir + &quot;.tar.gz&quot;
+version := "0.2.7"
+tardir  := tmpdir / "awesomesauce-" + version
+tarball := tardir + ".tar.gz"
 
 publish:
   rm -f {{tarball}}
@@ -194,20 +194,20 @@ publish:
 </code></pre>
 <h4 id="joining-paths"><a class="header" href="#joining-paths">Joining Paths</a></h4>
 <p>The <code>/</code> operator can be used to join two strings with a slash:</p>
-<pre><code class="language-just">foo := &quot;a&quot; / &quot;b&quot;
+<pre><code class="language-just">foo := "a" / "b"
 </code></pre>
 <pre><code>$ just --evaluate foo
 a/b
 </code></pre>
 <p>Note that a <code>/</code> is added even if one is already present:</p>
-<pre><code class="language-just">foo := &quot;a/&quot;
-bar := foo / &quot;b&quot;
+<pre><code class="language-just">foo := "a/"
+bar := foo / "b"
 </code></pre>
 <pre><code>$ just --evaluate bar
 a//b
 </code></pre>
 <p>Absolute paths can also be constructed<sup>1.5.0</sup>:</p>
-<pre><code class="language-just">foo := / &quot;b&quot;
+<pre><code class="language-just">foo := / "b"
 </code></pre>
 <pre><code>$ just --evaluate foo
 /b
@@ -227,9 +227,9 @@ interpolation:</p>
 <pre><code class="language-just">braces:
   echo '{{'I {{LOVE}} curly braces!'}}'
 </code></pre>
-<p>Yet another option is to use <code>{{ &quot;{{&quot; }}</code>:</p>
+<p>Yet another option is to use <code>{{ "{{" }}</code>:</p>
 <pre><code class="language-just">braces:
-  echo 'I {{ &quot;{{&quot; }}LOVE}} curly braces!'
+  echo 'I {{ "{{" }}LOVE}} curly braces!'
 </code></pre>
 
                     </main>

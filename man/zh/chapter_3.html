@@ -182,14 +182,14 @@
 <p>如果你不愿意安装 <code>sh</code>，也可以使用 <code>shell</code> 设置来指定你要使用的 Shell。</p>
 <p>比如 PowerShell：</p>
 <pre><code class="language-just"># 使用 PowerShell 替代 sh:
-set shell := [&quot;powershell.exe&quot;, &quot;-c&quot;]
+set shell := ["powershell.exe", "-c"]
 
 hello:
-  Write-Host &quot;Hello, world!&quot;
+  Write-Host "Hello, world!"
 </code></pre>
 <p>…或者 <code>cmd.exe</code>:</p>
 <pre><code class="language-just"># 使用 cmd.exe 替代 sh:
-set shell := [&quot;cmd.exe&quot;, &quot;/c&quot;]
+set shell := ["cmd.exe", "/c"]
 
 list:
   dir

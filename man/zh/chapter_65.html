@@ -182,7 +182,7 @@
 <h4 id="配方别名"><a class="header" href="#配方别名">配方别名</a></h4>
 <p>如果你想通过名称来调用 <code>~/.user.justfile</code> 中的配方，并且不介意为每个配方创建一个别名，可以在你的 Shell 初始化脚本中加入以下内容：</p>
 <pre><code class="language-sh">for recipe in `just --justfile ~/.user.justfile --summary`; do
-  alias $recipe=&quot;just --justfile ~/.user.justfile --working-directory . $recipe&quot;
+  alias $recipe="just --justfile ~/.user.justfile --working-directory . $recipe"
 done
 </code></pre>
 <p>现在，如果你在 <code>~/.user.justfile</code> 里有一个叫 <code>foo</code> 的配方，你可以在命令行输入 <code>foo</code> 来运行它。</p>

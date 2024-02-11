@@ -189,13 +189,13 @@ using the currently-unstable <code>--fmt</code> flag:</p>
 
 
 some-recipe:
-  echo &quot;foo&quot;
+  echo "foo"
 $ just --fmt --unstable
 $ cat justfile
 # A lot of blank lines
 
 some-recipe:
-    echo &quot;foo&quot;
+    echo "foo"
 </code></pre>
 <p>Invoking <code>just --fmt --check --unstable</code> runs <code>--fmt</code> in check mode. Instead of
 overwriting the <code>justfile</code>, <code>just</code> will exit with an exit code of 0 if it is

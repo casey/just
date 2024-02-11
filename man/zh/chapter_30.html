@@ -180,13 +180,13 @@
 <p><code>just</code> 提供了一些内置函数，在编写配方时可能很有用。</p>
 <h4 id="系统信息"><a class="header" href="#系统信息">系统信息</a></h4>
 <ul>
-<li><code>arch()</code> — 指令集结构。可能的值是：<code>&quot;aarch64&quot;</code>, <code>&quot;arm&quot;</code>, <code>&quot;asmjs&quot;</code>, <code>&quot;hexagon&quot;</code>, <code>&quot;mips&quot;</code>, <code>&quot;msp430&quot;</code>, <code>&quot;powerpc&quot;</code>, <code>&quot;powerpc64&quot;</code>, <code>&quot;s390x&quot;</code>, <code>&quot;sparc&quot;</code>, <code>&quot;wasm32&quot;</code>, <code>&quot;x86&quot;</code>, <code>&quot;x86_64&quot;</code>, 和 <code>&quot;xcore&quot;</code>。</li>
-<li><code>os()</code> — 操作系统，可能的值是: <code>&quot;android&quot;</code>, <code>&quot;bitrig&quot;</code>, <code>&quot;dragonfly&quot;</code>, <code>&quot;emscripten&quot;</code>, <code>&quot;freebsd&quot;</code>, <code>&quot;haiku&quot;</code>, <code>&quot;ios&quot;</code>, <code>&quot;linux&quot;</code>, <code>&quot;macos&quot;</code>, <code>&quot;netbsd&quot;</code>, <code>&quot;openbsd&quot;</code>, <code>&quot;solaris&quot;</code>, 和 <code>&quot;windows&quot;</code>。</li>
-<li><code>os_family()</code> — 操作系统系列；可能的值是：<code>&quot;unix&quot;</code> 和 <code>&quot;windows&quot;</code>。</li>
+<li><code>arch()</code> — 指令集结构。可能的值是：<code>"aarch64"</code>, <code>"arm"</code>, <code>"asmjs"</code>, <code>"hexagon"</code>, <code>"mips"</code>, <code>"msp430"</code>, <code>"powerpc"</code>, <code>"powerpc64"</code>, <code>"s390x"</code>, <code>"sparc"</code>, <code>"wasm32"</code>, <code>"x86"</code>, <code>"x86_64"</code>, 和 <code>"xcore"</code>。</li>
+<li><code>os()</code> — 操作系统，可能的值是: <code>"android"</code>, <code>"bitrig"</code>, <code>"dragonfly"</code>, <code>"emscripten"</code>, <code>"freebsd"</code>, <code>"haiku"</code>, <code>"ios"</code>, <code>"linux"</code>, <code>"macos"</code>, <code>"netbsd"</code>, <code>"openbsd"</code>, <code>"solaris"</code>, 和 <code>"windows"</code>。</li>
+<li><code>os_family()</code> — 操作系统系列；可能的值是：<code>"unix"</code> 和 <code>"windows"</code>。</li>
 </ul>
 <p>例如：</p>
 <pre><code class="language-just">system-info:
-  @echo &quot;This is an {{arch()}} machine&quot;.
+  @echo "This is an {{arch()}} machine".
 </code></pre>
 <pre><code class="language-sh">$ just system-info
 This is an x86_64 machine
@@ -199,7 +199,7 @@ This is an x86_64 machine
 <pre><code class="language-just">home_dir := env_var('HOME')
 
 test:
-  echo &quot;{{home_dir}}&quot;
+  echo "{{home_dir}}"
 </code></pre>
 <pre><code class="language-sh">$ just
 /home/user1
@@ -272,18 +272,18 @@ The executable is at: /bin/just
 <h4 id="路径操作"><a class="header" href="#路径操作">路径操作</a></h4>
 <h5 id="非可靠的"><a class="header" href="#非可靠的">非可靠的</a></h5>
 <ul>
-<li><code>absolute_path(path)</code> - 将当前工作目录中到相对路径 <code>path</code> 的路径转换为绝对路径。在 <code>/foo</code> 目录通过 <code>absolute_path(&quot;./bar.txt&quot;)</code> 可以得到 <code>/foo/bar.txt</code>。</li>
-<li><code>extension(path)</code> - 获取 <code>path</code> 的扩展名。<code>extension(&quot;/foo/bar.txt&quot;)</code> 结果为 <code>txt</code>。</li>
-<li><code>file_name(path)</code> - 获取 <code>path</code> 的文件名，去掉任何前面的目录部分。<code>file_name(&quot;/foo/bar.txt&quot;)</code> 的结果为 <code>bar.txt</code>。</li>
-<li><code>file_stem(path)</code> - 获取 <code>path</code> 的文件名，不含扩展名。<code>file_stem(&quot;/foo/bar.txt&quot;)</code> 的结果为 <code>bar</code>。</li>
-<li><code>parent_directory(path)</code> - 获取 <code>path</code> 的父目录。<code>parent_directory(&quot;/foo/bar.txt&quot;)</code> 的结果为 <code>/foo</code>。</li>
-<li><code>without_extension(path)</code> - 获取 <code>path</code> 不含扩展名部分。<code>without_extension(&quot;/foo/bar.txt&quot;)</code> 的结果为 <code>/foo/bar</code>。</li>
+<li><code>absolute_path(path)</code> - 将当前工作目录中到相对路径 <code>path</code> 的路径转换为绝对路径。在 <code>/foo</code> 目录通过 <code>absolute_path("./bar.txt")</code> 可以得到 <code>/foo/bar.txt</code>。</li>
+<li><code>extension(path)</code> - 获取 <code>path</code> 的扩展名。<code>extension("/foo/bar.txt")</code> 结果为 <code>txt</code>。</li>
+<li><code>file_name(path)</code> - 获取 <code>path</code> 的文件名，去掉任何前面的目录部分。<code>file_name("/foo/bar.txt")</code> 的结果为 <code>bar.txt</code>。</li>
+<li><code>file_stem(path)</code> - 获取 <code>path</code> 的文件名，不含扩展名。<code>file_stem("/foo/bar.txt")</code> 的结果为 <code>bar</code>。</li>
+<li><code>parent_directory(path)</code> - 获取 <code>path</code> 的父目录。<code>parent_directory("/foo/bar.txt")</code> 的结果为 <code>/foo</code>。</li>
+<li><code>without_extension(path)</code> - 获取 <code>path</code> 不含扩展名部分。<code>without_extension("/foo/bar.txt")</code> 的结果为 <code>/foo/bar</code>。</li>
 </ul>
 <p>这些函数可能会失败，例如，如果一个路径没有扩展名，则将停止执行。</p>
 <h5 id="可靠的"><a class="header" href="#可靠的">可靠的</a></h5>
 <ul>
-<li><code>clean(path)</code> - 通过删除多余的路径分隔符、中间的 <code>.</code> 和 <code>..</code> 来简化 <code>path</code>。<code>clean(&quot;foo//bar&quot;)</code> 结果为 <code>foo/bar</code>，<code>clean(&quot;foo/..&quot;)</code> 为 <code>.</code>，<code>clean(&quot;foo/./bar&quot;)</code> 结果为 <code>foo/bar</code>。</li>
-<li><code>join(a, b…)</code> - <em>这个函数在 Unix 上使用 <code>/</code>，在 Windows 上使用 <code>\</code>，这可能会导致非预期的行为。<code>/</code> 操作符，例如，<code>a / b</code>，总是使用 <code>/</code>，应该被考虑作为替代，除非在 Windows 上特别指定需要 <code>\</code>。</em> 将路径 <code>a</code> 和 路径 <code>b</code> 拼接在一起。<code>join(&quot;foo/bar&quot;, &quot;baz&quot;)</code> 结果为 <code>foo/bar/baz</code>。它接受两个或多个参数。</li>
+<li><code>clean(path)</code> - 通过删除多余的路径分隔符、中间的 <code>.</code> 和 <code>..</code> 来简化 <code>path</code>。<code>clean("foo//bar")</code> 结果为 <code>foo/bar</code>，<code>clean("foo/..")</code> 为 <code>.</code>，<code>clean("foo/./bar")</code> 结果为 <code>foo/bar</code>。</li>
+<li><code>join(a, b…)</code> - <em>这个函数在 Unix 上使用 <code>/</code>，在 Windows 上使用 <code>\</code>，这可能会导致非预期的行为。<code>/</code> 操作符，例如，<code>a / b</code>，总是使用 <code>/</code>，应该被考虑作为替代，除非在 Windows 上特别指定需要 <code>\</code>。</em> 将路径 <code>a</code> 和 路径 <code>b</code> 拼接在一起。<code>join("foo/bar", "baz")</code> 结果为 <code>foo/bar/baz</code>。它接受两个或多个参数。</li>
 </ul>
 <h4 id="文件系统访问"><a class="header" href="#文件系统访问">文件系统访问</a></h4>
 <ul>

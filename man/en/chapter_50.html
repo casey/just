@@ -194,20 +194,20 @@ goodbye
 <pre><code class="language-just">set quiet
 
 foo:
-  echo &quot;This is quiet&quot;
+  echo "This is quiet"
 
 @foo2:
-  echo &quot;This is also quiet&quot;
+  echo "This is also quiet"
 </code></pre>
 <p>The <code>[no-quiet]</code> attribute overrides this setting:</p>
 <pre><code class="language-just">set quiet
 
 foo:
-  echo &quot;This is quiet&quot;
+  echo "This is quiet"
 
 [no-quiet]
 foo2:
-  echo &quot;This is not quiet&quot;
+  echo "This is not quiet"
 </code></pre>
 <p>Shebang recipes are quiet by default:</p>
 <pre><code class="language-just">foo:

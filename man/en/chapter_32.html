@@ -180,7 +180,7 @@
 <p>Recipes may be annotated with attributes that change their behavior.</p>
 <div class="table-wrapper"><table><thead><tr><th>Name</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>[confirm]</code><sup>1.17.0</sup></td><td>Require confirmation prior to executing recipe.</td></tr>
-<tr><td><code>[confirm(&quot;prompt&quot;)]</code><sup>1.23.0</sup></td><td>Require confirmation prior to executing recipe with a custom prompt.</td></tr>
+<tr><td><code>[confirm("prompt")]</code><sup>1.23.0</sup></td><td>Require confirmation prior to executing recipe with a custom prompt.</td></tr>
 <tr><td><code>[linux]</code><sup>1.8.0</sup></td><td>Enable recipe on Linux.</td></tr>
 <tr><td><code>[macos]</code><sup>1.8.0</sup></td><td>Enable recipe on MacOS.</td></tr>
 <tr><td><code>[no-cd]</code><sup>1.9.0</sup></td><td>Don’t change directory before executing recipe.</td></tr>
@@ -195,12 +195,12 @@
 <pre><code class="language-just">[no-cd]
 [private]
 foo:
-    echo &quot;foo&quot;
+    echo "foo"
 </code></pre>
 <p>Or separated by commas on a single line<sup>1.14.0</sup>:</p>
 <pre><code class="language-just">[no-cd, private]
 foo:
-    echo &quot;foo&quot;
+    echo "foo"
 </code></pre>
 <h4 id="enabling-and-disabling-recipes180"><a class="header" href="#enabling-and-disabling-recipes180">Enabling and Disabling Recipes<sup>1.8.0</sup></a></h4>
 <p>The <code>[linux]</code>, <code>[macos]</code>, <code>[unix]</code>, and <code>[windows]</code> attributes are
@@ -250,7 +250,7 @@ delete all:
 </code></pre>
 <h4 id="custom-confirmation-prompt1230"><a class="header" href="#custom-confirmation-prompt1230">Custom Confirmation Prompt<sup>1.23.0</sup></a></h4>
 <p>The default confirmation prompt can be overridden with <code>[confirm(PROMPT)]</code>:</p>
-<pre><code class="language-just">[confirm(&quot;Are you sure you want to delete everything?&quot;)]
+<pre><code class="language-just">[confirm("Are you sure you want to delete everything?")]
 delete-everything:
   rm -rf *
 </code></pre>

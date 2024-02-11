@@ -180,7 +180,7 @@
 <p>The following export statement gives <code>just</code> recipes access to local Node module
 binaries, and makes <code>just</code> recipe commands behave more like <code>script</code> entries in
 Node.js <code>package.json</code> files:</p>
-<pre><code class="language-just">export PATH := &quot;./node_modules/.bin:&quot; + env_var('PATH')
+<pre><code class="language-just">export PATH := "./node_modules/.bin:" + env_var('PATH')
 </code></pre>
 
                     </main>

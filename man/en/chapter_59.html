@@ -182,9 +182,9 @@
   touch {{argument}}
 </code></pre>
 <p>The following command will create two files, <code>some</code> and <code>argument.txt</code>:</p>
-<pre><code class="language-sh">$ just foo &quot;some argument.txt&quot;
+<pre><code class="language-sh">$ just foo "some argument.txt"
 </code></pre>
-<p>The users shell will parse <code>&quot;some argument.txt&quot;</code> as a single argument, but when
+<p>The users shell will parse <code>"some argument.txt"</code> as a single argument, but when
 <code>just</code> replaces <code>touch {{argument}}</code> with <code>touch some argument.txt</code>, the quotes
 are not preserved, and <code>touch</code> will receive two arguments.</p>
 <p>There are a few ways to avoid this: quoting, positional arguments, and exported
@@ -204,7 +204,7 @@ positional arguments, allowing them to be accessed with <code>$1</code>, <code>$
 <pre><code class="language-just">set positional-arguments
 
 foo argument:
-  touch &quot;$1&quot;
+  touch "$1"
 </code></pre>
 <p>This defeats <code>just</code>’s ability to catch typos, for example if you type <code>$2</code>, but
 works for all possible values of <code>argument</code>, including those with double
@@ -214,11 +214,11 @@ quotes.</p>
 <pre><code class="language-just">set export
 
 foo argument:
-  touch &quot;$argument&quot;
+  touch "$argument"
 </code></pre>
 <p>Or individual arguments may be exported by prefixing them with <code>$</code>:</p>
 <pre><code class="language-just">foo $argument:
-  touch &quot;$argument&quot;
+  touch "$argument"
 </code></pre>
 <p>This defeats <code>just</code>’s ability to catch typos, for example if you type
 <code>$argumant</code>, but works for all possible values of <code>argument</code>, including those

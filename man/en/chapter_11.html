@@ -200,7 +200,7 @@ for Neovim.</p>
 <h4 id="makefile-syntax-highlighting"><a class="header" href="#makefile-syntax-highlighting">Makefile Syntax Highlighting</a></h4>
 <p>Vim’s built-in makefile syntax highlighting isn’t perfect for <code>justfile</code>s, but
 it’s better than nothing. You can put the following in <code>~/.vim/filetype.vim</code>:</p>
-<pre><code class="language-vimscript">if exists(&quot;did_load_filetypes&quot;)
+<pre><code class="language-vimscript">if exists("did_load_filetypes")
   finish
 endif
 

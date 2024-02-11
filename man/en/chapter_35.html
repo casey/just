@@ -178,18 +178,18 @@
                     <main>
                         <h3 id="stopping-execution-with-error"><a class="header" href="#stopping-execution-with-error">Stopping execution with error</a></h3>
 <p>Execution can be halted with the <code>error</code> function. For example:</p>
-<pre><code class="language-just">foo := if &quot;hello&quot; == &quot;goodbye&quot; {
-  &quot;xyz&quot;
-} else if &quot;a&quot; == &quot;b&quot; {
-  &quot;abc&quot;
+<pre><code class="language-just">foo := if "hello" == "goodbye" {
+  "xyz"
+} else if "a" == "b" {
+  "abc"
 } else {
-  error(&quot;123&quot;)
+  error("123")
 }
 </code></pre>
 <p>Which produce the following error when run:</p>
 <pre><code>error: Call to function `error` failed: 123
    |
-16 |   error(&quot;123&quot;)
+16 |   error("123")
 </code></pre>
 
                     </main>

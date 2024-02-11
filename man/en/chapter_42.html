@@ -182,7 +182,7 @@
   #!/usr/bin/env bash
   set -euxo pipefail
   hello='Yo'
-  echo &quot;$hello from Bash!&quot;
+  echo "$hello from Bash!"
 </code></pre>
 <p>It isn’t strictly necessary, but <code>set -euxo pipefail</code> turns on a few useful
 features that make <code>bash</code> shebang recipes behave more like normal, linewise
@@ -210,7 +210,7 @@ with <a href="http://www.cygwin.com">Cygwin</a>.</p>
 <p>For example, to execute this recipe on Windows:</p>
 <pre><code class="language-just">echo:
   #!/bin/sh
-  echo &quot;Hello!&quot;
+  echo "Hello!"
 </code></pre>
 <p>The interpreter path <code>/bin/sh</code> will be translated to a Windows-style path using
 <code>cygpath</code> before being executed.</p>

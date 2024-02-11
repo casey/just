@@ -184,7 +184,7 @@ in the same <code>justfile</code> may use different indentation.</p>
 after that may be further indented.</p>
 <p>Here’s a justfile with a recipe indented with spaces, represented as <code>·</code>, and
 tabs, represented as <code>→</code>.</p>
-<pre><code class="language-justfile">set windows-shell := [&quot;pwsh&quot;, &quot;-NoLogo&quot;, &quot;-NoProfileLoadTime&quot;, &quot;-Command&quot;]
+<pre><code class="language-justfile">set windows-shell := ["pwsh", "-NoLogo", "-NoProfileLoadTime", "-Command"]
 
 set ignore-comments
 
@@ -193,14 +193,14 @@ list-space directory:
 ··foreach ($item in $(Get-ChildItem {{directory}} )) {
 ····echo $item.Name
 ··}
-··echo &quot;&quot;
+··echo ""
 
 # indentation nesting works even when newlines are escaped
 list-tab directory:
 → @foreach ($item in $(Get-ChildItem {{directory}} )) { \
 → → echo $item.Name \
 → }
-→ @echo &quot;&quot;
+→ @echo ""
 </code></pre>
 <pre><code class="language-pwsh">PS &gt; just list-space ~
 Desktop

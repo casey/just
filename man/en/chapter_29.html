@@ -178,37 +178,37 @@
                     <main>
                         <h3 id="strings"><a class="header" href="#strings">Strings</a></h3>
 <p>Double-quoted strings support escape sequences:</p>
-<pre><code class="language-just">string-with-tab             := &quot;\t&quot;
-string-with-newline         := &quot;\n&quot;
-string-with-carriage-return := &quot;\r&quot;
-string-with-double-quote    := &quot;\&quot;&quot;
-string-with-slash           := &quot;\\&quot;
-string-with-no-newline      := &quot;\
-&quot;
+<pre><code class="language-just">string-with-tab             := "\t"
+string-with-newline         := "\n"
+string-with-carriage-return := "\r"
+string-with-double-quote    := "\""
+string-with-slash           := "\\"
+string-with-no-newline      := "\
+"
 </code></pre>
 <pre><code class="language-sh">$ just --evaluate
-&quot;tring-with-carriage-return := &quot;
-string-with-double-quote    := &quot;&quot;&quot;
-string-with-newline         := &quot;
-&quot;
-string-with-no-newline      := &quot;&quot;
-string-with-slash           := &quot;\&quot;
-string-with-tab             := &quot;     &quot;
+"tring-with-carriage-return := "
+string-with-double-quote    := """
+string-with-newline         := "
+"
+string-with-no-newline      := ""
+string-with-slash           := "\"
+string-with-tab             := "     "
 </code></pre>
 <p>Strings may contain line breaks:</p>
 <pre><code class="language-just">single := '
 hello
 '
 
-double := &quot;
+double := "
 goodbye
-&quot;
+"
 </code></pre>
 <p>Single-quoted strings do not recognize escape sequences:</p>
-<pre><code class="language-just">escapes := '\t\n\r\&quot;\\'
+<pre><code class="language-just">escapes := '\t\n\r\"\\'
 </code></pre>
 <pre><code class="language-sh">$ just --evaluate
-escapes := &quot;\t\n\r\&quot;\\&quot;
+escapes := "\t\n\r\"\\"
 </code></pre>
 <p>Indented versions of both single- and double-quoted strings, delimited by
 triple single- or triple double-quotes, are supported. Indented string lines
@@ -221,11 +221,11 @@ x := '''
 '''
 
 # this string will evaluate to `abc\n  wuv\nxyz\n`
-y := &quot;&quot;&quot;
+y := """
   abc
     wuv
   xyz
-&quot;&quot;&quot;
+"""
 </code></pre>
 <p>Similar to unindented strings, indented double-quoted strings process escape
 sequences, and indented single-quoted strings ignore escape sequences. Escape

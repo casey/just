@@ -182,9 +182,9 @@
   touch {{argument}}
 </code></pre>
 <p>下面的命令将创建两个文件，<code>some</code> 和 <code>argument.txt</code>：</p>
-<pre><code class="language-sh">$ just foo &quot;some argument.txt&quot;
+<pre><code class="language-sh">$ just foo "some argument.txt"
 </code></pre>
-<p>用户 Shell 会把 <code>&quot;some argument.txt&quot;</code> 解析为一个参数，但当 <code>just</code> 把 <code>touch {{argument}}</code> 替换为<code>touch some argument.txt</code> 时，引号没有被保留，<code>touch</code> 会收到两个参数。</p>
+<p>用户 Shell 会把 <code>"some argument.txt"</code> 解析为一个参数，但当 <code>just</code> 把 <code>touch {{argument}}</code> 替换为<code>touch some argument.txt</code> 时，引号没有被保留，<code>touch</code> 会收到两个参数。</p>
 <p>有几种方法可以避免这种情况：引号包裹、位置参数和导出参数。</p>
 <h4 id="引号包裹"><a class="header" href="#引号包裹">引号包裹</a></h4>
 <p>可以在 <code>{{argument}}</code> 的周围加上引号，进行插值：</p>
@@ -197,7 +197,7 @@
 <pre><code class="language-just">set positional-arguments
 
 foo argument:
-  touch &quot;$1&quot;
+  touch "$1"
 </code></pre>
 <p>这就破坏了 <code>just</code> 捕捉拼写错误的能力，例如你输入了 <code>$2</code>，这对 <code>argument</code> 的所有可能的值都有效，包括那些带双引号的值。</p>
 <h4 id="导出参数"><a class="header" href="#导出参数">导出参数</a></h4>
@@ -205,11 +205,11 @@ foo argument:
 <pre><code class="language-just">set export
 
 foo argument:
-  touch &quot;$argument&quot;
+  touch "$argument"
 </code></pre>
 <p>或者可以通过在参数前加上 <code>$</code> 来导出单个参数：</p>
 <pre><code class="language-just">foo $argument:
-  touch &quot;$argument&quot;
+  touch "$argument"
 </code></pre>
 <p>这就破坏了 <code>just</code> 捕捉拼写错误的能力，例如你输入 <code>$argumant</code>，但对 <code>argument</code> 的所有可能的值都有效，包括那些带双引号的。</p>
 

@@ -179,7 +179,7 @@
                         <h3 id="设置"><a class="header" href="#设置">设置</a></h3>
 <p>设置控制解释和执行。每个设置最多可以指定一次，可以出现在 <code>justfile</code> 的任何地方。</p>
 <p>例如：</p>
-<pre><code class="language-just">set shell := [&quot;zsh&quot;, &quot;-cu&quot;]
+<pre><code class="language-just">set shell := ["zsh", "-cu"]
 
 foo:
   # this line will be run as `zsh -cu 'ls **/*.txt'`
@@ -224,7 +224,7 @@ bar
 <p><code>export</code> 设置使所有 <code>just</code> 变量作为环境变量被导出。默认值为 <code>false</code>。</p>
 <pre><code class="language-just">set export
 
-a := &quot;hello&quot;
+a := "hello"
 
 @foo b:
   echo $a
@@ -248,37 +248,37 @@ goodbye
 foo
 hello
 </code></pre>
-<p>当使用 <code>sh</code> 兼容的 Shell，如 <code>bash</code> 或 <code>zsh</code> 时，<code>$@</code> 会展开为传给配方的位置参数，从1开始。当在双引号内使用 <code>&quot;$@&quot;</code> 时，包括空白的参数将被传递，就像它们是双引号一样。也就是说，<code>&quot;$@&quot;</code> 相当于 <code>&quot;$1&quot; &quot;$2&quot;</code>……当没有位置参数时，<code>&quot;$@&quot;</code> 和 <code>$@</code> 将展开为空（即，它们被删除）。</p>
+<p>当使用 <code>sh</code> 兼容的 Shell，如 <code>bash</code> 或 <code>zsh</code> 时，<code>$@</code> 会展开为传给配方的位置参数，从1开始。当在双引号内使用 <code>"$@"</code> 时，包括空白的参数将被传递，就像它们是双引号一样。也就是说，<code>"$@"</code> 相当于 <code>"$1" "$2"</code>……当没有位置参数时，<code>"$@"</code> 和 <code>$@</code> 将展开为空（即，它们被删除）。</p>
 <p>这个例子的配方将逐行打印参数：</p>
 <pre><code class="language-just">set positional-arguments
 
 @test *args='':
-  bash -c 'while (( &quot;$#&quot; )); do echo - $1; shift; done' -- &quot;$@&quot;
+  bash -c 'while (( "$#" )); do echo - $1; shift; done' -- "$@"
 </code></pre>
 <p>用 <em>两个</em> 参数运行：</p>
-<pre><code class="language-sh">$ just test foo &quot;bar baz&quot;
+<pre><code class="language-sh">$ just test foo "bar baz"
 - foo
 - bar baz
 </code></pre>
 <h4 id="shell"><a class="header" href="#shell">Shell</a></h4>
 <p><code>shell</code> 设置控制用于调用执行配方代码行和反引号内指令的命令。Shebang 配方不受影响。</p>
 <pre><code class="language-just"># use python3 to execute recipe lines and backticks
-set shell := [&quot;python3&quot;, &quot;-c&quot;]
+set shell := ["python3", "-c"]
 
 # use print to capture result of evaluation
-foos := `print(&quot;foo&quot; * 4)`
+foos := `print("foo" * 4)`
 
 foo:
-  print(&quot;Snake snake snake snake.&quot;)
-  print(&quot;{{foos}}&quot;)
+  print("Snake snake snake snake.")
+  print("{{foos}}")
 </code></pre>
 <p><code>just</code> 把要执行的命令作为一个参数进行传递。许多 Shell 需要一个额外的标志，通常是 <code>-c</code>，以使它们评估执行第一个参数。</p>
 <h5 id="windows-shell"><a class="header" href="#windows-shell">Windows Shell</a></h5>
 <p><code>just</code> 在 Windows 上默认使用 <code>sh</code>。要在 Windows 上使用不同的 Shell，请使用<code>windows-shell</code>：</p>
-<pre><code class="language-just">set windows-shell := [&quot;powershell.exe&quot;, &quot;-NoLogo&quot;, &quot;-Command&quot;]
+<pre><code class="language-just">set windows-shell := ["powershell.exe", "-NoLogo", "-Command"]
 
 hello:
-  Write-Host &quot;Hello, world!&quot;
+  Write-Host "Hello, world!"
 </code></pre>
 <p>参考 <a href="https://github.com/casey/just/blob/master/examples/powershell.just">powershell.just</a> ，了解在所有平台上使用 PowerShell 的 justfile。</p>
 <h5 id="windows-powershell"><a class="header" href="#windows-powershell">Windows PowerShell</a></h5>
@@ -287,22 +287,22 @@ hello:
 <pre><code class="language-just">set windows-powershell := true
 
 hello:
-  Write-Host &quot;Hello, world!&quot;
+  Write-Host "Hello, world!"
 </code></pre>
 <h5 id="python-3"><a class="header" href="#python-3">Python 3</a></h5>
-<pre><code class="language-just">set shell := [&quot;python3&quot;, &quot;-c&quot;]
+<pre><code class="language-just">set shell := ["python3", "-c"]
 </code></pre>
 <h5 id="bash"><a class="header" href="#bash">Bash</a></h5>
-<pre><code class="language-just">set shell := [&quot;bash&quot;, &quot;-uc&quot;]
+<pre><code class="language-just">set shell := ["bash", "-uc"]
 </code></pre>
 <h5 id="z-shell"><a class="header" href="#z-shell">Z Shell</a></h5>
-<pre><code class="language-just">set shell := [&quot;zsh&quot;, &quot;-uc&quot;]
+<pre><code class="language-just">set shell := ["zsh", "-uc"]
 </code></pre>
 <h5 id="fish"><a class="header" href="#fish">Fish</a></h5>
-<pre><code class="language-just">set shell := [&quot;fish&quot;, &quot;-c&quot;]
+<pre><code class="language-just">set shell := ["fish", "-c"]
 </code></pre>
 <h5 id="nushell"><a class="header" href="#nushell">Nushell</a></h5>
-<pre><code class="language-just">set shell := [&quot;nu&quot;, &quot;-c&quot;]
+<pre><code class="language-just">set shell := ["nu", "-c"]
 </code></pre>
 <p>如果你想设置默认的表格显示模式为 <code>light</code>:</p>
 <pre><code class="language-just">set shell := ['nu', '-m', 'light', '-c']
