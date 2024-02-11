@@ -20,13 +20,7 @@ jobs:
       RUSTFLAGS: --deny warnings
 
     steps:
-    - uses: actions/checkout@v2
-
-    - name: Install Rust Toolchain Components
-      uses: actions-rs/toolchain@v1
-      with:
-        components: clippy, rustfmt
-        toolchain: stable
+    - uses: actions/checkout@v4
 
     - uses: Swatinem/rust-cache@v2
 
@@ -57,20 +51,12 @@ jobs:
       RUSTFLAGS: --deny warnings
 
     steps:
-    - uses: actions/checkout@v2
-
-    - name: Install Rust Toolchain Components
-      uses: actions-rs/toolchain@v1
-      with:
-        profile: minimal
-        toolchain: stable
+    - uses: actions/checkout@v4
 
     - uses: Swatinem/rust-cache@v2
 
     - name: Install `mdbook`
-      uses: peaceiris/actions-mdbook@v1
-      with:
-        mdbook-version: latest
+      run: cargo install mdbook
 
     - name: Install `mdbook-linkcheck`
       run: |
@@ -108,7 +94,7 @@ jobs:
       RUSTFLAGS: --deny warnings
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Remove Broken WSL bash executable
       if: ${{ matrix.os == 'windows-latest' }}
@@ -117,13 +103,6 @@ jobs:
         takeown /F C:\Windows\System32\bash.exe
         icacls C:\Windows\System32\bash.exe /grant administrators:F
         del C:\Windows\System32\bash.exe
-
-    - name: Install Rust Toolchain Components
-      uses: actions-rs/toolchain@v1
-      with:
-        components: clippy, rustfmt
-        override: true
-        toolchain: stable
 
     - uses: Swatinem/rust-cache@v2
 

@@ -1,6 +1,28 @@
 Changelog
 =========
 
+[1.24.0](https://github.com/casey/just/releases/tag/1.24.0) - 2024-02-11
+------------------------------------------------------------------------
+
+### Added
+- Support recipe paths containing `::` in Bash completion script ([#1863](https://github.com/casey/just/pull/1863) by [crdx](https://github.com/crdx))
+- Add function to canonicalize paths ([#1859](https://github.com/casey/just/pull/1859))
+
+### Misc
+- Document installing just on Github Actions in readme ([#1867](https://github.com/casey/just/pull/1867) by [cclauss](https://github.com/cclauss))
+- Use unlikely-to-be-set variable name in env tests ([#1882](https://github.com/casey/just/pull/1882))
+- Skip write_error test if running as root ([#1881](https://github.com/casey/just/pull/1881))
+- Convert run_shebang into integration test ([#1880](https://github.com/casey/just/pull/1880))
+- Install mdbook with cargo in CI workflow ([#1877](https://github.com/casey/just/pull/1877))
+- Remove deprecated actions-rs/toolchain ([#1874](https://github.com/casey/just/pull/1874) by [cclauss](https://github.com/cclauss))
+- Fix Gentoo package link ([#1875](https://github.com/casey/just/pull/1875) by [vozbu](https://github.com/vozbu))
+- Fix typos found by codespell ([#1872](https://github.com/casey/just/pull/1872) by [cclauss](https://github.com/cclauss))
+- Replace deprecated set-output command in Github Actions workflows ([#1869](https://github.com/casey/just/pull/1869) by [cclauss](https://github.com/cclauss))
+- Update `actions/checkout` and `softprops/action-gh-release` ([#1871](https://github.com/casey/just/pull/1871) by [app/dependabot](https://github.com/app/dependabot))
+- Keep GitHub Actions up to date with Dependabot ([#1868](https://github.com/casey/just/pull/1868) by [cclauss](https://github.com/cclauss))
+- Add contrib directory ([#1870](https://github.com/casey/just/pull/1870))
+- Fix install script ([#1844](https://github.com/casey/just/pull/1844))
+
 [1.23.0](https://github.com/casey/just/releases/tag/1.23.0) - 2024-01-12
 ------------------------------------------------------------------------
 
@@ -227,7 +249,7 @@ Changelog
 - Note that install.sh may fail on GitHub actions ([#1499](https://github.com/casey/just/pull/1499))
 - Fix readme typo ([#1489](https://github.com/casey/just/pull/1489) by [auberisky](https://github.com/auberisky))
 - Update install script and readmes to use tls v1.3 ([#1481](https://github.com/casey/just/pull/1481))
-- Renable install.sh test on CI([#1478](https://github.com/casey/just/pull/1478))
+- Re-enable install.sh test on CI([#1478](https://github.com/casey/just/pull/1478))
 - Don't test install.sh on CI ([#1477](https://github.com/casey/just/pull/1477))
 - Update Chinese translation of readme ([#1476](https://github.com/casey/just/pull/1476) by [hustcer](https://github.com/hustcer))
 - Fix install.sh for Windows ([#1474](https://github.com/casey/just/pull/1474) by [bloodearnest](https://github.com/bloodearnest))
