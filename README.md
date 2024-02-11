@@ -1417,7 +1417,7 @@ The process ID is: 420
 - `absolute_path(path)` - Absolute path to relative `path` in the working
   directory. `absolute_path("./bar.txt")` in directory `/foo` is
   `/foo/bar.txt`.
-- `canonicalize(path)` - Canonicalize `path` by resolving symlinks and removing
+- `canonicalize(path)`<sup>1.24.0</sup> - Canonicalize `path` by resolving symlinks and removing
   `.`, `..`, and extra `/`s where possible.
 - `extension(path)` - Extension of `path`. `extension("/foo/bar.txt")` is
   `txt`.
