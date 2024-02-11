@@ -110,17 +110,15 @@ fn arch(_context: &FunctionContext) -> Result<String, String> {
 }
 
 fn blake3(_context: &FunctionContext, s: &str) -> Result<String, String> {
-  let mut hasher = blake3::Hasher::new();
-  hasher.update(s.as_bytes());
-  Ok(hasher.finalize().to_string())
+  Ok(blake3::hash(s.as_bytes()).to_string())
 }
 
 fn blake3_file(context: &FunctionContext, path: &str) -> Result<String, String> {
-  let justpath = context.search.working_directory.join(path);
+  let path = context.search.working_directory.join(path);
   let mut hasher = blake3::Hasher::new();
   hasher
-    .update_mmap_rayon(&justpath)
-    .map_err(|err| format!("Failed to read file at `{:?}`: {err}", justpath.to_str()))?;
+    .update_mmap_rayon(&path)
+    .map_err(|err| format!("Failed to hash file at `{}`: {err}", path.display()))?;
   Ok(hasher.finalize().to_string())
 }
 
