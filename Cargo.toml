@@ -1,6 +1,6 @@
 [package]
 name = "just"
-version = "1.23.0"
+version = "1.24.0"
 authors = ["Casey Rodarmor <casey@rodarmor.com>"]
 autotests = false
 categories = ["command-line-utilities", "development-tools"]
@@ -27,7 +27,7 @@ derivative = "2.0.0"
 dirs = "5.0.1"
 dotenvy = "0.15"
 edit-distance = "2.0.0"
-env_logger = "0.10.0"
+env_logger = "0.11.0"
 heck = "0.4.0"
 lexiclean = "0.0.1"
 libc = "0.2.0"
@@ -40,7 +40,7 @@ serde_json = "1.0.68"
 sha2 = "0.10"
 similar = { version = "2.1.0", features = ["unicode"] }
 snafu = "0.8.0"
-strum = { version = "0.25.0", features = ["derive"] }
+strum = { version = "0.26.0", features = ["derive"] }
 target = "2.0.0"
 tempfile = "3.0.0"
 typed-arena = "2.0.1"
@@ -52,7 +52,7 @@ cradle = "0.2.0"
 executable-path = "1.0.0"
 pretty_assertions = "1.0.0"
 temptree = "0.2.0"
-which = "5.0.0"
+which = "6.0.0"
 yaml-rust = "0.4.5"
 
 [lib]
