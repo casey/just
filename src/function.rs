@@ -118,7 +118,7 @@ fn blake3_file(context: &FunctionContext, path: &str) -> Result<String, String> 
   let mut hasher = blake3::Hasher::new();
   hasher
     .update_mmap_rayon(&path)
-    .map_err(|err| format!("BLAKE3 hashing file at `{}` failed: {err}", path.display()))?;
+    .map_err(|err| format!("Failed to hash `{}`: {err}", path.display()))?;
   Ok(hasher.finalize().to_string())
 }
 
@@ -392,12 +392,12 @@ fn sha256(_context: &FunctionContext, s: &str) -> Result<String, String> {
 
 fn sha256_file(context: &FunctionContext, path: &str) -> Result<String, String> {
   use sha2::{Digest, Sha256};
-  let justpath = context.search.working_directory.join(path);
+  let path = context.search.working_directory.join(path);
   let mut hasher = Sha256::new();
-  let mut file = fs::File::open(&justpath)
-    .map_err(|err| format!("Failed to open file at `{:?}`: {err}", justpath.to_str()))?;
+  let mut file =
+    fs::File::open(&path).map_err(|err| format!("Failed to open `{}`: {err}", path.display()))?;
   std::io::copy(&mut file, &mut hasher)
-    .map_err(|err| format!("Failed to read file at `{:?}`: {err}", justpath.to_str()))?;
+    .map_err(|err| format!("Failed to read `{}`: {err}", path.display()))?;
   let hash = hasher.finalize();
   Ok(format!("{hash:x}"))
 }
