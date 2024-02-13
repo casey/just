@@ -1417,7 +1417,7 @@ The process ID is: 420
 - `absolute_path(path)` - Absolute path to relative `path` in the working
   directory. `absolute_path("./bar.txt")` in directory `/foo` is
   `/foo/bar.txt`.
-- `canonicalize(path)` - Canonicalize `path` by resolving symlinks and removing
+- `canonicalize(path)`<sup>1.24.0</sup> - Canonicalize `path` by resolving symlinks and removing
   `.`, `..`, and extra `/`s where possible.
 - `extension(path)` - Extension of `path`. `extension("/foo/bar.txt")` is
   `txt`.
@@ -1456,11 +1456,15 @@ which will halt execution.
 
 #### UUID and Hash Generation
 
-- `sha256(string)` - Return the SHA-256 hash of `string` as a hexadecimal
+- `blake3(string)`<sup>master</sup> - Return [BLAKE3] hash of `string` as hexadecimal string.
+- `blake3_file(path)`<sup>master</sup> - Return [BLAKE3] hash of file at `path` as hexadecimal
   string.
-- `sha256_file(path)` - Return the SHA-256 hash of the file at `path` as a
-  hexadecimal string.
+- `sha256(string)` - Return the SHA-256 hash of `string` as hexadecimal string.
+- `sha256_file(path)` - Return SHA-256 hash of file at `path` as hexadecimal
+  string.
 - `uuid()` - Generate a random version 4 UUID.
+
+[BLAKE3]: https://github.com/BLAKE3-team/BLAKE3/
 
 #### Semantic Versions
 
