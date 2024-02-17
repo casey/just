@@ -470,7 +470,7 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     let mut values = Vec::new();
 
-    while !self.next_is(Eol) {
+    while !(self.next_is(Eol) || self.next_is(Eof) || self.next_is(Comment)) {
       values.push(self.parse_expression()?);
     }
     self.expect_eol()?;
