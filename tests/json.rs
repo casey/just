@@ -72,7 +72,7 @@ fn assignment() {
         "foo": {
           "export": false,
           "name": "foo",
-          "value": "bar",
+          "value": ["bar"],
         }
       },
       "first": null,
@@ -239,7 +239,7 @@ fn dependency_argument() {
         "x": {
           "export": false,
           "name": "x",
-          "value": "foo",
+          "value": ["foo"],
         },
       },
       "modules": {},
