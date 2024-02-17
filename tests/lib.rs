@@ -63,6 +63,7 @@ mod interrupts;
 mod invocation_directory;
 mod json;
 mod line_prefixes;
+mod list_assignment;
 mod misc;
 mod modules;
 mod multibyte_char;
