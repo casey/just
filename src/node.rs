@@ -19,18 +19,7 @@ impl<'src> Node<'src> for Item<'src> {
   fn tree(&self) -> Tree<'src> {
     match self {
       Item::Alias(alias) => alias.tree(),
-      Item::ListAssignment(assignment) => {
-        let mut tree = Tree::atom("assignment");
-        let name = assignment.name.to_string();
-
-        tree = tree.push(name);
-
-        for node in &assignment.value {
-          let node = node.tree();
-          tree = tree.push(node);
-        }
-        tree
-      }
+      Item::ListAssignment(assignment) => assignment.tree(),
       Item::Comment(comment) => comment.tree(),
       Item::Import {
         relative, optional, ..
