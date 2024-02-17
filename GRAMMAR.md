@@ -45,6 +45,7 @@ justfile      : item* EOF
 
 item          : alias
               | assignment
+              | ls_assignment
               | eol
               | export
               | import
@@ -58,6 +59,9 @@ eol           : NEWLINE
 alias         : 'alias' NAME ':=' NAME
 
 assignment    : NAME ':=' expression eol
+
+ls_assignment : NAME ':=' expression+ eol
+              | assignment
 
 export        : 'export' assignment
 
