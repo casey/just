@@ -1,0 +1,12 @@
+input := "main.c" "skip.c"
+tolink := "main.o" "skip.o"
+target := "skip"
+
+run: link
+	./{{ target }}
+
+link: compile
+	cc -o {{ target }} {{ tolink }}
+
+compile:
+	cc -c {{ input }}
