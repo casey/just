@@ -8,11 +8,13 @@ impl<'src> Display for ListAssignment<'src> {
     if self.export {
       write!(f, "export ")?;
     }
-    let mut out = String::new();
-    for e in &self.value {
-      out.push_str(e.to_string().as_str());
-      out.push(' ');
-    }
+    let out = &self
+      .value
+      .iter()
+      .map(std::string::ToString::to_string)
+      .collect::<Vec<_>>()
+      .join(" ");
+
     write!(f, "{} := {}", self.name, out)
   }
 }
