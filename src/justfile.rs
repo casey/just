@@ -11,7 +11,7 @@ struct Invocation<'src: 'run, 'run> {
 #[derive(Debug, PartialEq, Serialize)]
 pub(crate) struct Justfile<'src> {
   pub(crate) aliases: Table<'src, Alias<'src>>,
-  pub(crate) assignments: Table<'src, Assignment<'src>>,
+  pub(crate) assignments: Table<'src, ListAssignment<'src>>,
   #[serde(rename = "first", serialize_with = "keyed::serialize_option")]
   pub(crate) default: Option<Rc<Recipe<'src>>>,
   #[serde(skip)]
@@ -88,7 +88,7 @@ impl<'src> Justfile<'src> {
 
     for (name, value) in overrides {
       if let Some(assignment) = self.assignments.get(name) {
-        scope.bind(assignment.export, assignment.name, value.clone());
+        scope.bind(assignment.export, assignment.name, vec![value.to_string()]);
       } else {
         unknown_overrides.push(name.clone());
       }
@@ -179,7 +179,7 @@ impl<'src> Justfile<'src> {
       }
       Subcommand::Evaluate { variable, .. } => {
         if let Some(variable) = variable {
-          if let Some(value) = scope.value(variable) {
+          if let Some([value, ..]) = scope.value(variable) {
             print!("{value}");
           } else {
             return Err(Error::EvalUnknownVariable {
@@ -199,7 +199,7 @@ impl<'src> Justfile<'src> {
               "{0:1$} := \"{2}\"",
               binding.name.lexeme(),
               width,
-              binding.value
+              binding.value.join(" ")
             );
           }
         }
@@ -497,7 +497,17 @@ impl<'src> ColorDisplay for Justfile<'src> {
       if assignment.export {
         write!(f, "export ")?;
       }
-      write!(f, "{name} := {}", assignment.value)?;
+      let value = &assignment.value;
+
+      write!(f, "{name} :=")?;
+      if value.len() > 1 {
+        write!(f, " {}", value[0])?;
+      } else {
+        for exp in value {
+          write!(f, " {exp}")?;
+        }
+      }
+
       items -= 1;
       if items != 0 {
         write!(f, "\n\n")?;

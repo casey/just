@@ -4,7 +4,7 @@ use super::*;
 #[derive(Debug, Clone)]
 pub(crate) enum Item<'src> {
   Alias(Alias<'src, Name<'src>>),
-  Assignment(Assignment<'src>),
+  ListAssignment(ListAssignment<'src>),
   Comment(&'src str),
   Import {
     absolute: Option<PathBuf>,
@@ -26,7 +26,7 @@ impl<'src> Display for Item<'src> {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
     match self {
       Item::Alias(alias) => write!(f, "{alias}"),
-      Item::Assignment(assignment) => write!(f, "{assignment}"),
+      Item::ListAssignment(assignment) => write!(f, "{assignment}"),
       Item::Comment(comment) => write!(f, "{comment}"),
       Item::Import {
         relative, optional, ..

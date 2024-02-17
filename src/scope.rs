@@ -3,7 +3,7 @@ use super::*;
 #[derive(Debug)]
 pub(crate) struct Scope<'src: 'run, 'run> {
   parent: Option<&'run Scope<'src, 'run>>,
-  bindings: Table<'src, Binding<'src, String>>,
+  bindings: Table<'src, ListBinding<'src, Vec<String>>>,
 }
 
 impl<'src, 'run> Scope<'src, 'run> {
@@ -21,8 +21,8 @@ impl<'src, 'run> Scope<'src, 'run> {
     }
   }
 
-  pub(crate) fn bind(&mut self, export: bool, name: Name<'src>, value: String) {
-    self.bindings.insert(Binding {
+  pub(crate) fn bind(&mut self, export: bool, name: Name<'src>, value: Vec<String>) {
+    self.bindings.insert(ListBinding {
       export,
       name,
       value,
@@ -33,15 +33,15 @@ impl<'src, 'run> Scope<'src, 'run> {
     self.bindings.contains_key(name)
   }
 
-  pub(crate) fn value(&self, name: &str) -> Option<&str> {
+  pub(crate) fn value(&self, name: &str) -> Option<&[String]> {
     if let Some(binding) = self.bindings.get(name) {
-      Some(binding.value.as_ref())
+      Some(binding.value.as_slice())
     } else {
       self.parent?.value(name)
     }
   }
 
-  pub(crate) fn bindings(&self) -> impl Iterator<Item = &Binding<String>> {
+  pub(crate) fn bindings(&self) -> impl Iterator<Item = &ListBinding<'src, Vec<String>>> {
     self.bindings.values()
   }
 

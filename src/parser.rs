@@ -332,7 +332,7 @@ impl<'run, 'src> Parser<'run, 'src> {
           }
           Some(Keyword::Export) if self.next_are(&[Identifier, Identifier, ColonEquals]) => {
             self.presume_keyword(Keyword::Export)?;
-            items.push(Item::Assignment(self.parse_assignment(true)?));
+            items.push(Item::ListAssignment(self.parse_assignment(true)?));
           }
           Some(Keyword::Import)
             if self.next_are(&[Identifier, StringToken])
@@ -384,7 +384,7 @@ impl<'run, 'src> Parser<'run, 'src> {
           }
           _ => {
             if self.next_are(&[Identifier, ColonEquals]) {
-              items.push(Item::Assignment(self.parse_assignment(false)?));
+              items.push(Item::ListAssignment(self.parse_list_assignment(false)?));
             } else {
               let doc = pop_doc_comment(&mut items, eol_since_last_comment);
               items.push(Item::Recipe(self.parse_recipe(
@@ -450,15 +450,35 @@ impl<'run, 'src> Parser<'run, 'src> {
   }
 
   /// Parse an assignment, e.g. `foo := bar`
-  fn parse_assignment(&mut self, export: bool) -> CompileResult<'src, Assignment<'src>> {
+  fn parse_assignment(&mut self, export: bool) -> CompileResult<'src, ListAssignment<'src>> {
     let name = self.parse_name()?;
     self.presume_any(&[Equals, ColonEquals])?;
     let value = self.parse_expression()?;
     self.expect_eol()?;
-    Ok(Assignment {
+    Ok(ListAssignment {
       export,
       name,
-      value,
+      value: vec![value],
+    })
+  }
+
+  /// Parse a list assignmet, e.g. `lorem := ipsum dolor`
+  fn parse_list_assignment(&mut self, export: bool) -> CompileResult<'src, ListAssignment<'src>> {
+    let name = self.parse_name()?;
+
+    self.presume(ColonEquals)?;
+
+    let mut values = Vec::new();
+
+    while !self.next_is(Eol) {
+      values.push(self.parse_expression()?);
+    }
+    self.expect_eol()?;
+
+    Ok(ListAssignment {
+      export,
+      name,
+      value: values,
     })
   }
 

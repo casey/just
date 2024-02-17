@@ -19,8 +19,8 @@ use {
 
 mod full {
   pub(crate) use crate::{
-    assignment::Assignment, conditional_operator::ConditionalOperator, dependency::Dependency,
-    expression::Expression, fragment::Fragment, justfile::Justfile, line::Line,
+    conditional_operator::ConditionalOperator, dependency::Dependency, expression::Expression,
+    fragment::Fragment, justfile::Justfile, line::Line, list_assignment::ListAssignment,
     parameter::Parameter, parameter_kind::ParameterKind, recipe::Recipe, thunk::Thunk,
   };
 }
@@ -169,14 +169,20 @@ impl Fragment {
 #[derive(Eq, PartialEq, Hash, Ord, PartialOrd, Debug, Clone)]
 pub struct Assignment {
   pub exported: bool,
-  pub expression: Expression,
+  pub expressions: Vec<Expression>,
 }
 
 impl Assignment {
-  fn new(assignment: &full::Assignment) -> Assignment {
+  fn new(assignment: &full::ListAssignment) -> Assignment {
+    let expressions = assignment
+      .value
+      .iter()
+      .map(|e| Expression::new(e))
+      .collect();
+
     Assignment {
       exported: assignment.export,
-      expression: Expression::new(&assignment.value),
+      expressions,
     }
   }
 }

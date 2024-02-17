@@ -1,14 +1,14 @@
 use {super::*, CompileErrorKind::*};
 
 pub(crate) struct AssignmentResolver<'src: 'run, 'run> {
-  assignments: &'run Table<'src, Assignment<'src>>,
+  assignments: &'run Table<'src, ListAssignment<'src>>,
   stack: Vec<&'src str>,
   evaluated: BTreeSet<&'src str>,
 }
 
 impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
   pub(crate) fn resolve_assignments(
-    assignments: &'run Table<'src, Assignment<'src>>,
+    assignments: &'run Table<'src, ListAssignment<'src>>,
   ) -> CompileResult<'src> {
     let mut resolver = Self {
       stack: Vec::new(),
@@ -16,7 +16,7 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
       assignments,
     };
 
-    for name in assignments.keys() {
+    for &name in assignments.keys() {
       resolver.resolve_assignment(name)?;
     }
 
@@ -30,8 +30,10 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
 
     self.stack.push(name);
 
-    if let Some(assignment) = self.assignments.get(name) {
-      self.resolve_expression(&assignment.value)?;
+    if let Some(assignments) = self.assignments.get(name) {
+      for assignment in &assignments.value {
+        self.resolve_expression(assignment)?;
+      }
       self.evaluated.insert(name);
     } else {
       let message = format!("attempted to resolve unknown assignment `{name}`");

@@ -24,7 +24,12 @@ impl CommandExt for Command {
 
     for binding in scope.bindings() {
       if settings.export || binding.export {
-        self.env(binding.name.lexeme(), &binding.value);
+        assert!(
+          binding.value.len() == 1,
+          "Exports support only single value assignments, i.e., key := value."
+        );
+        let val = &binding.value[0];
+        self.env(binding.name.lexeme(), val);
       }
     }
   }

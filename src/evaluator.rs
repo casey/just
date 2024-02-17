@@ -1,7 +1,7 @@
 use super::*;
 
 pub(crate) struct Evaluator<'src: 'run, 'run> {
-  assignments: Option<&'run Table<'src, Assignment<'src>>>,
+  assignments: Option<&'run Table<'src, ListAssignment<'src>>>,
   config: &'run Config,
   dotenv: &'run BTreeMap<String, String>,
   scope: Scope<'src, 'run>,
@@ -11,7 +11,7 @@ pub(crate) struct Evaluator<'src: 'run, 'run> {
 
 impl<'src, 'run> Evaluator<'src, 'run> {
   pub(crate) fn evaluate_assignments(
-    assignments: &'run Table<'src, Assignment<'src>>,
+    assignments: &'run Table<'src, ListAssignment<'src>>,
     config: &'run Config,
     dotenv: &'run BTreeMap<String, String>,
     overrides: Scope<'src, 'run>,
@@ -34,15 +34,25 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     Ok(evaluator.scope)
   }
 
-  fn evaluate_assignment(&mut self, assignment: &Assignment<'src>) -> RunResult<'src, &str> {
+  fn evaluate_assignment(&mut self, assignment: &ListAssignment<'src>) -> RunResult<'src, &str> {
     let name = assignment.name.lexeme();
 
     if !self.scope.bound(name) {
-      let value = self.evaluate_expression(&assignment.value)?;
+      let value = self.evaluate_expressions(&assignment.value)?;
       self.scope.bind(assignment.export, assignment.name, value);
     }
 
-    Ok(self.scope.value(name).unwrap())
+    Ok(&self.scope.value(name).unwrap()[0])
+  }
+
+  pub(crate) fn evaluate_expressions(
+    &mut self,
+    expressions: &[Expression<'src>],
+  ) -> RunResult<'src, Vec<String>> {
+    expressions
+      .iter()
+      .map(|expression| self.evaluate_expression(expression))
+      .collect()
   }
 
   pub(crate) fn evaluate_expression(
@@ -53,7 +63,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       Expression::Variable { name, .. } => {
         let variable = name.lexeme();
         if let Some(value) = self.scope.value(variable) {
-          Ok(value.to_owned())
+          Ok(value.join(" "))
         } else if let Some(assignment) = self
           .assignments
           .and_then(|assignments| assignments.get(variable))
@@ -300,7 +310,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         rest = &rest[1..];
         value
       };
-      scope.bind(parameter.export, parameter.name, value);
+      scope.bind(parameter.export, parameter.name, vec![value]);
     }
 
     Ok((scope, positional))

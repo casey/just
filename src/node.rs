@@ -19,7 +19,13 @@ impl<'src> Node<'src> for Item<'src> {
   fn tree(&self) -> Tree<'src> {
     match self {
       Item::Alias(alias) => alias.tree(),
-      Item::Assignment(assignment) => assignment.tree(),
+      Item::ListAssignment(assignment) => Tree::List(
+        assignment
+          .value
+          .iter()
+          .map(node::Node::tree)
+          .collect::<Vec<Tree>>(),
+      ),
       Item::Comment(comment) => comment.tree(),
       Item::Import {
         relative, optional, ..
@@ -66,17 +72,20 @@ impl<'src> Node<'src> for Alias<'src, Name<'src>> {
   }
 }
 
-impl<'src> Node<'src> for Assignment<'src> {
+impl<'src> Node<'src> for ListAssignment<'src> {
   fn tree(&self) -> Tree<'src> {
-    if self.export {
+    let mut tree = if self.export {
       Tree::atom("assignment")
         .push("#")
         .push(Keyword::Export.lexeme())
     } else {
       Tree::atom("assignment")
     }
-    .push(self.name.lexeme())
-    .push(self.value.tree())
+    .push(self.name.lexeme());
+    for e in &self.value {
+      tree = tree.push(e.tree());
+    }
+    tree
   }
 }
 

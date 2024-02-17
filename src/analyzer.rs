@@ -2,7 +2,7 @@ use {super::*, CompileErrorKind::*};
 
 #[derive(Default)]
 pub(crate) struct Analyzer<'src> {
-  assignments: Table<'src, Assignment<'src>>,
+  assignments: Table<'src, ListAssignment<'src>>,
   aliases: Table<'src, Alias<'src, Name<'src>>>,
   sets: Table<'src, Set<'src>>,
 }
@@ -69,8 +69,8 @@ impl<'src> Analyzer<'src> {
             Self::analyze_alias(alias)?;
             self.aliases.insert(alias.clone());
           }
-          Item::Assignment(assignment) => {
-            self.analyze_assignment(assignment)?;
+          Item::ListAssignment(assignment) => {
+            self.analyze_list_assignment(assignment)?;
             self.assignments.insert(assignment.clone());
           }
           Item::Comment(_) => (),
@@ -199,10 +199,10 @@ impl<'src> Analyzer<'src> {
     Ok(())
   }
 
-  fn analyze_assignment(&self, assignment: &Assignment<'src>) -> CompileResult<'src> {
-    if self.assignments.contains_key(assignment.name.lexeme()) {
-      return Err(assignment.name.token.error(DuplicateVariable {
-        variable: assignment.name.lexeme(),
+  fn analyze_list_assignment(&self, lassignment: &ListAssignment<'src>) -> CompileResult<'src> {
+    if self.assignments.contains_key(lassignment.name.lexeme()) {
+      return Err(lassignment.name.token.error(DuplicateVariable {
+        variable: lassignment.name.lexeme(),
       }));
     }
     Ok(())
