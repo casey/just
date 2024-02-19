@@ -83,7 +83,7 @@ fn echo_with_command_color() {
           echo fizz
       ",
     )
-    .args(&["--color", "always", "--command-color", "purple"])
+    .args(["--color", "always", "--command-color", "purple"])
     .stdout("fizz\n")
     .stderr("\u{1b}[1;35m#!/bin/sh\u{1b}[0m\n\u{1b}[1;35mecho fizz\u{1b}[0m\n")
     .run();
