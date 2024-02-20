@@ -1,7 +1,7 @@
 use {
   super::*,
   ansi_term::{ANSIGenericString, Color::*, Prefix, Style, Suffix},
-  atty::Stream,
+  std::io::{self, IsTerminal},
 };
 
 #[derive(Copy, Clone, Debug, PartialEq)]
@@ -16,9 +16,9 @@ impl Color {
     Self { style, ..self }
   }
 
-  fn redirect(self, stream: Stream) -> Self {
+  fn redirect<T: IsTerminal>(self, stream: T) -> Self {
     Self {
-      atty: atty::is(stream),
+      atty: stream.is_terminal(),
       ..self
     }
   }
@@ -53,11 +53,11 @@ impl Color {
   }
 
   pub(crate) fn stderr(self) -> Self {
-    self.redirect(Stream::Stderr)
+    self.redirect(io::stderr())
   }
 
   pub(crate) fn stdout(self) -> Self {
-    self.redirect(Stream::Stdout)
+    self.redirect(io::stdout())
   }
 
   pub(crate) fn context(self) -> Self {

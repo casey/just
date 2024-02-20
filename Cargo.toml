@@ -18,40 +18,39 @@ rust-version = "1.63"
 members = [".", "bin/ref-type", "bin/generate-book", "bin/update-contributors"]
 
 [dependencies]
-ansi_term = "0.12.0"
-atty = "0.2.0"
+ansi_term = "0.12.1"
 blake3 = { version = "1.5.0", features = ["rayon", "mmap"] }
-camino = "1.0.4"
+camino = "1.1.6"
 clap = { version = "2.33.0", features = ["wrap_help"] }
-ctrlc = { version = "3.1.1", features = ["termination"] }
+ctrlc = { version = "3.4.2", features = ["termination"] }
 derivative = "2.0.0"
 dirs = "5.0.1"
-dotenvy = "0.15"
+dotenvy = "0.15.7"
 edit-distance = "2.0.0"
-env_logger = "0.11.0"
-heck = "0.4.0"
+env_logger = "0.11.2"
+heck = "0.4.1"
 lexiclean = "0.0.1"
-libc = "0.2.0"
-log = "0.4.4"
-num_cpus = "1.15.0"
-regex = "1.5.4"
-semver = "1.0.20"
-serde = { version = "1.0.130", features = ["derive", "rc"] }
-serde_json = "1.0.68"
-sha2 = "0.10"
-similar = { version = "2.1.0", features = ["unicode"] }
+libc = "0.2.153"
+log = "0.4.20"
+num_cpus = "1.16.0"
+regex = "1.10.3"
+semver = "1.0.22"
+serde = { version = "1.0.197", features = ["derive", "rc"] }
+serde_json = "1.0.114"
+sha2 = "0.10.8"
+similar = { version = "2.4.0", features = ["unicode"] }
 snafu = "0.8.0"
-strum = { version = "0.26.0", features = ["derive"] }
+strum = { version = "0.26.1", features = ["derive"] }
 target = "2.0.0"
-tempfile = "3.0.0"
-typed-arena = "2.0.1"
-unicode-width = "0.1.0"
-uuid = { version = "1.0.0", features = ["v4"] }
+tempfile = "3.10.0"
+typed-arena = "2.0.2"
+unicode-width = "0.1.11"
+uuid = { version = "1.7.0", features = ["v4"] }
 
 [dev-dependencies]
-cradle = "0.2.0"
+cradle = "0.2.2"
 executable-path = "1.0.0"
-pretty_assertions = "1.0.0"
+pretty_assertions = "1.4.0"
 temptree = "0.2.0"
 which = "6.0.0"
 yaml-rust = "0.4.5"
@@ -79,6 +78,8 @@ targets = ["x86_64-unknown-linux-gnu"]
 
 [profile.release]
 lto = true
+codegen-units = 1
+strip = true
 
 [[test]]
 name = "integration"
