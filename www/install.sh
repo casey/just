@@ -51,6 +51,22 @@ need() {
   fi
 }
 
+download() {
+  url="$1"
+  output="$2"
+
+  # use curl if available, wget otherwise
+  if command -v curl > /dev/null; then
+    curl --proto =https --tlsv1.2 -sSfL "$url" "-o$output"
+  else
+    # Some wget implementations support these flags, but busybox
+    # (used by alpine) does not. Try both sets.
+    wget --https-only --secure-protocol=TLSv1_e --quiet \
+      "$url" "-O$output" 2> /dev/null ||
+      wget "$url" "-O$output"
+  fi
+}
+
 force=false
 while test $# -gt 0; do
   case $1 in
@@ -74,12 +90,16 @@ while test $# -gt 0; do
       shift
       ;;
     *)
+      say "error: unrecognized argument '$1'. Usage:"
+      help
+      exit 1
       ;;
   esac
   shift
 done
 
-need curl
+command -v curl > /dev/null || command -v wget > /dev/null || 
+  err "need wget or curl (command not found)"
 need install
 need mkdir
 need mktemp
@@ -100,8 +120,7 @@ fi
 
 if [ -z "${tag-}" ]; then
   tag=$(
-    curl --proto =https --tlsv1.2 -sSf \
-      https://api.github.com/repos/casey/just/releases/latest |
+    download https://api.github.com/repos/casey/just/releases/latest - |
     grep tag_name |
     cut -d'"' -f4
   )
@@ -145,10 +164,10 @@ say "Archive:     $archive"
 td=$(mktemp -d || mktemp -d -t tmp)
 
 if [ "$extension" = "zip" ]; then
-  curl --proto =https --tlsv1.2 -sSfL "$archive" > "$td/just.zip"
+  download "$archive" "$td/just.zip"
   unzip -d "$td" "$td/just.zip"
 else
-  curl --proto =https --tlsv1.2 -sSfL "$archive" | tar -C "$td" -xz
+  download "$archive" - | tar -C "$td" -xz
 fi
 
 if [ -e "$dest/just" ] && [ "$force" = false ]; then
