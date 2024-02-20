@@ -269,6 +269,12 @@ most Windows users.)
       <td><a href=https://github.com/microsoft/winget-pkgs/tree/master/manifests/c/Casey/Just>Casey/Just</a></td>
       <td><code>winget install --id Casey.Just --exact</code></td>
     </tr>
+    <tr>
+      <td><a href=https://opensuse.org>openSUSE</a></td>
+      <td><a href=https://en.opensuse.org/Portal:Zypper>Zypper</a></td>
+      <td><a href=https://build.opensuse.org/package/show/Base:System/just>just</a></td>
+      <td><code>zypper in just</code></td>
+    </tr>
   </tbody>
 </table>
 
