@@ -30,10 +30,10 @@ edit-distance = "2.0.0"
 env_logger = "0.11.2"
 heck = "0.4.1"
 lexiclean = "0.0.1"
-libc = "0.2.153"
 log = "0.4.20"
 num_cpus = "1.16.0"
 regex = "1.10.3"
+rustix = { version = "0.38.31", features = ["process"] }
 semver = "1.0.22"
 serde = { version = "1.0.197", features = ["derive", "rc"] }
 serde_json = "1.0.114"

@@ -8,9 +8,9 @@ pub(crate) use {
   cradle::input::Input,
   executable_path::executable_path,
   just::unindent,
-  libc::{EXIT_FAILURE, EXIT_SUCCESS},
   pretty_assertions::Comparison,
   regex::Regex,
+  rustix::process::{EXIT_FAILURE, EXIT_SUCCESS},
   serde_json::{json, Value},
   std::{
     collections::BTreeMap,

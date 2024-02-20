@@ -3,11 +3,7 @@ use {
   std::time::{Duration, Instant},
 };
 
-fn kill(process_id: u32) {
-  unsafe {
-    libc::kill(process_id as i32, libc::SIGINT);
-  }
-}
+use rustix::process::{kill_process, Pid, Signal};
 
 fn interrupt_test(arguments: &[&str], justfile: &str) {
   let tmp = tempdir();
@@ -25,7 +21,8 @@ fn interrupt_test(arguments: &[&str], justfile: &str) {
 
   while start.elapsed() < Duration::from_millis(500) {}
 
-  kill(child.id());
+  // FIXME: the old libc implementation ignored errors, this does the same but it's probably not the best idea
+  let _ = kill_process(Pid::from_child(&child), Signal::Int);
 
   let status = child.wait().unwrap();
 
