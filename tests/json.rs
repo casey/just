@@ -44,6 +44,7 @@ fn alias() {
       },
       "settings": {
         "allow_duplicate_recipes": false,
+        "allow_duplicate_variables": false,
         "dotenv_filename": null,
         "dotenv_load": null,
         "dotenv_path": null,
@@ -73,6 +74,7 @@ fn assignment() {
           "export": false,
           "name": "foo",
           "value": "bar",
+          "depth": 0,
         }
       },
       "first": null,
@@ -80,6 +82,7 @@ fn assignment() {
       "recipes": {},
       "settings": {
         "allow_duplicate_recipes": false,
+        "allow_duplicate_variables": false,
         "dotenv_filename": null,
         "dotenv_load": null,
         "dotenv_path": null,
@@ -131,6 +134,7 @@ fn body() {
       },
       "settings": {
         "allow_duplicate_recipes": false,
+        "allow_duplicate_variables": false,
         "dotenv_filename": null,
         "dotenv_load": null,
         "dotenv_path": null,
@@ -194,6 +198,7 @@ fn dependencies() {
       },
       "settings": {
         "allow_duplicate_recipes": false,
+        "allow_duplicate_variables": false,
         "dotenv_filename": null,
         "dotenv_load": null,
         "dotenv_path": null,
@@ -240,6 +245,7 @@ fn dependency_argument() {
           "export": false,
           "name": "x",
           "value": "foo",
+          "depth": 0,
         },
       },
       "modules": {},
@@ -294,6 +300,7 @@ fn dependency_argument() {
       },
       "settings": {
         "allow_duplicate_recipes": false,
+        "allow_duplicate_variables": false,
         "dotenv_filename": null,
         "dotenv_load": null,
         "dotenv_path": null,
@@ -357,6 +364,7 @@ fn duplicate_recipes() {
       },
       "settings": {
         "allow_duplicate_recipes": true,
+        "allow_duplicate_variables": false,
         "dotenv_filename": null,
         "dotenv_load": null,
         "dotenv_path": null,
@@ -374,6 +382,49 @@ fn duplicate_recipes() {
     }),
   );
 }
+
+#[test]
+fn duplicate_variables() {
+  case(
+    "
+      set allow-duplicate-variables
+      x := 'foo'
+      x := 'bar'
+    ",
+    json!({
+      "aliases": {},
+      "assignments": {
+        "x": {
+          "export": false,
+          "name": "x",
+          "value": "bar",
+          "depth": 0,
+        }
+      },
+      "first": null,
+      "modules": {},
+      "recipes": {},
+      "settings": {
+        "allow_duplicate_recipes": false,
+        "allow_duplicate_variables": true,
+        "dotenv_filename": null,
+        "dotenv_load": null,
+        "dotenv_path": null,
+        "export": false,
+        "fallback": false,
+        "ignore_comments": false,
+        "positional_arguments": false,
+        "quiet": false,
+        "shell": null,
+        "tempdir" : null,
+        "windows_powershell": false,
+        "windows_shell": null,
+      },
+      "warnings": [],
+    }),
+  );
+}
+
 
 #[test]
 fn doc_comment() {
@@ -401,6 +452,7 @@ fn doc_comment() {
       },
       "settings": {
         "allow_duplicate_recipes": false,
+        "allow_duplicate_variables": false,
         "dotenv_filename": null,
         "dotenv_load": null,
         "dotenv_path": null,
@@ -431,6 +483,7 @@ fn empty_justfile() {
       "recipes": {},
       "settings": {
         "allow_duplicate_recipes": false,
+        "allow_duplicate_variables": false,
         "dotenv_filename": null,
         "dotenv_load": null,
         "dotenv_path": null,
@@ -582,6 +635,7 @@ fn parameters() {
       },
       "settings": {
         "allow_duplicate_recipes": false,
+        "allow_duplicate_variables": false,
         "dotenv_filename": null,
         "dotenv_load": null,
         "dotenv_path": null,
@@ -666,6 +720,7 @@ fn priors() {
       },
       "settings": {
         "allow_duplicate_recipes": false,
+        "allow_duplicate_variables": false,
         "dotenv_filename": null,
         "dotenv_load": null,
         "dotenv_path": null,
@@ -710,6 +765,7 @@ fn private() {
       },
       "settings": {
         "allow_duplicate_recipes": false,
+        "allow_duplicate_variables": false,
         "dotenv_filename": null,
         "dotenv_load": null,
         "dotenv_path": null,
@@ -754,6 +810,7 @@ fn quiet() {
       },
       "settings": {
         "allow_duplicate_recipes": false,
+        "allow_duplicate_variables": false,
         "dotenv_filename": null,
         "dotenv_load": null,
         "dotenv_path": null,
@@ -810,6 +867,7 @@ fn settings() {
       },
       "settings": {
         "allow_duplicate_recipes": false,
+        "allow_duplicate_variables": false,
         "dotenv_filename": "filename",
         "dotenv_load": true,
         "dotenv_path": "path",
@@ -860,6 +918,7 @@ fn shebang() {
       },
       "settings": {
         "allow_duplicate_recipes": false,
+        "allow_duplicate_variables": false,
         "dotenv_filename": null,
         "dotenv_load": null,
         "dotenv_path": null,
@@ -904,6 +963,7 @@ fn simple() {
       },
       "settings": {
         "allow_duplicate_recipes": false,
+        "allow_duplicate_variables": false,
         "dotenv_filename": null,
         "dotenv_load": null,
         "dotenv_path": null,
@@ -951,6 +1011,7 @@ fn attribute() {
       },
       "settings": {
         "allow_duplicate_recipes": false,
+        "allow_duplicate_variables": false,
         "dotenv_filename": null,
         "dotenv_load": null,
         "dotenv_path": null,
@@ -1011,6 +1072,7 @@ fn module() {
             },
             "settings": {
               "allow_duplicate_recipes": false,
+              "allow_duplicate_variables": false,
               "dotenv_filename": null,
               "dotenv_load": null,
               "dotenv_path": null,
@@ -1030,6 +1092,7 @@ fn module() {
         "recipes": {},
         "settings": {
           "allow_duplicate_recipes": false,
+          "allow_duplicate_variables": false,
           "dotenv_filename": null,
           "dotenv_load": null,
           "dotenv_path": null,

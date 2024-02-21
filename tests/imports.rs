@@ -196,6 +196,32 @@ fn recipes_in_import_are_overridden_by_recipes_in_parent() {
     .run();
 }
 
+#[test]
+fn variables_in_import_are_overridden_by_variables_in_parent() {
+  Test::new()
+  .tree(tree! {
+    "import.justfile": "
+    f := 'foo'
+    ",
+  })
+  .justfile(
+    "
+      import './import.justfile'
+      f := 'bar'
+
+      set allow-duplicate-variables
+
+      a:
+        @echo {{f}}
+    ",
+  )
+  .test_round_trip(false)
+  .arg("a")
+  .stdout("bar\n")
+  .run();
+}
+
+
 #[cfg(not(windows))]
 #[test]
 fn import_paths_beginning_with_tilde_are_expanded_to_homdir() {

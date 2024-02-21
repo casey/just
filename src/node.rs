@@ -265,6 +265,7 @@ impl<'src> Node<'src> for Set<'src> {
 
     match &self.value {
       Setting::AllowDuplicateRecipes(value)
+      | Setting::AllowDuplicateVariables(value)
       | Setting::DotenvLoad(value)
       | Setting::Export(value)
       | Setting::Fallback(value)

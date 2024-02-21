@@ -1,7 +1,7 @@
 use super::*;
-
+use crate::binding::DepthAwareBinding;
 /// An assignment, e.g `foo := bar`
-pub(crate) type Assignment<'src> = Binding<'src, Expression<'src>>;
+pub(crate) type Assignment<'src> = DepthAwareBinding<'src, Expression<'src>>;
 
 impl<'src> Display for Assignment<'src> {
   fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
