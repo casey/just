@@ -61,9 +61,9 @@ pub(crate) use {
     derivative::Derivative,
     edit_distance::edit_distance,
     lexiclean::Lexiclean,
-    libc::EXIT_FAILURE,
     log::{info, warn},
     regex::Regex,
+    rustix::process::EXIT_FAILURE,
     serde::{
       ser::{SerializeMap, SerializeSeq},
       Serialize, Serializer,
