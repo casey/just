@@ -43,21 +43,19 @@ pub(crate) const ZSH_COMPLETION_REPLACEMENTS: &[(&str, &str)] = &[
     r"    local common=(",
   ),
   (
-    r"'*--set=[Override <VARIABLE> with <VALUE>]' \",
-    r"'*--set[Override <VARIABLE> with <VALUE>]: :_just_variables' \",
+    r"'--set=[Override <VARIABLE> with <VALUE>]:VARIABLE: :VARIABLE: ' \",
+    r"'--set=[Override <VARIABLE> with <VALUE>]: :(_just_variables)' \",
   ),
   (
-    r"'-s+[Show information about <RECIPE>]' \
-'--show=[Show information about <RECIPE>]' \",
-    r"'-s+[Show information about <RECIPE>]: :_just_commands' \
-'--show=[Show information about <RECIPE>]: :_just_commands' \",
+    r"'()-s+[Show information about <RECIPE>]:RECIPE: ' \
+'()--show=[Show information about <RECIPE>]:RECIPE: ' \",
+    r"'-s+[Show information about <RECIPE>]: :(_just_commands)' \
+'--show=[Show information about <RECIPE>]: :(_just_commands)' \",
   ),
   (
-    "'::ARGUMENTS -- Overrides and recipe(s) to run, defaulting to the first recipe in the \
-     justfile:_files' \\
-&& ret=0
-\x20\x20\x20\x20
-",
+    "'*::ARGUMENTS -- Overrides and recipe(s) to run, defaulting to the first recipe in the \
+     justfile:' \\
+&& ret=0",
     r#")
 
     _arguments "${_arguments_options[@]}" $common \
@@ -105,9 +103,7 @@ pub(crate) const ZSH_COMPLETION_REPLACEMENTS: &[(&str, &str)] = &[
 "#,
   ),
   (
-    "    local commands; commands=(
-\x20\x20\x20\x20\x20\x20\x20\x20
-    )",
+    "    local commands; commands=()",
     r#"    [[ $PREFIX = -* ]] && return 1
     integer ret=1
     local variables; variables=(
@@ -206,7 +202,7 @@ pub(crate) const BASH_COMPLETION_REPLACEMENTS: &[(&str, &str)] = &[
                     fi
                 fi"#,
   ),
-  (r"            just)", r#"            "$1")"#),
+  (r"        just)", r#"        "$1")"#),
   (
     r"local i cur prev opts cmds",
     r"local i cur prev words cword opts cmds",
