@@ -1,8 +1,8 @@
 use {
   super::*,
   clap::{
-    builder::PossibleValuesParser, value_parser, AppSettings, Arg, ArgAction, ArgGroup, ArgMatches,
-    Command,
+    builder::{styling::AnsiColor, PossibleValuesParser, Styles},
+    value_parser, Arg, ArgAction, ArgGroup, ArgMatches, Command,
   },
 };
 
@@ -139,14 +139,17 @@ mod arg {
 }
 
 impl Config {
-  pub(crate) fn app() -> Command<'static> {
+  pub(crate) fn app() -> Command {
     let app = Command::new(env!("CARGO_PKG_NAME"))
       .bin_name(env!("CARGO_PKG_NAME"))
-      .help_message("Print help information")
-      .version_message("Print version information")
-      .setting(AppSettings::ColoredHelp)
-      .setting(AppSettings::TrailingVarArg)
       .trailing_var_arg(true)
+      .styles(
+        Styles::styled()
+            .header(AnsiColor::Yellow.on_default())
+            .usage(AnsiColor::Yellow.on_default())
+            .literal(AnsiColor::Green.on_default())
+            .placeholder(AnsiColor::Green.on_default())
+      )
       .arg(
         Arg::new(arg::CHECK)
           .long("check")
@@ -255,7 +258,7 @@ impl Config {
           .long("set")
           .action(ArgAction::Append)
           .number_of_values(2)
-          .value_names(&["VARIABLE", "VALUE"])
+          .value_names(["VARIABLE", "VALUE"])
           .help("Override <VARIABLE> with <VALUE>"),
       )
       .arg(
@@ -326,7 +329,7 @@ impl Config {
         Arg::new(cmd::COMMAND)
           .long("command")
           .short('c')
-          .min_values(1)
+          .num_args(1..)
           .allow_hyphen_values(true)
           .action(ArgAction::Append)
           .value_parser(value_parser!(std::ffi::OsString))
@@ -339,7 +342,7 @@ impl Config {
         Arg::new(cmd::COMPLETIONS)
           .long("completions")
           .action(ArgAction::Append)
-          .min_values(1)
+          .num_args(1..)
           .value_name("SHELL")
           .value_parser(value_parser!(clap_complete::Shell))
           .ignore_case(true)
@@ -427,7 +430,7 @@ impl Config {
       .group(ArgGroup::new("SUBCOMMAND").args(cmd::ALL))
       .arg(
         Arg::new(arg::ARGUMENTS)
-          .multiple_values(true)
+          .num_args(1..)
           .action(ArgAction::Append)
           .help("Overrides and recipe(s) to run, defaulting to the first recipe in the justfile"),
       );
@@ -1537,8 +1540,8 @@ mod tests {
       assert_eq!(error.kind(), clap::error::ErrorKind::ArgumentConflict);
       assert_eq!(error.context().collect::<Vec<_>>(), vec![
         (ContextKind::InvalidArg, &ContextValue::String("--show <RECIPE>".into())),
-        (ContextKind::PriorArg, &ContextValue::String("<ARGUMENTS>...".into())),
-        (ContextKind::Usage, &ContextValue::String("USAGE:\n    just <--changelog|--choose|--command <COMMAND>...|--completions <SHELL>...|--dump|--edit|--evaluate|--fmt|--init|--list|--show <RECIPE>|--summary|--variables>".into())),
+        (ContextKind::PriorArg, &ContextValue::String("[ARGUMENTS]...".into())),
+        (ContextKind::Usage, &ContextValue::StyledStr("\u{1b}[33mUsage:\u{1b}[0m \u{1b}[32mjust\u{1b}[0m \u{1b}[32m--show\u{1b}[0m\u{1b}[32m \u{1b}[0m\u{1b}[32m<RECIPE>\u{1b}[0m \u{1b}[32m[ARGUMENTS]...\u{1b}[0m".into())),
       ]);
     },
   }

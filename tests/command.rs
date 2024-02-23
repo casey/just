@@ -40,9 +40,9 @@ test! {
   ",
   args: ("--command"),
   stderr: "
-    error: The argument '--command <COMMAND>...' requires a value but none was supplied
+    error: a value is required for '--command <COMMAND>...' but none was supplied
 
-    For more information try --help
+    For more information, try '--help'.
   ",
   status: 2,
 }
