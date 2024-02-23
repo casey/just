@@ -504,7 +504,10 @@ mod tests {
   fn dir_not_unicode() {
     use std::os::unix::ffi::OsStrExt;
     assert_eq!(
-      dir("foo", || Some(OsStr::from_bytes(b"\xe0\x80\x80").into())).unwrap_err(),
+      dir("foo", || Some(
+        std::ffi::OsStr::from_bytes(b"\xe0\x80\x80").into()
+      ))
+      .unwrap_err(),
       "unable to convert foo directory path to string: ���",
     );
   }
