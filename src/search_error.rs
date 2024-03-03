@@ -12,6 +12,7 @@ pub(crate) enum SearchError {
     directory: PathBuf,
     io_error: io::Error,
   },
+  MalformedPath { path: PathBuf, err: io::Error },
   #[snafu(display("Justfile path had no parent: {}", path.display()))]
   JustfileHadNoParent { path: PathBuf },
   #[snafu(display(
@@ -23,7 +24,7 @@ pub(crate) enum SearchError {
         .map(|candidate| candidate.file_name().unwrap().to_string_lossy())
     ),
   ))]
-  MultipleCandidates { candidates: BTreeSet<PathBuf> },
+  MultipleCandidates { candidates: Vec<PathBuf> },
   #[snafu(display("No justfile found"))]
   NotFound,
 }
@@ -35,7 +36,7 @@ mod tests {
   #[test]
   fn multiple_candidates_formatting() {
     let error = SearchError::MultipleCandidates {
-      candidates: [Path::new("/foo/justfile"), Path::new("/foo/JUSTFILE")]
+      candidates: [Path::new("/foo/JUSTFILE"), Path::new("/foo/justfile")]
         .iter()
         .map(|path| path.to_path_buf())
         .collect(),
