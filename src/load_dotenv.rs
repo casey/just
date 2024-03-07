@@ -7,17 +7,20 @@ pub(crate) fn load_dotenv(
   settings: &Settings,
   working_directory: &Path,
 ) -> RunResult<'static, BTreeMap<String, String>> {
-  let dotenv_filename = config
-    .dotenv_filename
-    .as_ref()
-    .or(settings.dotenv_filename.as_ref());
+  let dotenv_filename: &Vec<String> = if !config.dotenv_filename.is_empty() {
+    config.dotenv_filename.as_ref()
+  } else {
+    settings.dotenv_filename.as_ref()
+  };
 
   let dotenv_path = config
     .dotenv_path
     .as_ref()
     .or(settings.dotenv_path.as_ref());
 
-  if !settings.dotenv_load.unwrap_or_default() && dotenv_filename.is_none() && dotenv_path.is_none()
+  if !settings.dotenv_load.unwrap_or_default()
+    && dotenv_filename.is_empty()
+    && dotenv_path.is_none()
   {
     return Ok(BTreeMap::new());
   }
@@ -26,16 +29,27 @@ pub(crate) fn load_dotenv(
     return load_from_file(path);
   }
 
-  let filename = dotenv_filename.map_or(DEFAULT_DOTENV_FILENAME, |s| s.as_str());
+  let default_files = vec![DEFAULT_DOTENV_FILENAME.to_owned()];
+  let filenames = if dotenv_filename.is_empty() {
+    &default_files
+  } else {
+    dotenv_filename
+  };
 
-  for directory in working_directory.ancestors() {
-    let path = directory.join(filename);
-    if path.is_file() {
-      return load_from_file(&path);
+  let mut envs = BTreeMap::new();
+  for filename in filenames {
+    for directory in working_directory.ancestors() {
+      let path = directory.join(filename.clone());
+      if path.is_file() {
+        if let Ok(mut file_envs) = load_from_file(&path) {
+          envs.append(&mut file_envs);
+          break;
+        }
+      }
     }
   }
 
-  Ok(BTreeMap::new())
+  Ok(envs)
 }
 
 fn load_from_file(path: &Path) -> RunResult<'static, BTreeMap<String, String>> {

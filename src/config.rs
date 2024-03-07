@@ -22,7 +22,7 @@ pub(crate) struct Config {
   pub(crate) check: bool,
   pub(crate) color: Color,
   pub(crate) command_color: Option<ansi_term::Color>,
-  pub(crate) dotenv_filename: Option<String>,
+  pub(crate) dotenv_filename: Vec<String>,
   pub(crate) dotenv_path: Option<PathBuf>,
   pub(crate) dry_run: bool,
   pub(crate) dump_format: DumpFormat,
@@ -390,8 +390,8 @@ impl Config {
         Arg::with_name(arg::DOTENV_FILENAME)
           .long("dotenv-filename")
           .takes_value(true)
-          .help("Search for environment file named <DOTENV-FILENAME> instead of `.env`")
-          .conflicts_with(arg::DOTENV_PATH),
+          .help("Search for environment file named <DOTENV-FILENAME> instead of `.env`. Supports multiple entries.")
+          .conflicts_with(arg::DOTENV_PATH).multiple(true),
       )
       .arg(
         Arg::with_name(arg::DOTENV_PATH)
@@ -643,7 +643,11 @@ impl Config {
       check: matches.is_present(arg::CHECK),
       color,
       command_color,
-      dotenv_filename: matches.value_of(arg::DOTENV_FILENAME).map(str::to_owned),
+      dotenv_filename: matches
+        .values_of(arg::DOTENV_FILENAME)
+        .unwrap_or_default()
+        .map(|value| value.to_string())
+        .collect(),
       dotenv_path: matches.value_of(arg::DOTENV_PATH).map(PathBuf::from),
       dry_run: matches.is_present(arg::DRY_RUN),
       dump_format: Self::dump_format_from_matches(matches)?,

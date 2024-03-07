@@ -14,6 +14,14 @@ impl<'src> Keyed<'src> for Set<'src> {
 
 impl<'src> Display for Set<'src> {
   fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
-    write!(f, "set {} := {}", self.name, self.value)
+    match &self.value {
+      Setting::DotenvFilename(files) => {
+        for file in files {
+          write!(f, "set {} := \"{}\"", self.name, file)?;
+        }
+        Ok(())
+      }
+      _ => write!(f, "set {} := {}", self.name, self.value),
+    }
   }
 }
