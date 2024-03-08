@@ -53,7 +53,7 @@ jobs:
       if: ${{ matrix.target == 'aarch64-unknown-linux-musl' }}
       run: |
         sudo apt-get update
-        sudo apt-get install gcc-aarch64-linux-gnu
+        sudo apt-get install gcc-aarch64-linux-gnu libc6-dev-i386
 
     - name: Install ARM Toolchain
       if: ${{ matrix.target == 'arm-unknown-linux-musleabihf' || matrix.target == 'armv7-unknown-linux-musleabihf' }}
