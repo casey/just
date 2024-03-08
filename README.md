@@ -1462,8 +1462,8 @@ which will halt execution.
 
 #### UUID and Hash Generation
 
-- `blake3(string)`<sup>master</sup> - Return [BLAKE3] hash of `string` as hexadecimal string.
-- `blake3_file(path)`<sup>master</sup> - Return [BLAKE3] hash of file at `path` as hexadecimal
+- `blake3(string)`<sup>1.25.0</sup> - Return [BLAKE3] hash of `string` as hexadecimal string.
+- `blake3_file(path)`<sup>1.25.0</sup> - Return [BLAKE3] hash of file at `path` as hexadecimal
   string.
 - `sha256(string)` - Return the SHA-256 hash of `string` as hexadecimal string.
 - `sha256_file(path)` - Return SHA-256 hash of file at `path` as hexadecimal
