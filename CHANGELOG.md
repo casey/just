@@ -1,6 +1,13 @@
 Changelog
 =========
 
+[1.25.1](https://github.com/casey/just/releases/tag/1.25.1) - 2024-03-09
+------------------------------------------------------------------------
+
+### Misc
+- Pin ctrlc to version 3.1.1 ([#1945](https://github.com/casey/just/pull/1945))
+- Fix AArch64 release build error ([#1942](https://github.com/casey/just/pull/1942))
+
 [1.25.0](https://github.com/casey/just/releases/tag/1.25.0) - 2024-03-07
 ------------------------------------------------------------------------
 
