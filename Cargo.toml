@@ -23,7 +23,7 @@ atty = "0.2.0"
 blake3 = { version = "1.5.0", features = ["rayon", "mmap"] }
 camino = "1.0.4"
 clap = { version = "2.33.0", features = ["wrap_help"] }
-ctrlc = { version = "=3.1.1", features = ["termination"] }
+ctrlc = { version = "3.1.1", features = ["termination"] }
 derivative = "2.0.0"
 dirs = "5.0.1"
 dotenvy = "0.15"
