@@ -310,7 +310,16 @@ impl<'src, D> Recipe<'src, D> {
 
     if config.verbosity.loud() && (config.dry_run || self.quiet) {
       for line in &evaluated_lines {
-        eprintln!("{line}");
+        if config.command_color.is_some() {
+          let colored_line = config
+            .color
+            .command(config.command_color)
+            .stderr()
+            .paint(line);
+          eprintln!("{colored_line}");
+        } else {
+          eprintln!("{line}");
+        }
       }
     }
 

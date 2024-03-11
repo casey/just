@@ -216,6 +216,11 @@ _sh:
   hello='Yo'
   echo "$hello from a shell script!"
 
+_nu:
+  #!/usr/bin/env nu
+  let hellos = ["Greetings", "Yo", "Howdy"]
+  $hellos | each {|el| print $"($el) from a nushell script!" }
+
 _ruby:
   #!/usr/bin/env ruby
   puts "Hello from ruby!"
