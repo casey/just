@@ -726,8 +726,8 @@ default:
   @just --list
 ```
 
-Note that you may need to add `--justfile {{justfile()}}` to the line above
-above. Without it, if you executed `just -f /some/distant/justfile -d .` or
+Note that you may need to add `--justfile {{justfile()}}` to the line above.
+Without it, if you executed `just -f /some/distant/justfile -d .` or
 `just -f ./non-standard-justfile`, the plain `just --list` inside the recipe
 would not necessarily use the file you provided. It would try to find a
 justfile in your current path, maybe even resulting in a `No justfile found`
@@ -1462,8 +1462,8 @@ which will halt execution.
 
 #### UUID and Hash Generation
 
-- `blake3(string)`<sup>master</sup> - Return [BLAKE3] hash of `string` as hexadecimal string.
-- `blake3_file(path)`<sup>master</sup> - Return [BLAKE3] hash of file at `path` as hexadecimal
+- `blake3(string)`<sup>1.25.0</sup> - Return [BLAKE3] hash of `string` as hexadecimal string.
+- `blake3_file(path)`<sup>1.25.0</sup> - Return [BLAKE3] hash of file at `path` as hexadecimal
   string.
 - `sha256(string)` - Return the SHA-256 hash of `string` as hexadecimal string.
 - `sha256_file(path)` - Return SHA-256 hash of file at `path` as hexadecimal
