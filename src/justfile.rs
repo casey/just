@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use {super::*, serde::Serialize};
 
 #[derive(Debug)]
@@ -487,6 +489,16 @@ impl<'src> Justfile<'src> {
     }
 
     recipes
+  }
+
+  pub(crate) fn public_groups(&self) -> HashSet<&str> {
+    self
+      .recipes
+      .values()
+      .map(AsRef::as_ref)
+      .filter(|recipe| recipe.is_public())
+      .flat_map(|recipe| recipe.groups())
+      .collect()
   }
 }
 

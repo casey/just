@@ -990,6 +990,46 @@ b:
 }
 
 test! {
+  name: list_with_groups,
+  justfile: r#"
+    [group: alpha]
+    a:
+
+    # Doc comment
+    [group(alpha)]
+    [group(beta)]
+    b:
+
+    c:
+
+    [group:"multi word group"]
+    d:
+
+    [group("alpha")]
+    e:
+
+    [group: "beta"]
+    [group(alpha)]
+    f:
+  "#,
+  args:     ("--list", "--list-heading", ""),
+  stdout: r#"
+    (no group)
+        c
+    [group: alpha]
+        a
+        b # Doc comment
+        e
+        f
+    [group: beta]
+        b # Doc comment
+        f
+    [group: multi word group]
+        d
+    "#,
+}
+
+test! {
   name:     run_suggestion,
   justfile: r#"
 hello a b='B	' c='C':

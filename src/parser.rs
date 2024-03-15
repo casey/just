@@ -648,6 +648,16 @@ impl<'run, 'src> Parser<'run, 'src> {
     self.expect(Identifier).map(Name::from_identifier)
   }
 
+  /// Parse a bareword or a quoted argument
+  fn parse_name_or_string(&mut self) -> CompileResult<'src, &'src str> {
+    if self.next_is(StringToken) {
+      Ok(self.parse_string_literal()?.raw)
+    } else {
+      let name = self.parse_name()?;
+      Ok(name.lexeme())
+    }
+  }
+
   /// Parse sequence of comma-separated expressions
   fn parse_sequence(&mut self) -> CompileResult<'src, Vec<Expression<'src>>> {
     self.presume(ParenL)?;
@@ -911,25 +921,27 @@ impl<'run, 'src> Parser<'run, 'src> {
     while self.accepted(BracketL)? {
       loop {
         let name = self.parse_name()?;
-        let attribute = Attribute::from_name(name).ok_or_else(|| {
-          name.error(CompileErrorKind::UnknownAttribute {
-            attribute: name.lexeme(),
-          })
-        })?;
+
+        let maybe_argument: Option<&'src str> = if self.next_is(Colon) {
+          self.presume(Colon)?;
+          Some(self.parse_name_or_string()?)
+        } else if self.next_is(ParenL) {
+          self.presume(ParenL)?;
+          let arg = self.parse_name_or_string()?;
+          self.expect(ParenR)?;
+          Some(arg)
+        } else {
+          None
+        };
+
+        let attribute = Attribute::parse(name, maybe_argument)?;
+
         if let Some(line) = attributes.get(&attribute) {
           return Err(name.error(CompileErrorKind::DuplicateAttribute {
             attribute: name.lexeme(),
             first: *line,
           }));
         }
-
-        let attribute = if self.accepted(ParenL)? {
-          let argument = self.parse_string_literal()?;
-          self.expect(ParenR)?;
-          attribute.with_argument(name, argument)?
-        } else {
-          attribute
-        };
 
         attributes.insert(attribute, name.line);
 
@@ -2079,6 +2091,24 @@ mod tests {
     name: optional_module,
     text: "mod? foo",
     tree: (justfile (mod ? foo)),
+  }
+
+  test! {
+    name: group_attribute_parents,
+    text: "[group(mygroup)]\nfoo:",
+    tree: (justfile (recipe foo)),
+  }
+
+  test! {
+    name: group_attribute_shorthand,
+    text: "[group: mygroup]\nfoo:",
+    tree: (justfile (recipe foo)),
+  }
+
+  test! {
+    name: group_attribute_shorthand_quoted,
+    text: "[group:\"my group\"]\nfoo:",
+    tree: (justfile (recipe foo)),
   }
 
   test! {

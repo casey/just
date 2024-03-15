@@ -160,6 +160,9 @@ impl Display for CompileError<'_> {
           _ => character.escape_default().collect(),
         }
       ),
+      MissingAttributeArgument { attribute_name } => {
+        write!(f, "Attribute `{attribute_name}` requires an argument")
+      }
       MismatchedClosingDelimiter {
         open,
         open_line,
@@ -214,8 +217,7 @@ impl Display for CompileError<'_> {
       UnexpectedAttributeArgument { attribute } => {
         write!(
           f,
-          "Attribute `{}` specified with argument but takes no arguments",
-          attribute.name(),
+          "Attribute `{attribute}` specified with argument but takes no arguments",
         )
       }
       UnexpectedCharacter { expected } => write!(f, "Expected character `{expected}`"),

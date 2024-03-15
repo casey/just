@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use {
   super::*,
   std::process::{ExitStatus, Stdio},
@@ -74,7 +76,7 @@ impl<'src, D> Recipe<'src, D> {
     for attribute in &self.attributes {
       if let Attribute::Confirm(prompt) = attribute {
         if let Some(prompt) = prompt {
-          eprint!("{} ", prompt.cooked);
+          eprint!("{prompt} ");
         } else {
           eprint!("Run recipe `{}`? ", self.name);
         }
@@ -418,6 +420,16 @@ impl<'src, D> Recipe<'src, D> {
         io_error,
       }),
     }
+  }
+
+  pub(crate) fn groups(&self) -> HashSet<&str> {
+    let mut groups = HashSet::new();
+    for attr in &self.attributes {
+      if let Attribute::Group { name } = attr {
+        groups.insert(name.as_ref());
+      }
+    }
+    groups
   }
 }
 
