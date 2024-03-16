@@ -195,6 +195,12 @@ most Windows users.)
       <td><code>port install just</code></td>
     </tr>
     <tr>
+      <td><a href=https://en.wikipedia.org/wiki/MacOS>macOS</a></td>
+      <td><a href=https://www.macports.org>Homebrew</a></td>
+      <td><a href=https://formulae.brew.sh/formula/just>just</a></td>
+      <td><code>brew install just</code></td>
+    </tr>
+    <tr>
       <td><a href=https://en.wikipedia.org/wiki/Microsoft_Windows>Microsoft Windows</a></td>
       <td><a href=https://chocolatey.org>Chocolatey</a></td>
       <td><a href=https://github.com/michidk/just-choco>just</a></td>
