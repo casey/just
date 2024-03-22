@@ -95,7 +95,6 @@ pub(crate) enum Error<'src> {
   GetConfirmation {
     io_error: io::Error,
   },
-  Homedir,
   InitExists {
     justfile: PathBuf,
   },
@@ -154,6 +153,14 @@ pub(crate) enum Error<'src> {
     recipes: Vec<String>,
     suggestion: Option<Suggestion<'src>>,
   },
+  UnresolvedVariableInImport {
+    variable: String,
+    path: Token<'src>,
+  },
+  UnresolvedVariableInModule {
+    variable: String,
+    module: Name<'src>,
+  },
   Unstable {
     message: String,
   },
@@ -185,6 +192,8 @@ impl<'src> Error<'src> {
       Self::Compile { compile_error } => Some(compile_error.context()),
       Self::FunctionCall { function, .. } => Some(function.token),
       Self::MissingImportFile { path } => Some(*path),
+      Self::UnresolvedVariableInImport { variable: _, path } => Some(*path),
+      Self::UnresolvedVariableInModule { variable: _, module } => Some(module.token),
       _ => None,
     }
   }
@@ -352,9 +361,6 @@ impl<'src> ColorDisplay for Error<'src> {
       GetConfirmation { io_error } => {
         write!(f, "Failed to read confirmation from stdin: {io_error}")?;
       }
-      Homedir => {
-        write!(f, "Failed to get homedir")?;
-      }
       InitExists { justfile } => {
         write!(f, "Justfile `{}` already exists", justfile.display())?;
       }
@@ -421,6 +427,8 @@ impl<'src> ColorDisplay for Error<'src> {
           write!(f, "\n{suggestion}")?;
         }
       }
+      UnresolvedVariableInImport { variable, .. } => write!(f, "Path to file contains unresolved variable {variable}.")?,
+      UnresolvedVariableInModule { variable, module } => write!(f, "Source path for {module} contains unresolved variable {variable}.")?,
       Unstable { message } => {
         write!(f, "{message} Invoke `just` with the `--unstable` flag to enable unstable features.")?;
       }

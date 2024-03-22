@@ -2735,7 +2735,8 @@ A
 
 The `import` path can be absolute or relative to the location of the justfile
 containing it. A leading `~/` in the import path is replaced with the current
-users home directory.
+users home directory. Any variable used in the import path is replaced with
+the value of an environment variable of the same name.
 
 Justfiles are insensitive to order, so included files can reference variables
 and recipes defined after the `import` statement.
@@ -2806,7 +2807,8 @@ mod foo 'PATH'
 
 Which loads the module's source file from `PATH`, instead of from the usual
 locations. A leading `~/` in `PATH` is replaced with the current user's home
-directory.
+directory. Any variable used in `PATH` is replaced with the value of an
+environment variable of the same name.
 
 Environment files are only loaded for the root justfile, and loaded environment
 variables are available in submodules. Settings in submodules that affect

@@ -1,4 +1,7 @@
-use super::*;
+use {
+  super::*,
+  shellexpand::full,
+};
 
 pub(crate) struct Compiler;
 
@@ -48,7 +51,9 @@ impl Compiler {
             let parent = current.path.parent().unwrap();
 
             let import = if let Some(relative) = relative {
-              let path = parent.join(Self::expand_tilde(&relative.cooked)?);
+              let expanded_path = full(&relative.cooked).map_err(|error| Error::UnresolvedVariableInModule { variable: error.var_name, module: *name })?;
+
+              let path = parent.join(&*expanded_path);
 
               if path.is_file() {
                 Some(path)
@@ -78,11 +83,13 @@ impl Compiler {
             optional,
             path,
           } => {
+            let expanded_path = full(&relative.cooked).map_err(|error| Error::UnresolvedVariableInImport { variable: error.var_name, path: *path })?;
+
             let import = current
               .path
               .parent()
               .unwrap()
-              .join(Self::expand_tilde(&relative.cooked)?)
+              .join(&*expanded_path)
               .lexiclean();
 
             if import.is_file() {
@@ -153,16 +160,6 @@ impl Compiler {
         module,
       }),
     }
-  }
-
-  fn expand_tilde(path: &str) -> RunResult<'static, PathBuf> {
-    Ok(if let Some(path) = path.strip_prefix("~/") {
-      dirs::home_dir()
-        .ok_or(Error::Homedir)?
-        .join(path.trim_start_matches('/'))
-    } else {
-      PathBuf::from(path)
-    })
   }
 
   #[cfg(test)]

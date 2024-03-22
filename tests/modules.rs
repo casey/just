@@ -668,7 +668,7 @@ fn submodule_shebang_recipes_run_in_submodule_directory() {
 
 #[cfg(not(windows))]
 #[test]
-fn module_paths_beginning_with_tilde_are_expanded_to_homdir() {
+fn module_paths_beginning_with_tilde_are_expanded_to_homedir() {
   Test::new()
     .write("foobar/mod.just", "foo:\n @echo FOOBAR")
     .justfile(
@@ -682,6 +682,47 @@ fn module_paths_beginning_with_tilde_are_expanded_to_homdir() {
     .arg("foo")
     .stdout("FOOBAR\n")
     .env("HOME", "foobar")
+    .run();
+}
+
+#[test]
+fn module_paths_with_variables_are_expanded() {
+  Test::new()
+    .write("foobar/mod.just", "foo:\n @echo FOOBAR")
+    .justfile(
+      "
+        mod foo '$FOO/mod.just'
+      ",
+    )
+    .test_round_trip(false)
+    .arg("--unstable")
+    .arg("foo")
+    .arg("foo")
+    .stdout("FOOBAR\n")
+    .env("FOO", "foobar")
+    .run();
+}
+
+#[test]
+fn unresolved_variable_in_module_error() {
+  Test::new()
+    .justfile(
+      "
+        mod foo '$FOO/mod.just'
+      ",
+    )
+    .test_round_trip(false)
+    .arg("--unstable")
+    .status(EXIT_FAILURE)
+    .stderr(
+      "
+      error: Source path for foo contains unresolved variable FOO.
+       ——▶ justfile:1:5
+        │
+      1 │ mod foo '$FOO/mod.just'
+        │     ^^^
+      ",
+    )
     .run();
 }
 
