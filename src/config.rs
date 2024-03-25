@@ -395,8 +395,9 @@ impl Config {
       )
       .arg(
         Arg::with_name(arg::DOTENV_PATH)
+          .short("E")
           .long("dotenv-path")
-          .help("Load environment file at <DOTENV-PATH> instead of searching for one")
+          .help("Load <DOTENV-PATH> as environment file instead of searching for one")
           .takes_value(true),
       )
       .group(ArgGroup::with_name("SUBCOMMAND").args(cmd::ALL))
