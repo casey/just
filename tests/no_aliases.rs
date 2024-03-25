@@ -18,4 +18,3 @@ fn skip_alias() {
     .stdout("Available recipes:\n    test1\n    test2\n")
     .run();
 }
-
