@@ -15,10 +15,10 @@ test! {
   name: check_without_fmt,
   justfile: "",
   args: ("--check"),
-  stderr_regex: "error: The following required arguments were not provided:
-    --fmt
+  stderr_regex: "error: the following required arguments were not provided:
+  --fmt
 (.|\\n)+",
-  status: EXIT_FAILURE,
+  status: 2,
 }
 
 test! {

@@ -39,17 +39,12 @@ test! {
       echo XYZ
   ",
   args: ("--command"),
-  stderr: &format!("
-    error: The argument '--command <COMMAND>' requires a value but none was supplied
+  stderr: "
+    error: a value is required for '--command <COMMAND>...' but none was supplied
 
-    USAGE:
-        just{EXE_SUFFIX} --color <COLOR> --dump-format <FORMAT> --shell <SHELL> \
-        <--changelog|--choose|--command <COMMAND>|--completions <SHELL>|--dump|--edit|\
-        --evaluate|--fmt|--init|--list|--show <RECIPE>|--summary|--variables>
-
-    For more information try --help
-  "),
-  status: EXIT_FAILURE,
+    For more information, try '--help'.
+  ",
+  status: 2,
 }
 
 test! {
