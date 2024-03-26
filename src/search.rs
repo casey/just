@@ -19,7 +19,7 @@ impl Search {
       SearchConfig::FromSearchDirectory { search_directory } => {
         let search_directory = Self::clean(invocation_directory, search_directory);
 
-        let justfile = Self::justfile(&search_directory)?;
+        let justfile = Source::from_path(&search_directory)?.path;
 
         let working_directory = Self::working_directory_from_justfile(&justfile)?;
 
@@ -49,7 +49,7 @@ impl Search {
   }
 
   pub(crate) fn find_next(starting_dir: &Path) -> SearchResult<Self> {
-    let justfile = Self::justfile(starting_dir)?;
+    let justfile = Source::from_path(starting_dir)?.path;
 
     let working_directory = Self::working_directory_from_justfile(&justfile)?;
 
@@ -107,38 +107,6 @@ impl Search {
         working_directory: Self::clean(invocation_directory, working_directory),
       }),
     }
-  }
-
-  pub(crate) fn justfile(directory: &Path) -> SearchResult<PathBuf> {
-    for directory in directory.ancestors() {
-      let mut candidates = BTreeSet::new();
-
-      let entries = fs::read_dir(directory).map_err(|io_error| SearchError::Io {
-        io_error,
-        directory: directory.to_owned(),
-      })?;
-      for entry in entries {
-        let entry = entry.map_err(|io_error| SearchError::Io {
-          io_error,
-          directory: directory.to_owned(),
-        })?;
-        if let Some(name) = entry.file_name().to_str() {
-          for justfile_name in JUSTFILE_NAMES {
-            if name.eq_ignore_ascii_case(justfile_name) {
-              candidates.insert(entry.path());
-            }
-          }
-        }
-      }
-
-      match candidates.len() {
-        0 => {}
-        1 => return Ok(candidates.into_iter().next().unwrap()),
-        _ => return Err(SearchError::MultipleCandidates { candidates }),
-      }
-    }
-
-    Err(SearchError::NotFound)
   }
 
   fn clean(invocation_directory: &Path, path: &Path) -> PathBuf {
@@ -202,7 +170,7 @@ mod tests {
   #[test]
   fn not_found() {
     let tmp = testing::tempdir();
-    match Search::justfile(tmp.path()) {
+    match Source::from_path(tmp.path()) {
       Err(SearchError::NotFound) => {}
       _ => panic!("No justfile found error was expected"),
     }
@@ -222,7 +190,7 @@ mod tests {
     }
     fs::write(&path, "default:\n\techo ok").unwrap();
     path.pop();
-    match Search::justfile(path.as_path()) {
+    match Source::from_path(path.as_path()) {
       Err(SearchError::MultipleCandidates { .. }) => {}
       _ => panic!("Multiple candidates error was expected"),
     }
@@ -235,7 +203,7 @@ mod tests {
     path.push(DEFAULT_JUSTFILE_NAME);
     fs::write(&path, "default:\n\techo ok").unwrap();
     path.pop();
-    if let Err(err) = Search::justfile(path.as_path()) {
+    if let Err(err) = Source::from_path(path.as_path()) {
       panic!("No errors were expected: {err}");
     }
   }
@@ -258,7 +226,7 @@ mod tests {
     path.push(spongebob_case);
     fs::write(&path, "default:\n\techo ok").unwrap();
     path.pop();
-    if let Err(err) = Search::justfile(path.as_path()) {
+    if let Err(err) = Source::from_path(path.as_path()) {
       panic!("No errors were expected: {err}");
     }
   }
@@ -274,7 +242,7 @@ mod tests {
     fs::create_dir(&path).expect("test justfile search: failed to create intermediary directory");
     path.push("b");
     fs::create_dir(&path).expect("test justfile search: failed to create intermediary directory");
-    if let Err(err) = Search::justfile(path.as_path()) {
+    if let Err(err) = Source::from_path(path.as_path()) {
       panic!("No errors were expected: {err}");
     }
   }
@@ -293,11 +261,11 @@ mod tests {
     path.pop();
     path.push("b");
     fs::create_dir(&path).expect("test justfile search: failed to create intermediary directory");
-    match Search::justfile(path.as_path()) {
+    match Source::from_path(path.as_path()) {
       Ok(found_path) => {
         path.pop();
         path.push(DEFAULT_JUSTFILE_NAME);
-        assert_eq!(found_path, path);
+        assert_eq!(found_path.path, path);
       }
       Err(err) => panic!("No errors were expected: {err}"),
     }
