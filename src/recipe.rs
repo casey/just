@@ -143,6 +143,54 @@ impl<'src, D> Recipe<'src, D> {
     self.attributes.contains(&Attribute::NoQuiet)
   }
 
+  pub(crate) fn should_cache(&self) -> bool {
+    self.attributes.contains(&Attribute::Cached)
+  }
+}
+
+impl<'src> Recipe<'src, Dependency<'src>> {
+  fn get_updated_hash_if_outdated<'run>(
+    &self,
+    context: &RecipeContext<'src, 'run>,
+    mut evaluator: Evaluator<'src, 'run>,
+  ) -> RunResult<'src, Option<String>> {
+    // TODO: Prevent double work/evaluating twice
+    let mut recipe_hash = blake3::Hasher::new();
+    for line in &self.body {
+      recipe_hash.update(evaluator.evaluate_line(line, false)?.as_bytes());
+    }
+    let recipe_hash = recipe_hash.finalize().to_hex();
+    let recipes = &context.cache.borrow().recipes;
+
+    recipes.get(self.name()).map_or_else(
+      || Ok(Some(recipe_hash.to_string())),
+      |previous_run| {
+        let have_deps_changed = self
+          .dependencies
+          .iter()
+          .take(self.priors)
+          .map(|dep| {
+            recipes
+              .get(dep.recipe.name())
+              .and_then(|previous_run| Some(previous_run.hash_changed))
+              .ok_or_else(|| {
+                Error::internal(format!(
+                  "prior dependency `{}` did not run before current recipe `{}`",
+                  dep.recipe.name, self.name
+                ))
+              })
+          })
+          .collect::<Result<Vec<bool>, Error>>()?;
+
+        if have_deps_changed.iter().any(|x| *x) || previous_run.body_hash != recipe_hash.as_str() {
+          Ok(Some(recipe_hash.to_string()))
+        } else {
+          Ok(None)
+        }
+      },
+    )
+  }
+
   pub(crate) fn run<'run>(
     &self,
     context: &RecipeContext<'src, 'run>,
@@ -150,8 +198,38 @@ impl<'src, D> Recipe<'src, D> {
     scope: Scope<'src, 'run>,
     search: &'run Search,
     positional: &[String],
-  ) -> RunResult<'src, ()> {
+  ) -> RunResult<'src, Option<String>> {
     let config = &context.config;
+
+    let updated_hash = if !self.should_cache() {
+      None
+    } else {
+      config.require_unstable("Cached recipes are currently unstable.")?;
+
+      let evaluator = Evaluator::recipe_evaluator(config, dotenv, &scope, context.settings, search);
+      match self.get_updated_hash_if_outdated(context, evaluator)? {
+        Some(hash) => Some(hash),
+        None => {
+          if config.dry_run
+            || config.verbosity.loquacious()
+            || !((context.settings.quiet && !self.no_quiet()) || config.verbosity.quiet())
+          {
+            let color = if config.highlight {
+              config.color.command(config.command_color)
+            } else {
+              config.color
+            };
+            eprintln!(
+              "{}===> Hash of recipe body of `{}` matches last run. Skipping...{}",
+              color.prefix(),
+              self.name,
+              color.suffix()
+            );
+          }
+          return Ok(None);
+        }
+      }
+    };
 
     if config.verbosity.loquacious() {
       let color = config.color.stderr().banner();
@@ -163,14 +241,15 @@ impl<'src, D> Recipe<'src, D> {
       );
     }
 
-    let evaluator =
-      Evaluator::recipe_evaluator(context.config, dotenv, &scope, context.settings, search);
+    let evaluator = Evaluator::recipe_evaluator(config, dotenv, &scope, context.settings, search);
 
     if self.shebang {
-      self.run_shebang(context, dotenv, &scope, positional, config, evaluator)
+      self.run_shebang(context, dotenv, &scope, positional, config, evaluator)?;
     } else {
-      self.run_linewise(context, dotenv, &scope, positional, config, evaluator)
+      self.run_linewise(context, dotenv, &scope, positional, config, evaluator)?;
     }
+
+    Ok(updated_hash)
   }
 
   fn run_linewise<'run>(

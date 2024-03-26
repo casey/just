@@ -1,4 +1,4 @@
-use {super::*, serde::Serialize};
+use {super::*, serde::Serialize, std::cell::RefCell};
 
 #[derive(Debug)]
 struct Invocation<'src: 'run, 'run> {
@@ -272,12 +272,15 @@ impl<'src> Justfile<'src> {
     }
 
     let mut ran = Ran::default();
+    let cache = RefCell::new(JustfileCache::new(search)?);
+
     for invocation in invocations {
       let context = RecipeContext {
         settings: invocation.settings,
         config,
         scope: invocation.scope,
         search,
+        cache: &cache,
       };
 
       Self::run_recipe(
@@ -295,7 +298,7 @@ impl<'src> Justfile<'src> {
       )?;
     }
 
-    Ok(())
+    return cache.borrow().save(search);
   }
 
   pub(crate) fn get_alias(&self, name: &str) -> Option<&Alias<'src>> {
@@ -408,7 +411,7 @@ impl<'src> Justfile<'src> {
     ran: &mut Ran<'src>,
     recipe: &Recipe<'src>,
     search: &Search,
-  ) -> RunResult<'src> {
+  ) -> RunResult<'src, ()> {
     if ran.has_run(&recipe.namepath, arguments) {
       return Ok(());
     }
@@ -445,9 +448,17 @@ impl<'src> Justfile<'src> {
       }
     }
 
-    recipe.run(context, dotenv, scope.child(), search, &positional)?;
+    let updated_hash = recipe.run(context, dotenv, scope.child(), search, &positional)?;
+    let recipe_hash_changed = updated_hash.is_some();
 
-    if !context.config.no_dependencies {
+    if let Some(body_hash) = updated_hash {
+      context
+        .cache
+        .borrow_mut()
+        .insert_recipe(recipe.name.to_string(), body_hash);
+    }
+
+    if !context.config.no_dependencies && (!recipe.should_cache() || recipe_hash_changed) {
       let mut ran = Ran::default();
 
       for Dependency { recipe, arguments } in recipe.dependencies.iter().skip(recipe.priors) {
