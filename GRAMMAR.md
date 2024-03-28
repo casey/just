@@ -62,6 +62,7 @@ assignment    : NAME ':=' expression eol
 export        : 'export' assignment
 
 setting       : 'set' 'allow-duplicate-recipes' boolean?
+              | 'set' 'allow-duplicate-variables' boolean?
               | 'set' 'dotenv-filename' ':=' string
               | 'set' 'dotenv-load' boolean?
               | 'set' 'dotenv-path' ':=' string
