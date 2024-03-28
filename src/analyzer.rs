@@ -1,4 +1,4 @@
-use {super::*, CompileErrorKind::*};
+use {super::*, std::borrow::BorrowMut, CompileErrorKind::*};
 
 #[derive(Default)]
 pub(crate) struct Analyzer<'src> {
@@ -96,14 +96,25 @@ impl<'src> Analyzer<'src> {
           }
           Item::Set(set) => {
             self.analyze_set(set)?;
-            self.sets.insert(set.clone());
+            match &set.value {
+              Setting::DotenvFilename(_) if self.sets.contains_key(&set.name.to_string()) => {
+                let mut table_value = self.sets.remove(&set.name.to_string()).unwrap();
+                match (table_value.value.borrow_mut(), &set.value) {
+                  (Setting::DotenvFilename(ref mut value), Setting::DotenvFilename(other)) => {
+                    value.append(&mut other.clone())
+                  }
+                  _ => unreachable!("Both set values should be DotenvFilename. we got table:{table_value:?} other:{set:?}"),
+                }
+                self.sets.insert(table_value.clone())
+              }
+              _ => self.sets.insert(set.clone()),
+            }
           }
         }
       }
 
       warnings.extend(ast.warnings.iter().cloned());
     }
-
     let settings = Settings::from_setting_iter(self.sets.into_iter().map(|(_, set)| set.value));
 
     let mut recipe_table: Table<'src, UnresolvedRecipe<'src>> = Table::default();
@@ -225,10 +236,17 @@ impl<'src> Analyzer<'src> {
 
   fn analyze_set(&self, set: &Set<'src>) -> CompileResult<'src> {
     if let Some(original) = self.sets.get(set.name.lexeme()) {
-      return Err(set.name.error(DuplicateSet {
-        setting: original.name.lexeme(),
-        first: original.name.line,
-      }));
+      match original.value {
+        Setting::DotenvFilename(_) => {
+          // allow to have duplicate sets
+        }
+        _ => {
+          return Err(set.name.error(DuplicateSet {
+            setting: original.name.lexeme(),
+            first: original.name.line,
+          }))
+        }
+      }
     }
 
     Ok(())

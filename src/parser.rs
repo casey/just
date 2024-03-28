@@ -862,9 +862,10 @@ impl<'run, 'src> Parser<'run, 'src> {
     }
 
     self.expect(ColonEquals)?;
-
     let set_value = match keyword {
-      Keyword::DotenvFilename => Some(Setting::DotenvFilename(self.parse_string_literal()?.cooked)),
+      Keyword::DotenvFilename => Some(Setting::DotenvFilename(vec![
+        self.parse_string_literal()?.cooked,
+      ])),
       Keyword::DotenvPath => Some(Setting::DotenvPath(self.parse_string_literal()?.cooked)),
       Keyword::Shell => Some(Setting::Shell(self.parse_shell()?)),
       Keyword::Tempdir => Some(Setting::Tempdir(self.parse_string_literal()?.cooked)),

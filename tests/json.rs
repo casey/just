@@ -44,7 +44,7 @@ fn alias() {
       },
       "settings": {
         "allow_duplicate_recipes": false,
-        "dotenv_filename": null,
+        "dotenv_filename": [],
         "dotenv_load": null,
         "dotenv_path": null,
         "export": false,
@@ -80,7 +80,7 @@ fn assignment() {
       "recipes": {},
       "settings": {
         "allow_duplicate_recipes": false,
-        "dotenv_filename": null,
+        "dotenv_filename": [],
         "dotenv_load": null,
         "dotenv_path": null,
         "export": false,
@@ -131,7 +131,7 @@ fn body() {
       },
       "settings": {
         "allow_duplicate_recipes": false,
-        "dotenv_filename": null,
+        "dotenv_filename": [],
         "dotenv_load": null,
         "dotenv_path": null,
         "export": false,
@@ -194,7 +194,7 @@ fn dependencies() {
       },
       "settings": {
         "allow_duplicate_recipes": false,
-        "dotenv_filename": null,
+        "dotenv_filename": [],
         "dotenv_load": null,
         "dotenv_path": null,
         "export": false,
@@ -294,7 +294,7 @@ fn dependency_argument() {
       },
       "settings": {
         "allow_duplicate_recipes": false,
-        "dotenv_filename": null,
+        "dotenv_filename": [],
         "dotenv_load": null,
         "dotenv_path": null,
         "export": false,
@@ -357,7 +357,7 @@ fn duplicate_recipes() {
       },
       "settings": {
         "allow_duplicate_recipes": true,
-        "dotenv_filename": null,
+        "dotenv_filename": [],
         "dotenv_load": null,
         "dotenv_path": null,
         "export": false,
@@ -401,7 +401,7 @@ fn doc_comment() {
       },
       "settings": {
         "allow_duplicate_recipes": false,
-        "dotenv_filename": null,
+        "dotenv_filename": [],
         "dotenv_load": null,
         "dotenv_path": null,
         "export": false,
@@ -431,7 +431,7 @@ fn empty_justfile() {
       "recipes": {},
       "settings": {
         "allow_duplicate_recipes": false,
-        "dotenv_filename": null,
+        "dotenv_filename": [],
         "dotenv_load": null,
         "dotenv_path": null,
         "export": false,
@@ -582,7 +582,7 @@ fn parameters() {
       },
       "settings": {
         "allow_duplicate_recipes": false,
-        "dotenv_filename": null,
+        "dotenv_filename": [],
         "dotenv_load": null,
         "dotenv_path": null,
         "export": false,
@@ -666,7 +666,7 @@ fn priors() {
       },
       "settings": {
         "allow_duplicate_recipes": false,
-        "dotenv_filename": null,
+        "dotenv_filename": [],
         "dotenv_load": null,
         "dotenv_path": null,
         "export": false,
@@ -710,7 +710,7 @@ fn private() {
       },
       "settings": {
         "allow_duplicate_recipes": false,
-        "dotenv_filename": null,
+        "dotenv_filename": [],
         "dotenv_load": null,
         "dotenv_path": null,
         "export": false,
@@ -754,7 +754,7 @@ fn quiet() {
       },
       "settings": {
         "allow_duplicate_recipes": false,
-        "dotenv_filename": null,
+        "dotenv_filename": [],
         "dotenv_load": null,
         "dotenv_path": null,
         "export": false,
@@ -810,7 +810,7 @@ fn settings() {
       },
       "settings": {
         "allow_duplicate_recipes": false,
-        "dotenv_filename": "filename",
+        "dotenv_filename": ["filename"],
         "dotenv_load": true,
         "dotenv_path": "path",
         "export": true,
@@ -860,7 +860,7 @@ fn shebang() {
       },
       "settings": {
         "allow_duplicate_recipes": false,
-        "dotenv_filename": null,
+        "dotenv_filename": [],
         "dotenv_load": null,
         "dotenv_path": null,
         "export": false,
@@ -904,7 +904,7 @@ fn simple() {
       },
       "settings": {
         "allow_duplicate_recipes": false,
-        "dotenv_filename": null,
+        "dotenv_filename": [],
         "dotenv_load": null,
         "dotenv_path": null,
         "export": false,
@@ -951,7 +951,7 @@ fn attribute() {
       },
       "settings": {
         "allow_duplicate_recipes": false,
-        "dotenv_filename": null,
+        "dotenv_filename": [],
         "dotenv_load": null,
         "dotenv_path": null,
         "export": false,
@@ -1011,7 +1011,7 @@ fn module() {
             },
             "settings": {
               "allow_duplicate_recipes": false,
-              "dotenv_filename": null,
+              "dotenv_filename": [],
               "dotenv_load": null,
               "dotenv_path": null,
               "export": false,
@@ -1030,7 +1030,7 @@ fn module() {
         "recipes": {},
         "settings": {
           "allow_duplicate_recipes": false,
-          "dotenv_filename": null,
+          "dotenv_filename": [],
           "dotenv_load": null,
           "dotenv_path": null,
           "export": false,
