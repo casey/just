@@ -118,8 +118,11 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
         self.resolve_expression(rhs)
       }
       Expression::Conditional {
-        lhs,
-        rhs,
+        condition: Condition {
+          lhs,
+          rhs,
+          operator: _,
+        },
         then,
         otherwise,
         ..
@@ -131,6 +134,18 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
       }
       Expression::StringLiteral { .. } | Expression::Backtick { .. } => Ok(()),
       Expression::Group { contents } => self.resolve_expression(contents),
+      Expression::Assert {
+        condition: Condition {
+          lhs,
+          rhs,
+          operator: _,
+        },
+        error,
+      } => {
+        self.resolve_expression(lhs)?;
+        self.resolve_expression(rhs)?;
+        self.resolve_expression(error)
+      }
     }
   }
 }

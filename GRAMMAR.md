@@ -82,6 +82,7 @@ module        : 'mod' '?'? NAME string?
 boolean       : ':=' ('true' | 'false')
 
 expression    : 'if' condition '{' expression '}' 'else' '{' expression '}'
+              | 'assert' '(' condition ',' expression ')'
               | value '/' expression
               | value '+' expression
               | value

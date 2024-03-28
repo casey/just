@@ -13,6 +13,9 @@ pub(crate) enum Error<'src> {
     min: usize,
     max: usize,
   },
+  Assert {
+    message: String,
+  },
   Backtick {
     token: Token<'src>,
     output_error: OutputError,
@@ -255,6 +258,9 @@ impl<'src> ColorDisplay for Error<'src> {
         } else if found > max {
           write!(f, "Recipe `{recipe}` got {found} {count} but takes at most {max}")?;
         }
+      }
+      Assert { message }=> {
+        write!(f, "Assert failed: {message}")?;
       }
       Backtick { output_error, .. } => match output_error {
         OutputError::Code(code) => write!(f, "Backtick failed with exit code {code}")?,

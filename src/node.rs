@@ -83,13 +83,19 @@ impl<'src> Node<'src> for Assignment<'src> {
 impl<'src> Node<'src> for Expression<'src> {
   fn tree(&self) -> Tree<'src> {
     match self {
+      Expression::Assert {
+        condition: Condition { lhs, rhs, operator },
+        error,
+      } => Tree::atom(Keyword::Assert.lexeme())
+        .push(lhs.tree())
+        .push(operator.to_string())
+        .push(rhs.tree())
+        .push(error.tree()),
       Expression::Concatenation { lhs, rhs } => Tree::atom("+").push(lhs.tree()).push(rhs.tree()),
       Expression::Conditional {
-        lhs,
-        rhs,
+        condition: Condition { lhs, rhs, operator },
         then,
         otherwise,
-        operator,
       } => {
         let mut tree = Tree::atom(Keyword::If.lexeme());
         tree.push_mut(lhs.tree());

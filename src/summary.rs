@@ -19,9 +19,9 @@ use {
 
 mod full {
   pub(crate) use crate::{
-    assignment::Assignment, conditional_operator::ConditionalOperator, dependency::Dependency,
-    expression::Expression, fragment::Fragment, justfile::Justfile, line::Line,
-    parameter::Parameter, parameter_kind::ParameterKind, recipe::Recipe, thunk::Thunk,
+    assignment::Assignment, condition::Condition, conditional_operator::ConditionalOperator,
+    dependency::Dependency, expression::Expression, fragment::Fragment, justfile::Justfile,
+    line::Line, parameter::Parameter, parameter_kind::ParameterKind, recipe::Recipe, thunk::Thunk,
   };
 }
 
@@ -183,6 +183,10 @@ impl Assignment {
 
 #[derive(Eq, PartialEq, Hash, Ord, PartialOrd, Debug, Clone)]
 pub enum Expression {
+  Assert {
+    condition: Condition,
+    error: Box<Expression>,
+  },
   Backtick {
     command: String,
   },
@@ -217,6 +221,17 @@ impl Expression {
   fn new(expression: &full::Expression) -> Expression {
     use full::Expression::*;
     match expression {
+      Assert {
+        condition: full::Condition { lhs, rhs, operator },
+        error,
+      } => Expression::Assert {
+        condition: Condition {
+          lhs: Box::new(Expression::new(lhs)),
+          rhs: Box::new(Expression::new(rhs)),
+          operator: ConditionalOperator::new(*operator),
+        },
+        error: Box::new(Expression::new(error)),
+      },
       Backtick { contents, .. } => Expression::Backtick {
         command: (*contents).clone(),
       },
@@ -284,10 +299,8 @@ impl Expression {
         rhs: Box::new(Expression::new(rhs)),
       },
       Conditional {
-        lhs,
-        operator,
+        condition: full::Condition { lhs, rhs, operator },
         otherwise,
-        rhs,
         then,
       } => Expression::Conditional {
         lhs: Box::new(Expression::new(lhs)),
@@ -305,6 +318,13 @@ impl Expression {
       Group { contents } => Expression::new(contents),
     }
   }
+}
+
+#[derive(Eq, PartialEq, Hash, Ord, PartialOrd, Debug, Clone)]
+pub struct Condition {
+  lhs: Box<Expression>,
+  rhs: Box<Expression>,
+  operator: ConditionalOperator,
 }
 
 #[derive(Eq, PartialEq, Hash, Ord, PartialOrd, Debug, Clone)]
