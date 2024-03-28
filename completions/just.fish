@@ -55,6 +55,7 @@ complete -c just -n "__fish_use_subcommand" -l check -d 'Run `--fmt` in \'check\
 complete -c just -n "__fish_use_subcommand" -l yes -d 'Automatically confirm all recipes.'
 complete -c just -n "__fish_use_subcommand" -s n -l dry-run -d 'Print what just would do without doing it'
 complete -c just -n "__fish_use_subcommand" -l highlight -d 'Highlight echoed recipe lines in bold'
+complete -c just -n "__fish_use_subcommand" -l no-aliases -d 'Don\'t show aliases in list'
 complete -c just -n "__fish_use_subcommand" -l no-deps -d 'Don\'t run recipe dependencies'
 complete -c just -n "__fish_use_subcommand" -l no-dotenv -d 'Don\'t load `.env` file'
 complete -c just -n "__fish_use_subcommand" -l no-highlight -d 'Don\'t highlight echoed recipe lines in bold'

@@ -41,6 +41,7 @@ _just() {
 '(-q --quiet)-n[Print what just would do without doing it]' \
 '(-q --quiet)--dry-run[Print what just would do without doing it]' \
 '--highlight[Highlight echoed recipe lines in bold]' \
+'--no-aliases[Don'\''t show aliases in list]' \
 '--no-deps[Don'\''t run recipe dependencies]' \
 '--no-dotenv[Don'\''t load `.env` file]' \
 '--no-highlight[Don'\''t highlight echoed recipe lines in bold]' \
