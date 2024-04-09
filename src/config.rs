@@ -1,16 +1,16 @@
 use {
   super::*,
   clap::{
-    builder::{styling::AnsiColor, PossibleValuesParser, Styles},
+    builder::{styling::AnsiColor, FalseyValueParser, PossibleValuesParser, Styles},
     value_parser, Arg, ArgAction, ArgGroup, ArgMatches, Command,
   },
 };
 
-pub(crate) const CHOOSER_ENVIRONMENT_KEY: &str = "JUST_CHOOSER";
+const CHOOSER_ENVIRONMENT_KEY: &str = "JUST_CHOOSER";
 
-pub(crate) const CHOOSE_HELP: &str = "Select one or more recipes to run using a binary chooser. \
-                                      If `--chooser` is not passed the chooser defaults to the \
-                                      value of $JUST_CHOOSER, falling back to `fzf`";
+const CHOOSE_HELP: &str = "Select one or more recipes to run using a binary chooser. \
+                           If `--chooser` is not passed the chooser defaults to the \
+                           value of $JUST_CHOOSER, falling back to `fzf`";
 
 pub(crate) fn chooser_default(justfile: &Path) -> OsString {
   let mut chooser = OsString::new();
@@ -162,6 +162,7 @@ impl Config {
       .arg(
         Arg::new(arg::CHOOSER)
           .long("chooser")
+          .env(CHOOSER_ENVIRONMENT_KEY)
           .action(ArgAction::Set)
           .help("Override binary invoked by `--choose`"),
       )
@@ -307,7 +308,9 @@ impl Config {
       .arg(
         Arg::new(arg::UNSTABLE)
           .long("unstable")
+          .env("JUST_UNSTABLE")
           .action(ArgAction::SetTrue)
+          .value_parser(FalseyValueParser::new())
           .help("Enable unstable features"),
       )
       .arg(
@@ -663,10 +666,7 @@ impl Config {
         .map(|s| s.map(Into::into).collect())
     };
 
-    let unstable = matches.get_flag(arg::UNSTABLE)
-      || env::var_os("JUST_UNSTABLE")
-        .map(|val| !(val == "false" || val == "0" || val.is_empty()))
-        .unwrap_or_default();
+    let unstable = matches.get_flag(arg::UNSTABLE);
 
     Ok(Self {
       check: matches.get_flag(arg::CHECK),

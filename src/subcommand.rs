@@ -217,10 +217,7 @@ impl Subcommand {
       return Err(Error::NoChoosableRecipes);
     }
 
-    let chooser = chooser
-      .map(OsString::from)
-      .or_else(|| env::var_os(config::CHOOSER_ENVIRONMENT_KEY))
-      .unwrap_or_else(|| config::chooser_default(&search.justfile));
+    let chooser = chooser.map_or_else(|| config::chooser_default(&search.justfile), From::from);
 
     let result = justfile
       .settings
