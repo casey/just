@@ -44,7 +44,7 @@ pub(crate) use {
     ffi::{OsStr, OsString},
     fmt::{self, Debug, Display, Formatter},
     fs,
-    io::{self, Cursor, Write},
+    io::{self, Write},
     iter::{self, FromIterator},
     mem,
     ops::Deref,
