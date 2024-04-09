@@ -43,8 +43,8 @@ pub(crate) const ZSH_COMPLETION_REPLACEMENTS: &[(&str, &str)] = &[
     r"    local common=(",
   ),
   (
-    r"'--set=[Override <VARIABLE> with <VALUE>]:VARIABLE: :VARIABLE: ' \",
-    r"'--set=[Override <VARIABLE> with <VALUE>]: :(_just_variables)' \",
+    r"'*--set=[Override <VARIABLE> with <VALUE>]:VARIABLE: :VARIABLE: ' \",
+    r"'*--set=[Override <VARIABLE> with <VALUE>]: :(_just_variables)' \",
   ),
   (
     r"'()-s+[Show information about <RECIPE>]:RECIPE: ' \
@@ -204,8 +204,8 @@ pub(crate) const BASH_COMPLETION_REPLACEMENTS: &[(&str, &str)] = &[
   ),
   (r"        just)", r#"        "$1")"#),
   (
-    r"local i cur prev opts cmds",
-    r"local i cur prev words cword opts cmds",
+    r"local i cur prev opts cmd",
+    r"local i cur prev words cword opts cmd",
   ),
   (
     r#"    cur="${COMP_WORDS[COMP_CWORD]}"
