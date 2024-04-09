@@ -1,3 +1,7 @@
+use std::io::{Read, Seek};
+
+use tempfile::tempfile;
+
 use super::*;
 
 const INIT_JUSTFILE: &str = "default:\n    echo 'Hello, world!'\n";
@@ -15,7 +19,7 @@ pub(crate) enum Subcommand {
     overrides: BTreeMap<String, String>,
   },
   Completions {
-    shell: String,
+    shell: clap_complete::Shell,
   },
   Dump,
   Edit,
@@ -50,7 +54,7 @@ impl Subcommand {
         Self::changelog();
         return Ok(());
       }
-      Completions { shell } => return Self::completions(crate::config::Config::app(), shell),
+      Completions { shell } => return Self::completions(*shell),
       Init => return Self::init(config),
       Run {
         arguments,
@@ -275,8 +279,8 @@ impl Subcommand {
     justfile.run(config, search, overrides, &recipes)
   }
 
-  fn completions(command: clap::Command<'_>, shell: &str) -> RunResult<'static, ()> {
-    use clap_complete::{Generator, Shell};
+  fn completions(shell: clap_complete::Shell) -> RunResult<'static, ()> {
+    use clap_complete::Shell;
 
     fn replace(haystack: &mut String, needle: &str, replacement: &str) -> RunResult<'static, ()> {
       if let Some(index) = haystack.find(needle) {
@@ -289,13 +293,26 @@ impl Subcommand {
       }
     }
 
-    let shell = shell
-      .parse::<Shell>()
-      .expect("Invalid value for clap::Shell");
-
-    let mut buffer = Vec::new();
-    shell.generate(&command, &mut buffer);
-    let mut script = String::from_utf8(buffer).expect("Clap completion not UTF-8");
+    let mut script = {
+      let mut tmp = tempfile()
+        .map_err(|e| Error::internal(format!("Failed to create tempfile for completions: {e}")))?;
+      clap_complete::generate(
+        shell,
+        &mut crate::config::Config::app(),
+        env!("CARGO_PKG_NAME"),
+        &mut tmp,
+      );
+      tmp.rewind().map_err(|e| {
+        Error::internal(format!(
+          "Failed to rewind tempfile to read completions to update: {e}"
+        ))
+      })?;
+      let mut buffer = String::new();
+      tmp
+        .read_to_string(&mut buffer)
+        .map_err(|e| Error::internal(format!("Failed to read completions from tempfile: {e}")))?;
+      buffer
+    };
 
     match shell {
       Shell::Bash => {
