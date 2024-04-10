@@ -65,6 +65,8 @@ edit:completion:arg-completer[just] = [@words]{
             cand --list 'List available recipes and their arguments'
             cand --summary 'List names of available recipes'
             cand --variables 'List names of variables'
+            cand -g 'Invoke using a global `justfile`'
+            cand --global 'Invoke using a global `justfile`'
             cand -h 'Print help information'
             cand --help 'Print help information'
             cand -V 'Print version information'

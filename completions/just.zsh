@@ -66,6 +66,8 @@ _just() {
 '--list[List available recipes and their arguments]' \
 '--summary[List names of available recipes]' \
 '--variables[List names of variables]' \
+'-g[Invoke using a global `justfile`]' \
+'--global[Invoke using a global `justfile`]' \
 '-h[Print help information]' \
 '--help[Print help information]' \
 '-V[Print version information]' \
