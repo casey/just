@@ -482,6 +482,20 @@ fn trim_end() {
 }
 
 #[test]
+fn addprefix() {
+  assert_eval_eq("addprefix('8', 'r s t')", "8r 8s 8t");
+  assert_eval_eq(
+    "addprefix('src/', 'main sar x11')",
+    "src/main src/sar src/x11",
+  );
+  assert_eval_eq("addprefix('-', 'c v h y')", "-c -v -h -y");
+  assert_eval_eq(
+    "addprefix('0000', '11 10 01 00')",
+    "000011 000010 000001 000000",
+  );
+}
+
+#[test]
 #[cfg(not(windows))]
 fn join() {
   assert_eval_eq("join('a', 'b', 'c', 'd')", "a/b/c/d");
