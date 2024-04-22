@@ -22,6 +22,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "absolute_path" => Unary(absolute_path),
     "arch" => Nullary(arch),
     "addprefix" => Binary(addprefix),
+    "addsuffix" => Binary(addsuffix),
     "blake3" => Unary(blake3),
     "blake3_file" => Unary(blake3_file),
     "canonicalize" => Unary(canonicalize),
@@ -261,6 +262,16 @@ fn addprefix(_context: &FunctionContext, pref: &str, base: &str) -> Result<Strin
     base
       .split(" ")
       .map(|s| format!("{pref}{s}"))
+      .collect::<Vec<String>>()
+      .join(" "),
+  )
+}
+
+fn addsuffix(_context: &FunctionContext, suf: &str, base: &str) -> Result<String, String> {
+  Ok(
+    base
+      .split(" ")
+      .map(|s| format!("{s}{suf}"))
       .collect::<Vec<String>>()
       .join(" "),
   )
