@@ -116,5 +116,5 @@ jobs:
 
     - name: Test install.sh
       run: |
-        bash www/install.sh --to /tmp --tag 1.0.0
+        bash www/install.sh --to /tmp --tag 1.25.0
         /tmp/just --version
