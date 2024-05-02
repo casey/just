@@ -17,7 +17,18 @@ pub(crate) fn load_dotenv(
     .as_ref()
     .or(settings.dotenv_path.as_ref());
 
-  if !settings.dotenv_load.unwrap_or_default() && dotenv_filename.is_none() && dotenv_path.is_none()
+  let dotenv_files = config.dotenv_files.as_ref().or_else(|| {
+    if settings.dotenv_files.is_empty() {
+      None
+    } else {
+      Some(settings.dotenv_files.as_ref())
+    }
+  });
+
+  if !settings.dotenv_load.unwrap_or_default()
+    && dotenv_filename.is_none()
+    && dotenv_path.is_none()
+    && dotenv_files.is_none()
   {
     return Ok(BTreeMap::new());
   }
@@ -35,7 +46,16 @@ pub(crate) fn load_dotenv(
     }
   }
 
-  Ok(BTreeMap::new())
+  let mut return_tree = BTreeMap::new();
+  if let Some(dotenv_files) = dotenv_files {
+    for path in dotenv_files.iter() {
+      match load_from_file(&path) {
+        Ok(mut env_tree) => return_tree.append(&mut env_tree),
+        Err(error) => return Err(error),
+      }
+    }
+  }
+  Ok(return_tree)
 }
 
 fn load_from_file(path: &Path) -> RunResult<'static, BTreeMap<String, String>> {

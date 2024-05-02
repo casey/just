@@ -6,6 +6,7 @@ pub(crate) enum Setting<'src> {
   DotenvFilename(String),
   DotenvLoad(bool),
   DotenvPath(String),
+  DotenvFiles(OrderedList<'src>),
   Export(bool),
   Fallback(bool),
   IgnoreComments(bool),
@@ -29,6 +30,9 @@ impl<'src> Display for Setting<'src> {
       | Setting::Quiet(value)
       | Setting::WindowsPowerShell(value) => write!(f, "{value}"),
       Setting::Shell(shell) | Setting::WindowsShell(shell) => write!(f, "{shell}"),
+      Setting::DotenvFiles(value) => {
+        write!(f, "{value}")
+      }
       Setting::DotenvFilename(value) | Setting::DotenvPath(value) | Setting::Tempdir(value) => {
         write!(f, "{value:?}")
       }

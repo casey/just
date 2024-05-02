@@ -25,17 +25,18 @@ pub(crate) use {
     fragment::Fragment, function::Function, function_context::FunctionContext,
     interrupt_guard::InterruptGuard, interrupt_handler::InterruptHandler, item::Item,
     justfile::Justfile, keyed::Keyed, keyword::Keyword, lexer::Lexer, line::Line, list::List,
-    load_dotenv::load_dotenv, loader::Loader, name::Name, namepath::Namepath, ordinal::Ordinal,
-    output::output, output_error::OutputError, parameter::Parameter, parameter_kind::ParameterKind,
-    parser::Parser, platform::Platform, platform_interface::PlatformInterface, position::Position,
-    positional::Positional, ran::Ran, range_ext::RangeExt, recipe::Recipe,
-    recipe_context::RecipeContext, recipe_resolver::RecipeResolver, scope::Scope, search::Search,
-    search_config::SearchConfig, search_error::SearchError, set::Set, setting::Setting,
-    settings::Settings, shebang::Shebang, shell::Shell, show_whitespace::ShowWhitespace,
-    source::Source, string_kind::StringKind, string_literal::StringLiteral, subcommand::Subcommand,
-    suggestion::Suggestion, table::Table, thunk::Thunk, token::Token, token_kind::TokenKind,
-    unresolved_dependency::UnresolvedDependency, unresolved_recipe::UnresolvedRecipe,
-    use_color::UseColor, variables::Variables, verbosity::Verbosity, warning::Warning,
+    load_dotenv::load_dotenv, loader::Loader, name::Name, namepath::Namepath,
+    ordered_list::OrderedList, ordinal::Ordinal, output::output, output_error::OutputError,
+    parameter::Parameter, parameter_kind::ParameterKind, parser::Parser, platform::Platform,
+    platform_interface::PlatformInterface, position::Position, positional::Positional, ran::Ran,
+    range_ext::RangeExt, recipe::Recipe, recipe_context::RecipeContext,
+    recipe_resolver::RecipeResolver, scope::Scope, search::Search, search_config::SearchConfig,
+    search_error::SearchError, set::Set, setting::Setting, settings::Settings, shebang::Shebang,
+    shell::Shell, show_whitespace::ShowWhitespace, source::Source, string_kind::StringKind,
+    string_literal::StringLiteral, subcommand::Subcommand, suggestion::Suggestion, table::Table,
+    thunk::Thunk, token::Token, token_kind::TokenKind, unresolved_dependency::UnresolvedDependency,
+    unresolved_recipe::UnresolvedRecipe, use_color::UseColor, variables::Variables,
+    verbosity::Verbosity, warning::Warning,
   },
   std::{
     cmp,
@@ -151,6 +152,7 @@ mod load_dotenv;
 mod loader;
 mod name;
 mod namepath;
+mod ordered_list;
 mod ordinal;
 mod output;
 mod output_error;
