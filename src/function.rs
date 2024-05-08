@@ -443,11 +443,7 @@ fn shell(context: &FunctionContext, cmdlike: &str, extras: &[String]) -> Result<
 
   let stdout = InterruptHandler::guard(|| {
     output(shelled_cmd).map_err(|output_error| output_error.to_string())
-  })?
-  .trim() // as per Make
-  .lines()
-  .collect::<Vec<&str>>()
-  .join(" "); // as per Make
+  })?;
 
   Ok(stdout)
 }
