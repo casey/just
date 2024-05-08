@@ -513,6 +513,44 @@ fn addsuffix_addprefix() {
     ";-ix= ;-ox= ;-ux=",
   );
 }
+
+#[test]
+fn shell_no_arg_provided() {
+  Test::new()
+    .justfile("var := shell()")
+    .args(["--evaluate"])
+    .stderr(
+      "
+      error: Function `shell` called with 0 arguments but takes 1 or more
+       ——▶ justfile:1:8
+        │
+      1 │ var := shell()
+        │        ^^^^^
+      ",
+    )
+    .status(EXIT_FAILURE)
+    .run();
+}
+
+#[test]
+fn shell_minimal() {
+  Test::new()
+    .justfile(
+      r"
+      _ := '_'
+      var := shell('echo $0 $1', _, 'justice')
+      _:
+        @echo {{var}}",
+    )
+    .stdout(
+      "
+      _ justice
+      ",
+    )
+    .status(EXIT_SUCCESS)
+    .run();
+}
+
 #[test]
 #[cfg(not(windows))]
 fn join() {

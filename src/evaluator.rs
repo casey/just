@@ -72,6 +72,8 @@ impl<'src, 'run> Evaluator<'src, 'run> {
           dotenv: self.dotenv,
           invocation_directory: &self.config.invocation_directory,
           search: self.search,
+          settings: self.settings,
+          config: self.config,
         };
 
         match thunk {
