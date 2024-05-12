@@ -5,7 +5,7 @@ pub(crate) struct Shebang<'line> {
 }
 
 impl<'line> Shebang<'line> {
-  pub(crate) fn new(line: &'line str) -> Option<Shebang<'line>> {
+  pub(crate) fn new(line: &'line str) -> Option<Self> {
     if !line.starts_with("#!") {
       return None;
     }
@@ -24,7 +24,7 @@ impl<'line> Shebang<'line> {
       return None;
     }
 
-    Some(Shebang {
+    Some(Self {
       interpreter,
       argument,
     })

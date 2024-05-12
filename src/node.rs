@@ -18,10 +18,10 @@ impl<'src> Node<'src> for Ast<'src> {
 impl<'src> Node<'src> for Item<'src> {
   fn tree(&self) -> Tree<'src> {
     match self {
-      Item::Alias(alias) => alias.tree(),
-      Item::Assignment(assignment) => assignment.tree(),
-      Item::Comment(comment) => comment.tree(),
-      Item::Import {
+      Self::Alias(alias) => alias.tree(),
+      Self::Assignment(assignment) => assignment.tree(),
+      Self::Comment(comment) => comment.tree(),
+      Self::Import {
         relative, optional, ..
       } => {
         let mut tree = Tree::atom("import");
@@ -32,7 +32,7 @@ impl<'src> Node<'src> for Item<'src> {
 
         tree.push(format!("{relative}"))
       }
-      Item::Module {
+      Self::Module {
         name,
         optional,
         relative,
@@ -52,8 +52,8 @@ impl<'src> Node<'src> for Item<'src> {
 
         tree
       }
-      Item::Recipe(recipe) => recipe.tree(),
-      Item::Set(set) => set.tree(),
+      Self::Recipe(recipe) => recipe.tree(),
+      Self::Set(set) => set.tree(),
     }
   }
 }
@@ -83,8 +83,8 @@ impl<'src> Node<'src> for Assignment<'src> {
 impl<'src> Node<'src> for Expression<'src> {
   fn tree(&self) -> Tree<'src> {
     match self {
-      Expression::Concatenation { lhs, rhs } => Tree::atom("+").push(lhs.tree()).push(rhs.tree()),
-      Expression::Conditional {
+      Self::Concatenation { lhs, rhs } => Tree::atom("+").push(lhs.tree()).push(rhs.tree()),
+      Self::Conditional {
         lhs,
         rhs,
         then,
@@ -99,7 +99,7 @@ impl<'src> Node<'src> for Expression<'src> {
         tree.push_mut(otherwise.tree());
         tree
       }
-      Expression::Call { thunk } => {
+      Self::Call { thunk } => {
         use Thunk::*;
 
         let mut tree = Tree::atom("call");
@@ -152,14 +152,14 @@ impl<'src> Node<'src> for Expression<'src> {
 
         tree
       }
-      Expression::Variable { name } => Tree::atom(name.lexeme()),
-      Expression::StringLiteral {
+      Self::Variable { name } => Tree::atom(name.lexeme()),
+      Self::StringLiteral {
         string_literal: StringLiteral { cooked, .. },
       } => Tree::string(cooked),
-      Expression::Backtick { contents, .. } => Tree::atom("backtick").push(Tree::string(contents)),
-      Expression::Group { contents } => Tree::List(vec![contents.tree()]),
-      Expression::Join { lhs: None, rhs } => Tree::atom("/").push(rhs.tree()),
-      Expression::Join {
+      Self::Backtick { contents, .. } => Tree::atom("backtick").push(Tree::string(contents)),
+      Self::Group { contents } => Tree::List(vec![contents.tree()]),
+      Self::Join { lhs: None, rhs } => Tree::atom("/").push(rhs.tree()),
+      Self::Join {
         lhs: Some(lhs),
         rhs,
       } => Tree::atom("/").push(lhs.tree()).push(rhs.tree()),
