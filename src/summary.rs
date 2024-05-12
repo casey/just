@@ -45,7 +45,7 @@ pub struct Summary {
 }
 
 impl Summary {
-  fn new(justfile: &full::Justfile) -> Summary {
+  fn new(justfile: &full::Justfile) -> Self {
     let mut aliases = BTreeMap::new();
 
     for alias in justfile.aliases.values() {
@@ -55,7 +55,7 @@ impl Summary {
         .push(alias.name.to_string());
     }
 
-    Summary {
+    Self {
       recipes: justfile
         .recipes
         .iter()
@@ -87,8 +87,8 @@ pub struct Recipe {
 }
 
 impl Recipe {
-  fn new(recipe: &full::Recipe, aliases: Vec<String>) -> Recipe {
-    Recipe {
+  fn new(recipe: &full::Recipe, aliases: Vec<String>) -> Self {
+    Self {
       private: recipe.private,
       shebang: recipe.shebang,
       quiet: recipe.quiet,
@@ -108,8 +108,8 @@ pub struct Parameter {
 }
 
 impl Parameter {
-  fn new(parameter: &full::Parameter) -> Parameter {
-    Parameter {
+  fn new(parameter: &full::Parameter) -> Self {
+    Self {
       kind: ParameterKind::new(parameter.kind),
       name: parameter.name.lexeme().to_owned(),
       default: parameter.default.as_ref().map(Expression::new),
@@ -140,8 +140,8 @@ pub struct Line {
 }
 
 impl Line {
-  fn new(line: &full::Line) -> Line {
-    Line {
+  fn new(line: &full::Line) -> Self {
+    Self {
       fragments: line.fragments.iter().map(Fragment::new).collect(),
     }
   }
@@ -154,12 +154,12 @@ pub enum Fragment {
 }
 
 impl Fragment {
-  fn new(fragment: &full::Fragment) -> Fragment {
+  fn new(fragment: &full::Fragment) -> Self {
     match fragment {
-      full::Fragment::Text { token } => Fragment::Text {
+      full::Fragment::Text { token } => Self::Text {
         text: token.lexeme().to_owned(),
       },
-      full::Fragment::Interpolation { expression } => Fragment::Expression {
+      full::Fragment::Interpolation { expression } => Self::Expression {
         expression: Expression::new(expression),
       },
     }
@@ -173,8 +173,8 @@ pub struct Assignment {
 }
 
 impl Assignment {
-  fn new(assignment: &full::Assignment) -> Assignment {
-    Assignment {
+  fn new(assignment: &full::Assignment) -> Self {
+    Self {
       exported: assignment.export,
       expression: Expression::new(&assignment.value),
     }
