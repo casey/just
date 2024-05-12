@@ -38,16 +38,16 @@ pub(crate) struct Lexer<'src> {
 impl<'src> Lexer<'src> {
   /// Lex `src`
   pub(crate) fn lex(path: &'src Path, src: &'src str) -> CompileResult<'src, Vec<Token<'src>>> {
-    Lexer::new(path, src).tokenize()
+    Self::new(path, src).tokenize()
   }
 
   #[cfg(test)]
   pub(crate) fn test_lex(src: &'src str) -> CompileResult<'src, Vec<Token<'src>>> {
-    Lexer::new("justfile".as_ref(), src).tokenize()
+    Self::new("justfile".as_ref(), src).tokenize()
   }
 
   /// Create a new Lexer to lex `src`
-  fn new(path: &'src Path, src: &'src str) -> Lexer<'src> {
+  fn new(path: &'src Path, src: &'src str) -> Self {
     let mut chars = src.chars();
     let next = chars.next();
 
@@ -57,7 +57,7 @@ impl<'src> Lexer<'src> {
       line: 0,
     };
 
-    Lexer {
+    Self {
       indentation: vec![""],
       tokens: vec![],
       token_start: start,
@@ -282,11 +282,7 @@ impl<'src> Lexer<'src> {
 
   /// True if `c` can be a continuation character of an identifier
   fn is_identifier_continue(c: char) -> bool {
-    if Self::is_identifier_start(c) {
-      return true;
-    }
-
-    matches!(c, '0'..='9' | '-')
+    Self::is_identifier_start(c) || matches!(c, '0'..='9' | '-')
   }
 
   /// Consume the text and produce a series of tokens
