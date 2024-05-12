@@ -103,7 +103,7 @@ impl<'text> Tree<'text> {
 
   /// Like `push`, but modify self in-place
   pub(crate) fn push_mut(&mut self, tree: impl Into<Self>) {
-    *self = mem::replace(self, Self::List(vec![])).push(tree.into());
+    *self = mem::replace(self, Self::List(Vec::new())).push(tree.into());
   }
 }
 

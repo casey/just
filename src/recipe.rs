@@ -300,7 +300,7 @@ impl<'src, D> Recipe<'src, D> {
     config: &Config,
     mut evaluator: Evaluator<'src, 'run>,
   ) -> RunResult<'src, ()> {
-    let mut evaluated_lines = vec![];
+    let mut evaluated_lines = Vec::new();
     for line in &self.body {
       evaluated_lines.push(evaluator.evaluate_line(line, false)?);
     }

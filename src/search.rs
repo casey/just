@@ -144,7 +144,7 @@ impl Search {
   fn clean(invocation_directory: &Path, path: &Path) -> PathBuf {
     let path = invocation_directory.join(path);
 
-    let mut clean = vec![];
+    let mut clean = Vec::new();
 
     for component in path.components() {
       if component == Component::ParentDir {

@@ -65,7 +65,7 @@ impl Test {
 
   pub(crate) fn with_tempdir(tempdir: TempDir) -> Self {
     Self {
-      args: vec![],
+      args: Vec::new(),
       current_dir: PathBuf::new(),
       env: BTreeMap::new(),
       justfile: Some(String::new()),

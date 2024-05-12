@@ -1,7 +1,7 @@
 #[must_use]
 pub fn unindent(text: &str) -> String {
   // find line start and end indices
-  let mut lines = vec![];
+  let mut lines = Vec::new();
   let mut start = 0;
   for (i, c) in text.char_indices() {
     if c == '\n' || i == text.len() - c.len_utf8() {

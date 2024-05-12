@@ -99,7 +99,7 @@ fn main() -> Result {
 
     let mut chapters = vec![Chapter {
       level: HeadingLevel::H1,
-      events: vec![],
+      events: Vec::new(),
       index: 0,
       language,
     }];
@@ -109,7 +109,7 @@ fn main() -> Result {
         let index = chapters.last().unwrap().index + 1;
         chapters.push(Chapter {
           level,
-          events: vec![],
+          events: Vec::new(),
           index,
           language,
         });
@@ -123,7 +123,7 @@ fn main() -> Result {
       let mut current = None;
       for event in &chapter.events {
         match event {
-          Event::Start(Tag::Heading(..)) => current = Some(vec![]),
+          Event::Start(Tag::Heading(..)) => current = Some(Vec::new()),
           Event::End(Tag::Heading(level, ..)) => {
             let events = current.unwrap();
             let title = events

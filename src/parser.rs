@@ -268,13 +268,13 @@ impl<'run, 'src> Parser<'run, 'src> {
   fn accept_dependency(&mut self) -> CompileResult<'src, Option<UnresolvedDependency<'src>>> {
     if let Some(recipe) = self.accept_name()? {
       Ok(Some(UnresolvedDependency {
-        arguments: vec![],
+        arguments: Vec::new(),
         recipe,
       }))
     } else if self.accepted(ParenL)? {
       let recipe = self.parse_name()?;
 
-      let mut arguments = vec![];
+      let mut arguments = Vec::new();
 
       while !self.accepted(ParenR)? {
         arguments.push(self.parse_expression()?);
@@ -308,7 +308,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       None
     }
 
-    let mut items = vec![];
+    let mut items = Vec::new();
 
     let mut eol_since_last_comment = false;
 
@@ -421,7 +421,7 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     if self.next_token == self.tokens.len() {
       Ok(Ast {
-        warnings: vec![],
+        warnings: Vec::new(),
         items,
       })
     } else {
@@ -652,7 +652,7 @@ impl<'run, 'src> Parser<'run, 'src> {
   fn parse_sequence(&mut self) -> CompileResult<'src, Vec<Expression<'src>>> {
     self.presume(ParenL)?;
 
-    let mut elements = vec![];
+    let mut elements = Vec::new();
 
     while !self.next_is(ParenR) {
       elements.push(self.parse_expression()?);
@@ -676,7 +676,7 @@ impl<'run, 'src> Parser<'run, 'src> {
   ) -> CompileResult<'src, UnresolvedRecipe<'src>> {
     let name = self.parse_name()?;
 
-    let mut positional = vec![];
+    let mut positional = Vec::new();
 
     while self.next_is(Identifier) || self.next_is(Dollar) {
       positional.push(self.parse_parameter(ParameterKind::Singular)?);
@@ -706,7 +706,7 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     self.expect(Colon)?;
 
-    let mut dependencies = vec![];
+    let mut dependencies = Vec::new();
 
     while let Some(dependency) = self.accept_dependency()? {
       dependencies.push(dependency);
@@ -715,7 +715,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     let priors = dependencies.len();
 
     if self.accepted(AmpersandAmpersand)? {
-      let mut subsequents = vec![];
+      let mut subsequents = Vec::new();
 
       while let Some(subsequent) = self.accept_dependency()? {
         subsequents.push(subsequent);
@@ -772,14 +772,14 @@ impl<'run, 'src> Parser<'run, 'src> {
 
   /// Parse the body of a recipe
   fn parse_body(&mut self) -> CompileResult<'src, Vec<Line<'src>>> {
-    let mut lines = vec![];
+    let mut lines = Vec::new();
 
     if self.accepted(Indent)? {
       while !self.accepted(Dedent)? {
         let line = if self.accepted(Eol)? {
-          Line { fragments: vec![] }
+          Line { fragments: Vec::new() }
         } else {
-          let mut fragments = vec![];
+          let mut fragments = Vec::new();
 
           while !(self.accepted(Eol)? || self.next_is(Dedent)) {
             if let Some(token) = self.accept(Text)? {
@@ -885,7 +885,7 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     let command = self.parse_string_literal()?;
 
-    let mut arguments = vec![];
+    let mut arguments = Vec::new();
 
     if self.accepted(Comma)? {
       while !self.next_is(BracketR) {

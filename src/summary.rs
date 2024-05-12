@@ -223,7 +223,7 @@ impl Expression {
       Call { thunk } => match thunk {
         full::Thunk::Nullary { name, .. } => Self::Call {
           name: name.lexeme().to_owned(),
-          arguments: vec![],
+          arguments: Vec::new(),
         },
         full::Thunk::Unary { name, arg, .. } => Self::Call {
           name: name.lexeme().to_owned(),
@@ -234,7 +234,7 @@ impl Expression {
           args: (a, opt_b),
           ..
         } => {
-          let mut arguments = vec![];
+          let mut arguments = Vec::new();
 
           if let Some(b) = opt_b.as_ref() {
             arguments.push(Self::new(b));
