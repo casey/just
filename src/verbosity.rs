@@ -26,17 +26,11 @@ impl Verbosity {
   }
 
   pub(crate) fn loquacious(self) -> bool {
-    match self {
-      Quiet | Taciturn => false,
-      Loquacious | Grandiloquent => true,
-    }
+    matches!(self, Loquacious | Grandiloquent)
   }
 
   pub(crate) fn grandiloquent(self) -> bool {
-    match self {
-      Quiet | Taciturn | Loquacious => false,
-      Grandiloquent => true,
-    }
+    self == Grandiloquent
   }
 
   pub const fn default() -> Self {

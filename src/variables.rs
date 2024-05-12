@@ -5,8 +5,8 @@ pub(crate) struct Variables<'expression, 'src> {
 }
 
 impl<'expression, 'src> Variables<'expression, 'src> {
-  pub(crate) fn new(root: &'expression Expression<'src>) -> Variables<'expression, 'src> {
-    Variables { stack: vec![root] }
+  pub(crate) fn new(root: &'expression Expression<'src>) -> Self {
+    Self { stack: vec![root] }
   }
 }
 
