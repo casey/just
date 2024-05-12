@@ -639,7 +639,9 @@ impl Config {
       Some(
         matches
           .values_of(arg::SHELL_ARG)
-          .map_or(Vec::new(), |shell_args| shell_args.map(str::to_owned).collect()),
+          .map_or(Vec::new(), |shell_args| {
+            shell_args.map(str::to_owned).collect()
+          }),
       )
     } else {
       None

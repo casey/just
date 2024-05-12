@@ -777,7 +777,9 @@ impl<'run, 'src> Parser<'run, 'src> {
     if self.accepted(Indent)? {
       while !self.accepted(Dedent)? {
         let line = if self.accepted(Eol)? {
-          Line { fragments: Vec::new() }
+          Line {
+            fragments: Vec::new(),
+          }
         } else {
           let mut fragments = Vec::new();
 
