@@ -50,14 +50,14 @@ impl<'src> Expression<'src> {
 impl<'src> Display for Expression<'src> {
   fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
     match self {
-      Expression::Backtick { token, .. } => write!(f, "{}", token.lexeme()),
-      Expression::Join { lhs: None, rhs } => write!(f, "/ {rhs}"),
-      Expression::Join {
+      &Self::Backtick { token, .. } => write!(f, "{}", token.lexeme()),
+      Self::Join { lhs: None, rhs } => write!(f, "/ {rhs}"),
+      Self::Join {
         lhs: Some(lhs),
         rhs,
       } => write!(f, "{lhs} / {rhs}"),
-      Expression::Concatenation { lhs, rhs } => write!(f, "{lhs} + {rhs}"),
-      Expression::Conditional {
+      Self::Concatenation { lhs, rhs } => write!(f, "{lhs} + {rhs}"),
+      Self::Conditional {
         lhs,
         rhs,
         then,
@@ -67,10 +67,10 @@ impl<'src> Display for Expression<'src> {
         f,
         "if {lhs} {operator} {rhs} {{ {then} }} else {{ {otherwise} }}"
       ),
-      Expression::StringLiteral { string_literal } => write!(f, "{string_literal}"),
-      Expression::Variable { name } => write!(f, "{}", name.lexeme()),
-      Expression::Call { thunk } => write!(f, "{thunk}"),
-      Expression::Group { contents } => write!(f, "({contents})"),
+      Self::StringLiteral { string_literal } => write!(f, "{string_literal}"),
+      Self::Variable { name } => write!(f, "{}", name.lexeme()),
+      Self::Call { thunk } => write!(f, "{thunk}"),
+      Self::Group { contents } => write!(f, "({contents})"),
     }
   }
 }

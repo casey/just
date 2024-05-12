@@ -252,8 +252,8 @@ impl<'src> Node<'src> for Line<'src> {
 impl<'src> Node<'src> for Fragment<'src> {
   fn tree(&self) -> Tree<'src> {
     match self {
-      Fragment::Text { token } => Tree::string(token.lexeme()),
-      Fragment::Interpolation { expression } => Tree::List(vec![expression.tree()]),
+      Self::Text { token } => Tree::string(token.lexeme()),
+      Self::Interpolation { expression } => Tree::List(vec![expression.tree()]),
     }
   }
 }
