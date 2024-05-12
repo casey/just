@@ -88,7 +88,7 @@ pub(crate) fn analysis_error(
           length,
           path: "justfile".as_ref(),
         },
-        kind: Box::new(kind),
+        kind: kind.into(),
       };
       assert_eq!(have, want);
     }

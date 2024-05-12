@@ -276,12 +276,12 @@ impl Expression {
         },
       },
       Concatenation { lhs, rhs } => Self::Concatenation {
-        lhs: Box::new(Self::new(lhs)),
-        rhs: Box::new(Self::new(rhs)),
+        lhs: Self::new(lhs).into(),
+        rhs: Self::new(rhs).into(),
       },
       Join { lhs, rhs } => Self::Join {
-        lhs: lhs.as_ref().map(|lhs| Box::new(Self::new(lhs))),
-        rhs: Box::new(Self::new(rhs)),
+        lhs: lhs.as_ref().map(|lhs| Self::new(lhs).into()),
+        rhs: Self::new(rhs).into(),
       },
       Conditional {
         lhs,
@@ -290,11 +290,11 @@ impl Expression {
         rhs,
         then,
       } => Self::Conditional {
-        lhs: Box::new(Self::new(lhs)),
+        lhs: Self::new(lhs).into(),
         operator: ConditionalOperator::new(*operator),
-        otherwise: Box::new(Self::new(otherwise)),
-        rhs: Box::new(Self::new(rhs)),
-        then: Box::new(Self::new(then)),
+        otherwise: Self::new(otherwise).into(),
+        rhs: Self::new(rhs).into(),
+        then: Self::new(then).into(),
       },
       StringLiteral { string_literal } => Self::String {
         text: string_literal.cooked.clone(),
