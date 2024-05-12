@@ -11,7 +11,7 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
     assignments: &'run Table<'src, Assignment<'src>>,
   ) -> CompileResult<'src> {
     let mut resolver = Self {
-      stack: Vec::new(),
+      stack: vec![],
       evaluated: BTreeSet::new(),
       assignments,
     };

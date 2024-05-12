@@ -18,7 +18,7 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
     };
 
     while let Some(unresolved) = resolver.unresolved_recipes.pop() {
-      resolver.resolve_recipe(&mut Vec::new(), unresolved)?;
+      resolver.resolve_recipe(&mut vec![], unresolved)?;
     }
 
     for recipe in resolver.resolved_recipes.values() {
@@ -79,7 +79,7 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
 
     stack.push(recipe.name());
 
-    let mut dependencies: Vec<Rc<Recipe>> = Vec::new();
+    let mut dependencies: Vec<Rc<Recipe>> = vec![];
     for dependency in &recipe.dependencies {
       let name = dependency.recipe.lexeme();
 

@@ -634,9 +634,7 @@ impl Config {
       Some(
         matches
           .values_of(arg::SHELL_ARG)
-          .map_or(Vec::new(), |shell_args| {
-            shell_args.map(str::to_owned).collect()
-          }),
+          .map_or(vec![], |shell_args| shell_args.map(str::to_owned).collect()),
       )
     } else {
       None
@@ -966,7 +964,7 @@ mod tests {
     name: set_default,
     args: [],
     subcommand: Subcommand::Run {
-      arguments: Vec::new(),
+      arguments: vec![],
       overrides: map!(),
     },
   }
@@ -975,7 +973,7 @@ mod tests {
     name: set_one,
     args: ["--set", "foo", "bar"],
     subcommand: Subcommand::Run {
-      arguments: Vec::new(),
+      arguments: vec![],
       overrides: map!{"foo": "bar"},
     },
   }
@@ -984,7 +982,7 @@ mod tests {
     name: set_empty,
     args: ["--set", "foo", ""],
     subcommand: Subcommand::Run {
-      arguments: Vec::new(),
+      arguments: vec![],
       overrides: map!{"foo": ""},
     },
   }
@@ -993,7 +991,7 @@ mod tests {
     name: set_two,
     args: ["--set", "foo", "bar", "--set", "bar", "baz"],
     subcommand: Subcommand::Run {
-      arguments: Vec::new(),
+      arguments: vec![],
       overrides: map!{"foo": "bar", "bar": "baz"},
     },
   }
@@ -1002,7 +1000,7 @@ mod tests {
     name: set_override,
     args: ["--set", "foo", "bar", "--set", "foo", "baz"],
     subcommand: Subcommand::Run {
-      arguments: Vec::new(),
+      arguments: vec![],
       overrides: map!{"foo": "baz"},
     },
   }
@@ -1066,7 +1064,7 @@ mod tests {
     name: subcommand_default,
     args: [],
     subcommand: Subcommand::Run {
-      arguments: Vec::new(),
+      arguments: vec![],
       overrides: map!{},
     },
   }
@@ -1240,7 +1238,7 @@ mod tests {
     name: overrides,
     args: ["foo=bar", "bar=baz"],
     subcommand: Subcommand::Run {
-      arguments: Vec::new(),
+      arguments: vec![],
       overrides: map!{"foo": "bar", "bar": "baz"},
     },
   }
@@ -1249,7 +1247,7 @@ mod tests {
     name: overrides_empty,
     args: ["foo=", "bar="],
     subcommand: Subcommand::Run {
-      arguments: Vec::new(),
+      arguments: vec![],
       overrides: map!{"foo": "", "bar": ""},
     },
   }
@@ -1258,7 +1256,7 @@ mod tests {
     name: overrides_override_sets,
     args: ["--set", "foo", "0", "--set", "bar", "1", "foo=bar", "bar=baz"],
     subcommand: Subcommand::Run {
-      arguments: Vec::new(),
+      arguments: vec![],
       overrides: map!{"foo": "bar", "bar": "baz"},
     },
   }

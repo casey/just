@@ -38,9 +38,9 @@ pub struct Positional {
 
 impl Positional {
   pub fn from_values<'values>(values: Option<impl IntoIterator<Item = &'values str>>) -> Self {
-    let mut overrides = Vec::new();
+    let mut overrides = vec![];
     let mut search_directory = None;
-    let mut arguments = Vec::new();
+    let mut arguments = vec![];
 
     if let Some(values) = values {
       for value in values {

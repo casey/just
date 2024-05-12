@@ -84,7 +84,7 @@ impl<'src> Justfile<'src> {
     'src: 'run,
   {
     let mut scope = parent.child();
-    let mut unknown_overrides = Vec::new();
+    let mut unknown_overrides = vec![];
 
     for (name, value) in overrides {
       if let Some(assignment) = self.assignments.get(name) {
@@ -220,8 +220,8 @@ impl<'src> Justfile<'src> {
       return Err(Error::NoDefaultRecipe);
     };
 
-    let mut missing = Vec::new();
-    let mut invocations = Vec::new();
+    let mut missing = vec![];
+    let mut invocations = vec![];
     let mut scopes = BTreeMap::new();
     let arena: Arena<Scope> = Arena::new();
 
@@ -241,7 +241,7 @@ impl<'src> Justfile<'src> {
 
       if let Some((invocation, consumed)) = self.invocation(
         0,
-        &mut Vec::new(),
+        &mut vec![],
         &arena,
         &mut scopes,
         config,
@@ -342,7 +342,7 @@ impl<'src> Justfile<'src> {
             Invocation {
               settings: &module.settings,
               recipe,
-              arguments: Vec::new(),
+              arguments: vec![],
               scope,
             },
             depth,
@@ -367,7 +367,7 @@ impl<'src> Justfile<'src> {
       if recipe.parameters.is_empty() {
         Ok(Some((
           Invocation {
-            arguments: Vec::new(),
+            arguments: vec![],
             recipe,
             scope: parent,
             settings: &self.settings,
@@ -451,7 +451,7 @@ impl<'src> Justfile<'src> {
       let mut ran = Ran::default();
 
       for Dependency { recipe, arguments } in recipe.dependencies.iter().skip(recipe.priors) {
-        let mut evaluated = Vec::new();
+        let mut evaluated = vec![];
 
         for argument in arguments {
           evaluated.push(evaluator.evaluate_expression(argument)?);

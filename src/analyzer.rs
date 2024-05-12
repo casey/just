@@ -24,12 +24,12 @@ impl<'src> Analyzer<'src> {
     asts: &HashMap<PathBuf, Ast<'src>>,
     root: &Path,
   ) -> CompileResult<'src, Justfile<'src>> {
-    let mut recipes = Vec::new();
+    let mut recipes = vec![];
 
-    let mut stack = Vec::new();
+    let mut stack = vec![];
     stack.push(asts.get(root).unwrap());
 
-    let mut warnings = Vec::new();
+    let mut warnings = vec![];
 
     let mut modules: BTreeMap<String, (Name, Justfile)> = BTreeMap::new();
 

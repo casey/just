@@ -293,7 +293,7 @@ impl Subcommand {
       .parse::<Shell>()
       .expect("Invalid value for clap::Shell");
 
-    let buffer = Vec::new();
+    let buffer = vec![];
     let mut cursor = Cursor::new(buffer);
     Config::app().gen_completions_to(env!("CARGO_PKG_NAME"), shell, &mut cursor);
     let buffer = cursor.into_inner();
@@ -451,7 +451,7 @@ impl Subcommand {
         continue;
       }
 
-      for name in iter::once(name).chain(recipe_aliases.get(name).unwrap_or(&Vec::new())) {
+      for name in iter::once(name).chain(recipe_aliases.get(name).unwrap_or(&vec![])) {
         let mut line_width = UnicodeWidthStr::width(*name);
 
         for parameter in &recipe.parameters {
@@ -477,7 +477,7 @@ impl Subcommand {
       let name = recipe.name();
 
       for (i, name) in iter::once(&name)
-        .chain(recipe_aliases.get(name).unwrap_or(&Vec::new()))
+        .chain(recipe_aliases.get(name).unwrap_or(&vec![]))
         .enumerate()
       {
         print!("{}{name}", config.list_prefix.repeat(level + 1));
@@ -536,7 +536,7 @@ impl Subcommand {
 
   fn summary(config: &Config, justfile: &Justfile) {
     let mut printed = 0;
-    Self::summary_recursive(config, &mut Vec::new(), &mut printed, justfile);
+    Self::summary_recursive(config, &mut vec![], &mut printed, justfile);
     println!();
 
     if printed == 0 && config.verbosity.loud() {

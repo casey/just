@@ -132,7 +132,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
             let a = self.evaluate_expression(a)?;
             let b = self.evaluate_expression(b)?;
 
-            let mut rest_evaluated = Vec::new();
+            let mut rest_evaluated = vec![];
             for arg in rest {
               rest_evaluated.push(self.evaluate_expression(arg)?);
             }
@@ -271,7 +271,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
 
     let mut scope = scope.child();
 
-    let mut positional = Vec::new();
+    let mut positional = vec![];
 
     let mut rest = arguments;
     for parameter in parameters {

@@ -59,13 +59,13 @@ impl<'src> Lexer<'src> {
 
     Lexer {
       indentation: vec![""],
-      tokens: Vec::new(),
+      tokens: vec![],
       token_start: start,
       token_end: start,
       recipe_body_pending: false,
       recipe_body: false,
-      interpolation_stack: Vec::new(),
-      open_delimiters: Vec::new(),
+      interpolation_stack: vec![],
+      open_delimiters: vec![],
       chars,
       next,
       src,

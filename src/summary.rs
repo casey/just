@@ -223,7 +223,7 @@ impl Expression {
       Call { thunk } => match thunk {
         full::Thunk::Nullary { name, .. } => Expression::Call {
           name: name.lexeme().to_owned(),
-          arguments: Vec::new(),
+          arguments: vec![],
         },
         full::Thunk::Unary { name, arg, .. } => Expression::Call {
           name: name.lexeme().to_owned(),

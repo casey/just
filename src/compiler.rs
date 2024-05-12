@@ -11,9 +11,9 @@ impl Compiler {
     let mut asts: HashMap<PathBuf, Ast> = HashMap::new();
     let mut paths: HashMap<PathBuf, PathBuf> = HashMap::new();
     let mut srcs: HashMap<PathBuf, &str> = HashMap::new();
-    let mut loaded = Vec::new();
+    let mut loaded = vec![];
 
-    let mut stack = Vec::new();
+    let mut stack = vec![];
     stack.push(Source::root(root));
 
     while let Some(current) = stack.pop() {
