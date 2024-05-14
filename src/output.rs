@@ -20,6 +20,8 @@ pub(crate) fn output(mut command: Command) -> Result<String, OutputError> {
         Ok(utf8) => Ok(
           if utf8.ends_with('\n') {
             &utf8[0..utf8.len() - 1]
+          if utf8.ends_with('\r') {
+            &utf8[0..utf8.len() - 1]
           } else if utf8.ends_with("\r\n") {
             &utf8[0..utf8.len() - 2]
           } else {
