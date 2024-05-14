@@ -36,6 +36,7 @@ mod allow_duplicate_recipes;
 mod assert_stdout;
 mod assert_success;
 mod attributes;
+mod backticks;
 mod byte_order_mark;
 mod changelog;
 mod choose;
