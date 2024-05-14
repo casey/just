@@ -5,7 +5,6 @@ fn trailing_newlines_are_stripped() {
   Test::new()
     .shell(false)
     .args(["--evaluate", "foos"])
-    .env("BOGO", "BAR")
     .justfile(
       "
 set shell := ['python3', '-c']
