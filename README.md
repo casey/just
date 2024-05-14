@@ -278,7 +278,9 @@ most Windows users.)
   </tbody>
 </table>
 
-![package version table](https://repology.org/badge/vertical-allrepos/just.svg)
+![just package version table](https://repology.org/badge/vertical-allrepos/just.svg)
+
+![rust:just package version table](https://repology.org/badge/vertical-allrepos/rust:just.svg)
 
 ### Pre-Built Binaries
 
