@@ -1,7 +1,6 @@
 use super::*;
 
 #[test]
-#[cfg(windows)]
 fn trailing_newlines_are_stripped() {
   Test::new()
     .shell(false)
