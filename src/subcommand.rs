@@ -1,4 +1,8 @@
-use super::*;
+use {
+  super::*,
+  std::io::{Read, Seek},
+  tempfile::tempfile,
+};
 
 const INIT_JUSTFILE: &str = "default:\n    echo 'Hello, world!'\n";
 
@@ -15,7 +19,7 @@ pub(crate) enum Subcommand {
     overrides: BTreeMap<String, String>,
   },
   Completions {
-    shell: String,
+    shell: clap_complete::Shell,
   },
   Dump,
   Edit,
@@ -50,7 +54,7 @@ impl Subcommand {
         Self::changelog();
         return Ok(());
       }
-      Completions { shell } => return Self::completions(shell),
+      Completions { shell } => return Self::completions(*shell),
       Init => return Self::init(config),
       Run {
         arguments,
@@ -213,10 +217,7 @@ impl Subcommand {
       return Err(Error::NoChoosableRecipes);
     }
 
-    let chooser = chooser
-      .map(OsString::from)
-      .or_else(|| env::var_os(config::CHOOSER_ENVIRONMENT_KEY))
-      .unwrap_or_else(|| config::chooser_default(&search.justfile));
+    let chooser = chooser.map_or_else(|| config::chooser_default(&search.justfile), From::from);
 
     let result = justfile
       .settings
@@ -275,8 +276,8 @@ impl Subcommand {
     justfile.run(config, search, overrides, &recipes)
   }
 
-  fn completions(shell: &str) -> RunResult<'static, ()> {
-    use clap::Shell;
+  fn completions(shell: clap_complete::Shell) -> RunResult<'static, ()> {
+    use clap_complete::Shell;
 
     fn replace(haystack: &mut String, needle: &str, replacement: &str) -> RunResult<'static, ()> {
       if let Some(index) = haystack.find(needle) {
@@ -289,15 +290,28 @@ impl Subcommand {
       }
     }
 
-    let shell = shell
-      .parse::<Shell>()
-      .expect("Invalid value for clap::Shell");
+    let mut script = {
+      let mut tempfile = tempfile().map_err(|io_error| Error::TempfileIo { io_error })?;
 
-    let buffer = Vec::new();
-    let mut cursor = Cursor::new(buffer);
-    Config::app().gen_completions_to(env!("CARGO_PKG_NAME"), shell, &mut cursor);
-    let buffer = cursor.into_inner();
-    let mut script = String::from_utf8(buffer).expect("Clap completion not UTF-8");
+      clap_complete::generate(
+        shell,
+        &mut crate::config::Config::app(),
+        env!("CARGO_PKG_NAME"),
+        &mut tempfile,
+      );
+
+      tempfile
+        .rewind()
+        .map_err(|io_error| Error::TempfileIo { io_error })?;
+
+      let mut buffer = String::new();
+
+      tempfile
+        .read_to_string(&mut buffer)
+        .map_err(|io_error| Error::TempfileIo { io_error })?;
+
+      buffer
+    };
 
     match shell {
       Shell::Bash => {
@@ -319,7 +333,7 @@ impl Subcommand {
           replace(&mut script, needle, replacement)?;
         }
       }
-      Shell::Elvish => {}
+      _ => {}
     }
 
     println!("{}", script.trim());

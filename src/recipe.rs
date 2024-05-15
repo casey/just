@@ -336,7 +336,7 @@ impl<'src, D> Recipe<'src, D> {
       Some(tempdir) => tempdir_builder.tempdir_in(context.search.working_directory.join(tempdir)),
       None => tempdir_builder.tempdir(),
     }
-    .map_err(|error| Error::TmpdirIo {
+    .map_err(|error| Error::TempdirIo {
       recipe: self.name(),
       io_error: error,
     })?;
@@ -344,7 +344,7 @@ impl<'src, D> Recipe<'src, D> {
     path.push(shebang.script_filename(self.name()));
 
     {
-      let mut f = fs::File::create(&path).map_err(|error| Error::TmpdirIo {
+      let mut f = fs::File::create(&path).map_err(|error| Error::TempdirIo {
         recipe: self.name(),
         io_error: error,
       })?;
@@ -372,14 +372,14 @@ impl<'src, D> Recipe<'src, D> {
       }
 
       f.write_all(text.as_bytes())
-        .map_err(|error| Error::TmpdirIo {
+        .map_err(|error| Error::TempdirIo {
           recipe: self.name(),
           io_error: error,
         })?;
     }
 
     // make script executable
-    Platform::set_execute_permission(&path).map_err(|error| Error::TmpdirIo {
+    Platform::set_execute_permission(&path).map_err(|error| Error::TempdirIo {
       recipe: self.name(),
       io_error: error,
     })?;

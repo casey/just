@@ -189,6 +189,7 @@ impl Test {
 }
 
 impl Test {
+  #[track_caller]
   pub(crate) fn run(self) -> Output {
     if let Some(justfile) = &self.justfile {
       let justfile = unindent(justfile);
