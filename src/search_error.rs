@@ -14,10 +14,8 @@ pub(crate) enum SearchError {
   },
   #[snafu(display("Justfile path had no parent: {}", path.display()))]
   JustfileHadNoParent { path: PathBuf },
-
   #[snafu(display("Global justfile not found"))]
   MissingGlobalJustfile,
-
   #[snafu(display(
     "Multiple candidate justfiles found in `{}`: {}",
     candidates.iter().next().unwrap().parent().unwrap().display(),
