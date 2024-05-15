@@ -456,6 +456,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     let value = self.parse_expression()?;
     self.expect_eol()?;
     Ok(Assignment {
+      depth: self.submodule_depth,
       export,
       name,
       value,
@@ -503,18 +504,7 @@ impl<'run, 'src> Parser<'run, 'src> {
 
   /// Parse a conditional, e.g. `if a == b { "foo" } else { "bar" }`
   fn parse_conditional(&mut self) -> CompileResult<'src, Expression<'src>> {
-    let lhs = self.parse_expression()?;
-
-    let operator = if self.accepted(BangEquals)? {
-      ConditionalOperator::Inequality
-    } else if self.accepted(EqualsTilde)? {
-      ConditionalOperator::RegexMatch
-    } else {
-      self.expect(EqualsEquals)?;
-      ConditionalOperator::Equality
-    };
-
-    let rhs = self.parse_expression()?;
+    let condition = self.parse_condition()?;
 
     self.expect(BraceL)?;
 
@@ -534,10 +524,26 @@ impl<'run, 'src> Parser<'run, 'src> {
     };
 
     Ok(Expression::Conditional {
-      lhs: Box::new(lhs),
-      rhs: Box::new(rhs),
+      condition,
       then: Box::new(then),
       otherwise: Box::new(otherwise),
+    })
+  }
+
+  fn parse_condition(&mut self) -> CompileResult<'src, Condition<'src>> {
+    let lhs = self.parse_expression()?;
+    let operator = if self.accepted(BangEquals)? {
+      ConditionalOperator::Inequality
+    } else if self.accepted(EqualsTilde)? {
+      ConditionalOperator::RegexMatch
+    } else {
+      self.expect(EqualsEquals)?;
+      ConditionalOperator::Equality
+    };
+    let rhs = self.parse_expression()?;
+    Ok(Condition {
+      lhs: Box::new(lhs),
+      rhs: Box::new(rhs),
       operator,
     })
   }
@@ -563,18 +569,26 @@ impl<'run, 'src> Parser<'run, 'src> {
       if contents.starts_with("#!") {
         return Err(next.error(CompileErrorKind::BacktickShebang));
       }
-
       Ok(Expression::Backtick { contents, token })
     } else if self.next_is(Identifier) {
-      let name = self.parse_name()?;
-
-      if self.next_is(ParenL) {
-        let arguments = self.parse_sequence()?;
-        Ok(Expression::Call {
-          thunk: Thunk::resolve(name, arguments)?,
-        })
+      if self.accepted_keyword(Keyword::Assert)? {
+        self.expect(ParenL)?;
+        let condition = self.parse_condition()?;
+        self.expect(Comma)?;
+        let error = Box::new(self.parse_expression()?);
+        self.expect(ParenR)?;
+        Ok(Expression::Assert { condition, error })
       } else {
-        Ok(Expression::Variable { name })
+        let name = self.parse_name()?;
+
+        if self.next_is(ParenL) {
+          let arguments = self.parse_sequence()?;
+          Ok(Expression::Call {
+            thunk: Thunk::resolve(name, arguments)?,
+          })
+        } else {
+          Ok(Expression::Variable { name })
+        }
       }
     } else if self.next_is(ParenL) {
       self.presume(ParenL)?;
@@ -846,6 +860,9 @@ impl<'run, 'src> Parser<'run, 'src> {
     let set_bool = match keyword {
       Keyword::AllowDuplicateRecipes => {
         Some(Setting::AllowDuplicateRecipes(self.parse_set_bool()?))
+      }
+      Keyword::AllowDuplicateVariables => {
+        Some(Setting::AllowDuplicateVariables(self.parse_set_bool()?))
       }
       Keyword::DotenvLoad => Some(Setting::DotenvLoad(self.parse_set_bool()?)),
       Keyword::Export => Some(Setting::Export(self.parse_set_bool()?)),
@@ -1914,6 +1931,12 @@ mod tests {
   }
 
   test! {
+    name: set_allow_duplicate_variables_implicit,
+    text: "set allow-duplicate-variables",
+    tree: (justfile (set allow_duplicate_variables true)),
+  }
+
+  test! {
     name: set_dotenv_load_true,
     text: "set dotenv-load := true",
     tree: (justfile (set dotenv_load true)),
@@ -2091,6 +2114,18 @@ mod tests {
     name: optional_module_with_path,
     text: "mod? foo \"some/file/path.txt\"     \n",
     tree: (justfile (mod ? foo "some/file/path.txt")),
+  }
+
+  test! {
+    name: assert,
+    text: "a := assert(foo == \"bar\", \"error\")",
+    tree: (justfile (assignment a (assert foo == "bar" "error"))),
+  }
+
+  test! {
+    name: assert_conditional_condition,
+    text: "foo := assert(if a != b { c } else { d } == \"abc\", \"error\")",
+    tree: (justfile (assignment foo (assert (if a != b c d) == "abc" "error"))),
   }
 
   error! {

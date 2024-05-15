@@ -1,6 +1,24 @@
 Changelog
 =========
 
+[1.26.0](https://github.com/casey/just/releases/tag/1.26.0) - 2024-05-13
+------------------------------------------------------------------------
+
+### Added
+- Add --no-aliases to hide aliases in --list ([#1961](https://github.com/casey/just/pull/1961) by [WJehee](https://github.com/WJehee))
+- Add -E as alias for --dotenv-path ([#1910](https://github.com/casey/just/pull/1910) by [amarao](https://github.com/amarao))
+
+### Misc
+- Update softprops/action-gh-release ([#2029](https://github.com/casey/just/pull/2029) by [app/dependabot](https://github.com/app/dependabot))
+- Update dependencies ([#1999](https://github.com/casey/just/pull/1999) by [neunenak](https://github.com/neunenak))
+- Bump peaceiris/actions-gh-pages to version 4 ([#2005](https://github.com/casey/just/pull/2005) by [app/dependabot](https://github.com/app/dependabot))
+- Clarify that janus operates on public justfiles only ([#2021](https://github.com/casey/just/pull/2021))
+- Fix Error::TmpdirIo error message ([#1987](https://github.com/casey/just/pull/1987))
+- Update softprops/action-gh-release ([#1973](https://github.com/casey/just/pull/1973) by [app/dependabot](https://github.com/app/dependabot))
+- Rename `delete` example recipe to `delete-all` ([#1966](https://github.com/casey/just/pull/1966) by [aarmn](https://github.com/aarmn))
+- Update softprops/action-gh-release ([#1954](https://github.com/casey/just/pull/1954) by [app/dependabot](https://github.com/app/dependabot))
+- Fix function name typo ([#1953](https://github.com/casey/just/pull/1953) by [racerole](https://github.com/racerole))
+
 [1.25.2](https://github.com/casey/just/releases/tag/1.25.2) - 2024-03-10
 ------------------------------------------------------------------------
 
