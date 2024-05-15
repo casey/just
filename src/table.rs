@@ -7,8 +7,8 @@ pub(crate) struct Table<'key, V: Keyed<'key>> {
 }
 
 impl<'key, V: Keyed<'key>> Table<'key, V> {
-  pub(crate) fn new() -> Table<'key, V> {
-    Table {
+  pub(crate) fn new() -> Self {
+    Self {
       map: BTreeMap::new(),
     }
   }
@@ -63,7 +63,7 @@ impl<'key, V: Keyed<'key>> Default for Table<'key, V> {
 
 impl<'key, V: Keyed<'key>> FromIterator<V> for Table<'key, V> {
   fn from_iter<I: IntoIterator<Item = V>>(iter: I) -> Self {
-    Table {
+    Self {
       map: iter.into_iter().map(|value| (value.key(), value)).collect(),
     }
   }

@@ -14,7 +14,7 @@ impl<'src> Analyzer<'src> {
     asts: &HashMap<PathBuf, Ast<'src>>,
     root: &Path,
   ) -> CompileResult<'src, Justfile<'src>> {
-    Analyzer::default().justfile(loaded, paths, asts, root)
+    Self::default().justfile(loaded, paths, asts, root)
   }
 
   fn justfile(

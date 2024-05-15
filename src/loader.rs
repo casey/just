@@ -7,7 +7,7 @@ pub(crate) struct Loader {
 
 impl Loader {
   pub(crate) fn new() -> Self {
-    Loader {
+    Self {
       srcs: Arena::new(),
       paths: Arena::new(),
     }

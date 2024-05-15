@@ -1290,7 +1290,7 @@ mod tests {
   test! {
     name: shell_args_clear,
     args: ["--clear-shell-args"],
-    shell_args: Some(vec![]),
+    shell_args: Some(Vec::new()),
 
   }
 
@@ -1304,14 +1304,14 @@ mod tests {
   test! {
     name: shell_args_set_and_clear,
     args: ["--shell-arg", "bar", "--clear-shell-args"],
-    shell_args: Some(vec![]),
+    shell_args: Some(Vec::new()),
 
   }
 
   test! {
     name: shell_args_set_multiple_and_clear,
     args: ["--shell-arg", "bar", "--shell-arg", "baz", "--clear-shell-args"],
-    shell_args: Some(vec![]),
+    shell_args: Some(Vec::new()),
 
   }
 
