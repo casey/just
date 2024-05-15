@@ -1,7 +1,4 @@
-use {
-  super::*,
-  std::process::{ExitStatus, Stdio},
-};
+use super::*;
 
 /// Return a `Error::Signal` if the process was terminated by a signal,
 /// otherwise return an `Error::UnknownFailure`
@@ -303,14 +300,21 @@ impl<'src, D> Recipe<'src, D> {
     config: &Config,
     mut evaluator: Evaluator<'src, 'run>,
   ) -> RunResult<'src, ()> {
-    let mut evaluated_lines = vec![];
+    let mut evaluated_lines = Vec::new();
     for line in &self.body {
       evaluated_lines.push(evaluator.evaluate_line(line, false)?);
     }
 
     if config.verbosity.loud() && (config.dry_run || self.quiet) {
       for line in &evaluated_lines {
-        eprintln!("{line}");
+        eprintln!(
+          "{}",
+          config
+            .color
+            .command(config.command_color)
+            .stderr()
+            .paint(line)
+        );
       }
     }
 
@@ -332,7 +336,7 @@ impl<'src, D> Recipe<'src, D> {
       Some(tempdir) => tempdir_builder.tempdir_in(context.search.working_directory.join(tempdir)),
       None => tempdir_builder.tempdir(),
     }
-    .map_err(|error| Error::TmpdirIo {
+    .map_err(|error| Error::TempdirIo {
       recipe: self.name(),
       io_error: error,
     })?;
@@ -340,7 +344,7 @@ impl<'src, D> Recipe<'src, D> {
     path.push(shebang.script_filename(self.name()));
 
     {
-      let mut f = fs::File::create(&path).map_err(|error| Error::TmpdirIo {
+      let mut f = fs::File::create(&path).map_err(|error| Error::TempdirIo {
         recipe: self.name(),
         io_error: error,
       })?;
@@ -368,14 +372,14 @@ impl<'src, D> Recipe<'src, D> {
       }
 
       f.write_all(text.as_bytes())
-        .map_err(|error| Error::TmpdirIo {
+        .map_err(|error| Error::TempdirIo {
           recipe: self.name(),
           io_error: error,
         })?;
     }
 
     // make script executable
-    Platform::set_execute_permission(&path).map_err(|error| Error::TmpdirIo {
+    Platform::set_execute_permission(&path).map_err(|error| Error::TempdirIo {
       recipe: self.name(),
       io_error: error,
     })?;

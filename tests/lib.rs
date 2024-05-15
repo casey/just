@@ -33,9 +33,12 @@ pub(crate) use {
 mod test;
 
 mod allow_duplicate_recipes;
+mod allow_duplicate_variables;
 mod assert_stdout;
 mod assert_success;
+mod assertions;
 mod attributes;
+mod backticks;
 mod byte_order_mark;
 mod changelog;
 mod choose;
@@ -67,6 +70,7 @@ mod misc;
 mod modules;
 mod multibyte_char;
 mod newline_escape;
+mod no_aliases;
 mod no_cd;
 mod no_dependencies;
 mod no_exit_message;

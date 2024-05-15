@@ -17,13 +17,13 @@ pub(crate) fn output(mut command: Command) -> Result<String, OutputError> {
       }
       match str::from_utf8(&output.stdout) {
         Err(error) => Err(OutputError::Utf8(error)),
-        Ok(utf8) => Ok(
-          if utf8.ends_with('\n') {
-            &utf8[0..utf8.len() - 1]
-          } else if utf8.ends_with("\r\n") {
-            &utf8[0..utf8.len() - 2]
+        Ok(output) => Ok(
+          if output.ends_with("\r\n") {
+            &output[0..output.len() - 2]
+          } else if output.ends_with('\n') {
+            &output[0..output.len() - 1]
           } else {
-            utf8
+            output
           }
           .to_owned(),
         ),

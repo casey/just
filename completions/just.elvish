@@ -1,18 +1,21 @@
-edit:completion:arg-completer[just] = [@words]{
-    fn spaces [n]{
-        repeat $n ' ' | joins ''
+use builtin;
+use str;
+
+set edit:completion:arg-completer[just] = {|@words|
+    fn spaces {|n|
+        builtin:repeat $n ' ' | str:join ''
     }
-    fn cand [text desc]{
-        edit:complex-candidate $text &display-suffix=' '(spaces (- 14 (wcswidth $text)))$desc
+    fn cand {|text desc|
+        edit:complex-candidate $text &display=$text' '(spaces (- 14 (wcswidth $text)))$desc
     }
-    command = 'just'
-    for word $words[1:-1] {
-        if (has-prefix $word '-') {
+    var command = 'just'
+    for word $words[1..-1] {
+        if (str:has-prefix $word '-') {
             break
         }
-        command = $command';'$word
+        set command = $command';'$word
     }
-    completions = [
+    var completions = [
         &'just'= {
             cand --chooser 'Override binary invoked by `--choose`'
             cand --color 'Print colorful output'
@@ -33,12 +36,14 @@ edit:completion:arg-completer[just] = [@words]{
             cand -s 'Show information about <RECIPE>'
             cand --show 'Show information about <RECIPE>'
             cand --dotenv-filename 'Search for environment file named <DOTENV-FILENAME> instead of `.env`'
-            cand --dotenv-path 'Load environment file at <DOTENV-PATH> instead of searching for one'
+            cand -E 'Load <DOTENV-PATH> as environment file instead of searching for one'
+            cand --dotenv-path 'Load <DOTENV-PATH> as environment file instead of searching for one'
             cand --check 'Run `--fmt` in ''check'' mode. Exits with 0 if justfile is formatted correctly. Exits with 1 and prints a diff if formatting is required.'
             cand --yes 'Automatically confirm all recipes.'
             cand -n 'Print what just would do without doing it'
             cand --dry-run 'Print what just would do without doing it'
             cand --highlight 'Highlight echoed recipe lines in bold'
+            cand --no-aliases 'Don''t show aliases in list'
             cand --no-deps 'Don''t run recipe dependencies'
             cand --no-dotenv 'Don''t load `.env` file'
             cand --no-highlight 'Don''t highlight echoed recipe lines in bold'
@@ -63,10 +68,10 @@ edit:completion:arg-completer[just] = [@words]{
             cand --list 'List available recipes and their arguments'
             cand --summary 'List names of available recipes'
             cand --variables 'List names of variables'
-            cand -h 'Print help information'
-            cand --help 'Print help information'
-            cand -V 'Print version information'
-            cand --version 'Print version information'
+            cand -h 'Print help'
+            cand --help 'Print help'
+            cand -V 'Print version'
+            cand --version 'Print version'
         }
     ]
     $completions[$command]

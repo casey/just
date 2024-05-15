@@ -17,12 +17,13 @@ pub(crate) fn load_dotenv(
     .as_ref()
     .or(settings.dotenv_path.as_ref());
 
-  if !settings.dotenv_load.unwrap_or(false) && dotenv_filename.is_none() && dotenv_path.is_none() {
+  if !settings.dotenv_load.unwrap_or_default() && dotenv_filename.is_none() && dotenv_path.is_none()
+  {
     return Ok(BTreeMap::new());
   }
 
   if let Some(path) = dotenv_path {
-    return load_from_file(path);
+    return load_from_file(&working_directory.join(path));
   }
 
   let filename = dotenv_filename.map_or(DEFAULT_DOTENV_FILENAME, |s| s.as_str());

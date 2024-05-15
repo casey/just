@@ -278,7 +278,9 @@ most Windows users.)
   </tbody>
 </table>
 
-![package version table](https://repology.org/badge/vertical-allrepos/just.svg)
+![just package version table](https://repology.org/badge/vertical-allrepos/just.svg)
+
+![rust:just package version table](https://repology.org/badge/vertical-allrepos/rust:just.svg)
 
 ### Pre-Built Binaries
 
@@ -490,19 +492,11 @@ a per-file basis:
 
 ### Visual Studio Code
 
-An extension for VS Code by [skellock](https://github.com/skellock) is
-[available here](https://marketplace.visualstudio.com/items?itemName=skellock.just)
-([repository](https://github.com/skellock/vscode-just)), but is no longer
-actively developed.
+An extension for VS Code is [available here](https://github.com/nefrob/vscode-just).
 
-You can install it from the command line by running:
-
-```sh
-code --install-extension skellock.just
-```
-
-An more recently active fork by [sclu1034](https://github.com/sclu1034) is
-available [here](https://github.com/sclu1034/vscode-just).
+Unmaintained VS Code extensions include
+[skellock/vscode-just](https://github.com/skellock/vscode-just) and
+[sclu1034/vscode-just](https://github.com/sclu1034/vscode-just).
 
 ### JetBrains IDEs
 
@@ -726,8 +720,8 @@ default:
   @just --list
 ```
 
-Note that you may need to add `--justfile {{justfile()}}` to the line above
-above. Without it, if you executed `just -f /some/distant/justfile -d .` or
+Note that you may need to add `--justfile {{justfile()}}` to the line above.
+Without it, if you executed `just -f /some/distant/justfile -d .` or
 `just -f ./non-standard-justfile`, the plain `just --list` inside the recipe
 would not necessarily use the file you provided. It would try to find a
 justfile in your current path, maybe even resulting in a `No justfile found`
@@ -798,6 +792,7 @@ foo:
 | Name | Value | Default | Description |
 |------|-------|---------|-------------|
 | `allow-duplicate-recipes` | boolean | `false` | Allow recipes appearing later in a `justfile` to override earlier recipes with the same name. |
+| `allow-duplicate-variables` | boolean | `false` | Allow variables appearing later in a `justfile` to override earlier variables with the same name. |
 | `dotenv-filename` | string | - | Load a `.env` file with a custom name, if present. |
 | `dotenv-load` | boolean | `false` | Load a `.env` file, if present. |
 | `dotenv-path` | string | - | Load a `.env` file from a custom path, if present. Overrides `dotenv-filename`. |
@@ -836,6 +831,27 @@ set allow-duplicate-recipes
 
 @foo:
   echo bar
+```
+
+```sh
+$ just foo
+bar
+```
+
+#### Allow Duplicate Variables
+
+If `allow-duplicate-variables` is set to `true`, defining multiple variables
+with the same name is not an error and the last definition is used. Defaults to
+`false`.
+
+```just
+set allow-duplicate-variables
+
+a := "foo"
+a := "bar"
+
+@foo:
+  echo $a
 ```
 
 ```sh
@@ -1462,8 +1478,8 @@ which will halt execution.
 
 #### UUID and Hash Generation
 
-- `blake3(string)`<sup>master</sup> - Return [BLAKE3] hash of `string` as hexadecimal string.
-- `blake3_file(path)`<sup>master</sup> - Return [BLAKE3] hash of file at `path` as hexadecimal
+- `blake3(string)`<sup>1.25.0</sup> - Return [BLAKE3] hash of `string` as hexadecimal string.
+- `blake3_file(path)`<sup>1.25.0</sup> - Return [BLAKE3] hash of file at `path` as hexadecimal
   string.
 - `sha256(string)` - Return the SHA-256 hash of `string` as hexadecimal string.
 - `sha256_file(path)` - Return SHA-256 hash of file at `path` as hexadecimal
@@ -1588,7 +1604,7 @@ that requires confirmation.
 
 ```just
 [confirm]
-delete all:
+delete-all:
   rm -rf *
 ```
 
@@ -2119,8 +2135,17 @@ the file as executable, and executing it. The OS then parses the shebang line
 into a command line and invokes it, including the path to the file. For
 example, if a recipe starts with `#!/usr/bin/env bash`, the final command that
 the OS runs will be something like `/usr/bin/env bash
-/tmp/PATH_TO_SAVED_RECIPE_BODY`. Keep in mind that different operating systems
-split shebang lines differently.
+/tmp/PATH_TO_SAVED_RECIPE_BODY`.
+
+Shebang line splitting is operating system dependent. When passing a command
+with arguments, you may need to tell `env` to split them explicitly by using
+the `-S` flag:
+
+```just
+run:
+  #!/usr/bin/env -S bash -x
+  ls
+```
 
 Windows does not support shebang lines. On Windows, `just` splits the shebang
 line into a command and arguments, saves the recipe body to a file, and invokes
@@ -2452,8 +2477,7 @@ dep2 \
 ```
 
 Backslash line continuations can also be used in interpolations. The line
-following the backslash must start with the same indentation as the recipe
-body, although additional indentation is accepted.
+following the backslash must be indented.
 
 ```just
 recipe:
@@ -2745,7 +2769,8 @@ Imported files can themselves contain `import`s, which are processed
 recursively.
 
 When `allow-duplicate-recipes` is set, recipes in parent modules override
-recipes in imports.
+recipes in imports. In a similar manner, when `allow-duplicate-variables` is
+set, variables in parent modules override variables in imports.
 
 Imports may be made optional by putting a `?` after the `import` keyword:
 
@@ -3055,12 +3080,32 @@ can also be used to make a `just` binary print its changelog.
 Miscellanea
 -----------
 
-### Companion Tools
+### Re-running recipes when files change
 
-Tools that pair nicely with `just` include:
+[`watchexec`](https://github.com/mattgreen/watchexec) can re-run any command
+when files change.
 
-- [`watchexec`](https://github.com/mattgreen/watchexec) — a simple tool that
-  watches a path and runs a command whenever it detects modifications.
+To re-run the recipe `foo` when any file changes:
+
+```sh
+watchexec just foo
+```
+
+See `watchexec --help` for more info, including how to specify which files
+should be watched for changes.
+
+### Running tasks in parallel
+
+GNU parallel can be used to run tasks concurrently:
+
+```just
+parallel:
+  #!/usr/bin/env -S parallel --shebang --ungroup --jobs {{ num_cpus() }}
+  echo task 1 start; sleep 3; echo task 1 done
+  echo task 2 start; sleep 3; echo task 2 done
+  echo task 3 start; sleep 3; echo task 3 done
+  echo task 4 start; sleep 3; echo task 4 done
+```
 
 ### Shell Alias
 
@@ -3226,9 +3271,9 @@ under this license.
 
 ### Janus
 
-[Janus](https://github.com/casey/janus) is a tool that collects and analyzes
-`justfile`s, and can determine if a new version of `just` breaks or changes the
-interpretation of existing `justfile`s.
+[Janus](https://github.com/casey/janus) is a tool for checking whether a change
+to `just` breaks or changes the interpretation of existing `justfile`s. It
+collects and analyzes public `justfile`s on GitHub.
 
 Before merging a particularly large or gruesome change, Janus should be run to
 make sure that nothing breaks. Don't worry about running Janus yourself, Casey
