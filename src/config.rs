@@ -1,13 +1,14 @@
 use {
   super::*,
-  clap::{App, AppSettings, Arg, ArgGroup, ArgMatches, ArgSettings},
+  clap::{
+    builder::{styling::AnsiColor, FalseyValueParser, PossibleValuesParser, Styles},
+    value_parser, Arg, ArgAction, ArgGroup, ArgMatches, Command,
+  },
 };
 
-pub(crate) const CHOOSER_ENVIRONMENT_KEY: &str = "JUST_CHOOSER";
-
-pub(crate) const CHOOSE_HELP: &str = "Select one or more recipes to run using a binary chooser. \
-                                      If `--chooser` is not passed the chooser defaults to the \
-                                      value of $JUST_CHOOSER, falling back to `fzf`";
+const CHOOSE_HELP: &str = "Select one or more recipes to run using a binary chooser. \
+                           If `--chooser` is not passed the chooser defaults to the \
+                           value of $JUST_CHOOSER, falling back to `fzf`";
 
 pub(crate) fn chooser_default(justfile: &Path) -> OsString {
   let mut chooser = OsString::new();
@@ -76,16 +77,7 @@ mod cmd {
   ];
 
   pub(crate) const ARGLESS: &[&str] = &[
-    CHANGELOG,
-    COMPLETIONS,
-    DUMP,
-    EDIT,
-    FORMAT,
-    INIT,
-    LIST,
-    SHOW,
-    SUMMARY,
-    VARIABLES,
+    CHANGELOG, DUMP, EDIT, FORMAT, INIT, LIST, SUMMARY, VARIABLES,
   ];
 }
 
@@ -148,277 +140,316 @@ mod arg {
 }
 
 impl Config {
-  pub(crate) fn app() -> App<'static, 'static> {
-    let app = App::new(env!("CARGO_PKG_NAME"))
-      .help_message("Print help information")
-      .version_message("Print version information")
-      .setting(AppSettings::ColoredHelp)
-      .setting(AppSettings::TrailingVarArg)
+  pub(crate) fn app() -> Command {
+    let app = Command::new(env!("CARGO_PKG_NAME"))
+      .bin_name(env!("CARGO_PKG_NAME"))
+      .trailing_var_arg(true)
+      .styles(
+        Styles::styled()
+            .header(AnsiColor::Yellow.on_default())
+            .usage(AnsiColor::Yellow.on_default())
+            .literal(AnsiColor::Green.on_default())
+            .placeholder(AnsiColor::Green.on_default())
+      )
       .arg(
-        Arg::with_name(arg::CHECK)
+        Arg::new(arg::CHECK)
           .long("check")
+          .action(ArgAction::SetTrue)
           .requires(cmd::FORMAT)
           .help("Run `--fmt` in 'check' mode. Exits with 0 if justfile is formatted correctly. Exits with 1 and prints a diff if formatting is required."),
       )
       .arg(
-        Arg::with_name(arg::CHOOSER)
+        Arg::new(arg::CHOOSER)
           .long("chooser")
-          .takes_value(true)
+          .env("JUST_CHOOSER")
+          .action(ArgAction::Set)
           .help("Override binary invoked by `--choose`"),
       )
       .arg(
-        Arg::with_name(arg::COLOR)
+        Arg::new(arg::COLOR)
           .long("color")
-          .takes_value(true)
-          .possible_values(arg::COLOR_VALUES)
+          .action(ArgAction::Set)
+          .value_parser(PossibleValuesParser::new(arg::COLOR_VALUES))
           .default_value(arg::COLOR_AUTO)
           .help("Print colorful output"),
       )
       .arg(
-        Arg::with_name(arg::COMMAND_COLOR)
+        Arg::new(arg::COMMAND_COLOR)
           .long("command-color")
-          .takes_value(true)
-          .possible_values(arg::COMMAND_COLOR_VALUES)
+          .action(ArgAction::Set)
+          .value_parser(PossibleValuesParser::new(arg::COMMAND_COLOR_VALUES))
           .help("Echo recipe lines in <COMMAND-COLOR>"),
       )
-      .arg(Arg::with_name(arg::YES).long("yes").help("Automatically confirm all recipes."))
+      .arg(Arg::new(arg::YES).long("yes").action(ArgAction::SetTrue).help("Automatically confirm all recipes."))
       .arg(
-        Arg::with_name(arg::DRY_RUN)
-          .short("n")
+        Arg::new(arg::DRY_RUN)
+          .short('n')
           .long("dry-run")
+          .action(ArgAction::SetTrue)
           .help("Print what just would do without doing it")
           .conflicts_with(arg::QUIET),
       )
       .arg(
-        Arg::with_name(arg::DUMP_FORMAT)
+        Arg::new(arg::DUMP_FORMAT)
           .long("dump-format")
-          .takes_value(true)
-          .possible_values(arg::DUMP_FORMAT_VALUES)
+          .action(ArgAction::Set)
+          .value_parser(PossibleValuesParser::new(arg::DUMP_FORMAT_VALUES))
           .default_value(arg::DUMP_FORMAT_JUST)
           .value_name("FORMAT")
           .help("Dump justfile as <FORMAT>"),
       )
       .arg(
-        Arg::with_name(arg::HIGHLIGHT)
+        Arg::new(arg::HIGHLIGHT)
           .long("highlight")
+          .action(ArgAction::SetTrue)
           .help("Highlight echoed recipe lines in bold")
           .overrides_with(arg::NO_HIGHLIGHT),
       )
       .arg(
-        Arg::with_name(arg::LIST_HEADING)
+        Arg::new(arg::LIST_HEADING)
           .long("list-heading")
           .help("Print <TEXT> before list")
           .value_name("TEXT")
-          .takes_value(true),
+          .action(ArgAction::Set),
       )
       .arg(
-        Arg::with_name(arg::LIST_PREFIX)
+        Arg::new(arg::LIST_PREFIX)
           .long("list-prefix")
           .help("Print <TEXT> before each list item")
           .value_name("TEXT")
-          .takes_value(true),
+          .action(ArgAction::Set),
       )
       .arg(
-        Arg::with_name(arg::NO_ALIASES)
+        Arg::new(arg::NO_ALIASES)
           .long("no-aliases")
-          .help("Don't show aliases in list")
+          .action(ArgAction::SetTrue)
+          .help("Don't show aliases in list"),
       )
       .arg (
-        Arg::with_name(arg::NO_DEPS)
+        Arg::new(arg::NO_DEPS)
           .long("no-deps")
           .alias("no-dependencies")
+          .action(ArgAction::SetTrue)
           .help("Don't run recipe dependencies")
       )
       .arg(
-        Arg::with_name(arg::NO_DOTENV)
+        Arg::new(arg::NO_DOTENV)
           .long("no-dotenv")
+          .action(ArgAction::SetTrue)
           .help("Don't load `.env` file"),
       )
       .arg(
-        Arg::with_name(arg::NO_HIGHLIGHT)
+        Arg::new(arg::NO_HIGHLIGHT)
           .long("no-highlight")
+          .action(ArgAction::SetTrue)
           .help("Don't highlight echoed recipe lines in bold")
           .overrides_with(arg::HIGHLIGHT),
       )
       .arg(
-        Arg::with_name(arg::JUSTFILE)
-          .short("f")
+        Arg::new(arg::JUSTFILE)
+          .short('f')
           .long("justfile")
-          .takes_value(true)
+          .action(ArgAction::Set)
+          .value_parser(value_parser!(PathBuf))
           .help("Use <JUSTFILE> as justfile"),
       )
       .arg(
-        Arg::with_name(arg::QUIET)
-          .short("q")
+        Arg::new(arg::QUIET)
+          .short('q')
           .long("quiet")
+          .action(ArgAction::SetTrue)
           .help("Suppress all output")
           .conflicts_with(arg::DRY_RUN),
       )
       .arg(
-        Arg::with_name(arg::SET)
+        Arg::new(arg::SET)
           .long("set")
-          .takes_value(true)
+          .action(ArgAction::Append)
           .number_of_values(2)
-          .value_names(&["VARIABLE", "VALUE"])
-          .multiple(true)
+          .value_names(["VARIABLE", "VALUE"])
           .help("Override <VARIABLE> with <VALUE>"),
       )
       .arg(
-        Arg::with_name(arg::SHELL)
+        Arg::new(arg::SHELL)
           .long("shell")
-          .takes_value(true)
+          .action(ArgAction::Set)
           .help("Invoke <SHELL> to run recipes"),
       )
       .arg(
-        Arg::with_name(arg::SHELL_ARG)
+        Arg::new(arg::SHELL_ARG)
           .long("shell-arg")
-          .takes_value(true)
-          .multiple(true)
-          .number_of_values(1)
+          .action(ArgAction::Append)
           .allow_hyphen_values(true)
           .overrides_with(arg::CLEAR_SHELL_ARGS)
           .help("Invoke shell with <SHELL-ARG> as an argument"),
       )
       .arg(
-        Arg::with_name(arg::SHELL_COMMAND)
+        Arg::new(arg::SHELL_COMMAND)
           .long("shell-command")
           .requires(cmd::COMMAND)
+          .action(ArgAction::SetTrue)
           .help("Invoke <COMMAND> with the shell used to run recipe lines and backticks"),
       )
       .arg(
-        Arg::with_name(arg::CLEAR_SHELL_ARGS)
+        Arg::new(arg::CLEAR_SHELL_ARGS)
           .long("clear-shell-args")
+          .action(ArgAction::SetTrue)
           .overrides_with(arg::SHELL_ARG)
           .help("Clear shell arguments"),
       )
       .arg(
-        Arg::with_name(arg::UNSORTED)
+        Arg::new(arg::UNSORTED)
           .long("unsorted")
-          .short("u")
+          .short('u')
+          .action(ArgAction::SetTrue)
           .help("Return list and summary entries in source order"),
       )
       .arg(
-        Arg::with_name(arg::UNSTABLE)
+        Arg::new(arg::UNSTABLE)
           .long("unstable")
+          .env("JUST_UNSTABLE")
+          .action(ArgAction::SetTrue)
+          .value_parser(FalseyValueParser::new())
           .help("Enable unstable features"),
       )
       .arg(
-        Arg::with_name(arg::VERBOSE)
-          .short("v")
+        Arg::new(arg::VERBOSE)
+          .short('v')
           .long("verbose")
-          .multiple(true)
+          .action(ArgAction::Count)
           .help("Use verbose output"),
       )
       .arg(
-        Arg::with_name(arg::WORKING_DIRECTORY)
-          .short("d")
+        Arg::new(arg::WORKING_DIRECTORY)
+          .short('d')
           .long("working-directory")
-          .takes_value(true)
+          .action(ArgAction::Set)
+          .value_parser(value_parser!(PathBuf))
           .help("Use <WORKING-DIRECTORY> as working directory. --justfile must also be set")
           .requires(arg::JUSTFILE),
       )
       .arg(
-        Arg::with_name(cmd::CHANGELOG)
+        Arg::new(cmd::CHANGELOG)
           .long("changelog")
+          .action(ArgAction::SetTrue)
           .help("Print changelog"),
       )
-      .arg(Arg::with_name(cmd::CHOOSE).long("choose").help(CHOOSE_HELP))
+      .arg(Arg::new(cmd::CHOOSE).long("choose").action(ArgAction::SetTrue).help(CHOOSE_HELP))
       .arg(
-        Arg::with_name(cmd::COMMAND)
+        Arg::new(cmd::COMMAND)
           .long("command")
-          .short("c")
-          .min_values(1)
+          .short('c')
+          .num_args(1..)
           .allow_hyphen_values(true)
+          .action(ArgAction::Append)
+          .value_parser(value_parser!(std::ffi::OsString))
           .help(
             "Run an arbitrary command with the working directory, `.env`, overrides, and exports \
              set",
           ),
       )
       .arg(
-        Arg::with_name(cmd::COMPLETIONS)
+        Arg::new(cmd::COMPLETIONS)
           .long("completions")
-          .takes_value(true)
+          .action(ArgAction::Append)
+          .num_args(1..)
           .value_name("SHELL")
-          .possible_values(&clap::Shell::variants())
-          .set(ArgSettings::CaseInsensitive)
+          .value_parser(value_parser!(clap_complete::Shell))
+          .ignore_case(true)
           .help("Print shell completion script for <SHELL>"),
       )
       .arg(
-        Arg::with_name(cmd::DUMP)
+        Arg::new(cmd::DUMP)
           .long("dump")
+          .action(ArgAction::SetTrue)
           .help("Print justfile"),
       )
       .arg(
-        Arg::with_name(cmd::EDIT)
-          .short("e")
+        Arg::new(cmd::EDIT)
+          .short('e')
           .long("edit")
+          .action(ArgAction::SetTrue)
           .help("Edit justfile with editor given by $VISUAL or $EDITOR, falling back to `vim`"),
       )
-      .arg(Arg::with_name(cmd::EVALUATE).long("evaluate").help(
-        "Evaluate and print all variables. If a variable name is given as an argument, only print \
-         that variable's value.",
-      ))
       .arg(
-        Arg::with_name(cmd::FORMAT)
+        Arg::new(cmd::EVALUATE)
+          .long("evaluate")
+          .action(ArgAction::SetTrue)
+          .help(
+            "Evaluate and print all variables. If a variable name is given as an argument, only \
+             print that variable's value.",
+          ),
+      )
+      .arg(
+        Arg::new(cmd::FORMAT)
           .long("fmt")
           .alias("format")
+          .action(ArgAction::SetTrue)
           .help("Format and overwrite justfile"),
       )
       .arg(
-        Arg::with_name(cmd::INIT)
+        Arg::new(cmd::INIT)
           .long("init")
           .alias("initialize")
+          .action(ArgAction::SetTrue)
           .help("Initialize new justfile in project root"),
       )
       .arg(
-        Arg::with_name(cmd::LIST)
-          .short("l")
+        Arg::new(cmd::LIST)
+          .short('l')
           .long("list")
+          .action(ArgAction::SetTrue)
           .help("List available recipes and their arguments"),
       )
       .arg(
-        Arg::with_name(cmd::SHOW)
-          .short("s")
+        Arg::new(cmd::SHOW)
+          .short('s')
           .long("show")
-          .takes_value(true)
+          .action(ArgAction::Set)
           .value_name("RECIPE")
+          .conflicts_with(arg::ARGUMENTS)
           .help("Show information about <RECIPE>"),
       )
       .arg(
-        Arg::with_name(cmd::SUMMARY)
+        Arg::new(cmd::SUMMARY)
           .long("summary")
+          .action(ArgAction::SetTrue)
           .help("List names of available recipes"),
       )
       .arg(
-        Arg::with_name(cmd::VARIABLES)
+        Arg::new(cmd::VARIABLES)
           .long("variables")
+          .action(ArgAction::SetTrue)
           .help("List names of variables"),
       )
       .arg(
-        Arg::with_name(arg::DOTENV_FILENAME)
+        Arg::new(arg::DOTENV_FILENAME)
           .long("dotenv-filename")
-          .takes_value(true)
+          .action(ArgAction::Set)
           .help("Search for environment file named <DOTENV-FILENAME> instead of `.env`")
           .conflicts_with(arg::DOTENV_PATH),
       )
       .arg(
-        Arg::with_name(arg::DOTENV_PATH)
-          .short("E")
+        Arg::new(arg::DOTENV_PATH)
+          .short('E')
           .long("dotenv-path")
+          .action(ArgAction::Set)
+          .value_parser(value_parser!(PathBuf))
           .help("Load <DOTENV-PATH> as environment file instead of searching for one")
-          .takes_value(true),
       )
-      .group(ArgGroup::with_name("SUBCOMMAND").args(cmd::ALL))
+      .group(ArgGroup::new("SUBCOMMAND").args(cmd::ALL))
       .arg(
-        Arg::with_name(arg::ARGUMENTS)
-          .multiple(true)
+        Arg::new(arg::ARGUMENTS)
+          .num_args(1..)
+          .action(ArgAction::Append)
           .help("Overrides and recipe(s) to run, defaulting to the first recipe in the justfile"),
       )
     .arg(
-      Arg::with_name(arg::GLOBAL)
+      Arg::new(arg::GLOBAL)
+      .action(ArgAction::SetTrue)
       .long("global")
-      .short("g")
-      .help("Invoke using a global `justfile`")
+      .short('g')
+      .help("Use global justfile")
     );
 
     if cfg!(feature = "help4help2man") {
@@ -441,12 +472,12 @@ impl Config {
 
   fn color_from_matches(matches: &ArgMatches) -> ConfigResult<Color> {
     let value = matches
-      .value_of(arg::COLOR)
+      .get_one::<String>(arg::COLOR)
       .ok_or_else(|| ConfigError::Internal {
         message: "`--color` had no value".to_string(),
       })?;
 
-    match value {
+    match value.as_str() {
       arg::COLOR_AUTO => Ok(Color::auto()),
       arg::COLOR_ALWAYS => Ok(Color::always()),
       arg::COLOR_NEVER => Ok(Color::never()),
@@ -457,8 +488,8 @@ impl Config {
   }
 
   fn command_color_from_matches(matches: &ArgMatches) -> ConfigResult<Option<ansi_term::Color>> {
-    if let Some(value) = matches.value_of(arg::COMMAND_COLOR) {
-      match value {
+    if let Some(value) = matches.get_one::<String>(arg::COMMAND_COLOR) {
+      match value.as_str() {
         arg::COMMAND_COLOR_BLACK => Ok(Some(ansi_term::Color::Black)),
         arg::COMMAND_COLOR_BLUE => Ok(Some(ansi_term::Color::Blue)),
         arg::COMMAND_COLOR_CYAN => Ok(Some(ansi_term::Color::Cyan)),
@@ -476,13 +507,14 @@ impl Config {
   }
 
   fn dump_format_from_matches(matches: &ArgMatches) -> ConfigResult<DumpFormat> {
-    let value = matches
-      .value_of(arg::DUMP_FORMAT)
-      .ok_or_else(|| ConfigError::Internal {
-        message: "`--dump-format` had no value".to_string(),
-      })?;
+    let value =
+      matches
+        .get_one::<String>(arg::DUMP_FORMAT)
+        .ok_or_else(|| ConfigError::Internal {
+          message: "`--dump-format` had no value".to_string(),
+        })?;
 
-    match value {
+    match value.as_str() {
       arg::DUMP_FORMAT_JSON => Ok(DumpFormat::Json),
       arg::DUMP_FORMAT_JUST => Ok(DumpFormat::Just),
       _ => Err(ConfigError::Internal {
@@ -492,12 +524,15 @@ impl Config {
   }
 
   fn search_config(matches: &ArgMatches, positional: &Positional) -> ConfigResult<SearchConfig> {
-    if matches.is_present(arg::GLOBAL) {
+    if matches.get_flag(arg::GLOBAL) {
       return Ok(SearchConfig::Global);
     }
 
-    let justfile = matches.value_of(arg::JUSTFILE).map(PathBuf::from);
-    let working_directory = matches.value_of(arg::WORKING_DIRECTORY).map(PathBuf::from);
+    let justfile = matches.get_one::<PathBuf>(arg::JUSTFILE).map(Into::into);
+
+    let working_directory = matches
+      .get_one::<PathBuf>(arg::WORKING_DIRECTORY)
+      .map(Into::into);
 
     if let Some(search_directory) = positional.search_directory.as_ref().map(PathBuf::from) {
       if justfile.is_some() || working_directory.is_some() {
@@ -524,28 +559,27 @@ impl Config {
   pub(crate) fn from_matches(matches: &ArgMatches) -> ConfigResult<Self> {
     let invocation_directory = env::current_dir().context(config_error::CurrentDirContext)?;
 
-    let verbosity = if matches.is_present(arg::QUIET) {
+    let verbosity = if matches.get_flag(arg::QUIET) {
       Verbosity::Quiet
     } else {
-      Verbosity::from_flag_occurrences(matches.occurrences_of(arg::VERBOSE))
+      Verbosity::from_flag_occurrences(matches.get_count(arg::VERBOSE))
     };
 
     let color = Self::color_from_matches(matches)?;
     let command_color = Self::command_color_from_matches(matches)?;
 
-    let set_count = matches.occurrences_of(arg::SET);
     let mut overrides = BTreeMap::new();
-    if set_count > 0 {
-      let mut values = matches.values_of(arg::SET).unwrap();
-      for _ in 0..set_count {
-        overrides.insert(
-          values.next().unwrap().to_owned(),
-          values.next().unwrap().to_owned(),
-        );
+    if let Some(mut values) = matches.get_many::<String>(arg::SET) {
+      while let (Some(k), Some(v)) = (values.next(), values.next()) {
+        overrides.insert(k.into(), v.into());
       }
     }
 
-    let positional = Positional::from_values(matches.values_of(arg::ARGUMENTS));
+    let positional = Positional::from_values(
+      matches
+        .get_many::<String>(arg::ARGUMENTS)
+        .map(|s| s.map(String::as_str)),
+    );
 
     for (name, value) in &positional.overrides {
       overrides.insert(name.clone(), value.clone());
@@ -554,7 +588,7 @@ impl Config {
     let search_config = Self::search_config(matches, &positional)?;
 
     for subcommand in cmd::ARGLESS {
-      if matches.is_present(subcommand) {
+      if matches.get_flag(subcommand) {
         match (!overrides.is_empty(), !positional.arguments.is_empty()) {
           (false, false) => {}
           (true, false) => {
@@ -580,41 +614,37 @@ impl Config {
       }
     }
 
-    let subcommand = if matches.is_present(cmd::CHANGELOG) {
+    let subcommand = if matches.get_flag(cmd::CHANGELOG) {
       Subcommand::Changelog
-    } else if matches.is_present(cmd::CHOOSE) {
+    } else if matches.get_flag(cmd::CHOOSE) {
       Subcommand::Choose {
-        chooser: matches.value_of(arg::CHOOSER).map(str::to_owned),
+        chooser: matches.get_one::<String>(arg::CHOOSER).map(Into::into),
         overrides,
       }
-    } else if let Some(values) = matches.values_of_os(cmd::COMMAND) {
-      let mut arguments = values.map(OsStr::to_owned).collect::<Vec<OsString>>();
+    } else if let Some(values) = matches.get_many::<OsString>(cmd::COMMAND) {
+      let mut arguments = values.map(Into::into).collect::<Vec<OsString>>();
       Subcommand::Command {
         binary: arguments.remove(0),
         arguments,
         overrides,
       }
-    } else if let Some(shell) = matches.value_of(cmd::COMPLETIONS) {
-      Subcommand::Completions {
-        shell: shell.to_owned(),
-      }
-    } else if matches.is_present(cmd::EDIT) {
+    } else if let Some(&shell) = matches.get_one::<clap_complete::Shell>(cmd::COMPLETIONS) {
+      Subcommand::Completions { shell }
+    } else if matches.get_flag(cmd::EDIT) {
       Subcommand::Edit
-    } else if matches.is_present(cmd::SUMMARY) {
+    } else if matches.get_flag(cmd::SUMMARY) {
       Subcommand::Summary
-    } else if matches.is_present(cmd::DUMP) {
+    } else if matches.get_flag(cmd::DUMP) {
       Subcommand::Dump
-    } else if matches.is_present(cmd::FORMAT) {
+    } else if matches.get_flag(cmd::FORMAT) {
       Subcommand::Format
-    } else if matches.is_present(cmd::INIT) {
+    } else if matches.get_flag(cmd::INIT) {
       Subcommand::Init
-    } else if matches.is_present(cmd::LIST) {
+    } else if matches.get_flag(cmd::LIST) {
       Subcommand::List
-    } else if let Some(name) = matches.value_of(cmd::SHOW) {
-      Subcommand::Show {
-        name: name.to_owned(),
-      }
-    } else if matches.is_present(cmd::EVALUATE) {
+    } else if let Some(name) = matches.get_one::<String>(cmd::SHOW).map(Into::into) {
+      Subcommand::Show { name }
+    } else if matches.get_flag(cmd::EVALUATE) {
       if positional.arguments.len() > 1 {
         return Err(ConfigError::SubcommandArguments {
           subcommand: cmd::EVALUATE,
@@ -630,7 +660,7 @@ impl Config {
         variable: positional.arguments.into_iter().next(),
         overrides,
       }
-    } else if matches.is_present(cmd::VARIABLES) {
+    } else if matches.get_flag(cmd::VARIABLES) {
       Subcommand::Variables
     } else {
       Subcommand::Run {
@@ -639,55 +669,46 @@ impl Config {
       }
     };
 
-    let shell_args = if matches.occurrences_of(arg::SHELL_ARG) > 0
-      || matches.occurrences_of(arg::CLEAR_SHELL_ARGS) > 0
-    {
-      Some(
-        matches
-          .values_of(arg::SHELL_ARG)
-          .map_or(Vec::new(), |shell_args| {
-            shell_args.map(str::to_owned).collect()
-          }),
-      )
+    let shell_args = if matches.get_flag(arg::CLEAR_SHELL_ARGS) {
+      Some(Vec::new())
     } else {
-      None
+      matches
+        .get_many::<String>(arg::SHELL_ARG)
+        .map(|s| s.map(Into::into).collect())
     };
 
-    let unstable = matches.is_present(arg::UNSTABLE)
-      || env::var_os("JUST_UNSTABLE")
-        .map(|val| !(val == "false" || val == "0" || val.is_empty()))
-        .unwrap_or_default();
+    let unstable = matches.get_flag(arg::UNSTABLE);
 
     Ok(Self {
-      check: matches.is_present(arg::CHECK),
+      check: matches.get_flag(arg::CHECK),
       color,
       command_color,
-      dotenv_filename: matches.value_of(arg::DOTENV_FILENAME).map(str::to_owned),
-      dotenv_path: matches.value_of(arg::DOTENV_PATH).map(PathBuf::from),
-      dry_run: matches.is_present(arg::DRY_RUN),
+      dotenv_filename: matches
+        .get_one::<String>(arg::DOTENV_FILENAME)
+        .map(Into::into),
+      dotenv_path: matches.get_one::<PathBuf>(arg::DOTENV_PATH).map(Into::into),
+      dry_run: matches.get_flag(arg::DRY_RUN),
       dump_format: Self::dump_format_from_matches(matches)?,
-      highlight: !matches.is_present(arg::NO_HIGHLIGHT),
+      highlight: !matches.get_flag(arg::NO_HIGHLIGHT),
       invocation_directory,
       list_heading: matches
-        .value_of(arg::LIST_HEADING)
-        .unwrap_or("Available recipes:\n")
-        .to_owned(),
+        .get_one::<String>(arg::LIST_HEADING)
+        .map_or_else(|| "Available recipes:\n".into(), Into::into),
       list_prefix: matches
-        .value_of(arg::LIST_PREFIX)
-        .unwrap_or("    ")
-        .to_owned(),
-      load_dotenv: !matches.is_present(arg::NO_DOTENV),
-      no_aliases: matches.is_present(arg::NO_ALIASES),
-      no_dependencies: matches.is_present(arg::NO_DEPS),
+        .get_one::<String>(arg::LIST_PREFIX)
+        .map_or_else(|| "    ".into(), Into::into),
+      load_dotenv: !matches.get_flag(arg::NO_DOTENV),
+      no_aliases: matches.get_flag(arg::NO_ALIASES),
+      no_dependencies: matches.get_flag(arg::NO_DEPS),
       search_config,
-      shell: matches.value_of(arg::SHELL).map(str::to_owned),
+      shell: matches.get_one::<String>(arg::SHELL).map(Into::into),
       shell_args,
-      shell_command: matches.is_present(arg::SHELL_COMMAND),
+      shell_command: matches.get_flag(arg::SHELL_COMMAND),
       subcommand,
-      unsorted: matches.is_present(arg::UNSORTED),
+      unsorted: matches.get_flag(arg::UNSORTED),
       unstable,
       verbosity,
-      yes: matches.is_present(arg::YES),
+      yes: matches.get_flag(arg::YES),
     })
   }
 
@@ -712,9 +733,11 @@ impl Config {
 
 #[cfg(test)]
 mod tests {
-  use super::*;
-
-  use pretty_assertions::assert_eq;
+  use {
+    super::*,
+    clap::error::{ContextKind, ContextValue},
+    pretty_assertions::assert_eq,
+  };
 
   macro_rules! test {
     {
@@ -759,10 +782,11 @@ mod tests {
     }
   }
 
+  #[track_caller]
   fn test(arguments: &[&str], want: Config) {
     let app = Config::app();
     let matches = app
-      .get_matches_from_safe(arguments)
+      .try_get_matches_from(arguments)
       .expect("argument parsing failed");
     let have = Config::from_matches(&matches).expect("config parsing failed");
     assert_eq!(have, want);
@@ -782,7 +806,7 @@ mod tests {
 
         let app = Config::app();
 
-        app.get_matches_from_safe(arguments).expect_err("Expected clap error");
+        app.try_get_matches_from(arguments).expect_err("Expected clap error");
       }
     };
     {
@@ -800,7 +824,7 @@ mod tests {
 
         let app = Config::app();
 
-        let matches = app.get_matches_from_safe(arguments).expect("Matching fails");
+        let matches = app.try_get_matches_from(arguments).expect("Matching fails");
 
         match Config::from_matches(&matches).expect_err("config parsing succeeded") {
           $error => { $($check)? }
@@ -808,6 +832,30 @@ mod tests {
         }
       }
     }
+  }
+
+  macro_rules! error_matches {
+    (
+      name: $name:ident,
+      args: [$($arg:expr),*],
+      error: $error:pat,
+      $(check: $check:block,)?
+    ) => {
+      #[test]
+      fn $name() {
+        let arguments = &[
+          "just",
+          $($arg,)*
+        ];
+
+        let app = Config::app();
+
+        match app.try_get_matches_from(arguments) {
+          Err($error) => { $($check)? }
+          other => panic!("Unexpected result from get matches: {other:?}")
+        }
+      }
+    };
   }
 
   macro_rules! map {
@@ -1135,13 +1183,13 @@ mod tests {
   test! {
     name: subcommand_completions,
     args: ["--completions", "bash"],
-    subcommand: Subcommand::Completions{shell: "bash".to_owned()},
+    subcommand: Subcommand::Completions{ shell: clap_complete::Shell::Bash },
   }
 
   test! {
     name: subcommand_completions_uppercase,
     args: ["--completions", "BASH"],
-    subcommand: Subcommand::Completions{shell: "BASH".to_owned()},
+    subcommand: Subcommand::Completions{ shell: clap_complete::Shell::Bash },
   }
 
   error! {
@@ -1301,7 +1349,7 @@ mod tests {
   test! {
     name: shell_args_clear,
     args: ["--clear-shell-args"],
-    shell_args: Some(vec![]),
+    shell_args: Some(Vec::new()),
 
   }
 
@@ -1315,14 +1363,14 @@ mod tests {
   test! {
     name: shell_args_set_and_clear,
     args: ["--shell-arg", "bar", "--clear-shell-args"],
-    shell_args: Some(vec![]),
+    shell_args: Some(Vec::new()),
 
   }
 
   test! {
     name: shell_args_set_multiple_and_clear,
     args: ["--shell-arg", "bar", "--shell-arg", "baz", "--clear-shell-args"],
-    shell_args: Some(vec![]),
+    shell_args: Some(Vec::new()),
 
   }
 
@@ -1411,13 +1459,17 @@ mod tests {
     error: ConfigError::SearchDirConflict,
   }
 
-  error! {
+  error_matches! {
     name: completions_arguments,
     args: ["--completions", "zsh", "foo"],
-    error: ConfigError::SubcommandArguments { subcommand, arguments },
+    error: error,
     check: {
-      assert_eq!(subcommand, cmd::COMPLETIONS);
-      assert_eq!(arguments, &["foo"]);
+      assert_eq!(error.kind(), clap::error::ErrorKind::InvalidValue);
+      assert_eq!(error.context().collect::<Vec<_>>(), vec![
+        (ContextKind::InvalidArg, &ContextValue::String("--completions <SHELL>...".into())),
+        (ContextKind::InvalidValue, &ContextValue::String("foo".into())),
+        (ContextKind::ValidValue, &ContextValue::Strings(["bash".into(), "elvish".into(), "fish".into(), "powershell".into(), "zsh".into()].into())),
+      ]);
     },
   }
 
@@ -1501,13 +1553,17 @@ mod tests {
     },
   }
 
-  error! {
+  error_matches! {
     name: show_arguments,
     args: ["--show", "foo", "bar"],
-    error: ConfigError::SubcommandArguments { subcommand, arguments },
+    error: error,
     check: {
-      assert_eq!(subcommand, cmd::SHOW);
-      assert_eq!(arguments, &["bar"]);
+      assert_eq!(error.kind(), clap::error::ErrorKind::ArgumentConflict);
+      assert_eq!(error.context().collect::<Vec<_>>(), vec![
+        (ContextKind::InvalidArg, &ContextValue::String("--show <RECIPE>".into())),
+        (ContextKind::PriorArg, &ContextValue::String("[ARGUMENTS]...".into())),
+        (ContextKind::Usage, &ContextValue::StyledStr("\u{1b}[33mUsage:\u{1b}[0m \u{1b}[32mjust\u{1b}[0m \u{1b}[32m--show\u{1b}[0m\u{1b}[32m \u{1b}[0m\u{1b}[32m<RECIPE>\u{1b}[0m \u{1b}[32m[ARGUMENTS]...\u{1b}[0m".into())),
+      ]);
     },
   }
 

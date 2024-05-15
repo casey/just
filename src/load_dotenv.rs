@@ -23,7 +23,7 @@ pub(crate) fn load_dotenv(
   }
 
   if let Some(path) = dotenv_path {
-    return load_from_file(path);
+    return load_from_file(&working_directory.join(path));
   }
 
   let filename = dotenv_filename.map_or(DEFAULT_DOTENV_FILENAME, |s| s.as_str());

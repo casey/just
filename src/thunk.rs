@@ -64,14 +64,14 @@ impl<'src> Thunk<'src> {
         (Function::Nullary(function), 0) => Ok(Thunk::Nullary { function, name }),
         (Function::Unary(function), 1) => Ok(Thunk::Unary {
           function,
-          arg: Box::new(arguments.pop().unwrap()),
+          arg: arguments.pop().unwrap().into(),
           name,
         }),
         (Function::UnaryOpt(function), 1..=2) => {
-          let a = Box::new(arguments.remove(0));
+          let a = arguments.remove(0).into();
           let b = match arguments.pop() {
-            Some(value) => Box::new(Some(value)),
-            None => Box::new(None),
+            Some(value) => Some(value).into(),
+            None => None.into(),
           };
           Ok(Thunk::UnaryOpt {
             function,
@@ -80,8 +80,8 @@ impl<'src> Thunk<'src> {
           })
         }
         (Function::Binary(function), 2) => {
-          let b = Box::new(arguments.pop().unwrap());
-          let a = Box::new(arguments.pop().unwrap());
+          let b = arguments.pop().unwrap().into();
+          let a = arguments.pop().unwrap().into();
           Ok(Thunk::Binary {
             function,
             args: [a, b],
@@ -90,8 +90,8 @@ impl<'src> Thunk<'src> {
         }
         (Function::BinaryPlus(function), 2..=usize::MAX) => {
           let rest = arguments.drain(2..).collect();
-          let b = Box::new(arguments.pop().unwrap());
-          let a = Box::new(arguments.pop().unwrap());
+          let b = arguments.pop().unwrap().into();
+          let a = arguments.pop().unwrap().into();
           Ok(Thunk::BinaryPlus {
             function,
             args: ([a, b], rest),
@@ -99,9 +99,9 @@ impl<'src> Thunk<'src> {
           })
         }
         (Function::Ternary(function), 3) => {
-          let c = Box::new(arguments.pop().unwrap());
-          let b = Box::new(arguments.pop().unwrap());
-          let a = Box::new(arguments.pop().unwrap());
+          let c = arguments.pop().unwrap().into();
+          let b = arguments.pop().unwrap().into();
+          let a = arguments.pop().unwrap().into();
           Ok(Thunk::Ternary {
             function,
             args: [a, b, c],

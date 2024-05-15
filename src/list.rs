@@ -6,15 +6,15 @@ pub struct List<T: Display, I: Iterator<Item = T> + Clone> {
 }
 
 impl<T: Display, I: Iterator<Item = T> + Clone> List<T, I> {
-  pub fn or<II: IntoIterator<Item = T, IntoIter = I>>(values: II) -> List<T, I> {
-    List {
+  pub fn or<II: IntoIterator<Item = T, IntoIter = I>>(values: II) -> Self {
+    Self {
       conjunction: "or",
       values: values.into_iter(),
     }
   }
 
-  pub fn and<II: IntoIterator<Item = T, IntoIter = I>>(values: II) -> List<T, I> {
-    List {
+  pub fn and<II: IntoIterator<Item = T, IntoIter = I>>(values: II) -> Self {
+    Self {
       conjunction: "and",
       values: values.into_iter(),
     }

@@ -95,7 +95,7 @@ impl Test {
   }
 
   pub(crate) fn current_dir(mut self, path: impl AsRef<Path>) -> Self {
-    self.current_dir = path.as_ref().to_owned();
+    path.as_ref().clone_into(&mut self.current_dir);
     self
   }
 
@@ -189,6 +189,7 @@ impl Test {
 }
 
 impl Test {
+  #[track_caller]
   pub(crate) fn run(self) -> Output {
     if let Some(justfile) = &self.justfile {
       let justfile = unindent(justfile);
@@ -202,9 +203,7 @@ impl Test {
     };
     let stderr = unindent(&self.stderr);
 
-    let mut dotenv_path = self.tempdir.path().to_path_buf();
-    dotenv_path.push(".env");
-    fs::write(dotenv_path, "DOTENV_KEY=dotenv-value").unwrap();
+    fs::write(self.tempdir.path().join(".env"), "DOTENV_KEY=dotenv-value").unwrap();
 
     let mut command = Command::new(executable_path("just"));
 

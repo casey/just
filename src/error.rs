@@ -13,6 +13,9 @@ pub(crate) enum Error<'src> {
     min: usize,
     max: usize,
   },
+  Assert {
+    message: String,
+  },
   Backtick {
     token: Token<'src>,
     output_error: OutputError,
@@ -139,8 +142,11 @@ pub(crate) enum Error<'src> {
     line_number: Option<usize>,
     signal: i32,
   },
-  TmpdirIo {
+  TempdirIo {
     recipe: &'src str,
+    io_error: io::Error,
+  },
+  TempfileIo {
     io_error: io::Error,
   },
   Unknown {
@@ -255,6 +261,9 @@ impl<'src> ColorDisplay for Error<'src> {
         } else if found > max {
           write!(f, "Recipe `{recipe}` got {found} {count} but takes at most {max}")?;
         }
+      }
+      Assert { message }=> {
+        write!(f, "Assert failed: {message}")?;
       }
       Backtick { output_error, .. } => match output_error {
         OutputError::Code(code) => write!(f, "Backtick failed with exit code {code}")?,
@@ -397,9 +406,12 @@ impl<'src> ColorDisplay for Error<'src> {
           write!(f, "Recipe `{recipe}` was terminated by signal {signal}")?;
         }
       }
-      TmpdirIo { recipe, io_error } => {
+      TempdirIo { recipe, io_error } => {
         write!(f, "Recipe `{recipe}` could not be run because of an IO error while trying to create a temporary \
                    directory or write a file to that directory: {io_error}")?;
+      }
+      TempfileIo { io_error } => {
+        write!(f, "Tempfile I/O error: {io_error}")?;
       }
       Unknown { recipe, line_number} => {
         if let Some(n) = line_number {

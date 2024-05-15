@@ -5,8 +5,8 @@ pub(crate) struct Variables<'expression, 'src> {
 }
 
 impl<'expression, 'src> Variables<'expression, 'src> {
-  pub(crate) fn new(root: &'expression Expression<'src>) -> Variables<'expression, 'src> {
-    Variables { stack: vec![root] }
+  pub(crate) fn new(root: &'expression Expression<'src>) -> Self {
+    Self { stack: vec![root] }
   }
 }
 
@@ -49,11 +49,14 @@ impl<'expression, 'src> Iterator for Variables<'expression, 'src> {
           }
         },
         Expression::Conditional {
-          lhs,
-          rhs,
+          condition:
+            Condition {
+              lhs,
+              rhs,
+              operator: _,
+            },
           then,
           otherwise,
-          ..
         } => {
           self.stack.push(otherwise);
           self.stack.push(then);
@@ -73,6 +76,19 @@ impl<'expression, 'src> Iterator for Variables<'expression, 'src> {
         }
         Expression::Group { contents } => {
           self.stack.push(contents);
+        }
+        Expression::Assert {
+          condition:
+            Condition {
+              lhs,
+              rhs,
+              operator: _,
+            },
+          error,
+        } => {
+          self.stack.push(error);
+          self.stack.push(rhs);
+          self.stack.push(lhs);
         }
       }
     }

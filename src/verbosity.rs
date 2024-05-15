@@ -9,7 +9,7 @@ pub(crate) enum Verbosity {
 }
 
 impl Verbosity {
-  pub(crate) fn from_flag_occurrences(flag_occurrences: u64) -> Self {
+  pub(crate) fn from_flag_occurrences(flag_occurrences: u8) -> Self {
     match flag_occurrences {
       0 => Taciturn,
       1 => Loquacious,

@@ -1,7 +1,4 @@
-use {
-  super::*,
-  std::{borrow::Cow, mem},
-};
+use {super::*, std::borrow::Cow};
 
 /// Construct a `Tree` from a symbolic expression literal. This macro, and the
 /// Tree type, are only used in the Parser unit tests, providing a concise
@@ -54,66 +51,66 @@ pub(crate) enum Tree<'text> {
   /// …an atom containing text, or…
   Atom(Cow<'text, str>),
   /// …a list containing zero or more `Tree`s.
-  List(Vec<Tree<'text>>),
+  List(Vec<Self>),
 }
 
 impl<'text> Tree<'text> {
   /// Construct an Atom from a text scalar
-  pub(crate) fn atom(text: impl Into<Cow<'text, str>>) -> Tree<'text> {
-    Tree::Atom(text.into())
+  pub(crate) fn atom(text: impl Into<Cow<'text, str>>) -> Self {
+    Self::Atom(text.into())
   }
 
   /// Construct a List from an iterable of trees
-  pub(crate) fn list(children: impl IntoIterator<Item = Tree<'text>>) -> Tree<'text> {
-    Tree::List(children.into_iter().collect())
+  pub(crate) fn list(children: impl IntoIterator<Item = Self>) -> Self {
+    Self::List(children.into_iter().collect())
   }
 
   /// Convenience function to create an atom containing quoted text
-  pub(crate) fn string(contents: impl AsRef<str>) -> Tree<'text> {
-    Tree::atom(format!("\"{}\"", contents.as_ref()))
+  pub(crate) fn string(contents: impl AsRef<str>) -> Self {
+    Self::atom(format!("\"{}\"", contents.as_ref()))
   }
 
   /// Push a child node into self, turning it into a List if it was an Atom
-  pub(crate) fn push(self, tree: impl Into<Tree<'text>>) -> Tree<'text> {
+  pub(crate) fn push(self, tree: impl Into<Self>) -> Self {
     match self {
-      Tree::List(mut children) => {
+      Self::List(mut children) => {
         children.push(tree.into());
-        Tree::List(children)
+        Self::List(children)
       }
-      Tree::Atom(text) => Tree::List(vec![Tree::Atom(text), tree.into()]),
+      Self::Atom(text) => Self::List(vec![Self::Atom(text), tree.into()]),
     }
   }
 
   /// Extend a self with a tail of Trees, turning self into a List if it was an
   /// Atom
-  pub(crate) fn extend<I, T>(self, tail: I) -> Tree<'text>
+  pub(crate) fn extend<I, T>(self, tail: I) -> Self
   where
     I: IntoIterator<Item = T>,
-    T: Into<Tree<'text>>,
+    T: Into<Self>,
   {
     // Tree::List(children.into_iter().collect())
     let mut head = match self {
-      Tree::List(children) => children,
-      Tree::Atom(text) => vec![Tree::Atom(text)],
+      Self::List(children) => children,
+      Self::Atom(text) => vec![Self::Atom(text)],
     };
 
     for child in tail {
       head.push(child.into());
     }
 
-    Tree::List(head)
+    Self::List(head)
   }
 
   /// Like `push`, but modify self in-place
-  pub(crate) fn push_mut(&mut self, tree: impl Into<Tree<'text>>) {
-    *self = mem::replace(self, Tree::List(Vec::new())).push(tree.into());
+  pub(crate) fn push_mut(&mut self, tree: impl Into<Self>) {
+    *self = mem::replace(self, Self::List(Vec::new())).push(tree.into());
   }
 }
 
 impl Display for Tree<'_> {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
     match self {
-      Tree::List(children) => {
+      Self::List(children) => {
         write!(f, "(")?;
 
         for (i, child) in children.iter().enumerate() {
@@ -125,7 +122,7 @@ impl Display for Tree<'_> {
 
         write!(f, ")")
       }
-      Tree::Atom(text) => write!(f, "{text}"),
+      Self::Atom(text) => write!(f, "{text}"),
     }
   }
 }
@@ -134,7 +131,7 @@ impl<'text, T> From<T> for Tree<'text>
 where
   T: Into<Cow<'text, str>>,
 {
-  fn from(text: T) -> Tree<'text> {
-    Tree::Atom(text.into())
+  fn from(text: T) -> Self {
+    Self::Atom(text.into())
   }
 }

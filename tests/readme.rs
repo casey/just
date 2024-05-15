@@ -2,7 +2,7 @@ use super::*;
 
 #[test]
 fn readme() {
-  let mut justfiles = vec![];
+  let mut justfiles = Vec::new();
   let mut current = None;
 
   for line in fs::read_to_string("README.md").unwrap().lines() {

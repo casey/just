@@ -8,9 +8,9 @@ impl Compiler {
     loader: &'src Loader,
     root: &Path,
   ) -> RunResult<'src, Compilation<'src>> {
-    let mut asts: HashMap<PathBuf, Ast> = HashMap::new();
-    let mut paths: HashMap<PathBuf, PathBuf> = HashMap::new();
-    let mut srcs: HashMap<PathBuf, &str> = HashMap::new();
+    let mut asts = HashMap::<PathBuf, Ast>::new();
+    let mut paths = HashMap::<PathBuf, PathBuf>::new();
+    let mut srcs = HashMap::<PathBuf, &str>::new();
     let mut loaded = Vec::new();
 
     let mut stack = Vec::new();

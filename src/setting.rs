@@ -3,6 +3,7 @@ use super::*;
 #[derive(Debug, Clone)]
 pub(crate) enum Setting<'src> {
   AllowDuplicateRecipes(bool),
+  AllowDuplicateVariables(bool),
   DotenvFilename(String),
   DotenvLoad(bool),
   DotenvPath(String),
@@ -20,16 +21,17 @@ pub(crate) enum Setting<'src> {
 impl<'src> Display for Setting<'src> {
   fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
     match self {
-      Setting::AllowDuplicateRecipes(value)
-      | Setting::DotenvLoad(value)
-      | Setting::Export(value)
-      | Setting::Fallback(value)
-      | Setting::IgnoreComments(value)
-      | Setting::PositionalArguments(value)
-      | Setting::Quiet(value)
-      | Setting::WindowsPowerShell(value) => write!(f, "{value}"),
-      Setting::Shell(shell) | Setting::WindowsShell(shell) => write!(f, "{shell}"),
-      Setting::DotenvFilename(value) | Setting::DotenvPath(value) | Setting::Tempdir(value) => {
+      Self::AllowDuplicateRecipes(value)
+      | Self::AllowDuplicateVariables(value)
+      | Self::DotenvLoad(value)
+      | Self::Export(value)
+      | Self::Fallback(value)
+      | Self::IgnoreComments(value)
+      | Self::PositionalArguments(value)
+      | Self::Quiet(value)
+      | Self::WindowsPowerShell(value) => write!(f, "{value}"),
+      Self::Shell(shell) | Self::WindowsShell(shell) => write!(f, "{shell}"),
+      Self::DotenvFilename(value) | Self::DotenvPath(value) | Self::Tempdir(value) => {
         write!(f, "{value:?}")
       }
     }
