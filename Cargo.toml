@@ -65,10 +65,6 @@ path = "src/main.rs"
 name = "just"
 test = false
 
-[features]
-# No features are active by default.
-default = []
-
 # The public documentation is minimal and doesn't change between
 # platforms, so we only build them for linux on docs.rs to save
 # their build machines some cycles.
