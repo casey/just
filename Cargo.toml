@@ -15,7 +15,7 @@ repository = "https://github.com/casey/just"
 rust-version = "1.63"
 
 [workspace]
-members = [".", "bin/ref-type", "bin/generate-book", "bin/update-contributors"]
+members = [".", "crates/*"]
 
 [dependencies]
 ansi_term = "0.12.0"
@@ -24,6 +24,7 @@ blake3 = { version = "1.5.0", features = ["rayon", "mmap"] }
 camino = "1.0.4"
 clap = { version = "4.0.0", features = ["env", "wrap_help"] }
 clap_complete = "4.0.0"
+clap_mangen = "0.2.20"
 ctrlc = { version = "3.1.1", features = ["termination"] }
 derivative = "2.0.0"
 dirs = "5.0.1"
@@ -63,13 +64,6 @@ doctest = false
 path = "src/main.rs"
 name = "just"
 test = false
-
-[features]
-# No features are active by default.
-default = []
-# The `help4help2man` feature modifies the message produced by `--help`
-# so that `help2man` produces a reasonable man page.
-help4help2man = []
 
 # The public documentation is minimal and doesn't change between
 # platforms, so we only build them for linux on docs.rs to save
