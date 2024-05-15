@@ -720,10 +720,11 @@ impl Config {
 
 #[cfg(test)]
 mod tests {
-  use super::*;
-
-  use clap::error::{ContextKind, ContextValue};
-  use pretty_assertions::assert_eq;
+  use {
+    super::*,
+    clap::error::{ContextKind, ContextValue},
+    pretty_assertions::assert_eq,
+  };
 
   macro_rules! test {
     {
