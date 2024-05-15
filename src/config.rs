@@ -6,8 +6,6 @@ use {
   },
 };
 
-const CHOOSER_ENVIRONMENT_KEY: &str = "JUST_CHOOSER";
-
 const CHOOSE_HELP: &str = "Select one or more recipes to run using a binary chooser. \
                            If `--chooser` is not passed the chooser defaults to the \
                            value of $JUST_CHOOSER, falling back to `fzf`";
@@ -162,7 +160,7 @@ impl Config {
       .arg(
         Arg::new(arg::CHOOSER)
           .long("chooser")
-          .env(CHOOSER_ENVIRONMENT_KEY)
+          .env("JUST_CHOOSER")
           .action(ArgAction::Set)
           .help("Override binary invoked by `--choose`"),
       )
