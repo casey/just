@@ -8,7 +8,7 @@ use super::*;
 /// The parser parses both values and expressions into `Expression`s.
 #[derive(PartialEq, Debug, Clone)]
 pub(crate) enum Expression<'src> {
-  /// `assert(lhs == rhs, error)`
+  /// `assert(condition, error)`
   Assert {
     condition: Condition<'src>,
     error: Box<Expression<'src>>,
