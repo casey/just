@@ -68,24 +68,12 @@ set edit:completion:arg-completer[just] = {|@words|
             cand --list 'List available recipes and their arguments'
             cand --summary 'List names of available recipes'
             cand --variables 'List names of variables'
-<<<<<<< HEAD
-            cand -g 'Invoke using a global `justfile`'
-            cand --global 'Invoke using a global `justfile`'
-            cand -h 'Print help information'
-            cand --help 'Print help information'
-            cand -V 'Print version information'
-            cand --version 'Print version information'
-||||||| 47fb323
-            cand -h 'Print help information'
-            cand --help 'Print help information'
-            cand -V 'Print version information'
-            cand --version 'Print version information'
-=======
+            cand -g 'Use global justfile'
+            cand --global 'Use global justfile'
             cand -h 'Print help'
             cand --help 'Print help'
             cand -V 'Print version'
             cand --version 'Print version'
->>>>>>> origin/master
         }
     ]
     $completions[$command]

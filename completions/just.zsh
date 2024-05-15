@@ -66,24 +66,12 @@ _just() {
 '--list[List available recipes and their arguments]' \
 '--summary[List names of available recipes]' \
 '--variables[List names of variables]' \
-<<<<<<< HEAD
-'-g[Invoke using a global `justfile`]' \
-'--global[Invoke using a global `justfile`]' \
-'-h[Print help information]' \
-'--help[Print help information]' \
-'-V[Print version information]' \
-'--version[Print version information]' \
-||||||| 47fb323
-'-h[Print help information]' \
-'--help[Print help information]' \
-'-V[Print version information]' \
-'--version[Print version information]' \
-=======
+'-g[Use global justfile]' \
+'--global[Use global justfile]' \
 '-h[Print help]' \
 '--help[Print help]' \
 '-V[Print version]' \
 '--version[Print version]' \
->>>>>>> origin/master
 )
 
     _arguments "${_arguments_options[@]}" $common \
