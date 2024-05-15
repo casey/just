@@ -2137,8 +2137,9 @@ example, if a recipe starts with `#!/usr/bin/env bash`, the final command that
 the OS runs will be something like `/usr/bin/env bash
 /tmp/PATH_TO_SAVED_RECIPE_BODY`.
 
-Keep in mind that different operating systems split shebang lines differently.
-Depending on the OS, you may need to pass the `-S` flag to `env`, like so:
+Different operating systems split shebang lines differently. When passing
+arguments to the command given to `env`, you may need tell env to split them
+with the `-S` flag:
 
 ```just
 run:
