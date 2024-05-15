@@ -110,12 +110,12 @@ impl<'src> Analyzer<'src> {
     let mut recipe_table: Table<'src, UnresolvedRecipe<'src>> = Table::default();
 
     for assignment in assignments {
-      if !settings.allow_duplicate_variables {
-        if self.assignments.contains_key(assignment.name.lexeme()) {
-          return Err(assignment.name.token.error(DuplicateVariable {
-            variable: assignment.name.lexeme(),
-          }));
-        }
+      if !settings.allow_duplicate_variables
+        && self.assignments.contains_key(assignment.name.lexeme())
+      {
+        return Err(assignment.name.token.error(DuplicateVariable {
+          variable: assignment.name.lexeme(),
+        }));
       }
 
       if self
