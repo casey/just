@@ -792,6 +792,7 @@ foo:
 <h4 id="table-of-settings"><a class="header" href="#table-of-settings">Table of Settings</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Name</th><th>Value</th><th>Default</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>allow-duplicate-recipes</code></td><td>boolean</td><td><code>false</code></td><td>Allow recipes appearing later in a <code>justfile</code> to override earlier recipes with the same name.</td></tr>
+<tr><td><code>allow-duplicate-variables</code></td><td>boolean</td><td><code>false</code></td><td>Allow variables appearing later in a <code>justfile</code> to override earlier variables with the same name.</td></tr>
 <tr><td><code>dotenv-filename</code></td><td>string</td><td>-</td><td>Load a <code>.env</code> file with a custom name, if present.</td></tr>
 <tr><td><code>dotenv-load</code></td><td>boolean</td><td><code>false</code></td><td>Load a <code>.env</code> file, if present.</td></tr>
 <tr><td><code>dotenv-path</code></td><td>string</td><td>-</td><td>Load a <code>.env</code> file from a custom path, if present. Overrides <code>dotenv-filename</code>.</td></tr>
@@ -822,6 +823,21 @@ the same name is not an error and the last definition is used. Defaults to
 
 @foo:
   echo bar
+</code></pre>
+<pre><code class="language-sh">$ just foo
+bar
+</code></pre>
+<h4 id="allow-duplicate-variables"><a class="header" href="#allow-duplicate-variables">Allow Duplicate Variables</a></h4>
+<p>If <code>allow-duplicate-variables</code> is set to <code>true</code>, defining multiple variables
+with the same name is not an error and the last definition is used. Defaults to
+<code>false</code>.</p>
+<pre><code class="language-just">set allow-duplicate-variables
+
+a := "foo"
+a := "bar"
+
+@foo:
+  echo $a
 </code></pre>
 <pre><code class="language-sh">$ just foo
 bar
@@ -2215,7 +2231,8 @@ and recipes defined after the <code>import</code> statement.</p>
 <p>Imported files can themselves contain <code>import</code>s, which are processed
 recursively.</p>
 <p>When <code>allow-duplicate-recipes</code> is set, recipes in parent modules override
-recipes in imports.</p>
+recipes in imports. In a similar manner, when <code>allow-duplicate-variables</code> is
+set, variables in parent modules override variables in imports.</p>
 <p>Imports may be made optional by putting a <code>?</code> after the <code>import</code> keyword:</p>
 <pre><code class="language-mf">import? 'foo/bar.just'
 </code></pre>

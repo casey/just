@@ -203,7 +203,8 @@ and recipes defined after the <code>import</code> statement.</p>
 <p>Imported files can themselves contain <code>import</code>s, which are processed
 recursively.</p>
 <p>When <code>allow-duplicate-recipes</code> is set, recipes in parent modules override
-recipes in imports.</p>
+recipes in imports. In a similar manner, when <code>allow-duplicate-variables</code> is
+set, variables in parent modules override variables in imports.</p>
 <p>Imports may be made optional by putting a <code>?</code> after the <code>import</code> keyword:</p>
 <pre><code class="language-mf">import? 'foo/bar.just'
 </code></pre>
