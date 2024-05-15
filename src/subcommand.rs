@@ -1,5 +1,6 @@
 use {
   super::*,
+  clap_mangen::Man,
   std::io::{Read, Seek},
   tempfile::tempfile,
 };
@@ -30,6 +31,7 @@ pub(crate) enum Subcommand {
   Format,
   Init,
   List,
+  Man,
   Run {
     arguments: Vec<String>,
     overrides: BTreeMap<String, String>,
@@ -56,6 +58,7 @@ impl Subcommand {
       }
       Completions { shell } => return Self::completions(*shell),
       Init => return Self::init(config),
+      Man => return Self::man(),
       Run {
         arguments,
         overrides,
@@ -87,7 +90,7 @@ impl Subcommand {
       Show { ref name } => Self::show(config, name, justfile)?,
       Summary => Self::summary(config, justfile),
       Variables => Self::variables(justfile),
-      Changelog | Completions { .. } | Edit | Init | Run { .. } => unreachable!(),
+      Changelog | Completions { .. } | Edit | Init | Man | Run { .. } => unreachable!(),
     }
 
     Ok(())
@@ -438,6 +441,26 @@ impl Subcommand {
       }
       Ok(())
     }
+  }
+
+  fn man() -> Result<(), Error<'static>> {
+    let mut buffer = Vec::<u8>::new();
+
+    Man::new(Config::app())
+      .render(&mut buffer)
+      .expect("writing to buffer cannot fail");
+
+    let mut stdout = io::stdout().lock();
+
+    stdout
+      .write_all(&buffer)
+      .map_err(|io_error| Error::StdoutIo { io_error })?;
+
+    stdout
+      .flush()
+      .map_err(|io_error| Error::StdoutIo { io_error })?;
+
+    Ok(())
   }
 
   fn list(config: &Config, level: usize, justfile: &Justfile) {
