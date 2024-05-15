@@ -38,16 +38,16 @@ impl Search {
     search_config: &SearchConfig,
     invocation_directory: &Path,
   ) -> SearchResult<Self> {
-    Ok(match search_config {
-      SearchConfig::FromInvocationDirectory => Self::find_next(invocation_directory)?,
+    match search_config {
+      SearchConfig::FromInvocationDirectory => Ok(Self::find_next(invocation_directory)?),
       SearchConfig::FromSearchDirectory { search_directory } => {
         let search_directory = Self::clean(invocation_directory, search_directory);
         let justfile = Self::justfile(&search_directory)?;
         let working_directory = Self::working_directory_from_justfile(&justfile)?;
-        Self {
+        Ok(Self {
           justfile,
           working_directory,
-        }
+        })
       }
       SearchConfig::Global => {
         let working_directory = Self::project_root(invocation_directory)?;
@@ -57,27 +57,27 @@ impl Search {
           .find(|path| path.try_exists().unwrap_or(false))
           .cloned()
           .ok_or(SearchError::GlobalJustfileNotFound)?;
-        Self {
+        Ok(Self {
           justfile,
           working_directory,
-        }
+        })
       }
       SearchConfig::WithJustfile { justfile } => {
         let justfile = Self::clean(invocation_directory, justfile);
         let working_directory = Self::working_directory_from_justfile(&justfile)?;
-        Self {
+        Ok(Self {
           justfile,
           working_directory,
-        }
+        })
       }
       SearchConfig::WithJustfileAndWorkingDirectory {
         justfile,
         working_directory,
-      } => Self {
+      } => Ok(Self {
         justfile: Self::clean(invocation_directory, justfile),
         working_directory: Self::clean(invocation_directory, working_directory),
-      },
-    })
+      }),
+    }
   }
 
   pub(crate) fn find_next(starting_dir: &Path) -> SearchResult<Self> {
