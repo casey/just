@@ -902,7 +902,7 @@ x a b='B	' c='C':
   echo {{a}} {{b}} {{c}}
 
 # something else
-this-recipe-is-very-very-very-important Z="\t z":
+this-recipe-is-very-very-very-very-very-very-very-very-important Z="\t z":
 
 # this recipe will not appear
 _private-recipe:
@@ -911,7 +911,7 @@ _private-recipe:
   stdout:   r#"
     Available recipes:
         hello a b='B	' c='C' # this does a thing
-        this-recipe-is-very-very-very-important Z="\t z" # something else
+        this-recipe-is-very-very-very-very-very-very-very-very-important Z="\t z" # something else
         x a b='B	' c='C'     # this does another thing
   "#,
 }
