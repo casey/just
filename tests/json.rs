@@ -262,7 +262,7 @@ fn dependency_argument() {
               ["concatenate", "a", "b"],
               ["evaluate", "echo"],
               ["variable", "x"],
-              ["if", "==", "a", "b", "c", "d"],
+              ["if", ["==", "a", "b"], "c", "d"],
               ["call", "arch"],
               ["call", "env_var", "foo"],
               ["call", "join", "a", "b"],
