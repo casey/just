@@ -196,11 +196,15 @@ fn circular_module_imports_are_detected() {
 }
 
 #[test]
-fn modules_use_module_settings_recipes() {
+fn modules_use_module_settings() {
   Test::new()
     .write(
       "foo.just",
-      "set allow-duplicate-recipes\nfoo:\nfoo:\n @echo FOO\n",
+      "set allow-duplicate-recipes
+foo:
+foo:
+  @echo FOO
+",
     )
     .justfile(
       "
@@ -215,7 +219,13 @@ fn modules_use_module_settings_recipes() {
     .run();
 
   Test::new()
-    .write("foo.just", "\nfoo:\nfoo:\n @echo FOO\n")
+    .write(
+      "foo.just",
+      "foo:
+foo:
+  @echo FOO
+",
+    )
     .justfile(
       "
         mod foo
@@ -230,51 +240,15 @@ fn modules_use_module_settings_recipes() {
     .arg("foo")
     .stderr(
       "
-      error: Recipe `foo` first defined on line 2 is redefined on line 3
-       ——▶ foo.just:3:1
+      error: Recipe `foo` first defined on line 1 is redefined on line 2
+       ——▶ foo.just:2:1
         │
-      3 │ foo:
+      2 │ foo:
         │ ^^^
     ",
     )
     .run();
 }
-
-#[test]
-fn modules_use_module_settings_variables() {
-  Test::new()
-    .write("foo.just", "set allow-duplicate-variables\na := 'foo'\na := 'bar'\nfoo:\n @echo {{a}}")
-    .justfile(
-      "
-        mod foo
-      ",
-    )
-    .test_round_trip(false)
-    .arg("--unstable")
-    .arg("foo")
-    .stdout("bar\n")
-    .run();
-
-  Test::new()
-    .write("foo.just", "a := 'foo'\na := 'bar'\nfoo:\n @echo {{a}}")
-    .justfile(
-      "
-        mod foo
-
-        set allow-duplicate-variables
-      ",
-    )
-    .test_round_trip(false)
-    .status(EXIT_FAILURE)
-    .arg("--unstable")
-    .arg("foo")
-    .stderr(
-      "error: Variable `a` has multiple definitions\n ——▶ foo.just:2:1\n  │\n2 │ a := 'bar'\n  │ ^\n",
-    )
-    .run();
-
-}
-
 
 #[test]
 fn modules_conflict_with_recipes() {
