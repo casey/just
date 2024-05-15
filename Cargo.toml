@@ -1,6 +1,6 @@
 [package]
 name = "just"
-version = "1.22.1"
+version = "1.26.0"
 authors = ["Casey Rodarmor <casey@rodarmor.com>"]
 autotests = false
 categories = ["command-line-utilities", "development-tools"]
@@ -20,6 +20,7 @@ members = [".", "bin/ref-type", "bin/generate-book", "bin/update-contributors"]
 [dependencies]
 ansi_term = "0.12.0"
 atty = "0.2.0"
+blake3 = { version = "1.5.0", features = ["rayon", "mmap"] }
 camino = "1.0.4"
 clap = { version = "2.33.0", features = ["wrap_help"] }
 ctrlc = { version = "3.1.1", features = ["termination"] }
@@ -27,20 +28,20 @@ derivative = "2.0.0"
 dirs = "5.0.1"
 dotenvy = "0.15"
 edit-distance = "2.0.0"
-env_logger = "0.10.0"
-heck = "0.4.0"
+env_logger = "0.11.0"
+heck = "0.5.0"
 lexiclean = "0.0.1"
 libc = "0.2.0"
 log = "0.4.4"
 num_cpus = "1.15.0"
-regex = "1.5.4"
+regex = "1.10.4"
 semver = "1.0.20"
 serde = { version = "1.0.130", features = ["derive", "rc"] }
 serde_json = "1.0.68"
 sha2 = "0.10"
 similar = { version = "2.1.0", features = ["unicode"] }
 snafu = "0.8.0"
-strum = { version = "0.25.0", features = ["derive"] }
+strum = { version = "0.26.0", features = ["derive"] }
 target = "2.0.0"
 tempfile = "3.0.0"
 typed-arena = "2.0.1"
@@ -52,8 +53,7 @@ cradle = "0.2.0"
 executable-path = "1.0.0"
 pretty_assertions = "1.0.0"
 temptree = "0.2.0"
-which = "5.0.0"
-yaml-rust = "0.4.5"
+which = "6.0.0"
 
 [lib]
 doctest = false
@@ -78,6 +78,7 @@ targets = ["x86_64-unknown-linux-gnu"]
 
 [profile.release]
 lto = true
+codegen-units = 1
 
 [[test]]
 name = "integration"

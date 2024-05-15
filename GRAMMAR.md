@@ -62,6 +62,7 @@ assignment    : NAME ':=' expression eol
 export        : 'export' assignment
 
 setting       : 'set' 'allow-duplicate-recipes' boolean?
+              | 'set' 'allow-duplicate-variables' boolean?
               | 'set' 'dotenv-filename' ':=' string
               | 'set' 'dotenv-load' boolean?
               | 'set' 'dotenv-path' ':=' string
@@ -69,6 +70,7 @@ setting       : 'set' 'allow-duplicate-recipes' boolean?
               | 'set' 'fallback' boolean?
               | 'set' 'ignore-comments' boolean?
               | 'set' 'positional-arguments' boolean?
+              | 'set' 'quiet' boolean?
               | 'set' 'shell' ':=' '[' string (',' string)* ','? ']'
               | 'set' 'tempdir ':=' string
               | 'set' 'windows-powershell' boolean?
@@ -104,9 +106,11 @@ string        : STRING
 sequence      : expression ',' sequence
               | expression ','?
 
-recipe        : attribute? '@'? NAME parameter* variadic? ':' dependency* body?
+recipe        : attributes* '@'? NAME parameter* variadic? ':' dependency* body?
 
-attribute     : '[' NAME ']' eol
+attributes    : '[' attribute* ']' eol
+
+attribute     : NAME ( '(' string ')' )?
 
 parameter     : '$'? NAME
               | '$'? NAME '=' value

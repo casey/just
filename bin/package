@@ -9,6 +9,13 @@ echo "Packaging just $VERSION for $TARGET..."
 
 test -f Cargo.lock || cargo generate-lockfile
 
+echo "Installing rust toolchain for $TARGET..."
+rustup target add $TARGET
+
+if [[ $TARGET == aarch64-unknown-linux-musl ]]; then
+  export CC=aarch64-linux-gnu-gcc
+fi
+
 echo "Building just..."
 RUSTFLAGS="--deny warnings --codegen target-feature=+crt-static $TARGET_RUSTFLAGS" \
   cargo build --bin just --target $TARGET --release
@@ -20,13 +27,14 @@ fi
 
 echo "Copying release files..."
 mkdir dist
-cp \
+cp -r \
   $EXECUTABLE \
   Cargo.lock \
   Cargo.toml \
   GRAMMAR.md \
   LICENSE \
   README.md \
+  completions \
   man/just.1 \
   $DIST
 
@@ -36,11 +44,11 @@ case $OS in
   ubuntu-latest | macos-latest)
     ARCHIVE=$DIST/just-$VERSION-$TARGET.tar.gz
     tar czf $ARCHIVE *
-    echo "::set-output name=archive::$ARCHIVE"
+    echo "archive=$ARCHIVE" >> $GITHUB_OUTPUT
     ;;
   windows-latest)
     ARCHIVE=$DIST/just-$VERSION-$TARGET.zip
     7z a $ARCHIVE *
-    echo "::set-output name=archive::`pwd -W`/just-$VERSION-$TARGET.zip"
+    echo "archive=`pwd -W`/just-$VERSION-$TARGET.zip" >> $GITHUB_OUTPUT
     ;;
 esac

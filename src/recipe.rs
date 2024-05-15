@@ -22,7 +22,7 @@ fn error_from_signal(recipe: &str, line_number: Option<usize>, exit_status: Exit
 /// A recipe, e.g. `foo: bar baz`
 #[derive(PartialEq, Debug, Clone, Serialize)]
 pub(crate) struct Recipe<'src, D = Dependency<'src>> {
-  pub(crate) attributes: BTreeSet<Attribute>,
+  pub(crate) attributes: BTreeSet<Attribute<'src>>,
   pub(crate) body: Vec<Line<'src>>,
   pub(crate) dependencies: Vec<D>,
   #[serde(skip)]
@@ -37,6 +37,8 @@ pub(crate) struct Recipe<'src, D = Dependency<'src>> {
   pub(crate) private: bool,
   pub(crate) quiet: bool,
   pub(crate) shebang: bool,
+  #[serde(skip)]
+  pub(crate) working_directory: PathBuf,
 }
 
 impl<'src, D> Recipe<'src, D> {
@@ -69,17 +71,22 @@ impl<'src, D> Recipe<'src, D> {
   }
 
   pub(crate) fn confirm(&self) -> RunResult<'src, bool> {
-    if self.attributes.contains(&Attribute::Confirm) {
-      eprint!("Run recipe `{}`? ", self.name);
-      let mut line = String::new();
-      std::io::stdin()
-        .read_line(&mut line)
-        .map_err(|io_error| Error::GetConfirmation { io_error })?;
-      let line = line.trim().to_lowercase();
-      Ok(line == "y" || line == "yes")
-    } else {
-      Ok(true)
+    for attribute in &self.attributes {
+      if let Attribute::Confirm(prompt) = attribute {
+        if let Some(prompt) = prompt {
+          eprint!("{} ", prompt.cooked);
+        } else {
+          eprint!("Run recipe `{}`? ", self.name);
+        }
+        let mut line = String::new();
+        std::io::stdin()
+          .read_line(&mut line)
+          .map_err(|io_error| Error::GetConfirmation { io_error })?;
+        let line = line.trim().to_lowercase();
+        return Ok(line == "y" || line == "yes");
+      }
     }
+    Ok(true)
   }
 
   pub(crate) fn check_can_be_default_recipe(&self) -> RunResult<'src, ()> {
@@ -118,6 +125,22 @@ impl<'src, D> Recipe<'src, D> {
 
   fn print_exit_message(&self) -> bool {
     !self.attributes.contains(&Attribute::NoExitMessage)
+  }
+
+  fn working_directory<'a>(&'a self, search: &'a Search) -> Option<&Path> {
+    if self.change_directory() {
+      Some(if self.depth > 0 {
+        &self.working_directory
+      } else {
+        &search.working_directory
+      })
+    } else {
+      None
+    }
+  }
+
+  fn no_quiet(&self) -> bool {
+    self.attributes.contains(&Attribute::NoQuiet)
   }
 
   pub(crate) fn run<'run>(
@@ -167,8 +190,8 @@ impl<'src, D> Recipe<'src, D> {
       }
       let mut evaluated = String::new();
       let mut continued = false;
-      let quiet_command = lines.peek().map_or(false, |line| line.is_quiet());
-      let infallible_command = lines.peek().map_or(false, |line| line.is_infallible());
+      let quiet_line = lines.peek().map_or(false, |line| line.is_quiet());
+      let infallible_line = lines.peek().map_or(false, |line| line.is_infallible());
 
       let comment_line =
         context.settings.ignore_comments && lines.peek().map_or(false, |line| line.is_comment());
@@ -196,7 +219,7 @@ impl<'src, D> Recipe<'src, D> {
 
       let mut command = evaluated.as_str();
 
-      let sigils = usize::from(infallible_command) + usize::from(quiet_command);
+      let sigils = usize::from(infallible_line) + usize::from(quiet_line);
 
       command = &command[sigils..];
 
@@ -206,7 +229,9 @@ impl<'src, D> Recipe<'src, D> {
 
       if config.dry_run
         || config.verbosity.loquacious()
-        || !((quiet_command ^ self.quiet) || config.verbosity.quiet())
+        || !((quiet_line ^ self.quiet)
+          || (context.settings.quiet && !self.no_quiet())
+          || config.verbosity.quiet())
       {
         let color = if config.highlight {
           config.color.command(config.command_color)
@@ -222,12 +247,8 @@ impl<'src, D> Recipe<'src, D> {
 
       let mut cmd = context.settings.shell_command(config);
 
-      if self.change_directory() {
-        cmd.current_dir(if self.depth > 0 {
-          self.file_path.parent().unwrap()
-        } else {
-          &context.search.working_directory
-        });
+      if let Some(working_directory) = self.working_directory(context.search) {
+        cmd.current_dir(working_directory);
       }
 
       cmd.arg(command);
@@ -247,7 +268,7 @@ impl<'src, D> Recipe<'src, D> {
       match InterruptHandler::guard(|| cmd.status()) {
         Ok(exit_status) => {
           if let Some(code) = exit_status.code() {
-            if code != 0 && !infallible_command {
+            if code != 0 && !infallible_line {
               return Err(Error::Code {
                 recipe: self.name(),
                 line_number: Some(line_number),
@@ -289,7 +310,14 @@ impl<'src, D> Recipe<'src, D> {
 
     if config.verbosity.loud() && (config.dry_run || self.quiet) {
       for line in &evaluated_lines {
-        eprintln!("{line}");
+        eprintln!(
+          "{}",
+          config
+            .color
+            .command(config.command_color)
+            .stderr()
+            .paint(line)
+        );
       }
     }
 
@@ -353,30 +381,19 @@ impl<'src, D> Recipe<'src, D> {
         })?;
     }
 
-    // make the script executable
+    // make script executable
     Platform::set_execute_permission(&path).map_err(|error| Error::TmpdirIo {
       recipe: self.name(),
       io_error: error,
     })?;
 
-    // create a command to run the script
-    let mut command = Platform::make_shebang_command(
-      &path,
-      if self.change_directory() {
-        if self.depth > 0 {
-          Some(self.file_path.parent().unwrap())
-        } else {
-          Some(&context.search.working_directory)
-        }
-      } else {
-        None
-      },
-      shebang,
-    )
-    .map_err(|output_error| Error::Cygpath {
-      recipe: self.name(),
-      output_error,
-    })?;
+    // create command to run script
+    let mut command =
+      Platform::make_shebang_command(&path, self.working_directory(context.search), shebang)
+        .map_err(|output_error| Error::Cygpath {
+          recipe: self.name(),
+          output_error,
+        })?;
 
     if context.settings.positional_arguments {
       command.args(positional);
@@ -418,7 +435,7 @@ impl<'src, D: Display> ColorDisplay for Recipe<'src, D> {
     }
 
     for attribute in &self.attributes {
-      writeln!(f, "[{}]", attribute.to_str())?;
+      writeln!(f, "[{attribute}]")?;
     }
 
     if self.quiet {

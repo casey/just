@@ -182,17 +182,43 @@ fn recipes_in_import_are_overridden_by_recipes_in_parent() {
     })
     .justfile(
       "
+        a:
+          @echo ROOT
+
         import './import.justfile'
 
         set allow-duplicate-recipes
-
-        a:
-          @echo ROOT
       ",
     )
     .test_round_trip(false)
     .arg("a")
     .stdout("ROOT\n")
+    .run();
+}
+
+#[test]
+fn variables_in_import_are_overridden_by_variables_in_parent() {
+  Test::new()
+    .tree(tree! {
+      "import.justfile": "
+    f := 'foo'
+    ",
+    })
+    .justfile(
+      "
+      f := 'bar'
+
+      import './import.justfile'
+
+      set allow-duplicate-variables
+
+      a:
+        @echo {{f}}
+    ",
+    )
+    .test_round_trip(false)
+    .arg("a")
+    .stdout("bar\n")
     .run();
 }
 
@@ -240,5 +266,81 @@ fn optional_imports_dump_correctly() {
     .test_round_trip(false)
     .arg("--dump")
     .stdout("import? './import.justfile'\n")
+    .run();
+}
+
+#[test]
+fn imports_in_root_run_in_justfile_directory() {
+  Test::new()
+    .write("foo/import.justfile", "bar:\n @cat baz")
+    .write("baz", "BAZ")
+    .justfile(
+      "
+        import 'foo/import.justfile'
+      ",
+    )
+    .test_round_trip(false)
+    .arg("bar")
+    .stdout("BAZ")
+    .run();
+}
+
+#[test]
+fn imports_in_submodules_run_in_submodule_directory() {
+  Test::new()
+    .justfile("mod foo")
+    .write("foo/mod.just", "import 'import.just'")
+    .write("foo/import.just", "bar:\n @cat baz")
+    .write("foo/baz", "BAZ")
+    .test_round_trip(false)
+    .arg("--unstable")
+    .arg("foo")
+    .arg("bar")
+    .stdout("BAZ")
+    .run();
+}
+
+#[test]
+fn nested_import_paths_are_relative_to_containing_submodule() {
+  Test::new()
+    .justfile("import 'foo/import.just'")
+    .write("foo/import.just", "import 'bar.just'")
+    .write("foo/bar.just", "bar:\n @echo BAR")
+    .test_round_trip(false)
+    .arg("bar")
+    .stdout("BAR\n")
+    .run();
+}
+
+#[test]
+fn recipes_in_nested_imports_run_in_parent_module() {
+  Test::new()
+    .justfile("import 'foo/import.just'")
+    .write("foo/import.just", "import 'bar/import.just'")
+    .write("foo/bar/import.just", "bar:\n @cat baz")
+    .write("baz", "BAZ")
+    .test_round_trip(false)
+    .arg("--unstable")
+    .arg("bar")
+    .stdout("BAZ")
+    .run();
+}
+
+#[test]
+fn shebang_recipes_in_imports_in_root_run_in_justfile_directory() {
+  Test::new()
+    .write(
+      "foo/import.justfile",
+      "bar:\n #!/usr/bin/env bash\n cat baz",
+    )
+    .write("baz", "BAZ")
+    .justfile(
+      "
+        import 'foo/import.justfile'
+      ",
+    )
+    .test_round_trip(false)
+    .arg("bar")
+    .stdout("BAZ")
     .run();
 }

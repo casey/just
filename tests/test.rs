@@ -35,6 +35,7 @@ macro_rules! test {
 }
 
 pub(crate) struct Output {
+  pub(crate) pid: u32,
   pub(crate) stdout: String,
   pub(crate) tempdir: TempDir,
 }
@@ -94,7 +95,7 @@ impl Test {
   }
 
   pub(crate) fn current_dir(mut self, path: impl AsRef<Path>) -> Self {
-    self.current_dir = path.as_ref().to_owned();
+    path.as_ref().clone_into(&mut self.current_dir);
     self
   }
 
@@ -110,6 +111,17 @@ impl Test {
 
   pub(crate) fn justfile_path(&self) -> PathBuf {
     self.tempdir.path().join("justfile")
+  }
+
+  #[cfg(unix)]
+  #[track_caller]
+  pub(crate) fn symlink(self, original: &str, link: &str) -> Self {
+    std::os::unix::fs::symlink(
+      self.tempdir.path().join(original),
+      self.tempdir.path().join(link),
+    )
+    .unwrap();
+    self
   }
 
   pub(crate) fn no_justfile(mut self) -> Self {
@@ -210,6 +222,8 @@ impl Test {
       .spawn()
       .expect("just invocation failed");
 
+    let pid = child.id();
+
     {
       let mut stdin_handle = child.stdin.take().expect("failed to unwrap stdin handle");
 
@@ -257,8 +271,9 @@ impl Test {
     }
 
     Output {
-      tempdir: self.tempdir,
+      pid,
       stdout: output_stdout.into(),
+      tempdir: self.tempdir,
     }
   }
 }

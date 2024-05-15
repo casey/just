@@ -20,13 +20,7 @@ jobs:
       RUSTFLAGS: --deny warnings
 
     steps:
-    - uses: actions/checkout@v2
-
-    - name: Install Rust Toolchain Components
-      uses: actions-rs/toolchain@v1
-      with:
-        components: clippy, rustfmt
-        toolchain: stable
+    - uses: actions/checkout@v4
 
     - uses: Swatinem/rust-cache@v2
 
@@ -42,11 +36,16 @@ jobs:
         git diff --no-ext-diff --quiet --exit-code
         ./tests/completions/just.bash
 
-    - name: Check for Forbidden Words
+    - name: Install Dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install ripgrep
-        ./bin/forbid
+        sudo apt-get install ripgrep shellcheck
+
+    - name: Check for Forbidden Words
+      run: ./bin/forbid
+
+    - name: Check Install Script
+      run: shellcheck www/install.sh
 
   pages:
     runs-on: ubuntu-latest
@@ -57,20 +56,12 @@ jobs:
       RUSTFLAGS: --deny warnings
 
     steps:
-    - uses: actions/checkout@v2
-
-    - name: Install Rust Toolchain Components
-      uses: actions-rs/toolchain@v1
-      with:
-        profile: minimal
-        toolchain: stable
+    - uses: actions/checkout@v4
 
     - uses: Swatinem/rust-cache@v2
 
     - name: Install `mdbook`
-      uses: peaceiris/actions-mdbook@v1
-      with:
-        mdbook-version: latest
+      run: cargo install mdbook
 
     - name: Install `mdbook-linkcheck`
       run: |
@@ -88,7 +79,7 @@ jobs:
         mdbook build book/zh
 
     - name: Deploy Pages
-      uses: peaceiris/actions-gh-pages@v3
+      uses: peaceiris/actions-gh-pages@v4
       if: github.ref == 'refs/heads/master'
       with:
         github_token: ${{secrets.GITHUB_TOKEN}}
@@ -108,7 +99,7 @@ jobs:
       RUSTFLAGS: --deny warnings
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Remove Broken WSL bash executable
       if: ${{ matrix.os == 'windows-latest' }}
@@ -118,13 +109,6 @@ jobs:
         icacls C:\Windows\System32\bash.exe /grant administrators:F
         del C:\Windows\System32\bash.exe
 
-    - name: Install Rust Toolchain Components
-      uses: actions-rs/toolchain@v1
-      with:
-        components: clippy, rustfmt
-        override: true
-        toolchain: stable
-
     - uses: Swatinem/rust-cache@v2
 
     - name: Test
@@ -132,5 +116,5 @@ jobs:
 
     - name: Test install.sh
       run: |
-        bash www/install.sh --to /tmp --tag 1.0.0
+        bash www/install.sh --to /tmp --tag 1.25.0
         /tmp/just --version

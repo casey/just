@@ -1,12 +1,23 @@
 _just() {
-    local i cur prev opts cmds
+    local i cur prev words cword opts cmds
     COMPREPLY=()
-    cur="${COMP_WORDS[COMP_CWORD]}"
-    prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+    # Modules use "::" as the separator, which is considered a wordbreak character in bash.
+    # The _get_comp_words_by_ref function is a hack to allow for exceptions to this rule without
+    # modifying the global COMP_WORDBREAKS environment variable.
+    if type _get_comp_words_by_ref &>/dev/null; then
+        _get_comp_words_by_ref -n : cur prev words cword
+    else
+        cur="${COMP_WORDS[COMP_CWORD]}"
+        prev="${COMP_WORDS[COMP_CWORD-1]}"
+        words=$COMP_WORDS
+        cword=$COMP_CWORD
+    fi
+
     cmd=""
     opts=""
 
-    for i in ${COMP_WORDS[@]}
+    for i in ${words[@]}
     do
         case "${i}" in
             "$1")
@@ -20,11 +31,11 @@ _just() {
 
     case "${cmd}" in
         just)
-            opts=" -n -q -u -v -e -l -h -V -f -d -c -s  --check --yes --dry-run --highlight --no-deps --no-dotenv --no-highlight --quiet --shell-command --clear-shell-args --unsorted --unstable --verbose --changelog --choose --dump --edit --evaluate --fmt --init --list --summary --variables --help --version --chooser --color --command-color --dump-format --list-heading --list-prefix --justfile --set --shell --shell-arg --working-directory --command --completions --show --dotenv-filename --dotenv-path  <ARGUMENTS>... "
+            opts=" -n -q -u -v -e -l -h -V -f -d -c -s -E  --check --yes --dry-run --highlight --no-aliases --no-deps --no-dotenv --no-highlight --quiet --shell-command --clear-shell-args --unsorted --unstable --verbose --changelog --choose --dump --edit --evaluate --fmt --init --list --summary --variables --help --version --chooser --color --command-color --dump-format --list-heading --list-prefix --justfile --set --shell --shell-arg --working-directory --command --completions --show --dotenv-filename --dotenv-path  <ARGUMENTS>... "
                 if [[ ${cur} == -* ]] ; then
                     COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                     return 0
-                elif [[ ${COMP_CWORD} -eq 1 ]]; then
+                elif [[ ${cword} -eq 1 ]]; then
                     local recipes=$(just --summary 2> /dev/null)
 
                     if echo "${cur}" | \grep -qF '/'; then
@@ -35,6 +46,9 @@ _just() {
 
                     if [[ $? -eq 0 ]]; then
                         COMPREPLY=( $(compgen -W "${recipes}" -- "${cur}") )
+                        if type __ltrim_colon_completions &>/dev/null; then
+                            __ltrim_colon_completions "$cur"
+                        fi
                         return 0
                     fi
                 fi
@@ -117,6 +131,10 @@ _just() {
                     return 0
                     ;;
                 --dotenv-path)
+                    COMPREPLY=($(compgen -f "${cur}"))
+                    return 0
+                    ;;
+                    -E)
                     COMPREPLY=($(compgen -f "${cur}"))
                     return 0
                     ;;

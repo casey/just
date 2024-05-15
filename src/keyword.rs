@@ -5,6 +5,7 @@ use super::*;
 pub(crate) enum Keyword {
   Alias,
   AllowDuplicateRecipes,
+  AllowDuplicateVariables,
   Assert,
   DotenvFilename,
   DotenvLoad,
@@ -18,6 +19,7 @@ pub(crate) enum Keyword {
   Import,
   Mod,
   PositionalArguments,
+  Quiet,
   Set,
   Shell,
   Tempdir,

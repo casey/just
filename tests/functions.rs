@@ -651,3 +651,49 @@ fn sha256_file() {
     .stdout("177b3d79aaafb53a7a4d7aaba99a82f27c73370e8cb0295571aade1e4fea1cd2")
     .run();
 }
+
+#[test]
+fn just_pid() {
+  let Output { stdout, pid, .. } = Test::new()
+    .args(["--evaluate", "x"])
+    .justfile("x := just_pid()")
+    .stdout_regex(r"\d+")
+    .run();
+
+  assert_eq!(stdout.parse::<u32>().unwrap(), pid);
+}
+
+#[test]
+fn blake3() {
+  Test::new()
+    .justfile("x := blake3('5943ee37-0000-1000-8000-010203040506')")
+    .args(["--evaluate", "x"])
+    .stdout("026c9f740a793ff536ddf05f8915ea4179421f47f0fa9545476076e9ba8f3f2b")
+    .run();
+}
+
+#[test]
+fn blake3_file() {
+  Test::new()
+    .justfile("x := blake3_file('sub/blakefile')")
+    .tree(tree! {
+      sub: {
+        blakefile: "just is great\n",
+      }
+    })
+    .current_dir("sub")
+    .args(["--evaluate", "x"])
+    .stdout("8379241877190ca4b94076a8c8f89fe5747f95c62f3e4bf41f7408a0088ae16d")
+    .run();
+}
+
+#[cfg(unix)]
+#[test]
+fn canonicalize() {
+  Test::new()
+    .args(["--evaluate", "x"])
+    .justfile("x := canonicalize('foo')")
+    .symlink("justfile", "foo")
+    .stdout_regex(".*/justfile")
+    .run();
+}
