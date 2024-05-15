@@ -39,11 +39,9 @@ impl Search {
     search_config: &SearchConfig,
     invocation_directory: &Path,
   ) -> SearchResult<Self> {
-    use SearchConfig::*;
-
     Ok(match search_config {
-      FromInvocationDirectory => Self::find_next(invocation_directory)?,
-      FromSearchDirectory { search_directory } => {
+      SearchConfig::FromInvocationDirectory => Self::find_next(invocation_directory)?,
+      SearchConfig::FromSearchDirectory { search_directory } => {
         let search_directory = Self::clean(invocation_directory, search_directory);
         let justfile = Self::justfile(&search_directory)?;
         let working_directory = Self::working_directory_from_justfile(&justfile)?;
@@ -53,7 +51,7 @@ impl Search {
           working_directory,
         }
       }
-      Global => {
+      SearchConfig::Global => {
         let working_directory = Self::project_root(invocation_directory)?;
 
         let global_candidate_paths = Self::candidate_global_justfiles();
@@ -68,7 +66,7 @@ impl Search {
           working_directory,
         }
       }
-      WithJustfile { justfile } => {
+      SearchConfig::WithJustfile { justfile } => {
         let justfile = Self::clean(invocation_directory, justfile);
         let working_directory = Self::working_directory_from_justfile(&justfile)?;
 
@@ -77,7 +75,7 @@ impl Search {
           working_directory,
         }
       }
-      WithJustfileAndWorkingDirectory {
+      SearchConfig::WithJustfileAndWorkingDirectory {
         justfile,
         working_directory,
       } => Self {
