@@ -1,8 +1,8 @@
-use std::io::{Read, Seek};
-
-use tempfile::tempfile;
-
-use super::*;
+use {
+  super::*,
+  std::io::{Read, Seek},
+  tempfile::tempfile,
+};
 
 const INIT_JUSTFILE: &str = "default:\n    echo 'Hello, world!'\n";
 
