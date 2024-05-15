@@ -142,6 +142,9 @@ pub(crate) enum Error<'src> {
     line_number: Option<usize>,
     signal: i32,
   },
+  StdoutIo {
+    io_error: io::Error,
+  },
   TempdirIo {
     recipe: &'src str,
     io_error: io::Error,
@@ -405,6 +408,9 @@ impl<'src> ColorDisplay for Error<'src> {
         } else {
           write!(f, "Recipe `{recipe}` was terminated by signal {signal}")?;
         }
+      }
+      StdoutIo { io_error } => {
+        write!(f, "I/O error writing to stdout: {io_error}?")?;
       }
       TempdirIo { recipe, io_error } => {
         write!(f, "Recipe `{recipe}` could not be run because of an IO error while trying to create a temporary \
