@@ -203,9 +203,7 @@ impl Test {
     };
     let stderr = unindent(&self.stderr);
 
-    let mut dotenv_path = self.tempdir.path().to_path_buf();
-    dotenv_path.push(".env");
-    fs::write(dotenv_path, "DOTENV_KEY=dotenv-value").unwrap();
+    fs::write(self.tempdir.path().join(".env"), "DOTENV_KEY=dotenv-value").unwrap();
 
     let mut command = Command::new(executable_path("just"));
 
