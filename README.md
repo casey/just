@@ -2135,8 +2135,16 @@ the file as executable, and executing it. The OS then parses the shebang line
 into a command line and invokes it, including the path to the file. For
 example, if a recipe starts with `#!/usr/bin/env bash`, the final command that
 the OS runs will be something like `/usr/bin/env bash
-/tmp/PATH_TO_SAVED_RECIPE_BODY`. Keep in mind that different operating systems
-split shebang lines differently.
+/tmp/PATH_TO_SAVED_RECIPE_BODY`.
+
+Keep in mind that different operating systems split shebang lines differently.
+Depending on the OS, you may need to pass the `-S` flag to `env`, like so:
+
+```just
+run:
+  #!/usr/bin/env -S bash -x
+  ls
+```
 
 Windows does not support shebang lines. On Windows, `just` splits the shebang
 line into a command and arguments, saves the recipe body to a file, and invokes
