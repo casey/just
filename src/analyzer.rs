@@ -25,7 +25,8 @@ impl<'src> Analyzer<'src> {
     root: &Path,
   ) -> CompileResult<'src, Justfile<'src>> {
     let mut recipes = Vec::new();
-    let mut assignment_list = Vec::new();
+
+    let mut assignments = Vec::new();
 
     let mut stack = Vec::new();
     stack.push(asts.get(root).unwrap());
@@ -71,7 +72,7 @@ impl<'src> Analyzer<'src> {
             self.aliases.insert(alias.clone());
           }
           Item::Assignment(assignment) => {
-            assignment_list.push(assignment);
+            assignments.push(assignment);
           }
           Item::Comment(_) => (),
           Item::Import { absolute, .. } => {
@@ -108,23 +109,23 @@ impl<'src> Analyzer<'src> {
 
     let mut recipe_table: Table<'src, UnresolvedRecipe<'src>> = Table::default();
 
-    // if settings.allow_duplicate_variables is true, then we can have duplicate assignments
-    // analyze and only keep the last assignment
-    for assignment in assignment_list {
-      if ! settings.allow_duplicate_variables {
+    for assignment in assignments {
+      if !settings.allow_duplicate_variables {
         if self.assignments.contains_key(assignment.name.lexeme()) {
           return Err(assignment.name.token.error(DuplicateVariable {
             variable: assignment.name.lexeme(),
           }));
         }
       }
-      if self.assignments
+
+      if self
+        .assignments
         .get(assignment.name.lexeme())
-        .map_or(true, |original| assignment.depth <= original.depth) {
+        .map_or(true, |original| assignment.depth <= original.depth)
+      {
         self.assignments.insert(assignment.clone());
       }
     }
-
 
     AssignmentResolver::resolve_assignments(&self.assignments)?;
 
