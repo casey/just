@@ -23,6 +23,7 @@ impl<'src, 'run> Scope<'src, 'run> {
 
   pub(crate) fn bind(&mut self, export: bool, name: Name<'src>, value: String) {
     self.bindings.insert(Binding {
+      depth: 0,
       export,
       name,
       value,

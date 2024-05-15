@@ -3,6 +3,7 @@ use super::*;
 #[derive(Debug, Clone)]
 pub(crate) enum Setting<'src> {
   AllowDuplicateRecipes(bool),
+  AllowDuplicateVariables(bool),
   DotenvFilename(String),
   DotenvLoad(bool),
   DotenvPath(String),
@@ -21,6 +22,7 @@ impl<'src> Display for Setting<'src> {
   fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
     match self {
       Self::AllowDuplicateRecipes(value)
+      | Self::AllowDuplicateVariables(value)
       | Self::DotenvLoad(value)
       | Self::Export(value)
       | Self::Fallback(value)
