@@ -15,7 +15,7 @@ repository = "https://github.com/casey/just"
 rust-version = "1.63"
 
 [workspace]
-members = [".", "bin/ref-type", "bin/generate-book", "bin/update-contributors"]
+members = [".", "crates/*"]
 
 [dependencies]
 ansi_term = "0.12.0"
