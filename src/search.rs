@@ -93,53 +93,41 @@ impl Search {
     search_config: &SearchConfig,
     invocation_directory: &Path,
   ) -> SearchResult<Self> {
-    Ok(match search_config {
+    match search_config {
       SearchConfig::FromInvocationDirectory => {
         let working_directory = Self::project_root(invocation_directory)?;
         let justfile = working_directory.join(DEFAULT_JUSTFILE_NAME);
-        Self {
+        Ok(Self {
           justfile,
           working_directory,
-        }
+        })
       }
       SearchConfig::FromSearchDirectory { search_directory } => {
         let search_directory = Self::clean(invocation_directory, search_directory);
         let working_directory = Self::project_root(&search_directory)?;
         let justfile = working_directory.join(DEFAULT_JUSTFILE_NAME);
-        Self {
+        Ok(Self {
           justfile,
           working_directory,
-        }
+        })
       }
-      SearchConfig::Global => {
-        let working_directory = Self::project_root(invocation_directory)?;
-        let global_candidate_paths = Self::candidate_global_justfiles();
-        let justfile = global_candidate_paths
-          .first()
-          .cloned()
-          .ok_or(SearchError::MissingGlobalJustfile)?;
-        Self {
-          justfile,
-          working_directory,
-        }
-      }
+      SearchConfig::Global => Err(SearchError::GlobalInit),
       SearchConfig::WithJustfile { justfile } => {
         let justfile = Self::clean(invocation_directory, justfile);
         let working_directory = Self::working_directory_from_justfile(&justfile)?;
-
-        Self {
+        Ok(Self {
           justfile,
           working_directory,
-        }
+        })
       }
       SearchConfig::WithJustfileAndWorkingDirectory {
         justfile,
         working_directory,
-      } => Self {
+      } => Ok(Self {
         justfile: Self::clean(invocation_directory, justfile),
         working_directory: Self::clean(invocation_directory, working_directory),
-      },
-    })
+      }),
+    }
   }
 
   pub(crate) fn justfile(directory: &Path) -> SearchResult<PathBuf> {
