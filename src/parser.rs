@@ -454,14 +454,12 @@ impl<'run, 'src> Parser<'run, 'src> {
     let name = self.parse_name()?;
     self.presume_any(&[Equals, ColonEquals])?;
     let value = self.parse_expression()?;
-
-    let depth = self.submodule_depth;
     self.expect_eol()?;
     Ok(Assignment {
+      depth: self.submodule_depth,
       export,
       name,
       value,
-      depth
     })
   }
 
