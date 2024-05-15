@@ -2,7 +2,6 @@ use {super::*, std::path::Component};
 
 const DEFAULT_JUSTFILE_NAME: &str = JUSTFILE_NAMES[0];
 pub(crate) const JUSTFILE_NAMES: [&str; 2] = ["justfile", ".justfile"];
-const DEFAULT_GLOBAL_JUSTFILE_NAME: &str = "global.just";
 const PROJECT_ROOT_CHILDREN: &[&str] = &[".bzr", ".git", ".hg", ".svn", "_darcs"];
 
 pub(crate) struct Search {
@@ -24,7 +23,7 @@ impl Search {
     };
 
     if let Some(config_dir) = xdg_config_home {
-      global_candidate_paths.push(config_dir.join("just").join(DEFAULT_GLOBAL_JUSTFILE_NAME));
+      global_candidate_paths.push(config_dir.join("just").join("global.just"));
     }
 
     if let Some(home_dir) = dirs::home_dir() {
