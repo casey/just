@@ -2137,9 +2137,9 @@ example, if a recipe starts with `#!/usr/bin/env bash`, the final command that
 the OS runs will be something like `/usr/bin/env bash
 /tmp/PATH_TO_SAVED_RECIPE_BODY`.
 
-Shebang line splitting is operating system dependent. When passing arguments to
-the command given to `env`, you may need tell env to split them with the `-S`
-flag:
+Shebang line splitting is operating system dependent. When passing a command
+with arguments, you may need to tell `env` to split them explicitly by using
+the `-S` flag:
 
 ```just
 run:
