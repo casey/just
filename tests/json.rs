@@ -425,7 +425,6 @@ fn duplicate_variables() {
   );
 }
 
-
 #[test]
 fn doc_comment() {
   case(

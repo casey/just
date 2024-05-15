@@ -12,7 +12,7 @@ fn allow_duplicate_variables() {
 
       b:
         echo {{a}}
-      "
+      ",
     )
     .arg("b")
     .stdout("bar\n")
