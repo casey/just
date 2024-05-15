@@ -45,7 +45,7 @@ pub struct Summary {
 }
 
 impl Summary {
-  fn new(justfile: &full::Justfile) -> Summary {
+  fn new(justfile: &full::Justfile) -> Self {
     let mut aliases = BTreeMap::new();
 
     for alias in justfile.aliases.values() {
@@ -55,7 +55,7 @@ impl Summary {
         .push(alias.name.to_string());
     }
 
-    Summary {
+    Self {
       recipes: justfile
         .recipes
         .iter()
@@ -87,8 +87,8 @@ pub struct Recipe {
 }
 
 impl Recipe {
-  fn new(recipe: &full::Recipe, aliases: Vec<String>) -> Recipe {
-    Recipe {
+  fn new(recipe: &full::Recipe, aliases: Vec<String>) -> Self {
+    Self {
       private: recipe.private,
       shebang: recipe.shebang,
       quiet: recipe.quiet,
@@ -108,8 +108,8 @@ pub struct Parameter {
 }
 
 impl Parameter {
-  fn new(parameter: &full::Parameter) -> Parameter {
-    Parameter {
+  fn new(parameter: &full::Parameter) -> Self {
+    Self {
       kind: ParameterKind::new(parameter.kind),
       name: parameter.name.lexeme().to_owned(),
       default: parameter.default.as_ref().map(Expression::new),
@@ -140,8 +140,8 @@ pub struct Line {
 }
 
 impl Line {
-  fn new(line: &full::Line) -> Line {
-    Line {
+  fn new(line: &full::Line) -> Self {
+    Self {
       fragments: line.fragments.iter().map(Fragment::new).collect(),
     }
   }
@@ -154,12 +154,12 @@ pub enum Fragment {
 }
 
 impl Fragment {
-  fn new(fragment: &full::Fragment) -> Fragment {
+  fn new(fragment: &full::Fragment) -> Self {
     match fragment {
-      full::Fragment::Text { token } => Fragment::Text {
+      full::Fragment::Text { token } => Self::Text {
         text: token.lexeme().to_owned(),
       },
-      full::Fragment::Interpolation { expression } => Fragment::Expression {
+      full::Fragment::Interpolation { expression } => Self::Expression {
         expression: Expression::new(expression),
       },
     }
@@ -173,8 +173,8 @@ pub struct Assignment {
 }
 
 impl Assignment {
-  fn new(assignment: &full::Assignment) -> Assignment {
-    Assignment {
+  fn new(assignment: &full::Assignment) -> Self {
+    Self {
       exported: assignment.export,
       expression: Expression::new(&assignment.value),
     }
@@ -218,7 +218,7 @@ pub enum Expression {
 }
 
 impl Expression {
-  fn new(expression: &full::Expression) -> Expression {
+  fn new(expression: &full::Expression) -> Self {
     use full::Expression::*;
     match expression {
       Assert {
@@ -232,51 +232,51 @@ impl Expression {
         },
         error: Box::new(Expression::new(error)),
       },
-      Backtick { contents, .. } => Expression::Backtick {
+      Backtick { contents, .. } => Self::Backtick {
         command: (*contents).clone(),
       },
       Call { thunk } => match thunk {
-        full::Thunk::Nullary { name, .. } => Expression::Call {
+        full::Thunk::Nullary { name, .. } => Self::Call {
           name: name.lexeme().to_owned(),
           arguments: Vec::new(),
         },
-        full::Thunk::Unary { name, arg, .. } => Expression::Call {
+        full::Thunk::Unary { name, arg, .. } => Self::Call {
           name: name.lexeme().to_owned(),
-          arguments: vec![Expression::new(arg)],
+          arguments: vec![Self::new(arg)],
         },
         full::Thunk::UnaryOpt {
           name,
           args: (a, opt_b),
           ..
         } => {
-          let mut arguments = vec![];
+          let mut arguments = Vec::new();
 
           if let Some(b) = opt_b.as_ref() {
-            arguments.push(Expression::new(b));
+            arguments.push(Self::new(b));
           }
 
-          arguments.push(Expression::new(a));
-          Expression::Call {
+          arguments.push(Self::new(a));
+          Self::Call {
             name: name.lexeme().to_owned(),
             arguments,
           }
         }
         full::Thunk::Binary {
           name, args: [a, b], ..
-        } => Expression::Call {
+        } => Self::Call {
           name: name.lexeme().to_owned(),
-          arguments: vec![Expression::new(a), Expression::new(b)],
+          arguments: vec![Self::new(a), Self::new(b)],
         },
         full::Thunk::BinaryPlus {
           name,
           args: ([a, b], rest),
           ..
         } => {
-          let mut arguments = vec![Expression::new(a), Expression::new(b)];
+          let mut arguments = vec![Self::new(a), Self::new(b)];
           for arg in rest {
-            arguments.push(Expression::new(arg));
+            arguments.push(Self::new(arg));
           }
-          Expression::Call {
+          Self::Call {
             name: name.lexeme().to_owned(),
             arguments,
           }
@@ -285,37 +285,37 @@ impl Expression {
           name,
           args: [a, b, c],
           ..
-        } => Expression::Call {
+        } => Self::Call {
           name: name.lexeme().to_owned(),
-          arguments: vec![Expression::new(a), Expression::new(b), Expression::new(c)],
+          arguments: vec![Self::new(a), Self::new(b), Self::new(c)],
         },
       },
-      Concatenation { lhs, rhs } => Expression::Concatenation {
-        lhs: Box::new(Expression::new(lhs)),
-        rhs: Box::new(Expression::new(rhs)),
+      Concatenation { lhs, rhs } => Self::Concatenation {
+        lhs: Self::new(lhs).into(),
+        rhs: Self::new(rhs).into(),
       },
-      Join { lhs, rhs } => Expression::Join {
-        lhs: lhs.as_ref().map(|lhs| Box::new(Expression::new(lhs))),
-        rhs: Box::new(Expression::new(rhs)),
+      Join { lhs, rhs } => Self::Join {
+        lhs: lhs.as_ref().map(|lhs| Self::new(lhs).into()),
+        rhs: Self::new(rhs).into(),
       },
       Conditional {
         condition: full::Condition { lhs, rhs, operator },
         otherwise,
         then,
-      } => Expression::Conditional {
-        lhs: Box::new(Expression::new(lhs)),
+      } => Self::Conditional {
+        lhs: Self::new(lhs).into(),
         operator: ConditionalOperator::new(*operator),
-        otherwise: Box::new(Expression::new(otherwise)),
-        rhs: Box::new(Expression::new(rhs)),
-        then: Box::new(Expression::new(then)),
+        otherwise: Self::new(otherwise).into(),
+        rhs: Self::new(rhs).into(),
+        then: Self::new(then).into(),
       },
-      StringLiteral { string_literal } => Expression::String {
+      StringLiteral { string_literal } => Self::String {
         text: string_literal.cooked.clone(),
       },
-      Variable { name, .. } => Expression::Variable {
+      Variable { name, .. } => Self::Variable {
         name: name.lexeme().to_owned(),
       },
-      Group { contents } => Expression::new(contents),
+      Group { contents } => Self::new(contents),
     }
   }
 }

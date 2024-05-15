@@ -479,18 +479,18 @@ impl<'run, 'src> Parser<'run, 'src> {
       self.parse_conditional()?
     } else if self.accepted(Slash)? {
       let lhs = None;
-      let rhs = Box::new(self.parse_expression()?);
+      let rhs = self.parse_expression()?.into();
       Expression::Join { lhs, rhs }
     } else {
       let value = self.parse_value()?;
 
       if self.accepted(Slash)? {
         let lhs = Some(Box::new(value));
-        let rhs = Box::new(self.parse_expression()?);
+        let rhs = self.parse_expression()?.into();
         Expression::Join { lhs, rhs }
       } else if self.accepted(Plus)? {
-        let lhs = Box::new(value);
-        let rhs = Box::new(self.parse_expression()?);
+        let lhs = value.into();
+        let rhs = self.parse_expression()?.into();
         Expression::Concatenation { lhs, rhs }
       } else {
         value
@@ -525,8 +525,8 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     Ok(Expression::Conditional {
       condition,
-      then: Box::new(then),
-      otherwise: Box::new(otherwise),
+      then: then.into(),
+      otherwise: otherwise.into(),
     })
   }
 
@@ -542,8 +542,8 @@ impl<'run, 'src> Parser<'run, 'src> {
     };
     let rhs = self.parse_expression()?;
     Ok(Condition {
-      lhs: Box::new(lhs),
-      rhs: Box::new(rhs),
+      lhs: lhs.into(),
+      rhs: rhs.into(),
       operator,
     })
   }
@@ -592,7 +592,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       }
     } else if self.next_is(ParenL) {
       self.presume(ParenL)?;
-      let contents = Box::new(self.parse_expression()?);
+      let contents = self.parse_expression()?.into();
       self.expect(ParenR)?;
       Ok(Expression::Group { contents })
     } else {
@@ -1055,7 +1055,7 @@ mod tests {
             length,
             path: "justfile".as_ref(),
           },
-          kind: Box::new(kind),
+          kind: kind.into(),
         };
         assert_eq!(have, want);
       }
