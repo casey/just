@@ -792,6 +792,7 @@ foo:
 | Name | Value | Default | Description |
 |------|-------|---------|-------------|
 | `allow-duplicate-recipes` | boolean | `false` | Allow recipes appearing later in a `justfile` to override earlier recipes with the same name. |
+| `allow-duplicate-variables` | boolean | `false` | Allow variables appearing later in a `justfile` to override earlier variables with the same name. |
 | `dotenv-filename` | string | - | Load a `.env` file with a custom name, if present. |
 | `dotenv-load` | boolean | `false` | Load a `.env` file, if present. |
 | `dotenv-path` | string | - | Load a `.env` file from a custom path, if present. Overrides `dotenv-filename`. |
@@ -830,6 +831,27 @@ set allow-duplicate-recipes
 
 @foo:
   echo bar
+```
+
+```sh
+$ just foo
+bar
+```
+
+#### Allow Duplicate Variables
+
+If `allow-duplicate-variables` is set to `true`, defining multiple variables
+with the same name is not an error and the last definition is used. Defaults to
+`false`.
+
+```just
+set allow-duplicate-variables
+
+a := "foo"
+a := "bar"
+
+@foo:
+  echo $a
 ```
 
 ```sh
@@ -2738,7 +2760,8 @@ Imported files can themselves contain `import`s, which are processed
 recursively.
 
 When `allow-duplicate-recipes` is set, recipes in parent modules override
-recipes in imports.
+recipes in imports. In a similar manner, when `allow-duplicate-variables` is
+set, variables in parent modules override variables in imports.
 
 Imports may be made optional by putting a `?` after the `import` keyword:
 

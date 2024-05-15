@@ -456,6 +456,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     let value = self.parse_expression()?;
     self.expect_eol()?;
     Ok(Assignment {
+      depth: self.submodule_depth,
       export,
       name,
       value,
@@ -846,6 +847,9 @@ impl<'run, 'src> Parser<'run, 'src> {
     let set_bool = match keyword {
       Keyword::AllowDuplicateRecipes => {
         Some(Setting::AllowDuplicateRecipes(self.parse_set_bool()?))
+      }
+      Keyword::AllowDuplicateVariables => {
+        Some(Setting::AllowDuplicateVariables(self.parse_set_bool()?))
       }
       Keyword::DotenvLoad => Some(Setting::DotenvLoad(self.parse_set_bool()?)),
       Keyword::Export => Some(Setting::Export(self.parse_set_bool()?)),
@@ -1911,6 +1915,12 @@ mod tests {
     name: set_allow_duplicate_recipes_implicit,
     text: "set allow-duplicate-recipes",
     tree: (justfile (set allow_duplicate_recipes true)),
+  }
+
+  test! {
+    name: set_allow_duplicate_variables_implicit,
+    text: "set allow-duplicate-variables",
+    tree: (justfile (set allow_duplicate_variables true)),
   }
 
   test! {
