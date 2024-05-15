@@ -11,7 +11,8 @@ Register-ArgumentCompleter -Native -CommandName 'just' -ScriptBlock {
             $element = $commandElements[$i]
             if ($element -isnot [StringConstantExpressionAst] -or
                 $element.StringConstantType -ne [StringConstantType]::BareWord -or
-                $element.Value.StartsWith('-')) {
+                $element.Value.StartsWith('-') -or
+                $element.Value -eq $wordToComplete) {
                 break
         }
         $element.Value
@@ -38,7 +39,7 @@ Register-ArgumentCompleter -Native -CommandName 'just' -ScriptBlock {
             [CompletionResult]::new('-s', 's', [CompletionResultType]::ParameterName, 'Show information about <RECIPE>')
             [CompletionResult]::new('--show', 'show', [CompletionResultType]::ParameterName, 'Show information about <RECIPE>')
             [CompletionResult]::new('--dotenv-filename', 'dotenv-filename', [CompletionResultType]::ParameterName, 'Search for environment file named <DOTENV-FILENAME> instead of `.env`')
-            [CompletionResult]::new('-E', 'E', [CompletionResultType]::ParameterName, 'Load <DOTENV-PATH> as environment file instead of searching for one')
+            [CompletionResult]::new('-E', 'E ', [CompletionResultType]::ParameterName, 'Load <DOTENV-PATH> as environment file instead of searching for one')
             [CompletionResult]::new('--dotenv-path', 'dotenv-path', [CompletionResultType]::ParameterName, 'Load <DOTENV-PATH> as environment file instead of searching for one')
             [CompletionResult]::new('--check', 'check', [CompletionResultType]::ParameterName, 'Run `--fmt` in ''check'' mode. Exits with 0 if justfile is formatted correctly. Exits with 1 and prints a diff if formatting is required.')
             [CompletionResult]::new('--yes', 'yes', [CompletionResultType]::ParameterName, 'Automatically confirm all recipes.')
@@ -70,10 +71,10 @@ Register-ArgumentCompleter -Native -CommandName 'just' -ScriptBlock {
             [CompletionResult]::new('--list', 'list', [CompletionResultType]::ParameterName, 'List available recipes and their arguments')
             [CompletionResult]::new('--summary', 'summary', [CompletionResultType]::ParameterName, 'List names of available recipes')
             [CompletionResult]::new('--variables', 'variables', [CompletionResultType]::ParameterName, 'List names of variables')
-            [CompletionResult]::new('-h', 'h', [CompletionResultType]::ParameterName, 'Print help information')
-            [CompletionResult]::new('--help', 'help', [CompletionResultType]::ParameterName, 'Print help information')
-            [CompletionResult]::new('-V', 'V', [CompletionResultType]::ParameterName, 'Print version information')
-            [CompletionResult]::new('--version', 'version', [CompletionResultType]::ParameterName, 'Print version information')
+            [CompletionResult]::new('-h', 'h', [CompletionResultType]::ParameterName, 'Print help')
+            [CompletionResult]::new('--help', 'help', [CompletionResultType]::ParameterName, 'Print help')
+            [CompletionResult]::new('-V', 'V ', [CompletionResultType]::ParameterName, 'Print version')
+            [CompletionResult]::new('--version', 'version', [CompletionResultType]::ParameterName, 'Print version')
             break
         }
     })

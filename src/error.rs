@@ -142,8 +142,11 @@ pub(crate) enum Error<'src> {
     line_number: Option<usize>,
     signal: i32,
   },
-  TmpdirIo {
+  TempdirIo {
     recipe: &'src str,
+    io_error: io::Error,
+  },
+  TempfileIo {
     io_error: io::Error,
   },
   Unknown {
@@ -403,9 +406,12 @@ impl<'src> ColorDisplay for Error<'src> {
           write!(f, "Recipe `{recipe}` was terminated by signal {signal}")?;
         }
       }
-      TmpdirIo { recipe, io_error } => {
+      TempdirIo { recipe, io_error } => {
         write!(f, "Recipe `{recipe}` could not be run because of an IO error while trying to create a temporary \
                    directory or write a file to that directory: {io_error}")?;
+      }
+      TempfileIo { io_error } => {
+        write!(f, "Tempfile I/O error: {io_error}")?;
       }
       Unknown { recipe, line_number} => {
         if let Some(n) = line_number {

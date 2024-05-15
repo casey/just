@@ -291,23 +291,25 @@ impl Subcommand {
     }
 
     let mut script = {
-      let mut tmp = tempfile()
-        .map_err(|e| Error::internal(format!("Failed to create tempfile for completions: {e}")))?;
+      let mut tempfile = tempfile().map_err(|io_error| Error::TempfileIo { io_error })?;
+
       clap_complete::generate(
         shell,
         &mut crate::config::Config::app(),
         env!("CARGO_PKG_NAME"),
-        &mut tmp,
+        &mut tempfile,
       );
-      tmp.rewind().map_err(|e| {
-        Error::internal(format!(
-          "Failed to rewind tempfile to read completions to update: {e}"
-        ))
-      })?;
+
+      tempfile
+        .rewind()
+        .map_err(|io_error| Error::TempfileIo { io_error })?;
+
       let mut buffer = String::new();
-      tmp
+
+      tempfile
         .read_to_string(&mut buffer)
-        .map_err(|e| Error::internal(format!("Failed to read completions from tempfile: {e}")))?;
+        .map_err(|io_error| Error::TempfileIo { io_error })?;
+
       buffer
     };
 
