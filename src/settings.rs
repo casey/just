@@ -9,6 +9,7 @@ pub(crate) const WINDOWS_POWERSHELL_ARGS: &[&str] = &["-NoLogo", "-Command"];
 pub(crate) struct Settings<'src> {
   pub(crate) allow_duplicate_recipes: bool,
   pub(crate) dotenv_filename: Option<String>,
+  pub(crate) dotenv_files: Vec<PathBuf>,
   pub(crate) dotenv_load: Option<bool>,
   pub(crate) dotenv_path: Option<PathBuf>,
   pub(crate) export: bool,
@@ -66,6 +67,13 @@ impl<'src> Settings<'src> {
         }
         Setting::Tempdir(tempdir) => {
           settings.tempdir = Some(tempdir);
+        }
+        Setting::DotenvFiles(ordered_list) => {
+          settings.dotenv_files = ordered_list
+            .list
+            .iter()
+            .map(|path| PathBuf::from(&path.cooked))
+            .collect();
         }
       }
     }

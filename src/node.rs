@@ -284,6 +284,11 @@ impl<'src> Node<'src> for Set<'src> {
       Setting::DotenvFilename(value) | Setting::DotenvPath(value) | Setting::Tempdir(value) => {
         set.push_mut(Tree::string(value));
       }
+      Setting::DotenvFiles(ordered_list) => {
+        for item in ordered_list.list.iter() {
+          set.push_mut(Tree::string(&item.cooked));
+        }
+      }
     }
 
     set

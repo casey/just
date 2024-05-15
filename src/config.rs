@@ -23,6 +23,7 @@ pub(crate) struct Config {
   pub(crate) color: Color,
   pub(crate) command_color: Option<ansi_term::Color>,
   pub(crate) dotenv_filename: Option<String>,
+  pub(crate) dotenv_files: Option<Vec<PathBuf>>,
   pub(crate) dotenv_path: Option<PathBuf>,
   pub(crate) dry_run: bool,
   pub(crate) dump_format: DumpFormat,
@@ -98,6 +99,7 @@ mod arg {
   pub(crate) const COMMAND_COLOR: &str = "COMMAND-COLOR";
   pub(crate) const DOTENV_FILENAME: &str = "DOTENV-FILENAME";
   pub(crate) const DOTENV_PATH: &str = "DOTENV-PATH";
+  pub(crate) const DOTENV_FILES: &str = "DOTENV-FILES";
   pub(crate) const DRY_RUN: &str = "DRY-RUN";
   pub(crate) const DUMP_FORMAT: &str = "DUMP-FORMAT";
   pub(crate) const HIGHLIGHT: &str = "HIGHLIGHT";
@@ -398,7 +400,18 @@ impl Config {
           .long("dotenv-filename")
           .takes_value(true)
           .help("Search for environment file named <DOTENV-FILENAME> instead of `.env`")
-          .conflicts_with(arg::DOTENV_PATH),
+          .conflicts_with(arg::DOTENV_PATH)
+          .conflicts_with(arg::DOTENV_FILES),
+      )
+      .arg(
+        Arg::with_name(arg::DOTENV_FILES)
+          .long("dotenv-files")
+          .takes_value(true)
+          .multiple(true)
+          .number_of_values(1)
+          .help("Search for environment list of files.")
+          .conflicts_with(arg::DOTENV_PATH)
+          .conflicts_with(arg::DOTENV_FILENAME),
       )
       .arg(
         Arg::with_name(arg::DOTENV_PATH)
@@ -653,6 +666,9 @@ impl Config {
       command_color,
       dotenv_filename: matches.value_of(arg::DOTENV_FILENAME).map(str::to_owned),
       dotenv_path: matches.value_of(arg::DOTENV_PATH).map(PathBuf::from),
+      dotenv_files: matches
+        .values_of(arg::DOTENV_FILES)
+        .map(|value| value.map(PathBuf::from).collect()),
       dry_run: matches.is_present(arg::DRY_RUN),
       dump_format: Self::dump_format_from_matches(matches)?,
       highlight: !matches.is_present(arg::NO_HIGHLIGHT),

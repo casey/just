@@ -1,4 +1,4 @@
-use {super::*, TokenKind::*};
+use {self::ordered_list::OrderedList, super::*, TokenKind::*};
 
 /// Just language parser
 ///
@@ -866,6 +866,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     let set_value = match keyword {
       Keyword::DotenvFilename => Some(Setting::DotenvFilename(self.parse_string_literal()?.cooked)),
       Keyword::DotenvPath => Some(Setting::DotenvPath(self.parse_string_literal()?.cooked)),
+      Keyword::DotenvFiles => Some(Setting::DotenvFiles(self.parse_ordered_list()?)),
       Keyword::Shell => Some(Setting::Shell(self.parse_shell()?)),
       Keyword::Tempdir => Some(Setting::Tempdir(self.parse_string_literal()?.cooked)),
       Keyword::WindowsShell => Some(Setting::WindowsShell(self.parse_shell()?)),
@@ -879,6 +880,28 @@ impl<'run, 'src> Parser<'run, 'src> {
     Err(name.error(CompileErrorKind::UnknownSetting {
       setting: name.lexeme(),
     }))
+  }
+
+  /// Parse a shell setting value
+  fn parse_ordered_list(&mut self) -> CompileResult<'src, OrderedList<'src>> {
+    let mut list = Vec::new();
+    self.expect(BracketL)?;
+
+    list.push(self.parse_string_literal()?);
+
+    if self.accepted(Comma)? {
+      while !self.next_is(BracketR) {
+        list.push(self.parse_string_literal()?);
+
+        if !self.accepted(Comma)? {
+          break;
+        }
+      }
+    }
+
+    self.expect(BracketR)?;
+
+    Ok(OrderedList { list })
   }
 
   /// Parse a shell setting value
