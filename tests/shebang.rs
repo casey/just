@@ -58,6 +58,37 @@ fn simple() {
     .run();
 }
 
+#[test]
+fn echo() {
+  Test::new()
+    .justfile(
+      "
+        @baz:
+          #!/bin/sh
+          echo fizz
+      ",
+    )
+    .stdout("fizz\n")
+    .stderr("#!/bin/sh\necho fizz\n")
+    .run();
+}
+
+#[test]
+fn echo_with_command_color() {
+  Test::new()
+    .justfile(
+      "
+        @baz:
+          #!/bin/sh
+          echo fizz
+      ",
+    )
+    .args(["--color", "always", "--command-color", "purple"])
+    .stdout("fizz\n")
+    .stderr("\u{1b}[1;35m#!/bin/sh\u{1b}[0m\n\u{1b}[1;35mecho fizz\u{1b}[0m\n")
+    .run();
+}
+
 // This test exists to make sure that shebang recipes run correctly.  Although
 // this script is still executed by a shell its behavior depends on the value of
 // a variable and continuing even though a command fails, whereas in plain

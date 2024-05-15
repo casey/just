@@ -95,7 +95,7 @@ impl Test {
   }
 
   pub(crate) fn current_dir(mut self, path: impl AsRef<Path>) -> Self {
-    self.current_dir = path.as_ref().to_owned();
+    path.as_ref().clone_into(&mut self.current_dir);
     self
   }
 
