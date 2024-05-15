@@ -427,6 +427,8 @@ impl Subcommand {
   }
 
   fn list(config: &Config, level: usize, justfile: &Justfile) {
+    const MAX_WIDTH: usize = 50;
+
     // Construct a target to alias map.
     let mut recipe_aliases: BTreeMap<&str, Vec<&str>> = BTreeMap::new();
     if !config.no_aliases {
@@ -460,13 +462,13 @@ impl Subcommand {
           );
         }
 
-        if line_width <= 30 {
+        if line_width <= MAX_WIDTH {
           line_widths.insert(name, line_width);
         }
       }
     }
 
-    let max_line_width = cmp::min(line_widths.values().copied().max().unwrap_or(0), 30);
+    let max_line_width = cmp::min(line_widths.values().copied().max().unwrap_or(0), MAX_WIDTH);
     let doc_color = config.color.stdout().doc();
 
     if level == 0 {
