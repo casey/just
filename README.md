@@ -2468,8 +2468,7 @@ dep2 \
 ```
 
 Backslash line continuations can also be used in interpolations. The line
-following the backslash must start with the same indentation as the recipe
-body, although additional indentation is accepted.
+following the backslash must be indented.
 
 ```just
 recipe:
