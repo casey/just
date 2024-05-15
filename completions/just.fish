@@ -73,6 +73,7 @@ complete -c just -l evaluate -d 'Evaluate and print all variables. If a variable
 complete -c just -l fmt -d 'Format and overwrite justfile'
 complete -c just -l init -d 'Initialize new justfile in project root'
 complete -c just -s l -l list -d 'List available recipes and their arguments'
+complete -c just -l man -d 'Print man page'
 complete -c just -l summary -d 'List names of available recipes'
 complete -c just -l variables -d 'List names of variables'
 complete -c just -s h -l help -d 'Print help'

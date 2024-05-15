@@ -66,6 +66,7 @@ set edit:completion:arg-completer[just] = {|@words|
             cand --init 'Initialize new justfile in project root'
             cand -l 'List available recipes and their arguments'
             cand --list 'List available recipes and their arguments'
+            cand --man 'Print man page'
             cand --summary 'List names of available recipes'
             cand --variables 'List names of variables'
             cand -h 'Print help'
