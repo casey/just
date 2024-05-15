@@ -839,8 +839,10 @@ bar
 ```
 
 #### Allow Duplicate Variables
-If `allow-duplicate-variables` is set to `true`, defining multiple variables with
-the same name is not an error and the last definition is used. Defaults to `false`.
+
+If `allow-duplicate-variables` is set to `true`, defining multiple variables
+with the same name is not an error and the last definition is used. Defaults to
+`false`.
 
 ```just
 set allow-duplicate-variables
@@ -2758,8 +2760,8 @@ Imported files can themselves contain `import`s, which are processed
 recursively.
 
 When `allow-duplicate-recipes` is set, recipes in parent modules override
-recipes in imports. In a similar manner, when `allow-duplicate-variables` 
-is set, variables in parent modules override variables in imports.
+recipes in imports. In a similar manner, when `allow-duplicate-variables` is
+set, variables in parent modules override variables in imports.
 
 Imports may be made optional by putting a `?` after the `import` keyword:
 
