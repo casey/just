@@ -439,36 +439,33 @@ impl Config {
         message: "`--color` had no value".to_string(),
       })?;
 
-    Ok(match value {
-      arg::COLOR_AUTO => Color::auto(),
-      arg::COLOR_ALWAYS => Color::always(),
-      arg::COLOR_NEVER => Color::never(),
-      _ => {
-        return Err(ConfigError::Internal {
-          message: format!("Invalid argument `{value}` to --color."),
-        })
-      }
-    })
+    match value {
+      arg::COLOR_AUTO => Ok(Color::auto()),
+      arg::COLOR_ALWAYS => Ok(Color::always()),
+      arg::COLOR_NEVER => Ok(Color::never()),
+      _ => Err(ConfigError::Internal {
+        message: format!("Invalid argument `{value}` to --color."),
+      }),
+    }
   }
 
   fn command_color_from_matches(matches: &ArgMatches) -> ConfigResult<Option<ansi_term::Color>> {
-    let Some(value) = matches.value_of(arg::COMMAND_COLOR) else {
-      return Ok(None);
-    };
-    Ok(Some(match value {
-      arg::COMMAND_COLOR_BLACK => ansi_term::Color::Black,
-      arg::COMMAND_COLOR_BLUE => ansi_term::Color::Blue,
-      arg::COMMAND_COLOR_CYAN => ansi_term::Color::Cyan,
-      arg::COMMAND_COLOR_GREEN => ansi_term::Color::Green,
-      arg::COMMAND_COLOR_PURPLE => ansi_term::Color::Purple,
-      arg::COMMAND_COLOR_RED => ansi_term::Color::Red,
-      arg::COMMAND_COLOR_YELLOW => ansi_term::Color::Yellow,
-      value => {
-        return Err(ConfigError::Internal {
+    if let Some(value) = matches.value_of(arg::COMMAND_COLOR) {
+      match value {
+        arg::COMMAND_COLOR_BLACK => Ok(Some(ansi_term::Color::Black)),
+        arg::COMMAND_COLOR_BLUE => Ok(Some(ansi_term::Color::Blue)),
+        arg::COMMAND_COLOR_CYAN => Ok(Some(ansi_term::Color::Cyan)),
+        arg::COMMAND_COLOR_GREEN => Ok(Some(ansi_term::Color::Green)),
+        arg::COMMAND_COLOR_PURPLE => Ok(Some(ansi_term::Color::Purple)),
+        arg::COMMAND_COLOR_RED => Ok(Some(ansi_term::Color::Red)),
+        arg::COMMAND_COLOR_YELLOW => Ok(Some(ansi_term::Color::Yellow)),
+        value => Err(ConfigError::Internal {
           message: format!("Invalid argument `{value}` to --command-color."),
-        })
+        }),
       }
-    }))
+    } else {
+      Ok(None)
+    }
   }
 
   fn dump_format_from_matches(matches: &ArgMatches) -> ConfigResult<DumpFormat> {
@@ -478,15 +475,13 @@ impl Config {
         message: "`--dump-format` had no value".to_string(),
       })?;
 
-    Ok(match value {
-      arg::DUMP_FORMAT_JSON => DumpFormat::Json,
-      arg::DUMP_FORMAT_JUST => DumpFormat::Just,
-      _ => {
-        return Err(ConfigError::Internal {
-          message: format!("Invalid argument `{value}` to --dump-format."),
-        })
-      }
-    })
+    match value {
+      arg::DUMP_FORMAT_JSON => Ok(DumpFormat::Json),
+      arg::DUMP_FORMAT_JUST => Ok(DumpFormat::Just),
+      _ => Err(ConfigError::Internal {
+        message: format!("Invalid argument `{value}` to --dump-format."),
+      }),
+    }
   }
 
   pub(crate) fn from_matches(matches: &ArgMatches) -> ConfigResult<Self> {
