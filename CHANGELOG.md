@@ -1,6 +1,49 @@
 Changelog
 =========
 
+[1.26.0](https://github.com/casey/just/releases/tag/1.26.0) - 2024-05-13
+------------------------------------------------------------------------
+
+### Added
+- Add --no-aliases to hide aliases in --list ([#1961](https://github.com/casey/just/pull/1961) by [WJehee](https://github.com/WJehee))
+- Add -E as alias for --dotenv-path ([#1910](https://github.com/casey/just/pull/1910) by [amarao](https://github.com/amarao))
+
+### Misc
+- Update softprops/action-gh-release ([#2029](https://github.com/casey/just/pull/2029) by [app/dependabot](https://github.com/app/dependabot))
+- Update dependencies ([#1999](https://github.com/casey/just/pull/1999) by [neunenak](https://github.com/neunenak))
+- Bump peaceiris/actions-gh-pages to version 4 ([#2005](https://github.com/casey/just/pull/2005) by [app/dependabot](https://github.com/app/dependabot))
+- Clarify that janus operates on public justfiles only ([#2021](https://github.com/casey/just/pull/2021))
+- Fix Error::TmpdirIo error message ([#1987](https://github.com/casey/just/pull/1987))
+- Update softprops/action-gh-release ([#1973](https://github.com/casey/just/pull/1973) by [app/dependabot](https://github.com/app/dependabot))
+- Rename `delete` example recipe to `delete-all` ([#1966](https://github.com/casey/just/pull/1966) by [aarmn](https://github.com/aarmn))
+- Update softprops/action-gh-release ([#1954](https://github.com/casey/just/pull/1954) by [app/dependabot](https://github.com/app/dependabot))
+- Fix function name typo ([#1953](https://github.com/casey/just/pull/1953) by [racerole](https://github.com/racerole))
+
+[1.25.2](https://github.com/casey/just/releases/tag/1.25.2) - 2024-03-10
+------------------------------------------------------------------------
+
+- Unpin ctrlc ([#1951](https://github.com/casey/just/pull/1951))
+
+[1.25.1](https://github.com/casey/just/releases/tag/1.25.1) - 2024-03-09
+------------------------------------------------------------------------
+
+### Misc
+- Pin ctrlc to version 3.1.1 ([#1945](https://github.com/casey/just/pull/1945))
+- Fix AArch64 release build error ([#1942](https://github.com/casey/just/pull/1942))
+
+[1.25.0](https://github.com/casey/just/releases/tag/1.25.0) - 2024-03-07
+------------------------------------------------------------------------
+
+### Added
+- Add `blake3` and `blake3_file` functions ([#1860](https://github.com/casey/just/pull/1860) by [tgross35](https://github.com/tgross35))
+
+### Misc
+- Fix readme typo ([#1936](https://github.com/casey/just/pull/1936) by [Justintime50](https://github.com/Justintime50))
+- Use unwrap_or_default ([#1928](https://github.com/casey/just/pull/1928))
+- Set codegen-units to 1 reduce release binary size ([#1920](https://github.com/casey/just/pull/1920) by [amarao](https://github.com/amarao))
+- Document openSUSE package ([#1918](https://github.com/casey/just/pull/1918) by [sfalken](https://github.com/sfalken))
+- Fix install.sh shellcheck warnings ([#1912](https://github.com/casey/just/pull/1912) by [tgross35](https://github.com/tgross35))
+
 [1.24.0](https://github.com/casey/just/releases/tag/1.24.0) - 2024-02-11
 ------------------------------------------------------------------------
 
