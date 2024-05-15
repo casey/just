@@ -4,7 +4,9 @@ use super::*;
 #[snafu(visibility(pub(crate)))]
 pub(crate) enum SearchError {
   #[snafu(display("Cannot initialize global justfile"))]
-  GlobalInit,
+  GlobalJustfileInit,
+  #[snafu(display("Global justfile not found"))]
+  GlobalJustfileNotFound,
   #[snafu(display(
     "I/O error reading directory `{}`: {}",
     directory.display(),
@@ -16,8 +18,6 @@ pub(crate) enum SearchError {
   },
   #[snafu(display("Justfile path had no parent: {}", path.display()))]
   JustfileHadNoParent { path: PathBuf },
-  #[snafu(display("Global justfile not found"))]
-  MissingGlobalJustfile,
   #[snafu(display(
     "Multiple candidate justfiles found in `{}`: {}",
     candidates.iter().next().unwrap().parent().unwrap().display(),

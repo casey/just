@@ -56,7 +56,7 @@ impl Search {
           .iter()
           .find(|path| path.try_exists().unwrap_or(false))
           .cloned()
-          .ok_or(SearchError::MissingGlobalJustfile)?;
+          .ok_or(SearchError::GlobalJustfileNotFound)?;
         Self {
           justfile,
           working_directory,
@@ -111,7 +111,7 @@ impl Search {
           working_directory,
         })
       }
-      SearchConfig::Global => Err(SearchError::GlobalInit),
+      SearchConfig::Global => Err(SearchError::GlobalJustfileInit),
       SearchConfig::WithJustfile { justfile } => {
         let justfile = Self::clean(invocation_directory, justfile);
         let working_directory = Self::working_directory_from_justfile(&justfile)?;
