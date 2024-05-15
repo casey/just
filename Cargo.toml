@@ -1,6 +1,6 @@
 [package]
 name = "just"
-version = "1.25.2"
+version = "1.26.0"
 authors = ["Casey Rodarmor <casey@rodarmor.com>"]
 autotests = false
 categories = ["command-line-utilities", "development-tools"]
@@ -29,12 +29,12 @@ dirs = "5.0.1"
 dotenvy = "0.15"
 edit-distance = "2.0.0"
 env_logger = "0.11.0"
-heck = "0.4.0"
+heck = "0.5.0"
 lexiclean = "0.0.1"
 libc = "0.2.0"
 log = "0.4.4"
 num_cpus = "1.15.0"
-regex = "1.5.4"
+regex = "1.10.4"
 semver = "1.0.20"
 serde = { version = "1.0.130", features = ["derive", "rc"] }
 serde_json = "1.0.68"
@@ -54,7 +54,6 @@ executable-path = "1.0.0"
 pretty_assertions = "1.0.0"
 temptree = "0.2.0"
 which = "6.0.0"
-yaml-rust = "0.4.5"
 
 [lib]
 doctest = false

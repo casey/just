@@ -278,7 +278,9 @@ most Windows users.)
   </tbody>
 </table>
 
-![package version table](https://repology.org/badge/vertical-allrepos/just.svg)
+![just package version table](https://repology.org/badge/vertical-allrepos/just.svg)
+
+![rust:just package version table](https://repology.org/badge/vertical-allrepos/rust:just.svg)
 
 ### Pre-Built Binaries
 
@@ -490,19 +492,11 @@ a per-file basis:
 
 ### Visual Studio Code
 
-An extension for VS Code by [skellock](https://github.com/skellock) is
-[available here](https://marketplace.visualstudio.com/items?itemName=skellock.just)
-([repository](https://github.com/skellock/vscode-just)), but is no longer
-actively developed.
+An extension for VS Code is [available here](https://github.com/nefrob/vscode-just).
 
-You can install it from the command line by running:
-
-```sh
-code --install-extension skellock.just
-```
-
-An more recently active fork by [sclu1034](https://github.com/sclu1034) is
-available [here](https://github.com/sclu1034/vscode-just).
+Unmaintained VS Code extensions include
+[skellock/vscode-just](https://github.com/skellock/vscode-just) and
+[sclu1034/vscode-just](https://github.com/sclu1034/vscode-just).
 
 ### JetBrains IDEs
 
@@ -1608,7 +1602,7 @@ that requires confirmation.
 
 ```just
 [confirm]
-delete all:
+delete-all:
   rm -rf *
 ```
 
@@ -3074,12 +3068,32 @@ can also be used to make a `just` binary print its changelog.
 Miscellanea
 -----------
 
-### Companion Tools
+### Re-running recipes when files change
 
-Tools that pair nicely with `just` include:
+[`watchexec`](https://github.com/mattgreen/watchexec) can re-run any command
+when files change.
 
-- [`watchexec`](https://github.com/mattgreen/watchexec) — a simple tool that
-  watches a path and runs a command whenever it detects modifications.
+To re-run the recipe `foo` when any file changes:
+
+```sh
+watchexec just foo
+```
+
+See `watchexec --help` for more info, including how to specify which files
+should be watched for changes.
+
+### Running tasks in parallel
+
+GNU parallel can be used to run tasks concurrently:
+
+```just
+parallel:
+  #!/usr/bin/env -S parallel --shebang --ungroup --jobs {{ num_cpus() }}
+  echo task 1 start; sleep 3; echo task 1 done
+  echo task 2 start; sleep 3; echo task 2 done
+  echo task 3 start; sleep 3; echo task 3 done
+  echo task 4 start; sleep 3; echo task 4 done
+```
 
 ### Shell Alias
 
@@ -3245,9 +3259,9 @@ under this license.
 
 ### Janus
 
-[Janus](https://github.com/casey/janus) is a tool that collects and analyzes
-`justfile`s, and can determine if a new version of `just` breaks or changes the
-interpretation of existing `justfile`s.
+[Janus](https://github.com/casey/janus) is a tool for checking whether a change
+to `just` breaks or changes the interpretation of existing `justfile`s. It
+collects and analyzes public `justfile`s on GitHub.
 
 Before merging a particularly large or gruesome change, Janus should be run to
 make sure that nothing breaks. Don't worry about running Janus yourself, Casey
