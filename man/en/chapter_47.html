@@ -283,8 +283,7 @@ dep2 \
     echo 'Dependency with parameter {{param}}'
 </code></pre>
 <p>Backslash line continuations can also be used in interpolations. The line
-following the backslash must start with the same indentation as the recipe
-body, although additional indentation is accepted.</p>
+following the backslash must be indented.</p>
 <pre><code class="language-just">recipe:
   echo '{{ \
   "This interpolation " + \
