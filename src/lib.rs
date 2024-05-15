@@ -19,15 +19,16 @@ pub(crate) use {
     assignment_resolver::AssignmentResolver, ast::Ast, attribute::Attribute, binding::Binding,
     color::Color, color_display::ColorDisplay, command_ext::CommandExt, compilation::Compilation,
     compile_error::CompileError, compile_error_kind::CompileErrorKind, compiler::Compiler,
-    conditional_operator::ConditionalOperator, config::Config, config_error::ConfigError,
-    count::Count, delimiter::Delimiter, dependency::Dependency, dump_format::DumpFormat,
-    enclosure::Enclosure, error::Error, evaluator::Evaluator, expression::Expression,
-    fragment::Fragment, function::Function, function_context::FunctionContext,
-    interrupt_guard::InterruptGuard, interrupt_handler::InterruptHandler, item::Item,
-    justfile::Justfile, keyed::Keyed, keyword::Keyword, lexer::Lexer, line::Line, list::List,
-    load_dotenv::load_dotenv, loader::Loader, name::Name, namepath::Namepath, ordinal::Ordinal,
-    output::output, output_error::OutputError, parameter::Parameter, parameter_kind::ParameterKind,
-    parser::Parser, platform::Platform, platform_interface::PlatformInterface, position::Position,
+    condition::Condition, conditional_operator::ConditionalOperator, config::Config,
+    config_error::ConfigError, count::Count, delimiter::Delimiter, dependency::Dependency,
+    dump_format::DumpFormat, enclosure::Enclosure, error::Error, evaluator::Evaluator,
+    expression::Expression, fragment::Fragment, function::Function,
+    function_context::FunctionContext, interrupt_guard::InterruptGuard,
+    interrupt_handler::InterruptHandler, item::Item, justfile::Justfile, keyed::Keyed,
+    keyword::Keyword, lexer::Lexer, line::Line, list::List, load_dotenv::load_dotenv,
+    loader::Loader, name::Name, namepath::Namepath, ordinal::Ordinal, output::output,
+    output_error::OutputError, parameter::Parameter, parameter_kind::ParameterKind, parser::Parser,
+    platform::Platform, platform_interface::PlatformInterface, position::Position,
     positional::Positional, ran::Ran, range_ext::RangeExt, recipe::Recipe,
     recipe_context::RecipeContext, recipe_resolver::RecipeResolver, scope::Scope, search::Search,
     search_config::SearchConfig, search_error::SearchError, set::Set, setting::Setting,
@@ -124,6 +125,7 @@ mod compile_error;
 mod compile_error_kind;
 mod compiler;
 mod completions;
+mod condition;
 mod conditional_operator;
 mod config;
 mod config_error;

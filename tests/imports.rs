@@ -182,17 +182,43 @@ fn recipes_in_import_are_overridden_by_recipes_in_parent() {
     })
     .justfile(
       "
+        a:
+          @echo ROOT
+
         import './import.justfile'
 
         set allow-duplicate-recipes
-
-        a:
-          @echo ROOT
       ",
     )
     .test_round_trip(false)
     .arg("a")
     .stdout("ROOT\n")
+    .run();
+}
+
+#[test]
+fn variables_in_import_are_overridden_by_variables_in_parent() {
+  Test::new()
+    .tree(tree! {
+      "import.justfile": "
+    f := 'foo'
+    ",
+    })
+    .justfile(
+      "
+      f := 'bar'
+
+      import './import.justfile'
+
+      set allow-duplicate-variables
+
+      a:
+        @echo {{f}}
+    ",
+    )
+    .test_round_trip(false)
+    .arg("a")
+    .stdout("bar\n")
     .run();
 }
 
