@@ -21,6 +21,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
   let function = match name {
     "absolute_path" => Unary(absolute_path),
     "arch" => Nullary(arch),
+    "addprefix" => Binary(addprefix),
     "blake3" => Unary(blake3),
     "blake3_file" => Unary(blake3_file),
     "canonicalize" => Unary(canonicalize),
@@ -253,6 +254,16 @@ fn invocation_directory_native(context: &FunctionContext) -> Result<String, Stri
         context.invocation_directory.display()
       )
     })
+}
+
+fn addprefix(_context: &FunctionContext, pref: &str, base: &str) -> Result<String, String> {
+  Ok(
+    base
+      .split(" ")
+      .map(|s| format!("{pref}{s}"))
+      .collect::<Vec<String>>()
+      .join(" "),
+  )
 }
 
 fn join(
