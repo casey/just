@@ -19,6 +19,7 @@ fn test_global_justfile() {
 
   let expected_status = 0;
   let expected_stdout = "foo\n";
+  let expected_stderr = "echo 'foo'\n";
 
   let mut failure = false;
 
@@ -30,7 +31,13 @@ fn test_global_justfile() {
 
   let stdout = str::from_utf8(&output.stdout).unwrap();
   if stdout != expected_stdout {
-    println!("bad stdout:\ngot:\n{stdout:?}\n\nexpected:\n{expected_stdout:?}");
+    println!("Bad stdout:\ngot:\n{stdout:?}\n\nexpected:\n{expected_stdout:?}");
+    failure = true;
+  }
+
+  let stderr = str::from_utf8(&output.stderr).unwrap();
+  if stderr != expected_stderr {
+    println!("Bad stderr:\ngot:\n{stderr:?}\n\nexpected:\n{expected_stderr:?}");
     failure = true;
   }
 
