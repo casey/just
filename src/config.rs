@@ -176,6 +176,7 @@ impl Config {
       .arg(
         Arg::new(arg::COLOR)
           .long("color")
+          .env("JUST_COLOR")
           .action(ArgAction::Set)
           .value_parser(PossibleValuesParser::new(arg::COLOR_VALUES))
           .default_value(arg::COLOR_AUTO)
@@ -184,6 +185,7 @@ impl Config {
       .arg(
         Arg::new(arg::COMMAND_COLOR)
           .long("command-color")
+          .env("JUST_COMMAND_COLOR")
           .action(ArgAction::Set)
           .value_parser(PossibleValuesParser::new(arg::COMMAND_COLOR_VALUES))
           .help("Echo recipe lines in <COMMAND-COLOR>"),
@@ -193,6 +195,7 @@ impl Config {
         Arg::new(arg::DRY_RUN)
           .short('n')
           .long("dry-run")
+          .env("JUST_DRY_RUN")
           .action(ArgAction::SetTrue)
           .help("Print what just would do without doing it")
           .conflicts_with(arg::QUIET),
@@ -257,6 +260,7 @@ impl Config {
         Arg::new(arg::JUSTFILE)
           .short('f')
           .long("justfile")
+          .env("JUST_JUSTFILE")
           .action(ArgAction::Set)
           .value_parser(value_parser!(PathBuf))
           .help("Use <JUSTFILE> as justfile"),
@@ -265,6 +269,7 @@ impl Config {
         Arg::new(arg::QUIET)
           .short('q')
           .long("quiet")
+          .env("JUST_QUIET")
           .action(ArgAction::SetTrue)
           .help("Suppress all output")
           .conflicts_with(arg::DRY_RUN),
@@ -324,6 +329,7 @@ impl Config {
         Arg::new(arg::VERBOSE)
           .short('v')
           .long("verbose")
+          .env("JUST_VERBOSE")
           .action(ArgAction::Count)
           .help("Use verbose output"),
       )
@@ -331,6 +337,7 @@ impl Config {
         Arg::new(arg::WORKING_DIRECTORY)
           .short('d')
           .long("working-directory")
+          .env("JUST_WORKING_DIRECTORY")
           .action(ArgAction::Set)
           .value_parser(value_parser!(PathBuf))
           .help("Use <WORKING-DIRECTORY> as working directory. --justfile must also be set")
