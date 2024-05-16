@@ -14,6 +14,7 @@ pub(crate) enum Function {
   Nullary(fn(&Evaluator) -> Result<String, String>),
   Unary(fn(&Evaluator, &str) -> Result<String, String>),
   UnaryOpt(fn(&Evaluator, &str, Option<&str>) -> Result<String, String>),
+  UnaryPlus(fn(&Evaluator, &str, &[String]) -> Result<String, String>),
   Binary(fn(&Evaluator, &str, &str) -> Result<String, String>),
   BinaryPlus(fn(&Evaluator, &str, &str, &[String]) -> Result<String, String>),
   Ternary(fn(&Evaluator, &str, &str, &str) -> Result<String, String>),
@@ -67,6 +68,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "semver_matches" => Binary(semver_matches),
     "sha256" => Unary(sha256),
     "sha256_file" => Unary(sha256_file),
+    "shell" => UnaryPlus(shell),
     "shoutykebabcase" => Unary(shoutykebabcase),
     "shoutysnakecase" => Unary(shoutysnakecase),
     "snakecase" => Unary(snakecase),
@@ -93,6 +95,7 @@ impl Function {
       Nullary(_) => 0..0,
       Unary(_) => 1..1,
       UnaryOpt(_) => 1..2,
+      UnaryPlus(_) => 1..usize::MAX,
       Binary(_) => 2..2,
       BinaryPlus(_) => 2..usize::MAX,
       Ternary(_) => 3..3,
@@ -454,6 +457,25 @@ fn sha256_file(evaluator: &Evaluator, path: &str) -> Result<String, String> {
     .map_err(|err| format!("Failed to read `{}`: {err}", path.display()))?;
   let hash = hasher.finalize();
   Ok(format!("{hash:x}"))
+}
+
+fn shell(_evaluator: &Evaluator, cmdlike: &str, extras: &[String]) -> Result<String, String> {
+  let (command, args) = context.settings.shell(context.config);
+  let mut shelled_cmd = Command::new(command);
+  shelled_cmd.args(args); // for the shell
+
+  shelled_cmd.arg(cmdlike);
+  if extras.len() > 0 {
+    shelled_cmd.args(&extras[..]);
+  }
+  shelled_cmd
+    .current_dir(&context.search.working_directory)
+    .stdin(Stdio::inherit())
+    .stderr(Stdio::inherit());
+
+  Ok(InterruptHandler::guard(|| {
+    output(shelled_cmd).map_err(|output_error| output_error.to_string())
+  })?)
 }
 
 fn shoutykebabcase(_evaluator: &Evaluator, s: &str) -> Result<String, String> {
