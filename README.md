@@ -3188,8 +3188,8 @@ below. You can put recipes that are used across many projects in this global
 justfile, and easily invoke them from any directory.
 
 `just` will search for a global justfile in the following locations, in this order, stopping after it finds a `justfile` in any location:
-- `$XDG_CONFIG_HOME/just/global.just`
-- `$HOME/.config/just/global.just`
+- `$XDG_CONFIG_HOME/just/justfile`
+- `$HOME/.config/just/justfile`
 - `$HOME/.justfile`
 - `$HOME/justfile`
 

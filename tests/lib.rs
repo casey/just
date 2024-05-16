@@ -58,6 +58,7 @@ mod export;
 mod fallback;
 mod fmt;
 mod functions;
+mod global;
 mod ignore_comments;
 mod imports;
 mod init;

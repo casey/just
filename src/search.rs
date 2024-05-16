@@ -11,19 +11,13 @@ pub(crate) struct Search {
 
 impl Search {
   fn candidate_global_justfiles() -> Vec<PathBuf> {
-    // Just will search for a global justfile in `$XDG_CONFIG_HOME/just/global.just`,
-    // `$HOME/.justfile`, `$HOME/justfile`, in that order.
+    // Just will search for a global justfile in `$XDG_CONFIG_HOME/just/justfile`,
+    // `$HOME/.config/just/justfile`, `$HOME/.justfile`, `$HOME/justfile`, in that order.
     let mut global_candidate_paths = vec![];
 
-    // See https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html#variables
-    let xdg_config_home = if let Ok(config_dir) = std::env::var("XDG_CONFIG_HOME") {
-      Some(PathBuf::from(config_dir))
-    } else {
-      dirs::home_dir().map(|home_dir| home_dir.join(".config"))
-    };
-
-    if let Some(config_dir) = xdg_config_home {
-      global_candidate_paths.push(config_dir.join("just").join("global.just"));
+    let config_dir = dirs::config_dir().or_else(|| dirs::home_dir().map(|d| d.join(".config")));
+    if let Some(config_dir) = config_dir {
+      global_candidate_paths.push(config_dir.join("just").join(JUSTFILE_NAMES[0]));
     }
 
     if let Some(home_dir) = dirs::home_dir() {
