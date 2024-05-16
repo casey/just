@@ -20,6 +20,12 @@ pub(crate) enum Thunk<'src> {
     function: fn(&Evaluator, &str, Option<&str>) -> Result<String, String>,
     args: (Box<Expression<'src>>, Box<Option<Expression<'src>>>),
   },
+  UnaryPlus {
+    name: Name<'src>,
+    #[derivative(Debug = "ignore", PartialEq = "ignore")]
+    function: fn(&FunctionContext, &str, &[String]) -> Result<String, String>,
+    args: ([Box<Expression<'src>>; 1], Vec<Expression<'src>>),
+  },
   Binary {
     name: Name<'src>,
     #[derivative(Debug = "ignore", PartialEq = "ignore")]
@@ -46,6 +52,7 @@ impl<'src> Thunk<'src> {
       Self::Nullary { name, .. }
       | Self::Unary { name, .. }
       | Self::UnaryOpt { name, .. }
+      | Self::UnaryPlus { name, .. }
       | Self::Binary { name, .. }
       | Self::BinaryPlus { name, .. }
       | Self::Ternary { name, .. } => name,
@@ -76,6 +83,15 @@ impl<'src> Thunk<'src> {
           Ok(Thunk::UnaryOpt {
             function,
             args: (a, b),
+            name,
+          })
+        }
+        (Function::UnaryPlus(function), 1..=usize::MAX) => {
+          let rest = arguments.drain(1..).collect();
+          let a = Box::new(arguments.pop().unwrap());
+          Ok(Thunk::UnaryPlus {
+            function,
+            args: ([a], rest),
             name,
           })
         }
@@ -133,6 +149,17 @@ impl Display for Thunk<'_> {
           write!(f, "{}({a})", name.lexeme())
         }
       }
+      UnaryPlus {
+        name,
+        args: ([a], rest),
+        ..
+      } => {
+        write!(f, "{}({a}", name.lexeme())?;
+        for arg in rest {
+          write!(f, ", {arg}")?;
+        }
+        write!(f, ")")
+      }
       Binary {
         name, args: [a, b], ..
       } => write!(f, "{}({a}, {b})", name.lexeme()),
@@ -173,6 +200,11 @@ impl<'src> Serialize for Thunk<'src> {
         seq.serialize_element(a)?;
         if let Some(b) = opt_b.as_ref() {
           seq.serialize_element(b)?;
+        }
+      }
+      Self::UnaryPlus { args, .. } => {
+        for arg in args.0.iter().map(Box::as_ref).chain(&args.1) {
+          seq.serialize_element(arg)?;
         }
       }
       Self::Binary { args, .. } => {
