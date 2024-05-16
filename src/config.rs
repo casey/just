@@ -56,6 +56,7 @@ mod cmd {
   pub(crate) const FORMAT: &str = "FORMAT";
   pub(crate) const INIT: &str = "INIT";
   pub(crate) const LIST: &str = "LIST";
+  pub(crate) const MAN: &str = "MAN";
   pub(crate) const SHOW: &str = "SHOW";
   pub(crate) const SUMMARY: &str = "SUMMARY";
   pub(crate) const VARIABLES: &str = "VARIABLES";
@@ -71,13 +72,14 @@ mod cmd {
     FORMAT,
     INIT,
     LIST,
+    MAN,
     SHOW,
     SUMMARY,
     VARIABLES,
   ];
 
   pub(crate) const ARGLESS: &[&str] = &[
-    CHANGELOG, DUMP, EDIT, FORMAT, INIT, LIST, SUMMARY, VARIABLES,
+    CHANGELOG, DUMP, EDIT, FORMAT, INIT, LIST, MAN, SUMMARY, VARIABLES,
   ];
 }
 
@@ -141,8 +143,15 @@ mod arg {
 
 impl Config {
   pub(crate) fn app() -> Command {
-    let app = Command::new(env!("CARGO_PKG_NAME"))
+    Command::new(env!("CARGO_PKG_NAME"))
       .bin_name(env!("CARGO_PKG_NAME"))
+      .version(env!("CARGO_PKG_VERSION"))
+      .author(env!("CARGO_PKG_AUTHORS"))
+      .about(concat!(
+        env!("CARGO_PKG_DESCRIPTION"),
+        " - ",
+        env!("CARGO_PKG_HOMEPAGE")
+      ))
       .trailing_var_arg(true)
       .styles(
         Styles::styled()
@@ -402,6 +411,12 @@ impl Config {
           .help("List available recipes and their arguments"),
       )
       .arg(
+        Arg::new(cmd::MAN)
+          .long("man")
+          .action(ArgAction::SetTrue)
+          .help("Print man page"),
+      )
+      .arg(
         Arg::new(cmd::SHOW)
           .short('s')
           .long("show")
@@ -450,24 +465,7 @@ impl Config {
       .long("global")
       .short('g')
       .help("Use global justfile")
-    );
-
-    if cfg!(feature = "help4help2man") {
-      app.version(env!("CARGO_PKG_VERSION")).about(concat!(
-        "- Please see ",
-        env!("CARGO_PKG_HOMEPAGE"),
-        " for more information."
-      ))
-    } else {
-      app
-        .version(env!("CARGO_PKG_VERSION"))
-        .author(env!("CARGO_PKG_AUTHORS"))
-        .about(concat!(
-          env!("CARGO_PKG_DESCRIPTION"),
-          " - ",
-          env!("CARGO_PKG_HOMEPAGE")
-        ))
-    }
+    )
   }
 
   fn color_from_matches(matches: &ArgMatches) -> ConfigResult<Color> {
@@ -642,6 +640,8 @@ impl Config {
       Subcommand::Init
     } else if matches.get_flag(cmd::LIST) {
       Subcommand::List
+    } else if matches.get_flag(cmd::MAN) {
+      Subcommand::Man
     } else if let Some(name) = matches.get_one::<String>(cmd::SHOW).map(Into::into) {
       Subcommand::Show { name }
     } else if matches.get_flag(cmd::EVALUATE) {

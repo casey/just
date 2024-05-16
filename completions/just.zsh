@@ -64,6 +64,7 @@ _just() {
 '--init[Initialize new justfile in project root]' \
 '-l[List available recipes and their arguments]' \
 '--list[List available recipes and their arguments]' \
+'--man[Print man page]' \
 '--summary[List names of available recipes]' \
 '--variables[List names of variables]' \
 '-g[Use global justfile]' \

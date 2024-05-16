@@ -30,7 +30,7 @@ _just() {
 
     case "${cmd}" in
         "$1")
-            opts="-n -f -q -u -v -d -c -e -l -s -E -g -h -V --check --chooser --color --command-color --yes --dry-run --dump-format --highlight --list-heading --list-prefix --no-aliases --no-deps --no-dotenv --no-highlight --justfile --quiet --set --shell --shell-arg --shell-command --clear-shell-args --unsorted --unstable --verbose --working-directory --changelog --choose --command --completions --dump --edit --evaluate --fmt --init --list --show --summary --variables --dotenv-filename --dotenv-path --global --help --version [ARGUMENTS]..."
+            opts="-n -f -q -u -v -d -c -e -l -s -E -g -h -V --check --chooser --color --command-color --yes --dry-run --dump-format --highlight --list-heading --list-prefix --no-aliases --no-deps --no-dotenv --no-highlight --justfile --quiet --set --shell --shell-arg --shell-command --clear-shell-args --unsorted --unstable --verbose --working-directory --changelog --choose --command --completions --dump --edit --evaluate --fmt --init --list --man --show --summary --variables --dotenv-filename --dotenv-path --global --help --version [ARGUMENTS]..."
                 if [[ ${cur} == -* ]] ; then
                     COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                     return 0
