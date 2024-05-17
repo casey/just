@@ -1395,7 +1395,6 @@ $ just
 The process ID is: 420
 ```
 
-
 #### String Manipulation
 
 - `append(suffix, s)`<sup>master</sup> Append `suffix` to whitespace-separated
@@ -2514,7 +2513,21 @@ $ just --show polyglot
 polyglot: python js perl sh ruby
 ```
 
-Run `just --help` to see all the options.
+Some command-line options can be set with environment variables. For example:
+
+```sh
+$ export JUST_UNSTABLE=1
+$ just
+```
+
+Is equivalent to:
+
+```sh
+$ just --unstable
+```
+
+Consult `just --help` to see which options can be set from environment
+variables.
 
 ### Private Recipes
 
