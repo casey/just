@@ -2059,7 +2059,15 @@ perl:
 $ just --show polyglot
 polyglot: python js perl sh ruby
 </code></pre>
-<p>Run <code>just --help</code> to see all the options.</p>
+<p>Some command-line options can be set with environment variables. For example:</p>
+<pre><code class="language-sh">$ export JUST_UNSTABLE=1
+$ just
+</code></pre>
+<p>Is equivalent to:</p>
+<pre><code class="language-sh">$ just --unstable
+</code></pre>
+<p>Consult <code>just --help</code> to see which options can be set from environment
+variables.</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="private-recipes"><a class="header" href="#private-recipes">Private Recipes</a></h3>
 <p>Recipes and aliases whose name starts with a <code>_</code> are omitted from <code>just --list</code>:</p>
 <pre><code class="language-just">test: _test-helper
