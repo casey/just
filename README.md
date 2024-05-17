@@ -627,6 +627,7 @@ cc main.c foo.c bar.c -o main
 testing… all tests passed!
 ```
 
+
 Examples
 --------
 
@@ -2509,7 +2510,22 @@ $ just --show polyglot
 polyglot: python js perl sh ruby
 ```
 
-Run `just --help` to see all the options.
+The value of some command-line options can be read from environment variables
+of the form `JUST_<option name>`. For instance:
+
+```sh
+$ export JUST_UNSTABLE=1
+$ just
+```
+
+ is equivalent to:
+
+ ```sh
+ $ just --unstable
+ ```
+
+Run `just --help` to see all the options and environment variable names.
+
 
 ### Private Recipes
 
