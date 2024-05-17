@@ -1340,6 +1340,53 @@ that work on various operating systems. For an example, see
 [cross-platform.just](https://github.com/casey/just/blob/master/examples/cross-platform.just)
 file.
 
+#### Running External Commands/Scripts
+- `shell(command, args...)` expands to the output of running its given command.
+  - `command` is a script snippet or command. Use the catch-all parameter/argument to get all
+    passed arguments/options, '$@'(bash), '$argv' (fish), 'argv' etc.
+
+  > *Note*
+  > 1. Due to the way Just currently works, `set shell` overrides all assumed shell in `shell()` calls.
+  > 2. Any statements in the script-like command that writes to standard output will affect the output.
+  > 3. For Python and similar shells, the last `n` (number of args passed in) members of `argv` are the arguments you passed in.
+  >    (See examples)
+
+  Examples
+  --------
+    1. without external args
+        `bat_stat := shell("cat /sys/class/power_supply/BAT0/status")`
+    2. with external args using sh
+        `bat_stat := shell("cat $@", "/sys/class/power_supply/BAT0/status")`
+    3. This won't print "adstronaut": 
+       `shell("echo", "adstronaut")`, use `shell("echo $0", "adstronaut")` instead
+    4. using python as command interpreter:
+        ```just
+        set shell := ["python3", "-c"]
+        bat_stat := shell("
+        import sys,subprocess
+
+        statfile = '/sys/class/power_supply/BAT0/status'
+        batstat = subprocess.run(['cat', statfile], capture_output=True).stdout
+        print(batstat.decode(), end='')
+        ")
+
+        _:
+          echo {{ bat_stat }}
+        ```
+    5.  ```just
+        set shell := ["python3", "-c"]
+        bat_stat := shell("
+        import sys
+        print(sys.argv)
+        ", "killers", "of the", "flower-moon")
+        _:
+          print({{ bat_stat }})
+        ```
+        output:
+        ```
+        ['-c', 'killers', 'of the', 'flower-moon']
+        `
+
 #### Environment Variables
 
 - `env_var(key)` — Retrieves the environment variable with name `key`, aborting
