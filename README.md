@@ -2515,22 +2515,21 @@ $ just --show polyglot
 polyglot: python js perl sh ruby
 ```
 
-The value of some command-line options can be read from environment variables
-of the form `JUST_<option name>`. For instance:
+Some command-line options can be set with environment variables. For example:
 
 ```sh
 $ export JUST_UNSTABLE=1
 $ just
 ```
 
- is equivalent to:
+Is equivalent to:
 
- ```sh
- $ just --unstable
- ```
+```sh
+$ just --unstable
+```
 
-Run `just --help` to see all the options and environment variable names.
-
+Consult `just --help` to see which options can be set from environment
+variables.
 
 ### Private Recipes
 
