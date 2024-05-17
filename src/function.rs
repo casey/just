@@ -20,11 +20,12 @@ pub(crate) enum Function {
 pub(crate) fn get(name: &str) -> Option<Function> {
   let function = match name {
     "absolute_path" => Unary(absolute_path),
+    "append" => Binary(append),
     "arch" => Nullary(arch),
     "blake3" => Unary(blake3),
     "blake3_file" => Unary(blake3_file),
-    "canonicalize" => Unary(canonicalize),
     "cache_directory" => Nullary(|_| dir("cache", dirs::cache_dir)),
+    "canonicalize" => Unary(canonicalize),
     "capitalize" => Unary(capitalize),
     "clean" => Unary(clean),
     "config_directory" => Nullary(|_| dir("config", dirs::config_dir)),
@@ -55,6 +56,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "os_family" => Nullary(os_family),
     "parent_directory" => Unary(parent_directory),
     "path_exists" => Unary(path_exists),
+    "prepend" => Binary(prepend),
     "quote" => Unary(quote),
     "replace" => Ternary(replace),
     "replace_regex" => Ternary(replace_regex),
@@ -103,6 +105,15 @@ fn absolute_path(context: &FunctionContext, path: &str) -> Result<String, String
       context.search.working_directory.display()
     )),
   }
+}
+
+fn append(_context: &FunctionContext, suffix: &str, s: &str) -> Result<String, String> {
+  Ok(
+    s.split_whitespace()
+      .map(|s| format!("{s}{suffix}"))
+      .collect::<Vec<String>>()
+      .join(" "),
+  )
 }
 
 fn arch(_context: &FunctionContext) -> Result<String, String> {
@@ -253,6 +264,15 @@ fn invocation_directory_native(context: &FunctionContext) -> Result<String, Stri
         context.invocation_directory.display()
       )
     })
+}
+
+fn prepend(_context: &FunctionContext, prefix: &str, s: &str) -> Result<String, String> {
+  Ok(
+    s.split_whitespace()
+      .map(|s| format!("{prefix}{s}"))
+      .collect::<Vec<String>>()
+      .join(" "),
+  )
 }
 
 fn join(

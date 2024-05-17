@@ -1399,6 +1399,11 @@ The process ID is: 420
 
 #### String Manipulation
 
+- `append(suffix, s)`<sup>master</sup> Append `suffix` to whitespace-separated
+  strings in `s`. `append('/src', 'foo bar baz')` → `'foo/src bar/src baz/src'`
+- `prepend(prefix, s)`<sup>master</sup> Prepend `prefix` to
+  whitespace-separated strings in `s`. `prepend('src/', 'foo bar baz')` →
+  `'src/foo src/bar src/baz'`
 - `quote(s)` - Replace all single quotes with `'\''` and prepend and append
   single quotes to `s`. This is sufficient to escape special characters for
   many shells, including most Bourne shell descendants.
