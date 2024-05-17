@@ -482,6 +482,26 @@ fn trim_end() {
 }
 
 #[test]
+fn append() {
+  assert_eval_eq("append('8', 'r s t')", "r8 s8 t8");
+  assert_eval_eq("append('.c', 'main sar x11')", "main.c sar.c x11.c");
+  assert_eval_eq("append('-', 'c v h y')", "c- v- h- y-");
+  assert_eval_eq(
+    "append('0000', '11 10 01 00')",
+    "110000 100000 010000 000000",
+  );
+  assert_eval_eq(
+    "append('tion', '
+    Determina
+    Acquisi
+    Motiva
+    Conjuc
+    ')",
+    "Determination Acquisition Motivation Conjuction",
+  );
+}
+
+#[test]
 #[cfg(not(windows))]
 fn join() {
   assert_eval_eq("join('a', 'b', 'c', 'd')", "a/b/c/d");
