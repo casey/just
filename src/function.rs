@@ -266,11 +266,10 @@ fn invocation_directory_native(context: &FunctionContext) -> Result<String, Stri
     })
 }
 
-fn prepend(_context: &FunctionContext, pref: &str, base: &str) -> Result<String, String> {
+fn prepend(_context: &FunctionContext, prefix: &str, s: &str) -> Result<String, String> {
   Ok(
-    base
-      .split_whitespace()
-      .map(|s| format!("{pref}{s}"))
+    s.split_whitespace()
+      .map(|s| format!("{prefix}{s}"))
       .collect::<Vec<String>>()
       .join(" "),
   )
