@@ -1397,7 +1397,8 @@ The process ID is: 420
 
 
 #### String Manipulation
-
+- `prepend(prefix, base)` Prepend each word in (whitespace-separated) `base` with `prefix`.
+  `prepend('src', 'foo bar baz')` -> `'src/foo src/bar src/baz'`
 - `quote(s)` - Replace all single quotes with `'\''` and prepend and append
   single quotes to `s`. This is sufficient to escape special characters for
   many shells, including most Bourne shell descendants.
