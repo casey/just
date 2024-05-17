@@ -482,16 +482,24 @@ fn trim_end() {
 }
 
 #[test]
-fn addprefix() {
-  assert_eval_eq("addprefix('8', 'r s t')", "8r 8s 8t");
+fn prepend() {
+  assert_eval_eq("prepend('8', 'r s t\n  \n  ')", "8r 8s 8t");
   assert_eval_eq(
-    "addprefix('src/', 'main sar x11')",
+    "prepend('src/', 'main sar x11')",
     "src/main src/sar src/x11",
   );
-  assert_eval_eq("addprefix('-', 'c v h y')", "-c -v -h -y");
+  assert_eval_eq("prepend('-', 'c\tv h\ny')", "-c -v -h -y");
   assert_eval_eq(
-    "addprefix('0000', '11 10 01 00')",
+    "prepend('0000', '11 10 01 00')",
     "000011 000010 000001 000000",
+  );
+  assert_eval_eq(
+    "prepend('April-', '
+      1st,
+        17th,
+    20th,
+    ')",
+    "April-1st, April-17th, April-20th,",
   );
 }
 

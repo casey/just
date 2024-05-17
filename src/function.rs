@@ -21,7 +21,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
   let function = match name {
     "absolute_path" => Unary(absolute_path),
     "arch" => Nullary(arch),
-    "addprefix" => Binary(addprefix),
+    "prepend" => Binary(prepend),
     "blake3" => Unary(blake3),
     "blake3_file" => Unary(blake3_file),
     "canonicalize" => Unary(canonicalize),
@@ -256,10 +256,10 @@ fn invocation_directory_native(context: &FunctionContext) -> Result<String, Stri
     })
 }
 
-fn addprefix(_context: &FunctionContext, pref: &str, base: &str) -> Result<String, String> {
+fn prepend(_context: &FunctionContext, pref: &str, base: &str) -> Result<String, String> {
   Ok(
     base
-      .split(" ")
+      .split_whitespace()
       .map(|s| format!("{pref}{s}"))
       .collect::<Vec<String>>()
       .join(" "),
