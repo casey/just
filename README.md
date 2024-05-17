@@ -627,7 +627,6 @@ cc main.c foo.c bar.c -o main
 testing… all tests passed!
 ```
 
-
 Examples
 --------
 
@@ -1395,7 +1394,6 @@ pid:
 $ just
 The process ID is: 420
 ```
-
 
 #### String Manipulation
 
