@@ -465,7 +465,7 @@ fn shell(_evaluator: &Evaluator, cmdlike: &str, extras: &[String]) -> Result<Str
   shelled_cmd.args(args); // for the shell
 
   shelled_cmd.arg(cmdlike);
-  if extras.len() > 0 {
+  if !extras.is_empty() {
     shelled_cmd.args(&extras[..]);
   }
   shelled_cmd
