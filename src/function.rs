@@ -106,11 +106,10 @@ fn absolute_path(context: &FunctionContext, path: &str) -> Result<String, String
   }
 }
 
-fn append(_context: &FunctionContext, suf: &str, base: &str) -> Result<String, String> {
+fn append(_context: &FunctionContext, suffix: &str, s: &str) -> Result<String, String> {
   Ok(
-    base
-      .split_whitespace()
-      .map(|s| format!("{s}{suf}"))
+    s.split_whitespace()
+      .map(|s| format!("{s}{suffix}"))
       .collect::<Vec<String>>()
       .join(" "),
   )
