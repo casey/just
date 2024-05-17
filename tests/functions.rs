@@ -782,15 +782,31 @@ fn shell_minimal() {
   Test::new()
     .justfile(
       r"
-      _ := '_'
-      var := shell('echo $0 $1', _, 'justice')
+      var := shell('echo $0 $1', 'justice', 'legs')
       _:
-        @echo {{var}}",
+        @echo {{var}}
+      ",
     )
     .stdout(
-      "
-      _ justice
+      "justice legs\n",
+    )
+    .status(EXIT_SUCCESS)
+    .run();
+}
+
+#[test]
+fn shell_from_variable() {
+  Test::new()
+    .justfile(
+      r"
+      echo := 'echo $0 $1'
+      var := shell(echo, 'justice', 'legs')
+      _:
+        @echo {{var}}
       ",
+    )
+    .stdout(
+      "justice legs\n",
     )
     .status(EXIT_SUCCESS)
     .run();
