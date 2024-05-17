@@ -482,13 +482,22 @@ fn trim_end() {
 }
 
 #[test]
-fn addsuffix() {
-  assert_eval_eq("addsuffix('8', 'r s t')", "r8 s8 t8");
-  assert_eval_eq("addsuffix('.c', 'main sar x11')", "main.c sar.c x11.c");
-  assert_eval_eq("addsuffix('-', 'c v h y')", "c- v- h- y-");
+fn append() {
+  assert_eval_eq("append('8', 'r s t')", "r8 s8 t8");
+  assert_eval_eq("append('.c', 'main sar x11')", "main.c sar.c x11.c");
+  assert_eval_eq("append('-', 'c v h y')", "c- v- h- y-");
   assert_eval_eq(
-    "addsuffix('0000', '11 10 01 00')",
+    "append('0000', '11 10 01 00')",
     "110000 100000 010000 000000",
+  );
+  assert_eval_eq(
+    "append('tion', '
+    Determina
+    Acquisi
+    Motiva
+    Conjuc
+    ')",
+    "Determination Acquisition Motivation Conjuction",
   );
 }
 
