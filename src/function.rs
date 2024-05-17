@@ -20,6 +20,7 @@ pub(crate) enum Function {
 pub(crate) fn get(name: &str) -> Option<Function> {
   let function = match name {
     "absolute_path" => Unary(absolute_path),
+    "append" => Binary(append),
     "arch" => Nullary(arch),
     "prepend" => Binary(prepend),
     "blake3" => Unary(blake3),
@@ -104,6 +105,15 @@ fn absolute_path(context: &FunctionContext, path: &str) -> Result<String, String
       context.search.working_directory.display()
     )),
   }
+}
+
+fn append(_context: &FunctionContext, suffix: &str, s: &str) -> Result<String, String> {
+  Ok(
+    s.split_whitespace()
+      .map(|s| format!("{s}{suffix}"))
+      .collect::<Vec<String>>()
+      .join(" "),
+  )
 }
 
 fn arch(_context: &FunctionContext) -> Result<String, String> {
