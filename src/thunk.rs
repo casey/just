@@ -6,36 +6,36 @@ pub(crate) enum Thunk<'src> {
   Nullary {
     name: Name<'src>,
     #[derivative(Debug = "ignore", PartialEq = "ignore")]
-    function: fn(&FunctionContext) -> Result<String, String>,
+    function: fn(&Evaluator) -> Result<String, String>,
   },
   Unary {
     name: Name<'src>,
     #[derivative(Debug = "ignore", PartialEq = "ignore")]
-    function: fn(&FunctionContext, &str) -> Result<String, String>,
+    function: fn(&Evaluator, &str) -> Result<String, String>,
     arg: Box<Expression<'src>>,
   },
   UnaryOpt {
     name: Name<'src>,
     #[derivative(Debug = "ignore", PartialEq = "ignore")]
-    function: fn(&FunctionContext, &str, Option<&str>) -> Result<String, String>,
+    function: fn(&Evaluator, &str, Option<&str>) -> Result<String, String>,
     args: (Box<Expression<'src>>, Box<Option<Expression<'src>>>),
   },
   Binary {
     name: Name<'src>,
     #[derivative(Debug = "ignore", PartialEq = "ignore")]
-    function: fn(&FunctionContext, &str, &str) -> Result<String, String>,
+    function: fn(&Evaluator, &str, &str) -> Result<String, String>,
     args: [Box<Expression<'src>>; 2],
   },
   BinaryPlus {
     name: Name<'src>,
     #[derivative(Debug = "ignore", PartialEq = "ignore")]
-    function: fn(&FunctionContext, &str, &str, &[String]) -> Result<String, String>,
+    function: fn(&Evaluator, &str, &str, &[String]) -> Result<String, String>,
     args: ([Box<Expression<'src>>; 2], Vec<Expression<'src>>),
   },
   Ternary {
     name: Name<'src>,
     #[derivative(Debug = "ignore", PartialEq = "ignore")]
-    function: fn(&FunctionContext, &str, &str, &str) -> Result<String, String>,
+    function: fn(&Evaluator, &str, &str, &str) -> Result<String, String>,
     args: [Box<Expression<'src>>; 3],
   },
 }
