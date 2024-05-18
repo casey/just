@@ -9,12 +9,12 @@ use {
 };
 
 pub(crate) enum Function {
-  Nullary(fn(&FunctionContext) -> Result<String, String>),
-  Unary(fn(&FunctionContext, &str) -> Result<String, String>),
-  UnaryOpt(fn(&FunctionContext, &str, Option<&str>) -> Result<String, String>),
-  Binary(fn(&FunctionContext, &str, &str) -> Result<String, String>),
-  BinaryPlus(fn(&FunctionContext, &str, &str, &[String]) -> Result<String, String>),
-  Ternary(fn(&FunctionContext, &str, &str, &str) -> Result<String, String>),
+  Nullary(fn(&Evaluator) -> Result<String, String>),
+  Unary(fn(&Evaluator, &str) -> Result<String, String>),
+  UnaryOpt(fn(&Evaluator, &str, Option<&str>) -> Result<String, String>),
+  Binary(fn(&Evaluator, &str, &str) -> Result<String, String>),
+  BinaryPlus(fn(&Evaluator, &str, &str, &[String]) -> Result<String, String>),
+  Ternary(fn(&Evaluator, &str, &str, &str) -> Result<String, String>),
 }
 
 pub(crate) fn get(name: &str) -> Option<Function> {
@@ -96,7 +96,7 @@ impl Function {
   }
 }
 
-fn absolute_path(context: &FunctionContext, path: &str) -> Result<String, String> {
+fn absolute_path(context: &Evaluator, path: &str) -> Result<String, String> {
   let abs_path_unchecked = context.search.working_directory.join(path).lexiclean();
   match abs_path_unchecked.to_str() {
     Some(absolute_path) => Ok(absolute_path.to_owned()),
@@ -107,7 +107,7 @@ fn absolute_path(context: &FunctionContext, path: &str) -> Result<String, String
   }
 }
 
-fn append(_context: &FunctionContext, suffix: &str, s: &str) -> Result<String, String> {
+fn append(_context: &Evaluator, suffix: &str, s: &str) -> Result<String, String> {
   Ok(
     s.split_whitespace()
       .map(|s| format!("{s}{suffix}"))
@@ -116,15 +116,15 @@ fn append(_context: &FunctionContext, suffix: &str, s: &str) -> Result<String, S
   )
 }
 
-fn arch(_context: &FunctionContext) -> Result<String, String> {
+fn arch(_context: &Evaluator) -> Result<String, String> {
   Ok(target::arch().to_owned())
 }
 
-fn blake3(_context: &FunctionContext, s: &str) -> Result<String, String> {
+fn blake3(_context: &Evaluator, s: &str) -> Result<String, String> {
   Ok(blake3::hash(s.as_bytes()).to_string())
 }
 
-fn blake3_file(context: &FunctionContext, path: &str) -> Result<String, String> {
+fn blake3_file(context: &Evaluator, path: &str) -> Result<String, String> {
   let path = context.search.working_directory.join(path);
   let mut hasher = blake3::Hasher::new();
   hasher
@@ -133,7 +133,7 @@ fn blake3_file(context: &FunctionContext, path: &str) -> Result<String, String> 
   Ok(hasher.finalize().to_string())
 }
 
-fn canonicalize(_context: &FunctionContext, path: &str) -> Result<String, String> {
+fn canonicalize(_context: &Evaluator, path: &str) -> Result<String, String> {
   let canonical =
     std::fs::canonicalize(path).map_err(|err| format!("I/O error canonicalizing path: {err}"))?;
 
@@ -145,7 +145,7 @@ fn canonicalize(_context: &FunctionContext, path: &str) -> Result<String, String
   })
 }
 
-fn capitalize(_context: &FunctionContext, s: &str) -> Result<String, String> {
+fn capitalize(_context: &Evaluator, s: &str) -> Result<String, String> {
   let mut capitalized = String::new();
   for (i, c) in s.chars().enumerate() {
     if i == 0 {
@@ -157,7 +157,7 @@ fn capitalize(_context: &FunctionContext, s: &str) -> Result<String, String> {
   Ok(capitalized)
 }
 
-fn clean(_context: &FunctionContext, path: &str) -> Result<String, String> {
+fn clean(_context: &Evaluator, path: &str) -> Result<String, String> {
   Ok(Path::new(path).lexiclean().to_str().unwrap().to_owned())
 }
 
@@ -177,7 +177,7 @@ fn dir(name: &'static str, f: fn() -> Option<PathBuf>) -> Result<String, String>
   }
 }
 
-fn env_var(context: &FunctionContext, key: &str) -> Result<String, String> {
+fn env_var(context: &Evaluator, key: &str) -> Result<String, String> {
   use std::env::VarError::*;
 
   if let Some(value) = context.dotenv.get(key) {
@@ -193,11 +193,7 @@ fn env_var(context: &FunctionContext, key: &str) -> Result<String, String> {
   }
 }
 
-fn env_var_or_default(
-  context: &FunctionContext,
-  key: &str,
-  default: &str,
-) -> Result<String, String> {
+fn env_var_or_default(context: &Evaluator, key: &str, default: &str) -> Result<String, String> {
   use std::env::VarError::*;
 
   if let Some(value) = context.dotenv.get(key) {
@@ -213,60 +209,61 @@ fn env_var_or_default(
   }
 }
 
-fn env(context: &FunctionContext, key: &str, default: Option<&str>) -> Result<String, String> {
+fn env(context: &Evaluator, key: &str, default: Option<&str>) -> Result<String, String> {
   match default {
     Some(val) => env_var_or_default(context, key, val),
     None => env_var(context, key),
   }
 }
 
-fn error(_context: &FunctionContext, message: &str) -> Result<String, String> {
+fn error(_context: &Evaluator, message: &str) -> Result<String, String> {
   Err(message.to_owned())
 }
 
-fn extension(_context: &FunctionContext, path: &str) -> Result<String, String> {
+fn extension(_context: &Evaluator, path: &str) -> Result<String, String> {
   Utf8Path::new(path)
     .extension()
     .map(str::to_owned)
     .ok_or_else(|| format!("Could not extract extension from `{path}`"))
 }
 
-fn file_name(_context: &FunctionContext, path: &str) -> Result<String, String> {
+fn file_name(_context: &Evaluator, path: &str) -> Result<String, String> {
   Utf8Path::new(path)
     .file_name()
     .map(str::to_owned)
     .ok_or_else(|| format!("Could not extract file name from `{path}`"))
 }
 
-fn file_stem(_context: &FunctionContext, path: &str) -> Result<String, String> {
+fn file_stem(_context: &Evaluator, path: &str) -> Result<String, String> {
   Utf8Path::new(path)
     .file_stem()
     .map(str::to_owned)
     .ok_or_else(|| format!("Could not extract file stem from `{path}`"))
 }
 
-fn invocation_directory(context: &FunctionContext) -> Result<String, String> {
+fn invocation_directory(context: &Evaluator) -> Result<String, String> {
   Platform::convert_native_path(
     &context.search.working_directory,
-    context.invocation_directory,
+    &context.config.invocation_directory,
   )
   .map_err(|e| format!("Error getting shell path: {e}"))
 }
 
-fn invocation_directory_native(context: &FunctionContext) -> Result<String, String> {
+fn invocation_directory_native(context: &Evaluator) -> Result<String, String> {
   context
+    .config
     .invocation_directory
     .to_str()
     .map(str::to_owned)
     .ok_or_else(|| {
       format!(
         "Invocation directory is not valid unicode: {}",
-        context.invocation_directory.display()
+        context.config.invocation_directory.display()
       )
     })
 }
 
-fn prepend(_context: &FunctionContext, prefix: &str, s: &str) -> Result<String, String> {
+fn prepend(_context: &Evaluator, prefix: &str, s: &str) -> Result<String, String> {
   Ok(
     s.split_whitespace()
       .map(|s| format!("{prefix}{s}"))
@@ -275,12 +272,7 @@ fn prepend(_context: &FunctionContext, prefix: &str, s: &str) -> Result<String, 
   )
 }
 
-fn join(
-  _context: &FunctionContext,
-  base: &str,
-  with: &str,
-  and: &[String],
-) -> Result<String, String> {
+fn join(_context: &Evaluator, base: &str, with: &str, and: &[String]) -> Result<String, String> {
   let mut result = Utf8Path::new(base).join(with);
   for arg in and {
     result.push(arg);
@@ -288,7 +280,7 @@ fn join(
   Ok(result.to_string())
 }
 
-fn just_executable(_context: &FunctionContext) -> Result<String, String> {
+fn just_executable(_context: &Evaluator) -> Result<String, String> {
   let exe_path =
     env::current_exe().map_err(|e| format!("Error getting current executable: {e}"))?;
 
@@ -300,11 +292,11 @@ fn just_executable(_context: &FunctionContext) -> Result<String, String> {
   })
 }
 
-fn just_pid(_context: &FunctionContext) -> Result<String, String> {
+fn just_pid(_context: &Evaluator) -> Result<String, String> {
   Ok(std::process::id().to_string())
 }
 
-fn justfile(context: &FunctionContext) -> Result<String, String> {
+fn justfile(context: &Evaluator) -> Result<String, String> {
   context
     .search
     .justfile
@@ -318,7 +310,7 @@ fn justfile(context: &FunctionContext) -> Result<String, String> {
     })
 }
 
-fn justfile_directory(context: &FunctionContext) -> Result<String, String> {
+fn justfile_directory(context: &Evaluator) -> Result<String, String> {
   let justfile_directory = context.search.justfile.parent().ok_or_else(|| {
     format!(
       "Could not resolve justfile directory. Justfile `{}` had no parent.",
@@ -337,39 +329,39 @@ fn justfile_directory(context: &FunctionContext) -> Result<String, String> {
     })
 }
 
-fn kebabcase(_context: &FunctionContext, s: &str) -> Result<String, String> {
+fn kebabcase(_context: &Evaluator, s: &str) -> Result<String, String> {
   Ok(s.to_kebab_case())
 }
 
-fn lowercamelcase(_context: &FunctionContext, s: &str) -> Result<String, String> {
+fn lowercamelcase(_context: &Evaluator, s: &str) -> Result<String, String> {
   Ok(s.to_lower_camel_case())
 }
 
-fn lowercase(_context: &FunctionContext, s: &str) -> Result<String, String> {
+fn lowercase(_context: &Evaluator, s: &str) -> Result<String, String> {
   Ok(s.to_lowercase())
 }
 
-fn num_cpus(_context: &FunctionContext) -> Result<String, String> {
+fn num_cpus(_context: &Evaluator) -> Result<String, String> {
   let num = num_cpus::get();
   Ok(num.to_string())
 }
 
-fn os(_context: &FunctionContext) -> Result<String, String> {
+fn os(_context: &Evaluator) -> Result<String, String> {
   Ok(target::os().to_owned())
 }
 
-fn os_family(_context: &FunctionContext) -> Result<String, String> {
+fn os_family(_context: &Evaluator) -> Result<String, String> {
   Ok(target::family().to_owned())
 }
 
-fn parent_directory(_context: &FunctionContext, path: &str) -> Result<String, String> {
+fn parent_directory(_context: &Evaluator, path: &str) -> Result<String, String> {
   Utf8Path::new(path)
     .parent()
     .map(Utf8Path::to_string)
     .ok_or_else(|| format!("Could not extract parent directory from `{path}`"))
 }
 
-fn path_exists(context: &FunctionContext, path: &str) -> Result<String, String> {
+fn path_exists(context: &Evaluator, path: &str) -> Result<String, String> {
   Ok(
     context
       .search
@@ -380,16 +372,16 @@ fn path_exists(context: &FunctionContext, path: &str) -> Result<String, String> 
   )
 }
 
-fn quote(_context: &FunctionContext, s: &str) -> Result<String, String> {
+fn quote(_context: &Evaluator, s: &str) -> Result<String, String> {
   Ok(format!("'{}'", s.replace('\'', "'\\''")))
 }
 
-fn replace(_context: &FunctionContext, s: &str, from: &str, to: &str) -> Result<String, String> {
+fn replace(_context: &Evaluator, s: &str, from: &str, to: &str) -> Result<String, String> {
   Ok(s.replace(from, to))
 }
 
 fn replace_regex(
-  _context: &FunctionContext,
+  _context: &Evaluator,
   s: &str,
   regex: &str,
   replacement: &str,
@@ -402,7 +394,7 @@ fn replace_regex(
   )
 }
 
-fn sha256(_context: &FunctionContext, s: &str) -> Result<String, String> {
+fn sha256(_context: &Evaluator, s: &str) -> Result<String, String> {
   use sha2::{Digest, Sha256};
   let mut hasher = Sha256::new();
   hasher.update(s);
@@ -410,7 +402,7 @@ fn sha256(_context: &FunctionContext, s: &str) -> Result<String, String> {
   Ok(format!("{hash:x}"))
 }
 
-fn sha256_file(context: &FunctionContext, path: &str) -> Result<String, String> {
+fn sha256_file(context: &Evaluator, path: &str) -> Result<String, String> {
   use sha2::{Digest, Sha256};
   let path = context.search.working_directory.join(path);
   let mut hasher = Sha256::new();
@@ -422,63 +414,63 @@ fn sha256_file(context: &FunctionContext, path: &str) -> Result<String, String> 
   Ok(format!("{hash:x}"))
 }
 
-fn shoutykebabcase(_context: &FunctionContext, s: &str) -> Result<String, String> {
+fn shoutykebabcase(_context: &Evaluator, s: &str) -> Result<String, String> {
   Ok(s.to_shouty_kebab_case())
 }
 
-fn shoutysnakecase(_context: &FunctionContext, s: &str) -> Result<String, String> {
+fn shoutysnakecase(_context: &Evaluator, s: &str) -> Result<String, String> {
   Ok(s.to_shouty_snake_case())
 }
 
-fn snakecase(_context: &FunctionContext, s: &str) -> Result<String, String> {
+fn snakecase(_context: &Evaluator, s: &str) -> Result<String, String> {
   Ok(s.to_snake_case())
 }
 
-fn titlecase(_context: &FunctionContext, s: &str) -> Result<String, String> {
+fn titlecase(_context: &Evaluator, s: &str) -> Result<String, String> {
   Ok(s.to_title_case())
 }
 
-fn trim(_context: &FunctionContext, s: &str) -> Result<String, String> {
+fn trim(_context: &Evaluator, s: &str) -> Result<String, String> {
   Ok(s.trim().to_owned())
 }
 
-fn trim_end(_context: &FunctionContext, s: &str) -> Result<String, String> {
+fn trim_end(_context: &Evaluator, s: &str) -> Result<String, String> {
   Ok(s.trim_end().to_owned())
 }
 
-fn trim_end_match(_context: &FunctionContext, s: &str, pat: &str) -> Result<String, String> {
+fn trim_end_match(_context: &Evaluator, s: &str, pat: &str) -> Result<String, String> {
   Ok(s.strip_suffix(pat).unwrap_or(s).to_owned())
 }
 
-fn trim_end_matches(_context: &FunctionContext, s: &str, pat: &str) -> Result<String, String> {
+fn trim_end_matches(_context: &Evaluator, s: &str, pat: &str) -> Result<String, String> {
   Ok(s.trim_end_matches(pat).to_owned())
 }
 
-fn trim_start(_context: &FunctionContext, s: &str) -> Result<String, String> {
+fn trim_start(_context: &Evaluator, s: &str) -> Result<String, String> {
   Ok(s.trim_start().to_owned())
 }
 
-fn trim_start_match(_context: &FunctionContext, s: &str, pat: &str) -> Result<String, String> {
+fn trim_start_match(_context: &Evaluator, s: &str, pat: &str) -> Result<String, String> {
   Ok(s.strip_prefix(pat).unwrap_or(s).to_owned())
 }
 
-fn trim_start_matches(_context: &FunctionContext, s: &str, pat: &str) -> Result<String, String> {
+fn trim_start_matches(_context: &Evaluator, s: &str, pat: &str) -> Result<String, String> {
   Ok(s.trim_start_matches(pat).to_owned())
 }
 
-fn uppercamelcase(_context: &FunctionContext, s: &str) -> Result<String, String> {
+fn uppercamelcase(_context: &Evaluator, s: &str) -> Result<String, String> {
   Ok(s.to_upper_camel_case())
 }
 
-fn uppercase(_context: &FunctionContext, s: &str) -> Result<String, String> {
+fn uppercase(_context: &Evaluator, s: &str) -> Result<String, String> {
   Ok(s.to_uppercase())
 }
 
-fn uuid(_context: &FunctionContext) -> Result<String, String> {
+fn uuid(_context: &Evaluator) -> Result<String, String> {
   Ok(uuid::Uuid::new_v4().to_string())
 }
 
-fn without_extension(_context: &FunctionContext, path: &str) -> Result<String, String> {
+fn without_extension(_context: &Evaluator, path: &str) -> Result<String, String> {
   let parent = Utf8Path::new(path)
     .parent()
     .ok_or_else(|| format!("Could not extract parent from `{path}`"))?;
@@ -493,7 +485,7 @@ fn without_extension(_context: &FunctionContext, path: &str) -> Result<String, S
 /// Check whether a string processes properly as semver (e.x. "0.1.0")
 /// and matches a given semver requirement (e.x. ">=0.1.0")
 fn semver_matches(
-  _context: &FunctionContext,
+  _context: &Evaluator,
   version: &str,
   requirement: &str,
 ) -> Result<String, String> {

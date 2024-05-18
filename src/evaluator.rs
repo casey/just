@@ -1,12 +1,12 @@
 use super::*;
 
 pub(crate) struct Evaluator<'src: 'run, 'run> {
-  assignments: Option<&'run Table<'src, Assignment<'src>>>,
-  config: &'run Config,
-  dotenv: &'run BTreeMap<String, String>,
-  scope: Scope<'src, 'run>,
-  settings: &'run Settings<'run>,
-  search: &'run Search,
+  pub(crate) assignments: Option<&'run Table<'src, Assignment<'src>>>,
+  pub(crate) config: &'run Config,
+  pub(crate) dotenv: &'run BTreeMap<String, String>,
+  pub(crate) scope: Scope<'src, 'run>,
+  pub(crate) settings: &'run Settings<'run>,
+  pub(crate) search: &'run Search,
 }
 
 impl<'src, 'run> Evaluator<'src, 'run> {
@@ -68,30 +68,23 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       Expression::Call { thunk } => {
         use Thunk::*;
 
-        let context = FunctionContext {
-          dotenv: self.dotenv,
-          invocation_directory: &self.config.invocation_directory,
-          search: self.search,
-        };
-
         match thunk {
-          Nullary { name, function, .. } => {
-            function(&context).map_err(|message| Error::FunctionCall {
-              function: *name,
-              message,
-            })
-          }
+          Nullary { name, function, .. } => function(self).map_err(|message| Error::FunctionCall {
+            function: *name,
+            message,
+          }),
           Unary {
             name,
             function,
             arg,
             ..
-          } => function(&context, &self.evaluate_expression(arg)?).map_err(|message| {
-            Error::FunctionCall {
+          } => {
+            let arg = self.evaluate_expression(arg)?;
+            function(self, &arg).map_err(|message| Error::FunctionCall {
               function: *name,
               message,
-            }
-          }),
+            })
+          }
           UnaryOpt {
             name,
             function,
@@ -104,7 +97,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
               None => None,
             };
 
-            function(&context, &a, b.as_deref()).map_err(|message| Error::FunctionCall {
+            function(self, &a, b.as_deref()).map_err(|message| Error::FunctionCall {
               function: *name,
               message,
             })
@@ -114,15 +107,14 @@ impl<'src, 'run> Evaluator<'src, 'run> {
             function,
             args: [a, b],
             ..
-          } => function(
-            &context,
-            &self.evaluate_expression(a)?,
-            &self.evaluate_expression(b)?,
-          )
-          .map_err(|message| Error::FunctionCall {
-            function: *name,
-            message,
-          }),
+          } => {
+            let a = self.evaluate_expression(a)?;
+            let b = self.evaluate_expression(b)?;
+            function(self, &a, &b).map_err(|message| Error::FunctionCall {
+              function: *name,
+              message,
+            })
+          }
           BinaryPlus {
             name,
             function,
@@ -137,7 +129,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
               rest_evaluated.push(self.evaluate_expression(arg)?);
             }
 
-            function(&context, &a, &b, &rest_evaluated).map_err(|message| Error::FunctionCall {
+            function(self, &a, &b, &rest_evaluated).map_err(|message| Error::FunctionCall {
               function: *name,
               message,
             })
@@ -147,16 +139,16 @@ impl<'src, 'run> Evaluator<'src, 'run> {
             function,
             args: [a, b, c],
             ..
-          } => function(
-            &context,
-            &self.evaluate_expression(a)?,
-            &self.evaluate_expression(b)?,
-            &self.evaluate_expression(c)?,
-          )
-          .map_err(|message| Error::FunctionCall {
-            function: *name,
-            message,
-          }),
+          } => {
+            let a = self.evaluate_expression(a)?;
+            let b = self.evaluate_expression(b)?;
+            let c = self.evaluate_expression(c)?;
+
+            function(self, &a, &b, &c).map_err(|message| Error::FunctionCall {
+              function: *name,
+              message,
+            })
+          }
         }
       }
       Expression::StringLiteral { string_literal } => Ok(string_literal.cooked.clone()),
