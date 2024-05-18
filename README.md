@@ -755,6 +755,31 @@ $ just --list --list-heading ''
     build
 ```
 
+### Working Directory
+
+By default, recipes run with the working directory set to the directory that
+contains the `justfile`.
+
+The `[no-cd]` attribute can be used to make recipes run with the working
+directory set to directory in which `just` was invoked.
+
+```just
+@foo:
+  pwd
+
+[no-cd]
+@bar:
+  pwd
+```
+
+```sh
+$ cd subdir
+$ just foo
+/
+: just bar
+/subdir
+```
+
 ### Aliases
 
 Aliases allow recipes to be invoked on the command line with alternative names:
@@ -2797,7 +2822,7 @@ import? 'foo/bar.just'
 
 Missing source files for optional imports do not produce an error.
 
-### Modules<sup>1.19.0</sup>
+### Modules <sup>1.19.0</sup>
 
 A `justfile` can declare modules using `mod` statements. `mod` statements are
 currently unstable, so you'll need to use the `--unstable` flag, or set the
