@@ -482,6 +482,48 @@ fn trim_end() {
 }
 
 #[test]
+fn append() {
+  assert_eval_eq("append('8', 'r s t')", "r8 s8 t8");
+  assert_eval_eq("append('.c', 'main sar x11')", "main.c sar.c x11.c");
+  assert_eval_eq("append('-', 'c v h y')", "c- v- h- y-");
+  assert_eval_eq(
+    "append('0000', '11 10 01 00')",
+    "110000 100000 010000 000000",
+  );
+  assert_eval_eq(
+    "append('tion', '
+    Determina
+    Acquisi
+    Motiva
+    Conjuc
+    ')",
+    "Determination Acquisition Motivation Conjuction",
+  );
+}
+
+#[test]
+fn prepend() {
+  assert_eval_eq("prepend('8', 'r s t\n  \n  ')", "8r 8s 8t");
+  assert_eval_eq(
+    "prepend('src/', 'main sar x11')",
+    "src/main src/sar src/x11",
+  );
+  assert_eval_eq("prepend('-', 'c\tv h\ny')", "-c -v -h -y");
+  assert_eval_eq(
+    "prepend('0000', '11 10 01 00')",
+    "000011 000010 000001 000000",
+  );
+  assert_eval_eq(
+    "prepend('April-', '
+      1st,
+        17th,
+    20th,
+    ')",
+    "April-1st, April-17th, April-20th,",
+  );
+}
+
+#[test]
 #[cfg(not(windows))]
 fn join() {
   assert_eval_eq("join('a', 'b', 'c', 'd')", "a/b/c/d");
