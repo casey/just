@@ -1541,6 +1541,26 @@ and are implemented with the
 - `executable_directory()` - The user-specific executable directory.
 - `home_directory()` - The user's home directory.
 
+### Constants
+
+A number of constants are predefined:
+
+| Name | Value |
+|------|-------------|
+| `HEX`<sup>master</sup> | `"0123456789abcdef"` |
+| `HEXLOWER`<sup>master</sup> | `"0123456789abcdef"` |
+| `HEXUPPER`<sup>master</sup> | `"0123456789ABCDEF"` |
+
+```just
+@foo:
+  echo {{HEX}}
+```
+
+```sh
+$ just foo
+0123456789abcdef
+```
+
 ### Recipe Attributes
 
 Recipes may be annotated with attributes that change their behavior.

@@ -8,8 +8,7 @@ impl<'src> Ran<'src> {
     self
       .0
       .get(recipe)
-      .map(|ran| ran.contains(arguments))
-      .unwrap_or_default()
+      .is_some_and(|ran| ran.contains(arguments))
   }
 
   pub(crate) fn ran(&mut self, recipe: &Namepath<'src>, arguments: Vec<String>) {
