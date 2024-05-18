@@ -58,8 +58,9 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
     parameters: &[Parameter],
   ) -> CompileResult<'src> {
     let name = variable.lexeme();
-    let undefined =
-      !self.assignments.contains_key(name) && !parameters.iter().any(|p| p.name.lexeme() == name);
+    let undefined = !self.assignments.contains_key(name)
+      && !parameters.iter().any(|p| p.name.lexeme() == name)
+      && !constants().contains_key(name);
 
     if undefined {
       return Err(variable.error(UndefinedVariable { variable: name }));

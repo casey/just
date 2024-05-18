@@ -14,11 +14,31 @@ impl<'src, 'run> Scope<'src, 'run> {
     }
   }
 
-  pub(crate) fn new() -> Self {
-    Self {
+  pub(crate) fn root() -> Self {
+    let mut root = Self {
       parent: None,
       bindings: Table::new(),
+    };
+
+    for (key, value) in constants() {
+      root.bind(
+        false,
+        Name {
+          token: Token {
+            column: 0,
+            kind: TokenKind::Identifier,
+            length: key.len(),
+            line: 0,
+            offset: 0,
+            path: Path::new("PRELUDE"),
+            src: key,
+          },
+        },
+        value.to_string(),
+      );
     }
+
+    root
   }
 
   pub(crate) fn bind(&mut self, export: bool, name: Name<'src>, value: String) {
