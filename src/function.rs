@@ -181,13 +181,7 @@ fn choose(_evaluator: &Evaluator, n: &str, alphabet: &str) -> Result<String, Str
 
   let mut rng = thread_rng();
 
-  let mut s = String::with_capacity(n);
-
-  for _ in 0..n {
-    s.push(*alphabet.choose(&mut rng).unwrap());
-  }
-
-  Ok(s)
+  Ok((0..n).map(|_| alphabet.choose(&mut rng).unwrap()).collect())
 }
 
 fn clean(_evaluator: &Evaluator, path: &str) -> Result<String, String> {
