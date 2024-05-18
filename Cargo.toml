@@ -12,7 +12,7 @@ keywords = ["command-line", "task", "runner", "development", "utility"]
 license = "CC0-1.0"
 readme = "crates-io-readme.md"
 repository = "https://github.com/casey/just"
-rust-version = "1.63"
+rust-version = "1.70"
 
 [workspace]
 members = [".", "crates/*"]
@@ -37,6 +37,7 @@ libc = "0.2.0"
 log = "0.4.4"
 num_cpus = "1.15.0"
 percent-encoding = "2.3.1"
+rand = "0.8.5"
 regex = "1.10.4"
 semver = "1.0.20"
 serde = { version = "1.0.130", features = ["derive", "rc"] }

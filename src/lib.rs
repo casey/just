@@ -20,9 +20,9 @@ pub(crate) use {
     color::Color, color_display::ColorDisplay, command_ext::CommandExt, compilation::Compilation,
     compile_error::CompileError, compile_error_kind::CompileErrorKind, compiler::Compiler,
     condition::Condition, conditional_operator::ConditionalOperator, config::Config,
-    config_error::ConfigError, count::Count, delimiter::Delimiter, dependency::Dependency,
-    dump_format::DumpFormat, enclosure::Enclosure, error::Error, evaluator::Evaluator,
-    expression::Expression, fragment::Fragment, function::Function,
+    config_error::ConfigError, constants::constants, count::Count, delimiter::Delimiter,
+    dependency::Dependency, dump_format::DumpFormat, enclosure::Enclosure, error::Error,
+    evaluator::Evaluator, expression::Expression, fragment::Fragment, function::Function,
     interrupt_guard::InterruptGuard, interrupt_handler::InterruptHandler, item::Item,
     justfile::Justfile, keyed::Keyed, keyword::Keyword, lexer::Lexer, line::Line, list::List,
     load_dotenv::load_dotenv, loader::Loader, name::Name, namepath::Namepath, ordinal::Ordinal,
@@ -53,7 +53,7 @@ pub(crate) use {
     process::{self, Command, ExitStatus, Stdio},
     rc::Rc,
     str::{self, Chars},
-    sync::{Mutex, MutexGuard},
+    sync::{Mutex, MutexGuard, OnceLock},
     vec,
   },
   {
@@ -128,6 +128,7 @@ mod condition;
 mod conditional_operator;
 mod config;
 mod config_error;
+mod constants;
 mod count;
 mod delimiter;
 mod dependency;

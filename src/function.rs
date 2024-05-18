@@ -4,7 +4,9 @@ use {
     ToKebabCase, ToLowerCamelCase, ToShoutyKebabCase, ToShoutySnakeCase, ToSnakeCase, ToTitleCase,
     ToUpperCamelCase,
   },
+  rand::{seq::SliceRandom, thread_rng},
   semver::{Version, VersionReq},
+  std::collections::HashSet,
   Function::*,
 };
 
@@ -27,6 +29,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "cache_directory" => Nullary(|_| dir("cache", dirs::cache_dir)),
     "canonicalize" => Unary(canonicalize),
     "capitalize" => Unary(capitalize),
+    "choose" => Binary(choose),
     "clean" => Unary(clean),
     "config_directory" => Nullary(|_| dir("config", dirs::config_dir)),
     "config_local_directory" => Nullary(|_| dir("local config", dirs::config_local_dir)),
@@ -156,6 +159,30 @@ fn capitalize(_evaluator: &Evaluator, s: &str) -> Result<String, String> {
     }
   }
   Ok(capitalized)
+}
+
+fn choose(_evaluator: &Evaluator, n: &str, alphabet: &str) -> Result<String, String> {
+  if alphabet.is_empty() {
+    return Err("empty alphabet".into());
+  }
+
+  let mut chars = HashSet::<char>::with_capacity(alphabet.len());
+
+  for c in alphabet.chars() {
+    if !chars.insert(c) {
+      return Err(format!("alphabet contains repeated character `{c}`"));
+    }
+  }
+
+  let alphabet = alphabet.chars().collect::<Vec<char>>();
+
+  let n = n
+    .parse::<usize>()
+    .map_err(|err| format!("failed to parse `{n}` as positive integer: {err}"))?;
+
+  let mut rng = thread_rng();
+
+  Ok((0..n).map(|_| alphabet.choose(&mut rng).unwrap()).collect())
 }
 
 fn clean(_evaluator: &Evaluator, path: &str) -> Result<String, String> {

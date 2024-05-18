@@ -312,3 +312,12 @@ fn test_round_trip(tmpdir: &Path) {
 
   assert_eq!(reparsed, dumped, "reparse mismatch");
 }
+
+pub fn assert_eval_eq(expression: &str, result: &str) {
+  Test::new()
+    .justfile(format!("x := {expression}"))
+    .args(["--evaluate", "x"])
+    .stdout(result)
+    .unindent_stdout(false)
+    .run();
+}
