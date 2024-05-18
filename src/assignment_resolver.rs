@@ -128,7 +128,7 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
       Expression::StringLiteral { .. } | Expression::Backtick { .. } => Ok(()),
       Expression::Variable { name } => {
         let variable = name.lexeme();
-        if self.evaluated.contains(variable) {
+        if self.evaluated.contains(variable) || constants().contains_key(variable) {
           Ok(())
         } else if self.stack.contains(&variable) {
           self.stack.push(variable);

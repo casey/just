@@ -436,15 +436,6 @@ fn semver_matches() {
     .run();
 }
 
-fn assert_eval_eq(expression: &str, result: &str) {
-  Test::new()
-    .justfile(format!("x := {expression}"))
-    .args(["--evaluate", "x"])
-    .stdout(result)
-    .unindent_stdout(false)
-    .run();
-}
-
 #[test]
 fn trim_end_matches() {
   assert_eval_eq("trim_end_matches('foo', 'o')", "f");

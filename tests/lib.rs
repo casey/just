@@ -3,7 +3,7 @@ pub(crate) use {
     assert_stdout::assert_stdout,
     assert_success::assert_success,
     tempdir::tempdir,
-    test::{Output, Test},
+    test::{assert_eval_eq, Output, Test},
   },
   cradle::input::Input,
   executable_path::executable_path,
@@ -46,6 +46,7 @@ mod command;
 mod completions;
 mod conditional;
 mod confirm;
+mod constants;
 mod delimiters;
 mod directories;
 mod dotenv;
