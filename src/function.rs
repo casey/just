@@ -400,15 +400,13 @@ fn path_exists(evaluator: &Evaluator, path: &str) -> Result<String, String> {
   )
 }
 
-// This has to be 'static
-static PERCENT_ENCODE_ASCII: percent_encoding::AsciiSet = percent_encoding::NON_ALPHANUMERIC
-  .remove(b'-')
-  .remove(b'_')
-  .remove(b'.')
-  .remove(b'~');
-
 fn percent_encode(_evaluator: &Evaluator, s: &str) -> Result<String, String> {
-  Ok(percent_encoding::utf8_percent_encode(s, &PERCENT_ENCODE_ASCII).to_string())
+  static ASCII_SET: percent_encoding::AsciiSet = percent_encoding::NON_ALPHANUMERIC
+    .remove(b'-')
+    .remove(b'_')
+    .remove(b'.')
+    .remove(b'~');
+  Ok(percent_encoding::utf8_percent_encode(s, &ASCII_SET).to_string())
 }
 
 fn quote(_evaluator: &Evaluator, s: &str) -> Result<String, String> {
