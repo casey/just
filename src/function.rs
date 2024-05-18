@@ -4,7 +4,9 @@ use {
     ToKebabCase, ToLowerCamelCase, ToShoutyKebabCase, ToShoutySnakeCase, ToSnakeCase, ToTitleCase,
     ToUpperCamelCase,
   },
+  rand::prelude::*,
   semver::{Version, VersionReq},
+  std::collections::HashSet,
   Function::*,
 };
 
@@ -56,6 +58,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "os_family" => Nullary(os_family),
     "parent_directory" => Unary(parent_directory),
     "path_exists" => Unary(path_exists),
+    "pick" => UnaryOpt(pick),
     "prepend" => Binary(prepend),
     "quote" => Unary(quote),
     "replace" => Ternary(replace),
@@ -370,6 +373,30 @@ fn path_exists(evaluator: &Evaluator, path: &str) -> Result<String, String> {
       .exists()
       .to_string(),
   )
+}
+
+fn pick(_evaluator: &Evaluator, count: &str, alphabet: Option<&str>) -> Result<String, String> {
+  let alphabet = alphabet.unwrap_or("0123456789abcdef");
+  if alphabet.is_empty() {
+    return Err(String::from("no characters in alphabet"));
+  }
+  let mut alphabet_unique = HashSet::<char>::with_capacity(alphabet.len());
+  for c in alphabet.chars() {
+    if !alphabet_unique.insert(c) {
+      return Err(format!("alphabet contains repeated character {c}"));
+    }
+  }
+  let alphabet = alphabet_unique.drain().collect::<Vec<char>>();
+  let len: usize = match count.parse::<usize>() {
+    Ok(l) => l,
+    _ => return Err(format!("Could not parse `{count}` as a positive integer")),
+  };
+  let mut rng = thread_rng();
+  let mut r = String::with_capacity(len);
+  while r.len() < len {
+    r.push(*alphabet.choose(&mut rng).unwrap());
+  }
+  Ok(r)
 }
 
 fn quote(_evaluator: &Evaluator, s: &str) -> Result<String, String> {
