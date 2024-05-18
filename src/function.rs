@@ -4,11 +4,13 @@ use {
     ToKebabCase, ToLowerCamelCase, ToShoutyKebabCase, ToShoutySnakeCase, ToSnakeCase, ToTitleCase,
     ToUpperCamelCase,
   },
-  rand::prelude::*,
+  rand::{seq::SliceRandom, thread_rng},
   semver::{Version, VersionReq},
   std::collections::HashSet,
   Function::*,
 };
+
+const DEFAULT_RANDOM_ALPHABET: &str = "0123456789abcdef";
 
 pub(crate) enum Function {
   Nullary(fn(&Evaluator) -> Result<String, String>),
@@ -376,20 +378,24 @@ fn path_exists(evaluator: &Evaluator, path: &str) -> Result<String, String> {
 }
 
 fn pick(_evaluator: &Evaluator, count: &str, alphabet: Option<&str>) -> Result<String, String> {
-  let alphabet = alphabet.unwrap_or("0123456789abcdef");
+  let alphabet = alphabet.unwrap_or(DEFAULT_RANDOM_ALPHABET);
   if alphabet.is_empty() {
     return Err(String::from("no characters in alphabet"));
   }
   let mut alphabet_unique = HashSet::<char>::with_capacity(alphabet.len());
   for c in alphabet.chars() {
     if !alphabet_unique.insert(c) {
-      return Err(format!("alphabet contains repeated character {c}"));
+      return Err(format!("alphabet contains repeated character `{c}`"));
     }
   }
   let alphabet = alphabet_unique.drain().collect::<Vec<char>>();
   let len: usize = match count.parse::<usize>() {
     Ok(l) => l,
-    _ => return Err(format!("Could not parse `{count}` as a positive integer")),
+    Err(e) => {
+      return Err(format!(
+        "failed to parse `{count}` as a positive integer: {e}"
+      ));
+    }
   };
   let mut rng = thread_rng();
   let mut r = String::with_capacity(len);
