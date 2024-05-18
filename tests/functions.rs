@@ -717,7 +717,7 @@ fn choose_bad_length() {
       error: Call to function `choose` failed: failed to parse `foo` as a positive integer: invalid digit found in string
        ——▶ justfile:1:6
         │
-      1 │ x := choose('foo')
+      1 │ x := choose('foo', HEX)
         │      ^^^^^^
     ",
     )
