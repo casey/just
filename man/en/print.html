@@ -1332,6 +1332,13 @@ string.</li>
 string.</li>
 <li><code>uuid()</code> - Generate a random version 4 UUID.</li>
 </ul>
+<h4 id="random"><a class="header" href="#random">Random</a></h4>
+<ul>
+<li><code>choose(n, alphabet)</code><sup>master</sup> - Generate a string of <code>n</code> randomly
+selected characters from <code>alphabet</code>, which may not contain repeated
+characters. For example, <code>choose('64', HEX)</code> will generate a random
+64-character lowercase hex string.</li>
+</ul>
 <h4 id="semantic-versions"><a class="header" href="#semantic-versions">Semantic Versions</a></h4>
 <ul>
 <li><code>semver_matches(version, requirement)</code><sup>1.16.0</sup> - Check whether a
