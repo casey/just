@@ -34,7 +34,7 @@ impl<'src, 'run> Scope<'src, 'run> {
             src: key,
           },
         },
-        value.to_string(),
+        (*value).into(),
       );
     }
 
