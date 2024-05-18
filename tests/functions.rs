@@ -662,6 +662,69 @@ fn uuid() {
 }
 
 #[test]
+fn choose() {
+  Test::new()
+    .justfile(r#"x := choose('10', 'xXyYzZ')"#)
+    .args(["--evaluate", "x"])
+    .stdout_regex("^[X-Zx-z]{10}$")
+    .run();
+}
+
+#[test]
+fn choose_bad_alphabet_empty() {
+  Test::new()
+    .justfile("x := choose('10', '')")
+    .args(["--evaluate"])
+    .status(1)
+    .stderr(
+      "
+      error: Call to function `choose` failed: empty alphabet
+       ——▶ justfile:1:6
+        │
+      1 │ x := choose('10', '')
+        │      ^^^^^^
+    ",
+    )
+    .run();
+}
+
+#[test]
+fn choose_bad_alphabet_repeated() {
+  Test::new()
+    .justfile("x := choose('10', 'aa')")
+    .args(["--evaluate"])
+    .status(1)
+    .stderr(
+      "
+      error: Call to function `choose` failed: alphabet contains repeated character `a`
+       ——▶ justfile:1:6
+        │
+      1 │ x := choose('10', 'aa')
+        │      ^^^^^^
+    ",
+    )
+    .run();
+}
+
+#[test]
+fn choose_bad_length() {
+  Test::new()
+    .justfile("x := choose('foo', HEX)")
+    .args(["--evaluate"])
+    .status(1)
+    .stderr(
+      "
+      error: Call to function `choose` failed: failed to parse `foo` as positive integer: invalid digit found in string
+       ——▶ justfile:1:6
+        │
+      1 │ x := choose('foo', HEX)
+        │      ^^^^^^
+    ",
+    )
+    .run();
+}
+
+#[test]
 fn sha256() {
   Test::new()
     .justfile("x := sha256('5943ee37-0000-1000-8000-010203040506')")

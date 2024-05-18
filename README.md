@@ -1517,6 +1517,13 @@ which will halt execution.
 
 [BLAKE3]: https://github.com/BLAKE3-team/BLAKE3/
 
+#### Random
+
+- `choose(n, alphabet)`<sup>master</sup> - Generate a string of `n` randomly
+  selected characters from `alphabet`, which may not contain repeated
+  characters. For example, `choose('64', HEX)` will generate a random
+  64-character lowercase hex string.
+
 #### Semantic Versions
 
 - `semver_matches(version, requirement)`<sup>1.16.0</sup> - Check whether a
