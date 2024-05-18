@@ -671,6 +671,78 @@ fn uuid() {
 }
 
 #[test]
+fn pick_default_alphabet() {
+  Test::new()
+    .justfile(r#"x := pick('10')"#)
+    .args(["--evaluate", "x"])
+    .stdout_regex("^[0-9a-f]{10}$")
+    .run();
+}
+
+#[test]
+fn pick_custom_alphabet() {
+  Test::new()
+    .justfile(r#"x := pick('10', 'xXyYzZ')"#)
+    .args(["--evaluate", "x"])
+    .stdout_regex("^[X-Zx-z]{10}$")
+    .run();
+}
+
+#[test]
+fn pick_bad_alphabet_empty() {
+  Test::new()
+    .justfile("x := pick('10', '')")
+    .args(["--evaluate"])
+    .status(1)
+    .stderr(
+      "
+      error: Call to function `pick` failed: no characters in alphabet
+       ——▶ justfile:1:6
+        │
+      1 │ x := pick('10', '')
+        │      ^^^^
+    ",
+    )
+    .run();
+}
+
+#[test]
+fn pick_bad_alphabet_repeated() {
+  Test::new()
+    .justfile("x := pick('10', 'aa')")
+    .args(["--evaluate"])
+    .status(1)
+    .stderr(
+      "
+      error: Call to function `pick` failed: alphabet contains repeated character `a`
+       ——▶ justfile:1:6
+        │
+      1 │ x := pick('10', 'aa')
+        │      ^^^^
+    ",
+    )
+    .run();
+}
+
+#[test]
+fn pick_bad_length() {
+  Test::new()
+    .justfile("x := pick('foo')")
+    .args(["--evaluate"])
+    .status(1)
+    .stderr(
+      "
+      error: Call to function `pick` failed: failed to parse `foo` as a positive integer: invalid digit found in string
+       ——▶ justfile:1:6
+        │
+      1 │ x := pick('foo')
+        │      ^^^^
+    ",
+    )
+    .run();
+}
+
+#[test]
 fn sha256() {
   Test::new()
     .justfile("x := sha256('5943ee37-0000-1000-8000-010203040506')")
