@@ -1492,6 +1492,12 @@ which will halt execution.
 
 [BLAKE3]: https://github.com/BLAKE3-team/BLAKE3/
 
+#### Random
+
+- `pick(len)`<sup>master</sup> - Generate a string of `len` random lowercase hexadecimal digit characters.
+- `pick(len, alphabet)`<sup>master</sup> - Generate a random string of length `len` consisting of characters found in `alphabet`.
+  The alphabet must not contain repeated characters.
+
 #### Semantic Versions
 
 - `semver_matches(version, requirement)`<sup>1.16.0</sup> - Check whether a
