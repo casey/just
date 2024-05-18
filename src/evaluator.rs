@@ -123,7 +123,6 @@ impl<'src, 'run> Evaluator<'src, 'run> {
           } => {
             let a = self.evaluate_expression(a)?;
             let b = self.evaluate_expression(b)?;
-
             let mut rest_evaluated = Vec::new();
             for arg in rest {
               rest_evaluated.push(self.evaluate_expression(arg)?);
@@ -143,7 +142,6 @@ impl<'src, 'run> Evaluator<'src, 'run> {
             let a = self.evaluate_expression(a)?;
             let b = self.evaluate_expression(b)?;
             let c = self.evaluate_expression(c)?;
-
             function(self, &a, &b, &c).map_err(|message| Error::FunctionCall {
               function: *name,
               message,
