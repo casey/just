@@ -1494,9 +1494,10 @@ which will halt execution.
 
 #### Random
 
-- `choose(len)`<sup>master</sup> - Generate a string of `len` random lowercase hexadecimal digit characters.
-- `choose(len, alphabet)`<sup>master</sup> - Generate a random string of length `len` consisting of characters found in `alphabet`.
-  The alphabet must not contain repeated characters.
+- `choose(n, alphabet)`<sup>master</sup> - Generate a string of `n` randomly
+  selected characters from `alphabet`, which may not contain repeated
+  characters. For example, `choose('64', HEX)` will generate a random
+  64-character lowercase hex string.
 
 #### Semantic Versions
 

@@ -29,7 +29,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "cache_directory" => Nullary(|_| dir("cache", dirs::cache_dir)),
     "canonicalize" => Unary(canonicalize),
     "capitalize" => Unary(capitalize),
-    "choose" => UnaryOpt(choose),
+    "choose" => Binary(choose),
     "clean" => Unary(clean),
     "config_directory" => Nullary(|_| dir("config", dirs::config_dir)),
     "config_local_directory" => Nullary(|_| dir("local config", dirs::config_local_dir)),
@@ -160,32 +160,34 @@ fn capitalize(_evaluator: &Evaluator, s: &str) -> Result<String, String> {
   Ok(capitalized)
 }
 
-fn choose(_evaluator: &Evaluator, count: &str, alphabet: Option<&str>) -> Result<String, String> {
-  let alphabet = alphabet.unwrap_or("0123456789abcdef");
+fn choose(_evaluator: &Evaluator, n: &str, alphabet: &str) -> Result<String, String> {
   if alphabet.is_empty() {
-    return Err("alphabet is empty".into());
+    return Err("empty alphabet".into());
   }
-  let mut alphabet_unique = HashSet::<char>::with_capacity(alphabet.len());
+
+  let mut chars = HashSet::<char>::with_capacity(alphabet.len());
+
   for c in alphabet.chars() {
-    if !alphabet_unique.insert(c) {
+    if !chars.insert(c) {
       return Err(format!("alphabet contains repeated character `{c}`"));
     }
   }
-  let alphabet = alphabet_unique.drain().collect::<Vec<char>>();
-  let len: usize = match count.parse::<usize>() {
-    Ok(l) => l,
-    Err(e) => {
-      return Err(format!(
-        "failed to parse `{count}` as a positive integer: {e}"
-      ));
-    }
-  };
+
+  let alphabet = alphabet.chars().collect::<Vec<char>>();
+
+  let n = n
+    .parse::<usize>()
+    .map_err(|err| format!("failed to parse `{n}` as a positive integer: {err}"))?;
+
   let mut rng = thread_rng();
-  let mut r = String::with_capacity(len);
-  for _ in 0..len {
-    r.push(*alphabet.choose(&mut rng).unwrap());
+
+  let mut s = String::with_capacity(n);
+
+  for _ in 0..n {
+    s.push(*alphabet.choose(&mut rng).unwrap());
   }
-  Ok(r)
+
+  Ok(s)
 }
 
 fn clean(_evaluator: &Evaluator, path: &str) -> Result<String, String> {

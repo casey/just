@@ -671,16 +671,7 @@ fn uuid() {
 }
 
 #[test]
-fn choose_default_alphabet() {
-  Test::new()
-    .justfile(r#"x := choose('10')"#)
-    .args(["--evaluate", "x"])
-    .stdout_regex("^[0-9a-f]{10}$")
-    .run();
-}
-
-#[test]
-fn choose_custom_alphabet() {
+fn choose() {
   Test::new()
     .justfile(r#"x := choose('10', 'xXyYzZ')"#)
     .args(["--evaluate", "x"])
@@ -696,7 +687,7 @@ fn choose_bad_alphabet_empty() {
     .status(1)
     .stderr(
       "
-      error: Call to function `choose` failed: alphabet is empty
+      error: Call to function `choose` failed: empty alphabet
        ——▶ justfile:1:6
         │
       1 │ x := choose('10', '')
@@ -727,7 +718,7 @@ fn choose_bad_alphabet_repeated() {
 #[test]
 fn choose_bad_length() {
   Test::new()
-    .justfile("x := choose('foo')")
+    .justfile("x := choose('foo', HEX)")
     .args(["--evaluate"])
     .status(1)
     .stderr(
