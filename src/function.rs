@@ -177,7 +177,7 @@ fn choose(_evaluator: &Evaluator, n: &str, alphabet: &str) -> Result<String, Str
 
   let n = n
     .parse::<usize>()
-    .map_err(|err| format!("failed to parse `{n}` as a positive integer: {err}"))?;
+    .map_err(|err| format!("failed to parse `{n}` as positive integer: {err}"))?;
 
   let mut rng = thread_rng();
 
