@@ -671,72 +671,72 @@ fn uuid() {
 }
 
 #[test]
-fn pick_default_alphabet() {
+fn choose_default_alphabet() {
   Test::new()
-    .justfile(r#"x := pick('10')"#)
+    .justfile(r#"x := choose('10')"#)
     .args(["--evaluate", "x"])
     .stdout_regex("^[0-9a-f]{10}$")
     .run();
 }
 
 #[test]
-fn pick_custom_alphabet() {
+fn choose_custom_alphabet() {
   Test::new()
-    .justfile(r#"x := pick('10', 'xXyYzZ')"#)
+    .justfile(r#"x := choose('10', 'xXyYzZ')"#)
     .args(["--evaluate", "x"])
     .stdout_regex("^[X-Zx-z]{10}$")
     .run();
 }
 
 #[test]
-fn pick_bad_alphabet_empty() {
+fn choose_bad_alphabet_empty() {
   Test::new()
-    .justfile("x := pick('10', '')")
+    .justfile("x := choose('10', '')")
     .args(["--evaluate"])
     .status(1)
     .stderr(
       "
-      error: Call to function `pick` failed: no characters in alphabet
+      error: Call to function `choose` failed: alphabet is empty
        ——▶ justfile:1:6
         │
-      1 │ x := pick('10', '')
-        │      ^^^^
+      1 │ x := choose('10', '')
+        │      ^^^^^^
     ",
     )
     .run();
 }
 
 #[test]
-fn pick_bad_alphabet_repeated() {
+fn choose_bad_alphabet_repeated() {
   Test::new()
-    .justfile("x := pick('10', 'aa')")
+    .justfile("x := choose('10', 'aa')")
     .args(["--evaluate"])
     .status(1)
     .stderr(
       "
-      error: Call to function `pick` failed: alphabet contains repeated character `a`
+      error: Call to function `choose` failed: alphabet contains repeated character `a`
        ——▶ justfile:1:6
         │
-      1 │ x := pick('10', 'aa')
-        │      ^^^^
+      1 │ x := choose('10', 'aa')
+        │      ^^^^^^
     ",
     )
     .run();
 }
 
 #[test]
-fn pick_bad_length() {
+fn choose_bad_length() {
   Test::new()
-    .justfile("x := pick('foo')")
+    .justfile("x := choose('foo')")
     .args(["--evaluate"])
     .status(1)
     .stderr(
       "
-      error: Call to function `pick` failed: failed to parse `foo` as a positive integer: invalid digit found in string
+      error: Call to function `choose` failed: failed to parse `foo` as a positive integer: invalid digit found in string
        ——▶ justfile:1:6
         │
-      1 │ x := pick('foo')
-        │      ^^^^
+      1 │ x := choose('foo')
+        │      ^^^^^^
     ",
     )
     .run();

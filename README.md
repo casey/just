@@ -1494,8 +1494,8 @@ which will halt execution.
 
 #### Random
 
-- `pick(len)`<sup>master</sup> - Generate a string of `len` random lowercase hexadecimal digit characters.
-- `pick(len, alphabet)`<sup>master</sup> - Generate a random string of length `len` consisting of characters found in `alphabet`.
+- `choose(len)`<sup>master</sup> - Generate a string of `len` random lowercase hexadecimal digit characters.
+- `choose(len, alphabet)`<sup>master</sup> - Generate a random string of length `len` consisting of characters found in `alphabet`.
   The alphabet must not contain repeated characters.
 
 #### Semantic Versions

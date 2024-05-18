@@ -10,8 +10,6 @@ use {
   Function::*,
 };
 
-const DEFAULT_RANDOM_ALPHABET: &str = "0123456789abcdef";
-
 pub(crate) enum Function {
   Nullary(fn(&Evaluator) -> Result<String, String>),
   Unary(fn(&Evaluator, &str) -> Result<String, String>),
@@ -31,6 +29,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "cache_directory" => Nullary(|_| dir("cache", dirs::cache_dir)),
     "canonicalize" => Unary(canonicalize),
     "capitalize" => Unary(capitalize),
+    "choose" => UnaryOpt(choose),
     "clean" => Unary(clean),
     "config_directory" => Nullary(|_| dir("config", dirs::config_dir)),
     "config_local_directory" => Nullary(|_| dir("local config", dirs::config_local_dir)),
@@ -60,7 +59,6 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "os_family" => Nullary(os_family),
     "parent_directory" => Unary(parent_directory),
     "path_exists" => Unary(path_exists),
-    "pick" => UnaryOpt(pick),
     "prepend" => Binary(prepend),
     "quote" => Unary(quote),
     "replace" => Ternary(replace),
@@ -160,6 +158,34 @@ fn capitalize(_evaluator: &Evaluator, s: &str) -> Result<String, String> {
     }
   }
   Ok(capitalized)
+}
+
+fn choose(_evaluator: &Evaluator, count: &str, alphabet: Option<&str>) -> Result<String, String> {
+  let alphabet = alphabet.unwrap_or("0123456789abcdef");
+  if alphabet.is_empty() {
+    return Err("alphabet is empty".into());
+  }
+  let mut alphabet_unique = HashSet::<char>::with_capacity(alphabet.len());
+  for c in alphabet.chars() {
+    if !alphabet_unique.insert(c) {
+      return Err(format!("alphabet contains repeated character `{c}`"));
+    }
+  }
+  let alphabet = alphabet_unique.drain().collect::<Vec<char>>();
+  let len: usize = match count.parse::<usize>() {
+    Ok(l) => l,
+    Err(e) => {
+      return Err(format!(
+        "failed to parse `{count}` as a positive integer: {e}"
+      ));
+    }
+  };
+  let mut rng = thread_rng();
+  let mut r = String::with_capacity(len);
+  for _ in 0..len {
+    r.push(*alphabet.choose(&mut rng).unwrap());
+  }
+  Ok(r)
 }
 
 fn clean(_evaluator: &Evaluator, path: &str) -> Result<String, String> {
@@ -375,34 +401,6 @@ fn path_exists(evaluator: &Evaluator, path: &str) -> Result<String, String> {
       .exists()
       .to_string(),
   )
-}
-
-fn pick(_evaluator: &Evaluator, count: &str, alphabet: Option<&str>) -> Result<String, String> {
-  let alphabet = alphabet.unwrap_or(DEFAULT_RANDOM_ALPHABET);
-  if alphabet.is_empty() {
-    return Err(String::from("no characters in alphabet"));
-  }
-  let mut alphabet_unique = HashSet::<char>::with_capacity(alphabet.len());
-  for c in alphabet.chars() {
-    if !alphabet_unique.insert(c) {
-      return Err(format!("alphabet contains repeated character `{c}`"));
-    }
-  }
-  let alphabet = alphabet_unique.drain().collect::<Vec<char>>();
-  let len: usize = match count.parse::<usize>() {
-    Ok(l) => l,
-    Err(e) => {
-      return Err(format!(
-        "failed to parse `{count}` as a positive integer: {e}"
-      ));
-    }
-  };
-  let mut rng = thread_rng();
-  let mut r = String::with_capacity(len);
-  while r.len() < len {
-    r.push(*alphabet.choose(&mut rng).unwrap());
-  }
-  Ok(r)
 }
 
 fn quote(_evaluator: &Evaluator, s: &str) -> Result<String, String> {
