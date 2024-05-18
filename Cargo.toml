@@ -36,6 +36,7 @@ lexiclean = "0.0.1"
 libc = "0.2.0"
 log = "0.4.4"
 num_cpus = "1.15.0"
+percent-encoding = "2.3.1"
 regex = "1.10.4"
 semver = "1.0.20"
 serde = { version = "1.0.130", features = ["derive", "rc"] }

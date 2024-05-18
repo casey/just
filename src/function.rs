@@ -56,6 +56,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "os_family" => Nullary(os_family),
     "parent_directory" => Unary(parent_directory),
     "path_exists" => Unary(path_exists),
+    "percent_encode" => Unary(percent_encode),
     "prepend" => Binary(prepend),
     "quote" => Unary(quote),
     "replace" => Ternary(replace),
@@ -370,6 +371,17 @@ fn path_exists(evaluator: &Evaluator, path: &str) -> Result<String, String> {
       .exists()
       .to_string(),
   )
+}
+
+// This has to be 'static
+static PERCENT_ENCODE_ASCII: percent_encoding::AsciiSet = percent_encoding::NON_ALPHANUMERIC
+  .remove(b'-')
+  .remove(b'_')
+  .remove(b'.')
+  .remove(b'~');
+
+fn percent_encode(_evaluator: &Evaluator, s: &str) -> Result<String, String> {
+  Ok(percent_encoding::utf8_percent_encode(s, &PERCENT_ENCODE_ASCII).to_string())
 }
 
 fn quote(_evaluator: &Evaluator, s: &str) -> Result<String, String> {
