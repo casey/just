@@ -211,8 +211,8 @@ goodbye
 escapes := "\t\n\r\"\\"
 </code></pre>
 <p>Indented versions of both single- and double-quoted strings, delimited by
-triple single- or triple double-quotes, are supported. Indented string lines
-are stripped of a leading line break, and leading whitespace common to all
+triple single- or double-quotes, are supported. Indented string lines are
+stripped of a leading line break, and leading whitespace common to all
 non-blank lines:</p>
 <pre><code class="language-just"># this string will evaluate to `foo\nbar\n`
 x := '''
@@ -232,6 +232,20 @@ sequences, and indented single-quoted strings ignore escape sequences. Escape
 sequence processing takes place after unindentation. The unindentation
 algorithm does not take escape-sequence produced whitespace or newlines into
 account.</p>
+<p>Strings prefixed with <code>x</code> are shell expanded<sup>master</sup>:</p>
+<pre><code class="language-justfile">foobar := x'~/$FOO/${BAR}'
+</code></pre>
+<div class="table-wrapper"><table><thead><tr><th>Value</th><th>Replacement</th></tr></thead><tbody>
+<tr><td><code>$VAR</code></td><td>value of environment variable <code>VAR</code></td></tr>
+<tr><td><code>${VAR}</code></td><td>value of environment variable <code>VAR</code></td></tr>
+<tr><td>Leading <code>~</code></td><td>path to current user’s home directory</td></tr>
+<tr><td>Leading <code>~USER</code></td><td>path to <code>USER</code>’s home directory</td></tr>
+</tbody></table>
+</div>
+<p>This expansion is performed at compile time, so variables from <code>.env</code> files and
+exported <code>just</code> variables cannot be used. However, this allows shell expanded
+strings to be used in places like settings and import paths, which cannot
+depend on <code>just</code> variables and <code>.env</code> files.</p>
 
                     </main>
 
