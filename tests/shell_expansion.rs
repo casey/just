@@ -65,3 +65,35 @@ fn shell_expanded_strings_can_be_used_in_settings() {
     .stdout("dotenv-value\n")
     .run();
 }
+
+#[test]
+fn shell_expanded_strings_can_be_used_in_import_paths() {
+  Test::new()
+    .justfile(
+      "
+        import x'$JUST_TEST_VARIABLE'
+
+        foo: bar
+      ",
+    )
+    .write("import.just", "@bar:\n echo BAR")
+    .env("JUST_TEST_VARIABLE", "import.just")
+    .stdout("BAR\n")
+    .run();
+}
+
+#[test]
+fn shell_expanded_strings_can_be_used_in_mod_paths() {
+  Test::new()
+    .justfile(
+      "
+        mod foo x'$JUST_TEST_VARIABLE'
+      ",
+    )
+    .write("mod.just", "@bar:\n echo BAR")
+    .env("JUST_TEST_VARIABLE", "mod.just")
+    .args(["--unstable", "foo", "bar"])
+    .stdout("BAR\n")
+    .test_round_trip(false)
+    .run();
+}
