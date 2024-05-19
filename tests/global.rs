@@ -31,7 +31,7 @@ fn not_macos() {
     .no_justfile()
     .test_round_trip(false)
     .write("just/justfile", "@default:\n  echo foo")
-    .env("XDG_CONFIG_DIR", path.to_str().unwrap())
+    .env("XDG_CONFIG_HOME", path.to_str().unwrap())
     .args(["--global-justfile"])
     .stdout("foo\n")
     .run();
