@@ -1269,16 +1269,16 @@ account.
 
 Strings prefixed with `x` are shell expanded<sup>master</sup>:
 
-```just
+```justfile
 foobar := x'~/$FOO/${BAR}'
 ```
 
 | Value | Replacement |
 |------|-------------|
-| `$VAR` | Value of environment variable `VAR`. |
-| `${VAR}` | Value of environment variable `VAR`. |
-| Leading `~` | Path to current user's home directory. |
-| Leading `~USER` | Path to `USER`'s home directory. |
+| `$VAR` | value of environment variable `VAR` |
+| `${VAR}` | value of environment variable `VAR` |
+| Leading `~` | path to current user's home directory |
+| Leading `~USER` | path to `USER`'s home directory |
 
 This expansion is performed at compile time, so variables from `.env` files and
 exported `just` variables cannot be used. However, this allows shell expanded
