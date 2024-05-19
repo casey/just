@@ -38,7 +38,7 @@ impl Search {
     invocation_directory: &Path,
   ) -> SearchResult<Self> {
     match search_config {
-      SearchConfig::FromInvocationDirectory => Ok(Self::find_next(invocation_directory)?),
+      SearchConfig::FromInvocationDirectory => Self::find_next(invocation_directory),
       SearchConfig::FromSearchDirectory { search_directory } => {
         let search_directory = Self::clean(invocation_directory, search_directory);
         let justfile = Self::justfile(&search_directory)?;
