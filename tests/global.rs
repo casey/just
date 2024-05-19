@@ -1,48 +1,65 @@
-#![cfg(target_os = "linux")]
 use super::*;
 
 #[test]
-fn test_global_justfile() {
-  let tmp = temptree! {
-    just: {
-      justfile: "default:\n   echo 'foo'",
+#[cfg(target_os = "macos")]
+fn macos() {
+  let tempdir = tempdir();
 
-    }
-  };
+  let path = tempdir.path().to_owned();
 
-  let xdg_config_path = tmp.path();
+  Test::with_tempdir(tempdir)
+    .no_justfile()
+    .test_round_trip(false)
+    .write(
+      "Library/Application Support/just/justfile",
+      "@default:\n  echo foo",
+    )
+    .env("HOME", path.to_str().unwrap())
+    .args(["--global-justfile"])
+    .stdout("foo\n")
+    .run();
+}
 
-  let output = Command::new(executable_path("just"))
-    .env("XDG_CONFIG_HOME", xdg_config_path.display().to_string())
-    .args(["--global"])
-    .output()
-    .expect("just invocation failed");
+#[test]
+#[cfg(all(unix, not(target_os = "macos")))]
+fn not_macos() {
+  let tempdir = tempdir();
 
-  let expected_status = 0;
-  let expected_stdout = "foo\n";
-  let expected_stderr = "echo 'foo'\n";
+  let path = tempdir.path().to_owned();
 
-  let mut failure = false;
+  Test::with_tempdir(tempdir)
+    .no_justfile()
+    .test_round_trip(false)
+    .write("just/justfile", "@default:\n  echo foo")
+    .env("XDG_CONFIG_DIR", path.to_str().unwrap())
+    .args(["--global-justfile"])
+    .stdout("foo\n")
+    .run();
+}
 
-  let status = output.status.code().unwrap();
-  if status != expected_status {
-    println!("bad status: {status} != {expected_status}");
-    failure = true;
-  }
+#[test]
+#[cfg(unix)]
+fn unix() {
+  let tempdir = tempdir();
 
-  let stdout = str::from_utf8(&output.stdout).unwrap();
-  if stdout != expected_stdout {
-    println!("Bad stdout:\ngot:\n{stdout:?}\n\nexpected:\n{expected_stdout:?}");
-    failure = true;
-  }
+  let path = tempdir.path().to_owned();
 
-  let stderr = str::from_utf8(&output.stderr).unwrap();
-  if stderr != expected_stderr {
-    println!("Bad stderr:\ngot:\n{stderr:?}\n\nexpected:\n{expected_stderr:?}");
-    failure = true;
-  }
+  let tempdir = Test::with_tempdir(tempdir)
+    .no_justfile()
+    .test_round_trip(false)
+    .write("justfile", "@default:\n  echo foo")
+    .env("HOME", path.to_str().unwrap())
+    .args(["--global-justfile"])
+    .stdout("foo\n")
+    .run()
+    .tempdir;
 
-  if failure {
-    panic!("test failed");
-  }
+  Test::with_tempdir(tempdir)
+    .no_justfile()
+    .test_round_trip(false)
+    .write(".config/just/justfile", "@default:\n  echo bar")
+    .env("HOME", path.to_str().unwrap())
+    .args(["--global-justfile"])
+    .stdout("bar\n")
+    .run();
 }

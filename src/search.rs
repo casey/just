@@ -10,15 +10,15 @@ pub(crate) struct Search {
 }
 
 impl Search {
-  fn candidate_global_justfiles() -> Vec<PathBuf> {
-    let mut candidates = Vec::new();
+  fn global_justfile_paths() -> Vec<PathBuf> {
+    let mut paths = Vec::new();
 
     if let Some(config_dir) = dirs::config_dir() {
-      candidates.push(config_dir.join("just").join(DEFAULT_JUSTFILE_NAME));
+      paths.push(config_dir.join("just").join(DEFAULT_JUSTFILE_NAME));
     }
 
     if let Some(home_dir) = dirs::home_dir() {
-      candidates.push(
+      paths.push(
         home_dir
           .join(".config")
           .join("just")
@@ -26,11 +26,11 @@ impl Search {
       );
 
       for justfile_name in JUSTFILE_NAMES {
-        candidates.push(home_dir.join(justfile_name));
+        paths.push(home_dir.join(justfile_name));
       }
     }
 
-    candidates
+    paths
   }
 
   pub(crate) fn find(
@@ -49,7 +49,7 @@ impl Search {
         })
       }
       SearchConfig::GlobalJustfile => Ok(Self {
-        justfile: Self::candidate_global_justfiles()
+        justfile: Self::global_justfile_paths()
           .iter()
           .find(|path| path.exists())
           .cloned()
