@@ -550,7 +550,7 @@ impl<'run, 'src> Parser<'run, 'src> {
 
   /// Parse a value, e.g. `(bar)`
   fn parse_value(&mut self) -> CompileResult<'src, Expression<'src>> {
-    if self.next_is(StringToken) {
+    if self.next_is(StringToken) || self.next_are(&[Identifier, StringToken]) {
       Ok(Expression::StringLiteral {
         string_literal: self.parse_string_literal()?,
       })
@@ -604,6 +604,8 @@ impl<'run, 'src> Parser<'run, 'src> {
   fn parse_string_literal_token(
     &mut self,
   ) -> CompileResult<'src, (Token<'src>, StringLiteral<'src>)> {
+    let expand = self.accepted_keyword(Keyword::X)?;
+
     let token = self.expect(StringToken)?;
 
     let kind = StringKind::from_string_or_backtick(token)?;
@@ -648,7 +650,23 @@ impl<'run, 'src> Parser<'run, 'src> {
       unindented
     };
 
-    Ok((token, StringLiteral { kind, raw, cooked }))
+    let cooked = if expand {
+      shellexpand::full(&cooked)
+        .map_err(|err| token.error(CompileErrorKind::ShellExpansion { err }))?
+        .into_owned()
+    } else {
+      cooked
+    };
+
+    Ok((
+      token,
+      StringLiteral {
+        cooked,
+        expand,
+        kind,
+        raw,
+      },
+    ))
   }
 
   /// Parse a string literal, e.g. `"FOO"`

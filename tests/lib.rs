@@ -92,6 +92,7 @@ mod search_arguments;
 mod shadowing_parameters;
 mod shebang;
 mod shell;
+mod shell_expansion;
 mod show;
 mod slash_operator;
 mod string;
