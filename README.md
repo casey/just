@@ -1277,9 +1277,9 @@ Strings prefixed with `x` are shell expanded<sup>master</sup>:
 | Leading `~USER` | Path to `USER`'s home directory. |
 
 This expansion is performed at compile time, so variables from `.env` files and
-exported `just` variables cannot be use. However, this has the advantage of
-allowing shell expanded strings to be used in places like settings and import
-paths, which cannot depend on `just` variables and `.env` files.
+exported `just` variables cannot be used. However, this allows shell expanded
+strings to be used in places like settings and import paths, which cannot
+depend on `just` variables and `.env` files.
 
 ### Ignoring Errors
 
