@@ -67,6 +67,8 @@ _just() {
 '--man[Print man page]' \
 '--summary[List names of available recipes]' \
 '--variables[List names of variables]' \
+'(-f --justfile -d --working-directory)-g[Use global justfile]' \
+'(-f --justfile -d --working-directory)--global-justfile[Use global justfile]' \
 '-h[Print help]' \
 '--help[Print help]' \
 '-V[Print version]' \

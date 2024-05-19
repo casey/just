@@ -59,6 +59,8 @@ mod export;
 mod fallback;
 mod fmt;
 mod functions;
+#[cfg(unix)]
+mod global;
 mod ignore_comments;
 mod imports;
 mod init;

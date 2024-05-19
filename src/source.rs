@@ -1,5 +1,6 @@
 use super::*;
 
+#[derive(Debug)]
 pub(crate) struct Source<'src> {
   pub(crate) file_depth: u32,
   pub(crate) namepath: Namepath<'src>,

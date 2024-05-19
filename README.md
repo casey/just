@@ -3268,13 +3268,30 @@ Before `just` was a fancy Rust program it was a tiny shell script that called
 `make`. You can find the old version in
 [contrib/just.sh](https://github.com/casey/just/blob/master/contrib/just.sh).
 
-### User `justfile`s
+### Global and User `justfile`s
 
 If you want some recipes to be available everywhere, you have a few options.
 
-First, create a `justfile` in `~/.user.justfile` with some recipes.
+#### Global Justfile
 
-#### Recipe Aliases
+`just --global-justfile`, or `just -g` for short, searches the following paths,
+in-order, for a justfile:
+
+- `$XDG_CONFIG_HOME/just/justfile`
+- `$HOME/.config/just/justfile`
+- `$HOME/justfile`
+- `$HOME/.justfile`
+
+You can put recipes that are used across many projects in a global justfile to
+easily invoke them from any directory.
+
+#### User justfile tips
+
+You can also adopt some of the following workflows. These tips assume you've
+created a `justfile` at `~/.user.justfile`, but you can put this `justfile`
+at any convenient path on your system.
+
+##### Recipe Aliases
 
 If you want to call the recipes in `~/.user.justfile` by name, and don't mind
 creating an alias for every recipe, add the following to your shell's
@@ -3293,7 +3310,7 @@ It took me way too long to realize that you could create recipe aliases like
 this. Notwithstanding my tardiness, I am very pleased to bring you this major
 advance in `justfile` technology.
 
-#### Forwarding Alias
+##### Forwarding Alias
 
 If you'd rather not create aliases for every recipe, you can create a single alias:
 
@@ -3308,7 +3325,7 @@ I'm pretty sure that nobody actually uses this feature, but it's there.
 
 ¯\\\_(ツ)\_/¯
 
-#### Customization
+##### Customization
 
 You can customize the above aliases with additional options. For example, if
 you'd prefer to have the recipes in your `justfile` run in your home directory,

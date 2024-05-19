@@ -94,6 +94,7 @@ mod arg {
   pub(crate) const DOTENV_PATH: &str = "DOTENV-PATH";
   pub(crate) const DRY_RUN: &str = "DRY-RUN";
   pub(crate) const DUMP_FORMAT: &str = "DUMP-FORMAT";
+  pub(crate) const GLOBAL_JUSTFILE: &str = "GLOBAL_JUSTFILE";
   pub(crate) const HIGHLIGHT: &str = "HIGHLIGHT";
   pub(crate) const JUSTFILE: &str = "JUSTFILE";
   pub(crate) const LIST_HEADING: &str = "LIST-HEADING";
@@ -465,6 +466,15 @@ impl Config {
           .action(ArgAction::Append)
           .help("Overrides and recipe(s) to run, defaulting to the first recipe in the justfile"),
       )
+    .arg(
+      Arg::new(arg::GLOBAL_JUSTFILE)
+      .action(ArgAction::SetTrue)
+      .long("global-justfile")
+      .short('g')
+      .conflicts_with(arg::JUSTFILE)
+      .conflicts_with(arg::WORKING_DIRECTORY)
+      .help("Use global justfile")
+    )
   }
 
   fn color_from_matches(matches: &ArgMatches) -> ConfigResult<Color> {
@@ -520,6 +530,39 @@ impl Config {
     }
   }
 
+  fn search_config(matches: &ArgMatches, positional: &Positional) -> ConfigResult<SearchConfig> {
+    if matches.get_flag(arg::GLOBAL_JUSTFILE) {
+      return Ok(SearchConfig::GlobalJustfile);
+    }
+
+    let justfile = matches.get_one::<PathBuf>(arg::JUSTFILE).map(Into::into);
+
+    let working_directory = matches
+      .get_one::<PathBuf>(arg::WORKING_DIRECTORY)
+      .map(Into::into);
+
+    if let Some(search_directory) = positional.search_directory.as_ref().map(PathBuf::from) {
+      if justfile.is_some() || working_directory.is_some() {
+        return Err(ConfigError::SearchDirConflict);
+      }
+      Ok(SearchConfig::FromSearchDirectory { search_directory })
+    } else {
+      match (justfile, working_directory) {
+        (None, None) => Ok(SearchConfig::FromInvocationDirectory),
+        (Some(justfile), None) => Ok(SearchConfig::WithJustfile { justfile }),
+        (Some(justfile), Some(working_directory)) => {
+          Ok(SearchConfig::WithJustfileAndWorkingDirectory {
+            justfile,
+            working_directory,
+          })
+        }
+        (None, Some(_)) => Err(ConfigError::internal(
+          "--working-directory set without --justfile",
+        )),
+      }
+    }
+  }
+
   pub(crate) fn from_matches(matches: &ArgMatches) -> ConfigResult<Self> {
     let invocation_directory = env::current_dir().context(config_error::CurrentDirContext)?;
 
@@ -545,39 +588,11 @@ impl Config {
         .map(|s| s.map(String::as_str)),
     );
 
-    for (name, value) in positional.overrides {
+    for (name, value) in &positional.overrides {
       overrides.insert(name.clone(), value.clone());
     }
 
-    let search_config = {
-      let justfile = matches.get_one::<PathBuf>(arg::JUSTFILE).map(Into::into);
-      let working_directory = matches
-        .get_one::<PathBuf>(arg::WORKING_DIRECTORY)
-        .map(Into::into);
-
-      if let Some(search_directory) = positional.search_directory.map(PathBuf::from) {
-        if justfile.is_some() || working_directory.is_some() {
-          return Err(ConfigError::SearchDirConflict);
-        }
-        SearchConfig::FromSearchDirectory { search_directory }
-      } else {
-        match (justfile, working_directory) {
-          (None, None) => SearchConfig::FromInvocationDirectory,
-          (Some(justfile), None) => SearchConfig::WithJustfile { justfile },
-          (Some(justfile), Some(working_directory)) => {
-            SearchConfig::WithJustfileAndWorkingDirectory {
-              justfile,
-              working_directory,
-            }
-          }
-          (None, Some(_)) => {
-            return Err(ConfigError::internal(
-              "--working-directory set without --justfile",
-            ))
-          }
-        }
-      }
-    };
+    let search_config = Self::search_config(matches, &positional)?;
 
     for subcommand in cmd::ARGLESS {
       if matches.get_flag(subcommand) {
