@@ -94,7 +94,7 @@ mod arg {
   pub(crate) const DOTENV_PATH: &str = "DOTENV-PATH";
   pub(crate) const DRY_RUN: &str = "DRY-RUN";
   pub(crate) const DUMP_FORMAT: &str = "DUMP-FORMAT";
-  pub(crate) const GLOBAL: &str = "GLOBAL";
+  pub(crate) const GLOBAL_JUSTFILE: &str = "GLOBAL_JUSTFILE";
   pub(crate) const HIGHLIGHT: &str = "HIGHLIGHT";
   pub(crate) const JUSTFILE: &str = "JUSTFILE";
   pub(crate) const LIST_HEADING: &str = "LIST-HEADING";
@@ -467,10 +467,12 @@ impl Config {
           .help("Overrides and recipe(s) to run, defaulting to the first recipe in the justfile"),
       )
     .arg(
-      Arg::new(arg::GLOBAL)
+      Arg::new(arg::GLOBAL_JUSTFILE)
       .action(ArgAction::SetTrue)
-      .long("global")
+      .long("global-justfile")
       .short('g')
+      .conflicts_with(arg::JUSTFILE)
+      .conflicts_with(arg::WORKING_DIRECTORY)
       .help("Use global justfile")
     )
   }
@@ -529,8 +531,8 @@ impl Config {
   }
 
   fn search_config(matches: &ArgMatches, positional: &Positional) -> ConfigResult<SearchConfig> {
-    if matches.get_flag(arg::GLOBAL) {
-      return Ok(SearchConfig::Global);
+    if matches.get_flag(arg::GLOBAL_JUSTFILE) {
+      return Ok(SearchConfig::GlobalJustfile);
     }
 
     let justfile = matches.get_one::<PathBuf>(arg::JUSTFILE).map(Into::into);

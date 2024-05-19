@@ -11,21 +11,26 @@ pub(crate) struct Search {
 
 impl Search {
   fn candidate_global_justfiles() -> Vec<PathBuf> {
-    // Just will search for a global justfile in `$XDG_CONFIG_HOME/just/justfile`,
-    // `$HOME/.config/just/justfile`, `$HOME/.justfile`, `$HOME/justfile`, in that order.
-    let mut global_candidate_paths = vec![];
+    let mut candidates = Vec::new();
 
-    let config_dir = dirs::config_dir().or_else(|| dirs::home_dir().map(|d| d.join(".config")));
-    if let Some(config_dir) = config_dir {
-      global_candidate_paths.push(config_dir.join("just").join(JUSTFILE_NAMES[0]));
+    if let Some(config_dir) = dirs::config_dir() {
+      candidates.push(config_dir.join("just").join(DEFAULT_JUSTFILE_NAME));
     }
 
     if let Some(home_dir) = dirs::home_dir() {
-      global_candidate_paths.push(home_dir.join(JUSTFILE_NAMES[1]));
-      global_candidate_paths.push(home_dir.join(JUSTFILE_NAMES[0]));
+      candidates.push(
+        home_dir
+          .join(".config")
+          .join("just")
+          .join(DEFAULT_JUSTFILE_NAME),
+      );
+
+      for justfile_name in JUSTFILE_NAMES {
+        candidates.push(home_dir.join(justfile_name));
+      }
     }
 
-    global_candidate_paths
+    candidates
   }
 
   pub(crate) fn find(
@@ -43,19 +48,14 @@ impl Search {
           working_directory,
         })
       }
-      SearchConfig::Global => {
-        let working_directory = Self::project_root(invocation_directory)?;
-        let global_candidate_paths = Self::candidate_global_justfiles();
-        let justfile = global_candidate_paths
+      SearchConfig::GlobalJustfile => Ok(Self {
+        justfile: Self::candidate_global_justfiles()
           .iter()
-          .find(|path| path.try_exists().unwrap_or(false))
+          .find(|path| path.exists())
           .cloned()
-          .ok_or(SearchError::GlobalJustfileNotFound)?;
-        Ok(Self {
-          justfile,
-          working_directory,
-        })
-      }
+          .ok_or(SearchError::GlobalJustfileNotFound)?,
+        working_directory: Self::project_root(invocation_directory)?,
+      }),
       SearchConfig::WithJustfile { justfile } => {
         let justfile = Self::clean(invocation_directory, justfile);
         let working_directory = Self::working_directory_from_justfile(&justfile)?;
@@ -105,7 +105,7 @@ impl Search {
           working_directory,
         })
       }
-      SearchConfig::Global => Err(SearchError::GlobalJustfileInit),
+      SearchConfig::GlobalJustfile => Err(SearchError::GlobalJustfileInit),
       SearchConfig::WithJustfile { justfile } => {
         let justfile = Self::clean(invocation_directory, justfile);
         let working_directory = Self::working_directory_from_justfile(&justfile)?;
