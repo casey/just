@@ -1242,8 +1242,8 @@ escapes := "\t\n\r\"\\"
 ```
 
 Indented versions of both single- and double-quoted strings, delimited by
-triple single- or triple double-quotes, are supported. Indented string lines
-are stripped of a leading line break, and leading whitespace common to all
+triple single- or double-quotes, are supported. Indented string lines are
+stripped of a leading line break, and leading whitespace common to all
 non-blank lines:
 
 ```just
@@ -1266,6 +1266,20 @@ sequences, and indented single-quoted strings ignore escape sequences. Escape
 sequence processing takes place after unindentation. The unindentation
 algorithm does not take escape-sequence produced whitespace or newlines into
 account.
+
+Strings prefixed with `x` are shell expanded<sup>master</sup>:
+
+| Value | Replacement |
+|------|-------------|
+| `$VAR` | Value of environment variable `VAR`. |
+| `${VAR}` | Value of environment variable `VAR`. |
+| Leading `~` | Path to current user's home directory. |
+| Leading `~USER` | Path to `USER`'s home directory. |
+
+This expansion is performed at compile time, so variables from `.env` files and
+exported `just` variables cannot be use. However, this has the advantage of
+allowing shell expanded strings to be used in places like settings and import
+paths, which cannot depend on `just` variables and `.env` files.
 
 ### Ignoring Errors
 

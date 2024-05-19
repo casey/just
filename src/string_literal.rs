@@ -5,10 +5,15 @@ pub(crate) struct StringLiteral<'src> {
   pub(crate) kind: StringKind,
   pub(crate) raw: &'src str,
   pub(crate) cooked: String,
+  pub(crate) expand: bool,
 }
 
 impl Display for StringLiteral<'_> {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+    if self.expand {
+      write!(f, "x")?;
+    }
+
     write!(
       f,
       "{}{}{}",

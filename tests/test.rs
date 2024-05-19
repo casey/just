@@ -199,7 +199,7 @@ impl Test {
     let stdout = if self.unindent_stdout {
       unindent(&self.stdout)
     } else {
-      self.stdout
+      self.stdout.clone()
     };
     let stderr = unindent(&self.stderr);
 
@@ -212,9 +212,9 @@ impl Test {
     }
 
     let mut child = command
-      .args(self.args)
+      .args(&self.args)
       .envs(&self.env)
-      .current_dir(self.tempdir.path().join(self.current_dir))
+      .current_dir(self.tempdir.path().join(&self.current_dir))
       .stdin(Stdio::piped())
       .stdout(Stdio::piped())
       .stderr(Stdio::piped())
@@ -266,7 +266,7 @@ impl Test {
     }
 
     if self.test_round_trip && self.status == EXIT_SUCCESS {
-      test_round_trip(self.tempdir.path());
+      self.round_trip();
     }
 
     Output {
@@ -275,42 +275,44 @@ impl Test {
       tempdir: self.tempdir,
     }
   }
-}
 
-fn test_round_trip(tmpdir: &Path) {
-  println!("Reparsing...");
+  fn round_trip(&self) {
+    println!("Reparsing...");
 
-  let output = Command::new(executable_path("just"))
-    .current_dir(tmpdir)
-    .arg("--dump")
-    .output()
-    .expect("just invocation failed");
+    let output = Command::new(executable_path("just"))
+      .current_dir(self.tempdir.path())
+      .arg("--dump")
+      .envs(&self.env)
+      .output()
+      .expect("just invocation failed");
 
-  if !output.status.success() {
-    panic!("dump failed: {}", output.status);
+    if !output.status.success() {
+      panic!("dump failed: {} {:?}", output.status, output);
+    }
+
+    let dumped = String::from_utf8(output.stdout).unwrap();
+
+    let reparsed_path = self.tempdir.path().join("reparsed.just");
+
+    fs::write(&reparsed_path, &dumped).unwrap();
+
+    let output = Command::new(executable_path("just"))
+      .current_dir(self.tempdir.path())
+      .arg("--justfile")
+      .arg(&reparsed_path)
+      .arg("--dump")
+      .envs(&self.env)
+      .output()
+      .expect("just invocation failed");
+
+    if !output.status.success() {
+      panic!("reparse failed: {}", output.status);
+    }
+
+    let reparsed = String::from_utf8(output.stdout).unwrap();
+
+    assert_eq!(reparsed, dumped, "reparse mismatch");
   }
-
-  let dumped = String::from_utf8(output.stdout).unwrap();
-
-  let reparsed_path = tmpdir.join("reparsed.just");
-
-  fs::write(&reparsed_path, &dumped).unwrap();
-
-  let output = Command::new(executable_path("just"))
-    .current_dir(tmpdir)
-    .arg("--justfile")
-    .arg(&reparsed_path)
-    .arg("--dump")
-    .output()
-    .expect("just invocation failed");
-
-  if !output.status.success() {
-    panic!("reparse failed: {}", output.status);
-  }
-
-  let reparsed = String::from_utf8(output.stdout).unwrap();
-
-  assert_eq!(reparsed, dumped, "reparse mismatch");
 }
 
 pub fn assert_eval_eq(expression: &str, result: &str) {
