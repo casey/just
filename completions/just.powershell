@@ -73,7 +73,7 @@ Register-ArgumentCompleter -Native -CommandName 'just' -ScriptBlock {
             [CompletionResult]::new('--summary', 'summary', [CompletionResultType]::ParameterName, 'List names of available recipes')
             [CompletionResult]::new('--variables', 'variables', [CompletionResultType]::ParameterName, 'List names of variables')
             [CompletionResult]::new('-g', 'g', [CompletionResultType]::ParameterName, 'Use global justfile')
-            [CompletionResult]::new('--global', 'global', [CompletionResultType]::ParameterName, 'Use global justfile')
+            [CompletionResult]::new('--global-justfile', 'global-justfile', [CompletionResultType]::ParameterName, 'Use global justfile')
             [CompletionResult]::new('-h', 'h', [CompletionResultType]::ParameterName, 'Print help')
             [CompletionResult]::new('--help', 'help', [CompletionResultType]::ParameterName, 'Print help')
             [CompletionResult]::new('-V', 'V ', [CompletionResultType]::ParameterName, 'Print version')
