@@ -3273,19 +3273,17 @@ Before `just` was a fancy Rust program it was a tiny shell script that called
 If you want some recipes to be available everywhere, you have a few options.
 
 #### Global Justfile
-`just -g` (or `just --global`) is equivalent to `just --justfile
-$GLOBAL_JUSTFILE`, where `$GLOBAL_JUSTFILE` is a path to a justfile as defined
-below. You can put recipes that are used across many projects in this global
-justfile, and easily invoke them from any directory.
 
-`just` will search for a global justfile in the following locations, in this order, stopping after it finds a `justfile` in any location:
+`just --global-justfile`, or `just -g` for short, searches the following paths,
+in-order, for a justfile:
+
 - `$XDG_CONFIG_HOME/just/justfile`
 - `$HOME/.config/just/justfile`
-- `$HOME/.justfile`
 - `$HOME/justfile`
+- `$HOME/.justfile`
 
-If no global justfile is found at any of these locations, `just` will throw an error.
-
+You can put recipes that are used across many projects in a global justfile to
+easily invoke them from any directory.
 
 #### User justfile tips
 
