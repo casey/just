@@ -1427,7 +1427,9 @@ The process ID is: 420
 - `prepend(prefix, s)`<sup>master</sup> Prepend `prefix` to
   whitespace-separated strings in `s`. `prepend('src/', 'foo bar baz')` →
   `'src/foo src/bar src/baz'`
-- `percent_encode(s)`<sup>master</sup> - Percent-encode characters in `s` that are non-ASCII or that might have meaning in a URL, matching the behavior of the [JavaScript `encodeURIComponent` function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent).
+- `encode_uri_component(s)`<sup>master</sup> - Percent-encode characters in `s`
+  except `[A-Za-z0-9_.!~*'()-]`, matching the behavior of the
+  [JavaScript `encodeURIComponent` function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent).
 - `quote(s)` - Replace all single quotes with `'\''` and prepend and append
   single quotes to `s`. This is sufficient to escape special characters for
   many shells, including most Bourne shell descendants.
