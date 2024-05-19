@@ -459,23 +459,10 @@ fn sha256_file(evaluator: &Evaluator, path: &str) -> Result<String, String> {
   Ok(format!("{hash:x}"))
 }
 
-fn shell(_evaluator: &Evaluator, cmdlike: &str, extras: &[String]) -> Result<String, String> {
-  let (command, args) = context.settings.shell(context.config);
-  let mut shelled_cmd = Command::new(command);
-  shelled_cmd.args(args); // for the shell
-
-  shelled_cmd.arg(cmdlike);
-  if !extras.is_empty() {
-    shelled_cmd.args(&extras[..]);
-  }
-  shelled_cmd
-    .current_dir(&context.search.working_directory)
-    .stdin(Stdio::inherit())
-    .stderr(Stdio::inherit());
-
-  Ok(InterruptHandler::guard(|| {
-    output(shelled_cmd).map_err(|output_error| output_error.to_string())
-  })?)
+fn shell(evaluator: &Evaluator, cmdlike: &str, extras: &[String]) -> Result<String, String> {
+  evaluator
+    .run_command(cmdlike, extras)
+    .map_err(|output_error| output_error.to_string())
 }
 
 fn shoutykebabcase(_evaluator: &Evaluator, s: &str) -> Result<String, String> {

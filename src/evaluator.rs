@@ -219,9 +219,21 @@ impl<'src, 'run> Evaluator<'src, 'run> {
   }
 
   fn run_backtick(&self, raw: &str, token: &Token<'src>) -> RunResult<'src, String> {
+    self
+      .run_command(raw, &[])
+      .map_err(|output_error| Error::Backtick {
+        token: *token,
+        output_error,
+      })
+  }
+
+  pub(crate) fn run_command(&self, command: &str, args: &[String]) -> Result<String, OutputError> {
     let mut cmd = self.settings.shell_command(self.config);
 
-    cmd.arg(raw);
+    cmd.arg(command);
+    if !args.is_empty() {
+      cmd.args(&args[..]);
+    }
 
     cmd.current_dir(&self.search.working_directory);
 
@@ -235,12 +247,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       Stdio::inherit()
     });
 
-    InterruptHandler::guard(|| {
-      output(cmd).map_err(|output_error| Error::Backtick {
-        token: *token,
-        output_error,
-      })
-    })
+    InterruptHandler::guard(|| output(cmd))
   }
 
   pub(crate) fn evaluate_line(
