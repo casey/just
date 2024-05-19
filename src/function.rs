@@ -35,6 +35,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "config_local_directory" => Nullary(|_| dir("local config", dirs::config_local_dir)),
     "data_directory" => Nullary(|_| dir("data", dirs::data_dir)),
     "data_local_directory" => Nullary(|_| dir("local data", dirs::data_local_dir)),
+    "encode_uri_component" => Unary(encode_uri_component),
     "env" => UnaryOpt(env),
     "env_var" => Unary(env_var),
     "env_var_or_default" => Binary(env_var_or_default),
@@ -202,6 +203,20 @@ fn dir(name: &'static str, f: fn() -> Option<PathBuf>) -> Result<String, String>
       }),
     None => Err(format!("{name} directory not found")),
   }
+}
+
+fn encode_uri_component(_evaluator: &Evaluator, s: &str) -> Result<String, String> {
+  static PERCENT_ENCODE: percent_encoding::AsciiSet = percent_encoding::NON_ALPHANUMERIC
+    .remove(b'-')
+    .remove(b'_')
+    .remove(b'.')
+    .remove(b'!')
+    .remove(b'~')
+    .remove(b'*')
+    .remove(b'\'')
+    .remove(b'(')
+    .remove(b')');
+  Ok(percent_encoding::utf8_percent_encode(s, &PERCENT_ENCODE).to_string())
 }
 
 fn env_var(evaluator: &Evaluator, key: &str) -> Result<String, String> {
