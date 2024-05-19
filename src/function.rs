@@ -405,7 +405,12 @@ fn percent_encode(_evaluator: &Evaluator, s: &str) -> Result<String, String> {
     .remove(b'-')
     .remove(b'_')
     .remove(b'.')
-    .remove(b'~');
+    .remove(b'!')
+    .remove(b'~')
+    .remove(b'*')
+    .remove(b'\'')
+    .remove(b'(')
+    .remove(b')');
   Ok(percent_encoding::utf8_percent_encode(s, &ASCII_SET).to_string())
 }
 
