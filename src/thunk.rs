@@ -23,7 +23,7 @@ pub(crate) enum Thunk<'src> {
   UnaryPlus {
     name: Name<'src>,
     #[derivative(Debug = "ignore", PartialEq = "ignore")]
-    function: fn(&FunctionContext, &str, &[String]) -> Result<String, String>,
+    function: fn(&Evaluator, &str, &[String]) -> Result<String, String>,
     args: ([Box<Expression<'src>>; 1], Vec<Expression<'src>>),
   },
   Binary {
