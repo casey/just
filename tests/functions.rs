@@ -436,15 +436,6 @@ fn semver_matches() {
     .run();
 }
 
-fn assert_eval_eq(expression: &str, result: &str) {
-  Test::new()
-    .justfile(format!("x := {expression}"))
-    .args(["--evaluate", "x"])
-    .stdout(result)
-    .unindent_stdout(false)
-    .run();
-}
-
 #[test]
 fn trim_end_matches() {
   assert_eval_eq("trim_end_matches('foo', 'o')", "f");
@@ -671,6 +662,69 @@ fn uuid() {
 }
 
 #[test]
+fn choose() {
+  Test::new()
+    .justfile(r#"x := choose('10', 'xXyYzZ')"#)
+    .args(["--evaluate", "x"])
+    .stdout_regex("^[X-Zx-z]{10}$")
+    .run();
+}
+
+#[test]
+fn choose_bad_alphabet_empty() {
+  Test::new()
+    .justfile("x := choose('10', '')")
+    .args(["--evaluate"])
+    .status(1)
+    .stderr(
+      "
+      error: Call to function `choose` failed: empty alphabet
+       ——▶ justfile:1:6
+        │
+      1 │ x := choose('10', '')
+        │      ^^^^^^
+    ",
+    )
+    .run();
+}
+
+#[test]
+fn choose_bad_alphabet_repeated() {
+  Test::new()
+    .justfile("x := choose('10', 'aa')")
+    .args(["--evaluate"])
+    .status(1)
+    .stderr(
+      "
+      error: Call to function `choose` failed: alphabet contains repeated character `a`
+       ——▶ justfile:1:6
+        │
+      1 │ x := choose('10', 'aa')
+        │      ^^^^^^
+    ",
+    )
+    .run();
+}
+
+#[test]
+fn choose_bad_length() {
+  Test::new()
+    .justfile("x := choose('foo', HEX)")
+    .args(["--evaluate"])
+    .status(1)
+    .stderr(
+      "
+      error: Call to function `choose` failed: failed to parse `foo` as positive integer: invalid digit found in string
+       ——▶ justfile:1:6
+        │
+      1 │ x := choose('foo', HEX)
+        │      ^^^^^^
+    ",
+    )
+    .run();
+}
+
+#[test]
 fn sha256() {
   Test::new()
     .justfile("x := sha256('5943ee37-0000-1000-8000-010203040506')")
@@ -737,5 +791,14 @@ fn canonicalize() {
     .justfile("x := canonicalize('foo')")
     .symlink("justfile", "foo")
     .stdout_regex(".*/justfile")
+    .run();
+}
+
+#[test]
+fn encode_uri_component() {
+  Test::new()
+    .justfile("x := encode_uri_component(\"0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!\\\"#$%&'()*+,-./:;<=>?@[\\\\]^_`{|}~ \\t\\r\\n🌐\")")
+    .args(["--evaluate", "x"])
+    .stdout("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!%22%23%24%25%26'()*%2B%2C-.%2F%3A%3B%3C%3D%3E%3F%40%5B%5C%5D%5E_%60%7B%7C%7D~%20%09%0D%0A%F0%9F%8C%90")
     .run();
 }
