@@ -2,10 +2,10 @@ use super::*;
 
 #[derive(PartialEq, Debug, Clone, Ord, Eq, PartialOrd)]
 pub(crate) struct StringLiteral<'src> {
-  pub(crate) kind: StringKind,
-  pub(crate) raw: &'src str,
   pub(crate) cooked: String,
   pub(crate) expand: bool,
+  pub(crate) kind: StringKind,
+  pub(crate) raw: &'src str,
 }
 
 impl Display for StringLiteral<'_> {
