@@ -25,6 +25,7 @@ use {super::*, TokenKind::*};
 /// contents of the set is printed in the resultant error message.
 pub(crate) struct Parser<'run, 'src> {
   expected_tokens: BTreeSet<TokenKind>,
+  file_depth: u32,
   file_path: &'run Path,
   module_namepath: &'run Namepath<'src>,
   next_token: usize,
@@ -37,6 +38,7 @@ pub(crate) struct Parser<'run, 'src> {
 impl<'run, 'src> Parser<'run, 'src> {
   /// Parse `tokens` into an `Ast`
   pub(crate) fn parse(
+    file_depth: u32,
     file_path: &'run Path,
     module_namepath: &'run Namepath<'src>,
     submodule_depth: u32,
@@ -45,6 +47,7 @@ impl<'run, 'src> Parser<'run, 'src> {
   ) -> CompileResult<'src, Ast<'src>> {
     Self {
       expected_tokens: BTreeSet::new(),
+      file_depth,
       file_path,
       module_namepath,
       next_token: 0,
@@ -456,7 +459,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     let value = self.parse_expression()?;
     self.expect_eol()?;
     Ok(Assignment {
-      depth: self.submodule_depth,
+      depth: self.file_depth,
       export,
       name,
       value,
@@ -769,8 +772,8 @@ impl<'run, 'src> Parser<'run, 'src> {
       attributes,
       body,
       dependencies,
-      depth: self.submodule_depth,
       doc,
+      file_depth: self.file_depth,
       file_path: self.file_path.into(),
       name,
       namepath: self.module_namepath.join(name),
@@ -778,6 +781,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       priors,
       private: name.lexeme().starts_with('_'),
       quiet,
+      submodule_depth: self.submodule_depth,
       working_directory: self.working_directory.into(),
     })
   }
@@ -1010,6 +1014,7 @@ mod tests {
     let unindented = unindent(text);
     let tokens = Lexer::test_lex(&unindented).expect("lexing failed");
     let justfile = Parser::parse(
+      0,
       &PathBuf::new(),
       &Namepath::default(),
       0,
@@ -1055,6 +1060,7 @@ mod tests {
     let tokens = Lexer::test_lex(src).expect("Lexing failed in parse test...");
 
     match Parser::parse(
+      0,
       &PathBuf::new(),
       &Namepath::default(),
       0,

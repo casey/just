@@ -22,9 +22,9 @@ pub(crate) struct Recipe<'src, D = Dependency<'src>> {
   pub(crate) attributes: BTreeSet<Attribute<'src>>,
   pub(crate) body: Vec<Line<'src>>,
   pub(crate) dependencies: Vec<D>,
-  #[serde(skip)]
-  pub(crate) depth: u32,
   pub(crate) doc: Option<&'src str>,
+  #[serde(skip)]
+  pub(crate) file_depth: u32,
   #[serde(skip)]
   pub(crate) file_path: PathBuf,
   pub(crate) name: Name<'src>,
@@ -34,6 +34,8 @@ pub(crate) struct Recipe<'src, D = Dependency<'src>> {
   pub(crate) private: bool,
   pub(crate) quiet: bool,
   pub(crate) shebang: bool,
+  #[serde(skip)]
+  pub(crate) submodule_depth: u32,
   #[serde(skip)]
   pub(crate) working_directory: PathBuf,
 }
@@ -126,7 +128,7 @@ impl<'src, D> Recipe<'src, D> {
 
   fn working_directory<'a>(&'a self, search: &'a Search) -> Option<&Path> {
     if self.change_directory() {
-      Some(if self.depth > 0 {
+      Some(if self.submodule_depth > 0 {
         &self.working_directory
       } else {
         &search.working_directory

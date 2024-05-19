@@ -344,3 +344,20 @@ fn shebang_recipes_in_imports_in_root_run_in_justfile_directory() {
     .stdout("BAZ")
     .run();
 }
+
+#[test]
+fn recipes_imported_in_root_run_in_command_line_provided_working_directory() {
+  Test::new()
+    .write("subdir/b.justfile", "@b:\n  cat baz")
+    .write("subdir/a.justfile", "import 'b.justfile'\n@a: b\n  cat baz")
+    .write("baz", "BAZ")
+    .args([
+      "--working-directory",
+      ".",
+      "--justfile",
+      "subdir/a.justfile",
+    ])
+    .test_round_trip(false)
+    .stdout("BAZBAZ")
+    .run();
+}
