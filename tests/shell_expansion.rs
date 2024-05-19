@@ -15,6 +15,28 @@ fn strings_are_shell_expanded() {
 }
 
 #[test]
+fn shell_expanded_error_messages_highlight_string_token() {
+  Test::new()
+    .justfile(
+      "
+        x := x'$FOOOOOOOOOOOOOOOOOOOOOOOOOOOOO'
+      ",
+    )
+    .env("JUST_TEST_VARIABLE", "FOO")
+    .args(["--evaluate", "x"])
+    .status(1)
+    .stderr(
+    "
+      error: Shell expansion failed: error looking key 'FOOOOOOOOOOOOOOOOOOOOOOOOOOOOO' up: environment variable not found
+       ——▶ justfile:1:7
+        │
+      1 │ x := x'$FOOOOOOOOOOOOOOOOOOOOOOOOOOOOO'
+        │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      ")
+    .run();
+}
+
+#[test]
 fn shell_expanded_strings_are_dumped_correctly() {
   Test::new()
     .justfile(
