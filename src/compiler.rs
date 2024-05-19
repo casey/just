@@ -21,9 +21,10 @@ impl Compiler {
       loaded.push(relative.into());
       let tokens = Lexer::lex(relative, src)?;
       let mut ast = Parser::parse(
+        current.file_depth,
         &current.path,
         &current.namepath,
-        current.depth,
+        current.submodule_depth,
         &tokens,
         &current.working_directory,
       )?;
@@ -169,6 +170,7 @@ impl Compiler {
   pub(crate) fn test_compile(src: &str) -> CompileResult<Justfile> {
     let tokens = Lexer::test_lex(src)?;
     let ast = Parser::parse(
+      0,
       &PathBuf::new(),
       &Namepath::default(),
       0,
