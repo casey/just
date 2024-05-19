@@ -206,6 +206,7 @@ impl Display for CompileError<'_> {
           )
         }
       }
+      ShellExpansion { err } => write!(f, "Shell expansion failed: {err}"),
       RequiredParameterFollowsDefaultParameter { parameter } => write!(
         f,
         "Non-default parameter `{parameter}` follows default parameter"

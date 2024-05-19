@@ -201,11 +201,13 @@ mod tests {
           kind: StringKind::from_token_start("\"").unwrap(),
           raw: "asdf.exe",
           cooked: "asdf.exe".to_string(),
+          expand: false,
         },
         arguments: vec![StringLiteral {
           kind: StringKind::from_token_start("\"").unwrap(),
           raw: "-nope",
           cooked: "-nope".to_string(),
+          expand: false,
         }],
       }),
       ..Default::default()
