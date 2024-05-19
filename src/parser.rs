@@ -661,10 +661,10 @@ impl<'run, 'src> Parser<'run, 'src> {
     Ok((
       token,
       StringLiteral {
-        kind,
-        raw,
         cooked,
         expand,
+        kind,
+        raw,
       },
     ))
   }
