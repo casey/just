@@ -787,9 +787,7 @@ fn shell_minimal() {
         @echo {{var}}
       ",
     )
-    .stdout(
-      "justice legs\n",
-    )
+    .stdout("justice legs\n")
     .status(EXIT_SUCCESS)
     .run();
 }
@@ -805,9 +803,7 @@ fn shell_from_variable() {
         @echo {{var}}
       ",
     )
-    .stdout(
-      "justice legs\n",
-    )
+    .stdout("justice legs\n")
     .status(EXIT_SUCCESS)
     .run();
 }

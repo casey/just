@@ -113,7 +113,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
             for arg in rest {
               rest_evaluated.push(self.evaluate_expression(arg)?);
             }
-            function(&self, &a, &rest_evaluated).map_err(|message| Error::FunctionCall {
+            function(self, &a, &rest_evaluated).map_err(|message| Error::FunctionCall {
               function: *name,
               message,
             })
@@ -232,7 +232,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
 
     cmd.arg(command);
     if !args.is_empty() {
-      cmd.args(&args[..]);
+      cmd.args(args);
     }
 
     cmd.current_dir(&self.search.working_directory);
