@@ -1269,6 +1269,10 @@ account.
 
 Strings prefixed with `x` are shell expanded<sup>master</sup>:
 
+```just
+foobar := x'~/$FOO/${BAR}'
+```
+
 | Value | Replacement |
 |------|-------------|
 | `$VAR` | Value of environment variable `VAR`. |
