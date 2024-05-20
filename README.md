@@ -1347,6 +1347,18 @@ file.
   interpret `command` is the same shell that is used to evaluate recipe lines,
   and can be changed with `set shell := […]`.
 
+  `command` is passes as the first argument, so if the command is `'echo $@'`,
+  the full command line, with the default shell command `shell -cu` and `args`
+  `'foo'` and `'bar'` will be:
+
+  ```
+  'shell' '-cu' 'echo $@' 'echo $@' 'foo' 'bar'
+  ```
+
+  This is so that `$@` works as expected. `$@` does not include the first
+  positional argument, which is expected to be the name of the program being
+  run.
+
 ```just
 # arguments can be variables
 file := '/sys/class/power_supply/BAT0/status'
