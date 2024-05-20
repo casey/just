@@ -788,6 +788,11 @@ fn shell_args() {
 }
 
 #[test]
+fn shell_first_arg() {
+  assert_eval_eq("shell('echo $0')", "echo $0");
+}
+
+#[test]
 fn shell_error() {
   Test::new()
     .justfile("var := shell('exit 1')")
