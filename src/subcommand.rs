@@ -87,8 +87,8 @@ impl Subcommand {
       }
       Dump => Self::dump(config, ast, justfile)?,
       Format => Self::format(config, &search, src, ast)?,
+      Groups => Self::groups(config, justfile),
       List => list_recipes::list_recipes(config, 0, justfile),
-      Groups => list_recipes::list_groups(config, justfile),
       Show { ref name } => Self::show(config, name, justfile)?,
       Summary => Self::summary(config, justfile),
       Variables => Self::variables(justfile),
@@ -96,6 +96,13 @@ impl Subcommand {
     }
 
     Ok(())
+  }
+
+  pub(crate) fn groups(config: &Config, justfile: &Justfile) {
+    println!("Recipe groups:");
+    for group in justfile.public_groups() {
+      println!("{}{group}", config.list_prefix);
+    }
   }
 
   fn run<'src>(

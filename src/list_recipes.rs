@@ -1,14 +1,6 @@
 use super::*;
 const MAX_LINE_WIDTH: usize = 30;
 
-pub(crate) fn list_groups(config: &Config, justfile: &Justfile) {
-  println!("Recipe groups:");
-
-  for group in justfile.public_groups() {
-    println!("{}{group}", config.list_prefix);
-  }
-}
-
 fn get_recipe_aliases<'a>(
   config: &Config,
   justfile: &'a Justfile,
