@@ -14,6 +14,7 @@ pub(crate) enum Function {
   Nullary(fn(&Evaluator) -> Result<String, String>),
   Unary(fn(&Evaluator, &str) -> Result<String, String>),
   UnaryOpt(fn(&Evaluator, &str, Option<&str>) -> Result<String, String>),
+  UnaryPlus(fn(&Evaluator, &str, &[String]) -> Result<String, String>),
   Binary(fn(&Evaluator, &str, &str) -> Result<String, String>),
   BinaryPlus(fn(&Evaluator, &str, &str, &[String]) -> Result<String, String>),
   Ternary(fn(&Evaluator, &str, &str, &str) -> Result<String, String>),
@@ -67,6 +68,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "semver_matches" => Binary(semver_matches),
     "sha256" => Unary(sha256),
     "sha256_file" => Unary(sha256_file),
+    "shell" => UnaryPlus(shell),
     "shoutykebabcase" => Unary(shoutykebabcase),
     "shoutysnakecase" => Unary(shoutysnakecase),
     "snakecase" => Unary(snakecase),
@@ -93,6 +95,7 @@ impl Function {
       Nullary(_) => 0..0,
       Unary(_) => 1..1,
       UnaryOpt(_) => 1..2,
+      UnaryPlus(_) => 1..usize::MAX,
       Binary(_) => 2..2,
       BinaryPlus(_) => 2..usize::MAX,
       Ternary(_) => 3..3,
@@ -454,6 +457,12 @@ fn sha256_file(evaluator: &Evaluator, path: &str) -> Result<String, String> {
     .map_err(|err| format!("Failed to read `{}`: {err}", path.display()))?;
   let hash = hasher.finalize();
   Ok(format!("{hash:x}"))
+}
+
+fn shell(evaluator: &Evaluator, command: &str, args: &[String]) -> Result<String, String> {
+  evaluator
+    .run_command(command, args)
+    .map_err(|output_error| output_error.to_string())
 }
 
 fn shoutykebabcase(_evaluator: &Evaluator, s: &str) -> Result<String, String> {
