@@ -3,6 +3,7 @@ use super::*;
 #[derive(Debug)]
 pub(crate) struct Source<'src> {
   pub(crate) file_depth: u32,
+  pub(crate) file_path: Vec<PathBuf>,
   pub(crate) namepath: Namepath<'src>,
   pub(crate) path: PathBuf,
   pub(crate) submodule_depth: u32,
@@ -13,6 +14,7 @@ impl<'src> Source<'src> {
   pub(crate) fn root(path: &Path) -> Self {
     Self {
       file_depth: 0,
+      file_path: vec![path.into()],
       namepath: Namepath::default(),
       path: path.into(),
       submodule_depth: 0,
@@ -23,6 +25,12 @@ impl<'src> Source<'src> {
   pub(crate) fn import(&self, path: PathBuf) -> Self {
     Self {
       file_depth: self.file_depth + 1,
+      file_path: self
+        .file_path
+        .clone()
+        .into_iter()
+        .chain(iter::once(path.clone()))
+        .collect(),
       namepath: self.namepath.clone(),
       path,
       submodule_depth: self.submodule_depth,
@@ -33,10 +41,16 @@ impl<'src> Source<'src> {
   pub(crate) fn module(&self, name: Name<'src>, path: PathBuf) -> Self {
     Self {
       file_depth: self.file_depth + 1,
+      file_path: self
+        .file_path
+        .clone()
+        .into_iter()
+        .chain(iter::once(path.clone()))
+        .collect(),
       namepath: self.namepath.join(name),
+      path: path.clone(),
       submodule_depth: self.submodule_depth + 1,
       working_directory: path.parent().unwrap().into(),
-      path,
     }
   }
 }
