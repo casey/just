@@ -466,8 +466,12 @@ impl Subcommand {
   fn list(config: &Config, level: usize, justfile: &Justfile) {
     const MAX_WIDTH: usize = 50;
 
+    if level == 0 {
+      print!("{}", config.list_heading);
+    }
+
     // Construct a target to alias map.
-    let mut recipe_aliases: BTreeMap<&str, Vec<&str>> = BTreeMap::new();
+    let mut recipe_aliases = BTreeMap::<&str, Vec<&str>>::new();
     if !config.no_aliases {
       for alias in justfile.aliases.values() {
         if alias.is_private() {
@@ -483,7 +487,7 @@ impl Subcommand {
       }
     }
 
-    let mut line_widths: BTreeMap<&str, usize> = BTreeMap::new();
+    let mut line_widths = BTreeMap::<&str, usize>::new();
 
     for (name, recipe) in &justfile.recipes {
       if !recipe.is_public() {
@@ -491,26 +495,24 @@ impl Subcommand {
       }
 
       for name in iter::once(name).chain(recipe_aliases.get(name).unwrap_or(&Vec::new())) {
-        let mut line_width = UnicodeWidthStr::width(*name);
-
-        for parameter in &recipe.parameters {
-          line_width += UnicodeWidthStr::width(
-            format!(" {}", parameter.color_display(Color::never())).as_str(),
-          );
-        }
-
-        if line_width <= MAX_WIDTH {
-          line_widths.insert(name, line_width);
-        }
+        line_widths.insert(
+          name,
+          UnicodeWidthStr::width(
+            RecipeSignature { name, recipe }
+              .color_display(Color::never())
+              .to_string()
+              .as_str(),
+          ),
+        );
       }
     }
 
-    let max_line_width = cmp::min(line_widths.values().copied().max().unwrap_or(0), MAX_WIDTH);
-    let doc_color = config.color.stdout().doc();
-
-    if level == 0 {
-      print!("{}", config.list_heading);
-    }
+    let max_line_width = line_widths
+      .values()
+      .filter(|line_width| **line_width <= MAX_WIDTH)
+      .copied()
+      .max()
+      .unwrap_or_default();
 
     for recipe in justfile.public_recipes(config.unsorted) {
       let name = recipe.name();
@@ -519,39 +521,34 @@ impl Subcommand {
         .chain(recipe_aliases.get(name).unwrap_or(&Vec::new()))
         .enumerate()
       {
-        print!("{}{name}", config.list_prefix.repeat(level + 1));
-        for parameter in &recipe.parameters {
-          print!(" {}", parameter.color_display(config.color.stdout()));
-        }
+        print!(
+          "{}{}",
+          config.list_prefix.repeat(level + 1),
+          RecipeSignature { name, recipe }.color_display(config.color.stdout())
+        );
 
-        // Declaring this outside of the nested loops will probably be more efficient,
-        // but it creates all sorts of lifetime issues with variables inside the loops.
-        // If this is inlined like the docs say, it shouldn't make any difference.
-        let print_doc = |doc| {
+        let doc = match (i, recipe.doc) {
+          (0, Some(doc)) => Some(Cow::Borrowed(doc)),
+          (0, None) => None,
+          _ => Some(Cow::Owned(format!("alias for `{}`", recipe.name))),
+        };
+
+        if let Some(doc) = doc {
           print!(
             " {:padding$}{} {}",
             "",
-            doc_color.paint("#"),
-            doc_color.paint(doc),
-            padding = max_line_width
-              .saturating_sub(line_widths.get(name).copied().unwrap_or(max_line_width))
+            config.color.stdout().doc().paint("#"),
+            config.color.stdout().doc().paint(&doc),
+            padding = max_line_width.saturating_sub(line_widths[name]),
           );
-        };
-
-        match (i, recipe.doc) {
-          (0, Some(doc)) => print_doc(doc),
-          (0, None) => (),
-          _ => {
-            let alias_doc = format!("alias for `{}`", recipe.name);
-            print_doc(&alias_doc);
-          }
         }
+
         println!();
       }
     }
 
     for (name, module) in &justfile.modules {
-      println!("    {name}:");
+      println!("{}{name}:", config.list_prefix.repeat(level + 1));
       Self::list(config, level + 1, module);
     }
   }

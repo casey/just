@@ -226,7 +226,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       })
   }
 
-  pub(crate) fn run_command(&self, command: &str, args: &[String]) -> Result<String, OutputError> {
+  pub(crate) fn run_command(&self, command: &str, args: &[&str]) -> Result<String, OutputError> {
     let mut cmd = self.settings.shell_command(self.config);
     cmd.arg(command);
     cmd.args(args);
