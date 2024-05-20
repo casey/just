@@ -1,8 +1,5 @@
 use super::*;
 
-// todo:
-// - group order in --groups
-
 #[derive(
   EnumDiscriminants, PartialEq, Debug, Clone, Serialize, Ord, PartialOrd, Eq, IntoStaticStr,
 )]
