@@ -1,5 +1,4 @@
 use super::*;
-use std::process::{ExitStatus, Stdio};
 
 /// Return a `Error::Signal` if the process was terminated by a signal,
 /// otherwise return an `Error::UnknownFailure`
