@@ -1,9 +1,11 @@
 use super::*;
 const MAX_LINE_WIDTH: usize = 30;
 
-pub(crate) fn list_groups(_config: &Config, justfile: &Justfile) {
+pub(crate) fn list_groups(config: &Config, justfile: &Justfile) {
+  println!("Recipe groups:");
+
   for group in justfile.public_groups() {
-    println!("{group}");
+    println!("{}{group}", config.list_prefix);
   }
 }
 
@@ -121,7 +123,7 @@ fn recipes_by_group<'a>(
   by_groups
 }
 
-pub(crate) fn list(config: &Config, level: usize, justfile: &Justfile) {
+pub(crate) fn list_recipes(config: &Config, level: usize, justfile: &Justfile) {
   let recipe_aliases = get_recipe_aliases(config, justfile);
   let line_widths = get_line_widths(config, justfile, &recipe_aliases);
   let max_line_width = cmp::min(
@@ -155,6 +157,6 @@ pub(crate) fn list(config: &Config, level: usize, justfile: &Justfile) {
 
   for (name, module) in &justfile.modules {
     println!("    {name}:");
-    list(config, level + 1, module);
+    list_recipes(config, level + 1, module);
   }
 }

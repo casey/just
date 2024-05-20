@@ -61,6 +61,7 @@ mod fmt;
 mod functions;
 #[cfg(unix)]
 mod global;
+mod groups;
 mod ignore_comments;
 mod imports;
 mod init;
