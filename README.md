@@ -1355,9 +1355,9 @@ file.
   'shell' '-cu' 'echo $@' 'echo $@' 'foo' 'bar'
   ```
 
-  This is so that `$@` works as expected. `$@` does not include the first
-  positional argument, which is expected to be the name of the program being
-  run.
+  This is so that `$@` works as expected, and `$1` refers to the first
+  argument. `$@` does not include the first positional argument, which is
+  expected to be the name of the program being run.
 
 ```just
 # arguments can be variables
@@ -1374,9 +1374,10 @@ full := shell('echo $1', 'foo')
 ```
 
 ```just
-# using python as the shell
+# using python as the shell. Since `python -c` sets `sys.argv[0]` to `'-c'`,
+# the first "real" positional argument will be `sys.argv[2]`
 set shell := ["python3", "-c"]
-olleh := shell('import sys; print(sys.argv[1][::-1]))', 'hello')
+olleh := shell('import sys; print(sys.argv[2][::-1]))', 'hello')
 ```
 
 #### Environment Variables
