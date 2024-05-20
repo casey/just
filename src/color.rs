@@ -1,14 +1,14 @@
 use {
   super::*,
   ansi_term::{ANSIGenericString, Color::*, Prefix, Style, Suffix},
-  atty::Stream,
+  std::io::{self, IsTerminal},
 };
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub(crate) struct Color {
-  use_color: UseColor,
-  atty: bool,
+  is_terminal: bool,
   style: Style,
+  use_color: UseColor,
 }
 
 impl Color {
@@ -16,9 +16,9 @@ impl Color {
     Self { style, ..self }
   }
 
-  fn redirect(self, stream: Stream) -> Self {
+  fn redirect(self, stream: impl IsTerminal) -> Self {
     Self {
-      atty: atty::is(stream),
+      is_terminal: stream.is_terminal(),
       ..self
     }
   }
@@ -53,11 +53,11 @@ impl Color {
   }
 
   pub(crate) fn stderr(self) -> Self {
-    self.redirect(Stream::Stderr)
+    self.redirect(io::stderr())
   }
 
   pub(crate) fn stdout(self) -> Self {
-    self.redirect(Stream::Stdout)
+    self.redirect(io::stdout())
   }
 
   pub(crate) fn context(self) -> Self {
@@ -116,7 +116,7 @@ impl Color {
     match self.use_color {
       UseColor::Always => true,
       UseColor::Never => false,
-      UseColor::Auto => self.atty,
+      UseColor::Auto => self.is_terminal,
     }
   }
 
@@ -136,9 +136,9 @@ impl Color {
 impl Default for Color {
   fn default() -> Self {
     Self {
-      use_color: UseColor::Auto,
-      atty: false,
+      is_terminal: false,
       style: Style::new(),
+      use_color: UseColor::Auto,
     }
   }
 }
