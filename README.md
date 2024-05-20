@@ -1347,7 +1347,7 @@ file.
   interpret `command` is the same shell that is used to evaluate recipe lines,
   and can be changed with `set shell := […]`.
 
-  `command` is passes as the first argument, so if the command is `'echo $@'`,
+  `command` is passed as the first argument, so if the command is `'echo $@'`,
   the full command line, with the default shell command `shell -cu` and `args`
   `'foo'` and `'bar'` will be:
 
