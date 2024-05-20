@@ -433,7 +433,7 @@ impl<'src, D> Recipe<'src, D> {
   pub(crate) fn groups(&self) -> HashSet<String> {
     let mut groups = HashSet::new();
     for attr in &self.attributes {
-      if let Attribute::Group { name } = attr {
+      if let Attribute::Group(name) = attr {
         groups.insert(name.cooked.clone());
       }
     }

@@ -953,7 +953,8 @@ impl<'run, 'src> Parser<'run, 'src> {
     while self.accepted(BracketL)? {
       loop {
         let name = self.parse_name()?;
-        let maybe_argument = if self.next_is(ParenL) {
+
+        let argument = if self.next_is(ParenL) {
           self.presume(ParenL)?;
           let argument = self.parse_string_literal()?;
           self.expect(ParenR)?;
@@ -961,7 +962,8 @@ impl<'run, 'src> Parser<'run, 'src> {
         } else {
           None
         };
-        let attribute = Attribute::parse(name, maybe_argument)?;
+
+        let attribute = Attribute::new(name, argument)?;
 
         if let Some(line) = attributes.get(&attribute) {
           return Err(name.error(CompileErrorKind::DuplicateAttribute {

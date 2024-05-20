@@ -1,66 +1,105 @@
 use super::*;
 
-#[derive(EnumString, PartialEq, Debug, Clone, Serialize, Ord, PartialOrd, Eq, IntoStaticStr)]
+#[derive(
+  EnumDiscriminants, PartialEq, Debug, Clone, Serialize, Ord, PartialOrd, Eq, IntoStaticStr,
+)]
 #[strum(serialize_all = "kebab-case")]
 #[serde(rename_all = "kebab-case")]
+#[strum_discriminants(name(AttributeDiscriminant))]
+#[strum_discriminants(derive(EnumString))]
+#[strum_discriminants(strum(serialize_all = "kebab-case"))]
 pub(crate) enum Attribute<'src> {
   Confirm(Option<StringLiteral<'src>>),
-  #[strum(disabled)]
-  Group {
-    name: StringLiteral<'src>,
-  },
+  Group(StringLiteral<'src>),
   Linux,
   Macos,
   NoCd,
   NoExitMessage,
-  Private,
   NoQuiet,
+  Private,
   Unix,
   Windows,
 }
 
-impl<'src> Attribute<'src> {
-  pub(crate) fn parse(
-    name: Name<'src>,
-    maybe_argument: Option<StringLiteral<'src>>,
-  ) -> CompileResult<'src, Self> {
-    let name_str = name.lexeme();
+impl AttributeDiscriminant {
+  fn argument_range(self) -> RangeInclusive<usize> {
+    match self {
+      Self::Confirm => 0..=1,
+      Self::Group => 1..=1,
+      Self::Linux
+      | Self::Macos
+      | Self::NoCd
+      | Self::NoExitMessage
+      | Self::NoQuiet
+      | Self::Private
+      | Self::Unix
+      | Self::Windows => 0..=0,
+    }
+  }
+}
 
-    Ok(match (name_str, maybe_argument) {
-      ("group", Some(name)) => Self::Group { name },
-      ("group", None) => {
-        return Err(name.error(CompileErrorKind::MissingAttributeArgument {
-          attribute_name: "group".into(),
-        }))
-      }
-      ("confirm", argument) => Self::Confirm(argument),
-      (other_attribute, None) => other_attribute.parse().map_err(|_| {
+impl<'src> Attribute<'src> {
+  pub(crate) fn new(
+    name: Name<'src>,
+    argument: Option<StringLiteral<'src>>,
+  ) -> CompileResult<'src, Self> {
+    use AttributeDiscriminant::*;
+
+    let discriminant = name
+      .lexeme()
+      .parse::<AttributeDiscriminant>()
+      .ok()
+      .ok_or_else(|| {
         name.error(CompileErrorKind::UnknownAttribute {
-          attribute: name_str,
+          attribute: name.lexeme(),
         })
-      })?,
-      (_other_attribute, Some(_)) => {
-        return Err(name.error(CompileErrorKind::UnexpectedAttributeArgument {
-          attribute: name_str,
-        }))
-      }
+      })?;
+
+    let found = argument.as_ref().iter().count();
+
+    let range = discriminant.argument_range();
+
+    if !range.contains(&found) {
+      return Err(
+        name.error(CompileErrorKind::AttributeArgumentCountMismatch {
+          attribute: name.lexeme(),
+          found,
+          min: *range.start(),
+          max: *range.end(),
+        }),
+      );
+    }
+
+    Ok(match discriminant {
+      Confirm => Self::Confirm(argument),
+      Group => Self::Group(argument.unwrap()),
+      Linux => Self::Linux,
+      Macos => Self::Macos,
+      NoCd => Self::NoCd,
+      NoExitMessage => Self::NoExitMessage,
+      NoQuiet => Self::NoQuiet,
+      Private => Self::Private,
+      Unix => Self::Unix,
+      Windows => Self::Windows,
     })
   }
 
   pub(crate) fn name(&self) -> &'static str {
-    // Necessary because the Group variant is disabled for EnumString
-    if let Self::Group { .. } = self {
-      "group"
-    } else {
-      self.into()
-    }
+    self.into()
   }
 
   fn argument(&self) -> Option<&StringLiteral> {
     match self {
       Self::Confirm(prompt) => prompt.as_ref(),
-      Self::Group { name } => Some(name),
-      _ => None,
+      Self::Group(name) => Some(name),
+      Self::Linux
+      | Self::Macos
+      | Self::NoCd
+      | Self::NoExitMessage
+      | Self::NoQuiet
+      | Self::Private
+      | Self::Unix
+      | Self::Windows => None,
     }
   }
 }
