@@ -1173,6 +1173,29 @@ This is an x86_64 machine
 that work on various operating systems. For an example, see
 <a href="https://github.com/casey/just/blob/master/examples/cross-platform.just">cross-platform.just</a>
 file.</p>
+<h4 id="external-commands"><a class="header" href="#external-commands">External Commands</a></h4>
+<ul>
+<li><code>shell(command, args...)</code> returns the standard output of shell script
+<code>command</code> with zero or more positional arguments <code>args</code>. The shell used to
+interpret <code>command</code> is the same shell that is used to evaluate recipe lines,
+and can be changed with <code>set shell := […]</code>.</li>
+</ul>
+<pre><code class="language-just"># arguments can be variables
+file := '/sys/class/power_supply/BAT0/status'
+bat0stat := shell('cat $1', file)
+
+# commands can be variables
+command := 'wc -l $1'
+output := shell(command, 'main.c')
+
+# note that arguments must be used
+empty := shell('echo', 'foo')
+full := shell('echo $1', 'foo')
+</code></pre>
+<pre><code class="language-just"># using python as the shell
+set shell := ["python3", "-c"]
+olleh := shell('import sys; print(sys.argv[1][::-1]))', 'hello')
+</code></pre>
 <h4 id="environment-variables"><a class="header" href="#environment-variables">Environment Variables</a></h4>
 <ul>
 <li><code>env_var(key)</code> — Retrieves the environment variable with name <code>key</code>, aborting
