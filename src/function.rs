@@ -460,8 +460,12 @@ fn sha256_file(evaluator: &Evaluator, path: &str) -> Result<String, String> {
 }
 
 fn shell(evaluator: &Evaluator, command: &str, args: &[String]) -> Result<String, String> {
+  let args = iter::once(command)
+    .chain(args.iter().map(String::as_str))
+    .collect::<Vec<&str>>();
+
   evaluator
-    .run_command(command, args)
+    .run_command(command, &args)
     .map_err(|output_error| output_error.to_string())
 }
 
