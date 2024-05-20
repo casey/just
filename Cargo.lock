@@ -517,7 +517,6 @@ name = "just"
 version = "1.26.0"
 dependencies = [
  "ansi_term",
- "atty",
  "blake3",
  "camino",
  "clap 4.5.4",
