@@ -1,4 +1,4 @@
-use {super::*, serde::Serialize};
+use {super::*, serde::Serialize, std::collections::HashSet};
 
 #[derive(Debug)]
 struct Invocation<'src: 'run, 'run> {
@@ -487,6 +487,16 @@ impl<'src> Justfile<'src> {
     }
 
     recipes
+  }
+
+  pub(crate) fn public_groups(&self) -> HashSet<String> {
+    self
+      .recipes
+      .values()
+      .map(AsRef::as_ref)
+      .filter(|recipe| recipe.is_public())
+      .flat_map(Recipe::groups)
+      .collect()
   }
 }
 

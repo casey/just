@@ -1,4 +1,8 @@
 use super::*;
+use std::{
+  collections::HashSet,
+  process::{ExitStatus, Stdio},
+};
 
 /// Return a `Error::Signal` if the process was terminated by a signal,
 /// otherwise return an `Error::UnknownFailure`
@@ -424,6 +428,16 @@ impl<'src, D> Recipe<'src, D> {
         io_error,
       }),
     }
+  }
+
+  pub(crate) fn groups(&self) -> HashSet<String> {
+    let mut groups = HashSet::new();
+    for attr in &self.attributes {
+      if let Attribute::Group { name } = attr {
+        groups.insert(name.cooked.clone());
+      }
+    }
+    groups
   }
 }
 

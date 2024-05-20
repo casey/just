@@ -5,6 +5,10 @@ use super::*;
 #[serde(rename_all = "kebab-case")]
 pub(crate) enum Attribute<'src> {
   Confirm(Option<StringLiteral<'src>>),
+  #[strum(disabled)]
+  Group {
+    name: StringLiteral<'src>,
+  },
   Linux,
   Macos,
   NoCd,
@@ -16,30 +20,47 @@ pub(crate) enum Attribute<'src> {
 }
 
 impl<'src> Attribute<'src> {
-  pub(crate) fn from_name(name: Name) -> Option<Self> {
-    name.lexeme().parse().ok()
+  pub(crate) fn parse(
+    name: Name<'src>,
+    maybe_argument: Option<StringLiteral<'src>>,
+  ) -> CompileResult<'src, Self> {
+    let name_str = name.lexeme();
+
+    Ok(match (name_str, maybe_argument) {
+      ("group", Some(name)) => Self::Group { name },
+      ("group", None) => {
+        return Err(name.error(CompileErrorKind::MissingAttributeArgument {
+          attribute_name: "group".into(),
+        }))
+      }
+      ("confirm", argument) => Self::Confirm(argument),
+      (other_attribute, None) => other_attribute.parse().map_err(|_| {
+        name.error(CompileErrorKind::UnknownAttribute {
+          attribute: name_str,
+        })
+      })?,
+      (_other_attribute, Some(_)) => {
+        return Err(name.error(CompileErrorKind::UnexpectedAttributeArgument {
+          attribute: name_str,
+        }))
+      }
+    })
   }
 
   pub(crate) fn name(&self) -> &'static str {
-    self.into()
-  }
-
-  pub(crate) fn with_argument(
-    self,
-    name: Name<'src>,
-    argument: StringLiteral<'src>,
-  ) -> CompileResult<'src, Self> {
-    match self {
-      Self::Confirm(_) => Ok(Self::Confirm(Some(argument))),
-      _ => Err(name.error(CompileErrorKind::UnexpectedAttributeArgument { attribute: self })),
+    // Necessary because the Group variant is disabled for EnumString
+    if let Self::Group { .. } = self {
+      "group"
+    } else {
+      self.into()
     }
   }
 
   fn argument(&self) -> Option<&StringLiteral> {
-    if let Self::Confirm(prompt) = self {
-      prompt.as_ref()
-    } else {
-      None
+    match self {
+      Self::Confirm(prompt) => prompt.as_ref(),
+      Self::Group { name } => Some(name),
+      _ => None,
     }
   }
 }

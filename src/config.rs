@@ -54,6 +54,7 @@ mod cmd {
   pub(crate) const EDIT: &str = "EDIT";
   pub(crate) const EVALUATE: &str = "EVALUATE";
   pub(crate) const FORMAT: &str = "FORMAT";
+  pub(crate) const GROUPS: &str = "GROUPS";
   pub(crate) const INIT: &str = "INIT";
   pub(crate) const LIST: &str = "LIST";
   pub(crate) const MAN: &str = "MAN";
@@ -418,6 +419,12 @@ impl Config {
           .help("List available recipes and their arguments"),
       )
       .arg(
+        Arg::new(cmd::GROUPS)
+        .long("groups")
+        .action(ArgAction::SetTrue)
+        .help("List recipe groups")
+        )
+      .arg(
         Arg::new(cmd::MAN)
           .long("man")
           .action(ArgAction::SetTrue)
@@ -649,6 +656,8 @@ impl Config {
       Subcommand::Init
     } else if matches.get_flag(cmd::LIST) {
       Subcommand::List
+    } else if matches.get_flag(cmd::GROUPS) {
+      Subcommand::Groups
     } else if matches.get_flag(cmd::MAN) {
       Subcommand::Man
     } else if let Some(name) = matches.get_one::<String>(cmd::SHOW).map(Into::into) {

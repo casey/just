@@ -67,6 +67,9 @@ pub(crate) enum CompileErrorKind<'src> {
   InvalidEscapeSequence {
     character: char,
   },
+  MissingAttributeArgument {
+    attribute_name: String,
+  },
   MismatchedClosingDelimiter {
     close: Delimiter,
     open: Delimiter,
@@ -89,7 +92,7 @@ pub(crate) enum CompileErrorKind<'src> {
     variable: &'src str,
   },
   UnexpectedAttributeArgument {
-    attribute: Attribute<'src>,
+    attribute: &'src str,
   },
   UnexpectedCharacter {
     expected: char,
