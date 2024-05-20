@@ -505,7 +505,7 @@ impl Subcommand {
       }
     }
 
-    let max_line_width = cmp::min(line_widths.values().copied().max().unwrap_or(0), MAX_WIDTH);
+    let max_line_width = line_widths.values().copied().max().unwrap_or_default();
     let doc_color = config.color.stdout().doc();
 
     if level == 0 {
@@ -524,28 +524,23 @@ impl Subcommand {
           print!(" {}", parameter.color_display(config.color.stdout()));
         }
 
-        // Declaring this outside of the nested loops will probably be more efficient,
-        // but it creates all sorts of lifetime issues with variables inside the loops.
-        // If this is inlined like the docs say, it shouldn't make any difference.
-        let print_doc = |doc| {
+        let doc = match (i, recipe.doc) {
+          (0, Some(doc)) => Some(Cow::Borrowed(doc)),
+          (0, None) => None,
+          _ => Some(Cow::Owned(format!("alias for `{}`", recipe.name))),
+        };
+
+        if let Some(doc) = doc {
           print!(
             " {:padding$}{} {}",
             "",
             doc_color.paint("#"),
-            doc_color.paint(doc),
+            doc_color.paint(&doc),
             padding = max_line_width
               .saturating_sub(line_widths.get(name).copied().unwrap_or(max_line_width))
           );
-        };
-
-        match (i, recipe.doc) {
-          (0, Some(doc)) => print_doc(doc),
-          (0, None) => (),
-          _ => {
-            let alias_doc = format!("alias for `{}`", recipe.name);
-            print_doc(&alias_doc);
-          }
         }
+
         println!();
       }
     }

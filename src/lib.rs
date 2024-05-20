@@ -38,6 +38,7 @@ pub(crate) use {
     use_color::UseColor, variables::Variables, verbosity::Verbosity, warning::Warning,
   },
   std::{
+    borrow::Cow,
     cmp,
     collections::{BTreeMap, BTreeSet, HashMap},
     env,
