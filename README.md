@@ -1342,7 +1342,7 @@ file.
 
 #### External Commands
 
-- `shell(command, args...)` returns the standard output of shell script
+- `shell(command, args...)`<sup>master</sup> returns the standard output of shell script
   `command` with zero or more positional arguments `args`. The shell used to
   interpret `command` is the same shell that is used to evaluate recipe lines,
   and can be changed with `set shell := […]`.
@@ -1360,15 +1360,15 @@ file.
   expected to be the name of the program being run.
 
 ```just
-# arguments can be variables
+# arguments can be variables or expressions
 file := '/sys/class/power_supply/BAT0/status'
 bat0stat := shell('cat $1', file)
 
-# commands can be variables
-command := 'wc -l $1'
-output := shell(command, 'main.c')
+# commands can be variables or expressions
+command := 'wc -l'
+output := shell(command + ' "$1"', 'main.c')
 
-# note that arguments must be used
+# by default, arguments referenced by the shell script command must be supplied
 empty := shell('echo', 'foo')
 full := shell('echo $1', 'foo')
 ```
@@ -1377,7 +1377,7 @@ full := shell('echo $1', 'foo')
 # Using python as the shell. Since `python -c` sets `sys.argv[0]` to `'-c'`,
 # the first "real" positional argument will be `sys.argv[2]`.
 set shell := ["python3", "-c"]
-olleh := shell('import sys; print(sys.argv[2][::-1]))', 'hello')
+olleh := shell('import sys; print(sys.argv[2][::-1])', 'hello')
 ```
 
 #### Environment Variables
