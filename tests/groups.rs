@@ -1,6 +1,52 @@
 use super::*;
 
 #[test]
+fn list_with_groups() {
+  Test::new()
+    .justfile(
+      "
+        [group('alpha')]
+        a:
+        # Doc comment
+        [group('alpha')]
+        [group('beta')]
+        b:
+        c:
+        [group('multi word group')]
+        d:
+        [group('alpha')]
+        e:
+        [group('beta')]
+        [group('alpha')]
+        f:
+      ",
+    )
+    .arg("--list")
+    .stdout(
+      "
+        Available recipes:
+
+        (no group)
+            c
+
+        [alpha]
+            a
+            b # Doc comment
+            e
+            f
+
+        [beta]
+            b # Doc comment
+            f
+
+        [multi word group]
+            d
+      ",
+    )
+    .run();
+}
+
+#[test]
 fn list_groups() {
   Test::new()
     .justfile(
