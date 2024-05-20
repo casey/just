@@ -779,7 +779,12 @@ fn shell_no_argument() {
 
 #[test]
 fn shell_minimal() {
-  assert_eval_eq("shell('echo $0 $1', 'justice', 'legs')", "justice legs");
+  assert_eval_eq("shell('echo $1 $2', 'justice', 'legs')", "justice legs");
+}
+
+#[test]
+fn shell_args() {
+  assert_eval_eq("shell('echo $@', 'justice', 'legs')", "justice legs");
 }
 
 #[test]
