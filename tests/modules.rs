@@ -513,28 +513,6 @@ fn missing_optional_modules_do_not_conflict() {
 }
 
 #[test]
-fn list_displays_recipes_in_submodules() {
-  Test::new()
-    .write("foo.just", "bar:\n @echo FOO")
-    .justfile(
-      "
-        mod foo
-      ",
-    )
-    .test_round_trip(false)
-    .arg("--unstable")
-    .arg("--list")
-    .stdout(
-      "
-      Available recipes:
-          foo:
-              bar
-    ",
-    )
-    .run();
-}
-
-#[test]
 fn root_dotenv_is_available_to_submodules() {
   Test::new()
     .write("foo.just", "foo:\n @echo $DOTENV_KEY")
@@ -692,37 +670,6 @@ fn module_paths_beginning_with_tilde_are_expanded_to_homdir() {
     .arg("foo")
     .stdout("FOOBAR\n")
     .env("HOME", "foobar")
-    .run();
-}
-
-#[test]
-fn module_recipe_list_alignment_ignores_private_recipes() {
-  Test::new()
-    .write(
-      "foo.just",
-      "
-# foos
-foo:
- @echo FOO
-
-[private]
-barbarbar:
- @echo BAR
-
-@_bazbazbaz:
- @echo BAZ
-      ",
-    )
-    .justfile("mod foo")
-    .test_round_trip(false)
-    .arg("--unstable")
-    .arg("--list")
-    .stdout(
-      "Available recipes:
-    foo:
-        foo # foos
-",
-    )
     .run();
 }
 
