@@ -361,3 +361,22 @@ fn recipes_imported_in_root_run_in_command_line_provided_working_directory() {
     .stdout("BAZBAZ")
     .run();
 }
+
+#[test]
+fn reused_import_are_allowed() {
+  Test::new()
+    .justfile(
+      "
+      import 'a'
+      import 'b'
+
+      bar:
+    ",
+    )
+    .tree(tree! {
+      a: "import 'c'",
+      b: "import 'c'",
+      c: "",
+    })
+    .run();
+}
