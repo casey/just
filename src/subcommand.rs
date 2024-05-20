@@ -505,7 +505,7 @@ impl Subcommand {
       }
     }
 
-    let max_line_width = line_widths.values().copied().max().unwrap_or(0);
+    let max_line_width = line_widths.values().copied().max().unwrap_or_default();
     let doc_color = config.color.stdout().doc();
 
     if level == 0 {
