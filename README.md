@@ -1374,8 +1374,8 @@ full := shell('echo $1', 'foo')
 ```
 
 ```just
-# using python as the shell. Since `python -c` sets `sys.argv[0]` to `'-c'`,
-# the first "real" positional argument will be `sys.argv[2]`
+# Using python as the shell. Since `python -c` sets `sys.argv[0]` to `'-c'`,
+# the first "real" positional argument will be `sys.argv[2]`.
 set shell := ["python3", "-c"]
 olleh := shell('import sys; print(sys.argv[2][::-1]))', 'hello')
 ```
