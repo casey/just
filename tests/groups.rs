@@ -5,12 +5,13 @@ fn list_groups() {
   Test::new()
     .justfile(
       "
+        [group('B')]
+        bar:
+
         [group('A')]
+        [group('B')]
         foo:
 
-        [group('B')]
-        [group('A')]
-        bar:
       ",
     )
     .args(["--groups"])
@@ -29,11 +30,11 @@ fn list_groups_with_custom_prefix() {
   Test::new()
     .justfile(
       "
-        [group('A')]
+        [group('B')]
         foo:
 
-        [group('B')]
         [group('A')]
+        [group('B')]
         bar:
       ",
     )
