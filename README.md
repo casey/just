@@ -1368,9 +1368,10 @@ bat0stat := shell('cat $1', file)
 command := 'wc -l'
 output := shell(command + ' "$1"', 'main.c')
 
-# by default, arguments referenced by the shell script command must be supplied
+# arguments referenced by the shell command must be used
 empty := shell('echo', 'foo')
 full := shell('echo $1', 'foo')
+error := shell('echo $1')
 ```
 
 ```just
