@@ -20,6 +20,10 @@ pub(crate) enum Error<'src> {
     token: Token<'src>,
     output_error: OutputError,
   },
+  CacheDirIo {
+    io_error: io::Error,
+    path: PathBuf,
+  },
   ChooserInvoke {
     shell_binary: String,
     shell_arguments: String,
@@ -279,6 +283,9 @@ impl<'src> ColorDisplay for Error<'src> {
           }?,
         OutputError::Utf8(utf8_error) => write!(f, "Backtick succeeded but stdout was not utf8: {utf8_error}")?,
       }
+      CacheDirIo { io_error, path } => {
+        write!(f, "I/O error in cache dir `{}`: {io_error}", path.display())?;
+      }
       ChooserInvoke { shell_binary, shell_arguments, chooser, io_error} => {
         let chooser = chooser.to_string_lossy();
         write!(f, "Chooser `{shell_binary} {shell_arguments} {chooser}` invocation failed: {io_error}")?;
@@ -382,8 +389,7 @@ impl<'src> ColorDisplay for Error<'src> {
         }?;
       }
       Load { io_error, path } => {
-        let path = path.display();
-        write!(f, "Failed to read justfile at `{path}`: {io_error}")?;
+        write!(f, "Failed to read justfile at `{}`: {io_error}", path.display())?;
       }
       MissingImportFile { .. } => write!(f, "Could not find source file for import.")?,
       MissingModuleFile { module } => write!(f, "Could not find source file for module `{module}`.")?,
