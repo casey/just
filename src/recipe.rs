@@ -430,14 +430,18 @@ impl<'src, D> Recipe<'src, D> {
     }
   }
 
-  pub(crate) fn groups(&self) -> HashSet<String> {
-    let mut groups = HashSet::new();
-    for attr in &self.attributes {
-      if let Attribute::Group(name) = attr {
-        groups.insert(name.cooked.clone());
-      }
-    }
-    groups
+  pub(crate) fn groups(&self) -> BTreeSet<String> {
+    self
+      .attributes
+      .iter()
+      .filter_map(|attribute| {
+        if let Attribute::Group(group) = attribute {
+          Some(group.cooked.clone())
+        } else {
+          None
+        }
+      })
+      .collect()
   }
 }
 
