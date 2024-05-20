@@ -125,6 +125,17 @@ impl<'src> Node<'src> for Expression<'src> {
               tree.push_mut(b.tree());
             }
           }
+          UnaryPlus {
+            name,
+            args: (a, rest),
+            ..
+          } => {
+            tree.push_mut(name.lexeme());
+            tree.push_mut(a.tree());
+            for arg in rest {
+              tree.push_mut(arg.tree());
+            }
+          }
           Binary {
             name, args: [a, b], ..
           } => {

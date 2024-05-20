@@ -1340,6 +1340,33 @@ that work on various operating systems. For an example, see
 [cross-platform.just](https://github.com/casey/just/blob/master/examples/cross-platform.just)
 file.
 
+#### External Commands
+
+- `shell(command, args...)` returns the standard output of shell script
+  `command` with zero or more positional arguments `args`. The shell used to
+  interpret `command` is the same shell that is used to evaluate recipe lines,
+  and can be changed with `set shell := […]`.
+
+```just
+# arguments can be variables
+file := '/sys/class/power_supply/BAT0/status'
+bat0stat := shell('cat $1', file)
+
+# commands can be variables
+command := 'wc -l $1'
+output := shell(command, 'main.c')
+
+# note that arguments must be used
+empty := shell('echo', 'foo')
+full := shell('echo $1', 'foo')
+```
+
+```just
+# using python as the shell
+set shell := ["python3", "-c"]
+olleh := shell('import sys; print(sys.argv[1][::-1]))', 'hello')
+```
+
 #### Environment Variables
 
 - `env_var(key)` — Retrieves the environment variable with name `key`, aborting

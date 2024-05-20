@@ -760,6 +760,47 @@ fn just_pid() {
 }
 
 #[test]
+fn shell_no_argument() {
+  Test::new()
+    .justfile("var := shell()")
+    .args(["--evaluate"])
+    .stderr(
+      "
+      error: Function `shell` called with 0 arguments but takes 1 or more
+       ——▶ justfile:1:8
+        │
+      1 │ var := shell()
+        │        ^^^^^
+      ",
+    )
+    .status(EXIT_FAILURE)
+    .run();
+}
+
+#[test]
+fn shell_minimal() {
+  assert_eval_eq("shell('echo $0 $1', 'justice', 'legs')", "justice legs");
+}
+
+#[test]
+fn shell_error() {
+  Test::new()
+    .justfile("var := shell('exit 1')")
+    .args(["--evaluate"])
+    .stderr(
+      "
+      error: Call to function `shell` failed: Process exited with status code 1
+       ——▶ justfile:1:8
+        │
+      1 │ var := shell('exit 1')
+        │        ^^^^^
+      ",
+    )
+    .status(EXIT_FAILURE)
+    .run();
+}
+
+#[test]
 fn blake3() {
   Test::new()
     .justfile("x := blake3('5943ee37-0000-1000-8000-010203040506')")

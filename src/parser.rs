@@ -339,6 +339,7 @@ impl<'run, 'src> Parser<'run, 'src> {
           }
           Some(Keyword::Import)
             if self.next_are(&[Identifier, StringToken])
+              || self.next_are(&[Identifier, Identifier, StringToken])
               || self.next_are(&[Identifier, QuestionMark]) =>
           {
             self.presume_keyword(Keyword::Import)?;
@@ -353,6 +354,7 @@ impl<'run, 'src> Parser<'run, 'src> {
           }
           Some(Keyword::Mod)
             if self.next_are(&[Identifier, Identifier, StringToken])
+              || self.next_are(&[Identifier, Identifier, Identifier, StringToken])
               || self.next_are(&[Identifier, Identifier, Eof])
               || self.next_are(&[Identifier, Identifier, Eol])
               || self.next_are(&[Identifier, QuestionMark]) =>
@@ -363,7 +365,8 @@ impl<'run, 'src> Parser<'run, 'src> {
 
             let name = self.parse_name()?;
 
-            let relative = if self.next_is(StringToken) {
+            let relative = if self.next_is(StringToken) || self.next_are(&[Identifier, StringToken])
+            {
               Some(self.parse_string_literal()?)
             } else {
               None
