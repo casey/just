@@ -954,8 +954,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       loop {
         let name = self.parse_name()?;
 
-        let argument = if self.next_is(ParenL) {
-          self.presume(ParenL)?;
+        let argument = if self.accepted(ParenL)? {
           let argument = self.parse_string_literal()?;
           self.expect(ParenR)?;
           Some(argument)
