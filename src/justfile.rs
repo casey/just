@@ -12,17 +12,31 @@ struct Invocation<'src: 'run, 'run> {
 pub(crate) struct Justfile<'src> {
   pub(crate) aliases: Table<'src, Alias<'src>>,
   pub(crate) assignments: Table<'src, Assignment<'src>>,
-  #[serde(rename = "first", serialize_with = "keyed::serialize_option")]
-  pub(crate) default: Option<Rc<Recipe<'src>>>,
   #[serde(skip)]
   pub(crate) loaded: Vec<PathBuf>,
   pub(crate) modules: BTreeMap<String, Justfile<'src>>,
   pub(crate) recipes: Table<'src, Rc<Recipe<'src>>>,
+  pub(crate) root: PathBuf,
   pub(crate) settings: Settings<'src>,
   pub(crate) warnings: Vec<Warning>,
 }
 
 impl<'src> Justfile<'src> {
+  fn default_recipe(&self) -> Option<&Recipe<'src>> {
+    self
+      .recipes
+      .values()
+      .filter(|recipe| recipe.name.path == self.root)
+      .fold(None, |accumulator, next| match accumulator {
+        None => Some(next),
+        Some(previous) => Some(if previous.line_number() < next.line_number() {
+          previous
+        } else {
+          next
+        }),
+      })
+  }
+
   pub(crate) fn suggest_recipe(&self, input: &str) -> Option<Suggestion<'src>> {
     let mut suggestions = self
       .recipes
@@ -211,7 +225,7 @@ impl<'src> Justfile<'src> {
 
     let mut remaining: Vec<&str> = if !arguments.is_empty() {
       arguments.iter().map(String::as_str).collect()
-    } else if let Some(recipe) = &self.default {
+    } else if let Some(recipe) = self.default_recipe() {
       recipe.check_can_be_default_recipe()?;
       vec![recipe.name()]
     } else if self.recipes.is_empty() {
@@ -336,7 +350,7 @@ impl<'src> Justfile<'src> {
       };
 
       if rest.is_empty() {
-        if let Some(recipe) = &module.default {
+        if let Some(recipe) = module.default_recipe() {
           recipe.check_can_be_default_recipe()?;
           return Ok(Some((
             Invocation {

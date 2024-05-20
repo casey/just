@@ -17,7 +17,6 @@ fn alias() {
       foo:
     ",
     json!({
-      "first": "foo",
       "aliases": {
         "f": {
           "name": "f",
@@ -42,6 +41,7 @@ fn alias() {
           "shebang": false,
         }
       },
+      "root": "justfile",
       "settings": {
         "allow_duplicate_recipes": false,
         "allow_duplicate_variables": false,
@@ -77,9 +77,9 @@ fn assignment() {
           "depth": 0,
         }
       },
-      "first": null,
       "modules": {},
       "recipes": {},
+      "root": "justfile",
       "settings": {
         "allow_duplicate_recipes": false,
         "allow_duplicate_variables": false,
@@ -112,7 +112,6 @@ fn body() {
     json!({
       "aliases": {},
       "assignments": {},
-      "first": "foo",
       "modules": {},
       "recipes": {
         "foo": {
@@ -132,6 +131,7 @@ fn body() {
           "shebang": false,
         }
       },
+      "root": "justfile",
       "settings": {
         "allow_duplicate_recipes": false,
         "allow_duplicate_variables": false,
@@ -163,7 +163,6 @@ fn dependencies() {
     json!({
       "aliases": {},
       "assignments": {},
-      "first": "foo",
       "modules": {},
       "recipes": {
         "bar": {
@@ -196,6 +195,7 @@ fn dependencies() {
           "attributes": [],
         }
       },
+      "root": "justfile",
       "settings": {
         "allow_duplicate_recipes": false,
         "allow_duplicate_variables": false,
@@ -239,7 +239,6 @@ fn dependency_argument() {
     ",
     json!({
       "aliases": {},
-      "first": "foo",
       "assignments": {
         "x": {
           "export": false,
@@ -298,6 +297,7 @@ fn dependency_argument() {
           "attributes": [],
         }
       },
+      "root": "justfile",
       "settings": {
         "allow_duplicate_recipes": false,
         "allow_duplicate_variables": false,
@@ -330,7 +330,6 @@ fn duplicate_recipes() {
       foo bar:
     ",
     json!({
-      "first": "foo",
       "aliases": {
         "f": {
           "attributes": [],
@@ -362,6 +361,7 @@ fn duplicate_recipes() {
           "attributes": [],
         }
       },
+      "root": "justfile",
       "settings": {
         "allow_duplicate_recipes": true,
         "allow_duplicate_variables": false,
@@ -401,9 +401,9 @@ fn duplicate_variables() {
           "depth": 0,
         }
       },
-      "first": null,
       "modules": {},
       "recipes": {},
+      "root": "justfile",
       "settings": {
         "allow_duplicate_recipes": false,
         "allow_duplicate_variables": true,
@@ -431,7 +431,6 @@ fn doc_comment() {
     "# hello\nfoo:",
     json!({
       "aliases": {},
-      "first": "foo",
       "assignments": {},
       "modules": {},
       "recipes": {
@@ -449,6 +448,7 @@ fn doc_comment() {
           "attributes": [],
         }
       },
+      "root": "justfile",
       "settings": {
         "allow_duplicate_recipes": false,
         "allow_duplicate_variables": false,
@@ -477,9 +477,9 @@ fn empty_justfile() {
     json!({
       "aliases": {},
       "assignments": {},
-      "first": null,
       "modules": {},
       "recipes": {},
+      "root": "justfile",
       "settings": {
         "allow_duplicate_recipes": false,
         "allow_duplicate_variables": false,
@@ -514,7 +514,6 @@ fn parameters() {
     ",
     json!({
       "aliases": {},
-      "first": "a",
       "assignments": {},
       "modules": {},
       "recipes": {
@@ -632,6 +631,7 @@ fn parameters() {
           "attributes": [],
         },
       },
+      "root": "justfile",
       "settings": {
         "allow_duplicate_recipes": false,
         "allow_duplicate_variables": false,
@@ -664,7 +664,6 @@ fn priors() {
     json!({
       "aliases": {},
       "assignments": {},
-      "first": "a",
       "modules": {},
       "recipes": {
         "a": {
@@ -717,6 +716,7 @@ fn priors() {
           "priors": 0,
         },
       },
+      "root": "justfile",
       "settings": {
         "allow_duplicate_recipes": false,
         "allow_duplicate_variables": false,
@@ -745,7 +745,6 @@ fn private() {
     json!({
       "aliases": {},
       "assignments": {},
-      "first": "_foo",
       "modules": {},
       "recipes": {
         "_foo": {
@@ -762,6 +761,7 @@ fn private() {
           "attributes": [],
         }
       },
+      "root": "justfile",
       "settings": {
         "allow_duplicate_recipes": false,
         "allow_duplicate_variables": false,
@@ -790,7 +790,6 @@ fn quiet() {
     json!({
       "aliases": {},
       "assignments": {},
-      "first": "foo",
       "modules": {},
       "recipes": {
         "foo": {
@@ -807,6 +806,7 @@ fn quiet() {
           "attributes": [],
         }
       },
+      "root": "justfile",
       "settings": {
         "allow_duplicate_recipes": false,
         "allow_duplicate_variables": false,
@@ -847,7 +847,6 @@ fn settings() {
     json!({
       "aliases": {},
       "assignments": {},
-      "first": "foo",
       "modules": {},
       "recipes": {
         "foo": {
@@ -864,6 +863,7 @@ fn settings() {
           "attributes": [],
         }
       },
+      "root": "justfile",
       "settings": {
         "allow_duplicate_recipes": false,
         "allow_duplicate_variables": false,
@@ -898,7 +898,6 @@ fn shebang() {
     json!({
       "aliases": {},
       "assignments": {},
-      "first": "foo",
       "modules": {},
       "recipes": {
         "foo": {
@@ -915,6 +914,7 @@ fn shebang() {
           "attributes": [],
         }
       },
+      "root": "justfile",
       "settings": {
         "allow_duplicate_recipes": false,
         "allow_duplicate_variables": false,
@@ -943,7 +943,6 @@ fn simple() {
     json!({
       "aliases": {},
       "assignments": {},
-      "first": "foo",
       "modules": {},
       "recipes": {
         "foo": {
@@ -960,6 +959,7 @@ fn simple() {
           "attributes": [],
         }
       },
+      "root": "justfile",
       "settings": {
         "allow_duplicate_recipes": false,
         "allow_duplicate_variables": false,
@@ -991,7 +991,6 @@ fn attribute() {
     json!({
       "aliases": {},
       "assignments": {},
-      "first": "foo",
       "modules": {},
       "recipes": {
         "foo": {
@@ -1008,6 +1007,7 @@ fn attribute() {
           "shebang": false,
         }
       },
+      "root": "justfile",
       "settings": {
         "allow_duplicate_recipes": false,
         "allow_duplicate_variables": false,
@@ -1047,12 +1047,10 @@ fn module() {
       serde_json::to_string(&json!({
         "aliases": {},
         "assignments": {},
-        "first": null,
         "modules": {
           "foo": {
             "aliases": {},
             "assignments": {},
-            "first": "bar",
             "modules": {},
             "recipes": {
               "bar": {
@@ -1069,6 +1067,7 @@ fn module() {
                 "shebang": false,
               }
             },
+            "root": "foo.just",
             "settings": {
               "allow_duplicate_recipes": false,
               "allow_duplicate_variables": false,
@@ -1089,6 +1088,7 @@ fn module() {
           },
         },
         "recipes": {},
+        "root": "justfile",
         "settings": {
           "allow_duplicate_recipes": false,
           "allow_duplicate_variables": false,

@@ -146,24 +146,12 @@ impl<'src> Analyzer<'src> {
       aliases.insert(Self::resolve_alias(&recipes, alias)?);
     }
 
-    let root = paths.get(root).unwrap();
-
     Ok(Justfile {
-      default: recipes
-        .values()
-        .filter(|recipe| recipe.name.path == root)
-        .fold(None, |accumulator, next| match accumulator {
-          None => Some(Rc::clone(next)),
-          Some(previous) => Some(if previous.line_number() < next.line_number() {
-            previous
-          } else {
-            Rc::clone(next)
-          }),
-        }),
       aliases,
       assignments: self.assignments,
       loaded: loaded.into(),
       recipes,
+      root: paths.get(root).unwrap().clone(),
       settings,
       warnings,
       modules: modules
