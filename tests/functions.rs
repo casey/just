@@ -760,7 +760,7 @@ fn just_pid() {
 }
 
 #[test]
-fn shell_no_arg_provided() {
+fn shell_no_argument() {
   Test::new()
     .justfile("var := shell()")
     .args(["--evaluate"])
@@ -779,32 +779,24 @@ fn shell_no_arg_provided() {
 
 #[test]
 fn shell_minimal() {
-  Test::new()
-    .justfile(
-      r"
-      var := shell('echo $0 $1', 'justice', 'legs')
-      _:
-        @echo {{var}}
-      ",
-    )
-    .stdout("justice legs\n")
-    .status(EXIT_SUCCESS)
-    .run();
+  assert_eval_eq("shell('echo $0 $1', 'justice', 'legs')", "justice legs");
 }
 
 #[test]
-fn shell_from_variable() {
+fn shell_error() {
   Test::new()
-    .justfile(
-      r"
-      echo := 'echo $0 $1'
-      var := shell(echo, 'justice', 'legs')
-      _:
-        @echo {{var}}
+    .justfile("var := shell('exit 1')")
+    .args(["--evaluate"])
+    .stderr(
+      "
+      error: Call to function `shell` failed: Process exited with status code 1
+       ——▶ justfile:1:8
+        │
+      1 │ var := shell('exit 1')
+        │        ^^^^^
       ",
     )
-    .stdout("justice legs\n")
-    .status(EXIT_SUCCESS)
+    .status(EXIT_FAILURE)
     .run();
 }
 

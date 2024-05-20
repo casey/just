@@ -77,7 +77,7 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
           Ok(())
         }
         Thunk::UnaryPlus {
-          args: ([a], rest), ..
+          args: (a, rest), ..
         } => {
           self.resolve_expression(a)?;
           for arg in rest {

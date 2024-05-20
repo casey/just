@@ -24,7 +24,7 @@ pub(crate) enum Thunk<'src> {
     name: Name<'src>,
     #[derivative(Debug = "ignore", PartialEq = "ignore")]
     function: fn(&Evaluator, &str, &[String]) -> Result<String, String>,
-    args: ([Box<Expression<'src>>; 1], Vec<Expression<'src>>),
+    args: (Box<Expression<'src>>, Vec<Expression<'src>>),
   },
   Binary {
     name: Name<'src>,
@@ -91,7 +91,7 @@ impl<'src> Thunk<'src> {
           let a = Box::new(arguments.pop().unwrap());
           Ok(Thunk::UnaryPlus {
             function,
-            args: ([a], rest),
+            args: (a, rest),
             name,
           })
         }
@@ -151,7 +151,7 @@ impl Display for Thunk<'_> {
       }
       UnaryPlus {
         name,
-        args: ([a], rest),
+        args: (a, rest),
         ..
       } => {
         write!(f, "{}({a}", name.lexeme())?;
@@ -202,8 +202,11 @@ impl<'src> Serialize for Thunk<'src> {
           seq.serialize_element(b)?;
         }
       }
-      Self::UnaryPlus { args, .. } => {
-        for arg in args.0.iter().map(Box::as_ref).chain(&args.1) {
+      Self::UnaryPlus {
+        args: (a, rest), ..
+      } => {
+        seq.serialize_element(a)?;
+        for arg in rest {
           seq.serialize_element(arg)?;
         }
       }

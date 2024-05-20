@@ -105,7 +105,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
           UnaryPlus {
             name,
             function,
-            args: ([a], rest),
+            args: (a, rest),
             ..
           } => {
             let a = self.evaluate_expression(a)?;
@@ -143,7 +143,6 @@ impl<'src, 'run> Evaluator<'src, 'run> {
             for arg in rest {
               rest_evaluated.push(self.evaluate_expression(arg)?);
             }
-
             function(self, &a, &b, &rest_evaluated).map_err(|message| Error::FunctionCall {
               function: *name,
               message,
@@ -229,24 +228,16 @@ impl<'src, 'run> Evaluator<'src, 'run> {
 
   pub(crate) fn run_command(&self, command: &str, args: &[String]) -> Result<String, OutputError> {
     let mut cmd = self.settings.shell_command(self.config);
-
     cmd.arg(command);
-    if !args.is_empty() {
-      cmd.args(args);
-    }
-
+    cmd.args(args);
     cmd.current_dir(&self.search.working_directory);
-
     cmd.export(self.settings, self.dotenv, &self.scope);
-
     cmd.stdin(Stdio::inherit());
-
     cmd.stderr(if self.config.verbosity.quiet() {
       Stdio::null()
     } else {
       Stdio::inherit()
     });
-
     InterruptHandler::guard(|| output(cmd))
   }
 

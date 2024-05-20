@@ -29,7 +29,7 @@ impl<'expression, 'src> Iterator for Variables<'expression, 'src> {
             }
           }
           Thunk::UnaryPlus {
-            args: ([a], rest), ..
+            args: (a, rest), ..
           } => {
             let first: &[&Expression] = &[a];
             for arg in first.iter().copied().chain(rest).rev() {

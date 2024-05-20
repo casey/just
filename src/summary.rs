@@ -263,7 +263,7 @@ impl Expression {
         }
         full::Thunk::UnaryPlus {
           name,
-          args: ([a], rest),
+          args: (a, rest),
           ..
         } => {
           let mut arguments = vec![Expression::new(a)];

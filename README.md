@@ -1340,52 +1340,32 @@ that work on various operating systems. For an example, see
 [cross-platform.just](https://github.com/casey/just/blob/master/examples/cross-platform.just)
 file.
 
-#### Running External Commands/Scripts
-- `shell(command, args...)` expands to the output of running its given command.
-  - `command` is a script snippet or command. Use the catch-all parameter/argument to get all
-    passed arguments/options, '$@'(bash), '$argv' (fish), 'argv' etc.
+#### External Commands
 
-  > *Note*
-  > 1. Due to the way Just currently works, `set shell` overrides all assumed shell in `shell()` calls.
-  > 2. Any statements in the script-like command that writes to standard output will affect the output.
-  > 3. For Python and similar shells, the last `n` (number of args passed in) members of `argv` are the arguments you passed in.
-  >    (See examples)
+- `shell(command, args...)` returns the standard output of shell script
+  `command` with zero or more positional arguments `args`. The shell used to
+  interpret `command` is the same shell that is used to evaluate recipe lines,
+  and can be changed with `set shell := […]`.
 
-  Examples
-  --------
-    1. without external args
-        `bat_stat := shell("cat /sys/class/power_supply/BAT0/status")`
-    2. with external args using sh
-        `bat_stat := shell("cat $@", "/sys/class/power_supply/BAT0/status")`
-    3. This won't print "adstronaut": 
-       `shell("echo", "adstronaut")`, use `shell("echo $0", "adstronaut")` instead
-    4. using python as command interpreter:
-        ```just
-        set shell := ["python3", "-c"]
-        bat_stat := shell("
-        import sys,subprocess
+```just
+# arguments can be variables
+file := '/sys/class/power_supply/BAT0/status'
+bat0stat := shell('cat $1', file)
 
-        statfile = '/sys/class/power_supply/BAT0/status'
-        batstat = subprocess.run(['cat', statfile], capture_output=True).stdout
-        print(batstat.decode(), end='')
-        ")
+# commands can be variables
+command := 'wc -l $1'
+output := shell(command, 'main.c')
 
-        _:
-          echo {{ bat_stat }}
-        ```
-    5.  ```just
-        set shell := ["python3", "-c"]
-        bat_stat := shell("
-        import sys
-        print(sys.argv)
-        ", "killers", "of the", "flower-moon")
-        _:
-          print({{ bat_stat }})
-        ```
-        output:
-        ```
-        ['-c', 'killers', 'of the', 'flower-moon']
-        `
+# note that arguments must be used
+empty := shell('echo', 'foo')
+full := shell('echo $1', 'foo')
+```
+
+```just
+# using python as the shell
+set shell := ["python3", "-c"]
+olleh := shell('import sys; print(sys.argv[1][::-1]))', 'hello')
+```
 
 #### Environment Variables
 

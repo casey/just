@@ -459,9 +459,9 @@ fn sha256_file(evaluator: &Evaluator, path: &str) -> Result<String, String> {
   Ok(format!("{hash:x}"))
 }
 
-fn shell(evaluator: &Evaluator, cmdlike: &str, extras: &[String]) -> Result<String, String> {
+fn shell(evaluator: &Evaluator, command: &str, args: &[String]) -> Result<String, String> {
   evaluator
-    .run_command(cmdlike, extras)
+    .run_command(command, args)
     .map_err(|output_error| output_error.to_string())
 }
 

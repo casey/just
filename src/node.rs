@@ -127,7 +127,7 @@ impl<'src> Node<'src> for Expression<'src> {
           }
           UnaryPlus {
             name,
-            args: ([a], rest),
+            args: (a, rest),
             ..
           } => {
             tree.push_mut(name.lexeme());
