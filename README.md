@@ -1347,6 +1347,18 @@ file.
   interpret `command` is the same shell that is used to evaluate recipe lines,
   and can be changed with `set shell := […]`.
 
+  `command` is passed as the first argument, so if the command is `'echo $@'`,
+  the full command line, with the default shell command `shell -cu` and `args`
+  `'foo'` and `'bar'` will be:
+
+  ```
+  'shell' '-cu' 'echo $@' 'echo $@' 'foo' 'bar'
+  ```
+
+  This is so that `$@` works as expected, and `$1` refers to the first
+  argument. `$@` does not include the first positional argument, which is
+  expected to be the name of the program being run.
+
 ```just
 # arguments can be variables
 file := '/sys/class/power_supply/BAT0/status'
@@ -1362,9 +1374,10 @@ full := shell('echo $1', 'foo')
 ```
 
 ```just
-# using python as the shell
+# Using python as the shell. Since `python -c` sets `sys.argv[0]` to `'-c'`,
+# the first "real" positional argument will be `sys.argv[2]`.
 set shell := ["python3", "-c"]
-olleh := shell('import sys; print(sys.argv[1][::-1]))', 'hello')
+olleh := shell('import sys; print(sys.argv[2][::-1]))', 'hello')
 ```
 
 #### Environment Variables
