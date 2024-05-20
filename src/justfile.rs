@@ -1,4 +1,4 @@
-use {super::*, serde::Serialize, std::collections::HashSet};
+use {super::*, serde::Serialize};
 
 #[derive(Debug)]
 struct Invocation<'src: 'run, 'run> {
@@ -489,7 +489,7 @@ impl<'src> Justfile<'src> {
     recipes
   }
 
-  pub(crate) fn public_groups(&self) -> HashSet<String> {
+  pub(crate) fn public_groups(&self) -> BTreeSet<String> {
     self
       .recipes
       .values()

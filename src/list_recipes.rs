@@ -2,9 +2,7 @@ use super::*;
 const MAX_LINE_WIDTH: usize = 30;
 
 pub(crate) fn list_groups(_config: &Config, justfile: &Justfile) {
-  let mut group_names: Vec<_> = justfile.public_groups().into_iter().collect();
-  group_names.sort_unstable();
-  for group in group_names {
+  for group in justfile.public_groups() {
     println!("{group}");
   }
 }
