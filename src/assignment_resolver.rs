@@ -54,25 +54,17 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
 
   fn resolve_expression(&mut self, expression: &Expression<'src>) -> CompileResult<'src> {
     match expression {
-      Expression::Variable { name } => {
-        let variable = name.lexeme();
-        if self.evaluated.contains(variable) {
-          Ok(())
-        } else if self.stack.contains(&variable) {
-          self.stack.push(variable);
-          Err(
-            self.assignments[variable]
-              .name
-              .error(CircularVariableDependency {
-                variable,
-                circle: self.stack.clone(),
-              }),
-          )
-        } else if self.assignments.contains_key(variable) {
-          self.resolve_assignment(variable)
-        } else {
-          Err(name.token.error(UndefinedVariable { variable }))
-        }
+      Expression::Assert {
+        condition: Condition {
+          lhs,
+          rhs,
+          operator: _,
+        },
+        error,
+      } => {
+        self.resolve_expression(lhs)?;
+        self.resolve_expression(rhs)?;
+        self.resolve_expression(error)
       }
       Expression::Call { thunk } => match thunk {
         Thunk::Nullary { .. } => Ok(()),
@@ -81,6 +73,15 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
           self.resolve_expression(a)?;
           if let Some(b) = b.as_ref() {
             self.resolve_expression(b)?;
+          }
+          Ok(())
+        }
+        Thunk::UnaryPlus {
+          args: (a, rest), ..
+        } => {
+          self.resolve_expression(a)?;
+          for arg in rest {
+            self.resolve_expression(arg)?;
           }
           Ok(())
         }
@@ -111,15 +112,12 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
         self.resolve_expression(lhs)?;
         self.resolve_expression(rhs)
       }
-      Expression::Join { lhs, rhs } => {
-        if let Some(lhs) = lhs {
-          self.resolve_expression(lhs)?;
-        }
-        self.resolve_expression(rhs)
-      }
       Expression::Conditional {
-        lhs,
-        rhs,
+        condition: Condition {
+          lhs,
+          rhs,
+          operator: _,
+        },
         then,
         otherwise,
         ..
@@ -129,8 +127,34 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
         self.resolve_expression(then)?;
         self.resolve_expression(otherwise)
       }
-      Expression::StringLiteral { .. } | Expression::Backtick { .. } => Ok(()),
       Expression::Group { contents } => self.resolve_expression(contents),
+      Expression::Join { lhs, rhs } => {
+        if let Some(lhs) = lhs {
+          self.resolve_expression(lhs)?;
+        }
+        self.resolve_expression(rhs)
+      }
+      Expression::StringLiteral { .. } | Expression::Backtick { .. } => Ok(()),
+      Expression::Variable { name } => {
+        let variable = name.lexeme();
+        if self.evaluated.contains(variable) || constants().contains_key(variable) {
+          Ok(())
+        } else if self.stack.contains(&variable) {
+          self.stack.push(variable);
+          Err(
+            self.assignments[variable]
+              .name
+              .error(CircularVariableDependency {
+                variable,
+                circle: self.stack.clone(),
+              }),
+          )
+        } else if self.assignments.contains_key(variable) {
+          self.resolve_assignment(variable)
+        } else {
+          Err(name.token.error(UndefinedVariable { variable }))
+        }
+      }
     }
   }
 }

@@ -3,7 +3,7 @@ pub(crate) use {
     assert_stdout::assert_stdout,
     assert_success::assert_success,
     tempdir::tempdir,
-    test::{Output, Test},
+    test::{assert_eval_eq, Output, Test},
   },
   cradle::input::Input,
   executable_path::executable_path,
@@ -33,9 +33,12 @@ pub(crate) use {
 mod test;
 
 mod allow_duplicate_recipes;
+mod allow_duplicate_variables;
 mod assert_stdout;
 mod assert_success;
+mod assertions;
 mod attributes;
+mod backticks;
 mod byte_order_mark;
 mod changelog;
 mod choose;
@@ -43,6 +46,7 @@ mod command;
 mod completions;
 mod conditional;
 mod confirm;
+mod constants;
 mod delimiters;
 mod directories;
 mod dotenv;
@@ -55,6 +59,8 @@ mod export;
 mod fallback;
 mod fmt;
 mod functions;
+#[cfg(unix)]
+mod global;
 mod ignore_comments;
 mod imports;
 mod init;
@@ -63,10 +69,13 @@ mod interrupts;
 mod invocation_directory;
 mod json;
 mod line_prefixes;
+mod list;
+mod man;
 mod misc;
 mod modules;
 mod multibyte_char;
 mod newline_escape;
+mod no_aliases;
 mod no_cd;
 mod no_dependencies;
 mod no_exit_message;
@@ -85,6 +94,7 @@ mod search_arguments;
 mod shadowing_parameters;
 mod shebang;
 mod shell;
+mod shell_expansion;
 mod show;
 mod slash_operator;
 mod string;

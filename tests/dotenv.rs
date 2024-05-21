@@ -186,7 +186,7 @@ fn can_set_dotenv_path_from_justfile() {
   Test::new()
     .justfile(
       r#"
-        set dotenv-path:= "subdir/.env"
+        set dotenv-path := "subdir/.env"
 
         foo:
           @echo $JUST_TEST_VARIABLE
@@ -228,7 +228,7 @@ fn program_argument_has_priority_for_dotenv_path() {
   Test::new()
     .justfile(
       r#"
-        set dotenv-path:= "subdir/.env"
+        set dotenv-path := "subdir/.env"
 
         foo:
           @echo $JUST_TEST_VARIABLE
@@ -243,5 +243,22 @@ fn program_argument_has_priority_for_dotenv_path() {
     .args(["--dotenv-path", "subdir/.env.special"])
     .stdout("baz\n")
     .status(EXIT_SUCCESS)
+    .run();
+}
+
+#[test]
+fn dotenv_path_is_relative_to_working_directory() {
+  Test::new()
+    .justfile(
+      "
+        set dotenv-path := '.env'
+
+        foo:
+          @echo $DOTENV_KEY
+      ",
+    )
+    .tree(tree! { subdir: { } })
+    .current_dir("subdir")
+    .stdout("dotenv-value\n")
     .run();
 }

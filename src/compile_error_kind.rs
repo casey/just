@@ -82,6 +82,9 @@ pub(crate) enum CompileErrorKind<'src> {
   RequiredParameterFollowsDefaultParameter {
     parameter: &'src str,
   },
+  ShellExpansion {
+    err: shellexpand::LookupError<env::VarError>,
+  },
   UndefinedVariable {
     variable: &'src str,
   },

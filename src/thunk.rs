@@ -6,36 +6,42 @@ pub(crate) enum Thunk<'src> {
   Nullary {
     name: Name<'src>,
     #[derivative(Debug = "ignore", PartialEq = "ignore")]
-    function: fn(&FunctionContext) -> Result<String, String>,
+    function: fn(&Evaluator) -> Result<String, String>,
   },
   Unary {
     name: Name<'src>,
     #[derivative(Debug = "ignore", PartialEq = "ignore")]
-    function: fn(&FunctionContext, &str) -> Result<String, String>,
+    function: fn(&Evaluator, &str) -> Result<String, String>,
     arg: Box<Expression<'src>>,
   },
   UnaryOpt {
     name: Name<'src>,
     #[derivative(Debug = "ignore", PartialEq = "ignore")]
-    function: fn(&FunctionContext, &str, Option<&str>) -> Result<String, String>,
+    function: fn(&Evaluator, &str, Option<&str>) -> Result<String, String>,
     args: (Box<Expression<'src>>, Box<Option<Expression<'src>>>),
+  },
+  UnaryPlus {
+    name: Name<'src>,
+    #[derivative(Debug = "ignore", PartialEq = "ignore")]
+    function: fn(&Evaluator, &str, &[String]) -> Result<String, String>,
+    args: (Box<Expression<'src>>, Vec<Expression<'src>>),
   },
   Binary {
     name: Name<'src>,
     #[derivative(Debug = "ignore", PartialEq = "ignore")]
-    function: fn(&FunctionContext, &str, &str) -> Result<String, String>,
+    function: fn(&Evaluator, &str, &str) -> Result<String, String>,
     args: [Box<Expression<'src>>; 2],
   },
   BinaryPlus {
     name: Name<'src>,
     #[derivative(Debug = "ignore", PartialEq = "ignore")]
-    function: fn(&FunctionContext, &str, &str, &[String]) -> Result<String, String>,
+    function: fn(&Evaluator, &str, &str, &[String]) -> Result<String, String>,
     args: ([Box<Expression<'src>>; 2], Vec<Expression<'src>>),
   },
   Ternary {
     name: Name<'src>,
     #[derivative(Debug = "ignore", PartialEq = "ignore")]
-    function: fn(&FunctionContext, &str, &str, &str) -> Result<String, String>,
+    function: fn(&Evaluator, &str, &str, &str) -> Result<String, String>,
     args: [Box<Expression<'src>>; 3],
   },
 }
@@ -46,6 +52,7 @@ impl<'src> Thunk<'src> {
       Self::Nullary { name, .. }
       | Self::Unary { name, .. }
       | Self::UnaryOpt { name, .. }
+      | Self::UnaryPlus { name, .. }
       | Self::Binary { name, .. }
       | Self::BinaryPlus { name, .. }
       | Self::Ternary { name, .. } => name,
@@ -64,14 +71,14 @@ impl<'src> Thunk<'src> {
         (Function::Nullary(function), 0) => Ok(Thunk::Nullary { function, name }),
         (Function::Unary(function), 1) => Ok(Thunk::Unary {
           function,
-          arg: Box::new(arguments.pop().unwrap()),
+          arg: arguments.pop().unwrap().into(),
           name,
         }),
         (Function::UnaryOpt(function), 1..=2) => {
-          let a = Box::new(arguments.remove(0));
+          let a = arguments.remove(0).into();
           let b = match arguments.pop() {
-            Some(value) => Box::new(Some(value)),
-            None => Box::new(None),
+            Some(value) => Some(value).into(),
+            None => None.into(),
           };
           Ok(Thunk::UnaryOpt {
             function,
@@ -79,9 +86,18 @@ impl<'src> Thunk<'src> {
             name,
           })
         }
-        (Function::Binary(function), 2) => {
-          let b = Box::new(arguments.pop().unwrap());
+        (Function::UnaryPlus(function), 1..=usize::MAX) => {
+          let rest = arguments.drain(1..).collect();
           let a = Box::new(arguments.pop().unwrap());
+          Ok(Thunk::UnaryPlus {
+            function,
+            args: (a, rest),
+            name,
+          })
+        }
+        (Function::Binary(function), 2) => {
+          let b = arguments.pop().unwrap().into();
+          let a = arguments.pop().unwrap().into();
           Ok(Thunk::Binary {
             function,
             args: [a, b],
@@ -90,8 +106,8 @@ impl<'src> Thunk<'src> {
         }
         (Function::BinaryPlus(function), 2..=usize::MAX) => {
           let rest = arguments.drain(2..).collect();
-          let b = Box::new(arguments.pop().unwrap());
-          let a = Box::new(arguments.pop().unwrap());
+          let b = arguments.pop().unwrap().into();
+          let a = arguments.pop().unwrap().into();
           Ok(Thunk::BinaryPlus {
             function,
             args: ([a, b], rest),
@@ -99,9 +115,9 @@ impl<'src> Thunk<'src> {
           })
         }
         (Function::Ternary(function), 3) => {
-          let c = Box::new(arguments.pop().unwrap());
-          let b = Box::new(arguments.pop().unwrap());
-          let a = Box::new(arguments.pop().unwrap());
+          let c = arguments.pop().unwrap().into();
+          let b = arguments.pop().unwrap().into();
+          let a = arguments.pop().unwrap().into();
           Ok(Thunk::Ternary {
             function,
             args: [a, b, c],
@@ -132,6 +148,17 @@ impl Display for Thunk<'_> {
         } else {
           write!(f, "{}({a})", name.lexeme())
         }
+      }
+      UnaryPlus {
+        name,
+        args: (a, rest),
+        ..
+      } => {
+        write!(f, "{}({a}", name.lexeme())?;
+        for arg in rest {
+          write!(f, ", {arg}")?;
+        }
+        write!(f, ")")
       }
       Binary {
         name, args: [a, b], ..
@@ -173,6 +200,14 @@ impl<'src> Serialize for Thunk<'src> {
         seq.serialize_element(a)?;
         if let Some(b) = opt_b.as_ref() {
           seq.serialize_element(b)?;
+        }
+      }
+      Self::UnaryPlus {
+        args: (a, rest), ..
+      } => {
+        seq.serialize_element(a)?;
+        for arg in rest {
+          seq.serialize_element(arg)?;
         }
       }
       Self::Binary { args, .. } => {

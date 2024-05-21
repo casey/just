@@ -3,6 +3,10 @@ use super::*;
 #[derive(Debug, Snafu)]
 #[snafu(visibility(pub(crate)))]
 pub(crate) enum SearchError {
+  #[snafu(display("Cannot initialize global justfile"))]
+  GlobalJustfileInit,
+  #[snafu(display("Global justfile not found"))]
+  GlobalJustfileNotFound,
   #[snafu(display(
     "I/O error reading directory `{}`: {}",
     directory.display(),

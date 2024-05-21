@@ -182,17 +182,43 @@ fn recipes_in_import_are_overridden_by_recipes_in_parent() {
     })
     .justfile(
       "
+        a:
+          @echo ROOT
+
         import './import.justfile'
 
         set allow-duplicate-recipes
-
-        a:
-          @echo ROOT
       ",
     )
     .test_round_trip(false)
     .arg("a")
     .stdout("ROOT\n")
+    .run();
+}
+
+#[test]
+fn variables_in_import_are_overridden_by_variables_in_parent() {
+  Test::new()
+    .tree(tree! {
+      "import.justfile": "
+    f := 'foo'
+    ",
+    })
+    .justfile(
+      "
+      f := 'bar'
+
+      import './import.justfile'
+
+      set allow-duplicate-variables
+
+      a:
+        @echo {{f}}
+    ",
+    )
+    .test_round_trip(false)
+    .arg("a")
+    .stdout("bar\n")
     .run();
 }
 
@@ -316,5 +342,41 @@ fn shebang_recipes_in_imports_in_root_run_in_justfile_directory() {
     .test_round_trip(false)
     .arg("bar")
     .stdout("BAZ")
+    .run();
+}
+
+#[test]
+fn recipes_imported_in_root_run_in_command_line_provided_working_directory() {
+  Test::new()
+    .write("subdir/b.justfile", "@b:\n  cat baz")
+    .write("subdir/a.justfile", "import 'b.justfile'\n@a: b\n  cat baz")
+    .write("baz", "BAZ")
+    .args([
+      "--working-directory",
+      ".",
+      "--justfile",
+      "subdir/a.justfile",
+    ])
+    .test_round_trip(false)
+    .stdout("BAZBAZ")
+    .run();
+}
+
+#[test]
+fn reused_import_are_allowed() {
+  Test::new()
+    .justfile(
+      "
+      import 'a'
+      import 'b'
+
+      bar:
+    ",
+    )
+    .tree(tree! {
+      a: "import 'c'",
+      b: "import 'c'",
+      c: "",
+    })
     .run();
 }

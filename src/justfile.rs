@@ -135,7 +135,7 @@ impl<'src> Justfile<'src> {
       BTreeMap::new()
     };
 
-    let root = Scope::new();
+    let root = Scope::root();
 
     let scope = self.scope(config, &dotenv, search, overrides, &root)?;
 

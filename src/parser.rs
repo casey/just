@@ -25,6 +25,7 @@ use {super::*, TokenKind::*};
 /// contents of the set is printed in the resultant error message.
 pub(crate) struct Parser<'run, 'src> {
   expected_tokens: BTreeSet<TokenKind>,
+  file_depth: u32,
   file_path: &'run Path,
   module_namepath: &'run Namepath<'src>,
   next_token: usize,
@@ -37,6 +38,7 @@ pub(crate) struct Parser<'run, 'src> {
 impl<'run, 'src> Parser<'run, 'src> {
   /// Parse `tokens` into an `Ast`
   pub(crate) fn parse(
+    file_depth: u32,
     file_path: &'run Path,
     module_namepath: &'run Namepath<'src>,
     submodule_depth: u32,
@@ -45,6 +47,7 @@ impl<'run, 'src> Parser<'run, 'src> {
   ) -> CompileResult<'src, Ast<'src>> {
     Self {
       expected_tokens: BTreeSet::new(),
+      file_depth,
       file_path,
       module_namepath,
       next_token: 0,
@@ -336,6 +339,7 @@ impl<'run, 'src> Parser<'run, 'src> {
           }
           Some(Keyword::Import)
             if self.next_are(&[Identifier, StringToken])
+              || self.next_are(&[Identifier, Identifier, StringToken])
               || self.next_are(&[Identifier, QuestionMark]) =>
           {
             self.presume_keyword(Keyword::Import)?;
@@ -350,6 +354,7 @@ impl<'run, 'src> Parser<'run, 'src> {
           }
           Some(Keyword::Mod)
             if self.next_are(&[Identifier, Identifier, StringToken])
+              || self.next_are(&[Identifier, Identifier, Identifier, StringToken])
               || self.next_are(&[Identifier, Identifier, Eof])
               || self.next_are(&[Identifier, Identifier, Eol])
               || self.next_are(&[Identifier, QuestionMark]) =>
@@ -360,7 +365,8 @@ impl<'run, 'src> Parser<'run, 'src> {
 
             let name = self.parse_name()?;
 
-            let relative = if self.next_is(StringToken) {
+            let relative = if self.next_is(StringToken) || self.next_are(&[Identifier, StringToken])
+            {
               Some(self.parse_string_literal()?)
             } else {
               None
@@ -456,6 +462,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     let value = self.parse_expression()?;
     self.expect_eol()?;
     Ok(Assignment {
+      depth: self.file_depth,
       export,
       name,
       value,
@@ -478,18 +485,18 @@ impl<'run, 'src> Parser<'run, 'src> {
       self.parse_conditional()?
     } else if self.accepted(Slash)? {
       let lhs = None;
-      let rhs = Box::new(self.parse_expression()?);
+      let rhs = self.parse_expression()?.into();
       Expression::Join { lhs, rhs }
     } else {
       let value = self.parse_value()?;
 
       if self.accepted(Slash)? {
         let lhs = Some(Box::new(value));
-        let rhs = Box::new(self.parse_expression()?);
+        let rhs = self.parse_expression()?.into();
         Expression::Join { lhs, rhs }
       } else if self.accepted(Plus)? {
-        let lhs = Box::new(value);
-        let rhs = Box::new(self.parse_expression()?);
+        let lhs = value.into();
+        let rhs = self.parse_expression()?.into();
         Expression::Concatenation { lhs, rhs }
       } else {
         value
@@ -503,18 +510,7 @@ impl<'run, 'src> Parser<'run, 'src> {
 
   /// Parse a conditional, e.g. `if a == b { "foo" } else { "bar" }`
   fn parse_conditional(&mut self) -> CompileResult<'src, Expression<'src>> {
-    let lhs = self.parse_expression()?;
-
-    let operator = if self.accepted(BangEquals)? {
-      ConditionalOperator::Inequality
-    } else if self.accepted(EqualsTilde)? {
-      ConditionalOperator::RegexMatch
-    } else {
-      self.expect(EqualsEquals)?;
-      ConditionalOperator::Equality
-    };
-
-    let rhs = self.parse_expression()?;
+    let condition = self.parse_condition()?;
 
     self.expect(BraceL)?;
 
@@ -534,17 +530,33 @@ impl<'run, 'src> Parser<'run, 'src> {
     };
 
     Ok(Expression::Conditional {
-      lhs: Box::new(lhs),
-      rhs: Box::new(rhs),
-      then: Box::new(then),
-      otherwise: Box::new(otherwise),
+      condition,
+      then: then.into(),
+      otherwise: otherwise.into(),
+    })
+  }
+
+  fn parse_condition(&mut self) -> CompileResult<'src, Condition<'src>> {
+    let lhs = self.parse_expression()?;
+    let operator = if self.accepted(BangEquals)? {
+      ConditionalOperator::Inequality
+    } else if self.accepted(EqualsTilde)? {
+      ConditionalOperator::RegexMatch
+    } else {
+      self.expect(EqualsEquals)?;
+      ConditionalOperator::Equality
+    };
+    let rhs = self.parse_expression()?;
+    Ok(Condition {
+      lhs: lhs.into(),
+      rhs: rhs.into(),
       operator,
     })
   }
 
   /// Parse a value, e.g. `(bar)`
   fn parse_value(&mut self) -> CompileResult<'src, Expression<'src>> {
-    if self.next_is(StringToken) {
+    if self.next_is(StringToken) || self.next_are(&[Identifier, StringToken]) {
       Ok(Expression::StringLiteral {
         string_literal: self.parse_string_literal()?,
       })
@@ -563,22 +575,30 @@ impl<'run, 'src> Parser<'run, 'src> {
       if contents.starts_with("#!") {
         return Err(next.error(CompileErrorKind::BacktickShebang));
       }
-
       Ok(Expression::Backtick { contents, token })
     } else if self.next_is(Identifier) {
-      let name = self.parse_name()?;
-
-      if self.next_is(ParenL) {
-        let arguments = self.parse_sequence()?;
-        Ok(Expression::Call {
-          thunk: Thunk::resolve(name, arguments)?,
-        })
+      if self.accepted_keyword(Keyword::Assert)? {
+        self.expect(ParenL)?;
+        let condition = self.parse_condition()?;
+        self.expect(Comma)?;
+        let error = Box::new(self.parse_expression()?);
+        self.expect(ParenR)?;
+        Ok(Expression::Assert { condition, error })
       } else {
-        Ok(Expression::Variable { name })
+        let name = self.parse_name()?;
+
+        if self.next_is(ParenL) {
+          let arguments = self.parse_sequence()?;
+          Ok(Expression::Call {
+            thunk: Thunk::resolve(name, arguments)?,
+          })
+        } else {
+          Ok(Expression::Variable { name })
+        }
       }
     } else if self.next_is(ParenL) {
       self.presume(ParenL)?;
-      let contents = Box::new(self.parse_expression()?);
+      let contents = self.parse_expression()?.into();
       self.expect(ParenR)?;
       Ok(Expression::Group { contents })
     } else {
@@ -590,6 +610,8 @@ impl<'run, 'src> Parser<'run, 'src> {
   fn parse_string_literal_token(
     &mut self,
   ) -> CompileResult<'src, (Token<'src>, StringLiteral<'src>)> {
+    let expand = self.accepted_keyword(Keyword::X)?;
+
     let token = self.expect(StringToken)?;
 
     let kind = StringKind::from_string_or_backtick(token)?;
@@ -634,7 +656,23 @@ impl<'run, 'src> Parser<'run, 'src> {
       unindented
     };
 
-    Ok((token, StringLiteral { kind, raw, cooked }))
+    let cooked = if expand {
+      shellexpand::full(&cooked)
+        .map_err(|err| token.error(CompileErrorKind::ShellExpansion { err }))?
+        .into_owned()
+    } else {
+      cooked
+    };
+
+    Ok((
+      token,
+      StringLiteral {
+        cooked,
+        expand,
+        kind,
+        raw,
+      },
+    ))
   }
 
   /// Parse a string literal, e.g. `"FOO"`
@@ -737,8 +775,8 @@ impl<'run, 'src> Parser<'run, 'src> {
       attributes,
       body,
       dependencies,
-      depth: self.submodule_depth,
       doc,
+      file_depth: self.file_depth,
       file_path: self.file_path.into(),
       name,
       namepath: self.module_namepath.join(name),
@@ -746,6 +784,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       priors,
       private: name.lexeme().starts_with('_'),
       quiet,
+      submodule_depth: self.submodule_depth,
       working_directory: self.working_directory.into(),
     })
   }
@@ -846,6 +885,9 @@ impl<'run, 'src> Parser<'run, 'src> {
     let set_bool = match keyword {
       Keyword::AllowDuplicateRecipes => {
         Some(Setting::AllowDuplicateRecipes(self.parse_set_bool()?))
+      }
+      Keyword::AllowDuplicateVariables => {
+        Some(Setting::AllowDuplicateVariables(self.parse_set_bool()?))
       }
       Keyword::DotenvLoad => Some(Setting::DotenvLoad(self.parse_set_bool()?)),
       Keyword::Export => Some(Setting::Export(self.parse_set_bool()?)),
@@ -975,6 +1017,7 @@ mod tests {
     let unindented = unindent(text);
     let tokens = Lexer::test_lex(&unindented).expect("lexing failed");
     let justfile = Parser::parse(
+      0,
       &PathBuf::new(),
       &Namepath::default(),
       0,
@@ -1020,6 +1063,7 @@ mod tests {
     let tokens = Lexer::test_lex(src).expect("Lexing failed in parse test...");
 
     match Parser::parse(
+      0,
       &PathBuf::new(),
       &Namepath::default(),
       0,
@@ -1038,7 +1082,7 @@ mod tests {
             length,
             path: "justfile".as_ref(),
           },
-          kind: Box::new(kind),
+          kind: kind.into(),
         };
         assert_eq!(have, want);
       }
@@ -1914,6 +1958,12 @@ mod tests {
   }
 
   test! {
+    name: set_allow_duplicate_variables_implicit,
+    text: "set allow-duplicate-variables",
+    tree: (justfile (set allow_duplicate_variables true)),
+  }
+
+  test! {
     name: set_dotenv_load_true,
     text: "set dotenv-load := true",
     tree: (justfile (set dotenv_load true)),
@@ -2091,6 +2141,18 @@ mod tests {
     name: optional_module_with_path,
     text: "mod? foo \"some/file/path.txt\"     \n",
     tree: (justfile (mod ? foo "some/file/path.txt")),
+  }
+
+  test! {
+    name: assert,
+    text: "a := assert(foo == \"bar\", \"error\")",
+    tree: (justfile (assignment a (assert foo == "bar" "error"))),
+  }
+
+  test! {
+    name: assert_conditional_condition,
+    text: "foo := assert(if a != b { c } else { d } == \"abc\", \"error\")",
+    tree: (justfile (assignment foo (assert (if a != b c d) == "abc" "error"))),
   }
 
   error! {

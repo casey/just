@@ -14,7 +14,7 @@ impl<'src> Analyzer<'src> {
     asts: &HashMap<PathBuf, Ast<'src>>,
     root: &Path,
   ) -> CompileResult<'src, Justfile<'src>> {
-    Analyzer::default().justfile(loaded, paths, asts, root)
+    Self::default().justfile(loaded, paths, asts, root)
   }
 
   fn justfile(
@@ -25,6 +25,8 @@ impl<'src> Analyzer<'src> {
     root: &Path,
   ) -> CompileResult<'src, Justfile<'src>> {
     let mut recipes = Vec::new();
+
+    let mut assignments = Vec::new();
 
     let mut stack = Vec::new();
     stack.push(asts.get(root).unwrap());
@@ -70,8 +72,7 @@ impl<'src> Analyzer<'src> {
             self.aliases.insert(alias.clone());
           }
           Item::Assignment(assignment) => {
-            self.analyze_assignment(assignment)?;
-            self.assignments.insert(assignment.clone());
+            assignments.push(assignment);
           }
           Item::Comment(_) => (),
           Item::Import { absolute, .. } => {
@@ -108,13 +109,31 @@ impl<'src> Analyzer<'src> {
 
     let mut recipe_table: Table<'src, UnresolvedRecipe<'src>> = Table::default();
 
+    for assignment in assignments {
+      if !settings.allow_duplicate_variables
+        && self.assignments.contains_key(assignment.name.lexeme())
+      {
+        return Err(assignment.name.token.error(DuplicateVariable {
+          variable: assignment.name.lexeme(),
+        }));
+      }
+
+      if self
+        .assignments
+        .get(assignment.name.lexeme())
+        .map_or(true, |original| assignment.depth <= original.depth)
+      {
+        self.assignments.insert(assignment.clone());
+      }
+    }
+
     AssignmentResolver::resolve_assignments(&self.assignments)?;
 
     for recipe in recipes {
       define(recipe.name, "recipe", settings.allow_duplicate_recipes)?;
       if recipe_table
         .get(recipe.name.lexeme())
-        .map_or(true, |original| recipe.depth <= original.depth)
+        .map_or(true, |original| recipe.file_depth <= original.file_depth)
       {
         recipe_table.insert(recipe.clone());
       }
@@ -196,15 +215,6 @@ impl<'src> Analyzer<'src> {
       continued = line.is_continuation();
     }
 
-    Ok(())
-  }
-
-  fn analyze_assignment(&self, assignment: &Assignment<'src>) -> CompileResult<'src> {
-    if self.assignments.contains_key(assignment.name.lexeme()) {
-      return Err(assignment.name.token.error(DuplicateVariable {
-        variable: assignment.name.lexeme(),
-      }));
-    }
     Ok(())
   }
 

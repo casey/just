@@ -136,113 +136,16 @@ most Windows users.)
   </thead>
   <tbody>
     <tr>
-      <td><a href=https://forge.rust-lang.org/release/platform-support.html>Various</a></td>
-      <td><a href=https://www.rust-lang.org>Cargo</a></td>
-      <td><a href=https://crates.io/crates/just>just</a></td>
-      <td><code>cargo install just</code></td>
-    </tr>
-    <tr>
-      <td><a href=https://en.wikipedia.org/wiki/Microsoft_Windows>Microsoft Windows</a></td>
-      <td><a href=https://scoop.sh>Scoop</a></td>
-      <td><a href=https://github.com/ScoopInstaller/Main/blob/master/bucket/just.json>just</a></td>
-      <td><code>scoop install just</code></td>
-    </tr>
-    <tr>
-      <td><a href=https://docs.brew.sh/Installation>Various</a></td>
-      <td><a href=https://brew.sh>Homebrew</a></td>
-      <td><a href=https://formulae.brew.sh/formula/just>just</a></td>
-      <td><code>brew install just</code></td>
-    </tr>
-    <tr>
-      <td><a href=https://en.wikipedia.org/wiki/MacOS>macOS</a></td>
-      <td><a href=https://www.macports.org>MacPorts</a></td>
-      <td><a href=https://ports.macports.org/port/just/summary>just</a></td>
-      <td><code>port install just</code></td>
-    </tr>
-    <tr>
-      <td><a href=https://www.archlinux.org>Arch Linux</a></td>
-      <td><a href=https://wiki.archlinux.org/title/Pacman>pacman</a></td>
-      <td><a href=https://archlinux.org/packages/extra/x86_64/just/>just</a></td>
-      <td><code>pacman -S just</code></td>
-    </tr>
-    <tr>
-      <td><a href=https://nixos.org/download.html#download-nix>Various</a></td>
-      <td><a href=https://nixos.org/nix/>Nix</a></td>
-      <td><a href=https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/tools/just/default.nix>just</a></td>
-      <td><code>nix-env -iA nixpkgs.just</code></td>
-    </tr>
-    <tr>
-      <td><a href=https://nixos.org/nixos/>NixOS</a></td>
-      <td><a href=https://nixos.org/nix/>Nix</a></td>
-      <td><a href=https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/tools/just/default.nix>just</a></td>
-      <td><code>nix-env -iA nixos.just</code></td>
-    </tr>
-    <tr>
-      <td><a href=https://getsol.us>Solus</a></td>
-      <td><a href=https://getsol.us/articles/package-management/basics/en>eopkg</a></td>
-      <td><a href=https://dev.getsol.us/source/just/>just</a></td>
-      <td><code>eopkg install just</code></td>
-    </tr>
-    <tr>
-      <td><a href=https://voidlinux.org>Void Linux</a></td>
-      <td><a href=https://wiki.voidlinux.org/XBPS>XBPS</a></td>
-      <td><a href=https://github.com/void-linux/void-packages/blob/master/srcpkgs/just/template>just</a></td>
-      <td><code>xbps-install -S just</code></td>
-    </tr>
-    <tr>
-      <td><a href=https://www.freebsd.org>FreeBSD</a></td>
-      <td><a href=https://www.freebsd.org/doc/handbook/pkgng-intro.html>pkg</a></td>
-      <td><a href=https://www.freshports.org/deskutils/just/>just</a></td>
-      <td><code>pkg install just</code></td>
-    </tr>
-    <tr>
       <td><a href=https://alpinelinux.org>Alpine Linux</a></td>
       <td><a href=https://wiki.alpinelinux.org/wiki/Alpine_Linux_package_management>apk-tools</a></td>
       <td><a href=https://pkgs.alpinelinux.org/package/edge/community/x86_64/just>just</a></td>
       <td><code>apk add just</code></td>
     </tr>
     <tr>
-      <td><a href=https://getfedora.org>Fedora Linux</a></td>
-      <td><a href=https://dnf.readthedocs.io/en/latest/>DNF</a></td>
-      <td><a href=https://src.fedoraproject.org/rpms/rust-just>just</a></td>
-      <td><code>dnf install just</code></td>
-    </tr>
-    <tr>
-      <td><a href=https://www.gentoo.org>Gentoo Linux</a></td>
-      <td><a href=https://wiki.gentoo.org/wiki/Portage>Portage</a></td>
-      <td><a href=https://github.com/gentoo-mirror/guru/tree/master/dev-build/just>guru/dev-build/just</a></td>
-      <td>
-        <code>eselect repository enable guru</code><br>
-        <code>emerge --sync guru</code><br>
-        <code>emerge dev-build/just</code>
-      </td>
-    </tr>
-    <tr>
-      <td><a href=https://docs.conda.io/en/latest/miniconda.html#system-requirements>Various</a></td>
-      <td><a href=https://docs.conda.io/projects/conda/en/latest/index.html>Conda</a></td>
-      <td><a href=https://anaconda.org/conda-forge/just>just</a></td>
-      <td><code>conda install -c conda-forge just</code></td>
-    </tr>
-    <tr>
-      <td><a href=https://en.wikipedia.org/wiki/Microsoft_Windows>Microsoft Windows</a></td>
-      <td><a href=https://chocolatey.org>Chocolatey</a></td>
-      <td><a href=https://github.com/michidk/just-choco>just</a></td>
-      <td><code>choco install just</code></td>
-    </tr>
-    <tr>
-      <td><a href=https://snapcraft.io/docs/installing-snapd>Various</a></td>
-      <td><a href=https://snapcraft.io>Snap</a></td>
-      <td><a href=https://snapcraft.io/just>just</a></td>
-      <td><code>snap install --edge --classic just</code></td>
-    </tr>
-    <tr>
-      <td><a href=https://github.com/casey/just/releases>Various</a></td>
-      <td><a href=https://asdf-vm.com>asdf</a></td>
-      <td><a href=https://github.com/olofvndrhr/asdf-just>just</a></td>
-      <td>
-        <code>asdf plugin add just</code><br>
-        <code>asdf install just &lt;version&gt;</code>
-      </td>
+      <td><a href=https://www.archlinux.org>Arch Linux</a></td>
+      <td><a href=https://wiki.archlinux.org/title/Pacman>pacman</a></td>
+      <td><a href=https://archlinux.org/packages/extra/x86_64/just/>just</a></td>
+      <td><code>pacman -S just</code></td>
     </tr>
     <tr>
       <td><a href=https://debian.org>Debian</a> and <a href=https://ubuntu.com>Ubuntu</a> derivatives</td>
@@ -264,15 +167,120 @@ most Windows users.)
       </td>
     </tr>
     <tr>
+      <td><a href=https://getfedora.org>Fedora Linux</a></td>
+      <td><a href=https://dnf.readthedocs.io/en/latest/>DNF</a></td>
+      <td><a href=https://src.fedoraproject.org/rpms/rust-just>just</a></td>
+      <td><code>dnf install just</code></td>
+    </tr>
+    <tr>
+      <td><a href=https://www.freebsd.org>FreeBSD</a></td>
+      <td><a href=https://www.freebsd.org/doc/handbook/pkgng-intro.html>pkg</a></td>
+      <td><a href=https://www.freshports.org/deskutils/just/>just</a></td>
+      <td><code>pkg install just</code></td>
+    </tr>
+    <tr>
+      <td><a href=https://www.gentoo.org>Gentoo Linux</a></td>
+      <td><a href=https://wiki.gentoo.org/wiki/Portage>Portage</a></td>
+      <td><a href=https://github.com/gentoo-mirror/guru/tree/master/dev-build/just>guru/dev-build/just</a></td>
+      <td>
+        <code>eselect repository enable guru</code><br>
+        <code>emerge --sync guru</code><br>
+        <code>emerge dev-build/just</code>
+      </td>
+    </tr>
+    <tr>
+      <td><a href=https://en.wikipedia.org/wiki/MacOS>macOS</a></td>
+      <td><a href=https://www.macports.org>MacPorts</a></td>
+      <td><a href=https://ports.macports.org/port/just/summary>just</a></td>
+      <td><code>port install just</code></td>
+    </tr>
+    <tr>
+      <td><a href=https://en.wikipedia.org/wiki/Microsoft_Windows>Microsoft Windows</a></td>
+      <td><a href=https://chocolatey.org>Chocolatey</a></td>
+      <td><a href=https://github.com/michidk/just-choco>just</a></td>
+      <td><code>choco install just</code></td>
+    </tr>
+    <tr>
+      <td><a href=https://en.wikipedia.org/wiki/Microsoft_Windows>Microsoft Windows</a></td>
+      <td><a href=https://scoop.sh>Scoop</a></td>
+      <td><a href=https://github.com/ScoopInstaller/Main/blob/master/bucket/just.json>just</a></td>
+      <td><code>scoop install just</code></td>
+    </tr>
+    <tr>
       <td><a href=https://en.wikipedia.org/wiki/Microsoft_Windows>Microsoft Windows</a></td>
       <td><a href=https://learn.microsoft.com/en-us/windows/package-manager/>Windows Package Manager</a></td>
       <td><a href=https://github.com/microsoft/winget-pkgs/tree/master/manifests/c/Casey/Just>Casey/Just</a></td>
       <td><code>winget install --id Casey.Just --exact</code></td>
     </tr>
+    <tr>
+      <td><a href=https://nixos.org/nixos/>NixOS</a></td>
+      <td><a href=https://nixos.org/nix/>Nix</a></td>
+      <td><a href=https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/tools/just/default.nix>just</a></td>
+      <td><code>nix-env -iA nixos.just</code></td>
+    </tr>
+    <tr>
+      <td><a href=https://opensuse.org>openSUSE</a></td>
+      <td><a href=https://en.opensuse.org/Portal:Zypper>Zypper</a></td>
+      <td><a href=https://build.opensuse.org/package/show/Base:System/just>just</a></td>
+      <td><code>zypper in just</code></td>
+    </tr>
+    <tr>
+      <td><a href=https://getsol.us>Solus</a></td>
+      <td><a href=https://getsol.us/articles/package-management/basics/en>eopkg</a></td>
+      <td><a href=https://dev.getsol.us/source/just/>just</a></td>
+      <td><code>eopkg install just</code></td>
+    </tr>
+    <tr>
+      <td><a href=https://github.com/casey/just/releases>Various</a></td>
+      <td><a href=https://asdf-vm.com>asdf</a></td>
+      <td><a href=https://github.com/olofvndrhr/asdf-just>just</a></td>
+      <td>
+        <code>asdf plugin add just</code><br>
+        <code>asdf install just &lt;version&gt;</code>
+      </td>
+    </tr>
+    <tr>
+      <td><a href=https://forge.rust-lang.org/release/platform-support.html>Various</a></td>
+      <td><a href=https://www.rust-lang.org>Cargo</a></td>
+      <td><a href=https://crates.io/crates/just>just</a></td>
+      <td><code>cargo install just</code></td>
+    </tr>
+    <tr>
+      <td><a href=https://docs.conda.io/en/latest/miniconda.html#system-requirements>Various</a></td>
+      <td><a href=https://docs.conda.io/projects/conda/en/latest/index.html>Conda</a></td>
+      <td><a href=https://anaconda.org/conda-forge/just>just</a></td>
+      <td><code>conda install -c conda-forge just</code></td>
+    </tr>
+    <tr>
+      <td><a href=https://docs.brew.sh/Installation>Various</a></td>
+      <td><a href=https://brew.sh>Homebrew</a></td>
+      <td><a href=https://formulae.brew.sh/formula/just>just</a></td>
+      <td><code>brew install just</code></td>
+    </tr>
+    <tr>
+      <td><a href=https://nixos.org/download.html#download-nix>Various</a></td>
+      <td><a href=https://nixos.org/nix/>Nix</a></td>
+      <td><a href=https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/tools/just/default.nix>just</a></td>
+      <td><code>nix-env -iA nixpkgs.just</code></td>
+    </tr>
+    <tr>
+      <td><a href=https://snapcraft.io/docs/installing-snapd>Various</a></td>
+      <td><a href=https://snapcraft.io>Snap</a></td>
+      <td><a href=https://snapcraft.io/just>just</a></td>
+      <td><code>snap install --edge --classic just</code></td>
+    </tr>
+    <tr>
+      <td><a href=https://voidlinux.org>Void Linux</a></td>
+      <td><a href=https://wiki.voidlinux.org/XBPS>XBPS</a></td>
+      <td><a href=https://github.com/void-linux/void-packages/blob/master/srcpkgs/just/template>just</a></td>
+      <td><code>xbps-install -S just</code></td>
+    </tr>
   </tbody>
 </table>
 
-![package version table](https://repology.org/badge/vertical-allrepos/just.svg)
+![just package version table](https://repology.org/badge/vertical-allrepos/just.svg)
+
+![rust:just package version table](https://repology.org/badge/vertical-allrepos/rust:just.svg)
 
 ### Pre-Built Binaries
 
@@ -484,19 +492,11 @@ a per-file basis:
 
 ### Visual Studio Code
 
-An extension for VS Code by [skellock](https://github.com/skellock) is
-[available here](https://marketplace.visualstudio.com/items?itemName=skellock.just)
-([repository](https://github.com/skellock/vscode-just)), but is no longer
-actively developed.
+An extension for VS Code is [available here](https://github.com/nefrob/vscode-just).
 
-You can install it from the command line by running:
-
-```sh
-code --install-extension skellock.just
-```
-
-An more recently active fork by [sclu1034](https://github.com/sclu1034) is
-available [here](https://github.com/sclu1034/vscode-just).
+Unmaintained VS Code extensions include
+[skellock/vscode-just](https://github.com/skellock/vscode-just) and
+[sclu1034/vscode-just](https://github.com/sclu1034/vscode-just).
 
 ### JetBrains IDEs
 
@@ -720,8 +720,8 @@ default:
   @just --list
 ```
 
-Note that you may need to add `--justfile {{justfile()}}` to the line above
-above. Without it, if you executed `just -f /some/distant/justfile -d .` or
+Note that you may need to add `--justfile {{justfile()}}` to the line above.
+Without it, if you executed `just -f /some/distant/justfile -d .` or
 `just -f ./non-standard-justfile`, the plain `just --list` inside the recipe
 would not necessarily use the file you provided. It would try to find a
 justfile in your current path, maybe even resulting in a `No justfile found`
@@ -753,6 +753,31 @@ you can suppress the heading line entirely by passing the empty string:
 $ just --list --list-heading ''
     test
     build
+```
+
+### Working Directory
+
+By default, recipes run with the working directory set to the directory that
+contains the `justfile`.
+
+The `[no-cd]` attribute can be used to make recipes run with the working
+directory set to directory in which `just` was invoked.
+
+```just
+@foo:
+  pwd
+
+[no-cd]
+@bar:
+  pwd
+```
+
+```sh
+$ cd subdir
+$ just foo
+/
+: just bar
+/subdir
 ```
 
 ### Aliases
@@ -792,6 +817,7 @@ foo:
 | Name | Value | Default | Description |
 |------|-------|---------|-------------|
 | `allow-duplicate-recipes` | boolean | `false` | Allow recipes appearing later in a `justfile` to override earlier recipes with the same name. |
+| `allow-duplicate-variables` | boolean | `false` | Allow variables appearing later in a `justfile` to override earlier variables with the same name. |
 | `dotenv-filename` | string | - | Load a `.env` file with a custom name, if present. |
 | `dotenv-load` | boolean | `false` | Load a `.env` file, if present. |
 | `dotenv-path` | string | - | Load a `.env` file from a custom path, if present. Overrides `dotenv-filename`. |
@@ -830,6 +856,27 @@ set allow-duplicate-recipes
 
 @foo:
   echo bar
+```
+
+```sh
+$ just foo
+bar
+```
+
+#### Allow Duplicate Variables
+
+If `allow-duplicate-variables` is set to `true`, defining multiple variables
+with the same name is not an error and the last definition is used. Defaults to
+`false`.
+
+```just
+set allow-duplicate-variables
+
+a := "foo"
+a := "bar"
+
+@foo:
+  echo $a
 ```
 
 ```sh
@@ -1195,8 +1242,8 @@ escapes := "\t\n\r\"\\"
 ```
 
 Indented versions of both single- and double-quoted strings, delimited by
-triple single- or triple double-quotes, are supported. Indented string lines
-are stripped of a leading line break, and leading whitespace common to all
+triple single- or double-quotes, are supported. Indented string lines are
+stripped of a leading line break, and leading whitespace common to all
 non-blank lines:
 
 ```just
@@ -1219,6 +1266,24 @@ sequences, and indented single-quoted strings ignore escape sequences. Escape
 sequence processing takes place after unindentation. The unindentation
 algorithm does not take escape-sequence produced whitespace or newlines into
 account.
+
+Strings prefixed with `x` are shell expanded<sup>master</sup>:
+
+```justfile
+foobar := x'~/$FOO/${BAR}'
+```
+
+| Value | Replacement |
+|------|-------------|
+| `$VAR` | value of environment variable `VAR` |
+| `${VAR}` | value of environment variable `VAR` |
+| Leading `~` | path to current user's home directory |
+| Leading `~USER` | path to `USER`'s home directory |
+
+This expansion is performed at compile time, so variables from `.env` files and
+exported `just` variables cannot be used. However, this allows shell expanded
+strings to be used in places like settings and import paths, which cannot
+depend on `just` variables and `.env` files.
 
 ### Ignoring Errors
 
@@ -1274,6 +1339,47 @@ The `os_family()` function can be used to create cross-platform `justfile`s
 that work on various operating systems. For an example, see
 [cross-platform.just](https://github.com/casey/just/blob/master/examples/cross-platform.just)
 file.
+
+#### External Commands
+
+- `shell(command, args...)`<sup>master</sup> returns the standard output of shell script
+  `command` with zero or more positional arguments `args`. The shell used to
+  interpret `command` is the same shell that is used to evaluate recipe lines,
+  and can be changed with `set shell := […]`.
+
+  `command` is passed as the first argument, so if the command is `'echo $@'`,
+  the full command line, with the default shell command `shell -cu` and `args`
+  `'foo'` and `'bar'` will be:
+
+  ```
+  'shell' '-cu' 'echo $@' 'echo $@' 'foo' 'bar'
+  ```
+
+  This is so that `$@` works as expected, and `$1` refers to the first
+  argument. `$@` does not include the first positional argument, which is
+  expected to be the name of the program being run.
+
+```just
+# arguments can be variables or expressions
+file := '/sys/class/power_supply/BAT0/status'
+bat0stat := shell('cat $1', file)
+
+# commands can be variables or expressions
+command := 'wc -l'
+output := shell(command + ' "$1"', 'main.c')
+
+# arguments referenced by the shell command must be used
+empty := shell('echo', 'foo')
+full := shell('echo $1', 'foo')
+error := shell('echo $1')
+```
+
+```just
+# Using python as the shell. Since `python -c` sets `sys.argv[0]` to `'-c'`,
+# the first "real" positional argument will be `sys.argv[2]`.
+set shell := ["python3", "-c"]
+olleh := shell('import sys; print(sys.argv[2][::-1])', 'hello')
+```
 
 #### Environment Variables
 
@@ -1373,9 +1479,16 @@ $ just
 The process ID is: 420
 ```
 
-
 #### String Manipulation
 
+- `append(suffix, s)`<sup>master</sup> Append `suffix` to whitespace-separated
+  strings in `s`. `append('/src', 'foo bar baz')` → `'foo/src bar/src baz/src'`
+- `prepend(prefix, s)`<sup>master</sup> Prepend `prefix` to
+  whitespace-separated strings in `s`. `prepend('src/', 'foo bar baz')` →
+  `'src/foo src/bar src/baz'`
+- `encode_uri_component(s)`<sup>master</sup> - Percent-encode characters in `s`
+  except `[A-Za-z0-9_.!~*'()-]`, matching the behavior of the
+  [JavaScript `encodeURIComponent` function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent).
 - `quote(s)` - Replace all single quotes with `'\''` and prepend and append
   single quotes to `s`. This is sufficient to escape special characters for
   many shells, including most Bourne shell descendants.
@@ -1456,8 +1569,8 @@ which will halt execution.
 
 #### UUID and Hash Generation
 
-- `blake3(string)`<sup>master</sup> - Return [BLAKE3] hash of `string` as hexadecimal string.
-- `blake3_file(path)`<sup>master</sup> - Return [BLAKE3] hash of file at `path` as hexadecimal
+- `blake3(string)`<sup>1.25.0</sup> - Return [BLAKE3] hash of `string` as hexadecimal string.
+- `blake3_file(path)`<sup>1.25.0</sup> - Return [BLAKE3] hash of file at `path` as hexadecimal
   string.
 - `sha256(string)` - Return the SHA-256 hash of `string` as hexadecimal string.
 - `sha256_file(path)` - Return SHA-256 hash of file at `path` as hexadecimal
@@ -1465,6 +1578,13 @@ which will halt execution.
 - `uuid()` - Generate a random version 4 UUID.
 
 [BLAKE3]: https://github.com/BLAKE3-team/BLAKE3/
+
+#### Random
+
+- `choose(n, alphabet)`<sup>master</sup> - Generate a string of `n` randomly
+  selected characters from `alphabet`, which may not contain repeated
+  characters. For example, `choose('64', HEX)` will generate a random
+  64-character lowercase hex string.
 
 #### Semantic Versions
 
@@ -1489,6 +1609,26 @@ and are implemented with the
 - `data_local_directory()` - The local user-specific data directory.
 - `executable_directory()` - The user-specific executable directory.
 - `home_directory()` - The user's home directory.
+
+### Constants
+
+A number of constants are predefined:
+
+| Name | Value |
+|------|-------------|
+| `HEX`<sup>master</sup> | `"0123456789abcdef"` |
+| `HEXLOWER`<sup>master</sup> | `"0123456789abcdef"` |
+| `HEXUPPER`<sup>master</sup> | `"0123456789ABCDEF"` |
+
+```just
+@foo:
+  echo {{HEX}}
+```
+
+```sh
+$ just foo
+0123456789abcdef
+```
 
 ### Recipe Attributes
 
@@ -1582,7 +1722,7 @@ that requires confirmation.
 
 ```just
 [confirm]
-delete all:
+delete-all:
   rm -rf *
 ```
 
@@ -2113,8 +2253,17 @@ the file as executable, and executing it. The OS then parses the shebang line
 into a command line and invokes it, including the path to the file. For
 example, if a recipe starts with `#!/usr/bin/env bash`, the final command that
 the OS runs will be something like `/usr/bin/env bash
-/tmp/PATH_TO_SAVED_RECIPE_BODY`. Keep in mind that different operating systems
-split shebang lines differently.
+/tmp/PATH_TO_SAVED_RECIPE_BODY`.
+
+Shebang line splitting is operating system dependent. When passing a command
+with arguments, you may need to tell `env` to split them explicitly by using
+the `-S` flag:
+
+```just
+run:
+  #!/usr/bin/env -S bash -x
+  ls
+```
 
 Windows does not support shebang lines. On Windows, `just` splits the shebang
 line into a command and arguments, saves the recipe body to a file, and invokes
@@ -2446,8 +2595,7 @@ dep2 \
 ```
 
 Backslash line continuations can also be used in interpolations. The line
-following the backslash must start with the same indentation as the recipe
-body, although additional indentation is accepted.
+following the backslash must be indented.
 
 ```just
 recipe:
@@ -2479,7 +2627,21 @@ $ just --show polyglot
 polyglot: python js perl sh ruby
 ```
 
-Run `just --help` to see all the options.
+Some command-line options can be set with environment variables. For example:
+
+```sh
+$ export JUST_UNSTABLE=1
+$ just
+```
+
+Is equivalent to:
+
+```sh
+$ just --unstable
+```
+
+Consult `just --help` to see which options can be set from environment
+variables.
 
 ### Private Recipes
 
@@ -2738,7 +2900,8 @@ Imported files can themselves contain `import`s, which are processed
 recursively.
 
 When `allow-duplicate-recipes` is set, recipes in parent modules override
-recipes in imports.
+recipes in imports. In a similar manner, when `allow-duplicate-variables` is
+set, variables in parent modules override variables in imports.
 
 Imports may be made optional by putting a `?` after the `import` keyword:
 
@@ -2748,7 +2911,7 @@ import? 'foo/bar.just'
 
 Missing source files for optional imports do not produce an error.
 
-### Modules<sup>1.19.0</sup>
+### Modules <sup>1.19.0</sup>
 
 A `justfile` can declare modules using `mod` statements. `mod` statements are
 currently unstable, so you'll need to use the `--unstable` flag, or set the
@@ -3047,12 +3210,32 @@ can also be used to make a `just` binary print its changelog.
 Miscellanea
 -----------
 
-### Companion Tools
+### Re-running recipes when files change
 
-Tools that pair nicely with `just` include:
+[`watchexec`](https://github.com/mattgreen/watchexec) can re-run any command
+when files change.
 
-- [`watchexec`](https://github.com/mattgreen/watchexec) — a simple tool that
-  watches a path and runs a command whenever it detects modifications.
+To re-run the recipe `foo` when any file changes:
+
+```sh
+watchexec just foo
+```
+
+See `watchexec --help` for more info, including how to specify which files
+should be watched for changes.
+
+### Running tasks in parallel
+
+GNU parallel can be used to run tasks concurrently:
+
+```just
+parallel:
+  #!/usr/bin/env -S parallel --shebang --ungroup --jobs {{ num_cpus() }}
+  echo task 1 start; sleep 3; echo task 1 done
+  echo task 2 start; sleep 3; echo task 2 done
+  echo task 3 start; sleep 3; echo task 3 done
+  echo task 4 start; sleep 3; echo task 4 done
+```
 
 ### Shell Alias
 
@@ -3107,6 +3290,14 @@ fpath=($HOMEBREW_PREFIX/share/zsh/site-functions $fpath)
 # compinit
 ```
 
+### Man Page
+
+`just` can print its own man page with `just --man`. Man pages are written in
+[`roff`](https://en.wikipedia.org/wiki/Roff_%28software%29), a venerable markup
+language and one of the first practical applications of Unix. If you have
+[`groff`](https://www.gnu.org/software/groff/) installed you can view the man
+page with  `just --man | groff -mandoc -Tascii | less`.
+
 ### Grammar
 
 A non-normative grammar of `justfile`s can be found in
@@ -3118,13 +3309,30 @@ Before `just` was a fancy Rust program it was a tiny shell script that called
 `make`. You can find the old version in
 [contrib/just.sh](https://github.com/casey/just/blob/master/contrib/just.sh).
 
-### User `justfile`s
+### Global and User `justfile`s
 
 If you want some recipes to be available everywhere, you have a few options.
 
-First, create a `justfile` in `~/.user.justfile` with some recipes.
+#### Global Justfile
 
-#### Recipe Aliases
+`just --global-justfile`, or `just -g` for short, searches the following paths,
+in-order, for a justfile:
+
+- `$XDG_CONFIG_HOME/just/justfile`
+- `$HOME/.config/just/justfile`
+- `$HOME/justfile`
+- `$HOME/.justfile`
+
+You can put recipes that are used across many projects in a global justfile to
+easily invoke them from any directory.
+
+#### User justfile tips
+
+You can also adopt some of the following workflows. These tips assume you've
+created a `justfile` at `~/.user.justfile`, but you can put this `justfile`
+at any convenient path on your system.
+
+##### Recipe Aliases
 
 If you want to call the recipes in `~/.user.justfile` by name, and don't mind
 creating an alias for every recipe, add the following to your shell's
@@ -3143,7 +3351,7 @@ It took me way too long to realize that you could create recipe aliases like
 this. Notwithstanding my tardiness, I am very pleased to bring you this major
 advance in `justfile` technology.
 
-#### Forwarding Alias
+##### Forwarding Alias
 
 If you'd rather not create aliases for every recipe, you can create a single alias:
 
@@ -3158,7 +3366,7 @@ I'm pretty sure that nobody actually uses this feature, but it's there.
 
 ¯\\\_(ツ)\_/¯
 
-#### Customization
+##### Customization
 
 You can customize the above aliases with additional options. For example, if
 you'd prefer to have the recipes in your `justfile` run in your home directory,
@@ -3218,9 +3426,9 @@ under this license.
 
 ### Janus
 
-[Janus](https://github.com/casey/janus) is a tool that collects and analyzes
-`justfile`s, and can determine if a new version of `just` breaks or changes the
-interpretation of existing `justfile`s.
+[Janus](https://github.com/casey/janus) is a tool for checking whether a change
+to `just` breaks or changes the interpretation of existing `justfile`s. It
+collects and analyzes public `justfile`s on GitHub.
 
 Before merging a particularly large or gruesome change, Janus should be run to
 make sure that nothing breaks. Don't worry about running Janus yourself, Casey

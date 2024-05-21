@@ -1,5 +1,5 @@
 _just() {
-    local i cur prev words cword opts cmds
+    local i cur prev words cword opts cmd
     COMPREPLY=()
 
     # Modules use "::" as the separator, which is considered a wordbreak character in bash.
@@ -19,19 +19,18 @@ _just() {
 
     for i in ${words[@]}
     do
-        case "${i}" in
-            "$1")
+        case "${cmd},${i}" in
+            ",$1")
                 cmd="just"
                 ;;
-            
             *)
                 ;;
         esac
     done
 
     case "${cmd}" in
-        just)
-            opts=" -n -q -u -v -e -l -h -V -f -d -c -s  --check --yes --dry-run --highlight --no-deps --no-dotenv --no-highlight --quiet --shell-command --clear-shell-args --unsorted --unstable --verbose --changelog --choose --dump --edit --evaluate --fmt --init --list --summary --variables --help --version --chooser --color --command-color --dump-format --list-heading --list-prefix --justfile --set --shell --shell-arg --working-directory --command --completions --show --dotenv-filename --dotenv-path  <ARGUMENTS>... "
+        "$1")
+            opts="-n -f -q -u -v -d -c -e -l -s -E -g -h -V --check --chooser --color --command-color --yes --dry-run --dump-format --highlight --list-heading --list-prefix --no-aliases --no-deps --no-dotenv --no-highlight --justfile --quiet --set --shell --shell-arg --shell-command --clear-shell-args --unsorted --unstable --verbose --working-directory --changelog --choose --command --completions --dump --edit --evaluate --fmt --init --list --man --show --summary --variables --dotenv-filename --dotenv-path --global-justfile --help --version [ARGUMENTS]..."
                 if [[ ${cur} == -* ]] ; then
                     COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                     return 0
@@ -53,7 +52,6 @@ _just() {
                     fi
                 fi
             case "${prev}" in
-                
                 --chooser)
                     COMPREPLY=($(compgen -f "${cur}"))
                     return 0
@@ -82,7 +80,7 @@ _just() {
                     COMPREPLY=($(compgen -f "${cur}"))
                     return 0
                     ;;
-                    -f)
+                -f)
                     COMPREPLY=($(compgen -f "${cur}"))
                     return 0
                     ;;
@@ -102,7 +100,7 @@ _just() {
                     COMPREPLY=($(compgen -f "${cur}"))
                     return 0
                     ;;
-                    -d)
+                -d)
                     COMPREPLY=($(compgen -f "${cur}"))
                     return 0
                     ;;
@@ -110,19 +108,19 @@ _just() {
                     COMPREPLY=($(compgen -f "${cur}"))
                     return 0
                     ;;
-                    -c)
+                -c)
                     COMPREPLY=($(compgen -f "${cur}"))
                     return 0
                     ;;
                 --completions)
-                    COMPREPLY=($(compgen -W "zsh bash fish powershell elvish" -- "${cur}"))
+                    COMPREPLY=($(compgen -W "bash elvish fish powershell zsh" -- "${cur}"))
                     return 0
                     ;;
                 --show)
                     COMPREPLY=($(compgen -f "${cur}"))
                     return 0
                     ;;
-                    -s)
+                -s)
                     COMPREPLY=($(compgen -f "${cur}"))
                     return 0
                     ;;
@@ -134,6 +132,10 @@ _just() {
                     COMPREPLY=($(compgen -f "${cur}"))
                     return 0
                     ;;
+                -E)
+                    COMPREPLY=($(compgen -f "${cur}"))
+                    return 0
+                    ;;
                 *)
                     COMPREPLY=()
                     ;;
@@ -141,8 +143,11 @@ _just() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
-        
     esac
 }
 
-complete -F _just -o bashdefault -o default just
+if [[ "${BASH_VERSINFO[0]}" -eq 4 && "${BASH_VERSINFO[1]}" -ge 4 || "${BASH_VERSINFO[0]}" -gt 4 ]]; then
+    complete -F _just -o nosort -o bashdefault -o default just
+else
+    complete -F _just -o bashdefault -o default just
+fi

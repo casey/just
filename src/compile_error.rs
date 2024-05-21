@@ -14,7 +14,7 @@ impl<'src> CompileError<'src> {
   pub(crate) fn new(token: Token<'src>, kind: CompileErrorKind<'src>) -> CompileError<'src> {
     Self {
       token,
-      kind: Box::new(kind),
+      kind: kind.into(),
     }
   }
 }
@@ -206,6 +206,7 @@ impl Display for CompileError<'_> {
           )
         }
       }
+      ShellExpansion { err } => write!(f, "Shell expansion failed: {err}"),
       RequiredParameterFollowsDefaultParameter { parameter } => write!(
         f,
         "Non-default parameter `{parameter}` follows default parameter"

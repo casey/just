@@ -43,13 +43,7 @@ shellcheck:
   shellcheck www/install.sh
 
 man:
-  cargo build --features help4help2man
-  help2man \
-    --name 'save and run commands' \
-    --manual 'Just Manual' \
-    --no-info \
-    target/debug/just \
-    > man/just.1
+  cargo run -- --man > man/just.1
 
 view-man: man
   man man/just.1
@@ -114,10 +108,6 @@ install-dev-deps:
   cargo install cargo-check
   cargo install cargo-watch
   cargo install mdbook mdbook-linkcheck
-
-# install system development dependencies with homebrew
-install-dev-deps-homebrew:
-  brew install help2man
 
 # everyone's favorite animate paper clip
 clippy:
@@ -215,6 +205,11 @@ _sh:
   #!/usr/bin/env sh
   hello='Yo'
   echo "$hello from a shell script!"
+
+_nu:
+  #!/usr/bin/env nu
+  let hellos = ["Greetings", "Yo", "Howdy"]
+  $hellos | each {|el| print $"($el) from a nushell script!" }
 
 _ruby:
   #!/usr/bin/env ruby

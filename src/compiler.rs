@@ -8,9 +8,9 @@ impl Compiler {
     loader: &'src Loader,
     root: &Path,
   ) -> RunResult<'src, Compilation<'src>> {
-    let mut asts: HashMap<PathBuf, Ast> = HashMap::new();
-    let mut paths: HashMap<PathBuf, PathBuf> = HashMap::new();
-    let mut srcs: HashMap<PathBuf, &str> = HashMap::new();
+    let mut asts = HashMap::<PathBuf, Ast>::new();
+    let mut paths = HashMap::<PathBuf, PathBuf>::new();
+    let mut srcs = HashMap::<PathBuf, &str>::new();
     let mut loaded = Vec::new();
 
     let mut stack = Vec::new();
@@ -21,9 +21,10 @@ impl Compiler {
       loaded.push(relative.into());
       let tokens = Lexer::lex(relative, src)?;
       let mut ast = Parser::parse(
+        current.file_depth,
         &current.path,
         &current.namepath,
-        current.depth,
+        current.submodule_depth,
         &tokens,
         &current.working_directory,
       )?;
@@ -60,7 +61,7 @@ impl Compiler {
             };
 
             if let Some(import) = import {
-              if srcs.contains_key(&import) {
+              if current.file_path.contains(&import) {
                 return Err(Error::CircularImport {
                   current: current.path,
                   import,
@@ -86,7 +87,7 @@ impl Compiler {
               .lexiclean();
 
             if import.is_file() {
-              if srcs.contains_key(&import) {
+              if current.file_path.contains(&import) {
                 return Err(Error::CircularImport {
                   current: current.path,
                   import,
@@ -169,6 +170,7 @@ impl Compiler {
   pub(crate) fn test_compile(src: &str) -> CompileResult<Justfile> {
     let tokens = Lexer::test_lex(src)?;
     let ast = Parser::parse(
+      0,
       &PathBuf::new(),
       &Namepath::default(),
       0,
@@ -227,26 +229,11 @@ recipe_b: recipe_c
 
   #[test]
   fn recursive_includes_fail() {
-    let justfile_a = r#"
-# A comment at the top of the file
-import "./subdir/justfile_b"
-
-some_recipe: recipe_b
-    echo "some recipe"
-
-"#;
-
-    let justfile_b = r#"
-import "../justfile"
-
-recipe_b:
-    echo "recipe b"
-"#;
     let tmp = temptree! {
-        justfile: justfile_a,
-        subdir: {
-            justfile_b: justfile_b
-        }
+      justfile: "import './subdir/b'\na: b",
+      subdir: {
+        b: "import '../justfile'\nb:"
+      }
     };
 
     let loader = Loader::new();
@@ -255,8 +242,8 @@ recipe_b:
     let loader_output = Compiler::compile(false, &loader, &justfile_a_path).unwrap_err();
 
     assert_matches!(loader_output, Error::CircularImport { current, import }
-        if current == tmp.path().join("subdir").join("justfile_b").lexiclean() &&
-        import == tmp.path().join("justfile").lexiclean()
+      if current == tmp.path().join("subdir").join("b").lexiclean() &&
+      import == tmp.path().join("justfile").lexiclean()
     );
   }
 }

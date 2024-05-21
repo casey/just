@@ -1,7 +1,4 @@
-use {
-  super::*,
-  std::process::{ExitStatus, Stdio},
-};
+use super::*;
 
 /// Return a `Error::Signal` if the process was terminated by a signal,
 /// otherwise return an `Error::UnknownFailure`
@@ -25,9 +22,9 @@ pub(crate) struct Recipe<'src, D = Dependency<'src>> {
   pub(crate) attributes: BTreeSet<Attribute<'src>>,
   pub(crate) body: Vec<Line<'src>>,
   pub(crate) dependencies: Vec<D>,
-  #[serde(skip)]
-  pub(crate) depth: u32,
   pub(crate) doc: Option<&'src str>,
+  #[serde(skip)]
+  pub(crate) file_depth: u32,
   #[serde(skip)]
   pub(crate) file_path: PathBuf,
   pub(crate) name: Name<'src>,
@@ -37,6 +34,8 @@ pub(crate) struct Recipe<'src, D = Dependency<'src>> {
   pub(crate) private: bool,
   pub(crate) quiet: bool,
   pub(crate) shebang: bool,
+  #[serde(skip)]
+  pub(crate) submodule_depth: u32,
   #[serde(skip)]
   pub(crate) working_directory: PathBuf,
 }
@@ -129,7 +128,7 @@ impl<'src, D> Recipe<'src, D> {
 
   fn working_directory<'a>(&'a self, search: &'a Search) -> Option<&Path> {
     if self.change_directory() {
-      Some(if self.depth > 0 {
+      Some(if self.submodule_depth > 0 {
         &self.working_directory
       } else {
         &search.working_directory
@@ -303,14 +302,21 @@ impl<'src, D> Recipe<'src, D> {
     config: &Config,
     mut evaluator: Evaluator<'src, 'run>,
   ) -> RunResult<'src, ()> {
-    let mut evaluated_lines = vec![];
+    let mut evaluated_lines = Vec::new();
     for line in &self.body {
       evaluated_lines.push(evaluator.evaluate_line(line, false)?);
     }
 
     if config.verbosity.loud() && (config.dry_run || self.quiet) {
       for line in &evaluated_lines {
-        eprintln!("{line}");
+        eprintln!(
+          "{}",
+          config
+            .color
+            .command(config.command_color)
+            .stderr()
+            .paint(line)
+        );
       }
     }
 
@@ -330,9 +336,20 @@ impl<'src, D> Recipe<'src, D> {
     tempdir_builder.prefix("just-");
     let tempdir = match &context.settings.tempdir {
       Some(tempdir) => tempdir_builder.tempdir_in(context.search.working_directory.join(tempdir)),
-      None => tempdir_builder.tempdir(),
+      None => {
+        if let Some(cache_dir) = dirs::cache_dir() {
+          let path = cache_dir.join("just");
+          fs::create_dir_all(&path).map_err(|io_error| Error::CacheDirIo {
+            io_error,
+            path: path.clone(),
+          })?;
+          tempdir_builder.tempdir_in(path)
+        } else {
+          tempdir_builder.tempdir()
+        }
+      }
     }
-    .map_err(|error| Error::TmpdirIo {
+    .map_err(|error| Error::TempdirIo {
       recipe: self.name(),
       io_error: error,
     })?;
@@ -340,7 +357,7 @@ impl<'src, D> Recipe<'src, D> {
     path.push(shebang.script_filename(self.name()));
 
     {
-      let mut f = fs::File::create(&path).map_err(|error| Error::TmpdirIo {
+      let mut f = fs::File::create(&path).map_err(|error| Error::TempdirIo {
         recipe: self.name(),
         io_error: error,
       })?;
@@ -368,14 +385,14 @@ impl<'src, D> Recipe<'src, D> {
       }
 
       f.write_all(text.as_bytes())
-        .map_err(|error| Error::TmpdirIo {
+        .map_err(|error| Error::TempdirIo {
           recipe: self.name(),
           io_error: error,
         })?;
     }
 
     // make script executable
-    Platform::set_execute_permission(&path).map_err(|error| Error::TmpdirIo {
+    Platform::set_execute_permission(&path).map_err(|error| Error::TempdirIo {
       recipe: self.name(),
       io_error: error,
     })?;
