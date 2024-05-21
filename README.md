@@ -264,12 +264,6 @@ most Windows users.)
       <td><code>nix-env -iA nixpkgs.just</code></td>
     </tr>
     <tr>
-      <td><a href=https://snapcraft.io/docs/installing-snapd>Various</a></td>
-      <td><a href=https://snapcraft.io>Snap</a></td>
-      <td><a href=https://snapcraft.io/just>just</a></td>
-      <td><code>snap install --edge --classic just</code></td>
-    </tr>
-    <tr>
       <td><a href=https://voidlinux.org>Void Linux</a></td>
       <td><a href=https://wiki.voidlinux.org/XBPS>XBPS</a></td>
       <td><a href=https://github.com/void-linux/void-packages/blob/master/srcpkgs/just/template>just</a></td>
@@ -321,41 +315,12 @@ circumstances, pass a specific tag to install with `--tag`.
 
 ### GitHub Actions
 
-Developers may be interested in running the same `just` commands that they use
-locally on continuous integration platforms such as GitHub Actions. For example,
-every time that a contributor creates a pull request, a GitHub Action could run
-`just test` on the three major operating systems to provide feedback to both the
-contributor and reviewers that tests are passing.
+`just` can be installed on GitHub Actions in a few ways.
 
-Demonstrate how to install and use just in GitHub Actions on the three major
-operating systems without needing third-party GitHub Actions. Put the following
-code into a `.github/workflows/just_test.yml` file.
+Using package managers pre-installed on GitHub Actions runners on MacOS with
+`brew install just`, and on Windows with `choco install just`.
 
-```yaml
-name: just_test
-on: [pull_request, push]
-jobs:
-  ubuntu:
-    runs-on: ubuntu-latest
-    steps:
-    - run: sudo snap install --edge --classic just
-    - uses: actions/checkout@v4
-    - run: just test
-  macos:
-    runs-on: macos-latest
-    steps:
-    - run: brew install just
-    - uses: actions/checkout@v4
-    - run: just test
-  windows:
-    runs-on: windows-latest
-    steps:
-    - run: choco install just
-    - uses: actions/checkout@v4
-    - run: just test
-```
-
-Or with [extractions/setup-just](https://github.com/extractions/setup-just):
+With [extractions/setup-just](https://github.com/extractions/setup-just):
 
 ```yaml
 - uses: extractions/setup-just@v1
