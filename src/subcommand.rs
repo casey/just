@@ -211,7 +211,6 @@ impl Subcommand {
   ) -> Result<(), Error<'src>> {
     let mut recipes = Vec::<&Recipe<Dependency>>::new();
     let mut stack = vec![justfile];
-
     while let Some(module) = stack.pop() {
       recipes.extend(
         module
