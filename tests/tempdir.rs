@@ -1,10 +1,18 @@
 use super::*;
 
 pub(crate) fn tempdir() -> TempDir {
-  tempfile::Builder::new()
-    .prefix("just-test-tempdir")
-    .tempdir()
-    .expect("failed to create temporary directory")
+  let mut builder = tempfile::Builder::new();
+
+  builder.prefix("just-test-tempdir");
+
+  if let Some(cache_dir) = dirs::cache_dir() {
+    let path = cache_dir.join("just");
+    fs::create_dir_all(&path).unwrap();
+    builder.tempdir_in(path)
+  } else {
+    builder.tempdir()
+  }
+  .expect("failed to create temporary directory")
 }
 
 #[test]
