@@ -209,12 +209,18 @@ impl Subcommand {
     overrides: &BTreeMap<String, String>,
     chooser: Option<&str>,
   ) -> Result<(), Error<'src>> {
-    let recipes = justfile
-      .public_recipes(config.unsorted)
-      .iter()
-      .filter(|recipe| recipe.min_arguments() == 0)
-      .copied()
-      .collect::<Vec<&Recipe<Dependency>>>();
+    let mut recipes = Vec::<&Recipe<Dependency>>::new();
+    let mut stack = vec![justfile];
+
+    while let Some(module) = stack.pop() {
+      recipes.extend(
+        module
+          .public_recipes(config.unsorted)
+          .iter()
+          .filter(|recipe| recipe.min_arguments() == 0),
+      );
+      stack.extend(module.modules.values());
+    }
 
     if recipes.is_empty() {
       return Err(Error::NoChoosableRecipes);
@@ -249,7 +255,7 @@ impl Subcommand {
         .stdin
         .as_mut()
         .expect("Child was created with piped stdio")
-        .write_all(format!("{}\n", recipe.name).as_bytes())
+        .write_all(format!("{}\n", recipe.namepath).as_bytes())
       {
         return Err(Error::ChooserWrite { io_error, chooser });
       }
