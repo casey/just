@@ -427,12 +427,6 @@ most Windows users.)</p>
       <td><code>nix-env -iA nixpkgs.just</code></td>
     </tr>
     <tr>
-      <td><a href=https://snapcraft.io/docs/installing-snapd>Various</a></td>
-      <td><a href=https://snapcraft.io>Snap</a></td>
-      <td><a href=https://snapcraft.io/just>just</a></td>
-      <td><code>snap install --edge --classic just</code></td>
-    </tr>
-    <tr>
       <td><a href=https://voidlinux.org>Void Linux</a></td>
       <td><a href=https://wiki.voidlinux.org/XBPS>XBPS</a></td>
       <td><a href=https://github.com/void-linux/void-packages/blob/master/srcpkgs/just/template>just</a></td>
@@ -471,37 +465,10 @@ to determine the latest version of <code>just</code> to install, and those API c
 rate-limited on a per-IP basis. To make <code>install.sh</code> more reliable in such
 circumstances, pass a specific tag to install with <code>--tag</code>.</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="github-actions"><a class="header" href="#github-actions">GitHub Actions</a></h3>
-<p>Developers may be interested in running the same <code>just</code> commands that they use
-locally on continuous integration platforms such as GitHub Actions. For example,
-every time that a contributor creates a pull request, a GitHub Action could run
-<code>just test</code> on the three major operating systems to provide feedback to both the
-contributor and reviewers that tests are passing.</p>
-<p>Demonstrate how to install and use just in GitHub Actions on the three major
-operating systems without needing third-party GitHub Actions. Put the following
-code into a <code>.github/workflows/just_test.yml</code> file.</p>
-<pre><code class="language-yaml">name: just_test
-on: [pull_request, push]
-jobs:
-  ubuntu:
-    runs-on: ubuntu-latest
-    steps:
-    - run: sudo snap install --edge --classic just
-    - uses: actions/checkout@v4
-    - run: just test
-  macos:
-    runs-on: macos-latest
-    steps:
-    - run: brew install just
-    - uses: actions/checkout@v4
-    - run: just test
-  windows:
-    runs-on: windows-latest
-    steps:
-    - run: choco install just
-    - uses: actions/checkout@v4
-    - run: just test
-</code></pre>
-<p>Or with <a href="https://github.com/extractions/setup-just">extractions/setup-just</a>:</p>
+<p><code>just</code> can be installed on GitHub Actions in a few ways.</p>
+<p>Using package managers pre-installed on GitHub Actions runners on MacOS with
+<code>brew install just</code>, and on Windows with <code>choco install just</code>.</p>
+<p>With <a href="https://github.com/extractions/setup-just">extractions/setup-just</a>:</p>
 <pre><code class="language-yaml">- uses: extractions/setup-just@v1
   with:
     just-version: 1.5.0  # optional semver specification, otherwise latest
