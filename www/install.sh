@@ -55,15 +55,10 @@ download() {
   url="$1"
   output="$2"
 
-  # use curl if available, wget otherwise
   if command -v curl > /dev/null; then
     curl --proto =https --tlsv1.2 -sSfL "$url" "-o$output"
   else
-    # Some wget implementations support these flags, but busybox
-    # (used by alpine) does not. Try both sets.
-    wget --https-only --secure-protocol=TLSv1_e --quiet \
-      "$url" "-O$output" 2> /dev/null ||
-      wget "$url" "-O$output"
+    wget --https-only --secure-protocol=TLSv1_2 --quiet "$url" "-O$output"
   fi
 }
 
@@ -98,8 +93,10 @@ while test $# -gt 0; do
   shift
 done
 
-command -v curl > /dev/null || command -v wget > /dev/null || 
+command -v curl > /dev/null 2>&1 ||
+  command -v wget > /dev/null 2>&1 ||
   err "need wget or curl (command not found)"
+
 need install
 need mkdir
 need mktemp
