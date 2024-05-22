@@ -13,24 +13,21 @@ impl<'line> Shebang<'line> {
     }
     let mut pieces = line[2..]
       .lines()
-      // check if nextline is shebang || if user is using nixos
       .next()
       .unwrap_or("")
       .trim()
       .splitn(2, |c| c == ' ' || c == '\t');
+      // while let Some(piece) = pieces.next() {
+      //   if piece.starts_with("!#"){
+      //     piece
+      //     .lines()
+      //     .next()
+      //     .unwrap_or()
+      //     .trim()
+      //     .splitn()
+      //   }
+      // collect into vector or concatenate together into single string
       
-      while let Some(pieces) = pieces.next() {
-        if line.starts_with("#!") {
-          pieces
-          .lines()
-          // check if nextline is shebang || if user is using nixos
-          .next()
-          .unwrap_or("")
-          .trim()
-          .splitn(2, |c| c == ' ' || c == '\t');
-        }
-      }
-
     let interpreter = pieces.next().unwrap_or("");
     let argument = pieces.next();
 
