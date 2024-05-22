@@ -1,3 +1,5 @@
+
+
 #[derive(Copy, Clone)]
 pub(crate) struct Shebang<'line> {
   pub(crate) interpreter: &'line str,
@@ -9,13 +11,25 @@ impl<'line> Shebang<'line> {
     if !line.starts_with("#!") {
       return None;
     }
-
     let mut pieces = line[2..]
       .lines()
+      // check if nextline is shebang || if user is using nixos
       .next()
       .unwrap_or("")
       .trim()
       .splitn(2, |c| c == ' ' || c == '\t');
+      
+      while let Some(pieces) = pieces.next() {
+        if line.starts_with("#!") {
+          pieces
+          .lines()
+          // check if nextline is shebang || if user is using nixos
+          .next()
+          .unwrap_or("")
+          .trim()
+          .splitn(2, |c| c == ' ' || c == '\t');
+        }
+      }
 
     let interpreter = pieces.next().unwrap_or("");
     let argument = pieces.next();
