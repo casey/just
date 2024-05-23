@@ -148,7 +148,6 @@ mod keyword;
 mod lexer;
 mod line;
 mod list;
-mod list_recipes;
 mod load_dotenv;
 mod loader;
 mod name;

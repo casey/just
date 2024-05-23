@@ -88,7 +88,7 @@ impl Subcommand {
       Dump => Self::dump(config, ast, justfile)?,
       Format => Self::format(config, &search, src, ast)?,
       Groups => Self::groups(config, justfile),
-      List => list_recipes::list_recipes(config, 0, justfile),
+      List => Self::list(config, 0, justfile),
       Show { ref name } => Self::show(config, name, justfile)?,
       Summary => Self::summary(config, justfile),
       Variables => Self::variables(justfile),
@@ -470,6 +470,136 @@ impl Subcommand {
       .map_err(|io_error| Error::StdoutIo { io_error })?;
 
     Ok(())
+  }
+
+  const MAX_LINE_WIDTH: usize = 30;
+  pub(crate) fn list(config: &Config, level: usize, justfile: &Justfile) {
+    let recipe_aliases = {
+      let mut recipe_aliases: BTreeMap<&str, Vec<&str>> = BTreeMap::new();
+      if config.no_aliases {
+        recipe_aliases
+      } else {
+        for alias in justfile.aliases.values() {
+          if alias.is_private() {
+            continue;
+          }
+          recipe_aliases
+            .entry(alias.target.name.lexeme())
+            .and_modify(|e| e.push(alias.name.lexeme()))
+            .or_insert(vec![alias.name.lexeme()]);
+        }
+        recipe_aliases
+      }
+    };
+
+    let line_widths = {
+      let mut line_widths: BTreeMap<&str, usize> = BTreeMap::new();
+
+      for recipe in &justfile.public_recipes(config.unsorted) {
+        let name = recipe.name.lexeme();
+
+        for name in iter::once(&name).chain(recipe_aliases.get(name).unwrap_or(&Vec::new())) {
+          let mut line_width = UnicodeWidthStr::width(*name);
+
+          for parameter in &recipe.parameters {
+            line_width += UnicodeWidthStr::width(
+              format!(" {}", parameter.color_display(Color::never())).as_str(),
+            );
+          }
+
+          if line_width <= Self::MAX_LINE_WIDTH {
+            line_widths.insert(name, line_width);
+          }
+        }
+      }
+
+      line_widths
+    };
+
+    let max_line_width = cmp::min(
+      line_widths.values().copied().max().unwrap_or(0),
+      Self::MAX_LINE_WIDTH,
+    );
+
+    if level == 0 {
+      print!("{}", config.list_heading);
+    }
+
+    let by_groups = {
+      let mut by_groups: BTreeMap<Option<String>, Vec<&Recipe<'_>>> = BTreeMap::new();
+      for recipe in justfile.public_recipes(config.unsorted) {
+        let groups = recipe.groups();
+        if groups.is_empty() {
+          by_groups
+            .entry(None)
+            .and_modify(|e| e.push(recipe))
+            .or_insert(vec![recipe]);
+        } else {
+          for group in groups {
+            by_groups
+              .entry(Some(group))
+              .and_modify(|e| e.push(recipe))
+              .or_insert(vec![recipe]);
+          }
+        }
+      }
+      by_groups
+    };
+
+    let no_recipes_in_group = by_groups.contains_key(&None) && by_groups.len() == 1;
+
+    let print_doc_comment = |doc: &str, padding: usize, doc_color: Color| {
+      print!(
+        " {:padding$}{} {}",
+        "",
+        doc_color.paint("#"),
+        doc_color.paint(doc),
+        padding = padding
+      );
+    };
+
+    for (group, recipes) in &by_groups {
+      if !no_recipes_in_group {
+        println!();
+        if let Some(group_name) = group {
+          println!("[{group_name}]");
+        } else {
+          println!("(no group)");
+        }
+      }
+      for recipe in recipes {
+        let aliases: &[&str] = recipe_aliases
+          .get(recipe.name())
+          .map_or(&[], |v| v.as_slice());
+
+        let name = recipe.name();
+        let doc_color = config.color.stdout().doc();
+
+        for (i, name) in iter::once(&name).chain(aliases).enumerate() {
+          print!("{}{name}", config.list_prefix.repeat(level + 1));
+          for parameter in &recipe.parameters {
+            print!(" {}", parameter.color_display(config.color.stdout()));
+          }
+
+          let padding =
+            max_line_width.saturating_sub(line_widths.get(name).copied().unwrap_or(max_line_width));
+          match (i, recipe.doc) {
+            (0, Some(doc)) => print_doc_comment(doc, padding, doc_color),
+            (0, None) => (),
+            _ => {
+              let alias_doc = format!("alias for `{}`", recipe.name);
+              print_doc_comment(&alias_doc, padding, doc_color);
+            }
+          }
+          println!();
+        }
+      }
+    }
+
+    for (name, module) in &justfile.modules {
+      println!("    {name}:");
+      Self::list(config, level + 1, module);
+    }
   }
 
   fn show<'src>(config: &Config, name: &str, justfile: &Justfile<'src>) -> Result<(), Error<'src>> {
