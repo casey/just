@@ -98,7 +98,7 @@ impl Subcommand {
     Ok(())
   }
 
-  pub(crate) fn groups(config: &Config, justfile: &Justfile) {
+  fn groups(config: &Config, justfile: &Justfile) {
     println!("Recipe groups:");
     for group in justfile.public_groups() {
       println!("{}{group}", config.list_prefix);
