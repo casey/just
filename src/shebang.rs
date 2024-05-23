@@ -22,11 +22,11 @@ impl<'line> Shebang<'line> {
         .unwrap_or("".to_string())
         .lines()
         .next()
-        .unwrap()
+        .unwrap_or("")
         .trim()
         .splitn(2, |c| c == ' ' || c == '\t')
-        .collect()
-     );
+        .collect());
+     
       
       // collect into vector or concatenate together into single string
       
