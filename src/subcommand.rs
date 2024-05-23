@@ -477,7 +477,7 @@ impl Subcommand {
     Ok(())
   }
 
-  pub fn list(config: &Config, level: usize, justfile: &Justfile) {
+  fn list(config: &Config, level: usize, justfile: &Justfile) {
     const MAX_LINE_WIDTH: usize = 30;
     let recipe_aliases = {
       let mut recipe_aliases: BTreeMap<&str, Vec<&str>> = BTreeMap::new();
