@@ -1,3 +1,5 @@
+use std::io::stdin;
+
 
 
 #[derive(Copy, Clone)]
@@ -7,29 +9,30 @@ pub(crate) struct Shebang<'line> {
 }
 
 impl<'line> Shebang<'line> {
+  
   pub(crate) fn new(line: &'line str) -> Option<Self> {
     if !line.starts_with("#!") {
       return None;
     }
-    let mut pieces = line[2..]
-      .lines()
-      .next()
-      .unwrap_or("")
-      .trim()
-      .splitn(2, |c| c == ' ' || c == '\t');
-      // while let Some(piece) = pieces.next() {
-      //   if piece.starts_with("!#"){
-      //     piece
-      //     .lines()
-      //     .next()
-      //     .unwrap_or()
-      //     .trim()
-      //     .splitn()
-      //   }
+    let output: Vec<&str>;
+    let pieces = Some(&line[2..]);
+   
+    stdin().lines()
+    .filter(|l| l.unwrap().starts_with("#!"))
+    .map(|pieces| pieces
+        .unwrap_or("".to_string())
+        .lines()
+        .next()
+        .unwrap()
+        .trim()
+        .splitn(2, |c| c == ' ' || c == '\t')
+        .collect()
+     );
+      
       // collect into vector or concatenate together into single string
       
-    let interpreter = pieces.next().unwrap_or("");
-    let argument = pieces.next();
+    let interpreter = pieces.unwrap_or("");
+    let argument = pieces;
 
     if interpreter.is_empty() {
       return None;
