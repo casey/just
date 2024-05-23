@@ -610,6 +610,8 @@ impl<'run, 'src> Parser<'run, 'src> {
   fn parse_string_literal_token(
     &mut self,
   ) -> CompileResult<'src, (Token<'src>, StringLiteral<'src>)> {
+    // todo: if next is identifier, expect that it is keyword x
+
     let expand = self.accepted_keyword(Keyword::X)?;
 
     let token = self.expect(StringToken)?;

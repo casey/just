@@ -11,3 +11,17 @@ fn dont_run_duplicate_recipes() {
     )
     .run();
 }
+
+#[test]
+fn bugfix_parameters() {
+  Test::new()
+    .justfile(
+      "
+        foo a b c:
+          echo {{a}} {{b}} {{c}}
+        bar a b: (foo a b 'c')
+      ",
+    )
+    .args(["bar", "A", "B"])
+    .run();
+}
