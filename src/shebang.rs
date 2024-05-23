@@ -1,5 +1,3 @@
-use std::io::stdin;
-
 
 
 #[derive(Copy, Clone)]
@@ -16,16 +14,17 @@ impl<'line> Shebang<'line> {
     }
     
     let pieces = Some(&line[2..]);
-    let mut commands: Vec<Option<&str>> = stdin().lines()
-    .filter(|l| l.unwrap().starts_with("#!"))
+    let mut commands: Vec<Option<&str>> = pieces.unwrap_or("").lines()
+    .filter(|l| l.starts_with("#!"))
     .map(|pieces| pieces
-        .unwrap_or("".to_string())
         .lines()
         .next()
         .unwrap_or("")
         .trim()
-        .splitn(2, |c| c == ' ' || c == '\t')
-        .collect());
+        // .splitn(2, |c| c == ' ' || c == '\t')
+        .collect()::<Vec<_>>()
+        .collect()
+      );
      
       
       // collect into vector or concatenate together into single string
