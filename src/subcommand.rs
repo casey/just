@@ -218,12 +218,17 @@ impl Subcommand {
     overrides: &BTreeMap<String, String>,
     chooser: Option<&str>,
   ) -> Result<(), Error<'src>> {
-    let recipes = justfile
-      .public_recipes(config.unsorted)
-      .iter()
-      .filter(|recipe| recipe.min_arguments() == 0)
-      .copied()
-      .collect::<Vec<&Recipe<Dependency>>>();
+    let mut recipes = Vec::<&Recipe<Dependency>>::new();
+    let mut stack = vec![justfile];
+    while let Some(module) = stack.pop() {
+      recipes.extend(
+        module
+          .public_recipes(config.unsorted)
+          .iter()
+          .filter(|recipe| recipe.min_arguments() == 0),
+      );
+      stack.extend(module.modules.values());
+    }
 
     if recipes.is_empty() {
       return Err(Error::NoChoosableRecipes);
@@ -258,7 +263,7 @@ impl Subcommand {
         .stdin
         .as_mut()
         .expect("Child was created with piped stdio")
-        .write_all(format!("{}\n", recipe.name).as_bytes())
+        .write_all(format!("{}\n", recipe.namepath).as_bytes())
       {
         return Err(Error::ChooserWrite { io_error, chooser });
       }
@@ -473,7 +478,7 @@ impl Subcommand {
   }
 
   const MAX_LINE_WIDTH: usize = 30;
-  pub(crate) fn list(config: &Config, level: usize, justfile: &Justfile) {
+  pub fn list(config: &Config, level: usize, justfile: &Justfile) {
     let recipe_aliases = {
       let mut recipe_aliases: BTreeMap<&str, Vec<&str>> = BTreeMap::new();
       if config.no_aliases {
@@ -597,7 +602,7 @@ impl Subcommand {
     }
 
     for (name, module) in &justfile.modules {
-      println!("    {name}:");
+      println!("{}{name}:", config.list_prefix.repeat(level + 1));
       Self::list(config, level + 1, module);
     }
   }

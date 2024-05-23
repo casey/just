@@ -9,20 +9,23 @@ impl<'src> Namepath<'src> {
   }
 }
 
-impl<'str> Serialize for Namepath<'str> {
+impl<'src> Display for Namepath<'src> {
+  fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+    for (i, name) in self.0.iter().enumerate() {
+      if i > 0 {
+        write!(f, "::")?;
+      }
+      write!(f, "{name}")?;
+    }
+    Ok(())
+  }
+}
+
+impl<'src> Serialize for Namepath<'src> {
   fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
   where
     S: Serializer,
   {
-    let mut path = String::new();
-
-    for (i, name) in self.0.iter().enumerate() {
-      if i > 0 {
-        path.push_str("::");
-      }
-      path.push_str(name.lexeme());
-    }
-
-    serializer.serialize_str(&path)
+    serializer.serialize_str(&format!("{self}"))
   }
 }

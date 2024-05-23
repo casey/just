@@ -70,6 +70,7 @@ mod interrupts;
 mod invocation_directory;
 mod json;
 mod line_prefixes;
+mod list;
 mod man;
 mod misc;
 mod modules;

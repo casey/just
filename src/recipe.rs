@@ -336,7 +336,18 @@ impl<'src, D> Recipe<'src, D> {
     tempdir_builder.prefix("just-");
     let tempdir = match &context.settings.tempdir {
       Some(tempdir) => tempdir_builder.tempdir_in(context.search.working_directory.join(tempdir)),
-      None => tempdir_builder.tempdir(),
+      None => {
+        if let Some(cache_dir) = dirs::cache_dir() {
+          let path = cache_dir.join("just");
+          fs::create_dir_all(&path).map_err(|io_error| Error::CacheDirIo {
+            io_error,
+            path: path.clone(),
+          })?;
+          tempdir_builder.tempdir_in(path)
+        } else {
+          tempdir_builder.tempdir()
+        }
+      }
     }
     .map_err(|error| Error::TempdirIo {
       recipe: self.name(),

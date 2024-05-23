@@ -148,6 +148,14 @@ most Windows users.)
       <td><code>pacman -S just</code></td>
     </tr>
     <tr>
+      <td>
+        <a href=https://debian.org>Debian 13 (unreleased)</a> and
+        <a href=https://ubuntu.com>Ubuntu 24.04</a> derivatives</td>
+      <td><a href=https://en.wikipedia.org/wiki/APT_(software)>apt</a></td>
+      <td><a href=https://packages.debian.org/trixie/just>just</a></td>
+      <td><code>apt install just</code></td>
+    </tr>
+    <tr>
       <td><a href=https://debian.org>Debian</a> and <a href=https://ubuntu.com>Ubuntu</a> derivatives</td>
       <td><a href=https://mpr.makedeb.org>MPR</a></td>
       <td><a href=https://mpr.makedeb.org/packages/just>just</a></td>
@@ -163,7 +171,7 @@ most Windows users.)
       <td><a href=https://mpr.makedeb.org/packages/just>just</a></td>
       <td>
         <sup><b>You must have the <a href=https://docs.makedeb.org/prebuilt-mpr/getting-started/#setting-up-the-repository>Prebuilt-MPR set up</a> on your system in order to run this command.</b></sup><br>
-        <code>sudo apt install just</code>
+        <code>apt install just</code>
       </td>
     </tr>
     <tr>
@@ -264,12 +272,6 @@ most Windows users.)
       <td><code>nix-env -iA nixpkgs.just</code></td>
     </tr>
     <tr>
-      <td><a href=https://snapcraft.io/docs/installing-snapd>Various</a></td>
-      <td><a href=https://snapcraft.io>Snap</a></td>
-      <td><a href=https://snapcraft.io/just>just</a></td>
-      <td><code>snap install --edge --classic just</code></td>
-    </tr>
-    <tr>
       <td><a href=https://voidlinux.org>Void Linux</a></td>
       <td><a href=https://wiki.voidlinux.org/XBPS>XBPS</a></td>
       <td><a href=https://github.com/void-linux/void-packages/blob/master/srcpkgs/just/template>just</a></td>
@@ -321,41 +323,12 @@ circumstances, pass a specific tag to install with `--tag`.
 
 ### GitHub Actions
 
-Developers may be interested in running the same `just` commands that they use
-locally on continuous integration platforms such as GitHub Actions. For example,
-every time that a contributor creates a pull request, a GitHub Action could run
-`just test` on the three major operating systems to provide feedback to both the
-contributor and reviewers that tests are passing.
+`just` can be installed on GitHub Actions in a few ways.
 
-Demonstrate how to install and use just in GitHub Actions on the three major
-operating systems without needing third-party GitHub Actions. Put the following
-code into a `.github/workflows/just_test.yml` file.
+Using package managers pre-installed on GitHub Actions runners on MacOS with
+`brew install just`, and on Windows with `choco install just`.
 
-```yaml
-name: just_test
-on: [pull_request, push]
-jobs:
-  ubuntu:
-    runs-on: ubuntu-latest
-    steps:
-    - run: sudo snap install --edge --classic just
-    - uses: actions/checkout@v4
-    - run: just test
-  macos:
-    runs-on: macos-latest
-    steps:
-    - run: brew install just
-    - uses: actions/checkout@v4
-    - run: just test
-  windows:
-    runs-on: windows-latest
-    steps:
-    - run: choco install just
-    - uses: actions/checkout@v4
-    - run: just test
-```
-
-Or with [extractions/setup-just](https://github.com/extractions/setup-just):
+With [extractions/setup-just](https://github.com/extractions/setup-just):
 
 ```yaml
 - uses: extractions/setup-just@v1
@@ -1342,7 +1315,7 @@ file.
 
 #### External Commands
 
-- `shell(command, args...)` returns the standard output of shell script
+- `shell(command, args...)`<sup>master</sup> returns the standard output of shell script
   `command` with zero or more positional arguments `args`. The shell used to
   interpret `command` is the same shell that is used to evaluate recipe lines,
   and can be changed with `set shell := […]`.
@@ -1360,24 +1333,25 @@ file.
   expected to be the name of the program being run.
 
 ```just
-# arguments can be variables
+# arguments can be variables or expressions
 file := '/sys/class/power_supply/BAT0/status'
 bat0stat := shell('cat $1', file)
 
-# commands can be variables
-command := 'wc -l $1'
-output := shell(command, 'main.c')
+# commands can be variables or expressions
+command := 'wc -l'
+output := shell(command + ' "$1"', 'main.c')
 
-# note that arguments must be used
+# arguments referenced by the shell command must be used
 empty := shell('echo', 'foo')
 full := shell('echo $1', 'foo')
+error := shell('echo $1')
 ```
 
 ```just
 # Using python as the shell. Since `python -c` sets `sys.argv[0]` to `'-c'`,
 # the first "real" positional argument will be `sys.argv[2]`.
 set shell := ["python3", "-c"]
-olleh := shell('import sys; print(sys.argv[2][::-1]))', 'hello')
+olleh := shell('import sys; print(sys.argv[2][::-1])', 'hello')
 ```
 
 #### Environment Variables
