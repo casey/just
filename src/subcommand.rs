@@ -481,9 +481,7 @@ impl Subcommand {
     const MAX_LINE_WIDTH: usize = 30;
     let recipe_aliases = {
       let mut recipe_aliases: BTreeMap<&str, Vec<&str>> = BTreeMap::new();
-      if config.no_aliases {
-        recipe_aliases
-      } else {
+      if !config.no_aliases {
         for alias in justfile.aliases.values() {
           if alias.is_private() {
             continue;
@@ -493,8 +491,8 @@ impl Subcommand {
             .and_modify(|e| e.push(alias.name.lexeme()))
             .or_insert(vec![alias.name.lexeme()]);
         }
-        recipe_aliases
       }
+      recipe_aliases
     };
 
     let line_widths = {
