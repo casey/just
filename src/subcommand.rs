@@ -477,8 +477,8 @@ impl Subcommand {
     Ok(())
   }
 
-  const MAX_LINE_WIDTH: usize = 30;
   pub fn list(config: &Config, level: usize, justfile: &Justfile) {
+    const MAX_LINE_WIDTH: usize = 30;
     let recipe_aliases = {
       let mut recipe_aliases: BTreeMap<&str, Vec<&str>> = BTreeMap::new();
       if config.no_aliases {
@@ -512,7 +512,7 @@ impl Subcommand {
             );
           }
 
-          if line_width <= Self::MAX_LINE_WIDTH {
+          if line_width <= MAX_LINE_WIDTH {
             line_widths.insert(name, line_width);
           }
         }
@@ -523,7 +523,7 @@ impl Subcommand {
 
     let max_line_width = cmp::min(
       line_widths.values().copied().max().unwrap_or(0),
-      Self::MAX_LINE_WIDTH,
+      MAX_LINE_WIDTH,
     );
 
     if level == 0 {
