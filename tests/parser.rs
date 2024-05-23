@@ -17,9 +17,8 @@ fn bugfix_parameters() {
   Test::new()
     .justfile(
       "
-        foo a b c:
-          echo {{a}} {{b}} {{c}}
-        bar a b: (foo a b 'c')
+        foo a b:
+        bar a b: (foo a 'c')
       ",
     )
     .args(["bar", "A", "B"])
