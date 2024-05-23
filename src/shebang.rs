@@ -14,10 +14,9 @@ impl<'line> Shebang<'line> {
     if !line.starts_with("#!") {
       return None;
     }
-    let output: Vec<&str>;
+    
     let pieces = Some(&line[2..]);
-   
-    stdin().lines()
+    let mut commands: Vec<Option<&str>> = stdin().lines()
     .filter(|l| l.unwrap().starts_with("#!"))
     .map(|pieces| pieces
         .unwrap_or("".to_string())
