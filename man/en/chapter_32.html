@@ -296,6 +296,20 @@ current <code>justfile</code>.</p>
 <pre><code class="language-just">script:
   ./{{justfile_directory()}}/scripts/some_script
 </code></pre>
+<h4 id="source-and-source-directory"><a class="header" href="#source-and-source-directory">Source and Source Directory</a></h4>
+<ul>
+<li>
+<p><code>source()</code><sup>master</sup> - Retrieves the path of the current source file.</p>
+</li>
+<li>
+<p><code>source_directory()</code><sup>master</sup> - Retrieves the path of the parent directory of the
+current source file.</p>
+</li>
+</ul>
+<p><code>source()</code> and <code>source_directory()</code> behave the same as <code>justfile()</code> and
+<code>justfile_directory()</code> in the root <code>justfile</code>, but will return the path and
+directory, respectively, of the current <code>import</code> or <code>mod</code> source file when
+called from within an import or submodule.</p>
 <h4 id="just-executable"><a class="header" href="#just-executable">Just Executable</a></h4>
 <ul>
 <li><code>just_executable()</code> - Absolute path to the <code>just</code> executable.</li>
