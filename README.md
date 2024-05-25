@@ -1079,6 +1079,27 @@ Available recipes:
     test # test stuff
 ```
 
+The `[doc]` attribute can be used to set or suppress a recipe's doc comment:
+
+```just
+# This comment won't appear
+[doc('Build stuff')]
+build:
+  ./bin/build
+
+# This one won't either
+[doc]
+test:
+  ./bin/test
+```
+
+```sh
+$ just --list
+Available recipes:
+    build # Build stuff
+    test
+```
+
 ### Variables and Substitution
 
 Variables, strings, concatenation, path joining, and substitution using `{{…}}`
@@ -1622,8 +1643,9 @@ Recipes may be annotated with attributes that change their behavior.
 | Name | Description |
 |------|-------------|
 | `[confirm]`<sup>1.17.0</sup> | Require confirmation prior to executing recipe. |
-| `[confirm('prompt')]`<sup>1.23.0</sup> | Require confirmation prior to executing recipe with a custom prompt. |
-| `[group('NAME"']`<sup>master</sup> | Put recipe in [recipe group](#recipe-groups) `NAME`.
+| `[confirm('PROMPT')]`<sup>1.23.0</sup> | Require confirmation prior to executing recipe with a custom prompt. |
+| `[doc('DOC')]`<sup>master</sup> | Set recipe's [documentation comment](#documentation-comments) to `DOC`. |
+| `[group('NAME"']`<sup>master</sup> | Put recipe in [recipe group](#recipe-groups) `NAME`. |
 | `[linux]`<sup>1.8.0</sup> | Enable recipe on Linux. |
 | `[macos]`<sup>1.8.0</sup> | Enable recipe on MacOS. |
 | `[no-cd]`<sup>1.9.0</sup> | Don't change directory before executing recipe. |
