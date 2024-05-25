@@ -1079,6 +1079,30 @@ Available recipes:
     test # test stuff
 ```
 
+You can also add a documentation comment with the `doc` attribute. This suppresses
+a pre-recipe comment from appearing in `just --list`:
+
+```just
+
+# This comment won't appear in the list output
+[doc("Build stuff")]
+build:
+  ./bin/build
+
+# This one won't either
+[doc]
+test:
+  ./bin/test
+```
+
+```sh
+$ just --list
+Available recipes:
+    build # Build stuff
+    test
+```
+
+
 ### Variables and Substitution
 
 Variables, strings, concatenation, path joining, and substitution using `{{…}}`
@@ -1611,6 +1635,7 @@ Recipes may be annotated with attributes that change their behavior.
 |------|-------------|
 | `[confirm]`<sup>1.17.0</sup> | Require confirmation prior to executing recipe. |
 | `[confirm('prompt')]`<sup>1.23.0</sup> | Require confirmation prior to executing recipe with a custom prompt. |
+| `[doc('documentation comment')]`<sup>1.27.0</sup> | Add a [documentation comment](#documentation-comments). |
 | `[group('NAME"']`<sup>master</sup> | Put recipe in [recipe group](#recipe-groups) `NAME`.
 | `[linux]`<sup>1.8.0</sup> | Enable recipe on Linux. |
 | `[macos]`<sup>1.8.0</sup> | Enable recipe on MacOS. |
