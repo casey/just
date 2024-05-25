@@ -554,9 +554,27 @@ impl<'run, 'src> Parser<'run, 'src> {
     })
   }
 
+  // Check if the next tokens are a shell-expanded string, i.e., `x"foo"`.
+  //
+  // This function skips initial whitespace tokens, but thereafter is
+  // whitespace-sensitive, so `x"foo"` is a shell-expanded string, whereas `x
+  // "foo"` is not.
+  fn next_is_shell_expanded_string(&self) -> bool {
+    let mut tokens = self
+      .tokens
+      .iter()
+      .skip(self.next_token)
+      .skip_while(|token| token.kind == Whitespace);
+
+    tokens
+      .next()
+      .is_some_and(|token| token.kind == Identifier && token.lexeme() == "x")
+      && tokens.next().is_some_and(|token| token.kind == StringToken)
+  }
+
   /// Parse a value, e.g. `(bar)`
   fn parse_value(&mut self) -> CompileResult<'src, Expression<'src>> {
-    if self.next_is(StringToken) || self.next_are(&[Identifier, StringToken]) {
+    if self.next_is(StringToken) || self.next_is_shell_expanded_string() {
       Ok(Expression::StringLiteral {
         string_literal: self.parse_string_literal()?,
       })
@@ -610,7 +628,12 @@ impl<'run, 'src> Parser<'run, 'src> {
   fn parse_string_literal_token(
     &mut self,
   ) -> CompileResult<'src, (Token<'src>, StringLiteral<'src>)> {
-    let expand = self.accepted_keyword(Keyword::X)?;
+    let expand = if self.next_is(Identifier) {
+      self.expect_keyword(Keyword::X)?;
+      true
+    } else {
+      false
+    };
 
     let token = self.expect(StringToken)?;
 
@@ -2362,6 +2385,7 @@ mod tests {
     width:  1,
     kind:   UnexpectedToken {
       expected: vec![
+        Identifier,
         StringToken,
       ],
       found: BracketR,
@@ -2404,6 +2428,7 @@ mod tests {
     kind:   UnexpectedToken {
       expected: vec![
         BracketR,
+        Identifier,
         StringToken,
       ],
       found: Eof,
