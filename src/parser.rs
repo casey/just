@@ -280,7 +280,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       let mut arguments = Vec::new();
 
       while !self.accepted(ParenR)? {
-        arguments.push(self.parse_expression(true)?);
+        arguments.push(self.parse_expression()?);
       }
 
       Ok(Some(UnresolvedDependency { recipe, arguments }))
@@ -459,7 +459,7 @@ impl<'run, 'src> Parser<'run, 'src> {
   fn parse_assignment(&mut self, export: bool) -> CompileResult<'src, Assignment<'src>> {
     let name = self.parse_name()?;
     self.presume_any(&[Equals, ColonEquals])?;
-    let value = self.parse_expression(false)?;
+    let value = self.parse_expression()?;
     self.expect_eol()?;
     Ok(Assignment {
       depth: self.file_depth,
@@ -470,7 +470,7 @@ impl<'run, 'src> Parser<'run, 'src> {
   }
 
   /// Parse an expression, e.g. `1 + 2`
-  fn parse_expression(&mut self, dependency: bool) -> CompileResult<'src, Expression<'src>> {
+  fn parse_expression(&mut self) -> CompileResult<'src, Expression<'src>> {
     if self.recursion_depth == if cfg!(windows) { 48 } else { 256 } {
       let token = self.next()?;
       return Err(CompileError::new(
@@ -485,18 +485,18 @@ impl<'run, 'src> Parser<'run, 'src> {
       self.parse_conditional()?
     } else if self.accepted(Slash)? {
       let lhs = None;
-      let rhs = self.parse_expression(false)?.into();
+      let rhs = self.parse_expression()?.into();
       Expression::Join { lhs, rhs }
     } else {
-      let value = self.parse_value(dependency)?;
+      let value = self.parse_value()?;
 
       if self.accepted(Slash)? {
         let lhs = Some(Box::new(value));
-        let rhs = self.parse_expression(false)?.into();
+        let rhs = self.parse_expression()?.into();
         Expression::Join { lhs, rhs }
       } else if self.accepted(Plus)? {
         let lhs = value.into();
-        let rhs = self.parse_expression(false)?.into();
+        let rhs = self.parse_expression()?.into();
         Expression::Concatenation { lhs, rhs }
       } else {
         value
@@ -514,7 +514,7 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     self.expect(BraceL)?;
 
-    let then = self.parse_expression(false)?;
+    let then = self.parse_expression()?;
 
     self.expect(BraceR)?;
 
@@ -524,7 +524,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       self.parse_conditional()?
     } else {
       self.expect(BraceL)?;
-      let otherwise = self.parse_expression(false)?;
+      let otherwise = self.parse_expression()?;
       self.expect(BraceR)?;
       otherwise
     };
@@ -537,7 +537,7 @@ impl<'run, 'src> Parser<'run, 'src> {
   }
 
   fn parse_condition(&mut self) -> CompileResult<'src, Condition<'src>> {
-    let lhs = self.parse_expression(false)?;
+    let lhs = self.parse_expression()?;
     let operator = if self.accepted(BangEquals)? {
       ConditionalOperator::Inequality
     } else if self.accepted(EqualsTilde)? {
@@ -546,7 +546,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       self.expect(EqualsEquals)?;
       ConditionalOperator::Equality
     };
-    let rhs = self.parse_expression(false)?;
+    let rhs = self.parse_expression()?;
     Ok(Condition {
       lhs: lhs.into(),
       rhs: rhs.into(),
@@ -554,9 +554,31 @@ impl<'run, 'src> Parser<'run, 'src> {
     })
   }
 
+  // Check if the next tokens are a shell-expanded string, i.e., `x"foo"`.
+  //
+  // This function skips initial whitespace tokens, but thereafter is
+  // whitespace-sensitive, so `x"foo"` is a shell-expanded string, whereas `x
+  // "foo"` is not.
+  fn next_is_shell_expanded_string(&self) -> bool {
+    let mut tokens = self
+      .tokens
+      .iter()
+      .skip(self.next_token)
+      .skip_while(|token| token.kind == Whitespace);
+
+    tokens
+      .next()
+      .map(|token| token.kind == Identifier && token.lexeme() == "x")
+      .unwrap_or_default()
+      && tokens
+        .next()
+        .map(|token| token.kind == StringToken)
+        .unwrap_or_default()
+  }
+
   /// Parse a value, e.g. `(bar)`
-  fn parse_value(&mut self, dependency: bool) -> CompileResult<'src, Expression<'src>> {
-    if self.next_is(StringToken) || (!dependency && self.next_are(&[Identifier, StringToken])) {
+  fn parse_value(&mut self) -> CompileResult<'src, Expression<'src>> {
+    if self.next_is(StringToken) || self.next_is_shell_expanded_string() {
       Ok(Expression::StringLiteral {
         string_literal: self.parse_string_literal()?,
       })
@@ -581,7 +603,7 @@ impl<'run, 'src> Parser<'run, 'src> {
         self.expect(ParenL)?;
         let condition = self.parse_condition()?;
         self.expect(Comma)?;
-        let error = Box::new(self.parse_expression(false)?);
+        let error = Box::new(self.parse_expression()?);
         self.expect(ParenR)?;
         Ok(Expression::Assert { condition, error })
       } else {
@@ -598,7 +620,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       }
     } else if self.next_is(ParenL) {
       self.presume(ParenL)?;
-      let contents = self.parse_expression(false)?.into();
+      let contents = self.parse_expression()?.into();
       self.expect(ParenR)?;
       Ok(Expression::Group { contents })
     } else {
@@ -698,7 +720,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     let mut elements = Vec::new();
 
     while !self.next_is(ParenR) {
-      elements.push(self.parse_expression(false)?);
+      elements.push(self.parse_expression()?);
 
       if !self.accepted(Comma)? {
         break;
@@ -801,7 +823,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     let name = self.parse_name()?;
 
     let default = if self.accepted(Equals)? {
-      Some(self.parse_value(false)?)
+      Some(self.parse_value()?)
     } else {
       None
     };
@@ -832,7 +854,7 @@ impl<'run, 'src> Parser<'run, 'src> {
               fragments.push(Fragment::Text { token });
             } else if self.accepted(InterpolationStart)? {
               fragments.push(Fragment::Interpolation {
-                expression: self.parse_expression(false)?,
+                expression: self.parse_expression()?,
               });
               self.expect(InterpolationEnd)?;
             } else {
