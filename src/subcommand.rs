@@ -490,7 +490,7 @@ impl Subcommand {
         aliases
           .entry(alias.target.name.lexeme())
           .or_default()
-          .push(alias.name.lexeme())
+          .push(alias.name.lexeme());
       }
       aliases
     };
