@@ -23,6 +23,34 @@ fn list_displays_recipes_in_submodules() {
 }
 
 #[test]
+fn modules_are_space_separated_in_output() {
+  Test::new()
+    .write("foo.just", "foo:")
+    .write("bar.just", "bar:")
+    .justfile(
+      "
+        mod foo
+
+        mod bar
+      ",
+    )
+    .test_round_trip(false)
+    .arg("--unstable")
+    .arg("--list")
+    .stdout(
+      "
+      Available recipes:
+          bar:
+              bar
+
+          foo:
+              foo
+    ",
+    )
+    .run();
+}
+
+#[test]
 fn module_recipe_list_alignment_ignores_private_recipes() {
   Test::new()
     .write(

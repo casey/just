@@ -545,11 +545,15 @@ impl Subcommand {
       groups
     };
 
-    for (group, recipes) in &groups {
+    for (i, (group, recipes)) in groups.iter().enumerate() {
+      if i > 0 {
+        println!();
+      }
+
       let no_groups = groups.contains_key(&None) && groups.len() == 1;
 
       if !no_groups {
-        println!();
+        print!("{}", config.list_prefix.repeat(level + 1));
         if let Some(group_name) = group {
           println!("[{group_name}]");
         } else {
@@ -588,7 +592,11 @@ impl Subcommand {
       }
     }
 
-    for (name, module) in &justfile.modules {
+    for (i, (name, module)) in justfile.modules.iter().enumerate() {
+      if i + groups.len() > 0 {
+        println!();
+      }
+
       println!("{}{name}:", config.list_prefix.repeat(level + 1));
       Self::list(config, level + 1, module);
     }

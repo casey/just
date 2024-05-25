@@ -25,21 +25,20 @@ fn list_with_groups() {
     .stdout(
       "
         Available recipes:
-
-        (no group)
+            (no group)
             c
 
-        [alpha]
+            [alpha]
             a
             b # Doc comment
             e
             f
 
-        [beta]
+            [beta]
             b # Doc comment
             f
 
-        [multi word group]
+            [multi word group]
             d
       ",
     )
@@ -90,6 +89,34 @@ fn list_groups_with_custom_prefix() {
       Recipe groups:
       ...A
       ...B
+      ",
+    )
+    .run();
+}
+
+#[test]
+fn list_with_groups_in_modules() {
+  Test::new()
+    .justfile(
+      "
+        [group('FOO')]
+        foo:
+
+        mod bar
+      ",
+    )
+    .write("bar.just", "[group('BAZ')]\nbaz:")
+    .test_round_trip(false)
+    .args(["--unstable", "--list"])
+    .stdout(
+      "
+        Available recipes:
+            [FOO]
+            foo
+
+            bar:
+                [BAZ]
+                baz
       ",
     )
     .run();
