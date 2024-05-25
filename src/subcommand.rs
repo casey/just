@@ -478,9 +478,10 @@ impl Subcommand {
   }
 
   fn list(config: &Config, level: usize, justfile: &Justfile) {
-    const MAX_LINE_WIDTH: usize = 30;
+    const MAX_LINE_WIDTH: usize = 50;
+
     let recipe_aliases = {
-      let mut recipe_aliases: BTreeMap<&str, Vec<&str>> = BTreeMap::new();
+      let mut recipe_aliases = BTreeMap::<&str, Vec<&str>>::new();
       if !config.no_aliases {
         for alias in justfile.aliases.values() {
           if alias.is_private() {
@@ -519,37 +520,26 @@ impl Subcommand {
       line_widths
     };
 
-    let max_line_width = cmp::min(
-      line_widths.values().copied().max().unwrap_or(0),
-      MAX_LINE_WIDTH,
-    );
+    let max_line_width = line_widths.values().copied().max().unwrap_or(0);
 
     if level == 0 {
       print!("{}", config.list_heading);
     }
 
-    let by_groups = {
-      let mut by_groups: BTreeMap<Option<String>, Vec<&Recipe<'_>>> = BTreeMap::new();
+    let groups = {
+      let mut groups = BTreeMap::<Option<String>, Vec<&Recipe>>::new();
       for recipe in justfile.public_recipes(config.unsorted) {
-        let groups = recipe.groups();
-        if groups.is_empty() {
-          by_groups
-            .entry(None)
-            .and_modify(|e| e.push(recipe))
-            .or_insert(vec![recipe]);
+        let recipe_groups = recipe.groups();
+        if recipe_groups.is_empty() {
+          groups.entry(None).or_default().push(recipe);
         } else {
-          for group in groups {
-            by_groups
-              .entry(Some(group))
-              .and_modify(|e| e.push(recipe))
-              .or_insert(vec![recipe]);
+          for group in recipe_groups {
+            groups.entry(Some(group)).or_default().push(recipe);
           }
         }
       }
-      by_groups
+      groups
     };
-
-    let no_recipes_in_group = by_groups.contains_key(&None) && by_groups.len() == 1;
 
     let print_doc_comment = |doc: &str, padding: usize, doc_color: Color| {
       print!(
@@ -561,8 +551,10 @@ impl Subcommand {
       );
     };
 
-    for (group, recipes) in &by_groups {
-      if !no_recipes_in_group {
+    for (group, recipes) in &groups {
+      let no_groups = groups.contains_key(&None) && groups.len() == 1;
+
+      if !no_groups {
         println!();
         if let Some(group_name) = group {
           println!("[{group_name}]");
@@ -570,6 +562,7 @@ impl Subcommand {
           println!("(no group)");
         }
       }
+
       for recipe in recipes {
         let aliases: &[&str] = recipe_aliases
           .get(recipe.name())
