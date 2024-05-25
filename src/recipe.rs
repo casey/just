@@ -453,8 +453,8 @@ impl<'src, D> Recipe<'src, D> {
 
   pub(crate) fn doc(&self) -> Option<&str> {
     for attribute in &self.attributes {
-      if let Attribute::Doc(comment) = attribute {
-        return comment.as_ref().map(|s| s.cooked.as_ref());
+      if let Attribute::Doc(doc) = attribute {
+        return doc.as_ref().map(|s| s.cooked.as_ref());
       }
     }
     self.doc

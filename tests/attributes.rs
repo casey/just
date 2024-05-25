@@ -152,7 +152,7 @@ fn doc_attribute() {
 }
 
 #[test]
-fn suppress_doc_comment() {
+fn doc_attribute_suppress() {
   Test::new()
     .justfile(
       "

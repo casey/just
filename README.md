@@ -1644,7 +1644,7 @@ Recipes may be annotated with attributes that change their behavior.
 |------|-------------|
 | `[confirm]`<sup>1.17.0</sup> | Require confirmation prior to executing recipe. |
 | `[confirm('PROMPT')]`<sup>1.23.0</sup> | Require confirmation prior to executing recipe with a custom prompt. |
-| `[doc('COMMENT')]`<sup>master</sup> | Set recipe's [documentation comment](#documentation-comments) to COMMENT. |
+| `[doc('DOC')]`<sup>master</sup> | Set recipe's [documentation comment](#documentation-comments) to `DOC`. |
 | `[group('NAME"']`<sup>master</sup> | Put recipe in [recipe group](#recipe-groups) `NAME`. |
 | `[linux]`<sup>1.8.0</sup> | Enable recipe on Linux. |
 | `[macos]`<sup>1.8.0</sup> | Enable recipe on MacOS. |
