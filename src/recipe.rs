@@ -450,6 +450,15 @@ impl<'src, D> Recipe<'src, D> {
       })
       .collect()
   }
+
+  pub(crate) fn docstring(&self) -> Option<&str> {
+    for attribute in &self.attributes {
+      if let Attribute::Doc { docstring } = attribute {
+        return docstring.as_ref().map(|s| s.cooked.as_ref());
+      }
+    }
+    self.doc
+  }
 }
 
 impl<'src, D: Display> ColorDisplay for Recipe<'src, D> {

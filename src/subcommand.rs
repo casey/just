@@ -573,7 +573,7 @@ impl Subcommand {
           );
 
           let doc = if i == 0 {
-            recipe.doc.map(Cow::Borrowed)
+            recipe.docstring().map(Cow::Borrowed)
           } else {
             Some(Cow::Owned(format!("alias for `{}`", recipe.name)))
           };
