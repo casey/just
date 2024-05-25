@@ -6,48 +6,48 @@ pub(crate) enum Thunk<'src> {
   Nullary {
     name: Name<'src>,
     #[derivative(Debug = "ignore", PartialEq = "ignore")]
-    function: fn(&Evaluator) -> Result<String, String>,
+    function: fn(function::Context) -> Result<String, String>,
   },
   Unary {
     name: Name<'src>,
     #[derivative(Debug = "ignore", PartialEq = "ignore")]
-    function: fn(&Evaluator, &str) -> Result<String, String>,
+    function: fn(function::Context, &str) -> Result<String, String>,
     arg: Box<Expression<'src>>,
   },
   UnaryOpt {
     name: Name<'src>,
     #[derivative(Debug = "ignore", PartialEq = "ignore")]
-    function: fn(&Evaluator, &str, Option<&str>) -> Result<String, String>,
+    function: fn(function::Context, &str, Option<&str>) -> Result<String, String>,
     args: (Box<Expression<'src>>, Box<Option<Expression<'src>>>),
   },
   UnaryPlus {
     name: Name<'src>,
     #[derivative(Debug = "ignore", PartialEq = "ignore")]
-    function: fn(&Evaluator, &str, &[String]) -> Result<String, String>,
+    function: fn(function::Context, &str, &[String]) -> Result<String, String>,
     args: (Box<Expression<'src>>, Vec<Expression<'src>>),
   },
   Binary {
     name: Name<'src>,
     #[derivative(Debug = "ignore", PartialEq = "ignore")]
-    function: fn(&Evaluator, &str, &str) -> Result<String, String>,
+    function: fn(function::Context, &str, &str) -> Result<String, String>,
     args: [Box<Expression<'src>>; 2],
   },
   BinaryPlus {
     name: Name<'src>,
     #[derivative(Debug = "ignore", PartialEq = "ignore")]
-    function: fn(&Evaluator, &str, &str, &[String]) -> Result<String, String>,
+    function: fn(function::Context, &str, &str, &[String]) -> Result<String, String>,
     args: ([Box<Expression<'src>>; 2], Vec<Expression<'src>>),
   },
   Ternary {
     name: Name<'src>,
     #[derivative(Debug = "ignore", PartialEq = "ignore")]
-    function: fn(&Evaluator, &str, &str, &str) -> Result<String, String>,
+    function: fn(function::Context, &str, &str, &str) -> Result<String, String>,
     args: [Box<Expression<'src>>; 3],
   },
 }
 
 impl<'src> Thunk<'src> {
-  fn name(&self) -> &Name<'src> {
+  pub(crate) fn name(&self) -> Name<'src> {
     match self {
       Self::Nullary { name, .. }
       | Self::Unary { name, .. }
@@ -55,7 +55,7 @@ impl<'src> Thunk<'src> {
       | Self::UnaryPlus { name, .. }
       | Self::Binary { name, .. }
       | Self::BinaryPlus { name, .. }
-      | Self::Ternary { name, .. } => name,
+      | Self::Ternary { name, .. } => *name,
     }
   }
 
@@ -190,7 +190,7 @@ impl<'src> Serialize for Thunk<'src> {
   {
     let mut seq = serializer.serialize_seq(None)?;
     seq.serialize_element("call")?;
-    seq.serialize_element(self.name())?;
+    seq.serialize_element(&self.name())?;
     match self {
       Self::Nullary { .. } => {}
       Self::Unary { arg, .. } => seq.serialize_element(&arg)?,
