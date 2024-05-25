@@ -488,6 +488,16 @@ impl<'src> Justfile<'src> {
 
     recipes
   }
+
+  pub(crate) fn public_groups(&self) -> BTreeSet<String> {
+    self
+      .recipes
+      .values()
+      .map(AsRef::as_ref)
+      .filter(|recipe| recipe.is_public())
+      .flat_map(Recipe::groups)
+      .collect()
+  }
 }
 
 impl<'src> ColorDisplay for Justfile<'src> {

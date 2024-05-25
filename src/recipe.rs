@@ -436,6 +436,20 @@ impl<'src, D> Recipe<'src, D> {
       }),
     }
   }
+
+  pub(crate) fn groups(&self) -> BTreeSet<String> {
+    self
+      .attributes
+      .iter()
+      .filter_map(|attribute| {
+        if let Attribute::Group(group) = attribute {
+          Some(group.cooked.clone())
+        } else {
+          None
+        }
+      })
+      .collect()
+  }
 }
 
 impl<'src, D: Display> ColorDisplay for Recipe<'src, D> {
