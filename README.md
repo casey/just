@@ -1429,8 +1429,8 @@ script:
 
 `source()` and `source_directory()` behave the same as `justfile()` and
 `justfile_directory()` in the root `justfile`, but will return the path and
-directory of the current `import` or `mod` source file when called from within
-an import or submodule.
+directory, respectively, of the current `import` or `mod` source file when
+called from within an import or submodule.
 
 #### Just Executable
 
