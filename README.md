@@ -1610,8 +1610,8 @@ Recipes may be annotated with attributes that change their behavior.
 | Name | Description |
 |------|-------------|
 | `[confirm]`<sup>1.17.0</sup> | Require confirmation prior to executing recipe. |
-| `[confirm("prompt")]`<sup>1.23.0</sup> | Require confirmation prior to executing recipe with a custom prompt. |
-| `[group("group name")]`<sup>1.27.0</sup> | See [Recipe Groups](#recipe-groups)]|
+| `[confirm('prompt')]`<sup>1.23.0</sup> | Require confirmation prior to executing recipe with a custom prompt. |
+| `[group('NAME"']`<sup>master</sup> | Put recipe in [recipe group](#recipe-groups) `NAME`.
 | `[linux]`<sup>1.8.0</sup> | Enable recipe on Linux. |
 | `[macos]`<sup>1.8.0</sup> | Enable recipe on MacOS. |
 | `[no-cd]`<sup>1.9.0</sup> | Don't change directory before executing recipe. |
@@ -1712,63 +1712,68 @@ delete-everything:
 
 ### Recipe Groups
 
-
-Recipes can be optionally marked as belonging to one or more groups:
+Recipes can be annotated with a group name:
 
 ```just
-[group("lint")]
+[group('lint')]
 js-lint:
-    echo "Runninng javascript linter"
-[group("rust jobs")]
-[group("lint")]
+    echo 'Running JS linter…'
+
+[group('rust recipes')]
+[group('lint')]
 rust-lint:
-    echo "Runninng rust linter"
-[group("lint")]
+    echo 'Runninng Rust linter…'
+
+[group('lint')]
 cpp-lint:
-  echo "Running C++ linter"
-# Not in a group
+  echo 'Running C++ linter…'
+
+# not in any group
 email-everyone:
-    echo "Sending out mass email
+    echo 'Sending mass email…'
 ```
 
-`[group: lint]` is a shorthand equivalent to `[group("lint")]`.
-
-When listing recipes, they will be sorted by group:
+Recipes are listed by group:
 
 ```
 $ just --list
 Available recipes:
-(no group)
-    email-everyone # Not in a group
-[lint]
+    (no group)
+    email-everyone # not in any group
+
+    [lint]
     cpp-lint
     js-lint
     rust-lint
-[rust jobs]
+
+    [rust recipes]
     rust-lint
 ```
 
-The `--unsorted` flag prints recipes in their justfile order within each grouping:
+`just --list --unsorted` prints recipes in their justfile order within each group:
 
 ```
 $ just --list --unsorted
 Available recipes:
-(no group)
-    email-everyone # Not in a group
-[lint]
+    (no group)
+    email-everyone # not in any group
+
+    [lint]
     js-lint
     rust-lint
     cpp-lint
-[rust jobs]
+
+    [rust recipes]
     rust-lint
 ```
 
-Use `--groups` to see a list in alphabetical order of all the groups used in a justfile:
+Groups can be listed with `--groups`:
 
 ```
 $ just --groups
-lint
-rust jobs
+Recipe groups:
+  lint
+  rust recipes
 ```
 
 ### Command Evaluation Using Backticks

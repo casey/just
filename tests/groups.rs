@@ -46,6 +46,57 @@ fn list_with_groups() {
 }
 
 #[test]
+fn list_with_groups_unsorted() {
+  Test::new()
+    .justfile(
+      "
+        [group('beta')]
+        [group('alpha')]
+        f:
+
+        [group('alpha')]
+        e:
+
+        [group('multi word group')]
+        d:
+
+        c:
+
+        # Doc comment
+        [group('alpha')]
+        [group('beta')]
+        b:
+
+        [group('alpha')]
+        a:
+
+      ",
+    )
+    .args(["--list", "--unsorted"])
+    .stdout(
+      "
+        Available recipes:
+            (no group)
+            c
+
+            [alpha]
+            f
+            e
+            b # Doc comment
+            a
+
+            [beta]
+            f
+            b # Doc comment
+
+            [multi word group]
+            d
+      ",
+    )
+    .run();
+}
+
+#[test]
 fn list_groups() {
   Test::new()
     .justfile(
