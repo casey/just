@@ -566,26 +566,41 @@ impl Subcommand {
           .chain(aliases.get(recipe.name()).unwrap_or(&Vec::new()))
           .enumerate()
         {
-          print!(
-            "{}{}",
-            config.list_prefix.repeat(level + 1),
-            RecipeSignature { name, recipe }.color_display(config.color.stdout())
-          );
-
           let doc = if i == 0 {
             recipe.doc().map(Cow::Borrowed)
           } else {
             Some(Cow::Owned(format!("alias for `{}`", recipe.name)))
           };
 
+          if let Some(doc) = &doc {
+            if doc.lines().count() > 1 {
+              for line in doc.lines() {
+                println!(
+                  "{}{} {}",
+                  config.list_prefix.repeat(level + 1),
+                  config.color.stdout().doc().paint("#"),
+                  config.color.stdout().doc().paint(line),
+                );
+              }
+            }
+          }
+
+          print!(
+            "{}{}",
+            config.list_prefix.repeat(level + 1),
+            RecipeSignature { name, recipe }.color_display(config.color.stdout())
+          );
+
           if let Some(doc) = doc {
-            print!(
-              "{:padding$}{} {}",
-              "",
-              config.color.stdout().doc().paint("#"),
-              config.color.stdout().doc().paint(&doc),
-              padding = max_signature_width.saturating_sub(signature_widths[name]) + 1,
-            );
+            if doc.lines().count() <= 1 {
+              print!(
+                "{:padding$}{} {}",
+                "",
+                config.color.stdout().doc().paint("#"),
+                config.color.stdout().doc().paint(&doc),
+                padding = max_signature_width.saturating_sub(signature_widths[name]) + 1,
+              );
+            }
           }
           println!();
         }
