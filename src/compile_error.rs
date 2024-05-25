@@ -45,6 +45,27 @@ impl Display for CompileError<'_> {
         self.token.line.ordinal(),
         recipe_line.ordinal(),
       ),
+      AttributeArgumentCountMismatch {
+        attribute,
+        found,
+        min,
+        max,
+      } => {
+        write!(
+          f,
+          "Attribute `{attribute}` got {found} {} but takes ",
+          Count("argument", *found),
+        )?;
+
+        if min == max {
+          let expected = min;
+          write!(f, "{expected} {}", Count("argument", *expected))
+        } else if found < min {
+          write!(f, "at least {min} {}", Count("argument", *min))
+        } else {
+          write!(f, "at most {max} {}", Count("argument", *max))
+        }
+      }
       BacktickShebang => write!(f, "Backticks may not start with `#!`"),
       CircularRecipeDependency { recipe, ref circle } => {
         if circle.len() == 2 {
@@ -212,13 +233,6 @@ impl Display for CompileError<'_> {
         "Non-default parameter `{parameter}` follows default parameter"
       ),
       UndefinedVariable { variable } => write!(f, "Variable `{variable}` not defined"),
-      UnexpectedAttributeArgument { attribute } => {
-        write!(
-          f,
-          "Attribute `{}` specified with argument but takes no arguments",
-          attribute.name(),
-        )
-      }
       UnexpectedCharacter { expected } => write!(f, "Expected character `{expected}`"),
       UnexpectedClosingDelimiter { close } => {
         write!(f, "Unexpected closing delimiter `{}`", close.close())

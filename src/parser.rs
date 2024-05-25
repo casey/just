@@ -976,25 +976,23 @@ impl<'run, 'src> Parser<'run, 'src> {
     while self.accepted(BracketL)? {
       loop {
         let name = self.parse_name()?;
-        let attribute = Attribute::from_name(name).ok_or_else(|| {
-          name.error(CompileErrorKind::UnknownAttribute {
-            attribute: name.lexeme(),
-          })
-        })?;
+
+        let argument = if self.accepted(ParenL)? {
+          let argument = self.parse_string_literal()?;
+          self.expect(ParenR)?;
+          Some(argument)
+        } else {
+          None
+        };
+
+        let attribute = Attribute::new(name, argument)?;
+
         if let Some(line) = attributes.get(&attribute) {
           return Err(name.error(CompileErrorKind::DuplicateAttribute {
             attribute: name.lexeme(),
             first: *line,
           }));
         }
-
-        let attribute = if self.accepted(ParenL)? {
-          let argument = self.parse_string_literal()?;
-          self.expect(ParenR)?;
-          attribute.with_argument(name, argument)?
-        } else {
-          attribute
-        };
 
         attributes.insert(attribute, name.line);
 

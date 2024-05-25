@@ -119,7 +119,7 @@ fn unexpected_attribute_argument() {
     )
     .stderr(
       "
-        error: Attribute `private` specified with argument but takes no arguments
+        error: Attribute `private` got 1 argument but takes 0 arguments
          ——▶ justfile:1:2
           │
         1 │ [private('foo')]

@@ -1610,7 +1610,8 @@ Recipes may be annotated with attributes that change their behavior.
 | Name | Description |
 |------|-------------|
 | `[confirm]`<sup>1.17.0</sup> | Require confirmation prior to executing recipe. |
-| `[confirm("prompt")]`<sup>1.23.0</sup> | Require confirmation prior to executing recipe with a custom prompt. |
+| `[confirm('prompt')]`<sup>1.23.0</sup> | Require confirmation prior to executing recipe with a custom prompt. |
+| `[group('NAME"']`<sup>master</sup> | Put recipe in [recipe group](#recipe-groups) `NAME`.
 | `[linux]`<sup>1.8.0</sup> | Enable recipe on Linux. |
 | `[macos]`<sup>1.8.0</sup> | Enable recipe on MacOS. |
 | `[no-cd]`<sup>1.9.0</sup> | Don't change directory before executing recipe. |
@@ -1707,6 +1708,72 @@ The default confirmation prompt can be overridden with `[confirm(PROMPT)]`:
 [confirm("Are you sure you want to delete everything?")]
 delete-everything:
   rm -rf *
+```
+
+### Recipe Groups
+
+Recipes can be annotated with a group name:
+
+```just
+[group('lint')]
+js-lint:
+    echo 'Running JS linter…'
+
+[group('rust recipes')]
+[group('lint')]
+rust-lint:
+    echo 'Runninng Rust linter…'
+
+[group('lint')]
+cpp-lint:
+  echo 'Running C++ linter…'
+
+# not in any group
+email-everyone:
+    echo 'Sending mass email…'
+```
+
+Recipes are listed by group:
+
+```
+$ just --list
+Available recipes:
+    (no group)
+    email-everyone # not in any group
+
+    [lint]
+    cpp-lint
+    js-lint
+    rust-lint
+
+    [rust recipes]
+    rust-lint
+```
+
+`just --list --unsorted` prints recipes in their justfile order within each group:
+
+```
+$ just --list --unsorted
+Available recipes:
+    (no group)
+    email-everyone # not in any group
+
+    [lint]
+    js-lint
+    rust-lint
+    cpp-lint
+
+    [rust recipes]
+    rust-lint
+```
+
+Groups can be listed with `--groups`:
+
+```
+$ just --groups
+Recipe groups:
+  lint
+  rust recipes
 ```
 
 ### Command Evaluation Using Backticks

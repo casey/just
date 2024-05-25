@@ -69,6 +69,7 @@ Register-ArgumentCompleter -Native -CommandName 'just' -ScriptBlock {
             [CompletionResult]::new('--init', 'init', [CompletionResultType]::ParameterName, 'Initialize new justfile in project root')
             [CompletionResult]::new('-l', 'l', [CompletionResultType]::ParameterName, 'List available recipes and their arguments')
             [CompletionResult]::new('--list', 'list', [CompletionResultType]::ParameterName, 'List available recipes and their arguments')
+            [CompletionResult]::new('--groups', 'groups', [CompletionResultType]::ParameterName, 'List recipe groups')
             [CompletionResult]::new('--man', 'man', [CompletionResultType]::ParameterName, 'Print man page')
             [CompletionResult]::new('--summary', 'summary', [CompletionResultType]::ParameterName, 'List names of available recipes')
             [CompletionResult]::new('--variables', 'variables', [CompletionResultType]::ParameterName, 'List names of variables')

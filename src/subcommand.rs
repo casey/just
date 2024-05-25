@@ -29,6 +29,7 @@ pub(crate) enum Subcommand {
     variable: Option<String>,
   },
   Format,
+  Groups,
   Init,
   List,
   Man,
@@ -86,6 +87,7 @@ impl Subcommand {
       }
       Dump => Self::dump(config, ast, justfile)?,
       Format => Self::format(config, &search, src, ast)?,
+      Groups => Self::groups(config, justfile),
       List => Self::list(config, 0, justfile),
       Show { ref name } => Self::show(config, name, justfile)?,
       Summary => Self::summary(config, justfile),
@@ -94,6 +96,13 @@ impl Subcommand {
     }
 
     Ok(())
+  }
+
+  fn groups(config: &Config, justfile: &Justfile) {
+    println!("Recipe groups:");
+    for group in justfile.public_groups() {
+      println!("{}{group}", config.list_prefix);
+    }
   }
 
   fn run<'src>(
@@ -469,90 +478,125 @@ impl Subcommand {
   }
 
   fn list(config: &Config, level: usize, justfile: &Justfile) {
-    const MAX_WIDTH: usize = 50;
+    let aliases = if config.no_aliases {
+      BTreeMap::new()
+    } else {
+      let mut aliases = BTreeMap::<&str, Vec<&str>>::new();
+      for alias in justfile
+        .aliases
+        .values()
+        .filter(|alias| !alias.is_private())
+      {
+        aliases
+          .entry(alias.target.name.lexeme())
+          .or_default()
+          .push(alias.name.lexeme());
+      }
+      aliases
+    };
+
+    let signature_widths = {
+      let mut signature_widths: BTreeMap<&str, usize> = BTreeMap::new();
+
+      for (name, recipe) in &justfile.recipes {
+        if !recipe.is_public() {
+          continue;
+        }
+
+        for name in iter::once(name).chain(aliases.get(name).unwrap_or(&Vec::new())) {
+          signature_widths.insert(
+            name,
+            UnicodeWidthStr::width(
+              RecipeSignature { name, recipe }
+                .color_display(Color::never())
+                .to_string()
+                .as_str(),
+            ),
+          );
+        }
+      }
+
+      signature_widths
+    };
+
+    let max_signature_width = signature_widths
+      .values()
+      .copied()
+      .filter(|width| *width <= 50)
+      .max()
+      .unwrap_or(0);
 
     if level == 0 {
       print!("{}", config.list_heading);
     }
 
-    // Construct a target to alias map.
-    let mut recipe_aliases = BTreeMap::<&str, Vec<&str>>::new();
-    if !config.no_aliases {
-      for alias in justfile.aliases.values() {
-        if alias.is_private() {
-          continue;
-        }
-
-        if recipe_aliases.contains_key(alias.target.name.lexeme()) {
-          let aliases = recipe_aliases.get_mut(alias.target.name.lexeme()).unwrap();
-          aliases.push(alias.name.lexeme());
+    let groups = {
+      let mut groups = BTreeMap::<Option<String>, Vec<&Recipe>>::new();
+      for recipe in justfile.public_recipes(config.unsorted) {
+        let recipe_groups = recipe.groups();
+        if recipe_groups.is_empty() {
+          groups.entry(None).or_default().push(recipe);
         } else {
-          recipe_aliases.insert(alias.target.name.lexeme(), vec![alias.name.lexeme()]);
+          for group in recipe_groups {
+            groups.entry(Some(group)).or_default().push(recipe);
+          }
         }
       }
-    }
+      groups
+    };
 
-    let mut line_widths = BTreeMap::<&str, usize>::new();
-
-    for (name, recipe) in &justfile.recipes {
-      if !recipe.is_public() {
-        continue;
-      }
-
-      for name in iter::once(name).chain(recipe_aliases.get(name).unwrap_or(&Vec::new())) {
-        line_widths.insert(
-          name,
-          UnicodeWidthStr::width(
-            RecipeSignature { name, recipe }
-              .color_display(Color::never())
-              .to_string()
-              .as_str(),
-          ),
-        );
-      }
-    }
-
-    let max_line_width = line_widths
-      .values()
-      .filter(|line_width| **line_width <= MAX_WIDTH)
-      .copied()
-      .max()
-      .unwrap_or_default();
-
-    for recipe in justfile.public_recipes(config.unsorted) {
-      let name = recipe.name();
-
-      for (i, name) in iter::once(&name)
-        .chain(recipe_aliases.get(name).unwrap_or(&Vec::new()))
-        .enumerate()
-      {
-        print!(
-          "{}{}",
-          config.list_prefix.repeat(level + 1),
-          RecipeSignature { name, recipe }.color_display(config.color.stdout())
-        );
-
-        let doc = match (i, recipe.doc) {
-          (0, Some(doc)) => Some(Cow::Borrowed(doc)),
-          (0, None) => None,
-          _ => Some(Cow::Owned(format!("alias for `{}`", recipe.name))),
-        };
-
-        if let Some(doc) = doc {
-          print!(
-            " {:padding$}{} {}",
-            "",
-            config.color.stdout().doc().paint("#"),
-            config.color.stdout().doc().paint(&doc),
-            padding = max_line_width.saturating_sub(line_widths[name]),
-          );
-        }
-
+    for (i, (group, recipes)) in groups.iter().enumerate() {
+      if i > 0 {
         println!();
       }
+
+      let no_groups = groups.contains_key(&None) && groups.len() == 1;
+
+      if !no_groups {
+        print!("{}", config.list_prefix.repeat(level + 1));
+        if let Some(group_name) = group {
+          println!("[{group_name}]");
+        } else {
+          println!("(no group)");
+        }
+      }
+
+      for recipe in recipes {
+        for (i, name) in iter::once(&recipe.name())
+          .chain(aliases.get(recipe.name()).unwrap_or(&Vec::new()))
+          .enumerate()
+        {
+          print!(
+            "{}{}",
+            config.list_prefix.repeat(level + 1),
+            RecipeSignature { name, recipe }.color_display(config.color.stdout())
+          );
+
+          let doc = if i == 0 {
+            recipe.doc.map(Cow::Borrowed)
+          } else {
+            Some(Cow::Owned(format!("alias for `{}`", recipe.name)))
+          };
+
+          if let Some(doc) = doc {
+            print!(
+              "{:padding$}{} {}",
+              "",
+              config.color.stdout().doc().paint("#"),
+              config.color.stdout().doc().paint(&doc),
+              padding = max_signature_width.saturating_sub(signature_widths[name]) + 1,
+            );
+          }
+          println!();
+        }
+      }
     }
 
-    for (name, module) in &justfile.modules {
+    for (i, (name, module)) in justfile.modules.iter().enumerate() {
+      if i + groups.len() > 0 {
+        println!();
+      }
+
       println!("{}{name}:", config.list_prefix.repeat(level + 1));
       Self::list(config, level + 1, module);
     }

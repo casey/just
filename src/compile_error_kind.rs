@@ -10,6 +10,12 @@ pub(crate) enum CompileErrorKind<'src> {
     alias: &'src str,
     recipe_line: usize,
   },
+  AttributeArgumentCountMismatch {
+    attribute: &'src str,
+    found: usize,
+    min: usize,
+    max: usize,
+  },
   BacktickShebang,
   CircularRecipeDependency {
     recipe: &'src str,
@@ -87,9 +93,6 @@ pub(crate) enum CompileErrorKind<'src> {
   },
   UndefinedVariable {
     variable: &'src str,
-  },
-  UnexpectedAttributeArgument {
-    attribute: Attribute<'src>,
   },
   UnexpectedCharacter {
     expected: char,
