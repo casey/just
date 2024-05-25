@@ -237,6 +237,12 @@ impl<'src, D> Recipe<'src, D> {
         } else {
           config.color
         };
+
+        if config.timestamps {
+          let ts = chrono::Utc::now();
+          let formatted = ts.format("%+");
+          eprint!("[{}] ", color.stderr().paint(&formatted.to_string()));
+        }
         eprintln!("{}", color.stderr().paint(command));
       }
 
