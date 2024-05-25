@@ -495,16 +495,7 @@ impl<'src> Justfile<'src> {
       .collect::<Vec<&Recipe<Dependency>>>();
 
     if config.unsorted {
-      recipes.sort_by_key(|recipe| {
-        (
-          self
-            .loaded
-            .iter()
-            .position(|path| path == recipe.name.path)
-            .unwrap(),
-          recipe.name.offset,
-        )
-      });
+      recipes.sort_by_key(|recipe| (&recipe.import_offsets, recipe.name.offset));
     }
 
     recipes

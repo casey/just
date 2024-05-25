@@ -4,6 +4,7 @@ use super::*;
 pub(crate) struct Source<'src> {
   pub(crate) file_depth: u32,
   pub(crate) file_path: Vec<PathBuf>,
+  pub(crate) import_offsets: Vec<usize>,
   pub(crate) namepath: Namepath<'src>,
   pub(crate) path: PathBuf,
   pub(crate) submodule_depth: u32,
@@ -19,10 +20,11 @@ impl<'src> Source<'src> {
       path: path.into(),
       submodule_depth: 0,
       working_directory: path.parent().unwrap().into(),
+      import_offsets: Vec::new(),
     }
   }
 
-  pub(crate) fn import(&self, path: PathBuf) -> Self {
+  pub(crate) fn import(&self, path: PathBuf, import_offset: usize) -> Self {
     Self {
       file_depth: self.file_depth + 1,
       file_path: self
@@ -35,6 +37,12 @@ impl<'src> Source<'src> {
       path,
       submodule_depth: self.submodule_depth,
       working_directory: self.working_directory.clone(),
+      import_offsets: self
+        .import_offsets
+        .iter()
+        .cloned()
+        .chain(iter::once(import_offset))
+        .collect(),
     }
   }
 
@@ -51,6 +59,7 @@ impl<'src> Source<'src> {
       path: path.clone(),
       submodule_depth: self.submodule_depth + 1,
       working_directory: path.parent().unwrap().into(),
+      import_offsets: Vec::new(),
     }
   }
 }
