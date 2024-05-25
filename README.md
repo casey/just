@@ -1422,9 +1422,9 @@ script:
 
 #### Source and Source Directory
 
-- `source()` - Retrieves the path of the current source file.
+- `source()`<sup>master</sup> - Retrieves the path of the current source file.
 
-- `source_directory()` - Retrieves the path of the parent directory of the
+- `source_directory()`<sup>master</sup> - Retrieves the path of the parent directory of the
   current source file.
 
 `source()` and `source_directory()` behave the same as `justfile()` and
