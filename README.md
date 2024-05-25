@@ -1425,7 +1425,7 @@ script:
 - `source()` - Retrieves the path of the current source file.
 
 - `source_directory()` - Retrieves the path of the parent directory of the
-  current source file
+  current source file.
 
 `source()` and `source_directory()` behave the same as `justfile()` and
 `justfile_directory()` in the root `justfile`, but will return the path and
