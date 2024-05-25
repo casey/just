@@ -882,7 +882,7 @@ fn source_file() {
         mod foo
       ",
     )
-    .write("foo.just", "x := source_file()\nbar:\n @echo {{x}}")
+    .write("foo.just", "x := source_file()\nbar:\n @echo '{{x}}'")
     .stdout_regex(r".*[/\\]foo.just\n")
     .run();
 }
@@ -899,7 +899,7 @@ fn source_directory() {
     )
     .write(
       "foo/mod.just",
-      "x := source_directory()\nbar:\n @echo {{x}}",
+      "x := source_directory()\nbar:\n @echo '{{x}}'",
     )
     .stdout_regex(r".*[/\\]foo\n")
     .run();
