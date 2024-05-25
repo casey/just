@@ -280,7 +280,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       let mut arguments = Vec::new();
 
       while !self.accepted(ParenR)? {
-        arguments.push(self.parse_expression()?);
+        arguments.push(self.parse_expression(true)?);
       }
 
       Ok(Some(UnresolvedDependency { recipe, arguments }))
@@ -459,7 +459,7 @@ impl<'run, 'src> Parser<'run, 'src> {
   fn parse_assignment(&mut self, export: bool) -> CompileResult<'src, Assignment<'src>> {
     let name = self.parse_name()?;
     self.presume_any(&[Equals, ColonEquals])?;
-    let value = self.parse_expression()?;
+    let value = self.parse_expression(false)?;
     self.expect_eol()?;
     Ok(Assignment {
       depth: self.file_depth,
@@ -470,7 +470,7 @@ impl<'run, 'src> Parser<'run, 'src> {
   }
 
   /// Parse an expression, e.g. `1 + 2`
-  fn parse_expression(&mut self) -> CompileResult<'src, Expression<'src>> {
+  fn parse_expression(&mut self, dependency: bool) -> CompileResult<'src, Expression<'src>> {
     if self.recursion_depth == if cfg!(windows) { 48 } else { 256 } {
       let token = self.next()?;
       return Err(CompileError::new(
@@ -485,18 +485,18 @@ impl<'run, 'src> Parser<'run, 'src> {
       self.parse_conditional()?
     } else if self.accepted(Slash)? {
       let lhs = None;
-      let rhs = self.parse_expression()?.into();
+      let rhs = self.parse_expression(false)?.into();
       Expression::Join { lhs, rhs }
     } else {
-      let value = self.parse_value()?;
+      let value = self.parse_value(dependency)?;
 
       if self.accepted(Slash)? {
         let lhs = Some(Box::new(value));
-        let rhs = self.parse_expression()?.into();
+        let rhs = self.parse_expression(false)?.into();
         Expression::Join { lhs, rhs }
       } else if self.accepted(Plus)? {
         let lhs = value.into();
-        let rhs = self.parse_expression()?.into();
+        let rhs = self.parse_expression(false)?.into();
         Expression::Concatenation { lhs, rhs }
       } else {
         value
@@ -514,7 +514,7 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     self.expect(BraceL)?;
 
-    let then = self.parse_expression()?;
+    let then = self.parse_expression(false)?;
 
     self.expect(BraceR)?;
 
@@ -524,7 +524,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       self.parse_conditional()?
     } else {
       self.expect(BraceL)?;
-      let otherwise = self.parse_expression()?;
+      let otherwise = self.parse_expression(false)?;
       self.expect(BraceR)?;
       otherwise
     };
@@ -537,7 +537,7 @@ impl<'run, 'src> Parser<'run, 'src> {
   }
 
   fn parse_condition(&mut self) -> CompileResult<'src, Condition<'src>> {
-    let lhs = self.parse_expression()?;
+    let lhs = self.parse_expression(false)?;
     let operator = if self.accepted(BangEquals)? {
       ConditionalOperator::Inequality
     } else if self.accepted(EqualsTilde)? {
@@ -546,7 +546,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       self.expect(EqualsEquals)?;
       ConditionalOperator::Equality
     };
-    let rhs = self.parse_expression()?;
+    let rhs = self.parse_expression(false)?;
     Ok(Condition {
       lhs: lhs.into(),
       rhs: rhs.into(),
@@ -555,8 +555,8 @@ impl<'run, 'src> Parser<'run, 'src> {
   }
 
   /// Parse a value, e.g. `(bar)`
-  fn parse_value(&mut self) -> CompileResult<'src, Expression<'src>> {
-    if self.next_is(StringToken) || self.next_are(&[Identifier, StringToken]) {
+  fn parse_value(&mut self, dependency: bool) -> CompileResult<'src, Expression<'src>> {
+    if self.next_is(StringToken) || (!dependency && self.next_are(&[Identifier, StringToken])) {
       Ok(Expression::StringLiteral {
         string_literal: self.parse_string_literal()?,
       })
@@ -581,7 +581,7 @@ impl<'run, 'src> Parser<'run, 'src> {
         self.expect(ParenL)?;
         let condition = self.parse_condition()?;
         self.expect(Comma)?;
-        let error = Box::new(self.parse_expression()?);
+        let error = Box::new(self.parse_expression(false)?);
         self.expect(ParenR)?;
         Ok(Expression::Assert { condition, error })
       } else {
@@ -598,7 +598,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       }
     } else if self.next_is(ParenL) {
       self.presume(ParenL)?;
-      let contents = self.parse_expression()?.into();
+      let contents = self.parse_expression(false)?.into();
       self.expect(ParenR)?;
       Ok(Expression::Group { contents })
     } else {
@@ -610,9 +610,12 @@ impl<'run, 'src> Parser<'run, 'src> {
   fn parse_string_literal_token(
     &mut self,
   ) -> CompileResult<'src, (Token<'src>, StringLiteral<'src>)> {
-    // todo: if next is identifier, expect that it is keyword x
-
-    let expand = self.accepted_keyword(Keyword::X)?;
+    let expand = if self.next_is(Identifier) {
+      self.expect_keyword(Keyword::X)?;
+      true
+    } else {
+      false
+    };
 
     let token = self.expect(StringToken)?;
 
@@ -695,7 +698,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     let mut elements = Vec::new();
 
     while !self.next_is(ParenR) {
-      elements.push(self.parse_expression()?);
+      elements.push(self.parse_expression(false)?);
 
       if !self.accepted(Comma)? {
         break;
@@ -798,7 +801,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     let name = self.parse_name()?;
 
     let default = if self.accepted(Equals)? {
-      Some(self.parse_value()?)
+      Some(self.parse_value(false)?)
     } else {
       None
     };
@@ -829,7 +832,7 @@ impl<'run, 'src> Parser<'run, 'src> {
               fragments.push(Fragment::Text { token });
             } else if self.accepted(InterpolationStart)? {
               fragments.push(Fragment::Interpolation {
-                expression: self.parse_expression()?,
+                expression: self.parse_expression(false)?,
               });
               self.expect(InterpolationEnd)?;
             } else {
@@ -2364,6 +2367,7 @@ mod tests {
     width:  1,
     kind:   UnexpectedToken {
       expected: vec![
+        Identifier,
         StringToken,
       ],
       found: BracketR,
@@ -2406,6 +2410,7 @@ mod tests {
     kind:   UnexpectedToken {
       expected: vec![
         BracketR,
+        Identifier,
         StringToken,
       ],
       found: Eof,
