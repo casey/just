@@ -499,28 +499,33 @@ impl Subcommand {
     let line_widths = {
       let mut line_widths: BTreeMap<&str, usize> = BTreeMap::new();
 
-      for recipe in &justfile.public_recipes(config.unsorted) {
-        let name = recipe.name.lexeme();
+      for (name, recipe) in &justfile.recipes {
+        if !recipe.is_public() {
+          continue;
+        }
 
-        for name in iter::once(&name).chain(recipe_aliases.get(name).unwrap_or(&Vec::new())) {
-          let mut line_width = UnicodeWidthStr::width(*name);
-
-          for parameter in &recipe.parameters {
-            line_width += UnicodeWidthStr::width(
-              format!(" {}", parameter.color_display(Color::never())).as_str(),
-            );
-          }
-
-          if line_width <= MAX_LINE_WIDTH {
-            line_widths.insert(name, line_width);
-          }
+        for name in iter::once(name).chain(recipe_aliases.get(name).unwrap_or(&Vec::new())) {
+          line_widths.insert(
+            name,
+            UnicodeWidthStr::width(
+              RecipeSignature { name, recipe }
+                .color_display(Color::never())
+                .to_string()
+                .as_str(),
+            ),
+          );
         }
       }
 
       line_widths
     };
 
-    let max_line_width = line_widths.values().copied().max().unwrap_or(0);
+    let max_line_width = line_widths
+      .values()
+      .copied()
+      .filter(|width| *width <= MAX_LINE_WIDTH)
+      .max()
+      .unwrap_or(0);
 
     if level == 0 {
       print!("{}", config.list_heading);
@@ -541,16 +546,6 @@ impl Subcommand {
       groups
     };
 
-    let print_doc_comment = |doc: &str, padding: usize, doc_color: Color| {
-      print!(
-        " {:padding$}{} {}",
-        "",
-        doc_color.paint("#"),
-        doc_color.paint(doc),
-        padding = padding
-      );
-    };
-
     for (group, recipes) in &groups {
       let no_groups = groups.contains_key(&None) && groups.len() == 1;
 
@@ -569,24 +564,30 @@ impl Subcommand {
           .map_or(&[], |v| v.as_slice());
 
         let name = recipe.name();
-        let doc_color = config.color.stdout().doc();
 
         for (i, name) in iter::once(&name).chain(aliases).enumerate() {
-          print!("{}{name}", config.list_prefix.repeat(level + 1));
-          for parameter in &recipe.parameters {
-            print!(" {}", parameter.color_display(config.color.stdout()));
+          print!(
+            "{}{}",
+            config.list_prefix.repeat(level + 1),
+            RecipeSignature { name, recipe }.color_display(config.color.stdout())
+          );
+
+          let doc = match (i, recipe.doc) {
+            (0, Some(doc)) => Some(Cow::Borrowed(doc)),
+            (0, None) => None,
+            _ => Some(Cow::Owned(format!("alias for `{}`", recipe.name))),
+          };
+
+          if let Some(doc) = doc {
+            print!(
+              " {:padding$}{} {}",
+              "",
+              config.color.stdout().doc().paint("#"),
+              config.color.stdout().doc().paint(&doc),
+              padding = max_line_width.saturating_sub(line_widths[name]),
+            );
           }
 
-          let padding =
-            max_line_width.saturating_sub(line_widths.get(name).copied().unwrap_or(max_line_width));
-          match (i, recipe.doc) {
-            (0, Some(doc)) => print_doc_comment(doc, padding, doc_color),
-            (0, None) => (),
-            _ => {
-              let alias_doc = format!("alias for `{}`", recipe.name);
-              print_doc_comment(&alias_doc, padding, doc_color);
-            }
-          }
           println!();
         }
       }
