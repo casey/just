@@ -223,7 +223,7 @@ impl Subcommand {
     while let Some(module) = stack.pop() {
       recipes.extend(
         module
-          .public_recipes(&config)
+          .public_recipes(config)
           .iter()
           .filter(|recipe| recipe.min_arguments() == 0),
       );
@@ -532,7 +532,7 @@ impl Subcommand {
 
     let groups = {
       let mut groups = BTreeMap::<Option<String>, Vec<&Recipe>>::new();
-      for recipe in justfile.public_recipes(&config) {
+      for recipe in justfile.public_recipes(config) {
         let recipe_groups = recipe.groups();
         if recipe_groups.is_empty() {
           groups.entry(None).or_default().push(recipe);
@@ -592,7 +592,7 @@ impl Subcommand {
       }
     }
 
-    for (i, module) in justfile.modules(&config).into_iter().enumerate() {
+    for (i, module) in justfile.modules(config).into_iter().enumerate() {
       if i + groups.len() > 0 {
         println!();
       }
@@ -637,7 +637,7 @@ impl Subcommand {
   ) {
     let path = components.join("::");
 
-    for recipe in justfile.public_recipes(&config) {
+    for recipe in justfile.public_recipes(config) {
       if *printed > 0 {
         print!(" ");
       }
