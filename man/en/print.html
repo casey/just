@@ -1260,14 +1260,14 @@ current <code>justfile</code>.</p>
 <h4 id="source-and-source-directory"><a class="header" href="#source-and-source-directory">Source and Source Directory</a></h4>
 <ul>
 <li>
-<p><code>source()</code><sup>1.27.0</sup> - Retrieves the path of the current source file.</p>
+<p><code>source_file()</code><sup>1.27.0</sup> - Retrieves the path of the current source file.</p>
 </li>
 <li>
 <p><code>source_directory()</code><sup>1.27.0</sup> - Retrieves the path of the parent directory of the
 current source file.</p>
 </li>
 </ul>
-<p><code>source()</code> and <code>source_directory()</code> behave the same as <code>justfile()</code> and
+<p><code>source_file()</code> and <code>source_directory()</code> behave the same as <code>justfile()</code> and
 <code>justfile_directory()</code> in the root <code>justfile</code>, but will return the path and
 directory, respectively, of the current <code>import</code> or <code>mod</code> source file when
 called from within an import or submodule.</p>
@@ -1439,7 +1439,7 @@ and are implemented with the
 <tr><td><code>[confirm]</code><sup>1.17.0</sup></td><td>Require confirmation prior to executing recipe.</td></tr>
 <tr><td><code>[confirm('PROMPT')]</code><sup>1.23.0</sup></td><td>Require confirmation prior to executing recipe with a custom prompt.</td></tr>
 <tr><td><code>[doc('DOC')]</code><sup>1.27.0</sup></td><td>Set recipe’s <a href="chapter_28.html">documentation comment</a> to <code>DOC</code>.</td></tr>
-<tr><td><code>[group('NAME"']</code><sup>1.27.0</sup></td><td>Put recipe in <a href="chapter_35.html">recipe group</a> <code>NAME</code>.</td></tr>
+<tr><td><code>[group('NAME')]</code><sup>1.27.0</sup></td><td>Put recipe in <a href="chapter_35.html">recipe group</a> <code>NAME</code>.</td></tr>
 <tr><td><code>[linux]</code><sup>1.8.0</sup></td><td>Enable recipe on Linux.</td></tr>
 <tr><td><code>[macos]</code><sup>1.8.0</sup></td><td>Enable recipe on MacOS.</td></tr>
 <tr><td><code>[no-cd]</code><sup>1.9.0</sup></td><td>Don’t change directory before executing recipe.</td></tr>

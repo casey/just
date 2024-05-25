@@ -299,14 +299,14 @@ current <code>justfile</code>.</p>
 <h4 id="source-and-source-directory"><a class="header" href="#source-and-source-directory">Source and Source Directory</a></h4>
 <ul>
 <li>
-<p><code>source()</code><sup>1.27.0</sup> - Retrieves the path of the current source file.</p>
+<p><code>source_file()</code><sup>1.27.0</sup> - Retrieves the path of the current source file.</p>
 </li>
 <li>
 <p><code>source_directory()</code><sup>1.27.0</sup> - Retrieves the path of the parent directory of the
 current source file.</p>
 </li>
 </ul>
-<p><code>source()</code> and <code>source_directory()</code> behave the same as <code>justfile()</code> and
+<p><code>source_file()</code> and <code>source_directory()</code> behave the same as <code>justfile()</code> and
 <code>justfile_directory()</code> in the root <code>justfile</code>, but will return the path and
 directory, respectively, of the current <code>import</code> or <code>mod</code> source file when
 called from within an import or submodule.</p>
