@@ -191,6 +191,22 @@ Available recipes:
     build # build stuff
     test # test stuff
 </code></pre>
+<p>The <code>[doc]</code> attribute can be used to set or suppress a recipe’s doc comment:</p>
+<pre><code class="language-just"># This comment won't appear
+[doc('Build stuff')]
+build:
+  ./bin/build
+
+# This one won't either
+[doc]
+test:
+  ./bin/test
+</code></pre>
+<pre><code class="language-sh">$ just --list
+Available recipes:
+    build # Build stuff
+    test
+</code></pre>
 
                     </main>
 

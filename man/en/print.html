@@ -982,6 +982,22 @@ Available recipes:
     build # build stuff
     test # test stuff
 </code></pre>
+<p>The <code>[doc]</code> attribute can be used to set or suppress a recipe’s doc comment:</p>
+<pre><code class="language-just"># This comment won't appear
+[doc('Build stuff')]
+build:
+  ./bin/build
+
+# This one won't either
+[doc]
+test:
+  ./bin/test
+</code></pre>
+<pre><code class="language-sh">$ just --list
+Available recipes:
+    build # Build stuff
+    test
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="variables-and-substitution"><a class="header" href="#variables-and-substitution">Variables and Substitution</a></h3>
 <p>Variables, strings, concatenation, path joining, and substitution using <code>{{…}}</code>
 are supported:</p>
@@ -1421,7 +1437,8 @@ and are implemented with the
 <p>Recipes may be annotated with attributes that change their behavior.</p>
 <div class="table-wrapper"><table><thead><tr><th>Name</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>[confirm]</code><sup>1.17.0</sup></td><td>Require confirmation prior to executing recipe.</td></tr>
-<tr><td><code>[confirm('prompt')]</code><sup>1.23.0</sup></td><td>Require confirmation prior to executing recipe with a custom prompt.</td></tr>
+<tr><td><code>[confirm('PROMPT')]</code><sup>1.23.0</sup></td><td>Require confirmation prior to executing recipe with a custom prompt.</td></tr>
+<tr><td><code>[doc('DOC')]</code><sup>master</sup></td><td>Set recipe’s <a href="chapter_28.html">documentation comment</a> to <code>DOC</code>.</td></tr>
 <tr><td><code>[group('NAME"']</code><sup>master</sup></td><td>Put recipe in <a href="chapter_35.html">recipe group</a> <code>NAME</code>.</td></tr>
 <tr><td><code>[linux]</code><sup>1.8.0</sup></td><td>Enable recipe on Linux.</td></tr>
 <tr><td><code>[macos]</code><sup>1.8.0</sup></td><td>Enable recipe on MacOS.</td></tr>
