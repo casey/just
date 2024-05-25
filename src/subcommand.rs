@@ -558,10 +558,8 @@ impl Subcommand {
       }
 
       for recipe in recipes {
-        let name = recipe.name();
-
-        for (i, name) in iter::once(&name)
-          .chain(aliases.get(name).unwrap_or(&Vec::new()))
+        for (i, name) in iter::once(&recipe.name())
+          .chain(aliases.get(recipe.name()).unwrap_or(&Vec::new()))
           .enumerate()
         {
           print!(
@@ -585,7 +583,6 @@ impl Subcommand {
               padding = max_signature_width.saturating_sub(signature_widths[name]) + 1,
             );
           }
-
           println!();
         }
       }
