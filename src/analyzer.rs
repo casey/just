@@ -13,8 +13,9 @@ impl<'src> Analyzer<'src> {
     paths: &HashMap<PathBuf, PathBuf>,
     asts: &HashMap<PathBuf, Ast<'src>>,
     root: &Path,
+    name: Option<Name<'src>>,
   ) -> CompileResult<'src, Justfile<'src>> {
-    Self::default().justfile(loaded, paths, asts, root)
+    Self::default().justfile(loaded, paths, asts, root, name)
   }
 
   fn justfile(
@@ -23,6 +24,7 @@ impl<'src> Analyzer<'src> {
     paths: &HashMap<PathBuf, PathBuf>,
     asts: &HashMap<PathBuf, Ast<'src>>,
     root: &Path,
+    name: Option<Name<'src>>,
   ) -> CompileResult<'src, Justfile<'src>> {
     let mut recipes = Vec::new();
 
@@ -33,7 +35,7 @@ impl<'src> Analyzer<'src> {
 
     let mut warnings = Vec::new();
 
-    let mut modules: BTreeMap<String, (Name, Justfile)> = BTreeMap::new();
+    let mut modules: Table<Justfile> = Table::new();
 
     let mut definitions: HashMap<&str, (&'static str, Name)> = HashMap::new();
 
@@ -83,10 +85,7 @@ impl<'src> Analyzer<'src> {
           Item::Module { absolute, name, .. } => {
             if let Some(absolute) = absolute {
               define(*name, "module", false)?;
-              modules.insert(
-                name.lexeme().into(),
-                (*name, Self::analyze(loaded, paths, asts, absolute)?),
-              );
+              modules.insert(Self::analyze(loaded, paths, asts, absolute, Some(*name))?);
             }
           }
           Item::Recipe(recipe) => {
@@ -149,6 +148,8 @@ impl<'src> Analyzer<'src> {
     let root = paths.get(root).unwrap();
 
     Ok(Justfile {
+      aliases,
+      assignments: self.assignments,
       default: recipes
         .values()
         .filter(|recipe| recipe.name.path == root)
@@ -160,16 +161,12 @@ impl<'src> Analyzer<'src> {
             Rc::clone(next)
           }),
         }),
-      aliases,
-      assignments: self.assignments,
       loaded: loaded.into(),
+      modules,
+      name,
       recipes,
       settings,
       warnings,
-      modules: modules
-        .into_iter()
-        .map(|(name, (_name, justfile))| (name, justfile))
-        .collect(),
     })
   }
 

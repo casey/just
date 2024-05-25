@@ -16,7 +16,9 @@ pub(crate) struct Justfile<'src> {
   pub(crate) default: Option<Rc<Recipe<'src>>>,
   #[serde(skip)]
   pub(crate) loaded: Vec<PathBuf>,
-  pub(crate) modules: BTreeMap<String, Justfile<'src>>,
+  pub(crate) modules: Table<'src, Justfile<'src>>,
+  #[serde(skip)]
+  pub(crate) name: Option<Name<'src>>,
   pub(crate) recipes: Table<'src, Rc<Recipe<'src>>>,
   pub(crate) settings: Settings<'src>,
   pub(crate) warnings: Vec<Warning>,
@@ -401,6 +403,10 @@ impl<'src> Justfile<'src> {
     }
   }
 
+  pub(crate) fn name(&self) -> &'src str {
+    self.name.map(|name| name.lexeme()).unwrap_or_default()
+  }
+
   fn run_recipe(
     arguments: &[String],
     context: &RecipeContext<'src, '_>,
@@ -465,7 +471,22 @@ impl<'src> Justfile<'src> {
     Ok(())
   }
 
-  pub(crate) fn public_recipes(&self, source_order: bool) -> Vec<&Recipe<'src, Dependency>> {
+  pub(crate) fn modules(&self, config: &Config) -> Vec<&Justfile> {
+    let mut modules = self.modules.values().collect::<Vec<&Justfile>>();
+
+    if config.unsorted {
+      modules.sort_by_key(|module| {
+        module
+          .name
+          .map(|name| name.token.offset)
+          .unwrap_or_default()
+      });
+    }
+
+    modules
+  }
+
+  pub(crate) fn public_recipes(&self, config: &Config) -> Vec<&Recipe<'src, Dependency>> {
     let mut recipes = self
       .recipes
       .values()
@@ -473,7 +494,7 @@ impl<'src> Justfile<'src> {
       .filter(|recipe| recipe.is_public())
       .collect::<Vec<&Recipe<Dependency>>>();
 
-    if source_order {
+    if config.unsorted {
       recipes.sort_by_key(|recipe| {
         (
           self
@@ -528,6 +549,12 @@ impl<'src> ColorDisplay for Justfile<'src> {
       }
     }
     Ok(())
+  }
+}
+
+impl<'src> Keyed<'src> for Justfile<'src> {
+  fn key(&self) -> &'src str {
+    self.name()
   }
 }
 

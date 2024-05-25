@@ -35,8 +35,7 @@ fn modules_are_space_separated_in_output() {
       ",
     )
     .test_round_trip(false)
-    .arg("--unstable")
-    .arg("--list")
+    .args(["--unstable", "--list"])
     .stdout(
       "
       Available recipes:
@@ -46,6 +45,33 @@ fn modules_are_space_separated_in_output() {
           foo:
               foo
     ",
+    )
+    .run();
+}
+
+#[test]
+fn modules_unsorted() {
+  Test::new()
+    .write("foo.just", "foo:")
+    .write("bar.just", "bar:")
+    .justfile(
+      "
+        mod foo
+
+        mod bar
+      ",
+    )
+    .test_round_trip(false)
+    .args(["--unstable", "--list", "--unsorted"])
+    .stdout(
+      "
+        Available recipes:
+            foo:
+                foo
+
+            bar:
+                bar
+      ",
     )
     .run();
 }
