@@ -10,9 +10,7 @@ use super::*;
 #[strum_discriminants(strum(serialize_all = "kebab-case"))]
 pub(crate) enum Attribute<'src> {
   Confirm(Option<StringLiteral<'src>>),
-  Doc {
-    docstring: Option<StringLiteral<'src>>,
-  },
+  Doc(Option<StringLiteral<'src>>),
   Group(StringLiteral<'src>),
   Linux,
   Macos,
@@ -75,9 +73,7 @@ impl<'src> Attribute<'src> {
 
     Ok(match discriminant {
       Confirm => Self::Confirm(argument),
-      Doc => Self::Doc {
-        docstring: argument,
-      },
+      Doc => Self::Doc(argument),
       Group => Self::Group(argument.unwrap()),
       Linux => Self::Linux,
       Macos => Self::Macos,
@@ -97,8 +93,8 @@ impl<'src> Attribute<'src> {
   fn argument(&self) -> Option<&StringLiteral> {
     match self {
       Self::Confirm(prompt) => prompt.as_ref(),
-      Self::Doc { docstring } => docstring.as_ref(),
-      Self::Group(name) => Some(name),
+      Self::Doc(doc) => doc.as_ref(),
+      Self::Group(group) => Some(group),
       Self::Linux
       | Self::Macos
       | Self::NoCd
