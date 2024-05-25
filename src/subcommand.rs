@@ -478,34 +478,33 @@ impl Subcommand {
   }
 
   fn list(config: &Config, level: usize, justfile: &Justfile) {
-    const MAX_LINE_WIDTH: usize = 50;
-
-    let recipe_aliases = {
-      let mut recipe_aliases = BTreeMap::<&str, Vec<&str>>::new();
-      if !config.no_aliases {
-        for alias in justfile.aliases.values() {
-          if alias.is_private() {
-            continue;
-          }
-          recipe_aliases
-            .entry(alias.target.name.lexeme())
-            .and_modify(|e| e.push(alias.name.lexeme()))
-            .or_insert(vec![alias.name.lexeme()]);
-        }
+    let aliases = if config.no_aliases {
+      BTreeMap::new()
+    } else {
+      let mut aliases = BTreeMap::<&str, Vec<&str>>::new();
+      for alias in justfile
+        .aliases
+        .values()
+        .filter(|alias| !alias.is_private())
+      {
+        aliases
+          .entry(alias.target.name.lexeme())
+          .or_default()
+          .push(alias.name.lexeme())
       }
-      recipe_aliases
+      aliases
     };
 
-    let line_widths = {
-      let mut line_widths: BTreeMap<&str, usize> = BTreeMap::new();
+    let signature_widths = {
+      let mut signature_widths: BTreeMap<&str, usize> = BTreeMap::new();
 
       for (name, recipe) in &justfile.recipes {
         if !recipe.is_public() {
           continue;
         }
 
-        for name in iter::once(name).chain(recipe_aliases.get(name).unwrap_or(&Vec::new())) {
-          line_widths.insert(
+        for name in iter::once(name).chain(aliases.get(name).unwrap_or(&Vec::new())) {
+          signature_widths.insert(
             name,
             UnicodeWidthStr::width(
               RecipeSignature { name, recipe }
@@ -517,13 +516,13 @@ impl Subcommand {
         }
       }
 
-      line_widths
+      signature_widths
     };
 
-    let max_line_width = line_widths
+    let max_signature_width = signature_widths
       .values()
       .copied()
-      .filter(|width| *width <= MAX_LINE_WIDTH)
+      .filter(|width| *width <= 50)
       .max()
       .unwrap_or(0);
 
@@ -559,32 +558,31 @@ impl Subcommand {
       }
 
       for recipe in recipes {
-        let aliases: &[&str] = recipe_aliases
-          .get(recipe.name())
-          .map_or(&[], |v| v.as_slice());
-
         let name = recipe.name();
 
-        for (i, name) in iter::once(&name).chain(aliases).enumerate() {
+        for (i, name) in iter::once(&name)
+          .chain(aliases.get(name).unwrap_or(&Vec::new()))
+          .enumerate()
+        {
           print!(
             "{}{}",
             config.list_prefix.repeat(level + 1),
             RecipeSignature { name, recipe }.color_display(config.color.stdout())
           );
 
-          let doc = match (i, recipe.doc) {
-            (0, Some(doc)) => Some(Cow::Borrowed(doc)),
-            (0, None) => None,
-            _ => Some(Cow::Owned(format!("alias for `{}`", recipe.name))),
+          let doc = if i == 0 {
+            recipe.doc.map(Cow::Borrowed)
+          } else {
+            Some(Cow::Owned(format!("alias for `{}`", recipe.name)))
           };
 
           if let Some(doc) = doc {
             print!(
-              " {:padding$}{} {}",
+              "{:padding$}{} {}",
               "",
               config.color.stdout().doc().paint("#"),
               config.color.stdout().doc().paint(&doc),
-              padding = max_line_width.saturating_sub(line_widths[name]),
+              padding = max_signature_width.saturating_sub(signature_widths[name]) + 1,
             );
           }
 
