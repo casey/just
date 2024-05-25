@@ -1261,7 +1261,7 @@ sequence processing takes place after unindentation. The unindentation
 algorithm does not take escape-sequence produced whitespace or newlines into
 account.
 
-Strings prefixed with `x` are shell expanded<sup>master</sup>:
+Strings prefixed with `x` are shell expanded<sup>1.27.0</sup>:
 
 ```justfile
 foobar := x'~/$FOO/${BAR}'
@@ -1336,7 +1336,7 @@ file.
 
 #### External Commands
 
-- `shell(command, args...)`<sup>master</sup> returns the standard output of shell script
+- `shell(command, args...)`<sup>1.27.0</sup> returns the standard output of shell script
   `command` with zero or more positional arguments `args`. The shell used to
   interpret `command` is the same shell that is used to evaluate recipe lines,
   and can be changed with `set shell := […]`.
@@ -1443,9 +1443,9 @@ script:
 
 #### Source and Source Directory
 
-- `source()`<sup>master</sup> - Retrieves the path of the current source file.
+- `source()`<sup>1.27.0</sup> - Retrieves the path of the current source file.
 
-- `source_directory()`<sup>master</sup> - Retrieves the path of the parent directory of the
+- `source_directory()`<sup>1.27.0</sup> - Retrieves the path of the parent directory of the
   current source file.
 
 `source()` and `source_directory()` behave the same as `justfile()` and
@@ -1487,12 +1487,12 @@ The process ID is: 420
 
 #### String Manipulation
 
-- `append(suffix, s)`<sup>master</sup> Append `suffix` to whitespace-separated
+- `append(suffix, s)`<sup>1.27.0</sup> Append `suffix` to whitespace-separated
   strings in `s`. `append('/src', 'foo bar baz')` → `'foo/src bar/src baz/src'`
-- `prepend(prefix, s)`<sup>master</sup> Prepend `prefix` to
+- `prepend(prefix, s)`<sup>1.27.0</sup> Prepend `prefix` to
   whitespace-separated strings in `s`. `prepend('src/', 'foo bar baz')` →
   `'src/foo src/bar src/baz'`
-- `encode_uri_component(s)`<sup>master</sup> - Percent-encode characters in `s`
+- `encode_uri_component(s)`<sup>1.27.0</sup> - Percent-encode characters in `s`
   except `[A-Za-z0-9_.!~*'()-]`, matching the behavior of the
   [JavaScript `encodeURIComponent` function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent).
 - `quote(s)` - Replace all single quotes with `'\''` and prepend and append
@@ -1587,7 +1587,7 @@ which will halt execution.
 
 #### Random
 
-- `choose(n, alphabet)`<sup>master</sup> - Generate a string of `n` randomly
+- `choose(n, alphabet)`<sup>1.27.0</sup> - Generate a string of `n` randomly
   selected characters from `alphabet`, which may not contain repeated
   characters. For example, `choose('64', HEX)` will generate a random
   64-character lowercase hex string.
@@ -1622,9 +1622,9 @@ A number of constants are predefined:
 
 | Name | Value |
 |------|-------------|
-| `HEX`<sup>master</sup> | `"0123456789abcdef"` |
-| `HEXLOWER`<sup>master</sup> | `"0123456789abcdef"` |
-| `HEXUPPER`<sup>master</sup> | `"0123456789ABCDEF"` |
+| `HEX`<sup>1.27.0</sup> | `"0123456789abcdef"` |
+| `HEXLOWER`<sup>1.27.0</sup> | `"0123456789abcdef"` |
+| `HEXUPPER`<sup>1.27.0</sup> | `"0123456789ABCDEF"` |
 
 ```just
 @foo:
@@ -1644,8 +1644,8 @@ Recipes may be annotated with attributes that change their behavior.
 |------|-------------|
 | `[confirm]`<sup>1.17.0</sup> | Require confirmation prior to executing recipe. |
 | `[confirm('PROMPT')]`<sup>1.23.0</sup> | Require confirmation prior to executing recipe with a custom prompt. |
-| `[doc('DOC')]`<sup>master</sup> | Set recipe's [documentation comment](#documentation-comments) to `DOC`. |
-| `[group('NAME"']`<sup>master</sup> | Put recipe in [recipe group](#recipe-groups) `NAME`. |
+| `[doc('DOC')]`<sup>1.27.0</sup> | Set recipe's [documentation comment](#documentation-comments) to `DOC`. |
+| `[group('NAME"']`<sup>1.27.0</sup> | Put recipe in [recipe group](#recipe-groups) `NAME`. |
 | `[linux]`<sup>1.8.0</sup> | Enable recipe on Linux. |
 | `[macos]`<sup>1.8.0</sup> | Enable recipe on MacOS. |
 | `[no-cd]`<sup>1.9.0</sup> | Don't change directory before executing recipe. |
