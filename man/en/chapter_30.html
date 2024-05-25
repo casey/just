@@ -232,7 +232,7 @@ sequences, and indented single-quoted strings ignore escape sequences. Escape
 sequence processing takes place after unindentation. The unindentation
 algorithm does not take escape-sequence produced whitespace or newlines into
 account.</p>
-<p>Strings prefixed with <code>x</code> are shell expanded<sup>master</sup>:</p>
+<p>Strings prefixed with <code>x</code> are shell expanded<sup>1.27.0</sup>:</p>
 <pre><code class="language-justfile">foobar := x'~/$FOO/${BAR}'
 </code></pre>
 <div class="table-wrapper"><table><thead><tr><th>Value</th><th>Replacement</th></tr></thead><tbody>

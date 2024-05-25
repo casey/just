@@ -206,7 +206,7 @@ file.</p>
 <h4 id="external-commands"><a class="header" href="#external-commands">External Commands</a></h4>
 <ul>
 <li>
-<p><code>shell(command, args...)</code><sup>master</sup> returns the standard output of shell script
+<p><code>shell(command, args...)</code><sup>1.27.0</sup> returns the standard output of shell script
 <code>command</code> with zero or more positional arguments <code>args</code>. The shell used to
 interpret <code>command</code> is the same shell that is used to evaluate recipe lines,
 and can be changed with <code>set shell := […]</code>.</p>
@@ -299,10 +299,10 @@ current <code>justfile</code>.</p>
 <h4 id="source-and-source-directory"><a class="header" href="#source-and-source-directory">Source and Source Directory</a></h4>
 <ul>
 <li>
-<p><code>source()</code><sup>master</sup> - Retrieves the path of the current source file.</p>
+<p><code>source()</code><sup>1.27.0</sup> - Retrieves the path of the current source file.</p>
 </li>
 <li>
-<p><code>source_directory()</code><sup>master</sup> - Retrieves the path of the parent directory of the
+<p><code>source_directory()</code><sup>1.27.0</sup> - Retrieves the path of the parent directory of the
 current source file.</p>
 </li>
 </ul>
@@ -334,12 +334,12 @@ The process ID is: 420
 </code></pre>
 <h4 id="string-manipulation"><a class="header" href="#string-manipulation">String Manipulation</a></h4>
 <ul>
-<li><code>append(suffix, s)</code><sup>master</sup> Append <code>suffix</code> to whitespace-separated
+<li><code>append(suffix, s)</code><sup>1.27.0</sup> Append <code>suffix</code> to whitespace-separated
 strings in <code>s</code>. <code>append('/src', 'foo bar baz')</code> → <code>'foo/src bar/src baz/src'</code></li>
-<li><code>prepend(prefix, s)</code><sup>master</sup> Prepend <code>prefix</code> to
+<li><code>prepend(prefix, s)</code><sup>1.27.0</sup> Prepend <code>prefix</code> to
 whitespace-separated strings in <code>s</code>. <code>prepend('src/', 'foo bar baz')</code> →
 <code>'src/foo src/bar src/baz'</code></li>
-<li><code>encode_uri_component(s)</code><sup>master</sup> - Percent-encode characters in <code>s</code>
+<li><code>encode_uri_component(s)</code><sup>1.27.0</sup> - Percent-encode characters in <code>s</code>
 except <code>[A-Za-z0-9_.!~*'()-]</code>, matching the behavior of the
 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent">JavaScript <code>encodeURIComponent</code> function</a>.</li>
 <li><code>quote(s)</code> - Replace all single quotes with <code>'\''</code> and prepend and append
@@ -430,7 +430,7 @@ string.</li>
 </ul>
 <h4 id="random"><a class="header" href="#random">Random</a></h4>
 <ul>
-<li><code>choose(n, alphabet)</code><sup>master</sup> - Generate a string of <code>n</code> randomly
+<li><code>choose(n, alphabet)</code><sup>1.27.0</sup> - Generate a string of <code>n</code> randomly
 selected characters from <code>alphabet</code>, which may not contain repeated
 characters. For example, <code>choose('64', HEX)</code> will generate a random
 64-character lowercase hex string.</li>
