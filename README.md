@@ -1443,12 +1443,12 @@ script:
 
 #### Source and Source Directory
 
-- `source()`<sup>1.27.0</sup> - Retrieves the path of the current source file.
+- `source_file()`<sup>1.27.0</sup> - Retrieves the path of the current source file.
 
 - `source_directory()`<sup>1.27.0</sup> - Retrieves the path of the parent directory of the
   current source file.
 
-`source()` and `source_directory()` behave the same as `justfile()` and
+`source_file()` and `source_directory()` behave the same as `justfile()` and
 `justfile_directory()` in the root `justfile`, but will return the path and
 directory, respectively, of the current `import` or `mod` source file when
 called from within an import or submodule.
@@ -1645,7 +1645,7 @@ Recipes may be annotated with attributes that change their behavior.
 | `[confirm]`<sup>1.17.0</sup> | Require confirmation prior to executing recipe. |
 | `[confirm('PROMPT')]`<sup>1.23.0</sup> | Require confirmation prior to executing recipe with a custom prompt. |
 | `[doc('DOC')]`<sup>1.27.0</sup> | Set recipe's [documentation comment](#documentation-comments) to `DOC`. |
-| `[group('NAME"']`<sup>1.27.0</sup> | Put recipe in [recipe group](#recipe-groups) `NAME`. |
+| `[group('NAME')]`<sup>1.27.0</sup> | Put recipe in [recipe group](#recipe-groups) `NAME`. |
 | `[linux]`<sup>1.8.0</sup> | Enable recipe on Linux. |
 | `[macos]`<sup>1.8.0</sup> | Enable recipe on MacOS. |
 | `[no-cd]`<sup>1.9.0</sup> | Don't change directory before executing recipe. |
