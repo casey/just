@@ -1420,6 +1420,18 @@ script:
   ./{{justfile_directory()}}/scripts/some_script
 ```
 
+#### Source and Source Directory
+
+- `source()` - Retrieves the path of the current source file.
+
+- `source_directory()` - Retrieves the path of the parent directory of the
+  current source file
+
+`source()` and `source_directory()` behave the same as `justfile()` and
+`justfile_directory()` in the root `justfile`, but will return the path and
+directory of the current `import` or `mod` source file when called from within
+an import or submodule.
+
 #### Just Executable
 
 - `just_executable()` - Absolute path to the `just` executable.

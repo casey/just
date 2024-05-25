@@ -853,3 +853,54 @@ fn encode_uri_component() {
     .stdout("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!%22%23%24%25%26'()*%2B%2C-.%2F%3A%3B%3C%3D%3E%3F%40%5B%5C%5D%5E_%60%7B%7C%7D~%20%09%0D%0A%F0%9F%8C%90")
     .run();
 }
+
+#[test]
+fn source_file() {
+  Test::new()
+    .args(["--evaluate", "x"])
+    .justfile("x := source_file()")
+    .stdout_regex(".*/justfile")
+    .run();
+
+  Test::new()
+    .args(["--evaluate", "x"])
+    .test_round_trip(false)
+    .justfile(
+      "
+        import 'foo.just'
+      ",
+    )
+    .write("foo.just", "x := source_file()")
+    .stdout_regex(".*/foo.just")
+    .run();
+
+  Test::new()
+    .args(["--unstable", "foo", "bar"])
+    .test_round_trip(false)
+    .justfile(
+      "
+        mod foo
+      ",
+    )
+    .write("foo.just", "x := source_file()\nbar:\n @echo {{x}}")
+    .stdout_regex(".*/foo.just\n")
+    .run();
+}
+
+#[test]
+fn source_directory() {
+  Test::new()
+    .args(["--unstable", "foo", "bar"])
+    .test_round_trip(false)
+    .justfile(
+      "
+        mod foo
+      ",
+    )
+    .write(
+      "foo/mod.just",
+      "x := source_directory()\nbar:\n @echo {{x}}",
+    )
+    .stdout_regex(".*/foo\n")
+    .run();
+}
