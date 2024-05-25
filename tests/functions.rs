@@ -859,7 +859,7 @@ fn source_file() {
   Test::new()
     .args(["--evaluate", "x"])
     .justfile("x := source_file()")
-    .stdout_regex(".*/justfile")
+    .stdout_regex(r".*[/\\]justfile")
     .run();
 
   Test::new()
@@ -871,7 +871,7 @@ fn source_file() {
       ",
     )
     .write("foo.just", "x := source_file()")
-    .stdout_regex(".*/foo.just")
+    .stdout_regex(r".*[/\\]foo.just")
     .run();
 
   Test::new()
@@ -883,7 +883,7 @@ fn source_file() {
       ",
     )
     .write("foo.just", "x := source_file()\nbar:\n @echo {{x}}")
-    .stdout_regex(".*/foo.just\n")
+    .stdout_regex(r".*[/\\]foo.just\n")
     .run();
 }
 
@@ -901,6 +901,6 @@ fn source_directory() {
       "foo/mod.just",
       "x := source_directory()\nbar:\n @echo {{x}}",
     )
-    .stdout_regex(".*/foo\n")
+    .stdout_regex(r".*[/\\]foo\n")
     .run();
 }
