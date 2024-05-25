@@ -568,12 +568,8 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     tokens
       .next()
-      .map(|token| token.kind == Identifier && token.lexeme() == "x")
-      .unwrap_or_default()
-      && tokens
-        .next()
-        .map(|token| token.kind == StringToken)
-        .unwrap_or_default()
+      .is_some_and(|token| token.kind == Identifier && token.lexeme() == "x")
+      && tokens.next().is_some_and(|token| token.kind == StringToken)
   }
 
   /// Parse a value, e.g. `(bar)`
