@@ -793,7 +793,7 @@ foo:
 | `allow-duplicate-variables` | boolean | `false` | Allow variables appearing later in a `justfile` to override earlier variables with the same name. |
 | `dotenv-filename` | string | - | Load a `.env` file with a custom name, if present. |
 | `dotenv-load` | boolean | `false` | Load a `.env` file, if present. |
-| `dotenv-path` | string | - | Load a `.env` file from a custom path, if present. Overrides `dotenv-filename`. |
+| `dotenv-path` | string | - | Load a `.env` file from a custom path and error if not present. Overrides `dotenv-filename`. |
 | `export` | boolean | `false` | Export all variables as environment variables. |
 | `fallback` | boolean | `false` | Search `justfile` in parent directory if the first recipe on the command line is not found. |
 | `ignore-comments` | boolean | `false` | Ignore recipe lines beginning with `#`. |
@@ -862,7 +862,9 @@ bar
 If `dotenv-load`, `dotenv-filename` or `dotenv-path` is set, `just` will load
 environment variables from a file.
 
-If `dotenv-path` is set, `just` will look for a file at the given path.
+If `dotenv-path` is set, `just` will look for a file at the given path. It is
+an error if a dotenv file is not found at `dotenv-path`, but not an error if a
+dotenv file is not found with `dotenv-filename`.
 
 Otherwise, `just` looks for a file named `.env` by default, unless
 `dotenv-filename` set, in which case the value of `dotenv-filename` is used.
