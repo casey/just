@@ -6,6 +6,7 @@ pub(crate) enum Item<'src> {
   Alias(Alias<'src, Name<'src>>),
   Assignment(Assignment<'src>),
   Comment(&'src str),
+  FunctionDefinition(FunctionDefinition<'src>),
   Import {
     absolute: Option<PathBuf>,
     optional: bool,
@@ -28,6 +29,7 @@ impl<'src> Display for Item<'src> {
       Self::Alias(alias) => write!(f, "{alias}"),
       Self::Assignment(assignment) => write!(f, "{assignment}"),
       Self::Comment(comment) => write!(f, "{comment}"),
+      Self::FunctionDefinition(function_definition) => write!(f, "{function_definition}"),
       Self::Import {
         relative, optional, ..
       } => {

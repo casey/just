@@ -39,6 +39,8 @@ impl<'src> Analyzer<'src> {
 
     let mut definitions: HashMap<&str, (&'static str, Name)> = HashMap::new();
 
+    let mut function_definitions = Table::<FunctionDefinition>::new();
+
     let mut define = |name: Name<'src>,
                       second_type: &'static str,
                       duplicates_allowed: bool|
@@ -77,6 +79,9 @@ impl<'src> Analyzer<'src> {
             assignments.push(assignment);
           }
           Item::Comment(_) => (),
+          Item::FunctionDefinition(function_definition) => {
+            function_definitions.insert(function_definition.clone())
+          }
           Item::Import { absolute, .. } => {
             if let Some(absolute) = absolute {
               stack.push(asts.get(absolute).unwrap());

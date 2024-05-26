@@ -253,7 +253,7 @@ impl<'run, 'src> Parser<'run, 'src> {
   /// Accept a token of kind `Identifier` and parse into a `Name`
   fn accept_name(&mut self) -> CompileResult<'src, Option<Name<'src>>> {
     if self.next_is(Identifier) {
-      Ok(Some(self.parse_name()?))
+      Ok(Some(self.expect_name()?))
     } else {
       Ok(None)
     }
@@ -278,7 +278,7 @@ impl<'run, 'src> Parser<'run, 'src> {
         recipe,
       }))
     } else if self.accepted(ParenL)? {
-      let recipe = self.parse_name()?;
+      let recipe = self.expect_name()?;
 
       let mut arguments = Vec::new();
 
@@ -331,6 +331,8 @@ impl<'run, 'src> Parser<'run, 'src> {
         eol_since_last_comment = true;
       } else if self.accepted(Eof)? {
         break;
+      } else if self.next_are(&[Identifier, ParenL]) {
+        items.push(Item::FunctionDefinition(self.parse_function_definition()?));
       } else if self.next_is(Identifier) {
         match Keyword::from_lexeme(next.lexeme()) {
           Some(Keyword::Alias) if self.next_are(&[Identifier, Identifier, ColonEquals]) => {
@@ -366,7 +368,7 @@ impl<'run, 'src> Parser<'run, 'src> {
 
             let optional = self.accepted(QuestionMark)?;
 
-            let name = self.parse_name()?;
+            let name = self.expect_name()?;
 
             let relative = if self.next_is(StringToken) || self.next_are(&[Identifier, StringToken])
             {
@@ -447,9 +449,9 @@ impl<'run, 'src> Parser<'run, 'src> {
     attributes: BTreeSet<Attribute<'src>>,
   ) -> CompileResult<'src, Alias<'src, Name<'src>>> {
     self.presume_keyword(Keyword::Alias)?;
-    let name = self.parse_name()?;
+    let name = self.expect_name()?;
     self.presume_any(&[Equals, ColonEquals])?;
-    let target = self.parse_name()?;
+    let target = self.expect_name()?;
     self.expect_eol()?;
     Ok(Alias {
       attributes,
@@ -460,7 +462,7 @@ impl<'run, 'src> Parser<'run, 'src> {
 
   /// Parse an assignment, e.g. `foo := bar`
   fn parse_assignment(&mut self, export: bool) -> CompileResult<'src, Assignment<'src>> {
-    let name = self.parse_name()?;
+    let name = self.expect_name()?;
     self.presume_any(&[Equals, ColonEquals])?;
     let value = self.parse_expression()?;
     self.expect_eol()?;
@@ -509,6 +511,35 @@ impl<'run, 'src> Parser<'run, 'src> {
     self.recursion_depth -= 1;
 
     Ok(expression)
+  }
+
+  // Parse a function definition, e.g., `foo(x) := x + x`
+  fn parse_function_definition(&mut self) -> CompileResult<'src, FunctionDefinition<'src>> {
+    let name = self.expect_name()?;
+
+    self.presume(ParenL)?;
+
+    let mut parameters = Vec::new();
+
+    while !self.next_is(ParenR) {
+      parameters.push(self.expect_name()?);
+
+      if !self.accepted(Comma)? {
+        break;
+      }
+    }
+
+    self.expect(ParenR)?;
+
+    self.expect(ColonEquals)?;
+
+    let body = self.parse_expression()?;
+
+    Ok(FunctionDefinition {
+      name,
+      parameters,
+      body,
+    })
   }
 
   /// Parse a conditional, e.g. `if a == b { "foo" } else { "bar" }`
@@ -606,7 +637,7 @@ impl<'run, 'src> Parser<'run, 'src> {
         self.expect(ParenR)?;
         Ok(Expression::Assert { condition, error })
       } else {
-        let name = self.parse_name()?;
+        let name = self.expect_name()?;
 
         if self.next_is(ParenL) {
           let arguments = self.parse_sequence()?;
@@ -708,7 +739,7 @@ impl<'run, 'src> Parser<'run, 'src> {
   }
 
   /// Parse a name from an identifier token
-  fn parse_name(&mut self) -> CompileResult<'src, Name<'src>> {
+  fn expect_name(&mut self) -> CompileResult<'src, Name<'src>> {
     self.expect(Identifier).map(Name::from_identifier)
   }
 
@@ -738,7 +769,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     quiet: bool,
     attributes: BTreeSet<Attribute<'src>>,
   ) -> CompileResult<'src, UnresolvedRecipe<'src>> {
-    let name = self.parse_name()?;
+    let name = self.expect_name()?;
 
     let mut positional = Vec::new();
 
@@ -820,7 +851,7 @@ impl<'run, 'src> Parser<'run, 'src> {
   fn parse_parameter(&mut self, kind: ParameterKind) -> CompileResult<'src, Parameter<'src>> {
     let export = self.accepted(Dollar)?;
 
-    let name = self.parse_name()?;
+    let name = self.expect_name()?;
 
     let default = if self.accepted(Equals)? {
       Some(self.parse_value()?)
@@ -979,7 +1010,7 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     while self.accepted(BracketL)? {
       loop {
-        let name = self.parse_name()?;
+        let name = self.expect_name()?;
 
         let argument = if self.accepted(ParenL)? {
           let argument = self.parse_string_literal()?;

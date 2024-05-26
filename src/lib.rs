@@ -23,11 +23,12 @@ pub(crate) use {
     config_error::ConfigError, constants::constants, count::Count, delimiter::Delimiter,
     dependency::Dependency, dump_format::DumpFormat, enclosure::Enclosure, error::Error,
     evaluator::Evaluator, expression::Expression, fragment::Fragment, function::Function,
-    interrupt_guard::InterruptGuard, interrupt_handler::InterruptHandler, item::Item,
-    justfile::Justfile, keyed::Keyed, keyword::Keyword, lexer::Lexer, line::Line, list::List,
-    load_dotenv::load_dotenv, loader::Loader, name::Name, namepath::Namepath, ordinal::Ordinal,
-    output::output, output_error::OutputError, parameter::Parameter, parameter_kind::ParameterKind,
-    parser::Parser, platform::Platform, platform_interface::PlatformInterface, position::Position,
+    function_definition::FunctionDefinition, interrupt_guard::InterruptGuard,
+    interrupt_handler::InterruptHandler, item::Item, justfile::Justfile, keyed::Keyed,
+    keyword::Keyword, lexer::Lexer, line::Line, list::List, load_dotenv::load_dotenv,
+    loader::Loader, name::Name, namepath::Namepath, ordinal::Ordinal, output::output,
+    output_error::OutputError, parameter::Parameter, parameter_kind::ParameterKind, parser::Parser,
+    platform::Platform, platform_interface::PlatformInterface, position::Position,
     positional::Positional, ran::Ran, range_ext::RangeExt, recipe::Recipe,
     recipe_context::RecipeContext, recipe_resolver::RecipeResolver,
     recipe_signature::RecipeSignature, scope::Scope, search::Search, search_config::SearchConfig,
@@ -141,6 +142,7 @@ mod evaluator;
 mod expression;
 mod fragment;
 mod function;
+mod function_definition;
 mod interrupt_guard;
 mod interrupt_handler;
 mod item;
