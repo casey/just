@@ -11,6 +11,7 @@ use super::*;
 // - make functions unstable
 // - catch function stack overflow
 // - allow recursion in functions
+// - test duplicate function definition error
 
 #[derive(Debug, Clone)]
 pub(crate) struct FunctionDefinition<'src> {
