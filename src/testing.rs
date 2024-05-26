@@ -62,6 +62,7 @@ pub(crate) fn analysis_error(
   let ast = Parser::parse(
     0,
     &PathBuf::new(),
+    &[],
     &Namepath::default(),
     0,
     &tokens,
