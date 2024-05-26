@@ -23,6 +23,7 @@ impl Compiler {
       let mut ast = Parser::parse(
         current.file_depth,
         &current.path,
+        &current.import_offsets,
         &current.namepath,
         current.submodule_depth,
         &tokens,
@@ -94,7 +95,7 @@ impl Compiler {
                 });
               }
               *absolute = Some(import.clone());
-              stack.push(current.import(import));
+              stack.push(current.import(import, path.offset));
             } else if !*optional {
               return Err(Error::MissingImportFile { path: *path });
             }
@@ -172,6 +173,7 @@ impl Compiler {
     let ast = Parser::parse(
       0,
       &PathBuf::new(),
+      &[],
       &Namepath::default(),
       0,
       &tokens,

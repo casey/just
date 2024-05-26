@@ -27,6 +27,7 @@ pub(crate) struct Parser<'run, 'src> {
   expected_tokens: BTreeSet<TokenKind>,
   file_depth: u32,
   file_path: &'run Path,
+  import_offsets: Vec<usize>,
   module_namepath: &'run Namepath<'src>,
   next_token: usize,
   recursion_depth: usize,
@@ -40,6 +41,7 @@ impl<'run, 'src> Parser<'run, 'src> {
   pub(crate) fn parse(
     file_depth: u32,
     file_path: &'run Path,
+    import_offsets: &[usize],
     module_namepath: &'run Namepath<'src>,
     submodule_depth: u32,
     tokens: &'run [Token<'src>],
@@ -49,6 +51,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       expected_tokens: BTreeSet::new(),
       file_depth,
       file_path,
+      import_offsets: import_offsets.to_vec(),
       module_namepath,
       next_token: 0,
       recursion_depth: 0,
@@ -801,6 +804,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       doc,
       file_depth: self.file_depth,
       file_path: self.file_path.into(),
+      import_offsets: self.import_offsets.clone(),
       name,
       namepath: self.module_namepath.join(name),
       parameters: positional.into_iter().chain(variadic).collect(),
@@ -1040,6 +1044,7 @@ mod tests {
     let justfile = Parser::parse(
       0,
       &PathBuf::new(),
+      &[],
       &Namepath::default(),
       0,
       &tokens,
@@ -1086,6 +1091,7 @@ mod tests {
     match Parser::parse(
       0,
       &PathBuf::new(),
+      &[],
       &Namepath::default(),
       0,
       &tokens,
