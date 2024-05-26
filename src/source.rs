@@ -16,11 +16,11 @@ impl<'src> Source<'src> {
     Self {
       file_depth: 0,
       file_path: vec![path.into()],
+      import_offsets: Vec::new(),
       namepath: Namepath::default(),
       path: path.into(),
       submodule_depth: 0,
       working_directory: path.parent().unwrap().into(),
-      import_offsets: Vec::new(),
     }
   }
 
@@ -33,16 +33,16 @@ impl<'src> Source<'src> {
         .into_iter()
         .chain(iter::once(path.clone()))
         .collect(),
-      namepath: self.namepath.clone(),
-      path,
-      submodule_depth: self.submodule_depth,
-      working_directory: self.working_directory.clone(),
       import_offsets: self
         .import_offsets
         .iter()
         .cloned()
         .chain(iter::once(import_offset))
         .collect(),
+      namepath: self.namepath.clone(),
+      path,
+      submodule_depth: self.submodule_depth,
+      working_directory: self.working_directory.clone(),
     }
   }
 
@@ -55,11 +55,11 @@ impl<'src> Source<'src> {
         .into_iter()
         .chain(iter::once(path.clone()))
         .collect(),
+      import_offsets: Vec::new(),
       namepath: self.namepath.join(name),
       path: path.clone(),
       submodule_depth: self.submodule_depth + 1,
       working_directory: path.parent().unwrap().into(),
-      import_offsets: Vec::new(),
     }
   }
 }
