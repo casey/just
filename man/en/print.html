@@ -788,7 +788,7 @@ foo:
 <tr><td><code>allow-duplicate-variables</code></td><td>boolean</td><td><code>false</code></td><td>Allow variables appearing later in a <code>justfile</code> to override earlier variables with the same name.</td></tr>
 <tr><td><code>dotenv-filename</code></td><td>string</td><td>-</td><td>Load a <code>.env</code> file with a custom name, if present.</td></tr>
 <tr><td><code>dotenv-load</code></td><td>boolean</td><td><code>false</code></td><td>Load a <code>.env</code> file, if present.</td></tr>
-<tr><td><code>dotenv-path</code></td><td>string</td><td>-</td><td>Load a <code>.env</code> file from a custom path, if present. Overrides <code>dotenv-filename</code>.</td></tr>
+<tr><td><code>dotenv-path</code></td><td>string</td><td>-</td><td>Load a <code>.env</code> file from a custom path and error if not present. Overrides <code>dotenv-filename</code>.</td></tr>
 <tr><td><code>export</code></td><td>boolean</td><td><code>false</code></td><td>Export all variables as environment variables.</td></tr>
 <tr><td><code>fallback</code></td><td>boolean</td><td><code>false</code></td><td>Search <code>justfile</code> in parent directory if the first recipe on the command line is not found.</td></tr>
 <tr><td><code>ignore-comments</code></td><td>boolean</td><td><code>false</code></td><td>Ignore recipe lines beginning with <code>#</code>.</td></tr>
@@ -838,7 +838,9 @@ bar
 <h4 id="dotenv-settings"><a class="header" href="#dotenv-settings">Dotenv Settings</a></h4>
 <p>If <code>dotenv-load</code>, <code>dotenv-filename</code> or <code>dotenv-path</code> is set, <code>just</code> will load
 environment variables from a file.</p>
-<p>If <code>dotenv-path</code> is set, <code>just</code> will look for a file at the given path.</p>
+<p>If <code>dotenv-path</code> is set, <code>just</code> will look for a file at the given path. It is
+an error if a dotenv file is not found at <code>dotenv-path</code>, but not an error if a
+dotenv file is not found with <code>dotenv-filename</code>.</p>
 <p>Otherwise, <code>just</code> looks for a file named <code>.env</code> by default, unless
 <code>dotenv-filename</code> set, in which case the value of <code>dotenv-filename</code> is used.
 This file can be located in the same directory as your <code>justfile</code> or in a
