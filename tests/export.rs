@@ -1,3 +1,5 @@
+use super::*;
+
 test! {
   name:     success,
   justfile: r#"
@@ -174,4 +176,39 @@ test! {
   args: ("A=zzz"),
   stdout: "undefined\n",
   stderr: "echo $B\n",
+}
+
+#[test]
+fn unset_environment_variable_linewise() {
+  Test::new()
+    .justfile(
+      "
+     unset JUST_TEST_VARIABLE
+
+     recipe:
+         echo $JUST_TEST_VARIABLE
+      ",
+    )
+    .env("JUST_TEST_VARIABLE", "foo")
+    .stderr("echo $JUST_TEST_VARIABLE\nbash: line 1: JUST_TEST_VARIABLE: unbound variable\nerror: Recipe `recipe` failed on line 4 with exit code 127\n")
+    .status(127)
+    .run();
+}
+
+#[test]
+fn unset_environment_variable_shebang() {
+  Test::new()
+    .justfile(
+      "
+     unset JUST_TEST_VARIABLE
+
+     recipe:
+         #!/usr/bin/env bash
+         echo \"variable: $JUST_TEST_VARIABLE\"
+      ",
+    )
+    .env("JUST_TEST_VARIABLE", "foo")
+    .stdout("variable: \n")
+    .status(0)
+    .run();
 }

@@ -164,11 +164,12 @@ impl<'src, D> Recipe<'src, D> {
 
     let evaluator = Evaluator::recipe_evaluator(
       context.config,
-      context.dotenv,
-      context.module_source,
-      scope,
-      context.search,
+      dotenv,
+      &scope,
       context.settings,
+      search,
+      context.settings,
+      context.unsets,
     );
 
     if self.shebang {
@@ -279,7 +280,7 @@ impl<'src, D> Recipe<'src, D> {
         cmd.stdout(Stdio::null());
       }
 
-      cmd.export(context.settings, context.dotenv, scope);
+      cmd.export(context.settings, context.dotenv, scope, context.unsets);
 
       match InterruptHandler::guard(|| cmd.status()) {
         Ok(exit_status) => {
@@ -425,7 +426,7 @@ impl<'src, D> Recipe<'src, D> {
       command.args(positional);
     }
 
-    command.export(context.settings, context.dotenv, scope);
+    command.export(context.settings, context.dotenv, scope, context.unsets);
 
     // run it!
     match InterruptHandler::guard(|| command.status()) {
