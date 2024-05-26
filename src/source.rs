@@ -36,7 +36,7 @@ impl<'src> Source<'src> {
       import_offsets: self
         .import_offsets
         .iter()
-        .cloned()
+        .copied()
         .chain(iter::once(import_offset))
         .collect(),
       namepath: self.namepath.clone(),

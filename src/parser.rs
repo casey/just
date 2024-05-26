@@ -51,7 +51,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       expected_tokens: BTreeSet::new(),
       file_depth,
       file_path,
-      import_offsets: import_offsets.iter().copied().collect(),
+      import_offsets: import_offsets.to_vec(),
       module_namepath,
       next_token: 0,
       recursion_depth: 0,
