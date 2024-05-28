@@ -2205,7 +2205,7 @@ foo $bar:
 
 ### Dependencies
 
-Dependencies run before recipes that depends on them:
+Dependencies run before recipes that depend on them:
 
 ```just
 a: b
