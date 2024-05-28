@@ -242,7 +242,8 @@ impl<'src, D> Recipe<'src, D> {
 
         if config.timestamps {
           let ts = chrono::Utc::now();
-          let formatted = ts.format("%+");
+          let default_format_string = "%H:%M:%S.%3f";
+          let formatted = ts.format(default_format_string);
           eprint!("[{}] ", color.stderr().paint(&formatted.to_string()));
         }
         eprintln!("{}", color.stderr().paint(command));

@@ -488,6 +488,7 @@ impl Config {
       Arg::new(arg::TIMESTAMPS)
       .action(ArgAction::SetTrue)
       .long("timestamps")
+        .env("JUST_TIMESTAMPS")
       .help("Show timestamps for executed commands")
     )
   }
