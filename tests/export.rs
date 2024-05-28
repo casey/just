@@ -180,6 +180,11 @@ test! {
 
 #[test]
 fn unset_environment_variable_linewise() {
+  #[cfg(not(target_os = "macos"))]
+  let stderr_msg = "echo $JUST_TEST_VARIABLE\nbash: line 1: JUST_TEST_VARIABLE: unbound variable\nerror: Recipe `recipe` failed on line 4 with exit code 127\n";
+  #[cfg(target_os="macos")]
+  let stderr_msg = "echo $JUST_TEST_VARIABLE\nbash: JUST_TEST_VARIABLE: unbound variable\nerror: Recipe `recipe` failed on line 4 with exit code 127\n";
+
   Test::new()
     .justfile(
       "
@@ -190,7 +195,7 @@ fn unset_environment_variable_linewise() {
       ",
     )
     .env("JUST_TEST_VARIABLE", "foo")
-    .stderr("echo $JUST_TEST_VARIABLE\nbash: line 1: JUST_TEST_VARIABLE: unbound variable\nerror: Recipe `recipe` failed on line 4 with exit code 127\n")
+    .stderr(stderr_msg)
     .status(127)
     .run();
 }
