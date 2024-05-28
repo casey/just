@@ -2266,7 +2266,7 @@ cc main.c
 ./a.out --test bar
 ```
 
-Recipes will run multiple times if they receive different arguments:
+Recipes in a given run are only skipped when they receive the same arguments:
 
 ```just
 build:
