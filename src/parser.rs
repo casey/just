@@ -18,11 +18,11 @@ use {super::*, TokenKind::*};
 /// All methods starting with `parse_*` parse and return a language construct.
 ///
 /// The parser tracks an expected set of tokens as it parses. This set contains
-/// all tokens which would have been accepted at the current point in the parse.
-/// Whenever the parser tests for a token that would be accepted, but does not
-/// find it, it adds that token to the set. When the parser accepts a token, the
-/// set is cleared. If the parser finds a token which is unexpected, the
-/// contents of the set is printed in the resultant error message.
+/// all tokens which would have been accepted at the current point in the
+/// parse. Whenever the parser tests for a token that would be accepted, but
+/// does not find it, it adds that token to the set. When the parser accepts a
+/// token, the set is cleared. If the parser finds a token which is unexpected,
+/// the elements of the set are printed in the resultant error message.
 pub(crate) struct Parser<'run, 'src> {
   expected_tokens: BTreeSet<TokenKind>,
   file_depth: u32,
