@@ -2245,8 +2245,8 @@ B
 C
 ```
 
-This means that multiple recipes may depend on a recipe that performs some kind
-of setup, and when those recipes run, that setup will only be performed once:
+Multiple recipes may depend on a recipe that performs some kind of setup, and
+when those recipes run, that setup will only be performed once:
 
 ```just
 build:
