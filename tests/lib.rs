@@ -102,6 +102,7 @@ mod string;
 mod subsequents;
 mod summary;
 mod tempdir;
+mod timestamps;
 mod undefined_variables;
 mod unstable;
 #[cfg(target_family = "windows")]
