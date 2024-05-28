@@ -22,6 +22,8 @@ pub(crate) struct Justfile<'src> {
   pub(crate) recipes: Table<'src, Rc<Recipe<'src>>>,
   pub(crate) settings: Settings<'src>,
   pub(crate) warnings: Vec<Warning>,
+  #[serde(skip)]
+  pub(crate) path: PathBuf,
 }
 
 impl<'src> Justfile<'src> {
@@ -106,9 +108,10 @@ impl<'src> Justfile<'src> {
       &self.assignments,
       config,
       dotenv,
+      &self.path,
       scope,
-      &self.settings,
       search,
+      &self.settings,
     )
   }
 
@@ -282,7 +285,7 @@ impl<'src> Justfile<'src> {
         search,
       };
 
-      Self::run_recipe(
+      self.run_recipe(
         &invocation
           .arguments
           .iter()
@@ -408,6 +411,7 @@ impl<'src> Justfile<'src> {
   }
 
   fn run_recipe(
+    &self,
     arguments: &[String],
     context: &RecipeContext<'src, '_>,
     dotenv: &BTreeMap<String, String>,
@@ -426,19 +430,26 @@ impl<'src> Justfile<'src> {
     }
 
     let (outer, positional) = Evaluator::evaluate_parameters(
+      arguments,
       context.config,
       dotenv,
+      &self.path,
       &recipe.parameters,
-      arguments,
       context.scope,
-      context.settings,
       search,
+      context.settings,
     )?;
 
     let scope = outer.child();
 
-    let mut evaluator =
-      Evaluator::recipe_evaluator(context.config, dotenv, &scope, context.settings, search);
+    let mut evaluator = Evaluator::recipe_evaluator(
+      context.config,
+      dotenv,
+      &self.path,
+      &scope,
+      search,
+      context.settings,
+    );
 
     if !context.config.no_dependencies {
       for Dependency { recipe, arguments } in recipe.dependencies.iter().take(recipe.priors) {
@@ -447,7 +458,7 @@ impl<'src> Justfile<'src> {
           .map(|argument| evaluator.evaluate_expression(argument))
           .collect::<RunResult<Vec<String>>>()?;
 
-        Self::run_recipe(&arguments, context, dotenv, ran, recipe, search)?;
+        self.run_recipe(&arguments, context, dotenv, ran, recipe, search)?;
       }
     }
 
@@ -463,7 +474,7 @@ impl<'src> Justfile<'src> {
           evaluated.push(evaluator.evaluate_expression(argument)?);
         }
 
-        Self::run_recipe(&evaluated, context, dotenv, &mut ran, recipe, search)?;
+        self.run_recipe(&evaluated, context, dotenv, &mut ran, recipe, search)?;
       }
     }
 

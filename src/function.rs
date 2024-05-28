@@ -67,6 +67,8 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "kebabcase" => Unary(kebabcase),
     "lowercamelcase" => Unary(lowercamelcase),
     "lowercase" => Unary(lowercase),
+    "module_directory" => Nullary(module_directory),
+    "module_file" => Nullary(module_file),
     "num_cpus" => Nullary(num_cpus),
     "os" => Nullary(os),
     "os_family" => Nullary(os_family),
@@ -404,6 +406,44 @@ fn lowercamelcase(_context: Context, s: &str) -> Result<String, String> {
 
 fn lowercase(_context: Context, s: &str) -> Result<String, String> {
   Ok(s.to_lowercase())
+}
+
+fn module_directory(context: Context) -> Result<String, String> {
+  context
+    .evaluator
+    .search
+    .justfile
+    .parent()
+    .unwrap()
+    .join(&context.evaluator.module_file)
+    .parent()
+    .unwrap()
+    .to_str()
+    .map(str::to_owned)
+    .ok_or_else(|| {
+      format!(
+        "Module directory is not valid unicode: {}",
+        context.evaluator.module_file.parent().unwrap().display(),
+      )
+    })
+}
+
+fn module_file(context: Context) -> Result<String, String> {
+  context
+    .evaluator
+    .search
+    .justfile
+    .parent()
+    .unwrap()
+    .join(&context.evaluator.module_file)
+    .to_str()
+    .map(str::to_owned)
+    .ok_or_else(|| {
+      format!(
+        "Module file path is not valid unicode: {}",
+        context.evaluator.module_file.display(),
+      )
+    })
 }
 
 fn num_cpus(_context: Context) -> Result<String, String> {

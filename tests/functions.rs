@@ -904,3 +904,12 @@ fn source_directory() {
     .stdout_regex(r".*[/\\]foo\n")
     .run();
 }
+
+#[test]
+fn module_file() {
+  Test::new()
+    .args(["--evaluate", "x"])
+    .justfile("x := module_file()")
+    .stdout_regex(r".*[/\\]justfile")
+    .run();
+}

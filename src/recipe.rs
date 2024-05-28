@@ -164,8 +164,14 @@ impl<'src, D> Recipe<'src, D> {
       );
     }
 
-    let evaluator =
-      Evaluator::recipe_evaluator(context.config, dotenv, &scope, context.settings, search);
+    let evaluator = Evaluator::recipe_evaluator(
+      context.config,
+      dotenv,
+      &self.file_path,
+      &scope,
+      search,
+      context.settings,
+    );
 
     if self.shebang {
       self.run_shebang(context, dotenv, &scope, positional, config, evaluator)

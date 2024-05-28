@@ -4,9 +4,10 @@ pub(crate) struct Evaluator<'src: 'run, 'run> {
   pub(crate) assignments: Option<&'run Table<'src, Assignment<'src>>>,
   pub(crate) config: &'run Config,
   pub(crate) dotenv: &'run BTreeMap<String, String>,
+  pub(crate) module_file: PathBuf,
   pub(crate) scope: Scope<'src, 'run>,
-  pub(crate) settings: &'run Settings<'run>,
   pub(crate) search: &'run Search,
+  pub(crate) settings: &'run Settings<'run>,
 }
 
 impl<'src, 'run> Evaluator<'src, 'run> {
@@ -14,17 +15,19 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     assignments: &'run Table<'src, Assignment<'src>>,
     config: &'run Config,
     dotenv: &'run BTreeMap<String, String>,
+    module_file: &Path,
     overrides: Scope<'src, 'run>,
-    settings: &'run Settings<'run>,
     search: &'run Search,
+    settings: &'run Settings<'run>,
   ) -> RunResult<'src, Scope<'src, 'run>> {
     let mut evaluator = Self {
-      scope: overrides,
       assignments: Some(assignments),
       config,
       dotenv,
-      settings,
+      module_file: module_file.into(),
+      scope: overrides,
       search,
+      settings,
     };
 
     for assignment in assignments.values() {
@@ -250,21 +253,23 @@ impl<'src, 'run> Evaluator<'src, 'run> {
   }
 
   pub(crate) fn evaluate_parameters(
+    arguments: &[String],
     config: &'run Config,
     dotenv: &'run BTreeMap<String, String>,
+    module_file: &Path,
     parameters: &[Parameter<'src>],
-    arguments: &[String],
     scope: &'run Scope<'src, 'run>,
-    settings: &'run Settings,
     search: &'run Search,
+    settings: &'run Settings,
   ) -> RunResult<'src, (Scope<'src, 'run>, Vec<String>)> {
     let mut evaluator = Self {
       assignments: None,
+      config,
+      dotenv,
+      module_file: module_file.into(),
       scope: scope.child(),
       search,
       settings,
-      dotenv,
-      config,
     };
 
     let mut scope = scope.child();
@@ -307,17 +312,19 @@ impl<'src, 'run> Evaluator<'src, 'run> {
   pub(crate) fn recipe_evaluator(
     config: &'run Config,
     dotenv: &'run BTreeMap<String, String>,
+    module_file: &Path,
     scope: &'run Scope<'src, 'run>,
-    settings: &'run Settings,
     search: &'run Search,
-  ) -> Evaluator<'src, 'run> {
+    settings: &'run Settings,
+  ) -> Self {
     Self {
       assignments: None,
+      config,
+      dotenv,
+      module_file: module_file.into(),
       scope: Scope::child(scope),
       search,
       settings,
-      dotenv,
-      config,
     }
   }
 }
