@@ -478,6 +478,7 @@ impl<'src> Justfile<'src> {
     }
 
     ran.ran(&recipe.namepath, arguments.to_vec());
+
     Ok(())
   }
 
