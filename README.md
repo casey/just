@@ -2203,7 +2203,87 @@ foo $bar:
   echo $bar
 ```
 
-### Running Recipes at the End of a Recipe
+### Dependencies
+
+Dependencies run before recipes that depends on them:
+
+```just
+a: b
+  @echo A
+
+b:
+  @echo B
+```
+
+```
+$ just a
+B
+A
+```
+
+In a given invocation of `just`, a recipe with the same arguments will only run
+once, regardless of how many times it appears in the command-line invocation,
+or how many times it appears as a dependency:
+
+```just
+a:
+  @echo A
+
+b: a
+  @echo B
+
+c: a
+  @echo C
+```
+
+```
+$ just a a a a a
+A
+$ just b c
+A
+B
+C
+```
+
+This means that multiple recipes may depend on a recipe that performs some kind
+of setup, and when those recipes run, that setup will only be performed once:
+
+```just
+build:
+  cc main.c
+
+test-foo: build
+  ./a.out --test foo
+
+test-bar: build
+  ./a.out --test bar
+```
+
+```
+$ just test-foo test-bar
+cc main.c
+./a.out --test foo
+./a.out --test bar
+```
+
+Recipes will run multiple times if they receive different arguments:
+
+```just
+build:
+  cc main.c
+
+test TEST: build
+  ./a.out --test {{TEST}}
+```
+
+```
+$ just test foo test bar
+cc main.c
+./a.out --test foo
+./a.out --test bar
+```
+
+#### Running Recipes at the End of a Recipe
 
 Normal dependencies of a recipes always run before a recipe starts. That is to
 say, the dependee always runs before the depender. These dependencies are
@@ -2240,7 +2320,7 @@ echo 'D!'
 D!
 ```
 
-### Running Recipes in the Middle of a Recipe
+#### Running Recipes in the Middle of a Recipe
 
 `just` doesn't support running recipes in the middle of another recipe, but you
 can call `just` recursively in the middle of a recipe. Given the following
