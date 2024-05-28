@@ -279,10 +279,11 @@ impl<'src> Justfile<'src> {
     let mut ran = Ran::default();
     for invocation in invocations {
       let context = RecipeContext {
-        settings: invocation.settings,
         config,
+        dotenv: &dotenv,
         scope: invocation.scope,
         search,
+        settings: invocation.settings,
       };
 
       self.run_recipe(
@@ -293,7 +294,6 @@ impl<'src> Justfile<'src> {
           .map(str::to_string)
           .collect::<Vec<String>>(),
         &context,
-        &dotenv,
         &mut ran,
         invocation.recipe,
         search,
@@ -414,7 +414,6 @@ impl<'src> Justfile<'src> {
     &self,
     arguments: &[String],
     context: &RecipeContext<'src, '_>,
-    dotenv: &BTreeMap<String, String>,
     ran: &mut Ran<'src>,
     recipe: &Recipe<'src>,
     search: &Search,
@@ -432,7 +431,7 @@ impl<'src> Justfile<'src> {
     let (outer, positional) = Evaluator::evaluate_parameters(
       arguments,
       context.config,
-      dotenv,
+      context.dotenv,
       &self.path,
       &recipe.parameters,
       context.scope,
@@ -444,7 +443,7 @@ impl<'src> Justfile<'src> {
 
     let mut evaluator = Evaluator::recipe_evaluator(
       context.config,
-      dotenv,
+      context.dotenv,
       &self.path,
       &scope,
       search,
@@ -458,11 +457,11 @@ impl<'src> Justfile<'src> {
           .map(|argument| evaluator.evaluate_expression(argument))
           .collect::<RunResult<Vec<String>>>()?;
 
-        self.run_recipe(&arguments, context, dotenv, ran, recipe, search)?;
+        self.run_recipe(&arguments, context, ran, recipe, search)?;
       }
     }
 
-    recipe.run(context, dotenv, &scope, &positional)?;
+    recipe.run(context, &scope, &positional)?;
 
     if !context.config.no_dependencies {
       let mut ran = Ran::default();
@@ -474,7 +473,7 @@ impl<'src> Justfile<'src> {
           evaluated.push(evaluator.evaluate_expression(argument)?);
         }
 
-        self.run_recipe(&evaluated, context, dotenv, &mut ran, recipe, search)?;
+        self.run_recipe(&evaluated, context, &mut ran, recipe, search)?;
       }
     }
 
