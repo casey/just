@@ -202,7 +202,6 @@ pub(crate) const BASH_COMPLETION_REPLACEMENTS: &[(&str, &str)] = &[
                     fi
                 fi"#,
   ),
-  (r"        just)", r#"        "$1")"#),
   (
     r"local i cur prev opts cmd",
     r"local i cur prev words cword opts cmd",
