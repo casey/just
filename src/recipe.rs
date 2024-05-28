@@ -148,8 +148,7 @@ impl<'src, D> Recipe<'src, D> {
     &self,
     context: &RecipeContext<'src, 'run>,
     dotenv: &BTreeMap<String, String>,
-    scope: Scope<'src, 'run>,
-    search: &'run Search,
+    scope: &Scope<'src, 'run>,
     positional: &[String],
   ) -> RunResult<'src, ()> {
     let config = &context.config;
@@ -169,7 +168,7 @@ impl<'src, D> Recipe<'src, D> {
       dotenv,
       &self.file_path,
       &scope,
-      search,
+      &context.search,
       context.settings,
     );
 

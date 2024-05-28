@@ -462,7 +462,7 @@ impl<'src> Justfile<'src> {
       }
     }
 
-    recipe.run(context, dotenv, scope.child(), search, &positional)?;
+    recipe.run(context, dotenv, &scope, &positional)?;
 
     if !context.config.no_dependencies {
       let mut ran = Ran::default();
