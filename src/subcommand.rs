@@ -223,7 +223,7 @@ impl Subcommand {
     while let Some(module) = stack.pop() {
       recipes.extend(
         module
-          .public_recipes(config.unsorted)
+          .public_recipes(config)
           .iter()
           .filter(|recipe| recipe.min_arguments() == 0),
       );
@@ -532,7 +532,7 @@ impl Subcommand {
 
     let groups = {
       let mut groups = BTreeMap::<Option<String>, Vec<&Recipe>>::new();
-      for recipe in justfile.public_recipes(config.unsorted) {
+      for recipe in justfile.public_recipes(config) {
         let recipe_groups = recipe.groups();
         if recipe_groups.is_empty() {
           groups.entry(None).or_default().push(recipe);
@@ -566,38 +566,53 @@ impl Subcommand {
           .chain(aliases.get(recipe.name()).unwrap_or(&Vec::new()))
           .enumerate()
         {
+          let doc = if i == 0 {
+            recipe.doc().map(Cow::Borrowed)
+          } else {
+            Some(Cow::Owned(format!("alias for `{}`", recipe.name)))
+          };
+
+          if let Some(doc) = &doc {
+            if doc.lines().count() > 1 {
+              for line in doc.lines() {
+                println!(
+                  "{}{} {}",
+                  config.list_prefix.repeat(level + 1),
+                  config.color.stdout().doc().paint("#"),
+                  config.color.stdout().doc().paint(line),
+                );
+              }
+            }
+          }
+
           print!(
             "{}{}",
             config.list_prefix.repeat(level + 1),
             RecipeSignature { name, recipe }.color_display(config.color.stdout())
           );
 
-          let doc = if i == 0 {
-            recipe.doc.map(Cow::Borrowed)
-          } else {
-            Some(Cow::Owned(format!("alias for `{}`", recipe.name)))
-          };
-
           if let Some(doc) = doc {
-            print!(
-              "{:padding$}{} {}",
-              "",
-              config.color.stdout().doc().paint("#"),
-              config.color.stdout().doc().paint(&doc),
-              padding = max_signature_width.saturating_sub(signature_widths[name]) + 1,
-            );
+            if doc.lines().count() <= 1 {
+              print!(
+                "{:padding$}{} {}",
+                "",
+                config.color.stdout().doc().paint("#"),
+                config.color.stdout().doc().paint(&doc),
+                padding = max_signature_width.saturating_sub(signature_widths[name]) + 1,
+              );
+            }
           }
           println!();
         }
       }
     }
 
-    for (i, (name, module)) in justfile.modules.iter().enumerate() {
+    for (i, module) in justfile.modules(config).into_iter().enumerate() {
       if i + groups.len() > 0 {
         println!();
       }
 
-      println!("{}{name}:", config.list_prefix.repeat(level + 1));
+      println!("{}{}:", config.list_prefix.repeat(level + 1), module.name());
       Self::list(config, level + 1, module);
     }
   }
@@ -637,7 +652,7 @@ impl Subcommand {
   ) {
     let path = components.join("::");
 
-    for recipe in justfile.public_recipes(config.unsorted) {
+    for recipe in justfile.public_recipes(config) {
       if *printed > 0 {
         print!(" ");
       }

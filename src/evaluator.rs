@@ -68,25 +68,13 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       Expression::Call { thunk } => {
         use Thunk::*;
 
-        match thunk {
-          Nullary { name, function, .. } => function(self).map_err(|message| Error::FunctionCall {
-            function: *name,
-            message,
-          }),
-          Unary {
-            name,
-            function,
-            arg,
-            ..
-          } => {
+        let result = match thunk {
+          Nullary { function, .. } => function(function::Context::new(self, thunk.name())),
+          Unary { function, arg, .. } => {
             let arg = self.evaluate_expression(arg)?;
-            function(self, &arg).map_err(|message| Error::FunctionCall {
-              function: *name,
-              message,
-            })
+            function(function::Context::new(self, thunk.name()), &arg)
           }
           UnaryOpt {
-            name,
             function,
             args: (a, b),
             ..
@@ -97,13 +85,9 @@ impl<'src, 'run> Evaluator<'src, 'run> {
               None => None,
             };
 
-            function(self, &a, b.as_deref()).map_err(|message| Error::FunctionCall {
-              function: *name,
-              message,
-            })
+            function(function::Context::new(self, thunk.name()), &a, b.as_deref())
           }
           UnaryPlus {
-            name,
             function,
             args: (a, rest),
             ..
@@ -113,26 +97,22 @@ impl<'src, 'run> Evaluator<'src, 'run> {
             for arg in rest {
               rest_evaluated.push(self.evaluate_expression(arg)?);
             }
-            function(self, &a, &rest_evaluated).map_err(|message| Error::FunctionCall {
-              function: *name,
-              message,
-            })
+            function(
+              function::Context::new(self, thunk.name()),
+              &a,
+              &rest_evaluated,
+            )
           }
           Binary {
-            name,
             function,
             args: [a, b],
             ..
           } => {
             let a = self.evaluate_expression(a)?;
             let b = self.evaluate_expression(b)?;
-            function(self, &a, &b).map_err(|message| Error::FunctionCall {
-              function: *name,
-              message,
-            })
+            function(function::Context::new(self, thunk.name()), &a, &b)
           }
           BinaryPlus {
-            name,
             function,
             args: ([a, b], rest),
             ..
@@ -143,13 +123,14 @@ impl<'src, 'run> Evaluator<'src, 'run> {
             for arg in rest {
               rest_evaluated.push(self.evaluate_expression(arg)?);
             }
-            function(self, &a, &b, &rest_evaluated).map_err(|message| Error::FunctionCall {
-              function: *name,
-              message,
-            })
+            function(
+              function::Context::new(self, thunk.name()),
+              &a,
+              &b,
+              &rest_evaluated,
+            )
           }
           Ternary {
-            name,
             function,
             args: [a, b, c],
             ..
@@ -157,12 +138,14 @@ impl<'src, 'run> Evaluator<'src, 'run> {
             let a = self.evaluate_expression(a)?;
             let b = self.evaluate_expression(b)?;
             let c = self.evaluate_expression(c)?;
-            function(self, &a, &b, &c).map_err(|message| Error::FunctionCall {
-              function: *name,
-              message,
-            })
+            function(function::Context::new(self, thunk.name()), &a, &b, &c)
           }
-        }
+        };
+
+        result.map_err(|message| Error::FunctionCall {
+          function: thunk.name(),
+          message,
+        })
       }
       Expression::StringLiteral { string_literal } => Ok(string_literal.cooked.clone()),
       Expression::Backtick { contents, token } => {

@@ -23,6 +23,7 @@ impl Compiler {
       let mut ast = Parser::parse(
         current.file_depth,
         &current.path,
+        &current.import_offsets,
         &current.namepath,
         current.submodule_depth,
         &tokens,
@@ -94,7 +95,7 @@ impl Compiler {
                 });
               }
               *absolute = Some(import.clone());
-              stack.push(current.import(import));
+              stack.push(current.import(import, path.offset));
             } else if !*optional {
               return Err(Error::MissingImportFile { path: *path });
             }
@@ -106,7 +107,7 @@ impl Compiler {
       asts.insert(current.path, ast.clone());
     }
 
-    let justfile = Analyzer::analyze(&loaded, &paths, &asts, root)?;
+    let justfile = Analyzer::analyze(&loaded, &paths, &asts, root, None)?;
 
     Ok(Compilation {
       asts,
@@ -172,6 +173,7 @@ impl Compiler {
     let ast = Parser::parse(
       0,
       &PathBuf::new(),
+      &[],
       &Namepath::default(),
       0,
       &tokens,
@@ -182,7 +184,7 @@ impl Compiler {
     asts.insert(root.clone(), ast);
     let mut paths: HashMap<PathBuf, PathBuf> = HashMap::new();
     paths.insert(root.clone(), root.clone());
-    Analyzer::analyze(&[], &paths, &asts, &root)
+    Analyzer::analyze(&[], &paths, &asts, &root, None)
   }
 }
 

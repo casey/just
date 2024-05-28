@@ -793,7 +793,7 @@ foo:
 | `allow-duplicate-variables` | boolean | `false` | Allow variables appearing later in a `justfile` to override earlier variables with the same name. |
 | `dotenv-filename` | string | - | Load a `.env` file with a custom name, if present. |
 | `dotenv-load` | boolean | `false` | Load a `.env` file, if present. |
-| `dotenv-path` | string | - | Load a `.env` file from a custom path, if present. Overrides `dotenv-filename`. |
+| `dotenv-path` | string | - | Load a `.env` file from a custom path and error if not present. Overrides `dotenv-filename`. |
 | `export` | boolean | `false` | Export all variables as environment variables. |
 | `fallback` | boolean | `false` | Search `justfile` in parent directory if the first recipe on the command line is not found. |
 | `ignore-comments` | boolean | `false` | Ignore recipe lines beginning with `#`. |
@@ -862,7 +862,9 @@ bar
 If `dotenv-load`, `dotenv-filename` or `dotenv-path` is set, `just` will load
 environment variables from a file.
 
-If `dotenv-path` is set, `just` will look for a file at the given path.
+If `dotenv-path` is set, `just` will look for a file at the given path. It is
+an error if a dotenv file is not found at `dotenv-path`, but not an error if a
+dotenv file is not found with `dotenv-filename`.
 
 Otherwise, `just` looks for a file named `.env` by default, unless
 `dotenv-filename` set, in which case the value of `dotenv-filename` is used.
@@ -1079,6 +1081,27 @@ Available recipes:
     test # test stuff
 ```
 
+The `[doc]` attribute can be used to set or suppress a recipe's doc comment:
+
+```just
+# This comment won't appear
+[doc('Build stuff')]
+build:
+  ./bin/build
+
+# This one won't either
+[doc]
+test:
+  ./bin/test
+```
+
+```sh
+$ just --list
+Available recipes:
+    build # Build stuff
+    test
+```
+
 ### Variables and Substitution
 
 Variables, strings, concatenation, path joining, and substitution using `{{…}}`
@@ -1240,7 +1263,7 @@ sequence processing takes place after unindentation. The unindentation
 algorithm does not take escape-sequence produced whitespace or newlines into
 account.
 
-Strings prefixed with `x` are shell expanded<sup>master</sup>:
+Strings prefixed with `x` are shell expanded<sup>1.27.0</sup>:
 
 ```justfile
 foobar := x'~/$FOO/${BAR}'
@@ -1315,7 +1338,7 @@ file.
 
 #### External Commands
 
-- `shell(command, args...)`<sup>master</sup> returns the standard output of shell script
+- `shell(command, args...)`<sup>1.27.0</sup> returns the standard output of shell script
   `command` with zero or more positional arguments `args`. The shell used to
   interpret `command` is the same shell that is used to evaluate recipe lines,
   and can be changed with `set shell := […]`.
@@ -1420,6 +1443,18 @@ script:
   ./{{justfile_directory()}}/scripts/some_script
 ```
 
+#### Source and Source Directory
+
+- `source_file()`<sup>1.27.0</sup> - Retrieves the path of the current source file.
+
+- `source_directory()`<sup>1.27.0</sup> - Retrieves the path of the parent directory of the
+  current source file.
+
+`source_file()` and `source_directory()` behave the same as `justfile()` and
+`justfile_directory()` in the root `justfile`, but will return the path and
+directory, respectively, of the current `import` or `mod` source file when
+called from within an import or submodule.
+
 #### Just Executable
 
 - `just_executable()` - Absolute path to the `just` executable.
@@ -1454,12 +1489,12 @@ The process ID is: 420
 
 #### String Manipulation
 
-- `append(suffix, s)`<sup>master</sup> Append `suffix` to whitespace-separated
+- `append(suffix, s)`<sup>1.27.0</sup> Append `suffix` to whitespace-separated
   strings in `s`. `append('/src', 'foo bar baz')` → `'foo/src bar/src baz/src'`
-- `prepend(prefix, s)`<sup>master</sup> Prepend `prefix` to
+- `prepend(prefix, s)`<sup>1.27.0</sup> Prepend `prefix` to
   whitespace-separated strings in `s`. `prepend('src/', 'foo bar baz')` →
   `'src/foo src/bar src/baz'`
-- `encode_uri_component(s)`<sup>master</sup> - Percent-encode characters in `s`
+- `encode_uri_component(s)`<sup>1.27.0</sup> - Percent-encode characters in `s`
   except `[A-Za-z0-9_.!~*'()-]`, matching the behavior of the
   [JavaScript `encodeURIComponent` function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent).
 - `quote(s)` - Replace all single quotes with `'\''` and prepend and append
@@ -1554,7 +1589,7 @@ which will halt execution.
 
 #### Random
 
-- `choose(n, alphabet)`<sup>master</sup> - Generate a string of `n` randomly
+- `choose(n, alphabet)`<sup>1.27.0</sup> - Generate a string of `n` randomly
   selected characters from `alphabet`, which may not contain repeated
   characters. For example, `choose('64', HEX)` will generate a random
   64-character lowercase hex string.
@@ -1589,9 +1624,9 @@ A number of constants are predefined:
 
 | Name | Value |
 |------|-------------|
-| `HEX`<sup>master</sup> | `"0123456789abcdef"` |
-| `HEXLOWER`<sup>master</sup> | `"0123456789abcdef"` |
-| `HEXUPPER`<sup>master</sup> | `"0123456789ABCDEF"` |
+| `HEX`<sup>1.27.0</sup> | `"0123456789abcdef"` |
+| `HEXLOWER`<sup>1.27.0</sup> | `"0123456789abcdef"` |
+| `HEXUPPER`<sup>1.27.0</sup> | `"0123456789ABCDEF"` |
 
 ```just
 @foo:
@@ -1610,8 +1645,9 @@ Recipes may be annotated with attributes that change their behavior.
 | Name | Description |
 |------|-------------|
 | `[confirm]`<sup>1.17.0</sup> | Require confirmation prior to executing recipe. |
-| `[confirm('prompt')]`<sup>1.23.0</sup> | Require confirmation prior to executing recipe with a custom prompt. |
-| `[group('NAME"']`<sup>master</sup> | Put recipe in [recipe group](#recipe-groups) `NAME`.
+| `[confirm('PROMPT')]`<sup>1.23.0</sup> | Require confirmation prior to executing recipe with a custom prompt. |
+| `[doc('DOC')]`<sup>1.27.0</sup> | Set recipe's [documentation comment](#documentation-comments) to `DOC`. |
+| `[group('NAME')]`<sup>1.27.0</sup> | Put recipe in [recipe group](#recipe-groups) `NAME`. |
 | `[linux]`<sup>1.8.0</sup> | Enable recipe on Linux. |
 | `[macos]`<sup>1.8.0</sup> | Enable recipe on MacOS. |
 | `[no-cd]`<sup>1.9.0</sup> | Don't change directory before executing recipe. |
@@ -2167,7 +2203,87 @@ foo $bar:
   echo $bar
 ```
 
-### Running Recipes at the End of a Recipe
+### Dependencies
+
+Dependencies run before recipes that depend on them:
+
+```just
+a: b
+  @echo A
+
+b:
+  @echo B
+```
+
+```
+$ just a
+B
+A
+```
+
+In a given invocation of `just`, a recipe with the same arguments will only run
+once, regardless of how many times it appears in the command-line invocation,
+or how many times it appears as a dependency:
+
+```just
+a:
+  @echo A
+
+b: a
+  @echo B
+
+c: a
+  @echo C
+```
+
+```
+$ just a a a a a
+A
+$ just b c
+A
+B
+C
+```
+
+Multiple recipes may depend on a recipe that performs some kind of setup, and
+when those recipes run, that setup will only be performed once:
+
+```just
+build:
+  cc main.c
+
+test-foo: build
+  ./a.out --test foo
+
+test-bar: build
+  ./a.out --test bar
+```
+
+```
+$ just test-foo test-bar
+cc main.c
+./a.out --test foo
+./a.out --test bar
+```
+
+Recipes in a given run are only skipped when they receive the same arguments:
+
+```just
+build:
+  cc main.c
+
+test TEST: build
+  ./a.out --test {{TEST}}
+```
+
+```
+$ just test foo test bar
+cc main.c
+./a.out --test foo
+./a.out --test bar
+```
+
+#### Running Recipes at the End of a Recipe
 
 Normal dependencies of a recipes always run before a recipe starts. That is to
 say, the dependee always runs before the depender. These dependencies are
@@ -2204,7 +2320,7 @@ echo 'D!'
 D!
 ```
 
-### Running Recipes in the Middle of a Recipe
+#### Running Recipes in the Middle of a Recipe
 
 `just` doesn't support running recipes in the middle of another recipe, but you
 can call `just` recursively in the middle of a recipe. Given the following

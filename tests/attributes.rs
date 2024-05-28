@@ -129,3 +129,67 @@ fn unexpected_attribute_argument() {
     .status(1)
     .run();
 }
+
+#[test]
+fn doc_attribute() {
+  Test::new()
+    .justfile(
+      "
+    # Non-document comment
+    [doc('The real docstring')]
+    foo:
+      echo foo
+  ",
+    )
+    .args(["--list"])
+    .stdout(
+      "
+    Available recipes:
+        foo # The real docstring
+        ",
+    )
+    .run();
+}
+
+#[test]
+fn doc_attribute_suppress() {
+  Test::new()
+    .justfile(
+      "
+        # Non-document comment
+        [doc]
+        foo:
+          echo foo
+      ",
+    )
+    .args(["--list"])
+    .stdout(
+      "
+    Available recipes:
+        foo
+        ",
+    )
+    .run();
+}
+
+#[test]
+fn doc_multiline() {
+  Test::new()
+    .justfile(
+      "
+        [doc('multiline
+        comment')]
+        foo:
+      ",
+    )
+    .args(["--list"])
+    .stdout(
+      "
+    Available recipes:
+        # multiline
+        # comment
+        foo
+        ",
+    )
+    .run();
+}

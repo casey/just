@@ -10,6 +10,7 @@ use super::*;
 #[strum_discriminants(strum(serialize_all = "kebab-case"))]
 pub(crate) enum Attribute<'src> {
   Confirm(Option<StringLiteral<'src>>),
+  Doc(Option<StringLiteral<'src>>),
   Group(StringLiteral<'src>),
   Linux,
   Macos,
@@ -24,7 +25,7 @@ pub(crate) enum Attribute<'src> {
 impl AttributeDiscriminant {
   fn argument_range(self) -> RangeInclusive<usize> {
     match self {
-      Self::Confirm => 0..=1,
+      Self::Confirm | Self::Doc => 0..=1,
       Self::Group => 1..=1,
       Self::Linux
       | Self::Macos
@@ -72,6 +73,7 @@ impl<'src> Attribute<'src> {
 
     Ok(match discriminant {
       Confirm => Self::Confirm(argument),
+      Doc => Self::Doc(argument),
       Group => Self::Group(argument.unwrap()),
       Linux => Self::Linux,
       Macos => Self::Macos,
@@ -91,7 +93,8 @@ impl<'src> Attribute<'src> {
   fn argument(&self) -> Option<&StringLiteral> {
     match self {
       Self::Confirm(prompt) => prompt.as_ref(),
-      Self::Group(name) => Some(name),
+      Self::Doc(doc) => doc.as_ref(),
+      Self::Group(group) => Some(group),
       Self::Linux
       | Self::Macos
       | Self::NoCd
@@ -107,7 +110,6 @@ impl<'src> Attribute<'src> {
 impl<'src> Display for Attribute<'src> {
   fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
     write!(f, "{}", self.name())?;
-
     if let Some(argument) = self.argument() {
       write!(f, "({argument})")?;
     }

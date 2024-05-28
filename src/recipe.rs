@@ -27,6 +27,8 @@ pub(crate) struct Recipe<'src, D = Dependency<'src>> {
   pub(crate) file_depth: u32,
   #[serde(skip)]
   pub(crate) file_path: PathBuf,
+  #[serde(skip)]
+  pub(crate) import_offsets: Vec<usize>,
   pub(crate) name: Name<'src>,
   pub(crate) namepath: Namepath<'src>,
   pub(crate) parameters: Vec<Parameter<'src>>,
@@ -455,6 +457,15 @@ impl<'src, D> Recipe<'src, D> {
         }
       })
       .collect()
+  }
+
+  pub(crate) fn doc(&self) -> Option<&str> {
+    for attribute in &self.attributes {
+      if let Attribute::Doc(doc) = attribute {
+        return doc.as_ref().map(|s| s.cooked.as_ref());
+      }
+    }
+    self.doc
   }
 }
 
