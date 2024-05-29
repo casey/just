@@ -492,7 +492,6 @@ impl Config {
       .action(ArgAction::SetTrue)
       .long("timestamp")
       .env("JUST_TIMESTAMP")
-      .alias("ts")
       .help("Print recipe command timestamps")
     )
     .arg(
