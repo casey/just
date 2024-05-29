@@ -415,7 +415,7 @@ fn module_directory(context: Context) -> Result<String, String> {
     .justfile
     .parent()
     .unwrap()
-    .join(&context.evaluator.module_source)
+    .join(context.evaluator.module_source)
     .parent()
     .unwrap()
     .to_str()
@@ -435,7 +435,7 @@ fn module_file(context: Context) -> Result<String, String> {
     .justfile
     .parent()
     .unwrap()
-    .join(&context.evaluator.module_source)
+    .join(context.evaluator.module_source)
     .to_str()
     .map(str::to_owned)
     .ok_or_else(|| {
