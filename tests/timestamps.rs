@@ -9,7 +9,7 @@ fn print_timestamps() {
         echo 'one'
     ",
     )
-    .arg("--timestamps")
+    .arg("--timestamp")
     .stderr_regex(concat!(r"\[\d\d:\d\d:\d\d\] echo 'one'", "\n"))
     .stdout("one\n")
     .run();
@@ -24,7 +24,7 @@ fn print_timestamps_with_format_string() {
         echo 'one'
     ",
     )
-    .args(["--timestamps", "--timestamp-format", "%H:%M:%S.%3f"])
+    .args(["--timestamp", "--timestamp-format", "%H:%M:%S.%3f"])
     .stderr_regex(concat!(r"\[\d\d:\d\d:\d\d\.\d\d\d] echo 'one'", "\n"))
     .stdout("one\n")
     .run();
