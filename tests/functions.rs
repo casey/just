@@ -918,12 +918,12 @@ import-outer: import-inner
 
 @import-inner pmf=module_file() pmd=module_directory():
   echo import
-  echo {{ imf }}
-  echo {{ imd }}
-  echo {{ pmf }}
-  echo {{ pmd }}
-  echo {{ module_file() }}
-  echo {{ module_directory() }}
+  echo '{{ imf }}'
+  echo '{{ imd }}'
+  echo '{{ pmf }}'
+  echo '{{ pmd }}'
+  echo '{{ module_file() }}'
+  echo '{{ module_directory() }}'
       ",
     )
     .write(
@@ -938,12 +938,12 @@ outer: inner
 
 @inner pmf=module_file() pmd=module_directory():
   echo module
-  echo {{ mmf }}
-  echo {{ mmd }}
-  echo {{ pmf }}
-  echo {{ pmd }}
-  echo {{ module_file() }}
-  echo {{ module_directory() }}
+  echo '{{ mmf }}'
+  echo '{{ mmd }}'
+  echo '{{ pmf }}'
+  echo '{{ pmd }}'
+  echo '{{ module_file() }}'
+  echo '{{ module_directory() }}'
       ",
     )
     .write(
@@ -956,12 +956,12 @@ import-outer: import-inner
 
 @import-inner pmf=module_file() pmd=module_directory():
   echo import
-  echo {{ imf }}
-  echo {{ imd }}
-  echo {{ pmf }}
-  echo {{ pmd }}
-  echo {{ module_file() }}
-  echo {{ module_directory() }}
+  echo '{{ imf }}'
+  echo '{{ imd }}'
+  echo '{{ pmf }}'
+  echo '{{ pmd }}'
+  echo '{{ module_file() }}'
+  echo '{{ module_directory() }}'
       ",
     )
     .justfile(
@@ -976,12 +976,12 @@ import-outer: import-inner
 
         @inner pmf=module_file() pmd=module_directory():
           echo root
-          echo {{ rmf }}
-          echo {{ rmd }}
-          echo {{ pmf }}
-          echo {{ pmd }}
-          echo {{ module_file() }}
-          echo {{ module_directory() }}
+          echo '{{ rmf }}'
+          echo '{{ rmd }}'
+          echo '{{ pmf }}'
+          echo '{{ pmd }}'
+          echo '{{ module_file() }}'
+          echo '{{ module_directory() }}'
       ",
     )
     .test_round_trip(false)
