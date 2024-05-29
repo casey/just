@@ -273,12 +273,12 @@ impl<'src> Lexer<'src> {
   }
 
   /// True if `c` can be the first character of an identifier
-  fn is_identifier_start(c: char) -> bool {
+  pub(crate) fn is_identifier_start(c: char) -> bool {
     matches!(c, 'a'..='z' | 'A'..='Z' | '_')
   }
 
   /// True if `c` can be a continuation character of an identifier
-  fn is_identifier_continue(c: char) -> bool {
+  pub(crate) fn is_identifier_continue(c: char) -> bool {
     Self::is_identifier_start(c) || matches!(c, '0'..='9' | '-')
   }
 
