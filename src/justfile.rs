@@ -3,9 +3,10 @@ use {super::*, serde::Serialize};
 #[derive(Debug)]
 struct Invocation<'src: 'run, 'run> {
   arguments: Vec<&'run str>,
+  module_source: &'run Path,
   recipe: &'run Recipe<'src>,
-  settings: &'run Settings<'src>,
   scope: &'run Scope<'src, 'run>,
+  settings: &'run Settings<'src>,
 }
 
 #[derive(Debug, PartialEq, Serialize)]
@@ -281,7 +282,7 @@ impl<'src> Justfile<'src> {
       let context = RecipeContext {
         config,
         dotenv: &dotenv,
-        module_source: &self.source,
+        module_source: &invocation.module_source,
         scope: invocation.scope,
         search,
         settings: invocation.settings,
@@ -350,6 +351,7 @@ impl<'src> Justfile<'src> {
               recipe,
               arguments: Vec::new(),
               scope,
+              module_source: &self.source,
             },
             depth,
           )));
@@ -377,6 +379,7 @@ impl<'src> Justfile<'src> {
             recipe,
             scope: parent,
             settings: &self.settings,
+            module_source: &self.source,
           },
           depth,
         )))
@@ -398,6 +401,7 @@ impl<'src> Justfile<'src> {
             recipe,
             scope: parent,
             settings: &self.settings,
+            module_source: &self.source,
           },
           depth + argument_count,
         )))
@@ -433,7 +437,7 @@ impl<'src> Justfile<'src> {
       arguments,
       context.config,
       context.dotenv,
-      &self.source,
+      &context.module_source,
       &recipe.parameters,
       context.scope,
       search,
@@ -445,7 +449,7 @@ impl<'src> Justfile<'src> {
     let mut evaluator = Evaluator::recipe_evaluator(
       context.config,
       context.dotenv,
-      &self.source,
+      &context.module_source,
       &scope,
       search,
       context.settings,

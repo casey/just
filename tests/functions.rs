@@ -906,10 +906,89 @@ fn source_directory() {
 }
 
 #[test]
-fn module_file() {
+fn module_paths() {
   Test::new()
-    .args(["--evaluate", "x"])
-    .justfile("x := module_file()")
-    .stdout_regex(r".*[/\\]justfile")
+    .write(
+      "foo/bar.just",
+      "
+imf := module_file()
+imd := module_directory()
+
+import-outer: import-inner
+
+@import-inner pmf=module_file() pmd=module_directory():
+  echo import
+  echo {{ imf }}
+  echo {{ imd }}
+  echo {{ pmf }}
+  echo {{ pmd }}
+  echo {{ module_file() }}
+  echo {{ module_directory() }}
+      ",
+    )
+    .write(
+      "baz/mod.just",
+      "
+mmf := module_file()
+mmd := module_directory()
+
+outer: inner
+
+@inner pmf=module_file() pmd=module_directory():
+  echo module
+  echo {{ mmf }}
+  echo {{ mmd }}
+  echo {{ pmf }}
+  echo {{ pmd }}
+  echo {{ module_file() }}
+  echo {{ module_directory() }}
+      ",
+    )
+    .justfile(
+      "
+        import 'foo/bar.just'
+        mod baz
+
+        rmf := module_file()
+        rmd := module_directory()
+
+        outer: inner
+
+        @inner pmf=module_file() pmd=module_directory():
+          echo root
+          echo {{ rmf }}
+          echo {{ rmd }}
+          echo {{ pmf }}
+          echo {{ pmd }}
+          echo {{ module_file() }}
+          echo {{ module_directory() }}
+      ",
+    )
+    .test_round_trip(false)
+    .args(["--unstable", "outer", "import-outer", "baz", "outer"])
+    .stdout_regex(
+      "root
+.*/just-test-tempdir....../justfile
+.*/just-test-tempdir......
+.*/just-test-tempdir....../justfile
+.*/just-test-tempdir......
+.*/just-test-tempdir....../justfile
+.*/just-test-tempdir......
+import
+.*/just-test-tempdir....../justfile
+.*/just-test-tempdir......
+.*/just-test-tempdir....../justfile
+.*/just-test-tempdir......
+.*/just-test-tempdir....../justfile
+.*/just-test-tempdir......
+module
+.*/just-test-tempdir....../baz/mod.just
+.*/just-test-tempdir....../baz
+.*/just-test-tempdir....../baz/mod.just
+.*/just-test-tempdir....../baz
+.*/just-test-tempdir....../baz/mod.just
+.*/just-test-tempdir....../baz
+",
+    )
     .run();
 }
