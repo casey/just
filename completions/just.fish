@@ -48,6 +48,7 @@ complete -c just -l shell-arg -d 'Invoke shell with <SHELL-ARG> as an argument' 
 complete -c just -s d -l working-directory -d 'Use <WORKING-DIRECTORY> as working directory. --justfile must also be set' -r -F
 complete -c just -s c -l command -d 'Run an arbitrary command with the working directory, `.env`, overrides, and exports set' -r
 complete -c just -l completions -d 'Print shell completion script for <SHELL>' -r -f -a "{bash	'',elvish	'',fish	'',powershell	'',zsh	''}"
+complete -c just -s l -l list -d 'List available recipes and their arguments' -r
 complete -c just -s s -l show -d 'Show information about <RECIPE>' -r
 complete -c just -l dotenv-filename -d 'Search for environment file named <DOTENV-FILENAME> instead of `.env`' -r
 complete -c just -s E -l dotenv-path -d 'Load <DOTENV-PATH> as environment file instead of searching for one' -r -F
@@ -72,7 +73,6 @@ complete -c just -s e -l edit -d 'Edit justfile with editor given by $VISUAL or 
 complete -c just -l evaluate -d 'Evaluate and print all variables. If a variable name is given as an argument, only print that variable\'s value.'
 complete -c just -l fmt -d 'Format and overwrite justfile'
 complete -c just -l init -d 'Initialize new justfile in project root'
-complete -c just -s l -l list -d 'List available recipes and their arguments'
 complete -c just -l groups -d 'List recipe groups'
 complete -c just -l man -d 'Print man page'
 complete -c just -l summary -d 'List names of available recipes'
