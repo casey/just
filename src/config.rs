@@ -668,7 +668,7 @@ impl Config {
       Subcommand::List {
         path: path
           .clone()
-          .map(|s| s.as_str())
+          .map(|s| (*s).as_str())
           .collect::<Vec<&str>>()
           .as_slice()
           .try_into()

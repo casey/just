@@ -21,10 +21,10 @@ impl TryFrom<&[&str]> for ModulePath {
 
       first
         .split("::")
-        .map(|s| s.to_string())
+        .map(str::to_string)
         .collect::<Vec<String>>()
     } else {
-      path.iter().map(|s| s.to_string()).collect()
+      path.iter().map(|s| (*s).to_string()).collect()
     };
 
     for name in &path {
@@ -37,10 +37,8 @@ impl TryFrom<&[&str]> for ModulePath {
           if !Lexer::is_identifier_start(c) {
             return Err(());
           }
-        } else {
-          if !Lexer::is_identifier_continue(c) {
-            return Err(());
-          }
+        } else if !Lexer::is_identifier_continue(c) {
+          return Err(());
         }
       }
     }

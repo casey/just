@@ -90,7 +90,7 @@ impl Subcommand {
       Dump => Self::dump(config, ast, justfile)?,
       Format => Self::format(config, &search, src, ast)?,
       Groups => Self::groups(config, justfile),
-      List { path } => Self::list_module(config, justfile, &path)?,
+      List { path } => Self::list_module(config, justfile, path)?,
       Show { ref name } => Self::show(config, name, justfile)?,
       Summary => Self::summary(config, justfile),
       Variables => Self::variables(justfile),
@@ -487,7 +487,7 @@ impl Subcommand {
     for name in &path.path {
       module = module
         .modules
-        .get(&name)
+        .get(name)
         .ok_or_else(|| Error::UnknownSubmodule { path: path.clone() })?;
     }
 
