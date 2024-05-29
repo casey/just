@@ -415,7 +415,7 @@ fn module_directory(context: Context) -> Result<String, String> {
     .justfile
     .parent()
     .unwrap()
-    .join(&context.evaluator.module_file)
+    .join(&context.evaluator.module_source)
     .parent()
     .unwrap()
     .to_str()
@@ -423,7 +423,7 @@ fn module_directory(context: Context) -> Result<String, String> {
     .ok_or_else(|| {
       format!(
         "Module directory is not valid unicode: {}",
-        context.evaluator.module_file.parent().unwrap().display(),
+        context.evaluator.module_source.parent().unwrap().display(),
       )
     })
 }
@@ -435,13 +435,13 @@ fn module_file(context: Context) -> Result<String, String> {
     .justfile
     .parent()
     .unwrap()
-    .join(&context.evaluator.module_file)
+    .join(&context.evaluator.module_source)
     .to_str()
     .map(str::to_owned)
     .ok_or_else(|| {
       format!(
         "Module file path is not valid unicode: {}",
-        context.evaluator.module_file.display(),
+        context.evaluator.module_source.display(),
       )
     })
 }

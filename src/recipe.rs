@@ -165,7 +165,7 @@ impl<'src, D> Recipe<'src, D> {
     let evaluator = Evaluator::recipe_evaluator(
       context.config,
       context.dotenv,
-      &self.file_path,
+      &context.module_source,
       &scope,
       &context.search,
       context.settings,

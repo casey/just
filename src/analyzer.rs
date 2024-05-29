@@ -167,7 +167,7 @@ impl<'src> Analyzer<'src> {
       recipes,
       settings,
       warnings,
-      path: root.into(),
+      source: root.into(),
     })
   }
 

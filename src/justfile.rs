@@ -21,9 +21,9 @@ pub(crate) struct Justfile<'src> {
   pub(crate) name: Option<Name<'src>>,
   pub(crate) recipes: Table<'src, Rc<Recipe<'src>>>,
   pub(crate) settings: Settings<'src>,
-  pub(crate) warnings: Vec<Warning>,
   #[serde(skip)]
-  pub(crate) path: PathBuf,
+  pub(crate) source: PathBuf,
+  pub(crate) warnings: Vec<Warning>,
 }
 
 impl<'src> Justfile<'src> {
@@ -108,7 +108,7 @@ impl<'src> Justfile<'src> {
       &self.assignments,
       config,
       dotenv,
-      &self.path,
+      &self.source,
       scope,
       search,
       &self.settings,
@@ -281,6 +281,7 @@ impl<'src> Justfile<'src> {
       let context = RecipeContext {
         config,
         dotenv: &dotenv,
+        module_source: &self.source,
         scope: invocation.scope,
         search,
         settings: invocation.settings,
@@ -432,7 +433,7 @@ impl<'src> Justfile<'src> {
       arguments,
       context.config,
       context.dotenv,
-      &self.path,
+      &self.source,
       &recipe.parameters,
       context.scope,
       search,
@@ -444,7 +445,7 @@ impl<'src> Justfile<'src> {
     let mut evaluator = Evaluator::recipe_evaluator(
       context.config,
       context.dotenv,
-      &self.path,
+      &self.source,
       &scope,
       search,
       context.settings,
