@@ -254,3 +254,80 @@ fn unsorted_list_order() {
     )
     .run();
 }
+
+#[test]
+fn list_submodule() {
+  Test::new()
+    .write("foo.just", "bar:")
+    .justfile(
+      "
+        mod foo
+      ",
+    )
+    .test_round_trip(false)
+    .args(["--unstable", "--list", "foo"])
+    .stdout(
+      "
+      Available recipes:
+          bar
+    ",
+    )
+    .run();
+}
+
+#[test]
+fn list_nested_submodule() {
+  Test::new()
+    .write("foo.just", "mod bar")
+    .write("bar.just", "baz:")
+    .justfile(
+      "
+        mod foo
+      ",
+    )
+    .test_round_trip(false)
+    .args(["--unstable", "--list", "foo", "bar"])
+    .stdout(
+      "
+        Available recipes:
+            baz
+      ",
+    )
+    .run();
+
+  Test::new()
+    .write("foo.just", "mod bar")
+    .write("bar.just", "baz:")
+    .justfile(
+      "
+        mod foo
+      ",
+    )
+    .test_round_trip(false)
+    .args(["--unstable", "--list", "foo::bar"])
+    .stdout(
+      "
+        Available recipes:
+            baz
+      ",
+    )
+    .run();
+}
+
+#[test]
+fn list_invalid_path() {
+  Test::new()
+    .args(["--unstable", "--list", "$hello"])
+    .stderr("error: Invalid module path `$hello`\n")
+    .status(1)
+    .run();
+}
+
+#[test]
+fn list_unknown_submodule() {
+  Test::new()
+    .args(["--unstable", "--list", "hello"])
+    .stderr("error: Justfile does not contain submodule `hello`\n")
+    .status(1)
+    .run();
+}

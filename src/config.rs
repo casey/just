@@ -80,9 +80,8 @@ mod cmd {
     VARIABLES,
   ];
 
-  pub(crate) const ARGLESS: &[&str] = &[
-    CHANGELOG, DUMP, EDIT, FORMAT, INIT, LIST, MAN, SUMMARY, VARIABLES,
-  ];
+  pub(crate) const ARGLESS: &[&str] =
+    &[CHANGELOG, DUMP, EDIT, FORMAT, INIT, MAN, SUMMARY, VARIABLES];
 }
 
 mod arg {
@@ -417,7 +416,9 @@ impl Config {
         Arg::new(cmd::LIST)
           .short('l')
           .long("list")
-          .action(ArgAction::SetTrue)
+          .num_args(0..)
+          .value_name("PATH")
+          .action(ArgAction::Set)
           .help("List available recipes and their arguments"),
       )
       .arg(
@@ -663,8 +664,18 @@ impl Config {
       Subcommand::Format
     } else if matches.get_flag(cmd::INIT) {
       Subcommand::Init
-    } else if matches.get_flag(cmd::LIST) {
-      Subcommand::List
+    } else if let Some(path) = matches.get_many::<String>(cmd::LIST) {
+      Subcommand::List {
+        path: path
+          .clone()
+          .map(|s| s.as_str())
+          .collect::<Vec<&str>>()
+          .as_slice()
+          .try_into()
+          .map_err(|()| ConfigError::ListPath {
+            path: path.cloned().collect(),
+          })?,
+      }
     } else if matches.get_flag(cmd::GROUPS) {
       Subcommand::Groups
     } else if matches.get_flag(cmd::MAN) {
@@ -1273,13 +1284,19 @@ mod tests {
   test! {
     name: subcommand_list_long,
     args: ["--list"],
-    subcommand: Subcommand::List,
+    subcommand: Subcommand::List{ path: ModulePath{ path: Vec::new(), spaced: false } },
   }
 
   test! {
     name: subcommand_list_short,
     args: ["-l"],
-    subcommand: Subcommand::List,
+    subcommand: Subcommand::List{ path: ModulePath{ path: Vec::new(), spaced: false } },
+  }
+
+  test! {
+    name: subcommand_list_arguments,
+    args: ["--list", "bar"],
+    subcommand: Subcommand::List{ path: ModulePath{ path: vec!["bar".into()], spaced: false } },
   }
 
   test! {
@@ -1507,16 +1524,6 @@ mod tests {
     error: ConfigError::SubcommandArguments { subcommand, arguments },
     check: {
       assert_eq!(subcommand, cmd::CHANGELOG);
-      assert_eq!(arguments, &["bar"]);
-    },
-  }
-
-  error! {
-    name: list_arguments,
-    args: ["--list", "bar"],
-    error: ConfigError::SubcommandArguments { subcommand, arguments },
-    check: {
-      assert_eq!(subcommand, cmd::LIST);
       assert_eq!(arguments, &["bar"]);
     },
   }

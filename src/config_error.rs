@@ -6,11 +6,12 @@ pub(crate) enum ConfigError {
   #[snafu(display("Failed to get current directory: {}", source))]
   CurrentDir { source: io::Error },
   #[snafu(display(
-    "Internal config error, this may indicate a bug in just: {} \
+    "Internal config error, this may indicate a bug in just: {message} \
      consider filing an issue: https://github.com/casey/just/issues/new",
-    message
   ))]
   Internal { message: String },
+  #[snafu(display("Invalid module path `{}`", path.join(" ")))]
+  ListPath { path: Vec<String> },
   #[snafu(display(
     "Path-prefixed recipes may not be used with `--working-directory` or `--justfile`."
   ))]

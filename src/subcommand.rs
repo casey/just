@@ -31,7 +31,9 @@ pub(crate) enum Subcommand {
   Format,
   Groups,
   Init,
-  List,
+  List {
+    path: ModulePath,
+  },
   Man,
   Run {
     arguments: Vec<String>,
@@ -88,7 +90,7 @@ impl Subcommand {
       Dump => Self::dump(config, ast, justfile)?,
       Format => Self::format(config, &search, src, ast)?,
       Groups => Self::groups(config, justfile),
-      List => Self::list(config, 0, justfile),
+      List { path } => Self::list_module(config, justfile, &path)?,
       Show { ref name } => Self::show(config, name, justfile)?,
       Summary => Self::summary(config, justfile),
       Variables => Self::variables(justfile),
@@ -473,6 +475,23 @@ impl Subcommand {
     stdout
       .flush()
       .map_err(|io_error| Error::StdoutIo { io_error })?;
+
+    Ok(())
+  }
+
+  fn list_module(
+    config: &Config,
+    mut module: &Justfile,
+    path: &ModulePath,
+  ) -> Result<(), Error<'static>> {
+    for name in &path.path {
+      module = module
+        .modules
+        .get(&name)
+        .ok_or_else(|| Error::UnknownSubmodule { path: path.clone() })?;
+    }
+
+    Self::list(config, 0, module);
 
     Ok(())
   }

@@ -160,6 +160,9 @@ pub(crate) enum Error<'src> {
     recipe: &'src str,
     line_number: Option<usize>,
   },
+  UnknownSubmodule {
+    path: ModulePath,
+  },
   UnknownOverrides {
     overrides: Vec<String>,
   },
@@ -431,6 +434,9 @@ impl<'src> ColorDisplay for Error<'src> {
         } else {
           write!(f, "Recipe `{recipe}` failed for an unknown reason")?;
         }
+      }
+      UnknownSubmodule { path } => {
+        write!(f, "Justfile does not contain submodule `{path}`")?;
       }
       UnknownOverrides { overrides } => {
         let count = Count("Variable", overrides.len());
