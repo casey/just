@@ -500,7 +500,7 @@ impl Config {
       .long("timestamp-format")
       .env("JUST_TIMESTAMP_FORMAT")
       .default_value("%H:%M:%S")
-      .help("Format string for timestamp output")
+      .help("Timestamp format string")
     )
   }
 
