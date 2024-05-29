@@ -3,9 +3,10 @@ use {super::*, serde::Serialize};
 #[derive(Debug)]
 struct Invocation<'src: 'run, 'run> {
   arguments: Vec<&'run str>,
+  module_source: &'run Path,
   recipe: &'run Recipe<'src>,
-  settings: &'run Settings<'src>,
   scope: &'run Scope<'src, 'run>,
+  settings: &'run Settings<'src>,
 }
 
 #[derive(Debug, PartialEq, Serialize)]
@@ -21,6 +22,8 @@ pub(crate) struct Justfile<'src> {
   pub(crate) name: Option<Name<'src>>,
   pub(crate) recipes: Table<'src, Rc<Recipe<'src>>>,
   pub(crate) settings: Settings<'src>,
+  #[serde(skip)]
+  pub(crate) source: PathBuf,
   pub(crate) warnings: Vec<Warning>,
 }
 
@@ -106,9 +109,10 @@ impl<'src> Justfile<'src> {
       &self.assignments,
       config,
       dotenv,
+      &self.source,
       scope,
-      &self.settings,
       search,
+      &self.settings,
     )
   }
 
@@ -276,10 +280,12 @@ impl<'src> Justfile<'src> {
     let mut ran = Ran::default();
     for invocation in invocations {
       let context = RecipeContext {
-        settings: invocation.settings,
         config,
+        dotenv: &dotenv,
+        module_source: invocation.module_source,
         scope: invocation.scope,
         search,
+        settings: invocation.settings,
       };
 
       Self::run_recipe(
@@ -290,7 +296,6 @@ impl<'src> Justfile<'src> {
           .map(str::to_string)
           .collect::<Vec<String>>(),
         &context,
-        &dotenv,
         &mut ran,
         invocation.recipe,
         search,
@@ -346,6 +351,7 @@ impl<'src> Justfile<'src> {
               recipe,
               arguments: Vec::new(),
               scope,
+              module_source: &self.source,
             },
             depth,
           )));
@@ -373,6 +379,7 @@ impl<'src> Justfile<'src> {
             recipe,
             scope: parent,
             settings: &self.settings,
+            module_source: &self.source,
           },
           depth,
         )))
@@ -394,6 +401,7 @@ impl<'src> Justfile<'src> {
             recipe,
             scope: parent,
             settings: &self.settings,
+            module_source: &self.source,
           },
           depth + argument_count,
         )))
@@ -410,7 +418,6 @@ impl<'src> Justfile<'src> {
   fn run_recipe(
     arguments: &[String],
     context: &RecipeContext<'src, '_>,
-    dotenv: &BTreeMap<String, String>,
     ran: &mut Ran<'src>,
     recipe: &Recipe<'src>,
     search: &Search,
@@ -426,19 +433,26 @@ impl<'src> Justfile<'src> {
     }
 
     let (outer, positional) = Evaluator::evaluate_parameters(
-      context.config,
-      dotenv,
-      &recipe.parameters,
       arguments,
+      context.config,
+      context.dotenv,
+      context.module_source,
+      &recipe.parameters,
       context.scope,
-      context.settings,
       search,
+      context.settings,
     )?;
 
     let scope = outer.child();
 
-    let mut evaluator =
-      Evaluator::recipe_evaluator(context.config, dotenv, &scope, context.settings, search);
+    let mut evaluator = Evaluator::recipe_evaluator(
+      context.config,
+      context.dotenv,
+      context.module_source,
+      &scope,
+      search,
+      context.settings,
+    );
 
     if !context.config.no_dependencies {
       for Dependency { recipe, arguments } in recipe.dependencies.iter().take(recipe.priors) {
@@ -447,11 +461,11 @@ impl<'src> Justfile<'src> {
           .map(|argument| evaluator.evaluate_expression(argument))
           .collect::<RunResult<Vec<String>>>()?;
 
-        Self::run_recipe(&arguments, context, dotenv, ran, recipe, search)?;
+        Self::run_recipe(&arguments, context, ran, recipe, search)?;
       }
     }
 
-    recipe.run(context, dotenv, scope.child(), search, &positional)?;
+    recipe.run(context, &scope, &positional)?;
 
     if !context.config.no_dependencies {
       let mut ran = Ran::default();
@@ -463,11 +477,12 @@ impl<'src> Justfile<'src> {
           evaluated.push(evaluator.evaluate_expression(argument)?);
         }
 
-        Self::run_recipe(&evaluated, context, dotenv, &mut ran, recipe, search)?;
+        Self::run_recipe(&evaluated, context, &mut ran, recipe, search)?;
       }
     }
 
     ran.ran(&recipe.namepath, arguments.to_vec());
+
     Ok(())
   }
 

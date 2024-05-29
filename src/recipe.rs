@@ -147,9 +147,7 @@ impl<'src, D> Recipe<'src, D> {
   pub(crate) fn run<'run>(
     &self,
     context: &RecipeContext<'src, 'run>,
-    dotenv: &BTreeMap<String, String>,
-    scope: Scope<'src, 'run>,
-    search: &'run Search,
+    scope: &Scope<'src, 'run>,
     positional: &[String],
   ) -> RunResult<'src, ()> {
     let config = &context.config;
@@ -164,20 +162,25 @@ impl<'src, D> Recipe<'src, D> {
       );
     }
 
-    let evaluator =
-      Evaluator::recipe_evaluator(context.config, dotenv, &scope, context.settings, search);
+    let evaluator = Evaluator::recipe_evaluator(
+      context.config,
+      context.dotenv,
+      context.module_source,
+      scope,
+      context.search,
+      context.settings,
+    );
 
     if self.shebang {
-      self.run_shebang(context, dotenv, &scope, positional, config, evaluator)
+      self.run_shebang(context, scope, positional, config, evaluator)
     } else {
-      self.run_linewise(context, dotenv, &scope, positional, config, evaluator)
+      self.run_linewise(context, scope, positional, config, evaluator)
     }
   }
 
   fn run_linewise<'run>(
     &self,
     context: &RecipeContext<'src, 'run>,
-    dotenv: &BTreeMap<String, String>,
     scope: &Scope<'src, 'run>,
     positional: &[String],
     config: &Config,
@@ -264,7 +267,7 @@ impl<'src, D> Recipe<'src, D> {
         cmd.stdout(Stdio::null());
       }
 
-      cmd.export(context.settings, dotenv, scope);
+      cmd.export(context.settings, context.dotenv, scope);
 
       match InterruptHandler::guard(|| cmd.status()) {
         Ok(exit_status) => {
@@ -298,7 +301,6 @@ impl<'src, D> Recipe<'src, D> {
   pub(crate) fn run_shebang<'run>(
     &self,
     context: &RecipeContext<'src, 'run>,
-    dotenv: &BTreeMap<String, String>,
     scope: &Scope<'src, 'run>,
     positional: &[String],
     config: &Config,
@@ -411,7 +413,7 @@ impl<'src, D> Recipe<'src, D> {
       command.args(positional);
     }
 
-    command.export(context.settings, dotenv, scope);
+    command.export(context.settings, context.dotenv, scope);
 
     // run it!
     match InterruptHandler::guard(|| command.status()) {
