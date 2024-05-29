@@ -244,10 +244,9 @@ impl<'src, D> Recipe<'src, D> {
           .stderr();
 
         if config.timestamps {
-          let format_str = &config.timestamp_format;
           eprint!(
             "[{}] ",
-            color.paint(&Utc::now().format(format_str).to_string())
+            color.paint(&Utc::now().format(&config.timestamp_format).to_string()),
           );
         }
 

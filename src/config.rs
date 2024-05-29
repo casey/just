@@ -10,8 +10,6 @@ const CHOOSE_HELP: &str = "Select one or more recipes to run using a binary choo
                            If `--chooser` is not passed the chooser defaults to the \
                            value of $JUST_CHOOSER, falling back to `fzf`";
 
-const DEFAULT_TIMESTAMP_STRING: &str = "%H:%M:%S";
-
 pub(crate) fn chooser_default(justfile: &Path) -> OsString {
   let mut chooser = OsString::new();
   chooser.push("fzf --multi --preview 'just --unstable --color always --justfile \"");
@@ -502,7 +500,7 @@ impl Config {
       .action(ArgAction::Set)
       .long("timestamp-format")
       .env("JUST_TIMESTAMP_FORMAT")
-      .default_value(DEFAULT_TIMESTAMP_STRING)
+      .default_value("%H:%M:%S")
       .help("Format string for timestamp output")
     )
   }
@@ -759,7 +757,8 @@ impl Config {
       timestamps: matches.get_flag(arg::TIMESTAMPS),
       timestamp_format: matches
         .get_one::<String>(arg::TIMESTAMP_FORMAT)
-        .map_or_else(|| DEFAULT_TIMESTAMP_STRING.into(), Into::into),
+        .unwrap()
+        .into(),
       unsorted: matches.get_flag(arg::UNSORTED),
       unstable,
       verbosity,
