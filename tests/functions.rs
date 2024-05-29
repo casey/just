@@ -929,6 +929,8 @@ import-outer: import-inner
     .write(
       "baz/mod.just",
       "
+import 'foo/bar.just'
+
 mmf := module_file()
 mmd := module_directory()
 
@@ -938,6 +940,24 @@ outer: inner
   echo module
   echo {{ mmf }}
   echo {{ mmd }}
+  echo {{ pmf }}
+  echo {{ pmd }}
+  echo {{ module_file() }}
+  echo {{ module_directory() }}
+      ",
+    )
+    .write(
+      "baz/foo/bar.just",
+      "
+imf := module_file()
+imd := module_directory()
+
+import-outer: import-inner
+
+@import-inner pmf=module_file() pmd=module_directory():
+  echo import
+  echo {{ imf }}
+  echo {{ imd }}
   echo {{ pmf }}
   echo {{ pmd }}
   echo {{ module_file() }}
@@ -965,7 +985,15 @@ outer: inner
       ",
     )
     .test_round_trip(false)
-    .args(["--unstable", "outer", "import-outer", "baz", "outer"])
+    .args([
+      "--unstable",
+      "outer",
+      "import-outer",
+      "baz",
+      "outer",
+      "baz",
+      "import-outer",
+    ])
     .stdout_regex(
       "root
 .*/just-test-tempdir....../justfile
@@ -982,6 +1010,13 @@ import
 .*/just-test-tempdir....../justfile
 .*/just-test-tempdir......
 module
+.*/just-test-tempdir....../baz/mod.just
+.*/just-test-tempdir....../baz
+.*/just-test-tempdir....../baz/mod.just
+.*/just-test-tempdir....../baz
+.*/just-test-tempdir....../baz/mod.just
+.*/just-test-tempdir....../baz
+import
 .*/just-test-tempdir....../baz/mod.just
 .*/just-test-tempdir....../baz
 .*/just-test-tempdir....../baz/mod.just
