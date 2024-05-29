@@ -489,7 +489,7 @@ impl Config {
       .action(ArgAction::SetTrue)
       .long("timestamps")
       .env("JUST_TIMESTAMPS")
-      .help("Print timestamps before recipe commands")
+      .help("Print recipe command timestamps")
     )
   }
 
