@@ -165,16 +165,16 @@ impl<'src, D> Recipe<'src, D> {
     let evaluator = Evaluator::recipe_evaluator(
       context.config,
       context.dotenv,
-      &context.module_source,
-      &scope,
-      &context.search,
+      context.module_source,
+      scope,
+      context.search,
       context.settings,
     );
 
     if self.shebang {
-      self.run_shebang(context, &scope, positional, config, evaluator)
+      self.run_shebang(context, scope, positional, config, evaluator)
     } else {
-      self.run_linewise(context, &scope, positional, config, evaluator)
+      self.run_linewise(context, scope, positional, config, evaluator)
     }
   }
 

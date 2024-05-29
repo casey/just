@@ -282,13 +282,13 @@ impl<'src> Justfile<'src> {
       let context = RecipeContext {
         config,
         dotenv: &dotenv,
-        module_source: &invocation.module_source,
+        module_source: invocation.module_source,
         scope: invocation.scope,
         search,
         settings: invocation.settings,
       };
 
-      self.run_recipe(
+      Self::run_recipe(
         &invocation
           .arguments
           .iter()
@@ -416,7 +416,6 @@ impl<'src> Justfile<'src> {
   }
 
   fn run_recipe(
-    &self,
     arguments: &[String],
     context: &RecipeContext<'src, '_>,
     ran: &mut Ran<'src>,
@@ -437,7 +436,7 @@ impl<'src> Justfile<'src> {
       arguments,
       context.config,
       context.dotenv,
-      &context.module_source,
+      context.module_source,
       &recipe.parameters,
       context.scope,
       search,
@@ -449,7 +448,7 @@ impl<'src> Justfile<'src> {
     let mut evaluator = Evaluator::recipe_evaluator(
       context.config,
       context.dotenv,
-      &context.module_source,
+      context.module_source,
       &scope,
       search,
       context.settings,
@@ -462,7 +461,7 @@ impl<'src> Justfile<'src> {
           .map(|argument| evaluator.evaluate_expression(argument))
           .collect::<RunResult<Vec<String>>>()?;
 
-        self.run_recipe(&arguments, context, ran, recipe, search)?;
+        Self::run_recipe(&arguments, context, ran, recipe, search)?;
       }
     }
 
@@ -478,7 +477,7 @@ impl<'src> Justfile<'src> {
           evaluated.push(evaluator.evaluate_expression(argument)?);
         }
 
-        self.run_recipe(&evaluated, context, &mut ran, recipe, search)?;
+        Self::run_recipe(&evaluated, context, &mut ran, recipe, search)?;
       }
     }
 
