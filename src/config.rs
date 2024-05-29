@@ -10,6 +10,8 @@ const CHOOSE_HELP: &str = "Select one or more recipes to run using a binary choo
                            If `--chooser` is not passed the chooser defaults to the \
                            value of $JUST_CHOOSER, falling back to `fzf`";
 
+const DEFAULT_TIMESTAMP_STRING: &str = "%H:%M:%S";
+
 pub(crate) fn chooser_default(justfile: &Path) -> OsString {
   let mut chooser = OsString::new();
   chooser.push("fzf --multi --preview 'just --unstable --color always --justfile \"");
@@ -40,6 +42,7 @@ pub(crate) struct Config {
   pub(crate) shell_command: bool,
   pub(crate) subcommand: Subcommand,
   pub(crate) timestamps: bool,
+  pub(crate) timestamp_format: String,
   pub(crate) unsorted: bool,
   pub(crate) unstable: bool,
   pub(crate) verbosity: Verbosity,
@@ -111,6 +114,7 @@ mod arg {
   pub(crate) const SHELL_ARG: &str = "SHELL-ARG";
   pub(crate) const SHELL_COMMAND: &str = "SHELL-COMMAND";
   pub(crate) const TIMESTAMPS: &str = "TIMESTAMPS";
+  pub(crate) const TIMESTAMP_FORMAT: &str = "TIMESTAMP_FORMAT";
   pub(crate) const UNSORTED: &str = "UNSORTED";
   pub(crate) const UNSTABLE: &str = "UNSTABLE";
   pub(crate) const VERBOSE: &str = "VERBOSE";
@@ -491,6 +495,14 @@ impl Config {
       .env("JUST_TIMESTAMPS")
       .help("Print recipe command timestamps")
     )
+    .arg(
+      Arg::new(arg::TIMESTAMP_FORMAT)
+      .action(ArgAction::Set)
+      .long("timestamp-format")
+      .env("JUST_TIMESTAMP_FORMAT")
+      .default_value(DEFAULT_TIMESTAMP_STRING)
+      .help("Format string for timestamp output")
+    )
   }
 
   fn color_from_matches(matches: &ArgMatches) -> ConfigResult<Color> {
@@ -733,6 +745,9 @@ impl Config {
       shell_command: matches.get_flag(arg::SHELL_COMMAND),
       subcommand,
       timestamps: matches.get_flag(arg::TIMESTAMPS),
+      timestamp_format: matches
+        .get_one::<String>(arg::TIMESTAMP_FORMAT)
+        .map_or_else(|| DEFAULT_TIMESTAMP_STRING.into(), Into::into),
       unsorted: matches.get_flag(arg::UNSORTED),
       unstable,
       verbosity,
