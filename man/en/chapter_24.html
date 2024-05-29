@@ -185,6 +185,21 @@ Available recipes:
     deploy
     lint
 </code></pre>
+<p>Recipes in submodules can be listed with <code>just --list PATH</code>, where <code>PATH</code> is a
+space- or <code>::</code>-separated module path:</p>
+<pre><code>$ cat justfile
+mod foo
+$ cat foo.just
+mod bar
+$ cat bar.just
+baz:
+$ just --unstable foo bar
+Available recipes:
+    baz
+$ just --unstable foo::bar
+Available recipes:
+    baz
+</code></pre>
 <p><code>just --summary</code> is more concise:</p>
 <pre><code class="language-sh">$ just --summary
 build test deploy lint
