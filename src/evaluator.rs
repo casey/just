@@ -16,7 +16,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     config: &'run Config,
     dotenv: &'run BTreeMap<String, String>,
     module_source: &Path,
-    overrides: Scope<'src, 'run>,
+    scope: Scope<'src, 'run>,
     search: &'run Search,
     settings: &'run Settings<'run>,
   ) -> RunResult<'src, Scope<'src, 'run>> {
@@ -25,7 +25,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       config,
       dotenv,
       module_source: module_source.into(),
-      scope: overrides,
+      scope,
       search,
       settings,
     };
