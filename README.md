@@ -3354,6 +3354,42 @@ Since `set windows-shell` has higher precedence than `set shell`, you can use
 `set windows-shell` to pick a shell on Windows, and `set shell` to pick a shell
 for all other platforms.
 
+### Timestamp Format
+
+`just` can print timestamps when it invokes a recipe:
+
+```just
+recipe:
+  echo 'one'
+  sleep 2
+  echo 'two'
+
+```
+
+```sh
+$ just --timestamp recipe
+[07:28:46] echo "one"
+one
+[07:28:46] sleep 2
+[07:28:48] echo "two"
+two
+```
+
+By default the timestamps are in UTC, hours:minutes:seconds 24-hour format. The
+format can be adjusted with the `--timestamp-format` option, which accepts a
+`strftime`-style format string interpreted by the `chrono` library (see
+https://docs.rs/chrono/latest/chrono/format/strftime/index.html#):
+
+```sh
+$ just --timestamp recipe --timestamp-format '%H:%M:%S%.3f %Z'
+[07:32:11:.349 UTC] echo "one"
+one
+[07:32:11:.350 UTC] sleep 2
+[07:32:13:.352 UTC] echo "two"
+two
+```
+
+
 Changelog
 ---------
 
