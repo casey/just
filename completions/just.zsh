@@ -70,7 +70,7 @@ _just() {
 '--variables[List names of variables]' \
 '(-f --justfile -d --working-directory)-g[Use global justfile]' \
 '(-f --justfile -d --working-directory)--global-justfile[Use global justfile]' \
-'--timestamps[Show timestamps for executed commands]' \
+'--timestamps[Print timestamps before recipe commands]' \
 '-h[Print help]' \
 '--help[Print help]' \
 '-V[Print version]' \

@@ -72,7 +72,7 @@ set edit:completion:arg-completer[just] = {|@words|
             cand --variables 'List names of variables'
             cand -g 'Use global justfile'
             cand --global-justfile 'Use global justfile'
-            cand --timestamps 'Show timestamps for executed commands'
+            cand --timestamps 'Print timestamps before recipe commands'
             cand -h 'Print help'
             cand --help 'Print help'
             cand -V 'Print version'
