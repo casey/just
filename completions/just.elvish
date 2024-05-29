@@ -40,7 +40,7 @@ set edit:completion:arg-completer[just] = {|@words|
             cand --dotenv-filename 'Search for environment file named <DOTENV-FILENAME> instead of `.env`'
             cand -E 'Load <DOTENV-PATH> as environment file instead of searching for one'
             cand --dotenv-path 'Load <DOTENV-PATH> as environment file instead of searching for one'
-            cand --timestamp-format 'Format string for timestamp output'
+            cand --timestamp-format 'Timestamp format string'
             cand --check 'Run `--fmt` in ''check'' mode. Exits with 0 if justfile is formatted correctly. Exits with 1 and prints a diff if formatting is required.'
             cand --yes 'Automatically confirm all recipes.'
             cand -n 'Print what just would do without doing it'

@@ -43,7 +43,7 @@ Register-ArgumentCompleter -Native -CommandName 'just' -ScriptBlock {
             [CompletionResult]::new('--dotenv-filename', 'dotenv-filename', [CompletionResultType]::ParameterName, 'Search for environment file named <DOTENV-FILENAME> instead of `.env`')
             [CompletionResult]::new('-E', 'E ', [CompletionResultType]::ParameterName, 'Load <DOTENV-PATH> as environment file instead of searching for one')
             [CompletionResult]::new('--dotenv-path', 'dotenv-path', [CompletionResultType]::ParameterName, 'Load <DOTENV-PATH> as environment file instead of searching for one')
-            [CompletionResult]::new('--timestamp-format', 'timestamp-format', [CompletionResultType]::ParameterName, 'Format string for timestamp output')
+            [CompletionResult]::new('--timestamp-format', 'timestamp-format', [CompletionResultType]::ParameterName, 'Timestamp format string')
             [CompletionResult]::new('--check', 'check', [CompletionResultType]::ParameterName, 'Run `--fmt` in ''check'' mode. Exits with 0 if justfile is formatted correctly. Exits with 1 and prints a diff if formatting is required.')
             [CompletionResult]::new('--yes', 'yes', [CompletionResultType]::ParameterName, 'Automatically confirm all recipes.')
             [CompletionResult]::new('-n', 'n', [CompletionResultType]::ParameterName, 'Print what just would do without doing it')
