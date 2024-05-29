@@ -237,12 +237,20 @@ impl<'src, D> Recipe<'src, D> {
           || (context.settings.quiet && !self.no_quiet())
           || config.verbosity.quiet())
       {
-        let color = if config.highlight {
-          config.color.command(config.command_color)
-        } else {
-          config.color
-        };
-        eprintln!("{}", color.stderr().paint(command));
+        let color = config
+          .highlight
+          .then(|| config.color.command(config.command_color))
+          .unwrap_or(config.color)
+          .stderr();
+
+        if config.timestamps {
+          eprint!(
+            "[{}] ",
+            color.paint(&Utc::now().format("%H:%M:%S").to_string())
+          );
+        }
+
+        eprintln!("{}", color.paint(command));
       }
 
       if config.dry_run {

@@ -21,6 +21,7 @@ members = [".", "crates/*"]
 ansi_term = "0.12.0"
 blake3 = { version = "1.5.0", features = ["rayon", "mmap"] }
 camino = "1.0.4"
+chrono = "0.4.38"
 clap = { version = "4.0.0", features = ["env", "wrap_help"] }
 clap_complete = "4.0.0"
 clap_mangen = "0.2.20"

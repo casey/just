@@ -39,6 +39,7 @@ pub(crate) struct Config {
   pub(crate) shell_args: Option<Vec<String>>,
   pub(crate) shell_command: bool,
   pub(crate) subcommand: Subcommand,
+  pub(crate) timestamps: bool,
   pub(crate) unsorted: bool,
   pub(crate) unstable: bool,
   pub(crate) verbosity: Verbosity,
@@ -109,6 +110,7 @@ mod arg {
   pub(crate) const SHELL: &str = "SHELL";
   pub(crate) const SHELL_ARG: &str = "SHELL-ARG";
   pub(crate) const SHELL_COMMAND: &str = "SHELL-COMMAND";
+  pub(crate) const TIMESTAMPS: &str = "TIMESTAMPS";
   pub(crate) const UNSORTED: &str = "UNSORTED";
   pub(crate) const UNSTABLE: &str = "UNSTABLE";
   pub(crate) const VERBOSE: &str = "VERBOSE";
@@ -482,6 +484,13 @@ impl Config {
       .conflicts_with(arg::WORKING_DIRECTORY)
       .help("Use global justfile")
     )
+    .arg(
+      Arg::new(arg::TIMESTAMPS)
+      .action(ArgAction::SetTrue)
+      .long("timestamps")
+      .env("JUST_TIMESTAMPS")
+      .help("Print recipe command timestamps")
+    )
   }
 
   fn color_from_matches(matches: &ArgMatches) -> ConfigResult<Color> {
@@ -723,6 +732,7 @@ impl Config {
       shell_args,
       shell_command: matches.get_flag(arg::SHELL_COMMAND),
       subcommand,
+      timestamps: matches.get_flag(arg::TIMESTAMPS),
       unsorted: matches.get_flag(arg::UNSORTED),
       unstable,
       verbosity,
