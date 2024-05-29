@@ -52,6 +52,7 @@ complete -c just -s l -l list -d 'List available recipes and their arguments' -r
 complete -c just -s s -l show -d 'Show information about <RECIPE>' -r
 complete -c just -l dotenv-filename -d 'Search for environment file named <DOTENV-FILENAME> instead of `.env`' -r
 complete -c just -s E -l dotenv-path -d 'Load <DOTENV-PATH> as environment file instead of searching for one' -r -F
+complete -c just -l timestamp-format -d 'Timestamp format string' -r
 complete -c just -l check -d 'Run `--fmt` in \'check\' mode. Exits with 0 if justfile is formatted correctly. Exits with 1 and prints a diff if formatting is required.'
 complete -c just -l yes -d 'Automatically confirm all recipes.'
 complete -c just -s n -l dry-run -d 'Print what just would do without doing it'
@@ -78,6 +79,6 @@ complete -c just -l man -d 'Print man page'
 complete -c just -l summary -d 'List names of available recipes'
 complete -c just -l variables -d 'List names of variables'
 complete -c just -s g -l global-justfile -d 'Use global justfile'
-complete -c just -l timestamps -d 'Print recipe command timestamps'
+complete -c just -l timestamp -d 'Print recipe command timestamps'
 complete -c just -s h -l help -d 'Print help'
 complete -c just -s V -l version -d 'Print version'

@@ -39,7 +39,8 @@ pub(crate) struct Config {
   pub(crate) shell_args: Option<Vec<String>>,
   pub(crate) shell_command: bool,
   pub(crate) subcommand: Subcommand,
-  pub(crate) timestamps: bool,
+  pub(crate) timestamp: bool,
+  pub(crate) timestamp_format: String,
   pub(crate) unsorted: bool,
   pub(crate) unstable: bool,
   pub(crate) verbosity: Verbosity,
@@ -109,7 +110,8 @@ mod arg {
   pub(crate) const SHELL: &str = "SHELL";
   pub(crate) const SHELL_ARG: &str = "SHELL-ARG";
   pub(crate) const SHELL_COMMAND: &str = "SHELL-COMMAND";
-  pub(crate) const TIMESTAMPS: &str = "TIMESTAMPS";
+  pub(crate) const TIMESTAMP: &str = "TIMESTAMP";
+  pub(crate) const TIMESTAMP_FORMAT: &str = "TIMESTAMP_FORMAT";
   pub(crate) const UNSORTED: &str = "UNSORTED";
   pub(crate) const UNSTABLE: &str = "UNSTABLE";
   pub(crate) const VERBOSE: &str = "VERBOSE";
@@ -486,11 +488,19 @@ impl Config {
       .help("Use global justfile")
     )
     .arg(
-      Arg::new(arg::TIMESTAMPS)
+      Arg::new(arg::TIMESTAMP)
       .action(ArgAction::SetTrue)
-      .long("timestamps")
-      .env("JUST_TIMESTAMPS")
+      .long("timestamp")
+      .env("JUST_TIMESTAMP")
       .help("Print recipe command timestamps")
+    )
+    .arg(
+      Arg::new(arg::TIMESTAMP_FORMAT)
+      .action(ArgAction::Set)
+      .long("timestamp-format")
+      .env("JUST_TIMESTAMP_FORMAT")
+      .default_value("%H:%M:%S")
+      .help("Timestamp format string")
     )
   }
 
@@ -743,7 +753,11 @@ impl Config {
       shell_args,
       shell_command: matches.get_flag(arg::SHELL_COMMAND),
       subcommand,
-      timestamps: matches.get_flag(arg::TIMESTAMPS),
+      timestamp: matches.get_flag(arg::TIMESTAMP),
+      timestamp_format: matches
+        .get_one::<String>(arg::TIMESTAMP_FORMAT)
+        .unwrap()
+        .into(),
       unsorted: matches.get_flag(arg::UNSORTED),
       unstable,
       verbosity,

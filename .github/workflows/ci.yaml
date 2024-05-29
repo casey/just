@@ -32,7 +32,7 @@ jobs:
 
     - name: Completion Scripts
       run: |
-        ./bin/generate-completions
+        ./bin/update-completions
         git diff --no-ext-diff --quiet --exit-code
         ./tests/completions/just.bash
 
