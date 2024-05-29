@@ -656,6 +656,24 @@ Available recipes:
     lint
 ```
 
+Recipes in submodules can be listed with `just --list PATH`, where `PATH` is a
+space- or `::`-separated module path:
+
+```
+$ cat justfile
+mod foo
+$ cat foo.just
+mod bar
+$ cat bar.just
+baz:
+$ just --unstable foo bar
+Available recipes:
+    baz
+$ just --unstable foo::bar
+Available recipes:
+    baz
+```
+
 `just --summary` is more concise:
 
 ```sh

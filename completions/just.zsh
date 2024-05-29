@@ -31,6 +31,8 @@ _just() {
 '*-c+[Run an arbitrary command with the working directory, \`.env\`, overrides, and exports set]: : ' \
 '*--command=[Run an arbitrary command with the working directory, \`.env\`, overrides, and exports set]: : ' \
 '*--completions=[Print shell completion script for <SHELL>]:SHELL:(bash elvish fish powershell zsh)' \
+'-l+[List available recipes and their arguments]' \
+'--list=[List available recipes and their arguments]' \
 '-s+[Show information about <RECIPE>]: :(_just_commands)' \
 '--show=[Show information about <RECIPE>]: :(_just_commands)' \
 '(-E --dotenv-path)--dotenv-filename=[Search for environment file named <DOTENV-FILENAME> instead of \`.env\`]: : ' \
@@ -63,8 +65,6 @@ _just() {
 '--evaluate[Evaluate and print all variables. If a variable name is given as an argument, only print that variable'\''s value.]' \
 '--fmt[Format and overwrite justfile]' \
 '--init[Initialize new justfile in project root]' \
-'-l[List available recipes and their arguments]' \
-'--list[List available recipes and their arguments]' \
 '--groups[List recipe groups]' \
 '--man[Print man page]' \
 '--summary[List names of available recipes]' \

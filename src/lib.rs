@@ -25,14 +25,15 @@ pub(crate) use {
     evaluator::Evaluator, expression::Expression, fragment::Fragment, function::Function,
     interrupt_guard::InterruptGuard, interrupt_handler::InterruptHandler, item::Item,
     justfile::Justfile, keyed::Keyed, keyword::Keyword, lexer::Lexer, line::Line, list::List,
-    load_dotenv::load_dotenv, loader::Loader, name::Name, namepath::Namepath, ordinal::Ordinal,
-    output::output, output_error::OutputError, parameter::Parameter, parameter_kind::ParameterKind,
-    parser::Parser, platform::Platform, platform_interface::PlatformInterface, position::Position,
-    positional::Positional, ran::Ran, range_ext::RangeExt, recipe::Recipe,
-    recipe_context::RecipeContext, recipe_resolver::RecipeResolver,
-    recipe_signature::RecipeSignature, scope::Scope, search::Search, search_config::SearchConfig,
-    search_error::SearchError, set::Set, setting::Setting, settings::Settings, shebang::Shebang,
-    shell::Shell, show_whitespace::ShowWhitespace, source::Source, string_kind::StringKind,
+    load_dotenv::load_dotenv, loader::Loader, module_path::ModulePath, name::Name,
+    namepath::Namepath, ordinal::Ordinal, output::output, output_error::OutputError,
+    parameter::Parameter, parameter_kind::ParameterKind, parser::Parser, platform::Platform,
+    platform_interface::PlatformInterface, position::Position, positional::Positional, ran::Ran,
+    range_ext::RangeExt, recipe::Recipe, recipe_context::RecipeContext,
+    recipe_resolver::RecipeResolver, recipe_signature::RecipeSignature, scope::Scope,
+    search::Search, search_config::SearchConfig, search_error::SearchError, set::Set,
+    setting::Setting, settings::Settings, shebang::Shebang, shell::Shell,
+    show_whitespace::ShowWhitespace, source::Source, string_kind::StringKind,
     string_literal::StringLiteral, subcommand::Subcommand, suggestion::Suggestion, table::Table,
     thunk::Thunk, token::Token, token_kind::TokenKind, unresolved_dependency::UnresolvedDependency,
     unresolved_recipe::UnresolvedRecipe, use_color::UseColor, variables::Variables,
@@ -153,6 +154,7 @@ mod line;
 mod list;
 mod load_dotenv;
 mod loader;
+mod module_path;
 mod name;
 mod namepath;
 mod ordinal;
