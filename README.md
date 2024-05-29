@@ -3374,7 +3374,7 @@ for all other platforms.
 
 ### Timestamps
 
-`just` can print UTC timestamps before each recipe commands:
+`just` can print timestamps before each recipe commands:
 
 ```just
 recipe:

@@ -246,7 +246,11 @@ impl<'src, D> Recipe<'src, D> {
         if config.timestamp {
           eprint!(
             "[{}] ",
-            color.paint(&Utc::now().format(&config.timestamp_format).to_string()),
+            color.paint(
+              &chrono::Local::now()
+                .format(&config.timestamp_format)
+                .to_string()
+            ),
           );
         }
 
