@@ -60,6 +60,7 @@ pub(crate) use {
   },
   {
     camino::Utf8Path,
+    chrono::Utc,
     derivative::Derivative,
     edit_distance::edit_distance,
     lexiclean::Lexiclean,

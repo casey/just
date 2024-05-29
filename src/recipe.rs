@@ -234,19 +234,20 @@ impl<'src, D> Recipe<'src, D> {
           || (context.settings.quiet && !self.no_quiet())
           || config.verbosity.quiet())
       {
-        let color = if config.highlight {
-          config.color.command(config.command_color)
-        } else {
-          config.color
-        };
+        let color = config
+          .highlight
+          .then(|| config.color.command(config.command_color))
+          .unwrap_or(config.color)
+          .stderr();
 
         if config.timestamps {
-          let ts = chrono::Utc::now();
-          let default_format_string = "%H:%M:%S.%3f";
-          let formatted = ts.format(default_format_string);
-          eprint!("[{}] ", color.stderr().paint(&formatted.to_string()));
+          eprint!(
+            "[{}] ",
+            color.paint(&Utc::now().format("%H:%M:%S").to_string())
+          );
         }
-        eprintln!("{}", color.stderr().paint(command));
+
+        eprintln!("{}", color.paint(command));
       }
 
       if config.dry_run {
