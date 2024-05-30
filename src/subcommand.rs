@@ -261,14 +261,15 @@ impl Subcommand {
     };
 
     for recipe in recipes {
-      if let Err(io_error) = child
-        .stdin
-        .as_mut()
-        .expect("Child was created with piped stdio")
-        .write_all(format!("{}\n", recipe.namepath).as_bytes())
-      {
-        return Err(Error::ChooserWrite { io_error, chooser });
-      }
+      writeln!(
+        child.stdin.as_mut().unwrap(),
+        "{}",
+        recipe.namepath.spaced()
+      )
+      .map_err(|io_error| Error::ChooserWrite {
+        io_error,
+        chooser: chooser.clone(),
+      })?;
     }
 
     let output = match child.wait_with_output() {
