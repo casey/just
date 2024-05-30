@@ -641,7 +641,7 @@ impl Subcommand {
     mut module: &Justfile<'src>,
     path: &ModulePath,
   ) -> Result<(), Error<'src>> {
-    for name in path.path.iter().take(path.path.len() - 1) {
+    for name in &path.path[0..path.path.len() - 1] {
       module = module
         .modules
         .get(name)
