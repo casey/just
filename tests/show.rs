@@ -100,3 +100,27 @@ a Z="\t z":
   stderr:   "error: Justfile does not contain recipe `fooooooo`.\n",
   status:   EXIT_FAILURE,
 }
+
+#[test]
+fn show_recipe_at_path() {
+  Test::new()
+    .write("foo.just", "bar:\n @echo MODULE")
+    .justfile(
+      "
+        mod foo
+      ",
+    )
+    .test_round_trip(false)
+    .args(["--unstable", "--show", "foo::bar"])
+    .stdout("bar:\n    @echo MODULE\n")
+    .run();
+}
+
+#[test]
+fn show_invalid_path() {
+  Test::new()
+    .args(["--show", "$hello"])
+    .stderr("error: Invalid module path `$hello`\n")
+    .status(1)
+    .run();
+}

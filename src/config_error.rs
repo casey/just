@@ -11,7 +11,7 @@ pub(crate) enum ConfigError {
   ))]
   Internal { message: String },
   #[snafu(display("Invalid module path `{}`", path.join(" ")))]
-  ListPath { path: Vec<String> },
+  ModulePath { path: Vec<String> },
   #[snafu(display(
     "Path-prefixed recipes may not be used with `--working-directory` or `--justfile`."
   ))]
