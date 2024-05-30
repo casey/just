@@ -258,7 +258,7 @@ impl Test {
       }
     }
 
-    if !compare("status", output.status.code().unwrap(), self.status)
+    if !compare("status", output.status.code(), Some(self.status))
       | (self.stdout_regex.is_none() && !compare("stdout", output_stdout, &stdout))
       | (self.stderr_regex.is_none() && !compare("stderr", output_stderr, &stderr))
     {

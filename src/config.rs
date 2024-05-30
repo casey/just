@@ -32,6 +32,7 @@ pub(crate) struct Config {
   pub(crate) invocation_directory: PathBuf,
   pub(crate) list_heading: String,
   pub(crate) list_prefix: String,
+  pub(crate) list_submodules: bool,
   pub(crate) load_dotenv: bool,
   pub(crate) no_aliases: bool,
   pub(crate) no_dependencies: bool,
@@ -97,11 +98,12 @@ mod arg {
   pub(crate) const DOTENV_PATH: &str = "DOTENV-PATH";
   pub(crate) const DRY_RUN: &str = "DRY-RUN";
   pub(crate) const DUMP_FORMAT: &str = "DUMP-FORMAT";
-  pub(crate) const GLOBAL_JUSTFILE: &str = "GLOBAL_JUSTFILE";
+  pub(crate) const GLOBAL_JUSTFILE: &str = "GLOBAL-JUSTFILE";
   pub(crate) const HIGHLIGHT: &str = "HIGHLIGHT";
   pub(crate) const JUSTFILE: &str = "JUSTFILE";
   pub(crate) const LIST_HEADING: &str = "LIST-HEADING";
   pub(crate) const LIST_PREFIX: &str = "LIST-PREFIX";
+  pub(crate) const LIST_SUBMODULES: &str = "LIST-SUBMODULES";
   pub(crate) const NO_ALIASES: &str = "NO-ALIASES";
   pub(crate) const NO_DEPS: &str = "NO-DEPS";
   pub(crate) const NO_DOTENV: &str = "NO-DOTENV";
@@ -112,7 +114,7 @@ mod arg {
   pub(crate) const SHELL_ARG: &str = "SHELL-ARG";
   pub(crate) const SHELL_COMMAND: &str = "SHELL-COMMAND";
   pub(crate) const TIMESTAMP: &str = "TIMESTAMP";
-  pub(crate) const TIMESTAMP_FORMAT: &str = "TIMESTAMP_FORMAT";
+  pub(crate) const TIMESTAMP_FORMAT: &str = "TIMESTAMP-FORMAT";
   pub(crate) const UNSORTED: &str = "UNSORTED";
   pub(crate) const UNSTABLE: &str = "UNSTABLE";
   pub(crate) const VERBOSE: &str = "VERBOSE";
@@ -235,6 +237,13 @@ impl Config {
           .help("Print <TEXT> before each list item")
           .value_name("TEXT")
           .action(ArgAction::Set),
+      )
+      .arg(
+        Arg::new(arg::LIST_SUBMODULES)
+          .long("list-submodules")
+          .help("List recipes in submodules")
+          .action(ArgAction::SetTrue)
+          .env("JUST_LIST_SUBMODULES"),
       )
       .arg(
         Arg::new(arg::NO_ALIASES)
@@ -754,6 +763,7 @@ impl Config {
       list_prefix: matches
         .get_one::<String>(arg::LIST_PREFIX)
         .map_or_else(|| "    ".into(), Into::into),
+      list_submodules: matches.get_flag(arg::LIST_SUBMODULES),
       load_dotenv: !matches.get_flag(arg::NO_DOTENV),
       no_aliases: matches.get_flag(arg::NO_ALIASES),
       no_dependencies: matches.get_flag(arg::NO_DEPS),

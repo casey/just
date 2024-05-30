@@ -487,6 +487,12 @@ impl Subcommand {
         .ok_or_else(|| Error::UnknownSubmodule { path: path.clone() })?;
     }
 
+    Self::list_module(config, module, 0);
+
+    Ok(())
+  }
+
+  fn list_module(config: &Config, module: &Justfile, depth: usize) {
     let aliases = if config.no_aliases {
       BTreeMap::new()
     } else {
@@ -531,7 +537,11 @@ impl Subcommand {
       .max()
       .unwrap_or(0);
 
-    print!("{}", config.list_heading);
+    let list_prefix = config.list_prefix.repeat(depth + 1);
+
+    if depth == 0 {
+      print!("{}", config.list_heading);
+    }
 
     let groups = {
       let mut groups = BTreeMap::<Option<String>, Vec<&Recipe>>::new();
@@ -556,7 +566,7 @@ impl Subcommand {
       let no_groups = groups.contains_key(&None) && groups.len() == 1;
 
       if !no_groups {
-        print!("{}", config.list_prefix);
+        print!("{}", list_prefix);
         if let Some(group_name) = group {
           println!("[{group_name}]");
         } else {
@@ -580,7 +590,7 @@ impl Subcommand {
               for line in doc.lines() {
                 println!(
                   "{}{} {}",
-                  config.list_prefix,
+                  list_prefix,
                   config.color.stdout().doc().paint("#"),
                   config.color.stdout().doc().paint(line),
                 );
@@ -590,7 +600,7 @@ impl Subcommand {
 
           print!(
             "{}{}",
-            config.list_prefix,
+            list_prefix,
             RecipeSignature { name, recipe }.color_display(config.color.stdout())
           );
 
@@ -610,11 +620,21 @@ impl Subcommand {
       }
     }
 
-    for submodule in module.modules(config) {
-      println!("{}{} ...", config.list_prefix, submodule.name(),);
-    }
+    if config.list_submodules {
+      for (i, submodule) in module.modules(config).into_iter().enumerate() {
+        if i + groups.len() > 0 {
+          println!();
+        }
 
-    Ok(())
+        println!("{}{}:", list_prefix, submodule.name());
+
+        Self::list_module(config, submodule, depth + 1);
+      }
+    } else {
+      for submodule in module.modules(config) {
+        println!("{}{} ...", list_prefix, submodule.name(),);
+      }
+    }
   }
 
   fn show<'src>(
