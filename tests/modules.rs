@@ -515,7 +515,6 @@ fn missing_optional_modules_do_not_conflict() {
 #[test]
 fn root_dotenv_is_available_to_submodules() {
   Test::new()
-    .write("foo.just", "foo:\n @echo $DOTENV_KEY")
     .justfile(
       "
         set dotenv-load
@@ -523,10 +522,10 @@ fn root_dotenv_is_available_to_submodules() {
         mod foo
       ",
     )
+    .write("foo.just", "foo:\n @echo $DOTENV_KEY")
+    .write(".env", "DOTENV_KEY=dotenv-value")
     .test_round_trip(false)
-    .arg("--unstable")
-    .arg("foo")
-    .arg("foo")
+    .args(["--unstable", "foo", "foo"])
     .stdout("dotenv-value\n")
     .run();
 }
@@ -534,10 +533,6 @@ fn root_dotenv_is_available_to_submodules() {
 #[test]
 fn dotenv_settings_in_submodule_are_ignored() {
   Test::new()
-    .write(
-      "foo.just",
-      "set dotenv-load := false\nfoo:\n @echo $DOTENV_KEY",
-    )
     .justfile(
       "
         set dotenv-load
@@ -545,10 +540,13 @@ fn dotenv_settings_in_submodule_are_ignored() {
         mod foo
       ",
     )
+    .write(
+      "foo.just",
+      "set dotenv-load := false\nfoo:\n @echo $DOTENV_KEY",
+    )
+    .write(".env", "DOTENV_KEY=dotenv-value")
     .test_round_trip(false)
-    .arg("--unstable")
-    .arg("foo")
-    .arg("foo")
+    .args(["--unstable", "foo", "foo"])
     .stdout("dotenv-value\n")
     .run();
 }

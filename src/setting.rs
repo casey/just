@@ -7,6 +7,7 @@ pub(crate) enum Setting<'src> {
   DotenvFilename(String),
   DotenvLoad(bool),
   DotenvPath(String),
+  DotenvRequired(bool),
   Export(bool),
   Fallback(bool),
   IgnoreComments(bool),
@@ -24,6 +25,7 @@ impl<'src> Display for Setting<'src> {
       Self::AllowDuplicateRecipes(value)
       | Self::AllowDuplicateVariables(value)
       | Self::DotenvLoad(value)
+      | Self::DotenvRequired(value)
       | Self::Export(value)
       | Self::Fallback(value)
       | Self::IgnoreComments(value)

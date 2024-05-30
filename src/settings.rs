@@ -10,8 +10,9 @@ pub(crate) struct Settings<'src> {
   pub(crate) allow_duplicate_recipes: bool,
   pub(crate) allow_duplicate_variables: bool,
   pub(crate) dotenv_filename: Option<String>,
-  pub(crate) dotenv_load: Option<bool>,
+  pub(crate) dotenv_load: bool,
   pub(crate) dotenv_path: Option<PathBuf>,
+  pub(crate) dotenv_required: bool,
   pub(crate) export: bool,
   pub(crate) fallback: bool,
   pub(crate) ignore_comments: bool,
@@ -39,10 +40,13 @@ impl<'src> Settings<'src> {
           settings.dotenv_filename = Some(filename);
         }
         Setting::DotenvLoad(dotenv_load) => {
-          settings.dotenv_load = Some(dotenv_load);
+          settings.dotenv_load = dotenv_load;
         }
         Setting::DotenvPath(path) => {
           settings.dotenv_path = Some(PathBuf::from(path));
+        }
+        Setting::DotenvRequired(dotenv_required) => {
+          settings.dotenv_required = dotenv_required;
         }
         Setting::Export(export) => {
           settings.export = export;

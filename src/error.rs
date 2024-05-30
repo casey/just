@@ -79,6 +79,7 @@ pub(crate) enum Error<'src> {
   Dotenv {
     dotenv_error: dotenvy::Error,
   },
+  DotenvRequired,
   DumpJson {
     serde_json_error: serde_json::Error,
   },
@@ -346,6 +347,9 @@ impl<'src> ColorDisplay for Error<'src> {
       }
       Dotenv { dotenv_error } => {
         write!(f, "Failed to load environment file: {dotenv_error}")?;
+      }
+      DotenvRequired => {
+        write!(f, "Dotenv file not found")?;
       }
       DumpJson { serde_json_error } => {
         write!(f, "Failed to dump JSON to stdout: {serde_json_error}")?;

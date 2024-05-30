@@ -82,6 +82,7 @@ fn shell_expanded_strings_can_be_used_in_settings() {
           echo $DOTENV_KEY
       ",
     )
+    .write(".env", "DOTENV_KEY=dotenv-value")
     .env("JUST_TEST_VARIABLE", ".env")
     .stdout("dotenv-value\n")
     .run();
