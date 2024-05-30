@@ -812,6 +812,7 @@ foo:
 | `dotenv-filename` | string | - | Load a `.env` file with a custom name, if present. |
 | `dotenv-load` | boolean | `false` | Load a `.env` file, if present. |
 | `dotenv-path` | string | - | Load a `.env` file from a custom path and error if not present. Overrides `dotenv-filename`. |
+| `dotenv-required` | boolean | `false` | Error if a `.env` file isn't found. |
 | `export` | boolean | `false` | Export all variables as environment variables. |
 | `fallback` | boolean | `false` | Search `justfile` in parent directory if the first recipe on the command line is not found. |
 | `ignore-comments` | boolean | `false` | Ignore recipe lines beginning with `#`. |
@@ -877,17 +878,25 @@ bar
 
 #### Dotenv Settings
 
-If `dotenv-load`, `dotenv-filename` or `dotenv-path` is set, `just` will load
-environment variables from a file.
+If any of `dotenv-load`, `dotenv-filename`, `dotenv-path`, or `dotenv-required`
+are set, `just` will try to load environment variables from a file.
 
-If `dotenv-path` is set, `just` will look for a file at the given path. It is
-an error if a dotenv file is not found at `dotenv-path`, but not an error if a
-dotenv file is not found with `dotenv-filename`.
+If `dotenv-path` is set, `just` will look for a file at the given path, which
+may be absolute, or relative to the working directory.
 
-Otherwise, `just` looks for a file named `.env` by default, unless
-`dotenv-filename` set, in which case the value of `dotenv-filename` is used.
-This file can be located in the same directory as your `justfile` or in a
-parent directory.
+If `dotenv-filename` is set `just` will look for a file at the given path,
+relative to the working directory and each of its ancestors.
+
+If `dotenv-filename` is not set, but `dotenv-load` or `dotenv-required` are
+set, just will look for a file named `.env`, relative to the working directory
+and each of its ancestors.
+
+`dotenv-filename` and `dotenv-path` and similar, but `dotenv-path` is only
+checked relative to the working directory, whereas `dotenv-filename` is checked
+relative to the working directory and each of its ancestors.
+
+It is not an error if an environment file is not found, unless
+`dotenv-required` is set.
 
 The loaded variables are environment variables, not `just` variables, and so
 must be accessed using `$VARIABLE_NAME` in recipes and backticks.
