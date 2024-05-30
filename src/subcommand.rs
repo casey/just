@@ -566,7 +566,7 @@ impl Subcommand {
       let no_groups = groups.contains_key(&None) && groups.len() == 1;
 
       if !no_groups {
-        print!("{}", list_prefix);
+        print!("{list_prefix}");
         if let Some(group_name) = group {
           println!("[{group_name}]");
         } else {
@@ -589,8 +589,7 @@ impl Subcommand {
             if doc.lines().count() > 1 {
               for line in doc.lines() {
                 println!(
-                  "{}{} {}",
-                  list_prefix,
+                  "{list_prefix}{} {}",
                   config.color.stdout().doc().paint("#"),
                   config.color.stdout().doc().paint(line),
                 );
@@ -599,8 +598,7 @@ impl Subcommand {
           }
 
           print!(
-            "{}{}",
-            list_prefix,
+            "{list_prefix}{}",
             RecipeSignature { name, recipe }.color_display(config.color.stdout())
           );
 
@@ -626,13 +624,13 @@ impl Subcommand {
           println!();
         }
 
-        println!("{}{}:", list_prefix, submodule.name());
+        println!("{list_prefix}{}:", submodule.name());
 
         Self::list_module(config, submodule, depth + 1);
       }
     } else {
       for submodule in module.modules(config) {
-        println!("{}{} ...", list_prefix, submodule.name(),);
+        println!("{list_prefix}{} ...", submodule.name(),);
       }
     }
   }
