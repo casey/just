@@ -423,7 +423,7 @@ impl Config {
           .value_name("PATH")
           .action(ArgAction::Set)
           .conflicts_with(arg::ARGUMENTS)
-          .help("List available recipes and their arguments"),
+          .help("List available recipes"),
       )
       .arg(
         Arg::new(cmd::GROUPS)
