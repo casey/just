@@ -201,9 +201,8 @@ impl Test {
     } else {
       self.stdout.clone()
     };
-    let stderr = unindent(&self.stderr);
 
-    fs::write(self.tempdir.path().join(".env"), "DOTENV_KEY=dotenv-value").unwrap();
+    let stderr = unindent(&self.stderr);
 
     let mut command = Command::new(executable_path("just"));
 

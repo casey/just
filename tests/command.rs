@@ -47,16 +47,21 @@ test! {
   status: 2,
 }
 
-test! {
-  name: env_is_loaded,
-  justfile: "
-    set dotenv-load
+#[test]
+fn env_is_loaded() {
+  Test::new()
+    .justfile(
+      "
+        set dotenv-load
 
-    x:
-      echo XYZ
-  ",
-  args: ("--command", "sh", "-c", "printf $DOTENV_KEY"),
-  stdout: "dotenv-value",
+        x:
+          echo XYZ
+      ",
+    )
+    .args(["--command", "sh", "-c", "printf $DOTENV_KEY"])
+    .write(".env", "DOTENV_KEY=dotenv-value")
+    .stdout("dotenv-value")
+    .run();
 }
 
 test! {

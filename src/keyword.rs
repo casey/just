@@ -10,6 +10,7 @@ pub(crate) enum Keyword {
   DotenvFilename,
   DotenvLoad,
   DotenvPath,
+  DotenvRequired,
   Else,
   Export,
   Fallback,
