@@ -261,9 +261,9 @@ impl Subcommand {
     };
 
     for recipe in recipes {
-      write!(
+      writeln!(
         child.stdin.as_mut().unwrap(),
-        "{}\n",
+        "{}",
         recipe.namepath.spaced()
       )
       .map_err(|io_error| Error::ChooserWrite {
