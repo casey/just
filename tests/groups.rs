@@ -144,31 +144,3 @@ fn list_groups_with_custom_prefix() {
     )
     .run();
 }
-
-#[test]
-fn list_with_groups_in_modules() {
-  Test::new()
-    .justfile(
-      "
-        [group('FOO')]
-        foo:
-
-        mod bar
-      ",
-    )
-    .write("bar.just", "[group('BAZ')]\nbaz:")
-    .test_round_trip(false)
-    .args(["--unstable", "--list"])
-    .stdout(
-      "
-        Available recipes:
-            [FOO]
-            foo
-
-            bar:
-                [BAZ]
-                baz
-      ",
-    )
-    .run();
-}

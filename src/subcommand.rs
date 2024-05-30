@@ -90,7 +90,7 @@ impl Subcommand {
       Dump => Self::dump(config, ast, justfile)?,
       Format => Self::format(config, &search, src, ast)?,
       Groups => Self::groups(config, justfile),
-      List { path } => Self::list_module(config, justfile, path)?,
+      List { path } => Self::list(config, justfile, path)?,
       Show { path } => Self::show(config, justfile, path)?,
       Summary => Self::summary(config, justfile),
       Variables => Self::variables(justfile),
@@ -479,11 +479,7 @@ impl Subcommand {
     Ok(())
   }
 
-  fn list_module(
-    config: &Config,
-    mut module: &Justfile,
-    path: &ModulePath,
-  ) -> Result<(), Error<'static>> {
+  fn list(config: &Config, mut module: &Justfile, path: &ModulePath) -> Result<(), Error<'static>> {
     for name in &path.path {
       module = module
         .modules
@@ -491,21 +487,11 @@ impl Subcommand {
         .ok_or_else(|| Error::UnknownSubmodule { path: path.clone() })?;
     }
 
-    Self::list(config, 0, module);
-
-    Ok(())
-  }
-
-  fn list(config: &Config, level: usize, justfile: &Justfile) {
     let aliases = if config.no_aliases {
       BTreeMap::new()
     } else {
       let mut aliases = BTreeMap::<&str, Vec<&str>>::new();
-      for alias in justfile
-        .aliases
-        .values()
-        .filter(|alias| !alias.is_private())
-      {
+      for alias in module.aliases.values().filter(|alias| !alias.is_private()) {
         aliases
           .entry(alias.target.name.lexeme())
           .or_default()
@@ -517,7 +503,7 @@ impl Subcommand {
     let signature_widths = {
       let mut signature_widths: BTreeMap<&str, usize> = BTreeMap::new();
 
-      for (name, recipe) in &justfile.recipes {
+      for (name, recipe) in &module.recipes {
         if !recipe.is_public() {
           continue;
         }
@@ -545,13 +531,11 @@ impl Subcommand {
       .max()
       .unwrap_or(0);
 
-    if level == 0 {
-      print!("{}", config.list_heading);
-    }
+    print!("{}", config.list_heading);
 
     let groups = {
       let mut groups = BTreeMap::<Option<String>, Vec<&Recipe>>::new();
-      for recipe in justfile.public_recipes(config) {
+      for recipe in module.public_recipes(config) {
         let recipe_groups = recipe.groups();
         if recipe_groups.is_empty() {
           groups.entry(None).or_default().push(recipe);
@@ -572,7 +556,7 @@ impl Subcommand {
       let no_groups = groups.contains_key(&None) && groups.len() == 1;
 
       if !no_groups {
-        print!("{}", config.list_prefix.repeat(level + 1));
+        print!("{}", config.list_prefix);
         if let Some(group_name) = group {
           println!("[{group_name}]");
         } else {
@@ -596,7 +580,7 @@ impl Subcommand {
               for line in doc.lines() {
                 println!(
                   "{}{} {}",
-                  config.list_prefix.repeat(level + 1),
+                  config.list_prefix,
                   config.color.stdout().doc().paint("#"),
                   config.color.stdout().doc().paint(line),
                 );
@@ -606,7 +590,7 @@ impl Subcommand {
 
           print!(
             "{}{}",
-            config.list_prefix.repeat(level + 1),
+            config.list_prefix,
             RecipeSignature { name, recipe }.color_display(config.color.stdout())
           );
 
@@ -626,14 +610,11 @@ impl Subcommand {
       }
     }
 
-    for (i, module) in justfile.modules(config).into_iter().enumerate() {
-      if i + groups.len() > 0 {
-        println!();
-      }
-
-      println!("{}{}:", config.list_prefix.repeat(level + 1), module.name());
-      Self::list(config, level + 1, module);
+    for submodule in module.modules(config) {
+      println!("{}{} ...", config.list_prefix, submodule.name(),);
     }
+
+    Ok(())
   }
 
   fn show<'src>(
