@@ -1,7 +1,5 @@
 use super::*;
 
-const DEFAULT_DOTENV_FILENAME: &str = ".env";
-
 pub(crate) fn load_dotenv(
   config: &Config,
   settings: &Settings,
@@ -31,7 +29,7 @@ pub(crate) fn load_dotenv(
     }
   }
 
-  let filename = dotenv_filename.map_or(DEFAULT_DOTENV_FILENAME, |s| s.as_str());
+  let filename = dotenv_filename.map_or(".env", |s| s.as_str());
 
   for directory in working_directory.ancestors() {
     let path = directory.join(filename);
