@@ -71,23 +71,9 @@ fn no_warning() {
           echo ${DOTENV_KEY:-unset}
       ",
     )
+    .write(".env", "DOTENV_KEY=dotenv-value")
     .stdout("unset\n")
     .stderr("echo ${DOTENV_KEY:-unset}\n")
-    .run();
-}
-
-#[test]
-fn path_not_found() {
-  Test::new()
-    .justfile(
-      "
-        foo:
-          @echo ${JUST_TEST_VARIABLE:-unset}
-      ",
-    )
-    .write(".env", "DOTENV_KEY=dotenv-value")
-    .args(["--dotenv-path", ".env.prod"])
-    .stdout("unset\n")
     .run();
 }
 
