@@ -57,6 +57,7 @@ complete -c just -l check -d 'Run `--fmt` in \'check\' mode. Exits with 0 if jus
 complete -c just -l yes -d 'Automatically confirm all recipes.'
 complete -c just -s n -l dry-run -d 'Print what just would do without doing it'
 complete -c just -l highlight -d 'Highlight echoed recipe lines in bold'
+complete -c just -l list-submodules -d 'List recipes in submodules'
 complete -c just -l no-aliases -d 'Don\'t show aliases in list'
 complete -c just -l no-deps -d 'Don\'t run recipe dependencies'
 complete -c just -l no-dotenv -d 'Don\'t load `.env` file'

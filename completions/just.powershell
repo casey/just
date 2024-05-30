@@ -49,6 +49,7 @@ Register-ArgumentCompleter -Native -CommandName 'just' -ScriptBlock {
             [CompletionResult]::new('-n', 'n', [CompletionResultType]::ParameterName, 'Print what just would do without doing it')
             [CompletionResult]::new('--dry-run', 'dry-run', [CompletionResultType]::ParameterName, 'Print what just would do without doing it')
             [CompletionResult]::new('--highlight', 'highlight', [CompletionResultType]::ParameterName, 'Highlight echoed recipe lines in bold')
+            [CompletionResult]::new('--list-submodules', 'list-submodules', [CompletionResultType]::ParameterName, 'List recipes in submodules')
             [CompletionResult]::new('--no-aliases', 'no-aliases', [CompletionResultType]::ParameterName, 'Don''t show aliases in list')
             [CompletionResult]::new('--no-deps', 'no-deps', [CompletionResultType]::ParameterName, 'Don''t run recipe dependencies')
             [CompletionResult]::new('--no-dotenv', 'no-dotenv', [CompletionResultType]::ParameterName, 'Don''t load `.env` file')
