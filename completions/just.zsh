@@ -31,10 +31,10 @@ _just() {
 '*-c+[Run an arbitrary command with the working directory, \`.env\`, overrides, and exports set]: : ' \
 '*--command=[Run an arbitrary command with the working directory, \`.env\`, overrides, and exports set]: : ' \
 '*--completions=[Print shell completion script for <SHELL>]:SHELL:(bash elvish fish powershell zsh)' \
-'-l+[List available recipes and their arguments]' \
-'--list=[List available recipes and their arguments]' \
-'-s+[Show information about <RECIPE>]: :(_just_commands)' \
-'--show=[Show information about <RECIPE>]: :(_just_commands)' \
+'()-l+[List available recipes]' \
+'()--list=[List available recipes]' \
+'-s+[Show recipe at <PATH>]: :(_just_commands)' \
+'--show=[Show recipe at <PATH>]: :(_just_commands)' \
 '(-E --dotenv-path)--dotenv-filename=[Search for environment file named <DOTENV-FILENAME> instead of \`.env\`]: : ' \
 '-E+[Load <DOTENV-PATH> as environment file instead of searching for one]: :_files' \
 '--dotenv-path=[Load <DOTENV-PATH> as environment file instead of searching for one]: :_files' \

@@ -47,10 +47,10 @@ pub(crate) const ZSH_COMPLETION_REPLACEMENTS: &[(&str, &str)] = &[
     r"'*--set=[Override <VARIABLE> with <VALUE>]: :(_just_variables)' \",
   ),
   (
-    r"'()-s+[Show information about <RECIPE>]:RECIPE: ' \
-'()--show=[Show information about <RECIPE>]:RECIPE: ' \",
-    r"'-s+[Show information about <RECIPE>]: :(_just_commands)' \
-'--show=[Show information about <RECIPE>]: :(_just_commands)' \",
+    r"'()-s+[Show recipe at <PATH>]:PATH: ' \
+'()--show=[Show recipe at <PATH>]:PATH: ' \",
+    r"'-s+[Show recipe at <PATH>]: :(_just_commands)' \
+'--show=[Show recipe at <PATH>]: :(_just_commands)' \",
   ),
   (
     "'*::ARGUMENTS -- Overrides and recipe(s) to run, defaulting to the first recipe in the \
