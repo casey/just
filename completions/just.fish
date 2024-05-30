@@ -48,8 +48,8 @@ complete -c just -l shell-arg -d 'Invoke shell with <SHELL-ARG> as an argument' 
 complete -c just -s d -l working-directory -d 'Use <WORKING-DIRECTORY> as working directory. --justfile must also be set' -r -F
 complete -c just -s c -l command -d 'Run an arbitrary command with the working directory, `.env`, overrides, and exports set' -r
 complete -c just -l completions -d 'Print shell completion script for <SHELL>' -r -f -a "{bash	'',elvish	'',fish	'',powershell	'',zsh	''}"
-complete -c just -s l -l list -d 'List available recipes and their arguments' -r
-complete -c just -s s -l show -d 'Show information about <RECIPE>' -r
+complete -c just -s l -l list -d 'List available recipes' -r
+complete -c just -s s -l show -d 'Show recipe at <PATH>' -r
 complete -c just -l dotenv-filename -d 'Search for environment file named <DOTENV-FILENAME> instead of `.env`' -r
 complete -c just -s E -l dotenv-path -d 'Load <DOTENV-PATH> as environment file instead of searching for one' -r -F
 complete -c just -l timestamp-format -d 'Timestamp format string' -r

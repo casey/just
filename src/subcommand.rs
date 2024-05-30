@@ -40,7 +40,7 @@ pub(crate) enum Subcommand {
     overrides: BTreeMap<String, String>,
   },
   Show {
-    name: String,
+    path: ModulePath,
   },
   Summary,
   Variables,
@@ -91,7 +91,7 @@ impl Subcommand {
       Format => Self::format(config, &search, src, ast)?,
       Groups => Self::groups(config, justfile),
       List { path } => Self::list_module(config, justfile, path)?,
-      Show { ref name } => Self::show(config, name, justfile)?,
+      Show { path } => Self::show(config, justfile, path)?,
       Summary => Self::summary(config, justfile),
       Variables => Self::variables(justfile),
       Changelog | Completions { .. } | Edit | Init | Man | Run { .. } => unreachable!(),
@@ -636,19 +636,32 @@ impl Subcommand {
     }
   }
 
-  fn show<'src>(config: &Config, name: &str, justfile: &Justfile<'src>) -> Result<(), Error<'src>> {
-    if let Some(alias) = justfile.get_alias(name) {
-      let recipe = justfile.get_recipe(alias.target.name.lexeme()).unwrap();
+  fn show<'src>(
+    config: &Config,
+    mut module: &Justfile<'src>,
+    path: &ModulePath,
+  ) -> Result<(), Error<'src>> {
+    for name in &path.path[0..path.path.len() - 1] {
+      module = module
+        .modules
+        .get(name)
+        .ok_or_else(|| Error::UnknownSubmodule { path: path.clone() })?;
+    }
+
+    let name = path.path.last().unwrap();
+
+    if let Some(alias) = module.get_alias(name) {
+      let recipe = module.get_recipe(alias.target.name.lexeme()).unwrap();
       println!("{alias}");
       println!("{}", recipe.color_display(config.color.stdout()));
       Ok(())
-    } else if let Some(recipe) = justfile.get_recipe(name) {
+    } else if let Some(recipe) = module.get_recipe(name) {
       println!("{}", recipe.color_display(config.color.stdout()));
       Ok(())
     } else {
       Err(Error::UnknownRecipes {
         recipes: vec![name.to_owned()],
-        suggestion: justfile.suggest_recipe(name),
+        suggestion: module.suggest_recipe(name),
       })
     }
   }

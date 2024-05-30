@@ -2,6 +2,7 @@ use {
   super::*,
   clap::{
     builder::{styling::AnsiColor, FalseyValueParser, PossibleValuesParser, Styles},
+    parser::ValuesRef,
     value_parser, Arg, ArgAction, ArgGroup, ArgMatches, Command,
   },
 };
@@ -421,7 +422,8 @@ impl Config {
           .num_args(0..)
           .value_name("PATH")
           .action(ArgAction::Set)
-          .help("List available recipes and their arguments"),
+          .conflicts_with(arg::ARGUMENTS)
+          .help("List available recipes"),
       )
       .arg(
         Arg::new(cmd::GROUPS)
@@ -439,10 +441,11 @@ impl Config {
         Arg::new(cmd::SHOW)
           .short('s')
           .long("show")
+          .num_args(1..)
           .action(ArgAction::Set)
-          .value_name("RECIPE")
+          .value_name("PATH")
           .conflicts_with(arg::ARGUMENTS)
-          .help("Show information about <RECIPE>"),
+          .help("Show recipe at <PATH>"),
       )
       .arg(
         Arg::new(cmd::SUMMARY)
@@ -555,6 +558,18 @@ impl Config {
         message: format!("Invalid argument `{value}` to --dump-format."),
       }),
     }
+  }
+
+  fn parse_module_path(path: ValuesRef<String>) -> ConfigResult<ModulePath> {
+    path
+      .clone()
+      .map(|s| (*s).as_str())
+      .collect::<Vec<&str>>()
+      .as_slice()
+      .try_into()
+      .map_err(|()| ConfigError::ModulePath {
+        path: path.cloned().collect(),
+      })
   }
 
   fn search_config(matches: &ArgMatches, positional: &Positional) -> ConfigResult<SearchConfig> {
@@ -676,22 +691,16 @@ impl Config {
       Subcommand::Init
     } else if let Some(path) = matches.get_many::<String>(cmd::LIST) {
       Subcommand::List {
-        path: path
-          .clone()
-          .map(|s| (*s).as_str())
-          .collect::<Vec<&str>>()
-          .as_slice()
-          .try_into()
-          .map_err(|()| ConfigError::ListPath {
-            path: path.cloned().collect(),
-          })?,
+        path: Self::parse_module_path(path)?,
       }
     } else if matches.get_flag(cmd::GROUPS) {
       Subcommand::Groups
     } else if matches.get_flag(cmd::MAN) {
       Subcommand::Man
-    } else if let Some(name) = matches.get_one::<String>(cmd::SHOW).map(Into::into) {
-      Subcommand::Show { name }
+    } else if let Some(path) = matches.get_many::<String>(cmd::SHOW) {
+      Subcommand::Show {
+        path: Self::parse_module_path(path)?,
+      }
     } else if matches.get_flag(cmd::EVALUATE) {
       if positional.arguments.len() > 1 {
         return Err(ConfigError::SubcommandArguments {
@@ -1298,36 +1307,42 @@ mod tests {
   test! {
     name: subcommand_list_long,
     args: ["--list"],
-    subcommand: Subcommand::List{ path: ModulePath{ path: Vec::new(), spaced: false } },
+    subcommand: Subcommand::List{ path: ModulePath { path: Vec::new(), spaced: false } },
   }
 
   test! {
     name: subcommand_list_short,
     args: ["-l"],
-    subcommand: Subcommand::List{ path: ModulePath{ path: Vec::new(), spaced: false } },
+    subcommand: Subcommand::List{ path: ModulePath { path: Vec::new(), spaced: false } },
   }
 
   test! {
     name: subcommand_list_arguments,
     args: ["--list", "bar"],
-    subcommand: Subcommand::List{ path: ModulePath{ path: vec!["bar".into()], spaced: false } },
+    subcommand: Subcommand::List{ path: ModulePath { path: vec!["bar".into()], spaced: false } },
   }
 
   test! {
     name: subcommand_show_long,
     args: ["--show", "build"],
-    subcommand: Subcommand::Show { name: String::from("build") },
+    subcommand: Subcommand::Show { path: ModulePath { path: vec!["build".into()], spaced: false } },
   }
 
   test! {
     name: subcommand_show_short,
     args: ["-s", "build"],
-    subcommand: Subcommand::Show { name: String::from("build") },
+    subcommand: Subcommand::Show { path: ModulePath { path: vec!["build".into()], spaced: false } },
   }
 
-  error! {
-    name: subcommand_show_no_arg,
-    args: ["--show"],
+  test! {
+    name: subcommand_show_multiple_args,
+    args: ["--show", "foo", "bar"],
+    subcommand: Subcommand::Show {
+      path: ModulePath {
+        path: vec!["foo".into(), "bar".into()],
+        spaced: true,
+      },
+    },
   }
 
   test! {
@@ -1599,20 +1614,6 @@ mod tests {
     check: {
       assert_eq!(subcommand, cmd::INIT);
       assert_eq!(arguments, &["bar"]);
-    },
-  }
-
-  error_matches! {
-    name: show_arguments,
-    args: ["--show", "foo", "bar"],
-    error: error,
-    check: {
-      assert_eq!(error.kind(), clap::error::ErrorKind::ArgumentConflict);
-      assert_eq!(error.context().collect::<Vec<_>>(), vec![
-        (ContextKind::InvalidArg, &ContextValue::String("--show <RECIPE>".into())),
-        (ContextKind::PriorArg, &ContextValue::String("[ARGUMENTS]...".into())),
-        (ContextKind::Usage, &ContextValue::StyledStr("\u{1b}[33mUsage:\u{1b}[0m \u{1b}[32mjust\u{1b}[0m \u{1b}[32m--show\u{1b}[0m\u{1b}[32m \u{1b}[0m\u{1b}[32m<RECIPE>\u{1b}[0m \u{1b}[32m[ARGUMENTS]...\u{1b}[0m".into())),
-      ]);
     },
   }
 
