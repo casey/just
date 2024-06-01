@@ -1,21 +1,15 @@
 use super::*;
 
 pub(crate) struct RecipeSignature<'a> {
+  pub(crate) default: bool,
   pub(crate) name: &'a str,
   pub(crate) recipe: &'a Recipe<'a>,
-  pub(crate) is_default: bool,
-}
-
-impl ColorDisplay for &str {
-  fn fmt(&self, f: &mut Formatter, color: Color) -> fmt::Result {
-    write!(f, "{}", color.default_recipe_name().paint(self))
-  }
 }
 
 impl<'a> ColorDisplay for RecipeSignature<'a> {
   fn fmt(&self, f: &mut Formatter, color: Color) -> fmt::Result {
-    if self.is_default {
-      write!(f, "{}", self.name.color_display(color))?;
+    if self.default {
+      write!(f, "{}", color.default_recipe().paint(self.name))?;
     } else {
       write!(f, "{}", self.name)?;
     }

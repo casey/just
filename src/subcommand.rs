@@ -522,7 +522,7 @@ impl Subcommand {
               RecipeSignature {
                 name,
                 recipe,
-                is_default: false,
+                default: false,
               }
               .color_display(Color::never())
               .to_string()
@@ -602,16 +602,16 @@ impl Subcommand {
             }
           }
 
-          let is_default = match &module.default {
-            Some(default) => *name == default.name(),
-            None => false,
-          };
           print!(
             "{list_prefix}{}",
             RecipeSignature {
               name,
               recipe,
-              is_default
+              default: module
+                .default
+                .as_ref()
+                .map(|default| *name == default.name())
+                .unwrap_or_default(),
             }
             .color_display(config.color.stdout())
           );

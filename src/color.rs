@@ -100,7 +100,7 @@ impl Color {
     self.restyle(Style::new().fg(Purple))
   }
 
-  pub(crate) fn default_recipe_name(self) -> Self {
+  pub(crate) fn default_recipe(self) -> Self {
     self.restyle(Style::new().fg(Purple))
   }
 
