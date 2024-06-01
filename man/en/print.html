@@ -2744,14 +2744,13 @@ the same completion function as <code>just</code> for your aliased command:</p>
 <pre><code class="language-sh">complete -F _just -o bashdefault -o default j
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="shell-completion-scripts"><a class="header" href="#shell-completion-scripts">Shell Completion Scripts</a></h3>
-<p>Shell completion scripts for Bash, Zsh, Fish, PowerShell, and Elvish are
-available in the
-<a href="https://github.com/casey/just/tree/master/completions">completions</a> directory.
-Please refer to your shell’s documentation for how to install them.</p>
-<p>The <code>just</code> binary can also generate the same completion scripts at runtime,
-using the <code>--completions</code> command:</p>
+<p>Shell completion scripts for Bash, Elvish, Fish, Nushell, PowerShell, and Zsh
+are available <a href="https://github.com/casey/just/releases">release archives</a>.</p>
+<p>The <code>just</code> binary can also generate the same completion scripts at runtime
+using <code>just --completions SHELL</code>:</p>
 <pre><code class="language-sh">$ just --completions zsh &gt; just.zsh
 </code></pre>
+<p>Please refer to your shell’s documentation for how to install them.</p>
 <p><em>macOS Note:</em> Recent versions of macOS use zsh as the default shell. If you use
 Homebrew to install <code>just</code>, it will automatically install the most recent copy
 of the zsh completion script in the Homebrew zsh directory, which the built-in
