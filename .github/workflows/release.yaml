@@ -75,9 +75,10 @@ jobs:
 
     - name: Generate Completion Scripts
       run: |
+        set -euxo pipefail
         cargo build
         for shell in bash elvish fish powershell zsh; do
-          ./target/debug/just --completions $shell > completions/$script
+          ./target/debug/just --completions $shell > completions/$shell
         done
         ls completions
 
