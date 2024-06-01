@@ -73,6 +73,14 @@ jobs:
       id: ref-type
       run: cargo run --package ref-type -- --reference ${{ github.ref }} >> $GITHUB_OUTPUT
 
+    - name: Generate Completion Scripts
+      run: |
+        set -euxo pipefail
+        cargo build
+        for shell in bash elvish fish powershell zsh; do
+          ./target/debug/just --completions $shell > completions/just.$shell
+        done
+
     - name: Package
       id: package
       env:

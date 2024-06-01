@@ -3472,17 +3472,17 @@ complete -F _just -o bashdefault -o default j
 
 ### Shell Completion Scripts
 
-Shell completion scripts for Bash, Zsh, Fish, PowerShell, and Elvish are
-available in the
-[completions](https://github.com/casey/just/tree/master/completions) directory.
-Please refer to your shell's documentation for how to install them.
+Shell completion scripts for Bash, Elvish, Fish, Nushell, PowerShell, and Zsh
+are available [release archives](https://github.com/casey/just/releases).
 
-The `just` binary can also generate the same completion scripts at runtime,
-using the `--completions` command:
+The `just` binary can also generate the same completion scripts at runtime
+using `just --completions SHELL`:
 
 ```sh
 $ just --completions zsh > just.zsh
 ```
+
+Please refer to your shell's documentation for how to install them.
 
 *macOS Note:* Recent versions of macOS use zsh as the default shell. If you use
 Homebrew to install `just`, it will automatically install the most recent copy

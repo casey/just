@@ -30,12 +30,6 @@ jobs:
     - name: Format
       run: cargo fmt --all -- --check
 
-    - name: Completion Scripts
-      run: |
-        ./bin/update-completions
-        git diff --no-ext-diff --quiet --exit-code
-        ./tests/completions/just.bash
-
     - name: Install Dependencies
       run: |
         sudo apt-get update
