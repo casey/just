@@ -80,7 +80,6 @@ jobs:
         for shell in bash elvish fish powershell zsh; do
           ./target/debug/just --completions $shell > completions/just.$shell
         done
-        ls completions
 
     - name: Package
       id: package

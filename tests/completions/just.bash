@@ -18,7 +18,7 @@ reply_equals() {
 }
 
 # --- Initial Setup ---
-source ./completions/just.bash
+source "$1"
 cd tests/completions
 cargo build
 PATH="$(git rev-parse --show-toplevel)/target/debug:$PATH"
