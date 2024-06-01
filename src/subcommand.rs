@@ -519,10 +519,14 @@ impl Subcommand {
           signature_widths.insert(
             name,
             UnicodeWidthStr::width(
-              RecipeSignature { name, recipe }
-                .color_display(Color::never())
-                .to_string()
-                .as_str(),
+              RecipeSignature {
+                name,
+                recipe,
+                is_default: false,
+              }
+              .color_display(Color::never())
+              .to_string()
+              .as_str(),
             ),
           );
         }
@@ -598,9 +602,18 @@ impl Subcommand {
             }
           }
 
+          let is_default = match &module.default {
+            Some(default) => *name == default.name(),
+            None => false,
+          };
           print!(
             "{list_prefix}{}",
-            RecipeSignature { name, recipe }.color_display(config.color.stdout())
+            RecipeSignature {
+              name,
+              recipe,
+              is_default
+            }
+            .color_display(config.color.stdout())
           );
 
           if let Some(doc) = doc {
