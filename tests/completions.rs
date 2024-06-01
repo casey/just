@@ -1,7 +1,7 @@
 use super::*;
 
 #[test]
-#[cfg(linux)]
+#[cfg(target_os = "linux")]
 fn bash() {
   let output = Command::new(executable_path("just"))
     .args(["--completions", "bash"])

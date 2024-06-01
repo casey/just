@@ -3475,8 +3475,8 @@ complete -F _just -o bashdefault -o default j
 Shell completion scripts for Bash, Elvish, Fish, Nushell, PowerShell, and Zsh
 are available [release archives](https://github.com/casey/just/releases).
 
-The `just` binary can also generate the same completion scripts at runtime,
-using `--completions SHELL`:
+The `just` binary can also generate the same completion scripts at runtime
+using `just --completions SHELL`:
 
 ```sh
 $ just --completions zsh > just.zsh
