@@ -16,7 +16,7 @@ fn bash() {
 
   let path = tempdir.path().join("just.bash");
 
-  fs::write(&path, &script).unwrap();
+  fs::write(&path, script).unwrap();
 
   let status = Command::new("./tests/completions/just.bash")
     .arg(path)
