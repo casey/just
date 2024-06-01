@@ -215,6 +215,9 @@ pub enum Expression {
   Variable {
     name: String,
   },
+  UInteger {
+    value: u16,
+  },
 }
 
 impl Expression {
@@ -277,6 +280,9 @@ impl Expression {
         }
         full::Thunk::Binary {
           name, args: [a, b], ..
+        }
+        | full::Thunk::BinaryUInteger {
+          name, args: [a, b], ..
         } => Self::Call {
           name: name.lexeme().to_owned(),
           arguments: vec![Self::new(a), Self::new(b)],
@@ -330,6 +336,9 @@ impl Expression {
         name: name.lexeme().to_owned(),
       },
       Group { contents } => Self::new(contents),
+      UInteger { token } => Self::UInteger {
+        value: token.lexeme().parse().unwrap(),
+      },
     }
   }
 }

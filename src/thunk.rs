@@ -44,6 +44,12 @@ pub(crate) enum Thunk<'src> {
     function: fn(function::Context, &str, &str, &str) -> Result<String, String>,
     args: [Box<Expression<'src>>; 3],
   },
+  BinaryUInteger {
+    name: Name<'src>,
+    #[derivative(Debug = "ignore", PartialEq = "ignore")]
+    function: fn(function::Context, &str, u16) -> Result<String, String>,
+    args: [Box<Expression<'src>>; 2],
+  },
 }
 
 impl<'src> Thunk<'src> {
@@ -54,6 +60,7 @@ impl<'src> Thunk<'src> {
       | Self::UnaryOpt { name, .. }
       | Self::UnaryPlus { name, .. }
       | Self::Binary { name, .. }
+      | Self::BinaryUInteger { name, .. }
       | Self::BinaryPlus { name, .. }
       | Self::Ternary { name, .. } => *name,
     }
@@ -124,6 +131,15 @@ impl<'src> Thunk<'src> {
             name,
           })
         }
+        (Function::BinaryUInteger(function), 2) => {
+          let b = arguments.pop().unwrap().into();
+          let a = arguments.pop().unwrap().into();
+          Ok(Thunk::BinaryUInteger {
+            function,
+            args: [a, b],
+            name,
+          })
+        }
         (function, _) => Err(name.error(CompileErrorKind::FunctionArgumentCountMismatch {
           function: name.lexeme(),
           found: arguments.len(),
@@ -161,6 +177,9 @@ impl Display for Thunk<'_> {
         write!(f, ")")
       }
       Binary {
+        name, args: [a, b], ..
+      } => write!(f, "{}({a}, {b})", name.lexeme()),
+      BinaryUInteger {
         name, args: [a, b], ..
       } => write!(f, "{}({a}, {b})", name.lexeme()),
       BinaryPlus {
@@ -211,6 +230,11 @@ impl<'src> Serialize for Thunk<'src> {
         }
       }
       Self::Binary { args, .. } => {
+        for arg in args {
+          seq.serialize_element(arg)?;
+        }
+      }
+      Self::BinaryUInteger { args, .. } => {
         for arg in args {
           seq.serialize_element(arg)?;
         }

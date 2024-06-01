@@ -68,6 +68,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
           })
         }
       }
+      Expression::UInteger { token } => Ok(token.lexeme().to_owned()),
       Expression::Call { thunk } => {
         use Thunk::*;
 
@@ -114,6 +115,19 @@ impl<'src, 'run> Evaluator<'src, 'run> {
             let a = self.evaluate_expression(a)?;
             let b = self.evaluate_expression(b)?;
             function(function::Context::new(self, thunk.name()), &a, &b)
+          }
+          BinaryUInteger {
+            function,
+            args: [a, b],
+            ..
+          } => {
+            let a = self.evaluate_expression(a)?;
+            let b = self.evaluate_expression(b)?;
+            function(
+              function::Context::new(self, thunk.name()),
+              &a,
+              b.parse().unwrap(),
+            )
           }
           BinaryPlus {
             function,

@@ -16,6 +16,7 @@ pub(crate) enum Function {
   UnaryOpt(fn(Context, &str, Option<&str>) -> Result<String, String>),
   UnaryPlus(fn(Context, &str, &[String]) -> Result<String, String>),
   Binary(fn(Context, &str, &str) -> Result<String, String>),
+  BinaryUInteger(fn(Context, &str, u16) -> Result<String, String>),
   BinaryPlus(fn(Context, &str, &str, &[String]) -> Result<String, String>),
   Ternary(fn(Context, &str, &str, &str) -> Result<String, String>),
 }
@@ -99,6 +100,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "uppercase" => Unary(uppercase),
     "uuid" => Nullary(uuid),
     "without_extension" => Unary(without_extension),
+    "indent" => BinaryUInteger(indent),
     _ => return None,
   };
   Some(function)
@@ -111,7 +113,7 @@ impl Function {
       Unary(_) => 1..1,
       UnaryOpt(_) => 1..2,
       UnaryPlus(_) => 1..usize::MAX,
-      Binary(_) => 2..2,
+      Binary(_) | BinaryUInteger(_) => 2..2,
       BinaryPlus(_) => 2..usize::MAX,
       Ternary(_) => 3..3,
     }
@@ -650,6 +652,23 @@ fn semver_matches(_context: Context, version: &str, requirement: &str) -> Result
           .map_err(|err| format!("invalid semver version: {err}"))?,
       )
       .to_string(),
+  )
+}
+
+fn indent(_context: Context, content: &str, n_indent: u16) -> Result<String, String> {
+  Ok(
+    content
+      .lines()
+      .map(|line| {
+        format!(
+          "{:indent$}{line}",
+          "",
+          indent = n_indent as usize,
+          line = line
+        )
+      })
+      .collect::<Vec<String>>()
+      .join("\n"),
   )
 }
 

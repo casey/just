@@ -272,6 +272,14 @@ impl<'src> Lexer<'src> {
     true
   }
 
+  pub(crate) fn is_unsigned_interger_start(c: char) -> bool {
+    c.is_ascii_digit()
+  }
+
+  pub(crate) fn is_unsigned_interger_continue(c: char) -> bool {
+    c.is_ascii_digit()
+  }
+
   /// True if `c` can be the first character of an identifier
   pub(crate) fn is_identifier_start(c: char) -> bool {
     matches!(c, 'a'..='z' | 'A'..='Z' | '_')
@@ -498,6 +506,7 @@ impl<'src> Lexer<'src> {
       '{' => self.lex_delimiter(BraceL),
       '}' => self.lex_delimiter(BraceR),
       _ if Self::is_identifier_start(start) => self.lex_identifier(),
+      _ if Self::is_unsigned_interger_start(start) => self.lex_unsigned_integer(),
       _ => {
         self.advance()?;
         Err(self.error(UnknownStartOfToken))
@@ -763,6 +772,27 @@ impl<'src> Lexer<'src> {
     Ok(())
   }
 
+  fn lex_unsigned_integer(&mut self) -> CompileResult<'src> {
+    self.advance()?;
+
+    while let Some(c) = self.next {
+      if !Self::is_unsigned_interger_continue(c) {
+        break;
+      }
+
+      self.advance()?;
+    }
+
+    if let Some(c) = self.next {
+      if Self::is_identifier_start(c) {
+        return Err(self.error(InvalidInteger));
+      }
+    }
+
+    self.token(UInteger);
+    Ok(())
+  }
+
   /// Lex name: [a-zA-Z_][a-zA-Z0-9_]*
   fn lex_identifier(&mut self) -> CompileResult<'src> {
     self.advance()?;
@@ -975,7 +1005,7 @@ mod tests {
       Dedent | Eof => "",
 
       // Variable lexemes
-      Text | StringToken | Backtick | Identifier | Comment | Unspecified => {
+      Text | StringToken | Backtick | Identifier | Comment | Unspecified | UInteger => {
         panic!("Token {kind:?} has no default lexeme")
       }
     }
@@ -2158,13 +2188,13 @@ mod tests {
   }
 
   error! {
-    name:   invalid_name_start_digit,
+    name:   invalid_integer,
     input:  "0foo",
     offset: 0,
     line:   0,
     column: 0,
     width:  1,
-    kind:   UnknownStartOfToken,
+    kind: InvalidInteger,
   }
 
   error! {

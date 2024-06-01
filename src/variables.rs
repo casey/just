@@ -41,6 +41,9 @@ impl<'expression, 'src> Iterator for Variables<'expression, 'src> {
               self.stack.push(arg);
             }
           }
+          Thunk::BinaryUInteger { args, .. } => {
+            self.stack.push(&args[0]);
+          }
           Thunk::BinaryPlus {
             args: ([a, b], rest),
             ..
@@ -72,6 +75,7 @@ impl<'expression, 'src> Iterator for Variables<'expression, 'src> {
           self.stack.push(lhs);
         }
         Expression::Variable { name, .. } => return Some(name.token),
+        Expression::UInteger { token } => return Some(*token),
         Expression::Concatenation { lhs, rhs } => {
           self.stack.push(rhs);
           self.stack.push(lhs);

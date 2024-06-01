@@ -129,4 +129,5 @@ pub(crate) enum CompileErrorKind<'src> {
   UnterminatedBacktick,
   UnterminatedInterpolation,
   UnterminatedString,
+  InvalidInteger,
 }

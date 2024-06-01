@@ -138,6 +138,9 @@ impl<'src> Node<'src> for Expression<'src> {
           }
           Binary {
             name, args: [a, b], ..
+          }
+          | BinaryUInteger {
+            name, args: [a, b], ..
           } => {
             tree.push_mut(name.lexeme());
             tree.push_mut(a.tree());
@@ -170,6 +173,7 @@ impl<'src> Node<'src> for Expression<'src> {
         tree
       }
       Self::Variable { name } => Tree::atom(name.lexeme()),
+      Self::UInteger { token } => Tree::atom(token.lexeme()),
       Self::StringLiteral {
         string_literal: StringLiteral { cooked, .. },
       } => Tree::string(cooked),

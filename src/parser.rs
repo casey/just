@@ -617,6 +617,10 @@ impl<'run, 'src> Parser<'run, 'src> {
           Ok(Expression::Variable { name })
         }
       }
+    } else if self.next_is(UInteger) {
+      Ok(Expression::UInteger {
+        token: self.expect(UInteger)?,
+      })
     } else if self.next_is(ParenL) {
       self.presume(ParenL)?;
       let contents = self.parse_expression()?.into();
@@ -2229,6 +2233,7 @@ mod tests {
         Identifier,
         ParenL,
         StringToken,
+        UInteger,
       ],
       found: Eol
     },
@@ -2247,6 +2252,7 @@ mod tests {
         Identifier,
         ParenL,
         StringToken,
+        UInteger,
       ],
       found: Eof,
     },
@@ -2293,6 +2299,7 @@ mod tests {
         ParenR,
         Slash,
         StringToken,
+        UInteger
       ],
       found: Eof,
     },
@@ -2313,6 +2320,7 @@ mod tests {
         ParenR,
         Slash,
         StringToken,
+        UInteger
       ],
       found: InterpolationEnd,
     },

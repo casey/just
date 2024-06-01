@@ -89,6 +89,10 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
           self.resolve_expression(a)?;
           self.resolve_expression(b)
         }
+        Thunk::BinaryUInteger { args: [a, b], .. } => {
+          self.resolve_expression(a)?;
+          self.resolve_expression(b)
+        }
         Thunk::BinaryPlus {
           args: ([a, b], rest),
           ..
@@ -155,6 +159,7 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
           Err(name.token.error(UndefinedVariable { variable }))
         }
       }
+      Expression::UInteger { .. } => Ok(()),
     }
   }
 }

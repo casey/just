@@ -42,6 +42,8 @@ pub(crate) enum Expression<'src> {
   StringLiteral { string_literal: StringLiteral<'src> },
   /// `variable`
   Variable { name: Name<'src> },
+  /// `unsigned integer`
+  UInteger { token: Token<'src> },
 }
 
 impl<'src> Expression<'src> {
@@ -54,7 +56,7 @@ impl<'src> Display for Expression<'src> {
   fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
     match self {
       Self::Assert { condition, error } => write!(f, "assert({condition}, {error})"),
-      Self::Backtick { token, .. } => write!(f, "{}", token.lexeme()),
+      Self::Backtick { token, .. } | Self::UInteger { token } => write!(f, "{}", token.lexeme()),
       Self::Join { lhs: None, rhs } => write!(f, "/ {rhs}"),
       Self::Join {
         lhs: Some(lhs),
@@ -126,6 +128,11 @@ impl<'src> Serialize for Expression<'src> {
         let mut seq = serializer.serialize_seq(None)?;
         seq.serialize_element("variable")?;
         seq.serialize_element(name)?;
+        seq.end()
+      }
+      Self::UInteger { token } => {
+        let mut seq = serializer.serialize_seq(None)?;
+        seq.serialize_element(token.lexeme())?;
         seq.end()
       }
     }

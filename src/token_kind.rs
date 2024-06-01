@@ -36,6 +36,7 @@ pub(crate) enum TokenKind {
   Text,
   Unspecified,
   Whitespace,
+  UInteger,
 }
 
 impl Display for TokenKind {
@@ -79,6 +80,7 @@ impl Display for TokenKind {
         Text => "command text",
         Unspecified => "unspecified",
         Whitespace => "whitespace",
+        UInteger => "unsigned integer",
       }
     )
   }
