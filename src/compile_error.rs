@@ -131,6 +131,9 @@ impl Display for CompileError<'_> {
       DuplicateVariable { variable } => {
         write!(f, "Variable `{variable}` has multiple definitions")
       }
+      DuplicateUnexport { variable } => {
+        write!(f, "Variable `{variable}` is unexported multiple times")
+      }
       ExpectedKeyword { expected, found } => {
         let expected = List::or_ticked(expected);
         if found.kind == TokenKind::Identifier {

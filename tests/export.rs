@@ -217,3 +217,23 @@ fn unexport_environment_variable_shebang() {
     .status(0)
     .run();
 }
+
+#[test]
+fn duplicate_unexport_fails() {
+  Test::new()
+    .justfile(
+      "
+     unexport JUST_TEST_VARIABLE
+
+     recipe:
+         #!/usr/bin/env bash
+         echo \"variable: $JUST_TEST_VARIABLE\"
+
+     unexport JUST_TEST_VARIABLE
+      ",
+    )
+    .env("JUST_TEST_VARIABLE", "foo")
+    .stderr("error: Variable `JUST_TEST_VARIABLE` is unexported multiple times\n ——▶ justfile:7:10\n  │\n7 │ unexport JUST_TEST_VARIABLE\n  │          ^^^^^^^^^^^^^^^^^^\n")
+    .status(1)
+    .run();
+}

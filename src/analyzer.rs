@@ -101,7 +101,11 @@ impl<'src> Analyzer<'src> {
             self.sets.insert(set.clone());
           }
           Item::Unexport { name } => {
-            unexports.insert(name.lexeme().to_string());
+            if !unexports.insert(name.lexeme().to_string()) {
+              return Err(name.token.error(DuplicateUnexport {
+                variable: name.lexeme(),
+              }));
+            }
           }
         }
       }
