@@ -237,3 +237,22 @@ fn duplicate_unexport_fails() {
     .status(1)
     .run();
 }
+
+#[test]
+fn export_unexport_conflict() {
+  Test::new()
+    .justfile(
+      "
+     unexport JUST_TEST_VARIABLE
+
+     recipe:
+         #!/usr/bin/env bash
+         echo \"variable: $JUST_TEST_VARIABLE\"
+
+     export JUST_TEST_VARIABLE := 'foo'
+      ",
+    )
+    .stderr("error: Variable JUST_TEST_VARIABLE is both exported and unexported\n ——▶ justfile:7:8\n  │\n7 │ export JUST_TEST_VARIABLE := 'foo'\n  │        ^^^^^^^^^^^^^^^^^^\n")
+    .status(1)
+    .run();
+}

@@ -59,6 +59,9 @@ pub(crate) enum CompileErrorKind<'src> {
     expected: Vec<Keyword>,
     found: Token<'src>,
   },
+  ExportUnexportConflict {
+    variable: String,
+  },
   ExtraLeadingWhitespace,
   FunctionArgumentCountMismatch {
     function: &'src str,
