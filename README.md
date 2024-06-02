@@ -1785,7 +1785,7 @@ js-lint:
 [group('rust recipes')]
 [group('lint')]
 rust-lint:
-    echo 'Runninng Rust linter…'
+    echo 'Running Rust linter…'
 
 [group('lint')]
 cpp-lint:
