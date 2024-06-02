@@ -226,14 +226,13 @@ fn duplicate_unexport_fails() {
      unexport JUST_TEST_VARIABLE
 
      recipe:
-         #!/usr/bin/env bash
          echo \"variable: $JUST_TEST_VARIABLE\"
 
      unexport JUST_TEST_VARIABLE
       ",
     )
     .env("JUST_TEST_VARIABLE", "foo")
-    .stderr("error: Variable `JUST_TEST_VARIABLE` is unexported multiple times\n ——▶ justfile:7:10\n  │\n7 │ unexport JUST_TEST_VARIABLE\n  │          ^^^^^^^^^^^^^^^^^^\n")
+    .stderr("error: Variable `JUST_TEST_VARIABLE` is unexported multiple times\n ——▶ justfile:6:10\n  │\n6 │ unexport JUST_TEST_VARIABLE\n  │          ^^^^^^^^^^^^^^^^^^\n")
     .status(1)
     .run();
 }
@@ -246,13 +245,29 @@ fn export_unexport_conflict() {
      unexport JUST_TEST_VARIABLE
 
      recipe:
-         #!/usr/bin/env bash
          echo \"variable: $JUST_TEST_VARIABLE\"
 
      export JUST_TEST_VARIABLE := 'foo'
       ",
     )
-    .stderr("error: Variable JUST_TEST_VARIABLE is both exported and unexported\n ——▶ justfile:7:8\n  │\n7 │ export JUST_TEST_VARIABLE := 'foo'\n  │        ^^^^^^^^^^^^^^^^^^\n")
+    .stderr("error: Variable JUST_TEST_VARIABLE is both exported and unexported\n ——▶ justfile:6:8\n  │\n6 │ export JUST_TEST_VARIABLE := 'foo'\n  │        ^^^^^^^^^^^^^^^^^^\n")
     .status(1)
+    .run();
+}
+
+#[test]
+fn unexport_doesnt_override_local_recipe_export() {
+  Test::new()
+    .justfile(
+      "
+     unexport JUST_TEST_VARIABLE
+
+     recipe $JUST_TEST_VARIABLE:
+         @echo \"variable: $JUST_TEST_VARIABLE\"
+      ",
+    )
+    .args(["recipe", "value"])
+    .stdout("variable: value\n")
+    .status(0)
     .run();
 }
