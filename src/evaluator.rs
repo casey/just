@@ -274,8 +274,6 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       scope: scope.child(),
       search,
       settings,
-      dotenv,
-      config,
       unsets,
     };
 
@@ -333,8 +331,6 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       scope: Scope::child(scope),
       search,
       settings,
-      dotenv,
-      config,
       unsets,
     }
   }
