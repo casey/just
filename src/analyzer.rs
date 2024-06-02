@@ -37,7 +37,7 @@ impl<'src> Analyzer<'src> {
 
     let mut modules: Table<Justfile> = Table::new();
 
-    let mut unsets: HashSet<String> = HashSet::new();
+    let mut unexports: HashSet<String> = HashSet::new();
 
     let mut definitions: HashMap<&str, (&'static str, Name)> = HashMap::new();
 
@@ -100,8 +100,8 @@ impl<'src> Analyzer<'src> {
             self.analyze_set(set)?;
             self.sets.insert(set.clone());
           }
-          Item::Unset { name } => {
-            unsets.insert(name.lexeme().to_string());
+          Item::Unexport { name } => {
+            unexports.insert(name.lexeme().to_string());
           }
         }
       }
@@ -172,7 +172,7 @@ impl<'src> Analyzer<'src> {
       recipes,
       settings,
       source: root.into(),
-      unsets,
+      unexports,
       warnings,
     })
   }

@@ -169,7 +169,7 @@ impl<'src, D> Recipe<'src, D> {
       scope,
       context.search,
       context.settings,
-      context.unsets,
+      context.unexports,
     );
 
     if self.shebang {
@@ -280,7 +280,7 @@ impl<'src, D> Recipe<'src, D> {
         cmd.stdout(Stdio::null());
       }
 
-      cmd.export(context.settings, context.dotenv, scope, context.unsets);
+      cmd.export(context.settings, context.dotenv, scope, context.unexports);
 
       match InterruptHandler::guard(|| cmd.status()) {
         Ok(exit_status) => {
@@ -426,7 +426,7 @@ impl<'src, D> Recipe<'src, D> {
       command.args(positional);
     }
 
-    command.export(context.settings, context.dotenv, scope, context.unsets);
+    command.export(context.settings, context.dotenv, scope, context.unexports);
 
     // run it!
     match InterruptHandler::guard(|| command.status()) {

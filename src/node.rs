@@ -54,10 +54,10 @@ impl<'src> Node<'src> for Item<'src> {
       }
       Self::Recipe(recipe) => recipe.tree(),
       Self::Set(set) => set.tree(),
-      Self::Unset { name } => {
-        let mut unset = Tree::atom(Keyword::Unset.lexeme());
-        unset.push_mut(name.lexeme().replace('-', "_"));
-        unset
+      Self::Unexport { name } => {
+        let mut unexport = Tree::atom(Keyword::Unexport.lexeme());
+        unexport.push_mut(name.lexeme().replace('-', "_"));
+        unexport
       }
     }
   }

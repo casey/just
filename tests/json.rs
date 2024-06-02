@@ -59,7 +59,7 @@ fn alias() {
         "windows_powershell": false,
         "windows_shell": null,
       },
-      "unsets": [],
+      "unexports": [],
       "warnings": [],
     }),
   );
@@ -99,7 +99,7 @@ fn assignment() {
         "windows_powershell": false,
         "windows_shell": null,
       },
-      "unsets": [],
+      "unexports": [],
       "warnings": [],
     }),
   );
@@ -153,7 +153,7 @@ fn body() {
         "windows_powershell": false,
         "windows_shell": null,
       },
-      "unsets": [],
+      "unexports": [],
       "warnings": [],
     }),
   );
@@ -219,7 +219,7 @@ fn dependencies() {
         "windows_powershell": false,
         "windows_shell": null,
       },
-      "unsets": [],
+      "unexports": [],
       "warnings": [],
     }),
   );
@@ -323,7 +323,7 @@ fn dependency_argument() {
         "windows_powershell": false,
         "windows_shell": null,
       },
-      "unsets": [],
+      "unexports": [],
       "warnings": [],
     }),
   );
@@ -389,7 +389,7 @@ fn duplicate_recipes() {
         "windows_powershell": false,
         "windows_shell": null,
       },
-      "unsets": [],
+      "unexports": [],
       "warnings": [],
     }),
   );
@@ -433,7 +433,7 @@ fn duplicate_variables() {
         "windows_powershell": false,
         "windows_shell": null,
       },
-      "unsets": [],
+      "unexports": [],
       "warnings": [],
     }),
   );
@@ -480,7 +480,7 @@ fn doc_comment() {
         "windows_powershell": false,
         "windows_shell": null,
       },
-      "unsets": [],
+      "unexports": [],
       "warnings": [],
     }),
   );
@@ -513,7 +513,7 @@ fn empty_justfile() {
         "windows_powershell": false,
         "windows_shell": null,
       },
-      "unsets": [],
+      "unexports": [],
       "warnings": [],
     }),
   );
@@ -667,7 +667,7 @@ fn parameters() {
         "windows_powershell": false,
         "windows_shell": null,
       },
-      "unsets": [],
+      "unexports": [],
       "warnings": [],
     }),
   );
@@ -754,7 +754,7 @@ fn priors() {
         "windows_powershell": false,
         "windows_shell": null,
       },
-      "unsets": [],
+      "unexports": [],
       "warnings": [],
     }),
   );
@@ -801,7 +801,7 @@ fn private() {
         "windows_powershell": false,
         "windows_shell": null,
       },
-      "unsets": [],
+      "unexports": [],
       "warnings": [],
     }),
   );
@@ -848,7 +848,7 @@ fn quiet() {
         "windows_powershell": false,
         "windows_shell": null,
       },
-      "unsets": [],
+      "unexports": [],
       "warnings": [],
     }),
   );
@@ -910,7 +910,7 @@ fn settings() {
         "windows_powershell": false,
         "windows_shell": null,
       },
-      "unsets": [],
+      "unexports": [],
       "warnings": [],
     }),
   );
@@ -960,7 +960,7 @@ fn shebang() {
         "windows_powershell": false,
         "windows_shell": null,
       },
-      "unsets": [],
+      "unexports": [],
       "warnings": [],
     }),
   );
@@ -1007,7 +1007,7 @@ fn simple() {
         "windows_powershell": false,
         "windows_shell": null,
       },
-      "unsets": [],
+      "unexports": [],
       "warnings": [],
     }),
   );
@@ -1057,7 +1057,7 @@ fn attribute() {
         "windows_powershell": false,
         "windows_shell": null,
       },
-      "unsets": [],
+      "unexports": [],
       "warnings": [],
     }),
   );
@@ -1120,7 +1120,7 @@ fn module() {
               "windows_powershell": false,
               "windows_shell": null,
             },
-            "unsets": [],
+            "unexports": [],
             "warnings": [],
           },
         },
@@ -1142,7 +1142,7 @@ fn module() {
           "windows_powershell": false,
           "windows_shell": null,
         },
-        "unsets": [],
+        "unexports": [],
         "warnings": [],
       }))
       .unwrap()

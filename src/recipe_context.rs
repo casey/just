@@ -7,5 +7,5 @@ pub(crate) struct RecipeContext<'src: 'run, 'run> {
   pub(crate) scope: &'run Scope<'src, 'run>,
   pub(crate) search: &'run Search,
   pub(crate) settings: &'run Settings<'src>,
-  pub(crate) unsets: &'run HashSet<String>,
+  pub(crate) unexports: &'run HashSet<String>,
 }
