@@ -641,18 +641,22 @@ foo:
 
 #### 设置一览表
 
-| 名称                      | 值                 | 默认    | 描述                                                                           |
-| ------------------------- | ------------------ | --------|------------------------------------------------------------------------------- |
-| `allow-duplicate-recipes` | boolean            | False   | 允许在 `justfile` 后面出现的配方覆盖之前的同名配方                             |
-| `dotenv-load`             | boolean            | False   | 如果有`.env` 环境变量文件的话，则将其加载                                      |
-| `export`                  | boolean            | False   | 将所有变量导出为环境变量                                                       |
-| `fallback`                | boolean            | False   | 如果命令行中的第一个配方没有找到，则在父目录中搜索 `justfile`                  |
-| `ignore-comments`         | boolean            | False   | 忽略以`#`开头的配方行                                                          |
-| `positional-arguments`    | boolean            | False   | 传递位置参数                                                                   |
-| `shell`                   | `[COMMAND, ARGS…]` | -       | 设置用于调用配方和评估反引号内包裹内容的命令                                   |
-| `tempdir`                 | string             | -       | 在 `tempdir` 位置创建临时目录，而不是系统默认的临时目录                        |
-| `windows-powershell`      | boolean            | False   | 在 Windows 上使用 PowerShell 作为默认 Shell(废弃，建议使用 `windows-shell`)    |
-| `windows-shell`           | `[COMMAND, ARGS…]` | -       | 设置用于调用配方和评估反引号内包裹内容的命令                                   |
+| 名称                        | 值                 | 默认  | 描述                                                                                    |
+| --------------------------- | ------------------ | ----- | --------------------------------------------------------------------------------------- |
+| `allow-duplicate-recipes`   | boolean            | False | 允许在 `justfile` 后面出现的配方覆盖之前的同名配方                                      |
+| `allow-duplicate-variables` | boolean            | False | 允许在 `justfile` 后面出现的变量覆盖之前的同名变量                                      |
+| `dotenv-filename`           | string             | -     | 如果有自定义名称的 `.env` 环境变量文件的话，则将其加载                                  |
+| `dotenv-load`               | boolean            | False | 如果有`.env` 环境变量文件的话，则将其加载                                               |
+| `dotenv-path`               | string             | -     | 从自定义路径中加载 `.env` 环境变量文件， 文件不存在将会报错。可以覆盖 `dotenv-filename` |
+| `dotenv-required`           | boolean            | False | 如果 `.env` 环境变量文件不存在的话，需要报错                                                         |
+| `export`                    | boolean            | False | 将所有变量导出为环境变量                                                                |
+| `fallback`                  | boolean            | False | 如果命令行中的第一个配方没有找到，则在父目录中搜索 `justfile`                           |
+| `ignore-comments`           | boolean            | False | 忽略以`#`开头的配方行                                                                   |
+| `positional-arguments`      | boolean            | False | 传递位置参数                                                                            |
+| `shell`                     | `[COMMAND, ARGS…]` | -     | 设置用于调用配方和评估反引号内包裹内容的命令                                            |
+| `tempdir`                   | string             | -     | 在 `tempdir` 位置创建临时目录，而不是系统默认的临时目录                                 |
+| `windows-powershell`        | boolean            | False | 在 Windows 上使用 PowerShell 作为默认 Shell(废弃，建议使用 `windows-shell`)             |
+| `windows-shell`             | `[COMMAND, ARGS…]` | -     | 设置用于调用配方和评估反引号内包裹内容的命令                                            |
 
 Bool 类型设置可以写成：
 
@@ -685,9 +689,69 @@ $ just foo
 bar
 ```
 
+#### 允许重复的变量
+如果 `allow-duplicate-variables` 被设置为 `true`，那么定义多个同名的变量将不会报错。默认为 `false`。
+
+```just
+set allow-duplicate-variables
+
+a := "foo"
+a := "bar"
+
+@foo:
+  echo $a
+```
+
+```sh
+$ just foo
+bar
+```
+
 #### 环境变量加载
 
-如果将 `dotenv-load` 设置为 `true`，并且存在 `.env` 文件，则该环境配置文件将被加载。默认为 `false`。
+如果 `dotenv-load`, `dotenv-filename`, `dotenv-path`, or `dotenv-required`
+中任意一项被设置, `just` 会尝试从文件中加载环境变量
+
+如果设置了 `dotenv-path`, `just` 会在指定的路径下搜索文件，该路径可以是绝对路径，
+也可以是基于当前工作路径的相对路径
+
+如果设置了 `dotenv-filename`，`just` 会在指定的相对路径，以及其所有的上层目录中，搜索指定文件
+
+如果没有设置 `dotenv-filename`，但是设置了 `dotenv-load` 或 `dotenv-required`，
+`just` 会在当前工作路径，以及其所有的上层目录中，寻找名为 `.env` 的文件。
+
+`dotenv-filename` 和 `dotenv-path` 很相似，但是 `dotenv-path` 只会检查指定的目录
+而 `dotenv-filename` 会检查指定目录以及其所有的上层目录。
+
+如果没有找到环境变量文件也不会报错，除非设置了 `dotenv-required`。
+
+从文件中加载的变量是环境变量，而非 `just` 变量，所以在配方和反引号中需要必须通过 `$VARIABLE_NAME` 来调用。
+
+比如，如果你的 `.env` 文件包含以下内容：
+
+```sh
+# a comment, will be ignored
+DATABASE_ADDRESS=localhost:6379
+SERVER_PORT=1337
+```
+
+并且你的 `justfile` 包含：
+
+```just
+set dotenv-load
+
+serve:
+  @echo "Starting server with database $DATABASE_ADDRESS on port $SERVER_PORT…"
+  ./server --database $DATABASE_ADDRESS --port $SERVER_PORT
+```
+
+`just serve` 将会输出：
+
+```sh
+$ just serve
+Starting server with database localhost:6379 on port 1337…
+./server --database $DATABASE_ADDRESS --port $SERVER_PORT
+```
 
 #### 导出
 
