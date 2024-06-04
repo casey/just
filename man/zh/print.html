@@ -653,7 +653,11 @@ foo:
 <h4 id="设置一览表"><a class="header" href="#设置一览表">设置一览表</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>名称</th><th>值</th><th>默认</th><th>描述</th></tr></thead><tbody>
 <tr><td><code>allow-duplicate-recipes</code></td><td>boolean</td><td>False</td><td>允许在 <code>justfile</code> 后面出现的配方覆盖之前的同名配方</td></tr>
+<tr><td><code>allow-duplicate-variables</code></td><td>boolean</td><td>False</td><td>允许在 <code>justfile</code> 后面出现的变量覆盖之前的同名变量</td></tr>
+<tr><td><code>dotenv-filename</code></td><td>string</td><td>-</td><td>如果有自定义名称的 <code>.env</code> 环境变量文件的话，则将其加载</td></tr>
 <tr><td><code>dotenv-load</code></td><td>boolean</td><td>False</td><td>如果有<code>.env</code> 环境变量文件的话，则将其加载</td></tr>
+<tr><td><code>dotenv-path</code></td><td>string</td><td>-</td><td>从自定义路径中加载 <code>.env</code> 环境变量文件， 文件不存在将会报错。可以覆盖 <code>dotenv-filename</code></td></tr>
+<tr><td><code>dotenv-required</code></td><td>boolean</td><td>False</td><td>如果 <code>.env</code> 环境变量文件不存在的话，需要报错</td></tr>
 <tr><td><code>export</code></td><td>boolean</td><td>False</td><td>将所有变量导出为环境变量</td></tr>
 <tr><td><code>fallback</code></td><td>boolean</td><td>False</td><td>如果命令行中的第一个配方没有找到，则在父目录中搜索 <code>justfile</code></td></tr>
 <tr><td><code>ignore-comments</code></td><td>boolean</td><td>False</td><td>忽略以<code>#</code>开头的配方行</td></tr>
@@ -683,8 +687,48 @@ foo:
 <pre><code class="language-sh">$ just foo
 bar
 </code></pre>
+<h4 id="允许重复的变量"><a class="header" href="#允许重复的变量">允许重复的变量</a></h4>
+<p>如果 <code>allow-duplicate-variables</code> 被设置为 <code>true</code>，那么定义多个同名的变量将不会报错。默认为 <code>false</code>。</p>
+<pre><code class="language-just">set allow-duplicate-variables
+
+a := "foo"
+a := "bar"
+
+@foo:
+  echo $a
+</code></pre>
+<pre><code class="language-sh">$ just foo
+bar
+</code></pre>
 <h4 id="环境变量加载"><a class="header" href="#环境变量加载">环境变量加载</a></h4>
-<p>如果将 <code>dotenv-load</code> 设置为 <code>true</code>，并且存在 <code>.env</code> 文件，则该环境配置文件将被加载。默认为 <code>false</code>。</p>
+<p>如果 <code>dotenv-load</code>, <code>dotenv-filename</code>, <code>dotenv-path</code>, or <code>dotenv-required</code>
+中任意一项被设置, <code>just</code> 会尝试从文件中加载环境变量</p>
+<p>如果设置了 <code>dotenv-path</code>, <code>just</code> 会在指定的路径下搜索文件，该路径可以是绝对路径，
+也可以是基于当前工作路径的相对路径</p>
+<p>如果设置了 <code>dotenv-filename</code>，<code>just</code> 会在指定的相对路径，以及其所有的上层目录中，搜索指定文件</p>
+<p>如果没有设置 <code>dotenv-filename</code>，但是设置了 <code>dotenv-load</code> 或 <code>dotenv-required</code>，
+<code>just</code> 会在当前工作路径，以及其所有的上层目录中，寻找名为 <code>.env</code> 的文件。</p>
+<p><code>dotenv-filename</code> 和 <code>dotenv-path</code> 很相似，但是 <code>dotenv-path</code> 只会检查指定的目录
+而 <code>dotenv-filename</code> 会检查指定目录以及其所有的上层目录。</p>
+<p>如果没有找到环境变量文件也不会报错，除非设置了 <code>dotenv-required</code>。</p>
+<p>从文件中加载的变量是环境变量，而非 <code>just</code> 变量，所以在配方和反引号中需要必须通过 <code>$VARIABLE_NAME</code> 来调用。</p>
+<p>比如，如果你的 <code>.env</code> 文件包含以下内容：</p>
+<pre><code class="language-sh"># a comment, will be ignored
+DATABASE_ADDRESS=localhost:6379
+SERVER_PORT=1337
+</code></pre>
+<p>并且你的 <code>justfile</code> 包含：</p>
+<pre><code class="language-just">set dotenv-load
+
+serve:
+  @echo "Starting server with database $DATABASE_ADDRESS on port $SERVER_PORT…"
+  ./server --database $DATABASE_ADDRESS --port $SERVER_PORT
+</code></pre>
+<p><code>just serve</code> 将会输出：</p>
+<pre><code class="language-sh">$ just serve
+Starting server with database localhost:6379 on port 1337…
+./server --database $DATABASE_ADDRESS --port $SERVER_PORT
+</code></pre>
 <h4 id="导出"><a class="header" href="#导出">导出</a></h4>
 <p><code>export</code> 设置使所有 <code>just</code> 变量作为环境变量被导出。默认值为 <code>false</code>。</p>
 <pre><code class="language-just">set export
