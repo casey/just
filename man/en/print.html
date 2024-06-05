@@ -935,7 +935,7 @@ When there are no positional parameters, <code>"$@"</code> and <code>$@</code> e
 </code></pre>
 <h4 id="shell"><a class="header" href="#shell">Shell</a></h4>
 <p>The <code>shell</code> setting controls the command used to invoke recipe lines and
-backticks. Shebang recipes are unaffected.</p>
+backticks. Shebang recipes are unaffected. The default shell is <code>sh -cu</code>.</p>
 <pre><code class="language-just"># use python3 to execute recipe lines and backticks
 set shell := ["python3", "-c"]
 
