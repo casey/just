@@ -132,13 +132,8 @@ impl<'src> Analyzer<'src> {
         self.assignments.insert(assignment.clone());
       }
 
-      if let Some(unexport) = unexports.get(variable) {
-        return Err(
-          assignment
-            .name
-            .token
-            .error(ExportUnexportConflict { variable }),
-        );
+      if unexports.contains(variable) {
+        return Err(assignment.name.token.error(ExportUnexported { variable }));
       }
     }
 

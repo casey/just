@@ -59,7 +59,7 @@ pub(crate) enum CompileErrorKind<'src> {
     expected: Vec<Keyword>,
     found: Token<'src>,
   },
-  ExportUnexportConflict {
+  ExportUnexported {
     variable: &'src str,
   },
   ExtraLeadingWhitespace,

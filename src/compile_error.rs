@@ -146,7 +146,7 @@ impl Display for CompileError<'_> {
           write!(f, "Expected keyword {expected} but found `{}`", found.kind)
         }
       }
-      ExportUnexportConflict { variable } => {
+      ExportUnexported { variable } => {
         write!(f, "Variable {variable} is both exported and unexported")
       }
       ExtraLeadingWhitespace => write!(f, "Recipe line has extra leading whitespace"),
