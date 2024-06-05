@@ -60,7 +60,7 @@ pub(crate) enum CompileErrorKind<'src> {
     found: Token<'src>,
   },
   ExportUnexportConflict {
-    variable: String,
+    variable: &'src str,
   },
   ExtraLeadingWhitespace,
   FunctionArgumentCountMismatch {

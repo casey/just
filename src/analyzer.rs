@@ -118,26 +118,27 @@ impl<'src> Analyzer<'src> {
     let mut recipe_table: Table<'src, UnresolvedRecipe<'src>> = Table::default();
 
     for assignment in assignments {
-      let lexeme = assignment.name.lexeme();
+      let variable = assignment.name.lexeme();
 
-      if !settings.allow_duplicate_variables && self.assignments.contains_key(lexeme) {
-        return Err(assignment.name.token.error(DuplicateVariable {
-          variable: assignment.name.lexeme(),
-        }));
+      if !settings.allow_duplicate_variables && self.assignments.contains_key(variable) {
+        return Err(assignment.name.token.error(DuplicateVariable { variable }));
       }
 
       if self
         .assignments
-        .get(lexeme)
+        .get(variable)
         .map_or(true, |original| assignment.depth <= original.depth)
       {
         self.assignments.insert(assignment.clone());
       }
 
-      if let Some(unexport) = unexports.get(lexeme) {
-        return Err(assignment.name.token.error(ExportUnexportConflict {
-          variable: unexport.to_string(),
-        }));
+      if let Some(unexport) = unexports.get(variable) {
+        return Err(
+          assignment
+            .name
+            .token
+            .error(ExportUnexportConflict { variable }),
+        );
       }
     }
 
