@@ -29,10 +29,10 @@ fn bash() {
 #[test]
 fn replacements() {
   for shell in ["bash", "elvish", "fish", "powershell", "zsh"] {
-    let status = Command::new(executable_path("just"))
+    let output = Command::new(executable_path("just"))
       .args(["--completions", shell])
-      .status()
+      .output()
       .unwrap();
-    assert!(status.success());
+    assert!(output.status.success());
   }
 }

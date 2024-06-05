@@ -37,6 +37,8 @@ impl<'src> Analyzer<'src> {
 
     let mut modules: Table<Justfile> = Table::new();
 
+    let mut unexports: HashSet<String> = HashSet::new();
+
     let mut definitions: HashMap<&str, (&'static str, Name)> = HashMap::new();
 
     let mut define = |name: Name<'src>,
@@ -98,6 +100,13 @@ impl<'src> Analyzer<'src> {
             self.analyze_set(set)?;
             self.sets.insert(set.clone());
           }
+          Item::Unexport { name } => {
+            if !unexports.insert(name.lexeme().to_string()) {
+              return Err(name.token.error(DuplicateUnexport {
+                variable: name.lexeme(),
+              }));
+            }
+          }
         }
       }
 
@@ -109,20 +118,22 @@ impl<'src> Analyzer<'src> {
     let mut recipe_table: Table<'src, UnresolvedRecipe<'src>> = Table::default();
 
     for assignment in assignments {
-      if !settings.allow_duplicate_variables
-        && self.assignments.contains_key(assignment.name.lexeme())
-      {
-        return Err(assignment.name.token.error(DuplicateVariable {
-          variable: assignment.name.lexeme(),
-        }));
+      let variable = assignment.name.lexeme();
+
+      if !settings.allow_duplicate_variables && self.assignments.contains_key(variable) {
+        return Err(assignment.name.token.error(DuplicateVariable { variable }));
       }
 
       if self
         .assignments
-        .get(assignment.name.lexeme())
+        .get(variable)
         .map_or(true, |original| assignment.depth <= original.depth)
       {
         self.assignments.insert(assignment.clone());
+      }
+
+      if unexports.contains(variable) {
+        return Err(assignment.name.token.error(ExportUnexported { variable }));
       }
     }
 
@@ -167,6 +178,7 @@ impl<'src> Analyzer<'src> {
       recipes,
       settings,
       source: root.into(),
+      unexports,
       warnings,
     })
   }

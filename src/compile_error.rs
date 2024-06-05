@@ -131,6 +131,9 @@ impl Display for CompileError<'_> {
       DuplicateVariable { variable } => {
         write!(f, "Variable `{variable}` has multiple definitions")
       }
+      DuplicateUnexport { variable } => {
+        write!(f, "Variable `{variable}` is unexported multiple times")
+      }
       ExpectedKeyword { expected, found } => {
         let expected = List::or_ticked(expected);
         if found.kind == TokenKind::Identifier {
@@ -142,6 +145,9 @@ impl Display for CompileError<'_> {
         } else {
           write!(f, "Expected keyword {expected} but found `{}`", found.kind)
         }
+      }
+      ExportUnexported { variable } => {
+        write!(f, "Variable {variable} is both exported and unexported")
       }
       ExtraLeadingWhitespace => write!(f, "Recipe line has extra leading whitespace"),
       FunctionArgumentCountMismatch {

@@ -52,9 +52,15 @@ pub(crate) enum CompileErrorKind<'src> {
   DuplicateVariable {
     variable: &'src str,
   },
+  DuplicateUnexport {
+    variable: &'src str,
+  },
   ExpectedKeyword {
     expected: Vec<Keyword>,
     found: Token<'src>,
+  },
+  ExportUnexported {
+    variable: &'src str,
   },
   ExtraLeadingWhitespace,
   FunctionArgumentCountMismatch {

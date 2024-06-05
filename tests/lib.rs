@@ -104,6 +104,7 @@ mod summary;
 mod tempdir;
 mod timestamps;
 mod undefined_variables;
+mod unexport;
 mod unstable;
 #[cfg(target_family = "windows")]
 mod windows_shell;

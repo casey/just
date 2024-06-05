@@ -42,7 +42,7 @@ pub(crate) use {
   std::{
     borrow::Cow,
     cmp,
-    collections::{BTreeMap, BTreeSet, HashMap},
+    collections::{BTreeMap, BTreeSet, HashMap, HashSet},
     env,
     ffi::OsString,
     fmt::{self, Debug, Display, Formatter},

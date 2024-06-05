@@ -20,6 +20,9 @@ pub(crate) enum Item<'src> {
   },
   Recipe(UnresolvedRecipe<'src>),
   Set(Set<'src>),
+  Unexport {
+    name: Name<'src>,
+  },
 }
 
 impl<'src> Display for Item<'src> {
@@ -61,6 +64,7 @@ impl<'src> Display for Item<'src> {
       }
       Self::Recipe(recipe) => write!(f, "{}", recipe.color_display(Color::never())),
       Self::Set(set) => write!(f, "{set}"),
+      Self::Unexport { name } => write!(f, "unexport {name}"),
     }
   }
 }

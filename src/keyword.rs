@@ -25,6 +25,7 @@ pub(crate) enum Keyword {
   Shell,
   Tempdir,
   True,
+  Unexport,
   WindowsPowershell,
   WindowsShell,
   X,

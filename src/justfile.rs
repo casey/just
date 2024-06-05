@@ -24,6 +24,7 @@ pub(crate) struct Justfile<'src> {
   pub(crate) settings: Settings<'src>,
   #[serde(skip)]
   pub(crate) source: PathBuf,
+  pub(crate) unexports: HashSet<String>,
   pub(crate) warnings: Vec<Warning>,
 }
 
@@ -113,6 +114,7 @@ impl<'src> Justfile<'src> {
       scope,
       search,
       &self.settings,
+      &self.unexports,
     )
   }
 
@@ -163,7 +165,7 @@ impl<'src> Justfile<'src> {
 
         let scope = scope.child();
 
-        command.export(&self.settings, &dotenv, &scope);
+        command.export(&self.settings, &dotenv, &scope, &self.unexports);
 
         let status = InterruptHandler::guard(|| command.status()).map_err(|io_error| {
           Error::CommandInvoke {
@@ -286,6 +288,7 @@ impl<'src> Justfile<'src> {
         scope: invocation.scope,
         search,
         settings: invocation.settings,
+        unexports: &self.unexports,
       };
 
       Self::run_recipe(
@@ -441,6 +444,7 @@ impl<'src> Justfile<'src> {
       context.scope,
       search,
       context.settings,
+      context.unexports,
     )?;
 
     let scope = outer.child();
@@ -452,6 +456,7 @@ impl<'src> Justfile<'src> {
       &scope,
       search,
       context.settings,
+      context.unexports,
     );
 
     if !context.config.no_dependencies {

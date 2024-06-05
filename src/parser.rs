@@ -340,6 +340,11 @@ impl<'run, 'src> Parser<'run, 'src> {
             self.presume_keyword(Keyword::Export)?;
             items.push(Item::Assignment(self.parse_assignment(true)?));
           }
+          Some(Keyword::Unexport) => {
+            self.presume_keyword(Keyword::Unexport)?;
+            let name = self.parse_name()?;
+            items.push(Item::Unexport { name });
+          }
           Some(Keyword::Import)
             if self.next_are(&[Identifier, StringToken])
               || self.next_are(&[Identifier, Identifier, StringToken])
