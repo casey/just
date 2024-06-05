@@ -81,7 +81,7 @@ jobs:
           ./target/debug/just --completions $shell > completions/just.$shell
         done
         mkdir -p man
-        ./target/debug/just -- --man > man/just.1
+        ./target/debug/just --man > man/just.1
 
     - name: Package
       id: package
