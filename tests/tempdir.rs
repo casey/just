@@ -5,8 +5,8 @@ pub(crate) fn tempdir() -> TempDir {
 
   builder.prefix("just-test-tempdir");
 
-  if let Some(cache_dir) = dirs::cache_dir() {
-    let path = cache_dir.join("just");
+  if let Some(runtime_dir) = dirs::runtime_dir() {
+    let path = runtime_dir.join("just");
     fs::create_dir_all(&path).unwrap();
     builder.tempdir_in(path)
   } else {
