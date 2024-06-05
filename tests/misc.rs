@@ -884,7 +884,7 @@ _private-recipe:
   args:     ("--list"),
   stdout:   r#"
     Available recipes:
-        a Z="\t z"          # something else
+        a Z="\t z"           # something else
         hello a b='B	' c='C' # this does a thing
   "#,
 }
