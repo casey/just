@@ -354,9 +354,9 @@ impl<'src, D> Recipe<'src, D> {
     let tempdir = match &context.settings.tempdir {
       Some(tempdir) => tempdir_builder.tempdir_in(context.search.working_directory.join(tempdir)),
       None => {
-        if let Some(cache_dir) = dirs::cache_dir() {
-          let path = cache_dir.join("just");
-          fs::create_dir_all(&path).map_err(|io_error| Error::CacheDirIo {
+        if let Some(runtime_dir) = dirs::runtime_dir() {
+          let path = runtime_dir.join("just");
+          fs::create_dir_all(&path).map_err(|io_error| Error::RuntimeDirIo {
             io_error,
             path: path.clone(),
           })?;

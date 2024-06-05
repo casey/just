@@ -999,7 +999,7 @@ $ just test foo "bar baz"
 #### Shell
 
 The `shell` setting controls the command used to invoke recipe lines and
-backticks. Shebang recipes are unaffected.
+backticks. Shebang recipes are unaffected. The default shell is `sh -cu`.
 
 ```just
 # use python3 to execute recipe lines and backticks
@@ -3673,7 +3673,6 @@ Release x.y.z
 - Update changelog
 - Update changelog contributor credits
 - Update dependencies
-- Update man page
 - Update version references in readme
 ```
 

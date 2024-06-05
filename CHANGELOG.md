@@ -1,6 +1,40 @@
 Changelog
 =========
 
+[1.28.0](https://github.com/casey/just/releases/tag/1.28.0) - 2024-06-05
+------------------------------------------------------------------------
+
+### Changed
+- Write shebang recipes to $XDG_RUNTIME_DIR ([#2128](https://github.com/casey/just/pull/2128))
+- Add `set dotenv-required` to require an environment file ([#2116](https://github.com/casey/just/pull/2116))
+- Don't display submodule recipes in `--list` ([#2112](https://github.com/casey/just/pull/2112))
+
+### Added
+- Allow listing recipes in submodules with `--list-submodules` ([#2113](https://github.com/casey/just/pull/2113))
+- Show recipes in submodules with `--show RECIPE::PATH` ([#2111](https://github.com/casey/just/pull/2111))
+- Add `--timestamp-format` ([#2106](https://github.com/casey/just/pull/2106) by [neunenak](https://github.com/neunenak))
+- Allow listing submodule recipes with `--list PATH` ([#2108](https://github.com/casey/just/pull/2108))
+- Print recipe command timestamps with `--timestamps` ([#2084](https://github.com/casey/just/pull/2084) by [neunenak](https://github.com/neunenak))
+- Add `module_file()` and `module_directory()` functions ([#2105](https://github.com/casey/just/pull/2105))
+
+### Fixed
+- Use space-separated recipe paths in `--choose` ([#2115](https://github.com/casey/just/pull/2115))
+- Fix bash completion for aliases ([#2104](https://github.com/casey/just/pull/2104) by [laniakea64](https://github.com/laniakea64))
+
+### Misc
+- Don't check in manpage ([#2130](https://github.com/casey/just/pull/2130))
+- Document default shell ([#2129](https://github.com/casey/just/pull/2129))
+- Remove duplicate section in Chinese readme ([#2127](https://github.com/casey/just/pull/2127) by [potterxu](https://github.com/potterxu))
+- Update Chinese readme ([#2124](https://github.com/casey/just/pull/2124) by [potterxu](https://github.com/potterxu))
+- Fix typo in readme ([#2122](https://github.com/casey/just/pull/2122) by [potterxu](https://github.com/potterxu))
+- Don't check in auto-generated completion scripts ([#2120](https://github.com/casey/just/pull/2120))
+- Document when dependencies run in readme ([#2103](https://github.com/casey/just/pull/2103))
+- Build aarch64-pc-windows-msvc release binaries ([#2100](https://github.com/casey/just/pull/2100) by [alshdavid](https://github.com/alshdavid))
+- Clarify that `dotenv-path`-given env file is required ([#2099](https://github.com/casey/just/pull/2099))
+- Print multi-line doc comments before recipe in `--list` ([#2090](https://github.com/casey/just/pull/2090))
+- List unsorted imported recipes by import depth and offset ([#2092](https://github.com/casey/just/pull/2092))
+- Update README.md ([#2091](https://github.com/casey/just/pull/2091) by [laniakea64](https://github.com/laniakea64))
+
 [1.27.0](https://github.com/casey/just/releases/tag/1.27.0) - 2024-05-25
 ------------------------------------------------------------------------
 
