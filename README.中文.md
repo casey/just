@@ -50,7 +50,7 @@ Yay, all your tests passed!
 
 - 错误会尽可能被静态地解决。未知的配方和循环依赖关系会在运行之前被报告。
 
-- `just` 可以 [加载`.env`文件](#env-集成)，简化环境变量注入。
+- `just` 可以 [加载`.env`文件](#环境变量加载)，简化环境变量注入。
 
 - 配方可以在 [命令行中列出](#列出可用的配方)。
 
@@ -917,36 +917,6 @@ Available recipes:
     test # test stuff
 ```
 
-### `.env` 集成
-
-如果 [`dotenv-load`](#环境变量加载) 被设置，`just` 将从一个名为 `.env` 的文件中加载环境变量。这个文件可以和你的 `justfile` 位于同一目录下，或者位于其父目录下。这些变量是环境变量，而不是 `just` 的变量，因此必须使用 `$VARIABLE_NAME` 在配方和反引号中访问。
-
-例如，假如你的 `.env` 文件包含：
-
-```sh
-# 注释，将被忽略
-DATABASE_ADDRESS=localhost:6379
-SERVER_PORT=1337
-```
-
-而你的 `justfile` 包含：
-
-```just
-set dotenv-load
-
-serve:
-  @echo "Starting server with database $DATABASE_ADDRESS on port $SERVER_PORT…"
-  ./server --database $DATABASE_ADDRESS --port $SERVER_PORT
-```
-
-`just serve` 将会输出：
-
-```sh
-$ just serve
-Starting server with database localhost:6379 on port 1337…
-./server --database $DATABASE_ADDRESS --port $SERVER_PORT
-```
-
 ### 变量和替换
 
 支持在变量、字符串、拼接、路径连接和替换中使用 `{{…}}` ：
@@ -1527,7 +1497,7 @@ HOME is '/home/myuser'
 
 #### 从 `.env` 文件加载环境变量
 
-如果 [dotenv-load](#环境变量加载) 被设置，`just` 将从 `.env` 文件中加载环境变量。该文件中的变量将作为环境变量提供给配方。参见 [环境变量集成](#env-集成) 以获得更多信息。
+如果 [dotenv-load](#环境变量加载) 被设置，`just` 将从 `.env` 文件中加载环境变量。该文件中的变量将作为环境变量提供给配方。参见 [环境变量集成](#环境变量加载) 以获得更多信息。
 
 #### 从环境变量中设置 `just` 变量
 
