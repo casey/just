@@ -3673,7 +3673,6 @@ Release x.y.z
 - Update changelog
 - Update changelog contributor credits
 - Update dependencies
-- Update man page
 - Update version references in readme
 ```
 

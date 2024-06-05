@@ -43,6 +43,7 @@ shellcheck:
   shellcheck www/install.sh
 
 man:
+  mkdir -p man
   cargo run -- --man > man/just.1
 
 view-man: man

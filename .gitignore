@@ -10,6 +10,7 @@
 /fuzz/artifacts
 /fuzz/corpus
 /fuzz/target
+/man
 /target
 /test-utilities/Cargo.lock
 /test-utilities/target
