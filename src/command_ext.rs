@@ -6,10 +6,10 @@ pub(crate) trait CommandExt {
     settings: &Settings,
     dotenv: &BTreeMap<String, String>,
     scope: &Scope,
-    unsets: &HashSet<String>,
+    unexports: &HashSet<String>,
   );
 
-  fn export_scope(&mut self, settings: &Settings, scope: &Scope, unsets: &HashSet<String>);
+  fn export_scope(&mut self, settings: &Settings, scope: &Scope, unexports: &HashSet<String>);
 }
 
 impl CommandExt for Command {
@@ -18,24 +18,24 @@ impl CommandExt for Command {
     settings: &Settings,
     dotenv: &BTreeMap<String, String>,
     scope: &Scope,
-    unsets: &HashSet<String>,
+    unexports: &HashSet<String>,
   ) {
     for (name, value) in dotenv {
       self.env(name, value);
     }
 
     if let Some(parent) = scope.parent() {
-      self.export_scope(settings, parent, unsets);
+      self.export_scope(settings, parent, unexports);
     }
   }
 
-  fn export_scope(&mut self, settings: &Settings, scope: &Scope, unsets: &HashSet<String>) {
+  fn export_scope(&mut self, settings: &Settings, scope: &Scope, unexports: &HashSet<String>) {
     if let Some(parent) = scope.parent() {
-      self.export_scope(settings, parent, unsets);
+      self.export_scope(settings, parent, unexports);
     }
 
-    for unset in unsets {
-      self.env_remove(unset);
+    for unexport in unexports {
+      self.env_remove(unexport);
     }
 
     for binding in scope.bindings() {
