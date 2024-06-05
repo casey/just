@@ -20,7 +20,7 @@ pub(crate) enum Error<'src> {
     token: Token<'src>,
     output_error: OutputError,
   },
-  CacheDirIo {
+  RuntimeDirIo {
     io_error: io::Error,
     path: PathBuf,
   },
@@ -287,9 +287,6 @@ impl<'src> ColorDisplay for Error<'src> {
           }?,
         OutputError::Utf8(utf8_error) => write!(f, "Backtick succeeded but stdout was not utf8: {utf8_error}")?,
       }
-      CacheDirIo { io_error, path } => {
-        write!(f, "I/O error in cache dir `{}`: {io_error}", path.display())?;
-      }
       ChooserInvoke { shell_binary, shell_arguments, chooser, io_error} => {
         let chooser = chooser.to_string_lossy();
         write!(f, "Chooser `{shell_binary} {shell_arguments} {chooser}` invocation failed: {io_error}")?;
@@ -407,6 +404,9 @@ impl<'src> ColorDisplay for Error<'src> {
         write!(f, "Recipe `{recipe}` was not confirmed")?;
       }
       RegexCompile { source } => write!(f, "{source}")?,
+      RuntimeDirIo { io_error, path } => {
+        write!(f, "I/O error in runtime dir `{}`: {io_error}", path.display())?;
+      }
       Search { search_error } => Display::fmt(search_error, f)?,
       Shebang { recipe, command, argument, io_error} => {
         if let Some(argument) = argument {
