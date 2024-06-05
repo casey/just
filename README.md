@@ -2053,6 +2053,23 @@ a $A $B=`echo $A`:
 When [export](#export) is set, all `just` variables are exported as environment
 variables.
 
+#### Unexporting Environment Variables
+
+Environment variables can be unexported with the `unexport keyword`:
+
+```just
+unexport FOO
+
+@foo:
+  echo $FOO
+```
+
+```
+$ export FOO=bar
+$ just foo
+sh: FOO: unbound variable
+```
+
 #### Getting Environment Variables from the environment
 
 Environment variables from the environment are passed automatically to the
