@@ -2053,7 +2053,7 @@ a $A $B=`echo $A`:
 When [export](#export) is set, all `just` variables are exported as environment
 variables.
 
-#### Unexporting Environment Variables
+#### Unexporting Environment Variables<sup>master</sup>
 
 Environment variables can be unexported with the `unexport keyword`:
 
