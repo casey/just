@@ -622,6 +622,8 @@ test:
 
 You can also use dependencies to run multiple recipes by default:
 
+
+
 ```just
 default: lint build test
 
@@ -634,6 +636,8 @@ test:
 lint:
   echo Linting…
 ```
+
+_Note:_ just will not run a recipe twice, even if referenced multiple times.
 
 If no recipe makes sense as the default recipe, you can add a recipe to the
 beginning of your `justfile` that lists the available recipes:
@@ -805,22 +809,22 @@ foo:
 
 #### Table of Settings
 
-| Name | Value | Default | Description |
-|------|-------|---------|-------------|
-| `allow-duplicate-recipes` | boolean | `false` | Allow recipes appearing later in a `justfile` to override earlier recipes with the same name. |
-| `allow-duplicate-variables` | boolean | `false` | Allow variables appearing later in a `justfile` to override earlier variables with the same name. |
-| `dotenv-filename` | string | - | Load a `.env` file with a custom name, if present. |
-| `dotenv-load` | boolean | `false` | Load a `.env` file, if present. |
-| `dotenv-path` | string | - | Load a `.env` file from a custom path and error if not present. Overrides `dotenv-filename`. |
-| `dotenv-required` | boolean | `false` | Error if a `.env` file isn't found. |
-| `export` | boolean | `false` | Export all variables as environment variables. |
-| `fallback` | boolean | `false` | Search `justfile` in parent directory if the first recipe on the command line is not found. |
-| `ignore-comments` | boolean | `false` | Ignore recipe lines beginning with `#`. |
-| `positional-arguments` | boolean | `false` | Pass positional arguments. |
-| `shell` | `[COMMAND, ARGS…]` | - | Set the command used to invoke recipes and evaluate backticks. |
-| `tempdir` | string | - | Create temporary directories in `tempdir` instead of the system default temporary directory. |
-| `windows-powershell` | boolean | `false` | Use PowerShell on Windows as default shell. (Deprecated. Use `windows-shell` instead. |
-| `windows-shell` | `[COMMAND, ARGS…]` | - | Set the command used to invoke recipes and evaluate backticks. |
+| Name                        | Value              | Default | Description                                                                                       |
+| --------------------------- | ------------------ | ------- | ------------------------------------------------------------------------------------------------- |
+| `allow-duplicate-recipes`   | boolean            | `false` | Allow recipes appearing later in a `justfile` to override earlier recipes with the same name.     |
+| `allow-duplicate-variables` | boolean            | `false` | Allow variables appearing later in a `justfile` to override earlier variables with the same name. |
+| `dotenv-filename`           | string             | -       | Load a `.env` file with a custom name, if present.                                                |
+| `dotenv-load`               | boolean            | `false` | Load a `.env` file, if present.                                                                   |
+| `dotenv-path`               | string             | -       | Load a `.env` file from a custom path and error if not present. Overrides `dotenv-filename`.      |
+| `dotenv-required`           | boolean            | `false` | Error if a `.env` file isn't found.                                                               |
+| `export`                    | boolean            | `false` | Export all variables as environment variables.                                                    |
+| `fallback`                  | boolean            | `false` | Search `justfile` in parent directory if the first recipe on the command line is not found.       |
+| `ignore-comments`           | boolean            | `false` | Ignore recipe lines beginning with `#`.                                                           |
+| `positional-arguments`      | boolean            | `false` | Pass positional arguments.                                                                        |
+| `shell`                     | `[COMMAND, ARGS…]` | -       | Set the command used to invoke recipes and evaluate backticks.                                    |
+| `tempdir`                   | string             | -       | Create temporary directories in `tempdir` instead of the system default temporary directory.      |
+| `windows-powershell`        | boolean            | `false` | Use PowerShell on Windows as default shell. (Deprecated. Use `windows-shell` instead.             |
+| `windows-shell`             | `[COMMAND, ARGS…]` | -       | Set the command used to invoke recipes and evaluate backticks.                                    |
 
 Boolean settings can be written as:
 
@@ -1296,12 +1300,12 @@ Strings prefixed with `x` are shell expanded<sup>1.27.0</sup>:
 foobar := x'~/$FOO/${BAR}'
 ```
 
-| Value | Replacement |
-|------|-------------|
-| `$VAR` | value of environment variable `VAR` |
-| `${VAR}` | value of environment variable `VAR` |
-| Leading `~` | path to current user's home directory |
-| Leading `~USER` | path to `USER`'s home directory |
+| Value           | Replacement                           |
+| --------------- | ------------------------------------- |
+| `$VAR`          | value of environment variable `VAR`   |
+| `${VAR}`        | value of environment variable `VAR`   |
+| Leading `~`     | path to current user's home directory |
+| Leading `~USER` | path to `USER`'s home directory       |
 
 This expansion is performed at compile time, so variables from `.env` files and
 exported `just` variables cannot be used. However, this allows shell expanded
@@ -1649,9 +1653,9 @@ and are implemented with the
 
 A number of constants are predefined:
 
-| Name | Value |
-|------|-------------|
-| `HEX`<sup>1.27.0</sup> | `"0123456789abcdef"` |
+| Name                        | Value                |
+| --------------------------- | -------------------- |
+| `HEX`<sup>1.27.0</sup>      | `"0123456789abcdef"` |
 | `HEXLOWER`<sup>1.27.0</sup> | `"0123456789abcdef"` |
 | `HEXUPPER`<sup>1.27.0</sup> | `"0123456789ABCDEF"` |
 
@@ -1669,20 +1673,20 @@ $ just foo
 
 Recipes may be annotated with attributes that change their behavior.
 
-| Name | Description |
-|------|-------------|
-| `[confirm]`<sup>1.17.0</sup> | Require confirmation prior to executing recipe. |
-| `[confirm('PROMPT')]`<sup>1.23.0</sup> | Require confirmation prior to executing recipe with a custom prompt. |
-| `[doc('DOC')]`<sup>1.27.0</sup> | Set recipe's [documentation comment](#documentation-comments) to `DOC`. |
-| `[group('NAME')]`<sup>1.27.0</sup> | Put recipe in [recipe group](#recipe-groups) `NAME`. |
-| `[linux]`<sup>1.8.0</sup> | Enable recipe on Linux. |
-| `[macos]`<sup>1.8.0</sup> | Enable recipe on MacOS. |
-| `[no-cd]`<sup>1.9.0</sup> | Don't change directory before executing recipe. |
-| `[no-exit-message]`<sup>1.7.0</sup> | Don't print an error message if recipe fails. |
-| `[no-quiet]`<sup>1.23.0</sup> | Override globally quiet recipes and always echo out the recipe. |
-| `[private]`<sup>1.10.0</sup> | See [Private Recipes](#private-recipes). |
-| `[unix]`<sup>1.8.0</sup> | Enable recipe on Unixes. (Includes MacOS). |
-| `[windows]`<sup>1.8.0</sup> | Enable recipe on Windows. |
+| Name                                   | Description                                                             |
+| -------------------------------------- | ----------------------------------------------------------------------- |
+| `[confirm]`<sup>1.17.0</sup>           | Require confirmation prior to executing recipe.                         |
+| `[confirm('PROMPT')]`<sup>1.23.0</sup> | Require confirmation prior to executing recipe with a custom prompt.    |
+| `[doc('DOC')]`<sup>1.27.0</sup>        | Set recipe's [documentation comment](#documentation-comments) to `DOC`. |
+| `[group('NAME')]`<sup>1.27.0</sup>     | Put recipe in [recipe group](#recipe-groups) `NAME`.                    |
+| `[linux]`<sup>1.8.0</sup>              | Enable recipe on Linux.                                                 |
+| `[macos]`<sup>1.8.0</sup>              | Enable recipe on MacOS.                                                 |
+| `[no-cd]`<sup>1.9.0</sup>              | Don't change directory before executing recipe.                         |
+| `[no-exit-message]`<sup>1.7.0</sup>    | Don't print an error message if recipe fails.                           |
+| `[no-quiet]`<sup>1.23.0</sup>          | Override globally quiet recipes and always echo out the recipe.         |
+| `[private]`<sup>1.10.0</sup>           | See [Private Recipes](#private-recipes).                                |
+| `[unix]`<sup>1.8.0</sup>               | Enable recipe on Unixes. (Includes MacOS).                              |
+| `[windows]`<sup>1.8.0</sup>            | Enable recipe on Windows.                                               |
 
 A recipe can have multiple attributes, either on multiple lines:
 
