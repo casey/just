@@ -126,11 +126,10 @@ fn list_groups_with_custom_prefix() {
   Test::new()
     .justfile(
       "
-        [group('B')]
+        [group: 'B']
         foo:
 
-        [group('A')]
-        [group('B')]
+        [group: 'A', group: 'B']
         bar:
       ",
     )

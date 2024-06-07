@@ -987,15 +987,29 @@ impl<'run, 'src> Parser<'run, 'src> {
       loop {
         let name = self.parse_name()?;
 
-        let argument = if self.accepted(ParenL)? {
-          let argument = self.parse_string_literal()?;
-          self.expect(ParenR)?;
-          Some(argument)
+        let arguments: Vec<StringLiteral> = if self.next_is(Colon) {
+          self.presume(Colon)?;
+          let single_arg = self.parse_string_literal()?;
+          vec![single_arg]
+        } else if self.next_is(ParenL) {
+          self.presume(ParenL)?;
+          let mut args = Vec::new();
+          loop {
+            args.push(self.parse_string_literal()?);
+            if self.next_is(ParenR) {
+              self.presume(ParenR)?;
+              break;
+            }
+            if self.next_is(Comma) {
+              self.presume(Comma)?;
+            }
+          }
+          args
         } else {
-          None
+          Vec::new()
         };
 
-        let attribute = Attribute::new(name, argument)?;
+        let attribute = Attribute::new(name, arguments)?;
 
         if let Some(line) = attributes.get(&attribute) {
           return Err(name.error(CompileErrorKind::DuplicateAttribute {
@@ -1155,6 +1169,18 @@ mod tests {
   test! {
     name: alias_with_attribute,
     text: "[private]\nalias t := test",
+    tree: (justfile (alias t test)),
+  }
+
+  test! {
+    name: single_argument_attribute_shorthand,
+    text: "[group: 'some-group']\nalias t := test",
+    tree: (justfile (alias t test)),
+  }
+
+  test! {
+    name: single_argument_attribute_shorthand_multiple_same_line,
+    text: "[group: 'some-group', group: 'some-other-group']\nalias t := test",
     tree: (justfile (alias t test)),
   }
 

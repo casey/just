@@ -130,7 +130,7 @@ fn confirm_recipe_with_prompt_too_many_args() {
             echo confirmed
         ",
     )
-    .stderr("error: Expected ')', but found ','\n ——▶ justfile:1:64\n  │\n1 │ [confirm(\"This is dangerous - are you sure you want to run it?\",\"this second argument is not supported\")]\n  │                                                                ^\n")
+    .stderr("error: Attribute `confirm` got 2 arguments but takes at most 1 argument\n ——▶ justfile:1:2\n  │\n1 │ [confirm(\"This is dangerous - are you sure you want to run it?\",\"this second argument is not supported\")]\n  │  ^^^^^^^\n")
     .stdout("")
     .status(1)
     .run();
