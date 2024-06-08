@@ -231,7 +231,15 @@ impl Subcommand {
       return Err(Error::NoChoosableRecipes);
     }
 
-    let chooser = chooser.map_or_else(|| config::chooser_default(&search.justfile), From::from);
+    let chooser = if let Some(chooser) = chooser {
+      OsString::from(chooser)
+    } else {
+      let mut chooser = OsString::new();
+      chooser.push("fzf --multi --preview 'just --unstable --color always --justfile \"");
+      chooser.push(&search.justfile);
+      chooser.push("\" --show {}'");
+      chooser
+    };
 
     let result = justfile
       .settings

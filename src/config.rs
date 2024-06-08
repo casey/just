@@ -11,14 +11,6 @@ const CHOOSE_HELP: &str = "Select one or more recipes to run using a binary choo
                            If `--chooser` is not passed the chooser defaults to the \
                            value of $JUST_CHOOSER, falling back to `fzf`";
 
-pub(crate) fn chooser_default(justfile: &Path) -> OsString {
-  let mut chooser = OsString::new();
-  chooser.push("fzf --multi --preview 'just --unstable --color always --justfile \"");
-  chooser.push(justfile);
-  chooser.push("\" --show {}'");
-  chooser
-}
-
 #[derive(Debug, PartialEq)]
 pub(crate) struct Config {
   pub(crate) check: bool,
