@@ -14,12 +14,12 @@ pub(crate) enum Shell {
 impl Shell {
   pub(crate) fn script(self) -> RunResult<'static, String> {
     match self {
-      completions::Shell::Bash => completions::clap(clap_complete::Shell::Bash),
-      completions::Shell::Elvish => completions::clap(clap_complete::Shell::Elvish),
-      completions::Shell::Fish => completions::clap(clap_complete::Shell::Fish),
-      completions::Shell::Nushell => Ok(completions::NUSHELL_COMPLETION_SCRIPT.into()),
-      completions::Shell::Powershell => completions::clap(clap_complete::Shell::PowerShell),
-      completions::Shell::Zsh => completions::clap(clap_complete::Shell::Zsh),
+      Self::Bash => completions::clap(clap_complete::Shell::Bash),
+      Self::Elvish => completions::clap(clap_complete::Shell::Elvish),
+      Self::Fish => completions::clap(clap_complete::Shell::Fish),
+      Self::Nushell => Ok(completions::NUSHELL_COMPLETION_SCRIPT.into()),
+      Self::Powershell => completions::clap(clap_complete::Shell::PowerShell),
+      Self::Zsh => completions::clap(clap_complete::Shell::Zsh),
     }
   }
 }

@@ -381,8 +381,7 @@ impl Config {
       .arg(
         Arg::new(cmd::COMPLETIONS)
           .long("completions")
-          .action(ArgAction::Append)
-          .num_args(1..)
+          .action(ArgAction::Set)
           .value_name("SHELL")
           .value_parser(value_parser!(completions::Shell))
           .ignore_case(true)
@@ -1544,15 +1543,15 @@ mod tests {
   }
 
   error_matches! {
-    name: completions_arguments,
-    args: ["--completions", "zsh", "foo"],
+    name: completions_argument,
+    args: ["--completions", "foo"],
     error: error,
     check: {
       assert_eq!(error.kind(), clap::error::ErrorKind::InvalidValue);
       assert_eq!(error.context().collect::<Vec<_>>(), vec![
         (
           ContextKind::InvalidArg,
-          &ContextValue::String("--completions <SHELL>...".into())),
+          &ContextValue::String("--completions <SHELL>".into())),
         (
           ContextKind::InvalidValue,
           &ContextValue::String("foo".into()),
