@@ -146,7 +146,7 @@ impl<'src, D> Recipe<'src, D> {
 
   pub(crate) fn run<'run>(
     &self,
-    context: &Context<'src, 'run>,
+    context: &ExecutionContext<'src, 'run>,
     scope: &Scope<'src, 'run>,
     positional: &[String],
   ) -> RunResult<'src, ()> {
@@ -173,7 +173,7 @@ impl<'src, D> Recipe<'src, D> {
 
   fn run_linewise<'run>(
     &self,
-    context: &Context<'src, 'run>,
+    context: &ExecutionContext<'src, 'run>,
     scope: &Scope<'src, 'run>,
     positional: &[String],
     config: &Config,
@@ -305,7 +305,7 @@ impl<'src, D> Recipe<'src, D> {
 
   pub(crate) fn run_shebang<'run>(
     &self,
-    context: &Context<'src, 'run>,
+    context: &ExecutionContext<'src, 'run>,
     scope: &Scope<'src, 'run>,
     positional: &[String],
     config: &Config,

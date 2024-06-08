@@ -2,7 +2,7 @@ use super::*;
 
 pub(crate) struct Evaluator<'src: 'run, 'run> {
   pub(crate) assignments: Option<&'run Table<'src, Assignment<'src>>>,
-  pub(crate) context: Context<'src, 'run>,
+  pub(crate) context: ExecutionContext<'src, 'run>,
   pub(crate) scope: Scope<'src, 'run>,
 }
 
@@ -18,7 +18,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
   where
     'src: 'run,
   {
-    let context = Context {
+    let context = ExecutionContext {
       config,
       dotenv,
       module_source: &module.source,
@@ -279,7 +279,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
   }
 
   pub(crate) fn evaluate_parameters(
-    context: &Context<'src, 'run>,
+    context: &ExecutionContext<'src, 'run>,
     arguments: &[String],
     parameters: &[Parameter<'src>],
   ) -> RunResult<'src, (Scope<'src, 'run>, Vec<String>)> {
@@ -326,7 +326,10 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     Ok((evaluator.scope, positional))
   }
 
-  pub(crate) fn new(context: &Context<'src, 'run>, scope: &'run Scope<'src, 'run>) -> Self {
+  pub(crate) fn new(
+    context: &ExecutionContext<'src, 'run>,
+    scope: &'run Scope<'src, 'run>,
+  ) -> Self {
     Self {
       context: *context,
       assignments: None,

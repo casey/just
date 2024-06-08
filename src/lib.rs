@@ -20,19 +20,20 @@ pub(crate) use {
     color::Color, color_display::ColorDisplay, command_ext::CommandExt, compilation::Compilation,
     compile_error::CompileError, compile_error_kind::CompileErrorKind, compiler::Compiler,
     condition::Condition, conditional_operator::ConditionalOperator, config::Config,
-    config_error::ConfigError, constants::constants, context::Context, count::Count,
-    delimiter::Delimiter, dependency::Dependency, dump_format::DumpFormat, enclosure::Enclosure,
-    error::Error, evaluator::Evaluator, expression::Expression, fragment::Fragment,
-    function::Function, interrupt_guard::InterruptGuard, interrupt_handler::InterruptHandler,
-    item::Item, justfile::Justfile, keyed::Keyed, keyword::Keyword, lexer::Lexer, line::Line,
-    list::List, load_dotenv::load_dotenv, loader::Loader, module_path::ModulePath, name::Name,
-    namepath::Namepath, ordinal::Ordinal, output::output, output_error::OutputError,
-    parameter::Parameter, parameter_kind::ParameterKind, parser::Parser, platform::Platform,
-    platform_interface::PlatformInterface, position::Position, positional::Positional, ran::Ran,
-    range_ext::RangeExt, recipe::Recipe, recipe_resolver::RecipeResolver,
-    recipe_signature::RecipeSignature, scope::Scope, search::Search, search_config::SearchConfig,
-    search_error::SearchError, set::Set, setting::Setting, settings::Settings, shebang::Shebang,
-    shell::Shell, show_whitespace::ShowWhitespace, source::Source, string_kind::StringKind,
+    config_error::ConfigError, constants::constants, count::Count, delimiter::Delimiter,
+    dependency::Dependency, dump_format::DumpFormat, enclosure::Enclosure, error::Error,
+    evaluator::Evaluator, execution_context::ExecutionContext, expression::Expression,
+    fragment::Fragment, function::Function, interrupt_guard::InterruptGuard,
+    interrupt_handler::InterruptHandler, item::Item, justfile::Justfile, keyed::Keyed,
+    keyword::Keyword, lexer::Lexer, line::Line, list::List, load_dotenv::load_dotenv,
+    loader::Loader, module_path::ModulePath, name::Name, namepath::Namepath, ordinal::Ordinal,
+    output::output, output_error::OutputError, parameter::Parameter, parameter_kind::ParameterKind,
+    parser::Parser, platform::Platform, platform_interface::PlatformInterface, position::Position,
+    positional::Positional, ran::Ran, range_ext::RangeExt, recipe::Recipe,
+    recipe_resolver::RecipeResolver, recipe_signature::RecipeSignature, scope::Scope,
+    search::Search, search_config::SearchConfig, search_error::SearchError, set::Set,
+    setting::Setting, settings::Settings, shebang::Shebang, shell::Shell,
+    show_whitespace::ShowWhitespace, source::Source, string_kind::StringKind,
     string_literal::StringLiteral, subcommand::Subcommand, suggestion::Suggestion, table::Table,
     thunk::Thunk, token::Token, token_kind::TokenKind, unresolved_dependency::UnresolvedDependency,
     unresolved_recipe::UnresolvedRecipe, use_color::UseColor, variables::Variables,
@@ -131,7 +132,6 @@ mod conditional_operator;
 mod config;
 mod config_error;
 mod constants;
-mod context;
 mod count;
 mod delimiter;
 mod dependency;
@@ -139,6 +139,7 @@ mod dump_format;
 mod enclosure;
 mod error;
 mod evaluator;
+mod execution_context;
 mod expression;
 mod fragment;
 mod function;

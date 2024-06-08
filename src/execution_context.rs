@@ -1,7 +1,7 @@
 use super::*;
 
 #[derive(Copy, Clone)]
-pub(crate) struct Context<'src: 'run, 'run> {
+pub(crate) struct ExecutionContext<'src: 'run, 'run> {
   pub(crate) config: &'run Config,
   pub(crate) dotenv: &'run BTreeMap<String, String>,
   pub(crate) module_source: &'run Path,

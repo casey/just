@@ -237,7 +237,7 @@ impl<'src> Justfile<'src> {
 
     let mut ran = Ran::default();
     for invocation in invocations {
-      let context = Context {
+      let context = ExecutionContext {
         config,
         dotenv: &dotenv,
         module_source: invocation.module_source,
@@ -382,7 +382,7 @@ impl<'src> Justfile<'src> {
 
   fn run_recipe(
     arguments: &[String],
-    context: &Context<'src, '_>,
+    context: &ExecutionContext<'src, '_>,
     ran: &mut Ran<'src>,
     recipe: &Recipe<'src>,
   ) -> RunResult<'src> {
