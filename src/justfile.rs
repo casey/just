@@ -156,7 +156,7 @@ impl<'src> Justfile<'src> {
             });
           }
         } else {
-          let width = scope.names().fold(0, |acc, name| cmp::max(name.len(), acc));
+          let width = scope.names().fold(0, |max, name| cmp::max(name.len(), max));
 
           for binding in scope.bindings() {
             println!(
