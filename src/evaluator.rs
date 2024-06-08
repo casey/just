@@ -4,6 +4,7 @@ pub(crate) struct Evaluator<'src: 'run, 'run> {
   pub(crate) assignments: Option<&'run Table<'src, Assignment<'src>>>,
   pub(crate) context: ExecutionContext<'src, 'run>,
   pub(crate) scope: Scope<'src, 'run>,
+  pub(crate) is_dependency: bool,
 }
 
 impl<'src, 'run> Evaluator<'src, 'run> {
@@ -49,6 +50,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       context,
       assignments: Some(&module.assignments),
       scope,
+      is_dependency: false,
     };
 
     for assignment in module.assignments.values() {
@@ -282,8 +284,9 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     context: &ExecutionContext<'src, 'run>,
     arguments: &[String],
     parameters: &[Parameter<'src>],
+    is_dependency: bool,
   ) -> RunResult<'src, (Scope<'src, 'run>, Vec<String>)> {
-    let mut evaluator = Self::new(context, context.scope);
+    let mut evaluator = Self::new(context, context.scope, is_dependency);
 
     let mut positional = Vec::new();
 
@@ -325,11 +328,13 @@ impl<'src, 'run> Evaluator<'src, 'run> {
   pub(crate) fn new(
     context: &ExecutionContext<'src, 'run>,
     scope: &'run Scope<'src, 'run>,
+    is_dependency: bool,
   ) -> Self {
     Self {
       context: *context,
       assignments: None,
       scope: scope.child(),
+      is_dependency,
     }
   }
 }

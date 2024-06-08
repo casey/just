@@ -1027,3 +1027,26 @@ import
     )
     .run();
 }
+
+#[test]
+fn is_dependency() {
+  let justfile = "
+    alpha: beta
+      @echo 'alpha {{is_dependency()}}'
+    beta: && gamma
+      @echo 'beta {{is_dependency()}}'
+    gamma:
+      @echo 'gamma {{is_dependency()}}'
+  ";
+  Test::new()
+    .args(["alpha"])
+    .justfile(justfile)
+    .stdout("beta true\ngamma true\nalpha false\n")
+    .run();
+
+  Test::new()
+    .args(["beta"])
+    .justfile(justfile)
+    .stdout("beta false\ngamma true\n")
+    .run();
+}

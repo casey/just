@@ -59,6 +59,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "home_directory" => Nullary(|_| dir("home", dirs::home_dir)),
     "invocation_directory" => Nullary(invocation_directory),
     "invocation_directory_native" => Nullary(invocation_directory_native),
+    "is_dependency" => Nullary(is_dependency),
     "join" => BinaryPlus(join),
     "just_executable" => Nullary(just_executable),
     "just_pid" => Nullary(just_pid),
@@ -339,6 +340,10 @@ fn invocation_directory_native(context: Context) -> Result<String, String> {
           .display()
       )
     })
+}
+
+fn is_dependency(context: Context) -> Result<String, String> {
+  Ok(context.evaluator.is_dependency.to_string())
 }
 
 fn prepend(_context: Context, prefix: &str, s: &str) -> Result<String, String> {
