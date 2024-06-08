@@ -16,7 +16,6 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     context: &'run RecipeContext,
     assignments: Option<&'run Table<'src, Assignment<'src>>>,
     scope: Scope<'src, 'run>,
-    search: &'run Search,
   ) -> Self {
     Self {
       assignments,
@@ -24,7 +23,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       dotenv: context.dotenv,
       module_source: context.module_source,
       scope,
-      search,
+      search: context.search,
       settings: context.settings,
       unsets: context.unexports,
     }
@@ -277,9 +276,8 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     context: &'run RecipeContext<'src, 'run>,
     arguments: &[String],
     parameters: &[Parameter<'src>],
-    search: &'run Search,
   ) -> RunResult<'src, (Scope<'src, 'run>, Vec<String>)> {
-    let mut evaluator = Self::new(context, None, context.scope.child(), search);
+    let mut evaluator = Self::new(context, None, context.scope.child());
     let mut scope = context.scope.child();
 
     let mut positional = Vec::new();
@@ -320,9 +318,8 @@ impl<'src, 'run> Evaluator<'src, 'run> {
   pub(crate) fn recipe_evaluator(
     context: &'run RecipeContext,
     scope: &'run Scope<'src, 'run>,
-    search: &'run Search,
   ) -> Self {
-    Self::new(context, None, Scope::child(scope), search)
+    Self::new(context, None, Scope::child(scope))
   }
 }
 

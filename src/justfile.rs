@@ -297,7 +297,6 @@ impl<'src> Justfile<'src> {
         &context,
         &mut ran,
         invocation.recipe,
-        search,
       )?;
     }
 
@@ -419,7 +418,6 @@ impl<'src> Justfile<'src> {
     context: &RecipeContext<'src, '_>,
     ran: &mut Ran<'src>,
     recipe: &Recipe<'src>,
-    search: &Search,
   ) -> RunResult<'src> {
     if ran.has_run(&recipe.namepath, arguments) {
       return Ok(());
@@ -432,11 +430,11 @@ impl<'src> Justfile<'src> {
     }
 
     let (outer, positional) =
-      Evaluator::evaluate_parameters(context, arguments, &recipe.parameters, search)?;
+      Evaluator::evaluate_parameters(context, arguments, &recipe.parameters)?;
 
     let scope = outer.child();
 
-    let mut evaluator = Evaluator::recipe_evaluator(context, &scope, search);
+    let mut evaluator = Evaluator::recipe_evaluator(context, &scope);
 
     let mut run_dependencies =
       |deps: &mut dyn Iterator<Item = &Dependency<'src>>, ran: &mut Ran<'src>| -> RunResult<'src> {
@@ -448,7 +446,7 @@ impl<'src> Justfile<'src> {
               .map(|argument| evaluator.evaluate_expression(argument))
               .collect::<RunResult<Vec<String>>>()?;
 
-            Self::run_recipe(&arguments, context, ran, &dep.recipe, search)?;
+            Self::run_recipe(&arguments, context, ran, &dep.recipe)?;
           }
         }
         Ok(())
