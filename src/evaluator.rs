@@ -22,7 +22,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       config,
       dotenv,
       module_source: &module.source,
-      scope: &parent,
+      scope: parent,
       search,
       settings: &module.settings,
       unexports: &module.unexports,
