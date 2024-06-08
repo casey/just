@@ -987,15 +987,18 @@ impl<'run, 'src> Parser<'run, 'src> {
       loop {
         let name = self.parse_name()?;
 
-        let argument = if self.accepted(ParenL)? {
-          let argument = self.parse_string_literal()?;
+        let maybe_argument = if self.accepted(Colon)? {
+          let arg = self.parse_string_literal()?;
+          Some(arg)
+        } else if self.accepted(ParenL)? {
+          let arg = self.parse_string_literal()?;
           self.expect(ParenR)?;
-          Some(argument)
+          Some(arg)
         } else {
           None
         };
 
-        let attribute = Attribute::new(name, argument)?;
+        let attribute = Attribute::new(name, maybe_argument)?;
 
         if let Some(line) = attributes.get(&attribute) {
           return Err(name.error(CompileErrorKind::DuplicateAttribute {
@@ -1155,6 +1158,18 @@ mod tests {
   test! {
     name: alias_with_attribute,
     text: "[private]\nalias t := test",
+    tree: (justfile (alias t test)),
+  }
+
+  test! {
+    name: single_argument_attribute_shorthand,
+    text: "[group: 'some-group']\nalias t := test",
+    tree: (justfile (alias t test)),
+  }
+
+  test! {
+    name: single_argument_attribute_shorthand_multiple_same_line,
+    text: "[group: 'some-group', group: 'some-other-group']\nalias t := test",
     tree: (justfile (alias t test)),
   }
 
