@@ -28,7 +28,7 @@ fn bash() {
 
 #[test]
 fn replacements() {
-  for shell in ["bash", "elvish", "fish", "powershell", "zsh"] {
+  for shell in ["bash", "elvish", "fish", "nushell", "powershell", "zsh"] {
     let output = Command::new(executable_path("just"))
       .args(["--completions", shell])
       .output()
