@@ -283,11 +283,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     arguments: &[String],
     parameters: &[Parameter<'src>],
   ) -> RunResult<'src, (Scope<'src, 'run>, Vec<String>)> {
-    let mut evaluator = Self {
-      context: *context,
-      assignments: None,
-      scope: context.scope.child(),
-    };
+    let mut evaluator = Self::new(context, &context.scope);
 
     let mut positional = Vec::new();
 
