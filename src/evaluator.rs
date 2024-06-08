@@ -2,38 +2,56 @@ use super::*;
 
 pub(crate) struct Evaluator<'src: 'run, 'run> {
   pub(crate) assignments: Option<&'run Table<'src, Assignment<'src>>>,
-  pub(crate) config: &'run Config,
-  pub(crate) dotenv: &'run BTreeMap<String, String>,
-  pub(crate) module_source: &'run Path,
+  pub(crate) context: ExecutionContext<'src, 'run>,
   pub(crate) scope: Scope<'src, 'run>,
-  pub(crate) search: &'run Search,
-  pub(crate) settings: &'run Settings<'run>,
-  unsets: &'run HashSet<String>,
 }
 
 impl<'src, 'run> Evaluator<'src, 'run> {
   pub(crate) fn evaluate_assignments(
-    assignments: &'run Table<'src, Assignment<'src>>,
     config: &'run Config,
     dotenv: &'run BTreeMap<String, String>,
-    module_source: &'run Path,
-    scope: Scope<'src, 'run>,
+    module: &'run Justfile<'src>,
+    overrides: &BTreeMap<String, String>,
+    parent: &'run Scope<'src, 'run>,
     search: &'run Search,
-    settings: &'run Settings<'run>,
-    unsets: &'run HashSet<String>,
-  ) -> RunResult<'src, Scope<'src, 'run>> {
-    let mut evaluator = Self {
-      assignments: Some(assignments),
+  ) -> RunResult<'src, Scope<'src, 'run>>
+  where
+    'src: 'run,
+  {
+    let context = ExecutionContext {
       config,
       dotenv,
-      module_source,
-      scope,
+      module_source: &module.source,
+      scope: parent,
       search,
-      settings,
-      unsets,
+      settings: &module.settings,
+      unexports: &module.unexports,
     };
 
-    for assignment in assignments.values() {
+    let mut scope = context.scope.child();
+    let mut unknown_overrides = Vec::new();
+
+    for (name, value) in overrides {
+      if let Some(assignment) = module.assignments.get(name) {
+        scope.bind(assignment.export, assignment.name, value.clone());
+      } else {
+        unknown_overrides.push(name.clone());
+      }
+    }
+
+    if !unknown_overrides.is_empty() {
+      return Err(Error::UnknownOverrides {
+        overrides: unknown_overrides,
+      });
+    }
+
+    let mut evaluator = Self {
+      context,
+      assignments: Some(&module.assignments),
+      scope,
+    };
+
+    for assignment in module.assignments.values() {
       evaluator.evaluate_assignment(assignment)?;
     }
 
@@ -155,7 +173,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       }
       Expression::StringLiteral { string_literal } => Ok(string_literal.cooked.clone()),
       Expression::Backtick { contents, token } => {
-        if self.config.dry_run {
+        if self.context.config.dry_run {
           Ok(format!("`{contents}`"))
         } else {
           Ok(self.run_backtick(contents, token)?)
@@ -216,13 +234,18 @@ impl<'src, 'run> Evaluator<'src, 'run> {
   }
 
   pub(crate) fn run_command(&self, command: &str, args: &[&str]) -> Result<String, OutputError> {
-    let mut cmd = self.settings.shell_command(self.config);
+    let mut cmd = self.context.settings.shell_command(self.context.config);
     cmd.arg(command);
     cmd.args(args);
-    cmd.current_dir(&self.search.working_directory);
-    cmd.export(self.settings, self.dotenv, &self.scope, self.unsets);
+    cmd.current_dir(&self.context.search.working_directory);
+    cmd.export(
+      self.context.settings,
+      self.context.dotenv,
+      &self.scope,
+      self.context.unexports,
+    );
     cmd.stdin(Stdio::inherit());
-    cmd.stderr(if self.config.verbosity.quiet() {
+    cmd.stderr(if self.context.config.verbosity.quiet() {
       Stdio::null()
     } else {
       Stdio::inherit()
@@ -256,28 +279,11 @@ impl<'src, 'run> Evaluator<'src, 'run> {
   }
 
   pub(crate) fn evaluate_parameters(
+    context: &ExecutionContext<'src, 'run>,
     arguments: &[String],
-    config: &'run Config,
-    dotenv: &'run BTreeMap<String, String>,
-    module_source: &'run Path,
     parameters: &[Parameter<'src>],
-    scope: &'run Scope<'src, 'run>,
-    search: &'run Search,
-    settings: &'run Settings,
-    unsets: &'run HashSet<String>,
   ) -> RunResult<'src, (Scope<'src, 'run>, Vec<String>)> {
-    let mut evaluator = Self {
-      assignments: None,
-      config,
-      dotenv,
-      module_source,
-      scope: scope.child(),
-      search,
-      settings,
-      unsets,
-    };
-
-    let mut scope = scope.child();
+    let mut evaluator = Self::new(context, context.scope);
 
     let mut positional = Vec::new();
 
@@ -308,30 +314,22 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         rest = &rest[1..];
         value
       };
-      scope.bind(parameter.export, parameter.name, value);
+      evaluator
+        .scope
+        .bind(parameter.export, parameter.name, value);
     }
 
-    Ok((scope, positional))
+    Ok((evaluator.scope, positional))
   }
 
-  pub(crate) fn recipe_evaluator(
-    config: &'run Config,
-    dotenv: &'run BTreeMap<String, String>,
-    module_source: &'run Path,
+  pub(crate) fn new(
+    context: &ExecutionContext<'src, 'run>,
     scope: &'run Scope<'src, 'run>,
-    search: &'run Search,
-    settings: &'run Settings,
-    unsets: &'run HashSet<String>,
   ) -> Self {
     Self {
+      context: *context,
       assignments: None,
-      config,
-      dotenv,
-      module_source,
-      scope: Scope::child(scope),
-      search,
-      settings,
-      unsets,
+      scope: scope.child(),
     }
   }
 }

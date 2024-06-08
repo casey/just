@@ -22,14 +22,14 @@ pub(crate) use {
     condition::Condition, conditional_operator::ConditionalOperator, config::Config,
     config_error::ConfigError, constants::constants, count::Count, delimiter::Delimiter,
     dependency::Dependency, dump_format::DumpFormat, enclosure::Enclosure, error::Error,
-    evaluator::Evaluator, expression::Expression, fragment::Fragment, function::Function,
-    interrupt_guard::InterruptGuard, interrupt_handler::InterruptHandler, item::Item,
-    justfile::Justfile, keyed::Keyed, keyword::Keyword, lexer::Lexer, line::Line, list::List,
-    load_dotenv::load_dotenv, loader::Loader, module_path::ModulePath, name::Name,
-    namepath::Namepath, ordinal::Ordinal, output::output, output_error::OutputError,
-    parameter::Parameter, parameter_kind::ParameterKind, parser::Parser, platform::Platform,
-    platform_interface::PlatformInterface, position::Position, positional::Positional, ran::Ran,
-    range_ext::RangeExt, recipe::Recipe, recipe_context::RecipeContext,
+    evaluator::Evaluator, execution_context::ExecutionContext, expression::Expression,
+    fragment::Fragment, function::Function, interrupt_guard::InterruptGuard,
+    interrupt_handler::InterruptHandler, item::Item, justfile::Justfile, keyed::Keyed,
+    keyword::Keyword, lexer::Lexer, line::Line, list::List, load_dotenv::load_dotenv,
+    loader::Loader, module_path::ModulePath, name::Name, namepath::Namepath, ordinal::Ordinal,
+    output::output, output_error::OutputError, parameter::Parameter, parameter_kind::ParameterKind,
+    parser::Parser, platform::Platform, platform_interface::PlatformInterface, position::Position,
+    positional::Positional, ran::Ran, range_ext::RangeExt, recipe::Recipe,
     recipe_resolver::RecipeResolver, recipe_signature::RecipeSignature, scope::Scope,
     search::Search, search_config::SearchConfig, search_error::SearchError, set::Set,
     setting::Setting, settings::Settings, shebang::Shebang, shell::Shell,
@@ -139,6 +139,7 @@ mod dump_format;
 mod enclosure;
 mod error;
 mod evaluator;
+mod execution_context;
 mod expression;
 mod fragment;
 mod function;
@@ -169,7 +170,6 @@ mod positional;
 mod ran;
 mod range_ext;
 mod recipe;
-mod recipe_context;
 mod recipe_resolver;
 mod recipe_signature;
 mod run;

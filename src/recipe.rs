@@ -146,7 +146,7 @@ impl<'src, D> Recipe<'src, D> {
 
   pub(crate) fn run<'run>(
     &self,
-    context: &RecipeContext<'src, 'run>,
+    context: &ExecutionContext<'src, 'run>,
     scope: &Scope<'src, 'run>,
     positional: &[String],
   ) -> RunResult<'src, ()> {
@@ -162,15 +162,7 @@ impl<'src, D> Recipe<'src, D> {
       );
     }
 
-    let evaluator = Evaluator::recipe_evaluator(
-      context.config,
-      context.dotenv,
-      context.module_source,
-      scope,
-      context.search,
-      context.settings,
-      context.unexports,
-    );
+    let evaluator = Evaluator::new(context, scope);
 
     if self.shebang {
       self.run_shebang(context, scope, positional, config, evaluator)
@@ -181,7 +173,7 @@ impl<'src, D> Recipe<'src, D> {
 
   fn run_linewise<'run>(
     &self,
-    context: &RecipeContext<'src, 'run>,
+    context: &ExecutionContext<'src, 'run>,
     scope: &Scope<'src, 'run>,
     positional: &[String],
     config: &Config,
@@ -313,7 +305,7 @@ impl<'src, D> Recipe<'src, D> {
 
   pub(crate) fn run_shebang<'run>(
     &self,
-    context: &RecipeContext<'src, 'run>,
+    context: &ExecutionContext<'src, 'run>,
     scope: &Scope<'src, 'run>,
     positional: &[String],
     config: &Config,

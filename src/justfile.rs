@@ -78,46 +78,6 @@ impl<'src> Justfile<'src> {
       .next()
   }
 
-  fn scope<'run>(
-    &'run self,
-    config: &'run Config,
-    dotenv: &'run BTreeMap<String, String>,
-    search: &'run Search,
-    overrides: &BTreeMap<String, String>,
-    parent: &'run Scope<'src, 'run>,
-  ) -> RunResult<'src, Scope<'src, 'run>>
-  where
-    'src: 'run,
-  {
-    let mut scope = parent.child();
-    let mut unknown_overrides = Vec::new();
-
-    for (name, value) in overrides {
-      if let Some(assignment) = self.assignments.get(name) {
-        scope.bind(assignment.export, assignment.name, value.clone());
-      } else {
-        unknown_overrides.push(name.clone());
-      }
-    }
-
-    if !unknown_overrides.is_empty() {
-      return Err(Error::UnknownOverrides {
-        overrides: unknown_overrides,
-      });
-    }
-
-    Evaluator::evaluate_assignments(
-      &self.assignments,
-      config,
-      dotenv,
-      &self.source,
-      scope,
-      search,
-      &self.settings,
-      &self.unexports,
-    )
-  }
-
   pub(crate) fn run(
     &self,
     config: &Config,
@@ -145,7 +105,7 @@ impl<'src> Justfile<'src> {
 
     let root = Scope::root();
 
-    let scope = self.scope(config, &dotenv, search, overrides, &root)?;
+    let scope = Evaluator::evaluate_assignments(config, &dotenv, self, overrides, &root, search)?;
 
     match &config.subcommand {
       Subcommand::Command {
@@ -196,11 +156,7 @@ impl<'src> Justfile<'src> {
             });
           }
         } else {
-          let mut width = 0;
-
-          for name in scope.names() {
-            width = cmp::max(name.len(), width);
-          }
+          let width = scope.names().fold(0, |max, name| name.len().max(max));
 
           for binding in scope.bindings() {
             println!(
@@ -281,7 +237,7 @@ impl<'src> Justfile<'src> {
 
     let mut ran = Ran::default();
     for invocation in invocations {
-      let context = RecipeContext {
+      let context = ExecutionContext {
         config,
         dotenv: &dotenv,
         module_source: invocation.module_source,
@@ -301,7 +257,6 @@ impl<'src> Justfile<'src> {
         &context,
         &mut ran,
         invocation.recipe,
-        search,
       )?;
     }
 
@@ -339,7 +294,14 @@ impl<'src> Justfile<'src> {
       let scope = if let Some(scope) = scopes.get(path) {
         scope
       } else {
-        let scope = module.scope(config, dotenv, search, &BTreeMap::new(), parent)?;
+        let scope = Evaluator::evaluate_assignments(
+          config,
+          dotenv,
+          module,
+          &BTreeMap::new(),
+          parent,
+          search,
+        )?;
         let scope = arena.alloc(scope);
         scopes.insert(path.clone(), scope);
         scopes.get(path).unwrap()
@@ -420,10 +382,9 @@ impl<'src> Justfile<'src> {
 
   fn run_recipe(
     arguments: &[String],
-    context: &RecipeContext<'src, '_>,
+    context: &ExecutionContext<'src, '_>,
     ran: &mut Ran<'src>,
     recipe: &Recipe<'src>,
-    search: &Search,
   ) -> RunResult<'src> {
     if ran.has_run(&recipe.namepath, arguments) {
       return Ok(());
@@ -435,29 +396,12 @@ impl<'src> Justfile<'src> {
       });
     }
 
-    let (outer, positional) = Evaluator::evaluate_parameters(
-      arguments,
-      context.config,
-      context.dotenv,
-      context.module_source,
-      &recipe.parameters,
-      context.scope,
-      search,
-      context.settings,
-      context.unexports,
-    )?;
+    let (outer, positional) =
+      Evaluator::evaluate_parameters(context, arguments, &recipe.parameters)?;
 
     let scope = outer.child();
 
-    let mut evaluator = Evaluator::recipe_evaluator(
-      context.config,
-      context.dotenv,
-      context.module_source,
-      &scope,
-      search,
-      context.settings,
-      context.unexports,
-    );
+    let mut evaluator = Evaluator::new(context, &scope);
 
     if !context.config.no_dependencies {
       for Dependency { recipe, arguments } in recipe.dependencies.iter().take(recipe.priors) {
@@ -466,7 +410,7 @@ impl<'src> Justfile<'src> {
           .map(|argument| evaluator.evaluate_expression(argument))
           .collect::<RunResult<Vec<String>>>()?;
 
-        Self::run_recipe(&arguments, context, ran, recipe, search)?;
+        Self::run_recipe(&arguments, context, ran, recipe)?;
       }
     }
 
@@ -482,7 +426,7 @@ impl<'src> Justfile<'src> {
           evaluated.push(evaluator.evaluate_expression(argument)?);
         }
 
-        Self::run_recipe(&evaluated, context, &mut ran, recipe, search)?;
+        Self::run_recipe(&evaluated, context, &mut ran, recipe)?;
       }
     }
 
