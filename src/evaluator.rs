@@ -2,38 +2,56 @@ use super::*;
 
 pub(crate) struct Evaluator<'src: 'run, 'run> {
   pub(crate) assignments: Option<&'run Table<'src, Assignment<'src>>>,
-  pub(crate) config: &'run Config,
-  pub(crate) dotenv: &'run BTreeMap<String, String>,
-  pub(crate) module_source: &'run Path,
+  pub(crate) context: Context<'src, 'run>,
   pub(crate) scope: Scope<'src, 'run>,
-  pub(crate) search: &'run Search,
-  pub(crate) settings: &'run Settings<'run>,
-  unexports: &'run HashSet<String>,
 }
 
 impl<'src, 'run> Evaluator<'src, 'run> {
   pub(crate) fn evaluate_assignments(
-    assignments: &'run Table<'src, Assignment<'src>>,
     config: &'run Config,
     dotenv: &'run BTreeMap<String, String>,
-    module_source: &'run Path,
-    scope: Scope<'src, 'run>,
+    module: &'run Justfile<'src>,
+    overrides: &BTreeMap<String, String>,
+    parent: &'run Scope<'src, 'run>,
     search: &'run Search,
-    settings: &'run Settings<'run>,
-    unexports: &'run HashSet<String>,
-  ) -> RunResult<'src, Scope<'src, 'run>> {
-    let mut evaluator = Self {
-      assignments: Some(assignments),
+  ) -> RunResult<'src, Scope<'src, 'run>>
+  where
+    'src: 'run,
+  {
+    let context = Context {
       config,
       dotenv,
-      module_source,
-      scope,
+      module_source: &module.source,
+      scope: &parent,
       search,
-      settings,
-      unexports,
+      settings: &module.settings,
+      unexports: &module.unexports,
     };
 
-    for assignment in assignments.values() {
+    let mut scope = context.scope.child();
+    let mut unknown_overrides = Vec::new();
+
+    for (name, value) in overrides {
+      if let Some(assignment) = module.assignments.get(name) {
+        scope.bind(assignment.export, assignment.name, value.clone());
+      } else {
+        unknown_overrides.push(name.clone());
+      }
+    }
+
+    if !unknown_overrides.is_empty() {
+      return Err(Error::UnknownOverrides {
+        overrides: unknown_overrides,
+      });
+    }
+
+    let mut evaluator = Self {
+      context,
+      assignments: Some(&module.assignments),
+      scope,
+    };
+
+    for assignment in module.assignments.values() {
       evaluator.evaluate_assignment(assignment)?;
     }
 
@@ -155,7 +173,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       }
       Expression::StringLiteral { string_literal } => Ok(string_literal.cooked.clone()),
       Expression::Backtick { contents, token } => {
-        if self.config.dry_run {
+        if self.context.config.dry_run {
           Ok(format!("`{contents}`"))
         } else {
           Ok(self.run_backtick(contents, token)?)
@@ -216,13 +234,18 @@ impl<'src, 'run> Evaluator<'src, 'run> {
   }
 
   pub(crate) fn run_command(&self, command: &str, args: &[&str]) -> Result<String, OutputError> {
-    let mut cmd = self.settings.shell_command(self.config);
+    let mut cmd = self.context.settings.shell_command(self.context.config);
     cmd.arg(command);
     cmd.args(args);
-    cmd.current_dir(&self.search.working_directory);
-    cmd.export(self.settings, self.dotenv, &self.scope, self.unexports);
+    cmd.current_dir(&self.context.search.working_directory);
+    cmd.export(
+      self.context.settings,
+      self.context.dotenv,
+      &self.scope,
+      self.context.unexports,
+    );
     cmd.stdin(Stdio::inherit());
-    cmd.stderr(if self.config.verbosity.quiet() {
+    cmd.stderr(if self.context.config.verbosity.quiet() {
       Stdio::null()
     } else {
       Stdio::inherit()
@@ -256,12 +279,15 @@ impl<'src, 'run> Evaluator<'src, 'run> {
   }
 
   pub(crate) fn evaluate_parameters(
-    context: &'run RecipeContext<'src, 'run>,
+    context: &Context<'src, 'run>,
     arguments: &[String],
     parameters: &[Parameter<'src>],
   ) -> RunResult<'src, (Scope<'src, 'run>, Vec<String>)> {
-    let mut evaluator = Self::new(context, None, context.scope.child());
-    let mut scope = context.scope.child();
+    let mut evaluator = Self {
+      context: *context,
+      assignments: None,
+      scope: context.scope.child(),
+    };
 
     let mut positional = Vec::new();
 
@@ -292,34 +318,20 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         rest = &rest[1..];
         value
       };
-      scope.bind(parameter.export, parameter.name, value);
+      evaluator
+        .scope
+        .bind(parameter.export, parameter.name, value);
     }
 
-    Ok((scope, positional))
+    Ok((evaluator.scope, positional))
   }
 
-  fn new(
-    context: &'run RecipeContext,
-    assignments: Option<&'run Table<'src, Assignment<'src>>>,
-    scope: Scope<'src, 'run>,
-  ) -> Self {
+  pub(crate) fn new(context: &Context<'src, 'run>, scope: &'run Scope<'src, 'run>) -> Self {
     Self {
-      assignments,
-      config: context.config,
-      dotenv: context.dotenv,
-      module_source: context.module_source,
-      scope,
-      search: context.search,
-      settings: context.settings,
-      unexports: context.unexports,
+      context: *context,
+      assignments: None,
+      scope: scope.child(),
     }
-  }
-
-  pub(crate) fn recipe_evaluator(
-    context: &'run RecipeContext,
-    scope: &'run Scope<'src, 'run>,
-  ) -> Self {
-    Self::new(context, None, Scope::child(scope))
   }
 }
 

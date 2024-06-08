@@ -121,6 +121,7 @@ impl Function {
 fn absolute_path(context: Context, path: &str) -> Result<String, String> {
   let abs_path_unchecked = context
     .evaluator
+    .context
     .search
     .working_directory
     .join(path)
@@ -129,7 +130,7 @@ fn absolute_path(context: Context, path: &str) -> Result<String, String> {
     Some(absolute_path) => Ok(absolute_path.to_owned()),
     None => Err(format!(
       "Working directory is not valid unicode: {}",
-      context.evaluator.search.working_directory.display()
+      context.evaluator.context.search.working_directory.display()
     )),
   }
 }
@@ -152,7 +153,12 @@ fn blake3(_context: Context, s: &str) -> Result<String, String> {
 }
 
 fn blake3_file(context: Context, path: &str) -> Result<String, String> {
-  let path = context.evaluator.search.working_directory.join(path);
+  let path = context
+    .evaluator
+    .context
+    .search
+    .working_directory
+    .join(path);
   let mut hasher = blake3::Hasher::new();
   hasher
     .update_mmap_rayon(&path)
@@ -245,7 +251,7 @@ fn encode_uri_component(_context: Context, s: &str) -> Result<String, String> {
 fn env_var(context: Context, key: &str) -> Result<String, String> {
   use std::env::VarError::*;
 
-  if let Some(value) = context.evaluator.dotenv.get(key) {
+  if let Some(value) = context.evaluator.context.dotenv.get(key) {
     return Ok(value.clone());
   }
 
@@ -261,7 +267,7 @@ fn env_var(context: Context, key: &str) -> Result<String, String> {
 fn env_var_or_default(context: Context, key: &str, default: &str) -> Result<String, String> {
   use std::env::VarError::*;
 
-  if let Some(value) = context.evaluator.dotenv.get(key) {
+  if let Some(value) = context.evaluator.context.dotenv.get(key) {
     return Ok(value.clone());
   }
 
@@ -308,8 +314,8 @@ fn file_stem(_context: Context, path: &str) -> Result<String, String> {
 
 fn invocation_directory(context: Context) -> Result<String, String> {
   Platform::convert_native_path(
-    &context.evaluator.search.working_directory,
-    &context.evaluator.config.invocation_directory,
+    &context.evaluator.context.search.working_directory,
+    &context.evaluator.context.config.invocation_directory,
   )
   .map_err(|e| format!("Error getting shell path: {e}"))
 }
@@ -317,6 +323,7 @@ fn invocation_directory(context: Context) -> Result<String, String> {
 fn invocation_directory_native(context: Context) -> Result<String, String> {
   context
     .evaluator
+    .context
     .config
     .invocation_directory
     .to_str()
@@ -324,7 +331,12 @@ fn invocation_directory_native(context: Context) -> Result<String, String> {
     .ok_or_else(|| {
       format!(
         "Invocation directory is not valid unicode: {}",
-        context.evaluator.config.invocation_directory.display()
+        context
+          .evaluator
+          .context
+          .config
+          .invocation_directory
+          .display()
       )
     })
 }
@@ -365,6 +377,7 @@ fn just_pid(_context: Context) -> Result<String, String> {
 fn justfile(context: Context) -> Result<String, String> {
   context
     .evaluator
+    .context
     .search
     .justfile
     .to_str()
@@ -372,18 +385,24 @@ fn justfile(context: Context) -> Result<String, String> {
     .ok_or_else(|| {
       format!(
         "Justfile path is not valid unicode: {}",
-        context.evaluator.search.justfile.display()
+        context.evaluator.context.search.justfile.display()
       )
     })
 }
 
 fn justfile_directory(context: Context) -> Result<String, String> {
-  let justfile_directory = context.evaluator.search.justfile.parent().ok_or_else(|| {
-    format!(
-      "Could not resolve justfile directory. Justfile `{}` had no parent.",
-      context.evaluator.search.justfile.display()
-    )
-  })?;
+  let justfile_directory = context
+    .evaluator
+    .context
+    .search
+    .justfile
+    .parent()
+    .ok_or_else(|| {
+      format!(
+        "Could not resolve justfile directory. Justfile `{}` had no parent.",
+        context.evaluator.context.search.justfile.display()
+      )
+    })?;
 
   justfile_directory
     .to_str()
@@ -411,11 +430,12 @@ fn lowercase(_context: Context, s: &str) -> Result<String, String> {
 fn module_directory(context: Context) -> Result<String, String> {
   context
     .evaluator
+    .context
     .search
     .justfile
     .parent()
     .unwrap()
-    .join(context.evaluator.module_source)
+    .join(context.evaluator.context.module_source)
     .parent()
     .unwrap()
     .to_str()
@@ -423,7 +443,13 @@ fn module_directory(context: Context) -> Result<String, String> {
     .ok_or_else(|| {
       format!(
         "Module directory is not valid unicode: {}",
-        context.evaluator.module_source.parent().unwrap().display(),
+        context
+          .evaluator
+          .context
+          .module_source
+          .parent()
+          .unwrap()
+          .display(),
       )
     })
 }
@@ -431,17 +457,18 @@ fn module_directory(context: Context) -> Result<String, String> {
 fn module_file(context: Context) -> Result<String, String> {
   context
     .evaluator
+    .context
     .search
     .justfile
     .parent()
     .unwrap()
-    .join(context.evaluator.module_source)
+    .join(context.evaluator.context.module_source)
     .to_str()
     .map(str::to_owned)
     .ok_or_else(|| {
       format!(
         "Module file path is not valid unicode: {}",
-        context.evaluator.module_source.display(),
+        context.evaluator.context.module_source.display(),
       )
     })
 }
@@ -470,6 +497,7 @@ fn path_exists(context: Context, path: &str) -> Result<String, String> {
   Ok(
     context
       .evaluator
+      .context
       .search
       .working_directory
       .join(path)
@@ -510,7 +538,12 @@ fn sha256(_context: Context, s: &str) -> Result<String, String> {
 
 fn sha256_file(context: Context, path: &str) -> Result<String, String> {
   use sha2::{Digest, Sha256};
-  let path = context.evaluator.search.working_directory.join(path);
+  let path = context
+    .evaluator
+    .context
+    .search
+    .working_directory
+    .join(path);
   let mut hasher = Sha256::new();
   let mut file =
     fs::File::open(&path).map_err(|err| format!("Failed to open `{}`: {err}", path.display()))?;
@@ -546,6 +579,7 @@ fn snakecase(_context: Context, s: &str) -> Result<String, String> {
 fn source_directory(context: Context) -> Result<String, String> {
   context
     .evaluator
+    .context
     .search
     .justfile
     .parent()
@@ -566,6 +600,7 @@ fn source_directory(context: Context) -> Result<String, String> {
 fn source_file(context: Context) -> Result<String, String> {
   context
     .evaluator
+    .context
     .search
     .justfile
     .parent()

@@ -78,46 +78,6 @@ impl<'src> Justfile<'src> {
       .next()
   }
 
-  fn scope<'run>(
-    &'run self,
-    config: &'run Config,
-    dotenv: &'run BTreeMap<String, String>,
-    search: &'run Search,
-    overrides: &BTreeMap<String, String>,
-    parent: &'run Scope<'src, 'run>,
-  ) -> RunResult<'src, Scope<'src, 'run>>
-  where
-    'src: 'run,
-  {
-    let mut scope = parent.child();
-    let mut unknown_overrides = Vec::new();
-
-    for (name, value) in overrides {
-      if let Some(assignment) = self.assignments.get(name) {
-        scope.bind(assignment.export, assignment.name, value.clone());
-      } else {
-        unknown_overrides.push(name.clone());
-      }
-    }
-
-    if !unknown_overrides.is_empty() {
-      return Err(Error::UnknownOverrides {
-        overrides: unknown_overrides,
-      });
-    }
-
-    Evaluator::evaluate_assignments(
-      &self.assignments,
-      config,
-      dotenv,
-      &self.source,
-      scope,
-      search,
-      &self.settings,
-      &self.unexports,
-    )
-  }
-
   pub(crate) fn run(
     &self,
     config: &Config,
@@ -145,7 +105,7 @@ impl<'src> Justfile<'src> {
 
     let root = Scope::root();
 
-    let scope = self.scope(config, &dotenv, search, overrides, &root)?;
+    let scope = Evaluator::evaluate_assignments(config, &dotenv, self, overrides, &root, search)?;
 
     match &config.subcommand {
       Subcommand::Command {
@@ -277,7 +237,7 @@ impl<'src> Justfile<'src> {
 
     let mut ran = Ran::default();
     for invocation in invocations {
-      let context = RecipeContext {
+      let context = Context {
         config,
         dotenv: &dotenv,
         module_source: invocation.module_source,
@@ -334,7 +294,14 @@ impl<'src> Justfile<'src> {
       let scope = if let Some(scope) = scopes.get(path) {
         scope
       } else {
-        let scope = module.scope(config, dotenv, search, &BTreeMap::new(), parent)?;
+        let scope = Evaluator::evaluate_assignments(
+          config,
+          dotenv,
+          module,
+          &BTreeMap::new(),
+          parent,
+          search,
+        )?;
         let scope = arena.alloc(scope);
         scopes.insert(path.clone(), scope);
         scopes.get(path).unwrap()
@@ -415,7 +382,7 @@ impl<'src> Justfile<'src> {
 
   fn run_recipe(
     arguments: &[String],
-    context: &RecipeContext<'src, '_>,
+    context: &Context<'src, '_>,
     ran: &mut Ran<'src>,
     recipe: &Recipe<'src>,
   ) -> RunResult<'src> {
@@ -434,7 +401,7 @@ impl<'src> Justfile<'src> {
 
     let scope = outer.child();
 
-    let mut evaluator = Evaluator::recipe_evaluator(context, &scope);
+    let mut evaluator = Evaluator::new(context, &scope);
 
     let mut run_dependencies =
       |deps: &mut dyn Iterator<Item = &Dependency<'src>>, ran: &mut Ran<'src>| -> RunResult<'src> {
