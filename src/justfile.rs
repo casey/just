@@ -403,28 +403,32 @@ impl<'src> Justfile<'src> {
 
     let mut evaluator = Evaluator::new(context, &scope);
 
-    let mut run_dependencies =
-      |deps: &mut dyn Iterator<Item = &Dependency<'src>>, ran: &mut Ran<'src>| -> RunResult<'src> {
-        if !context.config.no_dependencies {
-          for dep in deps {
-            let arguments = dep
-              .arguments
-              .iter()
-              .map(|argument| evaluator.evaluate_expression(argument))
-              .collect::<RunResult<Vec<String>>>()?;
+    if !context.config.no_dependencies {
+      for Dependency { recipe, arguments } in recipe.dependencies.iter().take(recipe.priors) {
+        let arguments = arguments
+          .iter()
+          .map(|argument| evaluator.evaluate_expression(argument))
+          .collect::<RunResult<Vec<String>>>()?;
 
-            Self::run_recipe(&arguments, context, ran, &dep.recipe)?;
-          }
-        }
-        Ok(())
-      };
+        Self::run_recipe(&arguments, context, ran, recipe)?;
+      }
+    }
 
-    run_dependencies(&mut recipe.dependencies.iter().take(recipe.priors), ran)?;
     recipe.run(context, &scope, &positional)?;
-    run_dependencies(
-      &mut recipe.dependencies.iter().skip(recipe.priors),
-      &mut Ran::default(),
-    )?;
+
+    if !context.config.no_dependencies {
+      let mut ran = Ran::default();
+
+      for Dependency { recipe, arguments } in recipe.dependencies.iter().skip(recipe.priors) {
+        let mut evaluated = Vec::new();
+
+        for argument in arguments {
+          evaluated.push(evaluator.evaluate_expression(argument)?);
+        }
+
+        Self::run_recipe(&evaluated, context, &mut ran, recipe)?;
+      }
+    }
 
     ran.ran(&recipe.namepath, arguments.to_vec());
 
