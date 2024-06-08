@@ -12,23 +12,6 @@ pub(crate) struct Evaluator<'src: 'run, 'run> {
 }
 
 impl<'src, 'run> Evaluator<'src, 'run> {
-  fn new(
-    context: &'run RecipeContext,
-    assignments: Option<&'run Table<'src, Assignment<'src>>>,
-    scope: Scope<'src, 'run>,
-  ) -> Self {
-    Self {
-      assignments,
-      config: context.config,
-      dotenv: context.dotenv,
-      module_source: context.module_source,
-      scope,
-      search: context.search,
-      settings: context.settings,
-      unsets: context.unexports,
-    }
-  }
-
   pub(crate) fn evaluate_assignments(
     assignments: &'run Table<'src, Assignment<'src>>,
     config: &'run Config,
@@ -313,6 +296,23 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     }
 
     Ok((scope, positional))
+  }
+
+  fn new(
+    context: &'run RecipeContext,
+    assignments: Option<&'run Table<'src, Assignment<'src>>>,
+    scope: Scope<'src, 'run>,
+  ) -> Self {
+    Self {
+      assignments,
+      config: context.config,
+      dotenv: context.dotenv,
+      module_source: context.module_source,
+      scope,
+      search: context.search,
+      settings: context.settings,
+      unsets: context.unexports,
+    }
   }
 
   pub(crate) fn recipe_evaluator(
