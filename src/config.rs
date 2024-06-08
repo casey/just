@@ -381,10 +381,9 @@ impl Config {
       .arg(
         Arg::new(cmd::COMPLETIONS)
           .long("completions")
-          .action(ArgAction::Append)
-          .num_args(1..)
+          .action(ArgAction::Set)
           .value_name("SHELL")
-          .value_parser(value_parser!(clap_complete::Shell))
+          .value_parser(value_parser!(completions::Shell))
           .ignore_case(true)
           .help("Print shell completion script for <SHELL>"),
       )
@@ -686,7 +685,7 @@ impl Config {
         arguments,
         overrides,
       }
-    } else if let Some(&shell) = matches.get_one::<clap_complete::Shell>(cmd::COMPLETIONS) {
+    } else if let Some(&shell) = matches.get_one::<completions::Shell>(cmd::COMPLETIONS) {
       Subcommand::Completions { shell }
     } else if matches.get_flag(cmd::EDIT) {
       Subcommand::Edit
@@ -1255,13 +1254,13 @@ mod tests {
   test! {
     name: subcommand_completions,
     args: ["--completions", "bash"],
-    subcommand: Subcommand::Completions{ shell: clap_complete::Shell::Bash },
+    subcommand: Subcommand::Completions{ shell: completions::Shell::Bash },
   }
 
   test! {
     name: subcommand_completions_uppercase,
     args: ["--completions", "BASH"],
-    subcommand: Subcommand::Completions{ shell: clap_complete::Shell::Bash },
+    subcommand: Subcommand::Completions{ shell: completions::Shell::Bash },
   }
 
   error! {
@@ -1544,15 +1543,30 @@ mod tests {
   }
 
   error_matches! {
-    name: completions_arguments,
-    args: ["--completions", "zsh", "foo"],
+    name: completions_argument,
+    args: ["--completions", "foo"],
     error: error,
     check: {
       assert_eq!(error.kind(), clap::error::ErrorKind::InvalidValue);
       assert_eq!(error.context().collect::<Vec<_>>(), vec![
-        (ContextKind::InvalidArg, &ContextValue::String("--completions <SHELL>...".into())),
-        (ContextKind::InvalidValue, &ContextValue::String("foo".into())),
-        (ContextKind::ValidValue, &ContextValue::Strings(["bash".into(), "elvish".into(), "fish".into(), "powershell".into(), "zsh".into()].into())),
+        (
+          ContextKind::InvalidArg,
+          &ContextValue::String("--completions <SHELL>".into())),
+        (
+          ContextKind::InvalidValue,
+          &ContextValue::String("foo".into()),
+        ),
+        (
+          ContextKind::ValidValue,
+          &ContextValue::Strings([
+            "bash".into(),
+            "elvish".into(),
+            "fish".into(),
+            "nushell".into(),
+            "powershell".into(),
+            "zsh".into()].into()
+          ),
+        ),
       ]);
     },
   }

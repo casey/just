@@ -165,9 +165,6 @@ watch-readme:
   just render-readme
   fswatch -ro README.adoc | xargs -n1 -I{} just render-readme
 
-update-completions:
-  ./bin/update-completions
-
 test-completions:
   ./tests/completions/just.bash
 
