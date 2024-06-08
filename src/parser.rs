@@ -987,12 +987,10 @@ impl<'run, 'src> Parser<'run, 'src> {
       loop {
         let name = self.parse_name()?;
 
-        let maybe_argument = if self.next_is(Colon) {
-          self.presume(Colon)?;
+        let maybe_argument = if self.accepted(Colon)? {
           let arg = self.parse_string_literal()?;
           Some(arg)
-        } else if self.next_is(ParenL) {
-          self.presume(ParenL)?;
+        } else if self.accepted(ParenL)? {
           let arg = self.parse_string_literal()?;
           self.expect(ParenR)?;
           Some(arg)
