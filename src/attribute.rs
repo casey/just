@@ -58,7 +58,6 @@ impl<'src> Attribute<'src> {
 
     let found = argument.as_ref().iter().count();
     let range = discriminant.argument_range();
-
     if !range.contains(&found) {
       return Err(
         name.error(CompileErrorKind::AttributeArgumentCountMismatch {
