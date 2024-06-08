@@ -431,17 +431,8 @@ impl<'src> Justfile<'src> {
       });
     }
 
-    let (outer, positional) = Evaluator::evaluate_parameters(
-      arguments,
-      context.config,
-      context.dotenv,
-      context.module_source,
-      &recipe.parameters,
-      context.scope,
-      search,
-      context.settings,
-      context.unexports,
-    )?;
+    let (outer, positional) =
+      Evaluator::evaluate_parameters(context, arguments, &recipe.parameters, search)?;
 
     let scope = outer.child();
 

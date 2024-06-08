@@ -12,6 +12,24 @@ pub(crate) struct Evaluator<'src: 'run, 'run> {
 }
 
 impl<'src, 'run> Evaluator<'src, 'run> {
+  fn new(
+    context: &'run RecipeContext,
+    assignments: Option<&'run Table<'src, Assignment<'src>>>,
+    scope: Scope<'src, 'run>,
+    search: &'run Search,
+  ) -> Self {
+    Self {
+      assignments,
+      config: context.config,
+      dotenv: context.dotenv,
+      module_source: context.module_source,
+      scope,
+      search,
+      settings: context.settings,
+      unsets: context.unexports,
+    }
+  }
+
   pub(crate) fn evaluate_assignments(
     assignments: &'run Table<'src, Assignment<'src>>,
     config: &'run Config,
@@ -256,28 +274,13 @@ impl<'src, 'run> Evaluator<'src, 'run> {
   }
 
   pub(crate) fn evaluate_parameters(
+    context: &'run RecipeContext<'src, 'run>,
     arguments: &[String],
-    config: &'run Config,
-    dotenv: &'run BTreeMap<String, String>,
-    module_source: &'run Path,
     parameters: &[Parameter<'src>],
-    scope: &'run Scope<'src, 'run>,
     search: &'run Search,
-    settings: &'run Settings,
-    unsets: &'run HashSet<String>,
   ) -> RunResult<'src, (Scope<'src, 'run>, Vec<String>)> {
-    let mut evaluator = Self {
-      assignments: None,
-      config,
-      dotenv,
-      module_source,
-      scope: scope.child(),
-      search,
-      settings,
-      unsets,
-    };
-
-    let mut scope = scope.child();
+    let mut evaluator = Self::new(context, None, context.scope.child(), search);
+    let mut scope = context.scope.child();
 
     let mut positional = Vec::new();
 
