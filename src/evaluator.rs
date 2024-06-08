@@ -8,7 +8,7 @@ pub(crate) struct Evaluator<'src: 'run, 'run> {
   pub(crate) scope: Scope<'src, 'run>,
   pub(crate) search: &'run Search,
   pub(crate) settings: &'run Settings<'run>,
-  unsets: &'run HashSet<String>,
+  unexports: &'run HashSet<String>,
 }
 
 impl<'src, 'run> Evaluator<'src, 'run> {
@@ -20,7 +20,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     scope: Scope<'src, 'run>,
     search: &'run Search,
     settings: &'run Settings<'run>,
-    unsets: &'run HashSet<String>,
+    unexports: &'run HashSet<String>,
   ) -> RunResult<'src, Scope<'src, 'run>> {
     let mut evaluator = Self {
       assignments: Some(assignments),
@@ -30,7 +30,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       scope,
       search,
       settings,
-      unsets,
+      unexports,
     };
 
     for assignment in assignments.values() {
@@ -220,7 +220,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     cmd.arg(command);
     cmd.args(args);
     cmd.current_dir(&self.search.working_directory);
-    cmd.export(self.settings, self.dotenv, &self.scope, self.unsets);
+    cmd.export(self.settings, self.dotenv, &self.scope, self.unexports);
     cmd.stdin(Stdio::inherit());
     cmd.stderr(if self.config.verbosity.quiet() {
       Stdio::null()
@@ -311,7 +311,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       scope,
       search: context.search,
       settings: context.settings,
-      unsets: context.unexports,
+      unexports: context.unexports,
     }
   }
 
