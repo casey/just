@@ -42,7 +42,7 @@ impl AttributeDiscriminant {
 impl<'src> Attribute<'src> {
   pub(crate) fn new(
     name: Name<'src>,
-    mut arguments: Vec<StringLiteral<'src>>,
+    argument: Option<StringLiteral<'src>>,
   ) -> CompileResult<'src, Self> {
     use AttributeDiscriminant::*;
 
@@ -56,7 +56,7 @@ impl<'src> Attribute<'src> {
         })
       })?;
 
-    let found = arguments.len();
+    let found = argument.as_ref().iter().count();
     let range = discriminant.argument_range();
 
     if !range.contains(&found) {
@@ -71,9 +71,9 @@ impl<'src> Attribute<'src> {
     }
 
     Ok(match discriminant {
-      Confirm => Self::Confirm(arguments.pop()),
-      Doc => Self::Doc(arguments.pop()),
-      Group => Self::Group(arguments.pop().unwrap()),
+      Confirm => Self::Confirm(argument),
+      Doc => Self::Doc(argument),
+      Group => Self::Group(argument.unwrap()),
       Linux => Self::Linux,
       Macos => Self::Macos,
       NoCd => Self::NoCd,

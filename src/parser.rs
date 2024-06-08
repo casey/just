@@ -987,29 +987,20 @@ impl<'run, 'src> Parser<'run, 'src> {
       loop {
         let name = self.parse_name()?;
 
-        let arguments: Vec<StringLiteral> = if self.next_is(Colon) {
+        let maybe_argument = if self.next_is(Colon) {
           self.presume(Colon)?;
-          let single_arg = self.parse_string_literal()?;
-          vec![single_arg]
+          let arg = self.parse_string_literal()?;
+          Some(arg)
         } else if self.next_is(ParenL) {
           self.presume(ParenL)?;
-          let mut args = Vec::new();
-          loop {
-            args.push(self.parse_string_literal()?);
-            if self.next_is(ParenR) {
-              self.presume(ParenR)?;
-              break;
-            }
-            if self.next_is(Comma) {
-              self.presume(Comma)?;
-            }
-          }
-          args
+          let arg = self.parse_string_literal()?;
+          self.expect(ParenR)?;
+          Some(arg)
         } else {
-          Vec::new()
+          None
         };
 
-        let attribute = Attribute::new(name, arguments)?;
+        let attribute = Attribute::new(name, maybe_argument)?;
 
         if let Some(line) = attributes.get(&attribute) {
           return Err(name.error(CompileErrorKind::DuplicateAttribute {
