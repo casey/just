@@ -458,17 +458,14 @@ impl<'src> Justfile<'src> {
     let mut run_dependencies =
       |deps: &mut dyn Iterator<Item = &Dependency<'src>>, ran: &mut Ran<'src>| -> RunResult<'src> {
         if !context.config.no_dependencies {
-          for Dependency {
-            ref recipe,
-            ref arguments,
-          } in deps
-          {
-            let arguments = arguments
+          for dep in deps {
+            let arguments = dep
+              .arguments
               .iter()
               .map(|argument| evaluator.evaluate_expression(argument))
               .collect::<RunResult<Vec<String>>>()?;
 
-            Self::run_recipe(&arguments, context, ran, recipe, search)?;
+            Self::run_recipe(&arguments, context, ran, &dep.recipe, search)?;
           }
         }
         Ok(())
@@ -476,7 +473,10 @@ impl<'src> Justfile<'src> {
 
     run_dependencies(&mut recipe.dependencies.iter().take(recipe.priors), ran)?;
     recipe.run(context, &scope, &positional)?;
-    run_dependencies(&mut recipe.dependencies.iter().skip(recipe.priors), &mut Ran::default())?;
+    run_dependencies(
+      &mut recipe.dependencies.iter().skip(recipe.priors),
+      &mut Ran::default(),
+    )?;
 
     ran.ran(&recipe.namepath, arguments.to_vec());
 
