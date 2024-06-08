@@ -77,7 +77,8 @@ jobs:
       run: |
         set -euxo pipefail
         cargo build
-        for shell in bash elvish fish powershell zsh; do
+        mkdir -p completions
+        for shell in bash elvish fish nu powershell zsh; do
           ./target/debug/just --completions $shell > completions/just.$shell
         done
         mkdir -p man
