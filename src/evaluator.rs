@@ -318,24 +318,11 @@ impl<'src, 'run> Evaluator<'src, 'run> {
   }
 
   pub(crate) fn recipe_evaluator(
-    config: &'run Config,
-    dotenv: &'run BTreeMap<String, String>,
-    module_source: &'run Path,
+    context: &'run RecipeContext,
     scope: &'run Scope<'src, 'run>,
     search: &'run Search,
-    settings: &'run Settings,
-    unsets: &'run HashSet<String>,
   ) -> Self {
-    Self {
-      assignments: None,
-      config,
-      dotenv,
-      module_source,
-      scope: Scope::child(scope),
-      search,
-      settings,
-      unsets,
-    }
+    Self::new(context, None, Scope::child(scope), search)
   }
 }
 

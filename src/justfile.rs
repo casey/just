@@ -436,15 +436,7 @@ impl<'src> Justfile<'src> {
 
     let scope = outer.child();
 
-    let mut evaluator = Evaluator::recipe_evaluator(
-      context.config,
-      context.dotenv,
-      context.module_source,
-      &scope,
-      search,
-      context.settings,
-      context.unexports,
-    );
+    let mut evaluator = Evaluator::recipe_evaluator(context, &scope, search);
 
     let mut run_dependencies =
       |deps: &mut dyn Iterator<Item = &Dependency<'src>>, ran: &mut Ran<'src>| -> RunResult<'src> {
