@@ -3,8 +3,8 @@ use super::*;
 pub(crate) struct Evaluator<'src: 'run, 'run> {
   pub(crate) assignments: Option<&'run Table<'src, Assignment<'src>>>,
   pub(crate) context: ExecutionContext<'src, 'run>,
-  pub(crate) scope: Scope<'src, 'run>,
   pub(crate) is_dependency: bool,
+  pub(crate) scope: Scope<'src, 'run>,
 }
 
 impl<'src, 'run> Evaluator<'src, 'run> {
@@ -282,11 +282,11 @@ impl<'src, 'run> Evaluator<'src, 'run> {
 
   pub(crate) fn evaluate_parameters(
     context: &ExecutionContext<'src, 'run>,
+    is_dependency: bool,
     arguments: &[String],
     parameters: &[Parameter<'src>],
-    is_dependency: bool,
   ) -> RunResult<'src, (Scope<'src, 'run>, Vec<String>)> {
-    let mut evaluator = Self::new(context, context.scope, is_dependency);
+    let mut evaluator = Self::new(context, is_dependency, context.scope);
 
     let mut positional = Vec::new();
 
@@ -327,14 +327,14 @@ impl<'src, 'run> Evaluator<'src, 'run> {
 
   pub(crate) fn new(
     context: &ExecutionContext<'src, 'run>,
-    scope: &'run Scope<'src, 'run>,
     is_dependency: bool,
+    scope: &'run Scope<'src, 'run>,
   ) -> Self {
     Self {
-      context: *context,
       assignments: None,
-      scope: scope.child(),
+      context: *context,
       is_dependency,
+      scope: scope.child(),
     }
   }
 }

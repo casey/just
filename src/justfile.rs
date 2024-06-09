@@ -399,11 +399,11 @@ impl<'src> Justfile<'src> {
     }
 
     let (outer, positional) =
-      Evaluator::evaluate_parameters(context, arguments, &recipe.parameters, is_dependency)?;
+      Evaluator::evaluate_parameters(context, is_dependency, arguments, &recipe.parameters)?;
 
     let scope = outer.child();
 
-    let mut evaluator = Evaluator::new(context, &scope, true);
+    let mut evaluator = Evaluator::new(context, true, &scope);
 
     if !context.config.no_dependencies {
       for Dependency { recipe, arguments } in recipe.dependencies.iter().take(recipe.priors) {

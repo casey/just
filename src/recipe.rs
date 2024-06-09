@@ -163,7 +163,7 @@ impl<'src, D> Recipe<'src, D> {
       );
     }
 
-    let evaluator = Evaluator::new(context, scope, is_dependency);
+    let evaluator = Evaluator::new(context, is_dependency, scope);
 
     if self.shebang {
       self.run_shebang(context, scope, positional, config, evaluator)
