@@ -11,14 +11,6 @@ const CHOOSE_HELP: &str = "Select one or more recipes to run using a binary choo
                            If `--chooser` is not passed the chooser defaults to the \
                            value of $JUST_CHOOSER, falling back to `fzf`";
 
-pub(crate) fn chooser_default(justfile: &Path) -> OsString {
-  let mut chooser = OsString::new();
-  chooser.push("fzf --multi --preview 'just --unstable --color always --justfile \"");
-  chooser.push(justfile);
-  chooser.push("\" --show {}'");
-  chooser
-}
-
 #[derive(Debug, PartialEq)]
 pub(crate) struct Config {
   pub(crate) check: bool,
@@ -568,15 +560,20 @@ impl Config {
     }
   }
 
-  fn parse_module_path(path: ValuesRef<String>) -> ConfigResult<ModulePath> {
+  fn parse_module_path(values: ValuesRef<String>) -> ConfigResult<ModulePath> {
+    let path = values.clone().map(|s| (*s).as_str()).collect::<Vec<&str>>();
+
+    let path = if path.len() == 1 && path[0].contains(' ') {
+      path[0].split_whitespace().collect::<Vec<&str>>()
+    } else {
+      path
+    };
+
     path
-      .clone()
-      .map(|s| (*s).as_str())
-      .collect::<Vec<&str>>()
       .as_slice()
       .try_into()
       .map_err(|()| ConfigError::ModulePath {
-        path: path.cloned().collect(),
+        path: values.cloned().collect(),
       })
   }
 
