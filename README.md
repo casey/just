@@ -1428,9 +1428,9 @@ $ just
 
 #### Invocation Information
 
-- `is_dependency()` - Returns `true` if the current recipe is being run as a
-  dependency of another recipe, rather than being run directly, otherwise
-  returns `false`.
+- `is_dependency()` - Returns the string `true` if the current recipe is being
+  run as a dependency of another recipe, rather than being run directly,
+  otherwise returns the string `false`.
 
 #### Invocation Directory
 
