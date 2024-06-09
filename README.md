@@ -1426,6 +1426,12 @@ $ just
 - `env(key)`<sup>1.15.0</sup> — Alias for `env_var(key)`.
 - `env(key, default)`<sup>1.15.0</sup> — Alias for `env_var_or_default(key, default)`.
 
+#### Invocation Information
+
+- `is_dependency()` - Returns the string `true` if the current recipe is being
+  run as a dependency of another recipe, rather than being run directly,
+  otherwise returns the string `false`.
+
 #### Invocation Directory
 
 - `invocation_directory()` - Retrieves the absolute path to the current

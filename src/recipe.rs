@@ -149,6 +149,7 @@ impl<'src, D> Recipe<'src, D> {
     context: &ExecutionContext<'src, 'run>,
     scope: &Scope<'src, 'run>,
     positional: &[String],
+    is_dependency: bool,
   ) -> RunResult<'src, ()> {
     let config = &context.config;
 
@@ -162,7 +163,7 @@ impl<'src, D> Recipe<'src, D> {
       );
     }
 
-    let evaluator = Evaluator::new(context, scope);
+    let evaluator = Evaluator::new(context, is_dependency, scope);
 
     if self.shebang {
       self.run_shebang(context, scope, positional, config, evaluator)
