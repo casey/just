@@ -703,8 +703,6 @@ impl Config {
     } else if matches.get_flag(cmd::MAN) {
       Subcommand::Man
     } else if let Some(path) = matches.get_many::<String>(cmd::SHOW) {
-      // if path is a single string and contains spaces, split it
-
       Subcommand::Show {
         path: Self::parse_module_path(path)?,
       }
