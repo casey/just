@@ -1426,10 +1426,11 @@ $ just
 - `env(key)`<sup>1.15.0</sup> — Alias for `env_var(key)`.
 - `env(key, default)`<sup>1.15.0</sup> — Alias for `env_var_or_default(key, default)`.
 
-#### Invocation Behavior
+#### Invocation Information
 
-- `is_dependency()` - Returns true if a recipe was run as a dependency
-of another recipe, rather than being run directly.
+- `is_dependency()` - Returns `true` if the current recipe is being run as a
+  dependency of another recipe, rather than being run directly, otherwise
+  returns `false`.
 
 #### Invocation Directory
 
