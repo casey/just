@@ -257,6 +257,12 @@ name <code>key</code>, returning <code>default</code> if it is not present.</li>
 <li><code>env(key)</code><sup>1.15.0</sup> — Alias for <code>env_var(key)</code>.</li>
 <li><code>env(key, default)</code><sup>1.15.0</sup> — Alias for <code>env_var_or_default(key, default)</code>.</li>
 </ul>
+<h4 id="invocation-information"><a class="header" href="#invocation-information">Invocation Information</a></h4>
+<ul>
+<li><code>is_dependency()</code> - Returns the string <code>true</code> if the current recipe is being
+run as a dependency of another recipe, rather than being run directly,
+otherwise returns the string <code>false</code>.</li>
+</ul>
 <h4 id="invocation-directory"><a class="header" href="#invocation-directory">Invocation Directory</a></h4>
 <ul>
 <li><code>invocation_directory()</code> - Retrieves the absolute path to the current
