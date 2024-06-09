@@ -560,15 +560,20 @@ impl Config {
     }
   }
 
-  fn parse_module_path(path: ValuesRef<String>) -> ConfigResult<ModulePath> {
+  fn parse_module_path(values: ValuesRef<String>) -> ConfigResult<ModulePath> {
+    let path = values.clone().map(|s| (*s).as_str()).collect::<Vec<&str>>();
+
+    let path = if path.len() == 1 && path[0].contains(' ') {
+      path[0].split_whitespace().collect::<Vec<&str>>()
+    } else {
+      path
+    };
+
     path
-      .clone()
-      .map(|s| (*s).as_str())
-      .collect::<Vec<&str>>()
       .as_slice()
       .try_into()
       .map_err(|()| ConfigError::ModulePath {
-        path: path.cloned().collect(),
+        path: values.cloned().collect(),
       })
   }
 
@@ -698,6 +703,8 @@ impl Config {
     } else if matches.get_flag(cmd::MAN) {
       Subcommand::Man
     } else if let Some(path) = matches.get_many::<String>(cmd::SHOW) {
+      // if path is a single string and contains spaces, split it
+
       Subcommand::Show {
         path: Self::parse_module_path(path)?,
       }

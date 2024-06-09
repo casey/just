@@ -124,3 +124,18 @@ fn show_invalid_path() {
     .status(1)
     .run();
 }
+
+#[test]
+fn show_space_separated_path() {
+  Test::new()
+    .write("foo.just", "bar:\n @echo MODULE")
+    .justfile(
+      "
+        mod foo
+      ",
+    )
+    .test_round_trip(false)
+    .args(["--unstable", "--show", "foo bar"])
+    .stdout("bar:\n    @echo MODULE\n")
+    .run();
+}
