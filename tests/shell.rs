@@ -151,3 +151,39 @@ test! {
   stderr: "echo bar\necho foo\n",
   shell: false,
 }
+
+#[test]
+fn recipe_shell_not_found_error_message() {
+  Test::new()
+    .justfile(
+      "
+        foo:
+          @echo bar
+      ",
+    )
+    .shell(false)
+    .args(["--shell", "NOT_A_REAL_SHELL"])
+    .stderr_regex(
+      "error: Recipe `foo` could not be run because just could not find the shell: .*\n",
+    )
+    .status(1)
+    .run();
+}
+
+#[test]
+fn backtick_recipe_shell_not_found_error_message() {
+  Test::new()
+    .justfile(
+      "
+        bar := `echo bar`
+
+        foo:
+          echo {{bar}}
+      ",
+    )
+    .shell(false)
+    .args(["--shell", "NOT_A_REAL_SHELL"])
+    .stderr_regex("(?s)error: Backtick could not be run because just could not find the shell:.*")
+    .status(1)
+    .run();
+}
