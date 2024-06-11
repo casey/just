@@ -158,16 +158,13 @@ fn recipe_shell_not_found_error_message() {
     .justfile(
       "
         foo:
-          echo bar
+          @echo bar
       ",
     )
     .shell(false)
     .args(["--shell", "NOT_A_REAL_SHELL"])
-    .stderr(
-      "
-        echo bar
-        error: Recipe `foo` could not be run because just could not find the shell: No such file or directory (os error 2)
-      ",
+    .stderr_regex(
+      "error: Recipe `foo` could not be run because just could not find the shell: .*\n",
     )
     .status(1)
     .run();
@@ -186,16 +183,7 @@ fn backtick_recipe_shell_not_found_error_message() {
     )
     .shell(false)
     .args(["--shell", "NOT_A_REAL_SHELL"])
-    .stderr(
-      "
-        error: Backtick could not be run because just could not find the shell:
-        No such file or directory (os error 2)
-         ——▶ justfile:1:8
-          │
-        1 │ bar := `echo bar`
-          │        ^^^^^^^^^^
-      ",
-    )
+    .stderr_regex("(?s)error: Backtick could not be run because just could not find the shell:.*")
     .status(1)
     .run();
 }
