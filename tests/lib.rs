@@ -106,6 +106,8 @@ mod timestamps;
 mod undefined_variables;
 mod unexport;
 mod unstable;
+#[cfg(windows)]
+mod windows;
 #[cfg(target_family = "windows")]
 mod windows_shell;
 mod working_directory;
