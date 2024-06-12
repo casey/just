@@ -94,6 +94,9 @@ export extern "just" [
 ]"#;
 
 const FISH_RECIPE_COMPLETIONS: &str = r#"function __fish_just_complete_recipes
+        if string match -rq '(-f|--justfile)\s*=?(?<justfile>[^\s]+)' -- (commandline -pc)
+          set -fx JUST_JUSTFILE "$justfile"
+        end
         just --list 2> /dev/null | tail -n +2 | awk '{
         command = $1;
         args = $0;
