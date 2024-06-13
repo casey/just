@@ -360,6 +360,7 @@ fn no_dotenv() {
     .stderr("echo DEFAULT\n")
     .run();
 }
+
 #[test]
 fn dotenv_env_var_override() {
   Test::new()
@@ -373,5 +374,23 @@ fn dotenv_env_var_override() {
     .env("DOTENV_KEY", "not-the-dotenv-value")
     .stdout("not-the-dotenv-value\n")
     .stderr("echo $DOTENV_KEY\n")
+    .run();
+}
+
+#[test]
+fn dotenv_path_usable_from_subdir() {
+  Test::new()
+    .justfile(
+      "
+        set dotenv-path := '.custom-env'
+
+        @echo:
+          echo $DOTENV_KEY
+      ",
+    )
+    .create_dir("sub")
+    .current_dir("sub")
+    .write(".custom-env", "DOTENV_KEY=dotenv-value")
+    .stdout("dotenv-value\n")
     .run();
 }

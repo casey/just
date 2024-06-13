@@ -94,6 +94,11 @@ impl Test {
     self
   }
 
+  pub(crate) fn create_dir(self, path: impl AsRef<Path>) -> Self {
+    fs::create_dir_all(self.tempdir.path().join(path.as_ref())).unwrap();
+    self
+  }
+
   pub(crate) fn current_dir(mut self, path: impl AsRef<Path>) -> Self {
     path.as_ref().clone_into(&mut self.current_dir);
     self

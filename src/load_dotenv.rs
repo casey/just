@@ -24,8 +24,9 @@ pub(crate) fn load_dotenv(
   }
 
   if let Some(path) = dotenv_path {
+    let path = working_directory.join(path);
     if path.is_file() {
-      return load_from_file(&working_directory.join(path));
+      return load_from_file(&path);
     }
   }
 
