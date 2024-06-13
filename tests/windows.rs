@@ -1,7 +1,7 @@
 use super::*;
 
 #[test]
-fn bug() {
+fn bare_bash_in_shebang() {
   Test::new()
     .justfile(
       "
