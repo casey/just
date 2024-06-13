@@ -17,6 +17,7 @@ pub(crate) enum Attribute<'src> {
   NoCd,
   NoExitMessage,
   NoQuiet,
+  PositionalArguments,
   Private,
   Unix,
   Windows,
@@ -32,6 +33,7 @@ impl AttributeDiscriminant {
       | Self::NoCd
       | Self::NoExitMessage
       | Self::NoQuiet
+      | Self::PositionalArguments
       | Self::Private
       | Self::Unix
       | Self::Windows => 0..=0,
@@ -78,6 +80,7 @@ impl<'src> Attribute<'src> {
       NoCd => Self::NoCd,
       NoExitMessage => Self::NoExitMessage,
       NoQuiet => Self::NoQuiet,
+      PositionalArguments => Self::PositionalArguments,
       Private => Self::Private,
       Unix => Self::Unix,
       Windows => Self::Windows,
@@ -98,6 +101,7 @@ impl<'src> Attribute<'src> {
       | Self::NoCd
       | Self::NoExitMessage
       | Self::NoQuiet
+      | Self::PositionalArguments
       | Self::Private
       | Self::Unix
       | Self::Windows => None,

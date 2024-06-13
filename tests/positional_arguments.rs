@@ -25,6 +25,31 @@ test! {
 }
 
 test! {
+  name: linewise_with_attribute,
+  justfile: r#"
+    [positional-arguments]
+    foo bar baz:
+      echo $0
+      echo $1
+      echo $2
+      echo "$@"
+  "#,
+  args:   ("foo", "hello", "goodbye"),
+  stdout: "
+    foo
+    hello
+    goodbye
+    hello goodbye
+  ",
+  stderr: r#"
+    echo $0
+    echo $1
+    echo $2
+    echo "$@"
+  "#,
+}
+
+test! {
   name: variadic_linewise,
   justfile: r#"
     set positional-arguments
@@ -43,6 +68,18 @@ test! {
   justfile: "
     set positional-arguments
 
+    foo bar:
+      #!/bin/sh
+      echo $1
+  ",
+  args:   ("foo", "hello"),
+  stdout: "hello\n",
+}
+
+test! {
+  name: shebang_with_attribute,
+  justfile: "
+    [positional-arguments]
     foo bar:
       #!/bin/sh
       echo $1
