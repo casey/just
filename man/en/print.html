@@ -933,6 +933,16 @@ When there are no positional parameters, <code>"$@"</code> and <code>$@</code> e
 - foo
 - bar baz
 </code></pre>
+<p>Positional arguments may also be turned on on a per-recipe basis with the
+<code>[positional-arguments]</code> attribute<sup>master</sup>:</p>
+<pre><code class="language-just">[positional-arguments]
+@foo bar:
+  echo $0
+  echo $1
+</code></pre>
+<p>Note that PowerShell does not handle positional arguments in the same way as
+other shells, so turning on positional arguments will likely break recipes that
+use PowerShell.</p>
 <h4 id="shell"><a class="header" href="#shell">Shell</a></h4>
 <p>The <code>shell</code> setting controls the command used to invoke recipe lines and
 backticks. Shebang recipes are unaffected. The default shell is <code>sh -cu</code>.</p>
@@ -1474,6 +1484,7 @@ and are implemented with the
 <tr><td><code>[no-cd]</code><sup>1.9.0</sup></td><td>Don’t change directory before executing recipe.</td></tr>
 <tr><td><code>[no-exit-message]</code><sup>1.7.0</sup></td><td>Don’t print an error message if recipe fails.</td></tr>
 <tr><td><code>[no-quiet]</code><sup>1.23.0</sup></td><td>Override globally quiet recipes and always echo out the recipe.</td></tr>
+<tr><td><code>[positional-arguments]</code><sup>master</sup></td><td>Turn on <a href="chapter_61.html#positional-arguments">positional arguments</a> for this recipe.</td></tr>
 <tr><td><code>[private]</code><sup>1.10.0</sup></td><td>See <a href="chapter_51.html">Private Recipes</a>.</td></tr>
 <tr><td><code>[unix]</code><sup>1.8.0</sup></td><td>Enable recipe on Unixes. (Includes MacOS).</td></tr>
 <tr><td><code>[windows]</code><sup>1.8.0</sup></td><td>Enable recipe on Windows.</td></tr>
@@ -2670,9 +2681,9 @@ positional arguments, allowing them to be accessed with <code>$1</code>, <code>$
 foo argument:
   touch "$1"
 </code></pre>
-<p>This defeats <code>just</code>’s ability to catch typos, for example if you type <code>$2</code>, but
-works for all possible values of <code>argument</code>, including those with double
-quotes.</p>
+<p>This defeats <code>just</code>’s ability to catch typos, for example if you type <code>$2</code>
+instead of <code>$1</code>, but works for all possible values of <code>argument</code>, including
+those with double quotes.</p>
 <h4 id="exported-arguments"><a class="header" href="#exported-arguments">Exported Arguments</a></h4>
 <p>All arguments are exported when the <code>export</code> setting is set:</p>
 <pre><code class="language-just">set export

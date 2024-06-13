@@ -322,6 +322,16 @@ When there are no positional parameters, <code>"$@"</code> and <code>$@</code> e
 - foo
 - bar baz
 </code></pre>
+<p>Positional arguments may also be turned on on a per-recipe basis with the
+<code>[positional-arguments]</code> attribute<sup>master</sup>:</p>
+<pre><code class="language-just">[positional-arguments]
+@foo bar:
+  echo $0
+  echo $1
+</code></pre>
+<p>Note that PowerShell does not handle positional arguments in the same way as
+other shells, so turning on positional arguments will likely break recipes that
+use PowerShell.</p>
 <h4 id="shell"><a class="header" href="#shell">Shell</a></h4>
 <p>The <code>shell</code> setting controls the command used to invoke recipe lines and
 backticks. Shebang recipes are unaffected. The default shell is <code>sh -cu</code>.</p>

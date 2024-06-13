@@ -206,9 +206,9 @@ positional arguments, allowing them to be accessed with <code>$1</code>, <code>$
 foo argument:
   touch "$1"
 </code></pre>
-<p>This defeats <code>just</code>’s ability to catch typos, for example if you type <code>$2</code>, but
-works for all possible values of <code>argument</code>, including those with double
-quotes.</p>
+<p>This defeats <code>just</code>’s ability to catch typos, for example if you type <code>$2</code>
+instead of <code>$1</code>, but works for all possible values of <code>argument</code>, including
+those with double quotes.</p>
 <h4 id="exported-arguments"><a class="header" href="#exported-arguments">Exported Arguments</a></h4>
 <p>All arguments are exported when the <code>export</code> setting is set:</p>
 <pre><code class="language-just">set export
