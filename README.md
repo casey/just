@@ -996,6 +996,20 @@ $ just test foo "bar baz"
 - bar baz
 ```
 
+Positional arguments may also be turned on on a per-recipe basis with the
+`[positional-arguments]` attribute:
+
+```just
+[positional-arguments]
+@foo bar:
+  echo $0
+  echo $1
+```
+
+Note that PowerShell does not handle positional arguments in the same way as
+other shells, so turning on positional arguments will likely break recipes that
+use PowerShell.
+
 #### Shell
 
 The `shell` setting controls the command used to invoke recipe lines and
@@ -1686,6 +1700,7 @@ Recipes may be annotated with attributes that change their behavior.
 | `[no-cd]`<sup>1.9.0</sup> | Don't change directory before executing recipe. |
 | `[no-exit-message]`<sup>1.7.0</sup> | Don't print an error message if recipe fails. |
 | `[no-quiet]`<sup>1.23.0</sup> | Override globally quiet recipes and always echo out the recipe. |
+| `[positional-arguments]`<sup>master</sup> | Turn on [positional arguments](#positional-arguments) for this recipe. |
 | `[private]`<sup>1.10.0</sup> | See [Private Recipes](#private-recipes). |
 | `[unix]`<sup>1.8.0</sup> | Enable recipe on Unixes. (Includes MacOS). |
 | `[windows]`<sup>1.8.0</sup> | Enable recipe on Windows. |
