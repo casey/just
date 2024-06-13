@@ -997,7 +997,7 @@ $ just test foo "bar baz"
 ```
 
 Positional arguments may also be turned on on a per-recipe basis with the
-`[positional-arguments]` attribute:
+`[positional-arguments]` attribute<sup>master</sup>:
 
 ```just
 [positional-arguments]
@@ -3377,9 +3377,9 @@ foo argument:
   touch "$1"
 ```
 
-This defeats `just`'s ability to catch typos, for example if you type `$2`, but
-works for all possible values of `argument`, including those with double
-quotes.
+This defeats `just`'s ability to catch typos, for example if you type `$2`
+instead of `$1`, but works for all possible values of `argument`, including
+those with double quotes.
 
 #### Exported Arguments
 
