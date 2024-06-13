@@ -106,6 +106,10 @@ impl<'src, D> Recipe<'src, D> {
     !self.private && !self.attributes.contains(&Attribute::Private)
   }
 
+  pub(crate) fn takes_positional_arguments(&self, settings: &Settings) -> bool {
+    settings.positional_arguments || self.attributes.contains(&Attribute::PositionalArguments)
+  }
+
   pub(crate) fn change_directory(&self) -> bool {
     !self.attributes.contains(&Attribute::NoCd)
   }
@@ -263,7 +267,7 @@ impl<'src, D> Recipe<'src, D> {
 
       cmd.arg(command);
 
-      if context.settings.positional_arguments {
+      if self.takes_positional_arguments(&context.settings) {
         cmd.arg(self.name.lexeme());
         cmd.args(positional);
       }
@@ -415,7 +419,7 @@ impl<'src, D> Recipe<'src, D> {
           output_error,
         })?;
 
-    if context.settings.positional_arguments {
+    if self.takes_positional_arguments(&context.settings) {
       command.args(positional);
     }
 
