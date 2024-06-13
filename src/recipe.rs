@@ -267,7 +267,7 @@ impl<'src, D> Recipe<'src, D> {
 
       cmd.arg(command);
 
-      if self.takes_positional_arguments(&context.settings) {
+      if self.takes_positional_arguments(context.settings) {
         cmd.arg(self.name.lexeme());
         cmd.args(positional);
       }
@@ -419,7 +419,7 @@ impl<'src, D> Recipe<'src, D> {
           output_error,
         })?;
 
-    if self.takes_positional_arguments(&context.settings) {
+    if self.takes_positional_arguments(context.settings) {
       command.args(positional);
     }
 
