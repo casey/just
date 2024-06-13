@@ -1314,6 +1314,7 @@ foobar := x'~/$FOO/${BAR}'
 |------|-------------|
 | `$VAR` | value of environment variable `VAR` |
 | `${VAR}` | value of environment variable `VAR` |
+| `${VAR:-DEFAULT}` | value of environment variable `VAR`, or `DEFAULT` if `VAR` is not set |
 | Leading `~` | path to current user's home directory |
 | Leading `~USER` | path to `USER`'s home directory |
 
