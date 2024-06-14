@@ -543,7 +543,7 @@ Changelog
 - Allow comments on same line as settings ([#1339](https://github.com/casey/just/pull/1339) by [casey](https://github.com/casey))
 - Fix justfile env shebang on Linux ([#1330](https://github.com/casey/just/pull/1330) by [casey](https://github.com/casey))
 - Update Chinese translation of README.md ([#1325](https://github.com/casey/just/pull/1325) by [hustcer](https://github.com/hustcer))
-- Add additional settings to grammar
+- Add additional settings to grammar ([#1321](https://github.com/casey/just/pull/1321) by [psibi](https://github.com/psibi))
 - Add an example of using a variable in a recipe parameter ([#1311](https://github.com/casey/just/pull/1311) by [papertigers](https://github.com/papertigers))
 
 [1.4.0](https://github.com/casey/just/releases/tag/1.4.0) - 2022-8-08
@@ -960,7 +960,7 @@ Changelog
 ### Misc
 - Test multi-line strings in interpolation ([#789](https://github.com/casey/just/pull/789) by [casey](https://github.com/casey))
 - Add shell setting examples to README ([#787](https://github.com/casey/just/pull/787) by [casey](https://github.com/casey))
-- Disable .env warning for now
+- Disable .env warning for now ([#786](https://github.com/casey/just/pull/786) by [casey](https://github.com/casey))
 - Warn if `.env` file loaded and `dotenv-load` unset ([#784](https://github.com/casey/just/pull/784) by [casey](https://github.com/casey))
 
 [0.9.0](https://github.com/casey/just/releases/tag/v0.9.0) - 2021-3-28
@@ -1283,7 +1283,7 @@ Changelog
 ### User-visible
 
 ### Changed
-- Display alias with `--show NAME` if one exists
+- Display alias with `--show NAME` if one exists ([#466](https://github.com/casey/just/pull/466) by [casey](https://github.com/casey))
 
 ### Documented
 - Document multi-line constructs (for/if/while) ([#453](https://github.com/casey/just/pull/453) by [casey](https://github.com/casey))
@@ -1402,7 +1402,7 @@ Changelog
 -------------------------------------------------------------------------
 
 ### Added
-- Implemented invocation_directory function
+- Implemented invocation_directory function ([#317](https://github.com/casey/just/pull/317) by [casey](https://github.com/casey))
 
 [0.3.11](https://github.com/casey/just/releases/tag/v0.3.11) - 2018-05-6
 ------------------------------------------------------------------------
