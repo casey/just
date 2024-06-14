@@ -340,9 +340,13 @@ impl<'run, 'src> Parser<'run, 'src> {
             self.presume_keyword(Keyword::Export)?;
             items.push(Item::Assignment(self.parse_assignment(true)?));
           }
-          Some(Keyword::Unexport) => {
+          Some(Keyword::Unexport)
+            if self.next_are(&[Identifier, Identifier, Eof])
+              || self.next_are(&[Identifier, Identifier, Eol]) =>
+          {
             self.presume_keyword(Keyword::Unexport)?;
             let name = self.parse_name()?;
+            self.expect_eol()?;
             items.push(Item::Unexport { name });
           }
           Some(Keyword::Import)
