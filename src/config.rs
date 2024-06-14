@@ -635,17 +635,6 @@ impl Config {
   }
 
   pub(crate) fn from_matches(matches: &ArgMatches) -> ConfigResult<Self> {
-    let invocation_directory = env::current_dir().context(config_error::CurrentDirContext)?;
-
-    let verbosity = if matches.get_flag(arg::QUIET) {
-      Verbosity::Quiet
-    } else {
-      Verbosity::from_flag_occurrences(matches.get_count(arg::VERBOSE))
-    };
-
-    let color = Self::color_from_matches(matches)?;
-    let command_color = Self::command_color_from_matches(matches)?;
-
     let mut overrides = BTreeMap::new();
     if let Some(mut values) = matches.get_many::<String>(arg::SET) {
       while let (Some(k), Some(v)) = (values.next(), values.next()) {
@@ -755,20 +744,10 @@ impl Config {
       }
     };
 
-    let shell_args = if matches.get_flag(arg::CLEAR_SHELL_ARGS) {
-      Some(Vec::new())
-    } else {
-      matches
-        .get_many::<String>(arg::SHELL_ARG)
-        .map(|s| s.map(Into::into).collect())
-    };
-
-    let unstable = matches.get_flag(arg::UNSTABLE);
-
     Ok(Self {
       check: matches.get_flag(arg::CHECK),
-      color,
-      command_color,
+      color: Self::color_from_matches(matches)?,
+      command_color: Self::command_color_from_matches(matches)?,
       dotenv_filename: matches
         .get_one::<String>(arg::DOTENV_FILENAME)
         .map(Into::into),
@@ -776,7 +755,7 @@ impl Config {
       dry_run: matches.get_flag(arg::DRY_RUN),
       dump_format: Self::dump_format_from_matches(matches)?,
       highlight: !matches.get_flag(arg::NO_HIGHLIGHT),
-      invocation_directory,
+      invocation_directory: env::current_dir().context(config_error::CurrentDirContext)?,
       list_heading: matches
         .get_one::<String>(arg::LIST_HEADING)
         .map_or_else(|| "Available recipes:\n".into(), Into::into),
@@ -789,7 +768,13 @@ impl Config {
       no_dependencies: matches.get_flag(arg::NO_DEPS),
       search_config,
       shell: matches.get_one::<String>(arg::SHELL).map(Into::into),
-      shell_args,
+      shell_args: if matches.get_flag(arg::CLEAR_SHELL_ARGS) {
+        Some(Vec::new())
+      } else {
+        matches
+          .get_many::<String>(arg::SHELL_ARG)
+          .map(|s| s.map(Into::into).collect())
+      },
       shell_command: matches.get_flag(arg::SHELL_COMMAND),
       subcommand,
       timestamp: matches.get_flag(arg::TIMESTAMP),
@@ -798,8 +783,12 @@ impl Config {
         .unwrap()
         .into(),
       unsorted: matches.get_flag(arg::UNSORTED),
-      unstable,
-      verbosity,
+      unstable: matches.get_flag(arg::UNSTABLE),
+      verbosity: if matches.get_flag(arg::QUIET) {
+        Verbosity::Quiet
+      } else {
+        Verbosity::from_flag_occurrences(matches.get_count(arg::VERBOSE))
+      },
       yes: matches.get_flag(arg::YES),
     })
   }
