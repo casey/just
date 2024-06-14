@@ -197,6 +197,21 @@ impl Config {
           .help("Automatically confirm all recipes."),
       )
       .arg(
+        Arg::new(arg::DOTENV_FILENAME)
+          .long("dotenv-filename")
+          .action(ArgAction::Set)
+          .help("Search for environment file named <DOTENV-FILENAME> instead of `.env`")
+          .conflicts_with(arg::DOTENV_PATH),
+      )
+      .arg(
+        Arg::new(arg::DOTENV_PATH)
+          .short('E')
+          .long("dotenv-path")
+          .action(ArgAction::Set)
+          .value_parser(value_parser!(PathBuf))
+          .help("Load <DOTENV-PATH> as environment file instead of searching for one"),
+      )
+      .arg(
         Arg::new(arg::DRY_RUN)
           .short('n')
           .long("dry-run")
@@ -481,21 +496,6 @@ impl Config {
           .long("variables")
           .action(ArgAction::SetTrue)
           .help("List names of variables"),
-      )
-      .arg(
-        Arg::new(arg::DOTENV_FILENAME)
-          .long("dotenv-filename")
-          .action(ArgAction::Set)
-          .help("Search for environment file named <DOTENV-FILENAME> instead of `.env`")
-          .conflicts_with(arg::DOTENV_PATH),
-      )
-      .arg(
-        Arg::new(arg::DOTENV_PATH)
-          .short('E')
-          .long("dotenv-path")
-          .action(ArgAction::Set)
-          .value_parser(value_parser!(PathBuf))
-          .help("Load <DOTENV-PATH> as environment file instead of searching for one"),
       )
       .group(ArgGroup::new("SUBCOMMAND").args(cmd::ALL))
       .arg(
