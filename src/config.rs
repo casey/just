@@ -192,6 +192,7 @@ impl Config {
       .arg(
         Arg::new(arg::YES)
           .long("yes")
+          .env("JUST_YES")
           .action(ArgAction::SetTrue)
           .help("Automatically confirm all recipes."),
       )
