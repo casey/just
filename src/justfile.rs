@@ -386,7 +386,7 @@ impl<'src> Justfile<'src> {
     for recipe in self.recipes.values() {
       if recipe.is_public() {
         for group in recipe.groups() {
-          groups.push((&recipe.import_offsets, recipe.name.offset, group))
+          groups.push((&recipe.import_offsets, recipe.name.offset, group));
         }
       }
     }
@@ -394,7 +394,7 @@ impl<'src> Justfile<'src> {
     if config.unsorted {
       groups.sort();
     } else {
-      groups.sort_by(|(_, _, a), (_, _, b)| a.cmp(&b));
+      groups.sort_by(|(_, _, a), (_, _, b)| a.cmp(b));
     }
 
     let mut seen = HashSet::new();
