@@ -708,28 +708,10 @@ impl Config {
       }
     } else if let Some(&shell) = matches.get_one::<completions::Shell>(cmd::COMPLETIONS) {
       Subcommand::Completions { shell }
-    } else if matches.get_flag(cmd::EDIT) {
-      Subcommand::Edit
-    } else if matches.get_flag(cmd::SUMMARY) {
-      Subcommand::Summary
     } else if matches.get_flag(cmd::DUMP) {
       Subcommand::Dump
-    } else if matches.get_flag(cmd::FORMAT) {
-      Subcommand::Format
-    } else if matches.get_flag(cmd::INIT) {
-      Subcommand::Init
-    } else if let Some(path) = matches.get_many::<String>(cmd::LIST) {
-      Subcommand::List {
-        path: Self::parse_module_path(path)?,
-      }
-    } else if matches.get_flag(cmd::GROUPS) {
-      Subcommand::Groups
-    } else if matches.get_flag(cmd::MAN) {
-      Subcommand::Man
-    } else if let Some(path) = matches.get_many::<String>(cmd::SHOW) {
-      Subcommand::Show {
-        path: Self::parse_module_path(path)?,
-      }
+    } else if matches.get_flag(cmd::EDIT) {
+      Subcommand::Edit
     } else if matches.get_flag(cmd::EVALUATE) {
       if positional.arguments.len() > 1 {
         return Err(ConfigError::SubcommandArguments {
@@ -746,6 +728,24 @@ impl Config {
         variable: positional.arguments.into_iter().next(),
         overrides,
       }
+    } else if matches.get_flag(cmd::FORMAT) {
+      Subcommand::Format
+    } else if matches.get_flag(cmd::GROUPS) {
+      Subcommand::Groups
+    } else if matches.get_flag(cmd::INIT) {
+      Subcommand::Init
+    } else if let Some(path) = matches.get_many::<String>(cmd::LIST) {
+      Subcommand::List {
+        path: Self::parse_module_path(path)?,
+      }
+    } else if matches.get_flag(cmd::MAN) {
+      Subcommand::Man
+    } else if let Some(path) = matches.get_many::<String>(cmd::SHOW) {
+      Subcommand::Show {
+        path: Self::parse_module_path(path)?,
+      }
+    } else if matches.get_flag(cmd::SUMMARY) {
+      Subcommand::Summary
     } else if matches.get_flag(cmd::VARIABLES) {
       Subcommand::Variables
     } else {
