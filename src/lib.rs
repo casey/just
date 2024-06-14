@@ -15,7 +15,7 @@
 
 pub(crate) use {
   crate::{
-    alias::Alias, analyzer::Analyzer, assignment::Assignment,
+    alias::Alias, analyzer::Analyzer, argument_parser::ArgumentParser, assignment::Assignment,
     assignment_resolver::AssignmentResolver, ast::Ast, attribute::Attribute, binding::Binding,
     color::Color, color_display::ColorDisplay, command_ext::CommandExt, compilation::Compilation,
     compile_error::CompileError, compile_error_kind::CompileErrorKind, compiler::Compiler,
@@ -113,6 +113,7 @@ pub mod summary;
 
 mod alias;
 mod analyzer;
+mod argument_parser;
 mod assignment;
 mod assignment_resolver;
 mod ast;

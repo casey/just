@@ -115,7 +115,7 @@ fn missing_recipe_after_invalid_path() {
     .test_round_trip(false)
     .arg(":foo::foo")
     .arg("bar")
-    .stderr("error: Justfile does not contain recipes `:foo::foo` or `bar`.\n")
+    .stderr("error: Justfile does not contain recipe `:foo::foo`.\n")
     .status(EXIT_FAILURE)
     .run();
 }
@@ -688,5 +688,96 @@ fn recipes_with_same_name_are_both_run() {
     .arg("foo::bar")
     .arg("bar")
     .stdout("MODULE\nROOT\n")
+    .run();
+}
+
+#[test]
+fn submodule_recipe_not_found_error_message() {
+  Test::new()
+    .args(["--unstable", "foo::bar"])
+    .stderr("error: Justfile does not contain submodule `foo`\n")
+    .status(1)
+    .run();
+}
+
+#[test]
+fn submodule_recipe_not_found_spaced_error_message() {
+  Test::new()
+    .write("foo.just", "bar:\n @echo MODULE")
+    .justfile(
+      "
+        mod foo
+      ",
+    )
+    .test_round_trip(false)
+    .args(["--unstable", "foo", "baz"])
+    .stderr("error: Justfile does not contain recipe `foo baz`.\nDid you mean `bar`?\n")
+    .status(1)
+    .run();
+}
+
+#[test]
+fn submodule_recipe_not_found_colon_separated_error_message() {
+  Test::new()
+    .write("foo.just", "bar:\n @echo MODULE")
+    .justfile(
+      "
+        mod foo
+      ",
+    )
+    .test_round_trip(false)
+    .args(["--unstable", "foo::baz"])
+    .stderr("error: Justfile does not contain recipe `foo::baz`.\nDid you mean `bar`?\n")
+    .status(1)
+    .run();
+}
+
+#[test]
+fn colon_separated_path_does_not_run_recipes() {
+  Test::new()
+    .justfile(
+      "
+        foo:
+          @echo FOO
+
+        bar:
+          @echo BAR
+      ",
+    )
+    .args(["--unstable", "foo::bar"])
+    .stderr("error: Expected submodule at `foo` but found recipe.\n")
+    .status(1)
+    .run();
+}
+
+#[test]
+fn expected_submodule_but_found_recipe_in_root_error() {
+  Test::new()
+    .justfile("foo:")
+    .arg("foo::baz")
+    .stderr("error: Expected submodule at `foo` but found recipe.\n")
+    .status(1)
+    .run();
+}
+
+#[test]
+fn expected_submodule_but_found_recipe_in_submodule_error() {
+  Test::new()
+    .justfile("mod foo")
+    .write("foo.just", "bar:")
+    .test_round_trip(false)
+    .args(["--unstable", "foo::bar::baz"])
+    .stderr("error: Expected submodule at `foo::bar` but found recipe.\n")
+    .status(1)
+    .run();
+}
+
+#[test]
+fn colon_separated_path_components_are_not_used_as_arguments() {
+  Test::new()
+    .justfile("foo bar:")
+    .args(["foo::bar"])
+    .stderr("error: Expected submodule at `foo` but found recipe.\n")
+    .status(1)
     .run();
 }

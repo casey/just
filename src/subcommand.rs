@@ -150,7 +150,7 @@ impl Subcommand {
         };
 
         match Self::run_inner(config, loader, arguments, overrides, &search) {
-          Err((err @ Error::UnknownRecipes { .. }, true)) => {
+          Err((err @ Error::UnknownRecipe { .. }, true)) => {
             match search.justfile.parent().unwrap().parent() {
               Some(parent) => {
                 unknown_recipes_errors.get_or_insert(err);
@@ -428,7 +428,9 @@ impl Subcommand {
       module = module
         .modules
         .get(name)
-        .ok_or_else(|| Error::UnknownSubmodule { path: path.clone() })?;
+        .ok_or_else(|| Error::UnknownSubmodule {
+          path: path.to_string(),
+        })?;
     }
 
     Self::list_module(config, module, 0);
@@ -588,7 +590,9 @@ impl Subcommand {
       module = module
         .modules
         .get(name)
-        .ok_or_else(|| Error::UnknownSubmodule { path: path.clone() })?;
+        .ok_or_else(|| Error::UnknownSubmodule {
+          path: path.to_string(),
+        })?;
     }
 
     let name = path.path.last().unwrap();
@@ -602,8 +606,8 @@ impl Subcommand {
       println!("{}", recipe.color_display(config.color.stdout()));
       Ok(())
     } else {
-      Err(Error::UnknownRecipes {
-        recipes: vec![name.to_owned()],
+      Err(Error::UnknownRecipe {
+        recipe: name.to_owned(),
         suggestion: module.suggest_recipe(name),
       })
     }

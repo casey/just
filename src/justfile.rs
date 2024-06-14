@@ -173,66 +173,26 @@ impl<'src> Justfile<'src> {
       _ => {}
     }
 
-    let mut remaining: Vec<&str> = if !arguments.is_empty() {
-      arguments.iter().map(String::as_str).collect()
-    } else if let Some(recipe) = &self.default {
-      recipe.check_can_be_default_recipe()?;
-      vec![recipe.name()]
-    } else if self.recipes.is_empty() {
-      return Err(Error::NoRecipes);
-    } else {
-      return Err(Error::NoDefaultRecipe);
-    };
+    let arguments = arguments.iter().map(String::as_str).collect::<Vec<&str>>();
 
-    let mut missing = Vec::new();
-    let mut invocations = Vec::new();
-    let mut scopes = BTreeMap::new();
+    let groups = ArgumentParser::parse_arguments(self, &arguments)?;
+
     let arena: Arena<Scope> = Arena::new();
+    let mut invocations = Vec::<Invocation>::new();
+    let mut scopes = BTreeMap::new();
 
-    while let Some(first) = remaining.first().copied() {
-      if first.contains("::")
-        && !(first.starts_with(':') || first.ends_with(':') || first.contains(":::"))
-      {
-        remaining = first
-          .split("::")
-          .chain(remaining[1..].iter().copied())
-          .collect();
-
-        continue;
-      }
-
-      let rest = &remaining[1..];
-
-      if let Some((invocation, consumed)) = self.invocation(
-        0,
-        &mut Vec::new(),
+    for group in &groups {
+      invocations.push(self.invocation(
         &arena,
-        &mut scopes,
+        &group.arguments,
         config,
         &dotenv,
-        search,
         &scope,
-        first,
-        rest,
-      )? {
-        remaining = rest[consumed..].to_vec();
-        invocations.push(invocation);
-      } else {
-        missing.push(first.to_string());
-        remaining = rest.to_vec();
-      }
-    }
-
-    if !missing.is_empty() {
-      let suggestion = if missing.len() == 1 {
-        self.suggest_recipe(missing.first().unwrap())
-      } else {
-        None
-      };
-      return Err(Error::UnknownRecipes {
-        recipes: missing,
-        suggestion,
-      });
+        &group.path,
+        0,
+        &mut scopes,
+        search,
+      )?);
     }
 
     let mut ran = Ran::default();
@@ -278,21 +238,29 @@ impl<'src> Justfile<'src> {
 
   fn invocation<'run>(
     &'run self,
-    depth: usize,
-    path: &mut Vec<&'run str>,
     arena: &'run Arena<Scope<'src, 'run>>,
-    scopes: &mut BTreeMap<Vec<&'run str>, &'run Scope<'src, 'run>>,
+    arguments: &[&'run str],
     config: &'run Config,
     dotenv: &'run BTreeMap<String, String>,
-    search: &'run Search,
     parent: &'run Scope<'src, 'run>,
-    first: &'run str,
-    rest: &[&'run str],
-  ) -> RunResult<'src, Option<(Invocation<'src, 'run>, usize)>> {
-    if let Some(module) = self.modules.get(first) {
-      path.push(first);
+    path: &'run [String],
+    position: usize,
+    scopes: &mut BTreeMap<&'run [String], &'run Scope<'src, 'run>>,
+    search: &'run Search,
+  ) -> RunResult<'src, Invocation<'src, 'run>> {
+    if position + 1 == path.len() {
+      let recipe = self.get_recipe(&path[position]).unwrap();
+      Ok(Invocation {
+        recipe,
+        module_source: &self.source,
+        arguments: arguments.into(),
+        settings: &self.settings,
+        scope: parent,
+      })
+    } else {
+      let module = self.modules.get(&path[position]).unwrap();
 
-      let scope = if let Some(scope) = scopes.get(path) {
+      let scope = if let Some(scope) = scopes.get(&path[..position]) {
         scope
       } else {
         let scope = Evaluator::evaluate_assignments(
@@ -304,76 +272,21 @@ impl<'src> Justfile<'src> {
           search,
         )?;
         let scope = arena.alloc(scope);
-        scopes.insert(path.clone(), scope);
+        scopes.insert(path, scope);
         scopes.get(path).unwrap()
       };
 
-      if rest.is_empty() {
-        if let Some(recipe) = &module.default {
-          recipe.check_can_be_default_recipe()?;
-          return Ok(Some((
-            Invocation {
-              settings: &module.settings,
-              recipe,
-              arguments: Vec::new(),
-              scope,
-              module_source: &self.source,
-            },
-            depth,
-          )));
-        }
-        Err(Error::NoDefaultRecipe)
-      } else {
-        module.invocation(
-          depth + 1,
-          path,
-          arena,
-          scopes,
-          config,
-          dotenv,
-          search,
-          scope,
-          rest[0],
-          &rest[1..],
-        )
-      }
-    } else if let Some(recipe) = self.get_recipe(first) {
-      if recipe.parameters.is_empty() {
-        Ok(Some((
-          Invocation {
-            arguments: Vec::new(),
-            recipe,
-            scope: parent,
-            settings: &self.settings,
-            module_source: &self.source,
-          },
-          depth,
-        )))
-      } else {
-        let argument_range = recipe.argument_range();
-        let argument_count = cmp::min(rest.len(), recipe.max_arguments());
-        if !argument_range.range_contains(&argument_count) {
-          return Err(Error::ArgumentCountMismatch {
-            recipe: recipe.name(),
-            parameters: recipe.parameters.clone(),
-            found: rest.len(),
-            min: recipe.min_arguments(),
-            max: recipe.max_arguments(),
-          });
-        }
-        Ok(Some((
-          Invocation {
-            arguments: rest[..argument_count].to_vec(),
-            recipe,
-            scope: parent,
-            settings: &self.settings,
-            module_source: &self.source,
-          },
-          depth + argument_count,
-        )))
-      }
-    } else {
-      Ok(None)
+      module.invocation(
+        arena,
+        arguments,
+        config,
+        dotenv,
+        scope,
+        path,
+        position + 1,
+        scopes,
+        search,
+      )
     }
   }
 
@@ -523,21 +436,38 @@ mod tests {
   use Error::*;
 
   run_error! {
-    name: unknown_recipes,
+    name: unknown_recipe_no_suggestion,
     src: "a:\nb:\nc:",
-    args: ["a", "x", "y", "z"],
-    error: UnknownRecipes {
-      recipes,
+    args: ["a", "xyz", "y", "z"],
+    error: UnknownRecipe {
+      recipe,
       suggestion,
     },
     check: {
-      assert_eq!(recipes, &["x", "y", "z"]);
+      assert_eq!(recipe, "xyz");
       assert_eq!(suggestion, None);
     }
   }
 
   run_error! {
-    name: unknown_recipes_show_alias_suggestion,
+    name: unknown_recipe_with_suggestion,
+    src: "a:\nb:\nc:",
+    args: ["a", "x", "y", "z"],
+    error: UnknownRecipe {
+      recipe,
+      suggestion,
+    },
+    check: {
+      assert_eq!(recipe, "x");
+      assert_eq!(suggestion, Some(Suggestion {
+        name: "a",
+        target: None,
+      }));
+    }
+  }
+
+  run_error! {
+    name: unknown_recipe_show_alias_suggestion,
     src: "
       foo:
         echo foo
@@ -545,12 +475,12 @@ mod tests {
       alias z := foo
     ",
     args: ["zz"],
-    error: UnknownRecipes {
-      recipes,
+    error: UnknownRecipe {
+      recipe,
       suggestion,
     },
     check: {
-      assert_eq!(recipes, &["zz"]);
+      assert_eq!(recipe, "zz");
       assert_eq!(suggestion, Some(Suggestion {
         name: "z",
         target: Some("foo"),

@@ -95,6 +95,9 @@ pub(crate) enum Error<'src> {
     variable: String,
     suggestion: Option<Suggestion<'src>>,
   },
+  ExpectedSubmoduleButFoundRecipe {
+    path: String,
+  },
   FormatCheckFoundDiff,
   FunctionCall {
     function: Name<'src>,
@@ -162,13 +165,13 @@ pub(crate) enum Error<'src> {
     line_number: Option<usize>,
   },
   UnknownSubmodule {
-    path: ModulePath,
+    path: String,
   },
   UnknownOverrides {
     overrides: Vec<String>,
   },
-  UnknownRecipes {
-    recipes: Vec<String>,
+  UnknownRecipe {
+    recipe: String,
     suggestion: Option<Suggestion<'src>>,
   },
   Unstable {
@@ -365,6 +368,9 @@ impl<'src> ColorDisplay for Error<'src> {
           write!(f, "\n{suggestion}")?;
         }
       }
+      ExpectedSubmoduleButFoundRecipe { path } => {
+        write!(f, "Expected submodule at `{path}` but found recipe.")?;
+      },
       FormatCheckFoundDiff => {
         write!(f, "Formatted justfile differs from original.")?;
       }
@@ -447,10 +453,8 @@ impl<'src> ColorDisplay for Error<'src> {
         let overrides = List::and_ticked(overrides);
         write!(f, "{count} {overrides} overridden on the command line but not present in justfile")?;
       }
-      UnknownRecipes { recipes, suggestion } => {
-        let count = Count("recipe", recipes.len());
-        let recipes = List::or_ticked(recipes);
-        write!(f, "Justfile does not contain {count} {recipes}.")?;
+      UnknownRecipe { recipe, suggestion } => {
+        write!(f, "Justfile does not contain recipe `{recipe}`.")?;
         if let Some(suggestion) = suggestion {
           write!(f, "\n{suggestion}")?;
         }
