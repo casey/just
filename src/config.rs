@@ -234,6 +234,7 @@ impl Config {
       .arg(
         Arg::new(arg::LIST_PREFIX)
           .long("list-prefix")
+          .env("JUST_LIST_PREFIX")
           .help("Print <TEXT> before each list item")
           .value_name("TEXT")
           .action(ArgAction::Set),
