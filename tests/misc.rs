@@ -652,7 +652,7 @@ test! {
   justfile: "hello:",
   args:     ("foo", "bar"),
   stdout:   "",
-  stderr:   "error: Justfile does not contain recipes `foo` or `bar`.\n",
+  stderr:   "error: Justfile does not contain recipe `foo`.\n",
   status:   EXIT_FAILURE,
 }
 
