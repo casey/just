@@ -150,17 +150,20 @@ impl Config {
       .trailing_var_arg(true)
       .styles(
         Styles::styled()
-            .header(AnsiColor::Yellow.on_default())
-            .usage(AnsiColor::Yellow.on_default())
-            .literal(AnsiColor::Green.on_default())
-            .placeholder(AnsiColor::Green.on_default())
+          .header(AnsiColor::Yellow.on_default())
+          .usage(AnsiColor::Yellow.on_default())
+          .literal(AnsiColor::Green.on_default())
+          .placeholder(AnsiColor::Green.on_default()),
       )
       .arg(
         Arg::new(arg::CHECK)
           .long("check")
           .action(ArgAction::SetTrue)
           .requires(cmd::FORMAT)
-          .help("Run `--fmt` in 'check' mode. Exits with 0 if justfile is formatted correctly. Exits with 1 and prints a diff if formatting is required."),
+          .help(
+            "Run `--fmt` in 'check' mode. Exits with 0 if justfile is formatted correctly. \
+                 Exits with 1 and prints a diff if formatting is required.",
+          ),
       )
       .arg(
         Arg::new(arg::CHOOSER)
@@ -244,12 +247,12 @@ impl Config {
           .action(ArgAction::SetTrue)
           .help("Don't show aliases in list"),
       )
-      .arg (
+      .arg(
         Arg::new(arg::NO_DEPS)
           .long("no-deps")
           .alias("no-dependencies")
           .action(ArgAction::SetTrue)
-          .help("Don't run recipe dependencies")
+          .help("Don't run recipe dependencies"),
       )
       .arg(
         Arg::new(arg::NO_DOTENV)
@@ -363,8 +366,8 @@ impl Config {
           .action(ArgAction::SetTrue)
           .help(
             "Select one or more recipes to run using a binary chooser. If `--chooser` is not \
-             passed the chooser defaults to the value of $JUST_CHOOSER, falling back to `fzf`"
-          )
+             passed the chooser defaults to the value of $JUST_CHOOSER, falling back to `fzf`",
+          ),
       )
       .arg(
         Arg::new(cmd::COMMAND)
@@ -436,10 +439,10 @@ impl Config {
       )
       .arg(
         Arg::new(cmd::GROUPS)
-        .long("groups")
-        .action(ArgAction::SetTrue)
-        .help("List recipe groups")
-        )
+          .long("groups")
+          .action(ArgAction::SetTrue)
+          .help("List recipe groups"),
+      )
       .arg(
         Arg::new(cmd::MAN)
           .long("man")
@@ -481,7 +484,7 @@ impl Config {
           .long("dotenv-path")
           .action(ArgAction::Set)
           .value_parser(value_parser!(PathBuf))
-          .help("Load <DOTENV-PATH> as environment file instead of searching for one")
+          .help("Load <DOTENV-PATH> as environment file instead of searching for one"),
       )
       .group(ArgGroup::new("SUBCOMMAND").args(cmd::ALL))
       .arg(
@@ -490,30 +493,30 @@ impl Config {
           .action(ArgAction::Append)
           .help("Overrides and recipe(s) to run, defaulting to the first recipe in the justfile"),
       )
-    .arg(
-      Arg::new(arg::GLOBAL_JUSTFILE)
-      .action(ArgAction::SetTrue)
-      .long("global-justfile")
-      .short('g')
-      .conflicts_with(arg::JUSTFILE)
-      .conflicts_with(arg::WORKING_DIRECTORY)
-      .help("Use global justfile")
-    )
-    .arg(
-      Arg::new(arg::TIMESTAMP)
-      .action(ArgAction::SetTrue)
-      .long("timestamp")
-      .env("JUST_TIMESTAMP")
-      .help("Print recipe command timestamps")
-    )
-    .arg(
-      Arg::new(arg::TIMESTAMP_FORMAT)
-      .action(ArgAction::Set)
-      .long("timestamp-format")
-      .env("JUST_TIMESTAMP_FORMAT")
-      .default_value("%H:%M:%S")
-      .help("Timestamp format string")
-    )
+      .arg(
+        Arg::new(arg::GLOBAL_JUSTFILE)
+          .action(ArgAction::SetTrue)
+          .long("global-justfile")
+          .short('g')
+          .conflicts_with(arg::JUSTFILE)
+          .conflicts_with(arg::WORKING_DIRECTORY)
+          .help("Use global justfile"),
+      )
+      .arg(
+        Arg::new(arg::TIMESTAMP)
+          .action(ArgAction::SetTrue)
+          .long("timestamp")
+          .env("JUST_TIMESTAMP")
+          .help("Print recipe command timestamps"),
+      )
+      .arg(
+        Arg::new(arg::TIMESTAMP_FORMAT)
+          .action(ArgAction::Set)
+          .long("timestamp-format")
+          .env("JUST_TIMESTAMP_FORMAT")
+          .default_value("%H:%M:%S")
+          .help("Timestamp format string"),
+      )
   }
 
   fn color_from_matches(matches: &ArgMatches) -> ConfigResult<Color> {
