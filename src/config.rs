@@ -226,6 +226,7 @@ impl Config {
       .arg(
         Arg::new(arg::LIST_HEADING)
           .long("list-heading")
+          .env("JUST_LIST_HEADING")
           .help("Print <TEXT> before list")
           .value_name("TEXT")
           .action(ArgAction::Set),
