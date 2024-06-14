@@ -110,7 +110,7 @@ impl<'src> Attribute<'src> {
 }
 
 impl<'src> Display for Attribute<'src> {
-  fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
+  fn fmt(&self, f: &mut Formatter) -> fmt::Result {
     write!(f, "{}", self.name())?;
     if let Some(argument) = self.argument() {
       write!(f, "({argument})")?;

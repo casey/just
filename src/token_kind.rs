@@ -39,7 +39,7 @@ pub(crate) enum TokenKind {
 }
 
 impl Display for TokenKind {
-  fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
+  fn fmt(&self, f: &mut Formatter) -> fmt::Result {
     use TokenKind::*;
     write!(
       f,

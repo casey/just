@@ -28,7 +28,7 @@ fn capitalize(s: &str) -> String {
 }
 
 impl Display for CompileError<'_> {
-  fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
+  fn fmt(&self, f: &mut Formatter) -> fmt::Result {
     use CompileErrorKind::*;
 
     match &*self.kind {

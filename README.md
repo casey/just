@@ -1861,6 +1861,8 @@ Recipe groups:
   rust recipes
 ```
 
+Use `just --groups --unsorted` to print groups in their justfile order.
+
 ### Command Evaluation Using Backticks
 
 Backticks can be used to store the result of commands:

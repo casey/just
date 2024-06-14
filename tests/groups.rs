@@ -157,12 +157,89 @@ fn list_groups_with_shorthand_syntax() {
         bar:
       ",
     )
-    .args(["--groups", "--list-prefix", "..."])
+    .arg("--groups")
     .stdout(
       "
       Recipe groups:
-      ...A
-      ...B
+          A
+          B
+      ",
+    )
+    .run();
+}
+
+#[test]
+fn list_groups_unsorted() {
+  Test::new()
+    .justfile(
+      "
+        [group: 'Z']
+        baz:
+
+        [group: 'B']
+        foo:
+
+        [group: 'A', group: 'B']
+        bar:
+      ",
+    )
+    .args(["--groups", "--unsorted"])
+    .stdout(
+      "
+      Recipe groups:
+          Z
+          B
+          A
+      ",
+    )
+    .run();
+}
+
+#[test]
+fn list_groups_private_unsorted() {
+  Test::new()
+    .justfile(
+      "
+        [private]
+        [group: 'A']
+        foo:
+
+        [group: 'B']
+        bar:
+
+        [group: 'A']
+        baz:
+      ",
+    )
+    .args(["--groups", "--unsorted"])
+    .stdout(
+      "
+      Recipe groups:
+          B
+          A
+      ",
+    )
+    .run();
+}
+
+#[test]
+fn list_groups_private() {
+  Test::new()
+    .justfile(
+      "
+        [private]
+        [group: 'A']
+        foo:
+
+        [group: 'B']
+        bar:
+      ",
+    )
+    .args(["--groups", "--unsorted"])
+    .stdout(
+      "
+      Recipe groups:
+          B
       ",
     )
     .run();

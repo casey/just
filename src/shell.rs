@@ -7,7 +7,7 @@ pub(crate) struct Shell<'src> {
 }
 
 impl<'src> Display for Shell<'src> {
-  fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
+  fn fmt(&self, f: &mut Formatter) -> fmt::Result {
     write!(f, "[{}", self.command)?;
 
     for argument in &self.arguments {

@@ -15,7 +15,7 @@ pub(crate) enum OutputError {
 }
 
 impl Display for OutputError {
-  fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
+  fn fmt(&self, f: &mut Formatter) -> fmt::Result {
     match *self {
       Self::Code(code) => write!(f, "Process exited with status code {code}"),
       Self::Io(ref io_error) => write!(f, "Error executing process: {io_error}"),

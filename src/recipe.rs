@@ -476,7 +476,7 @@ impl<'src, D> Recipe<'src, D> {
 }
 
 impl<'src, D: Display> ColorDisplay for Recipe<'src, D> {
-  fn fmt(&self, f: &mut Formatter, color: Color) -> Result<(), fmt::Error> {
+  fn fmt(&self, f: &mut Formatter, color: Color) -> fmt::Result {
     if let Some(doc) = self.doc {
       writeln!(f, "# {doc}")?;
     }

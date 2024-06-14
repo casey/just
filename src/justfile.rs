@@ -365,13 +365,13 @@ impl<'src> Justfile<'src> {
     modules
   }
 
-  pub(crate) fn public_recipes(&self, config: &Config) -> Vec<&Recipe<'src, Dependency>> {
+  pub(crate) fn public_recipes(&self, config: &Config) -> Vec<&Recipe> {
     let mut recipes = self
       .recipes
       .values()
       .map(AsRef::as_ref)
       .filter(|recipe| recipe.is_public())
-      .collect::<Vec<&Recipe<Dependency>>>();
+      .collect::<Vec<&Recipe>>();
 
     if config.unsorted {
       recipes.sort_by_key(|recipe| (&recipe.import_offsets, recipe.name.offset));
@@ -380,19 +380,33 @@ impl<'src> Justfile<'src> {
     recipes
   }
 
-  pub(crate) fn public_groups(&self) -> BTreeSet<String> {
-    self
-      .recipes
-      .values()
-      .map(AsRef::as_ref)
-      .filter(|recipe| recipe.is_public())
-      .flat_map(Recipe::groups)
-      .collect()
+  pub(crate) fn public_groups(&self, config: &Config) -> Vec<String> {
+    let mut groups = Vec::new();
+
+    for recipe in self.recipes.values() {
+      if recipe.is_public() {
+        for group in recipe.groups() {
+          groups.push((&recipe.import_offsets, recipe.name.offset, group));
+        }
+      }
+    }
+
+    if config.unsorted {
+      groups.sort();
+    } else {
+      groups.sort_by(|(_, _, a), (_, _, b)| a.cmp(b));
+    }
+
+    let mut seen = HashSet::new();
+
+    groups.retain(|(_, _, group)| seen.insert(group.clone()));
+
+    groups.into_iter().map(|(_, _, group)| group).collect()
   }
 }
 
 impl<'src> ColorDisplay for Justfile<'src> {
-  fn fmt(&self, f: &mut Formatter, color: Color) -> Result<(), fmt::Error> {
+  fn fmt(&self, f: &mut Formatter, color: Color) -> fmt::Result {
     let mut items = self.recipes.len() + self.assignments.len() + self.aliases.len();
     for (name, assignment) in &self.assignments {
       if assignment.export {

@@ -7,7 +7,7 @@ pub(crate) struct UnresolvedDependency<'src> {
 }
 
 impl<'src> Display for UnresolvedDependency<'src> {
-  fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
+  fn fmt(&self, f: &mut Formatter) -> fmt::Result {
     if self.arguments.is_empty() {
       write!(f, "{}", self.recipe)
     } else {
