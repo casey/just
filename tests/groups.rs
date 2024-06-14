@@ -196,7 +196,7 @@ fn list_groups_unsorted() {
 }
 
 #[test]
-fn list_groups_private() {
+fn list_groups_private_unsorted() {
   Test::new()
     .justfile(
       "
@@ -217,6 +217,29 @@ fn list_groups_private() {
       Recipe groups:
           B
           A
+      ",
+    )
+    .run();
+}
+
+#[test]
+fn list_groups_private() {
+  Test::new()
+    .justfile(
+      "
+        [private]
+        [group: 'A']
+        foo:
+
+        [group: 'B']
+        bar:
+      ",
+    )
+    .args(["--groups", "--unsorted"])
+    .stdout(
+      "
+      Recipe groups:
+          B
       ",
     )
     .run();
