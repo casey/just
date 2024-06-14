@@ -1607,6 +1607,7 @@ Recipe groups:
   lint
   rust recipes
 </code></pre>
+<p>Use <code>just --groups --unsorted</code> to print groups in their justfile order.</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="command-evaluation-using-backticks"><a class="header" href="#command-evaluation-using-backticks">Command Evaluation Using Backticks</a></h3>
 <p>Backticks can be used to store the result of commands:</p>
 <pre><code class="language-just">localhost := `dumpinterfaces | cut -d: -f2 | sed 's/\/.*//' | sed 's/ //g'`
