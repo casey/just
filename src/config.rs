@@ -208,6 +208,7 @@ impl Config {
       .arg(
         Arg::new(arg::DUMP_FORMAT)
           .long("dump-format")
+          .env("JUST_DUMP_FORMAT")
           .action(ArgAction::Set)
           .value_parser(PossibleValuesParser::new(arg::DUMP_FORMAT_VALUES))
           .default_value(arg::DUMP_FORMAT_JUST)
