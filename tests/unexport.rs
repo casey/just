@@ -99,6 +99,28 @@ fn unexport_doesnt_override_local_recipe_export() {
     )
     .args(["recipe", "value"])
     .stdout("variable: value\n")
-    .status(0)
+    .run();
+}
+
+#[test]
+fn unexport_does_not_conflict_with_recipe_syntax() {
+  Test::new()
+    .justfile(
+      "
+        unexport foo:
+          @echo {{foo}}
+      ",
+    )
+    .args(["unexport", "bar"])
+    .stdout("bar\n")
+    .run();
+}
+
+#[test]
+fn unexport_does_not_conflict_with_assignment_syntax() {
+  Test::new()
+    .justfile("unexport := 'foo'")
+    .args(["--evaluate", "unexport"])
+    .stdout("foo")
     .run();
 }
