@@ -33,6 +33,10 @@ fn replacements() {
       .args(["--completions", shell])
       .output()
       .unwrap();
-    assert!(output.status.success());
+    assert!(
+      output.status.success(),
+      "shell completion generation for {shell} failed: {}",
+      output.status
+    );
   }
 }
