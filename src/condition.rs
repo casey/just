@@ -8,7 +8,7 @@ pub(crate) struct Condition<'src> {
 }
 
 impl<'src> Display for Condition<'src> {
-  fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
+  fn fmt(&self, f: &mut Formatter) -> fmt::Result {
     write!(f, "{} {} {}", self.lhs, self.operator, self.rhs)
   }
 }

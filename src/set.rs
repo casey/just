@@ -13,7 +13,7 @@ impl<'src> Keyed<'src> for Set<'src> {
 }
 
 impl<'src> Display for Set<'src> {
-  fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
+  fn fmt(&self, f: &mut Formatter) -> fmt::Result {
     write!(f, "set {} := {}", self.name, self.value)
   }
 }

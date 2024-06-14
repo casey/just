@@ -97,7 +97,7 @@ impl Subcommand {
 
   fn groups(config: &Config, justfile: &Justfile) {
     println!("Recipe groups:");
-    for group in justfile.public_groups() {
+    for group in justfile.public_groups(config) {
       println!("{}{group}", config.list_prefix);
     }
   }
@@ -215,7 +215,7 @@ impl Subcommand {
     overrides: &BTreeMap<String, String>,
     chooser: Option<&str>,
   ) -> Result<(), Error<'src>> {
-    let mut recipes = Vec::<&Recipe<Dependency>>::new();
+    let mut recipes = Vec::<&Recipe>::new();
     let mut stack = vec![justfile];
     while let Some(module) = stack.pop() {
       recipes.extend(

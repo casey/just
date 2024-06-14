@@ -51,7 +51,7 @@ impl<'src> Expression<'src> {
 }
 
 impl<'src> Display for Expression<'src> {
-  fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
+  fn fmt(&self, f: &mut Formatter) -> fmt::Result {
     match self {
       Self::Assert { condition, error } => write!(f, "assert({condition}, {error})"),
       Self::Backtick { token, .. } => write!(f, "{}", token.lexeme()),

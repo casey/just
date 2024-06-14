@@ -20,7 +20,7 @@ pub(crate) enum Setting<'src> {
 }
 
 impl<'src> Display for Setting<'src> {
-  fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
+  fn fmt(&self, f: &mut Formatter) -> fmt::Result {
     match self {
       Self::AllowDuplicateRecipes(value)
       | Self::AllowDuplicateVariables(value)

@@ -12,7 +12,7 @@ pub(crate) struct Ast<'src> {
 }
 
 impl<'src> Display for Ast<'src> {
-  fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
+  fn fmt(&self, f: &mut Formatter) -> fmt::Result {
     let mut iter = self.items.iter().peekable();
 
     while let Some(item) = iter.next() {
