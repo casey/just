@@ -10,8 +10,6 @@ use {
   Function::*,
 };
 
-type FunctionResult = Result<String, String>;
-
 pub(crate) enum Function {
   Nullary(fn(Context) -> FunctionResult),
   Unary(fn(Context, &str) -> FunctionResult),
