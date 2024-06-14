@@ -997,7 +997,7 @@ $ just test foo "bar baz"
 ```
 
 Positional arguments may also be turned on on a per-recipe basis with the
-`[positional-arguments]` attribute<sup>master</sup>:
+`[positional-arguments]` attribute<sup>1.29.0</sup>:
 
 ```just
 [positional-arguments]
@@ -1701,7 +1701,7 @@ Recipes may be annotated with attributes that change their behavior.
 | `[no-cd]`<sup>1.9.0</sup> | Don't change directory before executing recipe. |
 | `[no-exit-message]`<sup>1.7.0</sup> | Don't print an error message if recipe fails. |
 | `[no-quiet]`<sup>1.23.0</sup> | Override globally quiet recipes and always echo out the recipe. |
-| `[positional-arguments]`<sup>master</sup> | Turn on [positional arguments](#positional-arguments) for this recipe. |
+| `[positional-arguments]`<sup>1.29.0</sup> | Turn on [positional arguments](#positional-arguments) for this recipe. |
 | `[private]`<sup>1.10.0</sup> | See [Private Recipes](#private-recipes). |
 | `[unix]`<sup>1.8.0</sup> | Enable recipe on Unixes. (Includes MacOS). |
 | `[windows]`<sup>1.8.0</sup> | Enable recipe on Windows. |
@@ -2075,7 +2075,7 @@ a $A $B=`echo $A`:
 When [export](#export) is set, all `just` variables are exported as environment
 variables.
 
-#### Unexporting Environment Variables<sup>master</sup>
+#### Unexporting Environment Variables<sup>1.29.0</sup>
 
 Environment variables can be unexported with the `unexport keyword`:
 

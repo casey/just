@@ -1,6 +1,29 @@
 Changelog
 =========
 
+[1.29.0](https://github.com/casey/just/releases/tag/1.29.0) - 2024-06-13
+------------------------------------------------------------------------
+
+### Added
+- Add [positional-arguments] attribute ([#2151](https://github.com/casey/just/pull/2151))
+- Use `--justfile` in Fish shell completions ([#2148](https://github.com/casey/just/pull/2148) by [rubot](https://github.com/rubot))
+- Add `is_dependency()` function ([#2139](https://github.com/casey/just/pull/2139) by [neunenak](https://github.com/neunenak))
+- Allow printing nu completion script with `just --completions nushell` ([#2140](https://github.com/casey/just/pull/2140))
+- Add `[ATTRIBUTE: VALUE]` shorthand ([#2136](https://github.com/casey/just/pull/2136) by [neunenak](https://github.com/neunenak))
+- Allow unexporting environment variables ([#2098](https://github.com/casey/just/pull/2098) by [neunenak](https://github.com/neunenak))
+
+### Fixed
+- Load environment file from dotenv-path relative to working directory ([#2152](https://github.com/casey/just/pull/2152))
+- Fix `fzf` chooser preview with space-separated module paths ([#2141](https://github.com/casey/just/pull/2141))
+
+### Misc
+- Improve argument parsing and error handling for submodules ([#2154](https://github.com/casey/just/pull/2154))
+- Document shell expanded string defaults ([#2153](https://github.com/casey/just/pull/2153))
+- Test bare bash path in shebang on windows ([#2144](https://github.com/casey/just/pull/2144))
+- Test shell not found error messages ([#2145](https://github.com/casey/just/pull/2145))
+- Refactor evaluator ([#2138](https://github.com/casey/just/pull/2138) by [neunenak](https://github.com/neunenak))
+- Fix man page generation in release workflow ([#2132](https://github.com/casey/just/pull/2132))
+
 [1.28.0](https://github.com/casey/just/releases/tag/1.28.0) - 2024-06-05
 ------------------------------------------------------------------------
 

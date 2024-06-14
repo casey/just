@@ -137,7 +137,7 @@ complete -c just -a '(__fish_just_complete_recipes)'
 
 const ZSH_COMPLETION_REPLACEMENTS: &[(&str, &str)] = &[
   (
-    r#"    _arguments "${_arguments_options[@]}" \"#,
+    r#"    _arguments "${_arguments_options[@]}" : \"#,
     r"    local common=(",
   ),
   (
