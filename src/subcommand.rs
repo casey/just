@@ -42,11 +42,7 @@ pub(crate) enum Subcommand {
 }
 
 impl Subcommand {
-  pub(crate) fn execute<'src>(
-    &self,
-    config: &Config,
-    loader: &'src Loader,
-  ) -> Result<(), Error<'src>> {
+  pub(crate) fn execute<'src>(&self, config: &Config, loader: &'src Loader) -> RunResult<'src> {
     use Subcommand::*;
 
     match self {
@@ -107,7 +103,7 @@ impl Subcommand {
     loader: &'src Loader,
     arguments: &[String],
     overrides: &BTreeMap<String, String>,
-  ) -> Result<(), Error<'src>> {
+  ) -> RunResult<'src> {
     if matches!(
       config.search_config,
       SearchConfig::FromInvocationDirectory | SearchConfig::FromSearchDirectory { .. }
@@ -192,7 +188,7 @@ impl Subcommand {
     config: &Config,
     loader: &'src Loader,
     search: &Search,
-  ) -> Result<Compilation<'src>, Error<'src>> {
+  ) -> RunResult<'src, Compilation<'src>> {
     let compilation = Compiler::compile(config.unstable, loader, &search.justfile)?;
 
     if config.verbosity.loud() {
@@ -214,7 +210,7 @@ impl Subcommand {
     search: &Search,
     overrides: &BTreeMap<String, String>,
     chooser: Option<&str>,
-  ) -> Result<(), Error<'src>> {
+  ) -> RunResult<'src> {
     let mut recipes = Vec::<&Recipe>::new();
     let mut stack = vec![justfile];
     while let Some(module) = stack.pop() {
@@ -304,7 +300,7 @@ impl Subcommand {
     Ok(())
   }
 
-  fn dump(config: &Config, ast: &Ast, justfile: &Justfile) -> Result<(), Error<'static>> {
+  fn dump(config: &Config, ast: &Ast, justfile: &Justfile) -> RunResult<'static> {
     match config.dump_format {
       DumpFormat::Json => {
         serde_json::to_writer(io::stdout(), justfile)
@@ -316,7 +312,7 @@ impl Subcommand {
     Ok(())
   }
 
-  fn edit(search: &Search) -> Result<(), Error<'static>> {
+  fn edit(search: &Search) -> RunResult<'static> {
     let editor = env::var_os("VISUAL")
       .or_else(|| env::var_os("EDITOR"))
       .unwrap_or_else(|| "vim".into());
@@ -338,7 +334,7 @@ impl Subcommand {
     Ok(())
   }
 
-  fn format(config: &Config, search: &Search, src: &str, ast: &Ast) -> Result<(), Error<'static>> {
+  fn format(config: &Config, search: &Search, src: &str, ast: &Ast) -> RunResult<'static> {
     config.require_unstable("The `--fmt` command is currently unstable.")?;
 
     let formatted = ast.to_string();
@@ -383,7 +379,7 @@ impl Subcommand {
     Ok(())
   }
 
-  fn init(config: &Config) -> Result<(), Error<'static>> {
+  fn init(config: &Config) -> RunResult<'static> {
     let search = Search::init(&config.search_config, &config.invocation_directory)?;
 
     if search.justfile.is_file() {
@@ -403,7 +399,7 @@ impl Subcommand {
     }
   }
 
-  fn man() -> Result<(), Error<'static>> {
+  fn man() -> RunResult<'static> {
     let mut buffer = Vec::<u8>::new();
 
     Man::new(Config::app())
@@ -423,7 +419,7 @@ impl Subcommand {
     Ok(())
   }
 
-  fn list(config: &Config, mut module: &Justfile, path: &ModulePath) -> Result<(), Error<'static>> {
+  fn list(config: &Config, mut module: &Justfile, path: &ModulePath) -> RunResult<'static> {
     for name in &path.path {
       module = module
         .modules
@@ -585,7 +581,7 @@ impl Subcommand {
     config: &Config,
     mut module: &Justfile<'src>,
     path: &ModulePath,
-  ) -> Result<(), Error<'src>> {
+  ) -> RunResult<'src> {
     for name in &path.path[0..path.path.len() - 1] {
       module = module
         .modules

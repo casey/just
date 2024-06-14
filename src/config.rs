@@ -804,7 +804,7 @@ impl Config {
     })
   }
 
-  pub(crate) fn require_unstable(&self, message: &str) -> Result<(), Error<'static>> {
+  pub(crate) fn require_unstable(&self, message: &str) -> RunResult<'static> {
     if self.unstable {
       Ok(())
     } else {
