@@ -242,6 +242,7 @@ impl Config {
       .arg(
         Arg::new(arg::LIST_SUBMODULES)
           .long("list-submodules")
+          .env("JUST_LIST_SUBMODULES")
           .help("List recipes in submodules")
           .action(ArgAction::SetTrue)
           .env("JUST_LIST_SUBMODULES"),
