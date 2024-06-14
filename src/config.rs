@@ -7,10 +7,6 @@ use {
   },
 };
 
-const CHOOSE_HELP: &str = "Select one or more recipes to run using a binary chooser. \
-                           If `--chooser` is not passed the chooser defaults to the \
-                           value of $JUST_CHOOSER, falling back to `fzf`";
-
 #[derive(Debug, PartialEq)]
 pub(crate) struct Config {
   pub(crate) check: bool,
@@ -356,7 +352,15 @@ impl Config {
           .action(ArgAction::SetTrue)
           .help("Print changelog"),
       )
-      .arg(Arg::new(cmd::CHOOSE).long("choose").action(ArgAction::SetTrue).help(CHOOSE_HELP))
+      .arg(
+        Arg::new(cmd::CHOOSE)
+          .long("choose")
+          .action(ArgAction::SetTrue)
+          .help(
+            "Select one or more recipes to run using a binary chooser. If `--chooser` is not \
+             passed the chooser defaults to the value of $JUST_CHOOSER, falling back to `fzf`"
+          )
+      )
       .arg(
         Arg::new(cmd::COMMAND)
           .long("command")
