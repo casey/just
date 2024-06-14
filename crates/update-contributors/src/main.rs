@@ -30,13 +30,9 @@ fn main() {
       .replace_all(
         &fs::read_to_string("CHANGELOG.md").unwrap(),
         |captures: &Captures| {
-            let pr = captures[1].parse().unwrap();
-            match author(pr).as_str() {
-              "casey" => format!("([#{pr}](https://github.com/casey/just/pull/{pr}))"),
-              contributor => {
-                format!("([#{pr}](https://github.com/casey/just/pull/{pr}) by [{contributor}](https://github.com/{contributor}))")
-              }
-            }
+          let pr = captures[1].parse().unwrap();
+          let contributor = author(pr);
+          format!("([#{pr}](https://github.com/casey/just/pull/{pr}) by [{contributor}](https://github.com/{contributor}))")
         },
       ),
   )
