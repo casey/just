@@ -381,6 +381,30 @@ impl Config {
           .requires(arg::JUSTFILE),
       )
       .arg(
+        Arg::new(arg::GLOBAL_JUSTFILE)
+          .action(ArgAction::SetTrue)
+          .long("global-justfile")
+          .short('g')
+          .conflicts_with(arg::JUSTFILE)
+          .conflicts_with(arg::WORKING_DIRECTORY)
+          .help("Use global justfile"),
+      )
+      .arg(
+        Arg::new(arg::TIMESTAMP)
+          .action(ArgAction::SetTrue)
+          .long("timestamp")
+          .env("JUST_TIMESTAMP")
+          .help("Print recipe command timestamps"),
+      )
+      .arg(
+        Arg::new(arg::TIMESTAMP_FORMAT)
+          .action(ArgAction::Set)
+          .long("timestamp-format")
+          .env("JUST_TIMESTAMP_FORMAT")
+          .default_value("%H:%M:%S")
+          .help("Timestamp format string"),
+      )
+      .arg(
         Arg::new(cmd::CHANGELOG)
           .long("changelog")
           .action(ArgAction::SetTrue)
@@ -503,30 +527,6 @@ impl Config {
           .num_args(1..)
           .action(ArgAction::Append)
           .help("Overrides and recipe(s) to run, defaulting to the first recipe in the justfile"),
-      )
-      .arg(
-        Arg::new(arg::GLOBAL_JUSTFILE)
-          .action(ArgAction::SetTrue)
-          .long("global-justfile")
-          .short('g')
-          .conflicts_with(arg::JUSTFILE)
-          .conflicts_with(arg::WORKING_DIRECTORY)
-          .help("Use global justfile"),
-      )
-      .arg(
-        Arg::new(arg::TIMESTAMP)
-          .action(ArgAction::SetTrue)
-          .long("timestamp")
-          .env("JUST_TIMESTAMP")
-          .help("Print recipe command timestamps"),
-      )
-      .arg(
-        Arg::new(arg::TIMESTAMP_FORMAT)
-          .action(ArgAction::Set)
-          .long("timestamp-format")
-          .env("JUST_TIMESTAMP_FORMAT")
-          .default_value("%H:%M:%S")
-          .help("Timestamp format string"),
       )
   }
 
