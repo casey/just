@@ -1,6 +1,6 @@
 [package]
 name = "just"
-version = "1.29.0"
+version = "1.29.1"
 authors = ["Casey Rodarmor <casey@rodarmor.com>"]
 autotests = false
 categories = ["command-line-utilities", "development-tools"]

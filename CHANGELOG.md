@@ -1,6 +1,12 @@
 Changelog
 =========
 
+[1.29.1](https://github.com/casey/just/releases/tag/1.29.1) - 2024-06-14
+------------------------------------------------------------------------
+
+### Fixed
+- Fix unexport syntax conflicts ([#2158](https://github.com/casey/just/pull/2158))
+
 [1.29.0](https://github.com/casey/just/releases/tag/1.29.0) - 2024-06-13
 ------------------------------------------------------------------------
 
