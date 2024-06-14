@@ -151,9 +151,9 @@ impl Config {
       .styles(
         Styles::styled()
           .header(AnsiColor::Yellow.on_default())
-          .usage(AnsiColor::Yellow.on_default())
           .literal(AnsiColor::Green.on_default())
-          .placeholder(AnsiColor::Green.on_default()),
+          .placeholder(AnsiColor::Green.on_default())
+          .usage(AnsiColor::Yellow.on_default()),
       )
       .arg(
         Arg::new(arg::CHECK)
@@ -173,6 +173,13 @@ impl Config {
           .help("Override binary invoked by `--choose`"),
       )
       .arg(
+        Arg::new(arg::CLEAR_SHELL_ARGS)
+          .long("clear-shell-args")
+          .action(ArgAction::SetTrue)
+          .overrides_with(arg::SHELL_ARG)
+          .help("Clear shell arguments"),
+      )
+      .arg(
         Arg::new(arg::COLOR)
           .long("color")
           .env("JUST_COLOR")
@@ -188,13 +195,6 @@ impl Config {
           .action(ArgAction::Set)
           .value_parser(PossibleValuesParser::new(arg::COMMAND_COLOR_VALUES))
           .help("Echo recipe lines in <COMMAND-COLOR>"),
-      )
-      .arg(
-        Arg::new(arg::YES)
-          .long("yes")
-          .env("JUST_YES")
-          .action(ArgAction::SetTrue)
-          .help("Automatically confirm all recipes."),
       )
       .arg(
         Arg::new(arg::DOTENV_FILENAME)
@@ -231,12 +231,30 @@ impl Config {
           .help("Dump justfile as <FORMAT>"),
       )
       .arg(
+        Arg::new(arg::GLOBAL_JUSTFILE)
+          .action(ArgAction::SetTrue)
+          .long("global-justfile")
+          .short('g')
+          .conflicts_with(arg::JUSTFILE)
+          .conflicts_with(arg::WORKING_DIRECTORY)
+          .help("Use global justfile"),
+      )
+      .arg(
         Arg::new(arg::HIGHLIGHT)
           .long("highlight")
           .env("JUST_HIGHLIGHT")
           .action(ArgAction::SetTrue)
           .help("Highlight echoed recipe lines in bold")
           .overrides_with(arg::NO_HIGHLIGHT),
+      )
+      .arg(
+        Arg::new(arg::JUSTFILE)
+          .short('f')
+          .long("justfile")
+          .env("JUST_JUSTFILE")
+          .action(ArgAction::Set)
+          .value_parser(value_parser!(PathBuf))
+          .help("Use <JUSTFILE> as justfile"),
       )
       .arg(
         Arg::new(arg::LIST_HEADING)
@@ -293,15 +311,6 @@ impl Config {
           .overrides_with(arg::HIGHLIGHT),
       )
       .arg(
-        Arg::new(arg::JUSTFILE)
-          .short('f')
-          .long("justfile")
-          .env("JUST_JUSTFILE")
-          .action(ArgAction::Set)
-          .value_parser(value_parser!(PathBuf))
-          .help("Use <JUSTFILE> as justfile"),
-      )
-      .arg(
         Arg::new(arg::QUIET)
           .short('q')
           .long("quiet")
@@ -340,11 +349,19 @@ impl Config {
           .help("Invoke <COMMAND> with the shell used to run recipe lines and backticks"),
       )
       .arg(
-        Arg::new(arg::CLEAR_SHELL_ARGS)
-          .long("clear-shell-args")
+        Arg::new(arg::TIMESTAMP)
           .action(ArgAction::SetTrue)
-          .overrides_with(arg::SHELL_ARG)
-          .help("Clear shell arguments"),
+          .long("timestamp")
+          .env("JUST_TIMESTAMP")
+          .help("Print recipe command timestamps"),
+      )
+      .arg(
+        Arg::new(arg::TIMESTAMP_FORMAT)
+          .action(ArgAction::Set)
+          .long("timestamp-format")
+          .env("JUST_TIMESTAMP_FORMAT")
+          .default_value("%H:%M:%S")
+          .help("Timestamp format string"),
       )
       .arg(
         Arg::new(arg::UNSORTED)
@@ -381,28 +398,11 @@ impl Config {
           .requires(arg::JUSTFILE),
       )
       .arg(
-        Arg::new(arg::GLOBAL_JUSTFILE)
+        Arg::new(arg::YES)
+          .long("yes")
+          .env("JUST_YES")
           .action(ArgAction::SetTrue)
-          .long("global-justfile")
-          .short('g')
-          .conflicts_with(arg::JUSTFILE)
-          .conflicts_with(arg::WORKING_DIRECTORY)
-          .help("Use global justfile"),
-      )
-      .arg(
-        Arg::new(arg::TIMESTAMP)
-          .action(ArgAction::SetTrue)
-          .long("timestamp")
-          .env("JUST_TIMESTAMP")
-          .help("Print recipe command timestamps"),
-      )
-      .arg(
-        Arg::new(arg::TIMESTAMP_FORMAT)
-          .action(ArgAction::Set)
-          .long("timestamp-format")
-          .env("JUST_TIMESTAMP_FORMAT")
-          .default_value("%H:%M:%S")
-          .help("Timestamp format string"),
+          .help("Automatically confirm all recipes."),
       )
       .arg(
         Arg::new(cmd::CHANGELOG)
@@ -457,6 +457,7 @@ impl Config {
       .arg(
         Arg::new(cmd::EVALUATE)
           .long("evaluate")
+          .alias("eval")
           .action(ArgAction::SetTrue)
           .help(
             "Evaluate and print all variables. If a variable name is given as an argument, only \
@@ -469,6 +470,12 @@ impl Config {
           .alias("format")
           .action(ArgAction::SetTrue)
           .help("Format and overwrite justfile"),
+      )
+      .arg(
+        Arg::new(cmd::GROUPS)
+          .long("groups")
+          .action(ArgAction::SetTrue)
+          .help("List recipe groups"),
       )
       .arg(
         Arg::new(cmd::INIT)
@@ -486,12 +493,6 @@ impl Config {
           .action(ArgAction::Set)
           .conflicts_with(arg::ARGUMENTS)
           .help("List available recipes"),
-      )
-      .arg(
-        Arg::new(cmd::GROUPS)
-          .long("groups")
-          .action(ArgAction::SetTrue)
-          .help("List recipe groups"),
       )
       .arg(
         Arg::new(cmd::MAN)
