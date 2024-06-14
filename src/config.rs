@@ -250,12 +250,14 @@ impl Config {
       .arg(
         Arg::new(arg::NO_ALIASES)
           .long("no-aliases")
+          .env("JUST_NO_ALIASES")
           .action(ArgAction::SetTrue)
           .help("Don't show aliases in list"),
       )
       .arg(
         Arg::new(arg::NO_DEPS)
           .long("no-deps")
+          .env("JUST_NO_DEPS")
           .alias("no-dependencies")
           .action(ArgAction::SetTrue)
           .help("Don't run recipe dependencies"),
@@ -263,12 +265,14 @@ impl Config {
       .arg(
         Arg::new(arg::NO_DOTENV)
           .long("no-dotenv")
+          .env("JUST_NO_DOTENV")
           .action(ArgAction::SetTrue)
           .help("Don't load `.env` file"),
       )
       .arg(
         Arg::new(arg::NO_HIGHLIGHT)
           .long("no-highlight")
+          .env("JUST_NO_HIGHLIGHT")
           .action(ArgAction::SetTrue)
           .help("Don't highlight echoed recipe lines in bold")
           .overrides_with(arg::HIGHLIGHT),
@@ -330,6 +334,7 @@ impl Config {
       .arg(
         Arg::new(arg::UNSORTED)
           .long("unsorted")
+          .env("JUST_UNSORTED")
           .short('u')
           .action(ArgAction::SetTrue)
           .help("Return list and summary entries in source order"),
