@@ -218,6 +218,7 @@ impl Config {
       .arg(
         Arg::new(arg::HIGHLIGHT)
           .long("highlight")
+          .env("JUST_HIGHLIGHT")
           .action(ArgAction::SetTrue)
           .help("Highlight echoed recipe lines in bold")
           .overrides_with(arg::NO_HIGHLIGHT),
