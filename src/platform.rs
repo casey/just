@@ -19,7 +19,7 @@ impl PlatformInterface for Platform {
     Ok(cmd)
   }
 
-  fn set_execute_permission(path: &Path) -> Result<(), io::Error> {
+  fn set_execute_permission(path: &Path) -> io::Result<()> {
     use std::os::unix::fs::PermissionsExt;
 
     // get current permissions
@@ -38,7 +38,7 @@ impl PlatformInterface for Platform {
     exit_status.signal()
   }
 
-  fn convert_native_path(_working_directory: &Path, path: &Path) -> Result<String, String> {
+  fn convert_native_path(_working_directory: &Path, path: &Path) -> FunctionResult {
     path
       .to_str()
       .map(str::to_string)
@@ -85,7 +85,7 @@ impl PlatformInterface for Platform {
     Ok(cmd)
   }
 
-  fn set_execute_permission(_path: &Path) -> Result<(), io::Error> {
+  fn set_execute_permission(_path: &Path) -> io::Result<()> {
     // it is not necessary to set an execute permission on a script on windows, so
     // this is a nop
     Ok(())
@@ -97,7 +97,7 @@ impl PlatformInterface for Platform {
     None
   }
 
-  fn convert_native_path(working_directory: &Path, path: &Path) -> Result<String, String> {
+  fn convert_native_path(working_directory: &Path, path: &Path) -> FunctionResult {
     // Translate path from windows style to unix style
     let mut cygpath = Command::new("cygpath");
     cygpath.current_dir(working_directory);

@@ -6,42 +6,42 @@ pub(crate) enum Thunk<'src> {
   Nullary {
     name: Name<'src>,
     #[derivative(Debug = "ignore", PartialEq = "ignore")]
-    function: fn(function::Context) -> Result<String, String>,
+    function: fn(function::Context) -> FunctionResult,
   },
   Unary {
     name: Name<'src>,
     #[derivative(Debug = "ignore", PartialEq = "ignore")]
-    function: fn(function::Context, &str) -> Result<String, String>,
+    function: fn(function::Context, &str) -> FunctionResult,
     arg: Box<Expression<'src>>,
   },
   UnaryOpt {
     name: Name<'src>,
     #[derivative(Debug = "ignore", PartialEq = "ignore")]
-    function: fn(function::Context, &str, Option<&str>) -> Result<String, String>,
+    function: fn(function::Context, &str, Option<&str>) -> FunctionResult,
     args: (Box<Expression<'src>>, Box<Option<Expression<'src>>>),
   },
   UnaryPlus {
     name: Name<'src>,
     #[derivative(Debug = "ignore", PartialEq = "ignore")]
-    function: fn(function::Context, &str, &[String]) -> Result<String, String>,
+    function: fn(function::Context, &str, &[String]) -> FunctionResult,
     args: (Box<Expression<'src>>, Vec<Expression<'src>>),
   },
   Binary {
     name: Name<'src>,
     #[derivative(Debug = "ignore", PartialEq = "ignore")]
-    function: fn(function::Context, &str, &str) -> Result<String, String>,
+    function: fn(function::Context, &str, &str) -> FunctionResult,
     args: [Box<Expression<'src>>; 2],
   },
   BinaryPlus {
     name: Name<'src>,
     #[derivative(Debug = "ignore", PartialEq = "ignore")]
-    function: fn(function::Context, &str, &str, &[String]) -> Result<String, String>,
+    function: fn(function::Context, &str, &str, &[String]) -> FunctionResult,
     args: ([Box<Expression<'src>>; 2], Vec<Expression<'src>>),
   },
   Ternary {
     name: Name<'src>,
     #[derivative(Debug = "ignore", PartialEq = "ignore")]
-    function: fn(function::Context, &str, &str, &str) -> Result<String, String>,
+    function: fn(function::Context, &str, &str, &str) -> FunctionResult,
     args: [Box<Expression<'src>>; 3],
   },
 }

@@ -25,7 +25,7 @@ mod full {
   };
 }
 
-pub fn summary(path: &Path) -> Result<Result<Summary, String>, io::Error> {
+pub fn summary(path: &Path) -> io::Result<Result<Summary, String>> {
   let loader = Loader::new();
 
   match Compiler::compile(false, &loader, path) {
