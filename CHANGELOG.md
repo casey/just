@@ -1402,7 +1402,7 @@ Changelog
 -------------------------------------------------------------------------
 
 ### Added
-- Implemented invocation_directory function ([#317](https://github.com/casey/just/pull/317) by [casey](https://github.com/casey))
+- Implemented invocation_directory function ([#323](https://github.com/casey/just/pull/323) by [casey](https://github.com/casey))
 
 [0.3.11](https://github.com/casey/just/releases/tag/v0.3.11) - 2018-05-6
 ------------------------------------------------------------------------
