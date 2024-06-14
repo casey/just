@@ -186,7 +186,12 @@ impl Config {
           .value_parser(PossibleValuesParser::new(arg::COMMAND_COLOR_VALUES))
           .help("Echo recipe lines in <COMMAND-COLOR>"),
       )
-      .arg(Arg::new(arg::YES).long("yes").action(ArgAction::SetTrue).help("Automatically confirm all recipes."))
+      .arg(
+        Arg::new(arg::YES)
+          .long("yes")
+          .action(ArgAction::SetTrue)
+          .help("Automatically confirm all recipes."),
+      )
       .arg(
         Arg::new(arg::DRY_RUN)
           .short('n')
