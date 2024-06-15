@@ -47,6 +47,7 @@ mod completions;
 mod conditional;
 mod confirm;
 mod constants;
+mod datetime;
 mod delimiters;
 mod directories;
 mod dotenv;

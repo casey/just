@@ -1642,6 +1642,16 @@ which will halt execution.
   characters. For example, `choose('64', HEX)` will generate a random
   64-character lowercase hex string.
 
+#### Datetime
+
+- `datetime(format)`<sup>master</sup> - Return local time with `format`.
+- `datetime_utc(format)`<sup>master</sup> - Return UTC time with `format`.
+
+The arguments to `datetime` and `datetime_utc` are `strftime`-style format
+strings, see the
+[`chrono` library docs](https://docs.rs/chrono/latest/chrono/format/strftime/index.html)
+for details.
+
 #### Semantic Versions
 
 - `semver_matches(version, requirement)`<sup>1.16.0</sup> - Check whether a
