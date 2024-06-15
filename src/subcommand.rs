@@ -500,7 +500,17 @@ impl Subcommand {
       groups
     };
 
-    for (i, (group, recipes)) in groups.iter().enumerate() {
+    let mut ordered = module
+      .public_groups(config)
+      .into_iter()
+      .map(Some)
+      .collect::<Vec<Option<String>>>();
+
+    if groups.contains_key(&None) {
+      ordered.insert(0, None);
+    }
+
+    for (i, group) in ordered.into_iter().enumerate() {
       if i > 0 {
         println!();
       }
@@ -509,14 +519,14 @@ impl Subcommand {
 
       if !no_groups {
         print!("{list_prefix}");
-        if let Some(group_name) = group {
-          println!("[{group_name}]");
+        if let Some(group) = &group {
+          println!("[{group}]");
         } else {
           println!("(no group)");
         }
       }
 
-      for recipe in recipes {
+      for recipe in groups.get(&group).unwrap() {
         for (i, name) in iter::once(&recipe.name())
           .chain(aliases.get(recipe.name()).unwrap_or(&Vec::new()))
           .enumerate()
