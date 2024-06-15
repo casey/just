@@ -97,6 +97,47 @@ fn list_with_groups_unsorted() {
 }
 
 #[test]
+fn list_with_groups_unsorted_group_order() {
+  Test::new()
+    .justfile(
+      "
+        [group('y')]
+        [group('x')]
+        f:
+
+        [group('b')]
+        b:
+
+        [group('a')]
+        e:
+
+        c:
+      ",
+    )
+    .args(["--list", "--unsorted"])
+    .stdout(
+      "
+        Available recipes:
+            (no group)
+            c
+
+            [x]
+            f
+
+            [y]
+            f
+
+            [b]
+            b
+
+            [a]
+            e
+      ",
+    )
+    .run();
+}
+
+#[test]
 fn list_groups() {
   Test::new()
     .justfile(
