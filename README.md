@@ -3647,6 +3647,17 @@ Node.js `package.json` files:
 export PATH := "./node_modules/.bin:" + env_var('PATH')
 ```
 
+### Paths on Windows
+
+On Windows, functions that return paths will return `\`-separated paths. When
+not using PowerShell or `cmd.exe` these paths should be quoted to prevent the
+`\`s from being intepreted as character escapes:
+
+```just
+ls:
+    echo '{{absolute_path(".")}}'
+```
+
 ### Alternatives and Prior Art
 
 There is no shortage of command runners! Some more or less similar alternatives
