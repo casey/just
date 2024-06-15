@@ -1436,6 +1436,15 @@ selected characters from <code>alphabet</code>, which may not contain repeated
 characters. For example, <code>choose('64', HEX)</code> will generate a random
 64-character lowercase hex string.</li>
 </ul>
+<h4 id="datetime"><a class="header" href="#datetime">Datetime</a></h4>
+<ul>
+<li><code>datetime(format)</code><sup>master</sup> - Return local time with <code>format</code>.</li>
+<li><code>datetime_utc(format)</code><sup>master</sup> - Return UTC time with <code>format</code>.</li>
+</ul>
+<p>The arguments to <code>datetime</code> and <code>datetime_utc</code> are <code>strftime</code>-style format
+strings, see the
+<a href="https://docs.rs/chrono/latest/chrono/format/strftime/index.html"><code>chrono</code> library docs</a>
+for details.</p>
 <h4 id="semantic-versions"><a class="header" href="#semantic-versions">Semantic Versions</a></h4>
 <ul>
 <li><code>semver_matches(version, requirement)</code><sup>1.16.0</sup> - Check whether a
