@@ -47,6 +47,8 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "config_local_directory" => Nullary(|_| dir("local config", dirs::config_local_dir)),
     "data_directory" => Nullary(|_| dir("data", dirs::data_dir)),
     "data_local_directory" => Nullary(|_| dir("local data", dirs::data_local_dir)),
+    "datetime" => Unary(datetime),
+    "datetime_utc" => Unary(datetime_utc),
     "encode_uri_component" => Unary(encode_uri_component),
     "env" => UnaryOpt(env),
     "env_var" => Unary(env_var),
@@ -233,6 +235,14 @@ fn dir(name: &'static str, f: fn() -> Option<PathBuf>) -> FunctionResult {
       }),
     None => Err(format!("{name} directory not found")),
   }
+}
+
+fn datetime(_context: Context, format: &str) -> FunctionResult {
+  Ok(chrono::Local::now().format(format).to_string())
+}
+
+fn datetime_utc(_context: Context, format: &str) -> FunctionResult {
+  Ok(chrono::Utc::now().format(format).to_string())
 }
 
 fn encode_uri_component(_context: Context, s: &str) -> FunctionResult {
