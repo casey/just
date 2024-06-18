@@ -185,7 +185,7 @@ fn status_error() {
     "exit-2": "#!/usr/bin/env bash\nexit 2\n",
   };
 
-  ("chmod", "+x", tmp.path().join("exit-2")).run();
+  ("chmod", "+x", &tmp.path().join("exit-2")).run();
 
   let path = env::join_paths(
     iter::once(tmp.path().to_owned()).chain(env::split_paths(&env::var_os("PATH").unwrap())),

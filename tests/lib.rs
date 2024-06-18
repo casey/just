@@ -5,7 +5,6 @@ pub(crate) use {
     tempdir::tempdir,
     test::{assert_eval_eq, Output, Test},
   },
-  cradle::input::Input,
   executable_path::executable_path,
   just::unindent,
   libc::{EXIT_FAILURE, EXIT_SUCCESS},
@@ -126,5 +125,19 @@ fn path_for_regex(s: &str) -> String {
     s.replace('/', "\\\\")
   } else {
     s.into()
+  }
+}
+
+trait JustRun {
+  fn run(&self);
+}
+
+impl JustRun for (&str, &str, &PathBuf) {
+  fn run(&self) {
+    Command::new(self.0)
+      .arg(self.1)
+      .arg(self.2)
+      .output()
+      .unwrap();
   }
 }

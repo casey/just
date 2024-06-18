@@ -307,15 +307,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "cradle"
-version = "0.2.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7096122c1023d53de7298f322590170540ad3eba46bbc2750b495f098c27c09a"
-dependencies = [
- "rustversion",
-]
-
-[[package]]
 name = "crossbeam-deque"
 version = "0.8.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -609,7 +600,6 @@ dependencies = [
  "clap 4.5.7",
  "clap_complete",
  "clap_mangen",
- "cradle",
  "ctrlc",
  "derivative",
  "dirs",
