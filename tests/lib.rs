@@ -127,17 +127,3 @@ fn path_for_regex(s: &str) -> String {
     s.into()
   }
 }
-
-trait JustRun {
-  fn run(&self);
-}
-
-impl JustRun for (&str, &str, &PathBuf) {
-  fn run(&self) {
-    Command::new(self.0)
-      .arg(self.1)
-      .arg(self.2)
-      .output()
-      .unwrap();
-  }
-}
