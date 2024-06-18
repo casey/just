@@ -126,7 +126,13 @@ fn write_error() {
 
   let justfile_path = test.justfile_path();
 
-  ("chmod", "400", &justfile_path).run();
+  let output = Command::new("chmod")
+    .arg("400")
+    .arg(&justfile_path)
+    .output()
+    .unwrap();
+
+  assert!(output.status.success());
 
   let _tempdir = test.run();
 

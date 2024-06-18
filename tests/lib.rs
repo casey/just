@@ -5,7 +5,6 @@ pub(crate) use {
     tempdir::tempdir,
     test::{assert_eval_eq, Output, Test},
   },
-  cradle::input::Input,
   executable_path::executable_path,
   just::unindent,
   libc::{EXIT_FAILURE, EXIT_SUCCESS},
