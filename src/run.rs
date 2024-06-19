@@ -2,7 +2,7 @@ use super::*;
 
 /// Main entry point into just binary.
 #[allow(clippy::missing_errors_doc)]
-pub fn run() -> Result<(), i32> {
+pub fn run(args: Vec<OsString>) -> Result<(), i32> {
   #[cfg(windows)]
   ansi_term::enable_ansi_support().ok();
 
@@ -16,7 +16,7 @@ pub fn run() -> Result<(), i32> {
   let app = Config::app();
 
   info!("Parsing command line arguments…");
-  let matches = app.get_matches();
+  let matches = app.get_matches_from(args);
 
   let config = Config::from_matches(&matches).map_err(Error::from);
 
