@@ -2,7 +2,7 @@ use super::*;
 
 /// Main entry point into just binary.
 #[allow(clippy::missing_errors_doc)]
-pub fn run(args: Vec<OsString>) -> Result<(), i32> {
+pub fn run(args: impl Iterator<Item = impl Into<OsString> + Clone>) -> Result<(), i32> {
   #[cfg(windows)]
   ansi_term::enable_ansi_support().ok();
 
