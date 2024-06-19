@@ -81,6 +81,7 @@ pub(crate) use {
 pub(crate) use crate::{node::Node, tree::Tree};
 
 pub use crate::run::run;
+pub use crate::run::run_with_args;
 
 // Used in integration tests.
 #[doc(hidden)]
