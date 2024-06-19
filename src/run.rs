@@ -11,7 +11,8 @@ pub fn run(args: Vec<OsString>) -> Result<(), i32> {
       .filter("JUST_LOG")
       .write_style("JUST_LOG_STYLE"),
   )
-  .init();
+  .try_init()
+  .ok();
 
   let app = Config::app();
 
