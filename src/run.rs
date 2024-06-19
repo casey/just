@@ -1,6 +1,7 @@
 use super::*;
 
-/// Main entry point into just binary.
+/// Main entry point into `just`. Parse arguments from `args` and run. `run()`
+/// will exit the proceess if `args` cannot be parsed.
 #[allow(clippy::missing_errors_doc)]
 pub fn run(args: impl Iterator<Item = impl Into<OsString> + Clone>) -> Result<(), i32> {
   #[cfg(windows)]

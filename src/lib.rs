@@ -13,6 +13,12 @@
   overlapping_range_endpoints
 )]
 
+//! `just` is primarily used as a command-line binary, but does provide a
+//! limited public library interface.
+//!
+//! Please keep in mind that there are no semantic version guarantees for the
+//! library interface. It may break or change at any time.
+
 pub(crate) use {
   crate::{
     alias::Alias, analyzer::Analyzer, argument_parser::ArgumentParser, assignment::Assignment,
