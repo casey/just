@@ -1,7 +1,6 @@
 use super::*;
 
-/// Main entry point into `just`. Parse arguments from `args` and run. `run()`
-/// will exit the proceess if `args` cannot be parsed.
+/// Main entry point into `just`. Parse arguments from `args` and run.
 #[allow(clippy::missing_errors_doc)]
 pub fn run(args: impl Iterator<Item = impl Into<OsString> + Clone>) -> Result<(), i32> {
   #[cfg(windows)]
@@ -18,7 +17,10 @@ pub fn run(args: impl Iterator<Item = impl Into<OsString> + Clone>) -> Result<()
   let app = Config::app();
 
   info!("Parsing command line arguments…");
-  let matches = app.get_matches_from(args);
+  let matches = app.try_get_matches_from(args).map_err(|err| {
+    err.print().ok();
+    err.exit_code()
+  })?;
 
   let config = Config::from_matches(&matches).map_err(Error::from);
 
