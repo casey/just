@@ -149,7 +149,7 @@ impl<'src> Analyzer<'src> {
       }
     }
 
-    let recipes = RecipeResolver::resolve_recipes(recipe_table, &self.assignments)?;
+    let recipes = RecipeResolver::resolve_recipes(&self.assignments, &settings, recipe_table)?;
 
     let mut aliases = Table::new();
     while let Some(alias) = self.aliases.pop() {
