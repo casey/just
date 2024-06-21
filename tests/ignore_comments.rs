@@ -97,3 +97,41 @@ fn dont_evaluate_comments() {
     )
     .run();
 }
+
+#[test]
+fn dont_analyze_comments() {
+  Test::new()
+    .justfile(
+      "
+      set ignore-comments
+
+      some_recipe:
+        # {{ bar }}
+    ",
+    )
+    .run();
+}
+
+#[test]
+fn comments_still_must_be_parsable_when_ignored() {
+  Test::new()
+    .justfile(
+      "
+        set ignore-comments
+
+        some_recipe:
+          # {{ foo bar }}
+      ",
+    )
+    .stderr(
+      "
+        error: Expected '}}', '(', '+', or '/', but found identifier
+         ——▶ justfile:4:12
+          │
+        4 │   # {{ foo bar }}
+          │            ^^^
+      ",
+    )
+    .status(EXIT_FAILURE)
+    .run();
+}
