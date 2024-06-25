@@ -656,8 +656,8 @@ Available recipes:
     lint
 ```
 
-Recipes in submodules can be listed with `just --list PATH`, where `PATH` is a
-space- or `::`-separated module path:
+Recipes in [submodules](#modules1190) can be listed with `just --list PATH`,
+where `PATH` is a space- or `::`-separated module path:
 
 ```
 $ cat justfile
@@ -3145,7 +3145,7 @@ import? 'foo/bar.just'
 
 Missing source files for optional imports do not produce an error.
 
-### Modules <sup>1.19.0</sup>
+### Modules<sup>1.19.0</sup>
 
 A `justfile` can declare modules using `mod` statements. `mod` statements are
 currently unstable, so you'll need to use the `--unstable` flag, or set the
