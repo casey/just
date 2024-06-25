@@ -656,7 +656,7 @@ Available recipes:
     lint
 ```
 
-Recipes in [submodules](#modules-1190) can be listed with `just --list PATH`,
+Recipes in [submodules](#modules1190) can be listed with `just --list PATH`,
 where `PATH` is a space- or `::`-separated module path:
 
 ```
