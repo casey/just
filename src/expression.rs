@@ -31,7 +31,7 @@ pub(crate) enum Expression<'src> {
     then: Box<Expression<'src>>,
     otherwise: Box<Expression<'src>>,
   },
-  /// `match expr { branch_expr => then, ... }
+  /// `match expr { branch_expr => then, ... }`
   Match {
     expr: Box<Expression<'src>>,
     /// Pair of expression to compare to ('value'), along with the expression to actually execute
@@ -78,7 +78,7 @@ impl<'src> Display for Expression<'src> {
       Self::Group { contents } => write!(f, "({contents})"),
       Self::Match { expr, branches } => {
         write!(f, "match {expr} {{ ")?;
-        for (branch, then) in branches.iter() {
+        for (branch, then) in branches {
           write!(f, "{branch} => {then},")?;
         }
         write!(f, "\n}}")

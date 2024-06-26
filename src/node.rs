@@ -188,7 +188,7 @@ impl<'src> Node<'src> for Expression<'src> {
       Self::Match { expr, branches } => {
         let mut tree = Tree::atom(Keyword::Match.lexeme());
         tree.push_mut(expr.tree());
-        for (check, then) in branches.iter() {
+        for (check, then) in branches {
           tree.push_mut(check.tree());
           tree.push_mut(then.tree());
         }
