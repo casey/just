@@ -155,6 +155,7 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
           Err(name.token.error(UndefinedVariable { variable }))
         }
       }
+      Expression::Match { expr, branches } => todo!()
     }
   }
 }

@@ -210,6 +210,18 @@ impl<'src, 'run> Evaluator<'src, 'run> {
           })
         }
       }
+      Expression::Match { expr, branches } => {
+        let val = self.evaluate_expression(expr)?;
+        for (branch, next) in branches.iter() {
+          let check = self.evaluate_expression(branch)?;
+          if val == check || check == "_" {
+            return self.evaluate_expression(next);
+          }
+        }
+        Err(Error::Assert {
+          message: "invalid match statement, no branches matched".into(),
+        })
+      }
     }
   }
 

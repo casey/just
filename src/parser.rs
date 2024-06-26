@@ -566,6 +566,44 @@ impl<'run, 'src> Parser<'run, 'src> {
     })
   }
 
+  /// Parse a match statement
+  ///
+  /// ```
+  /// Parser::parse(r#"match true {
+  /// true => "yes"
+  /// false => "no"
+  /// }"#)
+  /// #.is_ok().
+  /// ```
+  fn parse_match(&mut self) -> CompileResult<'src, Expression<'src>> {
+    let expr = self.parse_expression()?;
+    let branches = Vec::new();
+
+    // self.expect(BraceL)?;
+
+    // let then = self.parse_expression()?;
+
+    // self.expect(BraceR)?;
+
+    // self.expect_keyword(Keyword::Else)?;
+
+    //   self.expect_keyword(Keyword::Match)
+
+    // let otherwise = if self.accepted_keyword(Keyword::Match)? {
+    //   self.parse_conditional()?
+    // } else {
+    //   self.expect(BraceL)?;
+    //   let otherwise = self.parse_expression()?;
+    //   self.expect(BraceR)?;
+    //   otherwise
+    // };
+
+    Ok(Expression::Match {
+      expr: expr.into(),
+      branches,
+    })
+  }
+
   // Check if the next tokens are a shell-expanded string, i.e., `x"foo"`.
   //
   // This function skips initial whitespace tokens, but thereafter is

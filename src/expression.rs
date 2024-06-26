@@ -31,6 +31,12 @@ pub(crate) enum Expression<'src> {
     then: Box<Expression<'src>>,
     otherwise: Box<Expression<'src>>,
   },
+  /// `match expr { branch_expr => then, ... }
+  Match {
+    expr: Box<Expression<'src>>,
+    /// Pair of expression to compare to ('value'), along with the expression to actually execute
+    branches: Vec<(Expression<'src>, Expression<'src>)>,
+  },
   /// `(contents)`
   Group { contents: Box<Expression<'src>> },
   /// `lhs / rhs`
@@ -70,6 +76,13 @@ impl<'src> Display for Expression<'src> {
       Self::Variable { name } => write!(f, "{}", name.lexeme()),
       Self::Call { thunk } => write!(f, "{thunk}"),
       Self::Group { contents } => write!(f, "({contents})"),
+      Self::Match { expr, branches } => {
+        write!(f, "match {expr} {{ ")?;
+        for (branch, then) in branches.iter() {
+          write!(f, "{branch} => {then},")?;
+        }
+        write!(f, "\n}}")
+      }
     }
   }
 }
@@ -126,6 +139,13 @@ impl<'src> Serialize for Expression<'src> {
         let mut seq = serializer.serialize_seq(None)?;
         seq.serialize_element("variable")?;
         seq.serialize_element(name)?;
+        seq.end()
+      }
+      Self::Match { expr, branches } => {
+        let mut seq = serializer.serialize_seq(None)?;
+        seq.serialize_element("match")?;
+        seq.serialize_element(expr)?;
+        seq.serialize_element(branches)?;
         seq.end()
       }
     }

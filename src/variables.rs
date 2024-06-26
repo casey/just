@@ -98,6 +98,7 @@ impl<'expression, 'src> Iterator for Variables<'expression, 'src> {
           self.stack.push(rhs);
           self.stack.push(lhs);
         }
+        Expression::Match { .. } => todo!(),
       }
     }
   }
