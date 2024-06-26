@@ -98,8 +98,12 @@ impl<'expression, 'src> Iterator for Variables<'expression, 'src> {
           self.stack.push(rhs);
           self.stack.push(lhs);
         }
-        Expression::Match { .. } => {
-          todo!("<Variables as Iterator>::next() for match")
+        Expression::Match { expr, branches } => {
+          for (check, branch) in branches.iter().rev() {
+            self.stack.push(branch);
+            self.stack.push(check);
+          }
+          self.stack.push(expr);
         }
       }
     }
