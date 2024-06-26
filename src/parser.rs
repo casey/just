@@ -583,7 +583,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       eprintln!("value? [{value}]");
       self.expect(EqualsGreaterThan)?;
       let then = self.parse_expression()?;
-      self.expect(Comma)?;
+      let _ = self.expect(Comma);
       branches.push((value, then));
     }
 
@@ -2150,6 +2150,12 @@ mod tests {
     name: conditional,
     text: "a := if b == c { d } else { e }",
     tree: (justfile (assignment a (if b == c d e))),
+  }
+
+  test! {
+    name: match,
+    text: "a := match b == c { true => d, false => e }",
+    tree: (justfile (assignment a (match a == b true d false e))),
   }
 
   test! {

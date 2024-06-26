@@ -18,7 +18,7 @@ fn check_match() {
     .justfile(
       r#"
       val := "yep"
-      computed := match val { _ => test, }
+      computed := match val { _ => test }
       "#,
     )
     .run();
