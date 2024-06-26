@@ -2153,7 +2153,7 @@ mod tests {
   }
 
   test! {
-    name: match,
+    name: _match,
     text: "a := match b == c { true => d, false => e }",
     tree: (justfile (assignment a (match a == b true d false e))),
   }
