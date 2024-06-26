@@ -185,6 +185,15 @@ impl<'src> Node<'src> for Expression<'src> {
         lhs: Some(lhs),
         rhs,
       } => Tree::atom("/").push(lhs.tree()).push(rhs.tree()),
+      Self::Match { expr, branches } => {
+        let mut tree = Tree::atom(Keyword::Match.lexeme());
+        tree.push_mut(expr.tree());
+        for (check, then) in branches.iter() {
+          tree.push_mut(check.tree());
+          tree.push_mut(then.tree());
+        }
+        tree
+      }
     }
   }
 }

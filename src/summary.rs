@@ -334,7 +334,7 @@ impl Expression {
         name: name.lexeme().to_owned(),
       },
       Group { contents } => Self::new(contents),
-        Match { expr, branches } => todo!(),
+      Match { expr, branches } => todo!("Expression::new() for match"),
     }
   }
 }

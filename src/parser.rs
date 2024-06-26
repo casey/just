@@ -495,6 +495,8 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     let expression = if self.accepted_keyword(Keyword::If)? {
       self.parse_conditional()?
+    } else if self.accepted_keyword(Keyword::Match)? {
+      self.parse_match()?
     } else if self.accepted(Slash)? {
       let lhs = None;
       let rhs = self.parse_expression()?.into();
@@ -568,18 +570,12 @@ impl<'run, 'src> Parser<'run, 'src> {
 
   /// Parse a match statement
   ///
-  /// ```
-  /// Parser::parse(r#"match true {
-  /// true => "yes"
-  /// false => "no"
-  /// }"#)
-  /// #.is_ok().
-  /// ```
+  /// e.g. `match a == b { true => "foo", _ => "bar" }`
   fn parse_match(&mut self) -> CompileResult<'src, Expression<'src>> {
     let expr = self.parse_expression()?;
     let branches = Vec::new();
-
-    // self.expect(BraceL)?;
+    self.expect(BraceL)?;
+    self.expect(BraceR)?;
 
     // let then = self.parse_expression()?;
 
