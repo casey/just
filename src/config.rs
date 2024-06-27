@@ -131,9 +131,7 @@ mod arg {
     COMMAND_COLOR_YELLOW,
   ];
 
-  pub(crate) const DUMP_FORMAT_JSON: &str = "json";
   pub(crate) const DUMP_FORMAT_JUST: &str = "just";
-  pub(crate) const DUMP_FORMAT_VALUES: &[&str] = &[DUMP_FORMAT_JUST, DUMP_FORMAT_JSON];
 }
 
 impl Config {
@@ -225,7 +223,7 @@ impl Config {
           .long("dump-format")
           .env("JUST_DUMP_FORMAT")
           .action(ArgAction::Set)
-          .value_parser(PossibleValuesParser::new(arg::DUMP_FORMAT_VALUES))
+          .value_parser(clap::value_parser!(DumpFormat))
           .default_value(arg::DUMP_FORMAT_JUST)
           .value_name("FORMAT")
           .help("Dump justfile as <FORMAT>"),
@@ -567,23 +565,6 @@ impl Config {
     }
   }
 
-  fn dump_format_from_matches(matches: &ArgMatches) -> ConfigResult<DumpFormat> {
-    let value =
-      matches
-        .get_one::<String>(arg::DUMP_FORMAT)
-        .ok_or_else(|| ConfigError::Internal {
-          message: "`--dump-format` had no value".to_string(),
-        })?;
-
-    match value.as_str() {
-      arg::DUMP_FORMAT_JSON => Ok(DumpFormat::Json),
-      arg::DUMP_FORMAT_JUST => Ok(DumpFormat::Just),
-      _ => Err(ConfigError::Internal {
-        message: format!("Invalid argument `{value}` to --dump-format."),
-      }),
-    }
-  }
-
   fn parse_module_path(values: ValuesRef<String>) -> ConfigResult<ModulePath> {
     let path = values.clone().map(|s| (*s).as_str()).collect::<Vec<&str>>();
 
@@ -755,7 +736,10 @@ impl Config {
         .map(Into::into),
       dotenv_path: matches.get_one::<PathBuf>(arg::DOTENV_PATH).map(Into::into),
       dry_run: matches.get_flag(arg::DRY_RUN),
-      dump_format: Self::dump_format_from_matches(matches)?,
+      dump_format: matches
+        .get_one::<DumpFormat>(arg::DUMP_FORMAT)
+        .unwrap()
+        .clone(),
       highlight: !matches.get_flag(arg::NO_HIGHLIGHT),
       invocation_directory: env::current_dir().context(config_error::CurrentDirContext)?,
       list_heading: matches
