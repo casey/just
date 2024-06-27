@@ -8,8 +8,6 @@ fn modules_are_unstable() {
         mod foo
       ",
     )
-    .arg("foo")
-    .arg("foo")
     .stderr(
       "error: Modules are currently unstable. \
       Invoke `just` with the `--unstable` flag to enable unstable features.\n",
@@ -779,5 +777,20 @@ fn colon_separated_path_components_are_not_used_as_arguments() {
     .args(["foo::bar"])
     .stderr("error: Expected submodule at `foo` but found recipe.\n")
     .status(1)
+    .run();
+}
+
+#[test]
+fn comments_can_follow_modules() {
+  Test::new()
+    .write("foo.just", "foo:\n @echo FOO")
+    .justfile(
+      "
+        mod foo # this is foo
+      ",
+    )
+    .test_round_trip(false)
+    .args(["--unstable", "foo", "foo"])
+    .stdout("FOO\n")
     .run();
 }
