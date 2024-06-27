@@ -365,10 +365,11 @@ impl<'run, 'src> Parser<'run, 'src> {
             });
           }
           Some(Keyword::Mod)
-            if self.next_are(&[Identifier, Identifier, StringToken])
-              || self.next_are(&[Identifier, Identifier, Identifier, StringToken])
+            if self.next_are(&[Identifier, Identifier, Comment])
               || self.next_are(&[Identifier, Identifier, Eof])
               || self.next_are(&[Identifier, Identifier, Eol])
+              || self.next_are(&[Identifier, Identifier, Identifier, StringToken])
+              || self.next_are(&[Identifier, Identifier, StringToken])
               || self.next_are(&[Identifier, QuestionMark]) =>
           {
             self.presume_keyword(Keyword::Mod)?;
