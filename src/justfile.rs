@@ -20,6 +20,8 @@ pub(crate) struct Justfile<'src> {
   pub(crate) modules: Table<'src, Justfile<'src>>,
   #[serde(skip)]
   pub(crate) name: Option<Name<'src>>,
+  #[serde(skip)]
+  pub(crate) doc: Option<&'src str>,
   pub(crate) recipes: Table<'src, Rc<Recipe<'src>>>,
   pub(crate) settings: Settings<'src>,
   #[serde(skip)]

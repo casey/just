@@ -34,10 +34,10 @@ b := env_var_or_default('ZADDY', 'HTAP')
 x := env_var_or_default('XYZ', 'ABC')
 
 foo:
-  /bin/echo '{{p}}' '{{b}}' '{{x}}'
+  /usr/bin/env echo '{{p}}' '{{b}}' '{{x}}'
 "#,
   stdout:   format!("{} HTAP ABC\n", env::var("USER").unwrap()).as_str(),
-  stderr:   format!("/bin/echo '{}' 'HTAP' 'ABC'\n", env::var("USER").unwrap()).as_str(),
+  stderr:   format!("/usr/bin/env echo '{}' 'HTAP' 'ABC'\n", env::var("USER").unwrap()).as_str(),
 }
 
 #[cfg(not(windows))]
@@ -52,10 +52,10 @@ ext := extension('/foo/bar/baz.hello')
 jn  := join('a', 'b')
 
 foo:
-  /bin/echo '{{we}}' '{{fs}}' '{{fn}}' '{{dir}}' '{{ext}}' '{{jn}}'
+  /usr/bin/env echo '{{we}}' '{{fs}}' '{{fn}}' '{{dir}}' '{{ext}}' '{{jn}}'
 "#,
   stdout:   "/foo/bar/baz baz baz.hello /foo/bar hello a/b\n",
-  stderr:   "/bin/echo '/foo/bar/baz' 'baz' 'baz.hello' '/foo/bar' 'hello' 'a/b'\n",
+  stderr:   "/usr/bin/env echo '/foo/bar/baz' 'baz' 'baz.hello' '/foo/bar' 'hello' 'a/b'\n",
 }
 
 #[cfg(not(windows))]
@@ -69,10 +69,10 @@ dir := parent_directory('/foo/')
 ext := extension('/foo/bar/baz.hello.ciao')
 
 foo:
-  /bin/echo '{{we}}' '{{fs}}' '{{fn}}' '{{dir}}' '{{ext}}'
+  /usr/bin/env echo '{{we}}' '{{fs}}' '{{fn}}' '{{dir}}' '{{ext}}'
 "#,
   stdout:   "/foo/bar/baz baz.hello baz.hello.ciao / ciao\n",
-  stderr:   "/bin/echo '/foo/bar/baz' 'baz.hello' 'baz.hello.ciao' '/' 'ciao'\n",
+  stderr:   "/usr/bin/env echo '/foo/bar/baz' 'baz.hello' 'baz.hello.ciao' '/' 'ciao'\n",
 }
 
 #[cfg(not(windows))]
@@ -82,7 +82,7 @@ test! {
 we  := without_extension('')
 
 foo:
-  /bin/echo '{{we}}'
+  /usr/bin/env echo '{{we}}'
 "#,
   stdout:   "",
   stderr:   format!("{} {}\n{}\n{}\n{}\n{}\n",
@@ -102,7 +102,7 @@ test! {
 we  := extension('')
 
 foo:
-  /bin/echo '{{we}}'
+  /usr/bin/env echo '{{we}}'
 "#,
   stdout:   "",
   stderr:   format!("{}\n{}\n{}\n{}\n{}\n",
@@ -121,7 +121,7 @@ test! {
 we  := extension('foo')
 
 foo:
-  /bin/echo '{{we}}'
+  /usr/bin/env echo '{{we}}'
 "#,
   stdout:   "",
   stderr:   format!("{}\n{}\n{}\n{}\n{}\n",
@@ -140,7 +140,7 @@ test! {
 we  := file_stem('')
 
 foo:
-  /bin/echo '{{we}}'
+  /usr/bin/env echo '{{we}}'
 "#,
   stdout:   "",
   stderr:   format!("{}\n{}\n{}\n{}\n{}\n",
@@ -159,7 +159,7 @@ test! {
 we  := file_name('')
 
 foo:
-  /bin/echo '{{we}}'
+  /usr/bin/env echo '{{we}}'
 "#,
   stdout:   "",
   stderr:   format!("{}\n{}\n{}\n{}\n{}\n",
@@ -178,7 +178,7 @@ test! {
 we  := parent_directory('')
 
 foo:
-  /bin/echo '{{we}}'
+  /usr/bin/env echo '{{we}}'
 "#,
   stdout:   "",
   stderr:   format!("{} {}\n{}\n{}\n{}\n{}\n",
@@ -198,7 +198,7 @@ test! {
 we  := parent_directory('/')
 
 foo:
-  /bin/echo '{{we}}'
+  /usr/bin/env echo '{{we}}'
 "#,
   stdout:   "",
   stderr:   format!("{} {}\n{}\n{}\n{}\n{}\n",
@@ -220,10 +220,10 @@ b := env_var_or_default('ZADDY', 'HTAP')
 x := env_var_or_default('XYZ', 'ABC')
 
 foo:
-  /bin/echo '{{p}}' '{{b}}' '{{x}}'
+  /usr/bin/env echo '{{p}}' '{{b}}' '{{x}}'
 "#,
   stdout:   format!("{} HTAP ABC\n", env::var("USERNAME").unwrap()).as_str(),
-  stderr:   format!("/bin/echo '{}' 'HTAP' 'ABC'\n", env::var("USERNAME").unwrap()).as_str(),
+  stderr:   format!("/usr/bin/env echo '{}' 'HTAP' 'ABC'\n", env::var("USERNAME").unwrap()).as_str(),
 }
 
 test! {

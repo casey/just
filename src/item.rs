@@ -17,6 +17,7 @@ pub(crate) enum Item<'src> {
     name: Name<'src>,
     optional: bool,
     relative: Option<StringLiteral<'src>>,
+    doc: Option<&'src str>,
   },
   Recipe(UnresolvedRecipe<'src>),
   Set(Set<'src>),

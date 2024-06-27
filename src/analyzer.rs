@@ -14,8 +14,9 @@ impl<'src> Analyzer<'src> {
     asts: &HashMap<PathBuf, Ast<'src>>,
     root: &Path,
     name: Option<Name<'src>>,
+    doc: Option<&'src str>,
   ) -> CompileResult<'src, Justfile<'src>> {
-    Self::default().justfile(loaded, paths, asts, root, name)
+    Self::default().justfile(loaded, paths, asts, root, name, doc)
   }
 
   fn justfile(
@@ -25,6 +26,7 @@ impl<'src> Analyzer<'src> {
     asts: &HashMap<PathBuf, Ast<'src>>,
     root: &Path,
     name: Option<Name<'src>>,
+    doc: Option<&'src str>,
   ) -> CompileResult<'src, Justfile<'src>> {
     let mut recipes = Vec::new();
 
@@ -84,10 +86,22 @@ impl<'src> Analyzer<'src> {
               stack.push(asts.get(absolute).unwrap());
             }
           }
-          Item::Module { absolute, name, .. } => {
+          Item::Module {
+            absolute,
+            name,
+            doc,
+            ..
+          } => {
             if let Some(absolute) = absolute {
               define(*name, "module", false)?;
-              modules.insert(Self::analyze(loaded, paths, asts, absolute, Some(*name))?);
+              modules.insert(Self::analyze(
+                loaded,
+                paths,
+                asts,
+                absolute,
+                Some(*name),
+                *doc,
+              )?);
             }
           }
           Item::Recipe(recipe) => {
@@ -175,6 +189,7 @@ impl<'src> Analyzer<'src> {
       loaded: loaded.into(),
       modules,
       name,
+      doc,
       recipes,
       settings,
       source: root.into(),
