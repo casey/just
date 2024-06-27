@@ -606,6 +606,9 @@ Examples
 A variety of example `justfile`s can be found in the
 [examples directory](https://github.com/casey/just/tree/master/examples).
 
+You can also look [here](https://github.com/search?q=path%3A%2F%28%5E%7C%5C%2F%29justfile%24%2F&type=code)
+to see how others are writing `justfile`.
+
 Features
 --------
 
