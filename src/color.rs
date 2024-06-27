@@ -38,6 +38,7 @@ impl Color {
     }
   }
 
+  #[cfg(test)]
   pub(crate) fn always() -> Self {
     Self {
       use_color: UseColor::Always,
@@ -130,6 +131,15 @@ impl Color {
 
   pub(crate) fn suffix(&self) -> Suffix {
     self.effective_style().suffix()
+  }
+}
+
+impl From<UseColor> for Color {
+  fn from(value: UseColor) -> Self {
+    Self {
+      use_color: value,
+      ..Default::default()
+    }
   }
 }
 

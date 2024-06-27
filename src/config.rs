@@ -109,10 +109,7 @@ mod arg {
   pub(crate) const WORKING_DIRECTORY: &str = "WORKING-DIRECTORY";
   pub(crate) const YES: &str = "YES";
 
-  pub(crate) const COLOR_ALWAYS: &str = "always";
   pub(crate) const COLOR_AUTO: &str = "auto";
-  pub(crate) const COLOR_NEVER: &str = "never";
-  pub(crate) const COLOR_VALUES: &[&str] = &[COLOR_AUTO, COLOR_ALWAYS, COLOR_NEVER];
 
   pub(crate) const COMMAND_COLOR_BLACK: &str = "black";
   pub(crate) const COMMAND_COLOR_BLUE: &str = "blue";
@@ -182,7 +179,7 @@ impl Config {
           .long("color")
           .env("JUST_COLOR")
           .action(ArgAction::Set)
-          .value_parser(PossibleValuesParser::new(arg::COLOR_VALUES))
+          .value_parser(clap::value_parser!(UseColor))
           .default_value(arg::COLOR_AUTO)
           .help("Print colorful output"),
       )
@@ -529,23 +526,6 @@ impl Config {
       )
   }
 
-  fn color_from_matches(matches: &ArgMatches) -> ConfigResult<Color> {
-    let value = matches
-      .get_one::<String>(arg::COLOR)
-      .ok_or_else(|| ConfigError::Internal {
-        message: "`--color` had no value".to_string(),
-      })?;
-
-    match value.as_str() {
-      arg::COLOR_AUTO => Ok(Color::auto()),
-      arg::COLOR_ALWAYS => Ok(Color::always()),
-      arg::COLOR_NEVER => Ok(Color::never()),
-      _ => Err(ConfigError::Internal {
-        message: format!("Invalid argument `{value}` to --color."),
-      }),
-    }
-  }
-
   fn command_color_from_matches(matches: &ArgMatches) -> ConfigResult<Option<ansi_term::Color>> {
     if let Some(value) = matches.get_one::<String>(arg::COMMAND_COLOR) {
       match value.as_str() {
@@ -729,7 +709,7 @@ impl Config {
 
     Ok(Self {
       check: matches.get_flag(arg::CHECK),
-      color: Self::color_from_matches(matches)?,
+      color: (*matches.get_one::<UseColor>(arg::COLOR).unwrap()).into(),
       command_color: Self::command_color_from_matches(matches)?,
       dotenv_filename: matches
         .get_one::<String>(arg::DOTENV_FILENAME)
