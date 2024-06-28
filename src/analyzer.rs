@@ -227,7 +227,6 @@ impl<'src> Analyzer<'src> {
       loaded: loaded.into(),
       modules,
       name,
-      doc,
       recipes,
       settings,
       source: root.into(),

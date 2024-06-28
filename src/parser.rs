@@ -399,7 +399,6 @@ impl<'run, 'src> Parser<'run, 'src> {
               name,
               optional,
               relative,
-              doc,
             });
           }
           Some(Keyword::Set)
