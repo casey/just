@@ -255,7 +255,7 @@ const POWERSHELL_COMPLETION_REPLACEMENTS: &[(&str, &str)] = &[(
   r#"function Get-JustFileRecipes([string[]]$CommandElements) {
         $justFileIndex = $commandElements.IndexOf("--justfile");
 
-        if ($justFileIndex -ne -1 && $justFileIndex + 1 -le $commandElements.Length) {
+        if ($justFileIndex -ne -1 -and $justFileIndex + 1 -le $commandElements.Length) {
             $justFileLocation = $commandElements[$justFileIndex + 1]
         }
 
