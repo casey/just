@@ -18,6 +18,7 @@ fn alias() {
     ",
     json!({
       "first": "foo",
+      "doc": null,
       "aliases": {
         "f": {
           "name": "f",
@@ -80,6 +81,7 @@ fn assignment() {
         }
       },
       "first": null,
+      "doc": null,
       "modules": {},
       "recipes": {},
       "settings": {
@@ -117,6 +119,7 @@ fn body() {
       "aliases": {},
       "assignments": {},
       "first": "foo",
+      "doc": null,
       "modules": {},
       "recipes": {
         "foo": {
@@ -170,6 +173,7 @@ fn dependencies() {
       "aliases": {},
       "assignments": {},
       "first": "foo",
+      "doc": null,
       "modules": {},
       "recipes": {
         "bar": {
@@ -248,6 +252,7 @@ fn dependency_argument() {
     json!({
       "aliases": {},
       "first": "foo",
+      "doc": null,
       "assignments": {
         "x": {
           "export": false,
@@ -341,6 +346,7 @@ fn duplicate_recipes() {
     ",
     json!({
       "first": "foo",
+      "doc": null,
       "aliases": {
         "f": {
           "attributes": [],
@@ -414,6 +420,7 @@ fn duplicate_variables() {
         }
       },
       "first": null,
+      "doc": null,
       "modules": {},
       "recipes": {},
       "settings": {
@@ -446,6 +453,7 @@ fn doc_comment() {
     json!({
       "aliases": {},
       "first": "foo",
+      "doc": null,
       "assignments": {},
       "modules": {},
       "recipes": {
@@ -494,6 +502,7 @@ fn empty_justfile() {
       "aliases": {},
       "assignments": {},
       "first": null,
+      "doc": null,
       "modules": {},
       "recipes": {},
       "settings": {
@@ -533,6 +542,7 @@ fn parameters() {
     json!({
       "aliases": {},
       "first": "a",
+      "doc": null,
       "assignments": {},
       "modules": {},
       "recipes": {
@@ -685,6 +695,7 @@ fn priors() {
       "aliases": {},
       "assignments": {},
       "first": "a",
+      "doc": null,
       "modules": {},
       "recipes": {
         "a": {
@@ -768,6 +779,7 @@ fn private() {
       "aliases": {},
       "assignments": {},
       "first": "_foo",
+      "doc": null,
       "modules": {},
       "recipes": {
         "_foo": {
@@ -815,6 +827,7 @@ fn quiet() {
       "aliases": {},
       "assignments": {},
       "first": "foo",
+      "doc": null,
       "modules": {},
       "recipes": {
         "foo": {
@@ -874,6 +887,7 @@ fn settings() {
       "aliases": {},
       "assignments": {},
       "first": "foo",
+      "doc": null,
       "modules": {},
       "recipes": {
         "foo": {
@@ -927,6 +941,7 @@ fn shebang() {
       "aliases": {},
       "assignments": {},
       "first": "foo",
+      "doc": null,
       "modules": {},
       "recipes": {
         "foo": {
@@ -974,6 +989,7 @@ fn simple() {
       "aliases": {},
       "assignments": {},
       "first": "foo",
+      "doc": null,
       "modules": {},
       "recipes": {
         "foo": {
@@ -1024,6 +1040,7 @@ fn attribute() {
       "aliases": {},
       "assignments": {},
       "first": "foo",
+      "doc": null,
       "modules": {},
       "recipes": {
         "foo": {
@@ -1068,6 +1085,7 @@ fn module() {
   Test::new()
     .justfile(
       "
+      # hello
       mod foo
     ",
     )
@@ -1082,11 +1100,13 @@ fn module() {
         "aliases": {},
         "assignments": {},
         "first": null,
+        "doc": null,
         "modules": {
           "foo": {
             "aliases": {},
             "assignments": {},
             "first": "bar",
+            "doc": "hello",
             "modules": {},
             "recipes": {
               "bar": {

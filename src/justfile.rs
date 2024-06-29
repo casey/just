@@ -13,9 +13,9 @@ struct Invocation<'src: 'run, 'run> {
 pub(crate) struct Justfile<'src> {
   pub(crate) aliases: Table<'src, Alias<'src>>,
   pub(crate) assignments: Table<'src, Assignment<'src>>,
+  pub(crate) doc: Option<&'src str>,
   #[serde(rename = "first", serialize_with = "keyed::serialize_option")]
   pub(crate) default: Option<Rc<Recipe<'src>>>,
-  pub(crate) doc: Option<&'src str>,
   #[serde(skip)]
   pub(crate) loaded: Vec<PathBuf>,
   pub(crate) modules: Table<'src, Justfile<'src>>,
