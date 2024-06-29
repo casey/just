@@ -16,17 +16,17 @@ impl<'src> Analyzer<'src> {
     paths: &HashMap<PathBuf, PathBuf>,
     root: &Path,
   ) -> CompileResult<'src, Justfile<'src>> {
-    Self::default().justfile(loaded, paths, asts, root, name, doc)
+    Self::default().justfile(asts, doc, loaded, name, paths, root)
   }
 
   fn justfile(
     mut self,
-    loaded: &[PathBuf],
-    paths: &HashMap<PathBuf, PathBuf>,
     asts: &HashMap<PathBuf, Ast<'src>>,
-    root: &Path,
-    name: Option<Name<'src>>,
     doc: Option<&'src str>,
+    loaded: &[PathBuf],
+    name: Option<Name<'src>>,
+    paths: &HashMap<PathBuf, PathBuf>,
+    root: &Path,
   ) -> CompileResult<'src, Justfile<'src>> {
     let mut recipes = Vec::new();
 
