@@ -3228,6 +3228,20 @@ mod? foo 'bar.just'
 mod? foo 'baz.just'
 ```
 
+Modules may be given doc comments which appear in `--list`
+output<sup>master</sup>:
+
+```mf
+# foo is a great module!
+mod foo
+```
+
+```sh
+$ just --list
+Available recipes:
+    foo ... # foo is a great module!
+```
+
 See the
 [module stabilization tracking issue](https://github.com/casey/just/issues/929)
 for more information.
