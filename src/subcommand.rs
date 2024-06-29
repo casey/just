@@ -603,7 +603,7 @@ impl Subcommand {
       }
     } else {
       for submodule in module.modules(config) {
-        print!("{list_prefix}{} ...", submodule.name(),);
+        print!("{list_prefix}{} ...", submodule.name());
         format_doc(
           config,
           submodule.name(),
