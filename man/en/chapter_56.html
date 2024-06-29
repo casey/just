@@ -228,6 +228,15 @@ long as at most one source file exists:</p>
 <pre><code class="language-mf">mod? foo 'bar.just'
 mod? foo 'baz.just'
 </code></pre>
+<p>Modules may be given doc comments which appear in <code>--list</code>
+output<sup>master</sup>:</p>
+<pre><code class="language-mf"># foo is a great module!
+mod foo
+</code></pre>
+<pre><code class="language-sh">$ just --list
+Available recipes:
+    foo ... # foo is a great module!
+</code></pre>
 <p>See the
 <a href="https://github.com/casey/just/issues/929">module stabilization tracking issue</a>
 for more information.</p>
