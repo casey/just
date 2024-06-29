@@ -14,10 +14,10 @@ pub(crate) enum Item<'src> {
   },
   Module {
     absolute: Option<PathBuf>,
+    doc: Option<&'src str>,
     name: Name<'src>,
     optional: bool,
     relative: Option<StringLiteral<'src>>,
-    doc: Option<&'src str>,
   },
   Recipe(UnresolvedRecipe<'src>),
   Set(Set<'src>),
