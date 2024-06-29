@@ -389,10 +389,10 @@ impl<'run, 'src> Parser<'run, 'src> {
 
             items.push(Item::Module {
               absolute: None,
+              doc,
               name,
               optional,
               relative,
-              doc,
             });
           }
           Some(Keyword::Set)
