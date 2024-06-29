@@ -9,22 +9,24 @@ pub(crate) struct Analyzer<'src> {
 
 impl<'src> Analyzer<'src> {
   pub(crate) fn analyze(
-    loaded: &[PathBuf],
-    paths: &HashMap<PathBuf, PathBuf>,
     asts: &HashMap<PathBuf, Ast<'src>>,
-    root: &Path,
+    doc: Option<&'src str>,
+    loaded: &[PathBuf],
     name: Option<Name<'src>>,
+    paths: &HashMap<PathBuf, PathBuf>,
+    root: &Path,
   ) -> CompileResult<'src, Justfile<'src>> {
-    Self::default().justfile(loaded, paths, asts, root, name)
+    Self::default().justfile(asts, doc, loaded, name, paths, root)
   }
 
   fn justfile(
     mut self,
-    loaded: &[PathBuf],
-    paths: &HashMap<PathBuf, PathBuf>,
     asts: &HashMap<PathBuf, Ast<'src>>,
-    root: &Path,
+    doc: Option<&'src str>,
+    loaded: &[PathBuf],
     name: Option<Name<'src>>,
+    paths: &HashMap<PathBuf, PathBuf>,
+    root: &Path,
   ) -> CompileResult<'src, Justfile<'src>> {
     let mut recipes = Vec::new();
 
@@ -84,10 +86,22 @@ impl<'src> Analyzer<'src> {
               stack.push(asts.get(absolute).unwrap());
             }
           }
-          Item::Module { absolute, name, .. } => {
+          Item::Module {
+            absolute,
+            name,
+            doc,
+            ..
+          } => {
             if let Some(absolute) = absolute {
               define(*name, "module", false)?;
-              modules.insert(Self::analyze(loaded, paths, asts, absolute, Some(*name))?);
+              modules.insert(Self::analyze(
+                asts,
+                *doc,
+                loaded,
+                Some(*name),
+                paths,
+                absolute,
+              )?);
             }
           }
           Item::Recipe(recipe) => {
@@ -172,6 +186,7 @@ impl<'src> Analyzer<'src> {
             Rc::clone(next)
           }),
         }),
+      doc,
       loaded: loaded.into(),
       modules,
       name,

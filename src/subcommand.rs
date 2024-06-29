@@ -435,6 +435,27 @@ impl Subcommand {
   }
 
   fn list_module(config: &Config, module: &Justfile, depth: usize) {
+    fn format_doc(
+      config: &Config,
+      name: &str,
+      doc: Option<&str>,
+      max_signature_width: usize,
+      signature_widths: &BTreeMap<&str, usize>,
+    ) {
+      if let Some(doc) = doc {
+        if doc.lines().count() <= 1 {
+          print!(
+            "{:padding$}{} {}",
+            "",
+            config.color.stdout().doc().paint("#"),
+            config.color.stdout().doc().paint(doc),
+            padding = max_signature_width.saturating_sub(signature_widths[name]) + 1,
+          );
+        }
+      }
+      println!();
+    }
+
     let aliases = if config.no_aliases {
       BTreeMap::new()
     } else {
@@ -466,6 +487,11 @@ impl Subcommand {
                 .as_str(),
             ),
           );
+        }
+      }
+      if !config.list_submodules {
+        for (name, _) in &module.modules {
+          signature_widths.insert(name, UnicodeWidthStr::width(format!("{name} ...").as_str()));
         }
       }
 
@@ -554,18 +580,13 @@ impl Subcommand {
             RecipeSignature { name, recipe }.color_display(config.color.stdout())
           );
 
-          if let Some(doc) = doc {
-            if doc.lines().count() <= 1 {
-              print!(
-                "{:padding$}{} {}",
-                "",
-                config.color.stdout().doc().paint("#"),
-                config.color.stdout().doc().paint(&doc),
-                padding = max_signature_width.saturating_sub(signature_widths[name]) + 1,
-              );
-            }
-          }
-          println!();
+          format_doc(
+            config,
+            name,
+            doc.as_deref(),
+            max_signature_width,
+            &signature_widths,
+          );
         }
       }
     }
@@ -582,7 +603,14 @@ impl Subcommand {
       }
     } else {
       for submodule in module.modules(config) {
-        println!("{list_prefix}{} ...", submodule.name(),);
+        print!("{list_prefix}{} ...", submodule.name());
+        format_doc(
+          config,
+          submodule.name(),
+          submodule.doc,
+          max_signature_width,
+          &signature_widths,
+        );
       }
     }
   }

@@ -353,3 +353,55 @@ fn nested_modules_are_properly_indented() {
     )
     .run();
 }
+
+#[test]
+fn module_doc_rendered() {
+  Test::new()
+    .write("foo.just", "")
+    .justfile(
+      "
+        # Module foo
+        mod foo
+      ",
+    )
+    .test_round_trip(false)
+    .args(["--unstable", "--list"])
+    .stdout(
+      "
+        Available recipes:
+            foo ... # Module foo
+      ",
+    )
+    .run();
+}
+
+#[test]
+fn module_doc_aligned() {
+  Test::new()
+    .write("foo.just", "")
+    .write("bar.just", "")
+    .justfile(
+      "
+        # Module foo
+        mod foo
+
+        # comment
+        mod very_long_name_for_module \"bar.just\" # comment
+
+        # will change your world
+        recipe:
+            @echo Hi
+      ",
+    )
+    .test_round_trip(false)
+    .args(["--unstable", "--list"])
+    .stdout(
+      "
+        Available recipes:
+            recipe                        # will change your world
+            foo ...                       # Module foo
+            very_long_name_for_module ... # comment
+      ",
+    )
+    .run();
+}
