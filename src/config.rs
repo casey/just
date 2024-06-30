@@ -236,6 +236,7 @@ impl Config {
           .env("JUST_LIST_HEADING")
           .help("Print <TEXT> before list")
           .value_name("TEXT")
+          .default_value("Available recipes:\n")
           .action(ArgAction::Set),
       )
       .arg(
@@ -244,6 +245,7 @@ impl Config {
           .env("JUST_LIST_PREFIX")
           .help("Print <TEXT> before each list item")
           .value_name("TEXT")
+          .default_value("    ")
           .action(ArgAction::Set),
       )
       .arg(
@@ -685,12 +687,8 @@ impl Config {
         .clone(),
       highlight: !matches.get_flag(arg::NO_HIGHLIGHT),
       invocation_directory: env::current_dir().context(config_error::CurrentDirContext)?,
-      list_heading: matches
-        .get_one::<String>(arg::LIST_HEADING)
-        .map_or_else(|| "Available recipes:\n".into(), Into::into),
-      list_prefix: matches
-        .get_one::<String>(arg::LIST_PREFIX)
-        .map_or_else(|| "    ".into(), Into::into),
+      list_heading: matches.get_one::<String>(arg::LIST_HEADING).unwrap().into(),
+      list_prefix: matches.get_one::<String>(arg::LIST_PREFIX).unwrap().into(),
       list_submodules: matches.get_flag(arg::LIST_SUBMODULES),
       load_dotenv: !matches.get_flag(arg::NO_DOTENV),
       no_aliases: matches.get_flag(arg::NO_ALIASES),
