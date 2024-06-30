@@ -46,6 +46,7 @@ pub(crate) use {
     verbosity::Verbosity, warning::Warning,
   },
   camino::Utf8Path,
+  clap::ValueEnum,
   derivative::Derivative,
   edit_distance::edit_distance,
   lexiclean::Lexiclean,
