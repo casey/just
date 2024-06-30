@@ -744,6 +744,8 @@ impl Config {
       }
     };
 
+    let unstable = matches.get_flag(arg::UNSTABLE) || subcommand == Subcommand::Summary;
+
     Ok(Self {
       check: matches.get_flag(arg::CHECK),
       color: Self::color_from_matches(matches)?,
@@ -783,7 +785,7 @@ impl Config {
         .unwrap()
         .into(),
       unsorted: matches.get_flag(arg::UNSORTED),
-      unstable: matches.get_flag(arg::UNSTABLE),
+      unstable,
       verbosity: if matches.get_flag(arg::QUIET) {
         Verbosity::Quiet
       } else {

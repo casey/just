@@ -71,3 +71,18 @@ fn submodule_recipes() {
     .stdout("bar foo::foo foo::bar::bar foo::bar::baz::baz foo::bar::baz::biz::biz\n")
     .run();
 }
+
+#[test]
+fn summary_implies_unstable() {
+  Test::new()
+    .write("foo.just", "foo:")
+    .justfile(
+      "
+        mod foo
+      ",
+    )
+    .test_round_trip(false)
+    .arg("--summary")
+    .stdout("foo::foo\n")
+    .run();
+}
