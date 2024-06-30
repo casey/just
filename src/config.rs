@@ -744,6 +744,8 @@ impl Config {
       }
     };
 
+    let unstable = matches.get_flag(arg::UNSTABLE) || subcommand == Subcommand::Summary;
+
     Ok(Self {
       check: matches.get_flag(arg::CHECK),
       color: Self::color_from_matches(matches)?,
@@ -783,7 +785,7 @@ impl Config {
         .unwrap()
         .into(),
       unsorted: matches.get_flag(arg::UNSORTED),
-      unstable: matches.get_flag(arg::UNSTABLE),
+      unstable,
       verbosity: if matches.get_flag(arg::QUIET) {
         Verbosity::Quiet
       } else {
@@ -834,6 +836,7 @@ mod tests {
       $(shell_args: $shell_args:expr,)?
       $(subcommand: $subcommand:expr,)?
       $(unsorted: $unsorted:expr,)?
+      $(unstable: $unstable:expr,)?
       $(verbosity: $verbosity:expr,)?
     } => {
       #[test]
@@ -854,6 +857,7 @@ mod tests {
           $(shell_args: $shell_args,)?
           $(subcommand: $subcommand,)?
           $(unsorted: $unsorted,)?
+          $(unstable: $unstable,)?
           $(verbosity: $verbosity,)?
           ..testing::config(&[])
         };
@@ -1368,6 +1372,7 @@ mod tests {
     name: subcommand_summary,
     args: ["--summary"],
     subcommand: Subcommand::Summary,
+    unstable: true,
   }
 
   test! {
