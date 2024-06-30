@@ -1,7 +1,9 @@
 use {
   super::*,
   clap::{
-    builder::{styling::AnsiColor, FalseyValueParser, PossibleValuesParser, Styles},
+    builder::{
+      styling::AnsiColor, FalseyValueParser, PossibleValuesParser, Styles, TypedValueParser,
+    },
     parser::ValuesRef,
     value_parser, Arg, ArgAction, ArgGroup, ArgMatches, Command,
   },
@@ -188,7 +190,22 @@ impl Config {
           .long("command-color")
           .env("JUST_COMMAND_COLOR")
           .action(ArgAction::Set)
-          .value_parser(PossibleValuesParser::new(arg::COMMAND_COLOR_VALUES))
+          .value_parser(
+            PossibleValuesParser::new(arg::COMMAND_COLOR_VALUES).try_map(|value| {
+              match value.as_str() {
+                arg::COMMAND_COLOR_BLACK => Ok(ansi_term::Color::Black),
+                arg::COMMAND_COLOR_BLUE => Ok(ansi_term::Color::Blue),
+                arg::COMMAND_COLOR_CYAN => Ok(ansi_term::Color::Cyan),
+                arg::COMMAND_COLOR_GREEN => Ok(ansi_term::Color::Green),
+                arg::COMMAND_COLOR_PURPLE => Ok(ansi_term::Color::Purple),
+                arg::COMMAND_COLOR_RED => Ok(ansi_term::Color::Red),
+                arg::COMMAND_COLOR_YELLOW => Ok(ansi_term::Color::Yellow),
+                value => Err(ConfigError::Internal {
+                  message: format!("Invalid argument `{value}` to --command-color."),
+                }),
+              }
+            }),
+          )
           .help("Echo recipe lines in <COMMAND-COLOR>"),
       )
       .arg(
@@ -526,25 +543,6 @@ impl Config {
       )
   }
 
-  fn command_color_from_matches(matches: &ArgMatches) -> ConfigResult<Option<ansi_term::Color>> {
-    if let Some(value) = matches.get_one::<String>(arg::COMMAND_COLOR) {
-      match value.as_str() {
-        arg::COMMAND_COLOR_BLACK => Ok(Some(ansi_term::Color::Black)),
-        arg::COMMAND_COLOR_BLUE => Ok(Some(ansi_term::Color::Blue)),
-        arg::COMMAND_COLOR_CYAN => Ok(Some(ansi_term::Color::Cyan)),
-        arg::COMMAND_COLOR_GREEN => Ok(Some(ansi_term::Color::Green)),
-        arg::COMMAND_COLOR_PURPLE => Ok(Some(ansi_term::Color::Purple)),
-        arg::COMMAND_COLOR_RED => Ok(Some(ansi_term::Color::Red)),
-        arg::COMMAND_COLOR_YELLOW => Ok(Some(ansi_term::Color::Yellow)),
-        value => Err(ConfigError::Internal {
-          message: format!("Invalid argument `{value}` to --command-color."),
-        }),
-      }
-    } else {
-      Ok(None)
-    }
-  }
-
   fn parse_module_path(values: ValuesRef<String>) -> ConfigResult<ModulePath> {
     let path = values.clone().map(|s| (*s).as_str()).collect::<Vec<&str>>();
 
@@ -710,7 +708,9 @@ impl Config {
     Ok(Self {
       check: matches.get_flag(arg::CHECK),
       color: (*matches.get_one::<UseColor>(arg::COLOR).unwrap()).into(),
-      command_color: Self::command_color_from_matches(matches)?,
+      command_color: matches
+        .get_one::<ansi_term::Color>(arg::COMMAND_COLOR)
+        .copied(),
       dotenv_filename: matches
         .get_one::<String>(arg::DOTENV_FILENAME)
         .map(Into::into),
