@@ -135,9 +135,9 @@ impl Color {
 }
 
 impl From<UseColor> for Color {
-  fn from(value: UseColor) -> Self {
+  fn from(use_color: UseColor) -> Self {
     Self {
-      use_color: value,
+      use_color,
       ..Default::default()
     }
   }
