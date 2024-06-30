@@ -836,6 +836,7 @@ mod tests {
       $(shell_args: $shell_args:expr,)?
       $(subcommand: $subcommand:expr,)?
       $(unsorted: $unsorted:expr,)?
+      $(unstable: $unstable:expr,)?
       $(verbosity: $verbosity:expr,)?
     } => {
       #[test]
@@ -856,6 +857,7 @@ mod tests {
           $(shell_args: $shell_args,)?
           $(subcommand: $subcommand,)?
           $(unsorted: $unsorted,)?
+          $(unstable: $unstable,)?
           $(verbosity: $verbosity,)?
           ..testing::config(&[])
         };
@@ -1370,6 +1372,7 @@ mod tests {
     name: subcommand_summary,
     args: ["--summary"],
     subcommand: Subcommand::Summary,
+    unstable: true,
   }
 
   test! {
