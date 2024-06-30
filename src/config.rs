@@ -111,8 +111,6 @@ mod arg {
   pub(crate) const WORKING_DIRECTORY: &str = "WORKING-DIRECTORY";
   pub(crate) const YES: &str = "YES";
 
-  pub(crate) const COLOR_AUTO: &str = "auto";
-
   pub(crate) const COMMAND_COLOR_BLACK: &str = "black";
   pub(crate) const COMMAND_COLOR_BLUE: &str = "blue";
   pub(crate) const COMMAND_COLOR_CYAN: &str = "cyan";
@@ -129,8 +127,6 @@ mod arg {
     COMMAND_COLOR_RED,
     COMMAND_COLOR_YELLOW,
   ];
-
-  pub(crate) const DUMP_FORMAT_JUST: &str = "just";
 }
 
 impl Config {
@@ -182,7 +178,7 @@ impl Config {
           .env("JUST_COLOR")
           .action(ArgAction::Set)
           .value_parser(clap::value_parser!(UseColor))
-          .default_value(arg::COLOR_AUTO)
+          .default_value("auto")
           .help("Print colorful output"),
       )
       .arg(
@@ -238,7 +234,7 @@ impl Config {
           .env("JUST_DUMP_FORMAT")
           .action(ArgAction::Set)
           .value_parser(clap::value_parser!(DumpFormat))
-          .default_value(arg::DUMP_FORMAT_JUST)
+          .default_value("just")
           .value_name("FORMAT")
           .help("Dump justfile as <FORMAT>"),
       )
