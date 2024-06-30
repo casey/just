@@ -1,7 +1,7 @@
 use {
   super::*,
   clap::{
-    builder::{styling::AnsiColor, FalseyValueParser, PossibleValuesParser, Styles},
+    builder::{styling::AnsiColor, FalseyValueParser, Styles},
     parser::ValuesRef,
     value_parser, Arg, ArgAction, ArgGroup, ArgMatches, Command,
   },
@@ -108,32 +108,6 @@ mod arg {
   pub(crate) const VERBOSE: &str = "VERBOSE";
   pub(crate) const WORKING_DIRECTORY: &str = "WORKING-DIRECTORY";
   pub(crate) const YES: &str = "YES";
-
-  pub(crate) const COLOR_ALWAYS: &str = "always";
-  pub(crate) const COLOR_AUTO: &str = "auto";
-  pub(crate) const COLOR_NEVER: &str = "never";
-  pub(crate) const COLOR_VALUES: &[&str] = &[COLOR_AUTO, COLOR_ALWAYS, COLOR_NEVER];
-
-  pub(crate) const COMMAND_COLOR_BLACK: &str = "black";
-  pub(crate) const COMMAND_COLOR_BLUE: &str = "blue";
-  pub(crate) const COMMAND_COLOR_CYAN: &str = "cyan";
-  pub(crate) const COMMAND_COLOR_GREEN: &str = "green";
-  pub(crate) const COMMAND_COLOR_PURPLE: &str = "purple";
-  pub(crate) const COMMAND_COLOR_RED: &str = "red";
-  pub(crate) const COMMAND_COLOR_YELLOW: &str = "yellow";
-  pub(crate) const COMMAND_COLOR_VALUES: &[&str] = &[
-    COMMAND_COLOR_BLACK,
-    COMMAND_COLOR_BLUE,
-    COMMAND_COLOR_CYAN,
-    COMMAND_COLOR_GREEN,
-    COMMAND_COLOR_PURPLE,
-    COMMAND_COLOR_RED,
-    COMMAND_COLOR_YELLOW,
-  ];
-
-  pub(crate) const DUMP_FORMAT_JSON: &str = "json";
-  pub(crate) const DUMP_FORMAT_JUST: &str = "just";
-  pub(crate) const DUMP_FORMAT_VALUES: &[&str] = &[DUMP_FORMAT_JUST, DUMP_FORMAT_JSON];
 }
 
 impl Config {
@@ -184,8 +158,8 @@ impl Config {
           .long("color")
           .env("JUST_COLOR")
           .action(ArgAction::Set)
-          .value_parser(PossibleValuesParser::new(arg::COLOR_VALUES))
-          .default_value(arg::COLOR_AUTO)
+          .value_parser(clap::value_parser!(UseColor))
+          .default_value("auto")
           .help("Print colorful output"),
       )
       .arg(
@@ -193,7 +167,7 @@ impl Config {
           .long("command-color")
           .env("JUST_COMMAND_COLOR")
           .action(ArgAction::Set)
-          .value_parser(PossibleValuesParser::new(arg::COMMAND_COLOR_VALUES))
+          .value_parser(clap::value_parser!(CommandColor))
           .help("Echo recipe lines in <COMMAND-COLOR>"),
       )
       .arg(
@@ -225,8 +199,8 @@ impl Config {
           .long("dump-format")
           .env("JUST_DUMP_FORMAT")
           .action(ArgAction::Set)
-          .value_parser(PossibleValuesParser::new(arg::DUMP_FORMAT_VALUES))
-          .default_value(arg::DUMP_FORMAT_JUST)
+          .value_parser(clap::value_parser!(DumpFormat))
+          .default_value("just")
           .value_name("FORMAT")
           .help("Dump justfile as <FORMAT>"),
       )
@@ -531,59 +505,6 @@ impl Config {
       )
   }
 
-  fn color_from_matches(matches: &ArgMatches) -> ConfigResult<Color> {
-    let value = matches
-      .get_one::<String>(arg::COLOR)
-      .ok_or_else(|| ConfigError::Internal {
-        message: "`--color` had no value".to_string(),
-      })?;
-
-    match value.as_str() {
-      arg::COLOR_AUTO => Ok(Color::auto()),
-      arg::COLOR_ALWAYS => Ok(Color::always()),
-      arg::COLOR_NEVER => Ok(Color::never()),
-      _ => Err(ConfigError::Internal {
-        message: format!("Invalid argument `{value}` to --color."),
-      }),
-    }
-  }
-
-  fn command_color_from_matches(matches: &ArgMatches) -> ConfigResult<Option<ansi_term::Color>> {
-    if let Some(value) = matches.get_one::<String>(arg::COMMAND_COLOR) {
-      match value.as_str() {
-        arg::COMMAND_COLOR_BLACK => Ok(Some(ansi_term::Color::Black)),
-        arg::COMMAND_COLOR_BLUE => Ok(Some(ansi_term::Color::Blue)),
-        arg::COMMAND_COLOR_CYAN => Ok(Some(ansi_term::Color::Cyan)),
-        arg::COMMAND_COLOR_GREEN => Ok(Some(ansi_term::Color::Green)),
-        arg::COMMAND_COLOR_PURPLE => Ok(Some(ansi_term::Color::Purple)),
-        arg::COMMAND_COLOR_RED => Ok(Some(ansi_term::Color::Red)),
-        arg::COMMAND_COLOR_YELLOW => Ok(Some(ansi_term::Color::Yellow)),
-        value => Err(ConfigError::Internal {
-          message: format!("Invalid argument `{value}` to --command-color."),
-        }),
-      }
-    } else {
-      Ok(None)
-    }
-  }
-
-  fn dump_format_from_matches(matches: &ArgMatches) -> ConfigResult<DumpFormat> {
-    let value =
-      matches
-        .get_one::<String>(arg::DUMP_FORMAT)
-        .ok_or_else(|| ConfigError::Internal {
-          message: "`--dump-format` had no value".to_string(),
-        })?;
-
-    match value.as_str() {
-      arg::DUMP_FORMAT_JSON => Ok(DumpFormat::Json),
-      arg::DUMP_FORMAT_JUST => Ok(DumpFormat::Just),
-      _ => Err(ConfigError::Internal {
-        message: format!("Invalid argument `{value}` to --dump-format."),
-      }),
-    }
-  }
-
   fn parse_module_path(values: ValuesRef<String>) -> ConfigResult<ModulePath> {
     let path = values.clone().map(|s| (*s).as_str()).collect::<Vec<&str>>();
 
@@ -748,14 +669,20 @@ impl Config {
 
     Ok(Self {
       check: matches.get_flag(arg::CHECK),
-      color: Self::color_from_matches(matches)?,
-      command_color: Self::command_color_from_matches(matches)?,
+      color: (*matches.get_one::<UseColor>(arg::COLOR).unwrap()).into(),
+      command_color: matches
+        .get_one::<CommandColor>(arg::COMMAND_COLOR)
+        .copied()
+        .map(CommandColor::into),
       dotenv_filename: matches
         .get_one::<String>(arg::DOTENV_FILENAME)
         .map(Into::into),
       dotenv_path: matches.get_one::<PathBuf>(arg::DOTENV_PATH).map(Into::into),
       dry_run: matches.get_flag(arg::DRY_RUN),
-      dump_format: Self::dump_format_from_matches(matches)?,
+      dump_format: matches
+        .get_one::<DumpFormat>(arg::DUMP_FORMAT)
+        .unwrap()
+        .clone(),
       highlight: !matches.get_flag(arg::NO_HIGHLIGHT),
       invocation_directory: env::current_dir().context(config_error::CurrentDirContext)?,
       list_heading: matches

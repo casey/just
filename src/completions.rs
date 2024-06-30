@@ -1,4 +1,4 @@
-use {super::*, clap::ValueEnum};
+use super::*;
 
 #[derive(ValueEnum, Debug, Clone, Copy, PartialEq)]
 pub(crate) enum Shell {
