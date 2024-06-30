@@ -673,7 +673,7 @@ impl Config {
       command_color: matches
         .get_one::<CommandColor>(arg::COMMAND_COLOR)
         .copied()
-        .map(|command_color| command_color.into()),
+        .map(CommandColor::into),
       dotenv_filename: matches
         .get_one::<String>(arg::DOTENV_FILENAME)
         .map(Into::into),

@@ -11,16 +11,16 @@ pub(crate) enum CommandColor {
   Yellow,
 }
 
-impl Into<ansi_term::Color> for CommandColor {
-  fn into(self) -> ansi_term::Color {
-    match self {
-      Self::Black => ansi_term::Color::Black,
-      Self::Blue => ansi_term::Color::Blue,
-      Self::Cyan => ansi_term::Color::Cyan,
-      Self::Green => ansi_term::Color::Green,
-      Self::Purple => ansi_term::Color::Purple,
-      Self::Red => ansi_term::Color::Red,
-      Self::Yellow => ansi_term::Color::Yellow,
+impl From<CommandColor> for ansi_term::Color {
+  fn from(command_color: CommandColor) -> Self {
+    match command_color {
+      CommandColor::Black => Self::Black,
+      CommandColor::Blue => Self::Blue,
+      CommandColor::Cyan => Self::Cyan,
+      CommandColor::Green => Self::Green,
+      CommandColor::Purple => Self::Purple,
+      CommandColor::Red => Self::Red,
+      CommandColor::Yellow => Self::Yellow,
     }
   }
 }
