@@ -1,9 +1,7 @@
 use {
   super::*,
   clap::{
-    builder::{
-      styling::AnsiColor, FalseyValueParser, PossibleValuesParser, Styles, TypedValueParser,
-    },
+    builder::{styling::AnsiColor, FalseyValueParser, Styles},
     parser::ValuesRef,
     value_parser, Arg, ArgAction, ArgGroup, ArgMatches, Command,
   },
@@ -110,23 +108,6 @@ mod arg {
   pub(crate) const VERBOSE: &str = "VERBOSE";
   pub(crate) const WORKING_DIRECTORY: &str = "WORKING-DIRECTORY";
   pub(crate) const YES: &str = "YES";
-
-  pub(crate) const COMMAND_COLOR_BLACK: &str = "black";
-  pub(crate) const COMMAND_COLOR_BLUE: &str = "blue";
-  pub(crate) const COMMAND_COLOR_CYAN: &str = "cyan";
-  pub(crate) const COMMAND_COLOR_GREEN: &str = "green";
-  pub(crate) const COMMAND_COLOR_PURPLE: &str = "purple";
-  pub(crate) const COMMAND_COLOR_RED: &str = "red";
-  pub(crate) const COMMAND_COLOR_YELLOW: &str = "yellow";
-  pub(crate) const COMMAND_COLOR_VALUES: &[&str] = &[
-    COMMAND_COLOR_BLACK,
-    COMMAND_COLOR_BLUE,
-    COMMAND_COLOR_CYAN,
-    COMMAND_COLOR_GREEN,
-    COMMAND_COLOR_PURPLE,
-    COMMAND_COLOR_RED,
-    COMMAND_COLOR_YELLOW,
-  ];
 }
 
 impl Config {
@@ -186,22 +167,7 @@ impl Config {
           .long("command-color")
           .env("JUST_COMMAND_COLOR")
           .action(ArgAction::Set)
-          .value_parser(
-            PossibleValuesParser::new(arg::COMMAND_COLOR_VALUES).try_map(|value| {
-              match value.as_str() {
-                arg::COMMAND_COLOR_BLACK => Ok(ansi_term::Color::Black),
-                arg::COMMAND_COLOR_BLUE => Ok(ansi_term::Color::Blue),
-                arg::COMMAND_COLOR_CYAN => Ok(ansi_term::Color::Cyan),
-                arg::COMMAND_COLOR_GREEN => Ok(ansi_term::Color::Green),
-                arg::COMMAND_COLOR_PURPLE => Ok(ansi_term::Color::Purple),
-                arg::COMMAND_COLOR_RED => Ok(ansi_term::Color::Red),
-                arg::COMMAND_COLOR_YELLOW => Ok(ansi_term::Color::Yellow),
-                value => Err(ConfigError::Internal {
-                  message: format!("Invalid argument `{value}` to --command-color."),
-                }),
-              }
-            }),
-          )
+          .value_parser(clap::value_parser!(CommandColor))
           .help("Echo recipe lines in <COMMAND-COLOR>"),
       )
       .arg(
@@ -705,8 +671,9 @@ impl Config {
       check: matches.get_flag(arg::CHECK),
       color: (*matches.get_one::<UseColor>(arg::COLOR).unwrap()).into(),
       command_color: matches
-        .get_one::<ansi_term::Color>(arg::COMMAND_COLOR)
-        .copied(),
+        .get_one::<CommandColor>(arg::COMMAND_COLOR)
+        .copied()
+        .map(|command_color| command_color.into()),
       dotenv_filename: matches
         .get_one::<String>(arg::DOTENV_FILENAME)
         .map(Into::into),
