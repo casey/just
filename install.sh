@@ -15,7 +15,7 @@ help() {
 Install a binary release of a just hosted on GitHub
 
 USAGE:
-    install [options]
+    install.sh [options]
 
 FLAGS:
     -h, --help      Display this message
@@ -97,10 +97,8 @@ command -v curl > /dev/null 2>&1 ||
   command -v wget > /dev/null 2>&1 ||
   err "need wget or curl (command not found)"
 
-need install
 need mkdir
 need mktemp
-need tar
 
 if [ -z "${tag-}" ]; then
   need grep
@@ -131,10 +129,12 @@ if [ -z "${target-}" ]; then
   uname_target="$(uname -m)-$kernel"
 
   case $uname_target in
-    aarch64-Linux)     target=aarch64-unknown-linux-musl;;
-    arm64-Darwin)      target=aarch64-apple-darwin;;
-    x86_64-Darwin)     target=x86_64-apple-darwin;;
-    x86_64-Linux)      target=x86_64-unknown-linux-musl;;
+    aarch64-Linux) target=aarch64-unknown-linux-musl;;
+    arm64-Darwin) target=aarch64-apple-darwin;;
+    armv6l-Linux) target=arm-unknown-linux-musleabihf;;
+    armv7l-Linux) target=armv7-unknown-linux-musleabihf;;
+    x86_64-Darwin) target=x86_64-apple-darwin;;
+    x86_64-Linux) target=x86_64-unknown-linux-musl;;
     x86_64-MINGW64_NT) target=x86_64-pc-windows-msvc;;
     x86_64-Windows_NT) target=x86_64-pc-windows-msvc;;
     *)
@@ -146,7 +146,7 @@ fi
 
 case $target in
   x86_64-pc-windows-msvc) extension=zip; need unzip;;
-  *)                      extension=tar.gz;;
+  *) extension=tar.gz; need tar;;
 esac
 
 archive="$releases/download/$tag/$crate-$tag-$target.$extension"
@@ -171,7 +171,8 @@ if [ -e "$dest/just" ] && [ "$force" = false ]; then
   err "\`$dest/just\` already exists"
 else
   mkdir -p "$dest"
-  install -m 755 "$td/just" "$dest"
+  cp "$td/just" "$dest/just"
+  chmod 755 "$dest/just"
 fi
 
 rm -rf "$td"
