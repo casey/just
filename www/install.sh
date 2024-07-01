@@ -110,7 +110,6 @@ command -v curl > /dev/null 2>&1 ||
 
 need mkdir
 need mktemp
-need tar
 
 if [ -z "${tag-}" ]; then
   need grep
@@ -157,8 +156,8 @@ if [ -z "${target-}" ]; then
 fi
 
 case $target in
-  x86_64-pc-windows-msvc) extension=zip; need unzip;;
-  *)                      extension=tar.gz;;
+  x86_64-pc-windows-msvc) extension=zip;   need unzip;;
+  *)                      extension=tar.gz need tar;;
 esac
 
 archive="$releases/download/$tag/$crate-$tag-$target.$extension"
