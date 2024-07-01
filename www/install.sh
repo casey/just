@@ -62,17 +62,6 @@ download() {
   fi
 }
 
-install_just() {
-  src="$1"
-  dst="$2"
-  if command -v install > /dev/null; then
-    install -m 755 "$src" "$dest"
-  else
-    cp "$src" "$dst"
-    chmod 755 "$dst"
-  fi
-}
-
 force=false
 while test $# -gt 0; do
   case $1 in
@@ -182,7 +171,8 @@ if [ -e "$dest/just" ] && [ "$force" = false ]; then
   err "\`$dest/just\` already exists"
 else
   mkdir -p "$dest"
-  install_just "$td/just" "$dest"
+  cp "$td/just" "$dest"
+  chmod 755 "$dest"
 fi
 
 rm -rf "$td"
