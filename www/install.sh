@@ -62,6 +62,17 @@ download() {
   fi
 }
 
+install_just() {
+  src="$1"
+  dst="$2"
+  if command -v install > /dev/null; then
+    install -m 755 "$src" "$dest"
+  else
+    cp "$src" "$dst"
+    chmod 755 "$dst"
+  fi
+}
+
 force=false
 while test $# -gt 0; do
   case $1 in
@@ -97,7 +108,6 @@ command -v curl > /dev/null 2>&1 ||
   command -v wget > /dev/null 2>&1 ||
   err "need wget or curl (command not found)"
 
-need install
 need mkdir
 need mktemp
 need tar
@@ -171,7 +181,7 @@ if [ -e "$dest/just" ] && [ "$force" = false ]; then
   err "\`$dest/just\` already exists"
 else
   mkdir -p "$dest"
-  install -m 755 "$td/just" "$dest"
+  install_just "$td/just" "$dest"
 fi
 
 rm -rf "$td"
