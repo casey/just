@@ -142,6 +142,8 @@ if [ -z "${target-}" ]; then
 
   case $uname_target in
     aarch64-Linux)     target=aarch64-unknown-linux-musl;;
+    armv7l-Linux)      target=armv7-unknown-linux-musleabihf;;
+    armv6l-Linux)      target=arm-unknown-linux-musleabihf;;
     arm64-Darwin)      target=aarch64-apple-darwin;;
     x86_64-Darwin)     target=x86_64-apple-darwin;;
     x86_64-Linux)      target=x86_64-unknown-linux-musl;;
