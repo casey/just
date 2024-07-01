@@ -145,8 +145,8 @@ if [ -z "${target-}" ]; then
 fi
 
 case $target in
-  x86_64-pc-windows-msvc) extension=zip;   need unzip;;
-  *)                      extension=tar.gz need tar;;
+  x86_64-pc-windows-msvc) extension=zip;    need unzip;;
+  *)                      extension=tar.gz; need tar;;
 esac
 
 archive="$releases/download/$tag/$crate-$tag-$target.$extension"
