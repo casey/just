@@ -171,8 +171,8 @@ if [ -e "$dest/just" ] && [ "$force" = false ]; then
   err "\`$dest/just\` already exists"
 else
   mkdir -p "$dest"
-  cp "$td/just" "$dest"
-  chmod 755 "$dest"
+  cp "$td/just" "$dest/just"
+  chmod 755 "$dest/just"
 fi
 
 rm -rf "$td"
