@@ -15,7 +15,7 @@ help() {
 Install a binary release of a just hosted on GitHub
 
 USAGE:
-    install [options]
+    install.sh [options]
 
 FLAGS:
     -h, --help      Display this message
