@@ -129,12 +129,12 @@ if [ -z "${target-}" ]; then
   uname_target="$(uname -m)-$kernel"
 
   case $uname_target in
-    aarch64-Linux)     target=aarch64-unknown-linux-musl;;
-    armv7l-Linux)      target=armv7-unknown-linux-musleabihf;;
-    armv6l-Linux)      target=arm-unknown-linux-musleabihf;;
-    arm64-Darwin)      target=aarch64-apple-darwin;;
-    x86_64-Darwin)     target=x86_64-apple-darwin;;
-    x86_64-Linux)      target=x86_64-unknown-linux-musl;;
+    aarch64-Linux) target=aarch64-unknown-linux-musl;;
+    arm64-Darwin) target=aarch64-apple-darwin;;
+    armv6l-Linux) target=arm-unknown-linux-musleabihf;;
+    armv7l-Linux) target=armv7-unknown-linux-musleabihf;;
+    x86_64-Darwin) target=x86_64-apple-darwin;;
+    x86_64-Linux) target=x86_64-unknown-linux-musl;;
     x86_64-MINGW64_NT) target=x86_64-pc-windows-msvc;;
     x86_64-Windows_NT) target=x86_64-pc-windows-msvc;;
     *)
@@ -145,8 +145,8 @@ if [ -z "${target-}" ]; then
 fi
 
 case $target in
-  x86_64-pc-windows-msvc) extension=zip;    need unzip;;
-  *)                      extension=tar.gz; need tar;;
+  x86_64-pc-windows-msvc) extension=zip; need unzip;;
+  *) extension=tar.gz; need tar;;
 esac
 
 archive="$releases/download/$tag/$crate-$tag-$target.$extension"
