@@ -1489,7 +1489,7 @@ For example, to run a command relative to the location of the current
 
 ```just
 script:
-  ./{{justfile_directory()}}/scripts/some_script
+  {{justfile_directory()}}/scripts/some_script
 ```
 
 #### Source and Source Directory
