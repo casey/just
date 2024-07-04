@@ -217,6 +217,16 @@ _ruby:
 pwd:
   echo {{invocation_directory()}}
 
+test-bash-completions:
+  rm -rf tmp
+  mkdir -p tmp/bin
+  cargo build
+  cp target/debug/just tmp/bin
+  ./tmp/bin/just --completions bash > tmp/just.bash
+  echo 'mod foo' > tmp/justfile
+  echo 'bar:' > tmp/foo.just
+  cd tmp && PATH="`realpath bin`:$PATH" bash --init-file just.bash
+
 # Local Variables:
 # mode: makefile
 # End:
