@@ -98,10 +98,10 @@ value         : NAME '(' sequence? ')'
               | string
               | '(' expression ')'
 
-string        : STRING
-              | INDENTED_STRING
-              | RAW_STRING
-              | INDENTED_RAW_STRING
+string        : 'x'? STRING
+              | 'x'? INDENTED_STRING
+              | 'x'? RAW_STRING
+              | 'x'? INDENTED_RAW_STRING
 
 sequence      : expression ',' sequence
               | expression ','?
