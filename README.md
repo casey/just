@@ -3822,8 +3822,8 @@ which you can use in addition to the contribution workflow above.
 
 #### Adding a New Attribute
 
-1. Write a new, failing integration test for the new attribute and checks that
-   it behaves as expected, in [tests/attributese.rs](tests/attributes.rs).
+1. Write a new, failing integration test in
+   [tests/attributes.rs](tests/attributes.rs) for the new attribute.
 
 2. Add the new attribute variant to the [`Attribute`](src/attribute.rs) enum, which
    will make the parser recognize it.
