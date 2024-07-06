@@ -3749,32 +3749,28 @@ being tested, and test code in isolation. Integration tests are in the
 invoking `just` on a given `justfile` and set of command-line arguments, and
 checking the output.
 
-You should write whichever type of tests are easiest to write for your feature,
+You should write whichever type of tests are easiest to write for your feature
 while still providing test good coverage.
 
 Unit tests are useful for testing new Rust functions that are used internally,
-and as an aid for development.
-
-A good example are the unit tests which cover the
-[`unindent()` function](src/unindent.rs), used to unindent triple-quoted strings
-and backticks. `unindent()` has a bunch of tricky edge cases, which are easy to
-exercise with unit tests that call `unindent()` directly.
+and as an aid for development. A good example are the unit tests which cover
+the [`unindent()` function](src/unindent.rs), used to unindent triple-quoted
+strings and backticks. `unindent()` has a bunch of tricky edge cases which are
+easy to exercise with unit tests that call `unindent()` directly.
 
 Integration tests are useful for making sure that the final behavior of the
-`just` binary is correct.
+`just` binary is correct. `unindent()` is also covered by integration tests
+which make sure that evaluating a triple-quoted string produces the correct
+unindented value. However, there are not integration tests for all possible
+cases, since these are covered by faster, more concise unit tests that call
+`unindent()` directly.
 
-`unindent()` is also covered by integration tests which make sure that
-evaluating a triple-quoted string produces the correct unindented value.
-However, there are not integration tests for all possible cases, since these
-are covered by faster, more concise unit tests that call `unindent()` directly.
-
-Existing integration are in two forms, those that use the `test!` macro, and
-conventional tests which use the `Test` struct directly. The `test!` macro,
-while often concise, is less flexible and harder to understand, so new tests
-should use the `Test` struct. The `Test` struct is a builder which allows for
-easily invoking `just` with a given `justfile`, arguments, and environment
-variables, and asserting that stdout, stderr, and exit code are particular
-values.
+Existing integration tests are in two forms, those that use the `test!` macro
+and those that use the `Test` struct directly. The `test!` macro, while often
+concise, is less flexible and harder to understand, so new tests should use the
+`Test` struct. The `Test` struct is a builder which allows for easily invoking
+`just` with a given `justfile`, arguments, and environment variables, and
+checking the program's stdout, stderr, and exit code .
 
 ### Contribution Workflow
 
@@ -3784,15 +3780,16 @@ values.
    ask for feedback.
 
    There are lots of good features which can't be merged, either because they
-   wouldn't be backwards compatible, have an implementation which would
+   aren't backwards compatible, have an implementation which would
    overcomplicate the codebase, or go against `just`'s design philosophy.
 
 2. Settle on the design of the feature. If the feature has multiple possible
-   implementations or syntaxes, make sure to nail down details in the issue.
+   implementations or syntaxes, make sure to nail down the details in the
+   issue.
 
 3. Clone `just` and start hacking. The best workflow is to have the code you're
-   working on in an editor side-by-side with a terminal job that re-runs tests
-   whenever a file changes. You can run such a job by installing
+   working on in an editor alongside a job that re-runs tests whenever a file
+   changes. You can run such a job by installing
    [cargo-watch](https://github.com/watchexec/cargo-watch) with `cargo install
    cargo-watch` and running `just watch test`.
 
@@ -3814,6 +3811,9 @@ values.
 8. Incorporate feedback.
 
 9. Enjoy the sweet feeling of your PR getting merged!
+
+Feel free at any time to open a draft PR with your changes for discussion and
+feedback.
 
 ### Hints
 
