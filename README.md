@@ -3828,7 +3828,7 @@ which you can use in addition to the contribution workflow above.
 
 3. Implement the functionality of the new attribute.
 
-4. Make sure your new test passes.
+4. Run `just ci` to make sure that all tests pass.
 
 ### Janus
 
