@@ -3744,7 +3744,7 @@ under this license.
 
 `just` is extensively tested, and all new features must be covered by at least
 one unit or integration test. Unit tests are under [src](src), live alongside
-the code being tested and test code in isolation. Integration tests are in the
+the code being tested, and test code in isolation. Integration tests are in the
 [tests directory](tests) and test the `just` binary from the outside by
 invoking `just` on a given `justfile` and set of command-line arguments, and
 checking the output.
