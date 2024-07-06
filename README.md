@@ -3792,7 +3792,9 @@ values.
 
 3. Clone `just` and start hacking. The best workflow is to have the code you're
    working on in an editor side-by-side with a terminal job that re-runs tests
-   whenever a file changes. You can run just such a job with `just watch test`.
+   whenever a file changes. You can run such a job by installing
+   [cargo-watch](https://github.com/watchexec/cargo-watch) with `cargo install
+   cargo-watch` and running `just watch test`.
 
 4. Add a failing test for your feature. Most of the time this will be an
    integration test which exercises the feature end-to-end. Look for an
