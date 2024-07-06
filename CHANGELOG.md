@@ -1,6 +1,50 @@
 Changelog
 =========
 
+[1.30.0](https://github.com/casey/just/releases/tag/1.30.0) - 2024-07-06
+------------------------------------------------------------------------
+
+### Fixed
+- Allow comments after `mod` statements ([#2201](https://github.com/casey/just/pull/2201) by [casey](https://github.com/casey))
+
+### Changed
+- Allow unstable features with `--summary` ([#2210](https://github.com/casey/just/pull/2210) by [casey](https://github.com/casey))
+- Don't analyze comments when `ignore-comments` is set ([#2180](https://github.com/casey/just/pull/2180) by [casey](https://github.com/casey))
+- List recipes by group in group justfile order with `just --list --unsorted` ([#2164](https://github.com/casey/just/pull/2164) by [casey](https://github.com/casey))
+- List groups in source order with `just --groups --unsorted` ([#2160](https://github.com/casey/just/pull/2160) by [casey](https://github.com/casey))
+
+### Added
+- Avoid `install` and add 32-bit arm targets to `install.sh` ([#2214](https://github.com/casey/just/pull/2214) by [CramBL](https://github.com/CramBL))
+- Give modules doc comments for `--list` ([#2199](https://github.com/casey/just/pull/2199) by [Spatenheinz](https://github.com/Spatenheinz))
+- Add `datetime()` and `datetime_utc()` functions ([#2167](https://github.com/casey/just/pull/2167) by [casey](https://github.com/casey))
+- Allow setting more command-line options with environment variables ([#2161](https://github.com/casey/just/pull/2161) by [casey](https://github.com/casey))
+
+### Library
+- Don't exit process in `run()` on argument parse error ([#2176](https://github.com/casey/just/pull/2176) by [casey](https://github.com/casey))
+- Allow passing command-line arguments into `run()` ([#2173](https://github.com/casey/just/pull/2173) by [casey](https://github.com/casey))
+- Ignore env_logger initialization errors ([#2170](https://github.com/casey/just/pull/2170) by [EnigmaCurry](https://github.com/EnigmaCurry))
+
+### Misc
+- Tweak readme ([#2227](https://github.com/casey/just/pull/2227) by [casey](https://github.com/casey))
+- Add development guide to readme ([#2226](https://github.com/casey/just/pull/2226) by [casey](https://github.com/casey))
+- Add shell-expanded string syntax to grammar ([#2223](https://github.com/casey/just/pull/2223) by [casey](https://github.com/casey))
+- Add recipe for testing bash completion script ([#2221](https://github.com/casey/just/pull/2221) by [casey](https://github.com/casey))
+- Fix use of `justfile_directory()` in readme ([#2219](https://github.com/casey/just/pull/2219) by [casey](https://github.com/casey))
+- Use default values for `--list-heading` and `--list-prefix` ([#2213](https://github.com/casey/just/pull/2213) by [casey](https://github.com/casey))
+- Use `clap::ValueParser` ([#2211](https://github.com/casey/just/pull/2211) by [neunenak](https://github.com/neunenak))
+- Document module doc comments in readme ([#2208](https://github.com/casey/just/pull/2208) by [casey](https://github.com/casey))
+- Use `-and` instead of `&&` in PowerShell completion script ([#2204](https://github.com/casey/just/pull/2204) by [casey](https://github.com/casey))
+- Fix readme formatting ([#2203](https://github.com/casey/just/pull/2203) by [casey](https://github.com/casey))
+- Link to justfiles on GitHub in readme ([#2198](https://github.com/casey/just/pull/2198) by [bukowa](https://github.com/bukowa))
+- Link to modules when first introduced in readme ([#2193](https://github.com/casey/just/pull/2193) by [casey](https://github.com/casey))
+- Update `softprops/action-gh-release` ([#2183](https://github.com/casey/just/pull/2183) by [app/dependabot](https://github.com/app/dependabot))
+- Document remote justfile workaround ([#2175](https://github.com/casey/just/pull/2175) by [casey](https://github.com/casey))
+- Document library interface ([#2174](https://github.com/casey/just/pull/2174) by [casey](https://github.com/casey))
+- Remove dependency on cradle ([#2169](https://github.com/casey/just/pull/2169) by [nc7s](https://github.com/nc7s))
+- Add note to readme about quoting paths on Windows ([#2166](https://github.com/casey/just/pull/2166) by [casey](https://github.com/casey))
+- Add missing changelog credits ([#2163](https://github.com/casey/just/pull/2163) by [casey](https://github.com/casey))
+- Credit myself in changelog ([#2162](https://github.com/casey/just/pull/2162) by [casey](https://github.com/casey))
+
 [1.29.1](https://github.com/casey/just/releases/tag/1.29.1) - 2024-06-14
 ------------------------------------------------------------------------
 

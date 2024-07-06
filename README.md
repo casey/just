@@ -1645,8 +1645,8 @@ which will halt execution.
 
 #### Datetime
 
-- `datetime(format)`<sup>master</sup> - Return local time with `format`.
-- `datetime_utc(format)`<sup>master</sup> - Return UTC time with `format`.
+- `datetime(format)`<sup>1.30.0</sup> - Return local time with `format`.
+- `datetime_utc(format)`<sup>1.30.0</sup> - Return UTC time with `format`.
 
 The arguments to `datetime` and `datetime_utc` are `strftime`-style format
 strings, see the
@@ -3229,7 +3229,7 @@ mod? foo 'baz.just'
 ```
 
 Modules may be given doc comments which appear in `--list`
-output<sup>master</sup>:
+output<sup>1.30.0</sup>:
 
 ```mf
 # foo is a great module!
