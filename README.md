@@ -3779,8 +3779,9 @@ values.
 ### Contribution Workflow
 
 1. Make sure the feature is wanted. There should be an open issue about the
-   feature with a comment from [@casey](@casey) saying that it's a good idea or
-   seems reasonable. If there isn't, open a new issue and ask for feedback.
+   feature with a comment from [@casey](https://github.com/casey) saying that
+   it's a good idea or seems reasonable. If there isn't, open a new issue and
+   ask for feedback.
 
    There are lots of good features which can't be merged, either because they
    wouldn't be backwards compatible, have an implementation which would
