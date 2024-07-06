@@ -3737,6 +3737,98 @@ permissive
 domain dedication and fallback license, so your changes must also be released
 under this license.
 
+### Getting Started
+
+`just` is written in Rust. Use
+[rustup](https://www.rust-lang.org/tools/install) to install a Rust toolchain.
+
+`just` is extensively tested, and all new features must be covered by at least
+one unit or integration test. Unit tests are under [src](src), live alongside
+the code being tested, and test code in isolation. Integration tests are in the
+[tests directory](tests), and test the `just` binary from the outside by
+invoking `just` on a given `justfile` and set of command-line arguments, and
+checking the output.
+
+You should write whichever type of tests are easiest to write for your feature,
+while still providing test good coverage.
+
+Unit tests are useful for testing new Rust functions that are used internally,
+and as an aid for development.
+
+A good example are the unit tests which cover the
+[`unindent()` function](src/unindent.rs), used to unindent triple-quoted strings
+and backticks. `unindent()` has a bunch of tricky edge cases, which are easy to
+exercise with unit tests that call `unindent()` directly.
+
+Integration tests are useful for making sure that the final behavior of the
+`just` binary is correct.
+
+`unindent()` is also covered by integration tests which make sure that
+evaluating a triple-quoted string produces the correct unindented value.
+However, there are not integration tests for all possible cases, since these
+are covered by faster, more concise unit tests that call `unindent()` directly.
+
+Existing integration are in two forms, those that use the `test!` macro, and
+conventional tests which use the `Test` struct directly. The `test!` macro,
+while often concise, is less flexible and harder to understand, so new tests
+should use the `Test` struct. The `Test` struct is a builder which allows for
+easily invoking `just` with a given `justfile`, arguments, and environment
+variables, and asserting that stdout, stderr, and exit code are particular
+values.
+
+### Contribution Workflow
+
+1. Make sure the feature is wanted. There should be an open issue about the
+   feature with a comment from [@casey](@casey) saying that it's a good idea or
+   seems reasonable. If there isn't, open a new issue and ask for feedback.
+
+   There are lots of good features which can't be merged, either because they
+   wouldn't be backwards compatible, have an implementation which would
+   overcomplicate the codebase, or go against `just`'s design philosophy.
+
+2. Settle on the design of the feature. If the feature has multiple possible
+   implementations or syntaxes, make sure to nail down details in the issue.
+
+3. Clone `just` and start hacking. The best workflow is to have the code you're
+   working on in an editor side-by-side with a terminal job that re-runs tests
+   whenever a file changes. You can run just such a job with `just watch test`.
+
+4. Add a failing test for your feature. Most of the time this will be an
+   integration test which exercises the feature end-to-end. Look for an
+   appropriate file to put the test in in [tests](tests), or add a new file in
+   [tests](tests) and add a `mod` statement importing that file in
+   [tests/lib.rs](tests/lib.rs).
+
+5. Implement the feature.
+
+6. Run `just ci` to make sure that all tests, lints, and checks pass.
+
+7. Open a PR with the new code that is editable by maintainers. PRs often
+   require rebasing and minor tweaks. If the PR is not editable by maintainers,
+   each rebase and tweak will require a round trip of code review. Your PR may
+   be summarily closed if it is not editable by maintainers.
+
+8. Incorporate feedback.
+
+9. Enjoy the sweet feeling of your PR getting merged!
+
+### Hints
+
+Here are some hints to get you started with specific kinds of new features,
+which you can use in addition to the contribution workflow above.
+
+#### Adding a New Attribute
+
+1. Write a new, failing integration test for the new attribute and checks that
+   it behaves as expected, in [tests/attributese.rs](tests/attributes.rs).
+
+2. Add the new attribute variant to the [`Attribute`](src/attribute.rs) enum, which
+   will make the parser recognize it.
+
+3. Implement the functionality of the new attribute.
+
+4. Make sure your new test passes.
+
 ### Janus
 
 [Janus](https://github.com/casey/janus) is a tool for checking whether a change
