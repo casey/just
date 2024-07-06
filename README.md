@@ -3751,9 +3751,9 @@ binary from the outside by invoking `just` on a given `justfile` and set of
 command-line arguments, and checking the output.
 
 You should write whichever type of tests are easiest to write for your feature
-while still providing test good coverage.
+while still providing good test coverage.
 
-Unit tests are useful for testing new Rust functions that are used internally,
+Unit tests are useful for testing new Rust functions that are used internally
 and as an aid for development. A good example are the unit tests which cover
 the
 [`unindent()` function](https://github.com/casey/just/blob/master/src/unindent.rs),
@@ -3765,7 +3765,7 @@ Integration tests are useful for making sure that the final behavior of the
 `just` binary is correct. `unindent()` is also covered by integration tests
 which make sure that evaluating a triple-quoted string produces the correct
 unindented value. However, there are not integration tests for all possible
-cases, since these are covered by faster, more concise unit tests that call
+cases. These are covered by faster, more concise unit tests that call
 `unindent()` directly.
 
 Existing integration tests are in two forms, those that use the `test!` macro
@@ -3817,8 +3817,7 @@ checking the program's stdout, stderr, and exit code .
 
 9. Enjoy the sweet feeling of your PR getting merged!
 
-Feel free at any time to open a draft PR with your changes for discussion and
-feedback.
+Feel free to open a draft PR at any time for discussion and feedback.
 
 ### Hints
 
