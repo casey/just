@@ -108,15 +108,15 @@ pub(crate) fn get(name: &str) -> Option<Function> {
 }
 
 impl Function {
-  pub(crate) fn argc(&self) -> Range<usize> {
+  pub(crate) fn argc(&self) -> RangeInclusive<usize> {
     match *self {
-      Nullary(_) => 0..1,
-      Unary(_) => 1..2,
-      UnaryOpt(_) => 1..3,
-      UnaryPlus(_) => 1..usize::MAX,
-      Binary(_) => 2..3,
-      BinaryPlus(_) => 2..usize::MAX,
-      Ternary(_) => 3..4,
+      Nullary(_) => 0..=0,
+      Unary(_) => 1..=1,
+      UnaryOpt(_) => 1..=2,
+      UnaryPlus(_) => 1..=usize::MAX,
+      Binary(_) => 2..=2,
+      BinaryPlus(_) => 2..=usize::MAX,
+      Ternary(_) => 3..=3,
     }
   }
 }

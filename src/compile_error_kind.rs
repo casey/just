@@ -66,7 +66,7 @@ pub(crate) enum CompileErrorKind<'src> {
   FunctionArgumentCountMismatch {
     function: &'src str,
     found: usize,
-    expected: Range<usize>,
+    expected: RangeInclusive<usize>,
   },
   Include,
   InconsistentLeadingWhitespace {

@@ -2568,7 +2568,7 @@ mod tests {
     kind: FunctionArgumentCountMismatch {
       function: "arch",
       found: 1,
-      expected: 0..1,
+      expected: 0..=0,
     },
   }
 
@@ -2582,7 +2582,7 @@ mod tests {
     kind: FunctionArgumentCountMismatch {
       function: "env_var",
       found: 0,
-      expected: 1..2,
+      expected: 1..=1,
     },
   }
 
@@ -2596,7 +2596,7 @@ mod tests {
     kind: FunctionArgumentCountMismatch {
       function: "env",
       found: 3,
-      expected: 1..3,
+      expected: 1..=2,
     },
   }
 
@@ -2610,7 +2610,7 @@ mod tests {
     kind: FunctionArgumentCountMismatch {
       function: "env",
       found: 0,
-      expected: 1..3,
+      expected: 1..=2,
     },
   }
 
@@ -2624,7 +2624,7 @@ mod tests {
     kind: FunctionArgumentCountMismatch {
       function: "env_var_or_default",
       found: 1,
-      expected: 2..3,
+      expected: 2..=2,
     },
   }
 
@@ -2638,7 +2638,7 @@ mod tests {
     kind: FunctionArgumentCountMismatch {
       function: "join",
       found: 1,
-      expected: 2..usize::MAX,
+      expected: 2..=usize::MAX,
     },
   }
 
@@ -2652,7 +2652,7 @@ mod tests {
     kind: FunctionArgumentCountMismatch {
       function: "replace",
       found: 1,
-      expected: 3..4,
+      expected: 3..=3,
     },
   }
 }
