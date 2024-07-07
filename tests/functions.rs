@@ -1050,3 +1050,21 @@ fn is_dependency() {
     .stdout("beta false\ngamma true\n")
     .run();
 }
+
+#[test]
+fn unary_argument_count_mismatfch_error_message() {
+  Test::new()
+    .justfile("x := datetime()")
+    .args(["--evaluate"])
+    .stderr(
+      "
+      error: Function `datetime` called with 0 arguments but takes 1
+       ——▶ justfile:1:6
+        │
+      1 │ x := datetime()
+        │      ^^^^^^^^
+      ",
+    )
+    .status(EXIT_FAILURE)
+    .run();
+}
