@@ -32,7 +32,15 @@ impl<'src: 'run, 'run> Context<'src, 'run> {
 }
 
 pub(crate) fn get(name: &str) -> Option<Function> {
-  let function = match name {
+  let name = if let Some(prefix) = name.strip_suffix("_dir") {
+    format!("{prefix}_directory")
+  } else if let Some(prefix) = name.strip_suffix("_dir_native") {
+    format!("{prefix}_directory_native")
+  } else {
+    name.into()
+  };
+
+  let function = match name.as_str() {
     "absolute_path" => Unary(absolute_path),
     "append" => Binary(append),
     "arch" => Nullary(arch),

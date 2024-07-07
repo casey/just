@@ -1068,3 +1068,33 @@ fn unary_argument_count_mismamatch_error_message() {
     .status(EXIT_FAILURE)
     .run();
 }
+
+#[test]
+fn dir_abbreviations_are_accepted() {
+  Test::new()
+    .justfile(
+      "
+      abbreviated := justfile_dir()
+      unabbreviated := justfile_directory()
+
+      @foo:
+        # {{ assert(abbreviated == unabbreviated, 'fail') }}
+    ",
+    )
+    .run();
+}
+
+#[test]
+fn invocation_dir_native_abbreviation_is_accepted() {
+  Test::new()
+    .justfile(
+      "
+      abbreviated := invocation_directory_native()
+      unabbreviated := invocation_dir_native()
+
+      @foo:
+        # {{ assert(abbreviated == unabbreviated, 'fail') }}
+    ",
+    )
+    .run();
+}
