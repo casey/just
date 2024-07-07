@@ -10,16 +10,14 @@ pub(crate) trait RangeExt<T> {
 
 pub(crate) struct DisplayRange<T>(T);
 
-impl Display for DisplayRange<&Range<usize>> {
+impl Display for DisplayRange<&RangeInclusive<usize>> {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-    if self.0.start == self.0.end {
-      write!(f, "0")?;
-    } else if self.0.start == self.0.end - 1 {
-      write!(f, "{}", self.0.start)?;
-    } else if self.0.end == usize::MAX {
-      write!(f, "{} or more", self.0.start)?;
+    if self.0.start() == self.0.end() {
+      write!(f, "{}", self.0.start())?;
+    } else if *self.0.end() == usize::MAX {
+      write!(f, "{} or more", self.0.start())?;
     } else {
-      write!(f, "{} to {}", self.0.start, self.0.end - 1)?;
+      write!(f, "{} to {}", self.0.start(), self.0.end())?;
     }
     Ok(())
   }
@@ -76,10 +74,10 @@ mod tests {
     assert!(!(1..1).contains(&1));
     assert!((1..1).is_empty());
     assert!((5..5).is_empty());
-    assert_eq!((1..1).display().to_string(), "0");
-    assert_eq!((1..2).display().to_string(), "1");
-    assert_eq!((5..6).display().to_string(), "5");
-    assert_eq!((5..10).display().to_string(), "5 to 9");
-    assert_eq!((1..usize::MAX).display().to_string(), "1 or more");
+    assert_eq!((0..=0).display().to_string(), "0");
+    assert_eq!((1..=1).display().to_string(), "1");
+    assert_eq!((5..=5).display().to_string(), "5");
+    assert_eq!((5..=9).display().to_string(), "5 to 9");
+    assert_eq!((1..=usize::MAX).display().to_string(), "1 or more");
   }
 }
