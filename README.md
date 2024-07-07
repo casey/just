@@ -224,7 +224,7 @@ most Windows users.)
       <td><a href=https://nixos.org/nixos/>NixOS</a></td>
       <td><a href=https://nixos.org/nix/>Nix</a></td>
       <td><a href=https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/tools/just/default.nix>just</a></td>
-      <td><code>nix-env -iA nixos.just</code></td>
+      <td><code>nix-shell -p just</code></td>
     </tr>
     <tr>
       <td><a href=https://opensuse.org>openSUSE</a></td>
