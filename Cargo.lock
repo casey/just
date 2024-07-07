@@ -591,7 +591,7 @@ dependencies = [
 
 [[package]]
 name = "just"
-version = "1.30.0"
+version = "1.30.1"
 dependencies = [
  "ansi_term",
  "blake3",

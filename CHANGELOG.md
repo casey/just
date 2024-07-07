@@ -1,6 +1,12 @@
 Changelog
 =========
 
+[1.30.1](https://github.com/casey/just/releases/tag/1.30.1) - 2024-07-06
+------------------------------------------------------------------------
+
+### Fixed
+- Fix function argument count mismatch error message ([#2231](https://github.com/casey/just/pull/2231) by [casey](https://github.com/casey))
+
 [1.30.0](https://github.com/casey/just/releases/tag/1.30.0) - 2024-07-06
 ------------------------------------------------------------------------
 
