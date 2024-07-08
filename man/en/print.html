@@ -509,11 +509,11 @@ break <code>justfiles</code> that rely on their behavior.</p>
 <p>There will never be a <code>just</code> 2.0. Any desirable backwards-incompatible changes
 will be opt-in on a per-<code>justfile</code> basis, so users may migrate at their
 leisure.</p>
-<p>Features that aren’t yet ready for stabilization are gated behind the
-<code>--unstable</code> flag. Features enabled by <code>--unstable</code> may change in backwards
-incompatible ways at any time. Unstable features can also be enabled by setting
-the environment variable <code>JUST_UNSTABLE</code> to any value other than <code>false</code>, <code>0</code>,
-or the empty string.</p>
+<p>Features that aren’t yet ready for stabilization are marked as unstable and may
+be changed or removed at any time. Using unstable features produces an error by
+default, which can be suppressed with by passing the <code>--unstable</code> flag,
+<code>set unstable</code>, or setting the environment variable <code>JUST_UNSTABLE</code>, to any
+value other than <code>false</code>, <code>0</code>, or the empty string.</p>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="editor-support"><a class="header" href="#editor-support">Editor Support</a></h2>
 <p><code>justfile</code> syntax is close enough to <code>make</code> that you may want to tell your
 editor to use <code>make</code> syntax highlighting for <code>just</code>.</p>
@@ -812,6 +812,7 @@ foo:
 <tr><td><code>positional-arguments</code></td><td>boolean</td><td><code>false</code></td><td>Pass positional arguments.</td></tr>
 <tr><td><code>shell</code></td><td><code>[COMMAND, ARGS…]</code></td><td>-</td><td>Set the command used to invoke recipes and evaluate backticks.</td></tr>
 <tr><td><code>tempdir</code></td><td>string</td><td>-</td><td>Create temporary directories in <code>tempdir</code> instead of the system default temporary directory.</td></tr>
+<tr><td><code>unstable</code><sup>master</sup></td><td>boolean</td><td><code>false</code></td><td>Enable unstable features.</td></tr>
 <tr><td><code>windows-powershell</code></td><td>boolean</td><td><code>false</code></td><td>Use PowerShell on Windows as default shell. (Deprecated. Use <code>windows-shell</code> instead.</td></tr>
 <tr><td><code>windows-shell</code></td><td><code>[COMMAND, ARGS…]</code></td><td>-</td><td>Set the command used to invoke recipes and evaluate backticks.</td></tr>
 </tbody></table>
@@ -2534,8 +2535,8 @@ set, variables in parent modules override variables in imports.</p>
 <p>Missing source files for optional imports do not produce an error.</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="modules1190"><a class="header" href="#modules1190">Modules<sup>1.19.0</sup></a></h3>
 <p>A <code>justfile</code> can declare modules using <code>mod</code> statements. <code>mod</code> statements are
-currently unstable, so you’ll need to use the <code>--unstable</code> flag, or set the
-<code>JUST_UNSTABLE</code> environment variable to use them.</p>
+currently unstable, so you’ll need to use the <code>--unstable</code> flag,
+<code>set unstable</code>, or set the <code>JUST_UNSTABLE</code> environment variable to use them.</p>
 <p>If you have the following <code>justfile</code>:</p>
 <pre><code class="language-mf">mod bar
 
