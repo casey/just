@@ -444,7 +444,8 @@ fn modules_require_unambiguous_file() {
         │
       1 │ mod foo
         │     ^^^
-      ",
+      "
+      .replace('/', MAIN_SEPARATOR_STR),
     )
     .run();
 }
