@@ -5,6 +5,8 @@ pub(crate) enum Unstable {
 
 impl Unstable {
   pub(crate) fn message(self) -> String {
-    "Modules are currently unstable.".into()
+    match self {
+      Self::Modules => "Modules are currently unstable.".into(),
+    }
   }
 }
