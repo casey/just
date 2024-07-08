@@ -460,7 +460,7 @@ impl<'src> ColorDisplay for Error<'src> {
         }
       }
       Unstable { message } => {
-        write!(f, "{message} Invoke `just` with the `--unstable` flag to enable unstable features.")?;
+        write!(f, "{message} Invoke `just` with `--unstable`, set the `JUST_UNSTABLE` environment variable, or add `set unstable` to your `justfile` to enable unstable features.")?;
       }
       WriteJustfile { justfile, io_error } => {
         let justfile = justfile.display();

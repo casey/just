@@ -9,10 +9,7 @@ fn modules_are_unstable() {
       ",
     )
     .write("foo.just", "")
-    .stderr(
-      "error: Modules are currently unstable. \
-      Invoke `just` with the `--unstable` flag to enable unstable features.\n",
-    )
+    .stderr_regex("error: Modules are currently unstable..*")
     .status(EXIT_FAILURE)
     .run();
 }

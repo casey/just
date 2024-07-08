@@ -26,12 +26,12 @@ default:
   "#;
   for val in ["0", "", "false"] {
     Test::new()
-    .justfile(justfile)
-    .args(["--fmt"])
-    .env("JUST_UNSTABLE", val)
-    .status(EXIT_FAILURE)
-    .stderr("error: The `--fmt` command is currently unstable. Invoke `just` with the `--unstable` flag to enable unstable features.\n")
-    .run();
+      .justfile(justfile)
+      .args(["--fmt"])
+      .env("JUST_UNSTABLE", val)
+      .status(EXIT_FAILURE)
+      .stderr_regex("error: The `--fmt` command is currently unstable.*")
+      .run();
   }
 }
 
@@ -45,7 +45,7 @@ default:
     .justfile(justfile)
     .args(["--fmt"])
     .status(EXIT_FAILURE)
-    .stderr("error: The `--fmt` command is currently unstable. Invoke `just` with the `--unstable` flag to enable unstable features.\n")
+    .stderr_regex("error: The `--fmt` command is currently unstable.*")
     .run();
 }
 
@@ -78,10 +78,7 @@ fn unstable_setting_does_not_affect_submodules() {
     .write("foo.just", "mod bar")
     .write("bar.just", "baz:\n echo hello")
     .args(["foo", "bar"])
-    .stderr(
-      "error: Modules are currently unstable. \
-      Invoke `just` with the `--unstable` flag to enable unstable features.\n",
-    )
+    .stderr_regex("error: Modules are currently unstable.*")
     .status(EXIT_FAILURE)
     .run();
 }
