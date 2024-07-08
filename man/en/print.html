@@ -2566,7 +2566,10 @@ the module file may have any capitalization.</p>
 </code></pre>
 <p>Which loads the module’s source file from <code>PATH</code>, instead of from the usual
 locations. A leading <code>~/</code> in <code>PATH</code> is replaced with the current user’s home
-directory.</p>
+directory. <code>PATH</code> may point to the module source file itself, or to a directory
+containing the module source file with the name <code>mod.just</code>, <code>justfile</code>, or
+<code>.justfile</code>. In the latter two cases, the module file may have any
+capitalization.</p>
 <p>Environment files are only loaded for the root justfile, and loaded environment
 variables are available in submodules. Settings in submodules that affect
 environment file loading are ignored.</p>
