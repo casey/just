@@ -439,7 +439,7 @@ fn modules_require_unambiguous_file() {
     .status(EXIT_FAILURE)
     .stderr(
       "
-      error: Found multiple source files for module `foo`: `foo.just` and `foo/justfile`
+      error: Found multiple source files for module `foo`: `foo/justfile` and `foo.just`
        ——▶ justfile:1:5
         │
       1 │ mod foo
