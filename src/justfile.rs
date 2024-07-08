@@ -27,6 +27,8 @@ pub(crate) struct Justfile<'src> {
   pub(crate) source: PathBuf,
   pub(crate) unexports: HashSet<String>,
   pub(crate) warnings: Vec<Warning>,
+  #[serde(skip)]
+  pub(crate) unstable: BTreeSet<Unstable>,
 }
 
 impl<'src> Justfile<'src> {
@@ -220,6 +222,22 @@ impl<'src> Justfile<'src> {
         invocation.recipe,
         false,
       )?;
+    }
+
+    Ok(())
+  }
+
+  pub(crate) fn check_unstable(&self, config: &Config) -> RunResult<'src> {
+    if !config.unstable && !self.settings.unstable {
+      if let Some(unstable) = self.unstable.iter().next() {
+        return Err(Error::Unstable {
+          message: unstable.message(),
+        });
+      }
+    }
+
+    for module in self.modules.values() {
+      module.check_unstable(config)?;
     }
 
     Ok(())

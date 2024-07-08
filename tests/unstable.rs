@@ -48,3 +48,40 @@ default:
     .stderr("error: The `--fmt` command is currently unstable. Invoke `just` with the `--unstable` flag to enable unstable features.\n")
     .run();
 }
+
+#[test]
+fn set_unstable_with_setting() {
+  Test::new()
+    .justfile(
+      "
+        set unstable
+
+        mod foo
+      ",
+    )
+    .write("foo.just", "@bar:\n echo BAR")
+    .args(["foo", "bar"])
+    .stdout("BAR\n")
+    .run();
+}
+
+#[test]
+fn unstable_setting_does_not_affect_submodules() {
+  Test::new()
+    .justfile(
+      "
+        set unstable
+
+        mod foo
+      ",
+    )
+    .write("foo.just", "mod bar")
+    .write("bar.just", "baz:\n echo hello")
+    .args(["foo", "bar"])
+    .stderr(
+      "error: Modules are currently unstable. \
+      Invoke `just` with the `--unstable` flag to enable unstable features.\n",
+    )
+    .status(EXIT_FAILURE)
+    .run();
+}

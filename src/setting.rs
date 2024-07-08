@@ -15,6 +15,7 @@ pub(crate) enum Setting<'src> {
   Quiet(bool),
   Shell(Shell<'src>),
   Tempdir(String),
+  Unstable(bool),
   WindowsPowerShell(bool),
   WindowsShell(Shell<'src>),
 }
@@ -31,6 +32,7 @@ impl<'src> Display for Setting<'src> {
       | Self::IgnoreComments(value)
       | Self::PositionalArguments(value)
       | Self::Quiet(value)
+      | Self::Unstable(value)
       | Self::WindowsPowerShell(value) => write!(f, "{value}"),
       Self::Shell(shell) | Self::WindowsShell(shell) => write!(f, "{shell}"),
       Self::DotenvFilename(value) | Self::DotenvPath(value) | Self::Tempdir(value) => {

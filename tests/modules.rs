@@ -8,6 +8,7 @@ fn modules_are_unstable() {
         mod foo
       ",
     )
+    .write("foo.just", "")
     .stderr(
       "error: Modules are currently unstable. \
       Invoke `just` with the `--unstable` flag to enable unstable features.\n",

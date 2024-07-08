@@ -4,14 +4,13 @@ pub(crate) struct Compiler;
 
 impl Compiler {
   pub(crate) fn compile<'src>(
-    unstable: bool,
     loader: &'src Loader,
     root: &Path,
   ) -> RunResult<'src, Compilation<'src>> {
     let mut asts = HashMap::<PathBuf, Ast>::new();
+    let mut loaded = Vec::new();
     let mut paths = HashMap::<PathBuf, PathBuf>::new();
     let mut srcs = HashMap::<PathBuf, &str>::new();
-    let mut loaded = Vec::new();
 
     let mut stack = Vec::new();
     stack.push(Source::root(root));
@@ -42,12 +41,6 @@ impl Compiler {
             relative,
             ..
           } => {
-            if !unstable {
-              return Err(Error::Unstable {
-                message: "Modules are currently unstable.".into(),
-              });
-            }
-
             let parent = current.path.parent().unwrap();
 
             let import = if let Some(relative) = relative {
@@ -112,9 +105,9 @@ impl Compiler {
 
     Ok(Compilation {
       asts,
-      srcs,
       justfile,
       root: root.into(),
+      srcs,
     })
   }
 
@@ -225,7 +218,7 @@ recipe_b: recipe_c
     let loader = Loader::new();
 
     let justfile_a_path = tmp.path().join("justfile");
-    let compilation = Compiler::compile(false, &loader, &justfile_a_path).unwrap();
+    let compilation = Compiler::compile(&loader, &justfile_a_path).unwrap();
 
     assert_eq!(compilation.root_src(), justfile_a);
   }
@@ -242,7 +235,7 @@ recipe_b: recipe_c
     let loader = Loader::new();
 
     let justfile_a_path = tmp.path().join("justfile");
-    let loader_output = Compiler::compile(false, &loader, &justfile_a_path).unwrap_err();
+    let loader_output = Compiler::compile(&loader, &justfile_a_path).unwrap_err();
 
     assert_matches!(loader_output, Error::CircularImport { current, import }
       if current == tmp.path().join("subdir").join("b").lexiclean() &&

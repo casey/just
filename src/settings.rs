@@ -20,6 +20,7 @@ pub(crate) struct Settings<'src> {
   pub(crate) quiet: bool,
   pub(crate) shell: Option<Shell<'src>>,
   pub(crate) tempdir: Option<String>,
+  pub(crate) unstable: bool,
   pub(crate) windows_powershell: bool,
   pub(crate) windows_shell: Option<Shell<'src>>,
 }
@@ -65,6 +66,9 @@ impl<'src> Settings<'src> {
         }
         Setting::Shell(shell) => {
           settings.shell = Some(shell);
+        }
+        Setting::Unstable(unstable) => {
+          settings.unstable = unstable;
         }
         Setting::WindowsPowerShell(windows_powershell) => {
           settings.windows_powershell = windows_powershell;

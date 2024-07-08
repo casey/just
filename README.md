@@ -379,11 +379,11 @@ There will never be a `just` 2.0. Any desirable backwards-incompatible changes
 will be opt-in on a per-`justfile` basis, so users may migrate at their
 leisure.
 
-Features that aren't yet ready for stabilization are gated behind the
-`--unstable` flag. Features enabled by `--unstable` may change in backwards
-incompatible ways at any time. Unstable features can also be enabled by setting
-the environment variable `JUST_UNSTABLE` to any value other than `false`, `0`,
-or the empty string.
+Features that aren't yet ready for stabilization are marked as unstable and may
+change or be removed at any time. Using unstable features produces an error by
+default, which can be suppressed with by passing the `--unstable` flag,
+`set unstable`, or setting the environment variable `JUST_UNSTABLE`, to any
+value other than `false`, `0`, or the empty string.
 
 Editor Support
 --------------
@@ -820,6 +820,7 @@ foo:
 | `positional-arguments` | boolean | `false` | Pass positional arguments. |
 | `shell` | `[COMMAND, ARGS…]` | - | Set the command used to invoke recipes and evaluate backticks. |
 | `tempdir` | string | - | Create temporary directories in `tempdir` instead of the system default temporary directory. |
+| `unstable`<sup>master</sup> | boolean | `false` | Enable unstable features. |
 | `windows-powershell` | boolean | `false` | Use PowerShell on Windows as default shell. (Deprecated. Use `windows-shell` instead. |
 | `windows-shell` | `[COMMAND, ARGS…]` | - | Set the command used to invoke recipes and evaluate backticks. |
 
@@ -3154,8 +3155,8 @@ Missing source files for optional imports do not produce an error.
 ### Modules<sup>1.19.0</sup>
 
 A `justfile` can declare modules using `mod` statements. `mod` statements are
-currently unstable, so you'll need to use the `--unstable` flag, or set the
-`JUST_UNSTABLE` environment variable to use them.
+currently unstable, so you'll need to use the `--unstable` flag,
+`set unstable`, or set the `JUST_UNSTABLE` environment variable to use them.
 
 If you have the following `justfile`:
 
