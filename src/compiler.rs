@@ -137,13 +137,11 @@ impl Compiler {
     let mut grouped = BTreeMap::<PathBuf, Vec<(PathBuf, bool)>>::new();
 
     for (candidate, case_sensitive) in candidates {
-      let full = parent.join(candidate).lexiclean();
-      let dir = full.parent().unwrap();
-
+      let candidate = parent.join(candidate).lexiclean();
       grouped
-        .entry(dir.into())
+        .entry(candidate.parent().unwrap().into())
         .or_default()
-        .push((full, case_sensitive));
+        .push((candidate, case_sensitive));
     }
 
     let mut found = Vec::new();
@@ -190,16 +188,16 @@ impl Compiler {
       }
     }
 
-    match found.as_slice() {
-      [] => Ok(None),
-      [file] => Ok(Some(file.into())),
-      found => Err(Error::AmbiguousModuleFile {
+    if found.len() > 1 {
+      Err(Error::AmbiguousModuleFile {
         found: found
-          .iter()
-          .map(|found| found.strip_prefix(parent).unwrap().to_owned())
+          .into_iter()
+          .map(|found| found.strip_prefix(parent).unwrap().into())
           .collect(),
         module,
-      }),
+      })
+    } else {
+      Ok(found.into_iter().next())
     }
   }
 
