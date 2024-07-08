@@ -565,6 +565,23 @@ fn modules_may_specify_path() {
 }
 
 #[test]
+fn modules_may_specify_path_to_directory() {
+  Test::new()
+    .write("commands/bar/mod.just", "foo:\n @echo FOO")
+    .justfile(
+      "
+        mod foo 'commands/bar'
+      ",
+    )
+    .test_round_trip(false)
+    .arg("--unstable")
+    .arg("foo")
+    .arg("foo")
+    .stdout("FOO\n")
+    .run();
+}
+
+#[test]
 fn modules_with_paths_are_dumped_correctly() {
   Test::new()
     .write("commands/foo.just", "foo:\n @echo FOO")

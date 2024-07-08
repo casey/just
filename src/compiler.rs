@@ -43,17 +43,12 @@ impl Compiler {
           } => {
             let parent = current.path.parent().unwrap();
 
-            let import = if let Some(relative) = relative {
-              let path = parent.join(Self::expand_tilde(&relative.cooked)?);
+            let relative = relative
+              .as_ref()
+              .map(|relative| Self::expand_tilde(&relative.cooked))
+              .transpose()?;
 
-              if path.is_file() {
-                Some(path)
-              } else {
-                None
-              }
-            } else {
-              Self::find_module_file(parent, *name)?
-            };
+            let import = Self::find_module_file(parent, *name, relative.as_deref())?;
 
             if let Some(import) = import {
               if current.file_path.contains(&import) {
@@ -111,19 +106,65 @@ impl Compiler {
     })
   }
 
-  fn find_module_file<'src>(parent: &Path, module: Name<'src>) -> RunResult<'src, Option<PathBuf>> {
-    let mut candidates = vec![format!("{module}.just"), format!("{module}/mod.just")]
-      .into_iter()
-      .filter(|path| parent.join(path).is_file())
-      .collect::<Vec<String>>();
+  fn find_module_file<'src>(
+    parent: &Path,
+    module: Name<'src>,
+    path: Option<&Path>,
+  ) -> RunResult<'src, Option<PathBuf>> {
+    let mut candidates = Vec::new();
 
-    let directory = parent.join(module.lexeme());
+    if let Some(path) = path {
+      let full = parent.join(path);
 
-    if directory.exists() {
-      let entries = fs::read_dir(&directory).map_err(|io_error| SearchError::Io {
-        io_error,
-        directory: directory.clone(),
-      })?;
+      if full.is_file() {
+        return Ok(Some(full));
+      }
+
+      candidates.push((path.join("mod.just"), true));
+
+      for name in search::JUSTFILE_NAMES {
+        candidates.push((path.join(name), false));
+      }
+    } else {
+      candidates.push((format!("{module}.just").into(), true));
+      candidates.push((format!("{module}/mod.just").into(), true));
+
+      for name in search::JUSTFILE_NAMES {
+        candidates.push((format!("{module}/{name}").into(), false));
+      }
+    }
+
+    let mut grouped = BTreeMap::<PathBuf, Vec<(PathBuf, bool)>>::new();
+
+    for (candidate, case_sensitive) in candidates {
+      let full = parent.join(candidate).lexiclean();
+      let dir = full.parent().unwrap();
+
+      grouped
+        .entry(dir.into())
+        .or_default()
+        .push((full, case_sensitive));
+    }
+
+    let mut found = Vec::new();
+
+    for (directory, candidates) in grouped {
+      let entries = match fs::read_dir(&directory) {
+        Ok(entries) => entries,
+        Err(io_error) => {
+          if io_error.kind() == io::ErrorKind::NotFound {
+            continue;
+          }
+
+          return Err(
+            SearchError::Io {
+              io_error,
+              directory,
+            }
+            .into(),
+          );
+        }
+      };
 
       for entry in entries {
         let entry = entry.map_err(|io_error| SearchError::Io {
@@ -132,20 +173,31 @@ impl Compiler {
         })?;
 
         if let Some(name) = entry.file_name().to_str() {
-          for justfile_name in search::JUSTFILE_NAMES {
-            if name.eq_ignore_ascii_case(justfile_name) {
-              candidates.push(format!("{module}/{name}"));
+          for (candidate, case_sensitive) in &candidates {
+            let candidate_name = candidate.file_name().unwrap().to_str().unwrap();
+
+            let eq = if *case_sensitive {
+              name == candidate_name
+            } else {
+              name.eq_ignore_ascii_case(candidate_name)
+            };
+
+            if eq {
+              found.push(candidate.parent().unwrap().join(name));
             }
           }
         }
       }
     }
 
-    match candidates.as_slice() {
+    match found.as_slice() {
       [] => Ok(None),
-      [file] => Ok(Some(parent.join(file).lexiclean())),
+      [file] => Ok(Some(file.into())),
       found => Err(Error::AmbiguousModuleFile {
-        found: found.into(),
+        found: found
+          .iter()
+          .map(|found| found.strip_prefix(parent).unwrap().to_owned())
+          .collect(),
         module,
       }),
     }
@@ -240,6 +292,78 @@ recipe_b: recipe_c
     assert_matches!(loader_output, Error::CircularImport { current, import }
       if current == tmp.path().join("subdir").join("b").lexiclean() &&
       import == tmp.path().join("justfile").lexiclean()
+    );
+  }
+
+  #[test]
+  fn find_module_file() {
+    #[track_caller]
+    fn case(path: Option<&str>, files: &[&str], expected: Result<Option<&str>, &[&str]>) {
+      let module = Name {
+        token: Token {
+          column: 0,
+          kind: TokenKind::Identifier,
+          length: 3,
+          line: 0,
+          offset: 0,
+          path: Path::new(""),
+          src: "foo",
+        },
+      };
+
+      let tempdir = tempfile::tempdir().unwrap();
+
+      for file in files {
+        if let Some(parent) = Path::new(file).parent() {
+          fs::create_dir_all(tempdir.path().join(parent)).unwrap();
+        }
+
+        fs::write(tempdir.path().join(file), "").unwrap();
+      }
+
+      let actual = Compiler::find_module_file(tempdir.path(), module, path.map(Path::new));
+
+      match expected {
+        Err(expected) => match actual.unwrap_err() {
+          Error::AmbiguousModuleFile { found, .. } => {
+            assert_eq!(
+              found,
+              expected.iter().map(Into::into).collect::<Vec<PathBuf>>()
+            );
+          }
+          _ => panic!("unexpected error"),
+        },
+        Ok(Some(expected)) => assert_eq!(actual.unwrap().unwrap(), tempdir.path().join(expected)),
+        Ok(None) => assert_eq!(actual.unwrap(), None),
+      }
+    }
+
+    case(None, &["foo.just"], Ok(Some("foo.just")));
+    case(None, &["FOO.just"], Ok(None));
+    case(None, &["foo/mod.just"], Ok(Some("foo/mod.just")));
+    case(None, &["foo/MOD.just"], Ok(None));
+    case(None, &["foo/justfile"], Ok(Some("foo/justfile")));
+    case(None, &["foo/JUSTFILE"], Ok(Some("foo/JUSTFILE")));
+    case(None, &["foo/.justfile"], Ok(Some("foo/.justfile")));
+    case(None, &["foo/.JUSTFILE"], Ok(Some("foo/.JUSTFILE")));
+    case(
+      None,
+      &["foo/justfile", "foo/.justfile"],
+      Err(&["foo/justfile", "foo/.justfile"]),
+    );
+    case(None, &["foo/JUSTFILE"], Ok(Some("foo/JUSTFILE")));
+
+    case(Some("bar"), &["bar"], Ok(Some("bar")));
+    case(Some("bar"), &["bar/mod.just"], Ok(Some("bar/mod.just")));
+    case(Some("bar"), &["bar/justfile"], Ok(Some("bar/justfile")));
+    case(Some("bar"), &["bar/JUSTFILE"], Ok(Some("bar/JUSTFILE")));
+    case(Some("bar"), &["bar/.justfile"], Ok(Some("bar/.justfile")));
+    case(Some("bar"), &["bar/.JUSTFILE"], Ok(Some("bar/.JUSTFILE")));
+
+    case(
+      Some("bar"),
+      &["bar/justfile", "bar/mod.just"],
+      Err(&["bar/justfile", "bar/mod.just"]),
     );
   }
 }
