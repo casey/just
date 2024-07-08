@@ -380,7 +380,7 @@ will be opt-in on a per-`justfile` basis, so users may migrate at their
 leisure.
 
 Features that aren't yet ready for stabilization are marked as unstable and may
-change or be removed at any time. Using unstable features produces an error by
+be changed or removed at any time. Using unstable features produces an error by
 default, which can be suppressed with by passing the `--unstable` flag,
 `set unstable`, or setting the environment variable `JUST_UNSTABLE`, to any
 value other than `false`, `0`, or the empty string.
