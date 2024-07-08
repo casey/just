@@ -110,9 +110,10 @@ impl Subcommand {
     ) {
       let starting_path = match &config.search_config {
         SearchConfig::FromInvocationDirectory => config.invocation_directory.clone(),
-        SearchConfig::FromSearchDirectory { search_directory } => {
-          env::current_dir().unwrap().join(search_directory)
-        }
+        SearchConfig::FromSearchDirectory { search_directory } => config
+          .invocation_directory
+          .join(search_directory)
+          .lexiclean(),
         _ => unreachable!(),
       };
 

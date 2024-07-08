@@ -144,6 +144,22 @@ fn single_upwards() {
 }
 
 #[test]
+fn double_upwards() {
+  let tmp = temptree! {
+    justfile: "default:\n\techo ok",
+    foo: {
+      bar: {
+        justfile: "default:\n\techo foo",
+      },
+    },
+  };
+
+  let path = tmp.path().join("foo/bar");
+
+  search_test(path, &["../default"]);
+}
+
+#[test]
 fn find_dot_justfile() {
   Test::new()
     .justfile(
