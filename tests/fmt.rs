@@ -4,10 +4,7 @@ test! {
   name: unstable_not_passed,
   justfile: "",
   args: ("--fmt"),
-  stderr: "
-    error: The `--fmt` command is currently unstable. \
-    Invoke `just` with the `--unstable` flag to enable unstable features.
-  ",
+  stderr_regex: "error: The `--fmt` command is currently unstable..*",
   status: EXIT_FAILURE,
 }
 

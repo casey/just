@@ -936,6 +936,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       Keyword::IgnoreComments => Some(Setting::IgnoreComments(self.parse_set_bool()?)),
       Keyword::PositionalArguments => Some(Setting::PositionalArguments(self.parse_set_bool()?)),
       Keyword::Quiet => Some(Setting::Quiet(self.parse_set_bool()?)),
+      Keyword::Unstable => Some(Setting::Unstable(self.parse_set_bool()?)),
       Keyword::WindowsPowershell => Some(Setting::WindowsPowerShell(self.parse_set_bool()?)),
       _ => None,
     };

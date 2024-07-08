@@ -37,6 +37,8 @@ impl<'src> Analyzer<'src> {
 
     let mut warnings = Vec::new();
 
+    let mut unstable = BTreeSet::new();
+
     let mut modules: Table<Justfile> = Table::new();
 
     let mut unexports: HashSet<String> = HashSet::new();
@@ -92,6 +94,8 @@ impl<'src> Analyzer<'src> {
             doc,
             ..
           } => {
+            unstable.insert(Unstable::Modules);
+
             if let Some(absolute) = absolute {
               define(*name, "module", false)?;
               modules.insert(Self::analyze(
@@ -194,6 +198,7 @@ impl<'src> Analyzer<'src> {
       settings,
       source: root.into(),
       unexports,
+      unstable,
       warnings,
     })
   }

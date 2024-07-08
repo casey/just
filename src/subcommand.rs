@@ -190,7 +190,9 @@ impl Subcommand {
     loader: &'src Loader,
     search: &Search,
   ) -> RunResult<'src, Compilation<'src>> {
-    let compilation = Compiler::compile(config.unstable, loader, &search.justfile)?;
+    let compilation = Compiler::compile(loader, &search.justfile)?;
+
+    compilation.justfile.check_unstable(config)?;
 
     if config.verbosity.loud() {
       for warning in &compilation.justfile.warnings {
