@@ -189,6 +189,7 @@ impl Compiler {
     }
 
     if found.len() > 1 {
+      found.sort();
       Err(Error::AmbiguousModuleFile {
         found: found
           .into_iter()
@@ -354,8 +355,8 @@ recipe_b: recipe_c
     case(None, &["foo/.JUSTFILE"], Ok(Some("foo/.JUSTFILE")));
     case(
       None,
-      &["foo/justfile", "foo/.justfile"],
-      Err(&["foo/justfile", "foo/.justfile"]),
+      &["foo/.justfile", "foo/justfile"],
+      Err(&["foo/.justfile", "foo/justfile"]),
     );
     case(None, &["foo/JUSTFILE"], Ok(Some("foo/JUSTFILE")));
 
