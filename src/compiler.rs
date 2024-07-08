@@ -326,12 +326,20 @@ recipe_b: recipe_c
           Error::AmbiguousModuleFile { found, .. } => {
             assert_eq!(
               found,
-              expected.iter().map(Into::into).collect::<Vec<PathBuf>>()
+              expected
+                .iter()
+                .map(|expected| expected.replace('/', std::path::MAIN_SEPARATOR_STR).into())
+                .collect::<Vec<PathBuf>>()
             );
           }
           _ => panic!("unexpected error"),
         },
-        Ok(Some(expected)) => assert_eq!(actual.unwrap().unwrap(), tempdir.path().join(expected)),
+        Ok(Some(expected)) => assert_eq!(
+          actual.unwrap().unwrap(),
+          tempdir
+            .path()
+            .join(expected.replace('/', std::path::MAIN_SEPARATOR_STR))
+        ),
         Ok(None) => assert_eq!(actual.unwrap(), None),
       }
     }
