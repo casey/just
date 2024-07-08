@@ -4,7 +4,7 @@ use super::*;
 pub(crate) enum Error<'src> {
   AmbiguousModuleFile {
     module: Name<'src>,
-    found: Vec<String>,
+    found: Vec<PathBuf>,
   },
   ArgumentCountMismatch {
     recipe: &'src str,
@@ -262,7 +262,7 @@ impl<'src> ColorDisplay for Error<'src> {
       AmbiguousModuleFile { module, found } =>
         write!(f,
           "Found multiple source files for module `{module}`: {}",
-          List::and_ticked(found),
+          List::and_ticked(found.iter().map(|path| path.display())),
         )?,
       ArgumentCountMismatch { recipe, found, min, max, .. } => {
         let count = Count("argument", *found);

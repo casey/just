@@ -3204,7 +3204,10 @@ mod foo 'PATH'
 
 Which loads the module's source file from `PATH`, instead of from the usual
 locations. A leading `~/` in `PATH` is replaced with the current user's home
-directory.
+directory. `PATH` may point to the module source file itself, or to a directory
+containing the module source file with the name `mod.just`, `justfile`, or
+`.justfile`. In the latter two cases, the module file may have any
+capitalization.
 
 Environment files are only loaded for the root justfile, and loaded environment
 variables are available in submodules. Settings in submodules that affect

@@ -439,12 +439,13 @@ fn modules_require_unambiguous_file() {
     .status(EXIT_FAILURE)
     .stderr(
       "
-      error: Found multiple source files for module `foo`: `foo.just` and `foo/justfile`
+      error: Found multiple source files for module `foo`: `foo/justfile` and `foo.just`
        ——▶ justfile:1:5
         │
       1 │ mod foo
         │     ^^^
-      ",
+      "
+      .replace('/', MAIN_SEPARATOR_STR),
     )
     .run();
 }
@@ -554,6 +555,23 @@ fn modules_may_specify_path() {
     .justfile(
       "
         mod foo 'commands/foo.just'
+      ",
+    )
+    .test_round_trip(false)
+    .arg("--unstable")
+    .arg("foo")
+    .arg("foo")
+    .stdout("FOO\n")
+    .run();
+}
+
+#[test]
+fn modules_may_specify_path_to_directory() {
+  Test::new()
+    .write("commands/bar/mod.just", "foo:\n @echo FOO")
+    .justfile(
+      "
+        mod foo 'commands/bar'
       ",
     )
     .test_round_trip(false)
