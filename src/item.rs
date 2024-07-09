@@ -13,6 +13,7 @@ pub(crate) enum Item<'src> {
     relative: StringLiteral<'src>,
   },
   Module {
+    attributes: BTreeSet<Attribute<'src>>,
     absolute: Option<PathBuf>,
     doc: Option<&'src str>,
     name: Name<'src>,

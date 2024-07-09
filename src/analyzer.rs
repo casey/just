@@ -90,8 +90,21 @@ impl<'src> Analyzer<'src> {
             absolute,
             name,
             doc,
+            attributes,
             ..
           } => {
+
+            for attribute in attributes {
+              if !matches!(attribute, Attribute::Doc(..)) {
+                //TODO make this error more general
+                let alias = name.lexeme();
+                return Err(name.token.error(AliasInvalidAttribute {
+                  alias,
+                  attribute: attribute.clone(),
+                }));
+              }
+            }
+
             if let Some(absolute) = absolute {
               define(*name, "module", false)?;
               modules.insert(Self::analyze(
