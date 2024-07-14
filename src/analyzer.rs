@@ -194,7 +194,7 @@ impl<'src> Analyzer<'src> {
       settings,
       source: root.into(),
       unexports,
-      unstable: BTreeSet::new(),
+      unstable_features: BTreeSet::new(),
       warnings,
     })
   }
