@@ -32,13 +32,15 @@ impl Display for CompileError<'_> {
     use CompileErrorKind::*;
 
     match &*self.kind {
-      AliasInvalidAttribute { alias, attribute } => {
-        write!(
-          f,
-          "Alias `{alias}` has invalid attribute `{}`",
-          attribute.name(),
-        )
-      }
+      InvalidAttribute {
+        item_name,
+        item_kind,
+        attribute,
+      } => write!(
+        f,
+        "{item_kind} `{item_name}` has invalid attribute `{}`",
+        attribute.name(),
+      ),
       AliasShadowsRecipe { alias, recipe_line } => write!(
         f,
         "Alias `{alias}` defined on line {} shadows recipe `{alias}` defined on line {}",

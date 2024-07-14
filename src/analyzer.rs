@@ -96,10 +96,9 @@ impl<'src> Analyzer<'src> {
             let mut doc_attr: Option<&str> = None;
             for attribute in attributes {
               if !matches!(attribute, Attribute::Doc(..)) {
-                //TODO make this error more general
-                let alias = name.lexeme();
-                return Err(name.token.error(AliasInvalidAttribute {
-                  alias,
+                return Err(name.token.error(InvalidAttribute {
+                  item_kind: "Module",
+                  item_name: name.lexeme(),
                   attribute: attribute.clone(),
                 }));
               }
@@ -262,12 +261,11 @@ impl<'src> Analyzer<'src> {
   }
 
   fn analyze_alias(alias: &Alias<'src, Name<'src>>) -> CompileResult<'src> {
-    let name = alias.name.lexeme();
-
     for attribute in &alias.attributes {
       if *attribute != Attribute::Private {
-        return Err(alias.name.token.error(AliasInvalidAttribute {
-          alias: name,
+        return Err(alias.name.token.error(InvalidAttribute {
+          item_kind: "Alias",
+          item_name: alias.name.lexeme(),
           attribute: attribute.clone(),
         }));
       }

@@ -742,10 +742,12 @@ fn comments_can_follow_modules() {
 fn doc_comment_on_module() {
   Test::new()
     .write("foo.just", "")
-    .justfile("
+    .justfile(
+      "
         # Comment
         mod foo
-      ")
+      ",
+    )
     .test_round_trip(false)
     .arg("--unstable")
     .arg("--list")
@@ -757,11 +759,13 @@ fn doc_comment_on_module() {
 fn doc_attribute_on_module() {
   Test::new()
     .write("foo.just", "")
-    .justfile(r#"
+    .justfile(
+      r#"
         # Suppressed comment
         [doc: "Comment"]
         mod foo
-      "#)
+      "#,
+    )
     .test_round_trip(false)
     .arg("--unstable")
     .arg("--list")
@@ -773,13 +777,16 @@ fn doc_attribute_on_module() {
 fn bad_module_attribute_fails() {
   Test::new()
     .write("foo.just", "")
-    .justfile(r#"
+    .justfile(
+      r#"
         [no-cd]
         mod foo
-      "#)
+      "#,
+    )
     .test_round_trip(false)
     .arg("--unstable")
     .arg("--list")
-    .stdout("Available recipes:\n    foo ... # Comment\n")
+    .stderr("error: Module `foo` has invalid attribute `no-cd`\n ——▶ justfile:2:5\n  │\n2 │ mod foo\n  │     ^^^\n")
+    .status(EXIT_FAILURE)
     .run();
 }

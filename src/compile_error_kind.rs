@@ -2,10 +2,6 @@ use super::*;
 
 #[derive(Debug, PartialEq)]
 pub(crate) enum CompileErrorKind<'src> {
-  AliasInvalidAttribute {
-    alias: &'src str,
-    attribute: Attribute<'src>,
-  },
   AliasShadowsRecipe {
     alias: &'src str,
     recipe_line: usize,
@@ -75,6 +71,11 @@ pub(crate) enum CompileErrorKind<'src> {
   },
   Internal {
     message: String,
+  },
+  InvalidAttribute {
+    item_kind: &'static str,
+    item_name: &'src str,
+    attribute: Attribute<'src>,
   },
   InvalidEscapeSequence {
     character: char,
