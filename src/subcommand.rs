@@ -539,12 +539,12 @@ impl Subcommand {
       ordered.insert(0, None);
     }
 
+    let no_groups = groups.contains_key(&None) && groups.len() == 1;
+
     for (i, group) in ordered.into_iter().enumerate() {
       if i > 0 {
         println!();
       }
-
-      let no_groups = groups.contains_key(&None) && groups.len() == 1;
 
       if !no_groups {
         print!("{list_prefix}");
@@ -606,7 +606,7 @@ impl Subcommand {
       }
     } else {
       for (i, submodule) in module.modules(config).into_iter().enumerate() {
-        if i + groups.len() > 0 {
+        if !no_groups && groups.len() > 0 && i == 0 {
           println!();
         }
 
