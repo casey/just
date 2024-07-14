@@ -110,7 +110,7 @@ recipe        : attributes* '@'? NAME parameter* variadic? ':' dependency* body?
 
 attributes    : '[' attribute* ']' eol
 
-attribute     : NAME ( '(' string ')' )?
+attribute     : NAME ( '(' string (',' string)* ')' )?
 
 parameter     : '$'? NAME
               | '$'? NAME '=' value

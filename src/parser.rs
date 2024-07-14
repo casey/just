@@ -998,11 +998,17 @@ impl<'run, 'src> Parser<'run, 'src> {
 
         let maybe_argument = if self.accepted(Colon)? {
           let arg = self.parse_string_literal()?;
-          Some(arg)
+          Some(vec![arg])
         } else if self.accepted(ParenL)? {
-          let arg = self.parse_string_literal()?;
+          let mut arguments = Vec::new();
+          while !self.next_is(ParenR) {
+            arguments.push(self.parse_string_literal()?);
+            if !self.accepted(Comma)? {
+              break;
+            }
+          }
           self.expect(ParenR)?;
-          Some(arg)
+          Some(arguments)
         } else {
           None
         };

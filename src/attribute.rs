@@ -44,7 +44,7 @@ impl AttributeDiscriminant {
 impl<'src> Attribute<'src> {
   pub(crate) fn new(
     name: Name<'src>,
-    argument: Option<StringLiteral<'src>>,
+    arguments: Option<Vec<StringLiteral<'src>>>,
   ) -> CompileResult<'src, Self> {
     use AttributeDiscriminant::*;
 
@@ -58,7 +58,7 @@ impl<'src> Attribute<'src> {
         })
       })?;
 
-    let found = argument.as_ref().iter().count();
+    let found = arguments.as_ref().map_or(0, |vec| vec.len());
     let range = discriminant.argument_range();
     if !range.contains(&found) {
       return Err(
@@ -72,9 +72,9 @@ impl<'src> Attribute<'src> {
     }
 
     Ok(match discriminant {
-      Confirm => Self::Confirm(argument),
-      Doc => Self::Doc(argument),
-      Group => Self::Group(argument.unwrap()),
+      Confirm => Self::Confirm(arguments.and_then(|vec| vec.into_iter().next())),
+      Doc => Self::Doc(arguments.and_then(|vec| vec.into_iter().next())),
+      Group => Self::Group(arguments.and_then(|vec| vec.into_iter().next()).unwrap()),
       Linux => Self::Linux,
       Macos => Self::Macos,
       NoCd => Self::NoCd,
@@ -91,11 +91,11 @@ impl<'src> Attribute<'src> {
     self.into()
   }
 
-  fn argument(&self) -> Option<&StringLiteral> {
+  fn arguments(&self) -> Option<Vec<&StringLiteral>> {
     match self {
-      Self::Confirm(prompt) => prompt.as_ref(),
-      Self::Doc(doc) => doc.as_ref(),
-      Self::Group(group) => Some(group),
+      Self::Confirm(prompt) => prompt.as_ref().map(|arg| vec![arg]),
+      Self::Doc(doc) => doc.as_ref().map(|arg| vec![arg]),
+      Self::Group(group) => Some(vec![group]),
       Self::Linux
       | Self::Macos
       | Self::NoCd
@@ -112,8 +112,15 @@ impl<'src> Attribute<'src> {
 impl<'src> Display for Attribute<'src> {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
     write!(f, "{}", self.name())?;
-    if let Some(argument) = self.argument() {
-      write!(f, "({argument})")?;
+    if let Some(arguments) = self.arguments() {
+      write!(f, "(")?;
+      for argument in arguments.iter().take(arguments.len() - 1) {
+        write!(f, "{argument}, ")?;
+      }
+      if let Some(argument) = arguments.last() {
+        write!(f, "{argument}")?;
+      }
+      write!(f, ")")?;
     }
 
     Ok(())
