@@ -405,3 +405,49 @@ fn module_doc_aligned() {
     )
     .run();
 }
+
+#[test]
+fn space_before_submodules_following_groups() {
+  Test::new()
+    .write("foo.just", "")
+    .justfile(
+      "
+        mod foo
+
+        [group: 'baz']
+        bar:
+      ",
+    )
+    .test_round_trip(false)
+    .args(["--unstable", "--list"])
+    .stdout(
+      "
+        Available recipes:
+            [baz]
+            bar
+
+            foo ...
+      ",
+    )
+    .run();
+}
+
+#[test]
+fn no_space_before_submodules_not_following_groups() {
+  Test::new()
+    .write("foo.just", "")
+    .justfile(
+      "
+        mod foo
+      ",
+    )
+    .test_round_trip(false)
+    .args(["--unstable", "--list"])
+    .stdout(
+      "
+        Available recipes:
+            foo ...
+      ",
+    )
+    .run();
+}
