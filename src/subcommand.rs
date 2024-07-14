@@ -344,7 +344,7 @@ impl Subcommand {
     ast: &Ast,
     justfile: &Justfile,
   ) -> RunResult<'static> {
-    config.require_unstable(&justfile, UnstableFeature::FormatSubcommand)?;
+    config.require_unstable(justfile, UnstableFeature::FormatSubcommand)?;
 
     let formatted = ast.to_string();
 
