@@ -405,3 +405,29 @@ fn module_doc_aligned() {
     )
     .run();
 }
+
+#[test]
+fn space_before_submodules() {
+  Test::new()
+    .write("foo.just", "")
+    .justfile(
+      "
+        mod foo
+
+        [group: 'baz']
+        bar:
+      ",
+    )
+    .test_round_trip(false)
+    .args(["--unstable", "--list"])
+    .stdout(
+      "
+        Available recipes:
+            [baz]
+            bar
+
+            foo ...
+      ",
+    )
+    .run();
+}

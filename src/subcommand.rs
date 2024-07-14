@@ -605,7 +605,11 @@ impl Subcommand {
         Self::list_module(config, submodule, depth + 1);
       }
     } else {
-      for submodule in module.modules(config) {
+      for (i, submodule) in module.modules(config).into_iter().enumerate() {
+        if i + groups.len() > 0 {
+          println!();
+        }
+
         print!("{list_prefix}{} ...", submodule.name());
         format_doc(
           config,
