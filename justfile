@@ -16,11 +16,13 @@ watch +args='test':
 test:
   cargo test
 
-ci: build-book
+ci: lint build-book
   cargo test --all
+
+lint:
   cargo clippy --all --all-targets -- --deny warnings
-  cargo fmt --all -- --check
   ./bin/forbid
+  cargo fmt --all -- --check
   cargo update --locked --package just
 
 fuzz:

@@ -606,7 +606,7 @@ impl Subcommand {
       }
     } else {
       for (i, submodule) in module.modules(config).into_iter().enumerate() {
-        if !no_groups && groups.len() > 0 && i == 0 {
+        if !no_groups && !groups.is_empty() && i == 0 {
           println!();
         }
 
