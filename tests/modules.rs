@@ -749,7 +749,6 @@ fn doc_comment_on_module() {
       ",
     )
     .test_round_trip(false)
-    .arg("--unstable")
     .arg("--list")
     .stdout("Available recipes:\n    foo ... # Comment\n")
     .run();
@@ -767,7 +766,6 @@ fn doc_attribute_on_module() {
       "#,
     )
     .test_round_trip(false)
-    .arg("--unstable")
     .arg("--list")
     .stdout("Available recipes:\n    foo ... # Comment\n")
     .run();
@@ -784,7 +782,6 @@ fn bad_module_attribute_fails() {
       "#,
     )
     .test_round_trip(false)
-    .arg("--unstable")
     .arg("--list")
     .stderr("error: Module `foo` has invalid attribute `no-cd`\n ——▶ justfile:2:5\n  │\n2 │ mod foo\n  │     ^^^\n")
     .status(EXIT_FAILURE)
