@@ -407,7 +407,7 @@ fn module_doc_aligned() {
 }
 
 #[test]
-fn space_before_submodules() {
+fn space_before_submodules_following_groups() {
   Test::new()
     .write("foo.just", "")
     .justfile(
@@ -426,6 +426,26 @@ fn space_before_submodules() {
             [baz]
             bar
 
+            foo ...
+      ",
+    )
+    .run();
+}
+
+#[test]
+fn no_space_before_submodules_not_following_groups() {
+  Test::new()
+    .write("foo.just", "")
+    .justfile(
+      "
+        mod foo
+      ",
+    )
+    .test_round_trip(false)
+    .args(["--unstable", "--list"])
+    .stdout(
+      "
+        Available recipes:
             foo ...
       ",
     )
