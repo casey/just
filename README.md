@@ -3156,6 +3156,10 @@ Missing source files for optional imports do not produce an error.
 
 A `justfile` can declare modules using `mod` statements.
 
+`mod` statements were stabilized in `just`<sup>master</sup>. In earlier
+versions, you'll need to use the `--unstable` flag, `set unstable`, or set the
+`JUST_UNSTABLE` environment variable to use them.
+
 If you have the following `justfile`:
 
 ```mf
