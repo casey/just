@@ -864,7 +864,6 @@ fn source_file() {
 
   Test::new()
     .args(["--evaluate", "x"])
-    .test_round_trip(false)
     .justfile(
       "
         import 'foo.just'
@@ -875,8 +874,7 @@ fn source_file() {
     .run();
 
   Test::new()
-    .args(["--unstable", "foo", "bar"])
-    .test_round_trip(false)
+    .args(["foo", "bar"])
     .justfile(
       "
         mod foo
@@ -890,8 +888,7 @@ fn source_file() {
 #[test]
 fn source_directory() {
   Test::new()
-    .args(["--unstable", "foo", "bar"])
-    .test_round_trip(false)
+    .args(["foo", "bar"])
     .justfile(
       "
         mod foo
@@ -984,9 +981,7 @@ import-outer: import-inner
           echo '{{ module_directory() }}'
       ",
     )
-    .test_round_trip(false)
     .args([
-      "--unstable",
       "outer",
       "import-outer",
       "baz",

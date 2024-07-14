@@ -667,10 +667,10 @@ $ cat foo.just
 mod bar
 $ cat bar.just
 baz:
-$ just --unstable foo bar
+$ just foo bar
 Available recipes:
     baz
-$ just --unstable foo::bar
+$ just foo::bar
 Available recipes:
     baz
 ```
@@ -3154,9 +3154,7 @@ Missing source files for optional imports do not produce an error.
 
 ### Modules<sup>1.19.0</sup>
 
-A `justfile` can declare modules using `mod` statements. `mod` statements are
-currently unstable, so you'll need to use the `--unstable` flag,
-`set unstable`, or set the `JUST_UNSTABLE` environment variable to use them.
+A `justfile` can declare modules using `mod` statements.
 
 If you have the following `justfile`:
 
@@ -3181,14 +3179,14 @@ uses its own settings.
 Recipes in submodules can be invoked as subcommands:
 
 ```sh
-$ just --unstable bar b
+$ just bar b
 B
 ```
 
 Or with path syntax:
 
 ```sh
-$ just --unstable bar::b
+$ just bar::b
 B
 ```
 

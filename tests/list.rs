@@ -12,8 +12,7 @@ fn modules_unsorted() {
         mod bar
       ",
     )
-    .test_round_trip(false)
-    .args(["--unstable", "--list", "--unsorted"])
+    .args(["--list", "--unsorted"])
     .stdout(
       "
         Available recipes:
@@ -156,8 +155,7 @@ fn list_submodule() {
         mod foo
       ",
     )
-    .test_round_trip(false)
-    .args(["--unstable", "--list", "foo"])
+    .args(["--list", "foo"])
     .stdout(
       "
       Available recipes:
@@ -177,8 +175,7 @@ fn list_nested_submodule() {
         mod foo
       ",
     )
-    .test_round_trip(false)
-    .args(["--unstable", "--list", "foo", "bar"])
+    .args(["--list", "foo", "bar"])
     .stdout(
       "
         Available recipes:
@@ -195,8 +192,7 @@ fn list_nested_submodule() {
         mod foo
       ",
     )
-    .test_round_trip(false)
-    .args(["--unstable", "--list", "foo::bar"])
+    .args(["--list", "foo::bar"])
     .stdout(
       "
         Available recipes:
@@ -209,7 +205,7 @@ fn list_nested_submodule() {
 #[test]
 fn list_invalid_path() {
   Test::new()
-    .args(["--unstable", "--list", "$hello"])
+    .args(["--list", "$hello"])
     .stderr("error: Invalid module path `$hello`\n")
     .status(1)
     .run();
@@ -218,7 +214,7 @@ fn list_invalid_path() {
 #[test]
 fn list_unknown_submodule() {
   Test::new()
-    .args(["--unstable", "--list", "hello"])
+    .args(["--list", "hello"])
     .stderr("error: Justfile does not contain submodule `hello`\n")
     .status(1)
     .run();
@@ -236,8 +232,7 @@ fn list_with_groups_in_modules() {
       ",
     )
     .write("bar.just", "[group('BAZ')]\nbaz:")
-    .test_round_trip(false)
-    .args(["--unstable", "--list", "--list-submodules"])
+    .args(["--list", "--list-submodules"])
     .stdout(
       "
         Available recipes:
@@ -261,8 +256,7 @@ fn list_displays_recipes_in_submodules() {
         mod foo
       ",
     )
-    .test_round_trip(false)
-    .args(["--unstable", "--list", "--list-submodules"])
+    .args(["--list", "--list-submodules"])
     .stdout(
       "
       Available recipes:
@@ -285,8 +279,7 @@ fn modules_are_space_separated_in_output() {
         mod bar
       ",
     )
-    .test_round_trip(false)
-    .args(["--unstable", "--list", "--list-submodules"])
+    .args(["--list", "--list-submodules"])
     .stdout(
       "
       Available recipes:
@@ -319,8 +312,7 @@ barbarbar:
       ",
     )
     .justfile("mod foo")
-    .test_round_trip(false)
-    .args(["--unstable", "--list", "--list-submodules"])
+    .args(["--list", "--list-submodules"])
     .stdout(
       "
         Available recipes:
@@ -341,8 +333,7 @@ fn nested_modules_are_properly_indented() {
         mod foo
       ",
     )
-    .test_round_trip(false)
-    .args(["--unstable", "--list", "--list-submodules"])
+    .args(["--list", "--list-submodules"])
     .stdout(
       "
       Available recipes:
@@ -364,8 +355,7 @@ fn module_doc_rendered() {
         mod foo
       ",
     )
-    .test_round_trip(false)
-    .args(["--unstable", "--list"])
+    .args(["--list"])
     .stdout(
       "
         Available recipes:
@@ -393,8 +383,7 @@ fn module_doc_aligned() {
             @echo Hi
       ",
     )
-    .test_round_trip(false)
-    .args(["--unstable", "--list"])
+    .args(["--list"])
     .stdout(
       "
         Available recipes:
@@ -418,8 +407,7 @@ fn space_before_submodules_following_groups() {
         bar:
       ",
     )
-    .test_round_trip(false)
-    .args(["--unstable", "--list"])
+    .args(["--list"])
     .stdout(
       "
         Available recipes:
@@ -441,8 +429,7 @@ fn no_space_before_submodules_not_following_groups() {
         mod foo
       ",
     )
-    .test_round_trip(false)
-    .args(["--unstable", "--list"])
+    .args(["--list"])
     .stdout(
       "
         Available recipes:

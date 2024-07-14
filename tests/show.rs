@@ -110,8 +110,7 @@ fn show_recipe_at_path() {
         mod foo
       ",
     )
-    .test_round_trip(false)
-    .args(["--unstable", "--show", "foo::bar"])
+    .args(["--show", "foo::bar"])
     .stdout("bar:\n    @echo MODULE\n")
     .run();
 }
@@ -134,8 +133,7 @@ fn show_space_separated_path() {
         mod foo
       ",
     )
-    .test_round_trip(false)
-    .args(["--unstable", "--show", "foo bar"])
+    .args(["--show", "foo bar"])
     .stdout("bar:\n    @echo MODULE\n")
     .run();
 }

@@ -3,7 +3,7 @@ use super::*;
 fn case(justfile: &str, value: Value) {
   Test::new()
     .justfile(justfile)
-    .args(["--dump", "--dump-format", "json", "--unstable"])
+    .args(["--dump", "--dump-format", "json"])
     .stdout(format!("{}\n", serde_json::to_string(&value).unwrap()))
     .run();
 }
@@ -1110,8 +1110,7 @@ fn module() {
     .tree(tree! {
       "foo.just": "bar:",
     })
-    .args(["--dump", "--dump-format", "json", "--unstable"])
-    .test_round_trip(false)
+    .args(["--dump", "--dump-format", "json"])
     .stdout(format!(
       "{}\n",
       serde_json::to_string(&json!({
