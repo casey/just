@@ -703,10 +703,10 @@ $ cat foo.just
 mod bar
 $ cat bar.just
 baz:
-$ just --unstable foo bar
+$ just foo bar
 Available recipes:
     baz
-$ just --unstable foo::bar
+$ just foo::bar
 Available recipes:
     baz
 </code></pre>
@@ -2534,9 +2534,10 @@ set, variables in parent modules override variables in imports.</p>
 </code></pre>
 <p>Missing source files for optional imports do not produce an error.</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="modules1190"><a class="header" href="#modules1190">Modules<sup>1.19.0</sup></a></h3>
-<p>A <code>justfile</code> can declare modules using <code>mod</code> statements. <code>mod</code> statements are
-currently unstable, so you’ll need to use the <code>--unstable</code> flag,
-<code>set unstable</code>, or set the <code>JUST_UNSTABLE</code> environment variable to use them.</p>
+<p>A <code>justfile</code> can declare modules using <code>mod</code> statements.</p>
+<p><code>mod</code> statements were stabilized in <code>just</code><sup>master</sup>. In earlier
+versions, you’ll need to use the <code>--unstable</code> flag, <code>set unstable</code>, or set the
+<code>JUST_UNSTABLE</code> environment variable to use them.</p>
 <p>If you have the following <code>justfile</code>:</p>
 <pre><code class="language-mf">mod bar
 
@@ -2551,11 +2552,11 @@ a:
 variables defined in one submodule cannot be used in another, and each module
 uses its own settings.</p>
 <p>Recipes in submodules can be invoked as subcommands:</p>
-<pre><code class="language-sh">$ just --unstable bar b
+<pre><code class="language-sh">$ just bar b
 B
 </code></pre>
 <p>Or with path syntax:</p>
-<pre><code class="language-sh">$ just --unstable bar::b
+<pre><code class="language-sh">$ just bar::b
 B
 </code></pre>
 <p>If a module is named <code>foo</code>, just will search for the module file in <code>foo.just</code>,
