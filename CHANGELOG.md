@@ -1,6 +1,23 @@
 Changelog
 =========
 
+[1.31.0](https://github.com/casey/just/releases/tag/1.31.0) - 2024-07-14
+------------------------------------------------------------------------
+
+### Stabilized
+- Stabilize modules ([#2250](https://github.com/casey/just/pull/2250) by [casey](https://github.com/casey))
+
+### Added
+- Allow `mod` path to be directory containing module source ([#2238](https://github.com/casey/just/pull/2238) by [casey](https://github.com/casey))
+- Allow enabling unstable features with `set unstable` ([#2237](https://github.com/casey/just/pull/2237) by [casey](https://github.com/casey))
+- Allow abbreviating functions ending in `_directory` to `_dir` ([#2235](https://github.com/casey/just/pull/2235) by [casey](https://github.com/casey))
+
+### Fixed
+- Lexiclean search directory so `..` does not check the current directory ([#2236](https://github.com/casey/just/pull/2236) by [casey](https://github.com/casey))
+
+### Misc
+- Print space before submodules in `--list` with groups ([#2244](https://github.com/casey/just/pull/2244) by [casey](https://github.com/casey))
+
 [1.30.1](https://github.com/casey/just/releases/tag/1.30.1) - 2024-07-06
 ------------------------------------------------------------------------
 

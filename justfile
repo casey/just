@@ -66,6 +66,9 @@ check: fmt clippy test forbid
   VERSION=`sed -En 's/version[[:space:]]*=[[:space:]]*"([^"]+)"/\1/p' Cargo.toml | head -1`
   grep "^\[$VERSION\]" CHANGELOG.md
 
+outdated:
+  cargo outdated -R
+
 # publish current GitHub master branch
 publish:
   #!/usr/bin/env bash
