@@ -737,3 +737,49 @@ fn comments_can_follow_modules() {
     .stdout("FOO\n")
     .run();
 }
+
+#[test]
+fn doc_comment_on_module() {
+  Test::new()
+    .write("foo.just", "")
+    .justfile("
+        # Comment
+        mod foo
+      ")
+    .test_round_trip(false)
+    .arg("--unstable")
+    .arg("--list")
+    .stdout("Available recipes:\n    foo ... # Comment\n")
+    .run();
+}
+
+#[test]
+fn doc_attribute_on_module() {
+  Test::new()
+    .write("foo.just", "")
+    .justfile(r#"
+        # Suppressed comment
+        [doc: "Comment"]
+        mod foo
+      "#)
+    .test_round_trip(false)
+    .arg("--unstable")
+    .arg("--list")
+    .stdout("Available recipes:\n    foo ... # Comment\n")
+    .run();
+}
+
+#[test]
+fn bad_module_attribute_fails() {
+  Test::new()
+    .write("foo.just", "")
+    .justfile(r#"
+        [no-cd]
+        mod foo
+      "#)
+    .test_round_trip(false)
+    .arg("--unstable")
+    .arg("--list")
+    .stdout("Available recipes:\n    foo ... # Comment\n")
+    .run();
+}
