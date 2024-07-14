@@ -10,7 +10,7 @@ pub(crate) struct Analyzer<'src> {
 impl<'src> Analyzer<'src> {
   pub(crate) fn analyze(
     asts: &HashMap<PathBuf, Ast<'src>>,
-    doc: Option<&'src str>,
+    doc: Option<String>,
     loaded: &[PathBuf],
     name: Option<Name<'src>>,
     paths: &HashMap<PathBuf, PathBuf>,
@@ -22,7 +22,7 @@ impl<'src> Analyzer<'src> {
   fn justfile(
     mut self,
     asts: &HashMap<PathBuf, Ast<'src>>,
-    doc: Option<&'src str>,
+    doc: Option<String>,
     loaded: &[PathBuf],
     name: Option<Name<'src>>,
     paths: &HashMap<PathBuf, PathBuf>,
@@ -93,7 +93,7 @@ impl<'src> Analyzer<'src> {
             attributes,
             ..
           } => {
-
+            let mut doc_attr: Option<&str> = None;
             for attribute in attributes {
               if !matches!(attribute, Attribute::Doc(..)) {
                 //TODO make this error more general
@@ -103,13 +103,17 @@ impl<'src> Analyzer<'src> {
                   attribute: attribute.clone(),
                 }));
               }
+              if let Attribute::Doc(ref doc) = attribute {
+                doc_attr = doc.as_ref().map(|s| s.cooked.as_ref());
+              }
             }
+            let final_docstring: Option<String> = doc_attr.or(*doc).map(ToOwned::to_owned);
 
             if let Some(absolute) = absolute {
               define(*name, "module", false)?;
               modules.insert(Self::analyze(
                 asts,
-                *doc,
+                final_docstring,
                 loaded,
                 Some(*name),
                 paths,
