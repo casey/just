@@ -820,7 +820,7 @@ foo:
 | `positional-arguments` | boolean | `false` | Pass positional arguments. |
 | `shell` | `[COMMAND, ARGS…]` | - | Set the command used to invoke recipes and evaluate backticks. |
 | `tempdir` | string | - | Create temporary directories in `tempdir` instead of the system default temporary directory. |
-| `unstable`<sup>master</sup> | boolean | `false` | Enable unstable features. |
+| `unstable`<sup>1.31.0</sup> | boolean | `false` | Enable unstable features. |
 | `windows-powershell` | boolean | `false` | Use PowerShell on Windows as default shell. (Deprecated. Use `windows-shell` instead. |
 | `windows-shell` | `[COMMAND, ARGS…]` | - | Set the command used to invoke recipes and evaluate backticks. |
 
@@ -3156,7 +3156,7 @@ Missing source files for optional imports do not produce an error.
 
 A `justfile` can declare modules using `mod` statements.
 
-`mod` statements were stabilized in `just`<sup>master</sup>. In earlier
+`mod` statements were stabilized in `just`<sup>1.31.0</sup>. In earlier
 versions, you'll need to use the `--unstable` flag, `set unstable`, or set the
 `JUST_UNSTABLE` environment variable to use them.
 
