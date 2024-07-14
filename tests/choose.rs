@@ -86,7 +86,6 @@ fn recipes_in_submodules_can_be_chosen() {
     .args(["--unstable", "--choose"])
     .env("JUST_CHOOSER", "head -n10")
     .write("bar.just", "baz:\n echo BAZ")
-    .test_round_trip(false)
     .justfile(
       "
         mod bar

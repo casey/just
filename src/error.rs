@@ -174,8 +174,8 @@ pub(crate) enum Error<'src> {
     recipe: String,
     suggestion: Option<Suggestion<'src>>,
   },
-  Unstable {
-    message: String,
+  UnstableFeature {
+    unstable_feature: UnstableFeature,
   },
   WriteJustfile {
     justfile: PathBuf,
@@ -459,8 +459,8 @@ impl<'src> ColorDisplay for Error<'src> {
           write!(f, "\n{suggestion}")?;
         }
       }
-      Unstable { message } => {
-        write!(f, "{message} Invoke `just` with `--unstable`, set the `JUST_UNSTABLE` environment variable, or add `set unstable` to your `justfile` to enable unstable features.")?;
+      UnstableFeature { unstable_feature } => {
+        write!(f, "{unstable_feature} Invoke `just` with `--unstable`, set the `JUST_UNSTABLE` environment variable, or add `set unstable` to your `justfile` to enable unstable features.")?;
       }
       WriteJustfile { justfile, io_error } => {
         let justfile = justfile.display();

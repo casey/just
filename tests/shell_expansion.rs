@@ -66,7 +66,7 @@ fn shell_expanded_strings_are_dumped_correctly() {
       ",
     )
     .env("JUST_TEST_VARIABLE", "FOO")
-    .args(["--dump", "--unstable"])
+    .args(["--dump"])
     .stdout("x := x'$JUST_TEST_VARIABLE'\n")
     .run();
 }
@@ -114,9 +114,8 @@ fn shell_expanded_strings_can_be_used_in_mod_paths() {
     )
     .write("mod.just", "@bar:\n echo BAR")
     .env("JUST_TEST_VARIABLE", "mod.just")
-    .args(["--unstable", "foo", "bar"])
+    .args(["foo", "bar"])
     .stdout("BAR\n")
-    .test_round_trip(false)
     .run();
 }
 

@@ -2,14 +2,9 @@ use super::*;
 
 #[test]
 fn set_unstable_true_with_env_var() {
-  let justfile = r#"
-default:
-    echo 'foo'
-  "#;
-
   for val in ["true", "some-arbitrary-string"] {
     Test::new()
-      .justfile(justfile)
+      .justfile("")
       .args(["--fmt"])
       .env("JUST_UNSTABLE", val)
       .status(EXIT_SUCCESS)
@@ -20,13 +15,9 @@ default:
 
 #[test]
 fn set_unstable_false_with_env_var() {
-  let justfile = r#"
-default:
-    echo 'foo'
-  "#;
   for val in ["0", "", "false"] {
     Test::new()
-      .justfile(justfile)
+      .justfile("")
       .args(["--fmt"])
       .env("JUST_UNSTABLE", val)
       .status(EXIT_FAILURE)
@@ -37,12 +28,8 @@ default:
 
 #[test]
 fn set_unstable_false_with_env_var_unset() {
-  let justfile = r#"
-default:
-    echo 'foo'
-  "#;
   Test::new()
-    .justfile(justfile)
+    .justfile("")
     .args(["--fmt"])
     .status(EXIT_FAILURE)
     .stderr_regex("error: The `--fmt` command is currently unstable.*")
@@ -52,19 +39,16 @@ default:
 #[test]
 fn set_unstable_with_setting() {
   Test::new()
-    .justfile(
-      "
-        set unstable
-
-        mod foo
-      ",
-    )
-    .write("foo.just", "@bar:\n echo BAR")
-    .args(["foo", "bar"])
-    .stdout("BAR\n")
+    .justfile("set unstable")
+    .arg("--fmt")
+    .stderr_regex("Wrote justfile to .*")
     .run();
 }
 
+// This test should be re-enabled if we get a new unstable feature which is
+// encountered in source files. (As opposed to, for example, the unstable
+// `--fmt` subcommand, which is encountered on the command line.)
+#[cfg(any())]
 #[test]
 fn unstable_setting_does_not_affect_submodules() {
   Test::new()

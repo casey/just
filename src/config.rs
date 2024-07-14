@@ -720,13 +720,15 @@ impl Config {
     })
   }
 
-  pub(crate) fn require_unstable(&self, message: &str) -> RunResult<'static> {
-    if self.unstable {
+  pub(crate) fn require_unstable(
+    &self,
+    justfile: &Justfile,
+    unstable_feature: UnstableFeature,
+  ) -> RunResult<'static> {
+    if self.unstable || justfile.settings.unstable {
       Ok(())
     } else {
-      Err(Error::Unstable {
-        message: message.to_owned(),
-      })
+      Err(Error::UnstableFeature { unstable_feature })
     }
   }
 
