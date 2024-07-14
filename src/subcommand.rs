@@ -79,7 +79,7 @@ impl Subcommand {
         justfile.run(config, &search, overrides, &[])?;
       }
       Dump => Self::dump(config, ast, justfile)?,
-      Format => Self::format(config, &search, src, ast)?,
+      Format => Self::format(config, &search, src, ast, justfile)?,
       Groups => Self::groups(config, justfile),
       List { path } => Self::list(config, justfile, path)?,
       Show { path } => Self::show(config, justfile, path)?,
@@ -337,8 +337,14 @@ impl Subcommand {
     Ok(())
   }
 
-  fn format(config: &Config, search: &Search, src: &str, ast: &Ast) -> RunResult<'static> {
-    config.require_unstable("The `--fmt` command is currently unstable.")?;
+  fn format(
+    config: &Config,
+    search: &Search,
+    src: &str,
+    ast: &Ast,
+    justfile: &Justfile,
+  ) -> RunResult<'static> {
+    config.require_unstable(&justfile, UnstableFeature::FormatSubcommand)?;
 
     let formatted = ast.to_string();
 

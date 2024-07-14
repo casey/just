@@ -42,7 +42,7 @@ pub(crate) use {
     shell::Shell, show_whitespace::ShowWhitespace, source::Source, string_kind::StringKind,
     string_literal::StringLiteral, subcommand::Subcommand, suggestion::Suggestion, table::Table,
     thunk::Thunk, token::Token, token_kind::TokenKind, unresolved_dependency::UnresolvedDependency,
-    unresolved_recipe::UnresolvedRecipe, unstable::Unstable, use_color::UseColor,
+    unresolved_recipe::UnresolvedRecipe, unstable_feature::UnstableFeature, use_color::UseColor,
     variables::Variables, verbosity::Verbosity, warning::Warning,
   },
   camino::Utf8Path,
@@ -204,7 +204,7 @@ mod token_kind;
 mod unindent;
 mod unresolved_dependency;
 mod unresolved_recipe;
-mod unstable;
+mod unstable_feature;
 mod use_color;
 mod variables;
 mod verbosity;

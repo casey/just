@@ -1,16 +1,16 @@
 use super::*;
 
 #[test]
-fn modules_are_unstable() {
+fn modules_are_stable() {
   Test::new()
     .justfile(
       "
         mod foo
       ",
     )
-    .write("foo.just", "")
-    .stderr_regex("error: Modules are currently unstable..*")
-    .status(EXIT_FAILURE)
+    .write("foo.just", "@bar:\n echo ok")
+    .args(["foo", "bar"])
+    .stdout("ok\n")
     .run();
 }
 
