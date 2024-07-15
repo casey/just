@@ -143,6 +143,9 @@ impl Display for CompileError<'_> {
         write!(f, "Variable {variable} is both exported and unexported")
       }
       ExtraLeadingWhitespace => write!(f, "Recipe line has extra leading whitespace"),
+      ExtraneousAttributes { count } => {
+        write!(f, "Extraneous {}", Count("attribute", *count))
+      }
       FunctionArgumentCountMismatch {
         function,
         found,

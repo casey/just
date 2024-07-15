@@ -59,6 +59,9 @@ pub(crate) enum CompileErrorKind<'src> {
     variable: &'src str,
   },
   ExtraLeadingWhitespace,
+  ExtraneousAttributes {
+    count: usize,
+  },
   FunctionArgumentCountMismatch {
     function: &'src str,
     found: usize,

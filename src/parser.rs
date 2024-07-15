@@ -297,15 +297,6 @@ impl<'run, 'src> Parser<'run, 'src> {
     Ok(self.accept(kind)?.is_some())
   }
 
-  fn next_is_module(&mut self) -> bool {
-    self.next_are(&[Identifier, Identifier, Comment])
-      || self.next_are(&[Identifier, Identifier, Eof])
-      || self.next_are(&[Identifier, Identifier, Eol])
-      || self.next_are(&[Identifier, Identifier, Identifier, StringToken])
-      || self.next_are(&[Identifier, Identifier, StringToken])
-      || self.next_are(&[Identifier, QuestionMark])
-  }
-
   /// Parse a justfile, consumes self
   fn parse_ast(mut self) -> CompileResult<'src, Ast<'src>> {
     fn pop_doc_comment<'src>(
@@ -330,6 +321,14 @@ impl<'run, 'src> Parser<'run, 'src> {
     self.accept(ByteOrderMark)?;
 
     loop {
+      let mut attributes = self.parse_attributes()?;
+      let mut take_attributes = || {
+        attributes
+          .take()
+          .map(|(_token, attributes)| attributes)
+          .unwrap_or_default()
+      };
+
       let next = self.next()?;
 
       if let Some(comment) = self.accept(Comment)? {
@@ -343,7 +342,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       } else if self.next_is(Identifier) {
         match Keyword::from_lexeme(next.lexeme()) {
           Some(Keyword::Alias) if self.next_are(&[Identifier, Identifier, ColonEquals]) => {
-            items.push(Item::Alias(self.parse_alias(BTreeSet::new())?));
+            items.push(Item::Alias(self.parse_alias(take_attributes())?));
           }
           Some(Keyword::Export) if self.next_are(&[Identifier, Identifier, ColonEquals]) => {
             self.presume_keyword(Keyword::Export)?;
@@ -373,9 +372,16 @@ impl<'run, 'src> Parser<'run, 'src> {
               relative,
             });
           }
-          Some(Keyword::Mod) if self.next_is_module() => {
+          Some(Keyword::Mod)
+            if self.next_are(&[Identifier, Identifier, Comment])
+              || self.next_are(&[Identifier, Identifier, Eof])
+              || self.next_are(&[Identifier, Identifier, Eol])
+              || self.next_are(&[Identifier, Identifier, Identifier, StringToken])
+              || self.next_are(&[Identifier, Identifier, StringToken])
+              || self.next_are(&[Identifier, QuestionMark]) =>
+          {
             let doc = pop_doc_comment(&mut items, eol_since_last_comment);
-            items.push(self.parse_module(BTreeSet::new(), doc)?);
+            items.push(self.parse_module(take_attributes(), doc)?);
           }
           Some(Keyword::Set)
             if self.next_are(&[Identifier, Identifier, ColonEquals])
@@ -394,7 +400,7 @@ impl<'run, 'src> Parser<'run, 'src> {
               items.push(Item::Recipe(self.parse_recipe(
                 doc,
                 false,
-                BTreeSet::new(),
+                take_attributes(),
               )?));
             }
           }
@@ -404,26 +410,16 @@ impl<'run, 'src> Parser<'run, 'src> {
         items.push(Item::Recipe(self.parse_recipe(
           doc,
           true,
-          BTreeSet::new(),
+          take_attributes(),
         )?));
-      } else if let Some(attributes) = self.parse_attributes()? {
-        let next_keyword = Keyword::from_lexeme(self.next()?.lexeme());
-        match next_keyword {
-          Some(Keyword::Alias) if self.next_are(&[Identifier, Identifier, ColonEquals]) => {
-            items.push(Item::Alias(self.parse_alias(attributes)?));
-          }
-          Some(Keyword::Mod) if self.next_is_module() => {
-            let doc = pop_doc_comment(&mut items, eol_since_last_comment);
-            items.push(self.parse_module(attributes, doc)?);
-          }
-          _ => {
-            let quiet = self.accepted(At)?;
-            let doc = pop_doc_comment(&mut items, eol_since_last_comment);
-            items.push(Item::Recipe(self.parse_recipe(doc, quiet, attributes)?));
-          }
-        }
       } else {
         return Err(self.unexpected_token()?);
+      }
+
+      if let Some((token, attributes)) = attributes {
+        return Err(token.error(CompileErrorKind::ExtraneousAttributes {
+          count: attributes.len(),
+        }));
       }
     }
 
@@ -1002,10 +998,16 @@ impl<'run, 'src> Parser<'run, 'src> {
   }
 
   /// Parse recipe attributes
-  fn parse_attributes(&mut self) -> CompileResult<'src, Option<BTreeSet<Attribute<'src>>>> {
+  fn parse_attributes(
+    &mut self,
+  ) -> CompileResult<'src, Option<(Token<'src>, BTreeSet<Attribute<'src>>)>> {
     let mut attributes = BTreeMap::new();
 
-    while self.accepted(BracketL)? {
+    let mut token = None;
+
+    while let Some(bracket) = self.accept(BracketL)? {
+      token.get_or_insert(bracket);
+
       loop {
         let name = self.parse_name()?;
 
@@ -1042,7 +1044,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     if attributes.is_empty() {
       Ok(None)
     } else {
-      Ok(Some(attributes.into_keys().collect()))
+      Ok(Some((token.unwrap(), attributes.into_keys().collect())))
     }
   }
 }
