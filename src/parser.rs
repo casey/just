@@ -297,6 +297,15 @@ impl<'run, 'src> Parser<'run, 'src> {
     Ok(self.accept(kind)?.is_some())
   }
 
+  fn next_is_module(&mut self) -> bool {
+    self.next_are(&[Identifier, Identifier, Comment])
+      || self.next_are(&[Identifier, Identifier, Eof])
+      || self.next_are(&[Identifier, Identifier, Eol])
+      || self.next_are(&[Identifier, Identifier, Identifier, StringToken])
+      || self.next_are(&[Identifier, Identifier, StringToken])
+      || self.next_are(&[Identifier, QuestionMark])
+  }
+
   /// Parse a justfile, consumes self
   fn parse_ast(mut self) -> CompileResult<'src, Ast<'src>> {
     fn pop_doc_comment<'src>(
@@ -364,14 +373,7 @@ impl<'run, 'src> Parser<'run, 'src> {
               relative,
             });
           }
-          Some(Keyword::Mod)
-            if self.next_are(&[Identifier, Identifier, Comment])
-              || self.next_are(&[Identifier, Identifier, Eof])
-              || self.next_are(&[Identifier, Identifier, Eol])
-              || self.next_are(&[Identifier, Identifier, Identifier, StringToken])
-              || self.next_are(&[Identifier, Identifier, StringToken])
-              || self.next_are(&[Identifier, QuestionMark]) =>
-          {
+          Some(Keyword::Mod) if self.next_is_module() => {
             let doc = pop_doc_comment(&mut items, eol_since_last_comment);
             items.push(self.parse_module(BTreeSet::new(), doc)?);
           }
@@ -410,14 +412,7 @@ impl<'run, 'src> Parser<'run, 'src> {
           Some(Keyword::Alias) if self.next_are(&[Identifier, Identifier, ColonEquals]) => {
             items.push(Item::Alias(self.parse_alias(attributes)?));
           }
-          Some(Keyword::Mod)
-            if self.next_are(&[Identifier, Identifier, Comment])
-              || self.next_are(&[Identifier, Identifier, Eof])
-              || self.next_are(&[Identifier, Identifier, Eol])
-              || self.next_are(&[Identifier, Identifier, Identifier, StringToken])
-              || self.next_are(&[Identifier, Identifier, StringToken])
-              || self.next_are(&[Identifier, QuestionMark]) =>
-          {
+          Some(Keyword::Mod) if self.next_is_module() => {
             let doc = pop_doc_comment(&mut items, eol_since_last_comment);
             items.push(self.parse_module(attributes, doc)?);
           }
