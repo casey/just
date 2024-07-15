@@ -321,6 +321,14 @@ impl<'run, 'src> Parser<'run, 'src> {
     self.accept(ByteOrderMark)?;
 
     loop {
+      let mut attributes = self.parse_attributes()?;
+      let mut take_attributes = || {
+        attributes
+          .take()
+          .map(|(_token, attributes)| attributes)
+          .unwrap_or_default()
+      };
+
       let next = self.next()?;
 
       if let Some(comment) = self.accept(Comment)? {
@@ -334,7 +342,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       } else if self.next_is(Identifier) {
         match Keyword::from_lexeme(next.lexeme()) {
           Some(Keyword::Alias) if self.next_are(&[Identifier, Identifier, ColonEquals]) => {
-            items.push(Item::Alias(self.parse_alias(BTreeSet::new())?));
+            items.push(Item::Alias(self.parse_alias(take_attributes())?));
           }
           Some(Keyword::Export) if self.next_are(&[Identifier, Identifier, ColonEquals]) => {
             self.presume_keyword(Keyword::Export)?;
@@ -388,6 +396,7 @@ impl<'run, 'src> Parser<'run, 'src> {
             };
 
             items.push(Item::Module {
+              attributes: take_attributes(),
               absolute: None,
               doc,
               name,
@@ -412,7 +421,7 @@ impl<'run, 'src> Parser<'run, 'src> {
               items.push(Item::Recipe(self.parse_recipe(
                 doc,
                 false,
-                BTreeSet::new(),
+                take_attributes(),
               )?));
             }
           }
@@ -422,22 +431,16 @@ impl<'run, 'src> Parser<'run, 'src> {
         items.push(Item::Recipe(self.parse_recipe(
           doc,
           true,
-          BTreeSet::new(),
+          take_attributes(),
         )?));
-      } else if let Some(attributes) = self.parse_attributes()? {
-        let next_keyword = Keyword::from_lexeme(self.next()?.lexeme());
-        match next_keyword {
-          Some(Keyword::Alias) if self.next_are(&[Identifier, Identifier, ColonEquals]) => {
-            items.push(Item::Alias(self.parse_alias(attributes)?));
-          }
-          _ => {
-            let quiet = self.accepted(At)?;
-            let doc = pop_doc_comment(&mut items, eol_since_last_comment);
-            items.push(Item::Recipe(self.parse_recipe(doc, quiet, attributes)?));
-          }
-        }
       } else {
         return Err(self.unexpected_token()?);
+      }
+
+      if let Some((token, attributes)) = attributes {
+        return Err(token.error(CompileErrorKind::ExtraneousAttributes {
+          count: attributes.len(),
+        }));
       }
     }
 
@@ -989,10 +992,16 @@ impl<'run, 'src> Parser<'run, 'src> {
   }
 
   /// Parse recipe attributes
-  fn parse_attributes(&mut self) -> CompileResult<'src, Option<BTreeSet<Attribute<'src>>>> {
+  fn parse_attributes(
+    &mut self,
+  ) -> CompileResult<'src, Option<(Token<'src>, BTreeSet<Attribute<'src>>)>> {
     let mut attributes = BTreeMap::new();
 
-    while self.accepted(BracketL)? {
+    let mut token = None;
+
+    while let Some(bracket) = self.accept(BracketL)? {
+      token.get_or_insert(bracket);
+
       loop {
         let name = self.parse_name()?;
 
@@ -1029,7 +1038,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     if attributes.is_empty() {
       Ok(None)
     } else {
-      Ok(Some(attributes.into_keys().collect()))
+      Ok(Some((token.unwrap(), attributes.into_keys().collect())))
     }
   }
 }

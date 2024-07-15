@@ -80,7 +80,7 @@ error: Expected identifier, but found ']'
 }
 
 test! {
-  name: unattached_attribute_before_comment,
+  name: extraneous_attribute_before_comment,
   justfile: r#"
 [no-exit-message]
 # This is a doc comment
@@ -88,25 +88,31 @@ hello:
   @exit 100
 "#,
   stderr: r#"
-error: Expected '@', '[', or identifier, but found comment
- ——▶ justfile:2:1
+error: Extraneous attribute
+ ——▶ justfile:1:1
   │
-2 │ # This is a doc comment
-  │ ^^^^^^^^^^^^^^^^^^^^^^^
+1 │ [no-exit-message]
+  │ ^
 "#,
 
   status: EXIT_FAILURE,
 }
 
 test! {
-  name: unattached_attribute_before_empty_line,
+  name: extraneous_attribute_before_empty_line,
   justfile: r#"
 [no-exit-message]
 
 hello:
   @exit 100
 "#,
-  stderr: "error: Expected '@', '[', or identifier, but found end of line\n ——▶ justfile:2:1\n  │\n2 │ \n  │ ^\n",
+  stderr: "
+    error: Extraneous attribute
+     ——▶ justfile:1:1
+      │
+    1 │ [no-exit-message]
+      │ ^
+  ",
   status: EXIT_FAILURE,
 }
 

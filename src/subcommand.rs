@@ -620,7 +620,7 @@ impl Subcommand {
         format_doc(
           config,
           submodule.name(),
-          submodule.doc,
+          submodule.doc.as_deref(),
           max_signature_width,
           &signature_widths,
         );

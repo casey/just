@@ -10,7 +10,7 @@ pub(crate) struct Analyzer<'src> {
 impl<'src> Analyzer<'src> {
   pub(crate) fn analyze(
     asts: &HashMap<PathBuf, Ast<'src>>,
-    doc: Option<&'src str>,
+    doc: Option<String>,
     loaded: &[PathBuf],
     name: Option<Name<'src>>,
     paths: &HashMap<PathBuf, PathBuf>,
@@ -22,7 +22,7 @@ impl<'src> Analyzer<'src> {
   fn justfile(
     mut self,
     asts: &HashMap<PathBuf, Ast<'src>>,
-    doc: Option<&'src str>,
+    doc: Option<String>,
     loaded: &[PathBuf],
     name: Option<Name<'src>>,
     paths: &HashMap<PathBuf, PathBuf>,
@@ -90,13 +90,27 @@ impl<'src> Analyzer<'src> {
             absolute,
             name,
             doc,
+            attributes,
             ..
           } => {
+            let mut doc_attr: Option<&str> = None;
+            for attribute in attributes {
+              if let Attribute::Doc(ref doc) = attribute {
+                doc_attr = doc.as_ref().map(|s| s.cooked.as_ref());
+              } else {
+                return Err(name.token.error(InvalidAttribute {
+                  item_kind: "Module",
+                  item_name: name.lexeme(),
+                  attribute: attribute.clone(),
+                }));
+              }
+            }
+
             if let Some(absolute) = absolute {
               define(*name, "module", false)?;
               modules.insert(Self::analyze(
                 asts,
-                *doc,
+                doc_attr.or(*doc).map(ToOwned::to_owned),
                 loaded,
                 Some(*name),
                 paths,
@@ -245,12 +259,11 @@ impl<'src> Analyzer<'src> {
   }
 
   fn analyze_alias(alias: &Alias<'src, Name<'src>>) -> CompileResult<'src> {
-    let name = alias.name.lexeme();
-
     for attribute in &alias.attributes {
       if *attribute != Attribute::Private {
-        return Err(alias.name.token.error(AliasInvalidAttribute {
-          alias: name,
+        return Err(alias.name.token.error(InvalidAttribute {
+          item_kind: "Alias",
+          item_name: alias.name.lexeme(),
           attribute: attribute.clone(),
         }));
       }
