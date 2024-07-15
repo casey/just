@@ -381,7 +381,28 @@ impl<'run, 'src> Parser<'run, 'src> {
               || self.next_are(&[Identifier, QuestionMark]) =>
           {
             let doc = pop_doc_comment(&mut items, eol_since_last_comment);
-            items.push(self.parse_module(take_attributes(), doc)?);
+
+            self.presume_keyword(Keyword::Mod)?;
+
+            let optional = self.accepted(QuestionMark)?;
+
+            let name = self.parse_name()?;
+
+            let relative = if self.next_is(StringToken) || self.next_are(&[Identifier, StringToken])
+            {
+              Some(self.parse_string_literal()?)
+            } else {
+              None
+            };
+
+            items.push(Item::Module {
+              attributes: take_attributes(),
+              absolute: None,
+              doc,
+              name,
+              optional,
+              relative,
+            });
           }
           Some(Keyword::Set)
             if self.next_are(&[Identifier, Identifier, ColonEquals])
@@ -434,33 +455,6 @@ impl<'run, 'src> Parser<'run, 'src> {
         self.tokens.len() - self.next_token,
       ))?)
     }
-  }
-
-  fn parse_module(
-    &mut self,
-    attributes: BTreeSet<Attribute<'src>>,
-    doc: Option<&'src str>,
-  ) -> CompileResult<'src, Item<'src>> {
-    self.presume_keyword(Keyword::Mod)?;
-
-    let optional = self.accepted(QuestionMark)?;
-
-    let name = self.parse_name()?;
-
-    let relative = if self.next_is(StringToken) || self.next_are(&[Identifier, StringToken]) {
-      Some(self.parse_string_literal()?)
-    } else {
-      None
-    };
-
-    Ok(Item::Module {
-      attributes,
-      absolute: None,
-      doc,
-      name,
-      optional,
-      relative,
-    })
   }
 
   /// Parse an alias, e.g `alias name := target`
