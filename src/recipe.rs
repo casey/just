@@ -368,7 +368,16 @@ impl<'src, D> Recipe<'src, D> {
       io_error: error,
     })?;
     let mut path = tempdir.path().to_path_buf();
-    path.push(shebang.script_filename(self.name()));
+
+    let extension = self.attributes.iter().find_map(|attribute| {
+      if let Attribute::Extension(extension) = attribute {
+        Some(extension.cooked.as_str())
+      } else {
+        None
+      }
+    });
+
+    path.push(shebang.script_filename(self.name(), extension));
 
     {
       let mut f = fs::File::create(&path).map_err(|error| Error::TempdirIo {
