@@ -105,13 +105,12 @@ impl<'src> Analyzer<'src> {
                 }));
               }
             }
-            let final_docstring: Option<String> = doc_attr.or(*doc).map(ToOwned::to_owned);
 
             if let Some(absolute) = absolute {
               define(*name, "module", false)?;
               modules.insert(Self::analyze(
                 asts,
-                final_docstring,
+                doc_attr.or(*doc).map(ToOwned::to_owned),
                 loaded,
                 Some(*name),
                 paths,
