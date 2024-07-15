@@ -255,6 +255,20 @@ impl<'src> Analyzer<'src> {
       continued = line.is_continuation();
     }
 
+    if !recipe.shebang {
+      if let Some(attribute) = recipe
+        .attributes
+        .iter()
+        .find(|attribute| matches!(attribute, Attribute::Extension(_)))
+      {
+        return Err(recipe.name.error(InvalidAttribute {
+          item_kind: "Recipe",
+          item_name: recipe.name.lexeme(),
+          attribute: attribute.clone(),
+        }));
+      }
+    }
+
     Ok(())
   }
 

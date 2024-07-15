@@ -11,6 +11,7 @@ use super::*;
 pub(crate) enum Attribute<'src> {
   Confirm(Option<StringLiteral<'src>>),
   Doc(Option<StringLiteral<'src>>),
+  Extension(StringLiteral<'src>),
   Group(StringLiteral<'src>),
   Linux,
   Macos,
@@ -27,7 +28,7 @@ impl AttributeDiscriminant {
   fn argument_range(self) -> RangeInclusive<usize> {
     match self {
       Self::Confirm | Self::Doc => 0..=1,
-      Self::Group => 1..=1,
+      Self::Group | Self::Extension => 1..=1,
       Self::Linux
       | Self::Macos
       | Self::NoCd
@@ -46,8 +47,6 @@ impl<'src> Attribute<'src> {
     name: Name<'src>,
     argument: Option<StringLiteral<'src>>,
   ) -> CompileResult<'src, Self> {
-    use AttributeDiscriminant::*;
-
     let discriminant = name
       .lexeme()
       .parse::<AttributeDiscriminant>()
@@ -72,18 +71,19 @@ impl<'src> Attribute<'src> {
     }
 
     Ok(match discriminant {
-      Confirm => Self::Confirm(argument),
-      Doc => Self::Doc(argument),
-      Group => Self::Group(argument.unwrap()),
-      Linux => Self::Linux,
-      Macos => Self::Macos,
-      NoCd => Self::NoCd,
-      NoExitMessage => Self::NoExitMessage,
-      NoQuiet => Self::NoQuiet,
-      PositionalArguments => Self::PositionalArguments,
-      Private => Self::Private,
-      Unix => Self::Unix,
-      Windows => Self::Windows,
+      AttributeDiscriminant::Confirm => Self::Confirm(argument),
+      AttributeDiscriminant::Doc => Self::Doc(argument),
+      AttributeDiscriminant::Extension => Self::Extension(argument.unwrap()),
+      AttributeDiscriminant::Group => Self::Group(argument.unwrap()),
+      AttributeDiscriminant::Linux => Self::Linux,
+      AttributeDiscriminant::Macos => Self::Macos,
+      AttributeDiscriminant::NoCd => Self::NoCd,
+      AttributeDiscriminant::NoExitMessage => Self::NoExitMessage,
+      AttributeDiscriminant::NoQuiet => Self::NoQuiet,
+      AttributeDiscriminant::PositionalArguments => Self::PositionalArguments,
+      AttributeDiscriminant::Private => Self::Private,
+      AttributeDiscriminant::Unix => Self::Unix,
+      AttributeDiscriminant::Windows => Self::Windows,
     })
   }
 
@@ -93,9 +93,8 @@ impl<'src> Attribute<'src> {
 
   fn argument(&self) -> Option<&StringLiteral> {
     match self {
-      Self::Confirm(prompt) => prompt.as_ref(),
-      Self::Doc(doc) => doc.as_ref(),
-      Self::Group(group) => Some(group),
+      Self::Confirm(argument) | Self::Doc(argument) => argument.as_ref(),
+      Self::Extension(argument) | Self::Group(argument) => Some(argument),
       Self::Linux
       | Self::Macos
       | Self::NoCd

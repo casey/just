@@ -193,3 +193,40 @@ fn doc_multiline() {
     )
     .run();
 }
+
+#[test]
+fn extension() {
+  Test::new()
+    .justfile(
+      "
+        [extension: '.txt']
+        baz:
+          #!/bin/sh
+          echo $0
+      ",
+    )
+    .stdout_regex(r"*baz\.txt\n")
+    .run();
+}
+
+#[test]
+fn extension_on_linewise_error() {
+  Test::new()
+    .justfile(
+      "
+        [extension: '.txt']
+        baz:
+      ",
+    )
+    .stderr(
+      "
+  error: Recipe `baz` has invalid attribute `extension`
+   ——▶ justfile:2:1
+    │
+  2 │ baz:
+    │ ^^^
+",
+    )
+    .status(EXIT_FAILURE)
+    .run();
+}
