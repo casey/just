@@ -95,15 +95,14 @@ impl<'src> Analyzer<'src> {
           } => {
             let mut doc_attr: Option<&str> = None;
             for attribute in attributes {
-              if !matches!(attribute, Attribute::Doc(..)) {
+              if let Attribute::Doc(ref doc) = attribute {
+                doc_attr = doc.as_ref().map(|s| s.cooked.as_ref());
+              } else {
                 return Err(name.token.error(InvalidAttribute {
                   item_kind: "Module",
                   item_name: name.lexeme(),
                   attribute: attribute.clone(),
                 }));
-              }
-              if let Attribute::Doc(ref doc) = attribute {
-                doc_attr = doc.as_ref().map(|s| s.cooked.as_ref());
               }
             }
             let final_docstring: Option<String> = doc_attr.or(*doc).map(ToOwned::to_owned);
