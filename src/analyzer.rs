@@ -96,7 +96,7 @@ impl<'src> Analyzer<'src> {
             let mut doc_attr: Option<&str> = None;
             for attribute in attributes {
               if let Attribute::Doc(ref doc) = attribute {
-                doc_attr = doc.as_ref().map(|s| s.cooked.as_ref());
+                doc_attr = Some(doc.as_ref().map(|s| s.cooked.as_ref()).unwrap_or_default());
               } else {
                 return Err(name.token.error(InvalidAttribute {
                   item_kind: "Module",

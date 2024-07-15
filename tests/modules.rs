@@ -787,3 +787,20 @@ fn bad_module_attribute_fails() {
     .status(EXIT_FAILURE)
     .run();
 }
+
+#[test]
+fn empty_doc_attribute_on_module() {
+  Test::new()
+    .write("foo.just", "")
+    .justfile(
+      r#"
+        # Suppressed comment
+        [doc]
+        mod foo
+      "#,
+    )
+    .test_round_trip(false)
+    .arg("--list")
+    .stdout("Available recipes:\n    foo ...\n")
+    .run();
+}

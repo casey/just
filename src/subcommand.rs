@@ -452,7 +452,7 @@ impl Subcommand {
       signature_widths: &BTreeMap<&str, usize>,
     ) {
       if let Some(doc) = doc {
-        if doc.lines().count() <= 1 {
+        if !doc.is_empty() && doc.lines().count() <= 1 {
           print!(
             "{:padding$}{} {}",
             "",
