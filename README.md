@@ -1712,7 +1712,7 @@ Recipes may be annotated with attributes that change their behavior.
 | `[confirm]`<sup>1.17.0</sup> | Require confirmation prior to executing recipe. |
 | `[confirm('PROMPT')]`<sup>1.23.0</sup> | Require confirmation prior to executing recipe with a custom prompt. |
 | `[doc('DOC')]`<sup>1.27.0</sup> | Set recipe's [documentation comment](#documentation-comments) to `DOC`. |
-| `[extension('EXT')]`<sup>master</sup> | Set saved shebang recipe script's file extension to `EXT`. `EXT` should include a period if one is desired. |
+| `[extension('EXT')]`<sup>master</sup> | Set shebang recipe script's file extension to `EXT`. `EXT` should include a period if one is desired. |
 | `[group('NAME')]`<sup>1.27.0</sup> | Put recipe in [recipe group](#recipe-groups) `NAME`. |
 | `[linux]`<sup>1.8.0</sup> | Enable recipe on Linux. |
 | `[macos]`<sup>1.8.0</sup> | Enable recipe on MacOS. |
