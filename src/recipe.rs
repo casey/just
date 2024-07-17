@@ -108,10 +108,6 @@ impl<'src, D> Recipe<'src, D> {
 
   pub(crate) fn is_script(&self) -> bool {
     self.shebang
-      || self
-        .attributes
-        .iter()
-        .any(|attribute| matches!(attribute, Attribute::Script(_)))
   }
 
   pub(crate) fn takes_positional_arguments(&self, settings: &Settings) -> bool {
