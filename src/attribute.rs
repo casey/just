@@ -20,6 +20,7 @@ pub(crate) enum Attribute<'src> {
   NoQuiet,
   PositionalArguments,
   Private,
+  Script(Vec<StringLiteral<'src>>),
   Unix,
   Windows,
 }
@@ -38,6 +39,7 @@ impl AttributeDiscriminant {
       | Self::Private
       | Self::Unix
       | Self::Windows => 0..=0,
+      Self::Script => 1..=usize::MAX,
     }
   }
 }
@@ -45,7 +47,7 @@ impl AttributeDiscriminant {
 impl<'src> Attribute<'src> {
   pub(crate) fn new(
     name: Name<'src>,
-    argument: Option<StringLiteral<'src>>,
+    arguments: Vec<StringLiteral<'src>>,
   ) -> CompileResult<'src, Self> {
     let discriminant = name
       .lexeme()
@@ -57,7 +59,7 @@ impl<'src> Attribute<'src> {
         })
       })?;
 
-    let found = argument.as_ref().iter().count();
+    let found = arguments.len();
     let range = discriminant.argument_range();
     if !range.contains(&found) {
       return Err(
@@ -71,10 +73,10 @@ impl<'src> Attribute<'src> {
     }
 
     Ok(match discriminant {
-      AttributeDiscriminant::Confirm => Self::Confirm(argument),
-      AttributeDiscriminant::Doc => Self::Doc(argument),
-      AttributeDiscriminant::Extension => Self::Extension(argument.unwrap()),
-      AttributeDiscriminant::Group => Self::Group(argument.unwrap()),
+      AttributeDiscriminant::Confirm => Self::Confirm(arguments.into_iter().next()),
+      AttributeDiscriminant::Doc => Self::Doc(arguments.into_iter().next()),
+      AttributeDiscriminant::Extension => Self::Extension(arguments.into_iter().next().unwrap()),
+      AttributeDiscriminant::Group => Self::Group(arguments.into_iter().next().unwrap()),
       AttributeDiscriminant::Linux => Self::Linux,
       AttributeDiscriminant::Macos => Self::Macos,
       AttributeDiscriminant::NoCd => Self::NoCd,
@@ -82,6 +84,7 @@ impl<'src> Attribute<'src> {
       AttributeDiscriminant::NoQuiet => Self::NoQuiet,
       AttributeDiscriminant::PositionalArguments => Self::PositionalArguments,
       AttributeDiscriminant::Private => Self::Private,
+      AttributeDiscriminant::Script => Self::Script(arguments),
       AttributeDiscriminant::Unix => Self::Unix,
       AttributeDiscriminant::Windows => Self::Windows,
     })
@@ -91,10 +94,10 @@ impl<'src> Attribute<'src> {
     self.into()
   }
 
-  fn argument(&self) -> Option<&StringLiteral> {
+  fn arguments(&self) -> &[StringLiteral] {
     match self {
-      Self::Confirm(argument) | Self::Doc(argument) => argument.as_ref(),
-      Self::Extension(argument) | Self::Group(argument) => Some(argument),
+      Self::Confirm(argument) | Self::Doc(argument) => argument.as_slice(),
+      Self::Extension(argument) | Self::Group(argument) => slice::from_ref(argument),
       Self::Linux
       | Self::Macos
       | Self::NoCd
@@ -103,7 +106,8 @@ impl<'src> Attribute<'src> {
       | Self::PositionalArguments
       | Self::Private
       | Self::Unix
-      | Self::Windows => None,
+      | Self::Windows => &[],
+      Self::Script(arguments) => &arguments,
     }
   }
 }
@@ -111,8 +115,21 @@ impl<'src> Attribute<'src> {
 impl<'src> Display for Attribute<'src> {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
     write!(f, "{}", self.name())?;
-    if let Some(argument) = self.argument() {
-      write!(f, "({argument})")?;
+
+    let arguments = self.arguments();
+
+    for (i, argument) in arguments.iter().enumerate() {
+      if i == 0 {
+        write!(f, "(")?;
+      } else {
+        write!(f, ", ")?;
+      }
+
+      write!(f, "{argument}")?;
+
+      if i + 1 == arguments.len() {
+        write!(f, ")")?;
+      }
     }
 
     Ok(())

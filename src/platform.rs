@@ -10,13 +10,13 @@ impl PlatformInterface for Platform {
     _shebang: Shebang,
   ) -> Result<Command, OutputError> {
     // shebang scripts can be executed directly on unix
-    let mut cmd = Command::new(path);
+    let mut command = Command::new(path);
 
     if let Some(working_directory) = working_directory {
-      cmd.current_dir(working_directory);
+      command.current_dir(working_directory);
     }
 
-    Ok(cmd)
+    Ok(command)
   }
 
   fn set_execute_permission(path: &Path) -> io::Result<()> {

@@ -74,6 +74,7 @@ pub(crate) use {
     path::{self, Path, PathBuf},
     process::{self, Command, ExitStatus, Stdio},
     rc::Rc,
+    slice,
     str::{self, Chars},
     sync::{Mutex, MutexGuard, OnceLock},
     vec,
