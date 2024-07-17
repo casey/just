@@ -14,14 +14,14 @@ impl<'a> Executor<'a> {
   ) -> RunResult<'src, Command> {
     match self {
       Self::Command(args) => {
-        let mut command = Command::new(&args[0]);
+        let mut command = Command::new(args[0]);
 
         if let Some(working_directory) = working_directory {
           command.current_dir(working_directory);
         }
 
         for arg in &args[1..] {
-          command.arg(&arg);
+          command.arg(arg);
         }
 
         command.arg(path);
@@ -56,7 +56,7 @@ impl<'a> Executor<'a> {
   pub(crate) fn script_filename(&self, recipe: &str, extension: Option<&str>) -> String {
     let extension = extension.unwrap_or_else(|| {
       let interpreter = match self {
-        Self::Command(args) => &args[0],
+        Self::Command(args) => args[0],
         Self::Shebang(shebang) => shebang.interpreter_filename(),
       };
 
@@ -79,7 +79,7 @@ impl<'a> Executor<'a> {
           if i > 0 {
             command.push(' ');
           }
-          command.push_str(&arg);
+          command.push_str(arg);
         }
 
         Error::Script {
