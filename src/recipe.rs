@@ -16,6 +16,47 @@ fn error_from_signal(recipe: &str, line_number: Option<usize>, exit_status: Exit
   }
 }
 
+enum Executor<'a> {
+  Script(&'a [StringLiteral<'a>]),
+  Shebang(Shebang<'a>),
+}
+
+impl<'a> Executor<'a> {
+  fn include_first_line(&self) -> bool {
+    match self {
+      Self::Script(_) => true,
+      Self::Shebang(shebang) => shebang.include_shebang_line(),
+    }
+  }
+
+  fn script_filename(&self, recipe: &str, extension: Option<&str>) -> String {
+    match self {
+      Self::Script(_) => {
+        let mut filename = recipe.to_string();
+
+        if let Some(extension) = extension {
+          filename.push_str(extension);
+        }
+
+        filename
+      }
+      Self::Shebang(shebang) => shebang.script_filename(recipe, extension),
+    }
+  }
+
+  fn error<'src>(&self, io_error: io::Error, recipe: &'src str) -> Error<'src> {
+    match self {
+      Self::Script(_) => Error::Script { io_error, recipe },
+      Self::Shebang(shebang) => Error::Shebang {
+        recipe,
+        command: shebang.interpreter.to_owned(),
+        argument: shebang.argument.map(String::from),
+        io_error,
+      },
+    }
+  }
+}
+
 /// A recipe, e.g. `foo: bar baz`
 #[derive(PartialEq, Debug, Clone, Serialize)]
 pub(crate) struct Recipe<'src, D = Dependency<'src>> {
@@ -338,53 +379,12 @@ impl<'src, D> Recipe<'src, D> {
       return Ok(());
     }
 
-    enum Foo<'a> {
-      Script(&'a [StringLiteral<'a>]),
-      Shebang(Shebang<'a>),
-    }
-
-    impl<'a> Foo<'a> {
-      fn include_first_line(&self) -> bool {
-        match self {
-          Self::Script(_) => true,
-          Self::Shebang(shebang) => shebang.include_shebang_line(),
-        }
-      }
-
-      fn script_filename(&self, recipe: &str, extension: Option<&str>) -> String {
-        match self {
-          Self::Script(_) => {
-            let mut filename = recipe.to_string();
-
-            if let Some(extension) = extension {
-              filename.push_str(extension);
-            }
-
-            filename
-          }
-          Self::Shebang(shebang) => shebang.script_filename(recipe, extension),
-        }
-      }
-
-      fn error<'src>(&self, io_error: io::Error, recipe: &'src str) -> Error<'src> {
-        match self {
-          Self::Script(_) => Error::Script { io_error, recipe },
-          Self::Shebang(shebang) => Error::Shebang {
-            recipe,
-            command: shebang.interpreter.to_owned(),
-            argument: shebang.argument.map(String::from),
-            io_error,
-          },
-        }
-      }
-    }
-
-    let foo = if let Some(Attribute::Script(interpreter)) = self
+    let executor = if let Some(Attribute::Script(interpreter)) = self
       .attributes
       .iter()
       .find(|attribute| matches!(attribute, Attribute::Script(_)))
     {
-      Foo::Script(interpreter)
+      Executor::Script(interpreter)
     } else {
       let shebang_line = evaluated_lines.first().ok_or_else(|| Error::Internal {
         message: "evaluated_lines was empty".to_owned(),
@@ -394,7 +394,7 @@ impl<'src, D> Recipe<'src, D> {
         message: format!("bad shebang line: {shebang_line}"),
       })?;
 
-      Foo::Shebang(shebang)
+      Executor::Shebang(shebang)
     };
 
     let mut tempdir_builder = tempfile::Builder::new();
@@ -428,7 +428,7 @@ impl<'src, D> Recipe<'src, D> {
       }
     });
 
-    path.push(foo.script_filename(self.name(), extension));
+    path.push(executor.script_filename(self.name(), extension));
 
     {
       let mut f = fs::File::create(&path).map_err(|error| Error::TempdirIo {
@@ -437,7 +437,7 @@ impl<'src, D> Recipe<'src, D> {
       })?;
       let mut text = String::new();
 
-      if foo.include_first_line() {
+      if executor.include_first_line() {
         text += &evaluated_lines[0];
       } else {
         text += "\n";
@@ -465,8 +465,8 @@ impl<'src, D> Recipe<'src, D> {
         })?;
     }
 
-    let mut command = match foo {
-      Foo::Script(args) => {
+    let mut command = match executor {
+      Executor::Script(args) => {
         let mut command = Command::new(&args[0].cooked);
 
         for arg in &args[1..] {
@@ -477,7 +477,7 @@ impl<'src, D> Recipe<'src, D> {
 
         command
       }
-      Foo::Shebang(shebang) => {
+      Executor::Shebang(shebang) => {
         // make script executable
         Platform::set_execute_permission(&path).map_err(|error| Error::TempdirIo {
           recipe: self.name(),
@@ -516,7 +516,7 @@ impl<'src, D> Recipe<'src, D> {
           }
         },
       ),
-      Err(io_error) => Err(foo.error(io_error, self.name())),
+      Err(io_error) => Err(executor.error(io_error, self.name())),
     }
   }
 

@@ -96,9 +96,14 @@ impl<'src> Attribute<'src> {
 
   fn arguments(&self) -> &[StringLiteral] {
     match self {
-      Self::Confirm(argument) | Self::Doc(argument) => argument.as_slice(),
-      Self::Extension(argument) | Self::Group(argument) => slice::from_ref(argument),
-      Self::Linux
+      Self::Confirm(Some(argument))
+      | Self::Doc(Some(argument))
+      | Self::Extension(argument)
+      | Self::Group(argument) => slice::from_ref(argument),
+      Self::Script(arguments) => arguments,
+      Self::Confirm(None)
+      | Self::Doc(None)
+      | Self::Linux
       | Self::Macos
       | Self::NoCd
       | Self::NoExitMessage
@@ -107,7 +112,6 @@ impl<'src> Attribute<'src> {
       | Self::Private
       | Self::Unix
       | Self::Windows => &[],
-      Self::Script(arguments) => &arguments,
     }
   }
 }
