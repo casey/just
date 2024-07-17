@@ -818,7 +818,9 @@ impl<'run, 'src> Parser<'run, 'src> {
       .any(|attribute| matches!(attribute, Attribute::Script(_)));
 
     if shebang && script {
-      todo!();
+      return Err(name.error(CompileErrorKind::ShebangAndScriptAttribute {
+        recipe: name.lexeme(),
+      }));
     }
 
     Ok(Recipe {

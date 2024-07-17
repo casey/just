@@ -56,3 +56,29 @@ fn requires_argument() {
     .status(EXIT_FAILURE)
     .run();
 }
+
+#[test]
+fn not_allowed_with_shebang() {
+  Test::new()
+    .justfile(
+      "
+        set unstable
+
+        [script('sh', '-u')]
+        foo:
+          #!/bin/sh
+
+      ",
+    )
+    .stderr(
+      "
+        error: Recipe `foo` has both shebang line and `[script]` attribute
+         ——▶ justfile:4:1
+          │
+        4 │ foo:
+          │ ^^^
+      ",
+    )
+    .status(EXIT_FAILURE)
+    .run();
+}
