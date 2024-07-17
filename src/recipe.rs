@@ -435,6 +435,7 @@ impl<'src, D> Recipe<'src, D> {
         recipe: self.name(),
         io_error: error,
       })?;
+
       let mut text = String::new();
 
       if executor.include_first_line() {
@@ -444,6 +445,7 @@ impl<'src, D> Recipe<'src, D> {
       }
 
       text += "\n";
+
       // add blank lines so that lines in the generated script have the same line
       // number as the corresponding lines in the justfile
       for _ in 1..(self.line_number() + 2) {
