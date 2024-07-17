@@ -1,7 +1,7 @@
 use super::*;
 
 pub(crate) enum Executor<'a> {
-  Command(&'a [StringLiteral<'a>]),
+  Command(Vec<&'a str>),
   Shebang(Shebang<'a>),
 }
 
@@ -14,14 +14,14 @@ impl<'a> Executor<'a> {
   ) -> RunResult<'src, Command> {
     match self {
       Self::Command(args) => {
-        let mut command = Command::new(&args[0].cooked);
+        let mut command = Command::new(&args[0]);
 
         if let Some(working_directory) = working_directory {
           command.current_dir(working_directory);
         }
 
         for arg in &args[1..] {
-          command.arg(&arg.cooked);
+          command.arg(&arg);
         }
 
         command.arg(path);
@@ -54,18 +54,20 @@ impl<'a> Executor<'a> {
   }
 
   pub(crate) fn script_filename(&self, recipe: &str, extension: Option<&str>) -> String {
-    match self {
-      Self::Command(_) => {
-        let mut filename = recipe.to_string();
+    let extension = extension.unwrap_or_else(|| {
+      let interpreter = match self {
+        Self::Command(args) => &args[0],
+        Self::Shebang(shebang) => shebang.interpreter_filename(),
+      };
 
-        if let Some(extension) = extension {
-          filename.push_str(extension);
-        }
-
-        filename
+      match interpreter {
+        "cmd" | "cmd.exe" => ".bat",
+        "powershell" | "powershell.exe" | "pwsh" | "pwsh.exe" => ".ps1",
+        _ => "",
       }
-      Self::Shebang(shebang) => shebang.script_filename(recipe, extension),
-    }
+    });
+
+    format!("{recipe}{extension}")
   }
 
   pub(crate) fn error<'src>(&self, io_error: io::Error, recipe: &'src str) -> Error<'src> {
@@ -77,7 +79,7 @@ impl<'a> Executor<'a> {
           if i > 0 {
             command.push(' ');
           }
-          command.push_str(&arg.cooked);
+          command.push_str(&arg);
         }
 
         Error::Script {
@@ -93,5 +95,37 @@ impl<'a> Executor<'a> {
         recipe,
       },
     }
+  }
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn shebang_script_filename() {
+    #[track_caller]
+    fn case(interpreter: &str, recipe: &str, extension: Option<&str>, expected: &str) {
+      assert_eq!(
+        Executor::Shebang(Shebang::new(&format!("#!{interpreter}")).unwrap())
+          .script_filename(recipe, extension),
+        expected
+      );
+      assert_eq!(
+        Executor::Command(vec![interpreter]).script_filename(recipe, extension),
+        expected
+      );
+    }
+
+    case("bar", "foo", Some(".sh"), "foo.sh");
+    case("pwsh.exe", "foo", Some(".sh"), "foo.sh");
+    case("cmd.exe", "foo", Some(".sh"), "foo.sh");
+    case("powershell", "foo", None, "foo.ps1");
+    case("pwsh", "foo", None, "foo.ps1");
+    case("powershell.exe", "foo", None, "foo.ps1");
+    case("pwsh.exe", "foo", None, "foo.ps1");
+    case("cmd", "foo", None, "foo.bat");
+    case("cmd.exe", "foo", None, "foo.bat");
+    case("bar", "foo", None, "foo");
   }
 }

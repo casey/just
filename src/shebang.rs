@@ -30,22 +30,12 @@ impl<'line> Shebang<'line> {
     })
   }
 
-  fn interpreter_filename(&self) -> &str {
+  pub fn interpreter_filename(&self) -> &str {
     self
       .interpreter
       .split(|c| matches!(c, '/' | '\\'))
       .last()
       .unwrap_or(self.interpreter)
-  }
-
-  pub(crate) fn script_filename(&self, recipe: &str, extension: Option<&str>) -> String {
-    let extension = extension.unwrap_or_else(|| match self.interpreter_filename() {
-      "cmd" | "cmd.exe" => ".bat",
-      "powershell" | "powershell.exe" | "pwsh" | "pwsh.exe" => ".ps1",
-      _ => "",
-    });
-
-    format!("{recipe}{extension}")
   }
 
   pub(crate) fn include_shebang_line(&self) -> bool {
@@ -138,70 +128,6 @@ mod tests {
   }
 
   #[test]
-  fn powershell_script_filename() {
-    assert_eq!(
-      Shebang::new("#!powershell")
-        .unwrap()
-        .script_filename("foo", None),
-      "foo.ps1"
-    );
-  }
-
-  #[test]
-  fn pwsh_script_filename() {
-    assert_eq!(
-      Shebang::new("#!pwsh").unwrap().script_filename("foo", None),
-      "foo.ps1"
-    );
-  }
-
-  #[test]
-  fn powershell_exe_script_filename() {
-    assert_eq!(
-      Shebang::new("#!powershell.exe")
-        .unwrap()
-        .script_filename("foo", None),
-      "foo.ps1"
-    );
-  }
-
-  #[test]
-  fn pwsh_exe_script_filename() {
-    assert_eq!(
-      Shebang::new("#!pwsh.exe")
-        .unwrap()
-        .script_filename("foo", None),
-      "foo.ps1"
-    );
-  }
-
-  #[test]
-  fn cmd_script_filename() {
-    assert_eq!(
-      Shebang::new("#!cmd").unwrap().script_filename("foo", None),
-      "foo.bat"
-    );
-  }
-
-  #[test]
-  fn cmd_exe_script_filename() {
-    assert_eq!(
-      Shebang::new("#!cmd.exe")
-        .unwrap()
-        .script_filename("foo", None),
-      "foo.bat"
-    );
-  }
-
-  #[test]
-  fn plain_script_filename() {
-    assert_eq!(
-      Shebang::new("#!bar").unwrap().script_filename("foo", None),
-      "foo"
-    );
-  }
-
-  #[test]
   fn dont_include_shebang_line_cmd() {
     assert!(!Shebang::new("#!cmd").unwrap().include_shebang_line());
   }
@@ -221,27 +147,5 @@ mod tests {
   #[cfg(windows)]
   fn include_shebang_line_other_windows() {
     assert!(!Shebang::new("#!foo -c").unwrap().include_shebang_line());
-  }
-
-  #[test]
-  fn filename_with_extension() {
-    assert_eq!(
-      Shebang::new("#!bar")
-        .unwrap()
-        .script_filename("foo", Some(".sh")),
-      "foo.sh"
-    );
-    assert_eq!(
-      Shebang::new("#!pwsh.exe")
-        .unwrap()
-        .script_filename("foo", Some(".sh")),
-      "foo.sh"
-    );
-    assert_eq!(
-      Shebang::new("#!cmd.exe")
-        .unwrap()
-        .script_filename("foo", Some(".sh")),
-      "foo.sh"
-    );
   }
 }

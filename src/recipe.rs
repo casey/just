@@ -347,7 +347,7 @@ impl<'src, D> Recipe<'src, D> {
       .iter()
       .find(|attribute| matches!(attribute, Attribute::Script(_)))
     {
-      Executor::Command(args)
+      Executor::Command(args.iter().map(|arg| arg.cooked.as_str()).collect())
     } else {
       let line = evaluated_lines
         .first()
