@@ -189,7 +189,7 @@ impl<'src> Analyzer<'src> {
     let unstable_features = recipes
       .values()
       .flat_map(|recipe| &recipe.attributes)
-      .flat_map(|attribute| {
+      .filter_map(|attribute| {
         if let Attribute::Script(_) = attribute {
           Some(UnstableFeature::ScriptAttribute)
         } else {
