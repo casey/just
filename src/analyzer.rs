@@ -196,8 +196,6 @@ impl<'src> Analyzer<'src> {
           None
         }
       })
-      .next()
-      .into_iter()
       .collect();
 
     Ok(Justfile {
