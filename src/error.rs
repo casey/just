@@ -137,6 +137,7 @@ pub(crate) enum Error<'src> {
     source: regex::Error,
   },
   Script {
+    command: String,
     io_error: io::Error,
     recipe: &'src str,
   },
@@ -417,8 +418,8 @@ impl<'src> ColorDisplay for Error<'src> {
       RuntimeDirIo { io_error, path } => {
         write!(f, "I/O error in runtime dir `{}`: {io_error}", path.display())?;
       }
-      Script { recipe, io_error} => {
-        write!(f, "Recipe `{recipe}` execution error: {io_error}")?;
+      Script { command, io_error, recipe } => {
+        write!(f, "Recipe `{recipe}` with command `{command}` execution error: {io_error}")?;
       }
       Search { search_error } => Display::fmt(search_error, f)?,
       Shebang { recipe, command, argument, io_error} => {

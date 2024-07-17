@@ -186,6 +186,18 @@ impl<'src> Analyzer<'src> {
 
     let root = paths.get(root).unwrap();
 
+    let unstable_features = recipes
+      .values()
+      .flat_map(|recipe| &recipe.attributes)
+      .flat_map(|attribute| {
+        if let Attribute::Script(_) = attribute {
+          Some(UnstableFeature::ScriptAttribute)
+        } else {
+          None
+        }
+      })
+      .collect();
+
     Ok(Justfile {
       aliases,
       assignments: self.assignments,
@@ -208,7 +220,7 @@ impl<'src> Analyzer<'src> {
       settings,
       source: root.into(),
       unexports,
-      unstable_features: BTreeSet::new(),
+      unstable_features,
       warnings,
     })
   }
@@ -242,7 +254,7 @@ impl<'src> Analyzer<'src> {
 
     let mut continued = false;
     for line in &recipe.body {
-      if !recipe.shebang && !continued {
+      if !recipe.is_script() && !continued {
         if let Some(Fragment::Text { token }) = line.fragments.first() {
           let text = token.lexeme();
 
@@ -255,7 +267,7 @@ impl<'src> Analyzer<'src> {
       continued = line.is_continuation();
     }
 
-    if !recipe.shebang {
+    if !recipe.is_script() {
       if let Some(attribute) = recipe
         .attributes
         .iter()
