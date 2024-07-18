@@ -2515,7 +2515,6 @@ the final argument. For example, on Windows, if a recipe starts with `#! py`,
 the final command the OS runs will be something like `py
 C:\Temp\PATH_TO_SAVED_RECIPE_BODY`.
 
-
 ### Script Recipes
 
 Recipes with a `[script(COMMAND)]` attribute<sup>master</sup> are run as
