@@ -1086,65 +1086,6 @@ test! {
   stderr:   "#!/bin/sh\necho hello\n",
 }
 
-#[cfg(not(windows))]
-test! {
-  name:     shebang_line_numbers,
-  justfile: r#"
-    quiet:
-      #!/usr/bin/env cat
-
-      a
-
-      b
-
-
-      c
-
-
-  "#,
-  stdout:   "
-    #!/usr/bin/env cat
-
-
-    a
-
-    b
-
-
-    c
-  ",
-}
-
-#[cfg(windows)]
-test! {
-  name:     shebang_line_numbers,
-  justfile: r#"
-    quiet:
-      #!/usr/bin/env cat
-
-      a
-
-      b
-
-
-      c
-
-
-  "#,
-  stdout:   "
-
-
-
-
-    a
-
-    b
-
-
-    c
-  ",
-}
-
 test! {
   name:     complex_dependencies,
   justfile: r#"

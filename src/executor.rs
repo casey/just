@@ -46,13 +46,6 @@ impl<'a> Executor<'a> {
     }
   }
 
-  pub(crate) fn include_first_line(&self) -> bool {
-    match self {
-      Self::Command(_) => true,
-      Self::Shebang(shebang) => shebang.include_shebang_line(),
-    }
-  }
-
   pub(crate) fn script_filename(&self, recipe: &str, extension: Option<&str>) -> String {
     let extension = extension.unwrap_or_else(|| {
       let interpreter = match self {
@@ -95,6 +88,53 @@ impl<'a> Executor<'a> {
         recipe,
       },
     }
+  }
+
+  // Script text for `recipe` given evaluated `lines` including blanks so line
+  // numbers in errors from generated script match justfile source lines.
+  pub(crate) fn script<'src, D>(&self, recipe: &Recipe<'src, D>, lines: &[String]) -> String {
+    let mut script = String::new();
+
+    match self {
+      Self::Shebang(shebang) => {
+        let mut n = 0;
+
+        for (i, (line, evaluated)) in recipe.body.iter().zip(lines).enumerate() {
+          if i == 0 {
+            if shebang.include_shebang_line() {
+              script.push_str(evaluated);
+              script.push('\n');
+              n += 1;
+            }
+          } else {
+            while n < line.number {
+              script.push('\n');
+              n += 1;
+            }
+
+            script.push_str(evaluated);
+            script.push('\n');
+            n += 1;
+          }
+        }
+      }
+      Self::Command(_) => {
+        let mut n = 0;
+
+        for (line, evaluated) in recipe.body.iter().zip(lines) {
+          while n < line.number {
+            script.push('\n');
+            n += 1;
+          }
+
+          script.push_str(&evaluated);
+          script.push('\n');
+          n += 1;
+        }
+      }
+    }
+
+    script
   }
 }
 

@@ -869,13 +869,14 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     if self.accepted(Indent)? {
       while !self.accepted(Dedent)? {
-        let line = if self.accepted(Eol)? {
-          Line {
-            fragments: Vec::new(),
-          }
-        } else {
-          let mut fragments = Vec::new();
+        let mut fragments = Vec::new();
+        let number = self
+          .tokens
+          .get(self.next_token)
+          .map(|token| token.line)
+          .unwrap_or_default();
 
+        if !self.accepted(Eol)? {
           while !(self.accepted(Eol)? || self.next_is(Dedent)) {
             if let Some(token) = self.accept(Text)? {
               fragments.push(Fragment::Text { token });
@@ -888,11 +889,9 @@ impl<'run, 'src> Parser<'run, 'src> {
               return Err(self.unexpected_token()?);
             }
           }
-
-          Line { fragments }
         };
 
-        lines.push(line);
+        lines.push(Line { fragments, number });
       }
     }
 

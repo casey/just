@@ -392,42 +392,16 @@ impl<'src, D> Recipe<'src, D> {
 
     path.push(executor.script_filename(self.name(), extension));
 
-    {
-      let mut text = String::new();
+    let script = executor.script(self, &evaluated_lines);
 
-      if executor.include_first_line() {
-        text += &evaluated_lines[0];
-      } else {
-        text += "\n";
-      }
-
-      text += "\n";
-
-      // add blank lines so that lines in the generated script have the same line
-      // number as the corresponding lines in the justfile
-      for _ in 1..(self.line_number() + 2) {
-        text += "\n";
-      }
-      for line in &evaluated_lines[1..] {
-        text += line;
-        text += "\n";
-      }
-
-      if config.verbosity.grandiloquent() {
-        eprintln!("{}", config.color.doc().stderr().paint(&text));
-      }
-
-      fs::File::create(&path)
-        .map_err(|error| Error::TempdirIo {
-          recipe: self.name(),
-          io_error: error,
-        })?
-        .write_all(text.as_bytes())
-        .map_err(|error| Error::TempdirIo {
-          recipe: self.name(),
-          io_error: error,
-        })?;
+    if config.verbosity.grandiloquent() {
+      eprintln!("{}", config.color.doc().stderr().paint(&script));
     }
+
+    fs::write(&path, script).map_err(|error| Error::TempdirIo {
+      recipe: self.name(),
+      io_error: error,
+    })?;
 
     let mut command =
       executor.command(&path, self.name(), self.working_directory(context.search))?;
