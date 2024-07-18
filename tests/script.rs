@@ -287,6 +287,7 @@ fn shebang_line_numbers() {
       "
 
 
+
 a
 
 b
