@@ -68,7 +68,7 @@ fn with_arguments() {
           echo $UNSET_JUST_TEST_VARIABLE_ASDF
       ",
     )
-    .stderr_regex(".*unbound variable.*")
+    .stderr_regex(".*Recipe `foo` failed.*")
     .status(EXIT_FAILURE)
     .run();
 }
