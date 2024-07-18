@@ -49,10 +49,10 @@ fn no_arguments() {
 
         [script('sh')]
         foo:
-          echo $UNSET_JUST_TEST_VARIABLE_ASDF || exit 1
+          echo foo
       ",
     )
-    .stdout_regex(r"\n")
+    .stdout("foo\n")
     .run();
 }
 
@@ -63,13 +63,13 @@ fn with_arguments() {
       "
         set unstable
 
-        [script('sh', '-u')]
+        [script('sh', '-x')]
         foo:
-          echo $UNSET_JUST_TEST_VARIABLE_ASDF || exit 1
+          echo foo
       ",
     )
-    .stderr_regex(".*Recipe `foo` failed.*")
-    .status(EXIT_FAILURE)
+    .stdout("foo\n")
+    .stderr("+ echo foo\n")
     .run();
 }
 
