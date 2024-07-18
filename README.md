@@ -1712,7 +1712,7 @@ Recipes may be annotated with attributes that change their behavior.
 | `[confirm]`<sup>1.17.0</sup> | Require confirmation prior to executing recipe. |
 | `[confirm('PROMPT')]`<sup>1.23.0</sup> | Require confirmation prior to executing recipe with a custom prompt. |
 | `[doc('DOC')]`<sup>1.27.0</sup> | Set recipe's [documentation comment](#documentation-comments) to `DOC`. |
-| `[extension('EXT')]`<sup>master</sup> | Set shebang recipe script's file extension to `EXT`. `EXT` should include a period if one is desired. |
+| `[extension('EXT')]`<sup>1.32.0</sup> | Set shebang recipe script's file extension to `EXT`. `EXT` should include a period if one is desired. |
 | `[group('NAME')]`<sup>1.27.0</sup> | Put recipe in [recipe group](#recipe-groups) `NAME`. |
 | `[linux]`<sup>1.8.0</sup> | Enable recipe on Linux. |
 | `[macos]`<sup>1.8.0</sup> | Enable recipe on MacOS. |
@@ -1721,7 +1721,7 @@ Recipes may be annotated with attributes that change their behavior.
 | `[no-quiet]`<sup>1.23.0</sup> | Override globally quiet recipes and always echo out the recipe. |
 | `[positional-arguments]`<sup>1.29.0</sup> | Turn on [positional arguments](#positional-arguments) for this recipe. |
 | `[private]`<sup>1.10.0</sup> | See [Private Recipes](#private-recipes). |
-| `[script(COMMAND)]`<sup>master</sup> | Execute recipe as a script interpreted by `COMMAND`. See [script recipes](#script-recipes) for more details. |
+| `[script(COMMAND)]`<sup>1.32.0</sup> | Execute recipe as a script interpreted by `COMMAND`. See [script recipes](#script-recipes) for more details. |
 | `[unix]`<sup>1.8.0</sup> | Enable recipe on Unixes. (Includes MacOS). |
 | `[windows]`<sup>1.8.0</sup> | Enable recipe on Windows. |
 
@@ -2517,7 +2517,7 @@ C:\Temp\PATH_TO_SAVED_RECIPE_BODY`.
 
 ### Script Recipes
 
-Recipes with a `[script(COMMAND)]` attribute<sup>master</sup> are run as
+Recipes with a `[script(COMMAND)]`<sup>1.32.0</sup> attribute are run as
 scripts interpreted by `COMMAND`. This avoids some of the issues with shebang
 recipes, such as the use of `cygpath` on Windows, the need to use
 `/usr/bin/env`, and inconsistences in shebang line splitting across Unix OSs.
