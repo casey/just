@@ -1,6 +1,15 @@
 Changelog
 =========
 
+[1.32.0](https://github.com/casey/just/releases/tag/1.32.0) - 2024-07-17
+------------------------------------------------------------------------
+
+### Added
+- Add unstable `[script(…)]` attribute ([#2259](https://github.com/casey/just/pull/2259) by [casey](https://github.com/casey))
+- Add `[extension: 'EXT']` attribute to set shebang recipe script file extension ([#2256](https://github.com/casey/just/pull/2256) by [casey](https://github.com/casey))
+- Suppress mod doc comment with empty `[doc]` attribute ([#2254](https://github.com/casey/just/pull/2254) by [casey](https://github.com/casey))
+- Allow `[doc]` annotation on modules ([#2247](https://github.com/casey/just/pull/2247) by [neunenak](https://github.com/neunenak))
+
 [1.31.0](https://github.com/casey/just/releases/tag/1.31.0) - 2024-07-14
 ------------------------------------------------------------------------
 
