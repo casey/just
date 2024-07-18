@@ -92,7 +92,7 @@ impl<'a> Executor<'a> {
 
   // Script text for `recipe` given evaluated `lines` including blanks so line
   // numbers in errors from generated script match justfile source lines.
-  pub(crate) fn script<'src, D>(&self, recipe: &Recipe<'src, D>, lines: &[String]) -> String {
+  pub(crate) fn script<D>(&self, recipe: &Recipe<D>, lines: &[String]) -> String {
     let mut script = String::new();
 
     match self {
@@ -127,7 +127,7 @@ impl<'a> Executor<'a> {
             n += 1;
           }
 
-          script.push_str(&evaluated);
+          script.push_str(evaluated);
           script.push('\n');
           n += 1;
         }
