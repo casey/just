@@ -90,6 +90,7 @@ mod readme;
 mod recursion_limit;
 mod regexes;
 mod run;
+mod script;
 mod search;
 mod search_arguments;
 mod shadowing_parameters;

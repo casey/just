@@ -136,14 +136,19 @@ pub(crate) enum Error<'src> {
   RegexCompile {
     source: regex::Error,
   },
+  Script {
+    command: String,
+    io_error: io::Error,
+    recipe: &'src str,
+  },
   Search {
     search_error: SearchError,
   },
   Shebang {
-    recipe: &'src str,
-    command: String,
     argument: Option<String>,
+    command: String,
     io_error: io::Error,
+    recipe: &'src str,
   },
   Signal {
     recipe: &'src str,
@@ -412,6 +417,9 @@ impl<'src> ColorDisplay for Error<'src> {
       RegexCompile { source } => write!(f, "{source}")?,
       RuntimeDirIo { io_error, path } => {
         write!(f, "I/O error in runtime dir `{}`: {io_error}", path.display())?;
+      }
+      Script { command, io_error, recipe } => {
+        write!(f, "Recipe `{recipe}` with command `{command}` execution error: {io_error}")?;
       }
       Search { search_error } => Display::fmt(search_error, f)?,
       Shebang { recipe, command, argument, io_error} => {

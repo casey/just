@@ -106,6 +106,10 @@ impl<'src, D> Recipe<'src, D> {
     !self.private && !self.attributes.contains(&Attribute::Private)
   }
 
+  pub(crate) fn is_script(&self) -> bool {
+    self.shebang
+  }
+
   pub(crate) fn takes_positional_arguments(&self, settings: &Settings) -> bool {
     settings.positional_arguments || self.attributes.contains(&Attribute::PositionalArguments)
   }
@@ -169,8 +173,8 @@ impl<'src, D> Recipe<'src, D> {
 
     let evaluator = Evaluator::new(context, is_dependency, scope);
 
-    if self.shebang {
-      self.run_shebang(context, scope, positional, config, evaluator)
+    if self.is_script() {
+      self.run_script(context, scope, positional, config, evaluator)
     } else {
       self.run_linewise(context, scope, positional, config, evaluator)
     }
@@ -308,7 +312,7 @@ impl<'src, D> Recipe<'src, D> {
     }
   }
 
-  pub(crate) fn run_shebang<'run>(
+  pub(crate) fn run_script<'run>(
     &self,
     context: &ExecutionContext<'src, 'run>,
     scope: &Scope<'src, 'run>,
@@ -338,13 +342,22 @@ impl<'src, D> Recipe<'src, D> {
       return Ok(());
     }
 
-    let shebang_line = evaluated_lines.first().ok_or_else(|| Error::Internal {
-      message: "evaluated_lines was empty".to_owned(),
-    })?;
+    let executor = if let Some(Attribute::Script(args)) = self
+      .attributes
+      .iter()
+      .find(|attribute| matches!(attribute, Attribute::Script(_)))
+    {
+      Executor::Command(args.iter().map(|arg| arg.cooked.as_str()).collect())
+    } else {
+      let line = evaluated_lines
+        .first()
+        .ok_or_else(|| Error::internal("evaluated_lines was empty"))?;
 
-    let shebang = Shebang::new(shebang_line).ok_or_else(|| Error::Internal {
-      message: format!("bad shebang line: {shebang_line}"),
-    })?;
+      let shebang =
+        Shebang::new(line).ok_or_else(|| Error::internal(format!("bad shebang line: {line}")))?;
+
+      Executor::Shebang(shebang)
+    };
 
     let mut tempdir_builder = tempfile::Builder::new();
     tempdir_builder.prefix("just-");
@@ -377,56 +390,21 @@ impl<'src, D> Recipe<'src, D> {
       }
     });
 
-    path.push(shebang.script_filename(self.name(), extension));
+    path.push(executor.script_filename(self.name(), extension));
 
-    {
-      let mut f = fs::File::create(&path).map_err(|error| Error::TempdirIo {
-        recipe: self.name(),
-        io_error: error,
-      })?;
-      let mut text = String::new();
+    let script = executor.script(self, &evaluated_lines);
 
-      if shebang.include_shebang_line() {
-        text += &evaluated_lines[0];
-      } else {
-        text += "\n";
-      }
-
-      text += "\n";
-      // add blank lines so that lines in the generated script have the same line
-      // number as the corresponding lines in the justfile
-      for _ in 1..(self.line_number() + 2) {
-        text += "\n";
-      }
-      for line in &evaluated_lines[1..] {
-        text += line;
-        text += "\n";
-      }
-
-      if config.verbosity.grandiloquent() {
-        eprintln!("{}", config.color.doc().stderr().paint(&text));
-      }
-
-      f.write_all(text.as_bytes())
-        .map_err(|error| Error::TempdirIo {
-          recipe: self.name(),
-          io_error: error,
-        })?;
+    if config.verbosity.grandiloquent() {
+      eprintln!("{}", config.color.doc().stderr().paint(&script));
     }
 
-    // make script executable
-    Platform::set_execute_permission(&path).map_err(|error| Error::TempdirIo {
+    fs::write(&path, script).map_err(|error| Error::TempdirIo {
       recipe: self.name(),
       io_error: error,
     })?;
 
-    // create command to run script
     let mut command =
-      Platform::make_shebang_command(&path, self.working_directory(context.search), shebang)
-        .map_err(|output_error| Error::Cygpath {
-          recipe: self.name(),
-          output_error,
-        })?;
+      executor.command(&path, self.name(), self.working_directory(context.search))?;
 
     if self.takes_positional_arguments(context.settings) {
       command.args(positional);
@@ -451,12 +429,7 @@ impl<'src, D> Recipe<'src, D> {
           }
         },
       ),
-      Err(io_error) => Err(Error::Shebang {
-        recipe: self.name(),
-        command: shebang.interpreter.to_owned(),
-        argument: shebang.argument.map(String::from),
-        io_error,
-      }),
+      Err(io_error) => Err(executor.error(io_error, self.name())),
     }
   }
 

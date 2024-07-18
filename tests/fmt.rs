@@ -1073,3 +1073,26 @@ fn exported_parameter() {
     .stdout("foo +$f:\n")
     .run();
 }
+
+#[test]
+fn multi_argument_attribute() {
+  Test::new()
+    .justfile(
+      "
+        set unstable
+
+        [script('a', 'b', 'c')]
+        foo:
+      ",
+    )
+    .arg("--dump")
+    .stdout(
+      "
+        set unstable := true
+
+        [script('a', 'b', 'c')]
+        foo:
+      ",
+    )
+    .run();
+}

@@ -69,7 +69,7 @@ Yay, all your tests passed!
   [available for most popular shells](#shell-completion-scripts).
 
 - Recipes can be written in
-  [arbitrary languages](#writing-recipes-in-other-languages), like Python or NodeJS.
+  [arbitrary languages](#shebang-recipes), like Python or NodeJS.
 
 - `just` can be invoked from any subdirectory, not just the directory that
   contains the `justfile`.
@@ -1721,6 +1721,7 @@ Recipes may be annotated with attributes that change their behavior.
 | `[no-quiet]`<sup>1.23.0</sup> | Override globally quiet recipes and always echo out the recipe. |
 | `[positional-arguments]`<sup>1.29.0</sup> | Turn on [positional arguments](#positional-arguments) for this recipe. |
 | `[private]`<sup>1.10.0</sup> | See [Private Recipes](#private-recipes). |
+| `[script(COMMAND)]`<sup>master</sup> | Execute recipe as a script interpreted by `COMMAND`. See [script recipes](#script-recipes) for more details. |
 | `[unix]`<sup>1.8.0</sup> | Enable recipe on Unixes. (Includes MacOS). |
 | `[windows]`<sup>1.8.0</sup> | Enable recipe on Windows. |
 
@@ -2443,7 +2444,7 @@ This has limitations, since recipe `c` is run with an entirely new invocation
 of `just`: Assignments will be recalculated, dependencies might run twice, and
 command line arguments will not be propagated to the child `just` process.
 
-### Writing Recipes in Other Languages
+### Shebang Recipes
 
 Recipes that start with `#!` are called shebang recipes, and are executed by
 saving the recipe body to a file and running it. This lets you write recipes in
@@ -2513,6 +2514,20 @@ the split command and arguments, adding the path to the saved recipe body as
 the final argument. For example, on Windows, if a recipe starts with `#! py`,
 the final command the OS runs will be something like `py
 C:\Temp\PATH_TO_SAVED_RECIPE_BODY`.
+
+### Script Recipes
+
+Recipes with a `[script(COMMAND)]` attribute<sup>master</sup> are run as
+scripts interpreted by `COMMAND`. This avoids some of the issues with shebang
+recipes, such as the use of `cygpath` on Windows, the need to use
+`/usr/bin/env`, and inconsistences in shebang line splitting across Unix OSs.
+
+The body of the recipe is evaluated, written to disk in the temporary
+directory, and run by passing its path as an argument to `COMMAND`.
+
+The `[script(…)]` attribute is unstable, so you'll need to use `set unstable`,
+set the `JUST_UNSTABLE` environment variable, or pass `--unstable` on the
+command line.
 
 ### Safer Bash Shebang Recipes
 

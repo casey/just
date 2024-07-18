@@ -812,8 +812,19 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     let body = self.parse_body()?;
 
+    let shebang = body.first().map_or(false, Line::is_shebang);
+    let script = attributes
+      .iter()
+      .any(|attribute| matches!(attribute, Attribute::Script(_)));
+
+    if shebang && script {
+      return Err(name.error(CompileErrorKind::ShebangAndScriptAttribute {
+        recipe: name.lexeme(),
+      }));
+    }
+
     Ok(Recipe {
-      shebang: body.first().map_or(false, Line::is_shebang),
+      shebang: shebang || script,
       attributes,
       body,
       dependencies,
@@ -858,13 +869,14 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     if self.accepted(Indent)? {
       while !self.accepted(Dedent)? {
-        let line = if self.accepted(Eol)? {
-          Line {
-            fragments: Vec::new(),
-          }
-        } else {
-          let mut fragments = Vec::new();
+        let mut fragments = Vec::new();
+        let number = self
+          .tokens
+          .get(self.next_token)
+          .map(|token| token.line)
+          .unwrap_or_default();
 
+        if !self.accepted(Eol)? {
           while !(self.accepted(Eol)? || self.next_is(Dedent)) {
             if let Some(token) = self.accept(Text)? {
               fragments.push(Fragment::Text { token });
@@ -877,11 +889,9 @@ impl<'run, 'src> Parser<'run, 'src> {
               return Err(self.unexpected_token()?);
             }
           }
-
-          Line { fragments }
         };
 
-        lines.push(line);
+        lines.push(Line { fragments, number });
       }
     }
 
@@ -991,7 +1001,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     Ok(Shell { arguments, command })
   }
 
-  /// Parse recipe attributes
+  /// Item attributes, i.e., `[macos]` or `[confirm: "warning!"]`
   fn parse_attributes(
     &mut self,
   ) -> CompileResult<'src, Option<(Token<'src>, BTreeSet<Attribute<'src>>)>> {
@@ -1005,18 +1015,22 @@ impl<'run, 'src> Parser<'run, 'src> {
       loop {
         let name = self.parse_name()?;
 
-        let maybe_argument = if self.accepted(Colon)? {
-          let arg = self.parse_string_literal()?;
-          Some(arg)
-        } else if self.accepted(ParenL)? {
-          let arg = self.parse_string_literal()?;
-          self.expect(ParenR)?;
-          Some(arg)
-        } else {
-          None
-        };
+        let mut arguments = Vec::new();
 
-        let attribute = Attribute::new(name, maybe_argument)?;
+        if self.accepted(Colon)? {
+          arguments.push(self.parse_string_literal()?);
+        } else if self.accepted(ParenL)? {
+          loop {
+            arguments.push(self.parse_string_literal()?);
+
+            if !self.accepted(Comma)? {
+              break;
+            }
+          }
+          self.expect(ParenR)?;
+        }
+
+        let attribute = Attribute::new(name, arguments)?;
 
         if let Some(line) = attributes.get(&attribute) {
           return Err(name.error(CompileErrorKind::DuplicateAttribute {

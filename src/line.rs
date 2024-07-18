@@ -5,6 +5,8 @@ use super::*;
 #[serde(transparent)]
 pub(crate) struct Line<'src> {
   pub(crate) fragments: Vec<Fragment<'src>>,
+  #[serde(skip)]
+  pub(crate) number: usize,
 }
 
 impl<'src> Line<'src> {
