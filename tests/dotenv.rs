@@ -394,3 +394,16 @@ fn dotenv_path_usable_from_subdir() {
     .stdout("dotenv-value\n")
     .run();
 }
+
+#[test]
+fn dotenv_path_does_not_override_dotenv_file() {
+  Test::new()
+    .write(".env", "KEY=ROOT")
+    .write(
+      "sub/justfile",
+      "set dotenv-path := '.'\n@foo:\n echo ${KEY}",
+    )
+    .current_dir("sub")
+    .stdout("ROOT\n")
+    .run();
+}
