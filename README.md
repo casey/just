@@ -2519,9 +2519,8 @@ C:\Temp\PATH_TO_SAVED_RECIPE_BODY`.
 
 Recipes with a `[script(COMMAND)]` attribute<sup>master</sup> are run as
 scripts interpreted by `COMMAND`. This avoids some of the issues with shebang
-recipes, such as the use of `cygpath` to get them working on windows, the need
-to use `/usr/bin/env`, and inconsistences in shebang line splitting across Unix
-OSs.
+recipes, such as the use of `cygpath` on Windows, the need to use
+`/usr/bin/env`, and inconsistences in shebang line splitting across Unix OSs.
 
 The body of the recipe is evaluated, written to disk in the temporary
 directory, and run by passing its path as an argument to `COMMAND`.
