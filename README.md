@@ -1721,7 +1721,7 @@ Recipes may be annotated with attributes that change their behavior.
 | `[no-quiet]`<sup>1.23.0</sup> | Override globally quiet recipes and always echo out the recipe. |
 | `[positional-arguments]`<sup>1.29.0</sup> | Turn on [positional arguments](#positional-arguments) for this recipe. |
 | `[private]`<sup>1.10.0</sup> | See [Private Recipes](#private-recipes). |
-| `[script(COMMAND)]`<sup>master</sup> | Execute recipe as a script interpretered by `COMMAND`. See [script recipes](#script-recipes) for more details. |
+| `[script(COMMAND)]`<sup>master</sup> | Execute recipe as a script interpreted by `COMMAND`. See [script recipes](#script-recipes) for more details. |
 | `[unix]`<sup>1.8.0</sup> | Enable recipe on Unixes. (Includes MacOS). |
 | `[windows]`<sup>1.8.0</sup> | Enable recipe on Windows. |
 
