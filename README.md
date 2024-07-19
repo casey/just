@@ -818,7 +818,8 @@ foo:
 | `fallback` | boolean | `false` | Search `justfile` in parent directory if the first recipe on the command line is not found. |
 | `ignore-comments` | boolean | `false` | Ignore recipe lines beginning with `#`. |
 | `positional-arguments` | boolean | `false` | Pass positional arguments. |
-| `shell` | `[COMMAND, ARGS…]` | - | Set the command used to invoke recipes and evaluate backticks. |
+| `script-interpreter`<sup>master</sup> | `[COMMAND, ARGS…]` | - | Set command used to invoke recipes with empty `[script]` attribute. |
+| `shell` | `[COMMAND, ARGS…]` | - | Set command used to invoke recipes and evaluate backticks. |
 | `tempdir` | string | - | Create temporary directories in `tempdir` instead of the system default temporary directory. |
 | `unstable`<sup>1.31.0</sup> | boolean | `false` | Enable unstable features. |
 | `windows-powershell` | boolean | `false` | Use PowerShell on Windows as default shell. (Deprecated. Use `windows-shell` instead. |
@@ -2521,6 +2522,9 @@ Recipes with a `[script(COMMAND)]`<sup>1.32.0</sup> attribute are run as
 scripts interpreted by `COMMAND`. This avoids some of the issues with shebang
 recipes, such as the use of `cygpath` on Windows, the need to use
 `/usr/bin/env`, and inconsistences in shebang line splitting across Unix OSs.
+
+Recipes with an empty `[script]` attribute are executed with `sh -eu`, or the
+value of `set script-interpreter := […]`<sup>master</sup> if present.
 
 The body of the recipe is evaluated, written to disk in the temporary
 directory, and run by passing its path as an argument to `COMMAND`.
