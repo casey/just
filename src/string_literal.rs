@@ -8,7 +8,21 @@ pub(crate) struct StringLiteral<'src> {
   pub(crate) raw: &'src str,
 }
 
-impl Display for StringLiteral<'_> {
+impl<'src> StringLiteral<'src> {
+  pub(crate) fn from_raw(raw: &'src str) -> Self {
+    Self {
+      cooked: raw.into(),
+      expand: false,
+      kind: StringKind {
+        delimiter: StringDelimiter::QuoteSingle,
+        indented: false,
+      },
+      raw,
+    }
+  }
+}
+
+impl<'src> Display for StringLiteral<'src> {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
     if self.expand {
       write!(f, "x")?;

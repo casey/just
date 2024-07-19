@@ -961,11 +961,12 @@ impl<'run, 'src> Parser<'run, 'src> {
     self.expect(ColonEquals)?;
 
     let set_value = match keyword {
-      Keyword::DotenvFilename => Some(Setting::DotenvFilename(self.parse_string_literal()?.cooked)),
-      Keyword::DotenvPath => Some(Setting::DotenvPath(self.parse_string_literal()?.cooked)),
-      Keyword::Shell => Some(Setting::Shell(self.parse_shell()?)),
-      Keyword::Tempdir => Some(Setting::Tempdir(self.parse_string_literal()?.cooked)),
-      Keyword::WindowsShell => Some(Setting::WindowsShell(self.parse_shell()?)),
+      Keyword::DotenvFilename => Some(Setting::DotenvFilename(self.parse_string_literal()?)),
+      Keyword::DotenvPath => Some(Setting::DotenvPath(self.parse_string_literal()?)),
+      Keyword::ScriptInterpreter => Some(Setting::ScriptInterpreter(self.parse_interpreter()?)),
+      Keyword::Shell => Some(Setting::Shell(self.parse_interpreter()?)),
+      Keyword::Tempdir => Some(Setting::Tempdir(self.parse_string_literal()?)),
+      Keyword::WindowsShell => Some(Setting::WindowsShell(self.parse_interpreter()?)),
       _ => None,
     };
 
@@ -978,8 +979,8 @@ impl<'run, 'src> Parser<'run, 'src> {
     }))
   }
 
-  /// Parse a shell setting value
-  fn parse_shell(&mut self) -> CompileResult<'src, Shell<'src>> {
+  /// Parse interpreter setting value, i.e., `['sh', '-eu']`
+  fn parse_interpreter(&mut self) -> CompileResult<'src, Interpreter<'src>> {
     self.expect(BracketL)?;
 
     let command = self.parse_string_literal()?;
@@ -998,7 +999,7 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     self.expect(BracketR)?;
 
-    Ok(Shell { arguments, command })
+    Ok(Interpreter { arguments, command })
   }
 
   /// Item attributes, i.e., `[macos]` or `[confirm: "warning!"]`

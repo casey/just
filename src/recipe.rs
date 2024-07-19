@@ -342,12 +342,17 @@ impl<'src, D> Recipe<'src, D> {
       return Ok(());
     }
 
-    let executor = if let Some(Attribute::Script(args)) = self
+    let executor = if let Some(Attribute::Script(interpreter)) = self
       .attributes
       .iter()
       .find(|attribute| matches!(attribute, Attribute::Script(_)))
     {
-      Executor::Command(args.iter().map(|arg| arg.cooked.as_str()).collect())
+      Executor::Command(
+        interpreter
+          .as_ref()
+          .or(context.settings.script_interpreter.as_ref())
+          .unwrap_or_else(|| Interpreter::default_script_interpreter()),
+      )
     } else {
       let line = evaluated_lines
         .first()

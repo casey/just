@@ -30,21 +30,22 @@ pub(crate) use {
     constants::constants, count::Count, delimiter::Delimiter, dependency::Dependency,
     dump_format::DumpFormat, enclosure::Enclosure, error::Error, evaluator::Evaluator,
     execution_context::ExecutionContext, executor::Executor, expression::Expression,
-    fragment::Fragment, function::Function, interrupt_guard::InterruptGuard,
-    interrupt_handler::InterruptHandler, item::Item, justfile::Justfile, keyed::Keyed,
-    keyword::Keyword, lexer::Lexer, line::Line, list::List, load_dotenv::load_dotenv,
-    loader::Loader, module_path::ModulePath, name::Name, namepath::Namepath, ordinal::Ordinal,
-    output::output, output_error::OutputError, parameter::Parameter, parameter_kind::ParameterKind,
-    parser::Parser, platform::Platform, platform_interface::PlatformInterface, position::Position,
-    positional::Positional, ran::Ran, range_ext::RangeExt, recipe::Recipe,
-    recipe_resolver::RecipeResolver, recipe_signature::RecipeSignature, scope::Scope,
-    search::Search, search_config::SearchConfig, search_error::SearchError, set::Set,
-    setting::Setting, settings::Settings, shebang::Shebang, shell::Shell,
-    show_whitespace::ShowWhitespace, source::Source, string_kind::StringKind,
-    string_literal::StringLiteral, subcommand::Subcommand, suggestion::Suggestion, table::Table,
-    thunk::Thunk, token::Token, token_kind::TokenKind, unresolved_dependency::UnresolvedDependency,
-    unresolved_recipe::UnresolvedRecipe, unstable_feature::UnstableFeature, use_color::UseColor,
-    variables::Variables, verbosity::Verbosity, warning::Warning,
+    fragment::Fragment, function::Function, interpreter::Interpreter,
+    interrupt_guard::InterruptGuard, interrupt_handler::InterruptHandler, item::Item,
+    justfile::Justfile, keyed::Keyed, keyword::Keyword, lexer::Lexer, line::Line, list::List,
+    load_dotenv::load_dotenv, loader::Loader, module_path::ModulePath, name::Name,
+    namepath::Namepath, ordinal::Ordinal, output::output, output_error::OutputError,
+    parameter::Parameter, parameter_kind::ParameterKind, parser::Parser, platform::Platform,
+    platform_interface::PlatformInterface, position::Position, positional::Positional, ran::Ran,
+    range_ext::RangeExt, recipe::Recipe, recipe_resolver::RecipeResolver,
+    recipe_signature::RecipeSignature, scope::Scope, search::Search, search_config::SearchConfig,
+    search_error::SearchError, set::Set, setting::Setting, settings::Settings, shebang::Shebang,
+    show_whitespace::ShowWhitespace, source::Source, string_delimiter::StringDelimiter,
+    string_kind::StringKind, string_literal::StringLiteral, subcommand::Subcommand,
+    suggestion::Suggestion, table::Table, thunk::Thunk, token::Token, token_kind::TokenKind,
+    unresolved_dependency::UnresolvedDependency, unresolved_recipe::UnresolvedRecipe,
+    unstable_feature::UnstableFeature, use_color::UseColor, variables::Variables,
+    verbosity::Verbosity, warning::Warning,
   },
   camino::Utf8Path,
   clap::ValueEnum,
@@ -53,6 +54,7 @@ pub(crate) use {
   lexiclean::Lexiclean,
   libc::EXIT_FAILURE,
   log::{info, warn},
+  once_cell::sync::Lazy,
   regex::Regex,
   serde::{
     ser::{SerializeMap, SerializeSeq},
@@ -75,7 +77,6 @@ pub(crate) use {
     path::{self, Path, PathBuf},
     process::{self, Command, ExitStatus, Stdio},
     rc::Rc,
-    slice,
     str::{self, Chars},
     sync::{Mutex, MutexGuard, OnceLock},
     vec,
@@ -155,6 +156,7 @@ mod executor;
 mod expression;
 mod fragment;
 mod function;
+mod interpreter;
 mod interrupt_guard;
 mod interrupt_handler;
 mod item;
@@ -193,9 +195,9 @@ mod set;
 mod setting;
 mod settings;
 mod shebang;
-mod shell;
 mod show_whitespace;
 mod source;
+mod string_delimiter;
 mod string_kind;
 mod string_literal;
 mod subcommand;

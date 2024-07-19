@@ -8,11 +8,19 @@ fn unstable() {
         [script('sh', '-u')]
         foo:
           echo FOO
-
       ",
     )
     .stderr_regex(r"error: The `\[script\]` attribute is currently unstable\..*")
     .status(EXIT_FAILURE)
+    .run();
+}
+
+#[test]
+fn script_interpreter_setting_is_unstable() {
+  Test::new()
+    .justfile("set script-interpreter := ['sh']")
+    .status(EXIT_FAILURE)
+    .stderr_regex(r"error: The `script-interpreter` setting is currently unstable\..*")
     .run();
 }
 
@@ -70,30 +78,6 @@ fn with_arguments() {
     )
     .stdout("foo\n")
     .stderr("+ echo foo\n")
-    .run();
-}
-
-#[test]
-fn requires_argument() {
-  Test::new()
-    .justfile(
-      "
-        set unstable
-
-        [script]
-        foo:
-      ",
-    )
-    .stderr(
-      "
-        error: Attribute `script` got 0 arguments but takes at least 1 argument
-         ——▶ justfile:3:2
-          │
-        3 │ [script]
-          │  ^^^^^^
-      ",
-    )
-    .status(EXIT_FAILURE)
     .run();
 }
 
@@ -295,6 +279,56 @@ b
 
 c
 ",
+    )
+    .run();
+}
+
+#[test]
+fn no_arguments_with_default_script_interpreter() {
+  Test::new()
+    .justfile(
+      "
+        set unstable
+
+        [script]
+        foo:
+          case $- in
+            *e*) echo '-e is set';;
+          esac
+
+          case $- in
+            *u*) echo '-u is set';;
+          esac
+      ",
+    )
+    .stdout(
+      "
+        -e is set
+        -u is set
+      ",
+    )
+    .run();
+}
+
+#[test]
+fn no_arguments_with_non_default_script_interpreter() {
+  Test::new()
+    .justfile(
+      "
+        set unstable
+
+        set script-interpreter := ['sh']
+
+        [script]
+        foo:
+          case $- in
+            *e*) echo '-e is set';;
+          esac
+
+          case $- in
+            *u*) echo '-u is set';;
+          esac
+      ",
     )
     .run();
 }

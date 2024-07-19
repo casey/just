@@ -2,15 +2,8 @@ use super::*;
 
 #[derive(Debug, PartialEq, Clone, Copy, Ord, PartialOrd, Eq)]
 pub(crate) struct StringKind {
-  delimiter: StringDelimiter,
-  indented: bool,
-}
-
-#[derive(Debug, PartialEq, Clone, Copy, Ord, PartialOrd, Eq)]
-enum StringDelimiter {
-  Backtick,
-  QuoteDouble,
-  QuoteSingle,
+  pub(crate) delimiter: StringDelimiter,
+  pub(crate) indented: bool,
 }
 
 impl StringKind {

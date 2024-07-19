@@ -20,7 +20,7 @@ pub(crate) enum Attribute<'src> {
   NoQuiet,
   PositionalArguments,
   Private,
-  Script(Vec<StringLiteral<'src>>),
+  Script(Option<Interpreter<'src>>),
   Unix,
   Windows,
 }
@@ -39,7 +39,7 @@ impl AttributeDiscriminant {
       | Self::Private
       | Self::Unix
       | Self::Windows => 0..=0,
-      Self::Script => 1..=usize::MAX,
+      Self::Script => 0..=usize::MAX,
     }
   }
 }
@@ -84,7 +84,13 @@ impl<'src> Attribute<'src> {
       AttributeDiscriminant::NoQuiet => Self::NoQuiet,
       AttributeDiscriminant::PositionalArguments => Self::PositionalArguments,
       AttributeDiscriminant::Private => Self::Private,
-      AttributeDiscriminant::Script => Self::Script(arguments),
+      AttributeDiscriminant::Script => Self::Script({
+        let mut arguments = arguments.into_iter();
+        arguments.next().map(|command| Interpreter {
+          command,
+          arguments: arguments.collect(),
+        })
+      }),
       AttributeDiscriminant::Unix => Self::Unix,
       AttributeDiscriminant::Windows => Self::Windows,
     })
@@ -93,14 +99,18 @@ impl<'src> Attribute<'src> {
   pub(crate) fn name(&self) -> &'static str {
     self.into()
   }
+}
 
-  fn arguments(&self) -> &[StringLiteral] {
+impl<'src> Display for Attribute<'src> {
+  fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+    write!(f, "{}", self.name())?;
+
     match self {
       Self::Confirm(Some(argument))
       | Self::Doc(Some(argument))
       | Self::Extension(argument)
-      | Self::Group(argument) => slice::from_ref(argument),
-      Self::Script(arguments) => arguments,
+      | Self::Group(argument) => write!(f, "({argument})")?,
+      Self::Script(Some(shell)) => write!(f, "({shell})")?,
       Self::Confirm(None)
       | Self::Doc(None)
       | Self::Linux
@@ -110,30 +120,9 @@ impl<'src> Attribute<'src> {
       | Self::NoQuiet
       | Self::PositionalArguments
       | Self::Private
+      | Self::Script(None)
       | Self::Unix
-      | Self::Windows => &[],
-    }
-  }
-}
-
-impl<'src> Display for Attribute<'src> {
-  fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-    write!(f, "{}", self.name())?;
-
-    let arguments = self.arguments();
-
-    for (i, argument) in arguments.iter().enumerate() {
-      if i == 0 {
-        write!(f, "(")?;
-      } else {
-        write!(f, ", ")?;
-      }
-
-      write!(f, "{argument}")?;
-
-      if i + 1 == arguments.len() {
-        write!(f, ")")?;
-      }
+      | Self::Windows => {}
     }
 
     Ok(())
