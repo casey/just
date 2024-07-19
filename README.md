@@ -2523,8 +2523,8 @@ scripts interpreted by `COMMAND`. This avoids some of the issues with shebang
 recipes, such as the use of `cygpath` on Windows, the need to use
 `/usr/bin/env`, and inconsistences in shebang line splitting across Unix OSs.
 
-Recipes with an empty `[script]` attribute are executed with `sh -eu`, or the
-value of `set script-interpreter := […]`<sup>master</sup> if present.
+Recipes with an empty `[script]` attribute are executed with the value of
+`set script-interpreter := […]`<sup>master</sup>, defaulting to `sh -eu`.
 
 The body of the recipe is evaluated, written to disk in the temporary
 directory, and run by passing its path as an argument to `COMMAND`.
