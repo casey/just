@@ -181,6 +181,8 @@
 scripts interpreted by <code>COMMAND</code>. This avoids some of the issues with shebang
 recipes, such as the use of <code>cygpath</code> on Windows, the need to use
 <code>/usr/bin/env</code>, and inconsistences in shebang line splitting across Unix OSs.</p>
+<p>Recipes with an empty <code>[script]</code> attribute are executed with the value of
+<code>set script-interpreter := […]</code><sup>master</sup>, defaulting to <code>sh -eu</code>.</p>
 <p>The body of the recipe is evaluated, written to disk in the temporary
 directory, and run by passing its path as an argument to <code>COMMAND</code>.</p>
 <p>The <code>[script(…)]</code> attribute is unstable, so you’ll need to use <code>set unstable</code>,
