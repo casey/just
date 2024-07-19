@@ -186,17 +186,20 @@ impl<'src> Analyzer<'src> {
 
     let root = paths.get(root).unwrap();
 
-    let unstable_features = recipes
-      .values()
-      .flat_map(|recipe| &recipe.attributes)
-      .filter_map(|attribute| {
+    let mut unstable_features = BTreeSet::new();
+
+    for recipe in recipes.values() {
+      for attribute in &recipe.attributes {
         if let Attribute::Script(_) = attribute {
-          Some(UnstableFeature::ScriptAttribute)
-        } else {
-          None
+          unstable_features.insert(UnstableFeature::ScriptAttribute);
+          break;
         }
-      })
-      .collect();
+      }
+    }
+
+    if settings.script_interpreter.is_some() {
+      unstable_features.insert(UnstableFeature::ScriptInterpreterSetting);
+    }
 
     Ok(Justfile {
       aliases,

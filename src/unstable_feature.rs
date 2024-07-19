@@ -4,6 +4,7 @@ use super::*;
 pub(crate) enum UnstableFeature {
   FormatSubcommand,
   ScriptAttribute,
+  ScriptInterpreterSetting,
 }
 
 impl Display for UnstableFeature {
@@ -11,6 +12,9 @@ impl Display for UnstableFeature {
     match self {
       Self::FormatSubcommand => write!(f, "The `--fmt` command is currently unstable."),
       Self::ScriptAttribute => write!(f, "The `[script]` attribute is currently unstable."),
+      Self::ScriptInterpreterSetting => {
+        write!(f, "The `script-interpreter` setting is currently unstable.")
+      }
     }
   }
 }

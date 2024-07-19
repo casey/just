@@ -18,11 +18,13 @@ pub(crate) struct Settings<'src> {
   pub(crate) ignore_comments: bool,
   pub(crate) positional_arguments: bool,
   pub(crate) quiet: bool,
-  pub(crate) shell: Option<Shell<'src>>,
+  #[serde(skip)]
+  pub(crate) script_interpreter: Option<Interpreter<'src>>,
+  pub(crate) shell: Option<Interpreter<'src>>,
   pub(crate) tempdir: Option<String>,
   pub(crate) unstable: bool,
   pub(crate) windows_powershell: bool,
-  pub(crate) windows_shell: Option<Shell<'src>>,
+  pub(crate) windows_shell: Option<Interpreter<'src>>,
 }
 
 impl<'src> Settings<'src> {
@@ -38,13 +40,13 @@ impl<'src> Settings<'src> {
           settings.allow_duplicate_variables = allow_duplicate_variables;
         }
         Setting::DotenvFilename(filename) => {
-          settings.dotenv_filename = Some(filename);
+          settings.dotenv_filename = Some(filename.cooked);
         }
         Setting::DotenvLoad(dotenv_load) => {
           settings.dotenv_load = dotenv_load;
         }
         Setting::DotenvPath(path) => {
-          settings.dotenv_path = Some(PathBuf::from(path));
+          settings.dotenv_path = Some(PathBuf::from(path.cooked));
         }
         Setting::DotenvRequired(dotenv_required) => {
           settings.dotenv_required = dotenv_required;
@@ -64,6 +66,9 @@ impl<'src> Settings<'src> {
         Setting::Quiet(quiet) => {
           settings.quiet = quiet;
         }
+        Setting::ScriptInterpreter(script_interpreter) => {
+          settings.script_interpreter = Some(script_interpreter);
+        }
         Setting::Shell(shell) => {
           settings.shell = Some(shell);
         }
@@ -77,7 +82,7 @@ impl<'src> Settings<'src> {
           settings.windows_shell = Some(windows_shell);
         }
         Setting::Tempdir(tempdir) => {
-          settings.tempdir = Some(tempdir);
+          settings.tempdir = Some(tempdir.cooked);
         }
       }
     }
@@ -204,7 +209,7 @@ mod tests {
   #[test]
   fn shell_cooked() {
     let settings = Settings {
-      shell: Some(Shell {
+      shell: Some(Interpreter {
         command: StringLiteral {
           kind: StringKind::from_token_start("\"").unwrap(),
           raw: "asdf.exe",

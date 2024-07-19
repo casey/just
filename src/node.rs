@@ -299,15 +299,16 @@ impl<'src> Node<'src> for Set<'src> {
       | Setting::IgnoreComments(value) => {
         set.push_mut(value.to_string());
       }
-      Setting::Shell(Shell { command, arguments })
-      | Setting::WindowsShell(Shell { command, arguments }) => {
+      Setting::ScriptInterpreter(Interpreter { command, arguments })
+      | Setting::Shell(Interpreter { command, arguments })
+      | Setting::WindowsShell(Interpreter { command, arguments }) => {
         set.push_mut(Tree::string(&command.cooked));
         for argument in arguments {
           set.push_mut(Tree::string(&argument.cooked));
         }
       }
       Setting::DotenvFilename(value) | Setting::DotenvPath(value) | Setting::Tempdir(value) => {
-        set.push_mut(Tree::string(value));
+        set.push_mut(Tree::string(&value.cooked));
       }
     }
 

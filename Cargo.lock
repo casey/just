@@ -612,6 +612,7 @@ dependencies = [
  "libc",
  "log",
  "num_cpus",
+ "once_cell",
  "percent-encoding",
  "pretty_assertions",
  "rand",

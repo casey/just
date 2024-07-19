@@ -1,7 +1,7 @@
 use super::*;
 
 pub(crate) enum Executor<'a> {
-  Command(Vec<&'a str>),
+  Command(&'a Interpreter<'a>),
   Shebang(Shebang<'a>),
 }
 
@@ -13,15 +13,15 @@ impl<'a> Executor<'a> {
     working_directory: Option<&Path>,
   ) -> RunResult<'src, Command> {
     match self {
-      Self::Command(args) => {
-        let mut command = Command::new(args[0]);
+      Self::Command(interpreter) => {
+        let mut command = Command::new(&interpreter.command.cooked);
 
         if let Some(working_directory) = working_directory {
           command.current_dir(working_directory);
         }
 
-        for arg in &args[1..] {
-          command.arg(arg);
+        for arg in &interpreter.arguments {
+          command.arg(&arg.cooked);
         }
 
         command.arg(path);
@@ -49,7 +49,7 @@ impl<'a> Executor<'a> {
   pub(crate) fn script_filename(&self, recipe: &str, extension: Option<&str>) -> String {
     let extension = extension.unwrap_or_else(|| {
       let interpreter = match self {
-        Self::Command(args) => args[0],
+        Self::Command(interpreter) => &interpreter.command.cooked,
         Self::Shebang(shebang) => shebang.interpreter_filename(),
       };
 
@@ -65,14 +65,12 @@ impl<'a> Executor<'a> {
 
   pub(crate) fn error<'src>(&self, io_error: io::Error, recipe: &'src str) -> Error<'src> {
     match self {
-      Self::Command(args) => {
-        let mut command = String::new();
+      Self::Command(Interpreter { command, arguments }) => {
+        let mut command = command.cooked.clone();
 
-        for (i, arg) in args.iter().enumerate() {
-          if i > 0 {
-            command.push(' ');
-          }
-          command.push_str(arg);
+        for arg in arguments {
+          command.push(' ');
+          command.push_str(&arg.cooked);
         }
 
         Error::Script {
@@ -152,7 +150,11 @@ mod tests {
         expected
       );
       assert_eq!(
-        Executor::Command(vec![interpreter]).script_filename(recipe, extension),
+        Executor::Command(&Interpreter {
+          command: StringLiteral::from_raw(interpreter),
+          arguments: Vec::new()
+        })
+        .script_filename(recipe, extension),
         expected
       );
     }
