@@ -772,6 +772,204 @@ fn doc_attribute_on_module() {
 }
 
 #[test]
+fn group_attribute_on_module() {
+  Test::new()
+    .write("foo.just", "")
+    .write("bar.just", "")
+    .write("zee.just", "")
+    .justfile(
+      r#"
+        [group('alpha')]
+        mod zee
+
+        [group('alpha')]
+        mod foo
+
+        [group('alpha')]
+        a:
+
+        [group('beta')]
+        b:
+
+        [group('beta')]
+        mod bar
+
+        c:
+      "#,
+    )
+    .test_round_trip(false)
+    .arg("--list")
+    .stdout(
+      "
+        Available recipes:
+            (no group)
+            c
+
+            [alpha]
+            a
+            foo ...
+            zee ...
+            
+            [beta]
+            b
+            bar ...
+      ",
+    )
+    .run();
+}
+
+#[test]
+fn group_attribute_on_module_unsorted() {
+  Test::new()
+    .write("foo.just", "")
+    .write("bar.just", "")
+    .write("zee.just", "")
+    .justfile(
+      r#"
+        [group('alpha')]
+        mod zee
+
+        [group('alpha')]
+        mod foo
+
+        [group('alpha')]
+        a:
+
+        [group('beta')]
+        b:
+
+        [group('beta')]
+        mod bar
+
+        c:
+      "#,
+    )
+    .test_round_trip(false)
+    .arg("--list")
+    .arg("--unsorted")
+    .stdout(
+      "
+        Available recipes:
+            (no group)
+            c
+
+            [alpha]
+            a
+            zee ...
+            foo ...
+            
+            [beta]
+            b
+            bar ...
+      ",
+    )
+    .run();
+}
+
+#[test]
+fn group_attribute_on_module_list_submodule() {
+  Test::new()
+    .write("foo.just", "d:")
+    .write("bar.just", "e:")
+    .write("zee.just", "f:")
+    .justfile(
+      r#"
+        [group('alpha')]
+        mod zee
+
+        [group('alpha')]
+        mod foo
+
+        [group('alpha')]
+        a:
+
+        [group('beta')]
+        b:
+
+        [group('beta')]
+        mod bar
+
+        c:
+      "#,
+    )
+    .test_round_trip(false)
+    .arg("--list")
+    .arg("--list-submodules")
+    .stdout(
+      "
+        Available recipes:
+            (no group)
+            c
+
+            [alpha]
+            a
+            foo:
+                d
+            zee:
+                f
+
+            [beta]
+            b
+            bar:
+                e
+      ",
+    )
+    .run();
+}
+
+#[test]
+fn group_attribute_on_module_list_submodule_unsorted() {
+  Test::new()
+    .write("foo.just", "d:")
+    .write("bar.just", "e:")
+    .write("zee.just", "f:")
+    .justfile(
+      r#"
+        [group('alpha')]
+        mod zee
+
+        [group('alpha')]
+        mod foo
+
+        [group('alpha')]
+        a:
+
+        [group('beta')]
+        b:
+
+        [group('beta')]
+        mod bar
+
+        c:
+      "#,
+    )
+    .test_round_trip(false)
+    .arg("--list")
+    .arg("--list-submodules")
+    .arg("--unsorted")
+    .stdout(
+      "
+        Available recipes:
+            (no group)
+            c
+
+            [alpha]
+            a
+            zee:
+                f
+            foo:
+                d
+
+            [beta]
+            b
+            bar:
+                e
+      ",
+    )
+    .run();
+}
+
+#[test]
 fn bad_module_attribute_fails() {
   Test::new()
     .write("foo.just", "")

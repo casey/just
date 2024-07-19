@@ -11,18 +11,20 @@ impl<'src> Analyzer<'src> {
   pub(crate) fn analyze(
     asts: &HashMap<PathBuf, Ast<'src>>,
     doc: Option<String>,
+    groups: &[String],
     loaded: &[PathBuf],
     name: Option<Name<'src>>,
     paths: &HashMap<PathBuf, PathBuf>,
     root: &Path,
   ) -> CompileResult<'src, Justfile<'src>> {
-    Self::default().justfile(asts, doc, loaded, name, paths, root)
+    Self::default().justfile(asts, doc, groups, loaded, name, paths, root)
   }
 
   fn justfile(
     mut self,
     asts: &HashMap<PathBuf, Ast<'src>>,
     doc: Option<String>,
+    groups: &[String],
     loaded: &[PathBuf],
     name: Option<Name<'src>>,
     paths: &HashMap<PathBuf, PathBuf>,
@@ -94,9 +96,12 @@ impl<'src> Analyzer<'src> {
             ..
           } => {
             let mut doc_attr: Option<&str> = None;
+            let mut groups = Vec::new();
             for attribute in attributes {
               if let Attribute::Doc(ref doc) = attribute {
                 doc_attr = Some(doc.as_ref().map(|s| s.cooked.as_ref()).unwrap_or_default());
+              } else if let Attribute::Group(ref group) = attribute {
+                groups.push(group.cooked.clone());
               } else {
                 return Err(name.token.error(InvalidAttribute {
                   item_kind: "Module",
@@ -111,6 +116,7 @@ impl<'src> Analyzer<'src> {
               modules.insert(Self::analyze(
                 asts,
                 doc_attr.or(*doc).map(ToOwned::to_owned),
+                groups.as_slice(),
                 loaded,
                 Some(*name),
                 paths,
@@ -216,6 +222,7 @@ impl<'src> Analyzer<'src> {
           }),
         }),
       doc,
+      groups: groups.into(),
       loaded: loaded.into(),
       modules,
       name,

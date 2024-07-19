@@ -18,6 +18,7 @@ pub(crate) struct Justfile<'src> {
   pub(crate) default: Option<Rc<Recipe<'src>>>,
   #[serde(skip)]
   pub(crate) loaded: Vec<PathBuf>,
+  pub(crate) groups: Vec<String>,
   pub(crate) modules: Table<'src, Justfile<'src>>,
   #[serde(skip)]
   pub(crate) name: Option<Name<'src>>,
@@ -395,14 +396,25 @@ impl<'src> Justfile<'src> {
     recipes
   }
 
+  pub(crate) fn groups(&self) -> &[String] {
+    &self.groups
+  }
+
   pub(crate) fn public_groups(&self, config: &Config) -> Vec<String> {
     let mut groups = Vec::new();
 
     for recipe in self.recipes.values() {
       if recipe.is_public() {
         for group in recipe.groups() {
-          groups.push((&recipe.import_offsets, recipe.name.offset, group));
+          groups.push((recipe.import_offsets.as_slice(), recipe.name.offset, group));
         }
+      }
+    }
+
+    for submodule in self.modules.values() {
+      for group in submodule.groups() {
+        // submodule.name.unwrap() is safe here because any non-root justfile will have a name set
+        groups.push((&[], submodule.name.unwrap().offset, group.to_string()));
       }
     }
 

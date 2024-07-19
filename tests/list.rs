@@ -236,12 +236,13 @@ fn list_with_groups_in_modules() {
     .stdout(
       "
         Available recipes:
-            [FOO]
-            foo
-
+            (no group)
             bar:
                 [BAZ]
                 baz
+
+            [FOO]
+            foo
       ",
     )
     .run();
@@ -396,7 +397,7 @@ fn module_doc_aligned() {
 }
 
 #[test]
-fn space_before_submodules_following_groups() {
+fn submodules_without_groups() {
   Test::new()
     .write("foo.just", "")
     .justfile(
@@ -411,10 +412,11 @@ fn space_before_submodules_following_groups() {
     .stdout(
       "
         Available recipes:
+            (no group)
+            foo ...
+
             [baz]
             bar
-
-            foo ...
       ",
     )
     .run();

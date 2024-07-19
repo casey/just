@@ -520,7 +520,7 @@ impl Subcommand {
       print!("{}", config.list_heading);
     }
 
-    let groups = {
+    let recipe_groups = {
       let mut groups = BTreeMap::<Option<String>, Vec<&Recipe>>::new();
       for recipe in module.public_recipes(config) {
         let recipe_groups = recipe.groups();
@@ -535,17 +535,40 @@ impl Subcommand {
       groups
     };
 
+    let submodule_groups = {
+      let mut groups = BTreeMap::<Option<String>, Vec<&Justfile>>::new();
+      for submodule in module.modules(config) {
+        let submodule_groups = submodule.groups();
+        if submodule_groups.is_empty() {
+          groups.entry(None).or_default().push(submodule);
+        } else {
+          for group in submodule_groups {
+            groups
+              .entry(Some(group.to_string()))
+              .or_default()
+              .push(submodule);
+          }
+        }
+      }
+      groups
+    };
+
+    // ordered contains groups from both recipes and submodules by calling .public_groups()
     let mut ordered = module
       .public_groups(config)
       .into_iter()
       .map(Some)
       .collect::<Vec<Option<String>>>();
 
-    if groups.contains_key(&None) {
+    if recipe_groups.contains_key(&None) || submodule_groups.contains_key(&None) {
       ordered.insert(0, None);
     }
 
-    let no_groups = groups.contains_key(&None) && groups.len() == 1;
+    let no_groups = ordered.len() == 1 && ordered.first() == Some(&None);
+    let mut groups_count = 0;
+    if !no_groups {
+      groups_count = ordered.len();
+    }
 
     for (i, group) in ordered.into_iter().enumerate() {
       if i > 0 {
@@ -561,69 +584,66 @@ impl Subcommand {
         }
       }
 
-      for recipe in groups.get(&group).unwrap() {
-        for (i, name) in iter::once(&recipe.name())
-          .chain(aliases.get(recipe.name()).unwrap_or(&Vec::new()))
-          .enumerate()
-        {
-          let doc = if i == 0 {
-            recipe.doc().map(Cow::Borrowed)
-          } else {
-            Some(Cow::Owned(format!("alias for `{}`", recipe.name)))
-          };
+      if let Some(recipes) = recipe_groups.get(&group) {
+        for recipe in recipes {
+          for (i, name) in iter::once(&recipe.name())
+            .chain(aliases.get(recipe.name()).unwrap_or(&Vec::new()))
+            .enumerate()
+          {
+            let doc = if i == 0 {
+              recipe.doc().map(Cow::Borrowed)
+            } else {
+              Some(Cow::Owned(format!("alias for `{}`", recipe.name)))
+            };
 
-          if let Some(doc) = &doc {
-            if doc.lines().count() > 1 {
-              for line in doc.lines() {
-                println!(
-                  "{list_prefix}{} {}",
-                  config.color.stdout().doc().paint("#"),
-                  config.color.stdout().doc().paint(line),
-                );
+            if let Some(doc) = &doc {
+              if doc.lines().count() > 1 {
+                for line in doc.lines() {
+                  println!(
+                    "{list_prefix}{} {}",
+                    config.color.stdout().doc().paint("#"),
+                    config.color.stdout().doc().paint(line),
+                  );
+                }
               }
             }
+
+            print!(
+              "{list_prefix}{}",
+              RecipeSignature { name, recipe }.color_display(config.color.stdout())
+            );
+
+            format_doc(
+              config,
+              name,
+              doc.as_deref(),
+              max_signature_width,
+              &signature_widths,
+            );
           }
-
-          print!(
-            "{list_prefix}{}",
-            RecipeSignature { name, recipe }.color_display(config.color.stdout())
-          );
-
-          format_doc(
-            config,
-            name,
-            doc.as_deref(),
-            max_signature_width,
-            &signature_widths,
-          );
         }
       }
-    }
 
-    if config.list_submodules {
-      for (i, submodule) in module.modules(config).into_iter().enumerate() {
-        if i + groups.len() > 0 {
-          println!();
+      if let Some(submodules) = submodule_groups.get(&group) {
+        for (i, submodule) in submodules.iter().enumerate() {
+          if config.list_submodules {
+            if no_groups && (i + groups_count > 0) {
+              println!();
+            }
+            println!("{list_prefix}{}:", submodule.name());
+
+            Self::list_module(config, submodule, depth + 1);
+          } else {
+            print!("{list_prefix}{} ...", submodule.name());
+            format_doc(
+              config,
+              submodule.name(),
+              submodule.doc.as_deref(),
+              max_signature_width,
+              &signature_widths,
+            );
+          }
         }
-
-        println!("{list_prefix}{}:", submodule.name());
-
-        Self::list_module(config, submodule, depth + 1);
-      }
-    } else {
-      for (i, submodule) in module.modules(config).into_iter().enumerate() {
-        if !no_groups && !groups.is_empty() && i == 0 {
-          println!();
-        }
-
-        print!("{list_prefix}{} ...", submodule.name());
-        format_doc(
-          config,
-          submodule.name(),
-          submodule.doc.as_deref(),
-          max_signature_width,
-          &signature_widths,
-        );
       }
     }
   }

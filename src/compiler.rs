@@ -96,7 +96,7 @@ impl Compiler {
       asts.insert(current.path, ast.clone());
     }
 
-    let justfile = Analyzer::analyze(&asts, None, &loaded, None, &paths, root)?;
+    let justfile = Analyzer::analyze(&asts, None, &[], &loaded, None, &paths, root)?;
 
     Ok(Compilation {
       asts,
@@ -229,7 +229,7 @@ impl Compiler {
     asts.insert(root.clone(), ast);
     let mut paths: HashMap<PathBuf, PathBuf> = HashMap::new();
     paths.insert(root.clone(), root.clone());
-    Analyzer::analyze(&asts, None, &[], None, &paths, &root)
+    Analyzer::analyze(&asts, None, &[], &[], None, &paths, &root)
   }
 }
 
