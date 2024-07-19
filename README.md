@@ -818,7 +818,8 @@ foo:
 | `fallback` | boolean | `false` | Search `justfile` in parent directory if the first recipe on the command line is not found. |
 | `ignore-comments` | boolean | `false` | Ignore recipe lines beginning with `#`. |
 | `positional-arguments` | boolean | `false` | Pass positional arguments. |
-| `shell` | `[COMMAND, ARGS…]` | - | Set the command used to invoke recipes and evaluate backticks. |
+| `script-interpreter`<sup>master</sup> | `[COMMAND, ARGS…]` | `['sh', '-eu']` | Set command used to invoke recipes with empty `[script]` attribute. |
+| `shell` | `[COMMAND, ARGS…]` | - | Set command used to invoke recipes and evaluate backticks. |
 | `tempdir` | string | - | Create temporary directories in `tempdir` instead of the system default temporary directory. |
 | `unstable`<sup>1.31.0</sup> | boolean | `false` | Enable unstable features. |
 | `windows-powershell` | boolean | `false` | Use PowerShell on Windows as default shell. (Deprecated. Use `windows-shell` instead. |
@@ -1721,6 +1722,7 @@ Recipes may be annotated with attributes that change their behavior.
 | `[no-quiet]`<sup>1.23.0</sup> | Override globally quiet recipes and always echo out the recipe. |
 | `[positional-arguments]`<sup>1.29.0</sup> | Turn on [positional arguments](#positional-arguments) for this recipe. |
 | `[private]`<sup>1.10.0</sup> | See [Private Recipes](#private-recipes). |
+| `[script]`<sup>master</sup> | Execute recipe as script. See [script recipes](#script-recipes) for more details. |
 | `[script(COMMAND)]`<sup>1.32.0</sup> | Execute recipe as a script interpreted by `COMMAND`. See [script recipes](#script-recipes) for more details. |
 | `[unix]`<sup>1.8.0</sup> | Enable recipe on Unixes. (Includes MacOS). |
 | `[windows]`<sup>1.8.0</sup> | Enable recipe on Windows. |
@@ -2512,8 +2514,8 @@ Windows does not support shebang lines. On Windows, `just` splits the shebang
 line into a command and arguments, saves the recipe body to a file, and invokes
 the split command and arguments, adding the path to the saved recipe body as
 the final argument. For example, on Windows, if a recipe starts with `#! py`,
-the final command the OS runs will be something like `py
-C:\Temp\PATH_TO_SAVED_RECIPE_BODY`.
+the final command the OS runs will be something like
+`py C:\Temp\PATH_TO_SAVED_RECIPE_BODY`.
 
 ### Script Recipes
 
@@ -2521,6 +2523,9 @@ Recipes with a `[script(COMMAND)]`<sup>1.32.0</sup> attribute are run as
 scripts interpreted by `COMMAND`. This avoids some of the issues with shebang
 recipes, such as the use of `cygpath` on Windows, the need to use
 `/usr/bin/env`, and inconsistences in shebang line splitting across Unix OSs.
+
+Recipes with an empty `[script]` attribute are executed with the value of
+`set script-interpreter := […]`<sup>master</sup>, defaulting to `sh -eu`.
 
 The body of the recipe is evaluated, written to disk in the temporary
 directory, and run by passing its path as an argument to `COMMAND`.
