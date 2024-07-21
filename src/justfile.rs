@@ -413,7 +413,6 @@ impl<'src> Justfile<'src> {
 
     for submodule in self.modules.values() {
       for group in submodule.groups() {
-        // submodule.name.unwrap() is safe here because any non-root justfile will have a name set
         groups.push((&[], submodule.name.unwrap().offset, group.to_string()));
       }
     }

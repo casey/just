@@ -553,24 +553,23 @@ impl Subcommand {
       groups
     };
 
-    // ordered contains groups from both recipes and submodules by calling .public_groups()
-    let mut ordered = module
+    let mut ordered_groups = module
       .public_groups(config)
       .into_iter()
       .map(Some)
       .collect::<Vec<Option<String>>>();
 
     if recipe_groups.contains_key(&None) || submodule_groups.contains_key(&None) {
-      ordered.insert(0, None);
+      ordered_groups.insert(0, None);
     }
 
-    let no_groups = ordered.len() == 1 && ordered.first() == Some(&None);
+    let no_groups = ordered_groups.len() == 1 && ordered_groups.first() == Some(&None);
     let mut groups_count = 0;
     if !no_groups {
-      groups_count = ordered.len();
+      groups_count = ordered_groups.len();
     }
 
-    for (i, group) in ordered.into_iter().enumerate() {
+    for (i, group) in ordered_groups.into_iter().enumerate() {
       if i > 0 {
         println!();
       }
