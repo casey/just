@@ -25,7 +25,6 @@ fn list_with_groups() {
     .stdout(
       "
         Available recipes:
-            (no group)
             c
 
             [alpha]
@@ -76,7 +75,6 @@ fn list_with_groups_unsorted() {
     .stdout(
       "
         Available recipes:
-            (no group)
             c
 
             [alpha]
@@ -118,7 +116,6 @@ fn list_with_groups_unsorted_group_order() {
     .stdout(
       "
         Available recipes:
-            (no group)
             c
 
             [x]

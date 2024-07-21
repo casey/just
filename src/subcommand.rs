@@ -575,11 +575,8 @@ impl Subcommand {
       }
 
       if !no_groups {
-        print!("{list_prefix}");
         if let Some(group) = &group {
-          println!("[{group}]");
-        } else {
-          println!("(no group)");
+          println!("{list_prefix}[{group}]");
         }
       }
 

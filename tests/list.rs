@@ -236,7 +236,6 @@ fn list_with_groups_in_modules() {
     .stdout(
       "
         Available recipes:
-            (no group)
             bar:
                 [BAZ]
                 baz
@@ -412,7 +411,6 @@ fn submodules_without_groups() {
     .stdout(
       "
         Available recipes:
-            (no group)
             foo ...
 
             [baz]
