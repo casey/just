@@ -802,14 +802,13 @@ fn group_attribute_on_module() {
     .stdout(
       "
         Available recipes:
-            (no group)
             c
 
             [alpha]
             a
             foo ...
             zee ...
-            
+
             [beta]
             b
             bar ...
@@ -850,14 +849,13 @@ fn group_attribute_on_module_unsorted() {
     .stdout(
       "
         Available recipes:
-            (no group)
             c
 
             [alpha]
             a
             zee ...
             foo ...
-            
+
             [beta]
             b
             bar ...
@@ -898,7 +896,6 @@ fn group_attribute_on_module_list_submodule() {
     .stdout(
       "
         Available recipes:
-            (no group)
             c
 
             [alpha]
@@ -950,7 +947,6 @@ fn group_attribute_on_module_list_submodule_unsorted() {
     .stdout(
       "
         Available recipes:
-            (no group)
             c
 
             [alpha]
