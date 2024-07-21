@@ -27,6 +27,7 @@ fn alias() {
         }
       },
       "assignments": {},
+      "groups": [],
       "modules": {},
       "recipes": {
         "foo": {
@@ -84,6 +85,7 @@ fn assignment() {
       },
       "first": null,
       "doc": null,
+      "groups": [],
       "modules": {},
       "recipes": {},
       "settings": {
@@ -123,6 +125,7 @@ fn body() {
       "assignments": {},
       "first": "foo",
       "doc": null,
+      "groups": [],
       "modules": {},
       "recipes": {
         "foo": {
@@ -178,6 +181,7 @@ fn dependencies() {
       "assignments": {},
       "first": "foo",
       "doc": null,
+      "groups": [],
       "modules": {},
       "recipes": {
         "bar": {
@@ -266,6 +270,7 @@ fn dependency_argument() {
           "depth": 0,
         },
       },
+      "groups": [],
       "modules": {},
       "recipes": {
         "bar": {
@@ -361,6 +366,7 @@ fn duplicate_recipes() {
         }
       },
       "assignments": {},
+      "groups": [],
       "modules": {},
       "recipes": {
         "foo": {
@@ -428,6 +434,7 @@ fn duplicate_variables() {
       },
       "first": null,
       "doc": null,
+      "groups": [],
       "modules": {},
       "recipes": {},
       "settings": {
@@ -463,6 +470,7 @@ fn doc_comment() {
       "first": "foo",
       "doc": null,
       "assignments": {},
+      "groups": [],
       "modules": {},
       "recipes": {
         "foo": {
@@ -512,6 +520,7 @@ fn empty_justfile() {
       "assignments": {},
       "first": null,
       "doc": null,
+      "groups": [],
       "modules": {},
       "recipes": {},
       "settings": {
@@ -554,6 +563,7 @@ fn parameters() {
       "first": "a",
       "doc": null,
       "assignments": {},
+      "groups": [],
       "modules": {},
       "recipes": {
         "a": {
@@ -707,6 +717,7 @@ fn priors() {
       "assignments": {},
       "first": "a",
       "doc": null,
+      "groups": [],
       "modules": {},
       "recipes": {
         "a": {
@@ -792,6 +803,7 @@ fn private() {
       "assignments": {},
       "first": "_foo",
       "doc": null,
+      "groups": [],
       "modules": {},
       "recipes": {
         "_foo": {
@@ -841,6 +853,7 @@ fn quiet() {
       "assignments": {},
       "first": "foo",
       "doc": null,
+      "groups": [],
       "modules": {},
       "recipes": {
         "foo": {
@@ -902,6 +915,7 @@ fn settings() {
       "assignments": {},
       "first": "foo",
       "doc": null,
+      "groups": [],
       "modules": {},
       "recipes": {
         "foo": {
@@ -957,6 +971,7 @@ fn shebang() {
       "assignments": {},
       "first": "foo",
       "doc": null,
+      "groups": [],
       "modules": {},
       "recipes": {
         "foo": {
@@ -1006,6 +1021,7 @@ fn simple() {
       "assignments": {},
       "first": "foo",
       "doc": null,
+      "groups": [],
       "modules": {},
       "recipes": {
         "foo": {
@@ -1058,6 +1074,7 @@ fn attribute() {
       "assignments": {},
       "first": "foo",
       "doc": null,
+      "groups": [],
       "modules": {},
       "recipes": {
         "foo": {
@@ -1118,12 +1135,107 @@ fn module() {
         "assignments": {},
         "first": null,
         "doc": null,
+        "groups": [],
         "modules": {
           "foo": {
             "aliases": {},
             "assignments": {},
             "first": "bar",
             "doc": "hello",
+            "groups": [],
+            "modules": {},
+            "recipes": {
+              "bar": {
+                "attributes": [],
+                "body": [],
+                "dependencies": [],
+                "doc": null,
+                "name": "bar",
+                "namepath": "foo::bar",
+                "parameters": [],
+                "priors": 0,
+                "private": false,
+                "quiet": false,
+                "shebang": false,
+              }
+            },
+            "settings": {
+              "allow_duplicate_recipes": false,
+              "allow_duplicate_variables": false,
+              "dotenv_filename": null,
+              "dotenv_load": false,
+              "dotenv_path": null,
+              "dotenv_required": false,
+              "export": false,
+              "fallback": false,
+              "positional_arguments": false,
+              "quiet": false,
+              "shell": null,
+              "tempdir" : null,
+              "unstable": false,
+              "ignore_comments": false,
+              "windows_powershell": false,
+              "windows_shell": null,
+            },
+            "unexports": [],
+            "warnings": [],
+          },
+        },
+        "recipes": {},
+        "settings": {
+          "allow_duplicate_recipes": false,
+          "allow_duplicate_variables": false,
+          "dotenv_filename": null,
+          "dotenv_load": false,
+          "dotenv_path": null,
+          "dotenv_required": false,
+          "export": false,
+          "fallback": false,
+          "positional_arguments": false,
+          "quiet": false,
+          "shell": null,
+          "tempdir" : null,
+          "unstable": false,
+          "ignore_comments": false,
+          "windows_powershell": false,
+          "windows_shell": null,
+        },
+        "unexports": [],
+        "warnings": [],
+      }))
+      .unwrap()
+    ))
+    .run();
+}
+
+#[test]
+fn module_group() {
+  Test::new()
+    .justfile(
+      "
+      [group('alpha')]
+      mod foo
+    ",
+    )
+    .tree(tree! {
+      "foo.just": "bar:",
+    })
+    .args(["--dump", "--dump-format", "json"])
+    .stdout(format!(
+      "{}\n",
+      serde_json::to_string(&json!({
+        "aliases": {},
+        "assignments": {},
+        "first": null,
+        "doc": null,
+        "groups": [],
+        "modules": {
+          "foo": {
+            "aliases": {},
+            "assignments": {},
+            "first": "bar",
+            "doc": null,
+            "groups": ["alpha"],
             "modules": {},
             "recipes": {
               "bar": {
