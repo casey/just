@@ -249,6 +249,43 @@ c
     .run();
 }
 
+#[cfg(not(windows))]
+#[test]
+fn multiline_shebang_line_numbers() {
+  Test::new()
+    .justfile(
+      "foo:
+  #!/usr/bin/env cat
+  #!shebang
+  #!shebang
+
+  a
+
+  b
+
+
+  c
+
+
+",
+    )
+    .stdout(
+      "#!/usr/bin/env cat
+#!shebang
+#!shebang
+
+
+a
+
+b
+
+
+c
+",
+    )
+    .run();
+}
+
 #[cfg(windows)]
 #[test]
 fn shebang_line_numbers() {

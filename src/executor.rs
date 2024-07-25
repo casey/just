@@ -105,7 +105,7 @@ impl<'a> Executor<'a> {
               n += 1;
             }
           } else {
-            while n < line.number {
+            while n < line.number && !line.is_shebang() {
               script.push('\n');
               n += 1;
             }
