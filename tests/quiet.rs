@@ -2,40 +2,40 @@ use super::*;
 
 test! {
   name:     no_stdout,
-  justfile: r#"
+  justfile: r"
 default:
   @echo hello
-"#,
+",
   args:     ("--quiet"),
   stdout:   "",
 }
 
 test! {
   name:     stderr,
-  justfile: r#"
+  justfile: r"
 default:
   @echo hello 1>&2
-"#,
+",
   args:     ("--quiet"),
   stdout:   "",
 }
 
 test! {
   name:     command_echoing,
-  justfile: r#"
+  justfile: r"
 default:
   exit
-"#,
+",
   args:     ("--quiet"),
   stdout:   "",
 }
 
 test! {
   name:     error_messages,
-  justfile: r#"
+  justfile: r"
 default:
   exit 100
-"#,
+",
   args:     ("--quiet"),
   stdout:   "",
   status:   100,
@@ -43,11 +43,11 @@ default:
 
 test! {
   name:     assignment_backtick_stderr,
-  justfile: r#"
+  justfile: r"
 a := `echo hello 1>&2`
 default:
   exit 100
-"#,
+",
   args:     ("--quiet"),
   stdout:   "",
   status:   100,
@@ -55,11 +55,11 @@ default:
 
 test! {
   name:     interpolation_backtick_stderr,
-  justfile: r#"
+  justfile: r"
 default:
   echo `echo hello 1>&2`
   exit 100
-"#,
+",
   args:     ("--quiet"),
   stdout:   "",
   status:   100,

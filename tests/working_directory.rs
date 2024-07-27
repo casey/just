@@ -28,7 +28,7 @@ fn justfile_without_working_directory() -> Result<(), Box<dyn Error>> {
 
   let output = Command::new(executable_path("just"))
     .arg("--justfile")
-    .arg(&tmp.path().join("justfile"))
+    .arg(tmp.path().join("justfile"))
     .output()?;
 
   if !output.status.success() {
@@ -109,9 +109,9 @@ fn justfile_and_working_directory() -> Result<(), Box<dyn Error>> {
 
   let output = Command::new(executable_path("just"))
     .arg("--justfile")
-    .arg(&tmp.path().join("justfile"))
+    .arg(tmp.path().join("justfile"))
     .arg("--working-directory")
-    .arg(&tmp.path().join("sub"))
+    .arg(tmp.path().join("sub"))
     .output()?;
 
   if !output.status.success() {
@@ -166,7 +166,7 @@ fn search_dir_parent() -> Result<(), Box<dyn Error>> {
   };
 
   let output = Command::new(executable_path("just"))
-    .current_dir(&tmp.path().join("child"))
+    .current_dir(tmp.path().join("child"))
     .arg("../")
     .output()?;
 

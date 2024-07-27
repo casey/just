@@ -5,7 +5,7 @@ use {
 
 fn kill(process_id: u32) {
   unsafe {
-    libc::kill(process_id as i32, libc::SIGINT);
+    libc::kill(process_id.try_into().unwrap(), libc::SIGINT);
   }
 }
 
@@ -31,13 +31,15 @@ fn interrupt_test(arguments: &[&str], justfile: &str) {
 
   let elapsed = start.elapsed();
 
-  if elapsed > Duration::from_secs(2) {
-    panic!("process returned too late: {elapsed:?}");
-  }
+  assert!(
+    elapsed <= Duration::from_secs(2),
+    "process returned too late: {elapsed:?}"
+  );
 
-  if elapsed < Duration::from_millis(100) {
-    panic!("process returned too early : {elapsed:?}");
-  }
+  assert!(
+    elapsed >= Duration::from_millis(100),
+    "process returned too early : {elapsed:?}"
+  );
 
   assert_eq!(status.code(), Some(130));
 }

@@ -515,7 +515,7 @@ recipe arg:
 
 test! {
   name:     dry_run,
-  justfile: r#"
+  justfile: r"
 var := `echo stderr 1>&2; echo backtick`
 
 command:
@@ -527,7 +527,7 @@ shebang:
   #!/bin/sh
   touch /this/is/not/a/file
   {{var}}
-  echo {{`echo shebang interpolation`}}"#,
+  echo {{`echo shebang interpolation`}}",
   args:     ("--dry-run", "shebang", "command"),
   stdout:   "",
   stderr:   "#!/bin/sh
@@ -542,7 +542,7 @@ echo `echo command interpolation`
 
 test! {
   name:     line_error_spacing,
-  justfile: r#"
+  justfile: r"
 
 
 
@@ -553,7 +553,7 @@ test! {
 
 
 ^^^
-"#,
+",
   stdout:   "",
   stderr:   "error: Unknown start of token:
   ——▶ justfile:10:1
@@ -707,10 +707,10 @@ Recipe `recipe` failed on line 2 with exit code 100\u{1b}[0m\n",
 
 test! {
   name:     dump,
-  justfile: r#"
+  justfile: r"
 # this recipe does something
 recipe a b +d:
- @exit 100"#,
+ @exit 100",
   args:     ("--dump"),
   stdout:   "# this recipe does something
 recipe a b +d:
@@ -824,10 +824,10 @@ hello baz arg='XYZ"	':
 
 test! {
   name:     supply_use_default,
-  justfile: r#"
+  justfile: r"
 hello a b='B' c='C':
   echo {{a}} {{b}} {{c}}
-"#,
+",
   args:     ("hello", "0", "1"),
   stdout:   "0 1 C\n",
   stderr:   "echo 0 1 C\n",
@@ -835,10 +835,10 @@ hello a b='B' c='C':
 
 test! {
   name:     supply_defaults,
-  justfile: r#"
+  justfile: r"
 hello a b='B' c='C':
   echo {{a}} {{b}} {{c}}
-"#,
+",
   args:     ("hello", "0", "1", "2"),
   stdout:   "0 1 2\n",
   stderr:   "echo 0 1 2\n",
@@ -918,75 +918,75 @@ _private-recipe:
 
 test! {
   name:     list_sorted,
-  justfile: r#"
+  justfile: r"
 alias c := b
 b:
 a:
-"#,
+",
   args:     ("--list"),
-  stdout:   r#"
+  stdout:   r"
     Available recipes:
         a
         b
         c # alias for `b`
-  "#,
+  ",
 }
 
 test! {
   name:     list_unsorted,
-  justfile: r#"
+  justfile: r"
 alias c := b
 b:
 a:
-"#,
+",
   args:     ("--list", "--unsorted"),
-  stdout:   r#"
+  stdout:   r"
     Available recipes:
         b
         c # alias for `b`
         a
-  "#,
+  ",
 }
 
 test! {
   name:     list_heading,
-  justfile: r#"
+  justfile: r"
 a:
 b:
-"#,
+",
   args:     ("--list", "--list-heading", "Cool stuff…\n"),
-  stdout:   r#"
+  stdout:   r"
     Cool stuff…
         a
         b
-  "#,
+  ",
 }
 
 test! {
   name:     list_prefix,
-  justfile: r#"
+  justfile: r"
 a:
 b:
-"#,
+",
   args:     ("--list", "--list-prefix", "····"),
-  stdout:   r#"
+  stdout:   r"
     Available recipes:
     ····a
     ····b
-  "#,
+  ",
 }
 
 test! {
   name:     list_empty_prefix_and_heading,
-  justfile: r#"
+  justfile: r"
 a:
 b:
-"#,
+",
   args:     ("--list", "--list-heading", "", "--list-prefix", ""),
-  stdout:   r#"
+  stdout:   r"
     a
     b
-  "#,
+  ",
 }
 
 test! {
@@ -1041,58 +1041,58 @@ foo:
 
 test! {
   name: infallible_command,
-  justfile: r#"
+  justfile: r"
 infallible:
   -exit 101
-"#,
+",
   stderr: "exit 101\n",
   status: EXIT_SUCCESS,
 }
 
 test! {
   name: infallible_with_failing,
-  justfile: r#"
+  justfile: r"
 infallible:
   -exit 101
   exit 202
-"#,
-  stderr: r#"exit 101
+",
+  stderr: r"exit 101
 exit 202
 error: Recipe `infallible` failed on line 3 with exit code 202
-"#,
+",
   status: 202,
 }
 
 test! {
   name:     quiet_recipe,
-  justfile: r#"
+  justfile: r"
 @quiet:
   # a
   # b
   @echo c
-"#,
+",
   stdout:   "c\n",
   stderr:   "echo c\n",
 }
 
 test! {
   name:     quiet_shebang_recipe,
-  justfile: r#"
+  justfile: r"
 @quiet:
   #!/bin/sh
   echo hello
-"#,
+",
   stdout:   "hello\n",
   stderr:   "#!/bin/sh\necho hello\n",
 }
 
 test! {
   name:     complex_dependencies,
-  justfile: r#"
+  justfile: r"
 a: b
 b:
 c: b a
-"#,
+",
   args:     ("b"),
   stdout:   "",
 }
@@ -1551,12 +1551,12 @@ test! {
      foo x=bar:
    ",
    stdout:   "",
-   stderr:   r#"error: Variable `bar` not defined
+   stderr:   r"error: Variable `bar` not defined
  ——▶ justfile:1:7
   │
 1 │ foo x=bar:
   │       ^^^
-"#,
+",
    status:   EXIT_FAILURE,
 }
 
@@ -1566,12 +1566,12 @@ test! {
 foo x=bar():
 ",
    stdout:   "",
-   stderr:   r#"error: Call to unknown function `bar`
+   stderr:   r"error: Call to unknown function `bar`
  ——▶ justfile:1:7
   │
 1 │ foo x=bar():
   │       ^^^
-"#,
+",
    status:   EXIT_FAILURE,
 }
 
@@ -1622,13 +1622,13 @@ test! {
     foo:
       echo {{
   ",
-  stderr:   r#"
+  stderr:   r"
     error: Unterminated interpolation
      ——▶ justfile:2:8
       │
     2 │   echo {{
       │        ^^
-  "#,
+  ",
   status:   EXIT_FAILURE,
 }
 
@@ -1638,13 +1638,13 @@ test! {
     foo:
       echo {{
   ",
-  stderr:   r#"
+  stderr:   r"
     error: Unterminated interpolation
      ——▶ justfile:2:8
       │
     2 │   echo {{
       │        ^^
-  "#,
+  ",
   status:   EXIT_FAILURE,
 }
 
@@ -1653,13 +1653,13 @@ test! {
   justfile: "
 assembly_source_files = %(wildcard src/arch/$(arch)/*.s)
 ",
-  stderr:   r#"
+  stderr:   r"
     error: Unknown start of token:
      ——▶ justfile:1:25
       │
     1 │ assembly_source_files = %(wildcard src/arch/$(arch)/*.s)
       │                         ^
-  "#,
+  ",
    status:   EXIT_FAILURE,
 }
 

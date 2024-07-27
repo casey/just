@@ -778,7 +778,7 @@ fn group_attribute_on_module() {
     .write("bar.just", "")
     .write("zee.just", "")
     .justfile(
-      r#"
+      r"
         [group('alpha')]
         mod zee
 
@@ -795,7 +795,7 @@ fn group_attribute_on_module() {
         mod bar
 
         c:
-      "#,
+      ",
     )
     .test_round_trip(false)
     .arg("--list")
@@ -824,7 +824,7 @@ fn group_attribute_on_module_unsorted() {
     .write("bar.just", "")
     .write("zee.just", "")
     .justfile(
-      r#"
+      r"
         [group('alpha')]
         mod zee
 
@@ -841,7 +841,7 @@ fn group_attribute_on_module_unsorted() {
         mod bar
 
         c:
-      "#,
+      ",
     )
     .test_round_trip(false)
     .arg("--list")
@@ -871,7 +871,7 @@ fn group_attribute_on_module_list_submodule() {
     .write("bar.just", "e:")
     .write("zee.just", "f:")
     .justfile(
-      r#"
+      r"
         [group('alpha')]
         mod zee
 
@@ -888,7 +888,7 @@ fn group_attribute_on_module_list_submodule() {
         mod bar
 
         c:
-      "#,
+      ",
     )
     .test_round_trip(false)
     .arg("--list")
@@ -921,7 +921,7 @@ fn group_attribute_on_module_list_submodule_unsorted() {
     .write("bar.just", "e:")
     .write("zee.just", "f:")
     .justfile(
-      r#"
+      r"
         [group('alpha')]
         mod zee
 
@@ -938,7 +938,7 @@ fn group_attribute_on_module_list_submodule_unsorted() {
         mod bar
 
         c:
-      "#,
+      ",
     )
     .test_round_trip(false)
     .arg("--list")
@@ -970,10 +970,10 @@ fn bad_module_attribute_fails() {
   Test::new()
     .write("foo.just", "")
     .justfile(
-      r#"
+      r"
         [no-cd]
         mod foo
-      "#,
+      ",
     )
     .test_round_trip(false)
     .arg("--list")
@@ -987,11 +987,11 @@ fn empty_doc_attribute_on_module() {
   Test::new()
     .write("foo.just", "")
     .justfile(
-      r#"
+      r"
         # Suppressed comment
         [doc]
         mod foo
-      "#,
+      ",
     )
     .test_round_trip(false)
     .arg("--list")
