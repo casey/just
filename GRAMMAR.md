@@ -50,7 +50,7 @@ item          : alias
               | import
               | module
               | recipe
-              | setting
+              | set
 
 eol           : NEWLINE
               | COMMENT NEWLINE
@@ -61,9 +61,9 @@ assignment    : NAME ':=' expression eol
 
 export        : 'export' assignment
 
-setting       : 'set' setting_val eol
+set           : 'set' setting eol
 
-setting_val   : 'allow-duplicate-recipes' boolean?
+setting       : 'allow-duplicate-recipes' boolean?
               | 'allow-duplicate-variables' boolean?
               | 'dotenv-filename' ':=' string
               | 'dotenv-load' boolean?
@@ -73,17 +73,17 @@ setting_val   : 'allow-duplicate-recipes' boolean?
               | 'fallback' boolean?
               | 'ignore-comments' boolean?
               | 'positional-arguments' boolean?
-              | 'script-interpreter' string_list
+              | 'script-interpreter' ':=' string_list
               | 'quiet' boolean?
-              | 'shell' string_list
+              | 'shell' ':=' string_list
               | 'tempdir' ':=' string
               | 'unstable' boolean?
               | 'windows-powershell' boolean?
-              | 'windows-shell' string_list
+              | 'windows-shell' ':=' string_list
 
 boolean       : ':=' ('true' | 'false')
 
-string_list   : ':=' '[' string (',' string)* ','? ']'
+string_list   : '[' string (',' string)* ','? ']'
 
 import        : 'import' '?'? string? eol
 
