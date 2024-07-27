@@ -81,12 +81,11 @@ fn file_paths_are_relative() {
     .stderr(format!(
       "
 error: Expected '*', ':', '$', identifier, or '+', but found end of file
- ——▶ foo{}bar.just:1:4
+ ——▶ foo{MAIN_SEPARATOR}bar.just:1:4
   │
 1 │ baz
   │    ^
 ",
-      MAIN_SEPARATOR
     ))
     .run();
 }
