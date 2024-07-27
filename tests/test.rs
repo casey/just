@@ -197,6 +197,14 @@ impl Test {
 impl Test {
   #[track_caller]
   pub(crate) fn run(self) -> Output {
+    fn compare<T: PartialEq + Debug>(name: &str, have: T, want: T) -> bool {
+      let equal = have == want;
+      if !equal {
+        eprintln!("Bad {name}: {}", Comparison::new(&have, &want));
+      }
+      equal
+    }
+
     if let Some(justfile) = &self.justfile {
       let justfile = unindent(justfile);
       fs::write(self.justfile_path(), justfile).unwrap();
@@ -240,27 +248,21 @@ impl Test {
       .wait_with_output()
       .expect("failed to wait for just process");
 
-    fn compare<T: PartialEq + Debug>(name: &str, have: T, want: T) -> bool {
-      let equal = have == want;
-      if !equal {
-        eprintln!("Bad {name}: {}", Comparison::new(&have, &want));
-      }
-      equal
-    }
-
     let output_stdout = str::from_utf8(&output.stdout).unwrap();
     let output_stderr = str::from_utf8(&output.stderr).unwrap();
 
     if let Some(ref stdout_regex) = self.stdout_regex {
-      if !stdout_regex.is_match(output_stdout) {
-        panic!("Stdout regex mismatch:\n{output_stdout:?}\n!~=\n/{stdout_regex:?}/");
-      }
+      assert!(
+        stdout_regex.is_match(output_stdout),
+        "Stdout regex mismatch:\n{output_stdout:?}\n!~=\n/{stdout_regex:?}/",
+      );
     }
 
     if let Some(ref stderr_regex) = self.stderr_regex {
-      if !stderr_regex.is_match(output_stderr) {
-        panic!("Stderr regex mismatch:\n{output_stderr:?}\n!~=\n/{stderr_regex:?}/");
-      }
+      assert!(
+        stderr_regex.is_match(output_stderr),
+        "Stderr regex mismatch:\n{output_stderr:?}\n!~=\n/{stderr_regex:?}/",
+      );
     }
 
     if !compare("status", output.status.code(), Some(self.status))
@@ -291,9 +293,12 @@ impl Test {
       .output()
       .expect("just invocation failed");
 
-    if !output.status.success() {
-      panic!("dump failed: {} {:?}", output.status, output);
-    }
+    assert!(
+      output.status.success(),
+      "dump failed: {} {:?}",
+      output.status,
+      output,
+    );
 
     let dumped = String::from_utf8(output.stdout).unwrap();
 
@@ -310,9 +315,7 @@ impl Test {
       .output()
       .expect("just invocation failed");
 
-    if !output.status.success() {
-      panic!("reparse failed: {}", output.status);
-    }
+    assert!(output.status.success(), "reparse failed: {}", output.status);
 
     let reparsed = String::from_utf8(output.stdout).unwrap();
 

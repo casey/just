@@ -2,17 +2,17 @@ use super::*;
 
 test! {
   name:     test_os_arch_functions_in_interpolation,
-  justfile: r#"
+  justfile: r"
 foo:
   echo {{arch()}} {{os()}} {{os_family()}} {{num_cpus()}}
-"#,
+",
   stdout:   format!("{} {} {} {}\n", target::arch(), target::os(), target::family(), num_cpus::get()).as_str(),
   stderr:   format!("echo {} {} {} {}\n", target::arch(), target::os(), target::family(), num_cpus::get()).as_str(),
 }
 
 test! {
   name:     test_os_arch_functions_in_expression,
-  justfile: r#"
+  justfile: r"
 a := arch()
 o := os()
 f := os_family()
@@ -20,7 +20,7 @@ n := num_cpus()
 
 foo:
   echo {{a}} {{o}} {{f}} {{n}}
-"#,
+",
   stdout:   format!("{} {} {} {}\n", target::arch(), target::os(), target::family(), num_cpus::get()).as_str(),
   stderr:   format!("echo {} {} {} {}\n", target::arch(), target::os(), target::family(), num_cpus::get()).as_str(),
 }
@@ -28,14 +28,14 @@ foo:
 #[cfg(not(windows))]
 test! {
   name:     env_var_functions,
-  justfile: r#"
+  justfile: r"
 p := env_var('USER')
 b := env_var_or_default('ZADDY', 'HTAP')
 x := env_var_or_default('XYZ', 'ABC')
 
 foo:
   /usr/bin/env echo '{{p}}' '{{b}}' '{{x}}'
-"#,
+",
   stdout:   format!("{} HTAP ABC\n", env::var("USER").unwrap()).as_str(),
   stderr:   format!("/usr/bin/env echo '{}' 'HTAP' 'ABC'\n", env::var("USER").unwrap()).as_str(),
 }
@@ -43,7 +43,7 @@ foo:
 #[cfg(not(windows))]
 test! {
   name: path_functions,
-  justfile: r#"
+  justfile: r"
 we  := without_extension('/foo/bar/baz.hello')
 fs  := file_stem('/foo/bar/baz.hello')
 fn  := file_name('/foo/bar/baz.hello')
@@ -53,7 +53,7 @@ jn  := join('a', 'b')
 
 foo:
   /usr/bin/env echo '{{we}}' '{{fs}}' '{{fn}}' '{{dir}}' '{{ext}}' '{{jn}}'
-"#,
+",
   stdout:   "/foo/bar/baz baz baz.hello /foo/bar hello a/b\n",
   stderr:   "/usr/bin/env echo '/foo/bar/baz' 'baz' 'baz.hello' '/foo/bar' 'hello' 'a/b'\n",
 }
@@ -61,7 +61,7 @@ foo:
 #[cfg(not(windows))]
 test! {
   name: path_functions2,
-  justfile: r#"
+  justfile: r"
 we  := without_extension('/foo/bar/baz')
 fs  := file_stem('/foo/bar/baz.hello.ciao')
 fn  := file_name('/bar/baz.hello.ciao')
@@ -70,7 +70,7 @@ ext := extension('/foo/bar/baz.hello.ciao')
 
 foo:
   /usr/bin/env echo '{{we}}' '{{fs}}' '{{fn}}' '{{dir}}' '{{ext}}'
-"#,
+",
   stdout:   "/foo/bar/baz baz.hello baz.hello.ciao / ciao\n",
   stderr:   "/usr/bin/env echo '/foo/bar/baz' 'baz.hello' 'baz.hello.ciao' '/' 'ciao'\n",
 }
@@ -78,12 +78,12 @@ foo:
 #[cfg(not(windows))]
 test! {
   name: broken_without_extension_function,
-  justfile: r#"
+  justfile: r"
 we  := without_extension('')
 
 foo:
   /usr/bin/env echo '{{we}}'
-"#,
+",
   stdout:   "",
   stderr:   format!("{} {}\n{}\n{}\n{}\n{}\n",
     "error: Call to function `without_extension` failed:",
@@ -98,12 +98,12 @@ foo:
 #[cfg(not(windows))]
 test! {
   name: broken_extension_function,
-  justfile: r#"
+  justfile: r"
 we  := extension('')
 
 foo:
   /usr/bin/env echo '{{we}}'
-"#,
+",
   stdout:   "",
   stderr:   format!("{}\n{}\n{}\n{}\n{}\n",
     "error: Call to function `extension` failed: Could not extract extension from ``",
@@ -117,12 +117,12 @@ foo:
 #[cfg(not(windows))]
 test! {
   name: broken_extension_function2,
-  justfile: r#"
+  justfile: r"
 we  := extension('foo')
 
 foo:
   /usr/bin/env echo '{{we}}'
-"#,
+",
   stdout:   "",
   stderr:   format!("{}\n{}\n{}\n{}\n{}\n",
     "error: Call to function `extension` failed: Could not extract extension from `foo`",
@@ -136,12 +136,12 @@ foo:
 #[cfg(not(windows))]
 test! {
   name: broken_file_stem_function,
-  justfile: r#"
+  justfile: r"
 we  := file_stem('')
 
 foo:
   /usr/bin/env echo '{{we}}'
-"#,
+",
   stdout:   "",
   stderr:   format!("{}\n{}\n{}\n{}\n{}\n",
     "error: Call to function `file_stem` failed: Could not extract file stem from ``",
@@ -155,12 +155,12 @@ foo:
 #[cfg(not(windows))]
 test! {
   name: broken_file_name_function,
-  justfile: r#"
+  justfile: r"
 we  := file_name('')
 
 foo:
   /usr/bin/env echo '{{we}}'
-"#,
+",
   stdout:   "",
   stderr:   format!("{}\n{}\n{}\n{}\n{}\n",
     "error: Call to function `file_name` failed: Could not extract file name from ``",
@@ -174,12 +174,12 @@ foo:
 #[cfg(not(windows))]
 test! {
   name: broken_directory_function,
-  justfile: r#"
+  justfile: r"
 we  := parent_directory('')
 
 foo:
   /usr/bin/env echo '{{we}}'
-"#,
+",
   stdout:   "",
   stderr:   format!("{} {}\n{}\n{}\n{}\n{}\n",
     "error: Call to function `parent_directory` failed:",
@@ -194,12 +194,12 @@ foo:
 #[cfg(not(windows))]
 test! {
   name: broken_directory_function2,
-  justfile: r#"
+  justfile: r"
 we  := parent_directory('/')
 
 foo:
   /usr/bin/env echo '{{we}}'
-"#,
+",
   stdout:   "",
   stderr:   format!("{} {}\n{}\n{}\n{}\n{}\n",
     "error: Call to function `parent_directory` failed:",
@@ -254,10 +254,10 @@ test! {
 
 test! {
   name:     test_os_arch_functions_in_default,
-  justfile: r#"
+  justfile: r"
 foo a=arch() o=os() f=os_family() n=num_cpus():
   echo {{a}} {{o}} {{f}} {{n}}
-"#,
+",
   stdout:   format!("{} {} {} {}\n", target::arch(), target::os(), target::family(), num_cpus::get()).as_str(),
   stderr:   format!("echo {} {} {} {}\n", target::arch(), target::os(), target::family(), num_cpus::get()).as_str(),
 }
@@ -664,7 +664,7 @@ fn uuid() {
 #[test]
 fn choose() {
   Test::new()
-    .justfile(r#"x := choose('10', 'xXyYzZ')"#)
+    .justfile(r"x := choose('10', 'xXyYzZ')")
     .args(["--evaluate", "x"])
     .stdout_regex("^[X-Zx-z]{10}$")
     .run();
