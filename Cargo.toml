@@ -60,6 +60,9 @@ pretty_assertions = "1.0.0"
 temptree = "0.2.0"
 which = "6.0.0"
 
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(fuzzing)'] }
+
 [lib]
 doctest = false
 
