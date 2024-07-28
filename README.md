@@ -1704,28 +1704,28 @@ $ just foo
 0123456789abcdef
 ```
 
-### Recipe Attributes
+### Attributes
 
-Recipes may be annotated with attributes that change their behavior.
+Recipes, `mod` statements, and aliases may be annotated with attributes that change their behavior.
 
-| Name | Description |
-|------|-------------|
-| `[confirm]`<sup>1.17.0</sup> | Require confirmation prior to executing recipe. |
-| `[confirm('PROMPT')]`<sup>1.23.0</sup> | Require confirmation prior to executing recipe with a custom prompt. |
-| `[doc('DOC')]`<sup>1.27.0</sup> | Set recipe's [documentation comment](#documentation-comments) to `DOC`. |
-| `[extension('EXT')]`<sup>1.32.0</sup> | Set shebang recipe script's file extension to `EXT`. `EXT` should include a period if one is desired. |
-| `[group('NAME')]`<sup>1.27.0</sup> | Put recipe in [recipe group](#recipe-groups) `NAME`. |
-| `[linux]`<sup>1.8.0</sup> | Enable recipe on Linux. |
-| `[macos]`<sup>1.8.0</sup> | Enable recipe on MacOS. |
-| `[no-cd]`<sup>1.9.0</sup> | Don't change directory before executing recipe. |
-| `[no-exit-message]`<sup>1.7.0</sup> | Don't print an error message if recipe fails. |
-| `[no-quiet]`<sup>1.23.0</sup> | Override globally quiet recipes and always echo out the recipe. |
-| `[positional-arguments]`<sup>1.29.0</sup> | Turn on [positional arguments](#positional-arguments) for this recipe. |
-| `[private]`<sup>1.10.0</sup> | See [Private Recipes](#private-recipes). |
-| `[script]`<sup>master</sup> | Execute recipe as script. See [script recipes](#script-recipes) for more details. |
-| `[script(COMMAND)]`<sup>1.32.0</sup> | Execute recipe as a script interpreted by `COMMAND`. See [script recipes](#script-recipes) for more details. |
-| `[unix]`<sup>1.8.0</sup> | Enable recipe on Unixes. (Includes MacOS). |
-| `[windows]`<sup>1.8.0</sup> | Enable recipe on Windows. |
+| Name | Type | Description |
+|------|------|-------------|
+| `[confirm]`<sup>1.17.0</sup> | recipe | Require confirmation prior to executing recipe. |
+| `[confirm('PROMPT')]`<sup>1.23.0</sup> | recipe | Require confirmation prior to executing recipe with a custom prompt. |
+| `[doc('DOC')]`<sup>1.27.0</sup> | module, recipe | Set recipe or module's [documentation comment](#documentation-comments) to `DOC`. |
+| `[extension('EXT')]`<sup>1.32.0</sup> | recipe | Set shebang recipe script's file extension to `EXT`. `EXT` should include a period if one is desired. |
+| `[group('NAME')]`<sup>1.27.0</sup> | module, recipe | Put recipe or module in in [group](#groups) `NAME`. |
+| `[linux]`<sup>1.8.0</sup> | recipe | Enable recipe on Linux. |
+| `[macos]`<sup>1.8.0</sup> | recipe | Enable recipe on MacOS. |
+| `[no-cd]`<sup>1.9.0</sup> | recipe | Don't change directory before executing recipe. |
+| `[no-exit-message]`<sup>1.7.0</sup> | recipe | Don't print an error message if recipe fails. |
+| `[no-quiet]`<sup>1.23.0</sup> | recipe | Override globally quiet recipes and always echo out the recipe. |
+| `[positional-arguments]`<sup>1.29.0</sup> | recipe | Turn on [positional arguments](#positional-arguments) for this recipe. |
+| `[private]`<sup>1.10.0</sup> | alias, recipe | Make recipe or alias private. See [Private Recipes](#private-recipes). |
+| `[script]`<sup>master</sup> | recipe | Execute recipe as script. See [script recipes](#script-recipes) for more details. |
+| `[script(COMMAND)]`<sup>1.32.0</sup> | recipe | Execute recipe as a script interpreted by `COMMAND`. See [script recipes](#script-recipes) for more details. |
+| `[unix]`<sup>1.8.0</sup> | recipe | Enable recipe on Unixes. (Includes MacOS). |
+| `[windows]`<sup>1.8.0</sup> | recipe | Enable recipe on Windows. |
 
 A recipe can have multiple attributes, either on multiple lines:
 
@@ -1816,9 +1816,9 @@ delete-everything:
   rm -rf *
 ```
 
-### Recipe Groups
+### Groups
 
-Recipes can be annotated with a group name:
+Recipes and modules may be annotated with a group name:
 
 ```just
 [group('lint')]
@@ -1844,7 +1844,6 @@ Recipes are listed by group:
 ```
 $ just --list
 Available recipes:
-    (no group)
     email-everyone # not in any group
 
     [lint]
