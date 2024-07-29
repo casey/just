@@ -96,24 +96,46 @@ impl<'a> Executor<'a> {
     match self {
       Self::Shebang(shebang) => {
         let mut n = 0;
+        let mut iter = recipe.body.iter().zip(lines);
 
-        for (i, (line, evaluated)) in recipe.body.iter().zip(lines).enumerate() {
-          if i == 0 {
-            if shebang.include_shebang_line() {
-              script.push_str(evaluated);
-              script.push('\n');
-              n += 1;
-            }
-          } else {
-            while n < line.number && !line.is_shebang() {
-              script.push('\n');
-              n += 1;
-            }
-
+        // If shebang line should be included it should be at the top
+        if let Some((_line, evaluated)) = iter.next() {
+          if shebang.include_shebang_line() {
             script.push_str(evaluated);
             script.push('\n');
             n += 1;
           }
+        }
+
+        // Any shebang line that follows the first should also be at the top
+        for (line, evaluated) in iter.by_ref() {
+          let line_is_shebang = line.is_shebang();
+
+          if !line_is_shebang {
+            while n < line.number {
+              script.push('\n');
+              n += 1;
+            }
+          }
+          script.push_str(evaluated);
+          script.push('\n');
+          n += 1;
+
+          if !line_is_shebang {
+            break;
+          }
+        }
+
+        // The rest of the script should match justfile line numbers
+        for (line, evaluated) in iter {
+          while n < line.number {
+            script.push('\n');
+            n += 1;
+          }
+
+          script.push_str(evaluated);
+          script.push('\n');
+          n += 1;
         }
       }
       Self::Command(_) => {
