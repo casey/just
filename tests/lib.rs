@@ -111,6 +111,7 @@ mod unstable;
 mod windows;
 #[cfg(target_family = "windows")]
 mod windows_shell;
+mod workdir;
 mod working_directory;
 
 fn path(s: &str) -> String {

@@ -967,6 +967,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       Keyword::Shell => Some(Setting::Shell(self.parse_interpreter()?)),
       Keyword::Tempdir => Some(Setting::Tempdir(self.parse_string_literal()?)),
       Keyword::WindowsShell => Some(Setting::WindowsShell(self.parse_interpreter()?)),
+      Keyword::Workdir => Some(Setting::Workdir(self.parse_string_literal()?)),
       _ => None,
     };
 
@@ -2144,6 +2145,12 @@ mod tests {
     name: set_windows_powershell_false,
     text: "set windows-powershell := false",
     tree: (justfile (set windows_powershell false)),
+  }
+
+  test! {
+    name: set_workdir,
+    text: "set workdir := 'my-work-dir'",
+    tree: (justfile (set workdir "my-work-dir")),
   }
 
   test! {

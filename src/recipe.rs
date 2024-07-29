@@ -136,13 +136,18 @@ impl<'src, D> Recipe<'src, D> {
     !self.attributes.contains(&Attribute::NoExitMessage)
   }
 
-  fn working_directory<'a>(&'a self, search: &'a Search) -> Option<&Path> {
+  fn working_directory<'a>(&'a self, context: &'a ExecutionContext) -> Option<PathBuf> {
     if self.change_directory() {
-      Some(if self.submodule_depth > 0 {
+      let workdir = if self.submodule_depth > 0 {
         &self.working_directory
       } else {
-        &search.working_directory
-      })
+        &context.search.working_directory
+      };
+      if let Some(s) = &context.settings.workdir {
+        Some(workdir.join(s))
+      } else {
+        Some(workdir.clone())
+      }
     } else {
       None
     }
@@ -265,7 +270,7 @@ impl<'src, D> Recipe<'src, D> {
 
       let mut cmd = context.settings.shell_command(config);
 
-      if let Some(working_directory) = self.working_directory(context.search) {
+      if let Some(working_directory) = self.working_directory(context) {
         cmd.current_dir(working_directory);
       }
 
@@ -408,8 +413,11 @@ impl<'src, D> Recipe<'src, D> {
       io_error: error,
     })?;
 
-    let mut command =
-      executor.command(&path, self.name(), self.working_directory(context.search))?;
+    let mut command = executor.command(
+      &path,
+      self.name(),
+      self.working_directory(context).as_deref(),
+    )?;
 
     if self.takes_positional_arguments(context.settings) {
       command.args(positional);
