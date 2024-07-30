@@ -92,13 +92,11 @@ impl<'a> Executor<'a> {
   // numbers in errors from generated script match justfile source lines.
   pub(crate) fn script<D>(&self, recipe: &Recipe<D>, lines: &[String]) -> String {
     let mut script = String::new();
+    let mut n = 0;
+    let mut iter = recipe.body.iter().zip(lines).peekable();
 
     match self {
       Self::Shebang(shebang) => {
-        let mut n = 0;
-        let mut iter = recipe.body.iter().zip(lines);
-
-        // If shebang line should be included it should be at the top
         if let Some((_line, evaluated)) = iter.next() {
           if shebang.include_shebang_line() {
             script.push_str(evaluated);
@@ -107,51 +105,30 @@ impl<'a> Executor<'a> {
           }
         }
 
-        // Any shebang line that follows the first should also be at the top
-        for (line, evaluated) in iter.by_ref() {
-          let line_is_shebang = line.is_shebang();
-
-          if !line_is_shebang {
-            while n < line.number {
-              script.push('\n');
-              n += 1;
-            }
-          }
-          script.push_str(evaluated);
-          script.push('\n');
-          n += 1;
-
-          if !line_is_shebang {
+        // Any shebangs following the first line should be directly after it
+        while let Some((line, evaluated)) = iter.by_ref().peek() {
+          if !line.is_shebang() {
             break;
           }
-        }
-
-        // The rest of the script should match justfile line numbers
-        for (line, evaluated) in iter {
-          while n < line.number {
-            script.push('\n');
-            n += 1;
-          }
 
           script.push_str(evaluated);
           script.push('\n');
           n += 1;
+          iter.next();
         }
       }
-      Self::Command(_) => {
-        let mut n = 0;
+      Self::Command(_) => {}
+    }
 
-        for (line, evaluated) in recipe.body.iter().zip(lines) {
-          while n < line.number {
-            script.push('\n');
-            n += 1;
-          }
-
-          script.push_str(evaluated);
-          script.push('\n');
-          n += 1;
-        }
+    for (line, evaluated) in iter {
+      while n < line.number {
+        script.push('\n');
+        n += 1;
       }
+
+      script.push_str(evaluated);
+      script.push('\n');
+      n += 1;
     }
 
     script
