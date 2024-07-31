@@ -3,11 +3,9 @@ use {super::*, serde::Serialize};
 #[derive(Debug)]
 struct Invocation<'src: 'run, 'run> {
   arguments: Vec<&'run str>,
-  module_source: &'run Path,
+  module: &'run Justfile<'src>,
   recipe: &'run Recipe<'src>,
   scope: &'run Scope<'src, 'run>,
-  settings: &'run Settings<'src>,
-  module: &'run Justfile<'src>,
 }
 
 #[derive(Debug, PartialEq, Serialize)]
@@ -208,11 +206,8 @@ impl<'src> Justfile<'src> {
         config,
         dotenv: &dotenv,
         module: invocation.module,
-        module_source: invocation.module_source,
         scope: invocation.scope,
         search,
-        settings: invocation.settings,
-        unexports: &self.unexports,
       };
 
       Self::run_recipe(
@@ -271,12 +266,10 @@ impl<'src> Justfile<'src> {
     if position + 1 == path.len() {
       let recipe = self.get_recipe(&path[position]).unwrap();
       Ok(Invocation {
-        recipe,
-        module_source: &self.source,
         arguments: arguments.into(),
-        settings: &self.settings,
-        scope: parent,
         module: self,
+        recipe,
+        scope: parent,
       })
     } else {
       let module = self.modules.get(&path[position]).unwrap();

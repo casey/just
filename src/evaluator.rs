@@ -23,11 +23,8 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       config,
       dotenv,
       module,
-      module_source: &module.source,
       scope: parent,
       search,
-      settings: &module.settings,
-      unexports: &module.unexports,
     };
 
     let mut scope = context.scope.child();
@@ -237,15 +234,19 @@ impl<'src, 'run> Evaluator<'src, 'run> {
   }
 
   pub(crate) fn run_command(&self, command: &str, args: &[&str]) -> Result<String, OutputError> {
-    let mut cmd = self.context.settings.shell_command(self.context.config);
+    let mut cmd = self
+      .context
+      .module
+      .settings
+      .shell_command(self.context.config);
     cmd.arg(command);
     cmd.args(args);
     cmd.current_dir(self.context.working_directory());
     cmd.export(
-      self.context.settings,
+      &self.context.module.settings,
       self.context.dotenv,
       &self.scope,
-      self.context.unexports,
+      &self.context.module.unexports,
     );
     cmd.stdin(Stdio::inherit());
     cmd.stderr(if self.context.config.verbosity.quiet() {
