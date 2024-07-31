@@ -304,6 +304,10 @@ impl<'src> Justfile<'src> {
     }
   }
 
+  pub(crate) fn is_submodule(&self) -> bool {
+    self.name.is_some()
+  }
+
   pub(crate) fn name(&self) -> &'src str {
     self.name.map(|name| name.lexeme()).unwrap_or_default()
   }
