@@ -271,3 +271,63 @@ fn working_dir_applies_to_backticks() {
     .stdout("FILE\n")
     .run();
 }
+
+#[test]
+fn working_dir_applies_to_shell_function() {
+  Test::new()
+    .justfile(
+      "
+        set working-directory := 'foo'
+
+        file := shell('cat file.txt')
+
+        @foo:
+          echo {{ file }}
+      ",
+    )
+    .write("foo/file.txt", "FILE")
+    .stdout("FILE\n")
+    .run();
+}
+
+#[test]
+fn working_dir_applies_to_backticks_in_submodules() {
+  Test::new()
+    .justfile("mod foo")
+    .write(
+      "foo/mod.just",
+      "
+set working-directory := 'bar'
+
+file := `cat file.txt`
+
+@foo:
+  echo {{ file }}
+",
+    )
+    .arg("foo")
+    .write("foo/bar/file.txt", "FILE")
+    .stdout("FILE\n")
+    .run();
+}
+
+#[test]
+fn working_dir_applies_to_shell_function_in_submodules() {
+  Test::new()
+    .justfile("mod foo")
+    .write(
+      "foo/mod.just",
+      "
+set working-directory := 'bar'
+
+file := shell('cat file.txt')
+
+@foo:
+  echo {{ file }}
+",
+    )
+    .arg("foo")
+    .write("foo/bar/file.txt", "FILE")
+    .stdout("FILE\n")
+    .run();
+}

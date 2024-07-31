@@ -64,7 +64,6 @@ pub(crate) fn analysis_error(
     &PathBuf::new(),
     &[],
     &Namepath::default(),
-    0,
     &tokens,
     &PathBuf::new(),
   )

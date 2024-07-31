@@ -31,7 +31,6 @@ pub(crate) struct Parser<'run, 'src> {
   module_namepath: &'run Namepath<'src>,
   next_token: usize,
   recursion_depth: usize,
-  submodule_depth: u32,
   tokens: &'run [Token<'src>],
   working_directory: &'run Path,
 }
@@ -43,7 +42,6 @@ impl<'run, 'src> Parser<'run, 'src> {
     file_path: &'run Path,
     import_offsets: &[usize],
     module_namepath: &'run Namepath<'src>,
-    submodule_depth: u32,
     tokens: &'run [Token<'src>],
     working_directory: &'run Path,
   ) -> CompileResult<'src, Ast<'src>> {
@@ -55,7 +53,6 @@ impl<'run, 'src> Parser<'run, 'src> {
       module_namepath,
       next_token: 0,
       recursion_depth: 0,
-      submodule_depth,
       tokens,
       working_directory,
     }
@@ -446,8 +443,9 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     if self.next_token == self.tokens.len() {
       Ok(Ast {
-        warnings: Vec::new(),
         items,
+        warnings: Vec::new(),
+        working_directory: self.working_directory.into(),
       })
     } else {
       Err(self.internal_error(format!(
@@ -838,8 +836,6 @@ impl<'run, 'src> Parser<'run, 'src> {
       priors,
       private: name.lexeme().starts_with('_'),
       quiet,
-      submodule_depth: self.submodule_depth,
-      working_directory: self.working_directory.into(),
     })
   }
 
@@ -1089,7 +1085,6 @@ mod tests {
       &PathBuf::new(),
       &[],
       &Namepath::default(),
-      0,
       &tokens,
       &PathBuf::new(),
     )
@@ -1136,7 +1131,6 @@ mod tests {
       &PathBuf::new(),
       &[],
       &Namepath::default(),
-      0,
       &tokens,
       &PathBuf::new(),
     ) {
