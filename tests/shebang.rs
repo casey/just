@@ -44,6 +44,18 @@ default:
   stdout: "Hello-World\r\n",
 }
 
+#[cfg(windows)]
+test! {
+  name:     multi_line_cmd_shebangs_are_removed,
+  justfile: r#"
+default:
+  #!cmd.exe /c
+  #!foo
+  @echo Hello-World
+"#,
+  stdout: "Hello-World\r\n",
+}
+
 #[test]
 fn simple() {
   Test::new()

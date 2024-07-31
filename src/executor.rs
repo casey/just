@@ -92,44 +92,32 @@ impl<'a> Executor<'a> {
   // numbers in errors from generated script match justfile source lines.
   pub(crate) fn script<D>(&self, recipe: &Recipe<D>, lines: &[String]) -> String {
     let mut script = String::new();
+    let mut n = 0;
+    let shebangs = recipe
+      .body
+      .iter()
+      .take_while(|line| line.is_shebang())
+      .count();
 
-    match self {
-      Self::Shebang(shebang) => {
-        let mut n = 0;
-
-        for (i, (line, evaluated)) in recipe.body.iter().zip(lines).enumerate() {
-          if i == 0 {
-            if shebang.include_shebang_line() {
-              script.push_str(evaluated);
-              script.push('\n');
-              n += 1;
-            }
-          } else {
-            while n < line.number {
-              script.push('\n');
-              n += 1;
-            }
-
-            script.push_str(evaluated);
-            script.push('\n');
-            n += 1;
-          }
+    if let Self::Shebang(shebang) = self {
+      for shebang_line in &lines[..shebangs] {
+        if shebang.include_shebang_line() {
+          script.push_str(shebang_line);
         }
+        script.push('\n');
+        n += 1;
       }
-      Self::Command(_) => {
-        let mut n = 0;
+    }
 
-        for (line, evaluated) in recipe.body.iter().zip(lines) {
-          while n < line.number {
-            script.push('\n');
-            n += 1;
-          }
-
-          script.push_str(evaluated);
-          script.push('\n');
-          n += 1;
-        }
+    for (line, text) in recipe.body.iter().zip(lines).skip(n) {
+      while n < line.number {
+        script.push('\n');
+        n += 1;
       }
+
+      script.push_str(text);
+      script.push('\n');
+      n += 1;
     }
 
     script
