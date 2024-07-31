@@ -109,13 +109,13 @@ impl<'a> Executor<'a> {
       }
     }
 
-    for (line, evaluated) in recipe.body.iter().zip(lines).skip(n) {
+    for (line, text) in recipe.body.iter().zip(lines).skip(n) {
       while n < line.number {
         script.push('\n');
         n += 1;
       }
 
-      script.push_str(evaluated);
+      script.push_str(text);
       script.push('\n');
       n += 1;
     }
