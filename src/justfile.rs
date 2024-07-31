@@ -7,6 +7,7 @@ struct Invocation<'src: 'run, 'run> {
   recipe: &'run Recipe<'src>,
   scope: &'run Scope<'src, 'run>,
   settings: &'run Settings<'src>,
+  module: &'run Justfile<'src>,
 }
 
 #[derive(Debug, PartialEq, Serialize)]
@@ -30,6 +31,8 @@ pub(crate) struct Justfile<'src> {
   #[serde(skip)]
   pub(crate) unstable_features: BTreeSet<UnstableFeature>,
   pub(crate) warnings: Vec<Warning>,
+  #[serde(skip)]
+  pub(crate) working_directory: PathBuf,
 }
 
 impl<'src> Justfile<'src> {
@@ -204,6 +207,7 @@ impl<'src> Justfile<'src> {
       let context = ExecutionContext {
         config,
         dotenv: &dotenv,
+        module: invocation.module,
         module_source: invocation.module_source,
         scope: invocation.scope,
         search,
@@ -272,6 +276,7 @@ impl<'src> Justfile<'src> {
         arguments: arguments.into(),
         settings: &self.settings,
         scope: parent,
+        module: self,
       })
     } else {
       let module = self.modules.get(&path[position]).unwrap();

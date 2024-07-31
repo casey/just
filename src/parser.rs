@@ -446,8 +446,9 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     if self.next_token == self.tokens.len() {
       Ok(Ast {
-        warnings: Vec::new(),
         items,
+        warnings: Vec::new(),
+        working_directory: self.working_directory.into(),
       })
     } else {
       Err(self.internal_error(format!(

@@ -22,6 +22,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     let context = ExecutionContext {
       config,
       dotenv,
+      module,
       module_source: &module.source,
       scope: parent,
       search,
@@ -239,17 +240,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     let mut cmd = self.context.settings.shell_command(self.context.config);
     cmd.arg(command);
     cmd.args(args);
-    if let Some(working_directory) = &self.context.settings.working_directory {
-      cmd.current_dir(
-        self
-          .context
-          .search
-          .working_directory
-          .join(working_directory),
-      )
-    } else {
-      cmd.current_dir(&self.context.search.working_directory)
-    };
+    cmd.current_dir(self.context.working_directory());
     cmd.export(
       self.context.settings,
       self.context.dotenv,

@@ -35,7 +35,8 @@ impl<'src> Analyzer<'src> {
     let mut assignments = Vec::new();
 
     let mut stack = Vec::new();
-    stack.push(asts.get(root).unwrap());
+    let root_ast = asts.get(root).unwrap();
+    stack.push(root_ast);
 
     let mut warnings = Vec::new();
 
@@ -232,6 +233,7 @@ impl<'src> Analyzer<'src> {
       unexports,
       unstable_features,
       warnings,
+      working_directory: root_ast.working_directory.clone(),
     })
   }
 

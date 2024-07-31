@@ -9,6 +9,8 @@ pub(crate) struct Ast<'src> {
   pub(crate) items: Vec<Item<'src>>,
   /// Non-fatal warnings encountered during parsing
   pub(crate) warnings: Vec<Warning>,
+
+  pub(crate) working_directory: PathBuf,
 }
 
 impl<'src> Display for Ast<'src> {
