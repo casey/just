@@ -1,6 +1,26 @@
 Changelog
 =========
 
+[1.33.0](https://github.com/casey/just/releases/tag/1.33.0) - 2024-07-30
+------------------------------------------------------------------------
+
+### Fixed
+- Use correct backtick and `shell()` expression working directory in submodules ([#2285](https://github.com/casey/just/pull/2285) by [casey](https://github.com/casey))
+
+### Added
+- Add `working-directory` setting ([#2283](https://github.com/casey/just/pull/2283) by [nyurik](https://github.com/nyurik))
+- Allow `[group]` attribute on submodules ([#2263](https://github.com/casey/just/pull/2263) by [jmwoliver](https://github.com/jmwoliver))
+- Allow empty `[script]` attribute and add `set script-interpreter` ([#2264](https://github.com/casey/just/pull/2264) by [casey](https://github.com/casey))
+
+### Misc
+- Document which attributes apply to which items ([#2282](https://github.com/casey/just/pull/2282) by [casey](https://github.com/casey))
+- Add missing productions ([#2280](https://github.com/casey/just/pull/2280) by [poliorcetics](https://github.com/poliorcetics))
+- Fix Rust 1.80.0 warnings ([#2281](https://github.com/casey/just/pull/2281) by [casey](https://github.com/casey))
+- Update softprops/action-gh-release ([#2269](https://github.com/casey/just/pull/2269) by [app/dependabot](https://github.com/app/dependabot))
+- Remove `(no group)` header before ungrouped recipes ([#2268](https://github.com/casey/just/pull/2268) by [casey](https://github.com/casey))
+- Document `script-interpreter` setting ([#2265](https://github.com/casey/just/pull/2265) by [casey](https://github.com/casey))
+- `set dotenv-path` does not override `set dotenv-filename` ([#2262](https://github.com/casey/just/pull/2262) by [casey](https://github.com/casey))
+
 [1.32.0](https://github.com/casey/just/releases/tag/1.32.0) - 2024-07-17
 ------------------------------------------------------------------------
 
