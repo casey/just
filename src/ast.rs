@@ -5,11 +5,8 @@ use super::*;
 /// are performed by the `Analyzer`, which produces a `Justfile` from an `Ast`.
 #[derive(Debug, Clone)]
 pub(crate) struct Ast<'src> {
-  /// Items in the justfile
   pub(crate) items: Vec<Item<'src>>,
-  /// Non-fatal warnings encountered during parsing
   pub(crate) warnings: Vec<Warning>,
-
   pub(crate) working_directory: PathBuf,
 }
 
