@@ -810,13 +810,13 @@ foo:
 <tr><td><code>fallback</code></td><td>boolean</td><td><code>false</code></td><td>Search <code>justfile</code> in parent directory if the first recipe on the command line is not found.</td></tr>
 <tr><td><code>ignore-comments</code></td><td>boolean</td><td><code>false</code></td><td>Ignore recipe lines beginning with <code>#</code>.</td></tr>
 <tr><td><code>positional-arguments</code></td><td>boolean</td><td><code>false</code></td><td>Pass positional arguments.</td></tr>
-<tr><td><code>script-interpreter</code><sup>master</sup></td><td><code>[COMMAND, ARGS…]</code></td><td><code>['sh', '-eu']</code></td><td>Set command used to invoke recipes with empty <code>[script]</code> attribute.</td></tr>
+<tr><td><code>script-interpreter</code><sup>1.33.0</sup></td><td><code>[COMMAND, ARGS…]</code></td><td><code>['sh', '-eu']</code></td><td>Set command used to invoke recipes with empty <code>[script]</code> attribute.</td></tr>
 <tr><td><code>shell</code></td><td><code>[COMMAND, ARGS…]</code></td><td>-</td><td>Set command used to invoke recipes and evaluate backticks.</td></tr>
 <tr><td><code>tempdir</code></td><td>string</td><td>-</td><td>Create temporary directories in <code>tempdir</code> instead of the system default temporary directory.</td></tr>
 <tr><td><code>unstable</code><sup>1.31.0</sup></td><td>boolean</td><td><code>false</code></td><td>Enable unstable features.</td></tr>
 <tr><td><code>windows-powershell</code></td><td>boolean</td><td><code>false</code></td><td>Use PowerShell on Windows as default shell. (Deprecated. Use <code>windows-shell</code> instead.</td></tr>
 <tr><td><code>windows-shell</code></td><td><code>[COMMAND, ARGS…]</code></td><td>-</td><td>Set the command used to invoke recipes and evaluate backticks.</td></tr>
-<tr><td><code>working-directory</code><sup>master</sup></td><td>string</td><td>-</td><td>Set the working directory for recipes and backticks, relative to the default working directory.</td></tr>
+<tr><td><code>working-directory</code><sup>1.33.0</sup></td><td>string</td><td>-</td><td>Set the working directory for recipes and backticks, relative to the default working directory.</td></tr>
 </tbody></table>
 </div>
 <p>Boolean settings can be written as:</p>
@@ -1505,7 +1505,7 @@ and are implemented with the
 <tr><td><code>[no-quiet]</code><sup>1.23.0</sup></td><td>recipe</td><td>Override globally quiet recipes and always echo out the recipe.</td></tr>
 <tr><td><code>[positional-arguments]</code><sup>1.29.0</sup></td><td>recipe</td><td>Turn on <a href="chapter_62.html#positional-arguments">positional arguments</a> for this recipe.</td></tr>
 <tr><td><code>[private]</code><sup>1.10.0</sup></td><td>alias, recipe</td><td>Make recipe or alias private. See <a href="chapter_52.html">Private Recipes</a>.</td></tr>
-<tr><td><code>[script]</code><sup>master</sup></td><td>recipe</td><td>Execute recipe as script. See <a href="chapter_44.html">script recipes</a> for more details.</td></tr>
+<tr><td><code>[script]</code><sup>1.33.0</sup></td><td>recipe</td><td>Execute recipe as script. See <a href="chapter_44.html">script recipes</a> for more details.</td></tr>
 <tr><td><code>[script(COMMAND)]</code><sup>1.32.0</sup></td><td>recipe</td><td>Execute recipe as a script interpreted by <code>COMMAND</code>. See <a href="chapter_44.html">script recipes</a> for more details.</td></tr>
 <tr><td><code>[unix]</code><sup>1.8.0</sup></td><td>recipe</td><td>Enable recipe on Unixes. (Includes MacOS).</td></tr>
 <tr><td><code>[windows]</code><sup>1.8.0</sup></td><td>recipe</td><td>Enable recipe on Windows.</td></tr>
@@ -2079,7 +2079,7 @@ scripts interpreted by <code>COMMAND</code>. This avoids some of the issues with
 recipes, such as the use of <code>cygpath</code> on Windows, the need to use
 <code>/usr/bin/env</code>, and inconsistences in shebang line splitting across Unix OSs.</p>
 <p>Recipes with an empty <code>[script]</code> attribute are executed with the value of
-<code>set script-interpreter := […]</code><sup>master</sup>, defaulting to <code>sh -eu</code>.</p>
+<code>set script-interpreter := […]</code><sup>1.33.0</sup>, defaulting to <code>sh -eu</code>.</p>
 <p>The body of the recipe is evaluated, written to disk in the temporary
 directory, and run by passing its path as an argument to <code>COMMAND</code>.</p>
 <p>The <code>[script(…)]</code> attribute is unstable, so you’ll need to use <code>set unstable</code>,
