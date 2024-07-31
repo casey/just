@@ -93,34 +93,23 @@ impl<'a> Executor<'a> {
   pub(crate) fn script<D>(&self, recipe: &Recipe<D>, lines: &[String]) -> String {
     let mut script = String::new();
     let mut n = 0;
-    let mut iter = recipe.body.iter().zip(lines).peekable();
+    let mut shebangs = recipe
+      .body
+      .iter()
+      .take_while(|line| line.is_shebang())
+      .count();
 
-    match self {
-      Self::Shebang(shebang) => {
-        if let Some((_line, evaluated)) = iter.next() {
-          if shebang.include_shebang_line() {
-            script.push_str(evaluated);
-            script.push('\n');
-            n += 1;
-          }
+    if let Self::Shebang(shebang) = self {
+      for shebang_line in &lines[..shebangs] {
+        if shebang.include_shebang_line() {
+          script.push_str(shebang_line);
         }
-
-        // Any shebangs following the first line should be directly after it
-        while let Some((line, evaluated)) = iter.by_ref().peek() {
-          if !line.is_shebang() {
-            break;
-          }
-
-          script.push_str(evaluated);
-          script.push('\n');
-          n += 1;
-          iter.next();
-        }
+        script.push('\n');
+        n += 1;
       }
-      Self::Command(_) => {}
     }
 
-    for (line, evaluated) in iter {
+    for (line, evaluated) in recipe.body.iter().zip(lines).skip(n) {
       while n < line.number {
         script.push('\n');
         n += 1;
