@@ -818,13 +818,13 @@ foo:
 | `fallback` | boolean | `false` | Search `justfile` in parent directory if the first recipe on the command line is not found. |
 | `ignore-comments` | boolean | `false` | Ignore recipe lines beginning with `#`. |
 | `positional-arguments` | boolean | `false` | Pass positional arguments. |
-| `script-interpreter`<sup>master</sup> | `[COMMAND, ARGS…]` | `['sh', '-eu']` | Set command used to invoke recipes with empty `[script]` attribute. |
+| `script-interpreter`<sup>1.33.0</sup> | `[COMMAND, ARGS…]` | `['sh', '-eu']` | Set command used to invoke recipes with empty `[script]` attribute. |
 | `shell` | `[COMMAND, ARGS…]` | - | Set command used to invoke recipes and evaluate backticks. |
 | `tempdir` | string | - | Create temporary directories in `tempdir` instead of the system default temporary directory. |
 | `unstable`<sup>1.31.0</sup> | boolean | `false` | Enable unstable features. |
 | `windows-powershell` | boolean | `false` | Use PowerShell on Windows as default shell. (Deprecated. Use `windows-shell` instead. |
 | `windows-shell` | `[COMMAND, ARGS…]` | - | Set the command used to invoke recipes and evaluate backticks. |
-| `working-directory`<sup>master</sup> | string | - | Set the working directory for recipes and backticks, relative to the default working directory. |
+| `working-directory`<sup>1.33.0</sup> | string | - | Set the working directory for recipes and backticks, relative to the default working directory. |
 
 Boolean settings can be written as:
 
@@ -1723,7 +1723,7 @@ Recipes, `mod` statements, and aliases may be annotated with attributes that cha
 | `[no-quiet]`<sup>1.23.0</sup> | recipe | Override globally quiet recipes and always echo out the recipe. |
 | `[positional-arguments]`<sup>1.29.0</sup> | recipe | Turn on [positional arguments](#positional-arguments) for this recipe. |
 | `[private]`<sup>1.10.0</sup> | alias, recipe | Make recipe or alias private. See [Private Recipes](#private-recipes). |
-| `[script]`<sup>master</sup> | recipe | Execute recipe as script. See [script recipes](#script-recipes) for more details. |
+| `[script]`<sup>1.33.0</sup> | recipe | Execute recipe as script. See [script recipes](#script-recipes) for more details. |
 | `[script(COMMAND)]`<sup>1.32.0</sup> | recipe | Execute recipe as a script interpreted by `COMMAND`. See [script recipes](#script-recipes) for more details. |
 | `[unix]`<sup>1.8.0</sup> | recipe | Enable recipe on Unixes. (Includes MacOS). |
 | `[windows]`<sup>1.8.0</sup> | recipe | Enable recipe on Windows. |
@@ -2525,7 +2525,7 @@ recipes, such as the use of `cygpath` on Windows, the need to use
 `/usr/bin/env`, and inconsistences in shebang line splitting across Unix OSs.
 
 Recipes with an empty `[script]` attribute are executed with the value of
-`set script-interpreter := […]`<sup>master</sup>, defaulting to `sh -eu`.
+`set script-interpreter := […]`<sup>1.33.0</sup>, defaulting to `sh -eu`.
 
 The body of the recipe is evaluated, written to disk in the temporary
 directory, and run by passing its path as an argument to `COMMAND`.
