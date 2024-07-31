@@ -93,7 +93,7 @@ impl<'a> Executor<'a> {
   pub(crate) fn script<D>(&self, recipe: &Recipe<D>, lines: &[String]) -> String {
     let mut script = String::new();
     let mut n = 0;
-    let mut shebangs = recipe
+    let shebangs = recipe
       .body
       .iter()
       .take_while(|line| line.is_shebang())
