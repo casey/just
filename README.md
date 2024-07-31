@@ -824,6 +824,7 @@ foo:
 | `unstable`<sup>1.31.0</sup> | boolean | `false` | Enable unstable features. |
 | `windows-powershell` | boolean | `false` | Use PowerShell on Windows as default shell. (Deprecated. Use `windows-shell` instead. |
 | `windows-shell` | `[COMMAND, ARGS…]` | - | Set the command used to invoke recipes and evaluate backticks. |
+| `working-directory` | string | - | Set the working directory for recipes and backticks, relative to the default working directory. |
 
 Boolean settings can be written as:
 

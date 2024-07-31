@@ -2148,7 +2148,7 @@ mod tests {
   }
 
   test! {
-    name: set_workdir,
+    name: set_working_directory,
     text: "set working-directory := 'foo'",
     tree: (justfile (set working_directory "foo")),
   }

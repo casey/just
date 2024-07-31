@@ -253,3 +253,21 @@ set working-directory := 'bar'
     .stdout("FILE")
     .run();
 }
+
+#[test]
+fn working_dir_applies_to_backticks() {
+  Test::new()
+    .justfile(
+      "
+        set working-directory := 'foo'
+
+        file := `cat file.txt`
+
+        @foo:
+          echo {{ file }}
+      ",
+    )
+    .write("foo/file.txt", "FILE")
+    .stdout("FILE\n")
+    .run();
+}
