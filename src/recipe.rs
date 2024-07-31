@@ -36,8 +36,6 @@ pub(crate) struct Recipe<'src, D = Dependency<'src>> {
   pub(crate) private: bool,
   pub(crate) quiet: bool,
   pub(crate) shebang: bool,
-  #[serde(skip)]
-  pub(crate) working_directory: PathBuf,
 }
 
 impl<'src, D> Recipe<'src, D> {

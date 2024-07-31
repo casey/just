@@ -836,7 +836,6 @@ impl<'run, 'src> Parser<'run, 'src> {
       priors,
       private: name.lexeme().starts_with('_'),
       quiet,
-      working_directory: self.working_directory.into(),
     })
   }
 

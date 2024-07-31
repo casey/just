@@ -59,7 +59,6 @@ impl<'src> UnresolvedRecipe<'src> {
       private: self.private,
       quiet: self.quiet,
       shebang: self.shebang,
-      working_directory: self.working_directory,
     })
   }
 }
