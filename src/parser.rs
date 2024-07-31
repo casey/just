@@ -967,7 +967,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       Keyword::Shell => Some(Setting::Shell(self.parse_interpreter()?)),
       Keyword::Tempdir => Some(Setting::Tempdir(self.parse_string_literal()?)),
       Keyword::WindowsShell => Some(Setting::WindowsShell(self.parse_interpreter()?)),
-      Keyword::Workdir => Some(Setting::Workdir(self.parse_string_literal()?)),
+      Keyword::WorkingDirectory => Some(Setting::WorkingDirectory(self.parse_string_literal()?)),
       _ => None,
     };
 
@@ -2149,8 +2149,8 @@ mod tests {
 
   test! {
     name: set_workdir,
-    text: "set workdir := 'my-work-dir'",
-    tree: (justfile (set workdir "my-work-dir")),
+    text: "set working-directory := 'foo'",
+    tree: (justfile (set working_directory "foo")),
   }
 
   test! {

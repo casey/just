@@ -310,7 +310,7 @@ impl<'src> Node<'src> for Set<'src> {
       Setting::DotenvFilename(value)
       | Setting::DotenvPath(value)
       | Setting::Tempdir(value)
-      | Setting::Workdir(value) => {
+      | Setting::WorkingDirectory(value) => {
         set.push_mut(Tree::string(&value.cooked));
       }
     }

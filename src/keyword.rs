@@ -30,7 +30,7 @@ pub(crate) enum Keyword {
   Unstable,
   WindowsPowershell,
   WindowsShell,
-  Workdir,
+  WorkingDirectory,
   X,
 }
 

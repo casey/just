@@ -137,19 +137,20 @@ impl<'src, D> Recipe<'src, D> {
   }
 
   fn working_directory<'a>(&'a self, context: &'a ExecutionContext) -> Option<PathBuf> {
-    if self.change_directory() {
-      let workdir = if self.submodule_depth > 0 {
-        &self.working_directory
-      } else {
-        &context.search.working_directory
-      };
-      if let Some(s) = &context.settings.workdir {
-        Some(workdir.join(s))
-      } else {
-        Some(workdir.clone())
-      }
+    if !self.change_directory() {
+      return None;
+    }
+
+    let base = if self.submodule_depth > 0 {
+      &self.working_directory
     } else {
-      None
+      &context.search.working_directory
+    };
+
+    if let Some(setting) = &context.settings.working_directory {
+      Some(base.join(setting))
+    } else {
+      Some(base.into())
     }
   }
 

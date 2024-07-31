@@ -19,7 +19,7 @@ pub(crate) enum Setting<'src> {
   Unstable(bool),
   WindowsPowerShell(bool),
   WindowsShell(Interpreter<'src>),
-  Workdir(StringLiteral<'src>),
+  WorkingDirectory(StringLiteral<'src>),
 }
 
 impl<'src> Display for Setting<'src> {
@@ -42,7 +42,7 @@ impl<'src> Display for Setting<'src> {
       Self::DotenvFilename(value)
       | Self::DotenvPath(value)
       | Self::Tempdir(value)
-      | Self::Workdir(value) => {
+      | Self::WorkingDirectory(value) => {
         write!(f, "{value}")
       }
     }
