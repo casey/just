@@ -7,7 +7,6 @@ pub(crate) struct Source<'src> {
   pub(crate) import_offsets: Vec<usize>,
   pub(crate) namepath: Namepath<'src>,
   pub(crate) path: PathBuf,
-  pub(crate) submodule_depth: u32,
   pub(crate) working_directory: PathBuf,
 }
 
@@ -19,7 +18,6 @@ impl<'src> Source<'src> {
       import_offsets: Vec::new(),
       namepath: Namepath::default(),
       path: path.into(),
-      submodule_depth: 0,
       working_directory: path.parent().unwrap().into(),
     }
   }
@@ -41,7 +39,6 @@ impl<'src> Source<'src> {
         .collect(),
       namepath: self.namepath.clone(),
       path,
-      submodule_depth: self.submodule_depth,
       working_directory: self.working_directory.clone(),
     }
   }
@@ -58,7 +55,6 @@ impl<'src> Source<'src> {
       import_offsets: Vec::new(),
       namepath: self.namepath.join(name),
       path: path.clone(),
-      submodule_depth: self.submodule_depth + 1,
       working_directory: path.parent().unwrap().into(),
     }
   }
