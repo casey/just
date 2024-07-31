@@ -211,3 +211,45 @@ echo "$(basename "$PWD")"
     .stdout("bar\nfoo\n")
     .run();
 }
+
+#[test]
+fn no_cd_overrides_setting() {
+  Test::new()
+    .justfile(
+      "
+      set working-directory := 'bar'
+
+      [no-cd]
+      foo:
+        cat bar
+    ",
+    )
+    .current_dir("foo")
+    .tree(tree! {
+      foo: {
+        bar: "hello",
+      }
+    })
+    .stderr("cat bar\n")
+    .stdout("hello")
+    .run();
+}
+
+#[test]
+fn working_dir_in_submodule_is_relative_to_module_path() {
+  Test::new()
+    .write(
+      "foo/mod.just",
+      "
+set working-directory := 'bar'
+
+@foo:
+  cat file.txt
+",
+    )
+    .justfile("mod foo")
+    .write("foo/bar/file.txt", "FILE")
+    .arg("foo")
+    .stdout("FILE")
+    .run();
+}
