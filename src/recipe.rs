@@ -37,8 +37,6 @@ pub(crate) struct Recipe<'src, D = Dependency<'src>> {
   pub(crate) quiet: bool,
   pub(crate) shebang: bool,
   #[serde(skip)]
-  pub(crate) submodule_depth: u32,
-  #[serde(skip)]
   pub(crate) working_directory: PathBuf,
 }
 
