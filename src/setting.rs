@@ -19,6 +19,7 @@ pub(crate) enum Setting<'src> {
   Unstable(bool),
   WindowsPowerShell(bool),
   WindowsShell(Interpreter<'src>),
+  WorkingDirectory(StringLiteral<'src>),
 }
 
 impl<'src> Display for Setting<'src> {
@@ -38,7 +39,10 @@ impl<'src> Display for Setting<'src> {
       Self::ScriptInterpreter(shell) | Self::Shell(shell) | Self::WindowsShell(shell) => {
         write!(f, "[{shell}]")
       }
-      Self::DotenvFilename(value) | Self::DotenvPath(value) | Self::Tempdir(value) => {
+      Self::DotenvFilename(value)
+      | Self::DotenvPath(value)
+      | Self::Tempdir(value)
+      | Self::WorkingDirectory(value) => {
         write!(f, "{value}")
       }
     }

@@ -25,6 +25,7 @@ pub(crate) struct Settings<'src> {
   pub(crate) unstable: bool,
   pub(crate) windows_powershell: bool,
   pub(crate) windows_shell: Option<Interpreter<'src>>,
+  pub(crate) working_directory: Option<PathBuf>,
 }
 
 impl<'src> Settings<'src> {
@@ -83,6 +84,9 @@ impl<'src> Settings<'src> {
         }
         Setting::Tempdir(tempdir) => {
           settings.tempdir = Some(tempdir.cooked);
+        }
+        Setting::WorkingDirectory(working_directory) => {
+          settings.working_directory = Some(working_directory.cooked.into());
         }
       }
     }

@@ -80,6 +80,7 @@ setting       : 'allow-duplicate-recipes' boolean?
               | 'unstable' boolean?
               | 'windows-powershell' boolean?
               | 'windows-shell' ':=' string_list
+              | 'working-directory' ':=' string
 
 boolean       : ':=' ('true' | 'false')
 

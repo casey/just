@@ -181,3 +181,93 @@ fn search_dir_parent() -> Result<(), Box<dyn Error>> {
 
   Ok(())
 }
+
+#[test]
+fn setting() {
+  Test::new()
+    .justfile(
+      r#"
+      set working-directory := 'bar'
+
+      print1:
+        echo "$(basename "$PWD")"
+
+      [no-cd]
+      print2:
+        echo "$(basename "$PWD")"
+    "#,
+    )
+    .current_dir("foo")
+    .tree(tree! {
+      foo: {},
+      bar: {}
+    })
+    .args(["print1", "print2"])
+    .stderr(
+      r#"echo "$(basename "$PWD")"
+echo "$(basename "$PWD")"
+"#,
+    )
+    .stdout("bar\nfoo\n")
+    .run();
+}
+
+#[test]
+fn no_cd_overrides_setting() {
+  Test::new()
+    .justfile(
+      "
+      set working-directory := 'bar'
+
+      [no-cd]
+      foo:
+        cat bar
+    ",
+    )
+    .current_dir("foo")
+    .tree(tree! {
+      foo: {
+        bar: "hello",
+      }
+    })
+    .stderr("cat bar\n")
+    .stdout("hello")
+    .run();
+}
+
+#[test]
+fn working_dir_in_submodule_is_relative_to_module_path() {
+  Test::new()
+    .write(
+      "foo/mod.just",
+      "
+set working-directory := 'bar'
+
+@foo:
+  cat file.txt
+",
+    )
+    .justfile("mod foo")
+    .write("foo/bar/file.txt", "FILE")
+    .arg("foo")
+    .stdout("FILE")
+    .run();
+}
+
+#[test]
+fn working_dir_applies_to_backticks() {
+  Test::new()
+    .justfile(
+      "
+        set working-directory := 'foo'
+
+        file := `cat file.txt`
+
+        @foo:
+          echo {{ file }}
+      ",
+    )
+    .write("foo/file.txt", "FILE")
+    .stdout("FILE\n")
+    .run();
+}
