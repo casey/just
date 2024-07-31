@@ -36,10 +36,6 @@ pub(crate) struct Recipe<'src, D = Dependency<'src>> {
   pub(crate) private: bool,
   pub(crate) quiet: bool,
   pub(crate) shebang: bool,
-  #[serde(skip)]
-  pub(crate) submodule_depth: u32,
-  #[serde(skip)]
-  pub(crate) working_directory: PathBuf,
 }
 
 impl<'src, D> Recipe<'src, D> {
@@ -136,13 +132,9 @@ impl<'src, D> Recipe<'src, D> {
     !self.attributes.contains(&Attribute::NoExitMessage)
   }
 
-  fn working_directory<'a>(&'a self, search: &'a Search) -> Option<&Path> {
+  fn working_directory<'a>(&'a self, context: &'a ExecutionContext) -> Option<PathBuf> {
     if self.change_directory() {
-      Some(if self.submodule_depth > 0 {
-        &self.working_directory
-      } else {
-        &search.working_directory
-      })
+      Some(context.working_directory())
     } else {
       None
     }
@@ -199,8 +191,8 @@ impl<'src, D> Recipe<'src, D> {
       let quiet_line = lines.peek().map_or(false, |line| line.is_quiet());
       let infallible_line = lines.peek().map_or(false, |line| line.is_infallible());
 
-      let comment_line =
-        context.settings.ignore_comments && lines.peek().map_or(false, |line| line.is_comment());
+      let comment_line = context.module.settings.ignore_comments
+        && lines.peek().map_or(false, |line| line.is_comment());
 
       loop {
         if lines.peek().is_none() {
@@ -236,7 +228,7 @@ impl<'src, D> Recipe<'src, D> {
       if config.dry_run
         || config.verbosity.loquacious()
         || !((quiet_line ^ self.quiet)
-          || (context.settings.quiet && !self.no_quiet())
+          || (context.module.settings.quiet && !self.no_quiet())
           || config.verbosity.quiet())
       {
         let color = config
@@ -263,15 +255,15 @@ impl<'src, D> Recipe<'src, D> {
         continue;
       }
 
-      let mut cmd = context.settings.shell_command(config);
+      let mut cmd = context.module.settings.shell_command(config);
 
-      if let Some(working_directory) = self.working_directory(context.search) {
+      if let Some(working_directory) = self.working_directory(context) {
         cmd.current_dir(working_directory);
       }
 
       cmd.arg(command);
 
-      if self.takes_positional_arguments(context.settings) {
+      if self.takes_positional_arguments(&context.module.settings) {
         cmd.arg(self.name.lexeme());
         cmd.args(positional);
       }
@@ -281,7 +273,12 @@ impl<'src, D> Recipe<'src, D> {
         cmd.stdout(Stdio::null());
       }
 
-      cmd.export(context.settings, context.dotenv, scope, context.unexports);
+      cmd.export(
+        &context.module.settings,
+        context.dotenv,
+        scope,
+        &context.module.unexports,
+      );
 
       match InterruptHandler::guard(|| cmd.status()) {
         Ok(exit_status) => {
@@ -350,7 +347,7 @@ impl<'src, D> Recipe<'src, D> {
       Executor::Command(
         interpreter
           .as_ref()
-          .or(context.settings.script_interpreter.as_ref())
+          .or(context.module.settings.script_interpreter.as_ref())
           .unwrap_or_else(|| Interpreter::default_script_interpreter()),
       )
     } else {
@@ -366,7 +363,7 @@ impl<'src, D> Recipe<'src, D> {
 
     let mut tempdir_builder = tempfile::Builder::new();
     tempdir_builder.prefix("just-");
-    let tempdir = match &context.settings.tempdir {
+    let tempdir = match &context.module.settings.tempdir {
       Some(tempdir) => tempdir_builder.tempdir_in(context.search.working_directory.join(tempdir)),
       None => {
         if let Some(runtime_dir) = dirs::runtime_dir() {
@@ -408,14 +405,22 @@ impl<'src, D> Recipe<'src, D> {
       io_error: error,
     })?;
 
-    let mut command =
-      executor.command(&path, self.name(), self.working_directory(context.search))?;
+    let mut command = executor.command(
+      &path,
+      self.name(),
+      self.working_directory(context).as_deref(),
+    )?;
 
-    if self.takes_positional_arguments(context.settings) {
+    if self.takes_positional_arguments(&context.module.settings) {
       command.args(positional);
     }
 
-    command.export(context.settings, context.dotenv, scope, context.unexports);
+    command.export(
+      &context.module.settings,
+      context.dotenv,
+      scope,
+      &context.module.unexports,
+    );
 
     // run it!
     match InterruptHandler::guard(|| command.status()) {

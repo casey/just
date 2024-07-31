@@ -104,12 +104,12 @@ test! {
 
 test! {
   name: default_arguments,
-  justfile: r#"
+  justfile: r"
     set positional-arguments
 
     foo bar='baz':
       echo $1
-  "#,
+  ",
   args:   (),
   stdout: "baz\n",
   stderr: "echo $1\n",
@@ -130,13 +130,13 @@ test! {
 
 test! {
   name: variadic_arguments_are_separate,
-  justfile: r#"
+  justfile: r"
     set positional-arguments
 
     foo *bar:
       echo $1
       echo $2
-  "#,
+  ",
   args:   ("foo", "a", "b"),
   stdout: "a\nb\n",
   stderr: "echo $1\necho $2\n",

@@ -28,7 +28,7 @@ fn justfile_without_working_directory() -> Result<(), Box<dyn Error>> {
 
   let output = Command::new(executable_path("just"))
     .arg("--justfile")
-    .arg(&tmp.path().join("justfile"))
+    .arg(tmp.path().join("justfile"))
     .output()?;
 
   if !output.status.success() {
@@ -109,9 +109,9 @@ fn justfile_and_working_directory() -> Result<(), Box<dyn Error>> {
 
   let output = Command::new(executable_path("just"))
     .arg("--justfile")
-    .arg(&tmp.path().join("justfile"))
+    .arg(tmp.path().join("justfile"))
     .arg("--working-directory")
-    .arg(&tmp.path().join("sub"))
+    .arg(tmp.path().join("sub"))
     .output()?;
 
   if !output.status.success() {
@@ -166,7 +166,7 @@ fn search_dir_parent() -> Result<(), Box<dyn Error>> {
   };
 
   let output = Command::new(executable_path("just"))
-    .current_dir(&tmp.path().join("child"))
+    .current_dir(tmp.path().join("child"))
     .arg("../")
     .output()?;
 
@@ -180,4 +180,154 @@ fn search_dir_parent() -> Result<(), Box<dyn Error>> {
   assert_eq!(stdout, WANT);
 
   Ok(())
+}
+
+#[test]
+fn setting() {
+  Test::new()
+    .justfile(
+      r#"
+      set working-directory := 'bar'
+
+      print1:
+        echo "$(basename "$PWD")"
+
+      [no-cd]
+      print2:
+        echo "$(basename "$PWD")"
+    "#,
+    )
+    .current_dir("foo")
+    .tree(tree! {
+      foo: {},
+      bar: {}
+    })
+    .args(["print1", "print2"])
+    .stderr(
+      r#"echo "$(basename "$PWD")"
+echo "$(basename "$PWD")"
+"#,
+    )
+    .stdout("bar\nfoo\n")
+    .run();
+}
+
+#[test]
+fn no_cd_overrides_setting() {
+  Test::new()
+    .justfile(
+      "
+      set working-directory := 'bar'
+
+      [no-cd]
+      foo:
+        cat bar
+    ",
+    )
+    .current_dir("foo")
+    .tree(tree! {
+      foo: {
+        bar: "hello",
+      }
+    })
+    .stderr("cat bar\n")
+    .stdout("hello")
+    .run();
+}
+
+#[test]
+fn working_dir_in_submodule_is_relative_to_module_path() {
+  Test::new()
+    .write(
+      "foo/mod.just",
+      "
+set working-directory := 'bar'
+
+@foo:
+  cat file.txt
+",
+    )
+    .justfile("mod foo")
+    .write("foo/bar/file.txt", "FILE")
+    .arg("foo")
+    .stdout("FILE")
+    .run();
+}
+
+#[test]
+fn working_dir_applies_to_backticks() {
+  Test::new()
+    .justfile(
+      "
+        set working-directory := 'foo'
+
+        file := `cat file.txt`
+
+        @foo:
+          echo {{ file }}
+      ",
+    )
+    .write("foo/file.txt", "FILE")
+    .stdout("FILE\n")
+    .run();
+}
+
+#[test]
+fn working_dir_applies_to_shell_function() {
+  Test::new()
+    .justfile(
+      "
+        set working-directory := 'foo'
+
+        file := shell('cat file.txt')
+
+        @foo:
+          echo {{ file }}
+      ",
+    )
+    .write("foo/file.txt", "FILE")
+    .stdout("FILE\n")
+    .run();
+}
+
+#[test]
+fn working_dir_applies_to_backticks_in_submodules() {
+  Test::new()
+    .justfile("mod foo")
+    .write(
+      "foo/mod.just",
+      "
+set working-directory := 'bar'
+
+file := `cat file.txt`
+
+@foo:
+  echo {{ file }}
+",
+    )
+    .arg("foo")
+    .write("foo/bar/file.txt", "FILE")
+    .stdout("FILE\n")
+    .run();
+}
+
+#[test]
+fn working_dir_applies_to_shell_function_in_submodules() {
+  Test::new()
+    .justfile("mod foo")
+    .write(
+      "foo/mod.just",
+      "
+set working-directory := 'bar'
+
+file := shell('cat file.txt')
+
+@foo:
+  echo {{ file }}
+",
+    )
+    .arg("foo")
+    .write("foo/bar/file.txt", "FILE")
+    .stdout("FILE\n")
+    .run();
 }

@@ -78,9 +78,7 @@ fn test_invocation_directory() {
     failure = true;
   }
 
-  if failure {
-    panic!("test failed");
-  }
+  assert!(!failure, "test failed");
 }
 
 #[test]

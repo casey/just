@@ -24,7 +24,6 @@ impl Compiler {
         &current.path,
         &current.import_offsets,
         &current.namepath,
-        current.submodule_depth,
         &tokens,
         &current.working_directory,
       )?;
@@ -220,7 +219,6 @@ impl Compiler {
       &PathBuf::new(),
       &[],
       &Namepath::default(),
-      0,
       &tokens,
       &PathBuf::new(),
     )?;

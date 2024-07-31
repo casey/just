@@ -3,10 +3,9 @@ use {super::*, serde::Serialize};
 #[derive(Debug)]
 struct Invocation<'src: 'run, 'run> {
   arguments: Vec<&'run str>,
-  module_source: &'run Path,
+  module: &'run Justfile<'src>,
   recipe: &'run Recipe<'src>,
   scope: &'run Scope<'src, 'run>,
-  settings: &'run Settings<'src>,
 }
 
 #[derive(Debug, PartialEq, Serialize)]
@@ -30,6 +29,8 @@ pub(crate) struct Justfile<'src> {
   #[serde(skip)]
   pub(crate) unstable_features: BTreeSet<UnstableFeature>,
   pub(crate) warnings: Vec<Warning>,
+  #[serde(skip)]
+  pub(crate) working_directory: PathBuf,
 }
 
 impl<'src> Justfile<'src> {
@@ -204,11 +205,9 @@ impl<'src> Justfile<'src> {
       let context = ExecutionContext {
         config,
         dotenv: &dotenv,
-        module_source: invocation.module_source,
+        module: invocation.module,
         scope: invocation.scope,
         search,
-        settings: invocation.settings,
-        unexports: &self.unexports,
       };
 
       Self::run_recipe(
@@ -267,10 +266,9 @@ impl<'src> Justfile<'src> {
     if position + 1 == path.len() {
       let recipe = self.get_recipe(&path[position]).unwrap();
       Ok(Invocation {
-        recipe,
-        module_source: &self.source,
         arguments: arguments.into(),
-        settings: &self.settings,
+        module: self,
+        recipe,
         scope: parent,
       })
     } else {
@@ -304,6 +302,10 @@ impl<'src> Justfile<'src> {
         search,
       )
     }
+  }
+
+  pub(crate) fn is_submodule(&self) -> bool {
+    self.name.is_some()
   }
 
   pub(crate) fn name(&self) -> &'src str {

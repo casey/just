@@ -216,13 +216,13 @@ test! {
     foo a=\t`echo blaaaaaah:
       echo {{a}}
   ",
-  stderr:   r#"
+  stderr:   r"
     error: Unterminated backtick
      ——▶ justfile:1:8
       │
     1 │ foo a=    `echo blaaaaaah:
       │           ^
-  "#,
+  ",
   status:   EXIT_FAILURE,
 }
 
@@ -266,13 +266,13 @@ test! {
     foo a=\t```echo blaaaaaah:
       echo {{a}}
   ",
-  stderr:   r#"
+  stderr:   r"
     error: Unterminated backtick
      ——▶ justfile:1:8
       │
     1 │ foo a=    ```echo blaaaaaah:
       │           ^^^
-  "#,
+  ",
   status:   EXIT_FAILURE,
 }
 
@@ -312,7 +312,7 @@ test! {
 
 test! {
   name:     indented_backtick_string_contents_indentation_removed,
-  justfile: r#"
+  justfile: r"
     a := ```
       printf '
       foo
@@ -322,7 +322,7 @@ test! {
 
     @default:
       printf '{{a}}'
-  "#,
+  ",
   stdout: "\n\nfoo\nbar",
 }
 

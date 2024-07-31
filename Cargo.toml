@@ -1,6 +1,6 @@
 [package]
 name = "just"
-version = "1.32.0"
+version = "1.33.0"
 authors = ["Casey Rodarmor <casey@rodarmor.com>"]
 autotests = false
 categories = ["command-line-utilities", "development-tools"]
@@ -59,6 +59,22 @@ executable-path = "1.0.0"
 pretty_assertions = "1.0.0"
 temptree = "0.2.0"
 which = "6.0.0"
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(fuzzing)'] }
+
+[lints.clippy]
+all = { level = "deny", priority = -1 }
+enum_glob_use = "allow"
+needless_pass_by_value = "allow"
+pedantic = { level = "deny", priority = -1 }
+similar_names = "allow"
+struct_excessive_bools = "allow"
+struct_field_names = "allow"
+too_many_arguments = "allow"
+too_many_lines = "allow"
+unnecessary_wraps = "allow"
+wildcard_imports = "allow"
 
 [lib]
 doctest = false
