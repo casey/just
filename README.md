@@ -750,12 +750,15 @@ $ just --list --list-heading ''
 ### Working Directory
 
 By default, recipes run with the working directory set to the directory that
-contains the `justfile`.
+contains the `justfile`.  You can override working directory for all recipes
+with `set working-directory := '...'`. The value is relative to the location
+of the justfile.
 
 The `[no-cd]` attribute can be used to make recipes run with the working
 directory set to directory in which `just` was invoked.
 
 ```just
+set working-directory := 'mydir'
 @foo:
   pwd
 
@@ -767,7 +770,7 @@ directory set to directory in which `just` was invoked.
 ```sh
 $ cd subdir
 $ just foo
-/
+/mydir
 : just bar
 /subdir
 ```
