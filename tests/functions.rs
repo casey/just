@@ -1131,7 +1131,7 @@ bar:
 }
 
 #[test]
-fn sha256_file_argument_is_relative_to_submodule_working_directory() {
+fn canonicalize_argument_is_relative_to_submodule_working_directory() {
   Test::new()
     .justfile("mod foo")
     .write("foo/baz", "")
@@ -1139,11 +1139,11 @@ fn sha256_file_argument_is_relative_to_submodule_working_directory() {
       "foo/mod.just",
       "
 bar:
-  @echo {{ sha256_file('baz') }}
+  @echo {{ canonicalize('baz') }}
 
 ",
     )
-    .stdout_regex("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\n")
+    .stdout_regex(r".*[/\\]foo[/\\]baz\n")
     .args(["foo", "bar"])
     .run();
 }
@@ -1167,7 +1167,7 @@ bar:
 }
 
 #[test]
-fn canonicalize_argument_is_relative_to_submodule_working_directory() {
+fn sha256_file_argument_is_relative_to_submodule_working_directory() {
   Test::new()
     .justfile("mod foo")
     .write("foo/baz", "")
@@ -1175,11 +1175,11 @@ fn canonicalize_argument_is_relative_to_submodule_working_directory() {
       "foo/mod.just",
       "
 bar:
-  @echo {{ canonicalize('baz') }}
+  @echo {{ sha256_file('baz') }}
 
 ",
     )
-    .stdout_regex(r".*[/\\]foo[/\\]baz\n")
+    .stdout_regex("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\n")
     .args(["foo", "bar"])
     .run();
 }
