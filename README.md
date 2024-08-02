@@ -768,7 +768,7 @@ directory set to directory in which `just` was invoked.
 $ cd subdir
 $ just foo
 /
-: just bar
+$ just bar
 /subdir
 ```
 
