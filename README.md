@@ -3460,7 +3460,7 @@ foo $argument:
 ```
 
 This defeats `just`'s ability to catch typos, for example if you type
-`$argumant`, but works for all possible values of `argument`, including those
+`$argument`, but works for all possible values of `argument`, including those
 with double quotes.
 
 ### Configuring the Shell
@@ -3708,7 +3708,7 @@ export PATH := "./node_modules/.bin:" + env_var('PATH')
 
 On Windows, functions that return paths will return `\`-separated paths. When
 not using PowerShell or `cmd.exe` these paths should be quoted to prevent the
-`\`s from being intepreted as character escapes:
+`\`s from being interpreted as character escapes:
 
 ```just
 ls:
