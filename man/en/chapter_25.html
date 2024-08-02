@@ -194,6 +194,18 @@ $ just foo
 : just bar
 /subdir
 </code></pre>
+<p>You can override working directory with <code>set working-directory := '…'</code>, whose value
+is relative to the default working directory.</p>
+<pre><code class="language-just">set working-directory := 'bar'
+
+@foo:
+  pwd
+</code></pre>
+<pre><code class="language-sh">$ pwd
+/home/bob
+$ just foo
+/home/bob/bar
+</code></pre>
 
                     </main>
 
