@@ -758,7 +758,6 @@ The `[no-cd]` attribute can be used to make recipes run with the working
 directory set to directory in which `just` was invoked.
 
 ```just
-set working-directory := 'mydir'
 @foo:
   pwd
 
@@ -770,8 +769,22 @@ set working-directory := 'mydir'
 ```sh
 $ cd subdir
 $ just foo
-/mydir
+/
 : just bar
+/subdir
+```
+
+#### Using working-directory setting
+```just
+set working-directory := 'subdir'
+@foo:
+  pwd
+```
+
+```sh
+$ pwd
+/
+$ just foo
 /subdir
 ```
 
