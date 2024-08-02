@@ -784,9 +784,9 @@ set working-directory := 'bar'
 
 ```sh
 $ pwd
-/
+/home/bob
 $ just foo
-/bar
+/home/bob/bar
 ```
 
 ### Aliases
