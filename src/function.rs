@@ -133,8 +133,7 @@ fn absolute_path(context: Context, path: &str) -> FunctionResult {
   let abs_path_unchecked = context
     .evaluator
     .context
-    .search
-    .working_directory
+    .working_directory()
     .join(path)
     .lexiclean();
   match abs_path_unchecked.to_str() {
@@ -164,12 +163,7 @@ fn blake3(_context: Context, s: &str) -> FunctionResult {
 }
 
 fn blake3_file(context: Context, path: &str) -> FunctionResult {
-  let path = context
-    .evaluator
-    .context
-    .search
-    .working_directory
-    .join(path);
+  let path = context.evaluator.context.working_directory().join(path);
   let mut hasher = blake3::Hasher::new();
   hasher
     .update_mmap_rayon(&path)
@@ -177,9 +171,9 @@ fn blake3_file(context: Context, path: &str) -> FunctionResult {
   Ok(hasher.finalize().to_string())
 }
 
-fn canonicalize(_context: Context, path: &str) -> FunctionResult {
-  let canonical =
-    std::fs::canonicalize(path).map_err(|err| format!("I/O error canonicalizing path: {err}"))?;
+fn canonicalize(context: Context, path: &str) -> FunctionResult {
+  let canonical = std::fs::canonicalize(context.evaluator.context.working_directory().join(path))
+    .map_err(|err| format!("I/O error canonicalizing path: {err}"))?;
 
   canonical.to_str().map(str::to_string).ok_or_else(|| {
     format!(
@@ -522,8 +516,7 @@ fn path_exists(context: Context, path: &str) -> FunctionResult {
     context
       .evaluator
       .context
-      .search
-      .working_directory
+      .working_directory()
       .join(path)
       .exists()
       .to_string(),
@@ -557,12 +550,7 @@ fn sha256(_context: Context, s: &str) -> FunctionResult {
 
 fn sha256_file(context: Context, path: &str) -> FunctionResult {
   use sha2::{Digest, Sha256};
-  let path = context
-    .evaluator
-    .context
-    .search
-    .working_directory
-    .join(path);
+  let path = context.evaluator.context.working_directory().join(path);
   let mut hasher = Sha256::new();
   let mut file =
     fs::File::open(&path).map_err(|err| format!("Failed to open `{}`: {err}", path.display()))?;

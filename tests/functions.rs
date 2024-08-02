@@ -1093,3 +1093,93 @@ fn invocation_dir_native_abbreviation_is_accepted() {
     )
     .run();
 }
+
+#[test]
+fn absolute_path_argument_is_relative_to_submodule_working_directory() {
+  Test::new()
+    .justfile("mod foo")
+    .write("foo/baz", "")
+    .write(
+      "foo/mod.just",
+      r#"
+bar:
+  @echo "{{ absolute_path('baz') }}"
+
+"#,
+    )
+    .stdout_regex(r".*[/\\]foo[/\\]baz\n")
+    .args(["foo", "bar"])
+    .run();
+}
+
+#[test]
+fn blake3_file_argument_is_relative_to_submodule_working_directory() {
+  Test::new()
+    .justfile("mod foo")
+    .write("foo/baz", "")
+    .write(
+      "foo/mod.just",
+      "
+bar:
+  @echo {{ blake3_file('baz') }}
+
+",
+    )
+    .stdout("af1349b9f5f9a1a6a0404dea36dcc9499bcb25c9adc112b7cc9a93cae41f3262\n")
+    .args(["foo", "bar"])
+    .run();
+}
+
+#[test]
+fn canonicalize_argument_is_relative_to_submodule_working_directory() {
+  Test::new()
+    .justfile("mod foo")
+    .write("foo/baz", "")
+    .write(
+      "foo/mod.just",
+      r#"
+bar:
+  @echo "{{ canonicalize('baz') }}"
+
+"#,
+    )
+    .stdout_regex(r".*[/\\]foo[/\\]baz\n")
+    .args(["foo", "bar"])
+    .run();
+}
+
+#[test]
+fn path_exists_argument_is_relative_to_submodule_working_directory() {
+  Test::new()
+    .justfile("mod foo")
+    .write("foo/baz", "")
+    .write(
+      "foo/mod.just",
+      "
+bar:
+  @echo {{ path_exists('baz') }}
+
+",
+    )
+    .stdout_regex("true\n")
+    .args(["foo", "bar"])
+    .run();
+}
+
+#[test]
+fn sha256_file_argument_is_relative_to_submodule_working_directory() {
+  Test::new()
+    .justfile("mod foo")
+    .write("foo/baz", "")
+    .write(
+      "foo/mod.just",
+      "
+bar:
+  @echo {{ sha256_file('baz') }}
+
+",
+    )
+    .stdout_regex("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\n")
+    .args(["foo", "bar"])
+    .run();
+}
