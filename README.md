@@ -772,6 +772,23 @@ $ just foo
 /subdir
 ```
 
+You can override working directory with `set working-directory := '…'`, whose value
+is relative to the default working directory.
+
+```just
+set working-directory := 'bar'
+
+@foo:
+  pwd
+```
+
+```sh
+$ pwd
+/home/bob
+$ just foo
+/home/bob/bar
+```
+
 ### Aliases
 
 Aliases allow recipes to be invoked on the command line with alternative names:
