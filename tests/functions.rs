@@ -1101,11 +1101,11 @@ fn absolute_path_argument_is_relative_to_submodule_working_directory() {
     .write("foo/baz", "")
     .write(
       "foo/mod.just",
-      "
+      r#"
 bar:
-  @echo {{ absolute_path('baz') }}
+  @echo "{{ absolute_path('baz') }}"
 
-",
+"#,
     )
     .stdout_regex(r".*[/\\]foo[/\\]baz\n")
     .args(["foo", "bar"])
@@ -1137,11 +1137,11 @@ fn canonicalize_argument_is_relative_to_submodule_working_directory() {
     .write("foo/baz", "")
     .write(
       "foo/mod.just",
-      "
+      r#"
 bar:
-  @echo {{ canonicalize('baz') }}
+  @echo "{{ canonicalize('baz') }}"
 
-",
+"#,
     )
     .stdout_regex(r".*[/\\]foo[/\\]baz\n")
     .args(["foo", "bar"])
