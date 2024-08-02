@@ -2743,7 +2743,7 @@ foo argument:
   touch "$argument"
 </code></pre>
 <p>This defeats <code>just</code>’s ability to catch typos, for example if you type
-<code>$argumant</code>, but works for all possible values of <code>argument</code>, including those
+<code>$argument</code>, but works for all possible values of <code>argument</code>, including those
 with double quotes.</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="configuring-the-shell"><a class="header" href="#configuring-the-shell">Configuring the Shell</a></h3>
 <p>There are a number of ways to configure the shell for linewise recipes, which
@@ -2915,7 +2915,7 @@ Node.js <code>package.json</code> files:</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="paths-on-windows"><a class="header" href="#paths-on-windows">Paths on Windows</a></h3>
 <p>On Windows, functions that return paths will return <code>\</code>-separated paths. When
 not using PowerShell or <code>cmd.exe</code> these paths should be quoted to prevent the
-<code>\</code>s from being intepreted as character escapes:</p>
+<code>\</code>s from being interpreted as character escapes:</p>
 <pre><code class="language-just">ls:
     echo '{{absolute_path(".")}}'
 </code></pre>
