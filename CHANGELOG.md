@@ -1,6 +1,19 @@
 Changelog
 =========
 
+[1.34.0](https://github.com/casey/just/releases/tag/1.34.0) - 2024-08-02
+------------------------------------------------------------------------
+
+### Fixed
+- Make function paths relative to correct working directory ([#2294](https://github.com/casey/just/pull/2294) by [casey](https://github.com/casey))
+
+### Changed
+- Keep multi-line shebangs together ([#2276](https://github.com/casey/just/pull/2276) by [vkstrm](https://github.com/vkstrm))
+
+### Misc
+- Document `set working-directory` ([#2288](https://github.com/casey/just/pull/2288) by [nyurik](https://github.com/nyurik))
+- Fix readme typos ([#2289](https://github.com/casey/just/pull/2289) by [casey](https://github.com/casey))
+
 [1.33.0](https://github.com/casey/just/releases/tag/1.33.0) - 2024-07-30
 ------------------------------------------------------------------------
 
