@@ -1,3 +1,5 @@
+
+
 #[derive(Copy, Clone)]
 pub(crate) struct Shebang<'line> {
   pub(crate) interpreter: &'line str,
@@ -5,20 +7,30 @@ pub(crate) struct Shebang<'line> {
 }
 
 impl<'line> Shebang<'line> {
+  
   pub(crate) fn new(line: &'line str) -> Option<Self> {
     if !line.starts_with("#!") {
       return None;
     }
-
-    let mut pieces = line[2..]
-      .lines()
-      .next()
-      .unwrap_or("")
-      .trim()
-      .splitn(2, |c| c == ' ' || c == '\t');
-
-    let interpreter = pieces.next().unwrap_or("");
-    let argument = pieces.next();
+    
+    let pieces = Some(&line[2..]);
+    let mut commands: Vec<Option<&str>> = pieces.unwrap_or("").lines()
+    .filter(|l| l.starts_with("#!"))
+    .map(|pieces| pieces
+        .lines()
+        .next()
+        .unwrap_or("")
+        .trim()
+        // .splitn(2, |c| c == ' ' || c == '\t')
+        .collect()::<Vec<_>>()
+        .collect()
+      );
+     
+      
+      // collect into vector or concatenate together into single string
+      
+    let interpreter = pieces.unwrap_or("");
+    let argument = pieces;
 
     if interpreter.is_empty() {
       return None;
