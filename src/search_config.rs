@@ -19,4 +19,10 @@ pub(crate) enum SearchConfig {
     justfile: PathBuf,
     working_directory: PathBuf,
   },
+  /// Use justfile loaded from stdin by using "-" as justfile name.
+  WithStdin,
+  /// Use justfile loaded from stdin and working directory.
+  WithStdinAndWorkingDirectory {
+    working_directory: PathBuf,
+  },
 }

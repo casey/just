@@ -1415,6 +1415,22 @@ mod tests {
   }
 
   test! {
+    name: search_config_from_working_directory_and_justfile_long_stdin,
+    args: ["--working-directory", "foo", "--justfile", "-"],
+    search_config: SearchConfig::WithStdinAndWorkingDirectory {
+      working_directory: PathBuf::from("foo"),
+    },
+  }
+
+  test! {
+    name: search_config_from_working_directory_and_justfile_short_stdin,
+    args: ["--working-directory", "foo", "-f", "-"],
+    search_config: SearchConfig::WithStdinAndWorkingDirectory {
+      working_directory: PathBuf::from("foo"),
+    },
+  }
+
+  test! {
     name: search_config_justfile_long,
     args: ["--justfile", "foo"],
     search_config: SearchConfig::WithJustfile {
@@ -1423,11 +1439,23 @@ mod tests {
   }
 
   test! {
+    name: search_config_justfile_long_stdin,
+    args: ["--justfile", "-"],
+    search_config: SearchConfig::WithStdin,
+  }
+
+  test! {
     name: search_config_justfile_short,
     args: ["-f", "foo"],
     search_config: SearchConfig::WithJustfile {
       justfile: PathBuf::from("foo"),
     },
+  }
+
+  test! {
+    name: search_config_justfile_short_stdin,
+    args: ["-f", "-"],
+    search_config: SearchConfig::WithStdin,
   }
 
   test! {
