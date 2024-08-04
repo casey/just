@@ -343,7 +343,9 @@ impl<'run, 'src> Parser<'run, 'src> {
           }
           Some(Keyword::Export) if self.next_are(&[Identifier, Identifier, ColonEquals]) => {
             self.presume_keyword(Keyword::Export)?;
-            items.push(Item::Assignment(self.parse_assignment(true)?));
+            items.push(Item::Assignment(
+              self.parse_assignment(true, take_attributes())?,
+            ));
           }
           Some(Keyword::Unexport)
             if self.next_are(&[Identifier, Identifier, Eof])
@@ -412,7 +414,9 @@ impl<'run, 'src> Parser<'run, 'src> {
           }
           _ => {
             if self.next_are(&[Identifier, ColonEquals]) {
-              items.push(Item::Assignment(self.parse_assignment(false)?));
+              items.push(Item::Assignment(
+                self.parse_assignment(false, take_attributes())?,
+              ));
             } else {
               let doc = pop_doc_comment(&mut items, eol_since_last_comment);
               items.push(Item::Recipe(self.parse_recipe(
@@ -473,8 +477,13 @@ impl<'run, 'src> Parser<'run, 'src> {
   }
 
   /// Parse an assignment, e.g. `foo := bar`
-  fn parse_assignment(&mut self, export: bool) -> CompileResult<'src, Assignment<'src>> {
+  fn parse_assignment(
+    &mut self,
+    export: bool,
+    attributes: BTreeSet<Attribute<'_>>,
+  ) -> CompileResult<'src, Assignment<'src>> {
     let name = self.parse_name()?;
+    let private = name.lexeme().starts_with('_') || attributes.contains(&Attribute::Private);
     self.presume_any(&[Equals, ColonEquals])?;
     let value = self.parse_expression()?;
     self.expect_eol()?;
@@ -483,6 +492,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       export,
       name,
       value,
+      private,
     })
   }
 
@@ -1238,6 +1248,15 @@ mod tests {
   }
 
   test! {
+    name: private_export,
+    text: r#"
+      [private]
+      export x := "hello"
+      "#,
+    tree: (justfile (assignment #export x "hello")),
+  }
+
+  test! {
     name: export_equals,
     text: r#"export x := "hello""#,
     tree: (justfile
@@ -1248,6 +1267,15 @@ mod tests {
   test! {
     name: assignment,
     text: r#"x := "hello""#,
+    tree: (justfile (assignment x "hello")),
+  }
+
+  test! {
+    name: private_assignment,
+    text: r#"
+      [private]
+      x := "hello"
+      "#,
     tree: (justfile (assignment x "hello")),
   }
 
