@@ -948,6 +948,9 @@ impl<'run, 'src> Parser<'run, 'src> {
       Keyword::AllowDuplicateVariables => {
         Some(Setting::AllowDuplicateVariables(self.parse_set_bool()?))
       }
+      Keyword::AllowPrivateVariables => {
+        Some(Setting::AllowPrivateVariables(self.parse_set_bool()?))
+      }
       Keyword::DotenvLoad => Some(Setting::DotenvLoad(self.parse_set_bool()?)),
       Keyword::DotenvRequired => Some(Setting::DotenvRequired(self.parse_set_bool()?)),
       Keyword::Export => Some(Setting::Export(self.parse_set_bool()?)),

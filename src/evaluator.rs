@@ -7,6 +7,13 @@ pub(crate) struct Evaluator<'src: 'run, 'run> {
   pub(crate) scope: Scope<'src, 'run>,
 }
 
+fn assignment_can_override(
+  assignment: &Binding<'_, Expression<'_>>,
+  settings: &Settings<'_>,
+) -> bool {
+  !settings.allow_private_variables || assignment.is_public()
+}
+
 impl<'src, 'run> Evaluator<'src, 'run> {
   pub(crate) fn evaluate_assignments(
     config: &'run Config,
@@ -15,6 +22,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     overrides: &BTreeMap<String, String>,
     parent: &'run Scope<'src, 'run>,
     search: &'run Search,
+    settings: &'run Settings<'src>,
   ) -> RunResult<'src, Scope<'src, 'run>>
   where
     'src: 'run,
@@ -32,8 +40,13 @@ impl<'src, 'run> Evaluator<'src, 'run> {
 
     for (name, value) in overrides {
       if let Some(assignment) = module.assignments.get(name) {
-        if assignment.is_public() {
-          scope.bind(assignment.export, false, assignment.name, value.clone());
+        if assignment_can_override(assignment, settings) {
+          scope.bind(
+            assignment.export,
+            assignment.private,
+            assignment.name,
+            value.clone(),
+          );
         } else {
           unknown_overrides.push(name.clone());
         }
