@@ -32,7 +32,12 @@ impl<'src, 'run> Evaluator<'src, 'run> {
 
     for (name, value) in overrides {
       if let Some(assignment) = module.assignments.get(name) {
-        scope.bind(assignment.export, assignment.name, value.clone());
+        scope.bind(
+          assignment.export,
+          assignment.is_private(),
+          assignment.name,
+          value.clone(),
+        );
       } else {
         unknown_overrides.push(name.clone());
       }
@@ -63,7 +68,12 @@ impl<'src, 'run> Evaluator<'src, 'run> {
 
     if !self.scope.bound(name) {
       let value = self.evaluate_expression(&assignment.value)?;
-      self.scope.bind(assignment.export, assignment.name, value);
+      self.scope.bind(
+        assignment.export,
+        assignment.is_private(),
+        assignment.name,
+        value,
+      );
     }
 
     Ok(self.scope.value(name).unwrap())
@@ -321,7 +331,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       };
       evaluator
         .scope
-        .bind(parameter.export, parameter.name, value);
+        .bind(parameter.export, false, parameter.name, value);
     }
 
     Ok((evaluator.scope, positional))

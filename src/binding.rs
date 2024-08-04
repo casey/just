@@ -9,8 +9,16 @@ pub(crate) struct Binding<'src, V = String> {
   pub(crate) export: bool,
   /// Binding name
   pub(crate) name: Name<'src>,
+  /// Whether this binding is private to the script
+  pub(crate) private: bool,
   /// Binding value
   pub(crate) value: V,
+}
+
+impl<V> Binding<'_, V> {
+  pub fn is_public(&self) -> bool {
+    !self.private
+  }
 }
 
 impl<'src, V> Keyed<'src> for Binding<'src, V> {

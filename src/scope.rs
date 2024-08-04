@@ -23,6 +23,7 @@ impl<'src, 'run> Scope<'src, 'run> {
     for (key, value) in constants() {
       root.bind(
         false,
+        false,
         Name {
           token: Token {
             column: 0,
@@ -41,12 +42,13 @@ impl<'src, 'run> Scope<'src, 'run> {
     root
   }
 
-  pub(crate) fn bind(&mut self, export: bool, name: Name<'src>, value: String) {
+  pub(crate) fn bind(&mut self, export: bool, private: bool, name: Name<'src>, value: String) {
     self.bindings.insert(Binding {
       depth: 0,
       export,
       name,
       value,
+      private,
     });
   }
 

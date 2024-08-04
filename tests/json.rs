@@ -82,7 +82,64 @@ fn assignment() {
           "name": "foo",
           "value": "bar",
           "depth": 0,
+          "private": false,
         }
+      },
+      "first": null,
+      "doc": null,
+      "groups": [],
+      "modules": {},
+      "recipes": {},
+      "settings": {
+        "allow_duplicate_recipes": false,
+        "allow_duplicate_variables": false,
+        "dotenv_filename": null,
+        "dotenv_load": false,
+        "dotenv_path": null,
+        "dotenv_required": false,
+        "export": false,
+        "fallback": false,
+        "ignore_comments": false,
+        "positional_arguments": false,
+        "quiet": false,
+        "shell": null,
+        "tempdir" : null,
+        "unstable": false,
+        "windows_powershell": false,
+        "windows_shell": null,
+        "working_directory" : null,
+      },
+      "unexports": [],
+      "warnings": [],
+    }),
+  );
+}
+
+#[test]
+fn private_assignment() {
+  case(
+    "
+      _foo := 'foo'
+      [private]
+      bar := 'bar'
+    ",
+    json!({
+      "aliases": {},
+      "assignments": {
+        "_foo": {
+          "export": false,
+          "name": "_foo",
+          "value": "foo",
+          "depth": 0,
+          "private": true,
+        },
+        "bar": {
+          "export": false,
+          "name": "bar",
+          "value": "bar",
+          "depth": 0,
+          "private": true,
+        },
       },
       "first": null,
       "doc": null,
@@ -272,6 +329,7 @@ fn dependency_argument() {
           "name": "x",
           "value": "foo",
           "depth": 0,
+          "private": false,
         },
       },
       "groups": [],
@@ -436,6 +494,7 @@ fn duplicate_variables() {
           "name": "x",
           "value": "bar",
           "depth": 0,
+          "private": false,
         }
       },
       "first": null,
