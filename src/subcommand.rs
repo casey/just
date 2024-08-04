@@ -84,7 +84,7 @@ impl Subcommand {
       List { path } => Self::list(config, justfile, path)?,
       Show { path } => Self::show(config, justfile, path)?,
       Summary => Self::summary(config, justfile),
-      Variables => Self::variables(justfile),
+      Variables => Self::public_variables(justfile),
       Changelog | Completions { .. } | Edit | Init | Man | Run { .. } => unreachable!(),
     }
 
@@ -713,8 +713,13 @@ impl Subcommand {
     }
   }
 
-  fn variables(justfile: &Justfile) {
-    for (i, (_, assignment)) in justfile.assignments.iter().enumerate() {
+  fn public_variables(justfile: &Justfile) {
+    for (i, (_, assignment)) in justfile
+      .assignments
+      .iter()
+      .filter(|(_, binding)| binding.is_public())
+      .enumerate()
+    {
       if i > 0 {
         print!(" ");
       }
