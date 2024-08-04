@@ -39,25 +39,36 @@ fn private_attribute_for_alias() {
     .run();
 }
 
-#[test]
-fn private_attribute_for_assignment() {
-  Test::new()
-    .justfile(
-      "
+test! {
+  name: dont_list_private_variables,
+  justfile: "
+      set allow-private-variables
       [private]
       foo := 'one'
       bar := 'two'
       _baz := 'three'
       ",
-    )
-    .args(["--variables"])
-    .stdout("bar\n")
-    .run();
+   args: ("--variables"),
+   stdout: "bar\n",
+}
+
+test! {
+  name: list_private_variables_if_not_opted_in,
+  justfile: "
+      [private]
+      foo := 'one'
+      bar := 'two'
+      _baz := 'three'
+      ",
+   args: ("--variables"),
+   stdout: "_baz bar foo\n",
 }
 
 test! {
   name: no_private_overrides,
   justfile: "
+      set allow-private-variables
+
       [private]
       foo := 'one'
       bar := 'two'
@@ -75,6 +86,8 @@ test! {
 test! {
   name: no_private_implicit_overrides,
   justfile: "
+      set allow-private-variables
+
       [private]
       foo := 'one'
       bar := 'two'
@@ -92,6 +105,8 @@ test! {
 test! {
   name: allowed_public_overrides,
   justfile: "
+      set allow-private-variables
+
       [private]
       foo := 'one'
       bar := 'two'
@@ -101,6 +116,23 @@ test! {
         @echo hello
   ",
   args: ("bar=two"),
+  stdout: "hello\n",
+  stderr: "",
+  status: EXIT_SUCCESS,
+}
+
+test! {
+  name: ignore_private_without_setting,
+  justfile: "
+      [private]
+      foo := 'one'
+      bar := 'two'
+      _baz := 'three'
+
+      default:
+        @echo hello
+  ",
+  args: ("foo=two"),
   stdout: "hello\n",
   stderr: "",
   status: EXIT_SUCCESS,
