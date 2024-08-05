@@ -110,15 +110,7 @@ impl<'src> Justfile<'src> {
 
     let root = Scope::root();
 
-    let scope = Evaluator::evaluate_assignments(
-      config,
-      &dotenv,
-      self,
-      overrides,
-      &root,
-      search,
-      &self.settings,
-    )?;
+    let scope = Evaluator::evaluate_assignments(config, &dotenv, self, overrides, &root, search)?;
 
     match &config.subcommand {
       Subcommand::Command {
@@ -292,7 +284,6 @@ impl<'src> Justfile<'src> {
           &BTreeMap::new(),
           parent,
           search,
-          &self.settings,
         )?;
         let scope = arena.alloc(scope);
         scopes.insert(path, scope);
