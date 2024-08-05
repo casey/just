@@ -81,6 +81,21 @@ test! {
 test! {
   name:    evaluate_private,
   justfile: "
+    set allow-private-variables
+
+    [private]
+    foo := 'one'
+    bar := 'two'
+    _baz := 'three'
+  ",
+  args:   ("--evaluate"),
+  stdout: "bar  := \"two\"\n",
+  status: EXIT_SUCCESS,
+}
+
+test! {
+  name:    evaluate_private_not_enabled,
+  justfile: "
     [private]
     foo := 'one'
     bar := 'two'
@@ -94,6 +109,8 @@ test! {
 test! {
   name:    evaluate_single_private,
   justfile: "
+    set allow-private-variables
+
     [private]
     foo := 'one'
     bar := 'two'
