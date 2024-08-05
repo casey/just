@@ -65,7 +65,7 @@ test! {
 }
 
 test! {
-  name: no_private_overrides,
+  name: allows_private_overrides,
   justfile: "
       set allow-private-variables
 
@@ -75,16 +75,15 @@ test! {
       _baz := 'three'
 
       default:
-        @echo hello
+        @echo {{foo}}
   ",
   args: ("foo=two"),
-  stdout: "",
-  stderr: "error: Variable `foo` overridden on the command line but not present in justfile\n",
-  status: EXIT_FAILURE,
+  stdout: "two\n",
+  status: EXIT_SUCCESS,
 }
 
 test! {
-  name: no_private_implicit_overrides,
+  name: allows_implicit_private_overrides,
   justfile: "
       set allow-private-variables
 
@@ -94,12 +93,11 @@ test! {
       _baz := 'three'
 
       default:
-        @echo hello
+        @echo {{_baz}}
   ",
   args: ("_baz=two"),
-  stdout: "",
-  stderr: "error: Variable `_baz` overridden on the command line but not present in justfile\n",
-  status: EXIT_FAILURE,
+  stdout: "two\n",
+  status: EXIT_SUCCESS,
 }
 
 test! {
