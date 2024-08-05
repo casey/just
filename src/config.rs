@@ -73,6 +73,8 @@ mod cmd {
 
   pub(crate) const ARGLESS: &[&str] =
     &[CHANGELOG, DUMP, EDIT, FORMAT, INIT, MAN, SUMMARY, VARIABLES];
+
+  pub(crate) const HEADING: &str = "Commands";
 }
 
 mod arg {
@@ -384,7 +386,8 @@ impl Config {
         Arg::new(cmd::CHANGELOG)
           .long("changelog")
           .action(ArgAction::SetTrue)
-          .help("Print changelog"),
+          .help("Print changelog")
+          .help_heading(cmd::HEADING),
       )
       .arg(
         Arg::new(cmd::CHOOSE)
@@ -393,7 +396,8 @@ impl Config {
           .help(
             "Select one or more recipes to run using a binary chooser. If `--chooser` is not \
              passed the chooser defaults to the value of $JUST_CHOOSER, falling back to `fzf`",
-          ),
+          )
+          .help_heading(cmd::HEADING),
       )
       .arg(
         Arg::new(cmd::COMMAND)
@@ -406,7 +410,8 @@ impl Config {
           .help(
             "Run an arbitrary command with the working directory, `.env`, overrides, and exports \
              set",
-          ),
+          )
+          .help_heading(cmd::HEADING),
       )
       .arg(
         Arg::new(cmd::COMPLETIONS)
@@ -415,20 +420,23 @@ impl Config {
           .value_name("SHELL")
           .value_parser(value_parser!(completions::Shell))
           .ignore_case(true)
-          .help("Print shell completion script for <SHELL>"),
+          .help("Print shell completion script for <SHELL>")
+          .help_heading(cmd::HEADING),
       )
       .arg(
         Arg::new(cmd::DUMP)
           .long("dump")
           .action(ArgAction::SetTrue)
-          .help("Print justfile"),
+          .help("Print justfile")
+          .help_heading(cmd::HEADING),
       )
       .arg(
         Arg::new(cmd::EDIT)
           .short('e')
           .long("edit")
           .action(ArgAction::SetTrue)
-          .help("Edit justfile with editor given by $VISUAL or $EDITOR, falling back to `vim`"),
+          .help("Edit justfile with editor given by $VISUAL or $EDITOR, falling back to `vim`")
+          .help_heading(cmd::HEADING),
       )
       .arg(
         Arg::new(cmd::EVALUATE)
@@ -438,27 +446,31 @@ impl Config {
           .help(
             "Evaluate and print all variables. If a variable name is given as an argument, only \
              print that variable's value.",
-          ),
+          )
+          .help_heading(cmd::HEADING),
       )
       .arg(
         Arg::new(cmd::FORMAT)
           .long("fmt")
           .alias("format")
           .action(ArgAction::SetTrue)
-          .help("Format and overwrite justfile"),
+          .help("Format and overwrite justfile")
+          .help_heading(cmd::HEADING),
       )
       .arg(
         Arg::new(cmd::GROUPS)
           .long("groups")
           .action(ArgAction::SetTrue)
-          .help("List recipe groups"),
+          .help("List recipe groups")
+          .help_heading(cmd::HEADING),
       )
       .arg(
         Arg::new(cmd::INIT)
           .long("init")
           .alias("initialize")
           .action(ArgAction::SetTrue)
-          .help("Initialize new justfile in project root"),
+          .help("Initialize new justfile in project root")
+          .help_heading(cmd::HEADING),
       )
       .arg(
         Arg::new(cmd::LIST)
@@ -468,13 +480,15 @@ impl Config {
           .value_name("PATH")
           .action(ArgAction::Set)
           .conflicts_with(arg::ARGUMENTS)
-          .help("List available recipes"),
+          .help("List available recipes")
+          .help_heading(cmd::HEADING),
       )
       .arg(
         Arg::new(cmd::MAN)
           .long("man")
           .action(ArgAction::SetTrue)
-          .help("Print man page"),
+          .help("Print man page")
+          .help_heading(cmd::HEADING),
       )
       .arg(
         Arg::new(cmd::SHOW)
@@ -484,19 +498,22 @@ impl Config {
           .action(ArgAction::Set)
           .value_name("PATH")
           .conflicts_with(arg::ARGUMENTS)
-          .help("Show recipe at <PATH>"),
+          .help("Show recipe at <PATH>")
+          .help_heading(cmd::HEADING),
       )
       .arg(
         Arg::new(cmd::SUMMARY)
           .long("summary")
           .action(ArgAction::SetTrue)
-          .help("List names of available recipes"),
+          .help("List names of available recipes")
+          .help_heading(cmd::HEADING),
       )
       .arg(
         Arg::new(cmd::VARIABLES)
           .long("variables")
           .action(ArgAction::SetTrue)
-          .help("List names of variables"),
+          .help("List names of variables")
+          .help_heading(cmd::HEADING),
       )
       .group(ArgGroup::new("SUBCOMMAND").args(cmd::ALL))
       .arg(
