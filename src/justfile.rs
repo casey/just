@@ -164,12 +164,14 @@ impl<'src> Justfile<'src> {
           let width = scope.names().fold(0, |max, name| name.len().max(max));
 
           for binding in scope.bindings() {
-            println!(
-              "{0:1$} := \"{2}\"",
-              binding.name.lexeme(),
-              width,
-              binding.value
-            );
+            if !self.settings.allow_private_variables || binding.is_public() {
+              println!(
+                "{0:1$} := \"{2}\"",
+                binding.name.lexeme(),
+                width,
+                binding.value
+              );
+            }
           }
         }
 
