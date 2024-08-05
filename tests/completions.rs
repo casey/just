@@ -35,8 +35,9 @@ fn replacements() {
       .unwrap();
     assert!(
       output.status.success(),
-      "shell completion generation for {shell} failed: {}",
-      output.status
+      "shell completion generation for {shell} failed: {}\n{}",
+      output.status,
+      String::from_utf8_lossy(&output.stderr),
     );
   }
 }

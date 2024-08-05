@@ -520,7 +520,7 @@ impl Config {
         Arg::new(arg::ARGUMENTS)
           .num_args(1..)
           .action(ArgAction::Append)
-          .help("Overrides and recipes to run, defaulting to the first recipe in the justfile"),
+          .help("Overrides and recipe(s) to run, defaulting to the first recipe in the justfile"),
       )
   }
 
