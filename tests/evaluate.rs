@@ -77,3 +77,46 @@ test! {
   ",
   status: EXIT_FAILURE,
 }
+
+test! {
+  name:    evaluate_private,
+  justfile: "
+    set allow-private-variables
+
+    [private]
+    foo := 'one'
+    bar := 'two'
+    _baz := 'three'
+  ",
+  args:   ("--evaluate"),
+  stdout: "bar  := \"two\"\n",
+  status: EXIT_SUCCESS,
+}
+
+test! {
+  name:    evaluate_private_not_enabled,
+  justfile: "
+    [private]
+    foo := 'one'
+    bar := 'two'
+    _baz := 'three'
+  ",
+  args:   ("--evaluate"),
+  stdout: "_baz := \"three\"\nbar  := \"two\"\nfoo  := \"one\"\n",
+  status: EXIT_SUCCESS,
+}
+
+test! {
+  name:    evaluate_single_private,
+  justfile: "
+    set allow-private-variables
+
+    [private]
+    foo := 'one'
+    bar := 'two'
+    _baz := 'three'
+  ",
+  args:   ("--evaluate", "foo"),
+  stdout: "one",
+  status: EXIT_SUCCESS,
+}
