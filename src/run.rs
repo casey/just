@@ -6,17 +6,8 @@ pub fn run(args: impl Iterator<Item = impl Into<OsString> + Clone>) -> Result<()
   #[cfg(windows)]
   ansi_term::enable_ansi_support().ok();
 
-  env_logger::Builder::from_env(
-    env_logger::Env::new()
-      .filter("JUST_LOG")
-      .write_style("JUST_LOG_STYLE"),
-  )
-  .try_init()
-  .ok();
-
   let app = Config::app();
 
-  info!("Parsing command line arguments…");
   let matches = app.try_get_matches_from(args).map_err(|err| {
     err.print().ok();
     err.exit_code()

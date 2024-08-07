@@ -38,7 +38,6 @@ pub(crate) use {
   edit_distance::edit_distance,
   lexiclean::Lexiclean,
   libc::EXIT_FAILURE,
-  log::{info, warn},
   once_cell::sync::Lazy,
   regex::Regex,
   serde::{
