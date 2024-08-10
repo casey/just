@@ -714,11 +714,10 @@ impl Subcommand {
   }
 
   fn public_variables(justfile: &Justfile) {
-    let filter_private = justfile.settings.allow_private_variables;
     for (i, (_, assignment)) in justfile
       .assignments
       .iter()
-      .filter(|(_, binding)| !filter_private || binding.is_public())
+      .filter(|(_, binding)| binding.is_public())
       .enumerate()
     {
       if i > 0 {

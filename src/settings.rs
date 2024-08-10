@@ -9,7 +9,6 @@ pub(crate) const WINDOWS_POWERSHELL_ARGS: &[&str] = &["-NoLogo", "-Command"];
 pub(crate) struct Settings<'src> {
   pub(crate) allow_duplicate_recipes: bool,
   pub(crate) allow_duplicate_variables: bool,
-  pub(crate) allow_private_variables: bool,
   pub(crate) dotenv_filename: Option<String>,
   pub(crate) dotenv_load: bool,
   pub(crate) dotenv_path: Option<PathBuf>,
@@ -40,9 +39,6 @@ impl<'src> Settings<'src> {
         }
         Setting::AllowDuplicateVariables(allow_duplicate_variables) => {
           settings.allow_duplicate_variables = allow_duplicate_variables;
-        }
-        Setting::AllowPrivateVariables(allow_private_variables) => {
-          settings.allow_private_variables = allow_private_variables;
         }
         Setting::DotenvFilename(filename) => {
           settings.dotenv_filename = Some(filename.cooked);

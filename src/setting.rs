@@ -4,7 +4,6 @@ use super::*;
 pub(crate) enum Setting<'src> {
   AllowDuplicateRecipes(bool),
   AllowDuplicateVariables(bool),
-  AllowPrivateVariables(bool),
   DotenvFilename(StringLiteral<'src>),
   DotenvLoad(bool),
   DotenvPath(StringLiteral<'src>),
@@ -28,7 +27,6 @@ impl<'src> Display for Setting<'src> {
     match self {
       Self::AllowDuplicateRecipes(value)
       | Self::AllowDuplicateVariables(value)
-      | Self::AllowPrivateVariables(value)
       | Self::DotenvLoad(value)
       | Self::DotenvRequired(value)
       | Self::Export(value)
