@@ -77,3 +77,29 @@ test! {
   ",
   status: EXIT_FAILURE,
 }
+
+test! {
+  name:    evaluate_private,
+  justfile: "
+    [private]
+    foo := 'one'
+    bar := 'two'
+    _baz := 'three'
+  ",
+  args:   ("--evaluate"),
+  stdout: "bar  := \"two\"\n",
+  status: EXIT_SUCCESS,
+}
+
+test! {
+  name:    evaluate_single_private,
+  justfile: "
+    [private]
+    foo := 'one'
+    bar := 'two'
+    _baz := 'three'
+  ",
+  args:   ("--evaluate", "foo"),
+  stdout: "one",
+  status: EXIT_SUCCESS,
+}

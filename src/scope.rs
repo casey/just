@@ -34,6 +34,7 @@ impl<'src, 'run> Scope<'src, 'run> {
             src: key,
           },
         },
+        false,
         (*value).into(),
       );
     }
@@ -41,11 +42,12 @@ impl<'src, 'run> Scope<'src, 'run> {
     root
   }
 
-  pub(crate) fn bind(&mut self, export: bool, name: Name<'src>, value: String) {
+  pub(crate) fn bind(&mut self, export: bool, name: Name<'src>, private: bool, value: String) {
     self.bindings.insert(Binding {
-      depth: 0,
       export,
+      file_depth: 0,
       name,
+      private,
       value,
     });
   }

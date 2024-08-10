@@ -159,11 +159,9 @@ impl<'src> Analyzer<'src> {
         return Err(assignment.name.token.error(DuplicateVariable { variable }));
       }
 
-      if self
-        .assignments
-        .get(variable)
-        .map_or(true, |original| assignment.depth <= original.depth)
-      {
+      if self.assignments.get(variable).map_or(true, |original| {
+        assignment.file_depth <= original.file_depth
+      }) {
         self.assignments.insert(assignment.clone());
       }
 

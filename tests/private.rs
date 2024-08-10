@@ -38,3 +38,19 @@ fn private_attribute_for_alias() {
     )
     .run();
 }
+
+#[test]
+fn private_variables_are_not_listed() {
+  Test::new()
+    .justfile(
+      "
+      [private]
+      foo := 'one'
+      bar := 'two'
+      _baz := 'three'
+      ",
+    )
+    .args(["--variables"])
+    .stdout("bar\n")
+    .run();
+}

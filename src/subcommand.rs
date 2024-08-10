@@ -714,7 +714,12 @@ impl Subcommand {
   }
 
   fn variables(justfile: &Justfile) {
-    for (i, (_, assignment)) in justfile.assignments.iter().enumerate() {
+    for (i, (_, assignment)) in justfile
+      .assignments
+      .iter()
+      .filter(|(_, binding)| !binding.private)
+      .enumerate()
+    {
       if i > 0 {
         print!(" ");
       }
