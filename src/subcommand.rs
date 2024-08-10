@@ -84,7 +84,7 @@ impl Subcommand {
       List { path } => Self::list(config, justfile, path)?,
       Show { path } => Self::show(config, justfile, path)?,
       Summary => Self::summary(config, justfile),
-      Variables => Self::public_variables(justfile),
+      Variables => Self::variables(justfile),
       Changelog | Completions { .. } | Edit | Init | Man | Run { .. } => unreachable!(),
     }
 
@@ -713,7 +713,7 @@ impl Subcommand {
     }
   }
 
-  fn public_variables(justfile: &Justfile) {
+  fn variables(justfile: &Justfile) {
     for (i, (_, assignment)) in justfile
       .assignments
       .iter()
