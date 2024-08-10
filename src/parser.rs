@@ -483,16 +483,15 @@ impl<'run, 'src> Parser<'run, 'src> {
     attributes: BTreeSet<Attribute<'_>>,
   ) -> CompileResult<'src, Assignment<'src>> {
     let name = self.parse_name()?;
-    let private = name.lexeme().starts_with('_') || attributes.contains(&Attribute::Private);
-    self.presume_any(&[Equals, ColonEquals])?;
+    self.presume(ColonEquals)?;
     let value = self.parse_expression()?;
     self.expect_eol()?;
     Ok(Assignment {
-      depth: self.file_depth,
+      file_depth: self.file_depth,
       export,
       name,
       value,
-      private,
+      private: name.lexeme().starts_with('_') || attributes.contains(&Attribute::Private),
     })
   }
 
@@ -1249,10 +1248,10 @@ mod tests {
 
   test! {
     name: private_export,
-    text: r#"
+    text: "
       [private]
-      export x := "hello"
-      "#,
+      export x := 'hello'
+    ",
     tree: (justfile (assignment #export x "hello")),
   }
 
@@ -1272,10 +1271,10 @@ mod tests {
 
   test! {
     name: private_assignment,
-    text: r#"
+    text: "
       [private]
-      x := "hello"
-      "#,
+      x := 'hello'
+      ",
     tree: (justfile (assignment x "hello")),
   }
 

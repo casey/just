@@ -717,7 +717,7 @@ impl Subcommand {
     for (i, (_, assignment)) in justfile
       .assignments
       .iter()
-      .filter(|(_, binding)| binding.is_public())
+      .filter(|(_, binding)| !binding.private)
       .enumerate()
     {
       if i > 0 {

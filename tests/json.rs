@@ -81,7 +81,6 @@ fn assignment() {
           "export": false,
           "name": "foo",
           "value": "bar",
-          "depth": 0,
           "private": false,
         }
       },
@@ -130,14 +129,12 @@ fn private_assignment() {
           "export": false,
           "name": "_foo",
           "value": "foo",
-          "depth": 0,
           "private": true,
         },
         "bar": {
           "export": false,
           "name": "bar",
           "value": "bar",
-          "depth": 0,
           "private": true,
         },
       },
@@ -328,7 +325,6 @@ fn dependency_argument() {
           "export": false,
           "name": "x",
           "value": "foo",
-          "depth": 0,
           "private": false,
         },
       },
@@ -493,7 +489,6 @@ fn duplicate_variables() {
           "export": false,
           "name": "x",
           "value": "bar",
-          "depth": 0,
           "private": false,
         }
       },

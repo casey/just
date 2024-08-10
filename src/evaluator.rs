@@ -34,8 +34,8 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       if let Some(assignment) = module.assignments.get(name) {
         scope.bind(
           assignment.export,
-          assignment.private,
           assignment.name,
+          assignment.private,
           value.clone(),
         );
       } else {
@@ -70,8 +70,8 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       let value = self.evaluate_expression(&assignment.value)?;
       self.scope.bind(
         assignment.export,
-        assignment.private,
         assignment.name,
+        assignment.private,
         value,
       );
     }
@@ -331,7 +331,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       };
       evaluator
         .scope
-        .bind(parameter.export, true, parameter.name, value);
+        .bind(parameter.export, parameter.name, false, value);
     }
 
     Ok((evaluator.scope, positional))

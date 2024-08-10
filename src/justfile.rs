@@ -164,7 +164,7 @@ impl<'src> Justfile<'src> {
           let width = scope.names().fold(0, |max, name| name.len().max(max));
 
           for binding in scope.bindings() {
-            if binding.is_public() {
+            if !binding.private {
               println!(
                 "{0:1$} := \"{2}\"",
                 binding.name.lexeme(),
