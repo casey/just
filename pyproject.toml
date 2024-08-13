@@ -1,0 +1,35 @@
+[build-system]
+requires = ["maturin>=1.0,<2.0"]
+build-backend = "maturin"
+
+[project]
+name = "justcli"
+readme = "README.md"
+requires-python = ">=3.7"
+license = { file = "LICENSE" }
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: CC0 1.0 Universal (CC0 1.0) Public Domain Dedication",
+    "Operating System :: POSIX",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: MacOS",
+    "Programming Language :: Rust",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Topic :: Software Development :: Build Tools",
+    "Topic :: Utilities",
+    "Typing :: Typed",
+]
+
+[project.urls]
+Repository = "https://github.com/casey/just"
+Documentation = "https://github.com/casey/just"
+Changelog = "https://github.com/casey/just/blob/master/CHANGELOG.md"
+
+[tool.maturin]
+bindings = "bin"
+manifest-path = "Cargo.toml"
+module-name = "just"
+strip = true
