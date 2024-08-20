@@ -125,6 +125,45 @@ most Windows users.)
 
 ### Packages
 
+Cross-platform package managers:
+
+<table>
+  <thead>
+    <tr>
+      <th>Package Manager</th>
+      <th>Package</th>
+      <th>Command</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><a href=https://asdf-vm.com>asdf</a></td>
+      <td><a href=https://github.com/olofvndrhr/asdf-just>just</a></td>
+      <td>
+        <code>asdf plugin add just</code><br>
+        <code>asdf install just &lt;version&gt;</code>
+      </td>
+    </tr>
+    <tr>
+      <td><a href=https://www.rust-lang.org>Cargo</a></td>
+      <td><a href=https://crates.io/crates/just>just</a></td>
+      <td><code>cargo install just</code></td>
+    </tr>
+    <tr>
+      <td><a href=https://docs.conda.io/projects/conda/en/latest/index.html>Conda</a></td>
+      <td><a href=https://anaconda.org/conda-forge/just>just</a></td>
+      <td><code>conda install -c conda-forge just</code></td>
+    </tr>
+    <tr>
+      <td><a href=https://brew.sh>Homebrew</a></td>
+      <td><a href=https://formulae.brew.sh/formula/just>just</a></td>
+      <td><code>brew install just</code></td>
+    </tr>
+  </tbody>
+</table>
+
+Platform-specific package managers:
+
 <table>
   <thead>
     <tr>
@@ -237,33 +276,6 @@ most Windows users.)
       <td><a href=https://getsol.us/articles/package-management/basics/en>eopkg</a></td>
       <td><a href=https://dev.getsol.us/source/just/>just</a></td>
       <td><code>eopkg install just</code></td>
-    </tr>
-    <tr>
-      <td><a href=https://github.com/casey/just/releases>Various</a></td>
-      <td><a href=https://asdf-vm.com>asdf</a></td>
-      <td><a href=https://github.com/olofvndrhr/asdf-just>just</a></td>
-      <td>
-        <code>asdf plugin add just</code><br>
-        <code>asdf install just &lt;version&gt;</code>
-      </td>
-    </tr>
-    <tr>
-      <td><a href=https://forge.rust-lang.org/release/platform-support.html>Various</a></td>
-      <td><a href=https://www.rust-lang.org>Cargo</a></td>
-      <td><a href=https://crates.io/crates/just>just</a></td>
-      <td><code>cargo install just</code></td>
-    </tr>
-    <tr>
-      <td><a href=https://docs.conda.io/en/latest/miniconda.html#system-requirements>Various</a></td>
-      <td><a href=https://docs.conda.io/projects/conda/en/latest/index.html>Conda</a></td>
-      <td><a href=https://anaconda.org/conda-forge/just>just</a></td>
-      <td><code>conda install -c conda-forge just</code></td>
-    </tr>
-    <tr>
-      <td><a href=https://docs.brew.sh/Installation>Various</a></td>
-      <td><a href=https://brew.sh>Homebrew</a></td>
-      <td><a href=https://formulae.brew.sh/formula/just>just</a></td>
-      <td><code>brew install just</code></td>
     </tr>
     <tr>
       <td><a href=https://nixos.org/download.html#download-nix>Various</a></td>
