@@ -127,6 +127,11 @@ pub(crate) enum Error<'src> {
   MissingModuleFile {
     module: Name<'src>,
   },
+  WorkingDirectoryIo {
+    recipe: &'src str,
+    working_directory: PathBuf,
+    io_error: io::Error,
+  },
   NoChoosableRecipes,
   NoDefaultRecipe,
   NoRecipes,
@@ -470,6 +475,12 @@ impl<'src> ColorDisplay for Error<'src> {
       UnstableFeature { unstable_feature } => {
         write!(f, "{unstable_feature} Invoke `just` with `--unstable`, set the `JUST_UNSTABLE` environment variable, or add `set unstable` to your `justfile` to enable unstable features.")?;
       }
+      WorkingDirectoryIo { recipe, working_directory, io_error } => {
+        match io_error.kind() {
+          io::ErrorKind::NotFound => write!(f, "Recipe `{recipe}` could not be run because just could not find working directory `{}`: {io_error}", working_directory.to_string_lossy()),
+          _ => write!(f, "Recipe `{recipe}` could not be run because just could not set working directory to `{}`: {io_error}", working_directory.to_string_lossy()),
+        }?;
+      },
       WriteJustfile { justfile, io_error } => {
         let justfile = justfile.display();
         write!(f, "Failed to write justfile to `{justfile}`: {io_error}")?;

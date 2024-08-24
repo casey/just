@@ -1,4 +1,4 @@
-use super::*;
+use {super::*, fs::Permissions, std::os::unix::fs::PermissionsExt};
 
 const JUSTFILE: &str = r#"
 foo := `cat data`
@@ -330,4 +330,62 @@ file := shell('cat file.txt')
     .write("foo/bar/file.txt", "FILE")
     .stdout("FILE\n")
     .run();
+}
+
+#[test]
+fn missing_working_directory_produces_clear_message() {
+  Test::new()
+    .justfile(
+      "
+      set working-directory := 'missing'
+      default:
+        pwd
+    ",
+    )
+    .status(1)
+    .stderr_regex(
+      ".*Recipe `default` could not be run because just could not find working directory `.*/missing`.*",
+    )
+    .run();
+}
+
+#[test]
+fn unusable_working_directory_produces_clear_message() {
+  Test::new()
+  .justfile(
+    "
+    set working-directory := 'unusable'
+    default:
+      pwd
+  ",
+  )
+  .tree(tree! {
+    unusable: {}
+  })
+  .chmod("unusable", Permissions::from_mode(0o000))
+  .status(1)
+  .stderr_regex(
+    ".*Recipe `default` could not be run because just could not set working directory to `.*/unusable`:.*",
+  )
+  .run();
+}
+
+#[test]
+fn working_directory_is_not_a_directory_produces_clear_message() {
+  Test::new()
+  .justfile(
+    "
+    set working-directory := 'unusable'
+    default:
+      pwd
+  ",
+  )
+  .tree(tree! {
+    unusable: "is not a directory"
+  })
+  .status(1)
+  .stderr_regex(
+    ".*Recipe `default` could not be run because just could not set working directory to `.*/unusable`:.*",
+  )
+  .run();
 }

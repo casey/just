@@ -304,6 +304,15 @@ impl<'src, D> Recipe<'src, D> {
           }
         }
         Err(io_error) => {
+          if let Some(working_directory) = self.working_directory(context) {
+            if let Err(io_error) = fs::read_dir(working_directory.clone()) {
+              return Err(Error::WorkingDirectoryIo {
+                recipe: self.name(),
+                working_directory,
+                io_error,
+              });
+            }
+          }
           return Err(Error::Io {
             recipe: self.name(),
             io_error,
