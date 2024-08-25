@@ -17,7 +17,9 @@ pub(crate) enum Subcommand {
   Completions {
     shell: completions::Shell,
   },
-  Dump,
+  Dump {
+    recipe: Option<String>,
+  },
   Edit,
   Evaluate {
     overrides: BTreeMap<String, String>,
@@ -78,7 +80,7 @@ impl Subcommand {
       Command { overrides, .. } | Evaluate { overrides, .. } => {
         justfile.run(config, &search, overrides, &[])?;
       }
-      Dump => Self::dump(config, ast, justfile)?,
+      Dump { recipe } => Self::dump(config, ast, justfile, recipe.as_ref())?,
       Format => Self::format(config, &search, src, ast, justfile)?,
       Groups => Self::groups(config, justfile),
       List { path } => Self::list(config, justfile, path)?,
@@ -303,14 +305,41 @@ impl Subcommand {
     Ok(())
   }
 
-  fn dump(config: &Config, ast: &Ast, justfile: &Justfile) -> RunResult<'static> {
+  fn dump(
+    config: &Config,
+    ast: &Ast,
+    justfile: &Justfile,
+    recipe: Option<&String>,
+  ) -> RunResult<'static> {
     match config.dump_format {
       DumpFormat::Json => {
-        serde_json::to_writer(io::stdout(), justfile)
-          .map_err(|serde_json_error| Error::DumpJson { serde_json_error })?;
+        if let Some(recipe_name) = recipe {
+          let recipe = justfile
+            .recipes
+            .get(recipe_name)
+            .ok_or(Error::DumpRecipeMissing {
+              recipe_name: recipe_name.to_owned(),
+            })?;
+          serde_json::to_writer(io::stdout(), recipe)
+            .map_err(|serde_json_error| Error::DumpJson { serde_json_error })?;
+        } else {
+          serde_json::to_writer(io::stdout(), justfile)
+            .map_err(|serde_json_error| Error::DumpJson { serde_json_error })?;
+        }
         println!();
       }
-      DumpFormat::Just => print!("{ast}"),
+      DumpFormat::Just => {
+        if let Some(recipe_name) = recipe {
+          let recipe = ast
+            .get_recipe_item(recipe_name)
+            .ok_or(Error::DumpRecipeMissing {
+              recipe_name: recipe_name.to_owned(),
+            })?;
+          print!("{recipe}");
+        } else {
+          print!("{ast}");
+        }
+      }
     }
     Ok(())
   }

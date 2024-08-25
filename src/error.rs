@@ -83,6 +83,9 @@ pub(crate) enum Error<'src> {
   DumpJson {
     serde_json_error: serde_json::Error,
   },
+  DumpRecipeMissing {
+    recipe_name: String,
+  },
   EditorInvoke {
     editor: OsString,
     io_error: io::Error,
@@ -359,6 +362,7 @@ impl<'src> ColorDisplay for Error<'src> {
       DumpJson { serde_json_error } => {
         write!(f, "Failed to dump JSON to stdout: {serde_json_error}")?;
       }
+      DumpRecipeMissing { recipe_name } => write!(f, "Recipe missing: {recipe_name}")?,
       EditorInvoke { editor, io_error } => {
         let editor = editor.to_string_lossy();
         write!(f, "Editor `{editor}` invocation failed: {io_error}")?;

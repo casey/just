@@ -71,8 +71,7 @@ mod cmd {
     VARIABLES,
   ];
 
-  pub(crate) const ARGLESS: &[&str] =
-    &[CHANGELOG, DUMP, EDIT, FORMAT, INIT, MAN, SUMMARY, VARIABLES];
+  pub(crate) const ARGLESS: &[&str] = &[CHANGELOG, EDIT, FORMAT, INIT, MAN, SUMMARY, VARIABLES];
 
   pub(crate) const HEADING: &str = "Commands";
 }
@@ -426,8 +425,9 @@ impl Config {
       .arg(
         Arg::new(cmd::DUMP)
           .long("dump")
-          .action(ArgAction::SetTrue)
-          .help("Print justfile")
+          .action(ArgAction::Append)
+          .num_args(0..=1)
+          .help("Print justfile. If given a recipe name as an argument, print just that recipe.")
           .help_heading(cmd::HEADING),
       )
       .arg(
@@ -637,8 +637,10 @@ impl Config {
       }
     } else if let Some(&shell) = matches.get_one::<completions::Shell>(cmd::COMPLETIONS) {
       Subcommand::Completions { shell }
-    } else if matches.get_flag(cmd::DUMP) {
-      Subcommand::Dump
+    } else if let Some(mut recipe) = matches.get_many::<String>(cmd::DUMP) {
+      Subcommand::Dump {
+        recipe: recipe.next().cloned(),
+      }
     } else if matches.get_flag(cmd::EDIT) {
       Subcommand::Edit
     } else if matches.get_flag(cmd::EVALUATE) {
@@ -1221,7 +1223,7 @@ mod tests {
   test! {
     name: subcommand_dump,
     args: ["--dump"],
-    subcommand: Subcommand::Dump,
+    subcommand: Subcommand::Dump { recipe: None },
   }
 
   test! {
@@ -1528,16 +1530,6 @@ mod tests {
     error: ConfigError::SubcommandArguments { subcommand, arguments },
     check: {
       assert_eq!(subcommand, cmd::CHANGELOG);
-      assert_eq!(arguments, &["bar"]);
-    },
-  }
-
-  error! {
-    name: dump_arguments,
-    args: ["--dump", "bar"],
-    error: ConfigError::SubcommandArguments { subcommand, arguments },
-    check: {
-      assert_eq!(subcommand, cmd::DUMP);
       assert_eq!(arguments, &["bar"]);
     },
   }

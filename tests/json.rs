@@ -1375,3 +1375,33 @@ fn module_group() {
     ))
     .run();
 }
+
+#[test]
+fn dump_single_recipe() {
+  Test::new()
+    .justfile(
+      "
+      foo:
+        echo 'FOO'
+    ",
+    )
+    .args(["--dump", "foo", "--dump-format", "json"])
+    .stdout(format!(
+      "{}\n",
+      serde_json::to_string(&json!({
+          "attributes": [],
+          "body": [["echo 'FOO'"]],
+          "dependencies": [],
+          "doc": null,
+          "name": "foo",
+          "namepath": "foo",
+          "parameters": [],
+          "priors": 0,
+          "private": false,
+          "quiet": false,
+          "shebang": false,
+      }))
+      .unwrap()
+    ))
+    .run();
+}

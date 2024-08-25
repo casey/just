@@ -10,6 +10,15 @@ pub(crate) struct Ast<'src> {
   pub(crate) working_directory: PathBuf,
 }
 
+impl<'src> Ast<'src> {
+  pub(crate) fn get_recipe_item(&self, name: &str) -> Option<&Item<'src>> {
+    self
+      .items
+      .iter()
+      .find(|item| matches!(item, Item::Recipe(recipe) if recipe.name.lexeme() == name))
+  }
+}
+
 impl<'src> Display for Ast<'src> {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
     let mut iter = self.items.iter().peekable();
