@@ -1,4 +1,4 @@
-use {super::*, fs::Permissions, std::os::unix::fs::PermissionsExt};
+use super::*;
 
 const JUSTFILE: &str = r#"
 foo := `cat data`
@@ -344,13 +344,15 @@ fn missing_working_directory_produces_clear_message() {
     )
     .status(1)
     .stderr_regex(
-      ".*Recipe `default` could not be run because just could not find working directory `.*/missing`.*",
+      ".*Recipe `default` could not be run because just could not set working directory to `.*/missing`.*",
     )
     .run();
 }
 
 #[test]
+#[cfg(unix)]
 fn unusable_working_directory_produces_clear_message() {
+  use {fs::Permissions, std::os::unix::fs::PermissionsExt};
   Test::new()
   .justfile(
     "
