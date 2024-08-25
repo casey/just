@@ -16,6 +16,7 @@ pub(crate) struct Config {
   pub(crate) dotenv_path: Option<PathBuf>,
   pub(crate) dry_run: bool,
   pub(crate) dump_format: DumpFormat,
+  pub(crate) explain: bool,
   pub(crate) highlight: bool,
   pub(crate) invocation_directory: PathBuf,
   pub(crate) list_heading: String,
@@ -88,6 +89,7 @@ mod arg {
   pub(crate) const DOTENV_PATH: &str = "DOTENV-PATH";
   pub(crate) const DRY_RUN: &str = "DRY-RUN";
   pub(crate) const DUMP_FORMAT: &str = "DUMP-FORMAT";
+  pub(crate) const EXPLAIN: &str = "EXPLAIN";
   pub(crate) const GLOBAL_JUSTFILE: &str = "GLOBAL-JUSTFILE";
   pub(crate) const HIGHLIGHT: &str = "HIGHLIGHT";
   pub(crate) const JUSTFILE: &str = "JUSTFILE";
@@ -205,6 +207,13 @@ impl Config {
           .default_value("just")
           .value_name("FORMAT")
           .help("Dump justfile as <FORMAT>"),
+      )
+      .arg(
+        Arg::new(arg::EXPLAIN)
+          .action(ArgAction::SetTrue)
+          .long("explain")
+          .env("JUST_EXPLAIN")
+          .help("Print the docstring of a recipe before executing it"),
       )
       .arg(
         Arg::new(arg::GLOBAL_JUSTFILE)
@@ -685,6 +694,7 @@ impl Config {
     };
 
     let unstable = matches.get_flag(arg::UNSTABLE) || subcommand == Subcommand::Summary;
+    let explain = matches.get_flag(arg::EXPLAIN);
 
     Ok(Self {
       check: matches.get_flag(arg::CHECK),
@@ -702,6 +712,7 @@ impl Config {
         .get_one::<DumpFormat>(arg::DUMP_FORMAT)
         .unwrap()
         .clone(),
+      explain,
       highlight: !matches.get_flag(arg::NO_HIGHLIGHT),
       invocation_directory: env::current_dir().context(config_error::CurrentDirContext)?,
       list_heading: matches.get_one::<String>(arg::LIST_HEADING).unwrap().into(),

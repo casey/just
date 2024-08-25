@@ -153,14 +153,18 @@ impl<'src, D> Recipe<'src, D> {
   ) -> RunResult<'src, ()> {
     let config = &context.config;
 
+    let banner_color = config.color.stderr().banner();
+    let p = banner_color.prefix();
+    let s = banner_color.suffix();
+
     if config.verbosity.loquacious() {
-      let color = config.color.stderr().banner();
-      eprintln!(
-        "{}===> Running recipe `{}`...{}",
-        color.prefix(),
-        self.name,
-        color.suffix()
-      );
+      eprintln!("{p}===> Running recipe `{}`...{s}", self.name,);
+    }
+
+    if config.explain {
+      if let Some(doc) = self.doc() {
+        eprintln!("{p}#### {doc}{s}");
+      }
     }
 
     let evaluator = Evaluator::new(context, is_dependency, scope);
