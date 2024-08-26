@@ -385,6 +385,24 @@ impl<'src> Justfile<'src> {
     modules
   }
 
+  pub(crate) fn lookup_module_and_item<'a, 'b>(
+    &'a self,
+    path: &'b ModulePath,
+  ) -> RunResult<'src, (&'a Justfile<'src>, String)> {
+    let mut module: &'a Justfile = self;
+    for name in &path.path[0..path.path.len() - 1] {
+      module = module
+        .modules
+        .get(name)
+        .ok_or_else(|| Error::UnknownSubmodule {
+          path: path.to_string(),
+        })?;
+    }
+
+    let name = path.path.last().unwrap();
+    Ok((module, name.to_owned()))
+  }
+
   pub(crate) fn public_recipes(&self, config: &Config) -> Vec<&Recipe> {
     let mut recipes = self
       .recipes

@@ -305,21 +305,22 @@ impl Subcommand {
     Ok(())
   }
 
-  fn dump(
+  fn dump<'src>(
     config: &Config,
     ast: &Ast,
-    justfile: &Justfile,
+    justfile: &Justfile<'src>,
     recipe: Option<&ModulePath>,
-  ) -> RunResult<'static> {
+  ) -> RunResult<'src> {
     match config.dump_format {
       DumpFormat::Json => {
-        if let Some(recipe_name) = recipe {
-          let recipe_name = recipe_name.to_string();
-          let recipe = justfile
+        if let Some(recipe_path) = recipe {
+          let (module, recipe_name) = justfile.lookup_module_and_item(recipe_path)?;
+          let recipe = module
             .recipes
             .get(&recipe_name)
-            .ok_or(Error::DumpRecipeMissing {
-              recipe_name: recipe_name.to_owned(),
+            .ok_or(Error::UnknownRecipe {
+              suggestion: module.suggest_recipe(&recipe_name),
+              recipe: recipe_name,
             })?;
           serde_json::to_writer(io::stdout(), recipe)
             .map_err(|serde_json_error| Error::DumpJson { serde_json_error })?;
@@ -330,12 +331,13 @@ impl Subcommand {
         println!();
       }
       DumpFormat::Just => {
-        if let Some(recipe_name) = recipe {
-          let recipe_name = recipe_name.to_string();
+        if let Some(recipe_path) = recipe {
+          let (module, recipe_name) = justfile.lookup_module_and_item(recipe_path)?;
           let recipe = ast
             .get_recipe_item(&recipe_name)
-            .ok_or(Error::DumpRecipeMissing {
-              recipe_name: recipe_name.to_owned(),
+            .ok_or(Error::UnknownRecipe {
+              suggestion: module.suggest_recipe(&recipe_name),
+              recipe: recipe_name,
             })?;
           print!("{recipe}");
         } else {
@@ -677,34 +679,25 @@ impl Subcommand {
 
   fn show<'src>(
     config: &Config,
-    mut module: &Justfile<'src>,
+    root_module: &Justfile<'src>,
     path: &ModulePath,
   ) -> RunResult<'src> {
-    for name in &path.path[0..path.path.len() - 1] {
-      module = module
-        .modules
-        .get(name)
-        .ok_or_else(|| Error::UnknownSubmodule {
-          path: path.to_string(),
-        })?;
-    }
+    let (module, name) = root_module.lookup_module_and_item(path)?;
 
-    let name = path.path.last().unwrap();
-
-    if let Some(alias) = module.get_alias(name) {
+    if let Some(alias) = module.get_alias(&name) {
       let recipe = module.get_recipe(alias.target.name.lexeme()).unwrap();
       println!("{alias}");
       println!("{}", recipe.color_display(config.color.stdout()));
-      Ok(())
-    } else if let Some(recipe) = module.get_recipe(name) {
+    } else if let Some(recipe) = module.get_recipe(&name) {
       println!("{}", recipe.color_display(config.color.stdout()));
-      Ok(())
     } else {
-      Err(Error::UnknownRecipe {
-        recipe: name.to_owned(),
-        suggestion: module.suggest_recipe(name),
-      })
+      let suggestion = module.suggest_recipe(&name);
+      return Err(Error::UnknownRecipe {
+        recipe: name,
+        suggestion,
+      });
     }
+    Ok(())
   }
 
   fn summary(config: &Config, justfile: &Justfile) {
