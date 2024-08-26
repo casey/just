@@ -912,7 +912,7 @@ If `dotenv-filename` is not set, but `dotenv-load` or `dotenv-required` are
 set, just will look for a file named `.env`, relative to the working directory
 and each of its ancestors.
 
-`dotenv-filename` and `dotenv-path` and similar, but `dotenv-path` is only
+`dotenv-filename` and `dotenv-path` are similar, but `dotenv-path` is only
 checked relative to the working directory, whereas `dotenv-filename` is checked
 relative to the working directory and each of its ancestors.
 
