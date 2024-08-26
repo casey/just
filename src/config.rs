@@ -748,11 +748,6 @@ impl Config {
       Err(Error::UnstableFeature { unstable_feature })
     }
   }
-
-  pub(crate) fn run(self, loader: &Loader) -> RunResult {
-    InterruptHandler::install(self.verbosity).ok();
-    self.subcommand.execute(&self, loader)
-  }
 }
 
 #[cfg(test)]

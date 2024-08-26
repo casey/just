@@ -23,7 +23,10 @@ pub fn run(args: impl Iterator<Item = impl Into<OsString> + Clone>) -> Result<()
   let loader = Loader::new();
 
   config
-    .and_then(|config| config.run(&loader))
+    .and_then(|config| {
+      InterruptHandler::install(config.verbosity).ok();
+      config.subcommand.execute(&config, &loader)
+    })
     .map_err(|error| {
       if !verbosity.quiet() && error.print_message() {
         eprintln!("{}", error.color_display(color.stderr()));
