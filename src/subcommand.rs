@@ -18,7 +18,7 @@ pub(crate) enum Subcommand {
     shell: completions::Shell,
   },
   Dump {
-    recipe: Option<String>,
+    recipe: Option<ModulePath>,
   },
   Edit,
   Evaluate {
@@ -309,14 +309,15 @@ impl Subcommand {
     config: &Config,
     ast: &Ast,
     justfile: &Justfile,
-    recipe: Option<&String>,
+    recipe: Option<&ModulePath>,
   ) -> RunResult<'static> {
     match config.dump_format {
       DumpFormat::Json => {
         if let Some(recipe_name) = recipe {
+          let recipe_name = recipe_name.to_string();
           let recipe = justfile
             .recipes
-            .get(recipe_name)
+            .get(&recipe_name)
             .ok_or(Error::DumpRecipeMissing {
               recipe_name: recipe_name.to_owned(),
             })?;
@@ -330,8 +331,9 @@ impl Subcommand {
       }
       DumpFormat::Just => {
         if let Some(recipe_name) = recipe {
+          let recipe_name = recipe_name.to_string();
           let recipe = ast
-            .get_recipe_item(recipe_name)
+            .get_recipe_item(&recipe_name)
             .ok_or(Error::DumpRecipeMissing {
               recipe_name: recipe_name.to_owned(),
             })?;

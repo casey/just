@@ -637,9 +637,13 @@ impl Config {
       }
     } else if let Some(&shell) = matches.get_one::<completions::Shell>(cmd::COMPLETIONS) {
       Subcommand::Completions { shell }
-    } else if let Some(mut recipe) = matches.get_many::<String>(cmd::DUMP) {
+    } else if let Some(recipe) = matches.get_many::<String>(cmd::DUMP) {
       Subcommand::Dump {
-        recipe: recipe.next().cloned(),
+        recipe: if recipe.len() == 0 {
+          None
+        } else {
+          Some(Self::parse_module_path(recipe)?)
+        },
       }
     } else if matches.get_flag(cmd::EDIT) {
       Subcommand::Edit
