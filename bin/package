@@ -45,13 +45,12 @@ case $OS in
     ARCHIVE=$DIST/just-$VERSION-$TARGET.tar.gz
     tar czf $ARCHIVE *
     echo "archive=$ARCHIVE" >> $GITHUB_OUTPUT
+    shasum -a 256 $ARCHIVE > $ARCHIVE.sha256sum
     ;;
   windows-latest)
     ARCHIVE=$DIST/just-$VERSION-$TARGET.zip
     7z a $ARCHIVE *
     echo "archive=`pwd -W`/just-$VERSION-$TARGET.zip" >> $GITHUB_OUTPUT
+    certutil -hashfile $ARCHIVE SHA256 > $ARCHIVE.sha256sum
     ;;
 esac
-
-echo "Creating release .sha256sum..."
-shasum -a 256 $ARCHIVE > $ARCHIVE.sha256sum
