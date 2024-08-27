@@ -101,7 +101,7 @@ jobs:
         draft: false
         files: |
           ${{ steps.package.outputs.archive }}
-          ${{ steps.package.outputs.archive-checksum }}
+          ${{ steps.package.outputs.archive }}.sha256sum
         prerelease: ${{ steps.ref-type.outputs.value != 'release' }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

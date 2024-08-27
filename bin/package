@@ -46,13 +46,11 @@ case $OS in
     tar czf $ARCHIVE *
     echo "archive=$ARCHIVE" >> $GITHUB_OUTPUT
     sha256sum $ARCHIVE > $ARCHIVE.sha256sum
-    echo "archive-checksum=$ARCHIVE.sha256sum" >> $GITHUB_OUTPUT
     ;;
   windows-latest)
     ARCHIVE=$DIST/just-$VERSION-$TARGET.zip
     7z a $ARCHIVE *
     echo "archive=`pwd -W`/just-$VERSION-$TARGET.zip" >> $GITHUB_OUTPUT
     sha256sum $ARCHIVE > $ARCHIVE.sha256sum
-    echo "archive-checksum=`pwd -W`/just-$VERSION-$TARGET.zip.sha256sum" >> $GITHUB_OUTPUT
     ;;
 esac
