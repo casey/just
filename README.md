@@ -2395,8 +2395,8 @@ Normal dependencies of a recipes always run before a recipe starts. That is to
 say, the dependee always runs before the depender. These dependencies are
 called "prior dependencies".
 
-A recipe can also have subsequent dependencies, which run after the recipe and
-are introduced with an `&&`:
+A recipe can also have subsequent dependencies, which run immediately after the
+recipe and are introduced with an `&&`:
 
 ```just
 a:
