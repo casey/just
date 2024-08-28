@@ -1,6 +1,23 @@
 Changelog
 =========
 
+[1.35.0](https://github.com/casey/just/releases/tag/1.35.0) - 2024-08-28
+------------------------------------------------------------------------
+
+### Changed
+- Allow fallback with recipes in submodules ([#2329](https://github.com/casey/just/pull/2329) by [casey](https://github.com/casey))
+- Allow `[private]` attribute on assignments ([#2300](https://github.com/casey/just/pull/2300) by [adsnaider](https://github.com/adsnaider))
+
+### Misc
+- Generate `.sha256sum` files for release artifacts ([#2323](https://github.com/casey/just/pull/2323) by [twm](https://github.com/twm))
+- Clarify that subsequent dependencies run immediately after recipe ([#2326](https://github.com/casey/just/pull/2326) by [casey](https://github.com/casey))
+- Fix readme typo ([#2321](https://github.com/casey/just/pull/2321) by [arminius-smh](https://github.com/arminius-smh))
+- Remove Config::run ([#2320](https://github.com/casey/just/pull/2320) by [neunenak](https://github.com/neunenak))
+- Bump MSRV to 1.74 ([#2306](https://github.com/casey/just/pull/2306) by [casey](https://github.com/casey))
+- Remove logging ([#2305](https://github.com/casey/just/pull/2305) by [casey](https://github.com/casey))
+- Group commands under dedicated heading in `--help` output ([#2302](https://github.com/casey/just/pull/2302) by [casey](https://github.com/casey))
+- Fix readme typo ([#2297](https://github.com/casey/just/pull/2297) by [nyurik](https://github.com/nyurik))
+
 [1.34.0](https://github.com/casey/just/releases/tag/1.34.0) - 2024-08-02
 ------------------------------------------------------------------------
 
