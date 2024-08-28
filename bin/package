@@ -51,6 +51,6 @@ case $OS in
     ARCHIVE=$DIST/just-$VERSION-$TARGET.zip
     7z a $ARCHIVE *
     echo "archive=`pwd -W`/just-$VERSION-$TARGET.zip" >> $GITHUB_OUTPUT
-    certutil -hashfile $ARCHIVE SHA256 > $ARCHIVE.sha256sum
+    sha256sum $ARCHIVE > $ARCHIVE.sha256sum
     ;;
 esac
