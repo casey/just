@@ -362,3 +362,15 @@ fn stop_fallback_when_fallback_is_false() {
     .status(EXIT_FAILURE)
     .run();
 }
+
+#[test]
+fn works_with_modules() {
+  Test::new()
+    .write("bar/justfile", "set fallback := true")
+    .write("foo.just", "baz:\n @echo BAZ")
+    .justfile("mod foo")
+    .args(["foo::baz"])
+    .current_dir("bar")
+    .stdout("BAZ\n")
+    .run();
+}
