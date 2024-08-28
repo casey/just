@@ -147,7 +147,7 @@ impl Subcommand {
         };
 
         match Self::run_inner(config, loader, arguments, overrides, &search) {
-          Err((err @ Error::UnknownRecipe { .. }, true)) => {
+          Err((err @ (Error::UnknownRecipe { .. } | Error::UnknownSubmodule { .. }), true)) => {
             match search.justfile.parent().unwrap().parent() {
               Some(parent) => {
                 unknown_recipes_errors.get_or_insert(err);
