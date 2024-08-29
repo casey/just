@@ -213,7 +213,7 @@ impl Config {
           .action(ArgAction::SetTrue)
           .long("explain")
           .env("JUST_EXPLAIN")
-          .help("Print recipe doc string before running it"),
+          .help("Print recipe doc comment before running it),
       )
       .arg(
         Arg::new(arg::GLOBAL_JUSTFILE)
