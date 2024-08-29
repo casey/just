@@ -55,6 +55,7 @@ mod equals;
 mod error_messages;
 mod evaluate;
 mod examples;
+mod explain;
 mod export;
 mod fallback;
 mod fmt;
