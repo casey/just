@@ -125,7 +125,7 @@ impl Search {
     }
   }
 
-  pub(crate) fn justfile(directory: &Path) -> SearchResult<PathBuf> {
+  fn justfile(directory: &Path) -> SearchResult<PathBuf> {
     for directory in directory.ancestors() {
       let mut candidates = BTreeSet::new();
 
