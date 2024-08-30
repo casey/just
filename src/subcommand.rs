@@ -71,10 +71,10 @@ impl Subcommand {
 
     match self {
       Choose { overrides, chooser } => {
-        Self::choose(config, justfile, &search, overrides, chooser.as_deref())?
+        Self::choose(config, justfile, &search, overrides, chooser.as_deref())?;
       }
       Command { overrides, .. } | Evaluate { overrides, .. } => {
-        justfile.run(config, &search, overrides, &[])?
+        justfile.run(config, &search, overrides, &[])?;
       }
       Dump => Self::dump(config, compilation)?,
       Format => Self::format(config, &search, compilation)?,
