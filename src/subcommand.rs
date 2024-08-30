@@ -388,20 +388,21 @@ impl Subcommand {
     let search = Search::init(&config.search_config, &config.invocation_directory)?;
 
     if search.justfile.is_file() {
-      Err(Error::InitExists {
+      return Err(Error::InitExists {
         justfile: search.justfile,
-      })
-    } else if let Err(io_error) = fs::write(&search.justfile, INIT_JUSTFILE) {
-      Err(Error::WriteJustfile {
+      });
+    }
+
+    if let Err(io_error) = fs::write(&search.justfile, INIT_JUSTFILE) {
+      return Err(Error::WriteJustfile {
         justfile: search.justfile,
         io_error,
-      })
-    } else {
-      if config.verbosity.loud() {
-        eprintln!("Wrote justfile to `{}`", search.justfile.display());
-      }
-      Ok(())
+      });
     }
+    if config.verbosity.loud() {
+      eprintln!("Wrote justfile to `{}`", search.justfile.display());
+    }
+    Ok(())
   }
 
   fn man() -> RunResult<'static> {

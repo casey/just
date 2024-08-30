@@ -84,45 +84,42 @@ impl Search {
     })
   }
 
+  /// Find a path for a newly-initialized default justfile
   pub(crate) fn init(
     search_config: &SearchConfig,
     invocation_directory: &Path,
   ) -> SearchResult<Self> {
-    match search_config {
+    let (working_directory, justfile) = match search_config {
       SearchConfig::FromInvocationDirectory => {
         let working_directory = Self::project_root(invocation_directory)?;
         let justfile = working_directory.join(DEFAULT_JUSTFILE_NAME);
-        Ok(Self {
-          justfile,
-          working_directory,
-        })
+        (working_directory, justfile)
       }
       SearchConfig::FromSearchDirectory { search_directory } => {
         let search_directory = Self::clean(invocation_directory, search_directory);
         let working_directory = Self::project_root(&search_directory)?;
         let justfile = working_directory.join(DEFAULT_JUSTFILE_NAME);
-        Ok(Self {
-          justfile,
-          working_directory,
-        })
+        (working_directory, justfile)
       }
-      SearchConfig::GlobalJustfile => Err(SearchError::GlobalJustfileInit),
+      SearchConfig::GlobalJustfile => return Err(SearchError::GlobalJustfileInit),
       SearchConfig::WithJustfile { justfile } => {
         let justfile = Self::clean(invocation_directory, justfile);
         let working_directory = Self::working_directory_from_justfile(&justfile)?;
-        Ok(Self {
-          justfile,
-          working_directory,
-        })
+        (working_directory, justfile)
       }
       SearchConfig::WithJustfileAndWorkingDirectory {
         justfile,
         working_directory,
-      } => Ok(Self {
-        justfile: Self::clean(invocation_directory, justfile),
-        working_directory: Self::clean(invocation_directory, working_directory),
-      }),
-    }
+      } => (
+        Self::clean(invocation_directory, working_directory),
+        Self::clean(invocation_directory, justfile),
+      ),
+    };
+
+    Ok(Self {
+      justfile,
+      working_directory,
+    })
   }
 
   fn justfile(directory: &Path) -> SearchResult<PathBuf> {
