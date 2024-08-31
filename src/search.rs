@@ -120,8 +120,8 @@ impl Search {
         justfile,
         working_directory,
       } => Ok(Self {
-        justfile: Self::clean(invocation_directory, working_directory),
-        working_directory: Self::clean(invocation_directory, justfile),
+        justfile: Self::clean(invocation_directory, justfile),
+        working_directory: Self::clean(invocation_directory, working_directory),
       }),
     }
   }
