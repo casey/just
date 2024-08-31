@@ -68,8 +68,6 @@ impl Subcommand {
 
     let compilation = Self::compile(config, loader, &search)?;
     let justfile = &compilation.justfile;
-    let ast = compilation.root_ast();
-    let src = compilation.root_src();
 
     match self {
       Choose { overrides, chooser } => {
@@ -78,8 +76,8 @@ impl Subcommand {
       Command { overrides, .. } | Evaluate { overrides, .. } => {
         justfile.run(config, &search, overrides, &[])?;
       }
-      Dump => Self::dump(config, ast, justfile)?,
-      Format => Self::format(config, &search, src, ast, justfile)?,
+      Dump => Self::dump(config, compilation)?,
+      Format => Self::format(config, &search, compilation)?,
       Groups => Self::groups(config, justfile),
       List { path } => Self::list(config, justfile, path)?,
       Show { path } => Self::show(config, justfile, path)?,
@@ -303,14 +301,14 @@ impl Subcommand {
     Ok(())
   }
 
-  fn dump(config: &Config, ast: &Ast, justfile: &Justfile) -> RunResult<'static> {
+  fn dump(config: &Config, compilation: Compilation) -> RunResult<'static> {
     match config.dump_format {
       DumpFormat::Json => {
-        serde_json::to_writer(io::stdout(), justfile)
+        serde_json::to_writer(io::stdout(), &compilation.justfile)
           .map_err(|serde_json_error| Error::DumpJson { serde_json_error })?;
         println!();
       }
-      DumpFormat::Just => print!("{ast}"),
+      DumpFormat::Just => print!("{}", compilation.root_ast()),
     }
     Ok(())
   }
@@ -337,13 +335,11 @@ impl Subcommand {
     Ok(())
   }
 
-  fn format(
-    config: &Config,
-    search: &Search,
-    src: &str,
-    ast: &Ast,
-    justfile: &Justfile,
-  ) -> RunResult<'static> {
+  fn format(config: &Config, search: &Search, compilation: Compilation) -> RunResult<'static> {
+    let justfile = &compilation.justfile;
+    let src = compilation.root_src();
+    let ast = compilation.root_ast();
+
     config.require_unstable(justfile, UnstableFeature::FormatSubcommand)?;
 
     let formatted = ast.to_string();
@@ -392,20 +388,23 @@ impl Subcommand {
     let search = Search::init(&config.search_config, &config.invocation_directory)?;
 
     if search.justfile.is_file() {
-      Err(Error::InitExists {
+      return Err(Error::InitExists {
         justfile: search.justfile,
-      })
-    } else if let Err(io_error) = fs::write(&search.justfile, INIT_JUSTFILE) {
-      Err(Error::WriteJustfile {
+      });
+    }
+
+    if let Err(io_error) = fs::write(&search.justfile, INIT_JUSTFILE) {
+      return Err(Error::WriteJustfile {
         justfile: search.justfile,
         io_error,
-      })
-    } else {
-      if config.verbosity.loud() {
-        eprintln!("Wrote justfile to `{}`", search.justfile.display());
-      }
-      Ok(())
+      });
     }
+
+    if config.verbosity.loud() {
+      eprintln!("Wrote justfile to `{}`", search.justfile.display());
+    }
+
+    Ok(())
   }
 
   fn man() -> RunResult<'static> {

@@ -84,6 +84,7 @@ impl Search {
     })
   }
 
+  /// Get working directory and justfile path for newly-initialized justfile
   pub(crate) fn init(
     search_config: &SearchConfig,
     invocation_directory: &Path,
@@ -125,7 +126,9 @@ impl Search {
     }
   }
 
-  pub(crate) fn justfile(directory: &Path) -> SearchResult<PathBuf> {
+  /// Search upwards from `directory` for a file whose name matches one of
+  /// `JUSTFILE_NAMES`
+  fn justfile(directory: &Path) -> SearchResult<PathBuf> {
     for directory in directory.ancestors() {
       let mut candidates = BTreeSet::new();
 
@@ -175,6 +178,9 @@ impl Search {
     clean.into_iter().collect()
   }
 
+  /// Search upwards from `directory` for the root directory of a software
+  /// project, as determined by the presence of one of the version control
+  /// system directories given in `PROJECT_ROOT_CHILDREN`
   fn project_root(directory: &Path) -> SearchResult<PathBuf> {
     for directory in directory.ancestors() {
       let entries = fs::read_dir(directory).map_err(|io_error| SearchError::Io {
