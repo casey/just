@@ -399,9 +399,11 @@ impl Subcommand {
         io_error,
       });
     }
+
     if config.verbosity.loud() {
       eprintln!("Wrote justfile to `{}`", search.justfile.display());
     }
+
     Ok(())
   }
 
