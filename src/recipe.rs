@@ -304,18 +304,23 @@ impl<'src, D> Recipe<'src, D> {
           }
         }
         Err(io_error) => {
-          if let Some(working_directory) = self.working_directory(context) {
-            if let Err(io_error) = fs::read_dir(&working_directory) {
-              return Err(Error::WorkingDirectoryIo {
-                recipe: self.name(),
-                working_directory,
-                io_error,
-              });
-            }
-          }
+          let working_directory = self.working_directory(context);
+          let working_directory_io_error = match &working_directory {
+            Some(working_directory) => match fs::read_dir(&working_directory) {
+              Ok(_) => None,
+              Err(io_error) => Some(io_error),
+            },
+            // no working directory = no attempt to change current working directory = no error
+            None => None,
+          };
+          let (shell, _) = context.module.settings.shell(config);
+
           return Err(Error::Io {
             recipe: self.name(),
             io_error,
+            shell: shell.into(),
+            working_directory_io_error,
+            working_directory,
           });
         }
       };

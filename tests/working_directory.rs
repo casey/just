@@ -343,9 +343,7 @@ fn missing_working_directory_produces_clear_message() {
     ",
     )
     .status(1)
-    .stderr_regex(
-      ".*Recipe `default` could not be run because just could not set working directory to `.*/missing`.*",
-    )
+    .stderr_regex(".*Failed to run recipe `default`:\n  Failed to run shell `bash`:\n    .*\n  Failed to set working directory to `.*/missing`.*")
     .run();
 }
 
@@ -366,9 +364,7 @@ fn unusable_working_directory_produces_clear_message() {
   })
   .chmod("unusable", Permissions::from_mode(0o000))
   .status(1)
-  .stderr_regex(
-    ".*Recipe `default` could not be run because just could not set working directory to `.*/unusable`:.*",
-  )
+  .stderr_regex(".*Failed to run recipe `default`:\n  Failed to run shell `bash`:\n    .*\n  Failed to set working directory to `.*/unusable`.*")
   .run();
 }
 
@@ -386,8 +382,66 @@ fn working_directory_is_not_a_directory_produces_clear_message() {
     unusable: "is not a directory"
   })
   .status(1)
-  .stderr_regex(
-    ".*Recipe `default` could not be run because just could not set working directory to `.*/unusable`:.*",
+  .stderr_regex(".*Failed to run recipe `default`:\n  Failed to run shell `bash`:\n    .*\n  Failed to set working directory to `.*/unusable`.*")
+  .run();
+}
+
+#[test]
+fn missing_working_directory_and_missing_shell_produces_clear_message() {
+  Test::new()
+    .justfile(
+      "
+      set working-directory := 'missing'
+      default:
+        pwd
+    ",
+    )
+    .shell(false)
+    .args(["--shell", "NOT_A_REAL_SHELL"])
+    .status(1)
+    .stderr_regex(".*Failed to run recipe `default`:\n  Failed to run shell `NOT_A_REAL_SHELL`:\n    .*\n  Failed to set working directory to `.*/missing`.*")
+    .run();
+}
+
+#[test]
+#[cfg(unix)]
+fn unusable_working_directory_and_missing_shell_produces_clear_message() {
+  use {fs::Permissions, std::os::unix::fs::PermissionsExt};
+  Test::new()
+  .justfile(
+    "
+    set working-directory := 'unusable'
+    default:
+      pwd
+  ",
   )
+  .tree(tree! {
+    unusable: {}
+  })
+  .shell(false)
+  .args(["--shell", "NOT_A_REAL_SHELL"])
+  .chmod("unusable", Permissions::from_mode(0o000))
+  .status(1)
+  .stderr_regex(".*Failed to run recipe `default`:\n  Failed to run shell `NOT_A_REAL_SHELL`:\n    .*\n  Failed to set working directory to `.*/unusable`.*")
+  .run();
+}
+
+#[test]
+fn working_directory_is_not_a_directory_and_missing_shell_produces_clear_message() {
+  Test::new()
+  .justfile(
+    "
+    set working-directory := 'unusable'
+    default:
+      pwd
+  ",
+  )
+  .tree(tree! {
+    unusable: "is not a directory"
+  })
+  .shell(false)
+  .args(["--shell", "NOT_A_REAL_SHELL"])
+  .status(1)
+  .stderr_regex(".*Failed to run recipe `default`:\n  Failed to run shell `NOT_A_REAL_SHELL`:\n    .*\n  Failed to set working directory to `.*/unusable`.*")
   .run();
 }

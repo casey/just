@@ -116,6 +116,9 @@ pub(crate) enum Error<'src> {
   Io {
     recipe: &'src str,
     io_error: io::Error,
+    shell: String,
+    working_directory_io_error: Option<io::Error>,
+    working_directory: Option<PathBuf>,
   },
   Load {
     path: PathBuf,
@@ -184,11 +187,6 @@ pub(crate) enum Error<'src> {
   },
   WriteJustfile {
     justfile: PathBuf,
-    io_error: io::Error,
-  },
-  WorkingDirectoryIo {
-    recipe: &'src str,
-    working_directory: PathBuf,
     io_error: io::Error,
   },
 }
@@ -401,12 +399,15 @@ impl<'src> ColorDisplay for Error<'src> {
         write!(f, "Internal runtime error, this may indicate a bug in just: {message} \
                    consider filing an issue: https://github.com/casey/just/issues/new")?;
       }
-      Io { recipe, io_error } => {
-        match io_error.kind() {
-          io::ErrorKind::NotFound => write!(f, "Recipe `{recipe}` could not be run because just could not find the shell: {io_error}"),
-          io::ErrorKind::PermissionDenied => write!(f, "Recipe `{recipe}` could not be run because just could not run the shell: {io_error}"),
-          _ => write!(f, "Recipe `{recipe}` could not be run because of an IO error while launching the shell: {io_error}"),
-        }?;
+      Io { recipe, io_error, shell, working_directory_io_error, working_directory } => {
+        write!(f, "Failed to run recipe `{recipe}`:\n  Failed to run shell `{shell}`:\n    {io_error}", )?;
+        if let Some(working_directory_io_error) = working_directory_io_error {
+          let working_directory = working_directory.as_ref().expect("is Some when error is Some").display();
+          write!(f, "\n  Failed to set working directory to `{working_directory}`")?;
+          if working_directory_io_error.to_string() != io_error.to_string() {
+            write!(f, ":\n    {working_directory_io_error}")?;
+          }
+        }
       }
       Load { io_error, path } => {
         write!(f, "Failed to read justfile at `{}`: {io_error}", path.display())?;
@@ -475,9 +476,6 @@ impl<'src> ColorDisplay for Error<'src> {
       UnstableFeature { unstable_feature } => {
         write!(f, "{unstable_feature} Invoke `just` with `--unstable`, set the `JUST_UNSTABLE` environment variable, or add `set unstable` to your `justfile` to enable unstable features.")?;
       }
-      WorkingDirectoryIo { recipe, working_directory, io_error } => {
-        write!(f, "Recipe `{recipe}` could not be run because just could not set working directory to `{}`: {io_error}", working_directory.display())?;
-      },
       WriteJustfile { justfile, io_error } => {
         let justfile = justfile.display();
         write!(f, "Failed to write justfile to `{justfile}`: {io_error}")?;
