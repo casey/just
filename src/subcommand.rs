@@ -69,7 +69,7 @@ impl Subcommand {
       Run {
         arguments,
         overrides,
-      } => Self::run(config, loader, search, arguments, overrides)?,
+      } => Self::run(config, loader, search, compilation, arguments, overrides)?,
       Choose { overrides, chooser } => {
         Self::choose(config, justfile, &search, overrides, chooser.as_deref())?;
       }
@@ -100,6 +100,7 @@ impl Subcommand {
     config: &Config,
     loader: &'src Loader,
     initial_search: Search,
+    initial_compilation: Compilation<'src>,
     arguments: &[String],
     overrides: &BTreeMap<String, String>,
   ) -> RunResult<'src> {
@@ -111,9 +112,9 @@ impl Subcommand {
       .lexiclean();
 
     let mut search = initial_search;
+    let mut compilation = initial_compilation;
 
     loop {
-      let compilation = Self::compile(config, loader, &search)?;
       let justfile = &compilation.justfile;
       let fallback = justfile.settings.fallback
         && matches!(
@@ -141,6 +142,7 @@ impl Subcommand {
           if config.verbosity.loquacious() {
             eprintln!("Trying {}", new_path.display());
           }
+          compilation = Self::compile(config, loader, &search)?;
         }
         result => return result,
       }
