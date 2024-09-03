@@ -99,6 +99,7 @@ impl Test {
     self
   }
 
+  #[cfg(unix)]
   pub(crate) fn chmod(self, path: impl AsRef<Path>, perm: Permissions) -> Self {
     fs::set_permissions(self.tempdir.path().join(path.as_ref()), perm).unwrap();
     self
