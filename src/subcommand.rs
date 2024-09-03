@@ -441,7 +441,7 @@ impl Subcommand {
       signature_widths: &BTreeMap<&str, usize>,
     ) {
       let doc = doc.unwrap_or("");
-      let aliases = aliases.unwrap_or(Vec::new());
+      let aliases = aliases.unwrap_or_default();
       let print_doc = !doc.is_empty() && doc.lines().count() <= 1;
       let color = config.color.stdout();
 
@@ -629,7 +629,7 @@ impl Subcommand {
           format_doc(
             config,
             recipe.name(),
-            doc.as_deref(),
+            doc,
             aliases.get(recipe.name()).cloned(),
             max_signature_width,
             &signature_widths,
