@@ -306,7 +306,7 @@ impl<'src, D> Recipe<'src, D> {
         Err(io_error) => {
           let working_directory = self.working_directory(context);
           let working_directory_io_error = match &working_directory {
-            Some(working_directory) => match fs::read_dir(&working_directory) {
+            Some(working_directory) => match fs::read_dir(working_directory) {
               Ok(_) => None,
               Err(io_error) => Some(io_error),
             },
