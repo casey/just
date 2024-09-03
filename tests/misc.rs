@@ -11,8 +11,23 @@ test! {
   args: ("--list"),
   stdout: "
     Available recipes:
-        foo
-        f   # alias for `foo`
+        foo # [aliases: f]
+  ",
+}
+
+test! {
+  name: alias_listing_with_doc,
+  justfile: "
+    # foo command
+    foo:
+      echo foo
+
+    alias f := foo
+  ",
+  args: ("--list"),
+  stdout: "
+    Available recipes:
+        foo # foo command [aliases: f]
   ",
 }
 
@@ -22,9 +37,7 @@ test! {
   args: ("--list"),
   stdout: "
     Available recipes:
-        foo
-        f   # alias for `foo`
-        fo  # alias for `foo`
+        foo # [aliases: f, fo]
   ",
 }
 
@@ -34,8 +47,7 @@ test! {
   args: ("--list"),
   stdout: "
     Available recipes:
-        foo PARAM='foo'
-        f PARAM='foo'   # alias for `foo`
+        foo PARAM='foo' # [aliases: f]
   ",
 }
 
@@ -927,8 +939,7 @@ a:
   stdout:   r"
     Available recipes:
         a
-        b
-        c # alias for `b`
+        b # [aliases: c]
   ",
 }
 
@@ -942,8 +953,7 @@ a:
   args:     ("--list", "--unsorted"),
   stdout:   r"
     Available recipes:
-        b
-        c # alias for `b`
+        b # [aliases: c]
         a
   ",
 }

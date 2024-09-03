@@ -436,36 +436,50 @@ impl Subcommand {
       config: &Config,
       name: &str,
       doc: Option<&str>,
+      aliases: Option<Vec<&str>>,
       max_signature_width: usize,
       signature_widths: &BTreeMap<&str, usize>,
     ) {
-      if let Some(doc) = doc {
-        if !doc.is_empty() && doc.lines().count() <= 1 {
-          let color = config.color.stdout();
-          print!(
-            "{:padding$}{} ",
-            "",
-            color.doc().paint("#"),
-            padding = max_signature_width.saturating_sub(signature_widths[name]) + 1,
-          );
+      let doc = doc.unwrap_or("");
+      let aliases = aliases.unwrap_or(Vec::new());
+      let print_doc = !doc.is_empty() && doc.lines().count() <= 1;
+      let color = config.color.stdout();
 
-          let mut end = 0;
-          for backtick in backtick_re().find_iter(doc) {
-            let prefix = &doc[end..backtick.start()];
-            if !prefix.is_empty() {
-              print!("{}", color.doc().paint(prefix));
-            }
-            print!("{}", color.doc_backtick().paint(backtick.as_str()));
-            end = backtick.end();
-          }
+      if print_doc || !aliases.is_empty() {
+        print!(
+          "{:padding$}{}",
+          "",
+          config.color.stdout().doc().paint("#"),
+          padding = max_signature_width.saturating_sub(signature_widths[name]) + 1,
+        );
+      }
 
-          let suffix = &doc[end..];
-          if !suffix.is_empty() {
-            print!("{}", color.doc().paint(suffix));
+      if print_doc {
+        print!(" ");
+        let mut end = 0;
+        for backtick in backtick_re().find_iter(doc) {
+          let prefix = &doc[end..backtick.start()];
+          if !prefix.is_empty() {
+            print!("{}", color.doc().paint(prefix));
           }
+          print!("{}", color.doc_backtick().paint(backtick.as_str()));
+          end = backtick.end();
+        }
+
+        let suffix = &doc[end..];
+        if !suffix.is_empty() {
+          print!("{}", color.doc().paint(suffix));
         }
       }
 
+      if !aliases.is_empty() {
+        print!(
+          " {}",
+          color
+            .doc()
+            .paint(&format!("[aliases: {}]", aliases.join(", ")))
+        );
+      }
       println!();
     }
 
@@ -589,41 +603,37 @@ impl Subcommand {
 
       if let Some(recipes) = recipe_groups.get(&group) {
         for recipe in recipes {
-          for (i, name) in iter::once(&recipe.name())
-            .chain(aliases.get(recipe.name()).unwrap_or(&Vec::new()))
-            .enumerate()
-          {
-            let doc = if i == 0 {
-              recipe.doc().map(Cow::Borrowed)
-            } else {
-              Some(Cow::Owned(format!("alias for `{}`", recipe.name)))
-            };
+          let doc = recipe.doc();
 
-            if let Some(doc) = &doc {
-              if doc.lines().count() > 1 {
-                for line in doc.lines() {
-                  println!(
-                    "{list_prefix}{} {}",
-                    config.color.stdout().doc().paint("#"),
-                    config.color.stdout().doc().paint(line),
-                  );
-                }
+          if let Some(doc) = &doc {
+            if doc.lines().count() > 1 {
+              for line in doc.lines() {
+                println!(
+                  "{list_prefix}{} {}",
+                  config.color.stdout().doc().paint("#"),
+                  config.color.stdout().doc().paint(line),
+                );
               }
             }
-
-            print!(
-              "{list_prefix}{}",
-              RecipeSignature { name, recipe }.color_display(config.color.stdout())
-            );
-
-            format_doc(
-              config,
-              name,
-              doc.as_deref(),
-              max_signature_width,
-              &signature_widths,
-            );
           }
+
+          print!(
+            "{list_prefix}{}",
+            RecipeSignature {
+              name: recipe.name(),
+              recipe
+            }
+            .color_display(config.color.stdout())
+          );
+
+          format_doc(
+            config,
+            recipe.name(),
+            doc.as_deref(),
+            aliases.get(recipe.name()).cloned(),
+            max_signature_width,
+            &signature_widths,
+          );
         }
       }
 
@@ -642,6 +652,7 @@ impl Subcommand {
               config,
               submodule.name(),
               submodule.doc.as_deref(),
+              None,
               max_signature_width,
               &signature_widths,
             );

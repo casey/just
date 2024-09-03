@@ -111,7 +111,6 @@ pub(crate) use {
   },
   snafu::{ResultExt, Snafu},
   std::{
-    borrow::Cow,
     cmp,
     collections::{BTreeMap, BTreeSet, HashMap, HashSet},
     env,
