@@ -73,6 +73,10 @@ impl Color {
     self.restyle(Style::new().fg(Red).bold())
   }
 
+  pub(crate) fn group(self) -> Self {
+    self.restyle(Style::new().fg(Yellow).bold())
+  }
+
   pub(crate) fn warning(self) -> Self {
     self.restyle(Style::new().fg(Yellow).bold())
   }

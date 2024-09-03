@@ -575,7 +575,10 @@ impl Subcommand {
 
       if !no_groups {
         if let Some(group) = &group {
-          println!("{list_prefix}[{group}]");
+          println!(
+            "{list_prefix}{}",
+            config.color.stdout().group().paint(&format!("[{group}]"))
+          );
         }
       }
 
