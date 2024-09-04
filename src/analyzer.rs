@@ -52,10 +52,10 @@ impl<'src> Analyzer<'src> {
      -> CompileResult<'src> {
       if let Some((first_type, original)) = definitions.get(name.lexeme()) {
         if !(*first_type == second_type && duplicates_allowed) {
-          let (original, redefinition) = if name.line < original.line {
-            (name, *original)
+          let ((first_type, second_type), (original, redefinition)) = if name.line < original.line {
+            ((second_type, *first_type), (name, *original))
           } else {
-            (*original, name)
+            ((*first_type, second_type), (*original, name))
           };
 
           return Err(redefinition.token.error(Redefinition {
@@ -75,11 +75,14 @@ impl<'src> Analyzer<'src> {
     while let Some(ast) = stack.pop() {
       for item in &ast.items {
         match item {
-          Item::Alias(alias) => {
-            define(alias.name, "alias", false)?;
-            Self::analyze_alias(alias)?;
-            self.aliases.insert(alias.clone());
-          }
+          Item::Alias(alias) => match alias.name {
+            AliasName::Keyword(name) => {
+              define(name, "alias", false)?;
+              Self::analyze_alias(alias)?;
+              self.aliases.insert(alias.clone());
+            }
+            _ => (),
+          },
           Item::Assignment(assignment) => {
             assignments.push(assignment);
           }
@@ -128,6 +131,34 @@ impl<'src> Analyzer<'src> {
           Item::Recipe(recipe) => {
             if recipe.enabled() {
               Self::analyze_recipe(recipe)?;
+
+              for attribute in &recipe.attributes {
+                if let Attribute::Alias(alias_string) = attribute {
+                  let token = if let Some(name) = alias_string.name {
+                    Token {
+                      column: name.token.column + 1,
+                      offset: name.token.offset + 1,
+                      length: name.token.length - 2, // @TODO use delim length *2 instead
+                      ..name.token
+                    }
+                  } else {
+                    return Err(recipe.name.token.error(InvalidAttribute {
+                      item_kind: "Recipe",
+                      item_name: recipe.name.lexeme(),
+                      attribute: attribute.clone(),
+                    }));
+                  };
+                  let name = Name { token };
+                  let alias = Alias {
+                    attributes: BTreeSet::new(),
+                    name: AliasName::Attribute(name, alias_string.raw),
+                    target: recipe.name,
+                  };
+                  define(name, "alias", false)?;
+                  self.aliases.insert(alias.clone());
+                }
+              }
+
               recipes.push(recipe);
             }
           }
@@ -295,9 +326,14 @@ impl<'src> Analyzer<'src> {
   }
 
   fn analyze_alias(alias: &Alias<'src, Name<'src>>) -> CompileResult<'src> {
+    let name = match alias.name {
+      AliasName::Keyword(name) => name,
+      AliasName::Attribute(..) => return Ok(()),
+    };
+
     for attribute in &alias.attributes {
       if *attribute != Attribute::Private {
-        return Err(alias.name.token.error(InvalidAttribute {
+        return Err(name.token.error(InvalidAttribute {
           item_kind: "Alias",
           item_name: alias.name.lexeme(),
           attribute: attribute.clone(),
@@ -325,19 +361,35 @@ impl<'src> Analyzer<'src> {
   ) -> CompileResult<'src, Alias<'src>> {
     // Make sure the alias doesn't conflict with any recipe
     if let Some(recipe) = recipes.get(alias.name.lexeme()) {
-      return Err(alias.name.token.error(AliasShadowsRecipe {
-        alias: alias.name.lexeme(),
-        recipe_line: recipe.line_number(),
-      }));
+      match alias.name {
+        AliasName::Keyword(name) => {
+          return Err(name.token.error(AliasShadowsRecipe {
+            alias: alias.name.lexeme(),
+            recipe_line: recipe.line_number(),
+          }))
+        }
+        AliasName::Attribute(name, alias_string) => {
+          return Err(name.token.error(AliasShadowsRecipe {
+            alias: alias_string,
+            recipe_line: recipe.line_number(),
+          }))
+        }
+      }
     }
 
     // Make sure the target recipe exists
     match recipes.get(alias.target.lexeme()) {
       Some(target) => Ok(alias.resolve(Rc::clone(target))),
-      None => Err(alias.name.token.error(UnknownAliasTarget {
-        alias: alias.name.lexeme(),
-        target: alias.target.lexeme(),
-      })),
+      None => match alias.name {
+        AliasName::Keyword(name) => Err(name.token.error(UnknownAliasTarget {
+          alias: alias.name.lexeme(),
+          target: alias.target.lexeme(),
+        })),
+        AliasName::Attribute(name, _) => Err(name.token.error(UnknownAliasTarget {
+          alias: alias.name.lexeme(),
+          target: alias.target.lexeme(),
+        })),
+      },
     }
   }
 }
@@ -383,7 +435,7 @@ mod tests {
     line: 2,
     column: 6,
     width: 3,
-    kind: Redefinition { first_type: "alias", second_type: "recipe", name: "foo", first: 0 },
+    kind: Redefinition { first_type: "recipe", second_type: "alias", name: "foo", first: 0 },
   }
 
   analysis_error! {

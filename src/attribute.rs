@@ -9,6 +9,7 @@ use super::*;
 #[strum_discriminants(derive(EnumString))]
 #[strum_discriminants(strum(serialize_all = "kebab-case"))]
 pub(crate) enum Attribute<'src> {
+  Alias(StringLiteral<'src>),
   Confirm(Option<StringLiteral<'src>>),
   Doc(Option<StringLiteral<'src>>),
   Extension(StringLiteral<'src>),
@@ -29,7 +30,7 @@ impl AttributeDiscriminant {
   fn argument_range(self) -> RangeInclusive<usize> {
     match self {
       Self::Confirm | Self::Doc => 0..=1,
-      Self::Group | Self::Extension => 1..=1,
+      Self::Group | Self::Extension | Self::Alias => 1..=1,
       Self::Linux
       | Self::Macos
       | Self::NoCd
@@ -73,6 +74,7 @@ impl<'src> Attribute<'src> {
     }
 
     Ok(match discriminant {
+      AttributeDiscriminant::Alias => Self::Alias(arguments.into_iter().next().unwrap()),
       AttributeDiscriminant::Confirm => Self::Confirm(arguments.into_iter().next()),
       AttributeDiscriminant::Doc => Self::Doc(arguments.into_iter().next()),
       AttributeDiscriminant::Extension => Self::Extension(arguments.into_iter().next().unwrap()),
@@ -106,7 +108,8 @@ impl<'src> Display for Attribute<'src> {
     write!(f, "{}", self.name())?;
 
     match self {
-      Self::Confirm(Some(argument))
+      Self::Alias(argument)
+      | Self::Confirm(Some(argument))
       | Self::Doc(Some(argument))
       | Self::Extension(argument)
       | Self::Group(argument) => write!(f, "({argument})")?,

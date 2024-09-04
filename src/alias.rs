@@ -1,10 +1,34 @@
 use super::*;
 
-/// An alias, e.g. `name := target`
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Ord, PartialOrd)]
+pub(crate) enum AliasName<'src> {
+  Attribute(Name<'src>, &'src str),
+  Keyword(Name<'src>),
+}
+
+impl<'src> AliasName<'src> {
+  pub(crate) fn lexeme(&self) -> &'src str {
+    match self {
+      AliasName::Attribute(_, name) => name,
+      AliasName::Keyword(name) => name.lexeme(),
+    }
+  }
+}
+
+impl<'src> Serialize for AliasName<'src> {
+  fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+  where
+    S: Serializer,
+  {
+    serializer.serialize_str(self.lexeme())
+  }
+}
+
+/// An alias, e.g. `name := target` or `[alias("name")]`
 #[derive(Debug, PartialEq, Clone, Serialize)]
 pub(crate) struct Alias<'src, T = Rc<Recipe<'src>>> {
   pub(crate) attributes: BTreeSet<Attribute<'src>>,
-  pub(crate) name: Name<'src>,
+  pub(crate) name: AliasName<'src>,
   #[serde(
     bound(serialize = "T: Keyed<'src>"),
     serialize_with = "keyed::serialize"
