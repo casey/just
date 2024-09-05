@@ -465,7 +465,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     attributes: BTreeSet<Attribute<'src>>,
   ) -> CompileResult<'src, Alias<'src, Name<'src>>> {
     self.presume_keyword(Keyword::Alias)?;
-    let name = AliasName::Keyword(self.parse_name()?);
+    let name = self.parse_name()?;
     self.presume_any(&[Equals, ColonEquals])?;
     let target = self.parse_name()?;
     self.expect_eol()?;
@@ -720,7 +720,6 @@ impl<'run, 'src> Parser<'run, 'src> {
         expand,
         kind,
         raw,
-        name: None,
       },
     ))
   }
@@ -1026,18 +1025,14 @@ impl<'run, 'src> Parser<'run, 'src> {
         let mut arguments = Vec::new();
 
         if self.accepted(Colon)? {
-          arguments.push(self.parse_string_literal()?);
+          arguments.push(self.parse_string_literal()?.into());
         } else if self.accepted(ParenL)? {
           loop {
-            let (token, mut string_literal) = self.parse_string_literal_token()?;
             if name.lexeme() == "alias" {
-              let name_token = Name { token };
-              string_literal = StringLiteral {
-                name: Some(name_token),
-                ..string_literal
-              };
+              arguments.push(self.parse_name()?.into());
+            } else {
+              arguments.push(self.parse_string_literal()?.into());
             }
-            arguments.push(string_literal);
 
             if !self.accepted(Comma)? {
               break;

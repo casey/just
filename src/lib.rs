@@ -6,15 +6,15 @@
 
 pub(crate) use {
   crate::{
-    alias::Alias, alias::AliasName, analyzer::Analyzer, argument_parser::ArgumentParser,
-    assignment::Assignment, assignment_resolver::AssignmentResolver, ast::Ast,
-    attribute::Attribute, binding::Binding, color::Color, color_display::ColorDisplay,
-    command_color::CommandColor, command_ext::CommandExt, compilation::Compilation,
-    compile_error::CompileError, compile_error_kind::CompileErrorKind, compiler::Compiler,
-    condition::Condition, conditional_operator::ConditionalOperator, config::Config,
-    config_error::ConfigError, constants::constants, count::Count, delimiter::Delimiter,
-    dependency::Dependency, dump_format::DumpFormat, enclosure::Enclosure, error::Error,
-    evaluator::Evaluator, execution_context::ExecutionContext, executor::Executor,
+    alias::Alias, analyzer::Analyzer, argument_parser::ArgumentParser, assignment::Assignment,
+    assignment_resolver::AssignmentResolver, ast::Ast, attribute::Attribute,
+    attribute_argument::AttributeArgument, binding::Binding, color::Color,
+    color_display::ColorDisplay, command_color::CommandColor, command_ext::CommandExt,
+    compilation::Compilation, compile_error::CompileError, compile_error_kind::CompileErrorKind,
+    compiler::Compiler, condition::Condition, conditional_operator::ConditionalOperator,
+    config::Config, config_error::ConfigError, constants::constants, count::Count,
+    delimiter::Delimiter, dependency::Dependency, dump_format::DumpFormat, enclosure::Enclosure,
+    error::Error, evaluator::Evaluator, execution_context::ExecutionContext, executor::Executor,
     expression::Expression, fragment::Fragment, function::Function, interpreter::Interpreter,
     interrupt_guard::InterruptGuard, interrupt_handler::InterruptHandler, item::Item,
     justfile::Justfile, keyed::Keyed, keyword::Keyword, lexer::Lexer, line::Line, list::List,
@@ -48,7 +48,6 @@ pub(crate) use {
   std::{
     borrow::Cow,
     cmp,
-    cmp::Ordering,
     collections::{BTreeMap, BTreeSet, HashMap, HashSet},
     env,
     ffi::OsString,
@@ -114,6 +113,7 @@ mod assignment;
 mod assignment_resolver;
 mod ast;
 mod attribute;
+mod attribute_argument;
 mod binding;
 mod color;
 mod color_display;

@@ -52,7 +52,7 @@ impl Summary {
       aliases
         .entry(alias.target.name())
         .or_insert_with(Vec::new)
-        .push(alias.name.lexeme().into());
+        .push(alias.name.to_string());
     }
 
     Self {

@@ -36,3 +36,16 @@ impl<'src> Serialize for Name<'src> {
     serializer.serialize_str(self.lexeme())
   }
 }
+
+impl<'src> TryFrom<AttributeArgument<'src>> for Name<'src> {
+  type Error = String;
+
+  fn try_from(value: AttributeArgument<'src>) -> Result<Self, Self::Error> {
+    match value {
+      AttributeArgument::Name(value) => Ok(value),
+      AttributeArgument::StringLiteral(_) => {
+        Err("attempted to convert AttributeArgument::StringLiteral to Name".into())
+      }
+    }
+  }
+}

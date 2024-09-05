@@ -1,15 +1,13 @@
 use super::*;
 
-#[derive(
-  EnumDiscriminants, PartialEq, Debug, Clone, Serialize, Ord, PartialOrd, Eq, IntoStaticStr,
-)]
+#[derive(EnumDiscriminants, PartialEq, Debug, Clone, Serialize, Eq, IntoStaticStr)]
 #[strum(serialize_all = "kebab-case")]
 #[serde(rename_all = "kebab-case")]
 #[strum_discriminants(name(AttributeDiscriminant))]
-#[strum_discriminants(derive(EnumString))]
+#[strum_discriminants(derive(EnumString, PartialOrd, Ord))]
 #[strum_discriminants(strum(serialize_all = "kebab-case"))]
 pub(crate) enum Attribute<'src> {
-  Alias(StringLiteral<'src>),
+  Alias(Name<'src>),
   Confirm(Option<StringLiteral<'src>>),
   Doc(Option<StringLiteral<'src>>),
   Extension(StringLiteral<'src>),
@@ -48,7 +46,7 @@ impl AttributeDiscriminant {
 impl<'src> Attribute<'src> {
   pub(crate) fn new(
     name: Name<'src>,
-    arguments: Vec<StringLiteral<'src>>,
+    arguments: Vec<AttributeArgument<'src>>,
   ) -> CompileResult<'src, Self> {
     let discriminant = name
       .lexeme()
@@ -74,11 +72,13 @@ impl<'src> Attribute<'src> {
     }
 
     Ok(match discriminant {
-      AttributeDiscriminant::Alias => Self::Alias(arguments.into_iter().next().unwrap()),
-      AttributeDiscriminant::Confirm => Self::Confirm(arguments.into_iter().next()),
-      AttributeDiscriminant::Doc => Self::Doc(arguments.into_iter().next()),
-      AttributeDiscriminant::Extension => Self::Extension(arguments.into_iter().next().unwrap()),
-      AttributeDiscriminant::Group => Self::Group(arguments.into_iter().next().unwrap()),
+      AttributeDiscriminant::Alias => Self::Alias(Self::extract_argument(name, arguments)?),
+      AttributeDiscriminant::Confirm => {
+        Self::Confirm(Self::extract_optional_argument(name, arguments)?)
+      }
+      AttributeDiscriminant::Doc => Self::Doc(Self::extract_optional_argument(name, arguments)?),
+      AttributeDiscriminant::Extension => Self::Extension(Self::extract_argument(name, arguments)?),
+      AttributeDiscriminant::Group => Self::Group(Self::extract_argument(name, arguments)?),
       AttributeDiscriminant::Linux => Self::Linux,
       AttributeDiscriminant::Macos => Self::Macos,
       AttributeDiscriminant::NoCd => Self::NoCd,
@@ -87,11 +87,24 @@ impl<'src> Attribute<'src> {
       AttributeDiscriminant::PositionalArguments => Self::PositionalArguments,
       AttributeDiscriminant::Private => Self::Private,
       AttributeDiscriminant::Script => Self::Script({
-        let mut arguments = arguments.into_iter();
-        arguments.next().map(|command| Interpreter {
-          command,
-          arguments: arguments.collect(),
-        })
+        let mut args_iter = arguments.into_iter();
+
+        if let Some(value) = args_iter.next() {
+          let command = value.try_into().map_err(|e| {
+            CompileError::new(name.token, CompileErrorKind::Internal { message: e })
+          })?;
+
+          let mut arguments = Vec::new();
+          for arg in args_iter {
+            arguments.push(arg.try_into().map_err(|e| {
+              CompileError::new(name.token, CompileErrorKind::Internal { message: e })
+            })?);
+          }
+
+          Some(Interpreter { arguments, command })
+        } else {
+          None
+        }
       }),
       AttributeDiscriminant::Unix => Self::Unix,
       AttributeDiscriminant::Windows => Self::Windows,
@@ -101,6 +114,32 @@ impl<'src> Attribute<'src> {
   pub(crate) fn name(&self) -> &'static str {
     self.into()
   }
+
+  fn extract_argument<T: TryFrom<AttributeArgument<'src>, Error = String>>(
+    attribute: Name<'src>,
+    arguments: Vec<AttributeArgument<'src>>,
+  ) -> Result<T, CompileError<'src>> {
+    arguments
+      .into_iter()
+      .next()
+      .unwrap()
+      .try_into()
+      .map_err(|e| CompileError::new(attribute.token, CompileErrorKind::Internal { message: e }))
+  }
+
+  fn extract_optional_argument<T: TryFrom<AttributeArgument<'src>, Error = String>>(
+    attribute: Name<'src>,
+    arguments: Vec<AttributeArgument<'src>>,
+  ) -> Result<Option<T>, CompileError<'src>> {
+    let value = if let Some(value) = arguments.into_iter().next() {
+      Some(value.try_into().map_err(|e| {
+        CompileError::new(attribute.token, CompileErrorKind::Internal { message: e })
+      })?)
+    } else {
+      None
+    };
+    Ok(value)
+  }
 }
 
 impl<'src> Display for Attribute<'src> {
@@ -108,8 +147,8 @@ impl<'src> Display for Attribute<'src> {
     write!(f, "{}", self.name())?;
 
     match self {
-      Self::Alias(argument)
-      | Self::Confirm(Some(argument))
+      Self::Alias(argument) => write!(f, "({argument})")?,
+      Self::Confirm(Some(argument))
       | Self::Doc(Some(argument))
       | Self::Extension(argument)
       | Self::Group(argument) => write!(f, "({argument})")?,
@@ -129,6 +168,33 @@ impl<'src> Display for Attribute<'src> {
     }
 
     Ok(())
+  }
+}
+
+impl<'src> PartialOrd for Attribute<'src> {
+  fn partial_cmp(&self, other: &Self) -> Option<cmp::Ordering> {
+    Some(self.cmp(other))
+  }
+}
+
+impl<'src> cmp::Ord for Attribute<'src> {
+  #[inline]
+  fn cmp(&self, other: &Attribute<'src>) -> cmp::Ordering {
+    use cmp::Ordering;
+    use Attribute::*;
+
+    let self_discr: AttributeDiscriminant = self.into();
+    let other_discr: AttributeDiscriminant = other.into();
+    match Ord::cmp(&self_discr, &other_discr) {
+      Ordering::Equal => match (self, other) {
+        (Alias(a), Alias(b)) => Ord::cmp(a.lexeme(), b.lexeme()),
+        (Confirm(a), Confirm(b)) | (Doc(a), Doc(b)) => Ord::cmp(a, b),
+        (Extension(a), Extension(b)) | (Group(a), Group(b)) => Ord::cmp(a, b),
+        (Script(a), Script(b)) => Ord::cmp(a, b),
+        _ => Ordering::Equal,
+      },
+      cmp => cmp,
+    }
   }
 }
 
