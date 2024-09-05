@@ -8,12 +8,12 @@ pub(crate) enum AttributeArgument<'src> {
 
 impl<'src> From<StringLiteral<'src>> for AttributeArgument<'src> {
   fn from(value: StringLiteral<'src>) -> Self {
-    AttributeArgument::StringLiteral(value)
+    Self::StringLiteral(value)
   }
 }
 
 impl<'src> From<Name<'src>> for AttributeArgument<'src> {
   fn from(value: Name<'src>) -> Self {
-    AttributeArgument::Name(value)
+    Self::Name(value)
   }
 }
