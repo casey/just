@@ -34,7 +34,7 @@ impl Search {
     paths
   }
 
-  /// find justfile given search configuration and invocation directory
+  /// Find justfile given search configuration and invocation directory
   pub(crate) fn find(
     search_config: &SearchConfig,
     invocation_directory: &Path,
@@ -76,7 +76,7 @@ impl Search {
     }
   }
 
-  /// find justfile starting from parent directory of current justfile
+  /// Find justfile starting from parent directory of current justfile
   pub(crate) fn search_parent_directory(&self) -> SearchResult<Self> {
     let parent = self
       .justfile
@@ -88,7 +88,7 @@ impl Search {
     Self::find_in_directory(parent)
   }
 
-  /// Find a justfile starting in the given directory and searching upwards in the directory tree
+  /// Find justfile starting in given directory searching upwards in directory tree
   fn find_in_directory(starting_dir: &Path) -> SearchResult<Self> {
     let justfile = Self::justfile(starting_dir)?;
     let working_directory = Self::working_directory_from_justfile(&justfile)?;
