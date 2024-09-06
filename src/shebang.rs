@@ -15,7 +15,7 @@ impl<'line> Shebang<'line> {
       .next()
       .unwrap_or("")
       .trim()
-      .splitn(2, |c| c == ' ' || c == '\t');
+      .splitn(2, [' ', '\t']);
 
     let interpreter = pieces.next().unwrap_or("");
     let argument = pieces.next();
@@ -33,7 +33,7 @@ impl<'line> Shebang<'line> {
   pub fn interpreter_filename(&self) -> &str {
     self
       .interpreter
-      .split(|c| matches!(c, '/' | '\\'))
+      .split(['/', '\\'])
       .last()
       .unwrap_or(self.interpreter)
   }
