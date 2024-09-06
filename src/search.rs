@@ -34,7 +34,7 @@ impl Search {
     paths
   }
 
-  /// Attempt to find a justfile given the search configuration and invocation directory
+  /// find justfile given search configuration and invocation directory
   pub(crate) fn find(
     search_config: &SearchConfig,
     invocation_directory: &Path,
