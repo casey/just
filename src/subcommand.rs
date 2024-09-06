@@ -99,20 +99,12 @@ impl Subcommand {
   fn run<'src>(
     config: &Config,
     loader: &'src Loader,
-    initial_search: Search,
-    initial_compilation: Compilation<'src>,
+    mut search: Search,
+    mut compilation: Compilation<'src>,
     arguments: &[String],
     overrides: &BTreeMap<String, String>,
   ) -> RunResult<'src> {
-    let starting_path = initial_search
-      .justfile
-      .parent()
-      .as_ref()
-      .unwrap()
-      .lexiclean();
-
-    let mut search = initial_search;
-    let mut compilation = initial_compilation;
+    let starting_path = search.justfile.parent().as_ref().unwrap().lexiclean();
 
     loop {
       let justfile = &compilation.justfile;
