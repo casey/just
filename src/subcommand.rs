@@ -120,16 +120,18 @@ impl Subcommand {
         if let Err(err @ (Error::UnknownRecipe { .. } | Error::UnknownSubmodule { .. })) = result {
           search = search.search_parent_directory().map_err(|_| err)?;
 
-          let new_parent = starting_parent
-            .strip_prefix(search.justfile.parent().unwrap())
-            .unwrap()
-            .components()
-            .map(|_| path::Component::ParentDir)
-            .collect::<PathBuf>()
-            .join(search.justfile.file_name().unwrap());
-
           if config.verbosity.loquacious() {
-            eprintln!("Trying {}", new_parent.display());
+            eprintln!(
+              "Trying {}",
+              starting_parent
+                .strip_prefix(search.justfile.parent().unwrap())
+                .unwrap()
+                .components()
+                .map(|_| path::Component::ParentDir)
+                .collect::<PathBuf>()
+                .join(search.justfile.file_name().unwrap())
+                .display()
+            );
           }
 
           compilation = Self::compile(config, loader, &search)?;
