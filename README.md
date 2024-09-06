@@ -3291,8 +3291,9 @@ Available recipes:
     foo ... # foo is a great module!
 ```
 
-See the
-[module stabilization tracking issue](https://github.com/casey/just/issues/929)
+Modules are still missing a lot of features, for example, the ability to depend
+on recipes and refer to variables in other modules. See the
+[module improvement tracking issue](https://github.com/casey/just/issues/2252)
 for more information.
 
 ### Hiding `justfile`s
