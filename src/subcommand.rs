@@ -118,9 +118,7 @@ impl Subcommand {
 
       if fallback {
         if let Err(err @ (Error::UnknownRecipe { .. } | Error::UnknownSubmodule { .. })) = result {
-          search = search
-            .search_parent_directory()
-            .map_err(|_search_err| err)?;
+          search = search.search_parent_directory().map_err(|_| err)?;
 
           let new_parent = starting_parent
             .strip_prefix(search.justfile.parent().unwrap())
