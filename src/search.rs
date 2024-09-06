@@ -76,16 +76,16 @@ impl Search {
     }
   }
 
-  /// Look for a justfile starting from the parent directory to the current justfile
+  /// find justfile starting from parent directory of current justfile
   pub(crate) fn search_parent_directory(&self) -> SearchResult<Self> {
-    let parent_dir = self
+    let parent = self
       .justfile
       .parent()
-      .and_then(|p| p.parent())
+      .and_then(|path| path.parent())
       .ok_or_else(|| SearchError::JustfileHadNoParent {
         path: self.justfile.clone(),
       })?;
-    Self::find_in_directory(parent_dir)
+    Self::find_in_directory(parent)
   }
 
   /// Find a justfile starting in the given directory and searching upwards in the directory tree
