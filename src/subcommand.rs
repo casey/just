@@ -53,10 +53,6 @@ impl Subcommand {
       Completions { shell } => return Self::completions(*shell),
       Init => return Self::init(config),
       Man => return Self::man(),
-      Run {
-        arguments,
-        overrides,
-      } => return Self::run(config, loader, arguments, overrides),
       _ => {}
     }
 
@@ -70,6 +66,10 @@ impl Subcommand {
     let justfile = &compilation.justfile;
 
     match self {
+      Run {
+        arguments,
+        overrides,
+      } => Self::run(config, loader, search, compilation, arguments, overrides)?,
       Choose { overrides, chooser } => {
         Self::choose(config, justfile, &search, overrides, chooser.as_deref())?;
       }
@@ -83,7 +83,7 @@ impl Subcommand {
       Show { path } => Self::show(config, justfile, path)?,
       Summary => Self::summary(config, justfile),
       Variables => Self::variables(justfile),
-      Changelog | Completions { .. } | Edit | Init | Man | Run { .. } => unreachable!(),
+      Changelog | Completions { .. } | Edit | Init | Man => unreachable!(),
     }
 
     Ok(())
@@ -99,88 +99,47 @@ impl Subcommand {
   fn run<'src>(
     config: &Config,
     loader: &'src Loader,
+    mut search: Search,
+    mut compilation: Compilation<'src>,
     arguments: &[String],
     overrides: &BTreeMap<String, String>,
   ) -> RunResult<'src> {
-    if matches!(
-      config.search_config,
-      SearchConfig::FromInvocationDirectory | SearchConfig::FromSearchDirectory { .. }
-    ) {
-      let starting_path = match &config.search_config {
-        SearchConfig::FromInvocationDirectory => config.invocation_directory.clone(),
-        SearchConfig::FromSearchDirectory { search_directory } => config
-          .invocation_directory
-          .join(search_directory)
-          .lexiclean(),
-        _ => unreachable!(),
-      };
+    let starting_parent = search.justfile.parent().as_ref().unwrap().lexiclean();
 
-      let mut path = starting_path.clone();
+    loop {
+      let justfile = &compilation.justfile;
+      let fallback = justfile.settings.fallback
+        && matches!(
+          config.search_config,
+          SearchConfig::FromInvocationDirectory | SearchConfig::FromSearchDirectory { .. }
+        );
 
-      let mut unknown_recipes_errors = None;
+      let result = justfile.run(config, &search, overrides, arguments);
 
-      loop {
-        let search = match Search::find_next(&path) {
-          Err(SearchError::NotFound) => match unknown_recipes_errors {
-            Some(err) => return Err(err),
-            None => return Err(SearchError::NotFound.into()),
-          },
-          Err(err) => return Err(err.into()),
-          Ok(search) => {
-            if config.verbosity.loquacious() && path != starting_path {
-              eprintln!(
-                "Trying {}",
-                starting_path
-                  .strip_prefix(path)
-                  .unwrap()
-                  .components()
-                  .map(|_| path::Component::ParentDir)
-                  .collect::<PathBuf>()
-                  .join(search.justfile.file_name().unwrap())
-                  .display()
-              );
-            }
-            search
+      if fallback {
+        if let Err(err @ (Error::UnknownRecipe { .. } | Error::UnknownSubmodule { .. })) = result {
+          search = search.search_parent_directory().map_err(|_| err)?;
+
+          let new_parent = starting_parent
+            .strip_prefix(search.justfile.parent().unwrap())
+            .unwrap()
+            .components()
+            .map(|_| path::Component::ParentDir)
+            .collect::<PathBuf>()
+            .join(search.justfile.file_name().unwrap());
+
+          if config.verbosity.loquacious() {
+            eprintln!("Trying {}", new_parent.display());
           }
-        };
 
-        match Self::run_inner(config, loader, arguments, overrides, &search) {
-          Err((err @ (Error::UnknownRecipe { .. } | Error::UnknownSubmodule { .. }), true)) => {
-            match search.justfile.parent().unwrap().parent() {
-              Some(parent) => {
-                unknown_recipes_errors.get_or_insert(err);
-                path = parent.into();
-              }
-              None => return Err(err),
-            }
-          }
-          result => return result.map_err(|(err, _fallback)| err),
+          compilation = Self::compile(config, loader, &search)?;
+
+          continue;
         }
       }
-    } else {
-      Self::run_inner(
-        config,
-        loader,
-        arguments,
-        overrides,
-        &Search::find(&config.search_config, &config.invocation_directory)?,
-      )
-      .map_err(|(err, _fallback)| err)
-    }
-  }
 
-  fn run_inner<'src>(
-    config: &Config,
-    loader: &'src Loader,
-    arguments: &[String],
-    overrides: &BTreeMap<String, String>,
-    search: &Search,
-  ) -> Result<(), (Error<'src>, bool)> {
-    let compilation = Self::compile(config, loader, search).map_err(|err| (err, false))?;
-    let justfile = &compilation.justfile;
-    justfile
-      .run(config, search, overrides, arguments)
-      .map_err(|err| (err, justfile.settings.fallback))
+      return result;
+    }
   }
 
   fn compile<'src>(
