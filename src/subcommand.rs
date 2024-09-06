@@ -117,19 +117,17 @@ impl Subcommand {
 
       match run_result {
         Err(err @ (Error::UnknownRecipe { .. } | Error::UnknownSubmodule { .. })) if fallback => {
-          let new_search = search
+          search = search
             .search_parent_directory()
             .map_err(|_search_err| err)?;
-          let p = new_search.justfile.parent().unwrap();
+          let p = search.justfile.parent().unwrap();
           let new_path = starting_path
             .strip_prefix(p)
             .unwrap()
             .components()
             .map(|_| path::Component::ParentDir)
             .collect::<PathBuf>()
-            .join(new_search.justfile.file_name().unwrap());
-
-          search = new_search;
+            .join(search.justfile.file_name().unwrap());
 
           if config.verbosity.loquacious() {
             eprintln!("Trying {}", new_path.display());
