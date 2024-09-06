@@ -104,7 +104,7 @@ impl Subcommand {
     arguments: &[String],
     overrides: &BTreeMap<String, String>,
   ) -> RunResult<'src> {
-    let starting_path = search.justfile.parent().as_ref().unwrap().lexiclean();
+    let starting_parent = search.justfile.parent().as_ref().unwrap().lexiclean();
 
     loop {
       let justfile = &compilation.justfile;
@@ -113,16 +113,17 @@ impl Subcommand {
           config.search_config,
           SearchConfig::FromInvocationDirectory | SearchConfig::FromSearchDirectory { .. }
         );
-      let run_result = justfile.run(config, &search, overrides, arguments);
 
-      match run_result {
-        Err(err @ (Error::UnknownRecipe { .. } | Error::UnknownSubmodule { .. })) if fallback => {
+      let result = justfile.run(config, &search, overrides, arguments);
+
+      if fallback {
+        if let Err(err @ (Error::UnknownRecipe { .. } | Error::UnknownSubmodule { .. })) = result {
           search = search
             .search_parent_directory()
             .map_err(|_search_err| err)?;
-          let p = search.justfile.parent().unwrap();
-          let new_path = starting_path
-            .strip_prefix(p)
+
+          let new_parent = starting_parent
+            .strip_prefix(search.justfile.parent().unwrap())
             .unwrap()
             .components()
             .map(|_| path::Component::ParentDir)
@@ -130,12 +131,16 @@ impl Subcommand {
             .join(search.justfile.file_name().unwrap());
 
           if config.verbosity.loquacious() {
-            eprintln!("Trying {}", new_path.display());
+            eprintln!("Trying {}", new_parent.display());
           }
+
           compilation = Self::compile(config, loader, &search)?;
+
+          continue;
         }
-        result => return result,
       }
+
+      return result;
     }
   }
 
