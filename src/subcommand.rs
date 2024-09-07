@@ -476,7 +476,7 @@ impl Subcommand {
         print!(
           " {}",
           color
-            .doc()
+            .alias()
             .paint(&format!("[aliases: {}]", aliases.join(", ")))
         );
       }
