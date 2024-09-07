@@ -66,6 +66,10 @@ impl Color {
     self.restyle(Style::new().fg(Blue))
   }
 
+  pub(crate) fn alias(self) -> Self {
+    self.restyle(Style::new().fg(Purple))
+  }
+
   pub(crate) fn error(self) -> Self {
     self.restyle(Style::new().fg(Red).bold())
   }

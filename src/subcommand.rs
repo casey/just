@@ -435,7 +435,7 @@ impl Subcommand {
           config
             .color
             .stdout()
-            .doc()
+            .alias()
             .paint(&format!("[aliases: {}]", aliases.join(", ")))
         );
       }
