@@ -129,6 +129,7 @@ pub(crate) enum Error<'src> {
   },
   NoChoosableRecipes,
   NoDefaultRecipe,
+  JustfileIsNotAFile,
   NoRecipes,
   NotConfirmed {
     recipe: &'src str,
@@ -403,6 +404,7 @@ impl<'src> ColorDisplay for Error<'src> {
           _ => write!(f, "Recipe `{recipe}` could not be run because of an IO error while launching the shell: {io_error}"),
         }?;
       }
+      JustfileIsNotAFile => write!(f, "Justfile is not a file.")?,
       Load { io_error, path } => {
         write!(f, "Failed to read justfile at `{}`: {io_error}", path.display())?;
       }

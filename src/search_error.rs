@@ -16,6 +16,8 @@ pub(crate) enum SearchError {
     directory: PathBuf,
     io_error: io::Error,
   },
+  #[snafu(display("Justfile is not a file"))]
+  JustfileIsNotAFile,
   #[snafu(display("Justfile path had no parent: {}", path.display()))]
   JustfileHadNoParent { path: PathBuf },
   #[snafu(display(
