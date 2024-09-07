@@ -52,10 +52,10 @@ impl<'src> Analyzer<'src> {
      -> CompileResult<'src> {
       if let Some((first_type, original)) = definitions.get(name.lexeme()) {
         if !(*first_type == second_type && duplicates_allowed) {
-          let (original, redefinition) = if name.line < original.line {
-            (name, *original)
+          let ((first_type, second_type), (original, redefinition)) = if name.line < original.line {
+            ((second_type, *first_type), (name, *original))
           } else {
-            (*original, name)
+            ((*first_type, second_type), (*original, name))
           };
 
           return Err(redefinition.token.error(Redefinition {
