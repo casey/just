@@ -383,7 +383,7 @@ mod tests {
     line: 2,
     column: 6,
     width: 3,
-    kind: Redefinition { first_type: "alias", second_type: "recipe", name: "foo", first: 0 },
+    kind: Redefinition { first_type: "recipe", second_type: "alias", name: "foo", first: 0 },
   }
 
   analysis_error! {
