@@ -232,6 +232,12 @@ test-bash-completions:
   echo 'bar:' > tmp/foo.just
   cd tmp && PATH="`realpath bin`:$PATH" bash --init-file just.bash
 
+test-release-workflow:
+  -git tag -d test-release
+  -git push origin :test-release
+  git tag test-release
+  git push origin test-release
+
 # Local Variables:
 # mode: makefile
 # End:

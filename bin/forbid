@@ -8,4 +8,5 @@ which rg
   --glob !bin/forbid \
   --glob !CHANGELOG.md \
   --ignore-case \
-  'dbg!|fixme|todo|xxx'
+  'dbg!|fixme|todo|xxx' \
+  .
