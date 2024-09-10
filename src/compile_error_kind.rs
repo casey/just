@@ -80,8 +80,15 @@ pub(crate) enum CompileErrorKind<'src> {
     item_name: &'src str,
     attribute: Attribute<'src>,
   },
+  InvalidCharacter {
+    hex: String,
+  },
   InvalidEscapeSequence {
     character: char,
+  },
+  InvalidUEscapeSequence {
+    expected: &'src str,
+    found: Option<char>,
   },
   MismatchedClosingDelimiter {
     close: Delimiter,
@@ -103,6 +110,9 @@ pub(crate) enum CompileErrorKind<'src> {
   },
   ShellExpansion {
     err: shellexpand::LookupError<env::VarError>,
+  },
+  UEscapeSequenceTooLong {
+    hex: String,
   },
   UndefinedVariable {
     variable: &'src str,

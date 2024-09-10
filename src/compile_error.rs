@@ -181,6 +181,7 @@ impl Display for CompileError<'_> {
         "{item_kind} `{item_name}` has invalid attribute `{}`",
         attribute.name(),
       ),
+      InvalidCharacter { hex } => write!(f, "`{hex}` does not represent a valid character"),
       InvalidEscapeSequence { character } => write!(
         f,
         "`\\{}` is not a valid escape sequence",
@@ -190,6 +191,14 @@ impl Display for CompileError<'_> {
           '\'' => r"'".to_owned(),
           '"' => r#"""#.to_owned(),
           _ => character.escape_default().collect(),
+        }
+      ),
+      InvalidUEscapeSequence { expected, found } => write!(
+        f,
+        "expected {expected} but found {}",
+        match found {
+          Some(c) => format!("`{c}`"),
+          None => String::from("end of string"),
         }
       ),
       MismatchedClosingDelimiter {
@@ -246,6 +255,10 @@ impl Display for CompileError<'_> {
       RequiredParameterFollowsDefaultParameter { parameter } => write!(
         f,
         "Non-default parameter `{parameter}` follows default parameter"
+      ),
+      UEscapeSequenceTooLong { hex } => write!(
+        f,
+        "more than 6 hex digits in escape sequence starting with `\\u{{{hex}`"
       ),
       UndefinedVariable { variable } => write!(f, "Variable `{variable}` not defined"),
       UnexpectedCharacter { expected } => write!(f, "Expected character `{expected}`"),
