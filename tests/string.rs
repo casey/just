@@ -391,3 +391,138 @@ test! {
   ",
   status:   EXIT_FAILURE,
 }
+
+#[test]
+fn valid_unicode_escape() {
+  Test::new()
+    .justfile("x := \"\\u{1f916}\\u{1F916}\"")
+    .args(["--evaluate", "x"])
+    .stdout("🤖🤖")
+    .run();
+}
+
+#[test]
+fn u_escape_no_braces() {
+  Test::new()
+    .justfile("x := \"\\u1234\"")
+    .args(["--evaluate", "x"])
+    .status(1)
+    .stderr(
+      r#"
+error: expected { but found `1`
+ ——▶ justfile:1:6
+  │
+1 │ x := "\u1234"
+  │      ^^^^^^^^
+"#,
+    )
+    .run();
+}
+
+#[test]
+fn u_escape_empty() {
+  Test::new()
+    .justfile("x := \"\\u{}\"")
+    .args(["--evaluate", "x"])
+    .status(1)
+    .stderr(
+      r#"
+error: expected hex digit (0-9A-Fa-f) but found `}`
+ ——▶ justfile:1:6
+  │
+1 │ x := "\u{}"
+  │      ^^^^^^
+"#,
+    )
+    .run();
+}
+
+#[test]
+fn u_escape_requires_immediate_opening_brace() {
+  Test::new()
+    .justfile("x := \"\\u {1f916}\"")
+    .args(["--evaluate", "x"])
+    .status(1)
+    .stderr(
+      r#"
+error: expected { but found ` `
+ ——▶ justfile:1:6
+  │
+1 │ x := "\u {1f916}"
+  │      ^^^^^^^^^^^^
+"#,
+    )
+    .run();
+}
+
+#[test]
+fn u_escape_non_hex() {
+  Test::new()
+    .justfile("x := \"\\u{foo}\"")
+    .args(["--evaluate", "x"])
+    .status(1)
+    .stderr(
+      r#"
+error: expected hex digit (0-9A-Fa-f) or `}` but found `o`
+ ——▶ justfile:1:6
+  │
+1 │ x := "\u{foo}"
+  │      ^^^^^^^^^
+"#,
+    )
+    .run();
+}
+
+#[test]
+fn u_escape_invalid_character() {
+  Test::new()
+    .justfile("x := \"\\u{BadBad}\"")
+    .args(["--evaluate", "x"])
+    .status(1)
+    .stderr(
+      r#"
+error: `BadBad` does not represent a valid character
+ ——▶ justfile:1:6
+  │
+1 │ x := "\u{BadBad}"
+  │      ^^^^^^^^^^^^
+"#,
+    )
+    .run();
+}
+
+#[test]
+fn u_escape_too_long() {
+  Test::new()
+    .justfile("x := \"\\u{FFFFFFFFFF}\"")
+    .args(["--evaluate", "x"])
+    .status(1)
+    .stderr(
+      r#"
+error: more than 6 hex digits in escape sequence starting with `\u{FFFFFFF`
+ ——▶ justfile:1:6
+  │
+1 │ x := "\u{FFFFFFFFFF}"
+  │      ^^^^^^^^^^^^^^^^
+"#,
+    )
+    .run();
+}
+
+#[test]
+fn u_escape_unterminated() {
+  Test::new()
+    .justfile("x := \"\\u{1f917\"")
+    .args(["--evaluate", "x"])
+    .status(1)
+    .stderr(
+      r#"
+error: expected hex digit (0-9A-Fa-f) or `}` but found end of string
+ ——▶ justfile:1:6
+  │
+1 │ x := "\u{1f917"
+  │      ^^^^^^^^^^
+"#,
+    )
+    .run();
+}
