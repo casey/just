@@ -685,8 +685,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       }
       let mut cooked = String::new();
       let mut state = State::Initial;
-      let mut chars = unindented.chars();
-      while let Some(c) = chars.next() {
+      for c in unindented.chars() {
         match state {
           State::Initial => {
             if c == '\\' {
