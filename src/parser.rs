@@ -676,79 +676,94 @@ impl<'run, 'src> Parser<'run, 'src> {
     };
 
     let cooked = if kind.processes_escape_sequences() {
+      #[derive(PartialEq, Eq)]
+      enum State {
+        Initial,
+        Backslash,
+        Unicode,
+        UnicodeValue { hex: String },
+      }
       let mut cooked = String::new();
-      let mut escape = false;
+      let mut state = State::Initial;
       let mut chars = unindented.chars();
       while let Some(c) = chars.next() {
-        if escape {
-          match c {
-            'n' => cooked.push('\n'),
-            'r' => cooked.push('\r'),
-            't' => cooked.push('\t'),
-            'u' => {
-              let should_be_opening_brace = chars.next();
-              if should_be_opening_brace != Some('{') {
-                return Err(token.error(CompileErrorKind::InvalidUEscapeSequence {
-                  expected: "{",
-                  found: should_be_opening_brace,
-                }));
+        match state {
+          State::Initial => {
+            if c == '\\' {
+              state = State::Backslash;
+            } else {
+              cooked.push(c);
+            }
+          }
+          State::Backslash => {
+            match c {
+              'n' => cooked.push('\n'),
+              'r' => cooked.push('\r'),
+              't' => cooked.push('\t'),
+              'u' => {
+                state = State::Unicode;
+                continue;
               }
-              let mut hex = String::new();
-              loop {
-                if let Some(c) = chars.next() {
-                  if "0123456789ABCDEFabcdef".contains(c) {
-                    hex.push(c);
-                    if hex.len() > 6 {
-                      return Err(token.error(CompileErrorKind::UEscapeSequenceTooLong { hex }));
-                    }
-                  } else if c == '}' {
-                    if hex.is_empty() {
-                      return Err(token.error(CompileErrorKind::InvalidUEscapeSequence {
-                        expected: "hex digit (0-9A-Fa-f)",
-                        found: Some(c),
-                      }));
-                    }
-                    break;
-                  } else {
-                    return Err(token.error(CompileErrorKind::InvalidUEscapeSequence {
-                      expected: "hex digit (0-9A-Fa-f) or `}`",
-                      found: Some(c),
-                    }));
-                  }
-                } else {
-                  return Err(token.error(CompileErrorKind::InvalidUEscapeSequence {
-                    expected: "hex digit (0-9A-Fa-f) or `}`",
-                    found: None,
-                  }));
+              '\\' => cooked.push('\\'),
+              '\n' => {}
+              '"' => cooked.push('"'),
+              other => {
+                return Err(
+                  token.error(CompileErrorKind::InvalidEscapeSequence { character: other }),
+                );
+              }
+            }
+            state = State::Initial;
+          }
+          State::Unicode => match c {
+            '{' => {
+              state = State::UnicodeValue { hex: String::new() };
+              continue;
+            }
+            other => {
+              return Err(token.error(CompileErrorKind::InvalidUEscapeSequence {
+                expected: '{',
+                found: other,
+              }));
+            }
+          },
+          State::UnicodeValue { ref mut hex } => {
+            if c == '}' {
+              let char_u32 = match u32::from_str_radix(hex.as_str(), 16) {
+                Ok(c) => c,
+                Err(error) => {
+                  return Err(token.error(CompileErrorKind::InvalidHex {
+                    hex: hex.clone(),
+                    error,
+                  }))
                 }
-              }
-
-              // We know this will be Ok(...):
-              //  - empty string and invalid hex digits were filtered out already
-              //  - u32::MAX is 8 hex digits, only up to 6 are allowed here, so this won't overflow
-              let char_u32 = u32::from_str_radix(hex.as_str(), 16).unwrap();
+              };
 
               cooked.push(match char::from_u32(char_u32) {
                 Some(c) => c,
-                None => return Err(token.error(CompileErrorKind::InvalidCharacter { hex })),
+                None => {
+                  return Err(token.error(CompileErrorKind::InvalidCharacter { hex: hex.clone() }))
+                }
               });
+            } else {
+              hex.push(c);
+              if hex.len() > 6 {
+                return Err(
+                  token.error(CompileErrorKind::UEscapeSequenceTooLong { hex: hex.clone() }),
+                );
+              }
+              continue;
             }
-            '\\' => cooked.push('\\'),
-            '\n' => {}
-            '"' => cooked.push('"'),
-            other => {
-              return Err(
-                token.error(CompileErrorKind::InvalidEscapeSequence { character: other }),
-              );
-            }
+
+            state = State::Initial;
           }
-          escape = false;
-        } else if c == '\\' {
-          escape = true;
-        } else {
-          cooked.push(c);
         }
       }
+
+      if state != State::Initial {
+        return Err(token.error(CompileErrorKind::UnterminatedEscapeSequence));
+      }
+
       cooked
     } else {
       unindented

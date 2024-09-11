@@ -409,7 +409,7 @@ fn u_escape_no_braces() {
     .status(1)
     .stderr(
       r#"
-error: expected { but found `1`
+error: expected `{` but found `1`
  ——▶ justfile:1:6
   │
 1 │ x := "\u1234"
@@ -427,7 +427,7 @@ fn u_escape_empty() {
     .status(1)
     .stderr(
       r#"
-error: expected hex digit (0-9A-Fa-f) but found `}`
+error: `` is not a valid hexadecimal number: cannot parse integer from empty string
  ——▶ justfile:1:6
   │
 1 │ x := "\u{}"
@@ -445,7 +445,7 @@ fn u_escape_requires_immediate_opening_brace() {
     .status(1)
     .stderr(
       r#"
-error: expected { but found ` `
+error: expected `{` but found ` `
  ——▶ justfile:1:6
   │
 1 │ x := "\u {1f916}"
@@ -463,7 +463,7 @@ fn u_escape_non_hex() {
     .status(1)
     .stderr(
       r#"
-error: expected hex digit (0-9A-Fa-f) or `}` but found `o`
+error: `foo` is not a valid hexadecimal number: invalid digit found in string
  ——▶ justfile:1:6
   │
 1 │ x := "\u{foo}"
@@ -517,7 +517,7 @@ fn u_escape_unterminated() {
     .status(1)
     .stderr(
       r#"
-error: expected hex digit (0-9A-Fa-f) or `}` but found end of string
+error: Unterminated escape sequence
  ——▶ justfile:1:6
   │
 1 │ x := "\u{1f917"

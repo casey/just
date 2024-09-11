@@ -86,9 +86,13 @@ pub(crate) enum CompileErrorKind<'src> {
   InvalidEscapeSequence {
     character: char,
   },
+  InvalidHex {
+    hex: String,
+    error: std::num::ParseIntError,
+  },
   InvalidUEscapeSequence {
-    expected: &'src str,
-    found: Option<char>,
+    expected: char,
+    found: char,
   },
   MismatchedClosingDelimiter {
     close: Delimiter,
@@ -150,6 +154,7 @@ pub(crate) enum CompileErrorKind<'src> {
   UnknownStartOfToken,
   UnpairedCarriageReturn,
   UnterminatedBacktick,
+  UnterminatedEscapeSequence,
   UnterminatedInterpolation,
   UnterminatedString,
 }

@@ -193,14 +193,10 @@ impl Display for CompileError<'_> {
           _ => character.escape_default().collect(),
         }
       ),
-      InvalidUEscapeSequence { expected, found } => write!(
-        f,
-        "expected {expected} but found {}",
-        match found {
-          Some(c) => format!("`{c}`"),
-          None => String::from("end of string"),
-        }
-      ),
+      InvalidHex { hex, error } => write!(f, "`{hex}` is not a valid hexadecimal number: {error}"),
+      InvalidUEscapeSequence { expected, found } => {
+        write!(f, "expected `{expected}` but found `{found}`")
+      }
       MismatchedClosingDelimiter {
         open,
         open_line,
@@ -284,6 +280,7 @@ impl Display for CompileError<'_> {
       UnknownStartOfToken => write!(f, "Unknown start of token:"),
       UnpairedCarriageReturn => write!(f, "Unpaired carriage return"),
       UnterminatedBacktick => write!(f, "Unterminated backtick"),
+      UnterminatedEscapeSequence => write!(f, "Unterminated escape sequence"),
       UnterminatedInterpolation => write!(f, "Unterminated interpolation"),
       UnterminatedString => write!(f, "Unterminated string"),
     }
