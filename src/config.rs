@@ -24,6 +24,7 @@ pub(crate) struct Config {
   pub(crate) list_submodules: bool,
   pub(crate) load_dotenv: bool,
   pub(crate) no_aliases: bool,
+  pub(crate) no_inline_aliases: bool,
   pub(crate) no_dependencies: bool,
   pub(crate) one: bool,
   pub(crate) search_config: SearchConfig,
@@ -98,6 +99,7 @@ mod arg {
   pub(crate) const LIST_PREFIX: &str = "LIST-PREFIX";
   pub(crate) const LIST_SUBMODULES: &str = "LIST-SUBMODULES";
   pub(crate) const NO_ALIASES: &str = "NO-ALIASES";
+  pub(crate) const NO_INLINE_ALIASES: &str = "NO-INLINE-ALIASES";
   pub(crate) const NO_DEPS: &str = "NO-DEPS";
   pub(crate) const NO_DOTENV: &str = "NO-DOTENV";
   pub(crate) const NO_HIGHLIGHT: &str = "NO-HIGHLIGHT";
@@ -275,6 +277,13 @@ impl Config {
           .env("JUST_NO_ALIASES")
           .action(ArgAction::SetTrue)
           .help("Don't show aliases in list"),
+      )
+      .arg(
+        Arg::new(arg::NO_INLINE_ALIASES)
+          .long("no-inline-aliases")
+          .env("JUST_NO_INLINE_ALIASES")
+          .action(ArgAction::SetTrue)
+          .help("Don't show aliases inline with recipe docs in list"),
       )
       .arg(
         Arg::new(arg::NO_DEPS)
@@ -729,6 +738,7 @@ impl Config {
       list_submodules: matches.get_flag(arg::LIST_SUBMODULES),
       load_dotenv: !matches.get_flag(arg::NO_DOTENV),
       no_aliases: matches.get_flag(arg::NO_ALIASES),
+      no_inline_aliases: matches.get_flag(arg::NO_INLINE_ALIASES),
       no_dependencies: matches.get_flag(arg::NO_DEPS),
       one: matches.get_flag(arg::ONE),
       search_config,

@@ -563,37 +563,47 @@ impl Subcommand {
 
       if let Some(recipes) = recipe_groups.get(&group) {
         for recipe in recipes {
-          let doc = recipe.doc();
+          for (i, name) in iter::once(&recipe.name())
+            .chain(aliases.get(recipe.name()).unwrap_or(&Vec::new()))
+            .enumerate()
+          {
+            let doc = if i == 0 {
+              recipe.doc().map(Cow::Borrowed)
+            } else {
+              Some(Cow::Owned(format!("alias for `{}`", recipe.name)))
+            };
 
-          if let Some(doc) = &doc {
-            if doc.lines().count() > 1 {
-              for line in doc.lines() {
-                println!(
-                  "{list_prefix}{} {}",
-                  config.color.stdout().doc().paint("#"),
-                  config.color.stdout().doc().paint(line),
-                );
+            if let Some(doc) = &doc {
+              if doc.lines().count() > 1 {
+                for line in doc.lines() {
+                  println!(
+                    "{list_prefix}{} {}",
+                    config.color.stdout().doc().paint("#"),
+                    config.color.stdout().doc().paint(line),
+                  );
+                }
               }
             }
-          }
 
-          print!(
-            "{list_prefix}{}",
-            RecipeSignature {
-              name: recipe.name(),
-              recipe
+            if i == 0 || config.no_inline_aliases {
+              print!(
+                "{list_prefix}{}",
+                RecipeSignature { name, recipe }.color_display(config.color.stdout())
+              );
+
+              format_doc(
+                config,
+                name,
+                doc.as_deref(),
+                aliases
+                  .get(recipe.name())
+                  .filter(|_| !config.no_inline_aliases)
+                  .cloned(),
+                max_signature_width,
+                &signature_widths,
+              );
             }
-            .color_display(config.color.stdout())
-          );
-
-          format_doc(
-            config,
-            recipe.name(),
-            doc,
-            aliases.get(recipe.name()).cloned(),
-            max_signature_width,
-            &signature_widths,
-          );
+          }
         }
       }
 
