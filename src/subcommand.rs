@@ -412,7 +412,7 @@ impl Subcommand {
       max_signature_width: usize,
       signature_widths: &BTreeMap<&str, usize>,
     ) {
-      let doc = doc.unwrap_or("");
+      let doc = doc.unwrap_or_default();
       let aliases = aliases.unwrap_or_default();
       let print_doc = !doc.is_empty() && doc.lines().count() <= 1;
 
