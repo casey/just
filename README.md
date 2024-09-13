@@ -903,7 +903,8 @@ If any of `dotenv-load`, `dotenv-filename`, `dotenv-path`, or `dotenv-required`
 are set, `just` will try to load environment variables from a file.
 
 If `dotenv-path` is set, `just` will look for a file at the given path, which
-may be absolute, or relative to the working directory.
+may be absolute, or relative to the working directory. Passing `-E different_path`
+or `--dotenv-path different_path` overrides `dotenv-path` at runtime.
 
 If `dotenv-filename` is set `just` will look for a file at the given path,
 relative to the working directory and each of its ancestors.
