@@ -109,3 +109,21 @@ fn file_paths_not_in_subdir_are_absolute() {
     )
     .run();
 }
+
+#[test]
+fn redefinition_errors_properly_swap_types() {
+  Test::new()
+    .write("foo.just", "foo:")
+    .justfile("foo:\n echo foo\n\nmod foo 'foo.just'")
+    .status(EXIT_FAILURE)
+    .stderr(
+      "
+error: Recipe `foo` defined on line 1 is redefined as a module on line 4
+ ——▶ justfile:4:5
+  │
+4 │ mod foo 'foo.just'
+  │     ^^^
+",
+    )
+    .run();
+}
