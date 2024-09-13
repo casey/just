@@ -69,9 +69,14 @@ jobs:
       run: |
         rustup target add aarch64-pc-windows-msvc
 
-    - name: Ref Type
-      id: ref-type
-      run: cargo run --package ref-type -- --reference ${{ github.ref }} >> $GITHUB_OUTPUT
+    - name: Release Type
+      id: release-type
+      run: |
+        if [[ ${{ github.ref }} =~ ^refs/tags/[0-9]+[.][0-9]+[.][0-9]+$ ]]; then
+            echo value=release >> $GITHUB_OUTPUT
+        else
+            echo value=prerelease >> $GITHUB_OUTPUT
+        fi
 
     - name: Generate Completion Scripts and Manpage
       run: |
@@ -102,7 +107,7 @@ jobs:
         files: |
           ${{ steps.package.outputs.archive }}
           ${{ steps.package.outputs.archive }}.sha256sum
-        prerelease: ${{ steps.ref-type.outputs.value != 'release' }}
+        prerelease: ${{ steps.release-type.outputs.value == 'prerelease' }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
