@@ -116,7 +116,7 @@ fn redefinition_errors_properly_swap_types() {
     .write("foo.just", "foo:")
     .justfile("foo:\n echo foo\n\nmod foo 'foo.just'")
     .status(EXIT_FAILURE)
-    .stderr(format!(
+    .stderr(
       "
 error: Recipe `foo` defined on line 1 is redefined as a module on line 4
  ——▶ justfile:4:5
@@ -124,6 +124,6 @@ error: Recipe `foo` defined on line 1 is redefined as a module on line 4
 4 │ mod foo 'foo.just'
   │     ^^^
 ",
-    ))
+    )
     .run();
 }
