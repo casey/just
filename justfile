@@ -4,8 +4,6 @@
 
 alias t := test
 
-alias c := check
-
 log := "warn"
 
 export JUST_LOG := log
@@ -14,14 +12,9 @@ watch +args='test':
   cargo watch --clear --exec '{{ args }}'
 
 test:
-  cargo test
-
-ci: lint build-book
   cargo test --all
 
-lint:
-  cargo clippy --all --all-targets -- --deny warnings
-  ./bin/forbid
+ci: forbid test build-book clippy
   cargo fmt --all -- --check
   cargo update --locked --package just
 
@@ -59,13 +52,6 @@ update-changelog:
 update-contributors:
   cargo run --release --package update-contributors
 
-check: fmt clippy test forbid
-  #!/usr/bin/env bash
-  set -euxo pipefail
-  git diff --no-ext-diff --quiet --exit-code
-  VERSION=`sed -En 's/version[[:space:]]*=[[:space:]]*"([^"]+)"/\1/p' Cargo.toml | head -1`
-  grep "^\[$VERSION\]" CHANGELOG.md
-
 outdated:
   cargo outdated -R
 
@@ -86,13 +72,6 @@ publish:
 
 readme-version-notes:
   grep '<sup>master</sup>' README.md
-
-push: check
-  ! git branch | grep '* master'
-  git push github
-
-pr: push
-  gh pr create --web
 
 # clean up feature branch BRANCH
 done BRANCH=`git rev-parse --abbrev-ref HEAD`:
@@ -117,14 +96,10 @@ install-dev-deps:
 
 # everyone's favorite animate paper clip
 clippy:
-  cargo clippy --all --all-targets --all-features
+  cargo clippy --all --all-targets --all-features -- --deny warnings
 
 forbid:
   ./bin/forbid
-
-# count non-empty lines of code
-sloc:
-  @cat src/*.rs | sed '/^\s*$/d' | wc -l
 
 replace FROM TO:
   sd '{{FROM}}' '{{TO}}' src/*.rs
@@ -160,16 +135,6 @@ quine-text := '
   }
 '
 
-render-readme:
-  #!/usr/bin/env ruby
-  require 'github/markup'
-  $rendered = GitHub::Markup.render("README.adoc", File.read("README.adoc"))
-  File.write('tmp/README.html', $rendered)
-
-watch-readme:
-  just render-readme
-  fswatch -ro README.adoc | xargs -n1 -I{} just render-readme
-
 test-completions:
   ./tests/completions/just.bash
 
@@ -177,17 +142,6 @@ build-book:
   cargo run --package generate-book
   mdbook build book/en
   mdbook build book/zh
-
-convert-integration-test test:
-  cargo expand --test integration {{test}} | \
-    sed \
-    -E \
-    -e 's/#\[cfg\(test\)\]/#\[test\]/' \
-    -e 's/^ *let test = //' \
-    -e 's/^ *test[.]/./' \
-    -e 's/;$//' \
-    -e 's/crate::test::Test/Test/' \
-    -e 's/\.run\(\)/.run();/'
 
 # run all polyglot recipes
 polyglot: _python _js _perl _sh _ruby
