@@ -181,7 +181,6 @@ impl Display for CompileError<'_> {
         "{item_kind} `{item_name}` has invalid attribute `{}`",
         attribute.name(),
       ),
-      InvalidCharacter { hex } => write!(f, "`{hex}` does not represent a valid character"),
       InvalidEscapeSequence { character } => write!(
         f,
         "`\\{}` is not a valid escape sequence",
@@ -193,10 +192,7 @@ impl Display for CompileError<'_> {
           _ => character.escape_default().collect(),
         }
       ),
-      InvalidHex { hex, error } => write!(f, "`{hex}` is not a valid hexadecimal number: {error}"),
-      InvalidUEscapeSequence { expected, found } => {
-        write!(f, "expected `{expected}` but found `{found}`")
-      }
+      InvalidUEscapeSequence { character } => write!(f, "expected `{{` but found `{character}`"),
       MismatchedClosingDelimiter {
         open,
         open_line,
@@ -252,10 +248,6 @@ impl Display for CompileError<'_> {
         f,
         "Non-default parameter `{parameter}` follows default parameter"
       ),
-      UEscapeSequenceTooLong { hex } => write!(
-        f,
-        "more than 6 hex digits in escape sequence starting with `\\u{{{hex}`"
-      ),
       UndefinedVariable { variable } => write!(f, "Variable `{variable}` not defined"),
       UnexpectedCharacter { expected } => write!(f, "Expected character `{expected}`"),
       UnexpectedClosingDelimiter { close } => {
@@ -268,6 +260,25 @@ impl Display for CompileError<'_> {
         ref expected,
         found,
       } => write!(f, "Expected {}, but found {found}", List::or(expected)),
+      UnicodeEscapeCharacter { character } => {
+        write!(f, "expected hex digit (0-9A-Fa-f), found `{character}`")
+      }
+      UnicodeEscapeEmpty => write!(f, "expected hex digit (0-9A-Fa-f) but found `}}`"),
+      UnicodeEscapeLength { hex } => write!(
+        f,
+        "more than 6 hex digits in escape sequence starting with `\\u{{{hex}`"
+      ),
+      UnicodeEscapeRange { hex } => {
+        write!(
+          f,
+          "`{hex}` does not represent a valid character{}",
+          if u32::from_str_radix(hex, 16).unwrap() > 1_114_111 {
+            ": maximum valid code point is 10FFFF"
+          } else {
+            ""
+          }
+        )
+      }
       UnknownAliasTarget { alias, target } => {
         write!(f, "Alias `{alias}` has an unknown target `{target}`")
       }

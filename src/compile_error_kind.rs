@@ -80,19 +80,11 @@ pub(crate) enum CompileErrorKind<'src> {
     item_name: &'src str,
     attribute: Attribute<'src>,
   },
-  InvalidCharacter {
-    hex: String,
-  },
   InvalidEscapeSequence {
     character: char,
   },
-  InvalidHex {
-    hex: String,
-    error: std::num::ParseIntError,
-  },
   InvalidUEscapeSequence {
-    expected: char,
-    found: char,
+    character: char,
   },
   MismatchedClosingDelimiter {
     close: Delimiter,
@@ -115,9 +107,6 @@ pub(crate) enum CompileErrorKind<'src> {
   ShellExpansion {
     err: shellexpand::LookupError<env::VarError>,
   },
-  UEscapeSequenceTooLong {
-    hex: String,
-  },
   UndefinedVariable {
     variable: &'src str,
   },
@@ -133,6 +122,16 @@ pub(crate) enum CompileErrorKind<'src> {
   UnexpectedToken {
     expected: Vec<TokenKind>,
     found: TokenKind,
+  },
+  UnicodeEscapeCharacter {
+    character: char,
+  },
+  UnicodeEscapeEmpty,
+  UnicodeEscapeLength {
+    hex: String,
+  },
+  UnicodeEscapeRange {
+    hex: String,
   },
   UnknownAliasTarget {
     alias: &'src str,

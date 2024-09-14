@@ -720,38 +720,37 @@ impl<'run, 'src> Parser<'run, 'src> {
               continue;
             }
             other => {
-              return Err(token.error(CompileErrorKind::InvalidUEscapeSequence {
-                expected: '{',
-                found: other,
-              }));
+              return Err(
+                token.error(CompileErrorKind::InvalidUEscapeSequence { character: other }),
+              );
             }
           },
           State::UnicodeValue { ref mut hex } => {
             if c == '}' {
-              let char_u32 = match u32::from_str_radix(hex.as_str(), 16) {
-                Ok(c) => c,
-                Err(error) => {
-                  return Err(token.error(CompileErrorKind::InvalidHex {
-                    hex: hex.clone(),
-                    error,
-                  }))
-                }
-              };
+              if hex.is_empty() {
+                return Err(token.error(CompileErrorKind::UnicodeEscapeEmpty));
+              }
+
+              let char_u32 = u32::from_str_radix(hex.as_str(), 16).unwrap();
 
               cooked.push(match char::from_u32(char_u32) {
                 Some(c) => c,
                 None => {
-                  return Err(token.error(CompileErrorKind::InvalidCharacter { hex: hex.clone() }))
+                  return Err(
+                    token.error(CompileErrorKind::UnicodeEscapeRange { hex: hex.clone() }),
+                  )
                 }
               });
-            } else {
+            } else if "0123456789ABCDEFabcdef".contains(c) {
               hex.push(c);
               if hex.len() > 6 {
                 return Err(
-                  token.error(CompileErrorKind::UEscapeSequenceTooLong { hex: hex.clone() }),
+                  token.error(CompileErrorKind::UnicodeEscapeLength { hex: hex.clone() }),
                 );
               }
               continue;
+            } else {
+              return Err(token.error(CompileErrorKind::UnicodeEscapeCharacter { character: c }));
             }
 
             state = State::Initial;

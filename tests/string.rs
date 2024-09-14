@@ -427,7 +427,7 @@ fn u_escape_empty() {
     .status(1)
     .stderr(
       r#"
-error: `` is not a valid hexadecimal number: cannot parse integer from empty string
+error: expected hex digit (0-9A-Fa-f) but found `}`
  ——▶ justfile:1:6
   │
 1 │ x := "\u{}"
@@ -463,7 +463,7 @@ fn u_escape_non_hex() {
     .status(1)
     .stderr(
       r#"
-error: `foo` is not a valid hexadecimal number: invalid digit found in string
+error: expected hex digit (0-9A-Fa-f), found `o`
  ——▶ justfile:1:6
   │
 1 │ x := "\u{foo}"
@@ -481,7 +481,7 @@ fn u_escape_invalid_character() {
     .status(1)
     .stderr(
       r#"
-error: `BadBad` does not represent a valid character
+error: `BadBad` does not represent a valid character: maximum valid code point is 10FFFF
  ——▶ justfile:1:6
   │
 1 │ x := "\u{BadBad}"
