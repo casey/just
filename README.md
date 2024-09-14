@@ -905,7 +905,7 @@ are set, `just` will try to load environment variables from a file.
 If `dotenv-path` is set, `just` will look for a file at the given path, which
 may be absolute, or relative to the working directory.
 
-The command line option `--dotenv-path`, short form `-E`, can be used to set or
+The command-line option `--dotenv-path`, short form `-E`, can be used to set or
 override `dotenv-path` at runtime.
 
 If `dotenv-filename` is set `just` will look for a file at the given path,
