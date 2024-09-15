@@ -731,14 +731,9 @@ impl<'run, 'src> Parser<'run, 'src> {
 
               let codepoint = u32::from_str_radix(hex.as_str(), 16).unwrap();
 
-              cooked.push(match char::from_u32(codepoint) {
-                Some(c) => c,
-                None => {
-                  return Err(
-                    token.error(CompileErrorKind::UnicodeEscapeRange { hex: hex.clone() }),
-                  )
-                }
-              });
+              cooked.push(char::from_u32(codepoint).ok_or_else(|| {
+                token.error(CompileErrorKind::UnicodeEscapeRange { hex: hex.clone() })
+              })?);
             } else if "0123456789ABCDEFabcdef".contains(c) {
               hex.push(c);
               if hex.len() > 6 {
