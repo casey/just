@@ -740,13 +740,14 @@ impl<'run, 'src> Parser<'run, 'src> {
           }
           state = State::Initial;
         }
-        State::Unicode => {
-          if c == '{' {
+        State::Unicode => match c {
+          '{' => {
             state = State::UnicodeValue { hex: String::new() };
-          } else {
-            return Err(token.error(CompileErrorKind::UnicodeEscapeDelimiter { character: c }));
           }
-        }
+          character => {
+            return Err(token.error(CompileErrorKind::UnicodeEscapeDelimiter { character }));
+          }
+        },
         State::UnicodeValue { ref mut hex } => match c {
           '}' => {
             if hex.is_empty() {
