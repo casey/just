@@ -395,9 +395,18 @@ test! {
 #[test]
 fn valid_unicode_escape() {
   Test::new()
-    .justfile("x := \"\\u{1f916}\\u{1F916}\"")
+    .justfile(r#"x := "\u{1f916}\u{1F916}""#)
     .args(["--evaluate", "x"])
     .stdout("🤖🤖")
+    .run();
+}
+
+#[test]
+fn unicode_escapes_with_all_hex_digits() {
+  Test::new()
+    .justfile(r#"x := "\u{012345}\u{6789a}\u{bcdef}\u{ABCDE}\u{F}""#)
+    .args(["--evaluate", "x"])
+    .stdout("\u{012345}\u{6789a}\u{bcdef}\u{ABCDE}\u{F}")
     .run();
 }
 
