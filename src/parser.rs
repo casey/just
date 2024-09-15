@@ -709,8 +709,11 @@ impl<'run, 'src> Parser<'run, 'src> {
       Unicode,
       UnicodeValue { hex: String },
     }
+
     let mut cooked = String::new();
+
     let mut state = State::Initial;
+
     for c in text.chars() {
       match state {
         State::Initial => {
@@ -725,30 +728,25 @@ impl<'run, 'src> Parser<'run, 'src> {
         }
         State::Backslash => {
           match c {
-            'n' => {
-              cooked.push('\n');
-            }
-            'r' => {
-              cooked.push('\r');
-            }
+            'n' => cooked.push('\n'),
+            'r' => cooked.push('\r'),
             't' => cooked.push('\t'),
             '\\' => cooked.push('\\'),
             '\n' => {}
             '"' => cooked.push('"'),
             character => {
-              return Err(token.error(CompileErrorKind::InvalidEscapeSequence { character }));
+              return Err(token.error(CompileErrorKind::InvalidEscapeSequence { character }))
             }
           }
           state = State::Initial;
         }
-        State::Unicode => match c {
-          '{' => {
+        State::Unicode => {
+          if c == '{' {
             state = State::UnicodeValue { hex: String::new() };
+          } else {
+            return Err(token.error(CompileErrorKind::UnicodeEscapeDelimiter { character: c }));
           }
-          character => {
-            return Err(token.error(CompileErrorKind::UnicodeEscapeDelimiter { character }));
-          }
-        },
+        }
         State::UnicodeValue { ref mut hex } => {
           if c == '}' {
             if hex.is_empty() {
