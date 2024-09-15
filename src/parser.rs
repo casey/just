@@ -718,7 +718,6 @@ impl<'run, 'src> Parser<'run, 'src> {
           State::Unicode => match c {
             '{' => {
               state = State::UnicodeValue { hex: String::new() };
-              continue;
             }
             character => {
               return Err(token.error(CompileErrorKind::UnicodeEscapeDelimiter { character }));
@@ -735,6 +734,8 @@ impl<'run, 'src> Parser<'run, 'src> {
               cooked.push(char::from_u32(codepoint).ok_or_else(|| {
                 token.error(CompileErrorKind::UnicodeEscapeRange { hex: hex.clone() })
               })?);
+
+              state = State::Initial;
             } else if "0123456789ABCDEFabcdef".contains(c) {
               hex.push(c);
               if hex.len() > 6 {
@@ -742,12 +743,9 @@ impl<'run, 'src> Parser<'run, 'src> {
                   token.error(CompileErrorKind::UnicodeEscapeLength { hex: hex.clone() }),
                 );
               }
-              continue;
             } else {
               return Err(token.error(CompileErrorKind::UnicodeEscapeCharacter { character: c }));
             }
-
-            state = State::Initial;
           }
         }
       }
