@@ -747,8 +747,8 @@ impl<'run, 'src> Parser<'run, 'src> {
             return Err(token.error(CompileErrorKind::UnicodeEscapeDelimiter { character: c }));
           }
         }
-        State::UnicodeValue { ref mut hex } => {
-          if c == '}' {
+        State::UnicodeValue { ref mut hex } => match c {
+          '}' => {
             if hex.is_empty() {
               return Err(token.error(CompileErrorKind::UnicodeEscapeEmpty));
             }
@@ -760,15 +760,17 @@ impl<'run, 'src> Parser<'run, 'src> {
             })?);
 
             state = State::Initial;
-          } else if "0123456789ABCDEFabcdef".contains(c) {
+          }
+          '0'..='9' | 'A'..='F' | 'a'..='f' => {
             hex.push(c);
             if hex.len() > 6 {
               return Err(token.error(CompileErrorKind::UnicodeEscapeLength { hex: hex.clone() }));
             }
-          } else {
+          }
+          _ => {
             return Err(token.error(CompileErrorKind::UnicodeEscapeCharacter { character: c }));
           }
-        }
+        },
       }
     }
 
