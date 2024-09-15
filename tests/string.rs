@@ -402,6 +402,15 @@ fn valid_unicode_escape() {
 }
 
 #[test]
+fn maximum_valid_unicode_escape() {
+  Test::new()
+    .justfile(r#"x := "\u{10FFFF}""#)
+    .args(["--evaluate", "x"])
+    .stdout("\u{10FFFF}")
+    .run();
+}
+
+#[test]
 fn unicode_escape_no_braces() {
   Test::new()
     .justfile("x := \"\\u1234\"")
