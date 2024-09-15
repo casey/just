@@ -1279,6 +1279,16 @@ string-with-slash           := "\"
 string-with-tab             := "     "
 ```
 
+Arbitrary characters can be escaped with `\u{X}` where `X` is up to six hex digits<sup>master</sup>:
+```just
+just := "\u{1F916} Just a command runner"
+```
+
+```sh
+$ just --evaluate
+just := "🤖 Just a command runner"
+```
+
 Strings may contain line breaks:
 
 ```just
