@@ -402,14 +402,14 @@ fn valid_unicode_escape() {
 }
 
 #[test]
-fn u_escape_no_braces() {
+fn unicode_escape_no_braces() {
   Test::new()
     .justfile("x := \"\\u1234\"")
     .args(["--evaluate", "x"])
     .status(1)
     .stderr(
       r#"
-error: expected `{` but found `1`
+error: expected unicode escape sequence delimiter `{` but found `1`
  ——▶ justfile:1:6
   │
 1 │ x := "\u1234"
@@ -420,14 +420,14 @@ error: expected `{` but found `1`
 }
 
 #[test]
-fn u_escape_empty() {
+fn unicode_escape_empty() {
   Test::new()
     .justfile("x := \"\\u{}\"")
     .args(["--evaluate", "x"])
     .status(1)
     .stderr(
       r#"
-error: expected hex digit (0-9A-Fa-f) but found `}`
+error: unicode escape sequences must not be empty
  ——▶ justfile:1:6
   │
 1 │ x := "\u{}"
@@ -438,14 +438,14 @@ error: expected hex digit (0-9A-Fa-f) but found `}`
 }
 
 #[test]
-fn u_escape_requires_immediate_opening_brace() {
+fn unicode_escape_requires_immediate_opening_brace() {
   Test::new()
     .justfile("x := \"\\u {1f916}\"")
     .args(["--evaluate", "x"])
     .status(1)
     .stderr(
       r#"
-error: expected `{` but found ` `
+error: expected unicode escape sequence delimiter `{` but found ` `
  ——▶ justfile:1:6
   │
 1 │ x := "\u {1f916}"
@@ -456,14 +456,14 @@ error: expected `{` but found ` `
 }
 
 #[test]
-fn u_escape_non_hex() {
+fn unicode_escape_non_hex() {
   Test::new()
     .justfile("x := \"\\u{foo}\"")
     .args(["--evaluate", "x"])
     .status(1)
     .stderr(
       r#"
-error: expected hex digit (0-9A-Fa-f), found `o`
+error: expected hex digit [0-9A-Fa-f] but found `o`
  ——▶ justfile:1:6
   │
 1 │ x := "\u{foo}"
@@ -474,14 +474,14 @@ error: expected hex digit (0-9A-Fa-f), found `o`
 }
 
 #[test]
-fn u_escape_invalid_character() {
+fn unicode_escape_invalid_character() {
   Test::new()
     .justfile("x := \"\\u{BadBad}\"")
     .args(["--evaluate", "x"])
     .status(1)
     .stderr(
       r#"
-error: `BadBad` does not represent a valid character: maximum valid code point is 10FFFF
+error: unicode escape sequence value `BadBad` greater than maximum valid code point `10FFFF`
  ——▶ justfile:1:6
   │
 1 │ x := "\u{BadBad}"
@@ -492,14 +492,14 @@ error: `BadBad` does not represent a valid character: maximum valid code point i
 }
 
 #[test]
-fn u_escape_too_long() {
+fn unicode_escape_too_long() {
   Test::new()
     .justfile("x := \"\\u{FFFFFFFFFF}\"")
     .args(["--evaluate", "x"])
     .status(1)
     .stderr(
       r#"
-error: more than 6 hex digits in escape sequence starting with `\u{FFFFFFF`
+error: unicode escape sequence starting with `\u{FFFFFFF` longer than six hex digits
  ——▶ justfile:1:6
   │
 1 │ x := "\u{FFFFFFFFFF}"
@@ -510,14 +510,14 @@ error: more than 6 hex digits in escape sequence starting with `\u{FFFFFFF`
 }
 
 #[test]
-fn u_escape_unterminated() {
+fn unicode_escape_unterminated() {
   Test::new()
     .justfile("x := \"\\u{1f917\"")
     .args(["--evaluate", "x"])
     .status(1)
     .stderr(
       r#"
-error: Unterminated escape sequence
+error: unterminated unicode escape sequence
  ——▶ justfile:1:6
   │
 1 │ x := "\u{1f917"

@@ -260,25 +260,24 @@ impl Display for CompileError<'_> {
         found,
       } => write!(f, "Expected {}, but found {found}", List::or(expected)),
       UnicodeEscapeCharacter { character } => {
-        write!(f, "expected hex digit (0-9A-Fa-f), found `{character}`")
+        write!(f, "expected hex digit [0-9A-Fa-f] but found `{character}`")
       }
-      UnicodeEscapeDelimiter { character } => write!(f, "expected `{{` but found `{character}`"),
-      UnicodeEscapeEmpty => write!(f, "expected hex digit (0-9A-Fa-f) but found `}}`"),
+      UnicodeEscapeDelimiter { character } => write!(
+        f,
+        "expected unicode escape sequence delimiter `{{` but found `{character}`"
+      ),
+      UnicodeEscapeEmpty => write!(f, "unicode escape sequences must not be empty"),
       UnicodeEscapeLength { hex } => write!(
         f,
-        "more than 6 hex digits in escape sequence starting with `\\u{{{hex}`"
+        "unicode escape sequence starting with `\\u{{{hex}` longer than six hex digits"
       ),
       UnicodeEscapeRange { hex } => {
         write!(
           f,
-          "`{hex}` does not represent a valid character{}",
-          if u32::from_str_radix(hex, 16).unwrap() > 1_114_111 {
-            ": maximum valid code point is 10FFFF"
-          } else {
-            ""
-          }
+          "unicode escape sequence value `{hex}` greater than maximum valid code point `10FFFF`",
         )
       }
+      UnicodeEscapeUnterminated => write!(f, "unterminated unicode escape sequence"),
       UnknownAliasTarget { alias, target } => {
         write!(f, "Alias `{alias}` has an unknown target `{target}`")
       }
@@ -291,7 +290,6 @@ impl Display for CompileError<'_> {
       UnknownStartOfToken => write!(f, "Unknown start of token:"),
       UnpairedCarriageReturn => write!(f, "Unpaired carriage return"),
       UnterminatedBacktick => write!(f, "Unterminated backtick"),
-      UnterminatedEscapeSequence => write!(f, "Unterminated escape sequence"),
       UnterminatedInterpolation => write!(f, "Unterminated interpolation"),
       UnterminatedString => write!(f, "Unterminated string"),
     }

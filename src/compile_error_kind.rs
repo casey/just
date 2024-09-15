@@ -133,6 +133,7 @@ pub(crate) enum CompileErrorKind<'src> {
   UnicodeEscapeRange {
     hex: String,
   },
+  UnicodeEscapeUnterminated,
   UnknownAliasTarget {
     alias: &'src str,
     target: &'src str,
@@ -153,7 +154,6 @@ pub(crate) enum CompileErrorKind<'src> {
   UnknownStartOfToken,
   UnpairedCarriageReturn,
   UnterminatedBacktick,
-  UnterminatedEscapeSequence,
   UnterminatedInterpolation,
   UnterminatedString,
 }

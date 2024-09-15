@@ -753,7 +753,7 @@ impl<'run, 'src> Parser<'run, 'src> {
               return Err(token.error(CompileErrorKind::UnicodeEscapeEmpty));
             }
 
-            let codepoint = u32::from_str_radix(&hex, 16).unwrap();
+            let codepoint = u32::from_str_radix(hex, 16).unwrap();
 
             cooked.push(char::from_u32(codepoint).ok_or_else(|| {
               token.error(CompileErrorKind::UnicodeEscapeRange { hex: hex.clone() })
@@ -775,7 +775,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     }
 
     if state != State::Initial {
-      return Err(token.error(CompileErrorKind::UnterminatedEscapeSequence));
+      return Err(token.error(CompileErrorKind::UnicodeEscapeUnterminated));
     }
 
     Ok(cooked)
