@@ -729,9 +729,9 @@ impl<'run, 'src> Parser<'run, 'src> {
                 return Err(token.error(CompileErrorKind::UnicodeEscapeEmpty));
               }
 
-              let char_u32 = u32::from_str_radix(hex.as_str(), 16).unwrap();
+              let codepoint = u32::from_str_radix(hex.as_str(), 16).unwrap();
 
-              cooked.push(match char::from_u32(char_u32) {
+              cooked.push(match char::from_u32(codepoint) {
                 Some(c) => c,
                 None => {
                   return Err(
