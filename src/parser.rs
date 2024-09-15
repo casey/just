@@ -709,10 +709,8 @@ impl<'run, 'src> Parser<'run, 'src> {
               '\\' => cooked.push('\\'),
               '\n' => {}
               '"' => cooked.push('"'),
-              other => {
-                return Err(
-                  token.error(CompileErrorKind::InvalidEscapeSequence { character: other }),
-                );
+              character => {
+                return Err(token.error(CompileErrorKind::InvalidEscapeSequence { character }));
               }
             }
             state = State::Initial;
