@@ -719,10 +719,8 @@ impl<'run, 'src> Parser<'run, 'src> {
               state = State::UnicodeValue { hex: String::new() };
               continue;
             }
-            other => {
-              return Err(
-                token.error(CompileErrorKind::UnicodeEscapeDelimiter { character: other }),
-              );
+            character => {
+              return Err(token.error(CompileErrorKind::UnicodeEscapeDelimiter { character }));
             }
           },
           State::UnicodeValue { ref mut hex } => {
