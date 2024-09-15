@@ -721,7 +721,7 @@ impl<'run, 'src> Parser<'run, 'src> {
             }
             other => {
               return Err(
-                token.error(CompileErrorKind::InvalidUEscapeSequence { character: other }),
+                token.error(CompileErrorKind::UnicodeEscapeDelimiter { character: other }),
               );
             }
           },

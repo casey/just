@@ -192,7 +192,6 @@ impl Display for CompileError<'_> {
           _ => character.escape_default().collect(),
         }
       ),
-      InvalidUEscapeSequence { character } => write!(f, "expected `{{` but found `{character}`"),
       MismatchedClosingDelimiter {
         open,
         open_line,
@@ -263,6 +262,7 @@ impl Display for CompileError<'_> {
       UnicodeEscapeCharacter { character } => {
         write!(f, "expected hex digit (0-9A-Fa-f), found `{character}`")
       }
+      UnicodeEscapeDelimiter { character } => write!(f, "expected `{{` but found `{character}`"),
       UnicodeEscapeEmpty => write!(f, "expected hex digit (0-9A-Fa-f) but found `}}`"),
       UnicodeEscapeLength { hex } => write!(
         f,

@@ -83,9 +83,6 @@ pub(crate) enum CompileErrorKind<'src> {
   InvalidEscapeSequence {
     character: char,
   },
-  InvalidUEscapeSequence {
-    character: char,
-  },
   MismatchedClosingDelimiter {
     close: Delimiter,
     open: Delimiter,
@@ -124,6 +121,9 @@ pub(crate) enum CompileErrorKind<'src> {
     found: TokenKind,
   },
   UnicodeEscapeCharacter {
+    character: char,
+  },
+  UnicodeEscapeDelimiter {
     character: char,
   },
   UnicodeEscapeEmpty,
