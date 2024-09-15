@@ -676,85 +676,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     };
 
     let cooked = if kind.processes_escape_sequences() {
-      #[derive(PartialEq, Eq)]
-      enum State {
-        Initial,
-        Backslash,
-        Unicode,
-        UnicodeValue { hex: String },
-      }
-      let mut cooked = String::new();
-      let mut state = State::Initial;
-      for c in unindented.chars() {
-        match state {
-          State::Initial => {
-            if c == '\\' {
-              state = State::Backslash;
-            } else {
-              cooked.push(c);
-            }
-          }
-          State::Backslash if c == 'u' => {
-            state = State::Unicode;
-          }
-          State::Backslash => {
-            match c {
-              'n' => {
-                cooked.push('\n');
-              }
-              'r' => {
-                cooked.push('\r');
-              }
-              't' => cooked.push('\t'),
-              '\\' => cooked.push('\\'),
-              '\n' => {}
-              '"' => cooked.push('"'),
-              character => {
-                return Err(token.error(CompileErrorKind::InvalidEscapeSequence { character }));
-              }
-            }
-            state = State::Initial;
-          }
-          State::Unicode => match c {
-            '{' => {
-              state = State::UnicodeValue { hex: String::new() };
-            }
-            character => {
-              return Err(token.error(CompileErrorKind::UnicodeEscapeDelimiter { character }));
-            }
-          },
-          State::UnicodeValue { ref mut hex } => {
-            if c == '}' {
-              if hex.is_empty() {
-                return Err(token.error(CompileErrorKind::UnicodeEscapeEmpty));
-              }
-
-              let codepoint = u32::from_str_radix(hex.as_str(), 16).unwrap();
-
-              cooked.push(char::from_u32(codepoint).ok_or_else(|| {
-                token.error(CompileErrorKind::UnicodeEscapeRange { hex: hex.clone() })
-              })?);
-
-              state = State::Initial;
-            } else if "0123456789ABCDEFabcdef".contains(c) {
-              hex.push(c);
-              if hex.len() > 6 {
-                return Err(
-                  token.error(CompileErrorKind::UnicodeEscapeLength { hex: hex.clone() }),
-                );
-              }
-            } else {
-              return Err(token.error(CompileErrorKind::UnicodeEscapeCharacter { character: c }));
-            }
-          }
-        }
-      }
-
-      if state != State::Initial {
-        return Err(token.error(CompileErrorKind::UnterminatedEscapeSequence));
-      }
-
-      cooked
+      Self::cook_string(token, &unindented)?
     } else {
       unindented
     };
@@ -776,6 +698,87 @@ impl<'run, 'src> Parser<'run, 'src> {
         raw,
       },
     ))
+  }
+
+  // Transform escape sequences in from string literal `token` with content `text`
+  fn cook_string(token: Token<'src>, text: &str) -> CompileResult<'src, String> {
+    #[derive(PartialEq, Eq)]
+    enum State {
+      Initial,
+      Backslash,
+      Unicode,
+      UnicodeValue { hex: String },
+    }
+    let mut cooked = String::new();
+    let mut state = State::Initial;
+    for c in text.chars() {
+      match state {
+        State::Initial => {
+          if c == '\\' {
+            state = State::Backslash;
+          } else {
+            cooked.push(c);
+          }
+        }
+        State::Backslash if c == 'u' => {
+          state = State::Unicode;
+        }
+        State::Backslash => {
+          match c {
+            'n' => {
+              cooked.push('\n');
+            }
+            'r' => {
+              cooked.push('\r');
+            }
+            't' => cooked.push('\t'),
+            '\\' => cooked.push('\\'),
+            '\n' => {}
+            '"' => cooked.push('"'),
+            character => {
+              return Err(token.error(CompileErrorKind::InvalidEscapeSequence { character }));
+            }
+          }
+          state = State::Initial;
+        }
+        State::Unicode => match c {
+          '{' => {
+            state = State::UnicodeValue { hex: String::new() };
+          }
+          character => {
+            return Err(token.error(CompileErrorKind::UnicodeEscapeDelimiter { character }));
+          }
+        },
+        State::UnicodeValue { ref mut hex } => {
+          if c == '}' {
+            if hex.is_empty() {
+              return Err(token.error(CompileErrorKind::UnicodeEscapeEmpty));
+            }
+
+            let codepoint = u32::from_str_radix(hex.as_str(), 16).unwrap();
+
+            cooked.push(char::from_u32(codepoint).ok_or_else(|| {
+              token.error(CompileErrorKind::UnicodeEscapeRange { hex: hex.clone() })
+            })?);
+
+            state = State::Initial;
+          } else if "0123456789ABCDEFabcdef".contains(c) {
+            hex.push(c);
+            if hex.len() > 6 {
+              return Err(token.error(CompileErrorKind::UnicodeEscapeLength { hex: hex.clone() }));
+            }
+          } else {
+            return Err(token.error(CompileErrorKind::UnicodeEscapeCharacter { character: c }));
+          }
+        }
+      }
+    }
+
+    if state != State::Initial {
+      return Err(token.error(CompileErrorKind::UnterminatedEscapeSequence));
+    }
+
+    Ok(cooked)
   }
 
   /// Parse a string literal, e.g. `"FOO"`
