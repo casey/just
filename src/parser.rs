@@ -694,15 +694,18 @@ impl<'run, 'src> Parser<'run, 'src> {
               cooked.push(c);
             }
           }
+          State::Backslash if c == 'u' => {
+            state = State::Unicode;
+          }
           State::Backslash => {
             match c {
-              'n' => cooked.push('\n'),
-              'r' => cooked.push('\r'),
-              't' => cooked.push('\t'),
-              'u' => {
-                state = State::Unicode;
-                continue;
+              'n' => {
+                cooked.push('\n');
               }
+              'r' => {
+                cooked.push('\r');
+              }
+              't' => cooked.push('\t'),
               '\\' => cooked.push('\\'),
               '\n' => {}
               '"' => cooked.push('"'),
