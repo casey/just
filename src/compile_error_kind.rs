@@ -120,6 +120,20 @@ pub(crate) enum CompileErrorKind<'src> {
     expected: Vec<TokenKind>,
     found: TokenKind,
   },
+  UnicodeEscapeCharacter {
+    character: char,
+  },
+  UnicodeEscapeDelimiter {
+    character: char,
+  },
+  UnicodeEscapeEmpty,
+  UnicodeEscapeLength {
+    hex: String,
+  },
+  UnicodeEscapeRange {
+    hex: String,
+  },
+  UnicodeEscapeUnterminated,
   UnknownAliasTarget {
     alias: &'src str,
     target: &'src str,

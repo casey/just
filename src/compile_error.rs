@@ -259,6 +259,25 @@ impl Display for CompileError<'_> {
         ref expected,
         found,
       } => write!(f, "Expected {}, but found {found}", List::or(expected)),
+      UnicodeEscapeCharacter { character } => {
+        write!(f, "expected hex digit [0-9A-Fa-f] but found `{character}`")
+      }
+      UnicodeEscapeDelimiter { character } => write!(
+        f,
+        "expected unicode escape sequence delimiter `{{` but found `{character}`"
+      ),
+      UnicodeEscapeEmpty => write!(f, "unicode escape sequences must not be empty"),
+      UnicodeEscapeLength { hex } => write!(
+        f,
+        "unicode escape sequence starting with `\\u{{{hex}` longer than six hex digits"
+      ),
+      UnicodeEscapeRange { hex } => {
+        write!(
+          f,
+          "unicode escape sequence value `{hex}` greater than maximum valid code point `10FFFF`",
+        )
+      }
+      UnicodeEscapeUnterminated => write!(f, "unterminated unicode escape sequence"),
       UnknownAliasTarget { alias, target } => {
         write!(f, "Alias `{alias}` has an unknown target `{target}`")
       }

@@ -391,3 +391,156 @@ test! {
   ",
   status:   EXIT_FAILURE,
 }
+
+#[test]
+fn valid_unicode_escape() {
+  Test::new()
+    .justfile(r#"x := "\u{1f916}\u{1F916}""#)
+    .args(["--evaluate", "x"])
+    .stdout("🤖🤖")
+    .run();
+}
+
+#[test]
+fn unicode_escapes_with_all_hex_digits() {
+  Test::new()
+    .justfile(r#"x := "\u{012345}\u{6789a}\u{bcdef}\u{ABCDE}\u{F}""#)
+    .args(["--evaluate", "x"])
+    .stdout("\u{012345}\u{6789a}\u{bcdef}\u{ABCDE}\u{F}")
+    .run();
+}
+
+#[test]
+fn maximum_valid_unicode_escape() {
+  Test::new()
+    .justfile(r#"x := "\u{10FFFF}""#)
+    .args(["--evaluate", "x"])
+    .stdout("\u{10FFFF}")
+    .run();
+}
+
+#[test]
+fn unicode_escape_no_braces() {
+  Test::new()
+    .justfile("x := \"\\u1234\"")
+    .args(["--evaluate", "x"])
+    .status(1)
+    .stderr(
+      r#"
+error: expected unicode escape sequence delimiter `{` but found `1`
+ ——▶ justfile:1:6
+  │
+1 │ x := "\u1234"
+  │      ^^^^^^^^
+"#,
+    )
+    .run();
+}
+
+#[test]
+fn unicode_escape_empty() {
+  Test::new()
+    .justfile("x := \"\\u{}\"")
+    .args(["--evaluate", "x"])
+    .status(1)
+    .stderr(
+      r#"
+error: unicode escape sequences must not be empty
+ ——▶ justfile:1:6
+  │
+1 │ x := "\u{}"
+  │      ^^^^^^
+"#,
+    )
+    .run();
+}
+
+#[test]
+fn unicode_escape_requires_immediate_opening_brace() {
+  Test::new()
+    .justfile("x := \"\\u {1f916}\"")
+    .args(["--evaluate", "x"])
+    .status(1)
+    .stderr(
+      r#"
+error: expected unicode escape sequence delimiter `{` but found ` `
+ ——▶ justfile:1:6
+  │
+1 │ x := "\u {1f916}"
+  │      ^^^^^^^^^^^^
+"#,
+    )
+    .run();
+}
+
+#[test]
+fn unicode_escape_non_hex() {
+  Test::new()
+    .justfile("x := \"\\u{foo}\"")
+    .args(["--evaluate", "x"])
+    .status(1)
+    .stderr(
+      r#"
+error: expected hex digit [0-9A-Fa-f] but found `o`
+ ——▶ justfile:1:6
+  │
+1 │ x := "\u{foo}"
+  │      ^^^^^^^^^
+"#,
+    )
+    .run();
+}
+
+#[test]
+fn unicode_escape_invalid_character() {
+  Test::new()
+    .justfile("x := \"\\u{BadBad}\"")
+    .args(["--evaluate", "x"])
+    .status(1)
+    .stderr(
+      r#"
+error: unicode escape sequence value `BadBad` greater than maximum valid code point `10FFFF`
+ ——▶ justfile:1:6
+  │
+1 │ x := "\u{BadBad}"
+  │      ^^^^^^^^^^^^
+"#,
+    )
+    .run();
+}
+
+#[test]
+fn unicode_escape_too_long() {
+  Test::new()
+    .justfile("x := \"\\u{FFFFFFFFFF}\"")
+    .args(["--evaluate", "x"])
+    .status(1)
+    .stderr(
+      r#"
+error: unicode escape sequence starting with `\u{FFFFFFF` longer than six hex digits
+ ——▶ justfile:1:6
+  │
+1 │ x := "\u{FFFFFFFFFF}"
+  │      ^^^^^^^^^^^^^^^^
+"#,
+    )
+    .run();
+}
+
+#[test]
+fn unicode_escape_unterminated() {
+  Test::new()
+    .justfile("x := \"\\u{1f917\"")
+    .args(["--evaluate", "x"])
+    .status(1)
+    .stderr(
+      r#"
+error: unterminated unicode escape sequence
+ ——▶ justfile:1:6
+  │
+1 │ x := "\u{1f917"
+  │      ^^^^^^^^^^
+"#,
+    )
+    .run();
+}
