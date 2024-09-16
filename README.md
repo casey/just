@@ -1263,6 +1263,7 @@ carriage-return   := "\r"
 double-quote      := "\""
 newline           := "\n"
 no-newline        := "\
+"
 slash             := "\\"
 tab               := "\t"
 unicode-codepoint := "\u{1F916}"
