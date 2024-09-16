@@ -1259,25 +1259,30 @@ braces:
 Double-quoted strings support escape sequences:
 
 ```just
-string-with-tab             := "\t"
-string-with-newline         := "\n"
-string-with-carriage-return := "\r"
-string-with-double-quote    := "\""
-string-with-slash           := "\\"
-string-with-no-newline      := "\
+carriage-return   := "\r"
+double-quote      := "\""
+newline           := "\n"
+no-newline        := "\
 "
+slash             := "\\"
+tab               := "\t"
+unicode-codepoint := "\u{1F916}"
 ```
 
 ```sh
 $ just --evaluate
-"tring-with-carriage-return := "
-string-with-double-quote    := """
-string-with-newline         := "
+"arriage-return   := "
+double-quote      := """
+newline           := "
 "
-string-with-no-newline      := ""
-string-with-slash           := "\"
-string-with-tab             := "     "
+no-newline        := ""
+slash             := "\"
+tab               := "     "
+unicode-codepoint := "🤖"
 ```
+
+The unicode character escape sequence `\u{…}`<sup>master</sup> accepts up to
+six hex digits.
 
 Strings may contain line breaks:
 
