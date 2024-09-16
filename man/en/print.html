@@ -1106,23 +1106,27 @@ interpolation:</p>
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="strings"><a class="header" href="#strings">Strings</a></h3>
 <p>Double-quoted strings support escape sequences:</p>
-<pre><code class="language-just">string-with-tab             := "\t"
-string-with-newline         := "\n"
-string-with-carriage-return := "\r"
-string-with-double-quote    := "\""
-string-with-slash           := "\\"
-string-with-no-newline      := "\
+<pre><code class="language-just">carriage-return   := "\r"
+double-quote      := "\""
+newline           := "\n"
+no-newline        := "\
 "
+slash             := "\\"
+tab               := "\t"
+unicode-codepoint := "\u{1F916}"
 </code></pre>
 <pre><code class="language-sh">$ just --evaluate
-"tring-with-carriage-return := "
-string-with-double-quote    := """
-string-with-newline         := "
+"arriage-return   := "
+double-quote      := """
+newline           := "
 "
-string-with-no-newline      := ""
-string-with-slash           := "\"
-string-with-tab             := "     "
+no-newline        := ""
+slash             := "\"
+tab               := "     "
+unicode-codepoint := "🤖"
 </code></pre>
+<p>The unicode character escape sequence <code>\u{…}</code><sup>master</sup> accepts up to
+six hex digits.</p>
 <p>Strings may contain line breaks:</p>
 <pre><code class="language-just">single := '
 hello
