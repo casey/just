@@ -4,6 +4,8 @@ use super::*;
 pub(crate) enum UnstableFeature {
   FormatSubcommand,
   LogicalOperators,
+  GlobImport,
+  ImportPathGlob,
   ScriptAttribute,
   ScriptInterpreterSetting,
   WhichFunction,
@@ -17,6 +19,8 @@ impl Display for UnstableFeature {
         f,
         "The logical operators `&&` and `||` are currently unstable."
       ),
+      Self::GlobImport => write!(f, "Glob imports are currently unstable"),
+      Self::ImportPathGlob => write!(f, "Globs in import paths are currently unstable"),
       Self::ScriptAttribute => write!(f, "The `[script]` attribute is currently unstable."),
       Self::ScriptInterpreterSetting => {
         write!(f, "The `script-interpreter` setting is currently unstable.")
