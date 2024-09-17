@@ -1,7 +1,13 @@
 use {
   pulldown_cmark::{CowStr, Event, HeadingLevel, Options, Parser, Tag},
   pulldown_cmark_to_cmark::cmark,
-  std::{collections::BTreeMap, error::Error, fmt::Write, fs, ops::Deref},
+  std::{
+    collections::{BTreeMap, BTreeSet},
+    error::Error,
+    fmt::Write,
+    fs,
+    ops::Deref,
+  },
 };
 
 type Result<T = ()> = std::result::Result<T, Box<dyn Error>>;
@@ -62,8 +68,8 @@ impl<'a> Chapter<'a> {
       .collect()
   }
 
-  fn number(&self) -> usize {
-    self.index + 1
+  fn filename(&self) -> String {
+    slug(&self.title())
   }
 
   fn markdown(&self) -> Result<String> {
@@ -82,7 +88,7 @@ fn slug(s: &str) -> String {
     match c {
       'A'..='Z' => slug.extend(c.to_lowercase()),
       ' ' => slug.push('-'),
-      '?' | '.' | '？' => {}
+      '?' | '.' | '？' | '’' => {}
       _ => slug.push(c),
     }
   }
@@ -135,9 +141,9 @@ fn main() -> Result {
               .collect::<String>();
             let slug = slug(&title);
             let link = if let HeadingLevel::H1 | HeadingLevel::H2 | HeadingLevel::H3 = level {
-              format!("chapter_{}.html", chapter.number())
+              format!("{}.html", chapter.filename())
             } else {
-              format!("chapter_{}.html#{}", chapter.number(), slug)
+              format!("{}.html#{}", chapter.filename(), slug)
             };
             links.insert(slug, link);
             current = None;
@@ -163,8 +169,13 @@ fn main() -> Result {
 
     let mut summary = String::new();
 
+    let mut filenames = BTreeSet::new();
+
     for chapter in chapters {
-      let path = format!("{}/chapter_{}.md", src, chapter.number());
+      let filename = chapter.filename();
+      assert!(!filenames.contains(&filename));
+
+      let path = format!("{src}/{filename}.md");
       fs::write(path, chapter.markdown()?)?;
       let indent = match chapter.level {
         HeadingLevel::H1 => 0,
@@ -176,11 +187,12 @@ fn main() -> Result {
       };
       writeln!(
         summary,
-        "{}- [{}](chapter_{}.md)",
+        "{}- [{}]({filename}.md)",
         " ".repeat(indent * 4),
         chapter.title(),
-        chapter.number()
       )?;
+
+      filenames.insert(filename);
     }
 
     fs::write(format!("{src}/SUMMARY.md"), summary).unwrap();
