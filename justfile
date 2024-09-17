@@ -8,54 +8,69 @@ log := "warn"
 
 export JUST_LOG := log
 
+[group: 'dev']
 watch +args='test':
   cargo watch --clear --exec '{{ args }}'
 
+[group: 'test']
 test:
   cargo test --all
 
+[group: 'check']
 ci: forbid test build-book clippy
   cargo fmt --all -- --check
   cargo update --locked --package just
 
+[group: 'check']
 fuzz:
   cargo +nightly fuzz run fuzz-compiler
 
+[group: 'misc']
 run:
   cargo run
 
 # only run tests matching PATTERN
+[group: 'test']
 filter PATTERN:
   cargo test {{PATTERN}}
 
+[group: 'misc']
 build:
   cargo build
 
+[group: 'misc']
 fmt:
   cargo fmt --all
 
+[group: 'check']
 shellcheck:
   shellcheck www/install.sh
 
+[group: 'doc']
 man:
   mkdir -p man
   cargo run -- --man > man/just.1
 
+[group: 'doc']
 view-man: man
   man man/just.1
 
 # add git log messages to changelog
+[group: 'release']
 update-changelog:
   echo >> CHANGELOG.md
   git log --pretty='format:- %s' >> CHANGELOG.md
 
+[group: 'release']
 update-contributors:
   cargo run --release --package update-contributors
 
+[group: 'check']
 outdated:
   cargo outdated -R
 
 # publish current GitHub master branch
+[group: 'release']
 publish:
   #!/usr/bin/env bash
   set -euxo pipefail
@@ -70,10 +85,12 @@ publish:
   cd ../..
   rm -rf tmp/release
 
+[group: 'release']
 readme-version-notes:
   grep '<sup>master</sup>' README.md
 
 # clean up feature branch BRANCH
+[group: 'dev']
 done BRANCH=`git rev-parse --abbrev-ref HEAD`:
   git checkout master
   git diff --no-ext-diff --quiet --exit-code
@@ -82,10 +99,12 @@ done BRANCH=`git rev-parse --abbrev-ref HEAD`:
   git branch -D {{BRANCH}}
 
 # install just from crates.io
+[group: 'misc']
 install:
   cargo install -f just
 
 # install development dependencies
+[group: 'dev']
 install-dev-deps:
   rustup install nightly
   rustup update nightly
@@ -95,19 +114,24 @@ install-dev-deps:
   cargo install mdbook mdbook-linkcheck
 
 # everyone's favorite animate paper clip
+[group: 'check']
 clippy:
   cargo clippy --all --all-targets --all-features -- --deny warnings
 
+[group: 'check']
 forbid:
   ./bin/forbid
 
+[group: 'dev']
 replace FROM TO:
   sd '{{FROM}}' '{{TO}}' src/*.rs
 
+[group: 'demo']
 test-quine:
   cargo run -- quine
 
 # make a quine, compile it, and verify it
+[group: 'demo']
 quine:
   mkdir -p tmp
   @echo '{{quine-text}}' > tmp/gen0.c
@@ -135,15 +159,18 @@ quine-text := '
   }
 '
 
+[group: 'test']
 test-completions:
   ./tests/completions/just.bash
 
+[group: 'check']
 build-book:
   cargo run --package generate-book
   mdbook build book/en
   mdbook build book/zh
 
 # run all polyglot recipes
+[group: 'demo']
 polyglot: _python _js _perl _sh _ruby
 
 _python:
@@ -173,9 +200,11 @@ _ruby:
   puts "Hello from ruby!"
 
 # Print working directory, for demonstration purposes!
+[group: 'demo']
 pwd:
   echo {{invocation_directory()}}
 
+[group: 'test']
 test-bash-completions:
   rm -rf tmp
   mkdir -p tmp/bin
@@ -186,6 +215,7 @@ test-bash-completions:
   echo 'bar:' > tmp/foo.just
   cd tmp && PATH="`realpath bin`:$PATH" bash --init-file just.bash
 
+[group: 'test']
 test-release-workflow:
   -git tag -d test-release
   -git push origin :test-release
