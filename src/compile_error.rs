@@ -32,12 +32,6 @@ impl Display for CompileError<'_> {
     use CompileErrorKind::*;
 
     match &*self.kind {
-      AliasShadowsRecipe { alias, recipe_line } => write!(
-        f,
-        "Alias `{alias}` defined on line {} shadows recipe `{alias}` defined on line {}",
-        self.token.line.ordinal(),
-        recipe_line.ordinal(),
-      ),
       AttributeArgumentCountMismatch {
         attribute,
         found,
