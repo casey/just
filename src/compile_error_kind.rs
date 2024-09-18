@@ -2,10 +2,6 @@ use super::*;
 
 #[derive(Debug, PartialEq)]
 pub(crate) enum CompileErrorKind<'src> {
-  AliasShadowsRecipe {
-    alias: &'src str,
-    recipe_line: usize,
-  },
   AttributeArgumentCountMismatch {
     attribute: &'src str,
     found: usize,
