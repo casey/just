@@ -95,6 +95,9 @@ pub(crate) enum Error<'src> {
     variable: String,
     suggestion: Option<Suggestion<'src>>,
   },
+  ExcessInvocations {
+    invocations: usize,
+  },
   ExpectedSubmoduleButFoundRecipe {
     path: String,
   },
@@ -373,6 +376,9 @@ impl<'src> ColorDisplay for Error<'src> {
           write!(f, "\n{suggestion}")?;
         }
       }
+      ExcessInvocations { invocations } => {
+        write!(f, "Expected 1 command-line recipe invocation but found {invocations}.")?;
+      },
       ExpectedSubmoduleButFoundRecipe { path } => {
         write!(f, "Expected submodule at `{path}` but found recipe.")?;
       },
