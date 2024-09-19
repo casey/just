@@ -1,13 +1,17 @@
 use {super::*, CompileErrorKind::*};
 
 #[derive(Default)]
-pub(crate) struct Analyzer<'src> {
-  assignments: Table<'src, Assignment<'src>>,
+pub(crate) struct Analyzer<'local, 'src> {
   aliases: Table<'src, Alias<'src, Name<'src>>>,
+  assignments: Vec<&'local Binding<'src, Expression<'src>>>,
+  modules: Table<'src, Justfile<'src>>,
+  recipes: Vec<&'local Recipe<'src, UnresolvedDependency<'src>>>,
   sets: Table<'src, Set<'src>>,
+  unexports: HashSet<String>,
+  warnings: Vec<Warning>,
 }
 
-impl<'src> Analyzer<'src> {
+impl<'local, 'src> Analyzer<'local, 'src> {
   pub(crate) fn analyze(
     asts: &HashMap<PathBuf, Ast<'src>>,
     doc: Option<String>,
@@ -17,35 +21,11 @@ impl<'src> Analyzer<'src> {
     paths: &HashMap<PathBuf, PathBuf>,
     root: &Path,
   ) -> CompileResult<'src, Justfile<'src>> {
-    Self::default().justfile(asts, doc, groups, loaded, name, paths, root)
-  }
-
-  fn justfile(
-    mut self,
-    asts: &HashMap<PathBuf, Ast<'src>>,
-    doc: Option<String>,
-    groups: &[String],
-    loaded: &[PathBuf],
-    name: Option<Name<'src>>,
-    paths: &HashMap<PathBuf, PathBuf>,
-    root: &Path,
-  ) -> CompileResult<'src, Justfile<'src>> {
-    let mut recipes = Vec::new();
-
-    let mut assignments = Vec::new();
-
     let mut stack = Vec::new();
     let ast = asts.get(root).unwrap();
     stack.push(ast);
 
-    let mut warnings = Vec::new();
-
-    let mut modules: Table<Justfile> = Table::new();
-
-    let mut unexports: HashSet<String> = HashSet::new();
-
     let mut definitions: HashMap<&str, (&'static str, Name)> = HashMap::new();
-
     let mut define = |name: Name<'src>,
                       second_type: &'static str,
                       duplicates_allowed: bool|
@@ -72,16 +52,18 @@ impl<'src> Analyzer<'src> {
       Ok(())
     };
 
+    let mut analyzer = Analyzer::default();
+
     while let Some(ast) = stack.pop() {
       for item in &ast.items {
         match item {
           Item::Alias(alias) => {
             define(alias.name, "alias", false)?;
             Self::analyze_alias(alias)?;
-            self.aliases.insert(alias.clone());
+            analyzer.aliases.insert(alias.clone());
           }
           Item::Assignment(assignment) => {
-            assignments.push(assignment);
+            analyzer.assignments.push(assignment);
           }
           Item::Comment(_) => (),
           Item::Import { absolute, .. } => {
@@ -114,7 +96,7 @@ impl<'src> Analyzer<'src> {
 
             if let Some(absolute) = absolute {
               define(*name, "module", false)?;
-              modules.insert(Self::analyze(
+              analyzer.modules.insert(Self::analyze(
                 asts,
                 doc_attr.or(*doc).map(ToOwned::to_owned),
                 groups.as_slice(),
@@ -128,15 +110,15 @@ impl<'src> Analyzer<'src> {
           Item::Recipe(recipe) => {
             if recipe.enabled() {
               Self::analyze_recipe(recipe)?;
-              recipes.push(recipe);
+              analyzer.recipes.push(recipe);
             }
           }
           Item::Set(set) => {
-            self.analyze_set(set)?;
-            self.sets.insert(set.clone());
+            Self::analyze_set(&analyzer.sets, set)?;
+            analyzer.sets.insert(set.clone());
           }
           Item::Unexport { name } => {
-            if !unexports.insert(name.lexeme().to_string()) {
+            if !analyzer.unexports.insert(name.lexeme().to_string()) {
               return Err(name.token.error(DuplicateUnexport {
                 variable: name.lexeme(),
               }));
@@ -145,34 +127,35 @@ impl<'src> Analyzer<'src> {
         }
       }
 
-      warnings.extend(ast.warnings.iter().cloned());
+      analyzer.warnings.extend(ast.warnings.iter().cloned());
     }
 
-    let settings = Settings::from_setting_iter(self.sets.into_iter().map(|(_, set)| set.value));
+    let settings = Settings::from_setting_iter(analyzer.sets.into_iter().map(|(_, set)| set.value));
 
     let mut recipe_table: Table<'src, UnresolvedRecipe<'src>> = Table::default();
 
-    for assignment in assignments {
+    let mut assignments: Table<'src, Assignment<'src>> = Table::default();
+    for assignment in analyzer.assignments {
       let variable = assignment.name.lexeme();
 
-      if !settings.allow_duplicate_variables && self.assignments.contains_key(variable) {
+      if !settings.allow_duplicate_variables && assignments.contains_key(variable) {
         return Err(assignment.name.token.error(DuplicateVariable { variable }));
       }
 
-      if self.assignments.get(variable).map_or(true, |original| {
+      if assignments.get(variable).map_or(true, |original| {
         assignment.file_depth <= original.file_depth
       }) {
-        self.assignments.insert(assignment.clone());
+        assignments.insert(assignment.clone());
       }
 
-      if unexports.contains(variable) {
+      if analyzer.unexports.contains(variable) {
         return Err(assignment.name.token.error(ExportUnexported { variable }));
       }
     }
 
-    AssignmentResolver::resolve_assignments(&self.assignments)?;
+    AssignmentResolver::resolve_assignments(&assignments)?;
 
-    for recipe in recipes {
+    for recipe in analyzer.recipes {
       define(recipe.name, "recipe", settings.allow_duplicate_recipes)?;
       if recipe_table
         .get(recipe.name.lexeme())
@@ -182,10 +165,10 @@ impl<'src> Analyzer<'src> {
       }
     }
 
-    let recipes = RecipeResolver::resolve_recipes(&self.assignments, &settings, recipe_table)?;
+    let recipes = RecipeResolver::resolve_recipes(&assignments, &settings, recipe_table)?;
 
     let mut aliases = Table::new();
-    while let Some(alias) = self.aliases.pop() {
+    while let Some(alias) = analyzer.aliases.pop() {
       aliases.insert(Self::resolve_alias(&recipes, alias)?);
     }
 
@@ -208,7 +191,7 @@ impl<'src> Analyzer<'src> {
 
     Ok(Justfile {
       aliases,
-      assignments: self.assignments,
+      assignments,
       default: recipes
         .values()
         .filter(|recipe| recipe.name.path == root)
@@ -223,14 +206,14 @@ impl<'src> Analyzer<'src> {
       doc,
       groups: groups.into(),
       loaded: loaded.into(),
-      modules,
+      modules: analyzer.modules,
       name,
       recipes,
       settings,
       source: root.into(),
-      unexports,
+      unexports: analyzer.unexports,
       unstable_features,
-      warnings,
+      warnings: analyzer.warnings,
       working_directory: ast.working_directory.clone(),
     })
   }
@@ -308,8 +291,8 @@ impl<'src> Analyzer<'src> {
     Ok(())
   }
 
-  fn analyze_set(&self, set: &Set<'src>) -> CompileResult<'src> {
-    if let Some(original) = self.sets.get(set.name.lexeme()) {
+  fn analyze_set(sets: &Table<'src, Set<'src>>, set: &Set<'src>) -> CompileResult<'src> {
+    if let Some(original) = sets.get(set.name.lexeme()) {
       return Err(set.name.error(DuplicateSet {
         setting: original.name.lexeme(),
         first: original.name.line,
