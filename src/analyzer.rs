@@ -11,6 +11,39 @@ pub(crate) struct Analyzer<'local, 'src> {
   warnings: Vec<Warning>,
 }
 
+#[derive(Default)]
+struct Definitions<'src>(HashMap<&'src str, (&'static str, Name<'src>)>);
+
+impl<'src> Definitions<'src> {
+  fn define(
+    &mut self,
+    name: Name<'src>,
+    second_type: &'static str,
+    duplicates_allowed: bool,
+  ) -> CompileResult<'src> {
+    if let Some((first_type, original)) = self.0.get(name.lexeme()) {
+      if !(*first_type == second_type && duplicates_allowed) {
+        let ((first_type, second_type), (original, redefinition)) = if name.line < original.line {
+          ((second_type, *first_type), (name, *original))
+        } else {
+          ((*first_type, second_type), (*original, name))
+        };
+
+        return Err(redefinition.token.error(Redefinition {
+          first_type,
+          second_type,
+          name: name.lexeme(),
+          first: original.line,
+        }));
+      }
+    }
+
+    self.0.insert(name.lexeme(), (second_type, name));
+
+    Ok(())
+  }
+}
+
 impl<'local, 'src> Analyzer<'local, 'src> {
   pub(crate) fn analyze(
     asts: &HashMap<PathBuf, Ast<'src>>,
@@ -25,32 +58,7 @@ impl<'local, 'src> Analyzer<'local, 'src> {
     let ast = asts.get(root).unwrap();
     stack.push(ast);
 
-    let mut definitions: HashMap<&str, (&'static str, Name)> = HashMap::new();
-    let mut define = |name: Name<'src>,
-                      second_type: &'static str,
-                      duplicates_allowed: bool|
-     -> CompileResult<'src> {
-      if let Some((first_type, original)) = definitions.get(name.lexeme()) {
-        if !(*first_type == second_type && duplicates_allowed) {
-          let ((first_type, second_type), (original, redefinition)) = if name.line < original.line {
-            ((second_type, *first_type), (name, *original))
-          } else {
-            ((*first_type, second_type), (*original, name))
-          };
-
-          return Err(redefinition.token.error(Redefinition {
-            first_type,
-            second_type,
-            name: name.lexeme(),
-            first: original.line,
-          }));
-        }
-      }
-
-      definitions.insert(name.lexeme(), (second_type, name));
-
-      Ok(())
-    };
+    let mut definitions = Definitions::default();
 
     let mut analyzer = Analyzer::default();
 
@@ -58,7 +66,7 @@ impl<'local, 'src> Analyzer<'local, 'src> {
       for item in &ast.items {
         match item {
           Item::Alias(alias) => {
-            define(alias.name, "alias", false)?;
+            definitions.define(alias.name, "alias", false)?;
             Self::analyze_alias(alias)?;
             analyzer.aliases.insert(alias.clone());
           }
@@ -95,7 +103,7 @@ impl<'local, 'src> Analyzer<'local, 'src> {
             }
 
             if let Some(absolute) = absolute {
-              define(*name, "module", false)?;
+              definitions.define(*name, "module", false)?;
               analyzer.modules.insert(Self::analyze(
                 asts,
                 doc_attr.or(*doc).map(ToOwned::to_owned),
@@ -132,8 +140,6 @@ impl<'local, 'src> Analyzer<'local, 'src> {
 
     let settings = Settings::from_setting_iter(analyzer.sets.into_iter().map(|(_, set)| set.value));
 
-    let mut recipe_table: Table<'src, UnresolvedRecipe<'src>> = Table::default();
-
     let mut assignments: Table<'src, Assignment<'src>> = Table::default();
     for assignment in analyzer.assignments {
       let variable = assignment.name.lexeme();
@@ -155,8 +161,9 @@ impl<'local, 'src> Analyzer<'local, 'src> {
 
     AssignmentResolver::resolve_assignments(&assignments)?;
 
+    let mut recipe_table: Table<'src, UnresolvedRecipe<'src>> = Table::default();
     for recipe in analyzer.recipes {
-      define(recipe.name, "recipe", settings.allow_duplicate_recipes)?;
+      definitions.define(recipe.name, "recipe", settings.allow_duplicate_recipes)?;
       if recipe_table
         .get(recipe.name.lexeme())
         .map_or(true, |original| recipe.file_depth <= original.file_depth)
@@ -172,8 +179,6 @@ impl<'local, 'src> Analyzer<'local, 'src> {
       aliases.insert(Self::resolve_alias(&recipes, alias)?);
     }
 
-    let root = paths.get(root).unwrap();
-
     let mut unstable_features = BTreeSet::new();
 
     for recipe in recipes.values() {
@@ -188,6 +193,8 @@ impl<'local, 'src> Analyzer<'local, 'src> {
     if settings.script_interpreter.is_some() {
       unstable_features.insert(UnstableFeature::ScriptInterpreterSetting);
     }
+
+    let root = paths.get(root).unwrap();
 
     Ok(Justfile {
       aliases,
