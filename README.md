@@ -1020,7 +1020,7 @@ $ just test foo "bar baz"
 - bar baz
 ```
 
-Positional arguments may also be turned on on a per-recipe basis with the
+Positional arguments may also be turned on a per-recipe basis with the
 `[positional-arguments]` attribute<sup>1.29.0</sup>:
 
 ```just
@@ -3856,7 +3856,7 @@ checking the program's stdout, stderr, and exit code .
 
 4. Add a failing test for your feature. Most of the time this will be an
    integration test which exercises the feature end-to-end. Look for an
-   appropriate file to put the test in in
+   appropriate file to put the test in
    [tests](https://github.com/casey/just/blob/master/tests), or add a new file
    in [tests](https://github.com/casey/just/blob/master/tests) and add a `mod`
    statement importing that file in
