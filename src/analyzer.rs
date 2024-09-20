@@ -1,11 +1,11 @@
 use {super::*, CompileErrorKind::*};
 
 #[derive(Default)]
-pub(crate) struct Analyzer<'local, 'src> {
+pub(crate) struct Analyzer<'run, 'src> {
   aliases: Table<'src, Alias<'src, Name<'src>>>,
-  assignments: Vec<&'local Binding<'src, Expression<'src>>>,
+  assignments: Vec<&'run Binding<'src, Expression<'src>>>,
   modules: Table<'src, Justfile<'src>>,
-  recipes: Vec<&'local Recipe<'src, UnresolvedDependency<'src>>>,
+  recipes: Vec<&'run Recipe<'src, UnresolvedDependency<'src>>>,
   sets: Table<'src, Set<'src>>,
   unexports: HashSet<String>,
   warnings: Vec<Warning>,
@@ -44,7 +44,7 @@ impl<'src> Definitions<'src> {
   }
 }
 
-impl<'local, 'src> Analyzer<'local, 'src> {
+impl<'run, 'src> Analyzer<'run, 'src> {
   pub(crate) fn analyze(
     asts: &HashMap<PathBuf, Ast<'src>>,
     doc: Option<String>,
