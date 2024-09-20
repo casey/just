@@ -29,11 +29,11 @@ pub(crate) struct Settings<'src> {
 }
 
 impl<'src> Settings<'src> {
-  pub(crate) fn from_setting_iter(iter: impl Iterator<Item = Setting<'src>>) -> Self {
+  pub(crate) fn from_table(sets: Table<'src, Set<'src>>) -> Self {
     let mut settings = Self::default();
 
-    for set in iter {
-      match set {
+    for (_name, set) in sets {
+      match set.value {
         Setting::AllowDuplicateRecipes(allow_duplicate_recipes) => {
           settings.allow_duplicate_recipes = allow_duplicate_recipes;
         }

@@ -4,24 +4,21 @@ use {super::*, CompileErrorKind::*};
 pub(crate) struct Analyzer<'run, 'src> {
   aliases: Table<'src, Alias<'src, Name<'src>>>,
   assignments: Vec<&'run Binding<'src, Expression<'src>>>,
+  definitions: HashMap<&'src str, (&'static str, Name<'src>)>,
   modules: Table<'src, Justfile<'src>>,
   recipes: Vec<&'run Recipe<'src, UnresolvedDependency<'src>>>,
-  sets: Table<'src, Set<'src>>,
   unexports: HashSet<String>,
   warnings: Vec<Warning>,
 }
 
-#[derive(Default)]
-struct Definitions<'src>(HashMap<&'src str, (&'static str, Name<'src>)>);
-
-impl<'src> Definitions<'src> {
+impl<'run, 'src> Analyzer<'run, 'src> {
   fn define(
     &mut self,
     name: Name<'src>,
     second_type: &'static str,
     duplicates_allowed: bool,
   ) -> CompileResult<'src> {
-    if let Some((first_type, original)) = self.0.get(name.lexeme()) {
+    if let Some((first_type, original)) = self.definitions.get(name.lexeme()) {
       if !(*first_type == second_type && duplicates_allowed) {
         let ((first_type, second_type), (original, redefinition)) = if name.line < original.line {
           ((second_type, *first_type), (name, *original))
@@ -38,13 +35,11 @@ impl<'src> Definitions<'src> {
       }
     }
 
-    self.0.insert(name.lexeme(), (second_type, name));
+    self.definitions.insert(name.lexeme(), (second_type, name));
 
     Ok(())
   }
-}
 
-impl<'run, 'src> Analyzer<'run, 'src> {
   pub(crate) fn analyze(
     asts: &HashMap<PathBuf, Ast<'src>>,
     doc: Option<String>,
@@ -58,15 +53,14 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     let ast = asts.get(root).unwrap();
     stack.push(ast);
 
-    let mut definitions = Definitions::default();
-
     let mut analyzer = Analyzer::default();
+    let mut sets: Table<'src, Set<'src>> = Table::new();
 
     while let Some(ast) = stack.pop() {
       for item in &ast.items {
         match item {
           Item::Alias(alias) => {
-            definitions.define(alias.name, "alias", false)?;
+            analyzer.define(alias.name, "alias", false)?;
             Self::analyze_alias(alias)?;
             analyzer.aliases.insert(alias.clone());
           }
@@ -103,7 +97,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
             }
 
             if let Some(absolute) = absolute {
-              definitions.define(*name, "module", false)?;
+              analyzer.define(*name, "module", false)?;
               analyzer.modules.insert(Self::analyze(
                 asts,
                 doc_attr.or(*doc).map(ToOwned::to_owned),
@@ -122,8 +116,8 @@ impl<'run, 'src> Analyzer<'run, 'src> {
             }
           }
           Item::Set(set) => {
-            Self::analyze_set(&analyzer.sets, set)?;
-            analyzer.sets.insert(set.clone());
+            Self::analyze_set(&sets, set)?;
+            sets.insert(set.clone());
           }
           Item::Unexport { name } => {
             if !analyzer.unexports.insert(name.lexeme().to_string()) {
@@ -138,7 +132,16 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       analyzer.warnings.extend(ast.warnings.iter().cloned());
     }
 
-    let settings = Settings::from_setting_iter(analyzer.sets.into_iter().map(|(_, set)| set.value));
+    let settings = Settings::from_table(sets);
+
+    let recipe_names: Vec<Name<'src>> = analyzer
+      .recipes
+      .iter()
+      .map(|recipe| recipe.name.clone())
+      .collect();
+    for name in recipe_names {
+      analyzer.define(name, "recipe", settings.allow_duplicate_recipes)?;
+    }
 
     let mut assignments: Table<'src, Assignment<'src>> = Table::default();
     for assignment in analyzer.assignments {
@@ -163,7 +166,6 @@ impl<'run, 'src> Analyzer<'run, 'src> {
 
     let mut recipe_table: Table<'src, UnresolvedRecipe<'src>> = Table::default();
     for recipe in analyzer.recipes {
-      definitions.define(recipe.name, "recipe", settings.allow_duplicate_recipes)?;
       if recipe_table
         .get(recipe.name.lexeme())
         .map_or(true, |original| recipe.file_depth <= original.file_depth)
