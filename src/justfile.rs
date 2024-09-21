@@ -202,6 +202,12 @@ impl<'src> Justfile<'src> {
       )?);
     }
 
+    if config.one && invocations.len() > 1 {
+      return Err(Error::ExcessInvocations {
+        invocations: invocations.len(),
+      });
+    }
+
     let mut ran = Ran::default();
     for invocation in invocations {
       let context = ExecutionContext {
