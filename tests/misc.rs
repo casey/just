@@ -1941,26 +1941,6 @@ test! {
   shell: false,
 }
 
-test! {
-  name: parameter_cross_reference_error,
-  justfile: "
-    foo:
-
-    bar a b=a:
-  ",
-  args: (),
-  stdout: "",
-  stderr: "
-    error: Variable `a` not defined
-     ——▶ justfile:3:9
-      │
-    3 │ bar a b=a:
-      │         ^
-  ",
-  status: EXIT_FAILURE,
-  shell: false,
-}
-
 #[cfg(windows)]
 test! {
   name: pwsh_invocation_directory,

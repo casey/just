@@ -23,10 +23,10 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
     }
 
     for recipe in resolver.resolved_recipes.values() {
-      for parameter in &recipe.parameters {
+      for (i, parameter) in recipe.parameters.iter().enumerate() {
         if let Some(expression) = &parameter.default {
           for variable in expression.variables() {
-            resolver.resolve_variable(&variable, &[])?;
+            resolver.resolve_variable(&variable, &recipe.parameters[..i])?;
           }
         }
       }
@@ -63,11 +63,12 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
     parameters: &[Parameter],
   ) -> CompileResult<'src> {
     let name = variable.lexeme();
-    let undefined = !self.assignments.contains_key(name)
-      && !parameters.iter().any(|p| p.name.lexeme() == name)
-      && !constants().contains_key(name);
 
-    if undefined {
+    let defined = self.assignments.contains_key(name)
+      || parameters.iter().any(|p| p.name.lexeme() == name)
+      || constants().contains_key(name);
+
+    if !defined {
       return Err(variable.error(UndefinedVariable { variable: name }));
     }
 
