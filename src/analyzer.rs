@@ -13,7 +13,21 @@ pub(crate) struct Analyzer<'run, 'src> {
 
 impl<'run, 'src> Analyzer<'run, 'src> {
   pub(crate) fn analyze(
-    asts: &HashMap<PathBuf, Ast<'src>>,
+    asts: &'run HashMap<PathBuf, Ast<'src>>,
+    doc: Option<String>,
+    groups: &[String],
+    loaded: &[PathBuf],
+    name: Option<Name<'src>>,
+    paths: &HashMap<PathBuf, PathBuf>,
+    root: &Path,
+  ) -> CompileResult<'src, Justfile<'src>> {
+    let analyzer = Analyzer::default();
+    analyzer.justfile(asts, doc, groups, loaded, name, paths, root)
+  }
+
+  fn justfile(
+    mut self,
+    asts: &'run HashMap<PathBuf, Ast<'src>>,
     doc: Option<String>,
     groups: &[String],
     loaded: &[PathBuf],
@@ -25,19 +39,18 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     let ast = asts.get(root).unwrap();
     stack.push(ast);
 
-    let mut analyzer = Analyzer::default();
     let mut sets: Table<'src, Set<'src>> = Table::new();
 
     while let Some(ast) = stack.pop() {
       for item in &ast.items {
         match item {
           Item::Alias(alias) => {
-            analyzer.define(alias.name, "alias", false)?;
+            self.define(alias.name, "alias", false)?;
             Self::analyze_alias(alias)?;
-            analyzer.aliases.insert(alias.clone());
+            self.aliases.insert(alias.clone());
           }
           Item::Assignment(assignment) => {
-            analyzer.assignments.push(assignment);
+            self.assignments.push(assignment);
           }
           Item::Comment(_) => (),
           Item::Import { absolute, .. } => {
@@ -69,8 +82,8 @@ impl<'run, 'src> Analyzer<'run, 'src> {
             }
 
             if let Some(absolute) = absolute {
-              analyzer.define(*name, "module", false)?;
-              analyzer.modules.insert(Self::analyze(
+              self.define(*name, "module", false)?;
+              self.modules.insert(Self::analyze(
                 asts,
                 doc_attr.or(*doc).map(ToOwned::to_owned),
                 groups.as_slice(),
@@ -84,7 +97,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
           Item::Recipe(recipe) => {
             if recipe.enabled() {
               Self::analyze_recipe(recipe)?;
-              analyzer.recipes.push(recipe);
+              self.recipes.push(recipe);
             }
           }
           Item::Set(set) => {
@@ -92,7 +105,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
             sets.insert(set.clone());
           }
           Item::Unexport { name } => {
-            if !analyzer.unexports.insert(name.lexeme().to_string()) {
+            if !self.unexports.insert(name.lexeme().to_string()) {
               return Err(name.token.error(DuplicateUnexport {
                 variable: name.lexeme(),
               }));
@@ -101,18 +114,18 @@ impl<'run, 'src> Analyzer<'run, 'src> {
         }
       }
 
-      analyzer.warnings.extend(ast.warnings.iter().cloned());
+      self.warnings.extend(ast.warnings.iter().cloned());
     }
 
     let settings = Settings::from_table(sets);
 
-    let recipe_names: Vec<Name<'src>> = analyzer.recipes.iter().map(|recipe| recipe.name).collect();
+    let recipe_names: Vec<Name<'src>> = self.recipes.iter().map(|recipe| recipe.name).collect();
     for name in recipe_names {
-      analyzer.define(name, "recipe", settings.allow_duplicate_recipes)?;
+      self.define(name, "recipe", settings.allow_duplicate_recipes)?;
     }
 
     let mut assignments: Table<'src, Assignment<'src>> = Table::default();
-    for assignment in analyzer.assignments {
+    for assignment in self.assignments {
       let variable = assignment.name.lexeme();
 
       if !settings.allow_duplicate_variables && assignments.contains_key(variable) {
@@ -125,7 +138,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
         assignments.insert(assignment.clone());
       }
 
-      if analyzer.unexports.contains(variable) {
+      if self.unexports.contains(variable) {
         return Err(assignment.name.token.error(ExportUnexported { variable }));
       }
     }
@@ -133,7 +146,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     AssignmentResolver::resolve_assignments(&assignments)?;
 
     let mut recipe_table: Table<'src, UnresolvedRecipe<'src>> = Table::default();
-    for recipe in analyzer.recipes {
+    for recipe in self.recipes {
       if recipe_table
         .get(recipe.name.lexeme())
         .map_or(true, |original| recipe.file_depth <= original.file_depth)
@@ -145,7 +158,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     let recipes = RecipeResolver::resolve_recipes(&assignments, &settings, recipe_table)?;
 
     let mut aliases = Table::new();
-    while let Some(alias) = analyzer.aliases.pop() {
+    while let Some(alias) = self.aliases.pop() {
       aliases.insert(Self::resolve_alias(&recipes, alias)?);
     }
 
@@ -183,14 +196,14 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       doc,
       groups: groups.into(),
       loaded: loaded.into(),
-      modules: analyzer.modules,
+      modules: self.modules,
       name,
       recipes,
       settings,
       source: root.into(),
-      unexports: analyzer.unexports,
+      unexports: self.unexports,
       unstable_features,
-      warnings: analyzer.warnings,
+      warnings: self.warnings,
       working_directory: ast.working_directory.clone(),
     })
   }
