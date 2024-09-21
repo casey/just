@@ -12,34 +12,6 @@ pub(crate) struct Analyzer<'run, 'src> {
 }
 
 impl<'run, 'src> Analyzer<'run, 'src> {
-  fn define(
-    &mut self,
-    name: Name<'src>,
-    second_type: &'static str,
-    duplicates_allowed: bool,
-  ) -> CompileResult<'src> {
-    if let Some((first_type, original)) = self.definitions.get(name.lexeme()) {
-      if !(*first_type == second_type && duplicates_allowed) {
-        let ((first_type, second_type), (original, redefinition)) = if name.line < original.line {
-          ((second_type, *first_type), (name, *original))
-        } else {
-          ((*first_type, second_type), (*original, name))
-        };
-
-        return Err(redefinition.token.error(Redefinition {
-          first_type,
-          second_type,
-          name: name.lexeme(),
-          first: original.line,
-        }));
-      }
-    }
-
-    self.definitions.insert(name.lexeme(), (second_type, name));
-
-    Ok(())
-  }
-
   pub(crate) fn analyze(
     asts: &HashMap<PathBuf, Ast<'src>>,
     doc: Option<String>,
@@ -225,6 +197,34 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       warnings: analyzer.warnings,
       working_directory: ast.working_directory.clone(),
     })
+  }
+
+  fn define(
+    &mut self,
+    name: Name<'src>,
+    second_type: &'static str,
+    duplicates_allowed: bool,
+  ) -> CompileResult<'src> {
+    if let Some((first_type, original)) = self.definitions.get(name.lexeme()) {
+      if !(*first_type == second_type && duplicates_allowed) {
+        let ((first_type, second_type), (original, redefinition)) = if name.line < original.line {
+          ((second_type, *first_type), (name, *original))
+        } else {
+          ((*first_type, second_type), (*original, name))
+        };
+
+        return Err(redefinition.token.error(Redefinition {
+          first_type,
+          second_type,
+          name: name.lexeme(),
+          first: original.line,
+        }));
+      }
+    }
+
+    self.definitions.insert(name.lexeme(), (second_type, name));
+
+    Ok(())
   }
 
   fn analyze_recipe(recipe: &UnresolvedRecipe<'src>) -> CompileResult<'src> {
