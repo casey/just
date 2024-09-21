@@ -274,7 +274,7 @@ most Windows users.)
     <tr>
       <td><a href=https://github.com/pypa/pipx?tab=readme-ov-file#install-pipx>Various</a></td>
       <td><a href=https://pypi.org/>PyPI</a></td>
-      <td><a https://pypi.org/project/rust-just/>rust-just</a></td>
+      <td><a href=https://pypi.org/project/rust-just/>rust-just</a></td>
       <td><code>pipx install rust-just</code></td>
     </tr>
     <tr>
