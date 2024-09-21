@@ -25,6 +25,7 @@ pub(crate) struct Config {
   pub(crate) load_dotenv: bool,
   pub(crate) no_aliases: bool,
   pub(crate) no_dependencies: bool,
+  pub(crate) one: bool,
   pub(crate) search_config: SearchConfig,
   pub(crate) shell: Option<String>,
   pub(crate) shell_args: Option<Vec<String>>,
@@ -100,6 +101,7 @@ mod arg {
   pub(crate) const NO_DEPS: &str = "NO-DEPS";
   pub(crate) const NO_DOTENV: &str = "NO-DOTENV";
   pub(crate) const NO_HIGHLIGHT: &str = "NO-HIGHLIGHT";
+  pub(crate) const ONE: &str = "ONE";
   pub(crate) const QUIET: &str = "QUIET";
   pub(crate) const SET: &str = "SET";
   pub(crate) const SHELL: &str = "SHELL";
@@ -296,6 +298,13 @@ impl Config {
           .action(ArgAction::SetTrue)
           .help("Don't highlight echoed recipe lines in bold")
           .overrides_with(arg::HIGHLIGHT),
+      )
+      .arg(
+        Arg::new(arg::ONE)
+          .long("one")
+          .env("JUST_ONE")
+          .action(ArgAction::SetTrue)
+          .help("Forbid multiple recipes from being invoked on the command line"),
       )
       .arg(
         Arg::new(arg::QUIET)
@@ -721,6 +730,7 @@ impl Config {
       load_dotenv: !matches.get_flag(arg::NO_DOTENV),
       no_aliases: matches.get_flag(arg::NO_ALIASES),
       no_dependencies: matches.get_flag(arg::NO_DEPS),
+      one: matches.get_flag(arg::ONE),
       search_config,
       shell: matches.get_one::<String>(arg::SHELL).map(Into::into),
       shell_args: if matches.get_flag(arg::CLEAR_SHELL_ARGS) {
