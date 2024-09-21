@@ -272,6 +272,12 @@ most Windows users.)
       <td><code>nix-env -iA nixos.just</code></td>
     </tr>
     <tr>
+      <td><a href=https://opensuse.org>openSUSE</a></td>
+      <td><a href=https://en.opensuse.org/Portal:Zypper>Zypper</a></td>
+      <td><a href=https://build.opensuse.org/package/show/Base:System/just>just</a></td>
+      <td><code>zypper in just</code></td>
+    </tr>
+    <tr>
       <td><a href=https://getsol.us>Solus</a></td>
       <td><a href=https://getsol.us/articles/package-management/basics/en>eopkg</a></td>
       <td><a href=https://dev.getsol.us/source/just/>just</a></td>
