@@ -302,7 +302,6 @@ impl Config {
       .arg(
         Arg::new(arg::ONE)
           .long("one")
-          .short('1')
           .env("JUST_ONE")
           .action(ArgAction::SetTrue)
           .help("Forbid multiple recipes from being invoked on the command line"),
