@@ -82,6 +82,7 @@ mod no_cd;
 mod no_dependencies;
 mod no_exit_message;
 mod os_attributes;
+mod parameters;
 mod parser;
 mod positional_arguments;
 mod private;
