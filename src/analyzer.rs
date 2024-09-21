@@ -106,11 +106,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
 
     let settings = Settings::from_table(sets);
 
-    let recipe_names: Vec<Name<'src>> = analyzer
-      .recipes
-      .iter()
-      .map(|recipe| recipe.name.clone())
-      .collect();
+    let recipe_names: Vec<Name<'src>> = analyzer.recipes.iter().map(|recipe| recipe.name).collect();
     for name in recipe_names {
       analyzer.define(name, "recipe", settings.allow_duplicate_recipes)?;
     }
