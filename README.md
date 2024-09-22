@@ -35,7 +35,7 @@ inspired by `make`:
 
 You can then run them with `just RECIPE`:
 
-```sh
+```console
 $ just test-all
 cc *.c -o main
 ./test --all
@@ -353,13 +353,13 @@ You can use the following command on Linux, MacOS, or Windows to download the
 latest release, just replace `DEST` with the directory where you'd like to put
 `just`:
 
-```sh
+```console
 curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to DEST
 ```
 
 For example, to install `just` to `~/bin`:
 
-```sh
+```console
 # create ~/bin
 mkdir -p ~/bin
 
@@ -471,7 +471,7 @@ call plug#end()
 
 Or with Vim's built-in package support:
 
-```sh
+```console
 mkdir -p ~/.vim/pack/vendor/start
 cd ~/.vim/pack/vendor/start
 git clone https://github.com/NoahTheDuke/vim-just.git
@@ -593,7 +593,7 @@ name `.justfile`, in case you'd like to hide a `justfile`.
 
 Running `just` with no arguments runs the first recipe in the `justfile`:
 
-```sh
+```console
 $ just
 echo 'This is a recipe!'
 This is a recipe!
@@ -601,7 +601,7 @@ This is a recipe!
 
 One or more arguments specify the recipe(s) to run:
 
-```sh
+```console
 $ just another-recipe
 This is another recipe.
 ```
@@ -634,7 +634,7 @@ sloc:
   @echo "`wc -l *.c` lines of code"
 ```
 
-```sh
+```console
 $ just test
 cc main.c foo.c bar.c -o main
 ./test
@@ -644,7 +644,7 @@ testing… all tests passed!
 Recipes without dependencies will run in the order they're given on the command
 line:
 
-```sh
+```console
 $ just build sloc
 cc main.c foo.c bar.c -o main
 1337 lines of code
@@ -653,7 +653,7 @@ cc main.c foo.c bar.c -o main
 Dependencies will always run first, even if they are passed after a recipe that
 depends on them:
 
-```sh
+```console
 $ just test build
 cc main.c foo.c bar.c -o main
 ./test
@@ -708,7 +708,7 @@ default:
 
 Recipes can be listed in alphabetical order with `just --list`:
 
-```sh
+```console
 $ just --list
 Available recipes:
     build
@@ -737,7 +737,7 @@ Available recipes:
 
 `just --summary` is more concise:
 
-```sh
+```console
 $ just --summary
 build test deploy lint
 ```
@@ -752,14 +752,14 @@ build:
   echo 'Building!'
 ```
 
-```sh
+```console
 $ just --list --unsorted
 Available recipes:
     test
     build
 ```
 
-```sh
+```console
 $ just --summary --unsorted
 test build
 ```
@@ -781,7 +781,7 @@ error.
 
 The heading text can be customized with `--list-heading`:
 
-```sh
+```console
 $ just --list --list-heading $'Cool stuff…\n'
 Cool stuff…
     test
@@ -790,7 +790,7 @@ Cool stuff…
 
 And the indentation can be customized with `--list-prefix`:
 
-```sh
+```console
 $ just --list --list-prefix ····
 Available recipes:
 ····test
@@ -801,7 +801,7 @@ The argument to `--list-heading` replaces both the heading and the newline
 following it, so it should contain a newline if non-empty. It works this way so
 you can suppress the heading line entirely by passing the empty string:
 
-```sh
+```console
 $ just --list --list-heading ''
     test
     build
@@ -819,7 +819,7 @@ serve:
   python3 -m http.server -d out 8000
 ```
 
-```sh
+```console
 $ just build serve
 make web
 python3 -m http.server -d out 8000
@@ -836,7 +836,7 @@ serve:
   python3 -m http.server -d out 8000
 ```
 
-```sh
+```console
 $ just build serve
 make: *** No rule to make target `serve'.  Stop.
 ```
@@ -844,7 +844,7 @@ make: *** No rule to make target `serve'.  Stop.
 The `--one` flag can be used to restrict command-line invocations to a single
 recipe:
 
-```sh
+```console
 $ just --one build serve
 error: Expected 1 command-line recipe invocation but found 2.
 ```
@@ -866,7 +866,7 @@ directory set to directory in which `just` was invoked.
   pwd
 ```
 
-```sh
+```console
 $ cd subdir
 $ just foo
 /
@@ -884,7 +884,7 @@ set working-directory := 'bar'
   pwd
 ```
 
-```sh
+```console
 $ pwd
 /home/bob
 $ just foo
@@ -902,7 +902,7 @@ build:
   echo 'Building!'
 ```
 
-```sh
+```console
 $ just b
 echo 'Building!'
 Building!
@@ -973,7 +973,7 @@ set allow-duplicate-recipes
   echo bar
 ```
 
-```sh
+```console
 $ just foo
 bar
 ```
@@ -994,7 +994,7 @@ a := "bar"
   echo $a
 ```
 
-```sh
+```console
 $ just foo
 bar
 ```
@@ -1029,7 +1029,7 @@ must be accessed using `$VARIABLE_NAME` in recipes and backticks.
 
 For example, if your `.env` file contains:
 
-```sh
+```console
 # a comment, will be ignored
 DATABASE_ADDRESS=localhost:6379
 SERVER_PORT=1337
@@ -1047,7 +1047,7 @@ serve:
 
 `just serve` will output:
 
-```sh
+```console
 $ just serve
 Starting server with database localhost:6379 on port 1337…
 ./server --database $DATABASE_ADDRESS --port $SERVER_PORT
@@ -1068,7 +1068,7 @@ a := "hello"
   echo $b
 ```
 
-```sh
+```console
 $ just foo goodbye
 hello
 goodbye
@@ -1092,7 +1092,7 @@ set positional-arguments
 
 Will produce the following output:
 
-```sh
+```console
 $ just foo hello
 foo
 hello
@@ -1116,7 +1116,7 @@ set positional-arguments
 
 Running it with _two_ arguments:
 
-```sh
+```console
 $ just test foo "bar baz"
 - foo
 - bar baz
@@ -1241,7 +1241,7 @@ test:
   ./bin/test
 ```
 
-```sh
+```console
 $ just --list
 Available recipes:
     build # build stuff
@@ -1262,7 +1262,7 @@ test:
   ./bin/test
 ```
 
-```sh
+```console
 $ just --list
 Available recipes:
     build # Build stuff
@@ -1371,7 +1371,7 @@ tab               := "\t"
 unicode-codepoint := "\u{1F916}"
 ```
 
-```sh
+```console
 $ just --evaluate
 "arriage-return   := "
 double-quote      := """
@@ -1404,7 +1404,7 @@ Single-quoted strings do not recognize escape sequences:
 escapes := '\t\n\r\"\\'
 ```
 
-```sh
+```console
 $ just --evaluate
 escapes := "\t\n\r\"\\"
 ```
@@ -1466,7 +1466,7 @@ foo:
   echo 'Done!'
 ```
 
-```sh
+```console
 $ just foo
 cat foo
 cat: foo: No such file or directory
@@ -1504,7 +1504,7 @@ system-info:
   @echo "This is an {{arch()}} machine".
 ```
 
-```sh
+```console
 $ just system-info
 This is an x86_64 machine
 ```
@@ -1567,7 +1567,7 @@ test:
   echo "{{home_dir}}"
 ```
 
-```sh
+```console
 $ just
 /home/user1
 ```
@@ -1650,7 +1650,7 @@ executable:
   @echo The executable is at: {{just_executable()}}
 ```
 
-```sh
+```console
 $ just
 The executable is at: /bin/just
 ```
@@ -1666,7 +1666,7 @@ pid:
   @echo The process ID is: {{ just_pid() }}
 ```
 
-```sh
+```console
 $ just
 The process ID is: 420
 ```
@@ -1827,7 +1827,7 @@ A number of constants are predefined:
   echo {{HEX}}
 ```
 
-```sh
+```console
 $ just foo
 0123456789abcdef
 ```
@@ -2050,7 +2050,7 @@ bar:
   @echo "{{foo}}"
 ```
 
-```sh
+```console
 $ just bar
 Good!
 ```
@@ -2064,7 +2064,7 @@ bar:
   @echo {{foo}}
 ```
 
-```sh
+```console
 $ just bar
 xyz
 ```
@@ -2078,7 +2078,7 @@ bar:
   @echo {{foo}}
 ```
 
-```sh
+```console
 $ just bar
 match
 ```
@@ -2122,7 +2122,7 @@ bar:
   @echo {{foo}}
 ```
 
-```sh
+```console
 $ just bar
 abc
 ```
@@ -2163,7 +2163,7 @@ build:
   ./build {{os}}
 ```
 
-```sh
+```console
 $ just
 ./build linux
 ./test --test linux
@@ -2171,7 +2171,7 @@ $ just
 
 Any number of arguments of the form `NAME=VALUE` can be passed before recipes:
 
-```sh
+```console
 $ just os=plan9
 ./build plan9
 ./test --test plan9
@@ -2179,7 +2179,7 @@ $ just os=plan9
 
 Or you can use the `--set` flag:
 
-```sh
+```console
 $ just --set os bsd
 ./build bsd
 ./test --test bsd
@@ -2252,7 +2252,7 @@ print_home_folder:
   echo "HOME is: '${HOME}'"
 ```
 
-```sh
+```console
 $ just
 HOME is '/home/myuser'
 ```
@@ -2276,7 +2276,7 @@ build target:
 
 To pass arguments on the command line, put them after the recipe name:
 
-```sh
+```console
 $ just build my-awesome-project
 Building my-awesome-project…
 cd my-awesome-project && make
@@ -2328,7 +2328,7 @@ test target tests=default:
 
 Parameters with default values may be omitted:
 
-```sh
+```console
 $ just test server
 Testing server:all…
 ./test --tests all server
@@ -2336,7 +2336,7 @@ Testing server:all…
 
 Or supplied:
 
-```sh
+```console
 $ just test server unit
 Testing server:unit…
 ./test --tests unit server
@@ -2363,7 +2363,7 @@ backup +FILES:
 Variadic parameters prefixed with `+` accept _one or more_ arguments and expand
 to a string containing those arguments separated by spaces:
 
-```sh
+```console
 $ just backup FAQ.md GRAMMAR.md
 scp FAQ.md GRAMMAR.md me@server.com:
 FAQ.md                  100% 1831     1.8KB/s   00:00
@@ -2397,7 +2397,7 @@ search QUERY:
 
 And you type:
 
-```sh
+```console
 $ just search "cat toupee"
 ```
 
@@ -2524,7 +2524,7 @@ d:
 
 …running _b_ prints:
 
-```sh
+```console
 $ just b
 echo 'A!'
 A!
@@ -2557,7 +2557,7 @@ c:
 
 …running _b_ prints:
 
-```sh
+```console
 $ just b
 echo 'A!'
 A!
@@ -2609,7 +2609,7 @@ ruby:
   puts "Hello from ruby!"
 ```
 
-```sh
+```console
 $ just polyglot
 Hello from python!
 Greetings from JavaScript!
@@ -2857,7 +2857,7 @@ conditional:
 The extra leading whitespace before the second line of the `conditional` recipe
 will produce a parse error:
 
-```sh
+```console
 $ just conditional
 error: Recipe line has extra leading whitespace
   |
@@ -3000,7 +3000,7 @@ recipe:
 `just` supports a number of useful command line options for listing, dumping,
 and debugging recipes and variables:
 
-```sh
+```console
 $ just --list
 Available recipes:
   js
@@ -3018,14 +3018,14 @@ polyglot: python js perl sh ruby
 
 Some command-line options can be set with environment variables. For example:
 
-```sh
+```console
 $ export JUST_UNSTABLE=1
 $ just
 ```
 
 Is equivalent to:
 
-```sh
+```console
 $ just --unstable
 ```
 
@@ -3044,7 +3044,7 @@ _test-helper:
   ./bin/super-secret-test-helper-stuff
 ```
 
-```sh
+```console
 $ just --list
 Available recipes:
     test
@@ -3052,7 +3052,7 @@ Available recipes:
 
 And from `just --summary`:
 
-```sh
+```console
 $ just --summary
 test
 ```
@@ -3070,7 +3070,7 @@ alias b := bar
 bar:
 ```
 
-```sh
+```console
 $ just --list
 Available recipes:
     bar
@@ -3093,7 +3093,7 @@ line:
 
 Now only the lines starting with `@` will be echoed:
 
-```sh
+```console
 $ just quiet
 hello
 goodbye
@@ -3133,7 +3133,7 @@ foo:
   echo 'Foo!'
 ```
 
-```sh
+```console
 $ just foo
 Foo!
 ```
@@ -3147,7 +3147,7 @@ executing it:
   echo 'Bar!'
 ```
 
-```sh
+```console
 $ just bar
 #!/usr/bin/env bash
 echo 'Bar!'
@@ -3163,7 +3163,7 @@ git *args:
     @git {{args}}
 ```
 
-```sh
+```console
 $ just git status
 fatal: not a git repository (or any of the parent directories): .git
 error: Recipe `git` failed on line 2 with exit code 128
@@ -3178,7 +3178,7 @@ git *args:
     @git {{args}}
 ```
 
-```sh
+```console
 $ just git status
 fatal: not a git repository (or any of the parent directories): .git
 ```
@@ -3232,7 +3232,7 @@ For example, if you are in a directory which contains a subdirectory named
 `foo`, which contains a `justfile` with the recipe `build`, which is also the
 default recipe, the following are all equivalent:
 
-```sh
+```console
 $ (cd foo && just build)
 $ just foo/build
 $ just foo/
@@ -3241,7 +3241,7 @@ $ just foo/
 Additional recipes after the first are sought in the same `justfile`. For
 example, the following are both equivalent:
 
-```sh
+```console
 $ just foo/a b
 $ (cd foo && just a b)
 ```
@@ -3270,7 +3270,7 @@ b:
 
 `foo/bar.just` will be included in `justfile` and recipe `b` will be defined:
 
-```sh
+```console
 $ just b
 B
 $ just a
@@ -3330,14 +3330,14 @@ uses its own settings.
 
 Recipes in submodules can be invoked as subcommands:
 
-```sh
+```console
 $ just bar b
 B
 ```
 
 Or with path syntax:
 
-```sh
+```console
 $ just bar::b
 B
 ```
@@ -3395,7 +3395,7 @@ output<sup>1.30.0</sup>:
 mod foo
 ```
 
-```sh
+```console
 $ just --list
 Available recipes:
     foo ... # foo is a great module!
@@ -3416,7 +3416,7 @@ used to keep a `justfile` hidden.
 By adding a shebang line to the top of a `justfile` and making it executable,
 `just` can be used as an interpreter for scripts:
 
-```sh
+```console
 $ cat > script <<EOF
 #!/usr/bin/env just --justfile
 
@@ -3456,7 +3456,7 @@ newlines.
 You can overwrite the current justfile with a canonically-formatted version
 using the currently-unstable `--fmt` flag:
 
-```sh
+```console
 $ cat justfile
 # A lot of blank lines
 
@@ -3481,7 +3481,7 @@ formatted correctly, and will exit with 1 and print a diff if it is not.
 You can use the `--dump` command to output a formatted version of the
 `justfile` to stdout:
 
-```sh
+```console
 $ just --dump > formatted-justfile
 ```
 
@@ -3510,7 +3510,7 @@ bar:
   echo bar
 ```
 
-```sh
+```console
 $ just bar
 Trying ../justfile
 echo bar
@@ -3528,7 +3528,7 @@ foo argument:
 
 The following command will create two files, `some` and `argument.txt`:
 
-```sh
+```console
 $ just foo "some argument.txt"
 ```
 
@@ -3663,7 +3663,7 @@ when files change.
 
 To re-run the recipe `foo` when any file changes:
 
-```sh
+```console
 watchexec just foo
 ```
 
@@ -3692,7 +3692,7 @@ In `bash`, the aliased command may not keep the shell completion functionality
 described in the next section. Add the following line to your `.bashrc` to use
 the same completion function as `just` for your aliased command:
 
-```sh
+```console
 complete -F _just -o bashdefault -o default j
 ```
 
@@ -3704,7 +3704,7 @@ are available [release archives](https://github.com/casey/just/releases).
 The `just` binary can also generate the same completion scripts at runtime
 using `just --completions SHELL`:
 
-```sh
+```console
 $ just --completions zsh > just.zsh
 ```
 
@@ -3784,7 +3784,7 @@ If you want to call the recipes in `~/.user.justfile` by name, and don't mind
 creating an alias for every recipe, add the following to your shell's
 initialization script:
 
-```sh
+```console
 for recipe in `just --justfile ~/.user.justfile --summary`; do
   alias $recipe="just --justfile ~/.user.justfile --working-directory . $recipe"
 done
@@ -3801,7 +3801,7 @@ advance in `justfile` technology.
 
 If you'd rather not create aliases for every recipe, you can create a single alias:
 
-```sh
+```console
 alias .j='just --justfile ~/.user.justfile --working-directory .'
 ```
 
@@ -3818,7 +3818,7 @@ You can customize the above aliases with additional options. For example, if
 you'd prefer to have the recipes in your `justfile` run in your home directory,
 instead of the current directory:
 
-```sh
+```console
 alias .j='just --justfile ~/.user.justfile --working-directory ~'
 ```
 
@@ -4048,7 +4048,7 @@ test:
 
 `make` will refuse to run your tests:
 
-```sh
+```console
 $ make test
 make: `test' is up to date.
 ```
