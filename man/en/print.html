@@ -204,7 +204,7 @@
 inspired by <code>make</code>:</p>
 <p><img src="https://raw.githubusercontent.com/casey/just/master/screenshot.png" alt="screenshot" /></p>
 <p>You can then run them with <code>just RECIPE</code>:</p>
-<pre><code class="language-sh">$ just test-all
+<pre><code class="language-console">$ just test-all
 cc *.c -o main
 ./test --all
 Yay, all your tests passed!
@@ -501,10 +501,10 @@ most Windows users.)</p>
 <p>You can use the following command on Linux, MacOS, or Windows to download the
 latest release, just replace <code>DEST</code> with the directory where you’d like to put
 <code>just</code>:</p>
-<pre><code class="language-sh">curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to DEST
+<pre><code class="language-console">curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to DEST
 </code></pre>
 <p>For example, to install <code>just</code> to <code>~/bin</code>:</p>
-<pre><code class="language-sh"># create ~/bin
+<pre><code class="language-console"># create ~/bin
 mkdir -p ~/bin
 
 # download and extract just to ~/bin/just
@@ -581,7 +581,7 @@ Plug 'NoahTheDuke/vim-just'
 call plug#end()
 </code></pre>
 <p>Or with Vim’s built-in package support:</p>
-<pre><code class="language-sh">mkdir -p ~/.vim/pack/vendor/start
+<pre><code class="language-console">mkdir -p ~/.vim/pack/vendor/start
 cd ~/.vim/pack/vendor/start
 git clone https://github.com/NoahTheDuke/vim-just.git
 </code></pre>
@@ -661,12 +661,12 @@ and upwards, so you can invoke it from any subdirectory of your project.</p>
 <code>JUSTFILE</code>, or <code>JuStFiLe</code>, will work. <code>just</code> will also look for files with the
 name <code>.justfile</code>, in case you’d like to hide a <code>justfile</code>.</p>
 <p>Running <code>just</code> with no arguments runs the first recipe in the <code>justfile</code>:</p>
-<pre><code class="language-sh">$ just
+<pre><code class="language-console">$ just
 echo 'This is a recipe!'
 This is a recipe!
 </code></pre>
 <p>One or more arguments specify the recipe(s) to run:</p>
-<pre><code class="language-sh">$ just another-recipe
+<pre><code class="language-console">$ just another-recipe
 This is another recipe.
 </code></pre>
 <p><code>just</code> prints each command to standard error before running it, which is why
@@ -690,20 +690,20 @@ test: build
 sloc:
   @echo "`wc -l *.c` lines of code"
 </code></pre>
-<pre><code class="language-sh">$ just test
+<pre><code class="language-console">$ just test
 cc main.c foo.c bar.c -o main
 ./test
 testing… all tests passed!
 </code></pre>
 <p>Recipes without dependencies will run in the order they’re given on the command
 line:</p>
-<pre><code class="language-sh">$ just build sloc
+<pre><code class="language-console">$ just build sloc
 cc main.c foo.c bar.c -o main
 1337 lines of code
 </code></pre>
 <p>Dependencies will always run first, even if they are passed after a recipe that
 depends on them:</p>
-<pre><code class="language-sh">$ just test build
+<pre><code class="language-console">$ just test build
 cc main.c foo.c bar.c -o main
 ./test
 testing… all tests passed!
@@ -739,7 +739,7 @@ beginning of your <code>justfile</code> that lists the available recipes:</p>
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="listing-available-recipes"><a class="header" href="#listing-available-recipes">Listing Available Recipes</a></h3>
 <p>Recipes can be listed in alphabetical order with <code>just --list</code>:</p>
-<pre><code class="language-sh">$ just --list
+<pre><code class="language-console">$ just --list
 Available recipes:
     build
     test
@@ -762,7 +762,7 @@ Available recipes:
     baz
 </code></pre>
 <p><code>just --summary</code> is more concise:</p>
-<pre><code class="language-sh">$ just --summary
+<pre><code class="language-console">$ just --summary
 build test deploy lint
 </code></pre>
 <p>Pass <code>--unsorted</code> to print recipes in the order they appear in the <code>justfile</code>:</p>
@@ -772,12 +772,12 @@ build test deploy lint
 build:
   echo 'Building!'
 </code></pre>
-<pre><code class="language-sh">$ just --list --unsorted
+<pre><code class="language-console">$ just --list --unsorted
 Available recipes:
     test
     build
 </code></pre>
-<pre><code class="language-sh">$ just --summary --unsorted
+<pre><code class="language-console">$ just --summary --unsorted
 test build
 </code></pre>
 <p>If you’d like <code>just</code> to default to listing the recipes in the <code>justfile</code>, you
@@ -792,13 +792,13 @@ would not necessarily use the file you provided. It would try to find a
 justfile in your current path, maybe even resulting in a <code>No justfile found</code>
 error.</p>
 <p>The heading text can be customized with <code>--list-heading</code>:</p>
-<pre><code class="language-sh">$ just --list --list-heading $'Cool stuff…\n'
+<pre><code class="language-console">$ just --list --list-heading $'Cool stuff…\n'
 Cool stuff…
     test
     build
 </code></pre>
 <p>And the indentation can be customized with <code>--list-prefix</code>:</p>
-<pre><code class="language-sh">$ just --list --list-prefix ····
+<pre><code class="language-console">$ just --list --list-prefix ····
 Available recipes:
 ····test
 ····build
@@ -806,7 +806,7 @@ Available recipes:
 <p>The argument to <code>--list-heading</code> replaces both the heading and the newline
 following it, so it should contain a newline if non-empty. It works this way so
 you can suppress the heading line entirely by passing the empty string:</p>
-<pre><code class="language-sh">$ just --list --list-heading ''
+<pre><code class="language-console">$ just --list --list-heading ''
     test
     build
 </code></pre>
@@ -818,7 +818,7 @@ you can suppress the heading line entirely by passing the empty string:</p>
 serve:
   python3 -m http.server -d out 8000
 </code></pre>
-<pre><code class="language-sh">$ just build serve
+<pre><code class="language-console">$ just build serve
 make web
 python3 -m http.server -d out 8000
 </code></pre>
@@ -830,12 +830,12 @@ match the names of other recipes:</p>
 serve:
   python3 -m http.server -d out 8000
 </code></pre>
-<pre><code class="language-sh">$ just build serve
+<pre><code class="language-console">$ just build serve
 make: *** No rule to make target `serve'.  Stop.
 </code></pre>
 <p>The <code>--one</code> flag can be used to restrict command-line invocations to a single
 recipe:</p>
-<pre><code class="language-sh">$ just --one build serve
+<pre><code class="language-console">$ just --one build serve
 error: Expected 1 command-line recipe invocation but found 2.
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="working-directory"><a class="header" href="#working-directory">Working Directory</a></h3>
@@ -850,7 +850,7 @@ directory set to directory in which <code>just</code> was invoked.</p>
 @bar:
   pwd
 </code></pre>
-<pre><code class="language-sh">$ cd subdir
+<pre><code class="language-console">$ cd subdir
 $ just foo
 /
 $ just bar
@@ -863,7 +863,7 @@ is relative to the default working directory.</p>
 @foo:
   pwd
 </code></pre>
-<pre><code class="language-sh">$ pwd
+<pre><code class="language-console">$ pwd
 /home/bob
 $ just foo
 /home/bob/bar
@@ -875,7 +875,7 @@ $ just foo
 build:
   echo 'Building!'
 </code></pre>
-<pre><code class="language-sh">$ just b
+<pre><code class="language-console">$ just b
 echo 'Building!'
 Building!
 </code></pre>
@@ -928,7 +928,7 @@ the same name is not an error and the last definition is used. Defaults to
 @foo:
   echo bar
 </code></pre>
-<pre><code class="language-sh">$ just foo
+<pre><code class="language-console">$ just foo
 bar
 </code></pre>
 <h4 id="allow-duplicate-variables"><a class="header" href="#allow-duplicate-variables">Allow Duplicate Variables</a></h4>
@@ -943,7 +943,7 @@ a := "bar"
 @foo:
   echo $a
 </code></pre>
-<pre><code class="language-sh">$ just foo
+<pre><code class="language-console">$ just foo
 bar
 </code></pre>
 <h4 id="dotenv-settings"><a class="header" href="#dotenv-settings">Dotenv Settings</a></h4>
@@ -966,7 +966,7 @@ relative to the working directory and each of its ancestors.</p>
 <p>The loaded variables are environment variables, not <code>just</code> variables, and so
 must be accessed using <code>$VARIABLE_NAME</code> in recipes and backticks.</p>
 <p>For example, if your <code>.env</code> file contains:</p>
-<pre><code class="language-sh"># a comment, will be ignored
+<pre><code class="language-console"># a comment, will be ignored
 DATABASE_ADDRESS=localhost:6379
 SERVER_PORT=1337
 </code></pre>
@@ -978,7 +978,7 @@ serve:
   ./server --database $DATABASE_ADDRESS --port $SERVER_PORT
 </code></pre>
 <p><code>just serve</code> will output:</p>
-<pre><code class="language-sh">$ just serve
+<pre><code class="language-console">$ just serve
 Starting server with database localhost:6379 on port 1337…
 ./server --database $DATABASE_ADDRESS --port $SERVER_PORT
 </code></pre>
@@ -993,7 +993,7 @@ a := "hello"
   echo $a
   echo $b
 </code></pre>
-<pre><code class="language-sh">$ just foo goodbye
+<pre><code class="language-console">$ just foo goodbye
 hello
 goodbye
 </code></pre>
@@ -1009,7 +1009,7 @@ the name of the recipe.</p>
   echo $1
 </code></pre>
 <p>Will produce the following output:</p>
-<pre><code class="language-sh">$ just foo hello
+<pre><code class="language-console">$ just foo hello
 foo
 hello
 </code></pre>
@@ -1026,7 +1026,7 @@ When there are no positional parameters, <code>"$@"</code> and <code>$@</code> e
   bash -c 'while (( "$#" )); do echo - $1; shift; done' -- "$@"
 </code></pre>
 <p>Running it with <em>two</em> arguments:</p>
-<pre><code class="language-sh">$ just test foo "bar baz"
+<pre><code class="language-console">$ just test foo "bar baz"
 - foo
 - bar baz
 </code></pre>
@@ -1107,7 +1107,7 @@ build:
 test:
   ./bin/test
 </code></pre>
-<pre><code class="language-sh">$ just --list
+<pre><code class="language-console">$ just --list
 Available recipes:
     build # build stuff
     test # test stuff
@@ -1123,7 +1123,7 @@ build:
 test:
   ./bin/test
 </code></pre>
-<pre><code class="language-sh">$ just --list
+<pre><code class="language-console">$ just --list
 Available recipes:
     build # Build stuff
     test
@@ -1194,7 +1194,7 @@ slash             := "\\"
 tab               := "\t"
 unicode-codepoint := "\u{1F916}"
 </code></pre>
-<pre><code class="language-sh">$ just --evaluate
+<pre><code class="language-console">$ just --evaluate
 "arriage-return   := "
 double-quote      := """
 newline           := "
@@ -1218,7 +1218,7 @@ goodbye
 <p>Single-quoted strings do not recognize escape sequences:</p>
 <pre><code class="language-just">escapes := '\t\n\r\"\\'
 </code></pre>
-<pre><code class="language-sh">$ just --evaluate
+<pre><code class="language-console">$ just --evaluate
 escapes := "\t\n\r\"\\"
 </code></pre>
 <p>Indented versions of both single- and double-quoted strings, delimited by
@@ -1266,7 +1266,7 @@ continue execution after a command, even if it fails, prefix the command with
   -cat foo
   echo 'Done!'
 </code></pre>
-<pre><code class="language-sh">$ just foo
+<pre><code class="language-console">$ just foo
 cat foo
 cat: foo: No such file or directory
 echo 'Done!'
@@ -1296,7 +1296,7 @@ recipes.</p>
 <pre><code class="language-just">system-info:
   @echo "This is an {{arch()}} machine".
 </code></pre>
-<pre><code class="language-sh">$ just system-info
+<pre><code class="language-console">$ just system-info
 This is an x86_64 machine
 </code></pre>
 <p>The <code>os_family()</code> function can be used to create cross-platform <code>justfile</code>s
@@ -1348,7 +1348,7 @@ if it is not present.</li>
 test:
   echo "{{home_dir}}"
 </code></pre>
-<pre><code class="language-sh">$ just
+<pre><code class="language-console">$ just
 /home/user1
 </code></pre>
 <ul>
@@ -1424,7 +1424,7 @@ called from within an import or submodule.</p>
 <pre><code class="language-just">executable:
   @echo The executable is at: {{just_executable()}}
 </code></pre>
-<pre><code class="language-sh">$ just
+<pre><code class="language-console">$ just
 The executable is at: /bin/just
 </code></pre>
 <h4 id="just-process-id"><a class="header" href="#just-process-id">Just Process ID</a></h4>
@@ -1435,7 +1435,7 @@ The executable is at: /bin/just
 <pre><code class="language-just">pid:
   @echo The process ID is: {{ just_pid() }}
 </code></pre>
-<pre><code class="language-sh">$ just
+<pre><code class="language-console">$ just
 The process ID is: 420
 </code></pre>
 <h4 id="string-manipulation"><a class="header" href="#string-manipulation">String Manipulation</a></h4>
@@ -1584,7 +1584,7 @@ and are implemented with the
 <pre><code class="language-just">@foo:
   echo {{HEX}}
 </code></pre>
-<pre><code class="language-sh">$ just foo
+<pre><code class="language-console">$ just foo
 0123456789abcdef
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="attributes"><a class="header" href="#attributes">Attributes</a></h3>
@@ -1750,7 +1750,7 @@ expressions evaluate to the same value:</p>
 bar:
   @echo "{{foo}}"
 </code></pre>
-<pre><code class="language-sh">$ just bar
+<pre><code class="language-console">$ just bar
 Good!
 </code></pre>
 <p>It is also possible to test for inequality:</p>
@@ -1759,7 +1759,7 @@ Good!
 bar:
   @echo {{foo}}
 </code></pre>
-<pre><code class="language-sh">$ just bar
+<pre><code class="language-console">$ just bar
 xyz
 </code></pre>
 <p>And match against regular expressions:</p>
@@ -1768,7 +1768,7 @@ xyz
 bar:
   @echo {{foo}}
 </code></pre>
-<pre><code class="language-sh">$ just bar
+<pre><code class="language-console">$ just bar
 match
 </code></pre>
 <p>Regular expressions are provided by the
@@ -1799,7 +1799,7 @@ be prematurely closed.</p>
 bar:
   @echo {{foo}}
 </code></pre>
-<pre><code class="language-sh">$ just bar
+<pre><code class="language-console">$ just bar
 abc
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="stopping-execution-with-error"><a class="header" href="#stopping-execution-with-error">Stopping execution with error</a></h3>
@@ -1827,17 +1827,17 @@ test: build
 build:
   ./build {{os}}
 </code></pre>
-<pre><code class="language-sh">$ just
+<pre><code class="language-console">$ just
 ./build linux
 ./test --test linux
 </code></pre>
 <p>Any number of arguments of the form <code>NAME=VALUE</code> can be passed before recipes:</p>
-<pre><code class="language-sh">$ just os=plan9
+<pre><code class="language-console">$ just os=plan9
 ./build plan9
 ./test --test plan9
 </code></pre>
 <p>Or you can use the <code>--set</code> flag:</p>
-<pre><code class="language-sh">$ just --set os bsd
+<pre><code class="language-console">$ just --set os bsd
 ./build bsd
 ./test --test bsd
 </code></pre>
@@ -1884,7 +1884,7 @@ recipes.</p>
 <pre><code class="language-just">print_home_folder:
   echo "HOME is: '${HOME}'"
 </code></pre>
-<pre><code class="language-sh">$ just
+<pre><code class="language-console">$ just
 HOME is '/home/myuser'
 </code></pre>
 <h4 id="setting-just-variables-from-environment-variables"><a class="header" href="#setting-just-variables-from-environment-variables">Setting <code>just</code> Variables from Environment Variables</a></h4>
@@ -1899,7 +1899,7 @@ HOME is '/home/myuser'
   cd {{target}} &amp;&amp; make
 </code></pre>
 <p>To pass arguments on the command line, put them after the recipe name:</p>
-<pre><code class="language-sh">$ just build my-awesome-project
+<pre><code class="language-console">$ just build my-awesome-project
 Building my-awesome-project…
 cd my-awesome-project &amp;&amp; make
 </code></pre>
@@ -1936,12 +1936,12 @@ test target tests=default:
   ./test --tests {{tests}} {{target}}
 </code></pre>
 <p>Parameters with default values may be omitted:</p>
-<pre><code class="language-sh">$ just test server
+<pre><code class="language-console">$ just test server
 Testing server:all…
 ./test --tests all server
 </code></pre>
 <p>Or supplied:</p>
-<pre><code class="language-sh">$ just test server unit
+<pre><code class="language-console">$ just test server unit
 Testing server:unit…
 ./test --tests unit server
 </code></pre>
@@ -1959,7 +1959,7 @@ a <code>*</code> before the argument name:</p>
 </code></pre>
 <p>Variadic parameters prefixed with <code>+</code> accept <em>one or more</em> arguments and expand
 to a string containing those arguments separated by spaces:</p>
-<pre><code class="language-sh">$ just backup FAQ.md GRAMMAR.md
+<pre><code class="language-console">$ just backup FAQ.md GRAMMAR.md
 scp FAQ.md GRAMMAR.md me@server.com:
 FAQ.md                  100% 1831     1.8KB/s   00:00
 GRAMMAR.md              100% 1666     1.6KB/s   00:00
@@ -1981,7 +1981,7 @@ example, if you have the following recipe:</p>
   lynx https://www.google.com/?q={{QUERY}}
 </code></pre>
 <p>And you type:</p>
-<pre><code class="language-sh">$ just search "cat toupee"
+<pre><code class="language-console">$ just search "cat toupee"
 </code></pre>
 <p><code>just</code> will run the command <code>lynx https://www.google.com/?q=cat toupee</code>, which
 will get parsed by <code>sh</code> as <code>lynx</code>, <code>https://www.google.com/?q=cat</code>, and
@@ -2072,7 +2072,7 @@ d:
   echo 'D!'
 </code></pre>
 <p>…running <em>b</em> prints:</p>
-<pre><code class="language-sh">$ just b
+<pre><code class="language-console">$ just b
 echo 'A!'
 A!
 echo 'B!'
@@ -2098,7 +2098,7 @@ c:
   echo 'C!'
 </code></pre>
 <p>…running <em>b</em> prints:</p>
-<pre><code class="language-sh">$ just b
+<pre><code class="language-console">$ just b
 echo 'A!'
 A!
 echo 'B start!'
@@ -2143,7 +2143,7 @@ ruby:
   #!/usr/bin/env ruby
   puts "Hello from ruby!"
 </code></pre>
-<pre><code class="language-sh">$ just polyglot
+<pre><code class="language-console">$ just polyglot
 Hello from python!
 Greetings from JavaScript!
 Larry Wall says Hi!
@@ -2330,7 +2330,7 @@ means that multi-line constructs probably won’t do what you want.</p>
 </code></pre>
 <p>The extra leading whitespace before the second line of the <code>conditional</code> recipe
 will produce a parse error:</p>
-<pre><code class="language-sh">$ just conditional
+<pre><code class="language-console">$ just conditional
 error: Recipe line has extra leading whitespace
   |
 3 |         echo 'True!'
@@ -2437,7 +2437,7 @@ following the backslash must be indented.</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="command-line-options"><a class="header" href="#command-line-options">Command Line Options</a></h3>
 <p><code>just</code> supports a number of useful command line options for listing, dumping,
 and debugging recipes and variables:</p>
-<pre><code class="language-sh">$ just --list
+<pre><code class="language-console">$ just --list
 Available recipes:
   js
   perl
@@ -2452,11 +2452,11 @@ $ just --show polyglot
 polyglot: python js perl sh ruby
 </code></pre>
 <p>Some command-line options can be set with environment variables. For example:</p>
-<pre><code class="language-sh">$ export JUST_UNSTABLE=1
+<pre><code class="language-console">$ export JUST_UNSTABLE=1
 $ just
 </code></pre>
 <p>Is equivalent to:</p>
-<pre><code class="language-sh">$ just --unstable
+<pre><code class="language-console">$ just --unstable
 </code></pre>
 <p>Consult <code>just --help</code> to see which options can be set from environment
 variables.</p>
@@ -2468,12 +2468,12 @@ variables.</p>
 _test-helper:
   ./bin/super-secret-test-helper-stuff
 </code></pre>
-<pre><code class="language-sh">$ just --list
+<pre><code class="language-console">$ just --list
 Available recipes:
     test
 </code></pre>
 <p>And from <code>just --summary</code>:</p>
-<pre><code class="language-sh">$ just --summary
+<pre><code class="language-console">$ just --summary
 test
 </code></pre>
 <p>The <code>[private]</code> attribute<sup>1.10.0</sup> may also be used to hide recipes or
@@ -2486,7 +2486,7 @@ alias b := bar
 
 bar:
 </code></pre>
-<pre><code class="language-sh">$ just --list
+<pre><code class="language-console">$ just --list
 Available recipes:
     bar
 </code></pre>
@@ -2501,7 +2501,7 @@ line:</p>
   @# all done!
 </code></pre>
 <p>Now only the lines starting with <code>@</code> will be echoed:</p>
-<pre><code class="language-sh">$ just quiet
+<pre><code class="language-console">$ just quiet
 hello
 goodbye
 # all done!
@@ -2530,7 +2530,7 @@ foo2:
   #!/usr/bin/env bash
   echo 'Foo!'
 </code></pre>
-<pre><code class="language-sh">$ just foo
+<pre><code class="language-console">$ just foo
 Foo!
 </code></pre>
 <p>Adding <code>@</code> to a shebang recipe name makes <code>just</code> print the recipe before
@@ -2539,7 +2539,7 @@ executing it:</p>
   #!/usr/bin/env bash
   echo 'Bar!'
 </code></pre>
-<pre><code class="language-sh">$ just bar
+<pre><code class="language-console">$ just bar
 #!/usr/bin/env bash
 echo 'Bar!'
 Bar!
@@ -2550,7 +2550,7 @@ attribute. You may find this especially useful with a recipe that wraps a tool:<
 <pre><code class="language-just">git *args:
     @git {{args}}
 </code></pre>
-<pre><code class="language-sh">$ just git status
+<pre><code class="language-console">$ just git status
 fatal: not a git repository (or any of the parent directories): .git
 error: Recipe `git` failed on line 2 with exit code 128
 </code></pre>
@@ -2560,7 +2560,7 @@ non-zero code:</p>
 git *args:
     @git {{args}}
 </code></pre>
-<pre><code class="language-sh">$ just git status
+<pre><code class="language-console">$ just git status
 fatal: not a git repository (or any of the parent directories): .git
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="selecting-recipes-to-run-with-an-interactive-chooser"><a class="header" href="#selecting-recipes-to-run-with-an-interactive-chooser">Selecting Recipes to Run With an Interactive Chooser</a></h3>
@@ -2604,13 +2604,13 @@ a <code>justfile</code> that is in a subdirectory.</p>
 <p>For example, if you are in a directory which contains a subdirectory named
 <code>foo</code>, which contains a <code>justfile</code> with the recipe <code>build</code>, which is also the
 default recipe, the following are all equivalent:</p>
-<pre><code class="language-sh">$ (cd foo &amp;&amp; just build)
+<pre><code class="language-console">$ (cd foo &amp;&amp; just build)
 $ just foo/build
 $ just foo/
 </code></pre>
 <p>Additional recipes after the first are sought in the same <code>justfile</code>. For
 example, the following are both equivalent:</p>
-<pre><code class="language-sh">$ just foo/a b
+<pre><code class="language-console">$ just foo/a b
 $ (cd foo &amp;&amp; just a b)
 </code></pre>
 <p>And will both invoke recipes <code>a</code> and <code>b</code> in <code>foo/justfile</code>.</p>
@@ -2627,7 +2627,7 @@ a: b
   @echo B
 </code></pre>
 <p><code>foo/bar.just</code> will be included in <code>justfile</code> and recipe <code>b</code> will be defined:</p>
-<pre><code class="language-sh">$ just b
+<pre><code class="language-console">$ just b
 B
 $ just a
 B
@@ -2666,11 +2666,11 @@ a:
 variables defined in one submodule cannot be used in another, and each module
 uses its own settings.</p>
 <p>Recipes in submodules can be invoked as subcommands:</p>
-<pre><code class="language-sh">$ just bar b
+<pre><code class="language-console">$ just bar b
 B
 </code></pre>
 <p>Or with path syntax:</p>
-<pre><code class="language-sh">$ just bar::b
+<pre><code class="language-console">$ just bar::b
 B
 </code></pre>
 <p>If a module is named <code>foo</code>, just will search for the module file in <code>foo.just</code>,
@@ -2708,7 +2708,7 @@ output<sup>1.30.0</sup>:</p>
 <pre><code class="language-mf"># foo is a great module!
 mod foo
 </code></pre>
-<pre><code class="language-sh">$ just --list
+<pre><code class="language-console">$ just --list
 Available recipes:
     foo ... # foo is a great module!
 </code></pre>
@@ -2722,7 +2722,7 @@ used to keep a <code>justfile</code> hidden.</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="just-scripts"><a class="header" href="#just-scripts">Just Scripts</a></h3>
 <p>By adding a shebang line to the top of a <code>justfile</code> and making it executable,
 <code>just</code> can be used as an interpreter for scripts:</p>
-<pre><code class="language-sh">$ cat &gt; script &lt;&lt;EOF
+<pre><code class="language-console">$ cat &gt; script &lt;&lt;EOF
 #!/usr/bin/env just --justfile
 
 foo:
@@ -2752,7 +2752,7 @@ default:
 newlines.</p>
 <p>You can overwrite the current justfile with a canonically-formatted version
 using the currently-unstable <code>--fmt</code> flag:</p>
-<pre><code class="language-sh">$ cat justfile
+<pre><code class="language-console">$ cat justfile
 # A lot of blank lines
 
 
@@ -2773,7 +2773,7 @@ overwriting the <code>justfile</code>, <code>just</code> will exit with an exit 
 formatted correctly, and will exit with 1 and print a diff if it is not.</p>
 <p>You can use the <code>--dump</code> command to output a formatted version of the
 <code>justfile</code> to stdout:</p>
-<pre><code class="language-sh">$ just --dump &gt; formatted-justfile
+<pre><code class="language-console">$ just --dump &gt; formatted-justfile
 </code></pre>
 <p>The <code>--dump</code> command can be used with <code>--dump-format json</code> to print a JSON
 representation of a <code>justfile</code>.</p>
@@ -2791,7 +2791,7 @@ foo:
 <pre><code class="language-just">bar:
   echo bar
 </code></pre>
-<pre><code class="language-sh">$ just bar
+<pre><code class="language-console">$ just bar
 Trying ../justfile
 echo bar
 bar
@@ -2802,7 +2802,7 @@ bar
   touch {{argument}}
 </code></pre>
 <p>The following command will create two files, <code>some</code> and <code>argument.txt</code>:</p>
-<pre><code class="language-sh">$ just foo "some argument.txt"
+<pre><code class="language-console">$ just foo "some argument.txt"
 </code></pre>
 <p>The users shell will parse <code>"some argument.txt"</code> as a single argument, but when
 <code>just</code> replaces <code>touch {{argument}}</code> with <code>touch some argument.txt</code>, the quotes
@@ -2895,7 +2895,7 @@ can also be used to make a <code>just</code> binary print its changelog.</p>
 <p><a href="https://github.com/mattgreen/watchexec"><code>watchexec</code></a> can re-run any command
 when files change.</p>
 <p>To re-run the recipe <code>foo</code> when any file changes:</p>
-<pre><code class="language-sh">watchexec just foo
+<pre><code class="language-console">watchexec just foo
 </code></pre>
 <p>See <code>watchexec --help</code> for more info, including how to specify which files
 should be watched for changes.</p>
@@ -2914,14 +2914,14 @@ configuration file.</p>
 <p>In <code>bash</code>, the aliased command may not keep the shell completion functionality
 described in the next section. Add the following line to your <code>.bashrc</code> to use
 the same completion function as <code>just</code> for your aliased command:</p>
-<pre><code class="language-sh">complete -F _just -o bashdefault -o default j
+<pre><code class="language-console">complete -F _just -o bashdefault -o default j
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="shell-completion-scripts"><a class="header" href="#shell-completion-scripts">Shell Completion Scripts</a></h3>
 <p>Shell completion scripts for Bash, Elvish, Fish, Nushell, PowerShell, and Zsh
 are available <a href="https://github.com/casey/just/releases">release archives</a>.</p>
 <p>The <code>just</code> binary can also generate the same completion scripts at runtime
 using <code>just --completions SHELL</code>:</p>
-<pre><code class="language-sh">$ just --completions zsh &gt; just.zsh
+<pre><code class="language-console">$ just --completions zsh &gt; just.zsh
 </code></pre>
 <p>Please refer to your shell’s documentation for how to install them.</p>
 <p><em>macOS Note:</em> Recent versions of macOS use zsh as the default shell. If you use
@@ -2981,7 +2981,7 @@ at any convenient path on your system.</p>
 <p>If you want to call the recipes in <code>~/.user.justfile</code> by name, and don’t mind
 creating an alias for every recipe, add the following to your shell’s
 initialization script:</p>
-<pre><code class="language-sh">for recipe in `just --justfile ~/.user.justfile --summary`; do
+<pre><code class="language-console">for recipe in `just --justfile ~/.user.justfile --summary`; do
   alias $recipe="just --justfile ~/.user.justfile --working-directory . $recipe"
 done
 </code></pre>
@@ -2992,7 +2992,7 @@ this. Notwithstanding my tardiness, I am very pleased to bring you this major
 advance in <code>justfile</code> technology.</p>
 <h5 id="forwarding-alias"><a class="header" href="#forwarding-alias">Forwarding Alias</a></h5>
 <p>If you’d rather not create aliases for every recipe, you can create a single alias:</p>
-<pre><code class="language-sh">alias .j='just --justfile ~/.user.justfile --working-directory .'
+<pre><code class="language-console">alias .j='just --justfile ~/.user.justfile --working-directory .'
 </code></pre>
 <p>Now, if you have a recipe called <code>foo</code> in <code>~/.user.justfile</code>, you can just type
 <code>.j foo</code> at the command line to run it.</p>
@@ -3002,7 +3002,7 @@ advance in <code>justfile</code> technology.</p>
 <p>You can customize the above aliases with additional options. For example, if
 you’d prefer to have the recipes in your <code>justfile</code> run in your home directory,
 instead of the current directory:</p>
-<pre><code class="language-sh">alias .j='just --justfile ~/.user.justfile --working-directory ~'
+<pre><code class="language-console">alias .j='just --justfile ~/.user.justfile --working-directory ~'
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="nodejs-packagejson-script-compatibility"><a class="header" href="#nodejs-packagejson-script-compatibility">Node.js <code>package.json</code> Script Compatibility</a></h3>
 <p>The following export statement gives <code>just</code> recipes access to local Node module
@@ -3198,7 +3198,7 @@ following makefile:</p>
   ./test
 </code></pre>
 <p><code>make</code> will refuse to run your tests:</p>
-<pre><code class="language-sh">$ make test
+<pre><code class="language-console">$ make test
 make: `test' is up to date.
 </code></pre>
 <p><code>make</code> assumes that the <code>test</code> recipe produces a file called <code>test</code>. Since this

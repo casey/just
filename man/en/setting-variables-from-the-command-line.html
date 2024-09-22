@@ -186,17 +186,17 @@ test: build
 build:
   ./build {{os}}
 </code></pre>
-<pre><code class="language-sh">$ just
+<pre><code class="language-console">$ just
 ./build linux
 ./test --test linux
 </code></pre>
 <p>Any number of arguments of the form <code>NAME=VALUE</code> can be passed before recipes:</p>
-<pre><code class="language-sh">$ just os=plan9
+<pre><code class="language-console">$ just os=plan9
 ./build plan9
 ./test --test plan9
 </code></pre>
 <p>Or you can use the <code>--set</code> flag:</p>
-<pre><code class="language-sh">$ just --set os bsd
+<pre><code class="language-console">$ just --set os bsd
 ./build bsd
 ./test --test bsd
 </code></pre>

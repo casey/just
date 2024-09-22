@@ -225,7 +225,7 @@ the same name is not an error and the last definition is used. Defaults to
 @foo:
   echo bar
 </code></pre>
-<pre><code class="language-sh">$ just foo
+<pre><code class="language-console">$ just foo
 bar
 </code></pre>
 <h4 id="allow-duplicate-variables"><a class="header" href="#allow-duplicate-variables">Allow Duplicate Variables</a></h4>
@@ -240,7 +240,7 @@ a := "bar"
 @foo:
   echo $a
 </code></pre>
-<pre><code class="language-sh">$ just foo
+<pre><code class="language-console">$ just foo
 bar
 </code></pre>
 <h4 id="dotenv-settings"><a class="header" href="#dotenv-settings">Dotenv Settings</a></h4>
@@ -263,7 +263,7 @@ relative to the working directory and each of its ancestors.</p>
 <p>The loaded variables are environment variables, not <code>just</code> variables, and so
 must be accessed using <code>$VARIABLE_NAME</code> in recipes and backticks.</p>
 <p>For example, if your <code>.env</code> file contains:</p>
-<pre><code class="language-sh"># a comment, will be ignored
+<pre><code class="language-console"># a comment, will be ignored
 DATABASE_ADDRESS=localhost:6379
 SERVER_PORT=1337
 </code></pre>
@@ -275,7 +275,7 @@ serve:
   ./server --database $DATABASE_ADDRESS --port $SERVER_PORT
 </code></pre>
 <p><code>just serve</code> will output:</p>
-<pre><code class="language-sh">$ just serve
+<pre><code class="language-console">$ just serve
 Starting server with database localhost:6379 on port 1337…
 ./server --database $DATABASE_ADDRESS --port $SERVER_PORT
 </code></pre>
@@ -290,7 +290,7 @@ a := "hello"
   echo $a
   echo $b
 </code></pre>
-<pre><code class="language-sh">$ just foo goodbye
+<pre><code class="language-console">$ just foo goodbye
 hello
 goodbye
 </code></pre>
@@ -306,7 +306,7 @@ the name of the recipe.</p>
   echo $1
 </code></pre>
 <p>Will produce the following output:</p>
-<pre><code class="language-sh">$ just foo hello
+<pre><code class="language-console">$ just foo hello
 foo
 hello
 </code></pre>
@@ -323,7 +323,7 @@ When there are no positional parameters, <code>"$@"</code> and <code>$@</code> e
   bash -c 'while (( "$#" )); do echo - $1; shift; done' -- "$@"
 </code></pre>
 <p>Running it with <em>two</em> arguments:</p>
-<pre><code class="language-sh">$ just test foo "bar baz"
+<pre><code class="language-console">$ just test foo "bar baz"
 - foo
 - bar baz
 </code></pre>

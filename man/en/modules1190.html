@@ -195,11 +195,11 @@ a:
 variables defined in one submodule cannot be used in another, and each module
 uses its own settings.</p>
 <p>Recipes in submodules can be invoked as subcommands:</p>
-<pre><code class="language-sh">$ just bar b
+<pre><code class="language-console">$ just bar b
 B
 </code></pre>
 <p>Or with path syntax:</p>
-<pre><code class="language-sh">$ just bar::b
+<pre><code class="language-console">$ just bar::b
 B
 </code></pre>
 <p>If a module is named <code>foo</code>, just will search for the module file in <code>foo.just</code>,
@@ -237,7 +237,7 @@ output<sup>1.30.0</sup>:</p>
 <pre><code class="language-mf"># foo is a great module!
 mod foo
 </code></pre>
-<pre><code class="language-sh">$ just --list
+<pre><code class="language-console">$ just --list
 Available recipes:
     foo ... # foo is a great module!
 </code></pre>

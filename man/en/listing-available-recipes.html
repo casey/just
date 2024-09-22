@@ -178,7 +178,7 @@
                     <main>
                         <h3 id="listing-available-recipes"><a class="header" href="#listing-available-recipes">Listing Available Recipes</a></h3>
 <p>Recipes can be listed in alphabetical order with <code>just --list</code>:</p>
-<pre><code class="language-sh">$ just --list
+<pre><code class="language-console">$ just --list
 Available recipes:
     build
     test
@@ -201,7 +201,7 @@ Available recipes:
     baz
 </code></pre>
 <p><code>just --summary</code> is more concise:</p>
-<pre><code class="language-sh">$ just --summary
+<pre><code class="language-console">$ just --summary
 build test deploy lint
 </code></pre>
 <p>Pass <code>--unsorted</code> to print recipes in the order they appear in the <code>justfile</code>:</p>
@@ -211,12 +211,12 @@ build test deploy lint
 build:
   echo 'Building!'
 </code></pre>
-<pre><code class="language-sh">$ just --list --unsorted
+<pre><code class="language-console">$ just --list --unsorted
 Available recipes:
     test
     build
 </code></pre>
-<pre><code class="language-sh">$ just --summary --unsorted
+<pre><code class="language-console">$ just --summary --unsorted
 test build
 </code></pre>
 <p>If you’d like <code>just</code> to default to listing the recipes in the <code>justfile</code>, you
@@ -231,13 +231,13 @@ would not necessarily use the file you provided. It would try to find a
 justfile in your current path, maybe even resulting in a <code>No justfile found</code>
 error.</p>
 <p>The heading text can be customized with <code>--list-heading</code>:</p>
-<pre><code class="language-sh">$ just --list --list-heading $'Cool stuff…\n'
+<pre><code class="language-console">$ just --list --list-heading $'Cool stuff…\n'
 Cool stuff…
     test
     build
 </code></pre>
 <p>And the indentation can be customized with <code>--list-prefix</code>:</p>
-<pre><code class="language-sh">$ just --list --list-prefix ····
+<pre><code class="language-console">$ just --list --list-prefix ····
 Available recipes:
 ····test
 ····build
@@ -245,7 +245,7 @@ Available recipes:
 <p>The argument to <code>--list-heading</code> replaces both the heading and the newline
 following it, so it should contain a newline if non-empty. It works this way so
 you can suppress the heading line entirely by passing the empty string:</p>
-<pre><code class="language-sh">$ just --list --list-heading ''
+<pre><code class="language-console">$ just --list --list-heading ''
     test
     build
 </code></pre>

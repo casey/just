@@ -181,7 +181,7 @@
 newlines.</p>
 <p>You can overwrite the current justfile with a canonically-formatted version
 using the currently-unstable <code>--fmt</code> flag:</p>
-<pre><code class="language-sh">$ cat justfile
+<pre><code class="language-console">$ cat justfile
 # A lot of blank lines
 
 
@@ -202,7 +202,7 @@ overwriting the <code>justfile</code>, <code>just</code> will exit with an exit 
 formatted correctly, and will exit with 1 and print a diff if it is not.</p>
 <p>You can use the <code>--dump</code> command to output a formatted version of the
 <code>justfile</code> to stdout:</p>
-<pre><code class="language-sh">$ just --dump &gt; formatted-justfile
+<pre><code class="language-console">$ just --dump &gt; formatted-justfile
 </code></pre>
 <p>The <code>--dump</code> command can be used with <code>--dump-format json</code> to print a JSON
 representation of a <code>justfile</code>.</p>

@@ -184,7 +184,7 @@
 serve:
   python3 -m http.server -d out 8000
 </code></pre>
-<pre><code class="language-sh">$ just build serve
+<pre><code class="language-console">$ just build serve
 make web
 python3 -m http.server -d out 8000
 </code></pre>
@@ -196,12 +196,12 @@ match the names of other recipes:</p>
 serve:
   python3 -m http.server -d out 8000
 </code></pre>
-<pre><code class="language-sh">$ just build serve
+<pre><code class="language-console">$ just build serve
 make: *** No rule to make target `serve'.  Stop.
 </code></pre>
 <p>The <code>--one</code> flag can be used to restrict command-line invocations to a single
 recipe:</p>
-<pre><code class="language-sh">$ just --one build serve
+<pre><code class="language-console">$ just --one build serve
 error: Expected 1 command-line recipe invocation but found 2.
 </code></pre>
 

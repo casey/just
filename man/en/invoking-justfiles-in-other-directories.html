@@ -197,13 +197,13 @@ a <code>justfile</code> that is in a subdirectory.</p>
 <p>For example, if you are in a directory which contains a subdirectory named
 <code>foo</code>, which contains a <code>justfile</code> with the recipe <code>build</code>, which is also the
 default recipe, the following are all equivalent:</p>
-<pre><code class="language-sh">$ (cd foo &amp;&amp; just build)
+<pre><code class="language-console">$ (cd foo &amp;&amp; just build)
 $ just foo/build
 $ just foo/
 </code></pre>
 <p>Additional recipes after the first are sought in the same <code>justfile</code>. For
 example, the following are both equivalent:</p>
-<pre><code class="language-sh">$ just foo/a b
+<pre><code class="language-console">$ just foo/a b
 $ (cd foo &amp;&amp; just a b)
 </code></pre>
 <p>And will both invoke recipes <code>a</code> and <code>b</code> in <code>foo/justfile</code>.</p>

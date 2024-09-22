@@ -197,12 +197,12 @@ and upwards, so you can invoke it from any subdirectory of your project.</p>
 <code>JUSTFILE</code>, or <code>JuStFiLe</code>, will work. <code>just</code> will also look for files with the
 name <code>.justfile</code>, in case you’d like to hide a <code>justfile</code>.</p>
 <p>Running <code>just</code> with no arguments runs the first recipe in the <code>justfile</code>:</p>
-<pre><code class="language-sh">$ just
+<pre><code class="language-console">$ just
 echo 'This is a recipe!'
 This is a recipe!
 </code></pre>
 <p>One or more arguments specify the recipe(s) to run:</p>
-<pre><code class="language-sh">$ just another-recipe
+<pre><code class="language-console">$ just another-recipe
 This is another recipe.
 </code></pre>
 <p><code>just</code> prints each command to standard error before running it, which is why
@@ -226,20 +226,20 @@ test: build
 sloc:
   @echo "`wc -l *.c` lines of code"
 </code></pre>
-<pre><code class="language-sh">$ just test
+<pre><code class="language-console">$ just test
 cc main.c foo.c bar.c -o main
 ./test
 testing… all tests passed!
 </code></pre>
 <p>Recipes without dependencies will run in the order they’re given on the command
 line:</p>
-<pre><code class="language-sh">$ just build sloc
+<pre><code class="language-console">$ just build sloc
 cc main.c foo.c bar.c -o main
 1337 lines of code
 </code></pre>
 <p>Dependencies will always run first, even if they are passed after a recipe that
 depends on them:</p>
-<pre><code class="language-sh">$ just test build
+<pre><code class="language-console">$ just test build
 cc main.c foo.c bar.c -o main
 ./test
 testing… all tests passed!

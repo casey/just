@@ -182,7 +182,7 @@
   touch {{argument}}
 </code></pre>
 <p>The following command will create two files, <code>some</code> and <code>argument.txt</code>:</p>
-<pre><code class="language-sh">$ just foo "some argument.txt"
+<pre><code class="language-console">$ just foo "some argument.txt"
 </code></pre>
 <p>The users shell will parse <code>"some argument.txt"</code> as a single argument, but when
 <code>just</code> replaces <code>touch {{argument}}</code> with <code>touch some argument.txt</code>, the quotes

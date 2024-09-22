@@ -187,7 +187,7 @@ slash             := "\\"
 tab               := "\t"
 unicode-codepoint := "\u{1F916}"
 </code></pre>
-<pre><code class="language-sh">$ just --evaluate
+<pre><code class="language-console">$ just --evaluate
 "arriage-return   := "
 double-quote      := """
 newline           := "
@@ -211,7 +211,7 @@ goodbye
 <p>Single-quoted strings do not recognize escape sequences:</p>
 <pre><code class="language-just">escapes := '\t\n\r\"\\'
 </code></pre>
-<pre><code class="language-sh">$ just --evaluate
+<pre><code class="language-console">$ just --evaluate
 escapes := "\t\n\r\"\\"
 </code></pre>
 <p>Indented versions of both single- and double-quoted strings, delimited by

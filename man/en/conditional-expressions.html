@@ -184,7 +184,7 @@ expressions evaluate to the same value:</p>
 bar:
   @echo "{{foo}}"
 </code></pre>
-<pre><code class="language-sh">$ just bar
+<pre><code class="language-console">$ just bar
 Good!
 </code></pre>
 <p>It is also possible to test for inequality:</p>
@@ -193,7 +193,7 @@ Good!
 bar:
   @echo {{foo}}
 </code></pre>
-<pre><code class="language-sh">$ just bar
+<pre><code class="language-console">$ just bar
 xyz
 </code></pre>
 <p>And match against regular expressions:</p>
@@ -202,7 +202,7 @@ xyz
 bar:
   @echo {{foo}}
 </code></pre>
-<pre><code class="language-sh">$ just bar
+<pre><code class="language-console">$ just bar
 match
 </code></pre>
 <p>Regular expressions are provided by the
@@ -233,7 +233,7 @@ be prematurely closed.</p>
 bar:
   @echo {{foo}}
 </code></pre>
-<pre><code class="language-sh">$ just bar
+<pre><code class="language-console">$ just bar
 abc
 </code></pre>
 

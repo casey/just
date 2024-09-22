@@ -200,7 +200,7 @@ recipes.</p>
 <pre><code class="language-just">system-info:
   @echo "This is an {{arch()}} machine".
 </code></pre>
-<pre><code class="language-sh">$ just system-info
+<pre><code class="language-console">$ just system-info
 This is an x86_64 machine
 </code></pre>
 <p>The <code>os_family()</code> function can be used to create cross-platform <code>justfile</code>s
@@ -252,7 +252,7 @@ if it is not present.</li>
 test:
   echo "{{home_dir}}"
 </code></pre>
-<pre><code class="language-sh">$ just
+<pre><code class="language-console">$ just
 /home/user1
 </code></pre>
 <ul>
@@ -328,7 +328,7 @@ called from within an import or submodule.</p>
 <pre><code class="language-just">executable:
   @echo The executable is at: {{just_executable()}}
 </code></pre>
-<pre><code class="language-sh">$ just
+<pre><code class="language-console">$ just
 The executable is at: /bin/just
 </code></pre>
 <h4 id="just-process-id"><a class="header" href="#just-process-id">Just Process ID</a></h4>
@@ -339,7 +339,7 @@ The executable is at: /bin/just
 <pre><code class="language-just">pid:
   @echo The process ID is: {{ just_pid() }}
 </code></pre>
-<pre><code class="language-sh">$ just
+<pre><code class="language-console">$ just
 The process ID is: 420
 </code></pre>
 <h4 id="string-manipulation"><a class="header" href="#string-manipulation">String Manipulation</a></h4>

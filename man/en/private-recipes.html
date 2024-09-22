@@ -184,12 +184,12 @@
 _test-helper:
   ./bin/super-secret-test-helper-stuff
 </code></pre>
-<pre><code class="language-sh">$ just --list
+<pre><code class="language-console">$ just --list
 Available recipes:
     test
 </code></pre>
 <p>And from <code>just --summary</code>:</p>
-<pre><code class="language-sh">$ just --summary
+<pre><code class="language-console">$ just --summary
 test
 </code></pre>
 <p>The <code>[private]</code> attribute<sup>1.10.0</sup> may also be used to hide recipes or
@@ -202,7 +202,7 @@ alias b := bar
 
 bar:
 </code></pre>
-<pre><code class="language-sh">$ just --list
+<pre><code class="language-console">$ just --list
 Available recipes:
     bar
 </code></pre>

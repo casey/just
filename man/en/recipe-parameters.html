@@ -184,7 +184,7 @@
   cd {{target}} &amp;&amp; make
 </code></pre>
 <p>To pass arguments on the command line, put them after the recipe name:</p>
-<pre><code class="language-sh">$ just build my-awesome-project
+<pre><code class="language-console">$ just build my-awesome-project
 Building my-awesome-project…
 cd my-awesome-project &amp;&amp; make
 </code></pre>
@@ -221,12 +221,12 @@ test target tests=default:
   ./test --tests {{tests}} {{target}}
 </code></pre>
 <p>Parameters with default values may be omitted:</p>
-<pre><code class="language-sh">$ just test server
+<pre><code class="language-console">$ just test server
 Testing server:all…
 ./test --tests all server
 </code></pre>
 <p>Or supplied:</p>
-<pre><code class="language-sh">$ just test server unit
+<pre><code class="language-console">$ just test server unit
 Testing server:unit…
 ./test --tests unit server
 </code></pre>
@@ -244,7 +244,7 @@ a <code>*</code> before the argument name:</p>
 </code></pre>
 <p>Variadic parameters prefixed with <code>+</code> accept <em>one or more</em> arguments and expand
 to a string containing those arguments separated by spaces:</p>
-<pre><code class="language-sh">$ just backup FAQ.md GRAMMAR.md
+<pre><code class="language-console">$ just backup FAQ.md GRAMMAR.md
 scp FAQ.md GRAMMAR.md me@server.com:
 FAQ.md                  100% 1831     1.8KB/s   00:00
 GRAMMAR.md              100% 1666     1.6KB/s   00:00
@@ -266,7 +266,7 @@ example, if you have the following recipe:</p>
   lynx https://www.google.com/?q={{QUERY}}
 </code></pre>
 <p>And you type:</p>
-<pre><code class="language-sh">$ just search "cat toupee"
+<pre><code class="language-console">$ just search "cat toupee"
 </code></pre>
 <p><code>just</code> will run the command <code>lynx https://www.google.com/?q=cat toupee</code>, which
 will get parsed by <code>sh</code> as <code>lynx</code>, <code>https://www.google.com/?q=cat</code>, and

@@ -185,7 +185,7 @@ line:</p>
   @# all done!
 </code></pre>
 <p>Now only the lines starting with <code>@</code> will be echoed:</p>
-<pre><code class="language-sh">$ just quiet
+<pre><code class="language-console">$ just quiet
 hello
 goodbye
 # all done!
@@ -214,7 +214,7 @@ foo2:
   #!/usr/bin/env bash
   echo 'Foo!'
 </code></pre>
-<pre><code class="language-sh">$ just foo
+<pre><code class="language-console">$ just foo
 Foo!
 </code></pre>
 <p>Adding <code>@</code> to a shebang recipe name makes <code>just</code> print the recipe before
@@ -223,7 +223,7 @@ executing it:</p>
   #!/usr/bin/env bash
   echo 'Bar!'
 </code></pre>
-<pre><code class="language-sh">$ just bar
+<pre><code class="language-console">$ just bar
 #!/usr/bin/env bash
 echo 'Bar!'
 Bar!
@@ -234,7 +234,7 @@ attribute. You may find this especially useful with a recipe that wraps a tool:<
 <pre><code class="language-just">git *args:
     @git {{args}}
 </code></pre>
-<pre><code class="language-sh">$ just git status
+<pre><code class="language-console">$ just git status
 fatal: not a git repository (or any of the parent directories): .git
 error: Recipe `git` failed on line 2 with exit code 128
 </code></pre>
@@ -244,7 +244,7 @@ non-zero code:</p>
 git *args:
     @git {{args}}
 </code></pre>
-<pre><code class="language-sh">$ just git status
+<pre><code class="language-console">$ just git status
 fatal: not a git repository (or any of the parent directories): .git
 </code></pre>
 
