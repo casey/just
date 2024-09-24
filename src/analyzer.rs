@@ -118,15 +118,6 @@ impl<'run, 'src> Analyzer<'run, 'src> {
 
     let settings = Settings::from_table(self.sets);
 
-    for recipe in &self.recipes {
-      Self::define(
-        &mut definitions,
-        recipe.name,
-        "recipe",
-        settings.allow_duplicate_recipes,
-      )?;
-    }
-
     let mut assignments: Table<'src, Assignment<'src>> = Table::default();
     for assignment in self.assignments {
       let variable = assignment.name.lexeme();
@@ -150,6 +141,13 @@ impl<'run, 'src> Analyzer<'run, 'src> {
 
     let mut recipe_table: Table<'src, UnresolvedRecipe<'src>> = Table::default();
     for recipe in self.recipes {
+      Self::define(
+        &mut definitions,
+        recipe.name,
+        "recipe",
+        settings.allow_duplicate_recipes,
+      )?;
+
       if recipe_table
         .get(recipe.name.lexeme())
         .map_or(true, |original| recipe.file_depth <= original.file_depth)
