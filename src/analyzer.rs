@@ -100,7 +100,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
             }
           }
           Item::Set(set) => {
-            Self::analyze_set(&self.sets, set)?;
+            self.analyze_set(set)?;
             self.sets.insert(set.clone());
           }
           Item::Unexport { name } => {
@@ -312,8 +312,8 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     Ok(())
   }
 
-  fn analyze_set(sets: &Table<'src, Set<'src>>, set: &Set<'src>) -> CompileResult<'src> {
-    if let Some(original) = sets.get(set.name.lexeme()) {
+  fn analyze_set(&self, set: &Set<'src>) -> CompileResult<'src> {
+    if let Some(original) = self.sets.get(set.name.lexeme()) {
       return Err(set.name.error(DuplicateSet {
         setting: original.name.lexeme(),
         first: original.name.line,
