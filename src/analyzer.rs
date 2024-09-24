@@ -139,7 +139,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
 
     AssignmentResolver::resolve_assignments(&assignments)?;
 
-    let mut recipe_table: Table<'src, UnresolvedRecipe<'src>> = Table::default();
+    let mut deduplicated_recipes = Table::<'src, UnresolvedRecipe<'src>>::default();
     for recipe in self.recipes {
       Self::define(
         &mut definitions,
@@ -148,15 +148,15 @@ impl<'run, 'src> Analyzer<'run, 'src> {
         settings.allow_duplicate_recipes,
       )?;
 
-      if recipe_table
+      if deduplicated_recipes
         .get(recipe.name.lexeme())
         .map_or(true, |original| recipe.file_depth <= original.file_depth)
       {
-        recipe_table.insert(recipe.clone());
+        deduplicated_recipes.insert(recipe.clone());
       }
     }
 
-    let recipes = RecipeResolver::resolve_recipes(&assignments, &settings, recipe_table)?;
+    let recipes = RecipeResolver::resolve_recipes(&assignments, &settings, deduplicated_recipes)?;
 
     let mut aliases = Table::new();
     while let Some(alias) = self.aliases.pop() {
