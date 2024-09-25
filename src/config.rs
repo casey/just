@@ -18,6 +18,7 @@ pub(crate) struct Config {
   pub(crate) dump_format: DumpFormat,
   pub(crate) explain: bool,
   pub(crate) highlight: bool,
+  pub(crate) inline_aliases_left: bool,
   pub(crate) invocation_directory: PathBuf,
   pub(crate) list_heading: String,
   pub(crate) list_prefix: String,
@@ -94,6 +95,7 @@ mod arg {
   pub(crate) const EXPLAIN: &str = "EXPLAIN";
   pub(crate) const GLOBAL_JUSTFILE: &str = "GLOBAL-JUSTFILE";
   pub(crate) const HIGHLIGHT: &str = "HIGHLIGHT";
+  pub(crate) const INLINE_ALIASES_LEFT: &str = "INLINE-ALIASES-LEFT";
   pub(crate) const JUSTFILE: &str = "JUSTFILE";
   pub(crate) const LIST_HEADING: &str = "LIST-HEADING";
   pub(crate) const LIST_PREFIX: &str = "LIST-PREFIX";
@@ -235,6 +237,15 @@ impl Config {
           .action(ArgAction::SetTrue)
           .help("Highlight echoed recipe lines in bold")
           .overrides_with(arg::NO_HIGHLIGHT),
+      )
+      .arg(
+        Arg::new(arg::INLINE_ALIASES_LEFT)
+          .long("inline-aliases-left")
+          .env("JUST_INLINE_ALIASES_LEFT")
+          .action(ArgAction::SetTrue)
+          .help("Display inlined recipe aliases to the left of their doc in listing")
+          .conflicts_with(arg::NO_ALIASES)
+          .conflicts_with(arg::NO_INLINE_ALIASES),
       )
       .arg(
         Arg::new(arg::JUSTFILE)
@@ -733,6 +744,7 @@ impl Config {
         .clone(),
       explain,
       highlight: !matches.get_flag(arg::NO_HIGHLIGHT),
+      inline_aliases_left: matches.get_flag(arg::INLINE_ALIASES_LEFT),
       invocation_directory: env::current_dir().context(config_error::CurrentDirContext)?,
       list_heading: matches.get_one::<String>(arg::LIST_HEADING).unwrap().into(),
       list_prefix: matches.get_one::<String>(arg::LIST_PREFIX).unwrap().into(),
