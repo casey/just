@@ -436,16 +436,15 @@ impl Subcommand {
       config: &Config,
       name: &str,
       doc: Option<&str>,
-      aliases: Option<Vec<&str>>,
+      aliases: &Vec<&str>,
       max_signature_width: usize,
       signature_widths: &BTreeMap<&str, usize>,
     ) {
       let doc = doc.unwrap_or_default();
-      let aliases = aliases.unwrap_or_default();
       let print_doc = !doc.is_empty() && doc.lines().count() <= 1;
       let color = config.color.stdout();
 
-      if print_doc || !aliases.is_empty() {
+      if print_doc || (!config.no_inline_aliases && !aliases.is_empty()) {
         print!(
           "{:padding$}{}",
           "",
@@ -472,7 +471,7 @@ impl Subcommand {
         }
       }
 
-      if !aliases.is_empty() {
+      if !aliases.is_empty() && !config.no_inline_aliases {
         print!(
           " {}",
           color
@@ -635,10 +634,7 @@ impl Subcommand {
                 config,
                 name,
                 doc.as_deref(),
-                aliases
-                  .get(recipe.name())
-                  .filter(|_| !config.no_inline_aliases)
-                  .cloned(),
+                aliases.get(recipe.name()).unwrap_or(&Vec::new()),
                 max_signature_width,
                 &signature_widths,
               );
@@ -662,7 +658,7 @@ impl Subcommand {
               config,
               submodule.name(),
               submodule.doc.as_deref(),
-              None,
+              &Vec::new(),
               max_signature_width,
               &signature_widths,
             );
