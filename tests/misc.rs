@@ -15,20 +15,27 @@ test! {
   ",
 }
 
-test! {
-  name: alias_listing_with_doc,
-  justfile: "
-    # foo command
-    foo:
-      echo foo
+#[test]
+fn alias_listing_with_doc() {
+  Test::new()
+    .justfile(
+      "
+        # foo command
+        foo:
+          echo foo
 
-    alias f := foo
-  ",
-  args: ("--list"),
-  stdout: "
-    Available recipes:
-        foo # foo command [aliases: f]
-  ",
+        alias f := foo
+      ",
+    )
+    .arg("--list")
+    .stdout(
+      "
+      Available recipes:
+          foo # foo command [aliases: f]
+    ",
+    )
+    .status(EXIT_SUCCESS)
+    .run();
 }
 
 test! {
