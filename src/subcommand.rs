@@ -562,8 +562,14 @@ impl Subcommand {
 
       if let Some(recipes) = recipe_groups.get(&group) {
         for recipe in recipes {
+          let recipe_alias_entries = if config.no_inline_aliases {
+            aliases.get(recipe.name())
+          } else {
+            None
+          };
+
           for (i, name) in iter::once(&recipe.name())
-            .chain(aliases.get(recipe.name()).unwrap_or(&Vec::new()))
+            .chain(recipe_alias_entries.unwrap_or(&Vec::new()))
             .enumerate()
           {
             let doc = if i == 0 {
@@ -584,21 +590,19 @@ impl Subcommand {
               }
             }
 
-            if i == 0 || config.no_inline_aliases {
-              print!(
-                "{list_prefix}{}",
-                RecipeSignature { name, recipe }.color_display(config.color.stdout())
-              );
+            print!(
+              "{list_prefix}{}",
+              RecipeSignature { name, recipe }.color_display(config.color.stdout())
+            );
 
-              format_doc(
-                config,
-                name,
-                doc.as_deref(),
-                aliases.get(recipe.name()).unwrap_or(&Vec::new()),
-                max_signature_width,
-                &signature_widths,
-              );
-            }
+            format_doc(
+              config,
+              name,
+              doc.as_deref(),
+              aliases.get(recipe.name()).unwrap_or(&Vec::new()),
+              max_signature_width,
+              &signature_widths,
+            );
           }
         }
       }
