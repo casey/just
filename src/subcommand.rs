@@ -442,9 +442,10 @@ impl Subcommand {
     ) {
       let doc = doc.unwrap_or_default();
       let print_doc = !doc.is_empty() && doc.lines().count() <= 1;
+      let print_aliases = !config.no_inline_aliases && !aliases.is_empty();
       let color = config.color.stdout();
 
-      if print_doc || (!config.no_inline_aliases && !aliases.is_empty()) {
+      if print_doc || print_aliases {
         print!(
           "{:padding$}{}",
           "",
@@ -453,30 +454,49 @@ impl Subcommand {
         );
       }
 
+      let mut formatted_doc = String::new();
       if print_doc {
-        print!(" ");
         let mut end = 0;
         for backtick in backtick_re().find_iter(doc) {
           let prefix = &doc[end..backtick.start()];
           if !prefix.is_empty() {
-            print!("{}", color.doc().paint(prefix));
+            formatted_doc.push_str(&format!("{}", color.doc().paint(prefix)));
           }
-          print!("{}", color.doc_backtick().paint(backtick.as_str()));
+          formatted_doc.push_str(&format!(
+            "{}",
+            color.doc_backtick().paint(backtick.as_str())
+          ));
           end = backtick.end();
         }
 
         let suffix = &doc[end..];
         if !suffix.is_empty() {
-          print!("{}", color.doc().paint(suffix));
+          formatted_doc.push_str(&format!("{}", color.doc().paint(suffix)));
         }
       }
+      let doc = print_doc.then_some(formatted_doc);
+      let aliases = print_aliases.then_some(format!(
+        "{}",
+        config
+          .color
+          .stdout()
+          .alias()
+          .paint(&format!("[aliases: {}]", aliases.join(", ")))
+      ));
 
-      if !aliases.is_empty() && !config.no_inline_aliases {
+      let (left, right) = if config.inline_aliases_left {
+        (aliases, doc)
+      } else {
+        (doc, aliases)
+      };
+
+      if print_doc || print_aliases {
         print!(
           " {}",
-          color
-            .alias()
-            .paint(&format!("[aliases: {}]", aliases.join(", ")))
+          [left, right]
+            .map(|s| s.unwrap_or_default())
+            .join(" ")
+            .trim()
         );
       }
       println!();
