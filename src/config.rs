@@ -99,10 +99,10 @@ mod arg {
   pub(crate) const LIST_PREFIX: &str = "LIST-PREFIX";
   pub(crate) const LIST_SUBMODULES: &str = "LIST-SUBMODULES";
   pub(crate) const NO_ALIASES: &str = "NO-ALIASES";
-  pub(crate) const NO_INLINE_ALIASES: &str = "NO-INLINE-ALIASES";
   pub(crate) const NO_DEPS: &str = "NO-DEPS";
   pub(crate) const NO_DOTENV: &str = "NO-DOTENV";
   pub(crate) const NO_HIGHLIGHT: &str = "NO-HIGHLIGHT";
+  pub(crate) const NO_INLINE_ALIASES: &str = "NO-INLINE-ALIASES";
   pub(crate) const ONE: &str = "ONE";
   pub(crate) const QUIET: &str = "QUIET";
   pub(crate) const SET: &str = "SET";
@@ -283,7 +283,8 @@ impl Config {
           .long("no-inline-aliases")
           .env("JUST_NO_INLINE_ALIASES")
           .action(ArgAction::SetTrue)
-          .help("Don't show aliases inline with recipe docs in list"),
+          .help("Don't show aliases inline with recipe docs in list")
+          .conflicts_with(arg::NO_ALIASES),
       )
       .arg(
         Arg::new(arg::NO_DEPS)
