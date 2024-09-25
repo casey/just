@@ -408,7 +408,7 @@ impl Subcommand {
       config: &Config,
       name: &str,
       doc: Option<&str>,
-      aliases: &Vec<&str>,
+      aliases: &[&str],
       max_signature_width: usize,
       signature_widths: &BTreeMap<&str, usize>,
     ) {
