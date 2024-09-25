@@ -414,8 +414,9 @@ impl Subcommand {
     ) {
       let doc = doc.unwrap_or_default();
       let print_doc = !doc.is_empty() && doc.lines().count() <= 1;
+      let print_aliases = !config.no_inline_aliases && !aliases.is_empty();
 
-      if print_doc || (!config.no_inline_aliases && !aliases.is_empty()) {
+      if print_doc || print_aliases {
         print!(
           "{:padding$}{}",
           "",
@@ -424,18 +425,29 @@ impl Subcommand {
         );
       }
 
-      if print_doc {
-        print!(" {}", config.color.stdout().doc().paint(doc),);
-      }
+      let doc = print_doc.then_some(format!("{}", config.color.stdout().doc().paint(doc)));
+      let aliases = print_aliases.then_some(format!(
+        "{}",
+        config
+          .color
+          .stdout()
+          .alias()
+          .paint(&format!("[aliases: {}]", aliases.join(", ")))
+      ));
 
-      if !aliases.is_empty() && !config.no_inline_aliases {
+      let (left, right) = if config.inline_aliases_left {
+        (aliases, doc)
+      } else {
+        (doc, aliases)
+      };
+
+      if print_doc || print_aliases {
         print!(
           " {}",
-          config
-            .color
-            .stdout()
-            .alias()
-            .paint(&format!("[aliases: {}]", aliases.join(", ")))
+          [left, right]
+            .map(|s| s.unwrap_or_default())
+            .join(" ")
+            .trim()
         );
       }
 
