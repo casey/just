@@ -445,7 +445,7 @@ impl Subcommand {
         print!(
           " {}",
           [left, right]
-            .map(|s| s.unwrap_or_default())
+            .map(Option::unwrap_or_default)
             .join(" ")
             .trim()
         );
