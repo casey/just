@@ -82,6 +82,7 @@ mod no_aliases;
 mod no_cd;
 mod no_dependencies;
 mod no_exit_message;
+mod no_inline_aliases;
 mod os_attributes;
 mod parameters;
 mod parser;
