@@ -135,6 +135,30 @@ impl<'src> Display for Attribute<'src> {
   }
 }
 
+#[derive(Debug, Clone, PartialEq)]
+pub(crate) struct AttributeSet<'src> {
+  pub(crate) inner: BTreeSet<Attribute<'src>>,
+}
+
+impl<'src> Serialize for AttributeSet<'src> {
+  fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+  where
+    S: Serializer,
+  {
+    self.inner.serialize(serializer)
+  }
+}
+
+impl<'src> AttributeSet<'src> {
+  pub(crate) fn from_set(input: BTreeSet<Attribute<'src>>) -> Self {
+    Self { inner: input }
+  }
+
+  pub(crate) fn contains(&self, attribute: &Attribute) -> bool {
+    self.inner.contains(attribute)
+  }
+}
+
 #[cfg(test)]
 mod tests {
   use super::*;

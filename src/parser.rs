@@ -339,7 +339,9 @@ impl<'run, 'src> Parser<'run, 'src> {
       } else if self.next_is(Identifier) {
         match Keyword::from_lexeme(next.lexeme()) {
           Some(Keyword::Alias) if self.next_are(&[Identifier, Identifier, ColonEquals]) => {
-            items.push(Item::Alias(self.parse_alias(take_attributes())?));
+            items.push(Item::Alias(
+              self.parse_alias(AttributeSet::from_set(take_attributes()))?,
+            ));
           }
           Some(Keyword::Export) if self.next_are(&[Identifier, Identifier, ColonEquals]) => {
             self.presume_keyword(Keyword::Export)?;
@@ -462,7 +464,7 @@ impl<'run, 'src> Parser<'run, 'src> {
   /// Parse an alias, e.g `alias name := target`
   fn parse_alias(
     &mut self,
-    attributes: BTreeSet<Attribute<'src>>,
+    attributes: AttributeSet<'src>,
   ) -> CompileResult<'src, Alias<'src, Name<'src>>> {
     self.presume_keyword(Keyword::Alias)?;
     let name = self.parse_name()?;
