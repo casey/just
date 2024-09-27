@@ -40,16 +40,11 @@ impl<'src> Justfile<'src> {
     input: &str,
     candidates: impl Iterator<Item = Suggestion<'src>>,
   ) -> Option<Suggestion<'src>> {
-    let mut suggestions: Vec<(usize, Suggestion<'src>)> = candidates
+    candidates
       .map(|suggestion| (edit_distance(input, suggestion.name), suggestion))
       .filter(|(distance, _suggestion)| *distance < 3)
-      .collect();
-
-    suggestions.sort_by_key(|(distance, _suggestion)| *distance);
-    suggestions
-      .into_iter()
+      .min_by_key(|(distance, _suggestion)| *distance)
       .map(|(_distance, suggestion)| suggestion)
-      .next()
   }
 
   pub(crate) fn suggest_recipe(&self, input: &str) -> Option<Suggestion<'src>> {
