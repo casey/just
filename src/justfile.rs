@@ -34,53 +34,43 @@ pub(crate) struct Justfile<'src> {
 }
 
 impl<'src> Justfile<'src> {
-  pub(crate) fn suggest_recipe(&self, input: &str) -> Option<Suggestion<'src>> {
-    let mut suggestions = self
-      .recipes
-      .keys()
-      .map(|name| {
-        (
-          edit_distance(name, input),
-          Suggestion { name, target: None },
-        )
-      })
-      .chain(self.aliases.iter().map(|(name, alias)| {
-        (
-          edit_distance(name, input),
-          Suggestion {
-            name,
-            target: Some(alias.target.name.lexeme()),
-          },
-        )
-      }))
-      .filter(|(distance, _suggestion)| distance < &3)
-      .collect::<Vec<(usize, Suggestion)>>();
-    suggestions.sort_by_key(|(distance, _suggestion)| *distance);
+  /// Given an input string and a collection of candidate items, find the suggestion
+  /// with the closest edit distance to the input less than three, if it exists.
+  fn find_suggestion(
+    input: &str,
+    candidates: impl Iterator<Item = Suggestion<'src>>,
+  ) -> Option<Suggestion<'src>> {
+    let mut suggestions: Vec<(usize, Suggestion<'src>)> = candidates
+      .map(|suggestion| (edit_distance(input, suggestion.name), suggestion))
+      .filter(|(distance, _suggestion)| *distance < 3)
+      .collect();
 
+    suggestions.sort_by_key(|(distance, _suggestion)| *distance);
     suggestions
       .into_iter()
       .map(|(_distance, suggestion)| suggestion)
       .next()
   }
 
+  pub(crate) fn suggest_recipe(&self, input: &str) -> Option<Suggestion<'src>> {
+    let recipe_candidates = self
+      .recipes
+      .keys()
+      .map(|name| Suggestion { name, target: None });
+    let alias_candidates = self.aliases.iter().map(|(name, alias)| Suggestion {
+      name,
+      target: Some(alias.target.name.lexeme()),
+    });
+    let candidates = recipe_candidates.chain(alias_candidates);
+    Self::find_suggestion(input, candidates)
+  }
+
   pub(crate) fn suggest_variable(&self, input: &str) -> Option<Suggestion<'src>> {
-    let mut suggestions = self
+    let candidates = self
       .assignments
       .keys()
-      .map(|name| {
-        (
-          edit_distance(name, input),
-          Suggestion { name, target: None },
-        )
-      })
-      .filter(|(distance, _suggestion)| distance < &3)
-      .collect::<Vec<(usize, Suggestion)>>();
-    suggestions.sort_by_key(|(distance, _suggestion)| *distance);
-
-    suggestions
-      .into_iter()
-      .map(|(_distance, suggestion)| suggestion)
-      .next()
+      .map(|name| Suggestion { name, target: None });
+    Self::find_suggestion(input, candidates)
   }
 
   pub(crate) fn run(
