@@ -189,14 +189,14 @@ impl Subcommand {
       return Err(Error::NoChoosableRecipes);
     }
 
-    let chooser = if let Some(chooser) = chooser {
-      OsString::from(chooser)
+    let (chooser, is_chooser_default) = if let Some(chooser) = chooser {
+      (OsString::from(chooser), false)
     } else {
       let mut chooser = OsString::new();
       chooser.push("fzf --multi --preview 'just --unstable --color always --justfile \"");
       chooser.push(&search.justfile);
       chooser.push("\" --show {}'");
-      chooser
+      (chooser, true)
     };
 
     let result = justfile
@@ -221,7 +221,7 @@ impl Subcommand {
       }
     };
 
-    for recipe in recipes {
+    for recipe in &recipes {
       writeln!(
         child.stdin.as_mut().unwrap(),
         "{}",
@@ -241,10 +241,20 @@ impl Subcommand {
     };
 
     if !output.status.success() {
-      return Err(Error::ChooserStatus {
-        status: output.status,
-        chooser,
-      });
+      if !is_chooser_default {
+        return Err(Error::ChooserStatus {
+          status: output.status,
+          chooser,
+        });
+      }
+      // For `fzf`, exit status 130 is used for interrupt
+      if let Some(signal) = output.status.code().filter(|c| *c == 130) {
+        return Err(Error::Signal::<'src> {
+          recipe: stack.pop().map(|module| module.name()),
+          line_number: recipes.pop().map(|recipe| recipe.line_number()),
+          signal,
+        });
+      }
     }
 
     let stdout = String::from_utf8_lossy(&output.stdout);

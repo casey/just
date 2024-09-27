@@ -154,7 +154,7 @@ pub(crate) enum Error<'src> {
     recipe: &'src str,
   },
   Signal {
-    recipe: &'src str,
+    recipe: Option<&'src str>,
     line_number: Option<usize>,
     signal: i32,
   },
@@ -436,10 +436,14 @@ impl<'src> ColorDisplay for Error<'src> {
         }
       }
       Signal { recipe, line_number, signal } => {
-        if let Some(n) = line_number {
-          write!(f, "Recipe `{recipe}` was terminated on line {n} by signal {signal}")?;
+        if let Some(recipe) = recipe {
+          if let Some(n) = line_number {
+            write!(f, "Recipe `{recipe}` was terminated on line {n} by signal {signal}")?;
+          } else {
+            write!(f, "Recipe `{recipe}` was terminated by signal {signal}")?;
+          }
         } else {
-          write!(f, "Recipe `{recipe}` was terminated by signal {signal}")?;
+          write!(f, "Command was terminated by signal {signal}")?;
         }
       }
       StdoutIo { io_error } => {

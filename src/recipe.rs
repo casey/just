@@ -5,7 +5,7 @@ use super::*;
 fn error_from_signal(recipe: &str, line_number: Option<usize>, exit_status: ExitStatus) -> Error {
   match Platform::signal_from_exit_status(exit_status) {
     Some(signal) => Error::Signal {
-      recipe,
+      recipe: Some(recipe),
       line_number,
       signal,
     },
