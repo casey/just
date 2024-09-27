@@ -34,53 +34,39 @@ pub(crate) struct Justfile<'src> {
 }
 
 impl<'src> Justfile<'src> {
-  pub(crate) fn suggest_recipe(&self, input: &str) -> Option<Suggestion<'src>> {
-    let mut suggestions = self
-      .recipes
-      .keys()
-      .map(|name| {
-        (
-          edit_distance(name, input),
-          Suggestion { name, target: None },
-        )
-      })
-      .chain(self.aliases.iter().map(|(name, alias)| {
-        (
-          edit_distance(name, input),
-          Suggestion {
-            name,
-            target: Some(alias.target.name.lexeme()),
-          },
-        )
-      }))
-      .filter(|(distance, _suggestion)| distance < &3)
-      .collect::<Vec<(usize, Suggestion)>>();
-    suggestions.sort_by_key(|(distance, _suggestion)| *distance);
-
-    suggestions
-      .into_iter()
+  fn find_suggestion(
+    input: &str,
+    candidates: impl Iterator<Item = Suggestion<'src>>,
+  ) -> Option<Suggestion<'src>> {
+    candidates
+      .map(|suggestion| (edit_distance(input, suggestion.name), suggestion))
+      .filter(|(distance, _suggestion)| *distance < 3)
+      .min_by_key(|(distance, _suggestion)| *distance)
       .map(|(_distance, suggestion)| suggestion)
-      .next()
+  }
+
+  pub(crate) fn suggest_recipe(&self, input: &str) -> Option<Suggestion<'src>> {
+    Self::find_suggestion(
+      input,
+      self
+        .recipes
+        .keys()
+        .map(|name| Suggestion { name, target: None })
+        .chain(self.aliases.iter().map(|(name, alias)| Suggestion {
+          name,
+          target: Some(alias.target.name.lexeme()),
+        })),
+    )
   }
 
   pub(crate) fn suggest_variable(&self, input: &str) -> Option<Suggestion<'src>> {
-    let mut suggestions = self
-      .assignments
-      .keys()
-      .map(|name| {
-        (
-          edit_distance(name, input),
-          Suggestion { name, target: None },
-        )
-      })
-      .filter(|(distance, _suggestion)| distance < &3)
-      .collect::<Vec<(usize, Suggestion)>>();
-    suggestions.sort_by_key(|(distance, _suggestion)| *distance);
-
-    suggestions
-      .into_iter()
-      .map(|(_distance, suggestion)| suggestion)
-      .next()
+    Self::find_suggestion(
+      input,
+      self
+        .assignments
+        .keys()
+        .map(|name| Suggestion { name, target: None }),
+    )
   }
 
   pub(crate) fn run(
