@@ -34,8 +34,6 @@ pub(crate) struct Justfile<'src> {
 }
 
 impl<'src> Justfile<'src> {
-  /// Given an input string and a collection of candidate items, find the suggestion
-  /// with the closest edit distance to the input less than three, if it exists.
   fn find_suggestion(
     input: &str,
     candidates: impl Iterator<Item = Suggestion<'src>>,
