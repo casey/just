@@ -48,24 +48,27 @@ impl<'src> Justfile<'src> {
   }
 
   pub(crate) fn suggest_recipe(&self, input: &str) -> Option<Suggestion<'src>> {
-    let recipe_candidates = self
-      .recipes
-      .keys()
-      .map(|name| Suggestion { name, target: None });
-    let alias_candidates = self.aliases.iter().map(|(name, alias)| Suggestion {
-      name,
-      target: Some(alias.target.name.lexeme()),
-    });
-    let candidates = recipe_candidates.chain(alias_candidates);
-    Self::find_suggestion(input, candidates)
+    Self::find_suggestion(
+      input,
+      self
+        .recipes
+        .keys()
+        .map(|name| Suggestion { name, target: None })
+        .chain(self.aliases.iter().map(|(name, alias)| Suggestion {
+          name,
+          target: Some(alias.target.name.lexeme()),
+        })),
+    )
   }
 
   pub(crate) fn suggest_variable(&self, input: &str) -> Option<Suggestion<'src>> {
-    let candidates = self
-      .assignments
-      .keys()
-      .map(|name| Suggestion { name, target: None });
-    Self::find_suggestion(input, candidates)
+    Self::find_suggestion(
+      input,
+      self
+        .assignments
+        .keys()
+        .map(|name| Suggestion { name, target: None }),
+    )
   }
 
   pub(crate) fn run(
