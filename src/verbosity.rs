@@ -1,4 +1,4 @@
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq, PartialOrd)]
 pub(crate) enum Verbosity {
   Quiet,
   Taciturn,
@@ -24,17 +24,11 @@ impl Verbosity {
   }
 
   pub(crate) fn loquacious(self) -> bool {
-    match self {
-      Self::Quiet | Self::Taciturn => false,
-      Self::Loquacious | Self::Grandiloquent => true,
-    }
+    self >= Self::Loquacious
   }
 
   pub(crate) fn grandiloquent(self) -> bool {
-    match self {
-      Self::Quiet | Self::Taciturn | Self::Loquacious => false,
-      Self::Grandiloquent => true,
-    }
+    self >= Self::Grandiloquent
   }
 
   pub const fn default() -> Self {
