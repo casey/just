@@ -23,11 +23,7 @@ impl Loader {
       io_error,
     })?;
 
-    let relative = if let Ok(path) = path.strip_prefix(root.parent().unwrap()) {
-      path
-    } else {
-      path
-    };
+    let relative = path.strip_prefix(root.parent().unwrap()).unwrap_or(path);
 
     Ok((self.paths.alloc(relative.into()), self.srcs.alloc(src)))
   }
