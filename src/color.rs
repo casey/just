@@ -32,10 +32,7 @@ impl Color {
   }
 
   pub(crate) fn auto() -> Self {
-    Self {
-      use_color: UseColor::Auto,
-      ..Self::default()
-    }
+    Self::default()
   }
 
   #[cfg(test)]
