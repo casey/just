@@ -19,7 +19,7 @@ impl Loader {
     path: &Path,
   ) -> RunResult<(&'src Path, &'src str)> {
     let src = fs::read_to_string(path).map_err(|io_error| Error::Load {
-      path: path.to_owned(),
+      path: path.into(),
       io_error,
     })?;
 
