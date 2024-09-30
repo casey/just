@@ -1,6 +1,43 @@
 Changelog
 =========
 
+[1.36.0](https://github.com/casey/just/releases/tag/1.36.0) - 2024-09-30
+------------------------------------------------------------------------
+
+### Changed
+- Allow default values to use earlier recipe arguments ([#2382](https://github.com/casey/just/pull/2382) by [casey](https://github.com/casey))
+
+### Added
+- Add `--one` flag to forbid multiple recipes from being invoked on the command line ([#2374](https://github.com/casey/just/pull/2374) by [casey](https://github.com/casey))
+- Allow including arbitrary characters in strings with `\u{…}` ([#2360](https://github.com/casey/just/pull/2360) by [laniakea64](https://github.com/laniakea64))
+- Print recipe doc string when`--explain` flag  is passed ([#2319](https://github.com/casey/just/pull/2319) by [neunenak](https://github.com/neunenak))
+
+### Misc
+- Use unwrap_or_default() when getting default color and verbosity ([#2397](https://github.com/casey/just/pull/2397) by [casey](https://github.com/casey))
+- De-duplicate suggestion methods ([#2392](https://github.com/casey/just/pull/2392) by [neunenak](https://github.com/neunenak))
+- Refactor analyzer ([#2378](https://github.com/casey/just/pull/2378) by [neunenak](https://github.com/neunenak))
+- Use `console` codeblocks in readme ([#2388](https://github.com/casey/just/pull/2388) by [casey](https://github.com/casey))
+- Split packages table by platform ([#2385](https://github.com/casey/just/pull/2385) by [casey](https://github.com/casey))
+- Document npm package ([#2384](https://github.com/casey/just/pull/2384) by [casey](https://github.com/casey))
+- Add PyPI install instructions ([#2383](https://github.com/casey/just/pull/2383) by [casey](https://github.com/casey))
+- Remove alias shadows recipe error ([#2375](https://github.com/casey/just/pull/2375) by [neunenak](https://github.com/neunenak))
+- Name instead of number book chapter files ([#2372](https://github.com/casey/just/pull/2372) by [casey](https://github.com/casey))
+- Add groups to project justfile ([#2351](https://github.com/casey/just/pull/2351) by [neunenak](https://github.com/neunenak))
+- Document `\u{...}` ([#2371](https://github.com/casey/just/pull/2371) by [laniakea64](https://github.com/laniakea64))
+- Remove old recipes from project justfile ([#2367](https://github.com/casey/just/pull/2367) by [casey](https://github.com/casey))
+- Document `--dotenv-path` in readme ([#2366](https://github.com/casey/just/pull/2366) by [willie](https://github.com/willie))
+- Remove ref-type crate ([#2364](https://github.com/casey/just/pull/2364) by [casey](https://github.com/casey))
+- Fix type names in redefinition error message ([#2353](https://github.com/casey/just/pull/2353) by [marcaddeo](https://github.com/marcaddeo))
+- Use relative in `.sha256sum` files ([#2358](https://github.com/casey/just/pull/2358) by [casey](https://github.com/casey))
+- Link to readme in CONTRIBUTING.md ([#2348](https://github.com/casey/just/pull/2348) by [casey](https://github.com/casey))
+- Fix clippy lints ([#2347](https://github.com/casey/just/pull/2347) by [casey](https://github.com/casey))
+- Simplify `Subcommand::run` ([#2336](https://github.com/casey/just/pull/2336) by [neunenak](https://github.com/neunenak))
+- Update module issue link in readme ([#2345](https://github.com/casey/just/pull/2345) by [casey](https://github.com/casey))
+- Add blank line between CI workflow jobs ([#2343](https://github.com/casey/just/pull/2343) by [casey](https://github.com/casey))
+- Color groups in `--list` output ([#2340](https://github.com/casey/just/pull/2340) by [casey](https://github.com/casey))
+- Refactor and document subcommand and search ([#2335](https://github.com/casey/just/pull/2335) by [neunenak](https://github.com/neunenak))
+- Document private variables ([#2331](https://github.com/casey/just/pull/2331) by [Jasha10](https://github.com/Jasha10))
+
 [1.35.0](https://github.com/casey/just/releases/tag/1.35.0) - 2024-08-28
 ------------------------------------------------------------------------
 
