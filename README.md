@@ -1383,7 +1383,7 @@ tab               := "     "
 unicode-codepoint := "🤖"
 ```
 
-The unicode character escape sequence `\u{…}`<sup>master</sup> accepts up to
+The unicode character escape sequence `\u{…}`<sup>1.36.0</sup> accepts up to
 six hex digits.
 
 Strings may contain line breaks:
