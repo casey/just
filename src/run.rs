@@ -18,7 +18,7 @@ pub fn run(args: impl Iterator<Item = impl Into<OsString> + Clone>) -> Result<()
   let (color, verbosity) = config
     .as_ref()
     .map(|config| (config.color, config.verbosity))
-    .unwrap_or((Color::auto(), Verbosity::default()));
+    .unwrap_or_default();
 
   let loader = Loader::new();
 
