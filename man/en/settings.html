@@ -340,6 +340,10 @@ use PowerShell.</p>
 <p>If using PowerShell 7.4 or better, the <code>-CommandWithArgs</code> flag will make
 positional arguments work as expected:</p>
 <pre><code class="language-just">set shell := ['pwsh.exe', '-CommandWithArgs']
+set positional-arguments
+
+print-args a b c:
+  Write-Output @($args[1..($args.Count - 1)])
 </code></pre>
 <h4 id="shell"><a class="header" href="#shell">Shell</a></h4>
 <p>The <code>shell</code> setting controls the command used to invoke recipe lines and
