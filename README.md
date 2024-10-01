@@ -1141,6 +1141,10 @@ positional arguments work as expected:
 
 ```just
 set shell := ['pwsh.exe', '-CommandWithArgs']
+set positional-arguments
+
+print-args a b c:
+  Write-Output @($args[1..($args.Count - 1)])
 ```
 
 #### Shell
