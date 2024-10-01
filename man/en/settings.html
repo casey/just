@@ -337,9 +337,9 @@ When there are no positional parameters, <code>"$@"</code> and <code>$@</code> e
 <p>Note that PowerShell does not handle positional arguments in the same way as
 other shells, so turning on positional arguments will likely break recipes that
 use PowerShell.</p>
-<p>If using PowerShell 7.4 or better, the <code>-cwa</code> flag will make positional
-arguments work as expected:</p>
-<pre><code class="language-just">set shell := ['powershell.exe', '-cwa']
+<p>If using PowerShell 7.4 or better, the <code>-CommandWithArgs</code> flag will make
+positional arguments work as expected:</p>
+<pre><code class="language-just">set shell := ['pwsh.exe', '-CommandWithArgs']
 </code></pre>
 <h4 id="shell"><a class="header" href="#shell">Shell</a></h4>
 <p>The <code>shell</code> setting controls the command used to invoke recipe lines and
