@@ -1136,6 +1136,13 @@ Note that PowerShell does not handle positional arguments in the same way as
 other shells, so turning on positional arguments will likely break recipes that
 use PowerShell.
 
+If using PowerShell 7.4 or better, the `-cwa` flag will make positional
+arguments work as expected:
+
+```just
+set shell := ['powershell.exe', '-cwa']
+```
+
 #### Shell
 
 The `shell` setting controls the command used to invoke recipe lines and
