@@ -901,6 +901,8 @@ impl<'run, 'src> Parser<'run, 'src> {
       }));
     }
 
+    let private = name.lexeme().starts_with('_') || attributes.contains(&Attribute::Private);
+
     Ok(Recipe {
       shebang: shebang || script,
       attributes,
@@ -914,7 +916,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       namepath: self.module_namepath.join(name),
       parameters: positional.into_iter().chain(variadic).collect(),
       priors,
-      private: name.lexeme().starts_with('_'),
+      private,
       quiet,
     })
   }
