@@ -480,18 +480,31 @@ impl<'run, 'src> Parser<'run, 'src> {
   fn parse_assignment(
     &mut self,
     export: bool,
-    attributes: BTreeSet<Attribute<'_>>,
+    attributes: BTreeSet<Attribute<'src>>,
   ) -> CompileResult<'src, Assignment<'src>> {
     let name = self.parse_name()?;
     self.presume(ColonEquals)?;
     let value = self.parse_expression()?;
     self.expect_eol()?;
+
+    let private = attributes.contains(&Attribute::Private);
+
+    for attribute in attributes {
+      if attribute != Attribute::Private {
+        return Err(name.error(CompileErrorKind::InvalidAttribute {
+          item_kind: "Assignment",
+          item_name: name.lexeme(),
+          attribute,
+        }));
+      }
+    }
+
     Ok(Assignment {
       file_depth: self.file_depth,
       export,
       name,
       value,
-      private: name.lexeme().starts_with('_') || attributes.contains(&Attribute::Private),
+      private: private || name.lexeme().starts_with('_'),
     })
   }
 
