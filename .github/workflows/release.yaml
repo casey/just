@@ -10,11 +10,11 @@ defaults:
     shell: bash
 
 jobs:
-  checksum:
+  prerelease:
     runs-on: ubuntu-latest
 
-    needs:
-    - package
+    outputs:
+      value: ${{ steps.prerelease.outputs.value }}
 
     steps:
     - name: Prerelease Check
@@ -25,30 +25,6 @@ jobs:
         else
             echo value=true >> $GITHUB_OUTPUT
         fi
-
-    - name: Download Release Archives
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: >-
-        gh release download
-        --repo casey/just
-        --pattern '*'
-        --dir release
-        ${{ github.ref_name }}
-
-    - name: Create Checksums
-      run: |
-        cd release
-        shasum -a 256 * > ../SHA256SUMS
-
-    - name: Publish Checksums
-      uses: softprops/action-gh-release@v2.0.8
-      with:
-        draft: false
-        files: SHA256SUMS
-        prerelease: ${{ steps.prerelease.outputs.value }}
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   package:
     strategy:
@@ -89,6 +65,9 @@ jobs:
 
     runs-on: ${{matrix.os}}
 
+    needs:
+    - prerelease
+
     steps:
     - uses: actions/checkout@v4
 
@@ -108,15 +87,6 @@ jobs:
       if: ${{ matrix.target == 'aarch64-pc-windows-msvc' }}
       run: |
         rustup target add aarch64-pc-windows-msvc
-
-    - name: Prerelease Check
-      id: prerelease
-      run: |
-        if [[ ${{ github.ref_name }} =~ ^[0-9]+[.][0-9]+[.][0-9]+$ ]]; then
-            echo value=false >> $GITHUB_OUTPUT
-        else
-            echo value=true >> $GITHUB_OUTPUT
-        fi
 
     - name: Generate Completion Scripts and Manpage
       run: |
@@ -145,7 +115,7 @@ jobs:
       with:
         draft: false
         files: ${{ steps.package.outputs.archive }}
-        prerelease: ${{ steps.prerelease.outputs.value }}
+        prerelease: ${{ needs.prerelease.outputs.value }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -159,6 +129,38 @@ jobs:
       with:
         draft: false
         files: CHANGELOG.md
-        prerelease: ${{ steps.prerelease.outputs.value }}
+        prerelease: ${{ needs.prerelease.outputs.value }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  checksum:
+    runs-on: ubuntu-latest
+
+    needs:
+    - prerelease
+    - package
+
+    steps:
+    - name: Download Release Archives
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: >-
+        gh release download
+        --repo casey/just
+        --pattern '*'
+        --dir release
+        ${{ github.ref_name }}
+
+    - name: Create Checksums
+      run: |
+        cd release
+        shasum -a 256 * > ../SHA256SUMS
+
+    - name: Publish Checksums
+      uses: softprops/action-gh-release@v2.0.8
+      with:
+        draft: false
+        files: SHA256SUMS
+        prerelease: ${{ needs.prerelease.outputs.value }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
