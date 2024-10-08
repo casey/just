@@ -523,6 +523,12 @@ where many machines share IP addresses. <code>install.sh</code> calls GitHub API
 to determine the latest version of <code>just</code> to install, and those API calls are
 rate-limited on a per-IP basis. To make <code>install.sh</code> more reliable in such
 circumstances, pass a specific tag to install with <code>--tag</code>.</p>
+<p><a href="https://github.com/casey/just/releases">Releases</a> include a <code>SHA256SUM</code> file
+which can be used to verify the integrity of pre-built binary archives.</p>
+<p>To verify a release, download the pre-built binary archive along with the
+<code>SHA256SUM</code> file and run:</p>
+<pre><code class="language-sh">shasum --algorithm 256 --ignore-missing --check SHA256SUMS
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="github-actions"><a class="header" href="#github-actions">GitHub Actions</a></h3>
 <p><code>just</code> can be installed on GitHub Actions in a few ways.</p>
 <p>Using package managers pre-installed on GitHub Actions runners on MacOS with
