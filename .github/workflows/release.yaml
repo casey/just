@@ -28,10 +28,16 @@ jobs:
     - name: Download Release Archives
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: "gh release download --repo casey/just --pattern '*' --dir release"
+      run: >-
+        gh release download
+        --repo casey/just
+        --pattern '*'
+        --dir release"
 
     - name: Create Checksums
-      run:  "cd release && shasum -a 256 * > ../SHA256SUMS"
+      run: |
+        cd release
+        shasum -a 256 * > ../SHA256SUMS"
 
     - name: Publish Checksums
       uses: softprops/action-gh-release@v2.0.8
