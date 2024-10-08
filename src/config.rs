@@ -9,6 +9,7 @@ use {
 
 #[derive(Debug, PartialEq)]
 pub(crate) struct Config {
+  pub(crate) alias_style: AliasStyle,
   pub(crate) check: bool,
   pub(crate) color: Color,
   pub(crate) command_color: Option<ansi_term::Color>,
@@ -18,14 +19,12 @@ pub(crate) struct Config {
   pub(crate) dump_format: DumpFormat,
   pub(crate) explain: bool,
   pub(crate) highlight: bool,
-  pub(crate) inline_aliases_left: bool,
   pub(crate) invocation_directory: PathBuf,
   pub(crate) list_heading: String,
   pub(crate) list_prefix: String,
   pub(crate) list_submodules: bool,
   pub(crate) load_dotenv: bool,
   pub(crate) no_aliases: bool,
-  pub(crate) no_inline_aliases: bool,
   pub(crate) no_dependencies: bool,
   pub(crate) one: bool,
   pub(crate) search_config: SearchConfig,
@@ -82,6 +81,7 @@ mod cmd {
 }
 
 mod arg {
+  pub(crate) const ALIAS_STYLE: &str = "ALIAS_STYLE";
   pub(crate) const ARGUMENTS: &str = "ARGUMENTS";
   pub(crate) const CHECK: &str = "CHECK";
   pub(crate) const CHOOSER: &str = "CHOOSER";
@@ -95,7 +95,6 @@ mod arg {
   pub(crate) const EXPLAIN: &str = "EXPLAIN";
   pub(crate) const GLOBAL_JUSTFILE: &str = "GLOBAL-JUSTFILE";
   pub(crate) const HIGHLIGHT: &str = "HIGHLIGHT";
-  pub(crate) const INLINE_ALIASES_LEFT: &str = "INLINE-ALIASES-LEFT";
   pub(crate) const JUSTFILE: &str = "JUSTFILE";
   pub(crate) const LIST_HEADING: &str = "LIST-HEADING";
   pub(crate) const LIST_PREFIX: &str = "LIST-PREFIX";
@@ -104,7 +103,6 @@ mod arg {
   pub(crate) const NO_DEPS: &str = "NO-DEPS";
   pub(crate) const NO_DOTENV: &str = "NO-DOTENV";
   pub(crate) const NO_HIGHLIGHT: &str = "NO-HIGHLIGHT";
-  pub(crate) const NO_INLINE_ALIASES: &str = "NO-INLINE-ALIASES";
   pub(crate) const ONE: &str = "ONE";
   pub(crate) const QUIET: &str = "QUIET";
   pub(crate) const SET: &str = "SET";
@@ -138,6 +136,16 @@ impl Config {
           .literal(AnsiColor::Green.on_default())
           .placeholder(AnsiColor::Green.on_default())
           .usage(AnsiColor::Yellow.on_default()),
+      )
+      .arg(
+        Arg::new(arg::ALIAS_STYLE)
+          .long("alias-style")
+          .env("JUST_ALIAS_STYLE")
+          .action(ArgAction::Set)
+          .value_parser(clap::value_parser!(AliasStyle))
+          .default_value("inline")
+          .help("Set the style that the list command will display aliases")
+          .conflicts_with(arg::NO_ALIASES),
       )
       .arg(
         Arg::new(arg::CHECK)
@@ -239,15 +247,6 @@ impl Config {
           .overrides_with(arg::NO_HIGHLIGHT),
       )
       .arg(
-        Arg::new(arg::INLINE_ALIASES_LEFT)
-          .long("inline-aliases-left")
-          .env("JUST_INLINE_ALIASES_LEFT")
-          .action(ArgAction::SetTrue)
-          .help("Display inlined recipe aliases to the left of their doc in listing")
-          .conflicts_with(arg::NO_ALIASES)
-          .conflicts_with(arg::NO_INLINE_ALIASES),
-      )
-      .arg(
         Arg::new(arg::JUSTFILE)
           .short('f')
           .long("justfile")
@@ -288,14 +287,6 @@ impl Config {
           .env("JUST_NO_ALIASES")
           .action(ArgAction::SetTrue)
           .help("Don't show aliases in list"),
-      )
-      .arg(
-        Arg::new(arg::NO_INLINE_ALIASES)
-          .long("no-inline-aliases")
-          .env("JUST_NO_INLINE_ALIASES")
-          .action(ArgAction::SetTrue)
-          .help("Don't show aliases inline with recipe docs in list")
-          .conflicts_with(arg::NO_ALIASES),
       )
       .arg(
         Arg::new(arg::NO_DEPS)
@@ -727,6 +718,10 @@ impl Config {
     let explain = matches.get_flag(arg::EXPLAIN);
 
     Ok(Self {
+      alias_style: matches
+        .get_one::<AliasStyle>(arg::ALIAS_STYLE)
+        .unwrap()
+        .clone(),
       check: matches.get_flag(arg::CHECK),
       color: (*matches.get_one::<UseColor>(arg::COLOR).unwrap()).into(),
       command_color: matches
@@ -744,14 +739,12 @@ impl Config {
         .clone(),
       explain,
       highlight: !matches.get_flag(arg::NO_HIGHLIGHT),
-      inline_aliases_left: matches.get_flag(arg::INLINE_ALIASES_LEFT),
       invocation_directory: env::current_dir().context(config_error::CurrentDirContext)?,
       list_heading: matches.get_one::<String>(arg::LIST_HEADING).unwrap().into(),
       list_prefix: matches.get_one::<String>(arg::LIST_PREFIX).unwrap().into(),
       list_submodules: matches.get_flag(arg::LIST_SUBMODULES),
       load_dotenv: !matches.get_flag(arg::NO_DOTENV),
       no_aliases: matches.get_flag(arg::NO_ALIASES),
-      no_inline_aliases: matches.get_flag(arg::NO_INLINE_ALIASES),
       no_dependencies: matches.get_flag(arg::NO_DEPS),
       one: matches.get_flag(arg::ONE),
       search_config,
